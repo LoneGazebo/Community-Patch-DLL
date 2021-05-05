@@ -1885,37 +1885,32 @@ void CvCityCitizens::OptimizeWorkedPlots(std::map<SpecialistTypes, int>& special
 
 		//remove the citizen from a plot (at least temporarily) so that combo bonuses can be considered correctly
 		CvPlot* pWorstWorkedPlot = GetBestCityPlotWithValue(iWorstWorkedPlotValue, /*bBest*/ false, /*bWorked*/ true);
-		if (pWorstWorkedPlot != NULL)
+		SetWorkingPlot(pWorstWorkedPlot, false, true, false);
+
+		//consider alternatives
+		CvPlot* pBestFreePlot = GetBestCityPlotWithValue(iBestFreePlotValue, /*bBest*/ true, /*bWorked*/ false);
+		BuildingTypes eBestSpecialistBuilding = IsNoAutoAssignSpecialists() ? NO_BUILDING : GetAIBestSpecialistBuilding(iBestSpecialistValue, specialistValueCache);
+		//TODO: what about default specialists (laborers)
+
+		//better work a plot or a specialist?
+		if (iBestFreePlotValue > iBestSpecialistValue)
 		{
-			SetWorkingPlot(pWorstWorkedPlot, false, true, false);
+			SetWorkingPlot(pBestFreePlot, true, true, false);
 
-			//consider alternatives
-			CvPlot* pBestFreePlot = GetBestCityPlotWithValue(iBestFreePlotValue, /*bBest*/ true, /*bWorked*/ false);
-			BuildingTypes eBestSpecialistBuilding = IsNoAutoAssignSpecialists() ? NO_BUILDING : GetAIBestSpecialistBuilding(iBestSpecialistValue, specialistValueCache);
-			//TODO: what about default specialists (laborers)
-			if (pBestFreePlot != NULL)
+			//new plot is same as old plot, we're done
+			if (pBestFreePlot == pWorstWorkedPlot)
+				break;
+		}
+		else
+		{
+			//is a specialist better?
+			if (iBestSpecialistValue > iWorstWorkedPlotValue && eBestSpecialistBuilding != NO_BUILDING)
+				DoAddSpecialistToBuilding(eBestSpecialistBuilding, /*bForced*/ false, false);
+			else
 			{
-				//better work a plot or a specialist?
-				if (iBestFreePlotValue > iBestSpecialistValue)
-				{
-					SetWorkingPlot(pBestFreePlot, true, true, false);
-
-					//new plot is same as old plot, we're done
-					if (pBestFreePlot == pWorstWorkedPlot)
-						break;
-				}
-				else
-				{
-					//is a specialist better?
-					if (iBestSpecialistValue > iWorstWorkedPlotValue && eBestSpecialistBuilding != NO_BUILDING)
-						DoAddSpecialistToBuilding(eBestSpecialistBuilding, /*bForced*/ false, false);
-					else
-					{
-						//add the citizen back to the original plot
-						SetWorkingPlot(pWorstWorkedPlot, true, true, false);
-						break;
-					}
-				}
+				//add the citizen back to the original plot
+				SetWorkingPlot(pWorstWorkedPlot, true, true, false);
+				break;
 			}
 		}
 
