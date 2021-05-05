@@ -249,7 +249,7 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_iCityAirStrikeDefense(0),
 	m_iBorderObstacleCity(-1),
 	m_iBorderObstacleWater(-1),
-	m_iWorkedWaterTileDamage(0),
+	m_iDeepWaterTileDamage(0),
 	m_iWLTKDTurns(-1),
 	m_iEventTourism(0),
 	m_iLandTourism(0),
@@ -595,7 +595,7 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	m_iCityAirStrikeDefense = kResults.GetInt("CityAirStrikeDefense");
 	m_iBorderObstacleCity = kResults.GetInt("BorderObstacleCity");
 	m_iBorderObstacleWater = kResults.GetInt("BorderObstacleWater");
-	m_iWorkedWaterTileDamage = kResults.GetInt("WorkedWaterTileDamage");
+	m_iDeepWaterTileDamage = kResults.GetInt("DeepWaterTileDamage");
 	m_iWLTKDTurns = kResults.GetInt("WLTKDTurns");
 	m_iEventTourism = kResults.GetInt("EventTourism");
 	m_iLandTourism = kResults.GetInt("FinishLandTRTourism");
@@ -2629,9 +2629,9 @@ int CvBuildingEntry::GetBorderObstacleLand() const
 	return m_iBorderObstacleCity;
 }
 
-int CvBuildingEntry::GetWorkedWaterTileDamage() const
+int CvBuildingEntry::GetDeepWaterTileDamage() const
 {
-	return m_iWorkedWaterTileDamage;
+	return m_iDeepWaterTileDamage;
 }
 
 //Is this an obstacle for the water tiles around your city?

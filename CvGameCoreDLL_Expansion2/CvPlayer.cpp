@@ -11812,28 +11812,18 @@ void CvPlayer::DoUnitReset()
 #endif
 		}
 		
-		if (pUnitPlot->isWater())
+		if (pUnitPlot->isDeepWater())
 		{
 			CvCity* pOwner = pUnitPlot->getOwningCity();
 			if (pOwner != NULL && GET_TEAM(pOwner->getTeam()).isAtWar(getTeam()))
 			{
-				int iTempDamage = pUnitPlot->getOwningCity()->GetWorkedWaterTileDamage();
+				int iTempDamage = pUnitPlot->getOwningCity()->GetDeepWaterTileDamage();
 				if (iTempDamage > 0)
 				{
-					//only affected BY adjacent plots
-					for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
-					{
-						CvPlot* pAdjacentPlot = plotDirection(pUnitPlot->getX(), pUnitPlot->getY(), ((DirectionTypes)iI));
-
-						if (pAdjacentPlot != NULL && pAdjacentPlot->isWater() && pAdjacentPlot->getOwningCity() == pOwner && pAdjacentPlot->isBeingWorked())
-						{
-							pLoopUnit->changeDamage(iTempDamage, pUnitPlot->getOwner(), /*fAdditionalTextDelay*/ 0.5f);
+					pLoopUnit->changeDamage(iTempDamage, pUnitPlot->getOwner(), /*fAdditionalTextDelay*/ 0.5f);
 #if defined(MOD_CORE_PER_TURN_DAMAGE)
-							pLoopUnit->addDamageReceivedThisTurn(iTempDamage);
+					pLoopUnit->addDamageReceivedThisTurn(iTempDamage);
 #endif
-							break;
-						}
-					}
 				}
 			}
 		}

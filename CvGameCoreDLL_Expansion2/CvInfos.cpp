@@ -10368,6 +10368,7 @@ CvModEventCityChoiceInfo::CvModEventCityChoiceInfo() :
 	 m_piNumFreeUnits(NULL),
 	 m_piNumFreeSpecificUnits(NULL),
 	 m_iNumWLTKD(0),
+	 m_iGrowthMod(0),
 	 m_iResistanceTurns(0),
 	 m_iRandomBarbs(0),
 	 m_iFreeScaledUnits(0),
@@ -10403,6 +10404,7 @@ CvModEventCityChoiceInfo::CvModEventCityChoiceInfo() :
 	 m_iLocalResourceRequired(-1),
 	 m_bIsResistance(false),
 	 m_bIsWLTKD(false),
+	 m_iWonderConstructionMod(0),
 	 m_bIsOccupied(false),
 	 m_bIsRazing(false),
 	 m_bHasAnyReligion(false),
@@ -10430,6 +10432,7 @@ CvModEventCityChoiceInfo::CvModEventCityChoiceInfo() :
 	 m_bVassal(false),
 	 m_bMaster(false),
 	 m_iCityWideDestructionChance(0),
+	 m_iCityStrategicResourcePillage(0),
 	 m_iEventPromotion(0),
 	 m_iCityHappiness(0),
 	 m_piResourceChange(NULL),
@@ -10453,6 +10456,7 @@ CvModEventCityChoiceInfo::CvModEventCityChoiceInfo() :
 	 m_iDamageGarrison(0),
 	 m_iSapCityTurns(0),
 	 m_bRequiresCounterSpy(false),
+	 m_bExpiresOnCounterSpyExit(false),
 	 m_bIsMissionSetup(false),
 	 m_paCityLinkerInfo(NULL),
 	 m_iCityLinkerInfos(0)
@@ -10547,6 +10551,10 @@ bool CvModEventCityChoiceInfo::isRequiresCounterSpy() const
 {
 	return m_bRequiresCounterSpy;
 }
+bool CvModEventCityChoiceInfo::isExpiresOnCounterSpyExit() const
+{
+	return m_bExpiresOnCounterSpyExit;
+}
 bool CvModEventCityChoiceInfo::isSpyMissionSetup() const
 {
 	return m_bIsMissionSetup;
@@ -10612,6 +10620,11 @@ int CvModEventCityChoiceInfo::getFlavorValue(int i) const
 int CvModEventCityChoiceInfo::getWLTKD() const
 {
 	return m_iNumWLTKD;
+}
+//------------------------------------------------------------------------------
+int CvModEventCityChoiceInfo::getGrowthMod() const
+{
+	return m_iGrowthMod;
 }
 //------------------------------------------------------------------------------
 int CvModEventCityChoiceInfo::getResistanceTurns() const
@@ -10695,6 +10708,11 @@ int CvModEventCityChoiceInfo::getBuildingDestructionChance(int i) const
 int CvModEventCityChoiceInfo::getCityWideDestructionChance() const
 {
 	return m_iCityWideDestructionChance;
+}
+
+int CvModEventCityChoiceInfo::getCityStrategicResourcePillage() const
+{
+	return m_iCityStrategicResourcePillage;
 }
 
 CvCityEventNotificationInfo *CvModEventCityChoiceInfo::GetNotificationInfo(int i) const
@@ -10930,6 +10948,10 @@ bool CvModEventCityChoiceInfo::isWLTKD() const
 {
 	return m_bIsWLTKD;
 }
+int CvModEventCityChoiceInfo::getWonderUnderConstructionSpeedMod() const
+{
+	return m_iWonderConstructionMod;
+}
 //------------------------------------------------------------------------------
 bool CvModEventCityChoiceInfo::isOccupied() const
 {
@@ -11100,6 +11122,7 @@ bool CvModEventCityChoiceInfo::CacheResults(Database::Results& kResults, CvDatab
 	m_iSpyLevelRequired = kResults.GetInt("SpyLevelRequired");
 	m_iDifficultyModEsp = kResults.GetInt("EspionageDifficultyMod");
 	m_bRequiresCounterSpy = kResults.GetBool("RequiresCounterSpy");
+	m_bExpiresOnCounterSpyExit = kResults.GetBool("ExpiresOnCounterSpyExit");
 	m_bIsMissionSetup = kResults.GetBool("MissionSetup");
 	m_iDamageCity = kResults.GetInt("DamageCity");
 	m_iDamageGarrison = kResults.GetInt("DamageGarrison");
@@ -11140,11 +11163,13 @@ bool CvModEventCityChoiceInfo::CacheResults(Database::Results& kResults, CvDatab
 
 	kUtility.SetFlavors(m_piFlavor, "CityEventChoiceFlavors", "CityEventChoiceType", szEventType);
 
+	m_iGrowthMod = kResults.GetInt("GrowthMod");
 	m_iNumWLTKD = kResults.GetInt("WLTKDTurns");
 	m_iResistanceTurns = kResults.GetInt("ResistanceTurns");
 	m_iRandomBarbs = kResults.GetInt("RandomBarbarianSpawn");
 	m_iFreeScaledUnits = kResults.GetInt("FreeUnitsTechAppropriate");
 	m_iCityWideDestructionChance = kResults.GetInt("CityWideBuildingDestructionChance");
+	m_iCityStrategicResourcePillage = kResults.GetInt("PillageCityStrategicNum");
 
 	m_iCityHappiness = kResults.GetInt("CityHappiness");
 
@@ -11443,6 +11468,7 @@ bool CvModEventCityChoiceInfo::CacheResults(Database::Results& kResults, CvDatab
 
 	m_bIsResistance = kResults.GetBool("RequiresResistance");
 	m_bIsWLTKD = kResults.GetBool("RequiresWLTKD");
+	m_iWonderConstructionMod = kResults.GetInt("WonderConstructionSpeedMod");
 	m_bIsOccupied = kResults.GetBool("RequiresOccupied");
 	m_bIsRazing = kResults.GetBool("RequiresRazing");
 	m_bHasAnyReligion = kResults.GetBool("HasAnyReligion");

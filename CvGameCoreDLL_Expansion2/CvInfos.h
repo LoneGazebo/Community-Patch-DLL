@@ -3389,8 +3389,10 @@ public:
 	int getImprovementDestruction(ImprovementTypes eImprovement) const;
 	int getBuildingDestructionChance(int i) const;
 	int getCityWideDestructionChance() const;
+	int getCityStrategicResourcePillage() const;
 	int getFlavorValue(int i) const;
 	int getWLTKD() const;
+	int getGrowthMod() const;
 	int getResistanceTurns() const;
 	int getRandomBarbs() const;
 	int getFreeScaledUnits() const;
@@ -3426,6 +3428,7 @@ public:
 	int getDamageGarrison() const;
 	int getSapCityTurns() const;
 	bool isRequiresCounterSpy() const;
+	bool isExpiresOnCounterSpyExit() const;
 	bool isSpyMissionSetup() const;
 	bool IsPotentialScaling() const;
 	EventChoiceTypes GetTriggerPlayerEventChoice() const;
@@ -3459,6 +3462,7 @@ public:
 	int getLocalResourceRequired() const;
 	bool isResistance() const;
 	bool isWLTKD() const;
+	int getWonderUnderConstructionSpeedMod() const;
 	bool isOccupied() const;
 	bool isRazing() const;
 	bool hasAnyReligion() const;
@@ -3504,6 +3508,7 @@ protected:
 	int* m_piFlavor;
 	int* m_piGPChange;
 	int m_iNumWLTKD;
+	int m_iGrowthMod;
 	int m_iResistanceTurns;
 	int m_iRandomBarbs;
 	int m_iFreeScaledUnits;
@@ -3524,6 +3529,7 @@ protected:
 	int** m_ppiResourceYield;
 	bool* m_pbParentEventIDs;
 	int m_iCityWideDestructionChance;
+	int m_iCityStrategicResourcePillage;
 	int m_iCityHappiness;
 	int* m_piResourceChange;
 	int* m_piCityUnhappinessNeedMod;
@@ -3542,6 +3548,7 @@ protected:
 	int m_iDifficultyModEsp;
 	bool m_bIsMissionSetup;
 	bool m_bRequiresCounterSpy;
+	bool m_bExpiresOnCounterSpyExit;
 	int m_iDamageCity;
 	int m_iDamageGarrison;
 	int m_iSapCityTurns;
@@ -3574,6 +3581,7 @@ protected:
 	bool m_bSuperUnhappy;
 	bool m_bIsResistance;
 	bool m_bIsWLTKD;
+	int m_iWonderConstructionMod;
 	bool m_bIsOccupied;
 	bool m_bIsRazing;
 	bool m_bHasAnyReligion;

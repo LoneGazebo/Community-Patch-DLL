@@ -511,14 +511,6 @@ Enable and enjoy! The MAXIMUM number of major civilizations is 43, the maximum n
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="EUI\EspionageOverview.lua">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>True</ImportIntoVFS>
-    </Content>
-    <Content Include="EUI\EspionageOverview.xml">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>True</ImportIntoVFS>
-    </Content>
     <Content Include="EUI\EUI\DC45_EventsOverview.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
@@ -884,14 +876,6 @@ Enable and enjoy! The MAXIMUM number of major civilizations is 43, the maximum n
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
     <Content Include="No-EUI\EconomicOverview.xml">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>True</ImportIntoVFS>
-    </Content>
-    <Content Include="No-EUI\EspionageOverview.lua">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>True</ImportIntoVFS>
-    </Content>
-    <Content Include="No-EUI\EspionageOverview.xml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>

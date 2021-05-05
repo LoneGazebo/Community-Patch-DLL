@@ -45,7 +45,9 @@
 		<GridButton Anchor="L,B" Style="SmallButton" Size="120,32" Offset="30,50" StateOffsetIncrement="0,0" ToolTip="TXT_KEY_HIDE_TT" ID="HideButton">
 			<Label Anchor="C,C" Offset="0,0" String="TXT_KEY_HIDE" ToolTip="TXT_KEY_HIDE_TT" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow"/>
 		</GridButton>
-		<Button Anchor="L,T" Offset="10,0" ID="GoToCity" Size="32,32" Texture="IconFrame32Search.dds" />
+		<GridButton Anchor="C,B" Style="SmallButton" Size="120,32" Offset="0,50" StateOffsetIncrement="0,0" ID="GoToCity">
+			<Label Anchor="C,C" Offset="0,0" String="TXT_KEY_EO_VIEW_TOOLTIP" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow"/>
+		</GridButton>
 		<!-- CONFIRM BUTTON  -->
 		<Box Anchor="R,B" AnchorSide="I.I" Offset="0,54" Size="520,56" Color="255,255,255,0">
 			<GridButton Anchor="R,B" Style="SmallButton" Size="150,32" Offset="40,-5" StateOffsetIncrement="0,0" ID="ConfirmButton">

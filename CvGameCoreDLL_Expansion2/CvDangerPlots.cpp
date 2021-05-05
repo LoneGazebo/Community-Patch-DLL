@@ -305,7 +305,7 @@ void CvDangerPlots::UpdateDangerInternal(bool bKeepKnownUnits, const PlotIndexCo
 				CvCity* pOwner = pPlot->getOwningCity();
 				if (pOwner != NULL)
 				{
-					int iTempDamage = pPlot->getOwningCity()->GetWorkedWaterTileDamage();
+					int iTempDamage = pPlot->getOwningCity()->GetDeepWaterTileDamage();
 					if (iTempDamage > 0)
 					{
 						//only affected BY adjacent plots

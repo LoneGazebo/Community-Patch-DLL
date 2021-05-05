@@ -769,6 +769,7 @@
     <Folder Include="Balance Changes\Policies\Tradition" />
     <Folder Include="Core Files\" />
     <Folder Include="Core Files\Core Changes\" />
+    <Folder Include="Core Files\CoreLua" />
     <Folder Include="LUA\" />
     <Folder Include="Modular Elements" />
     <Folder Include="Modular Elements\Corporations\Art" />
@@ -2193,6 +2194,14 @@
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
+    <Content Include="Core Files\CoreLua\EspionageOverview.lua">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Core Files\CoreLua\EspionageOverview.xml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
     <Content Include="Core Files\Demographics.lua">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
@@ -2342,14 +2351,6 @@
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
     <Content Include="LUA\EconomicOverview.xml">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>True</ImportIntoVFS>
-    </Content>
-    <Content Include="LUA\EspionageOverview.lua">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>True</ImportIntoVFS>
-    </Content>
-    <Content Include="LUA\EspionageOverview.xml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>

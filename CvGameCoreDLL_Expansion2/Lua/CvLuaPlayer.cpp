@@ -17252,6 +17252,7 @@ int CvLuaPlayer::lGetRecentCityEventChoices(lua_State* L)
 						{
 							iDuration = -1;
 						}
+						bool bEspionage = pkEventChoiceInfo->IsEspionageEffect();
 
 						lua_createtable(L, 0, 0);
 						const int t = lua_gettop(L);
@@ -17260,6 +17261,8 @@ int CvLuaPlayer::lGetRecentCityEventChoices(lua_State* L)
 						lua_setfield(L, t, "EventChoice");
 						lua_pushinteger(L, iDuration);
 						lua_setfield(L, t, "Duration");
+						lua_pushboolean(L, bEspionage);
+						lua_setfield(L, t, "Espionage");
 						if (bInstant)
 						{
 							lua_pushinteger(L, -1);

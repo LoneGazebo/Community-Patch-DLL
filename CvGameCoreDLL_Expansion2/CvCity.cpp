@@ -306,6 +306,7 @@ CvCity::CvCity() :
 	, m_iHappinessDelta("CvCity::m_iHappinessDelta", m_syncArchive)
 	, m_iPillagedPlots("CvCity::m_iPillagedPlots", m_syncArchive)
 	, m_iGrowthFromTourism("CvCity::m_iGrowthFromTourism", m_syncArchive)
+	, m_iGrowthEvent("CvCity::m_iGrowthEvent", m_syncArchive)
 	, m_iBuildingClassHappiness("CvCity::m_iBuildingClassHappiness", m_syncArchive)
 	, m_iReligionHappiness("CvCity::m_iReligionHappiness", m_syncArchive)
 #endif
@@ -482,7 +483,7 @@ CvCity::CvCity() :
 	, m_abBuildingConstructed("CvCity::m_abBuildingConstructed", m_syncArchive)
 	, m_iBorderObstacleCity("CvCity::m_iBorderObstacleCity", m_syncArchive)
 	, m_iBorderObstacleWater("CvCity::m_iBorderObstacleWater", m_syncArchive)
-	, m_iWorkedWaterTileDamage("CvCity::m_iWorkedWaterTileDamage", m_syncArchive)
+	, m_iDeepWaterTileDamage("CvCity::m_iDeepWaterTileDamage", m_syncArchive)
 	, m_iNumNearbyMountains("CvCity::m_iNumNearbyMountains", m_syncArchive)
 	, m_iLocalUnhappinessMod("CvCity::m_iLocalUnhappinessMod", m_syncArchive)
 #endif
@@ -1501,7 +1502,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 #if defined(MOD_BALANCE_CORE)
 	m_iBorderObstacleWater = 0;
 	m_iBorderObstacleCity = 0;
-	m_iWorkedWaterTileDamage = 0;
+	m_iDeepWaterTileDamage = 0;
 	m_iNumNearbyMountains = 0;
 	m_iLocalUnhappinessMod = 0;
 	m_iTradePriorityLand = 0;
@@ -1751,6 +1752,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_iHappinessDelta = 0;
 	m_iPillagedPlots = 0;
 	m_iGrowthFromTourism = 0;
+	m_iGrowthEvent = 0;
 	m_iBuildingClassHappiness = 0;
 	m_iReligionHappiness = 0;
 	m_aiNeedsFlatReduction.resize(NUM_YIELD_TYPES);
@@ -2506,7 +2508,7 @@ void CvCity::doTurn()
 
 	ResetGreatWorkYieldCache();
 
-	if(getDamage() > 0 && !IsBlockadedWaterAndLand() && GetSappedTurns() <= 0)
+	if(getDamage() > 0 && !IsBlockadedWaterAndLand())
 	{
 		CvAssertMsg(m_iDamage <= GetMaxHitPoints(), "Somehow a city has more damage than hit points. Please show this to a gameplay programmer immediately.");
 
@@ -2521,7 +2523,7 @@ void CvCity::doTurn()
 #if defined(MOD_BALANCE_CORE)
 		if (!IsEnemyInRange(AVG_CITY_RADIUS,false))
 		{
-			iHitsHealed += 5 * GC.getCITY_HIT_POINTS_HEALED_PER_TURN();
+			iHitsHealed += getPopulation();
 		}
 
 		if (getProductionProcess() != NO_PROCESS)
@@ -3529,11 +3531,16 @@ void CvCity::DoEvents(bool bEspionage)
 				if (GetEventChoiceDuration(eEventChoice) > 0)
 				{
 					ChangeEventChoiceDuration(eEventChoice, -1);
-					if (GC.getLogging())
+					CvModEventCityChoiceInfo* pkEventInfo = GC.getCityEventChoiceInfo(eEventChoice);
+					if (pkEventInfo != NULL)
 					{
-						CvModEventCityChoiceInfo* pkEventInfo = GC.getCityEventChoiceInfo(eEventChoice);
-						if (pkEventInfo != NULL)
+						//we expire these in a special way.
+						if (pkEventInfo->isExpiresOnCounterSpyExit())
+							continue;
+
+						if (GC.getLogging())
 						{
+
 							CvString playerName;
 							FILogFile* pLog;
 							CvString strBaseString;
@@ -4300,7 +4307,7 @@ bool CvCity::IsCityEventChoiceValid(CityEventChoiceTypes eChosenEventChoice, Cit
 		return false;
 
 	//Event Choice already active for this event? Abort!
-	if (!bEspionage && GetEventChoiceDuration(eChosenEventChoice) > 0)
+	if (GetEventChoiceDuration(eChosenEventChoice) > 0)
 	{
 		if(GC.getLogging())
 		{
@@ -4318,6 +4325,40 @@ bool CvCity::IsCityEventChoiceValid(CityEventChoiceTypes eChosenEventChoice, Cit
 			pLog->Msg(strBaseString);
 		}
 		return false;
+	}
+
+	//check to see if another spy is already doing this here. We can only have one spy operation of the same type going on in a city at one time.
+	if (bEspionage)
+	{
+		for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+		{
+			PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
+			if (eLoopPlayer == NO_PLAYER)
+				continue;
+
+			CvPlayer& kPlayer = GET_PLAYER(eLoopPlayer);
+
+			if (!kPlayer.isAlive())
+				continue;
+			if (eLoopPlayer == getOwner())
+				continue;
+			if (kPlayer.isBarbarian())
+				continue;
+			if (kPlayer.isMinorCiv())
+				continue;
+			if (!kPlayer.GetEspionage())
+				continue;
+			if(kPlayer.GetEspionage()->GetNumSpies() <= 0)
+				continue;
+			
+			int iSpyID = kPlayer.GetEspionage()->GetSpyIndexInCity(this);
+			if (iSpyID == -1)
+				continue;
+
+			CvEspionageSpy* pSpy = &kPlayer.GetEspionage()->m_aSpyList[iSpyID];
+			if (pSpy && pSpy->m_eSpyFocus == eChosenEventChoice)
+				return false;
+		}
 	}
 
 	//Let's do our linker checks here.
@@ -4805,6 +4846,11 @@ void CvCity::DoCancelEventChoice(CityEventChoiceTypes eChosenEventChoice)
 					}
 				}
 			}
+			if (pkEventChoiceInfo->getGrowthMod() != 0)
+			{
+				ChangeGrowthFromEvent(pkEventChoiceInfo->getGrowthMod() * -1);
+			}
+
 			if(pkEventChoiceInfo->getEventPromotion() != -1)
 			{
 				PromotionTypes ePromotion = (PromotionTypes)pkEventChoiceInfo->getEventPromotion();
@@ -5343,15 +5389,54 @@ CvString CvCity::GetDisabledTooltip(CityEventChoiceTypes eChosenEventChoice, int
 		DisabledTT += localizedDurationText.toUTF8();
 	}
 
-	if (pkEventInfo->GetSpyLevelRequired() > 0 && iSpyIndex != -1 && eSpyOwner != NO_PLAYER)
+	if (iSpyIndex != -1 && eSpyOwner != NO_PLAYER)
 	{
-		CvEspionageSpy* pSpy = &(GET_PLAYER(eSpyOwner).GetEspionage()->m_aSpyList[iSpyIndex]);
-		if (pSpy && pSpy->GetSpyRank(eSpyOwner) < pkEventInfo->GetSpyLevelRequired())
+		if (pkEventInfo->GetSpyLevelRequired() > 0)
 		{
-			localizedDurationText = Localization::Lookup("TXT_KEY_EVENT_SPY_RANK");
-			DisabledTT += localizedDurationText.toUTF8();
+			CvEspionageSpy* pSpy = &(GET_PLAYER(eSpyOwner).GetEspionage()->m_aSpyList[iSpyIndex]);
+			if (pSpy && pSpy->GetSpyRank(eSpyOwner) < pkEventInfo->GetSpyLevelRequired())
+			{
+				localizedDurationText = Localization::Lookup("TXT_KEY_EVENT_SPY_RANK");
+				DisabledTT += localizedDurationText.toUTF8();
 
-			return DisabledTT.c_str();
+				return DisabledTT.c_str();
+			}
+		}
+
+		//check to see if another spy is already doing this here. We can only have one spy operation of the same type going on in a city at one time.
+		for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+		{
+			PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
+			if (eLoopPlayer == NO_PLAYER)
+				continue;
+
+			CvPlayer& kPlayer = GET_PLAYER(eLoopPlayer);
+
+			if (!kPlayer.isAlive())
+				continue;
+			if (eLoopPlayer == getOwner())
+				continue;
+			if (eLoopPlayer == eSpyOwner)
+				continue;
+			if (kPlayer.isBarbarian())
+				continue;
+			if (kPlayer.isMinorCiv())
+				continue;
+			if (!kPlayer.GetEspionage())
+				continue;
+			if (kPlayer.GetEspionage()->GetNumSpies() <= 0)
+				continue;
+
+			int iSpyID = kPlayer.GetEspionage()->GetSpyIndexInCity(this);
+			if (iSpyID == -1)
+				continue;
+
+			CvEspionageSpy* pSpy = &kPlayer.GetEspionage()->m_aSpyList[iSpyID];
+			if (pSpy && pSpy->m_eSpyFocus == eChosenEventChoice)
+			{
+				localizedDurationText = Localization::Lookup("TXT_KEY_EVENT_SPY_ALREADY_HERE");
+				return DisabledTT.c_str();
+			}
 		}
 	}
 	if (pkEventInfo->isRequiresCounterSpy() && !GetCityEspionage()->HasCounterSpy())
@@ -6455,6 +6540,10 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 			{
 				ChangeSappedTurns(pkEventChoiceInfo->getSapCityTurns());
 			}
+			if (pkEventChoiceInfo->getGrowthMod() != 0)
+			{
+				ChangeGrowthFromEvent(pkEventChoiceInfo->getGrowthMod());
+			}
 
 			if(pkEventChoiceInfo->getEventPromotion() != -1)
 			{
@@ -6787,6 +6876,7 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 					}
 				}
 			}
+
 			typedef CvWeightedVector<CvPlot*> WeightedPlotVector;
 			WeightedPlotVector aBestPlots;
 			for(int iI = 0; iI < GC.getNumImprovementInfos(); iI++)
@@ -6848,6 +6938,77 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 						{
 							CvString strBuffer = GetLocalizedText("TXT_KEY_MISC_IMPROVEMENT_DESTROYED_EVENT", GC.getImprovementInfo(eImprovement)->GetTextKey(), iNumber, getNameKey());
 							GC.GetEngineUserInterface()->AddCityMessage(0, GetIDInfo(), getOwner(), false, GC.getEVENT_MESSAGE_TIME(), strBuffer);
+						}
+					}
+				}
+			}
+			int iNumStrategicsToDestroy = pkEventChoiceInfo->getCityStrategicResourcePillage();
+			if (iNumStrategicsToDestroy > 0)
+			{
+				for (int iI = 0; iI < GC.getNumResourceInfos(); iI++)
+				{
+					ResourceTypes eResource = (ResourceTypes)iI;
+					if (eResource != NO_RESOURCE)
+					{
+						CvResourceInfo* pResource = GC.getResourceInfo(eResource);
+						if (pResource && pResource->getResourceUsage() == RESOURCEUSAGE_STRATEGIC)
+						{
+							aBestPlots.clear();
+							int iX = getX(); int iY = getY(); int iOwner = getOwner();
+
+							for (int iCityPlotLoop = 0; iCityPlotLoop < GetNumWorkablePlots(); iCityPlotLoop++)
+							{
+								CvPlot* pLoopPlot = iterateRingPlots(iX, iY, iCityPlotLoop);
+
+								// Invalid plot or not owned by this player
+								if (pLoopPlot == NULL || pLoopPlot->getOwner() != iOwner)
+								{
+									continue;
+								}
+
+								if (pLoopPlot->HasResource(eResource) && (pLoopPlot->getImprovementTypeNeededToImproveResource(getOwner()) == pLoopPlot->getImprovementType()))
+								{
+									int iValue = GC.getGame().getJonRandNum(100, "Improvement Destruction");
+									if (pkEventChoiceInfo->isCoastal() && pLoopPlot->isCoastalLand())
+									{
+										iValue += 100;
+									}
+									if (pkEventChoiceInfo->isRiver() && pLoopPlot->isRiver())
+									{
+										iValue += 100;
+									}
+									if (pkEventChoiceInfo->isNearMountain() && pLoopPlot->GetNumAdjacentMountains() > 0)
+									{
+										iValue += 100;
+									}
+									aBestPlots.push_back(pLoopPlot, iValue);
+								}
+							}
+							if (aBestPlots.size() > 0)
+							{
+								aBestPlots.SortItems();
+								//Delete improvents up to the total on the event.
+								int iNumber = 0;
+								int iRuns = iNumStrategicsToDestroy;
+								if (aBestPlots.size() < iRuns)
+								{
+									iRuns = aBestPlots.size();
+								}
+								for (int iI = 0; iI < iRuns; iI++)
+								{
+									CvPlot* pPlot = aBestPlots.GetElement(iI);
+									if (pPlot != NULL && pPlot->getOwner() == getOwner() && pPlot->getResourceType() == eResource && pPlot->getImprovementType() != NO_IMPROVEMENT)
+									{
+										pPlot->SetImprovementPillaged(true);
+										iNumber++;
+									}
+								}
+								if (getOwner() == GC.getGame().getActivePlayer())
+								{
+									CvString strBuffer = GetLocalizedText("TXT_KEY_MISC_STRATEGIC_RESOURCE_PILLAGED_EVENT", pResource->GetTextKey(), iNumber, getNameKey());
+									GC.GetEngineUserInterface()->AddCityMessage(0, GetIDInfo(), getOwner(), false, GC.getEVENT_MESSAGE_TIME(), strBuffer);
+								}
+							}
 						}
 					}
 				}
@@ -7636,8 +7797,8 @@ int CvCity::GetEspionageRankingForEspionage(PlayerTypes ePlayer, CityEventChoice
 		iRankingMod += iPolicyDifference + iTechDifference + iNumTimesStolenModifier;
 	}
 
-	//default to 150.
-	int iRank = 150;
+	//default to 100.
+	int iRank = 100;
 	CvModEventCityChoiceInfo* pkEventInfo = NULL;
 	if (eEventChoice != NO_EVENT_CHOICE_CITY)
 	{
@@ -7645,11 +7806,29 @@ int CvCity::GetEspionageRankingForEspionage(PlayerTypes ePlayer, CityEventChoice
 		if (pkEventInfo != NULL)
 		{
 			iRank = pkEventInfo->getEspionageDifficultyModifier();
+
+			if (pkEventInfo->getWonderUnderConstructionSpeedMod() != 0)
+			{
+				BuildingTypes eBuilding = getProductionBuilding();
+				if (eBuilding != NO_BUILDING)
+				{
+					CvBuildingEntry* pBuildingInfo = GC.getBuildingInfo(eBuilding);
+					CvAssertMsg(pBuildingInfo, "pBuildingInfo is null");
+					if (pBuildingInfo)
+					{
+						if (::isWorldWonderClass(pBuildingInfo->GetBuildingClassInfo()))
+						{
+							iRank *= max(1, (100 - pkEventInfo->getWonderUnderConstructionSpeedMod()));
+							iRank /= 100;
+						}
+					}
+				}
+			}
 		}
 	}
 
-	iRank *= (iRankingMod + 100);
-	iRank /= 100;
+	iRank *= max(1, iRankingMod);
+	iRank /= max(1, GC.getESPIONAGE_GATHERING_INTEL_COST_DIVISOR());
 
 	return iRank;
 }
@@ -15052,9 +15231,9 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 		{
 			ChangeBorderObstacleWater(pBuildingInfo->GetBorderObstacleWater() * iChange);
 		}
-		if ((pBuildingInfo->GetWorkedWaterTileDamage() > 0))
+		if ((pBuildingInfo->GetDeepWaterTileDamage() > 0))
 		{
-			ChangeWorkedWaterTileDamage(pBuildingInfo->GetWorkedWaterTileDamage() * iChange);
+			ChangeDeepWaterTileDamage(pBuildingInfo->GetDeepWaterTileDamage() * iChange);
 		}
 		if(bFirst && (iChange > 0) && (pBuildingInfo->GetWLTKDTurns() > 0))
 		{
@@ -17112,6 +17291,13 @@ int CvCity::foodDifferenceTimes100(bool bBottom, bool bJustCheckingStarve, int i
 #endif
 		if (MOD_BALANCE_CORE)
 		{
+			int iGetGrowthModEvent = GetGrowthFromEvent();
+			iTotalMod += iGetGrowthModEvent;
+			if (iGetGrowthModEvent != 0)
+			{
+				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_FOODMOD_EVENT", iGetGrowthModEvent);
+			}
+
 			int iGrowthTourism = GetGrowthFromTourism();
 			iTotalMod += iGrowthTourism;
 			if(iGrowthTourism != 0)
@@ -22106,6 +22292,17 @@ void CvCity::ChangeNumPillagedPlots(int iValue)
 		}
 	}
 }
+
+int CvCity::GetGrowthFromEvent() const
+{
+	return m_iGrowthEvent;
+}
+void CvCity::ChangeGrowthFromEvent(int iValue)
+{
+	m_iGrowthEvent += iValue;
+}
+
+
 int CvCity::GetGrowthFromTourism() const
 {
 	return m_iGrowthFromTourism;
@@ -23869,17 +24066,17 @@ void CvCity::SetBorderObstacleWater(int iValue)
 }
 
 //	--------------------------------------------------------------------------------
-int CvCity::GetWorkedWaterTileDamage() const
+int CvCity::GetDeepWaterTileDamage() const
 {
 	VALIDATE_OBJECT
-	return m_iWorkedWaterTileDamage;
+	return m_iDeepWaterTileDamage;
 }
 
 //	--------------------------------------------------------------------------------
-void CvCity::ChangeWorkedWaterTileDamage(int iChange)
+void CvCity::ChangeDeepWaterTileDamage(int iChange)
 {
 	VALIDATE_OBJECT
-	m_iWorkedWaterTileDamage += iChange;
+	m_iDeepWaterTileDamage += iChange;
 }
 //	--------------------------------------------------------------------------------
 int CvCity::GetNearbyMountains() const
@@ -23929,6 +24126,9 @@ bool CvCity::IsBlockadedWaterAndLand() const
 
 bool CvCity::IsBlockaded(bool bWater) const
 {
+	if (GetSappedTurns() > 0)
+		return 0;
+
 	for (int iLoop = 0; iLoop < NUM_DIRECTION_TYPES; ++iLoop) 
 	{
 		CvPlot* pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iLoop));

@@ -59,6 +59,9 @@
 		<Row Tag="TXT_KEY_TP_BONUS">
 			<Text>Instant Event</Text>
 		</Row>
+		<Row Tag="TXT_KEY_TP_ESPIONAGE_EVENT">
+			<Text>[ICON_SPY] [COLOR_NEGATIVE_TEXT]ESPIONAGE ACTION[ENDCOLOR] Against City</Text>
+		</Row>
 		<Row Tag="TXT_KEY_EVENT_CHOICE_SORT_NAME">
 			<Text>Sort by Event Name</Text>
 		</Row>
@@ -150,6 +153,9 @@
 		</Row>
 		<Row Tag="TXT_KEY_MISC_IMPROVEMENT_DESTROYED_EVENT">
 			<Text>{2_Num} {1_Improvement}(s) pillaged near {3_City} due to Event Choice!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MISC_STRATEGIC_RESOURCE_PILLAGED_EVENT">
+			<Text>{2_Num} source(s) of {1_Resource} pillaged near {3_City} due to Event Choice!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_MISC_BUILDING_DESTROYED_EVENT">
 			<Text>[COLOR_NEGATIVE_TEXT]{1_Building}[ENDCOLOR] destroyed in {2_City} due to Event Choice!</Text>

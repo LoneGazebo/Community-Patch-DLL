@@ -932,7 +932,7 @@
 			<Water>true</Water>
 			<Defense>500</Defense>
 			<ExtraCityHitPoints>100</ExtraCityHitPoints>
-			<WorkedWaterTileDamage>10</WorkedWaterTileDamage>
+			<DeepWaterTileDamage>5</DeepWaterTileDamage>
 			<BorderObstacleWater>1</BorderObstacleWater>
 			<HurryCostModifier>0</HurryCostModifier>
 			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>

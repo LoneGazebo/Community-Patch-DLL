@@ -788,10 +788,15 @@
 		<Column name="CityWideBuildingDestructionChance" type="integer" default="0"/>
 		<!-- Local WLTKD Turns -->
 		<Column name="WLTKDTurns" type="integer" default="0"/>
+		<!-- Local Growth Mod %-->
+		<Column name="GrowthMod" type="integer" default="0"/>
 		<!-- Local Resistance Turns -->
 		<Column name="ResistanceTurns" type="integer" default="0"/>
 		<!-- Local Happiness Boost. Can be set to expire. -->
 		<Column name="CityHappiness" type="integer" default="0"/>
+		<!-- Pillage x number of SR around city. Resource chosen is random, but will be strategic. -->
+		<Column name="PillageCityStrategicNum" type="integer" default="0"/>
+
 		<!-- Chance of destruction for all buildings in city - use as a baseline for horrible disasters, etc. -->
 		<!-- Spawns X number of barbs near the City. Unit type scales with player tech. -->
 		<Column name="RandomBarbarianSpawn" type="integer" default="0"/>
@@ -819,6 +824,7 @@
 		<!-- Minimum Spy Level -->
 		<Column name="SpyLevelRequired" type="integer" default="0"/>
 		<Column name="RequiresCounterSpy" type="boolean" default="false"/>
+		<Column name="ExpiresOnCounterSpyExit" type="boolean" default="false"/>
 		<!-- Affects duration of mission -->
 		<Column name="EspionageDifficultyMod" type="integer" default="0"/>
 		<!-- Damages city -->
@@ -827,7 +833,9 @@
 		<Column name="DamageGarrison" type="integer" default="0"/>
 		<!-- Prevents city healing for x turns -->
 		<Column name="SapCityTurns" type="integer" default="0"/>
-		
+		<!-- Speeds up an espionage action if the city has a wonder under construction! -->
+		<Column name="WonderConstructionSpeedMod" type="integer" default="0"/>
+
 		<!-- FILTERS: 
 		
 		Values below determine whether or not a City Event Choice appears in the City list 

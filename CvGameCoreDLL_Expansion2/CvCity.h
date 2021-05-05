@@ -923,6 +923,9 @@ public:
 	void SetNumPillagedPlots(int iValue);
 	void ChangeNumPillagedPlots(int iValue);
 
+	int GetGrowthFromEvent() const;
+	void ChangeGrowthFromEvent(int iValue);
+
 	int GetGrowthFromTourism() const;
 	void SetGrowthFromTourism(int iValue);
 	void ChangeGrowthFromTourism(int iValue);
@@ -968,8 +971,8 @@ public:
 	int GetBorderObstacleWater() const;
 	void SetBorderObstacleWater(int iValue);
 
-	void ChangeWorkedWaterTileDamage(int iNewValue);
-	int GetWorkedWaterTileDamage() const;
+	void ChangeDeepWaterTileDamage(int iNewValue);
+	int GetDeepWaterTileDamage() const;
 
 	void ChangeNearbyMountains(int iNewValue);
 	int GetNearbyMountains() const;
@@ -1950,7 +1953,7 @@ protected:
 	FAutoVariable<int, CvCity> m_iBaseTourismBeforeModifiers;
 	FAutoVariable<int, CvCity> m_iBorderObstacleCity;
 	FAutoVariable<int, CvCity> m_iBorderObstacleWater;
-	FAutoVariable<int, CvCity> m_iWorkedWaterTileDamage;
+	FAutoVariable<int, CvCity> m_iDeepWaterTileDamage;
 	FAutoVariable<int, CvCity> m_iNumNearbyMountains;
 	FAutoVariable<int, CvCity> m_iLocalUnhappinessMod;
 	FAutoVariable<bool, CvCity> m_bNoWarmonger;
@@ -2041,6 +2044,7 @@ protected:
 #if defined(MOD_BALANCE_CORE)
 	FAutoVariable<int, CvCity> m_iHappinessDelta;
 	FAutoVariable<int, CvCity> m_iPillagedPlots;
+	FAutoVariable<int, CvCity> m_iGrowthEvent;
 	FAutoVariable<int, CvCity> m_iGrowthFromTourism;
 	FAutoVariable<int, CvCity> m_iBuildingClassHappiness;
 	FAutoVariable<int, CvCity> m_iReligionHappiness;

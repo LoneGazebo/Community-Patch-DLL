@@ -6260,6 +6260,9 @@
 		<Row Tag="TXT_KEY_FOODMOD_TOURISM">
 			<Text>[NEWLINE][ICON_BULLET][ICON_TOURISM] Tourism Modifier (Trade Routes): {1_Num}%</Text>
 		</Row>
+		<Row Tag="TXT_KEY_FOODMOD_EVENT">
+			<Text>[NEWLINE][ICON_BULLET][ICON_CITIZEN] Event Modifier: {1_Num}%</Text>
+		</Row>
 		<Row Tag="TXT_KEY_FOODMOD_YIELD_OVER_SUPPLY">
 			<Text>[NEWLINE][ICON_BULLET][ICON_SILVER_FIST] Growth [COLOR_NEGATIVE_TEXT]Penalty[ENDCOLOR] (Over Military Unit Supply Cap): {1_Num}%</Text>
 		</Row>
@@ -7105,6 +7108,10 @@
 		<Row Tag="TXT_KEY_EVENT_SPY_RANK">
 			<Text>[NEWLINE] [ICON_BULLET] Spy is not high enough Rank for this choice.</Text>
 		</Row>
+		<Row Tag="TXT_KEY_EVENT_SPY_ALREADY_HERE">
+			<Text>[NEWLINE] [ICON_BULLET] Foreign Spies are already performing this action here! Shh!</Text>
+		</Row>
+
 		<Row Tag="TXT_KEY_EVENT_NO_COUNTERSPY">
 			<Text>Requires a Counterspy in the city.</Text>
 		</Row>
@@ -7136,10 +7143,10 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_EO_INCREASED_CHANCE_TO_CATCH_SPY">
-			<Text>[NEWLINE]  [ICON_BULLET]Policies: {2_Num}% increased chance in catching enemy spies.</Text>
+			<Text>[NEWLINE]  [ICON_BULLET]Policies: {1_Num}% increased chance in catching enemy spies.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_EO_INCREASED_CHANCE_TO_CATCH_SPY_AGAINST">
-			<Text>[NEWLINE]  [ICON_BULLET]Policies: {2_Num}% increased chance in catching our spies.</Text>
+			<Text>[NEWLINE]  [ICON_BULLET]Policies: {1_Num}% increased chance in catching our spies.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_DEFENSIVE_SPY_POTENTIAL">
@@ -7191,6 +7198,13 @@
 
 		<Row Tag="TXT_KEY_ESPIONAGE_CURRENT_MISSION">
 			<Text>[COLOR_POSITIVE_TEXT]Current Mission:[ENDCOLOR][NEWLINE]{1_Mission}</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_NOTIFICATION_SPY_MISSION_SOON_S">
+			<Text>Encrypted message from {1_Title} {2_Name}!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SPY_MISSION_SOON">
+			<Text>{1_Title} {2_Name} has transmitted a secret message, stating that they are almost ready to complete their mission in {3_City}.</Text>
 		</Row>
 
 

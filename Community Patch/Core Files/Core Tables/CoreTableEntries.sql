@@ -349,8 +349,8 @@ ALTER TABLE Buildings ADD COLUMN 'BorderObstacleCity' INTEGER DEFAULT 0;
 -- Movement speed penalty (like Great Wall) for water plots worked by a City.
 ALTER TABLE Buildings ADD COLUMN 'BorderObstacleWater' INTEGER DEFAULT 0;
 
--- x damage to units that end turn on a worked water tile in a city
-ALTER TABLE Buildings ADD COLUMN 'WorkedWaterTileDamage' INTEGER DEFAULT 0;
+-- x damage to units that end turn on a deep water tile owned by a city
+ALTER TABLE Buildings ADD COLUMN 'DeepWaterTileDamage' INTEGER DEFAULT 0;
 
 -- One building gives all cities this ability
 ALTER TABLE Buildings ADD COLUMN 'AllowsFoodTradeRoutesGlobal' BOOLEAN DEFAULT 0;

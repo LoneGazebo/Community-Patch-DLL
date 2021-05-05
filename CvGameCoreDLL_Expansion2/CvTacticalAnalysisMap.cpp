@@ -711,6 +711,8 @@ void CvTacticalAnalysisMap::CreateDominanceZones()
 		while (!stack.empty())
 		{
 			CvPlot* current = stack.back(); stack.pop_back();
+			if (current == NULL)
+				continue;
 			newZone.Extend(current);
 			m_vPlotZoneID[current->GetPlotIndex()] = newId;
 

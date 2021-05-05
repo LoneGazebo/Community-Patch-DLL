@@ -184,6 +184,19 @@ int CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlot
 					return INT_MAX;
 				}
 			}
+			//city might have special defense buildings
+			CvCity* pCity = pToPlot->getOwningCity();
+			if (pCity)
+			{
+				if (!pToPlot->isWater() && pUnit->getDomainType() == DOMAIN_LAND && pCity->GetBorderObstacleLand() > 0)
+				{
+					return INT_MAX;
+				}
+				if (pToPlot->isWater() && pCity->GetBorderObstacleWater() > 0 && (pUnit->getDomainType() == DOMAIN_SEA || pToPlot->needsEmbarkation(pUnit)))
+				{
+					return INT_MAX;
+				}
+			}
 		}
 	}
 
@@ -263,23 +276,6 @@ int CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlot
 			{
 				//unit itself may have a negative trait ...
 				bSlowDown = pUnit->isSlowInEnemyLand();
-
-				if (!bSlowDown)
-				{
-					//city might have special defense buildings
-					CvCity* pCity = pToPlot->getOwningCity();
-					if (pCity)
-					{
-						if (!pToPlot->isWater() && pUnit->getDomainType() == DOMAIN_LAND)
-						{
-							bSlowDown = (pCity->GetBorderObstacleLand() > 0);
-						}
-						if (pToPlot->isWater() && (pUnit->getDomainType() == DOMAIN_SEA || pToPlot->needsEmbarkation(pUnit)))
-						{
-							bSlowDown = (pCity->GetBorderObstacleWater() > 0);
-						}
-					}
-				}
 			}
 		}
 

@@ -629,7 +629,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 		{
 			iDefense += 25;
 		}
-		if (pkBuildingInfo->GetWorkedWaterTileDamage() > 0)
+		if (pkBuildingInfo->GetDeepWaterTileDamage() > 0)
 		{
 			iDefense += 25;
 		}

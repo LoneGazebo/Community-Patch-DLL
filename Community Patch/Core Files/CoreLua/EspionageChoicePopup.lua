@@ -35,6 +35,7 @@ PopulateItems["CityEventChoices"] = function(stackControl, playerID, plotID, spy
 		end
 	end
 
+
 	print("Spy ID", spyID)
 
 	SelectedItems = {};
@@ -223,6 +224,16 @@ function DisplayPopup(playerID, plotID, spyID, classType, numberOfChoices)
 	Controls.ItemScrollPanel:CalculateInternalSize();
 	-- Align the Event Art
 	Controls.EventArtFrame:ReprocessAnchoring();
+
+	if (g_pCity) then
+		local plot = g_pCity:Plot();
+		if plot then
+			Controls.GoToCity:RegisterCallback(Mouse.eLClick, function()
+				UI.DoSelectCityAtPlot( plot );
+				ContextPtr:SetHide(true);
+			end);
+		end
+	end
 	
 	if(count > 0 and numberOfChoices > 0) then
 		g_NumberOfSelectedItems = math.min(numberOfChoices, count);

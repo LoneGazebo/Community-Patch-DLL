@@ -1138,21 +1138,7 @@ function RefreshTheirCities(selectedAgentIndex, selectedAgentCurrentCityPlayerID
 		else
 			local strPotentialToolTip = Locale.Lookup("TXT_KEY_EO_UNKNOWN_POTENTIAL_TT");
 			if(cityInfo.BasePotential > 0) then
-				if (agent ~= nil and agent.EstablishedSurveillance) then
-					if (cityInfo.Potential > 0) then
-						local pPlayer = Players[cityInfo.PlayerID];
-						local pCity = pPlayer:GetCityByID(cityInfo.CityID);	
-						strPotentialToolTip = Players[Game.GetActivePlayer()]:GetCityPotentialInfo(pCity, OptionsManager.IsNoBasicHelp());
-					else
-						strPotentialToolTip = Locale.Lookup("TXT_KEY_EO_CITY_POTENTIAL_CANNOT_STEAL_TT", agent.Rank, agent.Name, cityInfo.Name, cityInfo.Name, cityInfo.BasePotential);
-					end
-				else
-					if(not OptionsManager.IsNoBasicHelp()) then 
-						strPotentialToolTip = Locale.Lookup("TXT_KEY_EO_CITY_ONCE_KNOWN_POTENTIAL_TT", cityInfo.Name, cityInfo.BasePotential);
-					else
-						strPotentialToolTip = Locale.Lookup("TXT_KEY_EO_CITY_ONCE_KNOWN_POTENTIAL_TT_SHORT", cityInfo.Name, cityInfo.BasePotential);
-					end
-				end
+				strPotentialToolTip = Players[Game.GetActivePlayer()]:GetCityPotentialInfo(pCity, OptionsManager.IsNoBasicHelp());
 				entry.PotentialMeterBack:SetToolTipString(strPotentialToolTip);
 				entry.PotentialMeterGhost:SetToolTipString(strPotentialToolTip);
 				entry.PotentialMeterFront:SetToolTipString(strPotentialToolTip);

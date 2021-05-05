@@ -87,14 +87,23 @@ VALUES
 INSERT INTO Belief_YieldFromSpread
 	(BeliefType, YieldType, Yield)
 VALUES
-	('BELIEF_PILGRIMAGE', 'YIELD_CULTURE', 25),
 	('BELIEF_PILGRIMAGE', 'YIELD_FOOD', 25);
+
+INSERT INTO Belief_YieldFromTechUnlock
+	(BeliefType, YieldType, Yield, IsEraScaling)
+VALUES
+	('BELIEF_PILGRIMAGE', 'YIELD_FAITH', 100, 'true');
 
 INSERT INTO Belief_YieldFromForeignSpread
 	(BeliefType, YieldType, Yield)
 VALUES
-	('BELIEF_TITHE', 'YIELD_TOURISM', 10),
-	('BELIEF_TITHE', 'YIELD_CULTURE', 10);
+	('BELIEF_TITHE', 'YIELD_TOURISM', 25);
+
+INSERT INTO Belief_YieldPerFollowingCity
+	(BeliefType, YieldType, Yield)
+VALUES
+	('BELIEF_TITHE', 'YIELD_FOOD', 8),
+	('BELIEF_TITHE', 'YIELD_GOLD', 8);
 
 INSERT INTO Belief_YieldFromConquest
 	(BeliefType, YieldType, Yield)

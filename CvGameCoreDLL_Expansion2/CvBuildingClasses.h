@@ -362,7 +362,7 @@ public:
 	int GetCityAirStrikeDefense() const;
 	int GetBorderObstacleLand() const;
 	int GetBorderObstacleWater() const;
-	int GetWorkedWaterTileDamage() const;
+	int GetDeepWaterTileDamage() const;
 	int GetWLTKDTurns() const;
 	int GetEventTourism() const;
 	int GetLandTourismEnd() const;
@@ -865,7 +865,7 @@ private:
 	int m_iCityAirStrikeDefense;
 	int m_iBorderObstacleCity;
 	int m_iBorderObstacleWater;
-	int m_iWorkedWaterTileDamage;
+	int m_iDeepWaterTileDamage;
 	int m_iWLTKDTurns;
 	int m_iEventTourism;
 	int m_iLandTourism;
