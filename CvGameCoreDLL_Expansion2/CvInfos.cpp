@@ -11205,7 +11205,7 @@ bool CvModEventCityChoiceInfo::CacheResults(Database::Results& kResults, CvDatab
 		Database::Results* pCityEventChoiceTypes = kUtility.GetResults(strCityEventChoiceTypesKey);
 		if(pCityEventChoiceTypes == NULL)
 		{
-			pCityEventChoiceTypes = kUtility.PrepareResults(strCityEventChoiceTypesKey, "select NotificationType, Description, ShortDescription, IsWorldEvent, NeedCityCoordinates, NeedPlayerID, ExtraVariable from CityEventChoice_Notification where CityEventChoiceType = ?");
+			pCityEventChoiceTypes = kUtility.PrepareResults(strCityEventChoiceTypesKey, "select NotificationType, Description, ShortDescription, IsWorldEvent, EspionageEvent, NeedCityCoordinates, NeedPlayerID, ExtraVariable from CityEventChoice_Notification where CityEventChoiceType = ?");
 		}
 
 		const size_t lenCityEventChoiceType = strlen(szEventType);

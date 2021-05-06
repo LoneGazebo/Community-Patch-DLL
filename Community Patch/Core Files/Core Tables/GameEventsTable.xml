@@ -603,8 +603,6 @@
 		<Column name="Description" type="text" reference="Language_en_US(Tag)"/>
 		<Column name="ShortDescription" type="text" reference="Language_en_US(Tag)"/>
 		<Column name="IsWorldEvent" type="boolean" default="false"/>
-		<!-- used only for espionage events - sends notification only to spy owner and target civ -->
-		<Column name="EspionageEvent" type="boolean" default="false"/>
 		<!-- These values are required by some times of notifications and pass into the gamedata/extravariable slots after the X/Y spots for a notification. -->
 		<Column name="NeedPlayerID" type="boolean" default="false"/>
 		<!-- Note that if you set NeedPlayerID to true, it takes over the slot where Variable1 goes, so Variable1 is inactive! -->

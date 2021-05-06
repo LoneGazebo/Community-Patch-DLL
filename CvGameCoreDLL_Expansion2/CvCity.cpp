@@ -6219,15 +6219,26 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 			//Set the cooldown for the event choice.
 			if (pkEventChoiceInfo->getEventDuration() > 0)
 			{
+				bool bDefer = false;
+				if (eSpyOwner != NO_PLAYER && iEspionageValue != -1)
+				{
+					CvEspionageSpy* pSpy = &(GET_PLAYER(eSpyOwner).GetEspionage()->m_aSpyList[iEspionageValue]);
+					if (pSpy)
+						bDefer = pSpy->m_eSpyFocus == NO_EVENT_CHOICE_CITY;
+				}
+
 				//already active? Apply the extended duration, but don't duplicate the yield effect.
 				if (pkEventChoiceInfo->IsEspionageEffect() && GetEventChoiceDuration(eEventChoice) > 0)
 					bAlreadyActive = true;
 
-				//Gamespeed.
-				int iEventDuration = pkEventChoiceInfo->getEventDuration();
-				iEventDuration *= GC.getGame().getGameSpeedInfo().getTrainPercent();
-				iEventDuration /= 100;
-				ChangeEventChoiceDuration(eEventChoice, max(1, iEventDuration));
+				if (!bDefer)
+				{
+					//Gamespeed.
+					int iEventDuration = pkEventChoiceInfo->getEventDuration();
+					iEventDuration *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+					iEventDuration /= 100;
+					ChangeEventChoiceDuration(eEventChoice, max(1, iEventDuration));
+				}
 			}
 
 			//Lua Hook
@@ -6479,7 +6490,7 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 										strMessage << GetScaledHelpText(eEventChoice, false);
 										strMessage << pkEventInfo->GetDescription();
 										strMessage << pOriginalCity->getNameKey();
-										strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_EVENT_SUCCEEDED_ESPIONAGE_UNKNOWN");
+										strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_EVENT_SUCCEEDED_T_ESPIONAGE_UNKNOWN");
 										strSummary << pOriginalCity->getNameKey();
 
 										pNotifications->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), getX(), getY(), GetID(), getOwner());
@@ -6533,13 +6544,13 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 			{
 				CvUnit* pUnit = GetGarrisonedUnit();
 				if (pUnit)
-					pUnit->changeDamage(-pkEventChoiceInfo->getDamageGarrison());
+					pUnit->changeDamage(pkEventChoiceInfo->getDamageGarrison());
 			}
 
 			//respect the neg!
 			if (pkEventChoiceInfo->getDamageCity() != 0)
 			{
-				changeDamage(-pkEventChoiceInfo->getDamageCity());
+				changeDamage(pkEventChoiceInfo->getDamageCity());
 			}
 
 			if (pkEventChoiceInfo->getSapCityTurns() != 0)
@@ -7160,12 +7171,12 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 			//Let's do our notification stuff here.
 			for(int iI = 0; iI < pkEventChoiceInfo->GetNumNotifications(); iI++)
 			{
+				if (pkEventChoiceInfo->GetNotificationInfo(iI)->IsEspionageEvent())
+					continue;
+
 				CvString strNotificationString = pkEventChoiceInfo->GetNotificationInfo(iI)->GetNotificationString();		
 				if(strNotificationString != NULL && strNotificationString != "")
 				{
-					if (pkEventChoiceInfo->GetNotificationInfo(iI)->IsEspionageEvent())
-						continue;
-
 					NotificationTypes eNotificationType = (NotificationTypes)FString::Hash(strNotificationString);
 
 					if(eNotificationType != NO_NOTIFICATION_TYPE)
@@ -7857,7 +7868,7 @@ void CvCity::ChangeEspionageRanking(int iAmount, bool bNotify)
 
 	if (bNotify)
 	{
-		if (GetTurnsSinceLastRankMessage() >= (GC.getBALANCE_SPY_SABOTAGE_RATE() * 5))
+		if (GetTurnsSinceLastRankMessage() >= (GC.getBALANCE_SPY_SABOTAGE_RATE() * 2))
 		{
 			if ((iNewRank / 100) < GetEspionageRanking() && GetEspionageRanking() < 6 && GetEspionageRanking() > 1)
 			{
@@ -24141,7 +24152,7 @@ bool CvCity::IsBlockadedWaterAndLand() const
 bool CvCity::IsBlockaded(bool bWater) const
 {
 	if (GetSappedTurns() > 0)
-		return 0;
+		return true;
 
 	for (int iLoop = 0; iLoop < NUM_DIRECTION_TYPES; ++iLoop) 
 	{

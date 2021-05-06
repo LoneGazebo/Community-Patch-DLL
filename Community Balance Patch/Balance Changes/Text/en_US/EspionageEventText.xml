@@ -53,7 +53,7 @@
 			<Text>Target local City [ICON_STRENGTH] Defenses</Text>
 		</Row>
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_MILITARY_GARRISON_HELP">
-			<Text>{6_Spy}City and Garrison (if present) take [COLOR_NEGATIVE_TEXT]25[ENDCOLOR] Damage. City is [COLOR_NEGATIVE_TEXT]Sapped[ENDCOLOR] (cannot heal) for 5 turns.</Text>
+			<Text>{6_Spy}Target City takes [COLOR_NEGATIVE_TEXT]100[ENDCOLOR] Damage and Garrison (if present) takes [COLOR_NEGATIVE_TEXT]25[ENDCOLOR] Damage. City is [COLOR_NEGATIVE_TEXT]Sapped[ENDCOLOR] (cannot heal) for 5 turns.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_URBAN_CULTURE">
 			<Text>Create forgeries of local [ICON_CULTURE] Cultural artifacts</Text>

@@ -49,7 +49,7 @@
 			<GrowthMod>-25</GrowthMod>
 			<DeathModifier>10</DeathModifier>
 			<SpyLevelRequired>0</SpyLevelRequired>
-			<EspionageDifficultyMod>250</EspionageDifficultyMod>
+			<EspionageDifficultyMod>275</EspionageDifficultyMod>
 		</Row>
 		<!-- PRODUCTION -->
 		<Row>
@@ -63,7 +63,7 @@
 			<WonderConstructionSpeedMod>-50</WonderConstructionSpeedMod>
 			<IDModifier>35</IDModifier>
 			<DeathModifier>15</DeathModifier>
-			<EspionageDifficultyMod>300</EspionageDifficultyMod>
+			<EspionageDifficultyMod>200</EspionageDifficultyMod>
 			<SpyLevelRequired>0</SpyLevelRequired>
 		</Row>
 		<!-- CULTURE -->
@@ -89,7 +89,7 @@
 			<IsSpyBenefit>true</IsSpyBenefit>
 			<MissionSetup>true</MissionSetup>
 			<PotentialScaling>true</PotentialScaling>
-			<EspionageDifficultyMod>300</EspionageDifficultyMod>
+			<EspionageDifficultyMod>250</EspionageDifficultyMod>
 			<EraScaling>true</EraScaling>
 			<IDModifier>25</IDModifier>
 			<DeathModifier>15</DeathModifier>
@@ -118,8 +118,8 @@
 			<MissionSetup>true</MissionSetup>
 			<IDModifier>75</IDModifier>
 			<DeathModifier>75</DeathModifier>
-			<DamageCity>25</DamageCity>
-			<EspionageDifficultyMod>150</EspionageDifficultyMod>
+			<DamageCity>100</DamageCity>
+			<EspionageDifficultyMod>175</EspionageDifficultyMod>
 			<DamageGarrison>25</DamageGarrison>
 			<SapCityTurns>5</SapCityTurns>
 			<SpyLevelRequired>2</SpyLevelRequired>
@@ -133,7 +133,7 @@
 			<MissionSetup>true</MissionSetup>
 			<IDModifier>80</IDModifier>
 			<IsUnhappy>true</IsUnhappy>
-			<EspionageDifficultyMod>750</EspionageDifficultyMod>
+			<EspionageDifficultyMod>600</EspionageDifficultyMod>
 			<ResistanceTurns>2</ResistanceTurns>
 			<RandomBarbarianSpawn>5</RandomBarbarianSpawn>
 			<DeathModifier>80</DeathModifier>
@@ -149,7 +149,7 @@
 			<IDModifier>50</IDModifier>
 			<DeathModifier>25</DeathModifier>
 			<PillageCityStrategicNum>2</PillageCityStrategicNum>
-			<EspionageDifficultyMod>400</EspionageDifficultyMod>
+			<EspionageDifficultyMod>350</EspionageDifficultyMod>
 			<SpyLevelRequired>2</SpyLevelRequired>
 		</Row>
 		<!--- CounterSpy -->
@@ -208,12 +208,12 @@
 		<Row>
 			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_ECONOMIC_GOLD</CityEventChoiceType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Yield>50</Yield>
+			<Yield>40</Yield>
 		</Row>
 		<Row>
 			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_SCIENTIFIC_SCIENCE</CityEventChoiceType>
 			<YieldType>YIELD_SCIENCE</YieldType>
-			<Yield>50</Yield>
+			<Yield>60</Yield>
 		</Row>
 	</CityEventChoice_InstantYield>
 	<CityEventChoice_CityUnhappinessNeedMod>
@@ -467,7 +467,7 @@
 			<Description>TXT_KEY_ESPIONAGE_EVENT_PLAYER_YIELD_BASIC</Description>
 			<Help>TXT_KEY_ESPIONAGE_EVENT_PLAYER_YIELD_BASIC_HELP</Help>
 			<CapitalEffectOnly>true</CapitalEffectOnly>
-			<EventDuration>10</EventDuration>
+			<EventDuration>15</EventDuration>
 			<Expires>true</Expires>
 		</Row>
 		<Row>

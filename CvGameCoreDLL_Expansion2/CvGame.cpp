@@ -11597,11 +11597,15 @@ void CvGame::SetHighestSpyPotential()
 				for (CvCity* pLoopCity = kLoopPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kLoopPlayer.nextCity(&iLoop))
 				{
 					int iResistance = kLoopPlayer.GetEspionage()->GetSpyResistance(pLoopCity);
+
+					//are we better than 'average?'
+					int iDelta = GC.getESPIONAGE_GATHERING_INTEL_COST_PERCENT() - iResistance;
+					iDelta /= GC.getBALANCE_SPY_SABOTAGE_RATE();
 					//is our resistance better than average? Increase spy rank! Otherwise, reduce it.
-					if (iResistance > GC.getESPIONAGE_GATHERING_INTEL_COST_PERCENT())
-						pLoopCity->ChangeEspionageRanking((iResistance / max(1, GC.getBALANCE_SPY_SABOTAGE_RATE())), iNumSpies > 0);
-					else
-						pLoopCity->ChangeEspionageRanking(-(iResistance / max(1, GC.getBALANCE_SPY_SABOTAGE_RATE())), iNumSpies > 0);
+					if (iDelta < 0)
+						pLoopCity->ChangeEspionageRanking(iDelta, iNumSpies > 0);
+					else if (iDelta > 0)
+						pLoopCity->ChangeEspionageRanking(-iDelta, iNumSpies > 0);
 				}
 			}
 		}

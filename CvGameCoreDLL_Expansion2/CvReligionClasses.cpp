@@ -7846,11 +7846,11 @@ bool CvReligionAI::DoFaithPurchases()
 		}
 		else
 		{
-			if (BuyMissionaryOrInquisitor(eReligionWeFounded))
+			if (BuyMissionary(eReligionWeFounded))
 			{
 				if (GC.getLogging())
 				{
-					CvString strLogMsg = strPlayer + ", Bought a Missionary/Inquisitor, need to Convert our Non-Puppet Cities";
+					CvString strLogMsg = strPlayer + ", Bought a Missionary, need to Convert our Non-Puppet Cities";
 					CvString strFaith;
 					strFaith.Format(", Faith: %d", m_pPlayer->GetFaith());
 					strLogMsg += strFaith;

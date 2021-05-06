@@ -26579,7 +26579,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 #if defined(MOD_BALANCE_CORE_BELIEFS)
 					if (pReligion)
 					{
-						iValue += pReligion->m_Beliefs.GetYieldFromTechUnlock(eYield, bEraScale, GetID(), pLoopCity, true) * pReligion->m_Beliefs.GetFollowerScalerLimiter(iNumFollowers);
+						iValue += pReligion->m_Beliefs.GetYieldFromTechUnlock(eYield, bEraScale, GetID(), pLoopCity, true);
 					}
 #endif
 					break;

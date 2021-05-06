@@ -1304,7 +1304,7 @@ CvSpyResult CvPlayerEspionage::ProcessSpyFocusResult(PlayerTypes ePlayer, CvCity
 				//special handling for espionage stuff!
 				if (bEspionage)
 				{
-					CvNotifications* pTheirNotifications = GET_PLAYER(ePlayer).GetNotifications();
+					CvNotifications* pTheirNotifications = GET_PLAYER(pCity->getOwner()).GetNotifications();
 					if (pTheirNotifications)
 					{
 						if (pkEventChoiceInfo->GetNotificationInfo(iI)->IsNeedPlayerID())

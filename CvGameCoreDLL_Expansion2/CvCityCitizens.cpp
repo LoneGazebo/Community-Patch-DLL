@@ -2063,7 +2063,7 @@ void CvCityCitizens::DoReallocateCitizens(bool bForce, bool bLogging)
 	// Remove all of the allocated guys
 	for (int iPlotLoop = 0; iPlotLoop < GetCity()->GetNumWorkablePlots(); iPlotLoop++)
 	{
-		if (iPlotLoop != CITY_HOME_PLOT && IsWorkingPlot(iPlotLoop))
+		if (iPlotLoop != CITY_HOME_PLOT && IsWorkingPlot(iPlotLoop) && !IsForcedWorkingPlot(iPlotLoop))
 			SetWorkingPlot(GetCityPlotFromIndex(iPlotLoop), false, true, false);
 	}
 
@@ -2396,6 +2396,14 @@ bool CvCityCitizens::IsForcedWorkingPlot(const CvPlot* pPlot) const
 	{
 		return m_pabForcedWorkingPlot[iIndex];
 	}
+
+	return false;
+}
+
+bool CvCityCitizens::IsForcedWorkingPlot(int iRelativeIndex) const
+{
+	if (iRelativeIndex >= 0 && iRelativeIndex<MAX_CITY_PLOTS)
+		return m_pabForcedWorkingPlot[iRelativeIndex];
 
 	return false;
 }
