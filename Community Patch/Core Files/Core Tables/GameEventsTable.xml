@@ -835,7 +835,8 @@
 		<Column name="SapCityTurns" type="integer" default="0"/>
 		<!-- Speeds up an espionage action if the city has a wonder under construction! -->
 		<Column name="WonderConstructionSpeedMod" type="integer" default="0"/>
-
+		<!-- Counterspy can affect city ranged strength %-->
+		<Column name="CityDefenseModifier" type="integer" default="0"/>
 		<!-- FILTERS: 
 		
 		Values below determine whether or not a City Event Choice appears in the City list 

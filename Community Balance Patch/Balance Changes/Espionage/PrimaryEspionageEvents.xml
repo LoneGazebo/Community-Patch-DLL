@@ -31,7 +31,7 @@
 			<EraScaling>true</EraScaling>
 			<IDModifier>10</IDModifier>
 			<DeathModifier>5</DeathModifier>
-			<EspionageDifficultyMod>200</EspionageDifficultyMod>
+			<EspionageDifficultyMod>250</EspionageDifficultyMod>
 			<SpyLevelRequired>0</SpyLevelRequired>
 			<IsSpyBenefit>true</IsSpyBenefit>
 		</Row>
@@ -75,7 +75,7 @@
 			<MissionSetup>true</MissionSetup>
 			<TriggerPlayerEventChoice>ESPIONAGE_EVENT_PLAYER_YIELD_CULTURE</TriggerPlayerEventChoice>
 			<IDModifier>5</IDModifier>
-			<EspionageDifficultyMod>300</EspionageDifficultyMod>
+			<EspionageDifficultyMod>400</EspionageDifficultyMod>
 			<DeathModifier>15</DeathModifier>
 			<SpyLevelRequired>1</SpyLevelRequired>
 			<IsSpyBenefit>true</IsSpyBenefit>
@@ -89,7 +89,7 @@
 			<IsSpyBenefit>true</IsSpyBenefit>
 			<MissionSetup>true</MissionSetup>
 			<PotentialScaling>true</PotentialScaling>
-			<EspionageDifficultyMod>250</EspionageDifficultyMod>
+			<EspionageDifficultyMod>300</EspionageDifficultyMod>
 			<EraScaling>true</EraScaling>
 			<IDModifier>25</IDModifier>
 			<DeathModifier>15</DeathModifier>
@@ -104,7 +104,7 @@
 			<MissionSetup>true</MissionSetup>
 			<TriggerPlayerEventChoice>ESPIONAGE_EVENT_PLAYER_YIELD_BASIC</TriggerPlayerEventChoice>
 			<IDModifier>15</IDModifier>
-			<EspionageDifficultyMod>350</EspionageDifficultyMod>
+			<EspionageDifficultyMod>400</EspionageDifficultyMod>
 			<DeathModifier>15</DeathModifier>
 			<SpyLevelRequired>1</SpyLevelRequired>
 			<IsSpyBenefit>true</IsSpyBenefit>
@@ -119,7 +119,7 @@
 			<IDModifier>75</IDModifier>
 			<DeathModifier>75</DeathModifier>
 			<DamageCity>25</DamageCity>
-			<EspionageDifficultyMod>50</EspionageDifficultyMod>
+			<EspionageDifficultyMod>150</EspionageDifficultyMod>
 			<DamageGarrison>25</DamageGarrison>
 			<SapCityTurns>5</SapCityTurns>
 			<SpyLevelRequired>2</SpyLevelRequired>
@@ -133,7 +133,7 @@
 			<MissionSetup>true</MissionSetup>
 			<IDModifier>80</IDModifier>
 			<IsUnhappy>true</IsUnhappy>
-			<EspionageDifficultyMod>600</EspionageDifficultyMod>
+			<EspionageDifficultyMod>750</EspionageDifficultyMod>
 			<ResistanceTurns>2</ResistanceTurns>
 			<RandomBarbarianSpawn>5</RandomBarbarianSpawn>
 			<DeathModifier>80</DeathModifier>
@@ -172,6 +172,7 @@
 			<IDModifier>25</IDModifier>
 			<DeathModifier>25</DeathModifier>
 			<IsUnhappy>true</IsUnhappy>
+			<ExpiresOnCounterSpyExit>true</ExpiresOnCounterSpyExit>
 			<CityHappiness>2</CityHappiness>
 			<SpyLevelRequired>0</SpyLevelRequired>
 		</Row>
@@ -193,6 +194,7 @@
 			<IsEspionageEffect>true</IsEspionageEffect>
 			<MissionSetup>true</MissionSetup>
 			<IDModifier>15</IDModifier>
+			<ExpiresOnCounterSpyExit>true</ExpiresOnCounterSpyExit>
 			<DeathModifier>15</DeathModifier>
 			<SpyLevelRequired>2</SpyLevelRequired>
 		</Row>
@@ -245,22 +247,22 @@
 		<Row>
 			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_ECONOMIC_TILES</CityEventChoiceType>
 			<ImprovementType>IMPROVEMENT_FARM</ImprovementType>
-			<Number>2</Number>
+			<Number>1</Number>
 		</Row>
 		<Row>
 			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_ECONOMIC_TILES</CityEventChoiceType>
 			<ImprovementType>IMPROVEMENT_MINE</ImprovementType>
-			<Number>2</Number>
+			<Number>1</Number>
 		</Row>
 		<Row>
 			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_ECONOMIC_TILES</CityEventChoiceType>
 			<ImprovementType>IMPROVEMENT_PLANTATION</ImprovementType>
-			<Number>2</Number>
+			<Number>1</Number>
 		</Row>
 		<Row>
 			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_ECONOMIC_TILES</CityEventChoiceType>
 			<ImprovementType>IMPROVEMENT_TRADING_POST</ImprovementType>
-			<Number>2</Number>
+			<Number>1</Number>
 		</Row>
 	</CityEventChoice_ImprovementDestructionRandom>
 	<CityEventChoice_SpecialistYieldChange>

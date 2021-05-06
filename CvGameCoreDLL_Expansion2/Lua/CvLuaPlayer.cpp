@@ -15453,6 +15453,9 @@ int CvLuaPlayer::lGetEspionageSpies(lua_State* L)
 		case SPY_STATE_GATHERING_INTEL:
 			lua_pushstring(L, "TXT_KEY_SPY_STATE_GATHERING_INTEL");
 			break;
+		case SPY_STATE_BUILDING_NETWORK:
+			lua_pushstring(L, "TXT_KEY_SPY_STATE_BUILDING_NETWORK");
+			break;
 		case SPY_STATE_RIG_ELECTION:
 			lua_pushstring(L, "TXT_KEY_SPY_STATE_RIGGING_ELECTION");
 			break;

@@ -4816,7 +4816,7 @@ void CvCity::DoCancelEventChoice(CityEventChoiceTypes eChosenEventChoice)
 		ChangeEventChoiceDuration(eChosenEventChoice, -GetEventChoiceDuration(eChosenEventChoice));
 		
 		//Let's only reverse if it expires, and it was active.
-		if(IsEventChoiceActive(eChosenEventChoice) && pkEventChoiceInfo->Expires())
+		if (IsEventChoiceActive(eChosenEventChoice) && (pkEventChoiceInfo->Expires() || pkEventChoiceInfo->isExpiresOnCounterSpyExit()))
 		{
 			if(pkEventChoiceInfo->getEventBuilding() != -1)
 			{
@@ -6276,7 +6276,7 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 					eResult = GET_PLAYER(eSpyOwner).GetEspionage()->ProcessSpyFocusResult(eSpyOwner, this, iEspionageValue, eEventChoice, bDefer);
 
 					//if setup, we don't actually fire the choice right now...we wait!
-					if (bDefer)
+					if (bDefer && !pkEventChoiceInfo->isExpiresOnCounterSpyExit())
 						return;
 
 					if (pkEventChoiceInfo->IsEspionageEffect() && !bAlreadyApplied)
@@ -7829,6 +7829,17 @@ int CvCity::GetEspionageRankingForEspionage(PlayerTypes ePlayer, CityEventChoice
 							iRank *= max(1, (100 - pkEventInfo->getWonderUnderConstructionSpeedMod()));
 							iRank /= 100;
 						}
+					}
+				}
+				ProjectTypes eProject = getProductionProject();
+				if (eProject != NO_PROJECT)
+				{
+					CvProjectEntry* pProjectInfo = GC.getProjectInfo(eProject);
+					CvAssertMsg(pProjectInfo, "pProjectInfo is null");
+					if (pProjectInfo && !pProjectInfo->IsRepeatable())
+					{
+						iRank *= max(1, (100 - pkEventInfo->getWonderUnderConstructionSpeedMod()));
+						iRank /= 100;
 					}
 				}
 			}

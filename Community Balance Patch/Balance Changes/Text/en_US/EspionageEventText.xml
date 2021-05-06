@@ -23,7 +23,7 @@
 			<Text>Disrupt local [ICON_PRODUCTION] Production</Text>
 		</Row>
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_ECONOMIC_PRODUCTION_HELP">
-			<Text>{6_Spy}Target City: {2_InstantYield}[NEWLINE][NEWLINE]If City is constructing a [COLOR_POSITIVE_TEXT]World Wonder[ENDCOLOR], duration for this mission is halved.</Text>
+			<Text>{6_Spy}Target City: {2_InstantYield}[NEWLINE][NEWLINE]If City is constructing a [COLOR_POSITIVE_TEXT]World Wonder[ENDCOLOR] pr [COLOR_POSITIVE_TEXT]Project[ENDCOLOR], duration for this mission is halved.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_ECONOMIC_GOLD">
 			<Text>Raid the local [ICON_GOLD] Gold treasury</Text>
