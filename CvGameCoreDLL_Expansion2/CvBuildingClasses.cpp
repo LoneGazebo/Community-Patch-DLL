@@ -4642,7 +4642,7 @@ void CvCityBuildings::DoSellBuilding(BuildingTypes eIndex)
 	GET_PLAYER(m_pCity->getOwner()).GetTreasury()->ChangeGold(iRefund);
 
 	// Kick everyone out
-	m_pCity->GetCityCitizens()->DoRemoveAllSpecialistsFromBuilding(eIndex);
+	m_pCity->GetCityCitizens()->DoRemoveAllSpecialistsFromBuilding(eIndex, CvCity::YIELD_UPDATE_GLOBAL);
 
 	SetNumRealBuilding(eIndex, 0);
 
@@ -4868,7 +4868,7 @@ void CvCityBuildings::SetNumRealBuildingTimed(BuildingTypes eIndex, int iNewValu
 		if (iNewValue == 0)
 		{
 			m_pCity->SetBuildingInvestment(buildingClassType, false);
-			m_pCity->GetCityCitizens()->DoRemoveAllSpecialistsFromBuilding(eIndex);
+			m_pCity->GetCityCitizens()->DoRemoveAllSpecialistsFromBuilding(eIndex, CvCity::YIELD_UPDATE_GLOBAL);
 		}
 
 		m_paiNumRealBuilding[eIndex] = iNewValue;
@@ -5626,10 +5626,10 @@ int CvCityBuildings::GetYieldFromGreatWorks(YieldTypes eYield) const
 	iRtnValue += (iRealWorkCount * iSecondaryYield);
 	//Then theming bonuses for the yield.
 #if defined(MOD_GLOBAL_GREATWORK_YIELDTYPES)
-	iRtnValue += GetThemingBonuses(eYield);
+	iRtnValue += GetCurrentThemingBonuses(eYield);
 #else
 	if (eYield == YIELD_CULTURE) {
-		iRtnValue += GetThemingBonuses();
+		iRtnValue += GetCurrentThemingBonuses();
 	}
 #endif
 	//Next add in any UA or extra theming bonuses.
@@ -5649,7 +5649,7 @@ int CvCityBuildings::GetCultureFromGreatWorks() const
 	iCulturePerWork += GET_PLAYER(m_pCity->getOwner()).GetGreatWorkYieldChange(YIELD_CULTURE);
 
 	int iRtnValue = iCulturePerWork * m_aBuildingGreatWork.size();
-	iRtnValue += GetThemingBonuses();
+	iRtnValue += GetCurrentThemingBonuses();
 
 	return iRtnValue;
 #endif
@@ -5830,29 +5830,45 @@ void CvCityBuildings::ChangeGreatWorksTourismModifier(int iChange)
 
 /// Accessor: Total theming bonus from all buildings in the city
 #if defined(MOD_GLOBAL_GREATWORK_YIELDTYPES)
-int CvCityBuildings::GetThemingBonuses(YieldTypes eYield) const
+int CvCityBuildings::GetCurrentThemingBonuses(YieldTypes eYield) const
 #else
-int CvCityBuildings::GetThemingBonuses() const
+int CvCityBuildings::GetCurrentThemingBonuses() const
 #endif
 {
-	int iBonus = 0;
+	int iTotal = 0;
 	for(std::vector<BuildingTypes>::const_iterator iI=m_buildingsThatExistAtLeastOnce.begin(); iI!=m_buildingsThatExistAtLeastOnce.end(); ++iI)
 	{
 #if defined(MOD_GLOBAL_GREATWORK_YIELDTYPES)
-		CvBuildingEntry *pkInfo = GC.getBuildingInfo(*iI);
-		if (pkInfo)
+		CvBuildingEntry *pkBuilding = GC.getBuildingInfo(*iI);
+		if (pkBuilding)
 		{
-			if (pkInfo->GetGreatWorkYieldType() == eYield)
+			if (pkBuilding->GetGreatWorkYieldType() == eYield)
 			{
-				iBonus += m_pCity->GetCityCulture()->GetThemingBonus( pkInfo->GetBuildingClassType() );
+				int iIndex = GetThemingBonusIndex(*iI);
+				if (iIndex < 0)
+					continue;
+
+				int iBonus = pkBuilding->GetThemingBonusInfo(iIndex)->GetBonus();
+				int iModifier = m_pCity->GetPlayer()->GetPlayerPolicies()->GetNumericModifier(POLICYMOD_THEMING_BONUS);
+
+				if (m_pCity->isCapital())
+					iModifier += m_pCity->GetPlayer()->GetPlayerTraits()->GetCapitalThemingBonusModifier();
+
+				iBonus = iBonus * (100 + iModifier) / 100;
+#if !defined(NO_ACHIEVEMENTS)
+				if (m_pCity->GetPlayer()->isHuman() && !GC.getGame().isGameMultiPlayer() && iBonus >= 16)
+					gDLL->UnlockAchievement(ACHIEVEMENT_XP2_40);
+#endif
+
+				iTotal += iBonus;
 			}
 		}
 #else
-		iBonus += m_pCity->GetCityCulture()->GetThemingBonus( (BuildingClassTypes)pkInfo->GetBuildingClassType() );
+		iTotal += m_pCity->GetCityCulture()->GetThemingBonus( (BuildingClassTypes)pkInfo->GetBuildingClassType() );
 #endif
 	}
 
-	return iBonus;
+	return iTotal;
 }
 
 /// Accessor: Total theming bonus from all buildings in the city

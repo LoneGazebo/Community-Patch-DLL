@@ -1178,9 +1178,9 @@ public:
 	void ChangeGreatWorksTourismModifier(int iChange);
 
 #if defined(MOD_GLOBAL_GREATWORK_YIELDTYPES)
-	int GetThemingBonuses(YieldTypes eYield) const;
+	int GetCurrentThemingBonuses(YieldTypes eYield) const;
 #else
-	int GetThemingBonuses() const;
+	int GetCurrentThemingBonuses() const;
 #endif
 	int GetTotalNumThemedBuildings() const;
 	int GetNumBuildingsFromFaith() const;

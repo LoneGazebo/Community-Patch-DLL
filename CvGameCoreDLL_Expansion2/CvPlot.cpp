@@ -9167,10 +9167,10 @@ void CvPlot::updateOwningCity()
 		if (pOldOwningCity != NULL)
 		{
 			// Remove citizen
-			pOldOwningCity->GetCityCitizens()->SetWorkingPlot(this, false);
+			pOldOwningCity->GetCityCitizens()->SetWorkingPlot(this, false, CvCity::YIELD_UPDATE_GLOBAL);
 			SetResourceLinkedCity(NULL);
-			// Re-add citizen somewhere else
-			pOldOwningCity->GetCityCitizens()->DoAddBestCitizenFromUnassigned();
+			// Re-add citvizen somewhere else
+			pOldOwningCity->GetCityCitizens()->DoAddBestCitizenFromUnassigned(CvCity::YIELD_UPDATE_GLOBAL);
 		}
 		// Change what City's allowed to work this Plot
 		if(pBestCity != NULL)

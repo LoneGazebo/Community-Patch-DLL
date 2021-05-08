@@ -7294,13 +7294,13 @@ CityTaskResult CvCity::doTask(TaskTypes eTask, int iData1, int iData2, bool bOpt
 		break;
 
 	case TASK_ADD_SPECIALIST:
-		GetCityCitizens()->DoAddSpecialistToBuilding(/*eBuilding*/ (BuildingTypes) iData2, true);
+		GetCityCitizens()->DoAddSpecialistToBuilding(/*eBuilding*/ (BuildingTypes) iData2, true, CvCity::YIELD_UPDATE_GLOBAL);
 		break;
 
 	case TASK_REMOVE_SPECIALIST:
 	{
-		GetCityCitizens()->DoRemoveSpecialistFromBuilding(/*eBuilding*/ (BuildingTypes)iData2, true);
-		GetCityCitizens()->DoAddBestCitizenFromUnassigned();
+		GetCityCitizens()->DoRemoveSpecialistFromBuilding(/*eBuilding*/ (BuildingTypes)iData2, true, CvCity::YIELD_UPDATE_LOCAL);
+		GetCityCitizens()->DoAddBestCitizenFromUnassigned(CvCity::YIELD_UPDATE_GLOBAL);
 		break;
 	}
 	case TASK_CHANGE_WORKING_PLOT:
@@ -7310,13 +7310,8 @@ CityTaskResult CvCity::doTask(TaskTypes eTask, int iData1, int iData2, bool bOpt
 	case TASK_REMOVE_SLACKER:
 		if (GetCityCitizens()->GetNumDefaultSpecialists() > 0)
 		{
-#if defined(MOD_BALANCE_CORE)
-			GetCityCitizens()->ChangeNumDefaultSpecialists(-1, false);
+			GetCityCitizens()->ChangeNumDefaultSpecialists(-1, CvCity::YIELD_UPDATE_LOCAL);
 			GetCityCitizens()->DoReallocateCitizens(true);
-#else
-			GetCityCitizens()->ChangeNumDefaultSpecialists(-1);
-			GetCityCitizens()->DoReallocateCitizens();
-#endif
 		}
 		break;
 
@@ -15882,11 +15877,7 @@ void CvCity::processProcess(ProcessTypes eProcess, int iChange)
 
 
 //	--------------------------------------------------------------------------------
-#if defined(MOD_BALANCE_CORE)
-void CvCity::processSpecialist(SpecialistTypes eSpecialist, int iChange, bool bSkipUpdate)
-#else
-void CvCity::processSpecialist(SpecialistTypes eSpecialist, int iChange)
-#endif
+void CvCity::processSpecialist(SpecialistTypes eSpecialist, int iChange, CvCity::eUpdateMode updateMode)
 {
 	VALIDATE_OBJECT
 	int iI;
@@ -15911,7 +15902,6 @@ void CvCity::processSpecialist(SpecialistTypes eSpecialist, int iChange)
 	int iCulturePerSpecialist = GetCultureFromSpecialist(eSpecialist);
 	ChangeJONSCulturePerTurnFromSpecialists(iCulturePerSpecialist * iChange);
 
-#if defined(MOD_BALANCE_CORE)
 	for (int iI = 0; iI < NUM_DOMAIN_TYPES; iI++)
 	{
 		DomainTypes eDomain = (DomainTypes)iI;
@@ -15926,9 +15916,10 @@ void CvCity::processSpecialist(SpecialistTypes eSpecialist, int iChange)
 		}
 	}
 
-	if(!bSkipUpdate)
+	if(updateMode == CvCity::YIELD_UPDATE_GLOBAL)
+		UpdateAllNonPlotYields(true);
+	else if(updateMode == CvCity::YIELD_UPDATE_LOCAL)
 		UpdateAllNonPlotYields(false);
-#endif
 }
 
 //	--------------------------------------------------------------------------------
@@ -18070,22 +18061,13 @@ int CvCity::getPopulation() const
 //	Be very careful with setting bReassignPop to false.  This assumes that the caller
 //  is manually adjusting the worker assignments *and* handling the setting of
 //  the CityCitizens unassigned worker value.
-#if defined(MOD_BALANCE_CORE)
 void CvCity::setPopulation(int iNewValue, bool bReassignPop /* = true */, bool bNoBonus)
-#else
-void CvCity::setPopulation(int iNewValue, bool bReassignPop /* = true */)
-#endif
 {
 	VALIDATE_OBJECT
-	int iOldPopulation;
-
 	//make sure this is valid
 	iNewValue = max(0, iNewValue);
 
-	// To fix the "not working the centre tile" bug always call GetCityCitizens()->SetWorkingPlot(plot(), true, false); here
-	GetCityCitizens()->SetWorkingPlot(plot(), true, false, false);
-
-	iOldPopulation = getPopulation();
+	int iOldPopulation = getPopulation();
 	int iPopChange = iNewValue - iOldPopulation;
 
 	if(iOldPopulation != iNewValue)
@@ -18098,11 +18080,7 @@ void CvCity::setPopulation(int iNewValue, bool bReassignPop /* = true */)
 				// Need to Remove Citizens
 				for(int iNewPopLoop = -iPopChange; iNewPopLoop--;)
 				{
-				#if defined(MOD_GLOBAL_CITY_AUTOMATON_WORKERS)
-					GetCityCitizens()->DoRemoveWorstCitizen(true, NO_SPECIALIST, iNewValue + getAutomatons());
-				#else
-					GetCityCitizens()->DoRemoveWorstCitizen(true, NO_SPECIALIST, iNewValue);
-				#endif
+					GetCityCitizens()->DoRemoveWorstCitizen(CvCity::YIELD_UPDATE_GLOBAL, false, NO_SPECIALIST);
 				}
 
 				// Fixup the unassigned workers
@@ -18175,7 +18153,7 @@ void CvCity::setPopulation(int iNewValue, bool bReassignPop /* = true */)
 				// Need to Add Citizens
 				for(int iNewPopLoop = 0; iNewPopLoop < iPopChange; iNewPopLoop++)
 				{
-					GetCityCitizens()->DoAddBestCitizenFromUnassigned();
+					GetCityCitizens()->DoAddBestCitizenFromUnassigned(CvCity::YIELD_UPDATE_GLOBAL);
 				}
 			}
 		}
@@ -18255,11 +18233,12 @@ void CvCity::setAutomatons(int iNewValue, bool bReassignPop /* = true */)
 	VALIDATE_OBJECT
 	int iChange = iNewValue - getAutomatons();
  	if (iChange != 0) {
-		if (bReassignPop && iChange < 0) {
+		if (bReassignPop && iChange < 0)
+		{
 			// If we are reducing automatons, remove the workers first
 			for (int iNewPopLoop = -iChange; iNewPopLoop--;)
 			{
-				GetCityCitizens()->DoRemoveWorstCitizen(true, NO_SPECIALIST, iNewValue + getPopulation());
+				GetCityCitizens()->DoRemoveWorstCitizen(CvCity::YIELD_UPDATE_GLOBAL, false, NO_SPECIALIST);
 			}
  			// Fixup the unassigned workers
 			int iUnassignedWorkers = GetCityCitizens()->GetNumUnassignedCitizens();
@@ -18274,7 +18253,7 @@ void CvCity::setAutomatons(int iNewValue, bool bReassignPop /* = true */)
  			// Need to Add Citizens
 			for (int iNewPopLoop = 0; iNewPopLoop < iChange; iNewPopLoop++)
 			{
-				GetCityCitizens()->DoAddBestCitizenFromUnassigned();
+				GetCityCitizens()->DoAddBestCitizenFromUnassigned(CvCity::YIELD_UPDATE_GLOBAL);
 			}
 		}
  		setLayoutDirty(true);
@@ -30714,6 +30693,7 @@ bool IsValidPlotForUnitType(CvPlot* pPlot, PlayerTypes ePlayer, CvUnitEntry* pkU
 		return false;
 
 	//civilians can always stack
+	//note that this also allows airplanes! (they may need to rebase later)
 	if (pkUnitInfo->GetCombat() == 0)
 		return true;
 
@@ -30741,9 +30721,10 @@ CvPlot* CvCity::GetPlotForNewUnit(UnitTypes eUnitType) const
 	if(pkUnitInfo == NULL)
 		return NULL;
 
-	// slewis - modifying 1upt for civilian
-	if (pkUnitInfo->IsTrade() || (pkUnitInfo->GetCombat() == 0 && pkUnitInfo->GetRange() == 0))
-		return plot();
+	//use city plot if free
+	CvPlot* pCityPlot = plot();
+	if (IsValidPlotForUnitType(pCityPlot, getOwner(), pkUnitInfo))
+		return pCityPlot;
 
 	//don't be too predictable with the chosen plot - but zero always maps to zero
 	int aiShuffle[3][7] = {

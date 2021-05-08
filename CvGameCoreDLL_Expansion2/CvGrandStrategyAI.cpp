@@ -181,6 +181,16 @@ void CvGrandStrategyAI::Reset()
 		m_eGuessOtherPlayerActiveGrandStrategy[iI] = NO_AIGRANDSTRATEGY;
 		m_eGuessOtherPlayerActiveGrandStrategyConfidence[iI] = NO_GUESS_CONFIDENCE_TYPE;
 	}
+
+	//defaults
+	m_iFlavorGold = 7;
+	m_iFlavorScience = 7;
+	m_iFlavorCulture = 7;
+	m_iFlavorProduction = 7;
+	m_iFlavorFaith = 7;
+	m_iFlavorHappiness = 7;
+	m_iFlavorGrowth = 7;
+	m_iFlavorDiplomacy = 7;
 }
 
 /// Serialization read
@@ -407,6 +417,19 @@ void CvGrandStrategyAI::DoTurn()
 			SetNumTurnsSinceActiveSet(0);
 		}
 	}
+
+	if (!m_pPlayer->isHuman())
+	{
+		m_iFlavorGold = GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GOLD"));
+		m_iFlavorScience = GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_SCIENCE"));
+		m_iFlavorCulture = GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_CULTURE"));
+		m_iFlavorProduction = GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_PRODUCTION"));
+		m_iFlavorFaith = GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_RELIGION"));
+		m_iFlavorHappiness = GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_HAPPINESS"));
+		m_iFlavorGrowth = GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GROWTH"));
+		m_iFlavorDiplomacy = GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_DIPLOMACY"));
+	}
+
 }
 
 /// Returns Priority for Conquest Grand Strategy

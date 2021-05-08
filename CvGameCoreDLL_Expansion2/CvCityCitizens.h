@@ -79,8 +79,8 @@ public:
 	int GetNumCitizensWorkingPlots() const;
 	void ChangeNumCitizensWorkingPlots(int iChange);
 
-	bool DoAddBestCitizenFromUnassigned(bool bLogging = false, bool bUpdateNow = true);
-	bool DoRemoveWorstCitizen(bool bRemoveForcedStatus = false, SpecialistTypes eDontChangeSpecialist = NO_SPECIALIST, int iCurrentCityPopulation = -1, bool bUpdateNow = true);
+	bool DoAddBestCitizenFromUnassigned(CvCity::eUpdateMode updateMode, bool bLogging = false);
+	bool DoRemoveWorstCitizen(CvCity::eUpdateMode updateMode, bool bRemoveForcedStatus = false, SpecialistTypes eDontChangeSpecialist = NO_SPECIALIST);
 
 	void SetBlockade(bool bValue);
 	bool IsBlockade();
@@ -95,7 +95,7 @@ public:
 	// Worked Plots
 	bool IsWorkingPlot(int iRelativeIndex) const;
 	bool IsWorkingPlot(const CvPlot* pPlot) const;
-	void SetWorkingPlot(CvPlot* pPlot, bool bNewValue, bool bUseUnassignedPool = true, bool bUpdateNow = true);
+	void SetWorkingPlot(CvPlot* pPlot, bool bNewValue, CvCity::eUpdateMode updateMode);
 	void DoAlterWorkingPlot(int iIndex);
 
 	// Forced Working Plots (human override)
@@ -125,13 +125,13 @@ public:
 
 	int GetSpecialistRate(SpecialistTypes eSpecialist);
 	bool IsCanAddSpecialistToBuilding(BuildingTypes eBuilding);
-	void DoAddSpecialistToBuilding(BuildingTypes eBuilding, bool bForced, bool bUpdateNow = true);
-	void DoRemoveSpecialistFromBuilding(BuildingTypes eBuilding, bool bForced, bool bEliminatePopulation = false, bool bUpdateNow = true);
-	void DoRemoveAllSpecialistsFromBuilding(BuildingTypes eBuilding, bool bEliminatePopulation = false);
-	bool DoRemoveWorstSpecialist(SpecialistTypes eDontChangeSpecialist, const BuildingTypes eDontRemoveFromBuilding = NO_BUILDING, bool bUpdateNow = true);
+	void DoAddSpecialistToBuilding(BuildingTypes eBuilding, bool bForced, CvCity::eUpdateMode updateMode);
+	void DoRemoveSpecialistFromBuilding(BuildingTypes eBuilding, bool bForced, CvCity::eUpdateMode updateMode);
+	void DoRemoveAllSpecialistsFromBuilding(BuildingTypes eBuilding, CvCity::eUpdateMode updateMode);
+	bool DoRemoveWorstSpecialist(SpecialistTypes eDontChangeSpecialist, const BuildingTypes eDontRemoveFromBuilding, CvCity::eUpdateMode updateMode);
 
 	int GetNumDefaultSpecialists() const;
-	void ChangeNumDefaultSpecialists(int iChange, bool bUpdateNow = true);
+	void ChangeNumDefaultSpecialists(int iChange, CvCity::eUpdateMode updateMode);
 	int GetNumForcedDefaultSpecialists() const;
 	void ChangeNumForcedDefaultSpecialists(int iChange);
 
@@ -195,7 +195,6 @@ private:
 	int* m_piBuildingGreatPeopleRateChanges;
 
 	bool m_bInited;
-
 };
 
 #endif // CIV5_CITY_CITIZENS_H

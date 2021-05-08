@@ -4518,8 +4518,12 @@ InfluenceLevelTypes CvPlayerCulture::GetInfluenceLevel(PlayerTypes ePlayer) cons
 /// Current influence trend on this player
 InfluenceLevelTrend CvPlayerCulture::GetInfluenceTrend(PlayerTypes ePlayer) const
 {
-	InfluenceLevelTrend eRtnValue = INFLUENCE_TREND_STATIC;
+	//looking up average yields is expensive, so we cache the last result
+	map<PlayerTypes, pair<int, InfluenceLevelTrend>>::const_iterator it = m_influenceTrendCache.find(ePlayer);
+	if (it != m_influenceTrendCache.end() && it->second.first == GC.getGame().getTurnSlice())
+		return it->second.second;
 
+	InfluenceLevelTrend eRtnValue = INFLUENCE_TREND_STATIC;
 	CvPlayer &kOtherPlayer = GET_PLAYER(ePlayer);
 
 	float iTheirCultureThisTurn = (float)m_pPlayer->GetCulture()->GetOtherPlayerCulturePerTurnIncludingInstant(ePlayer) + (float)kOtherPlayer.GetJONSCultureEverGenerated();
@@ -4530,15 +4534,14 @@ InfluenceLevelTrend CvPlayerCulture::GetInfluenceTrend(PlayerTypes ePlayer) cons
 
 	if (iTheirCultureLastTurn <= 0)
 		iTheirCultureLastTurn = 1;
-
 	if (iTheirCultureThisTurn <= 0)
 		iTheirCultureThisTurn = 1;
+
 	float iLastTurnPercent = (iOurTourismLastTurn * 100) / iTheirCultureLastTurn;
 	float iThisTurnPercent = (iOurTourismThisTurn * 100) / iTheirCultureThisTurn;
 
 	float iDiff = fabs(iLastTurnPercent - iThisTurnPercent);
-
-	if (iDiff <= .15f)
+	if (iDiff <= .1f)
 		return eRtnValue;
 
 	else if (iLastTurnPercent < iThisTurnPercent)
@@ -4549,7 +4552,9 @@ InfluenceLevelTrend CvPlayerCulture::GetInfluenceTrend(PlayerTypes ePlayer) cons
 	{
 		eRtnValue = INFLUENCE_TREND_FALLING;
 	}
-		
+
+	//update the cache
+	m_influenceTrendCache[ePlayer] = make_pair(GC.getGame().getTurnSlice(), eRtnValue);
 	return eRtnValue;
 }
 
@@ -6702,9 +6707,9 @@ int CvPlayerCulture::GetTotalThemingBonuses() const
 	for(pCity = m_pPlayer->firstCity(&iLoop); pCity != NULL; pCity = m_pPlayer->nextCity(&iLoop))
 	{
 #if defined(MOD_GLOBAL_GREATWORK_YIELDTYPES)
-		iRtnValue += pCity->GetCityBuildings()->GetThemingBonuses(YIELD_CULTURE);
+		iRtnValue += pCity->GetCityBuildings()->GetCurrentThemingBonuses(YIELD_CULTURE);
 #else
-		iRtnValue += pCity->GetCityBuildings()->GetThemingBonuses();
+		iRtnValue += pCity->GetCityBuildings()->GetCurrentThemingBonuses();
 #endif
 	}
 
@@ -7338,9 +7343,9 @@ void CvCityCulture::CalculateBaseTourismBeforeModifiers()
 	iBase += iBonus;
 
 #if defined(MOD_GLOBAL_GREATWORK_YIELDTYPES)
-	iBase += m_pCity->GetCityBuildings()->GetThemingBonuses(YIELD_CULTURE);
+	iBase += m_pCity->GetCityBuildings()->GetCurrentThemingBonuses(YIELD_CULTURE);
 #else
-	iBase += m_pCity->GetCityBuildings()->GetThemingBonuses();
+	iBase += m_pCity->GetCityBuildings()->GetCurrentThemingBonuses();
 #endif
 
 #if defined(MOD_API_UNIFIED_YIELDS_TOURISM)
@@ -7685,9 +7690,9 @@ CvString CvCityCulture::GetTourismTooltip()
 	szRtnValue = GetLocalizedText("TXT_KEY_CO_CITY_TOURISM_GREAT_WORKS", iGWTourism, m_pCity->GetCityCulture()->GetNumGreatWorks());
 
 #if defined(MOD_GLOBAL_GREATWORK_YIELDTYPES)
-	int iThemingBonuses = m_pCity->GetCityBuildings()->GetThemingBonuses(YIELD_CULTURE);
+	int iThemingBonuses = m_pCity->GetCityBuildings()->GetCurrentThemingBonuses(YIELD_CULTURE);
 #else
-	int iThemingBonuses = m_pCity->GetCityBuildings()->GetThemingBonuses();
+	int iThemingBonuses = m_pCity->GetCityBuildings()->GetCurrentThemingBonuses();
 #endif
 	if (iThemingBonuses != 0)
 	{

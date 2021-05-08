@@ -36669,11 +36669,10 @@ void CvPlayer::changeSpecialistExtraYield(YieldTypes eIndex, int iChange)
 			for(int iSpecialistLoop = 0; iSpecialistLoop < GC.getNumSpecialistInfos(); iSpecialistLoop++)
 			{
 				iNumTotalSpecialists = pLoopCity->GetCityCitizens()->GetSpecialistCount((SpecialistTypes) iSpecialistLoop);
-//				iNumTotalSpecialists = pLoopCity->getSpecialistCount((SpecialistTypes) iSpecialistLoop) + pLoopCity->getFreeSpecialistCount((SpecialistTypes) iSpecialistLoop);
 
 				for(int iTempLoop = 0; iTempLoop < iNumTotalSpecialists; iTempLoop++)
 				{
-					pLoopCity->processSpecialist((SpecialistTypes) iSpecialistLoop, -1);
+					pLoopCity->processSpecialist((SpecialistTypes) iSpecialistLoop, -1, CvCity::YIELD_UPDATE_GLOBAL);
 				}
 			}
 		}
@@ -36689,11 +36688,10 @@ void CvPlayer::changeSpecialistExtraYield(YieldTypes eIndex, int iChange)
 			for(int iSpecialistLoop = 0; iSpecialistLoop < GC.getNumSpecialistInfos(); iSpecialistLoop++)
 			{
 				iNumTotalSpecialists = pLoopCity->GetCityCitizens()->GetSpecialistCount((SpecialistTypes) iSpecialistLoop);
-//				iNumTotalSpecialists = pLoopCity->getSpecialistCount((SpecialistTypes) iSpecialistLoop) + pLoopCity->getFreeSpecialistCount((SpecialistTypes) iSpecialistLoop);
 
 				for(int iTempLoop = 0; iTempLoop < iNumTotalSpecialists; iTempLoop++)
 				{
-					pLoopCity->processSpecialist((SpecialistTypes) iSpecialistLoop, 1);
+					pLoopCity->processSpecialist((SpecialistTypes) iSpecialistLoop, 1, CvCity::YIELD_UPDATE_GLOBAL);
 				}
 			}
 		}

@@ -1240,6 +1240,7 @@ FDataStream& operator<<(FDataStream& saveTo, const CvTacticalAnalysisMap& readFr
 
 	saveTo << readFrom.m_vPlotZoneID;
 	saveTo << readFrom.m_vDominanceZones;
+	saveTo << readFrom.m_IdLookup;
 
 	return saveTo;
 }
@@ -1250,6 +1251,7 @@ FDataStream& operator>>(FDataStream& loadFrom, CvTacticalAnalysisMap& writeTo)
 
 	loadFrom >> writeTo.m_vPlotZoneID;
 	loadFrom >> writeTo.m_vDominanceZones;
+	loadFrom >> writeTo.m_IdLookup;
 
 	return loadFrom;
 }

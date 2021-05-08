@@ -8059,6 +8059,7 @@ STacticalAssignment ScorePlotForMove(const SUnitStats& unit, const CvTacticalPlo
 vector<STacticalAssignment> CvTacticalPosition::getPreferredAssignmentsForUnit(const SUnitStats& unit, int nMaxCount) const
 {
 	vector<STacticalAssignment> possibleMoves;
+	possibleMoves.reserve(23); //just a reasonably high number to avoid re-allocations
 
 	const CvTacticalPlot& assumedUnitPlot = getTactPlot(unit.iPlotIndex);
 	CvUnit* pUnit = GET_PLAYER(getPlayer()).getUnit(unit.iUnitID);
@@ -8281,6 +8282,7 @@ bool CvTacticalPosition::makeNextAssignments(int iMaxBranches, int iMaxChoicesPe
 	updateMovePlotsIfRequired();
 
 	vector<STacticalAssignment> overAllChoices;
+	overAllChoices.reserve(iMaxBranches*iMaxChoicesPerUnit);
 	map<int,vector<STacticalAssignment>> choicePerUnit;
 
 	for (vector<SUnitStats>::iterator itUnit = availableUnits.begin(); itUnit != availableUnits.end(); ++itUnit)
@@ -9580,9 +9582,9 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestDefensiveAssignment(const
 		return result;
 
 	//meta parameters depending on difficulty setting
-	int iMaxCompletedPositions = GC.getGame().getHandicapType() < 2 ? 18 : 37;
-	int iMaxBranches = GC.getGame().getHandicapType() < 2 ? 2 : 3;
-	int iMaxChoicesPerUnit = GC.getGame().getHandicapType() < 2 ? 3 : 6;
+	int iMaxCompletedPositions = GC.getGame().getHandicapType() < 2 ? 18 : 23;
+	int iMaxBranches = GC.getGame().getHandicapType() < 2 ? 2 : 4;
+	int iMaxChoicesPerUnit = GC.getGame().getHandicapType() < 2 ? 3 : 5;
 
 	//set up the initial position
 	PlayerTypes ePlayer = vUnits.front()->getOwner();
@@ -9820,9 +9822,9 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestOffensiveAssignment(
 		return result;
 
 	//meta parameters depending on difficulty setting
-	int iMaxCompletedPositions = GC.getGame().getHandicapType() < 2 ? 18 : 37;
+	int iMaxCompletedPositions = GC.getGame().getHandicapType() < 2 ? 18 : 23;
 	int iMaxBranches = GC.getGame().getHandicapType() < 2 ? 2 : 4;
-	int iMaxChoicesPerUnit = GC.getGame().getHandicapType() < 2 ? 3 : 6;
+	int iMaxChoicesPerUnit = GC.getGame().getHandicapType() < 2 ? 3 : 5;
 
 	PlayerTypes ePlayer = vUnits.front()->getOwner();
 	TeamTypes ourTeam = GET_PLAYER(ePlayer).getTeam();

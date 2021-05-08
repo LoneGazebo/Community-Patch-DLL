@@ -64,6 +64,12 @@ public:
 	CvCity();
 	virtual ~CvCity();
 
+	enum eUpdateMode { 
+		YIELD_UPDATE_NONE, //don't do any bookkeeping
+		YIELD_UPDATE_LOCAL, //update yields only (plot or city)
+		YIELD_UPDATE_GLOBAL //update yields and player happiness
+	};
+
 #if defined(MOD_API_EXTENSIONS) && defined(MOD_BALANCE_CORE)
 	void init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits = true, bool bInitialFounding = true, ReligionTypes eInitialReligion = NO_RELIGION, const char* szName = NULL, CvUnitEntry* pkSettlerUnitEntry = NULL);
 #else
@@ -454,11 +460,7 @@ public:
 	void processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, bool bObsolete = false, bool bApplyingAllCitiesBonus = false);
 #endif
 	void processProcess(ProcessTypes eProcess, int iChange);
-#if defined(MOD_BALANCE_CORE)
-	void processSpecialist(SpecialistTypes eSpecialist, int iChange, bool bSkipUpdate = false);
-#else
-	void processSpecialist(SpecialistTypes eSpecialist, int iChange);
-#endif
+	void processSpecialist(SpecialistTypes eSpecialist, int iChange, eUpdateMode updateMode);
 
 	void UpdateReligion(ReligionTypes eNewMajority, bool bRecalcPlotYields=true);
 
