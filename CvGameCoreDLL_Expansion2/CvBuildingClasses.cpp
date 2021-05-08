@@ -1533,9 +1533,9 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 }
 
 /// Class of this building
-int CvBuildingEntry::GetBuildingClassType() const
+BuildingClassTypes CvBuildingEntry::GetBuildingClassType() const
 {
-	return m_iBuildingClassType;
+	return (BuildingClassTypes)m_iBuildingClassType;
 }
 
 const CvBuildingClassInfo& CvBuildingEntry::GetBuildingClassInfo() const
@@ -4594,7 +4594,7 @@ bool CvCityBuildings::IsBuildingSellable(const CvBuildingEntry& kBuilding) const
 	}
 
 	// Great Work present in this one?
-	const BuildingClassTypes buildingClassType = (BuildingClassTypes) kBuilding.GetBuildingClassType();
+	const BuildingClassTypes buildingClassType = kBuilding.GetBuildingClassType();
 	if (IsHoldingGreatWork(buildingClassType))
 	{
 		return false;
@@ -4858,7 +4858,7 @@ void CvCityBuildings::SetNumRealBuildingTimed(BuildingTypes eIndex, int iNewValu
 	int iChangeNumRealBuilding = iNewValue - GetNumRealBuilding(eIndex);
 
 	CvBuildingEntry* buildingEntry = GC.getBuildingInfo(eIndex);
-	const BuildingClassTypes buildingClassType = (BuildingClassTypes) buildingEntry->GetBuildingClassType();
+	const BuildingClassTypes buildingClassType = buildingEntry->GetBuildingClassType();
 	const CvBuildingClassInfo& kBuildingClassInfo = buildingEntry->GetBuildingClassInfo();
 
 	if(iChangeNumRealBuilding != 0)
@@ -5382,71 +5382,21 @@ bool CvCityBuildings::HasAvailableGreatWorkSlot(GreatWorkSlotType eSlotType) con
 }
 
 /// Accessor: How many Great Work slots of this type are in the city?
-int CvCityBuildings::GetNumAvailableGreatWorkSlots() const
+int CvCityBuildings::GetNumAvailableGreatWorkSlots(GreatWorkSlotType eSlotType) const
 {
-	CvCivilizationInfo *pkCivInfo = GC.getCivilizationInfo(m_pCity->getCivilizationType());
-	if (pkCivInfo)
-		return 0;
-
 	int iCount = 0;
 	for(size_t iI = 0; iI < m_buildingsThatExistAtLeastOnce.size(); iI++)
 	{
 		CvBuildingEntry *pkBuilding = GC.getBuildingInfo(m_buildingsThatExistAtLeastOnce[iI]);
 		if (pkBuilding)
 		{
-			int iNumSlots = pkBuilding->GetGreatWorkCount();
-			int iNumOpenSlots = iNumSlots - GetNumGreatWorksInBuilding((BuildingClassTypes)pkBuilding->GetBuildingClassType());
-			if(iNumOpenSlots > 0)
+			if (eSlotType == NO_GREAT_WORK_SLOT || pkBuilding->GetGreatWorkSlotType() == eSlotType)
 			{
-				iCount += iNumOpenSlots;
-			}
-		}
-	}
-
-	return iCount;
-}
-
-/// Accessor: How many Great Work slots of this type are in the city?
-int CvCityBuildings::GetNumAvailableGreatWorkSlots(GreatWorkSlotType eSlotType) const
-{
-	int iCount = 0;
-
-	for(int iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
-	{
-		BuildingClassTypes eLoopBuildingClass = (BuildingClassTypes) iI;
-		CvCivilizationInfo *pkCivInfo = GC.getCivilizationInfo(m_pCity->getCivilizationType());
-		if (pkCivInfo)
-		{
-			BuildingTypes eBuilding = NO_BUILDING;
-#if defined(MOD_BALANCE_CORE)
-			if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || GET_PLAYER(m_pCity->getOwner()).GetPlayerTraits()->IsKeepConqueredBuildings())
-#else
-			if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
-#endif
-			{
-				eBuilding = GetBuildingTypeFromClass(eLoopBuildingClass);
-			}
-			else
-			{
-				eBuilding = (BuildingTypes)pkCivInfo->getCivilizationBuildings(eLoopBuildingClass);
-			}
-			if(NO_BUILDING != eBuilding)
-			{
-				if (GetNumBuilding(eBuilding) > 0)
+				int iNumSlots = pkBuilding->GetGreatWorkCount();
+				int iNumOpenSlots = iNumSlots - GetNumGreatWorksInBuilding(pkBuilding->GetBuildingClassType());
+				if(iNumOpenSlots > 0)
 				{
-					CvBuildingEntry *pkBuilding = GC.getBuildingInfo(eBuilding);
-					if (pkBuilding)
-					{
-						if (pkBuilding->GetGreatWorkSlotType() == eSlotType)
-						{
-							int iNumSlots = pkBuilding->GetGreatWorkCount();
-							int iNumOpenSlots = iNumSlots - GetNumGreatWorksInBuilding(eLoopBuildingClass);
-							if(iNumOpenSlots > 0)
-							{
-								iCount += iNumOpenSlots;
-							}
-						}
-					}
+					iCount += iNumOpenSlots;
 				}
 			}
 		}
@@ -5458,42 +5408,17 @@ int CvCityBuildings::GetNumAvailableGreatWorkSlots(GreatWorkSlotType eSlotType) 
 int CvCityBuildings::GetNumFilledGreatWorkSlots(GreatWorkSlotType eSlotType) const
 {
 	int iCount = 0;
-
-	for (int iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
+	for(size_t iI = 0; iI < m_buildingsThatExistAtLeastOnce.size(); iI++)
 	{
-		BuildingClassTypes eLoopBuildingClass = (BuildingClassTypes)iI;
-		CvCivilizationInfo *pkCivInfo = GC.getCivilizationInfo(m_pCity->getCivilizationType());
-		if (pkCivInfo)
+		CvBuildingEntry *pkBuilding = GC.getBuildingInfo(m_buildingsThatExistAtLeastOnce[iI]);
+		if (pkBuilding)
 		{
-			BuildingTypes eBuilding = NO_BUILDING;
-#if defined(MOD_BALANCE_CORE)
-			if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || GET_PLAYER(m_pCity->getOwner()).GetPlayerTraits()->IsKeepConqueredBuildings())
-#else
-			if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
-#endif
+			if (eSlotType == NO_GREAT_WORK_SLOT || pkBuilding->GetGreatWorkSlotType() == eSlotType)
 			{
-				eBuilding = GetBuildingTypeFromClass(eLoopBuildingClass);
-			}
-			else
-			{
-				eBuilding = (BuildingTypes)pkCivInfo->getCivilizationBuildings(eLoopBuildingClass);
-			}
-			if (NO_BUILDING != eBuilding)
-			{
-				if (GetNumBuilding(eBuilding) > 0)
+				int iNumFilledSlots = GetNumGreatWorksInBuilding(pkBuilding->GetBuildingClassType());
+				if (iNumFilledSlots > 0)
 				{
-					CvBuildingEntry *pkBuilding = GC.getBuildingInfo(eBuilding);
-					if (pkBuilding)
-					{
-						if (pkBuilding->GetGreatWorkSlotType() == eSlotType)
-						{
-							int iNumFilledSlots = GetNumGreatWorksInBuilding(eLoopBuildingClass);
-							if (iNumFilledSlots > 0)
-							{
-								iCount += iNumFilledSlots;
-							}
-						}
-					}
+					iCount += iNumFilledSlots;
 				}
 			}
 		}
@@ -5611,10 +5536,10 @@ int CvCityBuildings::GetYieldFromGreatWorks(YieldTypes eYield) const
 		CvBuildingEntry *pkInfo = GC.getBuildingInfo(*iI);
 		if (pkInfo && pkInfo->GetGreatWorkCount() > 0)
 		{
-			int iThisWork = GetNumGreatWorksInBuilding((BuildingClassTypes)pkInfo->GetBuildingClassType());
+			int iThisWork = GetNumGreatWorksInBuilding(pkInfo->GetBuildingClassType());
 			iRealWorkCount += iThisWork;
 
-			int iThemingBonus = m_pCity->GetCityCulture()->GetThemingBonus((BuildingClassTypes)pkInfo->GetBuildingClassType());
+			int iThemingBonus = m_pCity->GetCityCulture()->GetThemingBonus(pkInfo->GetBuildingClassType());
 			if (iThemingBonus > 0)
 			{
 				iThemingBonusTotal += pkInfo->GetThemingYieldBonus(eYield);
@@ -5911,8 +5836,6 @@ int CvCityBuildings::GetThemingBonuses() const
 #endif
 {
 	int iBonus = 0;
-
-#if defined(MOD_BALANCE_CORE)
 	for(std::vector<BuildingTypes>::const_iterator iI=m_buildingsThatExistAtLeastOnce.begin(); iI!=m_buildingsThatExistAtLeastOnce.end(); ++iI)
 	{
 #if defined(MOD_GLOBAL_GREATWORK_YIELDTYPES)
@@ -5921,44 +5844,13 @@ int CvCityBuildings::GetThemingBonuses() const
 		{
 			if (pkInfo->GetGreatWorkYieldType() == eYield)
 			{
-				iBonus += m_pCity->GetCityCulture()->GetThemingBonus( (BuildingClassTypes)pkInfo->GetBuildingClassType() );
+				iBonus += m_pCity->GetCityCulture()->GetThemingBonus( pkInfo->GetBuildingClassType() );
 			}
 		}
 #else
 		iBonus += m_pCity->GetCityCulture()->GetThemingBonus( (BuildingClassTypes)pkInfo->GetBuildingClassType() );
 #endif
 	}
-
-#else
-
-	for(int iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
-	{
-		BuildingClassTypes eLoopBuildingClass = (BuildingClassTypes) iI;
-		CvCivilizationInfo *pkCivInfo = GC.getCivilizationInfo(m_pCity->getCivilizationType());
-		if (pkCivInfo)
-		{
-			BuildingTypes eBuilding = (BuildingTypes)pkCivInfo->getCivilizationBuildings(eLoopBuildingClass);
-			if(NO_BUILDING != eBuilding)
-			{
-				if (GetNumBuilding(eBuilding) > 0)
-				{
-#if defined(MOD_GLOBAL_GREATWORK_YIELDTYPES)
-					CvBuildingEntry *pkInfo = GC.getBuildingInfo(eBuilding);
-					if (pkInfo)
-					{
-						if (pkInfo->GetGreatWorkYieldType() == eYield)
-						{
-							iBonus += m_pCity->GetCityCulture()->GetThemingBonus(eLoopBuildingClass);
-						}
-					}
-#else
-					iBonus += m_pCity->GetCityCulture()->GetThemingBonus(eLoopBuildingClass);
-#endif
-				}
-			}
-		}
-	}
-#endif
 
 	return iBonus;
 }
@@ -5988,45 +5880,21 @@ int CvCityBuildings::GetNumBuildingsFromFaith() const
 {
 	int iRtnValue = 0;
 
-	for(int iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
+	for(size_t iI = 0; iI < m_buildingsThatExistAtLeastOnce.size(); iI++)
 	{
-		BuildingClassTypes eLoopBuildingClass = (BuildingClassTypes) iI;
-		CvCivilizationInfo *pkCivInfo = GC.getCivilizationInfo(m_pCity->getCivilizationType());
-		if (pkCivInfo)
+		CvBuildingEntry *pkBuilding = GC.getBuildingInfo(m_buildingsThatExistAtLeastOnce[iI]);
+		if (pkBuilding)
 		{
-			BuildingTypes eBuilding = NO_BUILDING;
-#if defined(MOD_BALANCE_CORE)
-			if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || GET_PLAYER(m_pCity->getOwner()).GetPlayerTraits()->IsKeepConqueredBuildings())
-#else
-			if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
-#endif
+			if (pkBuilding->GetFaithCost() > 0 && pkBuilding->IsUnlockedByBelief() && pkBuilding->GetProductionCost() == -1)
 			{
-				eBuilding = GetBuildingTypeFromClass(eLoopBuildingClass);
+				iRtnValue++;
 			}
-			else
-			{
-				eBuilding = (BuildingTypes)pkCivInfo->getCivilizationBuildings(eLoopBuildingClass);
-			}
-			if (NO_BUILDING != eBuilding)
-			{
-				if (GetNumBuilding(eBuilding) > 0)
-				{
-					CvBuildingEntry *pkEntry = GC.getBuildingInfo(eBuilding);
-					if (pkEntry)
-					{
-						if (pkEntry->GetFaithCost() > 0 && pkEntry->IsUnlockedByBelief() && pkEntry->GetProductionCost() == -1)
-						{
-							iRtnValue++;
-						}
 #if defined(MOD_BALANCE_CORE_POLICIES)
-						else if (pkEntry->GetFaithCost() > 0 && (pkEntry->GetPolicyType() != NULL) && pkEntry->GetProductionCost() == -1)
-						{
-							iRtnValue++;
-						}
-#endif
-					}
-				}
+			else if (pkBuilding->GetFaithCost() > 0 && (pkBuilding->GetPolicyType() != NULL) && pkBuilding->GetProductionCost() == -1)
+			{
+				iRtnValue++;
 			}
+#endif
 		}
 	}
 

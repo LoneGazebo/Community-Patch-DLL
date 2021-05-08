@@ -214,7 +214,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	{
 		if (!bNationalWonderCheck)
 		{
-			if (!m_pCity->IsBestForWonder((BuildingClassTypes)pkBuildingInfo->GetBuildingClassType()))
+			if (!m_pCity->IsBestForWonder(pkBuildingInfo->GetBuildingClassType()))
 			{
 				return 0;
 			}
@@ -248,7 +248,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 				if (eLoopPlayer == kPlayer.GetID())
 					continue;
 
-				if (GET_PLAYER(eLoopPlayer).isAlive() && GET_TEAM(kPlayer.getTeam()).isHasMet(GET_PLAYER(eLoopPlayer).getTeam()) && GET_PLAYER(eLoopPlayer).getBuildingClassMaking((BuildingClassTypes)pkBuildingInfo->GetBuildingClassType()) > 0)
+				if (GET_PLAYER(eLoopPlayer).isAlive() && GET_TEAM(kPlayer.getTeam()).isHasMet(GET_PLAYER(eLoopPlayer).getTeam()) && GET_PLAYER(eLoopPlayer).getBuildingClassMaking(pkBuildingInfo->GetBuildingClassType()) > 0)
 				{
 					iNumOthersConstructing++;
 				}
@@ -709,7 +709,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	//unfortunately we have to loop through all buildings in the game to do this. Sigh...
 	for (int iI = 0; iI < GC.getNumBuildingInfos(); iI++)
 	{
-		int iNumNeeded = kPlayer.getBuildingClassPrereqBuilding((BuildingTypes)iI, (BuildingClassTypes)pkBuildingInfo->GetBuildingClassType());
+		int iNumNeeded = kPlayer.getBuildingClassPrereqBuilding((BuildingTypes)iI, pkBuildingInfo->GetBuildingClassType());
 		//need in all?
 		if (iNumNeeded > 0)
 		{

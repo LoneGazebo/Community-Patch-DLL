@@ -1017,7 +1017,7 @@ CvCity* CvCitySpecializationAI::FindBestWonderCity() const
 			if (!pkBuildingInfo)
 				continue;
 
-			if (pLoopCity->IsBestForWonder((BuildingClassTypes)pkBuildingInfo->GetBuildingClassType()))
+			if (pLoopCity->IsBestForWonder(pkBuildingInfo->GetBuildingClassType()))
 				return pBestCity;
 		}
 	}

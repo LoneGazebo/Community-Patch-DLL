@@ -130,7 +130,7 @@ void CvCityAI::AI_chooseProduction(bool bInterruptWonders, bool bInterruptBuildi
 		CvBuildingEntry* pkBuilding = GC.getBuildingInfo(eNextWonder);
 		if (pkBuilding)
 		{
-			if (IsBestForWonder((BuildingClassTypes)pkBuilding->GetBuildingClassType()))
+			if (IsBestForWonder(pkBuilding->GetBuildingClassType()))
 			{
 				if (kOwner.GetNumUnitsWithUnitAI(UNITAI_ENGINEER) > 0)
 					bBuildWonder = true;

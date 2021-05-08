@@ -121,7 +121,7 @@ public:
 	virtual bool CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility);
 
 	// Accessor Functions (Non-Arrays)
-	int GetBuildingClassType() const;
+	BuildingClassTypes GetBuildingClassType() const;
 	const CvBuildingClassInfo& GetBuildingClassInfo() const;
 
 	int GetNearbyTerrainRequired() const;
@@ -1148,9 +1148,8 @@ public:
   
 	bool HasAnyAvailableGreatWorkSlot() const;
 	bool HasAvailableGreatWorkSlot(GreatWorkSlotType eGreatWorkSlot) const;
-	int GetNumAvailableGreatWorkSlots() const;
-	int GetNumAvailableGreatWorkSlots(GreatWorkSlotType eGreatWorkSlot) const;
-	int GetNumFilledGreatWorkSlots(GreatWorkSlotType eGreatWorkSlot) const;
+	int GetNumAvailableGreatWorkSlots(GreatWorkSlotType eGreatWorkSlot = NO_GREAT_WORK_SLOT) const;
+	int GetNumFilledGreatWorkSlots(GreatWorkSlotType eGreatWorkSlot = NO_GREAT_WORK_SLOT) const;
 	bool GetNextAvailableGreatWorkSlot(BuildingClassTypes *eBuildingClass, int *iSlot) const;
 	bool GetNextAvailableGreatWorkSlot(GreatWorkSlotType eGreatWorkSlot, BuildingClassTypes *eBuildingClass, int *iSlot) const;
 

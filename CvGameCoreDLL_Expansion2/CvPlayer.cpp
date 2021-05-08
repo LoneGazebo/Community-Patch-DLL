@@ -1059,7 +1059,7 @@ void CvPlayer::init(PlayerTypes eID)
 				int iNumBuilding = GetPlayerTraits()->GetNumFreeBuildings();
 				if(iNumBuilding > 0)
 				{
-					ChangeNumCitiesFreeChosenBuilding((BuildingClassTypes)pkBuildingInfo->GetBuildingClassType(), iNumBuilding);
+					ChangeNumCitiesFreeChosenBuilding(pkBuildingInfo->GetBuildingClassType(), iNumBuilding);
 				}
 				else
 				{
@@ -3667,7 +3667,7 @@ CvCity* CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 			{
 				for (int jJ = 0; jJ < pkBuilding->GetGreatWorkCount(); jJ++)
 				{
-					int iGreatWork = pOldCity->GetCityBuildings()->GetBuildingGreatWork((BuildingClassTypes)pkBuilding->GetBuildingClassType(), jJ);
+					int iGreatWork = pOldCity->GetCityBuildings()->GetBuildingGreatWork(pkBuilding->GetBuildingClassType(), jJ);
 					if (iGreatWork != NO_GREAT_WORK)
 					{
 						CopyGreatWorkData kData;
@@ -4244,7 +4244,7 @@ CvCity* CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 
 			if (bKeepBuildings && paiNumFreeBuilding[iI] > 0)
 			{
-				const BuildingClassTypes eBuildingClass = (BuildingClassTypes)pkLoopBuildingInfo->GetBuildingClassType();
+				const BuildingClassTypes eBuildingClass = pkLoopBuildingInfo->GetBuildingClassType();
 				if (::isWorldWonderClass(kLoopBuildingClassInfo))
 				{
 					eBuilding = eLoopBuilding;
@@ -4298,7 +4298,7 @@ CvCity* CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 
 			else if(paiNumRealBuilding[iI] > 0)
 			{
-				const BuildingClassTypes eBuildingClass = (BuildingClassTypes)pkLoopBuildingInfo->GetBuildingClassType();
+				const BuildingClassTypes eBuildingClass = pkLoopBuildingInfo->GetBuildingClassType();
 				if(::isWorldWonderClass(kLoopBuildingClassInfo))
 				{
 					eBuilding = eLoopBuilding;
@@ -4895,7 +4895,7 @@ bool CvPlayer::IsValidBuildingForPlayer(CvCity* pCity, BuildingTypes eBuilding, 
 
 	bool bIsNationalWonder = ::isNationalWonderClass(pkClassInfo);
 	bool bCivUnique = pkClassInfo.getDefaultBuildingIndex() != eBuilding;
-	bool bProductionMaxed = isProductionMaxedBuildingClass((BuildingClassTypes)pkLoopBuildingInfo->GetBuildingClassType(), true);
+	bool bProductionMaxed = isProductionMaxedBuildingClass(pkLoopBuildingInfo->GetBuildingClassType(), true);
 
 	if (GetPlayerTraits()->IsKeepConqueredBuildings())
 	{
@@ -14587,7 +14587,7 @@ std::vector<BuildingTypes> CvPlayer::FindInitialBuildings()
 			continue;
 
 		//skip wonders
-		CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo((BuildingClassTypes)pkBuildingInfo->GetBuildingClassType());
+		CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo(pkBuildingInfo->GetBuildingClassType());
 		if (pkBuildingClassInfo)
 			if (pkBuildingClassInfo->getMaxGlobalInstances() > 0 || pkBuildingClassInfo->getMaxPlayerInstances() > 0 || pkBuildingClassInfo->getMaxTeamInstances() > 0)
 				continue;
@@ -14595,7 +14595,7 @@ std::vector<BuildingTypes> CvPlayer::FindInitialBuildings()
 		bool bHasPrereq = false;
 		if (pkBuildingInfo)
 		{
-			BuildingTypes eCivBuilding = (BuildingTypes)pkCivilizationInfo->getCivilizationBuildings((BuildingClassTypes)pkBuildingInfo->GetBuildingClassType());
+			BuildingTypes eCivBuilding = (BuildingTypes)pkCivilizationInfo->getCivilizationBuildings(pkBuildingInfo->GetBuildingClassType());
 			if (eCivBuilding != eBuilding)
 				continue;
 
@@ -14642,7 +14642,7 @@ void CvPlayer::SetChainLength(BuildingTypes eBuilding)
 				break;
 
 			//find the class
-			BuildingClassTypes eBuildingClass = (BuildingClassTypes)pkBuildingInfo->GetBuildingClassType();
+			BuildingClassTypes eBuildingClass = pkBuildingInfo->GetBuildingClassType();
 			if (eBuildingClass == NO_BUILDINGCLASS)
 				break;
 
@@ -17000,7 +17000,7 @@ int CvPlayer::getBuildingClassPrereqBuilding(BuildingTypes eBuilding, BuildingCl
 
 	if(!isLimitedWonderClass(pkBuilding->GetBuildingClassInfo()))
 	{
-		BuildingClassTypes eBuildingClass = (BuildingClassTypes)pkBuilding->GetBuildingClassType();
+		BuildingClassTypes eBuildingClass = pkBuilding->GetBuildingClassType();
 		iPrereqs *= (getBuildingClassCount(eBuildingClass) + iExtra + 1);
 	}
 

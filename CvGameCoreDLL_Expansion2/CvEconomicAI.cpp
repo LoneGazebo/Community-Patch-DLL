@@ -4674,7 +4674,7 @@ bool EconomicAIHelpers::IsTestStrategy_NeedGuilds(CvPlayer* pPlayer)
 	{
 		if (kTeam.GetTeamTechs()->HasTech((TechTypes)pkBuilding->GetPrereqAndTech()))
 		{
-			if (pPlayer->GetFirstCityWithBuildingClass((BuildingClassTypes)pkBuilding->GetBuildingClassType()) == NULL)
+			if (pPlayer->GetFirstCityWithBuildingClass(pkBuilding->GetBuildingClassType()) == NULL)
 			{
 				return true;
 			}
@@ -4685,7 +4685,7 @@ bool EconomicAIHelpers::IsTestStrategy_NeedGuilds(CvPlayer* pPlayer)
 	{
 		if (kTeam.GetTeamTechs()->HasTech((TechTypes)pkBuilding->GetPrereqAndTech()))
 		{
-			if (pPlayer->GetFirstCityWithBuildingClass((BuildingClassTypes)pkBuilding->GetBuildingClassType()) == NULL)
+			if (pPlayer->GetFirstCityWithBuildingClass(pkBuilding->GetBuildingClassType()) == NULL)
 			{
 				return true;
 			}
@@ -4696,7 +4696,7 @@ bool EconomicAIHelpers::IsTestStrategy_NeedGuilds(CvPlayer* pPlayer)
 	{
 		if (kTeam.GetTeamTechs()->HasTech((TechTypes)pkBuilding->GetPrereqAndTech()))
 		{
-			if (pPlayer->GetFirstCityWithBuildingClass((BuildingClassTypes)pkBuilding->GetBuildingClassType()) == NULL)
+			if (pPlayer->GetFirstCityWithBuildingClass(pkBuilding->GetBuildingClassType()) == NULL)
 			{
 				return true;
 			}

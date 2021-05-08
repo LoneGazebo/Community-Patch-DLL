@@ -2960,7 +2960,7 @@ void CvCity::doTurn()
 					CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
 					if(pkBuildingInfo)
 					{
-						iCount += m_pCityBuildings->GetNumActiveBuilding(eBuilding) * (pkBuildingInfo->GetYieldChange(iI) + m_pCityBuildings->GetBuildingYieldChange((BuildingClassTypes)pkBuildingInfo->GetBuildingClassType(), (YieldTypes)iI));
+						iCount += m_pCityBuildings->GetNumActiveBuilding(eBuilding) * (pkBuildingInfo->GetYieldChange(iI) + m_pCityBuildings->GetBuildingYieldChange(pkBuildingInfo->GetBuildingClassType(), (YieldTypes)iI));
 					}
 				}
 
@@ -8710,7 +8710,7 @@ bool CvCity::canConstruct(BuildingTypes eBuilding, bool bContinue, bool bTestVis
 		if(eReligion != NO_RELIGION)
 		{
 			const CvReligion* pReligion = pReligions->GetReligion(eReligion, getOwner());
-			if(pReligion == NULL || !pReligion->m_Beliefs.IsBuildingClassEnabled((BuildingClassTypes)pkBuildingInfo->GetBuildingClassType(), getOwner(), GET_PLAYER(getOwner()).getCity(GetID()), true))
+			if(pReligion == NULL || !pReligion->m_Beliefs.IsBuildingClassEnabled(pkBuildingInfo->GetBuildingClassType(), getOwner(), GET_PLAYER(getOwner()).getCity(GetID()), true))
 			{
 				return false;
 			}
@@ -8800,23 +8800,14 @@ bool CvCity::canConstruct(BuildingTypes eBuilding, bool bContinue, bool bTestVis
 	}
 
 #if defined(MOD_BALANCE_CORE)
-	int iNumBuildingInfos = GC.getNumBuildingInfos();
 	//Check for uniques of the same type.
-	for(int iI = 0; iI < iNumBuildingInfos; iI++)
+	vector<BuildingTypes> allBuildings = GetCityBuildings()->GetAllBuildingsHere();
+	for(size_t iI = 0; iI < allBuildings.size(); iI++)
 	{
-		CvBuildingEntry* pkBuildingInfo2 = GC.getBuildingInfo((BuildingTypes)iI);
-		if(pkBuildingInfo2 == NULL)
+		CvBuildingEntry *pkBuildingInfo2 = GC.getBuildingInfo(allBuildings[iI]);
+		if (pkBuildingInfo2 && pkBuildingInfo2->GetBuildingClassType() == pkBuildingInfo->GetBuildingClassType())
 		{
-			continue;
-		}
-		//Same class?
-		if(pkBuildingInfo2->GetBuildingClassType() == pkBuildingInfo->GetBuildingClassType())
-		{
-			//Do we already have this building? Return false if so.
-			if(m_pCityBuildings->GetNumBuilding((BuildingTypes)iI) > 0)
-			{
-				return false;
-			}
+			return false;
 		}
 	}
 #endif
@@ -12446,7 +12437,7 @@ void CvCity::changeProductionTimes100(int iChange)
 									// what building is the destination city making?
 									BuildingTypes eBuilding = getProductionBuilding();
 									CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
-									BuildingClassTypes eBuildingClass = (BuildingClassTypes)pkBuildingInfo->GetBuildingClassType();
+									BuildingClassTypes eBuildingClass = pkBuildingInfo->GetBuildingClassType();
 
 									// check if this building is valid in the origin city
 									// we are going very light on restrictions, so we are not using CanConstruct()
@@ -16123,71 +16114,48 @@ void CvCity::UpdateReligion(ReligionTypes eNewMajority, bool bRecalcPlotYields)
 #endif
 				}
 
-				// Buildings
-				for(int jJ = 0; jJ < GC.getNumBuildingClassInfos(); jJ++)
+				vector<BuildingTypes> allBuildings = GetCityBuildings()->GetAllBuildingsHere();
+				for(size_t iI = 0; iI < allBuildings.size(); iI++)
 				{
-					BuildingClassTypes eBuildingClass = (BuildingClassTypes)jJ;
+					CvBuildingEntry *pkBuilding = GC.getBuildingInfo(allBuildings[iI]);
+					if (pkBuilding)
+					{
+						BuildingClassTypes eBuildingClass = pkBuilding->GetBuildingClassType();
+						int iYieldFromBuilding = pReligion->m_Beliefs.GetBuildingClassYieldChange(eBuildingClass, (YieldTypes)iYield, iFollowers, getOwner(), this);
 
-					CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo(eBuildingClass);
-					if(!pkBuildingClassInfo)
-					{
-						continue;
-					}
+						iYieldFromBuilding *= GetCityBuildings()->GetNumBuilding(allBuildings[iI]);
 
-					const CvCivilizationInfo& playerCivilizationInfo = getCivilizationInfo();
-					BuildingTypes eBuilding = NO_BUILDING;
-#if defined(MOD_BALANCE_CORE)
-					if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || GET_PLAYER(getOwner()).GetPlayerTraits()->IsKeepConqueredBuildings())
-#else
-					if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
-#endif
-					{
-						eBuilding = GetCityBuildings()->GetBuildingTypeFromClass(eBuildingClass);
-					}
-					else
-					{
-						eBuilding = (BuildingTypes)playerCivilizationInfo.getCivilizationBuildings(eBuildingClass);
-					}
-
-					if(eBuilding != NO_BUILDING)
-					{
-						int iNumBuilding = GetCityBuildings()->GetNumBuilding(eBuilding);
-						if (iNumBuilding > 0)
+						if (isWorldWonderClass( *GC.getBuildingClassInfo(eBuildingClass) ))
 						{
-							int iYieldFromBuilding = pReligion->m_Beliefs.GetBuildingClassYieldChange(eBuildingClass, (YieldTypes)iYield, iFollowers, getOwner(), this);
-							iYieldFromBuilding *= iNumBuilding;
-
-							if (isWorldWonderClass(*pkBuildingClassInfo))
-							{
-								iYieldFromBuilding += pReligion->m_Beliefs.GetYieldChangeWorldWonder((YieldTypes)iYield, getOwner(), this);
-							}
-							//New majority, not a pantheon
-							if(eNewMajority > RELIGION_PANTHEON)
-							{
-								//Our new majority matches our total majority, so let's add in our new yields.
-								if(GET_PLAYER(getOwner()).GetReligions()->GetReligionInMostCities() == eNewMajority)
-								{
-									iYieldFromBuilding += getReligionBuildingYieldRateModifier(eBuildingClass, (YieldTypes)iYield);
-								}
-							}
-
-#if !defined(MOD_API_UNIFIED_YIELDS_CONSOLIDATION)
-							switch(iYield)
-							{
-							case YIELD_CULTURE:
-								ChangeJONSCulturePerTurnFromReligion(iYieldFromBuilding);
-								break;
-							case YIELD_FAITH:
-								ChangeFaithPerTurnFromReligion(iYieldFromBuilding);
-								break;
-							default:
-#endif
-								ChangeBaseYieldRateFromReligion((YieldTypes)iYield, iYieldFromBuilding);
-#if !defined(MOD_API_UNIFIED_YIELDS_CONSOLIDATION)
-								break;
-							}
-#endif
+							iYieldFromBuilding += pReligion->m_Beliefs.GetYieldChangeWorldWonder((YieldTypes)iYield, getOwner(), this);
 						}
+
+						//New majority, not a pantheon
+						if(eNewMajority > RELIGION_PANTHEON)
+						{
+							//Our new majority matches our total majority, so let's add in our new yields.
+							if(GET_PLAYER(getOwner()).GetReligions()->GetReligionInMostCities() == eNewMajority)
+							{
+								iYieldFromBuilding += getReligionBuildingYieldRateModifier(eBuildingClass, (YieldTypes)iYield);
+							}
+						}
+
+#if !defined(MOD_API_UNIFIED_YIELDS_CONSOLIDATION)
+						switch(iYield)
+						{
+						case YIELD_CULTURE:
+							ChangeJONSCulturePerTurnFromReligion(iYieldFromBuilding);
+							break;
+						case YIELD_FAITH:
+							ChangeFaithPerTurnFromReligion(iYieldFromBuilding);
+							break;
+						default:
+#endif
+							ChangeBaseYieldRateFromReligion((YieldTypes)iYield, iYieldFromBuilding);
+#if !defined(MOD_API_UNIFIED_YIELDS_CONSOLIDATION)
+							break;
+						}
+#endif
 					}
 				}
 			}
@@ -21688,7 +21656,7 @@ void CvCity::UpdateHappinessFromBuildingClasses()
 		if (!pkBuilding)
 			continue;
 
-		int iHappinessMod = kPlayer.GetPlayerPolicies()->GetBuildingClassHappinessModifier((BuildingClassTypes)pkBuilding->GetBuildingClassType());
+		int iHappinessMod = kPlayer.GetPlayerPolicies()->GetBuildingClassHappinessModifier(pkBuilding->GetBuildingClassType());
 		if (iHappinessMod != 0)
 			iSpecialPolicyBuildingHappiness += iHappinessMod * GetCityBuildings()->GetNumBuilding(eBuilding);
 	}
@@ -30487,7 +30455,7 @@ bool CvCity::CreateBuilding(BuildingTypes eBuildingType)
 	if(pkBuildingInfo == NULL)
 		return false;
 
-	const BuildingClassTypes eBuildingClass = (BuildingClassTypes)pkBuildingInfo->GetBuildingClassType();
+	const BuildingClassTypes eBuildingClass = pkBuildingInfo->GetBuildingClassType();
 
 	CvPlayerAI& kPlayer = GET_PLAYER(getOwner());
 
@@ -31255,7 +31223,7 @@ bool CvCity::IsCanPurchase(const std::vector<int>& vPreExistingBuildings, bool b
 				if (pReligion == NULL)
 					return false;
 
-				if (!pReligion->m_Beliefs.IsBuildingClassEnabled((BuildingClassTypes)pkBuildingInfo->GetBuildingClassType(), getOwner(), this))
+				if (!pReligion->m_Beliefs.IsBuildingClassEnabled(pkBuildingInfo->GetBuildingClassType(), getOwner(), this))
 				{
 					return false;
 				}

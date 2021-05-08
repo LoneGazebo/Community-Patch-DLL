@@ -7388,92 +7388,42 @@ void CvCityCulture::CalculateBaseTourismBeforeModifiers()
 			iBase += m_pCity->GetCityBuildings()->GetNumBuildingsFromFaith() * iFaithBuildingTourism;
 		}
 
-		// Buildings
-		for(int jJ = 0; jJ < GC.getNumBuildingClassInfos(); jJ++)
+		// If Rome, or if the option to check for all buildings in a class is enabled, we loop through all buildings in the city
+		bool bRome = GET_PLAYER(m_pCity->getOwner()).GetPlayerTraits()->IsKeepConqueredBuildings();
+		vector<BuildingTypes> allBuildings = m_pCity->GetCityBuildings()->GetAllBuildingsHere();
+		for(size_t iI = 0; iI < allBuildings.size(); iI++)
 		{
-			BuildingClassTypes eBuildingClass = (BuildingClassTypes)jJ;
-
-			CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo(eBuildingClass);
-			if(!pkBuildingClassInfo)
+			int iCount = m_pCity->GetCityBuildings()->GetNumBuilding(allBuildings[iI]);
+			CvBuildingEntry *pkBuilding = GC.getBuildingInfo(allBuildings[iI]);
+			if (pkBuilding)
 			{
-				continue;
-			}
-
-			const CvCivilizationInfo& playerCivilizationInfo = GET_PLAYER(m_pCity->getOwner()).getCivilizationInfo();
-			BuildingTypes eBuilding = NO_BUILDING;
-			// If Rome, or if the option to check for all buildings in a class is enabled, we loop through all buildings in the city
-#if defined(MOD_BALANCE_CORE)
-			bool bRome = GET_PLAYER(m_pCity->getOwner()).GetPlayerTraits()->IsKeepConqueredBuildings();
-			if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || bRome)
-#else
-			if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
-#endif
-			{
-				eBuilding = m_pCity->GetCityBuildings()->GetBuildingTypeFromClass(eBuildingClass);
-			}
-			else
-			{	
-				eBuilding = (BuildingTypes)playerCivilizationInfo.getCivilizationBuildings(eBuildingClass);
-			}
-
-			if(eBuilding != NO_BUILDING)
-			{
-#if defined(MOD_BALANCE_CORE)
-				if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || bRome || m_pCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0) // GetBuildingTypeFromClass() already checks GetNumBuilding() > 0
-#else
-				if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || m_pCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
-#endif
+				if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || bRome || iCount > 0) // GetBuildingTypeFromClass() already checks GetNumBuilding() > 0
 				{
-					iBase += pReligion->m_Beliefs.GetBuildingClassTourism(eBuildingClass, m_pCity->getOwner(), m_pCity) * m_pCity->GetCityBuildings()->GetNumBuilding(eBuilding);
+					iBase += pReligion->m_Beliefs.GetBuildingClassTourism(pkBuilding->GetBuildingClassType(), m_pCity->getOwner(), m_pCity) * iCount;
 				}
 			}
 		}
 	}
 
 	// Tech enhanced Tourism
-	for(int jJ = 0; jJ < GC.getNumBuildingClassInfos(); jJ++)
+	vector<BuildingTypes> allBuildings = m_pCity->GetCityBuildings()->GetAllBuildingsHere();
+	for(size_t iI = 0; iI < allBuildings.size(); iI++)
 	{
-		BuildingClassTypes eBuildingClass = (BuildingClassTypes)jJ;
-
-		CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo(eBuildingClass);
-		if(!pkBuildingClassInfo)
+		BuildingTypes eBuilding = allBuildings[iI];
+		CvBuildingEntry *pkBuilding = GC.getBuildingInfo(eBuilding);
+		if (pkBuilding)
 		{
-			continue;
-		}
-
-		const CvCivilizationInfo& playerCivilizationInfo = GET_PLAYER(m_pCity->getOwner()).getCivilizationInfo();
-		BuildingTypes eBuilding = NO_BUILDING;
-		// If Rome, or if the option to check for all buildings in a class is enabled, we loop through all buildings in the city
-#if defined(MOD_BALANCE_CORE)
-		bool bRome = GET_PLAYER(m_pCity->getOwner()).GetPlayerTraits()->IsKeepConqueredBuildings();
-		if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || bRome)
-#else
-		if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
-#endif
-		{
-			eBuilding = m_pCity->GetCityBuildings()->GetBuildingTypeFromClass(eBuildingClass);
-		}
-		else
-		{
-			eBuilding = (BuildingTypes)playerCivilizationInfo.getCivilizationBuildings(eBuildingClass);
-		}
-
-		if(eBuilding != NO_BUILDING)
-		{
-			CvBuildingEntry *pkEntry = GC.getBuildingInfo(eBuilding);
-			if(pkEntry && m_pCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
+			int iTourism = pkBuilding->GetTechEnhancedTourism();
+			if (iTourism != 0 && GET_TEAM(m_pCity->getTeam()).GetTeamTechs()->HasTech((TechTypes)pkBuilding->GetEnhancedYieldTech()))
 			{
-				int iTourism = pkEntry->GetTechEnhancedTourism();
-				if (iTourism != 0 && GET_TEAM(m_pCity->getTeam()).GetTeamTechs()->HasTech((TechTypes)pkEntry->GetEnhancedYieldTech()))
-				{
-					iBase += iTourism * m_pCity->GetCityBuildings()->GetNumBuilding(eBuilding);
-				}
+				iBase += iTourism * m_pCity->GetCityBuildings()->GetNumBuilding(eBuilding);
 			}
 		}
 	}
 	m_pCity->SetBaseTourismBeforeModifiers(max(0, iBase));
 	return;
 }
+
 void CvCityCulture::CalculateBaseTourism()
 {
 	int iBase = m_pCity->GetBaseTourismBeforeModifiers() * 100;
@@ -7502,44 +7452,14 @@ void CvCityCulture::CalculateBaseTourism()
 		iModifier += kPlayer.GetPlayerTraits()->GetGoldenAgeTourismModifier();
 	}
 	
-
-	for(int iBuildingClassLoop = 0; iBuildingClassLoop < GC.getNumBuildingClassInfos(); iBuildingClassLoop++)
+	vector<BuildingTypes> allBuildings = m_pCity->GetCityBuildings()->GetAllBuildingsHere();
+	for(size_t iI = 0; iI < allBuildings.size(); iI++)
 	{
-		int iBuildingMod = kPlayer.GetPlayerPolicies()->GetBuildingClassTourismModifier((BuildingClassTypes)iBuildingClassLoop);
-		if (iBuildingMod == 0)
+		CvBuildingEntry *pkBuilding = GC.getBuildingInfo(allBuildings[iI]);
+		if (pkBuilding)
 		{
-			continue;
-		}
-		const CvCivilizationInfo& playerCivilizationInfo = kPlayer.getCivilizationInfo();
-		BuildingTypes eBuilding = NO_BUILDING;
-		// If Rome, or if the option to check for all buildings in a class is enabled, we loop through all buildings in the city
-#if defined(MOD_BALANCE_CORE)
-		bool bRome = kPlayer.GetPlayerTraits()->IsKeepConqueredBuildings();
-		if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || bRome)
-#else
-		if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
-#endif
-		{
-			eBuilding = m_pCity->GetCityBuildings()->GetBuildingTypeFromClass((BuildingClassTypes)iBuildingClassLoop);
-		}
-		else
-		{
-			eBuilding = (BuildingTypes)playerCivilizationInfo.getCivilizationBuildings((BuildingClassTypes)iBuildingClassLoop);
-		}
-		if (eBuilding != NO_BUILDING)
-		{
-			CvBuildingEntry *pkEntry = GC.getBuildingInfo(eBuilding);
-			if (pkEntry)
-			{
-#if defined(MOD_BALANCE_CORE)
-				if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || bRome || m_pCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0) // GetBuildingTypeFromClass() already checks GetNumBuilding() > 0
-#else
-				if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || m_pCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
-#endif
-				{
-					iModifier += iBuildingMod * m_pCity->GetCityBuildings()->GetNumBuilding(eBuilding);
-				}
-			}
+			int iBuildingMod = kPlayer.GetPlayerPolicies()->GetBuildingClassTourismModifier(pkBuilding->GetBuildingClassType());
+			iModifier += iBuildingMod * m_pCity->GetCityBuildings()->GetNumBuilding(allBuildings[iI]);
 		}
 	}
 
@@ -7838,37 +7758,15 @@ CvString CvCityCulture::GetTourismTooltip()
 		}
 		szRtnValue += GetLocalizedText("TXT_KEY_CO_CITY_TOURISM_FAITH_BUILDINGS", iSacredSitesTourism);
 
-		for(int jJ = 0; jJ < GC.getNumBuildingClassInfos(); jJ++)
+		vector<BuildingTypes> allBuildings = m_pCity->GetCityBuildings()->GetAllBuildingsHere();
+		for(size_t iI = 0; iI < allBuildings.size(); iI++)
 		{
-			BuildingClassTypes eBuildingClass = (BuildingClassTypes)jJ;
-
-			CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo(eBuildingClass);
-			if(!pkBuildingClassInfo)
+			BuildingTypes eBuilding = allBuildings[iI];
+			CvBuildingEntry *pkBuilding = GC.getBuildingInfo(eBuilding);
+			if (pkBuilding)
 			{
-				continue;
-			}
-
-			const CvCivilizationInfo& playerCivilizationInfo = GET_PLAYER(m_pCity->getOwner()).getCivilizationInfo();
-			BuildingTypes eBuilding = NO_BUILDING;
-#if defined(MOD_BALANCE_CORE)
-			if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || GET_PLAYER(m_pCity->getOwner()).GetPlayerTraits()->IsKeepConqueredBuildings())
-#else
-			if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
-#endif
-			{
-				eBuilding = m_pCity->GetCityBuildings()->GetBuildingTypeFromClass(eBuildingClass);
-			}
-			else
-			{
-				eBuilding = (BuildingTypes)playerCivilizationInfo.getCivilizationBuildings(eBuildingClass);
-			}
-
-			if(eBuilding != NO_BUILDING)
-			{
-				if(m_pCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
-				{
-					iReligiousArtTourism += pReligion->m_Beliefs.GetBuildingClassTourism(eBuildingClass, m_pCity->getOwner(), m_pCity) * m_pCity->GetCityBuildings()->GetNumBuilding(eBuilding);
-				}
+				iReligiousArtTourism += pReligion->m_Beliefs.GetBuildingClassTourism(pkBuilding->GetBuildingClassType(), 
+					m_pCity->getOwner(), m_pCity) * m_pCity->GetCityBuildings()->GetNumBuilding(eBuilding);
 			}
 		}
 #if defined(MOD_BALANCE_CORE)
@@ -7886,46 +7784,23 @@ CvString CvCityCulture::GetTourismTooltip()
 	}
 
 	// Tech enhanced Tourism
-	for(int jJ = 0; jJ < GC.getNumBuildingClassInfos(); jJ++)
+	vector<BuildingTypes> allBuildings = m_pCity->GetCityBuildings()->GetAllBuildingsHere();
+	for(size_t iI = 0; iI < allBuildings.size(); iI++)
 	{
-		BuildingClassTypes eBuildingClass = (BuildingClassTypes)jJ;
-
-		CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo(eBuildingClass);
-		if(!pkBuildingClassInfo)
+		BuildingTypes eBuilding = allBuildings[iI];
+		CvBuildingEntry *pkBuilding = GC.getBuildingInfo(eBuilding);
+		if (pkBuilding)
 		{
-			continue;
-		}
-
-		const CvCivilizationInfo& playerCivilizationInfo = GET_PLAYER(m_pCity->getOwner()).getCivilizationInfo();
-		BuildingTypes eBuilding = NO_BUILDING;
-#if defined(MOD_BALANCE_CORE)
-		if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || GET_PLAYER(m_pCity->getOwner()).GetPlayerTraits()->IsKeepConqueredBuildings())
-#else
-		if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
-#endif
-		{
-			eBuilding = m_pCity->GetCityBuildings()->GetBuildingTypeFromClass(eBuildingClass);
-		}
-		else
-		{
-			eBuilding = (BuildingTypes)playerCivilizationInfo.getCivilizationBuildings(eBuildingClass);
-		}
-
-		if(eBuilding != NO_BUILDING)
-		{
-			if(m_pCity->GetCityBuildings()->GetNumBuilding(eBuilding) != 0)
+			int iTechEnhancedTourism = GC.getBuildingInfo(eBuilding)->GetTechEnhancedTourism();
+			if (iTechEnhancedTourism != 0 && GET_TEAM(m_pCity->getTeam()).GetTeamTechs()->HasTech((TechTypes)GC.getBuildingInfo(eBuilding)->GetEnhancedYieldTech()))
 			{
-				int iTechEnhancedTourism = GC.getBuildingInfo(eBuilding)->GetTechEnhancedTourism();
-				if (iTechEnhancedTourism != 0 && GET_TEAM(m_pCity->getTeam()).GetTeamTechs()->HasTech((TechTypes)GC.getBuildingInfo(eBuilding)->GetEnhancedYieldTech()))
-				{
-					iTechEnhancedTourism *= m_pCity->GetCityBuildings()->GetNumBuilding(eBuilding);
+				iTechEnhancedTourism *= m_pCity->GetCityBuildings()->GetNumBuilding(eBuilding);
 
-					if (szRtnValue.length() > 0)
-					{
-						szRtnValue += "[NEWLINE][NEWLINE]";
-					}
-					szRtnValue += GetLocalizedText("TXT_KEY_CO_CITY_TOURISM_TECH_ENHANCED", iTechEnhancedTourism);
+				if (szRtnValue.length() > 0)
+				{
+					szRtnValue += "[NEWLINE][NEWLINE]";
 				}
+				szRtnValue += GetLocalizedText("TXT_KEY_CO_CITY_TOURISM_TECH_ENHANCED", iTechEnhancedTourism);
 			}
 		}
 	}
@@ -7955,44 +7830,26 @@ CvString CvCityCulture::GetTourismTooltip()
 	}
 #endif
 
-	int iBuildingMod = 0;
-	for(int iBuildingClassLoop = 0; iBuildingClassLoop < GC.getNumBuildingClassInfos(); iBuildingClassLoop++)
+	for(size_t iI = 0; iI < allBuildings.size(); iI++)
 	{
-		const CvCivilizationInfo& playerCivilizationInfo = kCityPlayer.getCivilizationInfo();
-		BuildingTypes eBuilding = NO_BUILDING;
-#if defined(MOD_BALANCE_CORE)
-		if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || GET_PLAYER(m_pCity->getOwner()).GetPlayerTraits()->IsKeepConqueredBuildings())
-#else
-		if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
-#endif
+		CvBuildingEntry *pkBuilding = GC.getBuildingInfo(allBuildings[iI]);
+		if (pkBuilding)
 		{
-			eBuilding = m_pCity->GetCityBuildings()->GetBuildingTypeFromClass((BuildingClassTypes)iBuildingClassLoop);
-		}
-		else
-		{
-			eBuilding = (BuildingTypes)playerCivilizationInfo.getCivilizationBuildings((BuildingClassTypes)iBuildingClassLoop);
-		}
-
-		if (eBuilding != NO_BUILDING)
-		{
-			CvBuildingEntry *pkEntry = GC.getBuildingInfo(eBuilding);
-			if (pkEntry)
+			int iBuildingMod = kCityPlayer.GetPlayerPolicies()->GetBuildingClassTourismModifier(pkBuilding->GetBuildingClassType());
+			if (iBuildingMod != 0)
 			{
-				iBuildingMod = kCityPlayer.GetPlayerPolicies()->GetBuildingClassTourismModifier((BuildingClassTypes)iBuildingClassLoop);
-				if (iBuildingMod != 0 && m_pCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
-				{
-					iBuildingMod *= m_pCity->GetCityBuildings()->GetNumBuilding(eBuilding);
+				iBuildingMod *= m_pCity->GetCityBuildings()->GetNumBuilding(allBuildings[iI]);
 
-					if (szRtnValue.length() > 0)
-					{
-						szRtnValue += "[NEWLINE][NEWLINE]";
-					}
-					szTemp = GetLocalizedText("TXT_KEY_CO_CITY_TOURISM_BUILDING_BONUS", iBuildingMod, pkEntry->GetDescription());
-					szRtnValue += szTemp;
+				if (szRtnValue.length() > 0)
+				{
+					szRtnValue += "[NEWLINE][NEWLINE]";
 				}
+				szTemp = GetLocalizedText("TXT_KEY_CO_CITY_TOURISM_BUILDING_BONUS", iBuildingMod, pkBuilding->GetDescription());
+				szRtnValue += szTemp;
 			}
 		}
 	}
+
 	// Get policy bonuses
 	int iLessHappyMod = kCityPlayer.GetPlayerPolicies()->GetNumericModifier(POLICYMOD_TOURISM_MOD_LESS_HAPPY);
 	int iCommonFoeMod = kCityPlayer.GetPlayerPolicies()->GetNumericModifier(POLICYMOD_TOURISM_MOD_COMMON_FOE);
@@ -8900,42 +8757,17 @@ CvString CvCityCulture::GetThemingTooltip(BuildingClassTypes eBuildingClass) con
 int CvCityCulture::GetCultureFromWonders() const
 {
 	int iRtnValue = 0;
-	CvPlayer &kPlayer = GET_PLAYER(m_pCity->getOwner());
 
-	CvCivilizationInfo *pkCivInfo = GC.getCivilizationInfo(kPlayer.getCivilizationType());
-	if (pkCivInfo)
+	vector<BuildingTypes> allBuildings = m_pCity->GetCityBuildings()->GetAllBuildingsHere();
+	for(size_t iI = 0; iI < allBuildings.size(); iI++)
 	{
-		int iNumBuildingClassInfos = GC.getNumBuildingClassInfos();
-
-		for(int iI = 0; iI < iNumBuildingClassInfos; iI++)
+		CvBuildingEntry *pkBuilding = GC.getBuildingInfo(allBuildings[iI]);
+		if (pkBuilding)
 		{
-			BuildingTypes eWonderBuilding = NO_BUILDING;
-#if defined(MOD_BALANCE_CORE)
-			if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || kPlayer.GetPlayerTraits()->IsKeepConqueredBuildings())
-#else
-			if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
-#endif
+			if (isWorldWonderClass(pkBuilding->GetBuildingClassInfo()))
 			{
-				eWonderBuilding = m_pCity->GetCityBuildings()->GetBuildingTypeFromClass((BuildingClassTypes)iI);
-			}
-			else
-			{
-				eWonderBuilding = ((BuildingTypes)(pkCivInfo->getCivilizationBuildings(iI)));
-			}
-			if (eWonderBuilding != NO_BUILDING)
-			{
-				if(m_pCity->GetCityBuildings()->GetNumBuilding(eWonderBuilding) > 0)
-				{
-					CvBuildingEntry *pkBuildingInfo = GC.getBuildingInfo(eWonderBuilding);
-					if (pkBuildingInfo)
-					{
-						if (isWorldWonderClass(pkBuildingInfo->GetBuildingClassInfo()))
-						{
-							iRtnValue += pkBuildingInfo->GetYieldChange(YIELD_CULTURE);
-							iRtnValue += GC.getGame().GetGameLeagues()->GetWorldWonderYieldChange(m_pCity->getOwner(), YIELD_CULTURE);
-						}
-					}
-				}
+				iRtnValue += pkBuilding->GetYieldChange(YIELD_CULTURE);
+				iRtnValue += GC.getGame().GetGameLeagues()->GetWorldWonderYieldChange(m_pCity->getOwner(), YIELD_CULTURE);
 			}
 		}
 	}
