@@ -58,6 +58,7 @@
 			<SpecialistType>SPECIALIST_CIVIL_SERVANT</SpecialistType>
 			<ArtDefineTag>ART_DEF_BUILDING_MARKET</ArtDefineTag>
 			<MinAreaSize>-1</MinAreaSize>
+			<NukeImmune>true</NukeImmune>
 			<NeverCapture>true</NeverCapture>
 			<HurryCostModifier>-1</HurryCostModifier>
 			<IconAtlas>CSDBUILDINGS_ATLAS</IconAtlas>
@@ -116,6 +117,7 @@
 			<Strategy>TXT_KEY_BUILDING_PALACE_SCIENCE_CULTURE_STRATEGY</Strategy>
 			<ArtDefineTag>ART_DEF_BUILDING_MARKET</ArtDefineTag>
 			<RAToVotes>1</RAToVotes>
+			<NukeImmune>true</NukeImmune>
 			<NeverCapture>true</NeverCapture>
 			<SpecialistType>SPECIALIST_CIVIL_SERVANT</SpecialistType>
 			<GreatPeopleRateChange>1</GreatPeopleRateChange>
@@ -138,6 +140,7 @@
 			<Strategy>TXT_KEY_BUILDING_FINANCE_CENTER_STRATEGY</Strategy>
 			<ArtDefineTag>ART_DEF_BUILDING_MARKET</ArtDefineTag>
 			<DoFToVotes>1</DoFToVotes>
+			<NukeImmune>true</NukeImmune>
 			<NeverCapture>true</NeverCapture>
 			<SpecialistType>SPECIALIST_CIVIL_SERVANT</SpecialistType>
 			<GreatPeopleRateChange>1</GreatPeopleRateChange>
@@ -155,6 +158,7 @@
 			<PrereqTech>TECH_BALLISTICS</PrereqTech>
 			<Help>TXT_KEY_BUILDING_EHRENHALLE_HELP</Help>
 			<Description>TXT_KEY_BUILDING_EHRENHALLE</Description>
+			<NukeImmune>true</NukeImmune>
 			<NeverCapture>true</NeverCapture>
 			<Civilopedia>TXT_KEY_CIV5_BUILDINGS_EHRENHALLE_TEXT</Civilopedia>
 			<Strategy>TXT_KEY_BUILDING_EHRENHALLE_STRATEGY</Strategy>

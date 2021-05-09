@@ -261,6 +261,7 @@
 			<GreatWorkSlotType>GREAT_WORK_SLOT_MUSIC</GreatWorkSlotType>
 			<GreatWorkCount>1</GreatWorkCount>
 			<MinAreaSize>-1</MinAreaSize>
+			<NukeImmune>true</NukeImmune>
 			<GoldenAgeModifier>25</GoldenAgeModifier>
 			<CitySupplyFlat>4</CitySupplyFlat>
 			<CapitalOnly>true</CapitalOnly>
@@ -278,6 +279,7 @@
 			<ConquestProb>0</ConquestProb>
 			<ArtDefineTag>ART_DEF_BUILDING_MARKET</ArtDefineTag>
 			<MinAreaSize>-1</MinAreaSize>
+			<NukeImmune>true</NukeImmune>
 			<CapitalOnly>true</CapitalOnly>
 			<NeverCapture>true</NeverCapture>
 			<GreatPeopleRateModifier>25</GreatPeopleRateModifier>
@@ -297,6 +299,7 @@
 			<ArtDefineTag>ART_DEF_BUILDING_MARKET</ArtDefineTag>
 			<MinAreaSize>-1</MinAreaSize>
 			<Defense>300</Defense>
+			<NukeImmune>true</NukeImmune>
 			<NeverCapture>true</NeverCapture>
 			<ExtraCityHitPoints>50</ExtraCityHitPoints>
 			<CapitalOnly>true</CapitalOnly>
@@ -315,6 +318,7 @@
 			<ConquestProb>0</ConquestProb>
 			<ArtDefineTag>ART_DEF_BUILDING_MARKET</ArtDefineTag>
 			<MinAreaSize>-1</MinAreaSize>
+			<NukeImmune>true</NukeImmune>
 			<NeverCapture>true</NeverCapture>
 			<SpecialistType>SPECIALIST_WRITER</SpecialistType>
 			<SpecialistCount>1</SpecialistCount>
@@ -335,6 +339,7 @@
 			<NeverCapture>true</NeverCapture>
 			<ArtDefineTag>ART_DEF_BUILDING_MARKET</ArtDefineTag>
 			<MinAreaSize>-1</MinAreaSize>
+			<NukeImmune>true</NukeImmune>
 			<CapitalOnly>true</CapitalOnly>
 			<SpecialistType>SPECIALIST_ARTIST</SpecialistType>
 			<SpecialistCount>1</SpecialistCount>
@@ -353,6 +358,7 @@
 			<ConquestProb>0</ConquestProb>
 			<ArtDefineTag>ART_DEF_BUILDING_MARKET</ArtDefineTag>
 			<MinAreaSize>-1</MinAreaSize>
+			<NukeImmune>true</NukeImmune>
 			<CapitalOnly>true</CapitalOnly>
 			<NeverCapture>true</NeverCapture>
 			<SpecialistType>SPECIALIST_SCIENTIST</SpecialistType>
