@@ -76,6 +76,7 @@
 			<ArtDefineTag>ART_DEF_BUILDING_MARKET</ArtDefineTag>
 			<FreePromotion>PROMOTION_LITERACY</FreePromotion>
 			<MinAreaSize>-1</MinAreaSize>
+			<NukeImmune>true</NukeImmune>
 			<SpecialistCount>1</SpecialistCount>
 			<SpecialistType>SPECIALIST_CIVIL_SERVANT</SpecialistType>
 			<GreatPeopleRateChange>1</GreatPeopleRateChange>
@@ -97,6 +98,7 @@
 			<ArtDefineTag>ART_DEF_BUILDING_MARKET</ArtDefineTag>
 			<FreePromotion>PROMOTION_IMMUNITY</FreePromotion>
 			<MinAreaSize>-1</MinAreaSize>
+			<NukeImmune>true</NukeImmune>
 			<SpecialistCount>1</SpecialistCount>
 			<SpecialistType>SPECIALIST_CIVIL_SERVANT</SpecialistType>
 			<GreatPeopleRateChange>1</GreatPeopleRateChange>
