@@ -289,7 +289,6 @@ SET RegionType = 'REGION_JUNGLE'
 WHERE CivilizationType = 'CIVILIZATION_MAYA' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 -- NEW
-UPDATE CustomModOptions	SET Value = 1 WHERE Name = 'RELIGION_EXTENSIONS';
 
 INSERT INTO Beliefs
 	(Type, Description, ShortDescription, Pantheon, CivilizationType)
