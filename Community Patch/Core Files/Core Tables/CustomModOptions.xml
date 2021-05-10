@@ -452,7 +452,7 @@
 		- Table 'Belief_YieldFromImprovementBuild'. Columns are 'BeliefType', 'YieldType', 'Yield', 'IsEraScaling'.
 		- Table 'Belief_YieldFromPillage'. Columns are 'BeliefType', 'YieldType', 'Yield', 'IsEraScaling'.
 	-->
-    <Row Class="4" Name="RELIGION_EXTENSIONS" Value="0"/>
+    <Row Class="4" Name="RELIGION_EXTENSIONS" Value="1"/>
 
     <!-- disable ranged strikes from cities -->
     <Row Class="5" Name="CORE_NO_RANGED_ATTACK_FROM_CITIES" Value="0" DbUpdates="1"/>
