@@ -2098,8 +2098,9 @@ void CvMilitaryAI::UpdateMilitaryStrategies()
 void CvMilitaryAI::DoNuke(PlayerTypes ePlayer)
 {
 	bool bLaunchNuke = false;
-	WarProjectionTypes eCurrentWarProjection = m_pPlayer->GetDiplomacyAI()->GetWarProjection(ePlayer);
+	StrengthTypes eMilitaryStrength = m_pPlayer->GetDiplomacyAI()->GetPlayerMilitaryStrengthComparedToUs(ePlayer);
 	WarStateTypes eCurrentWarState = m_pPlayer->GetDiplomacyAI()->GetWarState(ePlayer);
+
 	// only evaluate nukes when we have nukes and we've declared war on someone
 	if (m_pPlayer->getNumNukeUnits() > 0) 
 	{
@@ -2114,36 +2115,30 @@ void CvMilitaryAI::DoNuke(PlayerTypes ePlayer)
 			bLaunchNuke = true;
 		}
 		// if we will surely lose this war anyway, we might as well nuke them!
-		else if (eCurrentWarProjection == WAR_PROJECTION_DESTRUCTION || eCurrentWarState == WAR_STATE_NEARLY_DEFEATED)
+		else if (eMilitaryStrength == STRENGTH_IMMENSE || eCurrentWarState == WAR_STATE_NEARLY_DEFEATED)
 		{
 			bLaunchNuke = true;
 		}
 		else 
 		{
 			bool bRollForNuke = false;
-			if(GET_PLAYER(ePlayer).isMajorCiv())
+			if (GET_PLAYER(ePlayer).isMajorCiv())
 			{
 				CivOpinionTypes eCivOpinion = m_pPlayer->GetDiplomacyAI()->GetCivOpinion(ePlayer);
-				if (eCurrentWarProjection <= WAR_PROJECTION_DEFEAT || eCurrentWarState == WAR_STATE_DEFENSIVE)
+				if (eMilitaryStrength == STRENGTH_POWERFUL || eCurrentWarState == WAR_STATE_DEFENSIVE)
 				{
 					// roll every turn
 					bRollForNuke = true;
 				}
-				else if(eCivOpinion <= CIV_OPINION_ENEMY)
+				else if (eCivOpinion <= CIV_OPINION_ENEMY)
 				{
 					bRollForNuke = true;
 				}
-				else if(m_pPlayer->GetDiplomacyAI()->IsGoingForWorldConquest())
+				else if (m_pPlayer->GetDiplomacyAI()->IsGoingForWorldConquest() || m_pPlayer->GetDiplomacyAI()->IsCloseToDominationVictory())
 				{
 					bRollForNuke = true;
 				}
-#if defined(MOD_BALANCE_CORE)
 				else if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToAnyVictoryCondition())
-				{
-					bRollForNuke = true;
-				}
-#endif
-				else if (m_pPlayer->GetDiplomacyAI()->GetPlayerMilitaryStrengthComparedToUs(ePlayer) >= STRENGTH_POWERFUL)
 				{
 					bRollForNuke = true;
 				}

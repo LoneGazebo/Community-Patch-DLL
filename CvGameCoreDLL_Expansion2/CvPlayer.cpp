@@ -20843,7 +20843,7 @@ void CvPlayer::DoTestEmpireInBadShapeForWar()
 
 				if (eWarState == WAR_STATE_STALEMATE || eWarState == WAR_STATE_CALM)
 				{
-					if (!GetDiplomacyAI()->IsEasyTarget(eLoopPlayer) && GetProximityToPlayer(eLoopPlayer) >= PLAYER_PROXIMITY_CLOSE && GetDiplomacyAI()->GetWarProjection(eLoopPlayer) <= WAR_PROJECTION_STALEMATE)
+					if (!GetDiplomacyAI()->IsEasyTarget(eLoopPlayer) && GetProximityToPlayer(eLoopPlayer) >= PLAYER_PROXIMITY_CLOSE)
 					{
 						SetNoNewWars(true);
 						return;

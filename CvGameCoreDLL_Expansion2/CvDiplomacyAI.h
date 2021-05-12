@@ -426,10 +426,6 @@ public:
 	StateAllWars GetStateAllWars() const;
 	void SetStateAllWars(StateAllWars eState);
 
-	// War Projection: How do we think the war with ePlayer is going to end up? (NO_WAR_PROJECTION_TYPE if at peace)
-	WarProjectionTypes GetWarProjection(PlayerTypes ePlayer) const;
-	void SetWarProjection(PlayerTypes ePlayer, WarProjectionTypes eWarProjection);
-
 	// War Goal: What is our objective in the war against ePlayer (NO_WAR_GOAL_TYPE if at peace)
 	WarGoalTypes GetWarGoal(PlayerTypes ePlayer) const;
 	void SetWarGoal(PlayerTypes ePlayer, WarGoalTypes eWarGoal);
@@ -1048,9 +1044,9 @@ public:
 
 	void DoUpdateWarStates();
 	bool HasVisibilityOfEnemyCityDanger(CvCity* pCity) const;
-	int GetWarScore(PlayerTypes ePlayer, bool bUsePeacetimeCalculation = false, bool bDebug = false);
-	int GetHighestWarscore(bool bOnlyCurrentWars = true);
-	PlayerTypes GetHighestWarscorePlayer(bool bOnlyCurrentWars = true);
+	int GetWarScore(PlayerTypes ePlayer, bool bDebug = false);
+	int GetHighestWarscore();
+	PlayerTypes GetHighestWarscorePlayer();
 
 	void DoUpdatePlayerMilitaryStrengths();
 	int ComputeRatingStrengthAdjustment(PlayerTypes ePlayer);
@@ -1063,7 +1059,6 @@ public:
 	void DoUpdatePlayerTargetValues();
 	int GetPlayerOverallStrengthEstimate(PlayerTypes ePlayer, PlayerTypes eComparedToPlayer, bool bSelfEvaluation);
 
-	void DoUpdateWarProjections();
 	int GetNumberOfThreatenedCities(PlayerTypes eEnemy);
 
 	void DoUpdateEasyTargets();
@@ -1812,7 +1807,6 @@ private:
 	void LogWarPeaceWillingToOffer(CvString& strString, PlayerTypes ePlayer);
 	void LogWarPeaceWillingToAccept(CvString& strString, PlayerTypes ePlayer);
 	void LogWarState(CvString& strString, PlayerTypes ePlayer);
-	void LogWarProjection(CvString& strString, PlayerTypes ePlayer);
 	void LogMilitaryAggressivePosture(CvString& strString, PlayerTypes ePlayer);
 	void LogExpansionAggressivePosture(CvString& strString, PlayerTypes ePlayer);
 	void LogPlotBuyingAggressivePosture(CvString& strString, PlayerTypes ePlayer);
@@ -1926,7 +1920,6 @@ private:
 	int m_aiWarValueLost[MAX_CIV_PLAYERS];
 	unsigned short m_aiWarDamageValue[MAX_CIV_PLAYERS];
 	char m_aeWarState[MAX_CIV_PLAYERS];
-	char m_aeWarProjection[MAX_CIV_PLAYERS];
 	char m_aeWarGoal[MAX_PLAYERS];
 
 	// Peace
