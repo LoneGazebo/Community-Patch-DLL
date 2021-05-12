@@ -11910,7 +11910,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 						{
 							if (pDiploAI->GetWarState(eLoopPlayer) > WAR_STATE_STALEMATE)
 							{
-								iWarStates += (pDiploAI->GetWarState(eLoopPlayer) - WAR_STATE_STALEMATE) * 2;
+								iWarStates += pDiploAI->GetWarState(eLoopPlayer) - WAR_STATE_STALEMATE;
 							}
 						}
 						else
@@ -11923,7 +11923,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 					}
 				}
 				iExtra -= iWarmongerThreat * 50;
-				iExtra -= iWarStates * 50;
+				iExtra -= iWarStates * 100;
 				iExtra -= iWarTargets * 50;
 			}
 		}
@@ -11961,7 +11961,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 				{
 					if (pDiploAI->GetWarState(eLoopPlayer) > WAR_STATE_STALEMATE)
 					{
-						iWarStates += (pDiploAI->GetWarState(eLoopPlayer) - WAR_STATE_STALEMATE) * 2;
+						iWarStates += pDiploAI->GetWarState(eLoopPlayer) - WAR_STATE_STALEMATE;
 					}
 				}
 				else
@@ -11974,7 +11974,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 			}
 		}
 		iExtra += iWarmongerThreat * 50;
-		iExtra += iWarStates * 50;
+		iExtra += iWarStates * 100;
 		iExtra += iWarTargets * 50;
 
 		iScore += iExtra;
