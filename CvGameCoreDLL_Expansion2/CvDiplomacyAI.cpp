@@ -18157,7 +18157,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 						if (IsAtWar(ePlayer))
 							iBonusMod += (int)GetWarState(ePlayer) - 3;
 
-						if (!bOtherWarPlayerCloseToTarget)
+						if (!bOtherWarPlayerCloseToTarget && iBonusMod > 0)
 							iBonusMod /= 2;
 						
 						iBonus += iBonusMod;
