@@ -4359,7 +4359,7 @@ bool CvCity::IsCityEventChoiceValid(CityEventChoiceTypes eChosenEventChoice, Cit
 			if (iSpyID == -1)
 				continue;
 
-			CvEspionageSpy* pSpy = &kPlayer.GetEspionage()->m_aSpyList[iSpyID];
+			CvEspionageSpy* pSpy = kPlayer.GetEspionage()->GetSpyByID(iSpyID);
 			if (pSpy && pSpy->m_eSpyFocus == eChosenEventChoice)
 				return false;
 		}
@@ -4765,7 +4765,7 @@ bool CvCity::IsCityEventChoiceValidEspionage(CityEventChoiceTypes eEventChoice, 
 	if (eSpyOwner == NO_PLAYER)
 		return false;
 
-	CvEspionageSpy* pSpy = &(GET_PLAYER(eSpyOwner).GetEspionage()->m_aSpyList[uiSpyIndex]);
+	CvEspionageSpy* pSpy = GET_PLAYER(eSpyOwner).GetEspionage()->GetSpyByID(uiSpyIndex);
 	if (!pSpy)
 		return false;
 
@@ -5099,7 +5099,7 @@ CvString CvCity::GetScaledHelpText(CityEventChoiceTypes eEventChoice, bool bYiel
 	int iPotential = 0;
 	if (eSpyOwner != NO_PLAYER && iSpyIndex != -1)
 	{
-		CvEspionageSpy* pSpy = &(GET_PLAYER(eSpyOwner).GetEspionage()->m_aSpyList[iSpyIndex]);
+		CvEspionageSpy* pSpy = (GET_PLAYER(eSpyOwner).GetEspionage()->GetSpyByID(iSpyIndex));
 		if (pSpy)
 		{
 			if (pSpy->m_iPotentialAtStart != -1)
@@ -5119,7 +5119,7 @@ CvString CvCity::GetScaledHelpText(CityEventChoiceTypes eEventChoice, bool bYiel
 
 	if (iSpyIndex != -1)
 	{
-		CvEspionageSpy* pSpy = &(GET_PLAYER(eSpyOwner).GetEspionage()->m_aSpyList[iSpyIndex]);
+		CvEspionageSpy* pSpy = (GET_PLAYER(eSpyOwner).GetEspionage()->GetSpyByID(iSpyIndex));
 		if (pSpy)
 		{
 			int iSpyRate = GET_PLAYER(eSpyOwner).GetEspionage()->CalcPerTurn(SPY_STATE_GATHERING_INTEL, this, iSpyIndex);
@@ -5399,7 +5399,7 @@ CvString CvCity::GetDisabledTooltip(CityEventChoiceTypes eChosenEventChoice, int
 	{
 		if (pkEventInfo->GetSpyLevelRequired() > 0)
 		{
-			CvEspionageSpy* pSpy = &(GET_PLAYER(eSpyOwner).GetEspionage()->m_aSpyList[iSpyIndex]);
+			CvEspionageSpy* pSpy = (GET_PLAYER(eSpyOwner).GetEspionage()->GetSpyByID(iSpyIndex));
 			if (pSpy && pSpy->GetSpyRank(eSpyOwner) < pkEventInfo->GetSpyLevelRequired())
 			{
 				localizedDurationText = Localization::Lookup("TXT_KEY_EVENT_SPY_RANK");
@@ -5437,7 +5437,7 @@ CvString CvCity::GetDisabledTooltip(CityEventChoiceTypes eChosenEventChoice, int
 			if (iSpyID == -1)
 				continue;
 
-			CvEspionageSpy* pSpy = &kPlayer.GetEspionage()->m_aSpyList[iSpyID];
+			CvEspionageSpy* pSpy = kPlayer.GetEspionage()->GetSpyByID(iSpyID);
 			if (pSpy && pSpy->m_eSpyFocus == eChosenEventChoice)
 			{
 				localizedDurationText = Localization::Lookup("TXT_KEY_EVENT_SPY_ALREADY_HERE");
@@ -6163,7 +6163,7 @@ CvString CvCity::GetDisabledTooltip(CityEventChoiceTypes eChosenEventChoice, int
 	return DisabledTT.c_str();
 
 }
-void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCityEvent, bool bSendMsg, int iEspionageValue, PlayerTypes eSpyOwner, int ePassedResult, CvCity* pOriginalCity)
+void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCityEvent, bool bSendMsg, int iEspionageValue, PlayerTypes eSpyOwner, CvCity* pOriginalCity)
 {
 	if (GC.getGame().isNetworkMultiPlayer() && bSendMsg && GET_PLAYER(getOwner()).isHuman()) {
 		NetMessageExt::Send::DoCityEventChoice(getOwner(), GetID(), eEventChoice, eCityEvent);
@@ -6222,7 +6222,7 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 				bool bDefer = false;
 				if (eSpyOwner != NO_PLAYER && iEspionageValue != -1)
 				{
-					CvEspionageSpy* pSpy = &(GET_PLAYER(eSpyOwner).GetEspionage()->m_aSpyList[iEspionageValue]);
+					CvEspionageSpy* pSpy = GET_PLAYER(eSpyOwner).GetEspionage()->GetSpyByID(iEspionageValue);
 					if (pSpy)
 						bDefer = pSpy->m_eSpyFocus == NO_EVENT_CHOICE_CITY;
 				}
@@ -6252,7 +6252,7 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 				{
 					if (eSpyOwner != NO_PLAYER && iEspionageValue != -1)
 					{
-						CvEspionageSpy* pSpy = &(GET_PLAYER(eSpyOwner).GetEspionage()->m_aSpyList[iEspionageValue]);
+						CvEspionageSpy* pSpy = GET_PLAYER(eSpyOwner).GetEspionage()->GetSpyByID(iEspionageValue);
 						if (pSpy)
 						{
 							if (pSpy->m_eSpyFocus == eEventChoice)
@@ -6276,7 +6276,7 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 			CvSpyResult eResult = NUM_SPY_RESULTS;
 			if (eSpyOwner != NO_PLAYER && iEspionageValue != -1)
 			{
-				CvEspionageSpy* pSpy = &(GET_PLAYER(eSpyOwner).GetEspionage()->m_aSpyList[iEspionageValue]);
+				CvEspionageSpy* pSpy = GET_PLAYER(eSpyOwner).GetEspionage()->GetSpyByID(iEspionageValue);
 				if (pSpy)
 				{
 					iPotential = pSpy->m_iPotentialAtStart;
@@ -6295,7 +6295,7 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 						if (pkEventChoiceInfo->IsApplyEffectToSpyOwner())
 						{
 							if (GET_PLAYER(eSpyOwner).getCapitalCity() != NULL)
-								GET_PLAYER(eSpyOwner).getCapitalCity()->DoEventChoice(eEventChoice, NO_EVENT_CITY, true, -1, getOwner(), eResult, this);
+								GET_PLAYER(eSpyOwner).getCapitalCity()->DoEventChoice(eEventChoice, NO_EVENT_CITY, true, -1, getOwner(), this);
 
 							return;
 						}
@@ -6446,93 +6446,6 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 					}
 				}
 				return;
-			}
-			//technically here, eSpyOwner is actually the city owner of the city the spy is in...
-			//pOriginalCity is the city our spy is in as well...
-			else if (pkEventChoiceInfo->IsEspionageEffect() && eSpyOwner != NO_PLAYER && pOriginalCity != NULL)
-			{
-				//Notify if it worked.
-				CvNotifications* pNotifications = GET_PLAYER(eSpyOwner).GetNotifications();
-				if (pNotifications)
-				{
-					for (int iLoop = 0; iLoop < GC.getNumCityEventInfos(); iLoop++)
-					{
-						CityEventTypes eEvent = (CityEventTypes)iLoop;
-						if (eEvent != NO_EVENT_CITY)
-						{
-							if (pkEventChoiceInfo->isParentEvent(eEvent))
-							{
-								CvModCityEventInfo* pkEventInfo = GC.getCityEventInfo(eEvent);
-								if (pkEventInfo != NULL)
-								{
-									if ((CvSpyResult)ePassedResult == SPY_RESULT_IDENTIFIED)
-									{
-										Localization::String strMessage;
-										Localization::String strSummary;
-										strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_EVENT_SUCCEEDED_ESPIONAGE");
-										strMessage << pkEventChoiceInfo->GetDescription();
-										strMessage << GetScaledHelpText(eEventChoice, false);
-										strMessage << pkEventInfo->GetDescription();
-										strMessage << pOriginalCity->getNameKey();
-										strMessage << GET_PLAYER(eSpyOwner).getCivilizationInfo().getShortDescriptionKey();
-										strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_EVENT_SUCCEEDED_ESPIONAGE_T_ESPIONAGE");
-										strSummary << pOriginalCity->getNameKey();
-										strSummary << GET_PLAYER(eSpyOwner).getCivilizationInfo().getShortDescriptionKey();
-
-										pNotifications->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), getX(), getY(), GetID(), getOwner());
-									}
-									else if ((CvSpyResult)ePassedResult == SPY_RESULT_DETECTED)
-									{
-										Localization::String strMessage;
-										Localization::String strSummary;
-										strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_EVENT_SUCCEEDED_ESPIONAGE_UNKNOWN");
-										strMessage << pkEventChoiceInfo->GetDescription();
-										strMessage << GetScaledHelpText(eEventChoice, false);
-										strMessage << pkEventInfo->GetDescription();
-										strMessage << pOriginalCity->getNameKey();
-										strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_EVENT_SUCCEEDED_T_ESPIONAGE_UNKNOWN");
-										strSummary << pOriginalCity->getNameKey();
-
-										pNotifications->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), getX(), getY(), GetID(), getOwner());
-									}
-
-									break;
-								}
-							}
-						}
-					}
-				}
-
-				CvNotifications* pSpyNotifications = GET_PLAYER(getOwner()).GetNotifications();
-				if (pSpyNotifications)
-				{
-					for (int iLoop = 0; iLoop < GC.getNumCityEventInfos(); iLoop++)
-					{
-						CityEventTypes eEvent = (CityEventTypes)iLoop;
-						if (eEvent != NO_EVENT_CITY)
-						{
-							if (pkEventChoiceInfo->isParentEvent(eEvent))
-							{
-								CvModCityEventInfo* pkEventInfo = GC.getCityEventInfo(eEvent);
-								if (pkEventInfo != NULL)
-								{
-									Localization::String strMessage;
-									Localization::String strSummary;
-									strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_EVENT_SUCCEEDED_CITY_ESPIONAGE_US");
-									strMessage << pkEventChoiceInfo->GetDescription();
-									strMessage << GetScaledHelpText(eEventChoice, false);
-									strMessage << pkEventInfo->GetDescription();
-									strMessage << pOriginalCity->getNameKey();
-									strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_EVENT_SUCCEEDED_CITY_T_ESPIONAGE_US");
-									strSummary << pOriginalCity->getNameKey();
-
-									pSpyNotifications->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), getX(), getY(), GetID(), getOwner());
-									break;
-								}
-							}
-						}
-					}
-				}
 			}
 			//Set the event choice active if it succeeded, so we know to cancel it later.
 			SetEventChoiceActive(eEventChoice, true);
@@ -28346,13 +28259,11 @@ int CvCity::getStrengthValue(bool bForRangeStrike, bool bIgnoreBuildings, const 
 				iModifier += GET_PLAYER(m_eOwner).GetGarrisonedCityRangeStrikeModifier();
 			}
 
-			if (GetCityEspionage()->HasCounterSpy())
+			int iSpyID = GetCityEspionage() != NULL ? GetCityEspionage()->m_aiSpyAssignment[getOwner()] : -1;
+			if (iSpyID != -1)
 			{
-				//ugh const...
-				CvCity* pCity = GET_PLAYER(getOwner()).getCity(GetID());
-				int iSpyID = GET_PLAYER(getOwner()).GetEspionage()->GetSpyIndexInCity(pCity);
-				CvEspionageSpy* pSpy = &GET_PLAYER(getOwner()).GetEspionage()->m_aSpyList[iSpyID];
-				if (pSpy && pSpy->m_eSpyFocus != NO_EVENT_CHOICE_CITY)
+				CvEspionageSpy* pSpy = GET_PLAYER(getOwner()).GetEspionage()->GetSpyByID(iSpyID);
+				if (pSpy != NULL && pSpy->m_eSpyFocus != NO_EVENT_CHOICE_CITY)
 				{
 					CvModEventCityChoiceInfo* pkEventChoiceInfo = GC.getCityEventChoiceInfo(pSpy->m_eSpyFocus);
 					if (pkEventChoiceInfo != NULL  && pkEventChoiceInfo->getCityDefenseModifier() != 0)

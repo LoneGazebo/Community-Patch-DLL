@@ -136,13 +136,6 @@
 		<Row Tag="TXT_KEY_NOTIFICATION_EVENT_SUCCEEDED_T_ESPIONAGE_UNKNOWN">
 			<Text>Unknown Foreign Operatives Succeed in {1_City}!</Text>
 		</Row>
-
-		<Row Tag="TXT_KEY_NOTIFICATION_EVENT_SUCCEEDED_CITY_ESPIONAGE_US">
-			<Text>Our attempted Spy Action in {4_City} succeeded! '{3_Event}': [NEWLINE][NEWLINE]{1_EventChoice} ({2_EventChoiceHelp})</Text>
-		</Row>
-		<Row Tag="TXT_KEY_NOTIFICATION_EVENT_SUCCEEDED_CITY_T_ESPIONAGE_US">
-			<Text>Our Operatives Succeed in {1_City}!</Text>
-		</Row>
 		
 
 		<Row Tag="TXT_KEY_CITY_EVENT_TITLE">

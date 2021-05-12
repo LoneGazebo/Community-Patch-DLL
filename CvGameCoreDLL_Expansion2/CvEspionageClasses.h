@@ -211,6 +211,7 @@ public:
 	void GetNextSpyName(CvEspionageSpy* pSpy);
 	bool IsSpyInCity(uint uiSpyIndex);
 	CvCity* GetCityWithSpy(uint uiSpyIndex);
+	CvEspionageSpy* GetSpyByID(uint uiSpyIndex);
 	int  GetSpyIndexInCity(CvCity* pCity);
 	bool CanEverMoveSpyTo(CvCity* pCity);
 	bool CanMoveSpyTo(CvCity* pCity, uint uiSpyIndex, bool bAsDiplomat);

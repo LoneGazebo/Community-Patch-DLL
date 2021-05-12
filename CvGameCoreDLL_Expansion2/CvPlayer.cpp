@@ -3738,7 +3738,7 @@ CvCity* CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 				if(pNotifications)
 				{
 					CvPlayerEspionage* pEspionage = GET_PLAYER((PlayerTypes)i).GetEspionage();
-					CvEspionageSpy* pSpy = &(pEspionage->m_aSpyList[iAssignedSpy]);
+					CvEspionageSpy* pSpy = pEspionage->GetSpyByID(iAssignedSpy);
 
 					Localization::String strSummary;
 					Localization::String strNotification;

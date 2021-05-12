@@ -60,8 +60,8 @@ Controls["EventChoiceButton"]:RegisterCallback(Mouse.eLClick, GenericLeftClick);
 Controls["EventChoiceButton"]:RegisterCallback(Mouse.eRClick, GenericRightClick);
 Controls["CityEventChoiceButton"]:RegisterCallback(Mouse.eLClick, GenericLeftClick);
 Controls["CityEventChoiceButton"]:RegisterCallback(Mouse.eRClick, GenericRightClick);
-Controls["EspionageAA"]:RegisterCallback(Mouse.eLClick, GenericLeftClick);
-Controls["EspionageAA"]:RegisterCallback(Mouse.eRClick, GenericRightClick);
+Controls["EspionageAAButton"]:RegisterCallback(Mouse.eLClick, GenericLeftClick);
+Controls["EspionageAAButton"]:RegisterCallback(Mouse.eRClick, GenericRightClick);
 
 ------------------------------------------------------------------------------------
 -- build the list of types we can handle

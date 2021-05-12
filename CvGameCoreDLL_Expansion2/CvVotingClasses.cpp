@@ -4169,17 +4169,20 @@ int CvLeague::GetPotentialVotesForMember(PlayerTypes ePlayer, PlayerTypes eFromP
 				int iSpyIndex = GET_PLAYER(ePlayer).GetEspionage()->GetSpyIndexInCity(GET_PLAYER(eFromPlayer).getCapitalCity());
 				if(iSpyIndex != -1)
 				{
-					CvEspionageSpy& pSpy = GET_PLAYER(ePlayer).GetEspionage()->m_aSpyList[iSpyIndex];
-					int iRank = pSpy.GetSpyRank(ePlayer);
-					iRank = (5 - iRank);
-					if(iRank > 0)
+					CvEspionageSpy* pSpy = GET_PLAYER(ePlayer).GetEspionage()->GetSpyByID(iSpyIndex);
+					if (pSpy != NULL)
 					{
-						iVotes /= iRank;
-						if(iVotes <= 0)
+						int iRank = pSpy->GetSpyRank(ePlayer);
+						iRank = (5 - iRank);
+						if (iRank > 0)
 						{
-							iVotes = 1;
+							iVotes /= iRank;
+							if (iVotes <= 0)
+							{
+								iVotes = 1;
+							}
+							return iVotes;
 						}
-						return iVotes;
 					}
 				}
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
