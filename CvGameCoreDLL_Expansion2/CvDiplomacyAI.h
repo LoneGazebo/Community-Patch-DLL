@@ -1043,7 +1043,7 @@ public:
 	// ------------------------------------
 
 	void DoUpdateWarStates();
-	bool HasVisibilityOfEnemyCityDanger(CvCity* pCity) const;
+	bool CanSeeEnemyCity(CvCity* pCity) const;
 	int GetWarScore(PlayerTypes ePlayer, bool bDebug = false);
 	int GetHighestWarscore();
 	PlayerTypes GetHighestWarscorePlayer();

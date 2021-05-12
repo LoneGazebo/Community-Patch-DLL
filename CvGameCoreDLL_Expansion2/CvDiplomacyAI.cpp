@@ -8892,7 +8892,7 @@ void CvDiplomacyAI::DoUpdateWarStates()
 				iNumTheirCities++;
 
 				// Can we actually see this city's danger status?
-				if (HasVisibilityOfEnemyCityDanger(pLoopCity))
+				if (CanSeeEnemyCity(pLoopCity))
 				{
 					int iDangerMod = 0;
 
@@ -9056,7 +9056,7 @@ void CvDiplomacyAI::DoUpdateWarStates()
 	}
 }
 
-bool CvDiplomacyAI::HasVisibilityOfEnemyCityDanger(CvCity* pCity) const
+bool CvDiplomacyAI::CanSeeEnemyCity(CvCity* pCity) const
 {
 	if (pCity == NULL)
 		return false;
@@ -11198,7 +11198,7 @@ bool CvDiplomacyAI::IsWantsPeaceWithPlayer(PlayerTypes ePlayer) const
 	for (CvCity* pLoopCity = GET_PLAYER(ePlayer).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iLoop))
 	{
 		// Can we actually see this city's danger status?
-		if (HasVisibilityOfEnemyCityDanger(pLoopCity))
+		if (CanSeeEnemyCity(pLoopCity))
 		{
 			int iDangerMod = 0;
 
