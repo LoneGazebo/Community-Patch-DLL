@@ -239,11 +239,11 @@ bool CvDllDatabaseUtility::PerformDatabasePostProcessing()
 	}
 
 	// ** Modify ResourceUsage of Resources table **
-	// Set ResourceUsage to 1 if it's referenced in Unit_ResourceQuantityRequirements
+	// Set ResourceUsage to 1 if it's referenced in Unit_ResourceQuantityRequirements or Building_ResourceQuantityRequirements
 	// NOTE: This query could be simplified using the IN operator but when analyzed this
 	//			statement generates faster operations.
 	const char* szStrategicResource
-	    = "UPDATE Resources SET ResourceUsage = 1 WHERE EXISTS (SELECT * FROM Unit_ResourceQuantityRequirements WHERE ResourceType = Type)";
+	    = "UPDATE Resources SET ResourceUsage = 1 WHERE EXISTS (SELECT * FROM Unit_ResourceQuantityRequirements WHERE ResourceType = Type) OR EXISTS (SELECT * FROM Building_ResourceQuantityRequirements WHERE ResourceType = Type)";
 	db->Execute(szStrategicResource);
 
 	// Set ResourceUsage to 2 if the Resource has a happiness value greater than 0
