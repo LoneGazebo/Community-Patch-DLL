@@ -6071,7 +6071,7 @@ bool CvUnit::canGift(bool bTestVisible, bool bTestTransport) const
 
 	if (MOD_EVENTS_MINORS_INTERACTION)
 	{
-		if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_PlayerCanGiftUnit, getOwner(), GET_PLAYER(pPlot->getOwner()), GetID()) == GAMEEVENTRETURN_FALSE)
+		if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_PlayerCanGiftUnit, getOwner(), pPlot->getOwner(), GetID()) == GAMEEVENTRETURN_FALSE)
 		{
 			return false;
 		}
