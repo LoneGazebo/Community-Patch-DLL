@@ -46072,7 +46072,7 @@ bool CvDiplomacyAI::IsCloseToDominationVictory() const
 	if (!GC.getGame().CanPlayerAttemptDominationVictory(GetID()))
 		return false;
 
-	if (GetPlayer()->GetFractionOriginalCapitalsUnderControl() >= 75)
+	if (GetPlayer()->GetFractionOriginalCapitalsUnderControl() >= 50)
 		return true;
 
 	return false;
