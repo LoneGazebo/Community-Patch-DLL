@@ -14912,21 +14912,24 @@ void CvDiplomacyAI::SelectApproachTowardsVassal(PlayerTypes ePlayer)
 				bConsiderWar = true;
 			}
 
-			if (IsCompetingForVictory() && IsGoingForWorldConquest())
+			if (IsCompetingForVictory() && !IsMaster(ePlayer))
 			{
-				if (GET_PLAYER(ePlayer).GetCapitalConqueror() != NO_PLAYER)
+				if (IsGoingForWorldConquest() || IsCloseToDominationVictory())
 				{
-					bConsiderWar = true;
-				}
-				else if (GET_PLAYER(ePlayer).GetNumCapitalCities() > 0)
-				{
-					bConsiderWar = true;
+					if (GET_PLAYER(ePlayer).GetCapitalConqueror() != NO_PLAYER)
+					{
+						bConsiderWar = true;
+					}
+					else if (GET_PLAYER(ePlayer).GetNumCapitalCities() > 0)
+					{
+						bConsiderWar = true;
+					}
 				}
 			}
 
 			if (bConsiderWar)
 			{
-				if (!GetPlayer()->IsNoNewWars() && GetPlayer()->GetProximityToPlayer(ePlayer) >= PLAYER_PROXIMITY_CLOSE && GetPlayerTargetValue(ePlayer) > TARGET_VALUE_AVERAGE)
+				if (!GetPlayer()->IsNoNewWars() && GetPlayer()->GetProximityToPlayer(ePlayer) >= PLAYER_PROXIMITY_CLOSE && GetPlayerTargetValue(ePlayer) >= TARGET_VALUE_AVERAGE)
 				{
 					if (IsWarSane(ePlayer))
 					{
@@ -15424,7 +15427,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	// Deliberately ignore first pass check here to make it more likely that the AI will maintain long-term relationships...
 	if (IsWantsDoFWithPlayer(ePlayer))
 	{
-		vApproachScores[CIV_APPROACH_FRIENDLY] += GetMostValuableFriend() == ePlayer ? vApproachBias[CIV_APPROACH_FRIENDLY] * 5 : vApproachBias[CIV_APPROACH_FRIENDLY] * 2;
+		vApproachScores[CIV_APPROACH_FRIENDLY] += (GetMostValuableFriend() == ePlayer || GetMostValuableAlly() == ePlayer) ? vApproachBias[CIV_APPROACH_FRIENDLY] * 5 : vApproachBias[CIV_APPROACH_FRIENDLY] * 2;
 		vApproachScores[CIV_APPROACH_WAR] = 0;
 		vApproachScores[CIV_APPROACH_HOSTILE] = 0;
 		vApproachScores[CIV_APPROACH_DECEPTIVE] = 0;
@@ -15434,7 +15437,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 
 	if (IsWantsDefensivePactWithPlayer(ePlayer))
 	{
-		vApproachScores[CIV_APPROACH_FRIENDLY] += GetMostValuableAlly() == ePlayer ? vApproachBias[CIV_APPROACH_FRIENDLY] * 5 : vApproachBias[CIV_APPROACH_FRIENDLY] * 2;
+		vApproachScores[CIV_APPROACH_FRIENDLY] += (GetMostValuableFriend() == ePlayer || GetMostValuableAlly() == ePlayer) ? vApproachBias[CIV_APPROACH_FRIENDLY] * 5 : vApproachBias[CIV_APPROACH_FRIENDLY] * 2;
 		vApproachScores[CIV_APPROACH_WAR] = 0;
 		vApproachScores[CIV_APPROACH_HOSTILE] = 0;
 		vApproachScores[CIV_APPROACH_DECEPTIVE] = 0;
