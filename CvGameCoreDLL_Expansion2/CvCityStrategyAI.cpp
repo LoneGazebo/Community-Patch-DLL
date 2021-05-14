@@ -686,7 +686,11 @@ void CvCityStrategyAI::PrecalcYieldStats()
 
 		//consider excess food only
 		if(eYield == YIELD_FOOD)
+#if defined(MOD_BALANCE_CORE)
+			iYield -= (m_pCity->foodConsumptionTimes100());
+#else
 			iYield -= (m_pCity->foodConsumption() * 100);
+#endif
 		
 		int iYieldPerPop100 = (iYield*100) / max(1, m_pCity->getPopulation());
 		int iDeviation = iYieldPerPop100 - (int)expectedYieldPerPop[iI];
@@ -766,6 +770,14 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg, UnitTypes eIg
 	// Loop through adding the available units
 	for(int iUnitLoop = 0; iUnitLoop < GC.GetGameUnits()->GetNumUnits(); iUnitLoop++)
 	{	
+#if defined(MOD_BALANCE_CORE)
+		// Puppets cannot build units
+		if (CityStrategyAIHelpers::IsTestCityStrategy_IsPuppetAndAnnexable(m_pCity))
+		{
+			continue;
+		}
+#endif
+
 		// Make sure this unit can be built now
 		if ((UnitTypes)iUnitLoop != eIgnoreUnit && m_pCity->canTrain((UnitTypes)iUnitLoop, (m_pCity->isProductionUnit() && (UnitTypes)iUnitLoop == m_pCity->getProductionUnit())))
 		{
@@ -799,6 +811,29 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg, UnitTypes eIg
 		//Skip if null
 		if(pkBuildingInfo == NULL)
 			continue;
+		
+#if defined(MOD_BALANCE_CORE_PUPPETS_LIMITED_BUILDINGS)
+		//puppets will only build very few buildings
+		if (CityStrategyAIHelpers::IsTestCityStrategy_IsPuppetAndAnnexable(m_pCity))
+		{
+			//too new? not ok
+			if (pkBuildingInfo->GetEra() > kPlayer.GetCurrentEra() - 1)
+				continue;
+
+			//no defensive value? not ok
+			if (pkBuildingInfo->GetDefenseModifier() == 0)
+			{
+				/*
+				//option: disallow everything that costs maintenance if we are running a deficit
+				static EconomicAIStrategyTypes eStrategyLosingMoney = (EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_LOSING_MONEY", true);
+				if (pkBuildingInfo->GetGoldMaintenance() > 0 && GET_PLAYER(m_eOwner).GetEconomicAI()->IsUsingStrategy(eStrategyLosingMoney))
+					continue;
+				*/
+
+				continue;
+			}
+		}
+#endif
 
 		// Make sure this building can be built now
 		if ((BuildingTypes)iBldgLoop != eIgnoreBldg && m_pCity->canConstruct(eLoopBuilding, vTotalBuildingCount, (m_pCity->isProductionBuilding() && (BuildingTypes)iBldgLoop == m_pCity->getProductionBuilding())))

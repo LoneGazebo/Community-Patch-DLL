@@ -158,7 +158,7 @@ ALTER TABLE Traits ADD COLUMN 'IsNoReligiousStrife' BOOLEAN DEFAULT 0;
 
 ALTER TABLE Traits ADD COLUMN 'WonderProductionModGA' INTEGER DEFAULT 0;
 
--- TRAIT: Changes the food consumed by each non-specialist citizen. --
+-- TRAIT: Changes the food (times 100) consumed by each non-specialist citizen. --
 ALTER TABLE Traits ADD COLUMN 'NonSpecialistFoodChange' INTEGER DEFAULT 0;
 
 -- Abnormal scaler. Works for:
