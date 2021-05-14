@@ -14929,7 +14929,7 @@ void CvDiplomacyAI::SelectApproachTowardsVassal(PlayerTypes ePlayer)
 
 			if (bConsiderWar)
 			{
-				if (!GetPlayer()->IsNoNewWars() && GetPlayer()->GetProximityToPlayer(ePlayer) >= PLAYER_PROXIMITY_CLOSE && GetPlayerTargetValue(ePlayer) > TARGET_VALUE_AVERAGE)
+				if (!GetPlayer()->IsNoNewWars() && GetPlayer()->GetProximityToPlayer(ePlayer) >= PLAYER_PROXIMITY_CLOSE && GetPlayerTargetValue(ePlayer) >= TARGET_VALUE_AVERAGE)
 				{
 					if (IsWarSane(ePlayer))
 					{
