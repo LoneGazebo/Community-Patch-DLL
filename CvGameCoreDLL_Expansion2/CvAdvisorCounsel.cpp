@@ -547,14 +547,14 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 			continue;
 		}
 
-		WarProjectionTypes eWarProjection = pDiplomacyAI->GetWarProjection(eOtherPlayer);
+		WarStateTypes eWarState = pDiplomacyAI->GetWarState(eOtherPlayer);
 		StrengthTypes eMilitaryStrengthComparedToUs = pDiplomacyAI->GetPlayerMilitaryStrengthComparedToUs(eOtherPlayer);
 
 		if(GET_TEAM(eTeam).isAtWar(eOtherTeam))
 		{
-			switch(eWarProjection)
+			switch(eWarState)
 			{
-			case WAR_PROJECTION_DESTRUCTION:
+			case WAR_STATE_NEARLY_DEFEATED:
 			{
 				//if (GET_TEAM(eTeam).isAtWar(eOtherTeam))
 				//{
@@ -582,7 +582,7 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 				//}
 			}
 			break;
-			case WAR_PROJECTION_DEFEAT:
+			case WAR_STATE_DEFENSIVE:
 			{
 				//if (GET_TEAM(eTeam).isAtWar(eOtherTeam))
 				//{
@@ -612,8 +612,8 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 				//}
 			}
 			break;
-			case WAR_PROJECTION_UNKNOWN:
-			case WAR_PROJECTION_STALEMATE:
+			case WAR_STATE_CALM:
+			case WAR_STATE_STALEMATE:
 			{
 				//if (GET_TEAM(eTeam).isAtWar(eOtherTeam))
 				//{
@@ -635,7 +635,7 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 				//}
 			}
 			break;
-			case WAR_PROJECTION_GOOD:
+			case WAR_STATE_OFFENSIVE:
 			{
 				//if (GET_TEAM(eTeam).isAtWar(eOtherTeam))
 				//{
@@ -665,7 +665,7 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 				//}
 			}
 			break;
-			case WAR_PROJECTION_VERY_GOOD:
+			case WAR_STATE_NEARLY_WON:
 			{
 				//if (GET_TEAM(eTeam).isAtWar(eOtherTeam))
 				//{

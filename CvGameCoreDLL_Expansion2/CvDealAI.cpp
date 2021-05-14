@@ -1246,7 +1246,7 @@ int CvDealAI::GetDealValue(CvDeal* pDeal, bool bLogging)
 		}
 
 		// Difficulty option to modify the AI's buying and selling prices towards humans.
-		if (bFromMe && GET_PLAYER(eOtherPlayer).isHuman())
+		if (MOD_BALANCE_CORE_DIFFICULTY && bFromMe && GET_PLAYER(eOtherPlayer).isHuman() && it->m_eItemType != TRADE_ITEM_PEACE_TREATY)
 		{
 			int iDifficultyModifier = 100 + (it->m_eItemType == TRADE_ITEM_TECHS ? GET_PLAYER(eOtherPlayer).getHandicapInfo().getTechTradeKnownModifier() : GET_PLAYER(eOtherPlayer).getHandicapInfo().getNoTechTradeModifier());
 			iItemValue *= max(1, iDifficultyModifier);

@@ -11894,7 +11894,6 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 				CvDiplomacyAI* pDiploAI = GetPlayer()->GetDiplomacyAI();
 				int iWarmongerThreat = 0;
 				int iWarStates = 0;
-				int iWarProjection = 0;
 				int iWarTargets = 0;
 				for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 				{
@@ -11902,22 +11901,16 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 
 					if (GET_PLAYER(eLoopPlayer).isAlive() && GET_PLAYER(eLoopPlayer).isMajorCiv() && GET_PLAYER(eLoopPlayer).getNumCities() > 0 && GET_TEAM(GetPlayer()->getTeam()).isHasMet(GET_PLAYER(eLoopPlayer).getTeam()))
 					{
-
-
 						if (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->GetWarmongerThreat(GetPlayer()->GetID()) != NO_THREAT_VALUE)
 						{
 							iWarmongerThreat += GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->GetWarmongerThreat(GetPlayer()->GetID());
 						}
-							// At war
+						// At war
 						if (GetPlayer()->IsAtWarWith(eLoopPlayer))
 						{
 							if (pDiploAI->GetWarState(eLoopPlayer) > WAR_STATE_STALEMATE)
 							{
 								iWarStates += pDiploAI->GetWarState(eLoopPlayer) - WAR_STATE_STALEMATE;
-							}
-							if (pDiploAI->GetWarProjection(eLoopPlayer) > WAR_PROJECTION_STALEMATE)
-							{
-								iWarProjection += pDiploAI->GetWarProjection(eLoopPlayer) - WAR_PROJECTION_STALEMATE;
 							}
 						}
 						else
@@ -11930,8 +11923,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 					}
 				}
 				iExtra -= iWarmongerThreat * 50;
-				iExtra -= iWarStates * 50;
-				iExtra -= iWarProjection * 50;
+				iExtra -= iWarStates * 100;
 				iExtra -= iWarTargets * 50;
 			}
 		}
@@ -11953,7 +11945,6 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 		
 		int iWarmongerThreat = 0;
 		int iWarStates = 0;
-		int iWarProjection = 0;
 		int iWarTargets = 0;
 		for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 		{
@@ -11961,22 +11952,16 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 
 			if (GET_PLAYER(eLoopPlayer).isAlive() && GET_PLAYER(eLoopPlayer).isMajorCiv() && GET_PLAYER(eLoopPlayer).getNumCities() > 0 && GET_TEAM(GetPlayer()->getTeam()).isHasMet(GET_PLAYER(eLoopPlayer).getTeam()))
 			{
-
-
 				if (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->GetWarmongerThreat(GetPlayer()->GetID()) != NO_THREAT_VALUE)
 				{
 					iWarmongerThreat += GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->GetWarmongerThreat(GetPlayer()->GetID());
 				}
-					// At war
+				// At war
 				if (GetPlayer()->IsAtWarWith(eLoopPlayer))
 				{
 					if (pDiploAI->GetWarState(eLoopPlayer) > WAR_STATE_STALEMATE)
 					{
 						iWarStates += pDiploAI->GetWarState(eLoopPlayer) - WAR_STATE_STALEMATE;
-					}
-					if (pDiploAI->GetWarProjection(eLoopPlayer) > WAR_PROJECTION_STALEMATE)
-					{
-						iWarProjection += pDiploAI->GetWarProjection(eLoopPlayer) - WAR_PROJECTION_STALEMATE;
 					}
 				}
 				else
@@ -11989,8 +11974,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 			}
 		}
 		iExtra += iWarmongerThreat * 50;
-		iExtra += iWarStates * 50;
-		iExtra += iWarProjection * 50;
+		iExtra += iWarStates * 100;
 		iExtra += iWarTargets * 50;
 
 		iScore += iExtra;
