@@ -781,9 +781,15 @@ bool CvCityCitizens::IsAIWantSpecialistRightNow()
 		iWeight /= 2;
 	}
 
+#if defined(MOD_BALANCE_CORE)
+	int iFoodPerTurn = m_pCity->getYieldRateTimes100(YIELD_FOOD, false);
+	int iFoodEatenPerTurn = m_pCity->foodConsumptionTimes100();
+	int iSurplusFood = (iFoodPerTurn - iFoodEatenPerTurn) / 100;
+#else
 	int iFoodPerTurn = m_pCity->getYieldRate(YIELD_FOOD, false);
 	int iFoodEatenPerTurn = m_pCity->foodConsumption();
 	int iSurplusFood = iFoodPerTurn - iFoodEatenPerTurn;
+#endif
 
 	CityAIFocusTypes eFocusType = GetFocusType();
 	// Don't want specialists until we've met our food needs
@@ -1664,7 +1670,11 @@ bool CvCityCitizens::DoAddBestCitizenFromUnassigned(bool bLogging, bool bUpdateN
 	if (GetNumUnassignedCitizens() == 0)
 		return false;
 
+#if defined(MOD_BALANCE_CORE)
+	int iNetFood100 = m_pCity->getYieldRateTimes100(YIELD_FOOD, false) - m_pCity->foodConsumptionTimes100();
+#else
 	int iNetFood100 = m_pCity->getYieldRateTimes100(YIELD_FOOD, false) - m_pCity->foodConsumption() * 100;
+#endif
 	bool bCanAffordSpecialist = (iNetFood100 >= m_pCity->foodConsumptionSpecialistTimes100());
 	bool bSpecialistForbidden = GET_PLAYER(GetOwner()).isHuman() && IsNoAutoAssignSpecialists();
 	FILogFile* pLog = bLogging && GC.getLogging() ? LOGFILEMGR.GetLog("CityTileScorer.csv", FILogFile::kDontTimeStamp) : NULL;
@@ -1685,7 +1695,11 @@ bool CvCityCitizens::DoAddBestCitizenFromUnassigned(bool bLogging, bool bUpdateN
 
 		if (pLog)
 		{
+#if defined(MOD_BALANCE_CORE)
+			int iExcessFoodTimes100 = m_pCity->getYieldRateTimes100(YIELD_FOOD, false) - (m_pCity->foodConsumptionTimes100());
+#else
 			int iExcessFoodTimes100 = m_pCity->getYieldRateTimes100(YIELD_FOOD, false) - (m_pCity->foodConsumption() * 100);
+#endif
 			CvString strOutBuf;
 			strOutBuf.Format("now working plot %d:%d, current net food %d", pBestPlot->getX(), pBestPlot->getY(), iExcessFoodTimes100);
 			pLog->Msg(strOutBuf);
@@ -1700,7 +1714,11 @@ bool CvCityCitizens::DoAddBestCitizenFromUnassigned(bool bLogging, bool bUpdateN
 
 		if (pLog)
 		{
+#if defined(MOD_BALANCE_CORE)
+			int iExcessFoodTimes100 = m_pCity->getYieldRateTimes100(YIELD_FOOD, false) - (m_pCity->foodConsumptionTimes100());
+#else
 			int iExcessFoodTimes100 = m_pCity->getYieldRateTimes100(YIELD_FOOD, false) - (m_pCity->foodConsumption() * 100);
+#endif
 			CvString strOutBuf;
 			strOutBuf.Format("now working building %d, current net food %d", eBestSpecialistBuilding, iExcessFoodTimes100);
 			pLog->Msg(strOutBuf);
@@ -1886,7 +1904,11 @@ void CvCityCitizens::OptimizeWorkedPlots(bool bLogging)
 	int iCount = 0;
 	FILogFile* pLog = bLogging && GC.getLogging() ? LOGFILEMGR.GetLog("CityTileScorer.csv", FILogFile::kDontTimeStamp) : NULL;
 
+#if defined(MOD_BALANCE_CORE)
+	int iNetFood100 = m_pCity->getYieldRateTimes100(YIELD_FOOD, false) - m_pCity->foodConsumptionTimes100();
+#else
 	int iNetFood100 = m_pCity->getYieldRateTimes100(YIELD_FOOD, false) - m_pCity->foodConsumption() * 100;
+#endif
 	bool bCanAffordSpecialist = (iNetFood100 >= m_pCity->foodConsumptionSpecialistTimes100());
 	bool bSpecialistForbidden = GET_PLAYER(GetOwner()).isHuman() && IsNoAutoAssignSpecialists();
 
@@ -1921,7 +1943,11 @@ void CvCityCitizens::OptimizeWorkedPlots(bool bLogging)
 			{
 				if (pLog)
 				{
+#if defined(MOD_BALANCE_CORE)
+					int iExcessFoodTimes100 = m_pCity->getYieldRateTimes100(YIELD_FOOD, false) - (m_pCity->foodConsumptionTimes100());
+#else
 					int iExcessFoodTimes100 = m_pCity->getYieldRateTimes100(YIELD_FOOD, false) - (m_pCity->foodConsumption() * 100);
+#endif
 					CvString strOutBuf;
 					strOutBuf.Format("nothing to optimize, current net food %d", iExcessFoodTimes100);
 					pLog->Msg(strOutBuf);
@@ -1931,7 +1957,11 @@ void CvCityCitizens::OptimizeWorkedPlots(bool bLogging)
 
 			if (pLog)
 			{
+#if defined(MOD_BALANCE_CORE)
+				int iExcessFoodTimes100 = m_pCity->getYieldRateTimes100(YIELD_FOOD, false) - (m_pCity->foodConsumptionTimes100());
+#else
 				int iExcessFoodTimes100 = m_pCity->getYieldRateTimes100(YIELD_FOOD, false) - (m_pCity->foodConsumption() * 100);
+#endif
 				CvString strOutBuf;
 				strOutBuf.Format("switched plot %d:%d (score %d) to plot %d:%d (score %d), current net food %d", 
 					pWorstWorkedPlot->getX(), pWorstWorkedPlot->getY(), iWorstWorkedPlotValue, pBestFreePlot->getX(), pBestFreePlot->getY(), iBestFreePlotValue, iExcessFoodTimes100);
@@ -1948,7 +1978,11 @@ void CvCityCitizens::OptimizeWorkedPlots(bool bLogging)
 				if (pLog)
 				{
 					CvBuildingEntry* pBuilding = GC.getBuildingInfo(eBestSpecialistBuilding);
+#if defined(MOD_BALANCE_CORE)
+					int iExcessFoodTimes100 = m_pCity->getYieldRateTimes100(YIELD_FOOD, false) - (m_pCity->foodConsumptionTimes100());
+#else
 					int iExcessFoodTimes100 = m_pCity->getYieldRateTimes100(YIELD_FOOD, false) - (m_pCity->foodConsumption() * 100);
+#endif
 
 					CvString strOutBuf;
 					strOutBuf.Format("switched plot %d:%d (score %d) to specialist in %s (score %d), current net food %d", 
@@ -3866,6 +3900,10 @@ SPrecomputedExpensiveNumbers::SPrecomputedExpensiveNumbers(CvCity * pCity)
 	iUnhappinessFromReligion = pCity->getUnhappinessFromReligion();
 	iUnhappinessFromDistress = max(pCity->getUnhappinessFromDefense(),pCity->getUnhappinessFromStarving());
 
+#if defined(MOD_BALANCE_CORE)
+	iExcessFoodTimes100 = pCity->getYieldRateTimes100(YIELD_FOOD, false) - (pCity->foodConsumptionTimes100());
+#else
 	iExcessFoodTimes100 = pCity->getYieldRateTimes100(YIELD_FOOD, false) - (pCity->foodConsumption() * 100);
+#endif
 	iFoodCorpMod = pCity->GetTradeRouteCityMod(YIELD_FOOD);
 }

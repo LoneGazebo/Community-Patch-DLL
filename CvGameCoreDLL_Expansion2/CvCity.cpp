@@ -2785,7 +2785,7 @@ void CvCity::doTurn()
 		bool bAllowNoProduction = !doCheckProduction();
 #if defined(MOD_BALANCE_CORE)
 		bool bWeGrew = false;
-		int iDifference = (getYieldRateTimes100(YIELD_FOOD, false) - foodConsumption() * 100);
+		int iDifference = (getYieldRateTimes100(YIELD_FOOD, false) - foodConsumptionTimes100());
 		if(isFoodProduction() || getFood() <= 5 || iDifference <= 0)
 		{
 			doGrowth();
@@ -7498,7 +7498,7 @@ void CvCity::updateEconomicValue()
 	//- economic value is in gold, so use a rough conversion factor for the others
 	//- for food and gold only surplus is interesting, rest is converted to other yields already
 	//- ignore trade, as the city might the change owner
-	iYieldValue += (getYieldRateTimes100(YIELD_FOOD, true) - foodConsumption() * 100) * 3;
+	iYieldValue += (getYieldRateTimes100(YIELD_FOOD, true) - foodConsumptionTimes100()) * 3;
 	iYieldValue += getYieldRateTimes100(YIELD_PRODUCTION, true) * 4;
 	iYieldValue += getYieldRateTimes100(YIELD_SCIENCE, true) * 3;
 	iYieldValue += (getYieldRateTimes100(YIELD_GOLD, true) - GetCityBuildings()->GetTotalBaseBuildingMaintenance() * 100) * 1;
@@ -8497,7 +8497,7 @@ bool CvCity::canTrain(UnitTypes eUnit, bool bContinue, bool bTestVisible, bool b
 {
 	VALIDATE_OBJECT
 	//no units in puppets except venice
-	if(eUnit == NO_UNIT || CityStrategyAIHelpers::IsTestCityStrategy_IsPuppetAndAnnexable(this))
+	if(eUnit == NO_UNIT)
 	{
 		return false;
 	}
@@ -8791,29 +8791,6 @@ bool CvCity::canConstruct(BuildingTypes eBuilding, bool bContinue, bool bTestVis
 	{
 		return false;
 	}
-
-#if defined(MOD_BALANCE_CORE_PUPPETS_LIMITED_BUILDINGS)
-	//puppets will only build very few buildings
-	if (CityStrategyAIHelpers::IsTestCityStrategy_IsPuppetAndAnnexable(this))
-	{
-		//too new? not ok
-		if (pkBuildingInfo->GetEra() > GET_PLAYER(getOwner()).GetCurrentEra() - 1)
-			return false;
-
-		//no defensive value? not ok
-		if (pkBuildingInfo->GetDefenseModifier() == 0)
-		{
-			/*
-			//option: disallow everything that costs maintenance if we are running a deficit
-			static EconomicAIStrategyTypes eStrategyLosingMoney = (EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_LOSING_MONEY", true);
-			if (pkBuildingInfo->GetGoldMaintenance() > 0 && GET_PLAYER(m_eOwner).GetEconomicAI()->IsUsingStrategy(eStrategyLosingMoney))
-				return false;
-			*/
-
-			return false;
-		}
-	}
-#endif
 
 #if defined(MOD_BALANCE_CORE_BELIEFS)
 	// Religion-enabled national wonder
@@ -13465,7 +13442,11 @@ int CvCity::getProductionDifference(int /*iProductionNeeded*/, int /*iProduction
 		return 0;
 	}
 
+#if defined(MOD_BALANCE_CORE)
+	int iFoodProduction = ((bFoodProduction) ? (GetFoodProductionTimes100(getYieldRateTimes100(YIELD_FOOD, false) - foodConsumptionTimes100(true))) / 100 : 0);
+#else
 	int iFoodProduction = ((bFoodProduction) ? (GetFoodProduction(getYieldRate(YIELD_FOOD, false) - foodConsumption(true))) : 0);
+#endif
 
 	int iOverflow = ((bOverflow) ? (getOverflowProduction() + getFeatureProduction()) : 0);
 
@@ -13518,7 +13499,11 @@ int CvCity::getProductionDifferenceTimes100(int /*iProductionNeeded*/, int /*iPr
 		return 0;
 	}
 
+#if defined(MOD_BALANCE_CORE)
+	int iFoodProduction = ((bFoodProduction) ? (GetFoodProductionTimes100(getYieldRateTimes100(YIELD_FOOD, false) - foodConsumptionTimes100(true))) / 100 : 0);
+#else
 	int iFoodProduction = ((bFoodProduction) ? GetFoodProduction(getYieldRate(YIELD_FOOD, false) - foodConsumption(true)) : 0);
+#endif
 	iFoodProduction *= 100;
 
 	int iOverflow = ((bOverflow) ? (getOverflowProductionTimes100() + getFeatureProduction() * 100) : 0);
@@ -13598,17 +13583,20 @@ int CvCity::getExtraProductionDifference(int iExtra, int iModifier) const
 /// Convert extra food to production if building a unit built partially from food
 int CvCity::GetFoodProduction(int iExcessFood) const
 {
+#if defined(MOD_BALANCE_CORE)
+	return GetFoodProductionTimes100(iExcessFood * 100);
+#else
 	int iRtnValue;
 
-	if(iExcessFood <= 0)
+	if (iExcessFood <= 0)
 	{
 		iRtnValue = 0;
 	}
-	else if(iExcessFood <= 2)
+	else if (iExcessFood <= 2)
 	{
 		iRtnValue = iExcessFood * 100;
 	}
-	else if(iExcessFood > 2 && iExcessFood <= 4)
+	else if (iExcessFood > 2 && iExcessFood <= 4)
 	{
 		iRtnValue = 200 + (iExcessFood - 2) * 50;
 	}
@@ -13618,7 +13606,36 @@ int CvCity::GetFoodProduction(int iExcessFood) const
 	}
 
 	return (iRtnValue / 100);
+#endif
 }
+
+#if defined(MOD_BALANCE_CORE)
+//	--------------------------------------------------------------------------------
+/// Convert extra food to production if building a unit built partially from food
+int CvCity::GetFoodProductionTimes100(int iExcessFoodTimes100) const
+{
+	int iRtnValue;
+
+	if (iExcessFoodTimes100 <= 0)
+	{
+		iRtnValue = 0;
+	}
+	else if (iExcessFoodTimes100 <= 200)
+	{
+		iRtnValue = iExcessFoodTimes100;
+	}
+	else if (iExcessFoodTimes100 > 200 && iExcessFoodTimes100 <= 400)
+	{
+		iRtnValue = 200 + (iExcessFoodTimes100 - 200) * 50 / 100;
+	}
+	else
+	{
+		iRtnValue = 300 + (iExcessFoodTimes100 - 400) * 25 / 100;
+	}
+
+	return (iRtnValue);
+}
+#endif
 
 //	--------------------------------------------------------------------------------
 bool CvCity::canHurry(HurryTypes eHurry, bool bTestVisible) const
@@ -17069,9 +17086,16 @@ int CvCity::foodConsumptionSpecialistTimes100() const
 }
 #endif
 
-//	--------------------------------------------------------------------------------
-int CvCity::foodConsumption(bool /*bNoAngry*/, int iExtra) const
+// --------------------------------------------------------------------------------
+int CvCity::foodConsumption(bool bNoAngry, int iExtra) const
 {
+#if defined(MOD_BALANCE_CORE)
+	return foodConsumptionTimes100(bNoAngry, iExtra * 100) / 100;
+}
+//	--------------------------------------------------------------------------------
+int CvCity::foodConsumptionTimes100(bool /*bNoAngry*/, int iExtra) const
+{
+#endif
 	VALIDATE_OBJECT
 #if defined(MOD_BALANCE_YIELD_SCALE_ERA)
 	if(MOD_BALANCE_YIELD_SCALE_ERA)
@@ -17080,25 +17104,32 @@ int CvCity::foodConsumption(bool /*bNoAngry*/, int iExtra) const
 
 		int iPopulation = max(0,(getPopulation() - iSpecialists)); //guard against stupidity
 
-		int iFoodPerPop = /*2*/ GC.getFOOD_CONSUMPTION_PER_POPULATION();
+		int iFoodPerPop = /*2*/ GC.getFOOD_CONSUMPTION_PER_POPULATION() * 100;
 #if defined(MOD_BALANCE_CORE)
-		iFoodPerPop += GetAdditionalFood();
+		iFoodPerPop += GetAdditionalFood() * 100;
 		iFoodPerPop += GET_PLAYER(getOwner()).GetPlayerTraits()->GetNonSpecialistFoodChange();
-		iFoodPerPop = max(1, iFoodPerPop); //cannot reduce food per citizen to less than 1
+		iFoodPerPop = max(100, iFoodPerPop); //cannot reduce food per citizen to less than 1
 #endif
 
 		int iNormalFood = iPopulation * iFoodPerPop;
-		int iSpecialistFood = (foodConsumptionSpecialistTimes100() * iSpecialists) / 100;	
+#if defined(MOD_BALANCE_CORE)
+		int iSpecialistFood = (foodConsumptionSpecialistTimes100() * iSpecialists);	
+		return max(iNormalFood + iSpecialistFood, 100);
+#else
+		int iSpecialistFood = (foodConsumptionSpecialistTimes100() * iSpecialists) / 100;
 		return iNormalFood + iSpecialistFood;
+#endif
 	}
 	else
 	{
 #endif
 	int iPopulation = getPopulation() + iExtra;
 
-	int iFoodPerPop = /*2*/ GC.getFOOD_CONSUMPTION_PER_POPULATION();
 #if defined(MOD_BALANCE_CORE)
-	iFoodPerPop += GetAdditionalFood();
+	int iFoodPerPop = /*2*/ GC.getFOOD_CONSUMPTION_PER_POPULATION() * 100;
+	iFoodPerPop += GetAdditionalFood() * 100;
+#else
+	int iFoodPerPop = /*2*/ GC.getFOOD_CONSUMPTION_PER_POPULATION();
 #endif
 	int iNum = iPopulation * iFoodPerPop;
 	// Specialists eat less food? (Policies, etc.)
@@ -17118,14 +17149,18 @@ int CvCity::foodConsumption(bool /*bNoAngry*/, int iExtra) const
 	if (GET_PLAYER(getOwner()).GetPlayerTraits()->GetNonSpecialistFoodChange() != 0)
 	{
 		int iFoodChangePerPop = GET_PLAYER(getOwner()).GetPlayerTraits()->GetNonSpecialistFoodChange();
-		if (GC.getFOOD_CONSUMPTION_PER_POPULATION() - iFoodChangePerPop < 1)
+		if (GC.getFOOD_CONSUMPTION_PER_POPULATION() + iFoodChangePerPop < 100)
 		{
-			iFoodChangePerPop = GC.getFOOD_CONSUMPTION_PER_POPULATION() - 1; //can't reduce food consumption per citizen to less than 1
+			iFoodChangePerPop = GC.getFOOD_CONSUMPTION_PER_POPULATION() - 100; 
 		}
-		iNum += max(0, (getPopulation() - GetCityCitizens()->GetTotalSpecialistCount())) * iFoodChangePerPop;
+		iNum += max(0, (getPopulation() - GetCityCitizens()->GetTotalSpecialistCount())) * iFoodChangePerPop; //can't reduce food consumption per citizen to less than 1
 	}
 #endif
+#if defined(MOD_BALANCE_CORE)
+	return max(iNum, 100);
+#else
 	return iNum;
+#endif
 #if defined(MOD_BALANCE_YIELD_SCALE_ERA)
 	}
 #endif
@@ -17147,11 +17182,19 @@ int CvCity::foodDifferenceTimes100(bool bBottom, bool bJustCheckingStarve, int i
 
 	if(isFoodProduction())
 	{
+#if defined(MOD_BALANCE_CORE)
+		iDifference = std::min(0, GetFoodProductionTimes100(getYieldRateTimes100(YIELD_FOOD, false) - foodConsumptionTimes100()));
+#else
 		iDifference = std::min(0, GetFoodProduction(getYieldRate(YIELD_FOOD, false) - foodConsumption()) * 100);
+#endif
 	}
 	else
 	{
+#if defined(MOD_BALANCE_CORE)
+		iDifference = (getYieldRateTimes100(YIELD_FOOD, false) - foodConsumptionTimes100());
+#else
 		iDifference = (getYieldRateTimes100(YIELD_FOOD, false) - foodConsumption() * 100);
+#endif
 	}
 
 	if(bBottom)
