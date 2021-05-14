@@ -14912,15 +14912,18 @@ void CvDiplomacyAI::SelectApproachTowardsVassal(PlayerTypes ePlayer)
 				bConsiderWar = true;
 			}
 
-			if (IsCompetingForVictory() && IsGoingForWorldConquest())
+			if (IsCompetingForVictory() && !IsMaster(ePlayer))
 			{
-				if (GET_PLAYER(ePlayer).GetCapitalConqueror() != NO_PLAYER)
+				if (IsGoingForWorldConquest() || IsCloseToDominationVictory())
 				{
-					bConsiderWar = true;
-				}
-				else if (GET_PLAYER(ePlayer).GetNumCapitalCities() > 0)
-				{
-					bConsiderWar = true;
+					if (GET_PLAYER(ePlayer).GetCapitalConqueror() != NO_PLAYER)
+					{
+						bConsiderWar = true;
+					}
+					else if (GET_PLAYER(ePlayer).GetNumCapitalCities() > 0)
+					{
+						bConsiderWar = true;
+					}
 				}
 			}
 
