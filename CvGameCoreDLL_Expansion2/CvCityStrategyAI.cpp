@@ -813,24 +813,19 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg, UnitTypes eIg
 			continue;
 		
 #if defined(MOD_BALANCE_CORE_PUPPETS_LIMITED_BUILDINGS)
-		//puppets will only build very few buildings
+		//puppets will build fewer buildings
 		if (CityStrategyAIHelpers::IsTestCityStrategy_IsPuppetAndAnnexable(m_pCity))
 		{
 			//too new? not ok
 			if (pkBuildingInfo->GetEra() > kPlayer.GetCurrentEra() - 1)
 				continue;
 
-			//no defensive value? not ok
-			if (pkBuildingInfo->GetDefenseModifier() == 0)
+			//option: disallow everything (EXCEPT defense buildings) that costs maintenance if we are running a deficit
+			if (pkBuildingInfo->GetDefenseModifier() <= 0)
 			{
-				/*
-				//option: disallow everything that costs maintenance if we are running a deficit
 				static EconomicAIStrategyTypes eStrategyLosingMoney = (EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_LOSING_MONEY", true);
 				if (pkBuildingInfo->GetGoldMaintenance() > 0 && GET_PLAYER(m_eOwner).GetEconomicAI()->IsUsingStrategy(eStrategyLosingMoney))
 					continue;
-				*/
-
-				continue;
 			}
 		}
 #endif
