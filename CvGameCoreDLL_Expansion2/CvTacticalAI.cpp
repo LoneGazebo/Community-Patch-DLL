@@ -1633,7 +1633,9 @@ void CvTacticalAI::PlotGarrisonMoves(int iNumTurnsAway)
 			pGarrison->PushMission(CvTypes::getMISSION_SKIP());
 			UnitProcessed(pGarrison->GetID());
 		}
-		else if ( !pCity->isInDangerOfFalling() )
+
+		//prefer land garrisons ...
+		if ( !pCity->isInDangerOfFalling() && (pGarrison==NULL || pGarrison->getDomainType()!=DOMAIN_LAND) )
 		{
 			// Grab units that make sense for this move type
 			CvUnit* pUnit = FindUnitForThisMove(AI_TACTICAL_GARRISON, pPlot, iNumTurnsAway);
@@ -4694,14 +4696,7 @@ CvUnit* CvTacticalAI::FindUnitForThisMove(AITacticalMove eMove, CvPlot* pTarget,
 		CvUnit* pLoopUnit = m_pPlayer->getUnit(*it);
 		if(pLoopUnit && pLoopUnit->getDomainType() != DOMAIN_AIR && pLoopUnit->IsCombatUnit() && !pLoopUnit->TurnProcessed())
 		{
-			// Make sure domain matches
-			if(pLoopUnit->getDomainType() == DOMAIN_SEA && !pTarget->isWater() ||
-		        pLoopUnit->getDomainType() == DOMAIN_LAND && pTarget->isWater())
-			{
-				continue;
-			}
-
-			if(!pLoopUnit->canMove() || !pLoopUnit->IsCanAttack())
+			if(!pLoopUnit->canMove() || !pLoopUnit->IsCanAttack() || !pLoopUnit->canMoveInto(*pTarget,CvUnit::MOVEFLAG_DESTINATION))
 			{
 				continue;
 			}
@@ -4724,6 +4719,10 @@ CvUnit* CvTacticalAI::FindUnitForThisMove(AITacticalMove eMove, CvPlot* pTarget,
 				// Want to put ranged units in cities to give them a ranged attack (but siege units should be used for offense)
 				if (pLoopUnit->IsCanAttackRanged() && pLoopUnit->getUnitInfo().GetUnitAIType(UNITAI_CITY_BOMBARD)==false)
 					iExtraScore += 30;
+
+				//naval garrisons cannot attack inside cities ...
+				if (pLoopUnit->getDomainType() == DOMAIN_LAND)
+					iExtraScore += 50;
 
 				// Don't put units with a defense boosted from promotions in cities, these boosts are ignored
 				iExtraScore -= pLoopUnit->getDefenseModifier();
@@ -8060,6 +8059,7 @@ STacticalAssignment ScorePlotForMove(const SUnitStats& unit, const CvTacticalPlo
 vector<STacticalAssignment> CvTacticalPosition::getPreferredAssignmentsForUnit(const SUnitStats& unit, int nMaxCount) const
 {
 	vector<STacticalAssignment> possibleMoves;
+	possibleMoves.reserve(23); //just a reasonably high number to avoid re-allocations
 
 	const CvTacticalPlot& assumedUnitPlot = getTactPlot(unit.iPlotIndex);
 	CvUnit* pUnit = GET_PLAYER(getPlayer()).getUnit(unit.iUnitID);
@@ -8282,6 +8282,7 @@ bool CvTacticalPosition::makeNextAssignments(int iMaxBranches, int iMaxChoicesPe
 	updateMovePlotsIfRequired();
 
 	vector<STacticalAssignment> overAllChoices;
+	overAllChoices.reserve(iMaxBranches*iMaxChoicesPerUnit);
 	map<int,vector<STacticalAssignment>> choicePerUnit;
 
 	for (vector<SUnitStats>::iterator itUnit = availableUnits.begin(); itUnit != availableUnits.end(); ++itUnit)
@@ -9581,9 +9582,9 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestDefensiveAssignment(const
 		return result;
 
 	//meta parameters depending on difficulty setting
-	int iMaxCompletedPositions = GC.getGame().getHandicapType() < 2 ? 18 : 37;
-	int iMaxBranches = GC.getGame().getHandicapType() < 2 ? 2 : 3;
-	int iMaxChoicesPerUnit = GC.getGame().getHandicapType() < 2 ? 3 : 6;
+	int iMaxCompletedPositions = GC.getGame().getHandicapType() < 2 ? 18 : 23;
+	int iMaxBranches = GC.getGame().getHandicapType() < 2 ? 2 : 4;
+	int iMaxChoicesPerUnit = GC.getGame().getHandicapType() < 2 ? 3 : 5;
 
 	//set up the initial position
 	PlayerTypes ePlayer = vUnits.front()->getOwner();
@@ -9821,9 +9822,9 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestOffensiveAssignment(
 		return result;
 
 	//meta parameters depending on difficulty setting
-	int iMaxCompletedPositions = GC.getGame().getHandicapType() < 2 ? 18 : 37;
+	int iMaxCompletedPositions = GC.getGame().getHandicapType() < 2 ? 18 : 23;
 	int iMaxBranches = GC.getGame().getHandicapType() < 2 ? 2 : 4;
-	int iMaxChoicesPerUnit = GC.getGame().getHandicapType() < 2 ? 3 : 6;
+	int iMaxChoicesPerUnit = GC.getGame().getHandicapType() < 2 ? 3 : 5;
 
 	PlayerTypes ePlayer = vUnits.front()->getOwner();
 	TeamTypes ourTeam = GET_PLAYER(ePlayer).getTeam();

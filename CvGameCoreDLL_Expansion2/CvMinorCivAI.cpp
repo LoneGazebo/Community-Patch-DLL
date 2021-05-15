@@ -9471,10 +9471,10 @@ BuildingTypes CvMinorCivAI::GetBestNationalWonderForQuest(PlayerTypes ePlayer)
 		}
 #endif
 #if defined(MOD_BALANCE_CORE)
-		if(GC.getBuildingClassInfo((BuildingClassTypes)pkBuildingInfo->GetBuildingClassType())->getMaxPlayerInstances() > 1)
+		if(GC.getBuildingClassInfo(pkBuildingInfo->GetBuildingClassType())->getMaxPlayerInstances() > 1)
 			continue;
 
-		if(GC.getBuildingClassInfo((BuildingClassTypes)pkBuildingInfo->GetBuildingClassType())->getMaxTeamInstances() > 1)
+		if(GC.getBuildingClassInfo(pkBuildingInfo->GetBuildingClassType())->getMaxTeamInstances() > 1)
 			continue;
 
 		// Is a Corporation building?
@@ -9984,7 +9984,7 @@ BuildingTypes CvMinorCivAI::GetBestBuildingForQuest(PlayerTypes ePlayer)
 		if (pkBuildingInfo->IsDummy())
 			continue;
 
-		CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo((BuildingClassTypes)pkBuildingInfo->GetBuildingClassType());
+		CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo(pkBuildingInfo->GetBuildingClassType());
 
 		if(pkBuildingClassInfo == NULL)
 			continue;

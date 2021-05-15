@@ -64,6 +64,12 @@ public:
 	CvCity();
 	virtual ~CvCity();
 
+	enum eUpdateMode { 
+		YIELD_UPDATE_NONE, //don't do any bookkeeping
+		YIELD_UPDATE_LOCAL, //update yields only (plot or city)
+		YIELD_UPDATE_GLOBAL //update yields and player happiness
+	};
+
 #if defined(MOD_API_EXTENSIONS) && defined(MOD_BALANCE_CORE)
 	void init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits = true, bool bInitialFounding = true, ReligionTypes eInitialReligion = NO_RELIGION, const char* szName = NULL, CvUnitEntry* pkSettlerUnitEntry = NULL);
 #else
@@ -76,23 +82,19 @@ public:
 	void setupBuildingGraphics();
 	void setupSpaceshipGraphics();
 
-
 	void kill();
 	void PreKill();
 	void PostKill(bool bCapital, CvPlot* pPlot, int iWorkPlotDistance, PlayerTypes eOwner);
 
-	CvPlayer* GetPlayer() const;
-
 	void doTurn();
 
 	bool isCitySelected();
-#if defined(MOD_BALANCE_CORE)
 	void updateYield(bool bRecalcPlotYields = true);
 	void ResetGreatWorkYieldCache();
-#else
-	void updateYield();
-#endif
+	CvPlayer* GetPlayer() const;
+
 #if defined(MOD_BALANCE_CORE)
+	void UpdateAllNonPlotYields(bool bIncludePlayerHappiness);
 	void UpdateCityYields(YieldTypes eYield);
 	void SetStaticYield(YieldTypes eYield, int iValue);
 	int GetStaticYield(YieldTypes eYield) const;
@@ -430,7 +432,6 @@ public:
 	int getProductionModifier(SpecialistTypes eSpecialist, _In_opt_ CvString* toolTipSink = NULL) const;
 	int getProductionModifier(ProcessTypes eProcess, _In_opt_ CvString* toolTipSink = NULL) const;
 
-	int getOverflowProductionDifference(int iProductionNeeded, int iProduction, int iProductionModifier, int iDiff, int iModifiedProduction) const;
 	int getProductionDifference(int iProductionNeeded, int iProduction, int iProductionModifier, bool bFoodProduction, bool bOverflow) const;
 	int getCurrentProductionDifference(bool bIgnoreFood, bool bOverflow) const;
 	int getRawProductionDifference(bool bIgnoreFood, bool bOverflow) const;
@@ -462,17 +463,10 @@ public:
 	void processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, bool bObsolete = false, bool bApplyingAllCitiesBonus = false);
 #endif
 	void processProcess(ProcessTypes eProcess, int iChange);
-#if defined(MOD_BALANCE_CORE)
-	void processSpecialist(SpecialistTypes eSpecialist, int iChange, bool bSkipUpdate = false);
-#else
-	void processSpecialist(SpecialistTypes eSpecialist, int iChange);
-#endif
+	void processSpecialist(SpecialistTypes eSpecialist, int iChange, eUpdateMode updateMode);
 
-#if defined(MOD_BALANCE_CORE)
 	void UpdateReligion(ReligionTypes eNewMajority, bool bRecalcPlotYields=true);
-#else
-	void UpdateReligion(ReligionTypes eNewMajority);
-#endif
+
 #if defined(MOD_BALANCE_CORE)
 	bool HasPaidAdoptionBonus(ReligionTypes eReligion) const;
 	void SetPaidAdoptionBonus(ReligionTypes eReligion, bool bNewValue);
@@ -645,12 +639,7 @@ public:
 	void DoJONSCultureLevelIncrease();
 	int GetJONSCultureThreshold() const;
 
-#if defined(MOD_BALANCE_CORE)
 	int getJONSCulturePerTurn(bool bStatic = true) const;
-#else
-	int getJONSCulturePerTurn() const;
-#endif
-
 	int GetBaseJONSCulturePerTurn() const;
 
 	int GetJONSCulturePerTurnFromBuildings() const;
@@ -1428,7 +1417,7 @@ public:
 	void changeUnitCombatProductionModifier(UnitCombatTypes eIndex, int iChange);
 
 	int getFreePromotionCount(PromotionTypes eIndex) const;
-	bool isFreePromotion(PromotionTypes eIndex) const;
+	vector<PromotionTypes> getFreePromotions() const;
 	void changeFreePromotionCount(PromotionTypes eIndex, int iChange);
 
 #if defined(MOD_BALANCE_CORE)
@@ -1562,11 +1551,7 @@ public:
 	virtual void AI_init() = 0;
 	virtual void AI_reset() = 0;
 	virtual void AI_doTurn() = 0;
-#if defined(MOD_BALANCE_CORE)
 	virtual void AI_chooseProduction(bool bInterruptWonders, bool bInterruptBuildings) = 0;
-#else
-	virtual void AI_chooseProduction(bool bInterruptWonders) = 0;
-#endif
 	virtual bool AI_isChooseProductionDirty() = 0;
 	virtual void AI_setChooseProductionDirty(bool bNewValue) = 0;
 
@@ -2041,7 +2026,7 @@ protected:
 	FAutoVariable<std::vector<int>, CvCity> m_paiImprovementFreeSpecialists;
 	FAutoVariable<std::vector<int>, CvCity> m_paiUnitCombatFreeExperience;
 	FAutoVariable<std::vector<int>, CvCity> m_paiUnitCombatProductionModifier;
-	FAutoVariable<std::vector<int>, CvCity> m_paiFreePromotionCount;
+	FAutoVariable<std::map<PromotionTypes,int>, CvCity> m_paiFreePromotionCount;
 #if defined(MOD_BALANCE_CORE_POLICIES)
 	FAutoVariable<std::vector<int>, CvCity> m_paiBuildingClassCulture;
 	FAutoVariable<std::vector<int>, CvCity> m_paiHurryModifier;

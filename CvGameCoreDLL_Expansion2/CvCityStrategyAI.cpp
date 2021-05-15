@@ -813,24 +813,19 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg, UnitTypes eIg
 			continue;
 		
 #if defined(MOD_BALANCE_CORE_PUPPETS_LIMITED_BUILDINGS)
-		//puppets will only build very few buildings
+		//puppets will build fewer buildings
 		if (CityStrategyAIHelpers::IsTestCityStrategy_IsPuppetAndAnnexable(m_pCity))
 		{
 			//too new? not ok
 			if (pkBuildingInfo->GetEra() > kPlayer.GetCurrentEra() - 1)
 				continue;
 
-			//no defensive value? not ok
-			if (pkBuildingInfo->GetDefenseModifier() == 0)
+			//option: disallow everything (EXCEPT defense buildings) that costs maintenance if we are running a deficit
+			if (pkBuildingInfo->GetDefenseModifier() <= 0)
 			{
-				/*
-				//option: disallow everything that costs maintenance if we are running a deficit
 				static EconomicAIStrategyTypes eStrategyLosingMoney = (EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_LOSING_MONEY", true);
-				if (pkBuildingInfo->GetGoldMaintenance() > 0 && GET_PLAYER(m_eOwner).GetEconomicAI()->IsUsingStrategy(eStrategyLosingMoney))
+				if (pkBuildingInfo->GetGoldMaintenance() > 0 && GET_PLAYER(m_pCity->getOwner()).GetEconomicAI()->IsUsingStrategy(eStrategyLosingMoney))
 					continue;
-				*/
-
-				continue;
 			}
 		}
 #endif
@@ -3848,9 +3843,9 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 		iFlatYield += (pkBuildingInfo->GetThemingYieldBonus(eYield) * 5);
 	}
 
-	if (pCity->GetEventBuildingClassCityYield((BuildingClassTypes)pkBuildingInfo->GetBuildingClassType(), eYield) > 0)
+	if (pCity->GetEventBuildingClassCityYield(pkBuildingInfo->GetBuildingClassType(), eYield) > 0)
 	{
-		iFlatYield += (pCity->GetEventBuildingClassCityYield((BuildingClassTypes)pkBuildingInfo->GetBuildingClassType(), eYield) * 5);
+		iFlatYield += (pCity->GetEventBuildingClassCityYield(pkBuildingInfo->GetBuildingClassType(), eYield) * 5);
 	}
 
 	if (pCity->plot()->isRiver() && pkBuildingInfo->GetRiverPlotYieldChange(eYield) > 0)
@@ -4065,7 +4060,7 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 		iFlatYield += ((kPlayer.GetTrade()->GetTradeValuesAtCityTimes100(pCity, YIELD_GOLD) / 100) * (pkBuildingInfo->GetTradeRouteRecipientBonus() + pkBuildingInfo->GetTradeRouteTargetBonus()));
 	}
 
-	int iYieldPolicyBonus = kPlayer.GetBuildingClassYieldChange((BuildingClassTypes)pkBuildingInfo->GetBuildingClassType(), eYield) + kPlayer.GetPlayerPolicies()->GetBuildingClassYieldChange((BuildingClassTypes)pkBuildingInfo->GetBuildingClassType(), eYield);
+	int iYieldPolicyBonus = kPlayer.GetBuildingClassYieldChange(pkBuildingInfo->GetBuildingClassType(), eYield) + kPlayer.GetPlayerPolicies()->GetBuildingClassYieldChange(pkBuildingInfo->GetBuildingClassType(), eYield);
 	if (iYieldPolicyBonus > 0)
 	{
 		iFlatYield += iYieldPolicyBonus;
@@ -4362,9 +4357,9 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 		}
 	}
 
-	if (pCity->GetEventBuildingClassCityYieldModifier((BuildingClassTypes)pkBuildingInfo->GetBuildingClassType(), eYield) > 0)
+	if (pCity->GetEventBuildingClassCityYieldModifier(pkBuildingInfo->GetBuildingClassType(), eYield) > 0)
 	{
-		iModifier += (pCity->GetEventBuildingClassCityYieldModifier((BuildingClassTypes)pkBuildingInfo->GetBuildingClassType(), eYield) * 2);
+		iModifier += (pCity->GetEventBuildingClassCityYieldModifier(pkBuildingInfo->GetBuildingClassType(), eYield) * 2);
 	}
 
 	if (pkBuildingInfo->GetYieldFromWLTKD(eYield) > 0)
@@ -4408,14 +4403,14 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 		iModifier += pkBuildingInfo->GetGlobalYieldModifier(eYield);
 	}
 
-	int iYieldPolicyModBonus = kPlayer.GetPlayerPolicies()->GetBuildingClassYieldModifier((BuildingClassTypes)pkBuildingInfo->GetBuildingClassType(), eYield);
+	int iYieldPolicyModBonus = kPlayer.GetPlayerPolicies()->GetBuildingClassYieldModifier(pkBuildingInfo->GetBuildingClassType(), eYield);
 	if (iYieldPolicyModBonus > 0)
 	{
 		iModifier += iYieldPolicyModBonus;
 	}
 	if (pCity->GetCityReligions()->GetReligiousMajority() == kPlayer.GetReligions()->GetReligionInMostCities())
 	{
-		int iReligionPolicyBonus = pCity->getReligionBuildingYieldRateModifier((BuildingClassTypes)pkBuildingInfo->GetBuildingClassType(), eYield);
+		int iReligionPolicyBonus = pCity->getReligionBuildingYieldRateModifier(pkBuildingInfo->GetBuildingClassType(), eYield);
 		if (iReligionPolicyBonus > 0)
 		{
 			iModifier += iReligionPolicyBonus;
@@ -5274,17 +5269,17 @@ int CityStrategyAIHelpers::GetBuildingPolicyValue(CvCity *pCity, BuildingTypes e
 			}
 		}
 	}
-	int iProductionBonus = kPlayer.GetPlayerPolicies()->GetBuildingClassProductionModifier((BuildingClassTypes)pkBuildingInfo->GetBuildingClassType());
+	int iProductionBonus = kPlayer.GetPlayerPolicies()->GetBuildingClassProductionModifier(pkBuildingInfo->GetBuildingClassType());
 	if(iProductionBonus > 0)
 	{
 		iValue += iProductionBonus;
 	}
-	int iHappinessBonus = kPlayer.GetPlayerPolicies()->GetBuildingClassHappinessModifier((BuildingClassTypes)pkBuildingInfo->GetBuildingClassType());
+	int iHappinessBonus = kPlayer.GetPlayerPolicies()->GetBuildingClassHappinessModifier(pkBuildingInfo->GetBuildingClassType());
 	if(iHappinessBonus > 0)
 	{
 		iValue += 5 * kPlayer.getNumCities();
 	}
-	int iTourism = kPlayer.GetPlayerPolicies()->GetBuildingClassTourismModifier((BuildingClassTypes)pkBuildingInfo->GetBuildingClassType());
+	int iTourism = kPlayer.GetPlayerPolicies()->GetBuildingClassTourismModifier(pkBuildingInfo->GetBuildingClassType());
 	if(iTourism > 0)
 	{
 		iValue += 5 * kPlayer.getNumCities();
@@ -5483,7 +5478,7 @@ int CityStrategyAIHelpers::GetBuildingBasicValue(CvCity *pCity, BuildingTypes eB
 	}
 	if(pkBuildingInfo->GetXBuiltTriggersIdeologyChoice())
 	{
-		if (kPlayer.getBuildingClassCount((BuildingClassTypes)pkBuildingInfo->GetBuildingClassType()) < pkBuildingInfo->GetXBuiltTriggersIdeologyChoice())
+		if (kPlayer.getBuildingClassCount(pkBuildingInfo->GetBuildingClassType()) < pkBuildingInfo->GetXBuiltTriggersIdeologyChoice())
 		{
 			iValue += 250 * pkBuildingInfo->GetXBuiltTriggersIdeologyChoice();
 		}
@@ -5602,9 +5597,9 @@ int  CityStrategyAIHelpers::GetBuildingTraitValue(CvCity *pCity, YieldTypes eYie
 	
 	//Strategy-specific yield bonuses (that lack a yield modifier)
 
-	if(kPlayer.GetPlayerTraits()->GetBuildingClassYieldChange((BuildingClassTypes)pkBuildingInfo->GetBuildingClassType(), eYield) > 0)
+	if(kPlayer.GetPlayerTraits()->GetBuildingClassYieldChange(pkBuildingInfo->GetBuildingClassType(), eYield) > 0)
 	{
-		iBonus += (kPlayer.GetPlayerTraits()->GetBuildingClassYieldChange((BuildingClassTypes)pkBuildingInfo->GetBuildingClassType(), eYield) * 5);
+		iBonus += (kPlayer.GetPlayerTraits()->GetBuildingClassYieldChange(pkBuildingInfo->GetBuildingClassType(), eYield) * 5);
 	}
 
 	if (isWorldWonderClass(pkBuildingInfo->GetBuildingClassInfo()))

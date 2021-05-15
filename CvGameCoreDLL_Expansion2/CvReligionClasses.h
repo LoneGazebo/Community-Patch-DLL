@@ -471,16 +471,6 @@ public:
 	ReligionTypes GetSecondaryReligion();
 	BeliefTypes GetSecondaryReligionPantheonBelief();
 	int GetFollowersOtherReligions(ReligionTypes eReligion, bool bIncludePantheons = false);
-#if !defined(MOD_BALANCE_CORE)
-	bool HasPaidAdoptionBonus() const
-	{
-		return m_bHasPaidAdoptionBonus;
-	};
-	void SetPaidAdoptionBonus(bool bNewValue)
-	{
-		m_bHasPaidAdoptionBonus = bNewValue;
-	};
-#endif
 	int GetReligiousPressureModifier(ReligionTypes eReligion) const;
 	void SetReligiousPressureModifier(ReligionTypes eReligion, int iNewValue);
 	void ChangeReligiousPressureModifier(ReligionTypes eReligion, int iNewValue);
@@ -519,14 +509,10 @@ public:
 
 	void ResetNumTradeRoutePressure();
 
-	ReligionInCityList m_ReligionStatus;
-	ReligionInCityList m_SimulatedStatus;
+	bool ComputeReligiousMajority(bool bNotifications = false);
+	const CvReligion* GetMajorityReligion();
 
-#if defined(MOD_BALANCE_CORE)
-	bool ComputeReligiousMajority(bool bNotifications = false, bool bNotLoad = true);
-#endif
-
-private:
+protected:
 	void RecomputeFollowers(CvReligiousFollowChangeReason eReason, ReligionTypes eOldMajorityReligion, PlayerTypes eResponsibleParty=NO_PLAYER);
 	void SimulateFollowers();
 	void CopyToSimulatedStatus();
@@ -536,19 +522,17 @@ private:
 #endif
 	void LogFollowersChange(CvReligiousFollowChangeReason eReason);
 
-	CvCity* m_pCity;
-#if !defined(MOD_BALANCE_CORE)
-	bool m_bHasPaidAdoptionBonus;
-	int m_iReligiousPressureModifier;
-#endif
+	CvCity* m_pCity; //not serialized
+	ReligionInCityList m_SimulatedStatus; //not serialized
 
-#if defined(MOD_BALANCE_CORE)
+	ReligionInCityList m_ReligionStatus;
 	ReligionTypes m_majorityCityReligion;
-#endif
-};
 
-FDataStream& operator>>(FDataStream&, CvCityReligions&);
-FDataStream& operator<<(FDataStream&, const CvCityReligions&);
+	const CvReligion* m_pMajorityReligionCached; //for faster access, not serialized
+
+	friend FDataStream& operator>>(FDataStream&, CvCityReligions&);
+	friend FDataStream& operator<<(FDataStream&, const CvCityReligions&);
+};
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //  CLASS:      CvUnitReligion

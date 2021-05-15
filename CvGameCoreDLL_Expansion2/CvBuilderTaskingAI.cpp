@@ -1096,14 +1096,8 @@ void CvBuilderTaskingAI::AddImprovingPlotsDirectives(CvUnit* pUnit, CvPlot* pPlo
 	if (pPlot->IsImprovementPillaged())
 		return;
 
-	if (!m_bEvaluateAdjacent)
-	{
-		CvCity* pCity = getOwningCity(pPlot);
-		if(!pCity)
-		{
-			return;
-		}
-	}
+	if (!m_bEvaluateAdjacent && pPlot->getOwningCityID() == -1)
+		return;
 
 	// loop through the build types to find one that we can use
 	BuildTypes eBuild;
@@ -1282,7 +1276,7 @@ void CvBuilderTaskingAI::AddImprovingPlotsDirectives(CvUnit* pUnit, CvPlot* pPlo
 
 		if (eFeature != NO_FEATURE && pkBuild->isFeatureRemove(eFeature))
 		{
-			CvCity* pCity = getOwningCity(pPlot);
+			CvCity* pCity = pPlot->getOwningCity();
 			if (pCity)
 			{
 				int iWeightPenalty = 0;
@@ -1497,7 +1491,7 @@ void CvBuilderTaskingAI::AddChopDirectives(CvUnit* pUnit, CvPlot* pPlot, int iMo
 		return;
 	}
 
-	CvCity* pCity = getOwningCity(pPlot);
+	CvCity* pCity = pPlot->getOwningCity();
 	if(!pCity)
 	{
 		return;
@@ -1718,8 +1712,7 @@ void CvBuilderTaskingAI::AddScrubFalloutDirectives(CvUnit* pUnit, CvPlot* pPlot,
 		return;
 	}
 
-	CvCity* pCity = getOwningCity(pPlot);
-	if(!pCity)
+	if (pPlot->getTeam() != pUnit->getTeam())
 	{
 		return;
 	}
@@ -1940,31 +1933,6 @@ int CvBuilderTaskingAI::GetResourceWeight(ResourceTypes eResource, ImprovementTy
 	}
 
 	return iWeight;
-}
-
-/// Get this city that can interact with this plot
-CvCity* CvBuilderTaskingAI::getOwningCity(CvPlot* pPlot)
-{
-	CvCity* pCity = NULL;
-	if(pPlot->getOwningCity())
-	{
-		pCity = pPlot->getOwningCity();
-	}
-	else
-	{
-		CvCity* pLoopCity;
-		int iLoop;
-		for(pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
-		{
-			if(pLoopCity->GetCityCitizens()->IsCanWork(pPlot))
-			{
-				pCity = pLoopCity;
-				break;
-			}
-		}
-	}
-
-	return pCity;
 }
 
 /// Does this city want to rush a unit?
@@ -2954,7 +2922,7 @@ void CvBuilderTaskingAI::UpdateProjectedPlotYields(CvPlot* pPlot, BuildTypes eBu
 {
 	UpdateCurrentPlotYields(pPlot);
 
-	const CvCity* pOwningCity = getOwningCity(pPlot);
+	const CvCity* pOwningCity = pPlot->getOwningCity();
 	if (pOwningCity)
 	{
 		ReligionTypes eMajority = pOwningCity->GetCityReligions()->GetReligiousMajority();

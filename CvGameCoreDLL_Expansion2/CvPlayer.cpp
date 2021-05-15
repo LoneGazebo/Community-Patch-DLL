@@ -1059,7 +1059,7 @@ void CvPlayer::init(PlayerTypes eID)
 				int iNumBuilding = GetPlayerTraits()->GetNumFreeBuildings();
 				if(iNumBuilding > 0)
 				{
-					ChangeNumCitiesFreeChosenBuilding((BuildingClassTypes)pkBuildingInfo->GetBuildingClassType(), iNumBuilding);
+					ChangeNumCitiesFreeChosenBuilding(pkBuildingInfo->GetBuildingClassType(), iNumBuilding);
 				}
 				else
 				{
@@ -3667,7 +3667,7 @@ CvCity* CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 			{
 				for (int jJ = 0; jJ < pkBuilding->GetGreatWorkCount(); jJ++)
 				{
-					int iGreatWork = pOldCity->GetCityBuildings()->GetBuildingGreatWork((BuildingClassTypes)pkBuilding->GetBuildingClassType(), jJ);
+					int iGreatWork = pOldCity->GetCityBuildings()->GetBuildingGreatWork(pkBuilding->GetBuildingClassType(), jJ);
 					if (iGreatWork != NO_GREAT_WORK)
 					{
 						CopyGreatWorkData kData;
@@ -4244,7 +4244,7 @@ CvCity* CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 
 			if (bKeepBuildings && paiNumFreeBuilding[iI] > 0)
 			{
-				const BuildingClassTypes eBuildingClass = (BuildingClassTypes)pkLoopBuildingInfo->GetBuildingClassType();
+				const BuildingClassTypes eBuildingClass = pkLoopBuildingInfo->GetBuildingClassType();
 				if (::isWorldWonderClass(kLoopBuildingClassInfo))
 				{
 					eBuilding = eLoopBuilding;
@@ -4298,7 +4298,7 @@ CvCity* CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 
 			else if(paiNumRealBuilding[iI] > 0)
 			{
-				const BuildingClassTypes eBuildingClass = (BuildingClassTypes)pkLoopBuildingInfo->GetBuildingClassType();
+				const BuildingClassTypes eBuildingClass = pkLoopBuildingInfo->GetBuildingClassType();
 				if(::isWorldWonderClass(kLoopBuildingClassInfo))
 				{
 					eBuilding = eLoopBuilding;
@@ -4895,7 +4895,7 @@ bool CvPlayer::IsValidBuildingForPlayer(CvCity* pCity, BuildingTypes eBuilding, 
 
 	bool bIsNationalWonder = ::isNationalWonderClass(pkClassInfo);
 	bool bCivUnique = pkClassInfo.getDefaultBuildingIndex() != eBuilding;
-	bool bProductionMaxed = isProductionMaxedBuildingClass((BuildingClassTypes)pkLoopBuildingInfo->GetBuildingClassType(), true);
+	bool bProductionMaxed = isProductionMaxedBuildingClass(pkLoopBuildingInfo->GetBuildingClassType(), true);
 
 	if (GetPlayerTraits()->IsKeepConqueredBuildings())
 	{
@@ -5464,19 +5464,17 @@ void CvPlayer::UpdateBestMilitaryCities()
 				{
 					iCombatClassValue += max(1, pLoopCity->getUnitCombatProductionModifier(eUnitCombatClass));
 				}
+
 				//Promotion Bonus
-				for(int iI = 0; iI < GC.getNumPromotionInfos(); iI++)
+				vector<PromotionTypes> freePromotions = pLoopCity->getFreePromotions();
+				for (size_t iI = 0; iI < freePromotions.size(); iI++)
 				{
-					const PromotionTypes ePromotion = static_cast<PromotionTypes>(iI);
-					CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(ePromotion);
+					CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(freePromotions[iI]);
 					if(pkPromotionInfo)
 					{
-						if(pLoopCity->isFreePromotion(ePromotion))
+						if(pkPromotionInfo->GetUnitCombatClass(eUnitCombatClass))
 						{
-							if(pkPromotionInfo->GetUnitCombatClass(eUnitCombatClass))
-							{
-								iCombatClassValue += 50;
-							}
+							iCombatClassValue += 50;
 						}
 					}
 				}
@@ -7518,6 +7516,8 @@ void CvPlayer::DoCancelEventChoice(EventChoiceTypes eChosenEventChoice)
 					{
 						continue;
 					}
+
+					pLoopCity->UpdateReligion(pLoopCity->GetCityReligions()->GetReligiousMajority());
 					for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 					{
 						YieldTypes eYield = (YieldTypes) iI;
@@ -7527,10 +7527,7 @@ void CvPlayer::DoCancelEventChoice(EventChoiceTypes eChosenEventChoice)
 						pLoopCity->UpdateSpecialReligionYields(eYield);
 						pLoopCity->UpdateCityYields(eYield);
 					}
-					pLoopCity->UpdateReligion(pLoopCity->GetCityReligions()->GetReligiousMajority());
 					CalculateNetHappiness();
-					pLoopCity->GetCityCulture()->CalculateBaseTourismBeforeModifiers();
-					pLoopCity->GetCityCulture()->CalculateBaseTourism();
 				}
 			}
 		}
@@ -8805,6 +8802,8 @@ void CvPlayer::DoEventSyncChoices(EventChoiceTypes eEventChoice, CvCity* pCity)
 						{
 							continue;
 						}
+
+						pLoopCity->UpdateReligion(pLoopCity->GetCityReligions()->GetReligiousMajority());
 						for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 						{
 							YieldTypes eYield = (YieldTypes) iI;
@@ -8814,10 +8813,7 @@ void CvPlayer::DoEventSyncChoices(EventChoiceTypes eEventChoice, CvCity* pCity)
 							pLoopCity->UpdateSpecialReligionYields(eYield);
 							pLoopCity->UpdateCityYields(eYield);
 						}
-						pLoopCity->UpdateReligion(pLoopCity->GetCityReligions()->GetReligiousMajority());
 						CalculateNetHappiness();
-						pLoopCity->GetCityCulture()->CalculateBaseTourismBeforeModifiers();
-						pLoopCity->GetCityCulture()->CalculateBaseTourism();
 					}
 				}
 			}
@@ -9684,6 +9680,8 @@ void CvPlayer::DoEventChoice(EventChoiceTypes eEventChoice, EventTypes eEvent, b
 					{
 						continue;
 					}
+
+					pLoopCity->UpdateReligion(pLoopCity->GetCityReligions()->GetReligiousMajority());
 					for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 					{
 						YieldTypes eYield = (YieldTypes) iI;
@@ -9693,10 +9691,7 @@ void CvPlayer::DoEventChoice(EventChoiceTypes eEventChoice, EventTypes eEvent, b
 						pLoopCity->UpdateSpecialReligionYields(eYield);
 						pLoopCity->UpdateCityYields(eYield);
 					}
-					pLoopCity->UpdateReligion(pLoopCity->GetCityReligions()->GetReligiousMajority());
 					CalculateNetHappiness();
-					pLoopCity->GetCityCulture()->CalculateBaseTourismBeforeModifiers();
-					pLoopCity->GetCityCulture()->CalculateBaseTourism();
 				}
 			}
 		}
@@ -14582,7 +14577,7 @@ std::vector<BuildingTypes> CvPlayer::FindInitialBuildings()
 			continue;
 
 		//skip wonders
-		CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo((BuildingClassTypes)pkBuildingInfo->GetBuildingClassType());
+		CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo(pkBuildingInfo->GetBuildingClassType());
 		if (pkBuildingClassInfo)
 			if (pkBuildingClassInfo->getMaxGlobalInstances() > 0 || pkBuildingClassInfo->getMaxPlayerInstances() > 0 || pkBuildingClassInfo->getMaxTeamInstances() > 0)
 				continue;
@@ -14590,7 +14585,7 @@ std::vector<BuildingTypes> CvPlayer::FindInitialBuildings()
 		bool bHasPrereq = false;
 		if (pkBuildingInfo)
 		{
-			BuildingTypes eCivBuilding = (BuildingTypes)pkCivilizationInfo->getCivilizationBuildings((BuildingClassTypes)pkBuildingInfo->GetBuildingClassType());
+			BuildingTypes eCivBuilding = (BuildingTypes)pkCivilizationInfo->getCivilizationBuildings(pkBuildingInfo->GetBuildingClassType());
 			if (eCivBuilding != eBuilding)
 				continue;
 
@@ -14637,7 +14632,7 @@ void CvPlayer::SetChainLength(BuildingTypes eBuilding)
 				break;
 
 			//find the class
-			BuildingClassTypes eBuildingClass = (BuildingClassTypes)pkBuildingInfo->GetBuildingClassType();
+			BuildingClassTypes eBuildingClass = pkBuildingInfo->GetBuildingClassType();
 			if (eBuildingClass == NO_BUILDINGCLASS)
 				break;
 
@@ -16995,7 +16990,7 @@ int CvPlayer::getBuildingClassPrereqBuilding(BuildingTypes eBuilding, BuildingCl
 
 	if(!isLimitedWonderClass(pkBuilding->GetBuildingClassInfo()))
 	{
-		BuildingClassTypes eBuildingClass = (BuildingClassTypes)pkBuilding->GetBuildingClassType();
+		BuildingClassTypes eBuildingClass = pkBuilding->GetBuildingClassType();
 		iPrereqs *= (getBuildingClassCount(eBuildingClass) + iExtra + 1);
 	}
 
@@ -25430,15 +25425,11 @@ void CvPlayer::changeGoldenAgeTurns(int iChange)
 				}
 #endif
 #if defined(MOD_BALANCE_CORE)
-				CvCity* pLoopCity;
 				int iLoop;
-				for(pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+				for(CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 				{
-					if(pLoopCity != NULL)
-					{
-						pLoopCity->GetCityCulture()->CalculateBaseTourismBeforeModifiers();
-						pLoopCity->GetCityCulture()->CalculateBaseTourism();
-					}
+					pLoopCity->GetCityCulture()->CalculateBaseTourismBeforeModifiers();
+					pLoopCity->GetCityCulture()->CalculateBaseTourism();
 				}
 				ChangeGarrisonedCityRangeStrikeModifier(GetPlayerTraits()->GetGoldenAgeGarrisonedCityRangeStrikeModifier() * -1);
 #endif
@@ -25556,15 +25547,11 @@ void CvPlayer::changeGoldenAgeTurns(int iChange)
 			}
 #endif
 #if defined(MOD_BALANCE_CORE)
-			CvCity* pLoopCity;
 			int iLoop;
-			for (pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+			for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 			{
-				if (pLoopCity != NULL)
-				{
-					pLoopCity->GetCityCulture()->CalculateBaseTourismBeforeModifiers();
-					pLoopCity->GetCityCulture()->CalculateBaseTourism();
-				}
+				pLoopCity->GetCityCulture()->CalculateBaseTourismBeforeModifiers();
+				pLoopCity->GetCityCulture()->CalculateBaseTourism();
 			}
 #endif
 		}
@@ -31702,15 +31689,11 @@ void CvPlayer::ChangeNumHistoricEvents(HistoricEventTypes eHistoricEvent, int iC
 	}
 	m_iNumHistoricEvent += iChange;
 
-	CvCity* pLoopCity;
 	int iLoop;
-	for (pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+	for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 	{
-		if (pLoopCity != NULL)
-		{
-			pLoopCity->GetCityCulture()->CalculateBaseTourismBeforeModifiers();
-			pLoopCity->GetCityCulture()->CalculateBaseTourism();
-		}
+		pLoopCity->GetCityCulture()->CalculateBaseTourismBeforeModifiers();
+		pLoopCity->GetCityCulture()->CalculateBaseTourism();
 	}
 	CvCity* pCapital = getCapitalCity();
 	int iEventGP = GetPlayerTraits()->GetEventGP();
@@ -36676,11 +36659,10 @@ void CvPlayer::changeSpecialistExtraYield(YieldTypes eIndex, int iChange)
 			for(int iSpecialistLoop = 0; iSpecialistLoop < GC.getNumSpecialistInfos(); iSpecialistLoop++)
 			{
 				iNumTotalSpecialists = pLoopCity->GetCityCitizens()->GetSpecialistCount((SpecialistTypes) iSpecialistLoop);
-//				iNumTotalSpecialists = pLoopCity->getSpecialistCount((SpecialistTypes) iSpecialistLoop) + pLoopCity->getFreeSpecialistCount((SpecialistTypes) iSpecialistLoop);
 
 				for(int iTempLoop = 0; iTempLoop < iNumTotalSpecialists; iTempLoop++)
 				{
-					pLoopCity->processSpecialist((SpecialistTypes) iSpecialistLoop, -1);
+					pLoopCity->processSpecialist((SpecialistTypes) iSpecialistLoop, -1, CvCity::YIELD_UPDATE_GLOBAL);
 				}
 			}
 		}
@@ -36696,11 +36678,10 @@ void CvPlayer::changeSpecialistExtraYield(YieldTypes eIndex, int iChange)
 			for(int iSpecialistLoop = 0; iSpecialistLoop < GC.getNumSpecialistInfos(); iSpecialistLoop++)
 			{
 				iNumTotalSpecialists = pLoopCity->GetCityCitizens()->GetSpecialistCount((SpecialistTypes) iSpecialistLoop);
-//				iNumTotalSpecialists = pLoopCity->getSpecialistCount((SpecialistTypes) iSpecialistLoop) + pLoopCity->getFreeSpecialistCount((SpecialistTypes) iSpecialistLoop);
 
 				for(int iTempLoop = 0; iTempLoop < iNumTotalSpecialists; iTempLoop++)
 				{
-					pLoopCity->processSpecialist((SpecialistTypes) iSpecialistLoop, 1);
+					pLoopCity->processSpecialist((SpecialistTypes) iSpecialistLoop, 1, CvCity::YIELD_UPDATE_GLOBAL);
 				}
 			}
 		}

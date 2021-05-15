@@ -852,37 +852,23 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 
 			int iInfluence = 0;
 			//Promotion Bonus
-			for(int iI = 0; iI < GC.getNumPromotionInfos(); iI++)
+			for (int iI = 0; iI < GC.getNumPromotionInfos(); iI++)
 			{
-				if(pkUnitEntry->GetFreePromotions(iI))
-				{
-					PromotionTypes ePromotion = (PromotionTypes) iI;
+				PromotionTypes ePromotion = (PromotionTypes)iI;
+				if (pkUnitEntry->GetFreePromotions(iI))
+					iInfluence += GC.getPromotionInfo(ePromotion)->GetDiploMissionInfluence();
 
-					if(GC.getPromotionInfo(ePromotion)->GetDiploMissionInfluence() != 0)
-					{
-						iInfluence += GC.getPromotionInfo(ePromotion)->GetDiploMissionInfluence();
-					}
-				}
 				if (kPlayer.GetFreePromotionCount((PromotionTypes)iI))
-				{
-					PromotionTypes ePromotion = (PromotionTypes)iI;
-
-					if (GC.getPromotionInfo(ePromotion)->GetDiploMissionInfluence() != 0)
-					{
-						iInfluence += GC.getPromotionInfo(ePromotion)->GetDiploMissionInfluence();
-					}
-				}
-
-				if (m_pCity->isFreePromotion((PromotionTypes)iI))
-				{
-					PromotionTypes ePromotion = (PromotionTypes)iI;
-
-					if (GC.getPromotionInfo(ePromotion)->GetDiploMissionInfluence() != 0)
-					{
-						iInfluence += GC.getPromotionInfo(ePromotion)->GetDiploMissionInfluence();
-					}
-				}
+					iInfluence += GC.getPromotionInfo(ePromotion)->GetDiploMissionInfluence();
 			}
+
+			//should not iterate all promotion types ... this way is faster
+			vector<PromotionTypes> freePromotions = m_pCity->getFreePromotions();
+			for (size_t iI = 0; iI < freePromotions.size(); iI++)
+			{
+				iInfluence += GC.getPromotionInfo(freePromotions[iI])->GetDiploMissionInfluence();
+			}
+
 			EconomicAIStrategyTypes eNeedDiplomats = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_NEED_DIPLOMATS");
 			EconomicAIStrategyTypes eNeedDiplomatsCrit = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_NEED_DIPLOMATS_CRITICAL");
 			if(kPlayer.GetEconomicAI()->IsUsingStrategy(eNeedDiplomats))
@@ -1130,7 +1116,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 	if (pkUnitEntry->GetDefaultUnitAIType() == UNITAI_SETTLE)
 	{
 		EconomicAIStrategyTypes eCanSettle = (EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_FOUND_CITY");
-		if (EconomicAIHelpers::CannotMinorCiv(m_pCity->GetPlayer(), eCanSettle))
+		if (EconomicAIHelpers::CannotMinorCiv( m_pCity->GetPlayer(), eCanSettle))
 		{
 			return 0;
 		}

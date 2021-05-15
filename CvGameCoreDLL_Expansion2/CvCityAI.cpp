@@ -69,7 +69,6 @@ void CvCityAI::AI_reset()
 
 void CvCityAI::AI_doTurn()
 {
-	AI_PERF_FORMAT("City-AI-perf.csv", ("CvCityAI::AI_doTurn, Turn %03d, %s, %s", GC.getGame().getElapsedGameTurns(), GetPlayer()->getCivilizationShortDescription(), getName().c_str()) );
 	VALIDATE_OBJECT
 	if(!isHuman())
 	{
@@ -131,7 +130,7 @@ void CvCityAI::AI_chooseProduction(bool bInterruptWonders, bool bInterruptBuildi
 		CvBuildingEntry* pkBuilding = GC.getBuildingInfo(eNextWonder);
 		if (pkBuilding)
 		{
-			if (IsBestForWonder((BuildingClassTypes)pkBuilding->GetBuildingClassType()))
+			if (IsBestForWonder(pkBuilding->GetBuildingClassType()))
 			{
 				if (kOwner.GetNumUnitsWithUnitAI(UNITAI_ENGINEER) > 0)
 					bBuildWonder = true;

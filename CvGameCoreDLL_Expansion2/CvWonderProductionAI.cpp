@@ -156,7 +156,7 @@ BuildingTypes CvWonderProductionAI::ChooseWonder(bool /* bAdjustForOtherPlayers 
 			if (!pkBuildingInfo)
 				continue;
 
-			if (!pLoopCity->IsBestForWonder((BuildingClassTypes)pkBuildingInfo->GetBuildingClassType()))
+			if (!pLoopCity->IsBestForWonder(pkBuildingInfo->GetBuildingClassType()))
 				continue;
 
 			iTurnsRequired = std::max(1, pkBuildingInfo->GetProductionCost() / iEstimatedProductionPerTurn);

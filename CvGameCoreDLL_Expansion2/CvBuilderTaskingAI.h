@@ -89,7 +89,6 @@ public:
 	int GetBuildTimeWeight(CvUnit* pUnit, CvPlot* pPlot, BuildTypes eBuild, bool bIgnoreFeatureTime = false, int iAdditionalTime = 0);
 	int GetResourceWeight(ResourceTypes eResource, ImprovementTypes eImprovement, int iQuantity);
 
-	CvCity* getOwningCity(CvPlot* pPlot);
 	bool DoesBuildHelpRush(CvUnit* pUnit, CvPlot* pPlot, BuildTypes eBuild);
 	bool WantRouteAtPlot(const CvPlot* pPlot) const; //build it
 	bool NeedRouteAtPlot(const CvPlot* pPlot) const; //keep it

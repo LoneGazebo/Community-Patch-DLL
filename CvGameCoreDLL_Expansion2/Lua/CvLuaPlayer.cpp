@@ -12168,7 +12168,7 @@ int CvLuaPlayer::lGetExtraBuildingHappinessFromPolicies(lua_State* L)
 		CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
 		if(pkBuildingInfo)
 		{
-			BuildingClassTypes eBuildingClass = (BuildingClassTypes)pkBuildingInfo->GetBuildingClassType();
+			BuildingClassTypes eBuildingClass = pkBuildingInfo->GetBuildingClassType();
 
 			int iExtraHappiness = 0;
 
