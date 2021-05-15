@@ -333,6 +333,10 @@ void CvGameReligions::Init()
 	m_iMinimumFaithForNextPantheon = GC.getRELIGION_MIN_FAITH_FIRST_PANTHEON();
 	m_iMinimumFaithForNextPantheon *= GC.getGame().getGameSpeedInfo().getTrainPercent();
 	m_iMinimumFaithForNextPantheon /= 100;
+
+	//extremely important, this vector should never be reallocated
+	//because we cache pointers to its entries in CvCityReligions!
+	m_CurrentReligions.reserve(MAX_CIV_PLAYERS);
 }
 
 /// Handle turn-by-turn religious updates
@@ -4687,13 +4691,9 @@ int CvPlayerReligions::GetNumDomesticFollowers(ReligionTypes eReligion) const
 //=====================================
 /// Constructor
 CvCityReligions::CvCityReligions(void):
-#if !defined(MOD_BALANCE_CORE)
-	m_bHasPaidAdoptionBonus(false),
-#endif
-#if defined(MOD_BALANCE_CORE)
 	m_pCity(NULL),
-	m_majorityCityReligion(NO_RELIGION)
-#endif
+	m_majorityCityReligion(NO_RELIGION),
+	m_pMajorityReligionCached(NULL)
 {
 	m_ReligionStatus.clear();
 }
@@ -4708,14 +4708,10 @@ CvCityReligions::~CvCityReligions(void)
 void CvCityReligions::Init(CvCity* pCity)
 {
 	m_pCity = pCity;
-#if !defined(MOD_BALANCE_CORE)
-	m_bHasPaidAdoptionBonus = false;
-#endif
 
 	m_ReligionStatus.clear();
-#if defined(MOD_BALANCE_CORE)
 	m_majorityCityReligion = NO_RELIGION;
-#endif
+	m_pMajorityReligionCached = NULL;
 }
 
 /// Cleanup
@@ -4938,19 +4934,13 @@ bool CvCityReligions::IsForeignMissionaryNearby(ReligionTypes eReligion)
 	return false;
 }
 
-#if defined(MOD_BALANCE_CORE)
 ReligionTypes CvCityReligions::GetReligiousMajority()
 {
 	return m_majorityCityReligion;
 }
 
-bool CvCityReligions::ComputeReligiousMajority(bool bNotifications, bool bNotLoad)
+bool CvCityReligions::ComputeReligiousMajority(bool bNotifications)
 {
-#else
-/// Is there a religion that at least half of the population follows?
-ReligionTypes CvCityReligions::GetReligiousMajority()
-{
-#endif
 	int iTotalFollowers = 0;
 	int iMostFollowerPressure = 0;
 	int iMostFollowers = -1;
@@ -4969,28 +4959,27 @@ ReligionTypes CvCityReligions::GetReligiousMajority()
 		}
 	}
 
-#if defined(MOD_BALANCE_CORE)
 	//update local majority
 	ReligionTypes oldMajority = m_majorityCityReligion;
+
 	m_majorityCityReligion = (iMostFollowers*2 >= iTotalFollowers) ? eMostFollowers : NO_RELIGION;
 
 	//update player majority
-	if (m_majorityCityReligion != oldMajority && bNotLoad)
+	if (m_majorityCityReligion != oldMajority)
 	{
+		m_pMajorityReligionCached = NULL; //reset this
 		GET_PLAYER(m_pCity->getOwner()).GetReligions()->ComputeMajority(bNotifications);
 	}
-	return (m_majorityCityReligion!=NO_RELIGION);
-#else
-	if ((iMostFollowers * 2) >= iTotalFollowers)
-	{
-		return eMostFollowers;
-	}
-	else
-	{
-		return NO_RELIGION;
-	}
-#endif
 
+	return (m_majorityCityReligion!=NO_RELIGION);
+}
+
+const CvReligion * CvCityReligions::GetMajorityReligion()
+{
+	if (m_majorityCityReligion != NO_RELIGION && m_pMajorityReligionCached == NULL)
+		m_pMajorityReligionCached = GC.getGame().GetGameReligions()->GetReligion(m_majorityCityReligion, m_pCity->getOwner());
+
+	return m_pMajorityReligionCached;
 }
 
 /// Just asked to simulate a conversion - who would be the majority religion?
@@ -6526,18 +6515,6 @@ FDataStream& operator>>(FDataStream& loadFrom, CvCityReligions& writeTo)
 
 	loadFrom >> uiVersion;
 	MOD_SERIALIZE_INIT_READ(loadFrom);
-#if !defined(MOD_BALANCE_CORE)
-	if(uiVersion >= 2)
-	{
-		bool bTemp;
-		loadFrom >> bTemp;
-		writeTo.SetPaidAdoptionBonus(bTemp);
-	}
-	else
-	{
-		writeTo.SetPaidAdoptionBonus(false);
-	}
-#endif
 
 	int iEntriesToRead;
 	CvReligionInCity tempItem;
@@ -6549,10 +6526,8 @@ FDataStream& operator>>(FDataStream& loadFrom, CvCityReligions& writeTo)
 		loadFrom >> tempItem;
 		writeTo.m_ReligionStatus.push_back(tempItem);
 	}
-#if defined(MOD_BALANCE_CORE)
-	writeTo.ComputeReligiousMajority(false, false);
-#endif
 
+	loadFrom >> writeTo.m_majorityCityReligion;
 	return loadFrom;
 }
 
@@ -6563,9 +6538,6 @@ FDataStream& operator<<(FDataStream& saveTo, const CvCityReligions& readFrom)
 
 	saveTo << uiVersion;
 	MOD_SERIALIZE_INIT_WRITE(saveTo);
-#if !defined(MOD_BALANCE_CORE)
-	saveTo << readFrom.HasPaidAdoptionBonus();
-#endif
 
 	ReligionInCityList::const_iterator it;
 	saveTo << readFrom.m_ReligionStatus.size();
@@ -6574,6 +6546,7 @@ FDataStream& operator<<(FDataStream& saveTo, const CvCityReligions& readFrom)
 		saveTo << *it;
 	}
 
+	saveTo << readFrom.m_majorityCityReligion;
 	return saveTo;
 }
 

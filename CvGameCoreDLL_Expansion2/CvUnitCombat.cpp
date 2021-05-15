@@ -1419,7 +1419,7 @@ void CvUnitCombat::ResolveCityMeleeCombat(const CvCombatInfo& kCombatInfo, uint 
 			}
 
 #if !defined(NO_ACHIEVEMENTS)
-			if( pkDefender->GetPlayer()->GetID() == GC.getGame().getActivePlayer() && pkDefender->isHuman() && !GC.getGame().isGameMultiPlayer())
+			if( pkDefender->getOwner() == GC.getGame().getActivePlayer() && pkDefender->isHuman() && !GC.getGame().isGameMultiPlayer())
 			{
 				gDLL->UnlockAchievement(ACHIEVEMENT_REALLY_SUCK);
 			}

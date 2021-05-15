@@ -753,6 +753,31 @@ void CvTacticalAnalysisMap::CalculateMilitaryStrengths()
 	int iBias = 2; // some bias because action may still be spread out over the zone
 	int iUnitStrengthMultiplier = 1; //relative to cities
 
+	//performance optimization, create a visibility lookup table
+	int iGridSize = GC.getMap().numPlots();
+	vector<bool> visible(iGridSize, false);
+	for (int i = 0; i < iGridSize; i++)
+	{
+		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(i);
+		if (pPlot->isVisible(eTeam))
+		{
+			visible[i] = true;
+
+			//for our plots we know that all adjacent plots are visible anyway
+			//but for far-away plots we set adjacent plots visible as well
+			//a small AI cheat where a human can simple make an educated guess
+			if (pPlot->getTeam() != eTeam)
+			{
+				CvPlot** aNeighbors = GC.getMap().getNeighborsUnchecked(pPlot);
+				for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
+				{
+					if (aNeighbors[iI])
+						visible[aNeighbors[iI]->GetPlotIndex()] = true;
+				}
+			}
+		}
+	}
+
 	// Loop through the dominance zones
 	for(unsigned int iI = 0; iI < m_vDominanceZones.size(); iI++)
 	{
@@ -787,7 +812,10 @@ void CvTacticalAnalysisMap::CalculateMilitaryStrengths()
 			int iLoop;
 			for(CvUnit* pLoopUnit = kPlayer.firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = kPlayer.nextUnit(&iLoop))
 			{
-				if(pLoopUnit->isDelayedDeath() || !pLoopUnit->IsCanAttack()) //do not check for combat units because that excludes air units!
+				if(pLoopUnit->isDelayedDeath())
+					continue;
+				
+				if (!pLoopUnit->IsCombatUnit() && !pLoopUnit->IsCanAttackRanged()) //check for combat units is not enough because that excludes air units!
 					continue;
 
 				CvPlot* pPlot = pLoopUnit->plot();
@@ -803,8 +831,7 @@ void CvTacticalAnalysisMap::CalculateMilitaryStrengths()
 					continue;
 
 				//a little cheating for AI - invisible units still count with reduced strength
-				bool bVisible = pPlot->isVisible(eTeam) || pPlot->isAdjacentVisible(eTeam, false);
-				bool bReducedStrength = pLoopUnit->isEmbarked() || !bVisible || !bZoneTypeMatch;
+				bool bReducedStrength = pLoopUnit->isEmbarked() || !visible[pPlot->GetPlotIndex()] || !bZoneTypeMatch;
 
 				int iPlotDistance = 0;
 				//if there is a city, units in adjacent zones can also count
@@ -1215,6 +1242,7 @@ FDataStream& operator<<(FDataStream& saveTo, const CvTacticalAnalysisMap& readFr
 
 	saveTo << readFrom.m_vPlotZoneID;
 	saveTo << readFrom.m_vDominanceZones;
+	saveTo << readFrom.m_IdLookup;
 
 	return saveTo;
 }
@@ -1225,6 +1253,7 @@ FDataStream& operator>>(FDataStream& loadFrom, CvTacticalAnalysisMap& writeTo)
 
 	loadFrom >> writeTo.m_vPlotZoneID;
 	loadFrom >> writeTo.m_vDominanceZones;
+	loadFrom >> writeTo.m_IdLookup;
 
 	return loadFrom;
 }

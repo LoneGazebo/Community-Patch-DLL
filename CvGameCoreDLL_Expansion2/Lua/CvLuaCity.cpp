@@ -5226,7 +5226,22 @@ int CvLuaCity::lGetFreePromotionCount(lua_State* L)
 //bool isFreePromotion(PromotionTypes eIndex);
 int CvLuaCity::lIsFreePromotion(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvCity::isFreePromotion);
+	CvCity* pkCity = GetInstance(L);
+	PromotionTypes promo = CvLuaArgs::toValue<PromotionTypes>(L, 2);
+
+	bool bFound = false;
+	vector<PromotionTypes> freePromotions = pkCity->getFreePromotions();
+	for (size_t iI = 0; iI < freePromotions.size(); iI++)
+	{
+		if (freePromotions[iI] == promo)
+		{
+			bFound = true;
+			break;
+		}
+	}
+
+	lua_pushboolean(L, bFound);
+	return 1;
 }
 //------------------------------------------------------------------------------
 //int getSpecialistFreeExperience();

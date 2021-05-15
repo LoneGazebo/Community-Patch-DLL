@@ -364,6 +364,8 @@ private:
 	CvString GetLogFileName(CvString& playerName) const;
 
 	CvPlayer *m_pPlayer;
+
+	mutable map<PlayerTypes, pair<int, InfluenceLevelTrend>> m_influenceTrendCache;
 };
 
 FDataStream& operator>>(FDataStream&, CvPlayerCulture&);

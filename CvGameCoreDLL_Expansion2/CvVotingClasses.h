@@ -700,6 +700,9 @@ private:
 	// Accessors
 	Member* GetMember(PlayerTypes ePlayer);
 	Project* GetProject(LeagueProjectTypes eLeagueProject);
+
+	int m_startingVotesCacheTime; //not serialized
+	int m_startingVotesCached; //not serialized
 };
 
 FDataStream& operator>>(FDataStream&, CvLeague&);

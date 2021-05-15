@@ -4570,15 +4570,8 @@ bool CvPlayerTrade::CreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, Dom
 			}
 #endif
 #if defined(MOD_BALANCE_CORE)
-			for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
-			{
-				YieldTypes eYield = (YieldTypes) iI;
-				if(eYield == NO_YIELD)
-					continue;
-
-				pOriginCity->UpdateCityYields(eYield);
-				pDestCity->UpdateCityYields(eYield);
-			}
+			pOriginCity->UpdateAllNonPlotYields(false);
+			pDestCity->UpdateAllNonPlotYields(false);
 #endif
 		}
 	}
@@ -5127,15 +5120,8 @@ bool CvPlayerTrade::PlunderTradeRoute(int iTradeConnectionID)
 #if defined(MOD_BALANCE_CORE)
 	if(pOriginCity != NULL && pDestCity != NULL)
 	{
-		for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
-		{
-			YieldTypes eYield = (YieldTypes) iI;
-			if(eYield == NO_YIELD)
-				continue;
-
-			pOriginCity->UpdateCityYields(eYield);
-			pDestCity->UpdateCityYields(eYield);
-		}
+		pOriginCity->UpdateAllNonPlotYields(false);
+		pDestCity->UpdateAllNonPlotYields(false);
 	}
 #endif
 

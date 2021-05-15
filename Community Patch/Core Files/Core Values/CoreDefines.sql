@@ -263,13 +263,16 @@ UPDATE Defines SET Value = '250' WHERE Name = 'AI_CITY_SPECIALIZATION_PRODUCTION
 UPDATE Defines SET Value = '1250' WHERE Name = 'AI_CITY_SPECIALIZATION_PRODUCTION_WEIGHT_EMPIRE_DEFENSE_CRITICAL'; 
 UPDATE Defines SET Value = '250' WHERE Name = 'AI_CITY_SPECIALIZATION_PRODUCTION_WEIGHT_FLAVOR_WONDER';
 
--- AI City Strategy
-UPDATE Defines SET Value = '10' WHERE Name = 'AI_CITIZEN_VALUE_SCIENCE';
+-- Citizen allocation
+-- should all be in the same ballpark, specialization decides which yield to maximize; food is always highly valued when needed
+UPDATE Defines SET Value = '16' WHERE Name = 'AI_CITIZEN_VALUE_SCIENCE';
 UPDATE Defines SET Value = '12' WHERE Name = 'AI_CITIZEN_VALUE_FOOD';
-UPDATE Defines SET Value = '14' WHERE Name = 'AI_CITIZEN_VALUE_PRODUCTION';
-UPDATE Defines SET Value = '6' WHERE Name = 'AI_CITIZEN_VALUE_GOLD';
+UPDATE Defines SET Value = '12' WHERE Name = 'AI_CITIZEN_VALUE_PRODUCTION';
+UPDATE Defines SET Value = '12' WHERE Name = 'AI_CITIZEN_VALUE_GOLD';
 UPDATE Defines SET Value = '16' WHERE Name = 'AI_CITIZEN_VALUE_CULTURE';
-UPDATE Defines SET Value = '8' WHERE Name = 'AI_CITIZEN_VALUE_FAITH';
+UPDATE Defines SET Value = '12' WHERE Name = 'AI_CITIZEN_VALUE_FAITH';
+
+-- AI City Strategy
 UPDATE Defines SET Value = '5000' WHERE Name = 'AI_CITYSTRATEGY_OPERATION_UNIT_BASE_WEIGHT';
 UPDATE Defines SET Value = '0.5' WHERE Name = 'AI_CITYSTRATEGY_YIELD_DEFICIENT_FOOD'; -- food is different because we include consumption.
 UPDATE Defines SET Value = '1.0' WHERE Name = 'AI_CITYSTRATEGY_YIELD_DEFICIENT_PRODUCTION';

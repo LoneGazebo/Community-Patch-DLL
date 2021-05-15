@@ -1099,31 +1099,30 @@ bool CvPlot::isCoastalLand(int iMinWaterSize, bool bUseCachedValue) const
 	if (!bUseCachedValue)
 		updateWaterFlags();
 
-	if (iMinWaterSize == -1)
-		return m_bIsAdjacentToWater;
-	else
-	{
-		//we don't have a cached value for non-standard lake sizes
-		CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(this);
-		for(int iCount=0; iCount<NUM_DIRECTION_TYPES; iCount++)
-		{
-			const CvPlot* pAdjacentPlot = aPlotsToCheck[iCount];
-			if(pAdjacentPlot && pAdjacentPlot->isWater())
-			{
-				if (pAdjacentPlot->getFeatureType() == FEATURE_ICE && !pAdjacentPlot->isOwned())
-					continue;
-
-				if (iMinWaterSize < 2)
-					return true;
-
-				CvLandmass* pAdjacentBodyOfWater = GC.getMap().getLandmass(pAdjacentPlot->getLandmass());
-				if(pAdjacentBodyOfWater && pAdjacentBodyOfWater->getNumTiles() >= iMinWaterSize)
-					return true;
-			}
-		}
-
+	//if the plot is water, this flag will be false by definition!
+	if (!m_bIsAdjacentToWater)
 		return false;
+
+	//no size or trivial size given, we're done
+	if (iMinWaterSize < 2)
+		return true;
+
+	//otherwise check the size of the water body
+	CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(this);
+	for(int iCount=0; iCount<NUM_DIRECTION_TYPES; iCount++)
+	{
+		const CvPlot* pAdjacentPlot = aPlotsToCheck[iCount];
+		if(pAdjacentPlot && pAdjacentPlot->isWater())
+		{
+			if (pAdjacentPlot->getFeatureType() == FEATURE_ICE && !pAdjacentPlot->isOwned())
+				continue;
+
+			if (pAdjacentPlot->area()->getNumTiles() >= iMinWaterSize)
+				return true;
+		}
 	}
+
+	return false;
 }
 
 //	--------------------------------------------------------------------------------
@@ -9168,10 +9167,10 @@ void CvPlot::updateOwningCity()
 		if (pOldOwningCity != NULL)
 		{
 			// Remove citizen
-			pOldOwningCity->GetCityCitizens()->SetWorkingPlot(this, false);
+			pOldOwningCity->GetCityCitizens()->SetWorkingPlot(this, false, CvCity::YIELD_UPDATE_GLOBAL);
 			SetResourceLinkedCity(NULL);
-			// Re-add citizen somewhere else
-			pOldOwningCity->GetCityCitizens()->DoAddBestCitizenFromUnassigned();
+			// Re-add citvizen somewhere else
+			pOldOwningCity->GetCityCitizens()->DoAddBestCitizenFromUnassigned(CvCity::YIELD_UPDATE_GLOBAL);
 		}
 		// Change what City's allowed to work this Plot
 		if(pBestCity != NULL)
@@ -10621,15 +10620,7 @@ void CvPlot::updateYieldFast(CvCity* pOwningCity, const CvReligion* pMajorityRel
 			{
 				int iDelta = iNewYield - iOldYield;
 				pOwningCity->ChangeBaseYieldRateFromTerrain(eYield, iDelta);
-
-#if defined(MOD_BALANCE_CORE)
 				pOwningCity->UpdateCityYields(eYield);
-				if(eYield == YIELD_CULTURE || eYield == YIELD_TOURISM)
-				{
-					pOwningCity->GetCityCulture()->CalculateBaseTourismBeforeModifiers();
-					pOwningCity->GetCityCulture()->CalculateBaseTourism();
-				}				
-#endif
 			}
 
 			bChange = true;

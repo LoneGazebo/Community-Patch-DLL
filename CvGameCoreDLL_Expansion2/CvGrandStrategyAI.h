@@ -71,6 +71,15 @@ public:
 	int GetGuessOtherPlayerUnitedNationsPriority(PlayerTypes ePlayer);
 	int GetGuessOtherPlayerSpaceshipPriority(PlayerTypes ePlayer, int iWorldNumTechsAverage);
 
+	int GetGoldFlavor() const { return m_iFlavorGold; }
+	int GetScienceFlavor() const { return m_iFlavorScience; }
+	int GetCultureFlavor() const { return m_iFlavorCulture; }
+	int GetProductionFlavor() const { return m_iFlavorProduction; }
+	int GetFaithFlavor() const { return m_iFlavorFaith; }
+	int GetHappinessFlavor() const { return m_iFlavorHappiness; }
+	int GetGrowthFlavor() const { return m_iFlavorGrowth; }
+	int GetDiploFlavor() const { return m_iFlavorDiplomacy; }
+
 private:
 
 	void LogGrandStrategies(const vector<int>& vGrandStrategyPriorities);
@@ -91,6 +100,16 @@ private:
 
 	int* m_eGuessOtherPlayerActiveGrandStrategy;
 	int* m_eGuessOtherPlayerActiveGrandStrategyConfidence;
+
+	// caching for faster accesss without a hash lookup
+	int m_iFlavorGold;
+	int m_iFlavorScience;
+	int m_iFlavorCulture;
+	int m_iFlavorProduction;
+	int m_iFlavorFaith;
+	int m_iFlavorHappiness;
+	int m_iFlavorGrowth;
+	int m_iFlavorDiplomacy;
 };
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

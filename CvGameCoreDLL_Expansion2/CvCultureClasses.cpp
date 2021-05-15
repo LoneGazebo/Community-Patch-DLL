@@ -793,96 +793,46 @@ bool CvGameCulture::SwapGreatWorks (PlayerTypes ePlayer1, int iWork1, PlayerType
 	pCity2->GetCityBuildings()->SetBuildingGreatWork(eBuildingClass2, iSwapIndex2, iWork1);
 	
 	GC.GetEngineUserInterface()->setDirty(GreatWorksScreen_DIRTY_BIT, true);
-#if defined(MOD_BALANCE_CORE)
-	if(pCity1 != NULL)
-	{
-		for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
-		{
-			YieldTypes eYield = (YieldTypes) iI;
-			if(eYield == NO_YIELD)
-				continue;
 
-			pCity1->UpdateCityYields(eYield);
-		}
-		pCity1->GetCityCulture()->CalculateBaseTourismBeforeModifiers();
-		pCity1->GetCityCulture()->CalculateBaseTourism();
-	}
-	if(pCity2 != NULL)
-	{
-		for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
-		{
-			YieldTypes eYield = (YieldTypes) iI;
-			if(eYield == NO_YIELD)
-				continue;
+	pCity1->UpdateAllNonPlotYields(true);
+	pCity2->UpdateAllNonPlotYields(true);
 
-			pCity2->UpdateCityYields(eYield);
-		}
-		pCity2->GetCityCulture()->CalculateBaseTourismBeforeModifiers();
-		pCity2->GetCityCulture()->CalculateBaseTourism();
-	}
-#endif
 	return true;
 }
 
-void CvGameCulture::MoveGreatWorks(PlayerTypes ePlayer, int iCity1, int iBuildingClass1, int iWorkIndex1, 
-																												int iCity2, int iBuildingClass2, int iWorkIndex2)
+void CvGameCulture::MoveGreatWorks(PlayerTypes ePlayer, int iCity1, int iBuildingClass1, int iWorkIndex1, int iCity2, int iBuildingClass2, int iWorkIndex2)
 {
-	if(ePlayer == NO_PLAYER){
+	if(ePlayer == NO_PLAYER)
 		return;
-	}
 
 	CvPlayer& kPlayer = GET_PLAYER(ePlayer);
-	if (!kPlayer.isAlive()){
+	if (!kPlayer.isAlive())
 		return;
-	}
 
 	CvCity* pCity1 = kPlayer.getCity(iCity1);
 	CvCity* pCity2 = kPlayer.getCity(iCity2);
-	if(!pCity1 || !pCity2){
+	if(!pCity1 || !pCity2)
 		return;
-	}
 
 	int workType1 = pCity1->GetCityBuildings()->GetBuildingGreatWork((BuildingClassTypes)iBuildingClass1, iWorkIndex1);
 	int workType2 = pCity2->GetCityBuildings()->GetBuildingGreatWork((BuildingClassTypes)iBuildingClass2, iWorkIndex2);
 	pCity1->GetCityBuildings()->SetBuildingGreatWork((BuildingClassTypes)iBuildingClass1, iWorkIndex1, workType2);
 	pCity2->GetCityBuildings()->SetBuildingGreatWork((BuildingClassTypes)iBuildingClass2, iWorkIndex2, workType1);
+
 #if defined(MOD_BALANCE_CORE)
-	if(pCity1 != NULL)
+	if ((BuildingClassTypes)iBuildingClass1 != NO_BUILDINGCLASS)
 	{
-		if ((BuildingClassTypes)iBuildingClass1 != NO_BUILDINGCLASS)
-		{
-			pCity1->GetCityCulture()->UpdateThemingBonusIndex((BuildingClassTypes)iBuildingClass1);
-		}
-		pCity1->ResetGreatWorkYieldCache();
-		for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
-		{
-			YieldTypes eYield = (YieldTypes) iI;
-			if(eYield == NO_YIELD)
-				continue;
-
-			pCity1->UpdateCityYields(eYield);
-		}
-		pCity1->GetCityCulture()->CalculateBaseTourismBeforeModifiers();
-		pCity1->GetCityCulture()->CalculateBaseTourism();
+		pCity1->GetCityCulture()->UpdateThemingBonusIndex((BuildingClassTypes)iBuildingClass1);
 	}
-	if(pCity2 != NULL)
+	pCity1->ResetGreatWorkYieldCache();
+	pCity1->UpdateAllNonPlotYields(true);
+
+	if ((BuildingClassTypes)iBuildingClass2 != NO_BUILDINGCLASS)
 	{
-		if ((BuildingClassTypes)iBuildingClass2 != NO_BUILDINGCLASS)
-		{
-			pCity2->GetCityCulture()->UpdateThemingBonusIndex((BuildingClassTypes)iBuildingClass2);
-		}
-		pCity2->ResetGreatWorkYieldCache();
-		for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
-		{
-			YieldTypes eYield = (YieldTypes) iI;
-			if(eYield == NO_YIELD)
-				continue;
-
-			pCity2->UpdateCityYields(eYield);
-		}
-		pCity2->GetCityCulture()->CalculateBaseTourismBeforeModifiers();
-		pCity2->GetCityCulture()->CalculateBaseTourism();
+		pCity2->GetCityCulture()->UpdateThemingBonusIndex((BuildingClassTypes)iBuildingClass2);
 	}
+	pCity2->ResetGreatWorkYieldCache();
+	pCity2->UpdateAllNonPlotYields(true);
 #endif
 }
 
@@ -1778,16 +1728,7 @@ void CvPlayerCulture::MoveWorks (GreatWorkSlotType eType, vector<CvGreatWorkBuil
 				if (bAlreadyChecked)
 					continue;
 
-				for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
-				{
-					YieldTypes eYield = (YieldTypes) iI;
-					if(eYield == NO_YIELD)
-						continue;
-
-					pCity->UpdateCityYields(eYield);
-				}
-				pCity->GetCityCulture()->CalculateBaseTourismBeforeModifiers();
-				pCity->GetCityCulture()->CalculateBaseTourism();
+				pCity->UpdateAllNonPlotYields(false);
 				CityList.push_back(pCity);
 			}
 		}
@@ -3604,18 +3545,8 @@ void CvPlayerCulture::DoArchaeologyChoice (ArchaeologyChoiceType eChoice)
 #if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
 		pPlot->SetPlayerThatClearedDigHere(m_pPlayer->GetID());
 #endif
-#if defined(MOD_BALANCE_CORE)
-		for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
-		{
-			YieldTypes eYield = (YieldTypes)iI;
-			if (eYield == NO_YIELD)
-				continue;
 
-			pHousingCity->UpdateCityYields(eYield);
-		}
-		pHousingCity->GetCityCulture()->CalculateBaseTourismBeforeModifiers();
-		pHousingCity->GetCityCulture()->CalculateBaseTourism();
-#endif
+		pHousingCity->UpdateAllNonPlotYields(true);
 		if (pUnit)
 			pUnit->kill(true);
 	}
@@ -3669,18 +3600,8 @@ void CvPlayerCulture::DoArchaeologyChoice (ArchaeologyChoiceType eChoice)
 			}
 		}
 #endif
-#if defined(MOD_BALANCE_CORE)
-		for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
-		{
-			YieldTypes eYield = (YieldTypes)iI;
-			if (eYield == NO_YIELD)
-				continue;
+		pHousingCity->UpdateAllNonPlotYields(true);
 
-			pHousingCity->UpdateCityYields(eYield);
-		}
-		pHousingCity->GetCityCulture()->CalculateBaseTourismBeforeModifiers();
-		pHousingCity->GetCityCulture()->CalculateBaseTourism();
-#endif
 		if (pUnit)
 			pUnit->kill(true);
 	}
@@ -3737,18 +3658,8 @@ void CvPlayerCulture::DoArchaeologyChoice (ArchaeologyChoiceType eChoice)
 			}
 		}
 #endif
-#if defined(MOD_BALANCE_CORE)
-		for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
-		{
-			YieldTypes eYield = (YieldTypes)iI;
-			if (eYield == NO_YIELD)
-				continue;
+		pHousingCity->UpdateAllNonPlotYields(true);
 
-			pHousingCity->UpdateCityYields(eYield);
-		}
-		pHousingCity->GetCityCulture()->CalculateBaseTourismBeforeModifiers();
-		pHousingCity->GetCityCulture()->CalculateBaseTourism();
-#endif
 		if (pUnit)
 			pUnit->kill(true);
 	}
@@ -4607,8 +4518,12 @@ InfluenceLevelTypes CvPlayerCulture::GetInfluenceLevel(PlayerTypes ePlayer) cons
 /// Current influence trend on this player
 InfluenceLevelTrend CvPlayerCulture::GetInfluenceTrend(PlayerTypes ePlayer) const
 {
-	InfluenceLevelTrend eRtnValue = INFLUENCE_TREND_STATIC;
+	//looking up average yields is expensive, so we cache the last result
+	map<PlayerTypes, pair<int, InfluenceLevelTrend>>::const_iterator it = m_influenceTrendCache.find(ePlayer);
+	if (it != m_influenceTrendCache.end() && it->second.first == GC.getGame().getTurnSlice())
+		return it->second.second;
 
+	InfluenceLevelTrend eRtnValue = INFLUENCE_TREND_STATIC;
 	CvPlayer &kOtherPlayer = GET_PLAYER(ePlayer);
 
 	float iTheirCultureThisTurn = (float)m_pPlayer->GetCulture()->GetOtherPlayerCulturePerTurnIncludingInstant(ePlayer) + (float)kOtherPlayer.GetJONSCultureEverGenerated();
@@ -4619,15 +4534,14 @@ InfluenceLevelTrend CvPlayerCulture::GetInfluenceTrend(PlayerTypes ePlayer) cons
 
 	if (iTheirCultureLastTurn <= 0)
 		iTheirCultureLastTurn = 1;
-
 	if (iTheirCultureThisTurn <= 0)
 		iTheirCultureThisTurn = 1;
+
 	float iLastTurnPercent = (iOurTourismLastTurn * 100) / iTheirCultureLastTurn;
 	float iThisTurnPercent = (iOurTourismThisTurn * 100) / iTheirCultureThisTurn;
 
 	float iDiff = fabs(iLastTurnPercent - iThisTurnPercent);
-
-	if (iDiff <= .15f)
+	if (iDiff <= .1f)
 		return eRtnValue;
 
 	else if (iLastTurnPercent < iThisTurnPercent)
@@ -4638,7 +4552,9 @@ InfluenceLevelTrend CvPlayerCulture::GetInfluenceTrend(PlayerTypes ePlayer) cons
 	{
 		eRtnValue = INFLUENCE_TREND_FALLING;
 	}
-		
+
+	//update the cache
+	m_influenceTrendCache[ePlayer] = make_pair(GC.getGame().getTurnSlice(), eRtnValue);
 	return eRtnValue;
 }
 
@@ -6791,9 +6707,9 @@ int CvPlayerCulture::GetTotalThemingBonuses() const
 	for(pCity = m_pPlayer->firstCity(&iLoop); pCity != NULL; pCity = m_pPlayer->nextCity(&iLoop))
 	{
 #if defined(MOD_GLOBAL_GREATWORK_YIELDTYPES)
-		iRtnValue += pCity->GetCityBuildings()->GetThemingBonuses(YIELD_CULTURE);
+		iRtnValue += pCity->GetCityBuildings()->GetCurrentThemingBonuses(YIELD_CULTURE);
 #else
-		iRtnValue += pCity->GetCityBuildings()->GetThemingBonuses();
+		iRtnValue += pCity->GetCityBuildings()->GetCurrentThemingBonuses();
 #endif
 	}
 
@@ -7427,9 +7343,9 @@ void CvCityCulture::CalculateBaseTourismBeforeModifiers()
 	iBase += iBonus;
 
 #if defined(MOD_GLOBAL_GREATWORK_YIELDTYPES)
-	iBase += m_pCity->GetCityBuildings()->GetThemingBonuses(YIELD_CULTURE);
+	iBase += m_pCity->GetCityBuildings()->GetCurrentThemingBonuses(YIELD_CULTURE);
 #else
-	iBase += m_pCity->GetCityBuildings()->GetThemingBonuses();
+	iBase += m_pCity->GetCityBuildings()->GetCurrentThemingBonuses();
 #endif
 
 #if defined(MOD_API_UNIFIED_YIELDS_TOURISM)
@@ -7477,92 +7393,42 @@ void CvCityCulture::CalculateBaseTourismBeforeModifiers()
 			iBase += m_pCity->GetCityBuildings()->GetNumBuildingsFromFaith() * iFaithBuildingTourism;
 		}
 
-		// Buildings
-		for(int jJ = 0; jJ < GC.getNumBuildingClassInfos(); jJ++)
+		// If Rome, or if the option to check for all buildings in a class is enabled, we loop through all buildings in the city
+		bool bRome = GET_PLAYER(m_pCity->getOwner()).GetPlayerTraits()->IsKeepConqueredBuildings();
+		vector<BuildingTypes> allBuildings = m_pCity->GetCityBuildings()->GetAllBuildingsHere();
+		for(size_t iI = 0; iI < allBuildings.size(); iI++)
 		{
-			BuildingClassTypes eBuildingClass = (BuildingClassTypes)jJ;
-
-			CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo(eBuildingClass);
-			if(!pkBuildingClassInfo)
+			int iCount = m_pCity->GetCityBuildings()->GetNumBuilding(allBuildings[iI]);
+			CvBuildingEntry *pkBuilding = GC.getBuildingInfo(allBuildings[iI]);
+			if (pkBuilding)
 			{
-				continue;
-			}
-
-			const CvCivilizationInfo& playerCivilizationInfo = GET_PLAYER(m_pCity->getOwner()).getCivilizationInfo();
-			BuildingTypes eBuilding = NO_BUILDING;
-			// If Rome, or if the option to check for all buildings in a class is enabled, we loop through all buildings in the city
-#if defined(MOD_BALANCE_CORE)
-			bool bRome = GET_PLAYER(m_pCity->getOwner()).GetPlayerTraits()->IsKeepConqueredBuildings();
-			if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || bRome)
-#else
-			if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
-#endif
-			{
-				eBuilding = m_pCity->GetCityBuildings()->GetBuildingTypeFromClass(eBuildingClass);
-			}
-			else
-			{	
-				eBuilding = (BuildingTypes)playerCivilizationInfo.getCivilizationBuildings(eBuildingClass);
-			}
-
-			if(eBuilding != NO_BUILDING)
-			{
-#if defined(MOD_BALANCE_CORE)
-				if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || bRome || m_pCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0) // GetBuildingTypeFromClass() already checks GetNumBuilding() > 0
-#else
-				if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || m_pCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
-#endif
+				if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || bRome || iCount > 0) // GetBuildingTypeFromClass() already checks GetNumBuilding() > 0
 				{
-					iBase += pReligion->m_Beliefs.GetBuildingClassTourism(eBuildingClass, m_pCity->getOwner(), m_pCity) * m_pCity->GetCityBuildings()->GetNumBuilding(eBuilding);
+					iBase += pReligion->m_Beliefs.GetBuildingClassTourism(pkBuilding->GetBuildingClassType(), m_pCity->getOwner(), m_pCity) * iCount;
 				}
 			}
 		}
 	}
 
 	// Tech enhanced Tourism
-	for(int jJ = 0; jJ < GC.getNumBuildingClassInfos(); jJ++)
+	vector<BuildingTypes> allBuildings = m_pCity->GetCityBuildings()->GetAllBuildingsHere();
+	for(size_t iI = 0; iI < allBuildings.size(); iI++)
 	{
-		BuildingClassTypes eBuildingClass = (BuildingClassTypes)jJ;
-
-		CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo(eBuildingClass);
-		if(!pkBuildingClassInfo)
+		BuildingTypes eBuilding = allBuildings[iI];
+		CvBuildingEntry *pkBuilding = GC.getBuildingInfo(eBuilding);
+		if (pkBuilding)
 		{
-			continue;
-		}
-
-		const CvCivilizationInfo& playerCivilizationInfo = GET_PLAYER(m_pCity->getOwner()).getCivilizationInfo();
-		BuildingTypes eBuilding = NO_BUILDING;
-		// If Rome, or if the option to check for all buildings in a class is enabled, we loop through all buildings in the city
-#if defined(MOD_BALANCE_CORE)
-		bool bRome = GET_PLAYER(m_pCity->getOwner()).GetPlayerTraits()->IsKeepConqueredBuildings();
-		if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || bRome)
-#else
-		if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
-#endif
-		{
-			eBuilding = m_pCity->GetCityBuildings()->GetBuildingTypeFromClass(eBuildingClass);
-		}
-		else
-		{
-			eBuilding = (BuildingTypes)playerCivilizationInfo.getCivilizationBuildings(eBuildingClass);
-		}
-
-		if(eBuilding != NO_BUILDING)
-		{
-			CvBuildingEntry *pkEntry = GC.getBuildingInfo(eBuilding);
-			if(pkEntry && m_pCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
+			int iTourism = pkBuilding->GetTechEnhancedTourism();
+			if (iTourism != 0 && GET_TEAM(m_pCity->getTeam()).GetTeamTechs()->HasTech((TechTypes)pkBuilding->GetEnhancedYieldTech()))
 			{
-				int iTourism = pkEntry->GetTechEnhancedTourism();
-				if (iTourism != 0 && GET_TEAM(m_pCity->getTeam()).GetTeamTechs()->HasTech((TechTypes)pkEntry->GetEnhancedYieldTech()))
-				{
-					iBase += iTourism * m_pCity->GetCityBuildings()->GetNumBuilding(eBuilding);
-				}
+				iBase += iTourism * m_pCity->GetCityBuildings()->GetNumBuilding(eBuilding);
 			}
 		}
 	}
 	m_pCity->SetBaseTourismBeforeModifiers(max(0, iBase));
 	return;
 }
+
 void CvCityCulture::CalculateBaseTourism()
 {
 	int iBase = m_pCity->GetBaseTourismBeforeModifiers() * 100;
@@ -7591,44 +7457,14 @@ void CvCityCulture::CalculateBaseTourism()
 		iModifier += kPlayer.GetPlayerTraits()->GetGoldenAgeTourismModifier();
 	}
 	
-
-	for(int iBuildingClassLoop = 0; iBuildingClassLoop < GC.getNumBuildingClassInfos(); iBuildingClassLoop++)
+	vector<BuildingTypes> allBuildings = m_pCity->GetCityBuildings()->GetAllBuildingsHere();
+	for(size_t iI = 0; iI < allBuildings.size(); iI++)
 	{
-		int iBuildingMod = kPlayer.GetPlayerPolicies()->GetBuildingClassTourismModifier((BuildingClassTypes)iBuildingClassLoop);
-		if (iBuildingMod == 0)
+		CvBuildingEntry *pkBuilding = GC.getBuildingInfo(allBuildings[iI]);
+		if (pkBuilding)
 		{
-			continue;
-		}
-		const CvCivilizationInfo& playerCivilizationInfo = kPlayer.getCivilizationInfo();
-		BuildingTypes eBuilding = NO_BUILDING;
-		// If Rome, or if the option to check for all buildings in a class is enabled, we loop through all buildings in the city
-#if defined(MOD_BALANCE_CORE)
-		bool bRome = kPlayer.GetPlayerTraits()->IsKeepConqueredBuildings();
-		if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || bRome)
-#else
-		if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
-#endif
-		{
-			eBuilding = m_pCity->GetCityBuildings()->GetBuildingTypeFromClass((BuildingClassTypes)iBuildingClassLoop);
-		}
-		else
-		{
-			eBuilding = (BuildingTypes)playerCivilizationInfo.getCivilizationBuildings((BuildingClassTypes)iBuildingClassLoop);
-		}
-		if (eBuilding != NO_BUILDING)
-		{
-			CvBuildingEntry *pkEntry = GC.getBuildingInfo(eBuilding);
-			if (pkEntry)
-			{
-#if defined(MOD_BALANCE_CORE)
-				if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || bRome || m_pCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0) // GetBuildingTypeFromClass() already checks GetNumBuilding() > 0
-#else
-				if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || m_pCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
-#endif
-				{
-					iModifier += iBuildingMod * m_pCity->GetCityBuildings()->GetNumBuilding(eBuilding);
-				}
-			}
+			int iBuildingMod = kPlayer.GetPlayerPolicies()->GetBuildingClassTourismModifier(pkBuilding->GetBuildingClassType());
+			iModifier += iBuildingMod * m_pCity->GetCityBuildings()->GetNumBuilding(allBuildings[iI]);
 		}
 	}
 
@@ -7854,9 +7690,9 @@ CvString CvCityCulture::GetTourismTooltip()
 	szRtnValue = GetLocalizedText("TXT_KEY_CO_CITY_TOURISM_GREAT_WORKS", iGWTourism, m_pCity->GetCityCulture()->GetNumGreatWorks());
 
 #if defined(MOD_GLOBAL_GREATWORK_YIELDTYPES)
-	int iThemingBonuses = m_pCity->GetCityBuildings()->GetThemingBonuses(YIELD_CULTURE);
+	int iThemingBonuses = m_pCity->GetCityBuildings()->GetCurrentThemingBonuses(YIELD_CULTURE);
 #else
-	int iThemingBonuses = m_pCity->GetCityBuildings()->GetThemingBonuses();
+	int iThemingBonuses = m_pCity->GetCityBuildings()->GetCurrentThemingBonuses();
 #endif
 	if (iThemingBonuses != 0)
 	{
@@ -7927,37 +7763,15 @@ CvString CvCityCulture::GetTourismTooltip()
 		}
 		szRtnValue += GetLocalizedText("TXT_KEY_CO_CITY_TOURISM_FAITH_BUILDINGS", iSacredSitesTourism);
 
-		for(int jJ = 0; jJ < GC.getNumBuildingClassInfos(); jJ++)
+		vector<BuildingTypes> allBuildings = m_pCity->GetCityBuildings()->GetAllBuildingsHere();
+		for(size_t iI = 0; iI < allBuildings.size(); iI++)
 		{
-			BuildingClassTypes eBuildingClass = (BuildingClassTypes)jJ;
-
-			CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo(eBuildingClass);
-			if(!pkBuildingClassInfo)
+			BuildingTypes eBuilding = allBuildings[iI];
+			CvBuildingEntry *pkBuilding = GC.getBuildingInfo(eBuilding);
+			if (pkBuilding)
 			{
-				continue;
-			}
-
-			const CvCivilizationInfo& playerCivilizationInfo = GET_PLAYER(m_pCity->getOwner()).getCivilizationInfo();
-			BuildingTypes eBuilding = NO_BUILDING;
-#if defined(MOD_BALANCE_CORE)
-			if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || GET_PLAYER(m_pCity->getOwner()).GetPlayerTraits()->IsKeepConqueredBuildings())
-#else
-			if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
-#endif
-			{
-				eBuilding = m_pCity->GetCityBuildings()->GetBuildingTypeFromClass(eBuildingClass);
-			}
-			else
-			{
-				eBuilding = (BuildingTypes)playerCivilizationInfo.getCivilizationBuildings(eBuildingClass);
-			}
-
-			if(eBuilding != NO_BUILDING)
-			{
-				if(m_pCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
-				{
-					iReligiousArtTourism += pReligion->m_Beliefs.GetBuildingClassTourism(eBuildingClass, m_pCity->getOwner(), m_pCity) * m_pCity->GetCityBuildings()->GetNumBuilding(eBuilding);
-				}
+				iReligiousArtTourism += pReligion->m_Beliefs.GetBuildingClassTourism(pkBuilding->GetBuildingClassType(), 
+					m_pCity->getOwner(), m_pCity) * m_pCity->GetCityBuildings()->GetNumBuilding(eBuilding);
 			}
 		}
 #if defined(MOD_BALANCE_CORE)
@@ -7975,46 +7789,23 @@ CvString CvCityCulture::GetTourismTooltip()
 	}
 
 	// Tech enhanced Tourism
-	for(int jJ = 0; jJ < GC.getNumBuildingClassInfos(); jJ++)
+	vector<BuildingTypes> allBuildings = m_pCity->GetCityBuildings()->GetAllBuildingsHere();
+	for(size_t iI = 0; iI < allBuildings.size(); iI++)
 	{
-		BuildingClassTypes eBuildingClass = (BuildingClassTypes)jJ;
-
-		CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo(eBuildingClass);
-		if(!pkBuildingClassInfo)
+		BuildingTypes eBuilding = allBuildings[iI];
+		CvBuildingEntry *pkBuilding = GC.getBuildingInfo(eBuilding);
+		if (pkBuilding)
 		{
-			continue;
-		}
-
-		const CvCivilizationInfo& playerCivilizationInfo = GET_PLAYER(m_pCity->getOwner()).getCivilizationInfo();
-		BuildingTypes eBuilding = NO_BUILDING;
-#if defined(MOD_BALANCE_CORE)
-		if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || GET_PLAYER(m_pCity->getOwner()).GetPlayerTraits()->IsKeepConqueredBuildings())
-#else
-		if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
-#endif
-		{
-			eBuilding = m_pCity->GetCityBuildings()->GetBuildingTypeFromClass(eBuildingClass);
-		}
-		else
-		{
-			eBuilding = (BuildingTypes)playerCivilizationInfo.getCivilizationBuildings(eBuildingClass);
-		}
-
-		if(eBuilding != NO_BUILDING)
-		{
-			if(m_pCity->GetCityBuildings()->GetNumBuilding(eBuilding) != 0)
+			int iTechEnhancedTourism = GC.getBuildingInfo(eBuilding)->GetTechEnhancedTourism();
+			if (iTechEnhancedTourism != 0 && GET_TEAM(m_pCity->getTeam()).GetTeamTechs()->HasTech((TechTypes)GC.getBuildingInfo(eBuilding)->GetEnhancedYieldTech()))
 			{
-				int iTechEnhancedTourism = GC.getBuildingInfo(eBuilding)->GetTechEnhancedTourism();
-				if (iTechEnhancedTourism != 0 && GET_TEAM(m_pCity->getTeam()).GetTeamTechs()->HasTech((TechTypes)GC.getBuildingInfo(eBuilding)->GetEnhancedYieldTech()))
-				{
-					iTechEnhancedTourism *= m_pCity->GetCityBuildings()->GetNumBuilding(eBuilding);
+				iTechEnhancedTourism *= m_pCity->GetCityBuildings()->GetNumBuilding(eBuilding);
 
-					if (szRtnValue.length() > 0)
-					{
-						szRtnValue += "[NEWLINE][NEWLINE]";
-					}
-					szRtnValue += GetLocalizedText("TXT_KEY_CO_CITY_TOURISM_TECH_ENHANCED", iTechEnhancedTourism);
+				if (szRtnValue.length() > 0)
+				{
+					szRtnValue += "[NEWLINE][NEWLINE]";
 				}
+				szRtnValue += GetLocalizedText("TXT_KEY_CO_CITY_TOURISM_TECH_ENHANCED", iTechEnhancedTourism);
 			}
 		}
 	}
@@ -8044,44 +7835,26 @@ CvString CvCityCulture::GetTourismTooltip()
 	}
 #endif
 
-	int iBuildingMod = 0;
-	for(int iBuildingClassLoop = 0; iBuildingClassLoop < GC.getNumBuildingClassInfos(); iBuildingClassLoop++)
+	for(size_t iI = 0; iI < allBuildings.size(); iI++)
 	{
-		const CvCivilizationInfo& playerCivilizationInfo = kCityPlayer.getCivilizationInfo();
-		BuildingTypes eBuilding = NO_BUILDING;
-#if defined(MOD_BALANCE_CORE)
-		if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || GET_PLAYER(m_pCity->getOwner()).GetPlayerTraits()->IsKeepConqueredBuildings())
-#else
-		if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
-#endif
+		CvBuildingEntry *pkBuilding = GC.getBuildingInfo(allBuildings[iI]);
+		if (pkBuilding)
 		{
-			eBuilding = m_pCity->GetCityBuildings()->GetBuildingTypeFromClass((BuildingClassTypes)iBuildingClassLoop);
-		}
-		else
-		{
-			eBuilding = (BuildingTypes)playerCivilizationInfo.getCivilizationBuildings((BuildingClassTypes)iBuildingClassLoop);
-		}
-
-		if (eBuilding != NO_BUILDING)
-		{
-			CvBuildingEntry *pkEntry = GC.getBuildingInfo(eBuilding);
-			if (pkEntry)
+			int iBuildingMod = kCityPlayer.GetPlayerPolicies()->GetBuildingClassTourismModifier(pkBuilding->GetBuildingClassType());
+			if (iBuildingMod != 0)
 			{
-				iBuildingMod = kCityPlayer.GetPlayerPolicies()->GetBuildingClassTourismModifier((BuildingClassTypes)iBuildingClassLoop);
-				if (iBuildingMod != 0 && m_pCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
-				{
-					iBuildingMod *= m_pCity->GetCityBuildings()->GetNumBuilding(eBuilding);
+				iBuildingMod *= m_pCity->GetCityBuildings()->GetNumBuilding(allBuildings[iI]);
 
-					if (szRtnValue.length() > 0)
-					{
-						szRtnValue += "[NEWLINE][NEWLINE]";
-					}
-					szTemp = GetLocalizedText("TXT_KEY_CO_CITY_TOURISM_BUILDING_BONUS", iBuildingMod, pkEntry->GetDescription());
-					szRtnValue += szTemp;
+				if (szRtnValue.length() > 0)
+				{
+					szRtnValue += "[NEWLINE][NEWLINE]";
 				}
+				szTemp = GetLocalizedText("TXT_KEY_CO_CITY_TOURISM_BUILDING_BONUS", iBuildingMod, pkBuilding->GetDescription());
+				szRtnValue += szTemp;
 			}
 		}
 	}
+
 	// Get policy bonuses
 	int iLessHappyMod = kCityPlayer.GetPlayerPolicies()->GetNumericModifier(POLICYMOD_TOURISM_MOD_LESS_HAPPY);
 	int iCommonFoeMod = kCityPlayer.GetPlayerPolicies()->GetNumericModifier(POLICYMOD_TOURISM_MOD_COMMON_FOE);
@@ -8989,42 +8762,17 @@ CvString CvCityCulture::GetThemingTooltip(BuildingClassTypes eBuildingClass) con
 int CvCityCulture::GetCultureFromWonders() const
 {
 	int iRtnValue = 0;
-	CvPlayer &kPlayer = GET_PLAYER(m_pCity->getOwner());
 
-	CvCivilizationInfo *pkCivInfo = GC.getCivilizationInfo(kPlayer.getCivilizationType());
-	if (pkCivInfo)
+	vector<BuildingTypes> allBuildings = m_pCity->GetCityBuildings()->GetAllBuildingsHere();
+	for(size_t iI = 0; iI < allBuildings.size(); iI++)
 	{
-		int iNumBuildingClassInfos = GC.getNumBuildingClassInfos();
-
-		for(int iI = 0; iI < iNumBuildingClassInfos; iI++)
+		CvBuildingEntry *pkBuilding = GC.getBuildingInfo(allBuildings[iI]);
+		if (pkBuilding)
 		{
-			BuildingTypes eWonderBuilding = NO_BUILDING;
-#if defined(MOD_BALANCE_CORE)
-			if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || kPlayer.GetPlayerTraits()->IsKeepConqueredBuildings())
-#else
-			if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
-#endif
+			if (isWorldWonderClass(pkBuilding->GetBuildingClassInfo()))
 			{
-				eWonderBuilding = m_pCity->GetCityBuildings()->GetBuildingTypeFromClass((BuildingClassTypes)iI);
-			}
-			else
-			{
-				eWonderBuilding = ((BuildingTypes)(pkCivInfo->getCivilizationBuildings(iI)));
-			}
-			if (eWonderBuilding != NO_BUILDING)
-			{
-				if(m_pCity->GetCityBuildings()->GetNumBuilding(eWonderBuilding) > 0)
-				{
-					CvBuildingEntry *pkBuildingInfo = GC.getBuildingInfo(eWonderBuilding);
-					if (pkBuildingInfo)
-					{
-						if (isWorldWonderClass(pkBuildingInfo->GetBuildingClassInfo()))
-						{
-							iRtnValue += pkBuildingInfo->GetYieldChange(YIELD_CULTURE);
-							iRtnValue += GC.getGame().GetGameLeagues()->GetWorldWonderYieldChange(m_pCity->getOwner(), YIELD_CULTURE);
-						}
-					}
-				}
+				iRtnValue += pkBuilding->GetYieldChange(YIELD_CULTURE);
+				iRtnValue += GC.getGame().GetGameLeagues()->GetWorldWonderYieldChange(m_pCity->getOwner(), YIELD_CULTURE);
 			}
 		}
 	}

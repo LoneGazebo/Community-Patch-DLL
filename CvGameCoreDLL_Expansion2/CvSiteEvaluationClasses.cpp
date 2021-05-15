@@ -679,7 +679,7 @@ int CvSiteEvaluatorForSettler::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPl
 		if (pDebug) vQualifiersNegative.push_back("(V) almost coast");
 	}
 
-	if (pPlot->isCoastalLand())
+	if (pPlot->isCoastalLand(GC.getMIN_WATER_SIZE_FOR_OCEAN()))
 	{
 		if (nWaterPlots <= 3)
 		{

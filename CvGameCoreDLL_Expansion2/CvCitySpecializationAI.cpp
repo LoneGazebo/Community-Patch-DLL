@@ -727,24 +727,13 @@ void CvCitySpecializationAI::AssignSpecializations()
 			continue;
 		}
 
-		// If city is currently using a desired specialization, assume that is good
-		CitySpecializationTypes eSpecialization2 = pLoopCity->GetCityStrategyAI()->GetSpecialization();
-		it = find(specializationsNeeded.begin(), specializationsNeeded.end(), eSpecialization2);
-		if (it != specializationsNeeded.end())
-		{
-			specializationsNeeded.erase(it);
-			pLoopCity->GetCityStrategyAI()->SetSpecialization(eSpecialization2);
-			LogSpecializationAssignment(pLoopCity, eSpecialization2);
-			continue;
-		}
-
 		// Store all other cities for later
 		vector<int> cityData = CityValueForUnworkedTileYields(pLoopCity);
 		for(int iI = 0; iI < YIELD_TOURISM; iI++)
 		{
 			cityData[iI] = AdjustValueBasedOnBuildings(pLoopCity, (YieldTypes)iI, cityData[iI]);
 			if(MOD_BALANCE_CORE_HAPPINESS)
-				cityData[iI] += AdjustValueBasedOnHappiness(pLoopCity, (YieldTypes)iI, cityData[iI]);
+				cityData[iI] = AdjustValueBasedOnHappiness(pLoopCity, (YieldTypes)iI, cityData[iI]);
 
 			if(cityData[iI] < 0)
 				cityData[iI] = 0;
@@ -799,6 +788,7 @@ void CvCitySpecializationAI::AssignSpecializations()
 		if (iBestCityID != -1)
 		{
 			CvCity* pCity = m_pPlayer->getCity(iBestCityID);
+
 			pCity->GetCityStrategyAI()->SetSpecialization(eType);
 			LogSpecializationAssignment(pCity, eType);
 
@@ -1017,7 +1007,7 @@ CvCity* CvCitySpecializationAI::FindBestWonderCity() const
 			if (!pkBuildingInfo)
 				continue;
 
-			if (pLoopCity->IsBestForWonder((BuildingClassTypes)pkBuildingInfo->GetBuildingClassType()))
+			if (pLoopCity->IsBestForWonder(pkBuildingInfo->GetBuildingClassType()))
 				return pBestCity;
 		}
 	}
@@ -1028,33 +1018,27 @@ CvCity* CvCitySpecializationAI::FindBestWonderCity() const
 #if defined(MOD_BALANCE_CORE)
 int CvCitySpecializationAI::AdjustValueBasedOnHappiness(CvCity* pCity, YieldTypes eYield, int iInitialValue)
 {
-	int iRtnValue = 0;
+	int iRtnValue = iInitialValue;
+
 	if(eYield == YIELD_GOLD)
 	{
-		int iValue = (pCity->getUnhappinessFromGold() * 10);
-		if(iValue > 0)
-		{
-			iRtnValue = ((iInitialValue * (100 + iValue)) / 100);
-		}
-		iValue = (GET_PLAYER(pCity->getOwner()).GetTreasury()->CalculateBaseNetGoldTimes100());
-		iValue /= 100;
-		if(iValue < 0)
-		{
-			iRtnValue = iInitialValue * (100 + (iValue * -1)) / 100;
-		}
+		int iMod = (pCity->getUnhappinessFromGold() * 20);
+		int iGPT = (GET_PLAYER(pCity->getOwner()).GetTreasury()->CalculateBaseNetGoldTimes100());
+		if (iGPT < 0)
+			iMod -= iGPT;
 
+		iRtnValue = iInitialValue * (100 + iMod) / 100;
 	}
 	else if(eYield == YIELD_FOOD)
 	{
-		int iValue = (pCity->getUnhappinessFromStarving() * 10);
-		if(iValue > 0)
-		{
-			iRtnValue = iInitialValue * (100 + iValue) / 100;
-		}
+		int iBonus = (pCity->getUnhappinessFromStarving() * 20);
+		int iMalus = pCity->getGrowthMods(); //if we're unhappy don't grow further
+
+		iRtnValue = iInitialValue * (100 + iBonus + iMalus) / 100;
 	}
 	else if(eYield == YIELD_CULTURE)
 	{
-		int iValue = (pCity->getUnhappinessFromCulture() * 10);
+		int iValue = (pCity->getUnhappinessFromCulture() * 20);
 		if(iValue > 0)
 		{
 			iRtnValue = iInitialValue * (100 + iValue) / 100;
@@ -1062,7 +1046,7 @@ int CvCitySpecializationAI::AdjustValueBasedOnHappiness(CvCity* pCity, YieldType
 	}
 	else if(eYield == YIELD_SCIENCE)
 	{
-		int iValue = (pCity->getUnhappinessFromScience() * 10);
+		int iValue = (pCity->getUnhappinessFromScience() * 20);
 		if(iValue > 0)
 		{
 			iRtnValue = iInitialValue * (100 + iValue) / 100;
@@ -1070,6 +1054,8 @@ int CvCitySpecializationAI::AdjustValueBasedOnHappiness(CvCity* pCity, YieldType
 	}
 	else if(eYield == YIELD_FAITH)
 	{
+		//cannot really heal religious unhappiness by faith
+		//but maybe we can buy an inquisitor eventually
 		int iValue = (pCity->getUnhappinessFromReligion() * 10);
 		if(iValue > 0)
 		{
@@ -1094,7 +1080,7 @@ int CvCitySpecializationAI::AdjustValueBasedOnBuildings(CvCity* pCity, YieldType
 
 	// ... and yield per pop
 	int iYieldPerReligion = pCity->GetYieldPerReligionTimes100(eYield);
-	if(iYieldPerPop > 0)
+	if(iYieldPerReligion > 0)
 	{
 		iRtnValue = iRtnValue * (100 + (iYieldPerReligion * pCity->GetCityReligions()->GetNumReligionsWithFollowers())) / 100;
 	}
