@@ -817,7 +817,7 @@ vector<int> CvCitySpecializationAI::CityValueForUnworkedTileYields(CvCity* pCity
 	for(int iI = 1; iI < pCity->GetNumWorkablePlots(); iI++)
 	{
 		CvPlot* pLoopPlot = iterateRingPlots(pPlot->getX(), pPlot->getY(), iI);
-		if(pLoopPlot != NULL && pLoopPlot->getOwningCityID()==pCity->GetID() && !pCity->GetCityCitizens()->IsWorkingPlot(pLoopPlot))
+		if(pLoopPlot != NULL && pCity->GetCityCitizens()->IsCanWork(pLoopPlot) && !pCity->GetCityCitizens()->IsWorkingPlot(pLoopPlot))
 		{
 			for (int iYield = 0; iYield < YIELD_TOURISM; iYield++)
 			{

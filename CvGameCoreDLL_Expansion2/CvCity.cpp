@@ -2793,15 +2793,11 @@ void CvCity::doTurn()
 			for (int iI = 0; iI < GetNumWorkablePlots(); iI++)
 			{
 				CvPlot* pLoopPlot = GetCityCitizens()->GetCityPlotFromIndex(iI);
-
 				if(pLoopPlot != NULL)
 				{
-					if(pLoopPlot->getOwningCityID() == GetID())
+					if(GetCityCitizens()->IsWorkingPlot(iI))
 					{
-						if(GetCityCitizens()->IsWorkingPlot(iI))
-						{
-							pLoopPlot->doImprovement();
-						}
+						pLoopPlot->doImprovement();
 					}
 				}
 			}
@@ -7794,10 +7790,9 @@ int CvCity::countNumImprovedPlots(ImprovementTypes eImprovement) const
 	for(int iI = 0; iI < GetNumWorkablePlots(); iI++)
 	{
 		CvPlot* pLoopPlot = pCityCitizens->GetCityPlotFromIndex(iI);
-
 		if(pLoopPlot != NULL)
 		{
-			if(pLoopPlot->getOwningCityID() == GetID())
+			if (!GetCityCitizens()->IsCanWork(pLoopPlot))
 			{
 				if(eImprovement != NO_IMPROVEMENT)
 				{
@@ -7827,10 +7822,9 @@ int CvCity::countNumImprovablePlots(ImprovementTypes eImprovement, DomainTypes e
 	for(int iI = 0; iI < GetNumWorkablePlots(); iI++)
 	{
 		CvPlot* pLoopPlot = pCityCitizens->GetCityPlotFromIndex(iI);
-
 		if(pLoopPlot != NULL && !pLoopPlot->isCity() && (eDomain == NO_DOMAIN || pLoopPlot->getDomain()==eDomain) )
 		{
-			if(pLoopPlot->getOwningCityID() == GetID() && !pLoopPlot->isImpassable(getTeam()) && !pLoopPlot->isBlockaded(getOwner()) && pLoopPlot->hasYield())
+			if (GetCityCitizens()->IsCanWork(pLoopPlot))
 			{
 				if (pLoopPlot->getImprovementType() == NO_IMPROVEMENT || pLoopPlot->IsImprovementPillaged())
 				{
@@ -7857,24 +7851,17 @@ int CvCity::countNumImprovablePlots(ImprovementTypes eImprovement, DomainTypes e
 int CvCity::countNumWaterPlots() const
 {
 	VALIDATE_OBJECT
-	CvPlot* pLoopPlot;
-	int iCount;
-	int iI;
-
-	iCount = 0;
+	int iCount = 0;
 
 	CvCityCitizens* pCityCitizens = GetCityCitizens();
-
-
-	for(iI = 0; iI < GetNumWorkablePlots(); iI++)
+	for(int iI = 0; iI < GetNumWorkablePlots(); iI++)
 	{
-		pLoopPlot = pCityCitizens->GetCityPlotFromIndex(iI);
-
+		CvPlot* pLoopPlot = pCityCitizens->GetCityPlotFromIndex(iI);
 		if(pLoopPlot != NULL)
 		{
 			if(pLoopPlot->isWater())
 			{
-				if(pLoopPlot->getOwningCityID() == GetID())
+				if (GetCityCitizens()->IsCanWork(pLoopPlot))
 				{
 					iCount++;
 				}
@@ -7892,8 +7879,6 @@ int CvCity::countNumRiverPlots() const
 	int iCount = 0;
 
 	CvCityCitizens* pCityCitizens = GetCityCitizens();
-
-
 	for(int iI = 0; iI < GetNumWorkablePlots(); iI++)
 	{
 		CvPlot* pLoopPlot = pCityCitizens->GetCityPlotFromIndex(iI);
@@ -7902,7 +7887,7 @@ int CvCity::countNumRiverPlots() const
 		{
 			if(pLoopPlot->isRiver())
 			{
-				if(pLoopPlot->getOwningCityID() == GetID())
+				if (GetCityCitizens()->IsCanWork(pLoopPlot))
 				{
 					++iCount;
 				}
@@ -7918,17 +7903,15 @@ int CvCity::countNumForestPlots() const
 {
 	VALIDATE_OBJECT
 	int iCount = 0;
-
-
 	for(int iI = 0; iI < GetNumWorkablePlots(); iI++)
 	{
 		CvPlot* pLoopPlot = GetCityCitizens()->GetCityPlotFromIndex(iI);
 
 		if(pLoopPlot != NULL)
 		{
-			if(pLoopPlot->getOwningCityID() == GetID())
+			if(pLoopPlot->getFeatureType() == FEATURE_FOREST)
 			{
-				if(pLoopPlot->getFeatureType() == FEATURE_FOREST)
+				if (GetCityCitizens()->IsCanWork(pLoopPlot))
 				{
 					++iCount;
 				}
@@ -17734,8 +17717,7 @@ bool CvCity::hasActiveWorldWonder() const
 IDInfo CvCity::GetIDInfo() const
 {
 	VALIDATE_OBJECT
-	IDInfo city(getOwner(), GetID());
-	return city;
+	return IDInfo(getOwner(), GetID());
 }
 
 
@@ -34293,7 +34275,7 @@ bool CvCity::HasWorkedFeature(FeatureTypes iFeatureType) const
 		}
 
 		// Not being worked by this city
-		if (pLoopPlot->getOwningCityID() != GetID() || !GetCityCitizens()->IsWorkingPlot(pLoopPlot)) {
+		if (!GetCityCitizens()->IsWorkingPlot(pLoopPlot)) {
 			continue;
 		}
 
@@ -34368,7 +34350,7 @@ bool CvCity::HasWorkedImprovement(ImprovementTypes iImprovementType) const
 		}
 
 		// Not being worked by this city
-		if (pLoopPlot->getOwningCityID() != GetID() || !GetCityCitizens()->IsWorkingPlot(pLoopPlot)) {
+		if (!GetCityCitizens()->IsWorkingPlot(pLoopPlot)) {
 			continue;
 		}
 
@@ -34417,7 +34399,7 @@ bool CvCity::HasWorkedPlotType(PlotTypes iPlotType) const
 		}
 
 		// Not being worked by this city
-		if (pLoopPlot->getOwningCityID() != GetID() || !GetCityCitizens()->IsWorkingPlot(pLoopPlot)) {
+		if (!GetCityCitizens()->IsWorkingPlot(pLoopPlot)) {
 			continue;
 		}
 
@@ -34491,7 +34473,7 @@ bool CvCity::HasWorkedResource(ResourceTypes iResourceType) const
 		}
 
 		// Not being worked by this city
-		if (pLoopPlot->getOwningCityID() != GetID() || !GetCityCitizens()->IsWorkingPlot(pLoopPlot)) {
+		if (!GetCityCitizens()->IsWorkingPlot(pLoopPlot)) {
 			continue;
 		}
 
@@ -34564,7 +34546,7 @@ bool CvCity::HasWorkedTerrain(TerrainTypes iTerrainType) const
 		}
 
 		// Not being worked by this city
-		if (pLoopPlot->getOwningCityID() != GetID() || !GetCityCitizens()->IsWorkingPlot(pLoopPlot)) {
+		if (!GetCityCitizens()->IsWorkingPlot(pLoopPlot)) {
 			continue;
 		}
 
@@ -34761,6 +34743,7 @@ bool CvCity::IsWithinDistanceOfTerrain(TerrainTypes iTerrainType, int iDistance)
 {
 	return plot()->IsWithinDistanceOfTerrain(iTerrainType, iDistance);
 }
+
 int CvCity::CountNumWorkedFeature(FeatureTypes iFeatureType)
 {
 	int iX = getX(); int iY = getY(); int iOwner = getOwner();
@@ -34777,7 +34760,7 @@ int CvCity::CountNumWorkedFeature(FeatureTypes iFeatureType)
 		}
 
 		// Not being worked by this city
-		if (pLoopPlot->getOwningCityID() != GetID() || !GetCityCitizens()->IsWorkingPlot(pLoopPlot)) 
+		if (!GetCityCitizens()->IsWorkingPlot(pLoopPlot)) 
 		{
 			continue;
 		}
@@ -34790,6 +34773,7 @@ int CvCity::CountNumWorkedFeature(FeatureTypes iFeatureType)
 
 	return iNum;
 }
+
 int CvCity::CountNumWorkedImprovement(ImprovementTypes eImprovement, bool IgnorePillaged)
 {
 	int iX = getX(); int iY = getY(); int iOwner = getOwner();
@@ -34806,7 +34790,7 @@ int CvCity::CountNumWorkedImprovement(ImprovementTypes eImprovement, bool Ignore
 		}
 
 		// Not being worked by this city
-		if (pLoopPlot->getOwningCityID() != GetID() || !GetCityCitizens()->IsWorkingPlot(pLoopPlot)) 
+		if (!GetCityCitizens()->IsWorkingPlot(pLoopPlot)) 
 		{
 			continue;
 		}
@@ -34822,6 +34806,7 @@ int CvCity::CountNumWorkedImprovement(ImprovementTypes eImprovement, bool Ignore
 
 	return iNum;
 }
+
 int CvCity::CountNumWorkedResource(ResourceTypes eResource)
 {
 	int iX = getX(); int iY = getY(); int iOwner = getOwner();
@@ -34838,7 +34823,7 @@ int CvCity::CountNumWorkedResource(ResourceTypes eResource)
 		}
 
 		// Not being worked by this city
-		if (pLoopPlot->getOwningCityID() != GetID() || !GetCityCitizens()->IsWorkingPlot(pLoopPlot)) 
+		if (!GetCityCitizens()->IsWorkingPlot(pLoopPlot)) 
 		{
 			continue;
 		}
@@ -34851,6 +34836,7 @@ int CvCity::CountNumWorkedResource(ResourceTypes eResource)
 
 	return iNum;
 }
+
 int CvCity::CountNumImprovement(ImprovementTypes eImprovement)
 {
 	int iX = getX(); int iY = getY(); int iOwner = getOwner();
@@ -34867,7 +34853,7 @@ int CvCity::CountNumImprovement(ImprovementTypes eImprovement)
 		}
 
 		// Does not belong to this city
-		if (pLoopPlot->getOwningCityID() != GetID()) 
+		if (!GetCityCitizens()->IsCanWork(pLoopPlot))
 		{
 			continue;
 		}
@@ -34901,11 +34887,6 @@ int CvCity::CountNumWorkedRiverTiles(TerrainTypes eTerrain)
 		}
 
 		// Does not belong to this city
-		if (pLoopPlot->getOwningCityID() != GetID()) 
-		{
-			continue;
-		}
-
 		if(!GetCityCitizens()->IsWorkingPlot(iCityPlotLoop))
 		{
 			continue;
@@ -35026,7 +35007,7 @@ int CvCity::CountFeature(FeatureTypes iFeatureType) const
 		}
 
 		// Not owned by this city
-		if (pLoopPlot->getOwningCityID() != GetID()) 
+		if (!GetCityCitizens()->IsCanWork(pLoopPlot))
 			continue;
 
 		if (pLoopPlot->HasFeature(iFeatureType)) {
@@ -35052,7 +35033,7 @@ int CvCity::CountWorkedFeature(FeatureTypes iFeatureType) const
 		}
 
 		// Not being worked by this city
-		if (pLoopPlot->getOwningCityID() != GetID() || !GetCityCitizens()->IsWorkingPlot(pLoopPlot)) {
+		if (!GetCityCitizens()->IsWorkingPlot(pLoopPlot)) {
 			continue;
 		}
 
@@ -35079,7 +35060,7 @@ int CvCity::CountImprovement(ImprovementTypes iImprovementType, bool bOnlyCreate
 		}
 
 		// Not owned by this city
-		if (pLoopPlot->getOwningCityID() != GetID()) 
+		if (!GetCityCitizens()->IsCanWork(pLoopPlot))
 			continue;
 
 		if (pLoopPlot->HasImprovement(iImprovementType)) 
@@ -35109,7 +35090,7 @@ int CvCity::CountWorkedImprovement(ImprovementTypes iImprovementType) const
 		}
 
 		// Not being worked by this city
-		if (pLoopPlot->getOwningCityID() != GetID() || !GetCityCitizens()->IsWorkingPlot(pLoopPlot)) {
+		if (!GetCityCitizens()->IsWorkingPlot(pLoopPlot)) {
 			continue;
 		}
 
@@ -35136,7 +35117,7 @@ int CvCity::CountPlotType(PlotTypes iPlotType) const
 		}
 
 		// Not owned by this city
-		if (pLoopPlot->getOwningCityID() != GetID()) 
+		if (!GetCityCitizens()->IsCanWork(pLoopPlot))
 			continue;
 
 		if (pLoopPlot->HasPlotType(iPlotType)) {
@@ -35162,7 +35143,7 @@ int CvCity::CountWorkedPlotType(PlotTypes iPlotType) const
 		}
 
 		// Not being worked by this city
-		if (pLoopPlot->getOwningCityID() != GetID() || !GetCityCitizens()->IsWorkingPlot(pLoopPlot)) {
+		if (!GetCityCitizens()->IsWorkingPlot(pLoopPlot)) {
 			continue;
 		}
 
@@ -35189,7 +35170,7 @@ int CvCity::CountResource(ResourceTypes iResourceType) const
 		}
 
 		// Not owned by this city
-		if (pLoopPlot->getOwningCityID() != GetID()) 
+		if (!GetCityCitizens()->IsCanWork(pLoopPlot))
 			continue;
 
 		if (pLoopPlot->HasResource(iResourceType)) {
@@ -35215,7 +35196,7 @@ int CvCity::CountWorkedResource(ResourceTypes iResourceType) const
 		}
 
 		// Not being worked by this city
-		if (pLoopPlot->getOwningCityID() != GetID() || !GetCityCitizens()->IsWorkingPlot(pLoopPlot)) {
+		if (!GetCityCitizens()->IsWorkingPlot(pLoopPlot)) {
 			continue;
 		}
 
@@ -35242,7 +35223,7 @@ int CvCity::CountTerrain(TerrainTypes iTerrainType) const
 		}
 
 		// Not owned by this city
-		if (pLoopPlot->getOwningCityID() != GetID()) 
+		if (!GetCityCitizens()->IsCanWork(pLoopPlot))
 			continue;
 
 		if (pLoopPlot->HasTerrain(iTerrainType)) {
@@ -35268,7 +35249,7 @@ int CvCity::CountWorkedTerrain(TerrainTypes iTerrainType) const
 		}
 
 		// Not being worked by this city
-		if (pLoopPlot->getOwningCityID() != GetID() || !GetCityCitizens()->IsWorkingPlot(pLoopPlot)) {
+		if (!GetCityCitizens()->IsWorkingPlot(pLoopPlot)) {
 			continue;
 		}
 
@@ -35295,7 +35276,7 @@ int CvCity::CountAllOwnedTerrain(TerrainTypes iTerrainType) const
 		}
 
 		// Not owned by this city
-		if (pLoopPlot->getOwningCityID() != GetID())
+		if (!GetCityCitizens()->IsCanWork(pLoopPlot))
 			continue;
 
 		if (pLoopPlot->HasTerrain(iTerrainType)) {
