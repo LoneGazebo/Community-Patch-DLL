@@ -101,7 +101,6 @@ public:
 	// Forced Working Plots (human override)
 	bool IsForcedWorkingPlot(int iRelativeIndex) const;
 	bool IsForcedWorkingPlot(const CvPlot* pPlot) const;
-	bool IsForcedWorkingPlot(int iPlotIndex) const;
 	void SetForcedWorkingPlot(CvPlot* pPlot, bool bNewValue);
 
 	void DoValidateForcedWorkingPlots();
