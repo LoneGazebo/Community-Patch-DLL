@@ -2074,8 +2074,6 @@ void CvTacticalAI::PlotReinforcementMoves(CvTacticalDominanceZone* pTargetZone)
 	//sometimes there is nothing to do ...
 	if (pTargetZone->GetPosture() == TACTICAL_POSTURE_WITHDRAW)
 		return;
-	if (pTargetZone->GetOverallDominanceFlag() == TACTICAL_DOMINANCE_FRIENDLY)
-		return;
 
 	// we want units which are somewhat close (so we don't deplete other combat zones) 
 	// do not set a player - that way we can traverse unrevealed plots and foreign territory
@@ -2094,13 +2092,18 @@ void CvTacticalAI::PlotReinforcementMoves(CvTacticalDominanceZone* pTargetZone)
 			CvUnit* pUnit = pPlot->getUnitByIndex(i);
 			if (pUnit->getOwner()==m_pPlayer->GetID() && pUnit->canUseForTacticalAI())
 			{
-				//do not pull units from zones which need defense (unless it's pointless)
-				if (!pUnit->isEmbarked())
+				CvTacticalDominanceZone* pUnitZone = GetTacticalAnalysisMap()->GetZoneByPlot(pUnit->plot());
+				if (pUnitZone && pUnitZone != pTargetZone)
 				{
-					CvTacticalDominanceZone* pZone = GetTacticalAnalysisMap()->GetZoneByPlot(pUnit->plot());
-					if (pZone && pZone != pTargetZone && pZone->GetOverallDominanceFlag() != TACTICAL_DOMINANCE_FRIENDLY && pZone->GetPosture() != TACTICAL_POSTURE_WITHDRAW)
+					//we do not need it further reinforcement
+					if (pTargetZone->GetOverallDominanceFlag() == TACTICAL_DOMINANCE_FRIENDLY)
+						continue;
+
+					//we should not pull units from zones which need them
+					if (pUnitZone->GetOverallDominanceFlag() != TACTICAL_DOMINANCE_FRIENDLY && pUnitZone->GetPosture() != TACTICAL_POSTURE_WITHDRAW)
 						if (!pPlot->isCity() || pPlot->getPlotCity()->isInDangerOfFalling())
-							continue;
+							if (!pUnit->isEmbarked()) //cannot fight if embarked, so we can take it!
+								continue;
 				}
 
 				// Carriers have special moves
@@ -7197,11 +7200,9 @@ int ScoreTurnEnd(const CvUnit* pUnit, const CvTacticalPlot& testPlot, const SMov
 	//avoid these plots
 	if (testPlot.isNextToEnemyCitadel())
 	{
-		if (iDanger>=pUnit->GetCurrHitPoints())
-			return INT_MAX; //no suicide ...
-
 		//the citadel damage is included in the danger value, but since it's guaranteed to happen give it additional emphasis
-		iDanger += 50;
+		//since we only check turn end after the fact, it might happen we check a lot of invalid positions if we put a hard exclusion here!
+		iResult -= 50;
 	}
 
 	//unseen enemies might be hiding behind the edge, so assume danger there
@@ -9595,7 +9596,7 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestDefensiveAssignment(const
 
 	//meta parameters depending on difficulty setting
 	int iMaxCompletedPositions = GC.getGame().getHandicapType() < 2 ? 18 : 23;
-	int iMaxBranches = GC.getGame().getHandicapType() < 2 ? 2 : 4;
+	int iMaxBranches = GC.getGame().getHandicapType() < 2 ? 3 : 5;
 	int iMaxChoicesPerUnit = GC.getGame().getHandicapType() < 2 ? 3 : 5;
 
 	//set up the initial position
@@ -9835,7 +9836,7 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestOffensiveAssignment(
 
 	//meta parameters depending on difficulty setting
 	int iMaxCompletedPositions = GC.getGame().getHandicapType() < 2 ? 18 : 23;
-	int iMaxBranches = GC.getGame().getHandicapType() < 2 ? 2 : 4;
+	int iMaxBranches = GC.getGame().getHandicapType() < 2 ? 3 : 5;
 	int iMaxChoicesPerUnit = GC.getGame().getHandicapType() < 2 ? 3 : 5;
 
 	PlayerTypes ePlayer = vUnits.front()->getOwner();
