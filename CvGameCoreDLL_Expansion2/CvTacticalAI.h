@@ -397,7 +397,7 @@ private:
 
 	void PlotAirPatrolMoves();
 
-	void PlotAttritFromRangeMoves(CvTacticalDominanceZone* pZone);
+	void PlotAttritionAttacks(CvTacticalDominanceZone* pZone);
 	void PlotExploitFlanksMoves(CvTacticalDominanceZone* pZone);
 	void PlotSteamrollMoves(CvTacticalDominanceZone* pZone);
 	void PlotSurgicalCityStrikeMoves(CvTacticalDominanceZone* pZone);
@@ -453,7 +453,7 @@ private:
 	void ExecuteNavalBlockadeMove(CvPlot* pTarget);
 	void ExecuteAirPatrolMoves();
 	void ExecuteAirSweepMoves();
-	bool ExecuteSafeBombards(CvTacticalTarget& kTarget);
+	bool ExecuteAttritionAttacks(CvTacticalTarget& kTarget);
 	bool ExecuteFlankAttack(CvTacticalTarget& kTarget);
 	void ExecuteWithdrawMoves();
 	void ExecuteEscortEmbarkedMoves(std::vector<CvUnit*> vTargets);
