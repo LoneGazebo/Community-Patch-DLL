@@ -82,8 +82,6 @@ void CvEspionageSpy::SetSpyState(PlayerTypes eSpyOwner, int iSpyIndex, CvSpyStat
 #endif
 }
 #endif
-#if defined(MOD_BALANCE_CORE_SPIES)
-#endif
 
 void CvEspionageSpy::SetSpyFocus(CityEventChoiceTypes eEventChoice)
 {
@@ -192,9 +190,7 @@ void CvPlayerEspionage::Init(CvPlayer* pPlayer)
 		m_aiSpyListNameOrder.push_back(i);
 	}
 
-#if defined(MOD_CORE_REDUCE_RANDOMNESS)
-	//do nothing
-#else
+#if !defined(MOD_CORE_REDUCE_RANDOMNESS)
 	for(uint ui = 0; ui < m_aiSpyListNameOrder.size(); ui++)
 	{
 		uint uiTempValue;
