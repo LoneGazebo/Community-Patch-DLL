@@ -379,7 +379,7 @@ eTacticalPosture CvTacticalDominanceZone::SelectPostureSingleZone(int iDominance
 	case TACTICAL_TERRITORY_ENEMY:
 	{
 		// Default for this zone
-		m_ePosture = TACTICAL_POSTURE_ATTRIT_FROM_RANGE;
+		m_ePosture = TACTICAL_POSTURE_ATTRITION;
 
 		//try to grab it ...
 		CvCity *pClosestCity = GetZoneCity();
@@ -397,7 +397,7 @@ eTacticalPosture CvTacticalDominanceZone::SelectPostureSingleZone(int iDominance
 			if (GetEnemyMeleeStrength() > GetFriendlyMeleeStrength())
 			{
 				//if we have ranged dominance, keep our risk lower
-				m_ePosture = (eRangedDominance == TACTICAL_DOMINANCE_FRIENDLY) ? TACTICAL_POSTURE_ATTRIT_FROM_RANGE : TACTICAL_POSTURE_EXPLOIT_FLANKS;
+				m_ePosture = (eRangedDominance == TACTICAL_DOMINANCE_FRIENDLY) ? TACTICAL_POSTURE_ATTRITION : TACTICAL_POSTURE_EXPLOIT_FLANKS;
 			}
 			else
 			{
@@ -416,14 +416,14 @@ eTacticalPosture CvTacticalDominanceZone::SelectPostureSingleZone(int iDominance
 	case TACTICAL_TERRITORY_NONE:
 	{
 		// Default for this zone
-		m_ePosture = (eRangedDominance == TACTICAL_DOMINANCE_FRIENDLY) ? TACTICAL_POSTURE_ATTRIT_FROM_RANGE : TACTICAL_POSTURE_EXPLOIT_FLANKS;
+		m_ePosture = (eRangedDominance == TACTICAL_DOMINANCE_FRIENDLY) ? TACTICAL_POSTURE_ATTRITION : TACTICAL_POSTURE_EXPLOIT_FLANKS;
 
 		if (eOverallDominance == TACTICAL_DOMINANCE_ENEMY)
 		{
 			if (GetEnemyMeleeStrength() > GetFriendlyMeleeStrength())
 			{
 				//if we have ranged dominance, keep our risk lower
-				m_ePosture = (eRangedDominance == TACTICAL_DOMINANCE_FRIENDLY) ? TACTICAL_POSTURE_ATTRIT_FROM_RANGE : TACTICAL_POSTURE_WITHDRAW;
+				m_ePosture = (eRangedDominance == TACTICAL_DOMINANCE_FRIENDLY) ? TACTICAL_POSTURE_ATTRITION : TACTICAL_POSTURE_WITHDRAW;
 			}
 			else
 			{

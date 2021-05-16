@@ -4897,19 +4897,11 @@ bool CvUnit::canEnterTerrain(const CvPlot& enterPlot, int iMoveFlags) const
 TeamTypes CvUnit::GetDeclareWarMove(const CvPlot& plot) const
 {
 	VALIDATE_OBJECT
-	TeamTypes eRevealedTeam;
-
 	CvAssert(isHuman());
-#if defined(MOD_BALANCE_CORE)
-	if(IsAutomated() && isHuman())
-	{
-		return NO_TEAM;
-	}
-#endif
 
 	if(getDomainType() != DOMAIN_AIR)
 	{
-		eRevealedTeam = plot.getRevealedTeam(getTeam(), false);
+		TeamTypes eRevealedTeam = plot.getRevealedTeam(getTeam(), false);
 
 		if(eRevealedTeam != NO_TEAM)
 		{
@@ -4921,45 +4913,42 @@ TeamTypes CvUnit::GetDeclareWarMove(const CvPlot& plot) const
 				}
 			}
 		}
+
 		if(plot.getNumUnits() > 0)
 		{
-			int iPeaceUnits = 0;
+			int iPeaceCivilians = 0;
 			bool bWarCity = false;
 			bool bWarUnit = false;
 			if(plot.isCity() && GET_TEAM(GET_PLAYER(plot.getOwner()).getTeam()).isAtWar(getTeam()))
 			{
 				bWarCity = true;
 			}
+
 			for(int iUnitLoop = 0; iUnitLoop < plot.getNumUnits(); iUnitLoop++)
 			{
 				CvUnit* loopUnit = plot.getUnitByIndex(iUnitLoop);
 				if(loopUnit != NULL)
 				{
-					if(loopUnit->IsCombatUnit())
+					if(GET_TEAM(getTeam()).isAtWar(loopUnit->getTeam()))
 					{
-						if(GET_TEAM(getTeam()).isAtWar(loopUnit->getTeam()))
-						{
-							bWarUnit = true;
-						}
+						bWarUnit = true;
 					}
 					else if(loopUnit->IsCivilianUnit())
 					{
-						if(!GET_TEAM(getTeam()).isAtWar(loopUnit->getTeam()))
-						{
-							iPeaceUnits++;
-						}
+						iPeaceCivilians++;
 					}
 				}
 			}
+
 			//If there is a civlian and an enemy unit here (or this is an enemy city), but we're at peace with that civilian
 			//return NO_TEAM (don't need to declare war again!)
-			if((iPeaceUnits > 0) && (bWarCity || bWarUnit))
+			if(iPeaceCivilians > 0 && (bWarCity || bWarUnit))
 			{
 				return NO_TEAM;
 			}
 
 			//If there are only civilians here, don't require a declaration of war (can do so manually if intended)
-			if (iPeaceUnits==plot.getNumUnits())
+			if (iPeaceCivilians==plot.getNumUnits())
 			{
 				return NO_TEAM;
 			}
@@ -28461,6 +28450,10 @@ bool CvUnit::CheckDOWNeededForMove(int iX, int iY)
 
 	// Important
 	if (at(iX,iY))
+		return false;
+
+	// No war declarations from automated units
+	if(IsAutomated())
 		return false;
 
 	// Test if this attack requires war to be declared first

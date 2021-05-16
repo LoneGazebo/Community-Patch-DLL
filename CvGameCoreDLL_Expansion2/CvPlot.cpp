@@ -9167,7 +9167,7 @@ void CvPlot::updateOwningCity()
 		if (pOldOwningCity != NULL)
 		{
 			// Remove citizen
-			pOldOwningCity->GetCityCitizens()->SetWorkingPlot(this, false, CvCity::YIELD_UPDATE_GLOBAL);
+			pOldOwningCity->GetCityCitizens()->SetWorkingPlot(this, false, CvCity::YIELD_UPDATE_LOCAL);
 			SetResourceLinkedCity(NULL);
 			// Re-add citvizen somewhere else
 			pOldOwningCity->GetCityCitizens()->DoAddBestCitizenFromUnassigned(CvCity::YIELD_UPDATE_GLOBAL);
@@ -9194,6 +9194,16 @@ void CvPlot::updateOwningCity()
 	}
 }
 
+
+bool CvPlot::isEffectiveOwner(CvCity * pCity) const
+{
+	//no override
+	if (m_owningCityOverride.isInvalid())
+		return m_owningCity == pCity->GetIDInfo();
+
+	//with override
+	return m_owningCityOverride == pCity->GetIDInfo();
+}
 
 //	--------------------------------------------------------------------------------
 CvCity* CvPlot::getOwningCityOverride() const

@@ -1044,21 +1044,6 @@ bool PUF_isFiniteRange(const CvUnit* pUnit, int, int)
 	return ((pUnit->getDomainType() != DOMAIN_AIR) || (pUnit->getUnitInfo().GetRange() > 0));
 }
 
-
-int baseYieldToSymbol(int iNumYieldTypes, int iYieldStack)
-{
-	int iReturn;	// holds the return value we will be calculating
-
-	// get the base value for the iReturn value
-	iReturn = iNumYieldTypes * GC.getMAX_YIELD_STACK();
-	// then add the offset to the return value
-	iReturn += iYieldStack;
-
-	// return the value we have calculated
-	return iReturn;
-}
-
-
 bool isPickableName(const char* szName)
 {
 	if(szName)

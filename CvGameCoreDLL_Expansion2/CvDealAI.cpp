@@ -1720,39 +1720,35 @@ int CvDealAI::GetLuxuryResourceValue(ResourceTypes eResource, int iNumTurns, boo
 }
 
 //Ratio between 50 and 200.
-int CvDealAI::GetResourceRatio(PlayerTypes ePlayer, PlayerTypes eOtherPlayer, ResourceTypes eResource, int iNumInTrade)
+int CvDealAI::GetResourceRatio(PlayerTypes eSeller, PlayerTypes eBuyer, ResourceTypes eResource, int /*iNumInTrade*/)
 {
-	bool bImSelling = ePlayer == GetPlayer()->GetID();
-	int iPlayer1 = GET_PLAYER(ePlayer).getNumResourceTotal(eResource, true);
-	int iPlayer2 = GET_PLAYER(eOtherPlayer).getNumResourceTotal(eResource, true);
+	bool bImSelling = (eSeller == m_pPlayer->GetID());
+	int iSellerAmount = GET_PLAYER(eSeller).getNumResourceTotal(eResource, true);
+	int iBuyerAmount = GET_PLAYER(eBuyer).getNumResourceTotal(eResource, true);
 
-	CvDeal* pRenewDeal = m_pPlayer->GetDiplomacyAI()->GetDealToRenew(eOtherPlayer);
+	//undo the old deal first if there is one
+	CvDeal* pRenewDeal = m_pPlayer->GetDiplomacyAI()->GetDealToRenew(eBuyer);
 	if (pRenewDeal)
 	{
-		int iRenewAmount = pRenewDeal->GetNumResourcesInDeal(bImSelling ? ePlayer : eOtherPlayer, eResource);
-
 		if (bImSelling)
 		{
-			iPlayer2 -= iRenewAmount;
-			iPlayer1 += iRenewAmount;
+			int iOldAmount = pRenewDeal->GetNumResourcesInDeal(eSeller, eResource);
+			iSellerAmount += iOldAmount;
+			iBuyerAmount -= iOldAmount;
 		}
 		else
 		{
-			iPlayer1 -= iRenewAmount;
-			iPlayer2 += iRenewAmount;
+			int iOldAmount = pRenewDeal->GetNumResourcesInDeal(eBuyer, eResource);
+			iSellerAmount -= iOldAmount;
+			iBuyerAmount += iOldAmount;
 		}
 	}
 	
-	if (bImSelling)
-		iPlayer1 -= iNumInTrade;
-	else
-		iPlayer2 -= iNumInTrade;
-
 	int iRatio = 100;
 	if (bImSelling)
-		iRatio = (iPlayer2 * 100) / max(1, iPlayer1);
+		iRatio = (iBuyerAmount * 100) / max(1, iSellerAmount);
 	else
-		iRatio = (iPlayer1 * 100) / max(1, iPlayer2);
+		iRatio = (iSellerAmount * 100) / max(1, iBuyerAmount);
 
 	//min half, max double
 	return range(iRatio, 50, 200);
@@ -2025,7 +2021,8 @@ int CvDealAI::GetStrategicResourceValue(ResourceTypes eResource, int iResourceQu
 			}
 
 			//greatly increase this if we're at a deficit of resources.
-			iItemValue *= max(1, GetPlayer()->getResourceShortageValue(eResource));
+			if (GetPlayer()->getResourceShortageValue(eResource)>0)
+				iItemValue += iItemValue/2;
 
 			//And now speed/quantity.
 			iItemValue *= (iResourceQuantity*iNumTurns);

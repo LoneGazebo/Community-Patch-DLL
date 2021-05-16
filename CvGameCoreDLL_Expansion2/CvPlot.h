@@ -641,6 +641,7 @@ public:
 	CvCity* getOwningCity() const;
 	void updateOwningCity();
 
+	bool isEffectiveOwner(CvCity* pCity) const;
 	CvCity* getOwningCityOverride() const;
 	void setOwningCityOverride(const CvCity* pNewValue);
 

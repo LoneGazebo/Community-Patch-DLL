@@ -243,8 +243,6 @@ bool isLimitedProject(ProjectTypes eProject);
 
 TechTypes getDiscoveryTech(UnitTypes eUnit, PlayerTypes ePlayer);
 
-int CompareWeights(const void* a, const void* b);
-
 // PlotUnitFunc's...
 bool PUF_isPlayer(const CvUnit* pUnit, int iData1, int iData2 = -1);
 bool PUF_isTeam(const CvUnit* pUnit, int iData1, int iData2 = -1);
@@ -267,11 +265,6 @@ bool PUF_isSelected(const CvUnit* pUnit, int iData1 = -1, int iData2 = -1);
 bool PUF_makeInfoBarDirty(CvUnit* pUnit, int iData1 = -1, int iData2 = -1);
 bool PUF_isNoMission(const CvUnit* pUnit, int iData1 = -1, int iData2 = -1);
 bool PUF_isFiniteRange(const CvUnit* pUnit, int iData1 = -1, int iData2 = -1);
-
-// Inet Stuff
-void sendGameStats(char* pURL);
-
-int baseYieldToSymbol(int iNumYieldTypes, int iYieldStack);
 
 bool isPickableName(const char* szName);
 

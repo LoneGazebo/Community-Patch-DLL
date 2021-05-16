@@ -1754,11 +1754,10 @@ CvPlot* CvCityCitizens::GetBestCityPlotWithValue(int& iValue, bool bWantBest, bo
 		if (iPlotLoop != CITY_HOME_PLOT)
 		{
 			CvPlot* pLoopPlot = GetCityPlotFromIndex(iPlotLoop);
-
 			if (pLoopPlot != NULL)
 			{
 				// Is this a Plot this City controls?
-				if (pLoopPlot->getOwningCityID() == GetCity()->GetID())
+				if (IsCanWork(pLoopPlot))
 				{
 					// Working the Plot and wanting to work it, or Not working it and wanting to find one to work?
 					if ((IsWorkingPlot(iPlotLoop) && bWantWorked) ||
@@ -2466,14 +2465,12 @@ void CvCityCitizens::ChangeNumForcedWorkingPlots(int iChange)
 /// Can our City work a particular CvPlot?
 bool CvCityCitizens::IsCanWork(CvPlot* pPlot) const
 {
-	if (pPlot->getOwningCityID() != m_pCity->GetID())
+	if (!pPlot->isEffectiveOwner(m_pCity))
 	{
 		return false;
 	}
 
-	CvAssertMsg(GetCityIndexFromPlot(pPlot) != -1, "GetCityIndexFromPlot(pPlot) is expected to be assigned (not -1)");
-
-	if (pPlot->plotCheck(PUF_canSiege, GetOwner()) != NULL)
+	if (pPlot->isImpassable(m_pCity->getTeam()))
 	{
 		return false;
 	}
@@ -2484,12 +2481,6 @@ bool CvCityCitizens::IsCanWork(CvPlot* pPlot) const
 		{
 			return false;
 		}
-
-	}
-
-	if (!pPlot->hasYield())
-	{
-		return false;
 	}
 
 	if (pPlot->isBlockaded(GetOwner()))

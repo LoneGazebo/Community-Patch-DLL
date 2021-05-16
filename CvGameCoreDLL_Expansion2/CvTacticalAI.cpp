@@ -704,19 +704,19 @@ void CvTacticalAI::ProcessDominanceZones()
 			case TACTICAL_POSTURE_HEDGEHOG: //defend
 				PlotHedgehogMoves(pZone);
 				break;
-			case TACTICAL_POSTURE_ATTRIT_FROM_RANGE: //low risk attacks on units
-				PlotAttritFromRangeMoves(pZone);
+			case TACTICAL_POSTURE_ATTRITION: //low risk attacks on units
+				PlotAttritionAttacks(pZone);
 				break;
 			case TACTICAL_POSTURE_EXPLOIT_FLANKS: //try to kill enemy units
 				PlotExploitFlanksMoves(pZone);
 				break;
-			case TACTICAL_POSTURE_STEAMROLL: //attack everything
+			case TACTICAL_POSTURE_STEAMROLL: //attack everything including cities
 				PlotSteamrollMoves(pZone);
 				break;
-			case TACTICAL_POSTURE_SURGICAL_CITY_STRIKE: //go for the city
+			case TACTICAL_POSTURE_SURGICAL_CITY_STRIKE: //go for the city first
 				PlotSurgicalCityStrikeMoves(pZone);
 				break;
-			case TACTICAL_POSTURE_COUNTERATTACK: //concentrated fire on enemy attackers
+			case TACTICAL_POSTURE_COUNTERATTACK: //concentrated fire on enemy units
 				PlotCounterattackMoves(pZone);
 				break;
 			}
@@ -1625,7 +1625,7 @@ void CvTacticalAI::PlotGarrisonMoves(int iNumTurnsAway)
 					iEnemyCount++;
 			}
 
-			//note: ranged garrisons are also used in ExecuteSafeBombards if they can hit a target without moving
+			//note: ranged garrisons are also used in ExecuteAttritionAttacks if they can hit a target without moving
 			//here we have more advanced logic and allow some movement if it's safe
 			TacticalAIHelpers::PerformOpportunityAttack(pGarrison, iEnemyCount < 2);
 
@@ -1905,26 +1905,29 @@ void CvTacticalAI::PlotNavalEscortMoves()
 // PLOT MOVES FOR ZONE TACTICAL POSTURES
 
 /// Win an attrition campaign with bombardments
-void CvTacticalAI::PlotAttritFromRangeMoves(CvTacticalDominanceZone* /*pZone*/)
+void CvTacticalAI::PlotAttritionAttacks(CvTacticalDominanceZone* pZone)
 {
 	ClearCurrentMoveUnits(AI_TACTICAL_ATTRITION);
 
 	for (CvTacticalTarget* pTarget = GetFirstZoneTarget(AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT); pTarget!=NULL && pTarget->IsTargetStillAlive(m_pPlayer->GetID()); pTarget = GetNextZoneTarget())
-		ExecuteSafeBombards(*pTarget);
+		ExecuteAttritionAttacks(*pTarget);
 
 	for (CvTacticalTarget* pTarget = GetFirstZoneTarget(AI_TACTICAL_TARGET_MEDIUM_PRIORITY_UNIT); pTarget!=NULL && pTarget->IsTargetStillAlive(m_pPlayer->GetID()); pTarget = GetNextZoneTarget())
-		ExecuteSafeBombards(*pTarget);
+		ExecuteAttritionAttacks(*pTarget);
 
 	for (CvTacticalTarget* pTarget = GetFirstZoneTarget(AI_TACTICAL_TARGET_LOW_PRIORITY_UNIT); pTarget!=NULL && pTarget->IsTargetStillAlive(m_pPlayer->GetID()); pTarget = GetNextZoneTarget())
-		ExecuteSafeBombards(*pTarget);
+		ExecuteAttritionAttacks(*pTarget);
 
 	//if there is a city, don' t forget to bombard it as well
 	for (CvTacticalTarget* pTarget = GetFirstZoneTarget(AI_TACTICAL_TARGET_CITY); pTarget!=NULL && pTarget->IsTargetStillAlive(m_pPlayer->GetID()); pTarget = GetNextZoneTarget())
-		ExecuteSafeBombards(*pTarget);
+		ExecuteAttritionAttacks(*pTarget);
+
+	// Then go on the defense
+	PlotReinforcementMoves(pZone);
 }
 
 /// Defeat enemy units by using our advantage in numbers
-void CvTacticalAI::PlotExploitFlanksMoves(CvTacticalDominanceZone* /*pZone*/)
+void CvTacticalAI::PlotExploitFlanksMoves(CvTacticalDominanceZone* pZone)
 {
 	ClearCurrentMoveUnits(AI_TACTICAL_FLANKATTACK);
 
@@ -1940,6 +1943,9 @@ void CvTacticalAI::PlotExploitFlanksMoves(CvTacticalDominanceZone* /*pZone*/)
 	//if there is a city, don' t forget to bombard it as well
 	for (CvTacticalTarget* pTarget = GetFirstZoneTarget(AI_TACTICAL_TARGET_CITY); pTarget!=NULL && pTarget->IsTargetStillAlive(m_pPlayer->GetID()); pTarget = GetNextZoneTarget())
 		ExecuteFlankAttack(*pTarget);
+
+	// Then go on the defense
+	PlotReinforcementMoves(pZone);
 }
 
 /// We have more overall strength than enemy, defeat his army first
@@ -1990,7 +1996,7 @@ void CvTacticalAI::PlotHedgehogMoves(CvTacticalDominanceZone* pZone)
 }
 
 /// Try to push back the invader
-void CvTacticalAI::PlotCounterattackMoves(CvTacticalDominanceZone* /*pZone*/)
+void CvTacticalAI::PlotCounterattackMoves(CvTacticalDominanceZone* pZone)
 {
 	ClearCurrentMoveUnits(AI_TACTICAL_COUNTERATTACK);
 
@@ -2003,6 +2009,9 @@ void CvTacticalAI::PlotCounterattackMoves(CvTacticalDominanceZone* /*pZone*/)
 	ExecuteDestroyUnitMoves(AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT, false);
 	ExecuteDestroyUnitMoves(AI_TACTICAL_TARGET_MEDIUM_PRIORITY_UNIT, false);
 	ExecuteDestroyUnitMoves(AI_TACTICAL_TARGET_LOW_PRIORITY_UNIT, false);
+
+	// Then go on the defense
+	PlotReinforcementMoves(pZone);
 }
 
 /// Withdraw out of current dominance zone
@@ -2065,8 +2074,6 @@ void CvTacticalAI::PlotReinforcementMoves(CvTacticalDominanceZone* pTargetZone)
 	//sometimes there is nothing to do ...
 	if (pTargetZone->GetPosture() == TACTICAL_POSTURE_WITHDRAW)
 		return;
-	if (pTargetZone->GetTerritoryType() != TACTICAL_TERRITORY_ENEMY && pTargetZone->GetOverallDominanceFlag() == TACTICAL_DOMINANCE_FRIENDLY)
-		return;
 
 	// we want units which are somewhat close (so we don't deplete other combat zones) 
 	// do not set a player - that way we can traverse unrevealed plots and foreign territory
@@ -2085,13 +2092,18 @@ void CvTacticalAI::PlotReinforcementMoves(CvTacticalDominanceZone* pTargetZone)
 			CvUnit* pUnit = pPlot->getUnitByIndex(i);
 			if (pUnit->getOwner()==m_pPlayer->GetID() && pUnit->canUseForTacticalAI())
 			{
-				//do not pull units from zones which need defense (unless it's pointless)
-				if (!pUnit->isEmbarked())
+				CvTacticalDominanceZone* pUnitZone = GetTacticalAnalysisMap()->GetZoneByPlot(pUnit->plot());
+				if (pUnitZone && pUnitZone != pTargetZone)
 				{
-					CvTacticalDominanceZone* pZone = GetTacticalAnalysisMap()->GetZoneByPlot(pUnit->plot());
-					if (pZone && pZone != pTargetZone && pZone->GetOverallDominanceFlag() != TACTICAL_DOMINANCE_FRIENDLY && pZone->GetPosture() != TACTICAL_POSTURE_WITHDRAW)
+					//we do not need it further reinforcement
+					if (pTargetZone->GetOverallDominanceFlag() == TACTICAL_DOMINANCE_FRIENDLY)
+						continue;
+
+					//we should not pull units from zones which need them
+					if (pUnitZone->GetOverallDominanceFlag() != TACTICAL_DOMINANCE_FRIENDLY && pUnitZone->GetPosture() != TACTICAL_POSTURE_WITHDRAW)
 						if (!pPlot->isCity() || pPlot->getPlotCity()->isInDangerOfFalling())
-							continue;
+							if (!pUnit->isEmbarked()) //cannot fight if embarked, so we can take it!
+								continue;
 				}
 
 				// Carriers have special moves
@@ -4352,7 +4364,7 @@ void CvTacticalAI::ExecuteAirSweepMoves()
 }
 
 /// Bombard enemy units from plots they can't reach (return true if some attack made)
-bool CvTacticalAI::ExecuteSafeBombards(CvTacticalTarget& kTarget)
+bool CvTacticalAI::ExecuteAttritionAttacks(CvTacticalTarget& kTarget)
 {
 	//mark the target no matter if the attack succeeds
 	kTarget.SetLastAggLvl(AL_LOW);
@@ -6100,42 +6112,44 @@ CvPlot* TacticalAIHelpers::FindSafestPlotInReach(const CvUnit* pUnit, bool bAllo
 
 		//avoid overflow further down and useful handling for civilians
 		if (iDanger == INT_MAX)
-			iDanger = 10000;
+			iDanger = 100000;
+
+		//map 100 to 100, everything above is not so important
+		int iScore = (iDanger > 100) ? 10 * sqrti(iDanger) : iDanger;
 
 		//we can't heal after moving and lose fortification bonus, so the current plot gets a bonus (respectively all others a penalty)
 		if (pPlot != pUnit->plot() && iCurrentHealRate>0)
-			iDanger += iCurrentHealRate-3; //everything else equal it looks stupid to stand around while being shot at
+			iScore += iCurrentHealRate-3; //everything else equal it looks stupid to stand around while being shot at
 
 		//heal rate is higher here and danger lower
 		if (!bIsInTerritory)
-			iDanger += 12;
+			iScore += 12;
 
 		//try to hide - if there are few enemy units, this might be a tiebreaker
 		//this is cheating a bit, really we need to check if the plot is visible for the enemy units visible to us
-		if (pPlot->isVisibleToEnemy(pUnit->getOwner()))
-			iDanger += 9;
+		if (!pPlot->isVisibleToEnemy(pUnit->getOwner()))
+			iScore -= iScore/5;
 
 		//try to go avoid borders
 		if (pPlot->IsAdjacentOwnedByEnemy(pUnit->getTeam()))
-			iDanger += 7;
+			iScore += iScore/20;
 
 		//don't stay here, try to get away even if it means temporarily moving to a higher danger plot
 		if (pPlot->IsEnemyCityAdjacent(pUnit->getTeam(),NULL))
-			iDanger += 23;
+			iScore += iScore/10;
 
 		//naval units should avoid enemy coast, never know what's hiding there
 		if (pUnit->getDomainType() == DOMAIN_SEA)
-			iDanger += pPlot->countMatchingAdjacentPlots(DOMAIN_LAND, NO_PLAYER, pUnit->getOwner(), NO_PLAYER) * 7;
+			iScore += pPlot->countMatchingAdjacentPlots(DOMAIN_LAND, NO_PLAYER, pUnit->getOwner(), NO_PLAYER) * 7;
 
 		//try to go where our friends are
-		int iFriendlyUnitsAdjacent = pPlot->GetNumFriendlyUnitsAdjacent(pUnit->getTeam(), NO_DOMAIN);
+		int iFriendlyUnitsAdjacent = pPlot->GetNumFriendlyUnitsAdjacent(pUnit->getTeam(), NO_DOMAIN, pUnit);
 		//don't go where our foes are
 		int iEnemyUnitsAdjacent = pPlot->GetNumEnemyUnitsAdjacent(pUnit->getTeam(), pUnit->getDomainType(), NULL, true);
-
-		iDanger += (iEnemyUnitsAdjacent-iFriendlyUnitsAdjacent) * 9;
+		iScore += (iEnemyUnitsAdjacent-iFriendlyUnitsAdjacent) * 13;
 		
 		//use city distance as tiebreaker
-		int iScore = iDanger * 10 + iCityDistance;
+		iScore = iScore * 10 + iCityDistance;
 
 		//discourage water tiles for land units
 		//note that zero danger status has already been established, this is only for sorting now
@@ -6162,6 +6176,7 @@ CvPlot* TacticalAIHelpers::FindSafestPlotInReach(const CvUnit* pUnit, bool bAllo
 		}
 	}
 
+	//high scores are bad, we sort descending
 	sort(aCityList.begin(), aCityList.end());
 	sort(aCoverList.begin(), aCoverList.end());
 	sort(aZeroDangerList.begin(), aZeroDangerList.end());
@@ -7185,11 +7200,9 @@ int ScoreTurnEnd(const CvUnit* pUnit, const CvTacticalPlot& testPlot, const SMov
 	//avoid these plots
 	if (testPlot.isNextToEnemyCitadel())
 	{
-		if (iDanger>=pUnit->GetCurrHitPoints())
-			return INT_MAX; //no suicide ...
-
 		//the citadel damage is included in the danger value, but since it's guaranteed to happen give it additional emphasis
-		iDanger += 50;
+		//since we only check turn end after the fact, it might happen we check a lot of invalid positions if we put a hard exclusion here!
+		iResult -= 50;
 	}
 
 	//unseen enemies might be hiding behind the edge, so assume danger there
@@ -9583,7 +9596,7 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestDefensiveAssignment(const
 
 	//meta parameters depending on difficulty setting
 	int iMaxCompletedPositions = GC.getGame().getHandicapType() < 2 ? 18 : 23;
-	int iMaxBranches = GC.getGame().getHandicapType() < 2 ? 2 : 4;
+	int iMaxBranches = GC.getGame().getHandicapType() < 2 ? 3 : 5;
 	int iMaxChoicesPerUnit = GC.getGame().getHandicapType() < 2 ? 3 : 5;
 
 	//set up the initial position
@@ -9823,7 +9836,7 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestOffensiveAssignment(
 
 	//meta parameters depending on difficulty setting
 	int iMaxCompletedPositions = GC.getGame().getHandicapType() < 2 ? 18 : 23;
-	int iMaxBranches = GC.getGame().getHandicapType() < 2 ? 2 : 4;
+	int iMaxBranches = GC.getGame().getHandicapType() < 2 ? 3 : 5;
 	int iMaxChoicesPerUnit = GC.getGame().getHandicapType() < 2 ? 3 : 5;
 
 	PlayerTypes ePlayer = vUnits.front()->getOwner();
