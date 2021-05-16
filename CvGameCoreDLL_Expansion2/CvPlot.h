@@ -314,9 +314,6 @@ public:
 	bool isNeutralUnit(PlayerTypes ePlayer, bool bCombatOnly, bool bCheckVisibility, bool bIgnoreMinors = false) const;
 	bool isNeutralUnitAdjacent(PlayerTypes ePlayer, bool bCombatOnly, bool bCheckVisibility, bool bIgnoreMinors = false) const;
 
-	//units which can cause or lift a blockade
-	bool IsBlockadeUnit(PlayerTypes ePlayer, bool bFriendly) const;
-
 	bool isFighting() const;
 	bool isUnitFighting() const;
 	bool isCityFighting() const;
@@ -475,7 +472,7 @@ public:
 	//can a generic unit move through this plot (disregarding promotions, combat/civilian etc)
 	bool isValidMovePlot(PlayerTypes ePlayer, bool bCheckTerritory=true) const;
 
-	bool isBlockaded(PlayerTypes ePlayer);
+	bool isBlockaded();
 
 	inline TerrainTypes getTerrainType() const
 	{
@@ -641,7 +638,9 @@ public:
 	CvCity* getOwningCity() const;
 	void updateOwningCity();
 
+	CvCity* getEffectiveOwningCity() const;
 	bool isEffectiveOwner(CvCity* pCity) const;
+
 	CvCity* getOwningCityOverride() const;
 	void setOwningCityOverride(const CvCity* pNewValue);
 

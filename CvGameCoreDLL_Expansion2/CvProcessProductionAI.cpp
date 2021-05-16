@@ -128,11 +128,7 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 				{
 					iModifier += 25;
 				}
-				if (m_pCity->isCoastal() && m_pCity->IsBlockaded(true))
-				{
-					iModifier += 25;
-				}
-				if (m_pCity->IsBlockadedWaterAndLand())
+				if (m_pCity->isUnderSiege())
 				{
 					iModifier += 25;
 				}
@@ -170,14 +166,6 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 				else if (m_pCity->isInDangerOfFalling())
 				{
 					iModifier += 1000;
-				}
-				else if (m_pCity->isCoastal() && m_pCity->IsBlockaded(true))
-				{
-					iModifier += 150;
-				}
-				else if (m_pCity->IsBlockadedWaterAndLand())
-				{
-					iModifier += 150;
 				}
 				//None of these things?
 				else

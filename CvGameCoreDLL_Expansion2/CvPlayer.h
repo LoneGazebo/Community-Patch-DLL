@@ -176,7 +176,7 @@ public:
 	UnitTypes GetSpecificUnitType(UnitClassTypes eUnitCass) const;
 	BuildingTypes GetSpecificBuildingType(const char* szBuildingClass, bool hideAssert = false);
 
-	CvPlot *GetGreatAdmiralSpawnPlot (CvUnit *pUnit);
+	CvPlot *GetBestCoastalSpawnPlot (CvUnit *pUnit);
 
 	int GetNumBuilders() const;
 	void SetNumBuilders(int iNum);

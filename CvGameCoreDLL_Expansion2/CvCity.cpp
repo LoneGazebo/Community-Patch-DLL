@@ -14372,7 +14372,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 #else
 									owningPlayer.incrementGreatAdmiralsCreated();
 #endif
-									CvPlot *pSpawnPlot = owningPlayer.GetGreatAdmiralSpawnPlot(pFreeUnit);
+									CvPlot *pSpawnPlot = owningPlayer.GetBestCoastalSpawnPlot(pFreeUnit);
 									if (pFreeUnit->plot() != pSpawnPlot)
 									{
 										pFreeUnit->setXY(pSpawnPlot->getX(), pSpawnPlot->getY());
@@ -14686,7 +14686,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 #else
 									owningPlayer.incrementGreatAdmiralsCreated();
 #endif
-									CvPlot *pSpawnPlot = owningPlayer.GetGreatAdmiralSpawnPlot(pFreeUnit);
+									CvPlot *pSpawnPlot = owningPlayer.GetBestCoastalSpawnPlot(pFreeUnit);
 									if (pFreeUnit->plot() != pSpawnPlot)
 									{
 										pFreeUnit->setXY(pSpawnPlot->getX(), pSpawnPlot->getY());
@@ -24158,10 +24158,10 @@ void CvCity::SetOwedChosenBuilding(BuildingClassTypes eBuildingClass, bool bNewV
 //	--------------------------------------------------------------------------------
 bool CvCity::IsBlockadedWaterAndLand() const
 {
-	return IsBlockaded(true) && IsBlockaded(false);
+	return IsBlockaded(NO_DOMAIN);
 }
 
-bool CvCity::IsBlockaded(bool bWater) const
+bool CvCity::IsBlockaded(DomainTypes eDomain) const
 {
 	if (GetSappedTurns() > 0)
 		return true;
@@ -24169,13 +24169,18 @@ bool CvCity::IsBlockaded(bool bWater) const
 	for (int iLoop = 0; iLoop < NUM_DIRECTION_TYPES; ++iLoop) 
 	{
 		CvPlot* pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iLoop));
-		if (pAdjacentPlot && 
-			pAdjacentPlot->isWater()==bWater && 
-			!pAdjacentPlot->isImpassable(getTeam()) && 
-			!pAdjacentPlot->isBlockaded(getOwner())) 
-		{
+		if (!pAdjacentPlot)
+			continue;
+
+		if (eDomain != NO_DOMAIN && pAdjacentPlot->getDomain() != eDomain)
+			continue;
+
+		if (pAdjacentPlot->isImpassable(getTeam()))
+			continue;
+
+		//finally, one unblocked plot breaks the whole thing
+		if (!GetCityCitizens()->IsBlockaded(pAdjacentPlot))
 			return false;
-		}
 	}
 	
 	//note: if a city is landlocked, it is permanently blockaded from sea side by definition
@@ -24763,7 +24768,7 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra, CvString* to
 	//Blockade
 	if (eIndex == YIELD_GOLD && isCoastal(GC.getMIN_WATER_SIZE_FOR_OCEAN()))
 	{
-		if (GC.getBLOCKADE_GOLD_PENALTY() != 0 && isCoastal() && IsBlockaded(true))
+		if (GC.getBLOCKADE_GOLD_PENALTY() != 0 && isCoastal() && IsBlockaded(DOMAIN_SEA))
 		{
 			iTempMod = GC.getBLOCKADE_GOLD_PENALTY();
 			iModifier += iTempMod;
@@ -32080,7 +32085,7 @@ void CvCity::Purchase(UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectT
 			else if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_GREAT_ADMIRAL"))
 			{
 				kPlayer.incrementAdmiralsFromFaith();
-				CvPlot *pSpawnPlot = kPlayer.GetGreatAdmiralSpawnPlot(pUnit);
+				CvPlot *pSpawnPlot = kPlayer.GetBestCoastalSpawnPlot(pUnit);
 				if (pUnit->plot() != pSpawnPlot)
 				{
 					pUnit->setXY(pSpawnPlot->getX(), pSpawnPlot->getY());
