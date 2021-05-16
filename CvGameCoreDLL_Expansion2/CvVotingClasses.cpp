@@ -1656,6 +1656,19 @@ void CvActiveResolution::DoEffects(PlayerTypes ePlayer)
 		GC.getGame().GetGameTrade()->ClearAllCivTradeRoutes(eTargetPlayer, true);
 		GET_PLAYER(eTargetPlayer).GetCorporations()->ClearCorporationFromForeignCities(false, true, true);
 
+		for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+		{
+			PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
+
+			if (GET_PLAYER(eLoopPlayer).isAlive() && GET_PLAYER(eLoopPlayer).isMajorCiv())
+			{
+				if (GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).IsVassal(GET_PLAYER(eTargetPlayer).getTeam()))
+					continue;
+
+				GC.getGame().GetGameDeals().DoCancelDealsBetweenPlayers(eLoopPlayer, eTargetPlayer);
+			}
+		}
+
 		int iLoop;
 		for (CvCity* pLoopCity = GET_PLAYER(eTargetPlayer).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(eTargetPlayer).nextCity(&iLoop))
 		{
@@ -2340,8 +2353,13 @@ CvLeague::CvLeague(LeagueTypes eID)
 	m_eCurrentSpecialSession = NO_LEAGUE_SPECIAL_SESSION;
 	m_vEnactProposalsOnHold.clear();
 	m_vRepealProposalsOnHold.clear();
+<<<<<<< Updated upstream
 	m_startingVotesCacheTime = 0;
 	m_startingVotesCached = 0;
+=======
+	m_vLastTurnEnactProposals.clear();
+	m_vLastTurnRepealProposals.clear();
+>>>>>>> Stashed changes
 }
 
 CvLeague::~CvLeague(void)
@@ -4320,7 +4338,7 @@ int CvLeague::CalculateStartingVotesForMember(PlayerTypes ePlayer, bool bForceUp
 #if defined(MOD_BALANCE_CORE)
 		if(iWonderVotes > 0)
 		{
-			int iNumMinor = (GC.getGame().GetNumMinorCivsEver() / 8);
+			int iNumMinor = (GC.getGame().GetNumMinorCivsEver(true) / 8);
 			if(iNumMinor > 0)
 			{
 				iWonderVotes = (iWonderVotes * iNumMinor);
@@ -4378,7 +4396,7 @@ int CvLeague::CalculateStartingVotesForMember(PlayerTypes ePlayer, bool bForceUp
 						int iExtraVotes = pReligion->m_Beliefs.GetExtraVotes(ePlayer, pHolyCity, true);
 						if (iExtraVotes > 0)
 						{
-							int iNumMinor = (GC.getGame().GetNumMinorCivsEver() / 8);
+							int iNumMinor = (GC.getGame().GetNumMinorCivsEver(true) / 8);
 							if ((iNumMinor) > 0)
 							{
 								iReligionVotes = (iExtraVotes * iNumMinor);
@@ -4411,7 +4429,7 @@ int CvLeague::CalculateStartingVotesForMember(PlayerTypes ePlayer, bool bForceUp
 			if(iPolicyVotes > 0)
 			{
 				//1 vote per 8 CS in game.
-				int iNumMinor = (GC.getGame().GetNumMinorCivsEver() / 8);
+				int iNumMinor = (GC.getGame().GetNumMinorCivsEver(true) / 8);
 				if((iNumMinor) > 0)
 				{
 					 iPolicyVotes = (iPolicyVotes * iNumMinor);
@@ -4474,7 +4492,7 @@ int CvLeague::CalculateStartingVotesForMember(PlayerTypes ePlayer, bool bForceUp
 			{
 				iGPTVotes = (iGPT / iVotesPerGPT);
 				//Capped at 1/4 # of minor civs ever in game.
-				int iCap = GC.getGame().GetNumMinorCivsEver();
+				int iCap = GC.getGame().GetNumMinorCivsEver(true);
 				iCap /= 4;
 				if(iCap <= 0)
 				{
@@ -8604,6 +8622,24 @@ FDataStream& operator>>(FDataStream& loadFrom, CvLeague& writeTo)
 			loadFrom >> temp;
 			writeTo.m_vRepealProposalsOnHold.push_back(temp);
 		}
+
+		int iNumLastTurnEnactProposals;
+		loadFrom >> iNumLastTurnEnactProposals;
+		for (int i = 0; i < iNumLastTurnEnactProposals; i++)
+		{
+			CvEnactProposal temp;
+			loadFrom >> temp;
+			writeTo.m_vLastTurnEnactProposals.push_back(temp);
+		}
+
+		int iNumLastTurnRepealProposals;
+		loadFrom >> iNumLastTurnRepealProposals;
+		for (int i = 0; i < iNumLastTurnRepealProposals; i++)
+		{
+			CvRepealProposal temp;
+			loadFrom >> temp;
+			writeTo.m_vLastTurnRepealProposals.push_back(temp);
+		}
 	}
 	else
 	{
@@ -8611,6 +8647,8 @@ FDataStream& operator>>(FDataStream& loadFrom, CvLeague& writeTo)
 		writeTo.m_eCurrentSpecialSession = NO_LEAGUE_SPECIAL_SESSION;
 		writeTo.m_vEnactProposalsOnHold.clear();
 		writeTo.m_vRepealProposalsOnHold.clear();
+		writeTo.m_vLastTurnEnactProposals.clear();
+		writeTo.m_vLastTurnRepealProposals.clear();
 	}
 
 	return loadFrom;
@@ -8681,6 +8719,17 @@ FDataStream& operator<<(FDataStream& saveTo, const CvLeague& readFrom)
 	}
 	saveTo << readFrom.m_vRepealProposalsOnHold.size();
 	for (RepealProposalList::const_iterator it = readFrom.m_vRepealProposalsOnHold.begin(); it != readFrom.m_vRepealProposalsOnHold.end(); ++it)
+	{
+		saveTo << *it;
+	}
+
+	saveTo << readFrom.m_vLastTurnEnactProposals.size();
+	for (EnactProposalList::const_iterator it = readFrom.m_vLastTurnEnactProposals.begin(); it != readFrom.m_vLastTurnEnactProposals.end(); ++it)
+	{
+		saveTo << *it;
+	}
+	saveTo << readFrom.m_vLastTurnRepealProposals.size();
+	for (RepealProposalList::const_iterator it = readFrom.m_vLastTurnRepealProposals.begin(); it != readFrom.m_vLastTurnRepealProposals.end(); ++it)
 	{
 		saveTo << *it;
 	}

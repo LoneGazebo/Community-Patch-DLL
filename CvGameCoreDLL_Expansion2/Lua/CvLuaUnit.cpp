@@ -5957,7 +5957,7 @@ int CvLuaUnit::lGetTourismBlastLength(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
 
-	int iStrength = pkUnit->getUnitInfo().GetTourismBonusTurns();
+	int iStrength = pkUnit->GetTourismBlastLength();
 
 	lua_pushinteger(L, iStrength);
 

@@ -3732,6 +3732,21 @@ void CvCityCitizens::DoSpawnGreatPerson(UnitTypes eUnit, bool bIncrementCount, b
 	{
 		newUnit->SetTourismBlastStrength(kPlayer.GetCulture()->GetTourismBlastStrength(newUnit->getUnitInfo().GetOneShotTourism()));
 	}
+	if (newUnit->getUnitInfo().GetTourismBonusTurns() > 0)
+	{
+		int iNumTurns = newUnit->getUnitInfo().GetTourismBonusTurns();
+		CvCity *pLoopCity;
+		int iLoop;
+		for (pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
+		{
+			iNumTurns += pLoopCity->GetCityBuildings()->GetNumGreatWorks(CvTypes::getGREAT_WORK_SLOT_MUSIC());
+		}
+
+		iNumTurns *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+		iNumTurns /= 100;
+
+		newUnit->SetTourismBlastLength(iNumTurns);
+	}
 #if defined(MOD_BALANCE_CORE)
 	if (newUnit->getUnitInfo().GetBaseBeakersTurnsToCount() > 0)
 	{

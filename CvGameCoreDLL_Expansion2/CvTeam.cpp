@@ -7961,6 +7961,8 @@ void CvTeam::processTech(TechTypes eTech, int iChange)
 						if(kPlayer.getCapitalCity()->GetCityBuildings()->GetNumRealBuilding(eFreeCapitalBuilding) > 0)
 						{
 							kPlayer.getCapitalCity()->GetCityBuildings()->SetNumRealBuilding(eFreeCapitalBuilding, 0);
+							int iProductionValue = kPlayer.getCapitalCity()->getProductionNeeded(eFreeCapitalBuilding);
+							kPlayer.doInstantYield(INSTANT_YIELD_TYPE_REFUND, false, NO_GREATPERSON, NO_BUILDING, iProductionValue, false, NO_PLAYER, NULL, false, kPlayer.getCapitalCity());
 						}
 						kPlayer.getCapitalCity()->GetCityBuildings()->SetNumFreeBuilding(eFreeCapitalBuilding, 1);
 					}
@@ -8008,7 +8010,12 @@ void CvTeam::processTech(TechTypes eTech, int iChange)
 										{
 											if (eBuilding != eReplacedBuilding)
 											{
-												pLoopCity->GetCityBuildings()->SetNumRealBuilding(eReplacedBuilding, 0);
+												if (pLoopCity->GetCityBuildings()->GetNumRealBuilding(eReplacedBuilding) > 0)
+												{
+													pLoopCity->GetCityBuildings()->SetNumRealBuilding(eReplacedBuilding, 0);
+													int iProductionValue = pLoopCity->getProductionNeeded(eReplacedBuilding);
+													kPlayer.doInstantYield(INSTANT_YIELD_TYPE_REFUND, false, NO_GREATPERSON, NO_BUILDING, iProductionValue, false, NO_PLAYER, NULL, false, pLoopCity);
+												}
 												if (pLoopCity->GetCityBuildings()->GetNumFreeBuilding(eReplacedBuilding) <= 0)
 												{
 													pLoopCity->GetCityBuildings()->SetNumFreeBuilding(eReplacedBuilding, 1);
@@ -8466,7 +8473,7 @@ void CvTeam::SetCurrentEra(EraTypes eNewValue)
 							if(MOD_BALANCE_CORE_SPIES && iNumTraitSpies > 0)
 							{
 								//Optional: Additional Trait Spies scaled for the number of City-States in the game.
-								int iNumMinor = ((GC.getGame().GetNumMinorCivsEver() * /*15*/ GC.getBALANCE_SPY_TO_MINOR_RATIO()) / 100);
+								int iNumMinor = ((GC.getGame().GetNumMinorCivsEver(true) * /*15*/ GC.getBALANCE_SPY_TO_MINOR_RATIO()) / 100);
 								if((iNumMinor - 1) > 0)
 								{
 									iNumMinor = iNumMinor - 1;
@@ -8490,7 +8497,7 @@ void CvTeam::SetCurrentEra(EraTypes eNewValue)
 #if defined(MOD_BALANCE_CORE_SPIES)
 						if(MOD_BALANCE_CORE_SPIES){
 							//Optional: Spies scaled for the number of City-States in the game.
-							int iNumMinor = ((GC.getGame().GetNumMinorCivsEver() * /*15*/ GC.getBALANCE_SPY_TO_MINOR_RATIO()) / 100);
+							int iNumMinor = ((GC.getGame().GetNumMinorCivsEver(true) * /*15*/ GC.getBALANCE_SPY_TO_MINOR_RATIO()) / 100);
 							if((iNumMinor - 1) > 0)
 							{
 								iNumMinor = iNumMinor - 1;
@@ -8562,7 +8569,7 @@ void CvTeam::SetCurrentEra(EraTypes eNewValue)
 							if(MOD_BALANCE_CORE_SPIES)
 							{
 								//Optional: Spies scaled for the number of City-States in the game.
-								int iNumMinor = ((GC.getGame().GetNumMinorCivsEver() * /*15*/ GC.getBALANCE_SPY_TO_MINOR_RATIO()) / 100);
+								int iNumMinor = ((GC.getGame().GetNumMinorCivsEver(true) * /*15*/ GC.getBALANCE_SPY_TO_MINOR_RATIO()) / 100);
 								if((iNumMinor - 1) > 0)
 								{
 									iNumMinor = iNumMinor - 1;

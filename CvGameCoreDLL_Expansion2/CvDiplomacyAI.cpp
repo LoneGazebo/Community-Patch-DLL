@@ -45891,6 +45891,9 @@ bool CvDiplomacyAI::IsPlayerBadTheftTarget(PlayerTypes ePlayer, TheftTypes eThef
 		if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsPlayerMadeNoDiggingPromise(GetID()))
 			return true;
 
+		if (!GET_TEAM(GET_PLAYER(ePlayer).getTeam()).IsAllowsOpenBordersToTeam(GetTeam()))
+			return true;
+
 		if (IsVassal(ePlayer))
 			return true;
 
@@ -46758,27 +46761,41 @@ void CvDiplomacyAI::CleanupRenewDeals(PlayerTypes eOtherPlayer)
 
 	int iNumDeals = kGameDeals.GetRenewableDealsWithPlayer(m_pPlayer->GetID(), eOtherPlayer);
 
+	CvDeal* pBestDeal = NULL;
+	int iBestValue = 0;
 	for (int iDeal = 0; iDeal < iNumDeals; iDeal++)
 	{
 		CvDeal* pCurrentDeal = kGameDeals.GetRenewableDealWithPlayer(m_pPlayer->GetID(), eOtherPlayer, iDeal);
-		if (pCurrentDeal->m_bConsideringForRenewal)
-		{
-			pTargetDeal = pCurrentDeal;
+
+		if (!pCurrentDeal->m_bConsideringForRenewal)
 			continue;
+
+		int iDealValue = kGameDeals.GetDealValueWithPlayer(m_pPlayer->GetID(), eOtherPlayer, false);
+		if (iDealValue > iBestValue)
+		{
+			iBestValue = iDealValue;
+			pBestDeal = pCurrentDeal;
 		}
+	}
+	for (int iDeal = 0; iDeal < iNumDeals; iDeal++)
+	{
+		CvDeal* pCurrentDeal = kGameDeals.GetRenewableDealWithPlayer(m_pPlayer->GetID(), eOtherPlayer, iDeal);
+		if (pBestDeal == pCurrentDeal)
+			continue;
+
 		//we only want one deal per player.
-		if (pTargetDeal != NULL)
-			pCurrentDeal->m_bConsideringForRenewal = false;
+		pCurrentDeal->m_bConsideringForRenewal = false;
+		CancelRenewDeal(eOtherPlayer, REASON_BETTER_RENEAL_CHOICE, false, pCurrentDeal);
 	}
 }
 
 /// Deal to renew
-void CvDiplomacyAI::CancelRenewDeal(PlayerTypes eOtherPlayer, RenewalReason eReason, bool bJustLogging)
+void CvDiplomacyAI::CancelRenewDeal(PlayerTypes eOtherPlayer, RenewalReason eReason, bool bJustLogging, CvDeal* pPassDeal)
 {
 	if (GetPlayer()->isHuman())
 		return;
 
-	CvDeal* pRenewalDeal = GetDealToRenew(eOtherPlayer);
+	CvDeal* pRenewalDeal = pPassDeal != NULL ? pPassDeal : GetDealToRenew(eOtherPlayer);
 
 	if (!pRenewalDeal)
 		return;
@@ -46857,6 +46874,10 @@ void CvDiplomacyAI::CancelRenewDeal(PlayerTypes eOtherPlayer, RenewalReason eRea
 			break;
 		case REASON_HUMAN_REJECTION:
 			strReason.Format(",REASON: Human Rejection");
+			strOutBuf += strReason;
+			break;
+		case REASON_BETTER_RENEAL_CHOICE:
+			strReason.Format(",REASON: Bette Renewal Choice");
 			strOutBuf += strReason;
 			break;
 		}

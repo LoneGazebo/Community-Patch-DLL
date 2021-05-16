@@ -26,6 +26,7 @@
 			<Description>TXT_KEY_ESPIONAGE_EVENT_CHOICE_ECONOMIC_GOLD</Description>
 			<Help>TXT_KEY_ESPIONAGE_EVENT_CHOICE_ECONOMIC_GOLD_HELP</Help>
 			<IsEspionageEffect>true</IsEspionageEffect>
+			<EventDuration>-1</EventDuration>
 			<MissionSetup>true</MissionSetup>
 			<PotentialScaling>true</PotentialScaling>
 			<EraScaling>true</EraScaling>
@@ -48,7 +49,7 @@
 			<Expires>true</Expires>
 			<GrowthMod>-25</GrowthMod>
 			<DeathModifier>10</DeathModifier>
-			<SpyLevelRequired>0</SpyLevelRequired>
+			<SpyLevelRequired>1</SpyLevelRequired>
 			<EspionageDifficultyMod>275</EspionageDifficultyMod>
 		</Row>
 		<!-- PRODUCTION -->
@@ -87,6 +88,7 @@
 			<Help>TXT_KEY_ESPIONAGE_EVENT_CHOICE_SCIENTIFIC_SCIENCE_HELP</Help>
 			<IsEspionageEffect>true</IsEspionageEffect>
 			<IsSpyBenefit>true</IsSpyBenefit>
+			<EventDuration>-1</EventDuration>
 			<MissionSetup>true</MissionSetup>
 			<PotentialScaling>true</PotentialScaling>
 			<EspionageDifficultyMod>250</EspionageDifficultyMod>
@@ -171,7 +173,6 @@
 			<MissionSetup>true</MissionSetup>
 			<IDModifier>25</IDModifier>
 			<DeathModifier>25</DeathModifier>
-			<IsUnhappy>true</IsUnhappy>
 			<ExpiresOnCounterSpyExit>true</ExpiresOnCounterSpyExit>
 			<CityHappiness>2</CityHappiness>
 			<SpyLevelRequired>0</SpyLevelRequired>

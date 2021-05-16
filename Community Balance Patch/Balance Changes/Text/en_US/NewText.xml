@@ -3,7 +3,7 @@
 <GameData>
 	<Language_en_US>
 		<Row Tag="TXT_KEY_POLICY_UNIVERSAL_HEALTHCARE_A_HELP">
-			<Text>[COLOR_POSITIVE_TEXT]Iron Fist[ENDCOLOR]: Vassals can no longer be liberated by other Civilizations, and capitulated vassals can no longer rebel. Yields from City-States increased by 25%, Vassals tribute an additional 25% of their yields, and +50% Worker Improvement rate.</Text>
+			<Text>[COLOR_POSITIVE_TEXT]Iron Fist[ENDCOLOR]: Vassals can no longer be liberated by other Civilizations or the World Congress, and capitulated vassals can no longer rebel. Yields from City-States increased by 25%, Vassals tribute an additional 25% of their yields, and +50% Worker Improvement rate.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_POLICY_UNIVERSAL_HEALTHCARE_A">
 			<Text>Iron Fist</Text>

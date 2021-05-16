@@ -6696,7 +6696,7 @@
 			<Text>Researching a [ICON_RESEARCH] Technology:[NEWLINE]{1_YieldString}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_INSTANT_YIELD_CONSTRUCTION">
-			<Text>Constructing {TXT_KEY_GRAMMAR_A_AN {@2_Building}}:[NEWLINE]{1_YieldString}</Text>
+			<Text>Constructing {TXT_KEY_GRAMMAR_A_AN &lt;&lt; {1_BuildingType}}:[NEWLINE]{1_YieldString}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_INSTANT_YIELD_BORDERS">
 			<Text>Expanding [ICON_CULTURE] Borders:[NEWLINE]{1_YieldString}</Text>
@@ -6796,6 +6796,9 @@
 		</Row>
 		<Row Tag="TXT_KEY_INSTANT_YIELD_RESEARCH_AGREEMENT">
 			<Text>[ICON_RESEARCH] Research Agreement:[NEWLINE]{1_YieldString}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_REFUND">
+			<Text>[ICON_PRODUCTION] Refund from Free Building Replacement:[NEWLINE]{1_YieldString}</Text>
 		</Row>
 
 		<!-- Quest Data -->
@@ -7459,6 +7462,20 @@
 		<!-- Build blocked -->
 		<Row Tag="TXT_KEY_BUILD_BLOCKED_RESOURCE_REQUIRED">
 			<Text>{1_Num} {2_ResourceIcon} {3_ResourceName:textkey} is required to construct {TXT_KEY_GRAMMAR_A_AN &lt;&lt; {@4_ImprovementName:textkey}}.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_NUKE_INTERCEPTED">
+			<Text>A {1_CIV} Nuclear Missile was intercepted by {2_City}!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NUKE_INTERCEPTED_S">
+			<Text>Nuclear Interception!</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_NUKE_INTERCEPTED_US">
+			<Text>Defenses in {2_City} intercepted our Nuke, destroying it!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NUKE_INTERCEPTED_US_S">
+			<Text>Nuclear Attack Intercepted!</Text>
 		</Row>
 	</Language_en_US>
 	<PostDefines>

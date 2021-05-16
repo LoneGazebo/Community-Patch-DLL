@@ -4992,6 +4992,24 @@ CvPlot* CvHomelandAI::FindArchaeologistTarget(CvUnit *pUnit)
 			pBestTarget = pTarget;
 			break;
 		}
+		if (pTarget->getNumUnitsOfAIType(UNITAI_ARCHAEOLOGIST, NO_PLAYER) > 0)
+		{
+			bool bBad = false;
+			for (int iUnitLoop = 0; iUnitLoop < pTarget->getNumUnits(); iUnitLoop++)
+			{
+				CvUnit *pLoopUnit = pTarget->getUnitByIndex(iUnitLoop);
+				if (pLoopUnit->AI_getUnitAIType() != UNITAI_ARCHAEOLOGIST)
+					continue;
+				
+				if (pLoopUnit->GetActivityType() == ACTIVITY_MISSION)
+				{
+					bBad = true;
+					break;
+				}
+			}
+			if (bBad)
+				continue;
+		}
 
 		//ignore if another digger is already near
 		bool bIgnore = false;

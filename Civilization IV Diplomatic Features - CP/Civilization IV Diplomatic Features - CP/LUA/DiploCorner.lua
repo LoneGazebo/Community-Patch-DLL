@@ -112,7 +112,12 @@ function OnVassalButton()
 end
 Controls.VassalButton:RegisterCallback(Mouse.eLClick, OnVassalButton);
 --END
-
+function OnCorpButton()
+	Events.SerialEventGameMessagePopup{ 
+		Type = ButtonPopupTypes.BUTTONPOPUP_MODDER_5,
+	};
+end
+Controls.CorpButton:RegisterCallback(Mouse.eLClick, OnCorpButton);
 -------------------------------------------------
 -- On ChatToggle
 -------------------------------------------------
@@ -430,7 +435,6 @@ function DoUpdateEspionageButton()
 end
 Events.SerialEventEspionageScreenDirty.Add(DoUpdateEspionageButton);
 
--- C4DF
 -------------------------------------------------------------------------------
 -------------------------------------------------------------------------------
 function DoUpdateVassalButton()
@@ -562,7 +566,6 @@ function CheckEspionageStarted()
 	end
 end
 
---C4DF
 function CheckVassalageStarted()
 	function TestVassalageStarted()
 		local player = Players[Game.GetActivePlayer()];
@@ -576,14 +579,10 @@ function CheckVassalageStarted()
 		DoUpdateVassalButton();
 	end
 end
---END
-
 
 function OnActivePlayerTurnStart()
 	CheckEspionageStarted();
-	--C4DF
 	CheckVassalageStarted();
-	--END
 end
 Events.ActivePlayerTurnStart.Add(OnActivePlayerTurnStart);
 

@@ -202,6 +202,8 @@ public:
 	int GetEventHappiness() const;
 
 	virtual void AI_DoEventChoice(CityEventTypes eEvent) = 0;
+
+	int maxXPValue() const;
 #endif
 
 	bool IsIndustrialRouteToCapitalConnected() const;
@@ -381,6 +383,7 @@ public:
 	bool isFoodProduction(UnitTypes eUnit) const;
 	int getFirstUnitOrder(UnitTypes eUnit) const;
 	int getFirstBuildingOrder(BuildingTypes eBuilding) const;
+	bool isBuildingInQueue(BuildingTypes eBuilding) const;
 	int getFirstProjectOrder(ProjectTypes eProject) const;
 	int getFirstSpecialistOrder(SpecialistTypes eSpecialist) const;
 	int getNumTrainUnitAI(UnitAITypes eUnitAI) const;

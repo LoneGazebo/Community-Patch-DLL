@@ -180,6 +180,7 @@ void CvUnitCombat::GenerateMeleeCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender
 			iDefenderTotalDamageInflicted = iAttackerMaxHP - 1;
 		}
 
+		pkCombatInfo->setMaxExperienceAllowed(BATTLE_UNIT_ATTACKER, pkCity->maxXPValue());
 		pkCombatInfo->setFinalDamage(BATTLE_UNIT_ATTACKER, iDefenderTotalDamageInflicted);
 		pkCombatInfo->setDamageInflicted(BATTLE_UNIT_ATTACKER, iAttackerDamageInflicted);
 		pkCombatInfo->setFinalDamage(BATTLE_UNIT_DEFENDER, iAttackerTotalDamageInflicted);
@@ -773,7 +774,7 @@ void CvUnitCombat::GenerateRangedCombatInfo(CvUnit& kAttacker, CvUnit* pkDefende
 		iExperience = /*3*/ GC.getEXPERIENCE_ATTACKING_CITY_RANGED();
 		if(pCity->isBarbarian())
 			bBarbarian = true;
-		iMaxXP = 1000;
+		iMaxXP = pCity->maxXPValue();
 
 		iDamage = kAttacker.GetRangeCombatDamage(/*pDefender*/ NULL, pCity, /*bIncludeRand*/ true);
 
@@ -952,7 +953,8 @@ void CvUnitCombat::GenerateRangedCombatInfo(CvCity& kAttacker, CvUnit* pkDefende
 	}
 
 	//////////////////////////////////////////////////////////////////////
-
+	int iMaxXP = kAttacker.maxXPValue();
+	pkCombatInfo->setMaxExperienceAllowed(BATTLE_UNIT_DEFENDER, iMaxXP);
 	pkCombatInfo->setFinalDamage(BATTLE_UNIT_ATTACKER, 0);				// Total damage to the unit
 	pkCombatInfo->setDamageInflicted(BATTLE_UNIT_ATTACKER, iDamage);		// Damage inflicted this round
 	pkCombatInfo->setFinalDamage(BATTLE_UNIT_DEFENDER, iTotalDamage);		// Total damage to the unit
@@ -985,7 +987,6 @@ void CvUnitCombat::GenerateRangedCombatInfo(CvCity& kAttacker, CvUnit* pkDefende
 
 	int iExperience = /*2*/ GC.getEXPERIENCE_DEFENDING_UNIT_RANGED();
 	pkCombatInfo->setExperience(BATTLE_UNIT_DEFENDER, iExperience);
-	pkCombatInfo->setMaxExperienceAllowed(BATTLE_UNIT_DEFENDER, MAX_INT);
 	pkCombatInfo->setInBorders(BATTLE_UNIT_DEFENDER, plot.getOwner() == kAttacker.getOwner());
 #if defined(MOD_BARBARIAN_GG_GA_POINTS)
 	if(GC.getGame().isOption(GAMEOPTION_BARB_GG_GA_POINTS))
@@ -1666,7 +1667,7 @@ void CvUnitCombat::GenerateAirCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender, 
 		iExperience = /*4*/ GC.getEXPERIENCE_ATTACKING_CITY_AIR();
 		if(pCity->isBarbarian())
 			bBarbarian = true;
-		iMaxXP = 1000;
+		iMaxXP = pCity->maxXPValue();
 
 		iAttackerDamageInflicted = kAttacker.GetAirCombatDamage(/*pUnit*/ NULL, pCity, /*bIncludeRand*/ true);
 
@@ -2595,6 +2596,27 @@ void CvUnitCombat::GenerateNuclearCombatInfo(CvUnit& kAttacker, CvPlot& plot, Cv
 
 	if (iInterceptionDamage > 0)
 	{
+		if (pInterceptionCity != NULL)
+		{
+			CvNotifications* pNotifications = GET_PLAYER(pInterceptionCity->getOwner()).GetNotifications();
+			if (pNotifications)
+			{
+				Localization::String strSummary = Localization::Lookup("TXT_KEY_NUKE_INTERCEPTED_S");
+				Localization::String strBuffer = Localization::Lookup("TXT_KEY_NUKE_INTERCEPTED");
+				strBuffer << GET_PLAYER(kAttacker.getOwner()).getCivilizationShortDescription();
+				strBuffer << pInterceptionCity->getNameKey();
+				pNotifications->Add(NOTIFICATION_UNIT_DIED, strBuffer.toUTF8(), strSummary.toUTF8(), pInterceptionCity->getX(), pInterceptionCity->getY(), (int)kAttacker.getUnitType(), pInterceptionCity->getOwner());
+			}
+
+			CvNotifications* pOtherNotifications = GET_PLAYER(kAttacker.getOwner()).GetNotifications();
+			if (pOtherNotifications)
+			{
+				Localization::String strSummary = Localization::Lookup("TXT_KEY_NUKE_INTERCEPTED_US_S");
+				Localization::String strBuffer = Localization::Lookup("TXT_KEY_NUKE_INTERCEPTED_US");
+				strBuffer << pInterceptionCity->getNameKey();
+				pOtherNotifications->Add(NOTIFICATION_UNIT_DIED, strBuffer.toUTF8(), strSummary.toUTF8(), pInterceptionCity->getX(), pInterceptionCity->getY(), (int)kAttacker.getUnitType(), pInterceptionCity->getOwner());
+			}
+		}
 		return;
 	}
 

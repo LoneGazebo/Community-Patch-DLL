@@ -316,6 +316,7 @@ CvUnit::CvUnit() :
 	, m_strName("")
 	, m_eGreatWork(NO_GREAT_WORK)
 	, m_iTourismBlastStrength("CvUnit::m_iTourismBlastStrength", m_syncArchive)
+	, m_iTourismBlastLength("CvUnit::m_iTourismBlastLength", m_syncArchive)
 	, m_bPromotionReady("CvUnit::m_bPromotionReady", m_syncArchive)
 	, m_bDeathDelay("CvUnit::m_bDeathDelay", m_syncArchive)
 	, m_bCombatFocus("CvUnit::m_bCombatFocus", m_syncArchive)
@@ -1161,6 +1162,22 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 	{
 		SetTourismBlastStrength(kPlayer.GetCulture()->GetTourismBlastStrength(getUnitInfo().GetOneShotTourism()));
 	}
+
+	if (getUnitInfo().GetTourismBonusTurns() > 0)
+	{
+		int iNumTurns = m_pUnitInfo->GetTourismBonusTurns();
+		CvCity *pLoopCity;
+		int iLoop;
+		for (pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
+		{
+			iNumTurns += pLoopCity->GetCityBuildings()->GetNumGreatWorks(CvTypes::getGREAT_WORK_SLOT_MUSIC());
+		}
+
+		iNumTurns *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+		iNumTurns /= 100;
+
+		SetTourismBlastLength(iNumTurns);
+	}
 #if defined(MOD_BALANCE_CORE)
 	if (getUnitInfo().GetBaseBeakersTurnsToCount() > 0)
 	{
@@ -1725,6 +1742,7 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 #endif
 	m_eGreatWork = NO_GREAT_WORK;
 	m_iTourismBlastStrength = 0;
+	m_iTourismBlastLength = 0;
 	m_strScriptData ="";
 	m_iScenarioData = 0;
 
@@ -2131,27 +2149,46 @@ void CvUnit::convert(CvUnit* pUnit, bool bIsUpgrade)
 	SetBeenPromotedFromGoody(pUnit->IsHasBeenPromotedFromGoody());
 	if (pUnit->GetTourismBlastStrength() > GetTourismBlastStrength())
 		SetTourismBlastStrength(pUnit->GetTourismBlastStrength());
-	else
+	else if (GetTourismBlastStrength() > 0)
 		SetTourismBlastStrength(GET_PLAYER(getOwner()).GetCulture()->GetTourismBlastStrength(getUnitInfo().GetOneShotTourism()));
+
+	if (pUnit->getUnitInfo().GetTourismBonusTurns() > getUnitInfo().GetTourismBonusTurns())
+	{
+		SetTourismBlastLength(pUnit->GetTourismBlastStrength());
+	}
+	else if (getUnitInfo().GetTourismBonusTurns() > 0)
+	{
+		int iNumTurns = m_pUnitInfo->GetTourismBonusTurns();
+		CvCity *pLoopCity;
+		int iLoop;
+		for (pLoopCity = GET_PLAYER(getOwner()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(getOwner()).nextCity(&iLoop))
+		{
+			iNumTurns += pLoopCity->GetCityBuildings()->GetNumGreatWorks(CvTypes::getGREAT_WORK_SLOT_MUSIC());
+		}
+		iNumTurns *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+		iNumTurns /= 100;
+
+		SetTourismBlastLength(iNumTurns);
+	}
 #if defined(MOD_BALANCE_CORE)
 	if (pUnit->getDiscoverAmount() > getDiscoverAmount())
 		SetScienceBlastStrength(pUnit->getDiscoverAmount());
-	else
+	else if (getDiscoverAmount() > 0)
 		SetScienceBlastStrength(getDiscoverAmount());
 
 	if (pUnit->getHurryProduction(plot()) > getHurryProduction(plot()))
 		SetHurryStrength(pUnit->getHurryProduction(plot()));
-	else
+	else if (getHurryProduction(plot()) > 0)
 		SetHurryStrength(getHurryProduction(plot()));
 
 	if (pUnit->getGivePoliciesCulture() > getGivePoliciesCulture())
 		SetCultureBlastStrength(pUnit->getGivePoliciesCulture());
-	else
+	else if (getGivePoliciesCulture())
 		SetCultureBlastStrength(getGivePoliciesCulture());
 
 	if (pUnit->getGAPBlast() > getGAPBlast())
 		SetGAPBlastStrength(pUnit->getGAPBlast());
-	else
+	else if (getGAPBlast() > 0)
 		SetCultureBlastStrength(getGAPBlast());
 
 	if (pUnit->getOriginCity() == NULL)
@@ -13293,23 +13330,12 @@ bool CvUnit::blastTourism()
 	CvPlayer &kUnitOwner = GET_PLAYER(getOwner());
 	int iTourismBlastAfterModifier = 0;
 
-	if (m_pUnitInfo->GetTourismBonusTurns() > 0)
+	if (GetTourismBlastLength() > 0)
 	{
-		int iNumTurns = m_pUnitInfo->GetTourismBonusTurns();
-		CvCity *pLoopCity;
-		int iLoop;
-		for (pLoopCity = kUnitOwner.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kUnitOwner.nextCity(&iLoop))
-		{
-			iNumTurns += pLoopCity->GetCityBuildings()->GetNumGreatWorks(CvTypes::getGREAT_WORK_SLOT_MUSIC());
-		}
-
-		iNumTurns *= GC.getGame().getGameSpeedInfo().getTrainPercent();
-		iNumTurns /= 100;
-
-		kUnitOwner.ChangeTourismBonusTurns(iNumTurns);
+		kUnitOwner.ChangeTourismBonusTurns(GetTourismBlastLength());
 
 		PlayerTypes eOwner = pPlot->getOwner();
-		kUnitOwner.changeTourismBonusTurnsPlayer(eOwner, iNumTurns);
+		kUnitOwner.changeTourismBonusTurnsPlayer(eOwner, GetTourismBlastLength());
 
 		// Give happiness to Musician owner
 		int iCap = GC.getBALANCE_CORE_MUSICIAN_BLAST_HAPPINESS();
@@ -13326,7 +13352,7 @@ bool CvUnit::blastTourism()
 		{
 			Localization::String localizedText = Localization::Lookup("TXT_KEY_NOTIFICATION_GREAT_MUSICIAN_TOUR_TURNS");
 			localizedText << kUnitOwner.getCivilizationAdjectiveKey();
-			localizedText << iNumTurns;
+			localizedText << GetTourismBlastLength();
 			Localization::String localizedSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_GREAT_MUSICIAN_TOUR_TURNS_S");
 			localizedSummary << kUnitOwner.getCivilizationAdjectiveKey();
 			pNotifications->Add(NOTIFICATION_GREAT_PERSON_ACTIVE_PLAYER, localizedText.toUTF8(), localizedSummary.toUTF8(), getX(), getY(), getUnitType());
@@ -13336,7 +13362,7 @@ bool CvUnit::blastTourism()
 		{
 			Localization::String localizedText = Localization::Lookup("TXT_KEY_NOTIFICATION_GREAT_MUSICIAN_TOUR_TURNS_TARGET");
 			localizedText << kUnitOwner.getCivilizationAdjectiveKey();
-			localizedText << iNumTurns;
+			localizedText << GetTourismBlastLength();
 			Localization::String localizedSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_GREAT_MUSICIAN_TOUR_TURNS_TARGET_S");
 			localizedSummary << kUnitOwner.getCivilizationAdjectiveKey();
 			pNotifications2->Add(NOTIFICATION_CULTURE_VICTORY_SOMEONE_INFLUENTIAL, localizedText.toUTF8(), localizedSummary.toUTF8(), getX(), getY(), eOwner);
@@ -20241,140 +20267,75 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 				{
 					// See if we need to remove a temporary focus of attention
 					kPlayer.GetTacticalAI()->DeleteFocusArea(pNewPlot);
-
-					// Is there a camp guard that will convert to our side here, if so have special routine to handle it
+					
+					pNewPlot->setImprovementType(NO_IMPROVEMENT);
 #if defined(MOD_EVENTS_UNIT_CAPTURE)
 					if (!kPlayer.GetPlayerTraits()->CheckForBarbarianConversion(this, pNewPlot))
 #else
 					if (!kPlayer.GetPlayerTraits()->CheckForBarbarianConversion(pNewPlot))
 #endif
 					{
-						int iNumGold = GC.getGame().getHandicapInfo().getBarbCampGold();
-						iNumGold *= (100 + kPlayer.GetPlayerTraits()->GetPlunderModifier()) / 100;
-
-						// Game Speed Mod
-						iNumGold *= GC.getGameSpeedInfo(GC.getGame().getGameSpeedType())->getGoldPercent();
-						iNumGold /= 100;
-
-						// Normal way to handle it
-						if(getOwner() == GC.getGame().getActivePlayer())
-						{
-							DLLUI->AddUnitMessage(0, GetIDInfo(), getOwner(), true, GC.getEVENT_MESSAGE_TIME(), GetLocalizedText("TXT_KEY_MISC_DESTROYED_BARBARIAN_CAMP", iNumGold));
-						}
-
-						pNewPlot->setImprovementType(NO_IMPROVEMENT);
-
-						CvBarbarians::DoBarbCampCleared(pNewPlot, getOwner());
-
-						kPlayer.GetTreasury()->ChangeGold(iNumGold);
-
-#if defined(MOD_BALANCE_CORE_POLICIES)
-						if(MOD_BALANCE_CORE_POLICIES)
-						{
-	
-							if(GET_PLAYER(getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CULTURE_FROM_BARBARIAN_KILLS) > 0 || GET_PLAYER(getOwner()).GetBarbarianCombatBonus(true) > 0)
-							{	
-								int iCulturePoints = (GET_PLAYER(getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CULTURE_FROM_BARBARIAN_KILLS) / 5);
-								if(iCulturePoints <= 0)
-								{
-									iCulturePoints = GET_PLAYER(getOwner()).GetBarbarianCombatBonus(true);
-								}
-
-								// Game Speed Mod
-								iCulturePoints *= GC.getGameSpeedInfo(GC.getGame().getGameSpeedType())->getInstantYieldPercent();
-								iCulturePoints /= 100;
-
-								GET_PLAYER(getOwner()).changeJONSCulture(iCulturePoints);
-								if(kPlayer.getCapitalCity() != NULL)
-								{
-									kPlayer.getCapitalCity()->ChangeJONSCultureStored(iCulturePoints);
-								}
-								if(getOwner() == GC.getGame().getActivePlayer())
-								{
-									char text[256] = {0};
-									
-									sprintf_s(text, "[COLOR_MAGENTA]+%d[ENDCOLOR][ICON_CULTURE]", iCulturePoints);
-									SHOW_PLOT_POPUP(pNewPlot,getOwner(), text);
-								}
-							}
-						}
-#endif
-
-						// Set who last cleared the camp here
-						pNewPlot->SetPlayerThatClearedBarbCampHere(getOwner());
-
-						if(getOwner() < MAX_MAJOR_CIVS)
-						{
-							// Completes a quest for anyone?
-							PlayerTypes eMinor;
-							for(int iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
-							{
-								eMinor = (PlayerTypes) iMinorLoop;
-								CvPlayer& minorPlayer = GET_PLAYER(eMinor);
-
-								if(!minorPlayer.isAlive())
-									continue;
-
-								CvMinorCivAI* pMinorCivAI = minorPlayer.GetMinorCivAI();
-								pMinorCivAI->DoTestActiveQuestsForPlayer(getOwner(), /*bTestComplete*/ true, /*bTestObsolete*/ false, MINOR_CIV_QUEST_KILL_CAMP);
-							}
-						}
-
-						// If it's the active player then show the popup
-						if(getOwner() == GC.getGame().getActivePlayer())
-						{
-							// Don't show in MP
-#if defined(MOD_API_EXTENSIONS)
-							if(!GC.getGame().isReallyNetworkMultiPlayer())
-#else
-							if(!GC.getGame().isNetworkMultiPlayer())	// KWG: Candidate for !GC.getGame().isOption(GAMEOPTION_SIMULTANEOUS_TURNS)
-#endif
-							{
-								CvPopupInfo kPopupInfo(BUTTONPOPUP_BARBARIAN_CAMP_REWARD, iNumGold);
-								DLLUI->AddPopup(kPopupInfo);
-								// We are adding a popup that the player must make a choice in, make sure they are not in the end-turn phase.
-								CancelActivePlayerEndTurn();
-
-#if !defined(NO_ACHIEVEMENTS)
-								//Increment Stat
-								if(kPlayer.isHuman() && !GC.getGame().isGameMultiPlayer())
-								{
-									gDLL->IncrementSteamStatAndUnlock(ESTEAMSTAT_BARBARIANCAMPS, 100, ACHIEVEMENT_100CAMPS);
-								}
-#endif
-
-							}
-						}
+						CvBarbarians::DoBarbCampCleared(pNewPlot, getOwner(), this);
 					}
-#if defined(MOD_BALANCE_CORE_POLICIES)
-					else if(kPlayer.GetPlayerTraits()->GetLandBarbarianConversionPercent() > 0)
+					else if (kPlayer.GetPlayerTraits()->GetLandBarbarianConversionPercent() > 0)
 					{
-						if(MOD_BALANCE_CORE_POLICIES)
+						int iBestCityID = -1;
+
+						int iBestCityDistance = -1;
+
+						int iDistance;
+
+						CvCity* pLoopCity = NULL;
+						int iLoop = 0;
+						if (pNewPlot)
 						{
-	
-							if(GET_PLAYER(getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CULTURE_FROM_BARBARIAN_KILLS) > 0 || GET_PLAYER(getOwner()).GetBarbarianCombatBonus() > 0)
-							{	
-								int iCulturePoints = (GET_PLAYER(getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CULTURE_FROM_BARBARIAN_KILLS) / 5);
-								if(iCulturePoints <= 0)
+							for (pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
+							{
+								CvPlot* pCityPlot = pLoopCity->plot();
+								if (pCityPlot)
 								{
-									iCulturePoints = GET_PLAYER(getOwner()).GetBarbarianCombatBonus();
+									iDistance = plotDistance(pNewPlot->getX(), pNewPlot->getY(), pCityPlot->getX(), pCityPlot->getY());
+
+									if (iBestCityDistance == -1 || iDistance < iBestCityDistance)
+									{
+										iBestCityID = pLoopCity->GetID();
+										iBestCityDistance = iDistance;
+									}
 								}
-								GET_PLAYER(getOwner()).changeJONSCulture(iCulturePoints);
-								if(kPlayer.getCapitalCity() != NULL)
+							}
+						}
+
+						CvCity* pBestCity = kPlayer.getCity(iBestCityID);
+						if (pBestCity == NULL)
+							pBestCity = kPlayer.getCapitalCity();
+
+						if (pBestCity != NULL)
+						{
+
+							if (kPlayer.GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CULTURE_FROM_BARBARIAN_KILLS) > 0 || kPlayer.GetBarbarianCombatBonus(true) > 0)
+							{
+								int iCulturePoints = (kPlayer.GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CULTURE_FROM_BARBARIAN_KILLS) / 5);
+								if (iCulturePoints <= 0)
 								{
-									kPlayer.getCapitalCity()->ChangeJONSCultureStored(iCulturePoints);
+									iCulturePoints = kPlayer.GetBarbarianCombatBonus(true);
 								}
-								if(getOwner() == GC.getGame().getActivePlayer())
+
+								kPlayer.doInstantYield(INSTANT_YIELD_TYPE_BARBARIAN_CAMP_CLEARED, false, NO_GREATPERSON, NO_BUILDING, iCulturePoints, true, NO_PLAYER, NULL, false, pBestCity, false, true, false, YIELD_CULTURE, this);
+
+								if (getOwner() == GC.getGame().getActivePlayer())
 								{
-									char text[256] = {0};
-									
+									char text[256] = { 0 };
+
 									sprintf_s(text, "[COLOR_MAGENTA]+%d[ENDCOLOR][ICON_CULTURE]", iCulturePoints);
-									SHOW_PLOT_POPUP(pNewPlot,getOwner(), text);
+									SHOW_PLOT_POPUP(pNewPlot, getOwner(), text);
 								}
 							}
 						}
 					}
-#endif
+
+					// Set who last cleared the camp here
+					pNewPlot->SetPlayerThatClearedBarbCampHere(getOwner());
+	
 				}
 			}
 		}
@@ -25237,6 +25198,19 @@ void CvUnit::SetTourismBlastStrength(int iValue)
 {
 	m_iTourismBlastStrength = iValue;
 }
+
+
+int CvUnit::GetTourismBlastLength() const
+{
+	return m_iTourismBlastLength;
+}
+//	--------------------------------------------------------------------------------
+void CvUnit::SetTourismBlastLength(int iValue)
+{
+	m_iTourismBlastLength = iValue;
+}
+
+
 #if defined(MOD_BALANCE_CORE)
 //	--------------------------------------------------------------------------------
 int CvUnit::GetScienceBlastStrength() const

@@ -113,8 +113,6 @@
 							<GridButton ID="ThemPocketAllowEmbassy" Hidden="1"/>
 							<GridButton ID="UsPocketOpenBorders" Hidden="1"/>
 							<GridButton ID="ThemPocketOpenBorders" Hidden="1"/>
-							<GridButton ID="UsPocketTradeAgreement" Hidden="1"/>
-							<GridButton ID="ThemPocketTradeAgreement" Hidden="1"/>
 							<GridButton ID="UsPocketDefensivePact" Hidden="1"/>
 							<GridButton ID="ThemPocketDefensivePact" Hidden="1"/>
 							<GridButton ID="UsPocketResearchAgreement" Hidden="1"/>
@@ -133,6 +131,9 @@
 							<Stack ID="ThemPocketOtherPlayerStack"/>
 							<Button ID="CancelButton" Hidden="1"/>
 							<Button ID="ProposeButton" Hidden="1"/>
+							<!-- CBP -->
+							<Button ID="DenounceButton" Hidden="1"/>
+							<!-- END -->
 						</Container>
 						<!--   UsTable       -->
 						<Grid Size="225,400" Anchor="R,T" Offset="24,12" Style="GridBlackIndent8">
@@ -174,10 +175,9 @@
 									<Button Style="TradeItemButton" Anchor="L,C" String="TXT_KEY_DIPLO_OPEN_BORDERS" ID="UsTableOpenBorders"/>
 									<Button Style="TradeItemButton" Anchor="L,C" String="TXT_KEY_DIPLO_DEF_PACT" ID="UsTableDefensivePact"/>
 									<Button Style="TradeItemButton" Anchor="L,C" String="TXT_KEY_DIPLO_RESCH_AGREEMENT" ID="UsTableResearchAgreement"/>
-									<Button Style="TradeItemButton" Anchor="L,C" String="TXT_KEY_DIPLO_TRADE_AGREEMENT" ID="UsTableTradeAgreement"/>
 									<!-- Putmalk -->
 									<Button Style="TradeItemButton" Anchor="L,C" String="TXT_KEY_DIPLO_VASSALAGE"   ID="UsTableVassalage"   />
-									<Button Style="TradeItemButton" Anchor="L,C" String="TXT_KEY_DIPLO_VASSALAGE_REVOKE"   ID="UsTableRevokeVassalage"   />
+									<Button Style="TradeItemButton" Anchor="L,C" String="TXT_KEY_DIPLO_VASSALAGE_REVOKE"   ID="UsTableRevokeVassalage"/>
 									<Button Style="TradeItemButton" Anchor="L,C" String="TXT_KEY_DIPLO_DECLARATION_OF_FRIENDSHIP" ID="UsTableDoF"/>
 									<Stack Anchor="L,T" Offset="0,0" Size="128,0" StackGrowth="Bottom" Padding="5" Hidden="0" ID="UsTableCitiesStack"/>
 									<Stack Anchor="L,T" Offset="0,0" Size="128,0" StackGrowth="Bottom" Padding="5" Hidden="0" ID="UsTableDeclareWarStack">
@@ -238,10 +238,9 @@
 									<Button Style="TradeItemButton" Anchor="L,C" String="TXT_KEY_DIPLO_OPEN_BORDERS" ID="ThemTableOpenBorders"/>
 									<Button Style="TradeItemButton" Anchor="L,C" String="TXT_KEY_DIPLO_DEF_PACT" ID="ThemTableDefensivePact"/>
 									<Button Style="TradeItemButton" Anchor="L,C" String="TXT_KEY_DIPLO_RESCH_AGREEMENT" ID="ThemTableResearchAgreement"/>
-									<Button Style="TradeItemButton" Anchor="L,C" String="TXT_KEY_DIPLO_TRADE_AGREEMENT" ID="ThemTableTradeAgreement"/>
 									<!-- Putmalk -->
 									<Button Style="TradeItemButton" Anchor="L,C" String="TXT_KEY_DIPLO_VASSALAGE"   ID="ThemTableVassalage"   />
-									<Button Style="TradeItemButton" Anchor="L,C" String="TXT_KEY_DIPLO_VASSALAGE_REVOKE"   ID="ThemTableRevokeVassalage"   />
+									<Button Style="TradeItemButton" Anchor="L,C" String="TXT_KEY_DIPLO_VASSALAGE_REVOKE"   ID="ThemTableRevokeVassalage"/>
 									<Button Style="TradeItemButton" Anchor="L,C" String="TXT_KEY_DIPLO_DECLARATION_OF_FRIENDSHIP" ID="ThemTableDoF"/>
 									<Stack Anchor="L,T" Offset="0,0" Size="128,0" StackGrowth="Bottom" Padding="5" Hidden="0" ID="ThemTableCitiesStack"/>
 									<Stack Anchor="L,T" Offset="0,0" Size="128,0" StackGrowth="Bottom" Padding="5" Hidden="0" ID="ThemTableDeclareWarStack">

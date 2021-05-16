@@ -177,9 +177,9 @@ public:
 	// Quest status for assigned player
 	bool IsContestLeader(PlayerTypes ePlayer = NO_PLAYER);
 	bool IsComplete();
-	bool IsRevoked();
+	bool IsRevoked(bool bWar = false);
 	bool IsExpired();
-	bool IsObsolete();
+	bool IsObsolete(bool bWar = false);
 	bool IsHandled();
 	void SetHandled(bool bValue);
 
@@ -354,7 +354,7 @@ public:
 	WeightedCivsList CalculateFriendshipFromQuests();
 	void DoCompletedQuestsForPlayer(PlayerTypes ePlayer, MinorCivQuestTypes eSpecifyQuestType = NO_MINOR_CIV_QUEST_TYPE);
 	void DoObsoleteQuests();
-	void DoObsoleteQuestsForPlayer(PlayerTypes ePlayer, MinorCivQuestTypes eSpecifyQuestType = NO_MINOR_CIV_QUEST_TYPE);
+	void DoObsoleteQuestsForPlayer(PlayerTypes ePlayer, MinorCivQuestTypes eSpecifyQuestType = NO_MINOR_CIV_QUEST_TYPE, bool bWar = false);
 	void DoQuestsCleanup();
 	void DoQuestsCleanupForPlayer(PlayerTypes ePlayer);
 

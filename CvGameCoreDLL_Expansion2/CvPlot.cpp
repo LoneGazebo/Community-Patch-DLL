@@ -9694,10 +9694,13 @@ int CvPlot::calculateReligionNatureYield(YieldTypes eYield, PlayerTypes ePlayer,
 
 	if (getFeatureType() != NO_FEATURE)
 	{
-		iYield += pMajorityReligion->m_Beliefs.GetUnimprovedFeatureYieldChange(getFeatureType(), eYield, ePlayer, pOwningCity);
-		if (pSecondaryPantheon)
+		if (getImprovementType() == NO_IMPROVEMENT)
 		{
-			iYield += pSecondaryPantheon->GetUnimprovedFeatureYieldChange(getFeatureType(), eYield);
+			iYield += pMajorityReligion->m_Beliefs.GetUnimprovedFeatureYieldChange(getFeatureType(), eYield, ePlayer, pOwningCity);
+			if (pSecondaryPantheon)
+			{
+				iYield += pSecondaryPantheon->GetUnimprovedFeatureYieldChange(getFeatureType(), eYield);
+			}
 		}
 
 		//Change for improvement/resource

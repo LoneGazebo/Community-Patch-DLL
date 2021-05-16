@@ -618,9 +618,21 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 				if(pLoopPlot->getOwner() == NO_PLAYER)
 				{
 					pLoopPlot->setOwner(getOwner(), m_iID, bBumpUnits);
+					pLoopPlot->SetCityPurchaseID(m_iID);
 				}
-				if(pLoopPlot->getOwner() == getOwner())
+				else if(pLoopPlot->getOwner() != NO_PLAYER)
 				{
+					CvCity* pOwningCity = pLoopPlot->getOwningCity();
+					if (pOwningCity != NULL)
+					{
+						//City already working this plot? Adjust features being worked as needed.
+						if (pOwningCity->GetCityCitizens()->IsWorkingPlot(pLoopPlot))
+						{
+							pOwningCity->GetCityCitizens()->SetWorkingPlot(pLoopPlot, false);
+						}
+					}
+					pLoopPlot->ClearCityPurchaseInfo();
+					pLoopPlot->setOwner(getOwner(), m_iID, bBumpUnits);
 					pLoopPlot->SetCityPurchaseID(m_iID);
 				}
 			}
@@ -741,6 +753,8 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 					{
 						if(GetCityBuildings()->GetNumRealBuilding(eBuilding) > 0)
 						{
+							int iProductionValue = getProductionNeeded(eBuilding);
+							GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_REFUND, false, NO_GREATPERSON, NO_BUILDING, iProductionValue, false, NO_PLAYER, NULL, false, this);
 							GetCityBuildings()->SetNumRealBuilding(eBuilding, 0);
 						}
 
@@ -1018,7 +1032,7 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 
 					if(eLoopBuilding != NO_BUILDING)
 					{
-						m_pCityBuildings->SetNumRealBuilding(eLoopBuilding, true);
+						m_pCityBuildings->SetNumRealBuilding(eLoopBuilding, 1, true);
 #if defined(MOD_EVENTS_CITY_CAPITAL)
 						if (iI == eCapitalBuilding && MOD_EVENTS_CITY_CAPITAL) {
 							GAMEEVENTINVOKE_HOOK(GAMEEVENT_CapitalChanged, getOwner(), GetID(), -1);
@@ -2816,8 +2830,6 @@ void CvCity::doTurn()
 		{
 			ChangeJONSCultureStored(iBorderGrowth);
 #if defined(MOD_BALANCE_CORE_POLICIES)
-			// Doubles during Golden Age ???
-			// Tooltip says just during WLTKD
 			if(GET_PLAYER(getOwner()).IsDoubleBorderGA() && (GET_PLAYER(getOwner()).isGoldenAge() || (GetWeLoveTheKingDayCounter() > 0)))
 			{
 				ChangeJONSCultureStored(iBorderGrowth);
@@ -7270,6 +7282,25 @@ void CvCity::ChangeEventHappiness(int iValue)
 	VALIDATE_OBJECT
 	m_iEventHappiness += iValue;
 }
+
+int CvCity::maxXPValue() const
+{
+	VALIDATE_OBJECT
+		int iMaxValue;
+
+	iMaxValue = INT_MAX;
+
+	if (isBarbarian())
+	{
+		iMaxValue = std::min(iMaxValue, GC.getBARBARIAN_MAX_XP_VALUE());
+	}
+	if (GET_PLAYER(getOwner()).isMinorCiv() && GC.getMINOR_MAX_XP_VALUE() != -1)
+	{
+		iMaxValue = std::min(iMaxValue, GC.getMINOR_MAX_XP_VALUE());
+	}
+
+	return iMaxValue;
+}
 #endif
 //	--------------------------------------------------------------------------------
 /// Connected to capital with industrial route? (Railroads)
@@ -8963,6 +8994,8 @@ bool CvCity::canConstruct(BuildingTypes eBuilding, bool bContinue, bool bTestVis
 		for(int iI = 0; iI < iNumBuildingInfos; iI++)
 		{
 			const BuildingTypes eBuildingLoop = static_cast<BuildingTypes>(iI);
+			if (eBuildingLoop == eBuilding)
+				continue;
 
 			CvBuildingEntry* pkLoopBuilding = GC.getBuildingInfo(eBuildingLoop);
 			if(pkLoopBuilding)
@@ -8970,7 +9003,7 @@ bool CvCity::canConstruct(BuildingTypes eBuilding, bool bContinue, bool bTestVis
 				// Buildings are in a Mutually Exclusive Group, so only one is allowed
 				if(pkLoopBuilding->GetMutuallyExclusiveGroup() == pkBuildingInfo->GetMutuallyExclusiveGroup())
 				{
-					if(m_pCityBuildings->GetNumBuilding(eBuildingLoop) > 0)
+					if (m_pCityBuildings->GetNumBuilding(eBuildingLoop) > 0 || isBuildingInQueue(eBuildingLoop))
 					{
 						return false;
 					}
@@ -11021,6 +11054,26 @@ int CvCity::getFirstBuildingOrder(BuildingTypes eBuilding) const
 
 	return -1;
 }
+bool CvCity::isBuildingInQueue(BuildingTypes eBuilding) const
+{
+	VALIDATE_OBJECT
+	const OrderData* pOrderNode = headOrderQueueNode();
+
+	while (pOrderNode != NULL)
+	{
+		if (pOrderNode->eOrderType == ORDER_CONSTRUCT)
+		{
+			if (pOrderNode->iData1 == eBuilding)
+			{
+				return true;
+			}
+		}
+
+		pOrderNode = nextOrderQueueNode(pOrderNode);
+	}
+
+	return false;
+}
 
 
 //	--------------------------------------------------------------------------------
@@ -11698,7 +11751,8 @@ int CvCity::GetPurchaseCost(UnitTypes eUnit)
 #if defined(MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
 	if (MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
 	{
-		if (pkUnitInfo->IsFound() || pkUnitInfo->GetCombat() > 0 || pkUnitInfo->GetRangedCombat() > 0 || pkUnitInfo->GetNukeDamageLevel() != -1)
+		bool bCombat = pkUnitInfo->GetCombat() > 0 || pkUnitInfo->GetRangedCombat() > 0 || pkUnitInfo->GetNukeDamageLevel() != -1;
+		if (pkUnitInfo->IsFound() || bCombat)
 		{
 			//Mechanic to allow for production malus from happiness/unhappiness.
 			int iTempMod = getHappinessDelta() * GC.getBALANCE_HAPPINESS_PRODUCTION_MODIFIER();
@@ -12542,10 +12596,13 @@ void CvCity::changeProductionTimes100(int iChange)
 											CvBuildingEntry* pkLoopBuilding = GC.getBuildingInfo(eBuildingLoop);
 											if (pkLoopBuilding)
 											{
+												if (eBuildingLoop == eBuilding)
+													continue;
+
 												// Buildings are in a Mutually Exclusive Group, so only one is allowed
 												if (pkLoopBuilding->GetMutuallyExclusiveGroup() == pkBuildingInfo->GetMutuallyExclusiveGroup())
 												{
-													if (m_pCityBuildings->GetNumBuilding(eBuildingLoop) > 0)
+													if (m_pCityBuildings->GetNumBuilding(eBuildingLoop) > 0 || isBuildingInQueue(eBuildingLoop))
 													{
 														bValid = false;
 														break;
@@ -12557,20 +12614,20 @@ void CvCity::changeProductionTimes100(int iChange)
 
 									// proceed only if valid
 									if (bValid)
-								{
-									// siphon production to the required building
-									pOriginCity->m_pCityBuildings->ChangeBuildingProductionTimes100(eBuilding, iSiphonAmount);
-
-									// check if the origin have completed production
-									iProductionNeeded = pOriginCity->getProductionNeeded(eBuilding) * 100;
-									iOverflow = pOriginCity->m_pCityBuildings->GetBuildingProductionTimes100(eBuilding) - iProductionNeeded;
-
-										// if origin has completed production
-									if (iOverflow >= 0)
 									{
-											// due to above check, if building class already exists, it means we are replacing the default building with a unique building
-											if (pOriginCity->HasBuildingClass(eBuildingClass))
+										// siphon production to the required building
+										pOriginCity->m_pCityBuildings->ChangeBuildingProductionTimes100(eBuilding, iSiphonAmount);
+
+										// check if the origin have completed production
+										iProductionNeeded = pOriginCity->getProductionNeeded(eBuilding) * 100;
+										iOverflow = pOriginCity->m_pCityBuildings->GetBuildingProductionTimes100(eBuilding) - iProductionNeeded;
+
+											// if origin has completed production
+										if (iOverflow >= 0)
 										{
+												// due to above check, if building class already exists, it means we are replacing the default building with a unique building
+											if (pOriginCity->HasBuildingClass(eBuildingClass))
+											{
 												BuildingTypes eClassDefault = (BuildingTypes)GC.getBuildingClassInfo(eBuildingClass)->getDefaultBuildingIndex();
 												pOriginCity->m_pCityBuildings->SetNumRealBuilding(eClassDefault, 0);
 												pOriginCity->m_pCityBuildings->SetNumFreeBuilding(eClassDefault, 0);
@@ -12578,9 +12635,9 @@ void CvCity::changeProductionTimes100(int iChange)
 
 											pOriginCity->produce(eBuilding, false);
 
-												CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
-												if (pkBuildingInfo)
-												{
+											CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
+											if (pkBuildingInfo)
+											{
 												localizedText = Localization::Lookup(((isLimitedWonderClass(pkBuildingInfo->GetBuildingClassInfo())) ? "TXT_KEY_MISC_CONSTRUCTED_BUILD_IN_LIMITED" : "TXT_KEY_MISC_CONSTRUCTED_BUILD_IN"));
 												localizedText << pkBuildingInfo->GetTextKey() << getNameKey();
 											}
@@ -12880,7 +12937,8 @@ int CvCity::getProductionModifier(UnitTypes eUnit, CvString* toolTipSink, bool b
 	if (MOD_BALANCE_CORE_HAPPINESS_NATIONAL && !bIgnoreHappiness && prodUnit != NO_UNIT)
 	{
 		CvUnitEntry* pUnitEntry = GC.getUnitInfo(prodUnit);
-		if (pUnitEntry->IsFound() || pUnitEntry->GetCombat() > 0 || pUnitEntry->GetRangedCombat() > 0 || pUnitEntry->GetNukeDamageLevel() != -1)
+		bool bCombat = pUnitEntry->GetCombat() > 0 || pUnitEntry->GetRangedCombat() > 0 || pUnitEntry->GetNukeDamageLevel() != -1;
+		if (pUnitEntry->IsFound() || bCombat)
 		{
 			//Mechanic to allow for production malus from happiness/unhappiness.
 			int iTempMod = getHappinessDelta() * GC.getBALANCE_HAPPINESS_PRODUCTION_MODIFIER();
@@ -12909,7 +12967,7 @@ int CvCity::getProductionModifier(UnitTypes eUnit, CvString* toolTipSink, bool b
 				{
 					iTempMod = GC.getBALANCE_HAPPINESS_PENALTY_MAXIMUM();
 				}
-				//Let's do the yield mods.			
+				//Let's do the yield mods.	
 
 				iMultiplier += iTempMod;
 				if (iTempMod != 0 && toolTipSink)
@@ -14728,7 +14786,12 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 
 				if (eFreeBuildingThisCity != NO_BUILDING)
 				{
-					m_pCityBuildings->SetNumRealBuilding(eFreeBuildingThisCity, 0);
+					if (m_pCityBuildings->GetNumRealBuilding(eFreeBuildingThisCity) > 0)
+					{
+						int iProductionValue = getProductionNeeded(eFreeBuildingThisCity);
+						GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_REFUND, false, NO_GREATPERSON, NO_BUILDING, iProductionValue, false, NO_PLAYER, NULL, false, this);
+						m_pCityBuildings->SetNumRealBuilding(eFreeBuildingThisCity, 0);
+					}
 					m_pCityBuildings->SetNumFreeBuilding(eFreeBuildingThisCity, 1);
 				}
 			}
@@ -23159,7 +23222,7 @@ int CvCity::getUnhappinessFromScience(int iPopMod, bool bForceGlobal) const
 //	--------------------------------------------------------------------------------
 int CvCity::getUnhappinessFromDefenseYield(int iModPop) const
 {
-	int iDefenseYield = (getYieldRateTimes100(YIELD_FOOD, false, true) + getYieldRateTimes100(YIELD_PRODUCTION, false, false)) / 2;
+	int iDefenseYield = getYieldRateTimes100(YIELD_FOOD, false, true) + getYieldRateTimes100(YIELD_PRODUCTION, false, false);
 
 	//Per Pop Yield
 	if(getPopulation() != 0)
@@ -31825,6 +31888,21 @@ void CvCity::Purchase(UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectT
 			if (pUnit->getUnitInfo().GetOneShotTourism() > 0)
 			{
 				pUnit->SetTourismBlastStrength(kPlayer.GetCulture()->GetTourismBlastStrength(pUnit->getUnitInfo().GetOneShotTourism()));
+			}
+			if (pUnit->getUnitInfo().GetTourismBonusTurns() > 0)
+			{
+				int iNumTurns = pUnit->getUnitInfo().GetTourismBonusTurns();
+				CvCity *pLoopCity;
+				int iLoop;
+				for (pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
+				{
+					iNumTurns += pLoopCity->GetCityBuildings()->GetNumGreatWorks(CvTypes::getGREAT_WORK_SLOT_MUSIC());
+				}
+
+				iNumTurns *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+				iNumTurns /= 100;
+
+				pUnit->SetTourismBlastLength(iNumTurns);
 			}
 #if defined(MOD_BALANCE_CORE)
 			if (pUnit->getUnitInfo().GetBaseBeakersTurnsToCount() > 0)

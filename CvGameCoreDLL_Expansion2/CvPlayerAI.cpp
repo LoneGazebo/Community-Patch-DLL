@@ -1902,6 +1902,27 @@ CvCity* CvPlayerAI::FindBestDiplomatTargetCity(CvUnit* pUnit)
 
 			//we iterate by distance, so take the first one we find
 			CvCity* pCity = GET_PLAYER(pPlot->getOwner()).getCapitalCity();
+
+			bool bInValid = false;
+			if (pCity != NULL)
+			{
+				for (int iI = 0; iI < pCity->GetNumWorkablePlots(); iI++)
+				{
+					CvPlot* pCityPlot = pCity->GetCityCitizens()->GetCityPlotFromIndex(iI);
+
+					if (pCityPlot != NULL && pCityPlot->getOwner() == pCity->getOwner())
+					{
+						if (pCityPlot->IsImprovementEmbassy())
+						{
+							bInValid = true;
+							break;
+						}
+					}
+				}
+			}
+			if (bInValid)
+				continue;
+
 			if (WantEmbassyAt(GetID(), pCity))
 				return pCity;
 			else

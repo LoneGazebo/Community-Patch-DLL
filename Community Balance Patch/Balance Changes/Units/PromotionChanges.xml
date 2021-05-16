@@ -1882,6 +1882,7 @@
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<SeeInvisible>INVISIBLE_SUBMARINE</SeeInvisible>
 			<PromotionPrereqOr1>PROMOTION_ANTI_SUBMARINE_II</PromotionPrereqOr1>
+			<PromotionPrereqOr2>PROMOTION_ANTI_SUBMARINE_I</PromotionPrereqOr2>
 			<PortraitIndex>58</PortraitIndex>
 			<IconAtlas>ABILITY_ATLAS</IconAtlas>
 			<PediaType>PEDIA_CARSUB</PediaType>

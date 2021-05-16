@@ -4177,7 +4177,11 @@ CvCity* CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 				if (eLoopBuilding == pkLoopBuildingInfo->GetID())
 				{
 					BuildingTypes eFreeBuilding = (BuildingTypes)getCivilizationInfo().getCivilizationBuildings(pkLoopBuildingInfo->GetBuildingClassType());
-					pNewCity->GetCityBuildings()->SetNumRealBuilding(eFreeBuilding, 0);
+					if (pNewCity->GetCityBuildings()->GetNumRealBuilding(eFreeBuilding) > 0)
+					{
+						pNewCity->GetCityBuildings()->SetNumRealBuilding(eFreeBuilding, 0);
+					}
+					
 					pNewCity->GetCityBuildings()->SetNumFreeBuilding(eFreeBuilding, 1);
 				}
 			}
@@ -4208,6 +4212,8 @@ CvCity* CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 								if(pNewCity->GetCityBuildings()->GetNumRealBuilding(eBuilding) > 0)
 								{
 									pNewCity->GetCityBuildings()->SetNumRealBuilding(eBuilding, 0);
+									int iProductionValue = pNewCity->getProductionNeeded(eBuilding);
+									doInstantYield(INSTANT_YIELD_TYPE_REFUND, false, NO_GREATPERSON, NO_BUILDING, iProductionValue, false, NO_PLAYER, NULL, false, pNewCity);
 								}
 
 								pNewCity->GetCityBuildings()->SetNumFreeBuilding(eBuilding, 1);
@@ -4709,91 +4715,86 @@ CvCity* CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 			}
 		}
 
-		long lResult = 0;
+		PlayerTypes eLiberatedPlayer = NO_PLAYER;
 
-		if(lResult == 0)
+		// Captured someone's city that didn't originally belong to us - Liberate a player?
+		if (pNewCity->getOriginalOwner() != eOldOwner && pNewCity->getOriginalOwner() != GetID())
 		{
-			PlayerTypes eLiberatedPlayer = NO_PLAYER;
-
-			// Captured someone's city that didn't originally belong to us - Liberate a player?
-			if(pNewCity->getOriginalOwner() != eOldOwner && pNewCity->getOriginalOwner() != GetID())
+			eLiberatedPlayer = pNewCity->getOriginalOwner();
+			if (!CanLiberatePlayerCity(eLiberatedPlayer))
 			{
-				eLiberatedPlayer = pNewCity->getOriginalOwner();
-				if(!CanLiberatePlayerCity(eLiberatedPlayer))
-				{
-					eLiberatedPlayer = NO_PLAYER;
-				}
+				eLiberatedPlayer = NO_PLAYER;
 			}
+		}
 
-			// Venice MUST liberate their own capital
-			if (GetPlayerTraits()->IsNoAnnexing() && pNewCity->getX() == GetOriginalCapitalX() && pNewCity->getY() == GetOriginalCapitalY())
-			{
-				if (iCaptureGold > 0 || iCaptureCulture > 0 || iCaptureGreatWorks > 0)
-				{
-					if (iCaptureCulture == 0 && iCaptureGreatWorks == 0)
-					{
-						strBuffer = GetLocalizedText("TXT_KEY_POPUP_GOLD_CITY_CAPTURE", iCaptureGold, pNewCity->getNameKey());
-					} 
-					else
-					{
-						strBuffer = GetLocalizedText("TXT_KEY_POPUP_GOLD_AND_CULTURE_CITY_CAPTURE", iCaptureGold, iCaptureCulture, iCaptureGreatWorks, pNewCity->getNameKey());
-					}
-					GC.GetEngineUserInterface()->AddCityMessage(0, pNewCity->GetIDInfo(), GetID(), true, GC.getEVENT_MESSAGE_TIME(), strBuffer);
-				}
-			}
-			// AI decides what to do with a City
-			else if(!isHuman())
-			{
-				AI_conquerCity(pNewCity, eOldOwner, bGift, bAllowRaze); // could delete the pointer...
-				// So we will check to see if the plot still contains the city.
-				CvCity* pkCurrentCity = pCityPlot->getPlotCity();
-				if (pkCurrentCity == NULL || pNewCity != pkCurrentCity || pkCurrentCity->getOwner() != GetID())
-				{
-					// The city is gone or is not ours anymore (we gave it away)
-					pNewCity = NULL;
-				}
-			}
-
-			// Human decides what to do with a City
-			else if(!GC.getGame().isOption(GAMEOPTION_NO_HAPPINESS))
-			{
-				// Used to display info for annex/puppet/raze popup - turned off in DoPuppet and DoAnnex
-				pNewCity->SetIgnoreCityForHappiness(true);
-				if (GetPlayerTraits()->IsNoAnnexing() && bIsMinorCivBuyout)
-				{
-					pNewCity->DoCreatePuppet();
-				}
-				else if (pNewCity->getOriginalOwner() != GetID() || GetPlayerTraits()->IsNoAnnexing() || bIsMinorCivBuyout)
-				{
-					if(GC.getGame().getActivePlayer() == GetID())
-					{
-						int iTemp[5] = { pNewCity->GetID(), iCaptureGold, iCaptureCulture, iCaptureGreatWorks, eLiberatedPlayer };
-						bool bTemp[2] = { bIsMinorCivBuyout, bConquest };
-						GC.GetEngineUserInterface()->AddPopup(BUTTONPOPUP_CITY_CAPTURED, POPUP_PARAM_INT_ARRAY(iTemp), POPUP_PARAM_BOOL_ARRAY(bTemp));
-						// We are adding a popup that the player must make a choice in, make sure they are not in the end-turn phase.
-						CancelActivePlayerEndTurn();
-					}
-				}
-				else
-				{
-					pNewCity->SetIgnoreCityForHappiness(false);
-				}
-			}
-
-			// No choice but to capture it, tell about pillage gold (if any)
-			else if(iCaptureGold > 0 || iCaptureCulture > 0 || iCaptureGreatWorks > 0)
+		// Venice MUST liberate their own capital
+		if (GetPlayerTraits()->IsNoAnnexing() && pNewCity->getX() == GetOriginalCapitalX() && pNewCity->getY() == GetOriginalCapitalY())
+		{
+			if (iCaptureGold > 0 || iCaptureCulture > 0 || iCaptureGreatWorks > 0)
 			{
 				if (iCaptureCulture == 0 && iCaptureGreatWorks == 0)
 				{
 					strBuffer = GetLocalizedText("TXT_KEY_POPUP_GOLD_CITY_CAPTURE", iCaptureGold, pNewCity->getNameKey());
-					GC.GetEngineUserInterface()->AddCityMessage(0, pNewCity->GetIDInfo(), GetID(), true, GC.getEVENT_MESSAGE_TIME(), strBuffer);
 				}
 				else
 				{
 					strBuffer = GetLocalizedText("TXT_KEY_POPUP_GOLD_AND_CULTURE_CITY_CAPTURE", iCaptureGold, iCaptureCulture, iCaptureGreatWorks, pNewCity->getNameKey());
-					GC.GetEngineUserInterface()->AddCityMessage(0, pNewCity->GetIDInfo(), GetID(), true, GC.getEVENT_MESSAGE_TIME(), strBuffer);
-
 				}
+				GC.GetEngineUserInterface()->AddCityMessage(0, pNewCity->GetIDInfo(), GetID(), true, GC.getEVENT_MESSAGE_TIME(), strBuffer);
+			}
+		}
+		// AI decides what to do with a City
+		else if (!isHuman())
+		{
+			AI_conquerCity(pNewCity, eOldOwner, bGift, bAllowRaze); // could delete the pointer...
+			// So we will check to see if the plot still contains the city.
+			CvCity* pkCurrentCity = pCityPlot->getPlotCity();
+			if (pkCurrentCity == NULL || pNewCity != pkCurrentCity || pkCurrentCity->getOwner() != GetID())
+			{
+				// The city is gone or is not ours anymore (we gave it away)
+				pNewCity = NULL;
+			}
+		}
+
+		// Human decides what to do with a City
+		else if (!GC.getGame().isOption(GAMEOPTION_NO_HAPPINESS) || MOD_BALANCE_CORE)
+		{
+			// Used to display info for annex/puppet/raze popup - turned off in DoPuppet and DoAnnex
+			pNewCity->SetIgnoreCityForHappiness(true);
+			if (GetPlayerTraits()->IsNoAnnexing() && bIsMinorCivBuyout)
+			{
+				pNewCity->DoCreatePuppet();
+			}
+			else if (pNewCity->getOriginalOwner() != GetID() || GetPlayerTraits()->IsNoAnnexing() || bIsMinorCivBuyout)
+			{
+				if (GC.getGame().getActivePlayer() == GetID())
+				{
+					int iTemp[5] = { pNewCity->GetID(), iCaptureGold, iCaptureCulture, iCaptureGreatWorks, eLiberatedPlayer };
+					bool bTemp[2] = { bIsMinorCivBuyout, bConquest };
+					GC.GetEngineUserInterface()->AddPopup(BUTTONPOPUP_CITY_CAPTURED, POPUP_PARAM_INT_ARRAY(iTemp), POPUP_PARAM_BOOL_ARRAY(bTemp));
+					// We are adding a popup that the player must make a choice in, make sure they are not in the end-turn phase.
+					CancelActivePlayerEndTurn();
+				}
+			}
+			else
+			{
+				pNewCity->SetIgnoreCityForHappiness(false);
+			}
+		}
+
+		// No choice but to capture it, tell about pillage gold (if any)
+		else if (iCaptureGold > 0 || iCaptureCulture > 0 || iCaptureGreatWorks > 0)
+		{
+			if (iCaptureCulture == 0 && iCaptureGreatWorks == 0)
+			{
+				strBuffer = GetLocalizedText("TXT_KEY_POPUP_GOLD_CITY_CAPTURE", iCaptureGold, pNewCity->getNameKey());
+				GC.GetEngineUserInterface()->AddCityMessage(0, pNewCity->GetIDInfo(), GetID(), true, GC.getEVENT_MESSAGE_TIME(), strBuffer);
+			}
+			else
+			{
+				strBuffer = GetLocalizedText("TXT_KEY_POPUP_GOLD_AND_CULTURE_CITY_CAPTURE", iCaptureGold, iCaptureCulture, iCaptureGreatWorks, pNewCity->getNameKey());
+				GC.GetEngineUserInterface()->AddCityMessage(0, pNewCity->GetIDInfo(), GetID(), true, GC.getEVENT_MESSAGE_TIME(), strBuffer);
+
 			}
 		}
 	}
@@ -11315,7 +11316,6 @@ void CvPlayer::doTurn()
 	bool bHasActiveDiploRequest = false;
 	if (isAlive() && isMajorCiv())
 	{
-		GetTrade()->DoTurn();
 		GetGrandStrategyAI()->DoTurn();
 #if defined(MOD_ACTIVE_DIPLOMACY)
 		if(GC.getGame().isReallyNetworkMultiPlayer() && MOD_ACTIVE_DIPLOMACY)
@@ -11375,6 +11375,10 @@ void CvPlayer::doTurn()
 		UpdateCityThreatCriteria();
 #endif
 		doTurnPostDiplomacy();
+	}
+	if (isAlive() && isMajorCiv())
+	{
+		GetTrade()->DoTurn();
 	}
 #if defined(MOD_BALANCE_CORE)
 	if(MOD_BALANCE_CORE_JFD)
@@ -12722,13 +12726,23 @@ void CvPlayer::findNewCapital()
 					BuildingTypes eReplacedCapitalBuilding = pOldCapital->GetCityBuildings()->GetBuildingTypeFromClass(eCapitalBuildingClass);
 					if (eReplacedCapitalBuilding != NO_BUILDING)
 					{
-						pOldCapital->GetCityBuildings()->SetNumRealBuilding(eReplacedCapitalBuilding, 0);
+						if (pOldCapital->GetCityBuildings()->GetNumRealBuilding(eReplacedCapitalBuilding) > 0)
+						{
+							int iProductionValue = pOldCapital->getProductionNeeded(eReplacedCapitalBuilding);
+							doInstantYield(INSTANT_YIELD_TYPE_REFUND, false, NO_GREATPERSON, NO_BUILDING, iProductionValue, false, NO_PLAYER, NULL, false, pOldCapital);
+							pOldCapital->GetCityBuildings()->SetNumRealBuilding(eReplacedCapitalBuilding, 0);
+						}
 					}
 				}
 			}
 			else
 			{
-				pOldCapital->GetCityBuildings()->SetNumRealBuilding(eCapitalBuilding, 0);
+				if (pOldCapital->GetCityBuildings()->GetNumRealBuilding(eCapitalBuilding) > 0)
+				{
+					int iProductionValue = pOldCapital->getProductionNeeded(eCapitalBuilding);
+					doInstantYield(INSTANT_YIELD_TYPE_REFUND, false, NO_GREATPERSON, NO_BUILDING, iProductionValue, false, NO_PLAYER, NULL, false, pOldCapital);
+					pOldCapital->GetCityBuildings()->SetNumRealBuilding(eCapitalBuilding, 0);
+				}
 			}
 		}
 		CvAssertMsg(!(pBestCity->GetCityBuildings()->GetNumRealBuilding(eCapitalBuilding)), "(pBestCity->getNumRealBuilding(eCapitalBuilding)) did not return false as expected");
@@ -16465,7 +16479,7 @@ int CvPlayer::getProductionNeeded(UnitTypes eUnit) const
 	if (MOD_BALANCE_DYNAMIC_UNIT_SUPPLY && bCombat)
 	{
 		int iWarWeariness = GetCulture()->GetWarWeariness();
-		iMod += min(75, iWarWeariness);
+		iMod += min(100, iWarWeariness);
 	}
 #endif
 	iProductionNeeded *= iMod;
@@ -17137,7 +17151,7 @@ void CvPlayer::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst
 #if defined(MOD_BALANCE_CORE_SPIES)
 				if (MOD_BALANCE_CORE_SPIES) {
 					//Optional: Spies scaled for the number of City-States in the game.
-					int iNumMinor = ((GC.getGame().GetNumMinorCivsEver() * /*15*/ GC.getBALANCE_SPY_TO_MINOR_RATIO()) / 100);
+					int iNumMinor = ((GC.getGame().GetNumMinorCivsEver(true) * /*15*/ GC.getBALANCE_SPY_TO_MINOR_RATIO()) / 100);
 					if(iNumMinor > 1)
 					{
 						iNumSpies += iNumMinor;
@@ -26335,7 +26349,7 @@ void CvPlayer::DoUnitKilledCombat(PlayerTypes eKilledPlayer, UnitTypes eUnitType
 	}
 }
 #if defined(MOD_BALANCE_CORE)
-void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPersonTypes eGreatPerson, BuildingTypes eBuilding, int iPassYield, bool bEraScale, PlayerTypes ePlayer, CvPlot* pPlot, bool bSuppress, CvCity* pCity, bool bDomainSea, bool bInternational, bool bEvent, YieldTypes ePassYield, CvUnit* pUnit, TerrainTypes ePassTerrain, CvMinorCivQuest* pQuestData, CvCity* pOtherCity, CvUnit* pAttackingUnit)
+void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPersonTypes eGreatPerson, BuildingTypes ePassBuilding, int iPassYield, bool bEraScale, PlayerTypes ePlayer, CvPlot* pPlot, bool bSuppress, CvCity* pCity, bool bDomainSea, bool bInternational, bool bEvent, YieldTypes ePassYield, CvUnit* pUnit, TerrainTypes ePassTerrain, CvMinorCivQuest* pQuestData, CvCity* pOtherCity, CvUnit* pAttackingUnit)
 {
 	//No minors or barbs here, please!
 	if(isMinorCiv() || isBarbarian())
@@ -26424,6 +26438,9 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 
 			if(eYield == NO_YIELD)
 				continue;
+
+			if (MOD_BALANCE_CORE_JFD && eYield >= YIELD_JFD_HEALTH)
+				continue;
 		
 			CvYieldInfo* pYieldInfo = GC.getYieldInfo(eYield);
 		
@@ -26490,6 +26507,16 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 					iValue = iPassYield;
 					break;
 				}
+
+				case INSTANT_YIELD_TYPE_REFUND:
+				{
+					if (eYield != YIELD_PRODUCTION)
+						continue;
+
+					iValue = iPassYield;
+					break;
+				}
+				
 				case INSTANT_YIELD_TYPE_ERA_UNLOCK:
 				{
 					if(pReligion)
@@ -26518,9 +26545,9 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 				}
 				case INSTANT_YIELD_TYPE_INSTANT:
 				{
-					if(eBuilding != NO_BUILDING)
+					if (ePassBuilding != NO_BUILDING)
 					{
-						CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
+						CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(ePassBuilding);
 						if(pkBuildingInfo)
 						{
 							iValue += pkBuildingInfo->GetInstantYield(eYield);
@@ -26566,7 +26593,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 #if defined(MOD_BALANCE_CORE_BELIEFS)
 					if (pReligion)
 					{
-						iValue += pReligion->m_Beliefs.GetYieldFromTechUnlock(eYield, bEraScale, GetID(), pLoopCity, true);
+						iValue += pReligion->m_Beliefs.GetYieldFromTechUnlock(eYield, bEraScale, GetID(), pLoopCity, true) * pReligion->m_Beliefs.GetFollowerScalerLimiter(iNumFollowers);
 					}
 #endif
 					break;
@@ -27256,7 +27283,29 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 				}
 				case INSTANT_YIELD_TYPE_BARBARIAN_CAMP_CLEARED:
 				{
-					iValue += MAX(GetPlayerTraits()->GetYieldFromBarbarianCampClear(eYield, bEraScale), 0);
+					if (eYield != ePassYield && ePassYield != NO_YIELD)
+						continue;
+
+					if (eYield == YIELD_GOLD)
+					{
+						iPassYield *= (100 + GetPlayerTraits()->GetPlunderModifier());
+						iPassYield /= 100;
+					}
+					if (iPassYield > 0)
+					{
+						// Normal way to handle it
+						if (ePlayer == GC.getGame().getActivePlayer())
+						{
+							DLLUI->AddUnitMessage(0, pUnit->GetIDInfo(), pUnit->getOwner(), true, GC.getEVENT_MESSAGE_TIME(), GetLocalizedText("TXT_KEY_MISC_DESTROYED_BARBARIAN_CAMP", iPassYield));
+						}
+					}
+
+					if (iPassYield <= 0)
+					{
+						iValue += MAX(GetPlayerTraits()->GetYieldFromBarbarianCampClear(eYield, bEraScale), 0);
+					}
+
+					iValue += iPassYield;
 
 					break;
 				}
@@ -27360,6 +27409,18 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 						if ((pLoopCity->getProduction() < pLoopCity->getProductionNeeded()) && pLoopCity->isProduction())
 						{
 							pLoopCity->changeProduction(iValue);
+#if defined(MOD_PROCESS_STOCKPILE)
+							if (pLoopCity->getProduction() >= pLoopCity->getProductionNeeded())
+#else
+							if (pLoopCity->getProduction() >= pLoopCity->getProductionNeeded() && !pLoopCity->isProductionProcess())
+#endif
+							{
+#if defined(MOD_PROCESS_STOCKPILE)
+								pLoopCity->popOrder(0, !pLoopCity->isProductionProcess(), true);
+#else
+								pLoopCity->popOrder(0, true, true);
+#endif
+							}
 						}
 						else
 						{
@@ -27576,6 +27637,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 				{
 					changeInstantYieldValue(eYield, iValue);
 				}
+				LogInstantYield(eYield, iValue, iType);
 			}
 		}
 		if(citynameString != "" && cityyieldString != "")
@@ -27774,6 +27836,26 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 				}
 				return;
 			}
+
+			case INSTANT_YIELD_TYPE_REFUND:
+			{
+				if (getInstantYieldText(iType) == "" || getInstantYieldText(iType) == NULL)
+				{
+					localizedText = Localization::Lookup("TXT_KEY_INSTANT_YIELD_REFUND");
+					localizedText << totalyieldString;
+					//We do this at the player level once per turn.
+					addInstantYieldText(iType, localizedText.toUTF8());
+				}
+				else
+				{
+					localizedText = Localization::Lookup("TXT_KEY_INSTANT_ADDENDUM");
+					localizedText << totalyieldString;
+					//We do this at the player level once per turn.
+					addInstantYieldText(iType, localizedText.toUTF8());
+				}
+				return;
+			}
+			
 			case INSTANT_YIELD_TYPE_ERA_UNLOCK:
 			{
 				if(getInstantYieldText(iType) == "" || getInstantYieldText(iType) == NULL)
@@ -27837,15 +27919,16 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 			case INSTANT_YIELD_TYPE_CONSTRUCTION:
 			case INSTANT_YIELD_TYPE_CONSTRUCTION_WONDER:
 			{
-				if(eBuilding != NO_BUILDING)
+				if (ePassBuilding != NO_BUILDING)
 				{
-					CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
+					CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(ePassBuilding);
 					if(pkBuildingInfo)
 					{
 						if(getInstantYieldText(iType) == "" || getInstantYieldText(iType) == NULL)
 						{
 							localizedText = Localization::Lookup("TXT_KEY_INSTANT_YIELD_CONSTRUCTION");
-							localizedText << totalyieldString << pkBuildingInfo->GetDescriptionKey();
+							localizedText << totalyieldString;
+							localizedText << pkBuildingInfo->GetDescriptionKey();
 							//We do this at the player level once per turn.
 							addInstantYieldText(iType, localizedText.toUTF8());
 						}
@@ -42034,6 +42117,23 @@ CvString CvPlayer::getInstantYieldHistoryTooltip(int iGameTurn, int iNumPrevious
 	return tooltip;
 }
 
+void CvPlayer::LogInstantYield(YieldTypes eYield, int iValue, InstantYieldType eInstantYield)
+{
+	CvString playerName = getCivilizationShortDescription();
+	FILogFile* pLog;
+	CvString strBaseString;
+	CvString strOutBuf;
+
+	CvString strFileName = "InstantYieldSummary.csv";
+	playerName = getCivilizationShortDescription();
+	pLog = LOGFILEMGR.GetLog(strFileName, FILogFile::kDontTimeStamp);
+	strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
+	strBaseString += playerName + ", ";
+	strOutBuf.Format("InstantYieldType: %d, YieldType: %s, Value: %d", eInstantYield, GC.getYieldInfo(eYield)->GetDescription(), iValue);
+	strBaseString += strOutBuf;
+	pLog->Msg(strBaseString);
+}
+
 //	--------------------------------------------------------------------------------
 void CvPlayer::changeInstantTourismPerPlayerValue(PlayerTypes ePlayer, int iValue)
 {
@@ -43856,7 +43956,7 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 #if defined(MOD_BALANCE_CORE_SPIES)
 				if (MOD_BALANCE_CORE_SPIES) {
 					//Optional: Spies scaled for the number of City-States in the game.
-					int iNumMinor = ((GC.getGame().GetNumMinorCivsEver() * /*15*/ GC.getBALANCE_SPY_TO_MINOR_RATIO()) / 100);
+					int iNumMinor = ((GC.getGame().GetNumMinorCivsEver(true) * /*15*/ GC.getBALANCE_SPY_TO_MINOR_RATIO()) / 100);
 					if(iNumMinor > 1)
 					{
 						iNumSpies += iNumMinor;
@@ -44531,6 +44631,8 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 									{
 										if(pLoopCity->GetCityBuildings()->GetNumRealBuilding(eBuilding) > 0)
 										{
+											int iProductionValue = pLoopCity->getProductionNeeded(eBuilding);
+											doInstantYield(INSTANT_YIELD_TYPE_REFUND, false, NO_GREATPERSON, NO_BUILDING, iProductionValue, false, NO_PLAYER, NULL, false, pLoopCity);
 											pLoopCity->GetCityBuildings()->SetNumRealBuilding(eBuilding, 0);
 										}
 

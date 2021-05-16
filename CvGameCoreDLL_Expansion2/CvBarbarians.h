@@ -15,7 +15,7 @@
 class CvBarbarians
 {
 public:
-	static void DoBarbCampCleared(CvPlot* pPlot, PlayerTypes ePlayer);
+	static void DoBarbCampCleared(CvPlot* pPlot, PlayerTypes ePlayer, CvUnit* pUnit = NULL);
 #if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
 	static void DoBarbCityCleared(CvPlot* pPlot);
 	static bool ShouldSpawnBarbFromCity(CvPlot* pPlot);

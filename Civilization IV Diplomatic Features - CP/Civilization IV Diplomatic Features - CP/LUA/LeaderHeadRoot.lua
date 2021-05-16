@@ -48,25 +48,29 @@ function LeaderMessageHandler( iPlayer, iDiploUIState, szLeaderMessage, iAnimati
 	local iApproach = pActivePlayer:GetApproachTowardsUsGuess(g_iAIPlayer);
 	local strMoodText = Locale.ConvertTextKey("TXT_KEY_EMOTIONLESS");
 	
-	if (pActiveTeam:IsAtWar(g_iAITeam)) then
-		strMoodText = Locale.ConvertTextKey( "TXT_KEY_DIPLO_MAJOR_CIV_DIPLO_STATE_WAR" );
-	elseif (Players[g_iAIPlayer]:IsDenouncingPlayer(Game.GetActivePlayer())) then
-		strMoodText = Locale.ConvertTextKey( "TXT_KEY_DIPLO_MAJOR_CIV_DIPLO_STATE_DENOUNCING" );	
-	elseif (Players[g_iAIPlayer]:WasResurrectedThisTurnBy(iActivePlayer)) then
-		strMoodText = Locale.ConvertTextKey( "TXT_KEY_DIPLO_MAJOR_CIV_DIPLO_STATE_LIBERATED" );		
+	if (not pActivePlayer:IsAlive()) then
+		strMoodText = Locale.ConvertTextKey( "TXT_KEY_DIPLO_MAJOR_CIV_DIPLO_STATE_NEUTRAL", playerLeaderInfo.Description );
 	else
-		if( iApproach == MajorCivApproachTypes.MAJOR_CIV_APPROACH_WAR ) then
-			strMoodText = Locale.ConvertTextKey( "TXT_KEY_WAR_CAPS" );
-		elseif( iApproach == MajorCivApproachTypes.MAJOR_CIV_APPROACH_HOSTILE ) then
-			strMoodText = Locale.ConvertTextKey( "TXT_KEY_DIPLO_MAJOR_CIV_DIPLO_STATE_HOSTILE", playerLeaderInfo.Description  );
-		elseif( iApproach == MajorCivApproachTypes.MAJOR_CIV_APPROACH_GUARDED ) then
-			strMoodText = Locale.ConvertTextKey( "TXT_KEY_DIPLO_MAJOR_CIV_DIPLO_STATE_GUARDED", playerLeaderInfo.Description  );
-		elseif( iApproach == MajorCivApproachTypes.MAJOR_CIV_APPROACH_AFRAID ) then
-			strMoodText = Locale.ConvertTextKey( "TXT_KEY_DIPLO_MAJOR_CIV_DIPLO_STATE_AFRAID", playerLeaderInfo.Description  );
-		elseif( iApproach == MajorCivApproachTypes.MAJOR_CIV_APPROACH_FRIENDLY ) then
-			strMoodText = Locale.ConvertTextKey( "TXT_KEY_DIPLO_MAJOR_CIV_DIPLO_STATE_FRIENDLY", playerLeaderInfo.Description  );
-		elseif( iApproach == MajorCivApproachTypes.MAJOR_CIV_APPROACH_NEUTRAL ) then
-			strMoodText = Locale.ConvertTextKey( "TXT_KEY_DIPLO_MAJOR_CIV_DIPLO_STATE_NEUTRAL", playerLeaderInfo.Description );
+		if (pActiveTeam:IsAtWar(g_iAITeam)) then
+			strMoodText = Locale.ConvertTextKey( "TXT_KEY_DIPLO_MAJOR_CIV_DIPLO_STATE_WAR" );
+		elseif (Players[g_iAIPlayer]:IsDenouncingPlayer(Game.GetActivePlayer())) then
+			strMoodText = Locale.ConvertTextKey( "TXT_KEY_DIPLO_MAJOR_CIV_DIPLO_STATE_DENOUNCING" );	
+		elseif (Players[g_iAIPlayer]:WasResurrectedThisTurnBy(iActivePlayer)) then
+			strMoodText = Locale.ConvertTextKey( "TXT_KEY_DIPLO_MAJOR_CIV_DIPLO_STATE_LIBERATED" );		
+		else
+			if( iApproach == MajorCivApproachTypes.MAJOR_CIV_APPROACH_WAR ) then
+				strMoodText = Locale.ConvertTextKey( "TXT_KEY_WAR_CAPS" );
+			elseif( iApproach == MajorCivApproachTypes.MAJOR_CIV_APPROACH_HOSTILE ) then
+				strMoodText = Locale.ConvertTextKey( "TXT_KEY_DIPLO_MAJOR_CIV_DIPLO_STATE_HOSTILE", playerLeaderInfo.Description  );
+			elseif( iApproach == MajorCivApproachTypes.MAJOR_CIV_APPROACH_GUARDED ) then
+				strMoodText = Locale.ConvertTextKey( "TXT_KEY_DIPLO_MAJOR_CIV_DIPLO_STATE_GUARDED", playerLeaderInfo.Description  );
+			elseif( iApproach == MajorCivApproachTypes.MAJOR_CIV_APPROACH_AFRAID ) then
+				strMoodText = Locale.ConvertTextKey( "TXT_KEY_DIPLO_MAJOR_CIV_DIPLO_STATE_AFRAID", playerLeaderInfo.Description  );
+			elseif( iApproach == MajorCivApproachTypes.MAJOR_CIV_APPROACH_FRIENDLY ) then
+				strMoodText = Locale.ConvertTextKey( "TXT_KEY_DIPLO_MAJOR_CIV_DIPLO_STATE_FRIENDLY", playerLeaderInfo.Description  );
+			elseif( iApproach == MajorCivApproachTypes.MAJOR_CIV_APPROACH_NEUTRAL ) then
+				strMoodText = Locale.ConvertTextKey( "TXT_KEY_DIPLO_MAJOR_CIV_DIPLO_STATE_NEUTRAL", playerLeaderInfo.Description );
+			end
 		end
 	end
 	
@@ -75,6 +79,121 @@ function LeaderMessageHandler( iPlayer, iDiploUIState, szLeaderMessage, iAnimati
 	local strMoodInfo = GetMoodInfo(g_iAIPlayer);
 	Controls.MoodText:SetToolTipString(strMoodInfo);
 	
+-- CBP
+	-- Warscore
+	if (pActiveTeam:IsAtWar(g_iAITeam)) then
+		Controls.WarScore:SetHide(false);
+		local iWarScore = pActivePlayer:GetWarScore(g_iAIPlayer);
+		local strWarScore = Locale.ConvertTextKey("TXT_KEY_WAR_SCORE", iWarScore);
+
+		Controls.WarScore:SetText(strWarScore);
+	
+		local strWarInfo = Locale.ConvertTextKey("TXT_KEY_WAR_SCORE_EXPLANATION");
+
+		if(Players[g_iAIPlayer]:IsWantsPeaceWithPlayer(Game.GetActivePlayer())) then
+			local iPeaceValue = Players[g_iAIPlayer]:GetTreatyWillingToOffer(Game.GetActivePlayer());
+			if(iPeaceValue >  PeaceTreatyTypes.PEACE_TREATY_WHITE_PEACE) then
+				if( iPeaceValue == PeaceTreatyTypes.PEACE_TREATY_ARMISTICE ) then
+					strWarInfo = strWarInfo .. '[NEWLINE]' .. Locale.ConvertTextKey( "TXT_KEY_OFFER_PEACE_TREATY_ARMISTICE" );
+				elseif( iPeaceValue == PeaceTreatyTypes.PEACE_TREATY_SETTLEMENT ) then
+					strWarInfo = strWarInfo .. '[NEWLINE]' .. Locale.ConvertTextKey( "TXT_KEY_OFFER_PEACE_TREATY_SETTLEMENT" );
+				elseif( iPeaceValue == PeaceTreatyTypes.PEACE_TREATY_BACKDOWN ) then
+					strWarInfo = strWarInfo .. '[NEWLINE]' .. Locale.ConvertTextKey( "TXT_KEY_OFFER_PEACE_TREATY_BACKDOWN" );
+				elseif( iPeaceValue == PeaceTreatyTypes.PEACE_TREATY_SUBMISSION ) then
+					strWarInfo = strWarInfo .. '[NEWLINE]' .. Locale.ConvertTextKey( "TXT_KEY_OFFER_PEACE_TREATY_SUBMISSION" );
+				elseif( iPeaceValue == PeaceTreatyTypes.PEACE_TREATY_SURRENDER ) then
+					strWarInfo = strWarInfo .. '[NEWLINE]' .. Locale.ConvertTextKey( "TXT_KEY_OFFER_PEACE_TREATY_SURRENDER" );
+				elseif( iPeaceValue == PeaceTreatyTypes.PEACE_TREATY_CESSION ) then
+					strWarInfo = strWarInfo .. '[NEWLINE]' .. Locale.ConvertTextKey( "TXT_KEY_OFFER_PEACE_TREATY_CESSION" );
+				elseif( iPeaceValue == PeaceTreatyTypes.PEACE_TREATY_CAPITULATION ) then
+					strWarInfo = strWarInfo .. '[NEWLINE]' .. Locale.ConvertTextKey( "TXT_KEY_OFFER_PEACE_TREATY_CAPITULATION" );
+				elseif( iPeaceValue == PeaceTreatyTypes.PEACE_TREATY_UNCONDITIONAL_SURRENDER ) then
+					strWarInfo = strWarInfo .. '[NEWLINE]' .. Locale.ConvertTextKey( "TXT_KEY_OFFER_PEACE_TREATY_UNCONDITIONAL_SURRENDER" );
+				end
+			end
+		else
+			strWarInfo = strWarInfo .. '[NEWLINE]' .. Locale.ConvertTextKey( "TXT_KEY_WAR_NO_PEACE_OFFER" );
+		end
+
+		local iStrengthAverage = pActivePlayer:GetPlayerMilitaryStrengthComparedToUs(g_iAIPlayer);
+		if( iStrengthAverage == StrengthTypes.STRENGTH_PATHETIC ) then
+			strWarInfo = strWarInfo .. '[NEWLINE]' .. Locale.ConvertTextKey( "TXT_KEY_WAR_STRENGTH_PATHETIC" );
+		elseif( iStrengthAverage == StrengthTypes.STRENGTH_WEAK ) then
+			strWarInfo = strWarInfo .. '[NEWLINE]' .. Locale.ConvertTextKey( "TXT_KEY_WAR_STRENGTH_WEAK" );
+		elseif( iStrengthAverage == StrengthTypes.STRENGTH_POOR ) then
+			strWarInfo = strWarInfo .. '[NEWLINE]' .. Locale.ConvertTextKey( "TXT_KEY_WAR_STRENGTH_POOR" );
+		elseif( iStrengthAverage == StrengthTypes.STRENGTH_AVERAGE ) then
+			strWarInfo = strWarInfo .. '[NEWLINE]' .. Locale.ConvertTextKey( "TXT_KEY_WAR_STRENGTH_AVERAGE" );
+		elseif( iStrengthAverage == StrengthTypes.STRENGTH_STRONG ) then
+			strWarInfo = strWarInfo .. '[NEWLINE]' .. Locale.ConvertTextKey( "TXT_KEY_WAR_STRENGTH_STRONG" );
+		elseif( iStrengthAverage == StrengthTypes.STRENGTH_POWERFUL ) then
+			strWarInfo = strWarInfo .. '[NEWLINE]' .. Locale.ConvertTextKey( "TXT_KEY_WAR_STRENGTH_POWERFUL" );
+		elseif( iStrengthAverage == StrengthTypes.STRENGTH_IMMENSE ) then
+			strWarInfo = strWarInfo .. '[NEWLINE]' .. Locale.ConvertTextKey( "TXT_KEY_WAR_STRENGTH_IMMENSE" );
+		end
+
+		local iEconomicAverage = pActivePlayer:GetPlayerEconomicStrengthComparedToUs(g_iAIPlayer);
+		if( iEconomicAverage == StrengthTypes.STRENGTH_PATHETIC ) then
+			strWarInfo = strWarInfo .. '[NEWLINE]' .. Locale.ConvertTextKey( "TXT_KEY_WAR_ECONOMY_PATHETIC" );
+		elseif( iEconomicAverage == StrengthTypes.STRENGTH_WEAK ) then
+			strWarInfo = strWarInfo .. '[NEWLINE]' .. Locale.ConvertTextKey( "TXT_KEY_WAR_ECONOMY_WEAK" );
+		elseif( iEconomicAverage == StrengthTypes.STRENGTH_POOR ) then
+			strWarInfo = strWarInfo .. '[NEWLINE]' .. Locale.ConvertTextKey( "TXT_KEY_WAR_ECONOMY_POOR" );
+		elseif( iEconomicAverage == StrengthTypes.STRENGTH_AVERAGE ) then
+			strWarInfo = strWarInfo .. '[NEWLINE]' .. Locale.ConvertTextKey( "TXT_KEY_WAR_ECONOMY_AVERAGE" );
+		elseif( iEconomicAverage == StrengthTypes.STRENGTH_STRONG ) then
+			strWarInfo = strWarInfo .. '[NEWLINE]' .. Locale.ConvertTextKey( "TXT_KEY_WAR_ECONOMY_STRONG" );
+		elseif( iEconomicAverage == StrengthTypes.STRENGTH_POWERFUL ) then
+			strWarInfo = strWarInfo .. '[NEWLINE]' .. Locale.ConvertTextKey( "TXT_KEY_WAR_ECONOMY_POWERFUL" );
+		elseif( iEconomicAverage == StrengthTypes.STRENGTH_IMMENSE ) then
+			strWarInfo = strWarInfo .. '[NEWLINE]' .. Locale.ConvertTextKey( "TXT_KEY_WAR_ECONOMY_IMMENSE" );
+		end
+
+		local iOurWarDamage = pActivePlayer:GetWarDamageValue(g_iAIPlayer);
+		local iTheirWarDamage = Players[g_iAIPlayer]:GetWarDamageValue(Game.GetActivePlayer());
+		local iTotal = iTheirWarDamage - iOurWarDamage;
+
+		if (iTotal > 0) then
+			if (iTotal >= GameDefines.WAR_DAMAGE_LEVEL_THRESHOLD_CRIPPLED) then
+				strWarInfo = strWarInfo .. '[NEWLINE]' .. Locale.ConvertTextKey( "TXT_KEY_WAR_DAMAGE_THEM_CRIPPLED" );
+			elseif (iTotal >= GameDefines.WAR_DAMAGE_LEVEL_THRESHOLD_SERIOUS) then
+				strWarInfo = strWarInfo .. '[NEWLINE]' .. Locale.ConvertTextKey( "TXT_KEY_WAR_DAMAGE_THEM_SERIOUS" );
+			elseif (iTotal >= GameDefines.WAR_DAMAGE_LEVEL_THRESHOLD_MAJOR) then
+				strWarInfo = strWarInfo .. '[NEWLINE]' .. Locale.ConvertTextKey( "TXT_KEY_WAR_DAMAGE_THEM_MAJOR" );
+			elseif (iTotal >= GameDefines.WAR_DAMAGE_LEVEL_THRESHOLD_MINOR) then
+				strWarInfo = strWarInfo .. '[NEWLINE]' .. Locale.ConvertTextKey( "TXT_KEY_WAR_DAMAGE_THEM_MINOR" );
+			end
+		elseif (iTotal < 0) then
+			if (iTotal <= -GameDefines.WAR_DAMAGE_LEVEL_THRESHOLD_CRIPPLED) then
+				strWarInfo = strWarInfo .. '[NEWLINE]' .. Locale.ConvertTextKey( "TXT_KEY_WAR_DAMAGE_US_CRIPPLED" );
+			elseif (iTotal <= -GameDefines.WAR_DAMAGE_LEVEL_THRESHOLD_SERIOUS) then
+				strWarInfo = strWarInfo .. '[NEWLINE]' .. Locale.ConvertTextKey( "TXT_KEY_WAR_DAMAGE_US_SERIOUS" );
+			elseif (iTotal <= -GameDefines.WAR_DAMAGE_LEVEL_THRESHOLD_MAJOR) then
+				strWarInfo = strWarInfo .. '[NEWLINE]' .. Locale.ConvertTextKey( "TXT_KEY_WAR_DAMAGE_US_MAJOR" );
+			elseif (iTotal <= -GameDefines.WAR_DAMAGE_LEVEL_THRESHOLD_MINOR) then
+				strWarInfo = strWarInfo .. '[NEWLINE]' .. Locale.ConvertTextKey( "TXT_KEY_WAR_DAMAGE_US_MINOR" );
+			end
+		end
+
+		local iTheirWarWeariness = Players[g_iAIPlayer]:GetWarWeariness();
+		if(iTheirWarWeariness <= 0)then
+			strWarInfo = strWarInfo .. '[NEWLINE]' .. Locale.ConvertTextKey( "TXT_KEY_WAR_WEARINESS_THEM_NONE" );
+		elseif( iTheirWarWeariness <= 25 ) then
+			strWarInfo = strWarInfo .. '[NEWLINE]' .. Locale.ConvertTextKey( "TXT_KEY_WAR_WEARINESS_THEM_MINOR" );
+		elseif( iTheirWarWeariness <= 50 ) then
+			strWarInfo = strWarInfo .. '[NEWLINE]' .. Locale.ConvertTextKey( "TXT_KEY_WAR_WEARINESS_THEM_MAJOR" );
+		elseif( iTheirWarWeariness <= 75 ) then
+			strWarInfo = strWarInfo .. '[NEWLINE]' .. Locale.ConvertTextKey( "TXT_KEY_WAR_WEARINESS_THEM_SERIOUS" );
+		elseif( iTheirWarWeariness > 75 ) then
+			strWarInfo = strWarInfo .. '[NEWLINE]' .. Locale.ConvertTextKey( "TXT_KEY_WAR_WEARINESS_THEM_CRIPPLED" );
+		end
+
+		Controls.WarScore:SetToolTipString(strWarInfo);
+	else
+		Controls.WarScore:SetHide(true);
+	end
+	-- END
+
 	local bMyMode = false;
 	
 	-- See if we're in this screen
@@ -143,101 +262,95 @@ function OnShowHide( bHide )
 	if (not bHide) then
 	
 		Controls.RootOptions:SetHide( not UI.GetLeaderHeadRootUp() );
-		
+
+		local pActivePlayer = Players[Game.GetActivePlayer()];
 		local pActiveTeam = Teams[Game.GetActiveTeam()];
-		-- Putmalk
-		local pActivePlayer = Teams[Game.GetActivePlayer()];
-		local pDiscussingPlayer = Players[g_iAIPlayer];
 		
-		-- Hide or show war/peace button
-		if (not pActiveTeam:CanChangeWarPeace(g_iAITeam)) then
-			Controls.WarButton:SetHide(true);
-		else
-			Controls.WarButton:SetHide(false);
-		end
-		
-		-- Hide or show the demand button
+		-- Hide or show war/peace and demand buttons
 		if (Game.GetActiveTeam() == g_iAITeam) then
+			Controls.WarButton:SetHide(true);
+			Controls.DemandButton:SetHide(true);
+		elseif (not pActivePlayer:IsAlive()) then
+			Controls.WarButton:SetHide(true);
 			Controls.DemandButton:SetHide(true);
 		else
+			Controls.WarButton:SetHide(false);
 			Controls.DemandButton:SetHide(false);
 		end
 
-		-- Start Putmalk
-		-- What text to display on "Demand Button"?
-		local strString = "";
-		
-		if(pDiscussingPlayer ~= nil) then
-			local bFriends = pDiscussingPlayer:IsDoF(pActivePlayer);
-			if(bFriends) then
-				strString = "TXT_KEY_DIPLO_REQUEST_HELP_BUTTON";
-			else
-				strString = "TXT_KEY_DIPLO_DEMAND_BUTTON";
-			end
-		else
-			print("Could not find discussing player!");
-		end
-
-		if(strString == nil) then
-			print("strString == nil!");
-			str = "TXT_KEY_DIPLO_REQUEST_HELP_BUTTON";
-		end
-
-		Controls.DemandButton:SetText( Locale.ConvertTextKey( strString ));
-		-- End Putmalk
+		-- Discussion is always valid, but there may be nothing to say
+		Controls.DiscussButton:SetDisabled(false);
 
 		oldCursor = UIManager:SetUICursor(0); -- make sure we start with the default cursor
 		
-	    if (g_iAITeam ~= -1) then
-			local bAtWar = pActiveTeam:IsAtWar(g_iAITeam);
-			
-			if (bAtWar) then
+		if (g_iAITeam ~= -1 and g_iAIPlayer ~= -1) then
+			if (pActiveTeam:IsAtWar(g_iAITeam)) then
 				Controls.WarButton:SetText( Locale.ConvertTextKey( "TXT_KEY_DIPLO_NEGOTIATE_PEACE" ));
+				Controls.WarButton:SetToolTipString( Locale.ConvertTextKey( "TXT_KEY_DIPLO_NEGOTIATE_PEACE_TT" ));
 				Controls.TradeButton:SetDisabled(true);
 				Controls.DemandButton:SetDisabled(true);
-				Controls.DiscussButton:SetDisabled(true);
-				
-				local iLockedWarTurns = pActiveTeam:GetNumTurnsLockedIntoWar(g_iAITeam);
-				
-				-- Putmalk: redid logic to accomodate vassals
-				-- Locked into war by vassals
-				if (pActiveTeam:IsVassalLockedIntoWar(g_iAITeam)) then
+				Controls.DemandButton:SetText( Locale.ConvertTextKey( "TXT_KEY_DIPLO_DEMAND_BUTTON" ));
+
+				if (pActiveTeam:CanChangeWarPeace(g_iAITeam)) then
 					Controls.WarButton:SetDisabled(false);
-					Controls.WarButton:SetToolTipString( Locale.ConvertTextKey( "TXT_KEY_DIPLO_NEGOTIATE_PEACE_VASSAL_BLOCKED_TT" ));
-				-- Locked into war
-				elseif (iLockedWarTurns ~= 0) then
-					Controls.WarButton:SetDisabled(true);
-					Controls.WarButton:SetToolTipString( Locale.ConvertTextKey( "TXT_KEY_DIPLO_NEGOTIATE_PEACE_BLOCKED_TT", iLockedWarTurns ));
-				-- Not locked into war
 				else
-					Controls.WarButton:SetDisabled(false);
-					Controls.WarButton:SetToolTipString( Locale.ConvertTextKey( "TXT_KEY_DIPLO_NEGOTIATE_PEACE_TT" ));
+					Controls.WarButton:SetDisabled(true);
+
+					if (pActiveTeam:IsVassalLockedIntoWar(g_iAITeam)) then
+						Controls.WarButton:SetToolTipString( Locale.ConvertTextKey( "TXT_KEY_DIPLO_NEGOTIATE_PEACE_VASSAL_BLOCKED_TT" ));
+					elseif (Teams[g_iAITeam]:IsVassalLockedIntoWar(Game.GetActiveTeam())) then
+						local iMaster = Teams[g_iAITeam]:GetMaster();
+						if (iMaster ~= -1) then
+							local pMaster = Teams[iMaster];
+							Controls.WarButton:SetToolTipString( Locale.ConvertTextKey( "TXT_KEY_DIPLO_MAY_NOT_MAKE_PEACE_VASSAL", pMaster:GetName() ));
+						end
+					else
+						local iLockedTurnsUs = pActiveTeam:GetNumTurnsLockedIntoWar(g_iAITeam);
+						local iLockedTurnsThem = Teams[g_iAITeam]:GetNumTurnsLockedIntoWar(Game.GetActiveTeam());
+
+						if (iLockedTurnsUs ~= 0) then
+							Controls.WarButton:SetToolTipString( Locale.ConvertTextKey( "TXT_KEY_DIPLO_NEGOTIATE_PEACE_BLOCKED_TT", iLockedTurnsUs ));
+						elseif (iLockedTurnsThem ~= 0) then
+							Controls.WarButton:SetToolTipString( Locale.ConvertTextKey( "TXT_KEY_DIPLO_NEGOTIATE_PEACE_BLOCKED_THEM_TT", iLockedTurnsThem ));
+						else
+							Controls.WarButton:SetToolTipString( Locale.ConvertTextKey( "TXT_KEY_DIPLO_NEGOTIATE_PEACE_BLOCKED_MOD_TT" ));
+						end
+					end
 				end
 			else
 				Controls.WarButton:SetText( Locale.ConvertTextKey( "TXT_KEY_DIPLO_DECLARE_WAR" ));
+				Controls.WarButton:SetToolTipString( Locale.ConvertTextKey( "TXT_KEY_DIPLO_DECLARES_WAR_TT" ));
 				Controls.TradeButton:SetDisabled(false);
 				Controls.DemandButton:SetDisabled(false);
-				Controls.DiscussButton:SetDisabled(false);
-				
-				if (pActiveTeam:IsForcePeace(g_iAITeam)) then
-					Controls.WarButton:SetDisabled(true);
-					Controls.WarButton:SetToolTipString( Locale.ConvertTextKey( "TXT_KEY_DIPLO_MAY_NOT_ATTACK" ));
-				elseif (not pActiveTeam:CanDeclareWar(g_iAITeam)) then
+
+				if (pActivePlayer:IsDoF(g_iAIPlayer)) then
+					Controls.DemandButton:SetText( Locale.ConvertTextKey( "TXT_KEY_DIPLO_REQUEST_HELP_BUTTON" ));
+					Controls.DemandButton:SetToolTipString( Locale.ConvertTextKey( "TXT_KEY_DIPLO_REQUEST_HELP_BUTTON_TT" ));
+				else
+					Controls.DemandButton:SetText( Locale.ConvertTextKey( "TXT_KEY_DIPLO_DEMAND_BUTTON" ));
+					Controls.DemandButton:SetToolTipString( Locale.ConvertTextKey( "TXT_KEY_DIPLO_DEMAND_BUTTON_TT" ));
+				end
+
+				if (pActiveTeam:CanDeclareWar(g_iAITeam)) then
+					Controls.WarButton:SetDisabled(false);
+				else
 					Controls.WarButton:SetDisabled(true);
 
-					-- change tooltip to accomodate vassals
-					local iMaster = Teams[g_iAITeam]:GetMaster();
-					if (iMaster ~= -1) then
-						local pMaster = Teams[iMaster];
-						Controls.WarButton:SetToolTipString( Locale.ConvertTextKey( "TXT_KEY_DIPLO_MAY_NOT_ATTACK_VASSAL", pMaster:GetName() ));
+					if (pActiveTeam:IsVassalOfSomeone()) then
+						if (pActiveTeam:IsVassal(g_iAIPlayer)) then
+							Controls.WarButton:SetToolTipString( Locale.ConvertTextKey( "TXT_KEY_DIPLO_DECLARE_WAR_VASSAL_BLOCKED_MASTER_TT" ));
+						else
+							Controls.WarButton:SetToolTipString( Locale.ConvertTextKey( "TXT_KEY_DIPLO_DECLARE_WAR_VASSAL_BLOCKED_TT" ));
+						end
+					elseif (pActiveTeam:IsForcePeace(g_iAITeam)) then
+						Controls.WarButton:SetToolTipString( Locale.ConvertTextKey( "TXT_KEY_DIPLO_MAY_NOT_ATTACK" ));
+					elseif (pActiveTeam:IsWarBlockedByPeaceTreaty(g_iAITeam)) then
+						Controls.WarButton:SetToolTipString( Locale.ConvertTextKey( "TXT_KEY_DIPLO_MAY_NOT_ATTACK_DP" ));
 					else
 						Controls.WarButton:SetToolTipString( Locale.ConvertTextKey( "TXT_KEY_DIPLO_MAY_NOT_ATTACK_MOD" ));
 					end
-				else
-					Controls.WarButton:SetDisabled(false);
-					Controls.WarButton:SetToolTipString( Locale.ConvertTextKey( "TXT_KEY_DIPLO_DECLARES_WAR_TT" ));
 				end
-				
+
 			end
 		end
 		
@@ -331,7 +444,9 @@ function WarStateChangedHandler( iTeam1, iTeam2, bWar )
 			Controls.WarButton:SetText( Locale.ConvertTextKey( "TXT_KEY_DIPLO_NEGOTIATE_PEACE" ));
 			Controls.TradeButton:SetDisabled(true);
 			Controls.DemandButton:SetDisabled(true);
-			Controls.DiscussButton:SetDisabled(true);
+			Controls.DemandButton:SetText( Locale.ConvertTextKey( "TXT_KEY_DIPLO_DEMAND_BUTTON" ));
+			Controls.DemandButton:SetToolTipString( Locale.ConvertTextKey( "TXT_KEY_DIPLO_DEMAND_BUTTON_TT" ));
+			Controls.DiscussButton:SetDisabled(false);
 		else
 			Controls.WarButton:SetText(Locale.ConvertTextKey( "TXT_KEY_DIPLO_DECLARE_WAR" ));
 			Controls.TradeButton:SetDisabled(false);

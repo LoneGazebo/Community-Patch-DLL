@@ -4636,7 +4636,7 @@ int CvGame::getNumHumanPlayers()
 
 
 //	--------------------------------------------------------------------------------
-int CvGame::GetNumMinorCivsEver()
+int CvGame::GetNumMinorCivsEver(bool bOnlyStart)
 {
 	int iNumCivs = 0;
 
@@ -4644,7 +4644,22 @@ int CvGame::GetNumMinorCivsEver()
 	{
 		if(GET_PLAYER((PlayerTypes) iMinorLoop).isEverAlive())
 		{
-			iNumCivs++;
+			if (!bOnlyStart)
+				iNumCivs++;
+			else
+			{
+				CvPlot* pPlot = GC.getMap().plot(GET_PLAYER((PlayerTypes)iMinorLoop).GetOriginalCapitalX(), GET_PLAYER((PlayerTypes)iMinorLoop).GetOriginalCapitalY());
+				if (pPlot != NULL)
+				{
+					CvCity* pCity = pPlot->getPlotCity();
+					if (pCity != NULL)
+					{
+						if (pCity->getGameTurnFounded() <= 15)
+							iNumCivs++;
+					}
+				}
+			}
+
 		}
 	}
 
@@ -11441,7 +11456,7 @@ void CvGame::updateGlobalAverage()
 					vfScienceYield.push_back((float)iScienceAvg);
 					
 					//Disorder
-					iDefenseYield = (pLoopCity->getYieldRateTimes100(YIELD_FOOD, true) + pLoopCity->getYieldRateTimes100(YIELD_PRODUCTION, true)) / 2;
+					iDefenseYield = pLoopCity->getYieldRateTimes100(YIELD_FOOD, true) + pLoopCity->getYieldRateTimes100(YIELD_PRODUCTION, true);
 					float iDefenseAvg = iDefenseYield / (float)iPopulation;
 					vfDefenseYield.push_back((float)iDefenseAvg);
 
@@ -13040,6 +13055,12 @@ void CvGame::DoTestConquestVictory()
 		int iNumCapitalsControlled = 0;
 		if(GET_TEAM((TeamTypes)iTeamLoop).isAlive())
 		{
+			//C4DF: We skip vassals for count!
+			if (MOD_DIPLOMACY_CIV4_FEATURES)
+			{
+				if (GET_TEAM((TeamTypes)iTeamLoop).IsVassalOfSomeone())
+					continue;
+			}
 			for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 			{
 				eLoopPlayer = (PlayerTypes) iPlayerLoop;
@@ -13053,6 +13074,40 @@ void CvGame::DoTestConquestVictory()
 						if (pLoopCity->getOriginalOwner() < MAX_MAJOR_CIVS && pLoopCity->IsOriginalCapital())
 						{
 							iNumCapitalsControlled += 1;
+						}
+					}
+				}
+			}
+			if (MOD_DIPLOMACY_CIV4_FEATURES)
+			{
+				if (GET_TEAM((TeamTypes)iTeamLoop).GetNumVassals() > 0)
+				{
+					for (int iVassalLoop = 0; iVassalLoop < MAX_CIV_TEAMS; iVassalLoop++)
+					{
+						int iNumVassalsControlled = 0;
+						if (GET_TEAM((TeamTypes)iVassalLoop).isAlive())
+						{
+							//C4DF: We include vassals for count!
+							if (!GET_TEAM((TeamTypes)iTeamLoop).IsVassal((TeamTypes)iTeamLoop))
+								continue;
+
+							for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+							{
+								eLoopPlayer = (PlayerTypes)iPlayerLoop;
+
+								if (GET_PLAYER(eLoopPlayer).isAlive() && GET_PLAYER(eLoopPlayer).getTeam() == (TeamTypes)iVassalLoop)
+								{
+									int iCityLoop;
+									CvCity* pLoopCity = NULL;
+									for (pLoopCity = GET_PLAYER(eLoopPlayer).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(eLoopPlayer).nextCity(&iCityLoop))
+									{
+										if (pLoopCity->getOriginalOwner() < MAX_MAJOR_CIVS && pLoopCity->IsOriginalCapital())
+										{
+											iNumCapitalsControlled += 1;
+										}
+									}
+								}
+							}
 						}
 					}
 				}

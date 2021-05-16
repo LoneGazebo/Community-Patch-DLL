@@ -1538,6 +1538,9 @@ public:
 	int GetTourismBlastStrength() const;
 	void SetTourismBlastStrength(int iValue);
 
+	int GetTourismBlastLength() const;
+	void SetTourismBlastLength(int iValue);
+
 #if defined(MOD_BALANCE_CORE)
 	int GetScienceBlastStrength() const;
 	void SetScienceBlastStrength(int iValue);
@@ -2309,6 +2312,7 @@ protected:
 	FAutoVariable<int, CvUnit> m_iMapLayer;		// Which layer does the unit reside on for pathing/stacking/etc.
 	FAutoVariable<int, CvUnit> m_iNumGoodyHutsPopped;
 	FAutoVariable<int, CvUnit> m_iTourismBlastStrength;
+	FAutoVariable<int, CvUnit> m_iTourismBlastLength;
 #if defined(MOD_BALANCE_CORE)
 	FAutoVariable<int, CvUnit> m_iHurryStrength;
 	FAutoVariable<int, CvUnit> m_iScienceBlastStrength;

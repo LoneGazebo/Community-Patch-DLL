@@ -3043,7 +3043,19 @@ int CvLuaCity::lGetJONSCulturePerTurn(lua_State* L)
 //int GetBaseJONSCulturePerTurn() const;
 int CvLuaCity::lGetBaseJONSCulturePerTurn(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvCity::GetBaseJONSCulturePerTurn);
+	CvCity* pkCity = GetInstance(L);
+	int iBase = pkCity->GetBaseJONSCulturePerTurn();
+	
+	iBase += pkCity->getYieldRate(YIELD_CULTURE_LOCAL, false);
+	if (iBase > 0)
+	{
+		if (GET_PLAYER(pkCity->getOwner()).IsDoubleBorderGA() && (GET_PLAYER(pkCity->getOwner()).isGoldenAge() || (pkCity->GetWeLoveTheKingDayCounter() > 0)))
+		{
+			iBase *= 2;
+		}
+	}
+	lua_pushinteger(L, iBase);
+	return 1;
 }
 //------------------------------------------------------------------------------
 //int GetJONSCulturePerTurnFromBuildings() const;

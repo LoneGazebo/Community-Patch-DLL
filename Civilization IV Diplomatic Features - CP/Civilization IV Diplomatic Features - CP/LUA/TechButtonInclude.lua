@@ -19,6 +19,10 @@ local validUnitBuilds = nil;
 local validBuildingBuilds = nil;
 local validImprovementBuilds = nil;
 
+local g_bResearchAgreementTrading = Game.IsOption("GAMEOPTION_RESEARCH_AGREEMENTS");
+local g_bNoTechTrading = Game.IsOption("GAMEOPTION_NO_TECH_TRADING");
+local g_bNoVassalage = Game.IsOption("GAMEOPTION_NO_VASSALAGE");
+
 turnsString = Locale.ConvertTextKey("TXT_KEY_TURNS");
 freeString = Locale.ConvertTextKey("TXT_KEY_FREE");
 lockedString = "[ICON_LOCKED]"; --Locale.ConvertTextKey("TXT_KEY_LOCKED");
@@ -48,7 +52,15 @@ function GatherInfoAboutUniqueStuff( civType )
 
 	-- put in the default buildings for any civ
 	for thisBuildingClass in GameInfo.BuildingClasses() do
-		validBuildingBuilds[thisBuildingClass.Type]	= thisBuildingClass.DefaultBuilding;	
+		if thisBuildingClass.DefaultBuilding then
+			local thisBuilding = GameInfo.Buildings[thisBuildingClass.DefaultBuilding or -1];
+			-- check the 'CivilizationRequired' column in table 'Buildings'
+			if thisBuilding then
+				if not thisBuilding.CivilizationRequired or thisBuilding.CivilizationRequired == civType then
+					validBuildingBuilds[thisBuildingClass.Type] = thisBuildingClass.DefaultBuilding;
+				end
+			end
+		end
 	end
 
 	-- put in my overrides
@@ -77,6 +89,7 @@ function AddSmallButtonsToTechButton( thisTechButtonInstance, tech, maxSmallButt
 	for buttonNum = 1, maxSmallButtons, 1 do
 		local buttonName = "B"..tostring(buttonNum);
 		thisTechButtonInstance[buttonName]:SetHide(true);
+		thisTechButtonInstance[buttonName]:SetAlpha(1);
 	end
 	
 	if tech == nil then
@@ -91,11 +104,14 @@ function AddSmallButtonsToTechButton( thisTechButtonInstance, tech, maxSmallButt
   	for thisUnitInfo in GameInfo.Units(string.format("PreReqTech = '%s'", techType)) do
  		-- if this tech grants this player the ability to make this unit
 		if validUnitBuilds[thisUnitInfo.Class] == thisUnitInfo.Type then
-			local buttonName = "B"..tostring(buttonNum);
-			local thisButton = thisTechButtonInstance[buttonName];
-			if thisButton then
-				AdjustArtOnGrantedUnitButton( thisButton, thisUnitInfo, textureSize );
-				buttonNum = buttonNum + 1;
+			local iMinorCivGift = thisUnitInfo.MinorCivGift
+			if (iMinorCivGift ~= 1) then
+				local buttonName = "B"..tostring(buttonNum);
+				local thisButton = thisTechButtonInstance[buttonName];
+				if thisButton then
+					AdjustArtOnGrantedUnitButton( thisButton, thisUnitInfo, textureSize );
+					buttonNum = buttonNum + 1;
+				end
 			end
 		end
  	end
@@ -182,71 +198,34 @@ function AddSmallButtonsToTechButton( thisTechButtonInstance, tech, maxSmallButt
 			break
 		end
 	end	
-	
-	-- Some improvements can have multiple yield changes, group them and THEN add buttons.
-	local yieldChanges = {};
-	for row in GameInfo.Improvement_TechYieldChanges(condition) do
-		local improvementType = row.ImprovementType;
-		
-		if(yieldChanges[improvementType] == nil) then
-			yieldChanges[improvementType] = {};
-		end
-		
-		local improvement = GameInfo.Improvements[row.ImprovementType];
-		local yield = GameInfo.Yields[row.YieldType];
-		
-		table.insert(yieldChanges[improvementType], Locale.Lookup( "TXT_KEY_YIELD_IMPROVED", improvement.Description , yield.Description, row.Yield));
-	end
-	
-	-- Let's sort the yield change butons!
-	local sortedYieldChanges = {};
-	for k,v in pairs(yieldChanges) do
-	
-		
-		table.insert(sortedYieldChanges, {k,v});
-	end
-	table.sort(sortedYieldChanges, function(a,b) return Locale.Compare(a[1], b[1]) == -1 end); 
-	
-	for i,v in pairs(sortedYieldChanges) do
-		local buttonName = "B"..tostring(buttonNum);
-		local thisButton = thisTechButtonInstance[buttonName];
-		if(thisButton ~= nil) then
-			table.sort(v[2], function(a,b) return Locale.Compare(a,b) == -1 end);
-		
-			IconHookup( 0, textureSize, "GENERIC_FUNC_ATLAS", thisButton );
-			thisButton:SetHide( false );
-			thisButton:SetToolTipString(table.concat(v[2], "[NEWLINE]"));
-			buttonNum = buttonNum + 1;
-		else
-			break;
-		end
-	end	
-	
-	for row in GameInfo.Improvement_TechNoFreshWaterYieldChanges(condition) do
+
+	for row in GameInfo.Build_TechTimeChanges(condition) do
 		local buttonName = "B"..tostring(buttonNum);
 		local thisButton = thisTechButtonInstance[buttonName];
 		if thisButton then
 			IconHookup( 0, textureSize, "GENERIC_FUNC_ATLAS", thisButton );
 			thisButton:SetHide( false );
-			thisButton:SetToolTipString( Locale.ConvertTextKey("TXT_KEY_NO_FRESH_WATER", GameInfo.Improvements[row.ImprovementType].Description , GameInfo.Yields[row.YieldType].Description, row.Yield));
+			thisButton:SetToolTipString( Locale.ConvertTextKey("TXT_KEY_BUILD_COST_REDUCTION", GameInfo.Builds[row.BuildType].Description, row.TimeChange/100) );
 			buttonNum = buttonNum + 1;
 		else
-			break;
+			break
 		end
 	end	
 
-	for row in GameInfo.Improvement_TechFreshWaterYieldChanges(condition) do
+	local playerID = Game.GetActivePlayer();	
+	local player = Players[playerID];
+	local civType = GameInfo.Civilizations[player:GetCivilizationType()].Type;
+
+	if tech.FeatureProductionModifier > 0 then
 		local buttonName = "B"..tostring(buttonNum);
 		local thisButton = thisTechButtonInstance[buttonName];
 		if thisButton then
 			IconHookup( 0, textureSize, "GENERIC_FUNC_ATLAS", thisButton );
 			thisButton:SetHide( false );
-			thisButton:SetToolTipString( Locale.ConvertTextKey("TXT_KEY_FRESH_WATER", GameInfo.Improvements[row.ImprovementType].Description , GameInfo.Yields[row.YieldType].Description, row.Yield));
+			thisButton:SetToolTipString( Locale.ConvertTextKey( "TXT_KEY_ABLTY_TECH_BOOST_CHOP", tech.FeatureProductionModifier ) );
 			buttonNum = buttonNum + 1;
-		else
-			break;
 		end
-	end	
+	end
 
 	if tech.EmbarkedMoveChange > 0 then
 		local buttonName = "B"..tostring(buttonNum);
@@ -347,7 +326,32 @@ function AddSmallButtonsToTechButton( thisTechButtonInstance, tech, maxSmallButt
 		end
 	end
 	
-	if tech.ResearchAgreementTradingAllowed then
+	-- Putmalk: Tech grants map trading
+	if tech.MapTrading then
+		local buttonName = "B"..tostring(buttonNum);
+		local thisButton = thisTechButtonInstance[buttonName];
+		if thisButton then
+			IconHookup( 0, textureSize, "GENERIC_FUNC_ATLAS", thisButton );
+			thisButton:SetHide( false );
+			thisButton:SetToolTipString( Locale.ConvertTextKey( "TXT_KEY_ALLOWS_MAP_TRADING" ) );
+			buttonNum = buttonNum + 1;
+		end
+	end
+	
+	-- Putmalk: Tech grants tech trades and tech trades aren't disabled
+	if (tech.TechTrading and not g_bNoTechTrading)then
+		local buttonName = "B"..tostring(buttonNum);
+		local thisButton = thisTechButtonInstance[buttonName];
+		if thisButton then
+			IconHookup( 0, textureSize, "GENERIC_FUNC_ATLAS", thisButton );
+			thisButton:SetHide( false );
+			thisButton:SetToolTipString( Locale.ConvertTextKey( "TXT_KEY_ALLOWS_TECH_TRADING" ) );
+			buttonNum = buttonNum + 1;
+		end
+	end
+	
+	-- Putmalk: Tech grants research agreements and research agreements aren't disabled
+	if (tech.ResearchAgreementTradingAllowed and g_bResearchAgreements) then
 		local buttonName = "B"..tostring(buttonNum);
 		local thisButton = thisTechButtonInstance[buttonName];
 		if thisButton then
@@ -358,13 +362,14 @@ function AddSmallButtonsToTechButton( thisTechButtonInstance, tech, maxSmallButt
 		end
 	end
 	
-	if tech.TradeAgreementTradingAllowed then
+	-- Putmalk: Tech grants vassalage and vassalage isn't disabled
+	if (tech.VassalageTradingAllowed and not g_bNoVassalage) then
 		local buttonName = "B"..tostring(buttonNum);
 		local thisButton = thisTechButtonInstance[buttonName];
 		if thisButton then
 			IconHookup( 0, textureSize, "GENERIC_FUNC_ATLAS", thisButton );
 			thisButton:SetHide( false );
-			thisButton:SetToolTipString( Locale.ConvertTextKey( "TXT_KEY_ALLOWS_TRADE_AGREEMENTS" ) );
+			thisButton:SetToolTipString( Locale.ConvertTextKey( "TXT_KEY_ALLOWS_VASSALAGE" ) );
 			buttonNum = buttonNum + 1;
 		end
 	end
@@ -379,6 +384,112 @@ function AddSmallButtonsToTechButton( thisTechButtonInstance, tech, maxSmallButt
 			buttonNum = buttonNum + 1;
 		end
 	end
+
+--CBP
+
+	if tech.Happiness > 0 then
+		local buttonName = "B"..tostring(buttonNum);
+		local thisButton = thisTechButtonInstance[buttonName];
+		if thisButton then
+			IconHookup( 0, textureSize, "GENERIC_FUNC_ATLAS", thisButton );
+			thisButton:SetHide( false );
+			thisButton:SetToolTipString( Locale.ConvertTextKey( "TXT_KEY_ABLTY_HAPPINESS_BUMP", tech.Happiness ) );
+			buttonNum = buttonNum + 1;
+		end
+	end
+	if tech.BombardRange > 0 then
+		local buttonName = "B"..tostring(buttonNum);
+		local thisButton = thisTechButtonInstance[buttonName];
+		if thisButton then
+			IconHookup( 0, textureSize, "GENERIC_FUNC_ATLAS", thisButton );
+			thisButton:SetHide( false );
+			thisButton:SetToolTipString( Locale.ConvertTextKey( "TXT_KEY_ABLTY_CITY_RANGE_INCREASE" ) );
+			buttonNum = buttonNum + 1;
+		end
+	end
+	if tech.BombardIndirect > 0 then
+		local buttonName = "B"..tostring(buttonNum);
+		local thisButton = thisTechButtonInstance[buttonName];
+		if thisButton then
+			IconHookup( 0, textureSize, "GENERIC_FUNC_ATLAS", thisButton );
+			thisButton:SetHide( false );
+			thisButton:SetToolTipString( Locale.ConvertTextKey( "TXT_KEY_ABLTY_CITY_INDIRECT_INCREASE" ) );
+			buttonNum = buttonNum + 1;
+		end
+	end
+	if tech.CityLessEmbarkCost then
+		local buttonName = "B"..tostring(buttonNum);
+		local thisButton = thisTechButtonInstance[buttonName];
+		if thisButton then
+			IconHookup( 0, textureSize, "GENERIC_FUNC_ATLAS", thisButton );
+			thisButton:SetHide( false );
+			thisButton:SetToolTipString( Locale.ConvertTextKey( "TXT_KEY_ABLTY_CITY_LESS_EMBARK_COST_STRING" ) );
+			buttonNum = buttonNum + 1;
+		end
+	end
+	if tech.CityNoEmbarkCost then
+		local buttonName = "B"..tostring(buttonNum);
+		local thisButton = thisTechButtonInstance[buttonName];
+		if thisButton then
+			IconHookup( 0, textureSize, "GENERIC_FUNC_ATLAS", thisButton );
+			thisButton:SetHide( false );
+			thisButton:SetToolTipString( Locale.ConvertTextKey( "TXT_KEY_ABLTY_CITY_NO_EMBARK_COST_STRING" ) );
+			buttonNum = buttonNum + 1;
+		end
+	end
+	if tech.CorporationsEnabled then
+		local buttonName = "B"..tostring(buttonNum);
+		local thisButton = thisTechButtonInstance[buttonName];
+		if thisButton then
+			IconHookup( 0, textureSize, "GENERIC_FUNC_ATLAS", thisButton );
+			thisButton:SetHide( false );
+			thisButton:SetToolTipString( Locale.ConvertTextKey( "TXT_KEY_ABLTY_ENABLES_CORPORATIONS" ) );
+			buttonNum = buttonNum + 1;
+		end
+		 -- if this tech grants this player the ability to build this corp
+		for thisCorpInfo in GameInfo.Corporations() do
+			local headquartersBuildingClass = GameInfo.BuildingClasses[ thisCorpInfo.HeadquartersBuildingClass or -1 ]
+			if headquartersBuildingClass then
+				local building = nil
+				-- First check if the civ has an override
+				local isOverride = false
+				for thisOverride in GameInfo.Civilization_BuildingClassOverrides() do
+					if thisOverride.CivilizationType == civType and thisOverride.BuildingClassType == thisCorpInfo.HeadquartersBuildingClass then
+						building = GameInfo.Buildings[ thisOverride.BuildingType or -1 ]
+						isOverride = true
+						break
+					end
+				end
+				-- If no override, look for the default building
+				if not isOverride then
+					building = GameInfo.Buildings[ headquartersBuildingClass.DefaultBuilding or -1 ] -- modders may put in nil as the default building
+				end
+				-- Is the headquarters only allowed for a certain civilization?
+				if building and (not building.CivilizationRequired or building.CivilizationRequired == civType) then
+					local buttonName = "B"..tostring(buttonNum);
+					local thisButton = thisTechButtonInstance[buttonName];
+					if thisButton then
+						AdjustArtOnGrantedCorpButton( thisButton, thisCorpInfo, textureSize );
+						buttonNum = buttonNum + 1;
+					end
+				end
+			end
+		end
+	end
+
+	for row in GameInfo.Tech_SpecialistYieldChanges(condition) do
+		local buttonName = "B"..tostring(buttonNum);
+		local thisButton = thisTechButtonInstance[buttonName];
+		if thisButton then
+			IconHookup( 0, textureSize, "GENERIC_FUNC_ATLAS", thisButton );
+			thisButton:SetHide( false );
+			thisButton:SetToolTipString( Locale.ConvertTextKey("TXT_KEY_SPECIALIST_YIELD_CHANGE", GameInfo.Specialists[row.SpecialistType].Description , GameInfo.Yields[row.YieldType].Description, row.Yield, Locale.ConvertTextKey(GameInfo.Yields[row.YieldType].IconString)));
+			buttonNum = buttonNum + 1;
+		else
+			break;
+		end
+	end
+-- END	
 
 	if tech.MapVisible then
 		local buttonName = "B"..tostring(buttonNum);
@@ -470,54 +581,6 @@ function AddSmallButtonsToTechButton( thisTechButtonInstance, tech, maxSmallButt
 		end
 	end
 
-	-- Putmalk: Tech grants map trading
-	if tech.MapTrading then
-		local buttonName = "B"..tostring(buttonNum);
-		local thisButton = thisTechButtonInstance[buttonName];
-		if thisButton then
-			IconHookup( 0, textureSize, "GENERIC_FUNC_ATLAS", thisButton );
-			thisButton:SetHide( false );
-			thisButton:SetToolTipString( Locale.ConvertTextKey( "TXT_KEY_ALLOWS_MAP_TRADING" ) );
-			buttonNum = buttonNum + 1;
-		end
-	end
-	
-	-- Putmalk: Tech grants tech trades and tech trades aren't disabled
-	if (tech.TechTrading and not g_bNoTechTrading)then
-		local buttonName = "B"..tostring(buttonNum);
-		local thisButton = thisTechButtonInstance[buttonName];
-		if thisButton then
-			IconHookup( 0, textureSize, "GENERIC_FUNC_ATLAS", thisButton );
-			thisButton:SetHide( false );
-			thisButton:SetToolTipString( Locale.ConvertTextKey( "TXT_KEY_ALLOWS_TECH_TRADING" ) );
-			buttonNum = buttonNum + 1;
-		end
-	end
-	
-	-- Putmalk: Tech grants research agreements and research agreements aren't disabled
-	if (tech.ResearchAgreementTradingAllowed and g_bResearchAgreements) then
-		local buttonName = "B"..tostring(buttonNum);
-		local thisButton = thisTechButtonInstance[buttonName];
-		if thisButton then
-			IconHookup( 0, textureSize, "GENERIC_FUNC_ATLAS", thisButton );
-			thisButton:SetHide( false );
-			thisButton:SetToolTipString( Locale.ConvertTextKey( "TXT_KEY_ALLOWS_RESEARCH_AGREEMENTS" ) );
-			buttonNum = buttonNum + 1;
-		end
-	end
-	
-	-- Putmalk: Tech grants vassalage and vassalage isn't disabled
-	if (tech.VassalageTradingAllowed and not g_bNoVassalage) then
-		local buttonName = "B"..tostring(buttonNum);
-		local thisButton = thisTechButtonInstance[buttonName];
-		if thisButton then
-			IconHookup( 0, textureSize, "GENERIC_FUNC_ATLAS", thisButton );
-			thisButton:SetHide( false );
-			thisButton:SetToolTipString( Locale.ConvertTextKey( "TXT_KEY_ALLOWS_VASSALAGE" ) );
-			buttonNum = buttonNum + 1;
-		end
-	end
-
 	for row in GameInfo.Technology_TradeRouteDomainExtraRange(condition) do
 		if (row.TechType == techType and row.Range > 0) then
 			local buttonName = "B"..tostring(buttonNum);
@@ -581,6 +644,74 @@ function AddSmallButtonsToTechButton( thisTechButtonInstance, tech, maxSmallButt
 			break;
 		end
 	end
+
+	-- Some improvements can have multiple yield changes, group them and THEN add buttons.
+	local yieldChanges = {};
+	for row in GameInfo.Improvement_TechYieldChanges(condition) do
+		local improvementType = row.ImprovementType;
+
+		local improvement = GameInfo.Improvements[row.ImprovementType];
+		if improvement and (not improvement.CivilizationType or improvement.CivilizationType == civType) then
+
+			if(yieldChanges[improvementType] == nil) then
+				yieldChanges[improvementType] = {};
+			end
+
+			local yield = GameInfo.Yields[row.YieldType];
+		
+			table.insert(yieldChanges[improvementType], Locale.Lookup( "TXT_KEY_YIELD_IMPROVED", improvement.Description , yield.Description, row.Yield));
+		end
+	end
+	
+	-- Let's sort the yield change butons!
+	local sortedYieldChanges = {};
+	for k,v in pairs(yieldChanges) do
+	
+		
+		table.insert(sortedYieldChanges, {k,v});
+	end
+	table.sort(sortedYieldChanges, function(a,b) return Locale.Compare(a[1], b[1]) == -1 end); 
+	
+	for i,v in pairs(sortedYieldChanges) do
+		local buttonName = "B"..tostring(buttonNum);
+		local thisButton = thisTechButtonInstance[buttonName];
+		if(thisButton ~= nil) then
+			table.sort(v[2], function(a,b) return Locale.Compare(a,b) == -1 end);
+		
+			IconHookup( 0, textureSize, "GENERIC_FUNC_ATLAS", thisButton );
+			thisButton:SetHide( false );
+			thisButton:SetToolTipString(table.concat(v[2], "[NEWLINE]"));
+			buttonNum = buttonNum + 1;
+		else
+			break;
+		end
+	end	
+	
+	for row in GameInfo.Improvement_TechNoFreshWaterYieldChanges(condition) do
+		local buttonName = "B"..tostring(buttonNum);
+		local thisButton = thisTechButtonInstance[buttonName];
+		if thisButton then
+			IconHookup( 0, textureSize, "GENERIC_FUNC_ATLAS", thisButton );
+			thisButton:SetHide( false );
+			thisButton:SetToolTipString( Locale.ConvertTextKey("TXT_KEY_NO_FRESH_WATER", GameInfo.Improvements[row.ImprovementType].Description , GameInfo.Yields[row.YieldType].Description, row.Yield));
+			buttonNum = buttonNum + 1;
+		else
+			break;
+		end
+	end	
+
+	for row in GameInfo.Improvement_TechFreshWaterYieldChanges(condition) do
+		local buttonName = "B"..tostring(buttonNum);
+		local thisButton = thisTechButtonInstance[buttonName];
+		if thisButton then
+			IconHookup( 0, textureSize, "GENERIC_FUNC_ATLAS", thisButton );
+			thisButton:SetHide( false );
+			thisButton:SetToolTipString( Locale.ConvertTextKey("TXT_KEY_FRESH_WATER", GameInfo.Improvements[row.ImprovementType].Description , GameInfo.Yields[row.YieldType].Description, row.Yield));
+			buttonNum = buttonNum + 1;
+		else
+			break;
+		end
+	end	
 	
 	return buttonNum;
 	
@@ -616,6 +747,31 @@ function AdjustArtOnGrantedUnitButton( thisButton, thisUnitInfo, textureSize )
 		thisButton:RegisterCallback( Mouse.eRClick, GetTechPedia );
 	end
 end
+--Corps
+function AdjustArtOnGrantedCorpButton( thisButton, thisCorpInfo, textureSize )
+	-- if we have one, update the building (or wonder) picture
+	if thisButton then
+		
+		-- Tooltip
+		local bExcludeName = false;
+		local bExcludeHeader = false;
+
+		thisButton:SetToolTipString( "[COLOR_POSITIVE_TEXT]" .. Locale.ConvertTextKey(thisCorpInfo.Description ) .. "[ENDCOLOR]" .. "[NEWLINE]----------------[NEWLINE]" .. Locale.ConvertTextKey(thisCorpInfo.Help) );
+		
+		local textureOffset, textureSheet = IconLookup( thisCorpInfo.PortraitIndex, textureSize, thisCorpInfo.IconAtlas );				
+		if textureOffset == nil then
+			textureSheet = defaultErrorTextureSheet;
+			textureOffset = nullOffset;
+		end				
+		thisButton:SetTexture( textureSheet );
+		thisButton:SetTextureOffset( textureOffset );
+		thisButton:SetHide( false );
+
+		techPediaSearchStrings[tostring(thisButton)] = Locale.ConvertTextKey(thisCorpInfo.Description);
+		thisButton:RegisterCallback( Mouse.eRClick, GetTechPedia );
+	end
+end
+-- END
 
 
 function AdjustArtOnGrantedBuildingButton( thisButton, thisBuildingInfo, textureSize )
@@ -635,6 +791,12 @@ function AdjustArtOnGrantedBuildingButton( thisButton, thisBuildingInfo, texture
 		thisButton:SetTexture( textureSheet );
 		thisButton:SetTextureOffset( textureOffset );
 		thisButton:SetHide( false );
+		--Hide Wonders already taken
+		if (Game.AnyoneHasWonder(thisBuildingInfo.ID) and GameInfo.BuildingClasses[thisBuildingInfo.BuildingClass].MaxGlobalInstances == 1) then
+			thisButton:SetAlpha(0.33);
+		else
+			thisButton:SetAlpha(1);
+		end
 		techPediaSearchStrings[tostring(thisButton)] = Locale.ConvertTextKey(thisBuildingInfo.Description);
 		thisButton:RegisterCallback( Mouse.eRClick, GetTechPedia );
 	end
@@ -647,7 +809,7 @@ function AdjustArtOnGrantedProjectButton( thisButton, thisProjectInfo, textureSi
 		
 		-- Tooltip
 		local bIncludeRequirementsInfo = true;
-		thisButton:SetToolTipString( GetHelpTextForProject(thisProjectInfo.ID, bIncludeRequirementsInfo) );
+		thisButton:SetToolTipString( GetHelpTextForProject(thisProjectInfo.ID, nil, bIncludeRequirementsInfo) );
 
 		local textureOffset, textureSheet = IconLookup( thisProjectInfo.PortraitIndex, textureSize, thisProjectInfo.IconAtlas );				
 		if textureOffset == nil then

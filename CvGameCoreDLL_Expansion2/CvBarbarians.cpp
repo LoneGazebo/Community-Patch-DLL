@@ -62,13 +62,12 @@ bool CvBarbarians::IsPlotValidForBarbCamp(CvPlot* pPlot)
 
 //	--------------------------------------------------------------------------------
 /// Camp cleared, so reset counter
-void CvBarbarians::DoBarbCampCleared(CvPlot* pPlot, PlayerTypes ePlayer)
+void CvBarbarians::DoBarbCampCleared(CvPlot* pPlot, PlayerTypes ePlayer, CvUnit* pUnit)
 {
 	m_aiPlotBarbCampSpawnCounter[pPlot->GetPlotIndex()] = -16;
 
 	pPlot->AddArchaeologicalRecord(CvTypes::getARTIFACT_BARBARIAN_CAMP(), ePlayer, NO_PLAYER);
 
-#if defined(MOD_BALANCE_CORE)
 	if (ePlayer != NO_PLAYER)
 	{
 		CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
@@ -102,15 +101,85 @@ void CvBarbarians::DoBarbCampCleared(CvPlot* pPlot, PlayerTypes ePlayer)
 		}
 
 		CvCity* pBestCity = kPlayer.getCity(iBestCityID);
+		if (pBestCity == NULL)
+			pBestCity = kPlayer.getCapitalCity();
 
 		if (pBestCity != NULL)
 		{
+			int iNumGold = GC.getGame().getHandicapInfo().getBarbCampGold();
+
+			// Game Speed Mod
+			iNumGold *= GC.getGameSpeedInfo(GC.getGame().getGameSpeedType())->getGoldPercent();
+			iNumGold /= 100;
+
+			kPlayer.doInstantYield(INSTANT_YIELD_TYPE_BARBARIAN_CAMP_CLEARED, false, NO_GREATPERSON, NO_BUILDING, iNumGold, true, NO_PLAYER, NULL, false, pBestCity, false, true, false, YIELD_GOLD, pUnit);
+
+			if (GET_PLAYER(ePlayer).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CULTURE_FROM_BARBARIAN_KILLS) > 0 || GET_PLAYER(ePlayer).GetBarbarianCombatBonus(true) > 0)
+			{
+				int iCulturePoints = (GET_PLAYER(ePlayer).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CULTURE_FROM_BARBARIAN_KILLS) / 5);
+				if (iCulturePoints <= 0)
+				{
+					iCulturePoints = GET_PLAYER(ePlayer).GetBarbarianCombatBonus(true);
+				}
+
+				kPlayer.doInstantYield(INSTANT_YIELD_TYPE_BARBARIAN_CAMP_CLEARED, false, NO_GREATPERSON, NO_BUILDING, iCulturePoints, true, NO_PLAYER, NULL, false, pBestCity, false, true, false, YIELD_CULTURE, pUnit);
+
+				if (ePlayer == GC.getGame().getActivePlayer())
+				{
+					char text[256] = { 0 };
+
+					sprintf_s(text, "[COLOR_MAGENTA]+%d[ENDCOLOR][ICON_CULTURE]", iCulturePoints);
+					SHOW_PLOT_POPUP(pPlot, ePlayer, text);
+				}
+			}
 			// call one for era scaling, and another for non-era scaling
 			GET_PLAYER(ePlayer).doInstantYield(INSTANT_YIELD_TYPE_BARBARIAN_CAMP_CLEARED, false, NO_GREATPERSON, NO_BUILDING, 0, true, NO_PLAYER, NULL, false, pBestCity);
 			GET_PLAYER(ePlayer).doInstantYield(INSTANT_YIELD_TYPE_BARBARIAN_CAMP_CLEARED, false, NO_GREATPERSON, NO_BUILDING, 0, false, NO_PLAYER, NULL, false, pBestCity);
+
+			// If it's the active player then show the popup
+			if (ePlayer == GC.getGame().getActivePlayer())
+			{
+				// Don't show in MP
+#if defined(MOD_API_EXTENSIONS)
+				if (!GC.getGame().isReallyNetworkMultiPlayer())
+#else
+				if (!GC.getGame().isNetworkMultiPlayer())	// KWG: Candidate for !GC.getGame().isOption(GAMEOPTION_SIMULTANEOUS_TURNS)
+#endif
+				{
+					CvPopupInfo kPopupInfo(BUTTONPOPUP_BARBARIAN_CAMP_REWARD, iNumGold);
+					DLLUI->AddPopup(kPopupInfo);
+					// We are adding a popup that the player must make a choice in, make sure they are not in the end-turn phase.
+					CancelActivePlayerEndTurn();
+
+#if !defined(NO_ACHIEVEMENTS)
+					//Increment Stat
+					if (kPlayer.isHuman() && !GC.getGame().isGameMultiPlayer())
+					{
+						gDLL->IncrementSteamStatAndUnlock(ESTEAMSTAT_BARBARIANCAMPS, 100, ACHIEVEMENT_100CAMPS);
+					}
+#endif
+
+				}
+			}
+
+			if (ePlayer < MAX_MAJOR_CIVS)
+			{
+				// Completes a quest for anyone?
+				PlayerTypes eMinor;
+				for (int iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
+				{
+					eMinor = (PlayerTypes)iMinorLoop;
+					CvPlayer& minorPlayer = GET_PLAYER(eMinor);
+
+					if (!minorPlayer.isAlive())
+						continue;
+
+					CvMinorCivAI* pMinorCivAI = minorPlayer.GetMinorCivAI();
+					pMinorCivAI->DoTestActiveQuestsForPlayer(ePlayer, /*bTestComplete*/ true, /*bTestObsolete*/ false, MINOR_CIV_QUEST_KILL_CAMP);
+				}
+			}
 		}
 	}
-#endif
 
 #if defined(MOD_EVENTS_BARBARIANS)
 	if (MOD_EVENTS_BARBARIANS) {

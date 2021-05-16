@@ -1,9 +1,10 @@
-print("This is the modded TradeLogic from C4DF");
+print("This is the modded TradeLogic from CBP- C4DF")
 ----------------------------------------------------------------        
 ----------------------------------------------------------------        
 include( "IconSupport" );
 include( "InstanceManager" );
 include( "SupportFunctions"  );
+include( "TechHelpInclude" );
 
 local g_UsTableCitiesIM     = InstanceManager:new( "CityInstance", "Button", Controls.UsTableCitiesStack );
 local g_UsPocketCitiesIM    = InstanceManager:new( "CityInstance", "Button", Controls.UsPocketCitiesStack );
@@ -623,7 +624,15 @@ function DoUpdateButtons()
             Controls.ModifyButton:SetHide( false );
             Controls.Pockets:SetHide( true );
             Controls.ModificationBlock:SetHide( false );
-        end     
+        end
+--CBP
+		Controls.DenounceButton:SetHide(true);
+		if(not g_pUs:IsDenouncedPlayer(g_iThem) and not g_pUsTeam:IsAtWar( g_iThemTeam )) then
+			Controls.DenounceButton:SetHide(false);
+			Controls.DenounceButton:SetText(Locale.ConvertTextKey("TXT_KEY_CBP_DENOUNCE_HUMAN"));
+			Controls.DenounceButton:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_CBP_DENOUNCE_HUMAN_TT"));
+		end
+--END        
         Controls.MainStack:CalculateSize();
         Controls.MainGrid:DoAutoSize();
 
@@ -667,6 +676,60 @@ function DoUpdateButtons()
 		Controls.WhatWillMakeThisWorkButton:SetHide(true);
 		Controls.WhatWillEndThisWarButton:SetHide(true);
  		Controls.WhatConcessionsButton:SetHide(true);
+--CBP
+		Controls.DenounceButton:SetHide(true);
+--END
+		--CBP
+		Controls.PeaceValue:SetHide(true);
+		Controls.PeaceMax:SetHide(true);
+		Controls.PeaceDeal:SetHide(true);
+		Controls.PeaceDealBorderFrame:SetHide(true);
+		if(Teams[g_iUsTeam]:IsAtWar(g_iThemTeam)) then
+			if(g_Deal:GetSurrenderingPlayer() == g_iThem) then
+				Controls.PeaceValue:SetHide(false);
+				Controls.PeaceMax:SetHide(false);
+				Controls.PeaceDeal:SetHide(false);
+				Controls.PeaceDealBorderFrame:SetHide(false);
+				local iMax = g_pThem:GetCachedValueOfPeaceWithHuman();
+				local iCurrent = g_pThem:GetTotalValueToMe(g_Deal);
+				local Valuestr = Locale.ConvertTextKey("TXT_KEY_DIPLO_TRADE_VALUE_STR", iCurrent);
+				if(iCurrent == -1) then
+					Valuestr = Locale.ConvertTextKey("TXT_KEY_DIPLO_TRADE_VALUE_STR_IMPOSSIBLE");
+				elseif(iCurrent == 0) then
+					Valuestr = Locale.ConvertTextKey("TXT_KEY_DIPLO_TRADE_VALUE_STR_ACCEPTABLE");
+				end
+				local Maxstr = Locale.ConvertTextKey("TXT_KEY_DIPLO_TRADE_MAX_STR", iMax);
+				if(iMax == -1) then
+					Maxstr = Locale.ConvertTextKey("TXT_KEY_DIPLO_TRADE_VALUE_STR_IMPOSSIBLE");
+				end
+				local ValuestrTT = Locale.ConvertTextKey("TXT_KEY_DIPLO_TRADE_VALUE_STR_TT");
+				local MaxstrTT = Locale.ConvertTextKey("TXT_KEY_DIPLO_TRADE_MAX_STR_TT");
+				Controls.PeaceValue:SetText(Valuestr);
+				Controls.PeaceMax:SetText(Maxstr);
+				Controls.PeaceValue:SetToolTipString(ValuestrTT);
+				Controls.PeaceMax:SetToolTipString(MaxstrTT);
+			end
+		else
+			Controls.PeaceValue:SetHide(false);
+			Controls.PeaceDeal:SetHide(false);
+			Controls.PeaceDealBorderFrame:SetHide(false);
+			local iCurrent = g_pThem:GetTotalValueToMeNormal(g_Deal);
+			local Valuestr = Locale.ConvertTextKey("TXT_KEY_DIPLO_TRADE_VALUE_STR_PEACE", iCurrent);
+			if(iCurrent == -99999) then
+				Valuestr = Locale.ConvertTextKey("TXT_KEY_DIPLO_TRADE_VALUE_STR_PEACE_EMBARGO");
+			elseif(iCurrent == -1) then
+				Valuestr = Locale.ConvertTextKey("TXT_KEY_DIPLO_TRADE_VALUE_STR_PEACE_IMPOSSIBLE");
+			elseif(iCurrent == 0) then
+				Valuestr = Locale.ConvertTextKey("TXT_KEY_DIPLO_TRADE_VALUE_STR_PEACE_ACCEPTABLE");
+			end
+			local ValuestrTT = Locale.ConvertTextKey("TXT_KEY_DIPLO_TRADE_VALUE_STR_PEACE_TT");
+			if(iCurrent == -99999) then
+				ValuestrTT = Locale.ConvertTextKey("TXT_KEY_DIPLO_TRADE_VALUE_STR_PEACE_EMBARGO_TT");
+			end
+			Controls.PeaceValue:SetText(Valuestr);
+			Controls.PeaceValue:SetToolTipString(ValuestrTT);
+		end
+		--END
 
 		-- At War: show the "what will end this war button
 		if (g_iUsTeam >= 0 and g_iThemTeam >= 0 and Teams[g_iUsTeam]:IsAtWar(g_iThemTeam)) then
@@ -730,6 +793,9 @@ function DoUpdateButtons()
 		-- If they're making a demand and there's nothing on our side of the table then we can't propose anything
 		if (UI.IsAIRequestingConcessions() and iNumItemsFromUs == 0) then
 	 		Controls.ProposeButton:SetHide(true);
+--CBP
+			Controls.DenounceButton:SetHide(true);
+--END
 		else
  			Controls.ProposeButton:SetHide(false);
 		end
@@ -939,6 +1005,18 @@ function OnPropose( iType )
 	end
 end
 Controls.ProposeButton:RegisterCallback( Mouse.eLClick, OnPropose );
+
+-- CBP
+function OnDenounceButton( )
+	if( g_bPVPTrade ) then
+		if (g_iUs ~= -1) then
+			Players[g_iUs]:DoTradeScreenClosed(false);
+		end
+		Game.DoFromUIDiploEvent( FromUIDiploEventTypes.FROM_UI_DIPLO_EVENT_DENOUNCE, g_iThem, 0, 0 );				
+	end
+end
+Controls.DenounceButton:RegisterCallback( Mouse.eLClick, OnDenounceButton );
+--END
 ----------------------------------------------------------------
 ----------------------------------------------------------------
 function OnEqualizeDeal()
@@ -1006,8 +1084,6 @@ function ResetDisplay()
     Controls.ThemPocketDefensivePact:SetHide( false );
 	Controls.UsPocketResearchAgreement:SetHide( not g_bAllowResearchAgreements );	-- Putmalk
 	Controls.ThemPocketResearchAgreement:SetHide( not g_bAllowResearchAgreements );	-- Putmalk
-    --Controls.UsPocketTradeAgreement:SetHide( false );		Trade agreement disabled for now
-    --Controls.ThemPocketTradeAgreement:SetHide( false );		Trade agreement disabled for now
     if (Controls.UsPocketDoF ~= nil) then
 		Controls.UsPocketDoF:SetHide( false );
 		Controls.UsPocketDoF:RegisterCallback( Mouse.eLClick, PocketDoFHandler );
@@ -1099,7 +1175,15 @@ function ResetDisplay()
 
 		TruncateString(Controls.ThemName, Controls.ThemTablePanel:GetSizeX() - Controls.ThemTablePanel:GetOffsetX(), 
 						   Locale.ConvertTextKey( "TXT_KEY_DIPLO_ITEMS_LABEL", g_pThem:GetNickName() ));
-        Controls.ThemCiv:SetText( "(" .. Locale.ConvertTextKey( GameInfo.Civilizations[ g_pThem:GetCivilizationType() ].ShortDescription ) .. ")" ); 
+        Controls.ThemCiv:SetText( "(" .. Locale.ConvertTextKey( GameInfo.Civilizations[ g_pThem:GetCivilizationType() ].ShortDescription ) .. ")" );
+--CBP
+		Controls.DenounceButton:SetHide(true);
+		if(not g_pUs:IsDenouncedPlayer(g_iThem) and not g_pUsTeam:IsAtWar( g_iThemTeam )) then
+			Controls.DenounceButton:SetHide(false);
+			Controls.DenounceButton:SetText(Locale.ConvertTextKey("TXT_KEY_CBP_DENOUNCE_HUMAN"));
+			Controls.DenounceButton:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_CBP_DENOUNCE_HUMAN_TT"));
+		end
+--END    
     end
    
     
@@ -1120,6 +1204,13 @@ function ResetDisplay()
     if (not bGoldTradeAllowed) then
 	    Controls.UsPocketGold:SetDisabled(true);
 	    Controls.UsPocketGold:GetTextControl():SetColorByName("Gray_Black");
+--CBP
+		if ( g_pUsTeam:IsAtWar( g_iThemTeam ) ) then
+			Controls.UsPocketGold:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_DIPLO_NO_CLEAR_WINNER_TT"));
+		else
+			Controls.UsPocketGold:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_DIPLO_NOT_BANK_TT_ONE_LINE"));
+		end
+-- END
 	else
 	    Controls.UsPocketGold:SetDisabled(false);
 	    Controls.UsPocketGold:GetTextControl():SetColorByName("Beige_Black");
@@ -1136,6 +1227,13 @@ function ResetDisplay()
     if (not bGoldTradeAllowed) then
 	    Controls.ThemPocketGold:SetDisabled(true);
 	    Controls.ThemPocketGold:GetTextControl():SetColorByName("Gray_Black");
+--CBP
+		if ( g_pUsTeam:IsAtWar( g_iThemTeam ) ) then
+			Controls.ThemPocketGold:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_DIPLO_NO_CLEAR_WINNER_TT"));
+		else
+			Controls.ThemPocketGold:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_DIPLO_NOT_BANK_TT_ONE_LINE"));
+		end
+-- END
 	else
 	    Controls.ThemPocketGold:SetDisabled(false);
 	    Controls.ThemPocketGold:GetTextControl():SetColorByName("Beige_Black");
@@ -1156,6 +1254,13 @@ function ResetDisplay()
     if (not bGPTAllowed) then
 	    Controls.UsPocketGoldPerTurn:SetDisabled(true);
 	    Controls.UsPocketGoldPerTurn:GetTextControl():SetColorByName("Gray_Black");
+--CBP
+		if ( g_pUsTeam:IsAtWar( g_iThemTeam ) ) then
+			Controls.UsPocketGoldPerTurn:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_DIPLO_NO_CLEAR_WINNER_TT"));
+		else
+			Controls.UsPocketGoldPerTurn:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_DIPLO_NOT_BANK_TT_ONE_LINE"));
+		end
+--END
 	else
 	    Controls.UsPocketGoldPerTurn:SetDisabled(false);
 	    Controls.UsPocketGoldPerTurn:GetTextControl():SetColorByName("Beige_Black");
@@ -1171,6 +1276,13 @@ function ResetDisplay()
     if (not bGPTAllowed) then
 	    Controls.ThemPocketGoldPerTurn:SetDisabled(true);
 	    Controls.ThemPocketGoldPerTurn:GetTextControl():SetColorByName("Gray_Black");
+--CBP
+		if ( g_pUsTeam:IsAtWar( g_iThemTeam ) ) then
+			Controls.ThemPocketGoldPerTurn:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_DIPLO_NO_CLEAR_WINNER_TT"));
+		else
+			Controls.ThemPocketGoldPerTurn:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_DIPLO_NOT_BANK_TT_ONE_LINE"));
+		end
+--END
 	else
 	    Controls.ThemPocketGoldPerTurn:SetDisabled(false);
 	    Controls.ThemPocketGoldPerTurn:GetTextControl():SetColorByName("Beige_Black");
@@ -1274,7 +1386,7 @@ function ResetDisplay()
 		Controls.ThemPocketOpenBorders:SetDisabled(true);
 		Controls.ThemPocketOpenBorders:GetTextControl():SetColorByName("Gray_Black");
 
-		if (g_pUsTeam:IsAllowsOpenBordersToTeam(g_iThemTeam)) then
+		if (g_pThemTeam:IsAllowsOpenBordersToTeam(g_iUsTeam)) then
 			strTheirTooltip = strTheirTooltip .. " " .. Locale.ConvertTextKey( "TXT_KEY_DIPLO_OPEN_BORDERS_THEY_HAVE" );
 		elseif (not g_pThemTeam:HasEmbassyAtTeam(g_iUsTeam)) then
 			strTheirTooltip = strTheirTooltip .. " [COLOR_WARNING_TEXT]" .. Locale.ConvertTextKey("TXT_KEY_DIPLO_THEY_NEED_EMBASSY_TT" ) .. "[ENDCOLOR]";
@@ -1409,53 +1521,6 @@ function ResetDisplay()
 		Controls.UsPocketResearchAgreement:SetHide(true);
 		Controls.ThemPocketResearchAgreement:SetHide(true);
 	end
-        
-    ---------------------------------------------------------------------------------- 
-    -- pocket Trade Agreement
-    ---------------------------------------------------------------------------------- 
-    
-    local bTradeAgreementAllowed = g_Deal:IsPossibleToTradeItem(g_iUs, g_iThem, TradeableItems.TRADE_ITEM_TRADE_AGREEMENT, g_iDealDuration);
-    
-    -- Are we not allowed to give TA? (don't have tech, or are already providing it to them)
-    strTooltip = Locale.ConvertTextKey( "TXT_KEY_DIPLO_TRADE_AGREEMENT_TT" );
-    if (not bTradeAgreementAllowed) then
-		
-		local strDisabledTT = "";
-		
-		if (not g_pUsTeam:IsTradeAgreementTradingAllowed() and not g_pThemTeam:IsTradeAgreementTradingAllowed()) then
-			strDisabledTT = " " .. Locale.ConvertTextKey( "TXT_KEY_DIPLO_TRADE_AGREEMENT_NO_TECH" );
-		elseif (g_pUsTeam:IsHasTradeAgreement(g_iThemTeam)) then
-			strDisabledTT = " " .. Locale.ConvertTextKey( "TXT_KEY_DIPLO_TRADE_AGREEMENT_EXISTS" );
-		else
-			strDisabledTT = " " .. Locale.ConvertTextKey( "TXT_KEY_DIPLO_TRADE_AGREEMENT_NO_AGREEMENT" );
-		end
-		
-		strDisabledTT = "[COLOR_WARNING_TEXT]" .. strDisabledTT .. "[ENDCOLOR]";
-		strTooltip = strTooltip .. strDisabledTT;
-	end
-
-	Controls.UsPocketTradeAgreement:SetToolTipString(strTooltip);
-	Controls.ThemPocketTradeAgreement:SetToolTipString(strTooltip);
-    
-    -- Are we not allowed to give RA? (don't have tech, or are already providing it to them)
-    if (not bTradeAgreementAllowed) then
-		Controls.UsPocketTradeAgreement:SetDisabled(true);
-		Controls.UsPocketTradeAgreement:GetTextControl():SetColorByName("Gray_Black");
-	else
-		Controls.UsPocketTradeAgreement:SetDisabled(false);
-		Controls.UsPocketTradeAgreement:GetTextControl():SetColorByName("Beige_Black");
-    end
-
-    bTradeAgreementAllowed = g_Deal:IsPossibleToTradeItem(g_iThem, g_iUs, TradeableItems.TRADE_ITEM_TRADE_AGREEMENT, g_iDealDuration);
-    
-    -- Are they not allowed to give RA? (don't have tech, or are already providing it to us)
-    if (not bTradeAgreementAllowed) then
-		Controls.ThemPocketTradeAgreement:SetDisabled(true);
-		Controls.ThemPocketTradeAgreement:GetTextControl():SetColorByName("Gray_Black");
-	else
-		Controls.ThemPocketTradeAgreement:SetDisabled(false);
-		Controls.ThemPocketTradeAgreement:GetTextControl():SetColorByName("Beige_Black");
-    end
 
     ---------------------------------------------------------------------------------- 
     -- Pocket Declaration of Friendship
@@ -1673,6 +1738,11 @@ function ResetDisplay()
                 iResourceCount = g_Deal:GetNumResource(g_iThem, resType);
 			    strString = pResource.IconString .. " " .. Locale.ConvertTextKey(pResource.Description) .. " (" .. iResourceCount .. ")";
                 instance.Button:SetText( strString );
+
+				local WLTKDTT = g_pUs:GetWLTKDResourceTT(resType);
+				if(WLTKD ~= "") then
+					instance.Button:SetToolTipString( WLTKDTT );
+				end
             else
                 instance.Button:SetHide( true );
             end
@@ -1762,51 +1832,70 @@ function ResetDisplay()
     ---------------------------------------------------------------------------------- 
 
 	local bMapTradingAllowed = g_Deal:IsPossibleToTradeItem(g_iUs, g_iThem, TradeableItems.TRADE_ITEM_MAPS, g_iDealDuration);
-    
-    -- Are we not allowed to give World Map? (already providing it to them?)
+	
     strTooltip = Locale.ConvertTextKey("TXT_KEY_DIPLO_TRADE_MAP_TT", g_iDealDuration);
     
     local strOurTooltip = strTooltip;
     local strTheirTooltip = strTooltip;
-    
-	-- They don't have tech
-    if (not bMapTradingAllowed) then
-		if (not g_pUsTeam:IsMapTrading()) then
-			strOurTooltip = strOurTooltip .. " [COLOR_WARNING_TEXT]" .. Locale.ConvertTextKey("TXT_KEY_DIPLO_TRADE_MAPS_NO_TECH_PLAYER" ) .. "[ENDCOLOR]";
-		end
-	end
-    
-    -- Are we not allowed to give World Map?
-    if (not bMapTradingAllowed) then
+	
+	-- Are we not allowed to give World Map?
+	if (not bMapTradingAllowed) then
 		Controls.UsPocketTradeMap:SetDisabled(true);
 		Controls.UsPocketTradeMap:GetTextControl():SetColorByName("Gray_Black");
-
+	
+		-- We need an embassy with them
 		if (not g_pUsTeam:HasEmbassyAtTeam(g_iThemTeam)) then
-			strOurTooltip = strOurTooltip .. " [COLOR_WARNING_TEXT]" .. Locale.ConvertTextKey("TXT_KEY_DIPLO_YOU_NEED_EMBASSY_TT" ) .. "[ENDCOLOR]";
+			strOurTooltip = strOurTooltip .. " [COLOR_WARNING_TEXT]" .. Locale.ConvertTextKey( "TXT_KEY_DIPLO_YOU_NEED_EMBASSY_TT" ) .. "[ENDCOLOR]";
+		end
+		
+		if (not g_pUsTeam:IsMapTrading()) then
+			-- Neither of us have the required tech
+			if (not g_pThemTeam:IsMapTrading()) then
+				strOurTooltip = strOurTooltip .. " [COLOR_WARNING_TEXT]" .. Locale.ConvertTextKey( "TXT_KEY_DIPLO_TRADE_MAPS_NO_TECH_BOTH" ) .. "[ENDCOLOR]";
+			-- We don't have the required tech
+			else
+				strOurTooltip = strOurTooltip .. " [COLOR_WARNING_TEXT]" .. Locale.ConvertTextKey( "TXT_KEY_DIPLO_TRADE_MAPS_NO_TECH_PLAYER" ) .. "[ENDCOLOR]";
+			end
+		-- They don't have the required tech
+		elseif (not g_pThemTeam:IsMapTrading()) then
+			strOurTooltip = strOurTooltip .. " [COLOR_WARNING_TEXT]" .. Locale.ConvertTextKey( "TXT_KEY_DIPLO_TRADE_MAPS_NO_TECH_OTHER_PLAYER" ) .. "[ENDCOLOR]";
+		-- Our map has no new tiles to reveal
+		elseif (g_pUsTeam:HasEmbassyAtTeam(g_iThemTeam)) then
+			strOurTooltip = strOurTooltip .. " [COLOR_WARNING_TEXT]" .. Locale.ConvertTextKey( "TXT_KEY_DIPLO_TRADE_MAPS_THEY_ALREADY_EXPLORED" ) .. "[ENDCOLOR]";
 		end
 	else
 		Controls.UsPocketTradeMap:SetDisabled(false);
 		Controls.UsPocketTradeMap:GetTextControl():SetColorByName("Beige_Black");
-    end
+	end
     
     Controls.UsPocketTradeMap:SetToolTipString(strOurTooltip);
     
     bMapTradingAllowed = g_Deal:IsPossibleToTradeItem(g_iThem, g_iUs, TradeableItems.TRADE_ITEM_MAPS, g_iDealDuration);
-
-	-- We don't have tech
-    if (not bMapTradingAllowed) then
-		if (not g_pThemTeam:IsMapTrading()) then
-			strTheirTooltip = strTheirTooltip .. " [COLOR_WARNING_TEXT]" .. Locale.ConvertTextKey("TXT_KEY_DIPLO_TRADE_MAPS_NO_TECH_OTHER_PLAYER" ) .. "[ENDCOLOR]";
-		end
-	end
-    
-    -- Are they not allowed to give World Map?
-    if (not bMapTradingAllowed) then
+	
+	-- Are they not allowed to give World Map?
+	if (not bMapTradingAllowed) then
 		Controls.ThemPocketTradeMap:SetDisabled(true);
 		Controls.ThemPocketTradeMap:GetTextControl(): SetColorByName("Gray_Black");
 		
+		-- They need an embassy with us
 		if (not g_pThemTeam:HasEmbassyAtTeam(g_iUsTeam)) then
 			strTheirTooltip = strTheirTooltip .. " [COLOR_WARNING_TEXT]" .. Locale.ConvertTextKey( "TXT_KEY_DIPLO_THEY_NEED_EMBASSY_TT" );
+		end
+		
+		if (not g_pThemTeam:IsMapTrading()) then
+			-- Neither of us have the required tech
+			if (not g_pUsTeam:IsMapTrading()) then
+				strTheirTooltip = strTheirTooltip .. " [COLOR_WARNING_TEXT]" .. Locale.ConvertTextKey( "TXT_KEY_DIPLO_TRADE_MAPS_NO_TECH_BOTH" ) .. "[ENDCOLOR]";
+			-- They don't have the required tech
+			else
+				strTheirTooltip = strTheirTooltip .. " [COLOR_WARNING_TEXT]" .. Locale.ConvertTextKey( "TXT_KEY_DIPLO_TRADE_MAPS_NO_TECH_OTHER_PLAYER" ) .. "[ENDCOLOR]";
+			end
+		-- We don't have the required tech
+		elseif (not g_pUsTeam:IsMapTrading()) then
+			strTheirTooltip = strTheirTooltip .. " [COLOR_WARNING_TEXT]" .. Locale.ConvertTextKey( "TXT_KEY_DIPLO_TRADE_MAPS_NO_TECH_PLAYER" ) .. "[ENDCOLOR]";
+		-- Their map has no new tiles to reveal
+		elseif (g_pThemTeam:HasEmbassyAtTeam(g_iUsTeam)) then
+			strTheirTooltip = strTheirTooltip .. " [COLOR_WARNING_TEXT]" .. Locale.ConvertTextKey( "TXT_KEY_DIPLO_TRADE_MAPS_WE_ALREADY_EXPLORED" ) .. "[ENDCOLOR]";
 		end
 	else
 		Controls.ThemPocketTradeMap:SetDisabled(false);
@@ -2117,7 +2206,7 @@ function ResetDisplay()
 					pTech = GameInfo.Technologies[techType];
 					strString = Locale.ConvertTextKey(pTech.Description);
 					instance.Button:SetText( strString );
-					instance.Button:SetToolTipString( GetHelpTextForTech( techType, true, 1 ) );
+					instance.Button:SetToolTipString( GetShortHelpTextForTech( pTech.ID, false ) );
 				else
 					instance.Button:SetHide( true );
 				end
@@ -2184,7 +2273,7 @@ function ResetDisplay()
 					pTech = GameInfo.Technologies[techType];
 					strString = Locale.ConvertTextKey(pTech.Description);
 					instance.Button:SetText( strString );
-					instance.Button:SetToolTipString( GetHelpTextForTech( techType, true, 0 ) );
+					instance.Button:SetToolTipString( GetShortHelpTextForTech( pTech.ID, false ) );
 				else
 					instance.Button:SetHide( true );
 				end
@@ -2298,8 +2387,6 @@ function DoClearTable()
 	Controls.ThemTableDefensivePact:SetHide( true );
 	Controls.UsTableResearchAgreement:SetHide( true );
 	Controls.ThemTableResearchAgreement:SetHide( true );
-	Controls.UsTableTradeAgreement:SetHide( true );
-	Controls.ThemTableTradeAgreement:SetHide( true );
     Controls.UsTableCitiesStack:SetHide( true );
     Controls.ThemTableCitiesStack:SetHide( true );
 	Controls.UsTableStrategicStack:SetHide( true );
@@ -2608,17 +2695,7 @@ function DisplayDeal()
                 Controls.ThemPocketResearchAgreement:SetHide( true );
                 Controls.ThemTableResearchAgreement:SetHide( false );
             end
-        
-        elseif( TradeableItems.TRADE_ITEM_TRADE_AGREEMENT == itemType ) then
-        
-            if( bFromUs ) then
-                Controls.UsPocketTradeAgreement:SetHide( true );
-                Controls.UsTableTradeAgreement:SetHide( false );
-            else
-                Controls.ThemPocketTradeAgreement:SetHide( true );
-                Controls.ThemTableTradeAgreement:SetHide( false );
-            end
-        
+
         elseif( TradeableItems.TRADE_ITEM_RESOURCES == itemType ) then
         
             if( bFromUs ) then
@@ -2768,37 +2845,41 @@ function DisplayOtherPlayerItem( bFromUs, itemType, duration, iOtherTeam )
 	
     if( TradeableItems.TRADE_ITEM_THIRD_PARTY_PEACE == itemType ) then
         --print( "Displaying Peace" );
-		
-        if( bFromUs ) then
-            --print( "    from us" );
-            g_OtherPlayersButtons[ iOtherPlayer ].UsTablePeace.Button:SetHide( false );
-        	Controls.UsTableMakePeaceStack:SetHide( false );
-        	Controls.UsTableMakePeaceStack:CalculateSize();
-        	Controls.UsTableMakePeaceStack:ReprocessAnchoring();
-        else
-            --print( "    from them" );
-            g_OtherPlayersButtons[ iOtherPlayer ].ThemTablePeace.Button:SetHide( false );
-        	Controls.ThemTableMakePeaceStack:SetHide( false );
-        	Controls.ThemTableMakePeaceStack:CalculateSize();
-        	Controls.ThemTableMakePeaceStack:ReprocessAnchoring();
-        end
+		local otherPlayerButton = g_OtherPlayersButtons[iOtherPlayer];
+		if(otherPlayerButton ~= nil) then
+			if( bFromUs ) then
+				--print( "    from us" );
+				g_OtherPlayersButtons[ iOtherPlayer ].UsTablePeace.Button:SetHide( false );
+        		Controls.UsTableMakePeaceStack:SetHide( false );
+        		Controls.UsTableMakePeaceStack:CalculateSize();
+        		Controls.UsTableMakePeaceStack:ReprocessAnchoring();
+			else
+				--print( "    from them" );
+				g_OtherPlayersButtons[ iOtherPlayer ].ThemTablePeace.Button:SetHide( false );
+        		Controls.ThemTableMakePeaceStack:SetHide( false );
+        		Controls.ThemTableMakePeaceStack:CalculateSize();
+        		Controls.ThemTableMakePeaceStack:ReprocessAnchoring();
+			end
+		end
         
     elseif( TradeableItems.TRADE_ITEM_THIRD_PARTY_WAR == itemType ) then
         --print( "Displaying War" );
-    
-        if( bFromUs ) then
-            --print( "    from us" );
-            g_OtherPlayersButtons[ iOtherPlayer ].UsTableWar.Button:SetHide( false );
-        	Controls.UsTableDeclareWarStack:SetHide( false );
-        	Controls.UsTableDeclareWarStack:CalculateSize();
-        	Controls.UsTableDeclareWarStack:ReprocessAnchoring();
-        else
-            --print( "    from them" );
-            g_OtherPlayersButtons[ iOtherPlayer ].ThemTableWar.Button:SetHide( false );
-        	Controls.ThemTableDeclareWarStack:SetHide( false );
-        	Controls.ThemTableDeclareWarStack:CalculateSize();
-        	Controls.ThemTableDeclareWarStack:ReprocessAnchoring();
-        end
+		local otherPlayerButton = g_OtherPlayersButtons[iOtherPlayer];
+		if(otherPlayerButton ~= nil) then
+			if( bFromUs ) then
+				--print( "    from us" );
+				g_OtherPlayersButtons[ iOtherPlayer ].UsTableWar.Button:SetHide( false );
+        		Controls.UsTableDeclareWarStack:SetHide( false );
+        		Controls.UsTableDeclareWarStack:CalculateSize();
+        		Controls.UsTableDeclareWarStack:ReprocessAnchoring();
+			else
+				--print( "    from them" );
+				g_OtherPlayersButtons[ iOtherPlayer ].ThemTableWar.Button:SetHide( false );
+        		Controls.ThemTableDeclareWarStack:SetHide( false );
+        		Controls.ThemTableDeclareWarStack:CalculateSize();
+        		Controls.ThemTableDeclareWarStack:ReprocessAnchoring();
+			end
+		end
     end
 end
 
@@ -2894,6 +2975,9 @@ function ChangeGoldAmount( string, control )
 		local strTooltip = Locale.ConvertTextKey( "TXT_KEY_DIPLO_CURRENT_GOLD", g_Deal:GetGoldAvailable(g_iThem, iItemToBeChanged) );
 		Controls.ThemTableGold:SetToolTipString( strTooltip );
     end
+	--CBP
+	DoUIDealChangedByHuman();
+	--END
 end
 Controls.UsGoldAmount:RegisterCallback( ChangeGoldAmount );
 Controls.UsGoldAmount:SetVoid1( 1 );
@@ -2997,6 +3081,9 @@ function ChangeGoldPerTurnAmount( string, control )
 		Controls.ThemTableGoldPerTurn:SetToolTipString( strTooltip );
 		
     end
+	--CBP
+	DoUIDealChangedByHuman();
+	--END
 end
 Controls.UsGoldPerTurnAmount:RegisterCallback( ChangeGoldPerTurnAmount );
 Controls.UsGoldPerTurnAmount:SetVoid1( 1 );
@@ -3174,44 +3261,6 @@ function TableResearchAgreementHandler()
 end
 Controls.UsTableResearchAgreement:RegisterCallback( Mouse.eLClick, TableResearchAgreementHandler );
 Controls.ThemTableResearchAgreement:RegisterCallback( Mouse.eLClick, TableResearchAgreementHandler );
-
-
-
-
------------------------------------------------------------------------------------------------------------------------
--- Trade Agreement Handlers
------------------------------------------------------------------------------------------------------------------------
-function PocketTradeAgreementHandler( isUs )
-
-	-- Note that currently Trade Agreement is required on both sides
-	
-    if( isUs == 1 ) then
-        g_Deal:AddTradeAgreement( g_iUs, g_iDealDuration );
-        g_Deal:AddTradeAgreement( g_iThem, g_iDealDuration );
-    else
-        g_Deal:AddTradeAgreement( g_iUs, g_iDealDuration );
-        g_Deal:AddTradeAgreement( g_iThem, g_iDealDuration );
-    end
-    DisplayDeal();
-    DoUIDealChangedByHuman();
-end
-Controls.UsPocketTradeAgreement:RegisterCallback( Mouse.eLClick, PocketTradeAgreementHandler );
-Controls.ThemPocketTradeAgreement:RegisterCallback( Mouse.eLClick, PocketTradeAgreementHandler );
-Controls.UsPocketTradeAgreement:SetVoid1( 1 );
-Controls.ThemPocketTradeAgreement:SetVoid1( 0 );
-
-function TableTradeAgreementHandler()
-	-- Remove from BOTH sides of the table
-    g_Deal:RemoveByType( TradeableItems.TRADE_ITEM_TRADE_AGREEMENT, g_iUs );
-    g_Deal:RemoveByType( TradeableItems.TRADE_ITEM_TRADE_AGREEMENT, g_iThem );
-    DoClearTable();
-    DisplayDeal();
-    DoUIDealChangedByHuman();
-end
-Controls.UsTableTradeAgreement:RegisterCallback( Mouse.eLClick, TableTradeAgreementHandler );
-Controls.ThemTableTradeAgreement:RegisterCallback( Mouse.eLClick, TableTradeAgreementHandler );
-
-
 
 
 
@@ -3519,85 +3568,6 @@ end
 -- to-do: know their progress if we have a spy in one of their cities???
 
 
-function GetHelpTextForTech( iTechID, bShowProgress, isUs)
-	local pTechInfo = GameInfo.Technologies[iTechID];
-	
-
-
-	local pActiveTeam = Teams[Game.GetActiveTeam()];
-	local pActivePlayer = Players[Game.GetActivePlayer()];
-	local pTeamTechs = pActiveTeam:GetTeamTechs();
-	local iTechCost = pActivePlayer:GetResearchCost(iTechID);
-	
-	local strHelpText = "";
-
-	-- Name
-	strHelpText = strHelpText .. Locale.ToUpper(Locale.ConvertTextKey( pTechInfo.Description ));
-
-	-- Do we have this tech?
-	if (pTeamTechs:HasTech(iTechID)) then
-		strHelpText = strHelpText .. " [COLOR_POSITIVE_TEXT](" .. Locale.ConvertTextKey("TXT_KEY_RESEARCHED") .. ")[ENDCOLOR]";
-	end
-
-	-- Cost/Progress
-	strHelpText = strHelpText .. "[NEWLINE]-------------------------[NEWLINE]";
-	
-	local iProgress = pActivePlayer:GetResearchProgress(iTechID);
-	
-	-- Don't show progress for other civ
-	if (isUs == 1) then
-		bShowProgress = false;
-		
-		-- TO-DO: Add logic if we have spy in their city, show progress
-	else
-		bShowProgress = true;
-	end
-
-	-- Don't show progres if we have 0 or we're done with the tech
-	if (iProgress == 0 or pTeamTechs:HasTech(iTechID)) then
-		bShowProgress = false;
-	end
-	
-	if (bShowProgress) then
-		strHelpText = strHelpText .. Locale.ConvertTextKey("TXT_KEY_TECH_HELP_COST_WITH_PROGRESS", iProgress, iTechCost);
-	else
-		strHelpText = strHelpText .. Locale.ConvertTextKey("TXT_KEY_TECH_HELP_COST", iTechCost);
-	end
-	
-	-- Leads to...
-	local strLeadsTo = "";
-	local bFirstLeadsTo = true;
-	for row in GameInfo.Technology_PrereqTechs() do
-		local pPrereqTech = GameInfo.Technologies[row.PrereqTech];
-		local pLeadsToTech = GameInfo.Technologies[row.TechType];
-		
-		if (pPrereqTech and pLeadsToTech) then
-			if (pTechInfo.ID == pPrereqTech.ID) then
-				
-				-- If this isn't the first leads-to tech, then add a comma to separate
-				if (bFirstLeadsTo) then
-					bFirstLeadsTo = false;
-				else
-					strLeadsTo = strLeadsTo .. ", ";
-				end
-				
-				strLeadsTo = strLeadsTo .. "[COLOR_POSITIVE_TEXT]" .. Locale.ConvertTextKey( pLeadsToTech.Description ) .. "[ENDCOLOR]";
-			end
-		end
-	end
-	
-	if (strLeadsTo ~= "") then
-		strHelpText = strHelpText .. "[NEWLINE]";
-		strHelpText = strHelpText .. Locale.ConvertTextKey("TXT_KEY_TECH_HELP_LEADS_TO", strLeadsTo);
-	end
-
-	-- Pre-written help text
-	strHelpText = strHelpText .. "[NEWLINE]-------------------------[NEWLINE]";
-	strHelpText = strHelpText .. Locale.ConvertTextKey( pTechInfo.Help );
-	
-	return strHelpText;
-end
-
 -------------------------------------------------------------------
 -- Populate the lists
 -------------------------------------------------------------------
@@ -3688,10 +3658,17 @@ function OnChoosePocketVote(iFromPlayer, iVoteIndex)
 	if (pLeague ~= nil and g_LeagueVoteList[iVoteIndex] ~= nil) then
 		local iResolutionID = g_LeagueVoteList[iVoteIndex].ID;
 		local iVoteChoice = g_LeagueVoteList[iVoteIndex].VoteChoice;
-		local iNumVotes = pLeague:GetCoreVotesForMember(iFromPlayer);
+-- CBP EDIT
+		local iNumChooseVotes = 0;
+		if(iFromPlayer == g_iUs) then
+			iNumChooseVotes = pLeague:GetPotentialVotesForMember(g_iThem, g_iUs);
+		else
+			iNumChooseVotes = pLeague:GetPotentialVotesForMember(g_iUs, g_iThem);
+		end
+-- END	
 		local bRepeal = g_LeagueVoteList[iVoteIndex].Repeal;
-		print("==debug== Vote added to deal, ID=" .. iResolutionID .. ", VoteChoice=" .. iVoteChoice .. ", NumVotes=" .. iNumVotes);
-		g_Deal:AddVoteCommitment(iFromPlayer, iResolutionID, iVoteChoice, iNumVotes, bRepeal);
+		print("==debug== Vote added to deal, ID=" .. iResolutionID .. ", VoteChoice=" .. iVoteChoice .. ", NumVotes=" .. iNumChooseVotes);
+		g_Deal:AddVoteCommitment(iFromPlayer, iResolutionID, iVoteChoice, iNumChooseVotes, bRepeal);
 	    
 		DisplayDeal();
 		DoUIDealChangedByHuman();
@@ -3717,7 +3694,9 @@ function RefreshPocketVotes(iIsUs)
 		for i,tVote in ipairs(g_LeagueVoteList) do
 			-- Us to them?
 			if (iIsUs == 1) then
-				local iNumUsVotes = pLeague:GetCoreVotesForMember(g_iUs);
+-- CBP EDITS BELOW
+				local iNumUsVotes = pLeague:GetPotentialVotesForMember(g_iThem, g_iUs);
+-- END		
 				local sProposalText = GetVoteText(pLeague, i, tVote.Repeal, iNumUsVotes);
 				local sChoiceText = pLeague:GetTextForChoice(tVote.VoteDecision, tVote.VoteChoice);
 				local sTooltip = GetVoteTooltip(pLeague, i, tVote.Repeal, iNumUsVotes);
@@ -3731,7 +3710,9 @@ function RefreshPocketVotes(iIsUs)
 				end
 			-- Them to us?
 			else
-				local iNumThemVotes = pLeague:GetCoreVotesForMember(g_iThem);
+-- CBP EDIT
+				local iNumThemVotes = pLeague:GetPotentialVotesForMember(g_iUs, g_iThem);
+-- END	
 				local sProposalText = GetVoteText(pLeague, i, tVote.Repeal, iNumThemVotes);
 				local sChoiceText = pLeague:GetTextForChoice(tVote.VoteDecision, tVote.VoteChoice);
 				local sTooltip = GetVoteTooltip(pLeague, i, tVote.Repeal, iNumThemVotes);
@@ -3757,10 +3738,17 @@ function OnChooseTableVote(iFromPlayer, iVoteIndex)
 	if (pLeague ~= nil and g_LeagueVoteList[iVoteIndex] ~= nil) then
 		local iResolutionID = g_LeagueVoteList[iVoteIndex].ID;
 		local iVoteChoice = g_LeagueVoteList[iVoteIndex].VoteChoice;
-		local iNumVotes = pLeague:GetCoreVotesForMember(iFromPlayer);
+-- CBP EDIT
+		local iNumTableVotes = 0;
+		if(iFromPlayer == g_iUs) then
+			iNumTableVotes = pLeague:GetPotentialVotesForMember(g_iThem, g_iUs);
+		else
+			iNumTableVotes = pLeague:GetPotentialVotesForMember(g_iUs, g_iThem);
+		end
+-- END		
 		local bRepeal = g_LeagueVoteList[iVoteIndex].Repeal;
-		print("==debug== Vote removed from deal, ID=" .. iResolutionID .. ", VoteChoice=" .. iVoteChoice .. ", NumVotes=" .. iNumVotes);
-		g_Deal:RemoveVoteCommitment(iFromPlayer, iResolutionID, iVoteChoice, iNumVotes, bRepeal);
+		print("==debug== Vote removed from deal, ID=" .. iResolutionID .. ", VoteChoice=" .. iVoteChoice .. ", NumVotes=" .. iNumTableVotes);
+		g_Deal:RemoveVoteCommitment(iFromPlayer, iResolutionID, iVoteChoice, iNumTableVotes, bRepeal);
 	    
 	    DoClearTable();
 		DisplayDeal();
@@ -3795,7 +3783,9 @@ function GetVoteTooltip(pLeague, iVoteIndex, bRepeal, iNumVotes)
 			local sVoteChoice = pLeague:GetTextForChoice(tVote.VoteDecision, tVote.VoteChoice);
 			local sProposalInfo = "";
 			if (GameInfo.Resolutions[tVote.Type] ~= nil and GameInfo.Resolutions[tVote.Type].Help ~= nil) then
-				sProposalInfo = sProposalInfo .. Locale.Lookup(GameInfo.Resolutions[tVote.Type].Help);
+				--CBP
+				sProposalInfo = sProposalInfo .. GetVoteText(pLeague, iVoteIndex, bRepeal, iNumVotes);
+				sProposalInfo = sProposalInfo .. "[NEWLINE][NEWLINE]" .. Locale.Lookup(GameInfo.Resolutions[tVote.Type].Help);
 			end
 			
 			if (bRepeal) then
@@ -3959,133 +3949,204 @@ Controls.ThemPocketCities:RegisterCallback( Mouse.eLClick, ShowCityChooser );
 -----------------------------------------------------------------------------------------------------------------------
 function ShowOtherPlayerChooser( isUs, type )
 
-    --print( "ShowOtherPlayerChooser" );
-    local SubTableName;
-    local iFromPlayer;
-    local tradeType;
-    local iToPlayer;
-    
-    if( type == WAR ) then
-        tradeType = TradeableItems.TRADE_ITEM_THIRD_PARTY_WAR;
-    elseif( type == PEACE ) then
-        tradeType = TradeableItems.TRADE_ITEM_THIRD_PARTY_PEACE;
-    end
-    
-    local pocketStack;
-    local leaderStack;
-    local panel;
-    
-    -- disable invalid players
-    if( isUs == 1 ) then
-        g_UsOtherPlayerMode   = type;
-        pocketStack = Controls.UsPocketStack;
-        leaderStack = Controls.UsPocketLeaderStack;
-        panel = Controls.UsPocketPanel;
-        SubTableName = "UsPocket";
-        iFromPlayer = g_iUs;
-        iToPlayer = g_iThem;
-    else
-        g_ThemOtherPlayerMode = type;
-        pocketStack = Controls.ThemPocketStack;
-        leaderStack = Controls.ThemPocketLeaderStack;
-        panel = Controls.ThemPocketPanel;
-        SubTableName = "ThemPocket";
-        iFromPlayer = g_iThem;
-        iToPlayer = g_iUs;
-    end
-   
- 	for iLoopPlayer = 0, GameDefines.MAX_CIV_PLAYERS-1, 1 do
+	--print( "ShowOtherPlayerChooser" );
+	local SubTableName;
+	local iFromPlayer;
+	local tradeType;
+	local iToPlayer;
+
+	if( type == WAR ) then
+		tradeType = TradeableItems.TRADE_ITEM_THIRD_PARTY_WAR;
+	elseif( type == PEACE ) then
+		tradeType = TradeableItems.TRADE_ITEM_THIRD_PARTY_PEACE;
+	end
+
+	local pocketStack;
+	local leaderStack;
+	local panel;
+
+	-- disable invalid players
+	if( isUs == 1 ) then
+		g_UsOtherPlayerMode   = type;
+		pocketStack = Controls.UsPocketStack;
+		leaderStack = Controls.UsPocketLeaderStack;
+		panel = Controls.UsPocketPanel;
+		SubTableName = "UsPocket";
+		iFromPlayer = g_iUs;
+		iToPlayer = g_iThem;
+	else
+		g_ThemOtherPlayerMode = type;
+		pocketStack = Controls.ThemPocketStack;
+		leaderStack = Controls.ThemPocketLeaderStack;
+		panel = Controls.ThemPocketPanel;
+		SubTableName = "ThemPocket";
+		iFromPlayer = g_iThem;
+		iToPlayer = g_iUs;
+	end
+
+	for iLoopPlayer = 0, GameDefines.MAX_CIV_PLAYERS-1, 1 do
 		pLoopPlayer = Players[ iLoopPlayer ];
 		iLoopTeam = pLoopPlayer:GetTeam();
 
 		local otherPlayerButton = g_OtherPlayersButtons[iLoopPlayer];
 		
 	    -- they're alive, not us, not them, we both know, and we can trade....
-		if(pLoopPlayer:IsAlive() and otherPlayerButton ~= nil) then
-			
+		if(otherPlayerButton ~= nil) then
+
 			local otherPlayerButtonSubTableNameButton = otherPlayerButton[SubTableName].Button;
-			
+			otherPlayerButtonSubTableNameButton:SetHide(true);
+
 			local strToolTip = "";
 			local iFromTeam = Players[iFromPlayer]:GetTeam();
-			
-    		if( g_iUsTeam ~= iLoopTeam and g_iThemTeam ~= iLoopTeam and
-    		    g_pUsTeam:IsHasMet( iLoopTeam ) and g_pThemTeam:IsHasMet( iLoopTeam ) and
-                g_Deal:IsPossibleToTradeItem( iFromPlayer, iToPlayer, tradeType, iLoopTeam ) ) then
-                
-    		    otherPlayerButtonSubTableNameButton:SetDisabled( false );
-    		    otherPlayerButtonSubTableNameButton:SetAlpha( 1 );
-            else
-                        
-    		    otherPlayerButtonSubTableNameButton:SetDisabled( true );
-    		    otherPlayerButtonSubTableNameButton:SetAlpha( 0.5 );
-    		    
-    		    -- Why won't they make peace?
-    		    if (type == PEACE) then
-
-					-- Not at war
-					if (not Teams[iLoopTeam]:IsAtWar(iFromTeam)) then
-						strToolTip = Locale.ConvertTextKey("TXT_KEY_DIPLO_NOT_AT_WAR");
-    				
-    				-- Minor that won't make peace
-    				elseif (pLoopPlayer:IsMinorCiv()) then
-    					
-    					local pMinorTeam = Teams[iLoopTeam];
-    					local iAlly = pLoopPlayer:GetAlly();
-    					
-    					-- Minor in permanent war with this guy
-    					if (pLoopPlayer:IsMinorPermanentWar(iFromPlayer)) then
-    						strToolTip = Locale.ConvertTextKey("TXT_KEY_DIPLO_MINOR_PERMANENT_WAR");
-			    		-- Minor allied to a player
-	    				elseif (pMinorTeam:IsAtWar(iFromTeam) and iAlly ~= -1 and Teams[Players[iAlly]:GetTeam()]:IsAtWar(iFromTeam)) then
-			    		    strToolTip = Locale.ConvertTextKey("TXT_KEY_DIPLO_MINOR_ALLY_AT_WAR");
-    					end
-    					
-    				-- Major that won't make peace
-    				else
-    					
-    					-- AI don't want no peace!
-    					if (not Players[iFromPlayer]:IsWillAcceptPeaceWithPlayer(iLoopPlayer)) then
-    						strToolTip = Locale.ConvertTextKey("TXT_KEY_DIPLO_MINOR_THIS_GUY_WANTS_WAR");
-    					-- Other AI don't want no peace!
-    					elseif (not pLoopPlayer:IsWillAcceptPeaceWithPlayer(iFromPlayer)) then
-    						strToolTip = Locale.ConvertTextKey("TXT_KEY_DIPLO_MINOR_OTHER_GUY_WANTS_WAR");
-    					end
-    					
+			local iToTeam = Players[iToPlayer]:GetTeam();
+			-- NO Met
+			if (Teams[iFromTeam]:IsHasMet(iLoopTeam) and Teams[iToTeam]:IsHasMet(iLoopTeam)) then		
+    			if( g_iUsTeam ~= iLoopTeam and g_iThemTeam ~= iLoopTeam)then			
+					if(g_Deal:IsPossibleToTradeItem( iFromPlayer, iToPlayer, tradeType, iLoopTeam ) ) then
+						otherPlayerButtonSubTableNameButton:SetHide( false );
+    					otherPlayerButtonSubTableNameButton:SetDisabled( false );
+    					otherPlayerButtonSubTableNameButton:SetAlpha( 1 );
+					else
+						otherPlayerButtonSubTableNameButton:SetHide( false );                     
+    					otherPlayerButtonSubTableNameButton:SetDisabled( true );
+    					otherPlayerButtonSubTableNameButton:SetAlpha( 0.5 );
     				end
-    			
-    			-- Why won't they make war?
-    			else
 
-					-- Already at war
-					if (Teams[iLoopTeam]:IsAtWar(iFromTeam)) then
-						strToolTip = Locale.ConvertTextKey("TXT_KEY_DIPLO_ALREADY_AT_WAR");
+    				-- Why won't they make peace?
+    				if (type == PEACE) then
 
-					-- Locked in to peace
-					elseif (Teams[iFromTeam]:IsForcePeace(iLoopTeam)) then
-						strToolTip = Locale.ConvertTextKey("TXT_KEY_DIPLO_FORCE_PEACE");
+						if (not Teams[iToTeam]:HasEmbassyAtTeam(iFromTeam)) then
+							if(strToolTip ~= "") then
+								strToolTip = strToolTip .. "[NEWLINE]";
+							end
+							strToolTip = strToolTip .. Locale.ConvertTextKey( "TXT_KEY_DIPLO_NEED_EMBASSY" );
+						end
+						if (not pLoopPlayer:IsMinorCiv()) then
+							-- CBP: No peace with non allied if not at war
+							if (g_pUsTeam:IsAtWar(g_iThemTeam)) then
+								if(strToolTip ~= "") then
+									strToolTip = strToolTip .. "[NEWLINE]";
+								end
+								strToolTip = strToolTip .. Locale.ConvertTextKey( "TXT_KEY_DIPLO_WAR_NO_PEACE_THIRD_PARTY_TT" );
+							end
+							-- Not at war
+							if (not Teams[iLoopTeam]:IsAtWar(iFromTeam)) then
+								if(strToolTip ~= "") then
+									strToolTip = strToolTip .. "[NEWLINE]";
+								end
+								strToolTip = strToolTip .. Locale.ConvertTextKey("TXT_KEY_DIPLO_NOT_AT_WAR");
+    						else
+								-- Can't force third party peace with a loser. Has to be a sizeable difference
+								local iFromWarScore = Players[iFromPlayer]:GetWarScore(iLoopPlayer);
 
-					-- City-State ally
-					elseif (pLoopPlayer:IsMinorCiv() and pLoopPlayer:GetAlly() == iFromPlayer) then
-						strToolTip = Locale.ConvertTextKey("TXT_KEY_DIPLO_NO_WAR_ALLIES");
-					end
-    				
-    		    end
-    		    
-    		end
-			
+								if(iFromWarScore < 75) then
+									if(strToolTip ~= "") then
+										strToolTip = strToolTip .. "[NEWLINE]";
+									end
+									strToolTip = strToolTip .. Locale.ConvertTextKey("TXT_KEY_DIPLO_WAR_SCORE", iFromWarScore);
+								end
+							end
+
+							if (not Teams[iLoopTeam]:CanChangeWarPeace(iFromTeam)) then
+								if(strToolTip ~= "") then
+									strToolTip = strToolTip .. "[NEWLINE]";
+								end
+								strToolTip = strToolTip .. Locale.ConvertTextKey("TXT_KEY_DIPLO_CANNOT_PEACE");
+    						end
+						-- Minor that won't make peace    				
+						else	
+    						local pMinorTeam = Teams[iLoopTeam];
+    						local iAlly = pLoopPlayer:GetAlly();
+    					
+    						-- Minor in permanent war with this guy
+    						if (pLoopPlayer:IsMinorPermanentWar(iFromPlayer)) then
+ 								if(strToolTip ~= "") then
+									strToolTip = strToolTip .. "[NEWLINE]";
+								end
+    							strToolTip = strToolTip .. Locale.ConvertTextKey("TXT_KEY_DIPLO_MINOR_PERMANENT_WAR");
+							end
+			    			-- Minor allied to a player
+	    					if (pMinorTeam:IsAtWar(iFromTeam) and iAlly ~= -1 and Teams[Players[iAlly]:GetTeam()]:IsAtWar(iFromTeam)) then
+								if(strToolTip ~= "") then
+									strToolTip = strToolTip .. "[NEWLINE]";
+								end
+			    				strToolTip = strToolTip .. Locale.ConvertTextKey("TXT_KEY_DIPLO_MINOR_ALLY_AT_WAR");
+    						end
+						end
+    				-- Why won't they make war?
+    				else
+						-- CBP: No peace with non allied if not at war
+						if (not g_pUsTeam:IsAtWar(g_iThemTeam)) then
+							-- Already at war
+							if (Teams[iLoopTeam]:IsAtWar(iFromTeam)) then
+								if(strToolTip ~= "") then
+									strToolTip = strToolTip .. "[NEWLINE]";
+								end
+								strToolTip = strToolTip .. Locale.ConvertTextKey("TXT_KEY_DIPLO_ALREADY_AT_WAR");
+							end
+							-- NO WAR
+							if (not Teams[iFromTeam]:CanDeclareWar(iLoopTeam, iFromPlayer)) then
+								if(strToolTip ~= "") then
+									strToolTip = strToolTip .. "[NEWLINE]";
+								end							
+								strToolTip = strToolTip .. Locale.ConvertTextKey("TXT_KEY_DIPLO_NO_WAR_BLOCKED");
+							end
+							-- CBP: Need Embassy:
+							if (not Teams[iToTeam]:HasEmbassyAtTeam(iFromTeam)) then
+								if(strToolTip ~= "") then
+									strToolTip = strToolTip .. "[NEWLINE]";
+								end
+								strToolTip = strToolTip .. Locale.ConvertTextKey( "TXT_KEY_DIPLO_NEED_EMBASSY" ) ;
+							end		
+							-- City-State ally
+							if (pLoopPlayer:IsMinorCiv()) then
+								-- Alliance
+								if (pLoopPlayer:GetAlly() == iToPlayer or pLoopPlayer:GetAlly() == iFromPlayer) then
+									if(strToolTip ~= "") then
+										strToolTip = strToolTip .. "[NEWLINE]";
+									end
+									strToolTip = strToolTip .. Locale.ConvertTextKey("TXT_KEY_DIPLO_NO_WAR_ALLIES");
+								end
+								-- PTP
+								if (pLoopPlayer:IsProtectedByMajor(iToPlayer) or pLoopPlayer:IsProtectedByMajor(iFromPlayer)) then
+									if(strToolTip ~= "") then
+										strToolTip = strToolTip .. "[NEWLINE]";
+									end
+									strToolTip = strToolTip .. Locale.ConvertTextKey("TXT_KEY_DIPLO_NO_WAR_PTP");
+								end
+							else
+								-- DOF
+								if (pLoopPlayer:IsDoF(iFromPlayer) or pLoopPlayer:IsDoF(iToPlayer)) then
+									if(strToolTip ~= "") then
+										strToolTip = strToolTip .. "[NEWLINE]";
+									end
+									strToolTip = strToolTip .. Locale.ConvertTextKey("TXT_KEY_DIPLO_NO_WAR_DOF");
+								end
+								-- DP
+								if (Teams[iLoopTeam]:IsDefensivePact(iFromTeam) or Teams[iLoopTeam]:IsDefensivePact(iToTeam)) then
+									if(strToolTip ~= "") then
+										strToolTip = strToolTip .. "[NEWLINE]";
+									end
+									strToolTip = strToolTip .. Locale.ConvertTextKey("TXT_KEY_DIPLO_NO_WAR_DP");
+								end
+							end
+						end			
+    				end
+				end
+			end
+				
 			-- Tooltip
 			otherPlayerButtonSubTableNameButton:SetToolTipString(strToolTip);
-			
 		end
 	end
-	
+
 	pocketStack:SetHide( true );
 	pocketStack:CalculateSize();
 	leaderStack:SetHide( false );
 	leaderStack:CalculateSize();
-	
+
 	panel:CalculateInternalSize();
-    panel:SetScrollValue( 0 );
+	panel:SetScrollValue( 0 );
 end
 
 Controls.UsPocketOtherPlayerWar:SetVoids( 1, WAR );
@@ -4248,7 +4309,7 @@ else
     	local pLoopPlayer = Players[ iLoopPlayer ];
     	local iLoopTeam = pLoopPlayer:GetTeam();
 
-    	if( pLoopPlayer:IsEverAlive() ) then
+    	if( pLoopPlayer:IsAlive() ) then
 
     	    local newButtonsTable = {};
     	    g_OtherPlayersButtons[ iLoopPlayer ] = newButtonsTable;
@@ -4326,10 +4387,10 @@ end
 -----------------------------------------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------------------------------
 
-Controls.UsMakePeaceDuration:LocalizeAndSetText( "TXT_KEY_DIPLO_TURNS", 10 );
-Controls.UsDeclareWarDuration:LocalizeAndSetText( "TXT_KEY_DIPLO_TURNS", 10 );
-Controls.ThemMakePeaceDuration:LocalizeAndSetText( "TXT_KEY_DIPLO_TURNS", 10 );
-Controls.ThemDeclareWarDuration:LocalizeAndSetText( "TXT_KEY_DIPLO_TURNS", 10 );
+Controls.UsMakePeaceDuration:LocalizeAndSetText( "TXT_KEY_DIPLO_TURNS", 15 );
+Controls.UsDeclareWarDuration:LocalizeAndSetText( "TXT_KEY_DIPLO_TURNS", 15 );
+Controls.ThemMakePeaceDuration:LocalizeAndSetText( "TXT_KEY_DIPLO_TURNS", 15 );
+Controls.ThemDeclareWarDuration:LocalizeAndSetText( "TXT_KEY_DIPLO_TURNS", 15 );
 
 ResetDisplay();
 DisplayDeal();

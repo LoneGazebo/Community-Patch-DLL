@@ -2809,7 +2809,7 @@ int CvReligionBeliefs::GetFollowerScalerLimiter(int iCap) const
 	for (BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
 		int iValue = pBeliefs->GetEntry(*it)->GetFollowerScalerLimiter();
-		if (iValue != 0)
+		if (iValue > 0)
 		{
 			if (iValue > iBiggestValue)
 			{

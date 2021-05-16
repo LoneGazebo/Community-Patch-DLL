@@ -1827,8 +1827,19 @@ bool CvMinorCivQuest::IsComplete()
 }
 
 /// Is this quest now revoked (ie. because the player bullied us)?
-bool CvMinorCivQuest::IsRevoked()
+bool CvMinorCivQuest::IsRevoked(bool bWar)
 {
+	if (bWar)
+	{
+		if (m_eType == MINOR_CIV_QUEST_HORDE || m_eType == MINOR_CIV_QUEST_REBELLION)
+			return false;
+		else
+			return true;
+	}
+
+	if (GET_PLAYER(m_eMinor).GetMinorCivAI()->IsGlobalQuest(m_eType))
+		return false;
+
 	if(GET_PLAYER(m_eMinor).GetMinorCivAI()->IsRecentlyBulliedByMajor(m_eAssignedPlayer))
 	{
 		if(m_eType == MINOR_CIV_QUEST_ROUTE)
@@ -2317,9 +2328,9 @@ bool CvMinorCivQuest::IsExpired()
 	return false;
 }
 
-bool CvMinorCivQuest::IsObsolete()
+bool CvMinorCivQuest::IsObsolete(bool bWar)
 {
-	return (IsRevoked() || IsExpired());
+	return (IsRevoked(bWar) || IsExpired());
 }
 
 // The end of this quest has been handled, no effects should happen, and it is marked to be deleted
@@ -6438,7 +6449,7 @@ void CvMinorCivAI::DoObsoleteQuests()
 
 // Process obsolete quests that are active, and seed countdowns if needed.
 // If no quest type is specified, will check all quest types.
-void CvMinorCivAI::DoObsoleteQuestsForPlayer(PlayerTypes ePlayer, MinorCivQuestTypes eSpecifyQuestType)
+void CvMinorCivAI::DoObsoleteQuestsForPlayer(PlayerTypes ePlayer, MinorCivQuestTypes eSpecifyQuestType, bool bWar)
 {
 	CvAssertMsg(ePlayer >= 0, "ePlayer is expected to be non-negative (invalid Index)");
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "ePlayer is expected to be within maximum bounds (invalid Index)");
@@ -6455,7 +6466,7 @@ void CvMinorCivAI::DoObsoleteQuestsForPlayer(PlayerTypes ePlayer, MinorCivQuestT
 	{
 		if(bCheckAllQuests || itr_quest->GetType() == eSpecifyQuestType)
 		{
-			if(itr_quest->IsObsolete())
+			if(itr_quest->IsObsolete(bWar))
 			{
 				int iOldFriendshipTimes100 = GetEffectiveFriendshipWithMajorTimes100(ePlayer);
 				bool bCancelled = itr_quest->DoCancelQuest();
@@ -6812,10 +6823,12 @@ bool CvMinorCivAI::IsValidQuestForPlayer(PlayerTypes ePlayer, MinorCivQuestTypes
 	if(!GET_PLAYER(ePlayer).isAlive() || !GetPlayer()->isAlive())
 		return false;
 
+	bool bSpecialGlobal = eQuest == MINOR_CIV_QUEST_HORDE || eQuest == MINOR_CIV_QUEST_REBELLION;
+
 #if defined(MOD_BALANCE_CORE_MINORS) || defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
 	if (MOD_BALANCE_CORE_MINORS || MOD_DIPLOMACY_CITYSTATES_QUESTS) 
 	{
-		if (GetJerkTurnsRemaining(GET_PLAYER(ePlayer).getTeam()) > 0)
+		if (!bSpecialGlobal && GetJerkTurnsRemaining(GET_PLAYER(ePlayer).getTeam()) > 0)
 		{
 			return false;
 		}
@@ -6828,7 +6841,7 @@ bool CvMinorCivAI::IsValidQuestForPlayer(PlayerTypes ePlayer, MinorCivQuestTypes
 #endif
 
 	// No quests are valid if we are at war
-	if(IsAtWarWithPlayersTeam(ePlayer))
+	if (!bSpecialGlobal && IsAtWarWithPlayersTeam(ePlayer))
 		return false;
 
 	// No quests are valid if we don't know you yet
@@ -8332,8 +8345,7 @@ void CvMinorCivAI::EndAllActiveQuestsForPlayer(PlayerTypes ePlayer)
 	if(ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return;
 
 	//antonjs: todo: instead, call for cancel quest (with flag for no notif)
-	if(GetNumActiveQuestsForPlayer(ePlayer) > 0)
-		m_QuestsGiven[ePlayer].clear();
+	DoObsoleteQuestsForPlayer(ePlayer);
 }
 #if defined(MOD_BALANCE_CORE)
 void CvMinorCivAI::DeleteQuest(PlayerTypes ePlayer, MinorCivQuestTypes eType)

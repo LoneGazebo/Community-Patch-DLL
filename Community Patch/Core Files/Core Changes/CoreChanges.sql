@@ -362,7 +362,7 @@ SET Flavor = '30'
 WHERE AIMilitaryStrategyType = 'MILITARYAISTRATEGY_WAR_MOBILIZATION' AND FlavorType = 'FLAVOR_NAVAL';
 
 INSERT INTO AIMilitaryStrategy_Player_Flavors (AIMilitaryStrategyType, FlavorType, Flavor)
-SELECT 'MILITARYAISTRATEGY_WAR_MOBILIZATION', 'FLAVOR_NAVAL_RECON' , '30';
+SELECT 'MILITARYAISTRATEGY_WAR_MOBILIZATION', 'FLAVOR_NAVAL_RECON' , '25';
 
 UPDATE AIMilitaryStrategy_City_Flavors
 SET Flavor = '-15'
@@ -468,7 +468,7 @@ SET Flavor = '50'
 WHERE AIEconomicStrategyType = 'ECONOMICAISTRATEGY_EXPAND_TO_OTHER_CONTINENTS' AND FlavorType = 'FLAVOR_EXPANSION';
 
 UPDATE AIEconomicStrategy_Player_Flavors
-SET Flavor = '30'
+SET Flavor = '15'
 WHERE AIEconomicStrategyType = 'ECONOMICAISTRATEGY_EXPAND_TO_OTHER_CONTINENTS' AND FlavorType = 'FLAVOR_RECON';
 
 UPDATE AIEconomicStrategy_Player_Flavors
@@ -480,16 +480,16 @@ SET Flavor = '50'
 WHERE AIEconomicStrategyType = 'ECONOMICAISTRATEGY_REALLY_NEED_RECON_SEA' AND FlavorType = 'FLAVOR_NAVAL';
 
 UPDATE AIEconomicStrategy_Player_Flavors
-SET Flavor = '40'
+SET Flavor = '15'
 WHERE AIEconomicStrategyType = 'ECONOMICAISTRATEGY_NEED_RECON' AND FlavorType = 'FLAVOR_RECON';
 
 UPDATE AIEconomicStrategy_Player_Flavors
 SET Flavor = '150'
-WHERE AIEconomicStrategyType = 'ECONOMICAISTRATEGY_NAVAL_MAP';
+WHERE AIEconomicStrategyType = 'ECONOMICAISTRATEGY_NAVAL_MAP' AND FlavorType = 'FLAVOR_NAVAL_RECON';
 
 UPDATE AIEconomicStrategy_Player_Flavors
 SET Flavor = '75'
-WHERE AIEconomicStrategyType = 'ECONOMICAISTRATEGY_OFFSHORE_EXPANSION_MAP';
+WHERE AIEconomicStrategyType = 'ECONOMICAISTRATEGY_OFFSHORE_EXPANSION_MAP' AND FlavorType = 'FLAVOR_NAVAL_RECON';
 
 UPDATE AIEconomicStrategies
 SET MinimumNumTurnsExecuted = '50'
@@ -514,7 +514,7 @@ SET Flavor = '50'
 WHERE AIEconomicStrategyType = 'ECONOMICAISTRATEGY_REALLY_NEED_RECON_SEA' AND FlavorType = 'FLAVOR_NAVAL_RECON';
 
 UPDATE AIEconomicStrategy_City_Flavors
-SET Flavor = '50'
+SET Flavor = '20'
 WHERE AIEconomicStrategyType = 'ECONOMICAISTRATEGY_NEED_RECON' AND FlavorType = 'FLAVOR_RECON';
 
 UPDATE AIEconomicStrategy_City_Flavors
