@@ -439,6 +439,7 @@ CvUnit::CvUnit() :
 	, m_iGiveExtraAttacks("CvUnit::m_iGiveExtraAttacks", m_syncArchive)
 	, m_iGiveDefenseMod("CvUnit::m_iGiveDefenseMod", m_syncArchive)
 	, m_bGiveInvisibility("CvUnit::m_bGiveInvisibility", m_syncArchive)
+	, m_bGiveOnlyOnStartingTurn("CvUnit::m_bGiveOnlyOnStartingTurn", m_syncArchive)
 	, m_bConvertUnit("CvUnit::m_bConvertUnit", m_syncArchive)
 	, m_eConvertDomain("CvUnit::m_eConvertDomain", m_syncArchive)
 	, m_eConvertDomainUnit("CvUnit::m_eConvertDomainUnit", m_syncArchive)
@@ -1551,6 +1552,7 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_iGiveExtraAttacks = 0;
 	m_iGiveDefenseMod = 0;
 	m_bGiveInvisibility = false;
+	m_bGiveOnlyOnStartingTurn = false;
 	m_bConvertUnit = false;
 	m_eConvertDomainUnit = NO_UNIT;
 	m_eConvertDomain = NO_DOMAIN;
@@ -17814,6 +17816,16 @@ bool CvUnit::isGiveInvisibility() const
 	VALIDATE_OBJECT
 	return GetIsGiveInvisibility() > 0;
 }
+bool CvUnit::isGiveOnlyOnStartingTurn() const
+{
+	VALIDATE_OBJECT
+	return m_bGiveOnlyOnStartingTurn;
+}
+void CvUnit::SetIsGiveOnlyOnStartingTurn(bool bNewValue)
+{
+	VALIDATE_OBJECT
+	m_bGiveOnlyOnStartingTurn = bNewValue;
+}
 void CvUnit::ChangeIsConvertUnit(int iValue)
 {
 	VALIDATE_OBJECT
@@ -22867,7 +22879,10 @@ int CvUnit::GetGiveExperiencePercentToUnit() const
 			{
 				if (pUnit->getGiveDomain() != NO_DOMAIN && (pUnit->getGiveDomain() == getDomainType()))
 				{
-					iExperience = pUnit->getGiveExperiencePercent();
+					if (!pUnit->isGiveOnlyOnStartingTurn() || (pUnit->getMoves() >= pUnit->maxMoves()))
+					{
+						iExperience = pUnit->getGiveExperiencePercent();
+					}
 				}
 			}
 		}
@@ -22902,7 +22917,10 @@ int CvUnit::GetGiveCombatModToUnit(const CvPlot* pAtPlot) const
 			{
 				if (pUnit->getGiveDomain() != NO_DOMAIN && (pUnit->getGiveDomain() == getDomainType()))
 				{
-					iMod = pUnit->getGiveCombatMod();
+					if (!pUnit->isGiveOnlyOnStartingTurn() || (pUnit->getMoves() >= pUnit->maxMoves()))
+					{
+						iMod = pUnit->getGiveCombatMod();
+					}
 				}
 			}
 		}
@@ -22935,7 +22953,10 @@ int CvUnit::GetGiveDefenseModToUnit() const
 			{
 				if (pUnit->getGiveDomain() != NO_DOMAIN && (pUnit->getGiveDomain() == getDomainType()))
 				{
-					iMod = pUnit->getGiveDefenseMod();
+					if (!pUnit->isGiveOnlyOnStartingTurn() || (pUnit->getMoves() >= pUnit->maxMoves()))
+					{
+						iMod = pUnit->getGiveDefenseMod();
+					}
 				}
 			}
 		}
@@ -23070,7 +23091,10 @@ bool CvUnit::IsHiddenByNearbyUnit(const CvPlot* pAtPlot) const
 			{
 				if (pUnit->getGiveDomain() != NO_DOMAIN && (pUnit->getGiveDomain() == getDomainType()) && (pUnit->getTeam() == getTeam()))
 				{
-					return true;
+					if (!pUnit->isGiveOnlyOnStartingTurn() || (pUnit->getMoves() >= pUnit->maxMoves()))
+					{
+						return true;
+					}
 				}
 			}
 		}
@@ -23104,7 +23128,10 @@ int CvUnit::GetGiveOutsideFriendlyLandsModifierToUnit() const
 				// Only Giving it out to a specific domain?
 				if (pUnit->getGiveDomain() != NO_DOMAIN && (pUnit->getGiveDomain() == getDomainType()))
 				{
-					iMod = pUnit->getGiveOutsideFriendlyLandsModifier();
+					if (!pUnit->isGiveOnlyOnStartingTurn() || (pUnit->getMoves() >= pUnit->maxMoves()))
+					{
+						iMod = pUnit->getGiveOutsideFriendlyLandsModifier();
+					}
 				}
 			}
 		}
@@ -23138,7 +23165,10 @@ int CvUnit::GetGiveExtraAttacksToUnit() const
 				// Only Giving it out to a specific domain?
 				if (pUnit->getGiveDomain() != NO_DOMAIN && (pUnit->getGiveDomain() == getDomainType()))
 				{
-					iExtraAttacks = pUnit->getGiveExtraAttacks();
+					if (!pUnit->isGiveOnlyOnStartingTurn() || (pUnit->getMoves() >= pUnit->maxMoves()))
+					{
+						iExtraAttacks = pUnit->getGiveExtraAttacks();
+					}
 				}
 			}
 		}
@@ -23171,7 +23201,10 @@ int CvUnit::GetGiveHPIfEnemyKilledToUnit() const
 			{
 				if (pUnit->getGiveDomain() != NO_DOMAIN && (pUnit->getGiveDomain() == getDomainType()) && !IsCanAttackRanged())
 				{
-					iHP = pUnit->getGiveHPIfEnemyKilled();
+					if (!pUnit->isGiveOnlyOnStartingTurn() || (pUnit->getMoves() >= pUnit->maxMoves()))
+					{
+						iHP = pUnit->getGiveHPIfEnemyKilled();
+					}
 				}
 			}
 		}
@@ -26564,6 +26597,7 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 		ChangeNearbyHealEnemyTerritory(thisPromotion.GetNearbyHealEnemyTerritory() * iChange);
 		ChangeNearbyHealNeutralTerritory(thisPromotion.GetNearbyHealNeutralTerritory() * iChange);
 		ChangeNearbyHealFriendlyTerritory(thisPromotion.GetNearbyHealFriendlyTerritory() * iChange);
+		SetIsGiveOnlyOnStartingTurn(thisPromotion.IsGiveOnlyOnStartingTurn() ? iChange : 0);
 		ChangeIsConvertUnit((thisPromotion.IsConvertUnit()) ? iChange : 0);
 		ChangeIsConvertEnemyUnitToBarbarian((thisPromotion.IsConvertEnemyUnitToBarbarian()) ? iChange : 0);
 		ChangeIsConvertOnFullHP((thisPromotion.IsConvertOnFullHP()) ? iChange : 0);

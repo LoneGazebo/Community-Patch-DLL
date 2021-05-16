@@ -293,6 +293,7 @@ public:
 	int GetGiveExtraAttacks() const;
 	int GetGiveDefenseMod() const;
 	bool IsGiveInvisibility() const;
+	bool IsGiveOnlyOnStartingTurn() const;
 	int GetNearbyHealEnemyTerritory() const;
 	int GetNearbyHealNeutralTerritory() const;
 	int GetNearbyHealFriendlyTerritory() const;
@@ -613,6 +614,7 @@ protected:
 	int m_iGiveExtraAttacks;
 	int m_iGiveDefenseMod;
 	bool m_bGiveInvisibility;
+	bool m_bGiveOnlyOnStartingTurn;
 	int m_iNearbyHealEnemyTerritory;
 	int m_iNearbyHealNeutralTerritory;
 	int m_iNearbyHealFriendlyTerritory;

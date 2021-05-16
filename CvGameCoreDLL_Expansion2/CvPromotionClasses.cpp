@@ -268,6 +268,7 @@ CvPromotionEntry::CvPromotionEntry():
 	m_iGiveExtraAttacks(0),
 	m_iGiveDefenseMod(0),
 	m_bGiveInvisibility(false),
+	m_bGiveOnlyOnStartingTurn(false),
 	m_iNearbyHealEnemyTerritory(0),
 	m_iNearbyHealNeutralTerritory(0),
 	m_iNearbyHealFriendlyTerritory(0),
@@ -540,6 +541,7 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 	m_iGiveExtraAttacks = kResults.GetInt("GiveExtraAttacks");
 	m_iGiveDefenseMod = kResults.GetInt("GiveDefenseMod");
 	m_bGiveInvisibility = kResults.GetBool("GiveInvisibility");
+	m_bGiveOnlyOnStartingTurn = kResults.GetBool("GiveOnlyOnStartingTurn");
 	m_iNearbyHealEnemyTerritory = kResults.GetInt("NearbyHealEnemyTerritory");
 	m_iNearbyHealNeutralTerritory = kResults.GetInt("NearbyHealNeutralTerritory");
 	m_iNearbyHealFriendlyTerritory = kResults.GetInt("NearbyHealFriendlyTerritory");
@@ -2494,6 +2496,10 @@ int CvPromotionEntry::GetGiveDefenseMod() const
 bool CvPromotionEntry::IsGiveInvisibility() const
 {
 	return m_bGiveInvisibility;
+}
+bool CvPromotionEntry::IsGiveOnlyOnStartingTurn() const
+{
+	return m_bGiveOnlyOnStartingTurn;
 }
 int CvPromotionEntry::GetNearbyHealEnemyTerritory() const
 {

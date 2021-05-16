@@ -736,6 +736,8 @@ public:
 	void ChangeIsGiveInvisibility(int iValue);
 	int GetIsGiveInvisibility() const;
 	bool isGiveInvisibility() const;
+	bool isGiveOnlyOnStartingTurn() const;
+	void SetIsGiveOnlyOnStartingTurn(bool bNewValue);
 	void ChangeIsConvertUnit(int iValue);
 	int getIsConvertUnit() const;
 	bool isConvertUnit() const;
@@ -2094,6 +2096,7 @@ protected:
 	FAutoVariable<int, CvUnit> m_iGiveExtraAttacks;
 	FAutoVariable<int, CvUnit> m_iGiveDefenseMod;
 	FAutoVariable<int, CvUnit> m_bGiveInvisibility;
+	FAutoVariable<int, CvUnit> m_bGiveOnlyOnStartingTurn;
 	FAutoVariable<int, CvUnit> m_bConvertUnit;
 	FAutoVariable<int, CvUnit> m_eConvertDomain;
 	FAutoVariable<UnitTypes, CvUnit> m_eConvertDomainUnit;

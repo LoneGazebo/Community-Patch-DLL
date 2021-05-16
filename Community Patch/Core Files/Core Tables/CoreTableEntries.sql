@@ -941,6 +941,9 @@ ALTER TABLE UnitPromotions ADD COLUMN 'GiveDefenseMod' INTEGER DEFAULT 0;
 -- Unit gives Invisibility to another Unit? Requires IsNearbyPromotion, NearbyRange, and GiveDomain Set on this Promotion.
 ALTER TABLE UnitPromotions ADD COLUMN 'GiveInvisibility' BOOLEAN DEFAULT 0;
 
+-- Unit only gives these effects at the start of the turn (works for GiveExperiencePercent, GiveCombatMod, GiveDefenseMod, GiveInvisibility, GiveOutsideFriendlyLandsModifier, GiveHPHealedIfEnemyKilled, GiveExtraAttacks)
+ALTER TABLE UnitPromotions ADD COLUMN 'GiveOnlyOnStartingTurn' BOOLEAN DEFAULT 0;
+
 -- Unit gains Combat modifier when near cities. Requires IsNearbyPromotion and NearbyRange Set on this Promotion.
 ALTER TABLE UnitPromotions ADD NearbyCityCombatMod INTEGER DEFAULT 0;
 
