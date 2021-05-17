@@ -2353,17 +2353,14 @@ CvLeague::CvLeague(LeagueTypes eID)
 	m_eCurrentSpecialSession = NO_LEAGUE_SPECIAL_SESSION;
 	m_vEnactProposalsOnHold.clear();
 	m_vRepealProposalsOnHold.clear();
-<<<<<<< Updated upstream
 	m_vLastTurnEnactProposals.clear();
 	m_vLastTurnRepealProposals.clear();
 	m_startingVotesCacheTime = 0;
 	m_startingVotesCached = 0;
-=======
 	m_startingVotesCacheTime = 0;
 	m_startingVotesCached = 0;
 	m_vLastTurnEnactProposals.clear();
 	m_vLastTurnRepealProposals.clear();
->>>>>>> Stashed changes
 }
 
 CvLeague::~CvLeague(void)
