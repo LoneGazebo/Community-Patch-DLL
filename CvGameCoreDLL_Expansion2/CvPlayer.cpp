@@ -20455,10 +20455,6 @@ void CvPlayer::DistributeHappinessToCities(int iTotal, int iLux)
 			if (CityStrategyAIHelpers::IsTestCityStrategy_IsPuppetAndAnnexable(pLoopCity))
 				continue;
 
-			int iTotalHappiness = pLoopCity->GetLocalHappiness();
-			if (iTotalHappiness >= pLoopCity->getPopulation())
-				continue;
-
 			if (iTotal > 0)
 			{
 				iTotal--;
