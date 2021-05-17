@@ -2418,7 +2418,7 @@ public:
 	int getInstantYieldValue(YieldTypes eYield, int iTurn) const;
 	void changeInstantYieldValue(YieldTypes eYield, int iValue);
 
-	void LogInstantYield(YieldTypes eYield, int iValue, InstantYieldType eInstantYield);
+	void LogInstantYield(YieldTypes eYield, int iValue, InstantYieldType eInstantYield, CvCity* pCity);
 
 	CvString getInstantYieldHistoryTooltip(int iGameTurn, int iNumPreviousTurnsToCount);
 

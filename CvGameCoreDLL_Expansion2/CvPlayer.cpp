@@ -20432,13 +20432,26 @@ void CvPlayer::DistributeHappinessToCities(int iTotal, int iLux)
 		pLoopCity->ResetHappinessFromLuxuries();
 	}
 
+	CvWeightedVector<CvCity*> sortedCityList;
+	for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+	{
+		int iPopulation = pLoopCity->getPopulation();
+		if (pLoopCity->isCapital())
+			iPopulation += 1;
+
+		sortedCityList.push_back(pLoopCity, iPopulation);
+	}
+
+	sortedCityList.SortItems();
+
 	int iTempTotal = iTotal + iLux;
 
 	while(iTempTotal > 0)
 	{
 		bool bAllFull = true;
-		for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+		for (int i = 0; i < sortedCityList.size(); i++)
 		{
+			CvCity* pLoopCity = sortedCityList.GetElement(i);
 			if (CityStrategyAIHelpers::IsTestCityStrategy_IsPuppetAndAnnexable(pLoopCity))
 				continue;
 
@@ -20452,8 +20465,9 @@ void CvPlayer::DistributeHappinessToCities(int iTotal, int iLux)
 		if (bAllFull)
 			break;
 
-		for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+		for (int i = 0; i < sortedCityList.size(); i++)
 		{
+			CvCity* pLoopCity = sortedCityList.GetElement(i);
 			if (CityStrategyAIHelpers::IsTestCityStrategy_IsPuppetAndAnnexable(pLoopCity))
 				continue;
 
@@ -27536,7 +27550,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 				{
 					changeInstantYieldValue(eYield, iValue);
 				}
-				LogInstantYield(eYield, iValue, iType);
+				LogInstantYield(eYield, iValue, iType, pLoopCity);
 			}
 		}
 		if(citynameString != "" && cityyieldString != "")
@@ -42016,19 +42030,256 @@ CvString CvPlayer::getInstantYieldHistoryTooltip(int iGameTurn, int iNumPrevious
 	return tooltip;
 }
 
-void CvPlayer::LogInstantYield(YieldTypes eYield, int iValue, InstantYieldType eInstantYield)
+void CvPlayer::LogInstantYield(YieldTypes eYield, int iValue, InstantYieldType eInstantYield, CvCity* pCity)
 {
 	CvString playerName = getCivilizationShortDescription();
+	CvString cityName = pCity != NULL ? pCity->getName().GetCString() : "No City";
 	FILogFile* pLog;
 	CvString strBaseString;
 	CvString strOutBuf;
 
+	CvString instantYieldName;
+	switch (eInstantYield)
+	{
+	case INSTANT_YIELD_TYPE_BIRTH:
+	{
+		instantYieldName = "Birth";
+		break;
+	}
+	case INSTANT_YIELD_TYPE_DEATH:
+			{
+				instantYieldName = "Death";
+				break;
+			}
+	case INSTANT_YIELD_TYPE_PROPOSAL:
+			{
+				instantYieldName = "WC Proposal";
+				break;
+			}
+
+	case INSTANT_YIELD_TYPE_ERA_UNLOCK:
+			{
+				instantYieldName = "New Era";
+				break;
+			}
+	case INSTANT_YIELD_TYPE_POLICY_UNLOCK:
+			{
+				instantYieldName = "Policy Unlock";
+				break;
+			}
+	case INSTANT_YIELD_TYPE_INSTANT:
+			{
+				instantYieldName = "Instant";
+				break;
+			}
+	case INSTANT_YIELD_TYPE_TECH:
+			{
+				instantYieldName = "Tech";
+				break;
+			}
+	case INSTANT_YIELD_TYPE_CONSTRUCTION:
+			{
+				instantYieldName = "Construction";
+				break;
+			}
+	case INSTANT_YIELD_TYPE_BORDERS:
+			{
+				instantYieldName = "Border Growth";
+				break;
+			}
+	case INSTANT_YIELD_TYPE_GP_USE:
+			{
+				instantYieldName = "GP Use";
+				break;
+			}
+	case INSTANT_YIELD_TYPE_GP_BORN:
+			{
+				instantYieldName = "GP Born";
+				break;
+			}
+	case INSTANT_YIELD_TYPE_F_SPREAD:
+			{
+				instantYieldName = "Spread Foreign";
+				break;
+			}
+	case INSTANT_YIELD_TYPE_F_CONQUEST:
+			{
+				instantYieldName = "Conquest";
+				break;
+			}
+	case INSTANT_YIELD_TYPE_VICTORY:
+			{
+				instantYieldName = "Won Battle";
+				break;
+			}
+	case INSTANT_YIELD_TYPE_U_PROD:
+			{
+				instantYieldName = "Produced Unit";
+				break;
+			}
+	case INSTANT_YIELD_TYPE_PURCHASE:
+			{
+				instantYieldName = "Bought Something";
+				break;
+			}
+	case INSTANT_YIELD_TYPE_TILE_PURCHASE:
+			{
+				instantYieldName = "Tile Purchase";
+				break;
+			}
+	case INSTANT_YIELD_TYPE_FOUND:
+			{
+				instantYieldName = "Founded City";
+				break;
+			}
+	case INSTANT_YIELD_TYPE_TR_END:
+			{
+				instantYieldName = "End TR";
+				break;
+			}
+	case INSTANT_YIELD_TYPE_CONVERSION:
+			{
+				instantYieldName = "Converted City";
+				break;
+			}
+	case INSTANT_YIELD_TYPE_SPREAD:
+			{
+				instantYieldName = "Spread Religion";
+				break;
+			}
+	case INSTANT_YIELD_TYPE_BULLY:
+			{
+				instantYieldName = "Bully CS";
+				break;
+			}
+	case INSTANT_YIELD_TYPE_TR_MOVEMENT:
+			{
+				instantYieldName = "TR Moved";
+				break;
+			}
+	case INSTANT_YIELD_TYPE_SCOUTING:
+			{
+				instantYieldName = "Scouting";
+				break;
+			}
+	case INSTANT_YIELD_TYPE_LEVEL_UP:
+			{
+				instantYieldName = "Unit Leveled";
+				break;
+			}
+	case INSTANT_YIELD_TYPE_PILLAGE :
+			{
+				instantYieldName = "Pillaging";
+				break;
+			}
+	case INSTANT_YIELD_TYPE_BIRTH_RETROACTIVE :
+			{
+				instantYieldName = "Birth Retro";
+				break;
+			}
+	case INSTANT_YIELD_TYPE_SPY_ATTACK:
+			{
+				instantYieldName = "Spy Attack";
+				break;
+			}
+	case INSTANT_YIELD_TYPE_SPY_DEFENSE:
+			{
+				instantYieldName = "Spy Defense";
+				break;
+			}
+	case INSTANT_YIELD_TYPE_DELEGATES:
+			{
+				instantYieldName = "WC Delegates";
+				break;
+			}
+	case INSTANT_YIELD_TYPE_CONSTRUCTION_WONDER:
+			{
+				instantYieldName = "Wonder Const";
+				break;
+			}
+	case INSTANT_YIELD_TYPE_MINOR_QUEST_REWARD:
+			{
+				instantYieldName = "Quest Minor";
+				break;
+			}
+	case INSTANT_YIELD_TYPE_CULTURE_BOMB:
+			{
+				instantYieldName = "Culture Bomb";
+				break;
+			}
+	case INSTANT_YIELD_TYPE_REMOVE_HERESY:
+			{
+				instantYieldName = "Remove Heresy";
+				break;
+			}
+	case INSTANT_YIELD_TYPE_FAITH_PURCHASE:
+			{
+				instantYieldName = "Faith Purchase";
+				break;
+			}
+	case INSTANT_YIELD_TYPE_VICTORY_GLOBAL:
+			{
+				instantYieldName = "Unit Won Battle (Anywhere)";
+				break;
+			}
+	case INSTANT_YIELD_TYPE_PILLAGE_GLOBAL:
+			{
+				instantYieldName = "Pillage (Anywhere)";
+				break;
+			}
+	case INSTANT_YIELD_TYPE_CONVERSION_EXPO:
+			{
+				instantYieldName = "Conversion Expo.";
+				break;
+			}
+	case INSTANT_YIELD_TYPE_PROMOTION_OBTAINED:
+			{
+				instantYieldName = "Promotion";
+				break;
+			}
+	case INSTANT_YIELD_TYPE_BARBARIAN_CAMP_CLEARED:
+			{
+				instantYieldName = "Barb Camp";
+				break;
+			}
+	case INSTANT_YIELD_TYPE_TR_PRODUCTION_SIPHON:
+			{
+				instantYieldName = "Siphon";
+				break;
+			}
+	case INSTANT_YIELD_TYPE_TR_MOVEMENT_IN_FOREIGN:
+			{
+				instantYieldName = "TR Foreign";
+				break;
+			}
+	case INSTANT_YIELD_TYPE_IMPROVEMENT_BUILD:
+			{
+				instantYieldName = "Build Improvement";
+				break;
+			}
+	case INSTANT_YIELD_TYPE_LUA:
+			{
+				instantYieldName = "LUA";
+				break;
+			}
+	case INSTANT_YIELD_TYPE_RESEARCH_AGREMEENT:
+			{
+				instantYieldName = "RA";
+				break;
+			}
+	case INSTANT_YIELD_TYPE_REFUND:
+			{
+				instantYieldName = "Refund";
+				break;
+			}
+	}
+
 	CvString strFileName = "InstantYieldSummary.csv";
-	playerName = getCivilizationShortDescription();
 	pLog = LOGFILEMGR.GetLog(strFileName, FILogFile::kDontTimeStamp);
 	strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
 	strBaseString += playerName + ", ";
-	strOutBuf.Format("InstantYieldType: %d, YieldType: %s, Value: %d", eInstantYield, GC.getYieldInfo(eYield)->GetDescription(), iValue);
+	strBaseString += cityName + ", ";
+	strOutBuf.Format("Instant Yield Type: %s, Yield Type: %s, Value: %d", instantYieldName.c_str(), GC.getYieldInfo(eYield)->GetDescription(), iValue);
 	strBaseString += strOutBuf;
 	pLog->Msg(strBaseString);
 }

@@ -93,7 +93,7 @@
 -- Value by which yield/threshold difference is modified based on the remaining population
 	INSERT INTO Defines (
 	Name, Value)
-	SELECT 'BALANCE_UNHAPPY_CITY_BASE_VALUE_DISORDER', '70'
+	SELECT 'BALANCE_UNHAPPY_CITY_BASE_VALUE_DISORDER', '100'
 	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
 -- Value by which yield/threshold difference is modified based on the remaining population

@@ -628,7 +628,7 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 						//City already working this plot? Adjust features being worked as needed.
 						if (pOwningCity->GetCityCitizens()->IsWorkingPlot(pLoopPlot))
 						{
-							pOwningCity->GetCityCitizens()->SetWorkingPlot(pLoopPlot, false);
+							pOwningCity->GetCityCitizens()->SetWorkingPlot(pLoopPlot, false, CvCity::YIELD_UPDATE_GLOBAL);
 						}
 					}
 					pLoopPlot->ClearCityPurchaseInfo();
@@ -21971,8 +21971,8 @@ int CvCity::GetLocalHappiness(int iPopMod, bool bExcludeEmpireContributions) con
 	iLocalHappiness += GetHappinessFromBuildingClasses();
 
 	int iUnmoddedHappiness = GetUnmoddedHappinessFromBuildings();
-	if (MOD_BALANCE_CORE_HAPPINESS)
-		iLocalHappiness += iUnmoddedHappiness;
+	//if (MOD_BALANCE_CORE_HAPPINESS)
+	//	iLocalHappiness += iUnmoddedHappiness;
 
 	if (MOD_BALANCE_CORE_JFD)
 	{
@@ -21982,29 +21982,30 @@ int CvCity::GetLocalHappiness(int iPopMod, bool bExcludeEmpireContributions) con
 		iLocalHappiness += iCrime + iDevelopment;
 	}
 
+	
 	// India has unique way to compute local happiness cap
-	int iLocalHappinessCap = getPopulation() + iPopMod;
-	if(kPlayer.GetPlayerTraits()->GetCityUnhappinessModifier() != 0)
-	{
+	//int iLocalHappinessCap = getPopulation() + iPopMod;
+	//if(kPlayer.GetPlayerTraits()->GetCityUnhappinessModifier() != 0)
+	//{
 		// 0.67 per population, rounded up
-		iLocalHappinessCap = (iLocalHappinessCap * 20) + 15;
-		iLocalHappinessCap /= 30;
-	}
+	//	iLocalHappinessCap = (iLocalHappinessCap * 20) + 15;
+	//	iLocalHappinessCap /= 30;
+	//}
 
-	if(iLocalHappinessCap < iLocalHappiness)
-	{
-		if (MOD_BALANCE_CORE_HAPPINESS)
-			return iLocalHappinessCap;
+	//if(iLocalHappinessCap < iLocalHappiness)
+	//{
+	//	if (MOD_BALANCE_CORE_HAPPINESS)
+	//		return iLocalHappinessCap;
 
-		return iLocalHappinessCap + iUnmoddedHappiness;
-	}
-	else
-	{
-		if (MOD_BALANCE_CORE_HAPPINESS)
-			return iLocalHappiness;
+	//	return iLocalHappinessCap + iUnmoddedHappiness;
+	//}
+	//else
+	//{
+	//if (MOD_BALANCE_CORE_HAPPINESS)
+	//	return iLocalHappiness;
 
-		return iLocalHappiness + iUnmoddedHappiness;
-	}
+	return iLocalHappiness + iUnmoddedHappiness;
+	//}
 }
 
 int CvCity::updateNetHappiness()
