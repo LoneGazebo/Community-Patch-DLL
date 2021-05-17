@@ -17,6 +17,7 @@ function OnPopup( popupInfo )
 	m_PopupInfo = popupInfo;
 
     local iEventChoiceType = popupInfo.Data1;
+	local playerID = popupInfo.Data2;
     local pEventChoiceInfo = GameInfo.EventChoices[iEventChoiceType];
 	-- Top Art
 	local pEventInfo = nil
@@ -28,42 +29,42 @@ function OnPopup( popupInfo )
 		local pEventArt = pEventInfo.EventArt or "playereventdefaultbackground.dds"
 		Controls.EventArt:SetTexture(pEventArt);
 		Controls.EventArt:SetSizeVal(350,100);
-		
-		-- Event Audio
-		local pEventAudio = pEventInfo.EventAudio
-		if pEventAudio then
-			Events.AudioPlay2DSound(pEventAudio)
+	
+		local player = Players[playerID];
+		if (player) then		
+			-- Event Audio
+			local pEventAudio = pEventInfo.EventAudio
+			if pEventAudio then
+				Events.AudioPlay2DSound(pEventAudio)
+			end
+
+			local szTitleString;
+			local szHelpString;
+			szTitleString = Locale.Lookup(pEventChoiceInfo.Description);
+			szHelpString = Locale.ConvertTextKey(player:GetScaledEventChoiceValue(pEventChoiceInfo.ID));
+	
+			-- Test for any Override Strings
+
+			tChoiceOverrideStrings = {}
+			LuaEvents.EventChoice_OverrideTextStrings(playerID, nil, pEventChoiceInfo, tChoiceOverrideStrings)
+			for _,str in ipairs(tChoiceOverrideStrings) do
+				print(str.Help)
+				szTitleString = str.Description or szTitleString
+				szHelpString = str.Help or szHelpString
+			end
+
+			Controls.TitleLabel:SetText(szTitleString);
+			Controls.TitleLabel:SetToolTipString(szTitleString);
+			Controls.DescriptionLabel:SetText(szHelpString);
+	
+			-- Recalculate grid size
+			local mainGridSizeY = 400
+			local sizeYDiff = math.max((Controls.DescriptionLabel:GetSizeY()-Controls.EventBox:GetSizeY()),1)
+			Controls.MainGrid:SetSizeY(mainGridSizeY + sizeYDiff)
+			player:AddNotification(NotificationTypes.NOTIFICATION_GENERIC, szHelpString, Locale.ConvertTextKey("TXT_KEY_PLAYER_EVENT_NOTIFICATION") .. szTitleString)
+			UIManager:QueuePopup( ContextPtr, PopupPriority.CityStateGreeting );
 		end
 	end
-
-	local playerID = Game.GetActivePlayer()
-	local player = Players[Game.GetActivePlayer()];
-		
-	local szTitleString;
-	local szHelpString;
-	szTitleString = Locale.Lookup(pEventChoiceInfo.Description);
-	szHelpString = Locale.ConvertTextKey(player:GetScaledEventChoiceValue(pEventChoiceInfo.ID));
-	
-	-- Test for any Override Strings
-
-	tChoiceOverrideStrings = {}
-	LuaEvents.EventChoice_OverrideTextStrings(playerID, nil, pEventChoiceInfo, tChoiceOverrideStrings)
-	for _,str in ipairs(tChoiceOverrideStrings) do
-		print(str.Help)
-		szTitleString = str.Description or szTitleString
-		szHelpString = str.Help or szHelpString
-	end
-
-	Controls.TitleLabel:SetText(szTitleString);
-	Controls.TitleLabel:SetToolTipString(szTitleString);
-	Controls.DescriptionLabel:SetText(szHelpString);
-	
-	-- Recalculate grid size
-	local mainGridSizeY = 400
-	local sizeYDiff = math.max((Controls.DescriptionLabel:GetSizeY()-Controls.EventBox:GetSizeY()),1)
-	Controls.MainGrid:SetSizeY(mainGridSizeY + sizeYDiff)
-	player:AddNotification(NotificationTypes.NOTIFICATION_GENERIC, szHelpString, Locale.ConvertTextKey("TXT_KEY_PLAYER_EVENT_NOTIFICATION") .. szTitleString)
-	UIManager:QueuePopup( ContextPtr, PopupPriority.CityStateGreeting );
 end
 Events.SerialEventGameMessagePopup.Add( OnPopup );
 

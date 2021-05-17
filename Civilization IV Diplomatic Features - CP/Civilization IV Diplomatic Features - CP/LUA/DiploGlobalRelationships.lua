@@ -255,7 +255,7 @@ function InitMajorCivList()
 					end
 				end
 
-				-- DPS (CBP)
+				-- DPS (CP)
 				for iThirdPlayer = 0, GameDefines.MAX_MAJOR_CIVS - 1 do
 					if (iThirdPlayer ~= iOtherPlayer) then
 						local pThirdPlayer = Players[iThirdPlayer];

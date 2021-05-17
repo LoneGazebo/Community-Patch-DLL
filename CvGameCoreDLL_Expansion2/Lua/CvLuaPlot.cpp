@@ -139,6 +139,7 @@ void CvLuaPlot::PushMethods(lua_State* L, int t)
 	Method(IsVisibleOtherUnit);
 
 	Method(GetNumFriendlyUnitsOfType);
+	Method(getNumFriendlyUnitsOfType);
 	Method(IsFighting);
 
 #if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_GLOBAL_STACKING_RULES)
@@ -1036,6 +1037,19 @@ int CvLuaPlot::lIsVisibleOtherUnit(lua_State* L)
 //------------------------------------------------------------------------------
 //int GetNumFriendlyUnitsOfType(CvUnit* pUnit);
 int CvLuaPlot::lGetNumFriendlyUnitsOfType(lua_State* L)
+{
+	CvPlot* pkPlot = GetInstance(L); CHECK_PLOT_VALID(pkPlot);
+	CvUnit* pkUnit = CvLuaUnit::GetInstance(L, 2);
+
+	int iResult = pkUnit->CountStackingUnitsAtPlot(pkPlot);
+
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+
+//------------------------------------------------------------------------------
+//int GetNumFriendlyUnitsOfType(CvUnit* pUnit);
+int CvLuaPlot::lgetNumFriendlyUnitsOfType(lua_State* L)
 {
 	CvPlot* pkPlot = GetInstance(L); CHECK_PLOT_VALID(pkPlot);
 	CvUnit* pkUnit = CvLuaUnit::GetInstance(L, 2);

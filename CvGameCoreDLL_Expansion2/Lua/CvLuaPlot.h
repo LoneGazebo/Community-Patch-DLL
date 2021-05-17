@@ -155,6 +155,7 @@ protected:
 	static int lIsVisibleEnemyUnit(lua_State* L);
 	static int lIsVisibleOtherUnit(lua_State* L);
 	static int lGetNumFriendlyUnitsOfType(lua_State* L);
+	static int lgetNumFriendlyUnitsOfType(lua_State* L);
 	static int lIsFighting(lua_State* L);
 
 #if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_GLOBAL_STACKING_RULES)

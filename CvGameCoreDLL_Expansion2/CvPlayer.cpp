@@ -20456,22 +20456,6 @@ void CvPlayer::DistributeHappinessToCities(int iTotal, int iLux)
 				continue;
 
 			int iTotalHappiness = pLoopCity->GetLocalHappiness();
-			if (iTotalHappiness < pLoopCity->getPopulation())
-			{
-				bAllFull = false;
-				break;
-			}
-		}
-		if (bAllFull)
-			break;
-
-		for (int i = 0; i < sortedCityList.size(); i++)
-		{
-			CvCity* pLoopCity = sortedCityList.GetElement(i);
-			if (CityStrategyAIHelpers::IsTestCityStrategy_IsPuppetAndAnnexable(pLoopCity))
-				continue;
-
-			int iTotalHappiness = pLoopCity->GetLocalHappiness();
 			if (iTotalHappiness >= pLoopCity->getPopulation())
 				continue;
 
@@ -20480,19 +20464,21 @@ void CvPlayer::DistributeHappinessToCities(int iTotal, int iLux)
 				iTotal--;
 				pLoopCity->ChangeHappinessFromEmpire(1);
 				iTempTotal--;
+				bAllFull = false;
 			}
 			else if (iLux > 0)
 			{
 				iLux--;
 				pLoopCity->ChangeHappinessFromLuxuries(1);
 				iTempTotal--;
+				bAllFull = false;
 			}
 
 			if (iTempTotal <= 0 || (iTotal <= 0 && iLux <= 0))
 				break;
 		}
 
-		if (iTempTotal <= 0 || (iTotal <= 0 && iLux <= 0))
+		if (bAllFull || iTempTotal <= 0 || (iTotal <= 0 && iLux <= 0))
 			break;
 	}
 }
@@ -27322,18 +27308,6 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 						if ((pLoopCity->getProduction() < pLoopCity->getProductionNeeded()) && pLoopCity->isProduction())
 						{
 							pLoopCity->changeProduction(iValue);
-#if defined(MOD_PROCESS_STOCKPILE)
-							if (pLoopCity->getProduction() >= pLoopCity->getProductionNeeded())
-#else
-							if (pLoopCity->getProduction() >= pLoopCity->getProductionNeeded() && !pLoopCity->isProductionProcess())
-#endif
-							{
-#if defined(MOD_PROCESS_STOCKPILE)
-								pLoopCity->popOrder(0, !pLoopCity->isProductionProcess(), true);
-#else
-								pLoopCity->popOrder(0, true, true);
-#endif
-							}
 						}
 						else
 						{

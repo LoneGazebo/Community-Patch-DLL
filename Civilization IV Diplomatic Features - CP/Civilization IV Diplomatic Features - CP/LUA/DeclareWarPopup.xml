@@ -13,7 +13,7 @@
 		</Box>
 	</Instance>
 
-	<!--CBP-->
+	<!--CP-->
 	<Instance Name="DPInstance">
 		<Box ID="Base" Size="158,45" Color="0,0,0,0">
 			<Image Anchor="L,C" Size="45,45" Texture="45x45FrameButton.dds" ID="IconFrame">

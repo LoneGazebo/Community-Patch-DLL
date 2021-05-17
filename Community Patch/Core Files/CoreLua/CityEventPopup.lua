@@ -19,6 +19,7 @@ function OnPopup( popupInfo )
 
     local iEventChoiceType = popupInfo.Data1;
 	local cityID = popupInfo.Data2;
+	local ownerID = popupInfo.Data3;
     local pEventChoiceInfo = GameInfo.CityEventChoices[iEventChoiceType];
 
 	-- Top Art
@@ -39,37 +40,38 @@ function OnPopup( popupInfo )
 		end
 	end
 	
-	local playerID = Game.GetActivePlayer()
-	local player = Players[playerID];
-	local city = player:GetCityByID(cityID);
-	g_pCity = city
+	local owner = Players[ownerID];
+	local city = owner:GetCityByID(cityID);
+	
+	if(city ~= nil) then
+		g_pCity = city;
+		local cityName = city:GetNameKey();
+		local localizedCityName = Locale.ConvertTextKey(cityName);
 
-	local cityName = city:GetNameKey();
-	local localizedCityName = Locale.ConvertTextKey(cityName);
+		local szTitleString;
+		local szHelpString;
 
-	local szTitleString;
-	local szHelpString;
-
-	szTitleString = Locale.Lookup("TXT_KEY_CITY_EVENT_TITLE", localizedCityName, pEventChoiceInfo.Description);
-	szHelpString = Locale.Lookup("TXT_KEY_CITY_EVENT_HELP", localizedCityName, city:GetScaledEventChoiceValue(iEventChoiceType));
-	-- Test for any Override Strings
-	tChoiceOverrideStrings = {}
-	LuaEvents.EventChoice_OverrideTextStrings(playerID, cityID, pEventChoiceInfo, tChoiceOverrideStrings)
-	for _,str in ipairs(tChoiceOverrideStrings) do
-		szTitleString = str.Description or szTitleString
-		szHelpString = str.Help or szHelpString
+		szTitleString = Locale.Lookup("TXT_KEY_CITY_EVENT_TITLE", localizedCityName, pEventChoiceInfo.Description);
+		szHelpString = Locale.Lookup("TXT_KEY_CITY_EVENT_HELP", localizedCityName, city:GetScaledEventChoiceValue(iEventChoiceType));
+		-- Test for any Override Strings
+		tChoiceOverrideStrings = {}
+		LuaEvents.EventChoice_OverrideTextStrings(ownerID, cityID, pEventChoiceInfo, tChoiceOverrideStrings)
+		for _,str in ipairs(tChoiceOverrideStrings) do
+			szTitleString = str.Description or szTitleString
+			szHelpString = str.Help or szHelpString
+		end
+	
+		Controls.TitleLabel:SetText(szTitleString);
+		Controls.TitleLabel:SetToolTipString(szTitleString);
+		Controls.DescriptionLabel:SetText(szHelpString);
+	
+		-- Recalculate grid size
+		local mainGridSizeY = 400
+		local sizeYDiff = math.max((Controls.DescriptionLabel:GetSizeY()-Controls.EventBox:GetSizeY()),1)
+		Controls.MainGrid:SetSizeY(mainGridSizeY + sizeYDiff)
+		owner:AddNotification(NotificationTypes.NOTIFICATION_GENERIC, szHelpString, Locale.ConvertTextKey("TXT_KEY_CITY_EVENT_NOTIFICATION") .. szTitleString, city:Plot():GetX(), city:Plot():GetY())
+		UIManager:QueuePopup( ContextPtr, PopupPriority.CityStateGreeting );
 	end
-	
-	Controls.TitleLabel:SetText(szTitleString);
-	Controls.TitleLabel:SetToolTipString(szTitleString);
-	Controls.DescriptionLabel:SetText(szHelpString);
-	
-	-- Recalculate grid size
-	local mainGridSizeY = 400
-	local sizeYDiff = math.max((Controls.DescriptionLabel:GetSizeY()-Controls.EventBox:GetSizeY()),1)
-	Controls.MainGrid:SetSizeY(mainGridSizeY + sizeYDiff)
-	player:AddNotification(NotificationTypes.NOTIFICATION_GENERIC, szHelpString, Locale.ConvertTextKey("TXT_KEY_CITY_EVENT_NOTIFICATION") .. szTitleString, city:Plot():GetX(), city:Plot():GetY())
-	UIManager:QueuePopup( ContextPtr, PopupPriority.CityStateGreeting );
 end
 Events.SerialEventGameMessagePopup.Add( OnPopup );
 
