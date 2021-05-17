@@ -4626,13 +4626,27 @@ void CvGameDeals::DoEndTradedItem(CvTradedItem* pItem, PlayerTypes eToPlayer, bo
 			iBeakersBonus = (iBeakersBonus * toPlayer.GetMedianTechPercentage()) / 100;
 
 			TechTypes eCurrentTech = toPlayer.GetPlayerTechs()->GetCurrentResearch();
+#if defined(MOD_BALANCE_CORE)
+			CvCity* pCapital = toPlayer.getCapitalCity();
+			if (pCapital)
+			{
+				toPlayer.doInstantYield(INSTANT_YIELD_TYPE_RESEARCH_AGREMEENT, false, NO_GREATPERSON, NO_BUILDING, iBeakersBonus, false, NO_PLAYER, NULL, false, pCapital, false, false, false, YIELD_SCIENCE);
+			}
+			else
+#endif
 			if(eCurrentTech == NO_TECH)
 			{
-				toPlayer.doInstantYield(INSTANT_YIELD_TYPE_RESEARCH_AGREMEENT, false, NO_GREATPERSON, NO_BUILDING, iBeakersBonus, false, NO_PLAYER, NULL, false, NULL, false, false, false, YIELD_SCIENCE);
+				toPlayer.changeOverflowResearch(iBeakersBonus);
+#if defined(MOD_BALANCE_CORE)
+				toPlayer.changeInstantYieldValue(YIELD_SCIENCE, iBeakersBonus);
+#endif
 			}
 			else
 			{
 				kTeam.GetTeamTechs()->ChangeResearchProgress(eCurrentTech, iBeakersBonus, eToPlayer);
+#if defined(MOD_BALANCE_CORE)
+				toPlayer.changeInstantYieldValue(YIELD_SCIENCE, iBeakersBonus);
+#endif
 			}
 
 			pNotifications = toPlayer.GetNotifications();
