@@ -2357,10 +2357,6 @@ CvLeague::CvLeague(LeagueTypes eID)
 	m_vLastTurnRepealProposals.clear();
 	m_startingVotesCacheTime = 0;
 	m_startingVotesCached = 0;
-	m_startingVotesCacheTime = 0;
-	m_startingVotesCached = 0;
-	m_vLastTurnEnactProposals.clear();
-	m_vLastTurnRepealProposals.clear();
 }
 
 CvLeague::~CvLeague(void)
