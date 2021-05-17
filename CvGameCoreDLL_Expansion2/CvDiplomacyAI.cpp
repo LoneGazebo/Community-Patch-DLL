@@ -46756,7 +46756,6 @@ void CvDiplomacyAI::CleanupRenewDeals(PlayerTypes eOtherPlayer)
 	if (GetPlayer()->isHuman())
 		return;
 
-	CvDeal* pTargetDeal = NULL;
 	CvGameDeals& kGameDeals = GC.getGame().GetGameDeals();
 
 	int iNumDeals = kGameDeals.GetRenewableDealsWithPlayer(m_pPlayer->GetID(), eOtherPlayer);

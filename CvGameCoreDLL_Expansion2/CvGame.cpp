@@ -13084,7 +13084,6 @@ void CvGame::DoTestConquestVictory()
 				{
 					for (int iVassalLoop = 0; iVassalLoop < MAX_CIV_TEAMS; iVassalLoop++)
 					{
-						int iNumVassalsControlled = 0;
 						if (GET_TEAM((TeamTypes)iVassalLoop).isAlive())
 						{
 							//C4DF: We include vassals for count!
