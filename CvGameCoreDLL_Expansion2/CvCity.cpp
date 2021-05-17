@@ -13644,11 +13644,7 @@ int CvCity::getProductionDifferenceTimes100(int /*iProductionNeeded*/, int /*iPr
 		return 0;
 	}
 
-#if defined(MOD_BALANCE_CORE)
 	int iFoodProduction = ((bFoodProduction) ? (GetFoodProductionTimes100(getYieldRateTimes100(YIELD_FOOD, false) - foodConsumptionTimes100(true))) / 100 : 0);
-#else
-	int iFoodProduction = ((bFoodProduction) ? GetFoodProduction(getYieldRate(YIELD_FOOD, false) - foodConsumption(true)) : 0);
-#endif
 	iFoodProduction *= 100;
 
 	int iOverflow = ((bOverflow) ? (getOverflowProductionTimes100() + getFeatureProduction() * 100) : 0);
@@ -17191,13 +17187,11 @@ int CvCity::foodConsumptionSpecialistTimes100() const
 // --------------------------------------------------------------------------------
 int CvCity::foodConsumption(bool bNoAngry, int iExtra) const
 {
-#if defined(MOD_BALANCE_CORE)
 	return foodConsumptionTimes100(bNoAngry, iExtra * 100) / 100;
 }
 //	--------------------------------------------------------------------------------
 int CvCity::foodConsumptionTimes100(bool /*bNoAngry*/, int iExtra) const
 {
-#endif
 	VALIDATE_OBJECT
 #if defined(MOD_BALANCE_YIELD_SCALE_ERA)
 	if(MOD_BALANCE_YIELD_SCALE_ERA)
@@ -17284,19 +17278,11 @@ int CvCity::foodDifferenceTimes100(bool bBottom, bool bJustCheckingStarve, int i
 
 	if(isFoodProduction())
 	{
-#if defined(MOD_BALANCE_CORE)
 		iDifference = std::min(0, GetFoodProductionTimes100(getYieldRateTimes100(YIELD_FOOD, false) - foodConsumptionTimes100()));
-#else
-		iDifference = std::min(0, GetFoodProduction(getYieldRate(YIELD_FOOD, false) - foodConsumption()) * 100);
-#endif
 	}
 	else
 	{
-#if defined(MOD_BALANCE_CORE)
 		iDifference = (getYieldRateTimes100(YIELD_FOOD, false) - foodConsumptionTimes100());
-#else
-		iDifference = (getYieldRateTimes100(YIELD_FOOD, false) - foodConsumption() * 100);
-#endif
 	}
 
 	if(bBottom)

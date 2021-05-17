@@ -276,11 +276,7 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 					if(m_pCity->GetCityCitizens()->IsForcedAvoidGrowth())
 						return 0;
 
-#if defined(MOD_BALANCE_CORE)
 					int iExcessFoodTimes100 = m_pCity->getYieldRateTimes100(YIELD_FOOD, false) - (m_pCity->foodConsumptionTimes100());
-#else
-					int iExcessFoodTimes100 = m_pCity->getYieldRateTimes100(YIELD_FOOD, false) - (m_pCity->foodConsumption() * 100);
-#endif
 					if (iExcessFoodTimes100 < 0)
 					{
 						iModifier += 30;

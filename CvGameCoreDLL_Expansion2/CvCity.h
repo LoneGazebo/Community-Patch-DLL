@@ -526,9 +526,7 @@ public:
 	int foodConsumptionSpecialistTimes100() const;
 #endif
 	int foodConsumption(bool bNoAngry = false, int iExtra = 0) const;
-#if defined(MOD_BALANCE_CORE)
 	int foodConsumptionTimes100(bool bNoAngry = false, int iExtra = 0) const;
-#endif
 	int foodDifference(bool bBottom = true, bool bJustCheckingStarve = false) const;
 	int foodDifferenceTimes100(bool bBottom = true, bool bJustCheckingStarve = false, int iCorpMod = -1, CvString* toolTipSink = NULL) const;
 	int growthThreshold() const;

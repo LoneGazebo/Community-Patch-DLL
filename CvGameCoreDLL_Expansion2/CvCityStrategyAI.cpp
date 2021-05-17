@@ -686,11 +686,7 @@ void CvCityStrategyAI::PrecalcYieldStats()
 
 		//consider excess food only
 		if(eYield == YIELD_FOOD)
-#if defined(MOD_BALANCE_CORE)
 			iYield -= (m_pCity->foodConsumptionTimes100());
-#else
-			iYield -= (m_pCity->foodConsumption() * 100);
-#endif
 		
 		int iYieldPerPop100 = (iYield*100) / max(1, m_pCity->getPopulation());
 		int iDeviation = iYieldPerPop100 - (int)expectedYieldPerPop[iI];
