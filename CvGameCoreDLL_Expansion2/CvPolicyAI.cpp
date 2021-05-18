@@ -1639,6 +1639,31 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 		}
 	}
 
+
+	if (PolicyInfo->IsEnablesTechSteal())
+	{
+		if (pPlayerTraits->IsDiplomat() || pPlayerTraits->IsNerd())
+		{
+			yield[YIELD_SCIENCE] += 50 * iNumCities;
+		}
+		else
+		{
+			yield[YIELD_SCIENCE] += 25 * iNumCities;
+		}
+	}
+
+	if (PolicyInfo->IsEnablesGWSteal())
+	{
+		if (pPlayerTraits->IsTourism() || pPlayerTraits->IsSmaller())
+		{
+			yield[YIELD_TOURISM] += 50 * iNumCities;
+		}
+		else
+		{
+			yield[YIELD_TOURISM] += 25 * iNumCities;
+		}
+	}
+
 	if (pPlayer->GetCorporations()->GetFoundedCorporation() != NO_CORPORATION)
 	{
 		if (PolicyInfo->GetCorporationOfficesAsFranchises() != 0)

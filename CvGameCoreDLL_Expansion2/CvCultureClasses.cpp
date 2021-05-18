@@ -5699,7 +5699,7 @@ int CvPlayerCulture::ComputeWarWeariness()
 	//but if we have a war going, it will generate rising unhappiness	
 	if(iMostWarTurns > 0)
 	{
-		int iInfluenceModifier = max(3, (GET_PLAYER(eMostWarTurnsPlayer).GetCulture()->GetInfluenceLevel(m_pPlayer->GetID()) - GetInfluenceLevel(eMostWarTurnsPlayer) * 2));
+		int iInfluenceModifier = max(5, (GET_PLAYER(eMostWarTurnsPlayer).GetCulture()->GetInfluenceLevel(m_pPlayer->GetID()) - GetInfluenceLevel(eMostWarTurnsPlayer) * 5));
 
 		//War damage should influence this.
 		int iWarValue = (iHighestWarDamage * iInfluenceModifier) / 100;

@@ -23,7 +23,7 @@
 			<Text>Disrupt local [ICON_PRODUCTION] Production</Text>
 		</Row>
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_ECONOMIC_PRODUCTION_HELP">
-			<Text>{6_Spy}Target City: {2_InstantYield}[NEWLINE][NEWLINE]If City is constructing a [COLOR_POSITIVE_TEXT]World Wonder[ENDCOLOR] pr [COLOR_POSITIVE_TEXT]Project[ENDCOLOR], duration for this mission is halved.</Text>
+			<Text>{6_Spy}Target City: {2_InstantYield}[NEWLINE][NEWLINE]If City is constructing a [COLOR_POSITIVE_TEXT]World Wonder[ENDCOLOR] or [COLOR_POSITIVE_TEXT]Project[ENDCOLOR], duration for this mission is halved.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_ECONOMIC_GOLD">
 			<Text>Raid the local [ICON_GOLD] Gold treasury</Text>
@@ -73,6 +73,21 @@
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_URBAN_POISON_HELP">
 			<Text>{6_Spy}Target City: -25% [ICON_FOOD] Growth for {5_Turns}</Text>
 		</Row>
+
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_STEAL_TECH">
+			<Text>Sabotage Science and Steal a [ICON_RESEARCH] Technology</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_STEAL_TECH_HELP">
+			<Text>{6_Spy}Target Player: Steal one [ICON_RESEARCH] Technology. Target City: {3_CityYield}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_STEAL_GW">
+			<Text>Poison water supplies and spoil local [ICON_FOOD] Food stores</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_STEAL_GW_HELP">
+			<Text>{6_Spy}Target City: Copy one [ICON_GREAT_WORK] Great Work. Target City: {3_CityYield}</Text>
+		</Row>
+
+		
 
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_PLAYER_YIELD_BASIC">
 			<Text>Repatriated Specialists</Text>

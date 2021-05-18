@@ -362,6 +362,13 @@ ALTER TABLE Buildings ADD COLUMN 'CityConnectionGoldModifier' INTEGER DEFAULT 0;
 -- Adds abiility for units to upgrade in allied CS or vassal lands.
 ALTER TABLE Policies ADD COLUMN 'UpgradeCSVassalTerritory' BOOLEAN DEFAULT 0;
 
+-- Adds ability for spies to steal GW/tech through Spy Actions
+ALTER TABLE Policies ADD COLUMN 'EnablesTechSteal' BOOLEAN DEFAULT 0;
+ALTER TABLE Policies ADD COLUMN 'EnablesGWSteal' BOOLEAN DEFAULT 0;
+ALTER TABLE Buildings ADD COLUMN 'EnablesTechSteal' BOOLEAN DEFAULT 0;
+ALTER TABLE Buildings ADD COLUMN 'EnablesGWSteal' BOOLEAN DEFAULT 0;
+
+
 -- Adds event tourism from digging up sites.
 ALTER TABLE Policies ADD COLUMN 'ArchaeologicalDigTourism' INTEGER DEFAULT 0;
 -- Adds event tourism from golden ages starting.

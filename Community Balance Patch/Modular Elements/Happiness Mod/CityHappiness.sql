@@ -41,7 +41,7 @@
 	-- Per non-puppet city % modifier for unhappiness thresholds (i.e. # cities * value below = % modifier).
 	INSERT INTO Defines (
 	Name, Value)
-	SELECT 'BALANCE_HAPPINESS_EMPIRE_MULTIPLIER', '9'
+	SELECT 'BALANCE_HAPPINESS_EMPIRE_MULTIPLIER', '10'
 	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
 	-- Flat unhappiness per founded city.
@@ -69,7 +69,7 @@
 -- 	Base Value of Tech - % of techs researched v. techs known, multiplied by this value. 100 is default (each tech increases % by fraction of techs remaining v. techs researched).
 	INSERT INTO Defines (
 	Name, Value)
-	SELECT 'BALANCE_HAPPINESS_TECH_BASE_MODIFIER', '150'
+	SELECT 'BALANCE_HAPPINESS_TECH_BASE_MODIFIER', '160'
 	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
 -- Base increase of threshold values based on # of citizens in cities you own (1 citizen = 1%). Modifier increases as cities grow. 50 is default. Is a % modifier, so 25 would be a 25% increase over 1%.

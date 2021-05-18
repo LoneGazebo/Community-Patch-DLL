@@ -154,6 +154,36 @@
 			<EspionageDifficultyMod>350</EspionageDifficultyMod>
 			<SpyLevelRequired>2</SpyLevelRequired>
 		</Row>
+		<!-- STEAL TECH -->
+		<Row>
+			<Type>ESPIONAGE_EVENT_CHOICE_STEAL_TECH</Type>
+			<Description>TXT_KEY_ESPIONAGE_EVENT_CHOICE_STEAL_TECH</Description>
+			<Help>TXT_KEY_ESPIONAGE_EVENT_CHOICE_STEAL_TECH_HELP</Help>
+			<IsEspionageEffect>true</IsEspionageEffect>
+			<MissionSetup>true</MissionSetup>
+			<IDModifier>60</IDModifier>
+			<PotentialScaling>true</PotentialScaling>
+			<EraScaling>true</EraScaling>
+			<DeathModifier>40</DeathModifier>
+			<StealNumTechs>1</StealNumTechs>
+			<EspionageDifficultyMod>500</EspionageDifficultyMod>
+			<SpyLevelRequired>2</SpyLevelRequired>
+		</Row>
+		<!-- STEAL GW -->
+		<Row>
+			<Type>ESPIONAGE_EVENT_CHOICE_STEAL_GW</Type>
+			<Description>TXT_KEY_ESPIONAGE_EVENT_CHOICE_STEAL_GW</Description>
+			<Help>TXT_KEY_ESPIONAGE_EVENT_CHOICE_STEAL_GW_HELP</Help>
+			<IsEspionageEffect>true</IsEspionageEffect>
+			<MissionSetup>true</MissionSetup>
+			<IDModifier>60</IDModifier>
+			<PotentialScaling>true</PotentialScaling>
+			<EraScaling>true</EraScaling>
+			<DeathModifier>40</DeathModifier>
+			<ForgeNumGW>1</ForgeNumGW>
+			<EspionageDifficultyMod>450</EspionageDifficultyMod>
+			<SpyLevelRequired>2</SpyLevelRequired>
+		</Row>
 		<!--- CounterSpy -->
 		<Row>
 			<Type>ESPIONAGE_EVENT_CHOICE_COUNTERSPY_BASIC</Type>
@@ -244,6 +274,18 @@
 			<Yield>-25</Yield>
 		</Row>
 	</CityEventChoice_CityUnhappinessNeedMod>
+	<CityEventChoice_CityYield>
+		<Row>
+			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_STEAL_TECH</CityEventChoiceType>
+			<YieldType>YIELD_SCIENCE</YieldType>
+			<Yield>-100</Yield>
+		</Row>
+		<Row>
+			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_STEAL_GW</CityEventChoiceType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>-100</Yield>
+		</Row>
+	</CityEventChoice_CityYield>
 	<CityEventChoice_ImprovementDestructionRandom>
 		<Row>
 			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_ECONOMIC_TILES</CityEventChoiceType>
@@ -378,6 +420,14 @@
 			<CityEventType>ESPIONAGE_EVENT_CHOICE_SELECT_FOCUS</CityEventType>
 		</Row>
 		<Row>
+			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_STEAL_TECH</CityEventChoiceType>
+			<CityEventType>ESPIONAGE_EVENT_CHOICE_SELECT_FOCUS</CityEventType>
+		</Row>
+		<Row>
+			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_STEAL_GW</CityEventChoiceType>
+			<CityEventType>ESPIONAGE_EVENT_CHOICE_SELECT_FOCUS</CityEventType>
+		</Row>
+		<Row>
 			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_COUNTERSPY_BASIC</CityEventChoiceType>
 			<CityEventType>ESPIONAGE_EVENT_CHOICE_COUNTERSPY_FOCUS</CityEventType>
 		</Row>
@@ -441,6 +491,17 @@
 			<FlavorType>FLAVOR_GROWTH</FlavorType>
 			<Flavor>15</Flavor>
 		</Row>
+		<Row>
+			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_STEAL_TECH</CityEventChoiceType>
+			<FlavorType>FLAVOR_SCIENCE</FlavorType>
+			<Flavor>50</Flavor>
+		</Row>
+		<Row>
+			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_STEAL_GW</CityEventChoiceType>
+			<FlavorType>FLAVOR_CULTURE</FlavorType>
+			<Flavor>50</Flavor>
+		</Row>
+		
 		<Row>
 			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_COUNTERSPY_BASIC</CityEventChoiceType>
 			<FlavorType>FLAVOR_ESPIONAGE</FlavorType>
@@ -601,6 +662,26 @@
 		</Row>
 		<Row>
 			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_ECONOMIC_TILES</CityEventChoiceType>
+			<NotificationType>NOTIFICATION_GENERIC</NotificationType>
+			<Description>TXT_KEY_ESPIONAGE_EVENT_CHOICE_SUCCESS</Description>
+			<ShortDescription>TXT_KEY_ESPIONAGE_EVENT_CHOICE_SUCCESS_S</ShortDescription>
+			<EspionageEvent>true</EspionageEvent>
+			<NeedCityCoordinates>true</NeedCityCoordinates>
+			<NeedPlayerID>false</NeedPlayerID>
+			<ExtraVariable>-1</ExtraVariable>
+		</Row>
+		<Row>
+			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_STEAL_TECH</CityEventChoiceType>
+			<NotificationType>NOTIFICATION_GENERIC</NotificationType>
+			<Description>TXT_KEY_ESPIONAGE_EVENT_CHOICE_SUCCESS</Description>
+			<ShortDescription>TXT_KEY_ESPIONAGE_EVENT_CHOICE_SUCCESS_S</ShortDescription>
+			<EspionageEvent>true</EspionageEvent>
+			<NeedCityCoordinates>true</NeedCityCoordinates>
+			<NeedPlayerID>false</NeedPlayerID>
+			<ExtraVariable>-1</ExtraVariable>
+		</Row>
+		<Row>
+			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_STEAL_GW</CityEventChoiceType>
 			<NotificationType>NOTIFICATION_GENERIC</NotificationType>
 			<Description>TXT_KEY_ESPIONAGE_EVENT_CHOICE_SUCCESS</Description>
 			<ShortDescription>TXT_KEY_ESPIONAGE_EVENT_CHOICE_SUCCESS_S</ShortDescription>

@@ -10455,6 +10455,8 @@ CvModEventCityChoiceInfo::CvModEventCityChoiceInfo() :
 	 m_iDifficultyModEsp(0),
 	 m_iDamageCity(0),
 	 m_iDamageGarrison(0),
+	 m_iStealTech(0),
+	 m_iForgeGW(0),
 	 m_iSapCityTurns(0),
 	 m_bRequiresCounterSpy(false),
 	 m_bExpiresOnCounterSpyExit(false),
@@ -10576,6 +10578,14 @@ int CvModEventCityChoiceInfo::getDamageCity() const
 int CvModEventCityChoiceInfo::getDamageGarrison() const
 {
 	return m_iDamageGarrison;
+}
+int CvModEventCityChoiceInfo::getStealTech() const
+{
+	return m_iStealTech;
+}
+int CvModEventCityChoiceInfo::getForgeGW() const
+{
+	return m_iForgeGW;
 }
 int CvModEventCityChoiceInfo::getSapCityTurns() const
 {
@@ -11131,7 +11141,9 @@ bool CvModEventCityChoiceInfo::CacheResults(Database::Results& kResults, CvDatab
 	m_bExpiresOnCounterSpyExit = kResults.GetBool("ExpiresOnCounterSpyExit");
 	m_bIsMissionSetup = kResults.GetBool("MissionSetup");
 	m_iDamageCity = kResults.GetInt("DamageCity");
-	m_iDamageGarrison = kResults.GetInt("DamageGarrison");
+	m_iDamageGarrison = kResults.GetInt("DamageGarison");
+	m_iStealTech = kResults.GetInt("StealNumTechs");
+	m_iForgeGW = kResults.GetInt("ForgeNumGW");
 	m_iSapCityTurns = kResults.GetInt("SapCityTurns");
 	m_iCityDefenseModifier = kResults.GetInt("CityDefenseModifier");
 

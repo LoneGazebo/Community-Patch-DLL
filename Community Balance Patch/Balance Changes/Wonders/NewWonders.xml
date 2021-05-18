@@ -158,6 +158,7 @@
 			<HurryCostModifier>-1</HurryCostModifier>
 			<MinAreaSize>-1</MinAreaSize>
 			<ConquestProb>100</ConquestProb>
+			<EnablesTechSteal>true</EnablesTechSteal>
 			<FreeBuildingThisCity>BUILDINGCLASS_LABORATORY</FreeBuildingThisCity>
 			<DisplayPosition>1</DisplayPosition>
 			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>

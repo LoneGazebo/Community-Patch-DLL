@@ -983,6 +983,69 @@ bool CvPlayerEspionage::DoSpyFocusEvent(uint uiSpyIndex)
 	}
 	return false;
 }
+bool CvPlayerEspionage::DoStealTechnology(PlayerTypes eTargetPlayer)
+{
+	if (m_aaPlayerStealableTechList[eTargetPlayer].size() <= 0)
+		return false;
+
+	TeamTypes eTeam = m_pPlayer->getTeam();
+
+	int iGrab = GC.getGame().getSmallFakeRandNum((int)m_aaPlayerStealableTechList[eTargetPlayer].size() - 1, m_pPlayer->GetPseudoRandomSeed() + GET_PLAYER(eTargetPlayer).GetTreasury()->CalculateGrossGold());
+	if (iGrab <= 0)
+		iGrab = 0;
+	if (iGrab > (int)m_aaPlayerStealableTechList[eTargetPlayer].size() - 1)
+		iGrab = (int)m_aaPlayerStealableTechList[eTargetPlayer].size() - 1;
+
+	TechTypes eStolenTech = m_aaPlayerStealableTechList[eTargetPlayer][iGrab];
+
+	GET_TEAM(eTeam).setHasTech(eStolenTech, true, m_pPlayer->GetID(), true, true);
+	GET_TEAM(eTeam).GetTeamTechs()->SetNoTradeTech(eStolenTech, true);
+	
+	m_aiNumSpyActionsDone[eTargetPlayer]++;
+
+	m_pPlayer->doInstantYield(INSTANT_YIELD_TYPE_SPY_ATTACK, false, NO_GREATPERSON, NO_BUILDING, 1);
+
+	// recalculate the num techs to steal list
+	BuildStealableTechList((PlayerTypes)eTargetPlayer);
+
+	return true;
+}
+bool CvPlayerEspionage::DoStealGW(CvCity* pPlayerCity, int iGWID)
+{
+
+	PlayerTypes eDefendingPlayer = pPlayerCity->getOwner();
+
+	BuildingClassTypes eGWBuildingClass; //passed by ref
+	int iSlot = -1; // Passed by reference below
+	GreatWorkType eType = GC.getGame().GetGameCulture()->m_CurrentGreatWorks[iGWID].m_eType;
+	GreatWorkSlotType eGreatWorkSlot = CultureHelpers::GetGreatWorkSlot(eType);
+
+	CvCity *pArtCity = m_pPlayer->GetCulture()->GetClosestAvailableGreatWorkSlot(pPlayerCity->getX(), pPlayerCity->getY(), eGreatWorkSlot, &eGWBuildingClass, &iSlot);
+	if (pArtCity)
+	{		
+		pArtCity->GetCityBuildings()->SetBuildingGreatWork(eGWBuildingClass, iSlot, iGWID);
+		CvGameCulture *pCulture = GC.getGame().GetGameCulture();
+		if (pCulture)
+		{
+			CvString strMsg;
+			strMsg.Format("Great Work COPIED by Spy! Name: %s. Stolen from: %s ", pCulture->GetGreatWorkName(iGWID).GetCString(), pPlayerCity->getNameKey());
+			strMsg += ",";
+			strMsg += ",";
+			strMsg += GET_PLAYER(eDefendingPlayer).getCivilizationShortDescription();
+			strMsg += ",";
+		}
+
+		if (m_pPlayer->GetID() == GC.getGame().getActivePlayer())
+		{
+			CvPopupInfo kPopup(BUTTONPOPUP_GREAT_WORK_COMPLETED_ACTIVE_PLAYER, iGWID);
+			GC.GetEngineUserInterface()->AddPopup(kPopup);
+		}
+		return true;
+	}
+	return false;
+}
+
+
 
 CvWeightedVector<int> CvPlayerEspionage::GetRandomActionEventPool(CvCity* pCity)
 {
@@ -3257,8 +3320,8 @@ int CvPlayerEspionage::CalcRequired(int iSpyState, CvCity* pCity, int iSpyIndex,
 	break;
 	case SPY_STATE_BUILDING_NETWORK:
 	{
-		int iTime = 15 - pCity->GetEspionageRanking();
-		return iTime;
+		int iTime = 10 - pCity->GetEspionageRanking();
+		return max(1, iTime);
 	}
 	break;
 	case SPY_STATE_SURVEILLANCE:
@@ -4185,9 +4248,121 @@ int CvPlayerEspionage::GetNumUnassignedSpies(void)
 	return GetNumAliveSpies() - GetNumAssignedSpies();
 }
 
+std::vector<int> CvPlayerEspionage::BuildGWList(CvCity* pCity)
+{
+	std::vector<int> GWIds;
+	if (pCity == NULL || pCity->GetCityBuildings()->GetNumGreatWorks() <= 0)
+		return GWIds;
+
+	GreatWorkSlotType eArtArtifactSlot = CvTypes::getGREAT_WORK_SLOT_ART_ARTIFACT();
+	GreatWorkSlotType eMusicSlot = CvTypes::getGREAT_WORK_SLOT_MUSIC();
+	GreatWorkSlotType eWritingSlot = CvTypes::getGREAT_WORK_SLOT_LITERATURE();
+
+	int iOpenArtSlots = 0;
+	int iOpenWritingSlots = 0;
+	int iOpenMusicSlots = 0;
+
+	int iLoop;
+	for (CvCity* pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
+	{
+		iOpenArtSlots += pLoopCity->GetCityBuildings()->GetNumAvailableGreatWorkSlots(eArtArtifactSlot);
+		iOpenMusicSlots += pLoopCity->GetCityBuildings()->GetNumAvailableGreatWorkSlots(eMusicSlot);
+		iOpenWritingSlots += pLoopCity->GetCityBuildings()->GetNumAvailableGreatWorkSlots(eWritingSlot);
+	}
+	if (iOpenArtSlots <= 0 && iOpenWritingSlots <= 0 && iOpenMusicSlots <= 0)
+		return GWIds;
+
+	int iNumGreatWorks = pCity->GetCityBuildings()->GetNumGreatWorks();
+
+	if (iNumGreatWorks <= 0)
+		return GWIds;
+
+	PlayerTypes ePlayer = pCity->getOwner();
+
+	for (int iBuildingClassLoop = 0; iBuildingClassLoop < GC.getNumBuildingClassInfos(); iBuildingClassLoop++)
+	{
+		const CvCivilizationInfo& playerCivilizationInfo = GET_PLAYER(ePlayer).getCivilizationInfo();
+		BuildingTypes eBuilding = NO_BUILDING;
+		// If Rome, or if the option to check for all buildings in a class is enabled, we loop through all buildings in the city
+#if defined(MOD_BALANCE_CORE)
+		if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || GET_PLAYER(ePlayer).GetPlayerTraits()->IsKeepConqueredBuildings())
+#else
+		if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
+#endif
+		{
+			eBuilding = pCity->GetCityBuildings()->GetBuildingTypeFromClass((BuildingClassTypes)iBuildingClassLoop);
+		}
+		else
+		{
+			eBuilding = (BuildingTypes)playerCivilizationInfo.getCivilizationBuildings((BuildingClassTypes)iBuildingClassLoop);
+		}
+		if (eBuilding != NO_BUILDING)
+		{
+			CvBuildingEntry *pkBuilding = GC.getBuildingInfo(eBuilding);
+			if (pkBuilding)
+			{
+				if (pCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
+				{
+					if (pkBuilding->GetGreatWorkSlotType() == eArtArtifactSlot && iOpenArtSlots > 0)
+					{
+						int iNumSlots = pkBuilding->GetGreatWorkCount();
+						if (iNumSlots > 0)
+						{
+							for (int iI = 0; iI < iNumSlots; iI++)
+							{
+								int iGreatWorkIndex = pCity->GetCityBuildings()->GetBuildingGreatWork((BuildingClassTypes)iBuildingClassLoop, iI);
+								if (iGreatWorkIndex != -1 && !m_pPlayer->GetCulture()->ControlsGreatWork(iGreatWorkIndex))
+								{
+									GWIds.push_back(iGreatWorkIndex);
+								}
+							}
+						}
+					}
+					else if (pkBuilding->GetGreatWorkSlotType() == eMusicSlot && iOpenMusicSlots > 0)
+					{
+						int iNumSlots = pkBuilding->GetGreatWorkCount();
+						if (iNumSlots > 0)
+						{
+							for (int iI = 0; iI < iNumSlots; iI++)
+							{
+								int iGreatWorkIndex = pCity->GetCityBuildings()->GetBuildingGreatWork((BuildingClassTypes)iBuildingClassLoop, iI);
+								if (iGreatWorkIndex != -1 && !m_pPlayer->GetCulture()->ControlsGreatWork(iGreatWorkIndex))
+								{
+									GWIds.push_back(iGreatWorkIndex);
+								}
+							}
+						}
+					}
+					else if (pkBuilding->GetGreatWorkSlotType() == eWritingSlot && iOpenWritingSlots > 0)
+					{
+						int iNumSlots = pkBuilding->GetGreatWorkCount();
+						if (iNumSlots > 0)
+						{
+							for (int iI = 0; iI < iNumSlots; iI++)
+							{
+								int iGreatWorkIndex = pCity->GetCityBuildings()->GetBuildingGreatWork((BuildingClassTypes)iBuildingClassLoop, iI);
+								if (iGreatWorkIndex != -1 && !m_pPlayer->GetCulture()->ControlsGreatWork(iGreatWorkIndex))
+								{
+									// add to list!
+									GWIds.push_back(iGreatWorkIndex);
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	return GWIds;
+}
+
+
 /// BuildStealableTechList - Go through opponents list and see what techs you can steal from them.
 void CvPlayerEspionage::BuildStealableTechList(PlayerTypes ePlayer)
 {
+	if (ePlayer > MAX_MAJOR_CIVS)
+		return;
+
 	CvAssertMsg((uint)ePlayer < m_aaPlayerStealableTechList.size(), "ePlayer out of bounds");
 	if((uint)ePlayer >= m_aaPlayerStealableTechList.size())
 	{

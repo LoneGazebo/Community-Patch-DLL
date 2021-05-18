@@ -16,7 +16,7 @@
 	-- War Weariness Cap
 	-- This is the % of empire population that war weariness is capped at.
 	INSERT INTO Defines (Name, Value)
-	SELECT 'BALANCE_WAR_WEARINESS_POPULATION_CAP', '25';
+	SELECT 'BALANCE_WAR_WEARINESS_POPULATION_CAP', '34';
 
 -- Happiness Flavors
 	UPDATE AIEconomicStrategy_City_Flavors

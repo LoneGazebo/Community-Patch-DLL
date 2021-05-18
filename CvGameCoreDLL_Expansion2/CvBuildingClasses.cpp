@@ -226,6 +226,8 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_iResourceDiversityModifier(0),
 	m_iNoUnhappfromXSpecialists(0),
 	m_iNoUnhappfromXSpecialistsGlobal(0),
+	m_bEnablesTechSteal(false),
+	m_bEnablesGWSteal(false),
 #endif
 
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
@@ -573,6 +575,10 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	m_iResourceDiversityModifier = kResults.GetInt("ResourceDiversityModifier");
 	m_iNoUnhappfromXSpecialists = kResults.GetInt("NoUnhappfromXSpecialists");
 	m_iNoUnhappfromXSpecialistsGlobal = kResults.GetInt("NoUnhappfromXSpecialistsGlobal");
+
+	m_bEnablesTechSteal = kResults.GetBool("EnablesTechSteal");
+	m_bEnablesGWSteal = kResults.GetBool("EnablesGWSteal");
+
 #endif
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	m_bVassalLevyEra = kResults.GetBool("VassalLevyEra");
@@ -4085,6 +4091,16 @@ int CvBuildingEntry::GetNoUnhappfromXSpecialists() const
 int CvBuildingEntry::GetNoUnhappfromXSpecialistsGlobal() const
 {
 	return m_iNoUnhappfromXSpecialistsGlobal;
+}
+
+bool CvBuildingEntry::IsEnablesTechSteal() const
+{
+	return m_bEnablesTechSteal;
+}
+
+bool CvBuildingEntry::IsEnablesGWSteal() const
+{
+	return m_bEnablesGWSteal;
 }
 #endif
 

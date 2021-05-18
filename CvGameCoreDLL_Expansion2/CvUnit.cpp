@@ -11345,6 +11345,7 @@ bool CvUnit::DoSpreadReligion()
 				CvPlayer &kPlayer = GET_PLAYER(m_eOwner);
 				if(GET_PLAYER(pCity->getOwner()).isMinorCiv())
 				{
+					kPlayer.doInstantYield(INSTANT_YIELD_TYPE_SPREAD, false, NO_GREATPERSON, NO_BUILDING, iCSInfluence, true, NO_PLAYER, NULL, false, pCity, false, true, false, YIELD_JFD_LOYALTY);
 					GET_PLAYER(pCity->getOwner()).GetMinorCivAI()->ChangeFriendshipWithMajor(kPlayer.GetID(), iCSInfluence, false);
 					if (pCity->plot() && pCity->plot()->GetActiveFogOfWarMode() == FOGOFWARMODE_OFF)
 					{

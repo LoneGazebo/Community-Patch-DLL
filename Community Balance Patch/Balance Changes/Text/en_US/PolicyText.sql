@@ -163,13 +163,13 @@ WHERE Tag = 'TXT_KEY_POLICY_CAPITALISM_HELP' AND EXISTS (SELECT * FROM COMMUNITY
 -- Open Society
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Avant Garde[ENDCOLOR]: The rate at which [ICON_GREAT_PEOPLE] Great People are born is increased by 33%. [ICON_HAPPINESS_3] Unhappiness Needs Modifier for [ICON_CULTURE] Boredom reduced by 20%.'
+SET Text = '[COLOR_POSITIVE_TEXT]Avant Garde[ENDCOLOR]: Allows Spies to create copies of foreign Great Works as a Spy Action. The rate at which [ICON_GREAT_PEOPLE] Great People are born is increased by 33%. [ICON_HAPPINESS_3] Unhappiness Needs Modifier for [ICON_CULTURE] Boredom reduced by 20%.'
 WHERE Tag = 'TXT_KEY_POLICY_OPEN_SOCIETY_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 -- Civil Society
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Civil Society[ENDCOLOR]: Specialists consume 2 [ICON_FOOD] Food less than normal (minimum 1 [ICON_FOOD] Food).'
+SET Text = '[COLOR_POSITIVE_TEXT]Civil Society[ENDCOLOR]: Specialists consume 2 [ICON_FOOD] Food less than normal (minimum 1 [ICON_FOOD] Food). +3 [ICON_CULTURE] Culture and [ICON_RESEARCH] Science from Villages.'
 WHERE Tag = 'TXT_KEY_POLICY_CIVIL_SOCIETY_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 -- Covert Action

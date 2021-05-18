@@ -1631,6 +1631,11 @@ public:
 	int GetNoUnhappfromXSpecialists() const;
 	void ChangeNoUnhappfromXSpecialists(int iChange);
 
+	void ChangeEnablesTechSteal(int iValue);
+	bool IsTechStealEnabled() const;
+	void ChangeEnablesGWSteal(int iValue);
+	bool IsGWStealEnabled() const;
+
 	int GetTechDeviation() const;
 
 	int GetHappfromXSpecialists() const;
@@ -3139,6 +3144,9 @@ protected:
 	FAutoVariable<int, CvPlayer> m_iSpecialistFoodChange;
 	FAutoVariable<int, CvPlayer> m_iWarWearinessModifier;
 	FAutoVariable<int, CvPlayer> m_iWarScoreModifier;
+	FAutoVariable<bool, CvPlayer> m_bEnablesTechSteal;
+	FAutoVariable<bool, CvPlayer> m_bEnablesGWSteal;
+	
 #endif
 #if defined(MOD_BALANCE_CORE_POLICIES)
 	FAutoVariable<int, CvPlayer> m_iGarrisonsOccupiedUnhapppinessMod;

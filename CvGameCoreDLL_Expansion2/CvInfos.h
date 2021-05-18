@@ -3428,6 +3428,8 @@ public:
 	int getEspionageDifficultyModifier() const;
 	int getDamageCity() const;
 	int getDamageGarrison() const;
+	int getStealTech() const;
+	int getForgeGW() const;
 	int getSapCityTurns() const;
 	bool isRequiresCounterSpy() const;
 	bool isExpiresOnCounterSpyExit() const;
@@ -3554,6 +3556,8 @@ protected:
 	bool m_bExpiresOnCounterSpyExit;
 	int m_iDamageCity;
 	int m_iDamageGarrison;
+	int m_iStealTech;
+	int m_iForgeGW;
 	int m_iSapCityTurns;
 
 	//Filters

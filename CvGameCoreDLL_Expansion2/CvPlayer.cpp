@@ -640,6 +640,8 @@ CvPlayer::CvPlayer() :
 	, m_iSpecialistFoodChange("CvPlayer::m_iSpecialistFoodChange", m_syncArchive)
 	, m_iWarWearinessModifier("CvPlayer::m_iWarWearinessModifier", m_syncArchive)
 	, m_iWarScoreModifier("CvPlayer::m_iWarScoreModifier", m_syncArchive)
+	, m_bEnablesTechSteal("CvPlayer::m_bEnablesTechSteal", m_syncArchive)
+	, m_bEnablesGWSteal("CvPlayer::m_bEnablesGWSteal", m_syncArchive)
 #endif
 #if defined(MOD_TRAITS_CITY_WORKING) || defined(MOD_BUILDINGS_CITY_WORKING) || defined(MOD_POLICIES_CITY_WORKING) || defined(MOD_TECHS_CITY_WORKING)
 	, m_iCityWorkingChange("CvPlayer::m_iCityWorkingChange", m_syncArchive)
@@ -1545,6 +1547,8 @@ void CvPlayer::uninit()
 	m_iSpecialistFoodChange = 0;
 	m_iWarWearinessModifier = 0;
 	m_iWarScoreModifier = 0;
+	m_bEnablesTechSteal = false;
+	m_bEnablesGWSteal = false;
 	m_iPlayerEventCooldown = 0;
 	m_iExtraSupplyPerPopulation = 0;
 	m_iCitySupplyFlatGlobal = 0;
@@ -16409,13 +16413,6 @@ int CvPlayer::getProductionNeeded(UnitTypes eUnit) const
 			iMod += GetPlayerTraits()->GetUnitCombatProductionCostModifier(eUnitCombat).first;
 		}
 	}
-#if defined(MOD_BALANCE_DYNAMIC_UNIT_SUPPLY)
-	if (MOD_BALANCE_DYNAMIC_UNIT_SUPPLY && bCombat)
-	{
-		int iWarWeariness = GetCulture()->GetWarWeariness();
-		iMod += min(100, iWarWeariness);
-	}
-#endif
 	iProductionNeeded *= iMod;
 	iProductionNeeded /= 100;
 #endif
@@ -17167,6 +17164,15 @@ void CvPlayer::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst
 	if (pBuildingInfo->GetNoUnhappfromXSpecialistsGlobal() != 0)
 	{
 		ChangeNoUnhappfromXSpecialists(pBuildingInfo->GetNoUnhappfromXSpecialistsGlobal() * iChange);
+	}
+
+	if (pBuildingInfo->IsEnablesTechSteal() != 0)
+	{
+		ChangeEnablesTechSteal(pBuildingInfo->IsEnablesTechSteal() * iChange);
+	}
+	if (pBuildingInfo->IsEnablesGWSteal() != 0)
+	{
+		ChangeEnablesGWSteal(pBuildingInfo->IsEnablesGWSteal() * iChange);
 	}
 
 	if(pBuildingInfo->IsSecondaryPantheon())
@@ -26334,7 +26340,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 			if(eYield == NO_YIELD)
 				continue;
 
-			if (MOD_BALANCE_CORE_JFD && eYield >= YIELD_JFD_HEALTH)
+			if (!MOD_BALANCE_CORE_JFD && eYield >= YIELD_JFD_HEALTH && eYield != ePassYield)
 				continue;
 		
 			CvYieldInfo* pYieldInfo = GC.getYieldInfo(eYield);
@@ -27026,6 +27032,8 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 							}
 						}
 					}
+					if (eYield == YIELD_JFD_LOYALTY && eYield == ePassYield)
+						iValue += iPassYield;
 					break;
 				}
 				case INSTANT_YIELD_TYPE_F_SPREAD:
@@ -27508,6 +27516,10 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 						{
 							cityyieldString += GetLocalizedText("TXT_KEY_INSTANT_YIELD_DETAILS", pYieldInfo->GetDescriptionKey(), pYieldInfo->getIconString(), iValue);
 						}
+					}
+					else if (iType == INSTANT_YIELD_TYPE_SPREAD && eYield == YIELD_JFD_LOYALTY)
+					{
+						cityyieldString += GetLocalizedText("TXT_KEY_INSTANT_YIELD_DETAILS_INFLUENCE", iValue);
 					}
 					else
 					{
@@ -32227,6 +32239,29 @@ int CvPlayer::GetNoUnhappfromXSpecialists() const
 void CvPlayer::ChangeNoUnhappfromXSpecialists(int iChange)
 {
 	m_iNoUnhappfromXSpecialists += iChange;
+}
+
+void CvPlayer::ChangeEnablesTechSteal(int iValue)
+{
+	if (iValue > 0)
+		m_bEnablesTechSteal = true;
+	else
+		m_bEnablesTechSteal = false;
+}
+bool CvPlayer::IsTechStealEnabled() const
+{
+	return m_bEnablesTechSteal;
+}
+void CvPlayer::ChangeEnablesGWSteal(int iValue)
+{
+	if (iValue > 0)
+		m_bEnablesGWSteal = true;
+	else
+		m_bEnablesGWSteal = false;
+}
+bool CvPlayer::IsGWStealEnabled() const
+{
+	return m_bEnablesGWSteal;
 }
 
 int CvPlayer::GetTechDeviation() const
@@ -43798,6 +43833,8 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 	ChangeHappinessPerXPopulationGlobal(pPolicy->GetHappinessPerXPopulationGlobal() * iChange);
 	ChangeIdeologyPoint(pPolicy->GetIdeologyPoint() * iChange);
 	ChangeNoXPLossUnitPurchase(pPolicy->IsNoXPLossUnitPurchase() * iChange);
+	ChangeEnablesGWSteal(pPolicy->IsEnablesGWSteal() * iChange);
+	ChangeEnablesTechSteal(pPolicy->IsEnablesTechSteal() * iChange);
 	ChangeEventTourism(pPolicy->GetEventTourism() * iChange);
 	ChangeEventTourismCS(pPolicy->GetEventTourismCS() * iChange);
 	ChangeMonopolyModFlat(pPolicy->GetMonopolyModFlat() * iChange);

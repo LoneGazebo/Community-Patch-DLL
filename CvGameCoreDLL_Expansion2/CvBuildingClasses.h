@@ -235,6 +235,9 @@ public:
 	int GetResourceDiversityModifier() const;
 	int GetNoUnhappfromXSpecialists() const;
 	int GetNoUnhappfromXSpecialistsGlobal() const;
+
+	bool IsEnablesTechSteal() const;
+	bool IsEnablesGWSteal() const;
 #endif
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	bool IsVassalLevyEra() const;
@@ -839,6 +842,8 @@ private:
 	bool m_bAnyWater;
 	int m_iNoUnhappfromXSpecialists;
 	int m_iNoUnhappfromXSpecialistsGlobal;
+	bool m_bEnablesTechSteal;
+	bool m_bEnablesGWSteal;
 #endif
 #if defined(MOD_BALANCE_CORE_EVENTS)
 	int m_iEventRequiredActive;

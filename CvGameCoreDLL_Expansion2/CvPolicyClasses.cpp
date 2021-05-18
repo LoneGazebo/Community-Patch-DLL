@@ -87,6 +87,8 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_ePolicyEraUnlock(NO_ERA),
 	m_iIdeologyPoint(0),
 	m_bNoXPLossUnitPurchase(false),
+	m_bEnablesTechSteal(false),
+	m_bEnablesGWSteal(false),
 	m_piGoldenAgeYieldMod(NULL),
 	m_bNoForeignCorpsInCities(false),
 	m_bNoFranchisesInForeignCities(false),
@@ -558,6 +560,8 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	}
 	m_iIdeologyPoint = kResults.GetInt("IdeologyPoint");
 	m_bNoXPLossUnitPurchase = kResults.GetBool("NoXPLossUnitPurchase");
+	m_bEnablesTechSteal = kResults.GetBool("EnablesTechSteal");
+	m_bEnablesGWSteal = kResults.GetBool("EnablesGWSteal");
 	m_bNoForeignCorpsInCities = kResults.GetBool("NoForeignCorpsInCities");
 	m_bNoFranchisesInForeignCities = kResults.GetBool("NoFranchisesInForeignCities");
 	m_iCorporationOfficesAsFranchises = kResults.GetInt("CorporationOfficesAsNumFranchises");
@@ -1750,6 +1754,14 @@ int CvPolicyEntry::GetIdeologyPoint() const
 bool CvPolicyEntry::IsNoXPLossUnitPurchase() const
 {
 	return m_bNoXPLossUnitPurchase;
+}
+bool CvPolicyEntry::IsEnablesTechSteal() const
+{
+	return m_bEnablesTechSteal;
+}
+bool CvPolicyEntry::IsEnablesGWSteal() const
+{
+	return m_bEnablesGWSteal;
 }
 
 /// Does this make Offices count as Franchises?

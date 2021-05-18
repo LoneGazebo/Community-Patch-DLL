@@ -6666,7 +6666,7 @@
 			<Text>Bonus Yields in {1_City}!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_INSTANT_YIELD_CITY">
-			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT]{1_City}[ENDCOLOR]</Text>
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT]{1_City}: [ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_INSTANT_YIELD_DETAILS">
 			<Text>+{3_Num} {2_Icon} {1_Name}</Text>
@@ -6696,7 +6696,7 @@
 			<Text>Researching a [ICON_RESEARCH] Technology:[NEWLINE]{1_YieldString}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_INSTANT_YIELD_CONSTRUCTION">
-			<Text>Constructing {TXT_KEY_GRAMMAR_A_AN &lt;&lt; {1_BuildingType}}:[NEWLINE]{1_YieldString}</Text>
+			<Text>Constructing {TXT_KEY_GRAMMAR_A_AN &lt;&lt; {2_BuildingType}}:[NEWLINE]{1_YieldString}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_INSTANT_YIELD_BORDERS">
 			<Text>Expanding [ICON_CULTURE] Borders:[NEWLINE]{1_YieldString}</Text>
@@ -7117,6 +7117,12 @@
 		</Row>
 		<Row Tag="TXT_KEY_EVENT_SPY_ALREADY_HERE">
 			<Text>[NEWLINE] [ICON_BULLET] Foreign Spies are already performing this action here! Shh!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EVENT_NO_TECH_STEAL">
+			<Text>[NEWLINE] [ICON_BULLET] No Technologies to Steal. Requires [COLOR_POSITIVE_TEXT]Bletchley Park[ENDCOLOR] World Wonder.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EVENT_NO_GW_FORGE">
+			<Text>[NEWLINE] [ICON_BULLET] No Great Works in City to copy. Requires [COLOR_POSITIVE_TEXT]Avant Garde[ENDCOLOR] Policy.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_EVENT_NO_COUNTERSPY">

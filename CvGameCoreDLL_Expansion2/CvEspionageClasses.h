@@ -185,6 +185,8 @@ public:
 	void ProcessSpyFocus();
 	void TriggerSpyFocusSetup(CvCity* pCity, int uiSpyIndex);
 	bool DoSpyFocusEvent(uint uiSpyIndex);
+	bool DoStealTechnology(PlayerTypes eTargetPlayer);
+	bool DoStealGW(CvCity* pCity, int iGWID);
 
 	CvSpyResult ProcessSpyFocusResult(PlayerTypes ePlayer, CvCity* pCity, int uiSpyIndex, CityEventChoiceTypes eEventChoice, bool bDefer = false);
 
@@ -256,6 +258,8 @@ public:
 	int GetNumAliveSpies(void);
 	int GetNumAssignedSpies(void);
 	int GetNumUnassignedSpies(void);
+
+	std::vector<int> BuildGWList(CvCity* pCity);
 
 	void BuildStealableTechList(PlayerTypes ePlayer);
 	bool IsTechStealable(PlayerTypes ePlayer, TechTypes eTech);

@@ -835,6 +835,11 @@
 		<Column name="WonderConstructionSpeedMod" type="integer" default="0"/>
 		<!-- Counterspy can affect city ranged strength %-->
 		<Column name="CityDefenseModifier" type="integer" default="0"/>
+
+		<!-- Spy copies num techs; if it fails at end, it converts amount to GA turns -->
+		<Column name="StealNumTechs" type="integer" default="0"/>
+		<!-- Spy copies num GWs; if it fails at end, it converts amount to GA turns-->
+		<Column name="ForgeNumGW" type="integer" default="0"/>
 		<!-- FILTERS: 
 		
 		Values below determine whether or not a City Event Choice appears in the City list 

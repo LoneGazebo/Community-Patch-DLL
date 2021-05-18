@@ -4799,6 +4799,27 @@ bool CvCity::IsCityEventChoiceValidEspionage(CityEventChoiceTypes eEventChoice, 
 	if (pkEventInfo->isRequiresCounterSpy() && !GetCityEspionage()->HasCounterSpy())
 		return false;
 
+	if (pkEventInfo->getStealTech() > 0)
+	{
+		if (!GET_PLAYER(eSpyOwner).IsTechStealEnabled())
+			return false;
+
+		GET_PLAYER(eSpyOwner).GetEspionage()->BuildStealableTechList(getOwner());
+		int iNumTechsWeDontHave = GET_PLAYER(eSpyOwner).GetEspionage()->GetNumTechsToSteal(getOwner());
+		if (iNumTechsWeDontHave < pkEventInfo->getStealTech())
+			return false;
+	}
+
+	if (pkEventInfo->getForgeGW() > 0)
+	{
+		if (!GET_PLAYER(eSpyOwner).IsGWStealEnabled())
+			return false;
+
+		int iNumGWInCity = GetCityCulture()->GetNumGreatWorks();
+		if (iNumGWInCity < pkEventInfo->getForgeGW())
+			return false;
+	}
+
 	if (!IsCityEventChoiceValid(eEventChoice, eEvent, true))
 		return false;
 
@@ -5457,6 +5478,31 @@ CvString CvCity::GetDisabledTooltip(CityEventChoiceTypes eChosenEventChoice, int
 			if (pSpy && pSpy->m_eSpyFocus == eChosenEventChoice)
 			{
 				localizedDurationText = Localization::Lookup("TXT_KEY_EVENT_SPY_ALREADY_HERE");
+				return DisabledTT.c_str();
+			}
+		}
+
+		if (pkEventInfo->getStealTech() > 0)
+		{
+			GET_PLAYER(eSpyOwner).GetEspionage()->BuildStealableTechList(getOwner());
+			int iNumTechsWeDontHave = GET_PLAYER(eSpyOwner).GetEspionage()->GetNumTechsToSteal(getOwner());
+			if (iNumTechsWeDontHave < pkEventInfo->getStealTech())
+			{
+				localizedDurationText = Localization::Lookup("TXT_KEY_EVENT_NO_TECH_STEAL");
+				DisabledTT += localizedDurationText.toUTF8();
+
+				return DisabledTT.c_str();
+			}
+		}
+
+		if (pkEventInfo->getForgeGW() > 0)
+		{
+			int iNumGWInCity = GetCityCulture()->GetNumGreatWorks();
+			if (iNumGWInCity < pkEventInfo->getForgeGW())
+			{
+				localizedDurationText = Localization::Lookup("TXT_KEY_EVENT_NO_GW_FORGE");
+				DisabledTT += localizedDurationText.toUTF8();
+
 				return DisabledTT.c_str();
 			}
 		}
@@ -6480,6 +6526,47 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 			if (pkEventChoiceInfo->getDamageCity() != 0)
 			{
 				changeDamage(pkEventChoiceInfo->getDamageCity());
+			}
+
+			if (pkEventChoiceInfo->getStealTech() > 0 && eSpyOwner != NO_PLAYER)
+			{
+				GET_PLAYER(eSpyOwner).GetEspionage()->BuildStealableTechList(getOwner());
+				int iNumTechsWeDontHave = GET_PLAYER(eSpyOwner).GetEspionage()->GetNumTechsToSteal(getOwner());
+				if (iNumTechsWeDontHave > 0)
+				{
+					for (int i = 0; i < min(pkEventChoiceInfo->getStealTech(), iNumTechsWeDontHave); i++)
+					{
+						GET_PLAYER(eSpyOwner).GetEspionage()->DoStealTechnology(getOwner());
+					}
+				}
+				else
+				{
+					GET_PLAYER(eSpyOwner).changeGoldenAgeTurns(pkEventChoiceInfo->getForgeGW() * 10);
+				}
+			}
+
+			if (pkEventChoiceInfo->getForgeGW() > 0 && eSpyOwner != NO_PLAYER)
+			{
+				std::vector<int> GWIDs = GET_PLAYER(eSpyOwner).GetEspionage()->BuildGWList(this);
+				if (GWIDs.size() > 0)
+				{
+					int iMinLoop = min(pkEventChoiceInfo->getForgeGW(), (int)GWIDs.size());
+					while (iMinLoop > 0)
+					{
+						int iGrab = GC.getGame().getSmallFakeRandNum(iMinLoop - 1, GET_PLAYER(eSpyOwner).GetPseudoRandomSeed() + GWIDs[0] + GET_PLAYER(getOwner()).GetTreasury()->CalculateGrossGold());
+						if (GET_PLAYER(eSpyOwner).GetEspionage()->DoStealGW(this, GWIDs[iGrab]))
+						{
+							GET_PLAYER(eSpyOwner).GetEspionage()->m_aiNumSpyActionsDone[getOwner()]++;
+
+							GET_PLAYER(eSpyOwner).doInstantYield(INSTANT_YIELD_TYPE_SPY_ATTACK, false, NO_GREATPERSON, NO_BUILDING, 1);
+						}
+						iMinLoop--;
+					}
+				}
+				else
+				{
+					GET_PLAYER(eSpyOwner).changeGoldenAgeTurns(pkEventChoiceInfo->getForgeGW()*10);
+				}
 			}
 
 			if (pkEventChoiceInfo->getSapCityTurns() != 0)
@@ -11752,7 +11839,17 @@ int CvCity::GetPurchaseCost(UnitTypes eUnit)
 	if (MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
 	{
 		bool bCombat = pkUnitInfo->GetCombat() > 0 || pkUnitInfo->GetRangedCombat() > 0 || pkUnitInfo->GetNukeDamageLevel() != -1;
-		if (pkUnitInfo->IsFound() || bCombat)
+		if (bCombat)
+		{
+			int iWarWeariness = GET_PLAYER(getOwner()).GetCulture()->GetWarWeariness() * 3;
+			if (iWarWeariness > 0)
+			{
+				//Let's do the yield mods.			
+				iCost *= (100 + iWarWeariness);
+				iCost /= 100;
+			}
+		}
+		else if (pkUnitInfo->IsFound())
 		{
 			//Mechanic to allow for production malus from happiness/unhappiness.
 			int iTempMod = getHappinessDelta() * GC.getBALANCE_HAPPINESS_PRODUCTION_MODIFIER();
@@ -12102,7 +12199,18 @@ int CvCity::GetFaithPurchaseCost(UnitTypes eUnit, bool bIncludeBeliefDiscounts)
 #if defined(MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
 	if (MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
 	{
-		if (pkUnitInfo->IsFound() || pkUnitInfo->GetCombat() > 0 || pkUnitInfo->GetRangedCombat() > 0 || pkUnitInfo->GetNukeDamageLevel() != -1)
+		bool bCombat = pkUnitInfo->GetCombat() > 0 || pkUnitInfo->GetRangedCombat() > 0 || pkUnitInfo->GetNukeDamageLevel() != -1;
+		if (bCombat)
+		{
+			int iWarWeariness = GET_PLAYER(getOwner()).GetCulture()->GetWarWeariness() * 3;
+			if (iWarWeariness > 0)
+			{
+				//Let's do the yield mods.			
+				iCost *= (100 + iWarWeariness);
+				iCost /= 100;
+			}
+		}
+		else if (pkUnitInfo->IsFound())
 		{
 			//Mechanic to allow for production malus from happiness/unhappiness.
 			int iTempMod = getHappinessDelta() * GC.getBALANCE_HAPPINESS_PRODUCTION_MODIFIER();
@@ -12938,7 +13046,20 @@ int CvCity::getProductionModifier(UnitTypes eUnit, CvString* toolTipSink, bool b
 	{
 		CvUnitEntry* pUnitEntry = GC.getUnitInfo(prodUnit);
 		bool bCombat = pUnitEntry->GetCombat() > 0 || pUnitEntry->GetRangedCombat() > 0 || pUnitEntry->GetNukeDamageLevel() != -1;
-		if (pUnitEntry->IsFound() || bCombat)
+		if (bCombat)
+		{
+			int iWarWeariness = GET_PLAYER(getOwner()).GetCulture()->GetWarWeariness() * 3;
+			if (iWarWeariness > 0)
+			{
+				//Let's do the yield mods.			
+				iTempMod = iWarWeariness;
+
+				iMultiplier -= iTempMod;
+				if (iTempMod != 0 && toolTipSink)
+					GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_BALANCE_HAPPINESS_MOD", iTempMod);
+			}
+		}
+		else if (pUnitEntry->IsFound())
 		{
 			//Mechanic to allow for production malus from happiness/unhappiness.
 			int iTempMod = getHappinessDelta() * GC.getBALANCE_HAPPINESS_PRODUCTION_MODIFIER();
