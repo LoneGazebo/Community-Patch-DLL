@@ -1702,12 +1702,9 @@ bool CvCityCitizens::DoRemoveWorstCitizen(CvCity::eUpdateMode updateMode, bool b
 		}
 	}
 	// Have to resort to pulling away a good Specialist
-	else if (bRemoveForcedStatus)
+	else if (DoRemoveWorstSpecialist(eDontChangeSpecialist, NO_BUILDING, updateMode))
 	{
-		if (DoRemoveWorstSpecialist(eDontChangeSpecialist, NO_BUILDING, updateMode))
-		{
-			return true;
-		}
+		return true;
 	}
 
 	return false;
@@ -2416,7 +2413,7 @@ bool CvCityCitizens::IsCanWork(CvPlot* pPlot) const
 		return false;
 	}
 
-	if (pPlot->isImpassable(m_pCity->getTeam()))
+	if (!pPlot->hasYield())
 	{
 		return false;
 	}

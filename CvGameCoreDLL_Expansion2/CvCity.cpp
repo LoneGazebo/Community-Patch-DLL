@@ -18400,7 +18400,9 @@ void CvCity::setPopulation(int iNewValue, bool bReassignPop /* = true */, bool b
 				// Need to Remove Citizens
 				for(int iNewPopLoop = -iPopChange; iNewPopLoop--;)
 				{
-					GetCityCitizens()->DoRemoveWorstCitizen(CvCity::YIELD_UPDATE_GLOBAL, false, NO_SPECIALIST);
+					//first try and remove an non-forced plot, if that fails, we need to pick a forced plot
+					if (!GetCityCitizens()->DoRemoveWorstCitizen(CvCity::YIELD_UPDATE_GLOBAL, false, NO_SPECIALIST))
+						GetCityCitizens()->DoRemoveWorstCitizen(CvCity::YIELD_UPDATE_GLOBAL, true, NO_SPECIALIST);
 				}
 
 				// Fixup the unassigned workers
