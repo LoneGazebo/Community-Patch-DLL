@@ -3230,7 +3230,7 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 						return INT_MAX;
 					}
 					// If we're already planning a war/demand against them, then we don't care.
-					else if (pDiploAI->GetCivApproach(*it) != CIV_APPROACH_WAR && pDiploAI->GetWarGoal(*it) != WAR_GOAL_DEMAND)
+					else if (pDiploAI->GetCivApproach(*it) != CIV_APPROACH_WAR && pDiploAI->GetDemandTargetPlayer() != *it)
 					{
 						// Bold AIs will take more risks.
 						if (pDiploAI->GetBoldness() > 6)
