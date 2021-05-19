@@ -4751,59 +4751,6 @@ bool CvPlot::isNeutralUnitAdjacent(PlayerTypes ePlayer, bool bCombat, bool bChec
 	return false;
 }
 
-//	--------------------------------------------------------------------------------
-// does not check visibility!
-bool CvPlot::IsBlockadeUnit(PlayerTypes ePlayer, bool bFriendly) const
-{
-	TeamTypes eTeam = GET_PLAYER(ePlayer).getTeam();
-	CvTeam& kTeam = GET_TEAM(eTeam);
-
-	for(int iUnitLoop = 0; iUnitLoop < getNumUnits(); iUnitLoop++)
-	{
-		CvUnit* pkUnit = getUnitByIndex(iUnitLoop);
-		if(pkUnit)
-		{
-			bool bCorrectOwner = false;
-			if (bFriendly)
-			{
-				if ( pkUnit->getTeam()==eTeam )
-				{
-					bCorrectOwner = true;
-				}
-				else 
-				{
-					CvPlayer& kOwner = GET_PLAYER(pkUnit->getOwner());
-					// Is it an allied minor or DoF major?
-					if ( (kOwner.isMinorCiv() && kOwner.GetMinorCivAI()->GetAlly() == ePlayer) ||
-						 (!kOwner.isBarbarian() && kOwner.GetDiplomacyAI()->IsDoFAccepted(ePlayer)) )
-					{
-						bCorrectOwner = true;
-					}
-				}
-			}
-			else
-			{
-				bCorrectOwner = kTeam.isAtWar(pkUnit->getTeam());
-			}
-
-			if (bCorrectOwner)
-			{
-				//exclude civilians
-				if(pkUnit->IsCombatUnit())
-				{
-					//exclude embarked units, ships in port etc
-					if (pkUnit->isNativeDomain(this))
-					{
-						return true;
-					}
-				}
-			}
-		}
-	}
-
-	return false;
-}
-
 //	---------------------------------------------------------------------------
 //	Return true if any fighting is occurring in the plot.
 bool CvPlot::isFighting() const
@@ -6444,59 +6391,16 @@ bool CvPlot::IsCloseToBorder(PlayerTypes ePlayer) const
 }
 
 //	--------------------------------------------------------------------------------
-bool CvPlot::isBlockaded(PlayerTypes ePlayer)
+bool CvPlot::isBlockaded()
 {
 	if (isCity())
 		return false;
 
-	// An enemy unit on the plot trumps all
-	if (IsBlockadeUnit(ePlayer,false))
-		return true;
-
-	// An allied unit on the plot secures the plot
-	if (IsBlockadeUnit(ePlayer,true))
+	CvCity* pCity = getEffectiveOwningCity();
+	if (!pCity)
 		return false;
 
-	//ships have additional range
-	if (isWater()) 
-	{
-		// An enemy unit adjacent to the plot blockades it
-		for (int iEnemyLoop = 0; iEnemyLoop < NUM_DIRECTION_TYPES; ++iEnemyLoop)
-		{
-			CvPlot* pEnemyPlot = plotDirection(getX(), getY(), ((DirectionTypes)iEnemyLoop));
-
-			if (pEnemyPlot && pEnemyPlot->isWater()==isWater() && pEnemyPlot->IsBlockadeUnit(ePlayer,false))
-				return true;
-		}
-
-		// An allied unit adjacent to the plot secures it
-		for (int iAlliedLoop = 0; iAlliedLoop < NUM_DIRECTION_TYPES; ++iAlliedLoop)
-		{
-			CvPlot* pAlliedPlot = plotDirection(getX(), getY(), ((DirectionTypes)iAlliedLoop));
-
-			if (pAlliedPlot && pAlliedPlot->isWater()==isWater() && pAlliedPlot->IsBlockadeUnit(ePlayer,true))
-				return false;
-		}
-
-		//check ring 2 to N for enemies - rather inefficient
-		int iRange = min(5,max(2,GC.getNAVAL_PLOT_BLOCKADE_RANGE()));
-		for (int i=RING1_PLOTS; i<RING_PLOTS[iRange]; i++)
-		{
-			CvPlot* pLoopPlot = iterateRingPlots(this, i);
-			if (!pLoopPlot)
-				continue;
-
-			if (pLoopPlot->isWater()==isWater() && pLoopPlot->getArea()==getArea() && pLoopPlot->IsBlockadeUnit(ePlayer,false))
-			{
-				SPathFinderUserData data(NO_PLAYER,PT_GENERIC_SAME_AREA,-1,iRange);
-				SPath path = GC.GetStepFinder().GetPath(pLoopPlot, this, data);
-				if (!!path && path.length()<=iRange)
-					return true;
-			}
-		}
-	}
-
-	return false;
+	return pCity->GetCityCitizens()->IsBlockaded(this);
 }
 
 //	--------------------------------------------------------------------------------
@@ -9195,6 +9099,16 @@ void CvPlot::updateOwningCity()
 }
 
 
+CvCity * CvPlot::getEffectiveOwningCity() const
+{
+	//no override
+	if (m_owningCityOverride.isInvalid())
+		return ::GetPlayerCity(m_owningCity);
+
+	//with override
+	return ::GetPlayerCity(m_owningCityOverride);
+}
+
 bool CvPlot::isEffectiveOwner(CvCity * pCity) const
 {
 	//no override
@@ -9217,7 +9131,7 @@ void CvPlot::setOwningCityOverride(const CvCity* pNewValue)
 {
 	if(getOwningCityOverride() != pNewValue)
 	{
-		if(pNewValue != NULL)
+		if(pNewValue != NULL && pNewValue != getOwningCity())
 		{
 			CvAssertMsg(pNewValue->getOwner() == getOwner(), "Argument city pNewValue's owner is expected to be the same as the current instance");
 			m_owningCityOverride = pNewValue->GetIDInfo();
@@ -12381,9 +12295,7 @@ void CvPlot::addUnit(CvUnit* pUnit, bool bUpdate)
 //	--------------------------------------------------------------------------------
 void CvPlot::removeUnit(CvUnit* pUnit, bool bUpdate)
 {
-	IDInfo* pUnitNode;
-
-	pUnitNode = headUnitNode();
+	IDInfo* pUnitNode = headUnitNode();
 
 	while(pUnitNode != NULL)
 	{

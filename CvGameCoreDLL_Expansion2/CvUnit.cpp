@@ -5442,8 +5442,10 @@ void CvUnit::move(CvPlot& targetPlot, bool bShow)
 		}
 	}
 
-	changeMoves(-iMoveCost);
+	//important, first do the move, then subtract the cost
+	//that way setXY can tell whether it's the initial move this turn
 	setXY(targetPlot.getX(), targetPlot.getY(), true, true, bShow && targetPlot.isVisibleToWatchingHuman(), bShow);
+	changeMoves(-iMoveCost);
 }
 
 
@@ -8712,9 +8714,6 @@ bool CvUnit::paradrop(int iX, int iY)
 		return false;
 	}
 
-	setMoves(GC.getMOVE_DENOMINATOR()); //keep one move
-	setMadeAttack(true);
-
 	CvPlot* fromPlot = plot();
 	//JON: CHECK FOR INTERCEPTION HERE
 #if defined(MOD_GLOBAL_PARATROOPS_AA_DAMAGE)
@@ -8732,7 +8731,11 @@ bool CvUnit::paradrop(int iX, int iY)
 		auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(this));
 		gDLL->GameplayUnitParadrop(pDllUnit.get());
 	}
+
+	//more first, update movement points later
 	setXY(pPlot->getX(), pPlot->getY(), true, true, false);
+	setMoves(GC.getMOVE_DENOMINATOR()); //keep one move
+	setMadeAttack(true);
 
 #if defined(MOD_EVENTS_PARADROPS)
 	if (MOD_EVENTS_PARADROPS) {
@@ -10056,8 +10059,6 @@ bool CvUnit::rebase(int iX, int iY, bool bForced)
 		}
 	}
 
-	finishMoves();
-
 	// Loses sight bonus for this turn
 	setReconPlot(NULL);
 
@@ -10099,6 +10100,7 @@ bool CvUnit::rebase(int iX, int iY, bool bForced)
 #endif
 
 	setXY(pTargetPlot->getX(), pTargetPlot->getY(), false, bShow, false);
+	finishMoves();
 
 	return true;
 }
@@ -19650,6 +19652,10 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 			setLastMoveTurn(GC.getGame().getGameTurn());
 			pOldCity = pOldPlot->getPlotCity();
 		}
+
+		//lift the blockade from last turn if we haven't moved this turn yet
+		if (!hasMoved())
+			DoBlockade(pOldPlot, false);
 	}
 
 	if(pNewPlot != NULL)
@@ -21402,11 +21408,68 @@ void CvUnit::SetFortified(bool bValue)
 	}
 }
 
-void CvUnit::DoAdjacentPlotDamage(CvPlot* pWhere, int iValue, const char* chTextKey)
+int CvUnit::DoBlockade(CvPlot* pWhere, bool bActive)
+{
+	if (!pWhere || !IsCombatUnit() || !isNativeDomain(pWhere))
+		return 0;
+
+	int iCount = 0;
+	int iRange = 0;
+	if (getDomainType()==DOMAIN_SEA)
+		iRange = min(5, max(0, GC.getNAVAL_PLOT_BLOCKADE_RANGE()));
+
+	for (int i = 0; i < RING_PLOTS[iRange]; i++)
+	{
+		CvPlot* pLoopPlot = iterateRingPlots(pWhere, i);
+
+		//some plots we can never blockade
+		if (!pLoopPlot || !isNativeDomain(pLoopPlot) || pLoopPlot->isCity() || pLoopPlot->getArea() != pWhere->getArea())
+			continue;
+
+		CvCity* pCity = pLoopPlot->getEffectiveOwningCity();
+		if (pCity)
+		{
+			if (bActive)
+			{
+				//only blockade our enemies ...
+				if (!isEnemy(pCity->getTeam()))
+				{
+					//make sure we update correctly even if the unit did not move this turn
+					pCity->GetCityCitizens()->SetBlockaded(pLoopPlot, GetID(), false);
+					continue;
+				}
+
+				//friends of our enemy prevent the blockade
+				CvUnit* pDefender = pLoopPlot->getBestDefender(NO_PLAYER);
+				if (pDefender && !pDefender->isEnemy(pCity->getTeam()) && pDefender->isNativeDomain(pLoopPlot))
+				{
+					//make sure we update correctly even if the unit did not move this turn
+					pCity->GetCityCitizens()->SetBlockaded(pLoopPlot, GetID(), false);
+					continue;
+				}
+
+				//finally set it blockaded if nothing prevents us
+				pCity->GetCityCitizens()->SetBlockaded(pLoopPlot, GetID(), true);
+				iCount++;
+			}
+			else
+			{
+				//reset to default without further checks
+				pCity->GetCityCitizens()->SetBlockaded(pLoopPlot, GetID(), false);
+				iCount++;
+			}
+		}
+	}
+
+	return iCount;
+}
+
+int CvUnit::DoAdjacentPlotDamage(CvPlot* pWhere, int iValue, const char* chTextKey)
 {
 	if (iValue < 1 || pWhere == NULL)
-		return;
+		return 0;
 
+	int iCount = 0;
 	for (int i=RING0_PLOTS; i<RING1_PLOTS; i++)
 	{
 		CvPlot* pSplashPlot = iterateRingPlots(pWhere, i);
@@ -21442,9 +21505,13 @@ void CvUnit::DoAdjacentPlotDamage(CvPlot* pWhere, int iValue, const char* chText
 				}
 				else
 					pEnemyUnit->changeDamage(iValue, getOwner(), 0.0);
+
+				iCount++;
 			}
 		}
 	}
+	
+	return iCount;
 }
 
 //	--------------------------------------------------------------------------------

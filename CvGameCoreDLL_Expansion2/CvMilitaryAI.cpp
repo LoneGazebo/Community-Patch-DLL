@@ -3753,18 +3753,18 @@ bool MilitaryAIHelpers::IsTestStrategy_WinningWars(CvPlayer* pPlayer)
 		return true;
 	}
 
+	int iSum = 0;
 	PlayerTypes eLoopPlayer;
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
 		eLoopPlayer = (PlayerTypes)iPlayerLoop;
 		if (eLoopPlayer != pPlayer->GetID() && pPlayer->IsAtWarWith(eLoopPlayer) && pPlayer->GetDiplomacyAI()->IsPlayerValid(eLoopPlayer))
 		{
-			if (pPlayer->GetDiplomacyAI()->GetWarScore(eLoopPlayer) > 25)
-				return true;
+			iSum += pPlayer->GetDiplomacyAI()->GetWarScore(eLoopPlayer);
 		}
 	}
 
-	return false;
+	return iSum > 25;
 }
 
 /// "Losing Wars" Strategy: boost DEFENSE over OFFENSE
@@ -3774,17 +3774,18 @@ bool MilitaryAIHelpers::IsTestStrategy_LosingWars(CvPlayer* pPlayer)
 	{
 		return true;
 	}
+
+	int iSum = 0;
 	PlayerTypes eLoopPlayer;
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
 		eLoopPlayer = (PlayerTypes)iPlayerLoop;
 		if (eLoopPlayer != pPlayer->GetID() && pPlayer->IsAtWarWith(eLoopPlayer) && pPlayer->GetDiplomacyAI()->IsPlayerValid(eLoopPlayer))
 		{
-			if (pPlayer->GetDiplomacyAI()->GetWarScore(eLoopPlayer) < -10)
-				return true;
+			iSum += pPlayer->GetDiplomacyAI()->GetWarScore(eLoopPlayer);
 		}
 	}
-	return false;
+	return iSum < -10;
 }
 
 /// "Enough Ranged" Player Strategy: If a player has too many ranged units
