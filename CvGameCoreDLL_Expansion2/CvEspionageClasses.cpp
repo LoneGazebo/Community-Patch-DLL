@@ -6827,7 +6827,7 @@ std::vector<ScoreCityEntry> CvEspionageAI::BuildOffenseCityList()
 			}
 
 			int iDiploModifier = 100;
-			if (pDiploAI->GetWarGoal(eTargetPlayer) == WAR_GOAL_PREPARE)
+			if (pDiploAI->IsWantsSneakAttack(eTargetPlayer))
 			{
 				iDiploModifier += 15;
 			}

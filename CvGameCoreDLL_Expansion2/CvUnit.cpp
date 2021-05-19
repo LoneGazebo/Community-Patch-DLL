@@ -10242,7 +10242,7 @@ bool CvUnit::shouldPillage(const CvPlot* pPlot, bool bConservative) const
 	if (hasFreePillageMove() && pPlot->IsAdjacentCity())
 		return true;
 
-	if (pPlot->getOwningCity() != NULL)
+	if (pPlot->getOwningCity() != NULL && pPlot->getOwner() != NO_PLAYER && pPlot->getOwner() != BARBARIAN_PLAYER)
 	{
 		if (GET_PLAYER(m_eOwner).GetTacticalAI()->IsInFocusArea(pPlot))
 		{
@@ -10254,11 +10254,11 @@ bool CvUnit::shouldPillage(const CvPlot* pPlot, bool bConservative) const
 			}
 		}
 
-		if (pPlot->getOwner() != NO_PLAYER && GET_PLAYER(pPlot->getOwner()).isMajorCiv())
-		{
-			if (GET_PLAYER(m_eOwner).GetDiplomacyAI()->GetWarGoal(pPlot->getOwner()) == WAR_GOAL_DAMAGE)
-				return true;
-		}
+		if (GET_PLAYER(m_eOwner).GetDiplomacyAI()->GetPlayerMilitaryStrengthComparedToUs(pPlot->getOwner()) > STRENGTH_AVERAGE || GET_PLAYER(m_eOwner).GetDiplomacyAI()->GetPlayerTargetValue(pPlot->getOwner()) <= TARGET_VALUE_BAD)
+			return true;
+
+		if (!GET_PLAYER(m_eOwner).GetMilitaryAI()->IsPreferredAttackTarget(pPlot->getOwningCity()))
+			return true;
 	}
 
 	ImprovementTypes eImprovement = pPlot->getImprovementType();
