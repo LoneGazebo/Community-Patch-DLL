@@ -23098,9 +23098,6 @@ CvString CvCity::GetCityHappinessBreakdown()
 
 	int iTotal = iHandicap + iBuildings + iOther + iEmpire + iLuxury + iPolicies + iReligion;
 
-	if (iTotal > getPopulation())
-		iTotal = getPopulation();
-
 	CvString strPotential = GetLocalizedText("TXT_KEY_EO_CITY_LOCAL_HAPPINESS_EXPLANATION");
 	strPotential = strPotential + "[NEWLINE][NEWLINE]" + GetLocalizedText("TXT_KEY_EO_CITY_LOCAL_HAPPINESS", iTotal);
 
