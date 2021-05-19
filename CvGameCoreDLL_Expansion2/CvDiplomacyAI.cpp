@@ -46776,15 +46776,25 @@ void CvDiplomacyAI::CleanupRenewDeals(PlayerTypes eOtherPlayer)
 			pBestDeal = pCurrentDeal;
 		}
 	}
+	std::vector<CvDeal*>dealsToCancel;
 	for (int iDeal = 0; iDeal < iNumDeals; iDeal++)
 	{
 		CvDeal* pCurrentDeal = kGameDeals.GetRenewableDealWithPlayer(m_pPlayer->GetID(), eOtherPlayer, iDeal);
 		if (pBestDeal == pCurrentDeal)
 			continue;
+		if (pCurrentDeal == NULL)
+			continue;
 
-		//we only want one deal per player.
-		pCurrentDeal->m_bConsideringForRenewal = false;
-		CancelRenewDeal(eOtherPlayer, REASON_BETTER_RENEAL_CHOICE, false, pCurrentDeal);
+		dealsToCancel.push_back(pCurrentDeal);
+	}
+	if (dealsToCancel.size() > 0)
+	{
+		for (int i = 0; i < dealsToCancel.size(); i++)
+		{
+			//we only want one deal per player.
+			dealsToCancel[i]->m_bConsideringForRenewal = false;
+			CancelRenewDeal(eOtherPlayer, REASON_BETTER_RENEAL_CHOICE, false, dealsToCancel[i]);
+		}
 	}
 }
 
