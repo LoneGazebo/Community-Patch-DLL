@@ -462,8 +462,9 @@ int CvLuaPlot::lIsWater(lua_State* L)
 int CvLuaPlot::lIsBlockaded(lua_State* L)
 {
 	CvPlot* pkPlot = GetInstance(L); CHECK_PLOT_VALID(pkPlot);
+	const int playerType = lua_tointeger(L, 2);
 
-	lua_pushboolean(L, pkPlot->isBlockaded());
+	lua_pushboolean(L, pkPlot->isBlockaded((PlayerTypes)playerType));
 
 	return 1;
 }

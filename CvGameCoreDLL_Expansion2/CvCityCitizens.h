@@ -82,6 +82,8 @@ public:
 	bool DoAddBestCitizenFromUnassigned(CvCity::eUpdateMode updateMode, bool bLogging = false);
 	bool DoRemoveWorstCitizen(CvCity::eUpdateMode updateMode, bool bRemoveForcedStatus = false, SpecialistTypes eDontChangeSpecialist = NO_SPECIALIST);
 
+	void SetBlockade(bool bValue);
+	bool IsBlockade();
 	void SetDirty(bool bValue);
 	bool IsDirty();
 	void DoReallocateCitizens(bool bForce = false, bool bLogging = false);
@@ -108,8 +110,6 @@ public:
 	void ChangeNumForcedWorkingPlots(int iChange);
 
 	bool IsCanWork(CvPlot* pPlot) const;
-	bool IsBlockaded(CvPlot* pPlot, int iUnitID=-1) const;
-	void SetBlockaded(CvPlot* pPlot, int iUnitID, bool bValue);
 	bool IsAnyPlotBlockaded() const;
 
 	void DoVerifyWorkingPlots();
@@ -172,6 +172,7 @@ private:
 	bool m_bAutomated;
 	bool m_bNoAutoAssignSpecialists;
 	bool m_bIsDirty;
+	bool m_bIsBlockaded;
 
 	int m_iNumUnassignedCitizens;
 	int m_iNumCitizensWorkingPlots;
@@ -183,7 +184,6 @@ private:
 	bool m_pabWorkingPlot[MAX_CITY_PLOTS];
 	bool m_pabForcedWorkingPlot[MAX_CITY_PLOTS];
 	std::vector<int> m_vWorkedPlots;
-	std::map<int,set<int>> m_vBlockadedPlots;
 
 	int m_iNumDefaultSpecialists;
 	int m_iNumForcedDefaultSpecialists;

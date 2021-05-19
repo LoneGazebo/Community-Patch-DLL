@@ -919,9 +919,9 @@ int CvLuaCity::lCanWork(lua_State* L)
 //bool IsBlockaded(CvPlot* pPlot);
 int CvLuaCity::lIsPlotBlockaded(lua_State* L)
 {
-	//CvCity* pkCity = GetInstance(L);
+	CvCity* pkCity = GetInstance(L);
 	CvPlot* pkPlot = CvLuaPlot::GetInstance(L, 2);
-	const bool bResult = pkPlot->isBlockaded();
+	const bool bResult = pkPlot->isBlockaded(pkCity->getOwner());
 
 	lua_pushboolean(L, bResult);
 	return 1;

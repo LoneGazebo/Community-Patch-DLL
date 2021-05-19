@@ -8262,21 +8262,26 @@ void CvLeague::DoProjectReward(PlayerTypes ePlayer, LeagueProjectTypes eLeaguePr
 				CvCity* pCapital = GET_PLAYER(ePlayer).getCapitalCity();
 				if (pCapital)
 				{
-					CvPlot* pSpawnPlot = pCapital->plot();
-
 #if defined(MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS)
 					CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUnit);
 					if(MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS && pkUnitInfo)
 					{
-						if(pkUnitInfo->GetDomainType() == DOMAIN_SEA)
+						if((pkUnitInfo->GetDomainType() == DOMAIN_SEA) && !pCapital->isCoastal())
 						{
-							CvPlot* pWaterSpawnPlot = GET_PLAYER(ePlayer).GetBestCoastalSpawnPlot(NULL);
-							if (pWaterSpawnPlot)
-								pSpawnPlot = pWaterSpawnPlot;
+							CvCity* pLoopCity;
+							int iLoop;
+							for(pLoopCity = GET_PLAYER(ePlayer).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iLoop))
+							{
+								if(pLoopCity->isCoastal())
+								{
+									pCapital = pLoopCity;
+									break;
+								}
+							}
 						}
 					}
 #endif
-					CvUnit* pUnit = GET_PLAYER(ePlayer).initUnit(eUnit, pSpawnPlot->getX(), pSpawnPlot->getY());
+					CvUnit* pUnit = GET_PLAYER(ePlayer).initUnit(eUnit, pCapital->getX(), pCapital->getY());
 					pCapital->addProductionExperience(pUnit);
 					pUnit->jumpToNearestValidPlot();
 				}

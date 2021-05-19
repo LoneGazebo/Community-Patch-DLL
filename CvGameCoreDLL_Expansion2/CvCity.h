@@ -981,8 +981,8 @@ public:
 
 	//check both water and land
 	bool IsBlockadedWaterAndLand() const;
-	//check water or land, no domain for both
-	bool IsBlockaded(DomainTypes eDomain) const;
+	//check water or land
+	bool IsBlockaded(bool bWater) const;
 
 	int GetWeLoveTheKingDayCounter() const;
 	void SetWeLoveTheKingDayCounter(int iValue);

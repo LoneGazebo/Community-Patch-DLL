@@ -276,7 +276,7 @@ void CvCityConnections::UpdateRouteInfo(void)
 
 		ReachablePlots roadPlots, railroadPlots, waterPlots;
 		SPathFinderUserData data(m_pPlayer->GetID(),PT_CITY_CONNECTION_LAND, ROUTE_ROAD);
-		if (!pStartCity->IsBlockaded(DOMAIN_LAND))
+		if (!pStartCity->IsBlockaded(false))
 		{
 			roadPlots= GC.GetStepFinder().GetPlotsInReach( pStartCity->getX(),pStartCity->getY(), data);
 			data.iTypeParameter = ROUTE_RAILROAD;
@@ -288,7 +288,7 @@ void CvCityConnections::UpdateRouteInfo(void)
 		for(int i = 0; i < (int)m_aBuildingsAllowWaterRoutes.size(); i++)
 			if(pStartCity->GetCityBuildings()->GetNumActiveBuilding(m_aBuildingsAllowWaterRoutes[i]) > 0)
 				bStartCityAllowsWater = true;
-		if (bStartCityAllowsWater && !pStartCity->IsBlockaded(DOMAIN_SEA))
+		if (bStartCityAllowsWater && !pStartCity->IsBlockaded(true))
 		{
 			data.iTypeParameter = NO_ROUTE;
 			data.ePathType = PT_CITY_CONNECTION_WATER;
@@ -304,7 +304,7 @@ void CvCityConnections::UpdateRouteInfo(void)
 			if (pPlot->isCity() && pPlot!=pStartCity->plot())
 			{
 				CvCity* pEndCity = pPlot->getPlotCity();
-				if (pEndCity->IsBlockaded(DOMAIN_LAND))
+				if (pEndCity->IsBlockaded(false))
 					continue;
 				
 				pair<int, int> destination( pEndCity->getOwner(),pEndCity->GetID() );
@@ -324,7 +324,7 @@ void CvCityConnections::UpdateRouteInfo(void)
 			if (pPlot->isCity() && pPlot!=pStartCity->plot())
 			{
 				CvCity* pEndCity = pPlot->getPlotCity();
-				if (pEndCity->IsBlockaded(DOMAIN_LAND))
+				if (pEndCity->IsBlockaded(false))
 					continue;
 				
 				pair<int, int> destination( pEndCity->getOwner(),pEndCity->GetID() );
@@ -351,7 +351,7 @@ void CvCityConnections::UpdateRouteInfo(void)
 					if(pEndCity->GetCityBuildings()->GetNumActiveBuilding(m_aBuildingsAllowWaterRoutes[i]) > 0)
 						bEndCityAllowsWater = true;
 
-				if (!bEndCityAllowsWater || pEndCity->IsBlockaded(DOMAIN_SEA))
+				if (!bEndCityAllowsWater || pEndCity->IsBlockaded(true))
 					continue;
 				
 				pair<int, int> destination( pEndCity->getOwner(),pEndCity->GetID() );

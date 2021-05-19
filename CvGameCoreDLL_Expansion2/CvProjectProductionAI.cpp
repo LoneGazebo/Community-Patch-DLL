@@ -156,7 +156,7 @@ int CvProjectProductionAI::CheckProjectBuildSanity(ProjectTypes eProject, int iT
 
 	if (pkProjectInfo->IsRepeatable())
 	{
-		if (m_pCity->isUnderSiege() || m_pCity->IsResistance())
+		if (m_pCity->isUnderSiege() || m_pCity->IsResistance() || m_pCity->IsBlockaded(false) || m_pCity->IsBlockaded(true))
 			return 0;
 	}
 

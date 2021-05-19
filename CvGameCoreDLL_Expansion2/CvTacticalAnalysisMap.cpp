@@ -699,13 +699,13 @@ void CvTacticalAnalysisMap::CreateDominanceZones()
 		nonCityZonePlots.erase(nonCityZonePlots.begin());
 
 		int newId = iNonCityBaseId++;
-		if (stack.back()->isWater())
+		if (stack.front()->isWater())
 			newId *= -1;
 
 		CvTacticalDominanceZone newZone;
 		newZone.SetZoneID(newId);
 		newZone.SetZoneCity(NULL);
-		newZone.SetAreaID(stack.back()->getArea());
+		newZone.SetAreaID(stack.front()->getArea());
 		newZone.SetTerritoryType(TACTICAL_TERRITORY_NEUTRAL);
 
 		while (!stack.empty())
