@@ -1408,6 +1408,7 @@ public:
 	int getProduction() const;
 	int getGoldenAge() const;
 	int getFreeTiles() const;
+	int getScience() const;
 #endif
 	int getCulture() const;
 	int getFaith() const;
@@ -1447,6 +1448,7 @@ protected:
 	int m_iProduction;
 	int m_iGoldenAge;
 	int m_iFreeTiles;
+	int m_iScience;
 #endif
 	int m_iCulture;
 	int m_iFaith;

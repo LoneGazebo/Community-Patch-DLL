@@ -13531,7 +13531,7 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 	if (iEra <= 0)
 		iEra = 1;
 
-	CvAssertMsg(canReceiveGoody(pPlot, eGoody, pUnit), "Instance is expected to be able to recieve goody");
+	CvAssertMsg(canReceiveGoody(pPlot, eGoody, pUnit), "Instance is expected to be able to receive goody");
 
 	Database::SingleResult kResult;
 	CvGoodyInfo kGoodyInfo;
@@ -13733,6 +13733,35 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 				}
 			}
 		}
+	}
+	// Science
+	int iScience = kGoodyInfo.getScience();
+	if (iScience > 0)
+	{
+		// Game Speed Mod
+		iScience *= GC.getGame().getGameSpeedInfo().getResearchPercent();
+		iScience /= 100;
+
+		if (pUnit != NULL && iGoodyModifier != 0)
+		{
+			iScience *= (100 + iGoodyModifier);
+			iScience /= 100;
+		}
+
+		iScience *= iEra;
+
+		TechTypes eCurrentTech = GetPlayerTechs()->GetCurrentResearch();
+		if (eCurrentTech == NO_TECH)
+		{
+			changeOverflowResearch(iScience);
+		}
+		else
+		{
+			CvTeam& kTeam = GET_TEAM(getTeam());
+			kTeam.GetTeamTechs()->ChangeResearchProgress(eCurrentTech, iScience, GetID());
+		}
+
+		changeInstantYieldValue(YIELD_SCIENCE, iScience);
 	}
 #endif
 	// Culture
@@ -14367,6 +14396,8 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 #if defined(MOD_BALANCE_CORE)
 			else if(iProduction > 0)
 				iSpecialValue = iProduction;
+			else if (iScience > 0)
+				iSpecialValue = iScience;
 #endif
 
 			CvPopupInfo kPopupInfo(BUTTONPOPUP_GOODY_HUT_REWARD, eGoody, iSpecialValue);
