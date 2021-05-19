@@ -13644,11 +13644,7 @@ int CvCity::getProductionDifferenceTimes100(int /*iProductionNeeded*/, int /*iPr
 		return 0;
 	}
 
-#if defined(MOD_BALANCE_CORE)
 	int iFoodProduction = ((bFoodProduction) ? (GetFoodProductionTimes100(getYieldRateTimes100(YIELD_FOOD, false) - foodConsumptionTimes100(true))) / 100 : 0);
-#else
-	int iFoodProduction = ((bFoodProduction) ? GetFoodProduction(getYieldRate(YIELD_FOOD, false) - foodConsumption(true)) : 0);
-#endif
 	iFoodProduction *= 100;
 
 	int iOverflow = ((bOverflow) ? (getOverflowProductionTimes100() + getFeatureProduction() * 100) : 0);
@@ -14372,7 +14368,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 #else
 									owningPlayer.incrementGreatAdmiralsCreated();
 #endif
-									CvPlot *pSpawnPlot = owningPlayer.GetGreatAdmiralSpawnPlot(pFreeUnit);
+									CvPlot *pSpawnPlot = owningPlayer.GetBestCoastalSpawnPlot(pFreeUnit);
 									if (pFreeUnit->plot() != pSpawnPlot)
 									{
 										pFreeUnit->setXY(pSpawnPlot->getX(), pSpawnPlot->getY());
@@ -14686,7 +14682,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 #else
 									owningPlayer.incrementGreatAdmiralsCreated();
 #endif
-									CvPlot *pSpawnPlot = owningPlayer.GetGreatAdmiralSpawnPlot(pFreeUnit);
+									CvPlot *pSpawnPlot = owningPlayer.GetBestCoastalSpawnPlot(pFreeUnit);
 									if (pFreeUnit->plot() != pSpawnPlot)
 									{
 										pFreeUnit->setXY(pSpawnPlot->getX(), pSpawnPlot->getY());
@@ -17191,13 +17187,11 @@ int CvCity::foodConsumptionSpecialistTimes100() const
 // --------------------------------------------------------------------------------
 int CvCity::foodConsumption(bool bNoAngry, int iExtra) const
 {
-#if defined(MOD_BALANCE_CORE)
 	return foodConsumptionTimes100(bNoAngry, iExtra * 100) / 100;
 }
 //	--------------------------------------------------------------------------------
 int CvCity::foodConsumptionTimes100(bool /*bNoAngry*/, int iExtra) const
 {
-#endif
 	VALIDATE_OBJECT
 #if defined(MOD_BALANCE_YIELD_SCALE_ERA)
 	if(MOD_BALANCE_YIELD_SCALE_ERA)
@@ -17284,19 +17278,11 @@ int CvCity::foodDifferenceTimes100(bool bBottom, bool bJustCheckingStarve, int i
 
 	if(isFoodProduction())
 	{
-#if defined(MOD_BALANCE_CORE)
 		iDifference = std::min(0, GetFoodProductionTimes100(getYieldRateTimes100(YIELD_FOOD, false) - foodConsumptionTimes100()));
-#else
-		iDifference = std::min(0, GetFoodProduction(getYieldRate(YIELD_FOOD, false) - foodConsumption()) * 100);
-#endif
 	}
 	else
 	{
-#if defined(MOD_BALANCE_CORE)
 		iDifference = (getYieldRateTimes100(YIELD_FOOD, false) - foodConsumptionTimes100());
-#else
-		iDifference = (getYieldRateTimes100(YIELD_FOOD, false) - foodConsumption() * 100);
-#endif
 	}
 
 	if(bBottom)
@@ -18414,7 +18400,9 @@ void CvCity::setPopulation(int iNewValue, bool bReassignPop /* = true */, bool b
 				// Need to Remove Citizens
 				for(int iNewPopLoop = -iPopChange; iNewPopLoop--;)
 				{
-					GetCityCitizens()->DoRemoveWorstCitizen(CvCity::YIELD_UPDATE_GLOBAL, false, NO_SPECIALIST);
+					//first try and remove an non-forced plot, if that fails, we need to pick a forced plot
+					if (!GetCityCitizens()->DoRemoveWorstCitizen(CvCity::YIELD_UPDATE_GLOBAL, false, NO_SPECIALIST))
+						GetCityCitizens()->DoRemoveWorstCitizen(CvCity::YIELD_UPDATE_GLOBAL, true, NO_SPECIALIST);
 				}
 
 				// Fixup the unassigned workers
@@ -24158,10 +24146,10 @@ void CvCity::SetOwedChosenBuilding(BuildingClassTypes eBuildingClass, bool bNewV
 //	--------------------------------------------------------------------------------
 bool CvCity::IsBlockadedWaterAndLand() const
 {
-	return IsBlockaded(true) && IsBlockaded(false);
+	return IsBlockaded(NO_DOMAIN);
 }
 
-bool CvCity::IsBlockaded(bool bWater) const
+bool CvCity::IsBlockaded(DomainTypes eDomain) const
 {
 	if (GetSappedTurns() > 0)
 		return true;
@@ -24169,13 +24157,18 @@ bool CvCity::IsBlockaded(bool bWater) const
 	for (int iLoop = 0; iLoop < NUM_DIRECTION_TYPES; ++iLoop) 
 	{
 		CvPlot* pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iLoop));
-		if (pAdjacentPlot && 
-			pAdjacentPlot->isWater()==bWater && 
-			!pAdjacentPlot->isImpassable(getTeam()) && 
-			!pAdjacentPlot->isBlockaded(getOwner())) 
-		{
+		if (!pAdjacentPlot)
+			continue;
+
+		if (eDomain != NO_DOMAIN && pAdjacentPlot->getDomain() != eDomain)
+			continue;
+
+		if (pAdjacentPlot->isImpassable(getTeam()))
+			continue;
+
+		//finally, one unblocked plot breaks the whole thing
+		if (!GetCityCitizens()->IsBlockaded(pAdjacentPlot))
 			return false;
-		}
 	}
 	
 	//note: if a city is landlocked, it is permanently blockaded from sea side by definition
@@ -24763,7 +24756,7 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra, CvString* to
 	//Blockade
 	if (eIndex == YIELD_GOLD && isCoastal(GC.getMIN_WATER_SIZE_FOR_OCEAN()))
 	{
-		if (GC.getBLOCKADE_GOLD_PENALTY() != 0 && isCoastal() && IsBlockaded(true))
+		if (GC.getBLOCKADE_GOLD_PENALTY() != 0 && isCoastal() && IsBlockaded(DOMAIN_SEA))
 		{
 			iTempMod = GC.getBLOCKADE_GOLD_PENALTY();
 			iModifier += iTempMod;
@@ -32080,7 +32073,7 @@ void CvCity::Purchase(UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectT
 			else if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_GREAT_ADMIRAL"))
 			{
 				kPlayer.incrementAdmiralsFromFaith();
-				CvPlot *pSpawnPlot = kPlayer.GetGreatAdmiralSpawnPlot(pUnit);
+				CvPlot *pSpawnPlot = kPlayer.GetBestCoastalSpawnPlot(pUnit);
 				if (pUnit->plot() != pSpawnPlot)
 				{
 					pUnit->setXY(pSpawnPlot->getX(), pSpawnPlot->getY());

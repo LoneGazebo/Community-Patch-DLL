@@ -128,11 +128,7 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 				{
 					iModifier += 25;
 				}
-				if (m_pCity->isCoastal() && m_pCity->IsBlockaded(true))
-				{
-					iModifier += 25;
-				}
-				if (m_pCity->IsBlockadedWaterAndLand())
+				if (m_pCity->isUnderSiege())
 				{
 					iModifier += 25;
 				}
@@ -170,14 +166,6 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 				else if (m_pCity->isInDangerOfFalling())
 				{
 					iModifier += 1000;
-				}
-				else if (m_pCity->isCoastal() && m_pCity->IsBlockaded(true))
-				{
-					iModifier += 150;
-				}
-				else if (m_pCity->IsBlockadedWaterAndLand())
-				{
-					iModifier += 150;
 				}
 				//None of these things?
 				else
@@ -288,11 +276,7 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 					if(m_pCity->GetCityCitizens()->IsForcedAvoidGrowth())
 						return 0;
 
-#if defined(MOD_BALANCE_CORE)
 					int iExcessFoodTimes100 = m_pCity->getYieldRateTimes100(YIELD_FOOD, false) - (m_pCity->foodConsumptionTimes100());
-#else
-					int iExcessFoodTimes100 = m_pCity->getYieldRateTimes100(YIELD_FOOD, false) - (m_pCity->foodConsumption() * 100);
-#endif
 					if (iExcessFoodTimes100 < 0)
 					{
 						iModifier += 30;

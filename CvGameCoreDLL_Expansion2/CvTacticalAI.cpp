@@ -7416,7 +7416,7 @@ STacticalAssignment ScorePlotForCombatUnitDefensiveMove(const SUnitStats& unit, 
 
 	//we use defensive moves also for gathering armies when there are no enemies around ...
 	const CvTacticalPlot& targetPlot = assumedPosition.getTactPlot( assumedPosition.getTarget()->GetPlotIndex() );
-	if (!targetPlot.isEnemy())
+	if (targetPlot.isValid() && !targetPlot.isEnemy())
 	{
 		//assume we want to defend the target, ie be ready for an attack from the "outside"
 		//move close to the (friendly) target
@@ -7486,7 +7486,7 @@ STacticalAssignment ScorePlotForNonFightingUnitMove(const SUnitStats& unit, cons
 
 	//check distance to target if gathering (not attacking)
 	const CvTacticalPlot& targetPlot = assumedPosition.getTactPlot( assumedPosition.getTarget()->GetPlotIndex() );
-	if (!targetPlot.isEnemy())
+	if (targetPlot.isValid() && !targetPlot.isEnemy())
 	{
 		//can be treacherous with impassable terrain in between but everything else is much more complex
 		int iPlotDistance = plotDistance(*assumedPosition.getTarget(),*pTestPlot);

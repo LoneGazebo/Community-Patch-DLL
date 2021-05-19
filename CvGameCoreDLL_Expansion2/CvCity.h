@@ -526,9 +526,7 @@ public:
 	int foodConsumptionSpecialistTimes100() const;
 #endif
 	int foodConsumption(bool bNoAngry = false, int iExtra = 0) const;
-#if defined(MOD_BALANCE_CORE)
 	int foodConsumptionTimes100(bool bNoAngry = false, int iExtra = 0) const;
-#endif
 	int foodDifference(bool bBottom = true, bool bJustCheckingStarve = false) const;
 	int foodDifferenceTimes100(bool bBottom = true, bool bJustCheckingStarve = false, int iCorpMod = -1, CvString* toolTipSink = NULL) const;
 	int growthThreshold() const;
@@ -983,8 +981,8 @@ public:
 
 	//check both water and land
 	bool IsBlockadedWaterAndLand() const;
-	//check water or land
-	bool IsBlockaded(bool bWater) const;
+	//check water or land, no domain for both
+	bool IsBlockaded(DomainTypes eDomain) const;
 
 	int GetWeLoveTheKingDayCounter() const;
 	void SetWeLoveTheKingDayCounter(int iValue);

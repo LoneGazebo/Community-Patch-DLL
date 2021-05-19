@@ -80,10 +80,8 @@ void CvCityCitizens::Reset()
 {
 	m_bAutomated = false;
 	m_bNoAutoAssignSpecialists = false;
-#if defined(MOD_BALANCE_CORE)
 	m_bIsDirty = false;
-	m_bIsBlockaded = false;
-#endif
+
 	m_iNumUnassignedCitizens = 0;
 	m_iNumCitizensWorkingPlots = 0;
 	m_iNumForcedWorkingPlots = 0;
@@ -99,6 +97,8 @@ void CvCityCitizens::Reset()
 		m_pabWorkingPlot[iI] = false;
 		m_pabForcedWorkingPlot[iI] = false;
 	}
+
+	m_vBlockadedPlots.clear();
 
 	m_iNumDefaultSpecialists = 0;
 	m_iNumForcedDefaultSpecialists = 0;
@@ -160,7 +160,6 @@ void CvCityCitizens::Read(FDataStream& kStream)
 	kStream >> m_bAutomated;
 	kStream >> m_bNoAutoAssignSpecialists;
 	kStream >> m_bIsDirty;
-	kStream >> m_bIsBlockaded;
 	kStream >> m_iNumUnassignedCitizens;
 	kStream >> m_iNumCitizensWorkingPlots;
 	kStream >> m_iNumForcedWorkingPlots;
@@ -171,6 +170,7 @@ void CvCityCitizens::Read(FDataStream& kStream)
 
 	kStream >> m_pabWorkingPlot;
 	kStream >> m_pabForcedWorkingPlot;
+	kStream >> m_vBlockadedPlots;
 
 	kStream >> m_iNumDefaultSpecialists;
 	kStream >> m_iNumForcedDefaultSpecialists;
@@ -210,7 +210,6 @@ void CvCityCitizens::Write(FDataStream& kStream)
 	kStream << m_bAutomated;
 	kStream << m_bNoAutoAssignSpecialists;
 	kStream << m_bIsDirty;
-	kStream << m_bIsBlockaded;
 	kStream << m_iNumUnassignedCitizens;
 	kStream << m_iNumCitizensWorkingPlots;
 	kStream << m_iNumForcedWorkingPlots;
@@ -221,6 +220,7 @@ void CvCityCitizens::Write(FDataStream& kStream)
 
 	kStream << m_pabWorkingPlot;
 	kStream << m_pabForcedWorkingPlot;
+	kStream << m_vBlockadedPlots;
 
 	kStream << m_iNumDefaultSpecialists;
 	kStream << m_iNumForcedDefaultSpecialists;
@@ -278,22 +278,6 @@ void CvCityCitizens::DoTurn()
 	CvPlayerAI& thisPlayer = GET_PLAYER(GetOwner());
 
 	bool bForceCheck = false;
-	if (!IsBlockade())
-	{
-		if (m_pCity->isCoastal() && m_pCity->IsBlockaded(true))
-		{
-			SetBlockade(true);
-		}
-	}
-	else if (IsBlockade())
-	{
-		if (m_pCity->isCoastal() && !m_pCity->IsBlockaded(true))
-		{
-			SetBlockade(false);
-			bForceCheck = true;
-		}
-	}
-
 	if (CityStrategyAIHelpers::IsTestCityStrategy_IsPuppetAndAnnexable(m_pCity))
 	{
 		bForceCheck |= SetFocusType(NO_CITY_AI_FOCUS_TYPE);
@@ -758,6 +742,10 @@ int CvCityCitizens::GetYieldModForFocus(YieldTypes eYield, CityAIFocusTypes eFoc
 		iYieldMod += cache.iUnhappinessFromReligion;
 	}
 
+	//prevent starvation if we have a focus on a specific yield
+	if (bEmphasizeFood && eYield != YIELD_FOOD)
+		iYieldMod /= 2;
+
 	return iYieldMod;
 }
 
@@ -772,15 +760,9 @@ bool CvCityCitizens::IsAIWantSpecialistRightNow()
 		iWeight /= 2;
 	}
 
-#if defined(MOD_BALANCE_CORE)
 	int iFoodPerTurn = m_pCity->getYieldRateTimes100(YIELD_FOOD, false);
 	int iFoodEatenPerTurn = m_pCity->foodConsumptionTimes100();
 	int iSurplusFood = (iFoodPerTurn - iFoodEatenPerTurn) / 100;
-#else
-	int iFoodPerTurn = m_pCity->getYieldRate(YIELD_FOOD, false);
-	int iFoodEatenPerTurn = m_pCity->foodConsumption();
-	int iSurplusFood = iFoodPerTurn - iFoodEatenPerTurn;
-#endif
 
 	CityAIFocusTypes eFocusType = GetFocusType();
 	// Don't want specialists until we've met our food needs
@@ -1609,11 +1591,7 @@ bool CvCityCitizens::DoAddBestCitizenFromUnassigned(CvCity::eUpdateMode updateMo
 	if (GetNumUnassignedCitizens() == 0)
 		return false;
 
-#if defined(MOD_BALANCE_CORE)
 	int iNetFood100 = m_pCity->getYieldRateTimes100(YIELD_FOOD, false) - m_pCity->foodConsumptionTimes100();
-#else
-	int iNetFood100 = m_pCity->getYieldRateTimes100(YIELD_FOOD, false) - m_pCity->foodConsumption() * 100;
-#endif
 	bool bCanAffordSpecialist = (iNetFood100 >= m_pCity->foodConsumptionSpecialistTimes100());
 	bool bSpecialistForbidden = GET_PLAYER(GetOwner()).isHuman() && IsNoAutoAssignSpecialists();
 	FILogFile* pLog = bLogging && GC.getLogging() ? LOGFILEMGR.GetLog("CityTileScorer.csv", FILogFile::kDontTimeStamp) : NULL;
@@ -1653,11 +1631,7 @@ bool CvCityCitizens::DoAddBestCitizenFromUnassigned(CvCity::eUpdateMode updateMo
 
 		if (pLog)
 		{
-#if defined(MOD_BALANCE_CORE)
 			int iExcessFoodTimes100 = m_pCity->getYieldRateTimes100(YIELD_FOOD, false) - (m_pCity->foodConsumptionTimes100());
-#else
-			int iExcessFoodTimes100 = m_pCity->getYieldRateTimes100(YIELD_FOOD, false) - (m_pCity->foodConsumption() * 100);
-#endif
 			CvString strOutBuf;
 			strOutBuf.Format("now working building %d, current net food %d", eBestSpecialistBuilding, iExcessFoodTimes100);
 			pLog->Msg(strOutBuf);
@@ -1728,12 +1702,9 @@ bool CvCityCitizens::DoRemoveWorstCitizen(CvCity::eUpdateMode updateMode, bool b
 		}
 	}
 	// Have to resort to pulling away a good Specialist
-	else if (bRemoveForcedStatus)
+	else if (DoRemoveWorstSpecialist(eDontChangeSpecialist, NO_BUILDING, updateMode))
 	{
-		if (DoRemoveWorstSpecialist(eDontChangeSpecialist, NO_BUILDING, updateMode))
-		{
-			return true;
-		}
+		return true;
 	}
 
 	return false;
@@ -1839,16 +1810,12 @@ void CvCityCitizens::OptimizeWorkedPlots(bool bLogging)
 	int iCount = 0;
 	FILogFile* pLog = bLogging && GC.getLogging() ? LOGFILEMGR.GetLog("CityTileScorer.csv", FILogFile::kDontTimeStamp) : NULL;
 
-#if defined(MOD_BALANCE_CORE)
 	int iNetFood100 = m_pCity->getYieldRateTimes100(YIELD_FOOD, false) - m_pCity->foodConsumptionTimes100();
-#else
-	int iNetFood100 = m_pCity->getYieldRateTimes100(YIELD_FOOD, false) - m_pCity->foodConsumption() * 100;
-#endif
 	bool bCanAffordSpecialist = (iNetFood100 >= m_pCity->foodConsumptionSpecialistTimes100());
 	bool bSpecialistForbidden = GET_PLAYER(GetOwner()).isHuman() && IsNoAutoAssignSpecialists();
 
 	//failsafe against switching back and forth, don't try this too often
-	while (iCount < m_pCity->getPopulation()/3)
+	while (iCount < m_pCity->getPopulation()/2)
 	{
 		int iWorstWorkedPlotValue = 0;
 		int iBestFreePlotValue = 0;
@@ -1878,11 +1845,7 @@ void CvCityCitizens::OptimizeWorkedPlots(bool bLogging)
 			{
 				if (pLog)
 				{
-#if defined(MOD_BALANCE_CORE)
 					int iExcessFoodTimes100 = m_pCity->getYieldRateTimes100(YIELD_FOOD, false) - (m_pCity->foodConsumptionTimes100());
-#else
-					int iExcessFoodTimes100 = m_pCity->getYieldRateTimes100(YIELD_FOOD, false) - (m_pCity->foodConsumption() * 100);
-#endif
 					CvString strOutBuf;
 					strOutBuf.Format("nothing to optimize, current net food %d", iExcessFoodTimes100);
 					pLog->Msg(strOutBuf);
@@ -1892,11 +1855,7 @@ void CvCityCitizens::OptimizeWorkedPlots(bool bLogging)
 
 			if (pLog)
 			{
-#if defined(MOD_BALANCE_CORE)
 				int iExcessFoodTimes100 = m_pCity->getYieldRateTimes100(YIELD_FOOD, false) - (m_pCity->foodConsumptionTimes100());
-#else
-				int iExcessFoodTimes100 = m_pCity->getYieldRateTimes100(YIELD_FOOD, false) - (m_pCity->foodConsumption() * 100);
-#endif
 				CvString strOutBuf;
 				strOutBuf.Format("switched plot %d:%d (score %d) to plot %d:%d (score %d), current net food %d", 
 					pWorstWorkedPlot->getX(), pWorstWorkedPlot->getY(), iWorstWorkedPlotValue, pBestFreePlot->getX(), pBestFreePlot->getY(), iBestFreePlotValue, iExcessFoodTimes100);
@@ -1913,12 +1872,7 @@ void CvCityCitizens::OptimizeWorkedPlots(bool bLogging)
 				if (pLog)
 				{
 					CvBuildingEntry* pBuilding = GC.getBuildingInfo(eBestSpecialistBuilding);
-#if defined(MOD_BALANCE_CORE)
 					int iExcessFoodTimes100 = m_pCity->getYieldRateTimes100(YIELD_FOOD, false) - (m_pCity->foodConsumptionTimes100());
-#else
-					int iExcessFoodTimes100 = m_pCity->getYieldRateTimes100(YIELD_FOOD, false) - (m_pCity->foodConsumption() * 100);
-#endif
-
 					CvString strOutBuf;
 					strOutBuf.Format("switched plot %d:%d (score %d) to specialist in %s (score %d), current net food %d", 
 						pWorstWorkedPlot->getX(), pWorstWorkedPlot->getY(), iWorstWorkedPlotValue, pBuilding->GetType(), iBestSpecialistValue, iExcessFoodTimes100);
@@ -2004,17 +1958,6 @@ void CvCityCitizens::SetDirty(bool bValue)
 bool CvCityCitizens::IsDirty()
 {
 	return m_bIsDirty;
-}
-void CvCityCitizens::SetBlockade(bool bValue)
-{
-	if (m_bIsBlockaded != bValue)
-	{
-		m_bIsBlockaded = bValue;
-	}
-}
-bool CvCityCitizens::IsBlockade()
-{
-	return m_bIsBlockaded;
 }
 
 void CvCityCitizens::DoReallocateCitizens(bool bForce, bool bLogging)
@@ -2470,7 +2413,7 @@ bool CvCityCitizens::IsCanWork(CvPlot* pPlot) const
 		return false;
 	}
 
-	if (pPlot->isImpassable(m_pCity->getTeam()))
+	if (!pPlot->hasYield())
 	{
 		return false;
 	}
@@ -2483,7 +2426,7 @@ bool CvCityCitizens::IsCanWork(CvPlot* pPlot) const
 		}
 	}
 
-	if (pPlot->isBlockaded(GetOwner()))
+	if (IsBlockaded(pPlot))
 	{
 		return false;
 	}
@@ -2491,30 +2434,38 @@ bool CvCityCitizens::IsCanWork(CvPlot* pPlot) const
 	return true;
 }
 
+bool CvCityCitizens::IsBlockaded(CvPlot * pPlot, int iUnitID) const
+{
+	map<int, set<int>>::const_iterator it = m_vBlockadedPlots.find(pPlot->GetPlotIndex());
+	
+	if (it == m_vBlockadedPlots.end())
+		return false;
+
+	if (iUnitID != -1)
+		return it->second.find(iUnitID) != it->second.end();
+
+	//no particular unit given
+	return true;
+}
+
+void CvCityCitizens::SetBlockaded(CvPlot * pPlot, int iUnitID, bool bValue)
+{
+	if (bValue)
+	{
+		m_vBlockadedPlots[ pPlot->GetPlotIndex() ].insert(iUnitID);
+	}
+	else
+	{
+		m_vBlockadedPlots[ pPlot->GetPlotIndex() ].erase(iUnitID);
+		if ( m_vBlockadedPlots[ pPlot->GetPlotIndex() ].empty() )
+			m_vBlockadedPlots.erase(pPlot->GetPlotIndex());
+	}
+}
+
 // Is there a naval blockade on any of this city's water tiles?
 bool CvCityCitizens::IsAnyPlotBlockaded() const
 {
-	CvPlot* pLoopPlot;
-
-	// Look at all workable Plots
-
-	for (int iPlotLoop = 0; iPlotLoop < m_pCity->GetNumWorkablePlots(); iPlotLoop++)
-	{
-		if (iPlotLoop != CITY_HOME_PLOT)
-		{
-			pLoopPlot = GetCityPlotFromIndex(iPlotLoop);
-
-			if (pLoopPlot != NULL)
-			{
-				if (pLoopPlot->isBlockaded(GetOwner()))
-				{
-					return true;
-				}
-			}
-		}
-	}
-
-	return false;
+	return !m_vBlockadedPlots.empty();
 }
 
 /// Check all Plots by this City to see if we can actually be working them (if we are)
@@ -3514,7 +3465,7 @@ void CvCityCitizens::DoSpawnGreatPerson(UnitTypes eUnit, bool bIncrementCount, b
 #else
 			kPlayer.incrementGreatAdmiralsCreated();
 #endif
-			CvPlot *pSpawnPlot = kPlayer.GetGreatAdmiralSpawnPlot(newUnit);
+			CvPlot *pSpawnPlot = kPlayer.GetBestCoastalSpawnPlot(newUnit);
 			if (newUnit->plot() != pSpawnPlot)
 			{
 				newUnit->setXY(pSpawnPlot->getX(), pSpawnPlot->getY());
@@ -3806,11 +3757,6 @@ SPrecomputedExpensiveNumbers::SPrecomputedExpensiveNumbers(CvCity * pCity)
 	iUnhappinessFromCulture = pCity->getUnhappinessFromCulture();
 	iUnhappinessFromReligion = pCity->getUnhappinessFromReligion();
 	iUnhappinessFromDistress = max(pCity->getUnhappinessFromDefense(),pCity->getUnhappinessFromStarving());
-
-#if defined(MOD_BALANCE_CORE)
 	iExcessFoodTimes100 = pCity->getYieldRateTimes100(YIELD_FOOD, false) - (pCity->foodConsumptionTimes100());
-#else
-	iExcessFoodTimes100 = pCity->getYieldRateTimes100(YIELD_FOOD, false) - (pCity->foodConsumption() * 100);
-#endif
 	iFoodCorpMod = pCity->GetTradeRouteCityMod(YIELD_FOOD);
 }

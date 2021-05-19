@@ -1075,19 +1075,11 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 			{
 				WarPenalty += 25;
 			}
-			if ((m_pCity->isCoastal() && m_pCity->IsBlockaded(true)) || ((!m_pCity->isCoastal() && m_pCity->IsBlockaded(false))))
-			{
-				WarPenalty += 25;
-			}
 
 			int iCityLoop;
 			for (CvCity* pLoopCity = kPlayer.firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iCityLoop))
 			{
 				if (pLoopCity->isUnderSiege() || pLoopCity->isInDangerOfFalling())
-				{
-					WarPenalty += 25;
-				}
-				if ((pLoopCity->isCoastal() && pLoopCity->IsBlockaded(true)) || ((!pLoopCity->isCoastal() && pLoopCity->IsBlockaded(false))))
 				{
 					WarPenalty += 25;
 				}

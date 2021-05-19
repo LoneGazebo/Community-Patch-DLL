@@ -1056,7 +1056,8 @@ public:
 	bool IsFortified() const;
 	void SetFortified(bool bValue);
 	
-	void DoAdjacentPlotDamage(CvPlot* pWhere, int iValue, const char* chTextKey = NULL);
+	int DoBlockade(CvPlot* pWhere, bool bValue);
+	int DoAdjacentPlotDamage(CvPlot* pWhere, int iValue, const char* chTextKey = NULL);
 
 	int getBlitzCount() const;
 	bool isBlitz() const;
