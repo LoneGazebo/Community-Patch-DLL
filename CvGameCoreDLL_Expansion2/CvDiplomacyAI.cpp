@@ -11110,7 +11110,7 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 					if (!pCityPlot)
 						continue;
 
-					if (GetPlayer()->GetCityDistanceInPlots(pCityPlot) > 10)
+					if (GetPlayer()->GetCityDistanceInPlots(pCityPlot) > 12)
 						continue;
 
 					if (GET_PLAYER(eOriginalOwner).getTeam() == GetTeam())
