@@ -8979,7 +8979,7 @@ void CvDiplomacyAI::DoUpdateWarStates()
 
 					// If we are defensive in any war and our capital has been damaged to 75% or lower, overall state should be defensive
 					CvCity *pCapital = m_pPlayer->getCapitalCity();
-					if (pCapital && pCapital->getDamage() > (pCapital->GetMaxHitPoints()/4))
+					if (pCapital && pCapital->getDamage() >= (pCapital->GetMaxHitPoints()/4))
 					{
 						SetStateAllWars(STATE_ALL_WARS_LOSING);
 					}
@@ -9050,8 +9050,7 @@ bool CvDiplomacyAI::CanSeeEnemyCity(CvCity* pCity) const
 			continue;
 
 		// Smaller sight radius for units
-		int iRadius = 6;
-		iRadius += iVisionBonus;
+		int iRadius = iVisionBonus + 6;
 
 		// VP Special: Coastal units have a harder time seeing what's going on in non-coastal cities
 		if (MOD_BALANCE_CORE && pLoopUnit->getDomainType() == DOMAIN_SEA && !pCity->isCoastal())
@@ -10473,6 +10472,7 @@ void CvDiplomacyAI::DoUpdateEasyTargets()
 void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 {
 	CvCity* pCapital = GetPlayer()->getCapitalCity();
+	bool bLog = bMyTurn && GC.getLogging() && GC.getAILogging(); // Only log this once per turn to prevent log spam
 	int iLoop;
 
 	if (!pCapital || GC.getGame().isOption(GAMEOPTION_ALWAYS_WAR) || GC.getGame().isOption(GAMEOPTION_NO_CHANGING_WAR_PEACE) || GetPlayer()->isHuman() || GetPlayer()->IsAITeammateOfHuman() || GetPlayer()->IsVassalOfSomeone())
@@ -10482,6 +10482,38 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 			PlayerTypes ePlayer = (PlayerTypes) iPlayerLoop;
 			SetTreatyWillingToOffer(ePlayer, NO_PEACE_TREATY_TYPE);
 			SetTreatyWillingToAccept(ePlayer, NO_PEACE_TREATY_TYPE);
+		}
+		if (bLog && !GetPlayer()->isHuman())
+		{
+			CvString strOutBuf;
+			CvString strBaseString;
+			CvString playerName;
+			CvString strLogName;
+
+			// Find the name of this civ and city
+			playerName = m_pPlayer->getCivilizationShortDescription();
+
+			// Open the log file
+			if (GC.getPlayerAndCityAILogSplit())
+			{
+				strLogName = "DiplomacyAI_Peace_Log" + playerName + ".csv";
+			}
+			else
+			{
+				strLogName = "DiplomacyAI_Peace_Log.csv";
+			}
+
+			FILogFile* pLog;
+			pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
+
+			// Get the leading info for this line
+			strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
+			strBaseString += playerName + " VS. Everyone";
+
+			strOutBuf.Format("Not allowed to change war/peace status with anyone!");
+
+			strBaseString += strOutBuf;
+			pLog->Msg(strBaseString);
 		}
 		return;
 	}
@@ -10500,10 +10532,75 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 		{
 			if (GET_PLAYER(eLoopPlayer).isMajorCiv())
 			{
-				if (IsPeaceBlocked(eLoopPlayer) || GET_PLAYER(eLoopPlayer).getCapitalCity() == NULL)
+				if (IsPeaceBlocked(eLoopPlayer))
 				{
 					SetTreatyWillingToOffer(eLoopPlayer, NO_PEACE_TREATY_TYPE);
 					SetTreatyWillingToAccept(eLoopPlayer, NO_PEACE_TREATY_TYPE);
+
+					if (bLog)
+					{
+						CvString strOutBuf;
+						CvString strBaseString;
+						CvString playerName;
+						CvString otherPlayerName;
+						CvString strLogName;
+						CvString strPeaceBlockReason;
+
+						switch (GetPeaceBlockReason(eLoopPlayer))
+						{
+						case 1:
+							strPeaceBlockReason.Format("We are always at war with this player!");
+							break;
+						case 2:
+							strPeaceBlockReason.Format("One of us is a vassal!");
+							break;
+						case 3:
+							strPeaceBlockReason.Format("Too early to make peace!");
+							break;
+						case 4:
+							strPeaceBlockReason.Format("Our city was just captured, and we have units near the enemy's cities!");
+							break;
+						case 7:
+							strPeaceBlockReason.Format("Locked into coop/3rd party war for %d more turns!", GET_TEAM(GetTeam()).GetNumTurnsLockedIntoWar(GET_PLAYER(eLoopPlayer).getTeam()));
+							break;
+						case 8:
+							strPeaceBlockReason.Format("Other player has no cities, we lose nothing from maintaining the war!");
+							break;
+						case 9:
+							strPeaceBlockReason.Format("Cannot change war/peace status!");
+							break;
+						default:
+							strPeaceBlockReason.Format("Undefined reason!");
+							break;
+						}
+
+						// Find the name of this civ and city
+						playerName = m_pPlayer->getCivilizationShortDescription();
+
+						// Open the log file
+						if (GC.getPlayerAndCityAILogSplit())
+						{
+							strLogName = "DiplomacyAI_Peace_Log" + playerName + ".csv";
+						}
+						else
+						{
+							strLogName = "DiplomacyAI_Peace_Log.csv";
+						}
+
+						FILogFile* pLog;
+						pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
+
+						// Get the leading info for this line
+						strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
+						otherPlayerName = GET_PLAYER(eLoopPlayer).getCivilizationShortDescription();
+						strBaseString += playerName + " VS. " + otherPlayerName;
+
+						strOutBuf.Format("PEACE BLOCKED! ");
+						strOutBuf += strPeaceBlockReason;
+
+						strBaseString += strOutBuf;
+						pLog->Msg(strBaseString);
+					}
 				}
 				else
 				{
@@ -10532,40 +10629,153 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 	if (bCriticalState)
 		bMakePeaceWithAllMinors = true;
 
-	// Make peace with any City-States here - this happens instantly!
+	// STEP 2: Make peace with any City-States here - this happens instantly!
 	if (bMyTurn)
 	{
 		for (int iPlayerLoop = MAX_MAJOR_CIVS; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 		{
 			PlayerTypes eMinor = (PlayerTypes) iPlayerLoop;
 
-			if (IsAtWar(eMinor) && !IsPeaceBlocked(eMinor))
+			if (IsAtWar(eMinor))
 			{
-				if (bMakePeaceWithAllMinors || GetCSWarTargetPlayer() != eMinor)
+				if (IsPeaceBlocked(eMinor))
 				{
-					if (!bCriticalState)
+					if (bLog)
 					{
-						// Exception under two circumstances: the minor's capital or a city they captured from us are in danger from us
-						for (CvCity* pLoopCity = GET_PLAYER(eMinor).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(eMinor).nextCity(&iLoop))
+						CvString strOutBuf;
+						CvString strBaseString;
+						CvString playerName;
+						CvString otherPlayerName;
+						CvString strLogName;
+						CvString strPeaceBlockReason;
+
+						switch (GetPeaceBlockReason(eMinor))
 						{
-							if (pLoopCity->isCapital() || GET_PLAYER(pLoopCity->getOriginalOwner()).getTeam() == GetTeam())
+						case 1:
+							strPeaceBlockReason.Format("We are always at war with this player!");
+							break;
+						case 2:
+							strPeaceBlockReason.Format("We're a vassal!");
+							break;
+						case 3:
+							strPeaceBlockReason.Format("Too early to make peace!");
+							break;
+						case 4:
+							strPeaceBlockReason.Format("Our city was just captured, and we have units near the enemy's cities!");
+							break;
+						case 5:
+							strPeaceBlockReason.Format("City-State is at permanent war with us!");
+							break;
+						case 6:
+							strPeaceBlockReason.Format("We're at war with this City-State's ally!");
+							break;
+						case 8:
+							strPeaceBlockReason.Format("Other player has no cities, we lose nothing from maintaining the war!");
+							break;
+						case 9:
+							strPeaceBlockReason.Format("Cannot change war/peace status!");
+							break;
+						default:
+							strPeaceBlockReason.Format("Undefined reason!");
+							break;
+						}
+
+						// Find the name of this civ and city
+						playerName = m_pPlayer->getCivilizationShortDescription();
+
+						// Open the log file
+						if (GC.getPlayerAndCityAILogSplit())
+						{
+							strLogName = "DiplomacyAI_Peace_Log" + playerName + ".csv";
+						}
+						else
+						{
+							strLogName = "DiplomacyAI_Peace_Log.csv";
+						}
+
+						FILogFile* pLog;
+						pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
+
+						// Get the leading info for this line
+						strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
+						otherPlayerName = GET_PLAYER(eMinor).getCivilizationShortDescription();
+						strBaseString += playerName + " VS. " + otherPlayerName;
+
+						strOutBuf.Format("PEACE BLOCKED! ");
+						strOutBuf += strPeaceBlockReason;
+
+						strBaseString += strOutBuf;
+						pLog->Msg(strBaseString);
+					}
+				}
+				else
+				{
+					if (bMakePeaceWithAllMinors || GetCSWarTargetPlayer() != eMinor)
+					{
+						if (!bCriticalState)
+						{
+							// Exception under two circumstances: the minor's capital or a city they captured from us are in danger from us
+							for (CvCity* pLoopCity = GET_PLAYER(eMinor).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(eMinor).nextCity(&iLoop))
 							{
-								if (pLoopCity->IsInDanger(GetID()) && (pLoopCity->isUnderSiege() || pLoopCity->IsBlockadedWaterAndLand()))
+								if (pLoopCity->isCapital() || GET_PLAYER(pLoopCity->getOriginalOwner()).getTeam() == GetTeam())
 								{
-									continue;
+									if (pLoopCity->IsInDanger(GetID()) && (pLoopCity->isUnderSiege() || pLoopCity->IsBlockadedWaterAndLand()))
+									{
+										continue;
+									}
 								}
 							}
 						}
-					}
 
-					GET_TEAM(GetTeam()).makePeace(GET_PLAYER(eMinor).getTeam(), true, false, GetID());
-					LogPeaceMade(eMinor);
+						GET_TEAM(GetTeam()).makePeace(GET_PLAYER(eMinor).getTeam(), true, false, GetID());
+						LogPeaceMade(eMinor);
+
+						if (bLog)
+						{
+							CvString strOutBuf;
+							CvString strBaseString;
+							CvString playerName;
+							CvString otherPlayerName;
+							CvString strLogName;
+
+							// Find the name of this civ and city
+							playerName = m_pPlayer->getCivilizationShortDescription();
+
+							// Open the log file
+							if (GC.getPlayerAndCityAILogSplit())
+							{
+								strLogName = "DiplomacyAI_Peace_Log" + playerName + ".csv";
+							}
+							else
+							{
+								strLogName = "DiplomacyAI_Peace_Log.csv";
+							}
+
+							FILogFile* pLog;
+							pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
+
+							// Get the leading info for this line
+							strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
+							otherPlayerName = GET_PLAYER(eMinor).getCivilizationShortDescription();
+							strBaseString += playerName + " VS. " + otherPlayerName;
+
+							if (bCriticalState)
+								strOutBuf.Format("Making peace with all possible City-States because we're in a critical state!");
+							else if (bMakePeaceWithAllMinors)
+								strOutBuf.Format("Making peace with all possible City-States because we're doing poorly in war!");
+							else
+								strOutBuf.Format("This City-State is no longer our CS war target!");
+
+							strBaseString += strOutBuf;
+							pLog->Msg(strBaseString);
+						}
+					}
 				}
 			}
 		}
 	}
 
-	// Now determine whether we're willing to make peace with any majors
+	// STEP 3: Determine whether we're willing to make peace with any majors
 	vector<PlayerTypes> vMakePeacePlayers;
 
 	for (std::vector<PlayerTypes>::iterator it = vValidPlayers.begin(); it != vValidPlayers.end(); it++)
@@ -10573,6 +10783,40 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 		if (bCriticalState)
 		{
 			vMakePeacePlayers.push_back(*it);
+			if (bLog)
+			{
+				CvString strOutBuf;
+				CvString strBaseString;
+				CvString playerName;
+				CvString otherPlayerName;
+				CvString strLogName;
+
+				// Find the name of this civ and city
+				playerName = m_pPlayer->getCivilizationShortDescription();
+
+				// Open the log file
+				if (GC.getPlayerAndCityAILogSplit())
+				{
+					strLogName = "DiplomacyAI_Peace_Log" + playerName + ".csv";
+				}
+				else
+				{
+					strLogName = "DiplomacyAI_Peace_Log.csv";
+				}
+
+				FILogFile* pLog;
+				pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
+
+				// Get the leading info for this line
+				strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
+				otherPlayerName = GET_PLAYER(*it).getCivilizationShortDescription();
+				strBaseString += playerName + " VS. " + otherPlayerName;
+
+				strOutBuf.Format("Making peace with all possible civilizations because we're in a critical state!");
+
+				strBaseString += strOutBuf;
+				pLog->Msg(strBaseString);
+			}
 			continue;
 		}
 
@@ -10682,30 +10926,168 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 		{
 			SetTreatyWillingToOffer(*it, NO_PEACE_TREATY_TYPE);
 			SetTreatyWillingToAccept(*it, NO_PEACE_TREATY_TYPE);
+			if (bLog)
+			{
+				CvString strOutBuf;
+				CvString strBaseString;
+				CvString playerName;
+				CvString otherPlayerName;
+				CvString strLogName;
+
+				// Find the name of this civ and city
+				playerName = m_pPlayer->getCivilizationShortDescription();
+
+				// Open the log file
+				if (GC.getPlayerAndCityAILogSplit())
+				{
+					strLogName = "DiplomacyAI_Peace_Log" + playerName + ".csv";
+				}
+				else
+				{
+					strLogName = "DiplomacyAI_Peace_Log.csv";
+				}
+
+				FILogFile* pLog;
+				pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
+
+				// Get the leading info for this line
+				strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
+				otherPlayerName = GET_PLAYER(*it).getCivilizationShortDescription();
+				strBaseString += playerName + " VS. " + otherPlayerName;
+
+				strOutBuf.Format("No peace! They're in serious danger of losing a city, and we're not!");
+
+				strBaseString += strOutBuf;
+				pLog->Msg(strBaseString);
+			}
 			continue;
 		}
 		// If we're in serious danger, let's offer peace.
 		else if ((iWarScore <= -90 && iOurDanger > 0) || (iWarScore <= -50 && bSeriousDangerUs))
 		{
 			vMakePeacePlayers.push_back(*it);
+			if (bLog)
+			{
+				CvString strOutBuf;
+				CvString strBaseString;
+				CvString playerName;
+				CvString otherPlayerName;
+				CvString strLogName;
+
+				// Find the name of this civ and city
+				playerName = m_pPlayer->getCivilizationShortDescription();
+
+				// Open the log file
+				if (GC.getPlayerAndCityAILogSplit())
+				{
+					strLogName = "DiplomacyAI_Peace_Log" + playerName + ".csv";
+				}
+				else
+				{
+					strLogName = "DiplomacyAI_Peace_Log.csv";
+				}
+
+				FILogFile* pLog;
+				pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
+
+				// Get the leading info for this line
+				strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
+				otherPlayerName = GET_PLAYER(*it).getCivilizationShortDescription();
+				strBaseString += playerName + " VS. " + otherPlayerName;
+
+				strOutBuf.Format("Automatic peace offer: We're badly losing this war!");
+
+				strBaseString += strOutBuf;
+				pLog->Msg(strBaseString);
+			}
 			continue;
 		}
 		// Let's offer peace if we're in danger of losing a city we originally founded (or a really important city) and they're not
 		else if (bSeriousDangerUs && !bSeriousDangerThem)
 		{
 			vMakePeacePlayers.push_back(*it);
+			if (bLog)
+			{
+				CvString strOutBuf;
+				CvString strBaseString;
+				CvString playerName;
+				CvString otherPlayerName;
+				CvString strLogName;
+
+				// Find the name of this civ and city
+				playerName = m_pPlayer->getCivilizationShortDescription();
+
+				// Open the log file
+				if (GC.getPlayerAndCityAILogSplit())
+				{
+					strLogName = "DiplomacyAI_Peace_Log" + playerName + ".csv";
+				}
+				else
+				{
+					strLogName = "DiplomacyAI_Peace_Log.csv";
+				}
+
+				FILogFile* pLog;
+				pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
+
+				// Get the leading info for this line
+				strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
+				otherPlayerName = GET_PLAYER(*it).getCivilizationShortDescription();
+				strBaseString += playerName + " VS. " + otherPlayerName;
+
+				strOutBuf.Format("Automatic peace offer: We're in serious danger of losing an important city, and they're not!");
+
+				strBaseString += strOutBuf;
+				pLog->Msg(strBaseString);
+			}
 			continue;
 		}
 
 		// Okay, so no automatic peace. But should we consider peace at all?
 		bool bCapturedKeyCity = IsCapitalCapturedBy(*it, true, false) || IsHolyCityCapturedBy(*it, true, false);
 		bool bPhonyWar = IsPhonyWar(*it);
+		bool bCapturedAnyCityFromUs = false;
+		bool bCapturedAnyCityWeWantToLiberate = false;
 		bool bReadyForVassalage = false;
 
 		// If this is a phony war and they're not in danger, let's offer peace.
 		if (bPhonyWar && iTheirDanger == 0)
 		{
 			vMakePeacePlayers.push_back(*it);
+			if (bLog)
+			{
+				CvString strOutBuf;
+				CvString strBaseString;
+				CvString playerName;
+				CvString otherPlayerName;
+				CvString strLogName;
+
+				// Find the name of this civ and city
+				playerName = m_pPlayer->getCivilizationShortDescription();
+
+				// Open the log file
+				if (GC.getPlayerAndCityAILogSplit())
+				{
+					strLogName = "DiplomacyAI_Peace_Log" + playerName + ".csv";
+				}
+				else
+				{
+					strLogName = "DiplomacyAI_Peace_Log.csv";
+				}
+
+				FILogFile* pLog;
+				pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
+
+				// Get the leading info for this line
+				strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
+				otherPlayerName = GET_PLAYER(*it).getCivilizationShortDescription();
+				strBaseString += playerName + " VS. " + otherPlayerName;
+
+				strOutBuf.Format("Automatic peace offer: This is a phony war and none of their cities are in danger!");
+
+				strBaseString += strOutBuf;
+				pLog->Msg(strBaseString);
+			}
 			continue;
 		}
 
@@ -10720,15 +11102,20 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 				{
 					PlayerTypes eOriginalOwner = pLoopCity->getOriginalOwner();
 
+					if (GET_PLAYER(eOriginalOwner).getTeam() == GET_PLAYER(*it).getTeam())
+						continue;
+
 					if (GET_PLAYER(eOriginalOwner).getTeam() == GetTeam())
 					{
 						bReadyForVassalage = false;
+						bCapturedAnyCityFromUs = true;
 						break;
 					}
-					// Any of our friends' cities?
-					else if (IsFriendOrAlly(eOriginalOwner))
+					// A city that we want to liberate?
+					else if ((GET_PLAYER(eOriginalOwner).isMinorCiv() && DoPossibleMinorLiberation(eOriginalOwner, pLoopCity, /*bHypothetical*/ true)) || (GET_PLAYER(eOriginalOwner).isMajorCiv() && DoPossibleMajorLiberation(eOriginalOwner, *it, pLoopCity, /*bHypothetical*/ true)))
 					{
 						bReadyForVassalage = false;
+						bCapturedAnyCityWeWantToLiberate = true;
 						break;
 					}
 				}
@@ -10740,6 +11127,55 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 		{
 			SetTreatyWillingToOffer(*it, NO_PEACE_TREATY_TYPE);
 			SetTreatyWillingToAccept(*it, NO_PEACE_TREATY_TYPE);
+			if (bLog)
+			{
+				CvString strOutBuf;
+				CvString strBaseString;
+				CvString playerName;
+				CvString otherPlayerName;
+				CvString strLogName;
+				CvString strNoVassalReason;
+
+				// Find the name of this civ and city
+				playerName = m_pPlayer->getCivilizationShortDescription();
+
+				// Open the log file
+				if (GC.getPlayerAndCityAILogSplit())
+				{
+					strLogName = "DiplomacyAI_Peace_Log" + playerName + ".csv";
+				}
+				else
+				{
+					strLogName = "DiplomacyAI_Peace_Log.csv";
+				}
+
+				FILogFile* pLog;
+				pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
+
+				// Get the leading info for this line
+				strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
+				otherPlayerName = GET_PLAYER(*it).getCivilizationShortDescription();
+				strBaseString += playerName + " VS. " + otherPlayerName;
+
+				strOutBuf.Format("No peace! We've almost won this war, and ");
+
+				if (!GET_TEAM(GET_PLAYER(*it).getTeam()).canBecomeVassal(GetTeam()))
+					strNoVassalReason.Format("we're not able to make them a vassal!");
+				else if (bCapturedAnyCityFromUs)
+					strNoVassalReason.Format("they have one of our cities!");
+				else if (IsEndgameAggressiveTo(*it))
+					strNoVassalReason.Format("they're in danger of winning the game!");
+				else if (bCapturedAnyCityWeWantToLiberate)
+					strNoVassalReason.Format("they have a city we want to liberate!");
+				else if (iWarScore < 75)
+					strNoVassalReason.Format("war score is less than 75!");
+				else if (IsUntrustworthy(*it))
+					strNoVassalReason.Format("we don't trust them to be an obedient vassal!");
+
+				strOutBuf += strNoVassalReason;
+				strBaseString += strOutBuf;
+				pLog->Msg(strBaseString);
+			}
 			continue;
 		}
 
@@ -10761,6 +11197,40 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 		{
 			SetTreatyWillingToOffer(*it, NO_PEACE_TREATY_TYPE);
 			SetTreatyWillingToAccept(*it, NO_PEACE_TREATY_TYPE);
+			if (bLog)
+			{
+				CvString strOutBuf;
+				CvString strBaseString;
+				CvString playerName;
+				CvString otherPlayerName;
+				CvString strLogName;
+
+				// Find the name of this civ and city
+				playerName = m_pPlayer->getCivilizationShortDescription();
+
+				// Open the log file
+				if (GC.getPlayerAndCityAILogSplit())
+				{
+					strLogName = "DiplomacyAI_Peace_Log" + playerName + ".csv";
+				}
+				else
+				{
+					strLogName = "DiplomacyAI_Peace_Log.csv";
+				}
+
+				FILogFile* pLog;
+				pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
+
+				// Get the leading info for this line
+				strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
+				otherPlayerName = GET_PLAYER(*it).getCivilizationShortDescription();
+				strBaseString += playerName + " VS. " + otherPlayerName;
+
+				strOutBuf.Format("No peace! We don't have a good enough reason to consider peace yet!");
+
+				strBaseString += strOutBuf;
+				pLog->Msg(strBaseString);
+			}
 			continue;
 		}
 
@@ -10976,18 +11446,88 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 		}
 
 		// Must be high enough to return a true desire for peace
-		if (iPeaceScore >= /*40*/ GC.getREQUEST_PEACE_TURN_THRESHOLD())
+		int iThreshold = max(0, /*40*/ GC.getREQUEST_PEACE_TURN_THRESHOLD());
+
+		if (iPeaceScore >= iThreshold)
 		{
 			vMakePeacePlayers.push_back(*it);
+			if (bLog)
+			{
+				CvString strOutBuf;
+				CvString strBaseString;
+				CvString playerName;
+				CvString otherPlayerName;
+				CvString strLogName;
+
+				// Find the name of this civ and city
+				playerName = m_pPlayer->getCivilizationShortDescription();
+
+				// Open the log file
+				if (GC.getPlayerAndCityAILogSplit())
+				{
+					strLogName = "DiplomacyAI_Peace_Log" + playerName + ".csv";
+				}
+				else
+				{
+					strLogName = "DiplomacyAI_Peace_Log.csv";
+				}
+
+				FILogFile* pLog;
+				pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
+
+				// Get the leading info for this line
+				strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
+				otherPlayerName = GET_PLAYER(*it).getCivilizationShortDescription();
+				strBaseString += playerName + " VS. " + otherPlayerName;
+
+				strOutBuf.Format("Willing to make peace, Score for Peace: %d, Required Score: %d", iPeaceScore, iThreshold);
+
+				strBaseString += strOutBuf;
+				pLog->Msg(strBaseString);
+			}
 		}
 		else
 		{
 			SetTreatyWillingToOffer(*it, NO_PEACE_TREATY_TYPE);
 			SetTreatyWillingToAccept(*it, NO_PEACE_TREATY_TYPE);
+			if (bLog)
+			{
+				CvString strOutBuf;
+				CvString strBaseString;
+				CvString playerName;
+				CvString otherPlayerName;
+				CvString strLogName;
+
+				// Find the name of this civ and city
+				playerName = m_pPlayer->getCivilizationShortDescription();
+
+				// Open the log file
+				if (GC.getPlayerAndCityAILogSplit())
+				{
+					strLogName = "DiplomacyAI_Peace_Log" + playerName + ".csv";
+				}
+				else
+				{
+					strLogName = "DiplomacyAI_Peace_Log.csv";
+				}
+
+				FILogFile* pLog;
+				pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
+
+				// Get the leading info for this line
+				strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
+				otherPlayerName = GET_PLAYER(*it).getCivilizationShortDescription();
+				strBaseString += playerName + " VS. " + otherPlayerName;
+
+				strOutBuf.Format("Not willing to make peace, Score for Peace: %d, Required Score: %d", iPeaceScore, iThreshold);
+
+				strBaseString += strOutBuf;
+				pLog->Msg(strBaseString);
+			}
 		}
 	}
 
-	// So we've decided who we want to make peace with, now let's decide WHAT we're willing to accept/offer in exchange for peace.
+	// STEP 4: Decide WHAT we're willing to accept/offer in exchange for peace.
 	for (std::vector<PlayerTypes>::iterator it = vMakePeacePlayers.begin(); it != vMakePeacePlayers.end(); it++)
 	{
 		PeaceTreatyTypes eTreatyWillingToOffer = PEACE_TREATY_WHITE_PEACE;
@@ -11113,25 +11653,25 @@ int CvDiplomacyAI::GetPeaceBlockReason(PlayerTypes ePlayer) const
 	if (GET_PLAYER(ePlayer).GetPlayerNumTurnsSinceCityCapture(GetID()) <= 1 && CountUnitsAroundEnemyCities(ePlayer,3)>1)
 		return 4;
 
-	// AI teammate of human
-	if (GetPlayer()->IsAITeammateOfHuman())
-		return 5;
-
 	if (GET_PLAYER(ePlayer).isMinorCiv())
 	{
 		// City-State is at permanent war!
 		if (GET_PLAYER(ePlayer).GetMinorCivAI()->IsPermanentWar(GetTeam()))
-			return 6;
+			return 5;
 
 		// Can't make peace with a City-State if at war with their ally!
 		PlayerTypes eAlly = GET_PLAYER(ePlayer).GetMinorCivAI()->GetAlly();
 
 		if (IsAtWar(eAlly))
-			return 7;
+			return 6;
 	}
 
 	// Locked into war?
 	if (GET_TEAM(GetTeam()).GetNumTurnsLockedIntoWar(GET_PLAYER(ePlayer).getTeam()) > 0)
+		return 7;
+
+	// Other player has no capital, so don't bother updating war status
+	if (GET_PLAYER(ePlayer).getCapitalCity() == NULL)
 		return 8;
 
 	// Some other reason?
@@ -44880,14 +45420,17 @@ int CvDiplomacyAI::GetScenarioModifier3(PlayerTypes ePlayer)
 /////////////////////////////////////////////////////////
 
 /// Will this player liberate a Minor's City that it now owns?
-bool CvDiplomacyAI::DoPossibleMinorLiberation(PlayerTypes eMinor, int iCityID)
+bool CvDiplomacyAI::DoPossibleMinorLiberation(PlayerTypes eMinor, CvCity* pCity, bool bHypothetical)
 {
-	bool bLiberate = false;
+	if (pCity == NULL)
+		return false;
 
 	// Going for Diplo victory?
 	if (IsDiplomat() || GetPlayer()->GetPlayerTraits()->IsDiplomat() || IsGoingForDiploVictory() || IsCloseToDiploVictory())
 	{
-		GetPlayer()->DoLiberatePlayer(eMinor, iCityID);
+		if (!bHypothetical)
+			GetPlayer()->DoLiberatePlayer(eMinor, pCity->GetID());
+
 		return true;
 	}
 
@@ -44898,6 +45441,8 @@ bool CvDiplomacyAI::DoPossibleMinorLiberation(PlayerTypes eMinor, int iCityID)
 	{
 		return false;
 	}
+
+	bool bLiberate = false;
 
 	// Going for Culture victory?
 	if (IsCultural() || GetPlayer()->GetPlayerTraits()->IsTourism() || IsGoingForCultureVictory() || IsCloseToCultureVictory())
@@ -44915,16 +45460,16 @@ bool CvDiplomacyAI::DoPossibleMinorLiberation(PlayerTypes eMinor, int iCityID)
 		bLiberate = true;
 	}
 
-	if (bLiberate)
+	if (bLiberate && !bHypothetical)
 	{
-		GetPlayer()->DoLiberatePlayer(eMinor, iCityID);
+		GetPlayer()->DoLiberatePlayer(eMinor, pCity->GetID());
 	}
 
 	return bLiberate;
 }
 
 /// Will this player liberate a Major's City that it now owns?
-bool CvDiplomacyAI::DoPossibleMajorLiberation(PlayerTypes eMajor, PlayerTypes eOldOwner, CvCity* pCity)
+bool CvDiplomacyAI::DoPossibleMajorLiberation(PlayerTypes eMajor, PlayerTypes eOldOwner, CvCity* pCity, bool bHypothetical)
 {
 	if (pCity == NULL)
 		return false;
@@ -45118,7 +45663,7 @@ bool CvDiplomacyAI::DoPossibleMajorLiberation(PlayerTypes eMajor, PlayerTypes eO
 		}
 	}
 
-	if (bLiberate)
+	if (bLiberate && !bHypothetical)
 	{
 		GetPlayer()->DoLiberatePlayer(eMajor, pCity->GetID());
 	}
