@@ -11402,7 +11402,7 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 
 		// If we're going for world conquest, we want to fight our wars until we get their capital or can vassalize them
 		// However, do not factor this in when losing
-		if (iWarScore > 0 || (iWarScore > -15 && GetPlayerTargetValue(*it) >= TARGET_VALUE_AVERAGE && GetWarState(*it) <= WAR_STATE_DEFENSIVE))
+		if (iWarScore > 0 || (iWarScore > -15 && GetPlayerTargetValue(*it) >= TARGET_VALUE_AVERAGE && GetWarState(*it) > WAR_STATE_DEFENSIVE))
 		{
 			if (bCapturedAnyCityFromUs)
 			{
