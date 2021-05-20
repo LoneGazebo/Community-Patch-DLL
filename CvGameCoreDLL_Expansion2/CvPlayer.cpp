@@ -36824,11 +36824,6 @@ void CvPlayer::DoUpdateWarPeaceTurnCounters()
 				SetPlayerNumTurnsSinceCityCapture(ePlayer, 0);
 			}
 		}
-		else
-		{
-			SetPlayerNumTurnsAtWar(ePlayer, 0);
-			SetPlayerNumTurnsSinceCityCapture(ePlayer, 0);
-		}
 	}
 }
 
@@ -36838,11 +36833,9 @@ void CvPlayer::ResetWarPeaceTurnCounters() // called when a player is killed
 	{
 		PlayerTypes ePlayer = (PlayerTypes) iI;
 
-		SetPlayerNumTurnsAtPeace(ePlayer, 0);
 		SetPlayerNumTurnsAtWar(ePlayer, 0);
 		SetPlayerNumTurnsSinceCityCapture(ePlayer, 0);
 
-		GET_PLAYER(ePlayer).SetPlayerNumTurnsAtPeace(ePlayer, 0);
 		GET_PLAYER(ePlayer).SetPlayerNumTurnsAtWar(ePlayer, 0);
 		GET_PLAYER(ePlayer).SetPlayerNumTurnsSinceCityCapture(ePlayer, 0);
 	}
