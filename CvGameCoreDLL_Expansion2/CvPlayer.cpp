@@ -13630,7 +13630,7 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 	}
 
 	// Population
-	int iPop = MOD_BALANCE_CORE ? kGoodyInfo.getPopulation() : 0;
+	int iPop = kGoodyInfo.getPopulation();
 	if (kGoodyInfo.getPopulation() > 0)
 	{
 		CvCity* pBestCity = bestCityFinder(*this, *pPlot);
