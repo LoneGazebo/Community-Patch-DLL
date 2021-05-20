@@ -13621,7 +13621,7 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 
 		if (iGold != 0)
 		{
-			goodyValueModifier(iGold, -1, true, true);
+			goodyValueModifier(iGold, GC.getGame().getGameSpeedInfo().getGoldPercent(), true, true);
 			GetTreasury()->ChangeGold(iGold);
 			changeInstantYieldValue(YIELD_GOLD, iGold);
 			strBuffer += " ";
@@ -13670,7 +13670,7 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 	int iGoldenAge = MOD_BALANCE_CORE ? kGoodyInfo.getGoldenAge() : 0;
 	if (iGoldenAge > 0 && GetNumGoldenAges() <= 0)
 	{
-		goodyValueModifier(iGoldenAge, GC.getGame().getGameSpeedInfo().getCulturePercent(), true, true);
+		goodyValueModifier(iGoldenAge, GC.getGame().getGameSpeedInfo().getGoldenAgePercent(), true, true);
 		ChangeGoldenAgeProgressMeter(iGoldenAge);
 		changeInstantYieldValue(YIELD_GOLDEN_AGE_POINTS, iGoldenAge);
 	}
