@@ -13543,22 +13543,26 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 	{
 		CvCity* operator()(CvPlayer& kPlayer, const CvPlot& kPlot)
 		{
-			int iBestCityDistance = -1;
+			int iBestCityDistance = 0;
+			bool bBestCityIsProductive = false;
 			CvCity* pBestCity = NULL;
 
 			int iLoop;
 			for (CvCity* pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
 			{
-				// Ignore cities that produce nothing
-				if (pLoopCity->IsResistance() || pLoopCity->IsRazing())
+				bool bCityIsProductive = !(pLoopCity->IsResistance() || pLoopCity->IsRazing());
+
+				// Only select unproductive cities if we also have no productive cities
+				if (bBestCityIsProductive && !bCityIsProductive)
 					continue;
 
 				// Prefer cities nearest the plot
 				int iDistance = plotDistance(kPlot.getX(), kPlot.getY(), pLoopCity->getX(), pLoopCity->getY());
 
-				if (iBestCityDistance == -1 || iDistance < iBestCityDistance)
+				if (pBestCity == NULL || iDistance < iBestCityDistance)
 				{
 					iBestCityDistance = iDistance;
+					bBestCityIsProductive = bCityIsProductive;
 					pBestCity = pLoopCity;
 				}
 			}
