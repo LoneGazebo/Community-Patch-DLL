@@ -13656,8 +13656,6 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 			goodyValueModifier(iProduction, GC.getGame().getGameSpeedInfo().getInstantYieldPercent(), true, true);
 			pBestCity->changeProduction(iProduction);
 			changeInstantYieldValue(YIELD_PRODUCTION, iProduction);
-			strBuffer += " ";
-			strBuffer += GetLocalizedText("TXT_KEY_GOODY_PRODUCTION");
 		}
 		else
 		{
