@@ -375,10 +375,6 @@ void CvDiplomacyAI::Reset()
 		m_aiWarValueLost[iI] = 0;
 		m_aiWarDamageValue[iI] = 0;
 		m_aeWarState[iI] = NO_WAR_STATE_TYPE;
-		m_aeWarGoal[iI] = NO_WAR_GOAL_TYPE;
-
-		// Peace
-		m_aiWantPeaceCounter[iI] = 0;
 
 		// Aggressive Postures
 		m_aeMilitaryAggressivePosture[iI] = NO_AGGRESSIVE_POSTURE_TYPE;
@@ -508,12 +504,10 @@ void CvDiplomacyAI::Read(FDataStream& kStream)
 	kStream >> m_aiWarValueLost;
 	kStream >> m_aiWarDamageValue;
 	kStream >> m_aeWarState;
-	kStream >> m_aeWarGoal;
 
 	// Peace
 	kStream >> m_aePeaceTreatyWillingToOffer;
 	kStream >> m_aePeaceTreatyWillingToAccept;
-	kStream >> m_aiWantPeaceCounter;
 
 	// Backstabbing Penalties
 	kStream >> m_abUntrustworthyFriend;
@@ -800,12 +794,10 @@ void CvDiplomacyAI::Write(FDataStream& kStream)
 	kStream << m_aiWarValueLost;
 	kStream << m_aiWarDamageValue;
 	kStream << m_aeWarState;
-	kStream << m_aeWarGoal;
 
 	// Peace
 	kStream << m_aePeaceTreatyWillingToOffer;
 	kStream << m_aePeaceTreatyWillingToAccept;
-	kStream << m_aiWantPeaceCounter;
 
 	// Backstabbing Penalties
 	kStream << m_abUntrustworthyFriend;
@@ -1500,7 +1492,6 @@ void CvDiplomacyAI::DoInitializePersonality()
 	SetPlayerMilitaryStrengthComparedToUs(GetID(), STRENGTH_AVERAGE);
 	SetPlayerEconomicStrengthComparedToUs(GetID(), STRENGTH_AVERAGE);
 	SetPlayerTargetValue(GetID(), TARGET_VALUE_AVERAGE);
-	SetWarGoal(BARBARIAN_PLAYER, WAR_GOAL_CONQUEST);
 
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 	{
@@ -3729,20 +3720,6 @@ void CvDiplomacyAI::SetStateAllWars(StateAllWars eState)
 	m_eStateAllWars = eState;
 }
 
-/// What is the Goal of war with this player?
-WarGoalTypes CvDiplomacyAI::GetWarGoal(PlayerTypes ePlayer) const
-{
-	if (ePlayer < 0 || ePlayer >= MAX_PLAYERS) return NO_WAR_GOAL_TYPE;
-	return (WarGoalTypes) m_aeWarGoal[ePlayer];
-}
-
-void CvDiplomacyAI::SetWarGoal(PlayerTypes ePlayer, WarGoalTypes eWarGoal)
-{
-	if (ePlayer < 0 || ePlayer >= MAX_PLAYERS) return;
-	if (eWarGoal < NO_WAR_GOAL_TYPE || eWarGoal >= NUM_WAR_GOALS) return;
-	m_aeWarGoal[ePlayer] = eWarGoal;
-}
-
 //	-----------------------------------------------------------------------------------------------
 
 // ------------------------------------
@@ -3775,24 +3752,6 @@ void CvDiplomacyAI::SetTreatyWillingToAccept(PlayerTypes ePlayer, PeaceTreatyTyp
 	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return;
 	if (eTreaty < NO_PEACE_TREATY_TYPE || eTreaty >= NUM_PEACE_TREATY_TYPES) return;
 	m_aePeaceTreatyWillingToAccept[ePlayer] = eTreaty;
-}
-
-/// How long have we wanted to make peace with ePlayer?
-int CvDiplomacyAI::GetWantPeaceCounter(PlayerTypes ePlayer) const
-{
-	if (ePlayer < 0 || ePlayer >= MAX_CIV_PLAYERS) return 0;
-	return m_aiWantPeaceCounter[ePlayer];
-}
-
-void CvDiplomacyAI::SetWantPeaceCounter(PlayerTypes ePlayer, int iValue)
-{
-	if (ePlayer < 0 || ePlayer >= MAX_CIV_PLAYERS) return;
-	m_aiWantPeaceCounter[ePlayer] = max(iValue, 0);
-}
-
-void CvDiplomacyAI::ChangeWantPeaceCounter(PlayerTypes ePlayer, int iChange)
-{
-	SetWantPeaceCounter(ePlayer, GetWantPeaceCounter(ePlayer) + iChange);
 }
 
 //	-----------------------------------------------------------------------------------------------
@@ -5037,7 +4996,7 @@ void CvDiplomacyAI::SetPlayerBullyCityStatePromiseState(PlayerTypes ePlayer, Pro
 		{
 			SetPlayerBullyCityStatePromiseTurn(ePlayer, GC.getGame().getGameTurn());
 
-			// They ignored or broke a promise to stop bullying our protected City-States! Cancel any commitment not to attack theirs!
+			// They ignored or broke a promise to stop bullying our protected City-States! Cancel any commitment not to bully theirs!
 			if (ePromiseState != PROMISE_STATE_MADE && GET_PLAYER(ePlayer).GetDiplomacyAI()->IsPlayerMadeBullyCityStatePromise(GetID()) && !GetPlayer()->isHuman())
 			{
 				GET_PLAYER(ePlayer).GetDiplomacyAI()->SetPlayerBullyCityStatePromiseState(GetID(), NO_PROMISE_STATE);
@@ -5117,7 +5076,7 @@ void CvDiplomacyAI::SetPlayerAttackCityStatePromiseState(PlayerTypes ePlayer, Pr
 		{
 			SetPlayerAttackCityStatePromiseTurn(ePlayer, GC.getGame().getGameTurn());
 
-			// They ignored or broke a promise to stop bullying our protected City-States! Cancel any commitment not to attack theirs!
+			// They ignored or broke a promise to stop attacking our protected City-States! Cancel any commitment not to attack theirs!
 			if (ePromiseState != PROMISE_STATE_MADE && GET_PLAYER(ePlayer).GetDiplomacyAI()->IsPlayerMadeAttackCityStatePromise(GetID()) && !GetPlayer()->isHuman())
 			{
 				GET_PLAYER(ePlayer).GetDiplomacyAI()->SetPlayerAttackCityStatePromiseState(GetID(), NO_PROMISE_STATE);
@@ -7479,8 +7438,6 @@ void CvDiplomacyAI::DoTurn(DiplomacyMode eDiploMode, PlayerTypes ePlayer)
 	GetPlayer()->cacheAvgGoldRate();
 	GetPlayer()->DoTestEmpireInBadShapeForWar();
 	DoUpdateEasyTargets();
-	DoUpdateWarGoals();
-	DoUpdatePeaceTreatyWillingness();
 
 	// Aggressive Postures
 	DoUpdateMilitaryAggressivePostures();
@@ -7508,14 +7465,15 @@ void CvDiplomacyAI::DoTurn(DiplomacyMode eDiploMode, PlayerTypes ePlayer)
 	DoUpdateOpinions();
 	DoUpdateGlobalPolitics();
 
+	// Peace Treaty Willingness
+	DoUpdatePeaceTreatyWillingness(true);
+
 	// These functions actually DO things, and we don't want the shadow AI behind a human player doing things for him
-	if(!GetPlayer()->isHuman())
+	if (!GetPlayer()->isHuman())
 	{
 		DoDetermineTaxRateForVassals();
 		DoUpdateDemands();
 		MakeWar();
-		DoMakePeaceWithMinors();
-		DoMakePeaceWithVassals();
 		DoContactMinorCivs();
 		DoContactMajorCivs();
 #if defined(MOD_ACTIVE_DIPLOMACY)
@@ -8813,6 +8771,7 @@ void CvDiplomacyAI::DoUpdateWarStates()
 	int iStateAllWars = 0;   // Used to assess overall war state in this function
 	SetStateAllWars(STATE_ALL_WARS_NEUTRAL);
 	ReligionTypes eMyReligion = GetPlayer()->GetReligions()->GetCurrentReligion(false);
+	int iLoop;
 
 	// Loop through all (known) Players
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
@@ -8826,38 +8785,17 @@ void CvDiplomacyAI::DoUpdateWarStates()
 			ReligionTypes eTheirReligion = GET_PLAYER(eLoopPlayer).GetReligions()->GetCurrentReligion(false);
 
 			// Evaluate our danger and their danger from this war
-			int iOurDanger = 1;
-			int iTheirDanger = 1;
 			int iNumOurCities = 0;
 			int iNumTheirCities = 0;
+			int iOurDanger = 0;
+			int iTheirDanger = 0;
 			bool bSeriousDangerUs = false;
 			bool bSeriousDangerThem = false;
-			int iLoop;
+
 			for (CvCity* pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
 			{
 				iNumOurCities++;
 				int iDangerMod = 0;
-
-				if (pLoopCity->isInDangerOfFalling())
-				{
-					iDangerMod += 3;
-					bSeriousDangerUs = true;
-				}
-
-				else if (pLoopCity->isUnderSiege() || pLoopCity->IsBlockadedWaterAndLand())
-				{
-					iDangerMod += 2;
-					if (pLoopCity->IsBlockadedWaterAndLand() || pLoopCity->getDamage() >= (pLoopCity->GetMaxHitPoints()/2))
-					{
-						if (pLoopCity->isCapital() || pLoopCity->IsOriginalMajorCapital() || (eMyReligion != NO_RELIGION && pLoopCity->GetCityReligions()->IsHolyCityForReligion(eMyReligion)) || (eTheirReligion != NO_RELIGION && pLoopCity->GetCityReligions()->IsHolyCityForReligion(eTheirReligion)))
-						{
-							bSeriousDangerUs = true;
-						}
-					}
-				}
-
-				else if (pLoopCity->IsInDanger(eLoopPlayer))
-					iDangerMod += 1;
 
 				//look at the tactical map (is it up to date?)
 				CvTacticalDominanceZone* pLandZone = m_pPlayer->GetTacticalAI()->GetTacticalAnalysisMap()->GetZoneByCity(pLoopCity,false);
@@ -8866,56 +8804,50 @@ void CvDiplomacyAI::DoUpdateWarStates()
 					iDangerMod++;
 				if (pWaterZone && pWaterZone->GetOverallDominanceFlag()==TACTICAL_DOMINANCE_ENEMY)
 					iDangerMod++;
-				
-				if (pLoopCity->isCapital())
-					iDangerMod *= 3;
-				else if (pLoopCity->IsOriginalMajorCapital() || (eMyReligion != NO_RELIGION && pLoopCity->GetCityReligions()->IsHolyCityForReligion(eMyReligion)) || (eTheirReligion != NO_RELIGION && pLoopCity->GetCityReligions()->IsHolyCityForReligion(eTheirReligion)) || pLoopCity->getNumWorldWonders() > 0)
-					iDangerMod *= 2;
-				else if (pLoopCity->GetCityReligions()->IsHolyCityAnyReligion() || pLoopCity->getNumNationalWonders() > 0)
+
+				if (pLoopCity->isInDangerOfFalling() || pLoopCity->isUnderSiege() || (pLoopCity->IsBlockadedWaterAndLand() && pLoopCity->getDamage() >= (pLoopCity->GetMaxHitPoints()/4)))
 				{
-					if (iDangerMod > 0)
+					if (pLoopCity->isInDangerOfFalling())
+						iDangerMod += 4;
+					else
+						iDangerMod += 2;
+
+					if (pLoopCity->isInDangerOfFalling() || (pLoopCity->IsBlockadedWaterAndLand() && pLoopCity->getDamage() >= (pLoopCity->GetMaxHitPoints()/4)) || pLoopCity->getDamage() >= (pLoopCity->GetMaxHitPoints()/2))
+					{
+						if (pLoopCity->getOriginalOwner() == GetID())
+						{
+							bSeriousDangerUs = true;
+						}
+						else if (pLoopCity->isCapital() || pLoopCity->IsOriginalMajorCapital() || (eMyReligion != NO_RELIGION && pLoopCity->GetCityReligions()->IsHolyCityForReligion(eMyReligion)) || (eTheirReligion != NO_RELIGION && pLoopCity->GetCityReligions()->IsHolyCityForReligion(eTheirReligion)) 
+							|| pLoopCity->getNumWorldWonders() > 0 || pLoopCity->getNumNationalWonders() > 0)
+						{
+							bSeriousDangerUs = true;
+						}
+					}
+				}
+				else if (pLoopCity->IsInDanger(eLoopPlayer))
+					iDangerMod += 1;
+
+				if (iDangerMod > 0)
+				{
+					if (pLoopCity->isCapital())
+						iDangerMod *= 3;
+					else if (pLoopCity->IsOriginalMajorCapital() || (eMyReligion != NO_RELIGION && pLoopCity->GetCityReligions()->IsHolyCityForReligion(eMyReligion)) || (eTheirReligion != NO_RELIGION && pLoopCity->GetCityReligions()->IsHolyCityForReligion(eTheirReligion)) || pLoopCity->getNumWorldWonders() > 0)
+						iDangerMod *= 2;
+					else if (pLoopCity->GetCityReligions()->IsHolyCityAnyReligion() || pLoopCity->getNumNationalWonders() > 0)
 						iDangerMod++;
 				}
 				
 				iOurDanger += iDangerMod;
 			}
 
-			iOurDanger *= 100;
-			iOurDanger /= max(1, iNumOurCities);
-
 			for (CvCity* pLoopCity = GET_PLAYER(eLoopPlayer).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(eLoopPlayer).nextCity(&iLoop))
 			{
-				CvPlot* pCityPlot = pLoopCity->plot();
-				if (pCityPlot == NULL)
-					continue;
-
-				iNumTheirCities++;
-
 				// Can we actually see this city's danger status?
 				if (CanSeeEnemyCity(pLoopCity))
 				{
+					iNumTheirCities++;
 					int iDangerMod = 0;
-
-					if (pLoopCity->isInDangerOfFalling())
-					{
-						iDangerMod += 3;
-						bSeriousDangerThem = true;
-					}
-
-					else if (pLoopCity->isUnderSiege() || pLoopCity->IsBlockadedWaterAndLand())
-					{
-						iDangerMod += 2;
-						if (pLoopCity->IsBlockadedWaterAndLand() || pLoopCity->getDamage() >= (pLoopCity->GetMaxHitPoints()/2))
-						{
-							if (pLoopCity->isCapital() || pLoopCity->IsOriginalMajorCapital() || (eMyReligion != NO_RELIGION && pLoopCity->GetCityReligions()->IsHolyCityForReligion(eMyReligion)) || (eTheirReligion != NO_RELIGION && pLoopCity->GetCityReligions()->IsHolyCityForReligion(eTheirReligion)))
-							{
-								bSeriousDangerThem = true;
-							}
-						}
-					}
-
-					else if (pLoopCity->IsInDanger(m_pPlayer->GetID()))
-						iDangerMod += 1;
 
 					//look at the tactical map (is it up to date?)
 					CvTacticalDominanceZone* pLandZone = GET_PLAYER(eLoopPlayer).GetTacticalAI()->GetTacticalAnalysisMap()->GetZoneByCity(pLoopCity,false);
@@ -8925,14 +8857,29 @@ void CvDiplomacyAI::DoUpdateWarStates()
 						iDangerMod++;
 					if (pWaterZone && pWaterZone->GetOverallDominanceFlag()==TACTICAL_DOMINANCE_ENEMY)
 						iDangerMod++;
-					
-					if (pLoopCity->isCapital())
-						iDangerMod *= 3;
-					else if (pLoopCity->IsOriginalMajorCapital() || (eMyReligion != NO_RELIGION && pLoopCity->GetCityReligions()->IsHolyCityForReligion(eMyReligion)) || (eTheirReligion != NO_RELIGION && pLoopCity->GetCityReligions()->IsHolyCityForReligion(eTheirReligion)) || pLoopCity->getNumWorldWonders() > 0)
-						iDangerMod *= 2;
-					else if (pLoopCity->GetCityReligions()->IsHolyCityAnyReligion())
+
+					if (pLoopCity->isInDangerOfFalling() || pLoopCity->isUnderSiege() || (pLoopCity->IsBlockadedWaterAndLand() && pLoopCity->getDamage() >= (pLoopCity->GetMaxHitPoints()/4)))
 					{
-						if (iDangerMod > 0)
+						if (pLoopCity->isInDangerOfFalling())
+							iDangerMod += 4;
+						else
+							iDangerMod += 2;
+
+						if (pLoopCity->isInDangerOfFalling() || (pLoopCity->IsBlockadedWaterAndLand() && pLoopCity->getDamage() >= (pLoopCity->GetMaxHitPoints()/4)) || pLoopCity->getDamage() >= (pLoopCity->GetMaxHitPoints()/2))
+						{
+							bSeriousDangerThem = true;
+						}
+					}
+					else if (pLoopCity->IsInDanger(GetID()))
+						iDangerMod += 1;
+					
+					if (iDangerMod > 0)
+					{
+						if (pLoopCity->isCapital())
+							iDangerMod *= 3;
+						else if (pLoopCity->IsOriginalMajorCapital() || (eMyReligion != NO_RELIGION && pLoopCity->GetCityReligions()->IsHolyCityForReligion(eMyReligion)) || (eTheirReligion != NO_RELIGION && pLoopCity->GetCityReligions()->IsHolyCityForReligion(eTheirReligion)) || pLoopCity->getNumWorldWonders() > 0)
+							iDangerMod *= 2;
+						else if (pLoopCity->GetCityReligions()->IsHolyCityAnyReligion())
 							iDangerMod++;
 					}
 
@@ -8940,11 +8887,27 @@ void CvDiplomacyAI::DoUpdateWarStates()
 				}
 			}
 
+			iOurDanger *= 100;
+			iOurDanger /= max(1, iNumOurCities);
 			iTheirDanger *= 100;
 			iTheirDanger /= max(1, iNumTheirCities);
 
 			int iDangerPercent = iTheirDanger * 100;
 			iDangerPercent /= max(1, iOurDanger);
+
+			int WarScore = GetWarScore(eLoopPlayer);
+			if (m_pPlayer->GetCulture()->GetWarWeariness() > 0 && m_pPlayer->IsEmpireVeryUnhappy())
+			{
+				if (WarScore < 0)
+				{
+					WarScore *= 2;
+				}
+				else
+				{
+					WarScore *= 75;
+					WarScore /= 100;
+				}
+			}
 
 			// First consider serious danger - overrides danger percent comparison!
 			if (bSeriousDangerUs && !bSeriousDangerThem)
@@ -8953,11 +8916,15 @@ void CvDiplomacyAI::DoUpdateWarStates()
 			}
 			else if (!bSeriousDangerUs && bSeriousDangerThem)
 			{
-				eWarState = WAR_STATE_OFFENSIVE;
+				if (WarScore > -25)
+					eWarState = WAR_STATE_OFFENSIVE;
+				else
+					eWarState = WAR_STATE_STALEMATE;
 			}
 			else if (bSeriousDangerUs && bSeriousDangerThem)
 			{
-				eWarState = WAR_STATE_STALEMATE;
+				if (WarScore > -25)
+					eWarState = WAR_STATE_STALEMATE;
 			}
 
 			// Which of us has more city danger?
@@ -8977,18 +8944,6 @@ void CvDiplomacyAI::DoUpdateWarStates()
 				}
 			}
 
-			int WarScore = GetWarScore(eLoopPlayer);
-			if (m_pPlayer->GetCulture()->GetWarWeariness() > 0 && m_pPlayer->IsEmpireVeryUnhappy())
-			{
-				if (WarScore < 0)
-				{
-					WarScore *= 2;
-				}
-				else
-				{
-					WarScore /= 2;
-				}
-			}
 			if (WarScore >= 50 && eWarState == WAR_STATE_OFFENSIVE)
 			{
 				eWarState = WAR_STATE_NEARLY_WON;
@@ -9001,7 +8956,7 @@ void CvDiplomacyAI::DoUpdateWarStates()
 			//Exceptions?
 
 			//If low warscore and it has been a while since either side captured a city, let's bring it down to calm.
-			if ((GetPlayer()->GetPlayerNumTurnsSinceCityCapture(eLoopPlayer) >= 10) && (GET_PLAYER(eLoopPlayer).GetPlayerNumTurnsSinceCityCapture(GetID()) >= 10))
+			if (GetPlayer()->GetPlayerNumTurnsSinceCityCapture(eLoopPlayer) > 10 && GET_PLAYER(eLoopPlayer).GetPlayerNumTurnsSinceCityCapture(GetID()) > 10)
 			{
 				if (WarScore <= 15 && WarScore >= -15)
 					eWarState = WAR_STATE_CALM;
@@ -9012,19 +8967,19 @@ void CvDiplomacyAI::DoUpdateWarStates()
 			{
 				if (eWarState == WAR_STATE_NEARLY_WON)
 				{
-					iStateAllWars += 4;
+					iStateAllWars += 2;
 				}
 				else if (eWarState == WAR_STATE_OFFENSIVE)
 				{
-					iStateAllWars += 3;
+					iStateAllWars += 1;
 				}
 				else if (eWarState == WAR_STATE_DEFENSIVE)
 				{
 					iStateAllWars -= 1;
 
-					// If we are defensive in this war and our capital has been damaged, overall state should be defensive
+					// If we are defensive in any war and our capital has been damaged to 75% or lower, overall state should be defensive
 					CvCity *pCapital = m_pPlayer->getCapitalCity();
-					if (pCapital && pCapital->getDamage() > 0)
+					if (pCapital && pCapital->getDamage() > (pCapital->GetMaxHitPoints()/4))
 					{
 						SetStateAllWars(STATE_ALL_WARS_LOSING);
 					}
@@ -10515,316 +10470,591 @@ void CvDiplomacyAI::DoUpdateEasyTargets()
 	}
 }
 
-/// Updates what the Goal of war is with all players
-void CvDiplomacyAI::DoUpdateWarGoals()
+void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 {
 	CvCity* pCapital = GetPlayer()->getCapitalCity();
+	int iLoop;
 
-	if (GC.getGame().isOption(GAMEOPTION_ALWAYS_WAR) || GC.getGame().isOption(GAMEOPTION_NO_CHANGING_WAR_PEACE) || pCapital == NULL)
+	if (!pCapital || GC.getGame().isOption(GAMEOPTION_ALWAYS_WAR) || GC.getGame().isOption(GAMEOPTION_NO_CHANGING_WAR_PEACE) || GetPlayer()->isHuman() || GetPlayer()->IsAITeammateOfHuman() || GetPlayer()->IsVassalOfSomeone())
 	{
-		for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+		for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 		{
-			PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
-			if (IsAtWar(eLoopPlayer))
-			{
-				SetWarGoal(eLoopPlayer, WAR_GOAL_CONQUEST);
-			}
-			else
-			{
-				SetWarGoal(eLoopPlayer, NO_WAR_GOAL_TYPE);
-			}
+			PlayerTypes ePlayer = (PlayerTypes) iPlayerLoop;
+			SetTreatyWillingToOffer(ePlayer, NO_PEACE_TREATY_TYPE);
+			SetTreatyWillingToAccept(ePlayer, NO_PEACE_TREATY_TYPE);
 		}
 		return;
 	}
 
+	// STEP 1: See if we're in a critical state and check which players are valid
+	bool bCriticalState = GetPlayer()->IsEmpireSuperUnhappy() || pCapital->isInDangerOfFalling() || pCapital->getDamage() >= (pCapital->GetMaxHitPoints()/2);
 	bool bMakePeaceWithAllMinors = false;
-	bool bWorldConquest = (IsGoingForWorldConquest() || IsCloseToDominationVictory());
-
-	// If a major civ is giving us trouble, don't waste our time fighting City-States...
-	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
-	{
-		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
-		if (IsPlayerValid(eLoopPlayer) && IsAtWar(eLoopPlayer))
-		{
-			if (!IsPhonyWar(eLoopPlayer) && GetWarState(eLoopPlayer) <= WAR_STATE_DEFENSIVE)
-			{
-				bMakePeaceWithAllMinors = true;
-				break;
-			}
-		}
-	}
+	bool bWorldConquest = IsGoingForWorldConquest() || IsCloseToDominationVictory();
+	vector<PlayerTypes> vValidPlayers;
 
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 	{
-		PlayerTypes ePlayer = (PlayerTypes) iPlayerLoop;
+		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
 
-		if (IsPlayerValid(ePlayer))
+		if (IsPlayerValid(eLoopPlayer) && IsAtWar(eLoopPlayer))
 		{
-			// We're someone's vassal?
-			if (GetPlayer()->IsVassalOfSomeone())
+			if (GET_PLAYER(eLoopPlayer).isMajorCiv())
 			{
-				if (IsAtWar(ePlayer))
-					SetWarGoal(ePlayer, WAR_GOAL_CONQUEST);
+				if (IsPeaceBlocked(eLoopPlayer) || GET_PLAYER(eLoopPlayer).getCapitalCity() == NULL)
+				{
+					SetTreatyWillingToOffer(eLoopPlayer, NO_PEACE_TREATY_TYPE);
+					SetTreatyWillingToAccept(eLoopPlayer, NO_PEACE_TREATY_TYPE);
+				}
 				else
-					SetWarGoal(ePlayer, NO_WAR_GOAL_TYPE);
-
-				continue;
-			}
-
-			WarGoalTypes eCurrentGoal = GetWarGoal(ePlayer);
-			bool bMajor = GET_PLAYER(ePlayer).isMajorCiv();
-
-			// Not at war? If our goal is PREPARE or DEMAND, then leave it be...otherwise reset it
-			if (!IsAtWar(ePlayer))
-			{
-				if (eCurrentGoal != WAR_GOAL_PREPARE && eCurrentGoal != WAR_GOAL_DEMAND)
 				{
-					SetWarGoal(ePlayer, NO_WAR_GOAL_TYPE);
-				}
-				continue;
-			}
-
-			int iWarScore = GetWarScore(ePlayer);
-			bool bCapturedKeyCity = IsCapitalCapturedBy(ePlayer, true, false) || IsHolyCityCapturedBy(ePlayer, true, false);
-			bool bPhonyWar = IsPhonyWar(ePlayer);
-			bool bWarApproach = GetCivApproach(ePlayer) == CIV_APPROACH_WAR;
-
-			bool bReadyForVassalage = false;
-			if (bMajor)
-			{
-				if (!bCapturedKeyCity && iWarScore >= 90 && GET_TEAM(GET_PLAYER(ePlayer).getTeam()).canBecomeVassal(GetTeam()))
-				{
-					if (!bWorldConquest || GET_PLAYER(ePlayer).GetCapitalConqueror() != NO_PLAYER)
-					{
-						bReadyForVassalage = true;
-					}
+					vValidPlayers.push_back(eLoopPlayer);
 				}
 			}
 
-			bool bConsiderPeace = GetWarState(ePlayer) <= WAR_STATE_DEFENSIVE;
-			bConsiderPeace |= bReadyForVassalage;
-			bConsiderPeace |= GetStateAllWars() == STATE_ALL_WARS_LOSING;
-			bConsiderPeace |= GetPlayer()->IsEmpireVeryUnhappy();
-			bConsiderPeace |= GetPlayer()->GetPlayerNumTurnsAtWar(ePlayer) >= 30 && GetPlayer()->GetPlayerNumTurnsSinceCityCapture(ePlayer) >= 30;
-			bConsiderPeace |= bMajor && GetPlayer()->GetCulture()->GetWarWeariness() > GetPlayer()->GetPlayerNumTurnsAtWar(ePlayer);
-			bConsiderPeace |= bMajor && bPhonyWar;
+			WarStateTypes eWarState = GetWarState(eLoopPlayer);
 
-			bool bCriticalState = GetPlayer()->IsEmpireSuperUnhappy();
-			bCriticalState |= GetWarState(ePlayer) == WAR_STATE_NEARLY_DEFEATED;
-
-			if (pCapital->isInDangerOfFalling())
+			if (eWarState == WAR_STATE_NEARLY_DEFEATED)
 			{
 				bCriticalState = true;
 			}
-			else if (pCapital->getDamage() >= (pCapital->GetMaxHitPoints()*2/3))
+			else if (eWarState == WAR_STATE_DEFENSIVE)
 			{
-				bCriticalState = true;
-			}
-			else if (pCapital->isUnderSiege() || pCapital->IsBlockadedWaterAndLand())
-			{
-				bConsiderPeace = true;
-			}
-
-			// If game options are configured in such a way that making peace with this player would lock us out of Domination Victory, let's not make peace (unless we have to).
-			if (bWorldConquest && eCurrentGoal != WAR_GOAL_PEACE && !bCriticalState && GC.getGame().WouldMakingPeacePreventDominationVictory(GetID(), ePlayer))
-			{
-				SetWarGoal(ePlayer, WAR_GOAL_CONQUEST);
-				continue;
-			}
-
-			// Locked into war?
-			if (GetPlayer()->IsAITeammateOfHuman())
-			{
-				SetWarGoal(ePlayer, WAR_GOAL_CONQUEST);
-				continue;
-			}
-			else if (IsLockedIntoCoopWar(ePlayer))
-			{
-				if (GetGlobalCoopWarAgainstState(ePlayer) >= COOP_WAR_STATE_PREPARING) // Coop war? We're out for conquest!
-				{
-					SetWarGoal(ePlayer, WAR_GOAL_CONQUEST);
-				}
-				else if (!bWarApproach) // If we were bribed into war or something, let's just damage.
-				{
-					SetWarGoal(ePlayer, WAR_GOAL_DAMAGE);
-				}
-				continue;
-			}
-			// Peace blocked for some other reason?
-			else if (!GET_TEAM(GetTeam()).canChangeWarPeace(GET_PLAYER(ePlayer).getTeam()))
-			{
-				// Is this a City-State?
-				if (!bMajor)
-				{
-					if (GET_PLAYER(ePlayer).GetMinorCivAI()->IsPermanentWar(GetTeam()))
-					{
-						SetWarGoal(ePlayer, WAR_GOAL_CONQUEST);
-					}
-					else if (GetPeaceBlockReason(ePlayer) == 7) // We are at war with their ally...we have bigger fish to fry
-					{
-						SetWarGoal(ePlayer, WAR_GOAL_DAMAGE);
-					}
-					continue;
-				}
-
-				// Must be some game options thing...go for conquest
-				SetWarGoal(ePlayer, WAR_GOAL_CONQUEST);
-				continue;
-			}
-			// Too soon to make peace?
-			else if (GetPeaceBlockReason(ePlayer) == 3 && !bCriticalState)
-			{
-				if (bWarApproach || IsAggressor(ePlayer))
-				{
-					SetWarGoal(ePlayer, WAR_GOAL_CONQUEST);
-				}
-				else
-				{
-					SetWarGoal(ePlayer, WAR_GOAL_DAMAGE);
-				}
-				continue;
-			}
-
-			// If our situation is critical, we want to make peace
-			if (bCriticalState)
-			{
-				SetWarGoal(ePlayer, WAR_GOAL_PEACE);
-				continue;
-			}
-
-			// City-State
-			if (!bMajor)
-			{
-				// If this is a City-State and we're preoccupied or not in good shape, let's peace out.
-				if (bMakePeaceWithAllMinors || bConsiderPeace)
-				{
-					SetWarGoal(ePlayer, WAR_GOAL_PEACE);
-					continue;
-				}
-
-				// Conquest is always our goal with City-States if we have the right approach
-				if (bWarApproach)
-				{
-					SetWarGoal(ePlayer, WAR_GOAL_CONQUEST);
-					continue;
-				}
-
-				// Positive war state? Let's conquer them.
-				if (GetWarState(ePlayer) >= WAR_STATE_OFFENSIVE)
-				{
-					SetWarGoal(ePlayer, WAR_GOAL_CONQUEST);
-					continue;
-				}
-
-				// Otherwise, just damage
-				SetWarGoal(ePlayer, WAR_GOAL_DAMAGE);
-				continue;
-			}
-
-			// Okay, so this is a major civ and we're not locked into war, we have some choice here...
-			if (!bConsiderPeace)
-			{
-				// We hate them and want to destroy them!
-				if (IsWantsToConquer(ePlayer) || IsUntrustworthy(ePlayer) || bCapturedKeyCity)
-				{
-					SetWarGoal(ePlayer, WAR_GOAL_CONQUEST);
-					continue;
-				}
-
-				SetWarGoal(ePlayer, WAR_GOAL_DAMAGE);
-			}
-			// Let's consider peace.
-			else
-			{
-				// But not if we're about to win!
-				if (!bReadyForVassalage && GetWarState(ePlayer) == WAR_STATE_NEARLY_WON)
-				{
-					SetWarGoal(ePlayer, WAR_GOAL_CONQUEST);
-					continue;
-				}
-
-				// Our capital is at half or less HP! Let's make peace.
-				if (pCapital->getDamage() >= (pCapital->GetMaxHitPoints()/2))
-				{
-					SetWarGoal(ePlayer, WAR_GOAL_PEACE);
-					continue;
-				}
-
-				// We don't want to be at war anymore, so let's open ourselves to peace.
-				if (bPhonyWar || bReadyForVassalage)
-				{
-					SetWarGoal(ePlayer, WAR_GOAL_PEACE);
-					continue;
-				}
-
-				// Approach isn't war anymore and we're at a stalemate, let's make peace.
-				if (!bWarApproach && GetWarState(ePlayer) <= WAR_STATE_STALEMATE && GetWarScore(ePlayer) < 25)
-				{
-					SetWarGoal(ePlayer, WAR_GOAL_PEACE);
-					continue;
-				}
-
-				// We're very unhappy and war weary, let's make peace.
-				if (GetPlayer()->GetCulture()->GetWarWeariness() > 0 && GetPlayer()->IsEmpireVeryUnhappy())
-				{
-					SetWarGoal(ePlayer, WAR_GOAL_PEACE);
-					continue;
-				}
-
-				// We're losing all our wars, let's make peace.
-				if (GetStateAllWars() == STATE_ALL_WARS_LOSING)
-				{
-					SetWarGoal(ePlayer, WAR_GOAL_PEACE);
-					continue;
-				}
-
-				// We're losing too much, let's make peace.
-				if (iWarScore <= 0)
-				{
-					int iWarScoreWeWantPeace = (GetMeanness() * -9);
-					iWarScoreWeWantPeace += GetPlayer()->GetPlayerNumTurnsAtWar(ePlayer);
-
-					if (iWarScoreWeWantPeace >= iWarScore)
-					{
-						SetWarGoal(ePlayer, WAR_GOAL_PEACE);
-						continue;
-					}
-				}
-				// We're winning, but we'd like to get back to peace.
-				else
-				{
-					int iWarScoreWeWantPeace = ((10 - GetDiploBalance()) * 9); // 10 minus because higher value = more likely status quo
-					iWarScoreWeWantPeace += GetPlayer()->GetPlayerNumTurnsAtWar(ePlayer) * -1;
-
-					if (iWarScoreWeWantPeace <= iWarScore)
-					{
-						SetWarGoal(ePlayer, WAR_GOAL_PEACE);
-						continue;
-					}
-				}
-
-				// No reason to stop? Check if we still want conquest...
-				if (IsWantsToConquer(ePlayer) || IsUntrustworthy(ePlayer) || bCapturedKeyCity)
-				{
-					SetWarGoal(ePlayer, WAR_GOAL_CONQUEST);
-					continue;
-				}
-
-				// Otherwise, let's just damage them.
-				SetWarGoal(ePlayer, WAR_GOAL_DAMAGE);
+				if (GetPlayer()->IsNoNewWars() || !GET_PLAYER(eLoopPlayer).isMajorCiv() || !IsPhonyWar(eLoopPlayer))
+					bMakePeaceWithAllMinors = true;
 			}
 		}
-		// Catch the "complete kills" case
-		else if (GET_PLAYER(ePlayer).isAlive() && GET_PLAYER(ePlayer).getTeam() != GetTeam() && IsAtWar(ePlayer))
+		else if (GET_PLAYER(eLoopPlayer).isMajorCiv())
 		{
-			SetWarGoal(ePlayer, WAR_GOAL_CONQUEST);
-		}
-		// Not a valid player
-		else
-		{
-			SetWarGoal(ePlayer, NO_WAR_GOAL_TYPE);
+			SetTreatyWillingToOffer(eLoopPlayer, NO_PEACE_TREATY_TYPE);
+			SetTreatyWillingToAccept(eLoopPlayer, NO_PEACE_TREATY_TYPE);
 		}
 	}
+	if (bCriticalState)
+		bMakePeaceWithAllMinors = true;
+
+	// Make peace with any City-States here - this happens instantly!
+	if (bMyTurn)
+	{
+		for (int iPlayerLoop = MAX_MAJOR_CIVS; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+		{
+			PlayerTypes eMinor = (PlayerTypes) iPlayerLoop;
+
+			if (IsAtWar(eMinor) && !IsPeaceBlocked(eMinor))
+			{
+				if (bMakePeaceWithAllMinors || GetCSWarTargetPlayer() != eMinor)
+				{
+					if (!bCriticalState)
+					{
+						// Exception under two circumstances: the minor's capital or a city they captured from us are in danger from us
+						for (CvCity* pLoopCity = GET_PLAYER(eMinor).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(eMinor).nextCity(&iLoop))
+						{
+							if (pLoopCity->isCapital() || GET_PLAYER(pLoopCity->getOriginalOwner()).getTeam() == GetTeam())
+							{
+								if (pLoopCity->IsInDanger(GetID()) && (pLoopCity->isUnderSiege() || pLoopCity->IsBlockadedWaterAndLand()))
+								{
+									continue;
+								}
+							}
+						}
+					}
+
+					GET_TEAM(GetTeam()).makePeace(GET_PLAYER(eMinor).getTeam(), true, false, GetID());
+					LogPeaceMade(eMinor);
+				}
+			}
+		}
+	}
+
+	// Now determine whether we're willing to make peace with any majors
+	vector<PlayerTypes> vMakePeacePlayers;
+
+	for (std::vector<PlayerTypes>::iterator it = vValidPlayers.begin(); it != vValidPlayers.end(); it++)
+	{
+		if (bCriticalState)
+		{
+			vMakePeacePlayers.push_back(*it);
+			continue;
+		}
+
+		// Let's see how much danger each of us are currently in ...
+		int iWarScore = GetWarScore(*it);
+		int iOurDanger = 0;
+		int iTheirDanger = 0;
+		bool bSeriousDangerUs = false;
+		bool bSeriousDangerThem = false;
+		ReligionTypes eMyReligion = GetPlayer()->GetReligions()->GetCurrentReligion(false);	
+		ReligionTypes eTheirReligion = GET_PLAYER(*it).GetReligions()->GetCurrentReligion(false);
+		for (CvCity* pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
+		{
+			int iDangerMod = 0;
+
+			//look at the tactical map (is it up to date?)
+			CvTacticalDominanceZone* pLandZone = m_pPlayer->GetTacticalAI()->GetTacticalAnalysisMap()->GetZoneByCity(pLoopCity,false);
+			CvTacticalDominanceZone* pWaterZone = m_pPlayer->GetTacticalAI()->GetTacticalAnalysisMap()->GetZoneByCity(pLoopCity,true);
+			if (pLandZone && pLandZone->GetOverallDominanceFlag()==TACTICAL_DOMINANCE_ENEMY)
+				iDangerMod++;
+			if (pWaterZone && pWaterZone->GetOverallDominanceFlag()==TACTICAL_DOMINANCE_ENEMY)
+				iDangerMod++;
+
+			if (pLoopCity->isInDangerOfFalling() || pLoopCity->isUnderSiege() || (pLoopCity->IsBlockadedWaterAndLand() && pLoopCity->getDamage() >= (pLoopCity->GetMaxHitPoints()/4)))
+			{
+				if (pLoopCity->isInDangerOfFalling())
+					iDangerMod += 4;
+				else
+					iDangerMod += 2;
+
+				if (pLoopCity->isInDangerOfFalling() || (pLoopCity->IsBlockadedWaterAndLand() && pLoopCity->getDamage() >= (pLoopCity->GetMaxHitPoints()/4)) || pLoopCity->getDamage() >= (pLoopCity->GetMaxHitPoints()/2))
+				{
+					if (pLoopCity->getOriginalOwner() == GetID())
+					{
+						bSeriousDangerUs = true;
+					}
+					else if (pLoopCity->isCapital() || pLoopCity->IsOriginalMajorCapital() || (eMyReligion != NO_RELIGION && pLoopCity->GetCityReligions()->IsHolyCityForReligion(eMyReligion)) || (eTheirReligion != NO_RELIGION && pLoopCity->GetCityReligions()->IsHolyCityForReligion(eTheirReligion)) 
+						|| pLoopCity->getNumWorldWonders() > 0 || pLoopCity->getNumNationalWonders() > 0)
+					{
+						bSeriousDangerUs = true;
+					}
+				}
+			}
+			else if (pLoopCity->IsInDanger(*it))
+				iDangerMod += 1;
+
+			if (iDangerMod > 0)
+			{
+				if (pLoopCity->isCapital())
+					iDangerMod *= 3;
+				else if (pLoopCity->IsOriginalMajorCapital() || (eMyReligion != NO_RELIGION && pLoopCity->GetCityReligions()->IsHolyCityForReligion(eMyReligion)) || (eTheirReligion != NO_RELIGION && pLoopCity->GetCityReligions()->IsHolyCityForReligion(eTheirReligion)) || pLoopCity->getNumWorldWonders() > 0)
+					iDangerMod *= 2;
+				else if (pLoopCity->GetCityReligions()->IsHolyCityAnyReligion() || pLoopCity->getNumNationalWonders() > 0)
+					iDangerMod++;
+			}
+			
+			iOurDanger += iDangerMod;
+		}
+
+		for (CvCity* pLoopCity = GET_PLAYER(*it).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(*it).nextCity(&iLoop))
+		{
+			// Can we actually see this city's danger status?
+			if (CanSeeEnemyCity(pLoopCity))
+			{
+				int iDangerMod = 0;
+
+				//look at the tactical map (is it up to date?)
+				CvTacticalDominanceZone* pLandZone = GET_PLAYER(*it).GetTacticalAI()->GetTacticalAnalysisMap()->GetZoneByCity(pLoopCity,false);
+				CvTacticalDominanceZone* pWaterZone = GET_PLAYER(*it).GetTacticalAI()->GetTacticalAnalysisMap()->GetZoneByCity(pLoopCity,true);
+				
+				if (pLandZone && pLandZone->GetOverallDominanceFlag()==TACTICAL_DOMINANCE_ENEMY)
+					iDangerMod++;
+				if (pWaterZone && pWaterZone->GetOverallDominanceFlag()==TACTICAL_DOMINANCE_ENEMY)
+					iDangerMod++;
+
+				if (pLoopCity->isInDangerOfFalling() || pLoopCity->isUnderSiege() || (pLoopCity->IsBlockadedWaterAndLand() && pLoopCity->getDamage() >= (pLoopCity->GetMaxHitPoints()/4)))
+				{
+					if (pLoopCity->isInDangerOfFalling())
+						iDangerMod += 4;
+					else
+						iDangerMod += 2;
+
+					if (pLoopCity->isInDangerOfFalling() || (pLoopCity->IsBlockadedWaterAndLand() && pLoopCity->getDamage() >= (pLoopCity->GetMaxHitPoints()/4)) || pLoopCity->getDamage() >= (pLoopCity->GetMaxHitPoints()/2))
+					{
+						bSeriousDangerThem = true;
+					}
+				}
+				else if (pLoopCity->IsInDanger(GetID()))
+					iDangerMod += 1;
+				
+				if (iDangerMod > 0)
+				{
+					if (pLoopCity->isCapital())
+						iDangerMod *= 3;
+					else if (pLoopCity->IsOriginalMajorCapital() || (eMyReligion != NO_RELIGION && pLoopCity->GetCityReligions()->IsHolyCityForReligion(eMyReligion)) || (eTheirReligion != NO_RELIGION && pLoopCity->GetCityReligions()->IsHolyCityForReligion(eTheirReligion)) || pLoopCity->getNumWorldWonders() > 0)
+						iDangerMod *= 2;
+					else if (pLoopCity->GetCityReligions()->IsHolyCityAnyReligion())
+						iDangerMod++;
+				}
+
+				iTheirDanger += iDangerMod;
+			}
+		}
+
+		// No peace if they're in danger of losing a city and we're not.
+		if (bSeriousDangerThem && !bSeriousDangerUs)
+		{
+			SetTreatyWillingToOffer(*it, NO_PEACE_TREATY_TYPE);
+			SetTreatyWillingToAccept(*it, NO_PEACE_TREATY_TYPE);
+			continue;
+		}
+		// If we're in serious danger, let's offer peace.
+		else if ((iWarScore <= -90 && iOurDanger > 0) || (iWarScore <= -50 && bSeriousDangerUs))
+		{
+			vMakePeacePlayers.push_back(*it);
+			continue;
+		}
+		// Let's offer peace if we're in danger of losing a city we originally founded (or a really important city) and they're not
+		else if (bSeriousDangerUs && !bSeriousDangerThem)
+		{
+			vMakePeacePlayers.push_back(*it);
+			continue;
+		}
+
+		// Okay, so no automatic peace. But should we consider peace at all?
+		bool bCapturedKeyCity = IsCapitalCapturedBy(*it, true, false) || IsHolyCityCapturedBy(*it, true, false);
+		bool bPhonyWar = IsPhonyWar(*it);
+		bool bReadyForVassalage = false;
+
+		// If this is a phony war and they're not in danger, let's offer peace.
+		if (bPhonyWar && iTheirDanger == 0)
+		{
+			vMakePeacePlayers.push_back(*it);
+			continue;
+		}
+
+		if (GET_TEAM(GET_PLAYER(*it).getTeam()).canBecomeVassal(GetTeam()))
+		{
+			if (iWarScore >= 75 && !bCapturedKeyCity && !IsEndgameAggressiveTo(*it) && !IsUntrustworthy(*it))
+			{
+				bReadyForVassalage = true;
+
+				// Let's check if they have any of our cities. If they do, no vassalage!
+				for (CvCity* pLoopCity = GET_PLAYER(*it).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(*it).nextCity(&iLoop))
+				{
+					PlayerTypes eOriginalOwner = pLoopCity->getOriginalOwner();
+
+					if (GET_PLAYER(eOriginalOwner).getTeam() == GetTeam())
+					{
+						bReadyForVassalage = false;
+						break;
+					}
+					// Any of our friends' cities?
+					else if (IsFriendOrAlly(eOriginalOwner))
+					{
+						bReadyForVassalage = false;
+						break;
+					}
+				}
+			}
+		}
+
+		// If not ready for vassalage with a neighbor and the war is nearly won, let's persevere.
+		if (!bReadyForVassalage && GetWarState(*it) == WAR_STATE_NEARLY_WON && GetPlayer()->GetProximityToPlayer(*it) == PLAYER_PROXIMITY_NEIGHBORS)
+		{
+			SetTreatyWillingToOffer(*it, NO_PEACE_TREATY_TYPE);
+			SetTreatyWillingToAccept(*it, NO_PEACE_TREATY_TYPE);
+			continue;
+		}
+
+		bool bConsiderPeace = bReadyForVassalage || bPhonyWar || bSeriousDangerUs;
+		int iWarDuration = min(GetPlayer()->GetPlayerNumTurnsAtWar(*it), GetPlayer()->GetPlayerNumTurnsSinceCityCapture(*it));
+
+		if (!bConsiderPeace)
+		{
+			bConsiderPeace |= GetCivApproach(*it) > CIV_APPROACH_HOSTILE;
+			bConsiderPeace |= GetWarState(*it) <= WAR_STATE_DEFENSIVE;
+			bConsiderPeace |= GetStateAllWars() == STATE_ALL_WARS_LOSING;
+			bConsiderPeace |= GetPlayer()->IsEmpireVeryUnhappy();
+			bConsiderPeace |= GetPlayer()->GetCulture()->GetWarWeariness() > GetPlayer()->GetPlayerNumTurnsAtWar(*it) && GetPlayer()->IsEmpireUnhappy();
+			bConsiderPeace |= iWarDuration >= 30;
+		}
+
+		// No peace?
+		if (!bConsiderPeace)
+		{
+			SetTreatyWillingToOffer(*it, NO_PEACE_TREATY_TYPE);
+			SetTreatyWillingToAccept(*it, NO_PEACE_TREATY_TYPE);
+			continue;
+		}
+
+		// If we've gotten this far, we need to at least consider the merits of peace.
+		int iPeaceScore = 0;
+
+		// War score is of course a big factor
+		// If we get a bonus from high warscore, let's not end early!
+		if (GetPlayer()->GetPositiveWarScoreTourismMod() <= 0 || GET_PLAYER(GetHighestWarscorePlayer()).getTeam() != GET_PLAYER(*it).getTeam())
+		{
+			iPeaceScore += iWarScore / -10;
+
+			// Lack of progress in war increases desire for peace (moreso if far away).
+			if (iWarDuration > 13)
+			{
+				int iDurationPenalty = iWarDuration - 13;
+
+				switch (GetPlayer()->GetProximityToPlayer(*it))
+				{
+				case PLAYER_PROXIMITY_NEIGHBORS:
+					iPeaceScore += iDurationPenalty;
+					break;
+				case PLAYER_PROXIMITY_CLOSE:
+					iPeaceScore += (iDurationPenalty * 150) / 100;
+					break;
+				case PLAYER_PROXIMITY_FAR:
+					iPeaceScore += iDurationPenalty * 2;
+					break;
+				case PLAYER_PROXIMITY_DISTANT:
+					iPeaceScore += iDurationPenalty * 3;
+					break;
+				}
+			}
+		}
+
+		// Danger considerations
+		int iOurMultiplier = 1;
+		int iTheirMultiplier = 1;
+
+		if (GetStateAllWars() != STATE_ALL_WARS_LOSING || GetWarState(*it) == WAR_STATE_NEARLY_WON)
+		{
+			if (IsEasyTarget(*it))
+			{
+				iOurMultiplier++;
+			}
+			if (GetPlayer()->GetMilitaryAI()->HavePreferredAttackTarget(*it))
+			{
+				iOurMultiplier++;
+			}
+			if (GetWarState(*it) == WAR_STATE_NEARLY_WON)
+			{
+				iOurMultiplier++;
+			}
+		}
+		if (GET_PLAYER(*it).GetDiplomacyAI()->GetStateAllWars() != STATE_ALL_WARS_LOSING || GetWarState(*it) == WAR_STATE_NEARLY_DEFEATED)
+		{
+			if (GET_PLAYER(*it).GetDiplomacyAI()->IsEasyTarget(GetPlayer()->GetID()))
+			{
+				iTheirMultiplier++;
+			}
+			if (GetPlayer()->GetMilitaryAI()->IsExposedToEnemy(NULL, *it))
+			{
+				iTheirMultiplier++;
+			}
+			if (GetWarState(*it) == WAR_STATE_NEARLY_DEFEATED)
+			{
+				iTheirMultiplier++;
+			}
+		}
+
+		// They're in danger and we're not? Let's hold out longer!
+		if (iOurDanger == 0 && iTheirDanger > 0)
+		{
+			if (iWarDuration < 20 || iOurMultiplier > 2 || bSeriousDangerThem)
+			{
+				iPeaceScore -= (5 * iTheirDanger * iOurMultiplier);
+			}
+			else
+			{
+				iPeaceScore -= (2 * iTheirDanger * iOurMultiplier);
+			}
+		}
+		// We're in danger and they're not? Let's hold out less!
+		else if (iOurDanger > 0 && iTheirDanger == 0)
+		{
+			if (iWarScore < -15 || iTheirMultiplier > 2 || bSeriousDangerUs)
+			{
+				iPeaceScore += (5 * iOurDanger * iTheirMultiplier);
+			}
+			else
+			{
+				iPeaceScore += (2 * iOurDanger * iTheirMultiplier);
+			}
+		}
+		// We're both in danger - how much?
+		else
+		{
+			iPeaceScore -= (2 * iTheirDanger * iOurMultiplier);
+			iPeaceScore += (2 * iOurDanger * iTheirMultiplier);
+		}
+
+		// Also consider the overall war state
+		bool bLosingOverall = GetStateAllWars() == STATE_ALL_WARS_LOSING;
+
+		switch (GetWarState(*it))
+		{
+		case WAR_STATE_NEARLY_WON:
+			iPeaceScore -= bReadyForVassalage ? 0 : 10 * iOurMultiplier;
+			break;
+		case WAR_STATE_OFFENSIVE:
+			iPeaceScore -= 5 * iOurMultiplier;
+			break;
+		case WAR_STATE_CALM:
+			iPeaceScore -= bLosingOverall ? -5 * iTheirMultiplier : 2 * iOurMultiplier;
+			break;
+		case WAR_STATE_STALEMATE:
+			iPeaceScore += bLosingOverall ? 5 * iTheirMultiplier : 2 * iTheirMultiplier;
+			break;
+		case WAR_STATE_DEFENSIVE:
+			iPeaceScore += bLosingOverall ? 10 * iTheirMultiplier : 5 * iTheirMultiplier;
+			break;
+		}
+
+		if (MOD_BALANCE_CORE_HAPPINESS)
+		{
+			int iWarWeariness = GetPlayer()->GetCulture()->GetWarWeariness();
+			iPeaceScore += iWarWeariness / 4;
+
+			if (iWarWeariness > 0 && GetPlayer()->IsEmpireUnhappy())
+			{
+				if (GetPlayer()->IsEmpireVeryUnhappy())
+					iPeaceScore += iWarWeariness / 2;
+				else
+					iPeaceScore += iWarWeariness / 3;
+			}
+		}
+
+		// If we're in a coop war, let's hold out longer.
+		if (GetGlobalCoopWarAgainstState(*it) == COOP_WAR_STATE_ONGOING)
+		{
+			iPeaceScore -= 10;
+		}
+
+		// If we want to conquer them, let's hold out longer.
+		if (IsWantsToConquer(*it) || IsUntrustworthy(*it))
+		{
+			iPeaceScore -= 10;
+		}
+
+		// If they captured one of our key cities, let's hold out for significantly longer.
+		if (bCapturedKeyCity)
+		{
+			iPeaceScore -= 15;
+		}
+
+		// If they're about to win the game, let's hold out for a lot longer.
+		if (IsEndgameAggressiveTo(*it))
+		{
+			iPeaceScore -= 20;
+		}
+
+		// If we're going for world conquest, we want to fight our wars until we get their capital or can vassalize them
+		// However, do not factor this in when losing
+		if (iWarScore > -15 && bWorldConquest)
+		{
+			if (bReadyForVassalage || GET_PLAYER(GET_PLAYER(*it).GetCapitalConqueror()).getTeam() == GetTeam())
+			{
+				if (iPeaceScore > 0)
+					iPeaceScore *= 2;
+				else
+					iPeaceScore /= 2;
+			}
+			else
+			{
+				if (iPeaceScore > 0)
+					iPeaceScore /= 2;
+				else
+					iPeaceScore *= 2;
+			}
+		}
+
+		// Modify based on leader flavors
+		// High Meanness leaders will fight to the bitter end when losing, high Diplo Balance leaders like to return to status quo when winning
+		if (iWarScore > 0)
+		{
+			iPeaceScore *= 100 + ((GetDiploBalance() - 5) * 10);
+			iPeaceScore /= 100;
+		}
+		else if (iWarScore < 0)
+		{
+			iPeaceScore *= 100 + ((-GetMeanness() + 5) * 10);
+			iPeaceScore /= 100;
+		}
+
+		// Must be high enough to return a true desire for peace
+		if (iPeaceScore >= /*40*/ GC.getREQUEST_PEACE_TURN_THRESHOLD())
+		{
+			vMakePeacePlayers.push_back(*it);
+		}
+		else
+		{
+			SetTreatyWillingToOffer(*it, NO_PEACE_TREATY_TYPE);
+			SetTreatyWillingToAccept(*it, NO_PEACE_TREATY_TYPE);
+		}
+	}
+
+	// So we've decided who we want to make peace with, now let's decide WHAT we're willing to accept/offer in exchange for peace.
+	for (std::vector<PlayerTypes>::iterator it = vMakePeacePlayers.begin(); it != vMakePeacePlayers.end(); it++)
+	{
+		PeaceTreatyTypes eTreatyWillingToOffer = PEACE_TREATY_WHITE_PEACE;
+		PeaceTreatyTypes eTreatyWillingToAccept = PEACE_TREATY_WHITE_PEACE;
+		int iWillingToOfferScore = 0;
+		int iWillingToAcceptScore = 0;
+
+		// What we're willing to offer/accept in a peace treaty.
+		int iWarScore = GetWarScore(*it);
+
+		// Negative Warscore? Offer more.
+		if (iWarScore < 0)
+		{
+			iWillingToOfferScore -= iWarScore;
+		}
+		// Positive Warscore? Accept more.
+		else
+		{
+			iWillingToAcceptScore += iWarScore;
+		}
+
+		// War Weary? We're more willing to make peace.
+		if (MOD_BALANCE_CORE_HAPPINESS)
+		{
+			if (iWarScore <= 0)
+			{
+				iWillingToOfferScore += GetPlayer()->GetCulture()->GetWarWeariness();
+			}
+			else
+			{
+				iWillingToAcceptScore -= GetPlayer()->GetCulture()->GetWarWeariness();
+			}
+		}
+
+		// Do the final assessment
+		if (iWillingToOfferScore >= /*100*/ GC.getPEACE_WILLINGNESS_OFFER_THRESHOLD_UN_SURRENDER())
+			eTreatyWillingToOffer = PEACE_TREATY_UNCONDITIONAL_SURRENDER;
+		else if (iWillingToOfferScore >= /*90*/ GC.getPEACE_WILLINGNESS_OFFER_THRESHOLD_CAPITULATION())
+			eTreatyWillingToOffer = PEACE_TREATY_CAPITULATION;
+		else if (iWillingToOfferScore >= /*80*/ GC.getPEACE_WILLINGNESS_OFFER_THRESHOLD_CESSION())
+			eTreatyWillingToOffer = PEACE_TREATY_CESSION;
+		else if (iWillingToOfferScore >= /*70*/ GC.getPEACE_WILLINGNESS_OFFER_THRESHOLD_SURRENDER())
+			eTreatyWillingToOffer = PEACE_TREATY_SURRENDER;
+		else if (iWillingToOfferScore >= /*60*/ GC.getPEACE_WILLINGNESS_OFFER_THRESHOLD_SUBMISSION())
+			eTreatyWillingToOffer = PEACE_TREATY_SUBMISSION;
+		else if (iWillingToOfferScore >= /*40*/ GC.getPEACE_WILLINGNESS_OFFER_THRESHOLD_BACKDOWN())
+			eTreatyWillingToOffer = PEACE_TREATY_BACKDOWN;
+		else if (iWillingToOfferScore >= /*30*/ GC.getPEACE_WILLINGNESS_OFFER_THRESHOLD_SETTLEMENT())
+			eTreatyWillingToOffer = PEACE_TREATY_SETTLEMENT;
+		else if (iWillingToOfferScore >= /*15*/ GC.getPEACE_WILLINGNESS_OFFER_THRESHOLD_ARMISTICE())
+			eTreatyWillingToOffer = PEACE_TREATY_ARMISTICE;
+
+		// Do the final assessment
+		if (iWillingToAcceptScore >= /*100*/ GC.getPEACE_WILLINGNESS_ACCEPT_THRESHOLD_UN_SURRENDER())
+			eTreatyWillingToAccept = PEACE_TREATY_UNCONDITIONAL_SURRENDER;
+		else if (iWillingToAcceptScore >= /*90*/ GC.getPEACE_WILLINGNESS_ACCEPT_THRESHOLD_CAPITULATION())
+			eTreatyWillingToAccept = PEACE_TREATY_CAPITULATION;
+		else if (iWillingToAcceptScore >= /*80*/ GC.getPEACE_WILLINGNESS_ACCEPT_THRESHOLD_CESSION())
+			eTreatyWillingToAccept = PEACE_TREATY_CESSION;
+		else if (iWillingToAcceptScore >= /*70*/ GC.getPEACE_WILLINGNESS_ACCEPT_THRESHOLD_SURRENDER())
+			eTreatyWillingToAccept = PEACE_TREATY_SURRENDER;
+		else if (iWillingToAcceptScore >= /*60*/ GC.getPEACE_WILLINGNESS_ACCEPT_THRESHOLD_SUBMISSION())
+			eTreatyWillingToAccept = PEACE_TREATY_SUBMISSION;
+		else if (iWillingToAcceptScore >= /*40*/ GC.getPEACE_WILLINGNESS_ACCEPT_THRESHOLD_BACKDOWN())
+			eTreatyWillingToAccept = PEACE_TREATY_BACKDOWN;
+		else if (iWillingToAcceptScore >= /*30*/ GC.getPEACE_WILLINGNESS_ACCEPT_THRESHOLD_SETTLEMENT())
+			eTreatyWillingToAccept = PEACE_TREATY_SETTLEMENT;
+		else if (iWillingToAcceptScore >= /*15*/ GC.getPEACE_WILLINGNESS_ACCEPT_THRESHOLD_ARMISTICE())
+			eTreatyWillingToAccept = PEACE_TREATY_ARMISTICE;
+
+		// If we're in a critical state, always accept a white peace.
+		if (bCriticalState)
+		{
+			if (eTreatyWillingToOffer <= PEACE_TREATY_WHITE_PEACE)
+				eTreatyWillingToOffer = PEACE_TREATY_WHITE_PEACE;
+
+			eTreatyWillingToAccept = PEACE_TREATY_WHITE_PEACE;
+		}
+
+		SetTreatyWillingToOffer(*it, eTreatyWillingToOffer);
+		SetTreatyWillingToAccept(*it, eTreatyWillingToAccept);
+	}
+}
+
+bool CvDiplomacyAI::IsWantsPeaceWithPlayer(PlayerTypes ePlayer) const
+{
+	return IsAtWar(ePlayer) && !IsPeaceBlocked(ePlayer) && (GetTreatyWillingToOffer(ePlayer) > NO_PEACE_TREATY_TYPE || GetTreatyWillingToAccept(ePlayer) > NO_PEACE_TREATY_TYPE);
 }
 
 bool CvDiplomacyAI::IsPeaceBlocked(PlayerTypes ePlayer) const
@@ -10837,46 +11067,35 @@ int CvDiplomacyAI::GetPeaceBlockReason(PlayerTypes ePlayer) const
 	if (!IsAtWar(ePlayer))
 		return 0;
 
-	if (ePlayer == BARBARIAN_PLAYER)
-		return 0;
+	// Can never make peace with Barbarians
+	if (GET_TEAM(GET_PLAYER(ePlayer).getTeam()).isBarbarian())
+		return 1;
 
 	// Blocked by game options
 	if (GC.getGame().isOption(GAMEOPTION_ALWAYS_WAR) || GC.getGame().isOption(GAMEOPTION_NO_CHANGING_WAR_PEACE))
-	{
 		return 1;
-	}
 
 	// One of us is someone's vassal!
 	if (GetPlayer()->IsVassalOfSomeone())
-	{
 		return 2;
-	}
+
 	if (GET_PLAYER(ePlayer).IsVassalOfSomeone())
-	{
 		return 2;
-	}
 
 	// Too soon to make peace
 	if (GET_PLAYER(ePlayer).isMajorCiv() && GetPlayer()->GetPlayerNumTurnsAtWar(ePlayer) < GD_INT_GET(WAR_MAJOR_MINIMUM_TURNS))
-	{
 		return 3;
-	}
+
 	if (GET_PLAYER(ePlayer).isMinorCiv() && GetPlayer()->GetPlayerNumTurnsAtWar(ePlayer) < GD_INT_GET(WAR_MINOR_MINIMUM_TURNS))
-	{
 		return 3;
-	}
 
 	// Enemy captured a city and wants peace right away? Not if we can retaliate ...
 	if (GET_PLAYER(ePlayer).GetPlayerNumTurnsSinceCityCapture(GetID()) <= 1 && CountUnitsAroundEnemyCities(ePlayer,3)>1)
-	{
 		return 4;
-	}
 
 	// AI teammate of human
 	if (GetPlayer()->IsAITeammateOfHuman())
-	{
 		return 5;
-	}
 
 	if (GET_PLAYER(ePlayer).isMinorCiv())
 	{
@@ -10893,15 +11112,11 @@ int CvDiplomacyAI::GetPeaceBlockReason(PlayerTypes ePlayer) const
 
 	// Locked into war?
 	if (GET_TEAM(GetTeam()).GetNumTurnsLockedIntoWar(GET_PLAYER(ePlayer).getTeam()) > 0)
-	{
 		return 8;
-	}
 
 	// Some other reason?
 	if (!GET_TEAM(GetTeam()).canChangeWarPeace(GET_PLAYER(ePlayer).getTeam()))
-	{
 		return 9;
-	}
 
 	return 0; // No reason we're peace blocked
 }
@@ -10924,772 +11139,6 @@ int CvDiplomacyAI::CountUnitsAroundEnemyCities(PlayerTypes ePlayer, int iTurnRan
 	}
 
 	return iCount;
-}
-
-/// Updates what peace treaties we're willing to offer and accept
-void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness()
-{
-	// Humans can decide this themselves!
-	if (GetPlayer()->isHuman())
-		return;
-
-	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
-	{
-		PlayerTypes ePlayer = (PlayerTypes) iPlayerLoop;
-
-		if (IsPlayerValid(ePlayer) && IsAtWar(ePlayer))
-		{
-			// Do we actually want peace with this player?
-			if (!IsWantsPeaceWithPlayer(ePlayer))
-			{
-				SetTreatyWillingToOffer(ePlayer, NO_PEACE_TREATY_TYPE);
-				SetTreatyWillingToAccept(ePlayer, NO_PEACE_TREATY_TYPE);
-				continue;
-			}
-
-			PeaceTreatyTypes eTreatyWillingToOffer = PEACE_TREATY_WHITE_PEACE;
-			PeaceTreatyTypes eTreatyWillingToAccept = PEACE_TREATY_WHITE_PEACE;
-			int iWillingToOfferScore = 0;
-			int iWillingToAcceptScore = 0;
-
-			// What we're willing to offer/accept in a peace treaty.
-			int iWarScore = GetWarScore(ePlayer);
-
-			// Negative Warscore? Offer more.
-			if (iWarScore < 0)
-			{
-				iWillingToOfferScore -= iWarScore;
-			}
-			// Positive Warscore? Accept more.
-			else
-			{
-				iWillingToAcceptScore += iWarScore;
-			}
-
-			// War Weary? We're more willing to make peace.
-			if (MOD_BALANCE_CORE_HAPPINESS && GetPlayer()->GetCulture()->GetWarWeariness() > 0)
-			{
-				if (iWarScore <= 0)
-				{
-					iWillingToOfferScore += (GetPlayer()->GetCulture()->GetWarWeariness());
-				}
-				else
-				{
-					iWillingToAcceptScore -= (GetPlayer()->GetCulture()->GetWarWeariness());
-				}
-			}
-
-			// Do the final assessment
-			if (iWillingToOfferScore >= /*100*/ GC.getPEACE_WILLINGNESS_OFFER_THRESHOLD_UN_SURRENDER())
-				eTreatyWillingToOffer = PEACE_TREATY_UNCONDITIONAL_SURRENDER;
-			else if (iWillingToOfferScore >= /*90*/ GC.getPEACE_WILLINGNESS_OFFER_THRESHOLD_CAPITULATION())
-				eTreatyWillingToOffer = PEACE_TREATY_CAPITULATION;
-			else if (iWillingToOfferScore >= /*80*/ GC.getPEACE_WILLINGNESS_OFFER_THRESHOLD_CESSION())
-				eTreatyWillingToOffer = PEACE_TREATY_CESSION;
-			else if (iWillingToOfferScore >= /*70*/ GC.getPEACE_WILLINGNESS_OFFER_THRESHOLD_SURRENDER())
-				eTreatyWillingToOffer = PEACE_TREATY_SURRENDER;
-			else if (iWillingToOfferScore >= /*60*/ GC.getPEACE_WILLINGNESS_OFFER_THRESHOLD_SUBMISSION())
-				eTreatyWillingToOffer = PEACE_TREATY_SUBMISSION;
-			else if (iWillingToOfferScore >= /*40*/ GC.getPEACE_WILLINGNESS_OFFER_THRESHOLD_BACKDOWN())
-				eTreatyWillingToOffer = PEACE_TREATY_BACKDOWN;
-			else if (iWillingToOfferScore >= /*30*/ GC.getPEACE_WILLINGNESS_OFFER_THRESHOLD_SETTLEMENT())
-				eTreatyWillingToOffer = PEACE_TREATY_SETTLEMENT;
-			else if (iWillingToOfferScore >= /*15*/ GC.getPEACE_WILLINGNESS_OFFER_THRESHOLD_ARMISTICE())
-				eTreatyWillingToOffer = PEACE_TREATY_ARMISTICE;
-
-			// Do the final assessment
-			if (iWillingToAcceptScore >= /*100*/ GC.getPEACE_WILLINGNESS_ACCEPT_THRESHOLD_UN_SURRENDER())
-				eTreatyWillingToAccept = PEACE_TREATY_UNCONDITIONAL_SURRENDER;
-			else if (iWillingToAcceptScore >= /*90*/ GC.getPEACE_WILLINGNESS_ACCEPT_THRESHOLD_CAPITULATION())
-				eTreatyWillingToAccept = PEACE_TREATY_CAPITULATION;
-			else if (iWillingToAcceptScore >= /*80*/ GC.getPEACE_WILLINGNESS_ACCEPT_THRESHOLD_CESSION())
-				eTreatyWillingToAccept = PEACE_TREATY_CESSION;
-			else if (iWillingToAcceptScore >= /*70*/ GC.getPEACE_WILLINGNESS_ACCEPT_THRESHOLD_SURRENDER())
-				eTreatyWillingToAccept = PEACE_TREATY_SURRENDER;
-			else if (iWillingToAcceptScore >= /*60*/ GC.getPEACE_WILLINGNESS_ACCEPT_THRESHOLD_SUBMISSION())
-				eTreatyWillingToAccept = PEACE_TREATY_SUBMISSION;
-			else if (iWillingToAcceptScore >= /*40*/ GC.getPEACE_WILLINGNESS_ACCEPT_THRESHOLD_BACKDOWN())
-				eTreatyWillingToAccept = PEACE_TREATY_BACKDOWN;
-			else if (iWillingToAcceptScore >= /*30*/ GC.getPEACE_WILLINGNESS_ACCEPT_THRESHOLD_SETTLEMENT())
-				eTreatyWillingToAccept = PEACE_TREATY_SETTLEMENT;
-			else if (iWillingToAcceptScore >= /*15*/ GC.getPEACE_WILLINGNESS_ACCEPT_THRESHOLD_ARMISTICE())
-				eTreatyWillingToAccept = PEACE_TREATY_ARMISTICE;
-
-			bool bCriticalState = GetPlayer()->IsEmpireSuperUnhappy();
-			bCriticalState |= (GetStateAllWars() == STATE_ALL_WARS_LOSING);
-
-			// Our capital is in danger!
-			CvCity* pCapital = GetPlayer()->getCapitalCity();
-			if (pCapital != NULL)
-			{
-				if (pCapital->isInDangerOfFalling())
-				{
-					bCriticalState = true;
-				}
-				else if (pCapital->getDamage() >= (pCapital->GetMaxHitPoints()/2))
-				{
-					bCriticalState = true;
-				}
-			}
-
-			// If we're in a critical state, always accept a white peace.
-			if (bCriticalState)
-			{
-				if (eTreatyWillingToOffer <= PEACE_TREATY_WHITE_PEACE)
-					eTreatyWillingToOffer = PEACE_TREATY_WHITE_PEACE;
-
-				eTreatyWillingToAccept = PEACE_TREATY_WHITE_PEACE;
-			}
-
-			SetTreatyWillingToOffer(ePlayer, eTreatyWillingToOffer);
-			SetTreatyWillingToAccept(ePlayer, eTreatyWillingToAccept);
-		}
-		else
-		{
-			SetTreatyWillingToOffer(ePlayer, NO_PEACE_TREATY_TYPE);
-			SetTreatyWillingToAccept(ePlayer, NO_PEACE_TREATY_TYPE);
-		}
-	}
-}
-
-/// Do we actually want peace with ePlayer?
-bool CvDiplomacyAI::IsWantsPeaceWithPlayer(PlayerTypes ePlayer) const
-{
-	if (ePlayer == BARBARIAN_PLAYER)
-		return false;
-
-	if (!IsAtWar(ePlayer))
-		return false;
-
-	int iPeaceBlockReason = GetPeaceBlockReason(ePlayer);
-
-	if (iPeaceBlockReason > 0)
-	{
-		if (GC.getLogging() && GC.getAILogging())
-		{
-			CvString strOutBuf;
-			CvString strBaseString;
-			CvString playerName;
-			CvString otherPlayerName;
-			CvString strLogName;
-			CvString strPeaceBlockReason;
-
-			switch (iPeaceBlockReason)
-			{
-			case 1:
-				strPeaceBlockReason.Format("We are always at war with this player!");
-				break;
-			case 2:
-				strPeaceBlockReason.Format("One of us is a vassal!");
-				break;
-			case 3:
-				strPeaceBlockReason.Format("Too early to make peace!");
-				break;
-			case 4:
-				strPeaceBlockReason.Format("Our city was just captured, and we have units near the enemy's cities!");
-				break;
-			case 5:
-				strPeaceBlockReason.Format("AI teammates of humans can't make peace on their own!");
-				break;
-			case 6:
-				strPeaceBlockReason.Format("City-State is at permanent war with us!");
-				break;
-			case 7:
-				strPeaceBlockReason.Format("We're at war with this City-State's ally!");
-				break;
-			case 8:
-				strPeaceBlockReason.Format("Locked into coop/3rd party war for %d more turns!", GET_TEAM(GetTeam()).GetNumTurnsLockedIntoWar(GET_PLAYER(ePlayer).getTeam()));
-				break;
-			case 9:
-				strPeaceBlockReason.Format("Cannot change war/peace status!");
-				break;
-			default:
-				strPeaceBlockReason.Format("Undefined reason!");
-				break;
-			}
-
-			// Find the name of this civ and city
-			playerName = m_pPlayer->getCivilizationShortDescription();
-
-			// Open the log file
-			if (GC.getPlayerAndCityAILogSplit())
-			{
-				strLogName = "DiplomacyAI_Peace_Log" + playerName + ".csv";
-			}
-			else
-			{
-				strLogName = "DiplomacyAI_Peace_Log.csv";
-			}
-
-			FILogFile* pLog;
-			pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
-
-			// Get the leading info for this line
-			strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
-			otherPlayerName = GET_PLAYER(ePlayer).getCivilizationShortDescription();
-			strBaseString += playerName + " VS. " + otherPlayerName;
-
-			strOutBuf.Format("PEACE BLOCKED! ");
-			strOutBuf += strPeaceBlockReason;
-
-			strBaseString += strOutBuf;
-			pLog->Msg(strBaseString);
-		}
-
-		return false;
-	}
-
-	// Evaluate our danger and their danger from this war
-	int iWarScore = GetPlayer()->GetDiplomacyAI()->GetWarScore(ePlayer);
-	int iOurDanger = 0;
-	int iTheirDanger = 0;
-	bool bSeriousDangerUs = false;
-	bool bSeriousDangerThem = false;
-	ReligionTypes eMyReligion = GetPlayer()->GetReligions()->GetCurrentReligion(false);	
-	ReligionTypes eTheirReligion = GET_PLAYER(ePlayer).GetReligions()->GetCurrentReligion(false);
-	int iLoop;
-	for (CvCity* pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
-	{
-		int iDangerMod = 0;
-
-		if (pLoopCity->isInDangerOfFalling())
-		{
-			iDangerMod += 3;
-			bSeriousDangerUs = true;
-		}
-
-		else if (pLoopCity->isUnderSiege() || pLoopCity->IsBlockadedWaterAndLand())
-		{
-			iDangerMod += 2;
-
-			if (pLoopCity->IsBlockadedWaterAndLand() || pLoopCity->getDamage() >= (pLoopCity->GetMaxHitPoints()/2))
-			{
-				if (pLoopCity->isCapital() || pLoopCity->IsOriginalMajorCapital() || (eMyReligion != NO_RELIGION && pLoopCity->GetCityReligions()->IsHolyCityForReligion(eMyReligion)) || (eTheirReligion != NO_RELIGION && pLoopCity->GetCityReligions()->IsHolyCityForReligion(eTheirReligion)))
-				{
-					bSeriousDangerUs = true;
-				}
-			}
-		}
-
-		else if (pLoopCity->IsInDanger(ePlayer))
-			iDangerMod += 1;
-
-		//look at the tactical map (is it up to date?)
-		CvTacticalDominanceZone* pLandZone = m_pPlayer->GetTacticalAI()->GetTacticalAnalysisMap()->GetZoneByCity(pLoopCity,false);
-		CvTacticalDominanceZone* pWaterZone = m_pPlayer->GetTacticalAI()->GetTacticalAnalysisMap()->GetZoneByCity(pLoopCity,true);
-		if (pLandZone && pLandZone->GetOverallDominanceFlag()==TACTICAL_DOMINANCE_ENEMY)
-			iDangerMod++;
-		if (pWaterZone && pWaterZone->GetOverallDominanceFlag()==TACTICAL_DOMINANCE_ENEMY)
-			iDangerMod++;
-		
-		if (pLoopCity->isCapital())
-			iDangerMod *= 3;
-		else if (pLoopCity->IsOriginalMajorCapital() || (eMyReligion != NO_RELIGION && pLoopCity->GetCityReligions()->IsHolyCityForReligion(eMyReligion)) || (eTheirReligion != NO_RELIGION && pLoopCity->GetCityReligions()->IsHolyCityForReligion(eTheirReligion)) || pLoopCity->getNumWorldWonders() > 0)
-			iDangerMod *= 2;
-		else if (pLoopCity->GetCityReligions()->IsHolyCityAnyReligion() || pLoopCity->getNumNationalWonders() > 0)
-		{
-			if (iDangerMod > 0)
-				iDangerMod++;
-		}
-		
-		iOurDanger += iDangerMod;
-	}
-
-	for (CvCity* pLoopCity = GET_PLAYER(ePlayer).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iLoop))
-	{
-		// Can we actually see this city's danger status?
-		if (CanSeeEnemyCity(pLoopCity))
-		{
-			int iDangerMod = 0;
-
-			if (pLoopCity->isInDangerOfFalling())
-			{
-				iDangerMod += 3;
-				bSeriousDangerThem = true;
-			}
-
-			else if (pLoopCity->isUnderSiege() || pLoopCity->IsBlockadedWaterAndLand())
-			{
-				iDangerMod += 2;
-
-				if (pLoopCity->IsBlockadedWaterAndLand() || pLoopCity->getDamage() >= (pLoopCity->GetMaxHitPoints()/2))
-				{
-					if (pLoopCity->isCapital() || pLoopCity->IsOriginalMajorCapital() || (eMyReligion != NO_RELIGION && pLoopCity->GetCityReligions()->IsHolyCityForReligion(eMyReligion)) || (eTheirReligion != NO_RELIGION && pLoopCity->GetCityReligions()->IsHolyCityForReligion(eTheirReligion)))
-					{
-						bSeriousDangerThem = true;
-					}
-				}
-			}
-
-			else if (pLoopCity->IsInDanger(m_pPlayer->GetID()))
-				iDangerMod += 1;
-
-			//look at the tactical map (is it up to date?)
-			CvTacticalDominanceZone* pLandZone = GET_PLAYER(ePlayer).GetTacticalAI()->GetTacticalAnalysisMap()->GetZoneByCity(pLoopCity,false);
-			CvTacticalDominanceZone* pWaterZone = GET_PLAYER(ePlayer).GetTacticalAI()->GetTacticalAnalysisMap()->GetZoneByCity(pLoopCity,true);
-			
-			if (pLandZone && pLandZone->GetOverallDominanceFlag()==TACTICAL_DOMINANCE_ENEMY)
-				iDangerMod++;
-			if (pWaterZone && pWaterZone->GetOverallDominanceFlag()==TACTICAL_DOMINANCE_ENEMY)
-				iDangerMod++;
-			
-			if (pLoopCity->isCapital())
-				iDangerMod *= 3;
-			else if (pLoopCity->IsOriginalMajorCapital() || (eMyReligion != NO_RELIGION && pLoopCity->GetCityReligions()->IsHolyCityForReligion(eMyReligion)) || (eTheirReligion != NO_RELIGION && pLoopCity->GetCityReligions()->IsHolyCityForReligion(eTheirReligion)) || pLoopCity->getNumWorldWonders() > 0)
-				iDangerMod *= 2;
-			else if (pLoopCity->GetCityReligions()->IsHolyCityAnyReligion())
-			{
-				if (iDangerMod > 0)
-					iDangerMod++;
-			}
-
-			iTheirDanger += iDangerMod;
-		}
-	}
-
-	// Don't make peace if we're about to score!
-	if (!bSeriousDangerUs && bSeriousDangerThem)
-	{
-		if (GC.getLogging() && GC.getAILogging())
-		{
-			CvString strOutBuf;
-			CvString strBaseString;
-			CvString playerName;
-			CvString otherPlayerName;
-			CvString strLogName;
-
-			// Find the name of this civ and city
-			playerName = m_pPlayer->getCivilizationShortDescription();
-
-			// Open the log file
-			if (GC.getPlayerAndCityAILogSplit())
-			{
-				strLogName = "DiplomacyAI_Peace_Log" + playerName + ".csv";
-			}
-			else
-			{
-				strLogName = "DiplomacyAI_Peace_Log.csv";
-			}
-
-			FILogFile* pLog;
-			pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
-
-			// Get the leading info for this line
-			strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
-			otherPlayerName = GET_PLAYER(ePlayer).getCivilizationShortDescription();
-			strBaseString += playerName + " VS. " + otherPlayerName;
-
-			strOutBuf.Format("No peace! We're about to score, and we're not in serious danger!");
-
-			strBaseString += strOutBuf;
-			pLog->Msg(strBaseString);
-		}
-
-		return false;
-	}
-
-	if (GET_PLAYER(ePlayer).isMajorCiv())
-	{
-		if ((iWarScore <= -90 && iOurDanger > 0) || (iWarScore <= -50 && bSeriousDangerUs))
-		{
-			if (GC.getLogging() && GC.getAILogging())
-			{
-				CvString strOutBuf;
-				CvString strBaseString;
-				CvString playerName;
-				CvString otherPlayerName;
-				CvString strLogName;
-
-				// Find the name of this civ and city
-				playerName = m_pPlayer->getCivilizationShortDescription();
-
-				// Open the log file
-				if (GC.getPlayerAndCityAILogSplit())
-				{
-					strLogName = "DiplomacyAI_Peace_Log" + playerName + ".csv";
-				}
-				else
-				{
-					strLogName = "DiplomacyAI_Peace_Log.csv";
-				}
-
-				FILogFile* pLog;
-				pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
-
-				// Get the leading info for this line
-				strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
-				otherPlayerName = GET_PLAYER(ePlayer).getCivilizationShortDescription();
-				strBaseString += playerName + " VS. " + otherPlayerName;
-
-				strOutBuf.Format("War score is terrible and we're in danger, so we're willing to make peace!");
-
-				strBaseString += strOutBuf;
-				pLog->Msg(strBaseString);
-			}
-		}
-
-		return true;
-	}
-
-	// If our war goal isn't to make peace, don't consider peace.
-	if (GetWarGoal(ePlayer) != WAR_GOAL_PEACE)
-	{
-		if (GC.getLogging() && GC.getAILogging())
-		{
-			CvString strOutBuf;
-			CvString strBaseString;
-			CvString playerName;
-			CvString otherPlayerName;
-			CvString strLogName;
-
-			// Find the name of this civ and city
-			playerName = m_pPlayer->getCivilizationShortDescription();
-
-			// Open the log file
-			if (GC.getPlayerAndCityAILogSplit())
-			{
-				strLogName = "DiplomacyAI_Peace_Log" + playerName + ".csv";
-			}
-			else
-			{
-				strLogName = "DiplomacyAI_Peace_Log.csv";
-			}
-
-			FILogFile* pLog;
-			pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
-
-			// Get the leading info for this line
-			strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
-			otherPlayerName = GET_PLAYER(ePlayer).getCivilizationShortDescription();
-			strBaseString += playerName + " VS. " + otherPlayerName;
-
-			strOutBuf.Format("Our war goal isn't PEACE!");
-
-			strBaseString += strOutBuf;
-			pLog->Msg(strBaseString);
-		}
-
-		return false;
-	}
-
-	// Want peace with a minor civ - do it right away!
-	if (GET_PLAYER(ePlayer).isMinorCiv())
-	{
-		if (GC.getLogging() && GC.getAILogging())
-		{
-			CvString strOutBuf;
-			CvString strBaseString;
-			CvString playerName;
-			CvString otherPlayerName;
-			CvString strLogName;
-
-			// Find the name of this civ and city
-			playerName = m_pPlayer->getCivilizationShortDescription();
-
-			// Open the log file
-			if (GC.getPlayerAndCityAILogSplit())
-			{
-				strLogName = "DiplomacyAI_Peace_Log" + playerName + ".csv";
-			}
-			else
-			{
-				strLogName = "DiplomacyAI_Peace_Log.csv";
-			}
-
-			FILogFile* pLog;
-			pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
-
-			// Get the leading info for this line
-			strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
-			otherPlayerName = GET_PLAYER(ePlayer).getCivilizationShortDescription();
-			strBaseString += playerName + " VS. " + otherPlayerName;
-
-			strOutBuf.Format("Our war goal with this minor is PEACE!");
-
-			strBaseString += strOutBuf;
-			pLog->Msg(strBaseString);
-		}
-
-		return true;
-	}
-
-	// Phony war - we want peace
-	if (IsPhonyWar(ePlayer) && iTheirDanger == 0)
-	{
-		if (GC.getLogging() && GC.getAILogging())
-		{
-			CvString strOutBuf;
-			CvString strBaseString;
-			CvString playerName;
-			CvString otherPlayerName;
-			CvString strLogName;
-
-			// Find the name of this civ and city
-			playerName = m_pPlayer->getCivilizationShortDescription();
-
-			// Open the log file
-			if (GC.getPlayerAndCityAILogSplit())
-			{
-				strLogName = "DiplomacyAI_Peace_Log" + playerName + ".csv";
-			}
-			else
-			{
-				strLogName = "DiplomacyAI_Peace_Log.csv";
-			}
-
-			FILogFile* pLog;
-			pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
-
-			// Get the leading info for this line
-			strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
-			otherPlayerName = GET_PLAYER(ePlayer).getCivilizationShortDescription();
-			strBaseString += playerName + " VS. " + otherPlayerName;
-
-			strOutBuf.Format("We don't care about this war!");
-
-			strBaseString += strOutBuf;
-			pLog->Msg(strBaseString);
-		}
-
-		return true;
-	}
-
-	bool bReadyForVassalage = false;
-	if (GET_PLAYER(ePlayer).isMajorCiv())
-	{
-		if (!IsCapitalCapturedBy(ePlayer, false, true) && !IsHolyCityCapturedBy(ePlayer, false, true) && !IsEndgameAggressiveTo(ePlayer) && iWarScore >= 90 && GET_TEAM(GET_PLAYER(ePlayer).getTeam()).canBecomeVassal(GetTeam()))
-		{
-			if (!(IsGoingForWorldConquest() || IsCloseToDominationVictory()) || GET_PLAYER(ePlayer).GetCapitalConqueror() != NO_PLAYER)
-			{
-				bReadyForVassalage = true;
-			}
-		}
-	}
-
-	// Ready to make this player our vassal - want peace
-	if (bReadyForVassalage)
-	{
-		if (GC.getLogging() && GC.getAILogging())
-		{
-			CvString strOutBuf;
-			CvString strBaseString;
-			CvString playerName;
-			CvString otherPlayerName;
-			CvString strLogName;
-
-			// Find the name of this civ and city
-			playerName = m_pPlayer->getCivilizationShortDescription();
-
-			// Open the log file
-			if (GC.getPlayerAndCityAILogSplit())
-			{
-				strLogName = "DiplomacyAI_Peace_Log" + playerName + ".csv";
-			}
-			else
-			{
-				strLogName = "DiplomacyAI_Peace_Log.csv";
-			}
-
-			FILogFile* pLog;
-			pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
-
-			// Get the leading info for this line
-			strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
-			otherPlayerName = GET_PLAYER(ePlayer).getCivilizationShortDescription();
-			strBaseString += playerName + " VS. " + otherPlayerName;
-
-			strOutBuf.Format("We're ready to vassalize this major civ!");
-
-			strBaseString += strOutBuf;
-			pLog->Msg(strBaseString);
-		}
-
-		return true;
-	}
-
-	int iWantPeace = 0;
-	int iRequestPeaceTurnThreshold = /*11*/ GC.getREQUEST_PEACE_TURN_THRESHOLD() - m_pPlayer->GetMilitaryAI()->GetNumberCivsAtWarWith(false);
-
-	// Danger considerations
-	int iOurMultiplier = 1;
-	int iTheirMultiplier = 1;
-
-	if (GetStateAllWars() != STATE_ALL_WARS_LOSING || GetWarState(ePlayer) == WAR_STATE_NEARLY_WON)
-	{
-		if (IsEasyTarget(ePlayer))
-		{
-			iOurMultiplier++;
-		}
-		if (GetPlayer()->GetMilitaryAI()->HavePreferredAttackTarget(ePlayer))
-		{
-			iOurMultiplier++;
-		}
-		if (GetWarState(ePlayer) == WAR_STATE_NEARLY_WON)
-		{
-			iOurMultiplier++;
-		}
-	}
-	if (GET_PLAYER(ePlayer).GetDiplomacyAI()->GetStateAllWars() != STATE_ALL_WARS_LOSING || GetWarState(ePlayer) == WAR_STATE_NEARLY_DEFEATED)
-	{
-		if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsEasyTarget(GetPlayer()->GetID()))
-		{
-			iTheirMultiplier++;
-		}
-		if (GetPlayer()->GetMilitaryAI()->IsExposedToEnemy(NULL, ePlayer))
-		{
-			iTheirMultiplier++;
-		}
-		if (GetWarState(ePlayer) == WAR_STATE_NEARLY_DEFEATED)
-		{
-			iTheirMultiplier++;
-		}
-	}
-
-	// They're in danger and we're not? Let's hold out longer!
-	if (iOurDanger == 0 && iTheirDanger > 0)
-	{
-		if (GetPlayer()->GetPlayerNumTurnsSinceCityCapture(ePlayer) < 30 || iOurMultiplier > 2 || bSeriousDangerThem)
-		{
-			iWantPeace -= (5 * iTheirDanger * iOurMultiplier);
-		}
-		else
-		{
-			iWantPeace -= (2 * iTheirDanger * iOurMultiplier);
-		}
-	}
-	// We're in danger and they're not? Let's hold out less!
-	else if (iOurDanger > 0 && iTheirDanger == 0)
-	{
-		if (iWarScore < -15 || iTheirMultiplier > 2 || bSeriousDangerUs)
-		{
-			iWantPeace += (5 * iOurDanger * iTheirMultiplier);
-		}
-		else
-		{
-			iWantPeace += (2 * iOurDanger * iTheirMultiplier);
-		}
-	}
-	// We're both in danger - how much?
-	else
-	{
-		iWantPeace -= (2 * iTheirDanger * iOurMultiplier);
-		iWantPeace += (2 * iOurDanger * iTheirMultiplier);
-	}
-
-	// Negative warscore means we're losing, so peace desire is higher!
-	if (iWarScore < 0)
-	{
-		iWantPeace += (iWarScore / -10);
-	}
-	// Positive warscore means we are winning - let's ride this out until we get a good peace deal.
-	else if (iWarScore > 0)
-	{
-		//If we get a bonus from high warscore, let's not end early!
-		if (m_pPlayer->GetPositiveWarScoreTourismMod() > 0 && GET_PLAYER(GetPlayer()->GetDiplomacyAI()->GetHighestWarscorePlayer()).getTeam() == GET_PLAYER(ePlayer).getTeam())
-		{
-			iWantPeace -= (iWarScore / 10);
-		}
-		else
-		{
-			iWantPeace += (iWarScore / 15);
-			//At 100? Let's end this (unless we can ride this out!
-			if (iWarScore == 100)
-				iWantPeace += 20;
-		}
-	}
-
-	int iWarWeariness = m_pPlayer->GetCulture()->GetWarWeariness();
-	iWantPeace += (iWarWeariness / 4);
-
-	if (iWarWeariness > 0 && m_pPlayer->IsEmpireUnhappy())
-	{
-		iWantPeace += (iWarWeariness / 3);
-	}
-
-	// If they're about to win the game, let's hold out for a lot longer.
-	if (IsEndgameAggressiveTo(ePlayer))
-	{
-		iWantPeace -= 20;
-	}
-
-	// Was a city recently captured?
-	if (GetPlayer()->GetPlayerNumTurnsSinceCityCapture(ePlayer) < 3 || GET_PLAYER(ePlayer).GetPlayerNumTurnsSinceCityCapture(GetID()) < 3)
-	{
-		iWantPeace -= 10;
-	}
-	else
-	{
-		// Lack of progress in war increases desire for peace (doubly so if far away).
-		if (GetPlayer()->GetProximityToPlayer(ePlayer) < PLAYER_PROXIMITY_CLOSE)
-		{
-			iWantPeace += max(0, (GetPlayer()->GetPlayerNumTurnsSinceCityCapture(ePlayer) * 2) - 12);
-		}
-		else
-		{
-			iWantPeace += max(0, GetPlayer()->GetPlayerNumTurnsSinceCityCapture(ePlayer) - 12);
-		}
-	}
-
-	switch (GetWarState(ePlayer))
-	{
-	case WAR_STATE_NEARLY_WON:
-		iWantPeace -= bReadyForVassalage ? 0 : 10 * iOurMultiplier;
-		break;
-	case WAR_STATE_OFFENSIVE:
-		iWantPeace -= 5 * iOurMultiplier;
-		break;
-	case WAR_STATE_CALM:
-		iWantPeace -= 2 * iOurMultiplier;
-		break;
-	case WAR_STATE_STALEMATE:
-		iWantPeace += 2 * iTheirMultiplier;
-		break;
-	case WAR_STATE_DEFENSIVE:
-		iWantPeace += 5 * iTheirMultiplier;
-		break;
-	case WAR_STATE_NEARLY_DEFEATED:
-		iWantPeace += 10 * iTheirMultiplier;
-		break;
-	}
-
-	iWantPeace += GetWantPeaceCounter(ePlayer);
-
-	if (GC.getLogging() && GC.getAILogging())
-	{
-		CvString strOutBuf;
-		CvString strBaseString;
-		CvString playerName;
-		CvString otherPlayerName;
-		CvString strLogName;
-
-		// Find the name of this civ and city
-		playerName = m_pPlayer->getCivilizationShortDescription();
-
-		// Open the log file
-		if (GC.getPlayerAndCityAILogSplit())
-		{
-			strLogName = "DiplomacyAI_Peace_Log" + playerName + ".csv";
-		}
-		else
-		{
-			strLogName = "DiplomacyAI_Peace_Log.csv";
-		}
-
-		FILogFile* pLog;
-		pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
-
-		// Get the leading info for this line
-		strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
-		otherPlayerName = GET_PLAYER(ePlayer).getCivilizationShortDescription();
-		strBaseString += playerName + " VS. " + otherPlayerName;
-
-		strOutBuf.Format(" Value Needed: %03d. Value Have: %03d.", iRequestPeaceTurnThreshold, iWantPeace);
-
-		strBaseString += strOutBuf;
-		pLog->Msg(strBaseString);
-	}
-
-	return (iWantPeace >= iRequestPeaceTurnThreshold);
 }
 
 //	-----------------------------------------------------------------------------------------------
@@ -14192,8 +13641,6 @@ void CvDiplomacyAI::DoReevaluatePlayers(vector<PlayerTypes>& vTargetPlayers, boo
 		GetPlayer()->cacheAvgGoldRate();
 		GetPlayer()->DoTestEmpireInBadShapeForWar();
 		DoUpdateEasyTargets();
-		DoUpdateWarGoals();
-		DoUpdatePeaceTreatyWillingness();
 		DoUpdateSaneDiplomaticTargets();
 	}
 
@@ -14218,6 +13665,9 @@ void CvDiplomacyAI::DoReevaluatePlayers(vector<PlayerTypes>& vTargetPlayers, boo
 
 	if (!vPlayersToReevaluate.empty())
 		DoUpdateMajorCivApproaches(vPlayersToReevaluate, /*bStrategic*/ false);
+
+	// Finally, we update peace treaty willingness
+	DoUpdatePeaceTreatyWillingness();
 }
 
 /// Updates our general Diplomatic Approach towards each major civilization we've met
@@ -15237,10 +14687,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 		// If we're planning a war (or want to wipe them off the planet) then add WAR bias so that we don't get away from it too easily
 		if (eOldApproach == CIV_APPROACH_WAR || IsWantsSneakAttack(ePlayer) || IsArmyInPlaceForAttack(ePlayer))
 		{
-			if (GetWarGoal(ePlayer) == WAR_GOAL_PREPARE || GetWarGoal(ePlayer) == WAR_GOAL_CONQUEST || IsWantsSneakAttack(ePlayer))
-			{
-				vApproachScores[CIV_APPROACH_WAR] += vApproachBias[CIV_APPROACH_WAR] * 4;
-			}
+			vApproachScores[CIV_APPROACH_WAR] += vApproachBias[CIV_APPROACH_WAR] * 4;
 
 			// Ready to attack?
 			if (IsArmyInPlaceForAttack(ePlayer))
@@ -15249,7 +14696,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 			}
 		}
 		// Same for demand
-		else if (GetWarGoal(ePlayer) == WAR_GOAL_DEMAND)
+		else if (GetDemandTargetPlayer() == ePlayer)
 		{
 			vApproachScores[(int)eOldApproach] += vApproachBias[(int)eOldApproach] * 4;
 		}
@@ -23613,7 +23060,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMinorCiv(PlayerTypes ePlayer, std::
 		{
 			if (GET_PLAYER(eLoopPlayer).isMajorCiv() && std::find(vGoodWarTargetMajors.begin(), vGoodWarTargetMajors.end(), eLoopPlayer) == vGoodWarTargetMajors.end())
 			{
-				if (IsAtWar(eLoopPlayer) || GetWarGoal(eLoopPlayer) == WAR_GOAL_PREPARE || IsWantsSneakAttack(eLoopPlayer) || IsArmyInPlaceForAttack(eLoopPlayer) || GetCivApproach(eLoopPlayer) == CIV_APPROACH_WAR)
+				if (IsAtWar(eLoopPlayer) || IsWantsSneakAttack(eLoopPlayer) || IsArmyInPlaceForAttack(eLoopPlayer) || GetCivApproach(eLoopPlayer) == CIV_APPROACH_WAR)
 				{
 					if (!IsPhonyWar(eLoopPlayer) && GetPlayer()->GetProximityToPlayer(eLoopPlayer) >= PLAYER_PROXIMITY_CLOSE)
 					{
@@ -23748,6 +23195,16 @@ void CvDiplomacyAI::SelectBestApproachTowardsMinorCiv(PlayerTypes ePlayer, std::
 	if (!GetPlayer()->IsNoNewWars())
 	{
 		vApproachScores[CIV_APPROACH_WAR] = 0;
+	}
+
+	// If we're already at war with this City-State and the war is going badly, abort!
+	if (IsAtWar(ePlayer))
+	{
+		if (GetWarState(ePlayer) <= WAR_STATE_DEFENSIVE || GetWarScore(ePlayer) <= -15)
+		{
+			vApproachScores[CIV_APPROACH_WAR] = 0;
+			vApproachScores[CIV_APPROACH_HOSTILE] = 0;
+		}
 	}
 
 	////////////////////////////////////
@@ -23937,7 +23394,6 @@ void CvDiplomacyAI::DoMakeWarOnPlayer(PlayerTypes eTargetPlayer)
 	//sometimes we cannot declare war
 	if (!IsPlayerValid(eTargetPlayer) || !GET_TEAM(GetTeam()).canDeclareWar(GET_PLAYER(eTargetPlayer).getTeam(), GetID()))
 	{
-		SetWarGoal(eTargetPlayer, NO_WAR_GOAL_TYPE);
 		SetWantsSneakAttack(eTargetPlayer, false);
 		SetArmyInPlaceForAttack(eTargetPlayer, false);
 
@@ -23964,7 +23420,7 @@ void CvDiplomacyAI::DoMakeWarOnPlayer(PlayerTypes eTargetPlayer)
 	// Major Civ
 	else
 	{
-		bWantToAttack = (GetCivApproach(eTargetPlayer) == CIV_APPROACH_WAR) && IsWarSane(eTargetPlayer);
+		bWantToAttack = GetCivApproach(eTargetPlayer) == CIV_APPROACH_WAR && IsWarSane(eTargetPlayer);
 		bWantShowOfForce = GetDemandTargetPlayer() == eTargetPlayer;
 
 		// Don't attack someone else's vassal unless we want to attack the master too
@@ -23999,8 +23455,6 @@ void CvDiplomacyAI::DoMakeWarOnPlayer(PlayerTypes eTargetPlayer)
 				pCurrentSneakAttackOperation->SetToAbort(AI_ABORT_DIPLO_OPINION_CHANGE);
 			}
 
-			SetWarGoal(eTargetPlayer, NO_WAR_GOAL_TYPE);
-
 			if (GET_PLAYER(eTargetPlayer).isMajorCiv() && GetCivApproach(eTargetPlayer) == CIV_APPROACH_WAR)
 				SetCivApproach(eTargetPlayer, GetHighestValueApproach(eTargetPlayer, true, true));
 		}
@@ -24013,8 +23467,6 @@ void CvDiplomacyAI::DoMakeWarOnPlayer(PlayerTypes eTargetPlayer)
 		//see if we can start a sneak attack
 		if (bWantToAttack)
 		{
-			SetWarGoal(eTargetPlayer, WAR_GOAL_PREPARE);
-
 			// Attack on minor
 			if (GET_PLAYER(eTargetPlayer).isMinorCiv())
 			{
@@ -24040,13 +23492,11 @@ void CvDiplomacyAI::DoMakeWarOnPlayer(PlayerTypes eTargetPlayer)
 		//we just want to scare them
 		else if (bWantShowOfForce)
 		{
-			SetWarGoal(eTargetPlayer, WAR_GOAL_DEMAND);
 			GetPlayer()->GetMilitaryAI()->RequestBullyingOperation(eTargetPlayer);
 		}
 		//we have no operation under way and we don't want to attack anyway
 		else
 		{
-			SetWarGoal(eTargetPlayer, NO_WAR_GOAL_TYPE);
 			SetWantsSneakAttack(eTargetPlayer, false);
 			SetArmyInPlaceForAttack(eTargetPlayer, false);
 
@@ -24194,23 +23644,6 @@ void CvDiplomacyAI::DoCounters()
 
 		if (GET_PLAYER(eLoopPlayer).isAlive())
 		{
-			// Want Peace Counter
-			if (IsAtWar(eLoopPlayer))
-			{
-				if (GetWarGoal(eLoopPlayer) == WAR_GOAL_PEACE)
-				{
-					ChangeWantPeaceCounter(eLoopPlayer, 1);
-				}
-				else
-				{
-					SetWantPeaceCounter(eLoopPlayer, 0);
-				}
-			}
-			else
-			{
-				SetWantPeaceCounter(eLoopPlayer, 0);
-			}
-
 			if (GET_PLAYER(eLoopPlayer).isMajorCiv())
 			{
 				// Diplo Statement Log Counter
@@ -24391,7 +23824,7 @@ void CvDiplomacyAI::DoUpdateDemands()
 			continue;
 
 		// If we're planning a war, don't make a demand of them...doesn't mesh well
-		if (GetWarGoal(ePlayer) != NO_WAR_GOAL_TYPE && GetWarGoal(ePlayer) != WAR_GOAL_DEMAND)
+		if (IsWantsSneakAttack(ePlayer) || IsArmyInPlaceForAttack(ePlayer))
 			continue;
 
 		// Have to be able to contact this player
@@ -24930,7 +24363,7 @@ bool CvDiplomacyAI::MusteringForNeighborAttack(PlayerTypes ePlayer) const
 
 		if (IsPlayerValid(eLoopPlayer) && GET_PLAYER(eLoopPlayer).isMajorCiv() && GET_PLAYER(eLoopPlayer).GetProximityToPlayer(ePlayer) == PLAYER_PROXIMITY_NEIGHBORS)
 		{
-			if (GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).isAtWar(m_pPlayer->getTeam()))
+			if (IsAtWar(eLoopPlayer))
 			{
 				return true;
 			}
@@ -24942,7 +24375,7 @@ bool CvDiplomacyAI::MusteringForNeighborAttack(PlayerTypes ePlayer) const
 			{
 				return true;
 			}
-			if (GetWarGoal(eLoopPlayer) == WAR_GOAL_PREPARE)
+			if (IsWantsSneakAttack(eLoopPlayer))
 			{
 				return true;
 			}
@@ -25185,63 +24618,6 @@ bool CvDiplomacyAI::IsOpenBordersExchangeAcceptable(PlayerTypes ePlayer)
 		return true;
 
 	return false;
-}
-
-// ************************************
-// Peace!
-// ************************************
-
-
-/// Make peace with vassals if we're not at war with the master
-void CvDiplomacyAI::DoMakePeaceWithVassals()
-{
-	for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
-	{
-		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
-
-		if (eLoopPlayer != NO_PLAYER && IsPlayerValid(eLoopPlayer))
-		{
-			if (IsAtWar(eLoopPlayer) && GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).IsVassalOfSomeone())
-			{
-				TeamTypes eMaster = GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).GetMaster();
-				if (eMaster != NO_TEAM && !GET_TEAM(GetTeam()).isAtWar(eMaster))
-				{
-					GET_TEAM(GetTeam()).makePeace(GET_PLAYER(eLoopPlayer).getTeam(), true, false, GetID());
-				}
-			}
-		}
-	}
-}
-
-/// Do we want to make peace with any Minors we're at war with?
-void CvDiplomacyAI::DoMakePeaceWithMinors()
-{
-	//we want to do this only once per turn
-	if (m_eDiploMode == DIPLO_SPECIFIC_PLAYER)
-		return;
-
-	for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
-	{
-		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
-
-		if (eLoopPlayer != NO_PLAYER && GET_PLAYER(eLoopPlayer).isMinorCiv() && IsAtWar(eLoopPlayer))
-		{
-			if (GetPlayer()->IsVassalOfSomeone())
-			{
-				TeamTypes eMaster = GET_TEAM(GetTeam()).GetMaster();
-				if (!GET_TEAM(eMaster).isAtWar(GET_PLAYER(eLoopPlayer).getTeam()))
-				{
-					GET_TEAM(GetTeam()).makePeace(GET_PLAYER(eLoopPlayer).getTeam(), true, false, GetID());
-					LogPeaceMade(eLoopPlayer);
-				}
-			}
-			else if (IsWantsPeaceWithPlayer(eLoopPlayer))
-			{
-				GET_TEAM(GetTeam()).makePeace(GET_PLAYER(eLoopPlayer).getTeam(), true, false, GetID());
-				LogPeaceMade(eLoopPlayer);
-			}
-		}
-	}
 }
 
 
@@ -35696,7 +35072,7 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 							break;
 						}
 						// If we're already planning a war/demand against them, then we don't care.
-						else if (GetCivApproach(*it) != CIV_APPROACH_WAR && GetWarGoal(*it) != WAR_GOAL_DEMAND)
+						else if (GetCivApproach(*it) != CIV_APPROACH_WAR && GetDemandTargetPlayer() != GET_PLAYER(*it).GetID())
 						{
 							// Bold AIs will take more risks.
 							if (GetBoldness() > 6 && GetPlayerMilitaryStrengthComparedToUs(*it) > STRENGTH_STRONG)
@@ -35948,7 +35324,7 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 									break;
 								}
 								// If we're already planning a war/demand against them, then we don't care.
-								else if (GetCivApproach(*it) != CIV_APPROACH_WAR && GetWarGoal(*it) != WAR_GOAL_DEMAND)
+								else if (GetCivApproach(*it) != CIV_APPROACH_WAR && GetDemandTargetPlayer() != GET_PLAYER(*it).GetID())
 								{
 									// Bold AIs will take more risks.
 									if (GetBoldness() > 6 && GetPlayerMilitaryStrengthComparedToUs(*it) > STRENGTH_STRONG)
@@ -36126,7 +35502,7 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 									break;
 								}
 								// If we're already planning a war/demand against them, then we don't care.
-								else if (GetCivApproach(*it) != CIV_APPROACH_WAR && GetWarGoal(*it) != WAR_GOAL_DEMAND)
+								else if (GetCivApproach(*it) != CIV_APPROACH_WAR && GetDemandTargetPlayer() != GET_PLAYER(*it).GetID())
 								{
 									// Bold AIs will take more risks.
 									if (GetBoldness() > 6 && GetPlayerMilitaryStrengthComparedToUs(*it) > STRENGTH_STRONG)
@@ -36590,7 +35966,7 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 								break;
 							}
 							// If we're already planning a war/demand against them, then we don't care.
-							else if (GetCivApproach(*it) != CIV_APPROACH_WAR && GetWarGoal(*it) != WAR_GOAL_DEMAND)
+							else if (GetCivApproach(*it) != CIV_APPROACH_WAR && GetDemandTargetPlayer() != GET_PLAYER(*it).GetID())
 							{
 								// Bold AIs will take more risks.
 								if (GetBoldness() > 6 && GetPlayerMilitaryStrengthComparedToUs(*it) > STRENGTH_STRONG)
@@ -36754,7 +36130,6 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 			{
 				SetCoopWarState(eFromPlayer, eTargetPlayer, COOP_WAR_STATE_PREPARING);
 				GET_PLAYER(eFromPlayer).GetDiplomacyAI()->SetCoopWarState(GetID(), eTargetPlayer, COOP_WAR_STATE_PREPARING);
-				SetWarGoal(eTargetPlayer, WAR_GOAL_PREPARE);
 			}
 			// Human agrees to war immediately
 			else
@@ -36762,7 +36137,6 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 				SetCoopWarState(eFromPlayer, eTargetPlayer, COOP_WAR_STATE_READY);
 				GET_PLAYER(eFromPlayer).GetDiplomacyAI()->SetCoopWarState(GetID(), eTargetPlayer, COOP_WAR_STATE_READY);
 				DoStartCoopWar(eFromPlayer, eTargetPlayer);
-				SetWarGoal(eTargetPlayer, WAR_GOAL_CONQUEST);
 			}
 
 			// Update approach to WAR
@@ -39467,29 +38841,8 @@ CoopWarStates CvDiplomacyAI::RespondToCoopWarRequest(PlayerTypes eAskingPlayer, 
 		// Update approach to WAR
 		SetCivApproach(eTargetPlayer, CIV_APPROACH_WAR);
 
-		if (eResponse == COOP_WAR_STATE_ONGOING)
-		{
-			SetWarGoal(eTargetPlayer, WAR_GOAL_CONQUEST);
-		}
-		else
-		{
-			SetWarGoal(eTargetPlayer, WAR_GOAL_PREPARE);
-		}
-
 		if (!GET_PLAYER(eAskingPlayer).isHuman())
-		{
-			// Update their approach to WAR
 			GET_PLAYER(eAskingPlayer).GetDiplomacyAI()->SetCivApproach(eAskingPlayer, CIV_APPROACH_WAR);
-
-			if (eResponse == COOP_WAR_STATE_ONGOING)
-			{
-				GET_PLAYER(eAskingPlayer).GetDiplomacyAI()->SetWarGoal(eTargetPlayer, WAR_GOAL_CONQUEST);
-			}
-			else
-			{
-				GET_PLAYER(eAskingPlayer).GetDiplomacyAI()->SetWarGoal(eTargetPlayer, WAR_GOAL_PREPARE);
-			}
-		}
 	}
 
 	return eResponse;
@@ -39510,8 +38863,7 @@ bool CvDiplomacyAI::IsCoopWarRequestUnacceptable(PlayerTypes eAskingPlayer, Play
 	CivOpinionTypes  eOpinionOfTarget = GetCivOpinion(eTargetPlayer);
 
 	// Do we want war against the target?
-	if (eApproachTowardsTarget == CIV_APPROACH_WAR || IsArmyInPlaceForAttack(eTargetPlayer) || IsWantsSneakAttack(eTargetPlayer) ||
-		GetWarGoal(eTargetPlayer) == WAR_GOAL_PREPARE || GetWarGoal(eTargetPlayer) == WAR_GOAL_DEMAND)
+	if (eApproachTowardsTarget == CIV_APPROACH_WAR || IsArmyInPlaceForAttack(eTargetPlayer) || IsWantsSneakAttack(eTargetPlayer) || GetDemandTargetPlayer() == eTargetPlayer)
 	{
 		return false;
 	}
@@ -39523,8 +38875,7 @@ bool CvDiplomacyAI::IsCoopWarRequestUnacceptable(PlayerTypes eAskingPlayer, Play
 	}
 
 	// Do we want war against the asker?
-	if (eApproachTowardsAsker == CIV_APPROACH_WAR || IsArmyInPlaceForAttack(eAskingPlayer) || IsWantsSneakAttack(eAskingPlayer) ||
-		GetWarGoal(eAskingPlayer) == WAR_GOAL_PREPARE || GetWarGoal(eAskingPlayer) == WAR_GOAL_DEMAND)
+	if (eApproachTowardsAsker == CIV_APPROACH_WAR || IsArmyInPlaceForAttack(eAskingPlayer) || IsWantsSneakAttack(eAskingPlayer) || GetDemandTargetPlayer() == eAskingPlayer)
 	{
 		return true;
 	}
@@ -41068,14 +40419,8 @@ bool CvDiplomacyAI::IsDenounceAcceptable(PlayerTypes ePlayer, bool bBias)
 		return false;
 
 	// Don't denounce if we're at war and want peace
-	if (IsAtWar(ePlayer))
-	{
-		if (GetWarGoal(ePlayer) == WAR_GOAL_PEACE)
-			return false;
-
-		if (IsWantsPeaceWithPlayer(ePlayer))
-			return false;
-	}
+	if (IsAtWar(ePlayer) && IsWantsPeaceWithPlayer(ePlayer))
+		return false;
 
 	// If we've already denounced, it's no good
 	if (IsDenouncedPlayer(ePlayer))
@@ -48307,7 +47652,6 @@ void CvDiplomacyAI::LogMajorCivApproachUpdate(PlayerTypes ePlayer, const int* ai
 		LogOpinion(strOutBuf, ePlayer);
 		LogWarmongerThreat(strOutBuf, ePlayer);
 		LogTargetValue(strOutBuf, ePlayer);
-		LogWarGoal(strOutBuf, ePlayer);
 		LogMilitaryAggressivePosture(strOutBuf, ePlayer);
 		LogProximity(strOutBuf, ePlayer);
 		LogLandDispute(strOutBuf, ePlayer);
@@ -48414,7 +47758,6 @@ void CvDiplomacyAI::LogMinorCivApproachUpdate(PlayerTypes ePlayer, const int* ai
 		}
 
 		LogTargetValue(strOutBuf, ePlayer);
-		LogWarGoal(strOutBuf, ePlayer);
 		LogMilitaryAggressivePosture(strOutBuf, ePlayer);
 		LogProximity(strOutBuf, ePlayer);
 		LogLandDispute(strOutBuf, ePlayer);
@@ -48888,11 +48231,11 @@ void CvDiplomacyAI::LogWarStatus()
 				{
 					bLogPlayer = true;
 				}
-				else if(GetWarState(eLoopPlayer) != NO_WAR_STATE_TYPE)
+				else if (GetWarState(eLoopPlayer) != NO_WAR_STATE_TYPE)
 				{
 					bLogPlayer = true;
 				}
-				else if(GetWarGoal(eLoopPlayer) != NO_WAR_GOAL_TYPE)
+				else if (IsWantsSneakAttack(eLoopPlayer))
 				{
 					bLogPlayer = true;
 				}
@@ -48959,7 +48302,6 @@ void CvDiplomacyAI::LogWarStatus()
 						strOutBuf += ", ";
 					}
 
-					LogWarGoal(strOutBuf, eLoopPlayer);
 					LogWarState(strOutBuf, eLoopPlayer);
 
 					LogWarPeaceWillingToOffer(strOutBuf, eLoopPlayer);
@@ -49474,43 +48816,6 @@ void CvDiplomacyAI::LogTargetValue(CvString& strString, PlayerTypes ePlayer)
 	strString += ", " + strTemp;
 }
 
-/// Log War Goal
-void CvDiplomacyAI::LogWarGoal(CvString& strString, PlayerTypes ePlayer)
-{
-	CvString strTemp;
-
-	// War Goal
-	switch(GetWarGoal(ePlayer))
-	{
-	case WAR_GOAL_DEMAND:
-		strTemp.Format("WGL Demand");
-		break;
-	case WAR_GOAL_PREPARE:
-		strTemp.Format("WGL Preparing");
-		break;
-	case WAR_GOAL_CONQUEST:
-		strTemp.Format("WGL Conquest");
-		break;
-	case WAR_GOAL_DAMAGE:
-		strTemp.Format("WGL Damage");
-		break;
-	case WAR_GOAL_PEACE:
-		strTemp.Format("WGL PEACE");
-		break;
-	default:
-		if(IsAtWar(ePlayer))
-		{
-			strTemp.Format("WGL Unknown");
-		}
-		else
-		{
-			strTemp.Format("WGL None");
-		}
-		break;
-	}
-	strString += ", " + strTemp;
-}
-
 /// Log Peace Treaty Willing to Offer
 void CvDiplomacyAI::LogWarPeaceWillingToOffer(CvString& strString, PlayerTypes ePlayer)
 {
@@ -49628,7 +48933,7 @@ void CvDiplomacyAI::LogWarState(CvString& strString, PlayerTypes ePlayer)
 	bool bShowOperationProgress = false;
 
 	// Log progress towards Sneak Attack Operation launch if we're not yet at war
-	if(GetWarGoal(ePlayer) == WAR_GOAL_PREPARE)
+	if (IsWantsSneakAttack(ePlayer))
 	{
 		CvAIOperation* pOperation = GetPlayer()->getFirstOffensiveAIOperation(ePlayer);
 
@@ -49648,7 +48953,7 @@ void CvDiplomacyAI::LogWarState(CvString& strString, PlayerTypes ePlayer)
 		}
 	}
 	// Preparing a demand?
-	if(GetWarGoal(ePlayer) == WAR_GOAL_DEMAND)
+	if (GetDemandTargetPlayer() == ePlayer)
 	{
 		CvAIOperation* pOperation = GetPlayer()->getFirstOffensiveAIOperation(ePlayer);
 
@@ -53091,7 +52396,7 @@ bool CvDiplomacyAI::IsVoluntaryVassalageRequestAcceptable(PlayerTypes ePlayer)
 		{
 			if (GetCivApproach(*it) == CIV_APPROACH_AFRAID)
 				return false;
-			else if (GetCivApproach(*it) != CIV_APPROACH_WAR && GetWarGoal(*it) != WAR_GOAL_DEMAND)
+			else if (GetCivApproach(*it) != CIV_APPROACH_WAR && GetDemandTargetPlayer() != GET_PLAYER(*it).GetID())
 			{
 				if (GetBoldness() > 6 || bWeLikeOneOfThem)
 				{
@@ -55543,7 +54848,7 @@ MoveTroopsResponseTypes CvDiplomacyAI::GetMoveTroopsRequestResponse(PlayerTypes 
 	}
 
 	// Final sanity check, if we're not planning war then don't go to war!
-	if(GetWarGoal(ePlayer) == NO_WAR_GOAL_TYPE)
+	if (!IsWantsSneakAttack(ePlayer) && GetDemandTargetPlayer() != ePlayer)
 	{
 		if (eResponse == MOVE_TROOPS_RESPONSE_REFUSE)
 			eResponse = MOVE_TROOPS_RESPONSE_NEUTRAL;
