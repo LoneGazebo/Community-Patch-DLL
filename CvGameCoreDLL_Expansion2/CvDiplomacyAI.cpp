@@ -27809,43 +27809,33 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 
 			if(eMessageType != NUM_DIPLO_MESSAGE_TYPES)
 			{
-				if (m_pPlayer->GetDiplomacyAI()->GetDealToRenew(ePlayer) != NULL)
-				{
-					// make the deal not remove resources when processed
-					CvGameDeals::PrepareRenewDeal(m_pPlayer->GetDiplomacyAI()->GetDealToRenew(ePlayer), pDeal);
-					szText = GetDiploStringForMessage(eMessageType);
-					CvDiplomacyRequests::SendDealRequest(GetID(), ePlayer, pDeal, DIPLO_UI_STATE_TRADE_AI_MAKES_OFFER, szText, LEADERHEAD_ANIM_REQUEST);
-				}
-				else
-					CancelRenewDeal(ePlayer, REASON_NO_DEAL);
+				CvDeal kDeal = *pDeal;
+				CvGameDeals::PrepareRenewDeal(&kDeal);
+				szText = GetDiploStringForMessage(eMessageType);
+				CvDiplomacyRequests::SendDealRequest(GetID(), ePlayer, &kDeal, DIPLO_UI_STATE_TRADE_AI_MAKES_OFFER, szText, LEADERHEAD_ANIM_REQUEST);
 			}
 			else
 			{
-				CancelRenewDeal(ePlayer, REASON_CANNOT_COMPROMISE);
+				CvDeal kDeal = *pDeal;
+				CancelRenewDeal(ePlayer, REASON_CANNOT_COMPROMISE, false, &kDeal);
 			}
 		}
 		// Offer to an AI player
 		else
 		{
 			CvDeal kDeal = *pDeal;
-			CvDeal* pRenewedDeal = m_pPlayer->GetDiplomacyAI()->GetDealToRenew(ePlayer);
-			if(pRenewedDeal)
-			{
-				CvGameDeals::PrepareRenewDeal(m_pPlayer->GetDiplomacyAI()->GetDealToRenew(ePlayer), &kDeal);
+			CvGameDeals::PrepareRenewDeal(&kDeal);
 
-				if (GC.getGame().isReallyNetworkMultiPlayer() && MOD_ACTIVE_DIPLOMACY)
-				{
-					GC.getGame().GetGameDeals().FinalizeMPDeal(kDeal, true);
-				}
-				else
-				{
-					// Don't need to call DoOffer because we check to see if the deal works for both sides BEFORE sending
-					GC.getGame().GetGameDeals().AddProposedDeal(kDeal);
-					GC.getGame().GetGameDeals().FinalizeDeal(GetID(), ePlayer, true);
-				}
+			if (GC.getGame().isReallyNetworkMultiPlayer() && MOD_ACTIVE_DIPLOMACY)
+			{
+				GC.getGame().GetGameDeals().FinalizeMPDeal(kDeal, true);
 			}
 			else
-				CancelRenewDeal(ePlayer, REASON_NO_DEAL);
+			{
+				// Don't need to call DoOffer because we check to see if the deal works for both sides BEFORE sending
+				GC.getGame().GetGameDeals().AddProposedDeal(kDeal);
+				GC.getGame().GetGameDeals().FinalizeDeal(GetID(), ePlayer, true);
+			}
 		}
 	}
 
@@ -29126,6 +29116,7 @@ void CvDiplomacyAI::DoContactPlayer(PlayerTypes ePlayer)
 
 	// Note that the order in which the following functions are called is very important to how the AI behaves - first come, first served
 
+	std::vector<CvDeal*> renewDeals;
 	// AT PEACE
 	if (!IsAtWar(ePlayer))
 	{
@@ -29137,7 +29128,7 @@ void CvDiplomacyAI::DoContactPlayer(PlayerTypes ePlayer)
 
 		//DoCoopWarTimeStatement(ePlayer, eStatement, iData1);
 		DoCoopWarStatement(ePlayer, eStatement, iData1);
-		DoRenewExpiredDeal(ePlayer, eStatement, pDeal);
+		renewDeals = DoRenewExpiredDeal(ePlayer, eStatement);
 
 		// Some things we don't say to teammates
 		if (GetTeam() != GET_PLAYER(ePlayer).getTeam())
@@ -29300,8 +29291,19 @@ void CvDiplomacyAI::DoContactPlayer(PlayerTypes ePlayer)
 		{
 			LogStatementToPlayer(ePlayer, eStatement);
 
-			DoSendStatementToPlayer(ePlayer, eStatement, iData1, pDeal);
-			DoAddNewStatementToDiploLog(ePlayer, eStatement);
+			if (renewDeals.size() > 0)
+			{
+				for (uint i = 0; i < renewDeals.size(); i++)
+				{
+					DoSendStatementToPlayer(ePlayer, eStatement, iData1, renewDeals[i]);
+					DoAddNewStatementToDiploLog(ePlayer, eStatement);
+				}
+			}
+			else
+			{
+				DoSendStatementToPlayer(ePlayer, eStatement, iData1, pDeal);
+				DoAddNewStatementToDiploLog(ePlayer, eStatement);
+			}
 		}
 	}
 }
@@ -31767,133 +31769,122 @@ void CvDiplomacyAI::DoVoteTrade(PlayerTypes ePlayer, DiploStatementTypes& eState
 }
 
 /// Possible Contact Statement - Renew Recently Expired Deal
-void CvDiplomacyAI::DoRenewExpiredDeal(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal)
+std::vector<CvDeal*> CvDiplomacyAI::DoRenewExpiredDeal(PlayerTypes ePlayer, DiploStatementTypes& eStatement)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 
-	if (GET_PLAYER(ePlayer).isHuman() && GC.getGame().IsTradeOffersDisabled())
-		return;
+	CvGameDeals& kGameDeals = GC.getGame().GetGameDeals();
 
-	if(eStatement == NO_DIPLO_STATEMENT_TYPE)
+	std::vector<CvDeal*> renewDeals = kGameDeals.GetRenewableDealsWithPlayer(ePlayer, GetID(), 10);
+
+	//no valid deals?
+	if (renewDeals.size() <= 0)
+		return renewDeals;
+
+	if (eStatement != NO_DIPLO_STATEMENT_TYPE)
 	{
-		if (IsAvoidDeals())
+		CancelRenewDeal(ePlayer, REASON_NO_DEAL);
+		return renewDeals;
+	}
+
+	if (GET_PLAYER(ePlayer).isHuman() && GC.getGame().IsTradeOffersDisabled())
+	{
+		CancelRenewDeal(ePlayer, REASON_NO_DEAL);
+		return renewDeals;
+	}
+
+	if (IsAvoidDeals())
+	{
+		CancelRenewDeal(ePlayer, REASON_CANNOT_COMPROMISE);
+		return renewDeals;
+	}
+
+	std::vector<CvDeal*> badDeals;
+	for (uint iDeal = 0; iDeal < renewDeals.size(); iDeal++)
+	{
+		CvDeal* pCurrentDeal = renewDeals[iDeal];
+
+		// if this deal is a gift or peace deal, move on.
+		if (pCurrentDeal->m_bIsGift || pCurrentDeal->IsPeaceTreatyTrade(ePlayer) || pCurrentDeal->IsPeaceTreatyTrade(GetID()))
 		{
-			CancelRenewDeal(ePlayer, REASON_CANNOT_COMPROMISE);
-			return;
+			//shouldn't happen but it might.
+			badDeals.push_back(pCurrentDeal);
+			continue;
 		}
 
-		CvDeal* pTargetDeal = NULL;
-		CvGameDeals& kGameDeals = GC.getGame().GetGameDeals();
+		// if the deal can be fully renewed
+		TradedItemList::iterator it;
+		CvDeal kTempDeal;
 
-		int iNumDeals = kGameDeals.GetRenewableDealsWithPlayer(ePlayer, GetID(), 10);
-
-		//no valid deals?
-		if (iNumDeals <= 0)
+		for(it = pCurrentDeal->m_TradedItems.begin(); it != pCurrentDeal->m_TradedItems.end(); ++it)
 		{
-			return;
-		}
-
-		for(int iDeal = 0; iDeal < iNumDeals; iDeal++)
-		{
-			CvDeal* pCurrentDeal = kGameDeals.GetRenewableDealWithPlayer(ePlayer, GetID(), iDeal);
-
-			//this is not good.
-			if (!pCurrentDeal)
-				continue;
-
-			// if this deal is a gift or peace deal, move on.
-			if (pCurrentDeal->m_bIsGift || pCurrentDeal->IsPeaceTreatyTrade(ePlayer) || pCurrentDeal->IsPeaceTreatyTrade(GetID()))
+			PlayerTypes eOtherPlayer;
+			if (it->m_eFromPlayer == pCurrentDeal->m_eFromPlayer)
 			{
-				//shouldn't happen but it might.
-				continue;
-			}
-
-			// if the deal can be fully renewed
-			TradedItemList::iterator it;
-			CvDeal kTempDeal;
-
-			for(it = pCurrentDeal->m_TradedItems.begin(); it != pCurrentDeal->m_TradedItems.end(); ++it)
-			{
-				PlayerTypes eOtherPlayer;
-				if (it->m_eFromPlayer == pCurrentDeal->m_eFromPlayer)
-				{
-					eOtherPlayer = pCurrentDeal->m_eToPlayer;
-				}
-				else
-				{
-					eOtherPlayer = pCurrentDeal->m_eFromPlayer;
-				}
-
-				//exclude items that can't be renewed:
-				if (it->m_eItemType ==
-					TRADE_ITEM_GOLD ||
-					TRADE_ITEM_GOLD_PER_TURN ||
-					TRADE_ITEM_RESOURCES ||
-					TRADE_ITEM_OPEN_BORDERS ||
-					TRADE_ITEM_ALLOW_EMBASSY ||
-					TRADE_ITEM_DEFENSIVE_PACT)
-					continue;
-				
-				//otherwise remove it.
-				pCurrentDeal->RemoveByType(it->m_eItemType, it->m_eFromPlayer);
-				
-			}
-
-			//we emptied the deal? whoops.
-			if (pCurrentDeal->GetNumItems() <= 0)
-			{
-				continue;
-			}
-
-			//We are considering the deal? Cool.
-			pTargetDeal = pCurrentDeal;
-			break;
-		}
-
-		if (pTargetDeal)
-		{
-			// copy the target deal into the new deal
-			*pDeal = *pTargetDeal;
-
-			//Set as considered for renewal.
-			pDeal->m_iFinalTurn = -1;
-			
-			int iValue = m_pPlayer->GetDealAI()->GetDealValue(pTargetDeal);
-			if (iValue != INT_MAX)
-			{
-				bool bAbleToEqualize = false;
-				if (!GET_PLAYER(ePlayer).isHuman())
-				{
-					bAbleToEqualize = m_pPlayer->GetDealAI()->DoEqualizeDealWithAI(pDeal, ePlayer);
-				}
-				else
-					bAbleToEqualize = true;
-
-				if (!bAbleToEqualize)
-				{
-					CancelRenewDeal(ePlayer, REASON_CANNOT_COMPROMISE);
-					pDeal->ClearItems();
-					return;
-				}
-				else
-					eStatement = DIPLO_STATEMENT_RENEW_DEAL;
+				eOtherPlayer = pCurrentDeal->m_eToPlayer;
 			}
 			else
 			{
-				CancelRenewDeal(ePlayer, REASON_NO_GPT);
-				pDeal->ClearItems();
-				return;
+				eOtherPlayer = pCurrentDeal->m_eFromPlayer;
 			}
+
+			//exclude items that can't be renewed:
+			if (it->m_eItemType ==
+				TRADE_ITEM_GOLD ||
+				TRADE_ITEM_GOLD_PER_TURN ||
+				TRADE_ITEM_RESOURCES ||
+				TRADE_ITEM_OPEN_BORDERS ||
+				TRADE_ITEM_ALLOW_EMBASSY ||
+				TRADE_ITEM_DEFENSIVE_PACT)
+				continue;
+				
+			//otherwise remove it.
+			pCurrentDeal->RemoveByType(it->m_eItemType, it->m_eFromPlayer);
+				
+		}
+
+		//we emptied the deal? whoops.
+		if (pCurrentDeal->GetNumItems() <= 0)
+		{
+			badDeals.push_back(pCurrentDeal);
+			continue;
+		}
+
+		//Set as considered for renewal.
+		pCurrentDeal->m_iFinalTurn = -1;
+			
+		int iValue = m_pPlayer->GetDealAI()->GetDealValue(pCurrentDeal);
+		if (iValue != INT_MAX)
+		{
+			bool bAbleToEqualize = false;
+			if (!GET_PLAYER(ePlayer).isHuman())
+			{
+				bAbleToEqualize = m_pPlayer->GetDealAI()->DoEqualizeDealWithAI(pCurrentDeal, ePlayer);
+			}
+			else
+				bAbleToEqualize = true;
+
+			if (!bAbleToEqualize)
+			{
+				badDeals.push_back(pCurrentDeal);
+				continue;
+			}
+			else
+				eStatement = DIPLO_STATEMENT_RENEW_DEAL;
 		}
 		else
 		{
-			CancelRenewDeal(ePlayer, REASON_NO_DEAL);
-			pDeal->ClearItems();
+			badDeals.push_back(pCurrentDeal);
+			continue;
 		}
 	}
-	else
-		CancelRenewDeal(ePlayer, REASON_NO_DEAL);
+	for (uint iDeal = 0; iDeal < badDeals.size(); iDeal++)
+	{
+		CancelRenewDeal(ePlayer, REASON_CANNOT_COMPROMISE, false, badDeals[iDeal]);
+	}
+
+	return renewDeals;
 }
 
 /// Possible Contact Statement - Request Help
@@ -46728,27 +46719,16 @@ void CvDiplomacyAI::LogMinorCivBuyout(PlayerTypes eMinor, int iGoldPaid, bool bS
 }
 
 /// Deal to renew
-CvDeal* CvDiplomacyAI::GetDealToRenew(PlayerTypes eOtherPlayer)
+std::vector<CvDeal*> CvDiplomacyAI::GetDealsToRenew(PlayerTypes eOtherPlayer)
 {
-	if (GetPlayer()->isHuman())
-		return NULL;
+	std::vector<CvDeal*> renewDeals;
 
-	CvDeal* pTargetDeal = NULL;
+	if (GetPlayer()->isHuman())
+		return renewDeals;
+
 	CvGameDeals& kGameDeals = GC.getGame().GetGameDeals();
 
-	int iNumDeals = kGameDeals.GetRenewableDealsWithPlayer(m_pPlayer->GetID(), eOtherPlayer);
-
-	for(int iDeal = 0; iDeal < iNumDeals; iDeal++)
-	{
-		 CvDeal* pCurrentDeal = kGameDeals.GetRenewableDealWithPlayer(m_pPlayer->GetID(), eOtherPlayer, iDeal);
-
-		if (pCurrentDeal->m_bConsideringForRenewal)
-		{
-			return pCurrentDeal;
-		}
-	}
-
-	return pTargetDeal;
+	return kGameDeals.GetRenewableDealsWithPlayer(eOtherPlayer, GetID(), 50);
 }
 
 void CvDiplomacyAI::CleanupRenewDeals(PlayerTypes eOtherPlayer)
@@ -46758,13 +46738,13 @@ void CvDiplomacyAI::CleanupRenewDeals(PlayerTypes eOtherPlayer)
 
 	CvGameDeals& kGameDeals = GC.getGame().GetGameDeals();
 
-	int iNumDeals = kGameDeals.GetRenewableDealsWithPlayer(m_pPlayer->GetID(), eOtherPlayer);
+	std::vector<CvDeal*> renewDeals = kGameDeals.GetRenewableDealsWithPlayer(m_pPlayer->GetID(), eOtherPlayer, 10);
 
 	CvDeal* pBestDeal = NULL;
 	int iBestValue = 0;
-	for (int iDeal = 0; iDeal < iNumDeals; iDeal++)
+	for (uint iDeal = 0; iDeal < renewDeals.size(); iDeal++)
 	{
-		CvDeal* pCurrentDeal = kGameDeals.GetRenewableDealWithPlayer(m_pPlayer->GetID(), eOtherPlayer, iDeal);
+		CvDeal* pCurrentDeal = renewDeals[iDeal];
 
 		if (!pCurrentDeal->m_bConsideringForRenewal)
 			continue;
@@ -46777,9 +46757,9 @@ void CvDiplomacyAI::CleanupRenewDeals(PlayerTypes eOtherPlayer)
 		}
 	}
 	std::vector<CvDeal*>dealsToCancel;
-	for (int iDeal = 0; iDeal < iNumDeals; iDeal++)
+	for (uint iDeal = 0; iDeal < renewDeals.size(); iDeal++)
 	{
-		CvDeal* pCurrentDeal = kGameDeals.GetRenewableDealWithPlayer(m_pPlayer->GetID(), eOtherPlayer, iDeal);
+		CvDeal* pCurrentDeal = renewDeals[iDeal];
 		if (pBestDeal == pCurrentDeal)
 			continue;
 		if (pCurrentDeal == NULL)
@@ -46789,11 +46769,18 @@ void CvDiplomacyAI::CleanupRenewDeals(PlayerTypes eOtherPlayer)
 	}
 	if (dealsToCancel.size() > 0)
 	{
-		for (int i = 0; i < dealsToCancel.size(); i++)
+		for (uint i = 0; i < dealsToCancel.size(); i++)
 		{
-			//we only want one deal per player.
-			dealsToCancel[i]->m_bConsideringForRenewal = false;
-			CancelRenewDeal(eOtherPlayer, REASON_BETTER_RENEAL_CHOICE, false, dealsToCancel[i]);
+			if (GET_PLAYER(eOtherPlayer).isHuman())
+			{
+				CvString szText = GetDiploStringForMessage(DIPLO_MESSAGE_RENEW_DEAL);
+				CvDiplomacyRequests::SendDealRequest(GetID(), eOtherPlayer, dealsToCancel[i], DIPLO_UI_STATE_TRADE_AI_MAKES_OFFER, szText, LEADERHEAD_ANIM_REQUEST);
+			}
+			else
+			{
+				dealsToCancel[i]->m_bConsideringForRenewal = false;
+				CancelRenewDeal(eOtherPlayer, REASON_BETTER_RENEAL_CHOICE, false, dealsToCancel[i]);
+			}
 		}
 	}
 }
@@ -46804,93 +46791,105 @@ void CvDiplomacyAI::CancelRenewDeal(PlayerTypes eOtherPlayer, RenewalReason eRea
 	if (GetPlayer()->isHuman())
 		return;
 
-	CvDeal* pRenewalDeal = pPassDeal != NULL ? pPassDeal : GetDealToRenew(eOtherPlayer);
+	std::vector<CvDeal*> pRenewalDeals;
+	if (pPassDeal != NULL)
+	{
+		pRenewalDeals.push_back(pPassDeal);
+	}
+	else
+	{
+		pRenewalDeals = GetDealsToRenew(eOtherPlayer);
+	}
 
-	if (!pRenewalDeal)
+	if (pRenewalDeals.size() <= 0)
 		return;
 
-	if (!bJustLogging)
+	for (uint i = 0; i < pRenewalDeals.size(); i++)
 	{
-		TradedItemList::iterator itemIter;
-		for (itemIter = pRenewalDeal->m_TradedItems.begin(); itemIter != pRenewalDeal->m_TradedItems.end(); ++itemIter)
+		CvDeal* pRenewalDeal = pRenewalDeals[i];
+		if (!bJustLogging)
 		{
-			//OutputDebugString("Cleared item from expired renewal deal \n");
-			//If we checked for renewal, we don't need to remove items, as we already did it.
-			GC.getGame().GetGameDeals().DoEndTradedItem(&*itemIter, pRenewalDeal->GetOtherPlayer(itemIter->m_eFromPlayer), false, pRenewalDeal->m_bCheckedForRenewal);
+			TradedItemList::iterator itemIter;
+			for (itemIter = pRenewalDeal->m_TradedItems.begin(); itemIter != pRenewalDeal->m_TradedItems.end(); ++itemIter)
+			{
+				//OutputDebugString("Cleared item from expired renewal deal \n");
+				//If we checked for renewal, we don't need to remove items, as we already did it.
+				GC.getGame().GetGameDeals().DoEndTradedItem(&*itemIter, pRenewalDeal->GetOtherPlayer(itemIter->m_eFromPlayer), false, pRenewalDeal->m_bCheckedForRenewal);
+			}
 		}
-	}
-	pRenewalDeal->m_bConsideringForRenewal = false;
-
-	//log it for me bby
-	if (GC.getLogging() && GC.getAILogging())
-	{
-		CvString strOutBuf;
-		CvString strBaseString;
-		CvString playerName;
-		CvString otherPlayerName;
-		CvString strDesc;
-		CvString strLogName;
-
-		// Find the name of this civ and city
-		playerName = GetPlayer()->getCivilizationShortDescription();
-
-		// Open the log file
-		if (GC.getPlayerAndCityAILogSplit())
+		pRenewalDeal->m_bConsideringForRenewal = false;
+		//log it for me bby
+		if (GC.getLogging() && GC.getAILogging())
 		{
-			strLogName = "DiplomacyAI_TradeAgreements_Log_" + playerName + ".csv";
+			CvString strOutBuf;
+			CvString strBaseString;
+			CvString playerName;
+			CvString otherPlayerName;
+			CvString strDesc;
+			CvString strLogName;
+
+			// Find the name of this civ and city
+			playerName = GetPlayer()->getCivilizationShortDescription();
+
+			// Open the log file
+			if (GC.getPlayerAndCityAILogSplit())
+			{
+				strLogName = "DiplomacyAI_TradeAgreements_Log_" + playerName + ".csv";
+			}
+			else
+			{
+				strLogName = "DiplomacyAI_TradeAgreements_Log.csv";
+			}
+
+			FILogFile* pLog;
+			pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
+
+			// Get the leading info for this line
+			strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
+			strBaseString += playerName + ", ";
+
+			otherPlayerName = GET_PLAYER(eOtherPlayer).getCivilizationShortDescription();
+			strOutBuf = strBaseString + ", * TRADE RENEWAL CANCELED*, " + otherPlayerName;
+
+			TradedItemList::iterator itemIter;
+			for (itemIter = pRenewalDeal->m_TradedItems.begin(); itemIter != pRenewalDeal->m_TradedItems.end(); ++itemIter)
+			{
+				CvString strItems;
+				strItems.Format(",ItemType: %d, ", (int)itemIter->m_eItemType);
+				strOutBuf += strItems;
+			}
+
+			CvString strReason;
+			switch (eReason)
+			{
+			case NO_REASON:
+				strReason.Format(",REASON: No Reason Given");
+				strOutBuf += strReason;
+				break;
+			case REASON_NO_GPT:
+				strReason.Format(",REASON: Invalid Items");
+				strOutBuf += strReason;
+				break;
+			case REASON_NO_DEAL:
+				strReason.Format(",REASON: No Deal Found");
+				strOutBuf += strReason;
+				break;
+			case REASON_CANNOT_COMPROMISE:
+				strReason.Format(",REASON: Cannot Re-negotiate with AI");
+				strOutBuf += strReason;
+				break;
+			case REASON_HUMAN_REJECTION:
+				strReason.Format(",REASON: Human Rejection");
+				strOutBuf += strReason;
+				break;
+			case REASON_BETTER_RENEAL_CHOICE:
+				strReason.Format(",REASON: Bette Renewal Choice");
+				strOutBuf += strReason;
+				break;
+			}
+			pLog->Msg(strOutBuf);
 		}
-		else
-		{
-			strLogName = "DiplomacyAI_TradeAgreements_Log.csv";
-		}
-
-		FILogFile* pLog;
-		pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
-
-		// Get the leading info for this line
-		strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
-		strBaseString += playerName + ", ";
-
-		otherPlayerName = GET_PLAYER(eOtherPlayer).getCivilizationShortDescription();
-		strOutBuf = strBaseString + ", * TRADE RENEWAL CANCELED*, " + otherPlayerName;
-
-		TradedItemList::iterator itemIter;
-		for (itemIter = pRenewalDeal->m_TradedItems.begin(); itemIter != pRenewalDeal->m_TradedItems.end(); ++itemIter)
-		{
-			CvString strItems;
-			strItems.Format(",ItemType: %d, ", (int)itemIter->m_eItemType);
-			strOutBuf += strItems;
-		}
-
-		CvString strReason;
-		switch (eReason)
-		{
-		case NO_REASON:
-			strReason.Format(",REASON: No Reason Given");
-			strOutBuf += strReason;
-			break;
-		case REASON_NO_GPT:
-			strReason.Format(",REASON: Invalid Items");
-			strOutBuf += strReason;
-			break;
-		case REASON_NO_DEAL:
-			strReason.Format(",REASON: No Deal Found");
-			strOutBuf += strReason;
-			break;
-		case REASON_CANNOT_COMPROMISE:
-			strReason.Format(",REASON: Cannot Re-negotiate with AI");
-			strOutBuf += strReason;
-			break;
-		case REASON_HUMAN_REJECTION:
-			strReason.Format(",REASON: Human Rejection");
-			strOutBuf += strReason;
-			break;
-		case REASON_BETTER_RENEAL_CHOICE:
-			strReason.Format(",REASON: Bette Renewal Choice");
-			strOutBuf += strReason;
-			break;
-		}
-		pLog->Msg(strOutBuf);
+		pRenewalDeal->ClearItems();
 	}
 }
 

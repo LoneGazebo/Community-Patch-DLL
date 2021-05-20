@@ -1335,7 +1335,7 @@ public:
 	void DoThirdPartyWarTrade(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal);
 	void DoThirdPartyPeaceTrade(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal);
 	void DoVoteTrade(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal);
-	void DoRenewExpiredDeal(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal);
+	std::vector<CvDeal*> DoRenewExpiredDeal(PlayerTypes ePlayer, DiploStatementTypes& eStatement);
 
 	void DoRequest(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal);
 	void DoGift(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal);
@@ -1734,7 +1734,7 @@ public:
 	void LogMinorCivQuestCancelled(PlayerTypes eMinor, int iOldFriendshipTimes100, int iNewFriendshipTimes100, MinorCivQuestTypes eType);
 	void LogMinorCivBuyout(PlayerTypes eMinor, int iGoldPaid, bool bSaving);
 
-	CvDeal* GetDealToRenew(PlayerTypes eOtherPlayer = NO_PLAYER);
+	std::vector<CvDeal*> GetDealsToRenew(PlayerTypes eOtherPlayer = NO_PLAYER);
 	void CleanupRenewDeals(PlayerTypes eOtherPlayer);
 	void CancelRenewDeal(PlayerTypes eOtherPlayer = NO_PLAYER, RenewalReason eReason = NO_REASON, bool bJustLogging = false, CvDeal* pPassDeal = NULL);
 

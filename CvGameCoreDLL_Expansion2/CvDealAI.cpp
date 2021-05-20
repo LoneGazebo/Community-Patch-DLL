@@ -1478,7 +1478,7 @@ int CvDealAI::GetLuxuryResourceValue(ResourceTypes eResource, int iNumTurns, boo
 	if (iNumTurns <= 0)
 		iNumTurns = 1;
 
-	CvDeal* pRenewDeal = GetPlayer()->GetDiplomacyAI()->GetDealToRenew(eOtherPlayer);
+	std::vector<CvDeal*> pRenewDeals = GetPlayer()->GetDiplomacyAI()->GetDealsToRenew(eOtherPlayer);
 
 	//how much happiness from one additional luxury?
 	int iBaseHappiness = 0;
@@ -1528,8 +1528,13 @@ int CvDealAI::GetLuxuryResourceValue(ResourceTypes eResource, int iNumTurns, boo
 	{
 		int iNumAvailable = GetPlayer()->getNumResourceTotal(eResource);
 
-		if (pRenewDeal)
-			iNumAvailable += pRenewDeal->GetNumResourcesInDeal(GetPlayer()->GetID(), eResource);
+		if (pRenewDeals.size() > 0)
+		{
+			for (uint i = 0; i < pRenewDeals.size(); i++)
+			{
+				iNumAvailable += pRenewDeals[i]->GetNumResourcesInDeal(GetPlayer()->GetID(), eResource);
+			}
+		}
 
 		if (GetPlayer()->IsEmpireUnhappy() && iNumAvailable == 1)
 		{
@@ -1611,8 +1616,13 @@ int CvDealAI::GetLuxuryResourceValue(ResourceTypes eResource, int iNumTurns, boo
 	else
 	{
 		int iNumAvailable = GetPlayer()->getNumResourceTotal(eResource);
-		if (pRenewDeal)
-			iNumAvailable -= pRenewDeal->GetNumResourcesInDeal(eOtherPlayer, eResource);
+
+		for (uint i = 0; i < pRenewDeals.size(); i++)
+		{
+			CvDeal* pRenewDeal = pRenewDeals[i];
+			if (pRenewDeal)
+				iNumAvailable -= pRenewDeal->GetNumResourcesInDeal(eOtherPlayer, eResource);
+		}
 
 		if (GC.getGame().GetGameLeagues()->IsLuxuryHappinessBanned(GetPlayer()->GetID(), eResource))
 			return 0;
@@ -1727,20 +1737,24 @@ int CvDealAI::GetResourceRatio(PlayerTypes eSeller, PlayerTypes eBuyer, Resource
 	int iBuyerAmount = GET_PLAYER(eBuyer).getNumResourceTotal(eResource, true);
 
 	//undo the old deal first if there is one
-	CvDeal* pRenewDeal = m_pPlayer->GetDiplomacyAI()->GetDealToRenew(eBuyer);
-	if (pRenewDeal)
+	std::vector<CvDeal*> pRenewDeals = m_pPlayer->GetDiplomacyAI()->GetDealsToRenew(eBuyer);
+	for (uint i = 0; i < pRenewDeals.size(); i++)
 	{
-		if (bImSelling)
+		CvDeal* pRenewDeal = pRenewDeals[i];
+		if (pRenewDeal)
 		{
-			int iOldAmount = pRenewDeal->GetNumResourcesInDeal(eSeller, eResource);
-			iSellerAmount += iOldAmount;
-			iBuyerAmount -= iOldAmount;
-		}
-		else
-		{
-			int iOldAmount = pRenewDeal->GetNumResourcesInDeal(eBuyer, eResource);
-			iSellerAmount -= iOldAmount;
-			iBuyerAmount += iOldAmount;
+			if (bImSelling)
+			{
+				int iOldAmount = pRenewDeal->GetNumResourcesInDeal(eSeller, eResource);
+				iSellerAmount += iOldAmount;
+				iBuyerAmount -= iOldAmount;
+			}
+			else
+			{
+				int iOldAmount = pRenewDeal->GetNumResourcesInDeal(eBuyer, eResource);
+				iSellerAmount -= iOldAmount;
+				iBuyerAmount += iOldAmount;
+			}
 		}
 	}
 	
@@ -1777,7 +1791,7 @@ int CvDealAI::GetStrategicResourceValue(ResourceTypes eResource, int iResourceQu
 	if (iNumTurns <= 0)
 		iNumTurns = 1;
 
-	CvDeal* pRenewDeal = m_pPlayer->GetDiplomacyAI()->GetDealToRenew(eOtherPlayer);
+	std::vector<CvDeal*> pRenewDeals = m_pPlayer->GetDiplomacyAI()->GetDealsToRenew(eOtherPlayer);
 
 	int iFlavorResult = 0;
 	int iFlavors = 0;
@@ -1818,7 +1832,7 @@ int CvDealAI::GetStrategicResourceValue(ResourceTypes eResource, int iResourceQu
 		if (!GET_TEAM(GetPlayer()->getTeam()).IsResourceObsolete(eResource))
 		{
 			//Never trade away everything.
-			int iNumRemaining = (GetPlayer()->getNumResourceAvailable(eResource, true) - ((pRenewDeal != NULL) ? 0 : iResourceQuantity));
+			int iNumRemaining = (GetPlayer()->getNumResourceAvailable(eResource, true) - ((pRenewDeals.size() > 0) ? 0 : iResourceQuantity));
 			if (iNumRemaining < 0)
 				return INT_MAX;
 			else if (iNumRemaining == 0)

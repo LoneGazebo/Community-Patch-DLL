@@ -191,7 +191,7 @@ void CvDiplomacyRequests::Update(void)
 void CvDiplomacyRequests::BeginTurn(void)
 {
 #if defined(MOD_ACTIVE_DIPLOMACY)
-	if(GC.getGame().isReallyNetworkMultiPlayer() && MOD_ACTIVE_DIPLOMACY)
+	if (m_aRequests.size() > 0)
 	{
 		// JdH: change requests to notifications
 		{
@@ -596,7 +596,7 @@ void CvDiplomacyRequests::SendRequest(PlayerTypes eFromPlayer, PlayerTypes eToPl
 //	----------------------------------------------------------------------------
 //	Request for a deal
 //static
-void CvDiplomacyRequests::SendDealRequest(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, CvDeal* pkDeal, DiploUIStateTypes eDiploType, const char* pszMessage, LeaderheadAnimationTypes eAnimationType)
+void CvDiplomacyRequests::SendDealRequest(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, CvDeal* pkDeal, DiploUIStateTypes eDiploType, const char* pszMessage, LeaderheadAnimationTypes eAnimationType, bool bRenew)
 {
 	if (pkDeal->GetNumItems() <= 0)
 		return;
@@ -630,6 +630,18 @@ void CvDiplomacyRequests::SendDealRequest(PlayerTypes eFromPlayer, PlayerTypes e
 			auto_ptr<ICvDeal1> pDeal = GC.WrapDealPointer(pkDeal);
 			GC.GetEngineUserInterface()->SetScratchDeal(pDeal.get());
 			SendRequest(eFromPlayer, eToPlayer, eDiploType, pszMessage, eAnimationType, -1);
+		}
+		else if (bRenew)
+		{
+			CvPlayer& kTo = GET_PLAYER(eToPlayer);
+			CvDiplomacyRequests* pDiploRequests = kTo.GetDiplomacyRequests();
+			if (pDiploRequests && pkDeal && pkDeal->m_bConsideringForRenewal)
+			{
+				CvAssert(pkDeal->GetFromPlayer() == eFromPlayer);
+				CvAssert(pkDeal->GetToPlayer() == eToPlayer);
+				CvGameDeals::PrepareRenewDeal(pkDeal);
+				pDiploRequests->Add(eFromPlayer, eDiploType, pszMessage, eAnimationType, -1);
+			}
 		}
 	}
 #else

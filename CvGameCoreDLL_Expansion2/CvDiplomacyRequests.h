@@ -68,7 +68,7 @@ public:
 	static void DoAIDiplomacy(PlayerTypes eTargetPlayer);
 
 	static void SendRequest(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, DiploUIStateTypes eDiploType, const char* pszMessage, LeaderheadAnimationTypes eAnimationType, int iExtraGameData = -1);
-	static void SendDealRequest(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, CvDeal* pkDeal, DiploUIStateTypes eDiploType, const char* pszMessage, LeaderheadAnimationTypes eAnimationType);
+	static void SendDealRequest(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, CvDeal* pkDeal, DiploUIStateTypes eDiploType, const char* pszMessage, LeaderheadAnimationTypes eAnimationType, bool bRenew = false);
 
 #if defined(MOD_ACTIVE_DIPLOMACY)
 	static void DoAIMPDiplomacyWithHumans();

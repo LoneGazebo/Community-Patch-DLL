@@ -323,8 +323,7 @@ public:
 	CvDeal* GetHistoricDealWithPlayer(PlayerTypes ePlayer, PlayerTypes eOtherPlayer, uint indx);
 	uint GetNumCurrentDealsWithPlayer(PlayerTypes ePlayer, PlayerTypes eOtherPlayer);
 	uint GetNumHistoricDealsWithPlayer(PlayerTypes ePlayer, PlayerTypes eOtherPlayer, uint iMaxCount = UINT_MAX);
-	uint GetRenewableDealsWithPlayer(PlayerTypes ePlayer, PlayerTypes eOtherPlayer, uint iMaxCount = UINT_MAX);
-	CvDeal* GetRenewableDealWithPlayer(PlayerTypes ePlayer, PlayerTypes eOtherPlayer, uint indx);
+	std::vector<CvDeal*> GetRenewableDealsWithPlayer(PlayerTypes ePlayer, PlayerTypes eOtherPlayer, uint iMaxCount = UINT_MAX);
 	bool IsReceivingItemsFromPlayer(PlayerTypes ePlayer, PlayerTypes eOtherPlayer, bool bMutual);
 	int GetDealValueWithPlayer(PlayerTypes ePlayer, PlayerTypes eOtherPlayer, bool bConsiderDuration = true);
 	int GetDealGPTLostFromWar(PlayerTypes ePlayer, PlayerTypes eOtherPlayer);
@@ -341,7 +340,7 @@ public:
 
 	int GetTradeItemGoldCost(TradeableItems eItem, PlayerTypes ePlayer1, PlayerTypes ePlayer2) const;
 
-	static void PrepareRenewDeal(CvDeal* pOldDeal, CvDeal* pNewDeal);
+	static void PrepareRenewDeal(CvDeal* pOldDeal);
 
 	// Variables below should really be lists to support easy deletion
 	DealList m_ProposedDeals;
