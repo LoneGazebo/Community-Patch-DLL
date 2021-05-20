@@ -13543,6 +13543,35 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 
 	CvAssertMsg(canReceiveGoody(pPlot, eGoody, pUnit), "Instance is expected to be able to receive goody");
 
+	// Wishing we had lambdas right about now
+	struct BestCityFinder
+	{
+		CvCity* operator()(CvPlayer& kPlayer, const CvPlot& kPlot)
+		{
+			int iBestCityDistance = -1;
+			CvCity* pBestCity = NULL;
+
+			int iLoop;
+			for (CvCity* pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
+			{
+				// Ignore cities that produce nothing
+				if (pLoopCity->IsResistance() || pLoopCity->IsRazing())
+					continue;
+
+				// Prefer cities nearest the plot
+				int iDistance = plotDistance(kPlot.getX(), kPlot.getY(), pLoopCity->getX(), pLoopCity->getY());
+
+				if (iBestCityDistance == -1 || iDistance < iBestCityDistance)
+				{
+					iBestCityDistance = iDistance;
+					pBestCity = pLoopCity;
+				}
+			}
+
+			return pBestCity;
+		}
+	} bestCityFinder;
+
 	Database::SingleResult kResult;
 	CvGoodyInfo kGoodyInfo;
 	const bool bResult = DB.SelectAt(kResult, "GoodyHuts", eGoody);
@@ -13579,33 +13608,14 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 	// Population
 	if(kGoodyInfo.getPopulation() > 0)
 	{
-		int iBestCityDistance = -1;
-		CvCity* pBestCity = NULL;
-
-		int iLoop;
-		// Find the closest City to us to add a Pop point to
-		for(CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
-		{
-			int iDistance = plotDistance(pPlot->getX(), pPlot->getY(), pLoopCity->getX(), pLoopCity->getY());
-
-			if (pLoopCity->IsResistance() || pLoopCity->IsRazing())
-				continue;
-
-			if(iBestCityDistance == -1 || iDistance < iBestCityDistance)
-			{
-				iBestCityDistance = iDistance;
-				pBestCity = pLoopCity;
-			}
-		}
-
-		int iPop = kGoodyInfo.getPopulation() * iEra;
-
+		CvCity* pBestCity = bestCityFinder(*this, *pPlot);
 		if(pBestCity != NULL)
 		{
+			int iPop = kGoodyInfo.getPopulation() * iEra;
 			pBestCity->changePopulation(iPop, true, true);
 		}
 	}
-#if defined(MOD_BALANCE_CORE)
+
 	// Production
 	int iProduction = 0;
 	if(MOD_BALANCE_CORE && kGoodyInfo.getProduction() > 0)
@@ -13622,25 +13632,7 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 
 		iProduction *= iEra;
 
-		int iBestCityDistance = -1;
-		CvCity* pBestCity = NULL;
-
-		// Find the closest City to us to add Production to
-		int iLoop;
-		for(CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
-		{
-			int iDistance = plotDistance(pPlot->getX(), pPlot->getY(), pLoopCity->getX(), pLoopCity->getY());
-
-			if (pLoopCity->IsResistance() || pLoopCity->IsRazing())
-				continue;
-
-			if(iBestCityDistance == -1 || iDistance < iBestCityDistance)
-			{
-				iBestCityDistance = iDistance;
-				pBestCity = pLoopCity;
-			}
-		}
-
+		CvCity* pBestCity = bestCityFinder(*this, *pPlot);
 		if(pBestCity != NULL)
 		{
 			pBestCity->changeProduction(iProduction);
@@ -13673,25 +13665,7 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 	int iFreeTiles = kGoodyInfo.getFreeTiles();
 	if(iFreeTiles > 0)
 	{
-		int iBestCityDistance = -1;
-		CvCity* pBestCity = NULL;
-
-		// Find the closest City to us to add free tiles to
-		int iLoop;
-		for(CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
-		{
-			int iDistance = plotDistance(pPlot->getX(), pPlot->getY(), pLoopCity->getX(), pLoopCity->getY());
-
-			if (pLoopCity->IsResistance() || pLoopCity->IsRazing())
-				continue;
-
-			if(iBestCityDistance == -1 || iDistance < iBestCityDistance)
-			{
-				iBestCityDistance = iDistance;
-				pBestCity = pLoopCity;
-			}
-		}
-
+		CvCity* pBestCity = bestCityFinder(*this, *pPlot);
 		if(pBestCity != NULL)
 		{
 
@@ -13773,7 +13747,7 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 
 		changeInstantYieldValue(YIELD_SCIENCE, iScience);
 	}
-#endif
+
 	// Culture
 	int iCulture = kGoodyInfo.getCulture();
 	if(iCulture > 0)
