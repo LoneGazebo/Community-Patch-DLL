@@ -3583,7 +3583,7 @@ bool MilitaryAIHelpers::IsTestStrategy_WarMobilization(MilitaryAIStrategyTypes e
 #endif
 
 		// Mobilize for war is automatic if we are preparing a sneak attack
-		if(pkDiplomacyAI->GetWarGoal(eOtherPlayer) == WAR_GOAL_PREPARE)
+		if(pkDiplomacyAI->IsWantsSneakAttack(eOtherPlayer))
 		{
 			iCurrentWeight += 100;
 		}
@@ -3703,7 +3703,7 @@ bool MilitaryAIHelpers::IsTestStrategy_EradicateBarbarians(MilitaryAIStrategyTyp
 			for(int iMajorLoop = 0; iMajorLoop < MAX_MAJOR_CIVS; iMajorLoop++)
 			{
 				PlayerTypes eOtherPlayer = (PlayerTypes) iMajorLoop;
-				if(pkDiplomacyAI->GetWarGoal(eOtherPlayer) == WAR_GOAL_PREPARE)
+				if(pkDiplomacyAI->IsWantsSneakAttack(eOtherPlayer))
 				{
 					return false;
 				}
@@ -3753,18 +3753,18 @@ bool MilitaryAIHelpers::IsTestStrategy_WinningWars(CvPlayer* pPlayer)
 		return true;
 	}
 
+	int iSum = 0;
 	PlayerTypes eLoopPlayer;
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
 		eLoopPlayer = (PlayerTypes)iPlayerLoop;
 		if (eLoopPlayer != pPlayer->GetID() && pPlayer->IsAtWarWith(eLoopPlayer) && pPlayer->GetDiplomacyAI()->IsPlayerValid(eLoopPlayer))
 		{
-			if (pPlayer->GetDiplomacyAI()->GetWarScore(eLoopPlayer) > 25)
-				return true;
+			iSum += pPlayer->GetDiplomacyAI()->GetWarScore(eLoopPlayer);
 		}
 	}
 
-	return false;
+	return iSum > 25;
 }
 
 /// "Losing Wars" Strategy: boost DEFENSE over OFFENSE
@@ -3774,17 +3774,18 @@ bool MilitaryAIHelpers::IsTestStrategy_LosingWars(CvPlayer* pPlayer)
 	{
 		return true;
 	}
+
+	int iSum = 0;
 	PlayerTypes eLoopPlayer;
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
 		eLoopPlayer = (PlayerTypes)iPlayerLoop;
 		if (eLoopPlayer != pPlayer->GetID() && pPlayer->IsAtWarWith(eLoopPlayer) && pPlayer->GetDiplomacyAI()->IsPlayerValid(eLoopPlayer))
 		{
-			if (pPlayer->GetDiplomacyAI()->GetWarScore(eLoopPlayer) < -10)
-				return true;
+			iSum += pPlayer->GetDiplomacyAI()->GetWarScore(eLoopPlayer);
 		}
 	}
-	return false;
+	return iSum < -10;
 }
 
 /// "Enough Ranged" Player Strategy: If a player has too many ranged units

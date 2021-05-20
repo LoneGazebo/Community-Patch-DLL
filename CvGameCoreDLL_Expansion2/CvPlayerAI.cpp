@@ -375,35 +375,29 @@ void CvPlayerAI::AI_conquerCity(CvCity* pCity, PlayerTypes eOldOwner, bool bGift
 				{
 					if (GET_TEAM(getTeam()).isAtWar(eOldOwnerTeam))
 					{
-						if (GetDiplomacyAI()->GetWarGoal(eOldOwner) == WAR_GOAL_DAMAGE)
-						{
-							pCity->doTask(TASK_RAZE);
-							return;
-						}
+						pCity->doTask(TASK_RAZE);
+						return;
 					}
 				}
 			}
 		}
 	}
 
-	// If this is our only city, always annex if we can
-	if (getNumCities() == 1 && !GET_PLAYER(m_eID).GetPlayerTraits()->IsNoAnnexing())
+	// Let's make sure we annex.
+	if (pCity->getOriginalOwner() == GetID() && !GET_PLAYER(m_eID).GetPlayerTraits()->IsNoAnnexing())
 	{
 		pCity->DoAnnex();
-		return;
+		pCity->ChangeNoOccupiedUnhappinessCount(1);
+	}
+	// If this is our only city, always annex if we can
+	else if (getNumCities() == 1 && !GET_PLAYER(m_eID).GetPlayerTraits()->IsNoAnnexing())
+	{
+		pCity->DoAnnex();
 	}
 	// Puppet the city
 	else if (pCity->getOriginalOwner() != GetID() || GET_PLAYER(m_eID).GetPlayerTraits()->IsNoAnnexing())
 	{
 		pCity->DoCreatePuppet();
-		return;
-	}
-	//Let's make sure we annex.
-	else if (pCity->getOriginalOwner() == GetID() && !GET_PLAYER(m_eID).GetPlayerTraits()->IsNoAnnexing())
-	{
-		pCity->DoAnnex();
-		pCity->ChangeNoOccupiedUnhappinessCount(1);
-		return;
 	}
 }
 
@@ -1814,10 +1808,7 @@ CvPlot* CvPlayerAI::FindBestMerchantTargetPlotForCash(CvUnit* pMerchant)
 			continue;
 
 		// Is this a minor we are friendly with?
-		bool bMinorCivApproachIsCorrect = (GetDiplomacyAI()->GetCivApproach(kPlayer.GetID()) > CIV_APPROACH_HOSTILE);
-		bool bNotPlanningAWar = GetDiplomacyAI()->GetWarGoal(kPlayer.GetID()) == NO_WAR_GOAL_TYPE;
-
-		if (bMinorCivApproachIsCorrect && !kPlayer.IsAtWarWith(GetID()) && bNotPlanningAWar)
+		if (GetDiplomacyAI()->GetCivApproach(kPlayer.GetID()) > CIV_APPROACH_HOSTILE && !kPlayer.IsAtWarWith(GetID()))
 		{
 			int iDistance = plotDistance(*pCity->plot(), *pMerchant->plot());
 			vCandidates.push_back(make_pair(iDistance, pCity->plot()->GetPlotIndex()));

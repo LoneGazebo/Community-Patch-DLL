@@ -80,10 +80,8 @@ void CvCityCitizens::Reset()
 {
 	m_bAutomated = false;
 	m_bNoAutoAssignSpecialists = false;
-#if defined(MOD_BALANCE_CORE)
 	m_bIsDirty = false;
-	m_bIsBlockaded = false;
-#endif
+
 	m_iNumUnassignedCitizens = 0;
 	m_iNumCitizensWorkingPlots = 0;
 	m_iNumForcedWorkingPlots = 0;
@@ -99,6 +97,8 @@ void CvCityCitizens::Reset()
 		m_pabWorkingPlot[iI] = false;
 		m_pabForcedWorkingPlot[iI] = false;
 	}
+
+	m_vBlockadedPlots.clear();
 
 	m_iNumDefaultSpecialists = 0;
 	m_iNumForcedDefaultSpecialists = 0;
@@ -160,7 +160,6 @@ void CvCityCitizens::Read(FDataStream& kStream)
 	kStream >> m_bAutomated;
 	kStream >> m_bNoAutoAssignSpecialists;
 	kStream >> m_bIsDirty;
-	kStream >> m_bIsBlockaded;
 	kStream >> m_iNumUnassignedCitizens;
 	kStream >> m_iNumCitizensWorkingPlots;
 	kStream >> m_iNumForcedWorkingPlots;
@@ -171,6 +170,7 @@ void CvCityCitizens::Read(FDataStream& kStream)
 
 	kStream >> m_pabWorkingPlot;
 	kStream >> m_pabForcedWorkingPlot;
+	kStream >> m_vBlockadedPlots;
 
 	kStream >> m_iNumDefaultSpecialists;
 	kStream >> m_iNumForcedDefaultSpecialists;
@@ -210,7 +210,6 @@ void CvCityCitizens::Write(FDataStream& kStream)
 	kStream << m_bAutomated;
 	kStream << m_bNoAutoAssignSpecialists;
 	kStream << m_bIsDirty;
-	kStream << m_bIsBlockaded;
 	kStream << m_iNumUnassignedCitizens;
 	kStream << m_iNumCitizensWorkingPlots;
 	kStream << m_iNumForcedWorkingPlots;
@@ -221,6 +220,7 @@ void CvCityCitizens::Write(FDataStream& kStream)
 
 	kStream << m_pabWorkingPlot;
 	kStream << m_pabForcedWorkingPlot;
+	kStream << m_vBlockadedPlots;
 
 	kStream << m_iNumDefaultSpecialists;
 	kStream << m_iNumForcedDefaultSpecialists;
@@ -278,22 +278,6 @@ void CvCityCitizens::DoTurn()
 	CvPlayerAI& thisPlayer = GET_PLAYER(GetOwner());
 
 	bool bForceCheck = false;
-	if (!IsBlockade())
-	{
-		if (m_pCity->isCoastal() && m_pCity->IsBlockaded(true))
-		{
-			SetBlockade(true);
-		}
-	}
-	else if (IsBlockade())
-	{
-		if (m_pCity->isCoastal() && !m_pCity->IsBlockaded(true))
-		{
-			SetBlockade(false);
-			bForceCheck = true;
-		}
-	}
-
 	if (CityStrategyAIHelpers::IsTestCityStrategy_IsPuppetAndAnnexable(m_pCity))
 	{
 		bForceCheck |= SetFocusType(NO_CITY_AI_FOCUS_TYPE);
@@ -1975,17 +1959,6 @@ bool CvCityCitizens::IsDirty()
 {
 	return m_bIsDirty;
 }
-void CvCityCitizens::SetBlockade(bool bValue)
-{
-	if (m_bIsBlockaded != bValue)
-	{
-		m_bIsBlockaded = bValue;
-	}
-}
-bool CvCityCitizens::IsBlockade()
-{
-	return m_bIsBlockaded;
-}
 
 void CvCityCitizens::DoReallocateCitizens(bool bForce, bool bLogging)
 {
@@ -2453,7 +2426,7 @@ bool CvCityCitizens::IsCanWork(CvPlot* pPlot) const
 		}
 	}
 
-	if (pPlot->isBlockaded(GetOwner()))
+	if (IsBlockaded(pPlot))
 	{
 		return false;
 	}
@@ -2461,30 +2434,38 @@ bool CvCityCitizens::IsCanWork(CvPlot* pPlot) const
 	return true;
 }
 
+bool CvCityCitizens::IsBlockaded(CvPlot * pPlot, int iUnitID) const
+{
+	map<int, set<int>>::const_iterator it = m_vBlockadedPlots.find(pPlot->GetPlotIndex());
+	
+	if (it == m_vBlockadedPlots.end())
+		return false;
+
+	if (iUnitID != -1)
+		return it->second.find(iUnitID) != it->second.end();
+
+	//no particular unit given
+	return true;
+}
+
+void CvCityCitizens::SetBlockaded(CvPlot * pPlot, int iUnitID, bool bValue)
+{
+	if (bValue)
+	{
+		m_vBlockadedPlots[ pPlot->GetPlotIndex() ].insert(iUnitID);
+	}
+	else
+	{
+		m_vBlockadedPlots[ pPlot->GetPlotIndex() ].erase(iUnitID);
+		if ( m_vBlockadedPlots[ pPlot->GetPlotIndex() ].empty() )
+			m_vBlockadedPlots.erase(pPlot->GetPlotIndex());
+	}
+}
+
 // Is there a naval blockade on any of this city's water tiles?
 bool CvCityCitizens::IsAnyPlotBlockaded() const
 {
-	CvPlot* pLoopPlot;
-
-	// Look at all workable Plots
-
-	for (int iPlotLoop = 0; iPlotLoop < m_pCity->GetNumWorkablePlots(); iPlotLoop++)
-	{
-		if (iPlotLoop != CITY_HOME_PLOT)
-		{
-			pLoopPlot = GetCityPlotFromIndex(iPlotLoop);
-
-			if (pLoopPlot != NULL)
-			{
-				if (pLoopPlot->isBlockaded(GetOwner()))
-				{
-					return true;
-				}
-			}
-		}
-	}
-
-	return false;
+	return !m_vBlockadedPlots.empty();
 }
 
 /// Check all Plots by this City to see if we can actually be working them (if we are)
@@ -3484,7 +3465,7 @@ void CvCityCitizens::DoSpawnGreatPerson(UnitTypes eUnit, bool bIncrementCount, b
 #else
 			kPlayer.incrementGreatAdmiralsCreated();
 #endif
-			CvPlot *pSpawnPlot = kPlayer.GetGreatAdmiralSpawnPlot(newUnit);
+			CvPlot *pSpawnPlot = kPlayer.GetBestCoastalSpawnPlot(newUnit);
 			if (newUnit->plot() != pSpawnPlot)
 			{
 				newUnit->setXY(pSpawnPlot->getX(), pSpawnPlot->getY());

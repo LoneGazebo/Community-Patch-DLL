@@ -10558,7 +10558,7 @@ BuildingTypes CvPlayer::GetSpecificBuildingType(const char* szBuildingClass, boo
 }
 
 //	--------------------------------------------------------------------------------
-CvPlot* CvPlayer::GetGreatAdmiralSpawnPlot (CvUnit *pUnit)
+CvPlot* CvPlayer::GetBestCoastalSpawnPlot (CvUnit *pUnit)
 {
 	CvPlot* pLargestWaterAreaPlot = NULL;
 	int iLargestWaterSize = -1;
@@ -10570,7 +10570,7 @@ CvPlot* CvPlayer::GetGreatAdmiralSpawnPlot (CvUnit *pUnit)
 		if (!pLoopCity->isCoastal())
 			continue;
 
-		if (!pUnit->canEndTurnAtPlot(pLoopCity->plot()))
+		if (pUnit && !pUnit->canEndTurnAtPlot(pLoopCity->plot()))
 			continue;
 
 		PlotIndexContainer areas = pLoopCity->plot()->getAllAdjacentAreas();
@@ -10588,7 +10588,7 @@ CvPlot* CvPlayer::GetGreatAdmiralSpawnPlot (CvUnit *pUnit)
 	if (pLargestWaterAreaPlot)
 		return pLargestWaterAreaPlot;
 	else
-		return pUnit->plot();
+		return pUnit ? pUnit->plot() : NULL;
 }
 
 
@@ -11790,6 +11790,9 @@ void CvPlayer::DoUnitReset()
 		// Bonus for entrenched units
 		if (!pLoopUnit->hasMoved() && pLoopUnit->canFortify(pLoopUnit->plot()))
 			pLoopUnit->SetFortified(true);
+
+		// Set up blockades
+		pLoopUnit->DoBlockade(pLoopUnit->plot(),true);
 
 		// Finally (now that healing is done), restore movement points
 		pLoopUnit->restoreFullMoves();
@@ -13528,7 +13531,7 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 	if (iEra <= 0)
 		iEra = 1;
 
-	CvAssertMsg(canReceiveGoody(pPlot, eGoody, pUnit), "Instance is expected to be able to recieve goody");
+	CvAssertMsg(canReceiveGoody(pPlot, eGoody, pUnit), "Instance is expected to be able to receive goody");
 
 	Database::SingleResult kResult;
 	CvGoodyInfo kGoodyInfo;
@@ -13730,6 +13733,35 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 				}
 			}
 		}
+	}
+	// Science
+	int iScience = kGoodyInfo.getScience();
+	if (iScience > 0)
+	{
+		// Game Speed Mod
+		iScience *= GC.getGame().getGameSpeedInfo().getResearchPercent();
+		iScience /= 100;
+
+		if (pUnit != NULL && iGoodyModifier != 0)
+		{
+			iScience *= (100 + iGoodyModifier);
+			iScience /= 100;
+		}
+
+		iScience *= iEra;
+
+		TechTypes eCurrentTech = GetPlayerTechs()->GetCurrentResearch();
+		if (eCurrentTech == NO_TECH)
+		{
+			changeOverflowResearch(iScience);
+		}
+		else
+		{
+			CvTeam& kTeam = GET_TEAM(getTeam());
+			kTeam.GetTeamTechs()->ChangeResearchProgress(eCurrentTech, iScience, GetID());
+		}
+
+		changeInstantYieldValue(YIELD_SCIENCE, iScience);
 	}
 #endif
 	// Culture
@@ -14364,6 +14396,8 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 #if defined(MOD_BALANCE_CORE)
 			else if(iProduction > 0)
 				iSpecialValue = iProduction;
+			else if (iScience > 0)
+				iSpecialValue = iScience;
 #endif
 
 			CvPopupInfo kPopupInfo(BUTTONPOPUP_GOODY_HUT_REWARD, eGoody, iSpecialValue);
@@ -29580,7 +29614,7 @@ void CvPlayer::DoSpawnGreatPerson(PlayerTypes eMinor)
 
 			if (pNewGreatPeople->IsGreatAdmiral())
 			{
-				CvPlot* pSpawnPlot = GetGreatAdmiralSpawnPlot(pNewGreatPeople);
+				CvPlot* pSpawnPlot = GetBestCoastalSpawnPlot(pNewGreatPeople);
 				if (pNewGreatPeople->plot() != pSpawnPlot && pSpawnPlot != NULL)
 				{
 					pNewGreatPeople->setXY(pSpawnPlot->getX(), pSpawnPlot->getY());
@@ -45052,7 +45086,7 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 #else
 										incrementGreatAdmiralsCreated();
 #endif
-										CvPlot *pSpawnPlot = GetGreatAdmiralSpawnPlot(pNewUnit);
+										CvPlot *pSpawnPlot = GetBestCoastalSpawnPlot(pNewUnit);
 										if (pNewUnit->plot() != pSpawnPlot)
 										{
 											pNewUnit->setXY(pSpawnPlot->getX(), pSpawnPlot->getY());
@@ -46725,7 +46759,7 @@ void CvPlayer::createGreatAdmiral(UnitTypes eGreatPersonUnit, int iX, int iY)
 #endif
 	ChangeNumGreatPeople(1);
 #if !defined(MOD_GLOBAL_LOCAL_GENERALS)
-	CvPlot *pSpawnPlot = GetGreatAdmiralSpawnPlot(pGreatPeopleUnit);
+	CvPlot *pSpawnPlot = GetBestCoastalSpawnPlot(pGreatPeopleUnit);
 	if (pGreatPeopleUnit->plot() != pSpawnPlot)
 	{
 		pGreatPeopleUnit->setXY(pSpawnPlot->getX(), pSpawnPlot->getY());
