@@ -36824,6 +36824,11 @@ void CvPlayer::DoUpdateWarPeaceTurnCounters()
 				SetPlayerNumTurnsSinceCityCapture(ePlayer, 0);
 			}
 		}
+		else
+		{
+			SetPlayerNumTurnsAtWar(ePlayer, 0);
+			SetPlayerNumTurnsSinceCityCapture(ePlayer, 0);
+		}
 	}
 }
 
