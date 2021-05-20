@@ -13189,6 +13189,16 @@ bool CvPlayer::canReceiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit) 
 			return false;
 	}
 
+	// Science
+	if (kGoodyInfo.getScience() > 0)
+	{
+		if (!MOD_BALANCE_CORE)
+			return false;
+
+		if (GC.getGame().isOption(GAMEOPTION_NO_SCIENCE))
+			return false;
+	}
+
 	// Map
 	if (kGoodyInfo.getMapRange() > 0 && kGoodyInfo.getMapOffset() > 0)
 	{
