@@ -13674,7 +13674,7 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 	}
 
 	// Free Tiles
-	int iFreeTiles = kGoodyInfo.getFreeTiles();
+	int iFreeTiles = MOD_BALANCE_CORE ? kGoodyInfo.getFreeTiles() : 0;
 	if(iFreeTiles > 0)
 	{
 		CvCity* pBestCity = bestCityFinder(*this, *pPlot);
