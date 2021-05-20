@@ -11413,7 +11413,7 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 			}
 			else if (bWorldConquest)
 			{
-				if (bReadyForVassalage || GET_PLAYER(GET_PLAYER(*it).GetCapitalConqueror()).getTeam() == GetTeam())
+				if (bReadyForVassalage || GET_PLAYER(*it).GetCapitalConqueror() != NO_PLAYER)
 				{
 					if (iPeaceScore > 0)
 						iPeaceScore *= 2;
