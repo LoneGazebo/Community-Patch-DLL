@@ -1125,55 +1125,44 @@ BuildingTypes CvCityCitizens::GetAIBestSpecialistBuilding(int& iSpecialistValue,
 }
 
 /// What is the Building Type the AI likes the Specialist of most right now?
-BuildingTypes CvCityCitizens::GetAIBestSpecialistCurrentlyInBuilding(int& iSpecialistValue)
+BuildingTypes CvCityCitizens::GetAIBestSpecialistCurrentlyInBuilding(int& iSpecialistValue, bool bWantBest)
 {
 	BuildingTypes eBestBuilding = NO_BUILDING;
-	int iBestSpecialistValue = -1;
-	int iBestUnmodifiedSpecialistValue = -1;
+	int iBestSpecialistValue = bWantBest ? -INT_MAX : INT_MAX;
 
 	SPrecomputedExpensiveNumbers store(m_pCity);
 
 	//many buildings have the same specialist yields ...
-	std::map<SpecialistTypes, int> specialistValueCache;
+	vector<int> checked(GC.getNumSpecialistInfos(),0);
 
-	// Loop through all Buildings
-	for (int iBuildingLoop = 0; iBuildingLoop < GC.getNumBuildingInfos(); iBuildingLoop++)
+	const vector<BuildingTypes>& allBuildings = m_pCity->GetCityBuildings()->GetAllBuildingsHere();
+	for (size_t i=0; i<allBuildings.size(); i++)
 	{
-		const BuildingTypes eBuilding = static_cast<BuildingTypes>(iBuildingLoop);
-		CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
-
-		if (pkBuildingInfo)
+		CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(allBuildings[i]);
+		int iUnforcedSpecialist = GetNumSpecialistsInBuilding(allBuildings[i]) - GetNumForcedSpecialistsInBuilding(allBuildings[i]);
+		if (pkBuildingInfo &&  iUnforcedSpecialist > 0)
 		{
-			// Have this Building in the City, and there's a specialist in it?
-			if (GetCity()->GetCityBuildings()->GetNumBuilding(eBuilding) > 0 && GetCity()->GetCityCitizens()->GetNumSpecialistsInBuilding(eBuilding) > 0)
+			SpecialistTypes eSpecialist = (SpecialistTypes)pkBuildingInfo->GetSpecialistType();
+			if (checked[eSpecialist]>0)
+				continue;
+
+			int iValue = GetSpecialistValue(eSpecialist,store);
+			checked[eSpecialist] = iValue;
+
+			if (bWantBest && iValue > iBestSpecialistValue)
 			{
-				int iValue = 0;
-				SpecialistTypes eSpecialist = (SpecialistTypes)pkBuildingInfo->GetSpecialistType();
-
-				std::map<SpecialistTypes, int>::iterator it = specialistValueCache.find(eSpecialist);
-				if (it != specialistValueCache.end())
-					iValue = specialistValueCache[eSpecialist];
-				else
-				{
-					iValue = GetSpecialistValue(eSpecialist,store);
-					specialistValueCache[eSpecialist] = iValue;
-				}
-
-				// Add a bit more weight to a Building if it has more slots (10% per).  This will bias the AI to fill a single building over spreading Specialists out
-				int iTemp = ((GetNumSpecialistsAllowedByBuilding(*pkBuildingInfo) - 1) * iValue * 15) / 100;
-				iValue += iTemp;
-
-				if (iValue > iBestSpecialistValue)
-				{
-					eBestBuilding = eBuilding;
-					iBestSpecialistValue = iValue;
-					iBestUnmodifiedSpecialistValue = iValue - iTemp;
-				}
+				eBestBuilding = allBuildings[i];
+				iBestSpecialistValue = iValue;
+			}
+			else if (!bWantBest && iValue < iBestSpecialistValue)
+			{
+				eBestBuilding = allBuildings[i];
+				iBestSpecialistValue = iValue;
 			}
 		}
 	}
 
-	iSpecialistValue = iBestUnmodifiedSpecialistValue;
+	iSpecialistValue = iBestSpecialistValue;
 	return eBestBuilding;
 }
 
@@ -1826,16 +1815,32 @@ void CvCityCitizens::OptimizeWorkedPlots(bool bLogging)
 	while (iCount < m_pCity->getPopulation()/2)
 	{
 		int iWorstWorkedPlotValue = 0;
+		int iWorstSpecialistValue = 0;
 		int iBestFreePlotValue = 0;
 		int iBestSpecialistValue = 0;
 
 		//where do we have potential for improvement?
 		CvPlot* pWorstWorkedPlot = GetBestCityPlotWithValue(iWorstWorkedPlotValue, /*bBest*/ false, /*bWorked*/ true);
-		if (!pWorstWorkedPlot)
-			break;
+		BuildingTypes eWorstSpecialistBuilding = GetAIBestSpecialistCurrentlyInBuilding(iWorstSpecialistValue, false);
 
-		//remove the citizen from the plot (at least temporarily) so that combo bonuses can be considered correctly
-		SetWorkingPlot(pWorstWorkedPlot, false, CvCity::YIELD_UPDATE_LOCAL);
+		//both options are valid
+		if (pWorstWorkedPlot && eWorstSpecialistBuilding != NO_BUILDING)
+		{
+			if (iWorstWorkedPlotValue < iWorstSpecialistValue)
+				//remove the citizen from the plot (at least temporarily) so that combo bonuses can be considered correctly
+				SetWorkingPlot(pWorstWorkedPlot, false, CvCity::YIELD_UPDATE_LOCAL);
+			else
+				DoRemoveSpecialistFromBuilding(eWorstSpecialistBuilding, false, CvCity::YIELD_UPDATE_LOCAL);
+		}
+		else if (pWorstWorkedPlot)
+			//only plot can be freed
+			SetWorkingPlot(pWorstWorkedPlot, false, CvCity::YIELD_UPDATE_LOCAL);
+		else if (eWorstSpecialistBuilding != NO_BUILDING)
+			//only specialist can be freed
+			DoRemoveSpecialistFromBuilding(eWorstSpecialistBuilding, false, CvCity::YIELD_UPDATE_LOCAL);
+		else
+			//cannot change anything
+			break;
 
 		//consider alternatives
 		CvPlot* pBestFreePlot = GetBestCityPlotWithValue(iBestFreePlotValue, /*bBest*/ true, /*bWorked*/ false);
@@ -1944,15 +1949,11 @@ bool CvCityCitizens::NeedReworkCitizens()
 	BuildingTypes eBestSpecialistInCityBuilding = NO_BUILDING;
 	if (!GET_PLAYER(GetOwner()).isHuman() || !IsNoAutoAssignSpecialists())
 	{
-		eBestSpecialistInCityBuilding = GetAIBestSpecialistCurrentlyInBuilding(iSpecialistInCityValue);
+		eBestSpecialistInCityBuilding = GetAIBestSpecialistCurrentlyInBuilding(iSpecialistInCityValue,true);
 	}
 
-	bool bSpecialistBetterThanExistingSpecialist = (eBestSpecialistInCityBuilding != NO_BUILDING && eBestSpecialistBuilding != NO_BUILDING && iSpecialistValue >= iSpecialistInCityValue);
-	if (bSpecialistBetterThanExistingSpecialist)
-	{
-		return true;
-	}
-	return false;
+	//check if new specialist is better than existing specialist
+	return (eBestSpecialistInCityBuilding != NO_BUILDING && eBestSpecialistBuilding != NO_BUILDING && iSpecialistValue >= iSpecialistInCityValue);
 }
 
 /// Optimize our Citizen Placement
@@ -1988,7 +1989,7 @@ void CvCityCitizens::DoReallocateCitizens(bool bForce, bool bLogging)
 	}
 
 	// Remove Non-Forced Specialists in Buildings
-	vector<BuildingTypes> allBuildings = m_pCity->GetCityBuildings()->GetAllBuildingsHere();
+	const vector<BuildingTypes>& allBuildings = m_pCity->GetCityBuildings()->GetAllBuildingsHere();
 	for (size_t iBuildingLoop = 0; iBuildingLoop < allBuildings.size(); iBuildingLoop++)
 	{
 		const BuildingTypes eBuilding = allBuildings[iBuildingLoop];
@@ -2969,7 +2970,7 @@ bool CvCityCitizens::DoRemoveWorstSpecialist(SpecialistTypes eDontChangeSpeciali
 	SPrecomputedExpensiveNumbers cache(m_pCity);
 	vector<int> checked(GC.getNumSpecialistInfos(),0);
 
-	vector<BuildingTypes> allBuildings = m_pCity->GetCityBuildings()->GetAllBuildingsHere();
+	const vector<BuildingTypes>& allBuildings = m_pCity->GetCityBuildings()->GetAllBuildingsHere();
 	for (size_t iBuildingLoop = 0; iBuildingLoop < allBuildings.size(); iBuildingLoop++)
 	{
 		const BuildingTypes eBuilding = allBuildings[iBuildingLoop];

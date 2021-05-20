@@ -70,7 +70,7 @@ public:
 	// Specialist AI
 	bool IsAIWantSpecialistRightNow();
 	BuildingTypes GetAIBestSpecialistBuilding(int& iSpecialistValue, bool bLogging = false);
-	BuildingTypes GetAIBestSpecialistCurrentlyInBuilding(int& iSpecialistValue);
+	BuildingTypes GetAIBestSpecialistCurrentlyInBuilding(int& iSpecialistValue, bool bWantBest);
 	int GetSpecialistValue(SpecialistTypes eSpecialist, SPrecomputedExpensiveNumbers cache);
 
 	// Citizen Assignment
