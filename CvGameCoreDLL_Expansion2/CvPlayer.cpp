@@ -36809,7 +36809,7 @@ void CvPlayer::DoUpdateWarPeaceTurnCounters()
 	{
 		PlayerTypes ePlayer = (PlayerTypes) iI;
 
-		if (GET_PLAYER(ePlayer).isAlive() && GET_TEAM(getTeam()).isHasMet(GET_PLAYER(ePlayer).getTeam()) && getTeam() != GET_PLAYER(ePlayer).getTeam())
+		if (GET_PLAYER(ePlayer).isAlive() && getTeam() != GET_PLAYER(ePlayer).getTeam())
 		{
 			if (IsAtWarWith(ePlayer))
 			{
