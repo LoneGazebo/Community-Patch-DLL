@@ -13109,20 +13109,6 @@ bool CvPlayer::canReceiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit) 
 		// Don't give more Population if we're already unhappy
 		if (IsEmpireUnhappy())
 			return false;
-
-		int iLoop;
-		bool bGood = false;
-		for (const CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
-		{
-			if (pLoopCity->IsResistance() || pLoopCity->IsRazing())
-				continue;
-			
-			bGood = true;
-			break;
-		}
-
-		if (!bGood)
-			return false;
 	}
 
 	// Production
@@ -13132,20 +13118,6 @@ bool CvPlayer::canReceiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit) 
 			return false;
 
 		if (getNumCities() == 0)
-			return false;
-
-		int iLoop;
-		bool bGood = false;
-		for (const CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
-		{
-			if (pLoopCity->IsResistance() || pLoopCity->IsRazing())
-				continue;
-			
-			bGood = true;
-			break;
-		}
-
-		if (!bGood)
 			return false;
 	}
 
@@ -13172,20 +13144,6 @@ bool CvPlayer::canReceiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit) 
 			return false;
 
 		if (getNumCities() == 0)
-			return false;
-
-		int iLoop;
-		bool bGood = false;
-		for (const CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
-		{
-			if (pLoopCity->IsResistance() || pLoopCity->IsRazing())
-				continue;
-			
-			bGood = true;
-			break;
-		}
-
-		if (!bGood)
 			return false;
 	}
 
