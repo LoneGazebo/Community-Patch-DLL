@@ -322,7 +322,7 @@ void CvPlayerAI::AI_conquerCity(CvCity* pCity, PlayerTypes eOldOwner, bool bGift
 			// If we're a major civ, decision is made by diplo AI (minors don't liberate other minors)
 			if (isMajorCiv())
 			{
-				if (GetDiplomacyAI()->DoPossibleMinorLiberation(eOriginalOwner, pCity->GetID()))
+				if (GetDiplomacyAI()->DoPossibleMinorLiberation(eOriginalOwner, pCity))
 					return;
 			}
 		}
