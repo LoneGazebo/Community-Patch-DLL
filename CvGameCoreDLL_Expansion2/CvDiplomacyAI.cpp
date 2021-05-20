@@ -11105,6 +11105,14 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 					if (GET_PLAYER(eOriginalOwner).getTeam() == GET_PLAYER(*it).getTeam())
 						continue;
 
+					// Ignore cities that are too far away from us.
+					CvPlot* pCityPlot = pLoopCity->plot();
+					if (!pCityPlot)
+						continue;
+
+					if (GetPlayer()->GetCityDistanceInPlots(pCityPlot) > 10)
+						continue;
+
 					if (GET_PLAYER(eOriginalOwner).getTeam() == GetTeam())
 					{
 						bReadyForVassalage = false;
