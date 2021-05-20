@@ -536,7 +536,7 @@ WHERE Tag = 'TXT_KEY_BELIEF_PAPAL_PRIMACY_SHORT' AND EXISTS (SELECT * FROM COMMU
 
 -- Pilgrimage (Now Apostolic Tradition)
 UPDATE Language_en_US
-SET Text = 'Unlocks [COLOR_POSITIVE_TEXT]Apostolic Palace National Wonder[ENDCOLOR] (+4 [ICON_PEACE] Faith, +4 [ICON_GOLDEN_AGE] Golden Age Points; +5 [ICON_GOLDEN_AGE] Golden Age Points from [ICON_RELIGION] Holy Sites; unlocks [COLOR_POSITIVE_TEXT]Reformation Belief[ENDCOLOR]). +30 [ICON_FOOD] Food in Holy City when you spread this [ICON_RELIGION] Religion, scaling with the number of new Followers of your [ICON_RELIGION] Religion. When you unlock a new [ICON_RESEARCH] Technology, receive 10 [ICON_PEACE] Faith for every Follower of your [ICON_RELIGION] Religion (max 250 Followers).'
+SET Text = 'Unlocks [COLOR_POSITIVE_TEXT]Apostolic Palace National Wonder[ENDCOLOR] (+4 [ICON_PEACE] Faith, +4 [ICON_GOLDEN_AGE] Golden Age Points; +5 [ICON_GOLDEN_AGE] Golden Age Points from [ICON_RELIGION] Holy Sites; unlocks [COLOR_POSITIVE_TEXT]Reformation Belief[ENDCOLOR]). +30 [ICON_FOOD] Food in Holy City when you spread this [ICON_RELIGION] Religion, scaling with the number of new Followers of your [ICON_RELIGION] Religion. When you unlock a new [ICON_RESEARCH] Technology, receive 2 [ICON_PEACE] Faith for every Follower of your [ICON_RELIGION] Religion (max 250 Followers).'
 WHERE Tag = 'TXT_KEY_BELIEF_PILGRIMAGE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Language_en_US

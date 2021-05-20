@@ -91,6 +91,7 @@
 			<EventDuration>-1</EventDuration>
 			<MissionSetup>true</MissionSetup>
 			<PotentialScaling>true</PotentialScaling>
+			<ScienceScaling>25</ScienceScaling>
 			<EspionageDifficultyMod>250</EspionageDifficultyMod>
 			<EraScaling>true</EraScaling>
 			<IDModifier>25</IDModifier>

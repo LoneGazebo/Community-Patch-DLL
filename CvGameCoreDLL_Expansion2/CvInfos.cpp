@@ -10450,6 +10450,7 @@ CvModEventCityChoiceInfo::CvModEventCityChoiceInfo() :
 	 m_bEspionageEffect(false),
 	 m_bApplyEffectToSpyOwner(false),
 	 m_bPotentialScaling(false),
+	 m_iScienceScaling(0),
 	 m_iIdentificationModifier(0),
 	 m_iDeathModifier(0),
 	 m_iTriggerPlayerEventChoice(NO_EVENT_CHOICE),
@@ -10601,6 +10602,10 @@ int CvModEventCityChoiceInfo::getSapCityTurns() const
 bool CvModEventCityChoiceInfo::IsPotentialScaling() const
 {
 	return m_bPotentialScaling;
+}
+int CvModEventCityChoiceInfo::GetScienceScaling() const
+{
+	return m_iScienceScaling
 }
 EventChoiceTypes CvModEventCityChoiceInfo::GetTriggerPlayerEventChoice() const
 {
@@ -11139,6 +11144,7 @@ bool CvModEventCityChoiceInfo::CacheResults(Database::Results& kResults, CvDatab
 	m_bEspionageEffect = kResults.GetBool("IsEspionageEffect");
 	m_bApplyEffectToSpyOwner = kResults.GetBool("IsSpyBenefit");
 	m_bPotentialScaling = kResults.GetBool("PotentialScaling");
+	m_iScienceScaling = kResults.GetInt("ScienceScaling");
 	m_iIdentificationModifier = kResults.GetInt("IDModifier");
 	m_iDeathModifier = kResults.GetInt("DeathModifier");
 	m_iSpyLevelRequired = kResults.GetInt("SpyLevelRequired");

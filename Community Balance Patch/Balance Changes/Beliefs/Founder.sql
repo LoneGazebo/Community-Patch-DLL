@@ -95,7 +95,7 @@ VALUES
 INSERT INTO Belief_YieldFromTechUnlock
 	(BeliefType, YieldType, Yield, IsEraScaling)
 VALUES
-	('BELIEF_PILGRIMAGE', 'YIELD_FAITH', 10, 'false');
+	('BELIEF_PILGRIMAGE', 'YIELD_FAITH', 2, 'false');
 
 INSERT INTO Belief_YieldFromForeignSpread
 	(BeliefType, YieldType, Yield)

@@ -1188,6 +1188,17 @@ CvSpyResult CvPlayerEspionage::ProcessSpyFocusResult(PlayerTypes ePlayer, CvCity
 		if (eCityOwner != m_pPlayer->GetID())
 		{
 			pSpy->m_iPotentialAtStart = pCity->GetEspionageRanking();
+
+			if (pkEventChoiceInfo->GetScienceScaling() != 0)
+			{
+				int iTechDifference = GET_TEAM(GET_PLAYER(eCityOwner).getTeam()).GetTeamTechs()->GetNumTechsKnown() - GET_TEAM(m_pPlayer->getTeam()).GetTeamTechs()->GetNumTechsKnown();
+				iTechDifference *= pkEventChoiceInfo->GetScienceScaling();
+				iTechDifference = range(iTechDifference, -50, 50);
+
+				pSpy->m_iPotentialAtStart *= 100 + iTechDifference;
+				pSpy->m_iPotentialAtStart /= 100;
+			}
+
 			pSpy->SetSpyFocus(eEventChoice);
 			pSpy->SetSpyState(m_pPlayer->GetID(), uiSpyIndex, SPY_STATE_GATHERING_INTEL);
 			pCityEspionage->ResetProgress(ePlayer);
@@ -1202,6 +1213,15 @@ CvSpyResult CvPlayerEspionage::ProcessSpyFocusResult(PlayerTypes ePlayer, CvCity
 		else
 		{
 			pSpy->m_iPotentialAtStart = pCity->GetEspionageRanking();
+			if (pkEventChoiceInfo->GetScienceScaling() != 0)
+			{
+				int iTechDifference = GET_TEAM(GET_PLAYER(eCityOwner).getTeam()).GetTeamTechs()->GetNumTechsKnown() - GET_TEAM(m_pPlayer->getTeam()).GetTeamTechs()->GetNumTechsKnown();
+				iTechDifference *= pkEventChoiceInfo->GetScienceScaling();
+				iTechDifference = range(iTechDifference, -50, 50);
+
+				pSpy->m_iPotentialAtStart *= 100 + iTechDifference;
+				pSpy->m_iPotentialAtStart /= 100;
+			}
 			pSpy->SetSpyFocus(eEventChoice);
 			pSpy->SetSpyState(m_pPlayer->GetID(), uiSpyIndex, SPY_STATE_BUILDING_NETWORK);
 			pCityEspionage->ResetProgress(ePlayer);
@@ -1304,7 +1324,7 @@ CvSpyResult CvPlayerEspionage::ProcessSpyFocusResult(PlayerTypes ePlayer, CvCity
 	}
 	else
 	{
-		int iChance = max(10, pSpy->m_iPotentialAtStart * 9);
+		int iChance = range(pSpy->m_iPotentialAtStart * 10, 10, 90);
 		DoSpyFocusLevelUp(uiSpyIndex, iChance);
 		ExtractSpyFromCity(uiSpyIndex);
 	}

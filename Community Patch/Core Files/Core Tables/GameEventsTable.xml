@@ -815,6 +815,8 @@
 		<Column name="IsSpyBenefit" type="boolean" default="false"/>
 		<!-- Bonus and/or cost etc. scale based on the potential of the city - higher potential = slower, but more reward! -->
 		<Column name="PotentialScaling" type="boolean" default="false"/>
+		<!-- Bonus and/or cost etc. scale based on the difference in techs with target player! Scales the potential value by a % amount-->
+		<Column name="ScienceScaling" type="integer" default="0"/>
 		<!-- Modifier to chance to be identified on a spy mission-->
 		<Column name="IDModifier" type="integer" default="0"/>
 		<!-- Modifier to chance to be killed on a spy mission-->

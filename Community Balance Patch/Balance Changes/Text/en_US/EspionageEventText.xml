@@ -78,13 +78,13 @@
 			<Text>Sabotage Science and Steal a [ICON_RESEARCH] Technology</Text>
 		</Row>
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_STEAL_TECH_HELP">
-			<Text>{6_Spy}Target Player: Steal one [ICON_RESEARCH] Technology. Target City: {3_CityYield}</Text>
+			<Text>{6_Spy}Target Player: Steal one [ICON_RESEARCH] Technology. Target City: {3_CityYield}[NEWLINE][NEWLINE]If no Techs are available to steal at completion, a [ICON_GOLDEN_AGE] Golden Age Begins.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_STEAL_GW">
 			<Text>Poison water supplies and spoil local [ICON_FOOD] Food stores</Text>
 		</Row>
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_STEAL_GW_HELP">
-			<Text>{6_Spy}Target City: Copy one [ICON_GREAT_WORK] Great Work. Target City: {3_CityYield}</Text>
+			<Text>{6_Spy}Target City: Copy one [ICON_GREAT_WORK] Great Work. Target City: {3_CityYield}[NEWLINE][NEWLINE]If no Great Works are available to steal at completion, a [ICON_GOLDEN_AGE] Golden Age Begins.</Text>
 		</Row>
 
 		
