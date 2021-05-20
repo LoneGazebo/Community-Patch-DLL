@@ -46779,7 +46779,7 @@ void CvDiplomacyAI::CleanupRenewDeals(PlayerTypes eOtherPlayer)
 			else
 			{
 				dealsToCancel[i]->m_bConsideringForRenewal = false;
-				CancelRenewDeal(eOtherPlayer, REASON_BETTER_RENEAL_CHOICE, false, dealsToCancel[i]);
+				CancelRenewDeal(eOtherPlayer, REASON_BETTER_RENEWAL_CHOICE, false, dealsToCancel[i]);
 			}
 		}
 	}
@@ -46882,8 +46882,8 @@ void CvDiplomacyAI::CancelRenewDeal(PlayerTypes eOtherPlayer, RenewalReason eRea
 				strReason.Format(",REASON: Human Rejection");
 				strOutBuf += strReason;
 				break;
-			case REASON_BETTER_RENEAL_CHOICE:
-				strReason.Format(",REASON: Bette Renewal Choice");
+			case REASON_BETTER_RENEWAL_CHOICE:
+				strReason.Format(",REASON: Better Renewal Choice");
 				strOutBuf += strReason;
 				break;
 			}
