@@ -10946,13 +10946,33 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 		// High Meanness leaders will fight to the bitter end when losing, high Diplo Balance leaders like to return to status quo when winning
 		if (iWarScore > 0)
 		{
-			iPeaceScore *= 100 + ((GetDiploBalance() - 5) * 10);
-			iPeaceScore /= 100;
+			int iModifier = (GetDiploBalance() - 5) * 10;
+
+			if (iPeaceScore > 0)
+			{
+				iPeaceScore *= (100 + iModifier);
+				iPeaceScore /= 100;
+			}
+			else
+			{
+				iPeaceScore *= (100 - iModifier);
+				iPeaceScore /= 100;
+			}
 		}
 		else if (iWarScore < 0)
 		{
-			iPeaceScore *= 100 + ((-GetMeanness() + 5) * 10);
-			iPeaceScore /= 100;
+			int iModifier = (-GetMeanness() + 5) * 10;
+
+			if (iPeaceScore > 0)
+			{
+				iPeaceScore *= (100 + iModifier);
+				iPeaceScore /= 100;
+			}
+			else
+			{
+				iPeaceScore *= (100 - iModifier);
+				iPeaceScore /= 100;
+			}
 		}
 
 		// Must be high enough to return a true desire for peace
