@@ -11791,9 +11791,6 @@ void CvPlayer::DoUnitReset()
 		if (!pLoopUnit->hasMoved() && pLoopUnit->canFortify(pLoopUnit->plot()))
 			pLoopUnit->SetFortified(true);
 
-		// Set up blockades
-		pLoopUnit->DoBlockade(pLoopUnit->plot(),true);
-
 		// Finally (now that healing is done), restore movement points
 		pLoopUnit->restoreFullMoves();
 
@@ -13109,20 +13106,6 @@ bool CvPlayer::canReceiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit) 
 		// Don't give more Population if we're already unhappy
 		if (IsEmpireUnhappy())
 			return false;
-
-		int iLoop;
-		bool bGood = false;
-		for (const CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
-		{
-			if (pLoopCity->IsResistance() || pLoopCity->IsRazing())
-				continue;
-			
-			bGood = true;
-			break;
-		}
-
-		if (!bGood)
-			return false;
 	}
 
 	// Production
@@ -13132,20 +13115,6 @@ bool CvPlayer::canReceiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit) 
 			return false;
 
 		if (getNumCities() == 0)
-			return false;
-
-		int iLoop;
-		bool bGood = false;
-		for (const CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
-		{
-			if (pLoopCity->IsResistance() || pLoopCity->IsRazing())
-				continue;
-			
-			bGood = true;
-			break;
-		}
-
-		if (!bGood)
 			return false;
 	}
 
@@ -13172,20 +13141,6 @@ bool CvPlayer::canReceiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit) 
 			return false;
 
 		if (getNumCities() == 0)
-			return false;
-
-		int iLoop;
-		bool bGood = false;
-		for (const CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
-		{
-			if (pLoopCity->IsResistance() || pLoopCity->IsRazing())
-				continue;
-			
-			bGood = true;
-			break;
-		}
-
-		if (!bGood)
 			return false;
 	}
 
@@ -13527,7 +13482,6 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 	CvString strTempBuffer;
 	TechTypes eBestTech;
 	UnitTypes eUnit;
-	int iGold = 0;
 	int iOffset;
 	int iRange;
 	int iBarbCount;
@@ -13537,11 +13491,73 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 	int iDX, iDY;
 	int iI;
 
-	int iEra = MOD_BALANCE_CORE ? GetCurrentEra() : 1;
-	if (iEra <= 0)
-		iEra = 1;
-
 	CvAssertMsg(canReceiveGoody(pPlot, eGoody, pUnit), "Instance is expected to be able to receive goody");
+
+	// Wishing we had lambdas right about now
+	struct BestCityFinder
+	{
+		CvCity* operator()(CvPlayer& kPlayer, const CvPlot& kPlot)
+		{
+			int iBestCityDistance = 0;
+			bool bBestCityIsProductive = false;
+			CvCity* pBestCity = NULL;
+
+			int iLoop;
+			for (CvCity* pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
+			{
+				bool bCityIsProductive = !(pLoopCity->IsResistance() || pLoopCity->IsRazing());
+
+				// Only select unproductive cities if we also have no productive cities
+				if (bBestCityIsProductive && !bCityIsProductive)
+					continue;
+
+				// Prefer cities nearest the plot
+				int iDistance = plotDistance(kPlot.getX(), kPlot.getY(), pLoopCity->getX(), pLoopCity->getY());
+
+				if (pBestCity == NULL || iDistance < iBestCityDistance)
+				{
+					iBestCityDistance = iDistance;
+					bBestCityIsProductive = bCityIsProductive;
+					pBestCity = pLoopCity;
+				}
+			}
+
+			return pBestCity;
+		}
+	} bestCityFinder;
+
+	struct GoodyValueModifier
+	{
+		GoodyValueModifier(CvPlayer& kPlayer, CvUnit* pUnit)
+		{
+			m_iGoodyModifier = pUnit != NULL ? pUnit->getUnitInfo().GetGoodyModifier() + pUnit->GetGoodyHutYieldBonus() : 0;
+
+			m_iEraScale = MOD_BALANCE_CORE ? kPlayer.GetCurrentEra() : 1;
+			if (m_iEraScale <= 0)
+				m_iEraScale = 1;
+		}
+
+		void operator()(int& iValue, int iGameSpeedPercent, bool bUseUnitModifier, bool bScaleByEra)
+		{
+			if (iGameSpeedPercent != -1)
+			{
+				iValue *= iGameSpeedPercent;
+				iValue /= 100;
+			}
+			if (bUseUnitModifier)
+			{
+				iValue *= (100 + m_iGoodyModifier);
+				iValue /= 100;
+			}
+			if (bScaleByEra)
+			{
+				iValue *= m_iEraScale;
+			}
+		}
+
+		int m_iGoodyModifier;
+		int m_iEraScale;
+	} goodyValueModifier(*this, pUnit);
 
 	Database::SingleResult kResult;
 	CvGoodyInfo kGoodyInfo;
@@ -13555,152 +13571,75 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 	strBuffer = kGoodyInfo.GetDescription();
 
 	// Gold
-	if (kGoodyInfo.getNumGoldRandRolls() > 0 && kGoodyInfo.getGoldRandAmount() > 0)
+	int iGold = 0;
 	{
-		iGold = kGoodyInfo.getGold() + (kGoodyInfo.getNumGoldRandRolls() * GC.getGame().getSmallFakeRandNum(kGoodyInfo.getGoldRandAmount(), *pPlot));
-	}
+		if (kGoodyInfo.getNumGoldRandRolls() > 0 && kGoodyInfo.getGoldRandAmount() > 0)
+		{
+			iGold = kGoodyInfo.getGold() + (kGoodyInfo.getNumGoldRandRolls() * GC.getGame().getSmallFakeRandNum(kGoodyInfo.getGoldRandAmount(), *pPlot));
+		}
 
-	int iGoodyModifier = pUnit != NULL ? pUnit->getUnitInfo().GetGoodyModifier() + pUnit->GetGoodyHutYieldBonus() : 0;
-
-	if (iGoodyModifier != 0)
-	{
-		iGold *= (100 + iGoodyModifier);
-		iGold /= 100;
-	}
-	if(iGold != 0)
-	{
-		iGold *= iEra;
-		GetTreasury()->ChangeGold(iGold);
-		changeInstantYieldValue(YIELD_GOLD, iGold);
-		strBuffer += " ";
-		strBuffer += GetLocalizedText("TXT_KEY_MISC_RECEIVED_GOLD", iGold);
+		if (iGold != 0)
+		{
+			goodyValueModifier(iGold, GC.getGame().getGameSpeedInfo().getGoldPercent(), true, true);
+			GetTreasury()->ChangeGold(iGold);
+			changeInstantYieldValue(YIELD_GOLD, iGold);
+			strBuffer += " ";
+			strBuffer += GetLocalizedText("TXT_KEY_MISC_RECEIVED_GOLD", iGold);
+		}
 	}
 
 	// Population
-	if(kGoodyInfo.getPopulation() > 0)
+	int iPop = kGoodyInfo.getPopulation();
+	if (kGoodyInfo.getPopulation() > 0)
 	{
-		int iBestCityDistance = -1;
-		CvCity* pBestCity = NULL;
-
-		int iLoop;
-		// Find the closest City to us to add a Pop point to
-		for(CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+		CvCity* pBestCity = bestCityFinder(*this, *pPlot);
+		if (pBestCity != NULL)
 		{
-			int iDistance = plotDistance(pPlot->getX(), pPlot->getY(), pLoopCity->getX(), pLoopCity->getY());
-
-			if (pLoopCity->IsResistance() || pLoopCity->IsRazing())
-				continue;
-
-			if(iBestCityDistance == -1 || iDistance < iBestCityDistance)
-			{
-				iBestCityDistance = iDistance;
-				pBestCity = pLoopCity;
-			}
-		}
-
-		int iPop = kGoodyInfo.getPopulation() * iEra;
-
-		if(pBestCity != NULL)
-		{
+			goodyValueModifier(iPop, -1, false, true);
 			pBestCity->changePopulation(iPop, true, true);
 		}
+		else
+		{
+			// Remember that no growth happened just in case something cares
+			iPop = 0;
+		}
 	}
-#if defined(MOD_BALANCE_CORE)
+
 	// Production
-	int iProduction = 0;
-	if(MOD_BALANCE_CORE && kGoodyInfo.getProduction() > 0)
+	int iProduction = MOD_BALANCE_CORE ? kGoodyInfo.getProduction() : 0;
+	if (iProduction > 0)
 	{
-		iProduction = kGoodyInfo.getProduction();
-		iProduction *= GC.getGame().getGameSpeedInfo().getInstantYieldPercent();
-		iProduction /= 100;
-
-		if (pUnit != NULL && iGoodyModifier != 0)
+		CvCity* pBestCity = bestCityFinder(*this, *pPlot);
+		if (pBestCity != NULL)
 		{
-			iProduction *= (100 + iGoodyModifier);
-			iProduction /= 100;
-		}
-
-		iProduction *= iEra;
-
-		int iBestCityDistance = -1;
-		CvCity* pBestCity = NULL;
-
-		// Find the closest City to us to add Production to
-		int iLoop;
-		for(CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
-		{
-			int iDistance = plotDistance(pPlot->getX(), pPlot->getY(), pLoopCity->getX(), pLoopCity->getY());
-
-			if (pLoopCity->IsResistance() || pLoopCity->IsRazing())
-				continue;
-
-			if(iBestCityDistance == -1 || iDistance < iBestCityDistance)
-			{
-				iBestCityDistance = iDistance;
-				pBestCity = pLoopCity;
-			}
-		}
-
-		if(pBestCity != NULL)
-		{
+			goodyValueModifier(iProduction, GC.getGame().getGameSpeedInfo().getInstantYieldPercent(), true, true);
 			pBestCity->changeProduction(iProduction);
 			changeInstantYieldValue(YIELD_PRODUCTION, iProduction);
-			strBuffer += " ";
-			strBuffer += GetLocalizedText("TXT_KEY_GOODY_PRODUCTION");
+		}
+		else
+		{
+			// Remember that no production was yielded just in case something cares
+			iProduction = 0;
 		}
 	}
+
 	// Golden Age Points
-	int iGoldenAge = kGoodyInfo.getGoldenAge();
+	int iGoldenAge = MOD_BALANCE_CORE ? kGoodyInfo.getGoldenAge() : 0;
 	if (iGoldenAge > 0 && GetNumGoldenAges() <= 0)
 	{
-		// Game Speed Mod
-		iGoldenAge *= GC.getGame().getGameSpeedInfo().getCulturePercent();
-		iGoldenAge /= 100;
-
-		if (pUnit != NULL && iGoodyModifier != 0)
-		{
-			iGoldenAge *= (100 + iGoodyModifier);
-			iGoldenAge /= 100;
-		}
-
-		iGoldenAge *= iEra;
-
+		goodyValueModifier(iGoldenAge, GC.getGame().getGameSpeedInfo().getGoldenAgePercent(), true, true);
 		ChangeGoldenAgeProgressMeter(iGoldenAge);
-
 		changeInstantYieldValue(YIELD_GOLDEN_AGE_POINTS, iGoldenAge);
 	}
-	//Free Tiles
-	int iFreeTiles = kGoodyInfo.getFreeTiles();
+
+	// Free Tiles
+	int iFreeTiles = MOD_BALANCE_CORE ? kGoodyInfo.getFreeTiles() : 0;
 	if(iFreeTiles > 0)
 	{
-		int iBestCityDistance = -1;
-		CvCity* pBestCity = NULL;
-
-		// Find the closest City to us to add free tiles to
-		int iLoop;
-		for(CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
-		{
-			int iDistance = plotDistance(pPlot->getX(), pPlot->getY(), pLoopCity->getX(), pLoopCity->getY());
-
-			if (pLoopCity->IsResistance() || pLoopCity->IsRazing())
-				continue;
-
-			if(iBestCityDistance == -1 || iDistance < iBestCityDistance)
-			{
-				iBestCityDistance = iDistance;
-				pBestCity = pLoopCity;
-			}
-		}
-
+		CvCity* pBestCity = bestCityFinder(*this, *pPlot);
 		if(pBestCity != NULL)
 		{
-
-			if (pUnit != NULL && iGoodyModifier != 0)
-			{
-				iFreeTiles *= (100 + iGoodyModifier);
-				iFreeTiles /= 100;
-			}
-
+			goodyValueModifier(iFreeTiles, -1, true, false);
 			if(iFreeTiles > 0)
 			{
 				for (int i = 0; i < iFreeTiles; i++)
@@ -13743,22 +13682,18 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 				}
 			}
 		}
+		else
+		{
+			// Remember that no city received tiles just in case something cares
+			iFreeTiles = 0;
+		}
 	}
+
 	// Science
-	int iScience = kGoodyInfo.getScience();
+	int iScience = MOD_BALANCE_CORE ? kGoodyInfo.getScience() : 0;
 	if (iScience > 0)
 	{
-		// Game Speed Mod
-		iScience *= GC.getGame().getGameSpeedInfo().getResearchPercent();
-		iScience /= 100;
-
-		if (pUnit != NULL && iGoodyModifier != 0)
-		{
-			iScience *= (100 + iGoodyModifier);
-			iScience /= 100;
-		}
-
-		iScience *= iEra;
+		goodyValueModifier(iScience, GC.getGame().getGameSpeedInfo().getResearchPercent(), true, true);
 
 		TechTypes eCurrentTech = GetPlayerTechs()->GetCurrentResearch();
 		if (eCurrentTech == NO_TECH)
@@ -13773,28 +13708,16 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 
 		changeInstantYieldValue(YIELD_SCIENCE, iScience);
 	}
-#endif
+
 	// Culture
 	int iCulture = kGoodyInfo.getCulture();
 	if(iCulture > 0)
 	{
-		// Game Speed Mod
-		iCulture *= GC.getGame().getGameSpeedInfo().getCulturePercent();
-		iCulture /= 100;
-
-		if (pUnit != NULL && iGoodyModifier != 0)
-		{
-			iCulture *= (100 + iGoodyModifier);
-			iCulture /= 100;
-		}
-#if defined(MOD_BALANCE_CORE_BARBARIAN_THEFT)
+		goodyValueModifier(iCulture, GC.getGame().getGameSpeedInfo().getCulturePercent(), true, true);
 		if (MOD_BALANCE_CORE_BARBARIAN_THEFT)
 		{
 			iCulture *= max(1, (GetPlayerPolicies()->GetNumPoliciesOwned(true, true) / 2));
 		}
-#endif
-
-		iCulture *= iEra;
 
 		changeJONSCulture(iCulture);
 
@@ -13808,18 +13731,7 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 	int iFaith = kGoodyInfo.getFaith();
 	if(iFaith > 0)
 	{
-		// Game Speed Mod
-		iFaith *= GC.getGame().getGameSpeedInfo().getFaithPercent();
-		iFaith /= 100;
-
-		if (pUnit != NULL && iGoodyModifier != 0)
-		{
-			iFaith *= (100 + iGoodyModifier);
-			iFaith /= 100;
-		}
-
-		iFaith *= iEra;
-
+		goodyValueModifier(iFaith, GC.getGame().getGameSpeedInfo().getFaithPercent(), true, true);
 		ChangeFaith(iFaith);
 
 		changeInstantYieldValue(YIELD_FAITH, iFaith);
@@ -13838,14 +13750,7 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 		iFaith /= iDivisor;
 		iFaith *= iDivisor;
 
-		if (pUnit != NULL && iGoodyModifier != 0)
-		{
-			iFaith *= (100 + iGoodyModifier);
-			iFaith /= 100;
-		}
-
-		iFaith *= iEra;
-
+		goodyValueModifier(iFaith, -1, true, true);
 		ChangeFaith(iFaith);
 
 		changeInstantYieldValue(YIELD_FAITH, iFaith);
@@ -13867,8 +13772,7 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 		iFaith /= iDivisor;
 		iFaith *= (iDivisor / 2);
 
-		iFaith *= iEra;
-
+		goodyValueModifier(iFaith, -1, false, true);
 		ChangeFaith(iFaith);
 
 		changeInstantYieldValue(YIELD_FAITH, iFaith);
@@ -14002,11 +13906,7 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 	if(pUnit != NULL)
 	{
 		int iExperience = kGoodyInfo.getExperience() * 100;
-		if (pUnit != NULL && iGoodyModifier  != 0)
-		{
-			iExperience *= (100 + iGoodyModifier);
-			iExperience /= 100;
-		}
+		goodyValueModifier(iExperience, -1, true, false);
 		pUnit->changeExperienceTimes100(iExperience);
 	}
 
@@ -36809,7 +36709,7 @@ void CvPlayer::DoUpdateWarPeaceTurnCounters()
 	{
 		PlayerTypes ePlayer = (PlayerTypes) iI;
 
-		if (GET_PLAYER(ePlayer).isAlive() && GET_TEAM(getTeam()).isHasMet(GET_PLAYER(ePlayer).getTeam()) && getTeam() != GET_PLAYER(ePlayer).getTeam())
+		if (GET_PLAYER(ePlayer).isAlive() && getTeam() != GET_PLAYER(ePlayer).getTeam())
 		{
 			if (IsAtWarWith(ePlayer))
 			{
@@ -36833,11 +36733,9 @@ void CvPlayer::ResetWarPeaceTurnCounters() // called when a player is killed
 	{
 		PlayerTypes ePlayer = (PlayerTypes) iI;
 
-		SetPlayerNumTurnsAtPeace(ePlayer, 0);
 		SetPlayerNumTurnsAtWar(ePlayer, 0);
 		SetPlayerNumTurnsSinceCityCapture(ePlayer, 0);
 
-		GET_PLAYER(ePlayer).SetPlayerNumTurnsAtPeace(ePlayer, 0);
 		GET_PLAYER(ePlayer).SetPlayerNumTurnsAtWar(ePlayer, 0);
 		GET_PLAYER(ePlayer).SetPlayerNumTurnsSinceCityCapture(ePlayer, 0);
 	}
