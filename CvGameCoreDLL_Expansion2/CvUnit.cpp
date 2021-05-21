@@ -610,10 +610,22 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 	//--------------------------------
 	// Init pre-setup() data
 	setXY(iX, iY, false, false, false, false, bNoMove);
+
 #if defined(MOD_BALANCE_CORE)
-	if(plot() != NULL && plot()->getOwningCity() != NULL && plot()->getOwningCity()->getOwner() == getOwner())
+	if (plot() != NULL)
 	{
-		setOriginCity(plot()->getOwningCity()->GetID());
+		CvCity* pWorkingCity = plot()->getOwningCity();
+		if (pWorkingCity != NULL)
+		{
+			if (pWorkingCity->getOwner() == getOwner())
+			{
+				setOriginCity(plot()->getOwningCity()->GetID());
+			}
+			else
+			{
+				DoBlockade(plot(), true);
+			}
+		}
 	}
 #endif
 	//--------------------------------
@@ -2378,6 +2390,12 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 					}
 				}
 			}
+		}
+
+		CvCity* pWorkingCity = pPlot->getOwningCity();
+		if (pWorkingCity != NULL)
+		{
+			pWorkingCity->GetCityCitizens()->SetBlockaded(pPlot, GetID(), false);
 		}
 
 		if(pkOldUnits)

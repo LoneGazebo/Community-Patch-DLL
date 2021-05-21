@@ -2596,6 +2596,26 @@ void CvCity::doTurn()
 			}
 		}
 	}
+	int iX = getX(); int iY = getY();
+	for (int iCityPlotLoop = 0; iCityPlotLoop < GetNumWorkablePlots(); iCityPlotLoop++)
+	{
+		CvPlot* pLoopPlot = iterateRingPlots(iX, iY, iCityPlotLoop);
+		if (pLoopPlot != NULL)
+		{
+			GetCityCitizens()->SetBlockaded(pLoopPlot, -1, false, true);
+			for (int iUnitLoop = 0; iUnitLoop < pLoopPlot->getNumUnits(); iUnitLoop++)
+			{
+				pLoopUnit = pLoopPlot->getUnitByIndex(iUnitLoop);
+
+				//Only get land combat units
+				if (pLoopUnit != NULL && getOwner() != pLoopUnit->getOwner() && pLoopUnit->IsCombatUnit())
+				{
+					// Set up blockades
+					pLoopUnit->DoBlockade(pLoopUnit->plot(), true);
+				}
+			}
+		}
+	}
 #endif
 #if defined(MOD_BALANCE_CORE_EVENTS)
 	if(MOD_BALANCE_CORE_EVENTS)

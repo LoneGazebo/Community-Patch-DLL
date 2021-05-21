@@ -11402,47 +11402,21 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 
 		// If we're going for world conquest, we want to fight our wars until we get their capital or can vassalize them
 		// However, do not factor this in when losing
-		if (GetStateAllWars() != STATE_ALL_WARS_LOSING && !GetPlayer()->IsEmpireVeryUnhappy())
+		if (iWarScore > -15 && bWorldConquest)
 		{
-			if (iWarScore > 0 || (iWarScore > -15 && GetPlayerTargetValue(*it) >= TARGET_VALUE_AVERAGE && GetWarState(*it) > WAR_STATE_DEFENSIVE))
+			if (bReadyForVassalage || GET_PLAYER(GET_PLAYER(*it).GetCapitalConqueror()).getTeam() == GetTeam())
 			{
-				if (bCapturedAnyCityFromUs)
-				{
-					if (iPeaceScore > 0)
-						iPeaceScore /= 2;
-					else
-						iPeaceScore *= 2;
-				}
-				else if (bWorldConquest)
-				{
-					if (bReadyForVassalage || GET_PLAYER(*it).GetCapitalConqueror() != NO_PLAYER)
-					{
-						if (iPeaceScore > 0)
-							iPeaceScore *= 2;
-						else
-							iPeaceScore /= 2;
-					}
-					else
-					{
-						if (iPeaceScore > 0)
-							iPeaceScore /= 2;
-						else
-							iPeaceScore *= 2;
-					}
-				}
-				else if (bCapturedAnyCityWeWantToLiberate)
-				{
-					if (iPeaceScore > 0)
-					{
-						iPeaceScore *= 75;
-						iPeaceScore /= 100;
-					}
-					else
-					{
-						iPeaceScore *= 125;
-						iPeaceScore /= 100;
-					}
-				}
+				if (iPeaceScore > 0)
+					iPeaceScore *= 2;
+				else
+					iPeaceScore /= 2;
+			}
+			else
+			{
+				if (iPeaceScore > 0)
+					iPeaceScore /= 2;
+				else
+					iPeaceScore *= 2;
 			}
 		}
 

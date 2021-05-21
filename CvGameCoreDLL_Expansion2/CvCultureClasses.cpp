@@ -5719,7 +5719,7 @@ int CvPlayerCulture::ComputeWarWeariness()
 			iRisingWarWeariness++;
 
 		//but never more than x% of pop...
-		int iPopLimit = m_pPlayer->getTotalPopulation() * /*34*/ GC.getBALANCE_WAR_WEARINESS_POPULATION_CAP() / 100;
+		int iPopLimit = m_pPlayer->getTotalPopulation() * /*25*/ GC.getBALANCE_WAR_WEARINESS_POPULATION_CAP() / 100;
 		iRisingWarWeariness = min(iRisingWarWeariness, iPopLimit);
 	}
 
