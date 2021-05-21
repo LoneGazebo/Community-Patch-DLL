@@ -426,6 +426,10 @@ public:
 	StateAllWars GetStateAllWars() const;
 	void SetStateAllWars(StateAllWars eState);
 
+	// War Goal: What is our objective in the war against ePlayer (NO_WAR_GOAL_TYPE if at peace)
+	WarGoalTypes GetWarGoal(PlayerTypes ePlayer) const;
+	void SetWarGoal(PlayerTypes ePlayer, WarGoalTypes eWarGoal);
+
 	// ------------------------------------
 	// Peace
 	// ------------------------------------
@@ -437,6 +441,11 @@ public:
 	// What are we willing to accept from ePlayer to make peace?
 	PeaceTreatyTypes GetTreatyWillingToAccept(PlayerTypes ePlayer) const;
 	void SetTreatyWillingToAccept(PlayerTypes ePlayer, PeaceTreatyTypes eTreaty);
+
+	// Want Peace Counter: how long have we wanted peace with ePlayer? (Looks at WarGoal)
+	int GetWantPeaceCounter(PlayerTypes ePlayer) const;
+	void SetWantPeaceCounter(PlayerTypes ePlayer, int iValue);
+	void ChangeWantPeaceCounter(PlayerTypes ePlayer, int iChange);
 
 	// ------------------------------------
 	// Backstabbing Penalties
@@ -1005,7 +1014,6 @@ public:
 
 	void DoWarValueLostDecay();
 	void DoUpdateWarDamage();
-	void DoUpdateConquestStats();
 
 	// ------------------------------------
 	// Coop Wars
@@ -1055,6 +1063,14 @@ public:
 
 	void DoUpdateEasyTargets();
 
+	void DoUpdateWarGoals();
+
+	bool IsPeaceBlocked(PlayerTypes ePlayer) const;
+	int GetPeaceBlockReason(PlayerTypes ePlayer) const;
+
+	void DoUpdatePeaceTreatyWillingness();
+	bool IsWantsPeaceWithPlayer(PlayerTypes ePlayer) const;
+
 	// ------------------------------------
 	// Aggressive Postures
 	// ------------------------------------
@@ -1072,7 +1088,9 @@ public:
 	// ------------------------------------
 
 	void DoUpdateLandDisputeLevels();
+
 	void DoUpdateWonderDisputeLevels();
+
 	void DoUpdateMinorCivDisputeLevels();
 
 	// ------------------------------------
@@ -1153,25 +1171,10 @@ public:
 	void DoUpdateMinorCivApproaches();
 	void SelectBestApproachTowardsMinorCiv(PlayerTypes ePlayer, std::map<PlayerTypes, CivApproachTypes>& oldApproaches);
 
-	// ------------------------------------
-	// Peace Treaty Willingness
-	// ------------------------------------
-
-	void DoUpdatePeaceTreatyWillingness(bool bMyTurn = false);
-	bool IsWantsPeaceWithPlayer(PlayerTypes ePlayer) const;
-	bool IsPeaceBlocked(PlayerTypes ePlayer) const;
-	int GetPeaceBlockReason(PlayerTypes ePlayer) const;
-	int CountUnitsAroundEnemyCities(PlayerTypes ePlayer, int iTurnRange) const;
-
-	// ------------------------------------
-	// Counters
-	// ------------------------------------
-
+	/////////////////////////////////////////////////////////
+	// Opinion
+	/////////////////////////////////////////////////////////
 	void DoCounters();
-
-	// ------------------------------------
-	// Below this line things are not sorted...
-	// ------------------------------------
 
 	/////////////////////////////////////////////////////////
 	// Approach
@@ -1206,12 +1209,23 @@ public:
 	bool IsOpenBordersExchangeAcceptable(PlayerTypes ePlayer);
 
 	/////////////////////////////////////////////////////////
+	// Peace
+	/////////////////////////////////////////////////////////
+
+	void DoMakePeaceWithMinors();
+	void DoMakePeaceWithVassals();
+
+	/////////////////////////////////////////////////////////
 	// War & Military Assessment
 	/////////////////////////////////////////////////////////
 
 	void MakeWar();
 	bool DeclareWar(PlayerTypes ePlayer);
 	bool DeclareWar(TeamTypes eTeam);
+
+	int CountUnitsAroundEnemyCities(PlayerTypes ePlayer, int iTurnRange) const;
+
+	void DoUpdateConquestStats();
 
 	/////////////////////////////////////////////////////////
 	// Planning Exchanges
@@ -1789,6 +1803,7 @@ private:
 	void LogMilitaryStrength(CvString& strString, PlayerTypes ePlayer);
 	void LogTargetValue(CvString& strString, PlayerTypes ePlayer);
 	void LogEconomicStrength(CvString& strString, PlayerTypes ePlayer);
+	void LogWarGoal(CvString& strString, PlayerTypes ePlayer);
 	void LogWarPeaceWillingToOffer(CvString& strString, PlayerTypes ePlayer);
 	void LogWarPeaceWillingToAccept(CvString& strString, PlayerTypes ePlayer);
 	void LogWarState(CvString& strString, PlayerTypes ePlayer);
@@ -1905,10 +1920,12 @@ private:
 	int m_aiWarValueLost[MAX_CIV_PLAYERS];
 	unsigned short m_aiWarDamageValue[MAX_CIV_PLAYERS];
 	char m_aeWarState[MAX_CIV_PLAYERS];
+	char m_aeWarGoal[MAX_PLAYERS];
 
 	// Peace
 	char m_aePeaceTreatyWillingToOffer[MAX_MAJOR_CIVS];
 	char m_aePeaceTreatyWillingToAccept[MAX_MAJOR_CIVS];
+	short m_aiWantPeaceCounter[MAX_CIV_PLAYERS]; //todo
 
 	// Backstabbing Penalties
 	bool m_abUntrustworthyFriend[MAX_MAJOR_CIVS];

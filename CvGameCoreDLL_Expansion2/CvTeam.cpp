@@ -4178,6 +4178,8 @@ bool CvTeam::isHasMet(TeamTypes eIndex)	const
 //	--------------------------------------------------------------------------------
 void CvTeam::makeHasMet(TeamTypes eIndex, bool bSuppressMessages)
 {
+	int iI;
+
 	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
 	CvAssertMsg(eIndex < MAX_TEAMS, "eIndex is expected to be within maximum bounds (invalid Index)");
 
@@ -4200,19 +4202,28 @@ void CvTeam::makeHasMet(TeamTypes eIndex, bool bSuppressMessages)
 			}
 		}
 
+		int iMyPlayersLoop;
+		PlayerTypes eMyPlayer;
+
+		int iTheirPlayersLoop;
+		PlayerTypes eTheirPlayer;
+
+		int iThirdPlayersLoop;
+		PlayerTypes eThirdPlayer;
+
 		// First Contact in Diplo AI (Civ 5)
-		for(int iMyPlayersLoop = 0; iMyPlayersLoop < MAX_CIV_PLAYERS; iMyPlayersLoop++)
+		for(iMyPlayersLoop = 0; iMyPlayersLoop < MAX_CIV_PLAYERS; iMyPlayersLoop++)
 		{
-			PlayerTypes eMyPlayer = (PlayerTypes) iMyPlayersLoop;
+			eMyPlayer = (PlayerTypes) iMyPlayersLoop;
 
 			if(GET_PLAYER(eMyPlayer).isAlive())
 			{
 				if(GET_PLAYER(eMyPlayer).getTeam() == GetID())
 				{
 					// Now loop through players on Their team
-					for(int iTheirPlayersLoop = 0; iTheirPlayersLoop < MAX_CIV_PLAYERS; iTheirPlayersLoop++)
+					for(iTheirPlayersLoop = 0; iTheirPlayersLoop < MAX_CIV_PLAYERS; iTheirPlayersLoop++)
 					{
-						PlayerTypes eTheirPlayer = (PlayerTypes) iTheirPlayersLoop;
+						eTheirPlayer = (PlayerTypes) iTheirPlayersLoop;
 
 						// Don't calculate proximity to oneself!
 						if(eMyPlayer != eTheirPlayer)
@@ -4228,15 +4239,19 @@ void CvTeam::makeHasMet(TeamTypes eIndex, bool bSuppressMessages)
 									GET_PLAYER(eTheirPlayer).DoUpdateProximityToPlayer(eMyPlayer);
 
 									// First contact Diplo changes (no Minors)
-									if(isMajorCiv())
+#if defined(MOD_BALANCE_CORE)
+									if(!isMinorCiv() && !isBarbarian() && !isObserver())
+#else
+									if(!isMinorCiv())
+#endif
 									{
 										GET_PLAYER(eMyPlayer).GetDiplomacyAI()->DoFirstContact(eTheirPlayer);
 									}
 
 									// THIRD party loop - let everyone else know that someone met someone!
-									for(int iThirdPlayersLoop = 0; iThirdPlayersLoop < MAX_CIV_PLAYERS; iThirdPlayersLoop++)
+									for(iThirdPlayersLoop = 0; iThirdPlayersLoop < MAX_CIV_PLAYERS; iThirdPlayersLoop++)
 									{
-										PlayerTypes eThirdPlayer = (PlayerTypes) iThirdPlayersLoop;
+										eThirdPlayer = (PlayerTypes) iThirdPlayersLoop;
 
 										if(GET_PLAYER(eThirdPlayer).isAlive())
 										{
@@ -4257,7 +4272,7 @@ void CvTeam::makeHasMet(TeamTypes eIndex, bool bSuppressMessages)
 
 		if(GET_TEAM(eIndex).isHuman())
 		{
-			for(int iI = 0; iI < MAX_PLAYERS; iI++)
+			for(iI = 0; iI < MAX_PLAYERS; iI++)
 			{
 				if(GET_PLAYER((PlayerTypes)iI).isAlive())
 				{
@@ -4286,7 +4301,11 @@ void CvTeam::makeHasMet(TeamTypes eIndex, bool bSuppressMessages)
 
 			// Minor reveals his capital to the player so that he can click on the City to contact
 			CvCity* pCap = GET_PLAYER(GET_TEAM(eIndex).getLeaderID()).getCapitalCity();
+#if defined(MOD_BALANCE_CORE)
 			if(pCap != NULL)
+#else
+			if(pCap)
+#endif
 			{
 				iCapitalX  = pCap->getX();
 				iCapitalY  = pCap->getY();
@@ -4300,7 +4319,11 @@ void CvTeam::makeHasMet(TeamTypes eIndex, bool bSuppressMessages)
 			}
 
 			// First contact with major stuff
-			if(isMajorCiv())
+#if defined(MOD_BALANCE_CORE)
+			if(!isMinorCiv() && !isBarbarian() && !isObserver())
+#else
+			if(!isMinorCiv())
+#endif
 			{
 				GET_PLAYER(GET_TEAM(eIndex).getLeaderID()).GetMinorCivAI()->DoFirstContactWithMajor(GetID(), /*bSuppressMessages*/ isAtWar(eIndex));
 			}

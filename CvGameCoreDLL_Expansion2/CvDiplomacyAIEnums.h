@@ -56,6 +56,19 @@ enum WarStateTypes
 	NUM_WAR_STATES,
 };
 
+enum WarGoalTypes
+{
+	NO_WAR_GOAL_TYPE = -1,
+
+	WAR_GOAL_DEMAND,
+	WAR_GOAL_PREPARE,
+	WAR_GOAL_CONQUEST,
+	WAR_GOAL_DAMAGE,
+	WAR_GOAL_PEACE,
+
+	NUM_WAR_GOALS,
+};
+
 enum StrengthTypes
 {
 	NO_STRENGTH_VALUE = -1,
