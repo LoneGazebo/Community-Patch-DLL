@@ -2602,7 +2602,7 @@ void CvCity::doTurn()
 		CvPlot* pLoopPlot = iterateRingPlots(iX, iY, iCityPlotLoop);
 		if (pLoopPlot != NULL)
 		{
-			GetCityCitizens()->SetBlockaded(pLoopPlot, -1, false);
+			GetCityCitizens()->SetBlockaded(pLoopPlot, -1, false, true);
 			for (int iUnitLoop = 0; iUnitLoop < pLoopPlot->getNumUnits(); iUnitLoop++)
 			{
 				pLoopUnit = pLoopPlot->getUnitByIndex(iUnitLoop);

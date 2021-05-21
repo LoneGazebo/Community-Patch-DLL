@@ -2448,7 +2448,7 @@ bool CvCityCitizens::IsBlockaded(CvPlot * pPlot, int iUnitID) const
 	return true;
 }
 
-void CvCityCitizens::SetBlockaded(CvPlot * pPlot, int iUnitID, bool bValue)
+void CvCityCitizens::SetBlockaded(CvPlot * pPlot, int iUnitID, bool bValue, bool bForceClear)
 {
 	if (bValue)
 	{
@@ -2456,9 +2456,14 @@ void CvCityCitizens::SetBlockaded(CvPlot * pPlot, int iUnitID, bool bValue)
 	}
 	else
 	{
-		m_vBlockadedPlots[ pPlot->GetPlotIndex() ].erase(iUnitID);
-		if ( m_vBlockadedPlots[ pPlot->GetPlotIndex() ].empty() )
+		if (bForceClear)
 			m_vBlockadedPlots.erase(pPlot->GetPlotIndex());
+		else
+		{
+			m_vBlockadedPlots[pPlot->GetPlotIndex()].erase(iUnitID);
+			if (m_vBlockadedPlots[pPlot->GetPlotIndex()].empty())
+				m_vBlockadedPlots.erase(pPlot->GetPlotIndex());
+		}
 	}
 }
 
