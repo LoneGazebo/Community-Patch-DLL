@@ -3550,7 +3550,7 @@ protected:
 	bool m_bEspionageEffect;
 	bool m_bApplyEffectToSpyOwner;
 	bool m_bPotentialScaling;
-	int m_bScienceScaling;
+	int m_iScienceScaling;
 	int m_iIdentificationModifier;
 	int m_iDeathModifier;
 	int m_iSpyLevelRequired;

@@ -10605,7 +10605,7 @@ bool CvModEventCityChoiceInfo::IsPotentialScaling() const
 }
 int CvModEventCityChoiceInfo::GetScienceScaling() const
 {
-	return m_iScienceScaling
+	return m_iScienceScaling;
 }
 EventChoiceTypes CvModEventCityChoiceInfo::GetTriggerPlayerEventChoice() const
 {
