@@ -2329,8 +2329,6 @@ CvLeague::CvLeague(void)
 	m_eCurrentSpecialSession = NO_LEAGUE_SPECIAL_SESSION;
 	m_vEnactProposalsOnHold.clear();
 	m_vRepealProposalsOnHold.clear();
-	m_startingVotesCacheTime = 0;
-	m_startingVotesCached = 0;
 }
 
 CvLeague::CvLeague(LeagueTypes eID)
@@ -2355,8 +2353,6 @@ CvLeague::CvLeague(LeagueTypes eID)
 	m_vRepealProposalsOnHold.clear();
 	m_vLastTurnEnactProposals.clear();
 	m_vLastTurnRepealProposals.clear();
-	m_startingVotesCacheTime = 0;
-	m_startingVotesCached = 0;
 }
 
 CvLeague::~CvLeague(void)
@@ -2374,6 +2370,8 @@ CvLeague::Member::Member(void)
 	iAbstainedVotes = 0;
 	bEverBeenHost = false;
 	bAlwaysBeenHost = true;
+	m_startingVotesCacheTime = 0;
+	m_startingVotesCached = 0;
 }
 
 CvLeague::Member::~Member(void)
@@ -4255,8 +4253,12 @@ int CvLeague::GetCoreVotesForMember(PlayerTypes ePlayer)
 int CvLeague::CalculateStartingVotesForMember(PlayerTypes ePlayer, bool bForceUpdateSources)
 {
 	//try the cached value first
-	if (GC.getGame().getTurnSlice() == m_startingVotesCacheTime)
-		return m_startingVotesCached;
+	Member* thisMember = GetMember(ePlayer);
+	if (thisMember->ePlayer != NO_PLAYER)
+	{
+		if (GC.getGame().getTurnSlice() == thisMember->m_startingVotesCacheTime)
+			return thisMember->m_startingVotesCached;
+	}
 
 	int iVotes = 0;
 #if defined(MOD_BATTLE_ROYALE)
@@ -4669,8 +4671,11 @@ int CvLeague::CalculateStartingVotesForMember(PlayerTypes ePlayer, bool bForceUp
 	}
 
 	//update cache
-	m_startingVotesCacheTime = GC.getGame().getTurnSlice();
-	m_startingVotesCached = iVotes;
+	if (thisMember->ePlayer != NO_PLAYER)
+	{
+		thisMember->m_startingVotesCacheTime = GC.getGame().getTurnSlice();
+		thisMember->m_startingVotesCached = iVotes;
+	}
 
 	return iVotes;
 }
