@@ -453,6 +453,9 @@
 		- Table 'Belief_YieldFromPillage'. Columns are 'BeliefType', 'YieldType', 'Yield', 'IsEraScaling'.
 	-->
     <Row Class="4" Name="RELIGION_EXTENSIONS" Value="1"/>
+	
+	<!-- Civilizations always benefit from their pantheons, even after being converted. -->
+	<Row Class="5" Name="RELIGION_PERMANENT_PANTHEON" Value="0"/>
 
     <!-- disable ranged strikes from cities -->
     <Row Class="5" Name="CORE_NO_RANGED_ATTACK_FROM_CITIES" Value="0" DbUpdates="1"/>

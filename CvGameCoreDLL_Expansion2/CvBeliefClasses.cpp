@@ -2102,7 +2102,7 @@ bool CvReligionBeliefs::IsPantheonBeliefInReligion(BeliefTypes eBelief, Religion
 		return false;
 
 	CvReligionBeliefs ePanthBeliefs = GC.getGame().GetGameReligions()->GetReligion(ePantheon, ePlayer)->m_Beliefs;
-	CvReligionBeliefs eFounderBeliefs = GC.getGame().GetGameReligions()->GetReligion(ePantheon, ePlayer)->m_Beliefs;
+	CvReligionBeliefs eFounderBeliefs = GC.getGame().GetGameReligions()->GetReligion(eReligion, ePlayer)->m_Beliefs;
 
 	return (ePanthBeliefs.HasBelief(eBelief) && eFounderBeliefs.HasBelief(eBelief));
 }
