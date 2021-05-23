@@ -3605,6 +3605,7 @@ int CvLuaCity::lGetReligionBuildingClassYieldChange(lua_State* L)
 	YieldTypes eYieldType = (YieldTypes)lua_tointeger(L, 3);
 
 	ReligionTypes eMajority = pkCity->GetCityReligions()->GetReligiousMajority();
+	BeliefTypes eSecondaryPantheon = NO_BELIEF;
 	if(eMajority != NO_RELIGION)
 	{
 		const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, pkCity->getOwner());
@@ -3616,7 +3617,7 @@ int CvLuaCity::lGetReligionBuildingClassYieldChange(lua_State* L)
 			{
 				iYieldFromBuilding += pReligion->m_Beliefs.GetYieldChangeWorldWonder(eYieldType, pkCity->getOwner(), pkCity);
 			}
-			BeliefTypes eSecondaryPantheon = pkCity->GetCityReligions()->GetSecondaryReligionPantheonBelief();
+			eSecondaryPantheon = pkCity->GetCityReligions()->GetSecondaryReligionPantheonBelief();
 			if (eSecondaryPantheon != NO_BELIEF)
 			{
 				iFollowers =  pkCity->GetCityReligions()->GetNumFollowers(pkCity->GetCityReligions()->GetSecondaryReligion());
@@ -3627,6 +3628,25 @@ int CvLuaCity::lGetReligionBuildingClassYieldChange(lua_State* L)
 			}
 		}
 	}
+#if defined(MOD_RELIGION_PERMANENT_PANTHEON)
+	// Mod for civs keeping their pantheon belief forever
+	if (MOD_RELIGION_PERMANENT_PANTHEON)
+	{
+		if (GC.getGame().GetGameReligions()->HasCreatedPantheon(pkCity->getOwner()))
+		{
+			const CvReligion* pPantheon = GC.getGame().GetGameReligions()->GetReligion(RELIGION_PANTHEON, pkCity->getOwner());
+			BeliefTypes ePantheonBelief = GC.getGame().GetGameReligions()->GetBeliefInPantheon(pkCity->getOwner());
+			if (pPantheon != NULL && ePantheonBelief != NO_BELIEF && ePantheonBelief != eSecondaryPantheon)
+			{
+				const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, pkCity->getOwner());
+				if (pReligion == NULL || (pReligion != NULL && !pReligion->m_Beliefs.IsPantheonBeliefInReligion(ePantheonBelief, eMajority, pkCity->getOwner()))) // check that the our religion does not have our belief, to prevent double counting
+				{
+					iYieldFromBuilding += GC.GetGameBeliefs()->GetEntry(ePantheonBelief)->GetBuildingClassYieldChange(eBuildingClass, eYieldType);
+				}
+			}
+		}
+	}
+#endif
 	lua_pushinteger(L, iYieldFromBuilding);
 	return 1;
 }
@@ -5063,19 +5083,39 @@ int CvLuaCity::lGetSpecialistCityModifier(lua_State* L)
 		if (GET_PLAYER(pkCity->getOwner()).getGoldenAgeTurns() > 0)
 		{
 			ReligionTypes eMajority = pkCity->GetCityReligions()->GetReligiousMajority();
+			BeliefTypes eSecondaryPantheon = NO_BELIEF;
 			if (eMajority != NO_RELIGION)
 			{
 				const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, pkCity->getOwner());
 				if (pReligion)
 				{
 					iResult += pReligion->m_Beliefs.GetGoldenAgeGreatPersonRateModifier(eGreatPerson, pkCity->getOwner(), pkCity);
-					BeliefTypes eSecondaryPantheon = pkCity->GetCityReligions()->GetSecondaryReligionPantheonBelief();
+					eSecondaryPantheon = pkCity->GetCityReligions()->GetSecondaryReligionPantheonBelief();
 					if (eSecondaryPantheon != NO_BELIEF)
 					{
 						iResult += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetGoldenAgeGreatPersonRateModifier(eGreatPerson);
 					}
 				}
 			}
+#if defined(MOD_RELIGION_PERMANENT_PANTHEON)
+			// Mod for civs keeping their pantheon belief forever
+			if (MOD_RELIGION_PERMANENT_PANTHEON)
+			{
+				if (GC.getGame().GetGameReligions()->HasCreatedPantheon(pkCity->getOwner()))
+				{
+					const CvReligion* pPantheon = GC.getGame().GetGameReligions()->GetReligion(RELIGION_PANTHEON, pkCity->getOwner());
+					BeliefTypes ePantheonBelief = GC.getGame().GetGameReligions()->GetBeliefInPantheon(pkCity->getOwner());
+					if (pPantheon != NULL && ePantheonBelief != NO_BELIEF && ePantheonBelief != eSecondaryPantheon)
+					{
+						const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, pkCity->getOwner());
+						if (pReligion == NULL || (pReligion != NULL && !pReligion->m_Beliefs.IsPantheonBeliefInReligion(ePantheonBelief, eMajority, pkCity->getOwner()))) // check that the our religion does not have our belief, to prevent double counting
+						{
+							iResult += GC.GetGameBeliefs()->GetEntry(ePantheonBelief)->GetGoldenAgeGreatPersonRateModifier(eGreatPerson);
+						}
+					}
+				}
+			}
+#endif
 		}
 	}
 
@@ -5894,6 +5934,24 @@ int CvLuaCity::lGetSpecialistYieldChange(lua_State* L)
 	{
 		iRtnValue += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetSpecialistYieldChange(eSpecialist, eYield);
 	}
+#if defined(MOD_RELIGION_PERMANENT_PANTHEON)
+	// Mod for civs keeping their pantheon belief forever
+	if (MOD_RELIGION_PERMANENT_PANTHEON)
+	{
+		if (GC.getGame().GetGameReligions()->HasCreatedPantheon(pkCity->getOwner()))
+		{
+			const CvReligion* pPantheon = GC.getGame().GetGameReligions()->GetReligion(RELIGION_PANTHEON, pkCity->getOwner());
+			BeliefTypes ePantheonBelief = GC.getGame().GetGameReligions()->GetBeliefInPantheon(pkCity->getOwner());
+			if (pPantheon != NULL && ePantheonBelief != NO_BELIEF && ePantheonBelief != eSecondaryPantheon)
+			{
+				if (pReligion == NULL || (pReligion != NULL && !pReligion->m_Beliefs.IsPantheonBeliefInReligion(ePantheonBelief, eReligion, pkCity->getOwner()))) // check that the our religion does not have our belief, to prevent double counting
+				{
+					iRtnValue += GC.GetGameBeliefs()->GetEntry(ePantheonBelief)->GetSpecialistYieldChange(eSpecialist, eYield);
+				}
+			}
+		}
+	}
+#endif
 #if defined(MOD_BALANCE_CORE_EVENTS)
 	iRtnValue += pkCity->GetEventSpecialistYield(eSpecialist, eYield);
 #endif
@@ -6145,19 +6203,40 @@ int CvLuaCity::lGetReligionCityRangeStrikeModifier(lua_State* L)
 
 	CvCity* pkCity = GetInstance(L);
 	ReligionTypes eMajority = pkCity->GetCityReligions()->GetReligiousMajority();
+	BeliefTypes eSecondaryPantheon = NO_BELIEF;
 	if(eMajority != NO_RELIGION)
 	{
 		const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, pkCity->getOwner());
 		if(pReligion)
 		{
 			iReligionRangeStrikeMod = pReligion->m_Beliefs.GetCityRangeStrikeModifier(pkCity->getOwner(), pkCity);
-			BeliefTypes eSecondaryPantheon = pkCity->GetCityReligions()->GetSecondaryReligionPantheonBelief();
+			eSecondaryPantheon = pkCity->GetCityReligions()->GetSecondaryReligionPantheonBelief();
 			if (eSecondaryPantheon != NO_BELIEF)
 			{
 				iReligionRangeStrikeMod += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetCityRangeStrikeModifier();
 			}
 		}
 	}
+
+#if defined(MOD_RELIGION_PERMANENT_PANTHEON)
+	// Mod for civs keeping their pantheon belief forever
+	if (MOD_RELIGION_PERMANENT_PANTHEON)
+	{
+		if (GC.getGame().GetGameReligions()->HasCreatedPantheon(pkCity->getOwner()))
+		{
+			const CvReligion* pPantheon = GC.getGame().GetGameReligions()->GetReligion(RELIGION_PANTHEON, pkCity->getOwner());
+			BeliefTypes ePantheonBelief = GC.getGame().GetGameReligions()->GetBeliefInPantheon(pkCity->getOwner());
+			if (pPantheon != NULL && ePantheonBelief != NO_BELIEF && ePantheonBelief != eSecondaryPantheon)
+			{
+				const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, pkCity->getOwner());
+				if (pReligion == NULL || (pReligion != NULL && !pReligion->m_Beliefs.IsPantheonBeliefInReligion(ePantheonBelief, eMajority, pkCity->getOwner()))) // check that the our religion does not have our belief, to prevent double counting
+				{
+					iReligionRangeStrikeMod += GC.GetGameBeliefs()->GetEntry(ePantheonBelief)->GetCityRangeStrikeModifier();
+				}
+			}
+		}
+	}
+#endif
 
 	lua_pushinteger(L, iReligionRangeStrikeMod);
 

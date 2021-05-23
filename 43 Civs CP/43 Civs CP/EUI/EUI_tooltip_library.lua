@@ -76,6 +76,10 @@ local g_isScienceEnabled = not Game or not Game.IsOption(GameOptionTypes.GAMEOPT
 local g_isPoliciesEnabled = not Game or not Game.IsOption(GameOptionTypes.GAMEOPTION_NO_POLICIES)
 --local g_isHappinessEnabled = not Game or not Game.IsOption(GameOptionTypes.GAMEOPTION_NO_HAPPINESS)
 local g_isReligionEnabled = civ5gk_mode and (not Game or not Game.IsOption(GameOptionTypes.GAMEOPTION_NO_RELIGION))
+-------------------------------------------------------------
+-- See if the mod for permanent pantheon bonus is activated
+-------------------------------------------------------------
+local g_isPermanentPantheonMod = Game.IsCustomModOption("RELIGION_PERMANENT_PANTHEON")
 
 -- Vox Populi granted by building cache data
 local g_grantedByBuilding = {}
@@ -1938,9 +1942,6 @@ local function GetYieldTooltip( city, yieldID, baseYield, totalYield, yieldIconS
 
 -- END CBP
 
-	-- Vox Populi Base Yield from Process
-	tips:insertLocalizedBulletIfNonZero( "TXT_KEY_YIELD_FROM_PROCESS", city:GetBaseYieldRateFromProcess( yieldID ), yieldIconString)
-
 -- Base Yield from League Art (CSD)
 	if(yieldID == YieldTypes.YIELD_SCIENCE) then
 		local iYieldFromLeague = city:GetBaseYieldRateFromLeague(yieldID);
@@ -1985,6 +1986,9 @@ local function GetYieldTooltip( city, yieldID, baseYield, totalYield, yieldIconS
 		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_YIELD_FROM_TRADE_ROUTES", city:GetBaseYieldRateFromTradeRoutes( yieldID )/100.0, yieldIconString)
 	end
 	
+	-- Vox Populi Base Yield from Process
+	tips:insertLocalizedBulletIfNonZero( "TXT_KEY_YIELD_FROM_PROCESS", city:GetBaseYieldRateFromProcess( yieldID ), yieldIconString)
+
 	-- Total
 	tips:insert( "----------------" )
 	tips:insertLocalized( totalYield >= 0 and "TXT_KEY_YIELD_TOTAL" or "TXT_KEY_YIELD_TOTAL_NEGATIVE", totalYield, yieldIconString )
@@ -2299,12 +2303,6 @@ local function GetCultureTooltip( city )
 	tips:insertLocalizedBulletIfNonZero( "TXT_KEY_YIELD_FROM_MISC", city:GetBaseYieldRateFromMisc(YieldTypes.YIELD_CULTURE), GameInfo.Yields[YieldTypes.YIELD_CULTURE].IconString)
 	-- END
 	
-	-- Vox Populi Base Yield from Trade Routes
-	tips:insertLocalizedBulletIfNonZero( "TXT_KEY_YIELD_FROM_TRADE_ROUTES", city:GetBaseYieldRateFromTradeRoutes(YieldTypes.YIELD_CULTURE)/100.0, "[ICON_CULTURE]")
-	
-	-- Vox Populi Base Yield from Process
-	tips:insertLocalizedBulletIfNonZero( "TXT_KEY_YIELD_FROM_PROCESS", city:GetBaseYieldRateFromProcess(YieldTypes.YIELD_CULTURE), "[ICON_CULTURE]")
-	
 	-- Base Total
 	if baseCulturePerTurn ~= culturePerTurn then
 		tips:insert( "----------------" )
@@ -2366,6 +2364,12 @@ local function GetCultureTooltip( city )
 	--end
 	-- Vox Populi end
 
+	-- Vox Populi Base Yield from Trade Routes
+	tips:insertLocalizedBulletIfNonZero( "TXT_KEY_YIELD_FROM_TRADE_ROUTES", city:GetBaseYieldRateFromTradeRoutes(YieldTypes.YIELD_CULTURE)/100.0, "[ICON_CULTURE]")
+	
+	-- Vox Populi Base Yield from Process
+	tips:insertLocalizedBulletIfNonZero( "TXT_KEY_YIELD_FROM_PROCESS", city:GetBaseYieldRateFromProcess(YieldTypes.YIELD_CULTURE), "[ICON_CULTURE]")
+
 	-- Total
 	tips:insert( "----------------" )
 	tips:insertLocalized( "TXT_KEY_YIELD_TOTAL", culturePerTurn, "[ICON_CULTURE]" )
@@ -2410,6 +2414,16 @@ local function GetReligionTooltip(city)
 		local tips = table()
 		local majorityReligionID = city:GetReligiousMajority()
 		local pressureMultiplier = GameDefines.RELIGION_MISSIONARY_PRESSURE_MULTIPLIER or 1
+		local beliefPantheonID = -1
+		local beliefSecondaryReligionID = -1
+		local hasPlayerPantheon = false
+
+		if g_isPermanentPantheonMod and Players[city:GetOwner()]:HasCreatedPantheon() then
+			beliefPantheonID = Players[city:GetOwner()]:GetBeliefInPantheon()
+			if majorityReligionID ~= 0 then
+				hasPlayerPantheon = true
+			end
+		end
 
 		for religion in GameInfo.Religions() do
 			local religionID = religion.ID
@@ -2453,6 +2467,15 @@ local function GetReligionTooltip(city)
 							elseif(GameInfo.Beliefs[beliefID].Reformation and Game.IsBeliefValid(religionID, beliefID, city, true)) then
 								religionTip = religionTip .. "[NEWLINE][ICON_BULLET] ".. L("TXT_KEY_RO_BELIEF_TYPE_REFORMATION") .. ": " .. L(GameInfo.Beliefs[ beliefID ].Description)
 							end
+							if g_isPermanentPantheonMod and Players[city:GetOwner()]:HasCreatedPantheon() then
+								if beliefID == beliefPantheonID then
+									hasPlayerPantheon = false
+								end
+							end
+						end
+						beliefSecondaryReligionID = city:GetSecondaryReligionPantheonBelief()
+						if beliefSecondaryReligionID >= 0 then
+							religionTip = religionTip .. "[NEWLINE][ICON_BULLET] ".. L("TXT_KEY_RO_BELIEF_TYPE_PANTHEON") .. ": " .. L(GameInfo.Beliefs[ beliefSecondaryReligionID ].Description)
 						end
 						tips:insert( 1, religionTip )
 					else
@@ -2464,6 +2487,12 @@ local function GetReligionTooltip(city)
 					tips:insert( 1, L( "TXT_KEY_HOLY_CITY_TOOLTIP_LINE", religionIcon, religionName) )
 				end
 			end
+		end
+		if hasPlayerPantheon and beliefPantheonID >= 0 then
+			local pantheonTip = tostring(GameInfo.Religions["RELIGION_PANTHEON"].IconString) .. " " .. L(Players[city:GetOwner()]:GetCivilizationAdjectiveKey()) .. " " .. L("TXT_KEY_RELIGION_PANTHEON")
+			pantheonTip = pantheonTip .. "[NEWLINE]" .. L(GameInfo.Beliefs[ beliefPantheonID ].Description)
+			
+			tips:insert( 1, pantheonTip )
 		end
 		return tips:concat( "[NEWLINE]" )
 	else

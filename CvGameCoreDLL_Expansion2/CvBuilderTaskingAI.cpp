@@ -2931,6 +2931,17 @@ void CvBuilderTaskingAI::UpdateProjectedPlotYields(CvPlot* pPlot, BuildTypes eBu
 		const CvReligion* pReligion = (eMajority != NO_RELIGION) ? GC.getGame().GetGameReligions()->GetReligion(eMajority, pOwningCity->getOwner()) : 0;
 		const CvBeliefEntry* pBelief = (eSecondaryPantheon != NO_BELIEF) ? GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon) : 0;
 
+#if defined(MOD_RELIGION_PERMANENT_PANTHEON)
+		const CvReligion* pPantheon = NULL;
+		BeliefTypes ePantheonBelief = NO_BELIEF;
+		// Mod for civs keeping their pantheon belief forever
+		if (MOD_RELIGION_PERMANENT_PANTHEON)
+		{
+			pPantheon = GC.getGame().GetGameReligions()->GetReligion(RELIGION_PANTHEON, pOwningCity->getOwner());
+			ePantheonBelief = GC.getGame().GetGameReligions()->GetBeliefInPantheon(pOwningCity->getOwner());
+		}
+#endif
+
 		for (uint ui = 0; ui < NUM_YIELD_TYPES; ui++)
 		{
 #if defined(MOD_BALANCE_CORE)
@@ -2939,6 +2950,23 @@ void CvBuilderTaskingAI::UpdateProjectedPlotYields(CvPlot* pPlot, BuildTypes eBu
 #endif
 				m_aiProjectedPlotYields[ui] = pPlot->getYieldWithBuild(eBuild, (YieldTypes)ui, false, m_pPlayer->GetID(), pOwningCity, pReligion, pBelief);
 				m_aiProjectedPlotYields[ui] = max(m_aiProjectedPlotYields[ui], 0);
+
+#if defined(MOD_RELIGION_PERMANENT_PANTHEON)
+				if (MOD_RELIGION_PERMANENT_PANTHEON)
+				{
+					if (GC.getGame().GetGameReligions()->HasCreatedPantheon(m_pPlayer->GetID()))
+					{
+						if (pPantheon != NULL && ePantheonBelief != NO_BELIEF && ePantheonBelief != eSecondaryPantheon)
+						{
+							if (pReligion == NULL || (pReligion != NULL && !pReligion->m_Beliefs.IsPantheonBeliefInReligion(ePantheonBelief, eMajority, m_pPlayer->GetID()))) // check that the our religion does not have our belief, to prevent double counting
+							{
+								m_aiProjectedPlotYields[ui] += pPlot->getYieldWithBuild(eBuild, (YieldTypes)ui, false, m_pPlayer->GetID(), pOwningCity, pPantheon, NULL);
+								m_aiProjectedPlotYields[ui] = max(m_aiProjectedPlotYields[ui], 0);
+							}
+						}
+					}
+				}
+#endif
 
 				if (m_bLogging){
 					CvString strLog;
