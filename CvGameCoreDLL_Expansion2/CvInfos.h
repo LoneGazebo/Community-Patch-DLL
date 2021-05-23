@@ -17,7 +17,7 @@
 #ifndef CV_INFO_H
 #define CV_INFO_H
 
-#include "CvStructs.h"
+#include "CvDllStructs.h"
 
 #include <unordered_map>
 
