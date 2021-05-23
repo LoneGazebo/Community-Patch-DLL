@@ -3465,7 +3465,9 @@ int CvGameReligions::GetBeliefYieldForKill(YieldTypes eYield, int iX, int iY, Pl
 	int iRtnValue = 0;
 	int iMultiplier = 0;
 	int iLoop;
+	int iDistance = 0;
 	CvCity* pLoopCity;
+	ReligionTypes eReligion = NO_RELIGION;
 
 	// Only Faith supported for now
 	if(eYield != YIELD_FAITH)
@@ -3476,12 +3478,12 @@ int CvGameReligions::GetBeliefYieldForKill(YieldTypes eYield, int iX, int iY, Pl
 	for(pLoopCity = GET_PLAYER(eWinningPlayer).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(eWinningPlayer).nextCity(&iLoop))
 	{
 		// Find religion in this city
-		ReligionTypes eReligion = pLoopCity->GetCityReligions()->GetReligiousMajority();
+		eReligion = pLoopCity->GetCityReligions()->GetReligiousMajority();
 
 		if(eReligion != NO_RELIGION)
 		{
 			// Find distance to this city
-			int iDistance = plotDistance(iX, iY, pLoopCity->getX(), pLoopCity->getY());
+			iDistance = plotDistance(iX, iY, pLoopCity->getX(), pLoopCity->getY());
 
 			// Do we have a yield from this?
 #if defined(MOD_BALANCE_CORE_BELIEFS)
@@ -3519,6 +3521,26 @@ int CvGameReligions::GetBeliefYieldForKill(YieldTypes eYield, int iX, int iY, Pl
 			}
 		}
 	}
+
+#if defined(MOD_RELIGION_PERMANENT_PANTHEON)
+	// mod for civs keeping their pantheon belief forever
+	if (MOD_RELIGION_PERMANENT_PANTHEON)
+	{
+		if (HasCreatedPantheon(eWinningPlayer))
+		{
+			const CvReligion* pPantheon = GetReligion(RELIGION_PANTHEON, eWinningPlayer);
+			BeliefTypes ePantheonBelief = GetBeliefInPantheon(eWinningPlayer);
+			if (pPantheon != NULL && ePantheonBelief != NO_BELIEF)
+			{
+				const CvReligion* pReligion = GetReligion(eReligion, eWinningPlayer);
+				if (pReligion == NULL || (pReligion != NULL && !pReligion->m_Beliefs.IsPantheonBeliefInReligion(ePantheonBelief, eReligion, eWinningPlayer))) // check that the our religion does not have our belief, to prevent double counting
+				{
+					iRtnValue += MAX(0, pPantheon->m_Beliefs.GetFaithFromKills(iDistance, eWinningPlayer, pLoopCity));
+				}
+			}
+		}
+	}
+#endif
 
 	return iRtnValue;
 }

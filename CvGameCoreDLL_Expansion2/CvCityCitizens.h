@@ -109,7 +109,7 @@ public:
 
 	bool IsCanWork(CvPlot* pPlot) const;
 	bool IsBlockaded(CvPlot* pPlot, int iUnitID=-1) const;
-	void SetBlockaded(CvPlot* pPlot, int iUnitID, bool bValue);
+	void SetBlockaded(CvPlot* pPlot, int iUnitID, bool bValue, bool bForceClear = false);
 	bool IsAnyPlotBlockaded() const;
 
 	void DoVerifyWorkingPlots();

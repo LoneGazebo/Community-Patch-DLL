@@ -1419,15 +1419,35 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist, SPrecomputed
 			iMod += GetPlayer()->GetPlayerTraits()->GetGoldenAgeGreatPersonRateModifier(eGreatPerson);
 
 			const CvReligion* pReligion = m_pCity->GetCityReligions()->GetMajorityReligion();
+			BeliefTypes eSecondaryPantheon = NO_BELIEF;
 			if (pReligion)
 			{
 				iMod += pReligion->m_Beliefs.GetGoldenAgeGreatPersonRateModifier(eGreatPerson, m_pCity->getOwner(), m_pCity, true);
-				BeliefTypes eSecondaryPantheon = GetCity()->GetCityReligions()->GetSecondaryReligionPantheonBelief();
+				eSecondaryPantheon = GetCity()->GetCityReligions()->GetSecondaryReligionPantheonBelief();
 				if (eSecondaryPantheon != NO_BELIEF)
 				{
 					iMod += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetGoldenAgeGreatPersonRateModifier(eGreatPerson);
 				}
 			}
+
+#if defined(MOD_RELIGION_PERMANENT_PANTHEON)
+			// Mod for civs keeping their pantheon belief forever
+			if (MOD_RELIGION_PERMANENT_PANTHEON)
+			{
+				if (GC.getGame().GetGameReligions()->HasCreatedPantheon(GetOwner()))
+				{
+					const CvReligion* pPantheon = GC.getGame().GetGameReligions()->GetReligion(RELIGION_PANTHEON, GetOwner());
+					BeliefTypes ePantheonBelief = GC.getGame().GetGameReligions()->GetBeliefInPantheon(GetOwner());
+					if (pPantheon != NULL && ePantheonBelief != NO_BELIEF && ePantheonBelief != eSecondaryPantheon)
+					{
+						if (pReligion == NULL || (pReligion != NULL && !pReligion->m_Beliefs.IsPantheonBeliefInReligion(ePantheonBelief, pReligion->m_eReligion, GetOwner()))) // check that the our religion does not have our belief, to prevent double counting
+						{
+							iMod += GC.GetGameBeliefs()->GetEntry(ePantheonBelief)->GetGoldenAgeGreatPersonRateModifier(eGreatPerson);
+						}
+					}
+				}
+			}
+#endif
 		}
 		int iNumPuppets = GetPlayer()->GetNumPuppetCities();
 		if (iNumPuppets > 0)
@@ -2448,7 +2468,7 @@ bool CvCityCitizens::IsBlockaded(CvPlot * pPlot, int iUnitID) const
 	return true;
 }
 
-void CvCityCitizens::SetBlockaded(CvPlot * pPlot, int iUnitID, bool bValue)
+void CvCityCitizens::SetBlockaded(CvPlot * pPlot, int iUnitID, bool bValue, bool bForceClear)
 {
 	if (bValue)
 	{
@@ -2456,9 +2476,14 @@ void CvCityCitizens::SetBlockaded(CvPlot * pPlot, int iUnitID, bool bValue)
 	}
 	else
 	{
-		m_vBlockadedPlots[ pPlot->GetPlotIndex() ].erase(iUnitID);
-		if ( m_vBlockadedPlots[ pPlot->GetPlotIndex() ].empty() )
+		if (bForceClear)
 			m_vBlockadedPlots.erase(pPlot->GetPlotIndex());
+		else
+		{
+			m_vBlockadedPlots[pPlot->GetPlotIndex()].erase(iUnitID);
+			if (m_vBlockadedPlots[pPlot->GetPlotIndex()].empty())
+				m_vBlockadedPlots.erase(pPlot->GetPlotIndex());
+		}
 	}
 }
 
@@ -2619,15 +2644,35 @@ int CvCityCitizens::GetSpecialistRate(SpecialistTypes eSpecialist)
 						iMod += GetPlayer()->GetPlayerTraits()->GetGoldenAgeGreatPersonRateModifier(eGreatPerson);
 
 						const CvReligion* pReligion = m_pCity->GetCityReligions()->GetMajorityReligion();
+						BeliefTypes eSecondaryPantheon = NO_BELIEF;
 						if (pReligion)
 						{
 							iMod += pReligion->m_Beliefs.GetGoldenAgeGreatPersonRateModifier(eGreatPerson, GetCity()->getOwner(), m_pCity);
-							BeliefTypes eSecondaryPantheon = GetCity()->GetCityReligions()->GetSecondaryReligionPantheonBelief();
+							eSecondaryPantheon = GetCity()->GetCityReligions()->GetSecondaryReligionPantheonBelief();
 							if (eSecondaryPantheon != NO_BELIEF)
 							{
 								iMod += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetGoldenAgeGreatPersonRateModifier(eGreatPerson);
 							}
 						}
+
+#if defined(MOD_RELIGION_PERMANENT_PANTHEON)
+						// Mod for civs keeping their pantheon belief forever
+						if (MOD_RELIGION_PERMANENT_PANTHEON)
+						{
+							if (GC.getGame().GetGameReligions()->HasCreatedPantheon(GetOwner()))
+							{
+								const CvReligion* pPantheon = GC.getGame().GetGameReligions()->GetReligion(RELIGION_PANTHEON, GetOwner());
+								BeliefTypes ePantheonBelief = GC.getGame().GetGameReligions()->GetBeliefInPantheon(GetOwner());
+								if (pPantheon != NULL && ePantheonBelief != NO_BELIEF && ePantheonBelief != eSecondaryPantheon)
+								{
+									if (pReligion == NULL || (pReligion != NULL && !pReligion->m_Beliefs.IsPantheonBeliefInReligion(ePantheonBelief, pReligion->m_eReligion, GetOwner()))) // check that the our religion does not have our belief, to prevent double counting
+									{
+										iMod += GC.GetGameBeliefs()->GetEntry(ePantheonBelief)->GetGoldenAgeGreatPersonRateModifier(eGreatPerson);
+									}
+								}
+							}
+						}
+#endif
 					}
 				}
 				int iNumPuppets = GetPlayer()->GetNumPuppetCities();

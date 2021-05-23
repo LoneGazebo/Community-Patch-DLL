@@ -20,7 +20,7 @@
 #include <CvGameDatabase.h>
 #include "CvPoint.h"
 #include "CvDefines.h"
-#include "CvStructs.h"
+#include "CvDllStructs.h"
 #include "CvGlobals.h"
 #include "CvMap.h"
 #include "CvAStar.h"

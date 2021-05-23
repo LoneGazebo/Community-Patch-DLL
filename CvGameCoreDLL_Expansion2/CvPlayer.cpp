@@ -24859,6 +24859,7 @@ void CvPlayer::DoChangeGreatGeneralRate()
 			iGreatGeneralPoints += pLoopCity->getYieldRate(YIELD_GREAT_GENERAL_POINTS, false);
 
 			const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(pLoopCity->GetCityReligions()->GetReligiousMajority(), pLoopCity->getOwner());
+			BeliefTypes eSecondaryPantheon = NO_BELIEF;
 			if(pReligion)
 			{
 				int iReligionYieldChange = pReligion->m_Beliefs.GetCityYieldChange(pLoopCity->getPopulation(), YIELD_GREAT_GENERAL_POINTS, GetID(), pLoopCity);
@@ -24866,7 +24867,7 @@ void CvPlayer::DoChangeGreatGeneralRate()
 				{
 					iGreatGeneralPoints += iReligionYieldChange;
 				}
-				BeliefTypes eSecondaryPantheon = pLoopCity->GetCityReligions()->GetSecondaryReligionPantheonBelief();
+				eSecondaryPantheon = pLoopCity->GetCityReligions()->GetSecondaryReligionPantheonBelief();
 				if (eSecondaryPantheon != NO_BELIEF && pLoopCity->getPopulation() >= GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetMinPopulation())
 				{
 					iReligionYieldChange = GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetCityYieldChange(YIELD_GREAT_GENERAL_POINTS);
@@ -24880,6 +24881,30 @@ void CvPlayer::DoChangeGreatGeneralRate()
 					iGreatGeneralPoints += pReligion->m_Beliefs.GetGreatPersonPoints(eGreatPerson, pLoopCity->getOwner(), pLoopCity, true);
 				}
 			}
+
+#if defined(MOD_RELIGION_PERMANENT_PANTHEON)
+			// mod for civs keeping their pantheon belief forever
+			if (MOD_RELIGION_PERMANENT_PANTHEON)
+			{
+				if (GC.getGame().GetGameReligions()->HasCreatedPantheon(pLoopCity->getOwner()))
+				{
+					const CvReligion* pPantheon = GC.getGame().GetGameReligions()->GetReligion(RELIGION_PANTHEON, pLoopCity->getOwner());
+					BeliefTypes ePantheon = GC.getGame().GetGameReligions()->GetBeliefInPantheon(pLoopCity->getOwner());
+					if (pPantheon != NULL && ePantheon != NO_BELIEF && ePantheon != eSecondaryPantheon)
+					{
+						if (pReligion == NULL || (pReligion != NULL && !pReligion->m_Beliefs.IsPantheonBeliefInReligion(ePantheon, pLoopCity->GetCityReligions()->GetReligiousMajority(), pLoopCity->getOwner()))) // check that the our religion does not have our belief, to prevent double counting
+						{
+							iGreatGeneralPoints += MAX(0, pPantheon->m_Beliefs.GetCityYieldChange(pLoopCity->getPopulation(), YIELD_GREAT_GENERAL_POINTS, GetID(), pLoopCity));
+
+							if (eGreatPerson != NO_GREATPERSON)
+							{
+								iGreatGeneralPoints += pPantheon->m_Beliefs.GetGreatPersonPoints(eGreatPerson, pLoopCity->getOwner(), pLoopCity, true);
+							}
+						}
+					}
+				}
+			}
+#endif
 		}
 	}
 	//Check for policies that add Great General points.
@@ -24923,6 +24948,7 @@ void CvPlayer::DoChangeGreatAdmiralRate()
 			iGreatAdmiralPoints += pLoopCity->getYieldRate(YIELD_GREAT_ADMIRAL_POINTS, false);
 			
 			const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(pLoopCity->GetCityReligions()->GetReligiousMajority(), pLoopCity->getOwner());
+			BeliefTypes eSecondaryPantheon = NO_BELIEF;
 			if(pReligion)
 			{
 				int iReligionYieldChange = pReligion->m_Beliefs.GetCityYieldChange(pLoopCity->getPopulation(), YIELD_GREAT_ADMIRAL_POINTS, GetID(), pLoopCity);
@@ -24930,7 +24956,7 @@ void CvPlayer::DoChangeGreatAdmiralRate()
 				{
 					iGreatAdmiralPoints += iReligionYieldChange;
 				}
-				BeliefTypes eSecondaryPantheon = pLoopCity->GetCityReligions()->GetSecondaryReligionPantheonBelief();
+				eSecondaryPantheon = pLoopCity->GetCityReligions()->GetSecondaryReligionPantheonBelief();
 				if (eSecondaryPantheon != NO_BELIEF && pLoopCity->getPopulation() >= GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetMinPopulation())
 				{
 					iReligionYieldChange = GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetCityYieldChange(YIELD_GREAT_ADMIRAL_POINTS);
@@ -24945,6 +24971,30 @@ void CvPlayer::DoChangeGreatAdmiralRate()
 					iGreatAdmiralPoints += pReligion->m_Beliefs.GetGreatPersonPoints(eGreatPerson, pLoopCity->getOwner(), pLoopCity, true);
 				}
 			}
+
+#if defined(MOD_RELIGION_PERMANENT_PANTHEON)
+			// mod for civs keeping their pantheon belief forever
+			if (MOD_RELIGION_PERMANENT_PANTHEON)
+			{
+				if (GC.getGame().GetGameReligions()->HasCreatedPantheon(pLoopCity->getOwner()))
+				{
+					const CvReligion* pPantheon = GC.getGame().GetGameReligions()->GetReligion(RELIGION_PANTHEON, pLoopCity->getOwner());
+					BeliefTypes ePantheon = GC.getGame().GetGameReligions()->GetBeliefInPantheon(pLoopCity->getOwner());
+					if (pPantheon != NULL && ePantheon != NO_BELIEF && ePantheon != eSecondaryPantheon)
+					{
+						if (pReligion == NULL || (pReligion != NULL && !pReligion->m_Beliefs.IsPantheonBeliefInReligion(ePantheon, pLoopCity->GetCityReligions()->GetReligiousMajority(), pLoopCity->getOwner()))) // check that the our religion does not have our belief, to prevent double counting
+						{
+							iGreatAdmiralPoints += MAX(0, pPantheon->m_Beliefs.GetCityYieldChange(pLoopCity->getPopulation(), YIELD_GREAT_ADMIRAL_POINTS, GetID(), pLoopCity));
+
+							if (eGreatPerson != NO_GREATPERSON)
+							{
+								iGreatAdmiralPoints += pPantheon->m_Beliefs.GetGreatPersonPoints(eGreatPerson, pLoopCity->getOwner(), pLoopCity, true);
+							}
+						}
+					}
+				}
+			}
+#endif
 		}
 	}
 	//Check for policies that add Great Admiral points.

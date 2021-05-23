@@ -5616,6 +5616,7 @@ int CvCityBuildings::GetYieldFromGreatWorks(YieldTypes eYield) const
 	iSecondaryYield += m_pCity->GetGreatWorkYieldChange(eYield);
 
 	ReligionTypes eMajority = m_pCity->GetCityReligions()->GetReligiousMajority();
+	BeliefTypes eSecondaryPantheon = NO_BELIEF;
 	if(eMajority >= RELIGION_PANTHEON)
 	{
 		const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, m_pCity->getOwner());
@@ -5626,7 +5627,7 @@ int CvCityBuildings::GetYieldFromGreatWorks(YieldTypes eYield) const
 			else
 				iSecondaryYield += pReligion->m_Beliefs.GetGreatWorkYieldChange(m_pCity->getPopulation(), eYield, m_pCity->getOwner(), m_pCity);
 			
-			BeliefTypes eSecondaryPantheon = m_pCity->GetCityReligions()->GetSecondaryReligionPantheonBelief();
+			eSecondaryPantheon = m_pCity->GetCityReligions()->GetSecondaryReligionPantheonBelief();
 			if (eSecondaryPantheon != NO_BELIEF)
 			{
 				if (eYield == YIELD_CULTURE)
@@ -5636,6 +5637,29 @@ int CvCityBuildings::GetYieldFromGreatWorks(YieldTypes eYield) const
 			}
 		}
 	}
+
+#if defined(MOD_RELIGION_PERMANENT_PANTHEON)
+	// Mod for civs keeping their pantheon belief forever
+	if (MOD_RELIGION_PERMANENT_PANTHEON)
+	{
+		if (GC.getGame().GetGameReligions()->HasCreatedPantheon(m_pCity->getOwner()))
+		{
+			const CvReligion* pPantheon = GC.getGame().GetGameReligions()->GetReligion(RELIGION_PANTHEON, m_pCity->getOwner());
+			BeliefTypes ePantheonBelief = GC.getGame().GetGameReligions()->GetBeliefInPantheon(m_pCity->getOwner());
+			if (pPantheon != NULL && ePantheonBelief != NO_BELIEF && ePantheonBelief != eSecondaryPantheon)
+			{
+				const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, m_pCity->getOwner());
+				if (pReligion == NULL || (pReligion != NULL && !pReligion->m_Beliefs.IsPantheonBeliefInReligion(ePantheonBelief, eMajority, m_pCity->getOwner()))) // check that the our religion does not have our belief, to prevent double counting
+				{
+					if (eYield == YIELD_CULTURE)
+						iBaseYield += GC.GetGameBeliefs()->GetEntry(ePantheonBelief)->GetGreatWorkYieldChange(eYield);
+					else
+						iSecondaryYield += GC.GetGameBeliefs()->GetEntry(ePantheonBelief)->GetGreatWorkYieldChange(eYield);
+				}
+			}
+		}
+	}
+#endif
 
 	//First add up yields x works in city.
 	int iRtnValue = (iStandardWorkCount * iBaseYield);

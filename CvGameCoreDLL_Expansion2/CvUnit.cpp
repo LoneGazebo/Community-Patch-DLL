@@ -7698,6 +7698,7 @@ int CvUnit::healRate(const CvPlot* pPlot) const
 		if(GET_PLAYER(getOwner()).getCapitalCity() != NULL && (plot()->getOwner() == getOwner()))
 		{
 			ReligionTypes eMajority = GC.getGame().GetGameReligions()->GetFounderBenefitsReligion(getOwner());
+			BeliefTypes eSecondaryPantheon = NO_BELIEF;
 			if(eMajority == NO_RELIGION)
 			{
 				eMajority = GET_PLAYER(getOwner()).GetReligions()->GetReligionInMostCities();
@@ -7709,7 +7710,7 @@ int CvUnit::healRate(const CvPlot* pPlot) const
 				{
 					CvCity* pHolyCity = pReligion->GetHolyCity();
 					iReligionMod = pReligion->m_Beliefs.GetFriendlyHealChange(getOwner(), pHolyCity);
-					BeliefTypes eSecondaryPantheon = GET_PLAYER(getOwner()).getCapitalCity()->GetCityReligions()->GetSecondaryReligionPantheonBelief();
+					eSecondaryPantheon = GET_PLAYER(getOwner()).getCapitalCity()->GetCityReligions()->GetSecondaryReligionPantheonBelief();
 					if (eSecondaryPantheon != NO_BELIEF)
 					{
 						iReligionMod += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetFriendlyHealChange();
@@ -7717,6 +7718,25 @@ int CvUnit::healRate(const CvPlot* pPlot) const
 					iExtraFriendlyHeal += iReligionMod;
 				}
 			}
+#if defined(MOD_RELIGION_PERMANENT_PANTHEON)
+			// Mod for civs keeping their pantheon belief forever
+			if (MOD_RELIGION_PERMANENT_PANTHEON)
+			{
+				if (GC.getGame().GetGameReligions()->HasCreatedPantheon(getOwner()))
+				{
+					const CvReligion* pPantheon = GC.getGame().GetGameReligions()->GetReligion(RELIGION_PANTHEON, getOwner());
+					BeliefTypes ePantheonBelief = GC.getGame().GetGameReligions()->GetBeliefInPantheon(getOwner());
+					if (pPantheon != NULL && ePantheonBelief != NO_BELIEF && ePantheonBelief != eSecondaryPantheon)
+					{
+						const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, getOwner());
+						if (pReligion == NULL || (pReligion != NULL && !pReligion->m_Beliefs.IsPantheonBeliefInReligion(ePantheonBelief, eMajority, getOwner()))) // check that the our religion does not have our belief, to prevent double counting
+						{
+							iExtraFriendlyHeal += GC.GetGameBeliefs()->GetEntry(ePantheonBelief)->GetFriendlyHealChange();
+						}
+					}
+				}
+			}
+#endif
 		}
 	}
 	else
@@ -7735,13 +7755,14 @@ int CvUnit::healRate(const CvPlot* pPlot) const
 	if(pClosestCity && pClosestCity->getOwner() == getOwner())
 	{
 		ReligionTypes eMajority = pClosestCity->GetCityReligions()->GetReligiousMajority();
+		BeliefTypes eSecondaryPantheon = NO_BELIEF;
 		if(eMajority != NO_RELIGION)
 		{
 			const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, getOwner());
 			if(pReligion)
 			{
 				iReligionMod = pReligion->m_Beliefs.GetFriendlyHealChange(getOwner());
-				BeliefTypes eSecondaryPantheon = pClosestCity->GetCityReligions()->GetSecondaryReligionPantheonBelief();
+				eSecondaryPantheon = pClosestCity->GetCityReligions()->GetSecondaryReligionPantheonBelief();
 				if (eSecondaryPantheon != NO_BELIEF)
 				{
 					iReligionMod += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetFriendlyHealChange();
@@ -7749,6 +7770,25 @@ int CvUnit::healRate(const CvPlot* pPlot) const
 				iExtraFriendlyHeal += iReligionMod;
 			}
 		}
+#if defined(MOD_RELIGION_PERMANENT_PANTHEON)
+		// Mod for civs keeping their pantheon belief forever
+		if (MOD_RELIGION_PERMANENT_PANTHEON)
+		{
+			if (GC.getGame().GetGameReligions()->HasCreatedPantheon(getOwner()))
+			{
+				const CvReligion* pPantheon = GC.getGame().GetGameReligions()->GetReligion(RELIGION_PANTHEON, getOwner());
+				BeliefTypes ePantheonBelief = GC.getGame().GetGameReligions()->GetBeliefInPantheon(getOwner());
+				if (pPantheon != NULL && ePantheonBelief != NO_BELIEF && ePantheonBelief != eSecondaryPantheon)
+				{
+					const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, getOwner());
+					if (pReligion == NULL || (pReligion != NULL && !pReligion->m_Beliefs.IsPantheonBeliefInReligion(ePantheonBelief, eMajority, getOwner()))) // check that the our religion does not have our belief, to prevent double counting
+					{
+						iExtraFriendlyHeal += GC.GetGameBeliefs()->GetEntry(ePantheonBelief)->GetFriendlyHealChange();
+					}
+				}
+			}
+		}
+#endif
 	}
 #if defined(MOD_BALANCE_CORE)
 	}
@@ -7937,6 +7977,11 @@ void CvUnit::doHeal()
 #if defined(MOD_BALANCE_CORE_BELIEFS)
 		if(GET_PLAYER(getOwner()).getCapitalCity() != NULL && (plot()->getOwner() == getOwner()) && (plot()->getTurnDamage(false, false, true, true) == 0))
 		{
+			int iEra = GET_PLAYER(getOwner()).GetCurrentEra();
+			if (iEra < 1)
+			{
+				iEra = 1;
+			}
 			ReligionTypes eMajority = GC.getGame().GetGameReligions()->GetFounderBenefitsReligion(getOwner());
 			if(eMajority == NO_RELIGION)
 			{
@@ -7947,11 +7992,6 @@ void CvUnit::doHeal()
 				const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, getOwner());
 				if(pReligion)
 				{
-					int iEra = GET_PLAYER(getOwner()).GetCurrentEra();
-					if(iEra < 1)
-					{
-						iEra = 1;
-					}
 					CvCity* pHolyCity = pReligion->GetHolyCity();
 					if (pReligion->m_Beliefs.GetYieldPerHeal(YIELD_FAITH, getOwner(), pHolyCity) > 0)
 					{
@@ -7980,6 +8020,33 @@ void CvUnit::doHeal()
 					}
 				}
 			}
+
+#if defined(MOD_RELIGION_PERMANENT_PANTHEON)
+			// Mod for civs keeping their pantheon belief forever
+			if (MOD_RELIGION_PERMANENT_PANTHEON)
+			{
+				if (GC.getGame().GetGameReligions()->HasCreatedPantheon(getOwner()))
+				{
+					const CvReligion* pPantheon = GC.getGame().GetGameReligions()->GetReligion(RELIGION_PANTHEON, getOwner());
+					BeliefTypes ePantheonBelief = GC.getGame().GetGameReligions()->GetBeliefInPantheon(getOwner());
+					if (pPantheon != NULL && ePantheonBelief != NO_BELIEF && ePantheonBelief != GET_PLAYER(getOwner()).getCapitalCity()->GetCityReligions()->GetSecondaryReligionPantheonBelief())
+					{
+						const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, getOwner());
+						if (pReligion == NULL || (pReligion != NULL && !pReligion->m_Beliefs.IsPantheonBeliefInReligion(ePantheonBelief, pReligion->m_eReligion, getOwner()))) // check that the our religion does not have our belief, to prevent double counting
+						{
+							GET_PLAYER(getOwner()).ChangeFaith(GC.GetGameBeliefs()->GetEntry(ePantheonBelief)->GetYieldPerHeal(YIELD_FAITH) * iEra);
+							if (getOwner() == GC.getGame().getActivePlayer())
+							{
+								char text[256] = { 0 };
+
+								sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_PEACE]", GC.GetGameBeliefs()->GetEntry(ePantheonBelief)->GetYieldPerHeal(YIELD_FAITH) * iEra);
+								SHOW_PLOT_POPUP(plot(), getOwner(), text);
+							}
+						}
+					}
+				}
+			}
+#endif
 		}
 #endif
 	}
