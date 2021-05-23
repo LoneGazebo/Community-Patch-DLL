@@ -11791,6 +11791,9 @@ void CvPlayer::DoUnitReset()
 		if (!pLoopUnit->hasMoved() && pLoopUnit->canFortify(pLoopUnit->plot()))
 			pLoopUnit->SetFortified(true);
 
+		// Set up blockades
+		pLoopUnit->DoBlockade(pLoopUnit->plot(),true);
+
 		// Finally (now that healing is done), restore movement points
 		pLoopUnit->restoreFullMoves();
 

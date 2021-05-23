@@ -90,6 +90,9 @@ TeamTypes CvDealAI::GetTeam()
 /// How much are we willing to back off on what our perceived value of a deal is with an AI player to make something work?
 int CvDealAI::GetDealPercentLeeway(PlayerTypes eOtherPlayer) const
 {
+	if (GET_PLAYER(eOtherPlayer).isHuman())
+		return 10;
+
 	int iPercent = 0;
 	switch (m_pPlayer->GetDiplomacyAI()->GetCivOpinion(eOtherPlayer))
 	{
