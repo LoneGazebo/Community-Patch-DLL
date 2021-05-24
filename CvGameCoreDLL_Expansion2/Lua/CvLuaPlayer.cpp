@@ -333,7 +333,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetFaithPerTurnFromReligion);
 	Method(HasCreatedPantheon);
 	Method(GetBeliefInPantheon);
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_API_RELIGION)
+#if defined(MOD_API_LUA_EXTENSIONS)
 	Method(GetBeliefsInPantheon);
 #endif
 	Method(HasCreatedReligion);
@@ -3648,7 +3648,7 @@ int CvLuaPlayer::lGetBeliefInPantheon(lua_State* L)
 
 	return 1;
 }
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_API_RELIGION)
+#if defined(MOD_API_LUA_EXTENSIONS)
 //------------------------------------------------------------------------------
 int CvLuaPlayer::lGetBeliefsInPantheon(lua_State* L)
 {

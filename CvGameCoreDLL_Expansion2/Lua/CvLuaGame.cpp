@@ -370,7 +370,7 @@ void CvLuaGame::RegisterMembers(lua_State* L)
 	Method(GetMinimumFaithNextPantheon);
 	Method(SetMinimumFaithNextPantheon);
 
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_API_RELIGION)
+#if defined(MOD_API_LUA_EXTENSIONS)
 	Method(IsInSomeReligion);
 #endif
 	Method(GetAvailablePantheonBeliefs);
@@ -394,7 +394,7 @@ void CvLuaGame::RegisterMembers(lua_State* L)
 	Method(GetFounderBenefitsReligion);
 
 	Method(FoundPantheon);
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_API_RELIGION)
+#if defined(MOD_API_LUA_EXTENSIONS)
 	Method(EnhancePantheon);
 #endif
 	Method(FoundReligion);
@@ -2646,7 +2646,7 @@ int CvLuaGame::lSetMinimumFaithNextPantheon(lua_State* L)
 	GC.getGame().GetGameReligions()->SetMinimumFaithNextPantheon(lua_tointeger(L, 1));
 	return 1;
 }
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_API_RELIGION)
+#if defined(MOD_API_LUA_EXTENSIONS)
 //------------------------------------------------------------------------------
 int CvLuaGame::lIsInSomeReligion(lua_State* L)
 {
@@ -2981,7 +2981,7 @@ int CvLuaGame::lFoundPantheon(lua_State* L)
 
 	return 0;
 }
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_API_RELIGION)
+#if defined(MOD_API_LUA_EXTENSIONS)
 //------------------------------------------------------------------------------
 int CvLuaGame::lEnhancePantheon(lua_State* L)
 {
@@ -3021,7 +3021,7 @@ int CvLuaGame::lEnhanceReligion(lua_State* L)
 	const ReligionTypes eReligion = static_cast<ReligionTypes>(luaL_checkint(L, 2));
 	const BeliefTypes eBelief1 = static_cast<BeliefTypes>(luaL_checkint(L, 3));
 	const BeliefTypes eBelief2 = static_cast<BeliefTypes>(luaL_checkint(L, 4));
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_API_RELIGION)
+#if defined(MOD_API_LUA_EXTENSIONS)
 	const bool bNotify = luaL_optbool(L, 5, true);
 
 	GC.getGame().GetGameReligions()->EnhanceReligion(ePlayer, eReligion, eBelief1, eBelief2, bNotify);

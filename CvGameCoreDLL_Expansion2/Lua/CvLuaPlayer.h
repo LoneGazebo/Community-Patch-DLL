@@ -317,7 +317,7 @@ protected:
 	static int lGetFaithPerTurnFromReligion(lua_State* L);
 	static int lHasCreatedPantheon(lua_State* L);
 	static int lGetBeliefInPantheon(lua_State* L);
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_API_RELIGION)
+#if defined(MOD_API_LUA_EXTENSIONS)
 	LUAAPIEXTN(GetBeliefsInPantheon, table);
 #endif
 	static int lCanCreatePantheon(lua_State* L);

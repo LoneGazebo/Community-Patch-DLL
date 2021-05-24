@@ -359,7 +359,7 @@ protected:
 	static int lGetMinimumFaithNextPantheon(lua_State* L);
 	static int lSetMinimumFaithNextPantheon(lua_State* L);
 
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_API_RELIGION)
+#if defined(MOD_API_LUA_EXTENSIONS)
 	LUAAPIEXTN(IsInSomeReligion, bool, iBelief, iPlayer);
 #endif
 	static int lGetAvailablePantheonBeliefs(lua_State* L);
@@ -383,7 +383,7 @@ protected:
 	static int lGetFounderBenefitsReligion(lua_State* L);
 
 	static int lFoundPantheon(lua_State* L);
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_API_RELIGION)
+#if defined(MOD_API_LUA_EXTENSIONS)
 	LUAAPIEXTN(EnhancePantheon, void, iPlayer, iBelief);
 #endif
 	static int lFoundReligion(lua_State* L);
