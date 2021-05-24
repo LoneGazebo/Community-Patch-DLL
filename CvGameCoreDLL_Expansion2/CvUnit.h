@@ -654,7 +654,6 @@ public:
 	int getIgnoreTerrainCostCount() const;
 	void changeIgnoreTerrainCostCount(int iValue);
 
-#if defined(MOD_API_PLOT_BASED_DAMAGE)
 	bool ignoreTerrainDamage() const;
 	int getIgnoreTerrainDamageCount() const;
 	void changeIgnoreTerrainDamageCount(int iValue);
@@ -670,7 +669,6 @@ public:
 	bool extraFeatureDamage() const;
 	int getExtraFeatureDamageCount() const;
 	void changeExtraFeatureDamageCount(int iValue);
-#endif
 
 #if defined(MOD_PROMOTIONS_IMPROVEMENT_BONUS)
 	int GetNearbyImprovementCombatBonus() const;
@@ -2063,14 +2061,11 @@ protected:
 	FAutoVariable<int, CvUnit> m_iExtraNavalMoves;
 	FAutoVariable<int, CvUnit> m_iKamikazePercent;
 	FAutoVariable<DirectionTypes, CvUnit> m_eFacingDirection;
-
 	FAutoVariable<int, CvUnit> m_iIgnoreTerrainCostCount;
-#if defined(MOD_API_PLOT_BASED_DAMAGE)
 	FAutoVariable<int, CvUnit> m_iIgnoreTerrainDamageCount;
 	FAutoVariable<int, CvUnit> m_iIgnoreFeatureDamageCount;
 	FAutoVariable<int, CvUnit> m_iExtraTerrainDamageCount;
 	FAutoVariable<int, CvUnit> m_iExtraFeatureDamageCount;
-#endif
 #if defined(MOD_PROMOTIONS_IMPROVEMENT_BONUS)
 	FAutoVariable<int, CvUnit> m_iNearbyImprovementCombatBonus;
 	FAutoVariable<int, CvUnit> m_iNearbyImprovementBonusRange;

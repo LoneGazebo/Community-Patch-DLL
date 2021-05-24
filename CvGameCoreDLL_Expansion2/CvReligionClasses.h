@@ -181,11 +181,7 @@ public:
 	ReligionTypes GetReligionToFound(PlayerTypes ePlayer);
 	void FoundPantheon(PlayerTypes ePlayer, BeliefTypes eBelief);
 	void FoundReligion(PlayerTypes ePlayer, ReligionTypes eReligion, const char* szCustomName, BeliefTypes eBelief1, BeliefTypes eBelief2, BeliefTypes eBelief3, BeliefTypes eBelief4, CvCity* pkHolyCity);
-#if defined(MOD_API_RELIGION)
 	void EnhanceReligion(PlayerTypes ePlayer, ReligionTypes eReligion, BeliefTypes eBelief1, BeliefTypes eBelief2=NO_BELIEF, bool bNotify=true);
-#else
-	void EnhanceReligion(PlayerTypes ePlayer, ReligionTypes eReligion, BeliefTypes eBelief1, BeliefTypes eBelief2);
-#endif
 	void AddReformationBelief(PlayerTypes ePlayer, ReligionTypes eReligion, BeliefTypes eBelief1);
 	void SetHolyCity(ReligionTypes eReligion, CvCity* pkHolyCity);
 	void SetFounder(ReligionTypes eReligion, PlayerTypes eFounder);

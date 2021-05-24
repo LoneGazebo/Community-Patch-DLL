@@ -41,7 +41,7 @@ protected:
 	//! (LUA) CvPlot::GetTerrainType.
 	static int lGetTerrainType(lua_State* L);
 
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_API_PLOT_BASED_DAMAGE)
+#if defined(MOD_API_LUA_EXTENSIONS)
 	LUAAPIEXTN(GetTurnDamage, int, bIgnoreTerrainDamage, bIgnoreFeatureDamage, bExtraTerrainDamage, bExtraFeatureDamage);
 #endif
 

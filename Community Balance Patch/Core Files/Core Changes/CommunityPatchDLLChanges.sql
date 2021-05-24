@@ -100,10 +100,6 @@ WHERE Name = 'GLOBAL_CITY_FOREST_BONUS';
 
 UPDATE CustomModOptions
 SET Value = '1'
-WHERE Name = 'API_PLOT_BASED_DAMAGE';
-
-UPDATE CustomModOptions
-SET Value = '1'
 WHERE Name = 'BALANCE_CORE_WONDER_COST_INCREASE';
 
 UPDATE CustomModOptions
