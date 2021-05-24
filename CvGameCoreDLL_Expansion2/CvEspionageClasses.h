@@ -44,10 +44,8 @@ enum CvSpyState
 	SPY_STATE_MAKING_INTRODUCTIONS,
 	SPY_STATE_SCHMOOZE,
     SPY_STATE_DEAD,
-#if defined(MOD_API_ESPIONAGE)
     SPY_STATE_TERMINATED,
 	SPY_STATE_BUILDING_NETWORK,
-#endif
     NUM_SPY_STATES
 };
 
@@ -57,9 +55,7 @@ enum CvSpyResult // what was the result of the last spy action
     SPY_RESULT_DETECTED,   // a spy was detected in the city, but the defensive player can't tell which player
     SPY_RESULT_IDENTIFIED, // a spy was detected and identified in the city
     SPY_RESULT_KILLED,     // a spy was detected, identified, and killed in the city
-#if defined(MOD_API_ESPIONAGE)
     SPY_RESULT_ELIMINATED, // a spy was detected, identified, and killed in the city, in such an embarrassing way that another spy won't be recruited!
-#endif
     NUM_SPY_RESULTS
 };
 
@@ -81,9 +77,7 @@ public:
 
 	const char* GetSpyName(CvPlayer* pPlayer);
 
-#if defined(MOD_API_ESPIONAGE)
 	void SetSpyState(PlayerTypes eSpyOwner, int iSpyIndex, CvSpyState eSpyState);
-#endif
 	void SetSpyFocus(CityEventChoiceTypes m_eSpyFocus);
 
 	// Public data
@@ -97,9 +91,7 @@ public:
 	int m_iReviveCounter; // after killed, counter to reincarnate a spy
 	bool m_bIsDiplomat;
 	bool m_bEvaluateReassignment; // used by the AI. Flag to indicate if the spy should be evaluated to be reassigned
-#if defined(MOD_API_ESPIONAGE)
 	bool m_bPassive;
-#endif
 	CityEventChoiceTypes m_eSpyFocus; // focus type for events- events are classified.
 	int m_iPotentialAtStart;
 };
@@ -221,10 +213,8 @@ public:
 	bool ExtractSpyFromCity(uint uiSpyIndex);
 	void LevelUpSpy(uint uiSpyIndex);
 
-#if defined(MOD_API_ESPIONAGE)
 	void SetPassive(uint uiSpyIndex, bool bPassive);
 	void SetOutcome(uint uiSpyIndex, uint uiSpyResult, bool bAffectsDiplomacy = true);
-#endif
 
 	void UpdateSpies();
 	void UpdateCity(CvCity* pCity);

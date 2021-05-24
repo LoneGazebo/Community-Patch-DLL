@@ -820,11 +820,6 @@
     <!-- Enables the Achievements table (v45) -->
     <Row Class="2" Name="API_ACHIEVEMENTS" Value="0" DbUpdates="1"/>
 
-    <!-- * Enables the Espionage API (v19) -->
-    <!-- See also: "Global - Espionage Race" -->
-    <!-- See also: "Global - Espionage Mapping" -->
-    <Row Class="2" Name="API_ESPIONAGE" Value="1"/>
-
     <!-- * Enables the Trade Routes API (v23) -->
     <!-- See also: "UI - Trade Routes Enhancements" -->
     <Row Class="2" Name="API_TRADEROUTES" Value="1"/>

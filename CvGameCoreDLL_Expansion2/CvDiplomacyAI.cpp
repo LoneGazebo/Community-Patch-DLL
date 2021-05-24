@@ -11400,10 +11400,11 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 			iPeaceScore -= 20;
 		}
 
-		// If we're going for world conquest, we want to fight our wars until we get their capital or can vassalize them
-		// However, do not factor this in when losing
 		if (iPeaceScore > 0)
 		{
+			// If we're going for world conquest, we want to fight our wars until we get their capital or can vassalize them
+			// We should also be more reluctant to make peace if they've captured cities from us, or cities that we want to liberate
+			// However, do not factor this in when losing
 			if (GetStateAllWars() != STATE_ALL_WARS_LOSING && !GetPlayer()->IsEmpireVeryUnhappy())
 			{
 				if (iWarScore > 0 || (iWarScore > -15 && GetPlayerTargetValue(*it) >= TARGET_VALUE_AVERAGE && GetWarState(*it) > WAR_STATE_DEFENSIVE))
