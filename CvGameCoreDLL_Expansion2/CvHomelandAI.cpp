@@ -2107,18 +2107,33 @@ void CvHomelandAI::ExecuteFirstTurnSettlerMoves()
 		if (!pUnit)
 			continue;
 
-		//Minor players don't move, it might break scenarios.
-		if (m_pPlayer->isMinorCiv() && pUnit->canFoundCity(pUnit->plot()))
+		// Custom scenario flags can prevent moving from the starting position
+		if (pUnit->canFoundCity(pUnit->plot()))
 		{
-			pUnit->PushMission(CvTypes::getMISSION_FOUND());
-			UnitProcessed(pUnit->GetID());
-			if (GC.getLogging() && GC.getAILogging())
+			if (m_pPlayer->isMajorCiv() && GC.getMAJORS_CAN_MOVE_STARTING_SETTLER() == 0)
 			{
-				CvString strLogString;
-				strLogString.Format("Founded city state in place, X: %d, Y: %d", pUnit->getX(), pUnit->getY());
-				LogHomelandMessage(strLogString);
+				pUnit->PushMission(CvTypes::getMISSION_FOUND());
+				UnitProcessed(pUnit->GetID());
+				if (GC.getLogging() && GC.getAILogging())
+				{
+					CvString strLogString;
+					strLogString.Format("Founded major civilization in place due to scenario flag, X: %d, Y: %d", pUnit->getX(), pUnit->getY());
+					LogHomelandMessage(strLogString);
+				}
+				continue;
 			}
-			continue;
+			if (m_pPlayer->isMinorCiv() && GC.getCS_CAN_MOVE_STARTING_SETTLER() == 0)
+			{
+				pUnit->PushMission(CvTypes::getMISSION_FOUND());
+				UnitProcessed(pUnit->GetID());
+				if (GC.getLogging() && GC.getAILogging())
+				{
+					CvString strLogString;
+					strLogString.Format("Founded city state in place due to scenario flag, X: %d, Y: %d", pUnit->getX(), pUnit->getY());
+					LogHomelandMessage(strLogString);
+				}
+				continue;
+			}
 		}
 
 		//Let's check for a river estuary - those are always good

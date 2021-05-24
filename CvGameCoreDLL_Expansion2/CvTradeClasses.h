@@ -174,11 +174,11 @@ public:
 
 	void CreateTradeUnitForRoute (int iIndex); // Create the trade unit vis unit
 	CvUnit* GetTradeUnitForRoute(int iIndex);
-#if defined(MOD_API_TRADEROUTES)
+
 	bool IsRecalledUnit (int iIndex); // has the unit been recalled
 	void RecallUnit (int iIndex, bool bImmediate = false); // recall a trade unit
 	void EndTradeRoute (int iIndex); // end a trade route
-#endif
+
 	// trade unit movement
 	bool MoveUnit (int iIndex); // move a trade unit along its path for all its movement points
 	bool StepUnit (int iIndex); // move a trade unit a single step along its path (called by MoveUnit)

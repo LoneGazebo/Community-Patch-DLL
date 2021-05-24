@@ -16,19 +16,25 @@ UPDATE Defines SET Value = '-40' WHERE Name = 'CITY_RANGED_ATTACK_STRENGTH_MULTI
 
 -- this controls how much damage an attack needs to inflict to be considered worthwhile
 -- default value 100. higher -> more aggressive
-INSERT INTO Defines (Name, Value) SELECT 'COMBAT_AI_OFFENSE_DAMAGEWEIGHT', '100';
+INSERT INTO Defines(Name, Value) SELECT 'COMBAT_AI_OFFENSE_DAMAGEWEIGHT', '100';
 
 -- this controls whether ending the turn on a certain plot is acceptable (defense and offense)
 -- default value 100. higher -> more timid
-INSERT INTO Defines (Name, Value) SELECT 'COMBAT_AI_OFFENSE_DANGERWEIGHT', '100';
+INSERT INTO Defines(Name, Value) SELECT 'COMBAT_AI_OFFENSE_DANGERWEIGHT', '100';
 
 -- this controls whether a 'bad' offensive move should still be considered
 -- default value 20. higher -> more reckless
-INSERT INTO Defines (Name, Value) SELECT 'COMBAT_AI_OFFENSE_SCORE_BIAS', '20';
+INSERT INTO Defines(Name, Value) SELECT 'COMBAT_AI_OFFENSE_SCORE_BIAS', '20';
 
 -- this controls whether a 'bad' defensive move should still be considered
 -- default value 200. higher -> more desperate
-INSERT INTO Defines (Name, Value) SELECT 'COMBAT_AI_DEFENSE_SCORE_BIAS', '200';
+INSERT INTO Defines(Name, Value) SELECT 'COMBAT_AI_DEFENSE_SCORE_BIAS', '200';
+
+
+-- These two entries control whether AI major civs and City-States are able to move their starting Settler(s) from their starting plot - set to 0 to disable the ability
+-- NOTE: They can always move their starting Settler(s) if they're not able to found a city in their starting location
+INSERT INTO Defines(Name, Value) SELECT 'MAJORS_CAN_MOVE_STARTING_SETTLER', '1';
+INSERT INTO Defines(Name, Value) SELECT 'CS_CAN_MOVE_STARTING_SETTLER', '1';
 
 
 -- Whoward AI/Game Config Defines

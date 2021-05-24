@@ -1161,7 +1161,7 @@ int CvLuaEnums::pRegister(lua_State* L)
 	RegisterEnum(CONTROL_RESTART_GAME);
 	EnumEnd(L);
 
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_API_TRADEROUTES)
+#if defined(MOD_API_LUA_EXTENSIONS)
 	// TradeConnectionTypes
 	EnumStart(L, "TradeConnectionTypes");
 	RegisterEnum(TRADE_CONNECTION_INTERNATIONAL);

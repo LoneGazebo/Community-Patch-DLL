@@ -14,8 +14,4 @@
 			<Text>Pantheon Enhanced</Text>
 		</Row>
 	</Language_en_US>
-
-	<CustomModDbUpdates>
-		<Row Name="API_RELIGION" Value="1"/>
-	</CustomModDbUpdates>
 </GameData>
