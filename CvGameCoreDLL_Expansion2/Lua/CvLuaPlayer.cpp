@@ -1194,7 +1194,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetNumSpies);
 	Method(GetNumUnassignedSpies);
 	Method(GetEspionageSpies);
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_API_ESPIONAGE)
+#if defined(MOD_API_LUA_EXTENSIONS)
 	Method(EspionageCreateSpy);
 	Method(EspionagePromoteSpy);
 	Method(EspionageSetPassive);
@@ -15471,7 +15471,7 @@ int CvLuaPlayer::lGetEspionageSpies(lua_State* L)
 		case SPY_STATE_SCHMOOZE:
 			lua_pushstring(L, "TXT_KEY_SPY_STATE_SCHMOOZING");
 			break;
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_API_ESPIONAGE)
+#if defined(MOD_API_LUA_EXTENSIONS)
 		case SPY_STATE_TERMINATED:
 			lua_pushstring(L, "TXT_KEY_SPY_STATE_TERMINATED");
 			break;
@@ -15494,7 +15494,7 @@ int CvLuaPlayer::lGetEspionageSpies(lua_State* L)
 		lua_pushboolean(L, pkPlayerEspionage->IsDiplomat(uiSpy));
 		lua_setfield(L, t, "IsDiplomat");
 
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_API_ESPIONAGE)
+#if defined(MOD_API_LUA_EXTENSIONS)
 		lua_pushboolean(L, pSpy->m_bPassive);
 		lua_setfield(L, t, "Passive");
 #endif
@@ -15502,7 +15502,7 @@ int CvLuaPlayer::lGetEspionageSpies(lua_State* L)
 	}
 	return 1;
 }
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_API_ESPIONAGE)
+#if defined(MOD_API_LUA_EXTENSIONS)
 //------------------------------------------------------------------------------
 int CvLuaPlayer::lEspionageCreateSpy(lua_State* L)
 {

@@ -110,8 +110,6 @@
 // Comment these lines out to remove the associated code from the DLL,
 // Alternatively, set the associated entries in the CustomModOptions table to disable(0) or enable(1) at load-time
 
-// Enables the Espionage API - AFFECTS SAVE GAME DATA FORMAT
-#define MOD_API_ESPIONAGE                           gCustomMods.isAPI_ESPIONAGE()
 // Enables the Trade Routes API - AFFECTS SAVE GAME DATA FORMAT (v23)
 #define MOD_API_TRADEROUTES                         gCustomMods.isAPI_TRADEROUTES()
 // Enables the Religion API
@@ -1515,7 +1513,6 @@ public:
 	MOD_OPT_DECL(EVENTS_RED_COMBAT_RESULT);
 	MOD_OPT_DECL(EVENTS_RED_COMBAT_ENDED);
 	MOD_OPT_DECL(ACTIVE_DIPLOMACY);
-	MOD_OPT_DECL(API_ESPIONAGE);
 	MOD_OPT_DECL(API_TRADEROUTES);
 	MOD_OPT_DECL(API_RELIGION);
 	MOD_OPT_DECL(API_PLOT_BASED_DAMAGE);

@@ -637,7 +637,7 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 	Method(GetBuildingEspionageModifier);
 	Method(GetBuildingGlobalEspionageModifier);
 
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_API_ESPIONAGE)
+#if defined(MOD_API_LUA_EXTENSIONS)
 	Method(HasDiplomat);
 	Method(HasSpy);
 	Method(HasCounterSpy);
@@ -6067,7 +6067,7 @@ int CvLuaCity::lGetBuildingGlobalEspionageModifier(lua_State* L)
 	return 1;
 }
 
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_API_ESPIONAGE)
+#if defined(MOD_API_LUA_EXTENSIONS)
 //------------------------------------------------------------------------------
 int CvLuaCity::lHasDiplomat(lua_State* L)
 {
