@@ -7883,7 +7883,7 @@ int CvCity::GetEspionageRankingForEspionage(PlayerTypes ePlayer, CityEventChoice
 					{
 						if (::isWorldWonderClass(pBuildingInfo->GetBuildingClassInfo()))
 						{
-							iRank *= max(1, (100 - pkEventInfo->getWonderUnderConstructionSpeedMod()));
+							iRank *= max(1, (100 + pkEventInfo->getWonderUnderConstructionSpeedMod()));
 							iRank /= 100;
 						}
 					}
@@ -7895,7 +7895,7 @@ int CvCity::GetEspionageRankingForEspionage(PlayerTypes ePlayer, CityEventChoice
 					CvAssertMsg(pProjectInfo, "pProjectInfo is null");
 					if (pProjectInfo && !pProjectInfo->IsRepeatable())
 					{
-						iRank *= max(1, (100 - pkEventInfo->getWonderUnderConstructionSpeedMod()));
+						iRank *= max(1, (100 + pkEventInfo->getWonderUnderConstructionSpeedMod()));
 						iRank /= 100;
 					}
 				}
