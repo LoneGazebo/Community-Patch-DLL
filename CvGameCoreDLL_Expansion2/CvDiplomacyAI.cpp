@@ -11416,7 +11416,9 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 					{
 						if (bReadyForVassalage || GET_PLAYER(*it).GetCapitalConqueror() != NO_PLAYER)
 						{
-							iPeaceScore *= 2;
+							// If they're weak or a bad target, boost peace willingness
+							if (GetPlayerMilitaryStrengthComparedToUs(*it) < STRENGTH_AVERAGE || GetPlayerTargetValue(*it) <= TARGET_VALUE_BAD)
+								iPeaceScore *= 2;
 						}
 						else
 						{
@@ -11431,19 +11433,27 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 				}
 			}
 
-			// Modify based on leader flavors
-			// High Meanness leaders will fight to the bitter end when losing, high Diplo Balance leaders like to return to status quo when winning
-			if (iWarScore > 0)
+			// If they backstabbed us, significantly less willing to make peace.
+			if (IsUntrustworthy(*it))
 			{
-				int iModifier = (GetDiploBalance() - 5) * 10;
-				iPeaceScore *= (100 + iModifier);
-				iPeaceScore /= 100;
+				iPeaceScore /= 2;
 			}
-			else if (iWarScore < 0)
+			else
 			{
-				int iModifier = (-GetMeanness() + 5) * 10;
-				iPeaceScore *= (100 + iModifier);
-				iPeaceScore /= 100;
+				// Modify based on leader flavors
+				// High Meanness leaders will fight to the bitter end when losing, high Diplo Balance leaders like to return to status quo when winning
+				if (iWarScore > 0)
+				{
+					int iModifier = (GetDiploBalance() - 5) * 10;
+					iPeaceScore *= (100 + iModifier);
+					iPeaceScore /= 100;
+				}
+				else if (iWarScore < 0)
+				{
+					int iModifier = (-GetMeanness() + 5) * 10;
+					iPeaceScore *= (100 + iModifier);
+					iPeaceScore /= 100;
+				}
 			}
 		}
 
