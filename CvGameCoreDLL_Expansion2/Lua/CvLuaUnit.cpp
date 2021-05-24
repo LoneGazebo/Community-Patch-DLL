@@ -105,7 +105,7 @@ void CvLuaUnit::PushMethods(lua_State* L, int t)
 	Method(CanMakeTradeRoute);
 	Method(CanMakeTradeRouteAt);
 
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_API_TRADEROUTES)
+#if defined(MOD_API_LUA_EXTENSIONS)
 	Method(CanPlunderTradeRoute);
 	Method(PlunderTradeRoute);
 #endif
@@ -262,7 +262,7 @@ void CvLuaUnit::PushMethods(lua_State* L, int t)
 	Method(IsEnemyInMovementRange);
 
 	Method(IsTrade);
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_API_TRADEROUTES)
+#if defined(MOD_API_LUA_EXTENSIONS)
 	Method(GetTradeRouteIndex);
 	Method(IsRecalledTrader);
 	Method(RecallTrader);
@@ -1460,7 +1460,7 @@ int CvLuaUnit::lCanMakeTradeRouteAt(lua_State* L)
 	lua_pushboolean(L, bResult);
 	return 1;
 }
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_API_TRADEROUTES)
+#if defined(MOD_API_LUA_EXTENSIONS)
 //------------------------------------------------------------------------------
 //bool canPlunderTradeRoute(CvPlot* pPlot)
 int CvLuaUnit::lCanPlunderTradeRoute(lua_State* L)
@@ -2881,7 +2881,7 @@ int CvLuaUnit::lIsTrade(lua_State* L)
 	return 1;
 }
 
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_API_TRADEROUTES)
+#if defined(MOD_API_LUA_EXTENSIONS)
 //------------------------------------------------------------------------------
 int CvLuaUnit::lGetTradeRouteIndex(lua_State* L)
 {

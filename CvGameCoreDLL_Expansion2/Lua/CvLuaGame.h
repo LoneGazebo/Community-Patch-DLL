@@ -439,7 +439,7 @@ protected:
 
 	static int lGetLongestCityConnectionPlots(lua_State* L);
 
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_API_TRADEROUTES)
+#if defined(MOD_API_LUA_EXTENSIONS)
 	LUAAPIEXTN(GetTradeRoute, table, iRouteIndex);
 #endif
 	static int lSelectedUnit_SpeculativePopupTradeRoute_Display(lua_State* L);

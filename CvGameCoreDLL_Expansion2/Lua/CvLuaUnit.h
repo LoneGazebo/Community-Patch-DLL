@@ -103,7 +103,7 @@ protected:
 	static int lCanMakeTradeRoute(lua_State* L);
 	static int lCanMakeTradeRouteAt(lua_State* L);
 
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_API_TRADEROUTES)
+#if defined(MOD_API_LUA_EXTENSIONS)
 	LUAAPIEXTN(CanPlunderTradeRoute, bool, pPlot);
 	LUAAPIEXTN(PlunderTradeRoute, bool);
 #endif
@@ -269,7 +269,7 @@ protected:
 	static int lIsEnemyInMovementRange(lua_State* L);
 
 	static int lIsTrade(lua_State* L);
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_API_TRADEROUTES)
+#if defined(MOD_API_LUA_EXTENSIONS)
 	LUAAPIEXTN(GetTradeRouteIndex, int);
 	LUAAPIEXTN(IsRecalledTrader, bool);
 	LUAAPIEXTN(RecallTrader, void, bImmediate);

@@ -11444,7 +11444,7 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 				}
 			}
 
-			// If they backstabbed us, significantly less willing to make peace.
+			// If we think they're a backstabber, we're significantly less willing to make peace.
 			if (IsUntrustworthy(*it))
 			{
 				iPeaceScore /= 2;

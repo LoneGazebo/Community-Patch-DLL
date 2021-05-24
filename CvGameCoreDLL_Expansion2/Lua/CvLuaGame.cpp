@@ -450,7 +450,7 @@ void CvLuaGame::RegisterMembers(lua_State* L)
 
 	Method(GetLongestCityConnectionPlots);
 
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_API_TRADEROUTES)
+#if defined(MOD_API_LUA_EXTENSIONS)
 	Method(GetTradeRoute);
 #endif
 	Method(SelectedUnit_SpeculativePopupTradeRoute_Display);
@@ -3460,7 +3460,7 @@ int CvLuaGame::lGetLongestCityConnectionPlots(lua_State* L)
 	return 2;
 }
 
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_API_TRADEROUTES)
+#if defined(MOD_API_LUA_EXTENSIONS)
 //------------------------------------------------------------------------------
 // Most of this came from CvLuaPlayer::lGetTradeRoutes(lua_State* L)
 int CvLuaGame::lGetTradeRoute(lua_State* L)
