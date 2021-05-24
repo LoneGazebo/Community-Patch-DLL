@@ -11461,81 +11461,49 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 		int iThreshold = max(0, /*40*/ GC.getREQUEST_PEACE_TURN_THRESHOLD());
 
 		if (iPeaceScore >= iThreshold)
-		{
 			vMakePeacePlayers.push_back(*it);
-			if (bLog)
-			{
-				CvString strOutBuf;
-				CvString strBaseString;
-				CvString playerName;
-				CvString otherPlayerName;
-				CvString strLogName;
-
-				// Find the name of this civ and city
-				playerName = m_pPlayer->getCivilizationShortDescription();
-
-				// Open the log file
-				if (GC.getPlayerAndCityAILogSplit())
-				{
-					strLogName = "DiplomacyAI_Peace_Log" + playerName + ".csv";
-				}
-				else
-				{
-					strLogName = "DiplomacyAI_Peace_Log.csv";
-				}
-
-				FILogFile* pLog;
-				pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
-
-				// Get the leading info for this line
-				strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
-				otherPlayerName = GET_PLAYER(*it).getCivilizationShortDescription();
-				strBaseString += playerName + " VS. " + otherPlayerName;
-
-				strOutBuf.Format("Willing to make peace, Score for Peace: %d, Required Score: %d", iPeaceScore, iThreshold);
-
-				strBaseString += strOutBuf;
-				pLog->Msg(strBaseString);
-			}
-		}
 		else
 		{
 			SetTreatyWillingToOffer(*it, NO_PEACE_TREATY_TYPE);
 			SetTreatyWillingToAccept(*it, NO_PEACE_TREATY_TYPE);
-			if (bLog)
+		}
+
+		if (bLog)
+		{
+			CvString strOutBuf;
+			CvString strBaseString;
+			CvString playerName;
+			CvString otherPlayerName;
+			CvString strLogName;
+
+			// Find the name of this civ and city
+			playerName = m_pPlayer->getCivilizationShortDescription();
+
+			// Open the log file
+			if (GC.getPlayerAndCityAILogSplit())
 			{
-				CvString strOutBuf;
-				CvString strBaseString;
-				CvString playerName;
-				CvString otherPlayerName;
-				CvString strLogName;
+				strLogName = "DiplomacyAI_Peace_Log" + playerName + ".csv";
+			}
+			else
+			{
+				strLogName = "DiplomacyAI_Peace_Log.csv";
+			}
 
-				// Find the name of this civ and city
-				playerName = m_pPlayer->getCivilizationShortDescription();
+			FILogFile* pLog;
+			pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
 
-				// Open the log file
-				if (GC.getPlayerAndCityAILogSplit())
-				{
-					strLogName = "DiplomacyAI_Peace_Log" + playerName + ".csv";
-				}
-				else
-				{
-					strLogName = "DiplomacyAI_Peace_Log.csv";
-				}
+			// Get the leading info for this line
+			strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
+			otherPlayerName = GET_PLAYER(*it).getCivilizationShortDescription();
+			strBaseString += playerName + " VS. " + otherPlayerName;
 
-				FILogFile* pLog;
-				pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
-
-				// Get the leading info for this line
-				strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
-				otherPlayerName = GET_PLAYER(*it).getCivilizationShortDescription();
-				strBaseString += playerName + " VS. " + otherPlayerName;
-
+			if (iPeaceScore >= iThreshold)
+				strOutBuf.Format("Willing to make peace, Score for Peace: %d, Required Score: %d", iPeaceScore, iThreshold);
+			else
 				strOutBuf.Format("Not willing to make peace, Score for Peace: %d, Required Score: %d", iPeaceScore, iThreshold);
 
-				strBaseString += strOutBuf;
-				pLog->Msg(strBaseString);
-			}
+			strBaseString += strOutBuf;
+			pLog->Msg(strBaseString);
 		}
 	}
 
