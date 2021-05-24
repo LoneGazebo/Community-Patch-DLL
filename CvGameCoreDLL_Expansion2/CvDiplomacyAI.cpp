@@ -11044,9 +11044,9 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 		}
 
 		// Okay, so no automatic peace. But should we consider peace at all?
-		bool bCapturedKeyCity = IsCapitalCapturedBy(*it, true, false) || IsHolyCityCapturedBy(*it, true, false);
+		bool bCapturedKeyCity = IsCapitalCapturedBy(*it, true, true) || IsHolyCityCapturedBy(*it, true, true);
 		bool bPhonyWar = IsPhonyWar(*it);
-		bool bCapturedAnyCityFromUs = false;
+		bool bCapturedAnyCityFromUs = bCapturedKeyCity;
 		bool bCapturedAnyCityWeWantToLiberate = false;
 		bool bReadyForVassalage = false;
 
@@ -11402,53 +11402,47 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 
 		// If we're going for world conquest, we want to fight our wars until we get their capital or can vassalize them
 		// However, do not factor this in when losing
-		if (iWarScore > -15 && bWorldConquest)
+		if (GetStateAllWars() != STATE_ALL_WARS_LOSING && !GetPlayer()->IsEmpireVeryUnhappy() && iPeaceScore > 0)
 		{
-			if (bReadyForVassalage || GET_PLAYER(GET_PLAYER(*it).GetCapitalConqueror()).getTeam() == GetTeam())
+			if (iWarScore > 0 || (iWarScore > -15 && GetPlayerTargetValue(*it) >= TARGET_VALUE_AVERAGE && GetWarState(*it) > WAR_STATE_DEFENSIVE))
 			{
-				if (iPeaceScore > 0)
-					iPeaceScore *= 2;
-				else
+				if (bCapturedAnyCityFromUs)
+				{
 					iPeaceScore /= 2;
-			}
-			else
-			{
-				if (iPeaceScore > 0)
-					iPeaceScore /= 2;
-				else
-					iPeaceScore *= 2;
+				}
+				else if (bWorldConquest)
+				{
+					if (bReadyForVassalage || GET_PLAYER(*it).GetCapitalConqueror() != NO_PLAYER)
+					{
+						iPeaceScore *= 2;
+					}
+					else
+					{
+						iPeaceScore /= 2;
+					}
+				}
+				else if (bCapturedAnyCityWeWantToLiberate)
+				{
+					iPeaceScore *= 75;
+					iPeaceScore /= 100;
+				}
 			}
 		}
 
 		// Modify based on leader flavors
 		// High Meanness leaders will fight to the bitter end when losing, high Diplo Balance leaders like to return to status quo when winning
-		if (iWarScore > 0)
+		if (iPeaceScore > 0)
 		{
-			int iModifier = (GetDiploBalance() - 5) * 10;
-
-			if (iPeaceScore > 0)
+			if (iWarScore > 0)
 			{
+				int iModifier = (GetDiploBalance() - 5) * 10;
 				iPeaceScore *= (100 + iModifier);
 				iPeaceScore /= 100;
 			}
-			else
+			else if (iWarScore < 0)
 			{
-				iPeaceScore *= (100 - iModifier);
-				iPeaceScore /= 100;
-			}
-		}
-		else if (iWarScore < 0)
-		{
-			int iModifier = (-GetMeanness() + 5) * 10;
-
-			if (iPeaceScore > 0)
-			{
+				int iModifier = (-GetMeanness() + 5) * 10;
 				iPeaceScore *= (100 + iModifier);
-				iPeaceScore /= 100;
-			}
-			else
-			{
-				iPeaceScore *= (100 - iModifier);
 				iPeaceScore /= 100;
 			}
 		}
