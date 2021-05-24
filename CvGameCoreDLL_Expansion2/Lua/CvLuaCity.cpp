@@ -449,6 +449,7 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 	Method(SetDrafted);
 
 	Method(IsBlockaded);
+	Method(IsMined);
 
 	Method(GetWeLoveTheKingDayCounter);
 	Method(SetWeLoveTheKingDayCounter);
@@ -4439,6 +4440,15 @@ int CvLuaCity::lSetDrafted(lua_State* L)
 int CvLuaCity::lIsBlockaded(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvCity::IsBlockadedWaterAndLand);
+}
+
+int CvLuaCity::lIsMined(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const bool bResult = pkCity->GetDeepWaterTileDamage() > 0;
+
+	lua_pushboolean(L, bResult);
+	return 1;
 }
 
 //------------------------------------------------------------------------------

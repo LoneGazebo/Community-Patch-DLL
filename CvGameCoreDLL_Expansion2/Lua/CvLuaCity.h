@@ -444,6 +444,7 @@ protected:
 	static int lSetDrafted(lua_State* L);
 
 	static int lIsBlockaded(lua_State* L);
+	static int lIsMined(lua_State* L);
 
 	static int lGetWeLoveTheKingDayCounter(lua_State* L);
 	static int lSetWeLoveTheKingDayCounter(lua_State* L);

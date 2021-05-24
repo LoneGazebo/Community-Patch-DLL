@@ -121,6 +121,7 @@
 				<Label ID="CityIsConnected" String="[ICON_CONNECTED]"/>
 				<Label ID="CityIsBlockaded" String="[ICON_BLOCKADED]"/>
 				<Label ID="CityIsOccupied" String="[ICON_OCCUPIED]"/>
+				<Label ID="CityIsMined" String="[ICON_PLUS]"/>
 				<Label ID="CityIsUnhappy" String="[ICON_HAPPINESS_3]"/>
 			</Stack>
 			<!--  CityRangeStrikeButton -->
@@ -213,6 +214,7 @@
 				<Label ID="CityIsResistance" String="[ICON_RESISTANCE]"/>
 				<Label ID="CityIsBlockaded" String="[ICON_BLOCKADED]"/>
 				<Label ID="CityIsOccupied" String="[ICON_OCCUPIED]"/>
+				<Label ID="CityIsMined" String="[ICON_PLUS]"/>
 				<Label ID="CityIsUnhappy" String="[ICON_HAPPINESS_3]"/>
 			</Stack>
 		</WorldAnchor>

@@ -4254,7 +4254,7 @@ int CvLeague::CalculateStartingVotesForMember(PlayerTypes ePlayer, bool bForceUp
 {
 	//try the cached value first
 	Member* thisMember = GetMember(ePlayer);
-	if (thisMember->ePlayer != NO_PLAYER)
+	if (thisMember != NULL && thisMember->ePlayer != NO_PLAYER)
 	{
 		if (GC.getGame().getTurnSlice() == thisMember->m_startingVotesCacheTime)
 			return thisMember->m_startingVotesCached;
@@ -4671,7 +4671,7 @@ int CvLeague::CalculateStartingVotesForMember(PlayerTypes ePlayer, bool bForceUp
 	}
 
 	//update cache
-	if (thisMember->ePlayer != NO_PLAYER)
+	if (thisMember != NULL && thisMember->ePlayer != NO_PLAYER)
 	{
 		thisMember->m_startingVotesCacheTime = GC.getGame().getTurnSlice();
 		thisMember->m_startingVotesCached = iVotes;

@@ -13072,9 +13072,9 @@ int CvCity::getProductionModifier(UnitTypes eUnit, CvString* toolTipSink, bool b
 			if (iWarWeariness > 0)
 			{
 				//Let's do the yield mods.			
-				iTempMod = iWarWeariness;
+				iTempMod = iWarWeariness*-1;
 
-				iMultiplier -= iTempMod;
+				iMultiplier += iTempMod;
 				if (iTempMod != 0 && toolTipSink)
 					GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_BALANCE_HAPPINESS_MOD", iTempMod);
 			}

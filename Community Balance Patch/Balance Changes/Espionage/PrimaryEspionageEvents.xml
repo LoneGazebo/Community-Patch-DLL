@@ -152,8 +152,8 @@
 			<IDModifier>50</IDModifier>
 			<DeathModifier>25</DeathModifier>
 			<PillageCityStrategicNum>2</PillageCityStrategicNum>
-			<EspionageDifficultyMod>350</EspionageDifficultyMod>
-			<SpyLevelRequired>2</SpyLevelRequired>
+			<EspionageDifficultyMod>250</EspionageDifficultyMod>
+			<SpyLevelRequired>0</SpyLevelRequired>
 		</Row>
 		<!-- STEAL TECH -->
 		<Row>

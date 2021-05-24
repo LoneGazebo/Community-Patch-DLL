@@ -508,6 +508,10 @@ local g_cityToolTips = {
 		return L"TXT_KEY_CITY_OCCUPIED"
 	end,
 
+	CityIsMined = function()
+		return L"TXT_KEY_CITY_MINED"
+	end,
+
 	CityIsUnhappy = function( city)
 		local delta = city:getHappinessDelta() * -1;
 		return L("TXT_KEY_CITY_UNHAPPY", delta) .. "[NEWLINE][NEWLINE]" .. L(city:GetCityUnhappinessBreakdown(false, true))
@@ -985,6 +989,9 @@ local function RefreshCityBannersNow()
 
 			-- Occupied ?
 			instance.CityIsOccupied:SetHide( not city:IsOccupied() or city:IsNoOccupiedUnhappiness() )
+
+			-- Occupied ?
+			instance.CityIsMined:SetHide( not city:IsBlockaded() )
 
 			-- Blockaded ?
 			instance.CityIsBlockaded:SetHide( not city:IsBlockaded() )

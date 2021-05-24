@@ -311,6 +311,14 @@ function RefreshCityBanner(cityBanner, iActiveTeam, iActivePlayer)
 			controls.OccupiedIcon:SetHide(true);
 		end
 
+		-- CityIsMined Status
+		if (city:IsMined()) then
+			controls.CityIsMined:SetHide(false);
+			controls.CityIsMined:SetToolTipString(Locale.ConvertTextKey( "TXT_KEY_CITY_MINED"));
+		else
+			controls.CityIsMined:SetHide(true);
+		end
+
 		-- Happiness Status
 		if (isActiveTeamCity) then
 			local delta = city:getHappinessDelta();
