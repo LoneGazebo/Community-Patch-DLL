@@ -47577,7 +47577,7 @@ int CvPlayer::GetNumCapitalCities() const
 	int iLoop;
 	for(pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 	{
-		if(pLoopCity->IsOriginalMajorCapital() && !pLoopCity->isCapital())
+		if(pLoopCity->IsOriginalMajorCapital() && !pLoopCity->IsOriginalCapitalForPlayer(m_eID))
 		{
 			iNum++;
 		}

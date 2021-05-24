@@ -11247,30 +11247,40 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 
 		// War score is of course a big factor
 		// If we get a bonus from high warscore, let's not end early!
-		if (GetPlayer()->GetPositiveWarScoreTourismMod() <= 0 || GET_PLAYER(GetHighestWarscorePlayer()).getTeam() != GET_PLAYER(*it).getTeam())
+		bool bProlong = true;
+
+		if (iWarScore <= 0)
 		{
 			iPeaceScore += iWarScore / -10;
+			bProlong = false;
+		}
+		else if (GetPlayer()->GetPositiveWarScoreTourismMod() <= 0 || GET_PLAYER(GetHighestWarscorePlayer()).getTeam() != GET_PLAYER(*it).getTeam())
+		{
+			iPeaceScore += iWarScore / -10;
+			bProlong = false;
+		}
 
-			// Lack of progress in war increases desire for peace (moreso if far away).
-			if (iWarDuration > 13)
+		int iTooLongWarThreshold = bProlong ? 25 : 13;
+
+		// Lack of progress in war increases desire for peace (moreso if far away).
+		if (iWarDuration > iTooLongWarThreshold)
+		{
+			int iDurationPenalty = iWarDuration - iTooLongWarThreshold;
+
+			switch (GetPlayer()->GetProximityToPlayer(*it))
 			{
-				int iDurationPenalty = iWarDuration - 13;
-
-				switch (GetPlayer()->GetProximityToPlayer(*it))
-				{
-				case PLAYER_PROXIMITY_NEIGHBORS:
-					iPeaceScore += iDurationPenalty;
-					break;
-				case PLAYER_PROXIMITY_CLOSE:
-					iPeaceScore += (iDurationPenalty * 150) / 100;
-					break;
-				case PLAYER_PROXIMITY_FAR:
-					iPeaceScore += iDurationPenalty * 2;
-					break;
-				case PLAYER_PROXIMITY_DISTANT:
-					iPeaceScore += iDurationPenalty * 3;
-					break;
-				}
+			case PLAYER_PROXIMITY_NEIGHBORS:
+				iPeaceScore += iDurationPenalty;
+				break;
+			case PLAYER_PROXIMITY_CLOSE:
+				iPeaceScore += (iDurationPenalty * 150) / 100;
+				break;
+			case PLAYER_PROXIMITY_FAR:
+				iPeaceScore += iDurationPenalty * 2;
+				break;
+			case PLAYER_PROXIMITY_DISTANT:
+				iPeaceScore += iDurationPenalty * 3;
+				break;
 			}
 		}
 
@@ -11415,7 +11425,7 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 					}
 					else if (bWorldConquest)
 					{
-						if (bReadyForVassalage || GET_PLAYER(*it).GetCapitalConqueror() != NO_PLAYER)
+						if (bReadyForVassalage || (GET_PLAYER(*it).GetCapitalConqueror() != NO_PLAYER && GET_PLAYER(*it).GetNumCapitalCities() <= 0))
 						{
 							// If they're weak or a bad target, boost peace willingness
 							if (GetPlayerMilitaryStrengthComparedToUs(*it) < STRENGTH_AVERAGE || GetPlayerTargetValue(*it) <= TARGET_VALUE_BAD)
