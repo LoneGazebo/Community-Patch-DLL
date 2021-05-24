@@ -932,6 +932,8 @@ public:
 	int GetExtraVotesPerDiplomat();
 	int GetExtraVotesPerCityStateAlly();
 
+
+
 	// String composition for UI
 	CvString GetCommitVoteDetails(PlayerTypes eToPlayer);
 
@@ -939,12 +941,16 @@ public:
 
 	CvPlayer* m_pPlayer;
 
+	DesireLevels EvaluateDesire(int iRawEvaluationScore);
+
 	VoteCommitmentList m_vVoteCommitmentList;
+
+	int ScoreProposal(CvLeague* pLeague, ResolutionTypes eResolution, int iChoice, PlayerTypes eProposer = NO_PLAYER, bool bConsiderGlobal = false);
+	int ScoreProposal(CvLeague* pLeague, CvActiveResolution* pResolution, PlayerTypes eProposer = NO_PLAYER, bool bConsiderGlobal = false);
 
 private:
 	
 	CvString GetTextForDesire(DesireLevels eDesire);
-	DesireLevels EvaluateDesire(int iRawEvaluationScore);
 
 	// Voting
 	void AllocateVotes(CvLeague* pLeague);
@@ -957,8 +963,6 @@ private:
 
 	// Proposing
 	void AllocateProposals(CvLeague* pLeague);
-	int ScoreProposal(CvLeague* pLeague, ResolutionTypes eResolution, int iChoice = LeagueHelpers::CHOICE_NONE, bool bIsProposing = false);
-	int ScoreProposal(CvLeague* pLeague, CvActiveResolution* pResolution, bool bIsProposing = false);
 
 	// Logging
 	void LogProposalConsidered(ProposalConsideration* pProposal, int iChoice, int iScore, bool bPre);
