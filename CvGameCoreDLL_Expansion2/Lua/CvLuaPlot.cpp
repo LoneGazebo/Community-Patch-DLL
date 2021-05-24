@@ -36,7 +36,7 @@ void CvLuaPlot::PushMethods(lua_State* L, int t)
 	Method(CanHaveFeature);
 	Method(GetFeatureType);
 	Method(GetTerrainType);
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_API_PLOT_BASED_DAMAGE)
+#if defined(MOD_API_LUA_EXTENSIONS)
 	Method(GetTurnDamage);
 #endif
 	Method(IsRiver);
@@ -423,7 +423,7 @@ int CvLuaPlot::lGetTerrainType(lua_State* L)
 
 	return 1;
 }
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_API_PLOT_BASED_DAMAGE)
+#if defined(MOD_API_LUA_EXTENSIONS)
 //------------------------------------------------------------------------------
 int CvLuaPlot::lGetTurnDamage(lua_State* L)
 {

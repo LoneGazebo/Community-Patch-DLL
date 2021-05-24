@@ -313,7 +313,7 @@ void CvLuaUnit::PushMethods(lua_State* L, int t)
 #endif
 	Method(FlatMovementCost);
 	Method(IgnoreTerrainCost);
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_API_PLOT_BASED_DAMAGE)
+#if defined(MOD_API_LUA_EXTENSIONS)
 	Method(IgnoreTerrainDamage);
 	Method(IgnoreFeatureDamage);
 	Method(ExtraTerrainDamage);
@@ -3376,7 +3376,7 @@ int CvLuaUnit::lIgnoreTerrainCost(lua_State* L)
 	lua_pushboolean(L, bResult);
 	return 1;
 }
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_API_PLOT_BASED_DAMAGE)
+#if defined(MOD_API_LUA_EXTENSIONS)
 //------------------------------------------------------------------------------
 //bool ignoreTerrainDamage();
 int CvLuaUnit::lIgnoreTerrainDamage(lua_State* L)

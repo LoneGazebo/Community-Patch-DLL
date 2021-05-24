@@ -800,12 +800,6 @@
     <!-- See also: "Civilization - Morindim" -->
     <Row Class="3" Name="EVENTS_CAN_MOVE_INTO" Value="0" DbUpdates="1"/>
 
-    <!-- Most API enhancements cannot be turned on or off, those entries (*) are just here to get their entries into the CustomMod.log file -->
-    <!-- Enables the Plot Based Damage API (replaces fixed damage from mountains) (v19) -->
-    <!-- Take care when enabling this and adding terrain based damage for ice as you will probably want to give submarines the IgnoreTerrainDamage promotion -->
-    <!-- See also: "Promotions - Terrain Crossing" -->
-    <Row Class="2" Name="API_PLOT_BASED_DAMAGE" Value="0" DbUpdates="1"/>
-
     <!-- Enables the Plot Yield tables (v35) -->
     <!-- See also: "Religion - Bonus Beliefs" -->
     <Row Class="2" Name="API_PLOT_YIELDS" Value="1" DbUpdates="1"/>

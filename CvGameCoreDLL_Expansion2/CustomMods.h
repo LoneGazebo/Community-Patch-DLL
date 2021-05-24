@@ -110,8 +110,6 @@
 // Comment these lines out to remove the associated code from the DLL,
 // Alternatively, set the associated entries in the CustomModOptions table to disable(0) or enable(1) at load-time
 
-// Enables the Plot Based Damage API (replaces fixed damage from mountains)
-#define MOD_API_PLOT_BASED_DAMAGE                   gCustomMods.isAPI_PLOT_BASED_DAMAGE()
 // Enables the Plot Yield tables (v35)
 #define MOD_API_PLOT_YIELDS                         gCustomMods.isAPI_PLOT_YIELDS()
 // Enables the Achievements table (v45)
@@ -1509,7 +1507,6 @@ public:
 	MOD_OPT_DECL(EVENTS_RED_COMBAT_RESULT);
 	MOD_OPT_DECL(EVENTS_RED_COMBAT_ENDED);
 	MOD_OPT_DECL(ACTIVE_DIPLOMACY);
-	MOD_OPT_DECL(API_PLOT_BASED_DAMAGE);
 	MOD_OPT_DECL(API_PLOT_YIELDS);
 	MOD_OPT_DECL(API_ACHIEVEMENTS);
 	MOD_OPT_DECL(API_EXTENSIONS);

@@ -325,7 +325,7 @@ protected:
 #endif
 	static int lFlatMovementCost(lua_State* L);
 	static int lIgnoreTerrainCost(lua_State* L);
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_API_PLOT_BASED_DAMAGE)
+#if defined(MOD_API_LUA_EXTENSIONS)
 	LUAAPIEXTN(IgnoreTerrainDamage, bool);
 	LUAAPIEXTN(IgnoreFeatureDamage, bool);
 	LUAAPIEXTN(ExtraTerrainDamage, bool);

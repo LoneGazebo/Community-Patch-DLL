@@ -211,12 +211,10 @@ public:
 	bool IsHillsDoubleMove() const;
 
 	bool IsIgnoreTerrainCost() const;
-#if defined(MOD_API_PLOT_BASED_DAMAGE)
 	bool IsIgnoreTerrainDamage() const;
 	bool IsIgnoreFeatureDamage() const;
 	bool IsExtraTerrainDamage() const;
 	bool IsExtraFeatureDamage() const;
-#endif
 #if defined(MOD_PROMOTIONS_IMPROVEMENT_BONUS)
 	int GetNearbyImprovementCombatBonus() const;
 	int GetNearbyImprovementBonusRange() const;
@@ -511,12 +509,10 @@ protected:
 	bool m_bHealOutsideFriendly;
 	bool m_bHillsDoubleMove;
 	bool m_bIgnoreTerrainCost;
-#if defined(MOD_API_PLOT_BASED_DAMAGE)
 	bool m_bIgnoreTerrainDamage;
 	bool m_bIgnoreFeatureDamage;
 	bool m_bExtraTerrainDamage;
 	bool m_bExtraFeatureDamage;
-#endif
 #if defined(MOD_PROMOTIONS_IMPROVEMENT_BONUS)
 	int m_iNearbyImprovementCombatBonus;
 	int m_iNearbyImprovementBonusRange;
