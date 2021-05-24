@@ -2517,10 +2517,8 @@ public:
 
 	int GetNumPuppetCities() const;
 	int GetNumRealCities() const;
-#if defined(MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS) || defined(MOD_BALANCE_CORE)
 	int GetNumCapitalCities() const;
 	int GetNumMinorsControlled() const;
-#endif
 	int GetNumEffectiveCities(bool bIncludePuppets = false);
 	int GetNumEffectiveCoastalCities() const;
 

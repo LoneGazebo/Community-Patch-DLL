@@ -47566,18 +47566,16 @@ int CvPlayer::GetNumPuppetCities() const
 	return iNum;
 }
 
-#if defined(MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS) || defined(MOD_BALANCE_CORE)
 //	--------------------------------------------------------------------------------
 // How many other Capital Cities does this player own
 int CvPlayer::GetNumCapitalCities() const
 {
 	int iNum = 0;
-
-	const CvCity* pLoopCity;
 	int iLoop;
-	for(pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+
+	for (const CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 	{
-		if(pLoopCity->IsOriginalMajorCapital() && !pLoopCity->IsOriginalCapitalForPlayer(m_eID))
+		if (pLoopCity->IsOriginalMajorCapital() && !pLoopCity->IsOriginalCapitalForPlayer(m_eID))
 		{
 			iNum++;
 		}
@@ -47586,17 +47584,14 @@ int CvPlayer::GetNumCapitalCities() const
 	return iNum;
 }
 
-//	--------------------------------------------------------------------------------
-// How many other Capital Cities does this player own
 int CvPlayer::GetNumMinorsControlled() const
 {
 	int iNum = 0;
-
-	const CvCity* pLoopCity;
 	int iLoop;
-	for (pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+
+	for (const CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 	{
-		if (pLoopCity->IsOriginalMinorCapital() && !pLoopCity->isCapital())
+		if (pLoopCity->IsOriginalMinorCapital() && !pLoopCity->IsOriginalCapitalForPlayer(m_eID))
 		{
 			iNum++;
 		}
@@ -47604,7 +47599,6 @@ int CvPlayer::GetNumMinorsControlled() const
 
 	return iNum;
 }
-#endif
 
 #if defined(MOD_BALANCE_CORE_MILITARY)
 int CvPlayer::GetFractionOriginalCapitalsUnderControl() const
