@@ -6133,29 +6133,95 @@ CvString CvLeague::GetResolutionVoteOpinionDetails(ResolutionTypes eResolution, 
 CvString CvLeague::GetResolutionProposeOpinionDetails(ResolutionTypes eResolution, PlayerTypes eObserver, int iProposerChoice)
 {
 	CvString s = "";
+	bool bShowAllValues = GC.getGame().IsShowAllOpinionValues();
+	std::vector<pair<int, PlayerTypes>> vScores;
 
-	LeagueHelpers::PlayerList vMembersSupporting = GetMembersThatLikeProposal(eResolution, eObserver, iProposerChoice);
-	LeagueHelpers::PlayerList vMembersDissuading = GetMembersThatDislikeProposal(eResolution, eObserver, iProposerChoice);
 
-	if (!vMembersSupporting.empty())
+	for (MemberList::iterator it = m_vMembers.begin(); it != m_vMembers.end(); ++it)
 	{
-		s += Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_PROPOSAL_OPINIONS_POSITIVE").toUTF8();
-		for (uint i = 0; i < vMembersSupporting.size(); i++)
+		if (CanEverVote(it->ePlayer))
 		{
-			Localization::String sTemp = Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_PROPOSAL_OPINION");
-			sTemp << GET_PLAYER(vMembersSupporting[i]).getCivilizationShortDescriptionKey();
-			s += sTemp.toUTF8();
+			int iScore = GET_PLAYER(it->ePlayer).GetLeagueAI()->ScoreProposal(this, eResolution, iProposerChoice, eObserver);
+			vScores.push_back(std::make_pair(iScore, it->ePlayer));
 		}
 	}
+	std::sort(vScores.begin(), vScores.end());
+	std::reverse(vScores.begin(), vScores.end());
+	bool bPositiveDone = false;
+	bool bNegativeDone = false;
+	bool bNeutralDone = false;
 
-	if (!vMembersDissuading.empty())
+	for (std::vector<pair<int, PlayerTypes>>::iterator it = vScores.begin(); it != vScores.end(); it++)
 	{
-		s += Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_PROPOSAL_OPINIONS_NEGATIVE").toUTF8();
-		for (uint i = 0; i < vMembersDissuading.size(); i++)
+		CvString strOut = "";
+		Localization::String sTemp = Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_PROPOSAL_OPINION");
+		sTemp << GET_PLAYER(it->second).getCivilizationShortDescriptionKey();
+		strOut += sTemp.toUTF8();
+
+		if (bShowAllValues)
 		{
-			Localization::String sTemp = Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_PROPOSAL_OPINION");
-			sTemp << GET_PLAYER(vMembersDissuading[i]).getCivilizationShortDescriptionKey();
-			s += sTemp.toUTF8();
+			CvString strTemp;
+			strTemp.Format(" (%d)", it->first);
+			strOut += strTemp;
+		}
+
+		CvLeagueAI::DesireLevels eDesire = GET_PLAYER(it->second).GetLeagueAI()->EvaluateDesire(it->first);
+		if (eDesire > CvLeagueAI::DESIRE_WEAK_LIKE)
+		{
+			if (!bPositiveDone)
+			{
+				s += Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_PROPOSAL_OPINIONS_POSITIVE").toUTF8();
+				bPositiveDone = true;
+			}
+			strOut.insert(0, "[COLOR_POSITIVE_TEXT]");
+			s += strOut;
+		}
+		else if (eDesire > CvLeagueAI::DESIRE_NEUTRAL)
+		{
+			if (!bPositiveDone)
+			{
+				s += Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_PROPOSAL_OPINIONS_POSITIVE").toUTF8();
+				bPositiveDone = true;
+			}
+			strOut.insert(0, "[COLOR_FADING_POSITIVE_TEXT]");
+			s += strOut;
+		}
+		else if (eDesire > CvLeagueAI::DESIRE_WEAK_DISLIKE)
+		{
+			if (bShowAllValues)
+			{
+				if (!bNeutralDone)
+				{
+					s += "[NEWLINE]";
+					bNeutralDone = true;
+				}
+				strOut.insert(0, "[COLOR_WHITE]");
+				s += strOut;
+			}
+		}
+		else if (eDesire > CvLeagueAI::DESIRE_DISLIKE)
+		{
+			if (!bNegativeDone)
+			{
+				CvString sNeg = Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_PROPOSAL_OPINIONS_NEGATIVE").toUTF8();
+				sNeg.insert(0, "[ENDCOLOR]");
+				s += sNeg;
+				bNegativeDone = true;
+			}
+			strOut.insert(0, "[COLOR_FADING_NEGATIVE_TEXT]");
+			s += strOut;
+		}
+		else
+		{
+			if (!bNegativeDone)
+			{
+				CvString sNeg = Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_PROPOSAL_OPINIONS_NEGATIVE").toUTF8();
+				sNeg.insert(0, "[ENDCOLOR]");
+				s += sNeg;
+				bNegativeDone = true;
+			}
+			strOut.insert(0, "[COLOR_NEGATIVE_TEXT]");
+			s += strOut;
 		}
 	}
 
@@ -6165,31 +6231,104 @@ CvString CvLeague::GetResolutionProposeOpinionDetails(ResolutionTypes eResolutio
 CvString CvLeague::GetResolutionProposeOpinionDetails(int iTargetResolutionID, PlayerTypes eObserver)
 {
 	CvString s = "";
+	bool bShowAllValues = GC.getGame().IsShowAllOpinionValues();
+	std::vector<pair<int, PlayerTypes>> vScores;
 
-	LeagueHelpers::PlayerList vMembersSupporting = GetMembersThatLikeProposal(iTargetResolutionID, eObserver);
-	LeagueHelpers::PlayerList vMembersDissuading = GetMembersThatDislikeProposal(iTargetResolutionID, eObserver);
-
-	if (!vMembersSupporting.empty())
+	ActiveResolutionList vActiveResolutions = this->GetActiveResolutions();
+	for (ActiveResolutionList::iterator itRes = vActiveResolutions.begin(); itRes != vActiveResolutions.end(); ++itRes)
 	{
-		s += Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_PROPOSAL_OPINIONS_POSITIVE").toUTF8();
-		for (uint i = 0; i < vMembersSupporting.size(); i++)
+		if (itRes->GetID() == iTargetResolutionID)
 		{
-			Localization::String sTemp = Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_PROPOSAL_OPINION");
-			sTemp << GET_PLAYER(vMembersSupporting[i]).getCivilizationShortDescriptionKey();
-			s += sTemp.toUTF8();
+			for (MemberList::iterator it = m_vMembers.begin(); it != m_vMembers.end(); ++it)
+			{
+				if (CanEverVote(it->ePlayer))
+				{
+					int iScore = GET_PLAYER(it->ePlayer).GetLeagueAI()->ScoreProposal(this, &(*itRes), eObserver);
+					vScores.push_back(std::make_pair(iScore, it->ePlayer));
+				}
+			}
+		}
+	}
+	std::sort(vScores.begin(), vScores.end());
+	std::reverse(vScores.begin(), vScores.end());
+	bool bPositiveDone = false;
+	bool bNegativeDone = false;
+	bool bNeutralDone = false;
+
+	for (std::vector<pair<int, PlayerTypes>>::iterator it = vScores.begin(); it != vScores.end(); it++)
+	{
+		CvString strOut = "";
+		Localization::String sTemp = Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_PROPOSAL_OPINION");
+		sTemp << GET_PLAYER(it->second).getCivilizationShortDescriptionKey();
+		strOut += sTemp.toUTF8();
+
+		if (bShowAllValues)
+		{
+			CvString strTemp;
+			strTemp.Format(" (%d)", it->first);
+			strOut += strTemp;
+		}
+
+		CvLeagueAI::DesireLevels eDesire = GET_PLAYER(it->second).GetLeagueAI()->EvaluateDesire(it->first);
+		if (eDesire > CvLeagueAI::DESIRE_WEAK_LIKE)
+		{
+			if (!bPositiveDone)
+			{
+				s += Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_PROPOSAL_OPINIONS_POSITIVE").toUTF8();
+				bPositiveDone = true;
+			}
+			strOut.insert(0, "[COLOR_POSITIVE_TEXT]");
+			s += strOut;
+		}
+		else if (eDesire > CvLeagueAI::DESIRE_NEUTRAL)
+		{
+			if (!bPositiveDone)
+			{
+				s += Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_PROPOSAL_OPINIONS_POSITIVE").toUTF8();
+				bPositiveDone = true;
+			}
+			strOut.insert(0, "[COLOR_FADING_POSITIVE_TEXT]");
+			s += strOut;
+		}
+		else if (eDesire > CvLeagueAI::DESIRE_WEAK_DISLIKE)
+		{
+			if (bShowAllValues)
+			{
+				if (!bNeutralDone)
+				{
+					s += "[NEWLINE]";
+					bNeutralDone = true;
+				}
+				strOut.insert(0, "[COLOR_WHITE]");
+				s += strOut;
+			}
+		}
+		else if (eDesire > CvLeagueAI::DESIRE_DISLIKE)
+		{
+			if (!bNegativeDone)
+			{
+				CvString sNeg = Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_PROPOSAL_OPINIONS_NEGATIVE").toUTF8();
+				sNeg.insert(0, "[ENDCOLOR]");
+				s += sNeg;
+				bNegativeDone = true;
+			}
+			strOut.insert(0, "[COLOR_FADING_NEGATIVE_TEXT]");
+			s += strOut;
+		}
+		else
+		{
+			if (!bNegativeDone)
+			{
+				CvString sNeg = Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_PROPOSAL_OPINIONS_NEGATIVE").toUTF8();
+				sNeg.insert(0, "[ENDCOLOR]");
+				s += sNeg;
+				bNegativeDone = true;
+			}
+			strOut.insert(0, "[COLOR_NEGATIVE_TEXT]");
+			s += strOut;
 		}
 	}
 
-	if (!vMembersDissuading.empty())
-	{
-		s += Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_PROPOSAL_OPINIONS_NEGATIVE").toUTF8();
-		for (uint i = 0; i < vMembersDissuading.size(); i++)
-		{
-			Localization::String sTemp = Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_PROPOSAL_OPINION");
-			sTemp << GET_PLAYER(vMembersDissuading[i]).getCivilizationShortDescriptionKey();
-			s += sTemp.toUTF8();
-		}
-	}
 
 	return s;
 }
@@ -13204,7 +13343,7 @@ void CvLeagueAI::AllocateProposals(CvLeague* pLeague)
 			if (pLeague->CanProposeRepeal(iID, GetPlayer()->GetID()))
 			{
 				ProposalConsideration consideration(/*bEnact*/ false, iResolutionIndex, LeagueHelpers::CHOICE_NONE);
-				int iScore = ScoreProposal(pLeague, &vActive[iResolutionIndex], true);
+				int iScore = ScoreProposal(pLeague, &vActive[iResolutionIndex], GetPlayer()->GetID(), true);
 
 				for (EnactProposalList::iterator it = pLeague->m_vLastTurnEnactProposals.begin(); it != pLeague->m_vLastTurnEnactProposals.end(); it++)
 				{
@@ -13237,7 +13376,7 @@ void CvLeagueAI::AllocateProposals(CvLeague* pLeague)
 					if (pLeague->CanProposeEnact(eResolution, GetPlayer()->GetID(), LeagueHelpers::CHOICE_NONE))
 					{
 						ProposalConsideration consideration(/*bEnact*/ true, iResolutionIndex, LeagueHelpers::CHOICE_NONE);
-						int iScore = ScoreProposal(pLeague, eResolution, LeagueHelpers::CHOICE_NONE, true);
+						int iScore = ScoreProposal(pLeague, eResolution, LeagueHelpers::CHOICE_NONE, GetPlayer()->GetID(), true);
 
 						for (EnactProposalList::iterator it = pLeague->m_vLastTurnEnactProposals.begin(); it != pLeague->m_vLastTurnEnactProposals.end(); it++)
 						{
@@ -13262,7 +13401,7 @@ void CvLeagueAI::AllocateProposals(CvLeague* pLeague)
 						if (pLeague->CanProposeEnact(eResolution, GetPlayer()->GetID(), iChoice))
 						{
 							ProposalConsideration consideration(/*bEnact*/ true, iResolutionIndex, iChoice);
-							int iScore = ScoreProposal(pLeague, eResolution, iChoice, true);
+							int iScore = ScoreProposal(pLeague, eResolution, iChoice, GetPlayer()->GetID(), true);
 
 							for (EnactProposalList::iterator it = pLeague->m_vLastTurnEnactProposals.begin(); it != pLeague->m_vLastTurnEnactProposals.end(); it++)
 							{
@@ -13329,9 +13468,9 @@ void CvLeagueAI::AllocateProposals(CvLeague* pLeague)
 	}
 }
 
-int CvLeagueAI::ScoreProposal(CvLeague* pLeague, ResolutionTypes eResolution, int iChoice, bool bIsProposing)
+int CvLeagueAI::ScoreProposal(CvLeague* pLeague, ResolutionTypes eResolution, int iChoice, PlayerTypes eProposer, bool bConsiderGlobal)
 {
-	CvEnactProposal fakeProposal(/*iID*/-1, eResolution, pLeague->GetID(), bIsProposing ? GetPlayer()->GetID() : /*eProposalPlayer*/NO_PLAYER, iChoice);
+	CvEnactProposal fakeProposal(/*iID*/-1, eResolution, pLeague->GetID(), eProposer, iChoice);
 
 	// How much do we like our YES vote on this proposal?
 	int iYesScore = 0;
@@ -13345,7 +13484,7 @@ int CvLeagueAI::ScoreProposal(CvLeague* pLeague, ResolutionTypes eResolution, in
 		{
 			if (vVoteChoices[i] == LeagueHelpers::CHOICE_YES)
 			{
-				iYesScore = ScoreVoteChoice(&fakeProposal, vVoteChoices[i], bIsProposing);
+				iYesScore = ScoreVoteChoice(&fakeProposal, vVoteChoices[i], bConsiderGlobal);
 				bFoundYes = true;
 				break;
 			}
@@ -13356,9 +13495,9 @@ int CvLeagueAI::ScoreProposal(CvLeague* pLeague, ResolutionTypes eResolution, in
 	return iYesScore;
 }
 
-int CvLeagueAI::ScoreProposal(CvLeague* pLeague, CvActiveResolution* pResolution, bool bIsProposing)
+int CvLeagueAI::ScoreProposal(CvLeague* pLeague, CvActiveResolution* pResolution, PlayerTypes eProposer, bool bConsiderGlobal)
 {
-	CvRepealProposal fakeProposal(pResolution, bIsProposing ? GetPlayer()->GetID() : /*eProposalPlayer*/NO_PLAYER);
+	CvRepealProposal fakeProposal(pResolution, eProposer);
 
 	// How much do we like our YES vote on this proposal?
 	int iYesScore = 0;
@@ -13372,7 +13511,7 @@ int CvLeagueAI::ScoreProposal(CvLeague* pLeague, CvActiveResolution* pResolution
 		{
 			if (vVoteChoices[i] == LeagueHelpers::CHOICE_YES)
 			{
-				iYesScore = ScoreVoteChoice(&fakeProposal, vVoteChoices[i], bIsProposing);
+				iYesScore = ScoreVoteChoice(&fakeProposal, vVoteChoices[i], bConsiderGlobal);
 				bFoundYes = true;
 				break;
 			}
