@@ -54,6 +54,7 @@
 			<Civilopedia>TXT_KEY_CIV5_BUILDINGS_COURT_SCRIBE_TEXT</Civilopedia>
 			<Strategy>TXT_KEY_BUILDING_COURT_SCRIBE_STRATEGY</Strategy>
 			<GreatPeopleRateChange>1</GreatPeopleRateChange>
+			<NukeImmune>true</NukeImmune>
 			<SpecialistCount>1</SpecialistCount>
 			<SpecialistType>SPECIALIST_CIVIL_SERVANT</SpecialistType>
 			<ArtDefineTag>ART_DEF_BUILDING_MARKET</ArtDefineTag>
@@ -75,6 +76,7 @@
 			<ArtDefineTag>ART_DEF_BUILDING_MARKET</ArtDefineTag>
 			<FreePromotion>PROMOTION_LITERACY</FreePromotion>
 			<MinAreaSize>-1</MinAreaSize>
+			<NukeImmune>true</NukeImmune>
 			<SpecialistCount>1</SpecialistCount>
 			<SpecialistType>SPECIALIST_CIVIL_SERVANT</SpecialistType>
 			<GreatPeopleRateChange>1</GreatPeopleRateChange>
@@ -96,6 +98,7 @@
 			<ArtDefineTag>ART_DEF_BUILDING_MARKET</ArtDefineTag>
 			<FreePromotion>PROMOTION_IMMUNITY</FreePromotion>
 			<MinAreaSize>-1</MinAreaSize>
+			<NukeImmune>true</NukeImmune>
 			<SpecialistCount>1</SpecialistCount>
 			<SpecialistType>SPECIALIST_CIVIL_SERVANT</SpecialistType>
 			<GreatPeopleRateChange>1</GreatPeopleRateChange>
@@ -116,6 +119,7 @@
 			<Strategy>TXT_KEY_BUILDING_PALACE_SCIENCE_CULTURE_STRATEGY</Strategy>
 			<ArtDefineTag>ART_DEF_BUILDING_MARKET</ArtDefineTag>
 			<RAToVotes>1</RAToVotes>
+			<NukeImmune>true</NukeImmune>
 			<NeverCapture>true</NeverCapture>
 			<SpecialistType>SPECIALIST_CIVIL_SERVANT</SpecialistType>
 			<GreatPeopleRateChange>1</GreatPeopleRateChange>
@@ -138,6 +142,7 @@
 			<Strategy>TXT_KEY_BUILDING_FINANCE_CENTER_STRATEGY</Strategy>
 			<ArtDefineTag>ART_DEF_BUILDING_MARKET</ArtDefineTag>
 			<DoFToVotes>1</DoFToVotes>
+			<NukeImmune>true</NukeImmune>
 			<NeverCapture>true</NeverCapture>
 			<SpecialistType>SPECIALIST_CIVIL_SERVANT</SpecialistType>
 			<GreatPeopleRateChange>1</GreatPeopleRateChange>
@@ -160,6 +165,7 @@
 			<Strategy>TXT_KEY_BUILDING_EHRENHALLE_STRATEGY</Strategy>
 			<ArtDefineTag>ART_DEF_BUILDING_MARKET</ArtDefineTag>
 			<CapitalsToVotes>2</CapitalsToVotes>
+			<NukeImmune>true</NukeImmune>
 			<SpecialistType>SPECIALIST_CIVIL_SERVANT</SpecialistType>
 			<GreatPeopleRateChange>1</GreatPeopleRateChange>
 			<PolicyBranchType>POLICY_BRANCH_AUTOCRACY</PolicyBranchType>
