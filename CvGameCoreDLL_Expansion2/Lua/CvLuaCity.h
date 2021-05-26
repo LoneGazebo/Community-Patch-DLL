@@ -444,6 +444,7 @@ protected:
 	static int lSetDrafted(lua_State* L);
 
 	static int lIsBlockaded(lua_State* L);
+	static int lIsMined(lua_State* L);
 
 	static int lGetWeLoveTheKingDayCounter(lua_State* L);
 	static int lSetWeLoveTheKingDayCounter(lua_State* L);
@@ -635,7 +636,7 @@ protected:
 	static int lGetBuildingEspionageModifier(lua_State* L);
 	static int lGetBuildingGlobalEspionageModifier(lua_State* L);
 	
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_API_ESPIONAGE)
+#if defined(MOD_API_LUA_EXTENSIONS)
 	LUAAPIEXTN(HasDiplomat, bool, iPlayer);
 	LUAAPIEXTN(HasSpy, bool, iPlayer);
 	LUAAPIEXTN(HasCounterSpy, bool);

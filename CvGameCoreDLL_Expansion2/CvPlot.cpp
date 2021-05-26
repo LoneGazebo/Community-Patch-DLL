@@ -9985,7 +9985,11 @@ int CvPlot::calculateImprovementYield(ImprovementTypes eImprovement, YieldTypes 
 	return iYield;
 }
 
+#if defined(MOD_RELIGION_PERMANENT_PANTHEON)
+int CvPlot::calculatePlayerYield(YieldTypes eYield, int iCurrentYield, PlayerTypes ePlayer, ImprovementTypes eImprovement, const CvCity* pOwningCity, const CvReligion* pMajorityReligion, const CvBeliefEntry* pSecondaryPantheon, const CvReligion* pPlayerPantheon, bool bDisplay) const
+#else
 int CvPlot::calculatePlayerYield(YieldTypes eYield, int iCurrentYield, PlayerTypes ePlayer, ImprovementTypes eImprovement, const CvCity* pOwningCity, const CvReligion* pMajorityReligion, const CvBeliefEntry* pSecondaryPantheon, bool bDisplay) const
+#endif
 {
 	if (ePlayer == NO_PLAYER)
 		return 0;
@@ -10045,6 +10049,13 @@ int CvPlot::calculatePlayerYield(YieldTypes eYield, int iCurrentYield, PlayerTyp
 							iMod += pSecondaryPantheon->GetYieldModifierNaturalWonder(eYield);
 						}
 					}
+
+#if defined(MOD_RELIGION_PERMANENT_PANTHEON)
+					if (MOD_RELIGION_PERMANENT_PANTHEON && pPlayerPantheon != NULL)
+					{
+						iMod += pPlayerPantheon->m_Beliefs.GetYieldModifierNaturalWonder(eYield, ePlayer, pOwningCity);
+					}
+#endif
 
 					if (iMod != 0)
 					{
@@ -10415,6 +10426,24 @@ int CvPlot::calculateYield(YieldTypes eYield, bool bDisplay)
 		const CvReligion* pReligion = (eMajority != NO_RELIGION) ? GC.getGame().GetGameReligions()->GetReligion(eMajority, pOwningCity->getOwner()) : 0;
 		const CvBeliefEntry* pBelief = (eSecondaryPantheon != NO_BELIEF) ? GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon) : 0;
 
+#if defined(MOD_RELIGION_PERMANENT_PANTHEON)
+		// Mod for civs keeping their pantheon belief forever
+		if (MOD_RELIGION_PERMANENT_PANTHEON)
+		{
+			if (GC.getGame().GetGameReligions()->HasCreatedPantheon(pOwningCity->getOwner()))
+			{
+				const CvReligion* pPantheon = GC.getGame().GetGameReligions()->GetReligion(RELIGION_PANTHEON, pOwningCity->getOwner());
+				BeliefTypes ePantheonBelief = GC.getGame().GetGameReligions()->GetBeliefInPantheon(pOwningCity->getOwner());
+				if (pPantheon != NULL && ePantheonBelief != NO_BELIEF && ePantheonBelief != eSecondaryPantheon)
+				{
+					if (pReligion == NULL || (pReligion != NULL && !pReligion->m_Beliefs.IsPantheonBeliefInReligion(ePantheonBelief, eMajority, pOwningCity->getOwner()))) // check that the our religion does not have our belief, to prevent double counting
+					{
+						return calculateYieldFast(eYield, bDisplay, pOwningCity, pReligion, pBelief, pPantheon);
+					}
+				}
+			}
+		}
+#endif
 		return calculateYieldFast(eYield, bDisplay, pOwningCity, pReligion, pBelief);
 	}
 
@@ -10422,7 +10451,11 @@ int CvPlot::calculateYield(YieldTypes eYield, bool bDisplay)
 }
 
 //	--------------------------------------------------------------------------------
+#if defined(MOD_RELIGION_PERMANENT_PANTHEON)
+int CvPlot::calculateYieldFast(YieldTypes eYield, bool bDisplay, const CvCity* pOwningCity, const CvReligion* pMajorityReligion, const CvBeliefEntry* pSecondaryPantheon, const CvReligion* pPlayerPantheon)
+#else
 int CvPlot::calculateYieldFast(YieldTypes eYield, bool bDisplay, const CvCity* pOwningCity, const CvReligion* pMajorityReligion, const CvBeliefEntry* pSecondaryPantheon)
+#endif
 {
 	ImprovementTypes eImprovement = NO_IMPROVEMENT;
 	RouteTypes eRoute = NO_ROUTE;
@@ -10474,7 +10507,14 @@ int CvPlot::calculateYieldFast(YieldTypes eYield, bool bDisplay, const CvCity* p
 	iYield += calculateReligionImprovementYield(eImprovement, eYield, ePlayer, pOwningCity, pMajorityReligion, pSecondaryPantheon);
 	iYield += calculateReligionNatureYield(eYield, ePlayer, pOwningCity, pMajorityReligion, pSecondaryPantheon);
 	iYield += calculateImprovementYield(eImprovement, eYield, iYield, ePlayer, false, eRoute);
-	iYield += calculatePlayerYield(eYield, iYield, ePlayer, eImprovement, pOwningCity, pMajorityReligion, pSecondaryPantheon, bDisplay);
+	iYield += calculatePlayerYield(eYield, iYield, ePlayer, eImprovement, pOwningCity, pMajorityReligion, pSecondaryPantheon, pPlayerPantheon, bDisplay);
+#if defined(MOD_RELIGION_PERMANENT_PANTHEON)
+	if (MOD_RELIGION_PERMANENT_PANTHEON && pPlayerPantheon != NULL)
+	{
+		iYield += calculateReligionImprovementYield(eImprovement, eYield, ePlayer, pOwningCity, pPlayerPantheon, NULL);
+		iYield += calculateReligionNatureYield(eYield, ePlayer, pOwningCity, pPlayerPantheon, NULL);
+	}
+#endif
 
 #if defined(MOD_API_EXTENSIONS)
     if (m_aiArbitraryYields[eYield])
@@ -10516,6 +10556,22 @@ void CvPlot::updateYield()
 		const CvReligion* pReligion = (eMajority != NO_RELIGION) ? GC.getGame().GetGameReligions()->GetReligion(eMajority, pOwningCity->getOwner()) : 0;
 		const CvBeliefEntry* pBelief = (eSecondaryPantheon != NO_BELIEF) ? GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon) : 0;
 
+#if defined(MOD_RELIGION_PERMANENT_PANTHEON)
+		// Mod for civs keeping their pantheon belief forever
+		if (MOD_RELIGION_PERMANENT_PANTHEON)
+		{
+			if (GC.getGame().GetGameReligions()->HasCreatedPantheon(getOwner()))
+			{
+				const CvReligion* pPantheon = GC.getGame().GetGameReligions()->GetReligion(RELIGION_PANTHEON, getOwner());
+				BeliefTypes ePantheonBelief = GC.getGame().GetGameReligions()->GetBeliefInPantheon(getOwner());
+				if (pPantheon != NULL && ePantheonBelief != NO_BELIEF && ePantheonBelief != eSecondaryPantheon)
+				{
+					updateYieldFast(pOwningCity, pReligion, pBelief, pPantheon);
+					return;
+				}
+			}
+		}
+#endif
 		updateYieldFast(pOwningCity, pReligion, pBelief);
 		return;
 	}
@@ -10523,7 +10579,11 @@ void CvPlot::updateYield()
 	updateYieldFast(NULL, NULL, NULL);
 }
 
+#if defined(MOD_RELIGION_PERMANENT_PANTHEON)
+void CvPlot::updateYieldFast(CvCity* pOwningCity, const CvReligion* pMajorityReligion, const CvBeliefEntry* pSecondaryPantheon, const CvReligion* pPlayerPantheon)
+#else
 void CvPlot::updateYieldFast(CvCity* pOwningCity, const CvReligion* pMajorityReligion, const CvBeliefEntry* pSecondaryPantheon)
+#endif
 {
 	bool bChange = false;
 	if(getArea() == -1)
@@ -10536,7 +10596,11 @@ void CvPlot::updateYieldFast(CvCity* pOwningCity, const CvReligion* pMajorityRel
 		if (eYield > YIELD_CULTURE_LOCAL && !MOD_BALANCE_CORE_JFD)
 			continue;
 
+#if defined(MOD_RELIGION_PERMANENT_PANTHEON)
+		int iNewYield = calculateYieldFast(eYield,false,pOwningCity,pMajorityReligion,pSecondaryPantheon,pPlayerPantheon);
+#else
 		int iNewYield = calculateYieldFast(eYield,false,pOwningCity,pMajorityReligion,pSecondaryPantheon);
+#endif
 
 		if(getYield(eYield) != iNewYield)
 		{
@@ -13111,7 +13175,11 @@ void CvPlot::getVisibleResourceState(ResourceTypes& eType, bool& bImproved, bool
 }
 
 //	--------------------------------------------------------------------------------
+#if defined(MOD_RELIGION_PERMANENT_PANTHEON)
+int CvPlot::getYieldWithBuild(BuildTypes eBuild, YieldTypes eYield, bool bWithUpgrade, PlayerTypes ePlayer, const CvCity* pOwningCity, const CvReligion* pMajorityReligion, const CvBeliefEntry* pSecondaryPantheon, const CvReligion* pPlayerPantheon) const
+#else
 int CvPlot::getYieldWithBuild(BuildTypes eBuild, YieldTypes eYield, bool bWithUpgrade, PlayerTypes ePlayer, const CvCity* pOwningCity, const CvReligion* pMajorityReligion, const CvBeliefEntry* pSecondaryPantheon) const
+#endif
 {
 	int iYield;
 
@@ -13171,9 +13239,19 @@ int CvPlot::getYieldWithBuild(BuildTypes eBuild, YieldTypes eYield, bool bWithUp
 		}
 
 		iYield += calculateImprovementYield(eImprovement, eYield, iYield, ePlayer, false, getRouteType()) + calculateReligionImprovementYield(eImprovement, eYield, ePlayer, pOwningCity, pMajorityReligion, pSecondaryPantheon);
+#if defined(MOD_RELIGION_PERMANENT_PANTHEON)
+		if (MOD_RELIGION_PERMANENT_PANTHEON && pPlayerPantheon != NULL)
+		{
+			iYield += calculateReligionImprovementYield(eImprovement, eYield, ePlayer, pOwningCity, pPlayerPantheon, NULL);
+		}
+#endif
 	}
 
+#if defined(MOD_RELIGION_PERMANENT_PANTHEON)
+	iYield += calculatePlayerYield(eYield, iYield, ePlayer, eImprovement, pOwningCity, pMajorityReligion, pSecondaryPantheon, pPlayerPantheon, false);
+#else
 	iYield += calculatePlayerYield(eYield, iYield, ePlayer, eImprovement, pOwningCity, pMajorityReligion, pSecondaryPantheon, false);
+#endif
 
 	RouteTypes eRoute = (RouteTypes)GC.getBuildInfo(eBuild)->getRoute();
 

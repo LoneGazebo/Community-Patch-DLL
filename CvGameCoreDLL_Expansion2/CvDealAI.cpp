@@ -90,6 +90,9 @@ TeamTypes CvDealAI::GetTeam()
 /// How much are we willing to back off on what our perceived value of a deal is with an AI player to make something work?
 int CvDealAI::GetDealPercentLeeway(PlayerTypes eOtherPlayer) const
 {
+	if (GET_PLAYER(eOtherPlayer).isHuman())
+		return 10;
+
 	int iPercent = 0;
 	switch (m_pPlayer->GetDiplomacyAI()->GetCivOpinion(eOtherPlayer))
 	{
@@ -1774,10 +1777,10 @@ int CvDealAI::GetStrategicResourceValue(ResourceTypes eResource, int iResourceQu
 	CvAssertMsg(GetPlayer()->GetID() != eOtherPlayer, "DEAL_AI: Trying to check value of a Resource with oneself.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 
 	//this is to reduce rounding errors
-	int iValueScale = 5;
+	int iValueScale = 10;
 
 	//more or less arbitrary base value
-	int iItemValue = (GC.getGame().getCurrentEra()+2)*iValueScale;
+	int iItemValue = (GC.getGame().getCurrentEra()+2);
 
 	const CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
 	CvAssert(pkResourceInfo != NULL);
@@ -1810,7 +1813,7 @@ int CvDealAI::GetStrategicResourceValue(ResourceTypes eResource, int iResourceQu
 	}
 	//Get the average multiplier from the number of Flavors being considered.
 	if ((iFlavorResult > 0) && (iFlavors > 0))
-		iItemValue += (iFlavorResult / iFlavors)*(iValueScale/2);
+		iItemValue += (iFlavorResult / iFlavors);
 
 	if (bFromMe)
 	{
@@ -1833,10 +1836,10 @@ int CvDealAI::GetStrategicResourceValue(ResourceTypes eResource, int iResourceQu
 		{
 			//Never trade away everything.
 			int iNumRemaining = (GetPlayer()->getNumResourceAvailable(eResource, true) - ((pRenewDeals.size() > 0) ? 0 : iResourceQuantity));
-			if (iNumRemaining < 0)
+			if (iNumRemaining <= 0)
 				return INT_MAX;
-			else if (iNumRemaining == 0)
-				iItemValue *= 2;
+			else if (iNumRemaining <= 2)
+				iItemValue *= 10;
 
 
 			//If they're stronger than us, strategic resources are valuable.
@@ -2035,8 +2038,10 @@ int CvDealAI::GetStrategicResourceValue(ResourceTypes eResource, int iResourceQu
 			}
 
 			//greatly increase this if we're at a deficit of resources.
-			if (GetPlayer()->getResourceShortageValue(eResource)>0)
-				iItemValue += iItemValue/2;
+			if (GetPlayer()->getResourceShortageValue(eResource) > 0)
+				iItemValue += iItemValue / 2;
+			else
+				iItemValue /= 2;
 
 			//And now speed/quantity.
 			iItemValue *= (iResourceQuantity*iNumTurns);

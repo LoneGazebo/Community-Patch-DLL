@@ -545,10 +545,7 @@ bool CvGameTrade::CreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, Domai
 	m_aTradeConnections[iNewTradeRouteIndex].m_iCircuitsCompleted = 0;
 	m_aTradeConnections[iNewTradeRouteIndex].m_iCircuitsToComplete = iCircuitsToComplete;
 	m_aTradeConnections[iNewTradeRouteIndex].m_iTurnRouteComplete = iTurns + GC.getGame().getGameTurn();
-
-#if defined(MOD_API_TRADEROUTES)
 	m_aTradeConnections[iNewTradeRouteIndex].m_bTradeUnitRecalled = false;
-#endif
 
 	//update cache
 	m_routesPerPlayer[eOriginPlayer].push_back(iNewTradeRouteIndex);
@@ -1839,7 +1836,6 @@ int CvGameTrade::GetPolicyDifference(PlayerTypes ePlayer, PlayerTypes ePlayer2)
 	return m_aaiPolicyDifference[ePlayer][ePlayer2];
 }
 
-#if defined(MOD_API_TRADEROUTES)
 bool CvGameTrade::IsRecalledUnit (int iIndex) {
 	CvAssertMsg(iIndex >= 0 && iIndex < (int)m_aTradeConnections.size(), "iIndex out of bounds");
 	if (iIndex < 0 || iIndex >= (int)m_aTradeConnections.size())
@@ -1882,7 +1878,6 @@ void CvGameTrade::EndTradeRoute (int iIndex) {
 	kTradeConnection.m_iCircuitsCompleted = kTradeConnection.m_iCircuitsToComplete;
 	kTradeConnection.m_bTradeUnitRecalled = true;
 }
-#endif
 
 //	--------------------------------------------------------------------------------
 /// move a trade unit along its path for all its movement points
@@ -2233,10 +2228,7 @@ FDataStream& operator>>(FDataStream& loadFrom, TradeConnection& writeTo)
 	loadFrom >> writeTo.m_iCircuitsCompleted;
 	loadFrom >> writeTo.m_iCircuitsToComplete;
 	loadFrom >> writeTo.m_iTurnRouteComplete;
-
-#if defined(MOD_API_TRADEROUTES)
-	MOD_SERIALIZE_READ(23, loadFrom, writeTo.m_bTradeUnitRecalled, false);
-#endif
+	loadFrom >> writeTo.m_bTradeUnitRecalled;
 
 	int nPlots;
 	loadFrom >> nPlots;
@@ -2292,45 +2284,12 @@ FDataStream& operator>>(FDataStream& loadFrom, CvGameTrade& writeTo)
 
 	loadFrom >> writeTo.m_routesPerPlayer;
 
-	if (uiVersion >= 3)
+	for (uint ui = 0; ui < MAX_MAJOR_CIVS; ui++)
 	{
-		for (uint ui = 0; ui < MAX_MAJOR_CIVS; ui++)
+		for (uint ui2 = 0; ui2 < MAX_MAJOR_CIVS; ui2++)
 		{
-			for (uint ui2 = 0; ui2 < MAX_MAJOR_CIVS; ui2++)
-			{
-				loadFrom >> writeTo.m_aaiTechDifference[ui][ui2];
-			}
-		}
-	}
-	else
-	{
-		for (uint ui = 0; ui < MAX_MAJOR_CIVS; ui++)
-		{
-			for (uint ui2 = 0; ui2 < MAX_MAJOR_CIVS; ui2++)
-			{
-				writeTo.m_aaiTechDifference[ui][ui2] = 0;
-			}
-		}
-	}
-
-	if (uiVersion >= 3)
-	{
-		for (uint ui = 0; ui < MAX_MAJOR_CIVS; ui++)
-		{
-			for (uint ui2 = 0; ui2 < MAX_MAJOR_CIVS; ui2++)
-			{
-				loadFrom >> writeTo.m_aaiPolicyDifference[ui][ui2];
-			}
-		}
-	}
-	else
-	{
-		for (uint ui = 0; ui < MAX_MAJOR_CIVS; ui++)
-		{
-			for (uint ui2 = 0; ui2 < MAX_MAJOR_CIVS; ui2++)
-			{
-				writeTo.m_aaiPolicyDifference[ui][ui2] = 0;
-			}
+			loadFrom >> writeTo.m_aaiTechDifference[ui][ui2];
+			loadFrom >> writeTo.m_aaiPolicyDifference[ui][ui2];
 		}
 	}
 
@@ -2363,9 +2322,7 @@ FDataStream& operator<<(FDataStream& saveTo, const TradeConnection& readFrom)
 	saveTo << readFrom.m_iCircuitsCompleted;
 	saveTo << readFrom.m_iCircuitsToComplete;
 	saveTo << readFrom.m_iTurnRouteComplete;
-#if defined(MOD_API_TRADEROUTES)
-	MOD_SERIALIZE_WRITE(saveTo, readFrom.m_bTradeUnitRecalled);
-#endif
+	saveTo << readFrom.m_bTradeUnitRecalled;
 
 	saveTo << readFrom.m_aPlotList.size();
 	for (uint ui2 = 0; ui2 < readFrom.m_aPlotList.size(); ui2++)
@@ -3265,6 +3222,7 @@ int CvPlayerTrade::GetTradeConnectionPolicyValueTimes100(const TradeConnection& 
 
 	CvCity* pCity = GC.getMap().plot(kTradeConnection.m_iOriginX, kTradeConnection.m_iOriginY)->getPlotCity();
 	ReligionTypes eMajority = pCity->GetCityReligions()->GetReligiousMajority();
+	BeliefTypes eSecondaryPantheon = NO_BELIEF;
 	if(eMajority != NO_RELIGION)
 	{
 		const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, pCity->getOwner());
@@ -3275,10 +3233,10 @@ int CvPlayerTrade::GetTradeConnectionPolicyValueTimes100(const TradeConnection& 
 				iEra = 1;
 
 			CvCity* pHolyCity = pReligion->GetHolyCity();
+			eSecondaryPantheon = pCity->GetCityReligions()->GetSecondaryReligionPantheonBelief();
 			if (kTradeConnection.m_eConnectionType == TRADE_CONNECTION_INTERNATIONAL && (eYield == YIELD_GOLD || eYield == YIELD_CULTURE || eYield == YIELD_SCIENCE))
 			{
 				iValue += pReligion->m_Beliefs.GetTradeRouteYieldChange(kTradeConnection.m_eDomain, eYield, kPlayer.GetID(), pHolyCity) * 100 * iEra;
-				BeliefTypes eSecondaryPantheon = pCity->GetCityReligions()->GetSecondaryReligionPantheonBelief();
 				if (eSecondaryPantheon != NO_BELIEF)
 				{
 					iValue += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetTradeRouteYieldChange(kTradeConnection.m_eDomain, eYield) * 100 * iEra;
@@ -3288,10 +3246,29 @@ int CvPlayerTrade::GetTradeConnectionPolicyValueTimes100(const TradeConnection& 
 			if (kTradeConnection.m_eConnectionType != TRADE_CONNECTION_INTERNATIONAL && (eYield == YIELD_PRODUCTION || eYield == YIELD_FOOD))
 			{
 				iValue += pReligion->m_Beliefs.GetTradeRouteYieldChange(kTradeConnection.m_eDomain, eYield, kPlayer.GetID(), pHolyCity) * 100 * iEra;
-				BeliefTypes eSecondaryPantheon = pCity->GetCityReligions()->GetSecondaryReligionPantheonBelief();
 				if (eSecondaryPantheon != NO_BELIEF)
 				{
 					iValue += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetTradeRouteYieldChange(kTradeConnection.m_eDomain, eYield) * 100 * iEra;
+				}
+			}
+		}
+	}
+#endif
+
+#if defined(MOD_RELIGION_PERMANENT_PANTHEON)
+	// Mod for civs keeping their pantheon belief forever
+	if (MOD_RELIGION_PERMANENT_PANTHEON)
+	{
+		if (GC.getGame().GetGameReligions()->HasCreatedPantheon(kTradeConnection.m_eOriginOwner))
+		{
+			const CvReligion* pPantheon = GC.getGame().GetGameReligions()->GetReligion(RELIGION_PANTHEON, kTradeConnection.m_eOriginOwner);
+			BeliefTypes ePantheonBelief = GC.getGame().GetGameReligions()->GetBeliefInPantheon(kTradeConnection.m_eOriginOwner);
+			if (pPantheon != NULL && ePantheonBelief != NO_BELIEF && ePantheonBelief != eSecondaryPantheon)
+			{
+				const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, pCity->getOwner());
+				if (pReligion == NULL || (pReligion != NULL && !pReligion->m_Beliefs.IsPantheonBeliefInReligion(ePantheonBelief, eMajority, kTradeConnection.m_eOriginOwner))) // check that the our religion does not have our belief, to prevent double counting
+				{
+					iValue += GC.GetGameBeliefs()->GetEntry(ePantheonBelief)->GetTradeRouteYieldChange(kTradeConnection.m_eDomain, eYield) * 100 * MAX(1, (int)m_pPlayer->GetCurrentEra());
 				}
 			}
 		}

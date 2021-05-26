@@ -10528,7 +10528,7 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 	{
 		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
 
-		if (IsPlayerValid(eLoopPlayer) && IsAtWar(eLoopPlayer))
+		if (GET_PLAYER(eLoopPlayer).isAlive() && IsAtWar(eLoopPlayer))
 		{
 			if (GET_PLAYER(eLoopPlayer).isMajorCiv())
 			{
@@ -11044,9 +11044,9 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 		}
 
 		// Okay, so no automatic peace. But should we consider peace at all?
-		bool bCapturedKeyCity = IsCapitalCapturedBy(*it, true, false) || IsHolyCityCapturedBy(*it, true, false);
+		bool bCapturedKeyCity = IsCapitalCapturedBy(*it, true, true) || IsHolyCityCapturedBy(*it, true, true);
 		bool bPhonyWar = IsPhonyWar(*it);
-		bool bCapturedAnyCityFromUs = false;
+		bool bCapturedAnyCityFromUs = bCapturedKeyCity;
 		bool bCapturedAnyCityWeWantToLiberate = false;
 		bool bReadyForVassalage = false;
 
@@ -11247,30 +11247,40 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 
 		// War score is of course a big factor
 		// If we get a bonus from high warscore, let's not end early!
-		if (GetPlayer()->GetPositiveWarScoreTourismMod() <= 0 || GET_PLAYER(GetHighestWarscorePlayer()).getTeam() != GET_PLAYER(*it).getTeam())
+		bool bProlong = true;
+
+		if (iWarScore <= 0)
 		{
 			iPeaceScore += iWarScore / -10;
+			bProlong = false;
+		}
+		else if (GetPlayer()->GetPositiveWarScoreTourismMod() <= 0 || GET_PLAYER(GetHighestWarscorePlayer()).getTeam() != GET_PLAYER(*it).getTeam())
+		{
+			iPeaceScore += iWarScore / -10;
+			bProlong = false;
+		}
 
-			// Lack of progress in war increases desire for peace (moreso if far away).
-			if (iWarDuration > 13)
+		int iTooLongWarThreshold = bProlong ? 25 : 13;
+
+		// Lack of progress in war increases desire for peace (moreso if far away).
+		if (iWarDuration > iTooLongWarThreshold)
+		{
+			int iDurationPenalty = iWarDuration - iTooLongWarThreshold;
+
+			switch (GetPlayer()->GetProximityToPlayer(*it))
 			{
-				int iDurationPenalty = iWarDuration - 13;
-
-				switch (GetPlayer()->GetProximityToPlayer(*it))
-				{
-				case PLAYER_PROXIMITY_NEIGHBORS:
-					iPeaceScore += iDurationPenalty;
-					break;
-				case PLAYER_PROXIMITY_CLOSE:
-					iPeaceScore += (iDurationPenalty * 150) / 100;
-					break;
-				case PLAYER_PROXIMITY_FAR:
-					iPeaceScore += iDurationPenalty * 2;
-					break;
-				case PLAYER_PROXIMITY_DISTANT:
-					iPeaceScore += iDurationPenalty * 3;
-					break;
-				}
+			case PLAYER_PROXIMITY_NEIGHBORS:
+				iPeaceScore += iDurationPenalty;
+				break;
+			case PLAYER_PROXIMITY_CLOSE:
+				iPeaceScore += (iDurationPenalty * 150) / 100;
+				break;
+			case PLAYER_PROXIMITY_FAR:
+				iPeaceScore += iDurationPenalty * 2;
+				break;
+			case PLAYER_PROXIMITY_DISTANT:
+				iPeaceScore += iDurationPenalty * 3;
+				break;
 			}
 		}
 
@@ -11400,56 +11410,61 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 			iPeaceScore -= 20;
 		}
 
-		// If we're going for world conquest, we want to fight our wars until we get their capital or can vassalize them
-		// However, do not factor this in when losing
-		if (iWarScore > -15 && bWorldConquest)
+		if (iPeaceScore > 0)
 		{
-			if (bReadyForVassalage || GET_PLAYER(GET_PLAYER(*it).GetCapitalConqueror()).getTeam() == GetTeam())
+			// If we're going for world conquest, we want to fight our wars until we get their capital or can vassalize them
+			// We should also be more reluctant to make peace if they've captured cities from us, or cities that we want to liberate
+			// However, do not factor this in when losing
+			if (GetStateAllWars() != STATE_ALL_WARS_LOSING && !GetPlayer()->IsEmpireVeryUnhappy())
 			{
-				if (iPeaceScore > 0)
-					iPeaceScore *= 2;
-				else
-					iPeaceScore /= 2;
+				if (iWarScore > 0 || (iWarScore > -15 && GetPlayerTargetValue(*it) >= TARGET_VALUE_AVERAGE && GetWarState(*it) > WAR_STATE_DEFENSIVE))
+				{
+					if (bCapturedAnyCityFromUs)
+					{
+						iPeaceScore /= 2;
+					}
+					else if (bWorldConquest)
+					{
+						if (bReadyForVassalage || (GET_PLAYER(*it).GetCapitalConqueror() != NO_PLAYER && GET_PLAYER(*it).GetNumCapitalCities() <= 0))
+						{
+							// If they're weak or a bad target, boost peace willingness
+							if (GetPlayerMilitaryStrengthComparedToUs(*it) < STRENGTH_AVERAGE || GetPlayerTargetValue(*it) <= TARGET_VALUE_BAD)
+								iPeaceScore *= 2;
+						}
+						else
+						{
+							iPeaceScore /= 2;
+						}
+					}
+					else if (bCapturedAnyCityWeWantToLiberate)
+					{
+						iPeaceScore *= 75;
+						iPeaceScore /= 100;
+					}
+				}
+			}
+
+			// If we think they're a backstabber, we're significantly less willing to make peace.
+			if (IsUntrustworthy(*it))
+			{
+				iPeaceScore /= 2;
 			}
 			else
 			{
-				if (iPeaceScore > 0)
-					iPeaceScore /= 2;
-				else
-					iPeaceScore *= 2;
-			}
-		}
-
-		// Modify based on leader flavors
-		// High Meanness leaders will fight to the bitter end when losing, high Diplo Balance leaders like to return to status quo when winning
-		if (iWarScore > 0)
-		{
-			int iModifier = (GetDiploBalance() - 5) * 10;
-
-			if (iPeaceScore > 0)
-			{
-				iPeaceScore *= (100 + iModifier);
-				iPeaceScore /= 100;
-			}
-			else
-			{
-				iPeaceScore *= (100 - iModifier);
-				iPeaceScore /= 100;
-			}
-		}
-		else if (iWarScore < 0)
-		{
-			int iModifier = (-GetMeanness() + 5) * 10;
-
-			if (iPeaceScore > 0)
-			{
-				iPeaceScore *= (100 + iModifier);
-				iPeaceScore /= 100;
-			}
-			else
-			{
-				iPeaceScore *= (100 - iModifier);
-				iPeaceScore /= 100;
+				// Modify based on leader flavors
+				// High Meanness leaders will fight to the bitter end when losing, high Diplo Balance leaders like to return to status quo when winning
+				if (iWarScore > 0)
+				{
+					int iModifier = (GetDiploBalance() - 5) * 10;
+					iPeaceScore *= (100 + iModifier);
+					iPeaceScore /= 100;
+				}
+				else if (iWarScore < 0)
+				{
+					int iModifier = (-GetMeanness() + 5) * 10;
+					iPeaceScore *= (100 + iModifier);
+					iPeaceScore /= 100;
+				}
 			}
 		}
 
@@ -11457,81 +11472,49 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 		int iThreshold = max(0, /*40*/ GC.getREQUEST_PEACE_TURN_THRESHOLD());
 
 		if (iPeaceScore >= iThreshold)
-		{
 			vMakePeacePlayers.push_back(*it);
-			if (bLog)
-			{
-				CvString strOutBuf;
-				CvString strBaseString;
-				CvString playerName;
-				CvString otherPlayerName;
-				CvString strLogName;
-
-				// Find the name of this civ and city
-				playerName = m_pPlayer->getCivilizationShortDescription();
-
-				// Open the log file
-				if (GC.getPlayerAndCityAILogSplit())
-				{
-					strLogName = "DiplomacyAI_Peace_Log" + playerName + ".csv";
-				}
-				else
-				{
-					strLogName = "DiplomacyAI_Peace_Log.csv";
-				}
-
-				FILogFile* pLog;
-				pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
-
-				// Get the leading info for this line
-				strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
-				otherPlayerName = GET_PLAYER(*it).getCivilizationShortDescription();
-				strBaseString += playerName + " VS. " + otherPlayerName;
-
-				strOutBuf.Format("Willing to make peace, Score for Peace: %d, Required Score: %d", iPeaceScore, iThreshold);
-
-				strBaseString += strOutBuf;
-				pLog->Msg(strBaseString);
-			}
-		}
 		else
 		{
 			SetTreatyWillingToOffer(*it, NO_PEACE_TREATY_TYPE);
 			SetTreatyWillingToAccept(*it, NO_PEACE_TREATY_TYPE);
-			if (bLog)
+		}
+
+		if (bLog)
+		{
+			CvString strOutBuf;
+			CvString strBaseString;
+			CvString playerName;
+			CvString otherPlayerName;
+			CvString strLogName;
+
+			// Find the name of this civ and city
+			playerName = m_pPlayer->getCivilizationShortDescription();
+
+			// Open the log file
+			if (GC.getPlayerAndCityAILogSplit())
 			{
-				CvString strOutBuf;
-				CvString strBaseString;
-				CvString playerName;
-				CvString otherPlayerName;
-				CvString strLogName;
+				strLogName = "DiplomacyAI_Peace_Log" + playerName + ".csv";
+			}
+			else
+			{
+				strLogName = "DiplomacyAI_Peace_Log.csv";
+			}
 
-				// Find the name of this civ and city
-				playerName = m_pPlayer->getCivilizationShortDescription();
+			FILogFile* pLog;
+			pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
 
-				// Open the log file
-				if (GC.getPlayerAndCityAILogSplit())
-				{
-					strLogName = "DiplomacyAI_Peace_Log" + playerName + ".csv";
-				}
-				else
-				{
-					strLogName = "DiplomacyAI_Peace_Log.csv";
-				}
+			// Get the leading info for this line
+			strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
+			otherPlayerName = GET_PLAYER(*it).getCivilizationShortDescription();
+			strBaseString += playerName + " VS. " + otherPlayerName;
 
-				FILogFile* pLog;
-				pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
-
-				// Get the leading info for this line
-				strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
-				otherPlayerName = GET_PLAYER(*it).getCivilizationShortDescription();
-				strBaseString += playerName + " VS. " + otherPlayerName;
-
+			if (iPeaceScore >= iThreshold)
+				strOutBuf.Format("Willing to make peace, Score for Peace: %d, Required Score: %d", iPeaceScore, iThreshold);
+			else
 				strOutBuf.Format("Not willing to make peace, Score for Peace: %d, Required Score: %d", iPeaceScore, iThreshold);
 
-				strBaseString += strOutBuf;
-				pLog->Msg(strBaseString);
-			}
+			strBaseString += strOutBuf;
+			pLog->Msg(strBaseString);
 		}
 	}
 

@@ -405,12 +405,10 @@ CvUnit::CvUnit() :
 #if defined(MOD_API_EXTENSIONS)
 	, m_iBaseRangedCombat("CvUnit::m_iBaseRangedCombat", m_syncArchive)
 #endif
-#if defined(MOD_API_PLOT_BASED_DAMAGE)
 	, m_iIgnoreTerrainDamageCount("CvUnit::m_iIgnoreTerrainDamageCount", m_syncArchive)
 	, m_iIgnoreFeatureDamageCount("CvUnit::m_iIgnoreFeatureDamageCount", m_syncArchive)
 	, m_iExtraTerrainDamageCount("CvUnit::m_iExtraTerrainDamageCount", m_syncArchive)
 	, m_iExtraFeatureDamageCount("CvUnit::m_iExtraFeatureDamageCount", m_syncArchive)
-#endif
 #if defined(MOD_PROMOTIONS_IMPROVEMENT_BONUS)
 	, m_iNearbyImprovementCombatBonus("CvUnit::m_iNearbyImprovementCombatBonus", m_syncArchive)
 	, m_iNearbyImprovementBonusRange("CvUnit::m_iNearbyImprovementBonusRange", m_syncArchive)
@@ -610,22 +608,10 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 	//--------------------------------
 	// Init pre-setup() data
 	setXY(iX, iY, false, false, false, false, bNoMove);
-
 #if defined(MOD_BALANCE_CORE)
-	if (plot() != NULL)
+	if(plot() != NULL && plot()->getOwningCity() != NULL && plot()->getOwningCity()->getOwner() == getOwner())
 	{
-		CvCity* pWorkingCity = plot()->getOwningCity();
-		if (pWorkingCity != NULL)
-		{
-			if (pWorkingCity->getOwner() == getOwner())
-			{
-				setOriginCity(plot()->getOwningCity()->GetID());
-			}
-			else
-			{
-				DoBlockade(plot(), true);
-			}
-		}
+		setOriginCity(plot()->getOwningCity()->GetID());
 	}
 #endif
 	//--------------------------------
@@ -1546,12 +1532,10 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_iKamikazePercent = 0;
 	m_eFacingDirection = DIRECTION_SOUTHEAST;
 	m_iIgnoreTerrainCostCount = 0;
-#if defined(MOD_API_PLOT_BASED_DAMAGE)
 	m_iIgnoreTerrainDamageCount = 0;
 	m_iIgnoreFeatureDamageCount = 0;
 	m_iExtraTerrainDamageCount = 0;
 	m_iExtraFeatureDamageCount = 0;
-#endif
 #if defined(MOD_PROMOTIONS_IMPROVEMENT_BONUS)
 	m_iNearbyImprovementCombatBonus = 0;
 	m_iNearbyImprovementBonusRange = 0;
@@ -2390,12 +2374,6 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 					}
 				}
 			}
-		}
-
-		CvCity* pWorkingCity = pPlot->getOwningCity();
-		if (pWorkingCity != NULL)
-		{
-			pWorkingCity->GetCityCitizens()->SetBlockaded(pPlot, GetID(), false);
 		}
 
 		if(pkOldUnits)
@@ -3284,30 +3262,6 @@ void CvUnit::doTurn()
 #endif
 
 	testPromotionReady();
-
-#if defined(MOD_API_PLOT_BASED_DAMAGE)
-	if (MOD_API_PLOT_BASED_DAMAGE) {
-		// Do nothing, feature damage is included in with the terrain (mountains) damage taken at the end of the turn
-	} else { 
-#endif
-		FeatureTypes eFeature = plot()->getFeatureType();
-		if(NO_FEATURE != eFeature)
-		{
-			if(0 != GC.getFeatureInfo(eFeature)->getTurnDamage())
-			{
-#if defined(MOD_API_PLOT_BASED_DAMAGE)
-				if(GC.getFeatureInfo(eFeature)->getTurnDamage() > 0)
-				{
-#endif
-				changeDamage(GC.getFeatureInfo(eFeature)->getTurnDamage(), NO_PLAYER);
-#if defined(MOD_API_PLOT_BASED_DAMAGE)
-				}
-#endif
-			}
-		}
-#if defined(MOD_API_PLOT_BASED_DAMAGE)
-	}
-#endif
 
 	// Only increase our Fortification level if we've actually been told to Fortify
 	if(IsFortified() && GetDamageAoEFortified() > 0)
@@ -7716,6 +7670,7 @@ int CvUnit::healRate(const CvPlot* pPlot) const
 		if(GET_PLAYER(getOwner()).getCapitalCity() != NULL && (plot()->getOwner() == getOwner()))
 		{
 			ReligionTypes eMajority = GC.getGame().GetGameReligions()->GetFounderBenefitsReligion(getOwner());
+			BeliefTypes eSecondaryPantheon = NO_BELIEF;
 			if(eMajority == NO_RELIGION)
 			{
 				eMajority = GET_PLAYER(getOwner()).GetReligions()->GetReligionInMostCities();
@@ -7727,7 +7682,7 @@ int CvUnit::healRate(const CvPlot* pPlot) const
 				{
 					CvCity* pHolyCity = pReligion->GetHolyCity();
 					iReligionMod = pReligion->m_Beliefs.GetFriendlyHealChange(getOwner(), pHolyCity);
-					BeliefTypes eSecondaryPantheon = GET_PLAYER(getOwner()).getCapitalCity()->GetCityReligions()->GetSecondaryReligionPantheonBelief();
+					eSecondaryPantheon = GET_PLAYER(getOwner()).getCapitalCity()->GetCityReligions()->GetSecondaryReligionPantheonBelief();
 					if (eSecondaryPantheon != NO_BELIEF)
 					{
 						iReligionMod += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetFriendlyHealChange();
@@ -7735,6 +7690,25 @@ int CvUnit::healRate(const CvPlot* pPlot) const
 					iExtraFriendlyHeal += iReligionMod;
 				}
 			}
+#if defined(MOD_RELIGION_PERMANENT_PANTHEON)
+			// Mod for civs keeping their pantheon belief forever
+			if (MOD_RELIGION_PERMANENT_PANTHEON)
+			{
+				if (GC.getGame().GetGameReligions()->HasCreatedPantheon(getOwner()))
+				{
+					const CvReligion* pPantheon = GC.getGame().GetGameReligions()->GetReligion(RELIGION_PANTHEON, getOwner());
+					BeliefTypes ePantheonBelief = GC.getGame().GetGameReligions()->GetBeliefInPantheon(getOwner());
+					if (pPantheon != NULL && ePantheonBelief != NO_BELIEF && ePantheonBelief != eSecondaryPantheon)
+					{
+						const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, getOwner());
+						if (pReligion == NULL || (pReligion != NULL && !pReligion->m_Beliefs.IsPantheonBeliefInReligion(ePantheonBelief, eMajority, getOwner()))) // check that the our religion does not have our belief, to prevent double counting
+						{
+							iExtraFriendlyHeal += GC.GetGameBeliefs()->GetEntry(ePantheonBelief)->GetFriendlyHealChange();
+						}
+					}
+				}
+			}
+#endif
 		}
 	}
 	else
@@ -7753,13 +7727,14 @@ int CvUnit::healRate(const CvPlot* pPlot) const
 	if(pClosestCity && pClosestCity->getOwner() == getOwner())
 	{
 		ReligionTypes eMajority = pClosestCity->GetCityReligions()->GetReligiousMajority();
+		BeliefTypes eSecondaryPantheon = NO_BELIEF;
 		if(eMajority != NO_RELIGION)
 		{
 			const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, getOwner());
 			if(pReligion)
 			{
 				iReligionMod = pReligion->m_Beliefs.GetFriendlyHealChange(getOwner());
-				BeliefTypes eSecondaryPantheon = pClosestCity->GetCityReligions()->GetSecondaryReligionPantheonBelief();
+				eSecondaryPantheon = pClosestCity->GetCityReligions()->GetSecondaryReligionPantheonBelief();
 				if (eSecondaryPantheon != NO_BELIEF)
 				{
 					iReligionMod += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetFriendlyHealChange();
@@ -7767,6 +7742,25 @@ int CvUnit::healRate(const CvPlot* pPlot) const
 				iExtraFriendlyHeal += iReligionMod;
 			}
 		}
+#if defined(MOD_RELIGION_PERMANENT_PANTHEON)
+		// Mod for civs keeping their pantheon belief forever
+		if (MOD_RELIGION_PERMANENT_PANTHEON)
+		{
+			if (GC.getGame().GetGameReligions()->HasCreatedPantheon(getOwner()))
+			{
+				const CvReligion* pPantheon = GC.getGame().GetGameReligions()->GetReligion(RELIGION_PANTHEON, getOwner());
+				BeliefTypes ePantheonBelief = GC.getGame().GetGameReligions()->GetBeliefInPantheon(getOwner());
+				if (pPantheon != NULL && ePantheonBelief != NO_BELIEF && ePantheonBelief != eSecondaryPantheon)
+				{
+					const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, getOwner());
+					if (pReligion == NULL || (pReligion != NULL && !pReligion->m_Beliefs.IsPantheonBeliefInReligion(ePantheonBelief, eMajority, getOwner()))) // check that the our religion does not have our belief, to prevent double counting
+					{
+						iExtraFriendlyHeal += GC.GetGameBeliefs()->GetEntry(ePantheonBelief)->GetFriendlyHealChange();
+					}
+				}
+			}
+		}
+#endif
 	}
 #if defined(MOD_BALANCE_CORE)
 	}
@@ -7955,6 +7949,11 @@ void CvUnit::doHeal()
 #if defined(MOD_BALANCE_CORE_BELIEFS)
 		if(GET_PLAYER(getOwner()).getCapitalCity() != NULL && (plot()->getOwner() == getOwner()) && (plot()->getTurnDamage(false, false, true, true) == 0))
 		{
+			int iEra = GET_PLAYER(getOwner()).GetCurrentEra();
+			if (iEra < 1)
+			{
+				iEra = 1;
+			}
 			ReligionTypes eMajority = GC.getGame().GetGameReligions()->GetFounderBenefitsReligion(getOwner());
 			if(eMajority == NO_RELIGION)
 			{
@@ -7965,11 +7964,6 @@ void CvUnit::doHeal()
 				const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, getOwner());
 				if(pReligion)
 				{
-					int iEra = GET_PLAYER(getOwner()).GetCurrentEra();
-					if(iEra < 1)
-					{
-						iEra = 1;
-					}
 					CvCity* pHolyCity = pReligion->GetHolyCity();
 					if (pReligion->m_Beliefs.GetYieldPerHeal(YIELD_FAITH, getOwner(), pHolyCity) > 0)
 					{
@@ -7998,6 +7992,33 @@ void CvUnit::doHeal()
 					}
 				}
 			}
+
+#if defined(MOD_RELIGION_PERMANENT_PANTHEON)
+			// Mod for civs keeping their pantheon belief forever
+			if (MOD_RELIGION_PERMANENT_PANTHEON)
+			{
+				if (GC.getGame().GetGameReligions()->HasCreatedPantheon(getOwner()))
+				{
+					const CvReligion* pPantheon = GC.getGame().GetGameReligions()->GetReligion(RELIGION_PANTHEON, getOwner());
+					BeliefTypes ePantheonBelief = GC.getGame().GetGameReligions()->GetBeliefInPantheon(getOwner());
+					if (pPantheon != NULL && ePantheonBelief != NO_BELIEF && ePantheonBelief != GET_PLAYER(getOwner()).getCapitalCity()->GetCityReligions()->GetSecondaryReligionPantheonBelief())
+					{
+						const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, getOwner());
+						if (pReligion == NULL || (pReligion != NULL && !pReligion->m_Beliefs.IsPantheonBeliefInReligion(ePantheonBelief, pReligion->m_eReligion, getOwner()))) // check that the our religion does not have our belief, to prevent double counting
+						{
+							GET_PLAYER(getOwner()).ChangeFaith(GC.GetGameBeliefs()->GetEntry(ePantheonBelief)->GetYieldPerHeal(YIELD_FAITH) * iEra);
+							if (getOwner() == GC.getGame().getActivePlayer())
+							{
+								char text[256] = { 0 };
+
+								sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_PEACE]", GC.GetGameBeliefs()->GetEntry(ePantheonBelief)->GetYieldPerHeal(YIELD_FAITH) * iEra);
+								SHOW_PLOT_POPUP(plot(), getOwner(), text);
+							}
+						}
+					}
+				}
+			}
+#endif
 		}
 #endif
 	}
@@ -8006,17 +8027,15 @@ void CvUnit::doHeal()
 //	--------------------------------------------------------------------------------
 void CvUnit::DoAttrition()
 {
+	if (isTrade())
+		return;
+
 	CvPlot* pPlot = plot();
 	CvString strAppendText;
-#if defined(MOD_BALANCE_CORE)
-	if(isTrade())
-	{
-		return;
-	}
-#endif
+
 	if (!pPlot->IsFriendlyTerritory(getOwner()))
 	{
-		if(isEnemy(pPlot->getTeam(), pPlot) && getEnemyDamageChance() > 0 && getEnemyDamage() > 0)
+		if (isEnemy(pPlot->getTeam(), pPlot) && getEnemyDamageChance() > 0 && getEnemyDamage() > 0)
 		{
 			if (GC.getGame().getSmallFakeRandNum(100, *pPlot) < getEnemyDamageChance())
 			{
@@ -8024,8 +8043,7 @@ void CvUnit::DoAttrition()
 				changeDamage(getEnemyDamage(), NO_PLAYER, 0.0, &strAppendText);
 			}
 		}
-#if defined(MOD_BALANCE_CORE)
-		else if(isEnemy(pPlot->getTeam(), pPlot) && getEnemyDamageChance() > 0 && getEnemyDamage() < 0)
+		else if (isEnemy(pPlot->getTeam(), pPlot) && getEnemyDamageChance() > 0 && getEnemyDamage() < 0)
 		{
 			if (GC.getGame().getSmallFakeRandNum(100, *pPlot) <= getEnemyDamageChance())
 			{
@@ -8033,10 +8051,9 @@ void CvUnit::DoAttrition()
 				changeDamage(getEnemyDamage(), NO_PLAYER, 0.0, &strAppendText);
 			}
 		}
-#endif
-		else if(getNeutralDamageChance() > 0 && getNeutralDamage() > 0)
+		else if (getNeutralDamageChance() > 0 && getNeutralDamage() > 0)
 		{
-			if(GC.getGame().getSmallFakeRandNum(100, *pPlot) < getNeutralDamageChance())
+			if (GC.getGame().getSmallFakeRandNum(100, *pPlot) < getNeutralDamageChance())
 			{
 				strAppendText =  GetLocalizedText("TXT_KEY_MISC_YOU_UNIT_WAS_DAMAGED_ATTRITION");
 				changeDamage(getNeutralDamage(), NO_PLAYER, 0.0, &strAppendText);
@@ -8044,62 +8061,32 @@ void CvUnit::DoAttrition()
 		}
 	}
 
-#if defined(MOD_API_PLOT_BASED_DAMAGE)
-	if (MOD_API_PLOT_BASED_DAMAGE)
-	// Do not change - no damage for cargo units or Domain Sea
+	int iDamage = plot()->getTurnDamage(ignoreTerrainDamage(), ignoreFeatureDamage(), extraTerrainDamage(), extraFeatureDamage());
+
+	// No damage for cargo or naval units
+	if (!isCargo() && getDomainType() != DOMAIN_SEA)
 	{
-		int iDamage = plot()->getTurnDamage(ignoreTerrainDamage(), ignoreFeatureDamage(), extraTerrainDamage(), extraFeatureDamage());
-		if(!isCargo() && getDomainType() != DOMAIN_SEA)
+		if (iDamage != 0)
 		{
-			if (0 != iDamage)
+			if (iDamage > 0)
 			{
-				if (iDamage > 0)
-				{
-					// CUSTOMLOG("Applying terrain/feature damage (of %i) for player/unit %i/%i at (%i, %i)", iDamage, getOwner(), GetID(), plot()->getX(), plot()->getY());
-					CvString strAppendText =  GetLocalizedText("TXT_KEY_MISC_YOU_UNIT_WAS_DAMAGED_ATTRITION");
-					changeDamage(iDamage, NO_PLAYER, 0.0, &strAppendText);
-				}
-				else
-				{
-					// CUSTOMLOG("Applying terrain/feature healing (of %i) for player/unit %i/%i at (%i, %i)", iDamage, getOwner(), GetID(), plot()->getX(), plot()->getY());
-					changeDamage(iDamage, NO_PLAYER);
-				}
-			}
-		}
-	}
-	else
-	{
-#endif
-		// slewis - helicopters take attrition when ending their turn over mountains.
-		if(getDomainType() == DOMAIN_LAND && pPlot->isMountain() && !canMoveAllTerrain())
-		{
-			strAppendText =  GetLocalizedText("TXT_KEY_MISC_YOU_UNIT_WAS_DAMAGED_ATTRITION");
-#if defined(MOD_BALANCE_CORE)
-			if(MOD_BALANCE_CORE && GET_PLAYER(getOwner()).GetPlayerTraits()->IsCrossesMountainsAfterGreatGeneral())
-			{
-				changeDamage(25, NO_PLAYER, 0.0, &strAppendText);
-			}
-			else if(MOD_BALANCE_CORE && GET_PLAYER(getOwner()).GetPlayerTraits()->IsMountainPass())
-			{
-				changeDamage(15, NO_PLAYER, 0.0, &strAppendText);
+				// CUSTOMLOG("Applying terrain/feature damage (of %i) for player/unit %i/%i at (%i, %i)", iDamage, getOwner(), GetID(), plot()->getX(), plot()->getY());
+				CvString strAppendText =  GetLocalizedText("TXT_KEY_MISC_YOU_UNIT_WAS_DAMAGED_ATTRITION");
+				changeDamage(iDamage, NO_PLAYER, 0.0, &strAppendText);
 			}
 			else
 			{
-#endif
-			changeDamage(50, NO_PLAYER, 0.0, &strAppendText);
-#if defined(MOD_BALANCE_CORE)
+				// CUSTOMLOG("Applying terrain/feature healing (of %i) for player/unit %i/%i at (%i, %i)", iDamage, getOwner(), GetID(), plot()->getX(), plot()->getY());
+				changeDamage(iDamage, NO_PLAYER);
 			}
-#endif
 		}
-#if defined(MOD_API_PLOT_BASED_DAMAGE)
 	}
-#endif
 
-	if(getDamage() >= GetMaxHitPoints())
+	if (getDamage() >= GetMaxHitPoints())
 	{
 		CvString strBuffer;
 		CvNotifications* pNotification = GET_PLAYER(getOwner()).GetNotifications();
-		if(pNotification)
+		if (pNotification)
 		{
 			strBuffer = GetLocalizedText("TXT_KEY_MISC_YOU_UNIT_WAS_DESTROYED_ATTRITION", getNameKey());
 			Localization::String strSummary = Localization::Lookup("TXT_KEY_UNIT_LOST");
@@ -8124,7 +8111,7 @@ void CvUnit::DoAttrition()
 				{
 					CvString strBuffer;
 					CvNotifications* pNotification = GET_PLAYER(getOwner()).GetNotifications();
-					if(pNotification)
+					if (pNotification)
 					{
 						strBuffer = GetLocalizedText("TXT_KEY_MISC_YOU_UNIT_WAS_DESTROYED_ATTRITION", getNameKey());
 						Localization::String strSummary = Localization::Lookup("TXT_KEY_UNIT_LOST");
@@ -17443,8 +17430,6 @@ void CvUnit::changeIgnoreTerrainCostCount(int iValue)
 	}
 }
 
-
-#if defined(MOD_API_PLOT_BASED_DAMAGE)
 //	--------------------------------------------------------------------------------
 bool CvUnit::ignoreTerrainDamage() const
 {
@@ -17543,8 +17528,6 @@ void CvUnit::changeExtraFeatureDamageCount(int iValue)
 		m_iExtraFeatureDamageCount += iValue;
 	}
 }
-#endif
-
 
 #if defined(MOD_PROMOTIONS_IMPROVEMENT_BONUS)
 int CvUnit::GetNearbyImprovementCombatBonus() const
@@ -26602,12 +26585,11 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 		changeHealOutsideFriendlyCount((thisPromotion.IsHealOutsideFriendly()) ? iChange : 0);
 		changeHillsDoubleMoveCount((thisPromotion.IsHillsDoubleMove()) ? iChange : 0);
 		changeIgnoreTerrainCostCount((thisPromotion.IsIgnoreTerrainCost()) ? iChange : 0);
-#if defined(MOD_API_PLOT_BASED_DAMAGE)
 		changeIgnoreTerrainDamageCount((thisPromotion.IsIgnoreTerrainDamage()) ? iChange : 0);
 		changeIgnoreFeatureDamageCount((thisPromotion.IsIgnoreFeatureDamage()) ? iChange : 0);
 		changeExtraTerrainDamageCount((thisPromotion.IsExtraTerrainDamage()) ? iChange : 0);
 		changeExtraFeatureDamageCount((thisPromotion.IsExtraFeatureDamage()) ? iChange : 0);
-#endif
+
 #if defined(MOD_PROMOTIONS_IMPROVEMENT_BONUS)
 		if (MOD_PROMOTIONS_IMPROVEMENT_BONUS) {
 			if (thisPromotion.GetNearbyImprovementCombatBonus() > 0) {

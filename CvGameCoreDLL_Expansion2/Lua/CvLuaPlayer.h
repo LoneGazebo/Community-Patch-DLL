@@ -317,7 +317,7 @@ protected:
 	static int lGetFaithPerTurnFromReligion(lua_State* L);
 	static int lHasCreatedPantheon(lua_State* L);
 	static int lGetBeliefInPantheon(lua_State* L);
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_API_RELIGION)
+#if defined(MOD_API_LUA_EXTENSIONS)
 	LUAAPIEXTN(GetBeliefsInPantheon, table);
 #endif
 	static int lCanCreatePantheon(lua_State* L);
@@ -1271,7 +1271,7 @@ protected:
 	static int lGetNumSpies(lua_State* L);
 	static int lGetNumUnassignedSpies(lua_State* L);
 	static int lGetEspionageSpies(lua_State* L);
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_API_ESPIONAGE)
+#if defined(MOD_API_LUA_EXTENSIONS)
 	LUAAPIEXTN(EspionageCreateSpy, void);
 	LUAAPIEXTN(EspionagePromoteSpy, void, iSpyIndex);
 	LUAAPIEXTN(EspionageSetPassive, void, iSpyIndex, bPassive);
@@ -1300,7 +1300,7 @@ protected:
 	static int lGetInternationalTradeRoutePlotMouseoverToolTip(lua_State* L);
 	static int lGetNumInternationalTradeRoutesUsed(lua_State* L);
 	static int lGetNumInternationalTradeRoutesAvailable(lua_State* L);
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_API_TRADEROUTES)
+#if defined(MOD_API_LUA_EXTENSIONS)
 	static int GetPotentialInternationalTradeRouteDestinationsHelper(lua_State* L, CvPlayerAI* pkPlayer, CvUnit* pkUnit, CvPlot* pkUnitPlot);
 	LUAAPIEXTN(GetPotentialInternationalTradeRouteDestinationsFrom, table, pUnit, pCity);
 #endif

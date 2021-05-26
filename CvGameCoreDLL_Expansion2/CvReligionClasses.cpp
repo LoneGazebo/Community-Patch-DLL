@@ -1326,17 +1326,15 @@ void CvGameReligions::FoundReligion(PlayerTypes ePlayer, ReligionTypes eReligion
 
 	// Copy over belief from your pantheon
 	BeliefTypes eBelief = GC.getGame().GetGameReligions()->GetBeliefInPantheon(kPlayer.GetID());
-	if(eBelief != NO_BELIEF)
-#if defined(MOD_API_RELIGION)
+	if (eBelief != NO_BELIEF)
 	{
 		CvReligionBeliefs beliefs = GC.getGame().GetGameReligions()->GetReligion(RELIGION_PANTHEON, ePlayer)->m_Beliefs;
-		for (int iI = 0; iI < beliefs.GetNumBeliefs(); iI++) {
+		for (int iI = 0; iI < beliefs.GetNumBeliefs(); iI++) 
+		{
 			kReligion.m_Beliefs.AddBelief(beliefs.GetBelief(iI));
 		}
 	}
-#else
-		kReligion.m_Beliefs.AddBelief(eBelief);
-#endif
+
 #if defined(MOD_BALANCE_CORE)
 	if(kPlayer.GetPlayerTraits()->IsAdoptionFreeTech())
 	{
@@ -1510,36 +1508,28 @@ void CvGameReligions::FoundReligion(PlayerTypes ePlayer, ReligionTypes eReligion
 /// Can the supplied religion be created?
 CvGameReligions::FOUNDING_RESULT CvGameReligions::CanFoundReligion(PlayerTypes ePlayer, ReligionTypes eReligion, const char* szCustomName, BeliefTypes eBelief1, BeliefTypes eBelief2, BeliefTypes eBelief3, BeliefTypes eBelief4, CvCity* pkHolyCity)
 {
-#if defined(MOD_BALANCE_CORE)
-	if(GetNumReligionsStillToFound() <= 0 && !GET_PLAYER(ePlayer).GetPlayerTraits()->IsAlwaysReligion())
-#else
-	if(GetNumReligionsStillToFound() <= 0)
-#endif
-		return FOUNDING_NO_RELIGIONS_AVAILABLE;
-
-	if(ePlayer == NO_PLAYER)
+	if (ePlayer == NO_PLAYER)
 		return FOUNDING_INVALID_PLAYER;
 
-	if(HasCreatedReligion(ePlayer))
+	if (HasCreatedReligion(ePlayer))
 		return FOUNDING_PLAYER_ALREADY_CREATED_RELIGION;
+
+	if (GetNumReligionsStillToFound() <= 0 && !GET_PLAYER(ePlayer).GetPlayerTraits()->IsAlwaysReligion())
+		return FOUNDING_NO_RELIGIONS_AVAILABLE;
 
 	CvPlayer& kPlayer = GET_PLAYER(ePlayer);
 
 	CvReligion kReligion(eReligion, ePlayer, pkHolyCity, false);
 
 	// Copy over belief from your pantheon
-#if defined(MOD_API_RELIGION)
-	if (HasCreatedPantheon(ePlayer)) {
+	if (HasCreatedPantheon(ePlayer)) 
+	{
 		CvReligionBeliefs beliefs = GC.getGame().GetGameReligions()->GetReligion(RELIGION_PANTHEON, kPlayer.GetID())->m_Beliefs;
-		for(int iI = 0; iI < beliefs.GetNumBeliefs(); iI++) {
+		for (int iI = 0; iI < beliefs.GetNumBeliefs(); iI++) 
+		{
 			kReligion.m_Beliefs.AddBelief(beliefs.GetBelief(iI));
 		}
 	}
-#else
-	BeliefTypes eBelief = GC.getGame().GetGameReligions()->GetBeliefInPantheon(kPlayer.GetID());
-	if(eBelief != NO_BELIEF)
-		kReligion.m_Beliefs.AddBelief(eBelief);
-#endif
 
 	kReligion.m_Beliefs.AddBelief(eBelief1);
 	kReligion.m_Beliefs.AddBelief(eBelief2);
@@ -1602,43 +1592,40 @@ CvGameReligions::FOUNDING_RESULT CvGameReligions::CanFoundReligion(PlayerTypes e
 }
 
 /// Add new beliefs to an existing religion
-#if defined(MOD_API_RELIGION)
 void CvGameReligions::EnhanceReligion(PlayerTypes ePlayer, ReligionTypes eReligion, BeliefTypes eBelief1, BeliefTypes eBelief2, bool bNotify)
-#else
-void CvGameReligions::EnhanceReligion(PlayerTypes ePlayer, ReligionTypes eReligion, BeliefTypes eBelief1, BeliefTypes eBelief2)
-#endif
 {
 	bool bFoundIt = false;
 	CvPlayer& kPlayer = GET_PLAYER(ePlayer);
 	ReligionList::iterator it;
-	for(it = m_CurrentReligions.begin(); it != m_CurrentReligions.end(); it++)
+
+	for (it = m_CurrentReligions.begin(); it != m_CurrentReligions.end(); it++)
 	{
-#if defined(MOD_API_RELIGION)
 		// We use the same code for enhancing a pantheon, so make sure we find the pantheon for the player!
-		if(it->m_eReligion == eReligion && it->m_eReligion == RELIGION_PANTHEON)
+		if (it->m_eReligion == eReligion)
 		{
-			if(it->m_eFounder == ePlayer)
+			if (it->m_eReligion == RELIGION_PANTHEON)
+			{
+				if (it->m_eFounder == ePlayer)
+				{
+					bFoundIt = true;
+					break;
+				}
+			}
+			else
 			{
 				bFoundIt = true;
 				break;
 			}
 		}
-		else 
-#endif
-		if(it->m_eReligion == eReligion)
-		{
-			bFoundIt = true;
-			break;
-		}
 	}
-	if(!bFoundIt)
+	if (!bFoundIt)
 	{
 		CvAssertMsg(false, "Internal error in religion code.");
 		CUSTOMLOG("Trying to enhance a religion/pantheon that doesn't exist!!!");
 		return;
 	}
-#if defined(MOD_BALANCE_CORE)
-	if(kPlayer.GetPlayerTraits()->IsAdoptionFreeTech())
+
+	if (kPlayer.GetPlayerTraits()->IsAdoptionFreeTech())
 	{
 		if (!kPlayer.isHuman())
 		{
@@ -1650,139 +1637,112 @@ void CvGameReligions::EnhanceReligion(PlayerTypes ePlayer, ReligionTypes eReligi
 			kPlayer.chooseTech(1, strBuffer.GetCString());
 		}
 	}
-#endif
+
 	it->m_Beliefs.AddBelief(eBelief1);
-#if defined(MOD_API_RELIGION)
-	if(eBelief2 != NO_BELIEF)
-#endif
+
+	if (eBelief2 != NO_BELIEF)
 		it->m_Beliefs.AddBelief(eBelief2);
 
-#if defined(MOD_API_RELIGION)
-	if(eReligion != RELIGION_PANTHEON)
-#endif
+	if (eReligion != RELIGION_PANTHEON)
 		it->m_bEnhanced = true;
 
-#if defined(MOD_TRAITS_OTHER_PREREQS)
-	if (MOD_TRAITS_OTHER_PREREQS) {
+	if (MOD_TRAITS_OTHER_PREREQS)
 		kPlayer.GetPlayerTraits()->InitPlayerTraits();
-	}
-#endif
 
 	// Update game systems
 	UpdateAllCitiesThisReligion(eReligion);
 	kPlayer.UpdateReligion();
 
-#if defined(MOD_EVENTS_FOUND_RELIGION)
-	if (MOD_EVENTS_FOUND_RELIGION) {
-		GAMEEVENTINVOKE_HOOK(GAMEEVENT_ReligionEnhanced, ePlayer, eReligion, eBelief1, eBelief2);
-	} else {
-#endif
-	ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
-	if(pkScriptSystem) 
+	if (MOD_EVENTS_FOUND_RELIGION) 
 	{
-		CvLuaArgsHandle args;
-		args->Push(ePlayer);
-		args->Push(eReligion);
-		args->Push(eBelief1);
-		args->Push(eBelief2);
+		GAMEEVENTINVOKE_HOOK(GAMEEVENT_ReligionEnhanced, ePlayer, eReligion, eBelief1, eBelief2);
+	} 
+	else 
+	{
+		ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+		if(pkScriptSystem) 
+		{
+			CvLuaArgsHandle args;
+			args->Push(ePlayer);
+			args->Push(eReligion);
+			args->Push(eBelief1);
+			args->Push(eBelief2);
 
-		bool bResult;
-		LuaSupport::CallHook(pkScriptSystem, "ReligionEnhanced", args.get(), bResult);
+			bool bResult;
+			LuaSupport::CallHook(pkScriptSystem, "ReligionEnhanced", args.get(), bResult);
+		}
 	}
-#if defined(MOD_EVENTS_FOUND_RELIGION)
-	}
-#endif
 
-#if defined(MOD_API_RELIGION)
-	if (bNotify) {
-#endif
-	//Notify the masses
-	for(int iNotifyLoop = 0; iNotifyLoop < MAX_MAJOR_CIVS; ++iNotifyLoop){
-		PlayerTypes eNotifyPlayer = (PlayerTypes) iNotifyLoop;
-		CvPlayerAI& kNotifyPlayer = GET_PLAYER(eNotifyPlayer);
-		CvNotifications* pNotifications = kNotifyPlayer.GetNotifications();
-		if(pNotifications){
-#if defined(MOD_API_RELIGION)
-			Localization::String strSummary;
-			Localization::String notificationText;
-			if (eReligion == RELIGION_PANTHEON) {
-				strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_PANTHEON_ENHANCED_S");
-				notificationText = Localization::Lookup("TXT_KEY_NOTIFICATION_PANTHEON_ENHANCED");
-				notificationText << kPlayer.getCivilizationShortDescriptionKey();
-			} else {
-				strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_RELIGION_ENHANCED_S");
-				notificationText = Localization::Lookup("TXT_KEY_NOTIFICATION_RELIGION_ENHANCED");
-				notificationText << kPlayer.getCivilizationShortDescriptionKey() << it->GetName();
-			}
-#else
-			Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_RELIGION_ENHANCED_S");
-			Localization::String notificationText = Localization::Lookup("TXT_KEY_NOTIFICATION_RELIGION_ENHANCED");
-			notificationText << kPlayer.getCivilizationShortDescriptionKey() << it->GetName();
-#endif
-
-			// Message slightly different for enhancing player
-			if(ePlayer == eNotifyPlayer)
+	if (bNotify) 
+	{
+		//Notify the masses
+		for (int iNotifyLoop = 0; iNotifyLoop < MAX_MAJOR_CIVS; ++iNotifyLoop)
+		{
+			PlayerTypes eNotifyPlayer = (PlayerTypes) iNotifyLoop;
+			CvPlayerAI& kNotifyPlayer = GET_PLAYER(eNotifyPlayer);
+			CvNotifications* pNotifications = kNotifyPlayer.GetNotifications();
+			if (pNotifications)
 			{
-#if defined(MOD_API_RELIGION)
-				Localization::String localizedText;
-				if (eReligion == RELIGION_PANTHEON) {
-					localizedText = Localization::Lookup("TXT_KEY_NOTIFICATION_PANTHEON_ENHANCED_ACTIVE_PLAYER");
-				} else {
-					localizedText = Localization::Lookup("TXT_KEY_NOTIFICATION_RELIGION_ENHANCED_ACTIVE_PLAYER");
-					localizedText << it->GetName();
-				}
-#else
-				Localization::String localizedText = Localization::Lookup("TXT_KEY_NOTIFICATION_RELIGION_ENHANCED_ACTIVE_PLAYER");
-				localizedText << it->GetName();
-#endif
-
-#if defined(MOD_API_EXTENSIONS)
-				pNotifications->Add(NOTIFICATION_RELIGION_ENHANCED_ACTIVE_PLAYER, localizedText.toUTF8(), strSummary.toUTF8(), -1, -1, eReligion, -1);
-#else
-				pNotifications->Add(NOTIFICATION_RELIGION_ENHANCED_ACTIVE_PLAYER, localizedText.toUTF8(), strSummary.toUTF8(), -1, -1, -1);
-#endif
-			}
-			else
-			{
-				CvTeam& kNotifyTeam = GET_TEAM(kNotifyPlayer.getTeam());
-				if(kNotifyTeam.isHasMet(kPlayer.getTeam()))
+				Localization::String strSummary;
+				Localization::String notificationText;
+				if (eReligion == RELIGION_PANTHEON)
 				{
-#if defined(MOD_API_EXTENSIONS)
-					pNotifications->Add(NOTIFICATION_RELIGION_ENHANCED, notificationText.toUTF8(), strSummary.toUTF8(), -1, -1, eReligion, -1);
-#else
-					pNotifications->Add(NOTIFICATION_RELIGION_ENHANCED, notificationText.toUTF8(), strSummary.toUTF8(), -1, -1, -1);
-#endif
+					strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_PANTHEON_ENHANCED_S");
+					notificationText = Localization::Lookup("TXT_KEY_NOTIFICATION_PANTHEON_ENHANCED");
+					notificationText << kPlayer.getCivilizationShortDescriptionKey();
 				}
 				else
 				{
-#if defined(MOD_API_RELIGION)
-					Localization::String unknownText;
-					if (eReligion == RELIGION_PANTHEON) {
-						unknownText = Localization::Lookup("TXT_KEY_NOTIFICATION_PANTHEON_ENHANCED_UNKNOWN");
-					} else {
-						unknownText = Localization::Lookup("TXT_KEY_NOTIFICATION_RELIGION_ENHANCED_UNKNOWN");
-						unknownText << it->GetName();
-					}
-#else
-					Localization::String unknownText = Localization::Lookup("TXT_KEY_NOTIFICATION_RELIGION_ENHANCED_UNKNOWN");
-					unknownText << it->GetName();
-#endif
+					strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_RELIGION_ENHANCED_S");
+					notificationText = Localization::Lookup("TXT_KEY_NOTIFICATION_RELIGION_ENHANCED");
+					notificationText << kPlayer.getCivilizationShortDescriptionKey() << it->GetName();
+				}
 
-#if defined(MOD_API_EXTENSIONS)
-					pNotifications->Add(NOTIFICATION_RELIGION_ENHANCED, unknownText.toUTF8(), strSummary.toUTF8(), -1, -1, eReligion, -1);
-#else
-					pNotifications->Add(NOTIFICATION_RELIGION_ENHANCED, unknownText.toUTF8(), strSummary.toUTF8(), -1, -1, -1);
-#endif
+				// Message slightly different for enhancing player
+				if (ePlayer == eNotifyPlayer)
+				{
+					Localization::String localizedText;
+					if (eReligion == RELIGION_PANTHEON)
+					{
+						localizedText = Localization::Lookup("TXT_KEY_NOTIFICATION_PANTHEON_ENHANCED_ACTIVE_PLAYER");
+					}
+					else
+					{
+						localizedText = Localization::Lookup("TXT_KEY_NOTIFICATION_RELIGION_ENHANCED_ACTIVE_PLAYER");
+						localizedText << it->GetName();
+					}
+
+					pNotifications->Add(NOTIFICATION_RELIGION_ENHANCED_ACTIVE_PLAYER, localizedText.toUTF8(), strSummary.toUTF8(), -1, -1, eReligion, -1);
+				}
+				else
+				{
+					CvTeam& kNotifyTeam = GET_TEAM(kNotifyPlayer.getTeam());
+					if (kNotifyTeam.isHasMet(kPlayer.getTeam()))
+					{
+						pNotifications->Add(NOTIFICATION_RELIGION_ENHANCED, notificationText.toUTF8(), strSummary.toUTF8(), -1, -1, eReligion, -1);
+					}
+					else
+					{
+						Localization::String unknownText;
+						if (eReligion == RELIGION_PANTHEON)
+						{
+							unknownText = Localization::Lookup("TXT_KEY_NOTIFICATION_PANTHEON_ENHANCED_UNKNOWN");
+						}
+						else
+						{
+							unknownText = Localization::Lookup("TXT_KEY_NOTIFICATION_RELIGION_ENHANCED_UNKNOWN");
+							unknownText << it->GetName();
+						}
+
+						pNotifications->Add(NOTIFICATION_RELIGION_ENHANCED, unknownText.toUTF8(), strSummary.toUTF8(), -1, -1, eReligion, -1);
+					}
 				}
 			}
 		}
 	}
-#if defined(MOD_API_RELIGION)
-	}
-#endif
 
 	// Logging
-	if(GC.getLogging())
+	if (GC.getLogging())
 	{
 		CvString strLogMsg;
 		strLogMsg = kPlayer.getCivilizationShortDescription();
@@ -3465,7 +3425,9 @@ int CvGameReligions::GetBeliefYieldForKill(YieldTypes eYield, int iX, int iY, Pl
 	int iRtnValue = 0;
 	int iMultiplier = 0;
 	int iLoop;
+	int iDistance = 0;
 	CvCity* pLoopCity;
+	ReligionTypes eReligion = NO_RELIGION;
 
 	// Only Faith supported for now
 	if(eYield != YIELD_FAITH)
@@ -3476,12 +3438,12 @@ int CvGameReligions::GetBeliefYieldForKill(YieldTypes eYield, int iX, int iY, Pl
 	for(pLoopCity = GET_PLAYER(eWinningPlayer).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(eWinningPlayer).nextCity(&iLoop))
 	{
 		// Find religion in this city
-		ReligionTypes eReligion = pLoopCity->GetCityReligions()->GetReligiousMajority();
+		eReligion = pLoopCity->GetCityReligions()->GetReligiousMajority();
 
 		if(eReligion != NO_RELIGION)
 		{
 			// Find distance to this city
-			int iDistance = plotDistance(iX, iY, pLoopCity->getX(), pLoopCity->getY());
+			iDistance = plotDistance(iX, iY, pLoopCity->getX(), pLoopCity->getY());
 
 			// Do we have a yield from this?
 #if defined(MOD_BALANCE_CORE_BELIEFS)
@@ -3519,6 +3481,26 @@ int CvGameReligions::GetBeliefYieldForKill(YieldTypes eYield, int iX, int iY, Pl
 			}
 		}
 	}
+
+#if defined(MOD_RELIGION_PERMANENT_PANTHEON)
+	// mod for civs keeping their pantheon belief forever
+	if (MOD_RELIGION_PERMANENT_PANTHEON)
+	{
+		if (HasCreatedPantheon(eWinningPlayer))
+		{
+			const CvReligion* pPantheon = GetReligion(RELIGION_PANTHEON, eWinningPlayer);
+			BeliefTypes ePantheonBelief = GetBeliefInPantheon(eWinningPlayer);
+			if (pPantheon != NULL && ePantheonBelief != NO_BELIEF)
+			{
+				const CvReligion* pReligion = GetReligion(eReligion, eWinningPlayer);
+				if (pReligion == NULL || (pReligion != NULL && !pReligion->m_Beliefs.IsPantheonBeliefInReligion(ePantheonBelief, eReligion, eWinningPlayer))) // check that the our religion does not have our belief, to prevent double counting
+				{
+					iRtnValue += MAX(0, pPantheon->m_Beliefs.GetFaithFromKills(iDistance, eWinningPlayer, pLoopCity));
+				}
+			}
+		}
+	}
+#endif
 
 	return iRtnValue;
 }

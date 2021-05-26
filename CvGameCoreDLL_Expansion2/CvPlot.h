@@ -483,54 +483,54 @@ public:
 		return (FeatureTypes)m_eFeatureType.get();
 	}
 
-#if defined(MOD_API_PLOT_BASED_DAMAGE)
 	int getTurnDamage(bool bIgnoreTerrainDamage, bool bIgnoreFeatureDamage, bool bExtraTerrainDamage, bool bExtraFeatureDamage) const
 	{
 		int damage = 0;
 
-		if (MOD_API_PLOT_BASED_DAMAGE) {
-			const TerrainTypes eTerrain = getTerrainType();
-			const FeatureTypes eFeature = getFeatureType();
-			
-			// Make an exception for the volcano
-			if (eFeature != NO_FEATURE) {
-				CvFeatureInfo* pkFeatureInfo = GC.getFeatureInfo(eFeature);
-				if (pkFeatureInfo && pkFeatureInfo->GetType() == "FEATURE_VOLCANO") {
+		const TerrainTypes eTerrain = getTerrainType();
+		const FeatureTypes eFeature = getFeatureType();
+		
+		// Make an exception for the volcano
+		if (eFeature != NO_FEATURE)
+		{
+			CvFeatureInfo* pkFeatureInfo = GC.getFeatureInfo(eFeature);
+			if (pkFeatureInfo)
+			{
+				if (pkFeatureInfo->GetType() == "FEATURE_VOLCANO")
+				{
 					bIgnoreTerrainDamage = false;
 					bIgnoreFeatureDamage = false;
 				}
-			}
-
-			if (eTerrain != NO_TERRAIN) {
-				CvTerrainInfo* pkTerrainInfo = GC.getTerrainInfo(eTerrain);
-				if (pkTerrainInfo) {
-					// no damage for units on montain cities
-					if (!bIgnoreTerrainDamage && !isCity())
-					{						
-						damage += pkTerrainInfo->getTurnDamage();
-					}
-					if (bExtraTerrainDamage) {
-						damage += pkTerrainInfo->getExtraTurnDamage();
-					}
+				if (!bIgnoreFeatureDamage)
+				{
+					damage += pkFeatureInfo->getTurnDamage();
+				}
+				if (bExtraFeatureDamage)
+				{
+					damage += pkFeatureInfo->getExtraTurnDamage();
 				}
 			}
+		}
 
-			if (eFeature != NO_FEATURE) {
-				CvFeatureInfo* pkFeatureInfo = GC.getFeatureInfo(eFeature);
-				if (pkFeatureInfo) {
-					if (!bIgnoreFeatureDamage) {
-						damage += pkFeatureInfo->getTurnDamage();
-					}
-					
-					if (bExtraFeatureDamage) {
-						damage += pkFeatureInfo->getExtraTurnDamage();
-					}
+		if (eTerrain != NO_TERRAIN) 
+		{
+			CvTerrainInfo* pkTerrainInfo = GC.getTerrainInfo(eTerrain);
+			if (pkTerrainInfo) 
+			{
+				// no damage for units on montain cities
+				if (!bIgnoreTerrainDamage && !isCity())
+				{						
+					damage += pkTerrainInfo->getTurnDamage();
+				}
+				if (bExtraTerrainDamage)
+				{
+					damage += pkTerrainInfo->getExtraTurnDamage();
 				}
 			}
-		}		
+		}
+
 		return damage;
 	}
-#endif
 
 	bool isImpassable(TeamTypes eTeam = NO_TEAM) const;
 	bool IsAllowsWalkWater() const;
@@ -662,20 +662,36 @@ public:
 
 	int calculateImprovementYield(ImprovementTypes eImprovement, YieldTypes eYield, int iCurrentYield, PlayerTypes ePlayer, bool bOptimal = false, RouteTypes eAssumeThisRoute = NUM_ROUTE_TYPES) const;
 
+#if defined(MOD_RELIGION_PERMANENT_PANTHEON)
+	int calculatePlayerYield(YieldTypes eYield, int iCurrentYield, PlayerTypes ePlayer, ImprovementTypes eImprovement, const CvCity* pOwningCity, const CvReligion* pMajorityReligion, const CvBeliefEntry* pSecondaryPantheon, const CvReligion* pPlayerPantheon, bool bDisplay) const;
+#else
 	int calculatePlayerYield(YieldTypes eYield, int iCurrentYield, PlayerTypes ePlayer, ImprovementTypes eImprovement, const CvCity* pOwningCity, const CvReligion* pMajorityReligion, const CvBeliefEntry* pSecondaryPantheon, bool bDisplay) const;
+#endif
 
 	int calculateReligionNatureYield(YieldTypes eYield, PlayerTypes ePlayer, const CvCity* pOwningCity, const CvReligion* pMajorityReligion, const CvBeliefEntry* pSecondaryPantheon) const;
 	int calculateReligionImprovementYield(ImprovementTypes eImprovement, YieldTypes eYield, PlayerTypes ePlayer, const CvCity* pOwningCity, const CvReligion* pMajorityReligion, const CvBeliefEntry* pSecondaryPantheon) const;
 
 	int calculateYield(YieldTypes eIndex, bool bDisplay = false);
+#if defined(MOD_RELIGION_PERMANENT_PANTHEON)
+	int calculateYieldFast(YieldTypes eYield, bool bDisplay, const CvCity* pOwningCity, const CvReligion* pMajorityReligion, const CvBeliefEntry* pSecondaryPantheon, const CvReligion* pPlayerPantheon = NULL);
+#else
 	int calculateYieldFast(YieldTypes eYield, bool bDisplay, const CvCity* pOwningCity, const CvReligion* pMajorityReligion, const CvBeliefEntry* pSecondaryPantheon);
+#endif
 
 	bool hasYield() const;
 
 	void updateYield();
+#if defined(MOD_RELIGION_PERMANENT_PANTHEON)
+	void updateYieldFast(CvCity* pOwningCity, const CvReligion* pMajorityReligion, const CvBeliefEntry* pSecondaryPantheon, const CvReligion* pPlayerPantheon = NULL);
+#else
 	void updateYieldFast(CvCity* pOwningCity, const CvReligion* pMajorityReligion, const CvBeliefEntry* pSecondaryPantheon);
+#endif
 
+#if defined(MOD_RELIGION_PERMANENT_PANTHEON)
+	int getYieldWithBuild(BuildTypes eBuild, YieldTypes eYield, bool bWithUpgrade, PlayerTypes ePlayer, const CvCity* pOwningCity, const CvReligion* pMajorityReligion, const CvBeliefEntry* pSecondaryPantheon, const CvReligion* pPlayerPantheon = NULL) const;
+#else
 	int getYieldWithBuild(BuildTypes eBuild, YieldTypes eYield, bool bWithUpgrade, PlayerTypes ePlayer, const CvCity* pOwningCity, const CvReligion* pMajorityReligion, const CvBeliefEntry* pSecondaryPantheon) const;
+#endif
 
 	int countNumAirUnits(TeamTypes eTeam, bool bNoSuicide = false) const;
 

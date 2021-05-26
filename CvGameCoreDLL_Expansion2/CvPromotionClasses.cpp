@@ -164,12 +164,10 @@ CvPromotionEntry::CvPromotionEntry():
 	m_bHealOutsideFriendly(false),
 	m_bHillsDoubleMove(false),
 	m_bIgnoreTerrainCost(false),
-#if defined(MOD_API_PLOT_BASED_DAMAGE)
 	m_bIgnoreTerrainDamage(false),
 	m_bIgnoreFeatureDamage(false),
 	m_bExtraTerrainDamage(false),
 	m_bExtraFeatureDamage(false),
-#endif
 #if defined(MOD_PROMOTIONS_IMPROVEMENT_BONUS)
 	m_iNearbyImprovementCombatBonus(0),
 	m_iNearbyImprovementBonusRange(0),
@@ -422,12 +420,10 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 	m_bHealOutsideFriendly = kResults.GetBool("HealOutsideFriendly");
 	m_bHillsDoubleMove = kResults.GetBool("HillsDoubleMove");
 	m_bIgnoreTerrainCost = kResults.GetBool("IgnoreTerrainCost");
-#if defined(MOD_API_PLOT_BASED_DAMAGE)
 	m_bIgnoreTerrainDamage = kResults.GetBool("IgnoreTerrainDamage");
 	m_bIgnoreFeatureDamage = kResults.GetBool("IgnoreFeatureDamage");
 	m_bExtraTerrainDamage = kResults.GetBool("ExtraTerrainDamage");
 	m_bExtraFeatureDamage = kResults.GetBool("ExtraFeatureDamage");
-#endif
 #if defined(MOD_PROMOTIONS_IMPROVEMENT_BONUS)
 	if (MOD_PROMOTIONS_IMPROVEMENT_BONUS) {
 		m_iNearbyImprovementCombatBonus = kResults.GetInt("NearbyImprovementCombatBonus");
@@ -2068,7 +2064,6 @@ bool CvPromotionEntry::IsIgnoreTerrainCost() const
 	return m_bIgnoreTerrainCost;
 }
 
-#if defined(MOD_API_PLOT_BASED_DAMAGE)
 /// Accessor: Ignores terrain damage
 bool CvPromotionEntry::IsIgnoreTerrainDamage() const
 {
@@ -2092,7 +2087,6 @@ bool CvPromotionEntry::IsExtraFeatureDamage() const
 {
 	return m_bExtraFeatureDamage;
 }
-#endif
 
 #if defined(MOD_PROMOTIONS_IMPROVEMENT_BONUS)
 /// Accessor: Can cross mountains (but we'd rather they left them nice and straight!)

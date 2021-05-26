@@ -36,7 +36,7 @@ void CvLuaPlot::PushMethods(lua_State* L, int t)
 	Method(CanHaveFeature);
 	Method(GetFeatureType);
 	Method(GetTerrainType);
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_API_PLOT_BASED_DAMAGE)
+#if defined(MOD_API_LUA_EXTENSIONS)
 	Method(GetTurnDamage);
 #endif
 	Method(IsRiver);
@@ -423,7 +423,7 @@ int CvLuaPlot::lGetTerrainType(lua_State* L)
 
 	return 1;
 }
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_API_PLOT_BASED_DAMAGE)
+#if defined(MOD_API_LUA_EXTENSIONS)
 //------------------------------------------------------------------------------
 int CvLuaPlot::lGetTurnDamage(lua_State* L)
 {
@@ -1703,7 +1703,25 @@ int CvLuaPlot::lGetYieldWithBuild(lua_State* L)
 
 		const CvReligion* pReligion = (eMajority != NO_RELIGION) ? GC.getGame().GetGameReligions()->GetReligion(eMajority, pOwningCity->getOwner()) : 0;
 		const CvBeliefEntry* pBelief = (eSecondaryPantheon != NO_BELIEF) ? GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon) : 0;
-		const int iResult = pkPlot->getYieldWithBuild(eBuild, eYield, bUpgrade, ePlayer, pOwningCity, pReligion, pBelief);
+		int iResult = pkPlot->getYieldWithBuild(eBuild, eYield, bUpgrade, ePlayer, pOwningCity, pReligion, pBelief);
+#if defined(MOD_RELIGION_PERMANENT_PANTHEON)
+		// Mod for civs keeping their pantheon belief forever
+		if (MOD_RELIGION_PERMANENT_PANTHEON)
+		{
+			if (GC.getGame().GetGameReligions()->HasCreatedPantheon(pOwningCity->getOwner()))
+			{
+				const CvReligion* pPantheon = GC.getGame().GetGameReligions()->GetReligion(RELIGION_PANTHEON, pOwningCity->getOwner());
+				BeliefTypes ePantheonBelief = GC.getGame().GetGameReligions()->GetBeliefInPantheon(pOwningCity->getOwner());
+				if (pPantheon != NULL && ePantheonBelief != NO_BELIEF && ePantheonBelief != eSecondaryPantheon)
+				{
+					if (pReligion == NULL || (pReligion != NULL && !pReligion->m_Beliefs.IsPantheonBeliefInReligion(ePantheonBelief, eMajority, pOwningCity->getOwner()))) // check that the our religion does not have our belief, to prevent double counting
+					{
+						iResult += pkPlot->getYieldWithBuild(eBuild, eYield, bUpgrade, ePlayer, pOwningCity, pPantheon, NULL);
+					}
+				}
+			}
+		}
+#endif
 		lua_pushinteger(L, iResult);
 		return 1;
 	}

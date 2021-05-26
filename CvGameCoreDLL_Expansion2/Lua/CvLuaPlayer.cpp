@@ -333,7 +333,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetFaithPerTurnFromReligion);
 	Method(HasCreatedPantheon);
 	Method(GetBeliefInPantheon);
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_API_RELIGION)
+#if defined(MOD_API_LUA_EXTENSIONS)
 	Method(GetBeliefsInPantheon);
 #endif
 	Method(HasCreatedReligion);
@@ -1194,7 +1194,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetNumSpies);
 	Method(GetNumUnassignedSpies);
 	Method(GetEspionageSpies);
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_API_ESPIONAGE)
+#if defined(MOD_API_LUA_EXTENSIONS)
 	Method(EspionageCreateSpy);
 	Method(EspionagePromoteSpy);
 	Method(EspionageSetPassive);
@@ -1218,7 +1218,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetInternationalTradeRoutePlotMouseoverToolTip);
 	Method(GetNumInternationalTradeRoutesUsed);
 	Method(GetNumInternationalTradeRoutesAvailable);
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_API_TRADEROUTES)
+#if defined(MOD_API_LUA_EXTENSIONS)
 	Method(GetPotentialInternationalTradeRouteDestinationsFrom);
 #endif
 	Method(GetPotentialInternationalTradeRouteDestinations);
@@ -3648,7 +3648,7 @@ int CvLuaPlayer::lGetBeliefInPantheon(lua_State* L)
 
 	return 1;
 }
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_API_RELIGION)
+#if defined(MOD_API_LUA_EXTENSIONS)
 //------------------------------------------------------------------------------
 int CvLuaPlayer::lGetBeliefsInPantheon(lua_State* L)
 {
@@ -4400,7 +4400,7 @@ int CvLuaPlayer::lGetNumInternationalTradeRoutesAvailable(lua_State* L)
 }
 
 //------------------------------------------------------------------------------
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_API_TRADEROUTES)
+#if defined(MOD_API_LUA_EXTENSIONS)
 int CvLuaPlayer::lGetPotentialInternationalTradeRouteDestinationsFrom(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
@@ -5765,7 +5765,7 @@ int CvLuaPlayer::lGetTradeRoutes(lua_State* L)
 		lua_createtable(L, 0, 0);
 		const int t = lua_gettop(L);
 
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_API_TRADEROUTES)
+#if defined(MOD_API_LUA_EXTENSIONS)
 		lua_pushinteger(L, pConnection->m_eConnectionType);
 		lua_setfield(L, t, "TradeConnectionType");
 #endif
@@ -5836,7 +5836,7 @@ int CvLuaPlayer::lGetTradeRoutes(lua_State* L)
 
 		lua_pushinteger(L, pConnection->m_iTurnRouteComplete - GC.getGame().getGameTurn());
 		lua_setfield(L, t, "TurnsLeft");
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_API_TRADEROUTES)
+#if defined(MOD_API_LUA_EXTENSIONS)
 		lua_pushinteger(L, pConnection->m_unitID);
 		lua_setfield(L, t, "UnitID");
 		lua_pushboolean(L, pConnection->m_bTradeUnitRecalled);
@@ -5938,7 +5938,7 @@ int CvLuaPlayer::lGetTradeRoutesAvailable(lua_State* L)
 							iTurnsLeft = pConnection->m_iTurnRouteComplete - GC.getGame().getGameTurn();
 						}
 
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_API_TRADEROUTES)
+#if defined(MOD_API_LUA_EXTENSIONS)
 						lua_pushinteger(L, kConnection.m_eConnectionType);
 						lua_setfield(L, t, "TradeConnectionType");
 #endif
@@ -6072,7 +6072,7 @@ int CvLuaPlayer::lGetTradeRoutesToYou(lua_State* L)
 		lua_createtable(L, 0, 0);
 		const int t = lua_gettop(L);
 
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_API_TRADEROUTES)
+#if defined(MOD_API_LUA_EXTENSIONS)
 		lua_pushinteger(L, pConnection->m_eConnectionType);
 		lua_setfield(L, t, "TradeConnectionType");
 #endif
@@ -15471,7 +15471,7 @@ int CvLuaPlayer::lGetEspionageSpies(lua_State* L)
 		case SPY_STATE_SCHMOOZE:
 			lua_pushstring(L, "TXT_KEY_SPY_STATE_SCHMOOZING");
 			break;
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_API_ESPIONAGE)
+#if defined(MOD_API_LUA_EXTENSIONS)
 		case SPY_STATE_TERMINATED:
 			lua_pushstring(L, "TXT_KEY_SPY_STATE_TERMINATED");
 			break;
@@ -15494,7 +15494,7 @@ int CvLuaPlayer::lGetEspionageSpies(lua_State* L)
 		lua_pushboolean(L, pkPlayerEspionage->IsDiplomat(uiSpy));
 		lua_setfield(L, t, "IsDiplomat");
 
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_API_ESPIONAGE)
+#if defined(MOD_API_LUA_EXTENSIONS)
 		lua_pushboolean(L, pSpy->m_bPassive);
 		lua_setfield(L, t, "Passive");
 #endif
@@ -15502,7 +15502,7 @@ int CvLuaPlayer::lGetEspionageSpies(lua_State* L)
 	}
 	return 1;
 }
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_API_ESPIONAGE)
+#if defined(MOD_API_LUA_EXTENSIONS)
 //------------------------------------------------------------------------------
 int CvLuaPlayer::lEspionageCreateSpy(lua_State* L)
 {

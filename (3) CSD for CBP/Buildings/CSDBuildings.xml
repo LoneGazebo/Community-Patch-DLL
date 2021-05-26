@@ -54,11 +54,11 @@
 			<Civilopedia>TXT_KEY_CIV5_BUILDINGS_COURT_SCRIBE_TEXT</Civilopedia>
 			<Strategy>TXT_KEY_BUILDING_COURT_SCRIBE_STRATEGY</Strategy>
 			<GreatPeopleRateChange>1</GreatPeopleRateChange>
+			<NukeImmune>true</NukeImmune>
 			<SpecialistCount>1</SpecialistCount>
 			<SpecialistType>SPECIALIST_CIVIL_SERVANT</SpecialistType>
 			<ArtDefineTag>ART_DEF_BUILDING_MARKET</ArtDefineTag>
 			<MinAreaSize>-1</MinAreaSize>
-			<NukeImmune>true</NukeImmune>
 			<NeverCapture>true</NeverCapture>
 			<HurryCostModifier>-1</HurryCostModifier>
 			<IconAtlas>CSDBUILDINGS_ATLAS</IconAtlas>
@@ -160,12 +160,12 @@
 			<PrereqTech>TECH_BALLISTICS</PrereqTech>
 			<Help>TXT_KEY_BUILDING_EHRENHALLE_HELP</Help>
 			<Description>TXT_KEY_BUILDING_EHRENHALLE</Description>
-			<NukeImmune>true</NukeImmune>
 			<NeverCapture>true</NeverCapture>
 			<Civilopedia>TXT_KEY_CIV5_BUILDINGS_EHRENHALLE_TEXT</Civilopedia>
 			<Strategy>TXT_KEY_BUILDING_EHRENHALLE_STRATEGY</Strategy>
 			<ArtDefineTag>ART_DEF_BUILDING_MARKET</ArtDefineTag>
 			<CapitalsToVotes>2</CapitalsToVotes>
+			<NukeImmune>true</NukeImmune>
 			<SpecialistType>SPECIALIST_CIVIL_SERVANT</SpecialistType>
 			<GreatPeopleRateChange>1</GreatPeopleRateChange>
 			<PolicyBranchType>POLICY_BRANCH_AUTOCRACY</PolicyBranchType>
@@ -1061,7 +1061,7 @@
 		<Row>
 			<BuildingType>BUILDING_COURT_SCRIBE</BuildingType>
 			<YieldType>YIELD_FAITH</YieldType>
-			<Yield>2</Yield>
+			<Yield>1</Yield>
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_CHANCERY</BuildingType>

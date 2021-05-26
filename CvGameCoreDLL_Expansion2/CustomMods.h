@@ -110,14 +110,6 @@
 // Comment these lines out to remove the associated code from the DLL,
 // Alternatively, set the associated entries in the CustomModOptions table to disable(0) or enable(1) at load-time
 
-// Enables the Espionage API - AFFECTS SAVE GAME DATA FORMAT
-#define MOD_API_ESPIONAGE                           gCustomMods.isAPI_ESPIONAGE()
-// Enables the Trade Routes API - AFFECTS SAVE GAME DATA FORMAT (v23)
-#define MOD_API_TRADEROUTES                         gCustomMods.isAPI_TRADEROUTES()
-// Enables the Religion API
-#define MOD_API_RELIGION                            gCustomMods.isAPI_RELIGION()
-// Enables the Plot Based Damage API (replaces fixed damage from mountains)
-#define MOD_API_PLOT_BASED_DAMAGE                   gCustomMods.isAPI_PLOT_BASED_DAMAGE()
 // Enables the Plot Yield tables (v35)
 #define MOD_API_PLOT_YIELDS                         gCustomMods.isAPI_PLOT_YIELDS()
 // Enables the Achievements table (v45)
@@ -471,6 +463,8 @@
 #define MOD_RELIGION_PASSIVE_SPREAD_WITH_TRADE_ONLY gCustomMods.isRELIGION_PASSIVE_SPREAD_WITH_TRADE_ONLY()
 // Enables several additional tables related to beliefs
 #define MOD_RELIGION_EXTENSIONS						gCustomMods.isRELIGION_EXTENSIONS()
+// Civilizations benefit from their pantheons even after converted to another religion
+#define MOD_RELIGION_PERMANENT_PANTHEON				gCustomMods.isRELIGION_PERMANENT_PANTHEON()
 
 // if true, only cities cannot do ranged strikes
 #define MOD_CORE_NO_RANGED_ATTACK_FROM_CITIES		gCustomMods.isCORE_NO_RANGED_ATTACK_FROM_CITIES()
@@ -1439,6 +1433,7 @@ public:
 	MOD_OPT_DECL(RELIGION_LOCAL_RELIGIONS);
 	MOD_OPT_DECL(RELIGION_PASSIVE_SPREAD_WITH_TRADE_ONLY);
 	MOD_OPT_DECL(RELIGION_EXTENSIONS);
+	MOD_OPT_DECL(RELIGION_PERMANENT_PANTHEON);
 
 	MOD_OPT_DECL(CORE_NO_RANGED_ATTACK_FROM_CITIES);
 	MOD_OPT_DECL(PROCESS_STOCKPILE);
@@ -1512,10 +1507,6 @@ public:
 	MOD_OPT_DECL(EVENTS_RED_COMBAT_RESULT);
 	MOD_OPT_DECL(EVENTS_RED_COMBAT_ENDED);
 	MOD_OPT_DECL(ACTIVE_DIPLOMACY);
-	MOD_OPT_DECL(API_ESPIONAGE);
-	MOD_OPT_DECL(API_TRADEROUTES);
-	MOD_OPT_DECL(API_RELIGION);
-	MOD_OPT_DECL(API_PLOT_BASED_DAMAGE);
 	MOD_OPT_DECL(API_PLOT_YIELDS);
 	MOD_OPT_DECL(API_ACHIEVEMENTS);
 	MOD_OPT_DECL(API_EXTENSIONS);

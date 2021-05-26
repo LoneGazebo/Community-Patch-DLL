@@ -1198,15 +1198,7 @@ int PathEndTurnCost(CvPlot* pToPlot, const CvPathNodeCacheData& kToNodeCacheData
 	{
 		if(pToPlot->getFeatureType() != NO_FEATURE)
 		{
-#if defined(MOD_API_PLOT_BASED_DAMAGE)
-			if (MOD_API_PLOT_BASED_DAMAGE) {
-				iCost += (GC.getPATH_DAMAGE_WEIGHT() * std::max(0, pToPlot->getTurnDamage(pUnit->ignoreTerrainDamage(), pUnit->ignoreFeatureDamage(), pUnit->extraTerrainDamage(), pUnit->extraFeatureDamage()))) / GC.getMAX_HIT_POINTS();
-			} else {
-#endif
-				iCost += (GC.getPATH_DAMAGE_WEIGHT() * std::max(0, GC.getFeatureInfo(pToPlot->getFeatureType())->getTurnDamage())) / GC.getMAX_HIT_POINTS();
-#if defined(MOD_API_PLOT_BASED_DAMAGE)
-			}
-#endif
+			iCost += (GC.getPATH_DAMAGE_WEIGHT() * std::max(0, pToPlot->getTurnDamage(pUnit->ignoreTerrainDamage(), pUnit->ignoreFeatureDamage(), pUnit->extraTerrainDamage(), pUnit->extraFeatureDamage()))) / GC.getMAX_HIT_POINTS();
 		}
 
 		if(pToPlot->getExtraMovePathCost() > 0)
