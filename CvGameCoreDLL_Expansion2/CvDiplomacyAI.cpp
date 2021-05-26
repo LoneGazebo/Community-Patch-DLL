@@ -1024,11 +1024,6 @@ const CvPlayer* CvDiplomacyAI::GetPlayer() const
 {
 	return m_pPlayer;
 }
-/// Returns the Team ID this AI's player is associated with
-TeamTypes CvDiplomacyAI::GetTeam() const
-{
-	return m_pPlayer->getTeam();
-}
 
 
 // ************************************
@@ -45203,7 +45198,7 @@ int CvDiplomacyAI::GetTooManyVassalsScore(PlayerTypes ePlayer) const
 	for (int iI = 0; iI < MAX_MAJOR_CIVS; iI++)
 	{
 		// Only civs we have met
-		if (GET_TEAM(m_pPlayer->getTeam()).isHasMet(GET_PLAYER((PlayerTypes)iI).getTeam()))
+		if (GET_TEAM(GetTeam()).isHasMet(GET_PLAYER((PlayerTypes)iI).getTeam()))
 		{
 			if (GET_TEAM(GET_PLAYER((PlayerTypes)iI).getTeam()).IsVassal(GET_PLAYER(ePlayer).getTeam()))
 			{
@@ -51810,7 +51805,7 @@ bool CvDiplomacyAI::IsWantToLiberateVassal(PlayerTypes ePlayer) const
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 
-	TeamTypes eMyTeam = m_pPlayer->getTeam();
+	TeamTypes eMyTeam = GetTeam();
 	CvTeam& kMyTeam = GET_TEAM(eMyTeam);
 
 	TeamTypes eVassalTeam = GET_PLAYER(ePlayer).getTeam();
