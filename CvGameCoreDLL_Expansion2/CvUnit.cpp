@@ -149,7 +149,7 @@ CvUnit::CvUnit()
 	reset(0, NO_UNIT, NO_PLAYER, true);
 
 	// Units only get sync var interfaces in multiplayer
-	if (GC.getGame().isNetworkMultiPlayer() || true)
+	if (GC.getGame().isNetworkMultiPlayer())
 	{
 		m_syncArchive.setSyncVars(*(FNEW(SyncArchive::SyncVars(m_syncArchive), c_eCiv5GameplayDLL, 0)));
 	}
