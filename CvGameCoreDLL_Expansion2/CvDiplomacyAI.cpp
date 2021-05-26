@@ -52387,7 +52387,7 @@ bool CvDiplomacyAI::IsCapitulationAcceptable(PlayerTypes ePlayer)
 
 			iCapitulationScore += 20;
 		}
-		else if (pLoopCity->IsBlockadedWaterAndLand() || pLoopCity->getDamage() >= (pLoopCity->GetMaxHitPoints()/2))
+		else if ((pLoopCity->IsBlockadedWaterAndLand() && pLoopCity->getDamage() >= (pLoopCity->GetMaxHitPoints()/4)) || pLoopCity->getDamage() >= (pLoopCity->GetMaxHitPoints()/2))
 		{
 			iCapitulationScore += 10;
 		}
@@ -52406,7 +52406,7 @@ bool CvDiplomacyAI::IsCapitulationAcceptable(PlayerTypes ePlayer)
 		{
 			return false;
 		}
-		else if (pLoopCity->IsBlockadedWaterAndLand())
+		else if (pLoopCity->IsBlockadedWaterAndLand() && pLoopCity->getDamage() >= (pLoopCity->GetMaxHitPoints()/4))
 		{
 			// Don't surrender if we could get our capital or Holy City back!
 			if (pLoopCity->IsOriginalCapitalForPlayer(GetPlayer()->GetID()) || pLoopCity->GetCityReligions()->IsHolyCityForReligion(GetPlayer()->GetReligions()->GetCurrentReligion(false)))
@@ -52912,11 +52912,13 @@ bool CvDiplomacyAI::IsVoluntaryVassalageRequestAcceptable(PlayerTypes ePlayer)
 	}
 
 	// Do not accept voluntary capitulation if we need their capitals to win.
+	/* - commented out due to change with vassal logic
 	if (IsGoingForWorldConquest() || IsCloseToDominationVictory())
 	{
 		if (iNumCaps > 0)
 			return false;
 	}
+	*/
 
 	// We must be willing to go to war with everyone they're currently at war with.
 	vector<PlayerTypes> vNewWarPlayers;
