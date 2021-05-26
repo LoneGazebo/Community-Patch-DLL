@@ -20,6 +20,7 @@
 #include "CvInfos.h"
 #include "CvPromotionClasses.h"
 #include "CvAStarNode.h"
+#include "CvSerialize.h"
 
 #define DEFAULT_UNIT_MAP_LAYER 0
 #define TRADE_UNIT_MAP_LAYER 1
@@ -104,6 +105,323 @@ enum AreaEffectType
 	AE_SAPPER,
 	AE_SIEGETOWER
 };
+
+SYNC_OBJECT_BEGIN(CvUnit)
+SYNC_OBJECT_VAR(PlayerTypes, m_eOwner, true)
+SYNC_OBJECT_VAR(PlayerTypes, m_eOriginalOwner, true)
+SYNC_OBJECT_VAR(UnitTypes, m_eUnitType, true)
+SYNC_OBJECT_VAR(int, m_iX, true)
+SYNC_OBJECT_VAR(int, m_iY, true)
+SYNC_OBJECT_VAR(int, m_iID, true)
+SYNC_OBJECT_VAR(int, m_iDamage, true)
+SYNC_OBJECT_VAR(int, m_iMoves, true)
+SYNC_OBJECT_VAR(int, m_iArmyId, true)
+SYNC_OBJECT_VAR(int, m_iBaseCombat, true)
+SYNC_OBJECT_VAR(int, m_iBaseRangedCombat, true)
+SYNC_OBJECT_VAR(int, m_iHotKeyNumber, true)
+SYNC_OBJECT_VAR(int, m_iDeployFromOperationTurn, true)
+SYNC_OBJECT_VAR(int, m_iLastMoveTurn, true)
+SYNC_OBJECT_VAR(int, m_iReconX, true)
+SYNC_OBJECT_VAR(int, m_iReconY, true)
+SYNC_OBJECT_VAR(int, m_iReconCount, true)
+SYNC_OBJECT_VAR(int, m_iGameTurnCreated, true)
+SYNC_OBJECT_VAR(bool, m_bImmobile, true)
+SYNC_OBJECT_VAR(int, m_iExperienceTimes100, true)
+SYNC_OBJECT_VAR(int, m_iLevel, true)
+SYNC_OBJECT_VAR(int, m_iCargo, true)
+SYNC_OBJECT_VAR(int, m_iCargoCapacity, true)
+SYNC_OBJECT_VAR(int, m_iAttackPlotX, true)
+SYNC_OBJECT_VAR(int, m_iAttackPlotY, true)
+SYNC_OBJECT_VAR(int, m_iCombatTimer, true)
+SYNC_OBJECT_VAR(int, m_iCombatFirstStrikes, true)
+SYNC_OBJECT_VAR(int, m_iCombatDamage, true)
+SYNC_OBJECT_VAR(bool, m_bMovedThisTurn, true)
+SYNC_OBJECT_VAR(bool, m_bFortified, true)
+SYNC_OBJECT_VAR(int, m_iBlitzCount, true)
+SYNC_OBJECT_VAR(int, m_iAmphibCount, true)
+SYNC_OBJECT_VAR(int, m_iRiverCrossingNoPenaltyCount, true)
+SYNC_OBJECT_VAR(int, m_iEnemyRouteCount, true)
+SYNC_OBJECT_VAR(int, m_iRivalTerritoryCount, true)
+SYNC_OBJECT_VAR(int, m_iIsSlowInEnemyLandCount, true)
+SYNC_OBJECT_VAR(int, m_iRangeAttackIgnoreLOSCount, true)
+SYNC_OBJECT_VAR(int, m_iCityAttackOnlyCount, true)
+SYNC_OBJECT_VAR(int, m_iCaptureDefeatedEnemyCount, true)
+SYNC_OBJECT_VAR(int, m_iOriginCity, true)
+SYNC_OBJECT_VAR(int, m_iCannotBeCapturedCount, true)
+SYNC_OBJECT_VAR(int, m_iForcedDamage, true)
+SYNC_OBJECT_VAR(int, m_iChangeDamage, true)
+SYNC_OBJECT_VAR(SYNC_OBJECT_VAR_TYPE(std::map<PromotionTypes, int>), m_PromotionDuration, true)
+SYNC_OBJECT_VAR(SYNC_OBJECT_VAR_TYPE(std::map<PromotionTypes, int>), m_TurnPromotionGained, true)
+SYNC_OBJECT_VAR(int, m_iRangedSupportFireCount, true)
+SYNC_OBJECT_VAR(int, m_iAlwaysHealCount, true)
+SYNC_OBJECT_VAR(int, m_iHealOutsideFriendlyCount, true)
+SYNC_OBJECT_VAR(int, m_iHillsDoubleMoveCount, true)
+SYNC_OBJECT_VAR(int, m_iMountainsDoubleMoveCount, true)
+SYNC_OBJECT_VAR(int, m_iEmbarkFlatCostCount, true)
+SYNC_OBJECT_VAR(int, m_iDisembarkFlatCostCount, true)
+SYNC_OBJECT_VAR(int, m_iAOEDamageOnKill, true)
+SYNC_OBJECT_VAR(int, m_iAoEDamageOnMove, true)
+SYNC_OBJECT_VAR(int, m_iSplashDamage, true)
+SYNC_OBJECT_VAR(int, m_iMultiAttackBonus, true)
+SYNC_OBJECT_VAR(int, m_iLandAirDefenseValue, true)
+SYNC_OBJECT_VAR(int, m_iImmuneToFirstStrikesCount, true)
+SYNC_OBJECT_VAR(int, m_iExtraVisibilityRange, true)
+SYNC_OBJECT_VAR(int, m_iExtraReconRange, true)
+SYNC_OBJECT_VAR(int, m_iExtraMoves, true)
+SYNC_OBJECT_VAR(int, m_iExtraMoveDiscount, true)
+SYNC_OBJECT_VAR(int, m_iExtraRange, true)
+SYNC_OBJECT_VAR(int, m_iInterceptChance, true)
+SYNC_OBJECT_VAR(int, m_iExtraEvasion, true)
+SYNC_OBJECT_VAR(int, m_iExtraFirstStrikes, true)
+SYNC_OBJECT_VAR(int, m_iExtraChanceFirstStrikes, true)
+SYNC_OBJECT_VAR(int, m_iExtraWithdrawal, true)
+SYNC_OBJECT_VAR(int, m_iPlagueChance, true)
+SYNC_OBJECT_VAR(int, m_iIsPlagued, true)
+SYNC_OBJECT_VAR(int, m_iPlagueID, true)
+SYNC_OBJECT_VAR(int, m_iPlaguePriority, true)
+SYNC_OBJECT_VAR(int, m_iPlagueIDImmunity, true)
+SYNC_OBJECT_VAR(int, m_iPlaguePromotion, true)
+SYNC_OBJECT_VAR(ContractTypes, m_eUnitContract, true)
+SYNC_OBJECT_VAR(int, m_iNegatorPromotion, true)
+SYNC_OBJECT_VAR(bool, m_bIsNoMaintenance, true)
+SYNC_OBJECT_VAR(int, m_iExtraEnemyHeal, true)
+SYNC_OBJECT_VAR(int, m_iExtraNeutralHeal, true)
+SYNC_OBJECT_VAR(int, m_iExtraFriendlyHeal, true)
+SYNC_OBJECT_VAR(int, m_iEnemyDamageChance, true)
+SYNC_OBJECT_VAR(int, m_iNeutralDamageChance, true)
+SYNC_OBJECT_VAR(int, m_iEnemyDamage, true)
+SYNC_OBJECT_VAR(int, m_iNeutralDamage, true)
+SYNC_OBJECT_VAR(int, m_iNearbyEnemyCombatMod, true)
+SYNC_OBJECT_VAR(int, m_iNearbyEnemyCombatRange, true)
+SYNC_OBJECT_VAR(int, m_iSameTileHeal, true)
+SYNC_OBJECT_VAR(int, m_iAdjacentTileHeal, true)
+SYNC_OBJECT_VAR(int, m_iAdjacentModifier, true)
+SYNC_OBJECT_VAR(int, m_iRangedAttackModifier, true)
+SYNC_OBJECT_VAR(int, m_iInterceptionCombatModifier, true)
+SYNC_OBJECT_VAR(int, m_iInterceptionDefenseDamageModifier, true)
+SYNC_OBJECT_VAR(int, m_iAirSweepCombatModifier, true)
+SYNC_OBJECT_VAR(int, m_iAttackModifier, true)
+SYNC_OBJECT_VAR(int, m_iDefenseModifier, true)
+SYNC_OBJECT_VAR(int, m_iGroundAttackDamage, true)
+SYNC_OBJECT_VAR(int, m_iExtraCombatPercent, true)
+SYNC_OBJECT_VAR(int, m_iExtraCityAttackPercent, true)
+SYNC_OBJECT_VAR(int, m_iExtraCityDefensePercent, true)
+SYNC_OBJECT_VAR(int, m_iExtraRangedDefenseModifier, true)
+SYNC_OBJECT_VAR(int, m_iExtraHillsAttackPercent, true)
+SYNC_OBJECT_VAR(int, m_iExtraHillsDefensePercent, true)
+SYNC_OBJECT_VAR(int, m_iExtraOpenAttackPercent, true)
+SYNC_OBJECT_VAR(int, m_iExtraOpenRangedAttackMod, true)
+SYNC_OBJECT_VAR(int, m_iExtraRoughAttackPercent, true)
+SYNC_OBJECT_VAR(int, m_iExtraRoughRangedAttackMod, true)
+SYNC_OBJECT_VAR(int, m_iExtraAttackFortifiedMod, true)
+SYNC_OBJECT_VAR(int, m_iExtraAttackWoundedMod, true)
+SYNC_OBJECT_VAR(int, m_iExtraFullyHealedMod, true)
+SYNC_OBJECT_VAR(int, m_iExtraAttackAboveHealthMod, true)
+SYNC_OBJECT_VAR(int, m_iExtraAttackBelowHealthMod, true)
+SYNC_OBJECT_VAR(int, m_iFlankAttackModifier, true)
+SYNC_OBJECT_VAR(int, m_iExtraOpenDefensePercent, true)
+SYNC_OBJECT_VAR(int, m_iExtraRoughDefensePercent, true)
+SYNC_OBJECT_VAR(int, m_iExtraOpenFromPercent, true)
+SYNC_OBJECT_VAR(int, m_iExtraRoughFromPercent, true)
+SYNC_OBJECT_VAR(int, m_iPillageChange, true)
+SYNC_OBJECT_VAR(int, m_iUpgradeDiscount, true)
+SYNC_OBJECT_VAR(int, m_iExperiencePercent, true)
+SYNC_OBJECT_VAR(int, m_iDropRange, true)
+SYNC_OBJECT_VAR(int, m_iAirSweepCapableCount, true)
+SYNC_OBJECT_VAR(int, m_iExtraNavalMoves, true)
+SYNC_OBJECT_VAR(int, m_iKamikazePercent, true)
+SYNC_OBJECT_VAR(DirectionTypes, m_eFacingDirection, true)
+SYNC_OBJECT_VAR(int, m_iIgnoreTerrainCostCount, true)
+SYNC_OBJECT_VAR(int, m_iIgnoreTerrainDamageCount, true)
+SYNC_OBJECT_VAR(int, m_iIgnoreFeatureDamageCount, true)
+SYNC_OBJECT_VAR(int, m_iExtraTerrainDamageCount, true)
+SYNC_OBJECT_VAR(int, m_iExtraFeatureDamageCount, true)
+SYNC_OBJECT_VAR(int, m_iNearbyImprovementCombatBonus, true)
+SYNC_OBJECT_VAR(int, m_iNearbyImprovementBonusRange, true)
+SYNC_OBJECT_VAR(ImprovementTypes, m_eCombatBonusImprovement, true)
+SYNC_OBJECT_VAR(int, m_iNearbyUnitClassBonus, true)
+SYNC_OBJECT_VAR(int, m_iNearbyUnitClassBonusRange, true)
+SYNC_OBJECT_VAR(UnitClassTypes, m_iCombatBonusFromNearbyUnitClass, true)
+SYNC_OBJECT_VAR(int, m_bNearbyPromotion, true)
+SYNC_OBJECT_VAR(int, m_iNearbyUnitPromotionRange, true)
+SYNC_OBJECT_VAR(int, m_iNearbyCityCombatMod, true)
+SYNC_OBJECT_VAR(int, m_iNearbyFriendlyCityCombatMod, true)
+SYNC_OBJECT_VAR(int, m_iNearbyEnemyCityCombatMod, true)
+SYNC_OBJECT_VAR(int, m_iPillageBonusStrengthPercent, true)
+SYNC_OBJECT_VAR(int, m_iStackedGreatGeneralExperience, true)
+SYNC_OBJECT_VAR(int, m_bIsHighSeaRaider, true)
+SYNC_OBJECT_VAR(int, m_iWonderProductionModifier, true)
+SYNC_OBJECT_VAR(int, m_iUnitProductionModifier, true)
+SYNC_OBJECT_VAR(int, m_iNearbyEnemyDamage, true)
+SYNC_OBJECT_VAR(int, m_iGGGAXPPercent, true)
+SYNC_OBJECT_VAR(int, m_iGiveCombatMod, true)
+SYNC_OBJECT_VAR(int, m_iGiveHPIfEnemyKilled, true)
+SYNC_OBJECT_VAR(int, m_iGiveExperiencePercent, true)
+SYNC_OBJECT_VAR(int, m_iGiveOutsideFriendlyLandsModifier, true)
+SYNC_OBJECT_VAR(int, m_eGiveDomain, true)
+SYNC_OBJECT_VAR(int, m_iGiveExtraAttacks, true)
+SYNC_OBJECT_VAR(int, m_iGiveDefenseMod, true)
+SYNC_OBJECT_VAR(int, m_bGiveInvisibility, true)
+SYNC_OBJECT_VAR(int, m_bGiveOnlyOnStartingTurn, true)
+SYNC_OBJECT_VAR(int, m_bConvertUnit, true)
+SYNC_OBJECT_VAR(int, m_eConvertDomain, true)
+SYNC_OBJECT_VAR(UnitTypes, m_eConvertDomainUnit, true)
+SYNC_OBJECT_VAR(int, m_bConvertEnemyUnitToBarbarian, true)
+SYNC_OBJECT_VAR(int, m_bConvertOnFullHP, true)
+SYNC_OBJECT_VAR(int, m_bConvertOnDamage, true)
+SYNC_OBJECT_VAR(int, m_iDamageThreshold, true)
+SYNC_OBJECT_VAR(UnitTypes, m_eConvertDamageOrFullHPUnit, true)
+SYNC_OBJECT_VAR(int, m_iNumberOfCultureBombs, true)
+SYNC_OBJECT_VAR(int, m_iNearbyHealEnemyTerritory, true)
+SYNC_OBJECT_VAR(int, m_iNearbyHealNeutralTerritory, true)
+SYNC_OBJECT_VAR(int, m_iNearbyHealFriendlyTerritory, true)
+SYNC_OBJECT_VAR(int, m_iCanCrossMountainsCount, true)
+SYNC_OBJECT_VAR(int, m_iCanCrossOceansCount, true)
+SYNC_OBJECT_VAR(int, m_iCanCrossIceCount, true)
+SYNC_OBJECT_VAR(int, m_iNumTilesRevealedThisTurn, true)
+SYNC_OBJECT_VAR(int, m_bSpottedEnemy, true)
+SYNC_OBJECT_VAR(int, m_iGainsXPFromScouting, true)
+SYNC_OBJECT_VAR(int, m_iGainsXPFromPillaging, true)
+SYNC_OBJECT_VAR(int, m_iGainsXPFromSpotting, true)
+SYNC_OBJECT_VAR(int, m_iCaptureDefeatedEnemyChance, true)
+SYNC_OBJECT_VAR(int, m_iBarbCombatBonus, true)
+SYNC_OBJECT_VAR(int, m_iAdjacentEnemySapMovement, true)
+SYNC_OBJECT_VAR(int, m_iGGFromBarbariansCount, true)
+SYNC_OBJECT_VAR(int, m_iAuraRangeChange, true)
+SYNC_OBJECT_VAR(int, m_iAuraEffectChange, true)
+SYNC_OBJECT_VAR(int, m_iNumRepairCharges, true)
+SYNC_OBJECT_VAR(int, m_iMilitaryCapChange, true)
+SYNC_OBJECT_VAR(int, m_iRoughTerrainEndsTurnCount, true)
+SYNC_OBJECT_VAR(int, m_iEmbarkAbilityCount, true)
+SYNC_OBJECT_VAR(int, m_iHoveringUnitCount, true)
+SYNC_OBJECT_VAR(int, m_iFlatMovementCostCount, true)
+SYNC_OBJECT_VAR(int, m_iCanMoveImpassableCount, true)
+SYNC_OBJECT_VAR(int, m_iOnlyDefensiveCount, true)
+SYNC_OBJECT_VAR(int, m_iNoDefensiveBonusCount, true)
+SYNC_OBJECT_VAR(int, m_iNoCaptureCount, true)
+SYNC_OBJECT_VAR(int, m_iNukeImmuneCount, true)
+SYNC_OBJECT_VAR(int, m_iHiddenNationalityCount, true)
+SYNC_OBJECT_VAR(int, m_iAlwaysHostileCount, true)
+SYNC_OBJECT_VAR(int, m_iNoRevealMapCount, true)
+SYNC_OBJECT_VAR(int, m_iCanMoveAllTerrainCount, true)
+SYNC_OBJECT_VAR(int, m_iCanMoveAfterAttackingCount, true)
+SYNC_OBJECT_VAR(int, m_iFreePillageMoveCount, true)
+SYNC_OBJECT_VAR(int, m_iHealOnPillageCount, true)
+SYNC_OBJECT_VAR(int, m_iHPHealedIfDefeatEnemy, true)
+SYNC_OBJECT_VAR(int, m_iGoldenAgeValueFromKills, true)
+SYNC_OBJECT_VAR(int, m_iTacticalAIPlotX, true)
+SYNC_OBJECT_VAR(int, m_iTacticalAIPlotY, true)
+SYNC_OBJECT_VAR(int, m_iGarrisonCityID, true)
+SYNC_OBJECT_VAR(int, m_iNumAttacks, true)
+SYNC_OBJECT_VAR(int, m_iAttacksMade, true)
+SYNC_OBJECT_VAR(int, m_iGreatGeneralCount, true)
+SYNC_OBJECT_VAR(int, m_iGreatAdmiralCount, true)
+SYNC_OBJECT_VAR(int, m_iGreatGeneralModifier, true)
+SYNC_OBJECT_VAR(int, m_iGreatGeneralReceivesMovementCount, true)
+SYNC_OBJECT_VAR(int, m_iGreatGeneralCombatModifier, true)
+SYNC_OBJECT_VAR(int, m_iIgnoreGreatGeneralBenefit, true)
+SYNC_OBJECT_VAR(int, m_iIgnoreZOC, true)
+SYNC_OBJECT_VAR(int, m_iNoSupply, true)
+SYNC_OBJECT_VAR(int, m_iMaxHitPointsChange, true)
+SYNC_OBJECT_VAR(int, m_iMaxHitPointsModifier, true)
+SYNC_OBJECT_VAR(int, m_iFriendlyLandsModifier, true)
+SYNC_OBJECT_VAR(int, m_iFriendlyLandsAttackModifier, true)
+SYNC_OBJECT_VAR(int, m_iOutsideFriendlyLandsModifier, true)
+SYNC_OBJECT_VAR(int, m_iHealIfDefeatExcludeBarbariansCount, true)
+SYNC_OBJECT_VAR(int, m_iNumInterceptions, true)
+SYNC_OBJECT_VAR(int, m_iExtraAirInterceptRange, true)
+SYNC_OBJECT_VAR(int, m_iMadeInterceptionCount, true)
+SYNC_OBJECT_VAR(int, m_iEverSelectedCount, true)
+SYNC_OBJECT_VAR(int, m_iSapperCount, true)
+SYNC_OBJECT_VAR(int, m_iCanHeavyCharge, true)
+SYNC_OBJECT_VAR(int, m_iStrongerDamaged, true)
+SYNC_OBJECT_VAR(int, m_iFightWellDamaged, true)
+SYNC_OBJECT_VAR(int, m_iCanMoraleBreak, true)
+SYNC_OBJECT_VAR(int, m_iDamageAoEFortified, true)
+SYNC_OBJECT_VAR(int, m_iWorkRateMod, true)
+SYNC_OBJECT_VAR(int, m_iDamageReductionCityAssault, true)
+SYNC_OBJECT_VAR(int, m_iGoodyHutYieldBonus, true)
+SYNC_OBJECT_VAR(int, m_iReligiousPressureModifier, true)
+SYNC_OBJECT_VAR(int, m_iNumExoticGoods, true)
+SYNC_OBJECT_VAR(bool, m_bPromotionReady, true)
+SYNC_OBJECT_VAR(bool, m_bDeathDelay, true)
+SYNC_OBJECT_VAR(bool, m_bCombatFocus, true)
+SYNC_OBJECT_VAR(bool, m_bInfoBarDirty, true)
+SYNC_OBJECT_VAR(bool, m_bNotConverting, true)
+SYNC_OBJECT_VAR(bool, m_bAirCombat, true)
+SYNC_OBJECT_VAR(bool, m_bSetUpForRangedAttack, true)
+SYNC_OBJECT_VAR(bool, m_bEmbarked, true)
+SYNC_OBJECT_VAR(bool, m_bPromotedFromGoody, true)
+SYNC_OBJECT_VAR(bool, m_bAITurnProcessed, true)
+SYNC_OBJECT_VAR(int, m_iDamageTakenThisTurn, true)
+SYNC_OBJECT_VAR(int, m_iDamageTakenLastTurn, true)
+SYNC_OBJECT_VAR(PlayerTypes, m_eCapturingPlayer, true)
+SYNC_OBJECT_VAR(bool, m_bCapturedAsIs, true)
+SYNC_OBJECT_VAR(UnitTypes, m_eLeaderUnitType, true)
+SYNC_OBJECT_VAR(InvisibleTypes, m_eInvisibleType, true)
+SYNC_OBJECT_VAR(InvisibleTypes, m_eSeeInvisibleType, true)
+SYNC_OBJECT_VAR(GreatPeopleDirectiveTypes, m_eGreatPeopleDirectiveType, true)
+SYNC_OBJECT_VAR(CvString, m_strScriptData, true)
+SYNC_OBJECT_VAR(int, m_iScenarioData, true)
+SYNC_OBJECT_VAR(int, m_iBuilderStrength, true)
+SYNC_OBJECT_VAR(TerrainTypeCounter, m_terrainDoubleMoveCount, true)
+SYNC_OBJECT_VAR(FeatureTypeCounter, m_featureDoubleMoveCount, true)
+SYNC_OBJECT_VAR(TerrainTypeCounter, m_terrainHalfMoveCount, true)
+SYNC_OBJECT_VAR(FeatureTypeCounter, m_featureHalfMoveCount, true)
+SYNC_OBJECT_VAR(TerrainTypeCounter, m_terrainExtraMoveCount, true)
+SYNC_OBJECT_VAR(FeatureTypeCounter, m_featureExtraMoveCount, true)
+SYNC_OBJECT_VAR(TerrainTypeCounter, m_terrainDoubleHeal, true)
+SYNC_OBJECT_VAR(FeatureTypeCounter, m_featureDoubleHeal, true)
+SYNC_OBJECT_VAR(TerrainTypeCounter, m_terrainImpassableCount, true)
+SYNC_OBJECT_VAR(FeatureTypeCounter, m_featureImpassableCount, true)
+SYNC_OBJECT_VAR(TerrainTypeCounter, m_extraTerrainAttackPercent, true)
+SYNC_OBJECT_VAR(TerrainTypeCounter, m_extraTerrainDefensePercent, true)
+SYNC_OBJECT_VAR(FeatureTypeCounter, m_extraFeatureAttackPercent, true)
+SYNC_OBJECT_VAR(FeatureTypeCounter, m_extraFeatureDefensePercent, true)
+SYNC_OBJECT_VAR(UnitClassCounter, m_extraUnitClassAttackMod, true)
+SYNC_OBJECT_VAR(UnitClassCounter, m_extraUnitClassDefenseMod, true)
+SYNC_OBJECT_VAR(std::vector<int>, m_aiNumTimesAttackedThisTurn, true)
+SYNC_OBJECT_VAR(std::vector<int>, m_yieldFromScouting, true)
+SYNC_OBJECT_VAR(std::vector<int>, m_yieldFromKills, true)
+SYNC_OBJECT_VAR(std::vector<int>, m_yieldFromBarbarianKills, true)
+SYNC_OBJECT_VAR(std::vector<int>, m_extraUnitCombatModifier, true)
+SYNC_OBJECT_VAR(std::vector<int>, m_unitClassModifier, true)
+SYNC_OBJECT_VAR(std::vector<int>, m_iCombatModPerAdjacentUnitCombatModifier, true)
+SYNC_OBJECT_VAR(std::vector<int>, m_iCombatModPerAdjacentUnitCombatAttackMod, true)
+SYNC_OBJECT_VAR(std::vector<int>, m_iCombatModPerAdjacentUnitCombatDefenseMod, true)
+SYNC_OBJECT_VAR(int, m_iMissionTimer, true)
+SYNC_OBJECT_VAR(int, m_iMissionAIX, true)
+SYNC_OBJECT_VAR(int, m_iMissionAIY, true)
+SYNC_OBJECT_VAR(MissionAITypes, m_eMissionAIType, true)
+SYNC_OBJECT_VAR(ActivityTypes, m_eActivityType, true)
+SYNC_OBJECT_VAR(AutomateTypes, m_eAutomateType, true)
+SYNC_OBJECT_VAR(UnitAITypes, m_eUnitAIType, true)
+SYNC_OBJECT_VAR(int, m_eCombatType, true)
+SYNC_OBJECT_VAR(int, m_iEmbarkedAllWaterCount, true)
+SYNC_OBJECT_VAR(int, m_iEmbarkedDeepWaterCount, true)
+SYNC_OBJECT_VAR(int, m_iEmbarkExtraVisibility, true)
+SYNC_OBJECT_VAR(int, m_iEmbarkDefensiveModifier, true)
+SYNC_OBJECT_VAR(int, m_iCapitalDefenseModifier, true)
+SYNC_OBJECT_VAR(int, m_iCapitalDefenseFalloff, true)
+SYNC_OBJECT_VAR(int, m_iCityAttackPlunderModifier, true)
+SYNC_OBJECT_VAR(int, m_iReligiousStrengthLossRivalTerritory, true)
+SYNC_OBJECT_VAR(int, m_iTradeMissionInfluenceModifier, true)
+SYNC_OBJECT_VAR(int, m_iTradeMissionGoldModifier, true)
+SYNC_OBJECT_VAR(int, m_iDiploMissionInfluence, true)
+SYNC_OBJECT_VAR(int, m_iMapLayer, true)
+SYNC_OBJECT_VAR(int, m_iNumGoodyHutsPopped, true)
+SYNC_OBJECT_VAR(int, m_iTourismBlastStrength, true)
+SYNC_OBJECT_VAR(int, m_iTourismBlastLength, true)
+SYNC_OBJECT_VAR(int, m_iHurryStrength, true)
+SYNC_OBJECT_VAR(int, m_iScienceBlastStrength, true)
+SYNC_OBJECT_VAR(int, m_iCultureBlastStrength, true)
+SYNC_OBJECT_VAR(int, m_iGAPBlastStrength, true)
+SYNC_OBJECT_VAR(std::vector<bool>, m_abPromotionEverObtained, true)
+SYNC_OBJECT_VAR(AITacticalMove, m_eTacticalMove, true)
+SYNC_OBJECT_VAR(int, m_iTacticalMoveSetTurn, true)
+SYNC_OBJECT_VAR(AIHomelandMove, m_eHomelandMove, true)
+SYNC_OBJECT_VAR(int, m_iHomelandMoveSetTurn, true)
+SYNC_OBJECT_END()
 
 class CvUnit
 {
@@ -1745,6 +2063,9 @@ public:
 	const FAutoArchive& getSyncArchive() const;
 	FAutoArchive& getSyncArchive();
 
+	const CvSyncObject<CvUnit>& getSyncObject() const;
+	CvSyncObject<CvUnit>& getSyncObject();
+
 	// Mission routines
 	void PushMission(MissionTypes eMission, int iData1 = -1, int iData2 = -1, int iFlags = 0, bool bAppend = false, bool bManual = false, MissionAITypes eMissionAI = NO_MISSIONAI, CvPlot* pMissionAIPlot = NULL, CvUnit* pMissionAIUnit = NULL);
 	void PopMission();
@@ -1924,300 +2245,301 @@ protected:
 	bool UnitBuild(BuildTypes eBuild);
 
 	FAutoArchiveClassContainer<CvUnit> m_syncArchive;
+	SYNC_OBJECT_MEMBER(CvUnit)
 
-	FAutoVariable<PlayerTypes, CvUnit> m_eOwner;
-	FAutoVariable<PlayerTypes, CvUnit> m_eOriginalOwner;
-	FAutoVariable<UnitTypes, CvUnit> m_eUnitType;
-	FAutoVariable<int, CvUnit> m_iX;
-	FAutoVariable<int, CvUnit> m_iY;
-	FAutoVariable<int, CvUnit> m_iID;
+	SYNC_VAR_MEMBER(m_eOwner)
+	SYNC_VAR_MEMBER(m_eOriginalOwner)
+	SYNC_VAR_MEMBER(m_eUnitType)
+	SYNC_VAR_MEMBER(m_iX)
+	SYNC_VAR_MEMBER(m_iY)
+	SYNC_VAR_MEMBER(m_iID)
 
-	FAutoVariable<int, CvUnit> m_iDamage;
-	FAutoVariable<int, CvUnit> m_iMoves;
-	FAutoVariable<int, CvUnit> m_iArmyId;
-	FAutoVariable<int, CvUnit> m_iBaseCombat;
+	SYNC_VAR_MEMBER(m_iDamage)
+	SYNC_VAR_MEMBER(m_iMoves)
+	SYNC_VAR_MEMBER(m_iArmyId)
+	SYNC_VAR_MEMBER(m_iBaseCombat)
 #if defined(MOD_API_EXTENSIONS)
-	FAutoVariable<int, CvUnit> m_iBaseRangedCombat;
+	SYNC_VAR_MEMBER(m_iBaseRangedCombat)
 #endif
 
-	FAutoVariable<int, CvUnit> m_iHotKeyNumber;
-	FAutoVariable<int, CvUnit> m_iDeployFromOperationTurn;
-	FAutoVariable<int, CvUnit> m_iLastMoveTurn;
-	FAutoVariable<int, CvUnit> m_iReconX;
-	FAutoVariable<int, CvUnit> m_iReconY;
-	FAutoVariable<int, CvUnit> m_iReconCount;
-	FAutoVariable<int, CvUnit> m_iGameTurnCreated;
-	FAutoVariable<bool, CvUnit> m_bImmobile;
-	FAutoVariable<int, CvUnit> m_iExperienceTimes100;
-	FAutoVariable<int, CvUnit> m_iLevel;
-	FAutoVariable<int, CvUnit> m_iCargo;
-	FAutoVariable<int, CvUnit> m_iCargoCapacity;
-	FAutoVariable<int, CvUnit> m_iAttackPlotX;
-	FAutoVariable<int, CvUnit> m_iAttackPlotY;
-	FAutoVariable<int, CvUnit> m_iCombatTimer;
-	FAutoVariable<int, CvUnit> m_iCombatFirstStrikes;
-	FAutoVariable<int, CvUnit> m_iCombatDamage;
-	FAutoVariable<bool, CvUnit> m_bMovedThisTurn;
-	FAutoVariable<bool, CvUnit> m_bFortified;
-	FAutoVariable<int, CvUnit> m_iBlitzCount;
-	FAutoVariable<int, CvUnit> m_iAmphibCount;
-	FAutoVariable<int, CvUnit> m_iRiverCrossingNoPenaltyCount;
-	FAutoVariable<int, CvUnit> m_iEnemyRouteCount;
-	FAutoVariable<int, CvUnit> m_iRivalTerritoryCount;
-	FAutoVariable<int, CvUnit> m_iIsSlowInEnemyLandCount;
-	FAutoVariable<int, CvUnit> m_iRangeAttackIgnoreLOSCount;
-	FAutoVariable<int, CvUnit> m_iCityAttackOnlyCount;
-	FAutoVariable<int, CvUnit> m_iCaptureDefeatedEnemyCount;
+	SYNC_VAR_MEMBER(m_iHotKeyNumber)
+	SYNC_VAR_MEMBER(m_iDeployFromOperationTurn)
+	SYNC_VAR_MEMBER(m_iLastMoveTurn)
+	SYNC_VAR_MEMBER(m_iReconX)
+	SYNC_VAR_MEMBER(m_iReconY)
+	SYNC_VAR_MEMBER(m_iReconCount)
+	SYNC_VAR_MEMBER(m_iGameTurnCreated)
+	SYNC_VAR_MEMBER(m_bImmobile)
+	SYNC_VAR_MEMBER(m_iExperienceTimes100)
+	SYNC_VAR_MEMBER(m_iLevel)
+	SYNC_VAR_MEMBER(m_iCargo)
+	SYNC_VAR_MEMBER(m_iCargoCapacity)
+	SYNC_VAR_MEMBER(m_iAttackPlotX)
+	SYNC_VAR_MEMBER(m_iAttackPlotY)
+	SYNC_VAR_MEMBER(m_iCombatTimer)
+	SYNC_VAR_MEMBER(m_iCombatFirstStrikes)
+	SYNC_VAR_MEMBER(m_iCombatDamage)
+	SYNC_VAR_MEMBER(m_bMovedThisTurn)
+	SYNC_VAR_MEMBER(m_bFortified)
+	SYNC_VAR_MEMBER(m_iBlitzCount)
+	SYNC_VAR_MEMBER(m_iAmphibCount)
+	SYNC_VAR_MEMBER(m_iRiverCrossingNoPenaltyCount)
+	SYNC_VAR_MEMBER(m_iEnemyRouteCount)
+	SYNC_VAR_MEMBER(m_iRivalTerritoryCount)
+	SYNC_VAR_MEMBER(m_iIsSlowInEnemyLandCount)
+	SYNC_VAR_MEMBER(m_iRangeAttackIgnoreLOSCount)
+	SYNC_VAR_MEMBER(m_iCityAttackOnlyCount)
+	SYNC_VAR_MEMBER(m_iCaptureDefeatedEnemyCount)
 #if defined(MOD_BALANCE_CORE)
-	FAutoVariable<int, CvUnit> m_iOriginCity;
-	FAutoVariable<int, CvUnit> m_iCannotBeCapturedCount;
-	FAutoVariable<int, CvUnit> m_iForcedDamage;
-	FAutoVariable<int, CvUnit> m_iChangeDamage;
-	FAutoVariable<std::map<PromotionTypes, int>, CvUnit> m_PromotionDuration;
-	FAutoVariable<std::map<PromotionTypes, int>, CvUnit> m_TurnPromotionGained;
+	SYNC_VAR_MEMBER(m_iOriginCity)
+	SYNC_VAR_MEMBER(m_iCannotBeCapturedCount)
+	SYNC_VAR_MEMBER(m_iForcedDamage)
+	SYNC_VAR_MEMBER(m_iChangeDamage)
+	SYNC_VAR_MEMBER(m_PromotionDuration)
+	SYNC_VAR_MEMBER(m_TurnPromotionGained)
 #endif
-	FAutoVariable<int, CvUnit> m_iRangedSupportFireCount;
-	FAutoVariable<int, CvUnit> m_iAlwaysHealCount;
-	FAutoVariable<int, CvUnit> m_iHealOutsideFriendlyCount;
-	FAutoVariable<int, CvUnit> m_iHillsDoubleMoveCount;
+	SYNC_VAR_MEMBER(m_iRangedSupportFireCount)
+	SYNC_VAR_MEMBER(m_iAlwaysHealCount)
+	SYNC_VAR_MEMBER(m_iHealOutsideFriendlyCount)
+	SYNC_VAR_MEMBER(m_iHillsDoubleMoveCount)
 #if defined(MOD_BALANCE_CORE)
-	FAutoVariable<int, CvUnit> m_iMountainsDoubleMoveCount;
-	FAutoVariable<int, CvUnit> m_iEmbarkFlatCostCount;
-	FAutoVariable<int, CvUnit> m_iDisembarkFlatCostCount;
-	FAutoVariable<int, CvUnit> m_iAOEDamageOnKill;
-	FAutoVariable<int, CvUnit> m_iAoEDamageOnMove;
-	FAutoVariable<int, CvUnit> m_iSplashDamage;
-	FAutoVariable<int, CvUnit> m_iMultiAttackBonus;
-	FAutoVariable<int, CvUnit> m_iLandAirDefenseValue;
+	SYNC_VAR_MEMBER(m_iMountainsDoubleMoveCount)
+	SYNC_VAR_MEMBER(m_iEmbarkFlatCostCount)
+	SYNC_VAR_MEMBER(m_iDisembarkFlatCostCount)
+	SYNC_VAR_MEMBER(m_iAOEDamageOnKill)
+	SYNC_VAR_MEMBER(m_iAoEDamageOnMove)
+	SYNC_VAR_MEMBER(m_iSplashDamage)
+	SYNC_VAR_MEMBER(m_iMultiAttackBonus)
+	SYNC_VAR_MEMBER(m_iLandAirDefenseValue)
 #endif
-	FAutoVariable<int, CvUnit> m_iImmuneToFirstStrikesCount;
-	FAutoVariable<int, CvUnit> m_iExtraVisibilityRange;
+	SYNC_VAR_MEMBER(m_iImmuneToFirstStrikesCount)
+	SYNC_VAR_MEMBER(m_iExtraVisibilityRange)
 #if defined(MOD_PROMOTIONS_VARIABLE_RECON)
-	FAutoVariable<int, CvUnit> m_iExtraReconRange;
+	SYNC_VAR_MEMBER(m_iExtraReconRange)
 #endif
-	FAutoVariable<int, CvUnit> m_iExtraMoves;
-	FAutoVariable<int, CvUnit> m_iExtraMoveDiscount;
-	FAutoVariable<int, CvUnit> m_iExtraRange;
-	FAutoVariable<int, CvUnit> m_iInterceptChance;
-	FAutoVariable<int, CvUnit> m_iExtraEvasion;
-	FAutoVariable<int, CvUnit> m_iExtraFirstStrikes;
-	FAutoVariable<int, CvUnit> m_iExtraChanceFirstStrikes;
-	FAutoVariable<int, CvUnit> m_iExtraWithdrawal;
+	SYNC_VAR_MEMBER(m_iExtraMoves)
+	SYNC_VAR_MEMBER(m_iExtraMoveDiscount)
+	SYNC_VAR_MEMBER(m_iExtraRange)
+	SYNC_VAR_MEMBER(m_iInterceptChance)
+	SYNC_VAR_MEMBER(m_iExtraEvasion)
+	SYNC_VAR_MEMBER(m_iExtraFirstStrikes)
+	SYNC_VAR_MEMBER(m_iExtraChanceFirstStrikes)
+	SYNC_VAR_MEMBER(m_iExtraWithdrawal)
 #if defined(MOD_BALANCE_CORE_JFD)
-	FAutoVariable<int, CvUnit> m_iPlagueChance;
-	FAutoVariable<int, CvUnit> m_iIsPlagued;
-	FAutoVariable<int, CvUnit> m_iPlagueID;
-	FAutoVariable<int, CvUnit> m_iPlaguePriority;
-	FAutoVariable<int, CvUnit> m_iPlagueIDImmunity;
-	FAutoVariable<int, CvUnit> m_iPlaguePromotion;
-	FAutoVariable<ContractTypes, CvUnit> m_eUnitContract;
-	FAutoVariable<int, CvUnit> m_iNegatorPromotion;
+	SYNC_VAR_MEMBER(m_iPlagueChance)
+	SYNC_VAR_MEMBER(m_iIsPlagued)
+	SYNC_VAR_MEMBER(m_iPlagueID)
+	SYNC_VAR_MEMBER(m_iPlaguePriority)
+	SYNC_VAR_MEMBER(m_iPlagueIDImmunity)
+	SYNC_VAR_MEMBER(m_iPlaguePromotion)
+	SYNC_VAR_MEMBER(m_eUnitContract)
+	SYNC_VAR_MEMBER(m_iNegatorPromotion)
 #endif
-	FAutoVariable<bool, CvUnit> m_bIsNoMaintenance;
-	FAutoVariable<int, CvUnit> m_iExtraEnemyHeal;
-	FAutoVariable<int, CvUnit> m_iExtraNeutralHeal;
-	FAutoVariable<int, CvUnit> m_iExtraFriendlyHeal;
-	FAutoVariable<int, CvUnit> m_iEnemyDamageChance;
-	FAutoVariable<int, CvUnit> m_iNeutralDamageChance;
-	FAutoVariable<int, CvUnit> m_iEnemyDamage;
-	FAutoVariable<int, CvUnit> m_iNeutralDamage;
-	FAutoVariable<int, CvUnit> m_iNearbyEnemyCombatMod;
-	FAutoVariable<int, CvUnit> m_iNearbyEnemyCombatRange;
-	FAutoVariable<int, CvUnit> m_iSameTileHeal;
-	FAutoVariable<int, CvUnit> m_iAdjacentTileHeal;
-	FAutoVariable<int, CvUnit> m_iAdjacentModifier;
-	FAutoVariable<int, CvUnit> m_iRangedAttackModifier;
-	FAutoVariable<int, CvUnit> m_iInterceptionCombatModifier;
-	FAutoVariable<int, CvUnit> m_iInterceptionDefenseDamageModifier;
-	FAutoVariable<int, CvUnit> m_iAirSweepCombatModifier;
-	FAutoVariable<int, CvUnit> m_iAttackModifier;
-	FAutoVariable<int, CvUnit> m_iDefenseModifier;
-	FAutoVariable<int, CvUnit> m_iGroundAttackDamage;
-	FAutoVariable<int, CvUnit> m_iExtraCombatPercent;
-	FAutoVariable<int, CvUnit> m_iExtraCityAttackPercent;
-	FAutoVariable<int, CvUnit> m_iExtraCityDefensePercent;
-	FAutoVariable<int, CvUnit> m_iExtraRangedDefenseModifier;
-	FAutoVariable<int, CvUnit> m_iExtraHillsAttackPercent;
-	FAutoVariable<int, CvUnit> m_iExtraHillsDefensePercent;
-	FAutoVariable<int, CvUnit> m_iExtraOpenAttackPercent;
-	FAutoVariable<int, CvUnit> m_iExtraOpenRangedAttackMod;
-	FAutoVariable<int, CvUnit> m_iExtraRoughAttackPercent;
-	FAutoVariable<int, CvUnit> m_iExtraRoughRangedAttackMod;
-	FAutoVariable<int, CvUnit> m_iExtraAttackFortifiedMod;
-	FAutoVariable<int, CvUnit> m_iExtraAttackWoundedMod;
-	FAutoVariable<int, CvUnit> m_iExtraFullyHealedMod;
-	FAutoVariable<int, CvUnit> m_iExtraAttackAboveHealthMod;
-	FAutoVariable<int, CvUnit> m_iExtraAttackBelowHealthMod;
-	FAutoVariable<int, CvUnit> m_iFlankAttackModifier;
-	FAutoVariable<int, CvUnit> m_iExtraOpenDefensePercent;
-	FAutoVariable<int, CvUnit> m_iExtraRoughDefensePercent;
-	FAutoVariable<int, CvUnit> m_iExtraOpenFromPercent;
-	FAutoVariable<int, CvUnit> m_iExtraRoughFromPercent;
-	FAutoVariable<int, CvUnit> m_iPillageChange;
-	FAutoVariable<int, CvUnit> m_iUpgradeDiscount;
-	FAutoVariable<int, CvUnit> m_iExperiencePercent;
-	FAutoVariable<int, CvUnit> m_iDropRange;
-	FAutoVariable<int, CvUnit> m_iAirSweepCapableCount;
-	FAutoVariable<int, CvUnit> m_iExtraNavalMoves;
-	FAutoVariable<int, CvUnit> m_iKamikazePercent;
-	FAutoVariable<DirectionTypes, CvUnit> m_eFacingDirection;
-	FAutoVariable<int, CvUnit> m_iIgnoreTerrainCostCount;
-	FAutoVariable<int, CvUnit> m_iIgnoreTerrainDamageCount;
-	FAutoVariable<int, CvUnit> m_iIgnoreFeatureDamageCount;
-	FAutoVariable<int, CvUnit> m_iExtraTerrainDamageCount;
-	FAutoVariable<int, CvUnit> m_iExtraFeatureDamageCount;
+	SYNC_VAR_MEMBER(m_bIsNoMaintenance)
+	SYNC_VAR_MEMBER(m_iExtraEnemyHeal)
+	SYNC_VAR_MEMBER(m_iExtraNeutralHeal)
+	SYNC_VAR_MEMBER(m_iExtraFriendlyHeal)
+	SYNC_VAR_MEMBER(m_iEnemyDamageChance)
+	SYNC_VAR_MEMBER(m_iNeutralDamageChance)
+	SYNC_VAR_MEMBER(m_iEnemyDamage)
+	SYNC_VAR_MEMBER(m_iNeutralDamage)
+	SYNC_VAR_MEMBER(m_iNearbyEnemyCombatMod)
+	SYNC_VAR_MEMBER(m_iNearbyEnemyCombatRange)
+	SYNC_VAR_MEMBER(m_iSameTileHeal)
+	SYNC_VAR_MEMBER(m_iAdjacentTileHeal)
+	SYNC_VAR_MEMBER(m_iAdjacentModifier)
+	SYNC_VAR_MEMBER(m_iRangedAttackModifier)
+	SYNC_VAR_MEMBER(m_iInterceptionCombatModifier)
+	SYNC_VAR_MEMBER(m_iInterceptionDefenseDamageModifier)
+	SYNC_VAR_MEMBER(m_iAirSweepCombatModifier)
+	SYNC_VAR_MEMBER(m_iAttackModifier)
+	SYNC_VAR_MEMBER(m_iDefenseModifier)
+	SYNC_VAR_MEMBER(m_iGroundAttackDamage)
+	SYNC_VAR_MEMBER(m_iExtraCombatPercent)
+	SYNC_VAR_MEMBER(m_iExtraCityAttackPercent)
+	SYNC_VAR_MEMBER(m_iExtraCityDefensePercent)
+	SYNC_VAR_MEMBER(m_iExtraRangedDefenseModifier)
+	SYNC_VAR_MEMBER(m_iExtraHillsAttackPercent)
+	SYNC_VAR_MEMBER(m_iExtraHillsDefensePercent)
+	SYNC_VAR_MEMBER(m_iExtraOpenAttackPercent)
+	SYNC_VAR_MEMBER(m_iExtraOpenRangedAttackMod)
+	SYNC_VAR_MEMBER(m_iExtraRoughAttackPercent)
+	SYNC_VAR_MEMBER(m_iExtraRoughRangedAttackMod)
+	SYNC_VAR_MEMBER(m_iExtraAttackFortifiedMod)
+	SYNC_VAR_MEMBER(m_iExtraAttackWoundedMod)
+	SYNC_VAR_MEMBER(m_iExtraFullyHealedMod)
+	SYNC_VAR_MEMBER(m_iExtraAttackAboveHealthMod)
+	SYNC_VAR_MEMBER(m_iExtraAttackBelowHealthMod)
+	SYNC_VAR_MEMBER(m_iFlankAttackModifier)
+	SYNC_VAR_MEMBER(m_iExtraOpenDefensePercent)
+	SYNC_VAR_MEMBER(m_iExtraRoughDefensePercent)
+	SYNC_VAR_MEMBER(m_iExtraOpenFromPercent)
+	SYNC_VAR_MEMBER(m_iExtraRoughFromPercent)
+	SYNC_VAR_MEMBER(m_iPillageChange)
+	SYNC_VAR_MEMBER(m_iUpgradeDiscount)
+	SYNC_VAR_MEMBER(m_iExperiencePercent)
+	SYNC_VAR_MEMBER(m_iDropRange)
+	SYNC_VAR_MEMBER(m_iAirSweepCapableCount)
+	SYNC_VAR_MEMBER(m_iExtraNavalMoves)
+	SYNC_VAR_MEMBER(m_iKamikazePercent)
+	SYNC_VAR_MEMBER(m_eFacingDirection)
+	SYNC_VAR_MEMBER(m_iIgnoreTerrainCostCount)
+	SYNC_VAR_MEMBER(m_iIgnoreTerrainDamageCount)
+	SYNC_VAR_MEMBER(m_iIgnoreFeatureDamageCount)
+	SYNC_VAR_MEMBER(m_iExtraTerrainDamageCount)
+	SYNC_VAR_MEMBER(m_iExtraFeatureDamageCount)
 #if defined(MOD_PROMOTIONS_IMPROVEMENT_BONUS)
-	FAutoVariable<int, CvUnit> m_iNearbyImprovementCombatBonus;
-	FAutoVariable<int, CvUnit> m_iNearbyImprovementBonusRange;
-	FAutoVariable<ImprovementTypes, CvUnit> m_eCombatBonusImprovement;
+	SYNC_VAR_MEMBER(m_iNearbyImprovementCombatBonus)
+	SYNC_VAR_MEMBER(m_iNearbyImprovementBonusRange)
+	SYNC_VAR_MEMBER(m_eCombatBonusImprovement)
 #endif
 #if defined(MOD_BALANCE_CORE)
-	FAutoVariable<int, CvUnit> m_iNearbyUnitClassBonus;
-	FAutoVariable<int, CvUnit> m_iNearbyUnitClassBonusRange;
-	FAutoVariable<UnitClassTypes, CvUnit> m_iCombatBonusFromNearbyUnitClass;
-	FAutoVariable<int, CvUnit> m_bNearbyPromotion;
-	FAutoVariable<int, CvUnit> m_iNearbyUnitPromotionRange;
-	FAutoVariable<int, CvUnit> m_iNearbyCityCombatMod;
-	FAutoVariable<int, CvUnit> m_iNearbyFriendlyCityCombatMod;
-	FAutoVariable<int, CvUnit> m_iNearbyEnemyCityCombatMod;
-	FAutoVariable<int, CvUnit> m_iPillageBonusStrengthPercent;
-	FAutoVariable<int, CvUnit> m_iStackedGreatGeneralExperience;
-	FAutoVariable<int, CvUnit> m_bIsHighSeaRaider;
-	FAutoVariable<int, CvUnit> m_iWonderProductionModifier;
-	FAutoVariable<int, CvUnit> m_iUnitProductionModifier;
-	FAutoVariable<int, CvUnit> m_iNearbyEnemyDamage;
-	FAutoVariable<int, CvUnit> m_iGGGAXPPercent;
-	FAutoVariable<int, CvUnit> m_iGiveCombatMod;
-	FAutoVariable<int, CvUnit> m_iGiveHPIfEnemyKilled;
-	FAutoVariable<int, CvUnit> m_iGiveExperiencePercent;
-	FAutoVariable<int, CvUnit> m_iGiveOutsideFriendlyLandsModifier;
-	FAutoVariable<int, CvUnit> m_eGiveDomain;
-	FAutoVariable<int, CvUnit> m_iGiveExtraAttacks;
-	FAutoVariable<int, CvUnit> m_iGiveDefenseMod;
-	FAutoVariable<int, CvUnit> m_bGiveInvisibility;
-	FAutoVariable<int, CvUnit> m_bGiveOnlyOnStartingTurn;
-	FAutoVariable<int, CvUnit> m_bConvertUnit;
-	FAutoVariable<int, CvUnit> m_eConvertDomain;
-	FAutoVariable<UnitTypes, CvUnit> m_eConvertDomainUnit;
-	FAutoVariable<int, CvUnit> m_bConvertEnemyUnitToBarbarian;
-	FAutoVariable<int, CvUnit> m_bConvertOnFullHP;
-	FAutoVariable<int, CvUnit> m_bConvertOnDamage;
-	FAutoVariable<int, CvUnit> m_iDamageThreshold;
-	FAutoVariable<UnitTypes, CvUnit> m_eConvertDamageOrFullHPUnit;
-	FAutoVariable<int, CvUnit> m_iNumberOfCultureBombs;
-	FAutoVariable<int, CvUnit> m_iNearbyHealEnemyTerritory;
-	FAutoVariable<int, CvUnit> m_iNearbyHealNeutralTerritory;
-	FAutoVariable<int, CvUnit> m_iNearbyHealFriendlyTerritory;
+	SYNC_VAR_MEMBER(m_iNearbyUnitClassBonus)
+	SYNC_VAR_MEMBER(m_iNearbyUnitClassBonusRange)
+	SYNC_VAR_MEMBER(m_iCombatBonusFromNearbyUnitClass)
+	SYNC_VAR_MEMBER(m_bNearbyPromotion)
+	SYNC_VAR_MEMBER(m_iNearbyUnitPromotionRange)
+	SYNC_VAR_MEMBER(m_iNearbyCityCombatMod)
+	SYNC_VAR_MEMBER(m_iNearbyFriendlyCityCombatMod)
+	SYNC_VAR_MEMBER(m_iNearbyEnemyCityCombatMod)
+	SYNC_VAR_MEMBER(m_iPillageBonusStrengthPercent)
+	SYNC_VAR_MEMBER(m_iStackedGreatGeneralExperience)
+	SYNC_VAR_MEMBER(m_bIsHighSeaRaider)
+	SYNC_VAR_MEMBER(m_iWonderProductionModifier)
+	SYNC_VAR_MEMBER(m_iUnitProductionModifier)
+	SYNC_VAR_MEMBER(m_iNearbyEnemyDamage)
+	SYNC_VAR_MEMBER(m_iGGGAXPPercent)
+	SYNC_VAR_MEMBER(m_iGiveCombatMod)
+	SYNC_VAR_MEMBER(m_iGiveHPIfEnemyKilled)
+	SYNC_VAR_MEMBER(m_iGiveExperiencePercent)
+	SYNC_VAR_MEMBER(m_iGiveOutsideFriendlyLandsModifier)
+	SYNC_VAR_MEMBER(m_eGiveDomain)
+	SYNC_VAR_MEMBER(m_iGiveExtraAttacks)
+	SYNC_VAR_MEMBER(m_iGiveDefenseMod)
+	SYNC_VAR_MEMBER(m_bGiveInvisibility)
+	SYNC_VAR_MEMBER(m_bGiveOnlyOnStartingTurn)
+	SYNC_VAR_MEMBER(m_bConvertUnit)
+	SYNC_VAR_MEMBER(m_eConvertDomain)
+	SYNC_VAR_MEMBER(m_eConvertDomainUnit)
+	SYNC_VAR_MEMBER(m_bConvertEnemyUnitToBarbarian)
+	SYNC_VAR_MEMBER(m_bConvertOnFullHP)
+	SYNC_VAR_MEMBER(m_bConvertOnDamage)
+	SYNC_VAR_MEMBER(m_iDamageThreshold)
+	SYNC_VAR_MEMBER(m_eConvertDamageOrFullHPUnit)
+	SYNC_VAR_MEMBER(m_iNumberOfCultureBombs)
+	SYNC_VAR_MEMBER(m_iNearbyHealEnemyTerritory)
+	SYNC_VAR_MEMBER(m_iNearbyHealNeutralTerritory)
+	SYNC_VAR_MEMBER(m_iNearbyHealFriendlyTerritory)
 #endif
 #if defined(MOD_PROMOTIONS_CROSS_MOUNTAINS)
-	FAutoVariable<int, CvUnit> m_iCanCrossMountainsCount;
+	SYNC_VAR_MEMBER(m_iCanCrossMountainsCount)
 #endif
 #if defined(MOD_PROMOTIONS_CROSS_OCEANS)
-	FAutoVariable<int, CvUnit> m_iCanCrossOceansCount;
+	SYNC_VAR_MEMBER(m_iCanCrossOceansCount)
 #endif
 #if defined(MOD_PROMOTIONS_CROSS_ICE)
-	FAutoVariable<int, CvUnit> m_iCanCrossIceCount;
+	SYNC_VAR_MEMBER(m_iCanCrossIceCount)
 #endif
 #if defined(MOD_BALANCE_CORE)
-	FAutoVariable<int, CvUnit> m_iNumTilesRevealedThisTurn;
-	FAutoVariable<int, CvUnit> m_bSpottedEnemy;
-	FAutoVariable<int, CvUnit> m_iGainsXPFromScouting;
-	FAutoVariable<int, CvUnit> m_iGainsXPFromPillaging;
-	FAutoVariable<int, CvUnit> m_iGainsXPFromSpotting;
-	FAutoVariable<int, CvUnit> m_iCaptureDefeatedEnemyChance;
-	FAutoVariable<int, CvUnit> m_iBarbCombatBonus;
-	FAutoVariable<int, CvUnit> m_iAdjacentEnemySapMovement;
+	SYNC_VAR_MEMBER(m_iNumTilesRevealedThisTurn)
+	SYNC_VAR_MEMBER(m_bSpottedEnemy)
+	SYNC_VAR_MEMBER(m_iGainsXPFromScouting)
+	SYNC_VAR_MEMBER(m_iGainsXPFromPillaging)
+	SYNC_VAR_MEMBER(m_iGainsXPFromSpotting)
+	SYNC_VAR_MEMBER(m_iCaptureDefeatedEnemyChance)
+	SYNC_VAR_MEMBER(m_iBarbCombatBonus)
+	SYNC_VAR_MEMBER(m_iAdjacentEnemySapMovement)
 #endif
 #if defined(MOD_PROMOTIONS_GG_FROM_BARBARIANS)
-	FAutoVariable<int, CvUnit> m_iGGFromBarbariansCount;
+	SYNC_VAR_MEMBER(m_iGGFromBarbariansCount)
 #endif
 #if defined(MOD_PROMOTIONS_AURA_CHANGE)
-	FAutoVariable<int, CvUnit> m_iAuraRangeChange;
-	FAutoVariable<int, CvUnit> m_iAuraEffectChange;
-	FAutoVariable<int, CvUnit> m_iNumRepairCharges;
-	FAutoVariable<int, CvUnit> m_iMilitaryCapChange;
+	SYNC_VAR_MEMBER(m_iAuraRangeChange)
+	SYNC_VAR_MEMBER(m_iAuraEffectChange)
+	SYNC_VAR_MEMBER(m_iNumRepairCharges)
+	SYNC_VAR_MEMBER(m_iMilitaryCapChange)
 #endif
-	FAutoVariable<int, CvUnit> m_iRoughTerrainEndsTurnCount;
-	FAutoVariable<int, CvUnit> m_iEmbarkAbilityCount;
-	FAutoVariable<int, CvUnit> m_iHoveringUnitCount;
-	FAutoVariable<int, CvUnit> m_iFlatMovementCostCount;
-	FAutoVariable<int, CvUnit> m_iCanMoveImpassableCount;
-	FAutoVariable<int, CvUnit> m_iOnlyDefensiveCount;
-	FAutoVariable<int, CvUnit> m_iNoDefensiveBonusCount;
-	FAutoVariable<int, CvUnit> m_iNoCaptureCount;
-	FAutoVariable<int, CvUnit> m_iNukeImmuneCount;
-	FAutoVariable<int, CvUnit> m_iHiddenNationalityCount;
-	FAutoVariable<int, CvUnit> m_iAlwaysHostileCount;
-	FAutoVariable<int, CvUnit> m_iNoRevealMapCount;
-	FAutoVariable<int, CvUnit> m_iCanMoveAllTerrainCount;
-	FAutoVariable<int, CvUnit> m_iCanMoveAfterAttackingCount;
-	FAutoVariable<int, CvUnit> m_iFreePillageMoveCount;
-	FAutoVariable<int, CvUnit> m_iHealOnPillageCount;
-	FAutoVariable<int, CvUnit> m_iHPHealedIfDefeatEnemy;
-	FAutoVariable<int, CvUnit> m_iGoldenAgeValueFromKills;
-	FAutoVariable<int, CvUnit> m_iTacticalAIPlotX;
-	FAutoVariable<int, CvUnit> m_iTacticalAIPlotY;
-	FAutoVariable<int, CvUnit> m_iGarrisonCityID;
-	FAutoVariable<int, CvUnit> m_iNumAttacks;
-	FAutoVariable<int, CvUnit> m_iAttacksMade;
-	FAutoVariable<int, CvUnit> m_iGreatGeneralCount;
-	FAutoVariable<int, CvUnit> m_iGreatAdmiralCount;
-	FAutoVariable<int, CvUnit> m_iGreatGeneralModifier;
-	FAutoVariable<int, CvUnit> m_iGreatGeneralReceivesMovementCount;
-	FAutoVariable<int, CvUnit> m_iGreatGeneralCombatModifier;
-	FAutoVariable<int, CvUnit> m_iIgnoreGreatGeneralBenefit;
-	FAutoVariable<int, CvUnit> m_iIgnoreZOC;
+	SYNC_VAR_MEMBER(m_iRoughTerrainEndsTurnCount)
+	SYNC_VAR_MEMBER(m_iEmbarkAbilityCount)
+	SYNC_VAR_MEMBER(m_iHoveringUnitCount)
+	SYNC_VAR_MEMBER(m_iFlatMovementCostCount)
+	SYNC_VAR_MEMBER(m_iCanMoveImpassableCount)
+	SYNC_VAR_MEMBER(m_iOnlyDefensiveCount)
+	SYNC_VAR_MEMBER(m_iNoDefensiveBonusCount)
+	SYNC_VAR_MEMBER(m_iNoCaptureCount)
+	SYNC_VAR_MEMBER(m_iNukeImmuneCount)
+	SYNC_VAR_MEMBER(m_iHiddenNationalityCount)
+	SYNC_VAR_MEMBER(m_iAlwaysHostileCount)
+	SYNC_VAR_MEMBER(m_iNoRevealMapCount)
+	SYNC_VAR_MEMBER(m_iCanMoveAllTerrainCount)
+	SYNC_VAR_MEMBER(m_iCanMoveAfterAttackingCount)
+	SYNC_VAR_MEMBER(m_iFreePillageMoveCount)
+	SYNC_VAR_MEMBER(m_iHealOnPillageCount)
+	SYNC_VAR_MEMBER(m_iHPHealedIfDefeatEnemy)
+	SYNC_VAR_MEMBER(m_iGoldenAgeValueFromKills)
+	SYNC_VAR_MEMBER(m_iTacticalAIPlotX)
+	SYNC_VAR_MEMBER(m_iTacticalAIPlotY)
+	SYNC_VAR_MEMBER(m_iGarrisonCityID)
+	SYNC_VAR_MEMBER(m_iNumAttacks)
+	SYNC_VAR_MEMBER(m_iAttacksMade)
+	SYNC_VAR_MEMBER(m_iGreatGeneralCount)
+	SYNC_VAR_MEMBER(m_iGreatAdmiralCount)
+	SYNC_VAR_MEMBER(m_iGreatGeneralModifier)
+	SYNC_VAR_MEMBER(m_iGreatGeneralReceivesMovementCount)
+	SYNC_VAR_MEMBER(m_iGreatGeneralCombatModifier)
+	SYNC_VAR_MEMBER(m_iIgnoreGreatGeneralBenefit)
+	SYNC_VAR_MEMBER(m_iIgnoreZOC)
 #if defined(MOD_UNITS_NO_SUPPLY)
-	FAutoVariable<int, CvUnit> m_iNoSupply;
+	SYNC_VAR_MEMBER(m_iNoSupply)
 #endif
 	int m_iMaxHitPointsBase;
-	FAutoVariable<int, CvUnit> m_iMaxHitPointsChange;
-	FAutoVariable<int, CvUnit> m_iMaxHitPointsModifier;
-	FAutoVariable<int, CvUnit> m_iFriendlyLandsModifier;
-	FAutoVariable<int, CvUnit> m_iFriendlyLandsAttackModifier;
-	FAutoVariable<int, CvUnit> m_iOutsideFriendlyLandsModifier;
-	FAutoVariable<int, CvUnit> m_iHealIfDefeatExcludeBarbariansCount;
-	FAutoVariable<int, CvUnit> m_iNumInterceptions;
+	SYNC_VAR_MEMBER(m_iMaxHitPointsChange)
+	SYNC_VAR_MEMBER(m_iMaxHitPointsModifier)
+	SYNC_VAR_MEMBER(m_iFriendlyLandsModifier)
+	SYNC_VAR_MEMBER(m_iFriendlyLandsAttackModifier)
+	SYNC_VAR_MEMBER(m_iOutsideFriendlyLandsModifier)
+	SYNC_VAR_MEMBER(m_iHealIfDefeatExcludeBarbariansCount)
+	SYNC_VAR_MEMBER(m_iNumInterceptions)
 #if defined(MOD_BALANCE_CORE)
-	FAutoVariable<int, CvUnit> m_iExtraAirInterceptRange;
+	SYNC_VAR_MEMBER(m_iExtraAirInterceptRange)
 #endif
-	FAutoVariable<int, CvUnit> m_iMadeInterceptionCount;
-	FAutoVariable<int, CvUnit> m_iEverSelectedCount;
-	FAutoVariable<int, CvUnit> m_iSapperCount;
-	FAutoVariable<int, CvUnit> m_iCanHeavyCharge;
+	SYNC_VAR_MEMBER(m_iMadeInterceptionCount)
+	SYNC_VAR_MEMBER(m_iEverSelectedCount)
+	SYNC_VAR_MEMBER(m_iSapperCount)
+	SYNC_VAR_MEMBER(m_iCanHeavyCharge)
 #if defined(MOD_BALANCE_CORE)
-	FAutoVariable<int, CvUnit> m_iStrongerDamaged;
-	FAutoVariable<int, CvUnit> m_iFightWellDamaged;
-	FAutoVariable<int, CvUnit> m_iCanMoraleBreak;
-	FAutoVariable<int, CvUnit> m_iDamageAoEFortified;
-	FAutoVariable<int, CvUnit> m_iWorkRateMod;
-	FAutoVariable<int, CvUnit> m_iDamageReductionCityAssault;
-	FAutoVariable<int, CvUnit> m_iGoodyHutYieldBonus;
-	FAutoVariable<int, CvUnit> m_iReligiousPressureModifier;
+	SYNC_VAR_MEMBER(m_iStrongerDamaged)
+	SYNC_VAR_MEMBER(m_iFightWellDamaged)
+	SYNC_VAR_MEMBER(m_iCanMoraleBreak)
+	SYNC_VAR_MEMBER(m_iDamageAoEFortified)
+	SYNC_VAR_MEMBER(m_iWorkRateMod)
+	SYNC_VAR_MEMBER(m_iDamageReductionCityAssault)
+	SYNC_VAR_MEMBER(m_iGoodyHutYieldBonus)
+	SYNC_VAR_MEMBER(m_iReligiousPressureModifier)
 #endif
-	FAutoVariable<int, CvUnit> m_iNumExoticGoods;
-	FAutoVariable<bool, CvUnit> m_bPromotionReady;
-	FAutoVariable<bool, CvUnit> m_bDeathDelay;
-	FAutoVariable<bool, CvUnit> m_bCombatFocus;
-	FAutoVariable<bool, CvUnit> m_bInfoBarDirty;
-	FAutoVariable<bool, CvUnit> m_bNotConverting;
-	FAutoVariable<bool, CvUnit> m_bAirCombat;
+	SYNC_VAR_MEMBER(m_iNumExoticGoods)
+	SYNC_VAR_MEMBER(m_bPromotionReady)
+	SYNC_VAR_MEMBER(m_bDeathDelay)
+	SYNC_VAR_MEMBER(m_bCombatFocus)
+	SYNC_VAR_MEMBER(m_bInfoBarDirty)
+	SYNC_VAR_MEMBER(m_bNotConverting)
+	SYNC_VAR_MEMBER(m_bAirCombat)
 	//to be removed
-		FAutoVariable<bool, CvUnit> m_bSetUpForRangedAttack;
-	FAutoVariable<bool, CvUnit> m_bEmbarked;
-	FAutoVariable<bool, CvUnit> m_bPromotedFromGoody;
-	FAutoVariable<bool, CvUnit> m_bAITurnProcessed;
+		SYNC_VAR_MEMBER(m_bSetUpForRangedAttack)
+	SYNC_VAR_MEMBER(m_bEmbarked)
+	SYNC_VAR_MEMBER(m_bPromotedFromGoody)
+	SYNC_VAR_MEMBER(m_bAITurnProcessed)
 #if defined(MOD_CORE_PER_TURN_DAMAGE)
-	FAutoVariable<int, CvUnit> m_iDamageTakenThisTurn;
-	FAutoVariable<int, CvUnit> m_iDamageTakenLastTurn;
+	SYNC_VAR_MEMBER(m_iDamageTakenThisTurn)
+	SYNC_VAR_MEMBER(m_iDamageTakenLastTurn)
 #endif
 
-	FAutoVariable<PlayerTypes, CvUnit> m_eCapturingPlayer;
-	FAutoVariable<bool, CvUnit> m_bCapturedAsIs;
-	FAutoVariable<UnitTypes, CvUnit> m_eLeaderUnitType;
-	FAutoVariable<InvisibleTypes, CvUnit> m_eInvisibleType;
-	FAutoVariable<InvisibleTypes, CvUnit> m_eSeeInvisibleType;
-	FAutoVariable<GreatPeopleDirectiveTypes, CvUnit> m_eGreatPeopleDirectiveType;
+	SYNC_VAR_MEMBER(m_eCapturingPlayer)
+	SYNC_VAR_MEMBER(m_bCapturedAsIs)
+	SYNC_VAR_MEMBER(m_eLeaderUnitType)
+	SYNC_VAR_MEMBER(m_eInvisibleType)
+	SYNC_VAR_MEMBER(m_eSeeInvisibleType)
+	SYNC_VAR_MEMBER(m_eGreatPeopleDirectiveType)
 	CvUnitEntry* m_pUnitInfo;
 
 	bool m_bWaitingForMove;			///< If true, the unit is busy visualizing its move.
@@ -2232,89 +2554,89 @@ protected:
 	std::vector<int> m_iGarrisonYieldChange;
 	std::vector<int> m_iFortificationYieldChange;
 
-	FAutoVariable<CvString, CvUnit> m_strScriptData;
-	FAutoVariable<int, CvUnit> m_iScenarioData;
+	SYNC_VAR_MEMBER(m_strScriptData)
+	SYNC_VAR_MEMBER(m_iScenarioData)
 
 	CvUnitPromotions  m_Promotions;
 	CvUnitReligion* m_pReligion;
 
 #if defined(MOD_CIV6_WORKER)
-	FAutoVariable<int, CvUnit> m_iBuilderStrength;
+	SYNC_VAR_MEMBER(m_iBuilderStrength)
 #endif
 
-	FAutoVariable<TerrainTypeCounter, CvUnit> m_terrainDoubleMoveCount;
-	FAutoVariable<FeatureTypeCounter, CvUnit> m_featureDoubleMoveCount;
+	SYNC_VAR_MEMBER(m_terrainDoubleMoveCount)
+	SYNC_VAR_MEMBER(m_featureDoubleMoveCount)
 #if defined(MOD_PROMOTIONS_HALF_MOVE)
-	FAutoVariable<TerrainTypeCounter, CvUnit> m_terrainHalfMoveCount;
-	FAutoVariable<FeatureTypeCounter, CvUnit> m_featureHalfMoveCount;
+	SYNC_VAR_MEMBER(m_terrainHalfMoveCount)
+	SYNC_VAR_MEMBER(m_featureHalfMoveCount)
 
-	FAutoVariable<TerrainTypeCounter, CvUnit> m_terrainExtraMoveCount;
-	FAutoVariable<FeatureTypeCounter, CvUnit> m_featureExtraMoveCount;
+	SYNC_VAR_MEMBER(m_terrainExtraMoveCount)
+	SYNC_VAR_MEMBER(m_featureExtraMoveCount)
 #endif
 #if defined(MOD_BALANCE_CORE)
-	FAutoVariable<TerrainTypeCounter, CvUnit> m_terrainDoubleHeal;
-	FAutoVariable<FeatureTypeCounter, CvUnit> m_featureDoubleHeal;
+	SYNC_VAR_MEMBER(m_terrainDoubleHeal)
+	SYNC_VAR_MEMBER(m_featureDoubleHeal)
 #endif
-	FAutoVariable<TerrainTypeCounter, CvUnit> m_terrainImpassableCount;
-	FAutoVariable<FeatureTypeCounter, CvUnit> m_featureImpassableCount;
-	FAutoVariable<TerrainTypeCounter, CvUnit> m_extraTerrainAttackPercent;
-	FAutoVariable<TerrainTypeCounter, CvUnit> m_extraTerrainDefensePercent;
-	FAutoVariable<FeatureTypeCounter, CvUnit> m_extraFeatureAttackPercent;
-	FAutoVariable<FeatureTypeCounter, CvUnit> m_extraFeatureDefensePercent;
+	SYNC_VAR_MEMBER(m_terrainImpassableCount)
+	SYNC_VAR_MEMBER(m_featureImpassableCount)
+	SYNC_VAR_MEMBER(m_extraTerrainAttackPercent)
+	SYNC_VAR_MEMBER(m_extraTerrainDefensePercent)
+	SYNC_VAR_MEMBER(m_extraFeatureAttackPercent)
+	SYNC_VAR_MEMBER(m_extraFeatureDefensePercent)
 
-	FAutoVariable<UnitClassCounter, CvUnit> m_extraUnitClassAttackMod;
-	FAutoVariable<UnitClassCounter, CvUnit> m_extraUnitClassDefenseMod;
+	SYNC_VAR_MEMBER(m_extraUnitClassAttackMod)
+	SYNC_VAR_MEMBER(m_extraUnitClassDefenseMod)
 #if defined(MOD_BALANCE_CORE)
-	FAutoVariable<std::vector<int>, CvUnit> m_aiNumTimesAttackedThisTurn;
-	FAutoVariable<std::vector<int>, CvUnit> m_yieldFromScouting;
+	SYNC_VAR_MEMBER(m_aiNumTimesAttackedThisTurn)
+	SYNC_VAR_MEMBER(m_yieldFromScouting)
 #endif
 #if defined(MOD_API_UNIFIED_YIELDS)
-	FAutoVariable<std::vector<int>, CvUnit> m_yieldFromKills;
-	FAutoVariable<std::vector<int>, CvUnit> m_yieldFromBarbarianKills;
+	SYNC_VAR_MEMBER(m_yieldFromKills)
+	SYNC_VAR_MEMBER(m_yieldFromBarbarianKills)
 #endif
-	FAutoVariable<std::vector<int>, CvUnit> m_extraUnitCombatModifier;
-	FAutoVariable<std::vector<int>, CvUnit> m_unitClassModifier;
+	SYNC_VAR_MEMBER(m_extraUnitCombatModifier)
+	SYNC_VAR_MEMBER(m_unitClassModifier)
 #if defined(MOD_BALANCE_CORE)
-	FAutoVariable<std::vector<int>, CvUnit> m_iCombatModPerAdjacentUnitCombatModifier;
-	FAutoVariable<std::vector<int>, CvUnit> m_iCombatModPerAdjacentUnitCombatAttackMod;
-	FAutoVariable<std::vector<int>, CvUnit> m_iCombatModPerAdjacentUnitCombatDefenseMod;
+	SYNC_VAR_MEMBER(m_iCombatModPerAdjacentUnitCombatModifier)
+	SYNC_VAR_MEMBER(m_iCombatModPerAdjacentUnitCombatAttackMod)
+	SYNC_VAR_MEMBER(m_iCombatModPerAdjacentUnitCombatDefenseMod)
 #endif
-	FAutoVariable<int, CvUnit> m_iMissionTimer;
-	FAutoVariable<int, CvUnit> m_iMissionAIX;
-	FAutoVariable<int, CvUnit> m_iMissionAIY;
-	FAutoVariable<MissionAITypes, CvUnit> m_eMissionAIType;
+	SYNC_VAR_MEMBER(m_iMissionTimer)
+	SYNC_VAR_MEMBER(m_iMissionAIX)
+	SYNC_VAR_MEMBER(m_iMissionAIY)
+	SYNC_VAR_MEMBER(m_eMissionAIType)
 	IDInfo m_missionAIUnit;
-	FAutoVariable<ActivityTypes, CvUnit> m_eActivityType;
-	FAutoVariable<AutomateTypes, CvUnit> m_eAutomateType;
-	FAutoVariable<UnitAITypes, CvUnit> m_eUnitAIType; //current AI type, might be different from default
-	FAutoVariable<int, CvUnit> m_eCombatType;
+	SYNC_VAR_MEMBER(m_eActivityType)
+	SYNC_VAR_MEMBER(m_eAutomateType)
+	SYNC_VAR_MEMBER(m_eUnitAIType) //current AI type, might be different from default
+	SYNC_VAR_MEMBER(m_eCombatType)
 
 	//not serialized
 	std::vector<CvPlot*> m_unitMoveLocs;
 
-	FAutoVariable<int, CvUnit> m_iEmbarkedAllWaterCount;
+	SYNC_VAR_MEMBER(m_iEmbarkedAllWaterCount)
 #if defined(MOD_PROMOTIONS_DEEP_WATER_EMBARKATION)
-	FAutoVariable<int, CvUnit> m_iEmbarkedDeepWaterCount;
+	SYNC_VAR_MEMBER(m_iEmbarkedDeepWaterCount)
 #endif
-	FAutoVariable<int, CvUnit> m_iEmbarkExtraVisibility;
-	FAutoVariable<int, CvUnit> m_iEmbarkDefensiveModifier;
-	FAutoVariable<int, CvUnit> m_iCapitalDefenseModifier;
-	FAutoVariable<int, CvUnit> m_iCapitalDefenseFalloff;
-	FAutoVariable<int, CvUnit> m_iCityAttackPlunderModifier;
-	FAutoVariable<int, CvUnit> m_iReligiousStrengthLossRivalTerritory;
-	FAutoVariable<int, CvUnit> m_iTradeMissionInfluenceModifier;
-	FAutoVariable<int, CvUnit> m_iTradeMissionGoldModifier;
-	FAutoVariable<int, CvUnit> m_iDiploMissionInfluence;
-	FAutoVariable<int, CvUnit> m_iMapLayer;		// Which layer does the unit reside on for pathing/stacking/etc.
-	FAutoVariable<int, CvUnit> m_iNumGoodyHutsPopped;
-	FAutoVariable<int, CvUnit> m_iTourismBlastStrength;
-	FAutoVariable<int, CvUnit> m_iTourismBlastLength;
+	SYNC_VAR_MEMBER(m_iEmbarkExtraVisibility)
+	SYNC_VAR_MEMBER(m_iEmbarkDefensiveModifier)
+	SYNC_VAR_MEMBER(m_iCapitalDefenseModifier)
+	SYNC_VAR_MEMBER(m_iCapitalDefenseFalloff)
+	SYNC_VAR_MEMBER(m_iCityAttackPlunderModifier)
+	SYNC_VAR_MEMBER(m_iReligiousStrengthLossRivalTerritory)
+	SYNC_VAR_MEMBER(m_iTradeMissionInfluenceModifier)
+	SYNC_VAR_MEMBER(m_iTradeMissionGoldModifier)
+	SYNC_VAR_MEMBER(m_iDiploMissionInfluence)
+	SYNC_VAR_MEMBER(m_iMapLayer)		// Which layer does the unit reside on for pathing/stacking/etc.
+	SYNC_VAR_MEMBER(m_iNumGoodyHutsPopped)
+	SYNC_VAR_MEMBER(m_iTourismBlastStrength)
+	SYNC_VAR_MEMBER(m_iTourismBlastLength)
 #if defined(MOD_BALANCE_CORE)
-	FAutoVariable<int, CvUnit> m_iHurryStrength;
-	FAutoVariable<int, CvUnit> m_iScienceBlastStrength;
-	FAutoVariable<int, CvUnit> m_iCultureBlastStrength;
-	FAutoVariable<int, CvUnit> m_iGAPBlastStrength;
-	FAutoVariable<std::vector<bool>, CvUnit> m_abPromotionEverObtained;
+	SYNC_VAR_MEMBER(m_iHurryStrength)
+	SYNC_VAR_MEMBER(m_iScienceBlastStrength)
+	SYNC_VAR_MEMBER(m_iCultureBlastStrength)
+	SYNC_VAR_MEMBER(m_iGAPBlastStrength)
+	SYNC_VAR_MEMBER(m_abPromotionEverObtained)
 #endif
 		
 #if defined(MOD_PROMOTIONS_UNIT_NAMING)
@@ -2354,10 +2676,10 @@ private:
 #if defined(MOD_BALANCE_CORE_MILITARY)
 	// for debugging
 	CvString m_strMissionInfoString;
-	FAutoVariable<AITacticalMove, CvUnit> m_eTacticalMove;
-	FAutoVariable<int, CvUnit> m_iTacticalMoveSetTurn;
-	FAutoVariable<AIHomelandMove, CvUnit> m_eHomelandMove;
-	FAutoVariable<int, CvUnit> m_iHomelandMoveSetTurn;
+	SYNC_VAR_MEMBER(m_eTacticalMove)
+	SYNC_VAR_MEMBER(m_iTacticalMoveSetTurn)
+	SYNC_VAR_MEMBER(m_eHomelandMove)
+	SYNC_VAR_MEMBER(m_iHomelandMoveSetTurn)
 #endif
 
 	friend class CvLuaUnit;

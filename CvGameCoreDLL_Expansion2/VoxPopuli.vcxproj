@@ -854,6 +854,7 @@
     <ClInclude Include="CvReligionClasses.h" />
     <ClInclude Include="CvReplayInfo.h" />
     <ClInclude Include="CvReplayMessage.h" />
+    <ClInclude Include="CvSerialize.h" />
     <ClInclude Include="CvSiteEvaluationClasses.h" />
     <ClInclude Include="CvStartPositioner.h" />
     <ClInclude Include="cvStopWatch.h" />
