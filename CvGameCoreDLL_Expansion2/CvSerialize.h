@@ -149,7 +149,7 @@ private:
 	{
 		static inline void Write(FDataStream& stream, const T& container)
 		{
-			stream << VarTraits::template GetC<void>(container);
+			stream << VarTraits::GetC(container);
 		}
 	};
 
@@ -283,7 +283,7 @@ class CvSyncObjectBase<CvSyncObject<Container>>
 		{
 			if (VarTraits::SAVE)
 			{
-				stream << VarTraits::template GetC<void>(container);
+				stream << VarTraits::GetC(container);
 			}
 			return true;
 		}
@@ -306,7 +306,7 @@ class CvSyncObjectBase<CvSyncObject<Container>>
 		{
 			if (VarTraits::SAVE)
 			{
-				typename VarTraits::VarType& var = VarTraits::template Get<void>(container);
+				typename VarTraits::VarType& var = VarTraits::Get(container);
 				stream >> var.dirtyGet(syncObject);
 			}
 			return true;
@@ -346,7 +346,7 @@ template<> class CvSyncObject<type> : public CvSyncObjectBase<CvSyncObject<type>
 	typedef type Container; \
 	enum { INIT_VAR_N_ = __COUNTER__ + 1 }; \
 public: \
-	template<size_t> struct VarTraits { typedef void Type; };
+	template<size_t, typename = void> struct VarTraits { typedef void Type; };
 
 // Gets the next index for a sync var
 // Useful if you don't want to use the SYNC_OBJECT_VAR macro!
@@ -364,10 +364,10 @@ public: \
 		typedef type ValueType; \
 		typedef CvSyncVar<name> VarType; \
 		enum { INDEX = SYNC_OBJECT_VAR_NEXT_INDEX, SAVE = size_t(save) }; \
-		template<typename> static inline const VarType& GetC(const Container& container) { return container.name; } \
-		template<typename> static inline VarType& Get(Container& container) { return container.name; } \
+		template<typename T> static inline const VarType& GetC(const T& container) { return container.name; } \
+		template<typename T> static inline VarType& Get(T& container) { return container.name; } \
 	}; \
-	template<> struct VarTraits<name::INDEX> { \
+	template<typename Dummy> struct VarTraits<name::INDEX, Dummy> { \
 		typedef name Type; \
 	};
 
