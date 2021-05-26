@@ -383,9 +383,9 @@ private: \
 
 // Helper to declare a CvSyncObject member for a type
 #define SYNC_OBJECT_MEMBER(type) \
-	typedef CvSyncObject<CvUnit> SyncObject; \
+	typedef CvSyncObject<type> SyncObject; \
 	friend SyncObject; \
-	CvSyncObject<CvUnit> m_syncObject;
+	CvSyncObject<type> m_syncObject;
 
 // Helper to declare a CvSyncVar member for a type
 #define SYNC_VAR_MEMBER(name) CvSyncVar<SyncObject::name> name;
