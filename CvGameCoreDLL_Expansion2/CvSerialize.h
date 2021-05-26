@@ -155,44 +155,44 @@ private:
 	class InitVisitor
 	{
 	public:
-		InitVisitor(PFN* pfn)
-			: m_pfn(pfn)
+		InitVisitor(PFN* pfns)
+			: m_pfns(pfns)
 		{}
 
 		template<typename VarTraits>
 		inline bool operator()(VarTraits)
 		{
-			*(m_pfn++) = &VarWriter<VarTraits>::Write;
+			m_pfns[VarTraits::INDEX] = &VarWriter<VarTraits>::Write;
 			return true;
 		}
 
 	private:
-		PFN* m_pfn;
+		PFN* const m_pfns;
 	};
 public:
 	inline CvSyncWriterTable()
 	{
-		InitVisitor visitor(pfns);
+		InitVisitor visitor(m_pfns);
 		CvSyncObject<T>::template Visit(visitor);
 	}
 
 	inline PFN& operator[](size_t i)
 	{
-		return pfns[i];
+		return m_pfns[i];
 	}
 
 	inline const PFN& operator[](size_t i) const
 	{
-		return pfns[i];
+		return m_pfns[i];
 	}
 
 	inline void operator()(size_t i, FDataStream& stream, const T& container) const
 	{
-		pfns[i](stream, container);
+		m_pfns[i](stream, container);
 	}
 	
 private:
-	PFN pfns[N];
+	PFN m_pfns[N];
 };
 
 // Contains synchronization meta-data
