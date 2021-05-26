@@ -3293,6 +3293,13 @@ void CvUnit::doTurn()
 				if(iTurnsElapsed > getPromotionDuration(ePromotion))
 				{
 					setHasPromotion(ePromotion, false);
+
+					if (pkPromotionInfo != NULL)
+						return;
+
+					//plagued? remove plague.
+					if (getPlagueID() == pkPromotionInfo->GetPlagueID())
+						setPlagueID(-1);
 				}
 			}
 		}
