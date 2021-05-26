@@ -1722,12 +1722,7 @@ int CvLuaCity::lGetGeneralProductionTurnsLeft(lua_State* L)
 //bool isFoodProduction();
 int CvLuaCity::lIsFoodProduction(lua_State* L)
 {
-	//return BasicLuaMethod<bool, UnitTypes>(L, &CvCity::isFoodProduction);
-	CvCity* pkCity = GetInstance(L);
-	const int iResult = pkCity->isFoodProduction();
-
-	lua_pushboolean(L, iResult);
-	return 1;
+	return BasicLuaMethod<bool>(L, &CvCity::isFoodProduction);
 }
 //------------------------------------------------------------------------------
 //int getFirstUnitOrder(UnitTypes eUnit);
@@ -1763,7 +1758,13 @@ int CvLuaCity::lGetFirstBuildingOrder(lua_State* L)
 //bool isUnitFoodProduction(UnitTypes iUnit);
 int CvLuaCity::lIsUnitFoodProduction(lua_State* L)
 {
-	return BasicLuaMethod<bool, UnitTypes>(L, &CvCity::isFoodProduction);
+	CvCity* pkCity = GetInstance(L);
+	const UnitTypes eUnitType = (UnitTypes) lua_tointeger(L, 2);
+	PlayerTypes eOwner = pkCity->getOwner();
+
+	const int iResult = isUnitTypeFoodProduction(eOwner,eUnitType);
+	lua_pushboolean(L, iResult);
+	return 1;
 }
 //------------------------------------------------------------------------------
 //int getProduction();

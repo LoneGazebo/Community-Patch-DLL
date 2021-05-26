@@ -11065,6 +11065,28 @@ const char* CvCity::getProductionNameKey() const
 	return "";
 }
 
+//	--------------------------------------------------------------------------------
+bool isUnitTypeFoodProduction(PlayerTypes ePlayer, UnitTypes eUnit)
+{
+	CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUnit);
+	if(pkUnitInfo == NULL)
+		return false;
+
+	if(pkUnitInfo->IsFoodProduction())
+	{
+		return true;
+	}
+
+	if(GET_PLAYER(ePlayer).isMilitaryFoodProduction())
+	{
+		if(pkUnitInfo->IsMilitaryProduction())
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
 
 //	--------------------------------------------------------------------------------
 bool CvCity::isFoodProduction() const
@@ -11077,7 +11099,7 @@ bool CvCity::isFoodProduction() const
 		switch(pOrderNode->eOrderType)
 		{
 		case ORDER_TRAIN:
-			return isFoodProduction((UnitTypes)(pOrderNode->iData1));
+			return isUnitTypeFoodProduction(getOwner(),(UnitTypes)(pOrderNode->iData1));
 			break;
 
 		case ORDER_CONSTRUCT:
@@ -11094,31 +11116,6 @@ bool CvCity::isFoodProduction() const
 
 	return false;
 }
-
-
-//	--------------------------------------------------------------------------------
-bool CvCity::isFoodProduction(UnitTypes eUnit) const
-{
-	CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUnit);
-	if(pkUnitInfo == NULL)
-		return false;
-
-	if(pkUnitInfo->IsFoodProduction())
-	{
-		return true;
-	}
-
-	if(GET_PLAYER(getOwner()).isMilitaryFoodProduction())
-	{
-		if(pkUnitInfo->IsMilitaryProduction())
-		{
-			return true;
-		}
-	}
-
-	return false;
-}
-
 
 //	--------------------------------------------------------------------------------
 int CvCity::getFirstUnitOrder(UnitTypes eUnit) const
@@ -11611,7 +11608,9 @@ int CvCity::getProductionTurnsLeft(UnitTypes eUnit, int iNum) const
 	iProductionNeeded = getProductionNeeded(eUnit) * 100;
 	iProductionModifier = getProductionModifier(eUnit);
 
-	return getProductionTurnsLeft(iProductionNeeded, iProduction, getProductionDifferenceTimes100(iProductionNeeded, iProduction, iProductionModifier, isFoodProduction(eUnit), (iNum == 0)), getProductionDifferenceTimes100(iProductionNeeded, iProduction, iProductionModifier, isFoodProduction(eUnit), false));
+	return getProductionTurnsLeft(iProductionNeeded, iProduction, 
+		getProductionDifferenceTimes100(iProductionNeeded, iProduction, iProductionModifier, isUnitTypeFoodProduction(getOwner(), eUnit), (iNum == 0)), 
+		getProductionDifferenceTimes100(iProductionNeeded, iProduction, iProductionModifier, isUnitTypeFoodProduction(getOwner(), eUnit), false));
 }
 
 
@@ -11637,7 +11636,9 @@ int CvCity::getProductionTurnsLeft(BuildingTypes eBuilding, int iNum) const
 
 	iProductionModifier = getProductionModifier(eBuilding);
 
-	return getProductionTurnsLeft(iProductionNeeded, iProduction, getProductionDifferenceTimes100(iProductionNeeded, iProduction, iProductionModifier, false, (iNum == 0)), getProductionDifferenceTimes100(iProductionNeeded, iProduction, iProductionModifier, false, false));
+	return getProductionTurnsLeft(iProductionNeeded, iProduction, 
+		getProductionDifferenceTimes100(iProductionNeeded, iProduction, iProductionModifier, false, (iNum == 0)), 
+		getProductionDifferenceTimes100(iProductionNeeded, iProduction, iProductionModifier, false, false));
 }
 
 

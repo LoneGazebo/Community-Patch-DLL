@@ -518,7 +518,7 @@ int CvCityCitizens::GetPlotValue(CvPlot* pPlot, SPrecomputedExpensiveNumbers cac
 {
 	int iValue = 0;
 
-	bool bCityFoodProduction = m_pCity->isFoodProduction(); //settler!
+	bool bCityFoodProduction = !GET_PLAYER(GetOwner()).isHuman() && m_pCity->getPopulation() > 3 && m_pCity->isFoodProduction(); //settler!
 	bool bCityWonderProduction = !GET_PLAYER(GetOwner()).isHuman() && m_pCity->getPopulation() > 3 && m_pCity->IsBuildingWorldWonder();
 	bool bSmallCity = m_pCity->getPopulation() < GC.getCITY_MIN_SIZE_FOR_SETTLERS();
 	ProcessTypes eProcess = m_pCity->getProductionProcess();
@@ -541,7 +541,7 @@ int CvCityCitizens::GetPlotValue(CvPlot* pPlot, SPrecomputedExpensiveNumbers cac
 		bNeedFood = (cache.iExcessFoodTimes100 - pPlot->getYield(YIELD_FOOD)) < iFoodThreshold;
 
 	//we always want to be growing a little bit
-	bool bEmphasizeFood = (bCityFoodProduction || bNeedFood || bSmallCity);
+	bool bEmphasizeFood = (bNeedFood || bSmallCity);
 	bool bEmphasizeProduction = (bCityFoodProduction || bCityWonderProduction);
 
 	for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
