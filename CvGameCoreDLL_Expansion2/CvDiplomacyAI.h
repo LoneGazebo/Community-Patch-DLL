@@ -86,7 +86,6 @@ public:
 
 	CvPlayer* GetPlayer();
 	const CvPlayer* GetPlayer() const;
-	TeamTypes GetTeam() const;
 
 	// ************************************
 	// Helper Functions
@@ -1733,10 +1732,15 @@ public:
 	void LogCloseEmbassy(PlayerTypes ePlayer);
 
 private:
-	/// Helper function to return this player's ID more conveniently (inlined for performance)
+	/// Helper function to return this player's ID more conveniently
 	inline PlayerTypes CvDiplomacyAI::GetID() const
 	{
 		return m_pPlayer->GetID();
+	}
+	/// Helper function to return the Team ID this AI's player is associated with more conveniently
+	TeamTypes CvDiplomacyAI::GetTeam() const
+	{
+		return m_pPlayer->getTeam();
 	}
 
 	// Estimations of other players' tendencies
