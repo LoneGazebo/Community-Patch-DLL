@@ -26837,7 +26837,7 @@ void CvUnit::read(FDataStream& kStream)
 
 	// all CvSyncVars in the m_syncArchive marked as SAVE will be read
 	// automagically, no need to explicitly load them here
-	m_syncArchive.read(kStream, *this);
+	m_syncArchive.read(kStream);
 
 	// anything not in m_syncArchive needs to be explicitly read
 
@@ -26936,7 +26936,7 @@ void CvUnit::write(FDataStream& kStream) const
 	kStream << uiVersion;
 	MOD_SERIALIZE_INIT_WRITE(kStream);
 
-	m_syncArchive.write(kStream, *this);
+	m_syncArchive.write(kStream);
 
 	// Write out a hash for the unit type, the sync archive saved the index, which is not a good thing to do.
 	if (m_eUnitType != NO_UNIT && m_pUnitInfo)

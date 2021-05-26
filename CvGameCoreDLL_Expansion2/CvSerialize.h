@@ -156,7 +156,7 @@ class CvSyncArchive;
 template<typename SyncArchive, typename Visitor, size_t N, size_t VarCount>
 struct CvSyncArchiveVarsVisit
 {
-	static inline void Step(Visitor& visitor)
+	static __forceinline void Step(Visitor& visitor)
 	{
 		typedef typename SyncArchive::SyncVars SyncVars;
 		typedef typename SyncVars::template VarTraits<N>::Type Traits;
@@ -171,7 +171,7 @@ struct CvSyncArchiveVarsVisit
 template<typename SyncArchive, typename Visitor, size_t N>
 struct CvSyncArchiveVarsVisit<SyncArchive, Visitor, N, N>
 {
-	static inline void Step(Visitor& visitor)
+	static __forceinline void Step(Visitor& visitor)
 	{
 		// Intentionally empty to terminate recursion
 	}
@@ -193,7 +193,7 @@ class CvSyncArchiveBase<CvSyncArchive<Container>> : public FAutoArchive
 		{}
 
 		template<typename VarTraits>
-		inline bool operator()(VarTraits)
+		__forceinline bool operator()(VarTraits)
 		{
 			if (VarTraits::SAVE)
 			{
@@ -208,24 +208,22 @@ class CvSyncArchiveBase<CvSyncArchive<Container>> : public FAutoArchive
 
 	struct ReadVisitor
 	{
-		inline ReadVisitor(Derived& syncArchive, FDataStream& stream, Container& container)
-			: syncArchive(syncArchive)
-			, stream(stream)
+		inline ReadVisitor(FDataStream& stream, Container& container)
+			: stream(stream)
 			, container(container)
 		{}
 
 		template<typename VarTraits>
-		inline bool operator()(VarTraits)
+		__forceinline bool operator()(VarTraits)
 		{
 			if (VarTraits::SAVE)
 			{
 				typename VarTraits::VarType& var = VarTraits::Get(container);
-				stream >> var.dirtyGet(syncArchive);
+				stream >> var.unsafeGet();
 			}
 			return true;
 		}
 
-		Derived& syncArchive;
 		FDataStream& stream;
 		Container& container;
 	};
@@ -263,15 +261,15 @@ public:
 		CvSyncArchiveVarsVisit<Derived, Visitor, 0, Derived::VAR_COUNT>::Step(visitor);
 	}
 
-	inline void write(FDataStream& stream, const Container& container) const
+	inline void write(FDataStream& stream) const
 	{
-		WriteVisitor visitor(stream, container);
+		WriteVisitor visitor(stream, getContainer());
 		Visit(visitor);
 	}
 
-	inline void read(FDataStream& stream, Container& container)
+	inline void read(FDataStream& stream)
 	{
-		ReadVisitor visitor(*static_cast<Derived*>(this), stream, container);
+		ReadVisitor visitor(stream, getContainer());
 		Visit(visitor);
 	}
 
@@ -401,12 +399,12 @@ public: \
 				inline AutoVar() {} \
 			public: \
 				typedef name Traits; \
-				static inline const AutoVar& GetC(const SyncVars& archive) { return archive.syncVar_##name; } \
-				static inline AutoVar& Get(SyncVars& archive) { return archive.syncVar_##name; } \
-				inline const SyncArchive& getSyncArchive() const { /* This is technically not standard compliant, but I promise it is safe */ \
+				static __forceinline const AutoVar& GetC(const SyncVars& archive) { return archive.syncVar_##name; } \
+				static __forceinline AutoVar& Get(SyncVars& archive) { return archive.syncVar_##name; } \
+				__forceinline const SyncArchive& getSyncArchive() const { /* This is technically not standard compliant, but I promise it is safe */ \
 					return (reinterpret_cast<const SyncVars*>(reinterpret_cast<const char*>(this) - offsetof(SyncVars, syncVar_##name))->archive); \
 				} \
-				inline SyncArchive& getSyncArchive() { return const_cast<SyncArchive&>(const_cast<const AutoVar*>(this)->getSyncArchive()); } \
+				__forceinline SyncArchive& getSyncArchive() { return const_cast<SyncArchive&>(const_cast<const AutoVar*>(this)->getSyncArchive()); } \
 			}; \
 		}; \
 		template<typename Dummy> struct VarTraits<name::INDEX, Dummy> { \
