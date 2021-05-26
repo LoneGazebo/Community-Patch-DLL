@@ -1190,6 +1190,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetCachedValueOfPeaceWithHuman);
 	Method(GetSpyChanceAtCity);
 	Method(GetCityPotentialInfo);
+	Method(GetCityWithSpy);
 #endif
 	Method(GetNumSpies);
 	Method(GetNumUnassignedSpies);
@@ -15222,6 +15223,18 @@ int CvLuaPlayer::lGetCityPotentialInfo(lua_State* L)
 	lua_pushstring(L, pkPlayerEspionage->GetCityPotentialInfo(pkCity, bNoBasic));
 	return 1;
 }
+
+int CvLuaPlayer::lGetCityWithSpy(lua_State* L)
+{
+	CvPlayerAI* pkThisPlayer = GetInstance(L);
+	CvPlayerEspionage* pkPlayerEspionage = pkThisPlayer->GetEspionage();
+	int iSpyIndex = lua_tointeger(L, 2);
+	CvCity* pSpyCity = pkPlayerEspionage->GetCityWithSpy(iSpyIndex);
+
+	CvLuaCity::Push(L, pSpyCity);
+	return 1;
+}
+
 //------------------------------------------------------------------------------
 int CvLuaPlayer::lGetRandomIntrigue(lua_State* L)
 {
