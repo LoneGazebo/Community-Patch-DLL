@@ -6192,10 +6192,11 @@ CvString CvLeague::GetResolutionProposeOpinionDetails(ResolutionTypes eResolutio
 			{
 				if (!bNeutralDone)
 				{
-					s += "[NEWLINE]";
+					CvString sNeg = Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_PROPOSAL_OPINIONS_NEUTRAL").toUTF8();
+					sNeg.insert(0, "[ENDCOLOR]");
+					s += sNeg;
 					bNeutralDone = true;
 				}
-				strOut.insert(0, "[COLOR_WHITE]");
 				s += strOut;
 			}
 		}

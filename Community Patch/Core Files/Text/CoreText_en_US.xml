@@ -3162,6 +3162,10 @@
 			<Text>We are their greatest rival in the United Nations.</Text>
 		</Row>
 
+		<Row Tag="TXT_KEY_LEAGUE_OVERVIEW_PROPOSAL_OPINIONS_NEUTRAL">
+			<Text>[NEWLINE][NEWLINE]Civilizations that would be mostly unaffected by this:</Text>
+		</Row>
+
 		<!-- New Warmonger Hate Descriptors -->
 		<Row Tag="TXT_KEY_DIPLO_WARMONGER_THREAT_CRITICAL_NUCLEAR">
 			<Text>They fear your warmongering will plunge the world into nuclear winter!</Text>
