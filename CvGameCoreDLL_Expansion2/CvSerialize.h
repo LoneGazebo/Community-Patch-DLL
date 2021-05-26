@@ -3,13 +3,16 @@
 #ifndef CVSERIALIZE_H
 #define CVSERIALIZE_H
 
+// Shared empty string
+extern const std::string EmptyString;
+
 // Shared behavior for CvSyncVar specializations
 template<typename SyncTraits, typename T>
 class CvSyncVarBase
 {
 public:
 	typedef SyncTraits Traits;
-	typedef typename Traits::SyncObject SyncObject;
+	typedef typename Traits::SyncArchive SyncArchive;
 	typedef typename Traits::ValueType ValueType;
 	enum
 	{
@@ -22,15 +25,20 @@ public:
 		return m_value;
 	}
 
-	inline ValueType& dirtyGet(SyncObject& syncObject)
+	inline ValueType& dirtyGet(SyncArchive& syncArchive)
 	{
-		markDirty(syncObject);
+		markDirty(syncArchive);
 		return m_value;
 	}
 
-	inline void set(SyncObject& syncObject, const ValueType& value)
+	inline ValueType& unsafeGet()
 	{
-		markDirty(syncObject);
+		return m_value;
+	}
+
+	inline void set(SyncArchive& syncArchive, const ValueType& value)
+	{
+		markDirty(syncArchive);
 		m_value = value;
 	}
 
@@ -39,9 +47,14 @@ public:
 		return m_value;
 	}
 
-	inline void markDirty(SyncObject& syncObject)
+	inline void markDirty(SyncArchive& syncArchive)
 	{
-		syncObject.getDeltas().set(Traits::INDEX);
+		const std::vector<FAutoVariableBase*>& autoVars = syncArchive.getAutoVars();
+		if (!autoVars.empty())
+		{
+			FAssert(Traits::INDEX < autoVars.size());
+			syncArchive.touch(*autoVars[Traits::INDEX]);
+		}
 	}
 
 protected:
@@ -69,7 +82,7 @@ class CvSyncVar<SyncTraits, std::vector<T, Alloc>> : public CvSyncVarBase<SyncTr
 {
 public:
 	typedef typename CvSyncVarBase<SyncTraits, std::vector<T, Alloc>>::ValueType ValueType;
-	typedef typename CvSyncVarBase<SyncTraits, std::vector<T, Alloc>>::SyncObject SyncObject;
+	typedef typename CvSyncVarBase<SyncTraits, std::vector<T, Alloc>>::SyncArchive SyncArchive;
 	typedef typename std::vector<T, Alloc>::const_iterator const_iterator;
 	typedef typename std::vector<T, Alloc>::const_reference const_reference;
 
@@ -78,9 +91,9 @@ public:
 		: CvSyncVarBase<SyncTraits, T>(value)
 	{}
 
-	inline void setAt(SyncObject& syncObject, size_t i, const_reference value)
+	inline void setAt(SyncArchive& syncArchive, size_t i, const_reference value)
 	{
-		markDirty(syncObject);
+		markDirty(syncArchive);
 		this->m_value[i] = value;
 	}
 
@@ -98,33 +111,33 @@ public:
 	inline const_iterator begin() const { return this->m_value.begin(); }
 	inline const_iterator end() const { return this->m_value.end(); }
 
-	inline void push_back(SyncObject& syncObject, const_reference src)
+	inline void push_back(SyncArchive& syncArchive, const_reference src)
 	{
-		dirtyGet(syncObject).push_back(src);
+		dirtyGet(syncArchive).push_back(src);
 	}
-	inline void erase(SyncObject& syncObject, size_t i)
+	inline void erase(SyncArchive& syncArchive, size_t i)
 	{
-		dirtyGet(syncObject).erase(i);
+		dirtyGet(syncArchive).erase(i);
 	}
-	inline void insert(SyncObject& syncObject, size_t i, const_reference src)
+	inline void insert(SyncArchive& syncArchive, size_t i, const_reference src)
 	{
-		dirtyGet(syncObject).insert(i, src);
+		dirtyGet(syncArchive).insert(i, src);
 	}
-	inline void clear(SyncObject& syncObject)
+	inline void clear(SyncArchive& syncArchive)
 	{
-		dirtyGet(syncObject).clear();
+		dirtyGet(syncArchive).clear();
 	}
-	inline void resize(SyncObject& syncObject, size_t n)
+	inline void resize(SyncArchive& syncArchive, size_t n)
 	{
-		dirtyGet(syncObject).resize(n);
+		dirtyGet(syncArchive).resize(n);
 	}
-	inline void resize(SyncObject& syncObject, size_t n, const_reference v)
+	inline void resize(SyncArchive& syncArchive, size_t n, const_reference v)
 	{
-		dirtyGet(syncObject).resize(n, v);
+		dirtyGet(syncArchive).resize(n, v);
 	}
-	inline void reserve(SyncObject& syncObject, size_t n)
+	inline void reserve(SyncArchive& syncArchive, size_t n)
 	{
-		dirtyGet(syncObject).reserve(n);
+		dirtyGet(syncArchive).reserve(n);
 	}
 };
 
@@ -135,126 +148,28 @@ inline FDataStream& operator<<(FDataStream& stream, const CvSyncVar<SyncTraits>&
 	return stream << syncVar.get();
 }
 
-// Virtual dispatch table for writing out CvSyncVar data by index
-template<typename T, size_t N>
-class CvSyncWriterTable
-{
-public:
-	typedef void(*PFN)(FDataStream& stream, const T& container);
-
-private:
-	// Generates a writer function
-	template<typename VarTraits>
-	struct VarWriter
-	{
-		static inline void Write(FDataStream& stream, const T& container)
-		{
-			stream << VarTraits::GetC(container);
-		}
-	};
-
-	// Visits each var in a CvSyncObject and saves a writer function pointer to the pfns array
-	class InitVisitor
-	{
-	public:
-		InitVisitor(PFN* pfns)
-			: m_pfns(pfns)
-		{}
-
-		template<typename VarTraits>
-		inline bool operator()(VarTraits)
-		{
-			m_pfns[VarTraits::INDEX] = &VarWriter<VarTraits>::Write;
-			return true;
-		}
-
-	private:
-		PFN* const m_pfns;
-	};
-public:
-	inline CvSyncWriterTable()
-	{
-		InitVisitor visitor(m_pfns);
-		CvSyncObject<T>::Visit(visitor);
-	}
-
-	inline PFN& operator[](size_t i)
-	{
-		return m_pfns[i];
-	}
-
-	inline const PFN& operator[](size_t i) const
-	{
-		return m_pfns[i];
-	}
-
-	inline void operator()(size_t i, FDataStream& stream, const T& container) const
-	{
-		m_pfns[i](stream, container);
-	}
-	
-private:
-	PFN m_pfns[N];
-};
-
 // Contains synchronization meta-data
 template<typename T>
-class CvSyncObject;
+class CvSyncArchive;
 
-// Maintains a list of variables that need synchronization
-template<typename T, size_t N>
-class CvSyncDeltas
-{
-public:
-	inline bool empty() const
-	{
-		return m_vars.empty();
-	}
-
-	inline void clear()
-	{
-		m_vars.clear();
-	}
-
-	inline void set(size_t i)
-	{
-		m_vars.insert(i);
-	}
-
-	inline void writeAndClear(FDataStream& stream, const T& container)
-	{
-		const CvSyncWriterTable<T, N>& writerTable = CvSyncObject<T>::s_SyncWriterTable;
-		stream << m_vars.size();
-		for (std::set<size_t>::const_iterator it = m_vars.begin(); it != m_vars.end(); ++it)
-		{
-			const size_t varIndex = *it;
-			stream << varIndex;
-			writerTable(varIndex, stream, container);
-		}
-		clear();
-	}
-private:
-	// Set of var indices referencing the variables that have changed.
-	std::set<size_t> m_vars;
-};
-
-// Utility for visiting var traits of a CvSyncObject
-template<typename SyncObject, typename Visitor, size_t N, size_t VarCount>
-struct CvSyncObjectVarsVisit
+// Utility for visiting var traits of a CvSyncArchive
+template<typename SyncArchive, typename Visitor, size_t N, size_t VarCount>
+struct CvSyncArchiveVarsVisit
 {
 	static inline void Step(Visitor& visitor)
 	{
-		typedef typename SyncObject::template VarTraits<N>::Type Traits;
+		typedef typename SyncArchive::SyncVars SyncVars;
+		typedef typename SyncVars::template VarTraits<N>::Type Traits;
 		if (visitor(Traits()))
 		{
-			CvSyncObjectVarsVisit<SyncObject, Visitor, N + 1, VarCount>::Step(visitor);
+			CvSyncArchiveVarsVisit<SyncArchive, Visitor, N + 1, VarCount>::Step(visitor);
 		}
 	}
 };
 
-// Utility for visiting var traits of a CvSyncObject
-template<typename SyncObject, typename Visitor, size_t N>
-struct CvSyncObjectVarsVisit<SyncObject, Visitor, N, N>
+// Utility for visiting var traits of a CvSyncArchive
+template<typename SyncArchive, typename Visitor, size_t N>
+struct CvSyncArchiveVarsVisit<SyncArchive, Visitor, N, N>
 {
 	static inline void Step(Visitor& visitor)
 	{
@@ -263,12 +178,12 @@ struct CvSyncObjectVarsVisit<SyncObject, Visitor, N, N>
 };
 
 template<typename T>
-class CvSyncObjectBase;
+class CvSyncArchiveBase;
 
 template<typename Container>
-class CvSyncObjectBase<CvSyncObject<Container>>
+class CvSyncArchiveBase<CvSyncArchive<Container>> : public FAutoArchive
 {
-	typedef CvSyncObject<Container> Derived;
+	typedef CvSyncArchive<Container> Derived;
 
 	struct WriteVisitor
 	{
@@ -293,8 +208,8 @@ class CvSyncObjectBase<CvSyncObject<Container>>
 
 	struct ReadVisitor
 	{
-		inline ReadVisitor(Derived& syncObject, FDataStream& stream, Container& container)
-			: syncObject(syncObject)
+		inline ReadVisitor(Derived& syncArchive, FDataStream& stream, Container& container)
+			: syncArchive(syncArchive)
 			, stream(stream)
 			, container(container)
 		{}
@@ -305,23 +220,47 @@ class CvSyncObjectBase<CvSyncObject<Container>>
 			if (VarTraits::SAVE)
 			{
 				typename VarTraits::VarType& var = VarTraits::Get(container);
-				stream >> var.dirtyGet(syncObject);
+				stream >> var.dirtyGet(syncArchive);
 			}
 			return true;
 		}
 
-		Derived& syncObject;
+		Derived& syncArchive;
 		FDataStream& stream;
 		Container& container;
 	};
 
 public:
+	CvSyncArchiveBase(Container& container)
+		: m_container(container)
+	{}
+	virtual ~CvSyncArchiveBase() {}
+
+	//
+	// FAutoArchive Interface
+	//
+	virtual const std::string* getVariableName(const FAutoVariableBase&) const
+	{
+		return NULL;
+	}
+	virtual void setVariableName(const FAutoVariableBase&, const std::string&) const
+	{
+	}
+	virtual std::string debugDump(const FAutoVariableBase& var) const
+	{
+		return std::string("\n") + getContainer().debugDump(var);
+	}
+	virtual std::string stackTraceRemark(const FAutoVariableBase& var) const
+	{
+		return getContainer().stackTraceRemark(var);
+	}
+
 	// Sends a visitor to all the CvSyncVar traits
 	// The visitor may cancel at any time by returning false
 	template<typename Visitor>
 	static inline void Visit(Visitor& visitor)
 	{
-		CvSyncObjectVarsVisit<Derived, Visitor, 0, Derived::VAR_COUNT>::Step(visitor);
+		CvSyncArchiveVarsVisit<Derived, Visitor, 0, Derived::VAR_COUNT>::Step(visitor);
 	}
 
 	inline void write(FDataStream& stream, const Container& container) const
@@ -335,57 +274,164 @@ public:
 		ReadVisitor visitor(*static_cast<Derived*>(this), stream, container);
 		Visit(visitor);
 	}
+
+	inline const Container& getContainer() const
+	{
+		return m_container;
+	}
+
+	inline Container& getContainer()
+	{
+		return m_container;
+	}
+
+	inline const std::vector<FAutoVariableBase*>& getAutoVars() const
+	{
+		return m_contents;
+	}
+
+private:
+	Container& m_container;
 };
 
-// Automagically begins a CvSyncObject specialization
-#define SYNC_OBJECT_BEGIN(type) \
+// Implements Fraxis' auto variable base interface for a sync var in an archive
+template<typename Traits>
+struct CvSyncVarAutoVariableBase : public FAutoVariableBase
+{
+	inline CvSyncVarAutoVariableBase()
+		: FAutoVariableBase("", static_cast<typename Traits::AutoVar*>(this)->getSyncArchive())
+	{}
+
+	virtual ~CvSyncVarAutoVariableBase() {}
+	virtual void load(FDataStream& loadFrom)
+	{
+		typename Traits::SyncArchive& syncArchive = static_cast<typename Traits::AutoVar*>(this)->getSyncArchive();
+		loadFrom >> Traits::Get(syncArchive.getContainer()).unsafeGet();
+	}
+	virtual void loadDelta(FDataStream& loadFrom)
+	{
+		load(loadFrom);
+	}
+	virtual void save(FDataStream& saveTo) const
+	{
+		const typename Traits::SyncArchive& syncArchive = static_cast<const typename Traits::AutoVar*>(this)->getSyncArchive();
+		saveTo << Traits::GetC(syncArchive.getContainer());
+	}
+	virtual void saveDelta(FDataStream& saveTo) const
+	{
+		save(saveTo);
+	}
+	virtual void clearDelta()
+	{
+	}
+	virtual bool compare(FDataStream& otherValue) const
+	{
+		typedef typename Traits::VarType VarType;
+
+		const typename Traits::SyncArchive& syncArchive = static_cast<const typename Traits::AutoVar*>(this)->getSyncArchive();
+		const VarType& var = Traits::GetC(syncArchive.getContainer());
+		
+		typename VarType::ValueType value;
+		otherValue >> value;
+		return var.get() == value;
+	}
+	virtual void reset()
+	{
+		typedef typename Traits::VarType VarType;
+		typename Traits::SyncArchive& syncArchive = static_cast<typename Traits::AutoVar*>(this)->getSyncArchive();
+		VarType& var = Traits::Get(syncArchive.getContainer());
+		var.unsafeGet() = typename VarType::ValueType();
+	}
+	virtual const std::string& name() const
+	{
+		// We could technically declare names somewhere just for this function.
+		// Without inline statics it would become a headache, so empty for now.
+		return EmptyString;
+	}
+	virtual void setStackTraceRemark()
+	{
+	}
+	virtual std::string debugDump(const std::vector<std::pair<std::string, std::string> >& callStacks) const
+	{
+		const typename Traits::SyncArchive& syncArchive = static_cast<const typename Traits::AutoVar*>(this)->getSyncArchive();
+		std::string result = FAutoVariableBase::debugDump(callStacks);
+		result += std::string("\n") + syncArchive.getContainer().debugDump(*this) + std::string("\n");
+		return result;
+	}
+	virtual std::string toString() const
+	{
+		const typename Traits::SyncArchive& syncArchive = static_cast<const typename Traits::AutoVar*>(this)->getSyncArchive();
+		return FSerialization::toString(Traits::GetC(syncArchive.getContainer()).get());
+	}
+};
+
+// Automagically begins a CvSyncArchive specialization
+#define SYNC_ARCHIVE_BEGIN(type) \
 class type; \
-template<> class CvSyncObject<type> : public CvSyncObjectBase<CvSyncObject<type>> { \
+template<> class CvSyncArchive<type> : public CvSyncArchiveBase<CvSyncArchive<type>> { \
 	typedef type Container; \
 	enum { INIT_VAR_N_ = __COUNTER__ + 1 }; \
 public: \
-	template<size_t, typename = void> struct VarTraits { typedef void Type; };
+	CvSyncArchive(Container& container) : CvSyncArchiveBase<CvSyncArchive<type>>(container), m_syncVars(NULL) {} \
+	struct SyncVars { \
+		SyncVars(CvSyncArchive<type>& archive) : archive(archive) {} \
+		CvSyncArchive<type>& archive; \
+		template<size_t, typename = void> struct VarTraits { typedef void Type; };
 
 // Gets the next index for a sync var
-// Useful if you don't want to use the SYNC_OBJECT_VAR macro!
-#define SYNC_OBJECT_VAR_NEXT_INDEX __COUNTER__ - INIT_VAR_N_
+// Useful if you don't want to use the SYNC_ARCHIVE_VAR macro!
+#define SYNC_ARCHIVE_VAR_NEXT_INDEX __COUNTER__ - INIT_VAR_N_
 
 // Expands into what you pass it
 // Useful if you need to pass multiple template parameters since the preprocessor wont cooperate otherwise
 // Feel free to move this to another file and give it a better name
-#define SYNC_OBJECT_VAR_TYPE(...) __VA_ARGS__
+#define SYNC_ARCHIVE_VAR_TYPE(...) __VA_ARGS__
 
 // Automagically creates a traits entry for a CvSyncVar
-#define SYNC_OBJECT_VAR(type, name, save) \
-	struct name { \
-		typedef CvSyncObject<Container> SyncObject; \
-		typedef type ValueType; \
-		typedef CvSyncVar<name> VarType; \
-		enum { INDEX = SYNC_OBJECT_VAR_NEXT_INDEX, SAVE = size_t(save) }; \
-		template<typename T> static inline const VarType& GetC(const T& container) { return container.name; } \
-		template<typename T> static inline VarType& Get(T& container) { return container.name; } \
-	}; \
-	template<typename Dummy> struct VarTraits<name::INDEX, Dummy> { \
-		typedef name Type; \
-	};
+#define SYNC_ARCHIVE_VAR(type, name, save) \
+		struct name { \
+			typedef CvSyncArchive<Container> SyncArchive; \
+			typedef type ValueType; \
+			typedef CvSyncVar<name> VarType; \
+			enum { INDEX = SYNC_ARCHIVE_VAR_NEXT_INDEX, SAVE = size_t(save) }; \
+			template<typename T> static inline const VarType& GetC(const T& container) { return container.name; } \
+			template<typename T> static inline VarType& Get(T& container) { return container.name; } \
+			class AutoVar : public CvSyncVarAutoVariableBase<name> { \
+				friend SyncVars; \
+				inline AutoVar() {} \
+			public: \
+				typedef name Traits; \
+				static inline const AutoVar& GetC(const SyncVars& archive) { return archive.syncVar_##name; } \
+				static inline AutoVar& Get(SyncVars& archive) { return archive.syncVar_##name; } \
+				inline const SyncArchive& getSyncArchive() const { /* This is technically not standard compliant, but I promise it is safe */ \
+					return (reinterpret_cast<const SyncVars*>(reinterpret_cast<const char*>(this) - offsetof(SyncVars, syncVar_##name))->archive); \
+				} \
+				inline SyncArchive& getSyncArchive() { return const_cast<SyncArchive&>(const_cast<const AutoVar*>(this)->getSyncArchive()); } \
+			}; \
+		}; \
+		template<typename Dummy> struct VarTraits<name::INDEX, Dummy> { \
+			typedef name Type; \
+		}; \
+		name::AutoVar syncVar_##name;
 
-// Automagically ends a CvSyncObject specialization
-#define SYNC_OBJECT_END() \
+// Automagically ends a CvSyncArchive specialization
+#define SYNC_ARCHIVE_END() \
+	}; \
 	enum { VAR_COUNT = __COUNTER__ - INIT_VAR_N_ }; \
-	inline CvSyncDeltas<Container, VAR_COUNT>& getDeltas() { return m_deltas; } \
-	inline const CvSyncDeltas<Container, VAR_COUNT>& getDeltas() const { return m_deltas; } \
-	static const CvSyncWriterTable<Container, VAR_COUNT> s_SyncWriterTable; \
+	inline SyncVars* getSyncVars() { return m_syncVars; } \
+	inline const SyncVars* getSyncVars() const { return m_syncVars; } \
+	inline void setSyncVars(SyncVars& syncVars) { FAssert(m_syncVars == NULL); m_syncVars = &syncVars; } \
 private: \
-	CvSyncDeltas<Container, VAR_COUNT> m_deltas; \
+	SyncVars* m_syncVars; \
 };
 
-// Helper to declare a CvSyncObject member for a type
-#define SYNC_OBJECT_MEMBER(type) \
-	typedef CvSyncObject<type> SyncObject; \
-	friend SyncObject; \
-	CvSyncObject<type> m_syncObject;
+// Helper to declare a CvSyncArchive member for a type
+#define SYNC_ARCHIVE_MEMBER(type) \
+	typedef CvSyncArchive<type> SyncArchive; \
+	friend SyncArchive; \
+	CvSyncArchive<type> m_syncArchive;
 
 // Helper to declare a CvSyncVar member for a type
-#define SYNC_VAR_MEMBER(name) CvSyncVar<SyncObject::name> name;
+#define SYNC_VAR_MEMBER(name) CvSyncVar<SyncArchive::SyncVars::name> name;
 
 #endif
