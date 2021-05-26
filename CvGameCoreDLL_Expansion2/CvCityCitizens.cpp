@@ -682,17 +682,12 @@ bool CvCityCitizens::SetFocusType(CityAIFocusTypes eFocus, bool bReallocate)
 
 int CvCityCitizens::GetYieldModForFocus(YieldTypes eYield, CityAIFocusTypes eFocus, bool bEmphasizeFood, bool bEmphasizeProduction, SPrecomputedExpensiveNumbers cache)
 {
-	//consider gpp focus like default focus as far as plot yields are concerned - only the specialists are weighted higher (GetSpecialistValue)
-	bool bDefaultWeight = (eFocus == NO_CITY_AI_FOCUS_TYPE || eFocus == CITY_AI_FOCUS_TYPE_GREAT_PEOPLE);
-
-	int iYieldMod = 1; //default
+	int iYieldMod = 6; //default
 
 	if (eYield == YIELD_FOOD)
 	{
 		if (eFocus == CITY_AI_FOCUS_TYPE_FOOD || bEmphasizeFood)
 			iYieldMod += GC.getAI_CITIZEN_VALUE_FOOD();
-		else if (eFocus == CITY_AI_FOCUS_TYPE_PROD_GROWTH || eFocus == CITY_AI_FOCUS_TYPE_GOLD_GROWTH || bDefaultWeight)
-			iYieldMod += GC.getAI_CITIZEN_VALUE_FOOD()/2;
 
 		iYieldMod += cache.iUnhappinessFromDistress;
 	}
@@ -700,8 +695,6 @@ int CvCityCitizens::GetYieldModForFocus(YieldTypes eYield, CityAIFocusTypes eFoc
 	{
 		if (eFocus == CITY_AI_FOCUS_TYPE_PRODUCTION || bEmphasizeProduction)
 			iYieldMod += GC.getAI_CITIZEN_VALUE_PRODUCTION();
-		else if (eFocus == CITY_AI_FOCUS_TYPE_PROD_GROWTH || bDefaultWeight)
-			iYieldMod += GC.getAI_CITIZEN_VALUE_PRODUCTION()/2;
 
 		iYieldMod += cache.iUnhappinessFromDistress;
 	}
@@ -709,8 +702,6 @@ int CvCityCitizens::GetYieldModForFocus(YieldTypes eYield, CityAIFocusTypes eFoc
 	{
 		if (eFocus == CITY_AI_FOCUS_TYPE_GOLD)
 			iYieldMod += GC.getAI_CITIZEN_VALUE_GOLD();
-		else if(eFocus == CITY_AI_FOCUS_TYPE_GOLD_GROWTH || bDefaultWeight)
-			iYieldMod += GC.getAI_CITIZEN_VALUE_GOLD()/2;
 
 		iYieldMod += cache.iUnhappinessFromGold;
 	}
@@ -718,8 +709,6 @@ int CvCityCitizens::GetYieldModForFocus(YieldTypes eYield, CityAIFocusTypes eFoc
 	{
 		if (eFocus == CITY_AI_FOCUS_TYPE_SCIENCE)
 			iYieldMod += GC.getAI_CITIZEN_VALUE_SCIENCE();
-		else if (bDefaultWeight)
-			iYieldMod += GC.getAI_CITIZEN_VALUE_SCIENCE() / 2;
 
 		iYieldMod += cache.iUnhappinessFromScience;
 	}
@@ -727,8 +716,6 @@ int CvCityCitizens::GetYieldModForFocus(YieldTypes eYield, CityAIFocusTypes eFoc
 	{
 		if (eFocus == CITY_AI_FOCUS_TYPE_CULTURE)
 			iYieldMod += GC.getAI_CITIZEN_VALUE_CULTURE();
-		else if (bDefaultWeight)
-			iYieldMod += GC.getAI_CITIZEN_VALUE_CULTURE() / 2;
 
 		iYieldMod += cache.iUnhappinessFromCulture;
 	}
@@ -736,8 +723,6 @@ int CvCityCitizens::GetYieldModForFocus(YieldTypes eYield, CityAIFocusTypes eFoc
 	{
 		if (eFocus == CITY_AI_FOCUS_TYPE_FAITH)
 			iYieldMod += GC.getAI_CITIZEN_VALUE_FAITH();
-		else if (bDefaultWeight)
-			iYieldMod += GC.getAI_CITIZEN_VALUE_FAITH() / 2;
 
 		iYieldMod += cache.iUnhappinessFromReligion;
 	}
@@ -1678,9 +1663,9 @@ bool CvCityCitizens::DoRemoveWorstCitizen(CvCity::eUpdateMode updateMode, bool b
 
 	// Are all of our guys already not working Plots?
 #if defined(MOD_GLOBAL_CITY_AUTOMATON_WORKERS)
-	if(GetNumUnassignedCitizens() == GetCity()->getPopulation(true))
+	if (GetNumUnassignedCitizens() == GetCity()->getPopulation(true))
 #else
-	if(GetNumUnassignedCitizens() == GetCity()->getPopulation())
+	if (GetNumUnassignedCitizens() == GetCity()->getPopulation())
 #endif
 	{
 		return false;
@@ -1721,10 +1706,13 @@ bool CvCityCitizens::DoRemoveWorstCitizen(CvCity::eUpdateMode updateMode, bool b
 			return true;
 		}
 	}
-	// Have to resort to pulling away a good Specialist
-	else if (DoRemoveWorstSpecialist(eDontChangeSpecialist, NO_BUILDING, updateMode))
+	// Have to resort to pulling away a good Specialist if we're 
+	else if (!IsNoAutoAssignSpecialists() || bRemoveForcedStatus)
 	{
-		return true;
+		if (DoRemoveWorstSpecialist(eDontChangeSpecialist, NO_BUILDING, updateMode))
+		{
+			return true;
+		}
 	}
 
 	return false;
@@ -2976,6 +2964,11 @@ void CvCityCitizens::DoRemoveAllSpecialistsFromBuilding(BuildingTypes eBuilding,
 /// Find the worst Specialist and remove him from duty
 bool CvCityCitizens::DoRemoveWorstSpecialist(SpecialistTypes eDontChangeSpecialist, const BuildingTypes eDontRemoveFromBuilding, CvCity::eUpdateMode updateMode)
 {
+	int iWorstValue = INT_MAX;
+	BuildingTypes eWorstType = NO_BUILDING;
+	SPrecomputedExpensiveNumbers cache(m_pCity);
+	vector<int> checked(GC.getNumSpecialistInfos(),0);
+
 	vector<BuildingTypes> allBuildings = m_pCity->GetCityBuildings()->GetAllBuildingsHere();
 	for (size_t iBuildingLoop = 0; iBuildingLoop < allBuildings.size(); iBuildingLoop++)
 	{
@@ -2992,16 +2985,35 @@ bool CvCityCitizens::DoRemoveWorstSpecialist(SpecialistTypes eDontChangeSpeciali
 		}
 
 		// We might not be allowed to change this Building's Specialists
-		if (eDontChangeSpecialist == pkBuildingInfo->GetSpecialistType())
+		SpecialistTypes specType = (SpecialistTypes)pkBuildingInfo->GetSpecialistType();
+		if (eDontChangeSpecialist == specType)
+		{
+			continue;
+		}
+
+		//many buildings have the same specialist type
+		if (checked[specType] > 0)
 		{
 			continue;
 		}
 
 		if (GetNumSpecialistsInBuilding(eBuilding) > 0)
 		{
-			DoRemoveSpecialistFromBuilding(eBuilding, true, updateMode);
-			return true;
+			int iValue = GetSpecialistValue((SpecialistTypes)pkBuildingInfo->GetSpecialistType(), cache);
+			checked[specType] = iValue;
+
+			if (iValue < iWorstValue)
+			{
+				iWorstValue = iValue;
+				eWorstType = eBuilding;
+			}
 		}
+	}
+
+	if (eWorstType != NO_BUILDING)
+	{
+		DoRemoveSpecialistFromBuilding(eWorstType, true, updateMode);
+		return true;
 	}
 
 	return false;
