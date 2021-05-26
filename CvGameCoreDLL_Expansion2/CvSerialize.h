@@ -68,6 +68,8 @@ template<typename SyncTraits, typename T, typename Alloc>
 class CvSyncVar<SyncTraits, std::vector<T, Alloc>> : public CvSyncVarBase<SyncTraits, std::vector<T, Alloc>>
 {
 public:
+	typedef typename CvSyncVarBase<SyncTraits, std::vector<T, Alloc>>::ValueType ValueType;
+	typedef typename CvSyncVarBase<SyncTraits, std::vector<T, Alloc>>::SyncObject SyncObject;
 	typedef typename std::vector<T, Alloc>::const_iterator const_iterator;
 	typedef typename std::vector<T, Alloc>::const_reference const_reference;
 
@@ -102,7 +104,7 @@ public:
 	}
 	inline void erase(SyncObject& syncObject, size_t i)
 	{
-		dirtyGet(syncObject).erase(src);
+		dirtyGet(syncObject).erase(i);
 	}
 	inline void insert(SyncObject& syncObject, size_t i, const_reference src)
 	{
@@ -122,7 +124,7 @@ public:
 	}
 	inline void reserve(SyncObject& syncObject, size_t n)
 	{
-		dirtyGet(syncObject).reserve(n, v);
+		dirtyGet(syncObject).reserve(n);
 	}
 };
 
@@ -173,7 +175,7 @@ public:
 	inline CvSyncWriterTable()
 	{
 		InitVisitor visitor(m_pfns);
-		CvSyncObject<T>::template Visit(visitor);
+		CvSyncObject<T>::Visit(visitor);
 	}
 
 	inline PFN& operator[](size_t i)
@@ -236,6 +238,30 @@ private:
 	std::set<size_t> m_vars;
 };
 
+// Utility for visiting var traits of a CvSyncObject
+template<typename SyncObject, typename Visitor, size_t N, size_t VarCount>
+struct CvSyncObjectVarsVisit
+{
+	static inline void Step(Visitor& visitor)
+	{
+		typedef typename SyncObject::template VarTraits<N>::Type Traits;
+		if (visitor(Traits()))
+		{
+			CvSyncObjectVarsVisit<SyncObject, Visitor, N + 1, VarCount>::Step(visitor);
+		}
+	}
+};
+
+// Utility for visiting var traits of a CvSyncObject
+template<typename SyncObject, typename Visitor, size_t N>
+struct CvSyncObjectVarsVisit<SyncObject, Visitor, N, N>
+{
+	static inline void Step(Visitor& visitor)
+	{
+		// Intentionally empty to terminate recursion
+	}
+};
+
 template<typename T>
 class CvSyncObjectBase;
 
@@ -243,25 +269,6 @@ template<typename Container>
 class CvSyncObjectBase<CvSyncObject<Container>>
 {
 	typedef CvSyncObject<Container> Derived;
-	template<typename Visitor>
-	struct VisitLooper
-	{
-		template<size_t N>
-		static inline void Step(Visitor& visitor)
-		{
-			typedef typename Derived::template VarTraits<N>::Type Traits;
-			if (visitor(Traits()))
-			{
-				Step<N + 1>(visitor);
-			}
-		}
-
-		template<>
-		static inline void Step<Derived::VAR_COUNT>(Visitor& visitor)
-		{
-			// Intentionally empty to terminate recursion
-		}
-	};
 
 	struct WriteVisitor
 	{
@@ -316,7 +323,7 @@ public:
 	template<typename Visitor>
 	static inline void Visit(Visitor& visitor)
 	{
-		VisitLooper<Visitor>::template Step<0>(visitor);
+		CvSyncObjectVarsVisit<Derived, Visitor, 0, Derived::VAR_COUNT>::Step(visitor);
 	}
 
 	inline void write(FDataStream& stream, const Container& container) const
