@@ -217,10 +217,10 @@
 			<Text>Protect them from a barbarian horde!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_ENDED_HORDE">
-			<Text>{1_CityStateName:textkey} has fallen to barbarians and [COLOR_NEGATIVE_TEXT]has now been sacked[ENDCOLOR]! It will remain under barbarian control until reconquered.</Text>
+			<Text>Barbarians have established themselves near {1_CityStateName:textkey} and [COLOR_NEGATIVE_TEXT]may take it over[ENDCOLOR]!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_QUEST_ENDED_HORDE">
-			<Text>Barbarians have sacked {1_MinorCivName:textkey}!</Text>
+			<Text>Barbarians swarming {1_MinorCivName:textkey}!</Text>
 		</Row>
 		
 		<!--Rebellion -->
