@@ -15751,7 +15751,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	else if (IsAngryAboutProtectedMinorAttacked(ePlayer))
 	{
 		int iPenalty = (GetOtherPlayerNumProtectedMinorsKilled(ePlayer) + GetOtherPlayerNumProtectedMinorsAttacked(ePlayer));
-		bProvokedUs = !IsPlayerMadeAttackCityStatePromise(ePlayer);
+		bProvokedUs |= !IsPlayerMadeAttackCityStatePromise(ePlayer);
 
 		if (IsGoingForDiploVictory())
 		{
