@@ -11439,8 +11439,8 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 					{
 						if (bReadyForVassalage || (GET_PLAYER(*it).GetCapitalConqueror() != NO_PLAYER && GET_PLAYER(*it).GetNumCapitalCities() <= 0))
 						{
-							// If they're weak or a bad target, boost peace willingness
-							if (GetPlayerMilitaryStrengthComparedToUs(*it) < STRENGTH_AVERAGE || GetPlayerTargetValue(*it) <= TARGET_VALUE_BAD)
+							// If they're economically weak or a bad target, boost peace willingness
+							if (GetPlayerEconomicStrengthComparedToUs(*it) <= STRENGTH_WEAK || GetPlayerTargetValue(*it) <= TARGET_VALUE_BAD)
 								iPeaceScore *= 2;
 						}
 						else
@@ -11453,30 +11453,36 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 						iPeaceScore *= 75;
 						iPeaceScore /= 100;
 					}
+					// If we think they're a backstabber, we're significantly less willing to make peace.
+					if (IsUntrustworthy(*it))
+					{
+						iPeaceScore /= 2;
+					}
 				}
+			}
+			// Overall state is bad and we're doing great in this war, or at least haven't lost any cities? Let's peace out!
+			else if (!bCapturedAnyCityFromUs || bReadyForVassalage || GetWarState(*it) == WAR_STATE_NEARLY_WON)
+			{
+				iPeaceScore *= 2;
+
+				// Both? Even more likely to make peace!
+				if (!bCapturedAnyCityFromUs && (bReadyForVassalage || GetWarState(*it) == WAR_STATE_NEARLY_WON))
+					iPeaceScore *= 2;
 			}
 
-			// If we think they're a backstabber, we're significantly less willing to make peace.
-			if (IsUntrustworthy(*it))
+			// Modify based on leader flavors
+			// High Meanness leaders will fight to the bitter end when losing, high Diplo Balance leaders like to return to status quo when winning
+			if (iWarScore > 0)
 			{
-				iPeaceScore /= 2;
+				int iModifier = (GetDiploBalance() - 5) * 10;
+				iPeaceScore *= (100 + iModifier);
+				iPeaceScore /= 100;
 			}
-			else
+			else if (iWarScore < 0)
 			{
-				// Modify based on leader flavors
-				// High Meanness leaders will fight to the bitter end when losing, high Diplo Balance leaders like to return to status quo when winning
-				if (iWarScore > 0)
-				{
-					int iModifier = (GetDiploBalance() - 5) * 10;
-					iPeaceScore *= (100 + iModifier);
-					iPeaceScore /= 100;
-				}
-				else if (iWarScore < 0)
-				{
-					int iModifier = (-GetMeanness() + 5) * 10;
-					iPeaceScore *= (100 + iModifier);
-					iPeaceScore /= 100;
-				}
+				int iModifier = (-GetMeanness() + 5) * 10;
+				iPeaceScore *= (100 + iModifier);
+				iPeaceScore /= 100;
 			}
 		}
 
