@@ -8805,28 +8805,31 @@ void CvDiplomacyAI::DoUpdateWarStates()
 				if (pWaterZone && pWaterZone->GetOverallDominanceFlag()==TACTICAL_DOMINANCE_ENEMY)
 					iDangerMod++;
 
-				if (pLoopCity->isInDangerOfFalling() || pLoopCity->isUnderSiege() || (pLoopCity->IsBlockadedWaterAndLand() && pLoopCity->getDamage() >= (pLoopCity->GetMaxHitPoints()/4)))
+				if (pLoopCity->IsInDanger(eLoopPlayer))
 				{
-					if (pLoopCity->isInDangerOfFalling())
-						iDangerMod += 4;
-					else
-						iDangerMod += 2;
+					iDangerMod++;
 
-					if (pLoopCity->isInDangerOfFalling() || (pLoopCity->IsBlockadedWaterAndLand() && pLoopCity->getDamage() >= (pLoopCity->GetMaxHitPoints()/4)) || pLoopCity->getDamage() >= (pLoopCity->GetMaxHitPoints()/2))
+					if (pLoopCity->isInDangerOfFalling() || pLoopCity->isUnderSiege() || (pLoopCity->IsBlockadedWaterAndLand() && pLoopCity->getDamage() >= (pLoopCity->GetMaxHitPoints()/4)))
 					{
-						if (pLoopCity->getOriginalOwner() == GetID())
+						if (pLoopCity->isInDangerOfFalling())
+							iDangerMod += 3;
+						else
+							iDangerMod++;
+
+						if (pLoopCity->isInDangerOfFalling() || (pLoopCity->IsBlockadedWaterAndLand() && pLoopCity->getDamage() >= (pLoopCity->GetMaxHitPoints()/4)) || pLoopCity->getDamage() >= (pLoopCity->GetMaxHitPoints()/2))
 						{
-							bSeriousDangerUs = true;
-						}
-						else if (pLoopCity->isCapital() || pLoopCity->IsOriginalMajorCapital() || (eMyReligion != NO_RELIGION && pLoopCity->GetCityReligions()->IsHolyCityForReligion(eMyReligion)) || (eTheirReligion != NO_RELIGION && pLoopCity->GetCityReligions()->IsHolyCityForReligion(eTheirReligion)) 
-							|| pLoopCity->getNumWorldWonders() > 0 || pLoopCity->getNumNationalWonders() > 0)
-						{
-							bSeriousDangerUs = true;
+							if (pLoopCity->getOriginalOwner() == GetID())
+							{
+								bSeriousDangerUs = true;
+							}
+							else if (pLoopCity->isCapital() || pLoopCity->IsOriginalMajorCapital() || (eMyReligion != NO_RELIGION && pLoopCity->GetCityReligions()->IsHolyCityForReligion(eMyReligion)) || (eTheirReligion != NO_RELIGION && pLoopCity->GetCityReligions()->IsHolyCityForReligion(eTheirReligion)) 
+								|| pLoopCity->getNumWorldWonders() > 0 || pLoopCity->getNumNationalWonders() > 0)
+							{
+								bSeriousDangerUs = true;
+							}
 						}
 					}
 				}
-				else if (pLoopCity->IsInDanger(eLoopPlayer))
-					iDangerMod += 1;
 
 				if (iDangerMod > 0)
 				{
@@ -8858,20 +8861,23 @@ void CvDiplomacyAI::DoUpdateWarStates()
 					if (pWaterZone && pWaterZone->GetOverallDominanceFlag()==TACTICAL_DOMINANCE_ENEMY)
 						iDangerMod++;
 
-					if (pLoopCity->isInDangerOfFalling() || pLoopCity->isUnderSiege() || (pLoopCity->IsBlockadedWaterAndLand() && pLoopCity->getDamage() >= (pLoopCity->GetMaxHitPoints()/4)))
+					if (pLoopCity->IsInDanger(GetID()))
 					{
-						if (pLoopCity->isInDangerOfFalling())
-							iDangerMod += 4;
-						else
-							iDangerMod += 2;
+						iDangerMod++;
 
-						if (pLoopCity->isInDangerOfFalling() || (pLoopCity->IsBlockadedWaterAndLand() && pLoopCity->getDamage() >= (pLoopCity->GetMaxHitPoints()/4)) || pLoopCity->getDamage() >= (pLoopCity->GetMaxHitPoints()/2))
+						if (pLoopCity->isInDangerOfFalling() || pLoopCity->isUnderSiege() || (pLoopCity->IsBlockadedWaterAndLand() && pLoopCity->getDamage() >= (pLoopCity->GetMaxHitPoints()/4)))
 						{
-							bSeriousDangerThem = true;
+							if (pLoopCity->isInDangerOfFalling())
+								iDangerMod += 3;
+							else
+								iDangerMod++;
+
+							if (pLoopCity->isInDangerOfFalling() || (pLoopCity->IsBlockadedWaterAndLand() && pLoopCity->getDamage() >= (pLoopCity->GetMaxHitPoints()/4)) || pLoopCity->getDamage() >= (pLoopCity->GetMaxHitPoints()/2))
+							{
+								bSeriousDangerThem = true;
+							}
 						}
 					}
-					else if (pLoopCity->IsInDanger(GetID()))
-						iDangerMod += 1;
 					
 					if (iDangerMod > 0)
 					{
@@ -10840,28 +10846,31 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 			if (pWaterZone && pWaterZone->GetOverallDominanceFlag()==TACTICAL_DOMINANCE_ENEMY)
 				iDangerMod++;
 
-			if (pLoopCity->isInDangerOfFalling() || pLoopCity->isUnderSiege() || (pLoopCity->IsBlockadedWaterAndLand() && pLoopCity->getDamage() >= (pLoopCity->GetMaxHitPoints()/4)))
+			if (pLoopCity->IsInDanger(*it))
 			{
-				if (pLoopCity->isInDangerOfFalling())
-					iDangerMod += 4;
-				else
-					iDangerMod += 2;
+				iDangerMod++;
 
-				if (pLoopCity->isInDangerOfFalling() || (pLoopCity->IsBlockadedWaterAndLand() && pLoopCity->getDamage() >= (pLoopCity->GetMaxHitPoints()/4)) || pLoopCity->getDamage() >= (pLoopCity->GetMaxHitPoints()/2))
+				if (pLoopCity->isInDangerOfFalling() || pLoopCity->isUnderSiege() || (pLoopCity->IsBlockadedWaterAndLand() && pLoopCity->getDamage() >= (pLoopCity->GetMaxHitPoints()/4)))
 				{
-					if (pLoopCity->getOriginalOwner() == GetID())
+					if (pLoopCity->isInDangerOfFalling())
+						iDangerMod += 3;
+					else
+						iDangerMod++;
+
+					if (pLoopCity->isInDangerOfFalling() || (pLoopCity->IsBlockadedWaterAndLand() && pLoopCity->getDamage() >= (pLoopCity->GetMaxHitPoints()/4)) || pLoopCity->getDamage() >= (pLoopCity->GetMaxHitPoints()/2))
 					{
-						bSeriousDangerUs = true;
-					}
-					else if (pLoopCity->isCapital() || pLoopCity->IsOriginalMajorCapital() || (eMyReligion != NO_RELIGION && pLoopCity->GetCityReligions()->IsHolyCityForReligion(eMyReligion)) || (eTheirReligion != NO_RELIGION && pLoopCity->GetCityReligions()->IsHolyCityForReligion(eTheirReligion)) 
-						|| pLoopCity->getNumWorldWonders() > 0 || pLoopCity->getNumNationalWonders() > 0)
-					{
-						bSeriousDangerUs = true;
+						if (pLoopCity->getOriginalOwner() == GetID())
+						{
+							bSeriousDangerUs = true;
+						}
+						else if (pLoopCity->isCapital() || pLoopCity->IsOriginalMajorCapital() || (eMyReligion != NO_RELIGION && pLoopCity->GetCityReligions()->IsHolyCityForReligion(eMyReligion)) || (eTheirReligion != NO_RELIGION && pLoopCity->GetCityReligions()->IsHolyCityForReligion(eTheirReligion)) 
+							|| pLoopCity->getNumWorldWonders() > 0 || pLoopCity->getNumNationalWonders() > 0)
+						{
+							bSeriousDangerUs = true;
+						}
 					}
 				}
 			}
-			else if (pLoopCity->IsInDanger(*it))
-				iDangerMod += 1;
 
 			if (iDangerMod > 0)
 			{
@@ -10892,20 +10901,23 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 				if (pWaterZone && pWaterZone->GetOverallDominanceFlag()==TACTICAL_DOMINANCE_ENEMY)
 					iDangerMod++;
 
-				if (pLoopCity->isInDangerOfFalling() || pLoopCity->isUnderSiege() || (pLoopCity->IsBlockadedWaterAndLand() && pLoopCity->getDamage() >= (pLoopCity->GetMaxHitPoints()/4)))
+				if (pLoopCity->IsInDanger(GetID()))
 				{
-					if (pLoopCity->isInDangerOfFalling())
-						iDangerMod += 4;
-					else
-						iDangerMod += 2;
+					iDangerMod++;
 
-					if (pLoopCity->isInDangerOfFalling() || (pLoopCity->IsBlockadedWaterAndLand() && pLoopCity->getDamage() >= (pLoopCity->GetMaxHitPoints()/4)) || pLoopCity->getDamage() >= (pLoopCity->GetMaxHitPoints()/2))
+					if (pLoopCity->isInDangerOfFalling() || pLoopCity->isUnderSiege() || (pLoopCity->IsBlockadedWaterAndLand() && pLoopCity->getDamage() >= (pLoopCity->GetMaxHitPoints()/4)))
 					{
-						bSeriousDangerThem = true;
+						if (pLoopCity->isInDangerOfFalling())
+							iDangerMod += 3;
+						else
+							iDangerMod++;
+
+						if (pLoopCity->isInDangerOfFalling() || (pLoopCity->IsBlockadedWaterAndLand() && pLoopCity->getDamage() >= (pLoopCity->GetMaxHitPoints()/4)) || pLoopCity->getDamage() >= (pLoopCity->GetMaxHitPoints()/2))
+						{
+							bSeriousDangerThem = true;
+						}
 					}
 				}
-				else if (pLoopCity->IsInDanger(GetID()))
-					iDangerMod += 1;
 				
 				if (iDangerMod > 0)
 				{
