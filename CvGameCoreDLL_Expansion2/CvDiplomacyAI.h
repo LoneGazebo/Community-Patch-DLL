@@ -1733,7 +1733,11 @@ public:
 	void LogCloseEmbassy(PlayerTypes ePlayer);
 
 private:
-	PlayerTypes GetID() const;
+	/// Helper function to return this player's ID more conveniently (inlined for performance)
+	inline PlayerTypes CvDiplomacyAI::GetID() const
+	{
+		return m_pPlayer->GetID();
+	}
 
 	// Estimations of other players' tendencies
 	int GetEstimatePlayerVictoryCompetitiveness(PlayerTypes ePlayer) const;
