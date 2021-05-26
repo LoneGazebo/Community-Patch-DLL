@@ -17119,29 +17119,32 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	}
 
 	////////////////////////////////////
-	// MILITARY AGGRESSIVE POSTURE - how aggressively has ePlayer deployed their units near our borders?
+	// MILITARY AGGRESSIVE POSTURE - if not at war, how aggressively has ePlayer deployed their units near our borders?
 	////////////////////////////////////
 
-	switch (GetMilitaryAggressivePosture(ePlayer))
+	if (!IsAtWar(ePlayer))
 	{
-	case AGGRESSIVE_POSTURE_NONE:
-		vApproachScores[CIV_APPROACH_FRIENDLY] += vApproachBias[CIV_APPROACH_FRIENDLY] * 2;
-		break;
-	case AGGRESSIVE_POSTURE_LOW:
-		vApproachScores[CIV_APPROACH_NEUTRAL] += vApproachBias[CIV_APPROACH_NEUTRAL] * 2;
-		break;
-	case AGGRESSIVE_POSTURE_MEDIUM:
-		vApproachScores[CIV_APPROACH_GUARDED] += vApproachBias[CIV_APPROACH_GUARDED] * 2;
-		vApproachScores[CIV_APPROACH_DECEPTIVE] += vApproachBias[CIV_APPROACH_DECEPTIVE] * 2;
-		break;
-	case AGGRESSIVE_POSTURE_HIGH:
-		vApproachScores[CIV_APPROACH_GUARDED] += vApproachBias[CIV_APPROACH_GUARDED] * 3;
-		vApproachScores[CIV_APPROACH_HOSTILE] += vApproachBias[CIV_APPROACH_HOSTILE] * 3;
-		break;
-	case AGGRESSIVE_POSTURE_INCREDIBLE:
-		vApproachScores[CIV_APPROACH_HOSTILE] += vApproachBias[CIV_APPROACH_HOSTILE] * 3;
-		vApproachScores[CIV_APPROACH_WAR] += vApproachBias[CIV_APPROACH_WAR] * 3;
-		break;
+		switch (GetMilitaryAggressivePosture(ePlayer))
+		{
+		case AGGRESSIVE_POSTURE_NONE:
+			vApproachScores[CIV_APPROACH_FRIENDLY] += vApproachBias[CIV_APPROACH_FRIENDLY] * 2;
+			break;
+		case AGGRESSIVE_POSTURE_LOW:
+			vApproachScores[CIV_APPROACH_NEUTRAL] += vApproachBias[CIV_APPROACH_NEUTRAL] * 2;
+			break;
+		case AGGRESSIVE_POSTURE_MEDIUM:
+			vApproachScores[CIV_APPROACH_GUARDED] += vApproachBias[CIV_APPROACH_GUARDED] * 2;
+			vApproachScores[CIV_APPROACH_DECEPTIVE] += vApproachBias[CIV_APPROACH_DECEPTIVE] * 2;
+			break;
+		case AGGRESSIVE_POSTURE_HIGH:
+			vApproachScores[CIV_APPROACH_GUARDED] += vApproachBias[CIV_APPROACH_GUARDED] * 3;
+			vApproachScores[CIV_APPROACH_HOSTILE] += vApproachBias[CIV_APPROACH_HOSTILE] * 3;
+			break;
+		case AGGRESSIVE_POSTURE_INCREDIBLE:
+			vApproachScores[CIV_APPROACH_HOSTILE] += vApproachBias[CIV_APPROACH_HOSTILE] * 3;
+			vApproachScores[CIV_APPROACH_WAR] += vApproachBias[CIV_APPROACH_WAR] * 3;
+			break;
+		}
 	}
 
 	////////////////////////////////////
