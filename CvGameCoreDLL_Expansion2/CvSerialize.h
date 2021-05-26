@@ -81,22 +81,22 @@ public:
 	inline void setAt(SyncObject& syncObject, size_t i, const_reference value)
 	{
 		markDirty(syncObject);
-		m_value[i] = value;
+		this->m_value[i] = value;
 	}
 
 	inline const_reference getAt(size_t i) const
 	{
-		return m_value[i];
+		return this->m_value[i];
 	}
 
 	inline const_reference operator[](size_t i) const
 	{
-		return m_value[i];
+		return this->m_value[i];
 	}
 
-	inline size_t size() const { return m_value.size(); }
-	inline const_iterator begin() const { return m_value.begin(); }
-	inline const_iterator end() const { return m_value.end(); }
+	inline size_t size() const { return this->m_value.size(); }
+	inline const_iterator begin() const { return this->m_value.begin(); }
+	inline const_iterator end() const { return this->m_value.end(); }
 
 	inline void push_back(SyncObject& syncObject, const_reference src)
 	{
@@ -272,7 +272,6 @@ class CvSyncObjectBase<CvSyncObject<Container>>
 
 	struct WriteVisitor
 	{
-
 		inline WriteVisitor(FDataStream& stream, const Container& container)
 			: stream(stream)
 			, container(container)
@@ -294,7 +293,6 @@ class CvSyncObjectBase<CvSyncObject<Container>>
 
 	struct ReadVisitor
 	{
-
 		inline ReadVisitor(Derived& syncObject, FDataStream& stream, Container& container)
 			: syncObject(syncObject)
 			, stream(stream)
