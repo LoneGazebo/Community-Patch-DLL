@@ -905,7 +905,7 @@ bool CvPlayerEspionage::DoSpyFocusEvent(uint uiSpyIndex)
 			pCity->DoEventChoice(eEventChoice, NO_EVENT_CITY, true, uiSpyIndex, m_pPlayer->GetID());
 			if (m_pPlayer->isHuman())
 			{
-				CvPopupInfo kPopupInfo(BUTTONPOPUP_MODDER_7, eEventChoice, pCity->GetID(), pCity->getOwner());
+				CvPopupInfo kPopupInfo(BUTTONPOPUP_MODDER_7, eEventChoice, m_pPlayer->GetID(), uiSpyIndex, 0, true);
 				GC.GetEngineUserInterface()->AddPopup(kPopupInfo);
 			}
 		}
@@ -1122,7 +1122,7 @@ CvSpyResult CvPlayerEspionage::ProcessSpyFocusResult(PlayerTypes ePlayer, CvCity
 			{
 				int iTechDifference = GET_TEAM(GET_PLAYER(eCityOwner).getTeam()).GetTeamTechs()->GetNumTechsKnown() - GET_TEAM(m_pPlayer->getTeam()).GetTeamTechs()->GetNumTechsKnown();
 				iTechDifference *= pkEventChoiceInfo->GetScienceScaling();
-				iTechDifference = range(iTechDifference, -50, 50);
+				iTechDifference = range(iTechDifference, -75, 75);
 
 				pSpy->m_iPotentialAtStart *= 100 + iTechDifference;
 				pSpy->m_iPotentialAtStart /= 100;
@@ -1146,7 +1146,7 @@ CvSpyResult CvPlayerEspionage::ProcessSpyFocusResult(PlayerTypes ePlayer, CvCity
 			{
 				int iTechDifference = GET_TEAM(GET_PLAYER(eCityOwner).getTeam()).GetTeamTechs()->GetNumTechsKnown() - GET_TEAM(m_pPlayer->getTeam()).GetTeamTechs()->GetNumTechsKnown();
 				iTechDifference *= pkEventChoiceInfo->GetScienceScaling();
-				iTechDifference = range(iTechDifference, -50, 50);
+				iTechDifference = range(iTechDifference, -75, 75);
 
 				pSpy->m_iPotentialAtStart *= 100 + iTechDifference;
 				pSpy->m_iPotentialAtStart /= 100;

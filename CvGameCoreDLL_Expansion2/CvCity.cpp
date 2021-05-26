@@ -2810,7 +2810,7 @@ void CvCity::doTurn()
 #if defined(MOD_BALANCE_CORE)
 		bool bWeGrew = false;
 		int iDifference = (getYieldRateTimes100(YIELD_FOOD, false) - foodConsumptionTimes100());
-		if(isFoodProduction() || getFood() <= 5 || iDifference <= 0)
+		if (isFoodProduction() || getFood() <= 5 || iDifference <= 0)
 		{
 			doGrowth();
 			bWeGrew = true;
@@ -5162,7 +5162,18 @@ CvString CvCity::GetScaledHelpText(CityEventChoiceTypes eEventChoice, bool bYiel
 			if (pSpy->m_iPotentialAtStart != -1)
 				iPotential = pSpy->m_iPotentialAtStart;
 			else
+			{
 				iPotential = GetEspionageRanking();
+				if (pkEventChoiceInfo->GetScienceScaling() != 0)
+				{
+					int iTechDifference = GET_TEAM(getTeam()).GetTeamTechs()->GetNumTechsKnown() - GET_TEAM(GET_PLAYER(eSpyOwner).getTeam()).GetTeamTechs()->GetNumTechsKnown();
+					iTechDifference *= pkEventChoiceInfo->GetScienceScaling();
+					iTechDifference = range(iTechDifference, -75, 75);
+
+					iPotential *= 100 + iTechDifference;
+					iPotential /= 100;
+				}
+			}
 		}
 	}
 
