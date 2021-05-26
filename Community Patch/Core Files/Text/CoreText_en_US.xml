@@ -3166,6 +3166,10 @@
 			<Text>[NEWLINE][NEWLINE]Civilizations that would be mostly unaffected by this:</Text>
 		</Row>
 
+		<Row Tag="TXT_KEY_LEAGUE_OVERVIEW_PROPOSAL_OPINIONS_END">
+			<Text>[NEWLINE][NEWLINE]Civilizations will vote to help themselves and friends, and hurt their enemies/competitors.</Text>
+		</Row>
+
 		<!-- New Warmonger Hate Descriptors -->
 		<Row Tag="TXT_KEY_DIPLO_WARMONGER_THREAT_CRITICAL_NUCLEAR">
 			<Text>They fear your warmongering will plunge the world into nuclear winter!</Text>
