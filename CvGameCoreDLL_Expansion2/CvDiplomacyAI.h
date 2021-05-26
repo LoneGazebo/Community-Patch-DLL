@@ -1738,7 +1738,7 @@ private:
 		return m_pPlayer->GetID();
 	}
 	/// Helper function to return the Team ID this AI's player is associated with more conveniently
-	TeamTypes CvDiplomacyAI::GetTeam() const
+	inline TeamTypes CvDiplomacyAI::GetTeam() const
 	{
 		return m_pPlayer->getTeam();
 	}
