@@ -88,12 +88,6 @@ UPDATE Language_en_US
 SET Text = '+1 [ICON_RES_PAPER] Paper. +20% [ICON_PRODUCTION] Production of Diplomatic Units in this City. All Diplomatic Units receive the [COLOR_POSITIVE_TEXT]Diplomatic Immunity[ENDCOLOR] Promotion.[NEWLINE][NEWLINE]The [ICON_PRODUCTION] Production Cost and [ICON_CITIZEN] Population Requirements increase based on the number of Cities you own.'
 WHERE Tag = 'TXT_KEY_BUILDING_FOREIGN_OFFICE_HELP';
 
--- Grand Temple Help Text
-
-UPDATE Language_en_US
-SET Text = 'All Temples gain +2 [ICON_PEACE] Faith and [ICON_CULTURE] Culture. -1 [ICON_HAPPINESS_3] Unhappiness from Religious Unrest, and -10% [ICON_HAPPINESS_3] Unhappiness Needs Modifier for Religious Unrest in all Cities.[NEWLINE][NEWLINE]The [ICON_PRODUCTION] Production Cost and [ICON_CITIZEN] Population Requirements increase based on the number of Cities you own.'
-WHERE Tag = 'TXT_KEY_BUILDING_GRAND_TEMPLE_HELP';
-
 -- Merchant Mission
 
 UPDATE Language_en_US
