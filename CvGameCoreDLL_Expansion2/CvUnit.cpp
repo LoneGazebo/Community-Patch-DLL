@@ -88,7 +88,7 @@ void SyncUnits()
 				if(unit->getOwner() == authoritativePlayer || (gDLL->IsHost() && !player.isHuman() && player.isAlive()))
 				{
 					const CvSyncArchive<CvUnit>& syncArchive = unit->getSyncArchive();
-					if(!syncArchive.hasDeltas())
+					if(syncArchive.hasDeltas())
 					{
 						FMemoryStream memoryStream;
 						std::vector<std::pair<std::string, std::string> > callStacks;
