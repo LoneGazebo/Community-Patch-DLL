@@ -16202,7 +16202,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 				}
 			}
 			// No? Then our diplomacy is glad for it.
-			else if (pLeague != NULL && IsGoingForDiploVictory() && !bUntrustworthy && !bProvokedUs)
+			else if (pLeague != NULL && !bUntrustworthy && (IsGoingForDiploVictory() || !bProvokedUs))
 			{
 				vApproachScores[CIV_APPROACH_FRIENDLY] += vApproachBias[CIV_APPROACH_FRIENDLY] * 2;
 			}
