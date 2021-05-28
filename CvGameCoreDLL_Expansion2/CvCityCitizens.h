@@ -108,9 +108,9 @@ public:
 	void ChangeNumForcedWorkingPlots(int iChange);
 
 	bool IsCanWork(CvPlot* pPlot) const;
-	bool IsBlockaded(CvPlot* pPlot, int iUnitID=-1) const;
-	void SetBlockaded(CvPlot* pPlot, int iUnitID, bool bValue, bool bForceClear = false);
-	bool IsAnyPlotBlockaded() const;
+	bool IsBlockaded(CvPlot* pPlot) const;
+	void SetBlockaded(CvPlot* pPlot);
+	void ClearBlockades();
 
 	void DoVerifyWorkingPlots();
 
@@ -183,7 +183,7 @@ private:
 	bool m_pabWorkingPlot[MAX_CITY_PLOTS];
 	bool m_pabForcedWorkingPlot[MAX_CITY_PLOTS];
 	std::vector<int> m_vWorkedPlots;
-	std::map<int,set<int>> m_vBlockadedPlots;
+	std::vector<int> m_vBlockadedPlots; //for caching, not serialized
 
 	int m_iNumDefaultSpecialists;
 	int m_iNumForcedDefaultSpecialists;

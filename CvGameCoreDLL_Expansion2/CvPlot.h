@@ -313,6 +313,7 @@ public:
 	bool isEnemyUnit(PlayerTypes ePlayer, bool bCombatOnly, bool bCheckVisibility, bool bIgnoreBarbs = false) const;
 	bool isNeutralUnit(PlayerTypes ePlayer, bool bCombatOnly, bool bCheckVisibility, bool bIgnoreMinors = false) const;
 	bool isNeutralUnitAdjacent(PlayerTypes ePlayer, bool bCombatOnly, bool bCheckVisibility, bool bIgnoreMinors = false) const;
+	bool isFriendlyUnit(PlayerTypes ePlayer, bool bCombatOnly, bool bSamePlayer) const;
 
 	bool isFighting() const;
 	bool isUnitFighting() const;

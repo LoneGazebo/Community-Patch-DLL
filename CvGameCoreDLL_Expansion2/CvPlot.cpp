@@ -4682,16 +4682,15 @@ bool CvPlot::isEnemyUnit(PlayerTypes ePlayer, bool bCombat, bool bCheckVisibilit
 
 			if(pLoopUnit && !pLoopUnit->isInvisible(eTeam, false) && !pLoopUnit->IsDead())
 			{
-				if (bCombat && !pLoopUnit->IsCanDefend())
+				//airplanes not included
+				if (bCombat && (!pLoopUnit->IsCanDefend() || !pLoopUnit->isNativeDomain(this)))
 					continue;
 
 				if (bIgnoreBarbs && pLoopUnit->isBarbarian())
 					continue;
 
 				if(isOtherTeam(pLoopUnit, eTeam) && isEnemy(pLoopUnit,eTeam,false))
-				{
 					return true;
-				}
 			}
 		}
 		while(pUnitNode != NULL);
@@ -4719,16 +4718,15 @@ bool CvPlot::isNeutralUnit(PlayerTypes ePlayer, bool bCombat, bool bCheckVisibil
 
 			if(pLoopUnit && !pLoopUnit->isInvisible(eTeam, false) && !pLoopUnit->IsDead())
 			{
-				if (bCombat && !pLoopUnit->IsCanDefend())
+				//airplanes not included
+				if (bCombat && (!pLoopUnit->IsCanDefend() || !pLoopUnit->isNativeDomain(this)))
 					continue;
 
 				if (bIgnoreMinors && GET_PLAYER(pLoopUnit->getOwner()).isMinorCiv())
 					continue;
 
 				if(isOtherTeam(pLoopUnit, eTeam) && !isEnemy(pLoopUnit,eTeam,false))
-				{
 					return true;
-				}
 			}
 		}
 		while(pUnitNode != NULL);
@@ -4746,6 +4744,42 @@ bool CvPlot::isNeutralUnitAdjacent(PlayerTypes ePlayer, bool bCombat, bool bChec
 		if (pAdjacentPlot != NULL)
 			if (pAdjacentPlot->isNeutralUnit(ePlayer, bCombat, bCheckVisibility, bIgnoreMinors))
 				return true;
+	}
+
+	return false;
+}
+
+bool CvPlot::isFriendlyUnit(PlayerTypes ePlayer, bool bCombatOnly, bool bSamePlayer) const
+{
+	TeamTypes eTeam = GET_PLAYER(ePlayer).getTeam();
+
+	//can't have a friendly unit there if it's not visible
+	if (!isVisible(eTeam))
+		return false;
+
+	CvAssertMsg(ePlayer != NO_PLAYER, "Source player must be valid");
+	const IDInfo* pUnitNode = m_units.head();
+	if(pUnitNode)
+	{
+		do
+		{
+			const CvUnit* pLoopUnit = GetPlayerUnit(*pUnitNode);
+			pUnitNode = m_units.next(pUnitNode);
+
+			if(pLoopUnit && !pLoopUnit->isInvisible(eTeam, false) && !pLoopUnit->IsDead())
+			{
+				//airplanes not included
+				if (bCombatOnly && (!pLoopUnit->IsCanDefend() || !pLoopUnit->isNativeDomain(this)))
+					continue;
+
+				if(bSamePlayer && pLoopUnit->getOwner()==ePlayer)
+					return true;
+
+				if (!bSamePlayer && pLoopUnit->getTeam() == eTeam)
+					return true;
+			}
+		}
+		while(pUnitNode != NULL);
 	}
 
 	return false;
@@ -6393,14 +6427,31 @@ bool CvPlot::IsCloseToBorder(PlayerTypes ePlayer) const
 //	--------------------------------------------------------------------------------
 bool CvPlot::isBlockaded()
 {
-	if (isCity())
+	if (isCity() || !isOwned())
 		return false;
 
-	CvCity* pCity = getEffectiveOwningCity();
-	if (!pCity)
+	if (isEnemyUnit(getOwner(), true, false))
+		return true;
+
+	if (isFriendlyUnit(getOwner(), true, false))
 		return false;
 
-	return pCity->GetCityCitizens()->IsBlockaded(this);
+	//need to do additional checks in water
+	if (isWater())
+	{
+		int iRange = range(0,3,GC.getNAVAL_PLOT_BLOCKADE_RANGE());
+		for (int i = RING0_PLOTS; i < RING_PLOTS[iRange]; i++)
+		{
+			CvPlot* pNeighbor = iterateRingPlots(this, i);
+			if (pNeighbor && pNeighbor->getArea() == getArea())
+			{
+				if (isEnemyUnit(getOwner(), true, false))
+					return true;
+			}
+		}
+	}
+
+	return false;
 }
 
 //	--------------------------------------------------------------------------------

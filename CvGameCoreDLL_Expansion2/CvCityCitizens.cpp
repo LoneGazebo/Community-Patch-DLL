@@ -273,8 +273,6 @@ void CvCityCitizens::DoFoundCity()
 /// Processed every turn
 void CvCityCitizens::DoTurn()
 {
-	DoVerifyWorkingPlots();
-
 	CvPlayerAI& thisPlayer = GET_PLAYER(GetOwner());
 
 	bool bForceCheck = false;
@@ -1804,6 +1802,8 @@ CvPlot* CvCityCitizens::GetBestCityPlotWithValue(int& iValue, bool bWantBest, bo
 //see if we can find a better assignment when we're not assigning plots greedily from scratch but from the final state where all citizens are already fed
 void CvCityCitizens::OptimizeWorkedPlots(bool bLogging)
 {
+	DoVerifyWorkingPlots();
+
 	int iCount = 0;
 	FILogFile* pLog = bLogging && GC.getLogging() ? LOGFILEMGR.GetLog("CityTileScorer.csv", FILogFile::kDontTimeStamp) : NULL;
 
@@ -1971,6 +1971,8 @@ bool CvCityCitizens::IsDirty()
 
 void CvCityCitizens::DoReallocateCitizens(bool bForce, bool bLogging)
 {
+	DoVerifyWorkingPlots();
+
 	DoValidateForcedWorkingPlots();
 
 	//Let's check if we need to do this.
@@ -2205,9 +2207,8 @@ void CvCityCitizens::SetWorkingPlot(CvPlot* pPlot, bool bNewValue, CvCity::eUpda
 /// Tell City to work a Plot, pulling a Citizen from the worst location we can
 void CvCityCitizens::DoAlterWorkingPlot(int iIndex)
 {
-	CvAssertMsg(iIndex >= 0, "iIndex expected to be >= 0");
+	DoVerifyWorkingPlots();
 
-	CvAssertMsg(iIndex < GetCity()->GetNumWorkablePlots(), "iIndex expected to be < NUM_CITY_PLOTS");
 	// Clicking ON the city "resets" it to default setup
 	if (iIndex == CITY_HOME_PLOT)
 	{
@@ -2443,59 +2444,42 @@ bool CvCityCitizens::IsCanWork(CvPlot* pPlot) const
 	return true;
 }
 
-bool CvCityCitizens::IsBlockaded(CvPlot * pPlot, int iUnitID) const
+bool CvCityCitizens::IsBlockaded(CvPlot * pPlot) const
 {
-	map<int, set<int>>::const_iterator it = m_vBlockadedPlots.find(pPlot->GetPlotIndex());
-	
-	if (it == m_vBlockadedPlots.end())
-		return false;
-
-	if (iUnitID != -1)
-		return it->second.find(iUnitID) != it->second.end();
-
-	//no particular unit given
-	return true;
+	return std::find( m_vBlockadedPlots.begin(), m_vBlockadedPlots.end(), pPlot->GetPlotIndex()) != m_vBlockadedPlots.end();
 }
 
-void CvCityCitizens::SetBlockaded(CvPlot * pPlot, int iUnitID, bool bValue, bool bForceClear)
+void CvCityCitizens::SetBlockaded(CvPlot * pPlot)
 {
-	if (bValue)
-	{
-		m_vBlockadedPlots[ pPlot->GetPlotIndex() ].insert(iUnitID);
-	}
-	else
-	{
-		if (bForceClear)
-			m_vBlockadedPlots.erase(pPlot->GetPlotIndex());
-		else
-		{
-			m_vBlockadedPlots[pPlot->GetPlotIndex()].erase(iUnitID);
-			if (m_vBlockadedPlots[pPlot->GetPlotIndex()].empty())
-				m_vBlockadedPlots.erase(pPlot->GetPlotIndex());
-		}
-	}
+	if (!IsBlockaded(pPlot))
+		m_vBlockadedPlots.push_back(pPlot->GetPlotIndex());
 }
 
-// Is there a naval blockade on any of this city's water tiles?
-bool CvCityCitizens::IsAnyPlotBlockaded() const
+void CvCityCitizens::ClearBlockades()
 {
-	return !m_vBlockadedPlots.empty();
+	m_vBlockadedPlots.clear();
 }
 
 /// Check all Plots by this City to see if we can actually be working them (if we are)
 void CvCityCitizens::DoVerifyWorkingPlots()
 {
+	ClearBlockades();
+
 	for (int iI = 0; iI < GetCity()->GetNumWorkablePlots(); iI++)
 	{
 		CvPlot* pPlot = GetCityPlotFromIndex(iI);
+		if (!pPlot)
+			continue;
 
-		if (pPlot && IsWorkingPlot(iI))
+		//cache which plots are blockaded, the check can be expensive
+		if (pPlot->isBlockaded())
+			SetBlockaded(pPlot);
+
+		//worked plot migh be invalid ...
+		if (IsWorkingPlot(iI) && !IsCanWork(pPlot))
 		{
-			if (!IsCanWork(pPlot))
-			{
-				SetWorkingPlot(pPlot, false, CvCity::YIELD_UPDATE_LOCAL);
-				DoAddBestCitizenFromUnassigned(CvCity::YIELD_UPDATE_GLOBAL);
-			}
+			SetWorkingPlot(pPlot, false, CvCity::YIELD_UPDATE_LOCAL);
+			DoAddBestCitizenFromUnassigned(CvCity::YIELD_UPDATE_GLOBAL);
 		}
 	}
 }
