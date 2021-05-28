@@ -11267,26 +11267,24 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 			bProlong = false;
 		}
 
-		int iTooLongWarThreshold = bProlong ? 25 : 13;
+		int iTooLongWarThreshold = bProlong ? 30 : 15;
 
 		// Lack of progress in war increases desire for peace (moreso if far away).
 		if (iWarDuration > iTooLongWarThreshold)
 		{
-			int iDurationPenalty = iWarDuration - iTooLongWarThreshold;
-
 			switch (GetPlayer()->GetProximityToPlayer(*it))
 			{
 			case PLAYER_PROXIMITY_NEIGHBORS:
-				iPeaceScore += iDurationPenalty;
+				iPeaceScore += iWarDuration;
 				break;
 			case PLAYER_PROXIMITY_CLOSE:
-				iPeaceScore += (iDurationPenalty * 150) / 100;
+				iPeaceScore += (iWarDuration * 150) / 100;
 				break;
 			case PLAYER_PROXIMITY_FAR:
-				iPeaceScore += iDurationPenalty * 2;
+				iPeaceScore += iWarDuration * 2;
 				break;
 			case PLAYER_PROXIMITY_DISTANT:
-				iPeaceScore += iDurationPenalty * 3;
+				iPeaceScore += iWarDuration * 3;
 				break;
 			}
 		}
