@@ -2133,7 +2133,7 @@ int CvDealAI::GetCityValueForDeal(CvCity* pCity, PlayerTypes eAssumedOwner, bool
 			continue;
 
 		//if it belongs to the city
-		if (pCity->GetID() == pLoopPlot->GetCityPurchaseID())
+		if (pCity->GetID() == pLoopPlot->getOwningCityID())
 			iCityTiles++;
 		else if (pLoopPlot->getOwner() == eAssumedOwner)
 			//belongs to another one of the buyer's cities

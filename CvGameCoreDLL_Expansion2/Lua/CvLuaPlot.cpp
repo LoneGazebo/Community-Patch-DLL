@@ -1371,7 +1371,7 @@ int CvLuaPlot::lGetOwner(lua_State* L)
 #if defined(MOD_API_LUA_EXTENSIONS)
 	CvPlot* pkPlot = GetInstance(L); CHECK_PLOT_VALID(pkPlot);
 	const int iPlayer  = pkPlot->getOwner();
-	const int iCity = pkPlot->GetCityPurchaseID();
+	const int iCity = pkPlot->getOwningCityID();
 
 	lua_pushinteger(L, iPlayer);
 	lua_pushinteger(L, iCity);
@@ -2205,14 +2205,14 @@ int CvLuaPlot::lHasWrittenArtifact(lua_State* L)
 //int GetCityPurchaseID();
 int CvLuaPlot::lGetCityPurchaseID(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvPlot::GetCityPurchaseID);
+	return BasicLuaMethod(L, &CvPlot::getOwningCityID);
 }
 
 //------------------------------------------------------------------------------
 //void SetCityPurchaseID(int ID);
 int CvLuaPlot::lSetCityPurchaseID(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvPlot::SetCityPurchaseID);
+	return BasicLuaMethod(L, &CvPlot::setOwningCityID);
 }
 
 int CvLuaPlot::lGetAirUnitsTooltip(lua_State* L)

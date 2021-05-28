@@ -592,10 +592,13 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 	setEverOwned(getOwner(), true);
 
 	pPlot->setOwner(getOwner(), m_iID, bBumpUnits);
+
 	// Clear the improvement before the city attaches itself to the plot, else the improvement does not
 	// remove the resource allocation from the current owner.  This would result in double resource points because
 	// the plot has already had setOwner called on it (above), giving the player the resource points.
 	pPlot->setImprovementType(NO_IMPROVEMENT);
+	pPlot->setIsCity(true); //only after the owner is set!
+
 #if defined(MOD_EVENTS_TILE_IMPROVEMENTS)
 	pPlot->SetImprovementPillaged(false, false);
 	pPlot->SetRoutePillaged(false, false);
@@ -603,8 +606,6 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 	pPlot->SetImprovementPillaged(false);
 	pPlot->SetRoutePillaged(false);
 #endif
-	pPlot->setPlotCity(this);
-	pPlot->SetCityPurchaseID(m_iID);
 
 	int iRange = min(1, GD_INT_GET(CITY_STARTING_RINGS));
 
@@ -618,7 +619,6 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 				if(pLoopPlot->getOwner() == NO_PLAYER)
 				{
 					pLoopPlot->setOwner(getOwner(), m_iID, bBumpUnits);
-					pLoopPlot->SetCityPurchaseID(m_iID);
 				}
 				else if(pLoopPlot->getOwner() != NO_PLAYER)
 				{
@@ -631,9 +631,7 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 							pOwningCity->GetCityCitizens()->SetWorkingPlot(pLoopPlot, false, CvCity::YIELD_UPDATE_GLOBAL);
 						}
 					}
-					pLoopPlot->ClearCityPurchaseInfo();
 					pLoopPlot->setOwner(getOwner(), m_iID, bBumpUnits);
-					pLoopPlot->SetCityPurchaseID(m_iID);
 				}
 			}
 		}
@@ -967,26 +965,6 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 	}
 #endif
 
-	// We may need to link Resources to this City if it's constructed within previous borders and the Resources were too far away for another City to link to
-	for(int iJ = 0; iJ < GetNumWorkablePlots(); iJ++)
-	{
-		CvPlot* pLoopPlot = iterateRingPlots(getX(), getY(), iJ);
-
-		if(pLoopPlot != NULL)
-		{
-			if(pLoopPlot->getOwner() == getOwner())
-			{
-				if(pLoopPlot->getResourceType() != NO_RESOURCE)
-				{
-					// Is this Resource as of yet unlinked?
-					if(pLoopPlot->GetResourceLinkedCity() == NULL)
-					{
-						pLoopPlot->DoFindCityToLinkResourceTo();
-					}
-				}
-			}
-		}
-	}
 #if defined(MOD_BALANCE_CORE)
 	//Update our CoM for the diplo AI.
 	owningPlayer.SetCenterOfMassEmpire();
@@ -2250,30 +2228,14 @@ void CvCity::PreKill()
 	GC.getGame().GetGameTrade()->ClearAllCityTradeRoutes(pPlot, true);
 
 	// Update resources linked to this city
-
 	for(int iI = 0; iI < GetNumWorkablePlots(); iI++)
 	{
-		CvPlot* pLoopPlot;
-		pLoopPlot = GetCityCitizens()->GetCityPlotFromIndex(iI);
-
+		CvPlot* pLoopPlot = GetCityCitizens()->GetCityPlotFromIndex(iI);
 		if(pLoopPlot != NULL)
 		{
 			if(pLoopPlot->getOwningCityOverride() == this)
 			{
 				pLoopPlot->setOwningCityOverride(NULL);
-			}
-
-			// Unlink Resources from this City
-			if(pLoopPlot->getOwner() == getOwner())
-			{
-				if(pLoopPlot->getResourceType() != NO_RESOURCE)
-				{
-					if(pLoopPlot->GetResourceLinkedCity() == this)
-					{
-						pLoopPlot->SetResourceLinkedCity(NULL);
-						pLoopPlot->DoFindCityToLinkResourceTo(this);
-					}
-				}
 			}
 		}
 	}
@@ -2326,14 +2288,13 @@ void CvCity::PreKill()
 	for(int iPlotLoop = 0; iPlotLoop < GC.getMap().numPlots(); iPlotLoop++)
 	{
 		CvPlot* pLoopPlot = GC.getMap().plotByIndexUnchecked(iPlotLoop);
-		if(NULL != pLoopPlot && pLoopPlot->GetCityPurchaseOwner() == getOwner() && pLoopPlot->GetCityPurchaseID() == GetID())
+		if(NULL != pLoopPlot && pLoopPlot->getOwningCityID() == GetID())
 		{
-			pLoopPlot->ClearCityPurchaseInfo();
 			pLoopPlot->setOwner(NO_PLAYER, NO_PLAYER, /*bCheckUnits*/ true, /*bUpdateResources*/ true);
 		}
 	}
 
-	pPlot->setPlotCity(NULL);
+	pPlot->setIsCity(false);
 
 	GC.getMap().getArea(pPlot->getArea())->changeCitiesPerPlayer(getOwner(), -1);
 #if defined(MOD_BALANCE_CORE)
@@ -7657,7 +7618,7 @@ void CvCity::updateEconomicValue()
 		//for plots owned by this city or reasonably likely to be claimed
 		bool bGood = false;
 		if (pLoopPlot->isOwned())
-			bGood = (GetID() == pLoopPlot->GetCityPurchaseID());
+			bGood = (GetID() == pLoopPlot->getOwningCityID());
 		else
 			bGood = pLoopPlot->isAdjacentPlayer(getOwner()) && !pLoopPlot->IsAdjacentOwnedByTeamOtherThan(getTeam());
 
@@ -15150,7 +15111,6 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 									{
 										pLoopPlot->setResourceType(NO_RESOURCE, 0, false);
 										pLoopPlot->setResourceType(eResourceToGive, 1, false);
-										pLoopPlot->DoFindCityToLinkResourceTo();
 										iNumResourceGiven++;
 										if (iNumResourceGiven >= iNumResourceTotal)
 										{
@@ -15171,7 +15131,6 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 										{
 											pLoopPlot->setResourceType(NO_RESOURCE, 0, false);
 											pLoopPlot->setResourceType(eResourceToGive, 1, false);
-											pLoopPlot->DoFindCityToLinkResourceTo();
 											iNumResourceGiven++;
 											if (iNumResourceGiven >= iNumResourceTotal)
 											{
@@ -15596,7 +15555,6 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 									int iResourceQuantityPerPlot = MAX(it->first, 1);
 									pLoopPlot->setResourceType(NO_RESOURCE, 0, false);
 									pLoopPlot->setResourceType(eResource, iResourceQuantityPerPlot, false);
-									pLoopPlot->DoFindCityToLinkResourceTo();
 									iNumResourcePlotsGiven++;
 									if (eImprovement != NO_IMPROVEMENT && !pLoopPlot->IsImprovementPillaged())
 									{
@@ -28927,7 +28885,7 @@ bool CvCity::CanBuyPlot(int iPlotX, int iPlotY, bool bIgnoreCost)
 		{
 			if(pAdjacentPlot->getOwner() == getOwner())
 			{
-				if(pAdjacentPlot->GetCityPurchaseID() == GetID())
+				if(pAdjacentPlot->getOwningCityID() == GetID())
 				{
 					bFoundAdjacent = true;
 					break;
@@ -29288,8 +29246,7 @@ void CvCity::GetBuyablePlotList(std::vector<int>& aiPlotList, bool bForPurchase,
 
 						if (pAdjacentPlot != NULL)
 						{
-							// Have to check plot ownership first because the City IDs match between different players!!!
-							if (pAdjacentPlot->getOwner() == getOwner() && pAdjacentPlot->GetCityPurchaseID() == GetID())
+							if (pAdjacentPlot->getOwner() == getOwner() && pAdjacentPlot->getOwningCityID() == GetID())
 							{
 								bFoundAdjacentOwnedByCity = true;
 								break;

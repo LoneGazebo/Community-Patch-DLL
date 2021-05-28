@@ -268,28 +268,8 @@ public:
 		}
 	}
 
-	bool isCity() const
-	{
-		if((m_plotCity.eOwner >= 0) && m_plotCity.eOwner < MAX_PLAYERS && m_plotCity.iID>0)
-		{
-#if defined(MOD_CORE_DEBUGGING)
-			 if (MOD_CORE_DEBUGGING && (GET_PLAYER((PlayerTypes)m_plotCity.eOwner).getCity(m_plotCity.iID)) == NULL)
-				 OutputDebugString("warning: inconsistent plot state! bad city ID.");
-#endif
-			 return true;
-		}
-
-		return false;
-	}
-
-	bool isEnemyCity(const CvUnit& kUnit) const
-	{
-		if(isCity())
-			return kUnit.isEnemy(GET_PLAYER(m_plotCity.eOwner).getTeam(), this);
-
-		return false;
-	}
-
+	bool isCity() const;
+	bool isEnemyCity(const CvUnit& kUnit) const;
 	bool isFriendlyCity(const CvUnit& kUnit) const;
 	bool isCoastalCityOrPassableImprovement(PlayerTypes ePlayer, bool bCityMustBeFriendly, bool bImprovementMustBeFriendly) const;
 	bool IsFriendlyTerritory(PlayerTypes ePlayer) const;
@@ -433,10 +413,6 @@ public:
 	}
 
 	void setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUnits = true, bool bUpdateResources = true);
-	void ClearCityPurchaseInfo(void);
-	PlayerTypes GetCityPurchaseOwner(void);
-	int GetCityPurchaseID(void);
-	void SetCityPurchaseID(int iAcquiringCityID);
 
 	bool IsCloseToBorder(PlayerTypes ePlayer) const;
 
@@ -561,6 +537,7 @@ public:
 	int getNumResourceForPlayer(PlayerTypes ePlayer) const;
 	void removeMinorResources();
 
+	void setIsCity(bool bValue);
 	ImprovementTypes getImprovementType() const;
 	ImprovementTypes getImprovementTypeNeededToImproveResource(PlayerTypes ePlayer = NO_PLAYER, bool bTestPlotOwner = true, bool bNonSpecialOnly = false);
 	void setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder = NO_PLAYER);
@@ -619,22 +596,11 @@ public:
 	void SetPlayerThatClearedDigHere(PlayerTypes eNewValue);
 #endif
 
-	CvCity* GetResourceLinkedCity() const;
-	void SetResourceLinkedCity(const CvCity* pNewValue);
 	bool IsResourceLinkedCityActive() const;
 	void SetResourceLinkedCityActive(bool bValue);
-	void DoFindCityToLinkResourceTo(CvCity* pCityToExclude = NULL);
 
-	CvCity* getPlotCity() const
-	{
-		if((m_plotCity.eOwner >= 0) && m_plotCity.eOwner < MAX_PLAYERS)
-			return (GET_PLAYER((PlayerTypes)m_plotCity.eOwner).getCity(m_plotCity.iID));
-
-		return NULL;
-	}
-
-	void setPlotCity(CvCity* pNewValue);
-
+	CvCity* getPlotCity() const;
+	void setOwningCityID(int iID);
 	int getOwningCityID() const;
 	CvCity* getOwningCity() const;
 	void updateOwningCity();
@@ -1014,16 +980,14 @@ protected:
 	char /*PlayerTypes*/  m_eOwner;
 	char /*PlotTypes*/    m_ePlotType;
 	char /*TerrainTypes*/ m_eTerrainType;
+	bool m_bIsCity;
 
 	PlotBoolField m_bfRevealed;
 
 	FFastSmallFixedList<IDInfo, 4, true, c_eCiv5GameplayDLL > m_units;
 
-	IDInfo m_plotCity;
 	IDInfo m_owningCity;
 	IDInfo m_owningCityOverride;
-	IDInfo m_ResourceLinkedCity;
-	IDInfo m_purchaseCity;
 
 	//external memory allocated by CvMap
 	friend class CvMap;
@@ -1041,10 +1005,9 @@ protected:
 	bool m_bIsTradeUnitRoute;
 	short m_iLastTurnBuildChanged;
 #endif
-    // memory allocated by the plot object itself
-#if defined(MOD_API_EXTENSIONS)
-    uint8* m_aiArbitraryYields;
-#endif
+
+	//can add extra yield from lua. no overhead if unused!
+	vector<pair<YieldTypes, int>> m_vExtraYields;
 
 	char* m_szScriptData;
 	map<BuildTypes,int> m_buildProgress;

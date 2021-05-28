@@ -12733,17 +12733,14 @@ void CvUnit::PerformCultureBomb(int iRadius)
 	int iBestCityID = -1;
 
 	// Plot we're standing on belongs to a city already
-	if(pThisPlot->getOwner() == getOwner() && pThisPlot->GetCityPurchaseID() != -1)
+	if(pThisPlot->getOwner() == getOwner() && pThisPlot->getOwningCityID() != -1)
 	{
-		iBestCityID = pThisPlot->GetCityPurchaseID();
+		iBestCityID = pThisPlot->getOwningCityID();
 	}
 	// Find closest city
 	else
 	{
 		int iBestCityDistance = -1;
-
-		int iDistance;
-
 		CvCity* pLoopCity = NULL;
 		int iLoop = 0;
 		for(pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
@@ -12751,7 +12748,7 @@ void CvUnit::PerformCultureBomb(int iRadius)
 			CvPlot* pPlot = pLoopCity->plot();
 			if(pPlot)
 			{
-				iDistance = plotDistance(getX(), getY(), pLoopCity->getX(), pLoopCity->getY());
+				int iDistance = plotDistance(getX(), getY(), pLoopCity->getX(), pLoopCity->getY());
 
 				if(iBestCityDistance == -1 || iDistance < iBestCityDistance)
 				{

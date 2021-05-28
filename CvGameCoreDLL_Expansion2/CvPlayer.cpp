@@ -3791,24 +3791,16 @@ CvCity* CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 	GC.getGame().GetGameTrade()->ClearAllCityTradeRoutes(pCityPlot);
 
 	bool bCapital = pOldCity->isCapital();
+	int iOldCityRings = pOldCity->getWorkPlotDistance();
 
-	// find the plot
-	vector<int> aiPurchasedPlotX;
-	vector<int> aiPurchasedPlotY;
-	const int iMaxRange = /*5*/ GC.getMAXIMUM_ACQUIRE_PLOT_DISTANCE();
-
+	//remember the plots so we can re-assign them later
+	vector<CvPlot*> ownedPlots;
 	for(int iPlotLoop = 0; iPlotLoop < GC.getMap().numPlots(); iPlotLoop++)
 	{
 		CvPlot* pLoopPlot = GC.getMap().plotByIndexUnchecked(iPlotLoop);
-		if(pLoopPlot && pLoopPlot->GetCityPurchaseOwner() == eOldOwner && pLoopPlot->GetCityPurchaseID() == pOldCity->GetID())
-		{
-			aiPurchasedPlotX.push_back(pLoopPlot->getX());
-			aiPurchasedPlotY.push_back(pLoopPlot->getY());
-			pLoopPlot->ClearCityPurchaseInfo();
-		}
+		if (pLoopPlot && pLoopPlot->getOwningCityID() == pOldCity->GetID())
+			ownedPlots.push_back(pLoopPlot);
 	}
-
-	int iOldCityRings = pOldCity->getWorkPlotDistance();
 
 	pOldCity->PreKill();
 
@@ -4521,6 +4513,7 @@ CvCity* CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 	GC.getMap().updateOwningCityForPlots(pCityPlot,pNewCity->getWorkPlotDistance()*2);
 	if(bConquest)
 	{
+		const int iMaxRange = /*5*/ GC.getMAXIMUM_ACQUIRE_PLOT_DISTANCE();
 		for(int iDX = -iMaxRange; iDX <= iMaxRange; iDX++)
 		{
 			for(int iDY = -iMaxRange; iDY <= iMaxRange; iDY++)
@@ -4668,24 +4661,15 @@ CvCity* CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 		disband(pNewCity);
 		// disband will delete the city
 		pNewCity = NULL;
-
-		// Set the plots to no owner
-		for(uint ui = 0; ui < aiPurchasedPlotX.size(); ui++)
-		{
-			CvPlot* pPlot = GC.getMap().plot(aiPurchasedPlotX[ui], aiPurchasedPlotY[ui]);
-			pPlot->setOwner(NO_PLAYER, -1, /*bCheckUnits*/ true, /*bUpdateResources*/ true);
-		}
-
 	}
 	else //if (bConquest)
 	{
 		// Set the plots to the new owner, now, we may be flipping it to a liberated player and we need to pass on the information.
 		bool bBumpUnits = GET_PLAYER(pNewCity->getOwner()).isMajorCiv();
-		for(uint ui = 0; ui < aiPurchasedPlotX.size(); ui++)
+		
+		for(size_t i=0; i<ownedPlots.size(); i++)
 		{
-			CvPlot* pPlot = GC.getMap().plot(aiPurchasedPlotX[ui], aiPurchasedPlotY[ui]);
-			if(pPlot->getOwner() != pNewCity->getOwner())
-				pPlot->setOwner(pNewCity->getOwner(), /*iAcquireCityID*/ pNewCity->GetID(), /*bCheckUnits*/ bBumpUnits|pPlot->isCity(), /*bUpdateResources*/ true);
+			ownedPlots[i]->setOwner(pNewCity->getOwner(), /*iAcquireCityID*/ pNewCity->GetID(), /*bCheckUnits*/ bBumpUnits|ownedPlots[i]->isCity(), /*bUpdateResources*/ true);
 		}
 
 		// Is this City being Occupied?
