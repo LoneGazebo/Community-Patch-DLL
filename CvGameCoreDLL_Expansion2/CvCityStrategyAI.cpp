@@ -1064,6 +1064,18 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg, UnitTypes eIg
 				case CITY_BUILDABLE_PROJECT:
 				{
 					ProjectTypes eProjectType = (ProjectTypes)m_Buildables.GetElement(i).m_iIndex;
+					CvProjectEntry* pkProjectInfo = GC.getProjectInfo(eProjectType);
+					if (pkProjectInfo)
+					{
+						//is this is a victory condition? ignore everything else and build, build, build!
+						VictoryTypes ePrereqVictory = (VictoryTypes)pkProjectInfo->GetVictoryPrereq();
+						if (ePrereqVictory != NO_VICTORY && GC.getGame().isVictoryValid(ePrereqVictory))
+						{
+							selection = m_Buildables.GetElement(i);
+							bContinueWithCurrentBuild = true;
+						}
+					}
+
 					if (m_pCity->isProductionProject() && m_pCity->getProductionProject() == eProjectType)
 					{
 						selection = m_Buildables.GetElement(i);

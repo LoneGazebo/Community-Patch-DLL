@@ -48477,6 +48477,9 @@ void CvPlayer::SetBestWonderCities()
 		// Look at all of our Cities to see which is the best.
 		for (pLoopCity = firstCity(&iLoopCity); pLoopCity != NULL; pLoopCity = nextCity(&iLoopCity))
 		{
+			if (pLoopCity->IsPuppet())
+				continue;
+
 			bool bAlreadyStarted = pLoopCity->GetCityBuildings()->GetBuildingProduction(eBuilding) > 0;
 
 			//We've already started? We can bail out here, then.
@@ -48518,7 +48521,8 @@ void CvPlayer::SetBestWonderCities()
 			//Best? Do it!
 			int iValue = pLoopCity->GetCityStrategyAI()->GetBuildingProductionAI()->CheckBuildingBuildSanity(eBuilding, 1000, iLandRoutes, iWaterRoutes, true);
 
-			iValue += (-50 * pLoopCity->getProductionTurnsLeft(eBuilding, 0));
+			int iPenalty = 25 * pLoopCity->getProductionTurnsLeft(eBuilding, 0);
+			iValue -= min((iValue - 1), iPenalty);
 
 			if (iValue > iBestValue)
 			{
@@ -48572,6 +48576,7 @@ bool CvPlayer::isCapitalCompetitive()
 
 	int iSum = 0;
 	int iCount = 0;
+	int iOurThreshold = 0;
 	for (int iPlayer = 0; iPlayer < MAX_MAJOR_CIVS; iPlayer++)
 	{
 		CvPlayer& kPlayer = GET_PLAYER( (PlayerTypes)iPlayer );
@@ -48579,10 +48584,14 @@ bool CvPlayer::isCapitalCompetitive()
 			continue;
 
 		if (iPlayer == GetID())
-			continue;
-
-		iSum += kPlayer.getCapitalCity()->getYieldRateTimes100(YIELD_PRODUCTION,false) / kPlayer.getCapitalCity()->getPopulation();
-		iCount++;
+		{
+			iOurThreshold = kPlayer.getCapitalCity()->getYieldRateTimes100(YIELD_PRODUCTION, false) / kPlayer.getCapitalCity()->getPopulation();
+		}
+		else
+		{
+			iSum += kPlayer.getCapitalCity()->getYieldRateTimes100(YIELD_PRODUCTION, false) / kPlayer.getCapitalCity()->getPopulation();
+			iCount++;
+		}
 	}
 
 	int iThreshold = iSum / max(1, iCount);
@@ -48590,7 +48599,114 @@ bool CvPlayer::isCapitalCompetitive()
 	if (GetPlayerTraits()->IsNoAnnexing())
 		iThreshold -= iThreshold / 3;
 
-	return (getCapitalCity()->getYieldRateTimes100(YIELD_PRODUCTION,false) / getCapitalCity()->getPopulation()) >= iThreshold;
+	return iOurThreshold >= iThreshold;
+}
+
+CvCity* CvPlayer::GetBestProductionCity(BuildingTypes eBuilding, ProjectTypes eProject)
+{
+	int iBestProduction = 0;
+	CvCity* pBestProductionCity = NULL;
+	// Look at all of our Cities to see which is the best.
+	int iLoopCity;
+	for (CvCity* pLoopCity = firstCity(&iLoopCity); pLoopCity != NULL; pLoopCity = nextCity(&iLoopCity))
+	{
+		if (pLoopCity->IsPuppet())
+			continue;
+
+		CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
+		if (!pkBuildingInfo)
+			return NULL;
+
+		CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo(pkBuildingInfo->GetBuildingClassType());
+		if (!pkBuildingClassInfo)
+			return NULL;
+
+		int iProduction = 0;
+
+		if (eBuilding != NO_BUILDING)
+		{
+			//limited buildings need to be controlled against.
+			if (pkBuildingClassInfo->getMaxGlobalInstances() == 1 || pkBuildingClassInfo->getMaxPlayerInstances() == 1 || pkBuildingClassInfo->getMaxTeamInstances() == 1)
+			{
+				if (pLoopCity->GetCityBuildings()->GetBuildingProduction(eBuilding) > 0)
+					return pLoopCity;
+			}
+			else
+			{
+				iProduction += pLoopCity->GetCityBuildings()->GetBuildingProductionTimes100(eBuilding);
+			}
+		}
+		else if (eProject != NO_PROJECT)
+		{
+			CvProjectEntry* pkProjectInfo = GC.getProjectInfo(eProject);
+			if (!pkProjectInfo)
+				return NULL;
+
+			int iProduction = 0;
+			//limited projects need to be controlled against.
+			if (pkProjectInfo->GetMaxGlobalInstances() == 1 || pkProjectInfo->GetMaxTeamInstances() == 1)
+			{
+				if (pLoopCity->getProjectProduction(eProject) > 0)
+					return pLoopCity;
+			}
+			else
+			{
+				iProduction += pLoopCity->getProjectProduction(eProject) * 100;
+			}
+		}
+		
+		iProduction += pLoopCity->getYieldRateTimes100(YIELD_PRODUCTION, false, true);
+		if (iProduction > iBestProduction)
+		{
+			iBestProduction = iProduction;
+			pBestProductionCity = pLoopCity;
+		}
+	}
+	return pBestProductionCity != NULL ? pBestProductionCity : getCapitalCity();
+}
+
+bool CvPlayer::IsCityCompetitive(CvCity* pCity, BuildingTypes eBuilding, ProjectTypes eProject)
+{
+	int iOurProduction = 0;
+	int iSumProduction = 0;
+	int iNumCities = 0;
+	// Look at all of our Cities to see which is the best.
+	int iLoopCity;
+	for (CvCity* pLoopCity = firstCity(&iLoopCity); pLoopCity != NULL; pLoopCity = nextCity(&iLoopCity))
+	{
+		if (pLoopCity->IsPuppet())
+			continue;
+
+		int iProduction = 0;
+		if (pCity == pLoopCity)
+		{
+			if (eBuilding != NO_BUILDING)
+			{
+				iOurProduction += pLoopCity->GetCityBuildings()->GetBuildingProductionTimes100(eBuilding);
+			}
+			else if (eProject != NO_PROJECT)
+			{
+				iOurProduction += pLoopCity->getProjectProduction(eProject) * 100;
+			}
+			iOurProduction += pLoopCity->getYieldRateTimes100(YIELD_PRODUCTION, false, true);
+		}
+		else
+		{
+			if (eBuilding != NO_BUILDING)
+			{
+				iSumProduction += pLoopCity->GetCityBuildings()->GetBuildingProductionTimes100(eBuilding);
+			}
+			else if (eProject != NO_PROJECT)
+			{
+				iSumProduction += pLoopCity->getProjectProduction(eProject) * 100;
+			}
+			iSumProduction += pLoopCity->getYieldRateTimes100(YIELD_PRODUCTION, false, true);
+			iNumCities++;
+		}
+	}
+
+	int iThreshold = iSumProduction / max(1, iNumCities);
+	return iOurProduction >= iThreshold;
 }
 
 #endif
