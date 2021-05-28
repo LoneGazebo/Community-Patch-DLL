@@ -732,332 +732,17 @@ int CvCityCitizens::GetYieldModForFocus(YieldTypes eYield, CityAIFocusTypes eFoc
 	return iYieldMod;
 }
 
-/// Does the AI want a Specialist?
-bool CvCityCitizens::IsAIWantSpecialistRightNow()
-{
-	int iWeight = 100;
-
-	// If the City is Size 1 or 2 then we probably don't want Specialists
-	if (m_pCity->getPopulation() < 3)
-	{
-		iWeight /= 2;
-	}
-
-	int iFoodPerTurn = m_pCity->getYieldRateTimes100(YIELD_FOOD, false);
-	int iFoodEatenPerTurn = m_pCity->foodConsumptionTimes100();
-	int iSurplusFood = (iFoodPerTurn - iFoodEatenPerTurn) / 100;
-
-	CityAIFocusTypes eFocusType = GetFocusType();
-	// Don't want specialists until we've met our food needs
-	if (iSurplusFood < 0)
-	{
-		return false;
-	}
-	else if (IsAvoidGrowth() && (eFocusType == NO_CITY_AI_FOCUS_TYPE || eFocusType == CITY_AI_FOCUS_TYPE_GREAT_PEOPLE))
-	{
-		iWeight *= 2;
-	}
-	else if (iSurplusFood <= 2)
-	{
-		iWeight /= 2;
-	}
-	else if (iSurplusFood > 2)
-	{
-		if (eFocusType == NO_CITY_AI_FOCUS_TYPE || eFocusType == CITY_AI_FOCUS_TYPE_GREAT_PEOPLE || eFocusType == CITY_AI_FOCUS_TYPE_PROD_GROWTH)
-		{
-			iWeight *= 100 + (20 * (iSurplusFood - 4));
-			iWeight /= 100;
-		}
-	}
-
-	// If we're deficient in Food then we're less likely to want Specialists
-	if (m_pCity->GetCityStrategyAI()->GetMostDeficientYield() == YIELD_FOOD)
-	{
-		iWeight *= 75;
-		iWeight /= 100;
-	}
-	// if we've got some slackers in town (since they provide Production)
-	else if (GetNumDefaultSpecialists() > 0 && eFocusType != CITY_AI_FOCUS_TYPE_PRODUCTION && eFocusType != CITY_AI_FOCUS_TYPE_PROD_GROWTH)
-	{
-		iWeight *= 150;
-		iWeight /= 100;
-	}
-
-	// Someone told this AI it should be focused on something that is usually gotten from specialists
-	if (eFocusType == CITY_AI_FOCUS_TYPE_GREAT_PEOPLE)
-	{
-		// Loop through all Buildings
-		BuildingTypes eBuilding;
-		for (int iBuildingLoop = 0; iBuildingLoop < GC.getNumBuildingInfos(); iBuildingLoop++)
-		{
-			eBuilding = (BuildingTypes)iBuildingLoop;
-
-			// Have this Building in the City?
-			if (m_pCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
-			{
-				// Can't add more than the max
-				if (IsCanAddSpecialistToBuilding(eBuilding))
-				{
-					iWeight *= 5;
-					break;
-				}
-			}
-		}
-	}
-	else if (eFocusType == CITY_AI_FOCUS_TYPE_CULTURE)
-	{
-		// Loop through all Buildings
-		for (int iBuildingLoop = 0; iBuildingLoop < GC.getNumBuildingInfos(); iBuildingLoop++)
-		{
-			const BuildingTypes eBuilding = static_cast<BuildingTypes>(iBuildingLoop);
-			CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
-			if (pkBuildingInfo)
-			{
-				// Have this Building in the City?
-				if (m_pCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
-				{
-					// Can't add more than the max
-					if (IsCanAddSpecialistToBuilding(eBuilding))
-					{
-						const SpecialistTypes eSpecialist = (SpecialistTypes)pkBuildingInfo->GetSpecialistType();
-						CvSpecialistInfo* pSpecialistInfo = GC.getSpecialistInfo(eSpecialist);
-						if (pSpecialistInfo && pSpecialistInfo->getCulturePerTurn() > 0)
-						{
-							iWeight *= 5;
-							break;
-						}
-					}
-				}
-			}
-		}
-	}
-	else if (eFocusType == CITY_AI_FOCUS_TYPE_SCIENCE)
-	{
-		// Loop through all Buildings
-		BuildingTypes eBuilding;
-		for (int iBuildingLoop = 0; iBuildingLoop < GC.getNumBuildingInfos(); iBuildingLoop++)
-		{
-			eBuilding = (BuildingTypes)iBuildingLoop;
-
-			// Have this Building in the City?
-			if (m_pCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
-			{
-				// Can't add more than the max
-				if (IsCanAddSpecialistToBuilding(eBuilding))
-				{
-					SpecialistTypes eSpecialist = (SpecialistTypes)GC.getBuildingInfo(eBuilding)->GetSpecialistType();
-					CvSpecialistInfo* pSpecialistInfo = GC.getSpecialistInfo(eSpecialist);
-					if (pSpecialistInfo && pSpecialistInfo->getYieldChange(YIELD_SCIENCE) > 0)
-					{
-						iWeight *= 3;
-					}
-
-					if (GetPlayer()->getSpecialistExtraYield(YIELD_SCIENCE) > 0)
-					{
-						iWeight *= 3;
-					}
-
-					if (GetPlayer()->GetPlayerTraits()->GetSpecialistYieldChange(eSpecialist, YIELD_SCIENCE) > 0)
-					{
-						iWeight *= 3;
-					}
-				}
-			}
-		}
-	}
-	else if (eFocusType == CITY_AI_FOCUS_TYPE_PRODUCTION)
-	{
-		// Loop through all Buildings
-		for (int iBuildingLoop = 0; iBuildingLoop < GC.getNumBuildingInfos(); iBuildingLoop++)
-		{
-			const BuildingTypes eBuilding = static_cast<BuildingTypes>(iBuildingLoop);
-			CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
-			if (pkBuildingInfo)
-			{
-				// Have this Building in the City?
-				if (m_pCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
-				{
-					// Can't add more than the max
-					if (IsCanAddSpecialistToBuilding(eBuilding))
-					{
-						SpecialistTypes eSpecialist = (SpecialistTypes)pkBuildingInfo->GetSpecialistType();
-						CvSpecialistInfo* pSpecialistInfo = GC.getSpecialistInfo(eSpecialist);
-						if (NULL != pSpecialistInfo && pSpecialistInfo->getYieldChange(YIELD_PRODUCTION) > 0)
-						{
-							iWeight *= 150;
-							iWeight /= 100;
-						}
-
-						if (GetPlayer()->getSpecialistExtraYield(YIELD_PRODUCTION) > 0)
-						{
-							iWeight *= 2;
-						}
-
-						if (GetPlayer()->GetPlayerTraits()->GetSpecialistYieldChange(eSpecialist, YIELD_PRODUCTION) > 0)
-						{
-							iWeight *= 2;
-						}
-					}
-				}
-			}
-		}
-	}
-	else if (eFocusType == CITY_AI_FOCUS_TYPE_GOLD)
-	{
-		// Loop through all Buildings
-		BuildingTypes eBuilding;
-		for (int iBuildingLoop = 0; iBuildingLoop < GC.getNumBuildingInfos(); iBuildingLoop++)
-		{
-			eBuilding = (BuildingTypes)iBuildingLoop;
-
-			// Have this Building in the City?
-			if (m_pCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
-			{
-				// Can't add more than the max
-				if (IsCanAddSpecialistToBuilding(eBuilding))
-				{
-					SpecialistTypes eSpecialist = (SpecialistTypes)GC.getBuildingInfo(eBuilding)->GetSpecialistType();
-					CvSpecialistInfo* pSpecialistInfo = GC.getSpecialistInfo(eSpecialist);
-					if (pSpecialistInfo && pSpecialistInfo->getYieldChange(YIELD_GOLD) > 0)
-					{
-						iWeight *= 150;
-						iWeight /= 100;
-						break;
-					}
-				}
-			}
-		}
-	}
-	else if (eFocusType == CITY_AI_FOCUS_TYPE_FOOD)
-	{
-		iWeight *= 50;
-		iWeight /= 100;
-	}
-	else if (eFocusType == CITY_AI_FOCUS_TYPE_PROD_GROWTH)
-	{
-		// Loop through all Buildings
-		for (int iBuildingLoop = 0; iBuildingLoop < GC.getNumBuildingInfos(); iBuildingLoop++)
-		{
-			const BuildingTypes eBuilding = static_cast<BuildingTypes>(iBuildingLoop);
-			CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
-			if (pkBuildingInfo)
-			{
-				// Have this Building in the City?
-				if (m_pCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
-				{
-					// Can't add more than the max
-					if (IsCanAddSpecialistToBuilding(eBuilding))
-					{
-						SpecialistTypes eSpecialist = (SpecialistTypes)pkBuildingInfo->GetSpecialistType();
-						CvSpecialistInfo* pSpecialistInfo = GC.getSpecialistInfo(eSpecialist);
-						if (pSpecialistInfo && pSpecialistInfo->getYieldChange(YIELD_PRODUCTION) > 0)
-						{
-							iWeight *= 150;
-							iWeight /= 100;
-							break;
-						}
-					}
-				}
-			}
-		}
-	}
-	else if (eFocusType == CITY_AI_FOCUS_TYPE_GOLD_GROWTH)
-	{
-		// Loop through all Buildings
-		for (int iBuildingLoop = 0; iBuildingLoop < GC.getNumBuildingInfos(); iBuildingLoop++)
-		{
-			const BuildingTypes eBuilding = static_cast<BuildingTypes>(iBuildingLoop);
-			CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
-			if (pkBuildingInfo)
-			{
-				// Have this Building in the City?
-				if (m_pCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
-				{
-					// Can't add more than the max
-					if (IsCanAddSpecialistToBuilding(eBuilding))
-					{
-						SpecialistTypes eSpecialist = (SpecialistTypes)pkBuildingInfo->GetSpecialistType();
-						CvSpecialistInfo* pSpecialistInfo = GC.getSpecialistInfo(eSpecialist);
-						if (pSpecialistInfo && pSpecialistInfo->getYieldChange(YIELD_GOLD) > 0)
-						{
-							iWeight *= 150;
-							iWeight /= 100;
-						}
-
-						if (GetPlayer()->getSpecialistExtraYield(YIELD_GOLD) > 0)
-						{
-							iWeight *= 2;
-						}
-
-						if (GetPlayer()->GetPlayerTraits()->GetSpecialistYieldChange(eSpecialist, YIELD_GOLD) > 0)
-						{
-							iWeight *= 2;
-						}
-					}
-				}
-			}
-		}
-	}
-	else if (eFocusType == CITY_AI_FOCUS_TYPE_FAITH)
-	{
-		// Loop through all Buildings
-		for (int iBuildingLoop = 0; iBuildingLoop < GC.getNumBuildingInfos(); iBuildingLoop++)
-		{
-			const BuildingTypes eBuilding = (BuildingTypes)iBuildingLoop;
-			CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
-			if (pkBuildingInfo)
-			{
-				// Have this Building in the City?
-				if (m_pCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
-				{
-					// Can't add more than the max
-					if (IsCanAddSpecialistToBuilding(eBuilding))
-					{
-						const SpecialistTypes eSpecialist = (SpecialistTypes)pkBuildingInfo->GetSpecialistType();
-						CvSpecialistInfo* pSpecialistInfo = GC.getSpecialistInfo(eSpecialist);
-						if (pSpecialistInfo && pSpecialistInfo->getYieldChange(YIELD_FAITH) > 0)
-						{
-							iWeight *= 3;
-							break;
-						}
-					}
-				}
-			}
-		}
-	}
-
-	// specialists are cheaper somehow
-	if (m_pCity->GetPlayer()->isHalfSpecialistUnhappiness() || m_pCity->GetPlayer()->isHalfSpecialistFood())
-	{
-		iWeight *= 150;
-		iWeight /= 100;
-	}
-	else if (m_pCity->GetPlayer()->isHalfSpecialistFoodCapital() && m_pCity->isCapital())
-	{
-		iWeight *= 150;
-		iWeight /= 100;
-	}
-
-	// Does the AI want it enough?
-	if (iWeight >= 150)
-	{
-		return true;
-	}
-
-	return false;
-}
-
 /// What is the Building Type the AI likes the Specialist of most right now?
 BuildingTypes CvCityCitizens::GetAIBestSpecialistBuilding(int& iSpecialistValue, bool bLogging)
 {
-	int iBestSpecialistValue = -1;
-	BuildingTypes eBestBuilding = NO_BUILDING;
-	CvBuildingEntry* pBestBuildingInfo = NULL;
-
 	if (m_pCity->GetResistanceTurns() > 0)
 		return NO_BUILDING;
 
 	SPrecomputedExpensiveNumbers store(m_pCity);
+
+	int iBestSpecialistValue = GetSpecialistValue((SpecialistTypes)GC.getDEFAULT_SPECIALIST(),store);
+	BuildingTypes eBestBuilding = NO_BUILDING;
+	CvBuildingEntry* pBestBuildingInfo = NULL;
 
 	//many buildings have the same specialist yields ...
 	std::map<SpecialistTypes, int> specialistValueCache;
@@ -1229,6 +914,10 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist, SPrecomputed
 			iYieldValue += iYield100 * max(1, iYieldMod);
 		}
 	}
+
+	//nothing else for laborers ...
+	if (eSpecialist == (SpecialistTypes)GC.getDEFAULT_SPECIALIST())
+		return iYieldValue;
 
 	int iGPPYieldValue = pSpecialistInfo->getGreatPeopleRateChange();
 	for (int i = 0; i < GC.getNumFlavorTypes(); i++)
@@ -1618,7 +1307,7 @@ bool CvCityCitizens::DoAddBestCitizenFromUnassigned(CvCity::eUpdateMode updateMo
 	}
 	else if (iSpecialistValue > iBestPlotValue)
 	{
-		// Specialist is best
+		// Specialist is best (can also be a default specialist aka laborer)
 		DoAddSpecialistToBuilding(eBestSpecialistBuilding, /*bForced*/ false, updateMode);
 
 		if (pLog)
@@ -1802,8 +1491,6 @@ CvPlot* CvCityCitizens::GetBestCityPlotWithValue(int& iValue, bool bWantBest, bo
 //see if we can find a better assignment when we're not assigning plots greedily from scratch but from the final state where all citizens are already fed
 void CvCityCitizens::OptimizeWorkedPlots(bool bLogging)
 {
-	DoVerifyWorkingPlots();
-
 	int iCount = 0;
 	FILogFile* pLog = bLogging && GC.getLogging() ? LOGFILEMGR.GetLog("CityTileScorer.csv", FILogFile::kDontTimeStamp) : NULL;
 
@@ -1811,9 +1498,14 @@ void CvCityCitizens::OptimizeWorkedPlots(bool bLogging)
 	bool bCanAffordSpecialist = (iNetFood100 >= m_pCity->foodConsumptionSpecialistTimes100());
 	bool bSpecialistForbidden = GET_PLAYER(GetOwner()).isHuman() && IsNoAutoAssignSpecialists();
 
+	//failsafe: if we have unassigned citizens get then assign them first
+	while (GetNumUnassignedCitizens() > 0)
+		DoAddBestCitizenFromUnassigned(CvCity::YIELD_UPDATE_LOCAL);
+
 	//failsafe against switching back and forth, don't try this too often
 	while (iCount < m_pCity->getPopulation()/2)
 	{
+		//now the real check
 		int iWorstWorkedPlotValue = 0;
 		int iWorstSpecialistValue = 0;
 		int iBestFreePlotValue = 0;
@@ -1878,7 +1570,7 @@ void CvCityCitizens::OptimizeWorkedPlots(bool bLogging)
 		else
 		{
 			//is a specialist better?
-			if (iBestSpecialistValue > iWorstWorkedPlotValue && eBestSpecialistBuilding != NO_BUILDING)
+			if (iBestSpecialistValue > iWorstWorkedPlotValue)
 			{
 				DoAddSpecialistToBuilding(eBestSpecialistBuilding, /*bForced*/ false, CvCity::YIELD_UPDATE_GLOBAL);
 
@@ -1887,8 +1579,8 @@ void CvCityCitizens::OptimizeWorkedPlots(bool bLogging)
 					CvBuildingEntry* pBuilding = GC.getBuildingInfo(eBestSpecialistBuilding);
 					int iExcessFoodTimes100 = m_pCity->getYieldRateTimes100(YIELD_FOOD, false) - (m_pCity->foodConsumptionTimes100());
 					CvString strOutBuf;
-					strOutBuf.Format("switched plot %d:%d (score %d) to specialist in %s (score %d), current net food %d", 
-						pWorstWorkedPlot->getX(), pWorstWorkedPlot->getY(), iWorstWorkedPlotValue, pBuilding->GetType(), iBestSpecialistValue, iExcessFoodTimes100);
+					strOutBuf.Format("switched plot %d:%d (score %d) to specialist (%s, score %d), current net food %d", 
+						pWorstWorkedPlot->getX(), pWorstWorkedPlot->getY(), iWorstWorkedPlotValue, pBuilding ? pBuilding->GetType() : "default", iBestSpecialistValue, iExcessFoodTimes100);
 					pLog->Msg(strOutBuf);
 				}
 			}
@@ -1934,13 +1626,7 @@ bool CvCityCitizens::NeedReworkCitizens()
 		eBestSpecialistBuilding = GetAIBestSpecialistBuilding(iSpecialistValue);
 	}
 
-	if (eBestSpecialistBuilding == NO_BUILDING)
-	{
-		return false;
-	}
-
-	bool bSpecialistBetterThanPlot = (eBestSpecialistBuilding != NO_BUILDING && iSpecialistValue >= iWorstWorkedPlotValue);
-	if (bSpecialistBetterThanPlot)
+	if (iSpecialistValue > iWorstWorkedPlotValue)
 	{
 		return true;
 	}
@@ -1953,7 +1639,7 @@ bool CvCityCitizens::NeedReworkCitizens()
 	}
 
 	//check if new specialist is better than existing specialist
-	return (eBestSpecialistInCityBuilding != NO_BUILDING && eBestSpecialistBuilding != NO_BUILDING && iSpecialistValue >= iSpecialistInCityValue);
+	return (iSpecialistValue > iSpecialistInCityValue);
 }
 
 /// Optimize our Citizen Placement
@@ -2280,17 +1966,11 @@ void CvCityCitizens::DoAlterWorkingPlot(int iIndex)
 					}
 				}
 			}
-			// JON: Need to update this block to work with new system
-			else if (pPlot->getOwner() == GetOwner())
+			else if (pPlot->getOwner() == GetOwner() && !pPlot->isBlockaded())
 			{
-				// Can't take away forced plots from puppet Cities
-				if (pPlot->getOwningCityOverride() != NULL)
-				{
-					if (pPlot->getOwningCityOverride()->IsPuppet())
-					{
-						return;
-					}
-				}
+				// Can't take away plots from puppet cities by force
+				if (pPlot->getOwningCity()->IsPuppet())
+					return;
 
 				pPlot->setOwningCityOverride(GetCity());
 			}
@@ -2779,6 +2459,13 @@ void CvCityCitizens::DoAddSpecialistToBuilding(BuildingTypes eBuilding, bool bFo
 {
 	CvAssert(eBuilding > -1);
 	CvAssert(eBuilding < GC.getNumBuildingInfos());
+
+	//no building means laborer
+	if (eBuilding == NO_BUILDING)
+	{
+		ChangeNumDefaultSpecialists(1, updateMode);
+		return;
+	}
 
 	CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
 	if (pkBuildingInfo == NULL)

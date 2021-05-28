@@ -833,7 +833,6 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 	setGameTurnAcquired(iGameTurn);
 	setGameTurnLastExpanded(iGameTurn);
 
-	GC.getMap().updateOwningCity(pPlot,getWorkPlotDistance()*2);
 	GetCityCitizens()->DoFoundCity();
 
 	// Default starting population
@@ -2393,7 +2392,7 @@ void CvCity::PostKill(bool bCapital, CvPlot* pPlot, int iWorkPlotDistance, Playe
 		}
 	}
 
-	GC.getMap().updateOwningCity(pPlot,iWorkPlotDistance*2);
+	GC.getMap().updateOwningCityForPlots(pPlot,iWorkPlotDistance*2);
 	if(bCapital)
 	{
 #if defined(MOD_GLOBAL_NO_CONQUERED_SPACESHIPS)
@@ -2775,6 +2774,7 @@ void CvCity::doTurn()
 
 	//not a full re-allocation but see if we can shift some citizens around
 	//DoReallocateCitizens() will be called less frequently when a building is added, a plot is claimed, population changes etc
+	GetCityCitizens()->DoVerifyWorkingPlots();
 	GetCityCitizens()->OptimizeWorkedPlots(false);
 	updateNetHappiness();
 #endif
@@ -16244,8 +16244,6 @@ void CvCity::processProcess(ProcessTypes eProcess, int iChange)
 void CvCity::processSpecialist(SpecialistTypes eSpecialist, int iChange, CvCity::eUpdateMode updateMode)
 {
 	VALIDATE_OBJECT
-	int iI;
-
 	CvSpecialistInfo* pkSpecialist = GC.getSpecialistInfo(eSpecialist);
 	if(pkSpecialist == NULL)
 	{
@@ -16255,7 +16253,7 @@ void CvCity::processSpecialist(SpecialistTypes eSpecialist, int iChange, CvCity:
 
 	changeBaseGreatPeopleRate(pkSpecialist->getGreatPeopleRateChange() * iChange);
 
-	for(iI = 0; iI < NUM_YIELD_TYPES; iI++)
+	for(int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 	{
 		ChangeBaseYieldRateFromSpecialists(((YieldTypes)iI), (pkSpecialist->getYieldChange(iI) * iChange));
 	}

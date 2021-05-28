@@ -5089,6 +5089,7 @@ bool CvUnit::canMoveInto(const CvPlot& plot, int iMoveFlags) const
 		// Don't let another player's unit inside someone's city
 		if((iMoveFlags & CvUnit::MOVEFLAG_ATTACK)==0)
 		{
+
 			if(plot.isCity() && plot.getPlotCity()->getOwner() != getOwner())
 				return false;
 		}

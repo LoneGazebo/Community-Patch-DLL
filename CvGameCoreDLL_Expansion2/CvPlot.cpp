@@ -5834,14 +5834,15 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 			setOwnershipDuration(0);
 #if defined(MOD_BALANCE_CORE)
 			FeatureTypes eFeature = getFeatureType();
-			if(eFeature != NO_FEATURE)
+			CvFeatureInfo* pFeatureInfo = GC.getFeatureInfo(eFeature);
+
+			if(pFeatureInfo && eNewValue != NO_PLAYER)
 			{
-				if (eNewValue != NO_PLAYER)
-				{
-					GET_PLAYER(eNewValue).SetNWOwned(eFeature, true);
-				}
-				PromotionTypes eFreePromotion = (PromotionTypes)GC.getFeatureInfo(eFeature)->getPromotionIfOwned();
-				if(eFreePromotion != NO_PROMOTION && eNewValue != NO_PLAYER)
+				if (pFeatureInfo->getInBorderHappiness()>0)
+					GET_PLAYER(eNewValue).SetNaturalWonderOwned(eFeature, true);
+
+				PromotionTypes eFreePromotion = (PromotionTypes)pFeatureInfo->getPromotionIfOwned();
+				if(eFreePromotion != NO_PROMOTION)
 				{
 					if (!GET_PLAYER(eNewValue).IsFreePromotion(eFreePromotion))
 					{
@@ -5855,14 +5856,13 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 			if(isOwned())
 			{
 #if defined(MOD_BALANCE_CORE)
-				if(eFeature != NO_FEATURE)
+				if(pFeatureInfo && eOldOwner != NO_PLAYER)
 				{
-					if (eOldOwner != NO_PLAYER)
-					{
-						GET_PLAYER(eOldOwner).SetNWOwned(eFeature, false);
-					}
-					PromotionTypes eFreePromotion = (PromotionTypes)GC.getFeatureInfo(eFeature)->getPromotionIfOwned();
-					if(eFreePromotion != NO_PROMOTION && eOldOwner != NO_PLAYER)
+					if (pFeatureInfo->getInBorderHappiness()>0)
+						GET_PLAYER(eOldOwner).SetNaturalWonderOwned(eFeature, false);
+
+					PromotionTypes eFreePromotion = (PromotionTypes)pFeatureInfo->getPromotionIfOwned();
+					if(eFreePromotion != NO_PROMOTION)
 					{
 						if(GET_PLAYER(eOldOwner).IsFreePromotion(eFreePromotion))
 						{
@@ -6079,11 +6079,10 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 			// ACTUALLY CHANGE OWNERSHIP HERE
 			m_eOwner = eNewValue;
 
-			setOwningCityOverride(NULL);
-			updateOwningCity();
+			m_owningCityOverride.reset();
+			m_owningCity = IDInfo(eNewValue, iAcquiringCityID);
 
 			// Post ownership switch
-
 			if(isOwned())
 			{
 				CvPlayerAI& newPlayer = GET_PLAYER(eNewValue);
@@ -6439,13 +6438,13 @@ bool CvPlot::isBlockaded()
 	//need to do additional checks in water
 	if (isWater())
 	{
-		int iRange = range(0,3,GC.getNAVAL_PLOT_BLOCKADE_RANGE());
+		int iRange = range(GC.getNAVAL_PLOT_BLOCKADE_RANGE(),0,3);
 		for (int i = RING0_PLOTS; i < RING_PLOTS[iRange]; i++)
 		{
 			CvPlot* pNeighbor = iterateRingPlots(this, i);
 			if (pNeighbor && pNeighbor->getArea() == getArea())
 			{
-				if (isEnemyUnit(getOwner(), true, false))
+				if (pNeighbor->isEnemyUnit(getOwner(), true, false))
 					return true;
 			}
 		}
@@ -9075,17 +9074,16 @@ CvCity* CvPlot::getOwningCity() const
 	return ::GetPlayerCity(m_owningCity);
 }
 
-//	--------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------
+// no idea what this does, it's called when a city is deleted
+// --------------------------------------------------------------------------------
 void CvPlot::updateOwningCity()
 {
 	CvCity* pBestCity = getPlotCity();
 	if(pBestCity == NULL)
-	{
 		pBestCity = getOwningCityOverride();
-		CvAssertMsg((pBestCity == NULL) || (pBestCity->getOwner() == getOwner()), "pBest city is expected to either be NULL or the current plot instance's");
-	}
 
-	if((pBestCity == NULL) && isOwned())
+	if(pBestCity == NULL && isOwned())
 	{
 		int iBestPlot = 0;
 		for(int iI = 0; iI < MAX_CITY_PLOTS; ++iI)
@@ -9115,36 +9113,28 @@ void CvPlot::updateOwningCity()
 	}
 
 	CvCity* pOldOwningCity = getOwningCity();
-
 	if(pOldOwningCity != pBestCity)
 	{
 		// Remove Citizen from this plot if another City's using it
 		if (pOldOwningCity != NULL)
 		{
-			// Remove citizen
 			pOldOwningCity->GetCityCitizens()->SetWorkingPlot(this, false, CvCity::YIELD_UPDATE_LOCAL);
-			SetResourceLinkedCity(NULL);
-			// Re-add citvizen somewhere else
 			pOldOwningCity->GetCityCitizens()->DoAddBestCitizenFromUnassigned(CvCity::YIELD_UPDATE_GLOBAL);
 		}
+
 		// Change what City's allowed to work this Plot
 		if(pBestCity != NULL)
 		{
-#if defined(MOD_BALANCE_CORE)
 			SetResourceLinkedCity(pBestCity);
-#endif
-
-			CvAssertMsg(isOwned(), "isOwned is expected to be true");
-			CvAssertMsg(!isBeingWorked(), "isBeingWorked did not return false as expected");
 			m_owningCity = pBestCity->GetIDInfo();
 		}
 		else
 		{
 			m_owningCity.reset();
+			SetResourceLinkedCity(NULL);
 		}
 
 		updateYield();
-
 		GC.GetEngineUserInterface()->setDirty(ColoredPlots_DIRTY_BIT, true);
 	}
 }
@@ -9180,19 +9170,31 @@ CvCity* CvPlot::getOwningCityOverride() const
 //	--------------------------------------------------------------------------------
 void CvPlot::setOwningCityOverride(const CvCity* pNewValue)
 {
-	if(getOwningCityOverride() != pNewValue)
+	CvCity* pCurrentCity = getOwningCityOverride();
+	if ( pNewValue != pCurrentCity )
 	{
 		if(pNewValue != NULL && pNewValue != getOwningCity())
 		{
-			CvAssertMsg(pNewValue->getOwner() == getOwner(), "Argument city pNewValue's owner is expected to be the same as the current instance");
 			m_owningCityOverride = pNewValue->GetIDInfo();
+			SetResourceLinkedCity(pNewValue);
 		}
 		else
 		{
 			m_owningCityOverride.reset();
+			SetResourceLinkedCity( getOwningCity() );
 		}
 
-		updateOwningCity();
+		// Remove citizen from this plot if another city was using it
+		if (pCurrentCity == NULL)
+			pCurrentCity = getOwningCity();
+
+		if (pCurrentCity != NULL && pCurrentCity->GetCityCitizens()->IsWorkingPlot(this))
+		{
+			pCurrentCity->GetCityCitizens()->SetWorkingPlot(this, false, CvCity::YIELD_UPDATE_LOCAL);
+			pCurrentCity->GetCityCitizens()->DoAddBestCitizenFromUnassigned(CvCity::YIELD_UPDATE_GLOBAL);
+		}
+
+		GC.GetEngineUserInterface()->setDirty(ColoredPlots_DIRTY_BIT, true);
 	}
 }
 

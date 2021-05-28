@@ -615,7 +615,7 @@ CvPlayer::CvPlayer() :
 	, m_abEventChoiceFired("CvPlayer::m_abEventChoiceFired", m_syncArchive)
 	, m_abEventFired("CvPlayer::m_abEventFired", m_syncArchive)
 	, m_iPlayerEventCooldown("CvPlayer::m_iPlayerEventCooldown", m_syncArchive)
-	, m_abNWOwned("CvPlayer::m_abNWOwned", m_syncArchive)
+	, m_ownedNaturalWonders("CvPlayer::m_ownedNaturalWonders", m_syncArchive)
 	, m_paiUnitClassProductionModifiers("CvPlayer::m_paiUnitClassProductionModifiers", m_syncArchive)
 	, m_iExtraSupplyPerPopulation("CvPlayer::m_iExtraSupplyPerPopulation", m_syncArchive)
 	, m_iCitySupplyFlatGlobal("CvPlayer::m_iCitySupplyFlatGlobal", m_syncArchive)
@@ -1872,8 +1872,7 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 	m_abEventChoiceFired.clear();
 	m_abEventChoiceFired.resize(GC.getNumEventChoiceInfos(), false);
 
-	m_abNWOwned.clear();
-	m_abNWOwned.resize(GC.getNumFeatureInfos(), false);
+	m_ownedNaturalWonders.clear();
 
 	m_paiUnitClassProductionModifiers.clear();
 	m_paiUnitClassProductionModifiers.resize(GC.getNumUnitClassInfos(), 0);
@@ -3838,7 +3837,7 @@ CvCity* CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 		}
 	}
 
-	GC.getMap().updateOwningCity(pCityPlot,iOldCityRings*2);
+	GC.getMap().updateOwningCityForPlots(pCityPlot,iOldCityRings*2);
 	// Lost the capital!
 	if(bCapital)
 	{
@@ -4519,7 +4518,7 @@ CvCity* CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 	// slewis - moved this here so that conquest victory is tested with each city capture
 	GC.getGame().DoTestConquestVictory();
 
-	GC.getMap().updateOwningCity(pCityPlot,pNewCity->getWorkPlotDistance()*2);
+	GC.getMap().updateOwningCityForPlots(pCityPlot,pNewCity->getWorkPlotDistance()*2);
 	if(bConquest)
 	{
 		for(int iDX = -iMaxRange; iDX <= iMaxRange; iDX++)
@@ -21955,85 +21954,36 @@ int CvPlayer::GetHappinessFromNaturalWonders() const
 		iHappiness /= 100;
 	}
 
-#if defined(MOD_BALANCE_CORE)
-	for (int iI = 0; iI < GC.getNumFeatureInfos(); iI++)
+	for (vector<FeatureTypes>::const_iterator it=m_ownedNaturalWonders.begin(); it!=m_ownedNaturalWonders.end(); ++it)
 	{
-		FeatureTypes eFeature = (FeatureTypes)iI;
-		if (eFeature == NO_FEATURE)
-			continue;
+		int iPlotHappiness = GC.getFeatureInfo(*it)->getInBorderHappiness();
 
-		if (!IsNWOwned(eFeature))
-			continue;
-
-		int iPlotHappiness = GC.getFeatureInfo(eFeature)->getInBorderHappiness();
-
-		if (iPlotHappiness > 0)
+		// Trait boosts this further?
+		if (m_pTraits->GetNaturalWonderYieldModifier() > 0)
 		{
-			// Trait boosts this further?
-			if (m_pTraits->GetNaturalWonderYieldModifier() > 0)
-			{
-				iPlotHappiness *= (100 + m_pTraits->GetNaturalWonderYieldModifier());
-				iPlotHappiness /= 100;
-			}
-
-			iHappiness += iPlotHappiness;
+			iPlotHappiness *= (100 + m_pTraits->GetNaturalWonderYieldModifier());
+			iPlotHappiness /= 100;
 		}
+
+		iHappiness += iPlotHappiness;
 	}
 
-	iHappiness +=  GET_TEAM(getTeam()).GetNumLandmarksBuilt();
-#else
-	for(int iI = 0; iI < GC.getMap().numPlots(); iI++)
-	{
-		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(iI);
-		if(pPlot == NULL)
-		{
-			continue;
-		}
-
-		if(pPlot->getOwner() != m_eID)
-		{
-			continue;
-		}
-
-		FeatureTypes eFeature = pPlot->getFeatureType();
-		if(eFeature == NO_FEATURE)
-		{
-			continue;
-		}
-
-		int iPlotHappiness = GC.getFeatureInfo(eFeature)->getInBorderHappiness();
-
-		if(iPlotHappiness > 0)
-		{
-			// Trait boosts this further?
-			if(m_pTraits->GetNaturalWonderYieldModifier() > 0)
-			{
-				iPlotHappiness *= (100 + m_pTraits->GetNaturalWonderYieldModifier());
-				iPlotHappiness /= 100;
-			}
-
-			iHappiness += iPlotHappiness;
-		}
-	}
-#endif
-	return iHappiness;
+	return iHappiness + GET_TEAM(getTeam()).GetNumLandmarksBuilt();
 }
+
 #if defined(MOD_BALANCE_CORE)
-void CvPlayer::SetNWOwned(FeatureTypes eFeature, bool bValue)
+void CvPlayer::SetNaturalWonderOwned(FeatureTypes eFeature, bool bValue)
 {
 	VALIDATE_OBJECT
 	CvAssertMsg(eFeature >= 0, "eFeature is expected to be non-negative (invalid Index)");
 	CvAssertMsg(eFeature < GC.getNumFeatureInfos(), "eEvent is expected to be within maximum bounds (invalid Index)");
 
+	vector<FeatureTypes>::const_iterator it = std::find(m_ownedNaturalWonders.begin(), m_ownedNaturalWonders.end(), eFeature);
 
-	if (m_abNWOwned[eFeature] != bValue)
-	{
-		m_abNWOwned.setAt(eFeature, bValue);
-	}
-}
-bool CvPlayer::IsNWOwned(FeatureTypes eFeature) const
-{
-	return m_abNWOwned[eFeature];
+	if (bValue && it==m_ownedNaturalWonders.end())
+		m_ownedNaturalWonders.push_back(eFeature);
+	else if (!bValue && it!=m_ownedNaturalWonders.end())
+		m_ownedNaturalWonders.dirtyGet().erase(it);
 }
 
 void CvPlayer::ChangeUnitClassProductionModifier(UnitClassTypes eUnitClass, int iValue)
