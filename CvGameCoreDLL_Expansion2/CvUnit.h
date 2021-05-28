@@ -1727,7 +1727,7 @@ public:
 	int CountStackingUnitsAtPlot(const CvPlot* pPlot) const;
 
 	template<typename Unit, typename Visitor>
-	static void serialize(Unit& unit, Visitor& visitor);
+	static void Serialize(Unit& unit, Visitor& visitor);
 	void read(FDataStream& kStream);
 	void write(FDataStream& kStream) const;
 

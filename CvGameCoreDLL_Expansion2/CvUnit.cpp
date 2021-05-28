@@ -27182,7 +27182,7 @@ CvUnit* CvUnit::GetPotentialUnitToSwapWith(CvPlot & swapPlot) const
 
 //	--------------------------------------------------------------------------------
 template<typename Unit, typename Visitor>
-void CvUnit::serialize(Unit& unit, Visitor& visitor)
+void CvUnit::Serialize(Unit& unit, Visitor& visitor)
 {
 	visitor(unit.m_eOwner);
 	visitor(unit.m_eOriginalOwner);
@@ -27514,7 +27514,7 @@ void CvUnit::read(FDataStream& kStream)
 
 	// Perform shared serialize
 	CvStreamLoadVisitor serialVisitor(kStream);
-	serialize(*this, serialVisitor);
+	Serialize(*this, serialVisitor);
 
 	// anything not in serialize() needs to be explicitly
 	// read
@@ -27616,7 +27616,7 @@ void CvUnit::write(FDataStream& kStream) const
 
 	// Perform shared serialize
 	CvStreamSaveVisitor serialVisitor(kStream);
-	serialize(*this, serialVisitor);
+	Serialize(*this, serialVisitor);
 
 	// Write out a hash for the unit type, the sync archive saved the index, which is not a good thing to do.
 	if (m_eUnitType != NO_UNIT && m_pUnitInfo)
