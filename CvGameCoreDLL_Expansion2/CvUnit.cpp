@@ -149,7 +149,6 @@ CvUnit::CvUnit() :
 	, m_iAttackPlotY()
 	, m_iCombatTimer()
 	, m_iCombatFirstStrikes()
-	, m_iCombatDamage()
 	, m_bMovedThisTurn()
 	, m_bFortified()
 	, m_iBlitzCount()
@@ -1431,7 +1430,6 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_iAttackPlotY = INVALID_PLOT_COORD;
 	m_iCombatTimer = 0;
 	m_iCombatFirstStrikes = 0;
-	m_iCombatDamage = 0;
 	m_bMovedThisTurn = false;
 	m_bFortified = false;
 	m_iBlitzCount = 0;
@@ -27199,6 +27197,7 @@ void CvUnit::Serialize(Unit& unit, Visitor& visitor)
 		// Remove these values and related branches when save compatability is broken
 		VERSION_TAG_REMOVE_DLL_VERSION = 10,
 		VERSION_TAG_REMOVE_UNIT_TYPE_INDEX = 10,
+		VERSION_TAG_REMOVE_COMBAT_DAMAGE = 10,
 	};
 	uint32 uiVersion;
 	if (bSaving)
@@ -27248,7 +27247,11 @@ void CvUnit::Serialize(Unit& unit, Visitor& visitor)
 	visitor(unit.m_iAttackPlotY);
 	visitor(unit.m_iCombatTimer);
 	visitor(unit.m_iCombatFirstStrikes);
-	visitor(unit.m_iCombatDamage);
+	if (bLoading && uiVersion < VERSION_TAG_REMOVE_COMBAT_DAMAGE)
+	{
+		int iCombatDamage;
+		visitor >> iCombatDamage;
+	}
 	visitor(unit.m_bMovedThisTurn);
 	visitor(unit.m_bFortified);
 	visitor(unit.m_iBlitzCount);
