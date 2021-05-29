@@ -252,7 +252,7 @@ private:
 public:
 	~CvSyncArchive()
 	{
-		SAFE_DELETE(m_syncVarsStorage);
+		destroySyncVars();
 	}
 
 	const ContainerType& getContainer() const;
@@ -263,6 +263,10 @@ public:
 	{
 		FAssert(m_syncVarsStorage == NULL);
 		m_syncVarsStorage = &syncVars;
+	}
+	inline void destroySyncVars()
+	{
+		SAFE_DELETE(m_syncVarsStorage);
 	}
 	inline const std::vector<FAutoVariableBase*>& getContents() const
 	{
