@@ -48677,7 +48677,6 @@ bool CvPlayer::IsCityCompetitive(CvCity* pCity, BuildingTypes eBuilding, Project
 		if (pLoopCity->IsPuppet())
 			continue;
 
-		int iProduction = 0;
 		if (pCity == pLoopCity)
 		{
 			if (eBuilding != NO_BUILDING)
