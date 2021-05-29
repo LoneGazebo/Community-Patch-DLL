@@ -21,14 +21,14 @@ public:
 	}
 
 	template<typename T>
-	inline CvStreamSaveVisitor operator<<(const T& value)
+	inline CvStreamSaveVisitor& operator<<(const T& value)
 	{
 		m_stream << value;
 		return *this;
 	}
 
 	template<typename T>
-	inline CvStreamSaveVisitor operator>>(const T& value)
+	inline CvStreamSaveVisitor& operator>>(const T& value)
 	{
 		FAssertMsg(false, "CvStreamSaveVisitor is not meant for loading");
 		return *this;
@@ -63,14 +63,14 @@ public:
 	}
 
 	template<typename T>
-	inline CvStreamSaveVisitor operator<<(const T& value)
+	inline CvStreamLoadVisitor& operator<<(const T& value)
 	{
 		FAssertMsg(false, "CvStreamSaveVisitor is not meant for saving");
 		return *this;
 	}
 
 	template<typename T>
-	inline CvStreamSaveVisitor operator>>(T& value)
+	inline CvStreamLoadVisitor& operator>>(T& value)
 	{
 		m_stream >> value;
 		return *this;
