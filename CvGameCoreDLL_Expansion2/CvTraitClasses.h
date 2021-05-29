@@ -344,7 +344,7 @@ public:
 #endif
 	int GetMaintenanceModifierUnitCombat(const int unitCombatID) const;
 	int GetImprovementYieldChanges(ImprovementTypes eIndex1, YieldTypes eIndex2) const;
-#if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
+#if defined(MOD_API_UNIFIED_YIELDS)
 	int GetPlotYieldChanges(PlotTypes eIndex1, YieldTypes eIndex2) const;
 #endif
 #if defined(MOD_BALANCE_CORE)
@@ -701,7 +701,7 @@ protected:
 #endif
 	int* m_piMaintenanceModifierUnitCombats;
 	int** m_ppiImprovementYieldChanges;
-#if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
+#if defined(MOD_API_UNIFIED_YIELDS)
 	int** m_ppiPlotYieldChanges;
 #endif
 #if defined(MOD_BALANCE_CORE)
@@ -1743,7 +1743,7 @@ public:
 #endif
 	int GetMaintenanceModifierUnitCombat(const int unitCombatID) const;
 	int GetImprovementYieldChange(ImprovementTypes eImprovement, YieldTypes eYield) const;
-#if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
+#if defined(MOD_API_UNIFIED_YIELDS)
 	int GetPlotYieldChange(PlotTypes ePlot, YieldTypes eYield) const;
 #endif
 #if defined(MOD_BALANCE_CORE)
@@ -2290,7 +2290,7 @@ private:
 #endif
 
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppaaiImprovementYieldChange;
-#if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
+#if defined(MOD_API_UNIFIED_YIELDS)
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiPlotYieldChange;
 #endif
 #if defined(MOD_BALANCE_CORE)
