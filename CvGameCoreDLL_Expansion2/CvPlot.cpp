@@ -65,11 +65,12 @@ void SyncPlots()
 		std::set<int>::const_iterator i;
 		for(i = plotsToCheck.begin(); i != plotsToCheck.end(); ++i)
 		{
-			const CvPlot* plot = GC.getMap().plotByIndexUnchecked(*i);
+			CvPlot* plot = GC.getMap().plotByIndexUnchecked(*i);
 
 			if(plot)
 			{
-				const FAutoArchive& archive = plot->getSyncArchive();
+				CvSyncArchive<CvPlot>& archive = plot->getSyncArchive();
+				archive.collectDeltas();
 				if(archive.hasDeltas())
 				{
 					FMemoryStream memoryStream;
@@ -148,8 +149,8 @@ FDataStream& operator<<(FDataStream& saveTo, const CvArchaeologyData& readFrom)
 // CvPlot
 //////////////////////////////////////////////////////////////////////////
 CvPlot::CvPlot() :
-	m_syncArchive(*this)
-	, m_eFeatureType("CvPlot::m_eFeatureType", m_syncArchive, true)
+	m_syncArchive()
+	, m_eFeatureType()
 {
 	FSerialization::plotsToCheck.insert(m_iPlotIndex);
 
@@ -162,6 +163,11 @@ CvPlot::CvPlot() :
 #endif
 
 	reset(0, 0, true);
+
+	if (GC.getGame().isNetworkMultiPlayer())
+	{
+		m_syncArchive.initSyncVars(*FNEW(CvSyncArchive<CvPlot>::SyncVars(*this), c_eCiv5GameplayDLL, 0));
+	}
 }
 
 
@@ -6758,7 +6764,7 @@ void CvPlot::setFeatureType(FeatureTypes eNewValue)
 
 #if defined(MOD_EVENTS_TERRAFORMING)
 		if (MOD_EVENTS_TERRAFORMING) {
-			GAMEEVENTINVOKE_HOOK(GAMEEVENT_TerraformingPlot, TERRAFORMINGEVENT_FEATURE, m_iX, m_iY, 0, eNewValue, m_eFeatureType.get(), -1, -1);
+			GAMEEVENTINVOKE_HOOK(GAMEEVENT_TerraformingPlot, TERRAFORMINGEVENT_FEATURE, m_iX, m_iY, 0, eNewValue, m_eFeatureType, -1, -1);
 		}
 #endif
 
@@ -12573,6 +12579,13 @@ void CvPlot::processArea(CvArea* pArea, int iChange)
 }
 
 //	--------------------------------------------------------------------------------
+template<typename Plot, typename Visitor>
+void CvPlot::Serialize(Plot& /*plot*/, Visitor& /*visitor*/)
+{
+	// Move stuff here
+}
+
+//	--------------------------------------------------------------------------------
 //
 // read object from a stream
 // used during load
@@ -12587,6 +12600,10 @@ void CvPlot::read(FDataStream& kStream)
 	kStream >> uiVersion;
 	CvAssertMsg(uiVersion <= g_CurrentCvPlotVersion, "Unexpected Version.  This could be caused by serialization errors.");
 	MOD_SERIALIZE_INIT_READ(kStream);
+
+	// Perform shared serialize
+	CvStreamLoadVisitor serialVisitor(kStream);
+	Serialize(*this, serialVisitor);
 
 	kStream >> m_iX;
 	kStream >> m_iY;
@@ -12795,6 +12812,10 @@ void CvPlot::write(FDataStream& kStream) const
 	kStream << uiVersion;
 	MOD_SERIALIZE_INIT_WRITE(kStream);
 
+	// Perform shared serialize
+	CvStreamLoadVisitor serialVisitor(kStream);
+	Serialize(*this, serialVisitor);
+
 	kStream << m_iX;
 	kStream << m_iY;
 	kStream << m_iArea;
@@ -12838,7 +12859,7 @@ void CvPlot::write(FDataStream& kStream) const
 	kStream << m_ePlotType;
 	kStream << m_eTerrainType;
 
-	CvInfosSerializationHelper::WriteHashed(kStream, (const FeatureTypes)m_eFeatureType.get());
+	CvInfosSerializationHelper::WriteHashed(kStream, (const FeatureTypes)m_eFeatureType);
 	CvInfosSerializationHelper::WriteHashed(kStream, (const ResourceTypes)m_eResourceType);
 	CvInfosSerializationHelper::WriteHashed(kStream, (const ImprovementTypes)m_eImprovementType);
 	CvInfosSerializationHelper::WriteHashed(kStream, (const ImprovementTypes)m_eImprovementTypeUnderConstruction);
@@ -13538,13 +13559,13 @@ void CvPlot::SetContinentType(const char cContinent)
 }
 
 //	--------------------------------------------------------------------------------
-FAutoArchive& CvPlot::getSyncArchive()
+CvSyncArchive<CvPlot>& CvPlot::getSyncArchive()
 {
 	return m_syncArchive;
 }
 
 //	--------------------------------------------------------------------------------
-const FAutoArchive& CvPlot::getSyncArchive() const
+const CvSyncArchive<CvPlot>& CvPlot::getSyncArchive() const
 {
 	return m_syncArchive;
 }

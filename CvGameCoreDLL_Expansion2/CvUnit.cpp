@@ -80,19 +80,20 @@ void SyncUnits()
 		std::vector<CvUnit*>::const_iterator i;
 		for(i = unitsToCheck.begin(); i != unitsToCheck.end(); ++i)
 		{
-			const CvUnit* unit = *i;
+			CvUnit* unit = *i;
 
 			if(unit)
 			{
 				const CvPlayer& player = GET_PLAYER(unit->getOwner());
 				if(unit->getOwner() == authoritativePlayer || (gDLL->IsHost() && !player.isHuman() && player.isAlive()))
 				{
-					const CvSyncArchive<CvUnit>& syncArchive = unit->getSyncArchive();
-					if(syncArchive.hasDeltas())
+					CvSyncArchive<CvUnit>& archive = unit->getSyncArchive();
+					archive.collectDeltas();
+					if(archive.hasDeltas())
 					{
 						FMemoryStream memoryStream;
 						std::vector<std::pair<std::string, std::string> > callStacks;
-						syncArchive.saveDelta(memoryStream, callStacks);
+						archive.saveDelta(memoryStream, callStacks);
 						gDLL->sendUnitSyncCheck(unit->getOwner(), unit->GetID(), memoryStream, callStacks);
 					}
 				}
@@ -112,7 +113,8 @@ void ClearUnitDeltas()
 
 		if(unit)
 		{
-			unit->getSyncArchive().clearDelta();
+			FAutoArchive& archive = unit->getSyncArchive();
+			archive.clearDelta();
 		}
 	}
 }
@@ -124,11 +126,217 @@ OBJECT_VALIDATE_DEFINITION(CvUnit)
 
 //	--------------------------------------------------------------------------------
 // Public Functions...
-CvUnit::CvUnit()
-	: m_syncArchive(*this)
+CvUnit::CvUnit() :
+	m_syncArchive()
+	, m_iID()
+	, m_iHotKeyNumber()
+	, m_iX()
+	, m_iY()
+	, m_iLastMoveTurn()
+	, m_iDeployFromOperationTurn()
+	, m_iReconX()
+	, m_iReconY()
+	, m_iReconCount()
+	, m_iGameTurnCreated()
+	, m_iDamage()
+	, m_iMoves()
+	, m_bImmobile()
+	, m_iExperienceTimes100()
+	, m_iLevel()
+	, m_iCargo()
+	, m_iCargoCapacity()
+	, m_iAttackPlotX()
+	, m_iAttackPlotY()
+	, m_iCombatTimer()
+	, m_iCombatFirstStrikes()
+	, m_iCombatDamage()
+	, m_bMovedThisTurn()
+	, m_bFortified()
+	, m_iBlitzCount()
+	, m_iAmphibCount()
+	, m_iRiverCrossingNoPenaltyCount()
+	, m_iEnemyRouteCount()
+	, m_iRivalTerritoryCount()
+	, m_iIsSlowInEnemyLandCount()
+	, m_iRangeAttackIgnoreLOSCount()
+	, m_iCityAttackOnlyCount()
+	, m_iCaptureDefeatedEnemyCount()
+	, m_iRangedSupportFireCount()
+	, m_iAlwaysHealCount()
+	, m_iHealOutsideFriendlyCount()
+	, m_iHillsDoubleMoveCount()
+#if defined(MOD_BALANCE_CORE)
+	, m_iMountainsDoubleMoveCount()
+	, m_iEmbarkFlatCostCount()
+	, m_iDisembarkFlatCostCount()
+	, m_iAOEDamageOnKill()
+	, m_iAoEDamageOnMove()
+	, m_iSplashDamage()
+	, m_iMultiAttackBonus()
+	, m_iLandAirDefenseValue()
+#endif
+	, m_iImmuneToFirstStrikesCount()
+	, m_iExtraVisibilityRange()
+	, m_iExtraMoves()
+	, m_iExtraMoveDiscount()
+	, m_iExtraRange()
+	, m_iInterceptChance()
+#if defined(MOD_BALANCE_CORE)
+	, m_iExtraAirInterceptRange()  // JJ: This is new
+#endif
+	, m_iExtraEvasion()
+	, m_iExtraFirstStrikes()
+	, m_iExtraChanceFirstStrikes()
+	, m_iExtraWithdrawal()
+#if defined(MOD_BALANCE_CORE_JFD)
+	, m_iPlagueChance()
+	, m_iIsPlagued()
+	, m_iPlagueID()
+	, m_iPlaguePriority()
+	, m_iPlagueIDImmunity()
+	, m_iPlaguePromotion()
+	, m_eUnitContract()
+	, m_iNegatorPromotion()
+#endif
+	, m_bIsNoMaintenance()
+	, m_iExtraEnemyHeal()
+	, m_iExtraNeutralHeal()
+	, m_iExtraFriendlyHeal()
+	, m_iSameTileHeal()
+	, m_iAdjacentTileHeal()
+	, m_iEnemyDamageChance()
+	, m_iNeutralDamageChance()
+	, m_iEnemyDamage()
+	, m_iNeutralDamage()
+	, m_iNearbyEnemyCombatMod()
+	, m_iNearbyEnemyCombatRange()
+	, m_iSapperCount()
+	, m_iCanHeavyCharge()
+	, m_iNumExoticGoods()
+	, m_iAdjacentModifier()
+	, m_iRangedAttackModifier()
+	, m_iInterceptionCombatModifier()
+	, m_iInterceptionDefenseDamageModifier()
+	, m_iAirSweepCombatModifier()
+	, m_iAttackModifier()
+	, m_iDefenseModifier()
+	, m_iGroundAttackDamage()
+	, m_iExtraCombatPercent()
+	, m_iExtraCityAttackPercent()
+	, m_iExtraCityDefensePercent()
+	, m_iExtraRangedDefenseModifier()
+	, m_iExtraHillsAttackPercent()
+	, m_iExtraHillsDefensePercent()
+	, m_iExtraOpenAttackPercent()
+	, m_iExtraOpenRangedAttackMod()
+	, m_iExtraRoughAttackPercent()
+	, m_iExtraRoughRangedAttackMod()
+	, m_iExtraAttackFortifiedMod()
+	, m_iExtraAttackWoundedMod()
+	, m_iExtraFullyHealedMod()
+	, m_iExtraAttackAboveHealthMod()
+	, m_iExtraAttackBelowHealthMod()
+	, m_iFlankAttackModifier()
+	, m_iExtraOpenDefensePercent()
+	, m_iExtraRoughDefensePercent()
+	, m_iExtraOpenFromPercent()
+	, m_iExtraRoughFromPercent()
+	, m_iPillageChange()
+	, m_iUpgradeDiscount()
+	, m_iExperiencePercent()
+	, m_iDropRange()
+	, m_iAirSweepCapableCount()
+	, m_iExtraNavalMoves()
+	, m_iKamikazePercent()
+	, m_iBaseCombat()
+	, m_eFacingDirection()
+	, m_iArmyId()
+	, m_iIgnoreTerrainCostCount()
+#if defined(MOD_PROMOTIONS_GG_FROM_BARBARIANS)
+	, m_iGGFromBarbariansCount()
+#endif
+	, m_iRoughTerrainEndsTurnCount()
+	, m_iEmbarkAbilityCount()
+	, m_iHoveringUnitCount()
+	, m_iFlatMovementCostCount()
+	, m_iCanMoveImpassableCount()
+	, m_iOnlyDefensiveCount()
+	, m_iNoDefensiveBonusCount()
+	, m_iNoCaptureCount()
+	, m_iNukeImmuneCount()
+	, m_iHiddenNationalityCount()
+	, m_iAlwaysHostileCount()
+	, m_iNoRevealMapCount()
+	, m_iCanMoveAllTerrainCount()
+	, m_iCanMoveAfterAttackingCount()
+	, m_iFreePillageMoveCount()
+	, m_iHealOnPillageCount()
+	, m_iHPHealedIfDefeatEnemy()
+	, m_iGoldenAgeValueFromKills()
+	, m_iHealIfDefeatExcludeBarbariansCount()
+	, m_iTacticalAIPlotX()
+	, m_iTacticalAIPlotY()
+	, m_iGarrisonCityID()
+	, m_iNumAttacks()
+	, m_iAttacksMade()
+	, m_iGreatGeneralCount()
+	, m_iGreatAdmiralCount()
+#if defined(MOD_PROMOTIONS_AURA_CHANGE)
+	, m_iAuraRangeChange()
+	, m_iAuraEffectChange()
+	, m_iNumRepairCharges()
+	, m_iMilitaryCapChange()
+#endif
+	, m_iGreatGeneralModifier()
+	, m_iGreatGeneralReceivesMovementCount()
+	, m_iGreatGeneralCombatModifier()
+	, m_iIgnoreGreatGeneralBenefit()
+	, m_iIgnoreZOC()
+#if defined(MOD_UNITS_NO_SUPPLY)
+	, m_iNoSupply()
+#endif
 	, m_iMaxHitPointsBase(GC.getMAX_HIT_POINTS())
+	, m_iMaxHitPointsChange()
+	, m_iMaxHitPointsModifier()
+	, m_iFriendlyLandsModifier()
+	, m_iFriendlyLandsAttackModifier()
+	, m_iOutsideFriendlyLandsModifier()
+	, m_iNumInterceptions()
+	, m_iMadeInterceptionCount()
+	, m_iEverSelectedCount()
+	, m_iEmbarkedAllWaterCount()
+	, m_iEmbarkExtraVisibility()
+	, m_iEmbarkDefensiveModifier()
+	, m_iCapitalDefenseModifier()
+	, m_iCapitalDefenseFalloff()
+	, m_iCityAttackPlunderModifier()
+	, m_iReligiousStrengthLossRivalTerritory()
+	, m_iTradeMissionInfluenceModifier()
+	, m_iTradeMissionGoldModifier()
+	, m_iDiploMissionInfluence()
 	, m_strName("")
 	, m_eGreatWork(NO_GREAT_WORK)
+	, m_iTourismBlastStrength()
+	, m_iTourismBlastLength()
+	, m_bPromotionReady()
+	, m_bDeathDelay()
+	, m_bCombatFocus()
+	, m_bInfoBarDirty()
+	, m_bNotConverting()
+	, m_bAirCombat()
+	, m_bSetUpForRangedAttack()
+	, m_bEmbarked()
+	, m_bPromotedFromGoody()
+	, m_bAITurnProcessed()
+	, m_eOwner()
+	, m_eOriginalOwner()
+	, m_eCapturingPlayer()
+	, m_bCapturedAsIs()
+	, m_eUnitType()
+	, m_eLeaderUnitType()
+	, m_eInvisibleType()
+	, m_eSeeInvisibleType()
+	, m_eGreatPeopleDirectiveType()
 	, m_combatUnit()
 	, m_transportUnit()
 	, m_extraDomainModifiers()
@@ -136,22 +344,173 @@ CvUnit::CvUnit()
 	, m_YieldChange()
 	, m_iGarrisonYieldChange()
 	, m_iFortificationYieldChange()
+	, m_strScriptData()
+	, m_iScenarioData()
+	, m_terrainDoubleMoveCount()
+	, m_featureDoubleMoveCount()
+	, m_terrainImpassableCount()
+	, m_featureImpassableCount()
+	, m_extraTerrainAttackPercent()
+	, m_extraTerrainDefensePercent()
+	, m_extraFeatureAttackPercent()
+	, m_extraFeatureDefensePercent()
+	, m_extraUnitClassAttackMod()
+	, m_extraUnitClassDefenseMod()
+	, m_extraUnitCombatModifier()
+	, m_unitClassModifier()
+#if defined(MOD_BALANCE_CORE)
+	, m_iCombatModPerAdjacentUnitCombatModifier()
+	, m_iCombatModPerAdjacentUnitCombatAttackMod()
+	, m_iCombatModPerAdjacentUnitCombatDefenseMod()
+#endif
+	, m_iMissionTimer()
+	, m_iMissionAIX()
+	, m_iMissionAIY()
+	, m_eMissionAIType()
 	, m_missionAIUnit()
+	, m_eActivityType()
+	, m_eAutomateType()
+	, m_eUnitAIType()
 	, m_bWaitingForMove(false)
 	, m_pReligion(FNEW(CvUnitReligion, c_eCiv5GameplayDLL, 0))
+	, m_iMapLayer()
+	, m_iNumGoodyHutsPopped()
+	, m_eCombatType()
+#if defined(MOD_BALANCE_CORE)
+	, m_iOriginCity()
+	, m_iCannotBeCapturedCount()
+	, m_iForcedDamage()
+	, m_iChangeDamage()
+	, m_PromotionDuration()
+	, m_TurnPromotionGained()
+	, m_iNumTilesRevealedThisTurn()
+	, m_bSpottedEnemy()
+	, m_iGainsXPFromScouting()
+	, m_iGainsXPFromPillaging()
+	, m_iGainsXPFromSpotting()
+	, m_iCaptureDefeatedEnemyChance()
+	, m_iBarbCombatBonus()
+	, m_iAdjacentEnemySapMovement()
+	, m_iCanMoraleBreak()
+	, m_iDamageAoEFortified()
+	, m_iWorkRateMod()
+	, m_iDamageReductionCityAssault()
+	, m_iStrongerDamaged()
+	, m_iFightWellDamaged()
+	, m_iGoodyHutYieldBonus()
+	, m_iReligiousPressureModifier()
+#endif
+#if defined(MOD_PROMOTIONS_VARIABLE_RECON)
+	, m_iExtraReconRange()
+#endif
+#if defined(MOD_API_EXTENSIONS)
+	, m_iBaseRangedCombat()
+#endif
+	, m_iIgnoreTerrainDamageCount()
+	, m_iIgnoreFeatureDamageCount()
+	, m_iExtraTerrainDamageCount()
+	, m_iExtraFeatureDamageCount()
+#if defined(MOD_PROMOTIONS_IMPROVEMENT_BONUS)
+	, m_iNearbyImprovementCombatBonus()
+	, m_iNearbyImprovementBonusRange()
+	, m_eCombatBonusImprovement()
+#endif
+#if defined(MOD_BALANCE_CORE)
+	, m_iCombatBonusFromNearbyUnitClass()
+	, m_iNearbyUnitClassBonusRange()
+	, m_iNearbyUnitClassBonus()
+	, m_bNearbyPromotion()
+	, m_iNearbyUnitPromotionRange()
+	, m_iNearbyCityCombatMod()
+	, m_iNearbyFriendlyCityCombatMod()
+	, m_iNearbyEnemyCityCombatMod()
+	, m_iPillageBonusStrengthPercent()
+	, m_iStackedGreatGeneralExperience()
+	, m_bIsHighSeaRaider()
+	, m_iWonderProductionModifier()
+	, m_iUnitProductionModifier()
+	, m_iNearbyEnemyDamage()
+	, m_iGGGAXPPercent()
+	, m_iGiveCombatMod()
+	, m_iGiveHPIfEnemyKilled()
+	, m_iGiveExperiencePercent()
+	, m_iGiveOutsideFriendlyLandsModifier()
+	, m_eGiveDomain()
+	, m_iGiveExtraAttacks()
+	, m_iGiveDefenseMod()
+	, m_bGiveInvisibility()
+	, m_bGiveOnlyOnStartingTurn()
+	, m_bConvertUnit()
+	, m_eConvertDomain()
+	, m_eConvertDomainUnit()
+	, m_bConvertEnemyUnitToBarbarian()
+	, m_bConvertOnFullHP()
+	, m_bConvertOnDamage()
+	, m_iDamageThreshold()
+	, m_eConvertDamageOrFullHPUnit()
+	, m_iNumberOfCultureBombs()
+	, m_iNearbyHealEnemyTerritory()
+	, m_iNearbyHealNeutralTerritory()
+	, m_iNearbyHealFriendlyTerritory()
+#endif
+#if defined(MOD_PROMOTIONS_CROSS_MOUNTAINS)
+	, m_iCanCrossMountainsCount()
+#endif
+#if defined(MOD_PROMOTIONS_CROSS_OCEANS)
+	, m_iCanCrossOceansCount()
+#endif
+#if defined(MOD_PROMOTIONS_CROSS_ICE)
+	, m_iCanCrossIceCount()
+#endif
+#if defined(MOD_PROMOTIONS_DEEP_WATER_EMBARKATION)
+	, m_iEmbarkedDeepWaterCount()
+#endif
 #if defined(MOD_PROMOTIONS_UNIT_NAMING)
 	, m_strUnitName("")
 #endif
+#if defined(MOD_CORE_PER_TURN_DAMAGE)
+	, m_iDamageTakenThisTurn()
+	, m_iDamageTakenLastTurn()
+#endif
+#if defined(MOD_PROMOTIONS_HALF_MOVE)
+	, m_terrainHalfMoveCount()
+	, m_featureHalfMoveCount()
+	, m_terrainExtraMoveCount()
+	, m_featureExtraMoveCount()
+#endif
+#if defined(MOD_BALANCE_CORE)
+	, m_iHurryStrength()
+	, m_iScienceBlastStrength()
+	, m_iCultureBlastStrength()
+	, m_iGAPBlastStrength()
+	, m_abPromotionEverObtained()
+	, m_terrainDoubleHeal()
+	, m_featureDoubleHeal()
+#endif
+#if defined(MOD_API_UNIFIED_YIELDS)
+	, m_yieldFromKills()
+	, m_yieldFromBarbarianKills()
+#endif
+#if defined(MOD_BALANCE_CORE)
+	, m_aiNumTimesAttackedThisTurn()
+	, m_yieldFromScouting()
+#endif
+#if defined(MOD_CIV6_WORKER)
+	, m_iBuilderStrength()
+#endif
+	, m_eTacticalMove()
+	, m_iTacticalMoveSetTurn()
+	, m_eHomelandMove()
+	, m_iHomelandMoveSetTurn()
 {
 	initPromotions();
 	OBJECT_ALLOCATED
 	FSerialization::unitsToCheck.push_back(this);
 	reset(0, NO_UNIT, NO_PLAYER, true);
 
-	// Units only get sync var interfaces in multiplayer
 	if (GC.getGame().isNetworkMultiPlayer())
 	{
-		m_syncArchive.setSyncVars(*(FNEW(SyncArchive::SyncVars(m_syncArchive), c_eCiv5GameplayDLL, 0)));
+		m_syncArchive.initSyncVars(*FNEW(CvSyncArchive<CvUnit>::SyncVars(*this), c_eCiv5GameplayDLL, 0));
 	}
 }
 
@@ -174,9 +533,6 @@ CvUnit::~CvUnit()
 		GC.getMap().plotManager().RemoveUnit(GetIDInfo(), m_iX, m_iY, m_iMapLayer);
 
 	uninit();
-
-	SyncArchive::SyncVars* syncVars = m_syncArchive.getSyncVars();
-	SAFE_DELETE(syncVars);
 
 	OBJECT_DESTROYED
 }
@@ -1051,297 +1407,298 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	VALIDATE_OBJECT
 	int iI;
 
-	SyncArchive& syncArchive = getSyncArchive();
-	syncArchive.clearDelta();
+	FAutoArchive& archive = getSyncArchive();
+	archive.clearDelta();
+	archive.reset();
 
-	m_iID.set(m_syncArchive, iID);
+	m_iID = iID;
 	m_iHotKeyNumber = -1;
-	m_iX.set(m_syncArchive, INVALID_PLOT_COORD);
-	m_iY.set(m_syncArchive, INVALID_PLOT_COORD);
-	m_iLastMoveTurn.set(m_syncArchive, 0);
+	m_iX = INVALID_PLOT_COORD;
+	m_iY = INVALID_PLOT_COORD;
+	m_iLastMoveTurn = 0;
 	m_iDeployFromOperationTurn = -100;
-	m_iReconX.set(m_syncArchive, INVALID_PLOT_COORD);
-	m_iReconY.set(m_syncArchive, INVALID_PLOT_COORD);
-	m_iReconCount.set(m_syncArchive, 0);
-	m_iGameTurnCreated.set(m_syncArchive, 0);
-	m_iDamage.set(m_syncArchive, 0);
-	m_iMoves.set(m_syncArchive, 0);
-	m_bImmobile.set(m_syncArchive, false);
-	m_iExperienceTimes100.set(m_syncArchive, 0);
-	m_iLevel.set(m_syncArchive, 1);
-	m_iCargo.set(m_syncArchive, 0);
-	m_iAttackPlotX.set(m_syncArchive, INVALID_PLOT_COORD);
-	m_iAttackPlotY.set(m_syncArchive, INVALID_PLOT_COORD);
-	m_iCombatTimer.set(m_syncArchive, 0);
-	m_iCombatFirstStrikes.set(m_syncArchive, 0);
-	m_iCombatDamage.set(m_syncArchive, 0);
-	m_bMovedThisTurn.set(m_syncArchive, false);
-	m_bFortified.set(m_syncArchive, false);
-	m_iBlitzCount.set(m_syncArchive, 0);
-	m_iAmphibCount.set(m_syncArchive, 0);
-	m_iRiverCrossingNoPenaltyCount.set(m_syncArchive, 0);
-	m_iEnemyRouteCount.set(m_syncArchive, 0);
-	m_iRivalTerritoryCount.set(m_syncArchive, 0);
-	m_iIsSlowInEnemyLandCount.set(m_syncArchive, 0);
-	m_iRangeAttackIgnoreLOSCount.set(m_syncArchive, 0);
-	m_iCityAttackOnlyCount.set(m_syncArchive, 0);
-	m_iCaptureDefeatedEnemyCount.set(m_syncArchive, 0);
+	m_iReconX = INVALID_PLOT_COORD;
+	m_iReconY = INVALID_PLOT_COORD;
+	m_iReconCount = 0;
+	m_iGameTurnCreated = 0;
+	m_iDamage = 0;
+	m_iMoves = 0;
+	m_bImmobile = false;
+	m_iExperienceTimes100 = 0;
+	m_iLevel = 1;
+	m_iCargo = 0;
+	m_iAttackPlotX = INVALID_PLOT_COORD;
+	m_iAttackPlotY = INVALID_PLOT_COORD;
+	m_iCombatTimer = 0;
+	m_iCombatFirstStrikes = 0;
+	m_iCombatDamage = 0;
+	m_bMovedThisTurn = false;
+	m_bFortified = false;
+	m_iBlitzCount = 0;
+	m_iAmphibCount = 0;
+	m_iRiverCrossingNoPenaltyCount = 0;
+	m_iEnemyRouteCount = 0;
+	m_iRivalTerritoryCount = 0;
+	m_iIsSlowInEnemyLandCount = 0;
+	m_iRangeAttackIgnoreLOSCount = 0;
+	m_iCityAttackOnlyCount = 0;
+	m_iCaptureDefeatedEnemyCount = 0;
 #if defined(MOD_BALANCE_CORE)
 	m_iOriginCity = -1;
-	m_iCannotBeCapturedCount.set(m_syncArchive, 0);
-	m_iForcedDamage.set(m_syncArchive, 0);
-	m_iChangeDamage.set(m_syncArchive, 0);
+	m_iCannotBeCapturedCount = 0;
+	m_iForcedDamage = 0;
+	m_iChangeDamage = 0;
 #endif
-	m_iRangedSupportFireCount.set(m_syncArchive, 0);
-	m_iAlwaysHealCount.set(m_syncArchive, 0);
-	m_iHealOutsideFriendlyCount.set(m_syncArchive, 0);
-	m_iHillsDoubleMoveCount.set(m_syncArchive, 0);
+	m_iRangedSupportFireCount = 0;
+	m_iAlwaysHealCount = 0;
+	m_iHealOutsideFriendlyCount = 0;
+	m_iHillsDoubleMoveCount = 0;
 #if defined(MOD_BALANCE_CORE)
-	m_iMountainsDoubleMoveCount.set(m_syncArchive, 0);
-	m_iEmbarkFlatCostCount.set(m_syncArchive, 0);
-	m_iDisembarkFlatCostCount.set(m_syncArchive, 0);
-	m_iAOEDamageOnKill.set(m_syncArchive, 0);
-	m_iAoEDamageOnMove.set(m_syncArchive, 0);
-	m_iSplashDamage.set(m_syncArchive, 0);
-	m_iMultiAttackBonus.set(m_syncArchive, 0);
-	m_iLandAirDefenseValue.set(m_syncArchive, 0);
+	m_iMountainsDoubleMoveCount = 0;
+	m_iEmbarkFlatCostCount = 0;
+	m_iDisembarkFlatCostCount = 0;
+	m_iAOEDamageOnKill = 0;
+	m_iAoEDamageOnMove = 0;
+	m_iSplashDamage = 0;
+	m_iMultiAttackBonus = 0;
+	m_iLandAirDefenseValue = 0;
 #endif
-	m_iImmuneToFirstStrikesCount.set(m_syncArchive, 0);
-	m_iExtraVisibilityRange.set(m_syncArchive, 0);
+	m_iImmuneToFirstStrikesCount = 0;
+	m_iExtraVisibilityRange = 0;
 #if defined(MOD_PROMOTIONS_VARIABLE_RECON)
-	m_iExtraReconRange.set(m_syncArchive, 0);
+	m_iExtraReconRange = 0;
 #endif
-	m_iExtraMoves.set(m_syncArchive, 0);
-	m_iExtraMoveDiscount.set(m_syncArchive, 0);
-	m_iExtraRange.set(m_syncArchive, 0);
-	m_iInterceptChance.set(m_syncArchive, 0);
+	m_iExtraMoves = 0;
+	m_iExtraMoveDiscount = 0;
+	m_iExtraRange = 0;
+	m_iInterceptChance = 0;
 #if defined(MOD_BALANCE_CORE)
-	m_iExtraAirInterceptRange.set(m_syncArchive, 0); // JJ: This is new
+	m_iExtraAirInterceptRange = 0; // JJ: This is new
 #endif
-	m_iExtraEvasion.set(m_syncArchive, 0);
-	m_iExtraFirstStrikes.set(m_syncArchive, 0);
-	m_iExtraChanceFirstStrikes.set(m_syncArchive, 0);
-	m_iExtraWithdrawal.set(m_syncArchive, 0);
+	m_iExtraEvasion = 0;
+	m_iExtraFirstStrikes = 0;
+	m_iExtraChanceFirstStrikes = 0;
+	m_iExtraWithdrawal = 0;
 #if defined(MOD_BALANCE_CORE_JFD)
-	m_iPlagueChance.set(m_syncArchive, 0);
+	m_iPlagueChance = 0;
 	m_iIsPlagued = -1;
-	m_iPlagueID.set(m_syncArchive, 0);
-	m_iPlaguePriority.set(m_syncArchive, 0);
+	m_iPlagueID = 0;
+	m_iPlaguePriority = 0;
 	m_iPlagueIDImmunity = -1;
-	m_iPlaguePromotion.set(m_syncArchive, NO_PROMOTION);
-	m_eUnitContract.set(m_syncArchive, NO_CONTRACT);
+	m_iPlaguePromotion = NO_PROMOTION;
+	m_eUnitContract = NO_CONTRACT;
 	m_iNegatorPromotion = -1;
 #endif
-	m_bIsNoMaintenance.set(m_syncArchive, false);
-	m_iExtraEnemyHeal.set(m_syncArchive, 0);
-	m_iExtraNeutralHeal.set(m_syncArchive, 0);
-	m_iExtraFriendlyHeal.set(m_syncArchive, 0);
-	m_iSameTileHeal.set(m_syncArchive, 0);
-	m_iAdjacentTileHeal.set(m_syncArchive, 0);
-	m_iEnemyDamageChance.set(m_syncArchive, 0);
-	m_iNeutralDamageChance.set(m_syncArchive, 0);
-	m_iEnemyDamage.set(m_syncArchive, 0);
-	m_iNeutralDamage.set(m_syncArchive, 0);
-	m_iNearbyEnemyCombatMod.set(m_syncArchive, 0);
-	m_iNearbyEnemyCombatRange.set(m_syncArchive, 0);
-	m_iExtraCombatPercent.set(m_syncArchive, 0);
-	m_iAdjacentModifier.set(m_syncArchive, 0);
-	m_iRangedAttackModifier.set(m_syncArchive, 0);
-	m_iInterceptionCombatModifier.set(m_syncArchive, 0);
-	m_iInterceptionDefenseDamageModifier.set(m_syncArchive, 0);
-	m_iAirSweepCombatModifier.set(m_syncArchive, 0);
-	m_iAttackModifier.set(m_syncArchive, 0);
-	m_iDefenseModifier.set(m_syncArchive, 0);
-	m_iGroundAttackDamage.set(m_syncArchive, 0);
-	m_iExtraCityAttackPercent.set(m_syncArchive, 0);
-	m_iExtraCityDefensePercent.set(m_syncArchive, 0);
-	m_iExtraRangedDefenseModifier.set(m_syncArchive, 0);
-	m_iExtraHillsAttackPercent.set(m_syncArchive, 0);
-	m_iExtraHillsDefensePercent.set(m_syncArchive, 0);
-	m_iExtraOpenAttackPercent.set(m_syncArchive, 0);
-	m_iExtraOpenRangedAttackMod.set(m_syncArchive, 0);
-	m_iExtraRoughAttackPercent.set(m_syncArchive, 0);
-	m_iExtraRoughRangedAttackMod.set(m_syncArchive, 0);
-	m_iExtraAttackFortifiedMod.set(m_syncArchive, 0);
-	m_iExtraAttackWoundedMod.set(m_syncArchive, 0);
-	m_iExtraFullyHealedMod.set(m_syncArchive, 0);
-	m_iExtraAttackAboveHealthMod.set(m_syncArchive, 0);
-	m_iExtraAttackBelowHealthMod.set(m_syncArchive, 0);
-	m_iFlankAttackModifier.set(m_syncArchive, 0);
-	m_iExtraOpenDefensePercent.set(m_syncArchive, 0);
-	m_iExtraRoughDefensePercent.set(m_syncArchive, 0);
-	m_iExtraOpenFromPercent.set(m_syncArchive, 0);
-	m_iExtraRoughFromPercent.set(m_syncArchive, 0);
-	m_iPillageChange.set(m_syncArchive, 0);
-	m_iUpgradeDiscount.set(m_syncArchive, 0);
-	m_iExperiencePercent.set(m_syncArchive, 0);
-	m_iDropRange.set(m_syncArchive, 0);
-	m_iAirSweepCapableCount.set(m_syncArchive, 0);
-	m_iExtraNavalMoves.set(m_syncArchive, 0);
-	m_iKamikazePercent.set(m_syncArchive, 0);
-	m_eFacingDirection.set(m_syncArchive, DIRECTION_SOUTHEAST);
-	m_iIgnoreTerrainCostCount.set(m_syncArchive, 0);
-	m_iIgnoreTerrainDamageCount.set(m_syncArchive, 0);
-	m_iIgnoreFeatureDamageCount.set(m_syncArchive, 0);
-	m_iExtraTerrainDamageCount.set(m_syncArchive, 0);
-	m_iExtraFeatureDamageCount.set(m_syncArchive, 0);
+	m_bIsNoMaintenance = false;
+	m_iExtraEnemyHeal = 0;
+	m_iExtraNeutralHeal = 0;
+	m_iExtraFriendlyHeal = 0;
+	m_iSameTileHeal = 0;
+	m_iAdjacentTileHeal = 0;
+	m_iEnemyDamageChance = 0;
+	m_iNeutralDamageChance = 0;
+	m_iEnemyDamage = 0;
+	m_iNeutralDamage = 0;
+	m_iNearbyEnemyCombatMod = 0;
+	m_iNearbyEnemyCombatRange = 0;
+	m_iExtraCombatPercent = 0;
+	m_iAdjacentModifier = 0;
+	m_iRangedAttackModifier = 0;
+	m_iInterceptionCombatModifier = 0;
+	m_iInterceptionDefenseDamageModifier = 0;
+	m_iAirSweepCombatModifier = 0;
+	m_iAttackModifier = 0;
+	m_iDefenseModifier = 0;
+	m_iGroundAttackDamage = 0;
+	m_iExtraCityAttackPercent = 0;
+	m_iExtraCityDefensePercent = 0;
+	m_iExtraRangedDefenseModifier = 0;
+	m_iExtraHillsAttackPercent = 0;
+	m_iExtraHillsDefensePercent = 0;
+	m_iExtraOpenAttackPercent = 0;
+	m_iExtraOpenRangedAttackMod= 0;
+	m_iExtraRoughAttackPercent = 0;
+	m_iExtraRoughRangedAttackMod= 0;
+	m_iExtraAttackFortifiedMod= 0;
+	m_iExtraAttackWoundedMod= 0;
+	m_iExtraFullyHealedMod = 0;
+	m_iExtraAttackAboveHealthMod = 0;
+	m_iExtraAttackBelowHealthMod = 0;
+	m_iFlankAttackModifier=0;
+	m_iExtraOpenDefensePercent = 0;
+	m_iExtraRoughDefensePercent = 0;
+	m_iExtraOpenFromPercent = 0;
+	m_iExtraRoughFromPercent = 0;
+	m_iPillageChange = 0;
+	m_iUpgradeDiscount = 0;
+	m_iExperiencePercent = 0;
+	m_iDropRange = 0;
+	m_iAirSweepCapableCount = 0;
+	m_iExtraNavalMoves = 0;
+	m_iKamikazePercent = 0;
+	m_eFacingDirection = DIRECTION_SOUTHEAST;
+	m_iIgnoreTerrainCostCount = 0;
+	m_iIgnoreTerrainDamageCount = 0;
+	m_iIgnoreFeatureDamageCount = 0;
+	m_iExtraTerrainDamageCount = 0;
+	m_iExtraFeatureDamageCount = 0;
 #if defined(MOD_PROMOTIONS_IMPROVEMENT_BONUS)
-	m_iNearbyImprovementCombatBonus.set(m_syncArchive, 0);
-	m_iNearbyImprovementBonusRange.set(m_syncArchive, 0);
-	m_eCombatBonusImprovement.set(m_syncArchive, NO_IMPROVEMENT);
+	m_iNearbyImprovementCombatBonus = 0;
+	m_iNearbyImprovementBonusRange = 0;
+	m_eCombatBonusImprovement = NO_IMPROVEMENT;
 #endif
 #if defined(MOD_BALANCE_CORE)
-	m_iNearbyUnitClassBonus.set(m_syncArchive, 0);
-	m_iNearbyUnitClassBonusRange.set(m_syncArchive, 0);
-	m_iCombatBonusFromNearbyUnitClass.set(m_syncArchive, NO_UNITCLASS);
-	m_bNearbyPromotion.set(m_syncArchive, false);
-	m_iNearbyUnitPromotionRange.set(m_syncArchive, 0);
-	m_iNearbyCityCombatMod.set(m_syncArchive, 0);
-	m_iNearbyFriendlyCityCombatMod.set(m_syncArchive, 0);
-	m_iNearbyEnemyCityCombatMod.set(m_syncArchive, 0);
-	m_iPillageBonusStrengthPercent.set(m_syncArchive, 0);
-	m_iStackedGreatGeneralExperience.set(m_syncArchive, 0);
-	m_bIsHighSeaRaider.set(m_syncArchive, false);
-	m_iWonderProductionModifier.set(m_syncArchive, 0);
-	m_iUnitProductionModifier.set(m_syncArchive, 0);
-	m_iNearbyEnemyDamage.set(m_syncArchive, 0);
-	m_iGGGAXPPercent.set(m_syncArchive, 0);
-	m_eGiveDomain.set(m_syncArchive, NO_DOMAIN);
-	m_iGiveCombatMod.set(m_syncArchive, 0);
-	m_iGiveHPIfEnemyKilled.set(m_syncArchive, 0);
-	m_iGiveExperiencePercent.set(m_syncArchive, 0);
-	m_iGiveOutsideFriendlyLandsModifier.set(m_syncArchive, 0);
-	m_iGiveExtraAttacks.set(m_syncArchive, 0);
-	m_iGiveDefenseMod.set(m_syncArchive, 0);
-	m_bGiveInvisibility.set(m_syncArchive, false);
-	m_bGiveOnlyOnStartingTurn.set(m_syncArchive, false);
-	m_bConvertUnit.set(m_syncArchive, false);
-	m_eConvertDomainUnit.set(m_syncArchive, NO_UNIT);
-	m_eConvertDomain.set(m_syncArchive, NO_DOMAIN);
-	m_bConvertEnemyUnitToBarbarian.set(m_syncArchive, false);
-	m_bConvertOnFullHP.set(m_syncArchive, false);
-	m_bConvertOnDamage.set(m_syncArchive, false);
-	m_iDamageThreshold.set(m_syncArchive, 0);
-	m_eConvertDamageOrFullHPUnit.set(m_syncArchive, NO_UNIT);
-	m_iNumberOfCultureBombs.set(m_syncArchive, 0);
-	m_iNearbyHealEnemyTerritory.set(m_syncArchive, 0);
-	m_iNearbyHealNeutralTerritory.set(m_syncArchive, 0);
-	m_iNearbyHealFriendlyTerritory.set(m_syncArchive, 0);
+	m_iNearbyUnitClassBonus = 0;
+	m_iNearbyUnitClassBonusRange = 0;
+	m_iCombatBonusFromNearbyUnitClass = NO_UNITCLASS;
+	m_bNearbyPromotion = false;
+	m_iNearbyUnitPromotionRange = 0;
+	m_iNearbyCityCombatMod = 0;
+	m_iNearbyFriendlyCityCombatMod = 0;
+	m_iNearbyEnemyCityCombatMod = 0;
+	m_iPillageBonusStrengthPercent = 0;
+	m_iStackedGreatGeneralExperience = 0;
+	m_bIsHighSeaRaider = false;
+	m_iWonderProductionModifier = 0;
+	m_iUnitProductionModifier = 0;
+	m_iNearbyEnemyDamage = 0;
+	m_iGGGAXPPercent = 0;
+	m_eGiveDomain = NO_DOMAIN;
+	m_iGiveCombatMod = 0;
+	m_iGiveHPIfEnemyKilled = 0;
+	m_iGiveExperiencePercent = 0;
+	m_iGiveOutsideFriendlyLandsModifier = 0;
+	m_iGiveExtraAttacks = 0;
+	m_iGiveDefenseMod = 0;
+	m_bGiveInvisibility = false;
+	m_bGiveOnlyOnStartingTurn = false;
+	m_bConvertUnit = false;
+	m_eConvertDomainUnit = NO_UNIT;
+	m_eConvertDomain = NO_DOMAIN;
+	m_bConvertEnemyUnitToBarbarian = false;
+	m_bConvertOnFullHP = false;
+	m_bConvertOnDamage = false;
+	m_iDamageThreshold = 0;
+	m_eConvertDamageOrFullHPUnit = NO_UNIT;
+	m_iNumberOfCultureBombs = 0;
+	m_iNearbyHealEnemyTerritory = 0;
+	m_iNearbyHealNeutralTerritory = 0;
+	m_iNearbyHealFriendlyTerritory = 0;
 #endif
 #if defined(MOD_CIV6_WORKER)
-	m_iBuilderStrength.set(m_syncArchive, 0);
+	m_iBuilderStrength = 0;
 #endif
 #if defined(MOD_PROMOTIONS_CROSS_MOUNTAINS)
-	m_iCanCrossMountainsCount.set(m_syncArchive, 0);
+	m_iCanCrossMountainsCount = 0;
 #endif
 #if defined(MOD_PROMOTIONS_CROSS_OCEANS)
-	m_iCanCrossOceansCount.set(m_syncArchive, 0);
+	m_iCanCrossOceansCount = 0;
 #endif
 #if defined(MOD_PROMOTIONS_CROSS_ICE)
-	m_iCanCrossIceCount.set(m_syncArchive, 0);
+	m_iCanCrossIceCount = 0;
 #endif
 #if defined(MOD_BALANCE_CORE)
-	m_iNumTilesRevealedThisTurn.set(m_syncArchive, 0);
-	m_bSpottedEnemy.set(m_syncArchive, false);
-	m_iGainsXPFromScouting.set(m_syncArchive, 0);
-	m_iGainsXPFromSpotting.set(m_syncArchive, 0);
-	m_iGainsXPFromPillaging.set(m_syncArchive, 0);
-	m_iCaptureDefeatedEnemyChance.set(m_syncArchive, 0);
-	m_iBarbCombatBonus.set(m_syncArchive, 0);
-	m_iAdjacentEnemySapMovement.set(m_syncArchive, 0);
-	m_iCanMoraleBreak.set(m_syncArchive, 0);
-	m_iDamageAoEFortified.set(m_syncArchive, 0);
-	m_iWorkRateMod.set(m_syncArchive, 0);
-	m_iDamageReductionCityAssault.set(m_syncArchive, 0);
-	m_iStrongerDamaged.set(m_syncArchive, 0);
-	m_iFightWellDamaged.set(m_syncArchive, 0);
-	m_iGoodyHutYieldBonus.set(m_syncArchive, 0);
-	m_iReligiousPressureModifier.set(m_syncArchive, 0);
+	m_iNumTilesRevealedThisTurn = 0;
+	m_bSpottedEnemy = false;
+	m_iGainsXPFromScouting = 0;
+	m_iGainsXPFromSpotting = 0;
+	m_iGainsXPFromPillaging = 0;
+	m_iCaptureDefeatedEnemyChance = 0;
+	m_iBarbCombatBonus = 0;
+	m_iAdjacentEnemySapMovement = 0;
+	m_iCanMoraleBreak = 0;
+	m_iDamageAoEFortified = 0;
+	m_iWorkRateMod = 0;
+	m_iDamageReductionCityAssault = 0;
+	m_iStrongerDamaged = 0;
+	m_iFightWellDamaged = 0;
+	m_iGoodyHutYieldBonus = 0;
+	m_iReligiousPressureModifier = 0;
 #endif
 #if defined(MOD_PROMOTIONS_GG_FROM_BARBARIANS)
-	m_iGGFromBarbariansCount.set(m_syncArchive, 0);
+	m_iGGFromBarbariansCount = 0;
 #endif
-	m_iRoughTerrainEndsTurnCount.set(m_syncArchive, 0);
-	m_iEmbarkAbilityCount.set(m_syncArchive, 0);
-	m_iHoveringUnitCount.set(m_syncArchive, 0);
-	m_iFlatMovementCostCount.set(m_syncArchive, 0);
-	m_iCanMoveImpassableCount.set(m_syncArchive, 0);
-	m_iOnlyDefensiveCount.set(m_syncArchive, 0);
-	m_iNoDefensiveBonusCount.set(m_syncArchive, 0);
-	m_iNoCaptureCount.set(m_syncArchive, 0);
-	m_iNukeImmuneCount.set(m_syncArchive, 0);
-	m_iAlwaysHealCount.set(m_syncArchive, 0);
-	m_iHiddenNationalityCount.set(m_syncArchive, 0);
-	m_iAlwaysHostileCount.set(m_syncArchive, 0);
-	m_iNoRevealMapCount.set(m_syncArchive, 0);
-	m_iCanMoveAllTerrainCount.set(m_syncArchive, 0);
-	m_iCanMoveAfterAttackingCount.set(m_syncArchive, 0);
-	m_iFreePillageMoveCount.set(m_syncArchive, 0);
-	m_iHPHealedIfDefeatEnemy.set(m_syncArchive, 0);
-	m_iGoldenAgeValueFromKills.set(m_syncArchive, 0);
-	m_iSapperCount.set(m_syncArchive, 0);
-	m_iCanHeavyCharge.set(m_syncArchive, 0);
-	m_iNumExoticGoods.set(m_syncArchive, 0);
-	m_iTacticalAIPlotX.set(m_syncArchive, INVALID_PLOT_COORD);
-	m_iTacticalAIPlotY.set(m_syncArchive, INVALID_PLOT_COORD);
+	m_iRoughTerrainEndsTurnCount = 0;
+	m_iEmbarkAbilityCount = 0;
+	m_iHoveringUnitCount = 0;
+	m_iFlatMovementCostCount = 0;
+	m_iCanMoveImpassableCount = 0;
+	m_iOnlyDefensiveCount = 0;
+	m_iNoDefensiveBonusCount = 0;
+	m_iNoCaptureCount = 0;
+	m_iNukeImmuneCount = 0;
+	m_iAlwaysHealCount = 0;
+	m_iHiddenNationalityCount = 0;
+	m_iAlwaysHostileCount = 0;
+	m_iNoRevealMapCount = 0;
+	m_iCanMoveAllTerrainCount = 0;
+	m_iCanMoveAfterAttackingCount = 0;
+	m_iFreePillageMoveCount = 0;
+	m_iHPHealedIfDefeatEnemy = 0;
+	m_iGoldenAgeValueFromKills = 0;
+	m_iSapperCount = 0;
+	m_iCanHeavyCharge = 0;
+	m_iNumExoticGoods = 0;
+	m_iTacticalAIPlotX = INVALID_PLOT_COORD;
+	m_iTacticalAIPlotY = INVALID_PLOT_COORD;
 	m_iGarrisonCityID = -1;   // unused
-	m_iNumAttacks.set(m_syncArchive, 1);
-	m_iAttacksMade.set(m_syncArchive, 0);
-	m_iGreatGeneralCount.set(m_syncArchive, 0);
-	m_iGreatAdmiralCount.set(m_syncArchive, 0);
+	m_iNumAttacks = 1;
+	m_iAttacksMade = 0;
+	m_iGreatGeneralCount = 0;
+	m_iGreatAdmiralCount = 0;
 #if defined(MOD_PROMOTIONS_AURA_CHANGE)
-	m_iAuraRangeChange.set(m_syncArchive, 0);
-	m_iAuraEffectChange.set(m_syncArchive, 0);
-	m_iNumRepairCharges.set(m_syncArchive, 0);
-	m_iMilitaryCapChange.set(m_syncArchive, 0);
+	m_iAuraRangeChange = 0;
+	m_iAuraEffectChange = 0;
+	m_iNumRepairCharges = 0;
+	m_iMilitaryCapChange = 0;
 #endif
-	m_iGreatGeneralModifier.set(m_syncArchive, 0);
-	m_iGreatGeneralReceivesMovementCount.set(m_syncArchive, 0);
-	m_iGreatGeneralCombatModifier.set(m_syncArchive, 0);
-	m_iIgnoreGreatGeneralBenefit.set(m_syncArchive, 0);
-	m_iIgnoreZOC.set(m_syncArchive, 0);
+	m_iGreatGeneralModifier = 0;
+	m_iGreatGeneralReceivesMovementCount = 0;
+	m_iGreatGeneralCombatModifier = 0;
+	m_iIgnoreGreatGeneralBenefit = 0;
+	m_iIgnoreZOC = 0;
 #if defined(MOD_UNITS_NO_SUPPLY)
-	m_iNoSupply.set(m_syncArchive, 0);
+	m_iNoSupply = 0;
 #endif
-	m_iHealIfDefeatExcludeBarbariansCount.set(m_syncArchive, 0);
-	m_iNumInterceptions.set(m_syncArchive, 1);
-	m_iMadeInterceptionCount.set(m_syncArchive, 0);
-	m_iEverSelectedCount.set(m_syncArchive, 0);
+	m_iHealIfDefeatExcludeBarbariansCount = 0;
+	m_iNumInterceptions = 1;
+	m_iMadeInterceptionCount = 0;
+	m_iEverSelectedCount = 0;
 
-	m_iEmbarkedAllWaterCount.set(m_syncArchive, 0);
+	m_iEmbarkedAllWaterCount = 0;
 #if defined(MOD_PROMOTIONS_DEEP_WATER_EMBARKATION)
-	m_iEmbarkedDeepWaterCount.set(m_syncArchive, 0);
+	m_iEmbarkedDeepWaterCount = 0;
 #endif
 #if defined(MOD_CORE_PER_TURN_DAMAGE)
-	m_iDamageTakenThisTurn.set(m_syncArchive, 0);
-	m_iDamageTakenLastTurn.set(m_syncArchive, 0);
+	m_iDamageTakenThisTurn = 0;
+	m_iDamageTakenLastTurn = 0;
 #endif
-	m_iEmbarkExtraVisibility.set(m_syncArchive, 0);
-	m_iEmbarkDefensiveModifier.set(m_syncArchive, 0);
-	m_iCapitalDefenseModifier.set(m_syncArchive, 0);
-	m_iCapitalDefenseFalloff.set(m_syncArchive, 0);
-	m_iCityAttackPlunderModifier.set(m_syncArchive, 0);
-	m_iReligiousStrengthLossRivalTerritory.set(m_syncArchive, 0);
-	m_iTradeMissionInfluenceModifier.set(m_syncArchive, 0);
-	m_iTradeMissionGoldModifier.set(m_syncArchive, 0);
-	m_iDiploMissionInfluence.set(m_syncArchive, 0);
+	m_iEmbarkExtraVisibility = 0;
+	m_iEmbarkDefensiveModifier = 0;
+	m_iCapitalDefenseModifier = 0;
+	m_iCapitalDefenseFalloff = 0;
+	m_iCityAttackPlunderModifier = 0;
+	m_iReligiousStrengthLossRivalTerritory = 0;
+	m_iTradeMissionInfluenceModifier = 0;
+	m_iTradeMissionGoldModifier = 0;
+	m_iDiploMissionInfluence = 0;
 
-	m_bPromotionReady.set(m_syncArchive, false);
-	m_bDeathDelay.set(m_syncArchive, false);
-	m_bCombatFocus.set(m_syncArchive, false);
-	m_bInfoBarDirty.set(m_syncArchive, false);
-	m_bNotConverting.set(m_syncArchive, false);
-	m_bAirCombat.set(m_syncArchive, false);
-	m_bSetUpForRangedAttack.set(m_syncArchive, false);
-	m_bEmbarked.set(m_syncArchive, false);
-	m_bPromotedFromGoody.set(m_syncArchive, false);
-	m_bAITurnProcessed.set(m_syncArchive, false);
+	m_bPromotionReady = false;
+	m_bDeathDelay = false;
+	m_bCombatFocus = false;
+	m_bInfoBarDirty = false;
+	m_bNotConverting = false;
+	m_bAirCombat = false;
+	m_bSetUpForRangedAttack = false;
+	m_bEmbarked = false;
+	m_bPromotedFromGoody = false;
+	m_bAITurnProcessed = false;
 	m_bWaitingForMove = false;
-	m_eOwner.set(m_syncArchive, eOwner);
-	m_eOriginalOwner.set(m_syncArchive, eOwner);
-	m_eCapturingPlayer.set(m_syncArchive, NO_PLAYER);
-	m_bCapturedAsIs.set(m_syncArchive, false);
-	m_eUnitType.set(m_syncArchive, eUnit);
+	m_eOwner = eOwner;
+	m_eOriginalOwner = eOwner;
+	m_eCapturingPlayer = NO_PLAYER;
+	m_bCapturedAsIs = false;
+	m_eUnitType = eUnit;
 	m_pUnitInfo = (NO_UNIT != m_eUnitType) ? GC.getUnitInfo(m_eUnitType) : NULL;
 	m_iBaseCombat = (NO_UNIT != m_eUnitType) ? m_pUnitInfo->GetCombat() : 0;
 	m_eCombatType = (NO_UNIT != m_eUnitType) ? (UnitCombatTypes)m_pUnitInfo->GetUnitCombatType() : NO_UNITCOMBAT;
@@ -1349,13 +1706,13 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_iBaseRangedCombat = (NO_UNIT != m_eUnitType) ? m_pUnitInfo->GetRangedCombat() : 0;
 #endif
 	m_iMaxHitPointsBase = (NO_UNIT != m_eUnitType) ? m_pUnitInfo->GetMaxHitPoints() : GC.getMAX_HIT_POINTS();
-	m_iMaxHitPointsChange.set(m_syncArchive, 0);
-	m_iMaxHitPointsModifier.set(m_syncArchive, 0);
-	m_eLeaderUnitType.set(m_syncArchive, NO_UNIT);
-	m_eInvisibleType.set(m_syncArchive, NO_INVISIBLE);
-	m_eSeeInvisibleType.set(m_syncArchive, NO_INVISIBLE);
-	m_eGreatPeopleDirectiveType.set(m_syncArchive, NO_GREAT_PEOPLE_DIRECTIVE_TYPE);
-	m_iCargoCapacity.set(m_syncArchive, 0);
+	m_iMaxHitPointsChange = 0;
+	m_iMaxHitPointsModifier = 0;
+	m_eLeaderUnitType = NO_UNIT;
+	m_eInvisibleType = NO_INVISIBLE;
+	m_eSeeInvisibleType = NO_INVISIBLE;
+	m_eGreatPeopleDirectiveType = NO_GREAT_PEOPLE_DIRECTIVE_TYPE;
+	m_iCargoCapacity = 0;
 
 	m_combatUnit.reset();
 	m_transportUnit.reset();
@@ -1386,130 +1743,130 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_strGreatName = "";
 #endif
 	m_eGreatWork = NO_GREAT_WORK;
-	m_iTourismBlastStrength.set(m_syncArchive, 0);
-	m_iTourismBlastLength.set(m_syncArchive, 0);
-	m_strScriptData.set(m_syncArchive, "");
-	m_iScenarioData.set(m_syncArchive, 0);
+	m_iTourismBlastStrength = 0;
+	m_iTourismBlastLength = 0;
+	m_strScriptData ="";
+	m_iScenarioData = 0;
 
 	m_unitMoveLocs.clear();
 
 	uninitInfos();
 
 	// Migrated in from CvSelectionGroup
-	m_iMissionTimer.set(m_syncArchive, 0);
-	m_eActivityType.set(m_syncArchive, ACTIVITY_AWAKE);
-	m_eAutomateType.set(m_syncArchive, NO_AUTOMATE);
+	m_iMissionTimer = 0;
+	m_eActivityType = ACTIVITY_AWAKE;
+	m_eAutomateType = NO_AUTOMATE;
 
 	ClearPathCache();
 
 #if defined(MOD_BALANCE_CORE)
-	m_iHurryStrength.set(m_syncArchive, 0);
-	m_iScienceBlastStrength.set(m_syncArchive, 0);
-	m_iCultureBlastStrength.set(m_syncArchive, 0);
-	m_iGAPBlastStrength.set(m_syncArchive, 0);
-	m_abPromotionEverObtained.resize(m_syncArchive, GC.getNumPromotionInfos());
+	m_iHurryStrength = 0;
+	m_iScienceBlastStrength = 0;
+	m_iCultureBlastStrength = 0;
+	m_iGAPBlastStrength = 0;
+	m_abPromotionEverObtained.resize(GC.getNumPromotionInfos());
 	for (int iI = 0; iI < GC.getNumPromotionInfos(); iI++)
 	{
-		m_abPromotionEverObtained.setAt(m_syncArchive, iI, false);
+		m_abPromotionEverObtained[iI] =  false;
 	}
 #endif
 
-	m_iMapLayer.set(m_syncArchive, DEFAULT_UNIT_MAP_LAYER);
-	m_iNumGoodyHutsPopped.set(m_syncArchive, 0);
+	m_iMapLayer = DEFAULT_UNIT_MAP_LAYER;
+	m_iNumGoodyHutsPopped = 0;
 
-	m_eTacticalMove.set(m_syncArchive, AI_TACTICAL_MOVE_NONE);
-	m_iTacticalMoveSetTurn.set(m_syncArchive, 0);
-	m_eHomelandMove.set(m_syncArchive, AI_HOMELAND_MOVE_NONE);
-	m_iHomelandMoveSetTurn.set(m_syncArchive, 0);
+	m_eTacticalMove = AI_TACTICAL_MOVE_NONE;
+	m_iTacticalMoveSetTurn = 0;
+	m_eHomelandMove = AI_HOMELAND_MOVE_NONE;
+	m_iHomelandMoveSetTurn = 0;
 	m_strMissionInfoString = "";
 
 	if(!bConstructorCall)
 	{
 		m_Promotions.Reset();
 
-		m_terrainDoubleMoveCount.dirtyGet(m_syncArchive).clear();
+		m_terrainDoubleMoveCount.clear();
 #if defined(MOD_PROMOTIONS_HALF_MOVE)
-		m_terrainHalfMoveCount.dirtyGet(m_syncArchive).clear();
-		m_terrainExtraMoveCount.dirtyGet(m_syncArchive).clear();
+		m_terrainHalfMoveCount.clear();
+		m_terrainExtraMoveCount.clear();
 #endif
 #if defined(MOD_BALANCE_CORE)
-		m_terrainDoubleHeal.dirtyGet(m_syncArchive).clear();
+		m_terrainDoubleHeal.clear();
 #endif
 #if defined(MOD_BALANCE_CORE)
-		m_PromotionDuration.dirtyGet(m_syncArchive).clear();
-		m_TurnPromotionGained.dirtyGet(m_syncArchive).clear();
+		m_PromotionDuration.clear();
+		m_TurnPromotionGained.clear();
 #endif
-		m_terrainImpassableCount.dirtyGet(m_syncArchive).clear();
-		m_extraTerrainAttackPercent.dirtyGet(m_syncArchive).clear();
-		m_extraTerrainDefensePercent.dirtyGet(m_syncArchive).clear();
+		m_terrainImpassableCount.clear();
+		m_extraTerrainAttackPercent.clear();
+		m_extraTerrainDefensePercent.clear();
 
-		m_featureDoubleMoveCount.dirtyGet(m_syncArchive).clear();
+		m_featureDoubleMoveCount.clear();
 #if defined(MOD_PROMOTIONS_HALF_MOVE)
-		m_featureHalfMoveCount.dirtyGet(m_syncArchive).clear();
-		m_featureExtraMoveCount.dirtyGet(m_syncArchive).clear();
+		m_featureHalfMoveCount.clear();
+		m_featureExtraMoveCount.clear();
 #endif
 #if defined(MOD_BALANCE_CORE)
-		m_featureDoubleHeal.dirtyGet(m_syncArchive).clear();
+		m_featureDoubleHeal.clear();
 #endif
-		m_featureImpassableCount.dirtyGet(m_syncArchive).clear();
-		m_extraFeatureDefensePercent.dirtyGet(m_syncArchive).clear();
-		m_extraFeatureAttackPercent.dirtyGet(m_syncArchive).clear();
+		m_featureImpassableCount.clear();
+		m_extraFeatureDefensePercent.clear();
+		m_extraFeatureAttackPercent.clear();
 
-		m_extraUnitClassAttackMod.dirtyGet(m_syncArchive).clear();
-		m_extraUnitClassDefenseMod.dirtyGet(m_syncArchive).clear();
+		m_extraUnitClassAttackMod.clear();
+		m_extraUnitClassDefenseMod.clear();
 
 #if defined(MOD_API_UNIFIED_YIELDS)
-		m_yieldFromKills.clear(m_syncArchive);
-		m_yieldFromBarbarianKills.clear(m_syncArchive);
+		m_yieldFromKills.clear();
+		m_yieldFromBarbarianKills.clear();
 #if defined(MOD_BALANCE_CORE)
-		m_aiNumTimesAttackedThisTurn.clear(m_syncArchive);
-		m_aiNumTimesAttackedThisTurn.resize(m_syncArchive, REALLY_MAX_PLAYERS);
-		m_yieldFromScouting.clear(m_syncArchive);
+		m_aiNumTimesAttackedThisTurn.clear();
+		m_aiNumTimesAttackedThisTurn.resize(REALLY_MAX_PLAYERS);
+		m_yieldFromScouting.clear();
 #endif
 		
-		m_yieldFromKills.resize(m_syncArchive, NUM_YIELD_TYPES);
-		m_yieldFromBarbarianKills.resize(m_syncArchive, NUM_YIELD_TYPES);
+		m_yieldFromKills.resize(NUM_YIELD_TYPES);
+		m_yieldFromBarbarianKills.resize(NUM_YIELD_TYPES);
 #if defined(MOD_BALANCE_CORE)
-		m_yieldFromScouting.resize(m_syncArchive, NUM_YIELD_TYPES);
+		m_yieldFromScouting.resize(NUM_YIELD_TYPES);
 #endif
 
 		for(int i = 0; i < NUM_YIELD_TYPES; i++)
 		{
-			m_yieldFromKills.setAt(m_syncArchive,i,0);
-			m_yieldFromBarbarianKills.setAt(m_syncArchive,i,0);
+			m_yieldFromKills[i] = 0;
+			m_yieldFromBarbarianKills[i] = 0;
 #if defined(MOD_BALANCE_CORE)
-			m_yieldFromScouting.setAt(m_syncArchive,i,0);
+			m_yieldFromScouting[i] = 0;
 #endif
 		}
 #endif
 		for (int iI = 0; iI < REALLY_MAX_PLAYERS; iI++)
 		{
-			m_aiNumTimesAttackedThisTurn.setAt(m_syncArchive, iI, 0);
+			m_aiNumTimesAttackedThisTurn[iI] =  0;
 		}
 
 		CvAssertMsg((0 < GC.getNumUnitCombatClassInfos()), "GC.getNumUnitCombatClassInfos() is not greater than zero but an array is being allocated in CvUnit::reset");
-		m_extraUnitCombatModifier.clear(m_syncArchive);
-		m_extraUnitCombatModifier.resize(m_syncArchive, GC.getNumUnitCombatClassInfos());
+		m_extraUnitCombatModifier.clear();
+		m_extraUnitCombatModifier.resize(GC.getNumUnitCombatClassInfos());
 #if defined(MOD_BALANCE_CORE)
-		m_iCombatModPerAdjacentUnitCombatModifier.clear(m_syncArchive);
-		m_iCombatModPerAdjacentUnitCombatModifier.resize(m_syncArchive, GC.getNumUnitCombatClassInfos());
-		m_iCombatModPerAdjacentUnitCombatAttackMod.clear(m_syncArchive);
-		m_iCombatModPerAdjacentUnitCombatAttackMod.resize(m_syncArchive, GC.getNumUnitCombatClassInfos());
-		m_iCombatModPerAdjacentUnitCombatDefenseMod.clear(m_syncArchive);
-		m_iCombatModPerAdjacentUnitCombatDefenseMod.resize(m_syncArchive, GC.getNumUnitCombatClassInfos());
+		m_iCombatModPerAdjacentUnitCombatModifier.clear();
+		m_iCombatModPerAdjacentUnitCombatModifier.resize(GC.getNumUnitCombatClassInfos());
+		m_iCombatModPerAdjacentUnitCombatAttackMod.clear();
+		m_iCombatModPerAdjacentUnitCombatAttackMod.resize(GC.getNumUnitCombatClassInfos());
+		m_iCombatModPerAdjacentUnitCombatDefenseMod.clear();
+		m_iCombatModPerAdjacentUnitCombatDefenseMod.resize(GC.getNumUnitCombatClassInfos());
 #endif
 		for(int i = 0; i < GC.getNumUnitCombatClassInfos(); i++)
 		{
-			m_extraUnitCombatModifier.setAt(m_syncArchive,i,0);
+			m_extraUnitCombatModifier[i] = 0;
 #if defined(MOD_BALANCE_CORE)
-			m_iCombatModPerAdjacentUnitCombatModifier.setAt(m_syncArchive,i,0);
-			m_iCombatModPerAdjacentUnitCombatAttackMod.setAt(m_syncArchive,i,0);
-			m_iCombatModPerAdjacentUnitCombatDefenseMod.setAt(m_syncArchive,i,0);
+			m_iCombatModPerAdjacentUnitCombatModifier[i] = 0;
+			m_iCombatModPerAdjacentUnitCombatAttackMod[i] = 0;
+			m_iCombatModPerAdjacentUnitCombatDefenseMod[i] = 0;
 #endif
 		}
 
-		m_unitClassModifier.clear(m_syncArchive);
-		m_unitClassModifier.resize(m_syncArchive, GC.getNumUnitClassInfos());
+		m_unitClassModifier.clear();
+		m_unitClassModifier.resize(GC.getNumUnitClassInfos());
 		for(int i = 0; i < GC.getNumUnitClassInfos(); i++)
 		{
 			CvUnitClassInfo* pkUnitClassInfo = GC.getUnitClassInfo((UnitClassTypes)i);
@@ -1518,16 +1875,16 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 				continue;
 			}
 
-			m_unitClassModifier.setAt(m_syncArchive, i,0);
+			m_unitClassModifier[i] = 0;
 		}
 
 		// Migrated in from CvSelectionGroup
-		m_iMissionAIX.set(m_syncArchive, INVALID_PLOT_COORD);
-		m_iMissionAIY.set(m_syncArchive, INVALID_PLOT_COORD);
-		m_eMissionAIType.set(m_syncArchive, NO_MISSIONAI);
+		m_iMissionAIX = INVALID_PLOT_COORD;
+		m_iMissionAIY = INVALID_PLOT_COORD;
+		m_eMissionAIType = NO_MISSIONAI;
 		m_missionAIUnit.reset();
 
-		m_eUnitAIType.set(m_syncArchive, NO_UNITAI);
+		m_eUnitAIType = NO_UNITAI;
 	}
 }
 
@@ -1594,46 +1951,46 @@ void CvUnit::uninitInfos()
 {
 	VALIDATE_OBJECT
 #if defined(MOD_PROMOTIONS_HALF_MOVE)
-	m_terrainDoubleMoveCount.dirtyGet(m_syncArchive).clear(); // BUG FIX
-	m_featureDoubleMoveCount.dirtyGet(m_syncArchive).clear();
-	m_terrainHalfMoveCount.dirtyGet(m_syncArchive).clear();
-	m_featureHalfMoveCount.dirtyGet(m_syncArchive).clear();
-	m_terrainExtraMoveCount.dirtyGet(m_syncArchive).clear();
-	m_featureExtraMoveCount.dirtyGet(m_syncArchive).clear();
+	m_terrainDoubleMoveCount.clear(); // BUG FIX
+	m_featureDoubleMoveCount.clear();
+	m_terrainHalfMoveCount.clear();
+	m_featureHalfMoveCount.clear();
+	m_terrainExtraMoveCount.clear();
+	m_featureExtraMoveCount.clear();
 #else
 	m_featureDoubleMoveCount.clear();
 #endif
 #if defined(MOD_BALANCE_CORE)
-	m_PromotionDuration.dirtyGet(m_syncArchive).clear();
-	m_TurnPromotionGained.dirtyGet(m_syncArchive).clear();
+	m_PromotionDuration.clear();
+	m_TurnPromotionGained.clear();
 #endif
 #if defined(MOD_BALANCE_CORE)
-	m_terrainDoubleHeal.dirtyGet(m_syncArchive).clear();
-	m_featureDoubleHeal.dirtyGet(m_syncArchive).clear();
+	m_terrainDoubleHeal.clear();
+	m_featureDoubleHeal.clear();
 #endif
-	m_terrainImpassableCount.dirtyGet(m_syncArchive).clear();
-	m_featureImpassableCount.dirtyGet(m_syncArchive).clear();
-	m_extraTerrainAttackPercent.dirtyGet(m_syncArchive).clear();
-	m_extraTerrainDefensePercent.dirtyGet(m_syncArchive).clear();
-	m_extraFeatureAttackPercent.dirtyGet(m_syncArchive).clear();
-	m_extraFeatureDefensePercent.dirtyGet(m_syncArchive).clear();
+	m_terrainImpassableCount.clear();
+	m_featureImpassableCount.clear();
+	m_extraTerrainAttackPercent.clear();
+	m_extraTerrainDefensePercent.clear();
+	m_extraFeatureAttackPercent.clear();
+	m_extraFeatureDefensePercent.clear();
 
-	m_extraUnitClassAttackMod.dirtyGet(m_syncArchive).clear();
-	m_extraUnitClassDefenseMod.dirtyGet(m_syncArchive).clear();
+	m_extraUnitClassAttackMod.clear();
+	m_extraUnitClassDefenseMod.clear();
 #if defined(MOD_BALANCE_CORE)
-	m_iCombatModPerAdjacentUnitCombatModifier.clear(m_syncArchive);
-	m_iCombatModPerAdjacentUnitCombatAttackMod.clear(m_syncArchive);
-	m_iCombatModPerAdjacentUnitCombatDefenseMod.clear(m_syncArchive);
+	m_iCombatModPerAdjacentUnitCombatModifier.clear();
+	m_iCombatModPerAdjacentUnitCombatAttackMod.clear();
+	m_iCombatModPerAdjacentUnitCombatDefenseMod.clear();
 #endif
 #if defined(MOD_API_UNIFIED_YIELDS)
-	m_yieldFromKills.clear(m_syncArchive);
-	m_yieldFromBarbarianKills.clear(m_syncArchive);
+	m_yieldFromKills.clear();
+	m_yieldFromBarbarianKills.clear();
 #endif
 #if defined(MOD_BALANCE_CORE)
-	m_yieldFromScouting.clear(m_syncArchive);
+	m_yieldFromScouting.clear();
 #endif
-	m_extraUnitCombatModifier.clear(m_syncArchive);
-	m_unitClassModifier.clear(m_syncArchive);
+	m_extraUnitCombatModifier.clear();
+	m_unitClassModifier.clear();
 }
 
 
@@ -5891,7 +6248,7 @@ bool CvUnit::CanDistanceGift(PlayerTypes eToPlayer) const
 #if defined(MOD_CORE_PER_TURN_DAMAGE)
 int CvUnit::addDamageReceivedThisTurn(int iDamage, CvUnit* pAttacker)
 {
-	m_iDamageTakenThisTurn.dirtyGet(m_syncArchive) += iDamage;
+	m_iDamageTakenThisTurn+=iDamage;
 
 	//remember the attacker for AI danger calculation - in case he came out of nowhere, now moves and becomes invisible again
 	if (pAttacker && !isHuman())
@@ -5902,8 +6259,8 @@ int CvUnit::addDamageReceivedThisTurn(int iDamage, CvUnit* pAttacker)
 
 void CvUnit::flipDamageReceivedPerTurn()
 {
-	m_iDamageTakenLastTurn.set(m_syncArchive, m_iDamageTakenThisTurn);
-	m_iDamageTakenThisTurn.set(m_syncArchive, 0);
+	m_iDamageTakenLastTurn = m_iDamageTakenThisTurn;
+	m_iDamageTakenThisTurn = 0;
 }
 
 bool CvUnit::isProjectedToDieNextTurn() const
@@ -6293,7 +6650,7 @@ void CvUnit::ChangeRangeAttackIgnoreLOSCount(int iChange)
 	VALIDATE_OBJECT
 	if(iChange != 0)
 	{
-		m_iRangeAttackIgnoreLOSCount.dirtyGet(m_syncArchive) += iChange;
+		m_iRangeAttackIgnoreLOSCount += iChange;
 	}
 }
 
@@ -6316,7 +6673,7 @@ void CvUnit::ChangeCityAttackOnlyCount(int iChange)
 	VALIDATE_OBJECT
 	if(iChange != 0)
 	{
-		m_iCityAttackOnlyCount.dirtyGet(m_syncArchive) += iChange;
+		m_iCityAttackOnlyCount += iChange;
 	}
 }
 
@@ -6333,7 +6690,7 @@ void CvUnit::ChangeCaptureDefeatedEnemyCount(int iChange)
 	VALIDATE_OBJECT
 	if(iChange != 0)
 	{
-		m_iCaptureDefeatedEnemyCount.dirtyGet(m_syncArchive) += iChange;
+		m_iCaptureDefeatedEnemyCount += iChange;
 	}
 }
 
@@ -6379,7 +6736,7 @@ void CvUnit::ChangeCannotBeCapturedCount(int iChange)
 	VALIDATE_OBJECT
 	if(iChange != 0)
 	{
-		m_iCannotBeCapturedCount.dirtyGet(m_syncArchive) += iChange;
+		m_iCannotBeCapturedCount += iChange;
 	}
 }
 //	--------------------------------------------------------------------------------
@@ -6394,7 +6751,7 @@ void CvUnit::ChangeForcedDamageValue(int iChange)
 	VALIDATE_OBJECT
 	if(iChange != 0)
 	{
-		m_iForcedDamage.dirtyGet(m_syncArchive) += iChange;
+		m_iForcedDamage += iChange;
 	}
 }
 //	--------------------------------------------------------------------------------
@@ -6409,7 +6766,7 @@ void CvUnit::ChangeChangeDamageValue(int iChange)
 	VALIDATE_OBJECT
 	if(iChange != 0)
 	{
-		m_iChangeDamage.dirtyGet(m_syncArchive) += iChange;
+		m_iChangeDamage += iChange;
 	}
 }
 //	--------------------------------------------------------------------------------
@@ -6422,7 +6779,7 @@ int CvUnit::getChangeDamageValue()
 //	--------------------------------------------------------------------------------
 void CvUnit::ChangePromotionDuration(PromotionTypes eIndex, int iChange)
 {
-	std::map<PromotionTypes, int>& m_map = m_PromotionDuration.dirtyGet(m_syncArchive);
+	std::map<PromotionTypes, int>& m_map = m_PromotionDuration;
 	if (m_map.find(eIndex) != m_map.end())
 	{
 		m_map[eIndex] += iChange;
@@ -6435,7 +6792,7 @@ void CvUnit::ChangePromotionDuration(PromotionTypes eIndex, int iChange)
 //	--------------------------------------------------------------------------------
 int CvUnit::getPromotionDuration(PromotionTypes eIndex)
 {
-	const std::map<PromotionTypes, int>& m_map = m_PromotionDuration.get();
+	const std::map<PromotionTypes, int>& m_map = m_PromotionDuration;
 	std::map<PromotionTypes, int>::const_iterator it = m_map.find(eIndex);
 	if (it != m_map.end())
 		return it->second;
@@ -6446,7 +6803,7 @@ int CvUnit::getPromotionDuration(PromotionTypes eIndex)
 //	--------------------------------------------------------------------------------
 void CvUnit::SetTurnPromotionGained(PromotionTypes eIndex, int iValue)
 {
-	std::map<PromotionTypes, int>& m_map = m_TurnPromotionGained.dirtyGet(m_syncArchive);
+	std::map<PromotionTypes, int>& m_map = m_TurnPromotionGained;
 	if (iValue>0)
 		m_map[eIndex] = iValue;
 	else
@@ -6455,7 +6812,7 @@ void CvUnit::SetTurnPromotionGained(PromotionTypes eIndex, int iValue)
 //	--------------------------------------------------------------------------------
 int CvUnit::getTurnPromotionGained(PromotionTypes eIndex)
 {
-	const std::map<PromotionTypes, int>& m_map = m_TurnPromotionGained.get();
+	const std::map<PromotionTypes, int>& m_map = m_TurnPromotionGained;
 	std::map<PromotionTypes, int>::const_iterator it = m_map.find(eIndex);
 	if (it != m_map.end())
 		return it->second;
@@ -6675,7 +7032,7 @@ void CvUnit::ChangeEmbarkAbilityCount(int iChange)
 {
 	if(iChange != 0)
 	{
-		m_iEmbarkAbilityCount.dirtyGet(m_syncArchive) += iChange;
+		m_iEmbarkAbilityCount += iChange;
 	}
 }
 
@@ -6689,7 +7046,7 @@ bool CvUnit::IsEmbarkAllWater() const
 //	--------------------------------------------------------------------------------
 void CvUnit::ChangeEmbarkAllWaterCount(int iValue)
 {
-	m_iEmbarkedAllWaterCount.dirtyGet(m_syncArchive) += iValue;
+	m_iEmbarkedAllWaterCount += iValue;
 }
 
 //	--------------------------------------------------------------------------------
@@ -6709,7 +7066,7 @@ bool CvUnit::IsEmbarkDeepWater() const
 //	--------------------------------------------------------------------------------
 void CvUnit::ChangeEmbarkDeepWaterCount(int iValue)
 {
-	m_iEmbarkedDeepWaterCount.dirtyGet(m_syncArchive) += iValue;
+	m_iEmbarkedDeepWaterCount += iValue;
 }
 
 //	--------------------------------------------------------------------------------
@@ -6722,7 +7079,7 @@ int CvUnit::GetEmbarkDeepWaterCount() const
 //	--------------------------------------------------------------------------------
 void CvUnit::ChangeEmbarkExtraVisibility(int iValue)
 {
-	m_iEmbarkExtraVisibility.dirtyGet(m_syncArchive) += iValue;
+	m_iEmbarkExtraVisibility += iValue;
 }
 
 //	--------------------------------------------------------------------------------
@@ -6734,7 +7091,7 @@ int CvUnit::GetEmbarkExtraVisibility() const
 //	--------------------------------------------------------------------------------
 void CvUnit::ChangeEmbarkDefensiveModifier(int iValue)
 {
-	m_iEmbarkDefensiveModifier.dirtyGet(m_syncArchive) += iValue;
+	m_iEmbarkDefensiveModifier += iValue;
 }
 
 //	--------------------------------------------------------------------------------
@@ -6746,7 +7103,7 @@ int CvUnit::GetEmbarkDefensiveModifier() const
 //	--------------------------------------------------------------------------------
 void CvUnit::ChangeCapitalDefenseModifier(int iValue)
 {
-	m_iCapitalDefenseModifier.dirtyGet(m_syncArchive) += iValue;
+	m_iCapitalDefenseModifier += iValue;
 }
 
 //	--------------------------------------------------------------------------------
@@ -6758,7 +7115,7 @@ int CvUnit::GetCapitalDefenseModifier() const
 //	--------------------------------------------------------------------------------
 void CvUnit::ChangeCapitalDefenseFalloff(int iValue)
 {
-	m_iCapitalDefenseFalloff.dirtyGet(m_syncArchive) += iValue;
+	m_iCapitalDefenseFalloff += iValue;
 }
 
 //	--------------------------------------------------------------------------------
@@ -6770,7 +7127,7 @@ int CvUnit::GetCapitalDefenseFalloff() const
 //	--------------------------------------------------------------------------------
 void CvUnit::ChangeCityAttackPlunderModifier(int iValue)
 {
-	m_iCityAttackPlunderModifier.dirtyGet(m_syncArchive) += iValue;
+	m_iCityAttackPlunderModifier += iValue;
 }
 
 //	--------------------------------------------------------------------------------
@@ -6782,7 +7139,7 @@ int CvUnit::GetCityAttackPlunderModifier() const
 //	--------------------------------------------------------------------------------
 void CvUnit::ChangeReligiousStrengthLossRivalTerritory(int iValue)
 {
-	m_iReligiousStrengthLossRivalTerritory.dirtyGet(m_syncArchive) += iValue;
+	m_iReligiousStrengthLossRivalTerritory += iValue;
 }
 
 //	--------------------------------------------------------------------------------
@@ -6794,7 +7151,7 @@ int CvUnit::GetReligiousStrengthLossRivalTerritory() const
 //	--------------------------------------------------------------------------------
 void CvUnit::ChangeTradeMissionInfluenceModifier(int iValue)
 {
-	m_iTradeMissionInfluenceModifier.dirtyGet(m_syncArchive) += iValue;
+	m_iTradeMissionInfluenceModifier += iValue;
 }
 
 //	--------------------------------------------------------------------------------
@@ -6806,7 +7163,7 @@ int CvUnit::GetTradeMissionInfluenceModifier() const
 //	--------------------------------------------------------------------------------
 void CvUnit::ChangeTradeMissionGoldModifier(int iValue)
 {
-	m_iTradeMissionGoldModifier.dirtyGet(m_syncArchive) += iValue;
+	m_iTradeMissionGoldModifier += iValue;
 }
 
 //	--------------------------------------------------------------------------------
@@ -6818,7 +7175,7 @@ int CvUnit::GetTradeMissionGoldModifier() const
 //	--------------------------------------------------------------------------------
 void CvUnit::ChangeDiploMissionInfluence(int iValue)
 {
-	m_iDiploMissionInfluence.dirtyGet(m_syncArchive) += iValue;
+	m_iDiploMissionInfluence += iValue;
 }
 
 //	--------------------------------------------------------------------------------
@@ -12053,7 +12410,7 @@ bool CvUnit::canBuyCityState(const CvPlot* pPlot, bool bTestVisible) const
 
 #if defined(MOD_EVENTS_MINORS_INTERACTION)
 		if (MOD_EVENTS_MINORS_INTERACTION) {
-			if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_PlayerCanBuyOut, m_eOwner.get(), pPlot->getOwner()) == GAMEEVENTRETURN_FALSE) {
+			if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_PlayerCanBuyOut, m_eOwner, pPlot->getOwner()) == GAMEEVENTRETURN_FALSE) {
 				return false;
 			}
 		}
@@ -17082,7 +17439,7 @@ void CvUnit::changeIgnoreTerrainCostCount(int iValue)
 	VALIDATE_OBJECT
 	if(iValue != 0)
 	{
-		m_iIgnoreTerrainCostCount.dirtyGet(m_syncArchive) += iValue;
+		m_iIgnoreTerrainCostCount += iValue;
 	}
 }
 
@@ -17106,7 +17463,7 @@ void CvUnit::changeIgnoreTerrainDamageCount(int iValue)
 	VALIDATE_OBJECT
 	if(iValue != 0)
 	{
-		m_iIgnoreTerrainDamageCount.dirtyGet(m_syncArchive) += iValue;
+		m_iIgnoreTerrainDamageCount += iValue;
 	}
 }
 
@@ -17131,7 +17488,7 @@ void CvUnit::changeIgnoreFeatureDamageCount(int iValue)
 	VALIDATE_OBJECT
 	if(iValue != 0)
 	{
-		m_iIgnoreFeatureDamageCount.dirtyGet(m_syncArchive) += iValue;
+		m_iIgnoreFeatureDamageCount += iValue;
 	}
 }
 
@@ -17156,7 +17513,7 @@ void CvUnit::changeExtraTerrainDamageCount(int iValue)
 	VALIDATE_OBJECT
 	if(iValue != 0)
 	{
-		m_iExtraTerrainDamageCount.dirtyGet(m_syncArchive) += iValue;
+		m_iExtraTerrainDamageCount += iValue;
 	}
 }
 
@@ -17181,7 +17538,7 @@ void CvUnit::changeExtraFeatureDamageCount(int iValue)
 	VALIDATE_OBJECT
 	if(iValue != 0)
 	{
-		m_iExtraFeatureDamageCount.dirtyGet(m_syncArchive) += iValue;
+		m_iExtraFeatureDamageCount += iValue;
 	}
 }
 
@@ -17249,7 +17606,7 @@ void CvUnit::SetCombatBonusFromNearbyUnitClass(UnitClassTypes eUnitClass)
 void CvUnit::ChangeNearbyPromotion(int iValue)
 {
 	VALIDATE_OBJECT
-	m_bNearbyPromotion.dirtyGet(m_syncArchive) += iValue;
+	m_bNearbyPromotion += iValue;
 }
 int CvUnit::GetNearbyPromotion() const
 {
@@ -17269,12 +17626,12 @@ int CvUnit::GetNearbyUnitPromotionsRange() const
 void CvUnit::ChangeNearbyUnitPromotionRange(int iBonusRange)
 {
 	VALIDATE_OBJECT
-	m_iNearbyUnitPromotionRange.dirtyGet(m_syncArchive) += iBonusRange;
+	m_iNearbyUnitPromotionRange += iBonusRange;
 }
 void CvUnit::ChangeNearbyCityCombatMod(int iValue)
 {
 	VALIDATE_OBJECT
-	m_iNearbyCityCombatMod.dirtyGet(m_syncArchive) += iValue;
+	m_iNearbyCityCombatMod += iValue;
 }
 int CvUnit::getNearbyCityCombatMod() const
 {
@@ -17284,7 +17641,7 @@ int CvUnit::getNearbyCityCombatMod() const
 void CvUnit::ChangeNearbyFriendlyCityCombatMod(int iValue)
 {
 	VALIDATE_OBJECT
-	m_iNearbyFriendlyCityCombatMod.dirtyGet(m_syncArchive) += iValue;
+	m_iNearbyFriendlyCityCombatMod += iValue;
 }
 int CvUnit::getNearbyFriendlyCityCombatMod() const
 {
@@ -17294,7 +17651,7 @@ int CvUnit::getNearbyFriendlyCityCombatMod() const
 void CvUnit::ChangeNearbyEnemyCityCombatMod(int iValue)
 {
 	VALIDATE_OBJECT
-	m_iNearbyEnemyCityCombatMod.dirtyGet(m_syncArchive) += iValue;
+	m_iNearbyEnemyCityCombatMod += iValue;
 }
 int CvUnit::getNearbyEnemyCityCombatMod() const
 {
@@ -17309,7 +17666,7 @@ int CvUnit::getPillageBonusStrengthPercent() const
 void CvUnit::ChangePillageBonusStrengthPercent(int iBonus)
 {
 	VALIDATE_OBJECT
-	m_iPillageBonusStrengthPercent.dirtyGet(m_syncArchive) += iBonus;
+	m_iPillageBonusStrengthPercent += iBonus;
 }
 int CvUnit::getStackedGreatGeneralExperience() const
 {
@@ -17319,12 +17676,12 @@ int CvUnit::getStackedGreatGeneralExperience() const
 void CvUnit::ChangeStackedGreatGeneralExperience(int iExperience)
 {
 	VALIDATE_OBJECT
-	m_iStackedGreatGeneralExperience.dirtyGet(m_syncArchive) += iExperience;
+	m_iStackedGreatGeneralExperience += iExperience;
 }
 void CvUnit::ChangeIsHighSeaRaider(int iValue)
 {
 	VALIDATE_OBJECT
-	m_bIsHighSeaRaider.dirtyGet(m_syncArchive) += iValue;
+	m_bIsHighSeaRaider += iValue;
 }
 int CvUnit::GetIsHighSeaRaider() const
 {
@@ -17344,7 +17701,7 @@ int CvUnit::getWonderProductionModifier() const
 void CvUnit::ChangeWonderProductionModifier(int iValue)
 {
 	VALIDATE_OBJECT
-	m_iWonderProductionModifier.dirtyGet(m_syncArchive) += iValue;
+	m_iWonderProductionModifier += iValue;
 }
 int CvUnit::getMilitaryProductionModifier() const
 {
@@ -17354,7 +17711,7 @@ int CvUnit::getMilitaryProductionModifier() const
 void CvUnit::ChangeMilitaryProductionModifier(int iValue)
 {
 	VALIDATE_OBJECT
-	m_iUnitProductionModifier.dirtyGet(m_syncArchive) += iValue;
+	m_iUnitProductionModifier += iValue;
 }
 int CvUnit::getNearbyEnemyDamage() const
 {
@@ -17364,7 +17721,7 @@ int CvUnit::getNearbyEnemyDamage() const
 void CvUnit::ChangeNearbyEnemyDamage(int iValue)
 {
 	VALIDATE_OBJECT
-	m_iNearbyEnemyDamage.dirtyGet(m_syncArchive) += iValue;
+	m_iNearbyEnemyDamage += iValue;
 }
 int CvUnit::GetGGGAXPPercent() const
 {
@@ -17374,7 +17731,7 @@ int CvUnit::GetGGGAXPPercent() const
 void CvUnit::ChangeGGGAXPPercent(int iValue)
 {
 	VALIDATE_OBJECT
-	m_iGGGAXPPercent.dirtyGet(m_syncArchive) += iValue;
+	m_iGGGAXPPercent += iValue;
 }
 int CvUnit::getGiveCombatMod() const
 {
@@ -17384,7 +17741,7 @@ int CvUnit::getGiveCombatMod() const
 void CvUnit::ChangeGiveCombatMod(int iValue)
 {
 	VALIDATE_OBJECT
-	m_iGiveCombatMod.dirtyGet(m_syncArchive) += iValue;
+	m_iGiveCombatMod += iValue;
 }
 int CvUnit::getGiveHPIfEnemyKilled() const
 {
@@ -17394,7 +17751,7 @@ int CvUnit::getGiveHPIfEnemyKilled() const
 void CvUnit::ChangeGiveHPIfEnemyKilled(int iValue)
 {
 	VALIDATE_OBJECT
-	m_iGiveHPIfEnemyKilled.dirtyGet(m_syncArchive) += iValue;
+	m_iGiveHPIfEnemyKilled += iValue;
 }
 int CvUnit::getGiveExperiencePercent() const
 {
@@ -17404,7 +17761,7 @@ int CvUnit::getGiveExperiencePercent() const
 void CvUnit::ChangeGiveExperiencePercent(int iValue)
 {
 	VALIDATE_OBJECT
-	m_iGiveExperiencePercent.dirtyGet(m_syncArchive) += iValue;
+	m_iGiveExperiencePercent += iValue;
 }
 int CvUnit::getGiveOutsideFriendlyLandsModifier() const
 {
@@ -17414,7 +17771,7 @@ int CvUnit::getGiveOutsideFriendlyLandsModifier() const
 void CvUnit::ChangeGiveOutsideFriendlyLandsModifier(int iValue)
 {
 	VALIDATE_OBJECT
-	m_iGiveOutsideFriendlyLandsModifier.dirtyGet(m_syncArchive) += iValue;
+	m_iGiveOutsideFriendlyLandsModifier += iValue;
 }
 const DomainTypes CvUnit::getGiveDomain() const
 {
@@ -17434,7 +17791,7 @@ int CvUnit::getGiveExtraAttacks() const
 void CvUnit::ChangeGiveExtraAttacks(int iValue)
 {
 	VALIDATE_OBJECT
-	m_iGiveExtraAttacks.dirtyGet(m_syncArchive) += iValue;
+	m_iGiveExtraAttacks += iValue;
 }
 int CvUnit::getGiveDefenseMod() const
 {
@@ -17444,7 +17801,7 @@ int CvUnit::getGiveDefenseMod() const
 void CvUnit::ChangeGiveDefenseMod(int iValue)
 {
 	VALIDATE_OBJECT
-	m_iGiveDefenseMod.dirtyGet(m_syncArchive) += iValue;
+	m_iGiveDefenseMod += iValue;
 }
 int CvUnit::getNearbyHealEnemyTerritory() const
 {
@@ -17454,7 +17811,7 @@ int CvUnit::getNearbyHealEnemyTerritory() const
 void CvUnit::ChangeNearbyHealEnemyTerritory(int iValue)
 {
 	VALIDATE_OBJECT
-	m_iNearbyHealEnemyTerritory.dirtyGet(m_syncArchive) += iValue;
+	m_iNearbyHealEnemyTerritory += iValue;
 }
 int CvUnit::getNearbyHealNeutralTerritory() const
 {
@@ -17464,7 +17821,7 @@ int CvUnit::getNearbyHealNeutralTerritory() const
 void CvUnit::ChangeNearbyHealNeutralTerritory(int iValue)
 {
 	VALIDATE_OBJECT
-	m_iNearbyHealNeutralTerritory.dirtyGet(m_syncArchive) += iValue;
+	m_iNearbyHealNeutralTerritory += iValue;
 }
 int CvUnit::getNearbyHealFriendlyTerritory() const
 {
@@ -17474,12 +17831,12 @@ int CvUnit::getNearbyHealFriendlyTerritory() const
 void CvUnit::ChangeNearbyHealFriendlyTerritory(int iValue)
 {
 	VALIDATE_OBJECT
-	m_iNearbyHealFriendlyTerritory.dirtyGet(m_syncArchive) += iValue;
+	m_iNearbyHealFriendlyTerritory += iValue;
 }
 void CvUnit::ChangeIsGiveInvisibility(int iValue)
 {
 	VALIDATE_OBJECT
-	m_bGiveInvisibility.dirtyGet(m_syncArchive) += iValue;
+	m_bGiveInvisibility += iValue;
 }
 int CvUnit::GetIsGiveInvisibility() const
 {
@@ -17504,7 +17861,7 @@ void CvUnit::SetIsGiveOnlyOnStartingTurn(bool bNewValue)
 void CvUnit::ChangeIsConvertUnit(int iValue)
 {
 	VALIDATE_OBJECT
-	m_bConvertUnit.dirtyGet(m_syncArchive) += iValue;
+	m_bConvertUnit += iValue;
 }
 int CvUnit::getIsConvertUnit() const
 {
@@ -17524,7 +17881,7 @@ const DomainTypes CvUnit::getConvertDomain() const
 void CvUnit::ChangeConvertDomain(DomainTypes eDomain)
 {
 	VALIDATE_OBJECT
-	m_eConvertDomain.dirtyGet(m_syncArchive) = eDomain;
+	m_eConvertDomain = eDomain;
 }
 const UnitTypes CvUnit::getConvertDomainUnitType() const
 {
@@ -17539,7 +17896,7 @@ void CvUnit::ChangeConvertDomainUnit(UnitTypes eUnit)
 void CvUnit::ChangeIsConvertEnemyUnitToBarbarian(int iValue)
 {
 	VALIDATE_OBJECT
-	m_bConvertEnemyUnitToBarbarian.dirtyGet(m_syncArchive) += iValue;
+	m_bConvertEnemyUnitToBarbarian += iValue;
 }
 int CvUnit::getIsConvertEnemyUnitToBarbarian() const
 {
@@ -17554,7 +17911,7 @@ bool CvUnit::isConvertEnemyUnitToBarbarian() const
 void CvUnit::ChangeIsConvertOnFullHP(int iValue)
 {
 	VALIDATE_OBJECT
-	m_bConvertOnFullHP.dirtyGet(m_syncArchive) += iValue;
+	m_bConvertOnFullHP += iValue;
 }
 int CvUnit::getIsConvertOnFullHP() const
 {
@@ -17569,7 +17926,7 @@ bool CvUnit::isConvertOnFullHP() const
 void CvUnit::ChangeIsConvertOnDamage(int iValue)
 {
 	VALIDATE_OBJECT
-	m_bConvertOnDamage.dirtyGet(m_syncArchive) += iValue;
+	m_bConvertOnDamage += iValue;
 }
 int CvUnit::getIsConvertOnDamage() const
 {
@@ -17589,7 +17946,7 @@ int CvUnit::getDamageThreshold() const
 void CvUnit::ChangeDamageThreshold(int iValue)
 {
 	VALIDATE_OBJECT
-	m_iDamageThreshold.dirtyGet(m_syncArchive) += iValue;
+	m_iDamageThreshold += iValue;
 }
 const UnitTypes CvUnit::getConvertDamageOrFullHPUnit() const
 {
@@ -17640,7 +17997,7 @@ void CvUnit::changeCanCrossMountainsCount(int iValue)
 	VALIDATE_OBJECT
 	if(iValue != 0)
 	{
-		m_iCanCrossMountainsCount.dirtyGet(m_syncArchive) += iValue;
+		m_iCanCrossMountainsCount += iValue;
 	}
 }
 #endif
@@ -17667,7 +18024,7 @@ void CvUnit::changeCanCrossOceansCount(int iValue)
 	VALIDATE_OBJECT
 	if(iValue != 0)
 	{
-		m_iCanCrossOceansCount.dirtyGet(m_syncArchive) += iValue;
+		m_iCanCrossOceansCount += iValue;
 	}
 }
 #endif
@@ -17694,7 +18051,7 @@ void CvUnit::changeCanCrossIceCount(int iValue)
 	VALIDATE_OBJECT
 	if(iValue != 0)
 	{
-		m_iCanCrossIceCount.dirtyGet(m_syncArchive) += iValue;
+		m_iCanCrossIceCount += iValue;
 	}
 }
 #endif
@@ -17705,7 +18062,7 @@ void CvUnit::ChangeNumTilesRevealedThisTurn(int iValue)
 	VALIDATE_OBJECT
 	if(iValue != 0)
 	{
-		m_iNumTilesRevealedThisTurn.dirtyGet(m_syncArchive) += iValue;
+		m_iNumTilesRevealedThisTurn += iValue;
 	}
 }
 //	--------------------------------------------------------------------------------
@@ -17769,7 +18126,7 @@ void CvUnit::ChangeGainsXPFromScouting(int iValue)
 	VALIDATE_OBJECT
 	if(iValue != 0)
 	{
-		m_iGainsXPFromScouting.dirtyGet(m_syncArchive) += iValue;
+		m_iGainsXPFromScouting += iValue;
 	}
 }
 
@@ -17795,7 +18152,7 @@ void CvUnit::ChangeGainsXPFromSpotting(int iValue)
 	VALIDATE_OBJECT
 		if (iValue != 0)
 		{
-			m_iGainsXPFromSpotting.dirtyGet(m_syncArchive) += iValue;
+			m_iGainsXPFromSpotting += iValue;
 		}
 }
 
@@ -17821,7 +18178,7 @@ void CvUnit::ChangeGainsXPFromPillaging(int iValue)
 	VALIDATE_OBJECT
 		if (iValue != 0)
 		{
-			m_iGainsXPFromPillaging.dirtyGet(m_syncArchive) += iValue;
+			m_iGainsXPFromPillaging += iValue;
 		}
 }
 
@@ -17848,7 +18205,7 @@ void CvUnit::changeGGFromBarbariansCount(int iValue)
 	VALIDATE_OBJECT
 	if(iValue != 0)
 	{
-		m_iGGFromBarbariansCount.dirtyGet(m_syncArchive) += iValue;
+		m_iGGFromBarbariansCount += iValue;
 	}
 }
 #endif
@@ -17858,7 +18215,7 @@ int CvUnit::GetCaptureDefeatedEnemyChance() const
 }
 void CvUnit::ChangeCaptureDefeatedEnemyChance(int iValue)
 {
-	m_iCaptureDefeatedEnemyChance.dirtyGet(m_syncArchive) += iValue;
+	m_iCaptureDefeatedEnemyChance += iValue;
 }
 
 //	--------------------------------------------------------------------------------
@@ -17874,7 +18231,7 @@ void CvUnit::ChangeBarbarianCombatBonus(int iValue)
 	VALIDATE_OBJECT
 	if(iValue != 0)
 	{
-		m_iBarbCombatBonus.dirtyGet(m_syncArchive) += iValue;
+		m_iBarbCombatBonus += iValue;
 	}
 }
 
@@ -17889,7 +18246,7 @@ int CvUnit::GetAdjacentEnemySapMovement() const
 void CvUnit::ChangeAdjacentEnemySapMovement(int iValue)
 {
 	VALIDATE_OBJECT
-	m_iAdjacentEnemySapMovement.dirtyGet(m_syncArchive) += iValue;
+	m_iAdjacentEnemySapMovement += iValue;
 }
 
 #endif
@@ -17914,7 +18271,7 @@ void CvUnit::ChangeRoughTerrainEndsTurnCount(int iValue)
 	VALIDATE_OBJECT
 	if(iValue != 0)
 	{
-		m_iRoughTerrainEndsTurnCount.dirtyGet(m_syncArchive) += iValue;
+		m_iRoughTerrainEndsTurnCount += iValue;
 	}
 }
 
@@ -17942,7 +18299,7 @@ void CvUnit::ChangeHoveringUnitCount(int iValue)
 	VALIDATE_OBJECT
 	if(iValue != 0)
 	{
-		m_iHoveringUnitCount.dirtyGet(m_syncArchive) += iValue;
+		m_iHoveringUnitCount += iValue;
 	}
 }
 
@@ -17966,7 +18323,7 @@ void CvUnit::changeFlatMovementCostCount(int iValue)
 	VALIDATE_OBJECT
 	if(iValue != 0)
 	{
-		m_iFlatMovementCostCount.dirtyGet(m_syncArchive) += iValue;
+		m_iFlatMovementCostCount += iValue;
 	}
 }
 
@@ -17990,7 +18347,7 @@ void CvUnit::changeCanMoveImpassableCount(int iValue)
 	VALIDATE_OBJECT
 	if(iValue != 0)
 	{
-		m_iCanMoveImpassableCount.dirtyGet(m_syncArchive) += iValue;
+		m_iCanMoveImpassableCount += iValue;
 	}
 }
 
@@ -17998,7 +18355,7 @@ void CvUnit::changeCanMoveImpassableCount(int iValue)
 void CvUnit::changeCanMoveAllTerrainCount(int iValue)
 {
 	VALIDATE_OBJECT
-	m_iCanMoveAllTerrainCount.dirtyGet(m_syncArchive) += iValue;
+	m_iCanMoveAllTerrainCount += iValue;
 	CvAssert(getCanMoveAllTerrainCount() >= 0);
 }
 
@@ -18020,7 +18377,7 @@ int CvUnit::getCanMoveAllTerrainCount() const
 void CvUnit::changeCanMoveAfterAttackingCount(int iValue)
 {
 	VALIDATE_OBJECT
-	m_iCanMoveAfterAttackingCount.dirtyGet(m_syncArchive) += iValue;
+	m_iCanMoveAfterAttackingCount += iValue;
 	CvAssert(getCanMoveAfterAttackingCount() >= 0);
 }
 
@@ -18056,7 +18413,7 @@ bool CvUnit::hasFreePillageMove() const
 void CvUnit::changeFreePillageMoveCount(int iValue)
 {
 	VALIDATE_OBJECT
-	m_iFreePillageMoveCount.dirtyGet(m_syncArchive) += iValue;
+	m_iFreePillageMoveCount += iValue;
 	CvAssert(getFreePillageMoveCount() >= 0);
 }
 
@@ -18078,7 +18435,7 @@ bool CvUnit::hasHealOnPillage() const
 void CvUnit::changeHealOnPillageCount(int iValue)
 {
 	VALIDATE_OBJECT
-	m_iHealOnPillageCount.dirtyGet(m_syncArchive) += iValue;
+	m_iHealOnPillageCount += iValue;
 	CvAssert(getHealOnPillageCount() >= 0);
 }
 
@@ -18103,7 +18460,7 @@ int CvUnit::getHPHealedIfDefeatEnemy() const
 void CvUnit::changeHPHealedIfDefeatEnemy(int iValue)
 {
 	VALIDATE_OBJECT
-	m_iHPHealedIfDefeatEnemy.dirtyGet(m_syncArchive) += iValue;
+	m_iHPHealedIfDefeatEnemy += iValue;
 	CvAssert(getHPHealedIfDefeatEnemy() >= 0);
 }
 
@@ -18127,7 +18484,7 @@ void CvUnit::ChangeHealIfDefeatExcludeBarbariansCount(int iValue)
 	VALIDATE_OBJECT
 	if(iValue != 0)
 	{
-		m_iHealIfDefeatExcludeBarbariansCount.dirtyGet(m_syncArchive) += iValue;
+		m_iHealIfDefeatExcludeBarbariansCount += iValue;
 	}
 }
 
@@ -18142,7 +18499,7 @@ int CvUnit::GetGoldenAgeValueFromKills() const
 void CvUnit::ChangeGoldenAgeValueFromKills(int iValue)
 {
 	VALIDATE_OBJECT
-	m_iGoldenAgeValueFromKills.dirtyGet(m_syncArchive) += iValue;
+	m_iGoldenAgeValueFromKills += iValue;
 	CvAssert(GetGoldenAgeValueFromKills() >= 0);
 }
 
@@ -18166,7 +18523,7 @@ void CvUnit::changeOnlyDefensiveCount(int iValue)
 	VALIDATE_OBJECT
 	if(iValue != 0)
 	{
-		m_iOnlyDefensiveCount.dirtyGet(m_syncArchive) += iValue;
+		m_iOnlyDefensiveCount += iValue;
 	}
 }
 
@@ -18196,7 +18553,7 @@ void CvUnit::changeNoDefensiveBonusCount(int iValue)
 	VALIDATE_OBJECT
 	if(iValue != 0)
 	{
-		m_iNoDefensiveBonusCount.dirtyGet(m_syncArchive) += iValue;
+		m_iNoDefensiveBonusCount += iValue;
 	}
 }
 
@@ -18220,7 +18577,7 @@ void CvUnit::changeNoCaptureCount(int iValue)
 	VALIDATE_OBJECT
 	if(iValue != 0)
 	{
-		m_iNoCaptureCount.dirtyGet(m_syncArchive) += iValue;
+		m_iNoCaptureCount += iValue;
 	}
 }
 
@@ -18285,7 +18642,7 @@ bool CvUnit::isNukeImmune() const
 void CvUnit::changeNukeImmuneCount(int iValue)
 {
 	VALIDATE_OBJECT
-	m_iNukeImmuneCount.dirtyGet(m_syncArchive) += iValue;
+	m_iNukeImmuneCount += iValue;
 	CvAssert(getNukeImmuneCount() >= 0);
 
 }
@@ -18308,7 +18665,7 @@ bool CvUnit::isHiddenNationality() const
 void CvUnit::changeHiddenNationalityCount(int iValue)
 {
 	VALIDATE_OBJECT
-	m_iHiddenNationalityCount.dirtyGet(m_syncArchive) += iValue;
+	m_iHiddenNationalityCount += iValue;
 	CvAssert(getHiddenNationalityCount() >= 0);
 
 }
@@ -18331,7 +18688,7 @@ bool CvUnit::isNoRevealMap() const
 void CvUnit::changeNoRevealMapCount(int iValue)
 {
 	VALIDATE_OBJECT
-	m_iNoRevealMapCount.dirtyGet(m_syncArchive) += iValue;
+	m_iNoRevealMapCount += iValue;
 	CvAssert(getNoRevealMapCount() >= 0);
 }
 
@@ -18430,7 +18787,7 @@ void CvUnit::ChangeAdjacentModifier(int iValue)
 	VALIDATE_OBJECT
 	if(iValue != 0)
 	{
-		m_iAdjacentModifier.dirtyGet(m_syncArchive) += iValue;
+		m_iAdjacentModifier += iValue;
 	}
 }
 
@@ -18448,7 +18805,7 @@ void CvUnit::ChangeRangedAttackModifier(int iValue)
 	VALIDATE_OBJECT
 	if(iValue != 0)
 	{
-		m_iRangedAttackModifier.dirtyGet(m_syncArchive) += iValue;
+		m_iRangedAttackModifier += iValue;
 	}
 }
 
@@ -18466,7 +18823,7 @@ void CvUnit::ChangeInterceptionCombatModifier(int iValue)
 	VALIDATE_OBJECT
 	if(iValue != 0)
 	{
-		m_iInterceptionCombatModifier.dirtyGet(m_syncArchive) += iValue;
+		m_iInterceptionCombatModifier += iValue;
 	}
 }
 
@@ -18484,7 +18841,7 @@ void CvUnit::ChangeInterceptionDefenseDamageModifier(int iValue)
 	VALIDATE_OBJECT
 	if(iValue != 0)
 	{
-		m_iInterceptionDefenseDamageModifier.dirtyGet(m_syncArchive) += iValue;
+		m_iInterceptionDefenseDamageModifier += iValue;
 	}
 }
 
@@ -18502,7 +18859,7 @@ void CvUnit::ChangeAirSweepCombatModifier(int iValue)
 	VALIDATE_OBJECT
 	if(iValue != 0)
 	{
-		m_iAirSweepCombatModifier.dirtyGet(m_syncArchive) += iValue;
+		m_iAirSweepCombatModifier += iValue;
 	}
 }
 
@@ -18519,7 +18876,7 @@ void CvUnit::changeAttackModifier(int iValue)
 	VALIDATE_OBJECT
 	if(iValue != 0)
 	{
-		m_iAttackModifier.dirtyGet(m_syncArchive) += iValue;
+		m_iAttackModifier += iValue;
 	}
 }
 
@@ -18540,7 +18897,7 @@ void CvUnit::changeDefenseModifier(int iValue)
 	VALIDATE_OBJECT
 	if(iValue != 0)
 	{
-		m_iDefenseModifier.dirtyGet(m_syncArchive) += iValue;
+		m_iDefenseModifier += iValue;
 	}
 }
 
@@ -18557,7 +18914,7 @@ void CvUnit::changeGroundAttackDamage(int iValue)
 	VALIDATE_OBJECT
 	if (iValue != 0)
 	{
-		m_iGroundAttackDamage.dirtyGet(m_syncArchive) += iValue;
+		m_iGroundAttackDamage += iValue;
 	}
 }
 
@@ -18857,7 +19214,7 @@ void CvUnit::changeCargoSpace(int iChange)
 	VALIDATE_OBJECT
 	if(iChange != 0)
 	{
-		m_iCargoCapacity.dirtyGet(m_syncArchive) += iChange;
+		m_iCargoCapacity += iChange;
 		CvAssert(m_iCargoCapacity >= 0);
 		setInfoBarDirty(true);
 	}
@@ -20251,7 +20608,7 @@ void CvUnit::ChangeReconCount(int iChange)
 {
 	if(iChange != 0)
 	{
-		m_iReconCount.dirtyGet(m_syncArchive) += iChange;
+		m_iReconCount += iChange;
 	}
 }
 
@@ -21575,7 +21932,7 @@ int CvUnit::getExtraMoves() const
 void CvUnit::changeExtraMoves(int iChange)
 {
 	VALIDATE_OBJECT
-	m_iExtraMoves.dirtyGet(m_syncArchive) += iChange;
+	m_iExtraMoves += iChange;
 }
 
 //	--------------------------------------------------------------------------------
@@ -21590,7 +21947,7 @@ int CvUnit::getExtraNavalMoves() const
 void CvUnit::changeExtraNavalMoves(int iChange)
 {
 	VALIDATE_OBJECT
-	m_iExtraNavalMoves.dirtyGet(m_syncArchive) += iChange;
+	m_iExtraNavalMoves += iChange;
 	CvAssert(getExtraNavalMoves() >= 0);
 }
 
@@ -21625,7 +21982,7 @@ int CvUnit::getExtraRange() const
 void CvUnit::changeExtraRange(int iChange)
 {
 	VALIDATE_OBJECT
-	m_iExtraRange.dirtyGet(m_syncArchive) += iChange;
+	m_iExtraRange += iChange;
 }
 
 
@@ -21641,7 +21998,7 @@ int CvUnit::getInterceptChance() const
 void CvUnit::changeInterceptChance(int iChange)
 {
 	VALIDATE_OBJECT
-	m_iInterceptChance.dirtyGet(m_syncArchive) += iChange;
+	m_iInterceptChance += iChange;
 }
 
 
@@ -21657,7 +22014,7 @@ int CvUnit::getExtraEvasion() const
 void CvUnit::changeExtraEvasion(int iChange)
 {
 	VALIDATE_OBJECT
-	m_iExtraEvasion.dirtyGet(m_syncArchive) += iChange;
+	m_iExtraEvasion += iChange;
 }
 
 
@@ -22451,7 +22808,7 @@ void CvUnit::changeExtraAttacks(int iChange)
 	VALIDATE_OBJECT
 	if(iChange != 0)
 	{
-		m_iNumAttacks.dirtyGet(m_syncArchive) += iChange;
+		m_iNumAttacks += iChange;
 
 		setInfoBarDirty(true);
 	}
@@ -23634,7 +23991,7 @@ int CvUnit::GetGreatGeneralCount() const
 void CvUnit::ChangeGreatGeneralCount(int iChange)
 {
 	VALIDATE_OBJECT
-	m_iGreatGeneralCount.dirtyGet(m_syncArchive) += iChange;
+	m_iGreatGeneralCount += iChange;
 }
 
 //	--------------------------------------------------------------------------------
@@ -23665,7 +24022,7 @@ int CvUnit::GetGreatAdmiralCount() const
 void CvUnit::ChangeGreatAdmiralCount(int iChange)
 {
 	VALIDATE_OBJECT
-	m_iGreatAdmiralCount.dirtyGet(m_syncArchive) += iChange;
+	m_iGreatAdmiralCount += iChange;
 }
 
 #if defined(MOD_PROMOTIONS_AURA_CHANGE)
@@ -23680,7 +24037,7 @@ int CvUnit::GetAuraRangeChange() const
 void CvUnit::ChangeAuraRangeChange(int iChange)
 {
 	VALIDATE_OBJECT
-	m_iAuraRangeChange.dirtyGet(m_syncArchive) += iChange;
+	m_iAuraRangeChange += iChange;
 }
 
 //	--------------------------------------------------------------------------------
@@ -23694,7 +24051,7 @@ int CvUnit::GetAuraEffectChange() const
 void CvUnit::ChangeAuraEffectChange(int iChange)
 {
 	VALIDATE_OBJECT
-	m_iAuraEffectChange.dirtyGet(m_syncArchive) += iChange;
+	m_iAuraEffectChange += iChange;
 }
 
 
@@ -23709,7 +24066,7 @@ int CvUnit::GetNumRepairCharges() const
 void CvUnit::ChangeNumRepairCharges(int iChange)
 {
 	VALIDATE_OBJECT
-		m_iNumRepairCharges.dirtyGet(m_syncArchive) += iChange;
+		m_iNumRepairCharges += iChange;
 }
 
 int CvUnit::GetMilitaryCapChange() const
@@ -23722,7 +24079,7 @@ int CvUnit::GetMilitaryCapChange() const
 void CvUnit::ChangeMilitaryCapChange(int iChange)
 {
 	VALIDATE_OBJECT
-		m_iMilitaryCapChange.dirtyGet(m_syncArchive) += iChange;
+		m_iMilitaryCapChange += iChange;
 }
 #endif
 
@@ -23739,7 +24096,7 @@ void CvUnit::changeGreatGeneralModifier(int iChange)
 	VALIDATE_OBJECT
 	if(iChange != 0)
 	{
-		m_iGreatGeneralModifier.dirtyGet(m_syncArchive) += iChange;
+		m_iGreatGeneralModifier += iChange;
 	}
 }
 
@@ -23752,7 +24109,7 @@ bool CvUnit::IsGreatGeneralReceivesMovement() const
 //	--------------------------------------------------------------------------------
 void CvUnit::ChangeGreatGeneralReceivesMovementCount(int iChange)
 {
-	m_iGreatGeneralReceivesMovementCount.dirtyGet(m_syncArchive) += iChange;
+	m_iGreatGeneralReceivesMovementCount += iChange;
 }
 
 //	--------------------------------------------------------------------------------
@@ -23764,7 +24121,7 @@ int CvUnit::GetGreatGeneralCombatModifier() const
 //	--------------------------------------------------------------------------------
 void CvUnit::ChangeGreatGeneralCombatModifier(int iChange)
 {
-	m_iGreatGeneralCombatModifier.dirtyGet(m_syncArchive) += iChange;
+	m_iGreatGeneralCombatModifier += iChange;
 }
 
 //	--------------------------------------------------------------------------------
@@ -23776,7 +24133,7 @@ bool CvUnit::IsIgnoreGreatGeneralBenefit() const
 //	--------------------------------------------------------------------------------
 void CvUnit::ChangeIgnoreGreatGeneralBenefitCount(int iChange)
 {
-	m_iIgnoreGreatGeneralBenefit.dirtyGet(m_syncArchive) += iChange;
+	m_iIgnoreGreatGeneralBenefit += iChange;
 }
 #if defined(MOD_UNITS_NO_SUPPLY)
 //	--------------------------------------------------------------------------------
@@ -23789,7 +24146,7 @@ bool CvUnit::isNoSupply() const
 //	--------------------------------------------------------------------------------
 void CvUnit::changeNoSupply(int iChange)
 {
-	m_iNoSupply.dirtyGet(m_syncArchive) += iChange;
+	m_iNoSupply += iChange;
 }
 #endif
 
@@ -23824,7 +24181,7 @@ int CvUnit::getMaxHitPointsChange() const
 //	--------------------------------------------------------------------------------
 void CvUnit::changeMaxHitPointsChange(int iChange)
 {
-	m_iMaxHitPointsChange.dirtyGet(m_syncArchive) += iChange;
+	m_iMaxHitPointsChange += iChange;
 
 	setInfoBarDirty(true);
 }
@@ -23838,7 +24195,7 @@ int CvUnit::getMaxHitPointsModifier() const
 //	--------------------------------------------------------------------------------
 void CvUnit::changeMaxHitPointsModifier(int iChange)
 {
-	m_iMaxHitPointsModifier.dirtyGet(m_syncArchive) += iChange;
+	m_iMaxHitPointsModifier += iChange;
 
 	setInfoBarDirty(true);
 }
@@ -23852,7 +24209,7 @@ bool CvUnit::IsIgnoreZOC() const
 //	--------------------------------------------------------------------------------
 void CvUnit::ChangeIgnoreZOCCount(int iChange)
 {
-	m_iIgnoreZOC.dirtyGet(m_syncArchive) += iChange;
+	m_iIgnoreZOC += iChange;
 }
 
 //	--------------------------------------------------------------------------------
@@ -23864,7 +24221,7 @@ bool CvUnit::IsSapper() const
 //	--------------------------------------------------------------------------------
 void CvUnit::ChangeSapperCount(int iChange)
 {
-	m_iSapperCount.dirtyGet(m_syncArchive) += iChange;
+	m_iSapperCount += iChange;
 }
 
 #if defined(MOD_BALANCE_CORE)
@@ -23878,7 +24235,7 @@ bool CvUnit::IsStrongerDamaged() const
 //	--------------------------------------------------------------------------------
 void CvUnit::ChangeIsStrongerDamaged(int iChange)
 {
-	m_iStrongerDamaged.dirtyGet(m_syncArchive) += iChange;
+	m_iStrongerDamaged += iChange;
 }
 
 // No penalty from being wounded, no combat bonus
@@ -23891,7 +24248,7 @@ bool CvUnit::IsFightWellDamaged() const
 //	--------------------------------------------------------------------------------
 void CvUnit::ChangeIsFightWellDamaged(int iChange)
 {
-	m_iFightWellDamaged.dirtyGet(m_syncArchive) += iChange;
+	m_iFightWellDamaged += iChange;
 }
 
 //	--------------------------------------------------------------------------------
@@ -23903,7 +24260,7 @@ int CvUnit::GetGoodyHutYieldBonus() const
 //	--------------------------------------------------------------------------------
 void CvUnit::ChangeGoodyHutYieldBonus(int iChange)
 {
-	m_iGoodyHutYieldBonus.dirtyGet(m_syncArchive) += iChange;
+	m_iGoodyHutYieldBonus += iChange;
 }
 
 //	--------------------------------------------------------------------------------
@@ -23915,7 +24272,7 @@ int CvUnit::GetReligiousPressureModifier() const
 //	--------------------------------------------------------------------------------
 void CvUnit::ChangeReligiousPressureModifier(int iChange)
 {
-	m_iReligiousPressureModifier.dirtyGet(m_syncArchive) += iChange;
+	m_iReligiousPressureModifier += iChange;
 }
 #endif
 
@@ -23928,7 +24285,7 @@ bool CvUnit::IsCanHeavyCharge() const
 //	--------------------------------------------------------------------------------
 void CvUnit::ChangeCanHeavyChargeCount(int iChange)
 {
-	m_iCanHeavyCharge.dirtyGet(m_syncArchive) += iChange;
+	m_iCanHeavyCharge += iChange;
 }
 #if defined(MOD_BALANCE_CORE)
 //	--------------------------------------------------------------------------------
@@ -23940,7 +24297,7 @@ int CvUnit::GetMoraleBreakChance() const
 //	--------------------------------------------------------------------------------
 void CvUnit::ChangeMoraleBreakChance(int iChange)
 {
-	m_iCanMoraleBreak.dirtyGet(m_syncArchive) += iChange;
+	m_iCanMoraleBreak += iChange;
 }
 
 //	--------------------------------------------------------------------------------
@@ -23952,7 +24309,7 @@ int CvUnit::GetDamageAoEFortified() const
 //	--------------------------------------------------------------------------------
 void CvUnit::ChangeDamageAoEFortified(int iChange)
 {
-	m_iDamageAoEFortified.dirtyGet(m_syncArchive) += iChange;
+	m_iDamageAoEFortified += iChange;
 }
 
 //	--------------------------------------------------------------------------------
@@ -23964,7 +24321,7 @@ int CvUnit::GetWorkRateMod() const
 //	--------------------------------------------------------------------------------
 void CvUnit::ChangeWorkRateMod(int iChange)
 {
-	m_iWorkRateMod.dirtyGet(m_syncArchive) += iChange;
+	m_iWorkRateMod += iChange;
 }
 
 //	--------------------------------------------------------------------------------
@@ -23976,7 +24333,7 @@ int CvUnit::GetDamageReductionCityAssault() const
 //	--------------------------------------------------------------------------------
 void CvUnit::ChangeDamageReductionCityAssault(int iChange)
 {
-	m_iDamageReductionCityAssault.dirtyGet(m_syncArchive) += iChange;
+	m_iDamageReductionCityAssault += iChange;
 }
 
 #endif
@@ -23993,7 +24350,7 @@ void CvUnit::changeFriendlyLandsModifier(int iChange)
 	VALIDATE_OBJECT
 	if(iChange != 0)
 	{
-		m_iFriendlyLandsModifier.dirtyGet(m_syncArchive) += iChange;
+		m_iFriendlyLandsModifier += iChange;
 	}
 }
 
@@ -24010,7 +24367,7 @@ void CvUnit::changeFriendlyLandsAttackModifier(int iChange)
 	VALIDATE_OBJECT
 	if(iChange != 0)
 	{
-		m_iFriendlyLandsAttackModifier.dirtyGet(m_syncArchive) += iChange;
+		m_iFriendlyLandsAttackModifier += iChange;
 	}
 }
 
@@ -24030,7 +24387,7 @@ void CvUnit::changeOutsideFriendlyLandsModifier(int iChange)
 	VALIDATE_OBJECT
 	if(iChange != 0)
 	{
-		m_iOutsideFriendlyLandsModifier.dirtyGet(m_syncArchive) += iChange;
+		m_iOutsideFriendlyLandsModifier += iChange;
 	}
 }
 
@@ -24047,7 +24404,7 @@ void CvUnit::changePillageChange(int iChange)
 	VALIDATE_OBJECT
 	if(iChange != 0)
 	{
-		m_iPillageChange.dirtyGet(m_syncArchive) += iChange;
+		m_iPillageChange += iChange;
 
 		setInfoBarDirty(true);
 	}
@@ -24066,7 +24423,7 @@ void CvUnit::changeUpgradeDiscount(int iChange)
 	VALIDATE_OBJECT
 	if(iChange != 0)
 	{
-		m_iUpgradeDiscount.dirtyGet(m_syncArchive) += iChange;
+		m_iUpgradeDiscount += iChange;
 
 		setInfoBarDirty(true);
 	}
@@ -24088,7 +24445,7 @@ void CvUnit::changeExperiencePercent(int iChange)
 	VALIDATE_OBJECT
 	if(iChange != 0)
 	{
-		m_iExperiencePercent.dirtyGet(m_syncArchive) += iChange;
+		m_iExperiencePercent += iChange;
 
 		setInfoBarDirty(true);
 	}
@@ -24107,7 +24464,7 @@ void CvUnit::changeKamikazePercent(int iChange)
 	VALIDATE_OBJECT
 	if(iChange != 0)
 	{
-		m_iKamikazePercent.dirtyGet(m_syncArchive) += iChange;
+		m_iKamikazePercent += iChange;
 
 		setInfoBarDirty(true);
 	}
@@ -24187,7 +24544,7 @@ void CvUnit::setMadeAttack(bool bNewValue)
 	VALIDATE_OBJECT
 	if(bNewValue)
 	{
-		m_iAttacksMade.dirtyGet(m_syncArchive)++;
+		m_iAttacksMade++;
 		m_bMovedThisTurn = true; //failsafe: attacking means no more fortification bonus, no matter what happens with the moves
 	}
 	else
@@ -24210,7 +24567,7 @@ void CvUnit::ChangeNumInterceptions(int iChange)
 {
 	VALIDATE_OBJECT
 	if(iChange != 0)
-		m_iNumInterceptions.dirtyGet(m_syncArchive) += iChange;
+		m_iNumInterceptions += iChange;
 }
 
 //	--------------------------------------------------------------------------------
@@ -24224,7 +24581,7 @@ int CvUnit::GetExtraAirInterceptRange() const // JJ: NEW
 void CvUnit::ChangeExtraAirInterceptRange(int iChange) // JJ: NEW
 {
 	VALIDATE_OBJECT
-	m_iExtraAirInterceptRange.dirtyGet(m_syncArchive) += iChange;
+	m_iExtraAirInterceptRange += iChange;
 }
 
 //	--------------------------------------------------------------------------------
@@ -24244,7 +24601,7 @@ int CvUnit::getMadeInterceptionCount() const
 //	--------------------------------------------------------------------------------
 void CvUnit::increaseInterceptionCount()
 	{
-		m_iMadeInterceptionCount.dirtyGet(m_syncArchive)++;
+		m_iMadeInterceptionCount++;
 		m_bMovedThisTurn = true; //failsafe: intercepting means no more healing, no matter what happens with the moves
 	}
 
@@ -25035,7 +25392,7 @@ void CvUnit::SetPromotionEverObtained(PromotionTypes eIndex, bool bValue)
 	FAssert(eIndex >= 0);
 	FAssert(eIndex < GC.getNumPromotionInfos());
 
-	m_abPromotionEverObtained.setAt(m_syncArchive, eIndex, bValue);
+	m_abPromotionEverObtained[eIndex] =  bValue;
 }
 
 //	--------------------------------------------------------------------------------
@@ -25056,7 +25413,7 @@ std::string CvUnit::getScriptData() const
 void CvUnit::setScriptData(std::string strNewValue)
 {
 	VALIDATE_OBJECT
-	m_strScriptData.set(m_syncArchive, strNewValue);
+	m_strScriptData = strNewValue;
 }
 
 //	--------------------------------------------------------------------------------
@@ -25091,7 +25448,7 @@ void CvUnit::changeTerrainDoubleMoveCount(TerrainTypes eIndex, int iChange)
 	if (iChange == 0)
 		return;
 
-	TerrainTypeCounter& mVec = m_terrainDoubleMoveCount.dirtyGet(m_syncArchive);
+	TerrainTypeCounter& mVec = m_terrainDoubleMoveCount;
 	for (TerrainTypeCounter::iterator it = mVec.begin(); it != mVec.end(); ++it)
 	{
 		if (it->first == eIndex)
@@ -25105,7 +25462,7 @@ void CvUnit::changeTerrainDoubleMoveCount(TerrainTypes eIndex, int iChange)
 		}
 	}
 
-	m_terrainDoubleMoveCount.push_back(m_syncArchive, make_pair(eIndex, iChange));
+	m_terrainDoubleMoveCount.push_back(make_pair(eIndex, iChange));
 }
 
 //	--------------------------------------------------------------------------------
@@ -25126,7 +25483,7 @@ void CvUnit::changeFeatureDoubleMoveCount(FeatureTypes eIndex, int iChange)
 	if (iChange == 0)
 		return;
 
-	FeatureTypeCounter& mVec = m_featureDoubleMoveCount.dirtyGet(m_syncArchive);
+	FeatureTypeCounter& mVec = m_featureDoubleMoveCount;
 	for (FeatureTypeCounter::iterator it = mVec.begin(); it != mVec.end(); ++it)
 	{
 		if (it->first == eIndex)
@@ -25140,7 +25497,7 @@ void CvUnit::changeFeatureDoubleMoveCount(FeatureTypes eIndex, int iChange)
 		}
 	}
 
-	m_featureDoubleMoveCount.push_back(m_syncArchive, make_pair(eIndex, iChange));
+	m_featureDoubleMoveCount.push_back(make_pair(eIndex, iChange));
 }
 
 
@@ -25163,7 +25520,7 @@ void CvUnit::changeTerrainHalfMoveCount(TerrainTypes eIndex, int iChange)
 	if (iChange == 0)
 		return;
 
-	TerrainTypeCounter& mVec = m_terrainHalfMoveCount.dirtyGet(m_syncArchive);
+	TerrainTypeCounter& mVec = m_terrainHalfMoveCount;
 	for (TerrainTypeCounter::iterator it = mVec.begin(); it != mVec.end(); ++it)
 	{
 		if (it->first == eIndex)
@@ -25177,7 +25534,7 @@ void CvUnit::changeTerrainHalfMoveCount(TerrainTypes eIndex, int iChange)
 		}
 	}
 
-	m_terrainHalfMoveCount.push_back(m_syncArchive, make_pair(eIndex, iChange));
+	m_terrainHalfMoveCount.push_back(make_pair(eIndex, iChange));
 }
 
 //	--------------------------------------------------------------------------------
@@ -25198,7 +25555,7 @@ void CvUnit::changeTerrainExtraMoveCount(TerrainTypes eIndex, int iChange)
 	if (iChange == 0)
 		return;
 
-	TerrainTypeCounter& mVec = m_terrainExtraMoveCount.dirtyGet(m_syncArchive);
+	TerrainTypeCounter& mVec = m_terrainExtraMoveCount;
 	for (TerrainTypeCounter::iterator it = mVec.begin(); it != mVec.end(); ++it)
 	{
 		if (it->first == eIndex)
@@ -25212,7 +25569,7 @@ void CvUnit::changeTerrainExtraMoveCount(TerrainTypes eIndex, int iChange)
 		}
 	}
 
-	m_terrainExtraMoveCount.push_back(m_syncArchive, make_pair(eIndex, iChange));
+	m_terrainExtraMoveCount.push_back(make_pair(eIndex, iChange));
 }
 
 
@@ -25234,7 +25591,7 @@ void CvUnit::changeFeatureHalfMoveCount(FeatureTypes eIndex, int iChange)
 	if (iChange == 0)
 		return;
 
-	FeatureTypeCounter& mVec = m_featureHalfMoveCount.dirtyGet(m_syncArchive);
+	FeatureTypeCounter& mVec = m_featureHalfMoveCount;
 	for (FeatureTypeCounter::iterator it = mVec.begin(); it != mVec.end(); ++it)
 	{
 		if (it->first == eIndex)
@@ -25248,7 +25605,7 @@ void CvUnit::changeFeatureHalfMoveCount(FeatureTypes eIndex, int iChange)
 		}
 	}
 
-	m_featureHalfMoveCount.push_back(m_syncArchive, make_pair(eIndex, iChange));
+	m_featureHalfMoveCount.push_back(make_pair(eIndex, iChange));
 }
 
 //	--------------------------------------------------------------------------------
@@ -25269,7 +25626,7 @@ void CvUnit::changeFeatureExtraMoveCount(FeatureTypes eIndex, int iChange)
 	if (iChange == 0)
 		return;
 
-	FeatureTypeCounter& mVec = m_featureExtraMoveCount.dirtyGet(m_syncArchive);
+	FeatureTypeCounter& mVec = m_featureExtraMoveCount;
 	for (FeatureTypeCounter::iterator it = mVec.begin(); it != mVec.end(); ++it)
 	{
 		if (it->first == eIndex)
@@ -25283,7 +25640,7 @@ void CvUnit::changeFeatureExtraMoveCount(FeatureTypes eIndex, int iChange)
 		}
 	}
 
-	m_featureExtraMoveCount.push_back(m_syncArchive, make_pair(eIndex, iChange));
+	m_featureExtraMoveCount.push_back(make_pair(eIndex, iChange));
 }
 #endif
 
@@ -25314,7 +25671,7 @@ void CvUnit::changeTerrainDoubleHeal(TerrainTypes eIndex, int iChange)
 	if (iChange == 0)
 		return;
 
-	TerrainTypeCounter& mVec = m_terrainDoubleHeal.dirtyGet(m_syncArchive);
+	TerrainTypeCounter& mVec = m_terrainDoubleHeal;
 	for (TerrainTypeCounter::iterator it = mVec.begin(); it != mVec.end(); ++it)
 	{
 		if (it->first == eIndex)
@@ -25328,7 +25685,7 @@ void CvUnit::changeTerrainDoubleHeal(TerrainTypes eIndex, int iChange)
 		}
 	}
 
-	m_terrainDoubleHeal.push_back(m_syncArchive, make_pair(eIndex, iChange));
+	m_terrainDoubleHeal.push_back(make_pair(eIndex, iChange));
 }
 
 
@@ -25358,7 +25715,7 @@ void CvUnit::changeFeatureDoubleHeal(FeatureTypes eIndex, int iChange)
 	if (iChange == 0)
 		return;
 
-	FeatureTypeCounter& mVec = m_featureDoubleHeal.dirtyGet(m_syncArchive);
+	FeatureTypeCounter& mVec = m_featureDoubleHeal;
 	for (FeatureTypeCounter::iterator it = mVec.begin(); it != mVec.end(); ++it)
 	{
 		if (it->first == eIndex)
@@ -25372,7 +25729,7 @@ void CvUnit::changeFeatureDoubleHeal(FeatureTypes eIndex, int iChange)
 		}
 	}
 
-	m_featureDoubleHeal.push_back(m_syncArchive, make_pair(eIndex, iChange));
+	m_featureDoubleHeal.push_back(make_pair(eIndex, iChange));
 }
 
 void CvUnit::ChangeNumTimesAttackedThisTurn(PlayerTypes ePlayer, int iValue)
@@ -25380,7 +25737,7 @@ void CvUnit::ChangeNumTimesAttackedThisTurn(PlayerTypes ePlayer, int iValue)
 	VALIDATE_OBJECT
 		CvAssertMsg(ePlayer >= 0, "ePlayer expected to be >= 0");
 	CvAssertMsg(ePlayer < REALLY_MAX_PLAYERS, "ePlayer expected to be < NUM_DOMAIN_TYPES");
-	m_aiNumTimesAttackedThisTurn.setAt(m_syncArchive, ePlayer, m_aiNumTimesAttackedThisTurn[ePlayer] + iValue);
+	m_aiNumTimesAttackedThisTurn[ePlayer] =  m_aiNumTimesAttackedThisTurn[ePlayer] + iValue;
 }
 int CvUnit::GetNumTimesAttackedThisTurn(PlayerTypes ePlayer) const
 {
@@ -25415,7 +25772,7 @@ void CvUnit::changeTerrainImpassableCount(TerrainTypes eIndex, int iChange)
 	if (iChange == 0)
 		return;
 
-	TerrainTypeCounter& mVec = m_terrainImpassableCount.dirtyGet(m_syncArchive);
+	TerrainTypeCounter& mVec = m_terrainImpassableCount;
 	for (TerrainTypeCounter::iterator it = mVec.begin(); it != mVec.end(); ++it)
 	{
 		if (it->first == eIndex)
@@ -25429,7 +25786,7 @@ void CvUnit::changeTerrainImpassableCount(TerrainTypes eIndex, int iChange)
 		}
 	}
 
-	m_terrainImpassableCount.push_back(m_syncArchive, make_pair(eIndex, iChange));
+	m_terrainImpassableCount.push_back(make_pair(eIndex, iChange));
 }
 
 
@@ -25457,7 +25814,7 @@ void CvUnit::changeFeatureImpassableCount(FeatureTypes eIndex, int iChange)
 	if (iChange == 0)
 		return;
 
-	FeatureTypeCounter& mVec = m_featureImpassableCount.dirtyGet(m_syncArchive);
+	FeatureTypeCounter& mVec = m_featureImpassableCount;
 	for (FeatureTypeCounter::iterator it = mVec.begin(); it != mVec.end(); ++it)
 	{
 		if (it->first == eIndex)
@@ -25471,7 +25828,7 @@ void CvUnit::changeFeatureImpassableCount(FeatureTypes eIndex, int iChange)
 		}
 	}
 
-	m_featureImpassableCount.push_back(m_syncArchive, make_pair(eIndex, iChange));
+	m_featureImpassableCount.push_back(make_pair(eIndex, iChange));
 }
 
 //	--------------------------------------------------------------------------------
@@ -25493,7 +25850,7 @@ void CvUnit::changeExtraTerrainAttackPercent(TerrainTypes eIndex, int iChange)
 	if (iChange == 0)
 		return;
 
-	TerrainTypeCounter& mVec = m_extraTerrainAttackPercent.dirtyGet(m_syncArchive);
+	TerrainTypeCounter& mVec = m_extraTerrainAttackPercent;
 	for (TerrainTypeCounter::iterator it = mVec.begin(); it != mVec.end(); ++it)
 	{
 		if (it->first == eIndex)
@@ -25507,7 +25864,7 @@ void CvUnit::changeExtraTerrainAttackPercent(TerrainTypes eIndex, int iChange)
 		}
 	}
 
-	m_extraTerrainAttackPercent.push_back(m_syncArchive, make_pair(eIndex, iChange));
+	m_extraTerrainAttackPercent.push_back(make_pair(eIndex, iChange));
 }
 
 //	--------------------------------------------------------------------------------
@@ -25529,7 +25886,7 @@ void CvUnit::changeExtraTerrainDefensePercent(TerrainTypes eIndex, int iChange)
 	if (iChange == 0)
 		return;
 
-	TerrainTypeCounter& mVec = m_extraTerrainDefensePercent.dirtyGet(m_syncArchive);
+	TerrainTypeCounter& mVec = m_extraTerrainDefensePercent;
 	for (TerrainTypeCounter::iterator it = mVec.begin(); it != mVec.end(); ++it)
 	{
 		if (it->first == eIndex)
@@ -25543,7 +25900,7 @@ void CvUnit::changeExtraTerrainDefensePercent(TerrainTypes eIndex, int iChange)
 		}
 	}
 
-	m_extraTerrainDefensePercent.push_back(m_syncArchive, make_pair(eIndex, iChange));
+	m_extraTerrainDefensePercent.push_back(make_pair(eIndex, iChange));
 }
 
 //	--------------------------------------------------------------------------------
@@ -25565,7 +25922,7 @@ void CvUnit::changeExtraFeatureAttackPercent(FeatureTypes eIndex, int iChange)
 	if (iChange == 0)
 		return;
 
-	FeatureTypeCounter& mVec = m_extraFeatureAttackPercent.dirtyGet(m_syncArchive);
+	FeatureTypeCounter& mVec = m_extraFeatureAttackPercent;
 	for (FeatureTypeCounter::iterator it = mVec.begin(); it != mVec.end(); ++it)
 	{
 		if (it->first == eIndex)
@@ -25579,7 +25936,7 @@ void CvUnit::changeExtraFeatureAttackPercent(FeatureTypes eIndex, int iChange)
 		}
 	}
 
-	m_extraFeatureAttackPercent.push_back(m_syncArchive, make_pair(eIndex, iChange));
+	m_extraFeatureAttackPercent.push_back(make_pair(eIndex, iChange));
 }
 
 //	--------------------------------------------------------------------------------
@@ -25601,7 +25958,7 @@ void CvUnit::changeExtraFeatureDefensePercent(FeatureTypes eIndex, int iChange)
 	if (iChange == 0)
 		return;
 
-	FeatureTypeCounter& mVec = m_extraFeatureDefensePercent.dirtyGet(m_syncArchive);
+	FeatureTypeCounter& mVec = m_extraFeatureDefensePercent;
 	for (FeatureTypeCounter::iterator it = mVec.begin(); it != mVec.end(); ++it)
 	{
 		if (it->first == eIndex)
@@ -25615,7 +25972,7 @@ void CvUnit::changeExtraFeatureDefensePercent(FeatureTypes eIndex, int iChange)
 		}
 	}
 
-	m_extraFeatureDefensePercent.push_back(m_syncArchive, make_pair(eIndex, iChange));
+	m_extraFeatureDefensePercent.push_back(make_pair(eIndex, iChange));
 }
 
 //	--------------------------------------------------------------------------------
@@ -25637,7 +25994,7 @@ void CvUnit::changeUnitClassAttackMod(UnitClassTypes eIndex, int iChange)
 	if (iChange == 0)
 		return;
 
-	UnitClassCounter& mVec = m_extraUnitClassAttackMod.dirtyGet(m_syncArchive);
+	UnitClassCounter& mVec = m_extraUnitClassAttackMod;
 	for (UnitClassCounter::iterator it = mVec.begin(); it != mVec.end(); ++it)
 	{
 		if (it->first == eIndex)
@@ -25651,7 +26008,7 @@ void CvUnit::changeUnitClassAttackMod(UnitClassTypes eIndex, int iChange)
 		}
 	}
 
-	m_extraUnitClassAttackMod.push_back(m_syncArchive, make_pair(eIndex, iChange));
+	m_extraUnitClassAttackMod.push_back(make_pair(eIndex, iChange));
 }
 
 //	--------------------------------------------------------------------------------
@@ -25673,7 +26030,7 @@ void CvUnit::changeUnitClassDefenseMod(UnitClassTypes eIndex, int iChange)
 	if (iChange == 0)
 		return;
 
-	UnitClassCounter& mVec = m_extraUnitClassDefenseMod.dirtyGet(m_syncArchive);
+	UnitClassCounter& mVec = m_extraUnitClassDefenseMod;
 	for (UnitClassCounter::iterator it = mVec.begin(); it != mVec.end(); ++it)
 	{
 		if (it->first == eIndex)
@@ -25687,7 +26044,7 @@ void CvUnit::changeUnitClassDefenseMod(UnitClassTypes eIndex, int iChange)
 		}
 	}
 
-	m_extraUnitClassDefenseMod.push_back(m_syncArchive, make_pair(eIndex, iChange));
+	m_extraUnitClassDefenseMod.push_back(make_pair(eIndex, iChange));
 }
 
 #if defined(MOD_BALANCE_CORE)
@@ -25707,7 +26064,7 @@ void CvUnit::changeCombatModPerAdjacentUnitCombatModifier(UnitCombatTypes eIndex
 	VALIDATE_OBJECT
 	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
 	CvAssertMsg(eIndex < GC.getNumUnitCombatClassInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
-	m_iCombatModPerAdjacentUnitCombatModifier.setAt(m_syncArchive, eIndex, m_iCombatModPerAdjacentUnitCombatModifier[eIndex] + iChange);
+	m_iCombatModPerAdjacentUnitCombatModifier[eIndex] =  m_iCombatModPerAdjacentUnitCombatModifier[eIndex] + iChange;
 }
 
 //	--------------------------------------------------------------------------------
@@ -25726,7 +26083,7 @@ void CvUnit::changeCombatModPerAdjacentUnitCombatAttackMod(UnitCombatTypes eInde
 	VALIDATE_OBJECT
 	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
 	CvAssertMsg(eIndex < GC.getNumUnitCombatClassInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
-	m_iCombatModPerAdjacentUnitCombatAttackMod.setAt(m_syncArchive, eIndex, m_iCombatModPerAdjacentUnitCombatAttackMod[eIndex] + iChange);
+	m_iCombatModPerAdjacentUnitCombatAttackMod[eIndex] =  m_iCombatModPerAdjacentUnitCombatAttackMod[eIndex] + iChange;
 }
 
 //	--------------------------------------------------------------------------------
@@ -25745,7 +26102,7 @@ void CvUnit::changeCombatModPerAdjacentUnitCombatDefenseMod(UnitCombatTypes eInd
 	VALIDATE_OBJECT
 	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
 	CvAssertMsg(eIndex < GC.getNumUnitCombatClassInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
-	m_iCombatModPerAdjacentUnitCombatDefenseMod.setAt(m_syncArchive, eIndex, m_iCombatModPerAdjacentUnitCombatDefenseMod[eIndex] + iChange);
+	m_iCombatModPerAdjacentUnitCombatDefenseMod[eIndex] =  m_iCombatModPerAdjacentUnitCombatDefenseMod[eIndex] + iChange;
 }
 
 //	--------------------------------------------------------------------------------
@@ -25767,7 +26124,7 @@ void CvUnit::changeYieldFromScouting(YieldTypes eIndex, int iChange)
 
 	if(iChange != 0)
 	{
-		m_yieldFromScouting.setAt(m_syncArchive, eIndex, m_yieldFromScouting[eIndex] + iChange);
+		m_yieldFromScouting[eIndex] =  m_yieldFromScouting[eIndex] + iChange;
 	}
 }
 #endif
@@ -25791,7 +26148,7 @@ void CvUnit::changeYieldFromKills(YieldTypes eIndex, int iChange)
 
 	if(iChange != 0)
 	{
-		m_yieldFromKills.setAt(m_syncArchive, eIndex, m_yieldFromKills[eIndex] + iChange);
+		m_yieldFromKills[eIndex] =  m_yieldFromKills[eIndex] + iChange;
 	}
 }
 
@@ -25814,7 +26171,7 @@ void CvUnit::changeYieldFromBarbarianKills(YieldTypes eIndex, int iChange)
 
 	if(iChange != 0)
 	{
-		m_yieldFromBarbarianKills.setAt(m_syncArchive, eIndex, m_yieldFromBarbarianKills[eIndex] + iChange);
+		m_yieldFromBarbarianKills[eIndex] =  m_yieldFromBarbarianKills[eIndex] + iChange;
 	}
 }
 #endif
@@ -25835,7 +26192,7 @@ void CvUnit::changeExtraUnitCombatModifier(UnitCombatTypes eIndex, int iChange)
 	VALIDATE_OBJECT
 	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
 	CvAssertMsg(eIndex < GC.getNumUnitCombatClassInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
-	m_extraUnitCombatModifier.setAt(m_syncArchive, eIndex, m_extraUnitCombatModifier[eIndex] + iChange);
+	m_extraUnitCombatModifier[eIndex] =  m_extraUnitCombatModifier[eIndex] + iChange;
 }
 
 
@@ -25855,7 +26212,7 @@ void CvUnit::changeUnitClassModifier(UnitClassTypes eIndex, int iChange)
 	VALIDATE_OBJECT
 	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
 	CvAssertMsg(eIndex < GC.getNumUnitClassInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
-	m_unitClassModifier.setAt(m_syncArchive, eIndex, m_unitClassModifier[eIndex] + iChange);
+	m_unitClassModifier[eIndex] =  m_unitClassModifier[eIndex] + iChange;
 }
 
 
@@ -26824,6 +27181,326 @@ CvUnit* CvUnit::GetPotentialUnitToSwapWith(CvPlot & swapPlot) const
 }
 
 //	--------------------------------------------------------------------------------
+template<typename Unit, typename Visitor>
+void CvUnit::Serialize(Unit& unit, Visitor& visitor)
+{
+	visitor(unit.m_eOwner);
+	visitor(unit.m_eOriginalOwner);
+	visitor(unit.m_eUnitType);
+	visitor(unit.m_iX);
+	visitor(unit.m_iY);
+	visitor(unit.m_iID);
+	visitor(unit.m_iDamage);
+	visitor(unit.m_iMoves);
+	visitor(unit.m_iArmyId);
+	visitor(unit.m_iBaseCombat);
+	visitor(unit.m_iBaseRangedCombat);
+	visitor(unit.m_iHotKeyNumber);
+	visitor(unit.m_iDeployFromOperationTurn);
+	visitor(unit.m_iLastMoveTurn);
+	visitor(unit.m_iReconX);
+	visitor(unit.m_iReconY);
+	visitor(unit.m_iReconCount);
+	visitor(unit.m_iGameTurnCreated);
+	visitor(unit.m_bImmobile);
+	visitor(unit.m_iExperienceTimes100);
+	visitor(unit.m_iLevel);
+	visitor(unit.m_iCargo);
+	visitor(unit.m_iCargoCapacity);
+	visitor(unit.m_iAttackPlotX);
+	visitor(unit.m_iAttackPlotY);
+	visitor(unit.m_iCombatTimer);
+	visitor(unit.m_iCombatFirstStrikes);
+	visitor(unit.m_iCombatDamage);
+	visitor(unit.m_bMovedThisTurn);
+	visitor(unit.m_bFortified);
+	visitor(unit.m_iBlitzCount);
+	visitor(unit.m_iAmphibCount);
+	visitor(unit.m_iRiverCrossingNoPenaltyCount);
+	visitor(unit.m_iEnemyRouteCount);
+	visitor(unit.m_iRivalTerritoryCount);
+	visitor(unit.m_iIsSlowInEnemyLandCount);
+	visitor(unit.m_iRangeAttackIgnoreLOSCount);
+	visitor(unit.m_iCityAttackOnlyCount);
+	visitor(unit.m_iCaptureDefeatedEnemyCount);
+	visitor(unit.m_iOriginCity);
+	visitor(unit.m_iCannotBeCapturedCount);
+	visitor(unit.m_iForcedDamage);
+	visitor(unit.m_iChangeDamage);
+	visitor(unit.m_PromotionDuration);
+	visitor(unit.m_TurnPromotionGained);
+	visitor(unit.m_iRangedSupportFireCount);
+	visitor(unit.m_iAlwaysHealCount);
+	visitor(unit.m_iHealOutsideFriendlyCount);
+	visitor(unit.m_iHillsDoubleMoveCount);
+	visitor(unit.m_iMountainsDoubleMoveCount);
+	visitor(unit.m_iEmbarkFlatCostCount);
+	visitor(unit.m_iDisembarkFlatCostCount);
+	visitor(unit.m_iAOEDamageOnKill);
+	visitor(unit.m_iAoEDamageOnMove);
+	visitor(unit.m_iSplashDamage);
+	visitor(unit.m_iMultiAttackBonus);
+	visitor(unit.m_iLandAirDefenseValue);
+	visitor(unit.m_iImmuneToFirstStrikesCount);
+	visitor(unit.m_iExtraVisibilityRange);
+	visitor(unit.m_iExtraReconRange);
+	visitor(unit.m_iExtraMoves);
+	visitor(unit.m_iExtraMoveDiscount);
+	visitor(unit.m_iExtraRange);
+	visitor(unit.m_iInterceptChance);
+	visitor(unit.m_iExtraEvasion);
+	visitor(unit.m_iExtraFirstStrikes);
+	visitor(unit.m_iExtraChanceFirstStrikes);
+	visitor(unit.m_iExtraWithdrawal);
+	visitor(unit.m_iPlagueChance);
+	visitor(unit.m_iIsPlagued);
+	visitor(unit.m_iPlagueID);
+	visitor(unit.m_iPlaguePriority);
+	visitor(unit.m_iPlagueIDImmunity);
+	visitor(unit.m_iPlaguePromotion);
+	visitor(unit.m_eUnitContract);
+	visitor(unit.m_iNegatorPromotion);
+	visitor(unit.m_bIsNoMaintenance);
+	visitor(unit.m_iExtraEnemyHeal);
+	visitor(unit.m_iExtraNeutralHeal);
+	visitor(unit.m_iExtraFriendlyHeal);
+	visitor(unit.m_iEnemyDamageChance);
+	visitor(unit.m_iNeutralDamageChance);
+	visitor(unit.m_iEnemyDamage);
+	visitor(unit.m_iNeutralDamage);
+	visitor(unit.m_iNearbyEnemyCombatMod);
+	visitor(unit.m_iNearbyEnemyCombatRange);
+	visitor(unit.m_iSameTileHeal);
+	visitor(unit.m_iAdjacentTileHeal);
+	visitor(unit.m_iAdjacentModifier);
+	visitor(unit.m_iRangedAttackModifier);
+	visitor(unit.m_iInterceptionCombatModifier);
+	visitor(unit.m_iInterceptionDefenseDamageModifier);
+	visitor(unit.m_iAirSweepCombatModifier);
+	visitor(unit.m_iAttackModifier);
+	visitor(unit.m_iDefenseModifier);
+	visitor(unit.m_iGroundAttackDamage);
+	visitor(unit.m_iExtraCombatPercent);
+	visitor(unit.m_iExtraCityAttackPercent);
+	visitor(unit.m_iExtraCityDefensePercent);
+	visitor(unit.m_iExtraRangedDefenseModifier);
+	visitor(unit.m_iExtraHillsAttackPercent);
+	visitor(unit.m_iExtraHillsDefensePercent);
+	visitor(unit.m_iExtraOpenAttackPercent);
+	visitor(unit.m_iExtraOpenRangedAttackMod);
+	visitor(unit.m_iExtraRoughAttackPercent);
+	visitor(unit.m_iExtraRoughRangedAttackMod);
+	visitor(unit.m_iExtraAttackFortifiedMod);
+	visitor(unit.m_iExtraAttackWoundedMod);
+	visitor(unit.m_iExtraFullyHealedMod);
+	visitor(unit.m_iExtraAttackAboveHealthMod);
+	visitor(unit.m_iExtraAttackBelowHealthMod);
+	visitor(unit.m_iFlankAttackModifier);
+	visitor(unit.m_iExtraOpenDefensePercent);
+	visitor(unit.m_iExtraRoughDefensePercent);
+	visitor(unit.m_iExtraOpenFromPercent);
+	visitor(unit.m_iExtraRoughFromPercent);
+	visitor(unit.m_iPillageChange);
+	visitor(unit.m_iUpgradeDiscount);
+	visitor(unit.m_iExperiencePercent);
+	visitor(unit.m_iDropRange);
+	visitor(unit.m_iAirSweepCapableCount);
+	visitor(unit.m_iExtraNavalMoves);
+	visitor(unit.m_iKamikazePercent);
+	visitor(unit.m_eFacingDirection);
+	visitor(unit.m_iIgnoreTerrainCostCount);
+	visitor(unit.m_iIgnoreTerrainDamageCount);
+	visitor(unit.m_iIgnoreFeatureDamageCount);
+	visitor(unit.m_iExtraTerrainDamageCount);
+	visitor(unit.m_iExtraFeatureDamageCount);
+	visitor(unit.m_iNearbyImprovementCombatBonus);
+	visitor(unit.m_iNearbyImprovementBonusRange);
+	visitor(unit.m_eCombatBonusImprovement);
+	visitor(unit.m_iNearbyUnitClassBonus);
+	visitor(unit.m_iNearbyUnitClassBonusRange);
+	visitor(unit.m_iCombatBonusFromNearbyUnitClass);
+	visitor(unit.m_bNearbyPromotion);
+	visitor(unit.m_iNearbyUnitPromotionRange);
+	visitor(unit.m_iNearbyCityCombatMod);
+	visitor(unit.m_iNearbyFriendlyCityCombatMod);
+	visitor(unit.m_iNearbyEnemyCityCombatMod);
+	visitor(unit.m_iPillageBonusStrengthPercent);
+	visitor(unit.m_iStackedGreatGeneralExperience);
+	visitor(unit.m_bIsHighSeaRaider);
+	visitor(unit.m_iWonderProductionModifier);
+	visitor(unit.m_iUnitProductionModifier);
+	visitor(unit.m_iNearbyEnemyDamage);
+	visitor(unit.m_iGGGAXPPercent);
+	visitor(unit.m_iGiveCombatMod);
+	visitor(unit.m_iGiveHPIfEnemyKilled);
+	visitor(unit.m_iGiveExperiencePercent);
+	visitor(unit.m_iGiveOutsideFriendlyLandsModifier);
+	visitor(unit.m_eGiveDomain);
+	visitor(unit.m_iGiveExtraAttacks);
+	visitor(unit.m_iGiveDefenseMod);
+	visitor(unit.m_bGiveInvisibility);
+	visitor(unit.m_bGiveOnlyOnStartingTurn);
+	visitor(unit.m_bConvertUnit);
+	visitor(unit.m_eConvertDomain);
+	visitor(unit.m_eConvertDomainUnit);
+	visitor(unit.m_bConvertEnemyUnitToBarbarian);
+	visitor(unit.m_bConvertOnFullHP);
+	visitor(unit.m_bConvertOnDamage);
+	visitor(unit.m_iDamageThreshold);
+	visitor(unit.m_eConvertDamageOrFullHPUnit);
+	visitor(unit.m_iNumberOfCultureBombs);
+	visitor(unit.m_iNearbyHealEnemyTerritory);
+	visitor(unit.m_iNearbyHealNeutralTerritory);
+	visitor(unit.m_iNearbyHealFriendlyTerritory);
+	visitor(unit.m_iCanCrossMountainsCount);
+	visitor(unit.m_iCanCrossOceansCount);
+	visitor(unit.m_iCanCrossIceCount);
+	visitor(unit.m_iNumTilesRevealedThisTurn);
+	visitor(unit.m_bSpottedEnemy);
+	visitor(unit.m_iGainsXPFromScouting);
+	visitor(unit.m_iGainsXPFromPillaging);
+	visitor(unit.m_iGainsXPFromSpotting);
+	visitor(unit.m_iCaptureDefeatedEnemyChance);
+	visitor(unit.m_iBarbCombatBonus);
+	visitor(unit.m_iAdjacentEnemySapMovement);
+	visitor(unit.m_iGGFromBarbariansCount);
+	visitor(unit.m_iAuraRangeChange);
+	visitor(unit.m_iAuraEffectChange);
+	visitor(unit.m_iNumRepairCharges);
+	visitor(unit.m_iMilitaryCapChange);
+	visitor(unit.m_iRoughTerrainEndsTurnCount);
+	visitor(unit.m_iEmbarkAbilityCount);
+	visitor(unit.m_iHoveringUnitCount);
+	visitor(unit.m_iFlatMovementCostCount);
+	visitor(unit.m_iCanMoveImpassableCount);
+	visitor(unit.m_iOnlyDefensiveCount);
+	visitor(unit.m_iNoDefensiveBonusCount);
+	visitor(unit.m_iNoCaptureCount);
+	visitor(unit.m_iNukeImmuneCount);
+	visitor(unit.m_iHiddenNationalityCount);
+	visitor(unit.m_iAlwaysHostileCount);
+	visitor(unit.m_iNoRevealMapCount);
+	visitor(unit.m_iCanMoveAllTerrainCount);
+	visitor(unit.m_iCanMoveAfterAttackingCount);
+	visitor(unit.m_iFreePillageMoveCount);
+	visitor(unit.m_iHealOnPillageCount);
+	visitor(unit.m_iHPHealedIfDefeatEnemy);
+	visitor(unit.m_iGoldenAgeValueFromKills);
+	visitor(unit.m_iTacticalAIPlotX);
+	visitor(unit.m_iTacticalAIPlotY);
+	visitor(unit.m_iGarrisonCityID);
+	visitor(unit.m_iNumAttacks);
+	visitor(unit.m_iAttacksMade);
+	visitor(unit.m_iGreatGeneralCount);
+	visitor(unit.m_iGreatAdmiralCount);
+	visitor(unit.m_iGreatGeneralModifier);
+	visitor(unit.m_iGreatGeneralReceivesMovementCount);
+	visitor(unit.m_iGreatGeneralCombatModifier);
+	visitor(unit.m_iIgnoreGreatGeneralBenefit);
+	visitor(unit.m_iIgnoreZOC);
+	visitor(unit.m_iNoSupply);
+	visitor(unit.m_iMaxHitPointsChange);
+	visitor(unit.m_iMaxHitPointsModifier);
+	visitor(unit.m_iFriendlyLandsModifier);
+	visitor(unit.m_iFriendlyLandsAttackModifier);
+	visitor(unit.m_iOutsideFriendlyLandsModifier);
+	visitor(unit.m_iHealIfDefeatExcludeBarbariansCount);
+	visitor(unit.m_iNumInterceptions);
+	visitor(unit.m_iExtraAirInterceptRange);
+	visitor(unit.m_iMadeInterceptionCount);
+	visitor(unit.m_iEverSelectedCount);
+	visitor(unit.m_iSapperCount);
+	visitor(unit.m_iCanHeavyCharge);
+	visitor(unit.m_iStrongerDamaged);
+	visitor(unit.m_iFightWellDamaged);
+	visitor(unit.m_iCanMoraleBreak);
+	visitor(unit.m_iDamageAoEFortified);
+	visitor(unit.m_iWorkRateMod);
+	visitor(unit.m_iDamageReductionCityAssault);
+	visitor(unit.m_iGoodyHutYieldBonus);
+	visitor(unit.m_iReligiousPressureModifier);
+	visitor(unit.m_iNumExoticGoods);
+	visitor(unit.m_bPromotionReady);
+	visitor(unit.m_bDeathDelay);
+	visitor(unit.m_bCombatFocus);
+	visitor(unit.m_bInfoBarDirty);
+	visitor(unit.m_bNotConverting);
+	visitor(unit.m_bAirCombat);
+	visitor(unit.m_bSetUpForRangedAttack);
+	visitor(unit.m_bEmbarked);
+	visitor(unit.m_bPromotedFromGoody);
+	visitor(unit.m_bAITurnProcessed);
+	visitor(unit.m_iDamageTakenThisTurn);
+	visitor(unit.m_iDamageTakenLastTurn);
+	visitor(unit.m_eCapturingPlayer);
+	visitor(unit.m_bCapturedAsIs);
+	visitor(unit.m_eLeaderUnitType);
+	visitor(unit.m_eInvisibleType);
+	visitor(unit.m_eSeeInvisibleType);
+	visitor(unit.m_eGreatPeopleDirectiveType);
+	visitor(unit.m_strScriptData);
+	visitor(unit.m_iScenarioData);
+	visitor(unit.m_iBuilderStrength);
+	visitor(unit.m_terrainDoubleMoveCount);
+	visitor(unit.m_featureDoubleMoveCount);
+	visitor(unit.m_terrainHalfMoveCount);
+	visitor(unit.m_featureHalfMoveCount);
+	visitor(unit.m_terrainExtraMoveCount);
+	visitor(unit.m_featureExtraMoveCount);
+	visitor(unit.m_terrainDoubleHeal);
+	visitor(unit.m_featureDoubleHeal);
+	visitor(unit.m_terrainImpassableCount);
+	visitor(unit.m_featureImpassableCount);
+	visitor(unit.m_extraTerrainAttackPercent);
+	visitor(unit.m_extraTerrainDefensePercent);
+	visitor(unit.m_extraFeatureAttackPercent);
+	visitor(unit.m_extraFeatureDefensePercent);
+	visitor(unit.m_extraUnitClassAttackMod);
+	visitor(unit.m_extraUnitClassDefenseMod);
+	visitor(unit.m_aiNumTimesAttackedThisTurn);
+	visitor(unit.m_yieldFromScouting);
+	visitor(unit.m_yieldFromKills);
+	visitor(unit.m_yieldFromBarbarianKills);
+	visitor(unit.m_extraUnitCombatModifier);
+	visitor(unit.m_unitClassModifier);
+	visitor(unit.m_iCombatModPerAdjacentUnitCombatModifier);
+	visitor(unit.m_iCombatModPerAdjacentUnitCombatAttackMod);
+	visitor(unit.m_iCombatModPerAdjacentUnitCombatDefenseMod);
+	visitor(unit.m_iMissionTimer);
+	visitor(unit.m_iMissionAIX);
+	visitor(unit.m_iMissionAIY);
+	visitor(unit.m_eMissionAIType);
+	visitor(unit.m_eActivityType);
+	visitor(unit.m_eAutomateType);
+	visitor(unit.m_eUnitAIType);
+	visitor(unit.m_eCombatType);
+	visitor(unit.m_iEmbarkedAllWaterCount);
+	visitor(unit.m_iEmbarkedDeepWaterCount);
+	visitor(unit.m_iEmbarkExtraVisibility);
+	visitor(unit.m_iEmbarkDefensiveModifier);
+	visitor(unit.m_iCapitalDefenseModifier);
+	visitor(unit.m_iCapitalDefenseFalloff);
+	visitor(unit.m_iCityAttackPlunderModifier);
+	visitor(unit.m_iReligiousStrengthLossRivalTerritory);
+	visitor(unit.m_iTradeMissionInfluenceModifier);
+	visitor(unit.m_iTradeMissionGoldModifier);
+	visitor(unit.m_iDiploMissionInfluence);
+	visitor(unit.m_iMapLayer);
+	visitor(unit.m_iNumGoodyHutsPopped);
+	visitor(unit.m_iTourismBlastStrength);
+	visitor(unit.m_iTourismBlastLength);
+	visitor(unit.m_iHurryStrength);
+	visitor(unit.m_iScienceBlastStrength);
+	visitor(unit.m_iCultureBlastStrength);
+	visitor(unit.m_iGAPBlastStrength);
+	visitor(unit.m_abPromotionEverObtained);
+	visitor(unit.m_eTacticalMove);
+	visitor(unit.m_iTacticalMoveSetTurn);
+	visitor(unit.m_eHomelandMove);
+	visitor(unit.m_iHomelandMoveSetTurn);
+}
+
+//	--------------------------------------------------------------------------------
 void CvUnit::read(FDataStream& kStream)
 {
 	VALIDATE_OBJECT
@@ -26835,13 +27512,14 @@ void CvUnit::read(FDataStream& kStream)
 	kStream >> uiVersion;
 	MOD_SERIALIZE_INIT_READ(kStream);
 
-	// all CvSyncVars in the m_syncArchive marked as SAVE will be read
-	// automagically, no need to explicitly load them here
-	m_syncArchive.read(kStream);
+	// Perform shared serialize
+	CvStreamLoadVisitor serialVisitor(kStream);
+	Serialize(*this, serialVisitor);
 
-	// anything not in m_syncArchive needs to be explicitly read
+	// anything not in serialize() needs to be explicitly
+	// read
 
-	// The 'automagic' sync archive saves out the unit type index, which is bad since that can change.
+	// The 'automagic' serialize() saves out the unit type index, which is bad since that can change.
 	// Read in the hash and update the value.
 	{
 		uint idUnitType;
@@ -26936,7 +27614,9 @@ void CvUnit::write(FDataStream& kStream) const
 	kStream << uiVersion;
 	MOD_SERIALIZE_INIT_WRITE(kStream);
 
-	m_syncArchive.write(kStream);
+	// Perform shared serialize
+	CvStreamSaveVisitor serialVisitor(kStream);
+	Serialize(*this, serialVisitor);
 
 	// Write out a hash for the unit type, the sync archive saved the index, which is not a good thing to do.
 	if (m_eUnitType != NO_UNIT && m_pUnitInfo)
@@ -27367,7 +28047,7 @@ void CvUnit::ChangeAirSweepCapableCount(int iChange)
 {
 	if(iChange != 0)
 	{
-		m_iAirSweepCapableCount.dirtyGet(m_syncArchive) += iChange;
+		m_iAirSweepCapableCount += iChange;
 	}
 }
 
@@ -27555,7 +28235,7 @@ void CvUnit::changeDropRange(int iChange)
 	VALIDATE_OBJECT
 	if(iChange != 0)
 	{
-		m_iDropRange.dirtyGet(m_syncArchive) += iChange;
+		m_iDropRange += iChange;
 	}
 }
 
@@ -27578,7 +28258,7 @@ int CvUnit::getAlwaysHostileCount() const
 void CvUnit::changeAlwaysHostileCount(int iValue)
 {
 	VALIDATE_OBJECT
-	m_iAlwaysHostileCount.dirtyGet(m_syncArchive) += iValue;
+	m_iAlwaysHostileCount += iValue;
 	CvAssert(getAlwaysHostileCount() >= 0);
 }
 
@@ -27687,7 +28367,7 @@ void CvUnit::IncrementFirstTimeSelected()
 	VALIDATE_OBJECT
 	if(m_iEverSelectedCount < 2)
 	{
-		m_iEverSelectedCount.dirtyGet(m_syncArchive)++;
+		m_iEverSelectedCount++;
 	}
 }
 
@@ -28754,7 +29434,7 @@ const char* CvUnit::GetMissionInfo()
 	else if (m_eGreatPeopleDirectiveType!=NO_GREAT_PEOPLE_DIRECTIVE_TYPE)
 	{
 		m_strMissionInfoString += " // ";
-		m_strMissionInfoString += directiveNames[m_eGreatPeopleDirectiveType.get()];
+		m_strMissionInfoString += directiveNames[m_eGreatPeopleDirectiveType];
 	}
 	else if (isTrade())
 	{
@@ -28788,7 +29468,7 @@ const char* CvUnit::GetMissionInfo()
 		getMissionAIString(strTemp, GetMissionAIType());
 		m_strMissionInfoString += " // ";
 		m_strMissionInfoString += strTemp;
-		strTemp.Format(" target: %d,%d", m_iMissionAIX.get(), m_iMissionAIY.get());
+		strTemp.Format(" target: %d,%d", m_iMissionAIX, m_iMissionAIY);
 		m_strMissionInfoString += strTemp;
 	}
 
@@ -31189,51 +31869,6 @@ std::string CvUnit::debugDump(const FAutoVariableBase& /*var*/) const
 //	--------------------------------------------------------------------------------
 std::string CvUnit::stackTraceRemark(const FAutoVariableBase& /*var*/) const
 {
-	/*
-	std::string result = "Game Turn : ";
-	char gameTurnBuffer[8] = { 0 };
-	int gameTurn = GC.getGame().getGameTurn();
-	sprintf_s(gameTurnBuffer, "%d\0", gameTurn);
-	result += gameTurnBuffer;
-	result += "\nValue Before Change=" + FSerialization::toString(var);
-	if (&var == &m_eActivityType)
-	{
-		result += "\nm_eActivityType changes based on canMove().\n";
-		bool moves = getMoves() > 0;
-		if (canMove())
-		{
-			result += "canMove() returned true because ";
-			if (moves)
-			{
-				result += "getMoves() > 0\n";
-				result += "---- Call Stack for m_iMoves last change: ----\n";
-				result += m_iMoves.getStackTrace();
-				result += "---- END STACK TRACE FOR m_iMoves ----\n";
-			}
-			else
-			{
-				result += "some unknown check was added there but not here in the remark code\n";
-			}
-		}
-		else
-		{
-			result += "\ncanMove() return false because ";
-			if (!moves)
-			{
-				result += "getMoves() == 0\n";
-				result += "---- Call Stack for m_iMoves last change: ----\n";
-				result += m_iMoves.getStackTrace();
-				result += "---- END STACK TRACE FOR m_iMoves ----\n";
-
-			}
-			else
-			{
-				result += "some unknown check was added there but not here in the remark code\n";
-			}
-		}
-	}
-	return result;
-	*/
 	return EmptyString;
 }
 

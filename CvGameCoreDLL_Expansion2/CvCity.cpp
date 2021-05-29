@@ -71,14 +71,15 @@ void SyncCities()
 		std::vector<CvCity*>::const_iterator i;
 		for(i = citiesToCheck.begin(); i != citiesToCheck.end(); ++i)
 		{
-			const CvCity* city = *i;
+			CvCity* city = *i;
 
 			if(city)
 			{
 				const CvPlayer& player = GET_PLAYER(city->getOwner());
 				if(city->getOwner() == authoritativePlayer || (gDLL->IsHost() && !player.isHuman() && player.isAlive()))
 				{
-					const FAutoArchive& archive = city->getSyncArchive();
+					CvSyncArchive<CvCity>& archive = city->getSyncArchive();
+					archive.collectDeltas();
 					if(archive.hasDeltas())
 					{
 						FMemoryStream memoryStream;
@@ -161,178 +162,178 @@ int ModifierLookup(const vector<pair<T, int>>& container, T key)
 //	--------------------------------------------------------------------------------
 // Public Functions...
 CvCity::CvCity() :
-	m_syncArchive(*this)
-	, m_eOwner("CvCity::m_eOwner", m_syncArchive, NO_PLAYER)
-	, m_iX("CvCity::m_iX", m_syncArchive)
-	, m_iY("CvCity::m_iY", m_syncArchive)
-	, m_iID("CvCity::m_iID", m_syncArchive)
-	, m_iRallyX("CvCity::m_iRallyX", m_syncArchive)
-	, m_iRallyY("CvCity::m_iRallyY", m_syncArchive)
-	, m_iGameTurnFounded("CvCity::m_iGameTurnFounded", m_syncArchive)
-	, m_iGameTurnAcquired("CvCity::m_iGameTurnAcquired", m_syncArchive)
-	, m_iGameTurnLastExpanded("CvCity::m_iGameTurnLastExpanded", m_syncArchive)
+	m_syncArchive()
+	, m_eOwner(NO_PLAYER)
+	, m_iX()
+	, m_iY()
+	, m_iID()
+	, m_iRallyX()
+	, m_iRallyY()
+	, m_iGameTurnFounded()
+	, m_iGameTurnAcquired()
+	, m_iGameTurnLastExpanded()
 #if defined(MOD_BALANCE_CORE)
-	, m_iAdditionalFood("CvCity::m_iAdditionalFood", m_syncArchive)
-	, m_iCityBuildingBombardRange("CvCity::m_iCityBuildingBombardRange", m_syncArchive)
-	, m_iCityIndirectFire("CvCity::m_iCityIndirectFire", m_syncArchive)
-	, m_iCityBuildingRangeStrikeModifier("CvCity::m_iCityBuildingRangeStrikeModifier", m_syncArchive)
+	, m_iAdditionalFood()
+	, m_iCityBuildingBombardRange()
+	, m_iCityIndirectFire()
+	, m_iCityBuildingRangeStrikeModifier()
 #endif
-	, m_iPopulation("CvCity::m_iPopulation", m_syncArchive)
+	, m_iPopulation()
 #if defined(MOD_GLOBAL_CITY_AUTOMATON_WORKERS)
 	, m_iAutomatons(0)
 #endif
-	, m_iHighestPopulation("CvCity::m_iHighestPopulation", m_syncArchive)
-	, m_iExtraHitPoints("CvCity::m_iExtraHitPoints", m_syncArchive)
-	, m_iNumGreatPeople("CvCity::m_iNumGreatPeople", m_syncArchive)
-	, m_iBaseGreatPeopleRate("CvCity::m_iBaseGreatPeopleRate", m_syncArchive)
-	, m_iGreatPeopleRateModifier("CvCity::m_iGreatPeopleRateModifier", m_syncArchive)
-	, m_iJONSCultureStored("CvCity::m_iJONSCultureStored", m_syncArchive, true)
-	, m_iJONSCultureLevel("CvCity::m_iJONSCultureLevel", m_syncArchive)
+	, m_iHighestPopulation()
+	, m_iExtraHitPoints()
+	, m_iNumGreatPeople()
+	, m_iBaseGreatPeopleRate()
+	, m_iGreatPeopleRateModifier()
+	, m_iJONSCultureStored()
+	, m_iJONSCultureLevel()
 #if !defined(MOD_API_UNIFIED_YIELDS_CONSOLIDATION)
-	, m_iJONSCulturePerTurnFromBuildings("CvCity::m_iJONSCulturePerTurnFromBuildings", m_syncArchive)
+	, m_iJONSCulturePerTurnFromBuildings()
 #endif
-	, m_iJONSCulturePerTurnFromPolicies("CvCity::m_iJONSCulturePerTurnFromPolicies", m_syncArchive)
-	, m_iJONSCulturePerTurnFromSpecialists("CvCity::m_iJONSCulturePerTurnFromSpecialists", m_syncArchive)
-	, m_iaAddedYieldPerTurnFromTraits("CvCity::m_iaAddedYieldPerTurnFromTraits", m_syncArchive)
+	, m_iJONSCulturePerTurnFromPolicies()
+	, m_iJONSCulturePerTurnFromSpecialists()
+	, m_iaAddedYieldPerTurnFromTraits()
 #if !defined(MOD_API_UNIFIED_YIELDS_CONSOLIDATION)
-	, m_iJONSCulturePerTurnFromReligion("CvCity::m_iJONSCulturePerTurnFromReligion", m_syncArchive)
+	, m_iJONSCulturePerTurnFromReligion()
 #endif
 #if !defined(MOD_API_UNIFIED_YIELDS_CONSOLIDATION)
-	, m_iFaithPerTurnFromBuildings("CvCity::m_iFaithPerTurnFromBuildings", m_syncArchive)
+	, m_iFaithPerTurnFromBuildings()
 #endif
-	, m_iFaithPerTurnFromPolicies("CvCity::m_iFaithPerTurnFromPolicies", m_syncArchive)
+	, m_iFaithPerTurnFromPolicies()
 #if !defined(MOD_API_UNIFIED_YIELDS_CONSOLIDATION)
-	, m_iFaithPerTurnFromReligion("CvCity::m_iFaithPerTurnFromReligion", m_syncArchive)
+	, m_iFaithPerTurnFromReligion()
 #endif
-	, m_iCultureRateModifier("CvCity::m_iCultureRateModifier", m_syncArchive)
-	, m_iNumWorldWonders("CvCity::m_iNumWorldWonders", m_syncArchive)
-	, m_iNumTeamWonders("CvCity::m_iNumTeamWonders", m_syncArchive)
-	, m_iNumNationalWonders("CvCity::m_iNumNationalWonders", m_syncArchive)
-	, m_iWonderProductionModifier("CvCity::m_iWonderProductionModifier", m_syncArchive)
-	, m_iCapturePlunderModifier("CvCity::m_iCapturePlunderModifier", m_syncArchive)
-	, m_iPlotCultureCostModifier("CvCity::m_iPlotCultureCostModifier", m_syncArchive)
-	, m_iPlotBuyCostModifier("CvCity::m_iPlotBuyCostModifier", m_syncArchive)
-	, m_iMaintenance("CvCity::m_iMaintenance", m_syncArchive)
-	, m_iHealRate("CvCity::m_iHealRate", m_syncArchive)
-	, m_iNoOccupiedUnhappinessCount("CvCity::m_iNoOccupiedUnhappinessCount", m_syncArchive)
+	, m_iCultureRateModifier()
+	, m_iNumWorldWonders()
+	, m_iNumTeamWonders()
+	, m_iNumNationalWonders()
+	, m_iWonderProductionModifier()
+	, m_iCapturePlunderModifier()
+	, m_iPlotCultureCostModifier()
+	, m_iPlotBuyCostModifier()
+	, m_iMaintenance()
+	, m_iHealRate()
+	, m_iNoOccupiedUnhappinessCount()
 #if defined(HH_MOD_BUILDINGS_FRUITLESS_PILLAGE)
-	, m_iLocalGainlessPillageCount("CvCity::m_iLocalGainlessPillageCount", m_syncArchive)
+	, m_iLocalGainlessPillageCount()
 #endif
-	, m_iFood("CvCity::m_iFood", m_syncArchive)
-	, m_iFoodKept("CvCity::m_iFoodKept", m_syncArchive)
-	, m_iMaxFoodKeptPercent("CvCity::m_iMaxFoodKeptPercent", m_syncArchive)
-	, m_iOverflowProduction("CvCity::m_iOverflowProduction", m_syncArchive)
-	, m_iFeatureProduction("CvCity::m_iFeatureProduction", m_syncArchive)
-	, m_iMilitaryProductionModifier("CvCity::m_iMilitaryProductionModifier", m_syncArchive)
-	, m_iSpaceProductionModifier("CvCity::m_iSpaceProductionModifier", m_syncArchive)
-	, m_iFreeExperience("CvCity::m_iFreeExperience", m_syncArchive)
-	, m_iCurrAirlift("CvCity::m_iCurrAirlift", m_syncArchive) // unused
-	, m_iMaxAirUnits("CvCity::m_iMaxAirUnits", m_syncArchive)
-	, m_iAirModifier("CvCity::m_iAirModifier", m_syncArchive) // unused
-	, m_iNukeModifier("CvCity::m_iNukeModifier", m_syncArchive)
-	, m_iCultureUpdateTimer("CvCity::m_iCultureUpdateTimer", m_syncArchive)	// unused
-	, m_iCitySizeBoost("CvCity::m_iCitySizeBoost", m_syncArchive)
-	, m_iSpecialistFreeExperience("CvCity::m_iSpecialistFreeExperience", m_syncArchive)
-	, m_iStrengthValue("CvCity::m_iStrengthValue", m_syncArchive, true)
-	, m_iDamage("CvCity::m_iDamage", m_syncArchive)
-	, m_iThreatValue("CvCity::m_iThreatValue", m_syncArchive, true)
-	, m_hGarrison("CvCity::m_hGarrison", m_syncArchive)
-	, m_iResourceDemanded("CvCity::m_iResourceDemanded", m_syncArchive)
-	, m_iWeLoveTheKingDayCounter("CvCity::m_iWeLoveTheKingDayCounter", m_syncArchive)
-	, m_iLastTurnGarrisonAssigned("CvCity::m_iLastTurnGarrisonAssigned", m_syncArchive)
-	, m_iThingsProduced("CvCity::m_iThingsProduced", m_syncArchive)
-	, m_iDemandResourceCounter("CvCity::m_iDemandResourceCounter", m_syncArchive, true)
-	, m_iResistanceTurns("CvCity::m_iResistanceTurns", m_syncArchive)
-	, m_iRazingTurns("CvCity::m_iRazingTurns", m_syncArchive)
-	, m_iLowestRazingPop("CvCity::m_iLowestRazingPop", m_syncArchive)
-	, m_iCountExtraLuxuries("CvCity::m_iCountExtraLuxuries", m_syncArchive)
-	, m_iCheapestPlotInfluenceDistance("CvCity::m_iCheapestPlotInfluenceDistance", m_syncArchive)
-	, m_iEspionageModifier("CvCity::m_iEspionageModifier", m_syncArchive)
-	, m_iTradeRouteRecipientBonus("CvCity::m_iTradeRouteRecipientBonus", m_syncArchive)
-	, m_iTradeRouteSeaGoldBonus("CvCity::m_iTradeRouteSeaGoldBonus", m_syncArchive)
-	, m_iTradeRouteLandGoldBonus("CvCity::m_iTradeRouteLandGoldBonus", m_syncArchive)
-	, m_iTradeRouteTargetBonus("CvCity::m_iTradeRouteTargetBonus", m_syncArchive)
-	, m_iNumTradeRouteBonus("CvCity::m_iNumTradeRouteBonus", m_syncArchive)
-	, m_iCityConnectionTradeRouteGoldModifier("CvCity::m_iCityConnectionTradeRouteGoldModifier", m_syncArchive)
+	, m_iFood()
+	, m_iFoodKept()
+	, m_iMaxFoodKeptPercent()
+	, m_iOverflowProduction()
+	, m_iFeatureProduction()
+	, m_iMilitaryProductionModifier()
+	, m_iSpaceProductionModifier()
+	, m_iFreeExperience()
+	, m_iCurrAirlift() // unused
+	, m_iMaxAirUnits()
+	, m_iAirModifier() // unused
+	, m_iNukeModifier()
+	, m_iCultureUpdateTimer()	// unused
+	, m_iCitySizeBoost()
+	, m_iSpecialistFreeExperience()
+	, m_iStrengthValue()
+	, m_iDamage()
+	, m_iThreatValue()
+	, m_hGarrison()
+	, m_iResourceDemanded()
+	, m_iWeLoveTheKingDayCounter()
+	, m_iLastTurnGarrisonAssigned()
+	, m_iThingsProduced()
+	, m_iDemandResourceCounter()
+	, m_iResistanceTurns()
+	, m_iRazingTurns()
+	, m_iLowestRazingPop()
+	, m_iCountExtraLuxuries()
+	, m_iCheapestPlotInfluenceDistance()
+	, m_iEspionageModifier()
+	, m_iTradeRouteRecipientBonus()
+	, m_iTradeRouteSeaGoldBonus()
+	, m_iTradeRouteLandGoldBonus()
+	, m_iTradeRouteTargetBonus()
+	, m_iNumTradeRouteBonus()
+	, m_iCityConnectionTradeRouteGoldModifier()
 	, m_unitBeingBuiltForOperation()
-	, m_bNeverLost("CvCity::m_bNeverLost", m_syncArchive)
-	, m_bDrafted("CvCity::m_bDrafted", m_syncArchive)
-	, m_bAirliftTargeted("CvCity::m_bAirliftTargeted", m_syncArchive)   // unused
-	, m_bProductionAutomated("CvCity::m_bProductionAutomated", m_syncArchive)
-	, m_bLayoutDirty("CvCity::m_bLayoutDirty", m_syncArchive)
-	, m_bMadeAttack("CvCity::m_bMadeAttack", m_syncArchive)
-	, m_bOccupied("CvCity::m_bOccupied", m_syncArchive)
-	, m_bPuppet("CvCity::m_bPuppet", m_syncArchive)
-	, m_bIgnoreCityForHappiness("CvCity::m_bIgnoreCityForHappiness", m_syncArchive)
-	, m_bIndustrialRouteToCapital("CvCity::m_bIndustrialRouteToCapital", m_syncArchive)
-	, m_iTerrainImprovementNeed("CvCity::m_iTerrainImprovementNeed", m_syncArchive)
-	, m_ePreviousOwner("CvCity::m_ePreviousOwner", m_syncArchive)
-	, m_eOriginalOwner("CvCity::m_eOriginalOwner", m_syncArchive)
-	, m_ePlayersReligion("CvCity::m_ePlayersReligion", m_syncArchive)
-	, m_aiSeaPlotYield("CvCity::m_aiSeaPlotYield", m_syncArchive)
-	, m_aiRiverPlotYield("CvCity::m_aiRiverPlotYield", m_syncArchive)
-	, m_aiLakePlotYield("CvCity::m_aiLakePlotYield", m_syncArchive)
-	, m_aiSeaResourceYield("CvCity::m_aiSeaResourceYield", m_syncArchive)
-	, m_aiBaseYieldRateFromTerrain("CvCity::m_aiBaseYieldRateFromTerrain", m_syncArchive, true)
-	, m_aiBaseYieldRateFromBuildings("CvCity::m_aiBaseYieldRateFromBuildings", m_syncArchive)
-	, m_aiBaseYieldRateFromSpecialists("CvCity::m_aiBaseYieldRateFromSpecialists", m_syncArchive)
-	, m_aiBaseYieldRateFromMisc("CvCity::m_aiBaseYieldRateFromMisc", m_syncArchive)
-	, m_aiBaseYieldRateFromReligion("CvCity::m_aiBaseYieldRateFromReligion", m_syncArchive)
-	, m_aiYieldRateModifier("CvCity::m_aiYieldRateModifier", m_syncArchive)
-	, m_aiYieldPerPop("CvCity::m_aiYieldPerPop", m_syncArchive)
+	, m_bNeverLost()
+	, m_bDrafted()
+	, m_bAirliftTargeted()   // unused
+	, m_bProductionAutomated()
+	, m_bLayoutDirty()
+	, m_bMadeAttack()
+	, m_bOccupied()
+	, m_bPuppet()
+	, m_bIgnoreCityForHappiness()
+	, m_bIndustrialRouteToCapital()
+	, m_iTerrainImprovementNeed()
+	, m_ePreviousOwner()
+	, m_eOriginalOwner()
+	, m_ePlayersReligion()
+	, m_aiSeaPlotYield()
+	, m_aiRiverPlotYield()
+	, m_aiLakePlotYield()
+	, m_aiSeaResourceYield()
+	, m_aiBaseYieldRateFromTerrain()
+	, m_aiBaseYieldRateFromBuildings()
+	, m_aiBaseYieldRateFromSpecialists()
+	, m_aiBaseYieldRateFromMisc()
+	, m_aiBaseYieldRateFromReligion()
+	, m_aiYieldRateModifier()
+	, m_aiYieldPerPop()
 #if defined(MOD_BALANCE_CORE)
 	, m_aiYieldPerPopInEmpire()
 #endif
-	, m_aiYieldPerReligion("CvCity::m_aiYieldPerReligion", m_syncArchive)
-	, m_aiPowerYieldRateModifier("CvCity::m_aiPowerYieldRateModifier", m_syncArchive)
-	, m_aiResourceYieldRateModifier("CvCity::m_aiResourceYieldRateModifier", m_syncArchive)
-	, m_aiExtraSpecialistYield("CvCity::m_aiExtraSpecialistYield", m_syncArchive)
-	, m_aiProductionToYieldModifier("CvCity::m_aiProductionToYieldModifier", m_syncArchive)
-	, m_aiDomainFreeExperience("CvCity::m_aiDomainFreeExperience", m_syncArchive)
-	, m_aiDomainProductionModifier("CvCity::m_aiDomainProductionModifier", m_syncArchive)
+	, m_aiYieldPerReligion()
+	, m_aiPowerYieldRateModifier()
+	, m_aiResourceYieldRateModifier()
+	, m_aiExtraSpecialistYield()
+	, m_aiProductionToYieldModifier()
+	, m_aiDomainFreeExperience()
+	, m_aiDomainProductionModifier()
 #if defined(MOD_BALANCE_CORE_EVENTS)
-	, m_aiGreatWorkYieldChange("CvCity::m_aiGreatWorkYieldChange", m_syncArchive)
-	, m_aiEconomicValue("CvCity::m_aiEconomicValue", m_syncArchive)
-	, m_aiEventChoiceDuration("CvCity::m_aiEventChoiceDuration", m_syncArchive)
-	, m_aiEventIncrement("CvCity::m_aiEventIncrement", m_syncArchive)
-	, m_abEventActive("CvCity::m_abEventActive", m_syncArchive)
-	, m_abEventChoiceActive("CvCity::m_abEventChoiceActive", m_syncArchive)
-	, m_abEventChoiceFired("CvCity::m_abEventChoiceFired", m_syncArchive)
-	, m_abEventFired("CvCity::m_abEventFired", m_syncArchive)
-	, m_aiEventCooldown("CvCity::m_aiEventCooldown", m_syncArchive)
-	, m_aiEventCityYield("CvCity::m_aiEventCityYield", m_syncArchive)
-	, m_iEventHappiness("CvCity::m_iEventHappiness", m_syncArchive)
-	, m_iCityEventCooldown("CvCity::m_iCityEventCooldown", m_syncArchive)
-	, m_iHappinessDelta("CvCity::m_iHappinessDelta", m_syncArchive)
-	, m_iPillagedPlots("CvCity::m_iPillagedPlots", m_syncArchive)
-	, m_iGrowthFromTourism("CvCity::m_iGrowthFromTourism", m_syncArchive)
-	, m_iGrowthEvent("CvCity::m_iGrowthEvent", m_syncArchive)
-	, m_iBuildingClassHappiness("CvCity::m_iBuildingClassHappiness", m_syncArchive)
-	, m_iReligionHappiness("CvCity::m_iReligionHappiness", m_syncArchive)
+	, m_aiGreatWorkYieldChange()
+	, m_aiEconomicValue()
+	, m_aiEventChoiceDuration()
+	, m_aiEventIncrement()
+	, m_abEventActive()
+	, m_abEventChoiceActive()
+	, m_abEventChoiceFired()
+	, m_abEventFired()
+	, m_aiEventCooldown()
+	, m_aiEventCityYield()
+	, m_iEventHappiness()
+	, m_iCityEventCooldown()
+	, m_iHappinessDelta()
+	, m_iPillagedPlots()
+	, m_iGrowthFromTourism()
+	, m_iGrowthEvent()
+	, m_iBuildingClassHappiness()
+	, m_iReligionHappiness()
 #endif
-	, m_abEverOwned("CvCity::m_abEverOwned", m_syncArchive)
-	, m_strScriptData("CvCity::m_strScriptData", m_syncArchive)
-	, m_paiNoResource("CvCity::m_paiNoResource", m_syncArchive)
-	, m_paiFreeResource("CvCity::m_paiFreeResource", m_syncArchive)
-	, m_paiNumResourcesLocal("CvCity::m_paiNumResourcesLocal", m_syncArchive)
-	, m_paiNumUnimprovedResourcesLocal("CvCity::m_paiNumUnimprovedResourcesLocal", m_syncArchive)
-	, m_paiProjectProduction("CvCity::m_paiProjectProduction", m_syncArchive)
-	, m_paiSpecialistProduction("CvCity::m_paiSpecialistProduction", m_syncArchive)
-	, m_paiUnitProduction("CvCity::m_paiUnitProduction", m_syncArchive)
-	, m_paiUnitProductionTime("CvCity::m_paiUnitProductionTime", m_syncArchive)
-	, m_paiSpecialistCount("CvCity::m_paiSpecialistCount", m_syncArchive)
-	, m_paiMaxSpecialistCount("CvCity::m_paiMaxSpecialistCount", m_syncArchive)
-	, m_paiForceSpecialistCount("CvCity::m_paiForceSpecialistCount", m_syncArchive)
-	, m_paiFreeSpecialistCount("CvCity::m_paiFreeSpecialistCount", m_syncArchive)
-	, m_paiImprovementFreeSpecialists("CvCity::m_paiImprovementFreeSpecialists", m_syncArchive)
-	, m_paiUnitCombatFreeExperience("CvCity::m_paiUnitCombatFreeExperience", m_syncArchive)
-	, m_paiUnitCombatProductionModifier("CvCity::m_paiUnitCombatProductionModifier", m_syncArchive)
-	, m_paiFreePromotionCount("CvCity::m_paiFreePromotionCount", m_syncArchive)
-	, m_iBaseHappinessFromBuildings("CvCity::m_iBaseHappinessFromBuildings", m_syncArchive)
-	, m_iUnmoddedHappinessFromBuildings("CvCity::m_iUnmoddedHappinessFromBuildings", m_syncArchive)
-	, m_bRouteToCapitalConnectedLastTurn("CvCity::m_bRouteToCapitalConnectedLastTurn", m_syncArchive)
-	, m_bRouteToCapitalConnectedThisTurn("CvCity::m_bRouteToCapitalConnectedThisTurn", m_syncArchive)
-	, m_strName("CvCity::m_strName", m_syncArchive)
+	, m_abEverOwned()
+	, m_strScriptData()
+	, m_paiNoResource()
+	, m_paiFreeResource()
+	, m_paiNumResourcesLocal()
+	, m_paiNumUnimprovedResourcesLocal()
+	, m_paiProjectProduction()
+	, m_paiSpecialistProduction()
+	, m_paiUnitProduction()
+	, m_paiUnitProductionTime()
+	, m_paiSpecialistCount()
+	, m_paiMaxSpecialistCount()
+	, m_paiForceSpecialistCount()
+	, m_paiFreeSpecialistCount()
+	, m_paiImprovementFreeSpecialists()
+	, m_paiUnitCombatFreeExperience()
+	, m_paiUnitCombatProductionModifier()
+	, m_paiFreePromotionCount()
+	, m_iBaseHappinessFromBuildings()
+	, m_iUnmoddedHappinessFromBuildings()
+	, m_bRouteToCapitalConnectedLastTurn()
+	, m_bRouteToCapitalConnectedThisTurn()
+	, m_strName()
 	, m_orderQueue()
 	, m_pCityBuildings(FNEW(CvCityBuildings, c_eCiv5GameplayDLL, 0))
 	, m_pCityStrategyAI(FNEW(CvCityStrategyAI, c_eCiv5GameplayDLL, 0))
@@ -342,182 +343,187 @@ CvCity::CvCity() :
 	, m_pCityEspionage(FNEW(CvCityEspionage, c_eCiv5GameplayDLL, 0))
 	, m_pCityCulture(FNEW(CvCityCulture, c_eCiv5GameplayDLL, 0))
 	, m_bombardCheckTurn(0)
-	, m_iPopulationRank("CvCity::m_iPopulationRank", m_syncArchive)
-	, m_bPopulationRankValid("CvCity::m_bPopulationRankValid", m_syncArchive)
-	, m_aiBaseYieldRank("CvCity::m_aiBaseYieldRank", m_syncArchive)
-	, m_abBaseYieldRankValid("CvCity::m_abBaseYieldRankValid", m_syncArchive)
-	, m_aiYieldRank("CvCity::m_aiYieldRank", m_syncArchive)
-	, m_abYieldRankValid("CvCity::m_abYieldRankValid", m_syncArchive)
-	, m_bOwedCultureBuilding("CvCity::m_bOwedCultureBuilding", m_syncArchive)
+	, m_iPopulationRank()
+	, m_bPopulationRankValid()
+	, m_aiBaseYieldRank()
+	, m_abBaseYieldRankValid()
+	, m_aiYieldRank()
+	, m_abYieldRankValid()
+	, m_bOwedCultureBuilding()
 #if defined(MOD_BUILDINGS_CITY_WORKING)
-	, m_iCityWorkingChange("CvCity::m_iCityWorkingChange", m_syncArchive)
-	, m_iCitySupplyModifier("CvCity::m_iCitySupplyModifier", m_syncArchive)
-	, m_iCitySupplyFlat("CvCity::m_iCitySupplyFlat", m_syncArchive)
-	, m_bAllowsProductionTradeRoutes("CvCity::m_bAllowsProductionTradeRoutes", m_syncArchive)
-	, m_bAllowsFoodTradeRoutes("CvCity::m_bAllowsFoodTradeRoutes", m_syncArchive)
-	, m_bAllowPuppetPurchase("CvCity::m_bAllowPuppetPurchase", m_syncArchive)
-	, m_iStaticTechDeviation("CvCity::m_iStaticTechDeviation", m_syncArchive)
-	, m_iHappinessFromEmpire("CvCity::m_iHappinessFromEmpire", m_syncArchive)
-	, m_iHappinessFromLuxuries("CvCity::m_iHappinessFromLuxuries", m_syncArchive)
-	, m_iUnhappinessFromEmpire("CvCity::m_iUnhappinessFromEmpire", m_syncArchive)
+	, m_iCityWorkingChange()
+	, m_iCitySupplyModifier()
+	, m_iCitySupplyFlat()
+	, m_bAllowsProductionTradeRoutes()
+	, m_bAllowsFoodTradeRoutes()
+	, m_bAllowPuppetPurchase()
+	, m_iStaticTechDeviation()
+	, m_iHappinessFromEmpire()
+	, m_iHappinessFromLuxuries()
+	, m_iUnhappinessFromEmpire()
 #endif
 #if defined(MOD_BUILDINGS_CITY_AUTOMATON_WORKERS)
-	, m_iCityAutomatonWorkersChange("CvCity::m_iCityAutomatonWorkersChange", m_syncArchive)
+	, m_iCityAutomatonWorkersChange()
 #endif
 #if defined(MOD_RELIGION_CONVERSION_MODIFIERS)
-	, m_iConversionModifier("CvCity::m_iConversionModifier", m_syncArchive)
+	, m_iConversionModifier()
 #endif
 #if defined(MOD_DIPLOMACY_CITYSTATES)
-	, m_aiBaseYieldRateFromLeague("CvCity::m_aiBaseYieldRateFromLeague", m_syncArchive)
-	, m_iTotalScienceyAid("CvCity::m_iTotalScienceyAid", m_syncArchive)
-	, m_iTotalArtsyAid("CvCity::m_iTotalArtsyAid", m_syncArchive)
-	, m_iTotalGreatWorkAid("CvCity::m_iTotalGreatWorkAid", m_syncArchive)
+	, m_aiBaseYieldRateFromLeague()
+	, m_iTotalScienceyAid()
+	, m_iTotalArtsyAid()
+	, m_iTotalGreatWorkAid()
 #endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
-	, m_iEmpireNeedsModifier("CvCity::m_iEmpireNeedsModifier", m_syncArchive)
-	, m_iChangePovertyUnhappiness("CvCity::m_iChangePovertyUnhappiness", m_syncArchive)
-	, m_iChangeDefenseUnhappiness("CvCity::m_iChangeDefenseUnhappiness", m_syncArchive)
-	, m_iChangeUnculturedUnhappiness("CvCity::m_iChangeUnculturedUnhappiness", m_syncArchive)
-	, m_iChangeIlliteracyUnhappiness("CvCity::m_iChangeIlliteracyUnhappiness", m_syncArchive)
-	, m_iChangeMinorityUnhappiness("CvCity::m_iChangeMinorityUnhappiness", m_syncArchive)
+	, m_iEmpireNeedsModifier()
+	, m_iChangePovertyUnhappiness()
+	, m_iChangeDefenseUnhappiness()
+	, m_iChangeUnculturedUnhappiness()
+	, m_iChangeIlliteracyUnhappiness()
+	, m_iChangeMinorityUnhappiness()
 #endif
 #if defined(MOD_DIPLOMACY_CITYSTATES) || defined(MOD_BALANCE_CORE)
-	, m_aiChangeGrowthExtraYield("CvCity::m_aiChangeGrowthExtraYield", m_syncArchive)
+	, m_aiChangeGrowthExtraYield()
 #endif
 #if defined(MOD_BALANCE_CORE)
-	, m_iNukeInterceptionChance("CvCity::m_iNukeInterceptionChance", m_syncArchive)
-	, m_iTradeRouteSeaDistanceModifier("CvCity::m_iTradeRouteSeaDistanceModifier", m_syncArchive)
-	, m_iTradeRouteLandDistanceModifier("CvCity::m_iTradeRouteLandDistanceModifier", m_syncArchive)
-	, m_iTradePriorityLand("CvCity::m_iTradePriorityLand", m_syncArchive)
-	, m_iTradePrioritySea("CvCity::m_iTradePrioritySea", m_syncArchive)
-	, m_iUnitPurchaseCooldown("CvCity::m_iUnitPurchaseCooldown", m_syncArchive)
-	, m_iUnitPurchaseCooldownCivilian("CvCity::m_iUnitPurchaseCooldownCivilian", m_syncArchive)
-	, m_iUnitFaithPurchaseCooldown("CvCity::m_iUnitFaithPurchaseCooldown", m_syncArchive)
-	, m_iUnitFaithPurchaseCooldownCivilian("CvCity::m_iUnitFaithPurchaseCooldownCivilian", m_syncArchive)
-	, m_iBuildingPurchaseCooldown("CvCity::m_iBuildingPurchaseCooldown", m_syncArchive)
-	, m_iReligiousTradeModifier("CvCity::m_iReligiousTradeModifier", m_syncArchive)
-	, m_iCityAirStrikeDefense("CvCity::m_iCityAirStrikeDefense", m_syncArchive)
-	, m_iFreeBuildingTradeTargetCity("CvCity::m_iFreeBuildingTradeTargetCity", m_syncArchive)
-	, m_iBaseTourism("CvCity::m_iBaseTourism", m_syncArchive)
-	, m_iBaseTourismBeforeModifiers("CvCity::m_iBaseTourismBeforeModifiers", m_syncArchive)
-	, m_aiYieldFromVictory("CvCity::m_aiYieldFromVictory", m_syncArchive)
-	, m_aiYieldFromVictoryGlobal("CvCity::m_aiYieldFromVictoryGlobal", m_syncArchive)
-	, m_aiYieldFromPillage("CvCity::m_aiYieldFromPillage", m_syncArchive)
-	, m_aiYieldFromPillageGlobal("CvCity::m_aiYieldFromPillageGlobal", m_syncArchive)
-	, m_aiNumTimesAttackedThisTurn("CvCity::m_aiNumTimesAttackedThisTurn", m_syncArchive)
-	, m_aiLongestPotentialTradeRoute("CvCity::m_aiLongestPotentialTradeRoute", m_syncArchive)
-	, m_aiNumProjects("CvCity::m_aiNumProjects", m_syncArchive)
-	, m_aiNumUnitsBuilt("CvCity::m_aiNumUnitsBuilt", m_syncArchive)
-	, m_aiStaticGlobalYield("CvCity::m_aiStaticGlobalYield", m_syncArchive)
-	, m_aiStaticNeedAdditives("CvCity::m_aiStaticNeedAdditives", m_syncArchive)
-	, m_aiYieldFromKnownPantheons("CvCity::m_aiYieldFromKnownPantheons", m_syncArchive)
-	, m_aiGoldenAgeYieldMod("CvCity::m_aiGoldenAgeYieldMod", m_syncArchive)
-	, m_aiYieldFromWLTKD("CvCity::m_aiYieldFromWLTKD", m_syncArchive)
-	, m_aiYieldFromConstruction("CvCity::m_aiYieldFromConstruction", m_syncArchive)
-	, m_aiYieldFromTech("CvCity::m_aiYieldFromTech", m_syncArchive)
-	, m_aiYieldFromUnitProduction("CvCity::m_aiYieldFromUnitProduction", m_syncArchive)
-	, m_aiYieldFromBirth("CvCity::m_aiYieldFromBirth", m_syncArchive)
-	, m_aiYieldFromBorderGrowth("CvCity::m_aiYieldFromBorderGrowth", m_syncArchive)
-	, m_aiYieldFromPolicyUnlock("CvCity::m_aiYieldFromPolicyUnlock", m_syncArchive)
-	, m_aiYieldFromPurchase("CvCity::m_aiYieldFromPurchase", m_syncArchive)
-	, m_aiYieldFromFaithPurchase("CvCity::m_aiYieldFromFaithPurchase", m_syncArchive)
-	, m_aiYieldFromUnitLevelUp("CvCity::m_aiYieldFromUnitLevelUp", m_syncArchive)
-	, m_aiYieldPerAlly("CvCity::m_aiYieldPerAlly", m_syncArchive)
-	, m_aiYieldPerFriend("CvCity::m_aiYieldPerFriend", m_syncArchive)
-	, m_aiYieldFromInternalTREnd("CvCity::m_aiYieldFromInternalTREnd", m_syncArchive)
-	, m_aiYieldFromInternalTR("CvCity::m_aiYieldFromInternalTR", m_syncArchive)
-	, m_aiYieldFromProcessModifier("CvCity::m_aiYieldFromProcessModifier", m_syncArchive)
-	, m_aiSpecialistRateModifier("CvCity::m_aiSpecialistRateModifier", m_syncArchive)
-	, m_aiNumTimesOwned("CvCity::m_aiNumTimesOwned", m_syncArchive)
-	, m_aiStaticCityYield("CvCity::m_aiStaticCityYield", m_syncArchive)
-	, m_aiThemingYieldBonus("CvCity::m_aiThemingYieldBonus", m_syncArchive)
-	, m_aiYieldFromSpyAttack("CvCity::m_aiYieldFromSpyAttack", m_syncArchive)
-	, m_aiYieldFromSpyDefense("CvCity::m_aiYieldFromSpyDefense", m_syncArchive)
-	, m_aiBaseYieldRateFromCSAlliance("CvCity::m_aiBaseYieldRateFromCSAlliance", m_syncArchive)
-	, m_aiBaseYieldRateFromCSFriendship("CvCity::m_aiBaseYieldRateFromCSFriendship", m_syncArchive)
-	, m_aiYieldFromMinors("CvCity::m_aiYieldFromMinors", m_syncArchive)
-	, m_aiResourceQuantityPerXFranchises("CvCity::m_aiResourceQuantityPerXFranchises", m_syncArchive)
-	, m_aiYieldChangeFromCorporationFranchises("CvCity::m_aiYieldChangeFromCorporationFranchises", m_syncArchive)
-	, m_aiNeedsFlatReduction("CvCity::m_aiNeedsFlatReduction", m_syncArchive)
-	, m_iLandTourismBonus("CvCity::m_iLandTourismBonus", m_syncArchive)
-	, m_iSeaTourismBonus("CvCity::m_iSeaTourismBonus", m_syncArchive)
-	, m_iAlwaysHeal("CvCity::m_iAlwaysHeal", m_syncArchive)
-	, m_iResourceDiversityModifier("CvCity::m_iResourceDiversityModifier", m_syncArchive)
-	, m_iNoUnhappfromXSpecialists("CvCity::m_iNoUnhappfromXSpecialists", m_syncArchive)
-	, m_aiStaticNeedsUpdateTurn("CvCity::m_aiStaticNeedsUpdateTurn", m_syncArchive)
-	, m_bNoWarmonger("CvCity::m_bNoWarmonger", m_syncArchive)
+	, m_iNukeInterceptionChance()
+	, m_iTradeRouteSeaDistanceModifier()
+	, m_iTradeRouteLandDistanceModifier()
+	, m_iTradePriorityLand()
+	, m_iTradePrioritySea()
+	, m_iUnitPurchaseCooldown()
+	, m_iUnitPurchaseCooldownCivilian()
+	, m_iUnitFaithPurchaseCooldown()
+	, m_iUnitFaithPurchaseCooldownCivilian()
+	, m_iBuildingPurchaseCooldown()
+	, m_iReligiousTradeModifier()
+	, m_iCityAirStrikeDefense()
+	, m_iFreeBuildingTradeTargetCity()
+	, m_iBaseTourism()
+	, m_iBaseTourismBeforeModifiers()
+	, m_aiYieldFromVictory()
+	, m_aiYieldFromVictoryGlobal()
+	, m_aiYieldFromPillage()
+	, m_aiYieldFromPillageGlobal()
+	, m_aiNumTimesAttackedThisTurn()
+	, m_aiLongestPotentialTradeRoute()
+	, m_aiNumProjects()
+	, m_aiNumUnitsBuilt()
+	, m_aiStaticGlobalYield()
+	, m_aiStaticNeedAdditives()
+	, m_aiYieldFromKnownPantheons()
+	, m_aiGoldenAgeYieldMod()
+	, m_aiYieldFromWLTKD()
+	, m_aiYieldFromConstruction()
+	, m_aiYieldFromTech()
+	, m_aiYieldFromUnitProduction()
+	, m_aiYieldFromBirth()
+	, m_aiYieldFromBorderGrowth()
+	, m_aiYieldFromPolicyUnlock()
+	, m_aiYieldFromPurchase()
+	, m_aiYieldFromFaithPurchase()
+	, m_aiYieldFromUnitLevelUp()
+	, m_aiYieldPerAlly()
+	, m_aiYieldPerFriend()
+	, m_aiYieldFromInternalTREnd()
+	, m_aiYieldFromInternalTR()
+	, m_aiYieldFromProcessModifier()
+	, m_aiSpecialistRateModifier()
+	, m_aiNumTimesOwned()
+	, m_aiStaticCityYield()
+	, m_aiThemingYieldBonus()
+	, m_aiYieldFromSpyAttack()
+	, m_aiYieldFromSpyDefense()
+	, m_aiBaseYieldRateFromCSAlliance()
+	, m_aiBaseYieldRateFromCSFriendship()
+	, m_aiYieldFromMinors()
+	, m_aiResourceQuantityPerXFranchises()
+	, m_aiYieldChangeFromCorporationFranchises()
+	, m_aiNeedsFlatReduction()
+	, m_iLandTourismBonus()
+	, m_iSeaTourismBonus()
+	, m_iAlwaysHeal()
+	, m_iResourceDiversityModifier()
+	, m_iNoUnhappfromXSpecialists()
+	, m_aiStaticNeedsUpdateTurn()
+	, m_bNoWarmonger()
 #endif
 #if defined(MOD_BALANCE_CORE_SPIES)
-	, m_iCitySpyRank("CvCity::m_iCitySpyRank", m_syncArchive)
-	, m_iTurnsSinceRankAnnouncement("CvCity::m_iTurnsSinceRankAnnouncement", m_syncArchive)
+	, m_iCitySpyRank()
+	, m_iTurnsSinceRankAnnouncement()
 #endif
 #if defined(MOD_BALANCE_CORE)
-	, m_abIsBestForWonder("CvCity::m_abIsBestForWonder", m_syncArchive)
-	, m_abIsPurchased("CvCity::m_abIsPurchased", m_syncArchive)
-	, m_abTraded("CvCity::m_abTraded", m_syncArchive)
-	, m_abPaidAdoptionBonus("CvCity::m_abPaidAdoptionBonus", m_syncArchive)
-	, m_aiReligiousPressureModifier("CvCity::m_aiReligiousPressureModifier", m_syncArchive)
-	, m_iExtraBuildingMaintenance("CvCity::m_iExtraBuildingMaintenance", m_syncArchive)
-	, m_paiNumTerrainWorked("CvCity::m_paiNumTerrainWorked", m_syncArchive)
-	, m_paiNumFeaturelessTerrainWorked("CvCity::m_paiNumFeaturelessTerrainWorked", m_syncArchive)
-	, m_paiNumFeatureWorked("CvCity::m_paiNumFeatureWorked", m_syncArchive)
-	, m_paiNumResourceWorked("CvCity::m_paiNumResourceWorked", m_syncArchive)
-	, m_paiNumImprovementWorked("CvCity::m_paiNumImprovementWorked", m_syncArchive)
+	, m_abIsBestForWonder()
+	, m_abIsPurchased()
+	, m_abTraded()
+	, m_abPaidAdoptionBonus()
+	, m_aiReligiousPressureModifier()
+	, m_iExtraBuildingMaintenance()
+	, m_paiNumTerrainWorked()
+	, m_paiNumFeaturelessTerrainWorked()
+	, m_paiNumFeatureWorked()
+	, m_paiNumResourceWorked()
+	, m_paiNumImprovementWorked()
 #endif
 #if defined(MOD_BALANCE_CORE_POLICIES)
-	, m_paiBuildingClassCulture("CvCity::m_paiBuildingClassCulture", m_syncArchive)
-	, m_paiHurryModifier("CvCity::m_paiHurryModifier", m_syncArchive)
+	, m_paiBuildingClassCulture()
+	, m_paiHurryModifier()
 #endif
 #if defined(MOD_BALANCE_CORE)
-	, m_vClosestNeighbors("CvCity::m_vClosestNeighbors", m_syncArchive)
+	, m_vClosestNeighbors()
 #endif
-	, m_yieldChanges( NUM_YIELD_TYPES )
-	, m_eventYields ( NUM_YIELD_TYPES )
+	, m_yieldChanges(NUM_YIELD_TYPES)
+	, m_eventYields(NUM_YIELD_TYPES)
 #if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
 	, m_ppiGreatPersonProgressFromConstruction()
 #endif
 #if defined(MOD_BALANCE_CORE)
-	, m_abOwedChosenBuilding("CvCity::m_abOwedChosenBuilding", m_syncArchive)
-	, m_abBuildingInvestment("CvCity::m_abBuildingInvestment", m_syncArchive)
-	, m_abUnitInvestment("CvCity::m_abUnitInvestment", m_syncArchive)
-	, m_abBuildingConstructed("CvCity::m_abBuildingConstructed", m_syncArchive)
-	, m_iBorderObstacleCity("CvCity::m_iBorderObstacleCity", m_syncArchive)
-	, m_iBorderObstacleWater("CvCity::m_iBorderObstacleWater", m_syncArchive)
-	, m_iDeepWaterTileDamage("CvCity::m_iDeepWaterTileDamage", m_syncArchive)
-	, m_iNumNearbyMountains("CvCity::m_iNumNearbyMountains", m_syncArchive)
-	, m_iLocalUnhappinessMod("CvCity::m_iLocalUnhappinessMod", m_syncArchive)
+	, m_abOwedChosenBuilding()
+	, m_abBuildingInvestment()
+	, m_abUnitInvestment()
+	, m_abBuildingConstructed()
+	, m_iBorderObstacleCity()
+	, m_iBorderObstacleWater()
+	, m_iDeepWaterTileDamage()
+	, m_iNumNearbyMountains()
+	, m_iLocalUnhappinessMod()
 #endif
-	, m_bOwedFoodBuilding("CvCity::m_bOwedFoodBuilding", m_syncArchive)
+	, m_bOwedFoodBuilding()
 #if defined(MOD_CORE_PER_TURN_DAMAGE)
-	, m_iDamageTakenThisTurn("CvCity::m_iDamageTakenThisTurn", m_syncArchive)
-	, m_iDamageTakenLastTurn("CvCity::m_iDamageTakenLastTurn", m_syncArchive)
+	, m_iDamageTakenThisTurn()
+	, m_iDamageTakenLastTurn()
 #endif
 #if defined(MOD_BALANCE_CORE)
-	, m_bIsColony("CvCity::m_bIsColony", m_syncArchive)
-	, m_iProvinceLevel("CvCity::m_iProvinceLevel", m_syncArchive)
-	, m_iOrganizedCrime("CvCity::m_iOrganizedCrime", m_syncArchive)
-	, m_iResistanceCounter("CvCity::m_iResistanceCounter", m_syncArchive)
-	, m_iPlagueCounter("CvCity::m_iPlagueCounter", m_syncArchive)
-	, m_iPlagueTurns("CvCity::m_iPlagueTurns", m_syncArchive)
-	, m_iSappedTurns("CvCity::m_iSappedTurns", m_syncArchive)
-	, m_iPlagueType("CvCity::m_iPlagueType", m_syncArchive)
-	, m_iLoyaltyCounter("CvCity::m_iLoyaltyCounter", m_syncArchive)
-	, m_iDisloyaltyCounter("CvCity::m_iDisloyaltyCounter", m_syncArchive)
-	, m_iLoyaltyStateType("CvCity::m_iLoyaltyStateType", m_syncArchive)
-	, m_aiYieldModifierFromHappiness("CvCity::m_aiYieldModifierFromHappiness", m_syncArchive)
-	, m_aiYieldModifierFromHealth("CvCity::m_aiYieldModifierFromHealth", m_syncArchive)
-	, m_aiYieldModifierFromCrime("CvCity::m_aiYieldModifierFromCrime", m_syncArchive)
-	, m_aiYieldModifierFromDevelopment("CvCity::m_aiYieldModifierFromDevelopment", m_syncArchive)
-	, m_aiYieldFromHappiness("CvCity::m_aiYieldFromHappiness", m_syncArchive)
-	, m_aiYieldFromHealth("CvCity::m_aiYieldFromHealth", m_syncArchive)
-	, m_aiYieldFromCrime("CvCity::m_aiYieldFromCrime", m_syncArchive)
-	, m_aiYieldFromDevelopment("CvCity::m_aiYieldFromDevelopment", m_syncArchive)
+	, m_bIsColony()
+	, m_iProvinceLevel()
+	, m_iOrganizedCrime()
+	, m_iResistanceCounter()
+	, m_iPlagueCounter()
+	, m_iPlagueTurns()
+	, m_iSappedTurns()
+	, m_iPlagueType()
+	, m_iLoyaltyCounter()
+	, m_iDisloyaltyCounter()
+	, m_iLoyaltyStateType()
+	, m_aiYieldModifierFromHappiness()
+	, m_aiYieldModifierFromHealth()
+	, m_aiYieldModifierFromCrime()
+	, m_aiYieldModifierFromDevelopment()
+	, m_aiYieldFromHappiness()
+	, m_aiYieldFromHealth()
+	, m_aiYieldFromCrime()
+	, m_aiYieldFromDevelopment()
 #endif
 {
 	OBJECT_ALLOCATED
 	FSerialization::citiesToCheck.push_back(this);
 
 	reset(0, NO_PLAYER, 0, 0, true);
+
+	if (GC.getGame().isNetworkMultiPlayer())
+	{
+		m_syncArchive.initSyncVars(*FNEW(CvSyncArchive<CvCity>::SyncVars(*this), c_eCiv5GameplayDLL, 0));
+	}
 }
 
 //	--------------------------------------------------------------------------------
@@ -1583,16 +1589,16 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_aiEconomicValue.resize(MAX_CIV_PLAYERS);
 	for (iI = 0; iI < MAX_CIV_PLAYERS; iI++)
 	{
-		m_aiEconomicValue.setAt(iI, 0);
+		m_aiEconomicValue[iI] = 0;
 		
 	}
 	for (iI = 0; iI < REALLY_MAX_PLAYERS; iI++)
 	{
-		m_aiNumTimesAttackedThisTurn.setAt(iI, 0);
+		m_aiNumTimesAttackedThisTurn[iI] = 0;
 	}
 	for (iI = 0; iI < NUM_DOMAIN_TYPES; iI++)
 	{
-		m_aiLongestPotentialTradeRoute.setAt(iI, 0);
+		m_aiLongestPotentialTradeRoute[iI] = 0;
 	}
 #endif
 	m_aiBaseYieldRateFromReligion.resize(NUM_YIELD_TYPES);
@@ -1616,64 +1622,64 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_aiStaticNeedsUpdateTurn = GC.getGame().getGameTurn();
 	for(iI = 0; iI < NUM_YIELD_TYPES; iI++)
 	{
-		m_aiStaticGlobalYield.setAt(iI, 0);
-		m_aiStaticNeedAdditives.setAt(iI, 0);
-		m_aiSeaPlotYield.setAt(iI, 0);
-		m_aiRiverPlotYield.setAt(iI, 0);
-		m_aiLakePlotYield.setAt(iI, 0);
-		m_aiSeaResourceYield.setAt(iI, 0);
-		m_aiBaseYieldRateFromTerrain.setAt(iI, 0);
-		m_aiBaseYieldRateFromBuildings.setAt(iI, 0);
-		m_aiBaseYieldRateFromSpecialists.setAt(iI, 0);
-		m_aiBaseYieldRateFromMisc.setAt(iI, 0);
+		m_aiStaticGlobalYield[iI] = 0;
+		m_aiStaticNeedAdditives[iI] = 0;
+		m_aiSeaPlotYield[iI] = 0;
+		m_aiRiverPlotYield[iI] = 0;
+		m_aiLakePlotYield[iI] = 0;
+		m_aiSeaResourceYield[iI] = 0;
+		m_aiBaseYieldRateFromTerrain[iI] = 0;
+		m_aiBaseYieldRateFromBuildings[iI] = 0;
+		m_aiBaseYieldRateFromSpecialists[iI] = 0;
+		m_aiBaseYieldRateFromMisc[iI] = 0;
 #if defined(MOD_DIPLOMACY_CITYSTATES)
-		m_aiBaseYieldRateFromLeague.setAt(iI, 0);
+		m_aiBaseYieldRateFromLeague[iI] = 0;
 #endif
 #if defined(MOD_DIPLOMACY_CITYSTATES) || defined(MOD_BALANCE_CORE)
-		m_aiChangeGrowthExtraYield.setAt(iI, 0);
+		m_aiChangeGrowthExtraYield[iI] = 0;
 #endif
 #if defined(MOD_BALANCE_CORE)
-		m_aiGreatWorkYieldChange.setAt(iI, 0);
-		m_aiYieldFromKnownPantheons.setAt(iI, 0);
-		m_aiYieldFromVictory.setAt(iI, 0);
-		m_aiYieldFromVictoryGlobal.setAt(iI, 0);
-		m_aiYieldFromPillage.setAt(iI, 0);
-		m_aiYieldFromPillageGlobal.setAt(iI, 0);
-		m_aiGoldenAgeYieldMod.setAt(iI, 0);
-		m_aiYieldFromWLTKD.setAt(iI, 0);
-		m_aiYieldFromConstruction.setAt(iI, 0);
-		m_aiYieldFromTech.setAt(iI, 0);
-		m_aiYieldFromBirth.setAt(iI, 0);
-		m_aiYieldFromUnitProduction.setAt(iI, 0);
-		m_aiYieldFromBorderGrowth.setAt(iI, 0);
-		m_aiYieldFromPolicyUnlock.setAt(iI, 0);
-		m_aiYieldFromPurchase.setAt(iI, 0);
-		m_aiYieldFromFaithPurchase.setAt(iI, 0);
-		m_aiYieldFromUnitLevelUp.setAt(iI, 0);
-		m_aiYieldPerAlly.setAt(iI, 0);
-		m_aiYieldPerFriend.setAt(iI, 0);
-		m_aiYieldFromInternalTREnd.setAt(iI, 0);
-		m_aiYieldFromInternalTR.setAt(iI, 0);
-		m_aiYieldFromProcessModifier.setAt(iI, 0);
-		m_aiThemingYieldBonus.setAt(iI, 0);
-		m_aiYieldFromSpyAttack.setAt(iI, 0);
-		m_aiYieldFromSpyDefense.setAt(iI, 0);
-		m_aiEventCityYield.setAt(iI, 0);
+		m_aiGreatWorkYieldChange[iI] = 0;
+		m_aiYieldFromKnownPantheons[iI] = 0;
+		m_aiYieldFromVictory[iI] = 0;
+		m_aiYieldFromVictoryGlobal[iI] = 0;
+		m_aiYieldFromPillage[iI] = 0;
+		m_aiYieldFromPillageGlobal[iI] = 0;
+		m_aiGoldenAgeYieldMod[iI] = 0;
+		m_aiYieldFromWLTKD[iI] = 0;
+		m_aiYieldFromConstruction[iI] = 0;
+		m_aiYieldFromTech[iI] = 0;
+		m_aiYieldFromBirth[iI] = 0;
+		m_aiYieldFromUnitProduction[iI] = 0;
+		m_aiYieldFromBorderGrowth[iI] = 0;
+		m_aiYieldFromPolicyUnlock[iI] = 0;
+		m_aiYieldFromPurchase[iI] = 0;
+		m_aiYieldFromFaithPurchase[iI] = 0;
+		m_aiYieldFromUnitLevelUp[iI] = 0;
+		m_aiYieldPerAlly[iI] = 0;
+		m_aiYieldPerFriend[iI] = 0;
+		m_aiYieldFromInternalTREnd[iI] = 0;
+		m_aiYieldFromInternalTR[iI] = 0;
+		m_aiYieldFromProcessModifier[iI] = 0;
+		m_aiThemingYieldBonus[iI] = 0;
+		m_aiYieldFromSpyAttack[iI] = 0;
+		m_aiYieldFromSpyDefense[iI] = 0;
+		m_aiEventCityYield[iI] = 0;
 #endif
-		m_aiBaseYieldRateFromReligion.setAt(iI, 0);
+		m_aiBaseYieldRateFromReligion[iI] = 0;
 #if defined(MOD_BALANCE_CORE)
-		m_aiYieldFromMinors.setAt(iI, 0);
-		m_aiBaseYieldRateFromCSFriendship.setAt(iI, 0);
-		m_aiBaseYieldRateFromCSAlliance.setAt(iI, 0);
-		m_aiStaticCityYield.setAt(iI, 0);
+		m_aiYieldFromMinors[iI] = 0;
+		m_aiBaseYieldRateFromCSFriendship[iI] = 0;
+		m_aiBaseYieldRateFromCSAlliance[iI] = 0;
+		m_aiStaticCityYield[iI] = 0;
 #endif
-		m_aiYieldPerPop.setAt(iI, 0);
-		m_aiYieldPerReligion.setAt(iI, 0);
-		m_aiYieldRateModifier.setAt(iI, 0);
-		m_aiPowerYieldRateModifier.setAt(iI, 0);
-		m_aiResourceYieldRateModifier.setAt(iI, 0);
-		m_aiExtraSpecialistYield.setAt(iI, 0);
-		m_aiProductionToYieldModifier.setAt(iI, 0);
+		m_aiYieldPerPop[iI] = 0;
+		m_aiYieldPerReligion[iI] = 0;
+		m_aiYieldRateModifier[iI] = 0;
+		m_aiPowerYieldRateModifier[iI] = 0;
+		m_aiResourceYieldRateModifier[iI] = 0;
+		m_aiExtraSpecialistYield[iI] = 0;
+		m_aiProductionToYieldModifier[iI] = 0;
 	}
 #if defined(MOD_BALANCE_CORE_EVENTS)
 	m_abEventChoiceFired.resize(GC.getNumCityEventChoiceInfos());
@@ -1681,9 +1687,9 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_abEventChoiceActive.resize(GC.getNumCityEventChoiceInfos());
 	for(iI = 0; iI < GC.getNumCityEventChoiceInfos(); iI++)
 	{
-		m_aiEventChoiceDuration.setAt(iI, 0);
-		m_abEventChoiceFired.setAt(iI, false);
-		m_abEventChoiceActive.setAt(iI, false);
+		m_aiEventChoiceDuration[iI] = 0;
+		m_abEventChoiceFired[iI] = false;
+		m_abEventChoiceActive[iI] = false;
 	}
 	m_abEventFired.resize(GC.getNumCityEventInfos());
 	m_abEventActive.resize(GC.getNumCityEventInfos());
@@ -1691,18 +1697,18 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_aiEventCooldown.resize(GC.getNumCityEventInfos());
 	for(iI = 0; iI < GC.getNumCityEventInfos(); iI++)
 	{
-		m_abEventFired.setAt(iI, false);
-		m_abEventActive.setAt(iI, false);
-		m_aiEventIncrement.setAt(iI, 0);
-		m_aiEventCooldown.setAt(iI, 0);
+		m_abEventFired[iI] = false;
+		m_abEventActive[iI] = false;
+		m_aiEventIncrement[iI] = 0;
+		m_aiEventCooldown[iI] = 0;
 	}
 #endif
 	m_aiDomainFreeExperience.resize(NUM_DOMAIN_TYPES);
 	m_aiDomainProductionModifier.resize(NUM_DOMAIN_TYPES);
 	for(iI = 0; iI < NUM_DOMAIN_TYPES; iI++)
 	{
-		m_aiDomainFreeExperience.setAt(iI, 0);
-		m_aiDomainProductionModifier.setAt(iI, 0);
+		m_aiDomainFreeExperience[iI] = 0;
+		m_aiDomainProductionModifier[iI] = 0;
 	}
 
 	m_abEverOwned.resize(REALLY_MAX_PLAYERS);
@@ -1711,40 +1717,40 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_abIsPurchased.resize(GC.getNumBuildingClassInfos());
 	for(iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
 	{
-		m_abIsPurchased.setAt(iI, false);
-		m_abIsBestForWonder.setAt(iI, false);
+		m_abIsPurchased[iI] = false;
+		m_abIsBestForWonder[iI] = false;
 	}
 
 	for(iI = 0; iI < GC.getNumProjectInfos(); iI++)
 	{
-		m_aiNumProjects.setAt(iI, 0);
+		m_aiNumProjects[iI] = 0;
 	}
 
 	for (iI = 0; iI < GC.getNumUnitInfos(); iI++)
 	{
-		m_aiNumUnitsBuilt.setAt(iI, 0);
+		m_aiNumUnitsBuilt[iI] = 0;
 	}
 
 	m_abTraded.resize(REALLY_MAX_PLAYERS);
 #endif
 	for(iI = 0; iI < REALLY_MAX_PLAYERS; iI++)
 	{
-		m_abEverOwned.setAt(iI, false);
+		m_abEverOwned[iI] = false;
 #if defined(MOD_BALANCE_CORE)
-		m_abTraded.setAt(iI, false);
-		m_aiNumTimesOwned.setAt(iI, false);
+		m_abTraded[iI] = false;
+		m_aiNumTimesOwned[iI] = false;
 #endif
 	}
 #if defined(MOD_BALANCE_CORE)
 	m_abPaidAdoptionBonus.resize(GC.getNumReligionInfos());
 	for(iI = 0; iI < GC.getNumReligionInfos(); iI++)
 	{
-		m_abPaidAdoptionBonus.setAt(iI, false);
+		m_abPaidAdoptionBonus[iI] = false;
 	}
 	m_aiReligiousPressureModifier.resize(GC.getNumReligionInfos());
 	for (iI = 0; iI < GC.getNumReligionInfos(); iI++)
 	{
-		m_aiReligiousPressureModifier.setAt(iI, 0);
+		m_aiReligiousPressureModifier[iI] = 0;
 	}
 #endif
 
@@ -1782,21 +1788,21 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 #endif
 	for(iI = 0; iI < NUM_YIELD_TYPES; iI++)
 	{
-		m_abBaseYieldRankValid.setAt(iI, false);
-		m_abYieldRankValid.setAt(iI, false);
-		m_aiBaseYieldRank.setAt(iI, -1);
-		m_aiYieldRank.setAt(iI, -1);
+		m_abBaseYieldRankValid[iI] = false;
+		m_abYieldRankValid[iI] = false;
+		m_aiBaseYieldRank[iI] = -1;
+		m_aiYieldRank[iI] = -1;
 #if defined(MOD_BALANCE_CORE)
-		m_aiNeedsFlatReduction.setAt(iI, 0);
-		m_aiYieldChangeFromCorporationFranchises.setAt(iI, 0);
-		m_aiYieldModifierFromHappiness.setAt(iI, 0);
-		m_aiYieldModifierFromHealth.setAt(iI, 0);
-		m_aiYieldModifierFromCrime.setAt(iI, 0);
-		m_aiYieldModifierFromDevelopment.setAt(iI, 0);
-		m_aiYieldFromHappiness.setAt(iI, 0);
-		m_aiYieldFromHealth.setAt(iI, 0);
-		m_aiYieldFromCrime.setAt(iI, 0);
-		m_aiYieldFromDevelopment.setAt(iI, 0);
+		m_aiNeedsFlatReduction[iI] = 0;
+		m_aiYieldChangeFromCorporationFranchises[iI] = 0;
+		m_aiYieldModifierFromHappiness[iI] = 0;
+		m_aiYieldModifierFromHealth[iI] = 0;
+		m_aiYieldModifierFromCrime[iI] = 0;
+		m_aiYieldModifierFromDevelopment[iI] = 0;
+		m_aiYieldFromHappiness[iI] = 0;
+		m_aiYieldFromHealth[iI] = 0;
+		m_aiYieldFromCrime[iI] = 0;
+		m_aiYieldFromDevelopment[iI] = 0;
 #endif
 	}
 #if defined(MOD_BALANCE_CORE)
@@ -1806,13 +1812,13 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_abBuildingConstructed.resize(GC.getNumBuildingClassInfos());
 	for(int iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
 	{
-		m_abOwedChosenBuilding.setAt(iI, false);
-		m_abBuildingInvestment.setAt(iI, false);
-		m_abBuildingConstructed.setAt(iI, false);
+		m_abOwedChosenBuilding[iI] = false;
+		m_abBuildingInvestment[iI] = false;
+		m_abBuildingConstructed[iI] = false;
 	}
 	for(int iI = 0; iI < GC.getNumUnitClassInfos(); iI++)
 	{
-		m_abUnitInvestment.setAt(iI, false);
+		m_abUnitInvestment[iI] = false;
 	}
 #endif
 #if defined(MOD_BALANCE_CORE_JFD)
@@ -1847,12 +1853,12 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 #endif
 		for(iI = 0; iI < iNumResources; iI++)
 		{
-			m_paiNoResource.setAt(iI, 0);
-			m_paiFreeResource.setAt(iI, 0);
-			m_paiNumResourcesLocal.setAt(iI, 0);
-			m_paiNumUnimprovedResourcesLocal.setAt(iI, 0);
+			m_paiNoResource[iI] = 0;
+			m_paiFreeResource[iI] = 0;
+			m_paiNumResourcesLocal[iI] = 0;
+			m_paiNumUnimprovedResourcesLocal[iI] = 0;
 #if defined(MOD_BALANCE_CORE)
-			m_aiResourceQuantityPerXFranchises.setAt(iI, 0);
+			m_aiResourceQuantityPerXFranchises[iI] = 0;
 #endif
 		}
 
@@ -1861,7 +1867,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 		m_paiProjectProduction.resize(iNumProjectInfos);
 		for(iI = 0; iI < iNumProjectInfos; iI++)
 		{
-			m_paiProjectProduction.setAt(iI, 0);
+			m_paiProjectProduction[iI] = 0;
 		}
 
 		int iNumSpecialistInfos = GC.getNumSpecialistInfos();
@@ -1869,9 +1875,9 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 		m_paiSpecialistProduction.resize(iNumSpecialistInfos);
 		for(iI = 0; iI < GC.getNumSpecialistInfos(); iI++)
 		{
-			m_paiSpecialistProduction.setAt(iI, 0);
+			m_paiSpecialistProduction[iI] = 0;
 #if defined(MOD_BALANCE_CORE)
-			m_aiSpecialistRateModifier.setAt(iI, 0);
+			m_aiSpecialistRateModifier[iI] = 0;
 #endif
 		}
 
@@ -1885,8 +1891,8 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 		m_paiUnitProductionTime.resize(iNumUnitInfos);
 		for(iI = 0; iI < iNumUnitInfos; iI++)
 		{
-			m_paiUnitProduction.setAt(iI, 0);
-			m_paiUnitProductionTime.setAt(iI, 0);
+			m_paiUnitProduction[iI] = 0;
+			m_paiUnitProductionTime[iI] = 0;
 		}
 
 		CvAssertMsg((0 < iNumSpecialistInfos),  "GC.getNumSpecialistInfos() is not greater than zero but an array is being allocated in CvCity::reset");
@@ -1901,10 +1907,10 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 
 		for(iI = 0; iI < iNumSpecialistInfos; iI++)
 		{
-			m_paiSpecialistCount.setAt(iI, 0);
-			m_paiMaxSpecialistCount.setAt(iI, 0);
-			m_paiForceSpecialistCount.setAt(iI, 0);
-			m_paiFreeSpecialistCount.setAt(iI, 0);
+			m_paiSpecialistCount[iI] = 0;
+			m_paiMaxSpecialistCount[iI] = 0;
+			m_paiForceSpecialistCount[iI] = 0;
+			m_paiFreeSpecialistCount[iI] = 0;
 		}
 
 		int iNumImprovementInfos = GC.getNumImprovementInfos();
@@ -1913,7 +1919,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 		m_paiImprovementFreeSpecialists.resize(iNumImprovementInfos);
 		for(iI = 0; iI < iNumImprovementInfos; iI++)
 		{
-			m_paiImprovementFreeSpecialists.setAt(iI, 0);
+			m_paiImprovementFreeSpecialists[iI] = 0;
 		}
 
 		int iNumUnitCombatClassInfos = GC.getNumUnitCombatClassInfos();
@@ -1924,11 +1930,11 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 		m_paiUnitCombatProductionModifier.resize(iNumUnitCombatClassInfos);
 		for(iI = 0; iI < iNumUnitCombatClassInfos; iI++)
 		{
-			m_paiUnitCombatFreeExperience.setAt(iI, 0);
-			m_paiUnitCombatProductionModifier.setAt(iI, 0);
+			m_paiUnitCombatFreeExperience[iI] = 0;
+			m_paiUnitCombatProductionModifier[iI] = 0;
 		}
 
-		m_paiFreePromotionCount.dirtyGet().clear();
+		m_paiFreePromotionCount.clear();
 
 #if defined(MOD_BALANCE_CORE_POLICIES)
 		int iNumBuildingClassInfos = GC.getNumBuildingClassInfos();
@@ -1937,7 +1943,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 		m_paiBuildingClassCulture.resize(iNumBuildingClassInfos);
 		for(iI = 0; iI < iNumBuildingClassInfos; iI++)
 		{
-			m_paiBuildingClassCulture.setAt(iI, 0);
+			m_paiBuildingClassCulture[iI] = 0;
 		}
 		
 		int iNumHurryInfos = GC.getNumHurryInfos();
@@ -1946,7 +1952,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 		m_paiHurryModifier.resize(iNumHurryInfos);
 		for(iI = 0; iI < iNumHurryInfos; iI++)
 		{
-			m_paiHurryModifier.setAt(iI, 0);
+			m_paiHurryModifier[iI] = 0;
 		}
 #endif
 
@@ -1961,29 +1967,29 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 		m_paiNumTerrainWorked.resize(iNumTerrainInfos);
 		for(iI = 0; iI < iNumTerrainInfos; iI++)
 		{
-			m_paiNumTerrainWorked.setAt(iI, 0);
-			m_paiNumFeaturelessTerrainWorked.setAt(iI, 0);
+			m_paiNumTerrainWorked[iI] = 0;
+			m_paiNumFeaturelessTerrainWorked[iI] = 0;
 		}
 
 		m_paiNumFeatureWorked.clear();
 		m_paiNumFeatureWorked.resize(iNumFeatureInfos);
 		for(iI = 0; iI < iNumFeatureInfos; iI++)
 		{
-			m_paiNumFeatureWorked.setAt(iI, 0);
+			m_paiNumFeatureWorked[iI] = 0;
 		}
 
 		m_paiNumResourceWorked.clear();
 		m_paiNumResourceWorked.resize(iNumResourceInfos);
 		for(iI = 0; iI < iNumResourceInfos; iI++)
 		{
-			m_paiNumResourceWorked.setAt(iI, 0);
+			m_paiNumResourceWorked[iI] = 0;
 		}
 
 		m_paiNumImprovementWorked.clear();
 		m_paiNumImprovementWorked.resize(iNumImprovementInfos);
 		for(iI = 0; iI < iNumImprovementInfos; iI++)
 		{
-			m_paiNumImprovementWorked.setAt(iI, 0);
+			m_paiNumImprovementWorked[iI] = 0;
 		}
 #endif
 	}
@@ -3102,7 +3108,7 @@ void CvCity::SetStaticYield(YieldTypes eYield, int iValue)
 {
 	CvAssertMsg(eYield >= 0, "eIndex expected to be >= 0");
 	CvAssertMsg(eYield < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
-	m_aiStaticCityYield.setAt(eYield, iValue);
+	m_aiStaticCityYield[eYield] = iValue;
 }
 
 int CvCity::GetStaticYield(YieldTypes eYield) const
@@ -3175,7 +3181,7 @@ void CvCity::SetLongestPotentialTradeRoute(int iValue, DomainTypes eDomain)
 	VALIDATE_OBJECT
 	CvAssertMsg(eDomain >= 0, "eIndex1 is expected to be non-negative (invalid Index)");
 	CvAssertMsg(eDomain < NUM_DOMAIN_TYPES, "eIndex1 is expected to be within maximum bounds (invalid Index)");
-	return m_aiLongestPotentialTradeRoute.setAt(eDomain, iValue);
+	m_aiLongestPotentialTradeRoute[eDomain] = iValue;
 }
 
 bool CvCity::AreOurBordersTouching(PlayerTypes ePlayer)
@@ -3224,7 +3230,7 @@ void CvCity::SetGlobalStaticYield(YieldTypes eYield, int iValue)
 	CvAssertMsg(eYield >= 0, "eIndex expected to be >= 0");
 	CvAssertMsg(eYield < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 
-	m_aiStaticGlobalYield.setAt(eYield, iValue);
+	m_aiStaticGlobalYield[eYield] = iValue;
 }
 int CvCity::GetGlobalStaticYield(YieldTypes eYield) const
 {
@@ -3237,7 +3243,7 @@ void CvCity::SetStaticNeedAdditives(YieldTypes eYield, int iValue)
 	CvAssertMsg(eYield >= 0, "eIndex expected to be >= 0");
 	CvAssertMsg(eYield < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 
-	m_aiStaticNeedAdditives.setAt(eYield, iValue);
+	m_aiStaticNeedAdditives[eYield] = iValue;
 }
 int CvCity::GetStaticNeedAdditives(YieldTypes eYield) const
 {
@@ -3347,7 +3353,7 @@ void CvCity::ChangeEventChoiceDuration(CityEventChoiceTypes eEventChoice,int iVa
 	CvAssertMsg(eEventChoice < GC.getNumCityEventChoiceInfos(), "eEvent is expected to be within maximum bounds (invalid Index)");
 	if(iValue != 0)
 	{
-		m_aiEventChoiceDuration.setAt(eEventChoice, m_aiEventChoiceDuration[eEventChoice] + iValue);
+		m_aiEventChoiceDuration[eEventChoice] = m_aiEventChoiceDuration[eEventChoice] + iValue;
 	}
 }
 void CvCity::SetEventChoiceDuration(CityEventChoiceTypes eEventChoice,int iValue)
@@ -3355,7 +3361,7 @@ void CvCity::SetEventChoiceDuration(CityEventChoiceTypes eEventChoice,int iValue
 	VALIDATE_OBJECT
 	CvAssertMsg(eEventChoice >= 0, "eEvent is expected to be non-negative (invalid Index)");
 	CvAssertMsg(eEventChoice < GC.getNumCityEventChoiceInfos(), "eEvent is expected to be within maximum bounds (invalid Index)");
-	m_aiEventChoiceDuration.setAt(eEventChoice, iValue);
+	m_aiEventChoiceDuration[eEventChoice] = iValue;
 }
 int CvCity::GetEventIncrement(CityEventTypes eEvent) const
 {
@@ -3371,7 +3377,7 @@ void CvCity::IncrementEvent(CityEventTypes eEvent, int iValue)
 	CvAssertMsg(eEvent < GC.getNumCityEventInfos(), "eEvent is expected to be within maximum bounds (invalid Index)");
 	if(iValue != 0)
 	{
-		m_aiEventIncrement.setAt(eEvent, m_aiEventIncrement[eEvent] + iValue);
+		m_aiEventIncrement[eEvent] = m_aiEventIncrement[eEvent] + iValue;
 	}
 }
 int CvCity::GetCityEventCooldown() const
@@ -3394,7 +3400,7 @@ void CvCity::ChangeEventCityYield(YieldTypes eYield, int iValue)
 	CvAssertMsg(eYield < NUM_YIELD_TYPES, "eYield is expected to be within maximum bounds (invalid Index)");
 	if(iValue != 0)
 	{
-		m_aiEventCityYield.setAt(eYield, m_aiEventCityYield[eYield] + iValue);
+		m_aiEventCityYield[eYield] = m_aiEventCityYield[eYield] + iValue;
 		updateYield(false);
 	}
 }
@@ -7307,7 +7313,7 @@ void CvCity::SetEventActive(CityEventTypes eEvent, bool bValue)
 	CvAssertMsg(eEvent >= 0, "eEvent is expected to be non-negative (invalid Index)");
 	CvAssertMsg(eEvent < GC.getNumCityEventInfos(), "eEvent is expected to be within maximum bounds (invalid Index)");
 
-	m_abEventActive.setAt(eEvent, bValue);
+	m_abEventActive[eEvent] = bValue;
 }
 bool CvCity::IsEventActive(CityEventTypes eEvent) const
 {
@@ -7323,7 +7329,7 @@ void CvCity::SetEventChoiceActive(CityEventChoiceTypes eEventChoice, bool bValue
 	CvAssertMsg(eEventChoice >= 0, "eEventChoice is expected to be non-negative (invalid Index)");
 	CvAssertMsg(eEventChoice < GC.getNumCityEventChoiceInfos(), "eEventChoice is expected to be within maximum bounds (invalid Index)");
 
-	m_abEventChoiceActive.setAt(eEventChoice, bValue);
+	m_abEventChoiceActive[eEventChoice] = bValue;
 }
 bool CvCity::IsEventChoiceActive(CityEventChoiceTypes eEventChoice) const
 {
@@ -7340,7 +7346,7 @@ void CvCity::SetEventChoiceFired(CityEventChoiceTypes eEvent, bool bValue)
 	CvAssertMsg(eEvent >= 0, "eEvent is expected to be non-negative (invalid Index)");
 	CvAssertMsg(eEvent < GC.getNumCityEventChoiceInfos(), "eEvent is expected to be within maximum bounds (invalid Index)");
 
-	m_abEventChoiceFired.setAt(eEvent, bValue);
+	m_abEventChoiceFired[eEvent] = bValue;
 }
 bool CvCity::IsEventChoiceFired(CityEventChoiceTypes eEvent) const
 {
@@ -7356,7 +7362,7 @@ void CvCity::SetEventFired(CityEventTypes eEvent, bool bValue)
 	CvAssertMsg(eEvent >= 0, "eEvent is expected to be non-negative (invalid Index)");
 	CvAssertMsg(eEvent < GC.getNumCityEventInfos(), "eEvent is expected to be within maximum bounds (invalid Index)");
 
-	m_abEventFired.setAt(eEvent, bValue);
+	m_abEventFired[eEvent] = bValue;
 }
 bool CvCity::IsEventFired(CityEventTypes eEvent) const
 {
@@ -7380,7 +7386,7 @@ void CvCity::ChangeEventCooldown(CityEventTypes eEvent,int iValue)
 	CvAssertMsg(eEvent < GC.getNumCityEventInfos(), "eEvent is expected to be within maximum bounds (invalid Index)");
 	if(iValue != 0)
 	{
-		m_aiEventCooldown.setAt(eEvent, m_aiEventCooldown[eEvent] + iValue);
+		m_aiEventCooldown[eEvent] = m_aiEventCooldown[eEvent] + iValue;
 	}
 }
 void CvCity::SetEventCooldown(CityEventTypes eEvent,int iValue)
@@ -7388,7 +7394,7 @@ void CvCity::SetEventCooldown(CityEventTypes eEvent,int iValue)
 	VALIDATE_OBJECT
 	CvAssertMsg(eEvent >= 0, "eEvent is expected to be non-negative (invalid Index)");
 	CvAssertMsg(eEvent < GC.getNumCityEventInfos(), "eEvent is expected to be within maximum bounds (invalid Index)");
-	m_aiEventCooldown.setAt(eEvent, iValue);
+	m_aiEventCooldown[eEvent] = iValue;
 }
 int CvCity::GetEventHappiness() const
 {
@@ -7695,7 +7701,7 @@ void CvCity::updateEconomicValue()
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 	{
 		PlayerTypes ePossibleOwner = (PlayerTypes)iPlayerLoop;
-		m_aiEconomicValue.setAt(iPlayerLoop, 0); //everybody gets a new value
+		m_aiEconomicValue[iPlayerLoop] = 0; //everybody gets a new value
 
 		if (ePossibleOwner != NO_PLAYER && GET_PLAYER(ePossibleOwner).isAlive())
 		{
@@ -7752,7 +7758,7 @@ void CvCity::updateEconomicValue()
 				}
 			}
 
-			m_aiEconomicValue.setAt(ePossibleOwner, iYieldValue + iResourceValue);
+			m_aiEconomicValue[ePossibleOwner] = iYieldValue + iResourceValue;
 		}
 	}
 }
@@ -8238,8 +8244,8 @@ int CvCity::findBaseYieldRateRank(YieldTypes eYield)
 			}
 		}
 
-		m_abBaseYieldRankValid.setAt(eYield, true);
-		m_aiBaseYieldRank.setAt(eYield, iRank);
+		m_abBaseYieldRankValid[eYield] = true;
+		m_aiBaseYieldRank[eYield] = iRank;
 	}
 
 	return m_aiBaseYieldRank[eYield];
@@ -8266,8 +8272,8 @@ int CvCity::findYieldRateRank(YieldTypes eYield)
 			}
 		}
 
-		m_abYieldRankValid.setAt(eYield, true);
-		m_aiYieldRank.setAt(eYield, iRank);
+		m_abYieldRankValid[eYield] = true;
+		m_aiYieldRank[eYield] = iRank;
 	}
 
 	return m_aiYieldRank[eYield];
@@ -9616,11 +9622,11 @@ void CvCity::ChangeNumResourceLocal(ResourceTypes eResource, int iChange, bool b
 		//unimproved is just here for the cache.
 		if (bUnimproved)
 		{
-			m_paiNumUnimprovedResourcesLocal.setAt(eResource, max(0, m_paiNumUnimprovedResourcesLocal[eResource] + iChange));
+			m_paiNumUnimprovedResourcesLocal[eResource] = max(0, m_paiNumUnimprovedResourcesLocal[eResource] + iChange);
 			return;
 		}
 		else
-			m_paiNumResourcesLocal.setAt(eResource, max(0, m_paiNumResourcesLocal[eResource] + iChange));
+			m_paiNumResourcesLocal[eResource] = max(0, m_paiNumResourcesLocal[eResource] + iChange);
 
 		if(bOldHasResource != IsHasResourceLocal(eResource, /*bTestVisible*/ false))
 		{
@@ -10102,7 +10108,7 @@ bool CvCity::IsBuildingFeatureValid(BuildingTypes eBuilding, CvString* toolTipSi
 ResourceTypes CvCity::GetResourceDemanded(bool bHideUnknown) const
 {
 	VALIDATE_OBJECT
-	ResourceTypes eResourceDemanded = static_cast<ResourceTypes>(m_iResourceDemanded.get());
+	ResourceTypes eResourceDemanded = static_cast<ResourceTypes>(m_iResourceDemanded);
 
 	// If we're not hiding the result then don't bother with looking at tech
 	if(!bHideUnknown)
@@ -11740,7 +11746,7 @@ void CvCity::SetBuildingInvestment(BuildingClassTypes eBuildingClass, bool bNewV
 		GAMEEVENTINVOKE_HOOK(GAMEEVENT_CityInvestedBuilding, getOwner(), GetID(), eBuildingClass, bNewValue);
 	}
 
-	m_abBuildingInvestment.setAt(eBuildingClass, bNewValue);
+	m_abBuildingInvestment[eBuildingClass] = bNewValue;
 }
 
 //	--------------------------------------------------------------------------------
@@ -11762,7 +11768,7 @@ void CvCity::SetUnitInvestment(UnitClassTypes eUnitClass, bool bNewValue)
 		GAMEEVENTINVOKE_HOOK(GAMEEVENT_CityInvestedUnit, getOwner(), GetID(), eUnitClass, bNewValue);
 	}
 
-	m_abUnitInvestment.setAt(eUnitClass, bNewValue);
+	m_abUnitInvestment[eUnitClass] = bNewValue;
 }
 
 //	--------------------------------------------------------------------------------
@@ -11779,7 +11785,7 @@ void CvCity::SetBuildingConstructed(BuildingClassTypes eBuildingClass, bool bNew
 	FAssert(eBuildingClass >= 0);
 	FAssert(eBuildingClass < GC.getNumBuildingClassInfos());
 
-	m_abBuildingConstructed.setAt(eBuildingClass, bNewValue);
+	m_abBuildingConstructed[eBuildingClass] = bNewValue;
 }	
 #endif
 //	--------------------------------------------------------------------------------
@@ -16319,7 +16325,7 @@ void CvCity::UpdateReligion(ReligionTypes eNewMajority, bool bRecalcPlotYields)
 #endif
 	for(int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
 	{
-		m_aiBaseYieldRateFromReligion.setAt(iYield, 0);
+		m_aiBaseYieldRateFromReligion[iYield] = 0;
 	}
 
 	for(int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
@@ -16670,7 +16676,7 @@ void CvCity::SetPaidAdoptionBonus(ReligionTypes eReligion, bool bNewValue)
 	VALIDATE_OBJECT
 	CvAssertMsg(eReligion >= 0, "eReligion expected to be >= 0");
 	CvAssertMsg(eReligion < GC.getNumReligionInfos(), "eReligion expected to be < getNumReligionInfos");
-	m_abPaidAdoptionBonus.setAt(eReligion, bNewValue);
+	m_abPaidAdoptionBonus[eReligion] = bNewValue;
 }
 
 int CvCity::GetReligiousPressureModifier(ReligionTypes eReligion) const
@@ -16685,7 +16691,7 @@ void CvCity::SetReligiousPressureModifier(ReligionTypes eReligion, int iNewValue
 	VALIDATE_OBJECT
 	CvAssertMsg(eReligion >= 0, "eReligion expected to be >= 0");
 	CvAssertMsg(eReligion < GC.getNumReligionInfos(), "eReligion expected to be < getNumReligionInfos");
-	m_aiReligiousPressureModifier.setAt(eReligion, iNewValue);
+	m_aiReligiousPressureModifier[eReligion] = iNewValue;
 }
 void CvCity::ChangeReligiousPressureModifier(ReligionTypes eReligion, int iNewValue)
 {
@@ -17016,7 +17022,7 @@ void CvCity::SetTraded(PlayerTypes ePlayer, bool bValue)
 	VALIDATE_OBJECT
 	CvAssertMsg(ePlayer >= 0, "eIndex expected to be >= 0");
 	CvAssertMsg(ePlayer < MAX_PLAYERS, "eIndex expected to be < MAX_PLAYERS");
-	m_abTraded.setAt(ePlayer, bValue);
+	m_abTraded[ePlayer] = bValue;
 }
 bool CvCity::IsTraded(PlayerTypes ePlayer)
 {
@@ -18429,7 +18435,7 @@ bool CvCity::HasGarrison() const
 	{
 		if (m_hGarrison>-1 && GetGarrisonedUnit()==NULL)
 		{
-			OutputDebugString(CvString::format("error! invalid garrison %d is set in %s!\n",m_hGarrison.get(),getName().c_str()).c_str());
+			OutputDebugString(CvString::format("error! invalid garrison %d is set in %s!\n",m_hGarrison,getName().c_str()).c_str());
 			(const_cast<CvCity*>(this))->m_hGarrison = -1;
 			return false;
 		}
@@ -18956,7 +18962,7 @@ void CvCity::SetJONSCultureStored(int iValue)
 
 	if (GetID() == g_iCityToTrace)
 	{
-		OutputDebugString(CvString::format("Turn %d, culture %d, delta %d\n",GC.getGame().getGameTurn(),m_iJONSCultureStored.get(),iValue-m_iJONSCultureStored.get()).c_str());
+		OutputDebugString(CvString::format("Turn %d, culture %d, delta %d\n",GC.getGame().getGameTurn(),m_iJONSCultureStored,iValue-m_iJONSCultureStored).c_str());
 	}
 		
 	m_iJONSCultureStored = iValue;
@@ -19503,7 +19509,7 @@ void CvCity::ChangeYieldFromTraits(YieldTypes eIndex, int iChange)
 
 	if (iChange != 0)
 	{
-		m_iaAddedYieldPerTurnFromTraits.setAt(eIndex, m_iaAddedYieldPerTurnFromTraits[eIndex] + iChange);
+		m_iaAddedYieldPerTurnFromTraits[eIndex] = m_iaAddedYieldPerTurnFromTraits[eIndex] + iChange;
 
 		if (getTeam() == GC.getGame().getActiveTeam())
 		{
@@ -20012,7 +20018,7 @@ void CvCity::ChangeNumTerrainWorked(TerrainTypes eTerrain, int iChange)
 {
 	CvAssertMsg(eTerrain >= 0, "eTerrain is expected to be non-negative (invalid Index)");
 	CvAssertMsg(eTerrain < GC.getNumTerrainInfos(), "eTerrain is expected to be within maximum bounds (invalid Index)");
-	m_paiNumTerrainWorked.setAt(eTerrain, m_paiNumTerrainWorked[eTerrain] + iChange);
+	m_paiNumTerrainWorked[eTerrain] = m_paiNumTerrainWorked[eTerrain] + iChange;
 	CvAssert(GetNumTerrainWorked(eTerrain) >= 0);
 
 	//Update yields
@@ -20038,7 +20044,7 @@ void CvCity::ChangeNumFeaturelessTerrainWorked(TerrainTypes eTerrain, int iChang
 {
 	CvAssertMsg(eTerrain >= 0, "eTerrain is expected to be non-negative (invalid Index)");
 	CvAssertMsg(eTerrain < GC.getNumTerrainInfos(), "eTerrain is expected to be within maximum bounds (invalid Index)");
-	m_paiNumFeaturelessTerrainWorked.setAt(eTerrain, m_paiNumFeaturelessTerrainWorked[eTerrain] + iChange);
+	m_paiNumFeaturelessTerrainWorked[eTerrain] = m_paiNumFeaturelessTerrainWorked[eTerrain] + iChange;
 	CvAssert(GetNumFeaturelessTerrainWorked(eTerrain) >= 0);
 
 	//Update yields
@@ -20064,7 +20070,7 @@ void CvCity::ChangeNumFeatureWorked(FeatureTypes eFeature, int iChange)
 {
 	CvAssertMsg(eFeature >= 0, "eFeature is expected to be non-negative (invalid Index)");
 	CvAssertMsg(eFeature < GC.getNumFeatureInfos(), "eFeature is expected to be within maximum bounds (invalid Index)");
-	m_paiNumFeatureWorked.setAt(eFeature, m_paiNumFeatureWorked[eFeature] + iChange);
+	m_paiNumFeatureWorked[eFeature] = m_paiNumFeatureWorked[eFeature] + iChange;
 	CvAssert(GetNumFeatureWorked(eFeature) >= 0);
 	
 	//Update yields
@@ -20089,7 +20095,7 @@ void CvCity::ChangeNumResourceWorked(ResourceTypes eResource, int iChange)
 {
 	CvAssertMsg(eResource >= 0, "eResource is expected to be non-negative (invalid Index)");
 	CvAssertMsg(eResource < GC.getNumResourceInfos(), "eResource is expected to be within maximum bounds (invalid Index)");
-	m_paiNumResourceWorked.setAt(eResource, m_paiNumResourceWorked[eResource] + iChange);
+	m_paiNumResourceWorked[eResource] = m_paiNumResourceWorked[eResource] + iChange;
 	CvAssert(GetNumResourceWorked(eResource) >= 0);
 }
 //	--------------------------------------------------------------------------------
@@ -20104,7 +20110,7 @@ void CvCity::ChangeNumImprovementWorked(ImprovementTypes eImprovement, int iChan
 {
 	CvAssertMsg(eImprovement >= 0, "eImprovement is expected to be non-negative (invalid Index)");
 	CvAssertMsg(eImprovement < GC.getNumImprovementInfos(), "eImprovement is expected to be within maximum bounds (invalid Index)");
-	m_paiNumImprovementWorked.setAt(eImprovement, m_paiNumImprovementWorked[eImprovement] + iChange);
+	m_paiNumImprovementWorked[eImprovement] = m_paiNumImprovementWorked[eImprovement] + iChange;
 	CvAssert(GetNumImprovementWorked(eImprovement) >= 0);
 }
 
@@ -20629,7 +20635,7 @@ void CvCity::changeHurryModifier(HurryTypes eIndex, int iChange)
 	{
 		CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
 		CvAssertMsg(eIndex < GC.getNumHurryInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
-		m_paiHurryModifier.setAt(eIndex, m_paiHurryModifier[eIndex] + iChange);
+		m_paiHurryModifier[eIndex] = m_paiHurryModifier[eIndex] + iChange;
 	}
 }
 
@@ -20711,7 +20717,7 @@ void CvCity::changeBuildingClassCultureChange(BuildingClassTypes eIndex, int iCh
 {
 	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
 	CvAssertMsg(eIndex < GC.getNumBuildingClassInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
-	m_paiBuildingClassCulture.setAt(eIndex, m_paiBuildingClassCulture[eIndex] + iChange);
+	m_paiBuildingClassCulture[eIndex] = m_paiBuildingClassCulture[eIndex] + iChange;
 	CvAssert(getBuildingClassCultureChange(eIndex) >= 0);
 }
 #endif
@@ -24430,7 +24436,7 @@ void CvCity::SetOwedChosenBuilding(BuildingClassTypes eBuildingClass, bool bNewV
 	FAssert(eBuildingClass >= 0);
 	FAssert(eBuildingClass < GC.getNumBuildingClassInfos());
 
-	m_abOwedChosenBuilding.setAt(eBuildingClass, bNewValue);
+	m_abOwedChosenBuilding[eBuildingClass] = bNewValue;
 }
 #endif
 
@@ -24643,7 +24649,7 @@ void CvCity::SetNumTimesOwned(PlayerTypes ePlayer, int iValue)
 {
 	CvAssertMsg(ePlayer >= 0, "eIndex expected to be >= 0");
 	CvAssertMsg(ePlayer < MAX_PLAYERS, "eIndex expected to be < MAX_PLAYERS");
-	m_aiNumTimesOwned.setAt(ePlayer, iValue);
+	m_aiNumTimesOwned[ePlayer] = iValue;
 }
 void CvCity::ChangeNumTimesOwned(PlayerTypes ePlayer, int iValue)
 {
@@ -24684,7 +24690,7 @@ void CvCity::changeSeaPlotYield(YieldTypes eIndex, int iChange)
 
 	if(iChange != 0)
 	{
-		m_aiSeaPlotYield.setAt(eIndex, m_aiSeaPlotYield[eIndex] + iChange);
+		m_aiSeaPlotYield[eIndex] = m_aiSeaPlotYield[eIndex] + iChange;
 		CvAssert(getSeaPlotYield(eIndex) >= 0);
 
 		updateYield();
@@ -24709,7 +24715,7 @@ void CvCity::changeRiverPlotYield(YieldTypes eIndex, int iChange)
 
 	if(iChange != 0)
 	{
-		m_aiRiverPlotYield.setAt(eIndex, m_aiRiverPlotYield[eIndex] + iChange);
+		m_aiRiverPlotYield[eIndex] = m_aiRiverPlotYield[eIndex] + iChange;
 		CvAssert(getRiverPlotYield(eIndex) >= 0);
 
 		updateYield();
@@ -24735,7 +24741,7 @@ void CvCity::changeLakePlotYield(YieldTypes eIndex, int iChange)
 
 	if(iChange != 0)
 	{
-		m_aiLakePlotYield.setAt(eIndex, m_aiLakePlotYield[eIndex] + iChange);
+		m_aiLakePlotYield[eIndex] = m_aiLakePlotYield[eIndex] + iChange;
 		CvAssert(getLakePlotYield(eIndex) >= 0);
 
 		updateYield();
@@ -24761,7 +24767,7 @@ void CvCity::changeSeaResourceYield(YieldTypes eIndex, int iChange)
 
 	if(iChange != 0)
 	{
-		m_aiSeaResourceYield.setAt(eIndex, m_aiSeaResourceYield[eIndex] + iChange);
+		m_aiSeaResourceYield[eIndex] = m_aiSeaResourceYield[eIndex] + iChange;
 		CvAssert(getSeaResourceYield(eIndex) >= 0);
 
 		updateYield();
@@ -24971,7 +24977,7 @@ void CvCity::SetSpecialReligionYields(YieldTypes eIndex, int iChange)
 
 	if (iChange != m_aiYieldFromKnownPantheons[eIndex])
 	{
-		m_aiYieldFromKnownPantheons.setAt(eIndex, iChange);
+		m_aiYieldFromKnownPantheons[eIndex] = iChange;
 		CvAssert(GetSpecialReligionYields(eIndex) >= 0);
 	}
 }
@@ -25720,7 +25726,7 @@ void CvCity::ChangeBaseYieldRateFromTerrain(YieldTypes eIndex, int iChange)
 			OutputDebugString("houston, we have a problem!\n");
 		}
 
-		m_aiBaseYieldRateFromTerrain.setAt(eIndex, m_aiBaseYieldRateFromTerrain[eIndex] + iChange);
+		m_aiBaseYieldRateFromTerrain[eIndex] = m_aiBaseYieldRateFromTerrain[eIndex] + iChange;
 
 		if(getTeam() == GC.getGame().getActiveTeam())
 		{
@@ -25741,7 +25747,7 @@ void CvCity::SetBaseYieldRateFromTerrain(YieldTypes eIndex, int iValue)
 
 	if (iValue != m_aiBaseYieldRateFromTerrain[eIndex])
 	{
-		m_aiBaseYieldRateFromTerrain.setAt(eIndex, iValue);
+		m_aiBaseYieldRateFromTerrain[eIndex] = iValue;
 
 		if (getTeam() == GC.getGame().getActiveTeam())
 		{
@@ -25773,7 +25779,7 @@ void CvCity::ChangeBaseYieldRateFromBuildings(YieldTypes eIndex, int iChange)
 
 	if(iChange != 0)
 	{
-		m_aiBaseYieldRateFromBuildings.setAt(eIndex, m_aiBaseYieldRateFromBuildings[eIndex] + iChange);
+		m_aiBaseYieldRateFromBuildings[eIndex] = m_aiBaseYieldRateFromBuildings[eIndex] + iChange;
 
 		if(getTeam() == GC.getGame().getActiveTeam())
 		{
@@ -25807,7 +25813,7 @@ void CvCity::ChangeBaseYieldRateFromSpecialists(YieldTypes eIndex, int iChange)
 
 	if(iChange != 0)
 	{
-		m_aiBaseYieldRateFromSpecialists.setAt(eIndex, m_aiBaseYieldRateFromSpecialists[eIndex] + iChange);
+		m_aiBaseYieldRateFromSpecialists[eIndex] = m_aiBaseYieldRateFromSpecialists[eIndex] + iChange;
 
 		if(getTeam() == GC.getGame().getActiveTeam())
 		{
@@ -25840,7 +25846,7 @@ void CvCity::ChangeBaseYieldRateFromMisc(YieldTypes eIndex, int iChange)
 
 	if(iChange != 0)
 	{
-		m_aiBaseYieldRateFromMisc.setAt(eIndex, m_aiBaseYieldRateFromMisc[eIndex] + iChange);
+		m_aiBaseYieldRateFromMisc[eIndex] = m_aiBaseYieldRateFromMisc[eIndex] + iChange;
 
 		if(getTeam() == GC.getGame().getActiveTeam())
 		{
@@ -25884,7 +25890,7 @@ void CvCity::ChangeBaseYieldRateFromLeague(YieldTypes eIndex, int iChange)
 
 	if(iChange != 0)
 	{
-		m_aiBaseYieldRateFromLeague.setAt(eIndex, m_aiBaseYieldRateFromLeague[eIndex] + iChange);
+		m_aiBaseYieldRateFromLeague[eIndex] = m_aiBaseYieldRateFromLeague[eIndex] + iChange;
 
 		if(getTeam() == GC.getGame().getActiveTeam())
 		{
@@ -25967,7 +25973,7 @@ void CvCity::ChangeGrowthExtraYield(YieldTypes eIndex, int iChange)
 
 	if(iChange != 0)
 	{
-		m_aiChangeGrowthExtraYield.setAt(eIndex, m_aiChangeGrowthExtraYield[eIndex] + iChange);
+		m_aiChangeGrowthExtraYield[eIndex] = m_aiChangeGrowthExtraYield[eIndex] + iChange;
 		CvAssert(GetGrowthExtraYield(eIndex) >= 0);
 	}
 }
@@ -25993,7 +25999,7 @@ void CvCity::ChangeYieldFromVictory(YieldTypes eIndex, int iChange)
 
 	if(iChange != 0)
 	{
-		m_aiYieldFromVictory.setAt(eIndex, m_aiYieldFromVictory[eIndex] + iChange);
+		m_aiYieldFromVictory[eIndex] = m_aiYieldFromVictory[eIndex] + iChange;
 		CvAssert(GetYieldFromVictory(eIndex) >= 0);
 	}
 }
@@ -26017,7 +26023,7 @@ void CvCity::ChangeYieldFromVictoryGlobal(YieldTypes eIndex, int iChange)
 
 	if (iChange != 0)
 	{
-		m_aiYieldFromVictoryGlobal.setAt(eIndex, m_aiYieldFromVictoryGlobal[eIndex] + iChange);
+		m_aiYieldFromVictoryGlobal[eIndex] = m_aiYieldFromVictoryGlobal[eIndex] + iChange;
 		CvAssert(GetYieldFromVictoryGlobal(eIndex) >= 0);
 	}
 }
@@ -26042,7 +26048,7 @@ void CvCity::ChangeYieldFromPillage(YieldTypes eIndex, int iChange)
 
 	if (iChange != 0)
 	{
-		m_aiYieldFromPillage.setAt(eIndex, m_aiYieldFromPillage[eIndex] + iChange);
+		m_aiYieldFromPillage[eIndex] = m_aiYieldFromPillage[eIndex] + iChange;
 		CvAssert(GetYieldFromPillage(eIndex) >= 0);
 	}
 }
@@ -26065,7 +26071,7 @@ void CvCity::ChangeYieldFromPillageGlobal(YieldTypes eIndex, int iChange)
 
 	if (iChange != 0)
 	{
-		m_aiYieldFromPillageGlobal.setAt(eIndex, m_aiYieldFromPillageGlobal[eIndex] + iChange);
+		m_aiYieldFromPillageGlobal[eIndex] = m_aiYieldFromPillageGlobal[eIndex] + iChange;
 		CvAssert(GetYieldFromPillageGlobal(eIndex) >= 0);
 	}
 }
@@ -26090,7 +26096,7 @@ void CvCity::ChangeGoldenAgeYieldMod(YieldTypes eIndex, int iChange)
 
 	if(iChange != 0)
 	{
-		m_aiGoldenAgeYieldMod.setAt(eIndex, m_aiGoldenAgeYieldMod[eIndex] + iChange);
+		m_aiGoldenAgeYieldMod[eIndex] = m_aiGoldenAgeYieldMod[eIndex] + iChange;
 		CvAssert(GetGoldenAgeYieldMod(eIndex) >= 0);
 	}
 }
@@ -26116,7 +26122,7 @@ void CvCity::ChangeYieldFromWLTKD(YieldTypes eIndex, int iChange)
 
 	if(iChange != 0)
 	{
-		m_aiYieldFromWLTKD.setAt(eIndex, m_aiYieldFromWLTKD[eIndex] + iChange);
+		m_aiYieldFromWLTKD[eIndex] = m_aiYieldFromWLTKD[eIndex] + iChange;
 		CvAssert(GetYieldFromWLTKD(eIndex) >= 0);
 	}
 }
@@ -26140,7 +26146,7 @@ void CvCity::ChangeYieldFromConstruction(YieldTypes eIndex, int iChange)
 
 	if(iChange != 0)
 	{
-		m_aiYieldFromConstruction.setAt(eIndex, m_aiYieldFromConstruction[eIndex] + iChange);
+		m_aiYieldFromConstruction[eIndex] = m_aiYieldFromConstruction[eIndex] + iChange;
 		CvAssert(GetYieldFromConstruction(eIndex) >= 0);
 	}
 }
@@ -26164,7 +26170,7 @@ void CvCity::ChangeYieldFromTech(YieldTypes eIndex, int iChange)
 
 	if(iChange != 0)
 	{
-		m_aiYieldFromTech.setAt(eIndex, m_aiYieldFromTech[eIndex] + iChange);
+		m_aiYieldFromTech[eIndex] = m_aiYieldFromTech[eIndex] + iChange;
 		CvAssert(GetYieldFromTech(eIndex) >= 0);
 	}
 }
@@ -26189,7 +26195,7 @@ void CvCity::ChangeYieldFromBirth(YieldTypes eIndex, int iChange)
 
 	if(iChange != 0)
 	{
-		m_aiYieldFromBirth.setAt(eIndex, m_aiYieldFromBirth[eIndex] + iChange);
+		m_aiYieldFromBirth[eIndex] = m_aiYieldFromBirth[eIndex] + iChange;
 		CvAssert(GetYieldFromBirth(eIndex) >= 0);
 	}
 }
@@ -26213,7 +26219,7 @@ void CvCity::ChangeYieldFromUnitProduction(YieldTypes eIndex, int iChange)
 
 	if(iChange != 0)
 	{
-		m_aiYieldFromUnitProduction.setAt(eIndex, m_aiYieldFromUnitProduction[eIndex] + iChange);
+		m_aiYieldFromUnitProduction[eIndex] = m_aiYieldFromUnitProduction[eIndex] + iChange;
 		CvAssert(GetYieldFromUnitProduction(eIndex) >= 0);
 	}
 }
@@ -26238,7 +26244,7 @@ void CvCity::ChangeYieldFromBorderGrowth(YieldTypes eIndex, int iChange)
 
 	if(iChange != 0)
 	{
-		m_aiYieldFromBorderGrowth.setAt(eIndex, m_aiYieldFromBorderGrowth[eIndex] + iChange);
+		m_aiYieldFromBorderGrowth[eIndex] = m_aiYieldFromBorderGrowth[eIndex] + iChange;
 		CvAssert(GetYieldFromBorderGrowth(eIndex) >= 0);
 	}
 }
@@ -26262,7 +26268,7 @@ void CvCity::ChangeYieldFromPolicyUnlock(YieldTypes eIndex, int iChange)
 
 	if(iChange != 0)
 	{
-		m_aiYieldFromPolicyUnlock.setAt(eIndex, m_aiYieldFromPolicyUnlock[eIndex] + iChange);
+		m_aiYieldFromPolicyUnlock[eIndex] = m_aiYieldFromPolicyUnlock[eIndex] + iChange;
 		CvAssert(GetYieldFromPolicyUnlock(eIndex) >= 0);
 	}
 }
@@ -26286,7 +26292,7 @@ void CvCity::ChangeYieldFromPurchase(YieldTypes eIndex, int iChange)
 
 	if(iChange != 0)
 	{
-		m_aiYieldFromPurchase.setAt(eIndex, m_aiYieldFromPurchase[eIndex] + iChange);
+		m_aiYieldFromPurchase[eIndex] = m_aiYieldFromPurchase[eIndex] + iChange;
 		CvAssert(GetYieldFromPurchase(eIndex) >= 0);
 	}
 }
@@ -26311,7 +26317,7 @@ void CvCity::ChangeYieldFromFaithPurchase(YieldTypes eIndex, int iChange)
 
 	if (iChange != 0)
 	{
-		m_aiYieldFromFaithPurchase.setAt(eIndex, m_aiYieldFromFaithPurchase[eIndex] + iChange);
+		m_aiYieldFromFaithPurchase[eIndex] = m_aiYieldFromFaithPurchase[eIndex] + iChange;
 		CvAssert(GetYieldFromFaithPurchase(eIndex) >= 0);
 	}
 }
@@ -26335,7 +26341,7 @@ void CvCity::ChangeYieldFromUnitLevelUp(YieldTypes eIndex, int iChange)
 
 	if(iChange != 0)
 	{
-		m_aiYieldFromUnitLevelUp.setAt(eIndex, m_aiYieldFromUnitLevelUp[eIndex] + iChange);
+		m_aiYieldFromUnitLevelUp[eIndex] = m_aiYieldFromUnitLevelUp[eIndex] + iChange;
 		CvAssert(GetYieldFromUnitLevelUp(eIndex) >= 0);
 	}
 }
@@ -26360,7 +26366,7 @@ void CvCity::ChangeYieldPerAlly(YieldTypes eIndex, int iChange)
 
 	if (iChange != 0)
 	{
-		m_aiYieldPerAlly.setAt(eIndex, m_aiYieldPerAlly[eIndex] + iChange);
+		m_aiYieldPerAlly[eIndex] = m_aiYieldPerAlly[eIndex] + iChange;
 		CvAssert(GetYieldPerAlly(eIndex) >= 0);
 	}
 }
@@ -26384,7 +26390,7 @@ void CvCity::ChangeYieldPerFriend(YieldTypes eIndex, int iChange)
 
 	if (iChange != 0)
 	{
-		m_aiYieldPerFriend.setAt(eIndex, m_aiYieldPerFriend[eIndex] + iChange);
+		m_aiYieldPerFriend[eIndex] = m_aiYieldPerFriend[eIndex] + iChange;
 		CvAssert(GetYieldPerFriend(eIndex) >= 0);
 	}
 }
@@ -26460,7 +26466,7 @@ void CvCity::ChangeYieldFromInternalTREnd(YieldTypes eIndex1, int iChange)
 	CvAssertMsg(eIndex1 < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 	if (iChange != 0)
 	{
-		m_aiYieldFromInternalTREnd.setAt(eIndex1, m_aiYieldFromInternalTREnd[eIndex1] + iChange);
+		m_aiYieldFromInternalTREnd[eIndex1] = m_aiYieldFromInternalTREnd[eIndex1] + iChange;
 		CvAssert(GetYieldFromInternalTREnd(eIndex1) >= 0);
 	}
 }
@@ -26485,7 +26491,7 @@ void CvCity::ChangeYieldFromInternalTR(YieldTypes eIndex1, int iChange)
 	CvAssertMsg(eIndex1 < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 	if (iChange != 0)
 	{
-		m_aiYieldFromInternalTR.setAt(eIndex1, m_aiYieldFromInternalTR[eIndex1] + iChange);
+		m_aiYieldFromInternalTR[eIndex1] = m_aiYieldFromInternalTR[eIndex1] + iChange;
 		CvAssert(GetYieldFromInternalTR(eIndex1) >= 0);
 	}
 }
@@ -26511,7 +26517,7 @@ void CvCity::ChangeYieldFromProcessModifier(YieldTypes eIndex1, int iChange)
 	CvAssertMsg(eIndex1 < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 	if (iChange != 0)
 	{
-		m_aiYieldFromProcessModifier.setAt(eIndex1, m_aiYieldFromProcessModifier[eIndex1] + iChange);
+		m_aiYieldFromProcessModifier[eIndex1] = m_aiYieldFromProcessModifier[eIndex1] + iChange;
 		CvAssert(GetYieldFromProcessModifier(eIndex1) >= 0);
 	}
 }
@@ -26535,7 +26541,7 @@ void CvCity::ChangeSpecialistRateModifier(SpecialistTypes eSpecialist, int iChan
 
 	if(iChange != 0)
 	{
-		m_aiSpecialistRateModifier.setAt(eSpecialist, m_aiSpecialistRateModifier[eSpecialist] + iChange);
+		m_aiSpecialistRateModifier[eSpecialist] = m_aiSpecialistRateModifier[eSpecialist] + iChange;
 		CvAssert(GetSpecialistRateModifier(eSpecialist) >= 0);
 	}
 }
@@ -26559,7 +26565,7 @@ void CvCity::ChangeThemingYieldBonus(YieldTypes eIndex, int iChange)
 
 	if(iChange != 0)
 	{
-		m_aiThemingYieldBonus.setAt(eIndex, m_aiThemingYieldBonus[eIndex] + iChange);
+		m_aiThemingYieldBonus[eIndex] = m_aiThemingYieldBonus[eIndex] + iChange;
 		CvAssert(GetThemingYieldBonus(eIndex) >= 0);
 	}
 }
@@ -26584,7 +26590,7 @@ void CvCity::ChangeYieldFromSpyAttack(YieldTypes eIndex, int iChange)
 
 	if (iChange != 0)
 	{
-		m_aiYieldFromSpyAttack.setAt(eIndex, m_aiYieldFromSpyAttack[eIndex] + iChange);
+		m_aiYieldFromSpyAttack[eIndex] = m_aiYieldFromSpyAttack[eIndex] + iChange;
 		CvAssert(GetYieldFromSpyAttack(eIndex) >= 0);
 	}
 }
@@ -26609,7 +26615,7 @@ void CvCity::ChangeYieldFromSpyDefense(YieldTypes eIndex, int iChange)
 
 	if (iChange != 0)
 	{
-		m_aiYieldFromSpyDefense.setAt(eIndex, m_aiYieldFromSpyDefense[eIndex] + iChange);
+		m_aiYieldFromSpyDefense[eIndex] = m_aiYieldFromSpyDefense[eIndex] + iChange;
 		CvAssert(GetYieldFromSpyDefense(eIndex) >= 0);
 	}
 }
@@ -26692,7 +26698,7 @@ void CvCity::ChangeFlatNeedsReduction(YieldTypes eYield, int iValue)
 {
 	if (iValue != 0)
 	{
-		m_aiNeedsFlatReduction.setAt(eYield, GetFlatNeedsReduction(eYield) + iValue);
+		m_aiNeedsFlatReduction[eYield] = GetFlatNeedsReduction(eYield) + iValue;
 	}	
 }
 
@@ -26807,7 +26813,7 @@ void CvCity::ChangeBaseYieldRateFromReligion(YieldTypes eIndex, int iChange)
 
 	if(iChange != 0)
 	{
-		m_aiBaseYieldRateFromReligion.setAt(eIndex, m_aiBaseYieldRateFromReligion[eIndex] + iChange);
+		m_aiBaseYieldRateFromReligion[eIndex] = m_aiBaseYieldRateFromReligion[eIndex] + iChange;
 
 		if(getTeam() == GC.getGame().getActiveTeam())
 		{
@@ -26843,7 +26849,7 @@ void CvCity::ChangeBaseYieldRateFromCSAlliance(YieldTypes eIndex, int iChange)
 
 	if(iChange != 0)
 	{
-		m_aiBaseYieldRateFromCSAlliance.setAt(eIndex, m_aiBaseYieldRateFromCSAlliance[eIndex] + iChange);
+		m_aiBaseYieldRateFromCSAlliance[eIndex] = m_aiBaseYieldRateFromCSAlliance[eIndex] + iChange;
 		CvAssert(GetBaseYieldRateFromCSAlliance(eIndex) >= 0); 
 	}
 }
@@ -26851,7 +26857,7 @@ void CvCity::SetBaseYieldRateFromCSAlliance(YieldTypes eIndex, int iValue)
 {
 	if(GetBaseYieldRateFromCSAlliance(eIndex) != iValue)
 	{
-		m_aiBaseYieldRateFromCSAlliance.setAt(eIndex, iValue);
+		m_aiBaseYieldRateFromCSAlliance[eIndex] = iValue;
 	}
 }
 //	--------------------------------------------------------------------------------
@@ -26877,7 +26883,7 @@ void CvCity::ChangeBaseYieldRateFromCSFriendship(YieldTypes eIndex, int iChange)
 
 	if(iChange != 0)
 	{
-		m_aiBaseYieldRateFromCSFriendship.setAt(eIndex, m_aiBaseYieldRateFromCSFriendship[eIndex] + iChange);
+		m_aiBaseYieldRateFromCSFriendship[eIndex] = m_aiBaseYieldRateFromCSFriendship[eIndex] + iChange;
 		CvAssert(GetBaseYieldRateFromCSFriendship(eIndex) >= 0); 
 	}
 }
@@ -26885,13 +26891,13 @@ void CvCity::SetBaseYieldRateFromCSFriendship(YieldTypes eIndex, int iValue)
 {
 	if(GetBaseYieldRateFromCSFriendship(eIndex) != iValue)
 	{
-		m_aiBaseYieldRateFromCSFriendship.setAt(eIndex, iValue);
+		m_aiBaseYieldRateFromCSFriendship[eIndex] = iValue;
 	}
 }
 
 void CvCity::SetYieldFromMinors(YieldTypes eYield, int iValue)
 {
-	m_aiYieldFromMinors.setAt(eYield, iValue);
+	m_aiYieldFromMinors[eYield] = iValue;
 }
 int CvCity::GetYieldFromMinors(YieldTypes eYield) const
 {
@@ -27148,7 +27154,7 @@ void CvCity::SetYieldChangeFromCorporationFranchises(YieldTypes eIndex, int iTot
 {
 	if(GetYieldChangeFromCorporationFranchises(eIndex) != iTotal)
 	{
-		m_aiYieldChangeFromCorporationFranchises.setAt(eIndex, iTotal);
+		m_aiYieldChangeFromCorporationFranchises[eIndex] = iTotal;
 	}
 }
 int CvCity::GetYieldChangeFromCorporationFranchises(YieldTypes eIndex) const
@@ -27210,7 +27216,7 @@ void CvCity::ChangeResourceQuantityPerXFranchises(ResourceTypes eResource, int i
 
 	if(iChange != 0)
 	{
-		m_aiResourceQuantityPerXFranchises.setAt(eResource, m_aiResourceQuantityPerXFranchises[eResource] + iChange);
+		m_aiResourceQuantityPerXFranchises[eResource] = m_aiResourceQuantityPerXFranchises[eResource] + iChange;
 //		CvAssert(GetCorporationResourceQuantity(eResource) >= 0); 
 	}
 }
@@ -27218,7 +27224,7 @@ void CvCity::SetResourceQuantityPerXFranchises(ResourceTypes eResource, int iVal
 {
 	if(GetResourceQuantityPerXFranchises(eResource) != iValue)
 	{
-		m_aiResourceQuantityPerXFranchises.setAt(eResource, iValue);
+		m_aiResourceQuantityPerXFranchises[eResource] = iValue;
 	}
 }
 //	--------------------------------------------------------------------------------
@@ -27447,7 +27453,7 @@ void CvCity::SetPurchased(BuildingClassTypes eBuildingClass, bool bValue)
 	CvAssertMsg(eBuildingClass < GC.getNumBuildingClassInfos(), "eIndex expected to be < MAX_PLAYERS");
 	if (m_abIsPurchased[eBuildingClass] != bValue)
 	{
-		m_abIsPurchased.setAt(eBuildingClass, bValue);
+		m_abIsPurchased[eBuildingClass] = bValue;
 	}
 }
 bool CvCity::IsPurchased(BuildingClassTypes eBuildingClass)
@@ -27464,7 +27470,7 @@ void CvCity::SetBestForWonder(BuildingClassTypes eBuildingClass, bool bValue)
 	CvAssertMsg(eBuildingClass < GC.getNumBuildingClassInfos(), "eBuildingClass expected to be < GC.getNumBuildingClassInfos()");
 	if (m_abIsBestForWonder[eBuildingClass] != bValue)
 	{
-		m_abIsBestForWonder.setAt(eBuildingClass, bValue);
+		m_abIsBestForWonder[eBuildingClass] = bValue;
 	}
 }
 bool CvCity::IsBestForWonder(BuildingClassTypes eBuildingClass)
@@ -27496,7 +27502,7 @@ void CvCity::ChangeYieldPerPopTimes100(YieldTypes eIndex, int iChange)
 	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 
 	if(iChange != 0)
-		m_aiYieldPerPop.setAt(eIndex, m_aiYieldPerPop[eIndex] + iChange);
+		m_aiYieldPerPop[eIndex] = m_aiYieldPerPop[eIndex] + iChange;
 }
 
 #if defined(MOD_BALANCE_CORE)
@@ -27551,7 +27557,7 @@ void CvCity::ChangeYieldPerReligionTimes100(YieldTypes eIndex, int iChange)
 
 	if(iChange != 0)
 	{
-		m_aiYieldPerReligion.setAt(eIndex, m_aiYieldPerReligion[eIndex] + iChange);
+		m_aiYieldPerReligion[eIndex] = m_aiYieldPerReligion[eIndex] + iChange;
 	}
 }
 
@@ -27573,7 +27579,7 @@ void CvCity::changeYieldRateModifier(YieldTypes eIndex, int iChange)
 	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 	if(iChange != 0)
 	{
-		m_aiYieldRateModifier.setAt(eIndex, m_aiYieldRateModifier[eIndex] + iChange);
+		m_aiYieldRateModifier[eIndex] = m_aiYieldRateModifier[eIndex] + iChange;
 		CvAssert(getYieldRate(eIndex, false) != 0);
 
 		GET_PLAYER(getOwner()).invalidateYieldRankCache(eIndex);
@@ -27627,7 +27633,7 @@ void CvCity::ChangeGreatWorkYieldChange(YieldTypes eIndex, int iChange)
 
 	if (iChange != 0)
 	{
-		m_aiGreatWorkYieldChange.setAt(eIndex, m_aiGreatWorkYieldChange[eIndex] + iChange);
+		m_aiGreatWorkYieldChange[eIndex] = m_aiGreatWorkYieldChange[eIndex] + iChange;
 	}
 }
 #endif
@@ -27651,7 +27657,7 @@ void CvCity::changeResourceYieldRateModifier(YieldTypes eIndex, int iChange)
 
 	if(iChange != 0)
 	{
-		m_aiResourceYieldRateModifier.setAt(eIndex, m_aiResourceYieldRateModifier[eIndex] + iChange);
+		m_aiResourceYieldRateModifier[eIndex] = m_aiResourceYieldRateModifier[eIndex] + iChange;
 		CvAssert(getYieldRate(eIndex, false) >= 0);
 
 		GET_PLAYER(getOwner()).invalidateYieldRankCache(eIndex);
@@ -27759,7 +27765,7 @@ void CvCity::updateExtraSpecialistYield(YieldTypes eYield)
 
 	if(iOldYield != iNewYield)
 	{
-		m_aiExtraSpecialistYield.setAt(eYield, iNewYield);
+		m_aiExtraSpecialistYield[eYield] = iNewYield;
 		CvAssert(getExtraSpecialistYield(eYield) >= 0);
 
 		ChangeBaseYieldRateFromSpecialists(eYield, (iNewYield - iOldYield));
@@ -27799,7 +27805,7 @@ void CvCity::changeProductionToYieldModifier(YieldTypes eIndex, int iChange)
 
 	if(iChange != 0)
 	{
-		m_aiProductionToYieldModifier.setAt(eIndex, m_aiProductionToYieldModifier[eIndex] + iChange);
+		m_aiProductionToYieldModifier[eIndex] = m_aiProductionToYieldModifier[eIndex] + iChange;
 	}
 }
 
@@ -27871,7 +27877,7 @@ void CvCity::changeDomainFreeExperience(DomainTypes eIndex, int iChange)
 	VALIDATE_OBJECT
 	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
 	CvAssertMsg(eIndex < NUM_DOMAIN_TYPES, "eIndex expected to be < NUM_DOMAIN_TYPES");
-	m_aiDomainFreeExperience.setAt(eIndex, m_aiDomainFreeExperience[eIndex] + iChange);
+	m_aiDomainFreeExperience[eIndex] = m_aiDomainFreeExperience[eIndex] + iChange;
 	CvAssert(getDomainFreeExperience(eIndex) >= 0);
 }
 
@@ -27952,7 +27958,7 @@ void CvCity::changeDomainProductionModifier(DomainTypes eIndex, int iChange)
 	VALIDATE_OBJECT
 	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
 	CvAssertMsg(eIndex < NUM_DOMAIN_TYPES, "eIndex expected to be < NUM_DOMAIN_TYPES");
-	m_aiDomainProductionModifier.setAt(eIndex, m_aiDomainProductionModifier[eIndex] + iChange);
+	m_aiDomainProductionModifier[eIndex] = m_aiDomainProductionModifier[eIndex] + iChange;
 }
 
 
@@ -27972,7 +27978,7 @@ void CvCity::setEverOwned(PlayerTypes eIndex, bool bNewValue)
 	VALIDATE_OBJECT
 	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
 	CvAssertMsg(eIndex < MAX_PLAYERS, "eIndex expected to be < MAX_PLAYERS");
-	m_abEverOwned.setAt(eIndex, bNewValue);
+	m_abEverOwned[eIndex] = bNewValue;
 }
 
 //	--------------------------------------------------------------------------------
@@ -27996,7 +28002,7 @@ bool CvCity::setRevealed(TeamTypes eIndex, bool bNewValue)
 const char* CvCity::getNameKey() const
 {
 	VALIDATE_OBJECT
-	return m_strName.get();
+	return m_strName;
 }
 
 
@@ -28004,7 +28010,7 @@ const char* CvCity::getNameKey() const
 const CvString CvCity::getName() const
 {
 	VALIDATE_OBJECT
-	return GetLocalizedText(m_strName.get());
+	return GetLocalizedText(m_strName);
 }
 
 const CvString CvCity::getNameNoSpace() const
@@ -28124,7 +28130,7 @@ void CvCity::setProjectProductionTimes100(ProjectTypes eIndex, int iNewValue)
 
 	if(getProjectProductionTimes100(eIndex) != iNewValue)
 	{
-		m_paiProjectProduction.setAt(eIndex, max(0,iNewValue));
+		m_paiProjectProduction[eIndex] = max(0,iNewValue);
 		CvAssert(getProjectProductionTimes100(eIndex) >= 0);
 
 		if((getOwner() == GC.getGame().getActivePlayer()) && isCitySelected())
@@ -28192,7 +28198,7 @@ void CvCity::setSpecialistProductionTimes100(SpecialistTypes eIndex, int iNewVal
 
 	if(getSpecialistProductionTimes100(eIndex) != iNewValue)
 	{
-		m_paiSpecialistProduction.setAt(eIndex, iNewValue);
+		m_paiSpecialistProduction[eIndex] = iNewValue;
 		CvAssert(getSpecialistProductionTimes100(eIndex) >= 0);
 
 		if((getOwner() == GC.getGame().getActivePlayer()) && isCitySelected())
@@ -28289,7 +28295,7 @@ void CvCity::setUnitProductionTimes100(UnitTypes eIndex, int iNewValue)
 
 	if(getUnitProductionTimes100(eIndex) != iNewValue)
 	{
-		m_paiUnitProduction.setAt(eIndex, max(0,iNewValue));
+		m_paiUnitProduction[eIndex] = max(0,iNewValue);
 		CvAssert(getUnitProductionTimes100(eIndex) >= 0);
 
 		if((getOwner() == GC.getGame().getActivePlayer()) && isCitySelected())
@@ -28327,7 +28333,7 @@ void CvCity::setUnitProductionTime(UnitTypes eIndex, int iNewValue)
 	VALIDATE_OBJECT
 	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
 	CvAssertMsg(eIndex < GC.getNumUnitInfos(), "eIndex expected to be < GC.getNumUnitInfos()");
-	m_paiUnitProductionTime.setAt(eIndex, iNewValue);
+	m_paiUnitProductionTime[eIndex] = iNewValue;
 	CvAssert(getUnitProductionTime(eIndex) >= 0);
 }
 
@@ -28356,7 +28362,7 @@ void CvCity::changeUnitCombatFreeExperience(UnitCombatTypes eIndex, int iChange)
 	VALIDATE_OBJECT
 	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
 	CvAssertMsg(eIndex < GC.getNumUnitCombatClassInfos(), "eIndex expected to be < GC.getNumUnitCombatInfos()");
-	m_paiUnitCombatFreeExperience.setAt(eIndex, m_paiUnitCombatFreeExperience[eIndex] + iChange);
+	m_paiUnitCombatFreeExperience[eIndex] = m_paiUnitCombatFreeExperience[eIndex] + iChange;
 	CvAssert(getUnitCombatFreeExperience(eIndex) >= 0);
 }
 
@@ -28377,7 +28383,7 @@ void CvCity::changeUnitCombatProductionModifier(UnitCombatTypes eIndex, int iCha
 	VALIDATE_OBJECT
 	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
 	CvAssertMsg(eIndex < GC.getNumUnitCombatClassInfos(), "eIndex expected to be < GC.getNumUnitCombatInfos()");
-	m_paiUnitCombatProductionModifier.setAt(eIndex, m_paiUnitCombatProductionModifier[eIndex] + iChange);
+	m_paiUnitCombatProductionModifier[eIndex] = m_paiUnitCombatProductionModifier[eIndex] + iChange;
 	CvAssert(getUnitCombatProductionModifier(eIndex) >= 0);
 }
 
@@ -28388,8 +28394,8 @@ int CvCity::getFreePromotionCount(PromotionTypes eIndex) const
 	VALIDATE_OBJECT
 	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
 	CvAssertMsg(eIndex < GC.getNumPromotionInfos(), "eIndex expected to be < GC.getNumPromotionInfos()");
-	if (m_paiFreePromotionCount.get().find(eIndex) != m_paiFreePromotionCount.get().end())
-		return m_paiFreePromotionCount.get().find(eIndex)->second;
+	if (m_paiFreePromotionCount.find(eIndex) != m_paiFreePromotionCount.end())
+		return m_paiFreePromotionCount.find(eIndex)->second;
 
 	return 0;
 }
@@ -28398,7 +28404,7 @@ int CvCity::getFreePromotionCount(PromotionTypes eIndex) const
 vector<PromotionTypes> CvCity::getFreePromotions() const
 {
 	vector<PromotionTypes> result; 
-	for (map<PromotionTypes, int>::const_iterator it = m_paiFreePromotionCount.get().begin(); it != m_paiFreePromotionCount.get().end(); ++it)
+	for (map<PromotionTypes, int>::const_iterator it = m_paiFreePromotionCount.begin(); it != m_paiFreePromotionCount.end(); ++it)
 		if (it->second > 0)
 			result.push_back(it->first);
 
@@ -28428,10 +28434,10 @@ void CvCity::changeFreePromotionCount(PromotionTypes eIndex, int iChange)
 	VALIDATE_OBJECT
 	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
 	CvAssertMsg(eIndex < GC.getNumPromotionInfos(), "eIndex expected to be < GC.getNumPromotionInfos()");
-	m_paiFreePromotionCount.dirtyGet()[eIndex] += iChange;
+	m_paiFreePromotionCount[eIndex] += iChange;
 
-	if (m_paiFreePromotionCount.dirtyGet()[eIndex] == 0)
-		m_paiFreePromotionCount.dirtyGet().erase(eIndex);
+	if (m_paiFreePromotionCount[eIndex] == 0)
+		m_paiFreePromotionCount.erase(eIndex);
 }
 
 #if defined(MOD_BALANCE_CORE)
@@ -31345,7 +31351,7 @@ void CvCity::changeProjectCount(ProjectTypes eProject, int iValue)
 	VALIDATE_OBJECT
 	CvAssertMsg(eProject >= 0, "ePlayer expected to be >= 0");
 	CvAssertMsg(eProject < GC.getNumProjectInfos(), "ePlayer expected to be < NUM_DOMAIN_TYPES");
-	m_aiNumProjects.setAt(eProject, m_aiNumProjects[eProject] + iValue);
+	m_aiNumProjects[eProject] = m_aiNumProjects[eProject] + iValue;
 }
 
 int CvCity::getProjectCount(ProjectTypes eProject) const
@@ -31362,7 +31368,7 @@ void CvCity::changeUnitsBuiltCount(UnitTypes eUnitType, int iValue)
 	CvAssertMsg(eUnitType >= 0, "eUnitType expected to be >= 0");
 	CvAssertMsg(eUnitType < GC.getNumUnitInfos(), "eUnitType expected to be < GC.getNumUnitInfos()");
 
-	m_aiNumUnitsBuilt.setAt(eUnitType, m_aiNumUnitsBuilt[eUnitType] + iValue);
+	m_aiNumUnitsBuilt[eUnitType] = m_aiNumUnitsBuilt[eUnitType] + iValue;
 }
 
 int CvCity::getUnitsBuiltCount(UnitTypes eUnitType) const
@@ -33235,10 +33241,311 @@ CvCityEspionage* CvCity::GetCityEspionage() const
 CvCityCulture* CvCity::GetCityCulture() const
 {
 	VALIDATE_OBJECT
-		return m_pCityCulture;
+	return m_pCityCulture;
 }
 
 // Private Functions...
+
+template<typename City, typename Visitor>
+void CvCity::Serialize(City& city, Visitor& visitor)
+{
+	visitor(city.m_eOwner);
+	visitor(city.m_iX);
+	visitor(city.m_iY);
+	visitor(city.m_iID);
+	visitor(city.m_iRallyX);
+	visitor(city.m_iRallyY);
+	visitor(city.m_iGameTurnFounded);
+	visitor(city.m_iGameTurnAcquired);
+	visitor(city.m_iGameTurnLastExpanded);
+	visitor(city.m_iPopulation);
+	visitor(city.m_iHighestPopulation);
+	visitor(city.m_iExtraHitPoints);
+	visitor(city.m_iNumGreatPeople);
+	visitor(city.m_iBaseGreatPeopleRate);
+	visitor(city.m_iGreatPeopleRateModifier);
+	visitor(city.m_iJONSCultureStored);
+	visitor(city.m_iJONSCultureLevel);
+#if !defined(MOD_API_UNIFIED_YIELDS_CONSOLIDATION)
+	visitor(city.m_iJONSCulturePerTurnFromBuildings);
+#endif
+	visitor(city.m_iJONSCulturePerTurnFromPolicies);
+	visitor(city.m_iJONSCulturePerTurnFromSpecialists);
+	visitor(city.m_iaAddedYieldPerTurnFromTraits);
+#if !defined(MOD_API_UNIFIED_YIELDS_CONSOLIDATION)
+	visitor(city.m_iJONSCulturePerTurnFromReligion);
+#endif
+#if !defined(MOD_API_UNIFIED_YIELDS_CONSOLIDATION)
+	visitor(city.m_iFaithPerTurnFromBuildings);
+#endif
+	visitor(city.m_iFaithPerTurnFromPolicies);
+#if !defined(MOD_API_UNIFIED_YIELDS_CONSOLIDATION)
+	visitor(city.m_iFaithPerTurnFromReligion);
+#endif
+	visitor(city.m_iAdditionalFood);
+	visitor(city.m_iCityBuildingBombardRange);
+	visitor(city.m_iCityIndirectFire);
+	visitor(city.m_iCityBuildingRangeStrikeModifier);
+	visitor(city.m_iCultureRateModifier);
+	visitor(city.m_iNumWorldWonders);
+	visitor(city.m_iNumTeamWonders);
+	visitor(city.m_iNumNationalWonders);
+	visitor(city.m_iWonderProductionModifier);
+	visitor(city.m_iCapturePlunderModifier);
+	visitor(city.m_iPlotCultureCostModifier);
+	visitor(city.m_iPlotBuyCostModifier);
+	visitor(city.m_iCityWorkingChange);
+	visitor(city.m_iCitySupplyModifier);
+	visitor(city.m_iCitySupplyFlat);
+	visitor(city.m_bAllowsProductionTradeRoutes);
+	visitor(city.m_bAllowsFoodTradeRoutes);
+	visitor(city.m_bAllowPuppetPurchase);
+	visitor(city.m_iCityAutomatonWorkersChange);
+	visitor(city.m_iMaintenance);
+	visitor(city.m_iHealRate);
+	visitor(city.m_iNoOccupiedUnhappinessCount);
+	visitor(city.m_iLocalGainlessPillageCount);
+	visitor(city.m_iFood);
+	visitor(city.m_iFoodKept);
+	visitor(city.m_iMaxFoodKeptPercent);
+	visitor(city.m_iOverflowProduction);
+	visitor(city.m_iFeatureProduction);
+	visitor(city.m_iMilitaryProductionModifier);
+	visitor(city.m_iSpaceProductionModifier);
+	visitor(city.m_iFreeExperience);
+	visitor(city.m_iCurrAirlift);
+	visitor(city.m_iMaxAirUnits);
+	visitor(city.m_iAirModifier);
+	visitor(city.m_iNukeModifier);
+	visitor(city.m_iTradeRouteTargetBonus);
+	visitor(city.m_iTradeRouteRecipientBonus);
+	visitor(city.m_iTradeRouteSeaGoldBonus);
+	visitor(city.m_iTradeRouteLandGoldBonus);
+	visitor(city.m_iNumTradeRouteBonus);
+	visitor(city.m_iCityConnectionTradeRouteGoldModifier);
+	visitor(city.m_iCultureUpdateTimer);
+	visitor(city.m_iCitySizeBoost);
+	visitor(city.m_iSpecialistFreeExperience);
+	visitor(city.m_iStrengthValue);
+	visitor(city.m_iDamage);
+	visitor(city.m_iThreatValue);
+	visitor(city.m_hGarrison);
+	visitor(city.m_iResourceDemanded);
+	visitor(city.m_iWeLoveTheKingDayCounter);
+	visitor(city.m_iLastTurnGarrisonAssigned);
+	visitor(city.m_iThingsProduced);
+	visitor(city.m_iDemandResourceCounter);
+	visitor(city.m_iResistanceTurns);
+	visitor(city.m_iRazingTurns);
+	visitor(city.m_iLowestRazingPop);
+	visitor(city.m_iCountExtraLuxuries);
+	visitor(city.m_iCheapestPlotInfluenceDistance);
+	visitor(city.m_iEspionageModifier);
+	visitor(city.m_iConversionModifier);
+	visitor(city.m_bNeverLost);
+	visitor(city.m_bDrafted);
+	visitor(city.m_bAirliftTargeted);
+	visitor(city.m_bProductionAutomated);
+	visitor(city.m_bLayoutDirty);
+	visitor(city.m_bMadeAttack);
+	visitor(city.m_bOccupied);
+	visitor(city.m_bPuppet);
+	visitor(city.m_bIgnoreCityForHappiness);
+	visitor(city.m_bIndustrialRouteToCapital);
+	visitor(city.m_iTerrainImprovementNeed);
+	visitor(city.m_ePreviousOwner);
+	visitor(city.m_eOriginalOwner);
+	visitor(city.m_ePlayersReligion);
+	visitor(city.m_aiSeaPlotYield);
+	visitor(city.m_aiRiverPlotYield);
+	visitor(city.m_aiLakePlotYield);
+	visitor(city.m_aiSeaResourceYield);
+	visitor(city.m_aiBaseYieldRateFromTerrain);
+	visitor(city.m_aiBaseYieldRateFromBuildings);
+	visitor(city.m_aiBaseYieldRateFromSpecialists);
+	visitor(city.m_aiBaseYieldRateFromMisc);
+	visitor(city.m_aiBaseYieldRateFromLeague);
+	visitor(city.m_iTotalScienceyAid);
+	visitor(city.m_iTotalArtsyAid);
+	visitor(city.m_iTotalGreatWorkAid);
+	visitor(city.m_aiChangeGrowthExtraYield);
+	visitor(city.m_iHappinessFromEmpire);
+	visitor(city.m_iHappinessFromLuxuries);
+	visitor(city.m_iUnhappinessFromEmpire);
+	visitor(city.m_iStaticTechDeviation);
+	visitor(city.m_aiNumProjects);
+	visitor(city.m_aiNumUnitsBuilt);
+	visitor(city.m_aiStaticGlobalYield);
+	visitor(city.m_aiStaticNeedAdditives);
+	visitor(city.m_aiLongestPotentialTradeRoute);
+	visitor(city.m_aiNumTimesAttackedThisTurn);
+	visitor(city.m_aiYieldFromKnownPantheons);
+	visitor(city.m_aiYieldFromVictory);
+	visitor(city.m_aiYieldFromVictoryGlobal);
+	visitor(city.m_aiYieldFromPillage);
+	visitor(city.m_aiYieldFromPillageGlobal);
+	visitor(city.m_aiGoldenAgeYieldMod);
+	visitor(city.m_aiYieldFromWLTKD);
+	visitor(city.m_aiYieldFromConstruction);
+	visitor(city.m_aiYieldFromTech);
+	visitor(city.m_aiYieldFromBirth);
+	visitor(city.m_aiYieldFromUnitProduction);
+	visitor(city.m_aiYieldFromBorderGrowth);
+	visitor(city.m_aiYieldFromPolicyUnlock);
+	visitor(city.m_aiYieldFromPurchase);
+	visitor(city.m_aiYieldFromFaithPurchase);
+	visitor(city.m_aiYieldFromUnitLevelUp);
+	visitor(city.m_aiYieldPerAlly);
+	visitor(city.m_aiYieldPerFriend);
+	visitor(city.m_aiYieldFromInternalTREnd);
+	visitor(city.m_aiYieldFromInternalTR);
+	visitor(city.m_aiYieldFromProcessModifier);
+	visitor(city.m_aiSpecialistRateModifier);
+	visitor(city.m_aiThemingYieldBonus);
+	visitor(city.m_aiYieldFromSpyAttack);
+	visitor(city.m_aiYieldFromSpyDefense);
+	visitor(city.m_aiNumTimesOwned);
+	visitor(city.m_aiStaticCityYield);
+	visitor(city.m_iTradePriorityLand);
+	visitor(city.m_iTradePrioritySea);
+	visitor(city.m_iUnitPurchaseCooldown);
+	visitor(city.m_iUnitPurchaseCooldownCivilian);
+	visitor(city.m_iUnitFaithPurchaseCooldown);
+	visitor(city.m_iUnitFaithPurchaseCooldownCivilian);
+	visitor(city.m_iBuildingPurchaseCooldown);
+	visitor(city.m_iReligiousTradeModifier);
+	visitor(city.m_iCityAirStrikeDefense);
+	visitor(city.m_iFreeBuildingTradeTargetCity);
+	visitor(city.m_iBaseTourism);
+	visitor(city.m_iBaseTourismBeforeModifiers);
+	visitor(city.m_iBorderObstacleCity);
+	visitor(city.m_iBorderObstacleWater);
+	visitor(city.m_iDeepWaterTileDamage);
+	visitor(city.m_iNumNearbyMountains);
+	visitor(city.m_iLocalUnhappinessMod);
+	visitor(city.m_bNoWarmonger);
+	visitor(city.m_iCitySpyRank);
+	visitor(city.m_iTurnsSinceRankAnnouncement);
+	visitor(city.m_iChangePovertyUnhappiness);
+	visitor(city.m_iEmpireNeedsModifier);
+	visitor(city.m_iChangeDefenseUnhappiness);
+	visitor(city.m_iChangeUnculturedUnhappiness);
+	visitor(city.m_iChangeIlliteracyUnhappiness);
+	visitor(city.m_iChangeMinorityUnhappiness);
+	visitor(city.m_iTradeRouteSeaDistanceModifier);
+	visitor(city.m_iTradeRouteLandDistanceModifier);
+	visitor(city.m_iNukeInterceptionChance);
+	visitor(city.m_aiEconomicValue);
+	visitor(city.m_aiBaseYieldRateFromReligion);
+	visitor(city.m_aiBaseYieldRateFromCSAlliance);
+	visitor(city.m_aiBaseYieldRateFromCSFriendship);
+	visitor(city.m_aiYieldFromMinors);
+	visitor(city.m_aiResourceQuantityPerXFranchises);
+	visitor(city.m_aiYieldChangeFromCorporationFranchises);
+	visitor(city.m_aiNeedsFlatReduction);
+	visitor(city.m_iLandTourismBonus);
+	visitor(city.m_iSeaTourismBonus);
+	visitor(city.m_iAlwaysHeal);
+	visitor(city.m_iResourceDiversityModifier);
+	visitor(city.m_iNoUnhappfromXSpecialists);
+	visitor(city.m_aiStaticNeedsUpdateTurn);
+	visitor(city.m_aiGreatWorkYieldChange);
+	visitor(city.m_aiYieldRateModifier);
+	visitor(city.m_aiYieldPerPop);
+	visitor(city.m_aiYieldPerReligion);
+	visitor(city.m_aiPowerYieldRateModifier);
+	visitor(city.m_aiResourceYieldRateModifier);
+	visitor(city.m_aiExtraSpecialistYield);
+	visitor(city.m_aiProductionToYieldModifier);
+	visitor(city.m_aiDomainFreeExperience);
+	visitor(city.m_aiDomainProductionModifier);
+	visitor(city.m_abEverOwned);
+	visitor(city.m_abIsBestForWonder);
+	visitor(city.m_abIsPurchased);
+	visitor(city.m_abTraded);
+	visitor(city.m_abPaidAdoptionBonus);
+	visitor(city.m_aiReligiousPressureModifier);
+	visitor(city.m_iExtraBuildingMaintenance);
+	visitor(city.m_paiNumTerrainWorked);
+	visitor(city.m_paiNumFeaturelessTerrainWorked);
+	visitor(city.m_paiNumFeatureWorked);
+	visitor(city.m_paiNumResourceWorked);
+	visitor(city.m_paiNumImprovementWorked);
+	visitor(city.m_strScriptData);
+	visitor(city.m_iDamageTakenThisTurn);
+	visitor(city.m_iDamageTakenLastTurn);
+	visitor(city.m_paiNoResource);
+	visitor(city.m_paiFreeResource);
+	visitor(city.m_paiNumResourcesLocal);
+	visitor(city.m_paiNumUnimprovedResourcesLocal);
+	visitor(city.m_paiProjectProduction);
+	visitor(city.m_paiSpecialistProduction);
+	visitor(city.m_paiUnitProduction);
+	visitor(city.m_paiUnitProductionTime);
+	visitor(city.m_paiSpecialistCount);
+	visitor(city.m_paiMaxSpecialistCount);
+	visitor(city.m_paiForceSpecialistCount);
+	visitor(city.m_paiFreeSpecialistCount);
+	visitor(city.m_paiImprovementFreeSpecialists);
+	visitor(city.m_paiUnitCombatFreeExperience);
+	visitor(city.m_paiUnitCombatProductionModifier);
+	visitor(city.m_paiFreePromotionCount);
+	visitor(city.m_paiBuildingClassCulture);
+	visitor(city.m_paiHurryModifier);
+	visitor(city.m_iHappinessDelta);
+	visitor(city.m_iPillagedPlots);
+	visitor(city.m_iGrowthEvent);
+	visitor(city.m_iGrowthFromTourism);
+	visitor(city.m_iBuildingClassHappiness);
+	visitor(city.m_iReligionHappiness);
+	visitor(city.m_vClosestNeighbors);
+	visitor(city.m_iBaseHappinessFromBuildings);
+	visitor(city.m_iUnmoddedHappinessFromBuildings);
+	visitor(city.m_bRouteToCapitalConnectedLastTurn);
+	visitor(city.m_bRouteToCapitalConnectedThisTurn);
+	visitor(city.m_strName);
+	visitor(city.m_bOwedCultureBuilding);
+	visitor(city.m_bOwedFoodBuilding);
+	visitor(city.m_aiEventCooldown);
+	visitor(city.m_abEventActive);
+	visitor(city.m_abEventChoiceActive);
+	visitor(city.m_abEventChoiceFired);
+	visitor(city.m_abEventFired);
+	visitor(city.m_aiEventChoiceDuration);
+	visitor(city.m_aiEventIncrement);
+	visitor(city.m_aiEventCityYield);
+	visitor(city.m_iEventHappiness);
+	visitor(city.m_iCityEventCooldown);
+	visitor(city.m_bIsColony);
+	visitor(city.m_iProvinceLevel);
+	visitor(city.m_iOrganizedCrime);
+	visitor(city.m_iResistanceCounter);
+	visitor(city.m_iPlagueCounter);
+	visitor(city.m_iPlagueTurns);
+	visitor(city.m_iPlagueType);
+	visitor(city.m_iSappedTurns);
+	visitor(city.m_iLoyaltyCounter);
+	visitor(city.m_iDisloyaltyCounter);
+	visitor(city.m_iLoyaltyStateType);
+	visitor(city.m_aiYieldModifierFromHappiness);
+	visitor(city.m_aiYieldModifierFromHealth);
+	visitor(city.m_aiYieldModifierFromCrime);
+	visitor(city.m_aiYieldModifierFromDevelopment);
+	visitor(city.m_aiYieldFromHappiness);
+	visitor(city.m_aiYieldFromHealth);
+	visitor(city.m_aiYieldFromCrime);
+	visitor(city.m_aiYieldFromDevelopment);
+	visitor(city.m_iPopulationRank);
+	visitor(city.m_bPopulationRankValid);
+	visitor(city.m_aiBaseYieldRank);
+	visitor(city.m_abBaseYieldRankValid);
+	visitor(city.m_aiYieldRank);
+	visitor(city.m_abYieldRankValid);
+	visitor(city.m_abOwedChosenBuilding);
+	visitor(city.m_abBuildingInvestment);
+	visitor(city.m_abUnitInvestment);
+	visitor(city.m_abBuildingConstructed);
+}
 
 //	--------------------------------------------------------------------------------
 void CvCity::read(FDataStream& kStream)
@@ -33256,8 +33563,9 @@ void CvCity::read(FDataStream& kStream)
 #endif
 
 #if defined(MOD_BALANCE_CORE)
-	kStream >> m_syncArchive;
-	//Values below deleted, as they're already in the sync archive!
+	// Perform shared serialize
+	CvStreamLoadVisitor serialVisitor(kStream);
+	Serialize(*this, serialVisitor);
 #endif
 
 	m_pCityBuildings->Read(kStream);
@@ -33391,8 +33699,9 @@ VALIDATE_OBJECT
 	MOD_SERIALIZE_WRITE(kStream, m_iAutomatons);
 #endif
 #if defined(MOD_BALANCE_CORE)
-	kStream << m_syncArchive;
-	//Values below deleted, as they're already in the sync archive!
+	// Perform shared serialize
+	CvStreamSaveVisitor serialVisitor(kStream);
+	Serialize(*this, serialVisitor);
 #endif
 
 	m_pCityBuildings->Write(kStream);
@@ -33671,14 +33980,14 @@ void CvCity::invalidateYieldRankCache(YieldTypes eYield)
 	{
 		for(int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 		{
-			m_abBaseYieldRankValid.setAt(iI, false);
-			m_abYieldRankValid.setAt(iI, false);
+			m_abBaseYieldRankValid[iI] = false;
+			m_abYieldRankValid[iI] = false;
 		}
 	}
 	else
 	{
-		m_abBaseYieldRankValid.setAt(eYield, false);
-		m_abYieldRankValid.setAt(eYield, false);
+		m_abBaseYieldRankValid[eYield] = false;
+		m_abYieldRankValid[eYield] = false;
 	}
 }
 
@@ -33701,7 +34010,7 @@ void CvCity::ChangeNumTimesAttackedThisTurn(PlayerTypes ePlayer, int iValue)
 	VALIDATE_OBJECT
 	CvAssertMsg(ePlayer >= 0, "ePlayer expected to be >= 0");
 	CvAssertMsg(ePlayer < REALLY_MAX_PLAYERS, "ePlayer expected to be < NUM_DOMAIN_TYPES");
-	m_aiNumTimesAttackedThisTurn.setAt(ePlayer, m_aiNumTimesAttackedThisTurn[ePlayer] + iValue);
+	m_aiNumTimesAttackedThisTurn[ePlayer] = m_aiNumTimesAttackedThisTurn[ePlayer] + iValue;
 }
 int CvCity::GetNumTimesAttackedThisTurn(PlayerTypes ePlayer) const
 {
@@ -34839,13 +35148,13 @@ void CvCity::ChangeExtraHitPoints(int iValue)
 }
 
 //	--------------------------------------------------------------------------------
-const FAutoArchive& CvCity::getSyncArchive() const
+const CvSyncArchive<CvCity>& CvCity::getSyncArchive() const
 {
 	return m_syncArchive;
 }
 
 //	--------------------------------------------------------------------------------
-FAutoArchive& CvCity::getSyncArchive()
+CvSyncArchive<CvCity>& CvCity::getSyncArchive()
 {
 	return m_syncArchive;
 }
@@ -36218,7 +36527,7 @@ void CvCity::SetYieldModifierFromHappiness(YieldTypes eYield, int iValue)
 {
 	if (GetYieldModifierFromHappiness(eYield) != iValue)
 	{
-		m_aiYieldModifierFromHappiness.setAt(eYield, iValue);
+		m_aiYieldModifierFromHappiness[eYield] = iValue;
 		UpdateCityYields(eYield);
 	}
 }
@@ -36235,7 +36544,7 @@ void CvCity::SetYieldModifierFromHealth(YieldTypes eYield, int iValue)
 {
 	if (GetYieldModifierFromHealth(eYield) != iValue)
 	{
-		m_aiYieldModifierFromHealth.setAt(eYield, iValue);
+		m_aiYieldModifierFromHealth[eYield] = iValue;
 		UpdateCityYields(eYield);
 	}
 }
@@ -36249,7 +36558,7 @@ void CvCity::SetYieldModifierFromCrime(YieldTypes eYield, int iValue)
 {
 	if (GetYieldModifierFromCrime(eYield) != iValue)
 	{
-		m_aiYieldModifierFromCrime.setAt(eYield, iValue);
+		m_aiYieldModifierFromCrime[eYield] = iValue;
 		UpdateCityYields(eYield);
 	}
 }
@@ -36263,7 +36572,7 @@ void CvCity::SetYieldModifierFromDevelopment(YieldTypes eYield, int iValue)
 {
 	if (GetYieldModifierFromDevelopment(eYield) != iValue)
 	{
-		m_aiYieldModifierFromDevelopment.setAt(eYield, iValue);
+		m_aiYieldModifierFromDevelopment[eYield] = iValue;
 		UpdateCityYields(eYield);
 	}
 }
@@ -36277,7 +36586,7 @@ void CvCity::SetYieldFromHappiness(YieldTypes eYield, int iValue)
 {
 	if (GetYieldFromHappiness(eYield) != iValue)
 	{
-		m_aiYieldFromHappiness.setAt(eYield, iValue);
+		m_aiYieldFromHappiness[eYield] = iValue;
 		UpdateCityYields(eYield);
 	}
 }
@@ -36291,7 +36600,7 @@ void CvCity::SetYieldFromHealth(YieldTypes eYield, int iValue)
 {
 	if (GetYieldFromHealth(eYield) != iValue)
 	{
-		m_aiYieldFromHealth.setAt(eYield, iValue);
+		m_aiYieldFromHealth[eYield] = iValue;
 		UpdateCityYields(eYield);
 	}
 }
@@ -36304,7 +36613,7 @@ void CvCity::SetYieldFromCrime(YieldTypes eYield, int iValue)
 {
 	if (GetYieldFromCrime(eYield) != iValue)
 	{
-		m_aiYieldFromCrime.setAt(eYield, iValue);
+		m_aiYieldFromCrime[eYield] = iValue;
 		UpdateCityYields(eYield);
 	}
 }
@@ -36321,7 +36630,7 @@ void CvCity::SetYieldFromDevelopment(YieldTypes eYield, int iValue)
 {
 	if (GetYieldFromDevelopment(eYield) != iValue)
 	{
-		m_aiYieldFromDevelopment.setAt(eYield, iValue);
+		m_aiYieldFromDevelopment[eYield] = iValue;
 		UpdateCityYields(eYield);
 	}
 }

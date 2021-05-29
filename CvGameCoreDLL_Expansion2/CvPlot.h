@@ -27,6 +27,7 @@
 #include "CvGlobals.h"
 #include "CvGame.h"
 #include "CvEnums.h"
+#include "CvSerialize.h"
 
 #pragma warning( disable: 4251 )		// needs to have dll-interface to be used by clients of class
 
@@ -480,7 +481,7 @@ public:
 	}
 	inline FeatureTypes getFeatureType() const
 	{
-		return (FeatureTypes)m_eFeatureType.get();
+		return (FeatureTypes)m_eFeatureType;
 	}
 
 	int getTurnDamage(bool bIgnoreTerrainDamage, bool bIgnoreFeatureDamage, bool bExtraTerrainDamage, bool bExtraFeatureDamage) const
@@ -837,6 +838,8 @@ public:
 
 	bool canTrain(UnitTypes eUnit, bool bContinue, bool bTestVisible) const;
 
+	template<typename Plot, typename Visitor>
+	static void Serialize(Plot& plot, Visitor& visitor);
 	void read(FDataStream& kStream);
 	void write(FDataStream& kStream) const;
 
@@ -845,8 +848,8 @@ public:
 	char GetContinentType() const;
 	void SetContinentType(const char cContinent);
 
-	const FAutoArchive& getSyncArchive() const;
-	FAutoArchive& getSyncArchive();
+	const CvSyncArchive<CvPlot>& getSyncArchive() const;
+	CvSyncArchive<CvPlot>& getSyncArchive();
 	std::string debugDump(const FAutoVariableBase&) const;
 	std::string stackTraceRemark(const FAutoVariableBase&) const;
 
@@ -1058,8 +1061,8 @@ protected:
 	short m_iImprovementDuration;
 	short m_iUpgradeProgress;
 
-	FAutoArchiveClassContainer<CvPlot> m_syncArchive; // this must appear before the first auto variable in the class
-	FAutoVariable<char, CvPlot> /*FeatureTypes*/ m_eFeatureType; 
+	SYNC_ARCHIVE_MEMBER(CvPlot)
+	char /*FeatureTypes*/ m_eFeatureType; 
 	//why only one autovariable? probably should extend this to everything the players may change about the plot
 	//ie improvements, routes, etc
 
@@ -1134,6 +1137,10 @@ namespace FSerialization
 void SyncPlots();
 void ClearPlotDeltas();
 }
+
+SYNC_ARCHIVE_BEGIN(CvPlot)
+SYNC_ARCHIVE_VAR(char, m_eFeatureType)
+SYNC_ARCHIVE_END()
 
 #if defined(MOD_BALANCE_CORE_MILITARY)
 struct SPlotWithScore
