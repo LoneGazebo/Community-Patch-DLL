@@ -27184,9 +27184,46 @@ CvUnit* CvUnit::GetPotentialUnitToSwapWith(CvPlot & swapPlot) const
 template<typename Unit, typename Visitor>
 void CvUnit::Serialize(Unit& unit, Visitor& visitor)
 {
+	const bool bLoading = visitor.isLoading();
+	const bool bSaving = visitor.isSaving();
+
+	// Versioning
+	enum UnitSaveVersions
+	{
+		// Update this value when you intend to break save game compatability
+		VERSION_OLDEST = 9,
+
+		// Update this value when you intend to change save game format in a backwards compatible manner
+		VERSION_LATEST = 10,
+
+		// Remove these values and related branches when save compatability is broken
+		VERSION_TAG_REMOVE_DLL_VERSION = 10,
+		VERSION_TAG_REMOVE_UNIT_TYPE_INDEX = 10,
+	};
+	uint32 uiVersion;
+	if (bSaving)
+		uiVersion = VERSION_LATEST;
+	visitor(uiVersion);
+
+	// Mod version
+	// FIXME - This is just save file bloat data. Remember to remove at next compability break.
+	if (bLoading && uiVersion < VERSION_TAG_REMOVE_DLL_VERSION)
+	{
+		uint32 uiDllVersion;
+		visitor >> uiDllVersion;
+		uint32 sentinel;
+		visitor >> sentinel;
+		CheckSentinel(sentinel);
+	}
+
+	// FIXME - Values in this chunk were formerly FAutoVariables. Remove any that shouldn't be saved.
 	visitor(unit.m_eOwner);
 	visitor(unit.m_eOriginalOwner);
-	visitor(unit.m_eUnitType);
+	if (bLoading && uiVersion < VERSION_TAG_REMOVE_UNIT_TYPE_INDEX)
+	{
+		int eUnitType;
+		visitor >> eUnitType;
+	}
 	visitor(unit.m_iX);
 	visitor(unit.m_iY);
 	visitor(unit.m_iID);
@@ -27498,6 +27535,109 @@ void CvUnit::Serialize(Unit& unit, Visitor& visitor)
 	visitor(unit.m_iTacticalMoveSetTurn);
 	visitor(unit.m_eHomelandMove);
 	visitor(unit.m_iHomelandMoveSetTurn);
+
+	// Unit type
+	{
+		uint32 uiUnitTypeHash;
+		if (bSaving)
+			uiUnitTypeHash = unit.m_eUnitType != NO_UNIT && unit.m_pUnitInfo ? FString::Hash(unit.m_pUnitInfo->GetType()) : 0;
+
+		visitor(uiUnitTypeHash);
+
+		if (bLoading)
+		{
+			UnitTypes eUnitIndex = UnitTypes(GC.getInfoTypeForHash(uiUnitTypeHash));
+			if (NO_UNIT != eUnitIndex)
+				visitor.loadAssign(unit.m_eUnitType, eUnitIndex);
+			visitor.loadAssign(unit.m_pUnitInfo, (NO_UNIT != unit.m_eUnitType) ? GC.getUnitInfo(unit.m_eUnitType) : NULL);
+		}
+	}
+
+	visitor(unit.m_Promotions);
+	visitor(unit.m_combatUnit.eOwner);
+	visitor(unit.m_combatUnit.iID);
+	visitor(unit.m_transportUnit.eOwner);
+	visitor(unit.m_transportUnit.iID);
+	visitor(unit.m_missionAIUnit.eOwner);
+	visitor(unit.m_missionAIUnit.iID);
+	visitor(unit.m_extraDomainModifiers);
+	visitor(unit.m_YieldModifier);
+	visitor(unit.m_YieldChange);
+	visitor(unit.m_iGarrisonYieldChange);
+	visitor(unit.m_iFortificationYieldChange);
+	visitor(unit.m_iMaxHitPointsBase);
+
+	//CBP NOTE: Deleted repeat save data here to reduce bloat and manage memory better for MP
+	visitor(unit.m_strGreatName);
+	visitor(unit.m_strName);
+	visitor(*unit.m_pReligion);
+
+	// Great work
+	{
+		uint32 uiGreatWorkHash;
+		if (bSaving)
+		{
+			if (unit.m_eGreatWork != NO_GREAT_WORK)
+			{
+				Database::Connection* db = GC.GetGameDatabase();
+				Database::Results kQuery;
+				if (db && db->Execute(kQuery, "SELECT Type from GreatWorks where ID = ? LIMIT 1"))
+				{
+					kQuery.Bind(1, unit.m_eGreatWork);
+
+					if (kQuery.Step())
+					{
+						uiGreatWorkHash = FString::Hash(kQuery.GetText(0));
+					}
+				}
+			}
+			else
+			{
+				uiGreatWorkHash = 0;
+			}
+		}
+
+		visitor(uiGreatWorkHash);
+
+		if (bLoading)
+		{
+			visitor.loadAssign(unit.m_eGreatWork, uiGreatWorkHash != 0 ? GreatWorkType(GC.getInfoTypeForHash(uiGreatWorkHash)) : NO_GREAT_WORK);
+		}
+	}
+
+	// Mission queue
+	{
+		uint32 uSize;
+		if (bSaving)
+			uSize = unit.m_missionQueue.getLength();
+
+		visitor(uSize);
+
+		for (uint32 uIdx = 0; uIdx < uSize; ++uIdx)
+		{
+			MissionData node;
+			if (bSaving)
+				node = *unit.m_missionQueue.getAt(uIdx);
+
+			visitor(node.eMissionType);
+			visitor(node.iData1);
+			visitor(node.iData2);
+			visitor(node.iFlags);
+			visitor(node.iPushTurn);
+
+			if (bLoading)
+				unit.m_missionQueue.insertAtEnd(&node);
+		}
+	}
+
+	// Last path cache
+	{
+		visitor(unit.m_kLastPath);
+		visitor(unit.m_uiLastPathCacheOrigin);
+		visitor(unit.m_uiLastPathCacheDestination);
+		visitor(unit.m_uiLastPathFlags);
+		visitor(unit.m_uiLastPathTurnSlice);
+	}
 }
 
 //	--------------------------------------------------------------------------------
@@ -27507,94 +27647,9 @@ void CvUnit::read(FDataStream& kStream)
 	// Init data before load
 	reset();
 
-	// Version number to maintain backwards compatibility
-	uint uiVersion;
-	kStream >> uiVersion;
-	MOD_SERIALIZE_INIT_READ(kStream);
-
 	// Perform shared serialize
 	CvStreamLoadVisitor serialVisitor(kStream);
 	Serialize(*this, serialVisitor);
-
-	// anything not in serialize() needs to be explicitly
-	// read
-
-	// The 'automagic' serialize() saves out the unit type index, which is bad since that can change.
-	// Read in the hash and update the value.
-	{
-		uint idUnitType;
-		kStream >> idUnitType;
-		if (idUnitType != 0)
-		{
-			UnitTypes eUnitIndex = (UnitTypes)GC.getInfoTypeForHash(idUnitType);
-			if (NO_UNIT != eUnitIndex)
-				m_eUnitType = eUnitIndex;
-		}
-	}
-
-	m_Promotions.Read(kStream);
-	m_pUnitInfo = (NO_UNIT != m_eUnitType) ? GC.getUnitInfo(m_eUnitType) : NULL;
-	kStream >> m_combatUnit.eOwner; 
-	kStream >> m_combatUnit.iID;
-	kStream >> m_transportUnit.eOwner;
-	kStream >> m_transportUnit.iID;
-	kStream >> m_missionAIUnit.eOwner;
-	kStream >> m_missionAIUnit.iID;
-	kStream >> m_extraDomainModifiers;
-	kStream >> m_YieldModifier;
-	kStream >> m_YieldChange;
-	kStream >> m_iGarrisonYieldChange;
-	kStream >> m_iFortificationYieldChange;
-	MOD_SERIALIZE_READ(78, kStream, m_iMaxHitPointsBase, m_pUnitInfo->GetMaxHitPoints());
-
-	//CBP NOTE: Deleted repeat save data here to reduce bloat and manage memory better for MP
-	kStream >> m_strGreatName;
-	kStream >> m_strName;
-	kStream >> *m_pReligion;
-
-	m_eGreatWork = NO_GREAT_WORK;
-	if(uiVersion > 3)
-	{
-		if(uiVersion > 5)
-		{
-			uint uiGreatWorkType = 0;
-			kStream >> uiGreatWorkType;
-			
-			if (uiGreatWorkType != 0)
-			{
-				m_eGreatWork = (GreatWorkType)GC.getInfoTypeForHash(uiGreatWorkType);
-			}
-		}
-		else
-		{
-			CvString strGreatWorkType;
-			kStream >> strGreatWorkType;
-			m_eGreatWork = static_cast<GreatWorkType>(GC.getInfoTypeForString(strGreatWorkType.c_str()));
-		}
-	}
-
-	//  Read mission queue
-	UINT uSize;
-	kStream >> uSize;
-	for(UINT uIdx = 0; uIdx < uSize; ++uIdx)
-	{
-		MissionData Node;
-
-		kStream >> Node.eMissionType;
-		kStream >> Node.iData1;
-		kStream >> Node.iData2;
-		kStream >> Node.iFlags;
-		kStream >> Node.iPushTurn;
-
-		m_missionQueue.insertAtEnd(&Node);
-	}
-
-	// Read last path cache
-	kStream >> m_kLastPath;
-	kStream >> m_uiLastPathCacheOrigin;
-	kStream >> m_uiLastPathCacheDestination;
-	kStream >> m_uiLastPathFlags;
-	kStream >> m_uiLastPathTurnSlice;
 
 	// Re-attach to the map layer.
 	if (m_iMapLayer != DEFAULT_UNIT_MAP_LAYER)
@@ -27609,78 +27664,9 @@ void CvUnit::write(FDataStream& kStream) const
 {
 	VALIDATE_OBJECT
 
-	// Current version number
-	uint uiVersion = 9;
-	kStream << uiVersion;
-	MOD_SERIALIZE_INIT_WRITE(kStream);
-
 	// Perform shared serialize
 	CvStreamSaveVisitor serialVisitor(kStream);
 	Serialize(*this, serialVisitor);
-
-	// Write out a hash for the unit type, the sync archive saved the index, which is not a good thing to do.
-	if (m_eUnitType != NO_UNIT && m_pUnitInfo)
-		kStream << FString::Hash(m_pUnitInfo->GetType());
-	else
-		kStream << (uint)0;
-
-	m_Promotions.Write(kStream);
-	kStream << m_combatUnit.eOwner;
-	kStream << m_combatUnit.iID;
-	kStream << m_transportUnit.eOwner;
-	kStream << m_transportUnit.iID;
-	kStream << m_missionAIUnit.eOwner;
-	kStream << m_missionAIUnit.iID;
-	kStream << m_extraDomainModifiers;
-	kStream << m_YieldModifier;
-	kStream << m_YieldChange;
-	kStream << m_iGarrisonYieldChange;
-	kStream << m_iFortificationYieldChange;
-	MOD_SERIALIZE_WRITE(kStream, m_iMaxHitPointsBase);
-
-	//CBP NOTE: Deleted repeat save data here to reduce bloat and manage memory better for MP
-	kStream << m_strGreatName;
-	kStream << m_strName;
-	kStream << *m_pReligion;
-
-	if (m_eGreatWork != NO_GREAT_WORK)
-	{
-		Database::Connection* db = GC.GetGameDatabase();
-		Database::Results kQuery;
-		if(db && db->Execute(kQuery, "SELECT Type from GreatWorks where ID = ? LIMIT 1"))
-		{
-			kQuery.Bind(1, m_eGreatWork);
-
-			if(kQuery.Step())
-			{
-				kStream << FString::Hash(kQuery.GetText(0));
-			}
-		}
-	}
-	else
-	{
-		kStream << (uint)0;
-	}
-
-	//  Write mission list
-	kStream << m_missionQueue.getLength();
-	for(int uIdx = 0; uIdx < m_missionQueue.getLength(); ++uIdx)
-	{
-		MissionData* pNode = m_missionQueue.getAt(uIdx);
-
-		kStream << pNode->eMissionType;
-		kStream << pNode->iData1;
-		kStream << pNode->iData2;
-		kStream << pNode->iFlags;
-		kStream << pNode->iPushTurn;
-	}
-
-	// Write last path cache
-	kStream << m_kLastPath;
-	kStream << m_uiLastPathCacheOrigin;
-	kStream << m_uiLastPathCacheDestination;
-	kStream << m_uiLastPathFlags;
-	kStream << m_uiLastPathTurnSlice;
 }
 
 //	--------------------------------------------------------------------------------

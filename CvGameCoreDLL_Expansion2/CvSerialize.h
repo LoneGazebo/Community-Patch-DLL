@@ -44,6 +44,21 @@ public:
 		return false;
 	}
 
+	inline const FDataStream& stream() const
+	{
+		return m_stream;
+	}
+	inline FDataStream& stream()
+	{
+		return m_stream;
+	}
+
+	template<typename Dst, typename Src>
+	inline void loadAssign(Dst& dst, const Src& src)
+	{
+		FAssertMsg(false, "CvStreamSaveVisitor is not meant for loading");
+	}
+
 private:
 	FDataStream& m_stream;
 };
@@ -84,6 +99,21 @@ public:
 	inline bool isLoading() const
 	{
 		return true;
+	}
+
+	inline const FDataStream& stream() const
+	{
+		return m_stream;
+	}
+	inline FDataStream& stream()
+	{
+		return m_stream;
+	}
+
+	template<typename Dst, typename Src>
+	inline void loadAssign(Dst& dst, const Src& src)
+	{
+		dst = src;
 	}
 
 private:
