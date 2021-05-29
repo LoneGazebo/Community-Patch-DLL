@@ -187,7 +187,7 @@ CvCity::CvCity() :
 	, m_iNumGreatPeople()
 	, m_iBaseGreatPeopleRate()
 	, m_iGreatPeopleRateModifier()
-	, m_iJONSCultureStored(true)
+	, m_iJONSCultureStored()
 	, m_iJONSCultureLevel()
 #if !defined(MOD_API_UNIFIED_YIELDS_CONSOLIDATION)
 	, m_iJONSCulturePerTurnFromBuildings()
