@@ -436,9 +436,6 @@
     <!-- Send purchase notifications at every boundary and not just the first (v42) -->
     <!-- See also: "Religion - Recurring Purchase Notifications" -->
     <Row Class="4" Name="RELIGION_RECURRING_PURCHASE_NOTIFIY" Value="0"/>
-    <!-- Adds support for the Belief_PlotYieldChanges table (v35) -->
-    <!-- See also: "Religion - Bonus Beliefs" -->
-    <Row Class="6" Name="RELIGION_PLOT_YIELDS" Value="1" DbUpdates="1"/>
 	<!-- Adds support for Great People being purchased by faith to be specified on a policy (usually a finisher) and not hard-coded (v53) -->
     <Row Class="6" Name="RELIGION_POLICY_BRANCH_FAITH_GP" Value="1" DbUpdates="1"/>
     <!-- Adds support for "local" religions (ie ones that only have influence within the civ's own territory) (v48) -->
@@ -799,10 +796,6 @@
     <!-- See also: "Units - Railroad Artillery" -->
     <!-- See also: "Civilization - Morindim" -->
     <Row Class="3" Name="EVENTS_CAN_MOVE_INTO" Value="0" DbUpdates="1"/>
-
-    <!-- Enables the Plot Yield tables (v35) -->
-    <!-- See also: "Religion - Bonus Beliefs" -->
-    <Row Class="2" Name="API_PLOT_YIELDS" Value="1" DbUpdates="1"/>
 
     <!-- * Enables the Unified Yields extensions (v54) -->
     <Row Class="2" Name="API_UNIFIED_YIELDS" Value="1" DbUpdates="1"/>

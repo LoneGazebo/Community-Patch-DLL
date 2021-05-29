@@ -34,9 +34,7 @@ class CvColorInfo;
 class CvPlayerColorInfo;
 class CvEntityEventInfo;
 class CvLandscapeInfo;
-#if defined(MOD_API_PLOT_YIELDS)
 class CvPlotInfo;
-#endif
 #if defined(MOD_API_UNIFIED_YIELDS)
 class CvGreatPersonInfo;
 #endif
@@ -318,11 +316,10 @@ public:
 	std::vector<CvMultiUnitFormationInfo*>& getMultiUnitFormationInfo();
 	_Ret_maybenull_ CvMultiUnitFormationInfo* getMultiUnitFormationInfo(int i);
 
-#if defined(MOD_API_PLOT_YIELDS)
 	int getNumPlotInfos();
 	std::vector<CvPlotInfo*>& getPlotInfo();
 	CvPlotInfo* getPlotInfo(PlotTypes ePlotNum);
-#endif
+
 #if defined(MOD_API_UNIFIED_YIELDS)
 	int getNumGreatPersonInfos();
 	std::vector<CvGreatPersonInfo*>& getGreatPersonInfo();
@@ -9699,10 +9696,7 @@ protected:
 
 	std::vector<CvColorInfo*> m_paColorInfo;
 	std::vector<CvPlayerColorInfo*> m_paPlayerColorInfo;
-
-#if defined(MOD_API_PLOT_YIELDS)
 	std::vector<CvPlotInfo*> m_paPlotInfo;
-#endif
 #if defined(MOD_API_UNIFIED_YIELDS)
 	std::vector<CvGreatPersonInfo*> m_paGreatPersonInfo;
 #endif

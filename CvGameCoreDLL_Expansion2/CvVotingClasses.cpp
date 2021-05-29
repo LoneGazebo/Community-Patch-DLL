@@ -6192,10 +6192,11 @@ CvString CvLeague::GetResolutionProposeOpinionDetails(ResolutionTypes eResolutio
 			{
 				if (!bNeutralDone)
 				{
-					s += "[NEWLINE]";
+					CvString sNeg = Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_PROPOSAL_OPINIONS_NEUTRAL").toUTF8();
+					sNeg.insert(0, "[ENDCOLOR]");
+					s += sNeg;
 					bNeutralDone = true;
 				}
-				strOut.insert(0, "[COLOR_WHITE]");
 				s += strOut;
 			}
 		}
@@ -6224,6 +6225,9 @@ CvString CvLeague::GetResolutionProposeOpinionDetails(ResolutionTypes eResolutio
 			s += strOut;
 		}
 	}
+	CvString sEnd = Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_PROPOSAL_OPINIONS_END").toUTF8();
+	sEnd.insert(0, "[COLOR_WHITE]");
+	s += sEnd;
 
 	return s;
 }
@@ -6296,10 +6300,11 @@ CvString CvLeague::GetResolutionProposeOpinionDetails(int iTargetResolutionID, P
 			{
 				if (!bNeutralDone)
 				{
-					s += "[NEWLINE]";
+					CvString sNeg = Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_PROPOSAL_OPINIONS_NEUTRAL").toUTF8();
+					sNeg.insert(0, "[ENDCOLOR]");
+					s += sNeg;
 					bNeutralDone = true;
 				}
-				strOut.insert(0, "[COLOR_WHITE]");
 				s += strOut;
 			}
 		}
@@ -6328,7 +6333,9 @@ CvString CvLeague::GetResolutionProposeOpinionDetails(int iTargetResolutionID, P
 			s += strOut;
 		}
 	}
-
+	CvString sEnd = Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_PROPOSAL_OPINIONS_END").toUTF8();
+	sEnd.insert(0, "[COLOR_WHITE]");
+	s += sEnd;
 
 	return s;
 }

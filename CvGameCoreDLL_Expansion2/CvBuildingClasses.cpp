@@ -389,7 +389,7 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_ppaiSpecialistYieldChange(NULL),
 	m_ppaiResourceYieldModifier(NULL),
 	m_ppaiTerrainYieldChange(NULL),
-#if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
+#if defined(MOD_API_UNIFIED_YIELDS)
 	m_ppaiYieldPerXTerrain(NULL),
 	m_ppaiYieldPerXFeature(NULL),
 	m_ppaiPlotYieldChange(NULL),
@@ -525,7 +525,7 @@ CvBuildingEntry::~CvBuildingEntry(void)
 	CvDatabaseUtility::SafeDelete2DArray(m_ppaiSpecialistYieldChange);
 	CvDatabaseUtility::SafeDelete2DArray(m_ppaiResourceYieldModifier);
 	CvDatabaseUtility::SafeDelete2DArray(m_ppaiTerrainYieldChange);
-#if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
+#if defined(MOD_API_UNIFIED_YIELDS)
 	CvDatabaseUtility::SafeDelete2DArray(m_ppaiYieldPerXTerrain);
 	CvDatabaseUtility::SafeDelete2DArray(m_ppaiYieldPerXFeature);
 	CvDatabaseUtility::SafeDelete2DArray(m_ppaiPlotYieldChange);
@@ -1272,9 +1272,9 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 		}
 	}
 	
-#if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
+#if defined(MOD_API_UNIFIED_YIELDS)
 	//PlotYieldChanges
-	if (MOD_API_UNIFIED_YIELDS && MOD_API_PLOT_YIELDS)
+	if (MOD_API_UNIFIED_YIELDS)
 	{
 		kUtility.Initialize2DArray(m_ppaiPlotYieldChange, "Plots", "Yields");
 
@@ -3905,7 +3905,7 @@ int* CvBuildingEntry::GetTerrainYieldChangeArray(int i) const
 	return m_ppaiTerrainYieldChange[i];
 }
 
-#if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
+#if defined(MOD_API_UNIFIED_YIELDS)
 /// Change to Terrain yield by type
 int CvBuildingEntry::GetYieldPerXTerrain(int i, int j) const
 {
@@ -3944,15 +3944,11 @@ int* CvBuildingEntry::GetYieldPerXFeatureArray(int i) const
 /// Change to Plot yield by type
 int CvBuildingEntry::GetPlotYieldChange(int i, int j) const
 {
-	if (MOD_API_PLOT_YIELDS) {
-		CvAssertMsg(i < GC.getNumPlotInfos(), "Index out of bounds");
-		CvAssertMsg(i > -1, "Index out of bounds");
-		CvAssertMsg(j < NUM_YIELD_TYPES, "Index out of bounds");
-		CvAssertMsg(j > -1, "Index out of bounds");
-		return m_ppaiPlotYieldChange ? m_ppaiPlotYieldChange[i][j] : -1;
-	} else {
-		return 0;
-	}
+	CvAssertMsg(i < GC.getNumPlotInfos(), "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	CvAssertMsg(j < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(j > -1, "Index out of bounds");
+	return m_ppaiPlotYieldChange ? m_ppaiPlotYieldChange[i][j] : -1;
 }
 
 /// Array of changes to Plot yield

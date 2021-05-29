@@ -9226,11 +9226,7 @@ int CvPlot::calculateNatureYield(YieldTypes eYield, PlayerTypes ePlayer, const C
 		}
 	}
 
-	if (MOD_API_PLOT_YIELDS) 
-	{
-		iYield += GC.getPlotInfo(getPlotType())->getYield(eYield);
-	}
-
+	iYield += GC.getPlotInfo(getPlotType())->getYield(eYield);
 	iYield += GC.getGame().getPlotExtraYield(m_iX, m_iY, eYield);
 
 	if(isHills())
@@ -9594,13 +9590,10 @@ int CvPlot::calculateReligionNatureYield(YieldTypes eYield, PlayerTypes ePlayer,
 		iYield += iReligionChange;
 	}
 
-	if (MOD_RELIGION_PLOT_YIELDS)
+	iYield += pMajorityReligion->m_Beliefs.GetPlotYieldChange(getPlotType(), eYield, ePlayer, pOwningCity);
+	if (pSecondaryPantheon)
 	{
-		iYield += pMajorityReligion->m_Beliefs.GetPlotYieldChange(getPlotType(), eYield, ePlayer, pOwningCity);
-		if (pSecondaryPantheon)
-		{
-			iYield += pSecondaryPantheon->GetPlotYieldChange(getPlotType(), eYield);
-		}
+		iYield += pSecondaryPantheon->GetPlotYieldChange(getPlotType(), eYield);
 	}
 
 	if (isLake())

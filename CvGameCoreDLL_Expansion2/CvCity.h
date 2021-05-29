@@ -324,7 +324,7 @@ public:
 	int GetTerrainExtraYield(TerrainTypes eTerrain, YieldTypes eYield) const;
 	void ChangeTerrainExtraYield(TerrainTypes eTerrain, YieldTypes eYield, int iChange);
 
-#if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
+#if defined(MOD_API_UNIFIED_YIELDS)
 	int GetPlotExtraYield(PlotTypes ePlot, YieldTypes eYield) const;
 	void ChangePlotExtraYield(PlotTypes ePlot, YieldTypes eYield, int iChange);
 #endif

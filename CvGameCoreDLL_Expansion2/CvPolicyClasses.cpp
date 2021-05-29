@@ -341,7 +341,7 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_iInvestmentModifier(0),
 #endif
 	m_ppiImprovementYieldChanges(NULL),
-#if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
+#if defined(MOD_API_UNIFIED_YIELDS)
 	m_ppiPlotYieldChanges(NULL),
 #endif
 #if defined(MOD_API_UNIFIED_YIELDS)
@@ -442,7 +442,7 @@ CvPolicyEntry::~CvPolicyEntry(void)
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiReligionBuildingYieldMod);
 #endif
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiImprovementYieldChanges);
-#if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
+#if defined(MOD_API_UNIFIED_YIELDS)
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiPlotYieldChanges);
 #endif
 #if defined(MOD_API_UNIFIED_YIELDS)
@@ -954,9 +954,9 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 		}
 	}
 #endif
-#if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
+#if defined(MOD_API_UNIFIED_YIELDS)
 	//PlotYieldChanges
-	if (MOD_API_UNIFIED_YIELDS && MOD_API_PLOT_YIELDS)
+	if (MOD_API_UNIFIED_YIELDS)
 	{
 		kUtility.Initialize2DArray(m_ppiPlotYieldChanges, "Plots", "Yields");
 
@@ -3205,19 +3205,15 @@ int CvPolicyEntry::GetImprovementYieldChanges(int i, int j) const
 	return m_ppiImprovementYieldChanges[i][j];
 }
 
-#if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
+#if defined(MOD_API_UNIFIED_YIELDS)
 /// Yield modifier for a specific plot by yield type
 int CvPolicyEntry::GetPlotYieldChanges(int i, int j) const
 {
-	if (MOD_API_PLOT_YIELDS) {
-		CvAssertMsg(i < GC.getNumPlotInfos(), "Index out of bounds");
-		CvAssertMsg(i > -1, "Index out of bounds");
-		CvAssertMsg(j < NUM_YIELD_TYPES, "Index out of bounds");
-		CvAssertMsg(j > -1, "Index out of bounds");
-		return m_ppiPlotYieldChanges[i][j];
-	} else {
-		return 0;
-	}
+	CvAssertMsg(i < GC.getNumPlotInfos(), "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	CvAssertMsg(j < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(j > -1, "Index out of bounds");
+	return m_ppiPlotYieldChanges[i][j];
 }
 #endif
 

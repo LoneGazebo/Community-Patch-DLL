@@ -162,10 +162,8 @@ CvBeliefEntry::CvBeliefEntry() :
 	m_piYieldFromRemoveHeresy(NULL),
 	m_piYieldFromBarbarianKills(NULL),
 #endif
-#if defined(MOD_RELIGION_PLOT_YIELDS)
 	m_ppiPlotYieldChange(NULL),
 	m_pbFaithPurchaseUnitSpecificEnabled(NULL),
-#endif
 #if defined(MOD_RELIGION_EXTENSIONS)
 	m_aiFreePromotions(),
 	m_pbiYieldFromImprovementBuild(),
@@ -203,11 +201,7 @@ CvBeliefEntry::~CvBeliefEntry()
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiSpecialistYieldChange);
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiGreatPersonExpendedYield);
 #endif
-#if defined(MOD_RELIGION_PLOT_YIELDS)
-	if (MOD_RELIGION_PLOT_YIELDS) {
-		CvDatabaseUtility::SafeDelete2DArray(m_ppiPlotYieldChange);
-	}
-#endif
+	CvDatabaseUtility::SafeDelete2DArray(m_ppiPlotYieldChange);
 #if defined(MOD_RELIGION_EXTENSIONS)
 	if (MOD_RELIGION_EXTENSIONS)
 	{
@@ -1090,21 +1084,15 @@ int CvBeliefEntry::GetGreatPersonPoints(GreatPersonTypes i) const
 }
 #endif
 
-#if defined(MOD_RELIGION_PLOT_YIELDS)
 /// Change to yield by plot
 int CvBeliefEntry::GetPlotYieldChange(int i, int j) const
 {
-	if (MOD_API_PLOT_YIELDS) {
-		CvAssertMsg(i < GC.getNumPlotInfos(), "Index out of bounds");
-		CvAssertMsg(i > -1, "Index out of bounds");
-		CvAssertMsg(j < NUM_YIELD_TYPES, "Index out of bounds");
-		CvAssertMsg(j > -1, "Index out of bounds");
-		return m_ppiPlotYieldChange ? m_ppiPlotYieldChange[i][j] : -1;
-	} else {
-		return 0;
-	}
+	CvAssertMsg(i < GC.getNumPlotInfos(), "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	CvAssertMsg(j < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(j > -1, "Index out of bounds");
+	return m_ppiPlotYieldChange ? m_ppiPlotYieldChange[i][j] : -1;
 }
-#endif
 
 #if defined(MOD_RELIGION_EXTENSIONS)
 /// Free promotions 
@@ -1725,31 +1713,26 @@ bool CvBeliefEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	kUtility.SetYields(m_piYieldFromBarbarianKills, "Belief_YieldFromBarbarianKills", "BeliefType", szBeliefType);
 #endif
 
-#if defined(MOD_RELIGION_PLOT_YIELDS)
-	if (MOD_RELIGION_PLOT_YIELDS)
 	//PlotYieldChanges
+	kUtility.Initialize2DArray(m_ppiPlotYieldChange, "Plots", "Yields");
+
+	std::string strKey("Belief_PlotYieldChanges");
+	Database::Results* pResults = kUtility.GetResults(strKey);
+	if(pResults == NULL)
 	{
-		kUtility.Initialize2DArray(m_ppiPlotYieldChange, "Plots", "Yields");
-
-		std::string strKey("Belief_PlotYieldChanges");
-		Database::Results* pResults = kUtility.GetResults(strKey);
-		if(pResults == NULL)
-		{
-			pResults = kUtility.PrepareResults(strKey, "select Plots.ID as PlotID, Yields.ID as YieldID, Yield from Belief_PlotYieldChanges inner join Plots on Plots.Type = PlotType inner join Yields on Yields.Type = YieldType where BeliefType = ?");
-		}
-
-		pResults->Bind(1, szBeliefType);
-
-		while(pResults->Step())
-		{
-			const int PlotID = pResults->GetInt(0);
-			const int YieldID = pResults->GetInt(1);
-			const int yield = pResults->GetInt(2);
-
-			m_ppiPlotYieldChange[PlotID][YieldID] = yield;
-		}
+		pResults = kUtility.PrepareResults(strKey, "select Plots.ID as PlotID, Yields.ID as YieldID, Yield from Belief_PlotYieldChanges inner join Plots on Plots.Type = PlotType inner join Yields on Yields.Type = YieldType where BeliefType = ?");
 	}
-#endif
+
+	pResults->Bind(1, szBeliefType);
+
+	while(pResults->Step())
+	{
+		const int PlotID = pResults->GetInt(0);
+		const int YieldID = pResults->GetInt(1);
+		const int yield = pResults->GetInt(2);
+
+		m_ppiPlotYieldChange[PlotID][YieldID] = yield;
+	}
 
 #if defined(MOD_RELIGION_EXTENSIONS)
 	if (MOD_RELIGION_EXTENSIONS)
@@ -3698,28 +3681,23 @@ int CvReligionBeliefs::GetYieldFromBarbarianKills(YieldTypes eYieldType, PlayerT
 }
 #endif
 
-#if defined(MOD_RELIGION_PLOT_YIELDS)
 /// Get yield change from beliefs for a specific plot
 int CvReligionBeliefs::GetPlotYieldChange(PlotTypes ePlot, YieldTypes eYieldType, PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
 	int rtnValue = 0;
 
-	if (MOD_RELIGION_PLOT_YIELDS) 
+	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
-		for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
+		int iValue = pBeliefs->GetEntry(*it)->GetPlotYieldChange(ePlot, eYieldType);
+		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
 		{
-			int iValue = pBeliefs->GetEntry(*it)->GetPlotYieldChange(ePlot, eYieldType);
-			if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
-			{
-				rtnValue += iValue;
-			}
+			rtnValue += iValue;
 		}
 	}
 
 	return rtnValue;
 }
-#endif
 
 #if defined(MOD_RELIGION_EXTENSIONS)
 /// Get free promotions from beliefs

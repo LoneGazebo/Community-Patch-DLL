@@ -110,8 +110,6 @@
 // Comment these lines out to remove the associated code from the DLL,
 // Alternatively, set the associated entries in the CustomModOptions table to disable(0) or enable(1) at load-time
 
-// Enables the Plot Yield tables (v35)
-#define MOD_API_PLOT_YIELDS                         gCustomMods.isAPI_PLOT_YIELDS()
 // Enables the Achievements table (v45)
 #define MOD_API_ACHIEVEMENTS                        gCustomMods.isAPI_ACHIEVEMENTS()
 // Enables the Extensions API
@@ -451,10 +449,6 @@
 #define MOD_RELIGION_ALLIED_INQUISITORS             gCustomMods.isRELIGION_ALLIED_INQUISITORS()
 // Send purchase notifications at every boundary and not just the first (v42)
 #define MOD_RELIGION_RECURRING_PURCHASE_NOTIFIY     gCustomMods.isRELIGION_RECURRING_PURCHASE_NOTIFIY()
-// Adds support for the Belief_PlotYieldChanges table (v35)
-#if defined(MOD_API_PLOT_YIELDS)
-#define MOD_RELIGION_PLOT_YIELDS                    (gCustomMods.isRELIGION_PLOT_YIELDS() && MOD_API_PLOT_YIELDS)
-#endif
 // Adds support for Great People being purchased by faith to be specified on a policy (usually a finisher) and not hard-coded (v53)
 #define MOD_RELIGION_POLICY_BRANCH_FAITH_GP         gCustomMods.isRELIGION_POLICY_BRANCH_FAITH_GP()
 // Adds support for "local" religions (ie ones that only have influence within the civ's own territory) (v48)
@@ -1428,7 +1422,6 @@ public:
 	MOD_OPT_DECL(RELIGION_KEEP_PROPHET_OVERFLOW);
 	MOD_OPT_DECL(RELIGION_ALLIED_INQUISITORS);
 	MOD_OPT_DECL(RELIGION_RECURRING_PURCHASE_NOTIFIY);
-	MOD_OPT_DECL(RELIGION_PLOT_YIELDS);
 	MOD_OPT_DECL(RELIGION_POLICY_BRANCH_FAITH_GP);
 	MOD_OPT_DECL(RELIGION_LOCAL_RELIGIONS);
 	MOD_OPT_DECL(RELIGION_PASSIVE_SPREAD_WITH_TRADE_ONLY);
@@ -1507,7 +1500,6 @@ public:
 	MOD_OPT_DECL(EVENTS_RED_COMBAT_RESULT);
 	MOD_OPT_DECL(EVENTS_RED_COMBAT_ENDED);
 	MOD_OPT_DECL(ACTIVE_DIPLOMACY);
-	MOD_OPT_DECL(API_PLOT_YIELDS);
 	MOD_OPT_DECL(API_ACHIEVEMENTS);
 	MOD_OPT_DECL(API_EXTENSIONS);
 	MOD_OPT_DECL(API_LUA_EXTENSIONS);
