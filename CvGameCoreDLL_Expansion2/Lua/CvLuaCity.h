@@ -825,4 +825,24 @@ protected:
 #endif
 };
 
+namespace CvLuaArgs
+{
+	template<> inline const CvCity* toValue(lua_State* L, int idx)
+	{
+		return CvLuaCity::GetInstance(L, idx);
+	}
+	template<> inline CvCity* toValue(lua_State* L, int idx)
+	{
+		return CvLuaCity::GetInstance(L, idx);
+	}
+	template<> inline CvCity& toValue(lua_State* L, int idx)
+	{
+		return *CvLuaCity::GetInstance(L, idx);
+	}
+	template<> inline const CvCity& toValue(lua_State* L, int idx)
+	{
+		return *CvLuaCity::GetInstance(L, idx);
+	}
+}
+
 #endif //CVLUACITY_H

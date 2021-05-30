@@ -687,5 +687,24 @@ protected:
 #endif
 };
 
+namespace CvLuaArgs
+{
+	template<> inline const CvUnit* toValue(lua_State* L, int idx)
+	{
+		return CvLuaUnit::GetInstance(L, idx);
+	}
+	template<> inline CvUnit* toValue(lua_State* L, int idx)
+	{
+		return CvLuaUnit::GetInstance(L, idx);
+	}
+	template<> inline CvUnit& toValue(lua_State* L, int idx)
+	{
+		return *CvLuaUnit::GetInstance(L, idx);
+	}
+	template<> inline const CvUnit& toValue(lua_State* L, int idx)
+	{
+		return *CvLuaUnit::GetInstance(L, idx);
+	}
+}
 
 #endif //CVLUAUNIT_H

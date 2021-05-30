@@ -222,4 +222,24 @@ protected:
 #endif
 };
 
+namespace CvLuaArgs
+{
+	template<> inline const CvDeal* toValue(lua_State* L, int idx)
+	{
+		return CvLuaDeal::GetInstance(L, idx);
+	}
+	template<> inline CvDeal* toValue(lua_State* L, int idx)
+	{
+		return CvLuaDeal::GetInstance(L, idx);
+	}
+	template<> inline CvDeal& toValue(lua_State* L, int idx)
+	{
+		return *CvLuaDeal::GetInstance(L, idx);
+	}
+	template<> inline const CvDeal& toValue(lua_State* L, int idx)
+	{
+		return *CvLuaDeal::GetInstance(L, idx);
+	}
+}
+
 #endif //CVLUADEAL_H

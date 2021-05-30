@@ -1509,4 +1509,24 @@ protected:
 #endif
 };
 
+namespace CvLuaArgs
+{
+	template<> inline const CvPlayer* toValue(lua_State* L, int idx)
+	{
+		return CvLuaPlayer::GetInstance(L, idx);
+	}
+	template<> inline CvPlayer* toValue(lua_State* L, int idx)
+	{
+		return CvLuaPlayer::GetInstance(L, idx);
+	}
+	template<> inline CvPlayer& toValue(lua_State* L, int idx)
+	{
+		return *CvLuaPlayer::GetInstance(L, idx);
+	}
+	template<> inline const CvPlayer& toValue(lua_State* L, int idx)
+	{
+		return *CvLuaPlayer::GetInstance(L, idx);
+	}
+}
+
 #endif //CVLUAPLAYER_H

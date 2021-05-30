@@ -108,5 +108,24 @@ protected:
 	static int lProposalTableHelper(lua_State* L, const int iTop, CvProposal &proposal);
 };
 
+namespace CvLuaArgs
+{
+	template<> inline const CvLeague* toValue(lua_State* L, int idx)
+	{
+		return CvLuaLeague::GetInstance(L, idx);
+	}
+	template<> inline CvLeague* toValue(lua_State* L, int idx)
+	{
+		return CvLuaLeague::GetInstance(L, idx);
+	}
+	template<> inline CvLeague& toValue(lua_State* L, int idx)
+	{
+		return *CvLuaLeague::GetInstance(L, idx);
+	}
+	template<> inline const CvLeague& toValue(lua_State* L, int idx)
+	{
+		return *CvLuaLeague::GetInstance(L, idx);
+	}
+}
 
 #endif //CVLUALEAGUE_H
