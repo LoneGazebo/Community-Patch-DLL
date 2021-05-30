@@ -69,13 +69,22 @@ namespace CvLuaArgs
 	{
 		return CvLuaArea::GetInstance(L, idx);
 	}
+	template<> inline const CvArea& toValue(lua_State* L, int idx)
+	{
+		return *CvLuaArea::GetInstance(L, idx);
+	}
 	template<> inline CvArea& toValue(lua_State* L, int idx)
 	{
 		return *CvLuaArea::GetInstance(L, idx);
 	}
-	template<> inline const CvArea& toValue(lua_State* L, int idx)
+
+	template<> inline void pushValue(lua_State* L, CvArea* p)
 	{
-		return *CvLuaArea::GetInstance(L, idx);
+		CvLuaArea::Push(L, p);
+	}
+	template<> inline void pushValue(lua_State* L, CvArea& r)
+	{
+		CvLuaArea::Push(L, &r);
 	}
 }
 

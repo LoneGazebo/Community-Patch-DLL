@@ -118,13 +118,22 @@ namespace CvLuaArgs
 	{
 		return CvLuaLeague::GetInstance(L, idx);
 	}
+	template<> inline const CvLeague& toValue(lua_State* L, int idx)
+	{
+		return *CvLuaLeague::GetInstance(L, idx);
+	}
 	template<> inline CvLeague& toValue(lua_State* L, int idx)
 	{
 		return *CvLuaLeague::GetInstance(L, idx);
 	}
-	template<> inline const CvLeague& toValue(lua_State* L, int idx)
+
+	template<> inline void pushValue(lua_State* L, CvLeague* p)
 	{
-		return *CvLuaLeague::GetInstance(L, idx);
+		CvLuaLeague::Push(L, p);
+	}
+	template<> inline void pushValue(lua_State* L, CvLeague& r)
+	{
+		CvLuaLeague::Push(L, &r);
 	}
 }
 

@@ -232,13 +232,22 @@ namespace CvLuaArgs
 	{
 		return CvLuaDeal::GetInstance(L, idx);
 	}
+	template<> inline const CvDeal& toValue(lua_State* L, int idx)
+	{
+		return *CvLuaDeal::GetInstance(L, idx);
+	}
 	template<> inline CvDeal& toValue(lua_State* L, int idx)
 	{
 		return *CvLuaDeal::GetInstance(L, idx);
 	}
-	template<> inline const CvDeal& toValue(lua_State* L, int idx)
+
+	template<> inline void pushValue(lua_State* L, CvDeal* p)
 	{
-		return *CvLuaDeal::GetInstance(L, idx);
+		CvLuaDeal::Push(L, p);
+	}
+	template<> inline void pushValue(lua_State* L, CvDeal& r)
+	{
+		CvLuaDeal::Push(L, &r);
 	}
 }
 

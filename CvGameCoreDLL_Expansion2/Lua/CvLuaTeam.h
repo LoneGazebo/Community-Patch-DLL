@@ -273,13 +273,22 @@ namespace CvLuaArgs
 	{
 		return CvLuaTeam::GetInstance(L, idx);
 	}
+	template<> inline const CvTeam& toValue(lua_State* L, int idx)
+	{
+		return *CvLuaTeam::GetInstance(L, idx);
+	}
 	template<> inline CvTeam& toValue(lua_State* L, int idx)
 	{
 		return *CvLuaTeam::GetInstance(L, idx);
 	}
-	template<> inline const CvTeam& toValue(lua_State* L, int idx)
+
+	template<> inline void pushValue(lua_State* L, CvTeam* p)
 	{
-		return *CvLuaTeam::GetInstance(L, idx);
+		CvLuaTeam::Push(L, p);
+	}
+	template<> inline void pushValue(lua_State* L, CvTeam& r)
+	{
+		CvLuaTeam::Push(L, &r);
 	}
 }
 
