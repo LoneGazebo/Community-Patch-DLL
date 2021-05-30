@@ -1509,4 +1509,59 @@ protected:
 #endif
 };
 
+namespace CvLuaArgs
+{
+	template<> inline const CvPlayerAI* toValue(lua_State* L, int idx)
+	{
+		return CvLuaPlayer::GetInstance(L, idx);
+	}
+	template<> inline CvPlayerAI* toValue(lua_State* L, int idx)
+	{
+		return CvLuaPlayer::GetInstance(L, idx);
+	}
+	template<> inline const CvPlayerAI& toValue(lua_State* L, int idx)
+	{
+		return *CvLuaPlayer::GetInstance(L, idx);
+	}
+	template<> inline CvPlayerAI& toValue(lua_State* L, int idx)
+	{
+		return *CvLuaPlayer::GetInstance(L, idx);
+	}
+
+	template<> inline const CvPlayer* toValue(lua_State* L, int idx)
+	{
+		return CvLuaPlayer::GetInstance(L, idx);
+	}
+	template<> inline CvPlayer* toValue(lua_State* L, int idx)
+	{
+		return CvLuaPlayer::GetInstance(L, idx);
+	}
+	template<> inline const CvPlayer& toValue(lua_State* L, int idx)
+	{
+		return *CvLuaPlayer::GetInstance(L, idx);
+	}
+	template<> inline CvPlayer& toValue(lua_State* L, int idx)
+	{
+		return *CvLuaPlayer::GetInstance(L, idx);
+	}
+
+	template<> inline void pushValue(lua_State* L, CvPlayerAI* p)
+	{
+		CvLuaPlayer::Push(L, p);
+	}
+	template<> inline void pushValue(lua_State* L, CvPlayerAI& r)
+	{
+		CvLuaPlayer::Push(L, &r);
+	}
+
+	template<> inline void pushValue(lua_State* L, CvPlayer* p)
+	{
+		CvLuaPlayer::Push(L, static_cast<CvPlayerAI*>(p));
+	}
+	template<> inline void pushValue(lua_State* L, CvPlayer& r)
+	{
+		CvLuaPlayer::Push(L, static_cast<CvPlayerAI*>(&r));
+	}
+}
+
 #endif //CVLUAPLAYER_H
