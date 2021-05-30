@@ -34,7 +34,7 @@ INSERT INTO Defines(Name, Value) SELECT 'COMBAT_AI_DEFENSE_SCORE_BIAS', '200';
 -- These two entries control whether AI major civs and City-States are able to move their starting Settler(s) from their starting plot - set to 0 to disable the ability
 -- NOTE: They can always move their starting Settler(s) if they're not able to found a city in their starting location
 INSERT INTO Defines(Name, Value) SELECT 'MAJORS_CAN_MOVE_STARTING_SETTLER', '1';
-INSERT INTO Defines(Name, Value) SELECT 'CS_CAN_MOVE_STARTING_SETTLER', '1';
+INSERT INTO Defines(Name, Value) SELECT 'CS_CAN_MOVE_STARTING_SETTLER', '0';
 
 
 -- Whoward AI/Game Config Defines

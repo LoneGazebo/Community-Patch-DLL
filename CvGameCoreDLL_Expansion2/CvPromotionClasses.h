@@ -721,8 +721,6 @@ public:
 	void Init(CvPromotionXMLEntries* pPromotions, CvUnit* pUnit);
 	void Uninit();
 	void Reset();
-	void Read(FDataStream& kStream);
-	void Write(FDataStream& kStream) const;
 
 	CvUnit* GetUnit();
 
@@ -751,7 +749,13 @@ private:
 	CvBitfield m_kHasPromotion;
 	CvPromotionXMLEntries* m_pPromotions;
 	CvUnit* m_pUnit;
+
+	friend FDataStream& operator>>(FDataStream&, CvUnitPromotions&);
+	friend FDataStream& operator<<(FDataStream&, const CvUnitPromotions&);
 };
+
+FDataStream& operator>>(FDataStream&, CvUnitPromotions&);
+FDataStream& operator<<(FDataStream&, const CvUnitPromotions&);
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // Helper Functions to serialize arrays of variable length (based on number of promotions defined in game)

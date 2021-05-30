@@ -3,8 +3,6 @@
 #ifndef CV_PLOT_INFO_H
 #define CV_PLOT_INFO_H
 
-#if defined(MOD_API_PLOT_YIELDS)
-
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //  class : CvPlotInfo
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -46,7 +44,4 @@ private:
 	CvPlotInfo(const CvPlotInfo&);
 	CvPlotInfo& operator=(const CvPlotInfo&);
 };
-
-#endif
-
 #endif

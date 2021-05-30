@@ -82,8 +82,4 @@
 			<Yield>0</Yield>
 		</Row>
 	</Plot_Yields>
-
-	<CustomModDbUpdates>
-		<Row Name="API_PLOT_YIELDS" Value="1"/>
-	</CustomModDbUpdates>
 </GameData>

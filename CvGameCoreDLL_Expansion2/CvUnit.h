@@ -1959,7 +1959,6 @@ protected:
 	int m_iAttackPlotY;
 	int m_iCombatTimer;
 	int m_iCombatFirstStrikes;
-	int m_iCombatDamage;
 	bool m_bMovedThisTurn;
 	bool m_bFortified;
 	int m_iBlitzCount;
@@ -2403,7 +2402,6 @@ SYNC_ARCHIVE_VAR(int, m_iAttackPlotX)
 SYNC_ARCHIVE_VAR(int, m_iAttackPlotY)
 SYNC_ARCHIVE_VAR(int, m_iCombatTimer)
 SYNC_ARCHIVE_VAR(int, m_iCombatFirstStrikes)
-SYNC_ARCHIVE_VAR(int, m_iCombatDamage)
 SYNC_ARCHIVE_VAR(bool, m_bMovedThisTurn)
 SYNC_ARCHIVE_VAR(bool, m_bFortified)
 SYNC_ARCHIVE_VAR(int, m_iBlitzCount)

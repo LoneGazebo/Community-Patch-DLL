@@ -3152,41 +3152,45 @@ void CvUnitPromotions::Reset()
 }
 
 /// Serialization read
-void CvUnitPromotions::Read(FDataStream& kStream)
+FDataStream& operator>>(FDataStream& loadFrom, CvUnitPromotions& writeTo)
 {
-	Reset();
+	writeTo.Reset();
 
 	// Version number to maintain backwards compatibility
 	uint uiVersion;
-	kStream >> uiVersion;
-	MOD_SERIALIZE_INIT_READ(kStream);
+	loadFrom >> uiVersion;
+	MOD_SERIALIZE_INIT_READ(loadFrom);
 
 	// Read number of promotions
 	int iNumPromotions;
-	kStream >> iNumPromotions;
-	CvAssertMsg(m_pPromotions != NULL && m_pPromotions->GetNumPromotions() > 0, "Number of promotions to serialize is expected to greater than 0");
+	loadFrom >> iNumPromotions;
+	CvAssertMsg(writeTo.m_pPromotions != NULL && writeTo.m_pPromotions->GetNumPromotions() > 0, "Number of promotions to serialize is expected to greater than 0");
 
-	PromotionArrayHelpers::Read(kStream, m_kHasPromotion);
+	PromotionArrayHelpers::Read(loadFrom, writeTo.m_kHasPromotion);
 
 #if defined(MOD_BALANCE_CORE)
-	UpdateCache();
+	writeTo.UpdateCache();
 #endif
+
+	return loadFrom;
 }
 
 /// Serialization write
-void CvUnitPromotions::Write(FDataStream& kStream) const
+FDataStream& operator<<(FDataStream& saveTo, const CvUnitPromotions& readFrom)
 {
 	// Current version number
 	uint uiVersion = 1;
-	kStream << uiVersion;
-	MOD_SERIALIZE_INIT_WRITE(kStream);
+	saveTo << uiVersion;
+	MOD_SERIALIZE_INIT_WRITE(saveTo);
 
 	// Write out number of promotions to save
-	int iNumPromotions = m_pPromotions->GetNumPromotions();
-	kStream << iNumPromotions;
+	int iNumPromotions = readFrom.m_pPromotions->GetNumPromotions();
+	saveTo << iNumPromotions;
 	CvAssertMsg(iNumPromotions > 0, "Number of promotions to serialize is expected to greater than 0");
 
-	PromotionArrayHelpers::Write(kStream, m_kHasPromotion, iNumPromotions);
+	PromotionArrayHelpers::Write(saveTo, readFrom.m_kHasPromotion, iNumPromotions);
+
+	return saveTo;
 }
 
 /// Accessor: Unit object
