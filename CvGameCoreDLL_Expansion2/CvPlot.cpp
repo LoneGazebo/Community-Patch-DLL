@@ -1117,8 +1117,19 @@ bool CvPlot::isCoastalLand(int iMinWaterSize, bool bUseCachedValue) const
 			if (pAdjacentPlot->getFeatureType() == FEATURE_ICE && !pAdjacentPlot->isOwned())
 				continue;
 
-			if (pAdjacentPlot->area()->getNumTiles() >= iMinWaterSize)
-				return true;
+			CvArea* pArea = pAdjacentPlot->area();
+			if (pArea)
+			{
+				if (pAdjacentPlot->area()->getNumTiles() >= iMinWaterSize)
+					return true;
+			}
+			// fallback to old method if pArea is null
+			else
+			{
+				CvLandmass* pAdjacentBodyOfWater = GC.getMap().getLandmass(pAdjacentPlot->getLandmass());
+				if (pAdjacentBodyOfWater && pAdjacentBodyOfWater->getNumTiles() >= iMinWaterSize)
+					return true;
+			}
 		}
 	}
 
