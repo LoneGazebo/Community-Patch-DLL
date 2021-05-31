@@ -1547,7 +1547,10 @@ int CvLuaCity::lCanJoin(lua_State* L)
 //bool IsBuildingLocalResourceValid(BuildingTypes eBuilding, bool bCheckForImprovement);
 int CvLuaCity::lIsBuildingLocalResourceValid(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvCity::IsBuildingLocalResourceValid);
+	CvCity* pkCity = GetInstance(L);
+
+	lua_pushboolean(L, pkCity->IsBuildingLocalResourceValid(static_cast<BuildingTypes>(lua_tointeger(L, 2)), lua_toboolean(L, 3)));
+	return 1;
 }
 //------------------------------------------------------------------------------
 //bool GetResourceDemanded();
@@ -3762,7 +3765,10 @@ int CvLuaCity::lChangeWonderProductionModifier(lua_State* L)
 //int GetLocalResourceWonderProductionMod(BuildingTypes eBuilding);
 int CvLuaCity::lGetLocalResourceWonderProductionMod(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvCity::GetLocalResourceWonderProductionMod);
+	CvCity* pkCity = GetInstance(L);
+
+	lua_pushinteger(L, pkCity->GetLocalResourceWonderProductionMod(static_cast<BuildingTypes>(lua_tointeger(L, 2))));
+	return 1;
 }
 
 #if defined(MOD_API_LUA_EXTENSIONS)
