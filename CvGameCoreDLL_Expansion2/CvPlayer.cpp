@@ -13531,7 +13531,7 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 				// Prefer cities nearest the plot
 				int iDistance = plotDistance(kPlot.getX(), kPlot.getY(), pLoopCity->getX(), pLoopCity->getY());
 
-				if (pBestCity == NULL || iDistance < iBestCityDistance)
+				if (pBestCity == NULL || iDistance < iBestCityDistance || (!bBestCityIsProductive && bCityIsProductive))
 				{
 					iBestCityDistance = iDistance;
 					bBestCityIsProductive = bCityIsProductive;
