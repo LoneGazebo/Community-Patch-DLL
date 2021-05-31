@@ -11,7 +11,7 @@ namespace CvLuaArgs
 	{
 		//This is pretty unsafe, but common.
 		//Assume T is a poorly designed enum =(
-		return (T)lua_tointeger(L, idx);
+		return static_cast<T>(lua_tointeger(L, idx));
 	}
 
 	template<> inline int toValue(lua_State* L, int idx)
@@ -22,6 +22,11 @@ namespace CvLuaArgs
 	template<> inline bool toValue(lua_State* L, int idx)
 	{
 		return lua_toboolean(L, idx) != 0;
+	}
+
+	template<> inline const char* toValue(lua_State* L, int idx)
+	{
+		return lua_tostring(L, idx);
 	}
 
 	//Push
