@@ -18,6 +18,7 @@
 #include "CvLuaSupport.h"
 #include "CvLuaTeam.h"
 #include "CvLuaTeamTech.h"
+#include "CvLuaArea.h"
 
 //Utility macro for registering methods
 #define Method(Name)			\
