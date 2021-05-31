@@ -12736,21 +12736,10 @@ void CvPlot::Serialize(Plot& plot, Visitor& visitor)
 	visitor(plot.m_ePlotType);
 	visitor(plot.m_eTerrainType);
 
-	// Hashed values
-	if (bLoading)
-	{
-		visitor.loadAssign(plot.m_eFeatureType, FeatureTypes(CvInfosSerializationHelper::ReadHashed(visitor.stream())));
-		visitor.loadAssign(plot.m_eResourceType, ResourceTypes(CvInfosSerializationHelper::ReadHashed(visitor.stream())));
-		visitor.loadAssign(plot.m_eImprovementType, ImprovementTypes(CvInfosSerializationHelper::ReadHashed(visitor.stream())));
-		visitor.loadAssign(plot.m_eImprovementTypeUnderConstruction, ImprovementTypes(CvInfosSerializationHelper::ReadHashed(visitor.stream())));
-	}
-	if (bSaving)
-	{
-		CvInfosSerializationHelper::WriteHashed(visitor.stream(), FeatureTypes(plot.m_eFeatureType));
-		CvInfosSerializationHelper::WriteHashed(visitor.stream(), ResourceTypes(plot.m_eResourceType));
-		CvInfosSerializationHelper::WriteHashed(visitor.stream(), ImprovementTypes(plot.m_eImprovementType));
-		CvInfosSerializationHelper::WriteHashed(visitor.stream(), ImprovementTypes(plot.m_eImprovementTypeUnderConstruction));
-	}
+	visitor.infoHash<FeatureTypes>(plot.m_eFeatureType);
+	visitor.infoHash<ResourceTypes>(plot.m_eResourceType);
+	visitor.infoHash<ImprovementTypes>(plot.m_eImprovementType);
+	visitor.infoHash<ImprovementTypes>(plot.m_eImprovementTypeUnderConstruction);
 
 	visitor(plot.m_ePlayerBuiltImprovement);
 	visitor(plot.m_ePlayerResponsibleForImprovement);
@@ -12790,10 +12779,7 @@ void CvPlot::Serialize(Plot& plot, Visitor& visitor)
 		visitor(plot.m_aiVisibilityCountThisTurnMax[i]);
 		visitor(plot.m_aiRevealedOwner[i]);
 		visitor(plot.m_abResourceForceReveal[i]);
-		if (bLoading)
-			visitor.loadAssign(plot.m_aeRevealedImprovementType[i], ImprovementTypes(CvInfosSerializationHelper::ReadHashed(visitor.stream())));
-		if (bSaving)
-			CvInfosSerializationHelper::WriteHashed(visitor.stream(), ImprovementTypes(plot.m_aeRevealedImprovementType[i]));
+		visitor.infoHash<ImprovementTypes>(plot.m_aeRevealedImprovementType[i]);
 		visitor(plot.m_aeRevealedRouteType[i]);
 		visitor(plot.m_abIsImpassable[i]);
 		visitor(plot.m_abStrategicRoute[i]);

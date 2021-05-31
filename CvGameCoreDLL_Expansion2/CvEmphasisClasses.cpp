@@ -257,7 +257,7 @@ void CvCityEmphases::Read(FDataStream& kStream)
 }
 
 /// Serialization write
-void CvCityEmphases::Write(FDataStream& kStream)
+void CvCityEmphases::Write(FDataStream& kStream) const
 {
 	// Current version number
 	uint uiVersion = 1;
@@ -270,4 +270,15 @@ void CvCityEmphases::Write(FDataStream& kStream)
 	kStream << m_aiEmphasizeYieldCount;
 
 	CvInfosSerializationHelper::WriteHashedDataArray<EmphasizeTypes, bool>(kStream, m_pbEmphasize, GC.getNumEmphasisInfos());
+}
+
+FDataStream& operator>>(FDataStream& stream, CvCityEmphases& cityEmphases)
+{
+	cityEmphases.Read(stream);
+	return stream;
+}
+FDataStream& operator<<(FDataStream& stream, const CvCityEmphases& cityEmphases)
+{
+	cityEmphases.Write(stream);
+	return stream;
 }

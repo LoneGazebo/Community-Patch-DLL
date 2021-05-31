@@ -20,6 +20,13 @@ public:
 		m_stream << value;
 	}
 
+	template<typename InfoType, typename T>
+	inline void infoHash(const T& value, bool* bValid = NULL)
+	{
+		CvInfosSerializationHelper::WriteHashed(m_stream, InfoType(value));
+		if (bValid != NULL) { *bValid = true; }
+	}
+
 	template<typename T>
 	inline CvStreamSaveVisitor& operator<<(const T& value)
 	{
@@ -81,6 +88,12 @@ public:
 	inline void operator()(T& value)
 	{
 		m_stream >> value;
+	}
+
+	template<typename InfoType, typename T>
+	inline void infoHash(T& value, bool* bValid = NULL)
+	{
+		value = static_cast<T>(CvInfosSerializationHelper::ReadHashed(m_stream, bValid));
 	}
 
 	template<typename T>

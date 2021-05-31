@@ -1087,7 +1087,7 @@ public:
 	void Uninit();
 	void Reset();
 	void Read(FDataStream& kStream);
-	void Write(FDataStream& kStream);
+	void Write(FDataStream& kStream) const;
 
 	// Accessor functions
 	CvBuildingXMLEntries* GetPossibleBuildings() const;
@@ -1247,7 +1247,13 @@ private:
 
 	CvBuildingXMLEntries* m_pPossibleBuildings;
 	CvCity* m_pCity;
+
+	friend FDataStream& operator>>(FDataStream&, CvCityBuildings&);
+	friend FDataStream& operator<<(FDataStream&, const CvCityBuildings&);
 };
+
+FDataStream& operator>>(FDataStream&, CvCityBuildings&);
+FDataStream& operator<<(FDataStream&, const CvCityBuildings&);
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // Helper Functions to serialize arrays of variable length (based on number of buildings defined in game)

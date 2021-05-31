@@ -33249,6 +33249,36 @@ CvCityCulture* CvCity::GetCityCulture() const
 template<typename City, typename Visitor>
 void CvCity::Serialize(City& city, Visitor& visitor)
 {
+	const bool bLoading = visitor.isLoading();
+	const bool bSaving = visitor.isSaving();
+
+	enum CitySaveVersions
+	{
+		// Update this value when you intend to break save game compatability
+		VERSION_OLDEST = 6,
+
+		// Update this value when you intend to change save game format in a backwards compatible manner
+		VERSION_LATEST = 7,
+
+		// Remove these values and related branches when save compatability is broken
+		VERSION_TAG_REMOVE_DLL_VERSION = 7,
+	};
+	uint32 uiVersion;
+	if (bSaving)
+		uiVersion = VERSION_LATEST;
+	visitor(uiVersion);
+
+	// Mod version
+	// FIXME - This is just save file bloat data. Remember to remove at next compability break.
+	if (bLoading && uiVersion < VERSION_TAG_REMOVE_DLL_VERSION)
+	{
+		visitor.loadIgnore<uint32>(); // version
+		visitor.loadIgnore<uint32>(); // sentinel
+	}
+
+	visitor(city.m_iAutomatons);
+
+	// FIXME - Values in this chunk were formerly FAutoVariables. Remove any that shouldn't be saved.
 	visitor(city.m_eOwner);
 	visitor(city.m_iX);
 	visitor(city.m_iY);
@@ -33545,6 +33575,113 @@ void CvCity::Serialize(City& city, Visitor& visitor)
 	visitor(city.m_abBuildingInvestment);
 	visitor(city.m_abUnitInvestment);
 	visitor(city.m_abBuildingConstructed);
+
+	visitor(*city.m_pCityBuildings);
+
+	// m_orderQueue
+	{
+		uint32 uLength;
+		if (bSaving)
+			uLength = uint32(city.m_orderQueue.getLength());
+		visitor(uLength);
+
+		for (uint32 uIdx = 0; uIdx < uLength; ++uIdx)
+		{
+			OrderData order;
+			if (bSaving)
+				order = *city.m_orderQueue.getAt(uIdx);
+
+			visitor(order.eOrderType);
+
+			// Now we have to translate the data because most of them contain indices into Infos tables and it is very bad to save an index since the table order can change
+			switch (order.eOrderType)
+			{
+			case ORDER_TRAIN:
+				visitor.infoHash<UnitTypes>(order.iData1);
+				visitor(order.iData2);	// This is a UnitAIType, but no code respects the ordering in GC.getUnitAIInfo so just write out the index
+										// FIXME - Respect this so that we can save the data proper
+				break;
+
+			case ORDER_CONSTRUCT:
+				visitor.infoHash<BuildingTypes>(order.iData1);
+				visitor(order.iData2);
+				break;
+
+			case ORDER_CREATE:
+				visitor.infoHash<ProjectTypes>(order.iData1);
+				visitor(order.iData2);
+				break;
+
+			case ORDER_PREPARE:
+				visitor.infoHash<SpecialistTypes>(order.iData1);
+				visitor(order.iData2);
+				break;
+
+			case ORDER_MAINTAIN:
+				visitor.infoHash<ProcessTypes>(order.iData1);
+				visitor(order.iData2);
+				break;
+
+			default:
+				CvAssertMsg(false, "order.eOrderType failed to match a valid option");
+				visitor(order.iData1);
+				visitor(order.iData2);
+				break;
+			}
+
+			visitor(order.bSave);
+			visitor(order.bRush);
+
+			if (bLoading)
+			{
+				bool bIsValid = false;
+				switch (order.eOrderType)
+				{
+				case ORDER_TRAIN:
+					bIsValid = GC.getUnitInfo(UnitTypes(order.iData1)) != NULL;
+					CvAssertMsg(bIsValid, "Unit in build queue is invalid");
+					break;
+
+				case ORDER_CONSTRUCT:
+					bIsValid = GC.getBuildingInfo(BuildingTypes(order.iData1)) != NULL;
+					CvAssertMsg(bIsValid, "Building in build queue is invalid");
+					break;
+
+				case ORDER_CREATE:
+					bIsValid = GC.getProjectInfo(ProjectTypes(order.iData1)) != NULL;
+					CvAssertMsg(bIsValid, "Project in build queue is invalid");
+					break;
+
+				case ORDER_PREPARE:
+					bIsValid = GC.getSpecialistInfo(SpecialistTypes(order.iData1)) != NULL;
+					CvAssertMsg(bIsValid, "Specialize in build queue is invalid");
+					break;
+
+				case ORDER_MAINTAIN:
+					bIsValid = GC.getProcessInfo(ProcessTypes(order.iData1)) != NULL;
+					CvAssertMsg(bIsValid, "Process in build queue is invalid");
+					break;
+				}
+
+				if (bIsValid)
+					city.m_orderQueue.insertAtEnd(&order);
+			}
+		}
+	}
+
+	visitor(*city.m_pCityStrategyAI);
+	if (bLoading && city.m_eOwner != NO_PLAYER)
+		GET_PLAYER(city.getOwner()).GetFlavorManager()->AddFlavorRecipient(city.m_pCityStrategyAI, false /* bPropogateFlavorValues */);
+
+	visitor(*city.m_pCityCitizens);
+	visitor(*city.m_pCityReligions);
+	visitor(*city.m_pEmphases);
+	visitor(*city.m_pCityEspionage);
+
+	visitor(city.m_yieldChanges);
+	visitor(city.m_eventYields);
+	visitor(city.m_ppiGreatPersonProgressFromConstruction);
+	visitor(city.m_aiYieldPerPopInEmpire);
 }
 
 //	--------------------------------------------------------------------------------
@@ -33554,130 +33691,9 @@ void CvCity::read(FDataStream& kStream)
 	// Init data before load
 	reset();
 
-	// Version number to maintain backwards compatibility
-	uint uiVersion;
-	kStream >> uiVersion;
-	MOD_SERIALIZE_INIT_READ(kStream);
-#if defined(MOD_GLOBAL_CITY_AUTOMATON_WORKERS)
-	MOD_SERIALIZE_READ(89, kStream, m_iAutomatons, 0);
-#endif
-
-#if defined(MOD_BALANCE_CORE)
 	// Perform shared serialize
 	CvStreamLoadVisitor serialVisitor(kStream);
 	Serialize(*this, serialVisitor);
-#endif
-
-	m_pCityBuildings->Read(kStream);
-
-	UINT uLength;
-	kStream >> uLength;
-	for(UINT uIdx = 0; uIdx < uLength; ++uIdx)
-	{
-		OrderData  Data;
-
-		kStream >> Data.eOrderType;
-		if (uiVersion >= 5)
-		{
-			// Translate the data
-			switch (Data.eOrderType)
-			{
-			case ORDER_TRAIN:
-				Data.iData1 = CvInfosSerializationHelper::ReadHashed(kStream);
-				kStream >> Data.iData2;		// This is a UnitAIType, but no code respects the ordering in GC.getUnitAIInfo
-				break;
-
-			case ORDER_CONSTRUCT:
-				Data.iData1 = CvInfosSerializationHelper::ReadHashed(kStream);
-				kStream >> Data.iData2;
-				break;
-
-			case ORDER_CREATE:
-				Data.iData1 = CvInfosSerializationHelper::ReadHashed(kStream);
-				kStream >> Data.iData2;
-				break;
-
-			case ORDER_PREPARE:
-				Data.iData1 = CvInfosSerializationHelper::ReadHashed(kStream);
-				kStream >> Data.iData2;
-				break;
-
-			case ORDER_MAINTAIN:
-				Data.iData1 = CvInfosSerializationHelper::ReadHashed(kStream);
-				kStream >> Data.iData2;
-				break;
-
-			default:
-				CvAssertMsg(false, "pData->eOrderType failed to match a valid option");
-				kStream >> Data.iData1;
-				kStream >> Data.iData2;
-				break;
-			}
-		}
-		else
-		{
-			kStream >> Data.iData1;
-			kStream >> Data.iData2;
-		}
-
-		kStream >> Data.bSave;
-		kStream >> Data.bRush;
-
-		bool bIsValid = false;
-		switch (Data.eOrderType)
-		{
-			case ORDER_TRAIN:
-				bIsValid = GC.getUnitInfo( (UnitTypes)Data.iData1 ) != NULL;
-				CvAssertMsg(bIsValid, "Unit in build queue is invalid");
-				break;
-
-			case ORDER_CONSTRUCT:
-				bIsValid = GC.getBuildingInfo( (BuildingTypes)Data.iData1 ) != NULL;
-				CvAssertMsg(bIsValid, "Building in build queue is invalid");
-				break;
-
-			case ORDER_CREATE:
-				bIsValid = GC.getProjectInfo( (ProjectTypes)Data.iData1 ) != NULL;
-				CvAssertMsg(bIsValid, "Project in build queue is invalid");
-				break;
-
-			case ORDER_PREPARE:
-				bIsValid = GC.getSpecialistInfo( (SpecialistTypes)Data.iData1 ) != NULL;
-				CvAssertMsg(bIsValid, "Specialize in build queue is invalid");
-				break;
-
-			case ORDER_MAINTAIN:
-				bIsValid = GC.getProcessInfo( (ProcessTypes)Data.iData1 ) != NULL;
-				CvAssertMsg(bIsValid, "Process in build queue is invalid");
-				break;
-		}
-
-		if (bIsValid)
-			m_orderQueue.insertAtEnd(&Data);
-	}
-
-	m_pCityStrategyAI->Read(kStream);
-
-	if(m_eOwner != NO_PLAYER)
-		GET_PLAYER(getOwner()).GetFlavorManager()->AddFlavorRecipient(m_pCityStrategyAI, false /* bPropogateFlavorValues */);
-
-	m_pCityCitizens->Read(kStream);
-
-	kStream >> *m_pCityReligions;
-
-	m_pEmphases->Read(kStream);
-
-	kStream >> *m_pCityEspionage;
-
-	kStream >> m_yieldChanges;
-	kStream >> m_eventYields;
-
-#if defined(MOD_BALANCE_CORE) && defined(MOD_API_UNIFIED_YIELDS)
-	kStream >> m_ppiGreatPersonProgressFromConstruction;
-#endif
-#if defined(MOD_BALANCE_CORE)
-	kStream >> m_aiYieldPerPopInEmpire;
-#endif
 
 #if defined(MOD_BALANCE_CORE)
 	GetCityStrategyAI()->PrecalcYieldStats();
@@ -33689,84 +33705,11 @@ void CvCity::read(FDataStream& kStream)
 //	--------------------------------------------------------------------------------
 void CvCity::write(FDataStream& kStream) const
 {
-VALIDATE_OBJECT
+	VALIDATE_OBJECT
 
-	// Current version number
-	uint uiVersion = 6;
-	kStream << uiVersion;
-	MOD_SERIALIZE_INIT_WRITE(kStream);
-#if defined(MOD_GLOBAL_CITY_AUTOMATON_WORKERS)
-	MOD_SERIALIZE_WRITE(kStream, m_iAutomatons);
-#endif
-#if defined(MOD_BALANCE_CORE)
 	// Perform shared serialize
 	CvStreamSaveVisitor serialVisitor(kStream);
 	Serialize(*this, serialVisitor);
-#endif
-
-	m_pCityBuildings->Write(kStream);
-
-	//  Write m_orderQueue
-	UINT uLength = (UINT)m_orderQueue.getLength();
-	kStream << uLength;
-	for(UINT uIdx = 0; uIdx < uLength; ++uIdx)
-	{
-		OrderData* pData = m_orderQueue.getAt(uIdx);
-
-		kStream << pData->eOrderType;
-		// Now we have to translate the data because most of them contain indices into Infos tables and it is very bad to save an index since the table order can change
-		switch (pData->eOrderType)
-		{
-			case ORDER_TRAIN:
-				CvInfosSerializationHelper::WriteHashed(kStream, (UnitTypes)(pData->iData1));
-				kStream << pData->iData2;	// This is a UnitAIType, but no code respects the ordering in GC.getUnitAIInfo so just write out the index
-				break;
-
-			case ORDER_CONSTRUCT:
-				CvInfosSerializationHelper::WriteHashed(kStream, (BuildingTypes)pData->iData1);
-				kStream << pData->iData2;
-				break;
-
-			case ORDER_CREATE:
-				CvInfosSerializationHelper::WriteHashed(kStream, (ProjectTypes)pData->iData1);
-				kStream << pData->iData2;
-				break;
-
-			case ORDER_PREPARE:
-				CvInfosSerializationHelper::WriteHashed(kStream, (SpecialistTypes)pData->iData1);
-				kStream << pData->iData2;
-				break;
-
-			case ORDER_MAINTAIN:
-				CvInfosSerializationHelper::WriteHashed(kStream, (ProcessTypes)pData->iData1);
-				kStream << pData->iData2;
-				break;
-
-			default:
-				CvAssertMsg(false, "pData->eOrderType failed to match a valid option");
-				kStream << pData->iData1;
-				kStream << pData->iData2;
-				break;
-		}
-		kStream << pData->bSave;
-		kStream << pData->bRush;
-	}
-
-	m_pCityStrategyAI->Write(kStream);
-	m_pCityCitizens->Write(kStream);
-	kStream << *m_pCityReligions;
-	m_pEmphases->Write(kStream);
-	kStream << *m_pCityEspionage;
-
-	kStream << m_yieldChanges;
-	kStream << m_eventYields;
-
-#if defined(MOD_BALANCE_CORE) && defined(MOD_API_UNIFIED_YIELDS)
-	kStream << m_ppiGreatPersonProgressFromConstruction;
-#endif
-#if defined(MOD_BALANCE_CORE)
-	kStream << m_aiYieldPerPopInEmpire;
-#endif
 }
 
 
