@@ -40,17 +40,6 @@
 
 // Public Functions...
 
-//------------------------------------------------------------------------------
-// CvPlot Version History
-// Version 5
-//	 * ImprovementType is now hashed.
-// Version 6
-//	 * Improvement Revealed array is now hashed
-// Version 7
-//   * Added m_eImprovementTypeUnderConstruction variable to be serialized
-//------------------------------------------------------------------------------
-const int g_CurrentCvPlotVersion = 7;
-
 //	--------------------------------------------------------------------------------
 namespace FSerialization
 {
