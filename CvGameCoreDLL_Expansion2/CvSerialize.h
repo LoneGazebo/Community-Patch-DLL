@@ -59,6 +59,12 @@ public:
 		FAssertMsg(false, "CvStreamSaveVisitor is not meant for loading");
 	}
 
+	template<typename T>
+	void loadIgnore()
+	{
+		FAssertMsg(false, "CvStreamSaveVisitor is not meant for loading");
+	}
+
 private:
 	FDataStream& m_stream;
 };
@@ -114,6 +120,13 @@ public:
 	inline void loadAssign(Dst& dst, const Src& src)
 	{
 		dst = src;
+	}
+
+	template<typename T>
+	void loadIgnore()
+	{
+		T x;
+		m_stream >> x;
 	}
 
 private:

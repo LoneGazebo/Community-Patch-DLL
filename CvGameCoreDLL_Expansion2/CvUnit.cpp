@@ -27208,21 +27208,15 @@ void CvUnit::Serialize(Unit& unit, Visitor& visitor)
 	// FIXME - This is just save file bloat data. Remember to remove at next compability break.
 	if (bLoading && uiVersion < VERSION_TAG_REMOVE_DLL_VERSION)
 	{
-		uint32 uiDllVersion;
-		visitor >> uiDllVersion;
-		uint32 sentinel;
-		visitor >> sentinel;
-		CheckSentinel(sentinel);
+		visitor.loadIgnore<uint32>(); // version
+		visitor.loadIgnore<uint32>(); // sentinel
 	}
 
 	// FIXME - Values in this chunk were formerly FAutoVariables. Remove any that shouldn't be saved.
 	visitor(unit.m_eOwner);
 	visitor(unit.m_eOriginalOwner);
 	if (bLoading && uiVersion < VERSION_TAG_REMOVE_UNIT_TYPE_INDEX)
-	{
-		int eUnitType;
-		visitor >> eUnitType;
-	}
+		visitor.loadIgnore<int>();
 	visitor(unit.m_iX);
 	visitor(unit.m_iY);
 	visitor(unit.m_iID);
@@ -27248,10 +27242,7 @@ void CvUnit::Serialize(Unit& unit, Visitor& visitor)
 	visitor(unit.m_iCombatTimer);
 	visitor(unit.m_iCombatFirstStrikes);
 	if (bLoading && uiVersion < VERSION_TAG_REMOVE_COMBAT_DAMAGE)
-	{
-		int iCombatDamage;
-		visitor >> iCombatDamage;
-	}
+		visitor.loadIgnore<int>();
 	visitor(unit.m_bMovedThisTurn);
 	visitor(unit.m_bFortified);
 	visitor(unit.m_iBlitzCount);

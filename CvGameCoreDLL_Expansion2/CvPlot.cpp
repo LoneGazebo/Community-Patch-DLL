@@ -12584,9 +12584,285 @@ void CvPlot::processArea(CvArea* pArea, int iChange)
 
 //	--------------------------------------------------------------------------------
 template<typename Plot, typename Visitor>
-void CvPlot::Serialize(Plot& /*plot*/, Visitor& /*visitor*/)
+void CvPlot::Serialize(Plot& plot, Visitor& visitor)
 {
-	// Move stuff here
+	const bool bLoading = visitor.isLoading();
+	const bool bSaving = visitor.isSaving();
+
+	// Hack for where we need to mutate the plot directly
+	// Necessary because C++03 has no if constexpr =(
+	// Don't use this in save branches and things will be okay
+	CvPlot& mutPlot = const_cast<CvPlot&>(plot);
+
+	// Versioning
+	enum PlotSaveVersions
+	{
+		// Update this value when you intend to break save game compatability
+		VERSION_OLDEST = 7,
+
+		// Update this value when you intend to change save game format in a backwards compatible manner
+		VERSION_LATEST = 8,
+
+		// Remove these values and related branches when save compatability is broken
+		VERSION_TAG_REMOVE_DLL_VERSION = 8,
+		VERSION_TAG_REMOVE_UPGRADE_PROGRESS_DUMMY = 8,
+		VERSION_TAG_PACK_STRUCT_FIELD_BITS = 8,
+	};
+	uint32 uiVersion;
+	if (bSaving)
+		uiVersion = VERSION_LATEST;
+	visitor(uiVersion);
+
+	// Mod version
+	// FIXME - This is just save file bloat data. Remember to remove at next compability break.
+	if (bLoading && uiVersion < VERSION_TAG_REMOVE_DLL_VERSION)
+	{
+		visitor.loadIgnore<uint32>(); // version
+		visitor.loadIgnore<uint32>(); // sentinel
+	}
+
+	visitor(plot.m_iX);
+	visitor(plot.m_iY);
+
+	if (bLoading)
+		visitor.loadAssign(plot.m_iPlotIndex, GC.getMap().plotNum(plot.m_iX, plot.m_iY));
+
+	visitor(plot.m_iArea);
+	visitor(plot.m_iOwnershipDuration);
+	visitor(plot.m_iImprovementDuration);
+	visitor(plot.m_iUpgradeProgress);
+	if (bLoading && uiVersion < VERSION_TAG_REMOVE_UPGRADE_PROGRESS_DUMMY)
+		visitor.loadIgnore<short>();
+	visitor(plot.m_iNumMajorCivsRevealed);
+	visitor(plot.m_iCityRadiusCount);
+	visitor(plot.m_iReconCount);
+	visitor(plot.m_iRiverCrossingCount);
+	visitor(plot.m_iResourceNum);
+	visitor(plot.m_iLandmass);
+
+	if (bLoading && uiVersion < VERSION_TAG_PACK_STRUCT_FIELD_BITS)
+	{
+		// the following members specify bit packing and do not resolve to
+		// any serializable type.
+		bool bitPackWorkaround;
+		visitor >> bitPackWorkaround;
+		mutPlot.m_bStartingPlot = bitPackWorkaround;
+		visitor >> bitPackWorkaround;
+		mutPlot.m_bHills = bitPackWorkaround;
+		visitor >> bitPackWorkaround;
+		mutPlot.m_bNEOfRiver = bitPackWorkaround;
+		visitor >> bitPackWorkaround;
+		mutPlot.m_bWOfRiver = bitPackWorkaround;
+		visitor >> bitPackWorkaround;
+		mutPlot.m_bNWOfRiver = bitPackWorkaround;
+		visitor >> bitPackWorkaround;
+		mutPlot.m_bPotentialCityWork = bitPackWorkaround;
+		visitor >> bitPackWorkaround;
+		mutPlot.m_bImprovementPassable = bitPackWorkaround;
+		visitor >> bitPackWorkaround;
+		mutPlot.m_bImprovementPillaged = bitPackWorkaround;
+		visitor >> bitPackWorkaround;
+		mutPlot.m_bRoutePillaged = bitPackWorkaround;
+		visitor >> bitPackWorkaround;
+		mutPlot.m_bBarbCampNotConverting = bitPackWorkaround;
+		visitor >> bitPackWorkaround;
+		mutPlot.m_bRoughPlot = bitPackWorkaround;
+		visitor >> bitPackWorkaround;
+		mutPlot.m_bResourceLinkedCityActive = bitPackWorkaround;
+		visitor >> bitPackWorkaround;
+		mutPlot.m_bImprovedByGiftFromMajor = bitPackWorkaround;
+		visitor >> bitPackWorkaround;
+		mutPlot.m_bImprovementEmbassy = bitPackWorkaround;
+		visitor >> bitPackWorkaround;
+		mutPlot.m_bIsImpassable = bitPackWorkaround;
+	}
+	else
+	{
+		enum PlotSaveStructBitFlags
+		{
+			PLOT_BIT_FLAG_IMPROVEMENT_EMBASSY			= (1 << 0),
+			PLOT_BIT_FLAG_IMPROVEMENT_PASSABLE			= (1 << 1),
+			PLOT_BIT_FLAG_IMPROVEMENT_PILLAGED			= (1 << 2),
+			PLOT_BIT_FLAG_ROUTE_PILLAGED				= (1 << 3),
+			PLOT_BIT_FLAG_STARTING_PLOT					= (1 << 4),
+			PLOT_BIT_FLAG_HILLS							= (1 << 5),
+			PLOT_BIT_FLAG_NE_OF_RIVER					= (1 << 6),
+			PLOT_BIT_FLAG_W_OF_RIVER					= (1 << 7),
+			PLOT_BIT_FLAG_NW_OF_RIVER					= (1 << 8),
+			PLOT_BIT_FLAG_POTENTIAL_CITY_WORK			= (1 << 9),
+			PLOT_BIT_FLAG_BARB_CAMP_NOT_CONVERTING		= (1 << 10),
+			PLOT_BIT_FLAG_ROUGH_PLOT					= (1 << 11),
+			PLOT_BIT_FLAG_RESOURCE_LINKED_CITY_ACTIVE	= (1 << 12),
+			PLOT_BIT_FLAG_IMPROVED_BY_GIFT_FROM_MAYOR	= (1 << 13),
+			PLOT_BIT_FLAG_IS_IMPASSABLE					= (1 << 14),
+		};
+
+		uint16 plotBits;
+		if (bLoading)
+		{
+			visitor >> plotBits;
+			mutPlot.m_bImprovementEmbassy		= !!(plotBits & PLOT_BIT_FLAG_IMPROVEMENT_EMBASSY);
+			mutPlot.m_bImprovementPassable		= !!(plotBits & PLOT_BIT_FLAG_IMPROVEMENT_PASSABLE);
+			mutPlot.m_bImprovementPillaged		= !!(plotBits & PLOT_BIT_FLAG_IMPROVEMENT_PILLAGED);
+			mutPlot.m_bRoutePillaged			= !!(plotBits & PLOT_BIT_FLAG_ROUTE_PILLAGED);
+			mutPlot.m_bStartingPlot				= !!(plotBits & PLOT_BIT_FLAG_STARTING_PLOT);
+			mutPlot.m_bHills					= !!(plotBits & PLOT_BIT_FLAG_HILLS);
+			mutPlot.m_bNEOfRiver				= !!(plotBits & PLOT_BIT_FLAG_NE_OF_RIVER);
+			mutPlot.m_bWOfRiver					= !!(plotBits & PLOT_BIT_FLAG_W_OF_RIVER);
+			mutPlot.m_bNWOfRiver				= !!(plotBits & PLOT_BIT_FLAG_NW_OF_RIVER);
+			mutPlot.m_bPotentialCityWork		= !!(plotBits & PLOT_BIT_FLAG_POTENTIAL_CITY_WORK);
+			mutPlot.m_bBarbCampNotConverting	= !!(plotBits & PLOT_BIT_FLAG_BARB_CAMP_NOT_CONVERTING);
+			mutPlot.m_bRoughPlot				= !!(plotBits & PLOT_BIT_FLAG_ROUGH_PLOT);
+			mutPlot.m_bResourceLinkedCityActive	= !!(plotBits & PLOT_BIT_FLAG_RESOURCE_LINKED_CITY_ACTIVE);
+			mutPlot.m_bImprovedByGiftFromMajor	= !!(plotBits & PLOT_BIT_FLAG_IMPROVED_BY_GIFT_FROM_MAYOR);
+			mutPlot.m_bIsImpassable				= !!(plotBits & PLOT_BIT_FLAG_IS_IMPASSABLE);
+		}
+		if (bSaving)
+		{
+			plotBits = 0;
+			if (plot.m_bImprovementEmbassy)			{ plotBits |= PLOT_BIT_FLAG_IMPROVEMENT_EMBASSY; }
+			if (plot.m_bImprovementPassable)		{ plotBits |= PLOT_BIT_FLAG_IMPROVEMENT_PASSABLE; }
+			if (plot.m_bImprovementPillaged)		{ plotBits |= PLOT_BIT_FLAG_IMPROVEMENT_PILLAGED; }
+			if (plot.m_bRoutePillaged)				{ plotBits |= PLOT_BIT_FLAG_ROUTE_PILLAGED; }
+			if (plot.m_bStartingPlot)				{ plotBits |= PLOT_BIT_FLAG_STARTING_PLOT; }
+			if (plot.m_bHills)						{ plotBits |= PLOT_BIT_FLAG_HILLS; }
+			if (plot.m_bNEOfRiver)					{ plotBits |= PLOT_BIT_FLAG_NE_OF_RIVER; }
+			if (plot.m_bWOfRiver)					{ plotBits |= PLOT_BIT_FLAG_W_OF_RIVER; }
+			if (plot.m_bNWOfRiver)					{ plotBits |= PLOT_BIT_FLAG_NW_OF_RIVER; }
+			if (plot.m_bPotentialCityWork)			{ plotBits |= PLOT_BIT_FLAG_POTENTIAL_CITY_WORK; }
+			if (plot.m_bBarbCampNotConverting)		{ plotBits |= PLOT_BIT_FLAG_BARB_CAMP_NOT_CONVERTING; }
+			if (plot.m_bRoughPlot)					{ plotBits |= PLOT_BIT_FLAG_ROUGH_PLOT; }
+			if (plot.m_bResourceLinkedCityActive)	{ plotBits |= PLOT_BIT_FLAG_RESOURCE_LINKED_CITY_ACTIVE; }
+			if (plot.m_bImprovedByGiftFromMajor)	{ plotBits |= PLOT_BIT_FLAG_IMPROVED_BY_GIFT_FROM_MAYOR; }
+			if (plot.m_bIsImpassable)				{ plotBits |= PLOT_BIT_FLAG_IS_IMPASSABLE; }
+			visitor << plotBits;
+		}
+	}
+
+	visitor(plot.m_iUnitPlotExperience);
+	visitor(plot.m_iUnitPlotGAExperience);
+	visitor(plot.m_iPlotChangeMoves);
+
+	visitor(plot.m_eOwner);
+	visitor(plot.m_ePlotType);
+	visitor(plot.m_eTerrainType);
+
+	// Hashed values
+	if (bLoading)
+	{
+		visitor.loadAssign(plot.m_eFeatureType, FeatureTypes(CvInfosSerializationHelper::ReadHashed(visitor.stream())));
+		visitor.loadAssign(plot.m_eResourceType, ResourceTypes(CvInfosSerializationHelper::ReadHashed(visitor.stream())));
+		visitor.loadAssign(plot.m_eImprovementType, ImprovementTypes(CvInfosSerializationHelper::ReadHashed(visitor.stream())));
+		visitor.loadAssign(plot.m_eImprovementTypeUnderConstruction, ImprovementTypes(CvInfosSerializationHelper::ReadHashed(visitor.stream())));
+	}
+	if (bSaving)
+	{
+		CvInfosSerializationHelper::WriteHashed(visitor.stream(), FeatureTypes(plot.m_eFeatureType));
+		CvInfosSerializationHelper::WriteHashed(visitor.stream(), ResourceTypes(plot.m_eResourceType));
+		CvInfosSerializationHelper::WriteHashed(visitor.stream(), ImprovementTypes(plot.m_eImprovementType));
+		CvInfosSerializationHelper::WriteHashed(visitor.stream(), ImprovementTypes(plot.m_eImprovementTypeUnderConstruction));
+	}
+
+	visitor(plot.m_ePlayerBuiltImprovement);
+	visitor(plot.m_ePlayerResponsibleForImprovement);
+	visitor(plot.m_ePlayerResponsibleForRoute);
+	visitor(plot.m_ePlayerThatClearedBarbCampHere);
+	visitor(plot.m_ePlayerThatClearedDigHere);
+	visitor(plot.m_eRouteType);
+	visitor(plot.m_eUnitIncrement);
+	visitor(plot.m_eWorldAnchor);
+	visitor(plot.m_cWorldAnchorData);
+
+	visitor(plot.m_eRiverEFlowDirection);
+	visitor(plot.m_eRiverSEFlowDirection);
+	visitor(plot.m_eRiverSWFlowDirection);
+
+	visitor(plot.m_plotCity.eOwner);
+	visitor(plot.m_plotCity.iID);
+	visitor(plot.m_owningCity.eOwner);
+	visitor(plot.m_owningCity.iID);
+	visitor(plot.m_owningCityOverride.eOwner);
+	visitor(plot.m_owningCityOverride.iID);
+	visitor(plot.m_ResourceLinkedCity.eOwner);
+	visitor(plot.m_ResourceLinkedCity.iID);
+	visitor(plot.m_purchaseCity.eOwner);
+	visitor(plot.m_purchaseCity.iID);
+
+	for (uint i = 0; i < NUM_YIELD_TYPES; i++)
+	{
+		visitor(plot.m_aiYield[i]);
+		visitor(plot.m_aiArbitraryYields[i]);
+	}
+
+	for (int i = 0; i < MAX_TEAMS; i++)
+	{
+		visitor(plot.m_aiPlayerCityRadiusCount[i]);
+		visitor(plot.m_aiVisibilityCount[i]);
+		visitor(plot.m_aiVisibilityCountThisTurnMax[i]);
+		visitor(plot.m_aiRevealedOwner[i]);
+		visitor(plot.m_abResourceForceReveal[i]);
+		if (bLoading)
+			visitor.loadAssign(plot.m_aeRevealedImprovementType[i], ImprovementTypes(CvInfosSerializationHelper::ReadHashed(visitor.stream())));
+		if (bSaving)
+			CvInfosSerializationHelper::WriteHashed(visitor.stream(), ImprovementTypes(plot.m_aeRevealedImprovementType[i]));
+		visitor(plot.m_aeRevealedRouteType[i]);
+		visitor(plot.m_abIsImpassable[i]);
+		visitor(plot.m_abStrategicRoute[i]);
+	}
+
+	for (uint i = 0; i < PlotBoolField::eCount; ++i)
+	{
+		visitor(plot.m_bfRevealed.m_dwBits[i]);
+	}
+	visitor(plot.m_cRiverCrossing);
+
+	// Script data
+	{
+		// FIXME - This is simply dreadful.
+		bool hasScriptData;
+		if (bSaving)
+			hasScriptData = (plot.m_szScriptData != NULL);
+		visitor(hasScriptData);
+		if (hasScriptData)
+		{
+			std::string scriptData;
+			if (bSaving)
+				scriptData.assign(plot.m_szScriptData);
+			visitor(scriptData);
+			if (bLoading)
+				mutPlot.setScriptData(scriptData.c_str());
+		}
+	}
+
+	visitor(plot.m_buildProgress);
+	visitor(plot.m_apaiInvisibleVisibilityCount);
+	visitor(plot.m_paiInvisibleVisibilityUnitCount);
+
+	// m_units
+	{
+		uint32 uLength;
+		if (bSaving)
+			uLength = uint32(plot.m_units.getLength());
+		visitor(uLength);
+
+		for (uint32 uIdx = 0; uIdx < uLength; ++uIdx)
+		{
+			IDInfo data;
+			if (bSaving)
+				data = *plot.m_units.getAt(uIdx);
+
+			visitor(data.eOwner);
+			visitor(data.iID);
+
+			if (bLoading)
+				mutPlot.m_units.insertAtEnd(&data);
+		}
+	}
+
+	visitor(plot.m_cContinentType);
+	visitor(plot.m_kArchaeologyData);
+	visitor(plot.m_bIsTradeUnitRoute);
+	visitor(plot.m_iLastTurnBuildChanged);
 }
 
 //	--------------------------------------------------------------------------------
@@ -12599,209 +12875,9 @@ void CvPlot::read(FDataStream& kStream)
 	// Init saved data
 	reset();
 
-	// Version number to maintain backwards compatibility
-	uint uiVersion;
-	kStream >> uiVersion;
-	CvAssertMsg(uiVersion <= g_CurrentCvPlotVersion, "Unexpected Version.  This could be caused by serialization errors.");
-	MOD_SERIALIZE_INIT_READ(kStream);
-
 	// Perform shared serialize
 	CvStreamLoadVisitor serialVisitor(kStream);
 	Serialize(*this, serialVisitor);
-
-	kStream >> m_iX;
-	kStream >> m_iY;
-	m_iPlotIndex = GC.getMap().plotNum(m_iX,m_iY);
-
-	kStream >> m_iArea;
-	kStream >> m_iOwnershipDuration;
-	kStream >> m_iImprovementDuration;
-	kStream >> m_iUpgradeProgress;
-	kStream >> m_iUpgradeProgress; //dummy
-	kStream >> m_iNumMajorCivsRevealed;
-	kStream >> m_iCityRadiusCount;
-	kStream >> m_iReconCount;
-	kStream >> m_iRiverCrossingCount;
-	kStream >> m_iResourceNum;
-	kStream >> m_iLandmass;
-
-	// the following members specify bit packing and do not resolve to
-	// any serializable type.
-	bool bitPackWorkaround;
-	kStream >> bitPackWorkaround;
-	m_bStartingPlot = bitPackWorkaround;
-	kStream >> bitPackWorkaround;
-	m_bHills = bitPackWorkaround;
-	kStream >> bitPackWorkaround;
-	m_bNEOfRiver = bitPackWorkaround;
-	kStream >> bitPackWorkaround;
-	m_bWOfRiver = bitPackWorkaround;
-	kStream >> bitPackWorkaround;
-	m_bNWOfRiver = bitPackWorkaround;
-	kStream >> bitPackWorkaround;
-	m_bPotentialCityWork = bitPackWorkaround;
-	kStream >> bitPackWorkaround;
-	m_bImprovementPassable = bitPackWorkaround;
-	kStream >> bitPackWorkaround;
-	m_bImprovementPillaged = bitPackWorkaround;
-	kStream >> bitPackWorkaround;
-	m_bRoutePillaged = bitPackWorkaround;
-	kStream >> bitPackWorkaround;
-	m_bBarbCampNotConverting = bitPackWorkaround;
-	kStream >> bitPackWorkaround;
-	m_bRoughPlot = bitPackWorkaround;
-	kStream >> bitPackWorkaround;
-	m_bResourceLinkedCityActive = bitPackWorkaround;
-	kStream >> bitPackWorkaround;
-	m_bImprovedByGiftFromMajor = bitPackWorkaround;
-#if defined(MOD_DIPLOMACY_CITYSTATES)
-	MOD_SERIALIZE_READ(49, kStream, bitPackWorkaround, 0);
-	m_bImprovementEmbassy = bitPackWorkaround;
-#endif
-#if defined(MOD_BALANCE_CORE)
-	kStream >> bitPackWorkaround;
-	m_bIsImpassable = bitPackWorkaround;
-	kStream >> bitPackWorkaround;
-	m_iUnitPlotExperience = bitPackWorkaround;
-	kStream >> bitPackWorkaround;
-	m_iUnitPlotGAExperience = bitPackWorkaround;
-	kStream >> bitPackWorkaround;
-	m_iPlotChangeMoves = bitPackWorkaround;
-#endif
-
-	kStream >> m_eOwner;
-	kStream >> m_ePlotType;
-	kStream >> m_eTerrainType;
-	if (uiVersion >= 3)
-		m_eFeatureType = (FeatureTypes) CvInfosSerializationHelper::ReadHashed(kStream);
-	else
-	{
-		kStream >> m_eFeatureType;
-		if ((int)m_eFeatureType >= GC.getNumFeatureInfos())
-			m_eFeatureType = NO_FEATURE;
-	}
-	m_eResourceType = (ResourceTypes) CvInfosSerializationHelper::ReadHashed(kStream);
-
-	if(uiVersion >= 5)
-	{
-		m_eImprovementType = (ImprovementTypes) CvInfosSerializationHelper::ReadHashed(kStream);
-	}
-	else
-	{
-		kStream >> m_eImprovementType;
-		// Filter out improvements that have been removed
-		if (m_eImprovementType != NO_IMPROVEMENT)
-			if (GC.getImprovementInfo((ImprovementTypes)m_eImprovementType) == NULL)
-				m_eImprovementType = NO_IMPROVEMENT;
-	}
-
-	if (uiVersion >= 7)
-	{
-		m_eImprovementTypeUnderConstruction = (ImprovementTypes)CvInfosSerializationHelper::ReadHashed(kStream);
-	}
-	else
-	{
-		m_eImprovementTypeUnderConstruction = NO_IMPROVEMENT;
-	}
-
-	if (uiVersion >= 2)
-	{
-		kStream >> m_ePlayerBuiltImprovement;
-	}
-	else
-	{
-		m_ePlayerBuiltImprovement = NO_PLAYER;
-	}
-	kStream >> m_ePlayerResponsibleForImprovement;
-	kStream >> m_ePlayerResponsibleForRoute;
-	kStream >> m_ePlayerThatClearedBarbCampHere;
-#if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
-	MOD_SERIALIZE_READ(39, kStream, m_ePlayerThatClearedDigHere, NO_PLAYER);
-#endif
-	kStream >> m_eRouteType;
-#if defined(MOD_GLOBAL_STACKING_RULES)
-	MOD_SERIALIZE_READ(30, kStream, m_eUnitIncrement, 0);
-#endif
-	kStream >> m_eWorldAnchor;
-	kStream >> m_cWorldAnchorData;
-
-	kStream >> m_eRiverEFlowDirection;
-	kStream >> m_eRiverSEFlowDirection;
-	kStream >> m_eRiverSWFlowDirection;
-
-	kStream >> m_plotCity.eOwner;
-	kStream >> m_plotCity.iID;
-	kStream >> m_owningCity.eOwner;
-	kStream >> m_owningCity.iID;
-	kStream >> m_owningCityOverride.eOwner;
-	kStream >> m_owningCityOverride.iID;
-	kStream >> m_ResourceLinkedCity.eOwner;
-	kStream >> m_ResourceLinkedCity.iID;
-	kStream >> m_purchaseCity.eOwner;
-	kStream >> m_purchaseCity.iID;
-
-    for(uint i = 0; i < NUM_YIELD_TYPES; i++)
-    {
-        kStream >> m_aiYield[i];
-#if defined(MOD_API_EXTENSIONS)
-        kStream >> m_aiArbitraryYields[i];
-#endif
-    }
-
-	for(int i = 0; i < MAX_TEAMS; i++)
-	{
-		kStream >> m_aiPlayerCityRadiusCount[i];
-		kStream >> m_aiVisibilityCount[i];
-		kStream >> m_aiVisibilityCountThisTurnMax[i];
-		kStream >> m_aiRevealedOwner[i];
-		kStream >> m_abResourceForceReveal[i];
-		m_aeRevealedImprovementType[i] = (ImprovementTypes) CvInfosSerializationHelper::ReadHashed(kStream);
-		kStream >> m_aeRevealedRouteType[i];
-#if defined(MOD_BALANCE_CORE)
-		kStream >> m_abIsImpassable[i];
-		kStream >> m_abStrategicRoute[i];
-#endif
-	}
-
-	for (uint i = 0; i<PlotBoolField::eCount; ++i)
-	{
-		kStream >> m_bfRevealed.m_dwBits[i];
-	}
-	kStream >> m_cRiverCrossing;
-
-	bool hasScriptData = false;
-	kStream >> hasScriptData;
-	if(hasScriptData)
-	{
-		std::string scriptData;
-		kStream >> scriptData;
-		setScriptData(scriptData.c_str());
-	}
-
-
-	kStream >> m_buildProgress;
-	kStream >> m_apaiInvisibleVisibilityCount;
-	kStream >> m_paiInvisibleVisibilityUnitCount;
-
-	//m_units.Read(kStream);
-	UINT uLength;
-	kStream >> uLength;
-	for(UINT uIdx = 0; uIdx < uLength; ++uIdx)
-	{
-		IDInfo  Data;
-
-		kStream >> Data.eOwner;
-		kStream >> Data.iID;
-
-		m_units.insertAtEnd(&Data);
-	}
-
-	kStream >> m_cContinentType;
-	kStream >> m_kArchaeologyData;
-#if defined(MOD_BALANCE_CORE)
-	kStream >> m_bIsTradeUnitRoute;
-	kStream >> m_iLastTurnBuildChanged;
-#endif
 }
 
 //	--------------------------------------------------------------------------------
@@ -12811,150 +12887,9 @@ void CvPlot::read(FDataStream& kStream)
 //
 void CvPlot::write(FDataStream& kStream) const
 {
-	// Current version number
-	uint uiVersion = g_CurrentCvPlotVersion;
-	kStream << uiVersion;
-	MOD_SERIALIZE_INIT_WRITE(kStream);
-
 	// Perform shared serialize
-	CvStreamLoadVisitor serialVisitor(kStream);
+	CvStreamSaveVisitor serialVisitor(kStream);
 	Serialize(*this, serialVisitor);
-
-	kStream << m_iX;
-	kStream << m_iY;
-	kStream << m_iArea;
-	kStream << m_iOwnershipDuration;
-	kStream << m_iImprovementDuration;
-	kStream << m_iUpgradeProgress;
-	kStream << m_iUpgradeProgress; //dummy
-	kStream << m_iNumMajorCivsRevealed;
-	kStream << m_iCityRadiusCount;
-	kStream << m_iReconCount;
-	kStream << m_iRiverCrossingCount;
-	kStream << m_iResourceNum;
-	kStream << m_iLandmass;
-
-	kStream << m_bStartingPlot;
-	kStream << m_bHills;
-	kStream << m_bNEOfRiver;
-	kStream << m_bWOfRiver;
-	kStream << m_bNWOfRiver;
-	kStream << m_bPotentialCityWork;
-	kStream << m_bImprovementPassable;
-	kStream << m_bImprovementPillaged;
-	kStream << m_bRoutePillaged;
-	kStream << m_bBarbCampNotConverting;
-	kStream << m_bRoughPlot;
-	kStream << m_bResourceLinkedCityActive;
-	kStream << m_bImprovedByGiftFromMajor;
-#if defined(MOD_DIPLOMACY_CITYSTATES)
-	MOD_SERIALIZE_WRITE(kStream, m_bImprovementEmbassy);
-#endif
-#if defined(MOD_BALANCE_CORE)
-	kStream << m_bIsImpassable;
-	kStream << m_iUnitPlotExperience;
-	kStream << m_iUnitPlotGAExperience;
-	kStream << m_iPlotChangeMoves;
-#endif
-	// m_bPlotLayoutDirty not saved
-	// m_bLayoutStateWorked not saved
-
-	kStream << m_eOwner;
-	kStream << m_ePlotType;
-	kStream << m_eTerrainType;
-
-	CvInfosSerializationHelper::WriteHashed(kStream, (const FeatureTypes)m_eFeatureType);
-	CvInfosSerializationHelper::WriteHashed(kStream, (const ResourceTypes)m_eResourceType);
-	CvInfosSerializationHelper::WriteHashed(kStream, (const ImprovementTypes)m_eImprovementType);
-	CvInfosSerializationHelper::WriteHashed(kStream, (const ImprovementTypes)m_eImprovementTypeUnderConstruction);
-	kStream << m_ePlayerBuiltImprovement;
-	kStream << m_ePlayerResponsibleForImprovement;
-	kStream << m_ePlayerResponsibleForRoute;
-	kStream << m_ePlayerThatClearedBarbCampHere;
-#if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
-	MOD_SERIALIZE_WRITE(kStream, m_ePlayerThatClearedDigHere);
-#endif
-	kStream << m_eRouteType;
-#if defined(MOD_GLOBAL_STACKING_RULES)
-	MOD_SERIALIZE_WRITE(kStream, m_eUnitIncrement);
-#endif
-	kStream << m_eWorldAnchor;
-	kStream << m_cWorldAnchorData;
-	kStream << m_eRiverEFlowDirection;
-	kStream << m_eRiverSEFlowDirection;
-	kStream << m_eRiverSWFlowDirection;
-
-	kStream << m_plotCity.eOwner;
-	kStream << m_plotCity.iID;
-	kStream << m_owningCity.eOwner;
-	kStream << m_owningCity.iID;
-	kStream << m_owningCityOverride.eOwner;
-	kStream << m_owningCityOverride.iID;
-	kStream << m_ResourceLinkedCity.eOwner;
-	kStream << m_ResourceLinkedCity.iID;
-	kStream << m_purchaseCity.eOwner;
-	kStream << m_purchaseCity.iID;
-
-    for(uint i = 0; i < NUM_YIELD_TYPES; i++)
-    {
-        kStream << m_aiYield[i];
-#if defined(MOD_API_EXTENSIONS)
-        kStream << m_aiArbitraryYields[i];
-#endif
-    }
-
-	for (int i = 0; i < MAX_TEAMS; i++)
-	{
-		kStream << m_aiPlayerCityRadiusCount[i];
-		kStream << m_aiVisibilityCount[i];
-		kStream << m_aiVisibilityCountThisTurnMax[i];
-		kStream << m_aiRevealedOwner[i];
-		kStream << m_abResourceForceReveal[i];
-		CvInfosSerializationHelper::WriteHashed(kStream, (const ImprovementTypes)m_aeRevealedImprovementType[i]);
-		kStream << m_aeRevealedRouteType[i];
-#if defined(MOD_BALANCE_CORE)
-		kStream << m_abIsImpassable[i];
-		kStream << m_abStrategicRoute[i];
-#endif
-	}
-
-	for (uint i = 0; i<PlotBoolField::eCount; ++i)
-	{
-		kStream << m_bfRevealed.m_dwBits[i];
-	}
-	kStream << m_cRiverCrossing;
-
-	// char * should have died in 1989...
-	bool hasScriptData = (m_szScriptData != NULL);
-	kStream << hasScriptData;
-	if(hasScriptData)
-	{
-		const std::string scriptData(m_szScriptData);
-		kStream << scriptData;
-	}
-
-
-	kStream << m_buildProgress;
-	kStream << m_apaiInvisibleVisibilityCount;
-	kStream << m_paiInvisibleVisibilityUnitCount;
-
-	//  Write m_units.Write(kStream);
-	UINT uLength = (UINT)m_units.getLength();
-	kStream << uLength;
-	for(UINT uIdx = 0; uIdx < uLength; ++uIdx)
-	{
-		const IDInfo* pData = m_units.getAt(uIdx);
-
-		kStream << pData->eOwner;
-		kStream << pData->iID;
-	}
-
-	kStream << m_cContinentType;
-	kStream << m_kArchaeologyData;
-#if defined(MOD_BALANCE_CORE)
-	kStream << m_bIsTradeUnitRoute;
-	kStream << m_iLastTurnBuildChanged;
-#endif
 }
 
 //	--------------------------------------------------------------------------------
