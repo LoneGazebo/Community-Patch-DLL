@@ -62,4 +62,33 @@ protected:
 
 };
 
+namespace CvLuaArgs
+{
+	template<> inline const CvTeamTechs* toValue(lua_State* L, int idx)
+	{
+		return CvLuaTeamTech::GetInstance(L, idx);
+	}
+	template<> inline CvTeamTechs* toValue(lua_State* L, int idx)
+	{
+		return CvLuaTeamTech::GetInstance(L, idx);
+	}
+	template<> inline const CvTeamTechs& toValue(lua_State* L, int idx)
+	{
+		return *CvLuaTeamTech::GetInstance(L, idx);
+	}
+	template<> inline CvTeamTechs& toValue(lua_State* L, int idx)
+	{
+		return *CvLuaTeamTech::GetInstance(L, idx);
+	}
+
+	template<> inline void pushValue(lua_State* L, CvTeamTechs* p)
+	{
+		CvLuaTeamTech::Push(L, p);
+	}
+	template<> inline void pushValue(lua_State* L, CvTeamTechs& r)
+	{
+		CvLuaTeamTech::Push(L, &r);
+	}
+}
+
 #endif //CVLUATEAMTECH_H
