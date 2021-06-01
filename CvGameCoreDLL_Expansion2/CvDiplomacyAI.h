@@ -77,7 +77,7 @@ public:
 	void Uninit();
 	void Reset();
 	void Read(FDataStream& kStream);
-	void Write(FDataStream& kStream);
+	void Write(FDataStream& kStream) const;
 	void update();
 
 	// ************************************
@@ -2114,6 +2114,9 @@ private:
 	DiploStatementTypes m_eTestStatement;
 	int					m_iTestStatementArg1;
 };
+
+FDataStream& operator>>(FDataStream&, CvDiplomacyAI&);
+FDataStream& operator<<(FDataStream&, const CvDiplomacyAI&);
 
 namespace CvDiplomacyAIHelpers
 {

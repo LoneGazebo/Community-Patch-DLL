@@ -178,4 +178,7 @@ private:
 	int m_iNextWonderWeight;
 };
 
+FDataStream& operator>>(FDataStream&, CvCitySpecializationAI&);
+FDataStream& operator<<(FDataStream&, const CvCitySpecializationAI&);
+
 #endif //CIV5_CITY_SPECIALIZATION_AI_H

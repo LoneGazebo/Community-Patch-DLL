@@ -59,4 +59,7 @@ private:
 	CvWeightedVector<int> m_Buildables;
 };
 
+FDataStream& operator>>(FDataStream&, CvWonderProductionAI&);
+FDataStream& operator<<(FDataStream&, const CvWonderProductionAI&);
+
 #endif //CIV5_WONDER_PRODUCTION_AI_H

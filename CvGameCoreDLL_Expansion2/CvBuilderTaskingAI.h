@@ -67,7 +67,7 @@ public:
 
 	//// Serialization routines
 	void Read(FDataStream& kStream);
-	void Write(FDataStream& kStream);
+	void Write(FDataStream& kStream) const;
 
 	void Update(void);
 	void UpdateRoutePlots(void);
@@ -151,5 +151,8 @@ protected:
 	bool m_bEvaluateAdjacent;
 	bool m_bNoPermanentsAdjacentCity;
 };
+
+FDataStream& operator>>(FDataStream&, CvBuilderTaskingAI&);
+FDataStream& operator<<(FDataStream&, const CvBuilderTaskingAI&);
 
 #endif //CIV5_BUILDER_TASKING_AI_H

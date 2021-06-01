@@ -902,7 +902,7 @@ public:
 	void Uninit();
 	void Reset();
 	void Read(FDataStream& kStream);
-	void Write(FDataStream& kStream);
+	void Write(FDataStream& kStream) const;
 
 	void DoTurn();
 
@@ -974,6 +974,9 @@ private:
 	void LogVoteChoiceCommitted(CvEnactProposal* pProposal, int iChoice, int iVotes);
 	void LogVoteChoiceCommitted(CvRepealProposal* pProposal, int iChoice, int iVotes);
 };
+
+FDataStream& operator>>(FDataStream&, CvLeagueAI&);
+FDataStream& operator<<(FDataStream&, const CvLeagueAI&);
 
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

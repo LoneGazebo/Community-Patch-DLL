@@ -75,7 +75,7 @@ void CvHomelandAI::Read(FDataStream& kStream)
 }
 
 /// Serialization write
-void CvHomelandAI::Write(FDataStream& kStream)
+void CvHomelandAI::Write(FDataStream& kStream) const
 {
 	// Current version number
 	uint uiVersion = 1;
@@ -84,6 +84,17 @@ void CvHomelandAI::Write(FDataStream& kStream)
 
 	//dummy value
 	kStream << 0L;
+}
+
+FDataStream& operator>>(FDataStream& stream, CvHomelandAI& homelandAI)
+{
+	homelandAI.Read(stream);
+	return stream;
+}
+FDataStream& operator<<(FDataStream& stream, const CvHomelandAI& homelandAI)
+{
+	homelandAI.Write(stream);
+	return stream;
 }
 
 /// Mark all the units that will be under tactical AI control this turn

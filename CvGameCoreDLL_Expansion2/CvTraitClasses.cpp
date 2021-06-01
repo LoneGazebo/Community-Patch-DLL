@@ -7785,7 +7785,7 @@ void CvPlayerTraits::Read(FDataStream& kStream)
 }
 
 /// Serialization write
-void CvPlayerTraits::Write(FDataStream& kStream)
+void CvPlayerTraits::Write(FDataStream& kStream) const
 {
 	// Current version number
 	uint uiVersion = 19;
@@ -8024,13 +8024,13 @@ void CvPlayerTraits::Write(FDataStream& kStream)
 	kStream << m_eCampGuardType;
 	kStream << m_eCombatBonusImprovement;
 
-	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iExtraYieldThreshold);
-	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iFreeCityYield);
-	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iYieldChangeStrategicResources);
-	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iYieldRateModifier);
-	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iYieldChangeNaturalWonder);
-	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iYieldChangePerTradePartner);
-	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iYieldChangeIncomingTradeRoute);
+	kStream << ArrayWrapper<const int>(NUM_YIELD_TYPES, m_iExtraYieldThreshold);
+	kStream << ArrayWrapper<const int>(NUM_YIELD_TYPES, m_iFreeCityYield);
+	kStream << ArrayWrapper<const int>(NUM_YIELD_TYPES, m_iYieldChangeStrategicResources);
+	kStream << ArrayWrapper<const int>(NUM_YIELD_TYPES, m_iYieldRateModifier);
+	kStream << ArrayWrapper<const int>(NUM_YIELD_TYPES, m_iYieldChangeNaturalWonder);
+	kStream << ArrayWrapper<const int>(NUM_YIELD_TYPES, m_iYieldChangePerTradePartner);
+	kStream << ArrayWrapper<const int>(NUM_YIELD_TYPES, m_iYieldChangeIncomingTradeRoute);
 	
 	CvInfosSerializationHelper::WriteHashedDataArray<TerrainTypes>(kStream, &m_iStrategicResourceQuantityModifier[0], GC.getNumTerrainInfos());
 	CvInfosSerializationHelper::WriteHashedDataArray<ResourceTypes>(kStream, m_aiResourceQuantityModifier);
@@ -8110,21 +8110,21 @@ void CvPlayerTraits::Write(FDataStream& kStream)
 	kStream << m_ppiPlotYieldChange;
 #endif
 #if defined(MOD_BALANCE_CORE)
-	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iYieldFromLevelUp);
-	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iYieldFromHistoricEvent);
-	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iYieldFromOwnPantheon);
-	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iTradeRouteStartYield);
-	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iYieldFromRouteMovement);
-	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iYieldFromExport);
-	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iYieldFromImport);
-	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iYieldFromTilePurchase);
-	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iYieldFromTileEarn);
-	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iYieldFromSettle);
-	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iYieldFromConquest);
-	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iYieldFromCSAlly);
-	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iYieldFromCSFriend);
-	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iGAPToYield);
-	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iMountainRangeYield);
+	kStream << ArrayWrapper<const int>(NUM_YIELD_TYPES, m_iYieldFromLevelUp);
+	kStream << ArrayWrapper<const int>(NUM_YIELD_TYPES, m_iYieldFromHistoricEvent);
+	kStream << ArrayWrapper<const int>(NUM_YIELD_TYPES, m_iYieldFromOwnPantheon);
+	kStream << ArrayWrapper<const int>(NUM_YIELD_TYPES, m_iTradeRouteStartYield);
+	kStream << ArrayWrapper<const int>(NUM_YIELD_TYPES, m_iYieldFromRouteMovement);
+	kStream << ArrayWrapper<const int>(NUM_YIELD_TYPES, m_iYieldFromExport);
+	kStream << ArrayWrapper<const int>(NUM_YIELD_TYPES, m_iYieldFromImport);
+	kStream << ArrayWrapper<const int>(NUM_YIELD_TYPES, m_iYieldFromTilePurchase);
+	kStream << ArrayWrapper<const int>(NUM_YIELD_TYPES, m_iYieldFromTileEarn);
+	kStream << ArrayWrapper<const int>(NUM_YIELD_TYPES, m_iYieldFromSettle);
+	kStream << ArrayWrapper<const int>(NUM_YIELD_TYPES, m_iYieldFromConquest);
+	kStream << ArrayWrapper<const int>(NUM_YIELD_TYPES, m_iYieldFromCSAlly);
+	kStream << ArrayWrapper<const int>(NUM_YIELD_TYPES, m_iYieldFromCSFriend);
+	kStream << ArrayWrapper<const int>(NUM_YIELD_TYPES, m_iGAPToYield);
+	kStream << ArrayWrapper<const int>(NUM_YIELD_TYPES, m_iMountainRangeYield);
 	MOD_SERIALIZE_WRITE(kStream, m_bFreeGreatWorkOnConquest);
 	MOD_SERIALIZE_WRITE(kStream, m_bPopulationBoostReligion);
 	MOD_SERIALIZE_WRITE(kStream, m_bCombatBoostNearNaturalWonder);
@@ -8139,23 +8139,23 @@ void CvPlayerTraits::Write(FDataStream& kStream)
 #if defined(MOD_API_UNIFIED_YIELDS)
 	// MOD_SERIALIZE_READ - v57/v58/v59 and v61 broke the save format  couldn't be helped, but don't make a habit of it!!!
 	kStream << m_ppiBuildingClassYieldChange;
-	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iCapitalYieldChanges);
-	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iCityYieldChanges);
-	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iPermanentYieldChangeWLTKD);
-	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iCoastalCityYieldChanges);
-	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iGreatWorkYieldChanges);
-	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iArtifactYieldChanges);
-	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iArtYieldChanges);
-	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iLitYieldChanges);
-	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iMusicYieldChanges);
-	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iSeaPlotYieldChanges);
+	kStream << ArrayWrapper<const int>(NUM_YIELD_TYPES, m_iCapitalYieldChanges);
+	kStream << ArrayWrapper<const int>(NUM_YIELD_TYPES, m_iCityYieldChanges);
+	kStream << ArrayWrapper<const int>(NUM_YIELD_TYPES, m_iPermanentYieldChangeWLTKD);
+	kStream << ArrayWrapper<const int>(NUM_YIELD_TYPES, m_iCoastalCityYieldChanges);
+	kStream << ArrayWrapper<const int>(NUM_YIELD_TYPES, m_iGreatWorkYieldChanges);
+	kStream << ArrayWrapper<const int>(NUM_YIELD_TYPES, m_iArtifactYieldChanges);
+	kStream << ArrayWrapper<const int>(NUM_YIELD_TYPES, m_iArtYieldChanges);
+	kStream << ArrayWrapper<const int>(NUM_YIELD_TYPES, m_iLitYieldChanges);
+	kStream << ArrayWrapper<const int>(NUM_YIELD_TYPES, m_iMusicYieldChanges);
+	kStream << ArrayWrapper<const int>(NUM_YIELD_TYPES, m_iSeaPlotYieldChanges);
 	kStream << m_ppiFeatureYieldChange;
 	kStream << m_ppiResourceYieldChange;
 	kStream << m_ppiTerrainYieldChange;
-	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iYieldFromKills);
-	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iYieldFromBarbarianKills);
-	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iYieldChangeTradeRoute);
-	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iYieldChangeWorldWonder);
+	kStream << ArrayWrapper<const int>(NUM_YIELD_TYPES, m_iYieldFromKills);
+	kStream << ArrayWrapper<const int>(NUM_YIELD_TYPES, m_iYieldFromBarbarianKills);
+	kStream << ArrayWrapper<const int>(NUM_YIELD_TYPES, m_iYieldChangeTradeRoute);
+	kStream << ArrayWrapper<const int>(NUM_YIELD_TYPES, m_iYieldChangeWorldWonder);
 	kStream << m_ppiTradeRouteYieldChange;
 #endif
 	kStream << m_ppaaiSpecialistYieldChange;
@@ -8171,6 +8171,17 @@ void CvPlayerTraits::Write(FDataStream& kStream)
 	{
 		kStream << m_aUniqueLuxuryAreas[iI];
 	}
+}
+
+FDataStream& operator>>(FDataStream& stream, CvPlayerTraits& playerTraits)
+{
+	playerTraits.Read(stream);
+	return stream;
+}
+FDataStream& operator<<(FDataStream& stream, const CvPlayerTraits& playerTraits)
+{
+	playerTraits.Write(stream);
+	return stream;
 }
 
 // PRIVATE METHODS

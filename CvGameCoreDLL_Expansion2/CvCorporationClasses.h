@@ -278,5 +278,8 @@ private:
 	bool m_bIsNoFranchisesInForeignCities;
 };
 
+FDataStream& operator>>(FDataStream&, CvPlayerCorporations&);
+FDataStream& operator<<(FDataStream&, const CvPlayerCorporations&);
+
 #endif
 #endif

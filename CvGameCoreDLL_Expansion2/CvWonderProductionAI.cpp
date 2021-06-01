@@ -84,6 +84,17 @@ void CvWonderProductionAI::Write(FDataStream& kStream) const
 	kStream << m_WonderAIWeights;
 }
 
+FDataStream& operator>>(FDataStream& stream, CvWonderProductionAI& wonderProductionAI)
+{
+	wonderProductionAI.Read(stream);
+	return stream;
+}
+FDataStream& operator<<(FDataStream& stream, const CvWonderProductionAI& wonderProductionAI)
+{
+	wonderProductionAI.Write(stream);
+	return stream;
+}
+
 /// Respond to a new set of flavor values
 void CvWonderProductionAI::FlavorUpdate()
 {

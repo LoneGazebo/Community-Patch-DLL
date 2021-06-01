@@ -189,4 +189,7 @@ protected:
 	UnitSet m_knownUnits;
 };
 
+FDataStream& operator>>(FDataStream&, CvDangerPlots&);
+FDataStream& operator<<(FDataStream&, const CvDangerPlots&);
+
 #endif //CIV5_PROJECT_CLASSES_H

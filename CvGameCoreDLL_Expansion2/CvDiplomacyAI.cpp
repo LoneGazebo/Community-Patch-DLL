@@ -691,7 +691,7 @@ void CvDiplomacyAI::Read(FDataStream& kStream)
 }
 
 /// Serialization write
-void CvDiplomacyAI::Write(FDataStream& kStream)
+void CvDiplomacyAI::Write(FDataStream& kStream) const
 {
 	// Current version number
 	uint uiVersion = 4;
@@ -735,10 +735,10 @@ void CvDiplomacyAI::Write(FDataStream& kStream)
 	// Diplomatic Interactions
 	for (int iI = 0; iI < MAX_MAJOR_CIVS; iI++)
 	{
-		kStream << ArrayWrapper<DiploLogData>(MAX_DIPLO_LOG_STATEMENTS, m_aaDiploStatementsLog[iI]);
+		kStream << ArrayWrapper<const DiploLogData>(MAX_DIPLO_LOG_STATEMENTS, m_aaDiploStatementsLog[iI]);
 	}
 
-	kStream << ArrayWrapper<DeclarationLogData>(MAX_DIPLO_LOG_STATEMENTS, m_aDeclarationsLog);
+	kStream << ArrayWrapper<const DeclarationLogData>(MAX_DIPLO_LOG_STATEMENTS, m_aDeclarationsLog);
 
 	kStream << m_aDiploLogStatementTurnCountScratchPad;
 	kStream << m_aabSentAttackMessageToMinorCivProtector;
@@ -978,6 +978,17 @@ void CvDiplomacyAI::Write(FDataStream& kStream)
 	kStream << m_aiVassalGoldPerTurnTaxedSinceVassalStarted;
 	kStream << m_aiVassalGoldPerTurnCollectedSinceVassalStarted;
 #endif
+}
+
+FDataStream& operator>>(FDataStream& stream, CvDiplomacyAI& diplomacyAI)
+{
+	diplomacyAI.Read(stream);
+	return stream;
+}
+FDataStream& operator<<(FDataStream& stream, const CvDiplomacyAI& diplomacyAI)
+{
+	diplomacyAI.Write(stream);
+	return stream;
 }
 
 //	-----------------------------------------------------------------------------------------------

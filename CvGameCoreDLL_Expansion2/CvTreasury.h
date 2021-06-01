@@ -28,7 +28,7 @@ public:
 	void Uninit();
 
 	void Read(FDataStream& kStream);
-	void Write(FDataStream& kStream);
+	void Write(FDataStream& kStream) const;
 
 	void DoGold();
 
@@ -149,6 +149,9 @@ protected:
 	std::vector<int> m_GoldBalanceForTurnTimes100;
 	std::vector<int> m_GoldChangeForTurnTimes100;
 };
+
+FDataStream& operator>>(FDataStream&, CvTreasury&);
+FDataStream& operator<<(FDataStream&, const CvTreasury&);
 
 namespace TreasuryHelpers
 {

@@ -315,6 +315,17 @@ void CvCitySpecializationAI::Write(FDataStream& kStream) const
 	kStream << m_iLastTurnEvaluated;
 }
 
+FDataStream& operator>>(FDataStream& stream, CvCitySpecializationAI& citySpecializationAI)
+{
+	citySpecializationAI.Read(stream);
+	return stream;
+}
+FDataStream& operator<<(FDataStream& stream, const CvCitySpecializationAI& citySpecializationAI)
+{
+	citySpecializationAI.Write(stream);
+	return stream;
+}
+
 /// Returns the Player object the Strategies are associated with
 CvPlayer* CvCitySpecializationAI::GetPlayer()
 {

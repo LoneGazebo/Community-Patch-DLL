@@ -66,7 +66,7 @@ public:
 	void Uninit();
 	void Reset();
 	void Read(FDataStream& kStream);
-	void Write(FDataStream& kStream);
+	void Write(FDataStream& kStream) const;
 
 	// Routines to add/remove a target object to receive flavor updates
 	void AddFlavorRecipient(CvFlavorRecipient* pTargetObject, bool bPropogateFlavorValues = true);
@@ -102,5 +102,8 @@ private:
 	typedef vector<CvFlavorRecipient*> Flavor_List;
 	Flavor_List m_FlavorTargetList;
 };
+
+FDataStream& operator>>(FDataStream&, CvFlavorManager&);
+FDataStream& operator<<(FDataStream&, const CvFlavorManager&);
 
 #endif // CIV5_FLAVOR_MANAGER_H

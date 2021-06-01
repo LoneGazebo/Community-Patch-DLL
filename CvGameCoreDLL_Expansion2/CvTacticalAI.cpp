@@ -224,7 +224,7 @@ void CvTacticalAI::Read(FDataStream& kStream)
 }
 
 /// Serialization write
-void CvTacticalAI::Write(FDataStream& kStream)
+void CvTacticalAI::Write(FDataStream& kStream) const
 {
 	// Current version number
 	uint uiVersion = 1;
@@ -234,6 +234,17 @@ void CvTacticalAI::Write(FDataStream& kStream)
 	kStream << phony;
 	kStream << m_focusAreas;
 	kStream << m_tacticalMap;
+}
+
+FDataStream& operator>>(FDataStream& stream, CvTacticalAI& tacticalAI)
+{
+	tacticalAI.Read(stream);
+	return stream;
+}
+FDataStream& operator<<(FDataStream& stream, const CvTacticalAI& tacticalAI)
+{
+	tacticalAI.Write(stream);
+	return stream;
 }
 
 /// Mark all the units that will be under tactical AI control this turn

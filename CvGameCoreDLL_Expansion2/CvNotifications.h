@@ -109,6 +109,9 @@ protected:
 	int m_iCurrentLookupIndex;
 };
 
+FDataStream& operator>>(FDataStream&, CvNotifications&);
+FDataStream& operator<<(FDataStream&, const CvNotifications&);
+
 FDataStream& operator>>(FDataStream&, CvNotifications::Notification&);
 FDataStream& operator<<(FDataStream&, const CvNotifications::Notification&);
 

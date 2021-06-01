@@ -73,4 +73,7 @@ protected:
 	SingleCityConnectionStore dummy;
 };
 
+FDataStream& operator>>(FDataStream&, CvCityConnections&);
+FDataStream& operator<<(FDataStream&, const CvCityConnections&);
+
 #endif //CIV5_BUILDER_TASKING_AI_H

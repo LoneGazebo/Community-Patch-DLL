@@ -597,6 +597,17 @@ void CvDangerPlots::Write(FDataStream& kStream) const
 	}
 }
 
+FDataStream& operator>>(FDataStream& stream, CvDangerPlots& dangerPlots)
+{
+	dangerPlots.Read(stream);
+	return stream;
+}
+FDataStream& operator<<(FDataStream& stream, const CvDangerPlots& dangerPlots)
+{
+	dangerPlots.Write(stream);
+	return stream;
+}
+
 //	-----------------------------------------------------------------------------------------------
 void CvDangerPlots::SetDirty()
 {

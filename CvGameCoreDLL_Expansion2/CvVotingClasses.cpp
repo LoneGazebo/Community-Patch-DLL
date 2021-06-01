@@ -9833,14 +9833,14 @@ void CvLeagueAI::Read(FDataStream& kStream)
 	}
 }
 
-void CvLeagueAI::Write(FDataStream& kStream)
+void CvLeagueAI::Write(FDataStream& kStream) const
 {
 	uint uiVersion = 2;
 	kStream << uiVersion;
 	MOD_SERIALIZE_INIT_WRITE(kStream);
 
 	kStream << m_vVoteCommitmentList.size();
-	for (VoteCommitmentList::iterator it = m_vVoteCommitmentList.begin(); it != m_vVoteCommitmentList.end(); ++it)
+	for (VoteCommitmentList::const_iterator it = m_vVoteCommitmentList.begin(); it != m_vVoteCommitmentList.end(); ++it)
 	{
 		kStream << it->eToPlayer;
 		kStream << it->iResolutionID;
@@ -9848,6 +9848,17 @@ void CvLeagueAI::Write(FDataStream& kStream)
 		kStream << it->iNumVotes;
 		kStream << it->bEnact;
 	}
+}
+
+FDataStream& operator>>(FDataStream& stream, CvLeagueAI& leagueAI)
+{
+	leagueAI.Read(stream);
+	return stream;
+}
+FDataStream& operator<<(FDataStream& stream, const CvLeagueAI& leagueAI)
+{
+	leagueAI.Write(stream);
+	return stream;
 }
 
 void CvLeagueAI::DoTurn()
