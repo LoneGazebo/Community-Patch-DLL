@@ -235,9 +235,6 @@ private:
 
 	YieldTypes m_eMostDeficientYield;
 	YieldTypes m_eMostAbundantYield;
-
-	friend FDataStream& operator>>(FDataStream&, CvCityStrategyAI&);
-	friend FDataStream& operator<<(FDataStream&, const CvCityStrategyAI&);
 };
 
 FDataStream& operator>>(FDataStream&, CvCityStrategyAI&);

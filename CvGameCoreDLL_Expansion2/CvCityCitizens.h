@@ -195,9 +195,6 @@ private:
 	int* m_piBuildingGreatPeopleRateChanges;
 
 	bool m_bInited;
-
-	friend FDataStream& operator>>(FDataStream&, CvCityCitizens&);
-	friend FDataStream& operator<<(FDataStream&, const CvCityCitizens&);
 };
 
 FDataStream& operator>>(FDataStream&, CvCityCitizens&);

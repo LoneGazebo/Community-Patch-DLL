@@ -1247,9 +1247,6 @@ private:
 
 	CvBuildingXMLEntries* m_pPossibleBuildings;
 	CvCity* m_pCity;
-
-	friend FDataStream& operator>>(FDataStream&, CvCityBuildings&);
-	friend FDataStream& operator<<(FDataStream&, const CvCityBuildings&);
 };
 
 FDataStream& operator>>(FDataStream&, CvCityBuildings&);
