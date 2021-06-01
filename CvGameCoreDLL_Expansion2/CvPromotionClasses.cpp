@@ -3152,45 +3152,52 @@ void CvUnitPromotions::Reset()
 }
 
 /// Serialization read
-FDataStream& operator>>(FDataStream& loadFrom, CvUnitPromotions& writeTo)
+void CvUnitPromotions::Read(FDataStream& kStream)
 {
-	writeTo.Reset();
+	Reset();
 
 	// Version number to maintain backwards compatibility
 	uint uiVersion;
-	loadFrom >> uiVersion;
-	MOD_SERIALIZE_INIT_READ(loadFrom);
+	kStream >> uiVersion;
+	MOD_SERIALIZE_INIT_READ(kStream);
 
 	// Read number of promotions
 	int iNumPromotions;
-	loadFrom >> iNumPromotions;
-	CvAssertMsg(writeTo.m_pPromotions != NULL && writeTo.m_pPromotions->GetNumPromotions() > 0, "Number of promotions to serialize is expected to greater than 0");
+	kStream >> iNumPromotions;
+	CvAssertMsg(m_pPromotions != NULL && m_pPromotions->GetNumPromotions() > 0, "Number of promotions to serialize is expected to greater than 0");
 
-	PromotionArrayHelpers::Read(loadFrom, writeTo.m_kHasPromotion);
+	PromotionArrayHelpers::Read(kStream, m_kHasPromotion);
 
 #if defined(MOD_BALANCE_CORE)
-	writeTo.UpdateCache();
+	UpdateCache();
 #endif
-
-	return loadFrom;
 }
 
 /// Serialization write
-FDataStream& operator<<(FDataStream& saveTo, const CvUnitPromotions& readFrom)
+void CvUnitPromotions::Write(FDataStream& kStream) const
 {
 	// Current version number
 	uint uiVersion = 1;
-	saveTo << uiVersion;
-	MOD_SERIALIZE_INIT_WRITE(saveTo);
+	kStream << uiVersion;
+	MOD_SERIALIZE_INIT_WRITE(kStream);
 
 	// Write out number of promotions to save
-	int iNumPromotions = readFrom.m_pPromotions->GetNumPromotions();
-	saveTo << iNumPromotions;
+	int iNumPromotions = m_pPromotions->GetNumPromotions();
+	kStream << iNumPromotions;
 	CvAssertMsg(iNumPromotions > 0, "Number of promotions to serialize is expected to greater than 0");
 
-	PromotionArrayHelpers::Write(saveTo, readFrom.m_kHasPromotion, iNumPromotions);
+	PromotionArrayHelpers::Write(kStream, m_kHasPromotion, iNumPromotions);
+}
 
-	return saveTo;
+FDataStream& operator>>(FDataStream& stream, CvUnitPromotions& unitPromotions)
+{
+	unitPromotions.Read(stream);
+	return stream;
+}
+FDataStream& operator<<(FDataStream& stream, const CvUnitPromotions& unitPromotions)
+{
+	unitPromotions.Write(stream);
+	return stream;
 }
 
 /// Accessor: Unit object
