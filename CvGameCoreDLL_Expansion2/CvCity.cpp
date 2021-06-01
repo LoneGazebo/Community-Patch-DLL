@@ -33252,30 +33252,6 @@ void CvCity::Serialize(City& city, Visitor& visitor)
 	const bool bLoading = visitor.isLoading();
 	const bool bSaving = visitor.isSaving();
 
-	enum CitySaveVersions
-	{
-		// Update this value when you intend to break save game compatability
-		VERSION_OLDEST = 6,
-
-		// Update this value when you intend to change save game format in a backwards compatible manner
-		VERSION_LATEST = 7,
-
-		// Remove these values and related branches when save compatability is broken
-		VERSION_TAG_REMOVE_DLL_VERSION = 7,
-	};
-	uint32 uiVersion;
-	if (bSaving)
-		uiVersion = VERSION_LATEST;
-	visitor(uiVersion);
-
-	// Mod version
-	// FIXME - This is just save file bloat data. Remember to remove at next compability break.
-	if (bLoading && uiVersion < VERSION_TAG_REMOVE_DLL_VERSION)
-	{
-		visitor.loadIgnore<uint32>(); // version
-		visitor.loadIgnore<uint32>(); // sentinel
-	}
-
 	visitor(city.m_iAutomatons);
 
 	// FIXME - Values in this chunk were formerly FAutoVariables. Remove any that shouldn't be saved.

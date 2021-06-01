@@ -27185,38 +27185,9 @@ void CvUnit::Serialize(Unit& unit, Visitor& visitor)
 	const bool bLoading = visitor.isLoading();
 	const bool bSaving = visitor.isSaving();
 
-	// Versioning
-	enum UnitSaveVersions
-	{
-		// Update this value when you intend to break save game compatability
-		VERSION_OLDEST = 9,
-
-		// Update this value when you intend to change save game format in a backwards compatible manner
-		VERSION_LATEST = 10,
-
-		// Remove these values and related branches when save compatability is broken
-		VERSION_TAG_REMOVE_DLL_VERSION = 10,
-		VERSION_TAG_REMOVE_UNIT_TYPE_INDEX = 10,
-		VERSION_TAG_REMOVE_COMBAT_DAMAGE = 10,
-	};
-	uint32 uiVersion;
-	if (bSaving)
-		uiVersion = VERSION_LATEST;
-	visitor(uiVersion);
-
-	// Mod version
-	// FIXME - This is just save file bloat data. Remember to remove at next compability break.
-	if (bLoading && uiVersion < VERSION_TAG_REMOVE_DLL_VERSION)
-	{
-		visitor.loadIgnore<uint32>(); // version
-		visitor.loadIgnore<uint32>(); // sentinel
-	}
-
 	// FIXME - Values in this chunk were formerly FAutoVariables. Remove any that shouldn't be saved.
 	visitor(unit.m_eOwner);
 	visitor(unit.m_eOriginalOwner);
-	if (bLoading && uiVersion < VERSION_TAG_REMOVE_UNIT_TYPE_INDEX)
-		visitor.loadIgnore<int>();
 	visitor(unit.m_iX);
 	visitor(unit.m_iY);
 	visitor(unit.m_iID);
@@ -27241,8 +27212,6 @@ void CvUnit::Serialize(Unit& unit, Visitor& visitor)
 	visitor(unit.m_iAttackPlotY);
 	visitor(unit.m_iCombatTimer);
 	visitor(unit.m_iCombatFirstStrikes);
-	if (bLoading && uiVersion < VERSION_TAG_REMOVE_COMBAT_DAMAGE)
-		visitor.loadIgnore<int>();
 	visitor(unit.m_bMovedThisTurn);
 	visitor(unit.m_bFortified);
 	visitor(unit.m_iBlitzCount);

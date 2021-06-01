@@ -12583,33 +12583,6 @@ void CvPlot::Serialize(Plot& plot, Visitor& visitor)
 	// Don't use this in save branches and things will be okay
 	CvPlot& mutPlot = const_cast<CvPlot&>(plot);
 
-	// Versioning
-	enum PlotSaveVersions
-	{
-		// Update this value when you intend to break save game compatability
-		VERSION_OLDEST = 7,
-
-		// Update this value when you intend to change save game format in a backwards compatible manner
-		VERSION_LATEST = 8,
-
-		// Remove these values and related branches when save compatability is broken
-		VERSION_TAG_REMOVE_DLL_VERSION = 8,
-		VERSION_TAG_REMOVE_UPGRADE_PROGRESS_DUMMY = 8,
-		VERSION_TAG_PACK_STRUCT_FIELD_BITS = 8,
-	};
-	uint32 uiVersion;
-	if (bSaving)
-		uiVersion = VERSION_LATEST;
-	visitor(uiVersion);
-
-	// Mod version
-	// FIXME - This is just save file bloat data. Remember to remove at next compability break.
-	if (bLoading && uiVersion < VERSION_TAG_REMOVE_DLL_VERSION)
-	{
-		visitor.loadIgnore<uint32>(); // version
-		visitor.loadIgnore<uint32>(); // sentinel
-	}
-
 	visitor(plot.m_iX);
 	visitor(plot.m_iY);
 
@@ -12620,8 +12593,6 @@ void CvPlot::Serialize(Plot& plot, Visitor& visitor)
 	visitor(plot.m_iOwnershipDuration);
 	visitor(plot.m_iImprovementDuration);
 	visitor(plot.m_iUpgradeProgress);
-	if (bLoading && uiVersion < VERSION_TAG_REMOVE_UPGRADE_PROGRESS_DUMMY)
-		visitor.loadIgnore<short>();
 	visitor(plot.m_iNumMajorCivsRevealed);
 	visitor(plot.m_iCityRadiusCount);
 	visitor(plot.m_iReconCount);
@@ -12629,43 +12600,7 @@ void CvPlot::Serialize(Plot& plot, Visitor& visitor)
 	visitor(plot.m_iResourceNum);
 	visitor(plot.m_iLandmass);
 
-	if (bLoading && uiVersion < VERSION_TAG_PACK_STRUCT_FIELD_BITS)
-	{
-		// the following members specify bit packing and do not resolve to
-		// any serializable type.
-		bool bitPackWorkaround;
-		visitor >> bitPackWorkaround;
-		mutPlot.m_bStartingPlot = bitPackWorkaround;
-		visitor >> bitPackWorkaround;
-		mutPlot.m_bHills = bitPackWorkaround;
-		visitor >> bitPackWorkaround;
-		mutPlot.m_bNEOfRiver = bitPackWorkaround;
-		visitor >> bitPackWorkaround;
-		mutPlot.m_bWOfRiver = bitPackWorkaround;
-		visitor >> bitPackWorkaround;
-		mutPlot.m_bNWOfRiver = bitPackWorkaround;
-		visitor >> bitPackWorkaround;
-		mutPlot.m_bPotentialCityWork = bitPackWorkaround;
-		visitor >> bitPackWorkaround;
-		mutPlot.m_bImprovementPassable = bitPackWorkaround;
-		visitor >> bitPackWorkaround;
-		mutPlot.m_bImprovementPillaged = bitPackWorkaround;
-		visitor >> bitPackWorkaround;
-		mutPlot.m_bRoutePillaged = bitPackWorkaround;
-		visitor >> bitPackWorkaround;
-		mutPlot.m_bBarbCampNotConverting = bitPackWorkaround;
-		visitor >> bitPackWorkaround;
-		mutPlot.m_bRoughPlot = bitPackWorkaround;
-		visitor >> bitPackWorkaround;
-		mutPlot.m_bResourceLinkedCityActive = bitPackWorkaround;
-		visitor >> bitPackWorkaround;
-		mutPlot.m_bImprovedByGiftFromMajor = bitPackWorkaround;
-		visitor >> bitPackWorkaround;
-		mutPlot.m_bImprovementEmbassy = bitPackWorkaround;
-		visitor >> bitPackWorkaround;
-		mutPlot.m_bIsImpassable = bitPackWorkaround;
-	}
-	else
+	// Bit fields
 	{
 		enum PlotSaveStructBitFlags
 		{
