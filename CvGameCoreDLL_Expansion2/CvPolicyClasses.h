@@ -358,7 +358,7 @@ public:
 	int GetInvestmentModifier() const;
 #endif
 	int GetImprovementYieldChanges(int i, int j) const;
-#if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
+#if defined(MOD_API_UNIFIED_YIELDS)
 	int GetPlotYieldChanges(int i, int j) const;
 #endif
 #if defined(MOD_API_UNIFIED_YIELDS)
@@ -812,7 +812,7 @@ private:
 //	bool* m_pabHurry;
 	bool* m_pabSpecialistValid;
 	int** m_ppiImprovementYieldChanges;
-#if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
+#if defined(MOD_API_UNIFIED_YIELDS)
 	int** m_ppiPlotYieldChanges;
 #endif
 #if defined(MOD_API_UNIFIED_YIELDS)

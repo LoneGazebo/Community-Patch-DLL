@@ -243,7 +243,7 @@ CvTraitEntry::CvTraitEntry() :
 	m_piStrategicResourceQuantityModifier(NULL),
 	m_piResourceQuantityModifiers(NULL),
 	m_ppiImprovementYieldChanges(NULL),
-#if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
+#if defined(MOD_API_UNIFIED_YIELDS)
 	m_ppiPlotYieldChanges(NULL),
 #endif
 #if defined(MOD_BALANCE_CORE)
@@ -330,7 +330,7 @@ CvTraitEntry::CvTraitEntry() :
 CvTraitEntry::~CvTraitEntry()
 {
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiImprovementYieldChanges);
-#if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
+#if defined(MOD_API_UNIFIED_YIELDS)
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiPlotYieldChanges);
 #endif
 #if defined(MOD_API_UNIFIED_YIELDS)
@@ -1550,19 +1550,15 @@ int CvTraitEntry::GetYieldFromBarbarianCampClear(YieldTypes eIndex1, bool bEraSc
 }
 #endif
 
-#if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
+#if defined(MOD_API_UNIFIED_YIELDS)
 /// Accessor:: Extra yield from a plot
 int CvTraitEntry::GetPlotYieldChanges(PlotTypes eIndex1, YieldTypes eIndex2) const
 {
-	if (MOD_API_PLOT_YIELDS) {
-		CvAssertMsg(eIndex1 < GC.getNumPlotInfos(), "Index out of bounds");
-		CvAssertMsg(eIndex1 > -1, "Index out of bounds");
-		CvAssertMsg(eIndex2 < NUM_YIELD_TYPES, "Index out of bounds");
-		CvAssertMsg(eIndex2 > -1, "Index out of bounds");
-		return m_ppiPlotYieldChanges ? m_ppiPlotYieldChanges[eIndex1][eIndex2] : 0;
-	} else {
-		return 0;
-	}
+	CvAssertMsg(eIndex1 < GC.getNumPlotInfos(), "Index out of bounds");
+	CvAssertMsg(eIndex1 > -1, "Index out of bounds");
+	CvAssertMsg(eIndex2 < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(eIndex2 > -1, "Index out of bounds");
+	return m_ppiPlotYieldChanges ? m_ppiPlotYieldChanges[eIndex1][eIndex2] : 0;
 }
 #endif
 #if defined(MOD_BALANCE_CORE)
@@ -3184,9 +3180,9 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 		}
 	}
 
-#if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
+#if defined(MOD_API_UNIFIED_YIELDS)
 	//PlotYieldChanges
-	if (MOD_API_UNIFIED_YIELDS && MOD_API_PLOT_YIELDS)
+	if (MOD_API_UNIFIED_YIELDS)
 	{
 		kUtility.Initialize2DArray(m_ppiPlotYieldChanges, "Plots", "Yields");
 
@@ -4644,7 +4640,7 @@ void CvPlayerTraits::InitPlayerTraits()
 					}
 				}
 #endif
-#if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
+#if defined(MOD_API_UNIFIED_YIELDS)
 				for(int iPlotLoop = 0; iPlotLoop < GC.getNumPlotInfos(); iPlotLoop++)
 				{
 					int iChange = trait->GetPlotYieldChanges((PlotTypes)iPlotLoop, (YieldTypes)iYield);
@@ -4938,7 +4934,7 @@ void CvPlayerTraits::Uninit()
 #endif
 	m_paiMaintenanceModifierUnitCombat.clear();
 	m_ppaaiImprovementYieldChange.clear();
-#if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
+#if defined(MOD_API_UNIFIED_YIELDS)
 	m_ppiPlotYieldChange.clear();
 #endif
 #if defined(MOD_API_UNIFIED_YIELDS)
@@ -5225,7 +5221,7 @@ void CvPlayerTraits::Reset()
 #if defined(MOD_BALANCE_CORE) && defined(MOD_TRAITS_YIELD_FROM_ROUTE_MOVEMENT_IN_FOREIGN_TERRITORY)
 	m_pbiYieldFromRouteMovementInForeignTerritory.clear();
 #endif
-#if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
+#if defined(MOD_API_UNIFIED_YIELDS)
 	m_ppiPlotYieldChange.clear();
 	m_ppiPlotYieldChange.resize(GC.getNumPlotInfos());
 #endif
@@ -5279,7 +5275,7 @@ void CvPlayerTraits::Reset()
 		}
 		UpdateYieldChangeImprovementTypes();
 
-#if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
+#if defined(MOD_API_UNIFIED_YIELDS)
 		for(int iPlot = 0; iPlot < GC.getNumPlotInfos(); iPlot++)
 		{
 			m_ppiPlotYieldChange[iPlot] = yield;
@@ -5754,18 +5750,14 @@ int CvPlayerTraits::GetYieldFromRouteMovementInForeignTerritory(YieldTypes eInde
 	return 0;
 }
 #endif
-#if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
+#if defined(MOD_API_UNIFIED_YIELDS)
 /// Extra yield from this plot
 int CvPlayerTraits::GetPlotYieldChange(PlotTypes ePlot, YieldTypes eYield) const
 {
-	if (MOD_API_PLOT_YIELDS) {
-		CvAssertMsg(ePlot < GC.getNumPlotInfos(),  "Invalid ePlot parameter in call to CvPlayerTraits::GetPlotYieldChange()");
-		CvAssertMsg(eYield < NUM_YIELD_TYPES,  "Invalid eYield parameter in call to CvPlayerTraits::GetPlotYieldChange()");
+	CvAssertMsg(ePlot < GC.getNumPlotInfos(),  "Invalid ePlot parameter in call to CvPlayerTraits::GetPlotYieldChange()");
+	CvAssertMsg(eYield < NUM_YIELD_TYPES,  "Invalid eYield parameter in call to CvPlayerTraits::GetPlotYieldChange()");
 
-		return m_ppiPlotYieldChange[(int)ePlot][(int)eYield];
-	} else {
-		return 0;
-	}
+	return m_ppiPlotYieldChange[(int)ePlot][(int)eYield];
 }
 #endif
 
@@ -7664,7 +7656,7 @@ void CvPlayerTraits::Read(FDataStream& kStream)
 		}
 	}
 	kStream >> m_ppaaiImprovementYieldChange;
-#if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
+#if defined(MOD_API_UNIFIED_YIELDS)
 	// MOD_SERIALIZE_READ - v57/v58/v59 broke the save format  couldn't be helped, but don't make a habit of it!!!
 	kStream >> m_ppiPlotYieldChange;
 #endif
@@ -8113,7 +8105,7 @@ void CvPlayerTraits::Write(FDataStream& kStream)
 		kStream << m_paiMaintenanceModifierUnitCombat[iI];
 	}
 	kStream << m_ppaaiImprovementYieldChange;
-#if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
+#if defined(MOD_API_UNIFIED_YIELDS)
 	// MOD_SERIALIZE_READ - v57/v58/v59 broke the save format  couldn't be helped, but don't make a habit of it!!!
 	kStream << m_ppiPlotYieldChange;
 #endif

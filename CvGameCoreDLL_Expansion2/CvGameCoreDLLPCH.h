@@ -115,9 +115,7 @@ typedef wchar_t          wchar;
 #include "CvUnit.h"
 #include "CvGlobals.h"
 #include "CvCity.h"
-#if defined(MOD_API_PLOT_YIELDS)
 #include "CvPlotInfo.h"
-#endif
 #if defined(MOD_API_UNIFIED_YIELDS)
 #include "CvGreatPersonInfo.h"
 #endif

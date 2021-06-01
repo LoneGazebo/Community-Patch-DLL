@@ -4,8 +4,6 @@
 // must be included after all other headers
 #include "LintFree.h"
 
-#if defined(MOD_API_PLOT_YIELDS)
-
 CvPlotInfo::CvPlotInfo() :
 	m_bWater(false),
 	m_bImpassable(false),
@@ -175,5 +173,3 @@ bool CvPlotInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility& kU
 
 	return true;
 }
-
-#endif
