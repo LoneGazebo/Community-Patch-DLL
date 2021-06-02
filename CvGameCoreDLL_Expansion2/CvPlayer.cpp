@@ -69,13 +69,6 @@
 #define LINT_WARNINGS_ONLY
 #include "LintFree.h"
 
-//------------------------------------------------------------------------------
-// CvPlayer Version History
-// Version 1 
-//	 * CvPlayer save version reset for expansion pack 2.
-//------------------------------------------------------------------------------
-const int g_CurrentCvPlayerVersion = 16;
-
 //Simply empty check utility.
 bool isEmpty(const char* szString)
 {
