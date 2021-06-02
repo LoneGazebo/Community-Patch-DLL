@@ -3,6 +3,12 @@
 #ifndef CVSERIALIZE_H
 #define CVSERIALIZE_H
 
+#include "CvEnums.h"
+#include "CvEnumSerialization.h"
+
+#include "CvGameCoreEnums.h"
+#include "CvGameCoreEnumSerialization.h"
+
 // Shared empty string
 extern const std::string EmptyString;
 
