@@ -517,3 +517,14 @@ void CvPlayerAchievements::Write(FDataStream& kStream) const
 	kStream << m_iAchievement_XP1_33_Progress;
 }
 //------------------------------------------------------------------------------
+
+FDataStream& operator>>(FDataStream& stream, CvPlayerAchievements& playerAchievements)
+{
+	playerAchievements.Read(stream);
+	return stream;
+}
+FDataStream& operator<<(FDataStream& stream, const CvPlayerAchievements& playerAchievements)
+{
+	playerAchievements.Write(stream);
+	return stream;
+}

@@ -93,6 +93,8 @@ protected:
 	PlayerTypes	m_eRequestActiveFromPlayer;	/// If a request is active, this is who it is from
 	bool		m_bRequestActive;		/// If true, a request in being processed
 };
+FDataStream& operator>>(FDataStream&, CvDiplomacyRequests&);
+FDataStream& operator<<(FDataStream&, const CvDiplomacyRequests&);
 
 FDataStream& operator>>(FDataStream&, CvDiplomacyRequests::Request&);
 FDataStream& operator<<(FDataStream&, const CvDiplomacyRequests::Request&);

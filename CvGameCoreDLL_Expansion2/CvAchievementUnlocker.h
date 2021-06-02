@@ -88,4 +88,7 @@ private:
 	UnitTypes m_eSkyFortress;
 };
 
+FDataStream& operator>>(FDataStream&, CvPlayerAchievements&);
+FDataStream& operator<<(FDataStream&, const CvPlayerAchievements&);
+
 #endif // CVACHIEVEMENTUNLOCKER_H

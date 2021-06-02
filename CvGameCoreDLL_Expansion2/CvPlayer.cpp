@@ -175,7 +175,6 @@ CvPlayer::CvPlayer() :
 	, m_iEspionageModifier()
 	, m_iSpyStartingRank()
 	, m_iExtraLeagueVotes()
-	, m_iDummy()
 	, m_iWoundedUnitDamageMod()
 	, m_iUnitUpgradeCostMod()
 	, m_iBarbarianCombatBonus()
@@ -1315,7 +1314,6 @@ void CvPlayer::uninit()
 	m_iScienceRateFromLeagueAid = 0;
 	m_iLeagueCultureCityModifier = 0;
 #endif
-	m_iDummy = 0;
 	m_iWoundedUnitDamageMod = 0;
 	m_iUnitUpgradeCostMod = 0;
 	m_iBarbarianCombatBonus = 0;
@@ -46029,9 +46027,31 @@ bool CvPlayer::HasActiveDiplomacyRequests() const
 }
 
 //	--------------------------------------------------------------------------------
+void CvPlayer::ConqueredByBoolField::read(FDataStream& kStream)
+{
+	for (uint32 i = 0; i < eCount; ++i)
+	{
+		kStream >> m_bits[i];
+	}
+}
+
+//	--------------------------------------------------------------------------------
+void CvPlayer::ConqueredByBoolField::write(FDataStream& kStream) const
+{
+	for (uint32 i = 0; i < eCount; ++i)
+	{
+		kStream << m_bits[i];
+	}
+}
+
+//	--------------------------------------------------------------------------------
 template<typename Player, typename Visitor>
 void CvPlayer::Serialize(Player& player, Visitor& visitor)
 {
+	const bool bLoading = visitor.isLoading();
+	const bool bSaving = visitor.isSaving();
+
+	// FIXME - Values in this chunk were formerly FAutoVariables. Remove any that shouldn't be saved.
 	visitor(player.m_eID);
 	visitor(player.m_ePersonalityType);
 	visitor(player.m_iStartingX);
@@ -46094,7 +46114,6 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 	visitor(player.m_iIsVassalsNoRebel);
 	visitor(player.m_iVassalCSBonusModifier);
 	visitor(player.m_iHappinessFromLeagues);
-	visitor(player.m_iDummy);
 	visitor(player.m_iWoundedUnitDamageMod);
 	visitor(player.m_iUnitUpgradeCostMod);
 	visitor(player.m_iBarbarianCombatBonus);
@@ -46576,6 +46595,186 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 	visitor(player.m_iMilitarySeaMight);
 	visitor(player.m_iMilitaryAirMight);
 	visitor(player.m_iMilitaryLandMight);
+
+	visitor(*player.m_pPlayerPolicies);
+	visitor(*player.m_pEconomicAI);
+	visitor(*player.m_pCitySpecializationAI);
+	visitor(*player.m_pWonderProductionAI);
+	visitor(*player.m_pMilitaryAI);
+	visitor(*player.m_pGrandStrategyAI);
+	visitor(*player.m_pDiplomacyAI);
+	visitor(*player.m_pReligions);
+	visitor(*player.m_pReligionAI);
+	visitor(*player.m_pCorporations);
+	visitor(*player.m_pPlayerTechs);
+	visitor(*player.m_pFlavorManager);
+	visitor(*player.m_pTacticalAI);
+	visitor(*player.m_pHomelandAI);
+	visitor(*player.m_pMinorCivAI);
+	visitor(*player.m_pDealAI);
+	visitor(*player.m_pBuilderTaskingAI);
+	visitor(*player.m_pCityConnections);
+	visitor(*player.m_pDangerPlots);
+	visitor(*player.m_pTraits);
+	visitor(*player.m_pEspionage);
+	visitor(*player.m_pEspionageAI);
+	visitor(*player.m_pTrade);
+	visitor(*player.m_pTradeAI);
+	visitor(*player.m_pLeagueAI);
+	visitor(*player.m_pCulture);
+
+	// Notifications
+	{
+		bool bHasNotifications;
+		if (bSaving)
+			bHasNotifications = player.m_pNotifications != NULL;
+
+		visitor(bHasNotifications);
+		if (bHasNotifications)
+		{
+			if (bLoading)
+			{
+				FAssert(player.m_pNotifications == NULL);
+				CvNotifications* pNotifications = FNEW(CvNotifications, c_eCiv5GameplayDLL, 0);
+				visitor.loadAssign(player.m_pNotifications, pNotifications);
+				pNotifications->Init(player.GetID());
+			}
+			visitor(*player.m_pNotifications);
+		}
+	}
+
+	visitor(*player.m_pTreasury);
+
+	// If this is a real player, hook up the player-level flavor recipients
+	// This can happen anywhere after the related fields are loaded so feel free to move this
+	if (bLoading && player.GetID() != NO_PLAYER)
+	{
+		SlotStatus s = CvPreGame::slotStatus(player.GetID());
+		if ((s == SS_TAKEN || s == SS_COMPUTER) && !player.isBarbarian())
+		{
+			player.m_pFlavorManager->AddFlavorRecipient(player.m_pPlayerTechs, false /*bPropogateFlavors*/);
+			player.m_pFlavorManager->AddFlavorRecipient(player.m_pPlayerPolicies, false /*bPropogateFlavors*/);
+			player.m_pFlavorManager->AddFlavorRecipient(player.m_pWonderProductionAI, false /*bPropogateFlavors*/);
+		}
+	}
+
+	visitor(player.m_researchQueue);
+	visitor(player.m_eEndTurnBlockingType);
+	visitor(player.m_iEndTurnBlockingNotificationIndex);
+
+	visitor(player.m_cityNames);
+	visitor(player.m_cities);
+
+	GC.getGame().SetClosestCityMapDirty();
+
+	visitor(player.m_units);
+	visitor(player.m_armyAIs);
+
+	// AI operations
+	{
+		// const_cast because no constexpr if to force the loading path to be discarded during save compilation
+		// The optimizer does discard this during release builds though!
+		std::vector< std::pair<int, CvAIOperation*> >& mutAIOperations = const_cast<std::vector< std::pair<int, CvAIOperation*> >&>(player.m_AIOperations);
+
+		if (bLoading)
+			mutAIOperations.clear();
+		
+		uint32 operationCount;
+		if (bSaving)
+			operationCount = player.m_AIOperations.size();
+		visitor(operationCount);
+
+		for (uint i = 0; i < operationCount; ++i)
+		{
+			int iOperationType;
+			if (bSaving)
+				iOperationType = player.m_AIOperations[i].second->GetOperationType();
+			visitor(iOperationType);
+
+			if (bLoading)
+			{
+				//ok to pass dummy parameters, they will be overwritten ... only the type must be right
+				CvAIOperation* pThisOperation = CreateAIOperation(AIOperationTypes(iOperationType), 0, NO_PLAYER, NO_PLAYER);
+				visitor >> *pThisOperation;
+				mutAIOperations.push_back(std::make_pair(pThisOperation->GetID(), pThisOperation));
+			}
+			if (bSaving)
+				visitor << *player.m_AIOperations[i].second;
+		}
+	}
+
+	visitor(player.m_ReplayDataSets);
+	visitor(player.m_ReplayDataSetValues);
+
+	visitor(player.m_ppiInstantYieldHistoryValues);
+	visitor(player.m_ppiInstantTourismPerPlayerHistoryValues);
+
+	visitor(player.m_aVote);
+	visitor(player.m_aUnitExtraCosts);
+
+	visitor(player.m_aiPlots);
+
+	visitor(player.m_bfEverConqueredBy);
+
+	visitor(player.m_strEmbarkedGraphicOverride);
+	visitor(player.m_kPlayerAchievements);
+
+	// Diplomacy requests
+	if (player.GetID() < MAX_MAJOR_CIVS)
+	{
+		if (bLoading)
+		{
+			if (player.m_pDiplomacyRequests == NULL)
+				visitor.loadAssign(player.m_pDiplomacyRequests, FNEW(CvDiplomacyRequests, c_eCiv5GameplayDLL, 0));
+			else
+				player.m_pDiplomacyRequests->Uninit();
+			player.m_pDiplomacyRequests->Init(player.GetID());
+		}
+		if (bSaving)
+		{
+			FAssert(player.m_pDiplomacyRequests != NULL);
+		}
+		visitor(*player.m_pDiplomacyRequests);
+	}
+
+	visitor(player.m_ppiPlotYieldChange);
+	visitor(player.m_ppiImprovementYieldChange);
+	visitor(player.m_ppiFeatureYieldChange);
+	visitor(player.m_ppiResourceYieldChange);
+	visitor(player.m_ppiTerrainYieldChange);
+	visitor(player.m_ppiTradeRouteYieldChange);
+	visitor(player.m_ppiSpecialistYieldChange);
+	visitor(player.m_ppiGreatPersonExpendedYield);
+	visitor(player.m_piGoldenAgeGreatPersonRateModifier);
+	visitor(player.m_ppiUnimprovedFeatureYieldChange);
+	visitor(player.m_ppiCityYieldFromUnimprovedFeature);
+	visitor(player.m_piYieldFromKills);
+	visitor(player.m_piYieldFromBarbarianKills);
+	visitor(player.m_piYieldChangeTradeRoute);
+	visitor(player.m_piYieldChangesNaturalWonder);
+	visitor(player.m_piYieldChangesPerReligion);
+	visitor(player.m_piYieldChangeWorldWonder);
+	visitor(player.m_piYieldFromMinorDemand);
+	visitor(player.m_piYieldFromWLTKD);
+	visitor(player.m_ppiBuildingClassYieldChange);
+	visitor(player.m_piCityFeatures);
+	visitor(player.m_piNumBuildings);
+	visitor(player.m_piNumBuildingsInPuppets);
+	visitor(player.m_piResponsibleForRouteCount);
+	visitor(player.m_piResponsibleForImprovementCount);
+
+	visitor(player.m_ppiSpecificGreatPersonRateModifierFromMonopoly);
+	visitor(player.m_ppiSpecificGreatPersonRateChangeFromMonopoly);
+
+	visitor(player.m_aistrInstantGreatPersonProgress);
+	visitor(player.m_piDomainFreeExperience);
+
+	visitor(player.m_piUnitClassReplacements);
+
+	visitor(player.m_pabHasGlobalMonopoly);
+	visitor(player.m_pabHasStrategicMonopoly);
+
+	visitor(player.m_vCityConnectionPlots);
 }
 
 //	--------------------------------------------------------------------------------
@@ -46588,107 +46787,9 @@ void CvPlayer::Read(FDataStream& kStream)
 	// Init data before load
 	reset();
 
-	// Version number to maintain backwards compatibility
-	uint uiVersion;
-	kStream >> uiVersion;
-	MOD_SERIALIZE_INIT_READ(kStream);
-
-#if defined(MOD_BALANCE_CORE)
 	// Perform shared serialize
 	CvStreamLoadVisitor serialVisitor(kStream);
 	Serialize(*this, serialVisitor);
-#endif
-
-	m_pPlayerPolicies->Read(kStream);
-	m_pEconomicAI->Read(kStream);
-	m_pCitySpecializationAI->Read(kStream);
-	m_pWonderProductionAI->Read(kStream);
-	m_pMilitaryAI->Read(kStream);
-	m_pGrandStrategyAI->Read(kStream);
-	m_pDiplomacyAI->Read(kStream);
-	m_pReligions->Read(kStream);
-	m_pReligionAI->Read(kStream);
-#if defined(MOD_BALANCE_CORE)
-	m_pCorporations->Read(kStream);
-#endif
-	m_pPlayerTechs->Read(kStream);
-	m_pFlavorManager->Read(kStream);
-	m_pTacticalAI->Read(kStream);
-	m_pHomelandAI->Read(kStream);
-	m_pMinorCivAI->Read(kStream);
-	m_pDealAI->Read(kStream);
-	m_pBuilderTaskingAI->Read(kStream);
-	m_pCityConnections->Read(kStream);
-	m_pDangerPlots->Read(kStream);
-	m_pTraits->Read(kStream);
-	kStream >> *m_pEspionage;
-	kStream >> *m_pEspionageAI;
-	kStream >> *m_pTrade;
-	kStream >> *m_pTradeAI;
-	m_pLeagueAI->Read(kStream);
-	kStream >> *m_pCulture;
-
-	bool bReadNotifications;
-	kStream >> bReadNotifications;
-	if(bReadNotifications)
-	{
-		if (!m_pNotifications)
-			m_pNotifications = FNEW(CvNotifications, c_eCiv5GameplayDLL, 0);
-		m_pNotifications->Init(GetID());
-		m_pNotifications->Read(kStream);
-	}
-	m_pTreasury->Read(kStream);
-
-	// If this is a real player, hook up the player-level flavor recipients
-	if(GetID() != NO_PLAYER)
-	{
-		SlotStatus s = CvPreGame::slotStatus(GetID());
-		if((s == SS_TAKEN || s == SS_COMPUTER) && !isBarbarian())
-		{
-			m_pFlavorManager->AddFlavorRecipient(m_pPlayerTechs,        false /*bPropogateFlavors*/);
-			m_pFlavorManager->AddFlavorRecipient(m_pPlayerPolicies,     false /*bPropogateFlavors*/);
-			m_pFlavorManager->AddFlavorRecipient(m_pWonderProductionAI, false /*bPropogateFlavors*/);
-		}
-	}
-
-	kStream >> m_researchQueue;
-	kStream >> m_eEndTurnBlockingType;
-	kStream >> m_iEndTurnBlockingNotificationIndex;
-
-	kStream >> m_cityNames;
-
-	kStream >> m_cities;
-	GC.getGame().SetClosestCityMapDirty();
-
-	kStream >> m_units;
-	kStream >> m_armyAIs;
-
-	{
-		m_AIOperations.clear();
-		uint iSize;
-		int iOperationType;
-		kStream >> iSize;
-		for(uint i = 0; i < iSize; i++)
-		{
-			kStream >> iOperationType;
-			//ok to pass dummy parameters, they will be overwritten ... only the type must be right
-			CvAIOperation* pThisOperation = CreateAIOperation((AIOperationTypes)iOperationType,0,NO_PLAYER,NO_PLAYER);
-			pThisOperation->Read(kStream);
-			m_AIOperations.push_back(std::make_pair(pThisOperation->GetID(), pThisOperation));
-		}
-	}
-
-	kStream >> m_ReplayDataSets;
-	kStream >> m_ReplayDataSetValues;
-
-	kStream >> m_ppiInstantYieldHistoryValues;
-	kStream >> m_ppiInstantTourismPerPlayerHistoryValues;
-
-	kStream >> m_aVote;
-	kStream >> m_aUnitExtraCosts;
-
-	// reading plot values
-	kStream >> m_aiPlots;
 
 	if(!isBarbarian())
 	{
@@ -46696,119 +46797,9 @@ void CvPlayer::Read(FDataStream& kStream)
 		setNetID(gDLL->getAssignedNetworkID(GetID()));
 	}
 
-	m_bfEverConqueredBy.ClearAll();
-	int iSize;
-	kStream >> iSize;
-	for(int i = 0; i < iSize; i++)
-	{
-		bool bValue;
-		kStream >> bValue;
-		if(bValue)
-		{
-			m_bfEverConqueredBy.SetBit(i);
-		}
-	}
-
-	kStream >> m_strEmbarkedGraphicOverride;
-	m_kPlayerAchievements.Read(kStream);
-
-	if(GetID() < MAX_MAJOR_CIVS)
-	{
-		if(!m_pDiplomacyRequests)
-			m_pDiplomacyRequests = FNEW(CvDiplomacyRequests, c_eCiv5GameplayDLL, 0);
-		else
-			m_pDiplomacyRequests->Uninit();
-
-		m_pDiplomacyRequests->Init(GetID());
-		m_pDiplomacyRequests->Read(kStream);
-	}
-
 	if(m_bTurnActive)
 		GC.getGame().changeNumGameTurnActive(1, std::string("setTurnActive() [loading save game] for player ") + getName());
 
-#if defined(MOD_API_UNIFIED_YIELDS)
-	// MOD_SERIALIZE_READ - v57/v58/v59 broke the save format  couldn't be helped, but don't make a habit of it!!!
-	kStream >> m_ppiPlotYieldChange;
-#endif
-#if defined(MOD_API_UNIFIED_YIELDS)
-	// MOD_SERIALIZE_READ - v57/v58/v59 and v61 broke the save format  couldn't be helped, but don't make a habit of it!!!
-	kStream >> m_ppiImprovementYieldChange;
-	kStream >> m_ppiFeatureYieldChange;
-	kStream >> m_ppiResourceYieldChange;
-	kStream >> m_ppiTerrainYieldChange;
-	kStream >> m_ppiTradeRouteYieldChange;
-	kStream >> m_ppiSpecialistYieldChange;
-	kStream >> m_ppiGreatPersonExpendedYield;
-	kStream >> m_piGoldenAgeGreatPersonRateModifier;
-	kStream >> m_ppiUnimprovedFeatureYieldChange;
-	kStream >> m_ppiCityYieldFromUnimprovedFeature;
-	kStream >> m_piYieldFromKills;
-	kStream >> m_piYieldFromBarbarianKills;
-	kStream >> m_piYieldChangeTradeRoute;
-	kStream >> m_piYieldChangesNaturalWonder;
-	kStream >> m_piYieldChangesPerReligion;
-	kStream >> m_piYieldChangeWorldWonder;
-	kStream >> m_piYieldFromMinorDemand;
-	kStream >> m_piYieldFromWLTKD;
-	kStream >> m_ppiBuildingClassYieldChange;
-	kStream >> m_piCityFeatures;
-	kStream >> m_piNumBuildings;
-	kStream >> m_piNumBuildingsInPuppets;
-#endif
-#if defined(MOD_IMPROVEMENTS_EXTENSIONS)
-	kStream >> m_piResponsibleForRouteCount;
-	kStream >> m_piResponsibleForImprovementCount;
-#endif
-#if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
-	{
-		int iNumEntries;
-		kStream >> iNumEntries;
-		m_ppiSpecificGreatPersonRateModifierFromMonopoly.clear();
-		for (int iI = 0; iI < iNumEntries; iI++)
-		{
-			int iGreatPerson;
-			int iMonopoly;
-			int iModifier;
-
-			kStream >> iGreatPerson;
-			kStream >> iMonopoly;
-			kStream >> iModifier;
-
-			m_ppiSpecificGreatPersonRateModifierFromMonopoly[(GreatPersonTypes)iGreatPerson][(MonopolyTypes)iMonopoly] = iModifier;
-		}
-	}
-	{
-		int iNumEntries;
-		kStream >> iNumEntries;
-		m_ppiSpecificGreatPersonRateChangeFromMonopoly.clear();
-		for (int iI = 0; iI < iNumEntries; iI++)
-		{
-			int iGreatPerson;
-			int iMonopoly;
-			int iModifier;
-
-			kStream >> iGreatPerson;
-			kStream >> iMonopoly;
-			kStream >> iModifier;
-
-			m_ppiSpecificGreatPersonRateChangeFromMonopoly[(GreatPersonTypes)iGreatPerson][(MonopolyTypes)iMonopoly] = iModifier;
-		}
-	}
-#endif
-
-#if defined(MOD_BALANCE_CORE)
-	kStream >> m_aistrInstantGreatPersonProgress;
-	kStream >> m_piDomainFreeExperience;
-#endif
-
-#if defined(MOD_POLICIES_UNIT_CLASS_REPLACEMENTS)
-	kStream >> m_piUnitClassReplacements;
-#endif
-
-	kStream >> m_pabHasGlobalMonopoly;
-	kStream >> m_pabHasStrategicMonopoly;
-
-#if defined(MOD_BALANCE_CORE)
 	UpdateAreaEffectUnits();
 	UpdateAreaEffectPlots();
 	GET_TEAM(getTeam()).updateTeamStatus();
@@ -46816,9 +46807,6 @@ void CvPlayer::Read(FDataStream& kStream)
 	int iLoop=0;
 	for (CvCity* pCity=firstCity(&iLoop); pCity!=NULL; pCity=nextCity(&iLoop))
 		pCity->UpdateClosestFriendlyNeighbors();
-#endif
-
-	kStream >> m_vCityConnectionPlots;
 }
 
 //	--------------------------------------------------------------------------------
@@ -46828,192 +46816,9 @@ void CvPlayer::Read(FDataStream& kStream)
 //
 void CvPlayer::Write(FDataStream& kStream) const
 {
-	//Save version number.  THIS MUST BE FIRST!!
-	kStream << g_CurrentCvPlayerVersion;
-	MOD_SERIALIZE_INIT_WRITE(kStream);
-
-#if defined(MOD_BALANCE_CORE)
 	// Perform shared serialize
 	CvStreamSaveVisitor serialVisitor(kStream);
 	Serialize(*this, serialVisitor);
-#endif
-	m_pPlayerPolicies->Write(kStream);
-	m_pEconomicAI->Write(kStream);
-	m_pCitySpecializationAI->Write(kStream);
-	m_pWonderProductionAI->Write(kStream);
-	m_pMilitaryAI->Write(kStream);
-	m_pGrandStrategyAI->Write(kStream);
-	m_pDiplomacyAI->Write(kStream);
-	m_pReligions->Write(kStream);
-	m_pReligionAI->Write(kStream);
-#if defined(MOD_BALANCE_CORE)
-	m_pCorporations->Write(kStream);
-#endif
-	m_pPlayerTechs->Write(kStream);
-	m_pFlavorManager->Write(kStream);
-	m_pTacticalAI->Write(kStream);
-	m_pHomelandAI->Write(kStream);
-	m_pMinorCivAI->Write(kStream);
-	m_pDealAI->Write(kStream);
-	m_pBuilderTaskingAI->Write(kStream);
-	m_pCityConnections->Write(kStream);
-	m_pDangerPlots->Write(kStream);
-	m_pTraits->Write(kStream);
-	kStream << *m_pEspionage;
-	kStream << *m_pEspionageAI;
-	kStream << *m_pTrade;
-	kStream << *m_pTradeAI;
-	m_pLeagueAI->Write(kStream);
-	kStream << *m_pCulture;
-
-	if(m_pNotifications)
-	{
-		kStream << true;
-		m_pNotifications->Write(kStream);
-	}
-	else
-	{
-		kStream << false;
-	}
-	m_pTreasury->Write(kStream);
-
-	kStream << m_researchQueue;
-	kStream << m_eEndTurnBlockingType;
-	kStream << m_iEndTurnBlockingNotificationIndex;
-
-	kStream << m_cityNames;
-	kStream << m_cities;
-	kStream << m_units;
-	kStream << m_armyAIs;
-
-	{
-		uint iSize = m_AIOperations.size();
-		kStream << iSize;
-		for (size_t i = 0; i < m_AIOperations.size(); i++)
-		{
-			CvAIOperation* pThisOperation = m_AIOperations[i].second;
-			kStream << pThisOperation->GetOperationType();
-			pThisOperation->Write(kStream);
-		}
-	}
-
-	kStream << m_ReplayDataSets;
-	kStream << m_ReplayDataSetValues;
-	
-	kStream << m_ppiInstantYieldHistoryValues;
-	kStream << m_ppiInstantTourismPerPlayerHistoryValues;
-
-	kStream << m_aVote;
-	kStream << m_aUnitExtraCosts;
-
-	kStream << m_aiPlots;
-
-	// writing out
-	{
-		int iSize = MAX_PLAYERS;
-		kStream << iSize;
-		for(int i = 0; i < iSize; i++)
-		{
-			bool bValue = m_bfEverConqueredBy.GetBit(i);
-			kStream << bValue;
-		}
-	}
-
-	kStream << m_strEmbarkedGraphicOverride;
-
-	m_kPlayerAchievements.Write(kStream);
-	
-	if (GetID() < MAX_MAJOR_CIVS)
-		m_pDiplomacyRequests->Write(kStream);	
-	
-#if defined(MOD_API_UNIFIED_YIELDS)
-	// MOD_SERIALIZE_READ - v57/v58/v59 broke the save format  couldn't be helped, but don't make a habit of it!!!
-	kStream << m_ppiPlotYieldChange;
-#endif
-#if defined(MOD_API_UNIFIED_YIELDS)
-	// MOD_SERIALIZE_READ - v57/v58/v59 and v61 broke the save format  couldn't be helped, but don't make a habit of it!!!
-	kStream << m_ppiImprovementYieldChange;
-	kStream << m_ppiFeatureYieldChange;
-	kStream << m_ppiResourceYieldChange;
-	kStream << m_ppiTerrainYieldChange;
-	kStream << m_ppiTradeRouteYieldChange;
-	kStream << m_ppiSpecialistYieldChange;
-	kStream << m_ppiGreatPersonExpendedYield;
-	kStream << m_piGoldenAgeGreatPersonRateModifier;
-	kStream << m_ppiUnimprovedFeatureYieldChange;
-	kStream << m_ppiCityYieldFromUnimprovedFeature;
-	kStream << m_piYieldFromKills;
-	kStream << m_piYieldFromBarbarianKills;
-	kStream << m_piYieldChangeTradeRoute;
-	kStream << m_piYieldChangesNaturalWonder;
-	kStream << m_piYieldChangesPerReligion;
-	kStream << m_piYieldChangeWorldWonder;
-	kStream << m_piYieldFromMinorDemand;
-	kStream << m_piYieldFromWLTKD;
-	kStream << m_ppiBuildingClassYieldChange;
-	kStream << m_piCityFeatures;
-	kStream << m_piNumBuildings;
-	kStream << m_piNumBuildingsInPuppets;
-#endif
-#if defined(MOD_IMPROVEMENTS_EXTENSIONS)
-	kStream << m_piResponsibleForRouteCount;
-	kStream << m_piResponsibleForImprovementCount;
-#endif
-#if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
-	{
-		int iSize = 0;
-		for (std::map<GreatPersonTypes, std::map<MonopolyTypes, int>>::const_iterator it = m_ppiSpecificGreatPersonRateModifierFromMonopoly.begin(); it != m_ppiSpecificGreatPersonRateModifierFromMonopoly.end(); ++it)
-		{
-			iSize += it->second.size();
-		}
-		kStream << iSize;
-		for (std::map<GreatPersonTypes, std::map<MonopolyTypes, int>>::const_iterator itGreatPerson = m_ppiSpecificGreatPersonRateModifierFromMonopoly.begin(); itGreatPerson != m_ppiSpecificGreatPersonRateModifierFromMonopoly.end(); ++itGreatPerson)
-		{
-			int iGreatPerson = (int)itGreatPerson->first;
-			for (std::map<MonopolyTypes, int>::const_iterator itMonopoly = itGreatPerson->second.begin(); itMonopoly != itGreatPerson->second.end(); ++itMonopoly)
-			{
-				int iMonopoly = (int)itMonopoly->first;
-				int iModifier = itMonopoly->second;
-				kStream << iGreatPerson;
-				kStream << iMonopoly;
-				kStream << iModifier;
-			}
-		}
-	}
-	{
-		int iSize = 0;
-		for (std::map<GreatPersonTypes, std::map<MonopolyTypes, int>>::const_iterator it = m_ppiSpecificGreatPersonRateChangeFromMonopoly.begin(); it != m_ppiSpecificGreatPersonRateChangeFromMonopoly.end(); ++it)
-		{
-			iSize += it->second.size();
-		}
-		kStream << iSize;
-		for (std::map<GreatPersonTypes, std::map<MonopolyTypes, int>>::const_iterator itGreatPerson = m_ppiSpecificGreatPersonRateChangeFromMonopoly.begin(); itGreatPerson != m_ppiSpecificGreatPersonRateChangeFromMonopoly.end(); ++itGreatPerson)
-		{
-			int iGreatPerson = (int)itGreatPerson->first;
-			for (std::map<MonopolyTypes, int>::const_iterator itMonopoly = itGreatPerson->second.begin(); itMonopoly != itGreatPerson->second.end(); ++itMonopoly)
-			{
-				int iMonopoly = (int)itMonopoly->first;
-				int iModifier = itMonopoly->second;
-				kStream << iGreatPerson;
-				kStream << iMonopoly;
-				kStream << iModifier;
-			}
-		}
-	}
-#endif
-#if defined(MOD_BALANCE_CORE)
-	kStream << m_aistrInstantGreatPersonProgress;
-	kStream << m_piDomainFreeExperience;
-#endif
-#if defined(MOD_POLICIES_UNIT_CLASS_REPLACEMENTS)
-	kStream << m_piUnitClassReplacements;
-#endif
-#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
-	kStream << m_pabHasGlobalMonopoly;
-	kStream << m_pabHasStrategicMonopoly;
-#endif
-
-	kStream << m_vCityConnectionPlots;
 }
 
 //	--------------------------------------------------------------------------------
