@@ -34292,6 +34292,20 @@ bool CvCity::IsInDanger(PlayerTypes eEnemy) const
 	return (iEnemyPower>iFriendlyPower);
 }
 
+bool CvCity::IsInDangerFromPlayers(vector<PlayerTypes>& vWarAllies) const
+{
+	if (vWarAllies.empty())
+		return false;
+
+	for (std::vector<PlayerTypes>::iterator it = vWarAllies.begin(); it != vWarAllies.end(); it++)
+	{
+		if (IsInDanger(*it))
+			return true;
+	}
+
+	return false;
+}
+
 //	--------------------------------------------------------------------------------
 void CvCity::CheckForAchievementBuilding(BuildingTypes eBuilding)
 {
