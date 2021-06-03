@@ -3015,7 +3015,7 @@ int CvPlot::getBuildTurnsTotal(BuildTypes eBuild, PlayerTypes ePlayer) const
 //	--------------------------------------------------------------------------------
 int CvPlot::getFeatureProduction(BuildTypes eBuild, PlayerTypes ePlayer, CvCity** ppCity) const
 {
-	int iProduction;
+	int iProduction = 0;
 
 	TeamTypes eTeam = GET_PLAYER(ePlayer).getTeam();
 
@@ -3024,7 +3024,7 @@ int CvPlot::getFeatureProduction(BuildTypes eBuild, PlayerTypes ePlayer, CvCity*
 		return 0;
 	}
 
-	*ppCity = getOwningCity();
+	*ppCity = getEffectiveOwningCity();
 
 	if(*ppCity == NULL)
 	{
@@ -4335,8 +4335,7 @@ bool CvPlot::IsFriendlyTerritory(PlayerTypes ePlayer) const
 //	--------------------------------------------------------------------------------
 bool CvPlot::isBeingWorked() const
 {
-	CvCity* pOwningCity = getOwningCity();
-
+	CvCity* pOwningCity = getEffectiveOwningCity();
 	if(pOwningCity != NULL)
 	{
 		return pOwningCity->GetCityCitizens()->IsWorkingPlot(this);
@@ -6712,7 +6711,7 @@ void CvPlot::setTerrainType(TerrainTypes eNewValue, bool bRecalculate, bool bReb
 		updateImpassable();
 
 #if defined(MOD_BALANCE_CORE)
-		CvCity* pOwningCity = getOwningCity();
+		CvCity* pOwningCity = getEffectiveOwningCity();
 
 		if(pOwningCity != NULL)
 		{
@@ -6781,7 +6780,7 @@ void CvPlot::setFeatureType(FeatureTypes eNewValue)
 
 		m_eFeatureType = eNewValue;
 #if defined(MOD_BALANCE_CORE)
-		CvCity* pOwningCity = getOwningCity();
+		CvCity* pOwningCity = getEffectiveOwningCity();
 		if(pOwningCity != NULL)
 		{
 			//City already working this plot? Adjust features being worked as needed.
@@ -7099,7 +7098,7 @@ int CvPlot::getNumResourceForPlayer(PlayerTypes ePlayer) const
 
 				else if(pkResource->getResourceUsage() == RESOURCEUSAGE_LUXURY)
 				{
-					CvCity* pCity = getOwningCity();
+					CvCity* pCity = getEffectiveOwningCity();
 					if(pCity)
 					{
 						if(pCity->IsExtraLuxuryResources())
@@ -7327,7 +7326,7 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 	if(eOldImprovement != eNewValue)
 	{
 #if defined(MOD_BALANCE_CORE)
-		CvCity* pOwningCity = getOwningCity();
+		CvCity* pOwningCity = getEffectiveOwningCity();
 		if(pOwningCity != NULL)
 		{
 			//City already working this plot? Adjust improvements being worked as needed.
@@ -8337,15 +8336,15 @@ void CvPlot::SetImprovementPillaged(bool bPillaged)
 #if defined(MOD_GLOBAL_STACKING_RULES)
 		calculateAdditionalUnitsFromImprovement();
 #endif
-		if (getOwningCity() != NULL)
+		if (getEffectiveOwningCity() != NULL)
 		{
 			if (bPillaged)
 			{
-				getOwningCity()->ChangeNumPillagedPlots(1);
+				getEffectiveOwningCity()->ChangeNumPillagedPlots(1);
 			}
 			else
 			{
-				getOwningCity()->ChangeNumPillagedPlots(-1);
+				getEffectiveOwningCity()->ChangeNumPillagedPlots(-1);
 			}
 		}
 		updateYield();
@@ -10388,7 +10387,7 @@ int CvPlot::calculatePlayerYield(YieldTypes eYield, int iCurrentYield, PlayerTyp
 
 int CvPlot::calculateYield(YieldTypes eYield, bool bDisplay)
 {
-	const CvCity* pOwningCity = getOwningCity();
+	const CvCity* pOwningCity = getEffectiveOwningCity();
 	if(pOwningCity)
 	{
 		ReligionTypes eMajority = pOwningCity->GetCityReligions()->GetReligiousMajority();
@@ -10523,7 +10522,7 @@ bool CvPlot::hasYield() const
 //	--------------------------------------------------------------------------------
 void CvPlot::updateYield()
 {
-	CvCity*	pOwningCity = getOwningCity();
+	CvCity*	pOwningCity = getEffectiveOwningCity();
 	if (pOwningCity)
 	{
 		ReligionTypes eMajority = pOwningCity->GetCityReligions()->GetReligiousMajority();

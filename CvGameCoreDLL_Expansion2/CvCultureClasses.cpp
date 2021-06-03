@@ -3704,12 +3704,11 @@ void CvPlayerCulture::DoArchaeologyChoice (ArchaeologyChoiceType eChoice)
 		iValue /= 100;
 
 		m_pPlayer->changeJONSCulture(iValue);
-#if defined(MOD_BALANCE_CORE)
-		if (pPlot->getOwningCity() != NULL && pPlot->getOwner() == m_pPlayer->GetID())
+		if (pPlot->getEffectiveOwningCity() != NULL && pPlot->getOwner() == m_pPlayer->GetID())
 		{
-			pPlot->getOwningCity()->ChangeJONSCultureStored(iValue);
+			pPlot->getEffectiveOwningCity()->ChangeJONSCultureStored(iValue);
 		}
-#endif
+
 		if (pUnit)
 			pPlot->setImprovementType(NO_IMPROVEMENT);
 #if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
