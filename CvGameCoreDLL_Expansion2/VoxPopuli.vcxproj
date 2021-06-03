@@ -833,6 +833,7 @@
     <ClInclude Include="CvLoggerCSV.h" />
     <ClInclude Include="CvMap.h" />
     <ClInclude Include="CvMapGenerator.h" />
+    <ClInclude Include="CvMeta.h" />
     <ClInclude Include="CvMilitaryAI.h" />
     <ClInclude Include="CvMinorCivAI.h" />
     <ClInclude Include="CvNotificationClasses.h" />
@@ -858,6 +859,8 @@
     <ClInclude Include="CvReplayMessage.h" />
     <ClInclude Include="CvSerialize.h" />
     <ClInclude Include="CvSiteEvaluationClasses.h" />
+    <ClInclude Include="CvSpan.h" />
+    <ClInclude Include="CvSpanSerialization.h" />
     <ClInclude Include="CvStartPositioner.h" />
     <ClInclude Include="cvStopWatch.h" />
     <ClInclude Include="CvTacticalAI.h" />
