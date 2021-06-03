@@ -24402,7 +24402,7 @@ bool CvCity::IsBlockaded(DomainTypes eDomain) const
 			continue;
 
 		//finally, one unblocked plot breaks the whole thing
-		if (!GetCityCitizens()->IsBlockaded(pAdjacentPlot))
+		if (!pAdjacentPlot->IsBlockaded())
 			return false;
 	}
 	
