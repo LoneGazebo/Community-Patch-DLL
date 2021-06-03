@@ -1374,6 +1374,19 @@ void CvGameReligions::FoundReligion(PlayerTypes ePlayer, ReligionTypes eReligion
 	// Inform the holy city
 	pkHolyCity->GetCityReligions()->DoReligionFounded(kReligion.m_eReligion);
 
+	if (kPlayer.GetPlayerTraits()->IsPopulationBoostReligion())
+	{
+		int iLoop;
+		CvCity* pLoopCity;
+		for (pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
+		{
+			if (pkHolyCity == pLoopCity)
+				continue;
+
+			pLoopCity->GetCityReligions()->ConvertPercentFollowers(eReligion, pLoopCity->GetCityReligions()->GetReligiousMajority(), 50);
+		}
+	}
+
 #if defined(MOD_TRAITS_OTHER_PREREQS)
 	if (MOD_TRAITS_OTHER_PREREQS) {
 		kPlayer.GetPlayerTraits()->InitPlayerTraits();

@@ -2583,6 +2583,8 @@ public:
 #if defined(MOD_BALANCE_CORE)
 	void SetBestWonderCities();
 	bool isCapitalCompetitive();
+	CvCity* GetBestProductionCity( BuildingTypes eBuilding = NO_BUILDING, ProjectTypes eProject = NO_PROJECT);
+	bool IsCityCompetitive(CvCity* pCity, BuildingTypes eBuilding = NO_BUILDING, ProjectTypes eProject = NO_PROJECT);
 #endif
 	void DoAdoptedGreatPersonCityStatePolicy();
 	bool IsAlliesGreatPersonBiasApplied() const;

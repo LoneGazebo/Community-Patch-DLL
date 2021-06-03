@@ -1410,7 +1410,7 @@ CvSpyResult CvPlayerEspionage::ProcessSpyFocusResult(PlayerTypes ePlayer, CvCity
 void CvPlayerEspionage::DoSpyFocusLevelUp(uint uiSpyIndex, int iChance)
 {
 	int iNewResult = GC.getGame().getSmallFakeRandNum(100, m_pPlayer->GetTreasury()->GetLifetimeGrossGold());
-	if (iNewResult >= iChance)
+	if (iNewResult <= iChance)
 	{
 		LevelUpSpy(uiSpyIndex);
 	}
