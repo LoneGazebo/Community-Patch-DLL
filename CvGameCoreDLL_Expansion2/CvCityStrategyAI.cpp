@@ -3036,10 +3036,16 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_FirstFaithBuilding(CvCity* pCity)
 /// "Under Blockade" City Strategy: build walls or archers
 bool CityStrategyAIHelpers::IsTestCityStrategy_UnderBlockade(CvCity* pCity)
 {
-	if(pCity->GetCityCitizens()->IsAnyPlotBlockaded()/* && !pCity->IsHasBuildingThatAllowsRangeStrike()*/)
-	{
+	CvPlayer& kPlayer = GET_PLAYER(pCity->getOwner());
+	CvTacticalDominanceZone* pLandZone = kPlayer.GetTacticalAI()->GetTacticalAnalysisMap()->GetZoneByCity(kPlayer.getCapitalCity(),false);
+	CvTacticalDominanceZone* pWaterZone = kPlayer.GetTacticalAI()->GetTacticalAnalysisMap()->GetZoneByCity(kPlayer.getCapitalCity(),true);
+
+	//don't wait until the city is really blockaded, significant enemy presence is enough
+
+	if (pLandZone && pLandZone->GetOverallDominanceFlag()!=TACTICAL_DOMINANCE_FRIENDLY)
 		return true;
-	}
+	if (pWaterZone && pWaterZone->GetOverallDominanceFlag()!=TACTICAL_DOMINANCE_FRIENDLY)
+		return true;
 
 	return false;
 }
