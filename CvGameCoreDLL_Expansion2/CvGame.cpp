@@ -223,6 +223,8 @@ void CvGame::init(HandicapTypes eHandicap)
 	m_mapRand.init(CvPreGame::mapRandomSeed() % 73637381);
 	m_jonRand.init(CvPreGame::syncRandomSeed() % 52319761);
 
+	SetClosestCityMapDirty();
+
 	//--------------------------------
 	// Verify pregame data
 
