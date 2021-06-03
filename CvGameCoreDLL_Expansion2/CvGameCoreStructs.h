@@ -433,4 +433,4 @@ private:
 	int	m_aDamage[BATTLE_UNIT_COUNT];		//!< The ending damage of the units
 };
 
-#endif	// CVSTRUCTS_H
+#endif	// CVGAMECORESTRUCTS_H
