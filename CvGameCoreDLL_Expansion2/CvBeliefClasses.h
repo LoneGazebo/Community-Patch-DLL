@@ -180,9 +180,7 @@ public:
 	int GetYieldFromBarbarianKills(YieldTypes eYield) const;
 	int GetGreatPersonPoints(GreatPersonTypes eGreatPerson) const;
 #endif
-#if defined(MOD_RELIGION_PLOT_YIELDS)
 	int GetPlotYieldChange(int i, int j) const;
-#endif
 #if defined(MOD_RELIGION_EXTENSIONS)
 	std::vector<int> GetFreePromotions() const;
 	int GetYieldFromImprovementBuild(YieldTypes eYield, bool bEraScaling) const;
@@ -312,9 +310,7 @@ protected:
 	int* m_piYieldFromRemoveHeresy;
 	int* m_piYieldFromBarbarianKills;
 #endif
-#if defined(MOD_RELIGION_PLOT_YIELDS)
 	int** m_ppiPlotYieldChange;
-#endif
 #if defined(MOD_RELIGION_EXTENSIONS)
 	std::vector<int> m_aiFreePromotions;
 	std::map<int, std::map<bool, int>> m_pbiYieldFromImprovementBuild;
@@ -534,9 +530,7 @@ public:
 	int GetYieldFromRemoveHeresy(YieldTypes eYield, PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	int GetGreatPersonPoints(GreatPersonTypes eGreatPerson, PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 #endif
-#if defined(MOD_RELIGION_PLOT_YIELDS)
 	int GetPlotYieldChange(PlotTypes ePlot, YieldTypes eYieldType, PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
-#endif
 #if defined(MOD_RELIGION_EXTENSIONS)
 	std::vector<int> GetFreePromotions(PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	int GetYieldFromImprovementBuild(YieldTypes eYield, bool bEraScaling, PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;

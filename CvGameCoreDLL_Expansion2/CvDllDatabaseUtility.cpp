@@ -356,11 +356,7 @@ bool CvDllDatabaseUtility::PrefetchGameData()
 	PrefetchCollection(GC.getImprovementInfo(), "Improvements");
 	PrefetchCollection(GC.getResourceClassInfo(), "ResourceClasses");
 	PrefetchCollection(GC.getResourceInfo(), "Resources");
-#if defined(MOD_API_PLOT_YIELDS)
-	if (MOD_API_PLOT_YIELDS) {
-		PrefetchCollection(GC.getPlotInfo(), "Plots");
-	}
-#endif
+	PrefetchCollection(GC.getPlotInfo(), "Plots");
 #if defined(MOD_API_UNIFIED_YIELDS)
 	if (MOD_API_UNIFIED_YIELDS) {
 		PrefetchCollection(GC.getGreatPersonInfo(), "GreatPersons");
@@ -627,11 +623,7 @@ bool CvDllDatabaseUtility::ValidatePrefetchProcess()
 	ValidateVectorSize(GetNumPlayerColorInfos);
 	ValidateVectorSize(getNumEntityEventInfos);
 	ValidateVectorSize(getNumMultiUnitFormationInfos);
-#if defined(MOD_API_PLOT_YIELDS)
-	if (MOD_API_PLOT_YIELDS) {
-		ValidateVectorSize(getNumPlotInfos);
-	}
-#endif
+	ValidateVectorSize(getNumPlotInfos);
 	ValidateVectorSize(getNumTerrainInfos);
 	ValidateVectorSize(getNumResourceClassInfos);
 	ValidateVectorSize(getNumResourceInfos);
