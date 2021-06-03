@@ -11872,7 +11872,7 @@ int CvCity::GetPurchaseCost(UnitTypes eUnit)
 		bool bCombat = pkUnitInfo->GetCombat() > 0 || pkUnitInfo->GetRangedCombat() > 0 || pkUnitInfo->GetNukeDamageLevel() != -1;
 		if (bCombat)
 		{
-			int iWarWeariness = min(75, GET_PLAYER(getOwner()).GetCulture()->GetWarWeariness() * 5);
+			int iWarWeariness = min(75, GET_PLAYER(getOwner()).GetCulture()->GetWarWeariness() * 2);
 			if (iWarWeariness > 0)
 			{
 				//Let's do the yield mods.			
@@ -12233,7 +12233,7 @@ int CvCity::GetFaithPurchaseCost(UnitTypes eUnit, bool bIncludeBeliefDiscounts)
 		bool bCombat = pkUnitInfo->GetCombat() > 0 || pkUnitInfo->GetRangedCombat() > 0 || pkUnitInfo->GetNukeDamageLevel() != -1;
 		if (bCombat)
 		{
-			int iWarWeariness = min(75, GET_PLAYER(getOwner()).GetCulture()->GetWarWeariness() * 5);
+			int iWarWeariness = min(75, GET_PLAYER(getOwner()).GetCulture()->GetWarWeariness() * 2);
 			if (iWarWeariness > 0)
 			{
 				//Let's do the yield mods.			
@@ -13079,7 +13079,7 @@ int CvCity::getProductionModifier(UnitTypes eUnit, CvString* toolTipSink, bool b
 		bool bCombat = pUnitEntry->GetCombat() > 0 || pUnitEntry->GetRangedCombat() > 0 || pUnitEntry->GetNukeDamageLevel() != -1;
 		if (bCombat)
 		{
-			int iWarWeariness = min(75, GET_PLAYER(getOwner()).GetCulture()->GetWarWeariness() * 5);
+			int iWarWeariness = min(75, GET_PLAYER(getOwner()).GetCulture()->GetWarWeariness() * 2);
 			if (iWarWeariness > 0)
 			{
 				//Let's do the yield mods.			
