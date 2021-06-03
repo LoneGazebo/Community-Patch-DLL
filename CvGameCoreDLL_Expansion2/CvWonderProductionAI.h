@@ -29,6 +29,8 @@ public:
 	void Reset();
 
 	// Serialization routines
+	template<typename WonderProductionAI, typename Visitor>
+	static void Serialize(WonderProductionAI& wonderProductionAI, Visitor& visitor);
 	void Read(FDataStream& kStream);
 	void Write(FDataStream& kStream) const;
 
