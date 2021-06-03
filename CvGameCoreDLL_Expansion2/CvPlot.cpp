@@ -12761,8 +12761,7 @@ void CvPlot::Serialize(Plot& plot, Visitor& visitor)
 			if (bSaving)
 				data = *plot.m_units.getAt(uIdx);
 
-			visitor(data.eOwner);
-			visitor(data.iID);
+			visitor(data);
 
 			if (bLoading)
 				mutPlot.m_units.insertAtEnd(&data);
