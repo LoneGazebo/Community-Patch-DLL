@@ -407,6 +407,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CvGameCoreDLLPCH.h</PrecompiledHeaderFile>
     </ClCompile>
+    <ClCompile Include="CvGameCoreStructs.cpp" />
     <ClCompile Include="CvGameCoreUtils.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CvGameCoreDLLPCH.h</PrecompiledHeaderFile>
@@ -565,10 +566,6 @@
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CvGameCoreDLLPCH.h</PrecompiledHeaderFile>
     </ClCompile>
     <ClCompile Include="cvStopWatch.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CvGameCoreDLLPCH.h</PrecompiledHeaderFile>
-    </ClCompile>
-    <ClCompile Include="CvDllStructs.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CvGameCoreDLLPCH.h</PrecompiledHeaderFile>
     </ClCompile>
@@ -816,6 +813,7 @@
     <ClInclude Include="CvGameCoreDLLPCH.h" />
     <ClInclude Include="CvGameCoreEnums.h" />
     <ClInclude Include="CvGameCoreEnumSerialization.h" />
+    <ClInclude Include="CvGameCoreStructs.h" />
     <ClInclude Include="CvGameCoreUtils.h" />
     <ClInclude Include="CvGameQueries.h" />
     <ClInclude Include="CvGameTextMgr.h" />
@@ -857,7 +855,6 @@
     <ClInclude Include="CvSiteEvaluationClasses.h" />
     <ClInclude Include="CvStartPositioner.h" />
     <ClInclude Include="cvStopWatch.h" />
-    <ClInclude Include="CvDllStructs.h" />
     <ClInclude Include="CvTacticalAI.h" />
     <ClInclude Include="CvTacticalAnalysisMap.h" />
     <ClInclude Include="CvTargeting.h" />
