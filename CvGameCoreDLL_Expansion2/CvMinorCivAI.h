@@ -306,6 +306,7 @@ public:
 
 	bool IsThreateningBarbariansEventActiveForPlayer(PlayerTypes ePlayer);
 	int GetNumThreateningBarbarians();
+	int GetNumThreateningMajors();
 	int GetNumBarbariansInBorders(bool bOnlyAdjacentToCity);
 
 	void DoTestThreatenedAnnouncement();
