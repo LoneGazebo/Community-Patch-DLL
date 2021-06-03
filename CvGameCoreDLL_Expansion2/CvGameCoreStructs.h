@@ -7,8 +7,8 @@
 	------------------------------------------------------------------------------------------------------- */
 #pragma once
 
-#ifndef CVSTRUCTS_H
-#define CVSTRUCTS_H
+#ifndef CVGAMECORESTRUCTS_H
+#define CVGAMECORESTRUCTS_H
 
 struct GameTurnInfo
 {
@@ -433,4 +433,4 @@ private:
 	int	m_aDamage[BATTLE_UNIT_COUNT];		//!< The ending damage of the units
 };
 
-#endif	// CVSTRUCTS_H
+#endif	// CVGAMECORESTRUCTS_H
