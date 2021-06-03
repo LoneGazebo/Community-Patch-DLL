@@ -10894,6 +10894,7 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 		}
 
 		// Let's see how much danger each of us are currently in ...
+		int iWarDuration = min(GetPlayer()->GetPlayerNumTurnsAtWar(*it), GetPlayer()->GetPlayerNumTurnsSinceCityCapture(*it));
 		int iWarScore = GetWarScore(*it);
 		int iOurDanger = 0;
 		int iTheirDanger = 0;
@@ -10906,7 +10907,7 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 
 		for (CvCity* pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
 		{
-			if (pLoopCity->IsInDangerFromPlayers(vTheirWarAllies))
+			if (pLoopCity->IsInDangerFromPlayers(vTheirWarAllies)) // Only care if we're in danger from them!
 			{
 				int iDangerMod = 1;
 
@@ -10952,8 +10953,7 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 
 		for (CvCity* pLoopCity = GET_PLAYER(*it).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(*it).nextCity(&iLoop))
 		{
-			// Can we actually see this city's danger status?
-			if (pLoopCity->IsInDangerFromPlayers(vOurWarAllies))
+			if (pLoopCity->IsInDangerFromPlayers(vOurWarAllies)) // Only care if they're in danger from us!
 			{
 				int iDangerMod = 1;
 
@@ -10993,43 +10993,46 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 		// No peace if they're in danger of losing a city and we're not.
 		if (bSeriousDangerThem && !bSeriousDangerUs)
 		{
-			SetTreatyWillingToOffer(*it, NO_PEACE_TREATY_TYPE);
-			SetTreatyWillingToAccept(*it, NO_PEACE_TREATY_TYPE);
-			if (bLog)
+			if (iWarDuration < 40) // Failsafe in case of a problem somewhere - limit the amount of time peace is impossible for
 			{
-				CvString strOutBuf;
-				CvString strBaseString;
-				CvString playerName;
-				CvString otherPlayerName;
-				CvString strLogName;
-
-				// Find the name of this civ and city
-				playerName = m_pPlayer->getCivilizationShortDescription();
-
-				// Open the log file
-				if (GC.getPlayerAndCityAILogSplit())
+				SetTreatyWillingToOffer(*it, NO_PEACE_TREATY_TYPE);
+				SetTreatyWillingToAccept(*it, NO_PEACE_TREATY_TYPE);
+				if (bLog)
 				{
-					strLogName = "DiplomacyAI_Peace_Log" + playerName + ".csv";
+					CvString strOutBuf;
+					CvString strBaseString;
+					CvString playerName;
+					CvString otherPlayerName;
+					CvString strLogName;
+
+					// Find the name of this civ and city
+					playerName = m_pPlayer->getCivilizationShortDescription();
+
+					// Open the log file
+					if (GC.getPlayerAndCityAILogSplit())
+					{
+						strLogName = "DiplomacyAI_Peace_Log" + playerName + ".csv";
+					}
+					else
+					{
+						strLogName = "DiplomacyAI_Peace_Log.csv";
+					}
+
+					FILogFile* pLog;
+					pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
+
+					// Get the leading info for this line
+					strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
+					otherPlayerName = GET_PLAYER(*it).getCivilizationShortDescription();
+					strBaseString += playerName + " VS. " + otherPlayerName;
+
+					strOutBuf.Format("No peace! They're in serious danger of losing a city, and we're not!");
+
+					strBaseString += strOutBuf;
+					pLog->Msg(strBaseString);
 				}
-				else
-				{
-					strLogName = "DiplomacyAI_Peace_Log.csv";
-				}
-
-				FILogFile* pLog;
-				pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
-
-				// Get the leading info for this line
-				strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
-				otherPlayerName = GET_PLAYER(*it).getCivilizationShortDescription();
-				strBaseString += playerName + " VS. " + otherPlayerName;
-
-				strOutBuf.Format("No peace! They're in serious danger of losing a city, and we're not!");
-
-				strBaseString += strOutBuf;
-				pLog->Msg(strBaseString);
+				continue;
 			}
-			continue;
 		}
 		// If we're in serious danger, let's offer peace.
 		else if ((iWarScore <= -90 && iOurDanger > 0) || (iWarScore <= -50 && bSeriousDangerUs))
@@ -11200,7 +11203,7 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 		}
 
 		// If not ready for vassalage with a neighbor and the war is nearly won, let's persevere.
-		if (!bReadyForVassalage && GetWarState(*it) == WAR_STATE_NEARLY_WON && GetPlayer()->GetProximityToPlayer(*it) == PLAYER_PROXIMITY_NEIGHBORS)
+		if (!bReadyForVassalage && GetWarState(*it) == WAR_STATE_NEARLY_WON && GetPlayer()->GetProximityToPlayer(*it) >= PLAYER_PROXIMITY_CLOSE && iWarDuration < 30 && GetStateAllWars() != STATE_ALL_WARS_LOSING && !GetPlayer()->IsEmpireVeryUnhappy())
 		{
 			SetTreatyWillingToOffer(*it, NO_PEACE_TREATY_TYPE);
 			SetTreatyWillingToAccept(*it, NO_PEACE_TREATY_TYPE);
@@ -11257,7 +11260,6 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 		}
 
 		bool bConsiderPeace = bReadyForVassalage || bPhonyWar || bSeriousDangerUs;
-		int iWarDuration = min(GetPlayer()->GetPlayerNumTurnsAtWar(*it), GetPlayer()->GetPlayerNumTurnsSinceCityCapture(*it));
 
 		if (!bConsiderPeace)
 		{
@@ -11546,7 +11548,7 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 		if (iWarCount <= 0)
 			iWarCount = 0;
 
-		int iThreshold = max(0, /*20*/ GC.getREQUEST_PEACE_TURN_THRESHOLD() - (2 * iWarCount));
+		int iThreshold = max(1, /*20*/ GC.getREQUEST_PEACE_TURN_THRESHOLD() - (2 * iWarCount));
 
 		if (iPeaceScore >= iThreshold)
 			vMakePeacePlayers.push_back(*it);
