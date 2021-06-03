@@ -6078,7 +6078,8 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 				}
 
 				// if we don't have an owner, there cannot be a city. this also does bookkeeping for route maintenance
-				setIsCity(false);
+				if (pOldCity)
+					setIsCity(false, pOldCity->GetID(), pOldCity->getWorkPlotDistance());
 			}
 
 			pUnitNode = headUnitNode();
@@ -7215,11 +7216,14 @@ ImprovementTypes CvPlot::getImprovementTypeNeededToImproveResource(PlayerTypes e
 	return eImprovementNeeded;
 }
 
-void CvPlot::setIsCity(bool bValue)
+void CvPlot::setIsCity(bool bValue, int iCityID, int iWorkRange)
 {
 	//nothing to do
 	if (isCity() == bValue)
 		return;
+
+	//sanitize
+	iWorkRange = range(GET_PLAYER(getOwner()).getWorkPlotDistance(),1,5);
 
 	//removing flag
 	if(isCity() && !bValue)
@@ -7232,7 +7236,7 @@ void CvPlot::setIsCity(bool bValue)
 		}
 
 		// do not call getPlotCity() here, it might be invalid
-		for(int iI = 0; iI < RING5_PLOTS; ++iI)
+		for(int iI = 0; iI < RING_PLOTS[iWorkRange]; ++iI)
 		{
 			CvPlot* pLoopPlot = iterateRingPlots(getX(), getY(), iI);
 
@@ -7254,8 +7258,16 @@ void CvPlot::setIsCity(bool bValue)
 	//setting flag
 	if(!isCity() && bValue)
 	{
+		//sanity check
+		CvCity* pCity = GET_PLAYER(getOwner()).getCity(iCityID);
+		if (!pCity || pCity->plot() != this)
+		{
+			OutputDebugString("wtf\n");
+			return;
+		}
+
 		// do not call getPlotCity() here, it might be invalid
-		for(int iI = 0; iI < RING5_PLOTS; ++iI)
+		for(int iI = 0; iI < RING_PLOTS[iWorkRange]; ++iI)
 		{
 			CvPlot* pLoopPlot = iterateRingPlots(getX(), getY(), iI);
 

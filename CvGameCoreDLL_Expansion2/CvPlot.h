@@ -537,7 +537,7 @@ public:
 	int getNumResourceForPlayer(PlayerTypes ePlayer) const;
 	void removeMinorResources();
 
-	void setIsCity(bool bValue);
+	void setIsCity(bool bValue, int iCityID, int iWorkRange);
 	ImprovementTypes getImprovementType() const;
 	ImprovementTypes getImprovementTypeNeededToImproveResource(PlayerTypes ePlayer = NO_PLAYER, bool bTestPlotOwner = true, bool bNonSpecialOnly = false);
 	void setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder = NO_PLAYER);
