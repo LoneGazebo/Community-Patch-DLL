@@ -7,8 +7,8 @@
 	------------------------------------------------------------------------------------------------------- */
 #pragma once
 
-#ifndef CVSTRUCTS_H
-#define CVSTRUCTS_H
+#ifndef CVGAMECORESTRUCTS_H
+#define CVGAMECORESTRUCTS_H
 
 struct GameTurnInfo
 {

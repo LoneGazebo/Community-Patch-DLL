@@ -98,7 +98,7 @@ typedef wchar_t          wchar;
 #include "CvGameCoreDLLUtil.h"
 #include "CvDefines.h"
 #include "CvGameCoreEnums.h"
-#include "CvDllStructs.h"
+#include "CvGameCoreStructs.h"
 #include "ICvDLLUtility.h"
 #include "ICvDllUserInterface.h"
 #include "ICvDLLScriptSystem.h"
