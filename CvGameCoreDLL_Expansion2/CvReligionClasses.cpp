@@ -4031,7 +4031,7 @@ void CvPlayerReligions::Read(FDataStream& kStream)
 }
 
 /// Serialization write
-void CvPlayerReligions::Write(FDataStream& kStream)
+void CvPlayerReligions::Write(FDataStream& kStream) const
 {
 	// Current version number
 	uint uiVersion = 1;
@@ -4066,6 +4066,17 @@ int CvPlayerReligions::GetNumProphetsSpawned() const
 #else
 	return m_iNumProphetsSpawned;
 #endif
+}
+
+FDataStream& operator>>(FDataStream& stream, CvPlayerReligions& playerReligions)
+{
+	playerReligions.Read(stream);
+	return stream;
+}
+FDataStream& operator<<(FDataStream& stream, const CvPlayerReligions& playerReligions)
+{
+	playerReligions.Write(stream);
+	return stream;
 }
 
 /// Change count of prophets spawned
@@ -6668,12 +6679,23 @@ void CvReligionAI::Read(FDataStream& kStream)
 }
 
 /// Serialization write
-void CvReligionAI::Write(FDataStream& kStream)
+void CvReligionAI::Write(FDataStream& kStream) const
 {
 	// Current version number
 	uint uiVersion = 1;
 	kStream << uiVersion;
 	MOD_SERIALIZE_INIT_WRITE(kStream);
+}
+
+FDataStream& operator>>(FDataStream& stream, CvReligionAI& religionAI)
+{
+	religionAI.Read(stream);
+	return stream;
+}
+FDataStream& operator<<(FDataStream& stream, const CvReligionAI& religionAI)
+{
+	religionAI.Write(stream);
+	return stream;
 }
 
 /// Called every turn to see what to spend Faith on

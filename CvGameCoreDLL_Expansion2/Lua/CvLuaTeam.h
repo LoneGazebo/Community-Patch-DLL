@@ -263,4 +263,33 @@ protected:
 #endif
 };
 
+namespace CvLuaArgs
+{
+	template<> inline const CvTeam* toValue(lua_State* L, int idx)
+	{
+		return CvLuaTeam::GetInstance(L, idx);
+	}
+	template<> inline CvTeam* toValue(lua_State* L, int idx)
+	{
+		return CvLuaTeam::GetInstance(L, idx);
+	}
+	template<> inline const CvTeam& toValue(lua_State* L, int idx)
+	{
+		return *CvLuaTeam::GetInstance(L, idx);
+	}
+	template<> inline CvTeam& toValue(lua_State* L, int idx)
+	{
+		return *CvLuaTeam::GetInstance(L, idx);
+	}
+
+	template<> inline void pushValue(lua_State* L, CvTeam* p)
+	{
+		CvLuaTeam::Push(L, p);
+	}
+	template<> inline void pushValue(lua_State* L, CvTeam& r)
+	{
+		CvLuaTeam::Push(L, &r);
+	}
+}
+
 #endif //CVLUATEAM_H

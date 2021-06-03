@@ -200,7 +200,7 @@ void CvCityCitizens::Read(FDataStream& kStream)
 }
 
 /// Serialization write
-void CvCityCitizens::Write(FDataStream& kStream)
+void CvCityCitizens::Write(FDataStream& kStream) const
 {
 	// Current version number
 	uint uiVersion = 1;
@@ -232,6 +232,17 @@ void CvCityCitizens::Write(FDataStream& kStream)
 	BuildingArrayHelpers::Write(kStream, m_aiNumForcedSpecialistsInBuilding, GC.getNumBuildingInfos());
 
 	CvInfosSerializationHelper::WriteHashedDataArray<SpecialistTypes, int>(kStream, m_piBuildingGreatPeopleRateChanges, GC.getNumSpecialistInfos());
+}
+
+FDataStream& operator>>(FDataStream& stream, CvCityCitizens& cityCitizens)
+{
+	cityCitizens.Read(stream);
+	return stream;
+}
+FDataStream& operator<<(FDataStream& stream, const CvCityCitizens& cityCitizens)
+{
+	cityCitizens.Write(stream);
+	return stream;
 }
 
 /// Returns the City object this set of Citizens is associated with

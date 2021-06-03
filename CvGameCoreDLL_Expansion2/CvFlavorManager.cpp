@@ -258,7 +258,7 @@ void CvFlavorManager::Read(FDataStream& kStream)
 }
 
 /// Serialization write
-void CvFlavorManager::Write(FDataStream& kStream)
+void CvFlavorManager::Write(FDataStream& kStream) const
 {
 	// Current version number
 	uint uiVersion = 1;
@@ -269,6 +269,17 @@ void CvFlavorManager::Write(FDataStream& kStream)
 	kStream << GC.getNumFlavorTypes();
 	kStream << ArrayWrapper<int>(GC.getNumFlavorTypes(), m_piPersonalityFlavor);
 	kStream << ArrayWrapper<int>(GC.getNumFlavorTypes(), m_piActiveFlavor);
+}
+
+FDataStream& operator>>(FDataStream& stream, CvFlavorManager& flavorManager)
+{
+	flavorManager.Read(stream);
+	return stream;
+}
+FDataStream& operator<<(FDataStream& stream, const CvFlavorManager& flavorManager)
+{
+	flavorManager.Write(stream);
+	return stream;
 }
 
 /// Register a new recipient of the player's global flavors

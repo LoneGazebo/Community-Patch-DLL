@@ -2002,7 +2002,7 @@ public:
 #endif
 	// Serialization
 	void Read(FDataStream& kStream);
-	void Write(FDataStream& kStream);
+	void Write(FDataStream& kStream) const;
 
 	const std::vector<TraitTypes> GetPotentiallyActiveTraits() { return m_vPotentiallyActiveLeaderTraits; }
 
@@ -2379,5 +2379,8 @@ private:
 
 	std::vector<FreeResourceXCities> m_aFreeResourceXCities;
 };
+
+FDataStream& operator>>(FDataStream&, CvPlayerTraits&);
+FDataStream& operator<<(FDataStream&, const CvPlayerTraits&);
 
 #endif //CIV5_TRAIT_CLASSES_H

@@ -11,7 +11,7 @@
 
 #include "CvGameCoreDLLPCH.h"
 #include "CvUnit.h"
-//#include "CvDllStructs.h"
+//#include "CvGameCoreStructs.h"
 #include "CvGameCoreEnumSerialization.h"
 #include "CvEnumSerialization.h"
 #include "FStlContainerSerialization.h"

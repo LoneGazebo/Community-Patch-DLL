@@ -40,7 +40,7 @@ public:
 	void Uninit();
 	void Reset();
 	void Read(FDataStream& kStream);
-	void Write(FDataStream& kStream);
+	void Write(FDataStream& kStream) const;
 
 	CvCity* GetCity();
 	CvPlayer* GetPlayer();
@@ -196,5 +196,8 @@ private:
 
 	bool m_bInited;
 };
+
+FDataStream& operator>>(FDataStream&, CvCityCitizens&);
+FDataStream& operator<<(FDataStream&, const CvCityCitizens&);
 
 #endif // CIV5_CITY_CITIZENS_H

@@ -150,7 +150,7 @@ public:
 	void Uninit();
 	void Reset();
 	void Read(FDataStream& kStream);
-	void Write(FDataStream& kStream);
+	void Write(FDataStream& kStream) const;
 
 	CvPlayer* GetPlayer();
 	CvEconomicAIStrategyXMLEntries* GetEconomicAIStrategies();
@@ -281,6 +281,9 @@ private:
 
 	vector<CvPurchaseRequest> m_RequestedSavings;
 };
+
+FDataStream& operator>>(FDataStream&, CvEconomicAI&);
+FDataStream& operator<<(FDataStream&, const CvEconomicAI&);
 
 FDataStream& operator<<(FDataStream&, const CvPurchaseRequest&);
 FDataStream& operator>>(FDataStream&, CvPurchaseRequest&);

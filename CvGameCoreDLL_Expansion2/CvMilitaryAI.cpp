@@ -384,7 +384,7 @@ void CvMilitaryAI::Read(FDataStream& kStream)
 }
 
 /// Serialization write
-void CvMilitaryAI::Write(FDataStream& kStream)
+void CvMilitaryAI::Write(FDataStream& kStream) const
 {
 	// Current version number
 	uint uiVersion = 1;
@@ -410,6 +410,17 @@ void CvMilitaryAI::Write(FDataStream& kStream)
 	kStream << ArrayWrapper<bool>(m_pAIStrategies->GetNumMilitaryAIStrategies(), m_pabUsingStrategy);
 	kStream << ArrayWrapper<int>(m_pAIStrategies->GetNumMilitaryAIStrategies(), m_paiTurnStrategyAdopted);
 	kStream << ArrayWrapper<int>(MAX_MAJOR_CIVS, m_aiWarFocus);
+}
+
+FDataStream& operator>>(FDataStream& stream, CvMilitaryAI& militaryAI)
+{
+	militaryAI.Read(stream);
+	return stream;
+}
+FDataStream& operator<<(FDataStream& stream, const CvMilitaryAI& militaryAI)
+{
+	militaryAI.Write(stream);
+	return stream;
 }
 
 /// Returns the Player object the Strategies are associated with

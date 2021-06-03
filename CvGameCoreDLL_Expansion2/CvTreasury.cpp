@@ -1090,7 +1090,7 @@ void CvTreasury::Read(FDataStream& kStream)
 }
 
 /// Serialization write
-void CvTreasury::Write(FDataStream& kStream)
+void CvTreasury::Write(FDataStream& kStream) const
 {
 	// Current version number
 	uint uiVersion = 1;
@@ -1115,6 +1115,17 @@ void CvTreasury::Write(FDataStream& kStream)
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	MOD_SERIALIZE_WRITE(kStream, m_iExpensePerTurnFromVassalTax);
 #endif
+}
+
+FDataStream& operator>>(FDataStream& stream, CvTreasury& treasury)
+{
+	treasury.Read(stream);
+	return stream;
+}
+FDataStream& operator<<(FDataStream& stream, const CvTreasury& treasury)
+{
+	treasury.Write(stream);
+	return stream;
 }
 
 void TreasuryHelpers::AppendToLog(CvString& strHeader, CvString& strLog, CvString strHeaderValue, CvString strValue)

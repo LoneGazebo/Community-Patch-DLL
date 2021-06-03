@@ -59,4 +59,33 @@ protected:
 	static int lGetNumImprovements(lua_State* L);
 };
 
+namespace CvLuaArgs
+{
+	template<> inline const CvArea* toValue(lua_State* L, int idx)
+	{
+		return CvLuaArea::GetInstance(L, idx);
+	}
+	template<> inline CvArea* toValue(lua_State* L, int idx)
+	{
+		return CvLuaArea::GetInstance(L, idx);
+	}
+	template<> inline const CvArea& toValue(lua_State* L, int idx)
+	{
+		return *CvLuaArea::GetInstance(L, idx);
+	}
+	template<> inline CvArea& toValue(lua_State* L, int idx)
+	{
+		return *CvLuaArea::GetInstance(L, idx);
+	}
+
+	template<> inline void pushValue(lua_State* L, CvArea* p)
+	{
+		CvLuaArea::Push(L, p);
+	}
+	template<> inline void pushValue(lua_State* L, CvArea& r)
+	{
+		CvLuaArea::Push(L, &r);
+	}
+}
+
 #endif //CVLUAAREA_H

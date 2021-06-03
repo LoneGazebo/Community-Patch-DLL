@@ -3,6 +3,12 @@
 #ifndef CVSERIALIZE_H
 #define CVSERIALIZE_H
 
+#include "CvEnums.h"
+#include "CvEnumSerialization.h"
+
+#include "CvGameCoreEnums.h"
+#include "CvGameCoreEnumSerialization.h"
+
 // Shared empty string
 extern const std::string EmptyString;
 
@@ -18,6 +24,13 @@ public:
 	inline void operator()(const T& value)
 	{
 		m_stream << value;
+	}
+
+	template<typename InfoType, typename T>
+	inline void infoHash(const T& value, bool* bValid = NULL)
+	{
+		CvInfosSerializationHelper::WriteHashed(m_stream, InfoType(value));
+		if (bValid != NULL) { *bValid = true; }
 	}
 
 	template<typename T>
@@ -59,6 +72,12 @@ public:
 		FAssertMsg(false, "CvStreamSaveVisitor is not meant for loading");
 	}
 
+	template<typename T>
+	void loadIgnore()
+	{
+		FAssertMsg(false, "CvStreamSaveVisitor is not meant for loading");
+	}
+
 private:
 	FDataStream& m_stream;
 };
@@ -75,6 +94,12 @@ public:
 	inline void operator()(T& value)
 	{
 		m_stream >> value;
+	}
+
+	template<typename InfoType, typename T>
+	inline void infoHash(T& value, bool* bValid = NULL)
+	{
+		value = static_cast<T>(CvInfosSerializationHelper::ReadHashed(m_stream, bValid));
 	}
 
 	template<typename T>
@@ -114,6 +139,13 @@ public:
 	inline void loadAssign(Dst& dst, const Src& src)
 	{
 		dst = src;
+	}
+
+	template<typename T>
+	void loadIgnore()
+	{
+		T x;
+		m_stream >> x;
 	}
 
 private:

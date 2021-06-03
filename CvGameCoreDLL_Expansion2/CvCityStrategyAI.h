@@ -148,7 +148,7 @@ public:
 	void Uninit();
 	void Reset();
 	void Read(FDataStream& kStream);
-	void Write(FDataStream& kStream);
+	void Write(FDataStream& kStream) const;
 
 	// Flavor recipient required function
 	void FlavorUpdate();
@@ -236,6 +236,9 @@ private:
 	YieldTypes m_eMostDeficientYield;
 	YieldTypes m_eMostAbundantYield;
 };
+
+FDataStream& operator>>(FDataStream&, CvCityStrategyAI&);
+FDataStream& operator<<(FDataStream&, const CvCityStrategyAI&);
 
 namespace CityStrategyAIHelpers
 {

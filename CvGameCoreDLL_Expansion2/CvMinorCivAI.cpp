@@ -4443,6 +4443,17 @@ void CvMinorCivAI::Write(FDataStream& kStream) const
 	kStream << m_bDisableNotifications;
 }
 
+FDataStream& operator>>(FDataStream& stream, CvMinorCivAI& minorCivAI)
+{
+	minorCivAI.Read(stream);
+	return stream;
+}
+FDataStream& operator<<(FDataStream& stream, const CvMinorCivAI& minorCivAI)
+{
+	minorCivAI.Write(stream);
+	return stream;
+}
+
 /// Pick the minor civ's personality and any special traits (ie. unique unit for Militaristic)
 void CvMinorCivAI::DoPickInitialItems()
 {

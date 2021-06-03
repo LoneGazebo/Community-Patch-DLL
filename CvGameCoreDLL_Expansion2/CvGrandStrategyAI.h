@@ -30,7 +30,7 @@ public:
 	void Uninit();
 	void Reset();
 	void Read(FDataStream& kStream);
-	void Write(FDataStream& kStream);
+	void Write(FDataStream& kStream) const;
 
 	CvPlayer* GetPlayer();
 	CvAIGrandStrategyXMLEntries* GetAIGrandStrategies();
@@ -111,6 +111,9 @@ private:
 	int m_iFlavorGrowth;
 	int m_iFlavorDiplomacy;
 };
+
+FDataStream& operator>>(FDataStream&, CvGrandStrategyAI&);
+FDataStream& operator<<(FDataStream&, const CvGrandStrategyAI&);
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //  CLASS:      CvAIGrandStrategyXMLEntry

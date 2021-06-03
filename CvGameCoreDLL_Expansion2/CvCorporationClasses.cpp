@@ -559,7 +559,6 @@ void CvPlayerCorporations::Read(FDataStream& kStream)
 	MOD_SERIALIZE_READ(79, kStream, m_iCorporationFreeFranchiseAbovePopular, 0);
 	MOD_SERIALIZE_READ(79, kStream, m_bIsNoForeignCorpsInCities, false);
 	MOD_SERIALIZE_READ(79, kStream, m_bIsNoFranchisesInForeignCities, false);
-
 }
 
 /// Serialization write
@@ -583,7 +582,17 @@ void CvPlayerCorporations::Write(FDataStream& kStream) const
 
 	MOD_SERIALIZE_WRITE(kStream, m_bIsNoForeignCorpsInCities);
 	MOD_SERIALIZE_WRITE(kStream, m_bIsNoFranchisesInForeignCities);
+}
 
+FDataStream& operator>>(FDataStream& stream, CvPlayerCorporations& playerCorporations)
+{
+	playerCorporations.Read(stream);
+	return stream;
+}
+FDataStream& operator<<(FDataStream& stream, const CvPlayerCorporations& playerCorporations)
+{
+	playerCorporations.Write(stream);
+	return stream;
 }
 
 CvCorporation * CvPlayerCorporations::GetCorporation() const

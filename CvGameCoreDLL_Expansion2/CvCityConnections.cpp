@@ -131,6 +131,17 @@ void CvCityConnections::Write(FDataStream& kStream) const
 	kStream << m_plotIdsToConnect;
 }
 
+FDataStream& operator>>(FDataStream& stream, CvCityConnections& cityConnections)
+{
+	cityConnections.Read(stream);
+	return stream;
+}
+FDataStream& operator<<(FDataStream& stream, const CvCityConnections& cityConnections)
+{
+	cityConnections.Write(stream);
+	return stream;
+}
+
 /// Update - called from within CvPlayer
 void CvCityConnections::Update(void)
 {

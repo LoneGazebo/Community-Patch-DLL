@@ -131,6 +131,17 @@ void CvDiplomacyRequests::Write(FDataStream& kStream) const
 	}
 }
 
+FDataStream& operator>>(FDataStream& stream, CvDiplomacyRequests& diplomacyRequests)
+{
+	diplomacyRequests.Read(stream);
+	return stream;
+}
+FDataStream& operator<<(FDataStream& stream, const CvDiplomacyRequests& diplomacyRequests)
+{
+	diplomacyRequests.Write(stream);
+	return stream;
+}
+
 //	----------------------------------------------------------------------------
 /// Update - called from within CvPlayer
 void CvDiplomacyRequests::Update(void)

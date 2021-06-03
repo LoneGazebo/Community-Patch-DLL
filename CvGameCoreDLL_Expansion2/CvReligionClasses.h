@@ -343,7 +343,7 @@ public:
 	void Uninit();
 	void Reset();
 	void Read(FDataStream& kStream);
-	void Write(FDataStream& kStream);
+	void Write(FDataStream& kStream) const;
 
 	// Data accessors
 #if defined(MOD_GLOBAL_TRULY_FREE_GP)
@@ -431,6 +431,9 @@ private:
 	ReligionTypes m_PlayerStateReligion;
 #endif
 };
+
+FDataStream& operator>>(FDataStream&, CvPlayerReligions&);
+FDataStream& operator<<(FDataStream&, const CvPlayerReligions&);
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //  CLASS:		CvCityReligions
@@ -610,7 +613,7 @@ public:
 	void Uninit();
 	void Reset();
 	void Read(FDataStream& kStream);
-	void Write(FDataStream& kStream);
+	void Write(FDataStream& kStream) const;
 
 	void DoTurn();
 
@@ -680,8 +683,10 @@ private:
 
 	CvBeliefXMLEntries* m_pBeliefs;
 	CvPlayer* m_pPlayer;
-
 };
+
+FDataStream& operator>>(FDataStream&, CvReligionAI&);
+FDataStream& operator<<(FDataStream&, const CvReligionAI&);
 
 namespace CvReligionAIHelpers
 {

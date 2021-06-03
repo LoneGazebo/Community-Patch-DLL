@@ -264,6 +264,9 @@ protected:
 	CvString m_strInfoString;
 };
 
+FDataStream& operator>>(FDataStream&, CvAIOperation&);
+FDataStream& operator<<(FDataStream&, const CvAIOperation&);
+
 // simple factory method to create new subclassed operations
 CvAIOperation* CreateAIOperation(AIOperationTypes eAIOperationType, int iID, PlayerTypes eOwner, PlayerTypes eEnemy);
 

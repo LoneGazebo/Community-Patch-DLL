@@ -244,7 +244,7 @@ public:
 	void Uninit();
 	void Reset();
 	void Read(FDataStream& kStream);
-	void Write(FDataStream& kStream);
+	void Write(FDataStream& kStream) const;
 
 	// Flavor recipient required function
 	void FlavorUpdate();
@@ -315,6 +315,9 @@ private:
 	CvPlayer* m_pPlayer;
 	CvTechAI* m_pTechAI;
 };
+
+FDataStream& operator>>(FDataStream&, CvPlayerTechs&);
+FDataStream& operator<<(FDataStream&, const CvPlayerTechs&);
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //  CLASS:      CvTeamTechs

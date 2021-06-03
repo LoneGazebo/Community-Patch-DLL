@@ -1024,6 +1024,17 @@ void CvAIOperation::Write(FDataStream& kStream) const
 	//kStream << m_progressToTarget;
 }
 
+FDataStream& operator>>(FDataStream& stream, CvAIOperation& aiOperation)
+{
+	aiOperation.Read(stream);
+	return stream;
+}
+FDataStream& operator<<(FDataStream& stream, const CvAIOperation& aiOperation)
+{
+	aiOperation.Write(stream);
+	return stream;
+}
+
 #if defined(MOD_BALANCE_CORE)
 const char* CvAIOperation::GetInfoString()
 {

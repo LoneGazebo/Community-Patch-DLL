@@ -4384,7 +4384,7 @@ void CvCityBuildings::Read(FDataStream& kStream)
 }
 
 /// Serialization write
-void CvCityBuildings::Write(FDataStream& kStream)
+void CvCityBuildings::Write(FDataStream& kStream) const
 {
 	CvAssertMsg(GetNumBuildings() > 0, "Number of buildings to serialize is expected to greater than 0");
 
@@ -4425,6 +4425,17 @@ void CvCityBuildings::Write(FDataStream& kStream)
 
 	kStream << m_aBuildingYieldChange;
 	kStream << m_aBuildingGreatWork;
+}
+
+FDataStream& operator>>(FDataStream& stream, CvCityBuildings& cityBuildings)
+{
+	cityBuildings.Read(stream);
+	return stream;
+}
+FDataStream& operator<<(FDataStream& stream, const CvCityBuildings& cityBuildings)
+{
+	cityBuildings.Write(stream);
+	return stream;
 }
 
 /// Accessor: Get full array of all building XML data

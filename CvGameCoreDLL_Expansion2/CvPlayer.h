@@ -2876,34 +2876,42 @@ protected:
 	class ConqueredByBoolField
 	{
 	public:
-		enum { eCount = 4, eSize = 32 };
-		DWORD m_dwBits[eCount];
+		void read(FDataStream& stream);
+		void write(FDataStream& stream) const;
+
+		enum
+		{
+			eSize = 32,
+			eCount = (MAX_PLAYERS / eSize) + (MAX_PLAYERS % eSize == 0 ? 0 : 1),
+			eTotalBits = eCount * eSize
+		};
+		uint32 m_bits[eCount];
 
 		bool GetBit(const uint uiEntry) const
 		{
 			const uint uiOffset = uiEntry/eSize;
-			return m_dwBits[uiOffset] & 1<<(uiEntry-(eSize*uiOffset));
+			return m_bits[uiOffset] & 1<<(uiEntry-(eSize*uiOffset));
 		}
 		void SetBit(const uint uiEntry)
 		{
 			const uint uiOffset = uiEntry/eSize;
-			m_dwBits[uiOffset] |= 1<<(uiEntry-(eSize*uiOffset));
+			m_bits[uiOffset] |= 1<<(uiEntry-(eSize*uiOffset));
 		}
 		void ClearBit(const uint uiEntry)
 		{
 			const uint uiOffset = uiEntry/eSize;
-			m_dwBits[uiOffset] &= ~(1<<(uiEntry-(eSize*uiOffset)));
+			m_bits[uiOffset] &= ~(1<<(uiEntry-(eSize*uiOffset)));
 		}
 		void ToggleBit(const uint uiEntry)
 		{
 			const uint uiOffset = uiEntry/eSize;
-			m_dwBits[uiOffset] ^= 1<<(uiEntry-(eSize*uiOffset));
+			m_bits[uiOffset] ^= 1<<(uiEntry-(eSize*uiOffset));
 		}
 		void ClearAll()
 		{
 			for(uint i = 0; i <eCount; ++i)
 			{
-				m_dwBits[i] = 0;
+				m_bits[i] = 0;
 			}
 		}
 
@@ -3000,7 +3008,6 @@ protected:
 	int m_iVassalCSBonusModifier;		
 #endif
 	int m_iHappinessFromLeagues;
-	int m_iDummy;  //unused
 	int m_iWoundedUnitDamageMod;
 	int m_iUnitUpgradeCostMod;
 	int m_iBarbarianCombatBonus;
@@ -3743,7 +3750,21 @@ protected:
 #endif
 
 	std::vector<int> m_vCityConnectionPlots; //serialized
+
+	friend FDataStream& operator>>(FDataStream&, CvPlayer::ConqueredByBoolField&);
+	friend FDataStream& operator<<(FDataStream&, const CvPlayer::ConqueredByBoolField&);
 };
+
+inline FDataStream& operator>>(FDataStream& stream, CvPlayer::ConqueredByBoolField& bfEverConqueredBy)
+{
+	bfEverConqueredBy.read(stream);
+	return stream;
+}
+inline FDataStream& operator<<(FDataStream& stream, const CvPlayer::ConqueredByBoolField& bfEverConqueredBy)
+{
+	bfEverConqueredBy.write(stream);
+	return stream;
+}
 
 bool CancelActivePlayerEndTurn();
 
@@ -3816,7 +3837,6 @@ SYNC_ARCHIVE_VAR(int, m_iBullyGlobalCSReduction)
 SYNC_ARCHIVE_VAR(int, m_iIsVassalsNoRebel)
 SYNC_ARCHIVE_VAR(int, m_iVassalCSBonusModifier)
 SYNC_ARCHIVE_VAR(int, m_iHappinessFromLeagues)
-SYNC_ARCHIVE_VAR(int, m_iDummy)
 SYNC_ARCHIVE_VAR(int, m_iWoundedUnitDamageMod)
 SYNC_ARCHIVE_VAR(int, m_iUnitUpgradeCostMod)
 SYNC_ARCHIVE_VAR(int, m_iBarbarianCombatBonus)

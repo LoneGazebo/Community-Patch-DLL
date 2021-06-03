@@ -239,4 +239,7 @@ protected:
 	int m_iDealItemValuesTurnSlice;
 };
 
+FDataStream& operator>>(FDataStream&, CvDealAI&);
+FDataStream& operator<<(FDataStream&, const CvDealAI&);
+
 #endif //CIV5_DEALAI_H

@@ -201,7 +201,7 @@ public:
 
 	// Serialization routines
 	void Read(FDataStream& kStream);
-	void Write(FDataStream& kStream);
+	void Write(FDataStream& kStream) const;
 
 	// Public turn update routines
 	void RecruitUnits();
@@ -335,6 +335,9 @@ private:
 	std::vector<CvHomelandTarget> m_TargetedNavalResources;
 	std::vector<CvHomelandTarget> m_TargetedAntiquitySites;
 };
+
+FDataStream& operator>>(FDataStream&, CvHomelandAI&);
+FDataStream& operator<<(FDataStream&, const CvHomelandAI&);
 
 #if defined(MOD_BALANCE_CORE_MILITARY)
 extern const char* homelandMoveNames[];

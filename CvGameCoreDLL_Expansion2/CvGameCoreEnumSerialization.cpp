@@ -8,109 +8,110 @@
 #include "CvGameCoreDLLPCH.h"
 #include "CvGameCoreEnumSerialization.h"
 
+template<typename T, typename E>
+static FDataStream& WriteBasicEnum(FDataStream& saveTo, const E& e)
+{
+	saveTo << static_cast<T>(e);
+	return saveTo;
+}
+
+template<typename T, typename E>
+static FDataStream& ReadBasicEnum(FDataStream& loadFrom, E& e)
+{
+	T v;
+	loadFrom >> v;
+	e = static_cast<E>(v);
+	return loadFrom;
+}
+
 FDataStream& operator<<(FDataStream& saveTo, const TerrainTypes& readFrom)
 {
-	saveTo << static_cast<int>(readFrom);
-	return saveTo;
+	return WriteBasicEnum<int>(saveTo, readFrom);
 }
 FDataStream& operator>>(FDataStream& loadFrom, TerrainTypes& writeTo)
 {
-	int v;
-	loadFrom >> v;
-	writeTo = static_cast<TerrainTypes>(v);
-	return loadFrom;
+	return ReadBasicEnum<int>(loadFrom, writeTo);
 }
 
 FDataStream& operator<<(FDataStream& saveTo, const FeatureTypes& readFrom)
 {
-	saveTo << static_cast<int>(readFrom);
-	return saveTo;
+	return WriteBasicEnum<int>(saveTo, readFrom);
 }
 FDataStream& operator>>(FDataStream& loadFrom, FeatureTypes& writeTo)
 {
-	int v;
-	loadFrom >> v;
-	writeTo = static_cast<FeatureTypes>(v);
-	return loadFrom;
+	return ReadBasicEnum<int>(loadFrom, writeTo);
 }
 
 FDataStream& operator<<(FDataStream& saveTo, const PromotionTypes& readFrom)
 {
-	saveTo << static_cast<int>(readFrom);
-	return saveTo;
+	return WriteBasicEnum<int>(saveTo, readFrom);
 }
 FDataStream& operator>>(FDataStream& loadFrom, PromotionTypes& writeTo)
 {
-	int v;
-	loadFrom >> v;
-	writeTo = static_cast<PromotionTypes>(v);
-	return loadFrom;
+	return ReadBasicEnum<int>(loadFrom, writeTo);
 }
 
 FDataStream& operator<<(FDataStream& saveTo, const YieldTypes& readFrom)
 {
-	saveTo << static_cast<int>(readFrom);
-	return saveTo;
+	return WriteBasicEnum<int>(saveTo, readFrom);
 }
 FDataStream& operator>>(FDataStream& loadFrom, YieldTypes& writeTo)
 {
-	int v;
-	loadFrom >> v;
-	writeTo = static_cast<YieldTypes>(v);
-	return loadFrom;
+	return ReadBasicEnum<int>(loadFrom, writeTo);
 }
 
 FDataStream& operator<<(FDataStream& saveTo, const SpecialistTypes& readFrom)
 {
-	saveTo << static_cast<int>(readFrom);
-	return saveTo;
+	return WriteBasicEnum<int>(saveTo, readFrom);
 }
 FDataStream& operator>>(FDataStream& loadFrom, SpecialistTypes& writeTo)
 {
-	int v;
-	loadFrom >> v;
-	writeTo = static_cast<SpecialistTypes>(v);
-	return loadFrom;
+	return ReadBasicEnum<int>(loadFrom, writeTo);
 }
 
 FDataStream& operator<<(FDataStream& saveTo, const PlotTypes& readFrom)
 {
-	saveTo << static_cast<int>(readFrom);
-	return saveTo;
+	return WriteBasicEnum<int>(saveTo, readFrom);
 }
 FDataStream& operator>>(FDataStream& loadFrom, PlotTypes& writeTo)
 {
-	int v;
-	loadFrom >> v;
-	writeTo = static_cast<PlotTypes>(v);
-	return loadFrom;
+	return ReadBasicEnum<int>(loadFrom, writeTo);
 }
 
 FDataStream& operator<<(FDataStream& saveTo, const AITacticalMove& readFrom)
 {
-	saveTo << static_cast<int>(readFrom);
-	return saveTo;
+	return WriteBasicEnum<int>(saveTo, readFrom);
 }
-FDataStream& operator<<(FDataStream& saveTo, const AIHomelandMove& readFrom)
-{
-	saveTo << static_cast<int>(readFrom);
-	return saveTo;
-}
-
-//------------------------------------------------------------------------------
 FDataStream& operator>>(FDataStream& loadFrom, AITacticalMove& writeTo)
 {
-	int v;
-	loadFrom >> v;
-	writeTo = static_cast<AITacticalMove>(v);
-	return loadFrom;
+	return ReadBasicEnum<int>(loadFrom, writeTo);
+}
+
+FDataStream& operator<<(FDataStream& saveTo, const AIHomelandMove& readFrom)
+{
+	return WriteBasicEnum<int>(saveTo, readFrom);
 }
 FDataStream& operator>>(FDataStream& loadFrom, AIHomelandMove& writeTo)
 {
-	int v;
-	loadFrom >> v;
-	writeTo = static_cast<AIHomelandMove>(v);
-	return loadFrom;
+	return ReadBasicEnum<int>(loadFrom, writeTo);
+}
+
+FDataStream& operator<<(FDataStream& saveTo, const GreatPersonTypes& readFrom)
+{
+	return WriteBasicEnum<int>(saveTo, readFrom);
+}
+FDataStream& operator>>(FDataStream& loadFrom, GreatPersonTypes& writeTo)
+{
+	return ReadBasicEnum<int>(loadFrom, writeTo);
+}
+
+FDataStream& operator<<(FDataStream& saveTo, const MonopolyTypes& readFrom)
+{
+	return WriteBasicEnum<int>(saveTo, readFrom);
+}
+FDataStream& operator>>(FDataStream& loadFrom, MonopolyTypes& writeTo)
+{
+	return ReadBasicEnum<int>(loadFrom, writeTo);
 }
 
 //------------------------------------------------------------------------------

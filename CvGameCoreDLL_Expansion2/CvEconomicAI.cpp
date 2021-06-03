@@ -400,7 +400,7 @@ void CvEconomicAI::Read(FDataStream& kStream)
 }
 
 /// Serialization write
-void CvEconomicAI::Write(FDataStream& kStream)
+void CvEconomicAI::Write(FDataStream& kStream) const
 {
 	// Current version number
 	uint uiVersion = 1;
@@ -443,6 +443,17 @@ void CvEconomicAI::Write(FDataStream& kStream)
 	{
 		kStream << m_RequestedSavings[ui];
 	}
+}
+
+FDataStream& operator>>(FDataStream& stream, CvEconomicAI& economicAI)
+{
+	economicAI.Read(stream);
+	return stream;
+}
+FDataStream& operator<<(FDataStream& stream, const CvEconomicAI& economicAI)
+{
+	economicAI.Write(stream);
+	return stream;
 }
 
 /// Returns the Player object the Strategies are associated with

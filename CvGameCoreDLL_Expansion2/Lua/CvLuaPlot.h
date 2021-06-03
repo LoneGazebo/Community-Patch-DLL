@@ -397,4 +397,34 @@ protected:
 
 #endif
 };
+
+namespace CvLuaArgs
+{
+	template<> inline const CvPlot* toValue(lua_State* L, int idx)
+	{
+		return CvLuaPlot::GetInstance(L, idx);
+	}
+	template<> inline CvPlot* toValue(lua_State* L, int idx)
+	{
+		return CvLuaPlot::GetInstance(L, idx);
+	}
+	template<> inline const CvPlot& toValue(lua_State* L, int idx)
+	{
+		return *CvLuaPlot::GetInstance(L, idx);
+	}
+	template<> inline CvPlot& toValue(lua_State* L, int idx)
+	{
+		return *CvLuaPlot::GetInstance(L, idx);
+	}
+
+	template<> inline void pushValue(lua_State* L, CvPlot* p)
+	{
+		CvLuaPlot::Push(L, p);
+	}
+	template<> inline void pushValue(lua_State* L, CvPlot& r)
+	{
+		CvLuaPlot::Push(L, &r);
+	}
+}
+
 #endif

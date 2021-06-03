@@ -1028,7 +1028,7 @@ void CvPlayerTechs::Read(FDataStream& kStream)
 }
 
 /// Serialization write
-void CvPlayerTechs::Write(FDataStream& kStream)
+void CvPlayerTechs::Write(FDataStream& kStream) const
 {
 	// Current version number
 	uint uiVersion = 1;
@@ -1062,6 +1062,17 @@ void CvPlayerTechs::Write(FDataStream& kStream)
 
 	kStream << m_bHasUUTech;
 	kStream << m_bWillHaveUUTechSoon;
+}
+
+FDataStream& operator>>(FDataStream& stream, CvPlayerTechs& playerTechs)
+{
+	playerTechs.Read(stream);
+	return stream;
+}
+FDataStream& operator<<(FDataStream& stream, const CvPlayerTechs& playerTechs)
+{
+	playerTechs.Write(stream);
+	return stream;
 }
 
 /// Respond to a new set of flavor values

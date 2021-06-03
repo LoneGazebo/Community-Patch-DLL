@@ -75,6 +75,17 @@ void CvDealAI::Write(FDataStream& kStream) const
 	MOD_SERIALIZE_INIT_WRITE(kStream);
 }
 
+FDataStream& operator>>(FDataStream& stream, CvDealAI& dealAI)
+{
+	dealAI.Read(stream);
+	return stream;
+}
+FDataStream& operator<<(FDataStream& stream, const CvDealAI& dealAI)
+{
+	dealAI.Write(stream);
+	return stream;
+}
+
 /// Returns the Player object this DealAI is associated with
 CvPlayer* CvDealAI::GetPlayer()
 {

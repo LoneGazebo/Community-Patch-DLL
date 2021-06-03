@@ -175,7 +175,7 @@ void CvBuilderTaskingAI::Read(FDataStream& kStream)
 }
 
 /// Serialization write
-void CvBuilderTaskingAI::Write(FDataStream& kStream)
+void CvBuilderTaskingAI::Write(FDataStream& kStream) const
 {
 	// Current version number
 	uint uiVersion = 2;
@@ -185,6 +185,17 @@ void CvBuilderTaskingAI::Write(FDataStream& kStream)
 	kStream << m_routeNeededPlots;
 	kStream << m_routeWantedPlots;
 	kStream << m_canalWantedPlots;
+}
+
+FDataStream& operator>>(FDataStream& stream, CvBuilderTaskingAI& builderTaskingAI)
+{
+	builderTaskingAI.Read(stream);
+	return stream;
+}
+FDataStream& operator<<(FDataStream& stream, const CvBuilderTaskingAI& builderTaskingAI)
+{
+	builderTaskingAI.Write(stream);
+	return stream;
 }
 
 /// Update

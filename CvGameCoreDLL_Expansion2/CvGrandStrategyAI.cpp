@@ -228,7 +228,7 @@ void CvGrandStrategyAI::Read(FDataStream& kStream)
 }
 
 /// Serialization write
-void CvGrandStrategyAI::Write(FDataStream& kStream)
+void CvGrandStrategyAI::Write(FDataStream& kStream) const
 {
 	// Current version number
 	uint uiVersion = 1;
@@ -243,6 +243,17 @@ void CvGrandStrategyAI::Write(FDataStream& kStream)
 
 	kStream << ArrayWrapper<int>(MAX_MAJOR_CIVS, m_eGuessOtherPlayerActiveGrandStrategy);
 	kStream << ArrayWrapper<int>(MAX_MAJOR_CIVS, m_eGuessOtherPlayerActiveGrandStrategyConfidence);
+}
+
+FDataStream& operator>>(FDataStream& stream, CvGrandStrategyAI& grandStrategyAI)
+{
+	grandStrategyAI.Read(stream);
+	return stream;
+}
+FDataStream& operator<<(FDataStream& stream, const CvGrandStrategyAI& grandStrategyAI)
+{
+	grandStrategyAI.Write(stream);
+	return stream;
 }
 
 /// Returns the Player object the Strategies are associated with

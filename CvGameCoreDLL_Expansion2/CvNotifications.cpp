@@ -313,6 +313,17 @@ void CvNotifications::Write(FDataStream& kStream) const
 	}
 }
 
+FDataStream& operator>>(FDataStream& stream, CvNotifications& notifications)
+{
+	notifications.Read(stream);
+	return stream;
+}
+FDataStream& operator<<(FDataStream& stream, const CvNotifications& notifications)
+{
+	notifications.Write(stream);
+	return stream;
+}
+
 /// Update - called from within CvPlayer
 void CvNotifications::Update(void)
 {

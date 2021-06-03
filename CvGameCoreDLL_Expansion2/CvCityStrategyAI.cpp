@@ -352,7 +352,7 @@ void CvCityStrategyAI::Read(FDataStream& kStream)
 }
 
 /// Serialization write
-void CvCityStrategyAI::Write(FDataStream& kStream)
+void CvCityStrategyAI::Write(FDataStream& kStream) const
 {
 	// Current version number
 	uint uiVersion = 1;
@@ -398,6 +398,17 @@ void CvCityStrategyAI::FlavorUpdate()
 		m_pProjectProductionAI->AddFlavorWeights((FlavorTypes)iFlavor, iFlavorValue);
 		m_pProcessProductionAI->AddFlavorWeights((FlavorTypes)iFlavor, iFlavorValue);
 	}
+}
+
+FDataStream& operator>>(FDataStream& stream, CvCityStrategyAI& cityStrategyAI)
+{
+	cityStrategyAI.Read(stream);
+	return stream;
+}
+FDataStream& operator<<(FDataStream& stream, const CvCityStrategyAI& cityStrategyAI)
+{
+	cityStrategyAI.Write(stream);
+	return stream;
 }
 
 /// Runs through all active player strategies and propagates Flavors down to this City

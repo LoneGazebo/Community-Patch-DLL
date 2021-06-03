@@ -153,7 +153,7 @@ public:
 	void Uninit();
 	void Reset();
 	void Read(FDataStream& kStream);
-	void Write(FDataStream& kStream);
+	void Write(FDataStream& kStream) const;
 
 	CvPlayer* GetPlayer();
 	CvMilitaryAIStrategyXMLEntries* GetMilitaryAIStrategies();
@@ -347,6 +347,9 @@ private:
 	DefenseState m_eLandDefenseState;
 	DefenseState m_eNavalDefenseState;
 };
+
+FDataStream& operator>>(FDataStream&, CvMilitaryAI&);
+FDataStream& operator<<(FDataStream&, const CvMilitaryAI&);
 
 namespace MilitaryAIHelpers
 {

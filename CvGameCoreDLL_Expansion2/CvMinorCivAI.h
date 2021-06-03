@@ -841,6 +841,8 @@ private:
 	ReachablePlots m_bullyRelevantPlots;
 };
 
+FDataStream& operator>>(FDataStream&, CvMinorCivAI&);
+FDataStream& operator<<(FDataStream&, const CvMinorCivAI&);
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //

@@ -721,6 +721,8 @@ public:
 	void Init(CvPromotionXMLEntries* pPromotions, CvUnit* pUnit);
 	void Uninit();
 	void Reset();
+	void Read(FDataStream& kStream);
+	void Write(FDataStream& kStream) const;
 
 	CvUnit* GetUnit();
 
@@ -749,9 +751,6 @@ private:
 	CvBitfield m_kHasPromotion;
 	CvPromotionXMLEntries* m_pPromotions;
 	CvUnit* m_pUnit;
-
-	friend FDataStream& operator>>(FDataStream&, CvUnitPromotions&);
-	friend FDataStream& operator<<(FDataStream&, const CvUnitPromotions&);
 };
 
 FDataStream& operator>>(FDataStream&, CvUnitPromotions&);

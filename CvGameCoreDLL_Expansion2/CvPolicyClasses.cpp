@@ -4111,6 +4111,17 @@ void CvPlayerPolicies::Write(FDataStream& kStream) const
 	kStream << ArrayWrapper<int>(GC.getNumFlavorTypes(), m_piLatestFlavorValues);
 }
 
+FDataStream& operator>>(FDataStream& stream, CvPlayerPolicies& playerPolicies)
+{
+	playerPolicies.Read(stream);
+	return stream;
+}
+FDataStream& operator<<(FDataStream& stream, const CvPlayerPolicies& playerPolicies)
+{
+	playerPolicies.Write(stream);
+	return stream;
+}
+
 /// Respond to a new set of flavor values
 void CvPlayerPolicies::FlavorUpdate()
 {

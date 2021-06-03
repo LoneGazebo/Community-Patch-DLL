@@ -1200,6 +1200,9 @@ private:
 	pair<int, int> currentHappinessModifierPerCity;
 };
 
+FDataStream& operator>>(FDataStream&, CvPlayerPolicies&);
+FDataStream& operator<<(FDataStream&, const CvPlayerPolicies&);
+
 namespace PolicyHelpers
 {
 	int GetNumPlayersWithBranchUnlocked(PolicyBranchTypes eBranch);

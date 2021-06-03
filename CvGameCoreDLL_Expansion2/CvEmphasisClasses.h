@@ -102,7 +102,7 @@ public:
 
 	// Serialization
 	void Read(FDataStream& kStream);
-	void Write(FDataStream& kStream);
+	void Write(FDataStream& kStream) const;
 
 private:
 	int m_iEmphasizeAvoidGrowthCount;
@@ -112,6 +112,12 @@ private:
 
 	CvEmphasisXMLEntries* m_pEmphases;
 	CvCity* m_pCity;
+
+	friend FDataStream& operator>>(FDataStream&, CvCityEmphases&);
+	friend FDataStream& operator<<(FDataStream&, const CvCityEmphases&);
 };
+
+FDataStream& operator>>(FDataStream&, CvCityEmphases&);
+FDataStream& operator<<(FDataStream&, const CvCityEmphases&);
 
 #endif //CIV5_EMPHASIS_CLASSES_H
