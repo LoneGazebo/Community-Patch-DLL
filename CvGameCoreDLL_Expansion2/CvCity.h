@@ -1473,6 +1473,7 @@ public:
 	void DoNearbyEnemy();
 
 	bool IsInDanger(PlayerTypes eEnemy) const;
+	bool IsInDangerFromPlayers(vector<PlayerTypes>& vWarAllies) const;
 
 	void IncrementUnitStatCount(CvUnit* pUnit);
 	void CheckForAchievementBuilding(BuildingTypes eBuilding);
