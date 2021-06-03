@@ -1385,6 +1385,7 @@ vector<PlayerTypes> CvDiplomacyAI::GetLinkedWarPlayers(PlayerTypes eOtherPlayer,
 vector<PlayerTypes> CvDiplomacyAI::GetWarAllies(PlayerTypes ePlayer) const
 {
 	vector<PlayerTypes> result;
+	vector<PlayerTypes> vMinorsToCheck;
 
 	if (!IsAtWar(ePlayer) || !GET_PLAYER(ePlayer).isMajorCiv())
 		return result;
@@ -1404,9 +1405,10 @@ vector<PlayerTypes> CvDiplomacyAI::GetWarAllies(PlayerTypes ePlayer) const
 		if (!IsPlayerValid(eLoopPlayer, true))
 			continue;
 
-		if (GET_PLAYER(eLoopPlayer).isMinorCiv() && GET_PLAYER(eLoopPlayer).GetMinorCivAI()->IsAllies(GetID()))
+		if (GET_PLAYER(eLoopPlayer).isMinorCiv() && GET_PLAYER(eLoopPlayer).GetMinorCivAI()->GetAlly() != NO_PLAYER)
 		{
-			result.push_back(eLoopPlayer);
+			vMinorsToCheck.push_back(eLoopPlayer);
+			continue;
 		}
 
 		if (GET_PLAYER(eLoopPlayer).isMajorCiv())
@@ -1419,15 +1421,30 @@ vector<PlayerTypes> CvDiplomacyAI::GetWarAllies(PlayerTypes ePlayer) const
 			{
 				result.push_back(eLoopPlayer);
 			}
-			else if (IsHasDefensivePact(eLoopPlayer) && (IsDoFAccepted(eLoopPlayer) || GetDoFType(eLoopPlayer) >= DOF_TYPE_ALLIES) && !IsUntrustworthy(eLoopPlayer))
+			else if (!IsDenouncedPlayer(eLoopPlayer) && !IsDenouncedByPlayer(eLoopPlayer) && !IsUntrustworthy(eLoopPlayer))
 			{
-				result.push_back(eLoopPlayer);
-			}
-			else if (GetNumCitiesLiberatedBy(eLoopPlayer) > 0 && GetNumCitiesLiberatedBy(eLoopPlayer) > GetNumCitiesCapturedBy(eLoopPlayer) && !IsUntrustworthy(eLoopPlayer))
-			{
-				result.push_back(eLoopPlayer);
+				if (IsHasDefensivePact(eLoopPlayer) && (IsDoFAccepted(eLoopPlayer) || GetDoFType(eLoopPlayer) >= DOF_TYPE_ALLIES || GetCivOpinion(eLoopPlayer) >= CIV_OPINION_FRIEND))
+				{
+					result.push_back(eLoopPlayer);
+				}
+				else if (GetNumCitiesLiberatedBy(eLoopPlayer) > 0 && GetNumCitiesLiberatedBy(eLoopPlayer) > GetNumCitiesCapturedBy(eLoopPlayer))
+				{
+					result.push_back(eLoopPlayer);
+				}
+				else if (GetNumCitiesCapturedBy(eLoopPlayer) <= 0 && GET_PLAYER(ePlayer).GetDiplomacyAI()->GetNumCitiesCapturedBy(eLoopPlayer) > 0)
+				{
+					if (IsDoFAccepted(eLoopPlayer) || GetDoFType(eLoopPlayer) >= DOF_TYPE_FRIENDS || GetCivOpinion(eLoopPlayer) >= CIV_OPINION_FRIEND)
+						result.push_back(eLoopPlayer);
+				}
 			}
 		}
+	}
+	for (std::vector<PlayerTypes>::iterator it = vMinorsToCheck.begin(); it != vMinorsToCheck.end(); it++)
+	{
+		PlayerTypes eAlly = GET_PLAYER(*it).GetMinorCivAI()->GetAlly();
+
+		if (std::find(result.begin(), result.end(), eAlly) != result.end())
+			result.push_back(*it);
 	}
 
 	return result;
