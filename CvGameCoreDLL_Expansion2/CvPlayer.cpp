@@ -17330,6 +17330,9 @@ void CvPlayer::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst
 	{
 		// Building modifiers
 		BuildingClassTypes eBuildingClass;
+
+		CvCityBuildings* pLoopCityBuildings = pLoopCity->GetCityBuildings();
+
 		for(iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
 		{
 			eBuildingClass = (BuildingClassTypes) iI;
@@ -17347,7 +17350,7 @@ void CvPlayer::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst
 			if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
 #endif
 			{
-				eTestBuilding = pLoopCity->GetCityBuildings()->GetBuildingTypeFromClass(eBuildingClass);
+				eTestBuilding = pLoopCityBuildings->GetBuildingTypeFromClass(eBuildingClass);
 			}
 			else
 			{
@@ -17357,9 +17360,10 @@ void CvPlayer::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst
 			if(eTestBuilding != NO_BUILDING)
 			{
 				CvBuildingEntry* pkBuilding = GC.getBuildingInfo(eTestBuilding);
+				CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo(eBuildingClass);
 				if(pkBuilding)
 				{
-					iBuildingCount = pLoopCity->GetCityBuildings()->GetNumBuilding(eTestBuilding);
+					iBuildingCount = pLoopCityBuildings->GetNumBuilding(eTestBuilding);
 					if(iBuildingCount > 0)
 					{
 #if !defined(MOD_API_UNIFIED_YIELDS_CONSOLIDATION)
@@ -17390,6 +17394,13 @@ void CvPlayer::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst
 								if(iYieldChange > 0)
 								{
 									pLoopCity->ChangeBaseYieldRateFromBuildings(eYield, iYieldChange * iBuildingCount * iChange);
+								}
+
+								int iWonderYieldChange = pBuildingInfo->GetYieldChangeWorldWonderGlobal(eYield);
+								if (iWonderYieldChange > 0 && isWorldWonderClass(*pkBuildingClassInfo))
+								{
+									pLoopCityBuildings->ChangeBuildingYieldChange(eBuildingClass, eYield, (iWonderYieldChange * iBuildingCount * iChange));
+									pLoopCity->changeLocalBuildingClassYield(eBuildingClass, eYield, (iWonderYieldChange * iBuildingCount * iChange));
 								}
 
 								int iYieldMod = pBuildingInfo->GetBuildingClassYieldModifier(eBuildingClass, eYield);
@@ -17484,6 +17495,34 @@ int CvPlayer::GetBuildingClassYieldModifier(BuildingClassTypes eBuildingClass, Y
 		}
 	}
 
+	return rtnValue;
+}
+
+//	--------------------------------------------------------------------------------
+/// Get yield change from buildings for wonders
+int CvPlayer::GetWorldWonderYieldChange(int iYield)
+{
+	int rtnValue = 0;
+
+	CvBuildingXMLEntries* pBuildings = GC.GetGameBuildings();
+
+	if (pBuildings)
+	{
+		for (int i = 0; i < pBuildings->GetNumBuildings(); i++)
+		{
+			// Do we have this building anywhere in empire?
+			int iNum = countNumBuildings((BuildingTypes)i);
+
+			if (iNum > 0)
+			{
+				CvBuildingEntry* pEntry = pBuildings->GetEntry(i);
+				if (pEntry)
+				{
+					rtnValue += (pEntry->GetYieldChangeWorldWonderGlobal(iYield) * iNum);
+				}
+			}
+		}
+	}
 	return rtnValue;
 }
 
