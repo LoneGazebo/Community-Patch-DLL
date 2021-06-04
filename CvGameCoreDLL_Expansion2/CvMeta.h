@@ -39,6 +39,16 @@ namespace CvMeta
 	{
 		enum { Value = true };
 	};
+
+	// std::conditional
+	template<bool B, typename T, typename F> struct Conditional
+	{
+		typedef T Type;
+	};
+	template<typename T, typename F> struct Conditional<false, T, F>
+	{
+		typedef F Type;
+	};
 }
 
 #endif
