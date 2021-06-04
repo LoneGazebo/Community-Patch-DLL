@@ -52,7 +52,7 @@ public:
 	inline explicit CvSpan(It first, It last, typename CvMeta::EnableIf<CvMeta::IsSame<typename std::iterator_traits<It>::iterator_category, std::random_access_iterator_tag>::Value, int>::Type = 0)
 		: m_begin(&(*first))
 	{
-		FAssert(m_end - m_begin == TExtent);
+		FAssert(last - first == TExtent);
 	}
 	inline CvSpan(ElementType(&arr)[TExtent])
 		: m_begin(arr)
