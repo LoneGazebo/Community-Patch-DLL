@@ -84,8 +84,6 @@ protected:
 	bool isValidPlayer(int i) const;
 	bool isValidTurn(int i) const;
 
-	static int REPLAY_VERSION;
-
 	int m_iActivePlayer;
 
 	CvString m_strMapScriptName;

@@ -30,6 +30,18 @@ FDataStream& operator>>(FDataStream&, GreatPersonTypes&);
 
 FDataStream& operator<<(FDataStream&, const MonopolyTypes&);
 FDataStream& operator>>(FDataStream&, MonopolyTypes&);
+
+template<typename Enum, typename T>
+inline FDataStream& operator<<(FDataStream& saveTo, const CvEnum<Enum, T>& readFrom)
+{
+	return saveTo << readFrom.raw();
+}
+template<typename Enum, typename T>
+inline FDataStream& operator>>(FDataStream& loadFrom, CvEnum<Enum, T>& writeTo)
+{
+	return loadFrom >> writeTo.raw();
+}
+
 namespace FSerialization
 {
 std::string toString(const YieldTypes&);

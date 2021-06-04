@@ -11,12 +11,6 @@
 
 // include this after all other headers!
 #include "LintFree.h"
-
-//------------------------------------------------------------------------------
-unsigned int CvReplayMessage::Version()
-{
-	return 2;
-}
 //------------------------------------------------------------------------------
 CvReplayMessage::CvReplayMessage()
 	: m_iTurn(-1)
@@ -114,10 +108,8 @@ void CvReplayMessage::clearPlots()
 	m_Plots.clear();
 }
 //------------------------------------------------------------------------------
-void CvReplayMessage::read(FDataStream& kStream, unsigned int uiVersion)
+void CvReplayMessage::read(FDataStream& kStream)
 {
-	UNREFERENCED_PARAMETER(uiVersion);
-
 	kStream >> m_iTurn;
 	kStream >> m_eType;
 
@@ -155,3 +147,14 @@ void CvReplayMessage::write(FDataStream& kStream) const
 	kStream << m_strText;
 }
 //------------------------------------------------------------------------------
+FDataStream& operator<<(FDataStream& saveTo, const CvReplayMessage& readFrom)
+{
+	readFrom.write(saveTo);
+	return saveTo;
+}
+//------------------------------------------------------------------------------
+FDataStream& operator>>(FDataStream& loadFrom, CvReplayMessage& writeTo)
+{
+	writeTo.read(loadFrom);
+	return loadFrom;
+}

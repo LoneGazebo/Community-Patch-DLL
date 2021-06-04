@@ -10,6 +10,8 @@
 #include "CvBarbarians.h"
 #include "CvGameCoreUtils.h"
 #include "CvTypes.h"
+#include "CvSpanSerialization.h"
+
 //static 
 short* CvBarbarians::m_aiPlotBarbCampSpawnCounter = NULL;
 short* CvBarbarians::m_aiPlotBarbCampNumUnitsSpawned = NULL;
@@ -519,41 +521,31 @@ void CvBarbarians::Uninit()
 }
 
 //	---------------------------------------------------------------------------
-/// Serialization Read
-void CvBarbarians::Read(FDataStream& kStream, uint uiParentVersion)
+/// Serialize
+template<typename Visitor>
+void CvBarbarians::Serialize(Visitor& visitor)
 {
-	// Version number to maintain backwards compatibility
-	uint uiVersion = 0;
-
-	kStream >> uiVersion;	
-	MOD_SERIALIZE_INIT_READ(kStream);
-
 	int iWorldNumPlots = GC.getMap().numPlots();
-	MapInit(iWorldNumPlots);	// Map will have been initialized/unserialized by now so this is ok.
-	kStream >> ArrayWrapper<short>(iWorldNumPlots, m_aiPlotBarbCampSpawnCounter);
-	kStream >> ArrayWrapper<short>(iWorldNumPlots, m_aiPlotBarbCampNumUnitsSpawned);
-#if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
-	kStream >> ArrayWrapper<short>(iWorldNumPlots, m_aiPlotBarbCitySpawnCounter);
-	kStream >> ArrayWrapper<short>(iWorldNumPlots, m_aiPlotBarbCityNumUnitsSpawned);
-#endif
+	visitor(MakeConstSpan(m_aiPlotBarbCampSpawnCounter, iWorldNumPlots));
+	visitor(MakeConstSpan(m_aiPlotBarbCampNumUnitsSpawned, iWorldNumPlots));
+	visitor(MakeConstSpan(m_aiPlotBarbCitySpawnCounter, iWorldNumPlots));
+	visitor(MakeConstSpan(m_aiPlotBarbCityNumUnitsSpawned, iWorldNumPlots));
+}
+
+//	---------------------------------------------------------------------------
+/// Serialization Read
+void CvBarbarians::Read(FDataStream& kStream)
+{
+	CvStreamLoadVisitor serialVisitor(kStream);
+	Serialize(serialVisitor);
 }
 
 //	---------------------------------------------------------------------------
 /// Serialization Write
 void CvBarbarians::Write(FDataStream& kStream)
 {
-	// Current version number
-	uint uiVersion = 1;
-	kStream << uiVersion;
-	MOD_SERIALIZE_INIT_WRITE(kStream);
-
-	int iWorldNumPlots = GC.getMap().numPlots();
-	kStream << ArrayWrapper<short>(iWorldNumPlots, m_aiPlotBarbCampSpawnCounter);
-	kStream << ArrayWrapper<short>(iWorldNumPlots, m_aiPlotBarbCampNumUnitsSpawned);
-#if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
-	kStream << ArrayWrapper<short>(iWorldNumPlots, m_aiPlotBarbCitySpawnCounter);
-	kStream << ArrayWrapper<short>(iWorldNumPlots, m_aiPlotBarbCityNumUnitsSpawned);
-#endif
+	CvStreamSaveVisitor serialVisitor(kStream);
+	Serialize(serialVisitor);
 }
 
 //	--------------------------------------------------------------------------------

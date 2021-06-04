@@ -21,20 +21,6 @@
 // include this after all other headers!
 #include "LintFree.h"
 
-int CvReplayInfo::REPLAY_VERSION = 1;
-
-//Replay Version History
-//
-// * Version 3
-//		Storing per-plot PlotTypes.
-//		FeatureTypes are now stored per turn.
-//
-// * Version 2
-//		Replaced fixed score tracking w/ dynamic one based on database
-//
-// * Version 1
-//		First Version
-
 CvReplayInfo::CvReplayInfo() :
 	m_iActivePlayer(0),
 	m_eWorldSize(NO_WORLDSIZE),
@@ -518,8 +504,6 @@ bool CvReplayInfo::read(FDataStream& kStream)
 {
 	bool bSuccess = true;
 
-	int iVersion;
-	kStream >> iVersion;
 	MOD_SERIALIZE_INIT_READ(kStream);
 
 	kStream >> m_iActivePlayer;
@@ -545,9 +529,6 @@ bool CvReplayInfo::read(FDataStream& kStream)
 	kStream >> m_dataSetMap;
 	kStream >> m_listPlayerDataSets;
 
-	unsigned int uiReplayMessageVersion = 2;
-	kStream >> uiReplayMessageVersion;
-
 	unsigned int uiReplayMessageCount = 0;
 	kStream >> uiReplayMessageCount;
 
@@ -556,7 +537,7 @@ bool CvReplayInfo::read(FDataStream& kStream)
 	for(unsigned int ui = 0; ui < uiReplayMessageCount; ++ui)
 	{
 		CvReplayMessage message;
-		message.read(kStream, uiReplayMessageVersion);
+		message.read(kStream);
 		m_listReplayMessages.push_back(message);
 	}
 
@@ -569,7 +550,6 @@ bool CvReplayInfo::read(FDataStream& kStream)
 
 void CvReplayInfo::write(FDataStream& kStream) const
 {
-	kStream << REPLAY_VERSION;
 	MOD_SERIALIZE_INIT_WRITE(kStream);
 	kStream << m_iActivePlayer;
 	kStream << m_strMapScriptName;
@@ -593,7 +573,6 @@ void CvReplayInfo::write(FDataStream& kStream) const
 	kStream << m_dataSetMap;
 	kStream << m_listPlayerDataSets;
 
-	kStream << CvReplayMessage::Version();
 	kStream << m_listReplayMessages.size();
 	for(ReplayMessageList::const_iterator it = m_listReplayMessages.begin(); it != m_listReplayMessages.end(); ++it)
 	{

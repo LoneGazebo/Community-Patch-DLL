@@ -809,6 +809,7 @@
     <ClInclude Include="CvDllWorldInfo.h" />
     <ClInclude Include="CvEconomicAI.h" />
     <ClInclude Include="CvEmphasisClasses.h" />
+    <ClInclude Include="CvEnumMapSerialization.h" />
     <ClInclude Include="CvEspionageClasses.h" />
     <ClInclude Include="CvFlavorManager.h" />
     <ClInclude Include="CvFractal.h" />
@@ -828,6 +829,8 @@
     <ClInclude Include="CvHomelandAI.h" />
     <ClInclude Include="CvImprovementClasses.h" />
     <ClInclude Include="CvInfos.h" />
+    <ClInclude Include="CvEnumMap.h" />
+    <ClInclude Include="CvEnumsUtil.h" />
     <ClInclude Include="CvInfosSerializationHelper.h" />
     <ClInclude Include="CvInternalGameCoreUtils.h" />
     <ClInclude Include="CvLoggerCSV.h" />
