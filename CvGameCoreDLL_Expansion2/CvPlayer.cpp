@@ -612,7 +612,7 @@ CvPlayer::CvPlayer() :
 	, m_abEventChoiceFired()
 	, m_abEventFired()
 	, m_iPlayerEventCooldown()
-	, m_abNWOwned()
+	, m_ownedNaturalWonders()
 	, m_paiUnitClassProductionModifiers()
 	, m_iExtraSupplyPerPopulation()
 	, m_iCitySupplyFlatGlobal()
@@ -1868,8 +1868,7 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 	m_abEventChoiceFired.clear();
 	m_abEventChoiceFired.resize(GC.getNumEventChoiceInfos(), false);
 
-	m_abNWOwned.clear();
-	m_abNWOwned.resize(GC.getNumFeatureInfos(), false);
+	m_ownedNaturalWonders.clear();
 
 	m_paiUnitClassProductionModifiers.clear();
 	m_paiUnitClassProductionModifiers.resize(GC.getNumUnitClassInfos(), 0);
@@ -3797,24 +3796,16 @@ CvCity* CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 	GC.getGame().GetGameTrade()->ClearAllCityTradeRoutes(pCityPlot);
 
 	bool bCapital = pOldCity->isCapital();
+	int iOldCityRings = pOldCity->getWorkPlotDistance();
 
-	// find the plot
-	vector<int> aiPurchasedPlotX;
-	vector<int> aiPurchasedPlotY;
-	const int iMaxRange = /*5*/ GC.getMAXIMUM_ACQUIRE_PLOT_DISTANCE();
-
+	//remember the plots so we can re-assign them later
+	vector<CvPlot*> ownedPlots;
 	for(int iPlotLoop = 0; iPlotLoop < GC.getMap().numPlots(); iPlotLoop++)
 	{
 		CvPlot* pLoopPlot = GC.getMap().plotByIndexUnchecked(iPlotLoop);
-		if(pLoopPlot && pLoopPlot->GetCityPurchaseOwner() == eOldOwner && pLoopPlot->GetCityPurchaseID() == pOldCity->GetID())
-		{
-			aiPurchasedPlotX.push_back(pLoopPlot->getX());
-			aiPurchasedPlotY.push_back(pLoopPlot->getY());
-			pLoopPlot->ClearCityPurchaseInfo();
-		}
+		if (pLoopPlot && pLoopPlot->getOwningCityID() == pOldCity->GetID())
+			ownedPlots.push_back(pLoopPlot);
 	}
-
-	int iOldCityRings = pOldCity->getWorkPlotDistance();
 
 	pOldCity->PreKill();
 
@@ -3843,7 +3834,7 @@ CvCity* CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 		}
 	}
 
-	GC.getMap().updateOwningCity(pCityPlot,iOldCityRings*2);
+	GC.getMap().updateOwningCityForPlots(pCityPlot,iOldCityRings*2);
 	// Lost the capital!
 	if(bCapital)
 	{
@@ -4524,9 +4515,10 @@ CvCity* CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 	// slewis - moved this here so that conquest victory is tested with each city capture
 	GC.getGame().DoTestConquestVictory();
 
-	GC.getMap().updateOwningCity(pCityPlot,pNewCity->getWorkPlotDistance()*2);
+	GC.getMap().updateOwningCityForPlots(pCityPlot,pNewCity->getWorkPlotDistance()*2);
 	if(bConquest)
 	{
+		const int iMaxRange = /*5*/ GC.getMAXIMUM_ACQUIRE_PLOT_DISTANCE();
 		for(int iDX = -iMaxRange; iDX <= iMaxRange; iDX++)
 		{
 			for(int iDY = -iMaxRange; iDY <= iMaxRange; iDY++)
@@ -4674,24 +4666,15 @@ CvCity* CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 		disband(pNewCity);
 		// disband will delete the city
 		pNewCity = NULL;
-
-		// Set the plots to no owner
-		for(uint ui = 0; ui < aiPurchasedPlotX.size(); ui++)
-		{
-			CvPlot* pPlot = GC.getMap().plot(aiPurchasedPlotX[ui], aiPurchasedPlotY[ui]);
-			pPlot->setOwner(NO_PLAYER, -1, /*bCheckUnits*/ true, /*bUpdateResources*/ true);
-		}
-
 	}
 	else //if (bConquest)
 	{
 		// Set the plots to the new owner, now, we may be flipping it to a liberated player and we need to pass on the information.
 		bool bBumpUnits = GET_PLAYER(pNewCity->getOwner()).isMajorCiv();
-		for(uint ui = 0; ui < aiPurchasedPlotX.size(); ui++)
+		
+		for(size_t i=0; i<ownedPlots.size(); i++)
 		{
-			CvPlot* pPlot = GC.getMap().plot(aiPurchasedPlotX[ui], aiPurchasedPlotY[ui]);
-			if(pPlot->getOwner() != pNewCity->getOwner())
-				pPlot->setOwner(pNewCity->getOwner(), /*iAcquireCityID*/ pNewCity->GetID(), /*bCheckUnits*/ bBumpUnits|pPlot->isCity(), /*bUpdateResources*/ true);
+			ownedPlots[i]->setOwner(pNewCity->getOwner(), /*iAcquireCityID*/ pNewCity->GetID(), /*bCheckUnits*/ bBumpUnits|ownedPlots[i]->isCity(), /*bUpdateResources*/ true);
 		}
 
 		// Is this City being Occupied?
@@ -11796,9 +11779,6 @@ void CvPlayer::DoUnitReset()
 		if (!pLoopUnit->hasMoved() && pLoopUnit->canFortify(pLoopUnit->plot()))
 			pLoopUnit->SetFortified(true);
 
-		// Set up blockades
-		pLoopUnit->DoBlockade(pLoopUnit->plot(),true);
-
 		// Finally (now that healing is done), restore movement points
 		pLoopUnit->restoreFullMoves();
 
@@ -17355,6 +17335,9 @@ void CvPlayer::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst
 	{
 		// Building modifiers
 		BuildingClassTypes eBuildingClass;
+
+		CvCityBuildings* pLoopCityBuildings = pLoopCity->GetCityBuildings();
+
 		for(iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
 		{
 			eBuildingClass = (BuildingClassTypes) iI;
@@ -17372,7 +17355,7 @@ void CvPlayer::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst
 			if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
 #endif
 			{
-				eTestBuilding = pLoopCity->GetCityBuildings()->GetBuildingTypeFromClass(eBuildingClass);
+				eTestBuilding = pLoopCityBuildings->GetBuildingTypeFromClass(eBuildingClass);
 			}
 			else
 			{
@@ -17382,9 +17365,10 @@ void CvPlayer::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst
 			if(eTestBuilding != NO_BUILDING)
 			{
 				CvBuildingEntry* pkBuilding = GC.getBuildingInfo(eTestBuilding);
+				CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo(eBuildingClass);
 				if(pkBuilding)
 				{
-					iBuildingCount = pLoopCity->GetCityBuildings()->GetNumBuilding(eTestBuilding);
+					iBuildingCount = pLoopCityBuildings->GetNumBuilding(eTestBuilding);
 					if(iBuildingCount > 0)
 					{
 #if !defined(MOD_API_UNIFIED_YIELDS_CONSOLIDATION)
@@ -17415,6 +17399,13 @@ void CvPlayer::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst
 								if(iYieldChange > 0)
 								{
 									pLoopCity->ChangeBaseYieldRateFromBuildings(eYield, iYieldChange * iBuildingCount * iChange);
+								}
+
+								int iWonderYieldChange = pBuildingInfo->GetYieldChangeWorldWonderGlobal(eYield);
+								if (iWonderYieldChange > 0 && isWorldWonderClass(*pkBuildingClassInfo))
+								{
+									pLoopCityBuildings->ChangeBuildingYieldChange(eBuildingClass, eYield, (iWonderYieldChange * iBuildingCount * iChange));
+									pLoopCity->changeLocalBuildingClassYield(eBuildingClass, eYield, (iWonderYieldChange * iBuildingCount * iChange));
 								}
 
 								int iYieldMod = pBuildingInfo->GetBuildingClassYieldModifier(eBuildingClass, eYield);
@@ -17509,6 +17500,34 @@ int CvPlayer::GetBuildingClassYieldModifier(BuildingClassTypes eBuildingClass, Y
 		}
 	}
 
+	return rtnValue;
+}
+
+//	--------------------------------------------------------------------------------
+/// Get yield change from buildings for wonders
+int CvPlayer::GetWorldWonderYieldChange(int iYield)
+{
+	int rtnValue = 0;
+
+	CvBuildingXMLEntries* pBuildings = GC.GetGameBuildings();
+
+	if (pBuildings)
+	{
+		for (int i = 0; i < pBuildings->GetNumBuildings(); i++)
+		{
+			// Do we have this building anywhere in empire?
+			int iNum = countNumBuildings((BuildingTypes)i);
+
+			if (iNum > 0)
+			{
+				CvBuildingEntry* pEntry = pBuildings->GetEntry(i);
+				if (pEntry)
+				{
+					rtnValue += (pEntry->GetYieldChangeWorldWonderGlobal(iYield) * iNum);
+				}
+			}
+		}
+	}
 	return rtnValue;
 }
 
@@ -21963,85 +21982,36 @@ int CvPlayer::GetHappinessFromNaturalWonders() const
 		iHappiness /= 100;
 	}
 
-#if defined(MOD_BALANCE_CORE)
-	for (int iI = 0; iI < GC.getNumFeatureInfos(); iI++)
+	for (vector<FeatureTypes>::const_iterator it=m_ownedNaturalWonders.begin(); it!=m_ownedNaturalWonders.end(); ++it)
 	{
-		FeatureTypes eFeature = (FeatureTypes)iI;
-		if (eFeature == NO_FEATURE)
-			continue;
+		int iPlotHappiness = GC.getFeatureInfo(*it)->getInBorderHappiness();
 
-		if (!IsNWOwned(eFeature))
-			continue;
-
-		int iPlotHappiness = GC.getFeatureInfo(eFeature)->getInBorderHappiness();
-
-		if (iPlotHappiness > 0)
+		// Trait boosts this further?
+		if (m_pTraits->GetNaturalWonderYieldModifier() > 0)
 		{
-			// Trait boosts this further?
-			if (m_pTraits->GetNaturalWonderYieldModifier() > 0)
-			{
-				iPlotHappiness *= (100 + m_pTraits->GetNaturalWonderYieldModifier());
-				iPlotHappiness /= 100;
-			}
-
-			iHappiness += iPlotHappiness;
+			iPlotHappiness *= (100 + m_pTraits->GetNaturalWonderYieldModifier());
+			iPlotHappiness /= 100;
 		}
+
+		iHappiness += iPlotHappiness;
 	}
 
-	iHappiness +=  GET_TEAM(getTeam()).GetNumLandmarksBuilt();
-#else
-	for(int iI = 0; iI < GC.getMap().numPlots(); iI++)
-	{
-		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(iI);
-		if(pPlot == NULL)
-		{
-			continue;
-		}
-
-		if(pPlot->getOwner() != m_eID)
-		{
-			continue;
-		}
-
-		FeatureTypes eFeature = pPlot->getFeatureType();
-		if(eFeature == NO_FEATURE)
-		{
-			continue;
-		}
-
-		int iPlotHappiness = GC.getFeatureInfo(eFeature)->getInBorderHappiness();
-
-		if(iPlotHappiness > 0)
-		{
-			// Trait boosts this further?
-			if(m_pTraits->GetNaturalWonderYieldModifier() > 0)
-			{
-				iPlotHappiness *= (100 + m_pTraits->GetNaturalWonderYieldModifier());
-				iPlotHappiness /= 100;
-			}
-
-			iHappiness += iPlotHappiness;
-		}
-	}
-#endif
-	return iHappiness;
+	return iHappiness + GET_TEAM(getTeam()).GetNumLandmarksBuilt();
 }
+
 #if defined(MOD_BALANCE_CORE)
-void CvPlayer::SetNWOwned(FeatureTypes eFeature, bool bValue)
+void CvPlayer::SetNaturalWonderOwned(FeatureTypes eFeature, bool bValue)
 {
 	VALIDATE_OBJECT
 	CvAssertMsg(eFeature >= 0, "eFeature is expected to be non-negative (invalid Index)");
 	CvAssertMsg(eFeature < GC.getNumFeatureInfos(), "eEvent is expected to be within maximum bounds (invalid Index)");
 
+	vector<FeatureTypes>::const_iterator it = std::find(m_ownedNaturalWonders.begin(), m_ownedNaturalWonders.end(), eFeature);
 
-	if (m_abNWOwned[eFeature] != bValue)
-	{
-		m_abNWOwned[eFeature] = bValue;
-	}
-}
-bool CvPlayer::IsNWOwned(FeatureTypes eFeature) const
-{
-	return m_abNWOwned[eFeature];
+	if (bValue && it==m_ownedNaturalWonders.end())
+		m_ownedNaturalWonders.push_back(eFeature);
+	else if (!bValue && it!=m_ownedNaturalWonders.end())
+		m_ownedNaturalWonders.erase(it);
 }
 
 void CvPlayer::ChangeUnitClassProductionModifier(UnitClassTypes eUnitClass, int iValue)
@@ -46384,7 +46354,7 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 	visitor(player.m_abEventChoiceFired);
 	visitor(player.m_abEventFired);
 	visitor(player.m_iPlayerEventCooldown);
-	visitor(player.m_abNWOwned);
+	visitor(player.m_ownedNaturalWonders);
 	visitor(player.m_paiUnitClassProductionModifiers);
 	visitor(player.m_iExtraSupplyPerPopulation);
 	visitor(player.m_iCitySupplyFlatGlobal);
@@ -48835,6 +48805,9 @@ void CvPlayer::SetBestWonderCities()
 		// Look at all of our Cities to see which is the best.
 		for (pLoopCity = firstCity(&iLoopCity); pLoopCity != NULL; pLoopCity = nextCity(&iLoopCity))
 		{
+			if (pLoopCity->IsPuppet())
+				continue;
+
 			bool bAlreadyStarted = pLoopCity->GetCityBuildings()->GetBuildingProduction(eBuilding) > 0;
 
 			//We've already started? We can bail out here, then.
@@ -48876,7 +48849,8 @@ void CvPlayer::SetBestWonderCities()
 			//Best? Do it!
 			int iValue = pLoopCity->GetCityStrategyAI()->GetBuildingProductionAI()->CheckBuildingBuildSanity(eBuilding, 1000, iLandRoutes, iWaterRoutes, true);
 
-			iValue += (-50 * pLoopCity->getProductionTurnsLeft(eBuilding, 0));
+			int iPenalty = 25 * pLoopCity->getProductionTurnsLeft(eBuilding, 0);
+			iValue -= min((iValue - 1), iPenalty);
 
 			if (iValue > iBestValue)
 			{
@@ -48930,6 +48904,7 @@ bool CvPlayer::isCapitalCompetitive()
 
 	int iSum = 0;
 	int iCount = 0;
+	int iOurThreshold = 0;
 	for (int iPlayer = 0; iPlayer < MAX_MAJOR_CIVS; iPlayer++)
 	{
 		CvPlayer& kPlayer = GET_PLAYER( (PlayerTypes)iPlayer );
@@ -48937,10 +48912,14 @@ bool CvPlayer::isCapitalCompetitive()
 			continue;
 
 		if (iPlayer == GetID())
-			continue;
-
-		iSum += kPlayer.getCapitalCity()->getYieldRateTimes100(YIELD_PRODUCTION,false) / kPlayer.getCapitalCity()->getPopulation();
-		iCount++;
+		{
+			iOurThreshold = kPlayer.getCapitalCity()->getYieldRateTimes100(YIELD_PRODUCTION, false) / kPlayer.getCapitalCity()->getPopulation();
+		}
+		else
+		{
+			iSum += kPlayer.getCapitalCity()->getYieldRateTimes100(YIELD_PRODUCTION, false) / kPlayer.getCapitalCity()->getPopulation();
+			iCount++;
+		}
 	}
 
 	int iThreshold = iSum / max(1, iCount);
@@ -48948,7 +48927,113 @@ bool CvPlayer::isCapitalCompetitive()
 	if (GetPlayerTraits()->IsNoAnnexing())
 		iThreshold -= iThreshold / 3;
 
-	return (getCapitalCity()->getYieldRateTimes100(YIELD_PRODUCTION,false) / getCapitalCity()->getPopulation()) >= iThreshold;
+	return iOurThreshold >= iThreshold;
+}
+
+CvCity* CvPlayer::GetBestProductionCity(BuildingTypes eBuilding, ProjectTypes eProject)
+{
+	int iBestProduction = 0;
+	CvCity* pBestProductionCity = NULL;
+	// Look at all of our Cities to see which is the best.
+	int iLoopCity;
+	for (CvCity* pLoopCity = firstCity(&iLoopCity); pLoopCity != NULL; pLoopCity = nextCity(&iLoopCity))
+	{
+		if (pLoopCity->IsPuppet())
+			continue;
+
+		CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
+		if (!pkBuildingInfo)
+			return NULL;
+
+		CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo(pkBuildingInfo->GetBuildingClassType());
+		if (!pkBuildingClassInfo)
+			return NULL;
+
+		int iProduction = 0;
+
+		if (eBuilding != NO_BUILDING)
+		{
+			//limited buildings need to be controlled against.
+			if (pkBuildingClassInfo->getMaxGlobalInstances() == 1 || pkBuildingClassInfo->getMaxPlayerInstances() == 1 || pkBuildingClassInfo->getMaxTeamInstances() == 1)
+			{
+				if (pLoopCity->GetCityBuildings()->GetBuildingProduction(eBuilding) > 0)
+					return pLoopCity;
+			}
+			else
+			{
+				iProduction += pLoopCity->GetCityBuildings()->GetBuildingProductionTimes100(eBuilding);
+			}
+		}
+		else if (eProject != NO_PROJECT)
+		{
+			CvProjectEntry* pkProjectInfo = GC.getProjectInfo(eProject);
+			if (!pkProjectInfo)
+				return NULL;
+
+			int iProduction = 0;
+			//limited projects need to be controlled against.
+			if (pkProjectInfo->GetMaxGlobalInstances() == 1 || pkProjectInfo->GetMaxTeamInstances() == 1)
+			{
+				if (pLoopCity->getProjectProduction(eProject) > 0)
+					return pLoopCity;
+			}
+			else
+			{
+				iProduction += pLoopCity->getProjectProduction(eProject) * 100;
+			}
+		}
+		
+		iProduction += pLoopCity->getYieldRateTimes100(YIELD_PRODUCTION, false, true);
+		if (iProduction > iBestProduction)
+		{
+			iBestProduction = iProduction;
+			pBestProductionCity = pLoopCity;
+		}
+	}
+	return pBestProductionCity != NULL ? pBestProductionCity : getCapitalCity();
+}
+
+bool CvPlayer::IsCityCompetitive(CvCity* pCity, BuildingTypes eBuilding, ProjectTypes eProject)
+{
+	int iOurProduction = 0;
+	int iSumProduction = 0;
+	int iNumCities = 0;
+	// Look at all of our Cities to see which is the best.
+	int iLoopCity;
+	for (CvCity* pLoopCity = firstCity(&iLoopCity); pLoopCity != NULL; pLoopCity = nextCity(&iLoopCity))
+	{
+		if (pLoopCity->IsPuppet())
+			continue;
+
+		if (pCity == pLoopCity)
+		{
+			if (eBuilding != NO_BUILDING)
+			{
+				iOurProduction += pLoopCity->GetCityBuildings()->GetBuildingProductionTimes100(eBuilding);
+			}
+			else if (eProject != NO_PROJECT)
+			{
+				iOurProduction += pLoopCity->getProjectProduction(eProject) * 100;
+			}
+			iOurProduction += pLoopCity->getYieldRateTimes100(YIELD_PRODUCTION, false, true);
+		}
+		else
+		{
+			if (eBuilding != NO_BUILDING)
+			{
+				iSumProduction += pLoopCity->GetCityBuildings()->GetBuildingProductionTimes100(eBuilding);
+			}
+			else if (eProject != NO_PROJECT)
+			{
+				iSumProduction += pLoopCity->getProjectProduction(eProject) * 100;
+			}
+			iSumProduction += pLoopCity->getYieldRateTimes100(YIELD_PRODUCTION, false, true);
+			iNumCities++;
+		}
+	}
+
+	int iThreshold = iSumProduction / max(1, iNumCities);
+	return iOurProduction >= iThreshold;
 }
 
 #endif

@@ -130,7 +130,7 @@ public:
 	void updateLayout(bool bDebug);
 	void updateSight(bool bIncrement);
 	void updateCenterUnit();
-	void updateOwningCity(CvPlot* pPlot = 0, int iRange = 0);
+	void updateOwningCityForPlots(CvPlot* pPlot = 0, int iRange = 0);
 	void updateYield();
 	void updateAdjacency();
 

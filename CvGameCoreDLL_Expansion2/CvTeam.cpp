@@ -6344,10 +6344,6 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 							{
 								if(pLoopPlot->getResourceType(m_eID) != NO_RESOURCE)
 								{
-									// Create resource link
-									if(pLoopPlot->isOwned())
-										pLoopPlot->DoFindCityToLinkResourceTo();
-
 									// Only update for active team
 									if(bIsActiveTeam)
 									{
@@ -6415,14 +6411,9 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 											}
 
 											// Reconnect resource link
-											if (pLoopPlot->GetResourceLinkedCity() != NULL)
+											if (pLoopPlot->getEffectiveOwningCity() != NULL)
 											{
 												pLoopPlot->SetResourceLinkedCityActive(true);
-											}
-											// Create resource link
-											else
-											{
-												pLoopPlot->DoFindCityToLinkResourceTo();
 											}
 										}
 										// Removing Tech
@@ -6431,7 +6422,7 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 											kLoopPlayer.changeNumResourceTotal(eResource, -pLoopPlot->getNumResourceForPlayer(eLoopPlayer));
 
 											// Disconnect resource link
-											if (pLoopPlot->GetResourceLinkedCity() != NULL)
+											if (pLoopPlot->getEffectiveOwningCity() != NULL)
 												pLoopPlot->SetResourceLinkedCityActive(false);
 										}
 									}

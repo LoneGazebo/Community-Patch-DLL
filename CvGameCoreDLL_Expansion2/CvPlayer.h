@@ -363,6 +363,8 @@ public:
 	int GetBuildingClassYieldChange(BuildingClassTypes eBuildingClass, YieldTypes eYieldType);
 	int GetBuildingClassYieldModifier(BuildingClassTypes eBuildingClass, YieldTypes eYieldType);
 
+	int GetWorldWonderYieldChange(int iYield);
+
 	bool canBuild(const CvPlot* pPlot, BuildTypes eBuild, bool bTestEra = false, bool bTestVisible = false, bool bTestGold = true, bool bTestPlotOwner = true, const CvUnit* pUnit = NULL) const;
 	bool IsBuildBlockedByFeature(BuildTypes eBuild, FeatureTypes eFeature) const;
 	int getBuildCost(const CvPlot* pPlot, BuildTypes eBuild) const;
@@ -671,10 +673,9 @@ public:
 	int GetHappinessFromResourceVariety() const;
 	int GetHappinessFromReligion();
 	int GetHappinessFromNaturalWonders() const;
-#if defined(MOD_BALANCE_CORE)
-	void SetNWOwned(FeatureTypes eFeature, bool bValue);
-	bool IsNWOwned(FeatureTypes eFeature) const;
+	void SetNaturalWonderOwned(FeatureTypes eFeature, bool bValue);
 
+#if defined(MOD_BALANCE_CORE)
 	void ChangeUnitClassProductionModifier(UnitClassTypes eUnitClass, int iValue);
 	int GetUnitClassProductionModifier(UnitClassTypes eUnitClass) const;
 #endif
@@ -2584,6 +2585,8 @@ public:
 #if defined(MOD_BALANCE_CORE)
 	void SetBestWonderCities();
 	bool isCapitalCompetitive();
+	CvCity* GetBestProductionCity( BuildingTypes eBuilding = NO_BUILDING, ProjectTypes eProject = NO_PROJECT);
+	bool IsCityCompetitive(CvCity* pCity, BuildingTypes eBuilding = NO_BUILDING, ProjectTypes eProject = NO_PROJECT);
 #endif
 	void DoAdoptedGreatPersonCityStatePolicy();
 	bool IsAlliesGreatPersonBiasApplied() const;
@@ -3326,7 +3329,7 @@ protected:
 	std::vector<bool> m_abEventChoiceFired;
 	std::vector<bool> m_abEventFired;
 	int m_iPlayerEventCooldown;
-	std::vector<bool> m_abNWOwned;
+	std::vector<FeatureTypes> m_ownedNaturalWonders;
 	std::vector<int> m_paiUnitClassProductionModifiers;
 	int m_iExtraSupplyPerPopulation;
 	int m_iCitySupplyFlatGlobal;
@@ -4114,7 +4117,7 @@ SYNC_ARCHIVE_VAR(std::vector<bool>, m_abEventChoiceActive)
 SYNC_ARCHIVE_VAR(std::vector<bool>, m_abEventChoiceFired)
 SYNC_ARCHIVE_VAR(std::vector<bool>, m_abEventFired)
 SYNC_ARCHIVE_VAR(int, m_iPlayerEventCooldown)
-SYNC_ARCHIVE_VAR(std::vector<bool>, m_abNWOwned)
+SYNC_ARCHIVE_VAR(std::vector<FeatureTypes>, m_ownedNaturalWonders)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_paiUnitClassProductionModifiers)
 SYNC_ARCHIVE_VAR(int, m_iExtraSupplyPerPopulation)
 SYNC_ARCHIVE_VAR(int, m_iCitySupplyFlatGlobal)

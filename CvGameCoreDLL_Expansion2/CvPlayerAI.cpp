@@ -1881,6 +1881,8 @@ CvCity* CvPlayerAI::FindBestDiplomatTargetCity(CvUnit* pUnit)
 	data.iFlags = CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY;
 	ReachablePlots plots = GC.GetPathFinder().GetPlotsInReach(pUnit->plot(), data);
 	set<PlayerTypes> badTargets;
+	BuildTypes eEmbassy = (BuildTypes)GC.getInfoTypeForString("BUILD_EMBASSY");
+
 	for (ReachablePlots::iterator it = plots.begin(); it != plots.end(); ++it)
 	{
 		//don't check for cities directly because we cannot enter them ...
@@ -1894,7 +1896,8 @@ CvCity* CvPlayerAI::FindBestDiplomatTargetCity(CvUnit* pUnit)
 			//we iterate by distance, so take the first one we find
 			CvCity* pCity = GET_PLAYER(pPlot->getOwner()).getCapitalCity();
 
-			bool bInValid = false;
+			bool bInvalid = false;
+			bool bCanPlaceEmbassy = false;
 			if (pCity != NULL)
 			{
 				for (int iI = 0; iI < pCity->GetNumWorkablePlots(); iI++)
@@ -1904,20 +1907,21 @@ CvCity* CvPlayerAI::FindBestDiplomatTargetCity(CvUnit* pUnit)
 					if (pCityPlot != NULL && pCityPlot->getOwner() == pCity->getOwner())
 					{
 						if (pCityPlot->IsImprovementEmbassy())
-						{
-							bInValid = true;
-							break;
-						}
+							bInvalid = true;
+
+						if (pUnit->canBuild(pCityPlot,eEmbassy))
+							bCanPlaceEmbassy = true;
 					}
 				}
 			}
-			if (bInValid)
+
+			if (bInvalid || !bCanPlaceEmbassy)
 				continue;
 
 			if (WantEmbassyAt(GetID(), pCity))
 				return pCity;
-			else
-				badTargets.insert(pPlot->getOwner());
+
+			badTargets.insert(pPlot->getOwner());
 		}
 	}
 

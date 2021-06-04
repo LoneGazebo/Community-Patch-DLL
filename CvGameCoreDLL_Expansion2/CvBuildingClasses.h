@@ -568,6 +568,7 @@ public:
 	int GetYieldPerFriend(int i) const;
 	int GetYieldPerAlly(int i) const;
 	int GetYieldChangeWorldWonder(int i) const;
+	int GetYieldChangeWorldWonderGlobal(int i) const;
 #endif
 	int GetNumFreeUnits(int i) const;
 #if defined(MOD_BALANCE_CORE_BUILDING_INSTANT_YIELD)
@@ -1002,6 +1003,7 @@ private:
 	int* m_piYieldPerFriend;
 	int* m_piYieldPerAlly;
 	int* m_piYieldChangeWorldWonder;
+	int* m_piYieldChangeWorldWonderGlobal;
 #endif
 	int* m_piNumFreeUnits;
 

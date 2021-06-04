@@ -7432,7 +7432,7 @@ void CvCityCulture::CalculateBaseTourismBeforeModifiers()
 	}
 
 	// Tech enhanced Tourism
-	vector<BuildingTypes> allBuildings = m_pCity->GetCityBuildings()->GetAllBuildingsHere();
+	const vector<BuildingTypes>& allBuildings = m_pCity->GetCityBuildings()->GetAllBuildingsHere();
 	for(size_t iI = 0; iI < allBuildings.size(); iI++)
 	{
 		BuildingTypes eBuilding = allBuildings[iI];
@@ -7478,7 +7478,7 @@ void CvCityCulture::CalculateBaseTourism()
 		iModifier += kPlayer.GetPlayerTraits()->GetGoldenAgeTourismModifier();
 	}
 	
-	vector<BuildingTypes> allBuildings = m_pCity->GetCityBuildings()->GetAllBuildingsHere();
+	const vector<BuildingTypes>& allBuildings = m_pCity->GetCityBuildings()->GetAllBuildingsHere();
 	for(size_t iI = 0; iI < allBuildings.size(); iI++)
 	{
 		CvBuildingEntry *pkBuilding = GC.getBuildingInfo(allBuildings[iI]);
@@ -7784,7 +7784,7 @@ CvString CvCityCulture::GetTourismTooltip()
 		}
 		szRtnValue += GetLocalizedText("TXT_KEY_CO_CITY_TOURISM_FAITH_BUILDINGS", iSacredSitesTourism);
 
-		vector<BuildingTypes> allBuildings = m_pCity->GetCityBuildings()->GetAllBuildingsHere();
+		const vector<BuildingTypes>& allBuildings = m_pCity->GetCityBuildings()->GetAllBuildingsHere();
 		for(size_t iI = 0; iI < allBuildings.size(); iI++)
 		{
 			BuildingTypes eBuilding = allBuildings[iI];
@@ -7810,7 +7810,7 @@ CvString CvCityCulture::GetTourismTooltip()
 	}
 
 	// Tech enhanced Tourism
-	vector<BuildingTypes> allBuildings = m_pCity->GetCityBuildings()->GetAllBuildingsHere();
+	const vector<BuildingTypes>& allBuildings = m_pCity->GetCityBuildings()->GetAllBuildingsHere();
 	for(size_t iI = 0; iI < allBuildings.size(); iI++)
 	{
 		BuildingTypes eBuilding = allBuildings[iI];
@@ -8784,7 +8784,7 @@ int CvCityCulture::GetCultureFromWonders() const
 {
 	int iRtnValue = 0;
 
-	vector<BuildingTypes> allBuildings = m_pCity->GetCityBuildings()->GetAllBuildingsHere();
+	const vector<BuildingTypes>& allBuildings = m_pCity->GetCityBuildings()->GetAllBuildingsHere();
 	for(size_t iI = 0; iI < allBuildings.size(); iI++)
 	{
 		CvBuildingEntry *pkBuilding = GC.getBuildingInfo(allBuildings[iI]);

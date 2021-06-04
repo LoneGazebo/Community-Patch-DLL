@@ -5728,6 +5728,37 @@ int CvMinorCivAI::GetNumThreateningBarbarians()
 	return iCount;
 }
 
+int CvMinorCivAI::GetNumThreateningMajors()
+{
+	int iCount = 0;
+
+	for (int i = 0; i < MAX_CIV_PLAYERS; i++)
+	{
+		PlayerTypes ePlayer = (PlayerTypes)i;
+		if (ePlayer == NO_PLAYER)
+			continue;
+
+		if (ePlayer == GetPlayer()->GetID())
+			continue;
+
+		CvPlayer& kPlayer = GET_PLAYER(ePlayer);
+
+		if (!kPlayer.isAlive())
+			continue;
+
+		if (!kPlayer.IsAtWarWith(GetPlayer()->GetID()))
+			continue;
+
+		int iLoop;
+		for (CvUnit* pLoopUnit = kPlayer.firstUnit(&iLoop); NULL != pLoopUnit; pLoopUnit = kPlayer.nextUnit(&iLoop))
+			if (pLoopUnit->plot()->isAdjacentTeam(GetPlayer()->getTeam()))
+				iCount++;
+	}
+	
+
+	return iCount;
+}
+
 /// Barbs in our borders?
 int CvMinorCivAI::GetNumBarbariansInBorders(bool bOnlyAdjacentToCity)
 {
@@ -12127,7 +12158,7 @@ void CvMinorCivAI::DoSetBonus(PlayerTypes ePlayer, bool bAdd, bool bFriends, boo
 /// Major Civs intruding in our lands?
 void CvMinorCivAI::DoIntrusion()
 {
-	int iNewBarbCount = GetNumThreateningBarbarians();
+	int iNewBarbCount = GetNumThreateningBarbarians() + GetNumThreateningMajors();
 	
 	//allow major players in our territory for one turn after the barbarians have been vanquished
 	if (iNewBarbCount > 0)
@@ -12147,6 +12178,7 @@ void CvMinorCivAI::DoIntrusion()
 		if(MOD_DIPLOMACY_CITYSTATES_QUESTS && (GetPlayer()->GetMinorCivAI()->IsActiveQuestForPlayer(eMajor, MINOR_CIV_QUEST_HORDE) || GetPlayer()->GetMinorCivAI()->IsActiveQuestForPlayer(eMajor, MINOR_CIV_QUEST_REBELLION)))
 		{
 			m_bAllowMajorsToIntrude = true;
+			break;
 		}
 #endif
 	}

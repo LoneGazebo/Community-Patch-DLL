@@ -170,12 +170,12 @@ int CvProjectProductionAI::CheckProjectBuildSanity(ProjectTypes eProject, int iT
 		return 0;
 	}
 
-	if(kPlayer.IsAtWarAnyMajor())
+	if (pkProjectInfo->IsAllowsNukes())
 	{
-		if(pkProjectInfo->IsAllowsNukes())
-		{
+		if(kPlayer.IsAtWarAnyMajor())
 			iTempWeight *= 25;
-		}
+		else
+			iTempWeight *= 10;
 	}
 	VictoryTypes ePrereqVictory = (VictoryTypes)pkProjectInfo->GetVictoryPrereq();
 	VictoryTypes eVictory = (VictoryTypes) GC.getInfoTypeForString("VICTORY_SPACE_RACE", true);
@@ -187,40 +187,36 @@ int CvProjectProductionAI::CheckProjectBuildSanity(ProjectTypes eProject, int iT
 		}
 		else
 		{
-			iTempWeight *= 15;
 			if(pkProjectInfo->IsSpaceship())
 			{
-				if (m_pCity->isCapital())
-					return (iTempWeight *= 100);
-				else
-					return (iTempWeight *= 50);
-			}
+				iTempWeight += m_pCity->getSpaceProductionModifier() * 10;
 
-			EconomicAIStrategyTypes eSpaceShipHomeStretch = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_GS_SPACESHIP_HOMESTRETCH");
-			if(eSpaceShipHomeStretch != NO_ECONOMICAISTRATEGY)
+				if (kPlayer.GetBestProductionCity(NO_BUILDING, eProject) == m_pCity)
+					iTempWeight += 5000 + (m_pCity->getSpaceProductionModifier() * 10);
+				else if (kPlayer.IsCityCompetitive(m_pCity, NO_BUILDING, eProject))
+					iTempWeight += 1000 + (m_pCity->getSpaceProductionModifier() * 10);
+				else
+					return 0;
+			}
+			else
 			{
-				if(kPlayer.GetDiplomacyAI()->IsGoingForCultureVictory())
-				{
-					iTempWeight /= 2;
-				}
-				else if(kPlayer.GetDiplomacyAI()->IsGoingForWorldConquest())
-				{
-					iTempWeight /= 2;
-				}
-				else if(kPlayer.GetDiplomacyAI()->IsGoingForCultureVictory())
-				{
-					iTempWeight /= 2;
-				}
+				if (kPlayer.GetBestProductionCity(NO_BUILDING, eProject) == m_pCity)
+					iTempWeight += 5000;
+				else if (kPlayer.IsCityCompetitive(m_pCity, NO_BUILDING, eProject))
+					iTempWeight += 1000;
 				else
-				{
-					iTempWeight *= 50;
-				}
-				if(kPlayer.GetEconomicAI()->IsUsingStrategy(eSpaceShipHomeStretch))
-				{
-					iTempWeight *= 50;
-				}
-
+					return 0;
 			}
+	
+			if (kPlayer.GetDiplomacyAI()->IsGoingForSpaceshipVictory())
+				iTempWeight *= 10;
+
+			EconomicAIStrategyTypes eSpaceShipHomeStretch = (EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_GS_SPACESHIP_HOMESTRETCH");
+			if (eSpaceShipHomeStretch != NO_ECONOMICAISTRATEGY)
+				if(kPlayer.GetEconomicAI()->IsUsingStrategy(eSpaceShipHomeStretch))
+					iTempWeight *= 10;
+
+			return iTempWeight;
 		}
 	}
 
@@ -233,10 +229,14 @@ int CvProjectProductionAI::CheckProjectBuildSanity(ProjectTypes eProject, int iT
 		}
 		else
 		{
-			if (m_pCity->isCapital())
-				return (iTempWeight *= 1000);
+			if (kPlayer.GetBestProductionCity(NO_BUILDING, eProject) == m_pCity)
+				iTempWeight += 10000;
+			else if (kPlayer.IsCityCompetitive(m_pCity, NO_BUILDING, eProject))
+				iTempWeight += 5000;
 			else
-				return (iTempWeight *= 500);
+				return 0;
+
+			return iTempWeight;
 		}
 	}
 

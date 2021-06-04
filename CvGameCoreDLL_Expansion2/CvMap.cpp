@@ -708,7 +708,7 @@ void CvMap::updateCenterUnit()
 
 
 //	--------------------------------------------------------------------------------
-void CvMap::updateOwningCity(CvPlot* pPlot, int iRange)
+void CvMap::updateOwningCityForPlots(CvPlot* pPlot, int iRange)
 {
 	if(pPlot && iRange > 0)
 	{
