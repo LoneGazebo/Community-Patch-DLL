@@ -7,7 +7,7 @@
 #include "FDataStream.h"
 
 template<typename T, std::size_t N>
-FDataStream& operator<<(FDataStream& saveTo, const CvSpan<T, N>& readFrom)
+inline FDataStream& operator<<(FDataStream& saveTo, const CvSpan<T, N>& readFrom)
 {
 	for (typename CvSpan<T, N>::Iterator it = readFrom.begin(); it != readFrom.end(); ++it)
 	{
@@ -16,7 +16,7 @@ FDataStream& operator<<(FDataStream& saveTo, const CvSpan<T, N>& readFrom)
 	return saveTo;
 }
 template<typename T, std::size_t N>
-FDataStream& operator>>(FDataStream& loadFrom, const CvSpan<T, N>& writeTo)
+inline FDataStream& operator>>(FDataStream& loadFrom, const CvSpan<T, N>& writeTo)
 {
 	for (typename CvSpan<T, N>::Iterator it = writeTo.begin(); it != writeTo.end(); ++it)
 	{
@@ -26,7 +26,7 @@ FDataStream& operator>>(FDataStream& loadFrom, const CvSpan<T, N>& writeTo)
 }
 
 template<typename T>
-FDataStream& operator<<(FDataStream& saveTo, const CvSpan<T, DYNAMIC_EXTENT>& readFrom)
+inline FDataStream& operator<<(FDataStream& saveTo, const CvSpan<T, DYNAMIC_EXTENT>& readFrom)
 {
 	for (typename CvSpan<T, DYNAMIC_EXTENT>::Iterator it = readFrom.begin(); it != readFrom.end(); ++it)
 	{
@@ -35,7 +35,7 @@ FDataStream& operator<<(FDataStream& saveTo, const CvSpan<T, DYNAMIC_EXTENT>& re
 	return saveTo;
 }
 template<typename T>
-FDataStream& operator>>(FDataStream& loadFrom, const CvSpan<T, DYNAMIC_EXTENT>& writeTo)
+inline FDataStream& operator>>(FDataStream& loadFrom, const CvSpan<T, DYNAMIC_EXTENT>& writeTo)
 {
 	for (typename CvSpan<T, DYNAMIC_EXTENT>::Iterator it = writeTo.begin(); it != writeTo.end(); ++it)
 	{
