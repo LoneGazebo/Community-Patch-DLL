@@ -15982,6 +15982,12 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 				{
 					ChangeBaseYieldRateFromBuildings(eYield, GetPlayer()->GetYieldChangeWorldWonder(eYield) * iChange);
 					ChangeBaseYieldRateFromBuildings(eYield, GetPlayer()->GetPlayerTraits()->GetYieldChangeWorldWonder(eYield) * iChange);
+					int iGlobalWonderBonus = owningPlayer.GetWorldWonderYieldChange(iI);
+					if (iGlobalWonderBonus != 0)
+					{
+						m_pCityBuildings->ChangeBuildingYieldChange(eBuildingClass, eYield, (iGlobalWonderBonus * iChange));
+						changeLocalBuildingClassYield(eBuildingClass, eYield, (iGlobalWonderBonus * iChange));
+					}
 				}
 			}
 #endif
