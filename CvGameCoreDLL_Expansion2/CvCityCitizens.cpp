@@ -468,7 +468,7 @@ void CvCityCitizens::DoTurn()
 #endif
 }
 
-int CvCityCitizens::GetBonusPlotValue(CvPlot* pPlot, YieldTypes eYield)
+int CvCityCitizens::GetBonusPlotValue(CvPlot* pPlot, YieldTypes eYield, const SPrecomputedExpensiveNumbers& cache)
 {
 	int iBonus = 0;
 
@@ -477,11 +477,11 @@ int CvCityCitizens::GetBonusPlotValue(CvPlot* pPlot, YieldTypes eYield)
 
 	if (eFeature != NO_FEATURE)
 	{
-		const CvReligion* pReligion = m_pCity->GetCityReligions()->GetMajorityReligion();
-		if (pReligion)
+		if (eYield < (int)cache.bonusForXFeature.size() && eFeature < (int)cache.bonusForXFeature[eYield].size())
 		{
-			int iTempBonus = (pReligion->m_Beliefs.GetYieldPerXFeatureTimes100(eFeature, eYield, m_pCity->getOwner(), m_pCity) * (m_pCity->GetNumFeatureWorked(eFeature))) / 100;
-			int iTempBonusPlusOne = (pReligion->m_Beliefs.GetYieldPerXFeatureTimes100(eFeature, eYield, m_pCity->getOwner(), m_pCity) * (m_pCity->GetNumFeatureWorked(eFeature) + 1)) / 100;
+			int iEffect = cache.bonusForXFeature[eYield][eFeature];
+			int iTempBonus = (iEffect * (m_pCity->GetNumFeatureWorked(eFeature))) / 100;
+			int iTempBonusPlusOne = (iEffect * (m_pCity->GetNumFeatureWorked(eFeature) + 1)) / 100;
 			if (iTempBonus != iTempBonusPlusOne)
 				iBonus += iTempBonusPlusOne;
 		}
@@ -493,11 +493,11 @@ int CvCityCitizens::GetBonusPlotValue(CvPlot* pPlot, YieldTypes eYield)
 	}
 	if (eTerrain != NO_TERRAIN)
 	{
-		const CvReligion* pReligion = m_pCity->GetCityReligions()->GetMajorityReligion();
-		if (pReligion)
+		if (eYield < (int)cache.bonusForXTerrain.size() && eTerrain < (int)cache.bonusForXTerrain[eYield].size())
 		{
-			int iTempBonus = (pReligion->m_Beliefs.GetYieldPerXTerrainTimes100(eTerrain, eYield, m_pCity->getOwner(), m_pCity) * (m_pCity->GetNumTerrainWorked(eTerrain))) / 100;
-			int iTempBonusPlusOne = (pReligion->m_Beliefs.GetYieldPerXTerrainTimes100(eTerrain, eYield, m_pCity->getOwner(), m_pCity) * (m_pCity->GetNumTerrainWorked(eTerrain) + 1)) / 100;
+			int iEffect = cache.bonusForXTerrain[eYield][eTerrain];
+			int iTempBonus = (iEffect * (m_pCity->GetNumTerrainWorked(eTerrain))) / 100;
+			int iTempBonusPlusOne = (iEffect * (m_pCity->GetNumTerrainWorked(eTerrain) + 1)) / 100;
 			if (iTempBonus != iTempBonusPlusOne)
 				iBonus += iTempBonusPlusOne;
 		}
@@ -512,7 +512,7 @@ int CvCityCitizens::GetBonusPlotValue(CvPlot* pPlot, YieldTypes eYield)
 }
 // What is the overall value of the current plot?
 // This is a bit tricky because the value of a plot changes depending on which other plots are being worked!
-int CvCityCitizens::GetPlotValue(CvPlot* pPlot, SPrecomputedExpensiveNumbers cache)
+int CvCityCitizens::GetPlotValue(CvPlot* pPlot, const SPrecomputedExpensiveNumbers& cache)
 {
 	int iValue = 0;
 
@@ -555,7 +555,7 @@ int CvCityCitizens::GetPlotValue(CvPlot* pPlot, SPrecomputedExpensiveNumbers cac
 
 		//FIXME: if we're trying to find the worst worked plot, we have to consider losing the combo bonus!
 		if (!bIsWorking)
-			iYield100 += GetBonusPlotValue(pPlot, eYield) * 100;
+			iYield100 += GetBonusPlotValue(pPlot, eYield, cache) * 100;
 
 		if (iYield100 > 0)
 		{
@@ -1493,9 +1493,6 @@ void CvCityCitizens::OptimizeWorkedPlots(bool bLogging)
 {
 	int iCount = 0;
 	FILogFile* pLog = bLogging && GC.getLogging() ? LOGFILEMGR.GetLog("CityTileScorer.csv", FILogFile::kDontTimeStamp) : NULL;
-
-	int iNetFood100 = m_pCity->getYieldRateTimes100(YIELD_FOOD, false) - m_pCity->foodConsumptionTimes100();
-	bool bCanAffordSpecialist = (iNetFood100 >= m_pCity->foodConsumptionSpecialistTimes100());
 	bool bSpecialistForbidden = GET_PLAYER(GetOwner()).isHuman() && IsNoAutoAssignSpecialists();
 
 	//failsafe: if we have unassigned citizens get then assign them first
@@ -1505,6 +1502,9 @@ void CvCityCitizens::OptimizeWorkedPlots(bool bLogging)
 	//failsafe against switching back and forth, don't try this too often
 	while (iCount < m_pCity->getPopulation()/2)
 	{
+		int iNetFood100 = m_pCity->getYieldRateTimes100(YIELD_FOOD, false) - m_pCity->foodConsumptionTimes100();
+		bool bCanAffordSpecialist = (iNetFood100 >= m_pCity->foodConsumptionSpecialistTimes100());
+
 		//now the real check
 		int iWorstWorkedPlotValue = 0;
 		int iWorstSpecialistValue = 0;
@@ -3485,7 +3485,29 @@ SPrecomputedExpensiveNumbers::SPrecomputedExpensiveNumbers(CvCity * pCity)
 	iUnhappinessFromScience = pCity->getUnhappinessFromScience();
 	iUnhappinessFromCulture = pCity->getUnhappinessFromCulture();
 	iUnhappinessFromReligion = pCity->getUnhappinessFromReligion();
-	iUnhappinessFromDistress = max(pCity->getUnhappinessFromDefense(),pCity->getUnhappinessFromStarving());
+	iUnhappinessFromDistress = max(pCity->getUnhappinessFromDefense(), pCity->getUnhappinessFromStarving());
 	iExcessFoodTimes100 = pCity->getYieldRateTimes100(YIELD_FOOD, false) - (pCity->foodConsumptionTimes100());
 	iFoodCorpMod = pCity->GetTradeRouteCityMod(YIELD_FOOD);
+
+	const CvReligion* pReligion = pCity->GetCityReligions()->GetMajorityReligion();
+	if (pReligion)
+	{
+		for (int i = 0; i < YIELD_TOURISM; i++)
+		{
+			YieldTypes eYield = (YieldTypes)i;
+			bonusForXFeature.push_back(vector<int>());
+			bonusForXTerrain.push_back(vector<int>());
+
+			for (int j = 0; j < GC.getNumFeatureInfos(); j++)
+			{
+				FeatureTypes eFeature = (FeatureTypes)j;
+				bonusForXFeature.back().push_back(pReligion->m_Beliefs.GetYieldPerXFeatureTimes100(eFeature, eYield, pCity->getOwner(), pCity));
+			}
+			for (int j = 0; j < GC.getNumTerrainInfos(); j++)
+			{
+				TerrainTypes eTerrain = (TerrainTypes)j;
+				bonusForXTerrain.back().push_back(pReligion->m_Beliefs.GetYieldPerXTerrainTimes100(eTerrain, eYield, pCity->getOwner(), pCity));
+			}
+		}
+	}
 }
