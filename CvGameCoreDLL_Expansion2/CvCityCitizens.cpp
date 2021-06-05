@@ -3479,7 +3479,9 @@ YieldTypes CvCityCitizens::GetFocusTypeYield(CityAIFocusTypes eFocus)
 	return eTargetYield;
 }
 
-SPrecomputedExpensiveNumbers::SPrecomputedExpensiveNumbers(CvCity * pCity)
+SPrecomputedExpensiveNumbers::SPrecomputedExpensiveNumbers(CvCity * pCity) :
+	bonusForXFeature(YIELD_TOURISM, vector<int>(GC.getNumFeatureInfos(),0)),
+	bonusForXTerrain(YIELD_TOURISM, vector<int>(GC.getNumTerrainInfos(),0))
 {
 	iUnhappinessFromGold = pCity->getUnhappinessFromGold();
 	iUnhappinessFromScience = pCity->getUnhappinessFromScience();
@@ -3495,18 +3497,16 @@ SPrecomputedExpensiveNumbers::SPrecomputedExpensiveNumbers(CvCity * pCity)
 		for (int i = 0; i < YIELD_TOURISM; i++)
 		{
 			YieldTypes eYield = (YieldTypes)i;
-			bonusForXFeature.push_back(vector<int>());
-			bonusForXTerrain.push_back(vector<int>());
 
 			for (int j = 0; j < GC.getNumFeatureInfos(); j++)
 			{
 				FeatureTypes eFeature = (FeatureTypes)j;
-				bonusForXFeature.back().push_back(pReligion->m_Beliefs.GetYieldPerXFeatureTimes100(eFeature, eYield, pCity->getOwner(), pCity));
+				bonusForXFeature[i][j] = pReligion->m_Beliefs.GetYieldPerXFeatureTimes100(eFeature, eYield, pCity->getOwner(), pCity);
 			}
 			for (int j = 0; j < GC.getNumTerrainInfos(); j++)
 			{
 				TerrainTypes eTerrain = (TerrainTypes)j;
-				bonusForXTerrain.back().push_back(pReligion->m_Beliefs.GetYieldPerXTerrainTimes100(eTerrain, eYield, pCity->getOwner(), pCity));
+				bonusForXTerrain[i][j] = pReligion->m_Beliefs.GetYieldPerXTerrainTimes100(eTerrain, eYield, pCity->getOwner(), pCity);
 			}
 		}
 	}
