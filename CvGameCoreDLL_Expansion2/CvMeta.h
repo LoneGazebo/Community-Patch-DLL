@@ -3,7 +3,7 @@
 #ifndef CVMETA_H
 #define CVMETA_H
 
-// Helpers for meta-template-programming
+// Helpers for template-meta-programming
 
 namespace CvMeta
 {

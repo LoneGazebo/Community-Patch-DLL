@@ -49,7 +49,7 @@ public:
 		FAssert(m_begin != NULL && count == TExtent);
 	}
 	template<typename It>
-	inline explicit CvSpan(It first, It last, typename CvMeta::EnableIf<CvMeta::IsSame<typename std::iterator_traits<It>::iterator_category, std::random_access_iterator_tag>::Value, int>::Type = 0)
+	inline explicit CvSpan(It first, typename CvMeta::EnableIf<CvMeta::IsSame<typename std::iterator_traits<It>::iterator_category, std::random_access_iterator_tag>::Value, It>::Type last)
 		: m_begin(&(*first))
 	{
 		FAssert(last - first == TExtent);
@@ -252,7 +252,7 @@ public:
 		FAssert(count == 0);
 	}
 	template<typename It>
-	inline explicit CvSpan(It first, It last, typename CvMeta::EnableIf<CvMeta::IsSame<typename std::iterator_traits<It>::iterator_category, std::random_access_iterator_tag>::Value, int>::Type = 0)
+	inline explicit CvSpan(It first, typename CvMeta::EnableIf<CvMeta::IsSame<typename std::iterator_traits<It>::iterator_category, std::random_access_iterator_tag>::Value, It>::Type last)
 	{
 		FAssert(m_end - m_begin == 0);
 	}
