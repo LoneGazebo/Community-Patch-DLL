@@ -1821,16 +1821,13 @@ protected:
 	int m_iLocalGainlessPillageCount;
 #endif
 	int m_iFood;
-	int m_iFoodKept; //unused
 	int m_iMaxFoodKeptPercent;
 	int m_iOverflowProduction;
 	int m_iFeatureProduction;
 	int m_iMilitaryProductionModifier;
 	int m_iSpaceProductionModifier;
 	int m_iFreeExperience;
-	int m_iCurrAirlift; // unused
 	int m_iMaxAirUnits;
-	int m_iAirModifier; // unused
 	int m_iNukeModifier;
 	int m_iTradeRouteTargetBonus;
 	int m_iTradeRouteRecipientBonus;
@@ -1838,7 +1835,6 @@ protected:
 	int m_iTradeRouteLandGoldBonus;
 	int m_iNumTradeRouteBonus;
 	int m_iCityConnectionTradeRouteGoldModifier;
-	int m_iCultureUpdateTimer;
 	int m_iCitySizeBoost;
 	int m_iSpecialistFreeExperience;
 	int m_iStrengthValue;
@@ -1865,7 +1861,6 @@ protected:
 
 	bool m_bNeverLost;
 	bool m_bDrafted;
-	bool m_bAirliftTargeted;   // unused
 	bool m_bProductionAutomated;
 	bool m_bLayoutDirty;
 	bool m_bMadeAttack;
@@ -2222,16 +2217,13 @@ SYNC_ARCHIVE_VAR(int, m_iHealRate)
 SYNC_ARCHIVE_VAR(int, m_iNoOccupiedUnhappinessCount)
 SYNC_ARCHIVE_VAR(int, m_iLocalGainlessPillageCount)
 SYNC_ARCHIVE_VAR(int, m_iFood)
-SYNC_ARCHIVE_VAR(int, m_iFoodKept)
 SYNC_ARCHIVE_VAR(int, m_iMaxFoodKeptPercent)
 SYNC_ARCHIVE_VAR(int, m_iOverflowProduction)
 SYNC_ARCHIVE_VAR(int, m_iFeatureProduction)
 SYNC_ARCHIVE_VAR(int, m_iMilitaryProductionModifier)
 SYNC_ARCHIVE_VAR(int, m_iSpaceProductionModifier)
 SYNC_ARCHIVE_VAR(int, m_iFreeExperience)
-SYNC_ARCHIVE_VAR(int, m_iCurrAirlift)
 SYNC_ARCHIVE_VAR(int, m_iMaxAirUnits)
-SYNC_ARCHIVE_VAR(int, m_iAirModifier)
 SYNC_ARCHIVE_VAR(int, m_iNukeModifier)
 SYNC_ARCHIVE_VAR(int, m_iTradeRouteTargetBonus)
 SYNC_ARCHIVE_VAR(int, m_iTradeRouteRecipientBonus)
@@ -2239,7 +2231,6 @@ SYNC_ARCHIVE_VAR(int, m_iTradeRouteSeaGoldBonus)
 SYNC_ARCHIVE_VAR(int, m_iTradeRouteLandGoldBonus)
 SYNC_ARCHIVE_VAR(int, m_iNumTradeRouteBonus)
 SYNC_ARCHIVE_VAR(int, m_iCityConnectionTradeRouteGoldModifier)
-SYNC_ARCHIVE_VAR(int, m_iCultureUpdateTimer)
 SYNC_ARCHIVE_VAR(int, m_iCitySizeBoost)
 SYNC_ARCHIVE_VAR(int, m_iSpecialistFreeExperience)
 SYNC_ARCHIVE_VAR(int, m_iStrengthValue)
@@ -2260,7 +2251,6 @@ SYNC_ARCHIVE_VAR(int, m_iEspionageModifier)
 SYNC_ARCHIVE_VAR(int, m_iConversionModifier)
 SYNC_ARCHIVE_VAR(bool, m_bNeverLost)
 SYNC_ARCHIVE_VAR(bool, m_bDrafted)
-SYNC_ARCHIVE_VAR(bool, m_bAirliftTargeted)
 SYNC_ARCHIVE_VAR(bool, m_bProductionAutomated)
 SYNC_ARCHIVE_VAR(bool, m_bLayoutDirty)
 SYNC_ARCHIVE_VAR(bool, m_bMadeAttack)
