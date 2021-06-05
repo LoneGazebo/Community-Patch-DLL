@@ -5652,6 +5652,7 @@ int CvPlayerCulture::ComputeWarWeariness()
 	int iLongestWarTurns = 0;
 	int iLeastPeaceTurns = INT_MAX;
 	int iTechProgress = (GET_TEAM(m_pPlayer->getTeam()).GetTeamTechs()->GetNumTechsKnown() * 100) / GC.getNumTechInfos();
+	int iNumOtherCivs = 0;
 
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
@@ -5666,6 +5667,7 @@ int CvPlayerCulture::ComputeWarWeariness()
 			continue;
 		if (!kPlayer.IsAtWarWith(m_pPlayer->GetID()))
 		{
+			iNumOtherCivs++;
 			int iPeaceLength = m_pPlayer->GetPlayerNumTurnsAtPeace(ePlayer);
 			if (iPeaceLength < iLeastPeaceTurns)
 				iLeastPeaceTurns = iPeaceLength;
@@ -5680,6 +5682,8 @@ int CvPlayerCulture::ComputeWarWeariness()
 			continue;
 		if (iWarLength > iLongestWarTurns)
 			iLongestWarTurns = iWarLength;
+
+		iNumOtherCivs++;
 
 		// 100% of our war value lost applies.
 		int iWarDamage = m_pPlayer->GetDiplomacyAI()->GetWarValueLost(ePlayer);
@@ -5708,6 +5712,13 @@ int CvPlayerCulture::ComputeWarWeariness()
 
 		if (iWarDamage > iHighestWarDamage)
 			iHighestWarDamage = iWarDamage;
+	}
+
+	// Corner case fix: if we've killed everyone, no war weariness!
+	if (iNumOtherCivs == 0)
+	{
+		SetWarWeariness(0);
+		return 0;
 	}
 
 	int iCurrentWarWeariness = m_iRawWarWeariness;
