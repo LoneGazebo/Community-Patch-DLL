@@ -381,7 +381,6 @@ public:
 	int getGeneralProductionTurnsLeft() const;
 
 	bool isFoodProduction() const;
-	bool isFoodProduction(UnitTypes eUnit) const;
 	int getFirstUnitOrder(UnitTypes eUnit) const;
 	int getFirstBuildingOrder(BuildingTypes eBuilding) const;
 	bool isBuildingInQueue(BuildingTypes eBuilding) const;
@@ -1474,6 +1473,7 @@ public:
 	void DoNearbyEnemy();
 
 	bool IsInDanger(PlayerTypes eEnemy) const;
+	bool IsInDangerFromPlayers(vector<PlayerTypes>& vWarAllies) const;
 
 	void IncrementUnitStatCount(CvUnit* pUnit);
 	void CheckForAchievementBuilding(BuildingTypes eBuilding);
@@ -2484,6 +2484,8 @@ protected:
 };
 
 #endif
+
+bool isUnitTypeFoodProduction(PlayerTypes ePlayer, UnitTypes eUnit);
 
 FDataStream& operator>>(FDataStream& loadFrom, SCityExtraYields& writeTo);
 FDataStream& operator<<(FDataStream& saveTo, const SCityExtraYields& readFrom);

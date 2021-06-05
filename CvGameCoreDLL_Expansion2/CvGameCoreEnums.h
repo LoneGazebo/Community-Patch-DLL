@@ -41,6 +41,101 @@ enum YieldTypes
     NUM_YIELD_TYPES
 };
 
+// Carries the value of an enum represented by type T.
+// Useful to communicate what a value is meant to represent while still
+// being able to specify exactly what kind of storage it occupies.
+// 
+// !! Please only use when you actually want to specify the storage type
+// !! Using this for temporaries such as stack values is not recommended
+template<typename Enum, typename T>
+class CvEnum
+{
+public:
+	inline CvEnum() {}
+	inline CvEnum(Enum src)
+		: m_value(static_cast<T>(src))
+	{}
+	inline CvEnum(const CvEnum<Enum, T>& src)
+		: m_value(src.m_value)
+	{}
+
+	inline const T& raw() const
+	{
+		return m_value;
+	}
+	inline T& raw()
+	{
+		return m_value;
+	}
+	inline operator Enum() const
+	{
+		return static_cast<Enum>(m_value);
+	}
+
+	inline CvEnum<Enum, T>& operator=(Enum rhs)
+	{
+		m_value = static_cast<T>(rhs);
+		return *this;
+	}
+	inline CvEnum<Enum, T>& operator=(const CvEnum<Enum, T>& rhs)
+	{
+		m_value = rhs.m_value;
+		return *this;
+	}
+
+	inline bool operator==(Enum rhs) const
+	{
+		return static_cast<Enum>(m_value) == rhs;
+	}
+	inline bool operator==(const CvEnum<Enum, T>& rhs) const
+	{
+		return m_value == rhs.m_value;
+	}
+	inline bool operator!=(Enum rhs) const
+	{
+		return static_cast<Enum>(m_value) != rhs;
+	}
+	inline bool operator!=(const CvEnum<Enum, T>& rhs) const
+	{
+		return m_value != rhs.m_value;
+	}
+	inline bool operator<=(Enum rhs) const
+	{
+		return static_cast<Enum>(m_value) <= rhs;
+	}
+	inline bool operator<=(const CvEnum<Enum, T>& rhs) const
+	{
+		return m_value <= rhs.m_value;
+	}
+	inline bool operator>=(Enum rhs) const
+	{
+		return static_cast<Enum>(m_value) >= rhs;
+	}
+	inline bool operator>=(const CvEnum<Enum, T>& rhs) const
+	{
+		return m_value >= rhs.m_value;
+	}
+	inline bool operator<(Enum rhs) const
+	{
+		return static_cast<Enum>(m_value) < rhs;
+	}
+	inline bool operator<(const CvEnum<Enum, T>& rhs) const
+	{
+		return m_value < rhs.m_value;
+	}
+	inline bool operator>(Enum rhs) const
+	{
+		return static_cast<Enum>(m_value) > rhs;
+	}
+	inline bool operator>(const CvEnum<Enum, T>& rhs) const
+	{
+		return m_value > rhs.m_value;
+	}
+
+private:
+	T m_value;
+};
+
 // Popups specific to this DLL
 
 // Hashed values.  Use FStringHashGen to create!

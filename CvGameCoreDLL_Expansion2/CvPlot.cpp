@@ -145,12 +145,6 @@ CvPlot::CvPlot() :
 
 	m_szScriptData = NULL;
 
-#if defined(MOD_API_EXTENSIONS)
-    // allocates memory for an array only once
-    m_aiArbitraryYields = FNEW(uint8[NUM_YIELD_TYPES], c_eCiv5GameplayDLL, 0);
-    ZeroMemory(m_aiArbitraryYields, sizeof(uint8) * NUM_YIELD_TYPES);
-#endif
-
 	reset(0, 0, true);
 
 	if (GC.getGame().isNetworkMultiPlayer())
@@ -163,11 +157,6 @@ CvPlot::CvPlot() :
 //	--------------------------------------------------------------------------------
 CvPlot::~CvPlot()
 {
-#if defined(MOD_API_EXTENSIONS)
-    // releases memory mirroring the constructor
-    SAFE_DELETE_ARRAY(m_aiArbitraryYields);
-#endif
-
 	std::set<int>::iterator it = FSerialization::plotsToCheck.find(m_iPlotIndex);
 	if (it!=FSerialization::plotsToCheck.end())
 		FSerialization::plotsToCheck.erase(it);
@@ -282,11 +271,11 @@ void CvPlot::reset(int iX, int iY, bool bConstructorCall)
 	m_eRiverSWFlowDirection = NO_FLOWDIRECTION;
 	m_cRiverCrossing = 0;
 
-	m_plotCity.reset();
+	m_bIsCity = false;
 	m_owningCity.reset();
 	m_owningCityOverride.reset();
-	m_ResourceLinkedCity.reset();
-	m_purchaseCity.reset();
+
+	m_vExtraYields.clear();
 
 	if(!bConstructorCall)
 	{
@@ -295,10 +284,8 @@ void CvPlot::reset(int iX, int iY, bool bConstructorCall)
 		for(int iI = 0; iI < NUM_YIELD_TYPES; ++iI)
 		{
 			m_aiYield[iI] = 0;
-#if defined(MOD_API_EXTENSIONS)
-            m_aiArbitraryYields[iI] = 0;
-#endif
 		}
+
 		for(int iI = 0; iI < MAX_TEAMS; ++iI)
 		{
 			m_aiPlayerCityRadiusCount[iI] = 0;
@@ -488,7 +475,6 @@ void CvPlot::doImprovement()
 							{
 								iResourceNum = GC.getMap().getRandomResourceQuantity((ResourceTypes)iI);
 								setResourceType((ResourceTypes)iI, iResourceNum);
-								this->DoFindCityToLinkResourceTo();
 								if(getOwner() == GC.getGame().getActivePlayer())
 								{
 									pCity = GC.getMap().findCity(getX(), getY(), getOwner(), NO_TEAM, false);
@@ -4199,6 +4185,19 @@ void CvPlot::removeGoody()
 	}
 }
 
+bool CvPlot::isCity() const
+{
+	return m_bIsCity;
+}
+
+bool CvPlot::isEnemyCity(const CvUnit& kUnit) const
+{
+	if(isCity())
+		return kUnit.isEnemy(GET_PLAYER(m_owningCity.eOwner).getTeam(), this);
+
+	return false;
+}
+
 //	--------------------------------------------------------------------------------
 bool CvPlot::isFriendlyCity(const CvUnit& kUnit) const
 {
@@ -4688,16 +4687,15 @@ bool CvPlot::isEnemyUnit(PlayerTypes ePlayer, bool bCombat, bool bCheckVisibilit
 
 			if(pLoopUnit && !pLoopUnit->isInvisible(eTeam, false) && !pLoopUnit->IsDead())
 			{
-				if (bCombat && !pLoopUnit->IsCanDefend())
+				//airplanes not included
+				if (bCombat && (!pLoopUnit->IsCanDefend() || !pLoopUnit->isNativeDomain(this)))
 					continue;
 
 				if (bIgnoreBarbs && pLoopUnit->isBarbarian())
 					continue;
 
 				if(isOtherTeam(pLoopUnit, eTeam) && isEnemy(pLoopUnit,eTeam,false))
-				{
 					return true;
-				}
 			}
 		}
 		while(pUnitNode != NULL);
@@ -4725,16 +4723,15 @@ bool CvPlot::isNeutralUnit(PlayerTypes ePlayer, bool bCombat, bool bCheckVisibil
 
 			if(pLoopUnit && !pLoopUnit->isInvisible(eTeam, false) && !pLoopUnit->IsDead())
 			{
-				if (bCombat && !pLoopUnit->IsCanDefend())
+				//airplanes not included
+				if (bCombat && (!pLoopUnit->IsCanDefend() || !pLoopUnit->isNativeDomain(this)))
 					continue;
 
 				if (bIgnoreMinors && GET_PLAYER(pLoopUnit->getOwner()).isMinorCiv())
 					continue;
 
 				if(isOtherTeam(pLoopUnit, eTeam) && !isEnemy(pLoopUnit,eTeam,false))
-				{
 					return true;
-				}
 			}
 		}
 		while(pUnitNode != NULL);
@@ -4752,6 +4749,42 @@ bool CvPlot::isNeutralUnitAdjacent(PlayerTypes ePlayer, bool bCombat, bool bChec
 		if (pAdjacentPlot != NULL)
 			if (pAdjacentPlot->isNeutralUnit(ePlayer, bCombat, bCheckVisibility, bIgnoreMinors))
 				return true;
+	}
+
+	return false;
+}
+
+bool CvPlot::isFriendlyUnit(PlayerTypes ePlayer, bool bCombatOnly, bool bSamePlayer) const
+{
+	TeamTypes eTeam = GET_PLAYER(ePlayer).getTeam();
+
+	//can't have a friendly unit there if it's not visible
+	if (!isVisible(eTeam))
+		return false;
+
+	CvAssertMsg(ePlayer != NO_PLAYER, "Source player must be valid");
+	const IDInfo* pUnitNode = m_units.head();
+	if(pUnitNode)
+	{
+		do
+		{
+			const CvUnit* pLoopUnit = GetPlayerUnit(*pUnitNode);
+			pUnitNode = m_units.next(pUnitNode);
+
+			if(pLoopUnit && !pLoopUnit->isInvisible(eTeam, false) && !pLoopUnit->IsDead())
+			{
+				//airplanes not included
+				if (bCombatOnly && (!pLoopUnit->IsCanDefend() || !pLoopUnit->isNativeDomain(this)))
+					continue;
+
+				if(bSamePlayer && pLoopUnit->getOwner()==ePlayer)
+					return true;
+
+				if (!bSamePlayer && pLoopUnit->getTeam() == eTeam)
+					return true;
+			}
+		}
+		while(pUnitNode != NULL);
 	}
 
 	return false;
@@ -5806,14 +5839,15 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 			setOwnershipDuration(0);
 #if defined(MOD_BALANCE_CORE)
 			FeatureTypes eFeature = getFeatureType();
-			if(eFeature != NO_FEATURE)
+			CvFeatureInfo* pFeatureInfo = GC.getFeatureInfo(eFeature);
+
+			if(pFeatureInfo && eNewValue != NO_PLAYER)
 			{
-				if (eNewValue != NO_PLAYER)
-				{
-					GET_PLAYER(eNewValue).SetNWOwned(eFeature, true);
-				}
-				PromotionTypes eFreePromotion = (PromotionTypes)GC.getFeatureInfo(eFeature)->getPromotionIfOwned();
-				if(eFreePromotion != NO_PROMOTION && eNewValue != NO_PLAYER)
+				if (pFeatureInfo->getInBorderHappiness()>0)
+					GET_PLAYER(eNewValue).SetNaturalWonderOwned(eFeature, true);
+
+				PromotionTypes eFreePromotion = (PromotionTypes)pFeatureInfo->getPromotionIfOwned();
+				if(eFreePromotion != NO_PROMOTION)
 				{
 					if (!GET_PLAYER(eNewValue).IsFreePromotion(eFreePromotion))
 					{
@@ -5827,14 +5861,13 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 			if(isOwned())
 			{
 #if defined(MOD_BALANCE_CORE)
-				if(eFeature != NO_FEATURE)
+				if(pFeatureInfo && eOldOwner != NO_PLAYER)
 				{
-					if (eOldOwner != NO_PLAYER)
-					{
-						GET_PLAYER(eOldOwner).SetNWOwned(eFeature, false);
-					}
-					PromotionTypes eFreePromotion = (PromotionTypes)GC.getFeatureInfo(eFeature)->getPromotionIfOwned();
-					if(eFreePromotion != NO_PROMOTION && eOldOwner != NO_PLAYER)
+					if (pFeatureInfo->getInBorderHappiness()>0)
+						GET_PLAYER(eOldOwner).SetNaturalWonderOwned(eFeature, false);
+
+					PromotionTypes eFreePromotion = (PromotionTypes)pFeatureInfo->getPromotionIfOwned();
+					if(eFreePromotion != NO_PROMOTION)
 					{
 						if(GET_PLAYER(eOldOwner).IsFreePromotion(eFreePromotion))
 						{
@@ -5969,12 +6002,6 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 				// Remove Resource Quantity from total
 				if(getResourceType() != NO_RESOURCE)
 				{
-					// Disconnect resource link
-					if(GetResourceLinkedCity() != NULL)
-					{
-						SetResourceLinkedCity(NULL);
-					}
-
 					if(GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes) GC.getResourceInfo(getResourceType())->getTechReveal()))
 					{
 #if defined(MOD_BALANCE_CORE)
@@ -6044,6 +6071,9 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 					}
 					SetPlayerResponsibleForImprovement(NO_PLAYER);
 				}
+
+				// if we don't have an owner, there cannot be a city. this also does bookkeeping for route maintenance
+				setIsCity(false);
 			}
 
 			pUnitNode = headUnitNode();
@@ -6051,24 +6081,13 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 			// ACTUALLY CHANGE OWNERSHIP HERE
 			m_eOwner = eNewValue;
 
-			setOwningCityOverride(NULL);
-			updateOwningCity();
+			m_owningCityOverride.reset();
+			m_owningCity = IDInfo(eNewValue, iAcquiringCityID);
 
 			// Post ownership switch
-
 			if(isOwned())
 			{
 				CvPlayerAI& newPlayer = GET_PLAYER(eNewValue);
-				if(iAcquiringCityID >= 0)
-				{
-					m_purchaseCity.eOwner = eNewValue;
-					m_purchaseCity.iID = iAcquiringCityID;
-				}
-				else
-				{
-					m_purchaseCity.eOwner = NO_PLAYER;
-					m_purchaseCity.iID = -1;
-				}
 
 #if defined(MOD_API_EXTENSIONS)
 				changeAdjacentSight(getTeam(), GC.getPLOT_VISIBILITY_RANGE(), true, NO_INVISIBLE, NO_DIRECTION);
@@ -6220,12 +6239,6 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 							}
 						}
 					}
-
-					// Should we link the Resource here with a City so special Buildings may be constructed?
-					if(GetResourceLinkedCity() == NULL)
-					{
-						DoFindCityToLinkResourceTo();
-					}
 				}
 
 				// update the high water mark for player (if human)
@@ -6359,31 +6372,6 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 }
 
 //	--------------------------------------------------------------------------------
-void CvPlot::ClearCityPurchaseInfo(void)
-{
-	m_purchaseCity.eOwner = NO_PLAYER;
-	m_purchaseCity.iID = -1;
-}
-
-//	--------------------------------------------------------------------------------
-PlayerTypes CvPlot::GetCityPurchaseOwner(void)
-{
-	return m_purchaseCity.eOwner;
-}
-
-//	--------------------------------------------------------------------------------
-int CvPlot::GetCityPurchaseID(void)
-{
-	return m_purchaseCity.iID;
-}
-
-//	--------------------------------------------------------------------------------
-void CvPlot::SetCityPurchaseID(int iAcquiringCityID)
-{
-	m_purchaseCity.iID = iAcquiringCityID;
-}
-
-//	--------------------------------------------------------------------------------
 /// Is this Plot within a certain range of any of a player's Cities?
 bool CvPlot::IsCloseToBorder(PlayerTypes ePlayer) const
 {
@@ -6399,14 +6387,31 @@ bool CvPlot::IsCloseToBorder(PlayerTypes ePlayer) const
 //	--------------------------------------------------------------------------------
 bool CvPlot::isBlockaded()
 {
-	if (isCity())
+	if (isCity() || !isOwned())
 		return false;
 
-	CvCity* pCity = getEffectiveOwningCity();
-	if (!pCity)
+	if (isEnemyUnit(getOwner(), true, false))
+		return true;
+
+	if (isFriendlyUnit(getOwner(), true, false))
 		return false;
 
-	return pCity->GetCityCitizens()->IsBlockaded(this);
+	//need to do additional checks in water
+	if (isWater())
+	{
+		int iRange = range(GC.getNAVAL_PLOT_BLOCKADE_RANGE(),0,3);
+		for (int i = RING0_PLOTS; i < RING_PLOTS[iRange]; i++)
+		{
+			CvPlot* pNeighbor = iterateRingPlots(this, i);
+			if (pNeighbor && pNeighbor->getArea() == getArea())
+			{
+				if (pNeighbor->isEnemyUnit(getOwner(), true, false))
+					return true;
+			}
+		}
+	}
+
+	return false;
 }
 
 //	--------------------------------------------------------------------------------
@@ -7032,7 +7037,6 @@ void CvPlot::setResourceType(ResourceTypes eNewValue, int iResourceNum, bool bFo
 			{
 				GC.getMap().changeNumResourcesOnLand((ResourceTypes)m_eResourceType, 1);
 			}
-			DoFindCityToLinkResourceTo();
 		}
 
 		updateYield();
@@ -7206,6 +7210,81 @@ ImprovementTypes CvPlot::getImprovementTypeNeededToImproveResource(PlayerTypes e
 	return eImprovementNeeded;
 }
 
+void CvPlot::setIsCity(bool bValue)
+{
+	//nothing to do
+	if (isCity() == bValue)
+		return;
+
+	//removing flag
+	if(isCity() && !bValue)
+	{
+		// Is a route is here?  If so, we may now need to pay maintenance for it.
+		if(getRouteType() != NO_ROUTE)
+		{
+			// Maintenance change!
+			SetPlayerResponsibleForRoute(getOwner());
+		}
+
+		// do not call getPlotCity() here, it might be invalid
+		for(int iI = 0; iI < RING5_PLOTS; ++iI)
+		{
+			CvPlot* pLoopPlot = iterateRingPlots(getX(), getY(), iI);
+
+			if(pLoopPlot != NULL)
+			{
+				pLoopPlot->changeCityRadiusCount(-1);
+				pLoopPlot->changePlayerCityRadiusCount(getOwner(), -1);
+			}
+		}
+
+#if defined(MOD_EVENTS_TERRAFORMING)
+		if (MOD_EVENTS_TERRAFORMING)
+		{
+			GAMEEVENTINVOKE_HOOK(GAMEEVENT_TerraformingPlot, TERRAFORMINGEVENT_CITY, m_iX, m_iY, 0, -1, getOwner(), -1, getOwningCityID());
+		}
+#endif
+	}
+	
+	//setting flag
+	if(!isCity() && bValue)
+	{
+		// do not call getPlotCity() here, it might be invalid
+		for(int iI = 0; iI < RING5_PLOTS; ++iI)
+		{
+			CvPlot* pLoopPlot = iterateRingPlots(getX(), getY(), iI);
+
+			if(pLoopPlot != NULL)
+			{
+				pLoopPlot->changeCityRadiusCount(1);
+				pLoopPlot->changePlayerCityRadiusCount(getOwner(), 1);
+			}
+		}
+#if defined(MOD_BALANCE_CORE)
+		if(isMountain())
+		{
+			ImprovementTypes eMachuPichu = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_JFD_MACHU_PICCHU");
+			setImprovementType(eMachuPichu);
+		}
+#endif
+		// Is a route is here?  If we already own this plot, then we were paying maintenance, now we don't have to.
+		if(getRouteType() != NO_ROUTE)
+		{
+			// Maintenance change!
+			SetPlayerResponsibleForRoute(NO_PLAYER);
+		}
+
+#if defined(MOD_EVENTS_TERRAFORMING)
+		if (MOD_EVENTS_TERRAFORMING)
+		{
+			GAMEEVENTINVOKE_HOOK(GAMEEVENT_TerraformingPlot, TERRAFORMINGEVENT_CITY, m_iX, m_iY, 0, getOwner(), -1, getOwningCityID(), -1);
+		}
+#endif
+	}
+
+	m_bIsCity = bValue;
+	updateYield();
+}
 
 //	--------------------------------------------------------------------------------
 void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder)
@@ -7748,10 +7827,9 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 				{
 					iQuantity = 1;
 				}
+
 				if(eResourceFromImprovement != NO_RESOURCE)
 				{
-					if (pOwningCity != NULL)
-						SetResourceLinkedCity(pOwningCity);
 					setResourceType(eResourceFromImprovement, iQuantity);
 				}
 #endif
@@ -7766,7 +7844,7 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 							owningPlayer.changeNumResourceTotal(getResourceType(), getNumResourceForPlayer(owningPlayerID));
 
 							// Activate Resource city link?
-							if(GetResourceLinkedCity() != NULL)
+							if(getEffectiveOwningCity() != NULL)
 								SetResourceLinkedCityActive(true);
 						}
 					}
@@ -7883,7 +7961,7 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 							owningPlayer.changeNumResourceTotal(getResourceType(), -getNumResourceForPlayer(owningPlayerID));
 
 							// Disconnect resource link
-							if(GetResourceLinkedCity() != NULL)
+							if(getEffectiveOwningCity() != NULL)
 								SetResourceLinkedCityActive(false);
 						}
 					}
@@ -7914,7 +7992,7 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 					if(getResourceType() != NO_RESOURCE && getResourceType() == eResourceFromImprovement)
 					{
 						setResourceType(NO_RESOURCE, 0);
-						if (GetResourceLinkedCity() != NULL)
+						if (getEffectiveOwningCity() != NULL)
 							SetResourceLinkedCityActive(false);
 					}
 					else
@@ -8269,7 +8347,7 @@ void CvPlot::SetImprovementPillaged(bool bPillaged)
 							GET_PLAYER(getOwner()).changeNumResourceTotal(getResourceType(), -getNumResourceForPlayer(getOwner()));
 
 							// Disconnect resource link
-							if(GetResourceLinkedCity() != NULL)
+							if(getEffectiveOwningCity() != NULL)
 								SetResourceLinkedCityActive(false);
 						}
 						else
@@ -8277,7 +8355,7 @@ void CvPlot::SetImprovementPillaged(bool bPillaged)
 							GET_PLAYER(getOwner()).changeNumResourceTotal(getResourceType(), getNumResourceForPlayer(getOwner()));
 
 							// Reconnect resource link
-							if(GetResourceLinkedCity() != NULL)
+							if(getEffectiveOwningCity() != NULL)
 								SetResourceLinkedCityActive(true);
 						}
 					}
@@ -8792,13 +8870,8 @@ void CvPlot::SetPlayerThatClearedDigHere(PlayerTypes eNewValue)
 #endif
 
 //	--------------------------------------------------------------------------------
-CvCity* CvPlot::GetResourceLinkedCity() const
-{
-	return ::GetPlayerCity(m_ResourceLinkedCity);
-}
-
-//	--------------------------------------------------------------------------------
 /// Link the resource on this plot to pCity. Note that this does NOT set the link to be active - this must be done manually
+/*
 void CvPlot::SetResourceLinkedCity(const CvCity* pCity)
 {
 	if (GetResourceLinkedCity() != pCity)
@@ -8858,6 +8931,7 @@ void CvPlot::SetResourceLinkedCity(const CvCity* pCity)
 		}
 	}
 }
+*/
 
 //	--------------------------------------------------------------------------------
 /// Is the Resource connection with the linked city active? (e.g. pillaging)
@@ -8876,150 +8950,29 @@ void CvPlot::SetResourceLinkedCityActive(bool bValue)
 
 		// Now change num resource local to linked city (new or former)
 
-		FAssertMsg(GetResourceLinkedCity() != NULL, "Resource linked city is null for some reason. Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+		//FAssertMsg(GetResourceLinkedCity() != NULL, "Resource linked city is null for some reason. Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 		FAssertMsg(getOwner() != NO_PLAYER, "Owner of a tile with a resource linkned to a city is not valid. Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 
 		int iResourceChange = bValue ? getNumResource() : -getNumResource();
-		GetResourceLinkedCity()->ChangeNumResourceLocal(getResourceType(), iResourceChange);
-		GetResourceLinkedCity()->ChangeNumResourceLocal(getResourceType(), iResourceChange*-1, true);
-
-	}
-}
-
-//	--------------------------------------------------------------------------------
-/// Find the closest nearby city to link the Resource here to
-void CvPlot::DoFindCityToLinkResourceTo(CvCity* pCityToExclude)
-{
-	// Make sure we can actually use this Resource first
-
-	// No resource here period
-	if(getResourceType() == NO_RESOURCE)
-		return;
-
-	ResourceTypes eResource = getResourceType(getTeam());
-
-	// Owner can't see resource here yet
-	if(eResource == NO_RESOURCE)
-		return;
-
-	CvCity* pBestCity = NULL;
-
-	// Loop through nearby plots to find the closest city to link to
-	CvPlot* pLoopPlot;
-
-	for(int iJ = 0; iJ < MAX_CITY_PLOTS; iJ++)
-	{
-		// We're not actually looking around a City but Resources have to be within the RANGE of a City, so we can still use this
-		pLoopPlot = iterateRingPlots(getX(), getY(), iJ);
-
-		if(pLoopPlot != NULL)
-		{
-			CvCity* pLoopCity = pLoopPlot->getPlotCity();
-			if(pLoopCity)
-			{
-				// Owner of the City must match the owner of the Resource Plot Tile (Don't want to give the Resource to another player!)
-				if(pLoopCity->getOwner() == getOwner())
-				{
-					if(pLoopCity != pCityToExclude)
-					{
-						pBestCity = pLoopCity;
-
-						break;
-					}
-				}
-			}
-		}
-	}
-
-	if(pBestCity != NULL)
-	{
-		SetResourceLinkedCity(pBestCity);
+		getEffectiveOwningCity()->ChangeNumResourceLocal(getResourceType(), iResourceChange);
+		getEffectiveOwningCity()->ChangeNumResourceLocal(getResourceType(), iResourceChange*-1, true);
 	}
 }
 
 //	-----------------------------------------------------------------------------------------------
-void CvPlot::setPlotCity(CvCity* pNewValue)
+CvCity* CvPlot::getPlotCity() const
 {
-	CvPlot* pLoopPlot;
-	int iI;
+	if(m_bIsCity && !m_owningCity.isInvalid())
+		return (GET_PLAYER((PlayerTypes)m_owningCity.eOwner).getCity(m_owningCity.iID));
 
-	if(getPlotCity() != pNewValue)
-	{
-		if(isCity())
-		{
-			// Is a route is here?  If so, we may now need to pay maintenance for it.  Yes, yes, I know, we're removing a city
-			// so most likely the owner will loose the plot shortly, but it is best to keep the costs in sync, else bad things happen
-			// if it doesn't get properly updated (like it has been == negative maintenance costs asserts)
-			if(getRouteType() != NO_ROUTE && getPlotCity()->getOwner() == getOwner())
-			{
-				// Maintenance change!
-				SetPlayerResponsibleForRoute(getOwner());
-			}
-
-
-			for(iI = 0; iI < getPlotCity()->GetNumWorkablePlots(); ++iI)
-			{
-				pLoopPlot = iterateRingPlots(getX(), getY(), iI);
-
-				if(pLoopPlot != NULL)
-				{
-					pLoopPlot->changeCityRadiusCount(-1);
-					pLoopPlot->changePlayerCityRadiusCount(getPlotCity()->getOwner(), -1);
-				}
-			}
-		}
-
-#if defined(MOD_EVENTS_TERRAFORMING)
-		if (MOD_EVENTS_TERRAFORMING) {
-			int iNewOwner = (pNewValue != NULL) ? pNewValue->getOwner() : -1;
-			int iNewCity = (pNewValue != NULL) ? pNewValue->GetID() : -1;
-			GAMEEVENTINVOKE_HOOK(GAMEEVENT_TerraformingPlot, TERRAFORMINGEVENT_CITY, m_iX, m_iY, 0, iNewOwner, m_plotCity.eOwner, iNewCity, m_plotCity.iID);
-		}
-#endif
-
-		if(pNewValue != NULL)
-		{
-			m_plotCity = pNewValue->GetIDInfo();
-		}
-		else
-		{
-			m_plotCity.reset();
-		}
-
-		if(isCity())
-		{
-
-			for(iI = 0; iI < getPlotCity()->GetNumWorkablePlots(); ++iI)
-			{
-				pLoopPlot = iterateRingPlots(getX(), getY(), iI);
-
-				if(pLoopPlot != NULL)
-				{
-					pLoopPlot->changeCityRadiusCount(1);
-					pLoopPlot->changePlayerCityRadiusCount(getPlotCity()->getOwner(), 1);
-				}
-			}
-#if defined(MOD_BALANCE_CORE)
-			if(isMountain())
-			{
-				ImprovementTypes eMachuPichu = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_JFD_MACHU_PICCHU");
-				setImprovementType(eMachuPichu);
-			}
-#endif
-			// Is a route is here?  If we already own this plot, then we were paying maintenance, now we don't have to.
-			if(getRouteType() != NO_ROUTE && getPlotCity()->getOwner() == getOwner())
-			{
-				// Maintenance change!
-				SetPlayerResponsibleForRoute(NO_PLAYER);
-			}
-
-		}
-
-		updateYield();
-	}
+	return NULL;
 }
 
-//	-----------------------------------------------------------------------------------------------
+void CvPlot::setOwningCityID(int iID)
+{
+	m_owningCity.iID = iID;
+}
+
 int CvPlot::getOwningCityID() const
 {
 	return m_owningCity.iID;
@@ -9030,76 +8983,53 @@ CvCity* CvPlot::getOwningCity() const
 	return ::GetPlayerCity(m_owningCity);
 }
 
-//	--------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------
 void CvPlot::updateOwningCity()
 {
-	CvCity* pBestCity = getPlotCity();
-	if(pBestCity == NULL)
-	{
-		pBestCity = getOwningCityOverride();
-		CvAssertMsg((pBestCity == NULL) || (pBestCity->getOwner() == getOwner()), "pBest city is expected to either be NULL or the current plot instance's");
-	}
+	//nothing to do
+	if (!isOwned())
+		return;
 
-	if((pBestCity == NULL) && isOwned())
+	//make sure to clear the override if it is invalid
+	if (getOwningCityOverride() == NULL)
+		setOwningCityOverride(NULL);
+
+	//nothing to do
+	if (getOwningCity())
+		return;
+
+	//find a city
+	int iBestPlot = 0;
+	CvCity* pBestCity = NULL;
+	for(int iI = 0; iI < MAX_CITY_PLOTS; ++iI)
 	{
-		int iBestPlot = 0;
-		for(int iI = 0; iI < MAX_CITY_PLOTS; ++iI)
+		CvPlot* pLoopPlot = iterateRingPlots(getX(), getY(), iI);
+		if(pLoopPlot != NULL)
 		{
-			CvPlot* pLoopPlot = iterateRingPlots(getX(), getY(), iI);
-			if(pLoopPlot != NULL)
+			CvCity* pLoopCity = pLoopPlot->getPlotCity();
+			if(pLoopCity != NULL)
 			{
-				CvCity* pLoopCity = pLoopPlot->getPlotCity();
-				if(pLoopCity != NULL)
+				if(pLoopCity->getOwner() == getOwner())
 				{
-					if(pLoopCity->getOwner() == getOwner())
+					if((pBestCity == NULL) ||
+						    (GC.getCityPlotPriority()[iI] < GC.getCityPlotPriority()[iBestPlot]) ||
+						    ((GC.getCityPlotPriority()[iI] == GC.getCityPlotPriority()[iBestPlot]) &&
+						        ((pLoopCity->getGameTurnAcquired() < pBestCity->getGameTurnAcquired()) ||
+						        ((pLoopCity->getGameTurnAcquired() == pBestCity->getGameTurnAcquired()) &&
+						        (pLoopCity->GetID() < pBestCity->GetID())))))
 					{
-						if((pBestCity == NULL) ||
-						        (GC.getCityPlotPriority()[iI] < GC.getCityPlotPriority()[iBestPlot]) ||
-						        ((GC.getCityPlotPriority()[iI] == GC.getCityPlotPriority()[iBestPlot]) &&
-						         ((pLoopCity->getGameTurnAcquired() < pBestCity->getGameTurnAcquired()) ||
-						          ((pLoopCity->getGameTurnAcquired() == pBestCity->getGameTurnAcquired()) &&
-						           (pLoopCity->GetID() < pBestCity->GetID())))))
-						{
-							iBestPlot = iI;
-							pBestCity = pLoopCity;
-						}
+						iBestPlot = iI;
+						pBestCity = pLoopCity;
 					}
 				}
 			}
 		}
 	}
 
-	CvCity* pOldOwningCity = getOwningCity();
-
-	if(pOldOwningCity != pBestCity)
+	if (pBestCity)
 	{
-		// Remove Citizen from this plot if another City's using it
-		if (pOldOwningCity != NULL)
-		{
-			// Remove citizen
-			pOldOwningCity->GetCityCitizens()->SetWorkingPlot(this, false, CvCity::YIELD_UPDATE_LOCAL);
-			SetResourceLinkedCity(NULL);
-			// Re-add citvizen somewhere else
-			pOldOwningCity->GetCityCitizens()->DoAddBestCitizenFromUnassigned(CvCity::YIELD_UPDATE_GLOBAL);
-		}
-		// Change what City's allowed to work this Plot
-		if(pBestCity != NULL)
-		{
-#if defined(MOD_BALANCE_CORE)
-			SetResourceLinkedCity(pBestCity);
-#endif
-
-			CvAssertMsg(isOwned(), "isOwned is expected to be true");
-			CvAssertMsg(!isBeingWorked(), "isBeingWorked did not return false as expected");
-			m_owningCity = pBestCity->GetIDInfo();
-		}
-		else
-		{
-			m_owningCity.reset();
-		}
-
+		m_owningCity = pBestCity->GetIDInfo();
 		updateYield();
-
 		GC.GetEngineUserInterface()->setDirty(ColoredPlots_DIRTY_BIT, true);
 	}
 }
@@ -9131,15 +9061,14 @@ CvCity* CvPlot::getOwningCityOverride() const
 	return ::GetPlayerCity(m_owningCityOverride);
 }
 
-
 //	--------------------------------------------------------------------------------
 void CvPlot::setOwningCityOverride(const CvCity* pNewValue)
 {
-	if(getOwningCityOverride() != pNewValue)
+	CvCity* pCurrentCity = getOwningCityOverride();
+	if ( pNewValue != pCurrentCity )
 	{
 		if(pNewValue != NULL && pNewValue != getOwningCity())
 		{
-			CvAssertMsg(pNewValue->getOwner() == getOwner(), "Argument city pNewValue's owner is expected to be the same as the current instance");
 			m_owningCityOverride = pNewValue->GetIDInfo();
 		}
 		else
@@ -9147,7 +9076,17 @@ void CvPlot::setOwningCityOverride(const CvCity* pNewValue)
 			m_owningCityOverride.reset();
 		}
 
-		updateOwningCity();
+		// Remove citizen from this plot if another city was using it
+		if (pCurrentCity == NULL)
+			pCurrentCity = getOwningCity();
+
+		if (pCurrentCity != NULL && pCurrentCity->GetCityCitizens()->IsWorkingPlot(this))
+		{
+			pCurrentCity->GetCityCitizens()->SetWorkingPlot(this, false, CvCity::YIELD_UPDATE_LOCAL);
+			pCurrentCity->GetCityCitizens()->DoAddBestCitizenFromUnassigned(CvCity::YIELD_UPDATE_GLOBAL);
+		}
+
+		GC.GetEngineUserInterface()->setDirty(ColoredPlots_DIRTY_BIT, true);
 	}
 }
 
@@ -9191,9 +9130,25 @@ int CvPlot::getYield(YieldTypes eIndex) const
 #if defined(MOD_API_EXTENSIONS)
 void CvPlot::changeYield(YieldTypes eYield, int iChange)
 {
-    CvAssertMsg(eYield >= 0, "eYield is expected to be non-negative (invalid Index)");
-    CvAssertMsg(eYield < NUM_YIELD_TYPES, "eYield is expected to be within maximum bounds (invalid Index)");
-    m_aiArbitraryYields[eYield] += iChange;
+	if (iChange == 0)
+		return;
+
+	for (size_t i = 0; i < m_vExtraYields.size(); i++)
+	{
+		if (m_vExtraYields[i].first == eYield)
+		{
+			m_vExtraYields[i].second += iChange;
+			if (m_vExtraYields[i].second == 0)
+				m_vExtraYields.erase( m_vExtraYields.begin()+i );
+
+			//done!
+			updateYield();
+			return;
+		}
+	}
+
+	//not found? add a new entry		
+	m_vExtraYields.push_back( make_pair(eYield,iChange) );
     updateYield();
 }
 #endif
@@ -10516,9 +10471,14 @@ int CvPlot::calculateYieldFast(YieldTypes eYield, bool bDisplay, const CvCity* p
 #endif
 
 #if defined(MOD_API_EXTENSIONS)
-    if (m_aiArbitraryYields[eYield])
+	//no overhead if empty
+	for (size_t i=0; i<m_vExtraYields.size(); i++)
     {
-        iYield += m_aiArbitraryYields[eYield];
+		if (m_vExtraYields[i].first == eYield)
+		{
+			iYield += m_vExtraYields[i].second;
+			break;
+		}
     }
 #endif
 
@@ -12690,21 +12650,16 @@ void CvPlot::Serialize(Plot& plot, Visitor& visitor)
 	visitor(plot.m_eRiverSEFlowDirection);
 	visitor(plot.m_eRiverSWFlowDirection);
 
-	visitor(plot.m_plotCity.eOwner);
-	visitor(plot.m_plotCity.iID);
+	visitor(plot.m_bIsCity);
+	
 	visitor(plot.m_owningCity.eOwner);
 	visitor(plot.m_owningCity.iID);
 	visitor(plot.m_owningCityOverride.eOwner);
 	visitor(plot.m_owningCityOverride.iID);
-	visitor(plot.m_ResourceLinkedCity.eOwner);
-	visitor(plot.m_ResourceLinkedCity.iID);
-	visitor(plot.m_purchaseCity.eOwner);
-	visitor(plot.m_purchaseCity.iID);
 
 	for (uint i = 0; i < NUM_YIELD_TYPES; i++)
 	{
 		visitor(plot.m_aiYield[i]);
-		visitor(plot.m_aiArbitraryYields[i]);
 	}
 
 	for (int i = 0; i < MAX_TEAMS; i++)
@@ -13244,9 +13199,14 @@ int CvPlot::getYieldWithBuild(BuildTypes eBuild, YieldTypes eYield, bool bWithUp
 	}
 
 #if defined(MOD_API_EXTENSIONS)
-    if (m_aiArbitraryYields[eYield])
+	//no overhead if empty
+	for (size_t i=0; i<m_vExtraYields.size(); i++)
     {
-        iYield += m_aiArbitraryYields[eYield];
+		if (m_vExtraYields[i].first == eYield)
+		{
+			iYield += m_vExtraYields[i].second;
+			break;
+		}
     }
 #endif
 

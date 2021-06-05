@@ -5093,6 +5093,7 @@ bool CvUnit::canMoveInto(const CvPlot& plot, int iMoveFlags) const
 		// Don't let another player's unit inside someone's city
 		if((iMoveFlags & CvUnit::MOVEFLAG_ATTACK)==0)
 		{
+
 			if(plot.isCity() && plot.getPlotCity()->getOwner() != getOwner())
 				return false;
 		}
@@ -12736,17 +12737,14 @@ void CvUnit::PerformCultureBomb(int iRadius)
 	int iBestCityID = -1;
 
 	// Plot we're standing on belongs to a city already
-	if(pThisPlot->getOwner() == getOwner() && pThisPlot->GetCityPurchaseID() != -1)
+	if(pThisPlot->getOwner() == getOwner() && pThisPlot->getOwningCityID() != -1)
 	{
-		iBestCityID = pThisPlot->GetCityPurchaseID();
+		iBestCityID = pThisPlot->getOwningCityID();
 	}
 	// Find closest city
 	else
 	{
 		int iBestCityDistance = -1;
-
-		int iDistance;
-
 		CvCity* pLoopCity = NULL;
 		int iLoop = 0;
 		for(pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
@@ -12754,7 +12752,7 @@ void CvUnit::PerformCultureBomb(int iRadius)
 			CvPlot* pPlot = pLoopCity->plot();
 			if(pPlot)
 			{
-				iDistance = plotDistance(getX(), getY(), pLoopCity->getX(), pLoopCity->getY());
+				int iDistance = plotDistance(getX(), getY(), pLoopCity->getX(), pLoopCity->getY());
 
 				if(iBestCityDistance == -1 || iDistance < iBestCityDistance)
 				{
@@ -19664,10 +19662,6 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 			setLastMoveTurn(GC.getGame().getGameTurn());
 			pOldCity = pOldPlot->getPlotCity();
 		}
-
-		//lift the blockade from last turn if we haven't moved this turn yet
-		if (!hasMoved())
-			DoBlockade(pOldPlot, false);
 	}
 
 	if(pNewPlot != NULL)
@@ -21418,62 +21412,6 @@ void CvUnit::SetFortified(bool bValue)
 		triggerFortifyAnimation(bValue);
 		m_bFortified = bValue;
 	}
-}
-
-int CvUnit::DoBlockade(CvPlot* pWhere, bool bActive)
-{
-	if (!pWhere || !IsCombatUnit() || !isNativeDomain(pWhere))
-		return 0;
-
-	int iCount = 0;
-	int iRange = 0;
-	if (getDomainType()==DOMAIN_SEA)
-		iRange = min(5, max(0, GC.getNAVAL_PLOT_BLOCKADE_RANGE()));
-
-	for (int i = 0; i < RING_PLOTS[iRange]; i++)
-	{
-		CvPlot* pLoopPlot = iterateRingPlots(pWhere, i);
-
-		//some plots we can never blockade
-		if (!pLoopPlot || !isNativeDomain(pLoopPlot) || pLoopPlot->isCity() || pLoopPlot->getArea() != pWhere->getArea())
-			continue;
-
-		CvCity* pCity = pLoopPlot->getEffectiveOwningCity();
-		if (pCity)
-		{
-			if (bActive)
-			{
-				//only blockade our enemies ...
-				if (!isEnemy(pCity->getTeam()))
-				{
-					//make sure we update correctly even if the unit did not move this turn
-					pCity->GetCityCitizens()->SetBlockaded(pLoopPlot, GetID(), false);
-					continue;
-				}
-
-				//friends of our enemy prevent the blockade
-				CvUnit* pDefender = pLoopPlot->getBestDefender(NO_PLAYER);
-				if (pDefender && !pDefender->isEnemy(pCity->getTeam()) && pDefender->isNativeDomain(pLoopPlot))
-				{
-					//make sure we update correctly even if the unit did not move this turn
-					pCity->GetCityCitizens()->SetBlockaded(pLoopPlot, GetID(), false);
-					continue;
-				}
-
-				//finally set it blockaded if nothing prevents us
-				pCity->GetCityCitizens()->SetBlockaded(pLoopPlot, GetID(), true);
-				iCount++;
-			}
-			else
-			{
-				//reset to default without further checks
-				pCity->GetCityCitizens()->SetBlockaded(pLoopPlot, GetID(), false);
-				iCount++;
-			}
-		}
-	}
-
-	return iCount;
 }
 
 int CvUnit::DoAdjacentPlotDamage(CvPlot* pWhere, int iValue, const char* chTextKey)

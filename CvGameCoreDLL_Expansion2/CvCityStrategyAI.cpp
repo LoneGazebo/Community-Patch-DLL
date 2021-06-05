@@ -1075,6 +1075,18 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg, UnitTypes eIg
 				case CITY_BUILDABLE_PROJECT:
 				{
 					ProjectTypes eProjectType = (ProjectTypes)m_Buildables.GetElement(i).m_iIndex;
+					CvProjectEntry* pkProjectInfo = GC.getProjectInfo(eProjectType);
+					if (pkProjectInfo)
+					{
+						//is this is a victory condition? ignore everything else and build, build, build!
+						VictoryTypes ePrereqVictory = (VictoryTypes)pkProjectInfo->GetVictoryPrereq();
+						if (ePrereqVictory != NO_VICTORY && GC.getGame().isVictoryValid(ePrereqVictory))
+						{
+							selection = m_Buildables.GetElement(i);
+							bContinueWithCurrentBuild = true;
+						}
+					}
+
 					if (m_pCity->isProductionProject() && m_pCity->getProductionProject() == eProjectType)
 					{
 						selection = m_Buildables.GetElement(i);
@@ -3035,10 +3047,16 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_FirstFaithBuilding(CvCity* pCity)
 /// "Under Blockade" City Strategy: build walls or archers
 bool CityStrategyAIHelpers::IsTestCityStrategy_UnderBlockade(CvCity* pCity)
 {
-	if(pCity->GetCityCitizens()->IsAnyPlotBlockaded()/* && !pCity->IsHasBuildingThatAllowsRangeStrike()*/)
-	{
+	CvPlayer& kPlayer = GET_PLAYER(pCity->getOwner());
+	CvTacticalDominanceZone* pLandZone = kPlayer.GetTacticalAI()->GetTacticalAnalysisMap()->GetZoneByCity(kPlayer.getCapitalCity(),false);
+	CvTacticalDominanceZone* pWaterZone = kPlayer.GetTacticalAI()->GetTacticalAnalysisMap()->GetZoneByCity(kPlayer.getCapitalCity(),true);
+
+	//don't wait until the city is really blockaded, significant enemy presence is enough
+
+	if (pLandZone && pLandZone->GetOverallDominanceFlag()!=TACTICAL_DOMINANCE_FRIENDLY)
 		return true;
-	}
+	if (pWaterZone && pWaterZone->GetOverallDominanceFlag()!=TACTICAL_DOMINANCE_FRIENDLY)
+		return true;
 
 	return false;
 }

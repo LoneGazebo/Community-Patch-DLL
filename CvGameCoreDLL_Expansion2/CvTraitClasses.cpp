@@ -6185,7 +6185,6 @@ bool CvPlayerTraits::AddUniqueLuxuriesAround(CvCity *pCity, int iNumResourceToGi
 			if(pLoopPlot->getResourceType() == NO_RESOURCE && pLoopPlot->getImprovementType() == NO_IMPROVEMENT)
 			{
 				pLoopPlot->setResourceType(eResourceToGive, 1, false);
-				pLoopPlot->DoFindCityToLinkResourceTo();
 				iNumResourceGiven++;
 
 				if(iNumResourceGiven >= iNumResourceToGive)
@@ -6212,7 +6211,6 @@ bool CvPlayerTraits::AddUniqueLuxuriesAround(CvCity *pCity, int iNumResourceToGi
 						pLoopPlot->setImprovementType(NO_IMPROVEMENT);
 
 					pLoopPlot->setResourceType(eResourceToGive, 1, false);
-					pLoopPlot->DoFindCityToLinkResourceTo();
 					iNumResourceGiven++;
 
 					if(iNumResourceGiven >= iNumResourceToGive)
@@ -6232,7 +6230,6 @@ bool CvPlayerTraits::AddUniqueLuxuriesAround(CvCity *pCity, int iNumResourceToGi
 		if(eCurrentResource == NO_RESOURCE)
 		{
 			pCity->plot()->setResourceType(eResourceToGive, 1, false);
-			pCity->plot()->DoFindCityToLinkResourceTo();
 			bResult = true;
 		}
 	}

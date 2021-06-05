@@ -34,7 +34,9 @@ public:
 	static void MapInit(int iWorldNumPlots);
 	static void Uninit();
 
-	static void Read(FDataStream& kStream, uint uiParentVersion);
+	template<typename Visitor>
+	static void Serialize(Visitor& visitor);
+	static void Read(FDataStream& kStream);
 	static void Write(FDataStream& kStream);
 #if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
 	static void DoCityActivationNotice(CvPlot* pPlot);
