@@ -525,7 +525,11 @@ void CvBarbarians::Uninit()
 template<typename Visitor>
 void CvBarbarians::Serialize(Visitor& visitor)
 {
-	int iWorldNumPlots = GC.getMap().numPlots();
+	const bool bLoading = visitor.isLoading();
+
+	const int iWorldNumPlots = GC.getMap().numPlots();
+	if (bLoading)
+		MapInit(iWorldNumPlots);	// Map will have been initialized/unserialized by now so this is ok.
 	visitor(MakeConstSpan(m_aiPlotBarbCampSpawnCounter, iWorldNumPlots));
 	visitor(MakeConstSpan(m_aiPlotBarbCampNumUnitsSpawned, iWorldNumPlots));
 	visitor(MakeConstSpan(m_aiPlotBarbCitySpawnCounter, iWorldNumPlots));
