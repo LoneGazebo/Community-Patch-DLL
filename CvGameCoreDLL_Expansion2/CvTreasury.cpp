@@ -1060,61 +1060,37 @@ void CvTreasury::LogExpenditure(CvString strExpenditure, int iAmount, int iColum
 	pLog->Msg(strLog);
 }
 
+template<typename Treasury, typename Visitor>
+void CvTreasury::Serialize(Treasury& treasury, Visitor& visitor)
+{
+	visitor(treasury.m_iGold);
+	visitor(treasury.m_iGoldPerTurnFromDiplomacy);
+	visitor(treasury.m_iExpensePerTurnUnitMaintenance);
+	visitor(treasury.m_iExpensePerTurnUnitSupply);
+	visitor(treasury.m_iCityConnectionGoldTimes100);
+	visitor(treasury.m_iCityConnectionTradeRouteGoldModifier);
+	visitor(treasury.m_iCityConnectionTradeRouteGoldChange);
+	visitor(treasury.m_iBaseBuildingGoldMaintenance);
+	visitor(treasury.m_iBaseImprovementGoldMaintenance);
+	visitor(treasury.m_GoldBalanceForTurnTimes100);
+	visitor(treasury.m_GoldChangeForTurnTimes100);
+	visitor(treasury.m_iLifetimeGrossGoldIncome);
+	visitor(treasury.m_iInternalTradeGoldBonus);
+	visitor(treasury.m_iExpensePerTurnFromVassalTax);
+}
+
 /// Serialization read
 void CvTreasury::Read(FDataStream& kStream)
 {
-	// Version number to maintain backwards compatibility
-	uint uiVersion;
-
-	kStream >> uiVersion;
-	MOD_SERIALIZE_INIT_READ(kStream);
-
-	kStream >> m_iGold;
-	kStream >> m_iGoldPerTurnFromDiplomacy;
-	kStream >> m_iExpensePerTurnUnitMaintenance;
-	kStream >> m_iExpensePerTurnUnitSupply;
-	kStream >> m_iCityConnectionGoldTimes100;
-	kStream >> m_iCityConnectionTradeRouteGoldModifier;
-	kStream >> m_iCityConnectionTradeRouteGoldChange;
-	kStream >> m_iBaseBuildingGoldMaintenance;
-	kStream >> m_iBaseImprovementGoldMaintenance;
-	kStream >> m_GoldBalanceForTurnTimes100;
-	kStream >> m_GoldChangeForTurnTimes100;
-	kStream >> m_iLifetimeGrossGoldIncome;
-#if defined(MOD_BALANCE_CORE)
-	kStream >> m_iInternalTradeGoldBonus;
-#endif
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-	MOD_SERIALIZE_READ(73, kStream, m_iExpensePerTurnFromVassalTax, 0);
-#endif
+	CvStreamLoadVisitor serialVisitor(kStream);
+	Serialize(*this, serialVisitor);
 }
 
 /// Serialization write
 void CvTreasury::Write(FDataStream& kStream) const
 {
-	// Current version number
-	uint uiVersion = 1;
-	kStream << uiVersion;
-	MOD_SERIALIZE_INIT_WRITE(kStream);
-
-	kStream << m_iGold;
-	kStream << m_iGoldPerTurnFromDiplomacy;
-	kStream << m_iExpensePerTurnUnitMaintenance;
-	kStream << m_iExpensePerTurnUnitSupply;
-	kStream << m_iCityConnectionGoldTimes100;
-	kStream << m_iCityConnectionTradeRouteGoldModifier;
-	kStream << m_iCityConnectionTradeRouteGoldChange;
-	kStream << m_iBaseBuildingGoldMaintenance;
-	kStream << m_iBaseImprovementGoldMaintenance;
-	kStream << m_GoldBalanceForTurnTimes100;
-	kStream << m_GoldChangeForTurnTimes100;
-	kStream << m_iLifetimeGrossGoldIncome;
-#if defined(MOD_BALANCE_CORE)
-	kStream << m_iInternalTradeGoldBonus;
-#endif
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-	MOD_SERIALIZE_WRITE(kStream, m_iExpensePerTurnFromVassalTax);
-#endif
+	CvStreamSaveVisitor serialVisitor(kStream);
+	Serialize(*this, serialVisitor);
 }
 
 FDataStream& operator>>(FDataStream& stream, CvTreasury& treasury)

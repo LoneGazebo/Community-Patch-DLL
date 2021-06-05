@@ -27,6 +27,8 @@ public:
 	void Init(CvPlayer* pPlayer);
 	void Uninit();
 
+	template<typename Treasury, typename Visitor>
+	static void Serialize(Treasury& treasury, Visitor& visitor);
 	void Read(FDataStream& kStream);
 	void Write(FDataStream& kStream) const;
 
