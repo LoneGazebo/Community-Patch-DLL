@@ -5665,15 +5665,18 @@ int CvPlayerCulture::ComputeWarWeariness()
 			continue;
 		if (kPlayer.getNumCities() <= 0)
 			continue;
+
+		iNumOtherCivs++;
+
 		if (!kPlayer.IsAtWarWith(m_pPlayer->GetID()))
 		{
-			iNumOtherCivs++;
 			int iPeaceLength = m_pPlayer->GetPlayerNumTurnsAtPeace(ePlayer);
 			if (iPeaceLength < iLeastPeaceTurns)
 				iLeastPeaceTurns = iPeaceLength;
 
 			continue;
 		}
+
 		if (!GET_TEAM(m_pPlayer->getTeam()).canChangeWarPeace(kPlayer.getTeam()))
 			continue;
 
@@ -5682,8 +5685,6 @@ int CvPlayerCulture::ComputeWarWeariness()
 			continue;
 		if (iWarLength > iLongestWarTurns)
 			iLongestWarTurns = iWarLength;
-
-		iNumOtherCivs++;
 
 		// 100% of our war value lost applies.
 		int iWarDamage = m_pPlayer->GetDiplomacyAI()->GetWarValueLost(ePlayer);
