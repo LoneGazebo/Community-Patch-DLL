@@ -36,9 +36,15 @@ struct MayaBonusChoice
 		m_iBaktunJustFinished = in.m_iBaktunJustFinished;
 	};
 
+	template<typename MayaBonusChoiceT, typename Visitor>
+	static void Serialize(MayaBonusChoiceT& mayaBonusChoiceT, Visitor& visitor);
+
 	UnitTypes m_eUnitType;
 	int m_iBaktunJustFinished;
 };
+
+FDataStream& operator<<(FDataStream&, const MayaBonusChoice&);
+FDataStream& operator>>(FDataStream&, MayaBonusChoice&);
 
 struct TradeRouteProductionSiphon
 {
@@ -56,9 +62,15 @@ struct TradeRouteProductionSiphon
 		return false;
 	}
 
+	template<typename TradeRouteProductionSiphonT, typename Visitor>
+	static void Serialize(TradeRouteProductionSiphonT& tradeRouteProductionSiphon, Visitor& visitor);
+
 	int m_iSiphonPercent;
 	int m_iPercentIncreaseWithOpenBorders;
 };
+
+FDataStream& operator<<(FDataStream&, const TradeRouteProductionSiphon&);
+FDataStream& operator>>(FDataStream&, TradeRouteProductionSiphon&);
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //  CLASS:      CvTraitEntry
@@ -824,9 +836,15 @@ private:
 
 struct FreeTraitUnit
 {
+	template<typename FreeTraitUnitT, typename Visitor>
+	static void Serialize(FreeTraitUnitT& freeTraitUnit, Visitor& visitor);
+
 	UnitTypes m_iFreeUnit;
 	TechTypes m_ePrereqTech;
 };
+
+FDataStream& operator<<(FDataStream&, const FreeTraitUnit&);
+FDataStream& operator>>(FDataStream&, FreeTraitUnit&);
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //  CLASS:      CvPlayerTraits
@@ -2001,6 +2019,8 @@ public:
 	bool IsProphetValid() const;
 #endif
 	// Serialization
+	template<typename PlayerTraits, typename Visitor>
+	static void Serialize(PlayerTraits& playerTraits, Visitor& visitor);
 	void Read(FDataStream& kStream);
 	void Write(FDataStream& kStream) const;
 

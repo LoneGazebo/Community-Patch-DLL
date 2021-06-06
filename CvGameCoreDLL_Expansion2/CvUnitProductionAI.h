@@ -28,6 +28,8 @@ public:
 	void Reset();
 
 	// Serialization routines
+	template<typename UnitProductionAI, typename Visitor>
+	static void Serialize(UnitProductionAI& unitProductionAI, Visitor& visitor);
 	void Read(FDataStream& kStream);
 	void Write(FDataStream& kStream) const;
 

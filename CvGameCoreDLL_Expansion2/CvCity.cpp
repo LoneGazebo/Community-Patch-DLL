@@ -220,18 +220,14 @@ CvCity::CvCity() :
 	, m_iLocalGainlessPillageCount()
 #endif
 	, m_iFood()
-	, m_iFoodKept()
 	, m_iMaxFoodKeptPercent()
 	, m_iOverflowProduction()
 	, m_iFeatureProduction()
 	, m_iMilitaryProductionModifier()
 	, m_iSpaceProductionModifier()
 	, m_iFreeExperience()
-	, m_iCurrAirlift() // unused
 	, m_iMaxAirUnits()
-	, m_iAirModifier() // unused
 	, m_iNukeModifier()
-	, m_iCultureUpdateTimer()	// unused
 	, m_iCitySizeBoost()
 	, m_iSpecialistFreeExperience()
 	, m_iStrengthValue()
@@ -258,7 +254,6 @@ CvCity::CvCity() :
 	, m_unitBeingBuiltForOperation()
 	, m_bNeverLost()
 	, m_bDrafted()
-	, m_bAirliftTargeted()   // unused
 	, m_bProductionAutomated()
 	, m_bLayoutDirty()
 	, m_bMadeAttack()
@@ -1408,16 +1403,13 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_iLocalGainlessPillageCount = 0;
 #endif
 	m_iFood = 0;
-	m_iFoodKept = 0;
 	m_iMaxFoodKeptPercent = 0;
 	m_iOverflowProduction = 0;
 	m_iFeatureProduction = 0;
 	m_iMilitaryProductionModifier = 0;
 	m_iSpaceProductionModifier = 0;
 	m_iFreeExperience = 0;
-	m_iCurrAirlift = 0; // unused
 	m_iMaxAirUnits = GC.getBASE_CITY_AIR_STACKING();
-	m_iAirModifier = 0; // unused
 	m_iNukeModifier = 0;
 	m_iTradeRouteRecipientBonus = 0;
 	m_iTradeRouteSeaGoldBonus = 0;
@@ -1425,7 +1417,6 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_iNumTradeRouteBonus = 0;
 	m_iCityConnectionTradeRouteGoldModifier = 0;
 	m_iTradeRouteTargetBonus = 0;
-	m_iCultureUpdateTimer = 0;
 	m_iCitySizeBoost = 0;
 	m_iSpecialistFreeExperience = 0;
 	m_iStrengthValue = 0;
@@ -1447,7 +1438,6 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 
 	m_bNeverLost = true;
 	m_bDrafted = false;
-	m_bAirliftTargeted = false;   // unused
 	m_bProductionAutomated = false;
 	m_bLayoutDirty = false;
 	m_bMadeAttack = false;
@@ -33253,16 +33243,13 @@ void CvCity::Serialize(City& city, Visitor& visitor)
 	visitor(city.m_iNoOccupiedUnhappinessCount);
 	visitor(city.m_iLocalGainlessPillageCount);
 	visitor(city.m_iFood);
-	visitor(city.m_iFoodKept);
 	visitor(city.m_iMaxFoodKeptPercent);
 	visitor(city.m_iOverflowProduction);
 	visitor(city.m_iFeatureProduction);
 	visitor(city.m_iMilitaryProductionModifier);
 	visitor(city.m_iSpaceProductionModifier);
 	visitor(city.m_iFreeExperience);
-	visitor(city.m_iCurrAirlift);
 	visitor(city.m_iMaxAirUnits);
-	visitor(city.m_iAirModifier);
 	visitor(city.m_iNukeModifier);
 	visitor(city.m_iTradeRouteTargetBonus);
 	visitor(city.m_iTradeRouteRecipientBonus);
@@ -33270,7 +33257,6 @@ void CvCity::Serialize(City& city, Visitor& visitor)
 	visitor(city.m_iTradeRouteLandGoldBonus);
 	visitor(city.m_iNumTradeRouteBonus);
 	visitor(city.m_iCityConnectionTradeRouteGoldModifier);
-	visitor(city.m_iCultureUpdateTimer);
 	visitor(city.m_iCitySizeBoost);
 	visitor(city.m_iSpecialistFreeExperience);
 	visitor(city.m_iStrengthValue);
@@ -33291,7 +33277,6 @@ void CvCity::Serialize(City& city, Visitor& visitor)
 	visitor(city.m_iConversionModifier);
 	visitor(city.m_bNeverLost);
 	visitor(city.m_bDrafted);
-	visitor(city.m_bAirliftTargeted);
 	visitor(city.m_bProductionAutomated);
 	visitor(city.m_bLayoutDirty);
 	visitor(city.m_bMadeAttack);
