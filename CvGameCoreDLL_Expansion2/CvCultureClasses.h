@@ -284,10 +284,8 @@ public:
 	PolicyBranchTypes GetPublicOpinionPreferredIdeology() const;
 	CvString GetPublicOpinionTooltip() const;
 	int GetPublicOpinionUnhappiness() const;
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
 	int GetWarWeariness() const;
 	void SetWarWeariness(int iValue);
-#endif
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	int GetTourismModifierVassal() const;
 #endif
@@ -347,9 +345,7 @@ private:
 #else
 	int ComputePublicOpinionUnhappiness(int iDissatisfaction, int &iPerCityUnhappy, int &iUnhappyPerXPop);
 #endif
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
 	int ComputeWarWeariness();
-#endif
 	// Logging functions
 	void LogCultureData();
 	void LogThemedBuilding(int iCityID, BuildingTypes eBuilding, int iBonus);
