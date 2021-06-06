@@ -608,12 +608,10 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 	//--------------------------------
 	// Init pre-setup() data
 	setXY(iX, iY, false, false, false, false, bNoMove);
-#if defined(MOD_BALANCE_CORE)
-	if(plot() != NULL && plot()->getOwningCity() != NULL && plot()->getOwningCity()->getOwner() == getOwner())
-	{
+
+	if(plot() && plot()->getOwningCity() && plot()->getOwner() == getOwner())
 		setOriginCity(plot()->getOwningCity()->GetID());
-	}
-#endif
+
 	//--------------------------------
 	// Init non-saved data
 
@@ -1087,7 +1085,7 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 	// Religious unit? If so takes religion from city
 	if (getUnitInfo().IsSpreadReligion() || getUnitInfo().IsRemoveHeresy())
 	{
-		CvCity *pCity = plot()->getOwningCity();
+		CvCity *pCity = plot()->getEffectiveOwningCity();
 		if (pCity)
 		{
 			ReligionTypes eReligion = pCity->GetCityReligions()->GetReligiousMajority();
@@ -1222,7 +1220,7 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 	GreatPersonTypes eGreatPerson = GetGreatPersonFromUnitClass(getUnitClassType());
 	if (eGreatPerson != NO_GREATPERSON && bHistoric)
 	{
-		CvCity* pCity = plot()->getOwningCity();
+		CvCity* pCity = plot()->getEffectiveOwningCity();
 		if (pCity != NULL && pCity->getOwner() == GetID())
 		{
 			GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_GP_BORN, false, eGreatPerson, NO_BUILDING, 0, true, NO_PLAYER, NULL, false, pCity);
@@ -2189,7 +2187,7 @@ void CvUnit::convert(CvUnit* pUnit, bool bIsUpgrade)
 
 	if (pUnit->getOriginCity() == NULL)
 	{
-		if (plot() != NULL && plot()->getOwningCity() != NULL && plot()->getOwningCity()->getOwner() == getOwner())
+		if (plot() && plot()->getOwningCity() && plot()->getOwner() == getOwner())
 		{
 			setOriginCity(plot()->getOwningCity()->GetID());
 		}
@@ -10457,7 +10455,7 @@ bool CvUnit::pillage()
 						iPillageGold = 0;
 					} else
 					{
-						CvCity* pCityOfThisOtherTeamsPlot = pPlot->getOwningCity();
+						CvCity* pCityOfThisOtherTeamsPlot = pPlot->getEffectiveOwningCity();
 						if (pCityOfThisOtherTeamsPlot != NULL && pCityOfThisOtherTeamsPlot->IsLocalGainlessPillage())
 						{
 							iPillageGold = 0;
@@ -10557,7 +10555,7 @@ bool CvUnit::pillage()
 		//if the plot isn't guarded by a gainless pillage building for this player, nor this city
 		if (!(pPlot->getOwner() != NO_PLAYER && GET_PLAYER(pPlot->getOwner()).isBorderGainlessPillage()) )
 		{
-			CvCity* pCityOfThisPlot = pPlot->getOwningCity();
+			CvCity* pCityOfThisPlot = pPlot->getEffectiveOwningCity();
 			if ( pCityOfThisPlot == NULL || !(pCityOfThisPlot->IsLocalGainlessPillage()) )
 			{
 				if (hasHealOnPillage())
@@ -11982,12 +11980,10 @@ int CvUnit::getHurryProduction(const CvPlot* pPlot) const
 	CvCity* pCity = GET_PLAYER(getOwner()).getCity(m_iOriginCity);
 	
 	if (pCity == NULL)
-		pCity = pPlot->getOwningCity();
+		pCity = pPlot->getEffectiveOwningCity();
 
 	if(pCity == NULL)
-	{
 		return 0;
-	}
 
 	int iProduction = getMaxHurryProduction(pCity);
 
@@ -13231,15 +13227,13 @@ bool CvUnit::givePolicies()
 #else
 	int iCultureBonus = getGivePoliciesCulture();
 #endif
+
 	if (iCultureBonus != 0)
 	{
 		kPlayer.changeJONSCulture(iCultureBonus);
-#if defined(MOD_BALANCE_CORE)
-		if(pPlot->getOwningCity() != NULL && pPlot->getOwningCity()->getOwner() == getOwner())
-		{
+		if(pPlot->getOwningCity() && pPlot->getOwner() == getOwner())
 			pPlot->getOwningCity()->ChangeJONSCultureStored(iCultureBonus);
-		}
-#endif
+
 		// Refresh - we might get to pick a policy this turn
 	}
 

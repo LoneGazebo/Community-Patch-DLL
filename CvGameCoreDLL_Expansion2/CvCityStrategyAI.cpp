@@ -2719,7 +2719,7 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_EnoughNavalTileImprovement(CvCity
 		CvPlot* pLoopPlot = iterateRingPlots(iX, iY, iCityPlotLoop);
 
 		// Invalid plot or not owned by this player
-		if (pLoopPlot == NULL || pLoopPlot->getOwner() != iOwner || pLoopPlot->getOwningCity() != pCity)
+		if (pLoopPlot == NULL || pLoopPlot->getOwner() != iOwner || pLoopPlot->getEffectiveOwningCity() != pCity)
 		{
 			continue;
 		}

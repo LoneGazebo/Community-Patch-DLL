@@ -597,7 +597,9 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 	// remove the resource allocation from the current owner.  This would result in double resource points because
 	// the plot has already had setOwner called on it (above), giving the player the resource points.
 	pPlot->setImprovementType(NO_IMPROVEMENT);
-	pPlot->setIsCity(true); //only after the owner is set!
+
+	//only after the owner is set!
+	pPlot->setIsCity(true, m_iID, getWorkPlotDistance()); 
 
 #if defined(MOD_EVENTS_TILE_IMPROVEMENTS)
 	pPlot->SetImprovementPillaged(false, false);
@@ -622,7 +624,7 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 				}
 				else if(pLoopPlot->getOwner() != NO_PLAYER)
 				{
-					CvCity* pOwningCity = pLoopPlot->getOwningCity();
+					CvCity* pOwningCity = pLoopPlot->getEffectiveOwningCity();
 					if (pOwningCity != NULL)
 					{
 						//City already working this plot? Adjust features being worked as needed.
@@ -2294,7 +2296,7 @@ void CvCity::PreKill()
 		}
 	}
 
-	pPlot->setIsCity(false);
+	pPlot->setIsCity(false, m_iID, getWorkPlotDistance());
 
 	GC.getMap().getArea(pPlot->getArea())->changeCitiesPerPlayer(getOwner(), -1);
 #if defined(MOD_BALANCE_CORE)
@@ -24400,7 +24402,7 @@ bool CvCity::IsBlockaded(DomainTypes eDomain) const
 			continue;
 
 		//finally, one unblocked plot breaks the whole thing
-		if (!GetCityCitizens()->IsBlockaded(pAdjacentPlot))
+		if (!pAdjacentPlot->isBlockaded())
 			return false;
 	}
 	

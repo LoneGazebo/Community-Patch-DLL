@@ -663,11 +663,8 @@ void CvPlayerAI::AI_considerAnnex()
 
 		// if we're willing to consider annexing, annex cities that are in danger more quickly, so we can produce defenses
 		// ... but don't bother if the city's about to fall
-		if (!pCity->isInDangerOfFalling())
-		{
-			if (pCity->isUnderSiege() || pCity->IsBlockadedWaterAndLand())
-				iWeight += 3;
-		}
+		if (!pCity->isInDangerOfFalling() && pCity->isUnderSiege())
+			iWeight += 3;
 
 		int iScore = iWeight * pCity->getYieldRateTimes100(YIELD_PRODUCTION, false);
 		options.push_back( OptionWithScore<CvCity*>(pCity,iScore) );

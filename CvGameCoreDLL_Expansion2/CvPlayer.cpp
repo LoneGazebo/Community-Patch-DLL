@@ -11756,10 +11756,10 @@ void CvPlayer::DoUnitReset()
 		
 		if (pUnitPlot->isDeepWater())
 		{
-			CvCity* pOwner = pUnitPlot->getOwningCity();
+			CvCity* pOwner = pUnitPlot->getEffectiveOwningCity();
 			if (pOwner != NULL && GET_TEAM(pOwner->getTeam()).isAtWar(getTeam()))
 			{
-				int iTempDamage = pUnitPlot->getOwningCity()->GetDeepWaterTileDamage();
+				int iTempDamage = pUnitPlot->getEffectiveOwningCity()->GetDeepWaterTileDamage();
 				if (iTempDamage > 0)
 				{
 					pLoopUnit->changeDamage(iTempDamage, pUnitPlot->getOwner(), /*fAdditionalTextDelay*/ 0.5f);
