@@ -31971,22 +31971,11 @@ void CvCity::Purchase(UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectT
 					if(eUnitClass != NO_UNITCLASS)
 					{
 						SetUnitInvestment(eUnitClass, true);
-						if (CityStrategyAIHelpers::IsTestCityStrategy_IsPuppetAndAnnexable(this))
+						if (getProductionProcess() != NO_PROCESS)
 						{
-							if (getProductionProcess() != NO_PROCESS)
-							{
-								clearOrderQueue();
-							}
-							pushOrder(ORDER_TRAIN, eUnitType, -1, false, false, true, false);
+							clearOrderQueue();
 						}
-						else if(!GET_PLAYER(getOwner()).isHuman() && !IsPuppet())
-						{
-							if (getProductionProcess() != NO_PROCESS)
-							{
-								clearOrderQueue();
-							}
-							pushOrder(ORDER_TRAIN, eUnitType, -1, false, false, true, false);
-						}
+						pushOrder(ORDER_TRAIN, eUnitType, -1, false, false, true, false);
 					}
 				}
 				else
@@ -32074,22 +32063,12 @@ void CvCity::Purchase(UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectT
 					if(eBuildingClass != NO_BUILDINGCLASS)
 					{
 						SetBuildingInvestment(eBuildingClass, true);
-						if (CityStrategyAIHelpers::IsTestCityStrategy_IsPuppetAndAnnexable(this))
+						if (getProductionProcess() != NO_PROCESS)
 						{
-							if (getProductionProcess() != NO_PROCESS)
-							{
-								clearOrderQueue();
-							}
-							pushOrder(ORDER_CONSTRUCT, eBuildingType, -1, false, false, true, false);
+							clearOrderQueue();
 						}
-						else if(!GET_PLAYER(getOwner()).isHuman() && !IsPuppet())
-						{
-							if (getProductionProcess() != NO_PROCESS)
-							{
-								clearOrderQueue();
-							}
-							pushOrder(ORDER_CONSTRUCT, eBuildingType, -1, false, false, true, false);
-						}
+
+						pushOrder(ORDER_CONSTRUCT, eBuildingType, -1, false, false, true, false);
 					}
 				}
 			}

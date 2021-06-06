@@ -23,7 +23,8 @@ struct SPrecomputedExpensiveNumbers
 	vector<vector<int>> bonusForXTerrain;
 	vector<vector<int>> bonusForXFeature;
 
-	SPrecomputedExpensiveNumbers(CvCity* pCity);
+	SPrecomputedExpensiveNumbers();
+	void update(CvCity* pCity);
 };
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -53,8 +54,8 @@ public:
 	void DoFoundCity();
 	void DoTurn();
 
-	int GetBonusPlotValue(CvPlot* pPlot, YieldTypes eYield, const SPrecomputedExpensiveNumbers& cache);
-	int GetPlotValue(CvPlot* pPlot, const SPrecomputedExpensiveNumbers& cache);
+	int GetBonusPlotValue(CvPlot* pPlot, YieldTypes eYield, SPrecomputedExpensiveNumbers& cache);
+	int GetPlotValue(CvPlot* pPlot, SPrecomputedExpensiveNumbers& cache);
 
 	// Are this City's Citizens automated? (always true for AI civs)
 	bool IsAutomated() const;
@@ -68,12 +69,12 @@ public:
 	bool SetForcedAvoidGrowth(bool bAvoidGrowth, bool bReallocate = false);
 	CityAIFocusTypes GetFocusType() const;
 	bool SetFocusType(CityAIFocusTypes eFocus, bool bReallocate = false);
-	int GetYieldModForFocus(YieldTypes eYield, CityAIFocusTypes eFocus, bool bEmphasizeFood, bool bEmphasizeProduction, SPrecomputedExpensiveNumbers cache);
+	int GetYieldModForFocus(YieldTypes eYield, CityAIFocusTypes eFocus, bool bEmphasizeFood, bool bEmphasizeProduction, const SPrecomputedExpensiveNumbers& cache);
 
 	// Specialist AI
 	BuildingTypes GetAIBestSpecialistBuilding(int& iSpecialistValue, bool bLogging = false);
 	BuildingTypes GetAIBestSpecialistCurrentlyInBuilding(int& iSpecialistValue, bool bWantBest);
-	int GetSpecialistValue(SpecialistTypes eSpecialist, SPrecomputedExpensiveNumbers cache);
+	int GetSpecialistValue(SpecialistTypes eSpecialist, const SPrecomputedExpensiveNumbers& cache);
 
 	// Citizen Assignment
 	int GetNumUnassignedCitizens() const;
