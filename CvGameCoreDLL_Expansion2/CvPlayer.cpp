@@ -385,6 +385,7 @@ CvPlayer::CvPlayer() :
 	, m_aiPlayerNumTurnsAtPeace()
 	, m_aiPlayerNumTurnsAtWar()
 	, m_aiPlayerNumTurnsSinceCityCapture()
+	, m_aiNumUnitsBuilt()
 	, m_aiProximityToPlayer()
 	, m_aiResearchAgreementCounter()
 	, m_aiIncomingUnitTypes()
@@ -1923,6 +1924,9 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 
 	m_aiPlayerNumTurnsSinceCityCapture.clear();
 	m_aiPlayerNumTurnsSinceCityCapture.resize(MAX_PLAYERS, 0);
+
+	m_aiNumUnitsBuilt.clear();
+	m_aiNumUnitsBuilt.resize(GC.getNumUnitInfos());
 
 	m_aiProximityToPlayer.clear();
 	m_aiProximityToPlayer.resize(MAX_PLAYERS, 0);
@@ -11761,10 +11765,10 @@ void CvPlayer::DoUnitReset()
 		
 		if (pUnitPlot->isDeepWater())
 		{
-			CvCity* pOwner = pUnitPlot->getOwningCity();
+			CvCity* pOwner = pUnitPlot->getEffectiveOwningCity();
 			if (pOwner != NULL && GET_TEAM(pOwner->getTeam()).isAtWar(getTeam()))
 			{
-				int iTempDamage = pUnitPlot->getOwningCity()->GetDeepWaterTileDamage();
+				int iTempDamage = pUnitPlot->getEffectiveOwningCity()->GetDeepWaterTileDamage();
 				if (iTempDamage > 0)
 				{
 					pLoopUnit->changeDamage(iTempDamage, pUnitPlot->getOwner(), /*fAdditionalTextDelay*/ 0.5f);
@@ -16226,6 +16230,24 @@ bool CvPlayer::isProductionMaxedUnitClass(UnitClassTypes eUnitClass) const
 	return false;
 }
 
+void CvPlayer::changeUnitsBuiltCount(UnitTypes eUnitType, int iValue)
+{
+	VALIDATE_OBJECT
+		CvAssertMsg(eUnitType >= 0, "eUnitType expected to be >= 0");
+	CvAssertMsg(eUnitType < GC.getNumUnitInfos(), "eUnitType expected to be < GC.getNumUnitInfos()");
+
+	m_aiNumUnitsBuilt[eUnitType] = m_aiNumUnitsBuilt[eUnitType] + iValue;
+}
+
+int CvPlayer::getUnitsBuiltCount(UnitTypes eUnitType) const
+{
+	VALIDATE_OBJECT
+		CvAssertMsg(eUnitType >= 0, "eUnitType expected to be >= 0");
+	CvAssertMsg(eUnitType < GC.getNumUnitInfos(), "eUnitType expected to be < GC.getNumUnitInfos()");
+
+	return m_aiNumUnitsBuilt[eUnitType];
+}
+
 
 //	--------------------------------------------------------------------------------
 bool CvPlayer::isProductionMaxedBuildingClass(BuildingClassTypes eBuildingClass, bool bAcquireCity) const
@@ -16319,6 +16341,8 @@ int CvPlayer::getProductionNeeded(UnitTypes eUnit) const
 			iProductionNeeded += pkUnitEntry->GetProductionCostPerEra() * iEra;
 		}
 	}
+
+	iProductionNeeded += (pkUnitEntry->GetCostScalerNumberBuilt() * getUnitsBuiltCount(eUnit));
 
 	if (isMinorCiv())
 	{
@@ -46496,6 +46520,7 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 	visitor(player.m_aiPlayerNumTurnsAtPeace);
 	visitor(player.m_aiPlayerNumTurnsAtWar);
 	visitor(player.m_aiPlayerNumTurnsSinceCityCapture);
+	visitor(player.m_aiNumUnitsBuilt);
 	visitor(player.m_aiProximityToPlayer);
 	visitor(player.m_aiResearchAgreementCounter);
 	visitor(player.m_aiIncomingUnitTypes);

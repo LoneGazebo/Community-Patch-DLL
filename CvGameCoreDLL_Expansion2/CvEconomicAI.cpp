@@ -1641,7 +1641,7 @@ void CvEconomicAI::LogCityMonitor()
 
 			iTiles++;
 
-			if(pPlot->getOwningCity() == pLoopCity)
+			if(pPlot->getEffectiveOwningCity() == pLoopCity)
 			{
 				iWorkedTiles++;
 			}

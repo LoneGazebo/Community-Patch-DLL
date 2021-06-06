@@ -2076,6 +2076,9 @@ public:
 	void SetPlayerNumTurnsSinceCityCapture(PlayerTypes ePlayer, int iValue);
 	void ChangePlayerNumTurnsSinceCityCapture(PlayerTypes ePlayer, int iChange);
 
+	void changeUnitsBuiltCount(UnitTypes eUnitType, int iValue);
+	int getUnitsBuiltCount(UnitTypes eUnitType) const;
+
 	void DoUpdateWarPeaceTurnCounters();
 	void ResetWarPeaceTurnCounters();
 
@@ -3491,6 +3494,7 @@ protected:
 	std::vector<int> m_aiPlayerNumTurnsAtPeace;
 	std::vector<int> m_aiPlayerNumTurnsAtWar;
 	std::vector<int> m_aiPlayerNumTurnsSinceCityCapture;
+	std::vector<int> m_aiNumUnitsBuilt;
 	std::vector<int> m_aiProximityToPlayer;
 	std::vector<int> m_aiResearchAgreementCounter;
 	std::vector<int> m_aiIncomingUnitTypes;
@@ -4259,6 +4263,7 @@ SYNC_ARCHIVE_VAR(std::vector<int>, m_aiSpecialistExtraYield)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiPlayerNumTurnsAtPeace)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiPlayerNumTurnsAtWar)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiPlayerNumTurnsSinceCityCapture)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiNumUnitsBuilt)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiProximityToPlayer)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiResearchAgreementCounter)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiIncomingUnitTypes)

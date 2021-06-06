@@ -403,7 +403,6 @@ CvCity::CvCity() :
 	, m_aiNumTimesAttackedThisTurn()
 	, m_aiLongestPotentialTradeRoute()
 	, m_aiNumProjects()
-	, m_aiNumUnitsBuilt()
 	, m_aiStaticGlobalYield()
 	, m_aiStaticNeedAdditives()
 	, m_aiYieldFromKnownPantheons()
@@ -598,7 +597,9 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 	// remove the resource allocation from the current owner.  This would result in double resource points because
 	// the plot has already had setOwner called on it (above), giving the player the resource points.
 	pPlot->setImprovementType(NO_IMPROVEMENT);
-	pPlot->setIsCity(true); //only after the owner is set!
+
+	//only after the owner is set!
+	pPlot->setIsCity(true, m_iID, getWorkPlotDistance()); 
 
 #if defined(MOD_EVENTS_TILE_IMPROVEMENTS)
 	pPlot->SetImprovementPillaged(false, false);
@@ -623,7 +624,7 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 				}
 				else if(pLoopPlot->getOwner() != NO_PLAYER)
 				{
-					CvCity* pOwningCity = pLoopPlot->getOwningCity();
+					CvCity* pOwningCity = pLoopPlot->getEffectiveOwningCity();
 					if (pOwningCity != NULL)
 					{
 						//City already working this plot? Adjust features being worked as needed.
@@ -1510,7 +1511,6 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_aiNumTimesAttackedThisTurn.resize(REALLY_MAX_PLAYERS);
 	m_aiLongestPotentialTradeRoute.resize(NUM_DOMAIN_TYPES);
 	m_aiNumProjects.resize(GC.getNumProjectInfos());
-	m_aiNumUnitsBuilt.resize(GC.getNumUnitInfos());
 	m_aiStaticGlobalYield.resize(NUM_YIELD_TYPES);
 	m_aiStaticNeedAdditives.resize(NUM_YIELD_TYPES);
 	m_aiSpecialistRateModifier.resize(GC.getNumSpecialistInfos());
@@ -1691,11 +1691,6 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	for(iI = 0; iI < GC.getNumProjectInfos(); iI++)
 	{
 		m_aiNumProjects[iI] = 0;
-	}
-
-	for (iI = 0; iI < GC.getNumUnitInfos(); iI++)
-	{
-		m_aiNumUnitsBuilt[iI] = 0;
 	}
 
 	m_abTraded.resize(REALLY_MAX_PLAYERS);
@@ -2290,7 +2285,7 @@ void CvCity::PreKill()
 		}
 	}
 
-	pPlot->setIsCity(false);
+	pPlot->setIsCity(false, m_iID, getWorkPlotDistance());
 
 	GC.getMap().getArea(pPlot->getArea())->changeCitiesPerPlayer(getOwner(), -1);
 #if defined(MOD_BALANCE_CORE)
@@ -11363,8 +11358,6 @@ int CvCity::getProductionNeeded(UnitTypes eUnit) const
 				}
 			}
 		}
-
-		iNumProductionNeeded += (pGameUnit->GetCostScalerNumberBuilt() * getUnitsBuiltCount(eUnit));
 
 		// Cost modifiers must be applied before the investment code
 		iNumProductionNeeded *= (iCostMod + 100);
@@ -24396,7 +24389,7 @@ bool CvCity::IsBlockaded(DomainTypes eDomain) const
 			continue;
 
 		//finally, one unblocked plot breaks the whole thing
-		if (!GetCityCitizens()->IsBlockaded(pAdjacentPlot))
+		if (!pAdjacentPlot->isBlockaded())
 			return false;
 	}
 	
@@ -31064,7 +31057,7 @@ int CvCity::CreateUnit(UnitTypes eUnitType, UnitAITypes eAIType, UnitCreationRea
 	}
 
 	if (eReason == REASON_TRAIN || eReason == REASON_BUY)
-		changeUnitsBuiltCount(eUnitType, 1);
+		thisPlayer.changeUnitsBuiltCount(eUnitType, 1);
 
 	return pUnit->GetID();
 }
@@ -31291,24 +31284,6 @@ int CvCity::getProjectCount(ProjectTypes eProject) const
 		CvAssertMsg(eProject >= 0, "ePlayer expected to be >= 0");
 	CvAssertMsg(eProject < GC.getNumProjectInfos(), "ePlayer expected to be < NUM_DOMAIN_TYPES");
 	return m_aiNumProjects[eProject];
-}
-
-void CvCity::changeUnitsBuiltCount(UnitTypes eUnitType, int iValue)
-{
-	VALIDATE_OBJECT
-	CvAssertMsg(eUnitType >= 0, "eUnitType expected to be >= 0");
-	CvAssertMsg(eUnitType < GC.getNumUnitInfos(), "eUnitType expected to be < GC.getNumUnitInfos()");
-
-	m_aiNumUnitsBuilt[eUnitType] = m_aiNumUnitsBuilt[eUnitType] + iValue;
-}
-
-int CvCity::getUnitsBuiltCount(UnitTypes eUnitType) const
-{
-	VALIDATE_OBJECT
-		CvAssertMsg(eUnitType >= 0, "eUnitType expected to be >= 0");
-	CvAssertMsg(eUnitType < GC.getNumUnitInfos(), "eUnitType expected to be < GC.getNumUnitInfos()");
-
-	return m_aiNumUnitsBuilt[eUnitType];
 }
 
 bool IsValidPlotForUnitType(CvPlot* pPlot, PlayerTypes ePlayer, CvUnitEntry* pkUnitInfo)
@@ -33306,7 +33281,6 @@ void CvCity::Serialize(City& city, Visitor& visitor)
 	visitor(city.m_iUnhappinessFromEmpire);
 	visitor(city.m_iStaticTechDeviation);
 	visitor(city.m_aiNumProjects);
-	visitor(city.m_aiNumUnitsBuilt);
 	visitor(city.m_aiStaticGlobalYield);
 	visitor(city.m_aiStaticNeedAdditives);
 	visitor(city.m_aiLongestPotentialTradeRoute);

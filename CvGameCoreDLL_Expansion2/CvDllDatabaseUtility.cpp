@@ -269,11 +269,17 @@ bool CvDllDatabaseUtility::PerformDatabasePostProcessing()
 		InsertGameDefine(kInsertDefine, "MIN_CITY_RADIUS", MIN_CITY_RADIUS);
 		InsertGameDefine(kInsertDefine, "MAX_CITY_RADIUS", MAX_CITY_RADIUS);
 		InsertGameDefine(kInsertDefine, "CITY_HOME_PLOT", CITY_HOME_PLOT);
-		InsertGameDefine(kInsertDefine, "MAX_CITY_RADIUS", MAX_CITY_RADIUS);
 		InsertGameDefine(kInsertDefine, "MAX_CITY_DIAMETER", (2*MAX_CITY_RADIUS+1));
+
+		// These values are present in the base game but we don't have them here which would not be a problem
+		// if not for mods possibly relying on them; PlotHelpManager for instance references CITY_PLOTS_RADIUS
+		InsertGameDefine(kInsertDefine, "CITY_PLOTS_RADIUS", 3);
+		InsertGameDefine(kInsertDefine, "CITY_PLOTS_DIAMETER", 7);
 	}
 
 	db->EndTransaction();
+
+	GC.GameDataPostProcess();
 
 	return true;
 }

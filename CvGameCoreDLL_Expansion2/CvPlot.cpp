@@ -3010,7 +3010,7 @@ int CvPlot::getBuildTurnsTotal(BuildTypes eBuild, PlayerTypes ePlayer) const
 //	--------------------------------------------------------------------------------
 int CvPlot::getFeatureProduction(BuildTypes eBuild, PlayerTypes ePlayer, CvCity** ppCity) const
 {
-	int iProduction;
+	int iProduction = 0;
 
 	TeamTypes eTeam = GET_PLAYER(ePlayer).getTeam();
 
@@ -3019,7 +3019,7 @@ int CvPlot::getFeatureProduction(BuildTypes eBuild, PlayerTypes ePlayer, CvCity*
 		return 0;
 	}
 
-	*ppCity = getOwningCity();
+	*ppCity = getEffectiveOwningCity();
 
 	if(*ppCity == NULL)
 	{
@@ -4330,8 +4330,7 @@ bool CvPlot::IsFriendlyTerritory(PlayerTypes ePlayer) const
 //	--------------------------------------------------------------------------------
 bool CvPlot::isBeingWorked() const
 {
-	CvCity* pOwningCity = getOwningCity();
-
+	CvCity* pOwningCity = getEffectiveOwningCity();
 	if(pOwningCity != NULL)
 	{
 		return pOwningCity->GetCityCitizens()->IsWorkingPlot(this);
@@ -6073,7 +6072,8 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 				}
 
 				// if we don't have an owner, there cannot be a city. this also does bookkeeping for route maintenance
-				setIsCity(false);
+				if (pOldCity)
+					setIsCity(false, pOldCity->GetID(), pOldCity->getWorkPlotDistance());
 			}
 
 			pUnitNode = headUnitNode();
@@ -6706,7 +6706,7 @@ void CvPlot::setTerrainType(TerrainTypes eNewValue, bool bRecalculate, bool bReb
 		updateImpassable();
 
 #if defined(MOD_BALANCE_CORE)
-		CvCity* pOwningCity = getOwningCity();
+		CvCity* pOwningCity = getEffectiveOwningCity();
 
 		if(pOwningCity != NULL)
 		{
@@ -6775,7 +6775,7 @@ void CvPlot::setFeatureType(FeatureTypes eNewValue)
 
 		m_eFeatureType = eNewValue;
 #if defined(MOD_BALANCE_CORE)
-		CvCity* pOwningCity = getOwningCity();
+		CvCity* pOwningCity = getEffectiveOwningCity();
 		if(pOwningCity != NULL)
 		{
 			//City already working this plot? Adjust features being worked as needed.
@@ -7093,7 +7093,7 @@ int CvPlot::getNumResourceForPlayer(PlayerTypes ePlayer) const
 
 				else if(pkResource->getResourceUsage() == RESOURCEUSAGE_LUXURY)
 				{
-					CvCity* pCity = getOwningCity();
+					CvCity* pCity = getEffectiveOwningCity();
 					if(pCity)
 					{
 						if(pCity->IsExtraLuxuryResources())
@@ -7210,11 +7210,14 @@ ImprovementTypes CvPlot::getImprovementTypeNeededToImproveResource(PlayerTypes e
 	return eImprovementNeeded;
 }
 
-void CvPlot::setIsCity(bool bValue)
+void CvPlot::setIsCity(bool bValue, int iCityID, int iWorkRange)
 {
 	//nothing to do
 	if (isCity() == bValue)
 		return;
+
+	//sanitize
+	iWorkRange = range(GET_PLAYER(getOwner()).getWorkPlotDistance(),1,5);
 
 	//removing flag
 	if(isCity() && !bValue)
@@ -7227,7 +7230,7 @@ void CvPlot::setIsCity(bool bValue)
 		}
 
 		// do not call getPlotCity() here, it might be invalid
-		for(int iI = 0; iI < RING5_PLOTS; ++iI)
+		for(int iI = 0; iI < RING_PLOTS[iWorkRange]; ++iI)
 		{
 			CvPlot* pLoopPlot = iterateRingPlots(getX(), getY(), iI);
 
@@ -7249,8 +7252,16 @@ void CvPlot::setIsCity(bool bValue)
 	//setting flag
 	if(!isCity() && bValue)
 	{
+		//sanity check
+		CvCity* pCity = GET_PLAYER(getOwner()).getCity(iCityID);
+		if (!pCity || pCity->plot() != this)
+		{
+			OutputDebugString("wtf\n");
+			return;
+		}
+
 		// do not call getPlotCity() here, it might be invalid
-		for(int iI = 0; iI < RING5_PLOTS; ++iI)
+		for(int iI = 0; iI < RING_PLOTS[iWorkRange]; ++iI)
 		{
 			CvPlot* pLoopPlot = iterateRingPlots(getX(), getY(), iI);
 
@@ -7310,7 +7321,7 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 	if(eOldImprovement != eNewValue)
 	{
 #if defined(MOD_BALANCE_CORE)
-		CvCity* pOwningCity = getOwningCity();
+		CvCity* pOwningCity = getEffectiveOwningCity();
 		if(pOwningCity != NULL)
 		{
 			//City already working this plot? Adjust improvements being worked as needed.
@@ -8320,15 +8331,15 @@ void CvPlot::SetImprovementPillaged(bool bPillaged)
 #if defined(MOD_GLOBAL_STACKING_RULES)
 		calculateAdditionalUnitsFromImprovement();
 #endif
-		if (getOwningCity() != NULL)
+		if (getEffectiveOwningCity() != NULL)
 		{
 			if (bPillaged)
 			{
-				getOwningCity()->ChangeNumPillagedPlots(1);
+				getEffectiveOwningCity()->ChangeNumPillagedPlots(1);
 			}
 			else
 			{
-				getOwningCity()->ChangeNumPillagedPlots(-1);
+				getEffectiveOwningCity()->ChangeNumPillagedPlots(-1);
 			}
 		}
 		updateYield();
@@ -10371,7 +10382,7 @@ int CvPlot::calculatePlayerYield(YieldTypes eYield, int iCurrentYield, PlayerTyp
 
 int CvPlot::calculateYield(YieldTypes eYield, bool bDisplay)
 {
-	const CvCity* pOwningCity = getOwningCity();
+	const CvCity* pOwningCity = getEffectiveOwningCity();
 	if(pOwningCity)
 	{
 		ReligionTypes eMajority = pOwningCity->GetCityReligions()->GetReligiousMajority();
@@ -10506,7 +10517,7 @@ bool CvPlot::hasYield() const
 //	--------------------------------------------------------------------------------
 void CvPlot::updateYield()
 {
-	CvCity*	pOwningCity = getOwningCity();
+	CvCity*	pOwningCity = getEffectiveOwningCity();
 	if (pOwningCity)
 	{
 		ReligionTypes eMajority = pOwningCity->GetCityReligions()->GetReligiousMajority();

@@ -447,7 +447,7 @@ void CvHomelandAI::FindHomelandTargets()
 			// ... possible naval sentry point?
 			if (pLoopPlot->isWater() && pLoopPlot->isValidMovePlot(m_pPlayer->GetID()))
 			{
-				CvCity* pOwningCity = pLoopPlot->getOwningCity();
+				CvCity* pOwningCity = pLoopPlot->getEffectiveOwningCity();
 				if (pOwningCity != NULL && pOwningCity->getOwner() == m_pPlayer->GetID() && pOwningCity->isCoastal())
 				{
 					int iSuspiciousNeighbors = pLoopPlot->GetNumAdjacentDifferentTeam(eTeam, DOMAIN_SEA, true);
@@ -3391,7 +3391,7 @@ void CvHomelandAI::ExecuteDiplomatMoves()
 					if (GC.getLogging() && GC.getAILogging())
 					{
 						CvString strLogString;
-						strLogString.Format("Great Diplomat creating Embassy at %s", pUnit->plot()->getOwningCity()->getName().c_str());
+						strLogString.Format("Great Diplomat creating Embassy at %s", pUnit->plot()->getEffectiveOwningCity()->getName().c_str());
 						LogHomelandMessage(strLogString);
 					}
 				}

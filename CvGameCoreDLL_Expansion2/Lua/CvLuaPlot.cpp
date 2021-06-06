@@ -1697,7 +1697,7 @@ int CvLuaPlot::lGetYieldWithBuild(lua_State* L)
 	const bool bUpgrade = luaL_optbool(L, 4, false);
 	const PlayerTypes ePlayer = (PlayerTypes)lua_tointeger(L, 5);
 
-	const CvCity* pOwningCity = pkPlot->getOwningCity();
+	const CvCity* pOwningCity = pkPlot->getEffectiveOwningCity();
 	if (pOwningCity)
 	{
 		ReligionTypes eMajority = pOwningCity->GetCityReligions()->GetReligiousMajority();
