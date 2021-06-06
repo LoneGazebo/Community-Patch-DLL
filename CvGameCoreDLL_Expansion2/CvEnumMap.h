@@ -45,14 +45,14 @@ public:
 	inline void init(const T& fill)
 	{
 		init();
-		reset(fill);
+		assign(fill);
 	}
 	inline void uninit()
 	{
 		SAFE_DELETE_ARRAY(m_values);
 	}
 
-	inline void reset(const T& fill)
+	inline void assign(const T& fill)
 	{
 		checkValidAccess();
 		for (Iterator it = begin(); it != end(); ++it)
@@ -182,13 +182,13 @@ public:
 	inline void init(const T& fill)
 	{
 		init();
-		reset(fill);
+		assign(fill);
 	}
 	inline void uninit()
 	{
 	}
 
-	inline void reset(const T& fill)
+	inline void assign(const T& fill)
 	{
 		for (Iterator it = begin(); it != end(); ++it)
 		{

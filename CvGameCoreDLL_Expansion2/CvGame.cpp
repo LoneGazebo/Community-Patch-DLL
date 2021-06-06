@@ -1169,14 +1169,14 @@ void CvGame::uninit()
 	m_strScriptData = "";
 	m_iEarliestBarbarianReleaseTurn = 0;
 
-	m_aiEndTurnMessagesReceived.reset(0);
-	m_aiRankPlayer.reset(0);
-	m_aiPlayerRank.reset(0);
-	m_aiPlayerScore.reset(0);
+	m_aiEndTurnMessagesReceived.assign(0);
+	m_aiRankPlayer.assign(0);
+	m_aiPlayerRank.assign(0);
+	m_aiPlayerScore.assign(0);
 
-	m_aiRankTeam.reset(0);
-	m_aiTeamRank.reset(0);
-	m_aiTeamScore.reset(0);
+	m_aiRankTeam.assign(0);
+	m_aiTeamRank.assign(0);
+	m_aiTeamScore.assign(0);
 
 	m_iLastMouseoverUnitID = 0;
 
