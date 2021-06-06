@@ -279,6 +279,8 @@ bool CvDllDatabaseUtility::PerformDatabasePostProcessing()
 
 	db->EndTransaction();
 
+	GC.GameDataPostProcess();
+
 	return true;
 }
 //------------------------------------------------------------------------------

@@ -20,6 +20,9 @@ struct SPrecomputedExpensiveNumbers
 	int iUnhappinessFromReligion;
 	int iUnhappinessFromDistress;
 
+	vector<vector<int>> bonusForXTerrain;
+	vector<vector<int>> bonusForXFeature;
+
 	SPrecomputedExpensiveNumbers(CvCity* pCity);
 };
 
@@ -50,8 +53,8 @@ public:
 	void DoFoundCity();
 	void DoTurn();
 
-	int GetBonusPlotValue(CvPlot* pPlot, YieldTypes eYield);
-	int GetPlotValue(CvPlot* pPlot, SPrecomputedExpensiveNumbers cache);
+	int GetBonusPlotValue(CvPlot* pPlot, YieldTypes eYield, const SPrecomputedExpensiveNumbers& cache);
+	int GetPlotValue(CvPlot* pPlot, const SPrecomputedExpensiveNumbers& cache);
 
 	// Are this City's Citizens automated? (always true for AI civs)
 	bool IsAutomated() const;

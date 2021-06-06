@@ -2075,6 +2075,9 @@ public:
 	void SetPlayerNumTurnsSinceCityCapture(PlayerTypes ePlayer, int iValue);
 	void ChangePlayerNumTurnsSinceCityCapture(PlayerTypes ePlayer, int iChange);
 
+	void changeUnitsBuiltCount(UnitTypes eUnitType, int iValue);
+	int getUnitsBuiltCount(UnitTypes eUnitType) const;
+
 	void DoUpdateWarPeaceTurnCounters();
 	void ResetWarPeaceTurnCounters();
 
@@ -3481,6 +3484,7 @@ protected:
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiPlayerNumTurnsAtPeace;
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiPlayerNumTurnsAtWar;
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiPlayerNumTurnsSinceCityCapture;
+	FAutoVariable<std::vector<int>, CvPlayer> m_aiNumUnitsBuilt;
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiProximityToPlayer;
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiResearchAgreementCounter;
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiIncomingUnitTypes;
