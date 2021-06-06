@@ -14,6 +14,7 @@
 
 #include "CvEnumsUtil.h"
 
+#include <algorithm>
 #include <iterator>
 
 template<typename Enum, typename T, bool Fixed = CvEnumsUtil::Traits<Enum>::IsFixed>
@@ -67,17 +68,19 @@ public:
 	}
 	inline const T* data() const
 	{
+		checkValidAccess();
 		return m_values;
 	}
 	inline T* data()
 	{
+		checkValidAccess();
 		return m_values;
 	}
 
 	inline const T& operator[](std::size_t idx) const
 	{
 		checkValidAccess();
-		FAssertMsg(idx >= size(), "Attempting to access out of range index in CvEnumMap<>");
+		FAssertMsg(idx < size(), "Attempting to access out of range index in CvEnumMap<>");
 		return m_values[idx];
 	}
 	inline T& operator[](std::size_t idx)
@@ -151,8 +154,20 @@ public:
 	{
 		return m_values != NULL;
 	}
+	inline bool operator==(const CvEnumMap<Enum, T, Fixed>& rhs) const
+	{
+		checkValidAccess();
+		return std::equal(begin(), end(), rhs.begin());
+	}
+	inline bool operator!=(const CvEnumMap<Enum, T, Fixed>& rhs) const
+	{
+		return !(*this == rhs);
+	}
 
 private:
+	CvEnumMap(const CvEnumMap<Enum, T, Fixed>&);
+	CvEnumMap<Enum, T, Fixed>& operator=(const CvEnumMap<Enum, T, Fixed>&);
+
 	void checkValidAccess() const
 	{
 		FAssertMsg(m_values != NULL, "Attempting to access dynamic CvEnumMap<> without first calling CvEnumMap<>::init()");
@@ -176,12 +191,14 @@ public:
 
 	enum { SizeConstant = CvEnumsUtil::Traits<Enum>::CountConstant };
 
+	inline CvEnumMap()
+	{}
+
 	inline void init()
 	{
 	}
 	inline void init(const T& fill)
 	{
-		init();
 		assign(fill);
 	}
 	inline void uninit()
@@ -211,7 +228,7 @@ public:
 
 	inline const T& operator[](std::size_t idx) const
 	{
-		FAssertMsg(idx >= size(), "Attempting to access out of range index in CvEnumMap<>");
+		FAssertMsg(idx < size(), "Attempting to access out of range index in CvEnumMap<>");
 		return m_values[idx];
 	}
 	inline T& operator[](std::size_t idx)
@@ -269,7 +286,19 @@ public:
 		return ConstReverseIterator(m_values);
 	}
 
+	inline bool operator==(const CvEnumMap<Enum, T, true>& rhs) const
+	{
+		return std::equal(begin(), end(), rhs.begin());
+	}
+	inline bool operator!=(const CvEnumMap<Enum, T, true>& rhs) const
+	{
+		return !(*this == rhs);
+	}
+
 private:
+	CvEnumMap(const CvEnumMap<Enum, T, true>&);
+	CvEnumMap<Enum, T, true>& operator=(const CvEnumMap<Enum, T, true>&);
+
 	T m_values[SizeConstant];
 };
 
