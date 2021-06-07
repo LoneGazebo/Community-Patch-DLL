@@ -168,7 +168,7 @@ private:
 	CvEnumMap(const CvEnumMap<Enum, T, Fixed>&);
 	CvEnumMap<Enum, T, Fixed>& operator=(const CvEnumMap<Enum, T, Fixed>&);
 
-	void checkValidAccess() const
+	inline void checkValidAccess() const
 	{
 		CvAssertMsg(m_values != NULL, "Attempting to access dynamic CvEnumMap<> without first calling CvEnumMap<>::init()");
 	}
