@@ -114,6 +114,24 @@ FDataStream& operator>>(FDataStream& loadFrom, MonopolyTypes& writeTo)
 	return ReadBasicEnum<int>(loadFrom, writeTo);
 }
 
+FDataStream& operator<<(FDataStream& saveTo, const DomainTypes& readFrom)
+{
+	return WriteBasicEnum<int>(saveTo, readFrom);
+}
+FDataStream& operator>>(FDataStream& loadFrom, DomainTypes& writeTo)
+{
+	return ReadBasicEnum<int>(loadFrom, writeTo);
+}
+
+FDataStream& operator<<(FDataStream& saveTo, const TradeConnectionType& readFrom)
+{
+	return WriteBasicEnum<int>(saveTo, readFrom);
+}
+FDataStream& operator>>(FDataStream& loadFrom, TradeConnectionType& writeTo)
+{
+	return ReadBasicEnum<int>(loadFrom, writeTo);
+}
+
 //------------------------------------------------------------------------------
 namespace FSerialization
 {

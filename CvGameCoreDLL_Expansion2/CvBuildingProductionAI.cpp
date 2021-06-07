@@ -49,15 +49,17 @@ void CvBuildingProductionAI::Reset()
 	}
 }
 
+template<typename BuildingProductionAI, typename Visitor>
+void CvBuildingProductionAI::Serialize(BuildingProductionAI& buildingProductionAI, Visitor& visitor)
+{
+	visitor(buildingProductionAI.m_BuildingAIWeights);
+}
+
 /// Serialization read
 void CvBuildingProductionAI::Read(FDataStream& kStream)
 {
-	// Version number to maintain backwards compatibility
-	uint uiVersion;
-	kStream >> uiVersion;
-	MOD_SERIALIZE_INIT_READ(kStream);
-
-	kStream >> m_BuildingAIWeights;
+	CvStreamLoadVisitor serialVisitor(kStream);
+	Serialize(*this, serialVisitor);
 }
 
 /// Serialization write
@@ -65,12 +67,8 @@ void CvBuildingProductionAI::Write(FDataStream& kStream)
 {
 	CvAssertMsg(m_pCityBuildings != NULL, "Building Production AI init failure: city buildings are NULL");
 
-	// Current version number
-	uint uiVersion = 1;
-	kStream << uiVersion;
-	MOD_SERIALIZE_INIT_WRITE(kStream);
-
-	kStream << m_BuildingAIWeights;
+	CvStreamSaveVisitor serialVisitor(kStream);
+	Serialize(*this, serialVisitor);
 }
 
 /// Establish weights for one flavor; can be called multiple times to layer strategies

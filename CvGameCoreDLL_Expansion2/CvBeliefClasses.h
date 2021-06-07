@@ -597,6 +597,8 @@ public:
 #endif
 
 	// Serialization
+	template<typename ReligionBeliefs, typename Visitor>
+	static void Serialize(ReligionBeliefs& religionBeliefs, Visitor& visitor);
 	void Read(FDataStream& kStream);
 	void Write(FDataStream& kStream) const;
 

@@ -84,49 +84,35 @@ void CvArmyAI::Kill()
 	GET_PLAYER(GetOwner()).deleteArmyAI(m_iID);
 }
 
+template<typename ArmyAI, typename Visitor>
+void CvArmyAI::Serialize(ArmyAI& armyAI, Visitor& visitor)
+{
+	visitor(armyAI.m_iID);
+	visitor(armyAI.m_eOwner);
+	visitor(armyAI.m_iGoalX);
+	visitor(armyAI.m_iGoalY);
+	visitor(armyAI.m_eType);
+	visitor(armyAI.m_eFormation);
+	visitor(armyAI.m_eAIState);
+	visitor(armyAI.m_iOperationID);
+	visitor(armyAI.m_FormationEntries);
+}
+
 /// Read from binary data store
 void CvArmyAI::Read(FDataStream& kStream)
 {
 	// Init saved data
 	Reset();
 
-	// Version number to maintain backwards compatibility
-	uint uiVersion;
-	kStream >> uiVersion;
-	MOD_SERIALIZE_INIT_READ(kStream);
-
-	kStream >> m_iID;
-	kStream >> m_eOwner;
-	kStream >> uiVersion; //dummy
-	kStream >> uiVersion; //dummy
-	kStream >> m_iGoalX;
-	kStream >> m_iGoalY;
-	kStream >> m_eType;
-	kStream >> m_eFormation;
-	kStream >> m_eAIState;
-	kStream >> m_iOperationID;
-	kStream >> m_FormationEntries;
+	CvStreamLoadVisitor serialVisitor(kStream);
+	Serialize(*this, serialVisitor);
 }
 
 /// Write to binary data store
 void CvArmyAI::Write(FDataStream& kStream) const
 {
-	// Current version number
-	uint uiVersion = 1;
-	kStream << uiVersion;
-	MOD_SERIALIZE_INIT_WRITE(kStream);
-
-	kStream << m_iID;
-	kStream << m_eOwner;
-	kStream << 0u;
-	kStream << 0u;
-	kStream << m_iGoalX;
-	kStream << m_iGoalY;
-	kStream << m_eType;
-	kStream << m_eFormation;
-	kStream << m_eAIState;
-	kStream << m_iOperationID;
-	kStream << m_FormationEntries;
+	CvStreamSaveVisitor serialVisitor(kStream);
+	Serialize(*this, serialVisitor);
 }
 
 // ACCESSORS

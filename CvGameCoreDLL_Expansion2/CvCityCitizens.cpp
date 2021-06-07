@@ -15,10 +15,9 @@ All rights reserved.
 #include "CvDllInterfaces.h"
 #include "CvInfosSerializationHelper.h"
 #include "cvStopWatch.h"
-#if defined(MOD_BALANCE_CORE)
 #include "cvMilitaryAI.h"
 #include "CvTypes.h"
-#endif
+#include "CvEnumMapSerialization.h"
 
 // must be included after all other headers
 #include "LintFree.h"
@@ -31,14 +30,6 @@ All rights reserved.
 /// Constructor
 CvCityCitizens::CvCityCitizens()
 {
-	m_aiSpecialistCounts = NULL;
-#if defined(MOD_BALANCE_CORE)
-	m_aiSpecialistSlots = NULL;
-#endif
-	m_aiSpecialistGreatPersonProgressTimes100 = NULL;
-	m_aiNumSpecialistsInBuilding = NULL;
-	m_aiNumForcedSpecialistsInBuilding = NULL;
-	m_piBuildingGreatPeopleRateChanges = NULL;
 }
 
 /// Destructor
@@ -52,27 +43,26 @@ void CvCityCitizens::Init(CvCity* pCity)
 {
 	m_pCity = pCity;
 
+	m_aiSpecialistCounts.init();
+	m_aiSpecialistSlots.init();
+	m_aiSpecialistGreatPersonProgressTimes100.init();
+	m_aiNumSpecialistsInBuilding.init();
+	m_aiNumForcedSpecialistsInBuilding.init();
+	m_piBuildingGreatPeopleRateChanges.init();
+
 	// Clear variables
 	Reset();
-
-	m_bInited = true;
 }
 
 /// Deallocate memory created in initialize
 void CvCityCitizens::Uninit()
 {
-	if (m_bInited)
-	{
-		SAFE_DELETE_ARRAY(m_aiSpecialistCounts);
-#if defined(MOD_BALANCE_CORE)
-		SAFE_DELETE_ARRAY(m_aiSpecialistSlots);
-#endif
-		SAFE_DELETE_ARRAY(m_aiSpecialistGreatPersonProgressTimes100);
-		SAFE_DELETE_ARRAY(m_aiNumSpecialistsInBuilding);
-		SAFE_DELETE_ARRAY(m_aiNumForcedSpecialistsInBuilding);
-		SAFE_DELETE_ARRAY(m_piBuildingGreatPeopleRateChanges);
-	}
-	m_bInited = false;
+	m_aiSpecialistCounts.uninit();
+	m_aiSpecialistSlots.uninit();
+	m_aiSpecialistGreatPersonProgressTimes100.uninit();
+	m_aiNumSpecialistsInBuilding.uninit();
+	m_aiNumForcedSpecialistsInBuilding.uninit();
+	m_piBuildingGreatPeopleRateChanges.uninit();
 }
 
 /// Reset member variables
@@ -103,86 +93,50 @@ void CvCityCitizens::Reset()
 	m_iNumDefaultSpecialists = 0;
 	m_iNumForcedDefaultSpecialists = 0;
 
-	CvAssertMsg(m_aiSpecialistCounts == NULL, "about to leak memory, CvCityCitizens::m_aiSpecialistCounts");
-	m_aiSpecialistCounts = FNEW(int[GC.getNumSpecialistInfos()], c_eCiv5GameplayDLL, 0);
-	for (iI = 0; iI < GC.getNumSpecialistInfos(); iI++)
-	{
-		m_aiSpecialistCounts[iI] = 0;
-	}
-#if defined(MOD_BALANCE_CORE)
-	CvAssertMsg(m_aiSpecialistSlots == NULL, "about to leak memory, CvCityCitizens::m_aiSpecialistSlots");
-	m_aiSpecialistSlots = FNEW(int[GC.getNumSpecialistInfos()], c_eCiv5GameplayDLL, 0);
-	for (iI = 0; iI < GC.getNumSpecialistInfos(); iI++)
-	{
-		m_aiSpecialistSlots[iI] = 0;
-	}
-#endif
-
-	CvAssertMsg(m_aiSpecialistGreatPersonProgressTimes100 == NULL, "about to leak memory, CvCityCitizens::m_aiSpecialistGreatPersonProgressTimes100");
-	m_aiSpecialistGreatPersonProgressTimes100 = FNEW(int[GC.getNumSpecialistInfos()], c_eCiv5GameplayDLL, 0);
-	for (iI = 0; iI < GC.getNumSpecialistInfos(); iI++)
-	{
-		m_aiSpecialistGreatPersonProgressTimes100[iI] = 0;
-	}
-
-	CvAssertMsg(m_aiNumSpecialistsInBuilding == NULL, "about to leak memory, CvCityCitizens::m_aiNumSpecialistsInBuilding");
-	m_aiNumSpecialistsInBuilding = FNEW(int[GC.getNumBuildingInfos()], c_eCiv5GameplayDLL, 0);
-	for (iI = 0; iI < GC.getNumBuildingInfos(); iI++)
-	{
-		m_aiNumSpecialistsInBuilding[iI] = 0;
-	}
-
-	CvAssertMsg(m_aiNumForcedSpecialistsInBuilding == NULL, "about to leak memory, CvCityCitizens::m_aiNumForcedSpecialistsInBuilding");
-	m_aiNumForcedSpecialistsInBuilding = FNEW(int[GC.getNumBuildingInfos()], c_eCiv5GameplayDLL, 0);
-	for (iI = 0; iI < GC.getNumBuildingInfos(); iI++)
-	{
-		m_aiNumForcedSpecialistsInBuilding[iI] = 0;
-	}
-
-	CvAssertMsg(m_piBuildingGreatPeopleRateChanges == NULL, "about to leak memory, CvCityCitizens::m_piBuildingGreatPeopleRateChanges");
-	m_piBuildingGreatPeopleRateChanges = FNEW(int[GC.getNumSpecialistInfos()], c_eCiv5GameplayDLL, 0);
-	for (iI = 0; iI < GC.getNumSpecialistInfos(); iI++)
-	{
-		m_piBuildingGreatPeopleRateChanges[iI] = 0;
-	}
+	m_aiSpecialistCounts.assign(0);
+	m_aiSpecialistSlots.assign(0);
+	m_aiSpecialistGreatPersonProgressTimes100.assign(0);
+	m_aiNumSpecialistsInBuilding.assign(0);
+	m_aiNumForcedSpecialistsInBuilding.assign(0);
+	m_piBuildingGreatPeopleRateChanges.assign(0);
 
 	m_bForceAvoidGrowth = false;
+}
+
+template<typename CityCitizens, typename Visitor>
+void CvCityCitizens::Serialize(CityCitizens& cityCitizens, Visitor& visitor)
+{
+	visitor(cityCitizens.m_bAutomated);
+	visitor(cityCitizens.m_bNoAutoAssignSpecialists);
+	visitor(cityCitizens.m_bIsDirty);
+	visitor(cityCitizens.m_iNumUnassignedCitizens);
+	visitor(cityCitizens.m_iNumCitizensWorkingPlots);
+	visitor(cityCitizens.m_iNumForcedWorkingPlots);
+
+	visitor(cityCitizens.m_eCityAIFocusTypes);
+
+	visitor(cityCitizens.m_bForceAvoidGrowth);
+
+	visitor(cityCitizens.m_pabWorkingPlot);
+	visitor(cityCitizens.m_pabForcedWorkingPlot);
+	visitor(cityCitizens.m_vBlockadedPlots);
+
+	visitor(cityCitizens.m_iNumDefaultSpecialists);
+	visitor(cityCitizens.m_iNumForcedDefaultSpecialists);
+
+	visitor(cityCitizens.m_aiSpecialistCounts);
+	visitor(cityCitizens.m_aiSpecialistSlots);
+	visitor(cityCitizens.m_aiSpecialistGreatPersonProgressTimes100);
+	visitor(cityCitizens.m_aiNumSpecialistsInBuilding);
+	visitor(cityCitizens.m_aiNumForcedSpecialistsInBuilding);
+	visitor(cityCitizens.m_piBuildingGreatPeopleRateChanges);
 }
 
 /// Serialization read
 void CvCityCitizens::Read(FDataStream& kStream)
 {
-	// Version number to maintain backwards compatibility
-	uint uiVersion;
-	kStream >> uiVersion;
-	MOD_SERIALIZE_INIT_READ(kStream);
-
-	kStream >> m_bAutomated;
-	kStream >> m_bNoAutoAssignSpecialists;
-	kStream >> m_bIsDirty;
-	kStream >> m_iNumUnassignedCitizens;
-	kStream >> m_iNumCitizensWorkingPlots;
-	kStream >> m_iNumForcedWorkingPlots;
-
-	kStream >> m_eCityAIFocusTypes;
-
-	kStream >> m_bForceAvoidGrowth;
-
-	kStream >> m_pabWorkingPlot;
-	kStream >> m_pabForcedWorkingPlot;
-	kStream >> m_vBlockadedPlots;
-
-	kStream >> m_iNumDefaultSpecialists;
-	kStream >> m_iNumForcedDefaultSpecialists;
-
-	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_aiSpecialistCounts, GC.getNumSpecialistInfos());
-	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_aiSpecialistGreatPersonProgressTimes100, GC.getNumSpecialistInfos());
-	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_aiSpecialistSlots, GC.getNumSpecialistInfos());
-
-	BuildingArrayHelpers::Read(kStream, m_aiNumSpecialistsInBuilding);
-	BuildingArrayHelpers::Read(kStream, m_aiNumForcedSpecialistsInBuilding);
-
-	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_piBuildingGreatPeopleRateChanges, GC.getNumSpecialistInfos());
+	CvStreamLoadVisitor serialVisitor(kStream);
+	Serialize(*this, serialVisitor);
 
 	m_vWorkedPlots.clear();
 	for (int i = 0; i<MAX_CITY_PLOTS; i++)
@@ -202,36 +156,8 @@ void CvCityCitizens::Read(FDataStream& kStream)
 /// Serialization write
 void CvCityCitizens::Write(FDataStream& kStream) const
 {
-	// Current version number
-	uint uiVersion = 1;
-	kStream << uiVersion;
-	MOD_SERIALIZE_INIT_WRITE(kStream);
-
-	kStream << m_bAutomated;
-	kStream << m_bNoAutoAssignSpecialists;
-	kStream << m_bIsDirty;
-	kStream << m_iNumUnassignedCitizens;
-	kStream << m_iNumCitizensWorkingPlots;
-	kStream << m_iNumForcedWorkingPlots;
-
-	kStream << m_eCityAIFocusTypes;
-
-	kStream << m_bForceAvoidGrowth;
-
-	kStream << m_pabWorkingPlot;
-	kStream << m_pabForcedWorkingPlot;
-	kStream << m_vBlockadedPlots;
-
-	kStream << m_iNumDefaultSpecialists;
-	kStream << m_iNumForcedDefaultSpecialists;
-
-	CvInfosSerializationHelper::WriteHashedDataArray<SpecialistTypes, int>(kStream, m_aiSpecialistCounts, GC.getNumSpecialistInfos());
-	CvInfosSerializationHelper::WriteHashedDataArray<SpecialistTypes, int>(kStream, m_aiSpecialistGreatPersonProgressTimes100, GC.getNumSpecialistInfos());
-	CvInfosSerializationHelper::WriteHashedDataArray<SpecialistTypes, int>(kStream, m_aiSpecialistSlots, GC.getNumSpecialistInfos());
-	BuildingArrayHelpers::Write(kStream, m_aiNumSpecialistsInBuilding, GC.getNumBuildingInfos());
-	BuildingArrayHelpers::Write(kStream, m_aiNumForcedSpecialistsInBuilding, GC.getNumBuildingInfos());
-
-	CvInfosSerializationHelper::WriteHashedDataArray<SpecialistTypes, int>(kStream, m_piBuildingGreatPeopleRateChanges, GC.getNumSpecialistInfos());
+	CvStreamSaveVisitor serialVisitor(kStream);
+	Serialize(*this, serialVisitor);
 }
 
 FDataStream& operator>>(FDataStream& stream, CvCityCitizens& cityCitizens)

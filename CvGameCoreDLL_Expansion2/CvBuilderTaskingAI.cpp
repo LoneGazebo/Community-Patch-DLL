@@ -161,30 +161,26 @@ void CvBuilderTaskingAI::Uninit(void)
 	m_bNoPermanentsAdjacentCity = false;
 }
 
+template<typename BuilderTaskingAI, typename Visitor>
+void CvBuilderTaskingAI::Serialize(BuilderTaskingAI& builderTaskingAI, Visitor& visitor)
+{
+	visitor(builderTaskingAI.m_routeNeededPlots);
+	visitor(builderTaskingAI.m_routeWantedPlots);
+	visitor(builderTaskingAI.m_canalWantedPlots);
+}
+
 /// Serialization read
 void CvBuilderTaskingAI::Read(FDataStream& kStream)
 {
-	// Version number to maintain backwards compatibility
-	uint uiVersion;
-	kStream >> uiVersion;
-	MOD_SERIALIZE_INIT_READ(kStream);
-
-	kStream >> m_routeNeededPlots;
-	kStream >> m_routeWantedPlots;
-	kStream >> m_canalWantedPlots;
+	CvStreamLoadVisitor serialVisitor(kStream);
+	Serialize(*this, serialVisitor);
 }
 
 /// Serialization write
 void CvBuilderTaskingAI::Write(FDataStream& kStream) const
 {
-	// Current version number
-	uint uiVersion = 2;
-	kStream << uiVersion;
-	MOD_SERIALIZE_INIT_WRITE(kStream);
-
-	kStream << m_routeNeededPlots;
-	kStream << m_routeWantedPlots;
-	kStream << m_canalWantedPlots;
+	CvStreamSaveVisitor serialVisitor(kStream);
+	Serialize(*this, serialVisitor);
 }
 
 FDataStream& operator>>(FDataStream& stream, CvBuilderTaskingAI& builderTaskingAI)

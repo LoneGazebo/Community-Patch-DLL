@@ -33,6 +33,8 @@ public:
 	void Reset();
 
 	// Serialization routines
+	template<typename BuildingProductionAI, typename Visitor>
+	static void Serialize(BuildingProductionAI& buildingProductionAI, Visitor& visitor);
 	void Read(FDataStream& kStream);
 	void Write(FDataStream& kStream);
 
