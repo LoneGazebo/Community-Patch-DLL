@@ -5689,7 +5689,7 @@ int CvPlayerCulture::ComputeWarWeariness()
 		int iWarDamage = m_pPlayer->GetDiplomacyAI()->GetWarValueLost(ePlayer);
 
 		// If AI unwilling to make peace, don't penalize. Otherwise, apply 50% of their losses.
-		if (!kPlayer.isHuman() || GET_PLAYER(ePlayer).isHuman() || kPlayer.GetDiplomacyAI()->IsWantsPeaceWithPlayer(m_pPlayer->GetID()))
+		if (!m_pPlayer->isHuman() || kPlayer.isHuman() || kPlayer.GetDiplomacyAI()->IsWantsPeaceWithPlayer(m_pPlayer->GetID()))
 		{
 			iWarDamage += (kPlayer.GetDiplomacyAI()->GetWarValueLost(m_pPlayer->GetID()) / 2);
 		}
