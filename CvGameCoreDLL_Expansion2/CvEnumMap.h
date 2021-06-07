@@ -56,10 +56,7 @@ public:
 	inline void assign(const T& fill)
 	{
 		checkValidAccess();
-		for (Iterator it = begin(); it != end(); ++it)
-		{
-			*it = fill;
-		}
+		std::fill_n(begin(), size(), fill);
 	}
 
 	inline static std::size_t size()
@@ -207,10 +204,7 @@ public:
 
 	inline void assign(const T& fill)
 	{
-		for (Iterator it = begin(); it != end(); ++it)
-		{
-			*it = fill;
-		}
+		std::fill_n(begin(), std::size_t(SizeConstant), fill);
 	}
 
 	inline static std::size_t size()
