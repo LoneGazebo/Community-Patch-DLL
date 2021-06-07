@@ -69,6 +69,17 @@ void CvUnitProductionAI::Write(FDataStream& kStream) const
 	Serialize(*this, serialVisitor);
 }
 
+FDataStream& operator>>(FDataStream& loadFrom, CvUnitProductionAI& writeTo)
+{
+	writeTo.Read(loadFrom);
+	return loadFrom;
+}
+FDataStream& operator<<(FDataStream& saveTo, const CvUnitProductionAI& readFrom)
+{
+	readFrom.Write(saveTo);
+	return saveTo;
+}
+
 /// Establish weights for one flavor; can be called multiple times to layer strategies
 void CvUnitProductionAI::AddFlavorWeights(FlavorTypes eFlavor, int iWeight)
 {

@@ -1037,7 +1037,7 @@ void CvGame::uninit()
 
 	m_pabSpecialUnitValid.uninit();
 
-	if(m_ppaaiTeamVictoryRank)
+	if(m_ppaaiTeamVictoryRank.valid())
 	{
 		for(CvEnumMap<VictoryTypes, TeamTypes*>::Iterator it = m_ppaaiTeamVictoryRank.begin(); it != m_ppaaiTeamVictoryRank.end(); ++it)
 		{
@@ -1046,7 +1046,7 @@ void CvGame::uninit()
 		m_ppaaiTeamVictoryRank.uninit();
 	}
 #if defined(MOD_BALANCE_CORE_JFD)
-	if(m_ppaiContractUnits)
+	if(m_ppaiContractUnits.valid())
 	{
 		for(CvEnumMap<ContractTypes, CvEnumMap<UnitTypes, int>>::Iterator it = m_ppaiContractUnits.begin(); it != m_ppaiContractUnits.end(); ++it)
 		{

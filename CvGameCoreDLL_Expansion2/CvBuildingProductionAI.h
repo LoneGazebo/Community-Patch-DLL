@@ -36,7 +36,7 @@ public:
 	template<typename BuildingProductionAI, typename Visitor>
 	static void Serialize(BuildingProductionAI& buildingProductionAI, Visitor& visitor);
 	void Read(FDataStream& kStream);
-	void Write(FDataStream& kStream);
+	void Write(FDataStream& kStream) const;
 
 	// Establish/retrieve weights for one flavor
 	void AddFlavorWeights(FlavorTypes eFlavor, int iWeight);
@@ -60,5 +60,8 @@ private:
 	CvWeightedVector<int> m_BuildingAIWeights;
 	CvWeightedVector<int> m_Buildables;
 };
+
+FDataStream& operator>>(FDataStream&, CvBuildingProductionAI&);
+FDataStream& operator<<(FDataStream&, const CvBuildingProductionAI&);
 
 #endif //CIV5_BUILDING_PRODUCTION_AI_H

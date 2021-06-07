@@ -258,7 +258,6 @@ _Ret_maybenull_ CvMilitaryAIStrategyXMLEntry* CvMilitaryAIStrategyXMLEntries::Ge
 CvMilitaryAI::CvMilitaryAI():
 	m_pabUsingStrategy(NULL),
 	m_paiTurnStrategyAdopted(NULL),
-	m_aiTempFlavors(NULL),
 	m_iNumberOfTimesOpsBuildSkippedOver(0),
 	m_iNumberOfTimesSettlerBuildSkippedOver(0),
 	m_aiWarFocus(NULL)
@@ -286,8 +285,7 @@ void CvMilitaryAI::Init(CvMilitaryAIStrategyXMLEntries* pAIStrategies, CvPlayer*
 	CvAssertMsg(m_paiTurnStrategyAdopted==NULL, "about to leak memory, CvMilitaryAI::m_paiTurnStrategyAdopted");
 	m_paiTurnStrategyAdopted = FNEW(int[m_pAIStrategies->GetNumMilitaryAIStrategies()], c_eCiv5GameplayDLL, 0);
 
-	CvAssertMsg(m_aiTempFlavors==NULL, "about to leak memory, CvMilitaryAI::m_aiTempFlavors");
-	m_aiTempFlavors = FNEW(int[GC.getNumFlavorTypes()], c_eCiv5GameplayDLL, 0);
+	m_aiTempFlavors.init();
 
 	CvAssertMsg(m_aiWarFocus == NULL, "about to leak memory, CvMilitaryAI::m_aiWarFocus");
 	m_aiWarFocus = FNEW(int[MAX_MAJOR_CIVS], c_eCiv5GameplayDLL, 0);
@@ -300,7 +298,7 @@ void CvMilitaryAI::Uninit()
 {
 	SAFE_DELETE_ARRAY(m_pabUsingStrategy);
 	SAFE_DELETE_ARRAY(m_paiTurnStrategyAdopted);
-	SAFE_DELETE_ARRAY(m_aiTempFlavors);
+	m_aiTempFlavors.uninit();
 	SAFE_DELETE_ARRAY(m_aiWarFocus);
 }
 

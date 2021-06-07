@@ -150,7 +150,7 @@ public:
 		return ConstReverseIterator(m_values);
 	}
 
-	inline operator bool() const
+	inline bool valid() const
 	{
 		return m_values != NULL;
 	}
@@ -286,6 +286,10 @@ public:
 		return ConstReverseIterator(m_values);
 	}
 
+	inline bool valid() const
+	{
+		return true;
+	}
 	inline bool operator==(const CvEnumMap<Enum, T, true>& rhs) const
 	{
 		return std::equal(begin(), end(), rhs.begin());

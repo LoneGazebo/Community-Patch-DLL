@@ -10,6 +10,8 @@
 #ifndef CIV5_MILITARY_AI_H
 #define CIV5_MILITARY_AI_H
 
+#include "CvEnumMap.h"
+
 enum DefenseState
 {
     NO_DEFENSE_STATE = -1,
@@ -315,7 +317,7 @@ private:
 	CvMilitaryAIStrategyXMLEntries* m_pAIStrategies;
 	bool* m_pabUsingStrategy;
 	int* m_paiTurnStrategyAdopted;
-	int* m_aiTempFlavors;
+	CvEnumMap<FlavorTypes, int> m_aiTempFlavors;
 	int* m_aiWarFocus;
 
 	// Internal calculated values - must be serialized

@@ -121,6 +121,8 @@ public:
 	void Init(CvCitySpecializationXMLEntries* pSpecializations, CvPlayer* pPlayer);
 	void Uninit();
 	void Reset();
+	template<typename CitySpecializationAI, typename Visitor>
+	static void Serialize(CitySpecializationAI& citySpecializationAI, Visitor& visitor);
 	void Read(FDataStream& kStream);
 	void Write(FDataStream& kStream) const;
 

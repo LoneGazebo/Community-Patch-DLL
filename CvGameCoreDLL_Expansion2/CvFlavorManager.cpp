@@ -8,13 +8,13 @@
 #include "CvGameCoreDLLPCH.h"
 #include "CvFlavorManager.h"
 #include "CvMinorCivAI.h"
+#include "CvEnumMapSerialization.h"
 
 // must be included after all other headers
 #include "LintFree.h"
 
 /// Constructor
-CvFlavorRecipient::CvFlavorRecipient():
-	m_piLatestFlavorValues(NULL)
+CvFlavorRecipient::CvFlavorRecipient()
 {
 
 }
@@ -28,15 +28,13 @@ CvFlavorRecipient::~CvFlavorRecipient()
 /// Initialize data
 void CvFlavorRecipient::Init()
 {
-	int iNumFlavors = GC.getNumFlavorTypes();
-	m_piLatestFlavorValues = FNEW(int[iNumFlavors], c_eCiv5GameplayDLL, 0);
-	memset(m_piLatestFlavorValues, 0, iNumFlavors * sizeof(int));
+	m_piLatestFlavorValues.init(0);
 }
 
 /// Deallocate memory created in initialize
 void CvFlavorRecipient::Uninit()
 {
-	SAFE_DELETE_ARRAY(m_piLatestFlavorValues);
+	m_piLatestFlavorValues.uninit();
 }
 
 /// Returns whether or not this Recipient is a City
@@ -46,11 +44,11 @@ bool CvFlavorRecipient::IsCity()
 }
 
 /// Public function that other classes can call to set/reset this recipient's flavors
-void CvFlavorRecipient::SetFlavors(int* piUpdatedFlavorValues)
+void CvFlavorRecipient::SetFlavors(const CvEnumMap<FlavorTypes, int>& piUpdatedFlavorValues)
 {
-	CvAssertMsg(piUpdatedFlavorValues != NULL, "Invalid array of flavor deltas passed to flavor recipient");
+	CvAssertMsg(piUpdatedFlavorValues.valid(), "Invalid map of flavor deltas passed to flavor recipient");
 
-	if(!piUpdatedFlavorValues) return;
+	if(!piUpdatedFlavorValues.valid()) return;
 
 	int iNumFlavors = GC.getNumFlavorTypes();
 	for(int iI = 0; iI < iNumFlavors; iI++)
@@ -71,12 +69,12 @@ void CvFlavorRecipient::SetFlavors(int* piUpdatedFlavorValues)
 }
 
 /// Public function that other classes can call to change this recipient's flavors
-void CvFlavorRecipient::ChangeFlavors(int* piDeltaFlavorValues, bool bDontLog)
+void CvFlavorRecipient::ChangeFlavors(const CvEnumMap<FlavorTypes, int>& piDeltaFlavorValues, bool bDontLog)
 {
 
-	CvAssertMsg(piDeltaFlavorValues != NULL, "Invalid array of flavor deltas passed to flavor recipient");
+	CvAssertMsg(piDeltaFlavorValues.valid(), "Invalid map of flavor deltas passed to flavor recipient");
 
-	if(!piDeltaFlavorValues) return;
+	if(!piDeltaFlavorValues.valid()) return;
 
 	int iFlavorMinValue = /*-1000*/ GC.getFLAVOR_MIN_VALUE();
 	int iFlavorMaxValue = /*1000*/ GC.getFLAVOR_MAX_VALUE();
@@ -123,9 +121,7 @@ int CvFlavorRecipient::GetLatestFlavorValue(FlavorTypes eFlavor, bool bAllowNega
 }
 
 /// Constructor
-CvFlavorManager::CvFlavorManager(void):
-	m_piPersonalityFlavor(NULL),
-	m_piActiveFlavor(NULL)
+CvFlavorManager::CvFlavorManager(void)
 {
 
 }
@@ -143,8 +139,8 @@ void CvFlavorManager::Init(CvPlayer* pPlayer)
 	m_pPlayer = pPlayer;
 
 	// Allocate memory
-	m_piPersonalityFlavor = FNEW(int[GC.getNumFlavorTypes()], c_eCiv5GameplayDLL, 0);
-	m_piActiveFlavor = FNEW(int[GC.getNumFlavorTypes()], c_eCiv5GameplayDLL, 0);
+	m_piPersonalityFlavor.init();
+	m_piActiveFlavor.init();
 	m_FlavorTargetList.reserve((3*64)+100);
 
 	// Clear variables
@@ -222,64 +218,48 @@ void CvFlavorManager::Init(CvPlayer* pPlayer)
 /// Deallocate memory created in initialize
 void CvFlavorManager::Uninit()
 {
-	SAFE_DELETE_ARRAY(m_piPersonalityFlavor);
-	SAFE_DELETE_ARRAY(m_piActiveFlavor);
+	m_piPersonalityFlavor.uninit();
+	m_piActiveFlavor.uninit();
 	m_FlavorTargetList.clear();
 }
 
 /// Reset member variables
 void CvFlavorManager::Reset()
 {
-	for(int iI = 0; iI < GC.getNumFlavorTypes(); iI++)
-	{
-		m_piPersonalityFlavor[iI] = 0;
-		m_piActiveFlavor[iI] = 0;
-	}
+	m_piPersonalityFlavor.assign(0);
+	m_piActiveFlavor.assign(0);
+}
+
+template<typename FlavorManager, typename Visitor>
+void CvFlavorManager::Serialize(FlavorManager& flavorManager, Visitor& visitor)
+{
+	visitor(flavorManager.m_piPersonalityFlavor);
+	visitor(flavorManager.m_piActiveFlavor);
 }
 
 /// Serialization read
 void CvFlavorManager::Read(FDataStream& kStream)
 {
-	// Version number to maintain backwards compatibility
-	uint uiVersion;
-	kStream >> uiVersion;
-	MOD_SERIALIZE_INIT_READ(kStream);
-
-	CvAssertMsg(GC.getNumFlavorTypes() > 0, "Number of flavors to serialize is expected to greater than 0)");
-
-	int iNumFlavors;
-	kStream >> iNumFlavors;
-
-	ArrayWrapper<int> wrapm_piPersonalityFlavor(iNumFlavors, m_piPersonalityFlavor);
-	kStream >> wrapm_piPersonalityFlavor;
-
-	ArrayWrapper<int> wrapm_piActiveFlavor(iNumFlavors, m_piActiveFlavor);
-	kStream >> wrapm_piActiveFlavor;
+	CvStreamLoadVisitor serialVisitor(kStream);
+	Serialize(*this, serialVisitor);
 }
 
 /// Serialization write
 void CvFlavorManager::Write(FDataStream& kStream) const
 {
-	// Current version number
-	uint uiVersion = 1;
-	kStream << uiVersion;
-	MOD_SERIALIZE_INIT_WRITE(kStream);
-
-	CvAssertMsg(GC.getNumFlavorTypes() > 0, "Number of flavors to serialize is expected to greater than 0)");
-	kStream << GC.getNumFlavorTypes();
-	kStream << ArrayWrapper<int>(GC.getNumFlavorTypes(), m_piPersonalityFlavor);
-	kStream << ArrayWrapper<int>(GC.getNumFlavorTypes(), m_piActiveFlavor);
+	CvStreamSaveVisitor serialVisitor(kStream);
+	Serialize(*this, serialVisitor);
 }
 
-FDataStream& operator>>(FDataStream& stream, CvFlavorManager& flavorManager)
+FDataStream& operator>>(FDataStream& loadFrom, CvFlavorManager& writeTo)
 {
-	flavorManager.Read(stream);
-	return stream;
+	writeTo.Read(loadFrom);
+	return loadFrom;
 }
-FDataStream& operator<<(FDataStream& stream, const CvFlavorManager& flavorManager)
+FDataStream& operator<<(FDataStream& saveTo, const CvFlavorManager& readFrom)
 {
-	flavorManager.Write(stream);
-	return stream;
+	readFrom.Write(saveTo);
+	return saveTo;
 }
 
 /// Register a new recipient of the player's global flavors
@@ -289,7 +269,7 @@ void CvFlavorManager::AddFlavorRecipient(CvFlavorRecipient* pTargetObject, bool 
 	m_FlavorTargetList.push_back(pTargetObject);
 
 	// If we've already been initialized, then go ahead and send out current values
-	if(m_piPersonalityFlavor != NULL && bPropegateFlavorValues)
+	if(m_piPersonalityFlavor.valid() && bPropegateFlavorValues)
 	{
 		pTargetObject->SetFlavors(m_piPersonalityFlavor);
 	}
@@ -320,26 +300,27 @@ void CvFlavorManager::ChangeLeader(LeaderHeadTypes eOldLeader, LeaderHeadTypes e
 	
 	if(pkOldLeaderHeadInfo && pkNewLeaderHeadInfo)
 	{
-		int* m_aiTempFlavors = FNEW(int[GC.getNumFlavorTypes()], c_eCiv5GameplayDLL, 0);
+		CvEnumMap<FlavorTypes, int> aiTempFlavors;
+		aiTempFlavors.init();
 		
-		for(int iI = 0; iI < GC.getNumFlavorTypes(); iI++)
+		for(std::size_t iI = 0; iI < aiTempFlavors.size(); iI++)
 		{
-			m_aiTempFlavors[iI] = pkNewLeaderHeadInfo->getFlavorValue(iI) - pkOldLeaderHeadInfo->getFlavorValue(iI);
+			aiTempFlavors[iI] = pkNewLeaderHeadInfo->getFlavorValue(iI) - pkOldLeaderHeadInfo->getFlavorValue(iI);
 		}
 		
-		ChangeFlavors(m_aiTempFlavors, true);
+		ChangeFlavors(aiTempFlavors, true);
 
-		SAFE_DELETE_ARRAY(m_aiTempFlavors);
+		aiTempFlavors.uninit();
 	}
 }
 #endif
 
 /// Update to a new set of flavors
-void CvFlavorManager::ChangeFlavors(int* piDeltaFlavorValues, bool	bPlayerLevelUpdate)
+void CvFlavorManager::ChangeFlavors(const CvEnumMap<FlavorTypes, int>& piDeltaFlavorValues, bool	bPlayerLevelUpdate)
 {
-	CvAssertMsg(piDeltaFlavorValues != NULL, "Invalid array of flavor deltas passed to flavor manager");
+	CvAssertMsg(piDeltaFlavorValues.valid(), "Invalid map of flavor deltas passed to flavor manager");
 
-	if(!piDeltaFlavorValues) return;
+	if(!piDeltaFlavorValues.valid()) return;
 
 	if (bPlayerLevelUpdate)
 	{
@@ -444,7 +425,7 @@ int CvFlavorManager::GetPersonalityIndividualFlavor(FlavorTypes eType)
 }
 
 /// Retrieve the value of all Personality flavors
-int* CvFlavorManager::GetAllPersonalityFlavors()
+CvEnumMap<FlavorTypes, int>& CvFlavorManager::GetAllPersonalityFlavors()
 {
 	return m_piPersonalityFlavor;
 }
@@ -509,7 +490,7 @@ int CvFlavorManager::GetAdjustedValue(int iOriginalValue, int iPlusMinus, int iM
 }
 
 /// Sends current flavor settings to all recipients
-void CvFlavorManager::BroadcastFlavors(int* piDeltaFlavorValues, bool bPlayerLevelUpdate)
+void CvFlavorManager::BroadcastFlavors(const CvEnumMap<FlavorTypes, int>& piDeltaFlavorValues, bool bPlayerLevelUpdate)
 {
 	for(Flavor_List::iterator it = m_FlavorTargetList.begin(); it != m_FlavorTargetList.end(); it++)
 	{

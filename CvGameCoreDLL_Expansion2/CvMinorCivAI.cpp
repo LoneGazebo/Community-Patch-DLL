@@ -4542,7 +4542,7 @@ void CvMinorCivAI::DoPickPersonality()
 	}
 
 	CvFlavorManager* pFlavorManager = m_pPlayer->GetFlavorManager();
-	int* pFlavors = pFlavorManager->GetAllPersonalityFlavors();
+	CvEnumMap<FlavorTypes, int>& pFlavors = pFlavorManager->GetAllPersonalityFlavors();
 
 	MinorCivPersonalityTypes eRandPersonality = (MinorCivPersonalityTypes)GC.getGame().getSmallFakeRandNum(NUM_MINOR_CIV_PERSONALITY_TYPES-1, m_pPlayer->GetID());
 	if (eRandPersonality == NO_MINOR_CIV_PERSONALITY_TYPE)

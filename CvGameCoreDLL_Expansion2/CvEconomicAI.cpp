@@ -245,8 +245,7 @@ CvEconomicAIStrategyXMLEntry* CvEconomicAIStrategyXMLEntries::GetEntry(int index
 /// Constructor
 CvEconomicAI::CvEconomicAI():
 	m_pabUsingStrategy(NULL),
-	m_paiTurnStrategyAdopted(NULL),
-	m_aiTempFlavors(NULL)
+	m_paiTurnStrategyAdopted(NULL)
 {
 }
 
@@ -271,8 +270,7 @@ void CvEconomicAI::Init(CvEconomicAIStrategyXMLEntries* pAIStrategies, CvPlayer*
 	FAssertMsg(m_paiTurnStrategyAdopted==NULL, "about to leak memory, CvStrategyAI::m_paiTurnStrategyAdopted");
 	m_paiTurnStrategyAdopted = FNEW(int[m_pAIStrategies->GetNumEconomicAIStrategies()], c_eCiv5GameplayDLL, 0);
 
-	FAssertMsg(m_aiTempFlavors==NULL, "about to leak memory, CvStrategyAI::m_aiTempFlavors");
-	m_aiTempFlavors = FNEW(int[GC.getNumFlavorTypes()], c_eCiv5GameplayDLL, 0);
+	m_aiTempFlavors.init();
 
 	m_RequestedSavings.clear();
 
@@ -284,7 +282,7 @@ void CvEconomicAI::Uninit()
 {
 	SAFE_DELETE_ARRAY(m_pabUsingStrategy);
 	SAFE_DELETE_ARRAY(m_paiTurnStrategyAdopted);
-	SAFE_DELETE_ARRAY(m_aiTempFlavors);
+	m_aiTempFlavors.uninit();
 }
 
 /// Reset AIStrategy status array to all false

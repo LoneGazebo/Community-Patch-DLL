@@ -1088,6 +1088,8 @@ public:
 	void Init(CvBuildingXMLEntries* pPossibleBuildings, CvCity* pCity);
 	void Uninit();
 	void Reset();
+	template<typename CityBuildings, typename Visitor>
+	static void Serialize(CityBuildings& cityBuildings, Visitor& visitor);
 	void Read(FDataStream& kStream);
 	void Write(FDataStream& kStream) const;
 

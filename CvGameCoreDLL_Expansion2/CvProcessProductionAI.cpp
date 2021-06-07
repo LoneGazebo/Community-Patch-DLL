@@ -64,6 +64,17 @@ void CvProcessProductionAI::Write(FDataStream& kStream) const
 	kStream << m_ProcessAIWeights;
 }
 
+FDataStream& operator>>(FDataStream& loadFrom, CvProcessProductionAI& writeTo)
+{
+	writeTo.Read(loadFrom);
+	return loadFrom;
+}
+FDataStream& operator<<(FDataStream& saveTo, const CvProcessProductionAI& readFrom)
+{
+	readFrom.Write(saveTo);
+	return saveTo;
+}
+
 /// Establish weights for one flavor; can be called multiple times to layer strategies
 void CvProcessProductionAI::AddFlavorWeights(FlavorTypes eFlavor, int iWeight)
 {

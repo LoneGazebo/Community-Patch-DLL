@@ -63,12 +63,23 @@ void CvBuildingProductionAI::Read(FDataStream& kStream)
 }
 
 /// Serialization write
-void CvBuildingProductionAI::Write(FDataStream& kStream)
+void CvBuildingProductionAI::Write(FDataStream& kStream) const
 {
 	CvAssertMsg(m_pCityBuildings != NULL, "Building Production AI init failure: city buildings are NULL");
 
 	CvStreamSaveVisitor serialVisitor(kStream);
 	Serialize(*this, serialVisitor);
+}
+
+FDataStream& operator>>(FDataStream& loadFrom, CvBuildingProductionAI& writeTo)
+{
+	writeTo.Read(loadFrom);
+	return loadFrom;
+}
+FDataStream& operator<<(FDataStream& saveTo, const CvBuildingProductionAI& readFrom)
+{
+	readFrom.Write(saveTo);
+	return saveTo;
 }
 
 /// Establish weights for one flavor; can be called multiple times to layer strategies

@@ -14,6 +14,7 @@
 #include "CvCitySpecializationAI.h"
 #include "CvGrandStrategyAI.h"
 #include "CvInfosSerializationHelper.h"
+#include "CvEnumMapSerialization.h"
 
 #include "LintFree.h"
 
@@ -1015,13 +1016,8 @@ void CvPlayerTechs::Read(FDataStream& kStream)
 	// Now for AI
 	m_pTechAI->Read(kStream);
 
-	CvAssertMsg(m_piLatestFlavorValues != NULL && GC.getNumFlavorTypes() > 0, "Number of flavor values to serialize is expected to greater than 0");
-
-	int iNumFlavors;
-	kStream >> iNumFlavors;
-
-	ArrayWrapper<int> kLatestFlavorWrapper(iNumFlavors, m_piLatestFlavorValues);
-	kStream >> kLatestFlavorWrapper;
+	CvAssertMsg(m_piLatestFlavorValues.valid() && GC.getNumFlavorTypes() > 0, "Number of flavor values to serialize is expected to greater than 0");
+	kStream >> m_piLatestFlavorValues;
 
 	kStream >> m_bHasUUTech;
 	kStream >> m_bWillHaveUUTechSoon;
@@ -1056,9 +1052,8 @@ void CvPlayerTechs::Write(FDataStream& kStream) const
 	// Now for AI
 	m_pTechAI->Write(kStream);
 
-	CvAssertMsg(m_piLatestFlavorValues != NULL && GC.getNumFlavorTypes() > 0, "Number of flavor values to serialize is expected to greater than 0");
-	kStream << GC.getNumFlavorTypes();
-	kStream << ArrayWrapper<int>(GC.getNumFlavorTypes(), m_piLatestFlavorValues);
+	CvAssertMsg(m_piLatestFlavorValues.valid() && GC.getNumFlavorTypes() > 0, "Number of flavor values to serialize is expected to greater than 0");
+	kStream << m_piLatestFlavorValues;
 
 	kStream << m_bHasUUTech;
 	kStream << m_bWillHaveUUTechSoon;
