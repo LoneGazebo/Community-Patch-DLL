@@ -3,6 +3,8 @@
 #ifndef CVSERIALIZE_H
 #define CVSERIALIZE_H
 
+#include "CvAssert.h"
+
 #include "CvEnums.h"
 #include "CvEnumSerialization.h"
 
@@ -43,7 +45,7 @@ public:
 	template<typename T>
 	inline CvStreamSaveVisitor& operator>>(const T& value)
 	{
-		FAssertMsg(false, "CvStreamSaveVisitor is not meant for loading");
+		CvAssertMsg(false, "CvStreamSaveVisitor is not meant for loading");
 		return *this;
 	}
 
@@ -69,13 +71,13 @@ public:
 	template<typename Dst, typename Src>
 	inline void loadAssign(Dst& dst, const Src& src)
 	{
-		FAssertMsg(false, "CvStreamSaveVisitor is not meant for loading");
+		CvAssertMsg(false, "CvStreamSaveVisitor is not meant for loading");
 	}
 
 	template<typename T>
 	void loadIgnore()
 	{
-		FAssertMsg(false, "CvStreamSaveVisitor is not meant for loading");
+		CvAssertMsg(false, "CvStreamSaveVisitor is not meant for loading");
 	}
 
 private:
@@ -105,7 +107,7 @@ public:
 	template<typename T>
 	inline CvStreamLoadVisitor& operator<<(const T& value)
 	{
-		FAssertMsg(false, "CvStreamSaveVisitor is not meant for saving");
+		CvAssertMsg(false, "CvStreamSaveVisitor is not meant for saving");
 		return *this;
 	}
 
@@ -323,7 +325,7 @@ public:
 	// Call once at initialization in multiplayer
 	inline void initSyncVars(SyncVars& syncVars)
 	{
-		FAssert(m_syncVarsStorage == NULL);
+		CvAssert(m_syncVarsStorage == NULL);
 		m_syncVarsStorage = &syncVars;
 	}
 	inline void destroySyncVars()

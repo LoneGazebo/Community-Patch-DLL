@@ -3,7 +3,7 @@
 #ifndef CVSPAN_H
 #define CVSPAN_H
 
-#include "FAssert.h"
+#include "CvAssert.h"
 #include "CvMeta.h"
 
 #include <cstddef>
@@ -46,13 +46,13 @@ public:
 	inline explicit CvSpan(It first, typename CvMeta::EnableIf<CvMeta::IsSame<typename std::iterator_traits<It>::iterator_category, std::random_access_iterator_tag>::Value, SizeType>::Type count)
 		: m_begin(&(*first))
 	{
-		FAssert(m_begin != NULL && count == TExtent);
+		CvAssert(m_begin != NULL && count == TExtent);
 	}
 	template<typename It>
 	inline explicit CvSpan(It first, typename CvMeta::EnableIf<CvMeta::IsSame<typename std::iterator_traits<It>::iterator_category, std::random_access_iterator_tag>::Value, It>::Type last)
 		: m_begin(&(*first))
 	{
-		FAssert(last - first == TExtent);
+		CvAssert(last - first == TExtent);
 	}
 	inline CvSpan(ElementType(&arr)[TExtent])
 		: m_begin(arr)
@@ -62,7 +62,7 @@ public:
 	inline CvSpan(const CvSpan<U, N>& src, typename CvMeta::EnableIf<CvMeta::IsSame<typename CvSpan<U, N>::ValueType, ValueType>::Value && (N == TExtent || N == DYNAMIC_EXTENT), int>::Type = 0)
 		: m_begin(&(*src.begin()))
 	{
-		FAssert(src.size() == TExtent);
+		CvAssert(src.size() == TExtent);
 	}
 
 	inline Iterator begin() const
@@ -93,7 +93,7 @@ public:
 	}
 	inline Reference operator[](SizeType idx) const
 	{
-		FAssert(idx < TExtent);
+		CvAssert(idx < TExtent);
 		return m_begin[idx];
 	}
 	inline Pointer data() const
@@ -145,14 +145,14 @@ public:
 		: m_begin(&(*first))
 		, m_end(m_begin + count)
 	{
-		FAssert(count == 0 || m_begin != NULL);
+		CvAssert(count == 0 || m_begin != NULL);
 	}
 	template<typename It>
 	inline CvSpan(It first, typename CvMeta::EnableIf<CvMeta::IsSame<typename std::iterator_traits<It>::iterator_category, std::random_access_iterator_tag>::Value, It>::Type last)
 		: m_begin(&(*first))
 		, m_end(&(*last))
 	{
-		FAssert(m_begin <= m_end);
+		CvAssert(m_begin <= m_end);
 	}
 	template<std::size_t N>
 	inline CvSpan(ElementType(&arr)[N])
@@ -187,17 +187,17 @@ public:
 
 	inline Reference front() const
 	{
-		FAssert(!empty());
+		CvAssert(!empty());
 		return *m_begin;
 	}
 	inline Reference back() const
 	{
-		FAssert(!empty());
+		CvAssert(!empty());
 		return *(m_end - 1);
 	}
 	inline Reference operator[](SizeType idx) const
 	{
-		FAssert(idx < size());
+		CvAssert(idx < size());
 		return m_begin[idx];
 	}
 	inline Pointer data() const
@@ -249,17 +249,17 @@ public:
 	template<typename It>
 	inline explicit CvSpan(It first, typename CvMeta::EnableIf<CvMeta::IsSame<typename std::iterator_traits<It>::iterator_category, std::random_access_iterator_tag>::Value, SizeType>::Type count)
 	{
-		FAssert(count == 0);
+		CvAssert(count == 0);
 	}
 	template<typename It>
 	inline explicit CvSpan(It first, typename CvMeta::EnableIf<CvMeta::IsSame<typename std::iterator_traits<It>::iterator_category, std::random_access_iterator_tag>::Value, It>::Type last)
 	{
-		FAssert(m_end - m_begin == 0);
+		CvAssert(m_end - m_begin == 0);
 	}
 	template<typename U, std::size_t N>
 	inline CvSpan(const CvSpan<U, N>& src, typename CvMeta::EnableIf<CvMeta::IsSame<typename CvSpan<U, N>::ValueType, ValueType>::Value && (N == 0 || N == DYNAMIC_EXTENT), int>::Type = 0)
 	{
-		FAssert(src.size() == 0);
+		CvAssert(src.size() == 0);
 	}
 
 	inline Iterator begin() const
@@ -282,17 +282,17 @@ public:
 
 	inline Reference front() const
 	{
-		FAssertMsg(false, "front() of empty extent is undefined behavior");
+		CvAssertMsg(false, "front() of empty extent is undefined behavior");
 		return *static_cast<Pointer>(NULL);
 	}
 	inline Reference back() const
 	{
-		FAssertMsg(false, "back() of empty extent is undefined behavior");
+		CvAssertMsg(false, "back() of empty extent is undefined behavior");
 		return *static_cast<Pointer>(NULL);
 	}
 	inline Reference operator[](SizeType idx) const
 	{
-		FAssertMsg(false, "operator[] of empty extent is undefined behavior");
+		CvAssertMsg(false, "operator[] of empty extent is undefined behavior");
 		return *static_cast<Pointer>(NULL);
 	}
 	inline Pointer data() const

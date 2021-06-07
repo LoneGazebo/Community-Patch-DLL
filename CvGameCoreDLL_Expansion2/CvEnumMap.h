@@ -9,7 +9,7 @@
 // Automatic specialization selection is provided by CvEnumMap<> and
 // should provide no more overhead than normally necessary.
 
-#include "FFireTypes.h"
+#include "CvAssert.h"
 #include "FDefNew.h"
 
 #include "CvEnumsUtil.h"
@@ -40,7 +40,7 @@ public:
 
 	inline void init()
 	{
-		FAssertMsg(m_values == NULL, "Dynamic CvEnumMap<>::init() called without first calling CvEnumMap<>::uninit() - Memory will leak");
+		CvAssertMsg(m_values == NULL, "Dynamic CvEnumMap<>::init() called without first calling CvEnumMap<>::uninit() - Memory will leak");
 		m_values = FNEW(T[size()], c_eCiv5GameplayDLL, 0);
 	}
 	inline void init(const T& fill)
@@ -80,7 +80,7 @@ public:
 	inline const T& operator[](std::size_t idx) const
 	{
 		checkValidAccess();
-		FAssertMsg(idx < size(), "Attempting to access out of range index in CvEnumMap<>");
+		CvAssertMsg(idx < size(), "Attempting to access out of range index in CvEnumMap<>");
 		return m_values[idx];
 	}
 	inline T& operator[](std::size_t idx)
@@ -170,7 +170,7 @@ private:
 
 	void checkValidAccess() const
 	{
-		FAssertMsg(m_values != NULL, "Attempting to access dynamic CvEnumMap<> without first calling CvEnumMap<>::init()");
+		CvAssertMsg(m_values != NULL, "Attempting to access dynamic CvEnumMap<> without first calling CvEnumMap<>::init()");
 	}
 
 	T* m_values;
@@ -228,7 +228,7 @@ public:
 
 	inline const T& operator[](std::size_t idx) const
 	{
-		FAssertMsg(idx < size(), "Attempting to access out of range index in CvEnumMap<>");
+		CvAssertMsg(idx < size(), "Attempting to access out of range index in CvEnumMap<>");
 		return m_values[idx];
 	}
 	inline T& operator[](std::size_t idx)
