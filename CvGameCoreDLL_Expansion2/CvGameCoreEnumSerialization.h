@@ -37,6 +37,12 @@ FDataStream& operator>>(FDataStream&, DomainTypes&);
 FDataStream& operator<<(FDataStream&, const TradeConnectionType&);
 FDataStream& operator>>(FDataStream&, TradeConnectionType&);
 
+FDataStream& operator<<(FDataStream&, const GreatWorkType&);
+FDataStream& operator>>(FDataStream&, GreatWorkType&);
+
+FDataStream& operator<<(FDataStream&, const GreatWorkClass&);
+FDataStream& operator>>(FDataStream&, GreatWorkClass&);
+
 template<typename Enum, typename T>
 inline FDataStream& operator<<(FDataStream& saveTo, const CvEnum<Enum, T>& readFrom)
 {

@@ -120,6 +120,9 @@ public:
 
 	bool IsCorporationBuilding(BuildingClassTypes eBuildingClass);
 
+	template<typename Corporation, typename Visitor>
+	static void Serialize(Corporation& corporation, Visitor& visitor);
+
 	// Public data
 	CorporationTypes m_eCorporation;
 	PlayerTypes m_eFounder;
@@ -158,6 +161,9 @@ public:
 	void Init();
 	void DoTurn();
 
+	template<typename GameCorporations, typename Visitor>
+	static void Serialize(GameCorporations& gameCorporations, Visitor& visitor);
+
 	CvCorporation* GetCorporation(CorporationTypes eCorporation);
 	int GetNumActiveCorporations() const;
 	int GetNumAvailableCorporations() const;
@@ -192,6 +198,8 @@ public:
 	void Init(CvPlayer* pPlayer);
 	void Uninit();
 	void Reset();
+	template<typename PlayerCorporations, typename Visitor>
+	static void Serialize(PlayerCorporations& playerCorporations, Visitor& visitor);
 	virtual void Read(FDataStream& kStream);
 	virtual void Write(FDataStream& kStream) const;
 
