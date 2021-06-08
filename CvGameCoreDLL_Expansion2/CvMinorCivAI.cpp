@@ -4941,16 +4941,11 @@ void CvMinorCivAI::DoFirstContactWithMajor(TeamTypes eTeam, bool bSuppressMessag
 					if (MOD_GLOBAL_CS_GIFTS) {
 						// Reduce gifts if we're not the first team to meet the CS
 						int iBonusMultiplier = GC.getMINOR_CIV_FIRST_CONTACT_SUBSEQUENT_TEAM_MULTIPLIER();
-						int iBonusDivisor = max(1,GC.getMINOR_CIV_FIRST_CONTACT_SUBSEQUENT_TEAM_DIVISOR());
+						int iBonusDivisor = GC.getMINOR_CIV_FIRST_CONTACT_SUBSEQUENT_TEAM_DIVISOR();
 
-						if (iBonusDivisor == 0) {
-							iFriendshipBoost = 0;
-						} else {
-							iFriendshipBoost = iFriendshipBoost * iBonusMultiplier / iBonusDivisor;
-						}
-
-						iCultureGift = iCultureGift / iBonusDivisor;
-						iFaithGift = iFaithGift / iBonusDivisor;
+						iFriendshipBoost = (iFriendshipBoost * iBonusMultiplier) / max(1,iBonusDivisor);
+						iCultureGift = iCultureGift / max(1,iBonusDivisor);
+						iFaithGift = iFaithGift / max(1,iBonusDivisor);
 
 						iGoldGift = 0;
 						iFoodGift = 0;
