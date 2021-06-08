@@ -27431,22 +27431,8 @@ void CvUnit::Serialize(Unit& unit, Visitor& visitor)
 	visitor(unit.m_eHomelandMove);
 	visitor(unit.m_iHomelandMoveSetTurn);
 
-	// Unit type
-	{
-		uint32 uiUnitTypeHash;
-		if (bSaving)
-			uiUnitTypeHash = unit.m_eUnitType != NO_UNIT && unit.m_pUnitInfo ? FString::Hash(unit.m_pUnitInfo->GetType()) : 0;
-
-		visitor(uiUnitTypeHash);
-
-		if (bLoading)
-		{
-			UnitTypes eUnitIndex = UnitTypes(GC.getInfoTypeForHash(uiUnitTypeHash));
-			if (NO_UNIT != eUnitIndex)
-				visitor.loadAssign(unit.m_eUnitType, eUnitIndex);
-			visitor.loadAssign(unit.m_pUnitInfo, (NO_UNIT != unit.m_eUnitType) ? GC.getUnitInfo(unit.m_eUnitType) : NULL);
-		}
-	}
+	visitor(unit.m_eUnitType);
+	visitor.loadAssign(unit.m_pUnitInfo, (NO_UNIT != unit.m_eUnitType) ? GC.getUnitInfo(unit.m_eUnitType) : NULL);
 
 	visitor(unit.m_Promotions);
 	visitor(unit.m_combatUnit.eOwner);
