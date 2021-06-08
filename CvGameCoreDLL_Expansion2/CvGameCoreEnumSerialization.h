@@ -43,6 +43,12 @@ FDataStream& operator>>(FDataStream&, GreatWorkType&);
 FDataStream& operator<<(FDataStream&, const GreatWorkClass&);
 FDataStream& operator>>(FDataStream&, GreatWorkClass&);
 
+FDataStream& operator<<(FDataStream&, const ProjectTypes&);
+FDataStream& operator>>(FDataStream&, ProjectTypes&);
+
+FDataStream& operator<<(FDataStream&, const ProcessTypes&);
+FDataStream& operator>>(FDataStream&, ProcessTypes&);
+
 template<typename Enum, typename T>
 inline FDataStream& operator<<(FDataStream& saveTo, const CvEnum<Enum, T>& readFrom)
 {

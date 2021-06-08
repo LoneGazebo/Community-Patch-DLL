@@ -12642,10 +12642,10 @@ void CvPlot::Serialize(Plot& plot, Visitor& visitor)
 	visitor(plot.m_ePlotType);
 	visitor(plot.m_eTerrainType);
 
-	visitor.infoHash<FeatureTypes>(plot.m_eFeatureType);
-	visitor.infoHash<ResourceTypes>(plot.m_eResourceType);
-	visitor.infoHash<ImprovementTypes>(plot.m_eImprovementType);
-	visitor.infoHash<ImprovementTypes>(plot.m_eImprovementTypeUnderConstruction);
+	visitor.as<FeatureTypes>(plot.m_eFeatureType);
+	visitor.as<ResourceTypes>(plot.m_eResourceType);
+	visitor.as<ImprovementTypes>(plot.m_eImprovementType);
+	visitor.as<ImprovementTypes>(plot.m_eImprovementTypeUnderConstruction);
 
 	visitor(plot.m_ePlayerBuiltImprovement);
 	visitor(plot.m_ePlayerResponsibleForImprovement);
@@ -12680,7 +12680,7 @@ void CvPlot::Serialize(Plot& plot, Visitor& visitor)
 		visitor(plot.m_aiVisibilityCountThisTurnMax[i]);
 		visitor(plot.m_aiRevealedOwner[i]);
 		visitor(plot.m_abResourceForceReveal[i]);
-		visitor.infoHash<ImprovementTypes>(plot.m_aeRevealedImprovementType[i]);
+		visitor.as<ImprovementTypes>(plot.m_aeRevealedImprovementType[i]);
 		visitor(plot.m_aeRevealedRouteType[i]);
 		visitor(plot.m_abIsImpassable[i]);
 		visitor(plot.m_abStrategicRoute[i]);

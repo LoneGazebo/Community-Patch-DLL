@@ -28,11 +28,10 @@ public:
 		m_stream << value;
 	}
 
-	template<typename InfoType, typename T>
-	inline void infoHash(const T& value, bool* bValid = NULL)
+	template<typename To, typename From>
+	inline void as(const From& value)
 	{
-		CvInfosSerializationHelper::WriteHashed(m_stream, InfoType(value));
-		if (bValid != NULL) { *bValid = true; }
+		m_stream << static_cast<To>(value);
 	}
 
 	template<typename T>
@@ -98,10 +97,12 @@ public:
 		m_stream >> value;
 	}
 
-	template<typename InfoType, typename T>
-	inline void infoHash(T& value, bool* bValid = NULL)
+	template<typename To, typename From>
+	inline void as(From& value)
 	{
-		value = static_cast<T>(CvInfosSerializationHelper::ReadHashed(m_stream, bValid));
+		To to;
+		m_stream >> to;
+		value = static_cast<From>(to);
 	}
 
 	template<typename T>

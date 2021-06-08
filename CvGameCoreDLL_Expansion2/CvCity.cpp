@@ -33439,28 +33439,27 @@ void CvCity::Serialize(City& city, Visitor& visitor)
 			switch (order.eOrderType)
 			{
 			case ORDER_TRAIN:
-				visitor.infoHash<UnitTypes>(order.iData1);
-				visitor(order.iData2);	// This is a UnitAIType, but no code respects the ordering in GC.getUnitAIInfo so just write out the index
-										// FIXME - Respect this so that we can save the data proper
+				visitor.as<UnitTypes>(order.iData1);
+				visitor.as<UnitAITypes>(order.iData2);
 				break;
 
 			case ORDER_CONSTRUCT:
-				visitor.infoHash<BuildingTypes>(order.iData1);
+				visitor.as<BuildingTypes>(order.iData1);
 				visitor(order.iData2);
 				break;
 
 			case ORDER_CREATE:
-				visitor.infoHash<ProjectTypes>(order.iData1);
+				visitor.as<ProjectTypes>(order.iData1);
 				visitor(order.iData2);
 				break;
 
 			case ORDER_PREPARE:
-				visitor.infoHash<SpecialistTypes>(order.iData1);
+				visitor.as<SpecialistTypes>(order.iData1);
 				visitor(order.iData2);
 				break;
 
 			case ORDER_MAINTAIN:
-				visitor.infoHash<ProcessTypes>(order.iData1);
+				visitor.as<ProcessTypes>(order.iData1);
 				visitor(order.iData2);
 				break;
 

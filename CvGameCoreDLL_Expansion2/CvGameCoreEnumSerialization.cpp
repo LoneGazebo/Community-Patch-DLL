@@ -150,6 +150,24 @@ FDataStream& operator>>(FDataStream& loadFrom, GreatWorkClass& writeTo)
 	return ReadBasicEnum<int>(loadFrom, writeTo);
 }
 
+FDataStream& operator<<(FDataStream& saveTo, const ProjectTypes& readFrom)
+{
+	return WriteBasicEnum<int>(saveTo, readFrom);
+}
+FDataStream& operator>>(FDataStream& loadFrom, ProjectTypes& writeTo)
+{
+	return ReadBasicEnum<int>(loadFrom, writeTo);
+}
+
+FDataStream& operator<<(FDataStream& saveTo, const ProcessTypes& readFrom)
+{
+	return WriteBasicEnum<int>(saveTo, readFrom);
+}
+FDataStream& operator>>(FDataStream& loadFrom, ProcessTypes& writeTo)
+{
+	return ReadBasicEnum<int>(loadFrom, writeTo);
+}
+
 //------------------------------------------------------------------------------
 namespace FSerialization
 {
