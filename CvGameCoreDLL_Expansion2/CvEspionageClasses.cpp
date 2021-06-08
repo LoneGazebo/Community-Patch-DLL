@@ -222,7 +222,6 @@ void CvPlayerEspionage::Reset()
 /// DoTurn
 void CvPlayerEspionage::DoTurn()
 {
-	AI_PERF_FORMAT("AI-perf.csv", ("CvPlayerEspionage::DoTurn, Turn %03d, %s", GC.getGame().getElapsedGameTurns(), m_pPlayer->getCivilizationShortDescription()) );
 	ProcessSpyMessages();
 
 	for(uint uiSpy = 0; uiSpy < m_aSpyList.size(); uiSpy++)
@@ -6340,8 +6339,6 @@ void CvEspionageAI::DoTurn()
 	if(m_pPlayer->GetEspionage()->GetNumAliveSpies() <= 0)
 		return;
 #endif
-
-	AI_PERF_FORMAT("AI-perf.csv", ("Espionage AI, Turn %03d, %s", GC.getGame().getElapsedGameTurns(), m_pPlayer->getCivilizationShortDescription()) );
 
 	if (!MOD_BALANCE_CORE_SPIES_ADVANCED)
 	{

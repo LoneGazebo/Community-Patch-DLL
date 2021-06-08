@@ -2462,7 +2462,6 @@ void CvCity::ResetGreatWorkYieldCache()
 //	--------------------------------------------------------------------------------
 void CvCity::doTurn()
 {
-	AI_PERF_FORMAT("City-AI-perf.csv", ("CvCity::doTurn, Turn %03d, %s, %s,", GC.getGame().getElapsedGameTurns(), GetPlayer()->getCivilizationShortDescription(), getName().c_str()) );
 	VALIDATE_OBJECT
 
 	ResetGreatWorkYieldCache();
@@ -2759,7 +2758,6 @@ void CvCity::doTurn()
 		doMeltdown();
 
 		{
-			AI_PERF_FORMAT_NESTED("City-AI-perf.csv", ("doImprovement, Turn %03d, %s, %s", GC.getGame().getElapsedGameTurns(), GetPlayer()->getCivilizationShortDescription(), getName().c_str()) );
 
 			for (int iI = 0; iI < GetNumWorkablePlots(); iI++)
 			{
@@ -21580,8 +21578,6 @@ void CvCity::ChangeRazingTurns(int iChange)
 bool CvCity::DoRazingTurn()
 {
 	VALIDATE_OBJECT
-
-	AI_PERF_FORMAT("City-AI-perf.csv", ("CvCity::DoRazingTurn, Turn %03d, %s, %s", GC.getGame().getElapsedGameTurns(), GetPlayer()->getCivilizationShortDescription(), getName().c_str()) );
 	if(IsRazing())
 	{
 		CvPlayer& kPlayer = GET_PLAYER(getOwner());
@@ -32471,7 +32467,6 @@ void CvCity::Purchase(UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectT
 void CvCity::doGrowth()
 {
 	VALIDATE_OBJECT
-	AI_PERF_FORMAT("City-AI-perf.csv", ("CvCity::doGrowth, Turn %03d, %s, %s", GC.getGame().getElapsedGameTurns(), GetPlayer()->getCivilizationShortDescription(), getName().c_str()) );
 	// here would be a good place to override this in Lua
 
 	// No growth or starvation if being razed
@@ -32544,7 +32539,6 @@ void CvCity::doGrowth()
 //	--------------------------------------------------------------------------------
 bool CvCity::doCheckProduction()
 {
-	AI_PERF_FORMAT("City-AI-perf.csv", ("CvCity::doCheckProduction, Turn %03d, %s, %s", GC.getGame().getElapsedGameTurns(), GetPlayer()->getCivilizationShortDescription(), getName().c_str()) );
 	VALIDATE_OBJECT
 	OrderData* pOrderNode;
 	UnitTypes eUpgradeUnit;
@@ -32561,7 +32555,6 @@ bool CvCity::doCheckProduction()
 
 	int iNumUnitInfos = GC.getNumUnitInfos();
 	{
-		AI_PERF_FORMAT_NESTED("City-AI-perf.csv", ("CvCity::doCheckProduction_Unit, Turn %03d, %s, %s", GC.getGame().getElapsedGameTurns(), GetPlayer()->getCivilizationShortDescription(), getName().c_str()) );
 		for(iI = 0; iI < iNumUnitInfos; iI++)
 		{
 			const UnitTypes eUnit = static_cast<UnitTypes>(iI);
@@ -32596,7 +32589,6 @@ bool CvCity::doCheckProduction()
 
 	int iNumBuildingInfos = GC.getNumBuildingInfos();
 	{
-		AI_PERF_FORMAT_NESTED("City-AI-perf.csv", ("CvCity::doCheckProduction_Building, Turn %03d, %s, %s", GC.getGame().getElapsedGameTurns(), GetPlayer()->getCivilizationShortDescription(), getName().c_str()) );
 
 		int iPlayerLoop;
 		PlayerTypes eLoopPlayer;
@@ -32734,7 +32726,6 @@ bool CvCity::doCheckProduction()
 	}
 
 	{
-		AI_PERF_FORMAT_NESTED("City-AI-perf.csv", ("CvCity::doCheckProduction_Project, Turn %03d, %s, %s", GC.getGame().getElapsedGameTurns(), GetPlayer()->getCivilizationShortDescription(), getName().c_str()) );
 		int iNumProjectInfos = GC.getNumProjectInfos();
 		for(iI = 0; iI < iNumProjectInfos; iI++)
 		{
@@ -32770,7 +32761,6 @@ bool CvCity::doCheckProduction()
 	}
 
 	{
-		AI_PERF_FORMAT_NESTED("City-AI-perf.csv", ("CvCity::doCheckProduction_UpgradeUnit, Turn %03d, %s, %s", GC.getGame().getElapsedGameTurns(), GetPlayer()->getCivilizationShortDescription(), getName().c_str()) );
 		// Can now construct an Upgraded version of this Unit
 		for(iI = 0; iI < iNumUnitInfos; iI++)
 		{
@@ -32813,7 +32803,6 @@ bool CvCity::doCheckProduction()
 	}
 
 	{
-		AI_PERF_FORMAT_NESTED("City-AI-perf.csv", ("CvCity::doCheckProduction_UpgradeBuilding, Turn %03d, %s, %s", GC.getGame().getElapsedGameTurns(), GetPlayer()->getCivilizationShortDescription(), getName().c_str()) );
 		// Can now construct an Upgraded version of this Building
 		for(iI = 0; iI < iNumBuildingInfos; iI++)
 		{
@@ -32870,7 +32859,6 @@ bool CvCity::doCheckProduction()
 	}
 
 	{
-		AI_PERF_FORMAT_NESTED("City-AI-perf.csv", ("CvCity::doCheckProduction_CleanupQueue, Turn %03d, %s, %s", GC.getGame().getElapsedGameTurns(), GetPlayer()->getCivilizationShortDescription(), getName().c_str()) );
 		bOK = CleanUpQueue();
 	}
 
@@ -32882,7 +32870,6 @@ bool CvCity::doCheckProduction()
 void CvCity::doProduction(bool bAllowNoProduction)
 {
 	VALIDATE_OBJECT
-	AI_PERF_FORMAT("City-AI-perf.csv", ("CvCity::doProduction, Turn %03d, %s, %s", GC.getGame().getElapsedGameTurns(), GetPlayer()->getCivilizationShortDescription(), getName().c_str()) );
 
 	if(!isHuman() || isProductionAutomated())
 	{
@@ -32991,7 +32978,6 @@ void CvCity::doProcess()
 void CvCity::doDecay()
 {
 	VALIDATE_OBJECT
-	AI_PERF_FORMAT("City-AI-perf.csv", ("CvCity::doDecay, Turn %03d, %s, %s", GC.getGame().getElapsedGameTurns(), GetPlayer()->getCivilizationShortDescription(), getName().c_str()) );
 	int iI;
 
 	int iBuildingProductionDecayTime = GC.getBUILDING_PRODUCTION_DECAY_TIME();
@@ -33058,7 +33044,6 @@ void CvCity::doDecay()
 void CvCity::doMeltdown()
 {
 	VALIDATE_OBJECT
-	AI_PERF_FORMAT("City-AI-perf.csv", ("CvCity::doMeltdown, Turn %03d, %s, %s", GC.getGame().getElapsedGameTurns(), GetPlayer()->getCivilizationShortDescription(), getName().c_str()) );
 
 	int iNumBuildingInfos = GC.getNumBuildingInfos();
 	for(int iI = 0; iI < iNumBuildingInfos; iI++)
@@ -34106,7 +34091,6 @@ bool CvCity::IsEnemyInRange(int iRange, bool bMustBeAbleToAttack)
 //	--------------------------------------------------------------------------------
 void CvCity::DoNearbyEnemy()
 {
-	AI_PERF_FORMAT("City-AI-perf.csv", ("CvCity::DoNearbyEnemy, Turn %03d, %s, %s", GC.getGame().getElapsedGameTurns(), GetPlayer()->getCivilizationShortDescription(), getName().c_str()) );
 	// Can't actually range strike
 	if(!canRangeStrike())
 		return;

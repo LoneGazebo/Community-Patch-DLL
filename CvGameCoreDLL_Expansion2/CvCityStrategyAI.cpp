@@ -1426,7 +1426,6 @@ CvCityBuildable CvCityStrategyAI::ChooseHurry(bool bUnitOnly, bool bFaithPurchas
 /// Called every turn to see what CityStrategies this City should using (or not)
 void CvCityStrategyAI::DoTurn()
 {
-	AI_PERF_FORMAT("City-AI-perf.csv", ("CvCityStrategyAI::DoTurn, Turn %03d, %s, %s", GC.getGame().getElapsedGameTurns(), m_pCity->GetPlayer()->getCivilizationShortDescription(), m_pCity->getName().c_str()) );
 
 	int iCityStrategiesLoop = 0;
 
