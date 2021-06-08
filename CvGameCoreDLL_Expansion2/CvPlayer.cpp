@@ -46644,7 +46644,8 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 	visitor(player.m_cityNames);
 	visitor(player.m_cities);
 
-	GC.getGame().SetClosestCityMapDirty();
+	if (bLoading)
+		GC.getGame().SetClosestCityMapDirty();
 
 	visitor(player.m_units);
 	visitor(player.m_armyAIs);
