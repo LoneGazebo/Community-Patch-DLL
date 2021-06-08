@@ -1810,7 +1810,6 @@ void CvGame::CheckPlayerTurnDeactivate()
 						// In that case, the local human is (should be) the player we just deactivated the turn for
 						// and the AI players will be activated all at once in CvGame::doTurn, once we have received
 						// all the moves from the other human players
-						AI_PERF_FORMAT("AI-perf.csv", ("CheckPlayerTurnDeactivate(), Turn %03d, %s: activate next player", GC.getGame().getElapsedGameTurns(), kPlayer.getName()));
 						if(!kPlayer.isSimultaneousTurns())
 						{
 							if((isPbem() || isHotSeat()) && kPlayer.isHuman() && countHumanPlayersAlive() > 1)
