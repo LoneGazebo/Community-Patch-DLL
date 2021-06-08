@@ -388,6 +388,7 @@ CvPlayer::CvPlayer() :
 	, m_aiPlayerNumTurnsAtPeace("CvPlayer::m_aiPlayerNumTurnsAtPeace", m_syncArchive)
 	, m_aiPlayerNumTurnsAtWar("CvPlayer::m_aiPlayerNumTurnsAtWar", m_syncArchive)
 	, m_aiPlayerNumTurnsSinceCityCapture("CvPlayer::m_aiPlayerNumTurnsSinceCityCapture", m_syncArchive)
+	, m_aiNumUnitsBuilt("CvPlayer::m_aiNumUnitsBuilt", m_syncArchive)
 	, m_aiProximityToPlayer("CvPlayer::m_aiProximityToPlayer", m_syncArchive, true)
 	, m_aiResearchAgreementCounter("CvPlayer::m_aiResearchAgreementCounter", m_syncArchive)
 	, m_aiIncomingUnitTypes("CvPlayer::m_aiIncomingUnitTypes", m_syncArchive, true)
@@ -1927,6 +1928,9 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 
 	m_aiPlayerNumTurnsSinceCityCapture.clear();
 	m_aiPlayerNumTurnsSinceCityCapture.resize(MAX_PLAYERS, 0);
+
+	m_aiNumUnitsBuilt.clear();
+	m_aiNumUnitsBuilt.resize(GC.getNumUnitInfos());
 
 	m_aiProximityToPlayer.clear();
 	m_aiProximityToPlayer.resize(MAX_PLAYERS, 0);
@@ -11756,10 +11760,10 @@ void CvPlayer::DoUnitReset()
 		
 		if (pUnitPlot->isDeepWater())
 		{
-			CvCity* pOwner = pUnitPlot->getOwningCity();
+			CvCity* pOwner = pUnitPlot->getEffectiveOwningCity();
 			if (pOwner != NULL && GET_TEAM(pOwner->getTeam()).isAtWar(getTeam()))
 			{
-				int iTempDamage = pUnitPlot->getOwningCity()->GetDeepWaterTileDamage();
+				int iTempDamage = pUnitPlot->getEffectiveOwningCity()->GetDeepWaterTileDamage();
 				if (iTempDamage > 0)
 				{
 					pLoopUnit->changeDamage(iTempDamage, pUnitPlot->getOwner(), /*fAdditionalTextDelay*/ 0.5f);
@@ -16221,6 +16225,24 @@ bool CvPlayer::isProductionMaxedUnitClass(UnitClassTypes eUnitClass) const
 	return false;
 }
 
+void CvPlayer::changeUnitsBuiltCount(UnitTypes eUnitType, int iValue)
+{
+	VALIDATE_OBJECT
+		CvAssertMsg(eUnitType >= 0, "eUnitType expected to be >= 0");
+	CvAssertMsg(eUnitType < GC.getNumUnitInfos(), "eUnitType expected to be < GC.getNumUnitInfos()");
+
+	m_aiNumUnitsBuilt.setAt(eUnitType, m_aiNumUnitsBuilt[eUnitType] + iValue);
+}
+
+int CvPlayer::getUnitsBuiltCount(UnitTypes eUnitType) const
+{
+	VALIDATE_OBJECT
+		CvAssertMsg(eUnitType >= 0, "eUnitType expected to be >= 0");
+	CvAssertMsg(eUnitType < GC.getNumUnitInfos(), "eUnitType expected to be < GC.getNumUnitInfos()");
+
+	return m_aiNumUnitsBuilt[eUnitType];
+}
+
 
 //	--------------------------------------------------------------------------------
 bool CvPlayer::isProductionMaxedBuildingClass(BuildingClassTypes eBuildingClass, bool bAcquireCity) const
@@ -16314,6 +16336,8 @@ int CvPlayer::getProductionNeeded(UnitTypes eUnit) const
 			iProductionNeeded += pkUnitEntry->GetProductionCostPerEra() * iEra;
 		}
 	}
+
+	iProductionNeeded += (pkUnitEntry->GetCostScalerNumberBuilt() * getUnitsBuiltCount(eUnit));
 
 	if (isMinorCiv())
 	{
@@ -17330,6 +17354,9 @@ void CvPlayer::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst
 	{
 		// Building modifiers
 		BuildingClassTypes eBuildingClass;
+
+		CvCityBuildings* pLoopCityBuildings = pLoopCity->GetCityBuildings();
+
 		for(iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
 		{
 			eBuildingClass = (BuildingClassTypes) iI;
@@ -17347,7 +17374,7 @@ void CvPlayer::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst
 			if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
 #endif
 			{
-				eTestBuilding = pLoopCity->GetCityBuildings()->GetBuildingTypeFromClass(eBuildingClass);
+				eTestBuilding = pLoopCityBuildings->GetBuildingTypeFromClass(eBuildingClass);
 			}
 			else
 			{
@@ -17357,9 +17384,10 @@ void CvPlayer::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst
 			if(eTestBuilding != NO_BUILDING)
 			{
 				CvBuildingEntry* pkBuilding = GC.getBuildingInfo(eTestBuilding);
+				CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo(eBuildingClass);
 				if(pkBuilding)
 				{
-					iBuildingCount = pLoopCity->GetCityBuildings()->GetNumBuilding(eTestBuilding);
+					iBuildingCount = pLoopCityBuildings->GetNumBuilding(eTestBuilding);
 					if(iBuildingCount > 0)
 					{
 #if !defined(MOD_API_UNIFIED_YIELDS_CONSOLIDATION)
@@ -17390,6 +17418,13 @@ void CvPlayer::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst
 								if(iYieldChange > 0)
 								{
 									pLoopCity->ChangeBaseYieldRateFromBuildings(eYield, iYieldChange * iBuildingCount * iChange);
+								}
+
+								int iWonderYieldChange = pBuildingInfo->GetYieldChangeWorldWonderGlobal(eYield);
+								if (iWonderYieldChange > 0 && isWorldWonderClass(*pkBuildingClassInfo))
+								{
+									pLoopCityBuildings->ChangeBuildingYieldChange(eBuildingClass, eYield, (iWonderYieldChange * iBuildingCount * iChange));
+									pLoopCity->changeLocalBuildingClassYield(eBuildingClass, eYield, (iWonderYieldChange * iBuildingCount * iChange));
 								}
 
 								int iYieldMod = pBuildingInfo->GetBuildingClassYieldModifier(eBuildingClass, eYield);
@@ -17484,6 +17519,34 @@ int CvPlayer::GetBuildingClassYieldModifier(BuildingClassTypes eBuildingClass, Y
 		}
 	}
 
+	return rtnValue;
+}
+
+//	--------------------------------------------------------------------------------
+/// Get yield change from buildings for wonders
+int CvPlayer::GetWorldWonderYieldChange(int iYield)
+{
+	int rtnValue = 0;
+
+	CvBuildingXMLEntries* pBuildings = GC.GetGameBuildings();
+
+	if (pBuildings)
+	{
+		for (int i = 0; i < pBuildings->GetNumBuildings(); i++)
+		{
+			// Do we have this building anywhere in empire?
+			int iNum = countNumBuildings((BuildingTypes)i);
+
+			if (iNum > 0)
+			{
+				CvBuildingEntry* pEntry = pBuildings->GetEntry(i);
+				if (pEntry)
+				{
+					rtnValue += (pEntry->GetYieldChangeWorldWonderGlobal(iYield) * iNum);
+				}
+			}
+		}
+	}
 	return rtnValue;
 }
 

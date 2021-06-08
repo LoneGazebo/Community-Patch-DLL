@@ -362,6 +362,8 @@ public:
 	int GetBuildingClassYieldChange(BuildingClassTypes eBuildingClass, YieldTypes eYieldType);
 	int GetBuildingClassYieldModifier(BuildingClassTypes eBuildingClass, YieldTypes eYieldType);
 
+	int GetWorldWonderYieldChange(int iYield);
+
 	bool canBuild(const CvPlot* pPlot, BuildTypes eBuild, bool bTestEra = false, bool bTestVisible = false, bool bTestGold = true, bool bTestPlotOwner = true, const CvUnit* pUnit = NULL) const;
 	bool IsBuildBlockedByFeature(BuildTypes eBuild, FeatureTypes eFeature) const;
 	int getBuildCost(const CvPlot* pPlot, BuildTypes eBuild) const;
@@ -2073,6 +2075,9 @@ public:
 	void SetPlayerNumTurnsSinceCityCapture(PlayerTypes ePlayer, int iValue);
 	void ChangePlayerNumTurnsSinceCityCapture(PlayerTypes ePlayer, int iChange);
 
+	void changeUnitsBuiltCount(UnitTypes eUnitType, int iValue);
+	int getUnitsBuiltCount(UnitTypes eUnitType) const;
+
 	void DoUpdateWarPeaceTurnCounters();
 	void ResetWarPeaceTurnCounters();
 
@@ -3479,6 +3484,7 @@ protected:
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiPlayerNumTurnsAtPeace;
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiPlayerNumTurnsAtWar;
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiPlayerNumTurnsSinceCityCapture;
+	FAutoVariable<std::vector<int>, CvPlayer> m_aiNumUnitsBuilt;
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiProximityToPlayer;
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiResearchAgreementCounter;
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiIncomingUnitTypes;

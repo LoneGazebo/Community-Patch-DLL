@@ -286,7 +286,7 @@ ICvCity1* CvDllPlot::GetPlotCity() const
 //------------------------------------------------------------------------------
 ICvCity1* CvDllPlot::GetWorkingCity() const
 {
-	CvCity* pkCity = m_pPlot ? m_pPlot->getOwningCity() : NULL;
+	CvCity* pkCity = m_pPlot ? m_pPlot->getEffectiveOwningCity() : NULL;
 	return (NULL != pkCity)? new CvDllCity(pkCity) : NULL;
 }
 //------------------------------------------------------------------------------
