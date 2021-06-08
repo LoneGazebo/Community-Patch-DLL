@@ -1095,6 +1095,8 @@ protected:
 	// added so under cheat mode we can access protected stuff
 	friend class CvGameTextMgr;
 };
+FDataStream& operator<<(FDataStream&, const CvPlot* const&);
+FDataStream& operator>>(FDataStream&, CvPlot*&);
 
 namespace FSerialization
 {
@@ -1109,6 +1111,7 @@ SYNC_ARCHIVE_END()
 #if defined(MOD_BALANCE_CORE_MILITARY)
 struct SPlotWithScore
 {
+	SPlotWithScore() {}
 	SPlotWithScore(CvPlot* pPlot_, int score_) : pPlot(pPlot_), score(score_) {}
     bool operator<(const SPlotWithScore& other) const //for sorting
     {
@@ -1123,11 +1126,18 @@ struct SPlotWithScore
         return pPlot == other.pPlot;
     }
 
+	template<typename PlotWithScore, typename Visitor>
+	static void Serialize(PlotWithScore& plotWithScore, Visitor& visitor);
+
 	CvPlot* pPlot;
 	int score;
 };
+FDataStream& operator<<(FDataStream&, const SPlotWithScore&);
+FDataStream& operator>>(FDataStream&, SPlotWithScore&);
+
 struct SPlotWithTwoScoresL2
 {
+	SPlotWithTwoScoresL2() {}
 	SPlotWithTwoScoresL2(CvPlot* pPlot_, int score1_, int score2_) : pPlot(pPlot_), score1(score1_), score2(score2_) {}
 
 	bool operator<(const SPlotWithTwoScoresL2& other) const
@@ -1135,9 +1145,14 @@ struct SPlotWithTwoScoresL2
         return score1*score1+score2*score2 < other.score1*other.score1+other.score2*other.score2;
     }
 
+	template<typename PlotWithTwoScoresL2, typename Visitor>
+	static void Serialize(PlotWithTwoScoresL2& plotWithTwoScoresL2, Visitor& visitor);
+
 	CvPlot* pPlot;
 	int score1,score2;
 };
+FDataStream& operator<<(FDataStream&, const SPlotWithTwoScoresL2&);
+FDataStream& operator>>(FDataStream&, SPlotWithTwoScoresL2&);
 #endif
 
 #endif

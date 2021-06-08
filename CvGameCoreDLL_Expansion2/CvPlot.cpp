@@ -14988,3 +14988,72 @@ int CvPlot::GetDefenseBuildValue(PlayerTypes eOwner)
 }
 
 #endif
+
+FDataStream& operator<<(FDataStream& saveTo, const CvPlot* const& readFrom)
+{
+	int idx = -1;
+	if (readFrom != NULL)
+	{
+		idx = readFrom->GetPlotIndex();
+		CvAssertMsg(GC.getMap().plotByIndex(idx) == readFrom, "Saving plot pointer that is not member of map");
+	}
+	saveTo << idx;
+	return saveTo;
+}
+FDataStream& operator>>(FDataStream& loadFrom, CvPlot*& writeTo)
+{
+	int idx;
+	loadFrom >> idx;
+	if (idx != -1)
+	{
+		writeTo = GC.getMap().plotByIndex(idx);
+		CvAssertMsg(writeTo != NULL, "Read plot pointer index that is out of bounds");
+	}
+	else
+	{
+		writeTo = NULL;
+	}
+	return loadFrom;
+}
+
+
+template<typename PlotWithScore, typename Visitor>
+void SPlotWithScore::Serialize(PlotWithScore& plotWithScore, Visitor& visitor)
+{
+	visitor(plotWithScore.pPlot);
+	visitor(plotWithScore.score);
+}
+
+FDataStream& operator<<(FDataStream& saveTo, const SPlotWithScore& readFrom)
+{
+	CvStreamSaveVisitor serialVisitor(saveTo);
+	SPlotWithScore::Serialize(readFrom, serialVisitor);
+	return saveTo;
+}
+FDataStream& operator>>(FDataStream& loadFrom, SPlotWithScore& writeTo)
+{
+	CvStreamLoadVisitor serialVisitor(loadFrom);
+	SPlotWithScore::Serialize(writeTo, serialVisitor);
+	return loadFrom;
+}
+
+template<typename PlotWithTwoScoresL2, typename Visitor>
+void SPlotWithTwoScoresL2::Serialize(PlotWithTwoScoresL2& plotWithTwoScoresL2, Visitor& visitor)
+{
+	visitor(plotWithTwoScoresL2.pPlot);
+	visitor(plotWithTwoScoresL2.score1);
+	visitor(plotWithTwoScoresL2.score2);
+}
+
+FDataStream& operator<<(FDataStream& saveTo, const SPlotWithTwoScoresL2& readFrom)
+{
+	CvStreamSaveVisitor serialVisitor(saveTo);
+	SPlotWithTwoScoresL2::Serialize(readFrom, serialVisitor);
+	return saveTo;
+}
+FDataStream& operator>>(FDataStream& loadFrom, SPlotWithTwoScoresL2& writeTo)
+{
+	CvStreamLoadVisitor serialVisitor(loadFrom);
+	SPlotWithTwoScoresL2::Serialize(writeTo, serialVisitor);
+	return loadFrom;
+}
