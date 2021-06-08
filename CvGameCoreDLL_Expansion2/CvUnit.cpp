@@ -27453,38 +27453,7 @@ void CvUnit::Serialize(Unit& unit, Visitor& visitor)
 	visitor(unit.m_strName);
 	visitor(*unit.m_pReligion);
 
-	// Great work
-	{
-		uint32 uiGreatWorkHash;
-		if (bSaving)
-		{
-			if (unit.m_eGreatWork != NO_GREAT_WORK)
-			{
-				Database::Connection* db = GC.GetGameDatabase();
-				Database::Results kQuery;
-				if (db && db->Execute(kQuery, "SELECT Type from GreatWorks where ID = ? LIMIT 1"))
-				{
-					kQuery.Bind(1, unit.m_eGreatWork);
-
-					if (kQuery.Step())
-					{
-						uiGreatWorkHash = FString::Hash(kQuery.GetText(0));
-					}
-				}
-			}
-			else
-			{
-				uiGreatWorkHash = 0;
-			}
-		}
-
-		visitor(uiGreatWorkHash);
-
-		if (bLoading)
-		{
-			visitor.loadAssign(unit.m_eGreatWork, uiGreatWorkHash != 0 ? GreatWorkType(GC.getInfoTypeForHash(uiGreatWorkHash)) : NO_GREAT_WORK);
-		}
-	}
+	visitor(unit.m_eGreatWork);
 
 	// Mission queue
 	{
