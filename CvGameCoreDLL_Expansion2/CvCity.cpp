@@ -5108,7 +5108,7 @@ CvString CvCity::GetScaledHelpText(CityEventChoiceTypes eEventChoice, bool bYiel
 				{
 					int iTechDifference = GET_TEAM(getTeam()).GetTeamTechs()->GetNumTechsKnown() - GET_TEAM(GET_PLAYER(eSpyOwner).getTeam()).GetTeamTechs()->GetNumTechsKnown();
 					iTechDifference *= pkEventChoiceInfo->GetScienceScaling();
-					iTechDifference = range(iTechDifference, -75, 75);
+					iTechDifference = range(iTechDifference, -100, 100);
 
 					iPotential *= 100 + iTechDifference;
 					iPotential /= 100;
@@ -11813,7 +11813,7 @@ int CvCity::GetPurchaseCost(UnitTypes eUnit)
 		bool bCombat = pkUnitInfo->GetCombat() > 0 || pkUnitInfo->GetRangedCombat() > 0 || pkUnitInfo->GetNukeDamageLevel() != -1;
 		if (bCombat)
 		{
-			int iWarWeariness = min(75, GET_PLAYER(getOwner()).GetCulture()->GetWarWeariness() * 2);
+			int iWarWeariness = GET_PLAYER(getOwner()).GetCulture()->GetWarWeariness();
 			if (iWarWeariness > 0)
 			{
 				//Let's do the yield mods.			
@@ -12174,7 +12174,7 @@ int CvCity::GetFaithPurchaseCost(UnitTypes eUnit, bool bIncludeBeliefDiscounts)
 		bool bCombat = pkUnitInfo->GetCombat() > 0 || pkUnitInfo->GetRangedCombat() > 0 || pkUnitInfo->GetNukeDamageLevel() != -1;
 		if (bCombat)
 		{
-			int iWarWeariness = min(75, GET_PLAYER(getOwner()).GetCulture()->GetWarWeariness() * 2);
+			int iWarWeariness = GET_PLAYER(getOwner()).GetCulture()->GetWarWeariness();
 			if (iWarWeariness > 0)
 			{
 				//Let's do the yield mods.			
@@ -13020,7 +13020,7 @@ int CvCity::getProductionModifier(UnitTypes eUnit, CvString* toolTipSink, bool b
 		bool bCombat = pUnitEntry->GetCombat() > 0 || pUnitEntry->GetRangedCombat() > 0 || pUnitEntry->GetNukeDamageLevel() != -1;
 		if (bCombat)
 		{
-			int iWarWeariness = min(75, GET_PLAYER(getOwner()).GetCulture()->GetWarWeariness() * 2);
+			int iWarWeariness = min(75, GetUnhappinessFromEmpire() * 10);
 			if (iWarWeariness > 0)
 			{
 				//Let's do the yield mods.			
@@ -13031,41 +13031,43 @@ int CvCity::getProductionModifier(UnitTypes eUnit, CvString* toolTipSink, bool b
 					GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_BALANCE_HAPPINESS_MOD", iTempMod);
 			}
 		}
-		else if (pUnitEntry->IsFound())
+
+		int iTempMod = 0;
+		if (pUnitEntry->IsFound())
 		{
 			//Mechanic to allow for production malus from happiness/unhappiness.
-			int iTempMod = getHappinessDelta() * GC.getBALANCE_HAPPINESS_PRODUCTION_MODIFIER();
+			iTempMod = getHappinessDelta() * GC.getBALANCE_HAPPINESS_PRODUCTION_MODIFIER();
+		}
 
-			if (GET_PLAYER(getOwner()).IsEmpireUnhappy())
+		if (GET_PLAYER(getOwner()).IsEmpireUnhappy())
+		{
+			if (iTempMod > 0)
+				iTempMod = 0;
+
+			iTempMod += GC.getUNHAPPY_PRODUCTION_PENALTY();
+		}
+
+		//malus?
+		if (iTempMod < 0)
+		{
+			if (GET_PLAYER(getOwner()).IsEmpireVeryUnhappy())
 			{
-				if (iTempMod > 0)
-					iTempMod = 0;
-
-				iTempMod += GC.getUNHAPPY_PRODUCTION_PENALTY();
+				iTempMod += GC.getVERY_UNHAPPY_PRODUCTION_PENALTY();
 			}
-
-			//malus?
-			if (iTempMod < 0)
+			if (GET_PLAYER(getOwner()).IsEmpireSuperUnhappy())
 			{
-				if (GET_PLAYER(getOwner()).IsEmpireVeryUnhappy())
-				{
-					iTempMod += GC.getVERY_UNHAPPY_PRODUCTION_PENALTY();
-				}
-				if (GET_PLAYER(getOwner()).IsEmpireSuperUnhappy())
-				{
-					iTempMod += GC.getVERY_UNHAPPY_PRODUCTION_PENALTY() * 2;
-				}
-				//If happiness is less than the main threshold, calculate city penalty mod.
-				if (iTempMod < GC.getBALANCE_HAPPINESS_PENALTY_MAXIMUM())
-				{
-					iTempMod = GC.getBALANCE_HAPPINESS_PENALTY_MAXIMUM();
-				}
-				//Let's do the yield mods.	
-
-				iMultiplier += iTempMod;
-				if (iTempMod != 0 && toolTipSink)
-					GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_BALANCE_HAPPINESS_MOD", iTempMod);
+				iTempMod += GC.getVERY_UNHAPPY_PRODUCTION_PENALTY() * 2;
 			}
+			//If happiness is less than the main threshold, calculate city penalty mod.
+			if (iTempMod < GC.getBALANCE_HAPPINESS_PENALTY_MAXIMUM())
+			{
+				iTempMod = GC.getBALANCE_HAPPINESS_PENALTY_MAXIMUM();
+			}
+			//Let's do the yield mods.	
+
+			iMultiplier += iTempMod;
+			if (iTempMod != 0 && toolTipSink)
+				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_BALANCE_HAPPINESS_MOD", iTempMod);
 		}
 	}
 #endif

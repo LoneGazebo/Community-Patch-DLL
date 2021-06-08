@@ -1118,11 +1118,16 @@ CvSpyResult CvPlayerEspionage::ProcessSpyFocusResult(PlayerTypes ePlayer, CvCity
 		{
 			pSpy->m_iPotentialAtStart = pCity->GetEspionageRanking();
 
+			if (pkEventChoiceInfo->IsEraScaling())
+			{
+				pSpy->m_iPotentialAtStart += GC.getGame().getCurrentEra();
+			}
+
 			if (pkEventChoiceInfo->GetScienceScaling() != 0)
 			{
 				int iTechDifference = GET_TEAM(GET_PLAYER(eCityOwner).getTeam()).GetTeamTechs()->GetNumTechsKnown() - GET_TEAM(m_pPlayer->getTeam()).GetTeamTechs()->GetNumTechsKnown();
 				iTechDifference *= pkEventChoiceInfo->GetScienceScaling();
-				iTechDifference = range(iTechDifference, -75, 75);
+				iTechDifference = range(iTechDifference, -100, 100);
 
 				pSpy->m_iPotentialAtStart *= 100 + iTechDifference;
 				pSpy->m_iPotentialAtStart /= 100;
@@ -1142,11 +1147,17 @@ CvSpyResult CvPlayerEspionage::ProcessSpyFocusResult(PlayerTypes ePlayer, CvCity
 		else
 		{
 			pSpy->m_iPotentialAtStart = pCity->GetEspionageRanking();
+
+			if (pkEventChoiceInfo->IsEraScaling())
+			{
+				pSpy->m_iPotentialAtStart += GC.getGame().getCurrentEra();
+			}
+
 			if (pkEventChoiceInfo->GetScienceScaling() != 0)
 			{
 				int iTechDifference = GET_TEAM(GET_PLAYER(eCityOwner).getTeam()).GetTeamTechs()->GetNumTechsKnown() - GET_TEAM(m_pPlayer->getTeam()).GetTeamTechs()->GetNumTechsKnown();
 				iTechDifference *= pkEventChoiceInfo->GetScienceScaling();
-				iTechDifference = range(iTechDifference, -75, 75);
+				iTechDifference = range(iTechDifference, -100, 100);
 
 				pSpy->m_iPotentialAtStart *= 100 + iTechDifference;
 				pSpy->m_iPotentialAtStart /= 100;

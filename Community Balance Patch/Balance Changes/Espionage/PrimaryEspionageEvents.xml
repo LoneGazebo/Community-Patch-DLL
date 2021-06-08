@@ -36,22 +36,6 @@
 			<SpyLevelRequired>0</SpyLevelRequired>
 			<IsSpyBenefit>true</IsSpyBenefit>
 		</Row>
-		<!-- POISON -->
-		<Row>
-			<Type>ESPIONAGE_EVENT_CHOICE_URBAN_POISON</Type>
-			<Description>TXT_KEY_ESPIONAGE_EVENT_CHOICE_URBAN_POISON</Description>
-			<Help>TXT_KEY_ESPIONAGE_EVENT_CHOICE_URBAN_POISON_HELP</Help>
-			<IsEspionageEffect>true</IsEspionageEffect>
-			<EventDuration>20</EventDuration>
-			<MissionSetup>true</MissionSetup>
-			<PotentialScaling>true</PotentialScaling>
-			<IDModifier>60</IDModifier>
-			<Expires>true</Expires>
-			<GrowthMod>-25</GrowthMod>
-			<DeathModifier>10</DeathModifier>
-			<SpyLevelRequired>1</SpyLevelRequired>
-			<EspionageDifficultyMod>275</EspionageDifficultyMod>
-		</Row>
 		<!-- PRODUCTION -->
 		<Row>
 			<Type>ESPIONAGE_EVENT_CHOICE_ECONOMIC_PRODUCTION</Type>
@@ -66,20 +50,6 @@
 			<DeathModifier>15</DeathModifier>
 			<EspionageDifficultyMod>200</EspionageDifficultyMod>
 			<SpyLevelRequired>0</SpyLevelRequired>
-		</Row>
-		<!-- CULTURE -->
-		<Row>
-			<Type>ESPIONAGE_EVENT_CHOICE_URBAN_CULTURE</Type>
-			<Description>TXT_KEY_ESPIONAGE_EVENT_CHOICE_URBAN_CULTURE</Description>
-			<Help>TXT_KEY_ESPIONAGE_EVENT_CHOICE_URBAN_CULTURE_HELP</Help>
-			<IsEspionageEffect>true</IsEspionageEffect>
-			<MissionSetup>true</MissionSetup>
-			<TriggerPlayerEventChoice>ESPIONAGE_EVENT_PLAYER_YIELD_CULTURE</TriggerPlayerEventChoice>
-			<IDModifier>5</IDModifier>
-			<EspionageDifficultyMod>400</EspionageDifficultyMod>
-			<DeathModifier>15</DeathModifier>
-			<SpyLevelRequired>1</SpyLevelRequired>
-			<IsSpyBenefit>true</IsSpyBenefit>
 		</Row>
 		<!-- SCIENCE -->
 		<Row>
@@ -107,7 +77,7 @@
 			<MissionSetup>true</MissionSetup>
 			<TriggerPlayerEventChoice>ESPIONAGE_EVENT_PLAYER_YIELD_BASIC</TriggerPlayerEventChoice>
 			<IDModifier>15</IDModifier>
-			<EspionageDifficultyMod>400</EspionageDifficultyMod>
+			<EspionageDifficultyMod>450</EspionageDifficultyMod>
 			<DeathModifier>15</DeathModifier>
 			<SpyLevelRequired>1</SpyLevelRequired>
 			<IsSpyBenefit>true</IsSpyBenefit>
@@ -150,7 +120,10 @@
 			<IsEspionageEffect>true</IsEspionageEffect>
 			<MissionSetup>true</MissionSetup>
 			<IDModifier>50</IDModifier>
-			<DeathModifier>25</DeathModifier>
+			<DeathModifier>20</DeathModifier>
+			<EventDuration>20</EventDuration>
+			<GrowthMod>-25</GrowthMod>
+			<Expires>true</Expires>
 			<PillageCityStrategicNum>2</PillageCityStrategicNum>
 			<EspionageDifficultyMod>250</EspionageDifficultyMod>
 			<SpyLevelRequired>0</SpyLevelRequired>
@@ -163,11 +136,12 @@
 			<IsEspionageEffect>true</IsEspionageEffect>
 			<MissionSetup>true</MissionSetup>
 			<IDModifier>60</IDModifier>
+			<RequiredEra>ERA_MODERN</RequiredEra>
 			<PotentialScaling>true</PotentialScaling>
 			<EraScaling>true</EraScaling>
 			<DeathModifier>40</DeathModifier>
 			<StealNumTechs>1</StealNumTechs>
-			<EspionageDifficultyMod>500</EspionageDifficultyMod>
+			<EspionageDifficultyMod>600</EspionageDifficultyMod>
 			<SpyLevelRequired>2</SpyLevelRequired>
 		</Row>
 		<!-- STEAL GW -->
@@ -178,11 +152,12 @@
 			<IsEspionageEffect>true</IsEspionageEffect>
 			<MissionSetup>true</MissionSetup>
 			<IDModifier>60</IDModifier>
+			<RequiredEra>ERA_MODERN</RequiredEra>
 			<PotentialScaling>true</PotentialScaling>
 			<EraScaling>true</EraScaling>
 			<DeathModifier>40</DeathModifier>
 			<ForgeNumGW>1</ForgeNumGW>
-			<EspionageDifficultyMod>450</EspionageDifficultyMod>
+			<EspionageDifficultyMod>600</EspionageDifficultyMod>
 			<SpyLevelRequired>2</SpyLevelRequired>
 		</Row>
 		<!--- CounterSpy -->
@@ -329,19 +304,19 @@
 			<YieldChange>-1</YieldChange>
 		</Row>
 		<Row>
-			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_URBAN_CULTURE</CityEventChoiceType>
+			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_SCIENTIFIC_GREATPEOPLE</CityEventChoiceType>
 			<SpecialistType>SPECIALIST_WRITER</SpecialistType>
 			<YieldType>YIELD_CULTURE</YieldType>
 			<YieldChange>-1</YieldChange>
 		</Row>
 		<Row>
-			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_URBAN_CULTURE</CityEventChoiceType>
+			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_SCIENTIFIC_GREATPEOPLE</CityEventChoiceType>
 			<SpecialistType>SPECIALIST_ARTIST</SpecialistType>
 			<YieldType>YIELD_CULTURE</YieldType>
 			<YieldChange>-1</YieldChange>
 		</Row>
 		<Row>
-			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_URBAN_CULTURE</CityEventChoiceType>
+			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_SCIENTIFIC_GREATPEOPLE</CityEventChoiceType>
 			<SpecialistType>SPECIALIST_MUSICIAN</SpecialistType>
 			<YieldType>YIELD_CULTURE</YieldType>
 			<YieldChange>-1</YieldChange>
@@ -393,10 +368,6 @@
 			<CityEventType>ESPIONAGE_EVENT_CHOICE_SELECT_FOCUS</CityEventType>
 		</Row>
 		<Row>
-			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_URBAN_POISON</CityEventChoiceType>
-			<CityEventType>ESPIONAGE_EVENT_CHOICE_SELECT_FOCUS</CityEventType>
-		</Row>
-		<Row>
 			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_ECONOMIC_TILES</CityEventChoiceType>
 			<CityEventType>ESPIONAGE_EVENT_CHOICE_SELECT_FOCUS</CityEventType>
 		</Row>
@@ -410,10 +381,6 @@
 		</Row>
 		<Row>
 			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_MILITARY_GARRISON</CityEventChoiceType>
-			<CityEventType>ESPIONAGE_EVENT_CHOICE_SELECT_FOCUS</CityEventType>
-		</Row>
-		<Row>
-			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_URBAN_CULTURE</CityEventChoiceType>
 			<CityEventType>ESPIONAGE_EVENT_CHOICE_SELECT_FOCUS</CityEventType>
 		</Row>
 		<Row>
@@ -478,19 +445,9 @@
 			<Flavor>10</Flavor>
 		</Row>
 		<Row>
-			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_URBAN_CULTURE</CityEventChoiceType>
-			<FlavorType>FLAVOR_CULTURE</FlavorType>
-			<Flavor>10</Flavor>
-		</Row>
-		<Row>
 			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_URBAN_UNREST</CityEventChoiceType>
 			<FlavorType>FLAVOR_ESPIONAGE</FlavorType>
 			<Flavor>25</Flavor>
-		</Row>
-		<Row>
-			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_URBAN_POISON</CityEventChoiceType>
-			<FlavorType>FLAVOR_GROWTH</FlavorType>
-			<Flavor>15</Flavor>
 		</Row>
 		<Row>
 			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_STEAL_TECH</CityEventChoiceType>
@@ -533,14 +490,6 @@
 			<EventDuration>15</EventDuration>
 			<Expires>true</Expires>
 		</Row>
-		<Row>
-			<Type>ESPIONAGE_EVENT_PLAYER_YIELD_CULTURE</Type>
-			<Description>TXT_KEY_ESPIONAGE_EVENT_PLAYER_YIELD_CULTURE</Description>
-			<Help>TXT_KEY_ESPIONAGE_EVENT_PLAYER_YIELD_CULTURE_HELP</Help>
-			<CapitalEffectOnly>true</CapitalEffectOnly>
-			<EventDuration>15</EventDuration>
-			<Expires>true</Expires>
-		</Row>
 	</EventChoices>
 	<EventChoice_SpecialistYieldChange>
 		<Row>
@@ -562,19 +511,19 @@
 			<YieldChange>2</YieldChange>
 		</Row>
 		<Row>
-			<EventChoiceType>ESPIONAGE_EVENT_PLAYER_YIELD_CULTURE</EventChoiceType>
+			<EventChoiceType>ESPIONAGE_EVENT_PLAYER_YIELD_BASIC</EventChoiceType>
 			<SpecialistType>SPECIALIST_WRITER</SpecialistType>
 			<YieldType>YIELD_CULTURE</YieldType>
 			<YieldChange>2</YieldChange>
 		</Row>
 		<Row>
-			<EventChoiceType>ESPIONAGE_EVENT_PLAYER_YIELD_CULTURE</EventChoiceType>
+			<EventChoiceType>ESPIONAGE_EVENT_PLAYER_YIELD_BASIC</EventChoiceType>
 			<SpecialistType>SPECIALIST_ARTIST</SpecialistType>
 			<YieldType>YIELD_CULTURE</YieldType>
 			<YieldChange>2</YieldChange>
 		</Row>
 		<Row>
-			<EventChoiceType>ESPIONAGE_EVENT_PLAYER_YIELD_CULTURE</EventChoiceType>
+			<EventChoiceType>ESPIONAGE_EVENT_PLAYER_YIELD_BASIC</EventChoiceType>
 			<SpecialistType>SPECIALIST_MUSICIAN</SpecialistType>
 			<YieldType>YIELD_CULTURE</YieldType>
 			<YieldChange>2</YieldChange>
@@ -592,31 +541,11 @@
 			<ExtraVariable>-1</ExtraVariable>
 		</Row>
 		<Row>
-			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_URBAN_POISON</CityEventChoiceType>
-			<NotificationType>NOTIFICATION_GENERIC</NotificationType>
-			<Description>TXT_KEY_ESPIONAGE_EVENT_CHOICE_SUCCESS</Description>
-			<ShortDescription>TXT_KEY_ESPIONAGE_EVENT_CHOICE_SUCCESS_S</ShortDescription>
-			<EspionageEvent>true</EspionageEvent>
-			<NeedCityCoordinates>true</NeedCityCoordinates>
-			<NeedPlayerID>false</NeedPlayerID>
-			<ExtraVariable>-1</ExtraVariable>
-		</Row>
-		<Row>
 			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_ECONOMIC_PRODUCTION</CityEventChoiceType>
 			<NotificationType>NOTIFICATION_GENERIC</NotificationType>
 			<Description>TXT_KEY_ESPIONAGE_EVENT_CHOICE_SUCCESS</Description>
 			<ShortDescription>TXT_KEY_ESPIONAGE_EVENT_CHOICE_SUCCESS_S</ShortDescription>
 			<EspionageEvent>false</EspionageEvent>
-			<NeedCityCoordinates>true</NeedCityCoordinates>
-			<NeedPlayerID>false</NeedPlayerID>
-			<ExtraVariable>-1</ExtraVariable>
-		</Row>
-		<Row>
-			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_URBAN_CULTURE</CityEventChoiceType>
-			<NotificationType>NOTIFICATION_GENERIC</NotificationType>
-			<Description>TXT_KEY_ESPIONAGE_EVENT_CHOICE_SUCCESS</Description>
-			<ShortDescription>TXT_KEY_ESPIONAGE_EVENT_CHOICE_SUCCESS_S</ShortDescription>
-			<EspionageEvent>true</EspionageEvent>
 			<NeedCityCoordinates>true</NeedCityCoordinates>
 			<NeedPlayerID>false</NeedPlayerID>
 			<ExtraVariable>-1</ExtraVariable>
