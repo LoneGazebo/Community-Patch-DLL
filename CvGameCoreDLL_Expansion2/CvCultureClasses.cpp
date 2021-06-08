@@ -5702,7 +5702,7 @@ int CvPlayerCulture::ComputeWarWeariness()
 		}
 
 		// Cultural Influence has an effect here.
-		int iInfluenceModifier = max(5, (kPlayer.GetCulture()->GetInfluenceLevel(m_pPlayer->GetID()) - GetInfluenceLevel(ePlayer) * 5));
+		int iInfluenceModifier = max(5, ((kPlayer.GetCulture()->GetInfluenceLevel(m_pPlayer->GetID()) - GetInfluenceLevel(ePlayer)) * 5));
 		iWarDamage *= iInfluenceModifier;
 		iWarDamage /= 100;
 
