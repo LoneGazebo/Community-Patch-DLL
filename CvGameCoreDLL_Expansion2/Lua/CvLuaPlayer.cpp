@@ -4077,14 +4077,24 @@ int CvLuaPlayer::lGetUnhappinessFromCityCount(lua_State* L)
 //int GetUnhappinessFromCapturedCityCount() const;
 int CvLuaPlayer::lGetUnhappinessFromCapturedCityCount(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvPlayerAI::GetUnhappinessFromCapturedCityCount);
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	CvCity* pAnnexedCity = CvLuaCity::GetInstance(L, 2, false);
+	CvCity* pPuppetedCity = CvLuaCity::GetInstance(L, 3, false);
+	const int iResult = pkPlayer->GetUnhappinessFromCapturedCityCount(pAnnexedCity, pPuppetedCity);
+	lua_pushinteger(L, iResult);
+	return 1;
 }
 
 //------------------------------------------------------------------------------
 //int GetUnhappinessFromCityPopulation() const;
 int CvLuaPlayer::lGetUnhappinessFromCityPopulation(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvPlayerAI::GetUnhappinessFromCityPopulation);
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	CvCity* pAnnexedCity = CvLuaCity::GetInstance(L, 2, false);
+	CvCity* pPuppetedCity = CvLuaCity::GetInstance(L, 3, false);
+	const int iResult = pkPlayer->GetUnhappinessFromCityPopulation(pAnnexedCity, pPuppetedCity);
+	lua_pushinteger(L, iResult);
+	return 1;
 }
 
 //------------------------------------------------------------------------------
@@ -4110,7 +4120,12 @@ int CvLuaPlayer::lGetUnhappinessFromPuppetCityPopulation(lua_State* L)
 //int GetUnhappinessFromOccupiedCities() const;
 int CvLuaPlayer::lGetUnhappinessFromOccupiedCities(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvPlayerAI::GetUnhappinessFromOccupiedCities);
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	CvCity* pAnnexedCity = CvLuaCity::GetInstance(L, 2, false);
+	CvCity* pPuppetedCity = CvLuaCity::GetInstance(L, 3, false);
+	const int iResult = pkPlayer->GetUnhappinessFromOccupiedCities(pAnnexedCity, pPuppetedCity);
+	lua_pushinteger(L, iResult);
+	return 1;
 }
 
 //------------------------------------------------------------------------------

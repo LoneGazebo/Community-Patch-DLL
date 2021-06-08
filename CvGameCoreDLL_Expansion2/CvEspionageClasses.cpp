@@ -213,10 +213,9 @@ void CvPlayerEspionage::Reset()
 	m_aSpyNotificationMessages.clear();
 
 	m_aiNumTechsToStealList.clear();
+	m_aiNumSpyActionsDone.clear();
 	m_aIntrigueNotificationMessages.clear();
 	m_aaPlayerStealableTechList.clear();
-
-	m_aiNumSpyActionsDone = NumSpyActionsDone(MAX_MAJOR_CIVS, 0);
 }
 
 

@@ -11811,7 +11811,7 @@ int CvCity::GetPurchaseCost(UnitTypes eUnit)
 		else if (pkUnitInfo->IsFound())
 		{
 			//Mechanic to allow for production malus from happiness/unhappiness.
-			int iTempMod = getHappinessDelta() * GC.getBALANCE_HAPPINESS_PRODUCTION_MODIFIER();
+			int iTempMod = min(0, getHappinessDelta() * GC.getBALANCE_HAPPINESS_PRODUCTION_MODIFIER());
 
 			if (GET_PLAYER(getOwner()).IsEmpireUnhappy())
 			{
@@ -12172,7 +12172,7 @@ int CvCity::GetFaithPurchaseCost(UnitTypes eUnit, bool bIncludeBeliefDiscounts)
 		else if (pkUnitInfo->IsFound())
 		{
 			//Mechanic to allow for production malus from happiness/unhappiness.
-			int iTempMod = getHappinessDelta() * GC.getBALANCE_HAPPINESS_PRODUCTION_MODIFIER();
+			int iTempMod = min(0, getHappinessDelta() * GC.getBALANCE_HAPPINESS_PRODUCTION_MODIFIER());
 
 			if (GET_PLAYER(getOwner()).IsEmpireUnhappy())
 			{
