@@ -2067,8 +2067,8 @@ int CityConnectionLandValid(const CvAStarNode* parent, const CvAStarNode* node, 
 				ePlotRoute = ROUTE_ROAD;
 		if (kPlayer.GetPlayerTraits()->IsWoodlandMovementBonus() && (pNewPlot->getFeatureType() == FEATURE_FOREST || pNewPlot->getFeatureType() == FEATURE_JUNGLE))
 		{
-			//pure community patch does not require plot ownership
-			if (!gCustomMods.isBALANCE_CORE() || pNewPlot->getOwner() == data.ePlayer)
+			//balance patch does not require plot ownership
+			if (gCustomMods.isBALANCE_CORE() || pNewPlot->getOwner() == data.ePlayer)
 				ePlotRoute = ROUTE_ROAD;
 		}
 	}

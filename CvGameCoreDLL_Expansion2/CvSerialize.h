@@ -3,6 +3,8 @@
 #ifndef CVSERIALIZE_H
 #define CVSERIALIZE_H
 
+#include "CvAssert.h"
+
 #include "CvEnums.h"
 #include "CvEnumSerialization.h"
 
@@ -26,11 +28,10 @@ public:
 		m_stream << value;
 	}
 
-	template<typename InfoType, typename T>
-	inline void infoHash(const T& value, bool* bValid = NULL)
+	template<typename To, typename From>
+	inline void as(const From& value)
 	{
-		CvInfosSerializationHelper::WriteHashed(m_stream, InfoType(value));
-		if (bValid != NULL) { *bValid = true; }
+		m_stream << static_cast<To>(value);
 	}
 
 	template<typename T>
@@ -43,7 +44,7 @@ public:
 	template<typename T>
 	inline CvStreamSaveVisitor& operator>>(const T& value)
 	{
-		FAssertMsg(false, "CvStreamSaveVisitor is not meant for loading");
+		CvAssertMsg(false, "CvStreamSaveVisitor is not meant for loading");
 		return *this;
 	}
 
@@ -69,13 +70,13 @@ public:
 	template<typename Dst, typename Src>
 	inline void loadAssign(Dst& dst, const Src& src)
 	{
-		FAssertMsg(false, "CvStreamSaveVisitor is not meant for loading");
+		CvAssertMsg(false, "CvStreamSaveVisitor is not meant for loading");
 	}
 
 	template<typename T>
 	void loadIgnore()
 	{
-		FAssertMsg(false, "CvStreamSaveVisitor is not meant for loading");
+		CvAssertMsg(false, "CvStreamSaveVisitor is not meant for loading");
 	}
 
 private:
@@ -96,16 +97,18 @@ public:
 		m_stream >> value;
 	}
 
-	template<typename InfoType, typename T>
-	inline void infoHash(T& value, bool* bValid = NULL)
+	template<typename To, typename From>
+	inline void as(From& value)
 	{
-		value = static_cast<T>(CvInfosSerializationHelper::ReadHashed(m_stream, bValid));
+		To to;
+		m_stream >> to;
+		value = static_cast<From>(to);
 	}
 
 	template<typename T>
 	inline CvStreamLoadVisitor& operator<<(const T& value)
 	{
-		FAssertMsg(false, "CvStreamSaveVisitor is not meant for saving");
+		CvAssertMsg(false, "CvStreamSaveVisitor is not meant for saving");
 		return *this;
 	}
 
@@ -323,7 +326,7 @@ public:
 	// Call once at initialization in multiplayer
 	inline void initSyncVars(SyncVars& syncVars)
 	{
-		FAssert(m_syncVarsStorage == NULL);
+		CvAssert(m_syncVarsStorage == NULL);
 		m_syncVarsStorage = &syncVars;
 	}
 	inline void destroySyncVars()

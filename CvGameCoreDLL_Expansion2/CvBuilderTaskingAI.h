@@ -66,6 +66,8 @@ public:
 	void Uninit(void);
 
 	//// Serialization routines
+	template<typename BuilderTaskingAI, typename Visitor>
+	static void Serialize(BuilderTaskingAI& builderTaskingAI, Visitor& visitor);
 	void Read(FDataStream& kStream);
 	void Write(FDataStream& kStream) const;
 

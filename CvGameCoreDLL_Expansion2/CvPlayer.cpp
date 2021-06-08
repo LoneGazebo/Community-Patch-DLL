@@ -385,6 +385,7 @@ CvPlayer::CvPlayer() :
 	, m_aiPlayerNumTurnsAtPeace()
 	, m_aiPlayerNumTurnsAtWar()
 	, m_aiPlayerNumTurnsSinceCityCapture()
+	, m_aiNumUnitsBuilt()
 	, m_aiProximityToPlayer()
 	, m_aiResearchAgreementCounter()
 	, m_aiIncomingUnitTypes()
@@ -1923,6 +1924,9 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 
 	m_aiPlayerNumTurnsSinceCityCapture.clear();
 	m_aiPlayerNumTurnsSinceCityCapture.resize(MAX_PLAYERS, 0);
+
+	m_aiNumUnitsBuilt.clear();
+	m_aiNumUnitsBuilt.resize(GC.getNumUnitInfos());
 
 	m_aiProximityToPlayer.clear();
 	m_aiProximityToPlayer.resize(MAX_PLAYERS, 0);
@@ -11108,7 +11112,6 @@ ArtStyleTypes CvPlayer::getArtStyleType() const
 void CvPlayer::doTurn()
 {
 	// Time building of these maps
-	AI_PERF_FORMAT("AI-perf.csv", ("CvPlayer::doTurn(), Turn %d, %s", GC.getGame().getGameTurn(), getCivilizationShortDescription()));
 
 	CvAssertMsg(isAlive(), "isAlive is expected to be true");
 
@@ -11407,7 +11410,6 @@ void CvPlayer::doTurnPostDiplomacy()
 	if(isAlive())
 	{
 		{
-			AI_PERF_FORMAT("AI-perf.csv", ("Plots/Danger, Turn %03d, %s", kGame.getElapsedGameTurns(), getCivilizationShortDescription()) );
 
 			UpdatePlots();
 			UpdateAreaEffectUnits();
@@ -11503,7 +11505,6 @@ void CvPlayer::doTurnPostDiplomacy()
 
 	// Do turn for all Cities
 	{
-		AI_PERF_FORMAT("AI-perf.csv", ("Do City Turns, Turn %03d, %s", GC.getGame().getElapsedGameTurns(), getCivilizationShortDescription()) );
 		if(getNumCities() > 0)
 		{
 			int iLoop = 0;
@@ -11599,14 +11600,12 @@ void CvPlayer::doTurnPostDiplomacy()
 				AI_chooseFreeTech();
 			}
 #endif
-			AI_PERF_FORMAT("AI-perf.csv", ("DoChooseIdeology, Turn %03d, %s", GC.getGame().getElapsedGameTurns(), getCivilizationShortDescription()) );
 			GetPlayerPolicies()->DoChooseIdeology();
 		}
 	}
 
 	if (!isBarbarian() && !isHuman() && !isMinorCiv())
 	{
-		AI_PERF_FORMAT("AI-perf.csv", ("DoPolicyAI, Turn %03d, %s", GC.getGame().getElapsedGameTurns(), getCivilizationShortDescription()) );
 		GetPlayerPolicies()->DoPolicyAI();
 	}
 
@@ -11761,10 +11760,10 @@ void CvPlayer::DoUnitReset()
 		
 		if (pUnitPlot->isDeepWater())
 		{
-			CvCity* pOwner = pUnitPlot->getOwningCity();
+			CvCity* pOwner = pUnitPlot->getEffectiveOwningCity();
 			if (pOwner != NULL && GET_TEAM(pOwner->getTeam()).isAtWar(getTeam()))
 			{
-				int iTempDamage = pUnitPlot->getOwningCity()->GetDeepWaterTileDamage();
+				int iTempDamage = pUnitPlot->getEffectiveOwningCity()->GetDeepWaterTileDamage();
 				if (iTempDamage > 0)
 				{
 					pLoopUnit->changeDamage(iTempDamage, pUnitPlot->getOwner(), /*fAdditionalTextDelay*/ 0.5f);
@@ -16226,6 +16225,24 @@ bool CvPlayer::isProductionMaxedUnitClass(UnitClassTypes eUnitClass) const
 	return false;
 }
 
+void CvPlayer::changeUnitsBuiltCount(UnitTypes eUnitType, int iValue)
+{
+	VALIDATE_OBJECT
+		CvAssertMsg(eUnitType >= 0, "eUnitType expected to be >= 0");
+	CvAssertMsg(eUnitType < GC.getNumUnitInfos(), "eUnitType expected to be < GC.getNumUnitInfos()");
+
+	m_aiNumUnitsBuilt[eUnitType] = m_aiNumUnitsBuilt[eUnitType] + iValue;
+}
+
+int CvPlayer::getUnitsBuiltCount(UnitTypes eUnitType) const
+{
+	VALIDATE_OBJECT
+		CvAssertMsg(eUnitType >= 0, "eUnitType expected to be >= 0");
+	CvAssertMsg(eUnitType < GC.getNumUnitInfos(), "eUnitType expected to be < GC.getNumUnitInfos()");
+
+	return m_aiNumUnitsBuilt[eUnitType];
+}
+
 
 //	--------------------------------------------------------------------------------
 bool CvPlayer::isProductionMaxedBuildingClass(BuildingClassTypes eBuildingClass, bool bAcquireCity) const
@@ -16319,6 +16336,8 @@ int CvPlayer::getProductionNeeded(UnitTypes eUnit) const
 			iProductionNeeded += pkUnitEntry->GetProductionCostPerEra() * iEra;
 		}
 	}
+
+	iProductionNeeded += (pkUnitEntry->GetCostScalerNumberBuilt() * getUnitsBuiltCount(eUnit));
 
 	if (isMinorCiv())
 	{
@@ -29584,7 +29603,6 @@ void CvPlayer::DoGreatPeopleSpawnTurn()
 	// Tick down
 	if(GetGreatPeopleSpawnCounter() > 0)
 	{
-		AI_PERF_FORMAT("AI-perf.csv", ("CvPlayer::DoGreatPeopleSpawnTurn, Turn %03d, %s", GC.getGame().getElapsedGameTurns(), getCivilizationShortDescription()) );
 		ChangeGreatPeopleSpawnCounter(-1);
 
 		// Time to spawn! - Pick a random allied minor
@@ -37276,7 +37294,6 @@ void CvPlayer::DoTradeInfluenceAP()
 /// Units in the ether coming towards us?
 void CvPlayer::DoIncomingUnits()
 {
-	AI_PERF_FORMAT("AI-perf.csv", ("CvPlayer::DoIncomingUnits, Turn %03d, %s", GC.getGame().getElapsedGameTurns(), getCivilizationShortDescription()) );
 	for(int iLoop = 0; iLoop < MAX_PLAYERS; iLoop++)
 	{
 		PlayerTypes eLoopPlayer = (PlayerTypes) iLoop;
@@ -42332,8 +42349,6 @@ void CvPlayer::doResearch()
 	{
 		return;
 	}
-
-	AI_PERF_FORMAT("AI-perf.csv", ("CvPlayer::doResearch, Turn %03d, %s", GC.getGame().getElapsedGameTurns(), getCivilizationShortDescription()) );
 	bool bForceResearchChoice;
 	int iOverflowResearch;
 
@@ -46496,6 +46511,7 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 	visitor(player.m_aiPlayerNumTurnsAtPeace);
 	visitor(player.m_aiPlayerNumTurnsAtWar);
 	visitor(player.m_aiPlayerNumTurnsSinceCityCapture);
+	visitor(player.m_aiNumUnitsBuilt);
 	visitor(player.m_aiProximityToPlayer);
 	visitor(player.m_aiResearchAgreementCounter);
 	visitor(player.m_aiIncomingUnitTypes);
@@ -46628,7 +46644,8 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 	visitor(player.m_cityNames);
 	visitor(player.m_cities);
 
-	GC.getGame().SetClosestCityMapDirty();
+	if (bLoading)
+		GC.getGame().SetClosestCityMapDirty();
 
 	visitor(player.m_units);
 	visitor(player.m_armyAIs);
@@ -49919,7 +49936,6 @@ void CvPlayer::checkInitialTurnAIProcessed()
 //------------------------------------------------------------------------------
 void CvPlayer::GatherPerTurnReplayStats(int iGameTurn)
 {
-	AI_PERF_FORMAT("AI-perf.csv", ("CvPlayer::GatherPerTurnReplayStats, Turn %03d, %s", GC.getGame().getElapsedGameTurns(), getCivilizationShortDescription()) );
 #if !defined(FINAL_RELEASE)
 	cvStopWatch watch("Replay Stat Recording");
 #endif

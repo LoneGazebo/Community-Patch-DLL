@@ -105,7 +105,6 @@ void CvPlayerAI::AI_reset()
 
 void CvPlayerAI::AI_doTurnPre()
 {
-	AI_PERF_FORMAT("AI-perf.csv", ("CvPlayerAI::AI_doTurnPre, Turn %03d, %s", GC.getGame().getElapsedGameTurns(), getCivilizationShortDescription()) );
 	CvAssertMsg(getPersonalityType() != NO_LEADER, "getPersonalityType() is not expected to be equal with NO_LEADER");
 	CvAssertMsg(getLeaderType() != NO_LEADER, "getLeaderType() is not expected to be equal with NO_LEADER");
 	CvAssertMsg(getCivilizationType() != NO_CIVILIZATION, "getCivilizationType() is not expected to be equal with NO_CIVILIZATION");
@@ -136,7 +135,6 @@ void CvPlayerAI::AI_doTurnPre()
 
 void CvPlayerAI::AI_doTurnPost()
 {
-	AI_PERF_FORMAT("AI-perf.csv", ("CvPlayerAI::AI_doTurnPost, Turn %03d, %s", GC.getGame().getElapsedGameTurns(), getCivilizationShortDescription()) );
 	if(isHuman())
 	{
 		return;
@@ -278,7 +276,6 @@ void CvPlayerAI::AI_unitUpdate()
 	{
 		CvUnit::dispatchingNetMessage(true);
 		GetHomelandAI()->Update();
-		AI_PERF_FORMAT("AI-perf.csv", ("AI_unitUpdate, Turn %03d, finished Human HomelandAI update", GC.getGame().getElapsedGameTurns()));
 		CvUnit::dispatchingNetMessage(false);
 	}
 	else
@@ -287,7 +284,6 @@ void CvPlayerAI::AI_unitUpdate()
 		// just been handed off to the tactical AI to get a move in the same turn they switch between
 		GetTacticalAI()->Update();
 		GetHomelandAI()->Update();
-		AI_PERF_FORMAT("AI-perf.csv", ("AI_unitUpdate, Turn %03d, finished AI HomelandAI update", GC.getGame().getElapsedGameTurns()));
 	}
 }
 
@@ -663,11 +659,8 @@ void CvPlayerAI::AI_considerAnnex()
 
 		// if we're willing to consider annexing, annex cities that are in danger more quickly, so we can produce defenses
 		// ... but don't bother if the city's about to fall
-		if (!pCity->isInDangerOfFalling())
-		{
-			if (pCity->isUnderSiege() || pCity->IsBlockadedWaterAndLand())
-				iWeight += 3;
-		}
+		if (!pCity->isInDangerOfFalling() && pCity->isUnderSiege())
+			iWeight += 3;
 
 		int iScore = iWeight * pCity->getYieldRateTimes100(YIELD_PRODUCTION, false);
 		options.push_back( OptionWithScore<CvCity*>(pCity,iScore) );

@@ -10,6 +10,8 @@
 #ifndef CIV5_ECONOMIC_AI_H
 #define CIV5_ECONOMIC_AI_H
 
+#include "CvEnumMap.h"
+
 enum PurchaseType
 {
     NO_PURCHASE_TYPE = -1,
@@ -262,7 +264,7 @@ private:
 	CvEconomicAIStrategyXMLEntries* m_pAIStrategies;
 	bool* m_pabUsingStrategy;
 	int* m_paiTurnStrategyAdopted;
-	int* m_aiTempFlavors;
+	CvEnumMap<FlavorTypes, int> m_aiTempFlavors;
 	ReconState m_eReconState;
 	ReconState m_eNavalReconState;
 	int m_iExplorersDisbanded;

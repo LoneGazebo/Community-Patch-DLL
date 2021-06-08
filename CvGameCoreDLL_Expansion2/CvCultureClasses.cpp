@@ -15,9 +15,9 @@
 #include "CvDiplomacyAI.h"
 #include "CvGrandStrategyAI.h"
 #include "CvTypes.h"
-#if defined(MOD_BALANCE_CORE)
 #include "CvMilitaryAI.h"
-#endif
+
+#include <utility>
 
 #include "LintFree.h"
 
@@ -46,59 +46,30 @@ CvGreatWork::CvGreatWork(CvString szGreatPersonName, GreatWorkType eType, GreatW
 	m_iTurnFounded = GC.getGame().getGameTurn();
 }
 
+template<typename GreatWork, typename Visitor>
+void CvGreatWork::Serialize(GreatWork& greatWork, Visitor& visitor)
+{
+	visitor(greatWork.m_szGreatPersonName);
+	visitor(greatWork.m_eType);
+	visitor(greatWork.m_eClassType);
+	visitor(greatWork.m_iTurnFounded);
+	visitor(greatWork.m_eEra);
+	visitor(greatWork.m_ePlayer);
+}
+
 /// Serialization read
 FDataStream& operator>>(FDataStream& loadFrom, CvGreatWork& writeTo)
 {
-	int iTemp;
-
-	uint uiVersion;
-	loadFrom >> uiVersion;
-	MOD_SERIALIZE_INIT_READ(loadFrom);
-
-	if(uiVersion == 1)
-	{
-		CvString oldGreatWorkName;
-		loadFrom >> oldGreatWorkName;
-	}
-
-	loadFrom >> writeTo.m_szGreatPersonName;
-
-	loadFrom >> iTemp;
-	writeTo.m_eType = (GreatWorkType)iTemp;
-
-	if (uiVersion >= 3)
-	{
-		loadFrom >> iTemp;
-		writeTo.m_eClassType = (GreatWorkClass)iTemp;
-	}
-	else
-	{
-		writeTo.m_eClassType = CultureHelpers::GetGreatWorkClass(writeTo.m_eType);
-	}
-
-	loadFrom >> writeTo.m_iTurnFounded;
-	loadFrom >> writeTo.m_eEra;
-	loadFrom >> writeTo.m_ePlayer;
-
+	CvStreamLoadVisitor serialVisitor(loadFrom);
+	CvGreatWork::Serialize(writeTo, serialVisitor);
 	return loadFrom;
 }
 
 /// Serialization write
 FDataStream& operator<<(FDataStream& saveTo, const CvGreatWork& readFrom)
 {
-	uint uiVersion = 3;
-	saveTo << uiVersion;
-	MOD_SERIALIZE_INIT_WRITE(saveTo);
-
-	saveTo << readFrom.m_szGreatPersonName;
-
-	saveTo << readFrom.m_eType;
-	saveTo << readFrom.m_eClassType;
-	
-	saveTo << readFrom.m_iTurnFounded;
-	saveTo << readFrom.m_eEra;
-	saveTo << readFrom.m_ePlayer;
-
+	CvStreamSaveVisitor serialVisitor(saveTo);
+	CvGreatWork::Serialize(readFrom, serialVisitor);
 	return saveTo;
 }
 
@@ -875,55 +846,38 @@ int CvGameCulture::GetNumCivsInfluentialForWin() const
 
 // SERIALIZATION
 
+FDataStream& operator<<(FDataStream& saveTo, const PublicOpinionTypes& readFrom)
+{
+	return saveTo << static_cast<int>(readFrom);
+}
+FDataStream& operator>>(FDataStream& loadFrom, PublicOpinionTypes& writeTo)
+{
+	int v;
+	loadFrom >> v;
+	writeTo = static_cast<PublicOpinionTypes>(v);
+	return loadFrom;
+}
+
+template<typename GameCulture, typename Visitor>
+void CvGameCulture::Serialize(GameCulture& gameCulture, Visitor& visitor)
+{
+	visitor(gameCulture.m_CurrentGreatWorks);
+	visitor(gameCulture.m_bReportedSomeoneInfluential);
+}
+
 /// Serialization read
 FDataStream& operator>>(FDataStream& loadFrom, CvGameCulture& writeTo)
 {
-	uint uiVersion;
-
-	loadFrom >> uiVersion;
-	MOD_SERIALIZE_INIT_READ(loadFrom);
-
-	int iEntriesToRead;
-	CvGreatWork tempItem;
-
-	writeTo.m_CurrentGreatWorks.clear();
-	loadFrom >> iEntriesToRead;
-	for(int iI = 0; iI < iEntriesToRead; iI++)
-	{
-		loadFrom >> tempItem;
-		writeTo.m_CurrentGreatWorks.push_back(tempItem);
-	}
-
-	if (uiVersion >= 2)
-	{
-		bool bTempBool;
-		loadFrom >> bTempBool;
-		writeTo.SetReportedSomeoneInfluential(bTempBool);
-	}
-	else
-	{
-		writeTo.SetReportedSomeoneInfluential(false);
-	}
-
+	CvStreamLoadVisitor serialVisitor(loadFrom);
+	CvGameCulture::Serialize(writeTo, serialVisitor);
 	return loadFrom;
 }
 
 /// Serialization write
 FDataStream& operator<<(FDataStream& saveTo, const CvGameCulture& readFrom)
 {
-	uint uiVersion = 2;
-	saveTo << uiVersion;
-	MOD_SERIALIZE_INIT_WRITE(saveTo);
-
-	GreatWorkList::const_iterator it;
-	saveTo << readFrom.m_CurrentGreatWorks.size();
-	for(it = readFrom.m_CurrentGreatWorks.begin(); it != readFrom.m_CurrentGreatWorks.end(); it++)
-	{
-		saveTo << *it;
-	}
-
-	saveTo << readFrom.GetReportedSomeoneInfluential();
-
+	CvStreamSaveVisitor serialVisitor(saveTo);
+	CvGameCulture::Serialize(readFrom, serialVisitor);
 	return saveTo;
 }
 
@@ -3265,23 +3219,20 @@ void CvPlayerCulture::SetSwappableMusicIndex (int iIndex)
 // ARCHAEOLOGY
 
 /// Add to the list of plots where we have archaeologists waiting for orders
-void CvPlayerCulture::AddDigCompletePlot(CvPlot *pPlot)
+void CvPlayerCulture::AddDigCompletePlot(CvPlot* pPlot)
 {
-	m_aDigCompletePlots.push_back(pPlot);
+	CvAssert(pPlot != NULL);
+	m_aDigCompletePlots.push_back(pPlot->GetPlotIndex());
 }
 
 /// Remove a plot from the list of plots where we have archaeologists waiting for orders
-void CvPlayerCulture::RemoveDigCompletePlot(CvPlot *pPlot)
+void CvPlayerCulture::RemoveDigCompletePlot(CvPlot* pPlot)
 {
-	vector<CvPlot *>::const_iterator it;
-
-	for (it = m_aDigCompletePlots.begin(); it != m_aDigCompletePlots.end(); it++)
+	CvAssert(pPlot != NULL);
+	vector<int>::iterator it = std::find(m_aDigCompletePlots.begin(), m_aDigCompletePlots.end(), pPlot->GetPlotIndex());
+	if (it != m_aDigCompletePlots.end())
 	{
-		if (*it == pPlot)
-		{
-			m_aDigCompletePlots.erase(it);
-			break;
-		}
+		m_aDigCompletePlots.erase(it);
 	}
 }
 
@@ -3292,13 +3243,13 @@ void CvPlayerCulture::ResetDigCompletePlots()
 }
 
 /// Find the next plot where we have an archaeologist waiting for orders
-CvPlot *CvPlayerCulture::GetNextDigCompletePlot() const
+CvPlot* CvPlayerCulture::GetNextDigCompletePlot() const
 {
-	CvPlot *pRtnValue = NULL;
+	CvPlot* pRtnValue = NULL;
 
 	if (m_aDigCompletePlots.size() > 0)
 	{
-		pRtnValue = m_aDigCompletePlots[0];
+		pRtnValue = GC.getMap().plotByIndex(m_aDigCompletePlots[0]);
 	}
 
 	return pRtnValue;
@@ -3335,19 +3286,10 @@ CvUnit *CvPlayerCulture::GetNextDigCompleteArchaeologist(CvPlot **ppPlot) const
 }
 
 /// Is there a dig that completed at this plot?
-bool CvPlayerCulture::HasDigCompleteHere(CvPlot *pPlot) const
+bool CvPlayerCulture::HasDigCompleteHere(CvPlot* pPlot) const
 {
-	vector<CvPlot *>::const_iterator it;
-
-	for (it = m_aDigCompletePlots.begin(); it != m_aDigCompletePlots.end(); it++)
-	{
-		if (*it == pPlot)
-		{
-			return true;
-		}
-	}
-
-	return false;
+	CvAssert(pPlot != NULL);
+	return std::find(m_aDigCompletePlots.begin(), m_aDigCompletePlots.end(), pPlot->GetPlotIndex()) != m_aDigCompletePlots.end();
 }
 
 /// How much culture can we receive from cashing in a written artifact?
@@ -3704,12 +3646,11 @@ void CvPlayerCulture::DoArchaeologyChoice (ArchaeologyChoiceType eChoice)
 		iValue /= 100;
 
 		m_pPlayer->changeJONSCulture(iValue);
-#if defined(MOD_BALANCE_CORE)
-		if (pPlot->getOwningCity() != NULL && pPlot->getOwner() == m_pPlayer->GetID())
+		if (pPlot->getEffectiveOwningCity() != NULL && pPlot->getOwner() == m_pPlayer->GetID())
 		{
-			pPlot->getOwningCity()->ChangeJONSCultureStored(iValue);
+			pPlot->getEffectiveOwningCity()->ChangeJONSCultureStored(iValue);
 		}
-#endif
+
 		if (pUnit)
 			pPlot->setImprovementType(NO_IMPROVEMENT);
 #if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
@@ -5497,13 +5438,11 @@ int CvPlayerCulture::GetPublicOpinionUnhappiness() const
 	return m_iOpinionUnhappiness;
 }
 
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
 /// Unhappiness generated from public opinion
 int CvPlayerCulture::GetWarWeariness() const
 {
 	return m_iRawWarWeariness;
 }
-#endif
 
 /// Tooltip breaking down public opinion unhappiness
 CvString CvPlayerCulture::GetPublicOpinionUnhappinessTooltip() const
@@ -5638,123 +5577,151 @@ void CvPlayerCulture::AddTourismAllKnownCivsOtherCivWithModifiers(PlayerTypes eO
 }
 
 // PRIVATE METHODS
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
 /// What is our war weariness value?
 int CvPlayerCulture::ComputeWarWeariness()
 {
-	if (m_pPlayer->isMinorCiv() || m_pPlayer->isBarbarian())
-		return 0;
-	
-	int iCurrentWeary = m_iRawWarWeariness;
-	if (iCurrentWeary == 0 && !m_pPlayer->IsAtWarAnyMajor())
+	if (!MOD_BALANCE_CORE_HAPPINESS)
 		return 0;
 
-	PlayerTypes eMostWarTurnsPlayer = NO_PLAYER;
-	int iMostWarTurns = -1;
-	int iLeastPeaceTurns = MAX_INT;
-	int iLeastWarTurns = MAX_INT;
+	if (!m_pPlayer->isMajorCiv() || !m_pPlayer->isAlive())
+		return 0;
+
+	if (m_iRawWarWeariness == 0 && !m_pPlayer->IsAtWarAnyMajor())
+		return 0;
 
 	int iHighestWarDamage = 0;
-	// Look at each civ and get longest war and shortest peace
-	for (int iLoopPlayer = 0; iLoopPlayer < MAX_MAJOR_CIVS; iLoopPlayer++)
+	int iLongestWarTurns = 0;
+	int iLeastPeaceTurns = INT_MAX;
+	int iTechProgress = (GET_TEAM(m_pPlayer->getTeam()).GetTeamTechs()->GetNumTechsKnown() * 100) / GC.getNumTechInfos();
+	int iNumOtherCivs = 0;
+
+	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
-		CvPlayer &kPlayer = GET_PLAYER((PlayerTypes)iLoopPlayer);
-		if (iLoopPlayer != m_pPlayer->GetID() && kPlayer.isAlive() && !kPlayer.isMinorCiv() && !kPlayer.isBarbarian() && kPlayer.getNumCities() > 0)
+		PlayerTypes ePlayer = (PlayerTypes) iPlayerLoop;
+		CvPlayer &kPlayer = GET_PLAYER(ePlayer);
+
+		if (!kPlayer.isAlive())
+			continue;
+		if (!kPlayer.isMajorCiv())
+			continue;
+		if (kPlayer.getNumCities() <= 0)
+			continue;
+
+		iNumOtherCivs++;
+
+		if (!kPlayer.IsAtWarWith(m_pPlayer->GetID()))
 		{
-			if(GET_TEAM(kPlayer.getTeam()).isAtWar(m_pPlayer->getTeam()))
-			{
-				if (!GET_TEAM(m_pPlayer->getTeam()).canChangeWarPeace(kPlayer.getTeam()))
-					continue;
+			int iPeaceLength = m_pPlayer->GetPlayerNumTurnsAtPeace(ePlayer);
+			if (iPeaceLength < iLeastPeaceTurns)
+				iLeastPeaceTurns = iPeaceLength;
 
-				int iWarDamage = m_pPlayer->GetDiplomacyAI()->GetWarValueLost(kPlayer.GetID());
-				iWarDamage += kPlayer.GetDiplomacyAI()->GetWarValueLost(m_pPlayer->GetID()) / 2;
-
-				if (kPlayer.GetPlayerTraits()->GetEnemyWarWearinessModifier() != 0)
-				{
-					iWarDamage *= (100 + kPlayer.GetPlayerTraits()->GetEnemyWarWearinessModifier());
-					iWarDamage /= 100;
-				}
-
-				int iWarTurns = m_pPlayer->GetPlayerNumTurnsAtWar(kPlayer.GetID()) - GD_INT_GET(WAR_MAJOR_MINIMUM_TURNS);
-				if (iWarTurns <= 0)
-					continue;
-
-				if(iWarTurns > iMostWarTurns)
-				{
-					iMostWarTurns = iWarTurns;
-					eMostWarTurnsPlayer = kPlayer.GetID();
-				}
-
-				//Let's also get our most recent wars.
-				iLeastWarTurns = min(iLeastWarTurns, iWarTurns);
-				
-				//Warscore matters.
-				iHighestWarDamage = max(iHighestWarDamage, iWarDamage);
-			}
-			else
-			{
-				int iPeaceTurns = m_pPlayer->GetPlayerNumTurnsAtPeace(kPlayer.GetID());
-				iLeastPeaceTurns = min(iLeastPeaceTurns, iPeaceTurns);
-			}
+			continue;
 		}
+
+		if (!GET_TEAM(m_pPlayer->getTeam()).canChangeWarPeace(kPlayer.getTeam()))
+			continue;
+
+		int iWarLength = m_pPlayer->GetPlayerNumTurnsAtWar(ePlayer) - GD_INT_GET(WAR_MAJOR_MINIMUM_TURNS);
+		if (iWarLength <= 0)
+			continue;
+		if (iWarLength > iLongestWarTurns)
+			iLongestWarTurns = iWarLength;
+
+		// 100% of our war value lost applies.
+		int iWarDamage = m_pPlayer->GetDiplomacyAI()->GetWarValueLost(ePlayer);
+
+		// If AI unwilling to make peace, don't penalize. Otherwise, apply 50% of their losses.
+		if (!m_pPlayer->isHuman() || kPlayer.isHuman() || kPlayer.GetDiplomacyAI()->IsWantsPeaceWithPlayer(m_pPlayer->GetID()))
+		{
+			iWarDamage += (kPlayer.GetDiplomacyAI()->GetWarValueLost(m_pPlayer->GetID()) / 2);
+		}
+
+		// Does enemy UA increase our war weariness? (Huns UA)
+		if (kPlayer.GetPlayerTraits()->GetEnemyWarWearinessModifier() != 0)
+		{
+			iWarDamage *= (100 + kPlayer.GetPlayerTraits()->GetEnemyWarWearinessModifier());
+			iWarDamage /= 100;
+		}
+
+		// Cultural Influence has an effect here.
+		int iInfluenceModifier = max(5, (kPlayer.GetCulture()->GetInfluenceLevel(m_pPlayer->GetID()) - GetInfluenceLevel(ePlayer) * 5));
+		iWarDamage *= iInfluenceModifier;
+		iWarDamage /= 100;
+
+		// So does Tech progress...
+		iWarDamage *= (100 + iTechProgress*2);
+		iWarDamage /= 100;
+
+		if (iWarDamage > iHighestWarDamage)
+			iHighestWarDamage = iWarDamage;
 	}
 
-	//by default, war weariness is slowly falling over time
-	int iFallingWarWeariness = 0;
-	int iRisingWarWeariness = 0;
-	int iOldWarWeariness = m_iRawWarWeariness;
+	// Corner case fix: if we've killed everyone, no war weariness!
+	if (iNumOtherCivs == 0)
+	{
+		SetWarWeariness(0);
+		return 0;
+	}
 
-	if (iLeastPeaceTurns>1)
+	int iCurrentWarWeariness = m_iRawWarWeariness;
+	bool bRecentPeace = false;
+
+	// Signed peace last turn? Halve value for immediate relief.
+	// If we eliminate another player, this won't apply!
+	if (iLeastPeaceTurns <= 1)
+	{
+		iCurrentWarWeariness /= 2;
+		bRecentPeace = true;
+	}
+
+	// By default weariness is falling...
+	int iFallingWarWeariness = iCurrentWarWeariness;
+	if (iLeastPeaceTurns > 1 && iLeastPeaceTurns < INT_MAX)
 	{
 		//apparently we made peace recently ... reduce the value step by step
 		int iReduction = max(1, GC.getGame().getSmallFakeRandNum( max(3, iLeastPeaceTurns/2), iHighestWarDamage));
-		iFallingWarWeariness = max(iOldWarWeariness-iReduction, 0);
+		iFallingWarWeariness = max(iCurrentWarWeariness-iReduction, 0);
 	}
-	else
+
+	// If we have a war going, it will generate rising unhappiness
+	int iRisingWarWeariness = 0;
+	if (iLongestWarTurns > 0)
 	{
-		//signed peace last turn - halve value for immediate relief
-		//if we eliminate another player, this won't apply!
-		iFallingWarWeariness = iOldWarWeariness/2;
+		iRisingWarWeariness = (iLongestWarTurns * iHighestWarDamage) / 100;
 	}
 
-	//but if we have a war going, it will generate rising unhappiness	
-	if(iMostWarTurns > 0)
-	{
-		int iInfluenceModifier = max(5, (GET_PLAYER(eMostWarTurnsPlayer).GetCulture()->GetInfluenceLevel(m_pPlayer->GetID()) - GetInfluenceLevel(eMostWarTurnsPlayer) * 5));
+	// Target war weariness = whichever is higher
+	int iTargetWarWeariness = max(iRisingWarWeariness, iFallingWarWeariness);
 
-		//War damage should influence this.
-		int iWarValue = (iHighestWarDamage * iInfluenceModifier) / 100;
-
-		int iTechProgress = (GET_TEAM(m_pPlayer->getTeam()).GetTeamTechs()->GetNumTechsKnown() * 100) / GC.getNumTechInfos();
-		iWarValue *= (100 + iTechProgress*2);
-		iWarValue /= 100;
-		
-		iRisingWarWeariness = (iMostWarTurns * iWarValue) / 100;
-
-		//simple exponential smoothing
-		float fAlpha = 0.3f;
-		iRisingWarWeariness = int(0.5f + (iRisingWarWeariness * fAlpha) + (iOldWarWeariness * (1 - fAlpha)));
-
-		//at least one per turn
-		if (iRisingWarWeariness == iOldWarWeariness)
-			iRisingWarWeariness++;
-
-		//but never more than x% of pop...
-		int iPopLimit = m_pPlayer->getTotalPopulation() * /*25*/ GC.getBALANCE_WAR_WEARINESS_POPULATION_CAP() / 100;
-		iRisingWarWeariness = min(iRisingWarWeariness, iPopLimit);
-	}
-
-	//whichever is worse counts
-	m_iRawWarWeariness = max(iFallingWarWeariness,iRisingWarWeariness);
-
+	// UA and policies can reduce this amount...
 	int iMod = m_pPlayer->GetWarWearinessModifier() + m_pPlayer->GetPlayerTraits()->GetWarWearinessModifier();
 	if (iMod > 100)
 		iMod = 100;
 
-	m_iRawWarWeariness *= (100 - iMod);
-	m_iRawWarWeariness /= 100;
+	iTargetWarWeariness *= (100 - iMod);
+	iTargetWarWeariness /= 100;
 
-	if (GC.getLogging() && GC.getAILogging() && m_iRawWarWeariness > 0)
+	// also never more than x% of population...
+	int iPopLimit = m_pPlayer->getTotalPopulation() * /*34*/ GC.getBALANCE_WAR_WEARINESS_POPULATION_CAP() / 100;
+	if (iTargetWarWeariness > iPopLimit)
+		iTargetWarWeariness = iPopLimit;
+
+	// Simple exponential smoothing to prevent sudden jumps
+	float fAlpha = 0.3f;
+	int iNewWarWeariness = int(0.5f + (iTargetWarWeariness * fAlpha) + (iCurrentWarWeariness * (1 - fAlpha)));
+
+	// Go up or down by at least one per turn!
+	if (iNewWarWeariness == iCurrentWarWeariness && iTargetWarWeariness != iCurrentWarWeariness && !bRecentPeace)
+		iNewWarWeariness += (iTargetWarWeariness > iCurrentWarWeariness) ? 1 : -1;
+
+	// Double check that we're not above the pop limit
+	if (iNewWarWeariness >= iPopLimit)
+		iNewWarWeariness = iPopLimit;
+
+	// Finally set and log the value
+	SetWarWeariness(iNewWarWeariness);
+
+	if (GC.getLogging() && GC.getAILogging() && iNewWarWeariness > 0)
 	{
 		CvString strTemp;
 
@@ -5773,8 +5740,8 @@ int CvPlayerCulture::ComputeWarWeariness()
 		strTemp += strTurn;
 
 		CvString strData;
-		strData.Format(" --- War Weariness: %d. Longest War: %d. Shortest peace: %d. Rising: %d. Falling: %d. Current Supply Cap: %d", 
-			m_iRawWarWeariness, iMostWarTurns, iLeastPeaceTurns, iRisingWarWeariness, iFallingWarWeariness, m_pPlayer->GetNumUnitsSupplied());
+		strData.Format(" --- War Weariness: %d. Longest War: %d. Shortest peace: %d. Rising: %d. Falling: %d. Target: %d. Reduction percent: %d. Current Supply Cap: %d", 
+			iNewWarWeariness, iLongestWarTurns, iLeastPeaceTurns, iRisingWarWeariness, iFallingWarWeariness, iTargetWarWeariness, iMod, m_pPlayer->GetNumUnitsSupplied());
 		strTemp += strData;
 
 		pLog->Msg(strTemp);
@@ -5787,7 +5754,6 @@ void CvPlayerCulture::SetWarWeariness(int iValue)
 {
 	m_iRawWarWeariness = iValue;
 }
-#endif
 
 /// Once per turn calculation of public opinion data
 void CvPlayerCulture::DoPublicOpinion()
@@ -7045,163 +7011,51 @@ CvString CvPlayerCulture::GetLogFileName(CvString& playerName) const
 
 // SERIALIZATION
 
+template<typename PlayerCulture, typename Visitor>
+void CvPlayerCulture::Serialize(PlayerCulture& playerCulture, Visitor& visitor)
+{
+	visitor(playerCulture.m_aDigCompletePlots);
+	visitor(playerCulture.m_iLastTurnLifetimeCulture);
+	visitor(playerCulture.m_iLastTurnCPT);
+
+	visitor(playerCulture.m_aiCulturalInfluence);
+	visitor(playerCulture.m_aiLastTurnCulturalInfluence);
+	visitor(playerCulture.m_aiLastTurnCulturalIPT);
+
+	visitor(playerCulture.m_bReportedTwoCivsAway);
+	visitor(playerCulture.m_bReportedOneCivAway);
+
+	visitor(playerCulture.m_eOpinion);
+	visitor(playerCulture.m_ePreferredIdeology);
+	visitor(playerCulture.m_iOpinionUnhappiness);
+	visitor(playerCulture.m_iRawWarWeariness);
+	visitor(playerCulture.m_iLastUpdate);
+	visitor(playerCulture.m_iLastThemUpdate);
+	visitor(playerCulture.m_strOpinionTooltip);
+	visitor(playerCulture.m_strOpinionUnhappinessTooltip);
+	visitor(playerCulture.m_eOpinionBiggestInfluence);
+	visitor(playerCulture.m_iTurnIdeologyAdopted);
+	visitor(playerCulture.m_iTurnIdeologySwitch);
+
+	visitor(playerCulture.m_iSwappableWritingIndex);
+	visitor(playerCulture.m_iSwappableArtIndex);
+	visitor(playerCulture.m_iSwappableArtifactIndex);
+	visitor(playerCulture.m_iSwappableMusicIndex);
+}
+
 /// Serialization read
 FDataStream& operator>>(FDataStream& loadFrom, CvPlayerCulture& writeTo)
 {
-	uint uiVersion;
-
-	loadFrom >> uiVersion;
-	MOD_SERIALIZE_INIT_READ(loadFrom);
-
-	int iEntriesToRead;
-	int iTempX;
-	int iTempY;
-	CvPlot *pPlot;
-
-	writeTo.m_aDigCompletePlots.clear();
-	loadFrom >> iEntriesToRead;
-	for(int iI = 0; iI < iEntriesToRead; iI++)
-	{
-		loadFrom >> iTempX;
-		loadFrom >> iTempY;
-		pPlot = GC.getMap().plot(iTempX, iTempY);
-		writeTo.m_aDigCompletePlots.push_back(pPlot);
-	}
-
-	loadFrom >> writeTo.m_iLastTurnLifetimeCulture;
-	loadFrom >> writeTo.m_iLastTurnCPT;
-	loadFrom >> iEntriesToRead;
-	for(int iI = 0; iI < iEntriesToRead; iI++)
-	{
-		loadFrom >> writeTo.m_aiCulturalInfluence[iI];
-		loadFrom >> writeTo.m_aiLastTurnCulturalInfluence[iI];
-		loadFrom >> writeTo.m_aiLastTurnCulturalIPT[iI];
-	}
-
-	if (uiVersion >= 2)
-	{
-		loadFrom >> writeTo.m_bReportedTwoCivsAway;
-		loadFrom >> writeTo.m_bReportedOneCivAway;
-	}
-	else
-	{
-		writeTo.m_bReportedTwoCivsAway = false;
-		writeTo.m_bReportedOneCivAway = false;
-	}
-
-	if (uiVersion >= 3)
-	{
-		int iTemp;
-		loadFrom >> iTemp;
-		writeTo.m_eOpinion = (PublicOpinionTypes)iTemp;
-		loadFrom >> writeTo.m_ePreferredIdeology;
-		loadFrom >> writeTo.m_iOpinionUnhappiness;
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
-		loadFrom >> writeTo.m_iRawWarWeariness;
-		loadFrom >> writeTo.m_iLastUpdate;
-		loadFrom >> writeTo.m_iLastThemUpdate;
-#endif
-		loadFrom >> writeTo.m_strOpinionTooltip;
-	}
-	else
-	{
-		writeTo.m_eOpinion = NO_PUBLIC_OPINION;
-		writeTo.m_ePreferredIdeology = NO_POLICY_BRANCH_TYPE;
-		writeTo.m_iOpinionUnhappiness = 0;
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
-		writeTo.m_iRawWarWeariness = 0;
-#endif
-		writeTo.m_strOpinionTooltip = "";
-	}
-
-	if (uiVersion >= 5)
-	{
-		loadFrom >> writeTo.m_strOpinionUnhappinessTooltip;
-	}
-	else
-	{
-		writeTo.m_strOpinionUnhappinessTooltip = "";
-	}
-
-	if (uiVersion >= 6)
-	{
-		loadFrom >> writeTo.m_eOpinionBiggestInfluence;
-		loadFrom >> writeTo.m_iTurnIdeologyAdopted;
-		loadFrom >> writeTo.m_iTurnIdeologySwitch;
-	}
-	else
-	{
-		writeTo.m_eOpinionBiggestInfluence = NO_PLAYER;
-		writeTo.m_iTurnIdeologySwitch = -1;
-		writeTo.m_iTurnIdeologyAdopted = -1;
-
-	}
-	if (uiVersion >= 4)
-	{
-		loadFrom >> writeTo.m_iSwappableWritingIndex;
-		loadFrom >> writeTo.m_iSwappableArtIndex;
-		loadFrom >> writeTo.m_iSwappableArtifactIndex;
-		loadFrom >> writeTo.m_iSwappableMusicIndex;
-	}
-	else
-	{
-		writeTo.m_iSwappableWritingIndex = -1;
-		writeTo.m_iSwappableArtIndex = -1;
-		writeTo.m_iSwappableArtifactIndex = -1;
-		writeTo.m_iSwappableMusicIndex = -1;
-	}
-
+	CvStreamLoadVisitor serialVisitor(loadFrom);
+	CvPlayerCulture::Serialize(writeTo, serialVisitor);
 	return loadFrom;
 }
 
 /// Serialization write
 FDataStream& operator<<(FDataStream& saveTo, const CvPlayerCulture& readFrom)
 {
-	uint uiVersion = 6;
-	saveTo << uiVersion;
-	MOD_SERIALIZE_INIT_WRITE(saveTo);
-
-	vector<CvPlot *>::const_iterator it;
-	saveTo << readFrom.m_aDigCompletePlots.size();
-	for(it = readFrom.m_aDigCompletePlots.begin(); it != readFrom.m_aDigCompletePlots.end(); it++)
-	{
-		CvPlot *pPlot = *it;
-		saveTo << pPlot->getX();
-		saveTo << pPlot->getY();
-	}
-
-	saveTo << readFrom.m_iLastTurnLifetimeCulture;
-	saveTo << readFrom.m_iLastTurnCPT;
-	saveTo << MAX_MAJOR_CIVS;
-	for(int iI = 0; iI < MAX_MAJOR_CIVS; iI++)
-	{
-		saveTo << readFrom.m_aiCulturalInfluence[iI];
-		saveTo << readFrom.m_aiLastTurnCulturalInfluence[iI];
-		saveTo << readFrom.m_aiLastTurnCulturalIPT[iI];
-	}
-
-	saveTo << readFrom.m_bReportedTwoCivsAway;
-	saveTo << readFrom.m_bReportedOneCivAway;
-
-	saveTo << readFrom.m_eOpinion;
-	saveTo << readFrom.m_ePreferredIdeology;
-	saveTo << readFrom.m_iOpinionUnhappiness;
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
-	saveTo << readFrom.m_iRawWarWeariness;
-	saveTo << readFrom.m_iLastUpdate;
-	saveTo << readFrom.m_iLastThemUpdate;
-#endif
-	saveTo << readFrom.m_strOpinionTooltip;
-	saveTo << readFrom.m_strOpinionUnhappinessTooltip;
-	saveTo << readFrom.m_eOpinionBiggestInfluence;
-	saveTo << readFrom.m_iTurnIdeologyAdopted;
-	saveTo << readFrom.m_iTurnIdeologySwitch;
-
-	saveTo << readFrom.m_iSwappableWritingIndex;
-	saveTo << readFrom.m_iSwappableArtIndex;
-	saveTo << readFrom.m_iSwappableArtifactIndex;
-	saveTo << readFrom.m_iSwappableMusicIndex;
-
+	CvStreamSaveVisitor serialVisitor(saveTo);
+	CvPlayerCulture::Serialize(readFrom, serialVisitor);
 	return saveTo;
 }
 

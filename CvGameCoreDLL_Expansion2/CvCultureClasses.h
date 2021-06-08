@@ -25,6 +25,9 @@ public:
 	CvGreatWork();
 	CvGreatWork(CvString szGreatPersonName, GreatWorkType eType, GreatWorkClass eClassType, int iTurn, EraTypes eEra, PlayerTypes ePlayer);
 
+	template<typename GreatWork, typename Visitor>
+	static void Serialize(GreatWork& greatWork, Visitor& visitor);
+
 	// Public data
 	CvString m_szGreatPersonName;
 	GreatWorkType m_eType;
@@ -63,6 +66,9 @@ public:
 	{
 		return m_CurrentGreatWorks.size();
 	}
+
+	template<typename GameCulture, typename Visitor>
+	static void Serialize(GameCulture& gameCulture, Visitor& visitor);
 
 	GreatWorkType GetGreatWorkType(int iIndex) const;
 	GreatWorkClass GetGreatWorkClass(int iIndex) const;
@@ -130,6 +136,9 @@ enum PublicOpinionTypes
 	PUBLIC_OPINION_REVOLUTIONARY_WAVE,
 };
 
+FDataStream& operator<<(FDataStream&, const PublicOpinionTypes&);
+FDataStream& operator>>(FDataStream&, PublicOpinionTypes&);
+
 class CvGreatWorkInMyEmpire
 {
 public:
@@ -179,6 +188,10 @@ public:
 
 	void Init(CvPlayer* pPlayer);
 
+	template<typename PlayerCulture, typename Visitor>
+	static void Serialize(PlayerCulture& playerCulture, Visitor& visitor);
+
+
 	// Great Work routines
 	bool HasAvailableGreatWorkSlot(GreatWorkSlotType eGreatWorkSlot);
 	int GetNumAvailableGreatWorkSlots(GreatWorkSlotType eGreatWorkSlot) const;
@@ -219,12 +232,12 @@ public:
 	void SetSwappableMusicIndex (int iIndex);
 
 	// Archaeology 
-	void AddDigCompletePlot(CvPlot *pPlot);
-	void RemoveDigCompletePlot(CvPlot *pPlot);
+	void AddDigCompletePlot(CvPlot* pPlot);
+	void RemoveDigCompletePlot(CvPlot* pPlot);
 	void ResetDigCompletePlots();
 	CvPlot *GetNextDigCompletePlot() const;
-	CvUnit *GetNextDigCompleteArchaeologist(CvPlot **ppPlot) const;
-	bool HasDigCompleteHere(CvPlot *pPlot) const;
+	CvUnit *GetNextDigCompleteArchaeologist(CvPlot** ppPlot) const;
+	bool HasDigCompleteHere(CvPlot* pPlot) const;
 	int GetWrittenArtifactCulture() const;
 
 	void DoArchaeologyChoice (ArchaeologyChoiceType eChoice);
@@ -284,10 +297,8 @@ public:
 	PolicyBranchTypes GetPublicOpinionPreferredIdeology() const;
 	CvString GetPublicOpinionTooltip() const;
 	int GetPublicOpinionUnhappiness() const;
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
 	int GetWarWeariness() const;
 	void SetWarWeariness(int iValue);
-#endif
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	int GetTourismModifierVassal() const;
 #endif
@@ -312,7 +323,7 @@ public:
 	int GetTotalThemingBonuses() const;
 
 	// Public data
-	vector<CvPlot *> m_aDigCompletePlots;
+	vector<int> m_aDigCompletePlots;
 	int m_iLastTurnLifetimeCulture;
 	int m_iLastTurnCPT;
 	int m_aiCulturalInfluence[MAX_MAJOR_CIVS];
@@ -347,9 +358,7 @@ private:
 #else
 	int ComputePublicOpinionUnhappiness(int iDissatisfaction, int &iPerCityUnhappy, int &iUnhappyPerXPop);
 #endif
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
 	int ComputeWarWeariness();
-#endif
 	// Logging functions
 	void LogCultureData();
 	void LogThemedBuilding(int iCityID, BuildingTypes eBuilding, int iBonus);

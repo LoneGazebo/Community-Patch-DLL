@@ -1836,7 +1836,7 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 			strLoc = Localization::Lookup("TXT_KEY_CITYIMPROVEMENTSTRATEGY_PLUG_UP_RESOURCES_HAVE_MORE");
 		}
 		strLoc << GC.getResourceInfo(eRecommendedResource)->GetTextKey();
-		strLoc << pResourcePlot->getOwningCity()->getNameKey();
+		strLoc << pResourcePlot->getEffectiveOwningCity()->getNameKey();
 
 		bool bSuccess = SetCounselEntry(uiCounselIndex, ADVISOR_ECONOMIC, strLoc.toUTF8(), 20);
 		DEBUG_VARIABLE(bSuccess);

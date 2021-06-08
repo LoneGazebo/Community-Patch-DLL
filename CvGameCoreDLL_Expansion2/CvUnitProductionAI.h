@@ -54,4 +54,7 @@ private:
 	CvWeightedVector<int> m_Buildables;
 };
 
+FDataStream& operator>>(FDataStream&, CvUnitProductionAI&);
+FDataStream& operator<<(FDataStream&, const CvUnitProductionAI&);
+
 #endif //CIV5_UNIT_PRODUCTION_AI_H

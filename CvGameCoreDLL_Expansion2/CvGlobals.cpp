@@ -2756,16 +2756,6 @@ void CvGlobals::init()
 	m_pContracts = FNEW(CvContractXMLEntries, c_eCiv5GameplayDLL, 0);
 #endif
 
-	auto_ptr<ICvDLLDatabaseUtility1> pkLoader(getDatabaseLoadUtility());
-
-	Database::Connection* pDB = GetGameDatabase();
-	pDB->Execute(m_kGlobalDefinesLookup, "SELECT Value from Defines where Name = ? LIMIT 1");
-
-	pkLoader->PerformDatabasePostProcessing();
-	pkLoader->CacheGameDatabaseData();
-
-	GameDataPostProcess();
-
 	CvPlayerAI::initStatics();
 	CvTeam::initStatics();
 
@@ -4871,6 +4861,9 @@ bool CvGlobals::GetHexDebugLayerString(CvPlot* pkPlot, const char* szLayerName, 
 
 void CvGlobals::cacheGlobals()
 {
+	Database::Connection* pDB = GetGameDatabase();
+	pDB->Execute(m_kGlobalDefinesLookup, "SELECT Value from Defines where Name = ? LIMIT 1");
+
 	// -- ints --
 
 	getDatabaseValue("AI_ATTEMPT_RUSH_OVER_X_TURNS_TO_BUILD",m_iAI_ATTEMPT_RUSH_OVER_X_TURNS_TO_BUILD);

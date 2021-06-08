@@ -186,7 +186,8 @@ void CvGameTrade::UpdateTradePathCache(PlayerTypes ePlayer1)
 		int iCity;
 		CvPlayer& kLoopPlayer = GET_PLAYER((PlayerTypes)iPlayer);
 		for (CvCity* pDestCity = kLoopPlayer.firstCity(&iCity); pDestCity != NULL; pDestCity = kLoopPlayer.nextCity(&iCity))
-			vDestPlots.push_back(pDestCity->plot());
+			if (pDestCity->plot()->isCity()) //idiot proofing
+				vDestPlots.push_back(pDestCity->plot());
 	}
 
 	int iOriginCityLoop;
@@ -2196,79 +2197,35 @@ const vector<int>& CvGameTrade::GetTradeConnectionsForPlayer(PlayerTypes ePlayer
 	return m_routesPerPlayer.back();
 }
 
-//	----------------------------------------------------------------------------
-/// Serialization read
-FDataStream& operator>>(FDataStream& loadFrom, TradeConnection& writeTo)
+//	--------------------------------------------------------------------------------
+template<typename GameTrade, typename Visitor>
+void CvGameTrade::Serialize(GameTrade& gameTrade, Visitor& visitor)
 {
-	uint uiVersion;
-	loadFrom >> uiVersion;
-	MOD_SERIALIZE_INIT_READ(loadFrom);
+	visitor(gameTrade.m_aTradeConnections);
+	visitor(gameTrade.m_routesPerPlayer);
+	visitor(gameTrade.m_aaiTechDifference);
+	visitor(gameTrade.m_aaiPolicyDifference);
+	visitor(gameTrade.m_iNextID);
+}
 
-	loadFrom >> writeTo.m_iID;
-	loadFrom >> writeTo.m_iOriginID;
-	loadFrom >> writeTo.m_iOriginX;
-	loadFrom >> writeTo.m_iOriginY;
-	loadFrom >> writeTo.m_iDestID;
-	loadFrom >> writeTo.m_iDestX;
-	loadFrom >> writeTo.m_iDestY;
-	loadFrom >> writeTo.m_eOriginOwner;
-	loadFrom >> writeTo.m_eDestOwner;
-	int iDomain;
-	loadFrom >> iDomain;
-	writeTo.m_eDomain = (DomainTypes)iDomain;
-	int iConnectionType;
-	loadFrom >> iConnectionType;
-	writeTo.m_eConnectionType = (TradeConnectionType)iConnectionType;
-
-	loadFrom >> writeTo.m_iTradeUnitLocationIndex;
-	loadFrom >> writeTo.m_bTradeUnitMovingForward;
-
-	loadFrom >> writeTo.m_unitID;
-	loadFrom >> writeTo.m_iSpeedFactor;
-	loadFrom >> writeTo.m_iCircuitsCompleted;
-	loadFrom >> writeTo.m_iCircuitsToComplete;
-	loadFrom >> writeTo.m_iTurnRouteComplete;
-	loadFrom >> writeTo.m_bTradeUnitRecalled;
-
-	int nPlots;
-	loadFrom >> nPlots;
-	for (int i2 = 0; i2 < nPlots; i2++)
-	{
-		TradeConnectionPlot kTradeConnectionPlot;
-		writeTo.m_aPlotList.push_back(kTradeConnectionPlot);
-		loadFrom >> writeTo.m_aPlotList[i2].m_iX;
-		loadFrom >> writeTo.m_aPlotList[i2].m_iY;
-		
-	}
-
-	for (uint ui = 0; ui < NUM_YIELD_TYPES; ui++)
-	{
-		loadFrom >> writeTo.m_aiOriginYields[ui];
-		loadFrom >> writeTo.m_aiDestYields[ui];
-	}
-
-	return loadFrom;
+//	--------------------------------------------------------------------------------
+FDataStream& operator<<(FDataStream& saveTo, const CvGameTrade& readFrom)
+{
+	CvStreamSaveVisitor serialVisitor(saveTo);
+	CvGameTrade::Serialize(readFrom, serialVisitor);
+	return saveTo;
 }
 
 FDataStream& operator>>(FDataStream& loadFrom, CvGameTrade& writeTo)
 {
+	CvStreamLoadVisitor serialVisitor(loadFrom);
+	CvGameTrade::Serialize(writeTo, serialVisitor);
+
 	int plotsX[MAX_PLOTS_TO_DISPLAY];
 	int plotsY[MAX_PLOTS_TO_DISPLAY];
-	int nPlots;
-
-	uint uiVersion;
-	loadFrom >> uiVersion;
-	MOD_SERIALIZE_INIT_READ(loadFrom);
-
-	int iNum = 0;
-	loadFrom >> iNum;
-	for (int i = 0; i < iNum; i++)
+	for (int i = 0; i < int(writeTo.m_aTradeConnections.size()); ++i)
 	{
-		TradeConnection kTradeConnection;
-		writeTo.m_aTradeConnections.push_back(kTradeConnection);
-		loadFrom >> writeTo.m_aTradeConnections[i];
-
-		nPlots = min(MAX_PLOTS_TO_DISPLAY,(int)writeTo.m_aTradeConnections[i].m_aPlotList.size());
+		int nPlots = std::min(MAX_PLOTS_TO_DISPLAY, int(writeTo.m_aTradeConnections[i].m_aPlotList.size()));
 		if (nPlots > 0)
 		{
 			for (int i2=0; i2<nPlots; i2++)
@@ -2282,98 +2239,71 @@ FDataStream& operator>>(FDataStream& loadFrom, CvGameTrade& writeTo)
 		}
 	}
 
-	loadFrom >> writeTo.m_routesPerPlayer;
-
-	for (uint ui = 0; ui < MAX_MAJOR_CIVS; ui++)
-	{
-		for (uint ui2 = 0; ui2 < MAX_MAJOR_CIVS; ui2++)
-		{
-			loadFrom >> writeTo.m_aaiTechDifference[ui][ui2];
-			loadFrom >> writeTo.m_aaiPolicyDifference[ui][ui2];
-		}
-	}
-
-	loadFrom >> writeTo.m_iNextID;
-
 	return loadFrom;
+}
+
+//	----------------------------------------------------------------------------
+template<typename TradeConnectionPlotT, typename Visitor>
+void TradeConnectionPlot::Serialize(TradeConnectionPlotT& tradeConnectionPlot, Visitor& visitor)
+{
+	visitor(tradeConnectionPlot.m_iX);
+	visitor(tradeConnectionPlot.m_iY);
+}
+
+FDataStream& operator<<(FDataStream& saveTo, const TradeConnectionPlot& readFrom)
+{
+	CvStreamSaveVisitor serialVisitor(saveTo);
+	TradeConnectionPlot::Serialize(readFrom, serialVisitor);
+	return saveTo;
+}
+
+FDataStream& operator>>(FDataStream& loadFrom, TradeConnectionPlot& writeTo)
+{
+	CvStreamLoadVisitor serialVisitor(loadFrom);
+	TradeConnectionPlot::Serialize(writeTo, serialVisitor);
+	return loadFrom;
+}
+
+//	----------------------------------------------------------------------------
+template<typename TradeConnectionT, typename Visitor>
+void TradeConnection::Serialize(TradeConnectionT& tradeConnection, Visitor& visitor)
+{
+	visitor(tradeConnection.m_iID);
+	visitor(tradeConnection.m_iOriginID);
+	visitor(tradeConnection.m_iOriginX);
+	visitor(tradeConnection.m_iOriginY);
+	visitor(tradeConnection.m_iDestID);
+	visitor(tradeConnection.m_iDestX);
+	visitor(tradeConnection.m_iDestY);
+	visitor(tradeConnection.m_eOriginOwner);
+	visitor(tradeConnection.m_eDestOwner);
+	visitor(tradeConnection.m_eDomain);
+	visitor(tradeConnection.m_eConnectionType);
+	visitor(tradeConnection.m_iTradeUnitLocationIndex);
+	visitor(tradeConnection.m_bTradeUnitMovingForward);
+	visitor(tradeConnection.m_unitID);
+	visitor(tradeConnection.m_iSpeedFactor);
+	visitor(tradeConnection.m_iCircuitsCompleted);
+	visitor(tradeConnection.m_iCircuitsToComplete);
+	visitor(tradeConnection.m_iTurnRouteComplete);
+	visitor(tradeConnection.m_bTradeUnitRecalled);
+	visitor(tradeConnection.m_aPlotList);
+	visitor(tradeConnection.m_aiOriginYields);
+	visitor(tradeConnection.m_aiDestYields);
 }
 
 FDataStream& operator<<(FDataStream& saveTo, const TradeConnection& readFrom)
 {
-	uint uiVersion = 3;
-	saveTo << uiVersion;
-	MOD_SERIALIZE_INIT_WRITE(saveTo);
-
-	saveTo << readFrom.m_iID;
-	saveTo << readFrom.m_iOriginID;
-	saveTo << readFrom.m_iOriginX;
-	saveTo << readFrom.m_iOriginY;
-	saveTo << readFrom.m_iDestID;
-	saveTo << readFrom.m_iDestX;
-	saveTo << readFrom.m_iDestY;
-	saveTo << readFrom.m_eOriginOwner;
-	saveTo << readFrom.m_eDestOwner;
-	saveTo << (int)readFrom.m_eDomain;
-	saveTo << (int)readFrom.m_eConnectionType;
-	saveTo << readFrom.m_iTradeUnitLocationIndex;
-	saveTo << readFrom.m_bTradeUnitMovingForward;
-	saveTo << readFrom.m_unitID;
-	saveTo << readFrom.m_iSpeedFactor;
-	saveTo << readFrom.m_iCircuitsCompleted;
-	saveTo << readFrom.m_iCircuitsToComplete;
-	saveTo << readFrom.m_iTurnRouteComplete;
-	saveTo << readFrom.m_bTradeUnitRecalled;
-
-	saveTo << readFrom.m_aPlotList.size();
-	for (uint ui2 = 0; ui2 < readFrom.m_aPlotList.size(); ui2++)
-	{
-		saveTo << readFrom.m_aPlotList[ui2].m_iX;
-		saveTo << readFrom.m_aPlotList[ui2].m_iY;
-	}
-
-	for (uint ui2 = 0; ui2 < NUM_YIELD_TYPES; ui2++)
-	{
-		saveTo << readFrom.m_aiOriginYields[ui2];
-		saveTo << readFrom.m_aiDestYields[ui2];
-	}
-
+	CvStreamSaveVisitor serialVisitor(saveTo);
+	TradeConnection::Serialize(readFrom, serialVisitor);
 	return saveTo;
 }
 
-//	--------------------------------------------------------------------------------
-FDataStream& operator<<(FDataStream& saveTo, const CvGameTrade& readFrom)
+FDataStream& operator>>(FDataStream& loadFrom, TradeConnection& writeTo)
 {
-	uint uiVersion = 3;
-	saveTo << uiVersion;
-	MOD_SERIALIZE_INIT_WRITE(saveTo);
-
-	saveTo << readFrom.m_aTradeConnections.size();
-	for (uint ui = 0; ui < readFrom.m_aTradeConnections.size(); ui++)
-	{
-		saveTo << readFrom.m_aTradeConnections[ui];
-	}
-
-	saveTo << readFrom.m_routesPerPlayer;
-
-	for (uint ui = 0; ui < MAX_MAJOR_CIVS; ui++)
-	{
-		for (uint ui2 = 0; ui2 < MAX_MAJOR_CIVS; ui2++)
-		{
-			saveTo << readFrom.m_aaiTechDifference[ui][ui2];
-		}
-	}
-
-	for (uint ui = 0; ui < MAX_MAJOR_CIVS; ui++)
-	{
-		for (uint ui2 = 0; ui2 < MAX_MAJOR_CIVS; ui2++)
-		{
-			saveTo << readFrom.m_aaiPolicyDifference[ui][ui2];
-		}
-	}
-
-	saveTo << readFrom.m_iNextID;
-
-	return saveTo;
+	CvStreamLoadVisitor serialVisitor(loadFrom);
+	TradeConnection::Serialize(writeTo, serialVisitor);
+	return loadFrom;
 }
 
 //=====================================
@@ -6062,66 +5992,46 @@ std::vector<CvString> CvPlayerTrade::GetPlotMouseoverToolTips (CvPlot* pPlot)
 	return aToolTips;
 }
 
+template<typename TradeConnectionWasPlunderedT, typename Visitor>
+void TradeConnectionWasPlundered::Serialize(TradeConnectionWasPlunderedT& tradeConnectionWasPlundered, Visitor& visitor)
+{
+	visitor(tradeConnectionWasPlundered.m_kTradeConnection);
+	visitor(tradeConnectionWasPlundered.m_iTurnPlundered);
+}
+
+FDataStream& operator<<(FDataStream& saveTo, const TradeConnectionWasPlundered& readFrom)
+{
+	CvStreamSaveVisitor serialVisitor(saveTo);
+	TradeConnectionWasPlundered::Serialize(readFrom, serialVisitor);
+	return saveTo;
+}
+FDataStream& operator>>(FDataStream& loadFrom, TradeConnectionWasPlundered& writeTo)
+{
+	CvStreamLoadVisitor serialVisitor(loadFrom);
+	TradeConnectionWasPlundered::Serialize(writeTo, serialVisitor);
+	return loadFrom;
+}
+
+template<typename PlayerTrade, typename Visitor>
+void CvPlayerTrade::Serialize(PlayerTrade& playerTrade, Visitor& visitor)
+{
+	visitor(playerTrade.m_aRecentlyExpiredConnections);
+	visitor(playerTrade.m_aTradeConnectionWasPlundered);
+}
+
 /// Serialization read
 FDataStream& operator>>(FDataStream& loadFrom, CvPlayerTrade& writeTo)
 {
-	uint uiVersion;
-	loadFrom >> uiVersion;
-	MOD_SERIALIZE_INIT_READ(loadFrom);
-
-	if (uiVersion >= 1) 
-	{
-		int iNum = 0;
-		loadFrom >> iNum;
-		for (int i = 0; i < iNum; i++)
-		{
-			TradeConnection kTradeConnection;
-			writeTo.m_aRecentlyExpiredConnections.push_back(kTradeConnection);
-			loadFrom >> writeTo.m_aRecentlyExpiredConnections[i];
-		}
-	}
-	else
-	{
-		int iEmptyInt;
-		loadFrom >> iEmptyInt;
-	}
-
-	if (uiVersion >= 2)
-	{
-		int iNum = 0;
-		loadFrom >> iNum;
-		for (int i = 0; i < iNum; i++)
-		{
-			TradeConnectionWasPlundered kTradeConnectionWasPlundered;
-			writeTo.m_aTradeConnectionWasPlundered.push_back(kTradeConnectionWasPlundered);
-			loadFrom >> writeTo.m_aTradeConnectionWasPlundered[i].m_iTurnPlundered;
-			loadFrom >> writeTo.m_aTradeConnectionWasPlundered[i].m_kTradeConnection;
-		}
-	}
-
+	CvStreamLoadVisitor serialVisitor(loadFrom);
+	CvPlayerTrade::Serialize(writeTo, serialVisitor);
 	return loadFrom;
 }
 
 /// Serialization write
 FDataStream& operator<<(FDataStream& saveTo, const CvPlayerTrade& readFrom)
 {
-	uint uiVersion = 2;
-	saveTo << uiVersion;
-	MOD_SERIALIZE_INIT_WRITE(saveTo);
-
-	saveTo << readFrom.m_aRecentlyExpiredConnections.size();
-	for (uint ui = 0; ui < readFrom.m_aRecentlyExpiredConnections.size(); ui++)
-	{
-		saveTo << readFrom.m_aRecentlyExpiredConnections[ui];
-	}
-
-	saveTo << readFrom.m_aTradeConnectionWasPlundered.size();
-	for (uint ui = 0; ui < readFrom.m_aTradeConnectionWasPlundered.size(); ui++)
-	{
-		saveTo << readFrom.m_aTradeConnectionWasPlundered[ui].m_iTurnPlundered;
-		saveTo << readFrom.m_aTradeConnectionWasPlundered[ui].m_kTradeConnection;
-	}
-
+	CvStreamSaveVisitor serialVisitor(saveTo);
+	CvPlayerTrade::Serialize(readFrom, serialVisitor);
 	return saveTo;
 }
 
@@ -7820,27 +7730,25 @@ void CvTradeAI::GetPrioritizedTradeRoutes(TradeConnectionList& aTradeConnectionL
 	}
 }
 
+template<typename TradeAI, typename Visitor>
+void CvTradeAI::Serialize(TradeAI& tradeAI, Visitor& visitor)
+{
+	visitor(tradeAI.m_iRemovableValue);
+}
+
 /// Serialization read
 FDataStream& operator>>(FDataStream& loadFrom, CvTradeAI& writeTo)
 {
-	uint uiVersion;
-	loadFrom >> uiVersion;
-	MOD_SERIALIZE_INIT_READ(loadFrom);
-
-	loadFrom >> writeTo.m_iRemovableValue;
-
+	CvStreamLoadVisitor serialVisitor(loadFrom);
+	CvTradeAI::Serialize(writeTo, serialVisitor);
 	return loadFrom;
 }
 
 /// Serialization write
 FDataStream& operator<<(FDataStream& saveTo, const CvTradeAI& readFrom)
 {
-	uint uiVersion = 0;
-	saveTo << uiVersion;
-	MOD_SERIALIZE_INIT_WRITE(saveTo);
-
-	saveTo << readFrom.m_iRemovableValue;
-
+	CvStreamSaveVisitor serialVisitor(saveTo);
+	CvTradeAI::Serialize(readFrom, serialVisitor);
 	return saveTo;
 }
 

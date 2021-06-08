@@ -184,7 +184,6 @@ void CvHomelandAI::FindAutomatedUnits()
 /// Update the AI for units
 void CvHomelandAI::Update()
 {
-	AI_PERF_FORMAT("AI-perf.csv", ("Homeland AI, Turn %03d, %s", GC.getGame().getElapsedGameTurns(), m_pPlayer->getCivilizationShortDescription()));
 
 	//no homeland for barbarians
 	if(m_pPlayer->GetID() == BARBARIAN_PLAYER)
@@ -447,7 +446,7 @@ void CvHomelandAI::FindHomelandTargets()
 			// ... possible naval sentry point?
 			if (pLoopPlot->isWater() && pLoopPlot->isValidMovePlot(m_pPlayer->GetID()))
 			{
-				CvCity* pOwningCity = pLoopPlot->getOwningCity();
+				CvCity* pOwningCity = pLoopPlot->getEffectiveOwningCity();
 				if (pOwningCity != NULL && pOwningCity->getOwner() == m_pPlayer->GetID() && pOwningCity->isCoastal())
 				{
 					int iSuspiciousNeighbors = pLoopPlot->GetNumAdjacentDifferentTeam(eTeam, DOMAIN_SEA, true);
@@ -755,7 +754,6 @@ void CvHomelandAI::PlotSentryMoves()
 	// Do we have any targets of this type?
 	for(unsigned int iI = 0; iI < m_TargetedSentryPoints.size(); iI++)
 	{
-		AI_PERF_FORMAT("Homeland-perf.csv", ("PlotSentryMoves, Turn %03d, %s", GC.getGame().getElapsedGameTurns(), m_pPlayer->getCivilizationShortDescription()) );
 
 		CvPlot* pTarget = GC.getMap().plot(m_TargetedSentryPoints[iI].GetTargetX(), m_TargetedSentryPoints[iI].GetTargetY());
 
@@ -814,7 +812,6 @@ void CvHomelandAI::PlotSentryNavalMoves()
 		// See how many moves of this type we can execute
 		for(unsigned int iI = 0; iI < m_TargetedNavalSentryPoints.size(); iI++)
 		{
-			AI_PERF_FORMAT("Homeland-perf.csv", ("PlotNavalSentryMoves, Turn %03d, %s", GC.getGame().getElapsedGameTurns(), m_pPlayer->getCivilizationShortDescription()) );
 
 			CvPlot* pTarget = GC.getMap().plot(m_TargetedNavalSentryPoints[iI].GetTargetX(), m_TargetedNavalSentryPoints[iI].GetTargetY());
 			if(m_CurrentMoveUnits.size() > 0)
@@ -2737,8 +2734,6 @@ bool CvHomelandAI::ExecuteMoveToTarget(CvUnit* pUnit, CvPlot* pTarget, int iFlag
 	if (!pUnit || !pTarget)
 		return false;
 
-	AI_PERF_FORMAT("Homeland-ExecuteMove-perf.csv", ("ExecuteMoveToTarget, %d, %d, Turn %03d, %s", pTarget->getX(), pTarget->getY(), GC.getGame().getElapsedGameTurns(), m_pPlayer->getCivilizationShortDescription()) );
-
 	bool bResult = false;
 	if(pUnit->plot() == pTarget && pUnit->canEndTurnAtPlot(pTarget))
 	{
@@ -3391,7 +3386,7 @@ void CvHomelandAI::ExecuteDiplomatMoves()
 					if (GC.getLogging() && GC.getAILogging())
 					{
 						CvString strLogString;
-						strLogString.Format("Great Diplomat creating Embassy at %s", pUnit->plot()->getOwningCity()->getName().c_str());
+						strLogString.Format("Great Diplomat creating Embassy at %s", pUnit->plot()->getEffectiveOwningCity()->getName().c_str());
 						LogHomelandMessage(strLogString);
 					}
 				}

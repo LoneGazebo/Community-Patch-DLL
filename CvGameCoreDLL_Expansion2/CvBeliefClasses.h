@@ -426,6 +426,7 @@ public:
 	void Uninit();
 	void Reset();
 	void AddBelief(BeliefTypes eBelief);
+
 #if defined(MOD_BALANCE_CORE)
 	void SetReligion(ReligionTypes eReligion);
 	ReligionTypes GetReligion() const;
@@ -597,59 +598,17 @@ public:
 #endif
 
 	// Serialization
+	template<typename ReligionBeliefs, typename Visitor>
+	static void Serialize(ReligionBeliefs& religionBeliefs, Visitor& visitor);
 	void Read(FDataStream& kStream);
 	void Write(FDataStream& kStream) const;
 
 private:
-	// Cached data about this religion's beliefs
-#if !defined(MOD_BALANCE_CORE)
-	int m_iFaithFromDyingUnits;
-	int m_iRiverHappiness;
-	int m_iPlotCultureCostModifier;
-	int m_iCityRangeStrikeModifier;
-	int m_iCombatModifierEnemyCities;
-	int m_iCombatModifierFriendlyCities;
-	int m_iFriendlyHealChange;
-	int m_iCityStateFriendshipModifier;
-	int m_iLandBarbarianConversionPercent;
-	int m_iSpreadDistanceModifier;
-	int m_iSpreadStrengthModifier;
-	int m_iProphetStrengthModifier;
-	int m_iProphetCostModifier;
-	int m_iMissionaryStrengthModifier;
-	int m_iMissionaryCostModifier;
-	int m_iFriendlyCityStateSpreadModifier;
-	int m_iGreatPersonExpendedFaith;
-	int m_iCityStateMinimumInfluence;
-	int m_iCityStateInfluenceModifier;
-	int m_iOtherReligionPressureErosion;
-	int m_iSpyPressure;
-	int m_iInquisitorPressureRetention;
-	int m_iFaithBuildingTourism;
-#if defined(MOD_BALANCE_CORE_BELIEFS)
-	int m_iCombatVersusOtherReligionOwnLands;
-	int m_iCombatVersusOtherReligionTheirLands;
-	int m_iMissionaryInfluenceCS;
-	int m_iHappinessPerPantheon;
-	int m_iExtraVotes;
-#endif
-#if defined(MOD_BALANCE_CORE)
-	CivilizationTypes m_eRequiredCivilization;
-#endif
-	EraTypes m_eObsoleteEra;
-	ResourceTypes m_eResourceRevealed;
-	TechTypes m_eSpreadModifierDoublingTech;
-#endif
-
 	BeliefList m_ReligionBeliefs;
-#if defined(MOD_BALANCE_CORE)
 	ReligionTypes m_eReligion;
 	std::vector<int> m_BeliefLookup;
-#endif
 
-	// Arrays
-	// int* m_paiBuildingClassEnabled;
-	//int m_iNeedThisToCompile;
+
 };
 
 namespace CvBeliefHelpers

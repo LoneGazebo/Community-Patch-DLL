@@ -59,6 +59,8 @@ public:
 	void EndTurn();
 	void FinishedBuilding(CvCity* pkCity, BuildingTypes eBuilding);
 
+	template<typename PlayerAchievements, typename Visitor>
+	static void Serialize(PlayerAchievements& playerAchievements, Visitor& visitor);
 	void Read(FDataStream& kStream);
 	void Write(FDataStream& kStream) const;
 

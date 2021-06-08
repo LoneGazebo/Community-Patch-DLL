@@ -90,6 +90,9 @@ public:
 	CvContract();
 	CvContract(ContractTypes eContract, PlayerTypes eContractHolder, int iTurns, int iMaintenance);
 
+	template<typename Contract, typename Visitor>
+	static void Serialize(Contract& contract, Visitor& visitor);
+
 	// Public data
 	ContractTypes m_eContract;
 	PlayerTypes m_eContractHolder;
@@ -122,8 +125,8 @@ public:
 	void Uninit();
 	void Reset();
 	void DoTurn();
-	void Read(FDataStream& kStream);
-	void Write(FDataStream& kStream);
+	template<typename GameContracts, typename Visitor>
+	static void Serialize(GameContracts& gameContracts, Visitor& visitor);
 
 	void DoUpdateContracts();
 

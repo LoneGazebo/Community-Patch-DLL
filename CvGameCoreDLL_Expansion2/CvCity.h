@@ -1529,9 +1529,6 @@ public:
 
 	void changeProjectCount(ProjectTypes eProject, int iValue);
 	int getProjectCount(ProjectTypes eProject) const;
-
-	void changeUnitsBuiltCount(UnitTypes eUnitType, int iValue);
-	int getUnitsBuiltCount(UnitTypes eUnitType) const;
 	
 
 	CvPlot* GetPlotForNewUnit(UnitTypes eUnitType) const;
@@ -1897,7 +1894,6 @@ protected:
 	int m_iUnhappinessFromEmpire;
 	int m_iStaticTechDeviation;
 	std::vector<int> m_aiNumProjects;
-	std::vector<int> m_aiNumUnitsBuilt;
 	std::vector<int> m_aiStaticGlobalYield;
 	std::vector<int> m_aiStaticNeedAdditives;
 	std::vector<int> m_aiLongestPotentialTradeRoute;
@@ -2280,7 +2276,6 @@ SYNC_ARCHIVE_VAR(int, m_iHappinessFromLuxuries)
 SYNC_ARCHIVE_VAR(int, m_iUnhappinessFromEmpire)
 SYNC_ARCHIVE_VAR(int, m_iStaticTechDeviation)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiNumProjects)
-SYNC_ARCHIVE_VAR(std::vector<int>, m_aiNumUnitsBuilt)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiStaticGlobalYield)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiStaticNeedAdditives)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiLongestPotentialTradeRoute)

@@ -14,6 +14,7 @@
 #include "CvEconomicAI.h"
 #include "CvGrandStrategyAI.h"
 #include "CvInfosSerializationHelper.h"
+#include "CvEnumMapSerialization.h"
 
 // Include this after all other headers.
 #include "LintFree.h"
@@ -4055,13 +4056,8 @@ void CvPlayerPolicies::Read(FDataStream& kStream)
 	// Now for AI
 	m_pPolicyAI->Read(kStream);
 
-	CvAssertMsg(m_piLatestFlavorValues != NULL && GC.getNumFlavorTypes() > 0, "Number of flavor values to serialize is expected to greater than 0");
-
-	int iNumFlavors;
-	kStream >> iNumFlavors;
-
-	ArrayWrapper<int> wrapm_piLatestFlavorValues(iNumFlavors, m_piLatestFlavorValues);
-	kStream >> wrapm_piLatestFlavorValues;
+	CvAssertMsg(m_piLatestFlavorValues.valid() && GC.getNumFlavorTypes() > 0, "Number of flavor values to serialize is expected to greater than 0");
+	kStream >> m_piLatestFlavorValues;
 
 #if defined(MOD_BALANCE_CORE)
 	UpdateModifierCache();
@@ -4106,9 +4102,8 @@ void CvPlayerPolicies::Write(FDataStream& kStream) const
 	// Now for AI
 	m_pPolicyAI->Write(kStream);
 
-	CvAssertMsg(m_piLatestFlavorValues != NULL && GC.getNumFlavorTypes() > 0, "Number of flavor values to serialize is expected to greater than 0");
-	kStream << GC.getNumFlavorTypes();
-	kStream << ArrayWrapper<int>(GC.getNumFlavorTypes(), m_piLatestFlavorValues);
+	CvAssertMsg(m_piLatestFlavorValues.valid() && GC.getNumFlavorTypes() > 0, "Number of flavor values to serialize is expected to greater than 0");
+	kStream << m_piLatestFlavorValues;
 }
 
 FDataStream& operator>>(FDataStream& stream, CvPlayerPolicies& playerPolicies)

@@ -251,7 +251,7 @@ public:
 	int* GetUnitNewEraCombatTypeChangesArray(int i);
 	int GetUnitNewEraPromotions(int i, int j) const;
 	int* GetUnitNewEraPromotionsChangesArray(int i);
-#endif'
+#endif
 #if defined(MOD_UNITS_RESOURCE_QUANTITY_TOTALS)
 	int GetResourceQuantityTotal(int i) const;
 #endif

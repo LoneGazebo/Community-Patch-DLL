@@ -10,6 +10,10 @@
 #ifndef CIV5_CITY_CITIZENS_H
 #define CIV5_CITY_CITIZENS_H
 
+#include "CvEnumMap.h"
+
+#include <bitset>
+
 struct SPrecomputedExpensiveNumbers
 {
 	int iExcessFoodTimes100;
@@ -20,7 +24,11 @@ struct SPrecomputedExpensiveNumbers
 	int iUnhappinessFromReligion;
 	int iUnhappinessFromDistress;
 
-	SPrecomputedExpensiveNumbers(CvCity* pCity);
+	vector<vector<int>> bonusForXTerrain;
+	vector<vector<int>> bonusForXFeature;
+
+	SPrecomputedExpensiveNumbers();
+	void update(CvCity* pCity);
 };
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -39,6 +47,8 @@ public:
 	void Init(CvCity* pCity);
 	void Uninit();
 	void Reset();
+	template<typename CityCitizens, typename Visitor>
+	static void Serialize(CityCitizens& cityCitizens, Visitor& visitor);
 	void Read(FDataStream& kStream);
 	void Write(FDataStream& kStream) const;
 
@@ -50,8 +60,8 @@ public:
 	void DoFoundCity();
 	void DoTurn();
 
-	int GetBonusPlotValue(CvPlot* pPlot, YieldTypes eYield);
-	int GetPlotValue(CvPlot* pPlot, SPrecomputedExpensiveNumbers cache);
+	int GetBonusPlotValue(CvPlot* pPlot, YieldTypes eYield, SPrecomputedExpensiveNumbers& cache);
+	int GetPlotValue(CvPlot* pPlot, SPrecomputedExpensiveNumbers& cache);
 
 	// Are this City's Citizens automated? (always true for AI civs)
 	bool IsAutomated() const;
@@ -65,12 +75,12 @@ public:
 	bool SetForcedAvoidGrowth(bool bAvoidGrowth, bool bReallocate = false);
 	CityAIFocusTypes GetFocusType() const;
 	bool SetFocusType(CityAIFocusTypes eFocus, bool bReallocate = false);
-	int GetYieldModForFocus(YieldTypes eYield, CityAIFocusTypes eFocus, bool bEmphasizeFood, bool bEmphasizeProduction, SPrecomputedExpensiveNumbers cache);
+	int GetYieldModForFocus(YieldTypes eYield, CityAIFocusTypes eFocus, bool bEmphasizeFood, bool bEmphasizeProduction, const SPrecomputedExpensiveNumbers& cache);
 
 	// Specialist AI
 	BuildingTypes GetAIBestSpecialistBuilding(int& iSpecialistValue, bool bLogging = false);
 	BuildingTypes GetAIBestSpecialistCurrentlyInBuilding(int& iSpecialistValue, bool bWantBest);
-	int GetSpecialistValue(SpecialistTypes eSpecialist, SPrecomputedExpensiveNumbers cache);
+	int GetSpecialistValue(SpecialistTypes eSpecialist, const SPrecomputedExpensiveNumbers& cache);
 
 	// Citizen Assignment
 	int GetNumUnassignedCitizens() const;
@@ -186,14 +196,12 @@ private:
 
 	int m_iNumDefaultSpecialists;
 	int m_iNumForcedDefaultSpecialists;
-	int* m_aiSpecialistCounts;
-	int* m_aiSpecialistSlots;
-	int* m_aiSpecialistGreatPersonProgressTimes100;
-	int* m_aiNumSpecialistsInBuilding;
-	int* m_aiNumForcedSpecialistsInBuilding;
-	int* m_piBuildingGreatPeopleRateChanges;
-
-	bool m_bInited;
+	CvEnumMap<SpecialistTypes, int> m_aiSpecialistCounts;
+	CvEnumMap<SpecialistTypes, int> m_aiSpecialistSlots;
+	CvEnumMap<SpecialistTypes, int> m_aiSpecialistGreatPersonProgressTimes100;
+	CvEnumMap<BuildingTypes, int> m_aiNumSpecialistsInBuilding;
+	CvEnumMap<BuildingTypes, int> m_aiNumForcedSpecialistsInBuilding;
+	CvEnumMap<SpecialistTypes, int> m_piBuildingGreatPeopleRateChanges;
 };
 
 FDataStream& operator>>(FDataStream&, CvCityCitizens&);

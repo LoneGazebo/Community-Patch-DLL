@@ -9,21 +9,25 @@
 // Automatic specialization selection is provided by CvEnumMap<> and
 // should provide no more overhead than normally necessary.
 
-#include "FFireTypes.h"
+#include "CvAssert.h"
 #include "FDefNew.h"
 
 #include "CvEnumsUtil.h"
-#include "CvMeta.h"
 
+#include <algorithm>
 #include <iterator>
 
-template<typename Enum, typename T>
-class CvEnumMapDynamic
+template<typename Enum, typename T, bool Fixed = CvEnumsUtil::Traits<Enum>::IsFixed>
+class CvEnumMap
 {
 public:
-	inline CvEnumMapDynamic()
+	inline CvEnumMap()
 		: m_values(NULL)
 	{}
+	inline ~CvEnumMap()
+	{
+		uninit();
+	}
 
 	typedef Enum KeyType;
 	typedef T ValueType;
@@ -36,26 +40,23 @@ public:
 
 	inline void init()
 	{
-		FAssertMsg(m_values == NULL, "CvEnumMapDynamic<>::init() called without first calling CvEnumMapDynamic<>::uninit() - Memory will leak");
+		CvAssertMsg(m_values == NULL, "Dynamic CvEnumMap<>::init() called without first calling CvEnumMap<>::uninit() - Memory will leak");
 		m_values = FNEW(T[size()], c_eCiv5GameplayDLL, 0);
 	}
 	inline void init(const T& fill)
 	{
 		init();
-		reset(fill);
+		assign(fill);
 	}
 	inline void uninit()
 	{
 		SAFE_DELETE_ARRAY(m_values);
 	}
 
-	inline void reset(const T& fill)
+	inline void assign(const T& fill)
 	{
-		FAssertMsg(m_values != NULL, "Attempting to access CvEnumMapDynamic<> without first calling CvEnumMapDynamic<>::init()");
-		for (Iterator it = begin(); it != end(); ++it)
-		{
-			*it = fill;
-		}
+		checkValidAccess();
+		std::fill_n(begin(), size(), fill);
 	}
 
 	inline static std::size_t size()
@@ -64,97 +65,116 @@ public:
 	}
 	inline const T* data() const
 	{
+		checkValidAccess();
 		return m_values;
 	}
 	inline T* data()
 	{
+		checkValidAccess();
 		return m_values;
 	}
 
 	inline const T& operator[](std::size_t idx) const
 	{
-		FAssertMsg(m_values != NULL, "Attempting to access CvEnumMapDynamic<> without first calling CvEnumMapDynamic<>::init()");
-		FAssertMsg(idx >= size(), "Attempting to access out of range index in CvEnumMapDynamic<>");
+		checkValidAccess();
+		CvAssertMsg(idx < size(), "Attempting to access out of range index in CvEnumMap<>");
 		return m_values[idx];
 	}
 	inline T& operator[](std::size_t idx)
 	{
-		return const_cast<T&>(const_cast<const CvEnumMapDynamic<Enum, T>&>(*this).operator[](idx));
+		return const_cast<T&>(const_cast<const CvEnumMap<Enum, T>&>(*this).operator[](idx));
 	}
 
 	inline ConstIterator begin() const
 	{
-		FAssertMsg(m_values != NULL, "Attempting to access CvEnumMapDynamic<> without first calling CvEnumMapDynamic<>::init()");
+		checkValidAccess();
 		return m_values;
 	}
 	inline Iterator begin()
 	{
-		FAssertMsg(m_values != NULL, "Attempting to access CvEnumMapDynamic<> without first calling CvEnumMapDynamic<>::init()");
+		checkValidAccess();
 		return m_values;
 	}
 	inline ConstIterator end() const
 	{
-		FAssertMsg(m_values != NULL, "Attempting to access CvEnumMapDynamic<> without first calling CvEnumMapDynamic<>::init()");
+		checkValidAccess();
 		return m_values + size();
 	}
 	inline Iterator end()
 	{
-		FAssertMsg(m_values != NULL, "Attempting to access CvEnumMapDynamic<> without first calling CvEnumMapDynamic<>::init()");
+		checkValidAccess();
 		return m_values + size();
 	}
 	inline ConstIterator cbegin() const
 	{
-		FAssertMsg(m_values != NULL, "Attempting to access CvEnumMapDynamic<> without first calling CvEnumMapDynamic<>::init()");
+		checkValidAccess();
 		return m_values;
 	}
 	inline ConstIterator cend() const
 	{
-		FAssertMsg(m_values != NULL, "Attempting to access CvEnumMapDynamic<> without first calling CvEnumMapDynamic<>::init()");
+		checkValidAccess();
 		return m_values + size();
 	}
 
 	inline ConstReverseIterator rbegin() const
 	{
-		FAssertMsg(m_values != NULL, "Attempting to access CvEnumMapDynamic<> without first calling CvEnumMapDynamic<>::init()");
+		checkValidAccess();
 		return ConstReverseIterator(m_values + size());
 	}
 	inline ReverseIterator rbegin()
 	{
-		FAssertMsg(m_values != NULL, "Attempting to access CvEnumMapDynamic<> without first calling CvEnumMapDynamic<>::init()");
+		checkValidAccess();
 		return ReverseIterator(m_values + size());
 	}
 	inline ConstReverseIterator rend() const
 	{
-		FAssertMsg(m_values != NULL, "Attempting to access CvEnumMapDynamic<> without first calling CvEnumMapDynamic<>::init()");
+		checkValidAccess();
 		return ConstReverseIterator(m_values);
 	}
 	inline ReverseIterator rend()
 	{
-		FAssertMsg(m_values != NULL, "Attempting to access CvEnumMapDynamic<> without first calling CvEnumMapDynamic<>::init()");
+		checkValidAccess();
 		return ReverseIterator(m_values);
 	}
 	inline ConstIterator crbegin() const
 	{
-		FAssertMsg(m_values != NULL, "Attempting to access CvEnumMapDynamic<> without first calling CvEnumMapDynamic<>::init()");
+		checkValidAccess();
 		return ConstReverseIterator(m_values + size());
 	}
 	inline ConstIterator crend() const
 	{
-		FAssertMsg(m_values != NULL, "Attempting to access CvEnumMapDynamic<> without first calling CvEnumMapDynamic<>::init()");
+		checkValidAccess();
 		return ConstReverseIterator(m_values);
 	}
 
-	inline operator bool() const
+	inline bool valid() const
 	{
 		return m_values != NULL;
 	}
+	inline bool operator==(const CvEnumMap<Enum, T, Fixed>& rhs) const
+	{
+		checkValidAccess();
+		return std::equal(begin(), end(), rhs.begin());
+	}
+	inline bool operator!=(const CvEnumMap<Enum, T, Fixed>& rhs) const
+	{
+		return !(*this == rhs);
+	}
 
 private:
+	CvEnumMap(const CvEnumMap<Enum, T, Fixed>&);
+	CvEnumMap<Enum, T, Fixed>& operator=(const CvEnumMap<Enum, T, Fixed>&);
+
+	inline void checkValidAccess() const
+	{
+		CvAssertMsg(m_values != NULL, "Attempting to access dynamic CvEnumMap<> without first calling CvEnumMap<>::init()");
+	}
+
 	T* m_values;
 };
 
 template<typename Enum, typename T>
-class CvEnumMapFixed
+class CvEnumMap<Enum, T, true>
 {
 public:
 	typedef Enum EnumType;
@@ -168,24 +188,23 @@ public:
 
 	enum { SizeConstant = CvEnumsUtil::Traits<Enum>::CountConstant };
 
+	inline CvEnumMap()
+	{}
+
 	inline void init()
 	{
 	}
 	inline void init(const T& fill)
 	{
-		init();
-		reset(fill);
+		assign(fill);
 	}
 	inline void uninit()
 	{
 	}
 
-	inline void reset(const T& fill)
+	inline void assign(const T& fill)
 	{
-		for (Iterator it = begin(); it != end(); ++it)
-		{
-			*it = fill;
-		}
+		std::fill_n(begin(), std::size_t(SizeConstant), fill);
 	}
 
 	inline static std::size_t size()
@@ -203,12 +222,12 @@ public:
 
 	inline const T& operator[](std::size_t idx) const
 	{
-		FAssertMsg(idx >= size(), "Attempting to access out of range index in CvEnumMapFixed<>");
+		CvAssertMsg(idx < size(), "Attempting to access out of range index in CvEnumMap<>");
 		return m_values[idx];
 	}
 	inline T& operator[](std::size_t idx)
 	{
-		return const_cast<T&>(const_cast<const CvEnumMapFixed<Enum, T>&>(*this).operator[](idx));
+		return const_cast<T&>(const_cast<const CvEnumMap<Enum, T>&>(*this).operator[](idx));
 	}
 
 	inline ConstIterator begin() const
@@ -261,16 +280,24 @@ public:
 		return ConstReverseIterator(m_values);
 	}
 
-private:
-	T m_values[SizeConstant];
-};
+	inline bool valid() const
+	{
+		return true;
+	}
+	inline bool operator==(const CvEnumMap<Enum, T, true>& rhs) const
+	{
+		return std::equal(begin(), end(), rhs.begin());
+	}
+	inline bool operator!=(const CvEnumMap<Enum, T, true>& rhs) const
+	{
+		return !(*this == rhs);
+	}
 
-template<typename Enum, typename T>
-class CvEnumMap
-	: public CvMeta::Conditional<CvEnumsUtil::Traits<Enum>::IsFixed, CvEnumMapFixed<Enum, T>, CvEnumMapDynamic<Enum, T>>::Type
-{
-public:
-	typedef typename CvMeta::Conditional<CvEnumsUtil::Traits<Enum>::IsFixed, CvEnumMapFixed<Enum, T>, CvEnumMapDynamic<Enum, T>>::Type ConcreteType;
+private:
+	CvEnumMap(const CvEnumMap<Enum, T, true>&);
+	CvEnumMap<Enum, T, true>& operator=(const CvEnumMap<Enum, T, true>&);
+
+	T m_values[SizeConstant];
 };
 
 #endif

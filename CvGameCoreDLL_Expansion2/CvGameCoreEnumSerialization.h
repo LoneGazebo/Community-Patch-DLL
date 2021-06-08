@@ -31,6 +31,24 @@ FDataStream& operator>>(FDataStream&, GreatPersonTypes&);
 FDataStream& operator<<(FDataStream&, const MonopolyTypes&);
 FDataStream& operator>>(FDataStream&, MonopolyTypes&);
 
+FDataStream& operator<<(FDataStream&, const DomainTypes&);
+FDataStream& operator>>(FDataStream&, DomainTypes&);
+
+FDataStream& operator<<(FDataStream&, const TradeConnectionType&);
+FDataStream& operator>>(FDataStream&, TradeConnectionType&);
+
+FDataStream& operator<<(FDataStream&, const GreatWorkType&);
+FDataStream& operator>>(FDataStream&, GreatWorkType&);
+
+FDataStream& operator<<(FDataStream&, const GreatWorkClass&);
+FDataStream& operator>>(FDataStream&, GreatWorkClass&);
+
+FDataStream& operator<<(FDataStream&, const ProjectTypes&);
+FDataStream& operator>>(FDataStream&, ProjectTypes&);
+
+FDataStream& operator<<(FDataStream&, const ProcessTypes&);
+FDataStream& operator>>(FDataStream&, ProcessTypes&);
+
 template<typename Enum, typename T>
 inline FDataStream& operator<<(FDataStream& saveTo, const CvEnum<Enum, T>& readFrom)
 {
