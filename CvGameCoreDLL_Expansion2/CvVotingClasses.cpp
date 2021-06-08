@@ -9026,7 +9026,6 @@ void CvGameLeagues::DoPlayerTurn(CvPlayer& kPlayer)
 {
 	if (!GC.getGame().isOption(GAMEOPTION_NO_LEAGUES))
 	{
-		AI_PERF_FORMAT("AI-perf.csv", ("CvGameLeagues::DoPlayerTurn, Turn %03d, %s", GC.getGame().getElapsedGameTurns(), kPlayer.getCivilizationShortDescription()) );
 		for (LeagueList::iterator it = m_vActiveLeagues.begin(); it != m_vActiveLeagues.end(); it++)
 		{
 			if (it->IsMember(kPlayer.GetID()))

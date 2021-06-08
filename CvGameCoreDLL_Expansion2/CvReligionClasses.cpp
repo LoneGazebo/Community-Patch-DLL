@@ -655,7 +655,6 @@ EraTypes CvGameReligions::GetFaithPurchaseGreatPeopleEra(CvPlayer* pPlayer)
 /// Religious activities at the start of a player's turn
 void CvGameReligions::DoPlayerTurn(CvPlayer& kPlayer)
 {
-	AI_PERF_FORMAT("AI-perf.csv", ("CvGameReligions::DoPlayerTurn, Turn %03d, %s", GC.getGame().getElapsedGameTurns(), kPlayer.getCivilizationShortDescription()) );
 #if defined(MOD_RELIGION_RECURRING_PURCHASE_NOTIFIY)
 	int iFaithAtStart = kPlayer.GetFaith();
 #else
@@ -6697,8 +6696,6 @@ void CvReligionAI::DoTurn()
 	{
 		return;
 	}
-
-	AI_PERF_FORMAT("AI-perf.csv", ("Religion AI, Turn %03d, %s", GC.getGame().getElapsedGameTurns(), m_pPlayer->getCivilizationShortDescription()) );
 
 #if defined(MOD_BALANCE_CORE)
 	//buy inquisitors in unprotected cities if an enemy prophet is near

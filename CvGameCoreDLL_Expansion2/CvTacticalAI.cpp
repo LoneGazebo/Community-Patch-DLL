@@ -297,7 +297,6 @@ void CvTacticalAI::RecruitUnits()
 /// Update the AI for units
 void CvTacticalAI::Update()
 {
-	AI_PERF_FORMAT("AI-perf.csv", ("Tactical AI, Turn %03d, %s", GC.getGame().getElapsedGameTurns(), m_pPlayer->getCivilizationShortDescription()) );
 	DropOldFocusAreas();
 	FindTacticalTargets();
 
