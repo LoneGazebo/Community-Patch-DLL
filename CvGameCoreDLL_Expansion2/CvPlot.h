@@ -1096,7 +1096,10 @@ protected:
 	friend class CvGameTextMgr;
 };
 FDataStream& operator<<(FDataStream&, const CvPlot* const&);
+FDataStream& operator<<(FDataStream&, CvPlot* const&);
+FDataStream& operator>>(FDataStream&, const CvPlot*&);
 FDataStream& operator>>(FDataStream&, CvPlot*&);
+
 
 namespace FSerialization
 {

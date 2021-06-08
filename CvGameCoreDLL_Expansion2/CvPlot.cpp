@@ -14988,7 +14988,6 @@ int CvPlot::GetDefenseBuildValue(PlayerTypes eOwner)
 }
 
 #endif
-
 FDataStream& operator<<(FDataStream& saveTo, const CvPlot* const& readFrom)
 {
 	int idx = -1;
@@ -15000,7 +14999,11 @@ FDataStream& operator<<(FDataStream& saveTo, const CvPlot* const& readFrom)
 	saveTo << idx;
 	return saveTo;
 }
-FDataStream& operator>>(FDataStream& loadFrom, CvPlot*& writeTo)
+FDataStream& operator<<(FDataStream& saveTo, CvPlot* const& readFrom)
+{
+	return saveTo << const_cast<const CvPlot* const&>(readFrom);
+}
+FDataStream& operator>>(FDataStream& loadFrom, const CvPlot*& writeTo)
 {
 	int idx;
 	loadFrom >> idx;
@@ -15015,7 +15018,10 @@ FDataStream& operator>>(FDataStream& loadFrom, CvPlot*& writeTo)
 	}
 	return loadFrom;
 }
-
+FDataStream& operator>>(FDataStream& loadFrom, CvPlot*& writeTo)
+{
+	return loadFrom >> const_cast<const CvPlot*&>(writeTo);
+}
 
 template<typename PlotWithScore, typename Visitor>
 void SPlotWithScore::Serialize(PlotWithScore& plotWithScore, Visitor& visitor)
