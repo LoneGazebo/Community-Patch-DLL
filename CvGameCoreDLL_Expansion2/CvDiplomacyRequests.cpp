@@ -20,31 +20,32 @@
 // Include this after all other headers.
 #include "LintFree.h"
 
+///
+template<typename RequestT, typename Visitor>
+void CvDiplomacyRequests::Request::Serialize(RequestT& request, Visitor& visitor)
+{
+	visitor(request.m_eDiploType);
+	visitor(request.m_eAnimationType);
+	visitor(request.m_strMessage);
+	visitor(request.m_iExtraGameData);
+	visitor(request.m_iTurn);
+	visitor(request.m_iLookupIndex);
+	visitor(request.m_eFromPlayer);
+}
+
 /// Serialization read
 FDataStream& operator>>(FDataStream& loadFrom, CvDiplomacyRequests::Request& writeTo)
 {
-	loadFrom >> writeTo.m_eDiploType;
-	loadFrom >> writeTo.m_eAnimationType;
-	loadFrom >> writeTo.m_strMessage;
-	loadFrom >> writeTo.m_iExtraGameData;
-	loadFrom >> writeTo.m_iTurn;
-	loadFrom >> writeTo.m_iLookupIndex;
-	loadFrom >> writeTo.m_eFromPlayer;
-
+	CvStreamLoadVisitor serialVisitor(loadFrom);
+	CvDiplomacyRequests::Request::Serialize(writeTo, serialVisitor);
 	return loadFrom;
 }
 
 /// Serialization write
 FDataStream& operator<<(FDataStream& saveTo, const CvDiplomacyRequests::Request& readFrom)
 {
-	saveTo << readFrom.m_eDiploType;
-	saveTo << readFrom.m_eAnimationType;
-	saveTo << readFrom.m_strMessage;
-	saveTo << readFrom.m_iExtraGameData;
-	saveTo << readFrom.m_iTurn;
-	saveTo << readFrom.m_iLookupIndex;
-	saveTo << readFrom.m_eFromPlayer;
-
+	CvStreamSaveVisitor serialVisitor(saveTo);
+	CvDiplomacyRequests::Request::Serialize(readFrom, serialVisitor);
 	return saveTo;
 }
 
@@ -89,46 +90,26 @@ void CvDiplomacyRequests::Uninit(void)
 	m_eRequestActiveFromPlayer = NO_PLAYER;
 }
 
+///
+template<typename DiplomacyRequests, typename Visitor>
+void CvDiplomacyRequests::Serialize(DiplomacyRequests& diplomacyRequests, Visitor& visitor)
+{
+	visitor(diplomacyRequests.m_ePlayer);
+	visitor(diplomacyRequests.m_aRequests);
+}
+
 /// Serialization read
 void CvDiplomacyRequests::Read(FDataStream& kStream)
 {
-	// Version number to maintain backwards compatibility
-	uint uiVersion;
-	kStream >> uiVersion;
-	MOD_SERIALIZE_INIT_READ(kStream);
-
-	kStream >> m_ePlayer;
-
-	uint uiListSize;
-	kStream >> uiListSize;
-
-	if(uiListSize > 0)
-	{
-		for(uint ui = 0; ui < uiListSize; ui++)
-		{
-			m_aRequests.push_back(Request());
-			kStream >> m_aRequests.back();
-		}
-	}
+	CvStreamLoadVisitor serialVisitor(kStream);
+	CvDiplomacyRequests::Serialize(*this, serialVisitor);
 }
 
 /// Serialization write
 void CvDiplomacyRequests::Write(FDataStream& kStream) const
 {
-	// Current version number
-	uint uiVersion = 1;
-	kStream << uiVersion;
-	MOD_SERIALIZE_INIT_WRITE(kStream);
-
-	// need to serialize notification list
-	kStream << m_ePlayer;
-
-	kStream << m_aRequests.size();
-
-	for(RequestList::const_iterator i = m_aRequests.begin(); i != m_aRequests.end(); ++i)
-	{
-		kStream << (*i);
-	}
+	CvStreamSaveVisitor serialVisitor(kStream);
+	CvDiplomacyRequests::Serialize(*this, serialVisitor);
 }
 
 FDataStream& operator>>(FDataStream& stream, CvDiplomacyRequests& diplomacyRequests)
