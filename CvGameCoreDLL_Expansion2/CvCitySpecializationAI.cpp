@@ -319,7 +319,6 @@ CvCitySpecializationXMLEntries* CvCitySpecializationAI::GetCitySpecializations()
 /// Called every turn to see what Strategies this player should using (or not)
 void CvCitySpecializationAI::DoTurn()
 {
-	AI_PERF_FORMAT("AI-perf.csv", ("CvCitySpecializationAI::DoTurn, Turn %03d, %s", GC.getGame().getElapsedGameTurns(), GetPlayer()->getCivilizationShortDescription()) );
 
 	int iCityLoop = 0;
 

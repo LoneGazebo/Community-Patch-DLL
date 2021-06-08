@@ -480,7 +480,6 @@ void CvMilitaryAI::SetTurnStrategyAdopted(MilitaryAIStrategyTypes eStrategy, int
 /// Process through all the military activities for a player's turn
 void CvMilitaryAI::DoTurn()
 {
-	AI_PERF_FORMAT("AI-perf.csv", ("MilitaryAI DoTurn, Turn %03d, %s", GC.getGame().getElapsedGameTurns(), m_pPlayer->getCivilizationShortDescription()) );
 	ScanForBarbarians();
 	UpdateBaseData();
 	UpdateDefenseState();
@@ -1592,7 +1591,6 @@ void CvMilitaryAI::LogDeficitScrapUnit(CvUnit* pUnit, bool bGifted)
 /// Compute data we need later to make decisions during the turn processing
 void CvMilitaryAI::UpdateBaseData()
 {
-	AI_PERF_FORMAT("Military-AI-perf.csv", ("UpdateBaseData, Turn %03d, %s", GC.getGame().getElapsedGameTurns(), m_pPlayer->getCivilizationShortDescription()) );
 
 	// Count how many Military Units I have right now
 	m_iNumLandUnits = 0;
@@ -1815,7 +1813,6 @@ void CvMilitaryAI::UpdateDefenseState()
 /// Count up barbarian camps and units visible to us
 void CvMilitaryAI::ScanForBarbarians()
 {
-	AI_PERF_FORMAT("Military-AI-perf.csv", ("ScanForBarbarians, Turn %03d, %s", GC.getGame().getElapsedGameTurns(), m_pPlayer->getCivilizationShortDescription()) );
 
 #if defined(MOD_BALANCE_CORE)
 	int iLastTurnBarbarianCount = m_iVisibleBarbarianCount;
@@ -1860,7 +1857,6 @@ void CvMilitaryAI::ScanForBarbarians()
 /// Start or stop military strategies to get flavors set properly
 void CvMilitaryAI::UpdateMilitaryStrategies()
 {
-	AI_PERF_FORMAT("Military-AI-perf.csv", ("UpdateMilitaryStrategies, Turn %03d, %s", GC.getGame().getElapsedGameTurns(), m_pPlayer->getCivilizationShortDescription()) );
 
 	int iStrategiesLoop = 0;
 
@@ -2290,8 +2286,6 @@ void CvMilitaryAI::UpdateOperations()
 	if(!m_pPlayer->isMajorCiv())
 		return;
 
-	AI_PERF_FORMAT("Military-AI-perf.csv", ("UpdateOperations, Turn %03d, %s", GC.getGame().getElapsedGameTurns(), m_pPlayer->getCivilizationShortDescription()) );
-
 	vector<CvCity*> allCities = m_pPlayer->GetThreatenedCities(false);
 	CvCity* pThreatenedCityA = allCities.size()<1 ? NULL : allCities[0];
 	CvCity* pThreatenedCityB = allCities.size()<2 ? NULL : allCities[1];
@@ -2364,7 +2358,6 @@ void CvMilitaryAI::UpdateOperations()
 //  NOTE: The defensive side of this is done in dominance zone processing in the Tactical AI; this is spending to speed operations
 void CvMilitaryAI::MakeEmergencyPurchases()
 {
-	AI_PERF_FORMAT("Military-AI-perf.csv", ("MakeEmergencyPurchases, Turn %03d, %s", GC.getGame().getElapsedGameTurns(), m_pPlayer->getCivilizationShortDescription()) );
 
 	// Are we winning all the wars we are in?
 	MilitaryAIStrategyTypes eStrategyAtWar = (MilitaryAIStrategyTypes) GC.getInfoTypeForString("MILITARYAISTRATEGY_AT_WAR");
@@ -2384,7 +2377,6 @@ void CvMilitaryAI::MakeEmergencyPurchases()
 /// Delete older units no longer needed by military AI
 void CvMilitaryAI::DisbandObsoleteUnits()
 {
-	AI_PERF_FORMAT("Military-AI-perf.csv", ("DisbandObsoleteUnits, Turn %03d, %s", GC.getGame().getElapsedGameTurns(), m_pPlayer->getCivilizationShortDescription()) );
 
 	bool bInDeficit = false;
 	bool bConquestGrandStrategy = false;

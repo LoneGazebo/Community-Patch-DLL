@@ -2458,7 +2458,6 @@ void CvCity::ResetGreatWorkYieldCache()
 //	--------------------------------------------------------------------------------
 void CvCity::doTurn()
 {
-	AI_PERF_FORMAT("City-AI-perf.csv", ("CvCity::doTurn, Turn %03d, %s, %s,", GC.getGame().getElapsedGameTurns(), GetPlayer()->getCivilizationShortDescription(), getName().c_str()) );
 	VALIDATE_OBJECT
 
 	ResetGreatWorkYieldCache();
@@ -2755,7 +2754,6 @@ void CvCity::doTurn()
 		doMeltdown();
 
 		{
-			AI_PERF_FORMAT_NESTED("City-AI-perf.csv", ("doImprovement, Turn %03d, %s, %s", GC.getGame().getElapsedGameTurns(), GetPlayer()->getCivilizationShortDescription(), getName().c_str()) );
 
 			for (int iI = 0; iI < GetNumWorkablePlots(); iI++)
 			{
@@ -5099,7 +5097,7 @@ CvString CvCity::GetScaledHelpText(CityEventChoiceTypes eEventChoice, bool bYiel
 				{
 					int iTechDifference = GET_TEAM(getTeam()).GetTeamTechs()->GetNumTechsKnown() - GET_TEAM(GET_PLAYER(eSpyOwner).getTeam()).GetTeamTechs()->GetNumTechsKnown();
 					iTechDifference *= pkEventChoiceInfo->GetScienceScaling();
-					iTechDifference = range(iTechDifference, -75, 75);
+					iTechDifference = range(iTechDifference, -100, 100);
 
 					iPotential *= 100 + iTechDifference;
 					iPotential /= 100;
@@ -11802,7 +11800,7 @@ int CvCity::GetPurchaseCost(UnitTypes eUnit)
 		bool bCombat = pkUnitInfo->GetCombat() > 0 || pkUnitInfo->GetRangedCombat() > 0 || pkUnitInfo->GetNukeDamageLevel() != -1;
 		if (bCombat)
 		{
-			int iWarWeariness = min(75, GET_PLAYER(getOwner()).GetCulture()->GetWarWeariness() * 2);
+			int iWarWeariness = GET_PLAYER(getOwner()).GetCulture()->GetWarWeariness();
 			if (iWarWeariness > 0)
 			{
 				//Let's do the yield mods.			
@@ -12163,7 +12161,7 @@ int CvCity::GetFaithPurchaseCost(UnitTypes eUnit, bool bIncludeBeliefDiscounts)
 		bool bCombat = pkUnitInfo->GetCombat() > 0 || pkUnitInfo->GetRangedCombat() > 0 || pkUnitInfo->GetNukeDamageLevel() != -1;
 		if (bCombat)
 		{
-			int iWarWeariness = min(75, GET_PLAYER(getOwner()).GetCulture()->GetWarWeariness() * 2);
+			int iWarWeariness = GET_PLAYER(getOwner()).GetCulture()->GetWarWeariness();
 			if (iWarWeariness > 0)
 			{
 				//Let's do the yield mods.			
@@ -13009,7 +13007,7 @@ int CvCity::getProductionModifier(UnitTypes eUnit, CvString* toolTipSink, bool b
 		bool bCombat = pUnitEntry->GetCombat() > 0 || pUnitEntry->GetRangedCombat() > 0 || pUnitEntry->GetNukeDamageLevel() != -1;
 		if (bCombat)
 		{
-			int iWarWeariness = min(75, GET_PLAYER(getOwner()).GetCulture()->GetWarWeariness() * 2);
+			int iWarWeariness = min(75, GetUnhappinessFromEmpire() * 10);
 			if (iWarWeariness > 0)
 			{
 				//Let's do the yield mods.			
@@ -13020,41 +13018,43 @@ int CvCity::getProductionModifier(UnitTypes eUnit, CvString* toolTipSink, bool b
 					GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_BALANCE_HAPPINESS_MOD", iTempMod);
 			}
 		}
-		else if (pUnitEntry->IsFound())
+
+		int iTempMod = 0;
+		if (pUnitEntry->IsFound())
 		{
 			//Mechanic to allow for production malus from happiness/unhappiness.
-			int iTempMod = getHappinessDelta() * GC.getBALANCE_HAPPINESS_PRODUCTION_MODIFIER();
+			iTempMod = getHappinessDelta() * GC.getBALANCE_HAPPINESS_PRODUCTION_MODIFIER();
+		}
 
-			if (GET_PLAYER(getOwner()).IsEmpireUnhappy())
+		if (GET_PLAYER(getOwner()).IsEmpireUnhappy())
+		{
+			if (iTempMod > 0)
+				iTempMod = 0;
+
+			iTempMod += GC.getUNHAPPY_PRODUCTION_PENALTY();
+		}
+
+		//malus?
+		if (iTempMod < 0)
+		{
+			if (GET_PLAYER(getOwner()).IsEmpireVeryUnhappy())
 			{
-				if (iTempMod > 0)
-					iTempMod = 0;
-
-				iTempMod += GC.getUNHAPPY_PRODUCTION_PENALTY();
+				iTempMod += GC.getVERY_UNHAPPY_PRODUCTION_PENALTY();
 			}
-
-			//malus?
-			if (iTempMod < 0)
+			if (GET_PLAYER(getOwner()).IsEmpireSuperUnhappy())
 			{
-				if (GET_PLAYER(getOwner()).IsEmpireVeryUnhappy())
-				{
-					iTempMod += GC.getVERY_UNHAPPY_PRODUCTION_PENALTY();
-				}
-				if (GET_PLAYER(getOwner()).IsEmpireSuperUnhappy())
-				{
-					iTempMod += GC.getVERY_UNHAPPY_PRODUCTION_PENALTY() * 2;
-				}
-				//If happiness is less than the main threshold, calculate city penalty mod.
-				if (iTempMod < GC.getBALANCE_HAPPINESS_PENALTY_MAXIMUM())
-				{
-					iTempMod = GC.getBALANCE_HAPPINESS_PENALTY_MAXIMUM();
-				}
-				//Let's do the yield mods.	
-
-				iMultiplier += iTempMod;
-				if (iTempMod != 0 && toolTipSink)
-					GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_BALANCE_HAPPINESS_MOD", iTempMod);
+				iTempMod += GC.getVERY_UNHAPPY_PRODUCTION_PENALTY() * 2;
 			}
+			//If happiness is less than the main threshold, calculate city penalty mod.
+			if (iTempMod < GC.getBALANCE_HAPPINESS_PENALTY_MAXIMUM())
+			{
+				iTempMod = GC.getBALANCE_HAPPINESS_PENALTY_MAXIMUM();
+			}
+			//Let's do the yield mods.	
+
+			iMultiplier += iTempMod;
+			if (iTempMod != 0 && toolTipSink)
+				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_BALANCE_HAPPINESS_MOD", iTempMod);
 		}
 	}
 #endif
@@ -21574,8 +21574,6 @@ void CvCity::ChangeRazingTurns(int iChange)
 bool CvCity::DoRazingTurn()
 {
 	VALIDATE_OBJECT
-
-	AI_PERF_FORMAT("City-AI-perf.csv", ("CvCity::DoRazingTurn, Turn %03d, %s, %s", GC.getGame().getElapsedGameTurns(), GetPlayer()->getCivilizationShortDescription(), getName().c_str()) );
 	if(IsRazing())
 	{
 		CvPlayer& kPlayer = GET_PLAYER(getOwner());
@@ -32465,7 +32463,6 @@ void CvCity::Purchase(UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectT
 void CvCity::doGrowth()
 {
 	VALIDATE_OBJECT
-	AI_PERF_FORMAT("City-AI-perf.csv", ("CvCity::doGrowth, Turn %03d, %s, %s", GC.getGame().getElapsedGameTurns(), GetPlayer()->getCivilizationShortDescription(), getName().c_str()) );
 	// here would be a good place to override this in Lua
 
 	// No growth or starvation if being razed
@@ -32538,7 +32535,6 @@ void CvCity::doGrowth()
 //	--------------------------------------------------------------------------------
 bool CvCity::doCheckProduction()
 {
-	AI_PERF_FORMAT("City-AI-perf.csv", ("CvCity::doCheckProduction, Turn %03d, %s, %s", GC.getGame().getElapsedGameTurns(), GetPlayer()->getCivilizationShortDescription(), getName().c_str()) );
 	VALIDATE_OBJECT
 	OrderData* pOrderNode;
 	UnitTypes eUpgradeUnit;
@@ -32555,7 +32551,6 @@ bool CvCity::doCheckProduction()
 
 	int iNumUnitInfos = GC.getNumUnitInfos();
 	{
-		AI_PERF_FORMAT_NESTED("City-AI-perf.csv", ("CvCity::doCheckProduction_Unit, Turn %03d, %s, %s", GC.getGame().getElapsedGameTurns(), GetPlayer()->getCivilizationShortDescription(), getName().c_str()) );
 		for(iI = 0; iI < iNumUnitInfos; iI++)
 		{
 			const UnitTypes eUnit = static_cast<UnitTypes>(iI);
@@ -32590,7 +32585,6 @@ bool CvCity::doCheckProduction()
 
 	int iNumBuildingInfos = GC.getNumBuildingInfos();
 	{
-		AI_PERF_FORMAT_NESTED("City-AI-perf.csv", ("CvCity::doCheckProduction_Building, Turn %03d, %s, %s", GC.getGame().getElapsedGameTurns(), GetPlayer()->getCivilizationShortDescription(), getName().c_str()) );
 
 		int iPlayerLoop;
 		PlayerTypes eLoopPlayer;
@@ -32728,7 +32722,6 @@ bool CvCity::doCheckProduction()
 	}
 
 	{
-		AI_PERF_FORMAT_NESTED("City-AI-perf.csv", ("CvCity::doCheckProduction_Project, Turn %03d, %s, %s", GC.getGame().getElapsedGameTurns(), GetPlayer()->getCivilizationShortDescription(), getName().c_str()) );
 		int iNumProjectInfos = GC.getNumProjectInfos();
 		for(iI = 0; iI < iNumProjectInfos; iI++)
 		{
@@ -32764,7 +32757,6 @@ bool CvCity::doCheckProduction()
 	}
 
 	{
-		AI_PERF_FORMAT_NESTED("City-AI-perf.csv", ("CvCity::doCheckProduction_UpgradeUnit, Turn %03d, %s, %s", GC.getGame().getElapsedGameTurns(), GetPlayer()->getCivilizationShortDescription(), getName().c_str()) );
 		// Can now construct an Upgraded version of this Unit
 		for(iI = 0; iI < iNumUnitInfos; iI++)
 		{
@@ -32807,7 +32799,6 @@ bool CvCity::doCheckProduction()
 	}
 
 	{
-		AI_PERF_FORMAT_NESTED("City-AI-perf.csv", ("CvCity::doCheckProduction_UpgradeBuilding, Turn %03d, %s, %s", GC.getGame().getElapsedGameTurns(), GetPlayer()->getCivilizationShortDescription(), getName().c_str()) );
 		// Can now construct an Upgraded version of this Building
 		for(iI = 0; iI < iNumBuildingInfos; iI++)
 		{
@@ -32864,7 +32855,6 @@ bool CvCity::doCheckProduction()
 	}
 
 	{
-		AI_PERF_FORMAT_NESTED("City-AI-perf.csv", ("CvCity::doCheckProduction_CleanupQueue, Turn %03d, %s, %s", GC.getGame().getElapsedGameTurns(), GetPlayer()->getCivilizationShortDescription(), getName().c_str()) );
 		bOK = CleanUpQueue();
 	}
 
@@ -32876,7 +32866,6 @@ bool CvCity::doCheckProduction()
 void CvCity::doProduction(bool bAllowNoProduction)
 {
 	VALIDATE_OBJECT
-	AI_PERF_FORMAT("City-AI-perf.csv", ("CvCity::doProduction, Turn %03d, %s, %s", GC.getGame().getElapsedGameTurns(), GetPlayer()->getCivilizationShortDescription(), getName().c_str()) );
 
 	if(!isHuman() || isProductionAutomated())
 	{
@@ -32985,7 +32974,6 @@ void CvCity::doProcess()
 void CvCity::doDecay()
 {
 	VALIDATE_OBJECT
-	AI_PERF_FORMAT("City-AI-perf.csv", ("CvCity::doDecay, Turn %03d, %s, %s", GC.getGame().getElapsedGameTurns(), GetPlayer()->getCivilizationShortDescription(), getName().c_str()) );
 	int iI;
 
 	int iBuildingProductionDecayTime = GC.getBUILDING_PRODUCTION_DECAY_TIME();
@@ -33052,7 +33040,6 @@ void CvCity::doDecay()
 void CvCity::doMeltdown()
 {
 	VALIDATE_OBJECT
-	AI_PERF_FORMAT("City-AI-perf.csv", ("CvCity::doMeltdown, Turn %03d, %s, %s", GC.getGame().getElapsedGameTurns(), GetPlayer()->getCivilizationShortDescription(), getName().c_str()) );
 
 	int iNumBuildingInfos = GC.getNumBuildingInfos();
 	for(int iI = 0; iI < iNumBuildingInfos; iI++)
@@ -34316,7 +34303,6 @@ bool CvCity::IsEnemyInRange(int iRange, bool bMustBeAbleToAttack)
 //	--------------------------------------------------------------------------------
 void CvCity::DoNearbyEnemy()
 {
-	AI_PERF_FORMAT("City-AI-perf.csv", ("CvCity::DoNearbyEnemy, Turn %03d, %s, %s", GC.getGame().getElapsedGameTurns(), GetPlayer()->getCivilizationShortDescription(), getName().c_str()) );
 	// Can't actually range strike
 	if(!canRangeStrike())
 		return;

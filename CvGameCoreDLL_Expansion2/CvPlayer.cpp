@@ -11112,7 +11112,6 @@ ArtStyleTypes CvPlayer::getArtStyleType() const
 void CvPlayer::doTurn()
 {
 	// Time building of these maps
-	AI_PERF_FORMAT("AI-perf.csv", ("CvPlayer::doTurn(), Turn %d, %s", GC.getGame().getGameTurn(), getCivilizationShortDescription()));
 
 	CvAssertMsg(isAlive(), "isAlive is expected to be true");
 
@@ -11411,7 +11410,6 @@ void CvPlayer::doTurnPostDiplomacy()
 	if(isAlive())
 	{
 		{
-			AI_PERF_FORMAT("AI-perf.csv", ("Plots/Danger, Turn %03d, %s", kGame.getElapsedGameTurns(), getCivilizationShortDescription()) );
 
 			UpdatePlots();
 			UpdateAreaEffectUnits();
@@ -11507,7 +11505,6 @@ void CvPlayer::doTurnPostDiplomacy()
 
 	// Do turn for all Cities
 	{
-		AI_PERF_FORMAT("AI-perf.csv", ("Do City Turns, Turn %03d, %s", GC.getGame().getElapsedGameTurns(), getCivilizationShortDescription()) );
 		if(getNumCities() > 0)
 		{
 			int iLoop = 0;
@@ -11603,14 +11600,12 @@ void CvPlayer::doTurnPostDiplomacy()
 				AI_chooseFreeTech();
 			}
 #endif
-			AI_PERF_FORMAT("AI-perf.csv", ("DoChooseIdeology, Turn %03d, %s", GC.getGame().getElapsedGameTurns(), getCivilizationShortDescription()) );
 			GetPlayerPolicies()->DoChooseIdeology();
 		}
 	}
 
 	if (!isBarbarian() && !isHuman() && !isMinorCiv())
 	{
-		AI_PERF_FORMAT("AI-perf.csv", ("DoPolicyAI, Turn %03d, %s", GC.getGame().getElapsedGameTurns(), getCivilizationShortDescription()) );
 		GetPlayerPolicies()->DoPolicyAI();
 	}
 
@@ -29608,7 +29603,6 @@ void CvPlayer::DoGreatPeopleSpawnTurn()
 	// Tick down
 	if(GetGreatPeopleSpawnCounter() > 0)
 	{
-		AI_PERF_FORMAT("AI-perf.csv", ("CvPlayer::DoGreatPeopleSpawnTurn, Turn %03d, %s", GC.getGame().getElapsedGameTurns(), getCivilizationShortDescription()) );
 		ChangeGreatPeopleSpawnCounter(-1);
 
 		// Time to spawn! - Pick a random allied minor
@@ -37300,7 +37294,6 @@ void CvPlayer::DoTradeInfluenceAP()
 /// Units in the ether coming towards us?
 void CvPlayer::DoIncomingUnits()
 {
-	AI_PERF_FORMAT("AI-perf.csv", ("CvPlayer::DoIncomingUnits, Turn %03d, %s", GC.getGame().getElapsedGameTurns(), getCivilizationShortDescription()) );
 	for(int iLoop = 0; iLoop < MAX_PLAYERS; iLoop++)
 	{
 		PlayerTypes eLoopPlayer = (PlayerTypes) iLoop;
@@ -42356,8 +42349,6 @@ void CvPlayer::doResearch()
 	{
 		return;
 	}
-
-	AI_PERF_FORMAT("AI-perf.csv", ("CvPlayer::doResearch, Turn %03d, %s", GC.getGame().getElapsedGameTurns(), getCivilizationShortDescription()) );
 	bool bForceResearchChoice;
 	int iOverflowResearch;
 
@@ -49944,7 +49935,6 @@ void CvPlayer::checkInitialTurnAIProcessed()
 //------------------------------------------------------------------------------
 void CvPlayer::GatherPerTurnReplayStats(int iGameTurn)
 {
-	AI_PERF_FORMAT("AI-perf.csv", ("CvPlayer::GatherPerTurnReplayStats, Turn %03d, %s", GC.getGame().getElapsedGameTurns(), getCivilizationShortDescription()) );
 #if !defined(FINAL_RELEASE)
 	cvStopWatch watch("Replay Stat Recording");
 #endif

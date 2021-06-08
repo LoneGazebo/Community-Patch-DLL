@@ -4661,7 +4661,6 @@ void CvMinorCivAI::DoPickUniqueUnit()
 /// Processed every turn
 void CvMinorCivAI::DoTurn()
 {
-	AI_PERF_FORMAT("AI-perf.csv", ("CvMinorCivAI::DoTurn, Turn %03d, %s", GC.getGame().getElapsedGameTurns(), GetPlayer()->getCivilizationShortDescription()) );
 	if(GetPlayer()->isMinorCiv())
 	{
 		DoTurnStatus();
