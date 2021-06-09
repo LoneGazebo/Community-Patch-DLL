@@ -126,6 +126,9 @@ bool CvDllDatabaseUtility::CacheGameDatabaseData()
 	ValidateGameDatabase();
 	//bSuccess &= PerformDatabasePostProcessing();
 
+	// Load up the CustomModOptions configuration
+	gCustomMods.preloadCache();
+
 	//HACK Legacy 'FindInfoByType' support.
 	//In order to support the legacy code still using the old infos system,
 	//all of the id/type pairs must be added to gc.m_infosMap
@@ -179,11 +182,6 @@ bool CvDllDatabaseUtility::CacheGameDatabaseData()
 
 	if(bSuccess)
 		m_bGameDatabaseNeedsCaching = false;
-		
-#if defined(CUSTOM_MODS_H)
-	// Load up the CustomModOptions configuration
-	gCustomMods.preloadCache();
-#endif
 
 	return bSuccess;
 }
