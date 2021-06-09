@@ -191,6 +191,7 @@ void CvGrandStrategyAI::Serialize(GrandStrategyAI& grandStrategyAI, Visitor& vis
 	visitor(grandStrategyAI.m_iNumTurnsSinceActiveSet);
 	visitor(grandStrategyAI.m_eActiveGrandStrategy);
 
+	CvAssertMsg(grandStrategyAI.m_pAIGrandStrategies != NULL && grandStrategyAI.m_pAIGrandStrategies->GetNumAIGrandStrategies() > 0, "Number of AIGrandStrategies to serialize is expected to greater than 0");
 	visitor(MakeConstSpan(grandStrategyAI.m_paiGrandStrategyPriority, grandStrategyAI.m_pAIGrandStrategies->GetNumAIGrandStrategies()));
 
 	visitor(grandStrategyAI.m_eGuessOtherPlayerActiveGrandStrategy);

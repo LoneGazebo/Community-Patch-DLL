@@ -3916,12 +3916,14 @@ void CvTurnTimerInfo::Serialize(TurnTimerInfo& turnTimerInfo, Visitor& visitor)
 
 void CvTurnTimerInfo::writeTo(FDataStream& saveTo) const
 {
+	CvBaseInfo::writeTo(saveTo);
 	CvStreamSaveVisitor serialVisitor(saveTo);
 	Serialize(*this, serialVisitor);
 }
 
 void CvTurnTimerInfo::readFrom(FDataStream& loadFrom)
 {
+	CvBaseInfo::readFrom(loadFrom);
 	CvStreamLoadVisitor serialVisitor(loadFrom);
 	Serialize(*this, serialVisitor);
 }
