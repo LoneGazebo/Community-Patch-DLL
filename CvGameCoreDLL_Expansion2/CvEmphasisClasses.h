@@ -10,6 +10,8 @@
 #ifndef CIV5_EMPHASIS_CLASSES_H
 #define CIV5_EMPHASIS_CLASSES_H
 
+#include "CvEnumMap.h"
+
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //  CLASS:      CvEmphasisEntry
 //!  \brief		A single entry in the emphasis XML file
@@ -101,14 +103,16 @@ public:
 	void SetEmphasize(EmphasizeTypes eIndex, bool bNewValue);
 
 	// Serialization
+	template<typename CityEmphases, typename Visitor>
+	static void Serialize(CityEmphases& cityEmphases, Visitor& visitor);
 	void Read(FDataStream& kStream);
 	void Write(FDataStream& kStream) const;
 
 private:
 	int m_iEmphasizeAvoidGrowthCount;
 	int m_iEmphasizeGreatPeopleCount;
-	int m_aiEmphasizeYieldCount[NUM_YIELD_TYPES];
-	bool* m_pbEmphasize;
+	CvEnumMap<YieldTypes, int> m_aiEmphasizeYieldCount;
+	CvEnumMap<EmphasizeTypes, bool> m_pbEmphasize;
 
 	CvCity* m_pCity;
 
