@@ -62,28 +62,24 @@ void CvHomelandAI::Reset()
 {
 }
 
+///
+template<typename HomelandAI, typename Visitor>
+void CvHomelandAI::Serialize(HomelandAI& /*homelandAI*/, Visitor& /*visitor*/)
+{
+}
+
 /// Serialization read
 void CvHomelandAI::Read(FDataStream& kStream)
 {
-	// Version number to maintain backwards compatibility
-	uint uiVersion;
-	kStream >> uiVersion;
-	MOD_SERIALIZE_INIT_READ(kStream);
-
-	int iDummy;
-	kStream >> iDummy;
+	CvStreamLoadVisitor serialVisitor(kStream);
+	CvHomelandAI::Serialize(*this, serialVisitor);
 }
 
 /// Serialization write
 void CvHomelandAI::Write(FDataStream& kStream) const
 {
-	// Current version number
-	uint uiVersion = 1;
-	kStream << uiVersion;
-	MOD_SERIALIZE_INIT_WRITE(kStream);
-
-	//dummy value
-	kStream << 0L;
+	CvStreamSaveVisitor serialVisitor(kStream);
+	CvHomelandAI::Serialize(*this, serialVisitor);
 }
 
 FDataStream& operator>>(FDataStream& stream, CvHomelandAI& homelandAI)
