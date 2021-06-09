@@ -1973,7 +1973,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 
 		m_pCityCitizens->Init(this);
 		m_pCityReligions->Init(this);
-		m_pEmphases->Init(GC.GetGameEmphases(), this);
+		m_pEmphases->Init(this);
 		m_pCityEspionage->Init(this);
 		m_pCityCulture->Init(this);
 

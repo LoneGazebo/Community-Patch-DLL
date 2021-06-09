@@ -124,10 +124,9 @@ CvCityEmphases::~CvCityEmphases(void)
 }
 
 /// Initialize
-void CvCityEmphases::Init(CvEmphasisXMLEntries* pEmphases, CvCity* pCity)
+void CvCityEmphases::Init(CvCity* pCity)
 {
 	// Store off the pointers to objects we'll need later
-	m_pEmphases = pEmphases;
 	m_pCity = pCity;
 
 	Reset();

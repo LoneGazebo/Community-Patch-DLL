@@ -88,7 +88,7 @@ class CvCityEmphases
 public:
 	CvCityEmphases(void);
 	~CvCityEmphases(void);
-	void Init(CvEmphasisXMLEntries* pEmphases, CvCity* pCity);
+	void Init(CvCity* pCity);
 	void Uninit();
 	void Reset();
 
@@ -110,7 +110,6 @@ private:
 	int m_aiEmphasizeYieldCount[NUM_YIELD_TYPES];
 	bool* m_pbEmphasize;
 
-	CvEmphasisXMLEntries* m_pEmphases;
 	CvCity* m_pCity;
 
 	friend FDataStream& operator>>(FDataStream&, CvCityEmphases&);
