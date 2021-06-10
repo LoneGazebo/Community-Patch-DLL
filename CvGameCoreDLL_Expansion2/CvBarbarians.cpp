@@ -64,6 +64,9 @@ bool CvBarbarians::IsPlotValidForBarbCamp(CvPlot* pPlot)
 /// Camp cleared, so reset counter
 void CvBarbarians::DoBarbCampCleared(CvPlot* pPlot, PlayerTypes ePlayer, CvUnit* pUnit)
 {
+	if (!pPlot)
+		return;
+
 	m_aiPlotBarbCampSpawnCounter[pPlot->GetPlotIndex()] = -16;
 
 	pPlot->AddArchaeologicalRecord(CvTypes::getARTIFACT_BARBARIAN_CAMP(), ePlayer, NO_PLAYER);
@@ -75,10 +78,7 @@ void CvBarbarians::DoBarbCampCleared(CvPlot* pPlot, PlayerTypes ePlayer, CvUnit*
 		// find closest city belonging to the player who cleared the camp
 
 		int iBestCityID = -1;
-
 		int iBestCityDistance = -1;
-
-		int iDistance;
 
 		CvCity* pLoopCity = NULL;
 		int iLoop = 0;
@@ -89,7 +89,7 @@ void CvBarbarians::DoBarbCampCleared(CvPlot* pPlot, PlayerTypes ePlayer, CvUnit*
 				CvPlot* pCityPlot = pLoopCity->plot();
 				if (pCityPlot)
 				{
-					iDistance = plotDistance(pPlot->getX(), pPlot->getY(), pCityPlot->getX(), pCityPlot->getY());
+					int iDistance = plotDistance(pPlot->getX(), pPlot->getY(), pCityPlot->getX(), pCityPlot->getY());
 
 					if (iBestCityDistance == -1 || iDistance < iBestCityDistance)
 					{
