@@ -29,9 +29,6 @@
 //			The reason the Game Core data is not kept in sync is because the caching of all the data
 //			can take a significant amount of time.
 
-#define PREGAMEVARDEFAULT(a, b) FAutoVariable<a, Phony> b("CvPreGame::"#b, s_preGameArchive);
-#define PREGAMEVAR(a, b, c) FAutoVariable<a, Phony> b("CvPreGame::"#b, s_preGameArchive, c, false);
-
 
 //Basic translation function to help with the glue between the old
 //GameOptionTypes enumeration usage vs the newer system that uses strings.
@@ -171,113 +168,97 @@ FDataStream& operator<<(FDataStream& stream, const CustomOption& option)
 //------------------------------------------------------------------------------
 void StringToBools(const char* szString, int* iNumBools, bool** ppBools);
 
-struct Phony
-{
-	std::string debugDump(const FAutoVariableBase&)
-	{
-		return "";
-	}
-	std::string stackTraceRemark(const FAutoVariableBase&)
-	{
-		return "";
-	}
-};
-Phony phony;
-
-
-FAutoArchiveClassContainer<Phony>                       s_preGameArchive(phony);
-
-PREGAMEVAR(PlayerTypes,                        s_activePlayer,           NO_PLAYER);
-PREGAMEVARDEFAULT(CvString,                           s_adminPassword);
-PREGAMEVAR(int,                                s_advancedStartPoints,    0);
-PREGAMEVARDEFAULT(CvString,                           s_alias);
-PREGAMEVAR(std::vector<ArtStyleTypes>,         s_artStyles,              MAX_PLAYERS);
-PREGAMEVAR(bool,                               s_autorun,                false);
-PREGAMEVAR(float,                              s_autorunTurnDelay,       0.0f);
-PREGAMEVAR(int,                                s_autorunTurnLimit,       0);
-PREGAMEVAR(BandwidthType,                      s_bandwidth,              NO_BANDWIDTH);
-PREGAMEVAR(CalendarTypes,                      s_calendar,               NO_CALENDAR);
-PREGAMEVARDEFAULT(CvBaseInfo,                         s_calendarInfo);
-PREGAMEVAR(std::vector<CvString>,              s_civAdjectives,          MAX_PLAYERS);
-PREGAMEVAR(std::vector<CvString>,              s_civDescriptions,        MAX_PLAYERS);
-PREGAMEVAR(std::vector<CivilizationTypes>,     s_civilizations,          MAX_PLAYERS);
-PREGAMEVAR(std::vector<CvString>,              s_civPasswords,           MAX_PLAYERS);
-PREGAMEVAR(std::vector<CvString>,              s_civShortDescriptions,   MAX_PLAYERS);
-PREGAMEVAR(ClimateTypes,                       s_climate,                NO_CLIMATE);
-PREGAMEVARDEFAULT(CvClimateInfo,                      s_climateInfo);
-PREGAMEVAR(EraTypes,                           s_era,                    NO_ERA);
-PREGAMEVAR(std::vector<CvString>,              s_emailAddresses,         MAX_PLAYERS);
-PREGAMEVAR(float,                              s_endTurnTimerLength,     0.0f);
-PREGAMEVAR(std::vector<CvString>,              s_flagDecals,             MAX_PLAYERS);
-PREGAMEVAR(std::vector<bool>,                  s_DEPRECATEDforceControls, 7);			//This was removed during the Day 0 patch since it is no longer used anywhere.
-PREGAMEVAR(GameMode,                           s_gameMode,               NO_GAMEMODE);
-PREGAMEVARDEFAULT(CvString,                           s_gameName);
-PREGAMEVAR(GameSpeedTypes,                     s_gameSpeed,              NO_GAMESPEED);
-PREGAMEVAR(bool,                               s_gameStarted,            false);
-PREGAMEVAR(int,                                s_gameTurn,               -1);
+PlayerTypes s_activePlayer(NO_PLAYER);
+CvString s_adminPassword;
+int s_advancedStartPoints(0);
+CvString s_alias;
+std::vector<ArtStyleTypes> s_artStyles(MAX_PLAYERS);
+bool s_autorun(false);
+float s_autorunTurnDelay(0.0f);
+int s_autorunTurnLimit(0);
+BandwidthType s_bandwidth(NO_BANDWIDTH);
+CalendarTypes s_calendar(NO_CALENDAR);
+CvBaseInfo s_calendarInfo;
+std::vector<CvString> s_civAdjectives(MAX_PLAYERS);
+std::vector<CvString> s_civDescriptions(MAX_PLAYERS);
+std::vector<CivilizationTypes> s_civilizations(MAX_PLAYERS);
+std::vector<CvString> s_civPasswords(MAX_PLAYERS);
+std::vector<CvString> s_civShortDescriptions(MAX_PLAYERS);
+ClimateTypes s_climate(NO_CLIMATE);
+CvClimateInfo s_climateInfo;
+EraTypes s_era(NO_ERA);
+std::vector<CvString> s_emailAddresses(MAX_PLAYERS);
+float s_endTurnTimerLength(0.0f);
+std::vector<CvString> s_flagDecals(MAX_PLAYERS);
+std::vector<bool> s_DEPRECATEDforceControls(7);			//This was removed during the Day 0 patch since it is no longer used anywhere.
+GameMode s_gameMode(NO_GAMEMODE);
+CvString s_gameName;
+GameSpeedTypes s_gameSpeed(NO_GAMESPEED);
+bool s_gameStarted(false);
+int s_gameTurn(-1);
 #if defined(MOD_API_EXTENSIONS)
 GameTypes s_pushedGameType = GAME_TYPE_NONE;
 #endif
-PREGAMEVAR(GameTypes,                          s_gameType,               GAME_TYPE_NONE);
-PREGAMEVAR(GameMapTypes,                       s_gameMapType,            GAME_USER_PARAMETERS);
-PREGAMEVAR(int,                                s_gameUpdateTime,         0);
-PREGAMEVAR(std::vector<HandicapTypes>,         s_handicaps,              MAX_PLAYERS);
-PREGAMEVAR(std::vector<HandicapTypes>,         s_lastHumanHandicaps,     MAX_PLAYERS);
-PREGAMEVAR(bool,								s_isEarthMap,			  false);
-PREGAMEVAR(bool,                               s_isInternetGame,         false);
-PREGAMEVAR(std::vector<LeaderHeadTypes>,       s_leaderHeads,            MAX_PLAYERS);
-PREGAMEVAR(std::vector<CvString>,              s_leaderNames,            MAX_PLAYERS);
-PREGAMEVARDEFAULT(CvString,                           s_loadFileName);
-PREGAMEVARDEFAULT(CvString,                           s_localPlayerEmailAddress);
-PREGAMEVAR(bool,                               s_mapNoPlayers,             false);
-PREGAMEVAR(unsigned int,                       s_mapRandomSeed,            0);
-PREGAMEVAR(bool,                               s_loadWBScenario,           false);
-PREGAMEVAR(bool,                               s_overrideScenarioHandicap, false);
-PREGAMEVARDEFAULT(CvString,                           s_mapScriptName);
-PREGAMEVAR(int,                                s_maxCityElimination,     0);
-PREGAMEVAR(int,                                s_maxTurns,               0);
-PREGAMEVAR(int,                                s_numMinorCivs,           -1);
-PREGAMEVAR(std::vector<MinorCivTypes>,         s_minorCivTypes,          MAX_PLAYERS);
-PREGAMEVAR(std::vector<bool>,                  s_minorNationCivs,        MAX_PLAYERS);
-PREGAMEVAR(bool,                               s_dummyvalue,	          false);
-PREGAMEVAR(std::vector<bool>,                  s_multiplayerOptions,     NUM_MPOPTION_TYPES);
-PREGAMEVAR(std::vector<int>,                   s_netIDs,                 MAX_PLAYERS);
-PREGAMEVAR(std::vector<CvString>,              s_nicknames,              MAX_PLAYERS);
-PREGAMEVAR(int,                                s_numVictoryInfos,        GC.getNumVictoryInfos());
-PREGAMEVAR(int,                                s_pitBossTurnTime,        0);
-PREGAMEVAR(std::vector<bool>,                  s_playableCivs,           MAX_PLAYERS);
-PREGAMEVAR(std::vector<PlayerColorTypes>,      s_playerColors,           MAX_PLAYERS);
-PREGAMEVAR(bool,                               s_privateGame,            false);
-PREGAMEVAR(bool,                               s_quickCombat,            false);
-PREGAMEVAR(bool,                               s_quickCombatDefault,     false);
-PREGAMEVAR(HandicapTypes,                      s_quickHandicap,          NO_HANDICAP);
-PREGAMEVAR(bool,                               s_quickstart,             false);
-PREGAMEVAR(bool,                               s_randomWorldSize,        false);
-PREGAMEVAR(bool,                               s_randomMapScript,        false);
-PREGAMEVAR(std::vector<bool>,                  s_readyPlayers,           MAX_PLAYERS);
-PREGAMEVAR(SeaLevelTypes,                      s_seaLevel,               NO_SEALEVEL);
-PREGAMEVARDEFAULT(CvSeaLevelInfo,                     s_seaLevelInfo);
-PREGAMEVAR(bool,                               s_dummyvalue2,	          false);
-PREGAMEVAR(std::vector<SlotClaim>,             s_slotClaims,             MAX_PLAYERS);
-PREGAMEVAR(std::vector<SlotStatus>,            s_slotStatus,             MAX_PLAYERS);
-PREGAMEVARDEFAULT(CvString,                           s_smtpHost);
-PREGAMEVAR(unsigned int,                       s_syncRandomSeed,         0);
-PREGAMEVAR(int,                                s_targetScore,            0);
-PREGAMEVAR(std::vector<TeamTypes>,             s_teamTypes,              MAX_PLAYERS);
-PREGAMEVAR(bool,                               s_transferredMap,         false);
-PREGAMEVARDEFAULT(CvTurnTimerInfo,                    s_turnTimer);
-PREGAMEVAR(TurnTimerTypes,                     s_turnTimerType,          NO_TURNTIMER);
-PREGAMEVAR(bool,                               s_bCityScreenBlocked,     false);
-PREGAMEVAR(std::vector<bool>,                  s_victories,              s_numVictoryInfos);
-PREGAMEVAR(std::vector<bool>,                  s_whiteFlags,             MAX_PLAYERS);
-PREGAMEVARDEFAULT(CvWorldInfo,                        s_worldInfo);
-PREGAMEVAR(WorldSizeTypes,                     s_worldSize,              NO_WORLDSIZE);
-PREGAMEVARDEFAULT(std::vector<CustomOption>,			s_GameOptions);
-PREGAMEVARDEFAULT(std::vector<CustomOption>,			s_MapOptions);
-PREGAMEVARDEFAULT(std::string,                        s_versionString);
-PREGAMEVAR(std::vector<bool>,                  s_turnNotifySteamInvite,        MAX_PLAYERS);
-PREGAMEVAR(std::vector<bool>,                  s_turnNotifyEmail,							MAX_PLAYERS);
-PREGAMEVAR(std::vector<CvString>,              s_turnNotifyEmailAddress,    MAX_PLAYERS);
+GameTypes s_gameType(GAME_TYPE_NONE);
+GameMapTypes s_gameMapType(GAME_USER_PARAMETERS);
+int s_gameUpdateTime(0);
+std::vector<HandicapTypes> s_handicaps(MAX_PLAYERS);
+std::vector<HandicapTypes> s_lastHumanHandicaps(MAX_PLAYERS);
+bool s_isEarthMap(false);
+bool s_isInternetGame(false);
+std::vector<LeaderHeadTypes> s_leaderHeads(MAX_PLAYERS);
+std::vector<CvString> s_leaderNames(MAX_PLAYERS);
+CvString s_loadFileName;
+CvString s_localPlayerEmailAddress;
+bool s_mapNoPlayers(false);
+unsigned int s_mapRandomSeed(0);
+bool s_loadWBScenario(false);
+bool s_overrideScenarioHandicap(false);
+CvString s_mapScriptName;
+int s_maxCityElimination(0);
+int s_maxTurns(0);
+int s_numMinorCivs(-1);
+std::vector<MinorCivTypes> s_minorCivTypes(MAX_PLAYERS);
+std::vector<bool> s_minorNationCivs(MAX_PLAYERS);
+bool s_dummyvalue(false);
+std::vector<bool> s_multiplayerOptions(NUM_MPOPTION_TYPES);
+std::vector<int> s_netIDs(MAX_PLAYERS);
+std::vector<CvString> s_nicknames(MAX_PLAYERS);
+int s_numVictoryInfos(GC.getNumVictoryInfos());
+int s_pitBossTurnTime(0);
+std::vector<bool> s_playableCivs(MAX_PLAYERS);
+std::vector<PlayerColorTypes> s_playerColors(MAX_PLAYERS);
+bool s_privateGame(false);
+bool s_quickCombat(false);
+bool s_quickCombatDefault(false);
+HandicapTypes s_quickHandicap(NO_HANDICAP);
+bool s_quickstart(false);
+bool s_randomWorldSize(false);
+bool s_randomMapScript(false);
+std::vector<bool> s_readyPlayers(MAX_PLAYERS);
+SeaLevelTypes s_seaLevel(NO_SEALEVEL);
+CvSeaLevelInfo s_seaLevelInfo;
+bool s_dummyvalue2(false);
+std::vector<SlotClaim> s_slotClaims(MAX_PLAYERS);
+std::vector<SlotStatus> s_slotStatus(MAX_PLAYERS);
+CvString s_smtpHost;
+unsigned int s_syncRandomSeed(0);
+int s_targetScore(0);
+std::vector<TeamTypes> s_teamTypes(MAX_PLAYERS);
+bool s_transferredMap(false);
+CvTurnTimerInfo s_turnTimer;
+TurnTimerTypes s_turnTimerType(NO_TURNTIMER);
+bool s_bCityScreenBlocked(false);
+std::vector<bool> s_victories(s_numVictoryInfos);
+std::vector<bool> s_whiteFlags(MAX_PLAYERS);
+CvWorldInfo s_worldInfo;
+WorldSizeTypes s_worldSize(NO_WORLDSIZE);
+std::vector<CustomOption> s_GameOptions;
+std::vector<CustomOption> s_MapOptions;
+std::string s_versionString;
+std::vector<bool> s_turnNotifySteamInvite(MAX_PLAYERS);
+std::vector<bool> s_turnNotifyEmail(MAX_PLAYERS);
+std::vector<CvString> s_turnNotifyEmailAddress(MAX_PLAYERS);
 
 typedef std::map<uint, uint> HashToOptionMap;
 
@@ -319,7 +300,7 @@ bool isKnownPlayerReq(PlayerTypes ePlayer);
 bool handleKnownPlayerReq(PlayerTypes ePlayer);
 bool isKnownPlayer(PlayerTypes eA, PlayerTypes eB); // only accurate if game option enabled, (indirectly) used in Staging Room to determine if other player details should be shown
 													
-std::vector<KnownPlayersBitArray> s_knownPlayersTable;// this is not an FAutoVariable since it doesn't need syncing since it is just derived data.
+std::vector<KnownPlayersBitArray> s_knownPlayersTable;
 #endif
 
 
@@ -825,11 +806,11 @@ ClimateTypes climate()
 
 const CvClimateInfo& climateInfo()
 {
-	if(s_climate != s_climateInfo.get().GetID())
+	if(s_climate != s_climateInfo.GetID())
 	{
 		Database::SingleResult kResult;
 		DB.SelectAt(kResult, "Climates", s_climate);
-		s_climateInfo.dirtyGet().CacheResult(kResult);
+		s_climateInfo.CacheResult(kResult);
 	}
 	return s_climateInfo;
 }
@@ -1059,7 +1040,7 @@ bool SetGameOption(const char* szOptionName, int iValue)
 		{
 			//I'd like to just set the value here, but that doesn't seem possible
 			//so instead, create a new CustomOption type and assign it to this index.
-			s_GameOptions.setAt(i, CustomOption(szOptionName, iValue));
+			s_GameOptions[i] = CustomOption(szOptionName, iValue);
 			SyncGameOptionsWithEnumList();
 			return true;
 		}
@@ -1585,7 +1566,7 @@ bool SetMapOption(const char* szOptionName, int iValue)
 		{
 			//I'd like to just set the value here, but that doesn't seem possible
 			//so instead, create a new CustomOption type and assign it to this index.
-			s_MapOptions.setAt(i, CustomOption(szOptionName, iValue));
+			s_MapOptions[i] = CustomOption(szOptionName, iValue);
 			return true;
 		}
 
@@ -1883,8 +1864,7 @@ void readArchive(FDataStream& loadFrom, bool bReadVersion)
 	loadFrom >> s_numMinorCivs;
 	if (uiVersion >= 3)
 	{
-		CvInfosSerializationHelper::ReadTypeArrayDBLookup<MinorCivTypes>(loadFrom, s_minorCivTypes.dirtyGet(), "MinorCivilizations"); 
-		s_minorCivTypes.clearDelta();
+		CvInfosSerializationHelper::ReadTypeArrayDBLookup<MinorCivTypes>(loadFrom, s_minorCivTypes, "MinorCivilizations"); 
 	}
 	else
 		loadFrom >> s_minorCivTypes;
@@ -1898,8 +1878,7 @@ void readArchive(FDataStream& loadFrom, bool bReadVersion)
 	loadFrom >> s_playableCivs;
 	if (uiVersion >= 3)
 	{
-		CvInfosSerializationHelper::ReadTypeArrayDBLookup<PlayerColorTypes>(loadFrom, s_playerColors.dirtyGet(), "PlayerColors");
-		s_playerColors.clearDelta();
+		CvInfosSerializationHelper::ReadTypeArrayDBLookup<PlayerColorTypes>(loadFrom, s_playerColors, "PlayerColors");
 	}
 	else
 		loadFrom >> s_playerColors;
@@ -1928,7 +1907,7 @@ void readArchive(FDataStream& loadFrom, bool bReadVersion)
 	loadFrom >> s_victories;
 	loadFrom >> s_whiteFlags;
 	if(uiVersion <= 1)
-		s_worldInfo.dirtyGet().readFromVersion0(loadFrom);
+		s_worldInfo.readFromVersion0(loadFrom);
 	else
 		loadFrom >> s_worldInfo;
 
@@ -2005,7 +1984,7 @@ void resetGame()
 	int i;
 	for(i = 0; i < NUM_MPOPTION_TYPES; ++i)
 	{
-		s_multiplayerOptions.setAt(i, false);
+		s_multiplayerOptions[i] = false;
 	}
 
 	//s_statReporting = false;
@@ -2306,11 +2285,11 @@ SeaLevelTypes seaLevel()
 
 const CvSeaLevelInfo& seaLevelInfo()
 {
-	if(s_seaLevel != s_seaLevelInfo.get().GetID())
+	if(s_seaLevel != s_seaLevelInfo.GetID())
 	{
 		Database::SingleResult kResult;
 		DB.SelectAt(kResult, "SeaLevels", s_seaLevel);
-		s_seaLevelInfo.dirtyGet().CacheResult(kResult);
+		s_seaLevelInfo.CacheResult(kResult);
 	}
 	return s_seaLevelInfo;
 }
@@ -2338,7 +2317,7 @@ void setAlias(const CvString& a)
 void setArtStyle(PlayerTypes p, ArtStyleTypes a)
 {
 	if(p >= 0 && p < MAX_PLAYERS)
-		s_artStyles.setAt(p, a);
+		s_artStyles[p] = a;
 }
 
 void setAutorun(bool isEnabled)
@@ -2389,22 +2368,22 @@ void setCalendar(const CvString& c)
 	{
 		CvAssertMsg(false, "Cannot find calendar info.");
 	}
-	s_calendarInfo.dirtyGet().CacheResult(kResult);
+	s_calendarInfo.CacheResult(kResult);
 
-	s_calendar = (CalendarTypes)s_calendarInfo.get().GetID();
+	s_calendar = (CalendarTypes)s_calendarInfo.GetID();
 }
 
 void setCivilization(PlayerTypes p, CivilizationTypes c)
 {
 	if(p >= 0 && p < MAX_PLAYERS)
 	{
-		s_civilizations.setAt(p, c);
+		s_civilizations[p] = c;
 
 		bool bFailed = bindCivilizationKeys(p);
 
 		if(bFailed)
 		{
-			s_civilizations.setAt(p, NO_CIVILIZATION);
+			s_civilizations[p] = NO_CIVILIZATION;
 			s_civilizationKeys[p].clear();
 			ClearGUID(s_civilizationPackageID[p]);
 			s_civilizationKeysAvailable[p] = true;	// If the key is empty, we assume the selection is in the 'random' state, so it is available.
@@ -2416,25 +2395,25 @@ void setCivilization(PlayerTypes p, CivilizationTypes c)
 void setCivilizationAdjective(PlayerTypes p, const CvString& a)
 {
 	if(p >= 0 && p < MAX_PLAYERS)
-		s_civAdjectives.setAt(p, a);
+		s_civAdjectives[p] = a;
 }
 
 void setCivilizationDescription(PlayerTypes p, const CvString& d)
 {
 	if(p >= 0 && p < MAX_PLAYERS)
-		s_civDescriptions.setAt(p, d);
+		s_civDescriptions[p] = d;
 }
 
 void setCivilizationPassword(PlayerTypes p, const CvString& pwd)
 {
 	if(p >= 0 && p < MAX_PLAYERS)
-		s_civPasswords.setAt(p, pwd);
+		s_civPasswords[p] = pwd;
 }
 
 void setCivilizationShortDescription(PlayerTypes p, const CvString& d)
 {
 	if(p >= 0 && p < MAX_PLAYERS)
-		s_civShortDescriptions.setAt(p, d);
+		s_civShortDescriptions[p] = d;
 }
 
 void setClimate(ClimateTypes c)
@@ -2447,9 +2426,9 @@ void setClimate(const CvString& c)
 	//Query
 	Database::SingleResult kResult;
 	DB.SelectAt(kResult, "Climates", "Type", c);
-	s_climateInfo.dirtyGet().CacheResult(kResult);
+	s_climateInfo.CacheResult(kResult);
 
-	s_climate = (ClimateTypes)s_climateInfo.get().GetID();
+	s_climate = (ClimateTypes)s_climateInfo.GetID();
 }
 
 void setCustomWorldSize(int iWidth, int iHeight, int iPlayers, int iMinorCivs)
@@ -2487,7 +2466,7 @@ void setCustomWorldSize(int iWidth, int iHeight, int iPlayers, int iMinorCivs)
 void setEmailAddress(PlayerTypes p, const CvString& address)
 {
 	if(p >= 0 && p < MAX_PLAYERS)
-		s_emailAddresses.setAt(p, address);
+		s_emailAddresses[p] = address;
 }
 
 void setEmailAddress(const CvString& address)
@@ -2654,7 +2633,7 @@ void setGameUpdateTime(int updateTime)
 void setHandicap(PlayerTypes p, HandicapTypes h)
 {
 	if(p >= 0 && p < MAX_PLAYERS){
-		s_handicaps.setAt(p, h);
+		s_handicaps[p] = h;
 
 		if(slotStatus(p) == SS_TAKEN){
 			//Cache the handicap of human players.  
@@ -2667,7 +2646,7 @@ void setHandicap(PlayerTypes p, HandicapTypes h)
 void setLastHumanHandicap(PlayerTypes p, HandicapTypes h)
 {
 	if(p >= 0 && p < MAX_PLAYERS){
-		s_lastHumanHandicaps.setAt(p, h);
+		s_lastHumanHandicaps[p] = h;
 	}
 }
 
@@ -2680,13 +2659,13 @@ void setLeaderHead(PlayerTypes p, LeaderHeadTypes l)
 {
 	if(p >= 0 && p < MAX_PLAYERS)
 	{
-		s_leaderHeads.setAt(p, l);
+		s_leaderHeads[p] = l;
 
 		bool bFailed = bindLeaderKeys(p);
 
 		if(bFailed)
 		{
-			s_leaderHeads.setAt(p, NO_LEADER);
+			s_leaderHeads[p] = NO_LEADER;
 			s_leaderKeysAvailable[p] = true;	// If the key is empty, we assume the selection is in the 'random' state, so it is available.
 		}
 	}
@@ -2695,7 +2674,7 @@ void setLeaderHead(PlayerTypes p, LeaderHeadTypes l)
 void setLeaderName(PlayerTypes p, const CvString& n)
 {
 	if(p >= 0 && p < MAX_PLAYERS)
-		s_leaderNames.setAt(p, n);
+		s_leaderNames[p] = n;
 }
 
 void setLeaderKey(PlayerTypes p, const CvString& szKey)
@@ -2718,7 +2697,7 @@ void setLeaderKey(PlayerTypes p, const CvString& szKey)
 					kResults.Bind(1, szKey.c_str());
 					if(kResults.Step())
 					{
-						s_leaderHeads.setAt(p, (LeaderHeadTypes)kResults.GetInt(0));
+						s_leaderHeads[p] = (LeaderHeadTypes)kResults.GetInt(0);
 						if(!ExtractGUID(kResults.GetText(1), s_leaderPackageID[p]))
 							ClearGUID(s_leaderPackageID[p]);
 						s_leaderKeysAvailable[p] = true;
@@ -2730,7 +2709,7 @@ void setLeaderKey(PlayerTypes p, const CvString& szKey)
 
 		if(bFailed)
 		{
-			s_leaderHeads.setAt(p, NO_LEADER);
+			s_leaderHeads[p] = NO_LEADER;
 			ClearGUID(s_leaderPackageID[p]);
 			s_leaderKeysAvailable[p] = (szKey.length() == 0);	// If the key was empty, then it is the 'random' state so it is available
 		}
@@ -2764,7 +2743,7 @@ void setLoadFileName(const CvString& f)
 
 void setLoadFileName(const CvString& f, StorageLocation eStorage)
 {
-	if(s_loadFileName.get() != f)
+	if(s_loadFileName != f)
 	{
 		s_loadFileName = f;
 	}
@@ -2803,7 +2782,7 @@ void setOverrideScenarioHandicap(bool b)
 
 void setMapScriptName(const CvString& s)
 {
-	if(s_mapScriptName.get() != s)
+	if(s_mapScriptName != s)
 	{
 		s_mapScriptName = s;
 		ResetMapOptions();
@@ -2823,13 +2802,13 @@ void setMaxTurns(int m)
 void setMinorCivType(PlayerTypes p, MinorCivTypes m)
 {
 	if(p >= 0 && p < MAX_PLAYERS)
-		s_minorCivTypes.setAt(p, m);
+		s_minorCivTypes[p] = m;
 }
 
 void setMinorCiv(PlayerTypes p, bool isMinor)
 {
 	if(p >= 0 && p < MAX_PLAYERS)
-		s_minorNationCivs.setAt(p, isMinor);
+		s_minorNationCivs[p] = isMinor;
 }
 
 void setMultiplayerAIEnabled(bool enabled)
@@ -2840,7 +2819,7 @@ void setMultiplayerAIEnabled(bool enabled)
 void setMultiplayerOption(MultiplayerOptionTypes o, bool enabled)
 {
 	if(o >= 0 && o < NUM_MPOPTION_TYPES)
-		s_multiplayerOptions.setAt(o, enabled);
+		s_multiplayerOptions[o] = enabled;
 }
 
 void setMultiplayerOptions(const std::vector<bool>& mpOptions)
@@ -2856,7 +2835,7 @@ void setNumMinorCivs(int n)
 void setNetID(PlayerTypes p, int id)
 {
 	if(p >= 0 && p < MAX_PLAYERS)
-		s_netIDs.setAt(p, id);
+		s_netIDs[p] = id;
 }
 
 void setNickname(PlayerTypes p, const CvString& n)
@@ -2875,7 +2854,7 @@ void setNickname(PlayerTypes p, const CvString& n)
 			}
 		}
 		s_displayNicknames[p] = (CvString)_szName;
-		s_nicknames.setAt(p, n);
+		s_nicknames[p] = n;
 	}
 }
 
@@ -2888,14 +2867,14 @@ void setPlayable(PlayerTypes p, bool playable)
 {
 	if(p >= 0 && p < MAX_PLAYERS)
 	{
-		s_playableCivs.setAt(p, playable);
+		s_playableCivs[p] = playable;
 	}
 }
 
 void setPlayerColor(PlayerTypes p, PlayerColorTypes c)
 {
 	if(p >= 0 && p < MAX_PLAYERS)
-		s_playerColors.setAt(p, c);
+		s_playerColors[p] = c;
 }
 
 void setPrivateGame(bool isPrivateGame)
@@ -2964,7 +2943,7 @@ void setReady(PlayerTypes p, bool bIsReady)
 	if(p >= 0 && p < MAX_PLAYERS)
 	{
 		if(!bIsReady || p != activePlayer() || canReadyLocalPlayer())
-			s_readyPlayers.setAt(p, bIsReady);
+			s_readyPlayers[p] = bIsReady;
 	}
 }
 
@@ -2978,21 +2957,21 @@ void setSeaLevel(const CvString& s)
 	//Query
 	Database::SingleResult kResult;
 	DB.SelectAt(kResult, "SeaLevels", "Type", s.c_str());
-	s_seaLevelInfo.dirtyGet().CacheResult(kResult);
+	s_seaLevelInfo.CacheResult(kResult);
 
-	s_seaLevel = (SeaLevelTypes)s_seaLevelInfo.get().GetID();
+	s_seaLevel = (SeaLevelTypes)s_seaLevelInfo.GetID();
 }
 
 void setSlotClaim(PlayerTypes p, SlotClaim s)
 {
 	if(p >= 0 && p < MAX_PLAYERS)
-		s_slotClaims.setAt(p, s);
+		s_slotClaims[p] = s;
 }
 
 void setSlotStatus(PlayerTypes p, SlotStatus eSlotStatus)
 {
 	if(p >= 0 && p < MAX_PLAYERS)
-		s_slotStatus.setAt(p, eSlotStatus);
+		s_slotStatus[p] = eSlotStatus;
 }
 
 void setAllSlotStatus(const std::vector<SlotStatus>& vSlotStatus)
@@ -3013,7 +2992,7 @@ void setTargetScore(int t)
 void setTeamType(PlayerTypes p, TeamTypes t)
 {
 	if(p >= 0 && p < MAX_PLAYERS)
-		s_teamTypes.setAt(p, t);
+		s_teamTypes[p] = t;
 }
 
 void setTransferredMap(bool transferred)
@@ -3029,7 +3008,7 @@ void setTurnTimer(TurnTimerTypes t)
 	{
 		CvAssertMsg(false, "Cannot find turn timer info.");
 	}
-	s_turnTimer.dirtyGet().CacheResult(kResult);
+	s_turnTimer.CacheResult(kResult);
 }
 
 void setTurnTimer(const CvString& t)
@@ -3039,9 +3018,9 @@ void setTurnTimer(const CvString& t)
 	{
 		CvAssertMsg(false, "Cannot find turn timer info.");
 	}
-	s_turnTimer.dirtyGet().CacheResult(kResult);
+	s_turnTimer.CacheResult(kResult);
 
-	s_turnTimerType = (TurnTimerTypes)s_turnTimer.get().GetID();
+	s_turnTimerType = (TurnTimerTypes)s_turnTimer.GetID();
 }
 
 void SetCityScreenBlocked(bool bCityScreenBlocked)
@@ -3057,7 +3036,7 @@ void setVersionString(const std::string& v)
 void setVictory(VictoryTypes v, bool isValid)
 {
 	if(v >= 0 && v < s_numVictoryInfos)
-		s_victories.setAt(v, isValid);
+		s_victories[v] = isValid;
 }
 
 void setVictories(const std::vector<bool>& v)
@@ -3069,25 +3048,25 @@ void setVictories(const std::vector<bool>& v)
 void setWhiteFlag(PlayerTypes p, bool flag)
 {
 	if(p >= 0 && p < MAX_PLAYERS)
-		s_whiteFlags.setAt(p, flag);
+		s_whiteFlags[p] = flag;
 }
 
 void setTurnNotifySteamInvite(PlayerTypes p, bool flag)
 {
 	if(p >= 0 && p < MAX_PLAYERS)
-		s_turnNotifySteamInvite.setAt(p, flag);
+		s_turnNotifySteamInvite[p] = flag;
 }
 
 void setTurnNotifyEmail(PlayerTypes p, bool flag)
 {
 	if(p >= 0 && p < MAX_PLAYERS)
-		s_turnNotifyEmail.setAt(p, flag);
+		s_turnNotifyEmail[p] = flag;
 }
 
 void setTurnNotifyEmailAddress(PlayerTypes p, const CvString& emailAddress)
 {
 	if(p >= 0 && p < MAX_PLAYERS)
-		s_turnNotifyEmailAddress.setAt(p, emailAddress);
+		s_turnNotifyEmailAddress[p] = emailAddress;
 }
 
 void VerifyHandicap(PlayerTypes p)
@@ -3121,7 +3100,7 @@ void setWorldSize(WorldSizeTypes w, bool bResetSlots)
 
 	if(kQuery.Step())
 	{
-		s_worldInfo.dirtyGet().CacheResult(kQuery);
+		s_worldInfo.CacheResult(kQuery);
 		s_worldSize = w;
 		if(bResetSlots)
 			resetSlots();
@@ -3144,8 +3123,8 @@ void setWorldSize(const CvString& w)
 
 	if(kQuery.Step())
 	{
-		s_worldInfo.dirtyGet().CacheResult(kQuery);
-		s_worldSize = (WorldSizeTypes)s_worldInfo.get().GetID();
+		s_worldInfo.CacheResult(kQuery);
+		s_worldSize = (WorldSizeTypes)s_worldInfo.GetID();
 		resetSlots();
 	}
 	else
@@ -3224,11 +3203,11 @@ const std::vector<bool>& victories()
 
 const CvWorldInfo& worldInfo()
 {
-	if(s_worldSize != s_worldInfo.get().GetID())
+	if(s_worldSize != s_worldInfo.GetID())
 	{
 		Database::SingleResult kResult;
 		DB.SelectAt(kResult, "Worlds", s_worldSize);
-		s_worldInfo.dirtyGet().CacheResult(kResult);
+		s_worldInfo.CacheResult(kResult);
 	}
 	return s_worldInfo;
 }
@@ -3465,7 +3444,7 @@ void setCivilizationKey(PlayerTypes p, const CvString& szKey)
 					kResults.Bind(1, szKey.c_str());
 					if(kResults.Step())
 					{
-						s_civilizations.setAt(p, (CivilizationTypes)kResults.GetInt(0));
+						s_civilizations[p] = (CivilizationTypes)kResults.GetInt(0);
 						if(!ExtractGUID(kResults.GetText(1), s_civilizationPackageID[p]))
 							ClearGUID(s_civilizationPackageID[p]);
 						s_civilizationKeysAvailable[p] = true;
@@ -3478,7 +3457,7 @@ void setCivilizationKey(PlayerTypes p, const CvString& szKey)
 
 		if(bFailed)
 		{
-			s_civilizations.setAt(p, NO_CIVILIZATION);
+			s_civilizations[p] = NO_CIVILIZATION;
 			ClearGUID(s_civilizationPackageID[p]);
 			s_civilizationKeysAvailable[p] = (szKey.length() == 0);	// If the key was empty, then it is the 'random' state so it is available
 			s_civilizationKeysPlayable[p] = s_civilizationKeysAvailable[p];
