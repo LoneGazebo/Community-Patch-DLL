@@ -729,8 +729,8 @@ void CvTacticalAnalysisMap::CreateDominanceZones()
 					std::tr1::unordered_set<CvPlot*>::iterator it = nonCityZonePlots.find(neighbor);
 					if (it != nonCityZonePlots.end())
 					{
-						nonCityZonePlots.erase(it);
 						stack.push_back(*it);
+						nonCityZonePlots.erase(it);
 					}
 				}
 			}

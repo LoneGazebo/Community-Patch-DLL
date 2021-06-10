@@ -176,7 +176,7 @@ CitySpecializationTypes CvCitySpecializationXMLEntries::GetFirstSpecializationFo
 /// Find the next specialization for a yield
 CitySpecializationTypes CvCitySpecializationXMLEntries::GetNextSpecializationForYield()
 {
-	for(m_CurrentIndex = m_CurrentIndex++; m_CurrentIndex < (int)m_paCitySpecializationEntries.size(); m_CurrentIndex++)
+	for(m_CurrentIndex = m_CurrentIndex+1; m_CurrentIndex < (int)m_paCitySpecializationEntries.size(); m_CurrentIndex++)
 	{
 		if(m_paCitySpecializationEntries[m_CurrentIndex]->GetYieldType() == m_CurrentYield)
 		{

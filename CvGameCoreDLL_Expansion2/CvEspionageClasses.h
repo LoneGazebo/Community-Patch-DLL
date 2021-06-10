@@ -107,7 +107,6 @@ FDataStream& operator<<(FDataStream&, const CvEspionageSpy&);
 //!  - Core data in this class is a list of CvEspionageSpies
 //!  - This object is created inside the CvPlayer object and accessed through CvPlayer
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-#if defined(MOD_BALANCE_CORE)
 struct ScoreCityEntry
 {
 	CvCity* m_pCity;
@@ -199,9 +198,7 @@ public:
 	CvSpyResult GetSpyRollResult(CvCity* pCity, CityEventChoiceTypes eEventChoice = NO_EVENT_CHOICE_CITY);
 #endif
 	void UncoverIntrigue(uint uiSpyIndex);
-#if defined(MOD_BALANCE_CORE)
 	void GetRandomIntrigue(CvCity* pCity, uint uiSpyIndex);
-#endif
 	void GetNextSpyName(CvEspionageSpy* pSpy);
 	bool IsSpyInCity(uint uiSpyIndex);
 	CvCity* GetCityWithSpy(uint uiSpyIndex);
@@ -284,7 +281,7 @@ public:
 	std::vector<SpyNotificationMessage> m_aSpyNotificationMessages; // cleared every turn after displayed for the player
 	std::vector<IntrigueNotificationMessage> m_aIntrigueNotificationMessages; // cleared only between games
 	NumSpyActionsDone m_aiNumSpyActionsDone;
-#endif
+
 private:
 	CvPlayer* m_pPlayer;
 };
@@ -332,7 +329,7 @@ public:
 #if defined(MOD_EVENTS_ESPIONAGE)
 	void SetSpyResult(PlayerTypes eSpyOwner, int iSpyIndex, int iResult);
 #else
-	void SetSpyResulttsp(PlayerTypes ePlayer, int iResult);
+	void SetSpyResult(PlayerTypes ePlayer, int iResult);
 #endif
 
 	bool HasPendingEvents(PlayerTypes ePlayer) const;

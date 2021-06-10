@@ -4225,12 +4225,14 @@ int CvGame::countHumanPlayersEverAlive() const
 
 //	--------------------------------------------------------------------------------
 int CvGame::countSeqHumanTurnsUntilPlayerTurn( PlayerTypes playerID ) const
-{//This function counts the number of sequential human player turns that remain before this player's turn.
+{
+	//This function counts the number of sequential human player turns that remain before this player's turn.
 	int humanTurnsUntilMe = 0;
 	bool startCountingPlayers = false;
 	CvPlayer& targetPlayer = GET_PLAYER(playerID);
 	if(targetPlayer.isSimultaneousTurns())
-	{//target player is playing simultaneous turns and is not actually in the sequential turn sequence.
+	{
+		//target player is playing simultaneous turns and is not actually in the sequential turn sequence.
 		//Count every human player in sequential turn mode who is taking or hasn't taken their turn.
 		for(int i = 0; i < MAX_PLAYERS; ++i)
 		{
@@ -4238,21 +4240,25 @@ int CvGame::countSeqHumanTurnsUntilPlayerTurn( PlayerTypes playerID ) const
 			if(kCurrentPlayer.isHuman() 
 				&& kCurrentPlayer.isAlive() 
 				&& !kCurrentPlayer.isSimultaneousTurns())
-			{//another human player who is playing sequential turns.
+			{
+				//another human player who is playing sequential turns.
 				if(kCurrentPlayer.isTurnActive())
-				{//This player is currently playing their turn. Start counting human players after this point.
+				{
+					//This player is currently playing their turn. Start counting human players after this point.
 					startCountingPlayers = true;
 					humanTurnsUntilMe++;
 				}
 				else if(startCountingPlayers)
-				{//This is a human player who's before us in line.
+				{
+					//This is a human player who's before us in line.
 					humanTurnsUntilMe++;
 				}
 			}
 		}	
 	}
 	else
-	{//target player is playing sequential turns.  
+	{
+		//target player is playing sequential turns.  
 		//Our next turn will begin after every sequential player has finished this turn 
 		//AND everyone ahead of us in the sequence has finished their turn for the NEXT turn.
 
@@ -4263,20 +4269,24 @@ int CvGame::countSeqHumanTurnsUntilPlayerTurn( PlayerTypes playerID ) const
 		{
 			CvPlayer& kCurrentPlayer = GET_PLAYER((PlayerTypes)curPlayerIdx);
 			if(kCurrentPlayer.GetID() == targetPlayer.GetID())
-			{//This is us.  We've looped back to ourself.  We're done.
+			{
+				//This is us.  We've looped back to ourself.  We're done.
 				break;
 			}
 			else if(kCurrentPlayer.isHuman() 
 				&& kCurrentPlayer.isAlive() 
 				&& !kCurrentPlayer.isSimultaneousTurns())
-			{//another human player who is playing sequential turns.
+			{
+				//another human player who is playing sequential turns.
 				if(kCurrentPlayer.isTurnActive())
-				{//This player is currently playing their turn. Start counting human players after this point.
+				{
+					//This player is currently playing their turn. Start counting human players after this point.
 					startCountingPlayers = true;
 					humanTurnsUntilMe++;
 				}
 				else if(startCountingPlayers)
-				{//This is a human player who's before us in line.
+				{
+					//This is a human player who's before us in line.
 					humanTurnsUntilMe++;
 				}
 			}
