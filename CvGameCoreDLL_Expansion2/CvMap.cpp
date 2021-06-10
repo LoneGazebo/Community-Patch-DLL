@@ -23,6 +23,7 @@
 #include "CvAStar.h"
 #include "CvInfos.h"
 #include "CvInfosSerializationHelper.h"
+#include "CvEnumMapSerialization.h"
 // for GUIDs
 typedef struct tagMSG* LPMSG;
 #include <objbase.h>
@@ -156,46 +157,34 @@ int CvLandmass::GetCentroidY()
 	return -1;
 }
 
+//	--------------------------------------------------------------------------------
+template<typename Landmass, typename Visitor>
+void CvLandmass::Serialize(Landmass& landmass, Visitor& visitor)
+{
+	visitor(landmass.m_iID);
+	visitor(landmass.m_iNumTiles);
+
+	visitor(landmass.m_iCentroidX);
+	visitor(landmass.m_iCentroidY);
+
+	visitor(landmass.m_bWater);
+
+	visitor(landmass.m_cContinentType);
+}
 
 //	--------------------------------------------------------------------------------
 void CvLandmass::read(FDataStream& kStream)
 {
-	// Version number to maintain backwards compatibility
-	uint uiVersion;
-	kStream >> uiVersion;
-	MOD_SERIALIZE_INIT_READ(kStream);
-
-	kStream >> m_iID;
-	kStream >> m_iNumTiles;
-
-	kStream >> m_iCentroidX;
-	kStream >> m_iCentroidY;
-
-	kStream >> m_bWater;
-
-	kStream >> m_cContinentType;
+	CvStreamLoadVisitor serialVisitor(kStream);
+	Serialize(*this, serialVisitor);
 }
 
 //	--------------------------------------------------------------------------------
 void CvLandmass::write(FDataStream& kStream) const
 {
-	// Current version number
-	uint uiVersion = 1;
-	kStream << uiVersion;
-	MOD_SERIALIZE_INIT_WRITE(kStream);
-
-	kStream << m_iID;
-	kStream << m_iNumTiles;
-
-	kStream << m_iCentroidX;
-	kStream << m_iCentroidY;
-
-	kStream << m_bWater;
-
-	kStream << m_cContinentType;
-
+	CvStreamSaveVisitor serialVisitor(kStream);
+	Serialize(*this, serialVisitor);
 }
-
 
 //	--------------------------------------------------------------------------------
 FDataStream& operator<<(FDataStream& saveTo, const CvLandmass& readFrom)
@@ -223,9 +212,6 @@ CvMap::CvMap()
 
 	CvAssert(sgCvMapInstanceCount == 0);
 	++sgCvMapInstanceCount;
-
-	m_paiNumResource = NULL;
-	m_paiNumResourceOnLand = NULL;
 
 	m_pMapPlots = NULL;
 #if defined(MOD_BALANCE_CORE)
@@ -460,8 +446,8 @@ CvPlot** CvMap::getNeighborsShuffled(const CvPlot* pPlot)
 //	--------------------------------------------------------------------------------
 void CvMap::uninit()
 {
-	SAFE_DELETE_ARRAY(m_paiNumResource);
-	SAFE_DELETE_ARRAY(m_paiNumResourceOnLand);
+	m_paiNumResource.uninit();
+	m_paiNumResourceOnLand.uninit();
 
 	SAFE_DELETE_ARRAY(m_pMapPlots);
 	SAFE_DELETE_ARRAY(m_pYields);
@@ -544,20 +530,9 @@ void CvMap::reset(CvMapInitData* pInitInfo)
 		m_bWrapY = pInitInfo->m_bWrapY;
 	}
 
-	int iNumResourceInfos = GC.getNumResourceInfos();
-	if(iNumResourceInfos)
-	{
-		CvAssertMsg((0 < GC.getNumResourceInfos()), "GC.getNumResourceInfos() is not greater than zero but an array is being allocated in CvMap::reset");
-		CvAssertMsg(m_paiNumResource==NULL, "mem leak m_paiNumResource");
-		m_paiNumResource = FNEW(int[iNumResourceInfos], c_eCiv5GameplayDLL, 0);
-		CvAssertMsg(m_paiNumResourceOnLand==NULL, "mem leak m_paiNumResourceOnLand");
-		m_paiNumResourceOnLand = FNEW(int[iNumResourceInfos], c_eCiv5GameplayDLL, 0);
-		for(int iI = 0; iI < iNumResourceInfos; iI++)
-		{
-			m_paiNumResource[iI] = 0;
-			m_paiNumResourceOnLand[iI] = 0;
-		}
-	}
+	CvAssertMsg((0 < GC.getNumResourceInfos()), "GC.getNumResourceInfos() is not greater than zero but an array is being allocated in CvMap::reset");
+	m_paiNumResource.init(0);
+	m_paiNumResourceOnLand.init(0);
 
 	m_areas.RemoveAll();
 	m_landmasses.RemoveAll();
@@ -1401,6 +1376,61 @@ void CvMap::recalculateAreas()
 }
 
 //	--------------------------------------------------------------------------------
+template<typename Map, typename Visitor>
+void CvMap::Serialize(Map& map, Visitor& visitor)
+{
+	const bool bLoading = visitor.isLoading();
+	const bool bSaving = visitor.isSaving();
+
+	CvMap& mutMap = const_cast<CvMap&>(map);
+
+	visitor(map.m_iGridWidth);
+	visitor(map.m_iGridHeight);
+	if (bLoading)
+		visitor.loadAssign(map.m_iGridSize, map.m_iGridHeight * map.m_iGridWidth);
+	visitor(map.m_iLandPlots);
+	visitor(map.m_iOwnedPlots);
+	visitor(map.m_iNumNaturalWonders);
+
+	visitor(map.m_iTopLatitude);
+	visitor(map.m_iBottomLatitude);
+
+	visitor(map.m_bWrapX);
+	visitor(map.m_bWrapY);
+	visitor(map.m_guid);
+
+	CvAssertMsg((0 < GC.getNumResourceInfos()), "GC.getNumResourceInfos() is not greater than zero but an array is being allocated");
+	visitor(map.m_paiNumResource);
+	visitor(map.m_paiNumResourceOnLand);
+
+	if (bLoading)
+		mutMap.InitPlots();
+
+	for (int iY = 0; iY < map.getGridHeight(); ++iY)
+	{
+		for (int iX = 0; iX < map.getGridWidth(); ++iX)
+		{
+			if (bLoading)
+			{
+				CvPlot* mutPlot = const_cast<CvPlot*>(map.plotUnchecked(iX, iY));
+				mutPlot->read(visitor.stream(), iX, iY);
+			}
+			if (bSaving)
+			{
+				map.plotUnchecked(iX, iY)->write(visitor.stream());
+			}
+		}
+	}
+
+	// call the read of the free list CvArea class allocations
+	visitor(map.m_areas);
+
+	visitor(map.m_landmasses);
+
+	visitor(map.m_iAIMapHints);
+}
+
+//	--------------------------------------------------------------------------------
 //
 // read object from a stream
 // used during load
@@ -1412,50 +1442,8 @@ void CvMap::Read(FDataStream& kStream)
 	// Init data before load
 	reset(&defaultMapData);
 
-	// Version number to maintain backwards compatibility
-	uint uiVersion;
-	kStream >> uiVersion;
-	MOD_SERIALIZE_INIT_READ(kStream);
-
-	kStream >> m_iGridWidth;
-	kStream >> m_iGridHeight;
-	m_iGridSize = m_iGridHeight * m_iGridWidth;
-	kStream >> m_iLandPlots;
-	kStream >> m_iOwnedPlots;
-	kStream >> m_iNumNaturalWonders;
-
-	kStream >> m_iTopLatitude;
-	kStream >> m_iBottomLatitude;
-
-	kStream >> m_bWrapX;
-	kStream >> m_bWrapY;
-
-	kStream >> m_guid.Data1;
-	kStream >> m_guid.Data2;
-	kStream >> m_guid.Data3;
-	ArrayWrapper<unsigned char> wrapm_guid(8, m_guid.Data4);
-	kStream >> wrapm_guid;
-
-	CvAssertMsg((0 < GC.getNumResourceInfos()), "GC.getNumResourceInfos() is not greater than zero but an array is being allocated");
-	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_paiNumResource, GC.getNumResourceInfos());
-	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_paiNumResourceOnLand, GC.getNumResourceInfos());
-
-	if(numPlots() > 0)
-	{
-		InitPlots();
-		int iI;
-		for(iI = 0; iI < numPlots(); iI++)
-		{
-			m_pMapPlots[iI].read(kStream);
-		}
-	}
-
-	// call the read of the free list CvArea class allocations
-	kStream >> m_areas;
-
-	kStream >> m_landmasses;
-
-	kStream >> m_iAIMapHints;
+	CvStreamLoadVisitor serialVisitor(kStream);
+	Serialize(*this, serialVisitor);
 
 	setup();
 
@@ -1476,43 +1464,8 @@ void CvMap::Read(FDataStream& kStream)
 //
 void CvMap::Write(FDataStream& kStream) const
 {
-	// Current version number
-	uint uiVersion = 1;
-	kStream << uiVersion;
-	MOD_SERIALIZE_INIT_WRITE(kStream);
-
-	kStream << m_iGridWidth;
-	kStream << m_iGridHeight;
-	kStream << m_iLandPlots;
-	kStream << m_iOwnedPlots;
-	kStream << m_iNumNaturalWonders;
-
-	kStream << m_iTopLatitude;
-	kStream << m_iBottomLatitude;
-	kStream << m_bWrapX;
-	kStream << m_bWrapY;
-
-	kStream << m_guid.Data1;
-	kStream << m_guid.Data2;
-	kStream << m_guid.Data3;
-	kStream << ArrayWrapper<const unsigned char>(8, m_guid.Data4);
-
-	CvAssertMsg((0 < GC.getNumResourceInfos()), "GC.getNumResourceInfos() is not greater than zero but an array is being allocated");
-	CvInfosSerializationHelper::WriteHashedDataArray<ResourceTypes>(kStream, m_paiNumResource, GC.getNumResourceInfos());
-	CvInfosSerializationHelper::WriteHashedDataArray<ResourceTypes>(kStream, m_paiNumResourceOnLand, GC.getNumResourceInfos());
-
-	int iI;
-	for(iI = 0; iI < numPlots(); iI++)
-	{
-		m_pMapPlots[iI].write(kStream);
-	}
-
-	// call the read of the free list CvArea class allocations
-	kStream << m_areas;
-
-	kStream << m_landmasses;
-
-	kStream << m_iAIMapHints;
+	CvStreamSaveVisitor serialVisitor(kStream);
+	Serialize(*this, serialVisitor);
 }
 
 

@@ -26,6 +26,7 @@
 #include "CvInfos.h"
 #include "CvPlotManager.h"
 #include "CvGameCoreUtils.h"
+#include "CvEnumMap.h"
 
 // a simplified version of CvArea for use primarily with the continent generation system
 // one huge difference is that impassible terrain doesn't split a landmass like it would a CvArea
@@ -54,6 +55,8 @@ public:
 	int GetCentroidY();
 
 	// for serialization
+	template<typename Landmass, typename Visitor>
+	static void Serialize(Landmass& landmass, Visitor& visitor);
 	virtual void read(FDataStream& kStream);
 	virtual void write(FDataStream& kStream) const;
 
@@ -301,6 +304,8 @@ public:
 	void DefaultContinentStamper();
 
 	// Serialization:
+	template<typename Map, typename Visitor>
+	static void Serialize(Map& map, Visitor& visitor);
 	void Read(FDataStream& kStream);
 	void Write(FDataStream& kStream) const;
 	GUID GetGUID() const
@@ -355,8 +360,8 @@ protected:
 	bool m_bWrapX;
 	bool m_bWrapY;
 
-	int* m_paiNumResource;
-	int* m_paiNumResourceOnLand;
+	CvEnumMap<ResourceTypes, int> m_paiNumResource;
+	CvEnumMap<ResourceTypes, int> m_paiNumResourceOnLand;
 
 	CvPlot* m_pMapPlots;
 #if defined(MOD_BALANCE_CORE)

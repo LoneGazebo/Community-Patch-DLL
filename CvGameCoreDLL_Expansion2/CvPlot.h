@@ -93,7 +93,7 @@ public:
 
 	void init(int iX, int iY);
 	void uninit();
-	void reset(int iX = 0, int iY = 0, bool bConstructorCall=false);
+	void reset();
 
 	void setupGraphical();
 
@@ -807,7 +807,7 @@ public:
 
 	template<typename Plot, typename Visitor>
 	static void Serialize(Plot& plot, Visitor& visitor);
-	void read(FDataStream& kStream);
+	void read(FDataStream& kStream, int iX, int iY);
 	void write(FDataStream& kStream) const;
 
 	int GetPlotIndex() const;
@@ -929,35 +929,39 @@ protected:
 	class PlotBoolField
 	{
 	public:
-		//two 32 bit DWORDS for 64 bit capacity
-		enum config { eCount = 2, eSize = 32 };
-		DWORD m_dwBits[eCount];
+		enum
+		{
+			eSize = 32,
+			eCount = (MAX_PLAYERS / eSize) + (MAX_PLAYERS % eSize == 0 ? 0 : 1),
+			eTotalBits = eCount * eSize
+		};
+		uint32 m_bits[eTotalBits];
 
 		bool GetBit(const uint uiEntry) const
 		{
 			const uint uiOffset = uiEntry/eSize;
-			return m_dwBits[uiOffset] & 1<<(uiEntry-(eSize*uiOffset));
+			return m_bits[uiOffset] & 1<<(uiEntry-(eSize*uiOffset));
 		}
 		void SetBit(const uint uiEntry)
 		{
 			const uint uiOffset = uiEntry/eSize;
-			m_dwBits[uiOffset] |= 1<<(uiEntry-(eSize*uiOffset));
+			m_bits[uiOffset] |= 1<<(uiEntry-(eSize*uiOffset));
 		}
 		void ClearBit(const uint uiEntry)
 		{
 			const uint uiOffset = uiEntry/eSize;
-			m_dwBits[uiOffset] &= ~(1<<(uiEntry-(eSize*uiOffset)));
+			m_bits[uiOffset] &= ~(1<<(uiEntry-(eSize*uiOffset)));
 		}
 		void ToggleBit(const uint uiEntry)
 		{
 			const uint uiOffset = uiEntry/eSize;
-			m_dwBits[uiOffset] ^= 1<<(uiEntry-(eSize*uiOffset));
+			m_bits[uiOffset] ^= 1<<(uiEntry-(eSize*uiOffset));
 		}
 		void ClearAll()
 		{
 			for(uint i = 0; i <eCount; ++i)
 			{
-				m_dwBits[i] = 0;
+				m_bits[i] = 0;
 			}
 		}
 
