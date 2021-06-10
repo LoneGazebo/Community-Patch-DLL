@@ -1454,7 +1454,7 @@ void loadFromIni(FIGameIniParser& iniParser)
 	if(szHolder != "EMPTY")
 	{
 		StringToBools(szHolder, &iNumBools, &pbBools);
-		iNumBools = std::min(iNumBools, GC.getNumVictoryInfos());
+		iNumBools = std::min(iNumBools, DB.Count("Victories"));
 		int i;
 		std::vector<bool> tempVBool;
 		for(i = 0; i < iNumBools; i++)
