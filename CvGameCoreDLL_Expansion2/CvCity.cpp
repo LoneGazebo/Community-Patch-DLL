@@ -30013,7 +30013,7 @@ void CvCity::clearOrderQueue()
 void CvCity::pushOrder(OrderTypes eOrder, int iData1, int iData2, bool bSave, bool bPop, bool bAppend, bool bRush)
 {
 	VALIDATE_OBJECT
-OrderData order;
+	OrderData order;
 	bool bValid;
 
 	if(bPop)
@@ -30410,6 +30410,23 @@ void CvCity::swapOrder(int iNum)
 	}
 }
 
+bool CvCity::hasOrder(OrderTypes eOrder, int iData1, int iData2) const
+{
+	for (int iI = 0; iI < getOrderQueueLength(); iI++)
+	{
+		const OrderData* pOrder = getOrderFromQueue(iI);
+		if (pOrder != NULL)
+		{
+			if (pOrder->eOrderType == eOrder && pOrder->iData1 == iData1 && pOrder->iData2 == iData2)
+			{
+				return true;
+			}
+		}
+	}
+
+	return false;
+}
+
 
 //	--------------------------------------------------------------------------------
 void CvCity::startHeadOrder()
@@ -30446,27 +30463,23 @@ void CvCity::stopHeadOrder()
 
 
 //	--------------------------------------------------------------------------------
-int CvCity::getOrderQueueLength()
+int CvCity::getOrderQueueLength() const
 {
 	VALIDATE_OBJECT
 	return m_orderQueue.getLength();
 }
 
 
+const OrderData * CvCity::getOrderFromQueue(int iIndex) const
+{
+	return m_orderQueue.getAt(iIndex);
+}
+
 //	--------------------------------------------------------------------------------
 OrderData* CvCity::getOrderFromQueue(int iIndex)
 {
 	VALIDATE_OBJECT
-	OrderData* pOrderNode = m_orderQueue.getAt(iIndex);
-
-	if (pOrderNode != NULL)
-	{
-		return pOrderNode;
-	}
-	else
-	{
-		return NULL;
-	}
+	return m_orderQueue.getAt(iIndex);
 }
 
 
@@ -31969,7 +31982,11 @@ void CvCity::Purchase(UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectT
 						{
 							clearOrderQueue();
 						}
-						pushOrder(ORDER_TRAIN, eUnitType, -1, false, false, true, false);
+
+						if (!hasOrder(ORDER_TRAIN, eUnitType, -1))
+						{
+							pushOrder(ORDER_TRAIN, eUnitType, -1, false, false, true, false);
+						}
 					}
 				}
 				else
@@ -32062,7 +32079,10 @@ void CvCity::Purchase(UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectT
 							clearOrderQueue();
 						}
 
-						pushOrder(ORDER_CONSTRUCT, eBuildingType, -1, false, false, true, false);
+						if (!hasOrder(ORDER_CONSTRUCT, eBuildingType, -1))
+						{
+							pushOrder(ORDER_CONSTRUCT, eBuildingType, -1, false, false, true, false);
+						}
 					}
 				}
 			}

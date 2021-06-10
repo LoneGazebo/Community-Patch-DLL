@@ -477,9 +477,6 @@ void CvPlayerContracts::InitContractUnits(ContractTypes eContract)
 					int iBestPop = 0;
 					for(pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
 					{
-						if(pLoopCity == NULL)
-							continue;
-
 						if(pkUnitInfo->GetDomainType() == DOMAIN_SEA)
 						{
 							if(!pLoopCity->isCoastal())

@@ -224,7 +224,7 @@ bool s_dummyvalue(false);
 std::vector<bool> s_multiplayerOptions(NUM_MPOPTION_TYPES);
 std::vector<int> s_netIDs(MAX_PLAYERS);
 std::vector<CvString> s_nicknames(MAX_PLAYERS);
-int s_numVictoryInfos(GC.getNumVictoryInfos());
+int s_numVictoryInfos(0);
 int s_pitBossTurnTime(0);
 std::vector<bool> s_playableCivs(MAX_PLAYERS);
 std::vector<PlayerColorTypes> s_playerColors(MAX_PLAYERS);
@@ -249,7 +249,7 @@ bool s_transferredMap(false);
 CvTurnTimerInfo s_turnTimer;
 TurnTimerTypes s_turnTimerType(NO_TURNTIMER);
 bool s_bCityScreenBlocked(false);
-std::vector<bool> s_victories(s_numVictoryInfos);
+std::vector<bool> s_victories;
 std::vector<bool> s_whiteFlags(MAX_PLAYERS);
 CvWorldInfo s_worldInfo;
 WorldSizeTypes s_worldSize(NO_WORLDSIZE);
@@ -1435,7 +1435,7 @@ void loadFromIni(FIGameIniParser& iniParser)
 	if(szHolder != "EMPTY")
 	{
 		StringToBools(szHolder, &iNumBools, &pbBools);
-		iNumBools = std::min(iNumBools, GC.getNumVictoryInfos());
+		iNumBools = std::min(iNumBools, s_numVictoryInfos);
 		int i;
 		std::vector<bool> tempVBool;
 		for(i = 0; i < iNumBools; i++)
@@ -1969,17 +1969,6 @@ void resetGame()
 	s_turnTimerType = (TurnTimerTypes)4;//GC.getSTANDARD_TURNTIMER();	// NO_ option?
 	s_calendar  = (CalendarTypes)0;//GC.getSTANDARD_CALENDAR();	// NO_ option?
 
-	// Data-defined victory conditions
-	s_numVictoryInfos = GC.getNumVictoryInfos();
-	s_victories.clear();
-	if(s_numVictoryInfos > 0)
-	{
-		for(int i = 0; i < s_numVictoryInfos; ++i)
-		{
-			s_victories.push_back(true);
-		}
-	}
-
 	// Standard game options
 	int i;
 	for(i = 0; i < NUM_MPOPTION_TYPES; ++i)
@@ -2049,15 +2038,8 @@ void ResetGameOptions()
 	SyncGameOptionsWithEnumList();
 
 	// victory conditions
-	s_numVictoryInfos = GC.getNumVictoryInfos();
-	s_victories.clear();
-	if(s_numVictoryInfos > 0)
-	{
-		for(int i = 0; i < s_numVictoryInfos; ++i)
-		{
-			s_victories.push_back(true);
-		}
-	}
+	s_numVictoryInfos = DB.Count("Victories");
+	s_victories.resize(s_numVictoryInfos, true);
 
 }
 void ResetMapOptions()
@@ -3041,8 +3023,9 @@ void setVictory(VictoryTypes v, bool isValid)
 
 void setVictories(const std::vector<bool>& v)
 {
-	s_victories = v;
-	s_numVictoryInfos = s_victories.size();
+	CvAssert(v.size() <= std::size_t(s_numVictoryInfos));
+	for (std::size_t i = 0; i < v.size(); i++)
+		s_victories[i] = v[i];
 }
 
 void setWhiteFlag(PlayerTypes p, bool flag)

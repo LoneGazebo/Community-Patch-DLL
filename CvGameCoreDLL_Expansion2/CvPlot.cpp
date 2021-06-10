@@ -13698,6 +13698,55 @@ void CvPlot::updateImpassable(TeamTypes eTeam)
 	}
 }
 
+int CvPlot::getTurnDamage(bool bIgnoreTerrainDamage, bool bIgnoreFeatureDamage, bool bExtraTerrainDamage, bool bExtraFeatureDamage) const
+{
+	int damage = 0;
+
+	const TerrainTypes eTerrain = getTerrainType();
+	const FeatureTypes eFeature = getFeatureType();
+		
+	// Make an exception for the volcano
+	if (eFeature != NO_FEATURE)
+	{
+		CvFeatureInfo* pkFeatureInfo = GC.getFeatureInfo(eFeature);
+		if (pkFeatureInfo)
+		{
+			if (pkFeatureInfo->GetType() == CvString("FEATURE_VOLCANO"))
+			{
+				bIgnoreTerrainDamage = false;
+				bIgnoreFeatureDamage = false;
+			}
+			if (!bIgnoreFeatureDamage)
+			{
+				damage += pkFeatureInfo->getTurnDamage();
+			}
+			if (bExtraFeatureDamage)
+			{
+				damage += pkFeatureInfo->getExtraTurnDamage();
+			}
+		}
+	}
+
+	if (eTerrain != NO_TERRAIN) 
+	{
+		CvTerrainInfo* pkTerrainInfo = GC.getTerrainInfo(eTerrain);
+		if (pkTerrainInfo) 
+		{
+			// no damage for units on montain cities
+			if (!bIgnoreTerrainDamage && !isCity())
+			{						
+				damage += pkTerrainInfo->getTurnDamage();
+			}
+			if (bExtraTerrainDamage)
+			{
+				damage += pkTerrainInfo->getExtraTurnDamage();
+			}
+		}
+	}
+
+	return damage;
+}
+
 bool CvPlot::isImpassable(TeamTypes eTeam) const
 {
 	if(eTeam != NO_TEAM)

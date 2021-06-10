@@ -612,9 +612,6 @@ void CvPlayerCorporations::DestroyCorporation()
 	// Destroy our headquarters and offices
 	for(CvCity* pCity = m_pPlayer->firstCity(&iLoop); pCity != NULL; pCity = m_pPlayer->nextCity(&iLoop))
 	{
-		if (pCity == NULL)
-			continue;
-
 		if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
 		{
 			eHeadquarters = pCity->GetCityBuildings()->GetBuildingTypeFromClass(eHeadquartersClass);
