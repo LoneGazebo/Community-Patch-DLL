@@ -18,9 +18,29 @@
 #include "CvCitySpecializationAI.h"
 #include "CvTypes.h"
 #include "cvStopWatch.h"
+#include "CvSpanSerialization.h"
+#include "CvGameCoreEnumSerialization.h"
 
 // must be included after all other headers
 #include "LintFree.h"
+
+FDataStream& operator>>(FDataStream& loadFrom, PurchaseType& writeTo)
+{
+	return ReadBasicEnum<int>(loadFrom, writeTo);
+}
+FDataStream& operator<<(FDataStream& saveTo, const PurchaseType& readFrom)
+{
+	return WriteBasicEnum<int>(saveTo, readFrom);
+}
+
+FDataStream& operator>>(FDataStream& loadFrom, ReconState& writeTo)
+{
+	return ReadBasicEnum<int>(loadFrom, writeTo);
+}
+FDataStream& operator<<(FDataStream& saveTo, const ReconState& readFrom)
+{
+	return WriteBasicEnum<int>(saveTo, readFrom);
+}
 
 //=====================================
 // CvEconomicAIStrategyXMLEntry
@@ -322,125 +342,45 @@ void CvEconomicAI::Reset()
 #endif
 }
 
+///
+template<typename EconomicAI, typename Visitor>
+void CvEconomicAI::Serialize(EconomicAI& economicAI, Visitor& visitor)
+{
+	CvAssert(economicAI.m_pAIStrategies != NULL);
+	const int iNumStrategies = economicAI.m_pAIStrategies->GetNumEconomicAIStrategies();
+	CvAssertMsg(iNumStrategies > 0, "Number of AIStrategies to serialize is expected to greater than 0");
+	visitor(MakeConstSpan(economicAI.m_pabUsingStrategy, iNumStrategies));
+	visitor(MakeConstSpan(economicAI.m_paiTurnStrategyAdopted, iNumStrategies));
+
+	visitor(economicAI.m_vPlotsToExploreLand);
+	visitor(economicAI.m_vPlotsToExploreSea);
+
+	visitor(economicAI.m_eReconState);
+	visitor(economicAI.m_eNavalReconState);
+	visitor(economicAI.m_iExplorersDisbanded);
+	visitor(economicAI.m_iLastTurnWorkerDisbanded);
+	visitor(economicAI.m_iVisibleAntiquitySites);
+	visitor(economicAI.m_iVisibleAntiquitySitesOwn);
+	visitor(economicAI.m_iVisibleHiddenAntiquitySitesOwn);
+	visitor(economicAI.m_iVisibleAntiquitySitesNeutral);
+	visitor(economicAI.m_iExplorersNeeded);
+	visitor(economicAI.m_iNavalExplorersNeeded);
+
+	visitor(economicAI.m_RequestedSavings);
+}
+
 /// Serialization read
 void CvEconomicAI::Read(FDataStream& kStream)
 {
-	// Version number to maintain backwards compatibility
-	uint uiVersion;
-	kStream >> uiVersion;
-	MOD_SERIALIZE_INIT_READ(kStream);
-
-	int iEntriesToRead;
-
-	FAssertMsg(m_pAIStrategies != NULL && m_pAIStrategies->GetNumEconomicAIStrategies() > 0, "Number of AIStrategies to serialize is expected to greater than 0");
-
-	kStream >> iEntriesToRead;
-
-#ifdef _MSC_VER
-#pragma warning ( push )
-#pragma warning ( disable : 6011 ) // no clear solution or recovery if m_pAIStrategies is ever NULL
-#endif//_MSC_VER
-	ArrayWrapper<bool> wrapGetNumEconomicAIStrategies(iEntriesToRead, m_pabUsingStrategy);
-#ifdef _MSC_VER
-#pragma warning ( pop )
-#endif//_MSC_VER
-
-	kStream >> wrapGetNumEconomicAIStrategies;
-
-	ArrayWrapper<int> wrapGetNumEconomicAIStrategies2(iEntriesToRead, m_paiTurnStrategyAdopted);
-	kStream >> wrapGetNumEconomicAIStrategies2;
-
-	kStream >> iEntriesToRead;
-
-#define MAX_PLOT_ARRAY_SIZE	((152+1)*(96+1))
-	int iMaxEntriesToRead = MIN(MAX_PLOT_ARRAY_SIZE, iEntriesToRead);
-
-	for(int i = 0; i < iMaxEntriesToRead; i++)
-	{
-		int idx,score;
-		kStream >> idx;
-		kStream >> score;
-		m_vPlotsToExploreLand.push_back( SPlotWithScore( GC.getMap().plotByIndex(idx),score ) );
-	}
-
-	kStream >> iEntriesToRead;
-	iMaxEntriesToRead = MIN(MAX_PLOT_ARRAY_SIZE, iEntriesToRead);
-	for(int i = 0; i < iMaxEntriesToRead; i++)
-	{
-		int idx,score;
-		kStream >> idx;
-		kStream >> score;
-		m_vPlotsToExploreSea.push_back( SPlotWithScore( GC.getMap().plotByIndex(idx),score ) );
-	}
-
-	int iTemp;
-	kStream >> iTemp;
-	m_eReconState = (ReconState)iTemp;
-	kStream >> iTemp;
-	m_eNavalReconState = (ReconState)iTemp;
-
-	kStream >> m_iExplorersDisbanded;
-	kStream >> m_iLastTurnWorkerDisbanded;
-	kStream >> m_iVisibleAntiquitySites;
-#if defined(MOD_BALANCE_CORE)
-	kStream >> m_iVisibleAntiquitySitesOwn;
-	kStream >> m_iVisibleHiddenAntiquitySitesOwn;
-	kStream >> m_iVisibleAntiquitySitesNeutral;
-	kStream >> m_iExplorersNeeded;
-	kStream >> m_iNavalExplorersNeeded;
-#endif
-
-	kStream >> iEntriesToRead;
-	for(int i = 0; i < iEntriesToRead; i++)
-	{
-		kStream >> m_RequestedSavings[i];
-	}
+	CvStreamLoadVisitor serialVisitor(kStream);
+	CvEconomicAI::Serialize(*this, serialVisitor);
 }
 
 /// Serialization write
 void CvEconomicAI::Write(FDataStream& kStream) const
 {
-	// Current version number
-	uint uiVersion = 1;
-	kStream << uiVersion;
-	MOD_SERIALIZE_INIT_WRITE(kStream);
-
-	FAssertMsg(GC.getNumEconomicAIStrategyInfos() > 0, "Number of AIStrategies to serialize is expected to greater than 0");
-	kStream << m_pAIStrategies->GetNumEconomicAIStrategies();
-	kStream << ArrayWrapper<bool>(m_pAIStrategies->GetNumEconomicAIStrategies(), m_pabUsingStrategy);
-	kStream << ArrayWrapper<int>(m_pAIStrategies->GetNumEconomicAIStrategies(), m_paiTurnStrategyAdopted);
-
-	kStream << m_vPlotsToExploreLand.size();
-	for(uint ui = 0; ui < m_vPlotsToExploreLand.size(); ui++)
-	{
-		kStream << GC.getMap().plotNum( m_vPlotsToExploreLand[ui].pPlot->getX(), m_vPlotsToExploreLand[ui].pPlot->getY() );
-		kStream << m_vPlotsToExploreLand[ui].score;
-	}
-	kStream << m_vPlotsToExploreSea.size();
-	for(uint ui = 0; ui < m_vPlotsToExploreSea.size(); ui++)
-	{
-		kStream << GC.getMap().plotNum( m_vPlotsToExploreSea[ui].pPlot->getX(), m_vPlotsToExploreSea[ui].pPlot->getY() );
-		kStream << m_vPlotsToExploreSea[ui].score;
-	}
-
-	kStream << (int)m_eReconState;
-	kStream << (int)m_eNavalReconState;
-	kStream << m_iExplorersDisbanded;
-	kStream << m_iLastTurnWorkerDisbanded;
-	kStream << m_iVisibleAntiquitySites;
-#if defined(MOD_BALANCE_CORE)
-	kStream << m_iVisibleAntiquitySitesOwn;
-	kStream << m_iVisibleHiddenAntiquitySitesOwn;
-	kStream << m_iVisibleAntiquitySitesNeutral;
-	kStream << m_iExplorersNeeded;
-	kStream << m_iNavalExplorersNeeded;
-#endif
-
-	kStream << (int)m_RequestedSavings.size();
-	for(uint ui = 0; ui < m_RequestedSavings.size(); ui++)
-	{
-		kStream << m_RequestedSavings[ui];
-	}
+	CvStreamSaveVisitor serialVisitor(kStream);
+	CvEconomicAI::Serialize(*this, serialVisitor);
 }
 
 FDataStream& operator>>(FDataStream& stream, CvEconomicAI& economicAI)
@@ -3065,21 +3005,26 @@ void CvEconomicAI::LogScrapUnit(CvUnit* pUnit, int iNumWorkers, int iNumCities, 
 	m_pPlayer->GetHomelandAI()->LogHomelandMessage(strLogString);
 }
 
+///
+template<typename PurchaseRequest, typename Visitor>
+void CvPurchaseRequest::Serialize(PurchaseRequest& purchaseRequest, Visitor& visitor)
+{
+	visitor(purchaseRequest.m_eType);
+	visitor(purchaseRequest.m_iAmount);
+	visitor(purchaseRequest.m_iPriority);
+}
+
 FDataStream& operator<<(FDataStream& saveTo, const CvPurchaseRequest& readFrom)
 {
-	saveTo << (int)readFrom.m_eType;
-	saveTo << readFrom.m_iAmount;
-	saveTo << readFrom.m_iPriority;
+	CvStreamSaveVisitor serialVisitor(saveTo);
+	CvPurchaseRequest::Serialize(readFrom, serialVisitor);
 	return saveTo;
 }
 
 FDataStream& operator>>(FDataStream& loadFrom, CvPurchaseRequest& writeTo)
 {
-	int iTemp;
-	loadFrom >> iTemp;
-	writeTo.m_eType = (PurchaseType)iTemp;
-	loadFrom >> writeTo.m_iAmount;
-	loadFrom >> writeTo.m_iPriority;
+	CvStreamLoadVisitor serialVisitor(loadFrom);
+	CvPurchaseRequest::Serialize(writeTo, serialVisitor);
 	return loadFrom;
 }
 

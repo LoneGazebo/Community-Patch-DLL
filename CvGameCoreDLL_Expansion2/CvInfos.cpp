@@ -110,30 +110,30 @@ bool CvBaseInfo::operator==(const CvBaseInfo& rhs) const
 	return true;
 }
 
+template<typename BaseInfo, typename Visitor>
+void CvBaseInfo::Serialize(BaseInfo& baseInfo, Visitor& visitor)
+{
+	visitor(baseInfo.m_iID);
+	visitor(baseInfo.m_strCivilopedia);
+	visitor(baseInfo.m_strDescription);
+	visitor(baseInfo.m_strHelp);
+	visitor(baseInfo.m_strDisabledHelp);
+	visitor(baseInfo.m_strStrategy);
+	visitor(baseInfo.m_strType);
+	visitor(baseInfo.m_strTextKey);
+	visitor(baseInfo.m_strText);
+}
+
 void CvBaseInfo::readFrom(FDataStream& loadFrom)
 {
-	loadFrom >> m_iID;
-	loadFrom >> m_strCivilopedia;
-	loadFrom >> m_strDescription;
-	loadFrom >> m_strHelp;
-	loadFrom >> m_strDisabledHelp;
-	loadFrom >> m_strStrategy;
-	loadFrom >> m_strType;
-	loadFrom >> m_strTextKey;
-	loadFrom >> m_strText;
+	CvStreamLoadVisitor serialVisitor(loadFrom);
+	Serialize(*this, serialVisitor);
 }
 
 void CvBaseInfo::writeTo(FDataStream& saveTo) const
 {
-	saveTo << m_iID;
-	saveTo << m_strCivilopedia;
-	saveTo << m_strDescription;
-	saveTo << m_strHelp;
-	saveTo << m_strDisabledHelp;
-	saveTo << m_strStrategy;
-	saveTo << m_strType;
-	saveTo << m_strTextKey;
-	saveTo << m_strText;
+	CvStreamSaveVisitor serialVisitor(saveTo);
+	Serialize(*this, serialVisitor);
 }
 
 FDataStream& operator<<(FDataStream& saveTo, const CvBaseInfo& readFrom)
@@ -3905,26 +3905,27 @@ bool CvTurnTimerInfo::operator==(const CvTurnTimerInfo& rhs) const
 	return true;
 }
 
+template<typename TurnTimerInfo, typename Visitor>
+void CvTurnTimerInfo::Serialize(TurnTimerInfo& turnTimerInfo, Visitor& visitor)
+{
+	visitor(turnTimerInfo.m_iBaseTime);
+	visitor(turnTimerInfo.m_iCityResource);
+	visitor(turnTimerInfo.m_iUnitResource);
+	visitor(turnTimerInfo.m_iFirstTurnMultiplier);
+}
+
 void CvTurnTimerInfo::writeTo(FDataStream& saveTo) const
 {
-	MOD_SERIALIZE_INIT_WRITE(saveTo);
-
 	CvBaseInfo::writeTo(saveTo);
-	saveTo << m_iBaseTime;
-	saveTo << m_iCityResource;
-	saveTo << m_iUnitResource;
-	saveTo << m_iFirstTurnMultiplier;
+	CvStreamSaveVisitor serialVisitor(saveTo);
+	Serialize(*this, serialVisitor);
 }
 
 void CvTurnTimerInfo::readFrom(FDataStream& loadFrom)
 {
-	MOD_SERIALIZE_INIT_READ(loadFrom);
-
 	CvBaseInfo::readFrom(loadFrom);
-	loadFrom >> m_iBaseTime;
-	loadFrom >> m_iCityResource;
-	loadFrom >> m_iUnitResource;
-	loadFrom >> m_iFirstTurnMultiplier;
+	CvStreamLoadVisitor serialVisitor(loadFrom);
+	Serialize(*this, serialVisitor);
 }
 
 FDataStream& operator<<(FDataStream& saveTo, const CvTurnTimerInfo& readFrom)
@@ -3986,22 +3987,25 @@ bool CvDiploModifierInfo::operator==(const CvDiploModifierInfo& rhs) const
 	return true;
 }
 
+template<typename DiploModifierInfo, typename Visitor>
+void CvDiploModifierInfo::Serialize(DiploModifierInfo& diploModifierInfo, Visitor& visitor)
+{
+	visitor(diploModifierInfo.m_eFromCiv);
+	visitor(diploModifierInfo.m_eToCiv);
+}
+
 void CvDiploModifierInfo::writeTo(FDataStream& saveTo) const
 {
-	MOD_SERIALIZE_INIT_WRITE(saveTo);
-
 	CvBaseInfo::writeTo(saveTo);
-	MOD_SERIALIZE_WRITE(saveTo, m_eFromCiv);
-	MOD_SERIALIZE_WRITE(saveTo, m_eToCiv);
+	CvStreamSaveVisitor serialVisitor(saveTo);
+	Serialize(*this, serialVisitor);
 }
 
 void CvDiploModifierInfo::readFrom(FDataStream& loadFrom)
 {
-	MOD_SERIALIZE_INIT_READ(loadFrom);
-
 	CvBaseInfo::readFrom(loadFrom);
-	MOD_SERIALIZE_READ(53, loadFrom, m_eFromCiv, NO_CIVILIZATION);
-	MOD_SERIALIZE_READ(53, loadFrom, m_eToCiv, NO_CIVILIZATION);
+	CvStreamLoadVisitor serialVisitor(loadFrom);
+	Serialize(*this, serialVisitor);
 }
 
 FDataStream& operator<<(FDataStream& saveTo, const CvDiploModifierInfo& readFrom)
@@ -7323,49 +7327,39 @@ bool CvWorldInfo::operator!=(const CvWorldInfo& rhs) const
 	return !(*this == rhs);
 }
 
+template<typename WorldInfo, typename Visitor>
+void CvWorldInfo::Serialize(WorldInfo& worldInfo, Visitor& visitor)
+{
+	visitor(worldInfo.m_iDefaultPlayers);
+	visitor(worldInfo.m_iDefaultMinorCivs);
+	visitor(worldInfo.m_iFogTilesPerBarbarianCamp);
+	visitor(worldInfo.m_iNumNaturalWonders);
+	visitor(worldInfo.m_iUnitNameModifier);
+	visitor(worldInfo.m_iTargetNumCities);
+	visitor(worldInfo.m_iNumFreeBuildingResources);
+	visitor(worldInfo.m_iBuildingClassPrereqModifier);
+	visitor(worldInfo.m_iMaxConscriptModifier);
+	visitor(worldInfo.m_iGridWidth);
+	visitor(worldInfo.m_iGridHeight);
+	visitor(worldInfo.m_iMaxActiveReligions);
+	visitor(worldInfo.m_iTerrainGrainChange);
+	visitor(worldInfo.m_iFeatureGrainChange);
+	visitor(worldInfo.m_iResearchPercent);
+	visitor(worldInfo.m_iNumCitiesUnhappinessPercent);
+	visitor(worldInfo.m_iNumCitiesPolicyCostMod);
+	visitor(worldInfo.m_iNumCitiesTechCostMod);
+	visitor(worldInfo.m_iTradeRouteDistanceMod);
+	visitor(worldInfo.m_iNumCitiesTourismCostMod);
+	visitor(worldInfo.m_iMinDistanceCities);
+	visitor(worldInfo.m_iMinDistanceCityStates);
+	visitor(worldInfo.m_iReformationPercent);
+}
+
 void CvWorldInfo::readFrom(FDataStream& loadFrom)
 {
-	int iVersion;
-	loadFrom >> iVersion;				// Make sure to update versioning if the members change!
-	MOD_SERIALIZE_INIT_READ(loadFrom);
-
 	CvBaseInfo::readFrom(loadFrom);
-
-	loadFrom >> m_iDefaultPlayers;
-	loadFrom >> m_iDefaultMinorCivs;
-	loadFrom >> m_iFogTilesPerBarbarianCamp;
-	loadFrom >> m_iNumNaturalWonders;
-	loadFrom >> m_iUnitNameModifier;
-	loadFrom >> m_iTargetNumCities;
-	loadFrom >> m_iNumFreeBuildingResources;
-	loadFrom >> m_iBuildingClassPrereqModifier;
-	loadFrom >> m_iMaxConscriptModifier;
-	loadFrom >> m_iGridWidth;
-	loadFrom >> m_iGridHeight;
-	loadFrom >> m_iMaxActiveReligions;
-	loadFrom >> m_iTerrainGrainChange;
-	loadFrom >> m_iFeatureGrainChange;
-	loadFrom >> m_iResearchPercent;
-	loadFrom >> m_iNumCitiesUnhappinessPercent;
-	loadFrom >> m_iNumCitiesPolicyCostMod;
-
-	if (iVersion >= 2)
-	{
-		loadFrom >> m_iNumCitiesTechCostMod;
-	}
-	else
-	{
-		m_iNumCitiesTechCostMod = 0;
-	}
-#if defined(MOD_TRADE_ROUTE_SCALING)
-	MOD_SERIALIZE_READ(52, loadFrom, m_iTradeRouteDistanceMod, 100);
-#endif
-#if defined(MOD_BALANCE_CORE)
-	MOD_SERIALIZE_READ(67, loadFrom, m_iNumCitiesTourismCostMod, 5);
-	MOD_SERIALIZE_READ(67, loadFrom, m_iMinDistanceCities, 3);
-	MOD_SERIALIZE_READ(67, loadFrom, m_iMinDistanceCityStates, 3);
-	MOD_SERIALIZE_READ(67, loadFrom, m_iReformationPercent, 100);
-#endif
+	CvStreamLoadVisitor serialVisitor(loadFrom);
+	Serialize(*this, serialVisitor);
 }
 
 // A special reader for version 0 (pre-versioning)
@@ -7392,39 +7386,9 @@ void CvWorldInfo::readFromVersion0(FDataStream& loadFrom)
 
 void CvWorldInfo::writeTo(FDataStream& saveTo) const
 {
-	int iVersion = 2;		// Make sure to update the versioning if the members change!
-	saveTo << iVersion;
-	MOD_SERIALIZE_INIT_WRITE(saveTo);
-
 	CvBaseInfo::writeTo(saveTo);
-
-	saveTo << m_iDefaultPlayers;
-	saveTo << m_iDefaultMinorCivs;
-	saveTo << m_iFogTilesPerBarbarianCamp;
-	saveTo << m_iNumNaturalWonders;
-	saveTo << m_iUnitNameModifier;
-	saveTo << m_iTargetNumCities;
-	saveTo << m_iNumFreeBuildingResources;
-	saveTo << m_iBuildingClassPrereqModifier;
-	saveTo << m_iMaxConscriptModifier;
-	saveTo << m_iGridWidth;
-	saveTo << m_iGridHeight;
-	saveTo << m_iMaxActiveReligions;
-	saveTo << m_iTerrainGrainChange;
-	saveTo << m_iFeatureGrainChange;
-	saveTo << m_iResearchPercent;
-	saveTo << m_iNumCitiesUnhappinessPercent;
-	saveTo << m_iNumCitiesPolicyCostMod;
-	saveTo << m_iNumCitiesTechCostMod;
-#if defined(MOD_TRADE_ROUTE_SCALING)
-	MOD_SERIALIZE_WRITE(saveTo, m_iTradeRouteDistanceMod);
-#endif
-#if defined(MOD_BALANCE_CORE)
-	MOD_SERIALIZE_WRITE(saveTo, m_iNumCitiesTourismCostMod);
-	MOD_SERIALIZE_WRITE(saveTo, m_iMinDistanceCities);
-	MOD_SERIALIZE_WRITE(saveTo, m_iMinDistanceCityStates);
-	MOD_SERIALIZE_WRITE(saveTo, m_iReformationPercent);
-#endif
+	CvStreamSaveVisitor serialVisitor(saveTo);
+	Serialize(*this, serialVisitor);
 }
 
 FDataStream& operator<<(FDataStream& saveTo, const CvWorldInfo& readFrom)
@@ -7478,42 +7442,34 @@ bool CvClimateInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	return true;
 }
 
+template<typename ClimateInfo, typename Visitor>
+void CvClimateInfo::Serialize(ClimateInfo& climateInfo, Visitor& visitor)
+{
+	visitor(climateInfo.m_iDesertPercentChange);
+	visitor(climateInfo.m_iJungleLatitude);
+	visitor(climateInfo.m_iHillRange);
+	visitor(climateInfo.m_iMountainPercent);
+	visitor(climateInfo.m_fSnowLatitudeChange);
+	visitor(climateInfo.m_fTundraLatitudeChange);
+	visitor(climateInfo.m_fGrassLatitudeChange);
+	visitor(climateInfo.m_fDesertBottomLatitudeChange);
+	visitor(climateInfo.m_fDesertTopLatitudeChange);
+	visitor(climateInfo.m_fIceLatitude);
+	visitor(climateInfo.m_fRandIceLatitude);
+}
+
 void CvClimateInfo::readFrom(FDataStream& loadFrom)
 {
-	MOD_SERIALIZE_INIT_READ(loadFrom);
-
 	CvBaseInfo::readFrom(loadFrom);
-
-	loadFrom >> m_iDesertPercentChange;
-	loadFrom >> m_iJungleLatitude;
-	loadFrom >> m_iHillRange;
-	loadFrom >> m_iMountainPercent;
-	loadFrom >> m_fSnowLatitudeChange;
-	loadFrom >> m_fTundraLatitudeChange;
-	loadFrom >> m_fGrassLatitudeChange;
-	loadFrom >> m_fDesertBottomLatitudeChange;
-	loadFrom >> m_fDesertTopLatitudeChange;
-	loadFrom >> m_fIceLatitude;
-	loadFrom >> m_fRandIceLatitude;
+	CvStreamLoadVisitor serialVisitor(loadFrom);
+	Serialize(*this, serialVisitor);
 }
 
 void CvClimateInfo::writeTo(FDataStream& saveTo) const
 {
-	MOD_SERIALIZE_INIT_WRITE(saveTo);
-
 	CvBaseInfo::writeTo(saveTo);
-
-	saveTo << m_iDesertPercentChange;
-	saveTo << m_iJungleLatitude;
-	saveTo << m_iHillRange;
-	saveTo << m_iMountainPercent;
-	saveTo << m_fSnowLatitudeChange;
-	saveTo << m_fTundraLatitudeChange;
-	saveTo << m_fGrassLatitudeChange;
-	saveTo << m_fDesertBottomLatitudeChange;
-	saveTo << m_fDesertTopLatitudeChange;
-	saveTo << m_fIceLatitude;
-	saveTo << m_fRandIceLatitude;
+	CvStreamSaveVisitor serialVisitor(saveTo);
+	Serialize(*this, serialVisitor);
 }
 
 FDataStream& operator<<(FDataStream& saveTo, const CvClimateInfo& readFrom)
@@ -7545,18 +7501,24 @@ bool CvSeaLevelInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility
 	return true;
 }
 
+template<typename SeaLevelInfo, typename Visitor>
+void CvSeaLevelInfo::Serialize(SeaLevelInfo& seaLevelInfo, Visitor& visitor)
+{
+	visitor(seaLevelInfo.m_iSeaLevelChange);
+}
+
 void CvSeaLevelInfo::readFrom(FDataStream& loadFrom)
 {
-	MOD_SERIALIZE_INIT_READ(loadFrom);
 	CvBaseInfo::readFrom(loadFrom);
-	loadFrom >> m_iSeaLevelChange;
+	CvStreamLoadVisitor serialVisitor(loadFrom);
+	Serialize(*this, serialVisitor);
 }
 
 void CvSeaLevelInfo::writeTo(FDataStream& saveTo) const
 {
-	MOD_SERIALIZE_INIT_WRITE(saveTo);
 	CvBaseInfo::writeTo(saveTo);
-	saveTo << m_iSeaLevelChange;
+	CvStreamSaveVisitor serialVisitor(saveTo);
+	Serialize(*this, serialVisitor);
 }
 
 FDataStream& operator<<(FDataStream& saveTo, const CvSeaLevelInfo& readFrom)

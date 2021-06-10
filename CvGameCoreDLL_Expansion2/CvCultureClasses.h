@@ -323,7 +323,7 @@ public:
 	int GetTotalThemingBonuses() const;
 
 	// Public data
-	vector<int> m_aDigCompletePlots;
+	vector<CvPlot*> m_aDigCompletePlots;
 	int m_iLastTurnLifetimeCulture;
 	int m_iLastTurnCPT;
 	int m_aiCulturalInfluence[MAX_MAJOR_CIVS];

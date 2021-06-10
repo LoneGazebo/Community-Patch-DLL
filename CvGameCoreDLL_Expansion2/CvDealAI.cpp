@@ -57,22 +57,24 @@ void CvDealAI::Reset()
 	m_vResearchRates = std::vector<std::pair<int,int>>(MAX_PLAYERS, std::make_pair(0,0));
 }
 
+///
+template<typename DealAI, typename Visitor>
+void CvDealAI::Serialize(DealAI& /*dealAI*/, Visitor& /*visitor*/)
+{
+}
+
 /// Serialization read
 void CvDealAI::Read(FDataStream& kStream)
 {
-	// Version number to maintain backwards compatibility
-	uint uiVersion;
-	kStream >> uiVersion;
-	MOD_SERIALIZE_INIT_READ(kStream);
+	CvStreamLoadVisitor serialVisitor(kStream);
+	CvDealAI::Serialize(*this, serialVisitor);
 }
 
 /// Serialization write
 void CvDealAI::Write(FDataStream& kStream) const
 {
-	// Current version number
-	uint uiVersion = 1;
-	kStream << uiVersion;
-	MOD_SERIALIZE_INIT_WRITE(kStream);
+	CvStreamSaveVisitor serialVisitor(kStream);
+	CvDealAI::Serialize(*this, serialVisitor);
 }
 
 FDataStream& operator>>(FDataStream& stream, CvDealAI& dealAI)

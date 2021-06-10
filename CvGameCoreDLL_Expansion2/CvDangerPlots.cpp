@@ -557,27 +557,25 @@ void CvDangerPlots::AssignCityDangerValue(const CvCity* pCity, CvPlot* pPlot)
 	m_DangerPlots[pPlot->GetPlotIndex()].m_apCities.push_back( std::make_pair(pCity->getOwner(),pCity->GetID()) );
 }
 
+///
+template<typename DangerPlots, typename Visitor>
+void CvDangerPlots::Serialize(DangerPlots& dangerPlots, Visitor& visitor)
+{
+	const bool bLoading = visitor.isLoading();
+
+	CvDangerPlots& mutDangerPlots = const_cast<CvDangerPlots&>(dangerPlots);
+
+	visitor(dangerPlots.m_ePlayer);
+	if (bLoading)
+		mutDangerPlots.Init(dangerPlots.m_ePlayer, true);
+	visitor(dangerPlots.m_knownUnits);
+}
+
 /// reads in danger plots info
 void CvDangerPlots::Read(FDataStream& kStream)
 {
-	MOD_SERIALIZE_INIT_READ(kStream);
-
-	Uninit();
-
-	PlayerTypes ePlayer;
-	kStream >> ePlayer;
-
-	Init(ePlayer, true);
-
-	int iCount;
-	kStream >> iCount;
-	for (int i=0; i<iCount; i++)
-	{
-		int iTemp1,iTemp2;
-		kStream >> iTemp1;
-		kStream >> iTemp2;
-		m_knownUnits.insert( std::make_pair((PlayerTypes)iTemp1,iTemp2) );
-	}
+	CvStreamLoadVisitor serialVisitor(kStream);
+	CvDangerPlots::Serialize(*this, serialVisitor);
 
 	m_bDirty = true; //need to update, after all only the known units were serialized
 }
@@ -585,16 +583,8 @@ void CvDangerPlots::Read(FDataStream& kStream)
 /// writes out danger plots info
 void CvDangerPlots::Write(FDataStream& kStream) const
 {
-	MOD_SERIALIZE_INIT_WRITE(kStream);
-
-	kStream << m_ePlayer;
-
-	kStream << m_knownUnits.size();
-	for (UnitSet::const_iterator it=m_knownUnits.begin(); it!=m_knownUnits.end(); ++it)
-	{
-		kStream << it->first;
-		kStream << it->second;
-	}
+	CvStreamSaveVisitor serialVisitor(kStream);
+	CvDangerPlots::Serialize(*this, serialVisitor);
 }
 
 FDataStream& operator>>(FDataStream& stream, CvDangerPlots& dangerPlots)

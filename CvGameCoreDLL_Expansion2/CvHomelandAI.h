@@ -200,6 +200,8 @@ public:
 	void Reset();
 
 	// Serialization routines
+	template<typename HomelandAI, typename Visitor>
+	static void Serialize(HomelandAI& homelandAI, Visitor& visitor);
 	void Read(FDataStream& kStream);
 	void Write(FDataStream& kStream) const;
 

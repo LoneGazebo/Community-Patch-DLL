@@ -8,22 +8,6 @@
 #include "CvGameCoreDLLPCH.h"
 #include "CvGameCoreEnumSerialization.h"
 
-template<typename T, typename E>
-static FDataStream& WriteBasicEnum(FDataStream& saveTo, const E& e)
-{
-	saveTo << static_cast<T>(e);
-	return saveTo;
-}
-
-template<typename T, typename E>
-static FDataStream& ReadBasicEnum(FDataStream& loadFrom, E& e)
-{
-	T v;
-	loadFrom >> v;
-	e = static_cast<E>(v);
-	return loadFrom;
-}
-
 FDataStream& operator<<(FDataStream& saveTo, const TerrainTypes& readFrom)
 {
 	return WriteBasicEnum<int>(saveTo, readFrom);
@@ -164,6 +148,15 @@ FDataStream& operator<<(FDataStream& saveTo, const ProcessTypes& readFrom)
 	return WriteBasicEnum<int>(saveTo, readFrom);
 }
 FDataStream& operator>>(FDataStream& loadFrom, ProcessTypes& writeTo)
+{
+	return ReadBasicEnum<int>(loadFrom, writeTo);
+}
+
+FDataStream& operator<<(FDataStream& saveTo, const AIGrandStrategyTypes& readFrom)
+{
+	return WriteBasicEnum<int>(saveTo, readFrom);
+}
+FDataStream& operator>>(FDataStream& loadFrom, AIGrandStrategyTypes& writeTo)
 {
 	return ReadBasicEnum<int>(loadFrom, writeTo);
 }

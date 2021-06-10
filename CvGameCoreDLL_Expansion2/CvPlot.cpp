@@ -43,30 +43,23 @@
 //	--------------------------------------------------------------------------------
 namespace FSerialization
 {
-
-std::set<int> plotsToCheck;
-
 void SyncPlots()
 {
 	if(GC.getGame().isNetworkMultiPlayer())
 	{
 		PlayerTypes authoritativePlayer = GC.getGame().getActivePlayer();
-		std::set<int>::const_iterator i;
-		for(i = plotsToCheck.begin(); i != plotsToCheck.end(); ++i)
+		CvMap& map = GC.getMap();
+		for(int i = 0; i < map.numPlots(); ++i)
 		{
-			CvPlot* plot = GC.getMap().plotByIndexUnchecked(*i);
-
-			if(plot)
+			CvPlot* plot = map.plotByIndexUnchecked(i);
+			CvSyncArchive<CvPlot>& archive = plot->getSyncArchive();
+			archive.collectDeltas();
+			if(archive.hasDeltas())
 			{
-				CvSyncArchive<CvPlot>& archive = plot->getSyncArchive();
-				archive.collectDeltas();
-				if(archive.hasDeltas())
-				{
-					FMemoryStream memoryStream;
-					std::vector<std::pair<std::string, std::string> > callStacks;
-					archive.saveDelta(memoryStream, callStacks);
-					gDLL->sendPlotSyncCheck(authoritativePlayer, plot->getX(), plot->getY(), memoryStream, callStacks);
-				}
+				FMemoryStream memoryStream;
+				std::vector<std::pair<std::string, std::string> > callStacks;
+				archive.saveDelta(memoryStream, callStacks);
+				gDLL->sendPlotSyncCheck(authoritativePlayer, plot->getX(), plot->getY(), memoryStream, callStacks);
 			}
 		}
 	}
@@ -75,17 +68,12 @@ void SyncPlots()
 // clears ALL deltas for ALL plots
 void ClearPlotDeltas()
 {
-	std::set<int>::iterator i;
-	for(i = plotsToCheck.begin(); i != plotsToCheck.end(); ++i)
+	CvMap& map = GC.getMap();
+	for (int i = 0; i < map.numPlots(); ++i)
 	{
-		CvPlot* plot = GC.getMap().plotByIndex(*i);
-
-		if(plot)
-		{
-			FAutoArchive& archive = plot->getSyncArchive();
-
-			archive.clearDelta();
-		}
+		CvPlot* plot = map.plotByIndexUnchecked(i);
+		FAutoArchive& archive = plot->getSyncArchive();
+		archive.clearDelta();
 	}
 }
 }
@@ -137,16 +125,10 @@ FDataStream& operator<<(FDataStream& saveTo, const CvArchaeologyData& readFrom)
 //////////////////////////////////////////////////////////////////////////
 // CvPlot
 //////////////////////////////////////////////////////////////////////////
-CvPlot::CvPlot() :
-	m_syncArchive()
-	, m_eFeatureType()
+CvPlot::CvPlot()
+	: m_syncArchive()
+	, m_szScriptData(NULL)
 {
-	FSerialization::plotsToCheck.insert(m_iPlotIndex);
-
-	m_szScriptData = NULL;
-
-	reset(0, 0, true);
-
 	if (GC.getGame().isNetworkMultiPlayer())
 	{
 		m_syncArchive.initSyncVars(*FNEW(CvSyncArchive<CvPlot>::SyncVars(*this), c_eCiv5GameplayDLL, 0));
@@ -157,9 +139,6 @@ CvPlot::CvPlot() :
 //	--------------------------------------------------------------------------------
 CvPlot::~CvPlot()
 {
-	std::set<int>::iterator it = FSerialization::plotsToCheck.find(m_iPlotIndex);
-	if (it!=FSerialization::plotsToCheck.end())
-		FSerialization::plotsToCheck.erase(it);
 	uninit();
 }
 
@@ -167,14 +146,16 @@ CvPlot::~CvPlot()
 void CvPlot::init(int iX, int iY)
 {
 	//--------------------------------
-	// Init saved data
-	reset(iX, iY);
-
-	//--------------------------------
 	// Init non-saved data
 
+	m_iX = iX;
+	m_iY = iY;
+
+	m_iPlotIndex = GC.getMap().plotNum(m_iX, m_iY);
+
 	//--------------------------------
-	// Init other game data
+	// Init saved data
+	reset();
 }
 
 
@@ -191,18 +172,11 @@ void CvPlot::uninit()
 //	--------------------------------------------------------------------------------
 // FUNCTION: reset()
 // Initializes data members that are serialized.
-void CvPlot::reset(int iX, int iY, bool bConstructorCall)
+void CvPlot::reset()
 {
 	//--------------------------------
 	// Uninit class
 	uninit();
-
-	m_iX = iX;
-	m_iY = iY;
-
-#if defined(MOD_BALANCE_CORE)
-	m_iPlotIndex = GC.getMap().plotNum(m_iX,m_iY);
-#endif
 
 	m_iArea = -1;
 	m_iLandmass = -1;
@@ -277,28 +251,25 @@ void CvPlot::reset(int iX, int iY, bool bConstructorCall)
 
 	m_vExtraYields.clear();
 
-	if(!bConstructorCall)
+	m_bfRevealed.ClearAll();
+
+	for(int iI = 0; iI < NUM_YIELD_TYPES; ++iI)
 	{
-		m_bfRevealed.ClearAll();
+		m_aiYield[iI] = 0;
+	}
 
-		for(int iI = 0; iI < NUM_YIELD_TYPES; ++iI)
-		{
-			m_aiYield[iI] = 0;
-		}
-
-		for(int iI = 0; iI < MAX_TEAMS; ++iI)
-		{
-			m_aiPlayerCityRadiusCount[iI] = 0;
-			m_aiVisibilityCount[iI] = 0;
-			m_aiRevealedOwner[iI] = -1;
-			m_abResourceForceReveal[iI] = false;
-			m_aeRevealedImprovementType[iI] = NO_IMPROVEMENT;
-			m_aeRevealedRouteType[iI] = NO_ROUTE;
+	for(int iI = 0; iI < MAX_TEAMS; ++iI)
+	{
+		m_aiPlayerCityRadiusCount[iI] = 0;
+		m_aiVisibilityCount[iI] = 0;
+		m_aiRevealedOwner[iI] = -1;
+		m_abResourceForceReveal[iI] = false;
+		m_aeRevealedImprovementType[iI] = NO_IMPROVEMENT;
+		m_aeRevealedRouteType[iI] = NO_ROUTE;
 #if defined(MOD_BALANCE_CORE)
-			m_abIsImpassable[iI] = false;
-			m_abStrategicRoute[iI] = false;
+		m_abIsImpassable[iI] = false;
+		m_abStrategicRoute[iI] = false;
 #endif
-		}
 	}
 
 	for(int iI = 0; iI < MAX_TEAMS; ++iI)
@@ -12554,12 +12525,6 @@ void CvPlot::Serialize(Plot& plot, Visitor& visitor)
 	// Don't use this in save branches and things will be okay
 	CvPlot& mutPlot = const_cast<CvPlot&>(plot);
 
-	visitor(plot.m_iX);
-	visitor(plot.m_iY);
-
-	if (bLoading)
-		visitor.loadAssign(plot.m_iPlotIndex, GC.getMap().plotNum(plot.m_iX, plot.m_iY));
-
 	visitor(plot.m_iArea);
 	visitor(plot.m_iOwnershipDuration);
 	visitor(plot.m_iImprovementDuration);
@@ -12681,15 +12646,12 @@ void CvPlot::Serialize(Plot& plot, Visitor& visitor)
 		visitor(plot.m_aiRevealedOwner[i]);
 		visitor(plot.m_abResourceForceReveal[i]);
 		visitor.as<ImprovementTypes>(plot.m_aeRevealedImprovementType[i]);
-		visitor(plot.m_aeRevealedRouteType[i]);
+		visitor.as<RouteTypes>(plot.m_aeRevealedRouteType[i]);
 		visitor(plot.m_abIsImpassable[i]);
 		visitor(plot.m_abStrategicRoute[i]);
 	}
 
-	for (uint i = 0; i < PlotBoolField::eCount; ++i)
-	{
-		visitor(plot.m_bfRevealed.m_dwBits[i]);
-	}
+	visitor(plot.m_bfRevealed.m_bits);
 	visitor(plot.m_cRiverCrossing);
 
 	// Script data
@@ -12745,10 +12707,9 @@ void CvPlot::Serialize(Plot& plot, Visitor& visitor)
 // read object from a stream
 // used during load
 //
-void CvPlot::read(FDataStream& kStream)
+void CvPlot::read(FDataStream& kStream, int iX, int iY)
 {
-	// Init saved data
-	reset();
+	init(iX, iY);
 
 	// Perform shared serialize
 	CvStreamLoadVisitor serialVisitor(kStream);
@@ -14988,3 +14949,79 @@ int CvPlot::GetDefenseBuildValue(PlayerTypes eOwner)
 }
 
 #endif
+
+FDataStream& operator<<(FDataStream& saveTo, const CvPlot* const& readFrom)
+{
+	int idx = -1;
+	if (readFrom != NULL)
+	{
+		idx = readFrom->GetPlotIndex();
+		CvAssertMsg(GC.getMap().plotByIndex(idx) == readFrom, "Saving plot pointer that is not member of map");
+	}
+	saveTo << idx;
+	return saveTo;
+}
+FDataStream& operator<<(FDataStream& saveTo, CvPlot* const& readFrom)
+{
+	return saveTo << const_cast<const CvPlot* const&>(readFrom);
+}
+FDataStream& operator>>(FDataStream& loadFrom, const CvPlot*& writeTo)
+{
+	int idx;
+	loadFrom >> idx;
+	if (idx != -1)
+	{
+		writeTo = GC.getMap().plotByIndex(idx);
+		CvAssertMsg(writeTo != NULL, "Read plot pointer index that is out of bounds");
+	}
+	else
+	{
+		writeTo = NULL;
+	}
+	return loadFrom;
+}
+FDataStream& operator>>(FDataStream& loadFrom, CvPlot*& writeTo)
+{
+	return loadFrom >> const_cast<const CvPlot*&>(writeTo);
+}
+
+template<typename PlotWithScore, typename Visitor>
+void SPlotWithScore::Serialize(PlotWithScore& plotWithScore, Visitor& visitor)
+{
+	visitor(plotWithScore.pPlot);
+	visitor(plotWithScore.score);
+}
+
+FDataStream& operator<<(FDataStream& saveTo, const SPlotWithScore& readFrom)
+{
+	CvStreamSaveVisitor serialVisitor(saveTo);
+	SPlotWithScore::Serialize(readFrom, serialVisitor);
+	return saveTo;
+}
+FDataStream& operator>>(FDataStream& loadFrom, SPlotWithScore& writeTo)
+{
+	CvStreamLoadVisitor serialVisitor(loadFrom);
+	SPlotWithScore::Serialize(writeTo, serialVisitor);
+	return loadFrom;
+}
+
+template<typename PlotWithTwoScoresL2, typename Visitor>
+void SPlotWithTwoScoresL2::Serialize(PlotWithTwoScoresL2& plotWithTwoScoresL2, Visitor& visitor)
+{
+	visitor(plotWithTwoScoresL2.pPlot);
+	visitor(plotWithTwoScoresL2.score1);
+	visitor(plotWithTwoScoresL2.score2);
+}
+
+FDataStream& operator<<(FDataStream& saveTo, const SPlotWithTwoScoresL2& readFrom)
+{
+	CvStreamSaveVisitor serialVisitor(saveTo);
+	SPlotWithTwoScoresL2::Serialize(readFrom, serialVisitor);
+	return saveTo;
+}
+FDataStream& operator>>(FDataStream& loadFrom, SPlotWithTwoScoresL2& writeTo)
+{
+	CvStreamLoadVisitor serialVisitor(loadFrom);
+	SPlotWithTwoScoresL2::Serialize(writeTo, serialVisitor);
+	return loadFrom;
+}

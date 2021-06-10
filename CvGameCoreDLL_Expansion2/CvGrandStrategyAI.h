@@ -29,6 +29,8 @@ public:
 	void Init(CvAIGrandStrategyXMLEntries* pAIGrandStrategies, CvPlayer* pPlayer);
 	void Uninit();
 	void Reset();
+	template<typename GrandStrategyAI, typename Visitor>
+	static void Serialize(GrandStrategyAI& grandStrategyAI, Visitor& visitor);
 	void Read(FDataStream& kStream);
 	void Write(FDataStream& kStream) const;
 
@@ -98,8 +100,8 @@ private:
 	// Stuff relating to guessing what other Players are up to
 	// **********
 
-	int* m_eGuessOtherPlayerActiveGrandStrategy;
-	int* m_eGuessOtherPlayerActiveGrandStrategyConfidence;
+	int m_eGuessOtherPlayerActiveGrandStrategy[MAX_MAJOR_CIVS];
+	int m_eGuessOtherPlayerActiveGrandStrategyConfidence[MAX_MAJOR_CIVS];
 
 	// caching for faster accesss without a hash lookup
 	int m_iFlavorGold;

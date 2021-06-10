@@ -3222,14 +3222,14 @@ void CvPlayerCulture::SetSwappableMusicIndex (int iIndex)
 void CvPlayerCulture::AddDigCompletePlot(CvPlot* pPlot)
 {
 	CvAssert(pPlot != NULL);
-	m_aDigCompletePlots.push_back(pPlot->GetPlotIndex());
+	m_aDigCompletePlots.push_back(pPlot);
 }
 
 /// Remove a plot from the list of plots where we have archaeologists waiting for orders
 void CvPlayerCulture::RemoveDigCompletePlot(CvPlot* pPlot)
 {
 	CvAssert(pPlot != NULL);
-	vector<int>::iterator it = std::find(m_aDigCompletePlots.begin(), m_aDigCompletePlots.end(), pPlot->GetPlotIndex());
+	vector<CvPlot*>::iterator it = std::find(m_aDigCompletePlots.begin(), m_aDigCompletePlots.end(), pPlot);
 	if (it != m_aDigCompletePlots.end())
 	{
 		m_aDigCompletePlots.erase(it);
@@ -3249,7 +3249,7 @@ CvPlot* CvPlayerCulture::GetNextDigCompletePlot() const
 
 	if (m_aDigCompletePlots.size() > 0)
 	{
-		pRtnValue = GC.getMap().plotByIndex(m_aDigCompletePlots[0]);
+		pRtnValue = m_aDigCompletePlots[0];
 	}
 
 	return pRtnValue;
@@ -3289,7 +3289,7 @@ CvUnit *CvPlayerCulture::GetNextDigCompleteArchaeologist(CvPlot **ppPlot) const
 bool CvPlayerCulture::HasDigCompleteHere(CvPlot* pPlot) const
 {
 	CvAssert(pPlot != NULL);
-	return std::find(m_aDigCompletePlots.begin(), m_aDigCompletePlots.end(), pPlot->GetPlotIndex()) != m_aDigCompletePlots.end();
+	return std::find(m_aDigCompletePlots.begin(), m_aDigCompletePlots.end(), pPlot) != m_aDigCompletePlots.end();
 }
 
 /// How much culture can we receive from cashing in a written artifact?
@@ -5644,7 +5644,7 @@ int CvPlayerCulture::ComputeWarWeariness()
 		}
 
 		// Cultural Influence has an effect here.
-		int iInfluenceModifier = max(5, (kPlayer.GetCulture()->GetInfluenceLevel(m_pPlayer->GetID()) - GetInfluenceLevel(ePlayer) * 5));
+		int iInfluenceModifier = max(5, ((kPlayer.GetCulture()->GetInfluenceLevel(m_pPlayer->GetID()) - GetInfluenceLevel(ePlayer)) * 5));
 		iWarDamage *= iInfluenceModifier;
 		iWarDamage /= 100;
 

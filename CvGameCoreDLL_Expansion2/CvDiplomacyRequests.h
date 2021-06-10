@@ -30,6 +30,8 @@ public:
 	void Uninit(void);
 
 	//// Serialization routines
+	template<typename DiplomacyRequests, typename Visitor>
+	static void Serialize(DiplomacyRequests& diplomacyRequests, Visitor& visitor);
 	void Read(FDataStream& kStream);
 	void Write(FDataStream& kStream) const;
 	PlayerTypes GetNextAIPlayer() const;
@@ -53,6 +55,9 @@ public:
 	struct Request
 	{
 		void Clear();
+
+		template<typename RequestT, typename Visitor>
+		static void Serialize(RequestT& request, Visitor& visitor);
 
 		DiploUIStateTypes			m_eDiploType;
 		PlayerTypes					m_eFromPlayer;		// Who the diplo request is from

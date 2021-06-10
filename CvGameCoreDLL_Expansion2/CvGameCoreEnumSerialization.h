@@ -7,6 +7,22 @@
 	------------------------------------------------------------------------------------------------------- */
 #pragma once
 
+template<typename T, typename E>
+inline FDataStream& WriteBasicEnum(FDataStream& saveTo, const E& e)
+{
+	saveTo << static_cast<T>(e);
+	return saveTo;
+}
+
+template<typename T, typename E>
+inline FDataStream& ReadBasicEnum(FDataStream& loadFrom, E& e)
+{
+	T v;
+	loadFrom >> v;
+	e = static_cast<E>(v);
+	return loadFrom;
+}
+
 FDataStream& operator<<(FDataStream&, const TerrainTypes&);
 FDataStream& operator>>(FDataStream&, TerrainTypes&);
 
@@ -48,6 +64,9 @@ FDataStream& operator>>(FDataStream&, ProjectTypes&);
 
 FDataStream& operator<<(FDataStream&, const ProcessTypes&);
 FDataStream& operator>>(FDataStream&, ProcessTypes&);
+
+FDataStream& operator<<(FDataStream&, const AIGrandStrategyTypes&);
+FDataStream& operator>>(FDataStream&, AIGrandStrategyTypes&);
 
 template<typename Enum, typename T>
 inline FDataStream& operator<<(FDataStream& saveTo, const CvEnum<Enum, T>& readFrom)
