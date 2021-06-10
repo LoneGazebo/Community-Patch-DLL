@@ -243,7 +243,7 @@ PREGAMEVAR(bool,                               s_dummyvalue,	          false);
 PREGAMEVAR(std::vector<bool>,                  s_multiplayerOptions,     NUM_MPOPTION_TYPES);
 PREGAMEVAR(std::vector<int>,                   s_netIDs,                 MAX_PLAYERS);
 PREGAMEVAR(std::vector<CvString>,              s_nicknames,              MAX_PLAYERS);
-PREGAMEVAR(int,                                s_numVictoryInfos,        GC.getNumVictoryInfos());
+PREGAMEVAR(int,                                s_numVictoryInfos,        0);
 PREGAMEVAR(int,                                s_pitBossTurnTime,        0);
 PREGAMEVAR(std::vector<bool>,                  s_playableCivs,           MAX_PLAYERS);
 PREGAMEVAR(std::vector<PlayerColorTypes>,      s_playerColors,           MAX_PLAYERS);
@@ -268,7 +268,7 @@ PREGAMEVAR(bool,                               s_transferredMap,         false);
 PREGAMEVARDEFAULT(CvTurnTimerInfo,                    s_turnTimer);
 PREGAMEVAR(TurnTimerTypes,                     s_turnTimerType,          NO_TURNTIMER);
 PREGAMEVAR(bool,                               s_bCityScreenBlocked,     false);
-PREGAMEVAR(std::vector<bool>,                  s_victories,              s_numVictoryInfos);
+PREGAMEVARDEFAULT(std::vector<bool>,           s_victories);
 PREGAMEVAR(std::vector<bool>,                  s_whiteFlags,             MAX_PLAYERS);
 PREGAMEVARDEFAULT(CvWorldInfo,                        s_worldInfo);
 PREGAMEVAR(WorldSizeTypes,                     s_worldSize,              NO_WORLDSIZE);
@@ -1454,7 +1454,7 @@ void loadFromIni(FIGameIniParser& iniParser)
 	if(szHolder != "EMPTY")
 	{
 		StringToBools(szHolder, &iNumBools, &pbBools);
-		iNumBools = std::min(iNumBools, DB.Count("Victories"));
+		iNumBools = std::min(iNumBools, s_numVictoryInfos.get());
 		int i;
 		std::vector<bool> tempVBool;
 		for(i = 0; i < iNumBools; i++)
@@ -1990,17 +1990,6 @@ void resetGame()
 	s_turnTimerType = (TurnTimerTypes)4;//GC.getSTANDARD_TURNTIMER();	// NO_ option?
 	s_calendar  = (CalendarTypes)0;//GC.getSTANDARD_CALENDAR();	// NO_ option?
 
-	// Data-defined victory conditions
-	s_numVictoryInfos = GC.getNumVictoryInfos();
-	s_victories.clear();
-	if(s_numVictoryInfos > 0)
-	{
-		for(int i = 0; i < s_numVictoryInfos; ++i)
-		{
-			s_victories.push_back(true);
-		}
-	}
-
 	// Standard game options
 	int i;
 	for(i = 0; i < NUM_MPOPTION_TYPES; ++i)
@@ -2070,15 +2059,8 @@ void ResetGameOptions()
 	SyncGameOptionsWithEnumList();
 
 	// victory conditions
-	s_numVictoryInfos = GC.getNumVictoryInfos();
-	s_victories.clear();
-	if(s_numVictoryInfos > 0)
-	{
-		for(int i = 0; i < s_numVictoryInfos; ++i)
-		{
-			s_victories.push_back(true);
-		}
-	}
+	s_numVictoryInfos = DB.Count("Victories");
+	s_victories.resize(s_numVictoryInfos, true);
 
 }
 void ResetMapOptions()
@@ -3062,8 +3044,9 @@ void setVictory(VictoryTypes v, bool isValid)
 
 void setVictories(const std::vector<bool>& v)
 {
-	s_victories = v;
-	s_numVictoryInfos = s_victories.size();
+	CvAssert(v.size() <= std::size_t(s_numVictoryInfos));
+	for (std::size_t i = 0; i < v.size(); i++)
+		s_victories.setAt(i, v[i]);
 }
 
 void setWhiteFlag(PlayerTypes p, bool flag)
