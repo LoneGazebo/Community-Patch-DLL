@@ -154,6 +154,8 @@ public:
 	void Init(CvMilitaryAIStrategyXMLEntries* pAIStrategies, CvPlayer* pPlayer, CvDiplomacyAI* pDiplomacyAI);
 	void Uninit();
 	void Reset();
+	template<typename MilitaryAI, typename Visitor>
+	static void Serialize(MilitaryAI& militaryAI, Visitor& visitor);
 	void Read(FDataStream& kStream);
 	void Write(FDataStream& kStream) const;
 
@@ -318,7 +320,7 @@ private:
 	bool* m_pabUsingStrategy;
 	int* m_paiTurnStrategyAdopted;
 	CvEnumMap<FlavorTypes, int> m_aiTempFlavors;
-	int* m_aiWarFocus;
+	int m_aiWarFocus[MAX_MAJOR_CIVS];
 
 	// Internal calculated values - must be serialized
 	int m_iNumberOfTimesOpsBuildSkippedOver;

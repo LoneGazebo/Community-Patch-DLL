@@ -15,6 +15,7 @@
 #include "CvGrandStrategyAI.h"
 #include "CvCitySpecializationAI.h"
 #include "cvStopWatch.h"
+#include "CvSpanSerialization.h"
 
 // must be included after all other headers
 #include "LintFree.h"
@@ -259,8 +260,7 @@ CvMilitaryAI::CvMilitaryAI():
 	m_pabUsingStrategy(NULL),
 	m_paiTurnStrategyAdopted(NULL),
 	m_iNumberOfTimesOpsBuildSkippedOver(0),
-	m_iNumberOfTimesSettlerBuildSkippedOver(0),
-	m_aiWarFocus(NULL)
+	m_iNumberOfTimesSettlerBuildSkippedOver(0)
 {
 }
 
@@ -287,9 +287,6 @@ void CvMilitaryAI::Init(CvMilitaryAIStrategyXMLEntries* pAIStrategies, CvPlayer*
 
 	m_aiTempFlavors.init();
 
-	CvAssertMsg(m_aiWarFocus == NULL, "about to leak memory, CvMilitaryAI::m_aiWarFocus");
-	m_aiWarFocus = FNEW(int[MAX_MAJOR_CIVS], c_eCiv5GameplayDLL, 0);
-
 	Reset();
 }
 
@@ -299,7 +296,6 @@ void CvMilitaryAI::Uninit()
 	SAFE_DELETE_ARRAY(m_pabUsingStrategy);
 	SAFE_DELETE_ARRAY(m_paiTurnStrategyAdopted);
 	m_aiTempFlavors.uninit();
-	SAFE_DELETE_ARRAY(m_aiWarFocus);
 }
 
 /// Reset AIStrategy status array to all false
@@ -339,75 +335,41 @@ void CvMilitaryAI::Reset()
 	}
 }
 
+///
+template<typename MilitaryAI, typename Visitor>
+void CvMilitaryAI::Serialize(MilitaryAI& militaryAI, Visitor& visitor)
+{
+	CvAssertMsg(militaryAI.m_pAIStrategies != NULL && militaryAI.m_pAIStrategies->GetNumMilitaryAIStrategies() > 0, "Number of AIStrategies to serialize is expected to greater than 0");
+	visitor(militaryAI.m_iNumberOfTimesOpsBuildSkippedOver);
+	visitor(militaryAI.m_iNumberOfTimesSettlerBuildSkippedOver);
+
+	visitor(militaryAI.m_iNumAntiAirUnits);
+	visitor(militaryAI.m_iNumLandUnits);
+	visitor(militaryAI.m_iNumNavalUnits);
+	visitor(militaryAI.m_iRecOffensiveLandUnits);
+	visitor(militaryAI.m_iRecOffensiveNavalUnits);
+	visitor(militaryAI.m_iNumFreeCarriers);
+	visitor(militaryAI.m_potentialAttackTargets);
+	visitor(militaryAI.m_exposedCities);
+
+	const int iNumMilitaryAIStrategies = militaryAI.m_pAIStrategies->GetNumMilitaryAIStrategies();
+	visitor(MakeConstSpan(militaryAI.m_pabUsingStrategy, iNumMilitaryAIStrategies));
+	visitor(MakeConstSpan(militaryAI.m_paiTurnStrategyAdopted, iNumMilitaryAIStrategies));
+	visitor(militaryAI.m_aiWarFocus);
+}
+
 /// Serialization read
 void CvMilitaryAI::Read(FDataStream& kStream)
 {
-	// Version number to maintain backwards compatibility
-	uint uiVersion;
-	kStream >> uiVersion;
-	MOD_SERIALIZE_INIT_READ(kStream);
-
-	FAssertMsg(m_pAIStrategies != NULL && m_pAIStrategies->GetNumMilitaryAIStrategies() > 0, "Number of AIStrategies to serialize is expected to greater than 0");
-	kStream >> m_iNumberOfTimesOpsBuildSkippedOver;
-	kStream >> m_iNumberOfTimesSettlerBuildSkippedOver;
-
-#if defined(MOD_BALANCE_CORE_MILITARY)
-	kStream >> m_iNumAntiAirUnits;
-	kStream >> m_iNumLandUnits;
-	kStream >> m_iNumNavalUnits;
-	kStream >> m_iRecOffensiveLandUnits;
-	kStream >> m_iRecOffensiveNavalUnits;
-	kStream >> m_iNumFreeCarriers;
-	kStream >> m_potentialAttackTargets;
-	kStream >> m_exposedCities;
-#endif
-
-	int iNumStrategies;
-	kStream >> iNumStrategies;
-#ifdef _MSC_VER
-#pragma warning ( push )
-#pragma warning ( disable : 6011 ) // dereferencing null : no recovery during load, go ahead and crash here.
-#endif//_MSC_VER
-	ArrayWrapper<bool> wrapm_pabUsingStrategy(iNumStrategies, m_pabUsingStrategy);
-#ifdef _MSC_VER
-#pragma warning ( pop )
-#endif//_MSC_VER
-	kStream >> wrapm_pabUsingStrategy;
-
-	ArrayWrapper<int> wrapm_paiTurnStrategyAdopted(iNumStrategies, m_paiTurnStrategyAdopted);
-	kStream >> wrapm_paiTurnStrategyAdopted;
-
-	ArrayWrapper<int> wrapm_aiWarFocus(MAX_MAJOR_CIVS, m_aiWarFocus);
-	kStream >> wrapm_aiWarFocus;
+	CvStreamLoadVisitor serialVisitor(kStream);
+	Serialize(*this, serialVisitor);
 }
 
 /// Serialization write
 void CvMilitaryAI::Write(FDataStream& kStream) const
 {
-	// Current version number
-	uint uiVersion = 1;
-	kStream << uiVersion;
-	MOD_SERIALIZE_INIT_WRITE(kStream);
-
-	FAssertMsg(GC.getNumMilitaryAIStrategyInfos() > 0, "Number of AIStrategies to serialize is expected to greater than 0");
-	kStream << m_iNumberOfTimesOpsBuildSkippedOver;
-	kStream << m_iNumberOfTimesSettlerBuildSkippedOver;
-
-#if defined(MOD_BALANCE_CORE_MILITARY)
-	kStream << m_iNumAntiAirUnits;
-	kStream << m_iNumLandUnits;
-	kStream << m_iNumNavalUnits;
-	kStream << m_iRecOffensiveLandUnits;
-	kStream << m_iRecOffensiveNavalUnits;
-	kStream << m_iNumFreeCarriers;
-	kStream << m_potentialAttackTargets;
-	kStream << m_exposedCities;
-#endif
-
-	kStream << GC.getNumMilitaryAIStrategyInfos();
-	kStream << ArrayWrapper<bool>(m_pAIStrategies->GetNumMilitaryAIStrategies(), m_pabUsingStrategy);
-	kStream << ArrayWrapper<int>(m_pAIStrategies->GetNumMilitaryAIStrategies(), m_paiTurnStrategyAdopted);
-	kStream << ArrayWrapper<int>(MAX_MAJOR_CIVS, m_aiWarFocus);
+	CvStreamSaveVisitor serialVisitor(kStream);
+	Serialize(*this, serialVisitor);
 }
 
 FDataStream& operator>>(FDataStream& stream, CvMilitaryAI& militaryAI)

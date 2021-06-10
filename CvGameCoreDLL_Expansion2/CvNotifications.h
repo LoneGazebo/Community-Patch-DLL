@@ -34,6 +34,11 @@ class CvPlayer;
 class CvNotifications
 {
 public:
+	enum
+	{
+		MaxNotifications = 150
+	};
+
 	CvNotifications(void);
 	~CvNotifications(void);
 
@@ -41,6 +46,8 @@ public:
 	void Uninit(void);
 
 	//// Serialization routines
+	template<typename Notifications, typename Visitor>
+	static void Serialize(Notifications& notifications, Visitor& visitor);
 	void Read(FDataStream& kStream);
 	void Write(FDataStream& kStream) const;
 
@@ -67,6 +74,9 @@ public:
 	struct Notification
 	{
 		void Clear();
+
+		template<typename NotificationT, typename Visitor>
+		static void Serialize(NotificationT& notification, Visitor& visitor);
 
 		NotificationTypes m_eNotificationType;
 		PlayerTypes m_ePlayerID;
@@ -102,7 +112,7 @@ protected:
 
 	PlayerTypes m_ePlayer;
 
-	std::vector<Notification> m_aNotifications;
+	Notification m_aNotifications[MaxNotifications];
 	int m_iNotificationsBeginIndex;
 	int m_iNotificationsEndIndex;
 
