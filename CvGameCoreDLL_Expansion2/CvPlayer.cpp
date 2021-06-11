@@ -38173,8 +38173,8 @@ void CvPlayer::changeNumResourceTotal(ResourceTypes eIndex, int iChange, bool bI
 			GET_PLAYER((PlayerTypes)iPlayerLoop).UpdateResourcesSiphoned();
 		}
 	}
-	if(iChange < 0 && !bIgnoreResourceWarning)
 #if !defined(MOD_BALANCE_CORE)
+	if(iChange < 0 && !bIgnoreResourceWarning)
 	{
 		DoTestOverResourceNotification(eIndex);
 	}
