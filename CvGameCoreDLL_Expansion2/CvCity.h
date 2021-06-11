@@ -1507,9 +1507,11 @@ public:
 	void pushOrder(OrderTypes eOrder, int iData1, int iData2, bool bSave, bool bPop, bool bAppend, bool bRush=false);
 	void popOrder(int iNum, bool bFinish = false, bool bChoose = false);
 	void swapOrder(int iNum);
+	bool hasOrder(OrderTypes eOrder, int iData1, int iData2) const;
 	void startHeadOrder();
 	void stopHeadOrder();
-	int getOrderQueueLength();
+	int getOrderQueueLength() const;
+	const OrderData* getOrderFromQueue(int iIndex) const;
 	OrderData* getOrderFromQueue(int iIndex);
 	const OrderData* nextOrderQueueNode(const OrderData* pNode) const;
 	OrderData* nextOrderQueueNode(OrderData* pNode);

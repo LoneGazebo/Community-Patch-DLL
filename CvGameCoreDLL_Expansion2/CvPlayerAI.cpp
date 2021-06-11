@@ -36,7 +36,6 @@
 #include "CvDistanceMap.h"
 #endif
 
-
 // Include this after all other headers.
 #include "LintFree.h"
 
@@ -1024,6 +1023,10 @@ void CvPlayerAI::AI_doResearch()
 	}
 }
 
+template<typename PlayerAI, typename Visitor>
+void CvPlayerAI::Serialize(PlayerAI& /*playerAI*/, Visitor& /*visitor*/)
+{
+}
 
 //
 // read object from a stream
@@ -1033,10 +1036,8 @@ void CvPlayerAI::Read(FDataStream& kStream)
 {
 	CvPlayer::Read(kStream);	// read base class data first
 
-	// Version number to maintain backwards compatibility
-	uint uiVersion;
-	kStream >> uiVersion;
-	MOD_SERIALIZE_INIT_READ(kStream);
+	CvStreamLoadVisitor serialVisitor(kStream);
+	Serialize(*this, serialVisitor);
 }
 
 
@@ -1048,10 +1049,8 @@ void CvPlayerAI::Write(FDataStream& kStream) const
 {
 	CvPlayer::Write(kStream);	// write base class data first
 
-	// Current version number
-	uint uiVersion = 1;
-	kStream << uiVersion;
-	MOD_SERIALIZE_INIT_WRITE(kStream);
+	CvStreamSaveVisitor serialVisitor(kStream);
+	Serialize(*this, serialVisitor);
 }
 
 void CvPlayerAI::AI_launch(VictoryTypes eVictory)

@@ -81,44 +81,28 @@ void ClearPlotDeltas()
 //////////////////////////////////////////////////////////////////////////
 // CvArchaeologyData serialization
 //////////////////////////////////////////////////////////////////////////
+template<typename ArchaeologyData, typename Visitor>
+void CvArchaeologyData::Serialize(ArchaeologyData& archaeologyData, Visitor& visitor)
+{
+	visitor(archaeologyData.m_eArtifactType);
+	visitor(archaeologyData.m_eEra);
+	visitor(archaeologyData.m_ePlayer1);
+	visitor(archaeologyData.m_ePlayer2);
+	visitor(archaeologyData.m_eWork);
+}
+
 FDataStream& operator>>(FDataStream& loadFrom, CvArchaeologyData& writeTo)
 {
-	uint uiVersion;
-	loadFrom >> uiVersion;
-	MOD_SERIALIZE_INIT_READ(loadFrom);
-
-	int iTemp;
-	loadFrom >> iTemp;
-	writeTo.m_eArtifactType = (GreatWorkArtifactClass)iTemp;
-	loadFrom >> writeTo.m_eEra;
-	loadFrom >> writeTo.m_ePlayer1;
-	loadFrom >> writeTo.m_ePlayer2;
-	if (uiVersion >= 2)
-	{
-		loadFrom >> iTemp;
-		writeTo.m_eWork = (GreatWorkType)iTemp;
-	}
-	else
-	{
-		writeTo.m_eWork = NO_GREAT_WORK;
-	}
-
+	CvStreamLoadVisitor serialVisitor(loadFrom);
+	CvArchaeologyData::Serialize(writeTo, serialVisitor);
 	return loadFrom;
 }
 
 /// Serialization write
 FDataStream& operator<<(FDataStream& saveTo, const CvArchaeologyData& readFrom)
 {
-	uint uiVersion = 2;
-	saveTo << uiVersion;
-	MOD_SERIALIZE_INIT_WRITE(saveTo);
-
-	saveTo << readFrom.m_eArtifactType;
-	saveTo << readFrom.m_eEra;
-	saveTo << readFrom.m_ePlayer1;
-	saveTo << readFrom.m_ePlayer2;
-	saveTo << readFrom.m_eWork;
-
+	CvStreamSaveVisitor serialVisitor(saveTo);
+	CvArchaeologyData::Serialize(readFrom, serialVisitor);
 	return saveTo;
 }
 
@@ -13696,6 +13680,55 @@ void CvPlot::updateImpassable(TeamTypes eTeam)
 			}
 		}
 	}
+}
+
+int CvPlot::getTurnDamage(bool bIgnoreTerrainDamage, bool bIgnoreFeatureDamage, bool bExtraTerrainDamage, bool bExtraFeatureDamage) const
+{
+	int damage = 0;
+
+	const TerrainTypes eTerrain = getTerrainType();
+	const FeatureTypes eFeature = getFeatureType();
+		
+	// Make an exception for the volcano
+	if (eFeature != NO_FEATURE)
+	{
+		CvFeatureInfo* pkFeatureInfo = GC.getFeatureInfo(eFeature);
+		if (pkFeatureInfo)
+		{
+			if (pkFeatureInfo->GetType() == CvString("FEATURE_VOLCANO"))
+			{
+				bIgnoreTerrainDamage = false;
+				bIgnoreFeatureDamage = false;
+			}
+			if (!bIgnoreFeatureDamage)
+			{
+				damage += pkFeatureInfo->getTurnDamage();
+			}
+			if (bExtraFeatureDamage)
+			{
+				damage += pkFeatureInfo->getExtraTurnDamage();
+			}
+		}
+	}
+
+	if (eTerrain != NO_TERRAIN) 
+	{
+		CvTerrainInfo* pkTerrainInfo = GC.getTerrainInfo(eTerrain);
+		if (pkTerrainInfo) 
+		{
+			// no damage for units on montain cities
+			if (!bIgnoreTerrainDamage && !isCity())
+			{						
+				damage += pkTerrainInfo->getTurnDamage();
+			}
+			if (bExtraTerrainDamage)
+			{
+				damage += pkTerrainInfo->getExtraTurnDamage();
+			}
+		}
+	}
+
+	return damage;
 }
 
 bool CvPlot::isImpassable(TeamTypes eTeam) const

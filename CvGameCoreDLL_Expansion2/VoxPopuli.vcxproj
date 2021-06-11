@@ -520,10 +520,6 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CvGameCoreDLLPCH.h</PrecompiledHeaderFile>
     </ClCompile>
-    <ClCompile Include="CvPopupReturn.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CvGameCoreDLLPCH.h</PrecompiledHeaderFile>
-    </ClCompile>
     <ClCompile Include="CvPreGame.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CvGameCoreDLLPCH.h</PrecompiledHeaderFile>
@@ -850,7 +846,6 @@
     <ClInclude Include="CvPolicyAI.h" />
     <ClInclude Include="CvPolicyClasses.h" />
     <ClInclude Include="CvPopupInfoSerialization.h" />
-    <ClInclude Include="CvPopupReturn.h" />
     <ClInclude Include="CvPreGame.h" />
     <ClInclude Include="CvProcessProductionAI.h" />
     <ClInclude Include="CvProjectClasses.h" />

@@ -38178,8 +38178,8 @@ void CvPlayer::changeNumResourceTotal(ResourceTypes eIndex, int iChange, bool bI
 			GET_PLAYER((PlayerTypes)iPlayerLoop).UpdateResourcesSiphoned();
 		}
 	}
-	if(iChange < 0 && !bIgnoreResourceWarning)
 #if !defined(MOD_BALANCE_CORE)
+	if(iChange < 0 && !bIgnoreResourceWarning)
 	{
 		DoTestOverResourceNotification(eIndex);
 	}
@@ -46565,6 +46565,7 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 	visitor(player.m_iNumMayaBoosts);
 	visitor(player.m_iNumFaithGreatPeople);
 	visitor(player.m_iNumArchaeologyChoices);
+	visitor(player.m_eFaithPurchaseType);
 	visitor(player.m_iFaithPurchaseIndex);
 	visitor(player.m_iFractionOriginalCapitalsUnderControl);
 	visitor(player.m_iAvgUnitExp100);
