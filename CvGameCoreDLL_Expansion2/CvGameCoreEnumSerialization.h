@@ -71,6 +71,9 @@ FDataStream& operator>>(FDataStream&, AIGrandStrategyTypes&);
 FDataStream& operator<<(FDataStream&, const GreatWorkArtifactClass&);
 FDataStream& operator>>(FDataStream&, GreatWorkArtifactClass&);
 
+FDataStream& operator<<(FDataStream&, const FaithPurchaseTypes&);
+FDataStream& operator>>(FDataStream&, FaithPurchaseTypes&);
+
 template<typename Enum, typename T>
 inline FDataStream& operator<<(FDataStream& saveTo, const CvEnum<Enum, T>& readFrom)
 {
