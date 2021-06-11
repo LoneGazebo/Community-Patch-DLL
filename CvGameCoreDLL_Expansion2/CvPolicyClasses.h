@@ -1040,6 +1040,8 @@ public:
 	void Init(CvPolicyXMLEntries* pPolicies, CvPlayer* pPlayer, bool bIsCity);
 	void Uninit();
 	void Reset();
+	template<typename PlayerPolicies, typename Visitor>
+	static void Serialize(PlayerPolicies& playerPolicies, Visitor& visitor);
 	void Read(FDataStream& kStream);
 	void Write(FDataStream& kStream) const;
 

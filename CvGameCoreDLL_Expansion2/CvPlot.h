@@ -64,6 +64,9 @@ struct CvArchaeologyData
 	PlayerTypes m_ePlayer2;
 	GreatWorkType m_eWork;
 
+	template<typename ArchaeologyData, typename Visitor>
+	static void Serialize(ArchaeologyData& archaeologyData, Visitor& visitor);
+
 	CvArchaeologyData():
 		m_eArtifactType(NO_GREAT_WORK_ARTIFACT_CLASS),
 		m_eEra(NO_ERA),
