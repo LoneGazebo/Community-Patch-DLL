@@ -10,6 +10,7 @@
 // should provide no more overhead than normally necessary.
 
 #include "CvAssert.h"
+#include "CvAlignedStorage.h"
 #include "FDefNew.h"
 
 #include "CvEnumsUtil.h"
@@ -23,7 +24,10 @@ class CvEnumMap
 public:
 	inline CvEnumMap()
 		: m_values(NULL)
-	{}
+	{
+		CvAssert(sizeof(StorageType) == sizeof(T));
+		CvAssert(__alignof(StorageType) == __alignof(T));
+	}
 	inline ~CvEnumMap()
 	{
 		uninit();
@@ -38,22 +42,43 @@ public:
 	typedef std::reverse_iterator<Iterator> ReverseIterator;
 	typedef std::reverse_iterator<ConstIterator> ConstReverseIterator;
 
-	inline void init()
+	void init()
 	{
 		CvAssertMsg(m_values == NULL, "Dynamic CvEnumMap<>::init() called without first calling CvEnumMap<>::uninit() - Memory will leak");
-		m_values = FNEW(T[size()], c_eCiv5GameplayDLL, 0);
+		m_values = FNEW(StorageType[size()], c_eCiv5GameplayDLL, 0);
+#ifdef VPDEBUG
+		m_initSize = size();
+#endif
+		for (Iterator it = begin(); it != end(); ++it)
+		{
+			new (&(*it)) T;
+		}
 	}
-	inline void init(const T& fill)
+	void init(const T& fill)
 	{
-		init();
-		assign(fill);
+		CvAssertMsg(m_values == NULL, "Dynamic CvEnumMap<>::init() called without first calling CvEnumMap<>::uninit() - Memory will leak");
+		m_values = FNEW(StorageType[size()], c_eCiv5GameplayDLL, 0);
+#ifdef VPDEBUG
+		m_initSize = size();
+#endif
+		for (Iterator it = begin(); it != end(); ++it)
+		{
+			new (&(*it)) T(fill);
+		}
 	}
-	inline void uninit()
+	void uninit()
 	{
-		SAFE_DELETE_ARRAY(m_values);
+		if (m_values != NULL)
+		{
+			for (ReverseIterator it = rbegin(); it != rend(); ++it)
+			{
+				(*it).~T();
+			}
+			SAFE_DELETE_ARRAY(m_values);
+		}
 	}
 
-	inline void assign(const T& fill)
+	void assign(const T& fill)
 	{
 		checkValidAccess();
 		std::fill_n(begin(), size(), fill);
@@ -66,19 +91,19 @@ public:
 	inline const T* data() const
 	{
 		checkValidAccess();
-		return m_values;
+		return reinterpret_cast<const T*>(m_values);
 	}
 	inline T* data()
 	{
 		checkValidAccess();
-		return m_values;
+		return reinterpret_cast<T*>(m_values);
 	}
 
 	inline const T& operator[](std::size_t idx) const
 	{
 		checkValidAccess();
 		CvAssertMsg(idx < size(), "Attempting to access out of range index in CvEnumMap<>");
-		return m_values[idx];
+		return data()[idx];
 	}
 	inline T& operator[](std::size_t idx)
 	{
@@ -88,63 +113,63 @@ public:
 	inline ConstIterator begin() const
 	{
 		checkValidAccess();
-		return m_values;
+		return data();
 	}
 	inline Iterator begin()
 	{
 		checkValidAccess();
-		return m_values;
+		return data();
 	}
 	inline ConstIterator end() const
 	{
 		checkValidAccess();
-		return m_values + size();
+		return data() + size();
 	}
 	inline Iterator end()
 	{
 		checkValidAccess();
-		return m_values + size();
+		return data() + size();
 	}
 	inline ConstIterator cbegin() const
 	{
 		checkValidAccess();
-		return m_values;
+		return data();
 	}
 	inline ConstIterator cend() const
 	{
 		checkValidAccess();
-		return m_values + size();
+		return data() + size();
 	}
 
 	inline ConstReverseIterator rbegin() const
 	{
 		checkValidAccess();
-		return ConstReverseIterator(m_values + size());
+		return ConstReverseIterator(data() + size());
 	}
 	inline ReverseIterator rbegin()
 	{
 		checkValidAccess();
-		return ReverseIterator(m_values + size());
+		return ReverseIterator(data() + size());
 	}
 	inline ConstReverseIterator rend() const
 	{
 		checkValidAccess();
-		return ConstReverseIterator(m_values);
+		return ConstReverseIterator(data());
 	}
 	inline ReverseIterator rend()
 	{
 		checkValidAccess();
-		return ReverseIterator(m_values);
+		return ReverseIterator(data());
 	}
 	inline ConstIterator crbegin() const
 	{
 		checkValidAccess();
-		return ConstReverseIterator(m_values + size());
+		return ConstReverseIterator(data() + size());
 	}
 	inline ConstIterator crend() const
 	{
 		checkValidAccess();
-		return ConstReverseIterator(m_values);
+		return ConstReverseIterator(data());
 	}
 
 	inline bool valid() const
@@ -153,7 +178,6 @@ public:
 	}
 	inline bool operator==(const CvEnumMap<Enum, T, Fixed>& rhs) const
 	{
-		checkValidAccess();
 		return std::equal(begin(), end(), rhs.begin());
 	}
 	inline bool operator!=(const CvEnumMap<Enum, T, Fixed>& rhs) const
@@ -168,9 +192,14 @@ private:
 	inline void checkValidAccess() const
 	{
 		CvAssertMsg(m_values != NULL, "Attempting to access dynamic CvEnumMap<> without first calling CvEnumMap<>::init()");
+		CvAssertMsg(m_values == NULL || m_initSize == size(), "Attempting to access dynamic CvEnumMap<> whose size has changed since CvEnumMap<>::init() was called");
 	}
 
-	T* m_values;
+	typedef typename CvAlignedStorage<T>::Type StorageType;
+	StorageType* m_values;
+#ifdef VPDEBUG
+	std::size_t m_initSize;
+#endif
 };
 
 template<typename Enum, typename T>
@@ -189,21 +218,50 @@ public:
 	enum { SizeConstant = CvEnumsUtil::Traits<Enum>::CountConstant };
 
 	inline CvEnumMap()
-	{}
-
-	inline void init()
+		: m_initialized(false)
 	{
-	}
-	inline void init(const T& fill)
-	{
-		assign(fill);
-	}
-	inline void uninit()
-	{
+		CvAssert(sizeof(StorageType) == sizeof(T));
+		CvAssert(__alignof(StorageType) == __alignof(T));
 	}
 
-	inline void assign(const T& fill)
+	inline ~CvEnumMap()
 	{
+		uninit();
+	}
+
+	void init()
+	{
+		CvAssertMsg(m_initialized == false, "Fixed CvEnumMap<>::init() called without first calling CvEnumMap<>::uninit() - Elements will not be destroyed");
+		m_initialized = true;
+		for (Iterator it = begin(); it != end(); ++it)
+		{
+			new (&(*it)) T;
+		}
+	}
+	void init(const T& fill)
+	{
+		CvAssertMsg(m_initialized == false, "Fixed CvEnumMap<>::init() called without first calling CvEnumMap<>::uninit() - Elements will not be destroyed");
+		m_initialized = true;
+		for (Iterator it = begin(); it != end(); ++it)
+		{
+			new (&(*it)) T(fill);
+		}
+	}
+	void uninit()
+	{
+		if (m_initialized)
+		{
+			for (ReverseIterator it = rbegin(); it != rend(); ++it)
+			{
+				(*it).~T();
+			}
+			m_initialized = false;
+		}
+	}
+
+	void assign(const T& fill)
+	{
+		checkValidAccess();
 		std::fill_n(begin(), std::size_t(SizeConstant), fill);
 	}
 
@@ -213,17 +271,20 @@ public:
 	}
 	inline const T* data() const
 	{
-		return m_values;
+		checkValidAccess();
+		return reinterpret_cast<const T*>(m_values);
 	}
 	inline T* data()
 	{
-		return m_values;
+		checkValidAccess();
+		return reinterpret_cast<T*>(m_values);
 	}
 
 	inline const T& operator[](std::size_t idx) const
 	{
+		checkValidAccess();
 		CvAssertMsg(idx < size(), "Attempting to access out of range index in CvEnumMap<>");
-		return m_values[idx];
+		return data()[idx];
 	}
 	inline T& operator[](std::size_t idx)
 	{
@@ -232,57 +293,69 @@ public:
 
 	inline ConstIterator begin() const
 	{
-		return m_values;
+		checkValidAccess();
+		return data();
 	}
 	inline Iterator begin()
 	{
-		return m_values;
+		checkValidAccess();
+		return data();
 	}
 	inline ConstIterator end() const
 	{
-		return m_values + size();
+		checkValidAccess();
+		return data() + size();
 	}
 	inline Iterator end()
 	{
-		return m_values + size();
+		checkValidAccess();
+		return data() + size();
 	}
 	inline ConstIterator cbegin() const
 	{
-		return m_values;
+		checkValidAccess();
+		return data();
 	}
 	inline ConstIterator cend() const
 	{
-		return m_values + size();
+		checkValidAccess();
+		return data() + size();
 	}
 
 	inline ConstReverseIterator rbegin() const
 	{
-		return ConstReverseIterator(m_values + size());
+		checkValidAccess();
+		return ConstReverseIterator(data() + size());
 	}
 	inline ReverseIterator rbegin()
 	{
-		return ReverseIterator(m_values + size());
+		checkValidAccess();
+		return ReverseIterator(data() + size());
 	}
 	inline ConstReverseIterator rend() const
 	{
-		return ConstReverseIterator(m_values);
+		checkValidAccess();
+		return ConstReverseIterator(data());
 	}
 	inline ReverseIterator rend()
 	{
-		return ReverseIterator(m_values);
+		checkValidAccess();
+		return ReverseIterator(data());
 	}
 	inline ConstIterator crbegin() const
 	{
-		return ConstReverseIterator(m_values + size());
+		checkValidAccess();
+		return ConstReverseIterator(data() + size());
 	}
 	inline ConstIterator crend() const
 	{
-		return ConstReverseIterator(m_values);
+		checkValidAccess();
+		return ConstReverseIterator(data());
 	}
 
 	inline bool valid() const
 	{
-		return true;
+		return m_initialized;
 	}
 	inline bool operator==(const CvEnumMap<Enum, T, true>& rhs) const
 	{
@@ -297,7 +370,14 @@ private:
 	CvEnumMap(const CvEnumMap<Enum, T, true>&);
 	CvEnumMap<Enum, T, true>& operator=(const CvEnumMap<Enum, T, true>&);
 
-	T m_values[SizeConstant];
+	inline void checkValidAccess() const
+	{
+		CvAssertMsg(m_initialized == true, "Attempting to access fixed CvEnumMap<> without first calling CvEnumMap<>::init()");
+	}
+
+	typedef typename CvAlignedStorage<T>::Type StorageType;
+	StorageType m_values[SizeConstant];
+	bool m_initialized;
 };
 
 #endif

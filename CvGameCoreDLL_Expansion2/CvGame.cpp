@@ -1024,6 +1024,17 @@ void CvGame::uninit()
 	CvGoodyHuts::Uninit();
 	CvBarbarians::Uninit();
 
+	m_aiGreatestMonopolyPlayer.uninit();
+
+	m_aiEndTurnMessagesReceived.uninit();
+	m_aiRankPlayer.uninit();
+	m_aiPlayerRank.uninit();
+	m_aiPlayerScore.uninit();
+
+	m_aiRankTeam.uninit();
+	m_aiTeamRank.uninit();
+	m_aiTeamScore.uninit();
+
 	m_paiUnitCreatedCount.uninit();
 	m_paiUnitClassCreatedCount.uninit();
 	m_paiBuildingClassCreatedCount.uninit();
@@ -1033,7 +1044,6 @@ void CvGame::uninit()
 	m_aiPreviousVotesCast.uninit();
 	m_aiNumVotesForTeam.uninit();
 	m_aiTeamCompetitionWinnersScratchPad.uninit();
-	m_aiGreatestMonopolyPlayer.uninit();
 
 	m_pabSpecialUnitValid.uninit();
 
@@ -1169,15 +1179,6 @@ void CvGame::uninit()
 	m_strScriptData = "";
 	m_iEarliestBarbarianReleaseTurn = 0;
 
-	m_aiEndTurnMessagesReceived.assign(0);
-	m_aiRankPlayer.assign(0);
-	m_aiPlayerRank.assign(0);
-	m_aiPlayerScore.assign(0);
-
-	m_aiRankTeam.assign(0);
-	m_aiTeamRank.assign(0);
-	m_aiTeamScore.assign(0);
-
 	m_iLastMouseoverUnitID = 0;
 
 	CvCityManager::Shutdown();
@@ -1223,6 +1224,16 @@ void CvGame::reset(HandicapTypes eHandicap, bool bConstructorCall)
 	if(!bConstructorCall)
 	{
 		m_aiGreatestMonopolyPlayer.init(NO_PLAYER);
+
+		m_aiEndTurnMessagesReceived.init(0);
+		m_aiRankPlayer.init(0);
+		m_aiPlayerRank.init(0);
+		m_aiPlayerScore.init(0);
+
+		m_aiRankTeam.init(0);
+		m_aiTeamRank.init(0);
+		m_aiTeamScore.init(0);
+
 		m_paiUnitCreatedCount.init(0);
 		m_paiUnitClassCreatedCount.init(0);
 		m_paiBuildingClassCreatedCount.init(0);

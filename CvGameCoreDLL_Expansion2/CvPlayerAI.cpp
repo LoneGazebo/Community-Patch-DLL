@@ -31,6 +31,7 @@
 #include "cvStopWatch.h"
 #include "CvEconomicAI.h"
 #include "CvBarbarians.h"
+#include <CvEnumMap.h>
 
 #if defined(MOD_BALANCE_CORE)
 #include "CvDistanceMap.h"
@@ -45,7 +46,7 @@
 
 // statics
 
-CvPlayerAI* CvPlayerAI::m_aPlayers = NULL;
+static CvEnumMap<PlayerTypes, CvPlayerAI> s_players;;
 
 // inlined for performance reasons
 inline CvPlayerAI& CvPlayerAI::getPlayer(PlayerTypes ePlayer)
@@ -56,21 +57,21 @@ inline CvPlayerAI& CvPlayerAI::getPlayer(PlayerTypes ePlayer)
 	if (ePlayer == NO_PLAYER || ePlayer >= MAX_PLAYERS)
 		ePlayer = BARBARIAN_PLAYER;
 
-	return m_aPlayers[ePlayer];
+	return s_players[ePlayer];
 }
 
 void CvPlayerAI::initStatics()
 {
-	m_aPlayers = FNEW(CvPlayerAI[MAX_PLAYERS], c_eCiv5GameplayDLL, 0);
-	for(int iI = 0; iI < MAX_PLAYERS; iI++)
+	s_players.init();
+	for(std::size_t i = 0; i < s_players.size(); ++i)
 	{
-		m_aPlayers[iI].m_eID = ((PlayerTypes)iI);
+		s_players[i].m_eID = PlayerTypes(i);
 	}
 }
 
 void CvPlayerAI::freeStatics()
 {
-	SAFE_DELETE_ARRAY(m_aPlayers);
+	s_players.uninit();
 }
 
 // Public Functions...

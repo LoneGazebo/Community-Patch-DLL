@@ -102,9 +102,6 @@ public:
 	virtual void Write(FDataStream& kStream) const;
 
 protected:
-
-	static CvPlayerAI* m_aPlayers;
-
 	void AI_doResearch();
 };
 
