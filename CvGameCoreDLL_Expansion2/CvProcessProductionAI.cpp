@@ -42,26 +42,25 @@ void CvProcessProductionAI::Reset()
 	}
 }
 
+///
+template<typename ProcessProductionAI, typename Visitor>
+void CvProcessProductionAI::Serialize(ProcessProductionAI& processProductionAI, Visitor& visitor)
+{
+	visitor(processProductionAI.m_ProcessAIWeights);
+}
+
 /// Serialization read
 void CvProcessProductionAI::Read(FDataStream& kStream)
 {
-	// Version number to maintain backwards compatibility
-	uint uiVersion;
-	kStream >> uiVersion;
-	MOD_SERIALIZE_INIT_READ(kStream);
-
-	kStream >> m_ProcessAIWeights;
+	CvStreamLoadVisitor serialVisitor(kStream);
+	Serialize(*this, serialVisitor);
 }
 
 /// Serialization write
 void CvProcessProductionAI::Write(FDataStream& kStream) const
 {
-	// Current version number
-	uint uiVersion = 1;
-	kStream << uiVersion;
-	MOD_SERIALIZE_INIT_WRITE(kStream);
-
-	kStream << m_ProcessAIWeights;
+	CvStreamSaveVisitor serialVisitor(kStream);
+	Serialize(*this, serialVisitor);
 }
 
 FDataStream& operator>>(FDataStream& loadFrom, CvProcessProductionAI& writeTo)

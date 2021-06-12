@@ -35,6 +35,8 @@ public:
 	unsigned long getResetCount() const;
 
 	// for serialization
+	template<typename Random, typename Visitor>
+	static void Serialize(Random& random, Visitor& visitor);
 	void read(FDataStream& Stream);
 	void write(FDataStream& Stream) const;
 
