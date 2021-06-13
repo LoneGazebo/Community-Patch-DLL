@@ -108,43 +108,26 @@ void CvReplayMessage::clearPlots()
 	m_Plots.clear();
 }
 //------------------------------------------------------------------------------
+template<typename ReplayMessage, typename Visitor>
+void CvReplayMessage::Serialize(ReplayMessage& replayMessage, Visitor& visitor)
+{
+	visitor(replayMessage.m_iTurn);
+	visitor(replayMessage.m_eType);
+	visitor(replayMessage.m_Plots);
+	visitor(replayMessage.m_ePlayer);
+	visitor(replayMessage.m_strText);
+}
+//------------------------------------------------------------------------------
 void CvReplayMessage::read(FDataStream& kStream)
 {
-	kStream >> m_iTurn;
-	kStream >> m_eType;
-
-	int nPlots = -1;
-	kStream >> nPlots;
-	if(nPlots > 0)
-	{
-		m_Plots.reserve(nPlots);
-		for(int i = 0; i < nPlots; ++i)
-		{
-			short sPlotX, sPlotY;
-			kStream >> sPlotX;
-			kStream >> sPlotY;
-			m_Plots.push_back(PlotPosition(sPlotX, sPlotY));
-		}
-	}
-
-	kStream >> m_ePlayer;
-	kStream >> m_strText;
+	CvStreamLoadVisitor serialVisitor(kStream);
+	Serialize(*this, serialVisitor);
 }
 //------------------------------------------------------------------------------
 void CvReplayMessage::write(FDataStream& kStream) const
 {
-	kStream << m_iTurn;
-	kStream << m_eType;
-
-	kStream << (int)m_Plots.size();
-	for(PlotPositionList::const_iterator it = m_Plots.begin(); it != m_Plots.end(); ++it)
-	{
-		kStream << (*it).first;
-		kStream << (*it).second;
-	}
-
-	kStream << m_ePlayer;
-	kStream << m_strText;
+	CvStreamSaveVisitor serialVisitor(kStream);
+	Serialize(*this, serialVisitor);
 }
 //------------------------------------------------------------------------------
 FDataStream& operator<<(FDataStream& saveTo, const CvReplayMessage& readFrom)
