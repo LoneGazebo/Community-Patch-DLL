@@ -1439,55 +1439,51 @@ CvPlot* CvCityCitizens::GetBestCityPlotWithValue(int& iValue, bool bWantBest, bo
 			CvPlot* pLoopPlot = GetCityPlotFromIndex(iPlotLoop);
 			if (pLoopPlot != NULL)
 			{
-				// Is this a Plot this City controls?
-				if (IsCanWork(pLoopPlot))
+				// Is this a Plot this City can control?
+				if (IsCanWork(pLoopPlot, true))
 				{
 					// Working the Plot and wanting to work it, or Not working it and wanting to find one to work?
 					if ((IsWorkingPlot(iPlotLoop) && bWantWorked) ||
 						(!IsWorkingPlot(iPlotLoop) && !bWantWorked))
 					{
-						// Working the Plot or CAN work the Plot?
-						if (bWantWorked || IsCanWork(pLoopPlot))
-						{
-							int iCurrent = GetPlotValue(pLoopPlot, gCachedNumbers);
+						int iCurrent = GetPlotValue(pLoopPlot, gCachedNumbers);
 							
-							if (IsForcedWorkingPlot(pLoopPlot))
+						if (IsForcedWorkingPlot(pLoopPlot))
+						{
+							// Looking for best, unworked Plot: Forced plots are FIRST to be picked
+							if (bWantBest && !bWantWorked)
 							{
-								// Looking for best, unworked Plot: Forced plots are FIRST to be picked
-								if (bWantBest && !bWantWorked)
+								iCurrent += 1000*1000;
+							}
+							// Looking for worst, worked Plot: Forced plots are LAST to be picked, so make it's value incredibly high
+							if (!bWantBest && bWantWorked)
+							{
+								if (!bForced)
+								{
+									continue;
+								}
+								else
 								{
 									iCurrent += 1000*1000;
 								}
-								// Looking for worst, worked Plot: Forced plots are LAST to be picked, so make it's value incredibly high
-								if (!bWantBest && bWantWorked)
-								{
-									if (!bForced)
-									{
-										continue;
-									}
-									else
-									{
-										iCurrent += 1000*1000;
-									}
-								}
 							}
+						}
 
-							if (0) // (pLog)
-							{
-								CvString strOutBuf;
-								strOutBuf.Format("check index %d, plot %d:%d (%df%dp%dg%do), score %d. current net food %d", 
-									iPlotLoop, pLoopPlot->getX(), pLoopPlot->getY(), pLoopPlot->getYield(YIELD_FOOD), pLoopPlot->getYield(YIELD_PRODUCTION), 
-									pLoopPlot->getYield(YIELD_GOLD), pBestPlot->getYield(YIELD_SCIENCE) + pBestPlot->getYield(YIELD_CULTURE) + pBestPlot->getYield(YIELD_FAITH), iCurrent, gCachedNumbers.iExcessFoodTimes100);
-								pLog->Msg(strOutBuf);
-							}
+						if (0) // (pLog)
+						{
+							CvString strOutBuf;
+							strOutBuf.Format("check index %d, plot %d:%d (%df%dp%dg%do), score %d. current net food %d", 
+								iPlotLoop, pLoopPlot->getX(), pLoopPlot->getY(), pLoopPlot->getYield(YIELD_FOOD), pLoopPlot->getYield(YIELD_PRODUCTION), 
+								pLoopPlot->getYield(YIELD_GOLD), pBestPlot->getYield(YIELD_SCIENCE) + pBestPlot->getYield(YIELD_CULTURE) + pBestPlot->getYield(YIELD_FAITH), iCurrent, gCachedNumbers.iExcessFoodTimes100);
+							pLog->Msg(strOutBuf);
+						}
 
-							if ( pBestPlot == NULL ||							// First Plot?
-								(bWantBest && iCurrent > iBestPlotValue) ||		// Best Plot so far?
-								(!bWantBest && iCurrent < iBestPlotValue) )		// Worst Plot so far?
-							{
-								iBestPlotValue = iCurrent;
-								pBestPlot = pLoopPlot;
-							}
+						if ( pBestPlot == NULL ||							// First Plot?
+							(bWantBest && iCurrent > iBestPlotValue) ||		// Best Plot so far?
+							(!bWantBest && iCurrent < iBestPlotValue) )		// Worst Plot so far?
+						{
+							iBestPlotValue = iCurrent;
+							pBestPlot = pLoopPlot;
 						}
 					}
 				}
@@ -1824,78 +1820,78 @@ void CvCityCitizens::SetWorkingPlot(CvPlot* pPlot, bool bNewValue, CvCity::eUpda
 			}
 		}
 
-		if (pPlot != NULL)
+		// Now working pPlot
+		if (IsWorkingPlot(pPlot))
 		{
-			// Now working pPlot
-			if (IsWorkingPlot(pPlot))
+			for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 			{
-				for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
-				{
-					//Simplification - errata yields not worth considering.
-					if ((YieldTypes)iI > YIELD_CULTURE_LOCAL && !MOD_BALANCE_CORE_JFD)
-						break;
+				//Simplification - errata yields not worth considering.
+				if ((YieldTypes)iI > YIELD_CULTURE_LOCAL && !MOD_BALANCE_CORE_JFD)
+					break;
 
-					GetCity()->ChangeBaseYieldRateFromTerrain(((YieldTypes)iI), pPlot->getYield((YieldTypes)iI));
+				GetCity()->ChangeBaseYieldRateFromTerrain(((YieldTypes)iI), pPlot->getYield((YieldTypes)iI));
+			}
+
+			if (iIndex != CITY_HOME_PLOT)
+			{
+				if (!pPlot->isEffectiveOwner(m_pCity))
+					pPlot->setOwningCityOverride(m_pCity);
+
+				if (pPlot->getTerrainType() != NO_TERRAIN)
+				{
+					GetCity()->ChangeNumTerrainWorked(pPlot->getTerrainType(), 1);
+					if (pPlot->getFeatureType() == NO_FEATURE && !pPlot->isHills())
+					{
+						GetCity()->ChangeNumFeaturelessTerrainWorked(pPlot->getTerrainType(), 1);
+					}
 				}
-
-				if (iIndex != CITY_HOME_PLOT)
+				if (pPlot->getFeatureType() != NO_FEATURE)
 				{
-					if (pPlot->getTerrainType() != NO_TERRAIN)
-					{
-						GetCity()->ChangeNumTerrainWorked(pPlot->getTerrainType(), 1);
-						if (pPlot->getFeatureType() == NO_FEATURE && !pPlot->isHills())
-						{
-							GetCity()->ChangeNumFeaturelessTerrainWorked(pPlot->getTerrainType(), 1);
-						}
-					}
-					if (pPlot->getFeatureType() != NO_FEATURE)
-					{
-						GetCity()->ChangeNumFeatureWorked(pPlot->getFeatureType(), 1);
-					}
-					if (pPlot->getResourceType(GetCity()->getTeam()) != NO_RESOURCE)
-					{
-						GetCity()->ChangeNumResourceWorked(pPlot->getResourceType(GetCity()->getTeam()), 1);
-					}
-					if (pPlot->getImprovementType() != NO_IMPROVEMENT)
-					{
-						GetCity()->ChangeNumImprovementWorked(pPlot->getImprovementType(), 1);
-					}
+					GetCity()->ChangeNumFeatureWorked(pPlot->getFeatureType(), 1);
+				}
+				if (pPlot->getResourceType(GetCity()->getTeam()) != NO_RESOURCE)
+				{
+					GetCity()->ChangeNumResourceWorked(pPlot->getResourceType(GetCity()->getTeam()), 1);
+				}
+				if (pPlot->getImprovementType() != NO_IMPROVEMENT)
+				{
+					GetCity()->ChangeNumImprovementWorked(pPlot->getImprovementType(), 1);
 				}
 			}
-			// No longer working pPlot
-			else
+		}
+		// No longer working pPlot
+		else
+		{
+			for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 			{
-				for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
-				{
-					//Simplification - errata yields not worth considering.
-					if ((YieldTypes)iI > YIELD_CULTURE_LOCAL && !MOD_BALANCE_CORE_JFD)
-						break;
+				//Simplification - errata yields not worth considering.
+				if ((YieldTypes)iI > YIELD_CULTURE_LOCAL && !MOD_BALANCE_CORE_JFD)
+					break;
 
-					GetCity()->ChangeBaseYieldRateFromTerrain(((YieldTypes)iI), -pPlot->getYield((YieldTypes)iI));
+				GetCity()->ChangeBaseYieldRateFromTerrain(((YieldTypes)iI), -pPlot->getYield((YieldTypes)iI));
+			}
+
+			if (iIndex != CITY_HOME_PLOT)
+			{
+				if (pPlot->getTerrainType() != NO_TERRAIN)
+				{
+					GetCity()->ChangeNumTerrainWorked(pPlot->getTerrainType(), -1);
+					if (pPlot->getFeatureType() == NO_FEATURE && !pPlot->isHills())
+					{
+						GetCity()->ChangeNumFeaturelessTerrainWorked(pPlot->getTerrainType(), -1);
+					}
 				}
-
-				if (iIndex != CITY_HOME_PLOT)
+				if (pPlot->getFeatureType() != NO_FEATURE)
 				{
-					if (pPlot->getTerrainType() != NO_TERRAIN)
-					{
-						GetCity()->ChangeNumTerrainWorked(pPlot->getTerrainType(), -1);
-						if (pPlot->getFeatureType() == NO_FEATURE && !pPlot->isHills())
-						{
-							GetCity()->ChangeNumFeaturelessTerrainWorked(pPlot->getTerrainType(), -1);
-						}
-					}
-					if (pPlot->getFeatureType() != NO_FEATURE)
-					{
-						GetCity()->ChangeNumFeatureWorked(pPlot->getFeatureType(), -1);
-					}
-					if (pPlot->getResourceType(GetCity()->getTeam()) != NO_RESOURCE)
-					{
-						GetCity()->ChangeNumResourceWorked(pPlot->getResourceType(GetCity()->getTeam()), -1);
-					}
-					if (pPlot->getImprovementType() != NO_IMPROVEMENT)
-					{
-						GetCity()->ChangeNumImprovementWorked(pPlot->getImprovementType(), -1);
-					}
+					GetCity()->ChangeNumFeatureWorked(pPlot->getFeatureType(), -1);
+				}
+				if (pPlot->getResourceType(GetCity()->getTeam()) != NO_RESOURCE)
+				{
+					GetCity()->ChangeNumResourceWorked(pPlot->getResourceType(GetCity()->getTeam()), -1);
+				}
+				if (pPlot->getImprovementType() != NO_IMPROVEMENT)
+				{
+					GetCity()->ChangeNumImprovementWorked(pPlot->getImprovementType(), -1);
 				}
 			}
 		}
@@ -2124,11 +2120,40 @@ void CvCityCitizens::ChangeNumForcedWorkingPlots(int iChange)
 }
 
 /// Can our City work a particular CvPlot?
-bool CvCityCitizens::IsCanWork(CvPlot* pPlot) const
+bool CvCityCitizens::IsCanWork(CvPlot* pPlot, bool bAllowFromOtherCities /*= false*/) const
 {
-	if (!pPlot->isEffectiveOwner(m_pCity))
+	if (bAllowFromOtherCities)
 	{
-		return false;
+		if (pPlot->getOwner() != m_pCity->getOwner())
+		{
+			return false;
+		}
+
+		// We're not allowed to work a plot that has already had ownership overridden
+		const CvCity* pOwningCityOverride = pPlot->getOwningCityOverride();
+		if (pOwningCityOverride != NULL && pOwningCityOverride != m_pCity)
+		{
+			return false;
+		}
+
+		// We're allowed to work a plot from another city if the owning city cannot reach it
+		const CvCity* pOwningCity = pPlot->getOwningCity();
+		if (pOwningCity != NULL && pOwningCity != m_pCity)
+		{
+			const int iOwningCityPlotDistance = plotDistance(pPlot->getX(), pPlot->getY(), pOwningCity->getX(), pOwningCity->getY());
+			const int iOwningCityWorkDistance = pOwningCity->getWorkPlotDistance();
+			if (iOwningCityPlotDistance <= iOwningCityWorkDistance)
+			{
+				return false;
+			}
+		}
+	}
+	else
+	{
+		if (!pPlot->isEffectiveOwner(m_pCity))
+		{
+			return false;
+		}
 	}
 
 	if (!pPlot->hasYield())

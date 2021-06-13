@@ -110,7 +110,7 @@ public:
 	int GetNumForcedWorkingPlots() const;
 	void ChangeNumForcedWorkingPlots(int iChange);
 
-	bool IsCanWork(CvPlot* pPlot) const;
+	bool IsCanWork(CvPlot* pPlot, bool bAllowFromOtherCities = false) const;
 	bool IsBlockaded(CvPlot* pPlot) const;
 	void SetBlockaded(CvPlot* pPlot);
 	void ClearBlockades();

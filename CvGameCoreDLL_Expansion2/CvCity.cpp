@@ -29715,8 +29715,36 @@ void CvCity::DoAcquirePlot(int iPlotX, int iPlotY)
 	pPlot->setOwner(getOwner(), GetID(), /*bCheckUnits*/ true, /*bUpdateResources*/ true);
 	GC.getMap().updateDeferredFog();
 
-	GetCityCitizens()->SetDirty(true);
-	GetCityCitizens()->DoReallocateCitizens();
+	// If the plot is too far away for us to work, we should let nearby cities who can work it know
+	if (plotDistance(getX(), getY(), iPlotX, iPlotY) > getWorkPlotDistance())
+	{
+		const CvPlayer& kOwner = GET_PLAYER(getOwner());
+		int iLoop;
+		for (const CvCity* pLoopCity = kOwner.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kOwner.nextCity(&iLoop))
+		{
+			if (pLoopCity == this)
+				continue;
+
+			if (plotDistance(pLoopCity->getX(), pLoopCity->getY(), iPlotX, iPlotY) <= pLoopCity->getWorkPlotDistance())
+			{
+				pLoopCity->GetCityCitizens()->SetDirty(true);
+				pLoopCity->GetCityCitizens()->DoReallocateCitizens();
+				
+				if (pLoopCity->GetCityCitizens()->IsWorkingPlot(pPlot))
+				{
+					break;
+				}
+
+				// Undo override in case the governor decided to work the plot but later changed their mind
+				pPlot->setOwningCityOverride(NULL);
+			}
+		}
+	}
+	else
+	{
+		GetCityCitizens()->SetDirty(true);
+		GetCityCitizens()->DoReallocateCitizens();
+	}
 
 	DoUpdateCheapestPlotInfluenceDistance();
 }
