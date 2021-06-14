@@ -30440,7 +30440,7 @@ void CvCity::startHeadOrder()
 
 	if(pOrderNode != NULL)
 	{
-		GetCityCitizens()->DoReallocateCitizens();
+		GetCityCitizens()->OptimizeWorkedPlots(false);
 
 		if(pOrderNode->eOrderType == ORDER_MAINTAIN)
 		{

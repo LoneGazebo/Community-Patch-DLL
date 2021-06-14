@@ -64,8 +64,9 @@ public:
 	bool IsNoAutoAssignSpecialists() const;
 	void SetNoAutoAssignSpecialists(bool bValue, bool bReallocate = false);
 
-	bool IsAvoidGrowth();
-	bool IsForcedAvoidGrowth();
+	int GetExcessFoodThreshold100() const;
+	bool IsAvoidGrowth() const;
+	bool IsForcedAvoidGrowth() const;
 	bool SetForcedAvoidGrowth(bool bAvoidGrowth, bool bReallocate = false);
 	CityAIFocusTypes GetFocusType() const;
 	bool SetFocusType(CityAIFocusTypes eFocus, bool bReallocate = false);
