@@ -322,6 +322,7 @@ public:
 	void UpdateFurthestPossibleTradeRoute(DomainTypes eDomain, CvCity* pOriginCity, int iMaxRange);
 	int GetTradeRouteRange (DomainTypes eDomain, CvCity* pOriginCity);
 	int GetTradeRouteSpeed (DomainTypes eDomain);
+	int GetTradeRouteTurnModGlobal();
 
 	uint GetNumTradeRoutesPossible (void);
 	int GetNumTradeUnits (bool bIncludeBeingBuilt);

@@ -1179,6 +1179,7 @@ int CvGameTrade::GetTradeRouteTurns(CvCity* pOriginCity, CvCity* pDestCity, Doma
 #else
 	int iTargetTurns = 30; // how many turns do we want the cycle to consume
 #endif
+	iTargetTurns += iTargetTurns * (GET_PLAYER(pOriginCity->getOwner()).GetTrade()->GetTradeRouteTurnModGlobal() / 100.0);
 
 	// calculate how many circuits do we want this trade route to run to reach the target turns
 	int iCircuitsToComplete = 1; 
@@ -5515,6 +5516,59 @@ int CvPlayerTrade::GetTradeRouteSpeed (DomainTypes eDomain)
 
 	CvAssertMsg(false, "Undefined domain for trade route speed");
 	return -1;
+}
+
+//	--------------------------------------------------------------------------------
+int CvPlayerTrade::GetTradeRouteTurnModGlobal()
+{
+	int iTurnChange = 0;
+
+	const CvCivilizationInfo& kCivInfo = m_pPlayer->getCivilizationInfo();
+	int iLoop = 0;
+	CvCity* pLoopCity;
+	for (pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
+	{
+		for (int iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
+		{
+			BuildingTypes eBuilding = NO_BUILDING;
+#if defined(MOD_BALANCE_CORE)
+			if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || m_pPlayer->GetPlayerTraits()->IsKeepConqueredBuildings())
+#else
+			if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
+#endif
+			{
+				eBuilding = pLoopCity->GetCityBuildings()->GetBuildingTypeFromClass((BuildingClassTypes)iI);
+			}
+			else
+			{
+				eBuilding = (BuildingTypes)kCivInfo.getCivilizationBuildings((BuildingClassTypes)iI);
+			}
+			if (eBuilding != NO_BUILDING)
+			{
+				CvBuildingEntry* pBuildingEntry = GC.GetGameBuildings()->GetEntry(eBuilding);
+				if (!pBuildingEntry)
+				{
+					continue;
+				}
+
+				if (pBuildingEntry)
+				{
+					if (pLoopCity->GetCityBuildings()->GetNumBuilding((BuildingTypes)pBuildingEntry->GetID()))
+					{
+						int iTurnChangeLocal = pBuildingEntry->GetTRTurnModGlobal();
+						if (iTurnChangeLocal != 0)
+						{
+							iTurnChange += (iTurnChangeLocal * pLoopCity->GetCityBuildings()->GetNumBuilding((BuildingTypes)pBuildingEntry->GetID()));
+						}
+					}
+				}
+			}
+		}
+	}
+	if (abs(iTurnChange) > 100) {
+		return 100 * (iTurnChange / abs(iTurnChange));
+	}
+	return iTurnChange;
 }
 
 //	--------------------------------------------------------------------------------

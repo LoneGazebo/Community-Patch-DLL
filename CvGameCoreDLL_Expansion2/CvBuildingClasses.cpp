@@ -56,6 +56,7 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_bTradeRouteInvulnerable(false),
 	m_iTRSpeedBoost(0),
 	m_iTRVisionBoost(0),
+	m_iTRTurnModGlobal(0),
 	m_iVotesPerGPT(0),
 	m_bRequiresRail(false),
 	m_bDummy(false),
@@ -826,6 +827,7 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	szTextVal = kResults.GetText("FreeBuildingTradeTargetCity");
 	m_bTradeRouteInvulnerable = kResults.GetBool("TradeRouteInvulnerable");
 	m_iTRSpeedBoost = kResults.GetInt("TRSpeedBoost");
+	m_iTRTurnModGlobal = kResults.GetInt("TRTurnModGlobal");
 	m_iTRVisionBoost = kResults.GetInt("TRVisionBoost");
 	m_iVotesPerGPT = kResults.GetInt("VotesPerGPT");
 	m_bRequiresRail = kResults.GetBool("RequiresRail");
@@ -1772,6 +1774,11 @@ int CvBuildingEntry::GetTRSpeedBoost() const
 int CvBuildingEntry::GetTRVisionBoost() const
 {
 	return m_iTRVisionBoost;
+}
+// TRs take less time
+int CvBuildingEntry::GetTRTurnModGlobal() const
+{
+	return m_iTRTurnModGlobal;
 }
 
 int CvBuildingEntry::GetVotesPerGPT() const

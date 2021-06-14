@@ -154,6 +154,7 @@ public:
 	bool IsTradeRouteInvulnerable() const;
 	int GetTRSpeedBoost() const;
 	int GetTRVisionBoost() const;
+	int GetTRTurnModGlobal() const;
 	int GetVotesPerGPT() const;
 	bool IsRequiresRail() const;
 	bool IsDummy() const;
@@ -656,6 +657,7 @@ private:
 	int m_iGetCooldown;
 	bool m_bTradeRouteInvulnerable;
 	int m_iTRSpeedBoost;
+	int m_iTRTurnModGlobal;
 	int m_iTRVisionBoost;
 	int m_iVotesPerGPT;
 	bool m_bRequiresRail;
