@@ -8104,7 +8104,8 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 							if ((YieldTypes)iK > YIELD_GOLDEN_AGE_POINTS && !MOD_BALANCE_CORE_JFD)
 								break;
 
-							if(pImprovement2->GetAdjacentResourceYieldChanges(pAdjacentPlot->getResourceType(), (YieldTypes)iK) > 0)
+							ResourceTypes eResource = pAdjacentPlot->getResourceType(GET_PLAYER(eBuilder).getTeam());
+							if(eResource != NO_RESOURCE && pImprovement2->GetAdjacentResourceYieldChanges(eResource, (YieldTypes)iK) > 0)
 							{
 								bUp = true;								
 								break;
@@ -9789,7 +9790,7 @@ int CvPlot::calculateImprovementYield(ImprovementTypes eImprovement, YieldTypes 
 					iYield += pImprovement->GetAdjacentFeatureYieldChanges(pAdjacentPlot->getFeatureType(), eYield);
 				}
 
-				if (pAdjacentPlot->getResourceType() != NO_RESOURCE)
+				if (pAdjacentPlot->getResourceType(kPlayer.getTeam()) != NO_RESOURCE)
 				{
 					iYield += pImprovement->GetAdjacentResourceYieldChanges(pAdjacentPlot->getResourceType(), eYield);
 				}

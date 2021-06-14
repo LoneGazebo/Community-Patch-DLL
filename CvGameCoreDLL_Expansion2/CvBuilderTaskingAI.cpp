@@ -2320,7 +2320,7 @@ int CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes eImprovem
 			for(int iJ = 0; iJ < GC.getNumResourceInfos(); iJ++)
 			{
 				ResourceTypes eResource = (ResourceTypes)iJ;
-				if(eResource != NO_RESOURCE)
+				if(eResource != NO_RESOURCE && GET_TEAM(getTeam(m_pPlayer->GetID())).GetTeamTechs()->HasTech((TechTypes)(GC.getResourceInfo(eResource)->getTechReveal())))
 				{
 					iAdjacentResourceValue += pImprovement->GetAdjacentResourceYieldChanges(eResource, eYield);
 				}
