@@ -5318,7 +5318,7 @@ int CvPlot::ComputeYieldFromOtherAdjacentImprovement(CvImprovementEntry& kImprov
 
 	return iRtnValue;
 }
-int CvPlot::ComputeYieldFromAdjacentResource(CvImprovementEntry& kImprovement, YieldTypes eYield) const
+int CvPlot::ComputeYieldFromAdjacentResource(CvImprovementEntry& kImprovement, YieldTypes eYield, TeamTypes eTeam) const
 {
 	CvPlot* pAdjacentPlot;
 	int iRtnValue = 0;
@@ -5333,7 +5333,7 @@ int CvPlot::ComputeYieldFromAdjacentResource(CvImprovementEntry& kImprovement, Y
 				for(int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
 				{
 					pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
-					if(pAdjacentPlot && pAdjacentPlot->getResourceType() == eResource)
+					if(pAdjacentPlot && pAdjacentPlot->getResourceType(eTeam) == eResource)
 					{
 						iRtnValue += kImprovement.GetAdjacentResourceYieldChanges(eResource, eYield);
 					}
