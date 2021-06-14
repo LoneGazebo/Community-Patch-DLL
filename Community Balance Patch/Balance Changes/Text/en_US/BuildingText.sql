@@ -349,11 +349,11 @@ SET Text = 'Arena'
 WHERE Tag = 'TXT_KEY_BUILDING_COLOSSEUM' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = '+1000 [ICON_TOURISM] Tourism with all known Civilizations when completed. Nearby Jungle and Forest Tiles gain +2 [ICON_TOURISM] Tourism and +1 [ICON_CULTURE] Culture. When any [ICON_INTERNATIONAL_TRADE] Trade Route originating here and targeting another Civ is completed, receive a [ICON_TOURISM] Tourism boost with the Civ based on your recent [ICON_CULTURE] Culture and [ICON_TOURISM] Tourism output.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_CULTURE] Boredom.'
+SET Text = '+1000 [ICON_TOURISM] Tourism with all known Civilizations when completed. Nearby Jungle and Forest Tiles gain +1 [ICON_CULTURE] Culture. When any [ICON_INTERNATIONAL_TRADE] Trade Route originating here and targeting another Civ is completed, receive a [ICON_TOURISM] Tourism boost with the Civ based on your recent [ICON_CULTURE] Culture and [ICON_TOURISM] Tourism output.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_CULTURE] Boredom.'
 WHERE Tag = 'TXT_KEY_BUILDING_THEATRE_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'The Zoo reduces Boredom in a city, produces additional Culture, and boosts the Gold value of nearby Jungle and Forest tiles. Generates a large sum of Tourism with all known Civilizations when completed.'
+SET Text = 'The Zoo reduces Boredom in a city, produces additional Culture, and boosts the Culture value of nearby Jungle and Forest tiles. Generates a large sum of Tourism with all known Civilizations when completed.'
 WHERE Tag = 'TXT_KEY_BUILDING_THEATRE_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -484,7 +484,7 @@ SET Text = '+1 [ICON_CULTURE] Culture for every 4 [ICON_CITIZEN] Citizens in the
 WHERE Tag = 'TXT_KEY_BUILDING_HERMITAGE_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_WONDERS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Improves City [ICON_SPY] Security Level by 15%, provides 1 or more [COLOR_POSITIVE_TEXT]Additional[ENDCOLOR] [ICON_SPY] Spies (based on number of [ICON_CITY_STATE] City-States in game), and levels up all existing [ICON_SPY] Spies. Reduces [ICON_HAPPINESS_3] Unhappiness Needs Modifier for [ICON_FOOD]/[ICON_PRODUCTION] Distress by 10% in all Cities.[NEWLINE][NEWLINE]+100 [ICON_RESEARCH] Science and [ICON_GOLD] Gold when you Steal a [ICON_GREAT_WORK] Great Work or [ICON_RESEARCH] Technology, complete a [ICON_CITY_STATE] City-State Coup or Election Rigging, or kill a foreign [ICON_SPY] Spy in this City (+25 [ICON_GOLD]/[ICON_RESEARCH] for Spy Events), all scaling with Era.[NEWLINE][NEWLINE]The [ICON_PRODUCTION] Production Cost and [ICON_CITIZEN] Population Requirements increase based on the number of Cities you own.'
+SET Text = 'Improves City [ICON_SPY] Security Level by 15%, provides 1 or more [COLOR_POSITIVE_TEXT]Additional[ENDCOLOR] [ICON_SPY] Spies (based on number of [ICON_CITY_STATE] City-States in game), and levels up all existing [ICON_SPY] Spies. Reduces [ICON_HAPPINESS_3] Unhappiness Needs Modifier for [ICON_FOOD]/[ICON_PRODUCTION] Distress by 10% in all Cities.[NEWLINE][NEWLINE]+100 [ICON_RESEARCH] Science and [ICON_GOLD] Gold when you complete a [ICON_CITY_STATE] City-State Coup or Election Rigging or kill a foreign [ICON_SPY] Spy in this City (+25 [ICON_GOLD]/[ICON_RESEARCH] for Spy Events), all scaling with Era.[NEWLINE][NEWLINE]The [ICON_PRODUCTION] Production Cost and [ICON_CITIZEN] Population Requirements increase based on the number of Cities you own.'
 WHERE Tag = 'TXT_KEY_BUILDING_INTELLIGENCE_AGENCY_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_WONDERS' AND Value= 1 );
 
 UPDATE Language_en_US

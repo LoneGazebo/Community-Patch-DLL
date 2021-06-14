@@ -391,7 +391,8 @@ void CvCityStrategyAI::FlavorUpdate()
 	for(int iFlavor = 0; iFlavor < GC.getNumFlavorTypes(); iFlavor++)
 	{
 		int iFlavorValue = GetLatestFlavorValue((FlavorTypes)iFlavor);
-		const char* pcFlavorName = GC.getFlavorTypes((FlavorTypes)iFlavor).c_str(); pcFlavorName; //for debugging
+		//for debugging
+		//const char* pcFlavorName = GC.getFlavorTypes((FlavorTypes)iFlavor).c_str();
 
 		m_pBuildingProductionAI->AddFlavorWeights((FlavorTypes)iFlavor, iFlavorValue);
 		m_pUnitProductionAI->AddFlavorWeights((FlavorTypes)iFlavor, iFlavorValue);
@@ -1426,7 +1427,6 @@ CvCityBuildable CvCityStrategyAI::ChooseHurry(bool bUnitOnly, bool bFaithPurchas
 /// Called every turn to see what CityStrategies this City should using (or not)
 void CvCityStrategyAI::DoTurn()
 {
-	AI_PERF_FORMAT("City-AI-perf.csv", ("CvCityStrategyAI::DoTurn, Turn %03d, %s, %s", GC.getGame().getElapsedGameTurns(), m_pCity->GetPlayer()->getCivilizationShortDescription(), m_pCity->getName().c_str()) );
 
 	int iCityStrategiesLoop = 0;
 
@@ -2719,7 +2719,7 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_EnoughNavalTileImprovement(CvCity
 		CvPlot* pLoopPlot = iterateRingPlots(iX, iY, iCityPlotLoop);
 
 		// Invalid plot or not owned by this player
-		if (pLoopPlot == NULL || pLoopPlot->getOwner() != iOwner || pLoopPlot->getOwningCity() != pCity)
+		if (pLoopPlot == NULL || pLoopPlot->getOwner() != iOwner || pLoopPlot->getEffectiveOwningCity() != pCity)
 		{
 			continue;
 		}

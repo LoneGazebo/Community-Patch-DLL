@@ -545,7 +545,6 @@ void CvEconomicAI::LogEconomyMessage(const CvString& strMsg)
 /// Called every turn to see what Strategies this player should using (or not)
 void CvEconomicAI::DoTurn()
 {
-	AI_PERF_FORMAT("AI-perf.csv", ("CvEconomicAI::DoTurn, Turn %03d, %s", GC.getGame().getElapsedGameTurns(), GetPlayer()->getCivilizationShortDescription()) );
 
 	LogMonitor();
 	LogCityMonitor();
@@ -1630,7 +1629,7 @@ void CvEconomicAI::LogCityMonitor()
 
 			iTiles++;
 
-			if(pPlot->getOwningCity() == pLoopCity)
+			if(pPlot->getEffectiveOwningCity() == pLoopCity)
 			{
 				iWorkedTiles++;
 			}

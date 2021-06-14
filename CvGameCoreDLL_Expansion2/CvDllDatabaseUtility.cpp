@@ -126,6 +126,9 @@ bool CvDllDatabaseUtility::CacheGameDatabaseData()
 	ValidateGameDatabase();
 	//bSuccess &= PerformDatabasePostProcessing();
 
+	// Load up the CustomModOptions configuration
+	gCustomMods.preloadCache();
+
 	//HACK Legacy 'FindInfoByType' support.
 	//In order to support the legacy code still using the old infos system,
 	//all of the id/type pairs must be added to gc.m_infosMap
@@ -179,11 +182,6 @@ bool CvDllDatabaseUtility::CacheGameDatabaseData()
 
 	if(bSuccess)
 		m_bGameDatabaseNeedsCaching = false;
-		
-#if defined(CUSTOM_MODS_H)
-	// Load up the CustomModOptions configuration
-	gCustomMods.preloadCache();
-#endif
 
 	return bSuccess;
 }
@@ -269,11 +267,17 @@ bool CvDllDatabaseUtility::PerformDatabasePostProcessing()
 		InsertGameDefine(kInsertDefine, "MIN_CITY_RADIUS", MIN_CITY_RADIUS);
 		InsertGameDefine(kInsertDefine, "MAX_CITY_RADIUS", MAX_CITY_RADIUS);
 		InsertGameDefine(kInsertDefine, "CITY_HOME_PLOT", CITY_HOME_PLOT);
-		InsertGameDefine(kInsertDefine, "MAX_CITY_RADIUS", MAX_CITY_RADIUS);
 		InsertGameDefine(kInsertDefine, "MAX_CITY_DIAMETER", (2*MAX_CITY_RADIUS+1));
+
+		// These values are present in the base game but we don't have them here which would not be a problem
+		// if not for mods possibly relying on them; PlotHelpManager for instance references CITY_PLOTS_RADIUS
+		InsertGameDefine(kInsertDefine, "CITY_PLOTS_RADIUS", 3);
+		InsertGameDefine(kInsertDefine, "CITY_PLOTS_DIAMETER", 7);
 	}
 
 	db->EndTransaction();
+
+	GC.GameDataPostProcess();
 
 	return true;
 }

@@ -74,7 +74,7 @@
 // Version 1 
 //	 * CvPlayer save version reset for expansion pack 2.
 //------------------------------------------------------------------------------
-const int g_CurrentCvPlayerVersion = 16;
+const int g_CurrentCvPlayerVersion = 17;
 
 //Simply empty check utility.
 bool isEmpty(const char* szString)
@@ -11107,7 +11107,6 @@ ArtStyleTypes CvPlayer::getArtStyleType() const
 void CvPlayer::doTurn()
 {
 	// Time building of these maps
-	AI_PERF_FORMAT("AI-perf.csv", ("CvPlayer::doTurn(), Turn %d, %s", GC.getGame().getGameTurn(), getCivilizationShortDescription()));
 
 	CvAssertMsg(isAlive(), "isAlive is expected to be true");
 
@@ -11406,7 +11405,6 @@ void CvPlayer::doTurnPostDiplomacy()
 	if(isAlive())
 	{
 		{
-			AI_PERF_FORMAT("AI-perf.csv", ("Plots/Danger, Turn %03d, %s", kGame.getElapsedGameTurns(), getCivilizationShortDescription()) );
 
 			UpdatePlots();
 			UpdateAreaEffectUnits();
@@ -11502,7 +11500,6 @@ void CvPlayer::doTurnPostDiplomacy()
 
 	// Do turn for all Cities
 	{
-		AI_PERF_FORMAT("AI-perf.csv", ("Do City Turns, Turn %03d, %s", GC.getGame().getElapsedGameTurns(), getCivilizationShortDescription()) );
 		if(getNumCities() > 0)
 		{
 			int iLoop = 0;
@@ -11598,14 +11595,12 @@ void CvPlayer::doTurnPostDiplomacy()
 				AI_chooseFreeTech();
 			}
 #endif
-			AI_PERF_FORMAT("AI-perf.csv", ("DoChooseIdeology, Turn %03d, %s", GC.getGame().getElapsedGameTurns(), getCivilizationShortDescription()) );
 			GetPlayerPolicies()->DoChooseIdeology();
 		}
 	}
 
 	if (!isBarbarian() && !isHuman() && !isMinorCiv())
 	{
-		AI_PERF_FORMAT("AI-perf.csv", ("DoPolicyAI, Turn %03d, %s", GC.getGame().getElapsedGameTurns(), getCivilizationShortDescription()) );
 		GetPlayerPolicies()->DoPolicyAI();
 	}
 
@@ -11760,10 +11755,10 @@ void CvPlayer::DoUnitReset()
 		
 		if (pUnitPlot->isDeepWater())
 		{
-			CvCity* pOwner = pUnitPlot->getOwningCity();
+			CvCity* pOwner = pUnitPlot->getEffectiveOwningCity();
 			if (pOwner != NULL && GET_TEAM(pOwner->getTeam()).isAtWar(getTeam()))
 			{
-				int iTempDamage = pUnitPlot->getOwningCity()->GetDeepWaterTileDamage();
+				int iTempDamage = pUnitPlot->getEffectiveOwningCity()->GetDeepWaterTileDamage();
 				if (iTempDamage > 0)
 				{
 					pLoopUnit->changeDamage(iTempDamage, pUnitPlot->getOwner(), /*fAdditionalTextDelay*/ 0.5f);
@@ -29603,7 +29598,6 @@ void CvPlayer::DoGreatPeopleSpawnTurn()
 	// Tick down
 	if(GetGreatPeopleSpawnCounter() > 0)
 	{
-		AI_PERF_FORMAT("AI-perf.csv", ("CvPlayer::DoGreatPeopleSpawnTurn, Turn %03d, %s", GC.getGame().getElapsedGameTurns(), getCivilizationShortDescription()) );
 		ChangeGreatPeopleSpawnCounter(-1);
 
 		// Time to spawn! - Pick a random allied minor
@@ -37295,7 +37289,6 @@ void CvPlayer::DoTradeInfluenceAP()
 /// Units in the ether coming towards us?
 void CvPlayer::DoIncomingUnits()
 {
-	AI_PERF_FORMAT("AI-perf.csv", ("CvPlayer::DoIncomingUnits, Turn %03d, %s", GC.getGame().getElapsedGameTurns(), getCivilizationShortDescription()) );
 	for(int iLoop = 0; iLoop < MAX_PLAYERS; iLoop++)
 	{
 		PlayerTypes eLoopPlayer = (PlayerTypes) iLoop;
@@ -38180,8 +38173,8 @@ void CvPlayer::changeNumResourceTotal(ResourceTypes eIndex, int iChange, bool bI
 			GET_PLAYER((PlayerTypes)iPlayerLoop).UpdateResourcesSiphoned();
 		}
 	}
-	if(iChange < 0 && !bIgnoreResourceWarning)
 #if !defined(MOD_BALANCE_CORE)
+	if(iChange < 0 && !bIgnoreResourceWarning)
 	{
 		DoTestOverResourceNotification(eIndex);
 	}
@@ -42351,8 +42344,6 @@ void CvPlayer::doResearch()
 	{
 		return;
 	}
-
-	AI_PERF_FORMAT("AI-perf.csv", ("CvPlayer::doResearch, Turn %03d, %s", GC.getGame().getElapsedGameTurns(), getCivilizationShortDescription()) );
 	bool bForceResearchChoice;
 	int iOverflowResearch;
 
@@ -46139,6 +46130,12 @@ void CvPlayer::Read(FDataStream& kStream)
 	}
 
 	kStream >> m_strEmbarkedGraphicOverride;
+	if (uiVersion >= 17)
+	{
+		int iTempFaithType;
+		kStream >> iTempFaithType;
+		m_eFaithPurchaseType = FaithPurchaseTypes(iTempFaithType);
+	}
 	m_kPlayerAchievements.Read(kStream);
 
 	if(GetID() < MAX_MAJOR_CIVS)
@@ -46348,7 +46345,7 @@ void CvPlayer::Write(FDataStream& kStream) const
 	}
 
 	kStream << m_strEmbarkedGraphicOverride;
-
+	kStream << int(m_eFaithPurchaseType);
 	m_kPlayerAchievements.Write(kStream);
 	
 	if (GetID() < MAX_MAJOR_CIVS)
@@ -49591,7 +49588,6 @@ void CvPlayer::checkInitialTurnAIProcessed()
 //------------------------------------------------------------------------------
 void CvPlayer::GatherPerTurnReplayStats(int iGameTurn)
 {
-	AI_PERF_FORMAT("AI-perf.csv", ("CvPlayer::GatherPerTurnReplayStats, Turn %03d, %s", GC.getGame().getElapsedGameTurns(), getCivilizationShortDescription()) );
 #if !defined(FINAL_RELEASE)
 	cvStopWatch watch("Replay Stat Recording");
 #endif

@@ -213,17 +213,15 @@ void CvPlayerEspionage::Reset()
 	m_aSpyNotificationMessages.clear();
 
 	m_aiNumTechsToStealList.clear();
+	m_aiNumSpyActionsDone.clear();
 	m_aIntrigueNotificationMessages.clear();
 	m_aaPlayerStealableTechList.clear();
-
-	m_aiNumSpyActionsDone = NumSpyActionsDone(MAX_MAJOR_CIVS, 0);
 }
 
 
 /// DoTurn
 void CvPlayerEspionage::DoTurn()
 {
-	AI_PERF_FORMAT("AI-perf.csv", ("CvPlayerEspionage::DoTurn, Turn %03d, %s", GC.getGame().getElapsedGameTurns(), m_pPlayer->getCivilizationShortDescription()) );
 	ProcessSpyMessages();
 
 	for(uint uiSpy = 0; uiSpy < m_aSpyList.size(); uiSpy++)
@@ -1118,11 +1116,16 @@ CvSpyResult CvPlayerEspionage::ProcessSpyFocusResult(PlayerTypes ePlayer, CvCity
 		{
 			pSpy->m_iPotentialAtStart = pCity->GetEspionageRanking();
 
+			if (pkEventChoiceInfo->IsEraScaling())
+			{
+				pSpy->m_iPotentialAtStart += GC.getGame().getCurrentEra();
+			}
+
 			if (pkEventChoiceInfo->GetScienceScaling() != 0)
 			{
 				int iTechDifference = GET_TEAM(GET_PLAYER(eCityOwner).getTeam()).GetTeamTechs()->GetNumTechsKnown() - GET_TEAM(m_pPlayer->getTeam()).GetTeamTechs()->GetNumTechsKnown();
 				iTechDifference *= pkEventChoiceInfo->GetScienceScaling();
-				iTechDifference = range(iTechDifference, -75, 75);
+				iTechDifference = range(iTechDifference, -100, 100);
 
 				pSpy->m_iPotentialAtStart *= 100 + iTechDifference;
 				pSpy->m_iPotentialAtStart /= 100;
@@ -1142,11 +1145,17 @@ CvSpyResult CvPlayerEspionage::ProcessSpyFocusResult(PlayerTypes ePlayer, CvCity
 		else
 		{
 			pSpy->m_iPotentialAtStart = pCity->GetEspionageRanking();
+
+			if (pkEventChoiceInfo->IsEraScaling())
+			{
+				pSpy->m_iPotentialAtStart += GC.getGame().getCurrentEra();
+			}
+
 			if (pkEventChoiceInfo->GetScienceScaling() != 0)
 			{
 				int iTechDifference = GET_TEAM(GET_PLAYER(eCityOwner).getTeam()).GetTeamTechs()->GetNumTechsKnown() - GET_TEAM(m_pPlayer->getTeam()).GetTeamTechs()->GetNumTechsKnown();
 				iTechDifference *= pkEventChoiceInfo->GetScienceScaling();
-				iTechDifference = range(iTechDifference, -75, 75);
+				iTechDifference = range(iTechDifference, -100, 100);
 
 				pSpy->m_iPotentialAtStart *= 100 + iTechDifference;
 				pSpy->m_iPotentialAtStart /= 100;
@@ -6330,8 +6339,6 @@ void CvEspionageAI::DoTurn()
 	if(m_pPlayer->GetEspionage()->GetNumAliveSpies() <= 0)
 		return;
 #endif
-
-	AI_PERF_FORMAT("AI-perf.csv", ("Espionage AI, Turn %03d, %s", GC.getGame().getElapsedGameTurns(), m_pPlayer->getCivilizationShortDescription()) );
 
 	if (!MOD_BALANCE_CORE_SPIES_ADVANCED)
 	{

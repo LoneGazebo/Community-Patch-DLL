@@ -176,7 +176,7 @@ CitySpecializationTypes CvCitySpecializationXMLEntries::GetFirstSpecializationFo
 /// Find the next specialization for a yield
 CitySpecializationTypes CvCitySpecializationXMLEntries::GetNextSpecializationForYield()
 {
-	for(m_CurrentIndex = m_CurrentIndex++; m_CurrentIndex < (int)m_paCitySpecializationEntries.size(); m_CurrentIndex++)
+	for(m_CurrentIndex = m_CurrentIndex+1; m_CurrentIndex < (int)m_paCitySpecializationEntries.size(); m_CurrentIndex++)
 	{
 		if(m_paCitySpecializationEntries[m_CurrentIndex]->GetYieldType() == m_CurrentYield)
 		{
@@ -330,7 +330,6 @@ CvCitySpecializationXMLEntries* CvCitySpecializationAI::GetCitySpecializations()
 /// Called every turn to see what Strategies this player should using (or not)
 void CvCitySpecializationAI::DoTurn()
 {
-	AI_PERF_FORMAT("AI-perf.csv", ("CvCitySpecializationAI::DoTurn, Turn %03d, %s", GC.getGame().getElapsedGameTurns(), GetPlayer()->getCivilizationShortDescription()) );
 
 	int iCityLoop = 0;
 

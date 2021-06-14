@@ -186,7 +186,8 @@ void CvGameTrade::UpdateTradePathCache(PlayerTypes ePlayer1)
 		int iCity;
 		CvPlayer& kLoopPlayer = GET_PLAYER((PlayerTypes)iPlayer);
 		for (CvCity* pDestCity = kLoopPlayer.firstCity(&iCity); pDestCity != NULL; pDestCity = kLoopPlayer.nextCity(&iCity))
-			vDestPlots.push_back(pDestCity->plot());
+			if (pDestCity->plot()->isCity()) //idiot proofing
+				vDestPlots.push_back(pDestCity->plot());
 	}
 
 	int iOriginCityLoop;

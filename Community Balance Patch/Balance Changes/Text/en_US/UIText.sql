@@ -513,20 +513,20 @@ WHERE Tag = 'TXT_KEY_TP_CULTURE_FROM_GOLDEN_AGE' AND EXISTS (SELECT * FROM COMMU
 
 -- Update text for top panel depending on which yields you have enabled above. Change as desired.
 UPDATE Language_en_US
-SET Text = 'Your approval rating is less than 35% - your Empire is in open rebellion! Uprisings may occur with rebel (barbarian) units appearing in your territory, and Cities may abandon your Empire and flip to the Civilization that is most culturally influential over your people! Additionally, all Cities will [ICON_FOOD] Grow very slowly and have increased Military Unit and Settler costs. [ICON_STRENGTH] Combat effectiveness is also reduced by 20%!'
+SET Text = 'Your approval rating is less than 35% - your Empire is in open rebellion! Uprisings may occur with rebel (barbarian) units appearing in your territory, and Cities may abandon your Empire and flip to the Civilization that is most culturally influential over your people! Additionally, all Cities will [ICON_FOOD] Grow very slowly and have increased Settler costs. [ICON_STRENGTH] Combat effectiveness is also reduced by 20%!'
 WHERE Tag = 'TXT_KEY_TP_EMPIRE_VERY_UNHAPPY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_HAPPINESS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Your approval rating is less than 20% - your Empire is fracturing! Rebels (barbarians) will spawn more frequently and Cities will rapidly abandon your Empire and flip to the Civilization that is most culturally influential over your people! Additionally, all Cities will [ICON_FOOD] Grow more slowly and have increased Military Unit and Settler costs. [ICON_STRENGTH] Combat effectiveness is also reduced by 20%!'
+SET Text = 'Your approval rating is less than 20% - your Empire is fracturing! Rebels (barbarians) will spawn more frequently and Cities will rapidly abandon your Empire and flip to the Civilization that is most culturally influential over your people! Additionally, all Cities will [ICON_FOOD] Grow more slowly and have increased Settler costs. [ICON_STRENGTH] Combat effectiveness is also reduced by 20%!'
 WHERE Tag = 'TXT_KEY_TP_EMPIRE_SUPER_UNHAPPY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_HAPPINESS' AND Value= 1 );
 	
 -- Update text for top panel depending on which yields you have enabled above. Change as desired.
 UPDATE Language_en_US
-SET Text = 'Your approval rating is less than 50%! Because of this, all Cities will [ICON_FOOD] Grow slower and have increased Military Unit and Settler costs. [ICON_STRENGTH] Combat effectiveness is also reduced by 10%!'
+SET Text = 'Your approval rating is less than 50%! Because of this, all Cities will [ICON_FOOD] Grow slower and have increased Settler costs. [ICON_STRENGTH] Combat effectiveness is also reduced by 10%!'
 WHERE Tag = 'TXT_KEY_TP_EMPIRE_UNHAPPY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_HAPPINESS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Your approval rating is equal or higher than 50%. [ICON_HAPPINESS_1] Happy Cities will [ICON_FOOD] Grow more quickly, however [ICON_HAPPINESS_3] Unhappy Cities will still suffer penalties to [ICON_FOOD] Growth and the cost of Military Units and Settlers.'
+SET Text = 'Your approval rating is equal or higher than 50%. [ICON_HAPPINESS_1] Happy Cities will [ICON_FOOD] Grow more quickly, however [ICON_HAPPINESS_3] Unhappy Cities will still suffer penalties to [ICON_FOOD] Growth and the cost of Settlers.'
 WHERE Tag = 'TXT_KEY_TP_TOTAL_HAPPINESS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_HAPPINESS' AND Value= 1 );
 
 -- TOOLTIPS FOR TOP BAR

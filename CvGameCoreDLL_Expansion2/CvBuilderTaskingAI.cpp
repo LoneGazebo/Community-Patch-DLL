@@ -1276,7 +1276,7 @@ void CvBuilderTaskingAI::AddImprovingPlotsDirectives(CvUnit* pUnit, CvPlot* pPlo
 
 		if (eFeature != NO_FEATURE && pkBuild->isFeatureRemove(eFeature))
 		{
-			CvCity* pCity = pPlot->getOwningCity();
+			CvCity* pCity = pPlot->getEffectiveOwningCity();
 			if (pCity)
 			{
 				int iWeightPenalty = 0;
@@ -1491,7 +1491,7 @@ void CvBuilderTaskingAI::AddChopDirectives(CvUnit* pUnit, CvPlot* pPlot, int iMo
 		return;
 	}
 
-	CvCity* pCity = pPlot->getOwningCity();
+	CvCity* pCity = pPlot->getEffectiveOwningCity();
 	if(!pCity)
 	{
 		return;
@@ -2418,7 +2418,7 @@ int CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes eImprovem
 			if (pkBuild->isFeatureRemove(pPlot->getFeatureType()))
 			{
 				//how many do we have left?
-				CvCity* pCity = pPlot->getOwningCity();
+				CvCity* pCity = pPlot->getEffectiveOwningCity();
 				if (pCity)
 				{
 					//we don't want to remove all features, we might need them later!
@@ -2433,7 +2433,7 @@ int CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes eImprovem
 			{
 				//bump to encourage these in cities with lots of features
 				//how many do we have left?
-				CvCity* pCity = pPlot->getOwningCity();
+				CvCity* pCity = pPlot->getEffectiveOwningCity();
 				if (pCity)
 				{
 					int iNumFeatureRemaining = pCity->CountFeature(pPlot->getFeatureType());
@@ -2922,7 +2922,7 @@ void CvBuilderTaskingAI::UpdateProjectedPlotYields(CvPlot* pPlot, BuildTypes eBu
 {
 	UpdateCurrentPlotYields(pPlot);
 
-	const CvCity* pOwningCity = pPlot->getOwningCity();
+	const CvCity* pOwningCity = pPlot->getEffectiveOwningCity();
 	if (pOwningCity)
 	{
 		ReligionTypes eMajority = pOwningCity->GetCityReligions()->GetReligiousMajority();
