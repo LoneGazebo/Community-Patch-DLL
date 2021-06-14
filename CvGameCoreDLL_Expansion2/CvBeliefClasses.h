@@ -607,9 +607,10 @@ private:
 	BeliefList m_ReligionBeliefs;
 	ReligionTypes m_eReligion;
 	std::vector<int> m_BeliefLookup;
-
-
 };
+
+FDataStream& operator<<(FDataStream&, const CvReligionBeliefs&);
+FDataStream& operator>>(FDataStream&, CvReligionBeliefs&);
 
 namespace CvBeliefHelpers
 {

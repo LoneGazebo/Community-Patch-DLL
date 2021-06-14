@@ -4701,6 +4701,17 @@ void CvReligionBeliefs::Write(FDataStream& kStream) const
 	Serialize(*this, serialVisitor);
 }
 
+FDataStream& operator<<(FDataStream& saveTo, const CvReligionBeliefs& readFrom)
+{
+	readFrom.Write(saveTo);
+	return saveTo;
+}
+FDataStream& operator>>(FDataStream& loadFrom, CvReligionBeliefs& writeTo)
+{
+	writeTo.Read(loadFrom);
+	return loadFrom;
+}
+
 /// BELIEF HELPER CLASSES
 
 /// Is there an adjacent barbarian naval unit that could be converted?

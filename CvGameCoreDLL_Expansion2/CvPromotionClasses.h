@@ -721,6 +721,8 @@ public:
 	void Init(CvPromotionXMLEntries* pPromotions, CvUnit* pUnit);
 	void Uninit();
 	void Reset();
+	template<typename UnitPromotions, typename Visitor>
+	static void Serialize(UnitPromotions& unitPromotions, Visitor& visitor);
 	void Read(FDataStream& kStream);
 	void Write(FDataStream& kStream) const;
 
