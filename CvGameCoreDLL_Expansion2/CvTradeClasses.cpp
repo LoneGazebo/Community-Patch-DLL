@@ -1180,7 +1180,7 @@ int CvGameTrade::GetTradeRouteTurns(CvCity* pOriginCity, CvCity* pDestCity, Doma
 #else
 	int iTargetTurns = 30; // how many turns do we want the cycle to consume
 #endif
-	iTargetTurns += iTargetTurns * (GET_PLAYER(pOriginCity->getOwner()).GetTrade()->GetTradeRouteTurnModGlobal() / 100.0);
+	iTargetTurns += iTargetTurns * (GET_PLAYER(pOriginCity->getOwner()).GetTrade()->GetTradeRouteTurnMod(pOriginCity) / 100.0);
 
 	// calculate how many circuits do we want this trade route to run to reach the target turns
 	int iCircuitsToComplete = 1; 
@@ -5520,7 +5520,7 @@ int CvPlayerTrade::GetTradeRouteSpeed (DomainTypes eDomain)
 }
 
 //	--------------------------------------------------------------------------------
-int CvPlayerTrade::GetTradeRouteTurnModGlobal()
+int CvPlayerTrade::GetTradeRouteTurnMod(CvCity* pOriginCity)
 {
 	int iTurnChange = 0;
 
@@ -5529,6 +5529,7 @@ int CvPlayerTrade::GetTradeRouteTurnModGlobal()
 	CvCity* pLoopCity;
 	for (pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
 	{
+		bool bSameCity = pLoopCity == pOriginCity;
 		for (int iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
 		{
 			BuildingTypes eBuilding = NO_BUILDING;
@@ -5556,10 +5557,15 @@ int CvPlayerTrade::GetTradeRouteTurnModGlobal()
 				{
 					if (pLoopCity->GetCityBuildings()->GetNumBuilding((BuildingTypes)pBuildingEntry->GetID()))
 					{
-						int iTurnChangeLocal = pBuildingEntry->GetTRTurnModGlobal();
-						if (iTurnChangeLocal != 0)
+						int iTurnMod = pBuildingEntry->GetTRTurnModGlobal();
+						if (iTurnMod != 0)
 						{
-							iTurnChange += (iTurnChangeLocal * pLoopCity->GetCityBuildings()->GetNumBuilding((BuildingTypes)pBuildingEntry->GetID()));
+							iTurnChange += (iTurnMod * pLoopCity->GetCityBuildings()->GetNumBuilding((BuildingTypes)pBuildingEntry->GetID()));
+						}
+						int iTurnModLocal = pBuildingEntry->GetTRTurnModLocal();
+						if (iTurnModLocal != 0 && bSameCity)
+						{
+							iTurnChange += (iTurnModLocal * pLoopCity->GetCityBuildings()->GetNumBuilding((BuildingTypes)pBuildingEntry->GetID()));
 						}
 					}
 				}

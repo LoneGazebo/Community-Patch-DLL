@@ -1196,7 +1196,8 @@ ALTER TABLE Buildings ADD COLUMN 'IsCorporation' BOOLEAN DEFAULT 0;
 ALTER TABLE Buildings ADD COLUMN 'GPRateModifierPerXFranchises' INTEGER DEFAULT 0;
 ALTER TABLE Buildings ADD COLUMN 'TRSpeedBoost' INTEGER DEFAULT 0;
 ALTER TABLE Buildings ADD COLUMN 'TRVisionBoost' INTEGER DEFAULT 0;
-ALTER TABLE Buildings ADD COLUMN 'TRTurnModGlobal' INTEGER DEFAULT 0;
+ALTER TABLE Buildings ADD COLUMN 'TRTurnModGlobal' INTEGER DEFAULT 0; --modifiys the turns a TR takes to complete, an int between 100 and -100, like a percent
+ALTER TABLE Buildings ADD COLUMN 'TRTurnModLocal' INTEGER DEFAULT 0;
 ALTER TABLE Buildings ADD COLUMN 'OfficeBenefitHelper' TEXT DEFAULT NULL;
 
 -- Corporation Policies
