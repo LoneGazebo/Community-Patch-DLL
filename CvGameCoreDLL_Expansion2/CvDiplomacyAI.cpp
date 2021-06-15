@@ -21230,7 +21230,7 @@ void CvDiplomacyAI::DoRelationshipPairing()
 		// Our master?
 		if (IsVassal(eLoopPlayer))
 		{
-			if (IsVoluntaryVassalage(eLoopPlayer) && GetVassalTreatmentLevel(eLoopPlayer) >= VASSAL_TREATMENT_DISAGREE)
+			if (IsVoluntaryVassalage(eLoopPlayer) && GetVassalTreatmentLevel(eLoopPlayer) <= VASSAL_TREATMENT_DISAGREE)
 			{
 				SetStrategicTradePartner(eLoopPlayer, true);
 				continue;
