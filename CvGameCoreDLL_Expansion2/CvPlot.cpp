@@ -4239,15 +4239,12 @@ bool CvPlot::isFortification(TeamTypes eDefenderTeam) const
 #if defined(MOD_GLOBAL_NO_FOLLOWUP_FROM_CITIES)
 	if (MOD_GLOBAL_NO_FOLLOWUP_FROM_CITIES)
 	{
-		// If the attacker is in a city, fort or citadel, don't advance
-		static const  ImprovementTypes eImprovementFort = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_FORT");
-		static const  ImprovementTypes eImprovementCitadel = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_CITADEL");
-		static const  ImprovementTypes eImprovementCamp = (ImprovementTypes)GC.getBARBARIAN_CAMP_IMPROVEMENT();
+		// If the attacker is in a fort or citadel or other improvement with NoFollowUp, don't advance
 
 		if (getTeam() == eDefenderTeam && !IsImprovementPillaged())
 		{
-			ImprovementTypes eImprovement = getImprovementType();
-			if (eImprovement == eImprovementFort || eImprovement == eImprovementCitadel || eImprovement == eImprovementCamp)
+			CvImprovementEntry* pImprovementInfo = GC.getImprovementInfo(getImprovementType());
+			if (pImprovementInfo && pImprovementInfo->IsNoFollowUp())
 				return true;
 		}
 	}

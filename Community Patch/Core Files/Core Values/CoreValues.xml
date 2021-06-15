@@ -315,4 +315,18 @@
 			<Description>TXT_KEY_REPLAY_VIEWER_GRAPHBY_GAP</Description>
 		</Row>
 	</ReplayDataSets>
+	<Improvements>
+		<Update>
+			<Where Type="IMPROVEMENT_CITADEL" />
+			<Set NoFollowUp="1" />
+		</Update>
+		<Update>
+			<Where Type="IMPROVEMENT_FORT" />
+			<Set NoFollowUp="1" />
+		</Update>
+		<Update>
+			<Where Type="IMPROVEMENT_BARBARIAN_CAMP" />
+			<Set NoFollowUp="1" />
+		</Update>
+	</Improvements>
 </GameData>
