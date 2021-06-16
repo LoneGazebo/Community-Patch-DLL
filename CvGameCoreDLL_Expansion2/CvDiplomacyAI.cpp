@@ -21228,18 +21228,10 @@ void CvDiplomacyAI::DoRelationshipPairing()
 		}
 
 		// Our master?
-		if (IsVassal(eLoopPlayer))
+		if (IsVassal(eLoopPlayer) && GetVassalTreatmentLevel(eLoopPlayer) <= VASSAL_TREATMENT_DISAGREE)
 		{
-			if (IsVoluntaryVassalage(eLoopPlayer) && GetVassalTreatmentLevel(eLoopPlayer) >= VASSAL_TREATMENT_DISAGREE)
-			{
-				SetStrategicTradePartner(eLoopPlayer, true);
-				continue;
-			}
-			else if (GetVassalTreatmentLevel(eLoopPlayer) == VASSAL_TREATMENT_CONTENT)
-			{
-				SetStrategicTradePartner(eLoopPlayer, true);
-				continue;
-			}
+			SetStrategicTradePartner(eLoopPlayer, true);
+			continue;
 		}
 
 		if (GetVictoryDisputeLevel(eLoopPlayer) == DISPUTE_LEVEL_FIERCE)
