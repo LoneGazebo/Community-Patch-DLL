@@ -8,6 +8,7 @@
 #pragma once
 
 #include "FBatchAllocate.h"
+#include "CvEnumMap.h"
 // team.h
 
 #ifndef CIV5_TEAM_H
@@ -107,7 +108,6 @@ public:
 	CvString getNameKey() const;
 
 	int getNumMembers() const;
-	void changeNumMembers(int iChange);
 
 #if defined(MOD_BALANCE_CORE)
 	bool addPlayer(PlayerTypes eID);
@@ -497,6 +497,8 @@ public:
 	// Wrapper for giving Players on this Team a notification message
 	void AddNotification(NotificationTypes eNotificationType, const char* strMessage, const char* strSummary, int iX = -1, int iY = -1, int iGameDataIndex = -1, int iExtraGameData = -1);
 
+	template<typename Team, typename Visitor>
+	static void Serialize(Team& team, Visitor& visitor);
 	virtual void Read(FDataStream& kStream);
 	virtual void Write(FDataStream& kStream) const;
 
@@ -515,7 +517,6 @@ protected:
 	int m_iCorporationsEnabledCount;
 #endif
 
-	int m_iNumMembers;
 	int m_iAliveCount;
 	int m_iEverAliveCount;
 	int m_iNumCities;
@@ -668,7 +669,7 @@ protected:
 	int** m_ppaaiImprovementNoFreshWaterYieldChange;
 	int** m_ppaaiImprovementFreshWaterYieldChange;
 
-	std::vector<int>* m_pavProjectArtTypes;
+	CvEnumMap<ProjectTypes, std::vector<int> > m_pavProjectArtTypes;
 	std::vector<ResourceTypes> m_aeRevealedResources;
 
 	CvTeamTechs* m_pTeamTechs;
