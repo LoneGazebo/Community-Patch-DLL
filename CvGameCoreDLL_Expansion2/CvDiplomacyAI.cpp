@@ -11320,18 +11320,14 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 		// If we get a bonus from high warscore, let's not end early!
 		bool bProlong = true;
 
-		if (iWarScore <= 0)
+		if (iWarScore <= 0 || GetPlayer()->GetPositiveWarScoreTourismMod() <= 0 || GET_PLAYER(GetHighestWarscorePlayer()).getTeam() != GET_PLAYER(*it).getTeam())
 		{
-			iPeaceScore += iWarScore / -10;
-			bProlong = false;
-		}
-		else if (GetPlayer()->GetPositiveWarScoreTourismMod() <= 0 || GET_PLAYER(GetHighestWarscorePlayer()).getTeam() != GET_PLAYER(*it).getTeam())
-		{
-			iPeaceScore += iWarScore / -10;
+			iPeaceScore += iWarScore / -5;
 			bProlong = false;
 		}
 
 		int iTooLongWarThreshold = bProlong ? 30 : 15;
+		int iDurationPenalty = iWarDuration - iTooLongWarThreshold;
 
 		// Lack of progress in war increases desire for peace (moreso if far away).
 		if (iWarDuration > iTooLongWarThreshold)
@@ -11339,16 +11335,16 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 			switch (GetPlayer()->GetProximityToPlayer(*it))
 			{
 			case PLAYER_PROXIMITY_NEIGHBORS:
-				iPeaceScore += iWarDuration;
+				iPeaceScore += iDurationPenalty;
 				break;
 			case PLAYER_PROXIMITY_CLOSE:
-				iPeaceScore += (iWarDuration * 150) / 100;
+				iPeaceScore += (iDurationPenalty * 150) / 100;
 				break;
 			case PLAYER_PROXIMITY_FAR:
-				iPeaceScore += iWarDuration * 2;
+				iPeaceScore += iDurationPenalty * 2;
 				break;
 			case PLAYER_PROXIMITY_DISTANT:
-				iPeaceScore += iWarDuration * 3;
+				iPeaceScore += iDurationPenalty * 3;
 				break;
 			}
 		}
