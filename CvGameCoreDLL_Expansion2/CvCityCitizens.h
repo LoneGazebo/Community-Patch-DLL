@@ -40,6 +40,14 @@ public:
 	CvCityCitizens(void);
 	~CvCityCitizens(void);
 
+	enum ePlotSelectionMode
+	{
+		eBEST_UNWORKED_NO_OVERRIDE,
+		eBEST_UNWORKED_ALLOW_OVERRIDE,
+		eWORST_WORKED_UNFORCED,
+		eWORST_WORKED_FORCED,
+	};
+
 	void Init(CvCity* pCity);
 	void Uninit();
 	void Reset();
@@ -92,7 +100,7 @@ public:
 
 	void OptimizeWorkedPlots(bool bLogging);
 	bool NeedReworkCitizens();
-	CvPlot* GetBestCityPlotWithValue(int& iValue, bool bWantBest, bool bWantWorked, bool bForced = false, bool Logging = false);
+	CvPlot* GetBestCityPlotWithValue(int& iValue, ePlotSelectionMode eMode, bool Logging = false);
 
 	// Worked Plots
 	bool IsWorkingPlot(int iRelativeIndex) const;
@@ -111,6 +119,7 @@ public:
 	int GetNumForcedWorkingPlots() const;
 	void ChangeNumForcedWorkingPlots(int iChange);
 
+	bool IsCanWorkWithOverride(CvPlot* pPlot) const;
 	bool IsCanWork(CvPlot* pPlot) const;
 	bool IsBlockaded(CvPlot* pPlot) const;
 	void SetBlockaded(CvPlot* pPlot);

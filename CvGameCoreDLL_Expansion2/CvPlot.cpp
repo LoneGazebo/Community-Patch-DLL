@@ -6374,6 +6374,13 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 		GC.GetEngineUserInterface()->setDirty(NationalBorders_DIRTY_BIT, true);
 		updateSymbols();
 	}
+
+	// Sometimes we already own the plot but it's a different city
+	if (getOwningCityID() != iAcquiringCityID)
+	{
+		m_owningCityOverride.reset();
+		m_owningCity = IDInfo(eNewValue, iAcquiringCityID);
+	}
 }
 
 //	--------------------------------------------------------------------------------
@@ -7234,6 +7241,8 @@ void CvPlot::setIsCity(bool bValue, int iCityID, int iWorkRange)
 			SetPlayerResponsibleForRoute(getOwner());
 		}
 
+		// plot ownership will be changed in CvCity::preKill
+
 		// do not call getPlotCity() here, it might be invalid
 		for(int iI = 0; iI < RING_PLOTS[iWorkRange]; ++iI)
 		{
@@ -7264,6 +7273,10 @@ void CvPlot::setIsCity(bool bValue, int iCityID, int iWorkRange)
 			OutputDebugString("wtf\n");
 			return;
 		}
+
+		//make sure this is correct
+		m_owningCityOverride.reset();
+		m_owningCity = IDInfo(getOwner(), iCityID);
 
 		// do not call getPlotCity() here, it might be invalid
 		for(int iI = 0; iI < RING_PLOTS[iWorkRange]; ++iI)
@@ -9061,7 +9074,7 @@ CvCity * CvPlot::getEffectiveOwningCity() const
 	return ::GetPlayerCity(m_owningCityOverride);
 }
 
-bool CvPlot::isEffectiveOwner(CvCity * pCity) const
+bool CvPlot::isEffectiveOwner(const CvCity * pCity) const
 {
 	//no override
 	if (m_owningCityOverride.isInvalid())

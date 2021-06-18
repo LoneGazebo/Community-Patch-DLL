@@ -1240,7 +1240,7 @@ bool CvCityCitizens::DoAddBestCitizenFromUnassigned(CvCity::eUpdateMode updateMo
 		eBestSpecialistBuilding = GetAIBestSpecialistBuilding(iSpecialistValue, bLogging);
 
 	int iBestPlotValue = -1;
-	CvPlot* pBestPlot = GetBestCityPlotWithValue(iBestPlotValue, /*bBest*/ true, /*bWorked*/ false, false, bLogging);
+	CvPlot* pBestPlot = GetBestCityPlotWithValue(iBestPlotValue, eBEST_UNWORKED_NO_OVERRIDE, bLogging);
 
 	if (iBestPlotValue > iSpecialistValue)
 	{
@@ -1322,7 +1322,7 @@ bool CvCityCitizens::DoRemoveWorstCitizen(CvCity::eUpdateMode updateMode, bool b
 
 	// No Default Specialists, remove a working Pop, if there is one
 	int iWorstPlotValue = 0;
-	CvPlot* pWorstPlot = GetBestCityPlotWithValue(iWorstPlotValue, /*bBest*/ false, /*bWorked*/ true, bRemoveForcedStatus);
+	CvPlot* pWorstPlot = GetBestCityPlotWithValue(iWorstPlotValue, bRemoveForcedStatus ? eWORST_WORKED_FORCED : eWORST_WORKED_UNFORCED);
 
 	if (pWorstPlot != NULL)
 	{
@@ -1351,7 +1351,7 @@ bool CvCityCitizens::DoRemoveWorstCitizen(CvCity::eUpdateMode updateMode, bool b
 }
 
 /// Find a Plot the City is either working or not, and the best/worst value for it - this function does "double duty" depending on what the user wants to find
-CvPlot* CvCityCitizens::GetBestCityPlotWithValue(int& iValue, bool bWantBest, bool bWantWorked, bool bForced, bool bLogging)
+CvPlot* CvCityCitizens::GetBestCityPlotWithValue(int& iChosenValue, ePlotSelectionMode eMode, bool bLogging)
 {
 	int iBestPlotValue = -1;
 	CvPlot* pBestPlot = NULL;
@@ -1362,69 +1362,75 @@ CvPlot* CvCityCitizens::GetBestCityPlotWithValue(int& iValue, bool bWantBest, bo
 	// Look at all workable Plots
 	for (int iPlotLoop = 0; iPlotLoop < GetCity()->GetNumWorkablePlots(); iPlotLoop++)
 	{
-		if (iPlotLoop != CITY_HOME_PLOT)
+		//never touch this
+		if (iPlotLoop == CITY_HOME_PLOT)
+			continue;
+
+		CvPlot* pLoopPlot = GetCityPlotFromIndex(iPlotLoop);
+		if (!pLoopPlot)
+			continue;
+
+		int iValue = -1;
+		switch (eMode)
 		{
-			CvPlot* pLoopPlot = GetCityPlotFromIndex(iPlotLoop);
-			if (pLoopPlot != NULL)
+		case eBEST_UNWORKED_NO_OVERRIDE:
+			if (IsCanWork(pLoopPlot) && !IsWorkingPlot(iPlotLoop))
 			{
-				// Is this a Plot this City controls?
-				if (IsCanWork(pLoopPlot))
+				iValue = GetPlotValue(pLoopPlot, gCachedNumbers);
+				if ( pBestPlot==NULL || iValue > iBestPlotValue )
 				{
-					// Working the Plot and wanting to work it, or Not working it and wanting to find one to work?
-					if ((IsWorkingPlot(iPlotLoop) && bWantWorked) ||
-						(!IsWorkingPlot(iPlotLoop) && !bWantWorked))
-					{
-						// Working the Plot or CAN work the Plot?
-						if (bWantWorked || IsCanWork(pLoopPlot))
-						{
-							int iCurrent = GetPlotValue(pLoopPlot, gCachedNumbers);
-							
-							if (IsForcedWorkingPlot(pLoopPlot))
-							{
-								// Looking for best, unworked Plot: Forced plots are FIRST to be picked
-								if (bWantBest && !bWantWorked)
-								{
-									iCurrent += 1000*1000;
-								}
-								// Looking for worst, worked Plot: Forced plots are LAST to be picked, so make it's value incredibly high
-								if (!bWantBest && bWantWorked)
-								{
-									if (!bForced)
-									{
-										continue;
-									}
-									else
-									{
-										iCurrent += 1000*1000;
-									}
-								}
-							}
-
-							if (0) // (pLog)
-							{
-								CvString strOutBuf;
-								strOutBuf.Format("check index %d, plot %d:%d (%df%dp%dg%do), score %d. current net food %d", 
-									iPlotLoop, pLoopPlot->getX(), pLoopPlot->getY(), pLoopPlot->getYield(YIELD_FOOD), pLoopPlot->getYield(YIELD_PRODUCTION), 
-									pLoopPlot->getYield(YIELD_GOLD), pBestPlot->getYield(YIELD_SCIENCE) + pBestPlot->getYield(YIELD_CULTURE) + pBestPlot->getYield(YIELD_FAITH), iCurrent, gCachedNumbers.iExcessFoodTimes100);
-								pLog->Msg(strOutBuf);
-							}
-
-							if ( pBestPlot == NULL ||							// First Plot?
-								(bWantBest && iCurrent > iBestPlotValue) ||		// Best Plot so far?
-								(!bWantBest && iCurrent < iBestPlotValue) )		// Worst Plot so far?
-							{
-								iBestPlotValue = iCurrent;
-								pBestPlot = pLoopPlot;
-							}
-						}
-					}
+					iBestPlotValue = iValue;
+					pBestPlot = pLoopPlot;
 				}
 			}
+			break;
+		case eBEST_UNWORKED_ALLOW_OVERRIDE:
+			if (IsCanWorkWithOverride(pLoopPlot) && !IsWorkingPlot(iPlotLoop))
+			{
+				iValue = GetPlotValue(pLoopPlot, gCachedNumbers);
+				if ( pBestPlot==NULL || iValue > iBestPlotValue )
+				{
+					iBestPlotValue = iValue;
+					pBestPlot = pLoopPlot;
+				}
+			}
+			break;
+		case eWORST_WORKED_UNFORCED:
+			if (IsWorkingPlot(iPlotLoop) && !IsForcedWorkingPlot(iPlotLoop))
+			{
+				iValue = GetPlotValue(pLoopPlot, gCachedNumbers);
+				if ( pBestPlot==NULL || iValue < iBestPlotValue )
+				{
+					iBestPlotValue = iValue;
+					pBestPlot = pLoopPlot;
+				}
+			}
+			break;
+		case eWORST_WORKED_FORCED:
+			if (IsWorkingPlot(iPlotLoop) && IsForcedWorkingPlot(iPlotLoop))
+			{
+				iValue = GetPlotValue(pLoopPlot, gCachedNumbers);
+				if ( pBestPlot==NULL || iValue < iBestPlotValue )
+				{
+					iBestPlotValue = iValue;
+					pBestPlot = pLoopPlot;
+				}
+			}
+			break;
+		}
+
+		if (0) // (pLog)
+		{
+			CvString strOutBuf;
+			strOutBuf.Format("check index %d, plot %d:%d (%df%dp%dg%do), score %d. current net food %d", 
+				iPlotLoop, pLoopPlot->getX(), pLoopPlot->getY(), pLoopPlot->getYield(YIELD_FOOD), pLoopPlot->getYield(YIELD_PRODUCTION), 
+				pLoopPlot->getYield(YIELD_GOLD), pBestPlot->getYield(YIELD_SCIENCE) + pBestPlot->getYield(YIELD_CULTURE) + pBestPlot->getYield(YIELD_FAITH), iValue, gCachedNumbers.iExcessFoodTimes100);
+			pLog->Msg(strOutBuf);
 		}
 	}
 
 	// Passed in by reference
-	iValue = iBestPlotValue;
+	iChosenValue = iBestPlotValue;
 	if (pBestPlot == NULL)
 		return NULL;
 
@@ -1436,7 +1442,7 @@ CvPlot* CvCityCitizens::GetBestCityPlotWithValue(int& iValue, bool bWantBest, bo
 		strOutBuf.Format("%s, focus %d%s, idle citizens %d, plot %d:%d (%df%dp%dg%do), score %d", 
 			m_pCity->getName().GetCString(), m_eCityAIFocusTypes, IsForcedAvoidGrowth()?" no growth":"", GetNumUnassignedCitizens(), pBestPlot->getX(), pBestPlot->getY(), 
 			pBestPlot->getYield(YIELD_FOOD), pBestPlot->getYield(YIELD_PRODUCTION), pBestPlot->getYield(YIELD_GOLD), 
-			pBestPlot->getYield(YIELD_SCIENCE) + pBestPlot->getYield(YIELD_CULTURE) + pBestPlot->getYield(YIELD_FAITH), iValue);
+			pBestPlot->getYield(YIELD_SCIENCE) + pBestPlot->getYield(YIELD_CULTURE) + pBestPlot->getYield(YIELD_FAITH), iChosenValue);
 		strBaseString += strOutBuf;
 		pLog->Msg(strBaseString);
 	}
@@ -1466,7 +1472,8 @@ void CvCityCitizens::OptimizeWorkedPlots(bool bLogging)
 {
 	int iCount = 0;
 	FILogFile* pLog = bLogging && GC.getLogging() ? LOGFILEMGR.GetLog("CityTileScorer.csv", FILogFile::kDontTimeStamp) : NULL;
-	bool bSpecialistForbidden = GET_PLAYER(GetOwner()).isHuman() && IsNoAutoAssignSpecialists();
+	bool bIsHuman = GET_PLAYER(GetOwner()).isHuman();
+	bool bSpecialistForbidden = bIsHuman && IsNoAutoAssignSpecialists();
 
 	//failsafe: if we have unassigned citizens get then assign them first
 	while (GetNumUnassignedCitizens() > 0)
@@ -1482,7 +1489,7 @@ void CvCityCitizens::OptimizeWorkedPlots(bool bLogging)
 		int iBestSpecialistValue = 0;
 
 		//where do we have potential for improvement?
-		CvPlot* pWorstWorkedPlot = GetBestCityPlotWithValue(iWorstWorkedPlotValue, /*bBest*/ false, /*bWorked*/ true);
+		CvPlot* pWorstWorkedPlot = GetBestCityPlotWithValue(iWorstWorkedPlotValue, eWORST_WORKED_UNFORCED);
 		BuildingTypes eWorstSpecialistBuilding = GetAIBestSpecialistCurrentlyInBuilding(iWorstSpecialistValue, false);
 
 		//both options are valid
@@ -1504,8 +1511,8 @@ void CvCityCitizens::OptimizeWorkedPlots(bool bLogging)
 			//cannot change anything
 			break;
 
-		//consider alternatives
-		CvPlot* pBestFreePlot = GetBestCityPlotWithValue(iBestFreePlotValue, /*bBest*/ true, /*bWorked*/ false);
+		//consider alternatives (no automatic plot overrides for humans!)
+		CvPlot* pBestFreePlot = GetBestCityPlotWithValue(iBestFreePlotValue, bIsHuman ? eBEST_UNWORKED_NO_OVERRIDE : eBEST_UNWORKED_ALLOW_OVERRIDE);
 		BuildingTypes eBestSpecialistBuilding = NO_BUILDING;
 
 		int iNetFood100 = m_pCity->getYieldRateTimes100(YIELD_FOOD, false) - m_pCity->foodConsumptionTimes100();
@@ -1516,6 +1523,10 @@ void CvCityCitizens::OptimizeWorkedPlots(bool bLogging)
 		//better work a plot or a specialist?
 		if (iBestFreePlotValue > iBestSpecialistValue)
 		{
+			//are we taking an (unworked!) plot from another city?
+			if (!pBestFreePlot->isEffectiveOwner(m_pCity))
+				pBestFreePlot->setOwningCityOverride(m_pCity);
+
 			SetWorkingPlot(pBestFreePlot, true, CvCity::YIELD_UPDATE_GLOBAL);
 
 			//new plot is same as old plot, we're done
@@ -1577,10 +1588,10 @@ bool CvCityCitizens::NeedReworkCitizens()
 	}
 
 	int iWorstWorkedPlotValue = 0;
-	CvPlot* pWorstWorkedPlot = GetBestCityPlotWithValue(iWorstWorkedPlotValue, /*bBest*/ false, /*bWorked*/ true);
+	CvPlot* pWorstWorkedPlot = GetBestCityPlotWithValue(iWorstWorkedPlotValue, eWORST_WORKED_UNFORCED);
 
 	int iBestUnworkedPlotValue = 0;
-	CvPlot* pBestUnworkedPlot = GetBestCityPlotWithValue(iBestUnworkedPlotValue, /*bBest*/ true, /*bWorked*/ false);
+	CvPlot* pBestUnworkedPlot = GetBestCityPlotWithValue(iBestUnworkedPlotValue, eBEST_UNWORKED_NO_OVERRIDE);
 
 	//First let's look at plots - if there is a better plot not being worked, we need to reallocate.
 	if (pWorstWorkedPlot != NULL && pBestUnworkedPlot != NULL)
@@ -1939,6 +1950,7 @@ void CvCityCitizens::DoAlterWorkingPlot(int iIndex)
 					}
 				}
 			}
+			//do not call isCanWorkWithOverride()
 			else if (pPlot->getOwner() == GetOwner() && !pPlot->isBlockaded())
 			{
 				// Can't take away plots from puppet cities by force
@@ -2068,10 +2080,10 @@ void CvCityCitizens::ChangeNumForcedWorkingPlots(int iChange)
 	}
 }
 
-/// Can our City work a particular CvPlot?
-bool CvCityCitizens::IsCanWork(CvPlot* pPlot) const
+/// Can our City work a particular CvPlot if we override ownership?
+bool CvCityCitizens::IsCanWorkWithOverride(CvPlot* pPlot) const
 {
-	if (!pPlot->isEffectiveOwner(m_pCity))
+	if (pPlot->getOwner() != m_pCity->getOwner())
 	{
 		return false;
 	}
@@ -2094,7 +2106,30 @@ bool CvCityCitizens::IsCanWork(CvPlot* pPlot) const
 		return false;
 	}
 
+	//looking up the effective owning city is expensive, so do a precheck
+	if (!pPlot->isEffectiveOwner(m_pCity))
+	{
+		CvCity* pEffectiveOwner = pPlot->getEffectiveOwningCity();
+		//we do not want to steal plots which are currently being worked or in the innermost ring
+		//humans can still re-assign plots manually (see DoAlterWorkingPlot)
+		if (pEffectiveOwner->GetCityCitizens()->IsWorkingPlot(pPlot) || plotDistance(pPlot->getX(),pPlot->getY(),pEffectiveOwner->getX(),pEffectiveOwner->getY())<2)
+		{
+			return false;
+		}
+	}
+
 	return true;
+}
+
+/// Can our City work a particular CvPlot?
+bool CvCityCitizens::IsCanWork(CvPlot* pPlot) const
+{
+	if (!pPlot->isEffectiveOwner(m_pCity))
+	{
+		return false;
+	}
+
+	return IsCanWorkWithOverride(pPlot);
 }
 
 bool CvCityCitizens::IsBlockaded(CvPlot * pPlot) const
