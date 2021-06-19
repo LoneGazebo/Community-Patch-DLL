@@ -160,6 +160,8 @@ UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_00' WHERE Type = 'PROMOTION
 UPDATE UnitPromotions SET PortraitIndex = '52' WHERE Type = 'PROMOTION_HONOR_BONUS';
 UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_00' WHERE Type = 'PROMOTION_ATTACK_BONUS_SWEDEN'; --                    ->  No Retreat
 UPDATE UnitPromotions SET PortraitIndex = '53' WHERE Type = 'PROMOTION_ATTACK_BONUS_SWEDEN';
+UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_00' WHERE Type = 'PROMOTION_KNOCKOUT_III'; --                   	 	 ->  Scout Line Attack (25)
+UPDATE UnitPromotions SET PortraitIndex = '53' WHERE Type = 'PROMOTION_KNOCKOUT_III';
 UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_00' WHERE Type = 'PROMOTION_ADJACENT_BONUS'; --                         ->  Discipline
 UPDATE UnitPromotions SET PortraitIndex = '54' WHERE Type = 'PROMOTION_ADJACENT_BONUS';
 UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_00' WHERE Type = 'PROMOTION_ATTACK_BONUS'; --                           ->  Bonus When Attacking (25)
@@ -274,8 +276,10 @@ UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_01' WHERE Type = 'PROMOTION
 UPDATE UnitPromotions SET PortraitIndex = '35' WHERE Type = 'PROMOTION_CAN_MOVE_AFTER_ATTACKING_NAVAL';
 UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_01' WHERE Type = 'PROMOTION_ONLY_DEFENSIVE'; --                         ->  May not melee attack
 UPDATE UnitPromotions SET PortraitIndex = '36' WHERE Type = 'PROMOTION_ONLY_DEFENSIVE';
-UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_01' WHERE Type = 'PROMOTION_WITHDRAW_BEFORE_MELEE'; --                  ->  Withdraw Before Melee
+UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_01' WHERE Type = 'PROMOTION_WITHDRAW_BEFORE_MELEE'; --                  ->  Withdraw Before Melee (80)
 UPDATE UnitPromotions SET PortraitIndex = '37' WHERE Type = 'PROMOTION_WITHDRAW_BEFORE_MELEE';
+UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_01' WHERE Type = 'PROMOTION_WITHDRAW_BEFORE_MELEE_I'; --                ->  Withdraw Before Melee (60)
+UPDATE UnitPromotions SET PortraitIndex = '37' WHERE Type = 'PROMOTION_WITHDRAW_BEFORE_MELEE_I';
 UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_01' WHERE Type = 'PROMOTION_FOLIAGE_IMPASSABLE'; --                     ->  Can Not Enter in Forest or Jungle
 UPDATE UnitPromotions SET PortraitIndex = '38' WHERE Type = 'PROMOTION_FOLIAGE_IMPASSABLE';
 UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_01' WHERE Type = 'PROMOTION_ROUGH_TERRAIN_ENDS_TURN'; --                ->  Rough Terrain Penalty

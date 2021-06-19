@@ -245,3 +245,31 @@ WHERE StrategicViewType = 'ART_DEF_UNIT_U_SPANISH_TERCIO';
 
 UPDATE Units SET UnitFlagAtlas = 'TERCIO_FLAG_ATLAS' WHERE Type = 'UNIT_SPANISH_TERCIO' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 UPDATE Units SET UnitFlagIconOffset = 0 WHERE Type = 'UNIT_SPANISH_TERCIO' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
+-- Commando
+INSERT INTO ArtDefine_UnitInfos(Type, DamageStates, Formation)
+  VALUES ('ART_DEF_UNIT_COMMANDO', 1, 'UnFormed');
+INSERT INTO ArtDefine_UnitInfoMemberInfos(UnitInfoType, UnitMemberInfoType, NumMembers)
+  VALUES 	('ART_DEF_UNIT_COMMANDO', 'ART_DEF_UNIT_MEMBER_BOER_COMMANDO', 		2),
+			('ART_DEF_UNIT_COMMANDO', 'ART_DEF_UNIT_MEMBER_BOER_COMMANDO_2', 	3),
+			('ART_DEF_UNIT_COMMANDO', 'ART_DEF_UNIT_MEMBER_BOER_COMMANDO', 		1),
+			('ART_DEF_UNIT_COMMANDO', 'ART_DEF_UNIT_MEMBER_BOER_COMMANDO_2', 	2),
+			('ART_DEF_UNIT_COMMANDO', 'ART_DEF_UNIT_MEMBER_BOER_COMMANDO', 		2),
+			('ART_DEF_UNIT_COMMANDO', 'ART_DEF_UNIT_MEMBER_BOER_COMMANDO_2', 	1);
+  
+  
+  
+INSERT INTO ArtDefine_UnitMemberInfos(Type, Scale, Model, MaterialTypeTag, MaterialTypeSoundOverrideTag)
+  VALUES ('ART_DEF_UNIT_MEMBER_BOER_COMMANDO', 0.119999997317791, 'Keshik_Mongol.fxsxml', 'CLOTH', 'FLESH');
+INSERT INTO ArtDefine_UnitMemberCombats
+(UnitMemberType, EnableActions, ShortMoveRadius, ShortMoveRate, TargetHeight, HasShortRangedAttack, HasRefaceAfterCombat, ReformBeforeCombat)
+  VALUES ('ART_DEF_UNIT_MEMBER_BOER_COMMANDO', 'Idle Attack RunCharge AttackCity Bombard Death BombardDefend Run Fortify CombatReady Walk AttackCharge', 12.0, 0.35, 8.0, 1, 1, 1);
+INSERT INTO ArtDefine_UnitMemberCombatWeapons(UnitMemberType, "Index", SubIndex, WeaponTypeTag, WeaponTypeSoundOverrideTag)
+  VALUES ('ART_DEF_UNIT_MEMBER_BOER_COMMANDO', 0, 0, 'BULLET', 'BULLET');
+INSERT INTO ArtDefine_UnitMemberCombats
+(UnitMemberType, EnableActions, ShortMoveRadius, ShortMoveRate, TargetHeight, HasShortRangedAttack, HasRefaceAfterCombat, ReformBeforeCombat)
+  VALUES ('ART_DEF_UNIT_MEMBER_BOER_COMMANDO_2', 'Idle Attack RunCharge AttackCity Bombard Death BombardDefend Run Fortify CombatReady Walk AttackCharge', 12.0, 0.35, 8.0, 1, 1, 1);
+INSERT INTO ArtDefine_UnitMemberCombatWeapons(UnitMemberType, "Index", SubIndex, WeaponTypeTag, WeaponTypeSoundOverrideTag)
+  VALUES ('ART_DEF_UNIT_MEMBER_BOER_COMMANDO_2', 0, 0, 'BULLET', 'BULLET');
+INSERT INTO ArtDefine_StrategicView(StrategicViewType, TileType, Asset)
+  VALUES ('ART_DEF_UNIT_COMMANDO', 'Unit', 'sv_kommando.dds');
