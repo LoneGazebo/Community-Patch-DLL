@@ -186,7 +186,7 @@
 			<Text>Attack Bonus (25)</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_KNOCKOUT_III_HELP">
-			<Text>+20% [ICON_STRENGTH] Strength when attacking.</Text>
+			<Text>+25% [ICON_STRENGTH] Strength when attacking.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_WITHDRAW_BEFORE_MELEE_I">
 			<Text>Commando</Text>

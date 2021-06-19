@@ -157,6 +157,13 @@
 			<IconsPerColumn>1</IconsPerColumn>
 		</Row>
 		<Row>
+			<Atlas>UNIT_COMMANDO_FLAG_ATLAS</Atlas>
+			<IconSize>32</IconSize>
+			<Filename>kommandoflag.dds</Filename>
+			<IconsPerRow>1</IconsPerRow>
+			<IconsPerColumn>1</IconsPerColumn>
+		</Row>
+		<Row>
 			<Atlas>MUSICIAN_SPECIALIST_ATLAS</Atlas>
 			<IconSize>256</IconSize>
 			<Filename>musicianspecialist1024.dds</Filename>

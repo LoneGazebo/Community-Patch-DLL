@@ -177,7 +177,7 @@
 	SET Text = 'Unit will [COLOR_POSITIVE_TEXT]Heal Every Turn[ENDCOLOR], even if it performs an action.[NEWLINE]Can pillage without expending movement.'
 	WHERE Tag = 'TXT_KEY_PROMOTION_SURVIVALISM_3_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
--- Survivalism
+-- Trailblazer
 	UPDATE Language_en_US
 	SET Text = '+10% [ICON_STRENGTH] Combat Strength [COLOR_POSITIVE_TEXT]Outside of Friendly Territory[ENDCOLOR].[NEWLINE]Unit can Embark, cross Mountains, and use Enemy Roads/Railroads.'
 	WHERE Tag = 'TXT_KEY_PROMOTION_WOODLAND_TRAILBLAZER_III_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
