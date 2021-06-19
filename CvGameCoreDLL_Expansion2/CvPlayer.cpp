@@ -31976,6 +31976,7 @@ void CvPlayer::SetMonopolyModFlat(int iChange)
 //	--------------------------------------------------------------------------------
 int CvPlayer::GetMonopolyModFlat() const
 {
+	return (m_iMonopolyModFlat + GetPlayerTraits()->GetMonopolyModFlat());
 }
 
 //	--------------------------------------------------------------------------------
