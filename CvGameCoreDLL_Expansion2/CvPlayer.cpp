@@ -31976,7 +31976,6 @@ void CvPlayer::SetMonopolyModFlat(int iChange)
 //	--------------------------------------------------------------------------------
 int CvPlayer::GetMonopolyModFlat() const
 {
-	return m_iMonopolyModFlat;
 }
 
 //	--------------------------------------------------------------------------------
@@ -31992,7 +31991,7 @@ void CvPlayer::SetMonopolyModPercent(int iChange)
 //	--------------------------------------------------------------------------------
 int CvPlayer::GetMonopolyModPercent() const
 {
-	return m_iMonopolyModPercent;
+	return (m_iMonopolyModPercent + GetPlayerTraits()->GetMonopolyModPercent());
 }
 
 /// What are we willing to give/receive for peace with the active human player?
