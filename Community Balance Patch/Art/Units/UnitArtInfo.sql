@@ -257,17 +257,17 @@ INSERT INTO ArtDefine_UnitInfoMemberInfos(UnitInfoType, UnitMemberInfoType, NumM
 			('ART_DEF_UNIT_COMMANDO', 'ART_DEF_UNIT_MEMBER_BOER_COMMANDO', 		2),
 			('ART_DEF_UNIT_COMMANDO', 'ART_DEF_UNIT_MEMBER_BOER_COMMANDO_2', 	1);
   
-  
-  
 INSERT INTO ArtDefine_UnitMemberInfos(Type, Scale, Model, MaterialTypeTag, MaterialTypeSoundOverrideTag)
-  VALUES ('ART_DEF_UNIT_MEMBER_BOER_COMMANDO', 0.119999997317791, 'Keshik_Mongol.fxsxml', 'CLOTH', 'FLESH');
+  VALUES ('ART_DEF_UNIT_MEMBER_BOER_COMMANDO', 0.13, 'Art/Units/Commando/u_boer_commando_v1.fxsxml', 'CLOTH', 'FLESH');
 INSERT INTO ArtDefine_UnitMemberCombats
-(UnitMemberType, EnableActions, ShortMoveRadius, ShortMoveRate, TargetHeight, HasShortRangedAttack, HasRefaceAfterCombat, ReformBeforeCombat)
+  (UnitMemberType, EnableActions, ShortMoveRadius, ShortMoveRate, TargetHeight, HasShortRangedAttack, HasRefaceAfterCombat, ReformBeforeCombat)
   VALUES ('ART_DEF_UNIT_MEMBER_BOER_COMMANDO', 'Idle Attack RunCharge AttackCity Bombard Death BombardDefend Run Fortify CombatReady Walk AttackCharge', 12.0, 0.35, 8.0, 1, 1, 1);
 INSERT INTO ArtDefine_UnitMemberCombatWeapons(UnitMemberType, "Index", SubIndex, WeaponTypeTag, WeaponTypeSoundOverrideTag)
   VALUES ('ART_DEF_UNIT_MEMBER_BOER_COMMANDO', 0, 0, 'BULLET', 'BULLET');
+INSERT INTO ArtDefine_UnitMemberInfos(Type, Scale, Model, MaterialTypeTag, MaterialTypeSoundOverrideTag)
+  VALUES ('ART_DEF_UNIT_MEMBER_BOER_COMMANDO_2', 0.13, 'Art/Units/Commando/u_boer_commando_v2.fxsxml', 'CLOTH', 'FLESH');
 INSERT INTO ArtDefine_UnitMemberCombats
-(UnitMemberType, EnableActions, ShortMoveRadius, ShortMoveRate, TargetHeight, HasShortRangedAttack, HasRefaceAfterCombat, ReformBeforeCombat)
+  (UnitMemberType, EnableActions, ShortMoveRadius, ShortMoveRate, TargetHeight, HasShortRangedAttack, HasRefaceAfterCombat, ReformBeforeCombat)
   VALUES ('ART_DEF_UNIT_MEMBER_BOER_COMMANDO_2', 'Idle Attack RunCharge AttackCity Bombard Death BombardDefend Run Fortify CombatReady Walk AttackCharge', 12.0, 0.35, 8.0, 1, 1, 1);
 INSERT INTO ArtDefine_UnitMemberCombatWeapons(UnitMemberType, "Index", SubIndex, WeaponTypeTag, WeaponTypeSoundOverrideTag)
   VALUES ('ART_DEF_UNIT_MEMBER_BOER_COMMANDO_2', 0, 0, 'BULLET', 'BULLET');
