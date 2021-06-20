@@ -50,6 +50,11 @@ ALTER TABLE Buildings ADD COLUMN 'NoUnhappfromXSpecialists' INTEGER DEFAULT 0;
 -- Reduce specialist unhappiness from urbanization (CBO)
 ALTER TABLE Buildings ADD COLUMN 'NoUnhappfromXSpecialistsGlobal' INTEGER DEFAULT 0;
 
+-- BUILDING: PlayerBorderGainlessPillage & CityGainlessPillage
+-- If such a building's effect applies, other teams get neither gold nor heal from pillaging the appropriate tiles.
+-- CityGainlessPillage affects the constructing city's worked tiles, PlayerBorderGainlessPillage proofs every tile of the player
+ALTER TABLE Buildings ADD PlayerBorderGainlessPillage BOOLEAN DEFAULT 0;
+ALTER TABLE Buildings ADD CityGainlessPillage BOOLEAN DEFAULT 0;
 
 -- Belief requires an improvement on a terrain type to grant its yield.
 
@@ -257,6 +262,10 @@ ALTER TABLE Traits ADD COLUMN 'MultipleAttackBonus' INTEGER DEFAULT 0;
 -- Does this Civ get extra influence from meeting a CS?
 ALTER TABLE Traits ADD COLUMN 'InfluenceMeetCS' INTEGER DEFAULT 0;
 
+-- Civ gets bonuses to monoply yields
+ALTER TABLE Traits ADD COLUMN 'MonopolyModFlat' INTEGER DEFAULT 0;
+ALTER TABLE Traits ADD COLUMN 'MonopolyModPercent' INTEGER DEFAULT 0;
+
 
 -- Grants a free valid promotion to a unit when it is on a type of improvement (farm, mine, etc.).
 
@@ -414,6 +423,15 @@ ALTER TABLE Policies ADD COLUMN 'AdmiralLuxuryBonus' INTEGER DEFAULT 0;
 
 -- CS resources count towards monopolies
 ALTER TABLE Policies ADD COLUMN 'CSResourcesCountForMonopolies' BOOLEAN DEFAULT 0;
+
+-- Liberating a city gives influence to all CS
+ALTER TABLE Policies ADD COLUMN 'InfluenceAllCSFromLiberation' INTEGER DEFAULT 0;
+
+-- Liberating a city gives that city some units 
+ALTER TABLE Policies ADD COLUMN 'NumUnitsInLiberatedCities' INTEGER DEFAULT 0;
+
+-- Liberating a city gives that city 1 buildingclass
+ALTER TABLE Policies ADD COLUMN 'BuildingClassInLiberatedCities' INTEGER DEFAULT 0;
 
 -- % modifiers to empire needs modifier - negative = good!
 ALTER TABLE Buildings ADD COLUMN 'EmpireNeedsModifier' INTEGER DEFAULT 0;
