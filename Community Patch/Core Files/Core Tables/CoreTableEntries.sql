@@ -419,6 +419,15 @@ ALTER TABLE Policies ADD COLUMN 'AdmiralLuxuryBonus' INTEGER DEFAULT 0;
 -- CS resources count towards monopolies
 ALTER TABLE Policies ADD COLUMN 'CSResourcesCountForMonopolies' BOOLEAN DEFAULT 0;
 
+-- Liberating a city gives influence to all CS
+ALTER TABLE Policies ADD COLUMN 'InfluenceAllCSFromLiberation' INTEGER DEFAULT 0;
+
+-- Liberating a city gives that city some units 
+ALTER TABLE Policies ADD COLUMN 'NumUnitsInLiberatedCities' INTEGER DEFAULT 0;
+
+-- Liberating a city gives that city 1 buildingclass
+ALTER TABLE Policies ADD COLUMN 'BuildingClassInLiberatedCities' INTEGER DEFAULT 0;
+
 -- % modifiers to empire needs modifier - negative = good!
 ALTER TABLE Buildings ADD COLUMN 'EmpireNeedsModifier' INTEGER DEFAULT 0;
 ALTER TABLE Buildings ADD COLUMN 'EmpireNeedsModifierGlobal' INTEGER DEFAULT 0;

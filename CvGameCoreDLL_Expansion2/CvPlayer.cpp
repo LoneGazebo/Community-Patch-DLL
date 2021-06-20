@@ -681,6 +681,10 @@ CvPlayer::CvPlayer() :
 	, m_aiYieldModifierFromGreatWorks("CvPlayer::m_aiYieldModifierFromGreatWorks", m_syncArchive)
 	, m_aiYieldModifierFromActiveSpies("CvPlayer::m_aiYieldModifierFromActiveSpies", m_syncArchive)
 	, m_aiYieldFromDelegateCount("CvPlayer::m_aiYieldFromDelegateCount", m_syncArchive)
+	, m_aiYieldForLiberation("CvPlayer::m_aiYieldForLiberation", m_syncArchive)
+	, m_iInfluenceForLiberation("CvPlayer::m_iInfluenceForLiberation", m_syncArchive)
+	, m_eBuildingClassInLiberatedCities("CvPlayer::m_eBuildingClassInLiberatedCities", m_syncArchive)
+	, m_iUnitsInLiberatedCities("CvPlayer::m_iUnitsInLiberatedCities", m_syncArchive)
 	, m_paiBuildingClassCulture("CvPlayer::m_paiBuildingClassCulture", m_syncArchive)
 	, m_aiDomainFreeExperiencePerGreatWorkGlobal("CvPlayer::m_aiDomainFreeExperiencePerGreatWorkGlobal", m_syncArchive)
 	, m_iGarrisonsOccupiedUnhapppinessMod("CvPlayer::m_iGarrisonsOccupiedUnhapppinessMod", m_syncArchive)
@@ -1673,6 +1677,9 @@ void CvPlayer::uninit()
 	m_eFaithPurchaseType = NO_AUTOMATIC_FAITH_PURCHASE;
 	m_iFaithPurchaseIndex = 0;
 	m_iLastSliceMoved = 0;
+	m_iInfluenceForLiberation = 0;
+	m_iUnitsInLiberatedCities = 0;
+	m_eBuildingClassInLiberatedCities = NO_BUILDINGCLASS;
 
 	m_bHasBetrayedMinorCiv = false;
 	m_bNoNewWars = false;
@@ -1842,6 +1849,9 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 
 	m_aiYieldFromDelegateCount.clear();
 	m_aiYieldFromDelegateCount.resize(NUM_YIELD_TYPES, 0);
+
+	m_aiYieldForLiberation.clear();
+	m_aiYieldForLiberation.resize(NUM_YIELD_TYPES, 0);
 
 	m_aiDomainFreeExperiencePerGreatWorkGlobal.clear();
 	m_aiDomainFreeExperiencePerGreatWorkGlobal.resize(NUM_DOMAIN_TYPES, 0);
@@ -10006,6 +10016,64 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 		if (getTeam() != GET_PLAYER(ePlayer).getTeam())
 		{
 			CvDiplomacyAIHelpers::ApplyLiberationBonuses(pNewCity, GetID(), ePlayer);
+		}
+
+		//gain yields for liberation
+		int iPop = pNewCity->getPopulation();
+		for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+		{
+			YieldTypes eYield = (YieldTypes)iI;
+			int iLiberationYield = getYieldForLiberation(eYield);
+			if (iLiberationYield > 0) {
+				doInstantYield(INSTANT_YIELD_TYPE_INSTANT, false, NO_GREATPERSON, NO_BUILDING, iLiberationYield * iPop, true, NO_PLAYER, NULL, false, getCapitalCity(), false, true, true, eYield);
+			}
+		}
+
+		//Influence Gained with all CS when liberate
+		int iInfluence = getInfluenceForLiberation();
+		if (iInfluence > 0)
+		{
+			for (int iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
+			{
+				PlayerTypes eMinorLoop = (PlayerTypes)iMinorLoop;
+				if (eMinorLoop != NO_PLAYER)
+				{
+					CvPlayer* pMinorLoop = &GET_PLAYER(eMinorLoop);
+					if (pMinorLoop->isMinorCiv() && pMinorLoop->isAlive())
+					{
+						if (GET_TEAM(pMinorLoop->getTeam()).isHasMet(getTeam()))
+						{
+							pMinorLoop->GetMinorCivAI()->ChangeFriendshipWithMajor(GetID(), iInfluence, false);
+						}
+					}
+				}
+			}
+		}
+
+		const BuildingClassTypes eBuildingClass = getBuildingClassInLiberatedCities();
+		if (eBuildingClass && eBuildingClass != NO_BUILDINGCLASS) {
+			CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo(eBuildingClass);
+			if (pkBuildingClassInfo)
+			{
+				const BuildingTypes eBuilding = ((BuildingTypes)(getCivilizationInfo().getCivilizationBuildings(pkBuildingClassInfo->GetID())));
+				if (NO_BUILDING != eBuilding)
+				{
+					CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
+					if (pkBuildingInfo)
+					{
+						pNewCity->GetCityBuildings()->SetNumRealBuilding(eBuilding, 1);
+					}
+				}
+			}
+		}
+
+		int iNumUnit = getUnitsInLiberatedCities();
+		if (iNumUnit > 0) {
+			for (int i = 0; i < iNumUnit; i++) {
+				UnitTypes eUnit = GC.getGame().GetCompetitiveSpawnUnitType(ePlayer, false, false, false, true, true);
+				if (eUnit != NO_UNIT)
+					GET_PLAYER(ePlayer).initUnit(eUnit, pNewCity->getX(), pNewCity->getY());
+			}
 		}
 	}
 
@@ -35616,6 +35684,58 @@ void CvPlayer::changeYieldFromDelegateCount(YieldTypes eIndex, int iChange)
 	}
 }
 
+//	--------------------------------------------------------------------------------
+int CvPlayer::getYieldForLiberation(YieldTypes eIndex)	const
+{
+	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
+	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	return m_aiYieldForLiberation[eIndex];
+}
+//	--------------------------------------------------------------------------------
+void CvPlayer::changeYieldForLiberation(YieldTypes eIndex, int iChange)
+{
+	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+
+	if (iChange != 0)
+		m_aiYieldForLiberation.setAt(eIndex, m_aiYieldForLiberation[eIndex] + iChange);
+}
+
+//	--------------------------------------------------------------------------------
+int CvPlayer::getInfluenceForLiberation()	const
+{
+	return m_iInfluenceForLiberation;
+}
+//	--------------------------------------------------------------------------------
+void CvPlayer::changeInfluenceForLiberation(int iChange)
+{
+	m_iInfluenceForLiberation += iChange;
+}
+
+//	--------------------------------------------------------------------------------
+BuildingClassTypes CvPlayer::getBuildingClassInLiberatedCities()	const
+{
+	return m_eBuildingClassInLiberatedCities;
+}
+//	--------------------------------------------------------------------------------
+void CvPlayer::setBuildingClassInLiberatedCities(BuildingClassTypes eIndex)
+{
+	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
+	CvAssertMsg(eIndex < GC.getNumBuildingClassInfos(), "eIndex expected to be < GC.getNumBuildingClassInfos()");
+	m_eBuildingClassInLiberatedCities = eIndex;
+}
+
+//	--------------------------------------------------------------------------------
+int CvPlayer::getUnitsInLiberatedCities()	const
+{
+	return m_iUnitsInLiberatedCities;
+}
+//	--------------------------------------------------------------------------------
+void CvPlayer::changeUnitsInLiberatedCities(int iChange)
+{
+	m_iUnitsInLiberatedCities += iChange;
+}
+
 
 //	--------------------------------------------------------------------------------
 int CvPlayer::getReligionYieldRateModifier(YieldTypes eIndex)	const
@@ -43963,6 +44083,12 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 	ChangeNewCityExtraPopulation(pPolicy->GetNewCityExtraPopulation() * iChange);
 	ChangeFreeFoodBox(pPolicy->GetFreeFoodBox() * iChange);
 	ChangeStrategicResourceMod(pPolicy->GetStrategicResourceMod() * iChange);
+	changeInfluenceForLiberation(pPolicy->GetInfluenceForLiberation() * iChange);
+	changeUnitsInLiberatedCities(pPolicy->GetUnitsInLiberatedCities() * iChange);
+
+	setBuildingClassInLiberatedCities(pPolicy->GetBuildingClassInLiberatedCities());
+
+
 #if defined(MOD_BALANCE_CORE)
 	if(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES_STRATEGIC && pPolicy->GetStrategicResourceMod() > 0)
 	{
@@ -44234,6 +44360,8 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 		changeYieldModifierFromGreatWorks(eYield, (pPolicy->GetYieldModifierFromGreatWorks(iI) * iChange));
 		changeYieldModifierFromActiveSpies(eYield, (pPolicy->GetYieldModifierFromActiveSpies(iI) * iChange));
 		changeYieldFromDelegateCount(eYield, (pPolicy->GetYieldFromDelegateCount(iI) * iChange));
+
+		changeYieldForLiberation(eYield, (pPolicy->GetYieldForLiberation(iI) * iChange));
 
 		if (pPolicy->GetYieldFromBirthRetroactive(eYield) != 0)
 		{
