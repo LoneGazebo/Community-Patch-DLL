@@ -5195,13 +5195,6 @@ void CvPlayerPolicies::DoUnlockPolicyBranch(PolicyBranchTypes eBranchType)
 	// Are we blocked? If so, unblock us
 	DoSwitchToPolicyBranch(eBranchType);
 
-	// Free Policy with this Branch?
-	PolicyTypes eFreePolicy = (PolicyTypes) pkPolicyBranchInfo->GetFreePolicy();
-	if(eFreePolicy != NO_POLICY)
-	{
-		GetPlayer()->setHasPolicy(eFreePolicy, true);
-	}
-
 	// Pay Culture cost - if applicable
 	if(GetPlayer()->GetNumFreePolicies() == 0)
 	{
@@ -5362,13 +5355,14 @@ void CvPlayerPolicies::SetPolicyBranchUnlocked(PolicyBranchTypes eBranchType, bo
 
 	if(IsPolicyBranchUnlocked(eBranchType) != bNewValue)
 	{
+		CvPolicyBranchEntry* pkPolicyBranchInfo = GC.getPolicyBranchInfo(eBranchType);
+
 		// Unlocked?
 		if (bNewValue)
 		{
 			int iFreePolicies = PolicyHelpers::GetNumFreePolicies(eBranchType);
 
 			// Late-game tree so want to issue notification?
-			CvPolicyBranchEntry* pkPolicyBranchInfo = GC.getPolicyBranchInfo(eBranchType);
 			if(pkPolicyBranchInfo != NULL)
 			{
 				if (pkPolicyBranchInfo->IsPurchaseByLevel())
@@ -5428,6 +5422,16 @@ void CvPlayerPolicies::SetPolicyBranchUnlocked(PolicyBranchTypes eBranchType, bo
 				{
 					m_pPlayer->ChangeNumFreePolicies(iFreePolicies);
 				}
+			}
+		}
+
+		// Free Policy with this Branch?
+		if (pkPolicyBranchInfo != NULL)
+		{
+			PolicyTypes eFreePolicy = (PolicyTypes)pkPolicyBranchInfo->GetFreePolicy();
+			if (eFreePolicy != NO_POLICY)
+			{
+				GetPlayer()->setHasPolicy(eFreePolicy, bNewValue, pkPolicyBranchInfo->IsPurchaseByLevel());
 			}
 		}
 
