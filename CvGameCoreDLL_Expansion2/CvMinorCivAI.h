@@ -12,11 +12,8 @@
 
 #include <CvLocalization.h>
 
-#define SAFE_ESTIMATE_NUM_XML_WIDGETS 100
-
 #define ENABLE_QUESTS_AT_START false
 #define ENABLE_PERMANENT_WAR false
-#define SAFE_ESTIMATE_NUM_QUESTS_PER_PLAYER (5)
 #define MINOR_POWER_COMPARISON_RADIUS (5)
 
 enum MinorCivStatusTypes
@@ -94,8 +91,8 @@ FDataStream& operator<<(FDataStream&, const MinorCivQuestTypes&);
 FDataStream& operator>>(FDataStream&, MinorCivQuestTypes&);
 
 
-typedef FStaticVector< PlayerTypes, MAX_PLAYERS, true, c_eCiv5GameplayDLL > CivsList;
-typedef CvWeightedVector< PlayerTypes, MAX_PLAYERS, true > WeightedCivsList;
+typedef vector<PlayerTypes> CivsList;
+typedef CvWeightedVector< PlayerTypes> WeightedCivsList;
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //  CLASS:      CvMinorCivQuest
@@ -134,7 +131,7 @@ public:
 #if defined(MOD_BALANCE_CORE)
 	void DoRewards(PlayerTypes ePlayer);
 	CvString GetRewardString(PlayerTypes ePlayer, bool bFinish);
-	void CalculateRewards(PlayerTypes ePlayer);
+	void CalculateRewards(PlayerTypes ePlayer, bool bRecalc = false);
 
 	void SetInfluence(int iValue);
 	void SetGPGlobal(int iValue);
@@ -180,9 +177,9 @@ public:
 	// Quest status for assigned player
 	bool IsContestLeader(PlayerTypes ePlayer = NO_PLAYER);
 	bool IsComplete();
-	bool IsRevoked();
+	bool IsRevoked(bool bWar = false);
 	bool IsExpired();
-	bool IsObsolete();
+	bool IsObsolete(bool bWar = false);
 	bool IsHandled();
 	void SetHandled(bool bValue);
 
@@ -230,8 +227,8 @@ FDataStream& operator<<(FDataStream&, const CvMinorCivQuest&);
 
 class CvPlayer;
 
-typedef FStaticVector< CvMinorCivQuest, SAFE_ESTIMATE_NUM_QUESTS_PER_PLAYER, false, c_eCiv5GameplayDLL > QuestListForPlayer; // will grow size if needed
-typedef FStaticVector< QuestListForPlayer, MAX_MAJOR_CIVS, false, c_eCiv5GameplayDLL > QuestListForAllPlayers;
+typedef vector< CvMinorCivQuest > QuestListForPlayer; // will grow size if needed
+typedef vector< QuestListForPlayer > QuestListForAllPlayers;
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //  CLASS:      CvMinorCivAI
@@ -290,20 +287,14 @@ public:
 	void DoFirstContactWithMajor(TeamTypes eTeam, bool bSuppressMessages);
 
 	void DoTestEndWarsVSMinors(PlayerTypes eOldAlly, PlayerTypes eNewAlly);
-#if defined(MOD_GLOBAL_CS_NO_ALLIED_SKIRMISHES)
+
 	void DoTestEndSkirmishes(PlayerTypes eNewAlly);
 	void RecalculateRewards(PlayerTypes ePlayer);
-#endif
 
 	void DoTurnStatus();
 	MinorCivStatusTypes GetStatus() const;
 
 	void DoAddStartingResources(CvPlot* pCityPlot);
-#if defined(MOD_GLOBAL_VENICE_KEEPS_RESOURCES)
-	void DoRemoveStartingResources(CvPlot* pCityPlot, bool bVenice);
-#else
-	void DoRemoveStartingResources(CvPlot* pCityPlot);
-#endif
 
 	void AddNotification(CvString sString, CvString sSummaryString, PlayerTypes ePlayer, int iX = -1, int iY = -1);
 	void AddQuestNotification(CvString sString, CvString sSummaryString, PlayerTypes ePlayer, int iX = -1, int iY = -1, bool bNewQuest = false);
@@ -315,7 +306,8 @@ public:
 
 	bool IsThreateningBarbariansEventActiveForPlayer(PlayerTypes ePlayer);
 	int GetNumThreateningBarbarians();
-	int GetNumBarbariansInBorders();
+	int GetNumThreateningMajors();
+	int GetNumBarbariansInBorders(bool bOnlyAdjacentToCity);
 
 	void DoTestThreatenedAnnouncement();
 	int GetTurnsSinceThreatenedAnnouncement() const;
@@ -363,7 +355,7 @@ public:
 	WeightedCivsList CalculateFriendshipFromQuests();
 	void DoCompletedQuestsForPlayer(PlayerTypes ePlayer, MinorCivQuestTypes eSpecifyQuestType = NO_MINOR_CIV_QUEST_TYPE);
 	void DoObsoleteQuests();
-	void DoObsoleteQuestsForPlayer(PlayerTypes ePlayer, MinorCivQuestTypes eSpecifyQuestType = NO_MINOR_CIV_QUEST_TYPE);
+	void DoObsoleteQuestsForPlayer(PlayerTypes ePlayer, MinorCivQuestTypes eSpecifyQuestType = NO_MINOR_CIV_QUEST_TYPE, bool bWar = false);
 	void DoQuestsCleanup();
 	void DoQuestsCleanupForPlayer(PlayerTypes ePlayer);
 
@@ -426,8 +418,6 @@ public:
 	PlayerTypes SpawnHorde();
 	PlayerTypes SpawnRebels();
 	//Ends
-	void SetSacked(bool bValue);
-	bool IsSacked();
 	bool IsRebellion();
 	void SetRebellion(bool bValue);
 	//Countdown
@@ -548,7 +538,8 @@ public:
 
 	void DoIntrusion();
 #if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
-	void DoSack();
+	void SetReadyForTakeOver();
+	bool IsReadyForTakeOver() const;
 	void DoDefection();
 #endif
 
@@ -639,15 +630,10 @@ public:
 	bool IsUnitSpawningAllowed(PlayerTypes ePlayer);
 	bool IsUnitSpawningDisabled(PlayerTypes ePlayer) const;
 	void SetUnitSpawningDisabled(PlayerTypes ePlayer, bool bValue);
-#if defined(MOD_GLOBAL_CS_GIFTS)
 	CvUnit* DoSpawnUnit(PlayerTypes eMajor, bool bLocal = false, bool bExplore = false);
-#else
-	void DoSpawnUnit(PlayerTypes eMajor);
-#endif
 	void DoUnitSpawnTurn();
 	int GetSpawnBaseTurns(PlayerTypes ePlayer);
 	int GetCurrentSpawnEstimate(PlayerTypes ePlayer);
-
 
 #if defined(MOD_BALANCE_CORE)
 	bool IsMarried(PlayerTypes eMajor) const;
@@ -664,11 +650,7 @@ public:
 	int GetBuyoutCost(PlayerTypes eMajor);
 	void DoBuyout(PlayerTypes eMajor);
 
-#if defined(MOD_GLOBAL_VENICE_KEEPS_RESOURCES)
-	void DoAcquire(PlayerTypes eMajor, int& iNumUnits, int& iCapitalX, int& iCapitalY, bool bVenice = false);
-#else
-	void DoAcquire(PlayerTypes eMajor, int& iNumUnits, int& iCapitalX, int& iCapitalY);
-#endif
+	void DoPassCitiesToMajor(PlayerTypes eMajor, int& iNumUnits, int& iCapitalX, int& iCapitalY);
 
 	// ************************************
 	// ***** Bullying *****
@@ -746,9 +728,12 @@ public:
 	void SetWaryOfTeam(TeamTypes eTeam, bool bValue);
 
 #if defined(MOD_BALANCE_CORE_MINORS)  || defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
-	int GetJerk(TeamTypes eTeam) const;
-	void SetJerk(TeamTypes eTeam, int iValue);
-	void ChangeJerk(TeamTypes eTeam, int iChange);
+	int GetTurnLastAttacked(TeamTypes eTeam) const;
+	void SetTurnLastAttacked(TeamTypes eTeam, int iTurn);
+	int GetJerkTurnsRemaining(TeamTypes eTeam) const;
+
+	bool IsIgnoreJerk(TeamTypes eTeam) const;
+	void SetIgnoreJerk(TeamTypes eTeam, bool bValue);
 
 	PlayerTypes GetPermanentAlly() const;
 	void SetPermanentAlly(PlayerTypes ePlayer);
@@ -798,25 +783,23 @@ private:
 	int m_iTurnsSinceThreatenedByBarbarians;
 	int m_iGlobalQuestCountdown;
 
-	bool m_abWarQuestAgainstMajor[MAX_MAJOR_CIVS];
-	int m_aaiNumEnemyUnitsLeftToKillByMajor[MAX_MAJOR_CIVS][MAX_MAJOR_CIVS];
-
 	bool m_abRouteConnectionEstablished[MAX_MAJOR_CIVS];
 
 #if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
-	bool m_bIsSacked;
 	bool m_bIsRebellion;
-	int m_iIsRebellionCountdown;
+	int m_iTurnsSinceRebellion;
 	bool m_bIsRebellionActive;
 	bool m_bIsHordeActive;
 	int m_iCooldownSpawn;
+	int m_iTakeoverTurn; //not serialized
 #endif
 #if defined(MOD_BALANCE_CORE)
 	int m_iTurnLiberated;
 #endif
 
 #if defined(MOD_BALANCE_CORE_MINORS)  || defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
-	int m_aiJerk[REALLY_MAX_TEAMS];
+	int m_aiTurnLastAttacked[MAX_CIV_TEAMS];
+	bool m_abIgnoreJerk[MAX_CIV_TEAMS];
 	bool m_abIsMarried[MAX_MAJOR_CIVS];
 	PlayerTypes m_ePermanentAlly;
 	bool m_bNoAlly;
@@ -849,8 +832,8 @@ private:
 	bool m_abFriends[MAX_MAJOR_CIVS];
 #endif
 	bool m_abPledgeToProtect[MAX_MAJOR_CIVS];
-	bool m_abPermanentWar[REALLY_MAX_TEAMS];
-	bool m_abWaryOfTeam[REALLY_MAX_TEAMS];
+	bool m_abPermanentWar[MAX_CIV_TEAMS];
+	bool m_abWaryOfTeam[MAX_CIV_TEAMS];
 
 	bool m_bDisableNotifications;
 

@@ -303,6 +303,11 @@ void CvLuaGame::RegisterMembers(lua_State* L)
 	Method(GetNumResourceRequiredForUnit);
 	Method(GetNumResourceRequiredForBuilding);
 
+#if defined(MOD_IMPROVEMENTS_EXTENSIONS)
+	Method(GetNumResourceRequiredForImprovement);
+	Method(GetNumResourceRequiredForRoute);
+#endif
+
 	Method(IsCombatWarned);
 	Method(SetCombatWarned);
 
@@ -365,7 +370,7 @@ void CvLuaGame::RegisterMembers(lua_State* L)
 	Method(GetMinimumFaithNextPantheon);
 	Method(SetMinimumFaithNextPantheon);
 
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_API_RELIGION)
+#if defined(MOD_API_LUA_EXTENSIONS)
 	Method(IsInSomeReligion);
 #endif
 	Method(GetAvailablePantheonBeliefs);
@@ -389,7 +394,7 @@ void CvLuaGame::RegisterMembers(lua_State* L)
 	Method(GetFounderBenefitsReligion);
 
 	Method(FoundPantheon);
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_API_RELIGION)
+#if defined(MOD_API_LUA_EXTENSIONS)
 	Method(EnhancePantheon);
 #endif
 	Method(FoundReligion);
@@ -445,7 +450,7 @@ void CvLuaGame::RegisterMembers(lua_State* L)
 
 	Method(GetLongestCityConnectionPlots);
 
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_API_TRADEROUTES)
+#if defined(MOD_API_LUA_EXTENSIONS)
 	Method(GetTradeRoute);
 #endif
 	Method(SelectedUnit_SpeculativePopupTradeRoute_Display);
@@ -1144,15 +1149,12 @@ int CvLuaGame::lIsNoNukes(lua_State* L)
 //void changeNoNukesCount(int iChange);
 int CvLuaGame::lChangeNoNukesCount(lua_State* L)
 {
-#if defined(MOD_BUGFIX_LUA_API)
 	int iNumNukes;
 	if (lua_gettop(L) == 1)
 		iNumNukes = lua_tointeger(L, 1); // The correct Game.ChangeNoNukesCount() usage
 	else
 		iNumNukes = lua_tointeger(L, 2); // The incorrect (but as used by the game core .lua files) Game:ChangeNoNukesCount() usage
-#else
-	int iNumNukes = lua_tointeger(L, 2);
-#endif
+
 	GC.getGame().changeNoNukesCount(iNumNukes);
 	return 1;
 }
@@ -1166,15 +1168,12 @@ int CvLuaGame::lGetNukesExploded(lua_State* L)
 //void changeNukesExploded(int iChange);
 int CvLuaGame::lChangeNukesExploded(lua_State* L)
 {
-#if defined(MOD_BUGFIX_LUA_API)
 	int iNumNukes;
 	if (lua_gettop(L) == 1)
 		iNumNukes = lua_tointeger(L, 1); // The correct Game.ChangeNukesExploded() usage
 	else
 		iNumNukes = lua_tointeger(L, 2); // The incorrect (but as used by the game core .lua files) Game:ChangeNukesExploded() usage
-#else
-	int iNumNukes = lua_tointeger(L, 2);
-#endif
+
 	GC.getGame().changeNukesExploded(iNumNukes);
 	return 1;
 }
@@ -2089,6 +2088,45 @@ int CvLuaGame::lGetNumResourceRequiredForBuilding(lua_State* L)
 	return 1;
 }
 
+#if defined(MOD_IMPROVEMENTS_EXTENSIONS)
+//------------------------------------------------------------------------------
+int CvLuaGame::lGetNumResourceRequiredForImprovement(lua_State* L)
+{
+	const ImprovementTypes eImprovement = (ImprovementTypes)luaL_checkint(L, 1);
+	const ResourceTypes eResource = (ResourceTypes)luaL_checkint(L, 2);
+
+	CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(eImprovement);
+	CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
+
+	int iNumNeeded = 0;
+	if (pkImprovementInfo && pkResourceInfo)
+	{
+		iNumNeeded = pkImprovementInfo->GetResourceQuantityRequirement((int)eResource);
+	}
+
+	lua_pushinteger(L, iNumNeeded);
+	return 1;
+}
+//------------------------------------------------------------------------------
+int CvLuaGame::lGetNumResourceRequiredForRoute(lua_State* L)
+{
+	const RouteTypes eRoute = (RouteTypes)luaL_checkint(L, 1);
+	const ResourceTypes eResource = (ResourceTypes)luaL_checkint(L, 2);
+
+	CvRouteInfo* pkRouteInfo = GC.getRouteInfo(eRoute);
+	CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
+
+	int iNumNeeded = 0;
+	if (pkRouteInfo && pkResourceInfo)
+	{
+		iNumNeeded = pkRouteInfo->getResourceQuantityRequirement((int)eResource);
+	}
+
+	lua_pushinteger(L, iNumNeeded);
+	return 1;
+}
+#endif
+
 //------------------------------------------------------------------------------
 int CvLuaGame::lIsCombatWarned(lua_State* L)
 {
@@ -2608,7 +2646,7 @@ int CvLuaGame::lSetMinimumFaithNextPantheon(lua_State* L)
 	GC.getGame().GetGameReligions()->SetMinimumFaithNextPantheon(lua_tointeger(L, 1));
 	return 1;
 }
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_API_RELIGION)
+#if defined(MOD_API_LUA_EXTENSIONS)
 //------------------------------------------------------------------------------
 int CvLuaGame::lIsInSomeReligion(lua_State* L)
 {
@@ -2943,7 +2981,7 @@ int CvLuaGame::lFoundPantheon(lua_State* L)
 
 	return 0;
 }
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_API_RELIGION)
+#if defined(MOD_API_LUA_EXTENSIONS)
 //------------------------------------------------------------------------------
 int CvLuaGame::lEnhancePantheon(lua_State* L)
 {
@@ -2983,7 +3021,7 @@ int CvLuaGame::lEnhanceReligion(lua_State* L)
 	const ReligionTypes eReligion = static_cast<ReligionTypes>(luaL_checkint(L, 2));
 	const BeliefTypes eBelief1 = static_cast<BeliefTypes>(luaL_checkint(L, 3));
 	const BeliefTypes eBelief2 = static_cast<BeliefTypes>(luaL_checkint(L, 4));
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_API_RELIGION)
+#if defined(MOD_API_LUA_EXTENSIONS)
 	const bool bNotify = luaL_optbool(L, 5, true);
 
 	GC.getGame().GetGameReligions()->EnhanceReligion(ePlayer, eReligion, eBelief1, eBelief2, bNotify);
@@ -3422,7 +3460,7 @@ int CvLuaGame::lGetLongestCityConnectionPlots(lua_State* L)
 	return 2;
 }
 
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_API_TRADEROUTES)
+#if defined(MOD_API_LUA_EXTENSIONS)
 //------------------------------------------------------------------------------
 // Most of this came from CvLuaPlayer::lGetTradeRoutes(lua_State* L)
 int CvLuaGame::lGetTradeRoute(lua_State* L)
@@ -3493,13 +3531,9 @@ int CvLuaGame::lGetTradeRoute(lua_State* L)
 		lua_setfield(L, t, "FromReligion");
 		lua_pushinteger(L, iFromPressure);
 		lua_setfield(L, t, "FromPressure");
-#if defined(MOD_BALANCE_CORE)
 		int iToDelta = (pFromCity->GetBaseTourism() / 100) * pFromCity->GetCityCulture()->GetTourismMultiplier(pToPlayer->GetID(), true, true, false, true, true);
 		int iFromDelta = (pToCity->GetBaseTourism() / 100) * pToCity->GetCityCulture()->GetTourismMultiplier(pFromPlayer->GetID(), true, true, false, true, true);
-#else
-		int iToDelta = pFromCity->GetBaseTourism() * pFromCity->GetCityCulture()->GetTourismMultiplier(pToPlayer->GetID(), true, true, false, true, true);
-		int iFromDelta = pToCity->GetBaseTourism() * pToCity->GetCityCulture()->GetTourismMultiplier(pFromPlayer->GetID(), true, true, false, true, true);
-#endif
+
 		lua_pushinteger(L, iFromDelta);
 		lua_setfield(L, t, "FromTourism");
 		lua_pushinteger(L, iToDelta);

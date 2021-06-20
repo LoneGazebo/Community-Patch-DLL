@@ -70,55 +70,7 @@ void CvWonderProductionAI::Read(FDataStream& kStream)
 	kStream >> uiVersion;
 	MOD_SERIALIZE_INIT_READ(kStream);
 
-	int iWeight;
-
-	CvAssertMsg(m_piLatestFlavorValues != NULL && GC.getNumFlavorTypes() > 0, "Number of flavor values to serialize is expected to greater than 0");
-
-	int iNumFlavors;
-	kStream >> iNumFlavors;
-
-	ArrayWrapper<int> wrapm_piLatestFlavorValues(iNumFlavors, m_piLatestFlavorValues);
-	kStream >> wrapm_piLatestFlavorValues;
-
-	CvAssertMsg(m_pBuildings != NULL, "Wonder Production AI init failure: building entries are NULL");
-
-	// Reset vector
-	m_WonderAIWeights.clear();
-
-	// Loop through reading each one and adding it to our vector
-	if(m_pBuildings)
-	{
-		for(int i = 0; i < m_pBuildings->GetNumBuildings(); i++)
-		{
-			m_WonderAIWeights.push_back(i, 0);
-		}
-
-		int iNumEntries;
-		int iType;
-
-		kStream >> iNumEntries;
-
-		for(int iI = 0; iI < iNumEntries; iI++)
-		{
-			bool bValid = true;
-			iType = CvInfosSerializationHelper::ReadHashed(kStream, &bValid);
-			if(iType != -1 || !bValid)
-			{
-				kStream >> iWeight;
-				if(iType != -1)
-				{
-					m_WonderAIWeights.IncreaseWeight(iType, iWeight);
-				}
-				else
-				{
-					CvString szError;
-					szError.Format("LOAD ERROR: Building Type not found");
-					GC.LogMessage(szError.GetCString());
-					CvAssertMsg(false, szError);
-				}
-			}
-		}
-	}
+	kStream >> m_WonderAIWeights;
 }
 
 /// Serialization write
@@ -129,35 +81,7 @@ void CvWonderProductionAI::Write(FDataStream& kStream) const
 	kStream << uiVersion;
 	MOD_SERIALIZE_INIT_WRITE(kStream);
 
-	CvAssertMsg(m_piLatestFlavorValues != NULL && GC.getNumFlavorTypes() > 0, "Number of flavor values to serialize is expected to greater than 0");
-	kStream << GC.getNumFlavorTypes();
-	kStream << ArrayWrapper<int>(GC.getNumFlavorTypes(), m_piLatestFlavorValues);
-
-	if(m_pBuildings)
-	{
-		int iNumBuildings = m_pBuildings->GetNumBuildings();
-		kStream << iNumBuildings;
-
-		// Loop through writing each entry
-		for(int iI = 0; iI < iNumBuildings; iI++)
-		{
-			const BuildingTypes eBuilding = static_cast<BuildingTypes>(iI);
-			CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
-			if(pkBuildingInfo)
-			{
-				CvInfosSerializationHelper::WriteHashed(kStream, pkBuildingInfo);
-				kStream << m_WonderAIWeights.GetWeight(iI);
-			}
-			else
-			{
-				kStream << (int)0;
-			}
-		}
-	}
-	else
-	{
-		CvAssertMsg(m_pBuildings != NULL, "Wonder Production AI init failure: building entries are NULL");
-	}
+	kStream << m_WonderAIWeights;
 }
 
 /// Respond to a new set of flavor values
@@ -232,7 +156,7 @@ BuildingTypes CvWonderProductionAI::ChooseWonder(bool /* bAdjustForOtherPlayers 
 			if (!pkBuildingInfo)
 				continue;
 
-			if (!pLoopCity->IsBestForWonder((BuildingClassTypes)pkBuildingInfo->GetBuildingClassType()))
+			if (!pLoopCity->IsBestForWonder(pkBuildingInfo->GetBuildingClassType()))
 				continue;
 
 			iTurnsRequired = std::max(1, pkBuildingInfo->GetProductionCost() / iEstimatedProductionPerTurn);
@@ -346,7 +270,6 @@ bool CvWonderProductionAI::IsWonder(const CvBuildingEntry& kBuilding) const
 	return false;
 }
 
-#if defined(MOD_AI_SMART_V3)
 /// Check wonders excluding national wonders you can only have one of.
 bool CvWonderProductionAI::IsWonderNotNationalUnique(const CvBuildingEntry& kBuilding) const
 {
@@ -360,7 +283,6 @@ bool CvWonderProductionAI::IsWonderNotNationalUnique(const CvBuildingEntry& kBui
 	}
 	return false;
 }
-#endif
 
 // PRIVATE METHODS
 

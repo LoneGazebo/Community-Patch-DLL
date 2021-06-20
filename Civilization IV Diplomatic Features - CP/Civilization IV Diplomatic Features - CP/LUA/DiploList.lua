@@ -217,6 +217,10 @@ function UpdateDisplay()
 	table.insert(myScoreEntries, Locale.Lookup("TXT_KEY_DIPLO_MY_SCORE_POPULATION", g_pPlayer:GetScoreFromPopulation()));
 	table.insert(myScoreEntries, Locale.Lookup("TXT_KEY_DIPLO_MY_SCORE_LAND", g_pPlayer:GetScoreFromLand()));
 	table.insert(myScoreEntries, Locale.Lookup("TXT_KEY_DIPLO_MY_SCORE_WONDERS", g_pPlayer:GetScoreFromWonders()));
+	
+	--CBP
+	table.insert(myScoreEntries, Locale.Lookup("TXT_KEY_DIPLO_MY_SCORE_ALLIES", g_pPlayer:GetScoreFromMinorAllies()));
+	table.insert(myScoreEntries, Locale.Lookup("TXT_KEY_DIPLO_MY_SCORE_MILITARY", g_pPlayer:GetScoreFromMilitarySize()));
 
 	-- Putmalk
 	if (not Game.IsOption(GameOptionTypes.GAMEOPTION_NO_VASSALAGE)) then
@@ -415,6 +419,8 @@ function UpdateDisplay()
 				table.insert(otherScoreEntries, Locale.Lookup("TXT_KEY_DIPLO_MY_SCORE_POPULATION", pOtherPlayer:GetScoreFromPopulation()));
 				table.insert(otherScoreEntries, Locale.Lookup("TXT_KEY_DIPLO_MY_SCORE_LAND", pOtherPlayer:GetScoreFromLand()));
 				table.insert(otherScoreEntries, Locale.Lookup("TXT_KEY_DIPLO_MY_SCORE_WONDERS", pOtherPlayer:GetScoreFromWonders()));
+				table.insert(otherScoreEntries, Locale.Lookup("TXT_KEY_DIPLO_MY_SCORE_ALLIES", pOtherPlayer:GetScoreFromMinorAllies()));
+				table.insert(otherScoreEntries, Locale.Lookup("TXT_KEY_DIPLO_MY_SCORE_MILITARY", pOtherPlayer:GetScoreFromMilitarySize()));
 				if (not Game.IsOption(GameOptionTypes.GAMEOPTION_NO_SCIENCE)) then
 					table.insert(otherScoreEntries, Locale.Lookup("TXT_KEY_DIPLO_MY_SCORE_TECH", pOtherPlayer:GetScoreFromTechs()));
 					table.insert(otherScoreEntries, Locale.Lookup("TXT_KEY_DIPLO_MY_SCORE_FUTURE_TECH", pOtherPlayer:GetScoreFromFutureTech()));
@@ -630,7 +636,11 @@ function InitMinorCivList()
     		-- Hide the quest icon if there are no quests OR the City State is at war with you.
     	    if( ( pOtherPlayer:GetMinorCivNumDisplayedQuestsForPlayer(g_iPlayer) == 0 and 
     				not pOtherPlayer:IsThreateningBarbariansEventActiveForPlayer(g_iPlayer) and
-    				not pOtherPlayer:IsProxyWarActiveForMajor(g_iPlayer))
+    				not pOtherPlayer:IsProxyWarActiveForMajor(g_iPlayer) and
+-- CBP
+					not (pOtherPlayer:GetCoupCooldown() > 0) and
+					not pOtherPlayer:IsMarried(g_iPlayer))
+-- END
     			or g_pTeam:IsAtWar(iOtherTeam)) then
     			controlTable.QuestIcon:SetHide( true );
     	    else

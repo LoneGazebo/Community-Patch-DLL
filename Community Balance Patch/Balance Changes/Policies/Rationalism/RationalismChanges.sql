@@ -136,6 +136,11 @@ INSERT INTO Policy_FeatureYieldChanges
 VALUES
 	('POLICY_SECULARISM', 'FEATURE_JUNGLE', 'YIELD_SCIENCE', 2);
 
+INSERT INTO Policy_TerrainYieldChanges
+	(PolicyType, TerrainType, YieldType, Yield)
+VALUES
+	('POLICY_SECULARISM', 'TERRAIN_SNOW', 'YIELD_SCIENCE', 2);
+
 INSERT INTO Policy_GoldenAgeYieldMod
 	(PolicyType, YieldType, Yield)
 VALUES

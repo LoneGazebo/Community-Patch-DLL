@@ -243,7 +243,7 @@ PREGAMEVAR(bool,                               s_dummyvalue,	          false);
 PREGAMEVAR(std::vector<bool>,                  s_multiplayerOptions,     NUM_MPOPTION_TYPES);
 PREGAMEVAR(std::vector<int>,                   s_netIDs,                 MAX_PLAYERS);
 PREGAMEVAR(std::vector<CvString>,              s_nicknames,              MAX_PLAYERS);
-PREGAMEVAR(int,                                s_numVictoryInfos,        GC.getNumVictoryInfos());
+PREGAMEVAR(int,                                s_numVictoryInfos,        0);
 PREGAMEVAR(int,                                s_pitBossTurnTime,        0);
 PREGAMEVAR(std::vector<bool>,                  s_playableCivs,           MAX_PLAYERS);
 PREGAMEVAR(std::vector<PlayerColorTypes>,      s_playerColors,           MAX_PLAYERS);
@@ -268,7 +268,7 @@ PREGAMEVAR(bool,                               s_transferredMap,         false);
 PREGAMEVARDEFAULT(CvTurnTimerInfo,                    s_turnTimer);
 PREGAMEVAR(TurnTimerTypes,                     s_turnTimerType,          NO_TURNTIMER);
 PREGAMEVAR(bool,                               s_bCityScreenBlocked,     false);
-PREGAMEVAR(std::vector<bool>,                  s_victories,              s_numVictoryInfos);
+PREGAMEVARDEFAULT(std::vector<bool>,           s_victories);
 PREGAMEVAR(std::vector<bool>,                  s_whiteFlags,             MAX_PLAYERS);
 PREGAMEVARDEFAULT(CvWorldInfo,                        s_worldInfo);
 PREGAMEVAR(WorldSizeTypes,                     s_worldSize,              NO_WORLDSIZE);
@@ -333,26 +333,22 @@ bool bindLeaderKeys(PlayerTypes p)
 	if(l != NO_LEADER)
 	{
 		// During the pre-game, we can't be sure the cached *Infos are current, so query the database
-		Database::Connection* pDB = GC.GetGameDatabase();
-		if(pDB)
+		Database::Results kResults;
+		if(DB.Execute(kResults, "SELECT Type, PackageID from Leaders where ID = ? LIMIT 1"))
 		{
-			Database::Results kResults;
-			if(pDB->Execute(kResults, "SELECT Type, PackageID from Leaders where ID = ? LIMIT 1"))
+			kResults.Bind(1, l);
+			if(kResults.Step())
 			{
-				kResults.Bind(1, l);
-				if(kResults.Step())
-				{
-					s_leaderKeys[p] = kResults.GetText(0);
-					if(!ExtractGUID(kResults.GetText(1), s_leaderPackageID[p]))
-						ClearGUID(s_leaderPackageID[p]);
-					s_leaderKeysAvailable[p] = true;
-				}
-				else
-					bFailed = true;
+				s_leaderKeys[p] = kResults.GetText(0);
+				if(!ExtractGUID(kResults.GetText(1), s_leaderPackageID[p]))
+					ClearGUID(s_leaderPackageID[p]);
+				s_leaderKeysAvailable[p] = true;
 			}
 			else
 				bFailed = true;
 		}
+		else
+			bFailed = true;
 	}
 	else
 		bFailed = true;
@@ -375,28 +371,24 @@ bool bindCivilizationKeys(PlayerTypes p)
 	if(c != NO_CIVILIZATION)
 	{
 		// During the pre-game, we can't be sure the cached *Infos are current, so query the database
-		Database::Connection* pDB = GC.GetGameDatabase();
-		if(pDB)
+		Database::Results kResults;
+		if(DB.Execute(kResults, "SELECT Type, PackageID, Playable from Civilizations where ID = ? LIMIT 1"))
 		{
-			Database::Results kResults;
-			if(pDB->Execute(kResults, "SELECT Type, PackageID, Playable from Civilizations where ID = ? LIMIT 1"))
+			kResults.Bind(1, c);
+			if(kResults.Step())
 			{
-				kResults.Bind(1, c);
-				if(kResults.Step())
-				{
-					s_civilizationKeys[p] = kResults.GetText(0);
-					if(!ExtractGUID(kResults.GetText(1), s_civilizationPackageID[p]))
-						ClearGUID(s_civilizationPackageID[p]);
+				s_civilizationKeys[p] = kResults.GetText(0);
+				if(!ExtractGUID(kResults.GetText(1), s_civilizationPackageID[p]))
+					ClearGUID(s_civilizationPackageID[p]);
 
-					s_civilizationKeysAvailable[p] = true;
-					s_civilizationKeysPlayable[p] = kResults.GetBool(2);
-				}
-				else
-					bFailed = true;
+				s_civilizationKeysAvailable[p] = true;
+				s_civilizationKeysPlayable[p] = kResults.GetBool(2);
 			}
 			else
 				bFailed = true;
 		}
+		else
+			bFailed = true;
 	}
 	else
 		bFailed = true;
@@ -1023,7 +1015,7 @@ bool GetGameOption(GameOptionTypes eOption, int& iValue)
 			{
 				//Try and lookup the default value.
 				Database::Results kLookup;
-				if(GC.GetGameDatabase()->Execute(kLookup, "Select \"Default\" from GameOptions where Type = ? LIMIT 1"))
+				if(DB.Execute(kLookup, "Select \"Default\" from GameOptions where Type = ? LIMIT 1"))
 				{
 					kLookup.Bind(1, pkInfo->GetType());
 					if(kLookup.Step())
@@ -1400,7 +1392,7 @@ StorageLocation loadFileStorage()
 
 void loadFromIni(FIGameIniParser& iniParser)
 {
-	if(gameStarted())
+	if (gameStarted())
 		return;
 	FString szHolder;
 	CvString tempString;
@@ -1411,7 +1403,7 @@ void loadFromIni(FIGameIniParser& iniParser)
 	setQuickCombat(quickCombatDefault());
 
 	FString szGameDefault = "";//FString(GC.getSetupData().getAlias().GetCString());
-	if(szGameDefault.IsEmpty())
+	if (szGameDefault.IsEmpty())
 	{
 		Localization::String strGameName = Localization::Lookup("TXT_KEY_DEFAULT_GAMENAME");
 		szGameDefault = strGameName.toUTF8();
@@ -1451,13 +1443,13 @@ void loadFromIni(FIGameIniParser& iniParser)
 
 	// Victory Conditions
 	iniParser.GetKeyValue("GAME", "VictoryConditions", &szHolder, "Victory Conditions", "11111111");
-	if(szHolder != "EMPTY")
+	if (szHolder != "EMPTY")
 	{
 		StringToBools(szHolder, &iNumBools, &pbBools);
-		iNumBools = std::min(iNumBools, GC.getNumVictoryInfos());
+		iNumBools = std::min(iNumBools, s_numVictoryInfos.get());
 		int i;
 		std::vector<bool> tempVBool;
-		for(i = 0; i < iNumBools; i++)
+		for (i = 0; i < iNumBools; i++)
 		{
 			tempVBool.push_back(pbBools[i]);
 		}
@@ -1469,12 +1461,12 @@ void loadFromIni(FIGameIniParser& iniParser)
 	//if (!CIV.GetModName())
 	{
 		iniParser.GetKeyValue("GAME", "GameOptions", &szHolder, "Game Options", "EMPTY");
-		if(szHolder != "EMPTY")
+		if (szHolder != "EMPTY")
 		{
 			StringToBools(szHolder, &iNumBools, &pbBools);
 			iNumBools = std::min(iNumBools, static_cast<int>(NUM_GAMEOPTION_TYPES));
 			int i;
-			for(i = 0; i < iNumBools; i++)
+			for (i = 0; i < iNumBools; i++)
 			{
 				SetGameOption(((GameOptionTypes)i), pbBools[i]);
 			}
@@ -1509,10 +1501,10 @@ void loadFromIni(FIGameIniParser& iniParser)
 	setMapRandomSeed(1);
 #else
 	iniParser.GetKeyValue("CONFIG", "SyncRandSeed", &iHolder, "Random seed for game sync, or '0' for default", 0);
-	setSyncRandomSeed((iHolder!=0) ? iHolder : timeGetTime());
+	setSyncRandomSeed((iHolder != 0) ? iHolder : timeGetTime());
 	// Map Rand
 	iniParser.GetKeyValue("CONFIG", "MapRandSeed", &iHolder, "Random seed for map generation, or '0' for default", 0);
-	setMapRandomSeed((iHolder!=0) ? iHolder : timeGetTime());
+	setMapRandomSeed((iHolder != 0) ? iHolder : timeGetTime());
 #endif
 
 	//	Game Type
@@ -1549,7 +1541,7 @@ bool GetMapOption(const char* szOptionName, int& iValue)
 	//Try and lookup the default value.
 	//Not a huge fan of this being here as it adds an additional dependency, but there was really no "clean" place to put it.
 	Database::Results kLookup;
-	if(GC.GetGameDatabase()->Execute(kLookup, "Select DefaultValue from MapScriptOptions where FileName = ? and OptionID = ? LIMIT 1"))
+	if(DB.Execute(kLookup, "Select DefaultValue from MapScriptOptions where FileName = ? and OptionID = ? LIMIT 1"))
 	{
 		kLookup.Bind(1, CvPreGame::mapScriptName().c_str());
 		kLookup.Bind(2, szOptionName);
@@ -1983,30 +1975,19 @@ void resetGame()
 	s_mapNoPlayers = false;
 
 	// Standard game parameters
-	s_climate   = (ClimateTypes)0;//GC.getSTANDARD_CLIMATE();		// NO_ option?
-	s_seaLevel  = (SeaLevelTypes)1;//GC.getSTANDARD_SEALEVEL();		// NO_ option?
-	s_era		 = (EraTypes)GC.getSTANDARD_ERA();				// NO_ option?
-	s_gameSpeed = (GameSpeedTypes)GC.getSTANDARD_GAMESPEED();	// NO_ option?
-	s_turnTimerType = (TurnTimerTypes)4;//GC.getSTANDARD_TURNTIMER();	// NO_ option?
-	s_calendar  = (CalendarTypes)0;//GC.getSTANDARD_CALENDAR();	// NO_ option?
+	s_climate = ClimateTypes(0);//GC.getSTANDARD_CLIMATE(); // NO_ option?
+	s_seaLevel = SeaLevelTypes(1);//GC.getSTANDARD_SEALEVEL(); // NO_ option?
+	s_era = EraTypes(GC.getSTANDARD_ERA()); // NO_ option?
+	s_gameSpeed = GameSpeedTypes(GC.getSTANDARD_GAMESPEED()); // NO_ option?
+	s_turnTimerType = TurnTimerTypes(4);//GC.getSTANDARD_TURNTIMER(); // NO_ option?
+	s_calendar = CalendarTypes(0);//GC.getSTANDARD_CALENDAR(); // NO_ option?
 
-	// Data-defined victory conditions
-	s_numVictoryInfos = GC.getNumVictoryInfos();
-	s_victories.clear();
-	if(s_numVictoryInfos > 0)
-	{
-		for(int i = 0; i < s_numVictoryInfos; ++i)
-		{
-			s_victories.push_back(true);
-		}
-	}
+	// Data-defined victory conditions 
+	s_numVictoryInfos = DB.Count("Victories");
+	s_victories.dirtyGet().assign(s_numVictoryInfos, true);
 
 	// Standard game options
-	int i;
-	for(i = 0; i < NUM_MPOPTION_TYPES; ++i)
-	{
-		s_multiplayerOptions.setAt(i, false);
-	}
+	s_multiplayerOptions.dirtyGet().assign(NUM_MPOPTION_TYPES, false);
 
 	//s_statReporting = false;
 
@@ -2068,18 +2049,6 @@ void ResetGameOptions()
 		s_GameOptionsHash[FString::Hash(kOption.GetName())] = i;
 	}
 	SyncGameOptionsWithEnumList();
-
-	// victory conditions
-	s_numVictoryInfos = GC.getNumVictoryInfos();
-	s_victories.clear();
-	if(s_numVictoryInfos > 0)
-	{
-		for(int i = 0; i < s_numVictoryInfos; ++i)
-		{
-			s_victories.push_back(true);
-		}
-	}
-
 }
 void ResetMapOptions()
 {
@@ -2594,15 +2563,8 @@ void setGameTurn(int turn)
 
 void setGameType(GameTypes g, GameStartTypes eStartType)
 {
-#if defined(MOD_BUGFIX_MINOR)
 	setGameType(g);
 	s_gameStartType = eStartType;
-#else
-	s_gameType = g;
-	s_gameStartType = eStartType;
-	if(s_gameType != GAME_NETWORK_MULTIPLAYER)
-		s_isInternetGame = false;
-#endif
 }
 
 void setGameType(GameTypes g)
@@ -2627,13 +2589,6 @@ void setGameType(const CvString& g)
 		//CvAssertMsg(false, "Invalid game type in ini file!");
 		setGameType(GAME_TYPE_NONE);
 	}
-
-#if defined(MOD_BUGFIX_MINOR)
-	// Don't need this code as it's included in the setGameType() calls above
-#else
-	if(s_gameType != GAME_NETWORK_MULTIPLAYER)
-		s_isInternetGame = false;
-#endif
 }
 
 #if defined(MOD_API_EXTENSIONS)
@@ -3076,8 +3031,9 @@ void setVictory(VictoryTypes v, bool isValid)
 
 void setVictories(const std::vector<bool>& v)
 {
-	s_victories = v;
-	s_numVictoryInfos = s_victories.size();
+	CvAssert(v.size() <= std::size_t(s_numVictoryInfos));
+	for (std::size_t i = 0; i < v.size(); i++)
+		s_victories.setAt(i, v[i]);
 }
 
 void setWhiteFlag(PlayerTypes p, bool flag)
@@ -3126,11 +3082,10 @@ void VerifyHandicap(PlayerTypes p)
 void setWorldSize(WorldSizeTypes w, bool bResetSlots)
 {
 	CvAssert(!gameStarted() || isNetworkMultiplayerGame() || isHotSeatGame());
-	Database::Connection& db = *GC.GetGameDatabase();
 
 	//Query
 	Database::Results kQuery;
-	db.Execute(kQuery, "SELECT * from Worlds where ID = ? LIMIT 1");
+	DB.Execute(kQuery, "SELECT * from Worlds where ID = ? LIMIT 1");
 	kQuery.Bind(1, w);
 
 	if(kQuery.Step())
@@ -3149,11 +3104,10 @@ void setWorldSize(WorldSizeTypes w, bool bResetSlots)
 void setWorldSize(const CvString& w)
 {
 	CvAssert(!gameStarted() || isNetworkMultiplayerGame() || isHotSeatGame());
-	Database::Connection& db = *GC.GetGameDatabase();
 
 	Database::Results kQuery;
 
-	db.Execute(kQuery, "SELECT * from Worlds where Type = ? LIMIT 1");
+	DB.Execute(kQuery, "SELECT * from Worlds where Type = ? LIMIT 1");
 	kQuery.Bind(1, w.c_str(), w.size(), false);
 
 	if(kQuery.Step())
@@ -3470,22 +3424,18 @@ void setCivilizationKey(PlayerTypes p, const CvString& szKey)
 		if(szKey.length() > 0)
 		{
 			// During the pre-game, we can't be sure the cached *Infos are current, so query the database
-			Database::Connection* pDB = GC.GetGameDatabase();
-			if(pDB)
+			Database::Results kResults;
+			if(DB.Execute(kResults, "SELECT ID, PackageID, Playable from Civilizations where Type = ? LIMIT 1"))
 			{
-				Database::Results kResults;
-				if(pDB->Execute(kResults, "SELECT ID, PackageID, Playable from Civilizations where Type = ? LIMIT 1"))
+				kResults.Bind(1, szKey.c_str());
+				if(kResults.Step())
 				{
-					kResults.Bind(1, szKey.c_str());
-					if(kResults.Step())
-					{
-						s_civilizations.setAt(p, (CivilizationTypes)kResults.GetInt(0));
-						if(!ExtractGUID(kResults.GetText(1), s_civilizationPackageID[p]))
-							ClearGUID(s_civilizationPackageID[p]);
-						s_civilizationKeysAvailable[p] = true;
-						s_civilizationKeysPlayable[p] = kResults.GetBool(2);
-						bFailed = false;
-					}
+					s_civilizations.setAt(p, (CivilizationTypes)kResults.GetInt(0));
+					if(!ExtractGUID(kResults.GetText(1), s_civilizationPackageID[p]))
+						ClearGUID(s_civilizationPackageID[p]);
+					s_civilizationKeysAvailable[p] = true;
+					s_civilizationKeysPlayable[p] = kResults.GetBool(2);
+					bFailed = false;
 				}
 			}
 		}

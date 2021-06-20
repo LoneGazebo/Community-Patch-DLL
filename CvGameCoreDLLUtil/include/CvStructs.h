@@ -199,6 +199,10 @@ struct IDInfo
 		return eOwner == NO_PLAYER && iID == -1;
 	}
 };
+
+FDataStream& operator<<(FDataStream& saveTo, const IDInfo& readFrom);
+FDataStream& operator>>(FDataStream& loadFrom, IDInfo& writeTo);
+
 //------------------------------------------------------------------------------
 struct UnitMoveRate 
 {

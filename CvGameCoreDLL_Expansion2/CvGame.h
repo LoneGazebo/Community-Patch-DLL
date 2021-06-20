@@ -13,7 +13,6 @@
 #define CIV5_GAME_H
 
 #include "CvRandom.h"
-#include "FFastVector.h"
 #include "FTimer.h"
 #include "CvPreGame.h"
 #include <CvLocalization.h>
@@ -144,7 +143,7 @@ public:
 	void ReviveActivePlayer();
 
 	int getNumHumanPlayers();
-	int GetNumMinorCivsEver();
+	int GetNumMinorCivsEver(bool bOnlyStart = false);
 	int GetNumMinorCivsAlive();
 	int getNumHumansInHumanWars(PlayerTypes ignorePlayer = NO_PLAYER);
 	int getNumSequentialHumans(PlayerTypes ignorePlayer = NO_PLAYER);
@@ -344,6 +343,8 @@ public:
 	bool IsShowBaseHumanOpinion() const;
 
 	// Advanced Options
+	bool IsLumpGoldTradingHumanOnly() const;
+	bool IsLumpGoldTradingEnabled() const;
 	bool IsFriendshipRequestsDisabled() const; // Only affects humans
 	bool IsGiftOffersDisabled() const; // Only affects humans
 	bool IsCoopWarRequestsDisabled() const; // Only affects humans
@@ -530,7 +531,7 @@ public:
 	void DoGlobalAvgLogging();
 #endif
 #if defined(MOD_BALANCE_CORE_SPIES)
-	void SetHighestPotential();
+	void SetHighestSpyPotential();
 	void DoBarbCountdown();
 
 	void SetLastTurnCSAnnexed(int iValue);
@@ -570,17 +571,12 @@ public:
 	void DoUpdateIndustrialRoute();
 
 	ImprovementTypes GetBarbarianCampImprovementType();
-	int GetBarbarianReleaseTurn() const { return m_iEarliestBarbarianReleaseTurn; }
+	int GetBarbarianReleaseTurn() const;
 	void SetBarbarianReleaseTurn(int iValue);
 
 	UnitTypes GetRandomSpawnUnitType(PlayerTypes ePlayer, bool bIncludeUUs, bool bIncludeRanged);
-#if defined(MOD_GLOBAL_CS_GIFT_SHIPS)
 	UnitTypes GetCompetitiveSpawnUnitType(PlayerTypes ePlayer, bool bIncludeUUs, bool bIncludeRanged, bool bIncludeShips, bool bNoResource = false, bool bIncludeOwnUUsOnly = false);
 	UnitTypes GetCsGiftSpawnUnitType(PlayerTypes ePlayer, bool bIncludeShips);
-#else
-	UnitTypes GetCompetitiveSpawnUnitType(PlayerTypes ePlayer, bool bIncludeUUs, bool bIncludeRanged);
-	UnitTypes GetCsGiftSpawnUnitType(PlayerTypes ePlayer);
-#endif
 
 	UnitTypes GetRandomUniqueUnitType(bool bIncludeCivsInGame, bool bIncludeStartEra, bool bIncludeOldEras, bool bIncludeRanged, bool bCoastal, int iPlotX, int iPlotY);
 	bool DoSpawnUnitsAroundTargetCity(PlayerTypes ePlayer, CvCity* pCity, int iNumber, bool bIncludeUUs, bool bIncludeShips, bool bNoResource, bool bIncludeOwnUUsOnly);
@@ -716,10 +712,6 @@ public:
 	//Function to determine city size from city population
 	unsigned int GetVariableCitySizeFromPopulation(unsigned int nPopulation);
 
-#if defined(MOD_BALANCE_CORE_SPIES)
-	int GetLargestSpyPotential() { return m_iLargestBasePotential; }
-#endif
-
 #if defined(MOD_BALANCE_CORE_GLOBAL_IDS)
 	int GetNextGlobalID() { ++m_iGlobalAssetCounterCurrentTurn; return m_iGlobalAssetCounterAllPreviousTurns + m_iGlobalAssetCounterCurrentTurn; }
 	void RollOverAssetCounter() { m_iGlobalAssetCounterAllPreviousTurns += m_iGlobalAssetCounterCurrentTurn; m_iGlobalAssetCounterCurrentTurn = 0; }
@@ -748,15 +740,13 @@ public:
 	PlayerTypes GetAutoPlayReturnPlayer() const { return m_eAIAutoPlayReturnPlayer;	}
 	//------------------------------------------------------------
 	//------------------------------------------------------------
-#if defined(MOD_BUGFIX_AI_DOUBLE_TURN_MP_LOAD)
+
 	bool isFirstActivationOfPlayersAfterLoad();
-#endif
 
 protected:
 
-#if defined(MOD_BUGFIX_AI_DOUBLE_TURN_MP_LOAD)
 	bool m_firstActivationOfPlayersAfterLoad;
-#endif
+
 #if defined(MOD_BALANCE_CORE_GLOBAL_IDS)
 	//for MP RNG we split this into two parts - everybody agrees on the previous turn but for the current turn races are possible
 	int m_iGlobalAssetCounterAllPreviousTurns;
@@ -935,10 +925,7 @@ protected:
 	bool	m_processPlayerAutoMoves;
 	bool	m_bForceEndingTurn;
 
-#if defined(MOD_BALANCE_CORE_SPIES)
-	int		m_iLargestBasePotential;
-#endif
-	CvDistanceMapByTurns m_cityDistancePathLength;
+	CvDistanceMapByPathLength m_cityDistancePathLength;
 	CvDistanceMapByPlots m_cityDistancePlots;
 
 	//----------------------------------------------------------------

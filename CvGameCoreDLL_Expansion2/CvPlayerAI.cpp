@@ -105,7 +105,6 @@ void CvPlayerAI::AI_reset()
 
 void CvPlayerAI::AI_doTurnPre()
 {
-	AI_PERF_FORMAT("AI-perf.csv", ("CvPlayerAI::AI_doTurnPre, Turn %03d, %s", GC.getGame().getElapsedGameTurns(), getCivilizationShortDescription()) );
 	CvAssertMsg(getPersonalityType() != NO_LEADER, "getPersonalityType() is not expected to be equal with NO_LEADER");
 	CvAssertMsg(getLeaderType() != NO_LEADER, "getLeaderType() is not expected to be equal with NO_LEADER");
 	CvAssertMsg(getCivilizationType() != NO_CIVILIZATION, "getCivilizationType() is not expected to be equal with NO_CIVILIZATION");
@@ -119,21 +118,14 @@ void CvPlayerAI::AI_doTurnPre()
 	//make sure we iterate our units in a sensible order
 	struct CompareUnitPowerAscending
 	{
-		const TContainer<CvUnit>& container;
-
-		CompareUnitPowerAscending(TContainer<CvUnit>& c) : container(c) {}
-		bool operator()(int iID1, int iID2)
+		bool operator()(const CvUnit* a, const CvUnit* b)
 		{
-			return ( container.Get(iID1)->GetPower() > container.Get(iID2)->GetPower() );
+			return ( a->GetPower() > b->GetPower() );
 		}
-
-	private:
-		//need an assignment operator apparently
-		CompareUnitPowerAscending& operator=( const CompareUnitPowerAscending& ) { return *this; }
 	};
 
 	//this orders units by combat strength
-	m_units.OrderByContent( CompareUnitPowerAscending(m_units) );
+	m_units.OrderByContent( CompareUnitPowerAscending() );
 #endif
 
 	AI_doResearch();
@@ -143,7 +135,6 @@ void CvPlayerAI::AI_doTurnPre()
 
 void CvPlayerAI::AI_doTurnPost()
 {
-	AI_PERF_FORMAT("AI-perf.csv", ("CvPlayerAI::AI_doTurnPost, Turn %03d, %s", GC.getGame().getElapsedGameTurns(), getCivilizationShortDescription()) );
 	if(isHuman())
 	{
 		return;
@@ -176,26 +167,23 @@ void CvPlayerAI::AI_doTurnUnitsPre()
 
 	//order is important. when a unit was killed, an army might become invalid, which might invalidate an operation
 
-	//unit cleanup - this should probably also be done in a two-pass scheme like below
-	//but since it's too involved to change that now, we do the ugly loop to make sure we didn't skip a unit
-	bool bKilledAtLeastOne = false;
-	bool bKilledOneThisPass = false;
-	do
-	{
-		bKilledOneThisPass = false;
-		for (CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iLoop))
-			bKilledOneThisPass |= pLoopUnit->doDelayedDeath();
-		bKilledAtLeastOne |= bKilledOneThisPass;
-	} while (bKilledOneThisPass);
+	//unit cleanup (two step approach because deleting a unit invalidates the iterator)
+	std::vector<CvUnit*> unitsToDelete;
+	for (CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iLoop))
+		if (pLoopUnit->isDelayedDeath())
+			unitsToDelete.push_back(pLoopUnit);
+
+	for (size_t i = 0; i < unitsToDelete.size(); i++)
+		unitsToDelete[i]->doDelayedDeath();
 
 #if defined(MOD_CORE_DELAYED_VISIBILITY)
 	//force explicit visibility update for killed units
-	if (bKilledAtLeastOne)
+	if (!unitsToDelete.empty())
 		for (int iI = 0; iI < GC.getMap().numPlots(); iI++)
 			GC.getMap().plotByIndexUnchecked(iI)->flipVisibility(getTeam());
 #endif
 
-	//army cleanup
+	//army cleanup (two step approach because deleting a unit invalidates the iterator)
 	std::vector<int> itemsToDelete;
 	for(CvArmyAI* pLoopArmyAI = firstArmyAI(&iLoop); pLoopArmyAI != NULL; pLoopArmyAI = nextArmyAI(&iLoop))
 		if (pLoopArmyAI->IsDelayedDeath())
@@ -287,20 +275,15 @@ void CvPlayerAI::AI_unitUpdate()
 	if(isHuman())
 	{
 		CvUnit::dispatchingNetMessage(true);
-		//no tactical AI for human, only make sure we have current postures in case we want the AI to take over (debugging)
-		GetTacticalAI()->GetTacticalAnalysisMap()->Refresh(true);
 		GetHomelandAI()->Update();
-		AI_PERF_FORMAT("AI-perf.csv", ("AI_unitUpdate, Turn %03d, finished Human HomelandAI update", GC.getGame().getElapsedGameTurns()));
 		CvUnit::dispatchingNetMessage(false);
 	}
 	else
 	{
 		// Now let the tactical AI run.  Putting it after the operations update allows units who have
 		// just been handed off to the tactical AI to get a move in the same turn they switch between
-		// AI subsystems. Tactical map has already been refreshed above.
 		GetTacticalAI()->Update();
 		GetHomelandAI()->Update();
-		AI_PERF_FORMAT("AI-perf.csv", ("AI_unitUpdate, Turn %03d, finished AI HomelandAI update", GC.getGame().getElapsedGameTurns()));
 	}
 }
 
@@ -308,6 +291,13 @@ void CvPlayerAI::AI_conquerCity(CvCity* pCity, PlayerTypes eOldOwner, bool bGift
 {
 	if (isHuman())
 		return;
+
+	// Burn them all to the ground!
+	if (canRaze(pCity) && MOD_BALANCE_CORE && GetPlayerTraits()->GetRazeSpeedModifier() > 0)
+	{
+		pCity->doTask(TASK_RAZE);
+		return;
+	}
 
 	PlayerTypes eOriginalOwner = pCity->getOriginalOwner();
 	TeamTypes eOldOwnerTeam = GET_PLAYER(eOldOwner).getTeam();
@@ -320,15 +310,15 @@ void CvPlayerAI::AI_conquerCity(CvCity* pCity, PlayerTypes eOldOwner, bool bGift
 	}
 
 	// Liberate a city?
-	if(eOriginalOwner != eOldOwner && eOriginalOwner != GetID() && CanLiberatePlayerCity(eOriginalOwner) && getNumCities() > 1)
+	if (eOriginalOwner != eOldOwner && eOriginalOwner != GetID() && CanLiberatePlayerCity(eOriginalOwner) && getNumCities() > 1)
 	{
 		// minor civ
-		if(GET_PLAYER(eOriginalOwner).isMinorCiv())
+		if (GET_PLAYER(eOriginalOwner).isMinorCiv())
 		{
 			// If we're a major civ, decision is made by diplo AI (minors don't liberate other minors)
 			if (isMajorCiv())
 			{
-				if (GetDiplomacyAI()->DoPossibleMinorLiberation(eOriginalOwner, pCity->GetID()))
+				if (GetDiplomacyAI()->DoPossibleMinorLiberation(eOriginalOwner, pCity))
 					return;
 			}
 		}
@@ -371,42 +361,40 @@ void CvPlayerAI::AI_conquerCity(CvCity* pCity, PlayerTypes eOldOwner, bool bGift
 			CvArea* pArea = GC.getMap().getArea(pCity->getArea());
 			if (pArea != NULL && pArea->getCitiesPerPlayer(GetID()) > 1)
 			{
-				MajorCivOpinionTypes eOpinion = GetDiplomacyAI()->GetMajorCivOpinion(eOldOwner);
-				if (eOpinion == MAJOR_CIV_OPINION_UNFORGIVABLE)
+				CivOpinionTypes eOpinion = GetDiplomacyAI()->GetCivOpinion(eOldOwner);
+				if (eOpinion == CIV_OPINION_UNFORGIVABLE)
 				{
 					pCity->doTask(TASK_RAZE);
 					return;
 				}
-				else if (eOpinion == MAJOR_CIV_OPINION_ENEMY)
+				else if (eOpinion == CIV_OPINION_ENEMY)
 				{
 					if (GET_TEAM(getTeam()).isAtWar(eOldOwnerTeam))
 					{
-						if (GetDiplomacyAI()->GetWarGoal(eOldOwner) == WAR_GOAL_DAMAGE)
-						{
-							pCity->doTask(TASK_RAZE);
-							return;
-						}
+						pCity->doTask(TASK_RAZE);
+						return;
 					}
 				}
 			}
 		}
 	}
 
-	// Puppet the city
-	if(pCity->getOriginalOwner() != GetID() || GET_PLAYER(m_eID).GetPlayerTraits()->IsNoAnnexing())
-	{
-		pCity->DoCreatePuppet();
-		return;
-	}
-#if defined(MOD_BALANCE_CORE)
-	//Let's make sure we annex.
-	else if(pCity->getOriginalOwner() == GetID() && !GET_PLAYER(m_eID).GetPlayerTraits()->IsNoAnnexing())
+	// Let's make sure we annex.
+	if (pCity->getOriginalOwner() == GetID() && !GET_PLAYER(m_eID).GetPlayerTraits()->IsNoAnnexing())
 	{
 		pCity->DoAnnex();
 		pCity->ChangeNoOccupiedUnhappinessCount(1);
-		return;
 	}
-#endif
+	// If this is our only city, always annex if we can
+	else if (getNumCities() == 1 && !GET_PLAYER(m_eID).GetPlayerTraits()->IsNoAnnexing())
+	{
+		pCity->DoAnnex();
+	}
+	// Puppet the city
+	else if (pCity->getOriginalOwner() != GetID() || GET_PLAYER(m_eID).GetPlayerTraits()->IsNoAnnexing())
+	{
+		pCity->DoCreatePuppet();
+	}
 }
 
 void CvPlayerAI::AI_chooseFreeGreatPerson()
@@ -418,56 +406,29 @@ void CvPlayerAI::AI_chooseFreeGreatPerson()
 		// Highly wonder competitive and still early in game?
 		if(GetDiplomacyAI()->GetWonderCompetitiveness() >= 8 && GC.getGame().getGameTurn() <= (GC.getGame().getEstimateEndTurn() / 2))
 		{
-#if defined(MOD_BUGFIX_UNITCLASS_NOT_UNIT)
 			eDesiredGreatPerson = GetSpecificUnitType("UNITCLASS_ENGINEER");
-#else
-			eDesiredGreatPerson = (UnitTypes)GC.getInfoTypeForString("UNIT_ENGINEER");
-#endif
 		}
 		else
 		{
 			// Pick the person based on our victory method
-			AIGrandStrategyTypes eVictoryStrategy = GetGrandStrategyAI()->GetActiveGrandStrategy();
-			if(eVictoryStrategy == (AIGrandStrategyTypes) GC.getInfoTypeForString("AIGRANDSTRATEGY_CONQUEST"))
+			if (GetDiplomacyAI()->IsGoingForWorldConquest())
 			{
-#if defined(MOD_BUGFIX_UNITCLASS_NOT_UNIT)
 				eDesiredGreatPerson = GetMilitaryAI()->GetWarType() == WARTYPE_SEA ? GetSpecificUnitType("UNITCLASS_GREAT_ADMIRAL") : GetSpecificUnitType("UNITCLASS_GREAT_GENERAL");
-#else
-				eDesiredGreatPerson = (UnitTypes)GC.getInfoTypeForString("UNIT_GREAT_GENERAL");
-#endif
 			}
-			else if(eVictoryStrategy == (AIGrandStrategyTypes) GC.getInfoTypeForString("AIGRANDSTRATEGY_CULTURE"))
+			else if (GetDiplomacyAI()->IsGoingForCultureVictory())
 			{
-#if defined(MOD_BUGFIX_UNITCLASS_NOT_UNIT)
 				eDesiredGreatPerson = GetSpecificUnitType("UNITCLASS_ARTIST");
-#else
-				eDesiredGreatPerson = (UnitTypes)GC.getInfoTypeForString("UNIT_ARTIST");
-#endif
 			}
-			else if(eVictoryStrategy == (AIGrandStrategyTypes) GC.getInfoTypeForString("AIGRANDSTRATEGY_UNITED_NATIONS"))
+			else if (GetDiplomacyAI()->IsGoingForDiploVictory())
 			{
-#if defined(MOD_DIPLOMACY_CITYSTATES)
 				if (MOD_DIPLOMACY_CITYSTATES)
-#if defined(MOD_BUGFIX_UNITCLASS_NOT_UNIT)
 					eDesiredGreatPerson = GetSpecificUnitType("UNITCLASS_GREAT_DIPLOMAT");
-#else
-					eDesiredGreatPerson = (UnitTypes)GC.getInfoTypeForString("UNIT_GREAT_DIPLOMAT");
-#endif
 				else
-#endif
-#if defined(MOD_BUGFIX_UNITCLASS_NOT_UNIT)
 					eDesiredGreatPerson = GetSpecificUnitType("UNITCLASS_MERCHANT");
-#else
-					eDesiredGreatPerson = (UnitTypes)GC.getInfoTypeForString("UNIT_MERCHANT");
-#endif
 			}
-			else if(eVictoryStrategy == (AIGrandStrategyTypes) GC.getInfoTypeForString("AIGRANDSTRATEGY_SPACESHIP"))
+			else if (GetDiplomacyAI()->IsGoingForSpaceshipVictory())
 			{
-#if defined(MOD_BUGFIX_UNITCLASS_NOT_UNIT)
 				eDesiredGreatPerson = GetSpecificUnitType("UNITCLASS_SCIENTIST");
-#else
-				eDesiredGreatPerson = (UnitTypes)GC.getInfoTypeForString("UNIT_SCIENTIST");
-#endif
 			}
 		}
 
@@ -494,11 +455,9 @@ void CvPlayerAI::AI_chooseFreeGreatPerson()
 void CvPlayerAI::AI_chooseFreeTech()
 {
 	TechTypes eBestTech = NO_TECH;
-	
-#if defined(MOD_BUGFIX_MINOR)
+
 	if(GC.getGame().isOption(GAMEOPTION_NO_SCIENCE))
 		return;
-#endif
 
 	clearResearchQueue();
 
@@ -590,7 +549,11 @@ void CvPlayerAI::AI_chooseResearch()
 
 void CvPlayerAI::AI_considerAnnex()
 {
+	if (isHuman())
+		return;
+
 	AI_PERF("AI-perf.csv", "AI_ considerAnnex");
+
 	// for Venice
 	if (GetPlayerTraits()->IsNoAnnexing())
 	{
@@ -645,7 +608,7 @@ void CvPlayerAI::AI_considerAnnex()
 	ReligionTypes eOurReligion = GetReligions()->GetCurrentReligion(false);
 
 	vector<OptionWithScore<CvCity*>> options;
-	for(CvCity* pCity = firstCity(&iLoop); pCity != NULL; pCity = nextCity(&iLoop))
+	for (CvCity* pCity = firstCity(&iLoop); pCity != NULL; pCity = nextCity(&iLoop))
 	{
 		//simple check to stop razing "good" cities
 		if (pCity->IsRazing() && pCity->HasAnyWonder())
@@ -659,25 +622,45 @@ void CvPlayerAI::AI_considerAnnex()
 
 		int iWeight = 1;
 
-		// if our capital city is puppeted, annex it
+		// Original City and puppeted? Stop!
+		if (pCity->getOriginalOwner() == GetID())
+			iWeight += 4;
+
+		// if a capital city is puppeted, annex it
 		if (pCity->IsOriginalMajorCapital())
 			iWeight += 5;
 	
-		//annex holy city for faith use
+		// annex the holy city for our religion
 		if (pCity->GetCityReligions()->IsHolyCityForReligion(eOurReligion))
-			iWeight += 3;
+			iWeight += 4;
 
-		//Original City and puppeted? Stop!
-		if (pCity->getOriginalOwner() == GetID())
-			iWeight += 2;
+		// if we don't have a religion, but we have a Holy City, let's grab it
+		if (eOurReligion == NO_RELIGION && pCity->GetCityReligions()->IsHolyCityAnyReligion())
+		{
+			int iBonus = 4 - (int)GetCurrentEra();
+			iWeight += (iBonus > 0) ? iBonus : 0;
+		}
 
 		if (pCity->isBorderCity() || pCity->isCoastal())
 			iWeight += 1;
+
+		// Add weight for each World Wonder in the city - cities with Wonders should be annexed quickly so we can benefit from their bonuses
+		iWeight += pCity->getNumWorldWonders();
 
 		// if we're going for a culture victory, don't consider annexing ordinary cities
 		if (GetDiplomacyAI()->IsGoingForCultureVictory())
 			if (iWeight < 4)
 				continue;
+
+		// higher bar if close to winning
+		if (GetDiplomacyAI()->IsCloseToCultureVictory())
+			if (iWeight < 5)
+				continue;
+
+		// if we're willing to consider annexing, annex cities that are in danger more quickly, so we can produce defenses
+		// ... but don't bother if the city's about to fall
+		if (!pCity->isInDangerOfFalling() && pCity->isUnderSiege())
+			iWeight += 3;
 
 		int iScore = iWeight * pCity->getYieldRateTimes100(YIELD_PRODUCTION, false);
 		options.push_back( OptionWithScore<CvCity*>(pCity,iScore) );
@@ -698,6 +681,7 @@ void CvPlayerAI::AI_considerAnnex()
 		}
 	}
 }
+
 #if defined(MOD_BALANCE_CORE_EVENTS)
 void CvPlayerAI::AI_DoEventChoice(EventTypes eChosenEvent)
 {
@@ -728,7 +712,7 @@ void CvPlayerAI::AI_DoEventChoice(EventTypes eChosenEvent)
 			}
 
 			// Now let's get the event flavors.
-			CvWeightedVector<int, SAFE_ESTIMATE_NUM_BUILDINGS * 2, true> flavorChoices;
+			CvWeightedVector<int> flavorChoices;
 			for(int iLoop = 0; iLoop < GC.getNumEventChoiceInfos(); iLoop++)
 			{
 				EventChoiceTypes eEventChoice = (EventChoiceTypes)iLoop;
@@ -788,7 +772,7 @@ void CvPlayerAI::AI_DoEventChoice(EventTypes eChosenEvent)
 				}
 			}
 			//If we got here, it is because we haven't made a choice yet. Do so now.
-			CvWeightedVector<int, SAFE_ESTIMATE_NUM_BUILDINGS, true> randomChoices;
+			CvWeightedVector<int> randomChoices;
 			for(int iLoop = 0; iLoop < GC.getNumEventChoiceInfos(); iLoop++)
 			{
 				EventChoiceTypes eEventChoice = (EventChoiceTypes)iLoop;
@@ -838,6 +822,189 @@ void CvPlayerAI::AI_DoEventChoice(EventTypes eChosenEvent)
 			if(eBestEventChoice != NO_EVENT_CHOICE)
 			{
 				DoEventChoice(eBestEventChoice);
+				return;
+			}
+		}
+	}
+}
+void CvPlayerAI::AI_DoEspionageEventChoice(CityEventTypes eEvent, int uiSpyIndex, CvCity* pCity)
+{
+	if (GetEspionage() == NULL)
+		return;
+
+	if (eEvent != NO_EVENT_CITY)
+	{
+		CvModCityEventInfo* pkEventInfo = GC.getCityEventInfo(eEvent);
+		if (pkEventInfo != NULL)
+		{
+			if (GC.getLogging() && GC.getAILogging())
+			{
+				CvString playerName;
+				FILogFile* pLog;
+				CvString strBaseString;
+				CvString strOutBuf;
+				CvString strFileName = "EspionageLog.csv";
+				playerName = getCivilizationShortDescription();
+				pLog = LOGFILEMGR.GetLog(strFileName, FILogFile::kDontTimeStamp);
+				strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
+				strBaseString += playerName + ", ";
+				strOutBuf.Format("AI considering AA Event choices: %s", pkEventInfo->GetDescription());
+				strBaseString += strOutBuf;
+				pLog->Msg(strBaseString);
+			}
+			//Lua Hook
+			if (GAMEEVENTINVOKE_TESTANY(GAMEEVENT_OverrideAIEventChoice, GetID(), eEvent) == GAMEEVENTRETURN_TRUE)
+			{
+				return;
+			}
+
+			// Now let's get the event flavors.
+			CvWeightedVector<int> flavorChoices;
+			for (int iLoop = 0; iLoop < GC.getNumCityEventChoiceInfos(); iLoop++)
+			{
+				CityEventChoiceTypes eEventChoice = (CityEventChoiceTypes)iLoop;
+				if (eEventChoice != NO_EVENT_CHOICE_CITY)
+				{
+					CvModEventCityChoiceInfo* pkEventChoiceInfo = GC.getCityEventChoiceInfo(eEventChoice);
+					if (pkEventChoiceInfo != NULL)
+					{
+						if (pCity->IsCityEventChoiceValidEspionage(eEventChoice, eEvent, uiSpyIndex, GetID()))
+						{
+							int iRisk = pkEventChoiceInfo->GetIdentificationModifier() / 2;
+							int iDeath = pkEventChoiceInfo->GetDeathModifier() / 2;
+							for (int iFlavor = 0; iFlavor < GC.getNumFlavorTypes(); iFlavor++)
+							{
+								if (pkEventChoiceInfo->getFlavorValue(iFlavor) > 0)
+								{
+									int iOurFlavor = GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)iFlavor);
+									iOurFlavor += pkEventChoiceInfo->getFlavorValue(iFlavor) * 10;
+
+									if (pCity->getOwner() == GetID())
+									{
+										iOurFlavor *= (100 + iRisk);
+										iOurFlavor /= 100;
+										iOurFlavor *= (100 + iDeath);
+										iOurFlavor /= 100;
+									}
+									else
+									{
+										iOurFlavor *= (100 - iRisk);
+										iOurFlavor /= 100;
+										iOurFlavor *= (100 - iDeath);
+										iOurFlavor /= 100;
+									}
+
+									if (pkEventChoiceInfo->getDamageCity() != 0 || pkEventChoiceInfo->getDamageGarrison() != 0)
+									{
+										CvCity* pCity = GetEspionage()->GetCityWithSpy(uiSpyIndex);
+										if (pCity && (pCity->isUnderSiege() || pCity->isInDangerOfFalling()))
+											iOurFlavor *= 10;
+									}
+
+									//counterspy filter selection
+									if (pCity->getOwner() == GetID())
+									{
+										if (pCity->getHappinessDelta() < 0 && pkEventChoiceInfo->getCityHappiness() > 0)
+											iOurFlavor *= 2;
+
+										if (pCity->isBorderCity() && IsAtWarAnyMajor() && pkEventChoiceInfo->getCityDefenseModifier() > 0)
+											iOurFlavor *= 2;
+									}
+									flavorChoices.push_back(eEventChoice, iOurFlavor);
+								}
+							}
+						}
+					}
+				}
+			}
+			if (flavorChoices.size() > 0)
+			{
+				//sort em!
+				flavorChoices.SortItems();
+
+				//And grab the top selection.
+				CityEventChoiceTypes eBestEventChoice = (CityEventChoiceTypes)flavorChoices.GetElement(0);
+
+				if (GC.getLogging() && GC.getAILogging())
+				{
+					CvModEventCityChoiceInfo* pkEventChoiceInfo = GC.getCityEventChoiceInfo(eBestEventChoice);
+					if (pkEventChoiceInfo != NULL)
+					{
+						CvString playerName;
+						FILogFile* pLog;
+						CvString strBaseString;
+						CvString strOutBuf;
+						CvString strFileName = "EspionageLog.csv";
+						playerName = getCivilizationShortDescription();
+						pLog = LOGFILEMGR.GetLog(strFileName, FILogFile::kDontTimeStamp);
+						strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
+						strBaseString += playerName + ", ";
+						strOutBuf.Format("AI made an AA flavor event choice: %s", pkEventChoiceInfo->GetDescription());
+						strBaseString += strOutBuf;
+						pLog->Msg(strBaseString);
+					}
+				}
+
+				//If didn't find something (probably because a modder forgot to set flavors...), do a random selection.
+				if (eBestEventChoice != NO_EVENT_CHOICE_CITY)
+				{
+					pCity->DoEventChoice(eBestEventChoice, NO_EVENT_CITY, true, uiSpyIndex, GetID());
+					return;
+				}
+			}
+			//If we got here, it is because we haven't made a choice yet. Do so now.
+			CvWeightedVector<int> randomChoices;
+			for (int iLoop = 0; iLoop < GC.getNumCityEventChoiceInfos(); iLoop++)
+			{
+				CityEventChoiceTypes eEventChoice = (CityEventChoiceTypes)iLoop;
+				if (eEventChoice != NO_EVENT_CHOICE)
+				{
+					CvModEventCityChoiceInfo* pkEventChoiceInfo = GC.getCityEventChoiceInfo(eEventChoice);
+					if (pkEventChoiceInfo != NULL)
+					{
+						if (pCity->IsCityEventChoiceValidEspionage(eEventChoice, eEvent, uiSpyIndex, GetID()))
+						{
+							int iRandom = GC.getGame().getJonRandNum(pkEventInfo->getNumChoices(), "Random Event Choice");
+							if (iRandom <= 0)
+							{
+								iRandom = 1;
+							}
+							randomChoices.push_back(eEventChoice, iRandom);
+						}
+					}
+				}
+			}
+			randomChoices.SortItems();
+			if (randomChoices.size() <= 0)
+				return;
+
+			//And grab the top selection.
+			CityEventChoiceTypes eBestEventChoice = (CityEventChoiceTypes)randomChoices.GetElement(0);
+
+			if (GC.getLogging() && GC.getAILogging())
+			{
+				CvModEventCityChoiceInfo* pkEventChoiceInfo = GC.getCityEventChoiceInfo(eBestEventChoice);
+				if (pkEventChoiceInfo != NULL)
+				{
+					CvString playerName;
+					FILogFile* pLog;
+					CvString strBaseString;
+					CvString strOutBuf;
+					CvString strFileName = "EspionageLog.csv";
+					playerName = getCivilizationShortDescription();
+					pLog = LOGFILEMGR.GetLog(strFileName, FILogFile::kDontTimeStamp);
+					strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
+					strBaseString += playerName + ", ";
+					strOutBuf.Format("AI made a random event choice: %s", pkEventChoiceInfo->GetDescription());
+					strBaseString += strOutBuf;
+					pLog->Msg(strBaseString);
+				}
+			}
+
+			//If didn't find something (probably because a modder forgot to set flavors...), do a random selection.
+			if (eBestEventChoice != NO_EVENT_CHOICE)
+			{
+				pCity->DoEventChoice(eBestEventChoice, NO_EVENT_CITY, true, uiSpyIndex, GetID());
 				return;
 			}
 		}
@@ -1025,7 +1192,7 @@ void CvPlayerAI::ProcessGreatPeople(void)
 		}
 
 		GreatPeopleDirectiveTypes eDirective = NO_GREAT_PEOPLE_DIRECTIVE_TYPE;
-		switch(pLoopUnit->AI_getUnitAIType())
+		switch(pLoopUnit->getUnitInfo().GetDefaultUnitAIType()) //look at the default type!
 		{
 		case UNITAI_WRITER:
 			eDirective = GetDirectiveWriter(pLoopUnit);
@@ -1091,14 +1258,13 @@ bool PreparingForWar(CvPlayerAI* pPlayer)
 GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveWriter(CvUnit* pGreatWriter)
 {
 	GreatPeopleDirectiveTypes eDirective = NO_GREAT_PEOPLE_DIRECTIVE_TYPE;
-#if defined(MOD_BALANCE_CORE)
+
 	// Create Great Work if there is a slot
 	GreatWorkType eGreatWork = pGreatWriter->GetGreatWork();
 	if (eDirective == NO_GREAT_PEOPLE_DIRECTIVE_TYPE && GetEconomicAI()->GetBestGreatWorkCity(pGreatWriter->plot(), eGreatWork))
 	{
 		eDirective = GREAT_PEOPLE_DIRECTIVE_USE_POWER;
 	}
-#endif
 	// Defend against ideology pressure if not going for culture win
 	if (eDirective == NO_GREAT_PEOPLE_DIRECTIVE_TYPE && !GetDiplomacyAI()->IsGoingForCultureVictory() && GetCulture()->GetPublicOpinionUnhappiness() > 10)
 	{
@@ -1110,20 +1276,8 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveWriter(CvUnit* pGreatWriter)
 	{
 		eDirective = GREAT_PEOPLE_DIRECTIVE_CULTURE_BLAST;
 	}
-#if !defined(MOD_BALANCE_CORE)
-	// Create Great Work if there is a slot
-	GreatWorkType eGreatWork = pGreatWriter->GetGreatWork();
-	if (eDirective == NO_GREAT_PEOPLE_DIRECTIVE_TYPE && GetEconomicAI()->GetBestGreatWorkCity(pGreatWriter->plot(), eGreatWork))
-	{
-		eDirective = GREAT_PEOPLE_DIRECTIVE_USE_POWER;
-	}
-#endif
 
-#if defined(MOD_AI_SMART_GREAT_PEOPLE)
-	else if (!MOD_AI_SMART_GREAT_PEOPLE || (GC.getGame().getGameTurn() - pGreatWriter->getGameTurnCreated()) >= (GC.getAI_HOMELAND_GREAT_PERSON_TURNS_TO_WAIT() / 2))
-#else
-	else
-#endif
+	else if ((GC.getGame().getGameTurn() - pGreatWriter->getGameTurnCreated()) >= (GC.getAI_HOMELAND_GREAT_PERSON_TURNS_TO_WAIT() / 2))
 	{
 		eDirective = GREAT_PEOPLE_DIRECTIVE_CULTURE_BLAST;
 	}
@@ -1133,7 +1287,7 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveWriter(CvUnit* pGreatWriter)
 GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveArtist(CvUnit* pGreatArtist)
 {
 	GreatPeopleDirectiveTypes eDirective = NO_GREAT_PEOPLE_DIRECTIVE_TYPE;
-#if defined(MOD_BALANCE_CORE)
+
 	// Create Great Work if there is a slot
 	GreatWorkType eGreatWork = pGreatArtist->GetGreatWork();
 	if (eDirective == NO_GREAT_PEOPLE_DIRECTIVE_TYPE && GetEconomicAI()->GetBestGreatWorkCity(pGreatArtist->plot(), eGreatWork))
@@ -1158,58 +1312,7 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveArtist(CvUnit* pGreatArtist)
 	{
 		eDirective = GREAT_PEOPLE_DIRECTIVE_GOLDEN_AGE;
 	}
-#else
-	// Defend against ideology pressure if not going for culture win
-	if (eDirective == NO_GREAT_PEOPLE_DIRECTIVE_TYPE && !GetDiplomacyAI()->IsGoingForCultureVictory() && GetCulture()->GetPublicOpinionUnhappiness() > 10)
-	{
-		eDirective = GREAT_PEOPLE_DIRECTIVE_GOLDEN_AGE;
-	}
 
-	// If prepping for war, Golden Age will build units quickly
-	if (eDirective == NO_GREAT_PEOPLE_DIRECTIVE_TYPE && !GetDiplomacyAI()->IsGoingForCultureVictory() && PreparingForWar(this))
-	{
-		eDirective = GREAT_PEOPLE_DIRECTIVE_GOLDEN_AGE;
-	}
-
-	// If finishing up spaceship parts, Golden Age will help build those quickly
-	if (eDirective == NO_GREAT_PEOPLE_DIRECTIVE_TYPE && GetDiplomacyAI()->IsGoingForSpaceshipVictory() && EconomicAIHelpers::IsTestStrategy_GS_SpaceshipHomestretch(this))
-	{
-		eDirective = GREAT_PEOPLE_DIRECTIVE_GOLDEN_AGE;
-	}
-
-	// If Persia and I'm at war, get a Golden Age going
-	if (eDirective == NO_GREAT_PEOPLE_DIRECTIVE_TYPE && GetPlayerTraits()->GetGoldenAgeMoveChange() > 0 && GetMilitaryAI()->GetNumberCivsAtWarWith() > 1 && !isGoldenAge())
-	{
-		eDirective = GREAT_PEOPLE_DIRECTIVE_GOLDEN_AGE;
-	}
-
-	// If Brazil and we're closing in on Culture Victory
-#if defined(MOD_AI_SMART_GREAT_PEOPLE)
-	int iInfluentialOn = MOD_AI_SMART_GREAT_PEOPLE ? (GC.getGame().GetGameCulture()->GetNumCivsInfluentialForWin() / 4) : 0;
-	if (eDirective == NO_GREAT_PEOPLE_DIRECTIVE_TYPE && GetPlayerTraits()->GetGoldenAgeTourismModifier() > 0 && GetCulture()->GetNumCivsInfluentialOn() > iInfluentialOn)
-#else
-	if (eDirective == NO_GREAT_PEOPLE_DIRECTIVE_TYPE && GetPlayerTraits()->GetGoldenAgeTourismModifier() > 0 && GetCulture()->GetNumCivsInfluentialOn() > 0)
-#endif
-	{
-		eDirective = GREAT_PEOPLE_DIRECTIVE_GOLDEN_AGE;
-	}
-
-	// Create Great Work if there is a slot
-	GreatWorkType eGreatWork = pGreatArtist->GetGreatWork();
-	if (eDirective == NO_GREAT_PEOPLE_DIRECTIVE_TYPE && GetEconomicAI()->GetBestGreatWorkCity(pGreatArtist->plot(), eGreatWork))
-	{
-		eDirective = GREAT_PEOPLE_DIRECTIVE_USE_POWER;
-	}
-
-#if defined(MOD_AI_SMART_GREAT_PEOPLE)
-	if (eDirective == NO_GREAT_PEOPLE_DIRECTIVE_TYPE && !isGoldenAge() && (!MOD_AI_SMART_GREAT_PEOPLE || (GC.getGame().getGameTurn() - pGreatArtist->getGameTurnCreated()) >= GC.getAI_HOMELAND_GREAT_PERSON_TURNS_TO_WAIT()))
-#else
-	if (eDirective == NO_GREAT_PEOPLE_DIRECTIVE_TYPE && !isGoldenAge())
-#endif
-	{
-		eDirective = GREAT_PEOPLE_DIRECTIVE_GOLDEN_AGE;
-	}
-#endif
 	return eDirective;
 }
 
@@ -1228,17 +1331,15 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveMusician(CvUnit* pGreatMusicia
 	{
 		if(pTarget)
 		{
-#if defined(MOD_BALANCE_CORE)
-			if(pTarget->getOwner() != NO_PLAYER && GET_PLAYER(pTarget->getOwner()).isMajorCiv())
+			if (pTarget->getOwner() != NO_PLAYER && GET_PLAYER(pTarget->getOwner()).isMajorCiv())
 			{
-				if (GetCulture()->GetInfluenceLevel(pTarget->getOwner()) <= INFLUENCE_LEVEL_POPULAR && GetCulture()->GetTurnsToInfluential(pTarget->getOwner()) <= 100)
+				if (GetCulture()->GetInfluenceLevel(pTarget->getOwner()) <= INFLUENCE_LEVEL_POPULAR)
 				{
-#endif
-			return GREAT_PEOPLE_DIRECTIVE_TOURISM_BLAST;
-#if defined(MOD_BALANCE_CORE)
+					if (GetCulture()->GetTurnsToInfluential(pTarget->getOwner()) <= 100 || getGreatMusiciansCreated(true) > GC.getGame().getCurrentEra())
+						return GREAT_PEOPLE_DIRECTIVE_TOURISM_BLAST;
+
 				}
 			}
-#endif
 		}
 	}
 
@@ -1415,7 +1516,7 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveMerchant(CvUnit* pGreatMerchan
 	}
 
 	//failsafe (wait until embarkation for barbarian-besieged venice)
-	if(GC.getGame().getGameTurn() - pGreatMerchant->getGameTurnCreated() > GC.getAI_HOMELAND_GREAT_PERSON_TURNS_TO_WAIT() && GET_TEAM(getTeam()).canEmbark())
+	if(GC.getGame().getGameTurn() - pGreatMerchant->getGameTurnCreated() > GC.getAI_HOMELAND_GREAT_PERSON_TURNS_TO_WAIT() && CanEmbark())
 		return GREAT_PEOPLE_DIRECTIVE_CONSTRUCT_IMPROVEMENT;
 
 	return NO_GREAT_PEOPLE_DIRECTIVE_TYPE;
@@ -1476,7 +1577,11 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveGeneral(CvUnit* pGreatGeneral)
 
 	//during war we want field commanders
 	int iWars = (int)GetPlayersAtWarWith().size();
-	if (iCommanders < iWars+1 || pGreatGeneral->getArmyID() != -1 || pGreatGeneral->IsRecentlyDeployedFromOperation())
+	//just a rough estimation
+	int iPotentialArmies = max(1,GetMilitaryAI()->GetNumLandUnits()-getNumCities()*3) / 13;
+
+	int iDesiredNumCommanders = max(1, (iWars+iPotentialArmies)/2);
+	if (iCommanders <= iDesiredNumCommanders || pGreatGeneral->getArmyID() != -1 || pGreatGeneral->IsRecentlyDeployedFromOperation())
 		return GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND;
 
 	//build one citadel at a time
@@ -1551,12 +1656,12 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveProphet(CvUnit* pUnit)
 
 GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveAdmiral(CvUnit* pGreatAdmiral)
 {
-	if(IsAtWar() || pGreatAdmiral->getArmyID() != -1 || pGreatAdmiral->IsRecentlyDeployedFromOperation())
+	if (IsAtWar() || pGreatAdmiral->getArmyID() != -1 || pGreatAdmiral->IsRecentlyDeployedFromOperation())
 		return GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND;
 
 	int iGreatAdmiralCount = 0;
 	int iLoop;
-	for(CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit; pLoopUnit = nextUnit(&iLoop))
+	for (CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit; pLoopUnit = nextUnit(&iLoop))
 	{
 		if(pLoopUnit->IsGreatAdmiral())
 		{
@@ -1565,7 +1670,7 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveAdmiral(CvUnit* pGreatAdmiral)
 	}
 
 	int iThreshold = IsEmpireUnhappy() ? 0 : 1;
-	if(iGreatAdmiralCount > iThreshold && pGreatAdmiral->canGetFreeLuxury())
+	if (iGreatAdmiralCount > iThreshold && pGreatAdmiral->canGetFreeLuxury())
 	{
 		return GREAT_PEOPLE_DIRECTIVE_USE_POWER;
 	}
@@ -1696,10 +1801,7 @@ CvPlot* CvPlayerAI::FindBestMerchantTargetPlotForCash(CvUnit* pMerchant)
 			continue;
 
 		// Is this a minor we are friendly with?
-		bool bMinorCivApproachIsCorrect = (GetDiplomacyAI()->GetMinorCivApproach(kPlayer.GetID()) != MINOR_CIV_APPROACH_CONQUEST);
-		bool bNotPlanningAWar = GetDiplomacyAI()->GetWarGoal(kPlayer.GetID()) == NO_WAR_GOAL_TYPE;
-
-		if (bMinorCivApproachIsCorrect && !kPlayer.IsAtWarWith(GetID()) && bNotPlanningAWar)
+		if (GetDiplomacyAI()->GetCivApproach(kPlayer.GetID()) > CIV_APPROACH_HOSTILE && !kPlayer.IsAtWarWith(GetID()))
 		{
 			int iDistance = plotDistance(*pCity->plot(), *pMerchant->plot());
 			vCandidates.push_back(make_pair(iDistance, pCity->plot()->GetPlotIndex()));
@@ -1744,7 +1846,7 @@ bool WantEmbassyAt(PlayerTypes ePlayer, CvCity* pCity)
 		return false;
 
 	//Are we planning on conquering them?
-	if(kPlayer.GetDiplomacyAI()->GetMinorCivApproach(kCityPlayer.GetID()) == MINOR_CIV_APPROACH_CONQUEST)
+	if(kPlayer.GetDiplomacyAI()->GetCivApproach(kCityPlayer.GetID()) == CIV_APPROACH_WAR)
 		return false;
 
 	// Does somebody already have an embassy here?
@@ -1772,6 +1874,8 @@ CvCity* CvPlayerAI::FindBestDiplomatTargetCity(CvUnit* pUnit)
 	data.iFlags = CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY;
 	ReachablePlots plots = GC.GetPathFinder().GetPlotsInReach(pUnit->plot(), data);
 	set<PlayerTypes> badTargets;
+	BuildTypes eEmbassy = (BuildTypes)GC.getInfoTypeForString("BUILD_EMBASSY");
+
 	for (ReachablePlots::iterator it = plots.begin(); it != plots.end(); ++it)
 	{
 		//don't check for cities directly because we cannot enter them ...
@@ -1784,10 +1888,33 @@ CvCity* CvPlayerAI::FindBestDiplomatTargetCity(CvUnit* pUnit)
 
 			//we iterate by distance, so take the first one we find
 			CvCity* pCity = GET_PLAYER(pPlot->getOwner()).getCapitalCity();
+
+			bool bInvalid = false;
+			bool bCanPlaceEmbassy = false;
+			if (pCity != NULL)
+			{
+				for (int iI = 0; iI < pCity->GetNumWorkablePlots(); iI++)
+				{
+					CvPlot* pCityPlot = pCity->GetCityCitizens()->GetCityPlotFromIndex(iI);
+
+					if (pCityPlot != NULL && pCityPlot->getOwner() == pCity->getOwner())
+					{
+						if (pCityPlot->IsImprovementEmbassy())
+							bInvalid = true;
+
+						if (pUnit->canBuild(pCityPlot,eEmbassy))
+							bCanPlaceEmbassy = true;
+					}
+				}
+			}
+
+			if (bInvalid || !bCanPlaceEmbassy)
+				continue;
+
 			if (WantEmbassyAt(GetID(), pCity))
 				return pCity;
-			else
-				badTargets.insert(pPlot->getOwner());
+
+			badTargets.insert(pPlot->getOwner());
 		}
 	}
 
@@ -1796,7 +1923,7 @@ CvCity* CvPlayerAI::FindBestDiplomatTargetCity(CvUnit* pUnit)
 
 CvCity* CvPlayerAI::FindBestMessengerTargetCity(CvUnit* pUnit, const vector<int>& vIgnoreCities)
 {
-	CvWeightedVector<CvCity *, SAFE_ESTIMATE_NUM_CITIES, true> vTargets;
+	CvWeightedVector<CvCity *> vTargets;
 
 	// Loop through each city state
 	for(int iI = MAX_MAJOR_CIVS; iI < MAX_CIV_PLAYERS; iI++)
@@ -1881,7 +2008,7 @@ int CvPlayerAI::ScoreCityForMessenger(CvCity* pCity, CvUnit* pUnit)
 		return 0;
 
 	//Return if we can't embark and they aren't on our landmass.
-	if (pCity->getArea() != pUnit->plot()->getArea() && !GET_TEAM(getTeam()).canEmbark())
+	if (pCity->getArea() != pUnit->plot()->getArea() && !CanEmbark())
 		return 0;
 
 	//are we at war with a player close to this CS? Don't go near here!
@@ -1893,63 +2020,188 @@ int CvPlayerAI::ScoreCityForMessenger(CvCity* pCity, CvUnit* pUnit)
 			return 0;
 	}
 
-	EconomicAIStrategyTypes eNeedHappiness = (EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_NEED_HAPPINESS");
-	EconomicAIStrategyTypes eNeedHappinessCritical = (EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_NEED_HAPPINESS_CRITICAL");
-	bool bNeedHappiness = (eNeedHappiness != NO_ECONOMICAISTRATEGY) ? GetEconomicAI()->IsUsingStrategy(eNeedHappiness) : false;
-	bool bNeedHappinessCritical = (eNeedHappinessCritical != NO_ECONOMICAISTRATEGY) ? GetEconomicAI()->IsUsingStrategy(eNeedHappinessCritical) : false;
-
-	// **************************
-	// Approaches
-	// **************************
-
 	int iScore = 100;
-	MinorCivApproachTypes eApproach = GetDiplomacyAI()->GetMinorCivApproach(kMinor.GetID());
-
-	if (eApproach == MINOR_CIV_APPROACH_IGNORE)
-		iScore /= 5;
-
-	// **************************
-	// Benefits to Us!
-	// **************************
-
-	//DIPLOMACY - We want all of them the same!
-	if (GetDiplomacyAI()->IsGoingForDiploVictory())
+	if (!isHuman())
 	{
-		iScore *= 2;
-	}
+		EconomicAIStrategyTypes eNeedHappiness = (EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_NEED_HAPPINESS");
+		EconomicAIStrategyTypes eNeedHappinessCritical = (EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_NEED_HAPPINESS_CRITICAL");
+		bool bNeedHappiness = (eNeedHappiness != NO_ECONOMICAISTRATEGY) ? GetEconomicAI()->IsUsingStrategy(eNeedHappiness) : false;
+		bool bNeedHappinessCritical = (eNeedHappinessCritical != NO_ECONOMICAISTRATEGY) ? GetEconomicAI()->IsUsingStrategy(eNeedHappinessCritical) : false;
 
-	//MILITARY - We want units and happiness!!
-	else if (GetDiplomacyAI()->IsGoingForWorldConquest())
-	{
-		if (pMinorCivAI->GetTrait() == MINOR_CIV_TRAIT_MILITARISTIC)
+		// **************************
+		// Approaches
+		// **************************
+
+		CivApproachTypes eApproach = GetDiplomacyAI()->GetCivApproach(kMinor.GetID());
+
+		if (eApproach <= CIV_APPROACH_HOSTILE)
+			return 0;
+
+		if (eApproach == CIV_APPROACH_NEUTRAL)
+			iScore /= 5;
+
+		// **************************
+		// Benefits to Us!
+		// **************************
+
+		CvPlayerTraits* pTraits = GetPlayerTraits();
+
+		//DIPLOMACY - We want all of them the same!
+		if (GetDiplomacyAI()->IsGoingForDiploVictory() || pTraits->IsDiplomat())
 		{
 			iScore *= 2;
 		}
-	}
 
-	//SCIENCE - We want happiness and growth!!
-	else if (GetDiplomacyAI()->IsGoingForSpaceshipVictory())
-	{
-		if (pMinorCivAI->GetTrait() == MINOR_CIV_TRAIT_MARITIME)
+		//MILITARY - We want units and happiness!!
+		if (GetDiplomacyAI()->IsGoingForWorldConquest() || pTraits->IsWarmonger() || pTraits->IsExpansionist())
 		{
-			iScore *= 2;
+			if (pMinorCivAI->GetTrait() == MINOR_CIV_TRAIT_MILITARISTIC || pMinorCivAI->GetTrait() == MINOR_CIV_TRAIT_MERCANTILE)
+			{
+				iScore *= 2;
+			}
 		}
-		if (pMinorCivAI->GetTrait() == MINOR_CIV_TRAIT_MERCANTILE)
-		{
-			iScore *= 2;
-		}
-	}
 
-	//CULTURE - We want culture and religion!!
-	else if (GetDiplomacyAI()->IsGoingForCultureVictory())
-	{
-		if (pMinorCivAI->GetTrait() == MINOR_CIV_TRAIT_CULTURED)
+		//SCIENCE - We want growth and units!!
+		if (GetDiplomacyAI()->IsGoingForSpaceshipVictory() || pTraits->IsNerd() || pTraits->IsSmaller())
 		{
-			iScore *= 2;
+			if (pMinorCivAI->GetTrait() == MINOR_CIV_TRAIT_MARITIME || pMinorCivAI->GetTrait() == MINOR_CIV_TRAIT_MILITARISTIC)
+			{
+				iScore *= 2;
+			}
+			// Happiness gets a smaller bonus too.
+			else if (pMinorCivAI->GetTrait() == MINOR_CIV_TRAIT_MERCANTILE)
+			{
+				iScore *= 3;
+				iScore /= 2;
+			}
 		}
-		if (pMinorCivAI->GetTrait() == MINOR_CIV_TRAIT_RELIGIOUS)
+
+		//CULTURE - We want culture and growth!!
+		if (GetDiplomacyAI()->IsGoingForCultureVictory() || pTraits->IsTourism() || pTraits->IsSmaller())
 		{
-			iScore *= 2;
+			if (pMinorCivAI->GetTrait() == MINOR_CIV_TRAIT_CULTURED || pMinorCivAI->GetTrait() == MINOR_CIV_TRAIT_MARITIME)
+			{
+				iScore *= 2;
+			}
+			// Happiness gets a smaller bonus too.
+			else if (pMinorCivAI->GetTrait() == MINOR_CIV_TRAIT_MERCANTILE)
+			{
+				iScore *= 3;
+				iScore /= 2;
+			}
+		}
+
+		//RELIGIOUS MINORS - Minors can be helpful in starting, enhancing or spreading a religion.
+		if (pMinorCivAI->GetTrait() == MINOR_CIV_TRAIT_RELIGIOUS && !GC.getGame().isOption(GAMEOPTION_NO_RELIGION))
+		{
+			ReligionTypes eReligion = GetReligions()->GetCurrentReligion(false);
+
+			// Do we already have a religion?
+			if (eReligion != NO_RELIGION)
+			{
+				const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, NO_PLAYER);
+
+				// But not yet enhanced?
+				if (!pReligion->m_bEnhanced)
+				{
+					iScore *= 2;
+				}
+				// Enhanced? Be a bit more friendly (to benefit from faith quests etc), but it's no longer a huge issue.
+				else
+				{
+					iScore *= 3;
+					iScore /= 2;
+				}				
+			}
+			// Can we found a religion?
+			else if (GC.getGame().GetGameReligions()->GetNumReligionsStillToFound() <= 0 || pTraits->IsAlwaysReligion())
+			{
+				// We created a pantheon? We're on track, so keep these City-States close...
+				if (GetReligions()->HasCreatedPantheon())
+				{
+					iScore *= 2;
+				}
+				// No one has founded a religion yet, so let's be more friendly...
+				else if (GC.getGame().GetGameReligions()->GetNumReligionsFounded() <= 0)
+				{
+					iScore *= 2;
+				}
+				// Less interesting.
+				else if (!pTraits->IsReligious())
+				{
+					iScore /= 2;
+				}
+			}
+			// Far less interesting.
+			else
+			{
+				iScore /= 4;
+			}
+
+			// Religious civ - apply extra weight if ANY religion criteria is met
+			if (pTraits->IsReligious())
+			{
+				ReligionTypes eMajorityReligion = GetReligions()->GetReligionInMostCities();
+
+				if (eReligion != NO_RELIGION || eMajorityReligion != NO_RELIGION || GetReligions()->HasCreatedPantheon())
+				{
+					iScore *= 2;
+				}
+			}
+		}
+
+		// Do they have a resource we lack?
+		int iResourcesWeLack = pMinorCivAI->GetNumResourcesMajorLacks(GetID());
+		if (iResourcesWeLack > 0)
+		{
+			if (bNeedHappiness)
+			{
+				iScore *= 3;
+			}
+			else if (bNeedHappinessCritical)
+			{
+				iScore *= 4;
+			}
+			else
+			{
+				iScore *= 2;
+			}
+			// Boost this big time if we have the monopoly resource bonus.
+			if (IsCSResourcesCountMonopolies())
+			{
+				iScore *= iResourcesWeLack;
+			}
+		}
+
+		//Will they give us a WLTKD for their resource?
+		int iCityLoop;
+		for (CvCity* pLoopCity = GET_PLAYER(GetID()).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(GetID()).nextCity(&iCityLoop))
+		{
+			if (pLoopCity != NULL)
+			{
+				ResourceTypes eResourceDemanded = pLoopCity->GetResourceDemanded();
+				if (eResourceDemanded != NO_RESOURCE)
+				{
+					//Will we get a WLTKD from this? We want it a bit more, please.
+					if (kMinor.getResourceInOwnedPlots(eResourceDemanded) > 0)
+					{
+						iScore *= 3;
+						iScore /= 2;
+					}
+				}
+			}
+		}
+
+		//Nobody likes hostile city-states.
+		if (pMinorCivAI->GetPersonality() == MINOR_CIV_PERSONALITY_HOSTILE)
+		{
+			iScore /= 2;
+		}
+
+		//If our friendship is under 0, we've probably done something bad to this City-State. Let's not look at them!
+		if (kMinor.GetMinorCivAI()->GetBaseFriendshipWithMajor(GetID()) < -20)
+		{
+			iScore /= 5;
 		}
 	}
 
@@ -1957,56 +2209,6 @@ int CvPlayerAI::ScoreCityForMessenger(CvCity* pCity, CvUnit* pUnit)
 	if (pMinorCivAI->IsActiveQuestForPlayer(GetID(), MINOR_CIV_QUEST_INFLUENCE))
 	{
 		iScore *= 5;
-	}
-
-	// Do they have a resource we lack?
-	int iResourcesWeLack = pMinorCivAI->GetNumResourcesMajorLacks(GetID());
-	if (iResourcesWeLack > 0)
-	{
-		if (bNeedHappiness)
-		{
-			iScore *= 3;
-		}
-		else if (bNeedHappinessCritical)
-		{
-			iScore *= 4;
-		}
-		else
-		{
-			iScore *= 2;
-		}
-	}
-
-	//Will they give us a WLTKD for their resource?
-	CvCity* pLoopCity;
-	int iCityLoop;
-	for (pLoopCity = GET_PLAYER(GetID()).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(GetID()).nextCity(&iCityLoop))
-	{
-		if (pLoopCity != NULL)
-		{
-			ResourceTypes eResourceDemanded = pLoopCity->GetResourceDemanded();
-			if (eResourceDemanded != NO_RESOURCE)
-			{
-				//Will we get a WLTKD from this? We want it a bit more, please.
-				if (kMinor.getResourceInOwnedPlots(eResourceDemanded) > 0)
-				{
-					iScore *= 3;
-					iScore /= 2;
-				}
-			}
-		}
-	}
-
-	//Nobody likes hostile city-states.
-	if (pMinorCivAI->GetPersonality() == MINOR_CIV_PERSONALITY_HOSTILE)
-	{
-		iScore /= 2;
-	}
-
-	//If our friendship is under 0, we've probably done something bad to this City-State. Let's not look at them!
-	if (kMinor.GetMinorCivAI()->GetBaseFriendshipWithMajor(GetID()) < -20)
-	{
-		iScore /= 5;
 	}
 
 	// **************************
@@ -2072,26 +2274,26 @@ int CvPlayerAI::ScoreCityForMessenger(CvCity* pCity, CvUnit* pUnit)
 
 		if (GET_TEAM(GET_PLAYER(GetID()).getTeam()).isHasMet(GET_PLAYER(eAlliedPlayer).getTeam()))
 		{
-			MajorCivApproachTypes eApproachType = GetDiplomacyAI()->GetMajorCivApproach(eAlliedPlayer, false);
-			MajorCivOpinionTypes eOpinion = GetDiplomacyAI()->GetMajorCivOpinion(eAlliedPlayer);
+			CivApproachTypes eApproachType = GetDiplomacyAI()->GetCivApproach(eAlliedPlayer);
+			CivOpinionTypes eOpinion = GetDiplomacyAI()->GetCivOpinion(eAlliedPlayer);
 
 			// If a friendly player is allied, let's discourage going there.
-			if (eApproachType == MAJOR_CIV_APPROACH_FRIENDLY)
+			if (eApproachType == CIV_APPROACH_FRIENDLY)
 			{
 				iScore /= 10;
 			}
 			// If an enemy is allied, let's take their stuff!
-			else if (eApproachType == MAJOR_CIV_APPROACH_HOSTILE)
+			else if (eApproachType == CIV_APPROACH_HOSTILE)
 			{
 				iScore *= 2;
 			}
 			// If an ally is allied, let's leave it alone!
-			if (eOpinion == MAJOR_CIV_OPINION_ALLY)
+			if (eOpinion == CIV_OPINION_ALLY)
 			{
 				iScore /= 10;
 			}
 			// If an competitor is allied, let's fight for it!
-			else if (eOpinion == MAJOR_CIV_OPINION_COMPETITOR)
+			else if (eOpinion == CIV_OPINION_COMPETITOR)
 			{
 				iScore *= 2;
 			}
@@ -2381,7 +2583,6 @@ CvPlot* CvPlayerAI::FindBestCultureBombPlot(CvUnit* pUnit, BuildTypes eBuild, co
 		for (int iI=0; iI<RING_PLOTS[iRange]; iI++)
 		{
 			CvPlot* pAdjacentPlot = iterateRingPlots(pPlot,iI);
-
 			if(pAdjacentPlot == NULL)
 				continue;
 
@@ -2395,7 +2596,7 @@ CvPlot* CvPlayerAI::FindBestCultureBombPlot(CvUnit* pUnit, BuildTypes eBuild, co
 
 			//danger is bad - check even adjacent plots!
 			int iDanger = pUnit->GetDanger(pAdjacentPlot);
-			if (iDanger > 0)
+			if (iDanger > 20) //allow fog
 			{
 				iScore = 0;
 				break;
@@ -2452,7 +2653,7 @@ CvPlot* CvPlayerAI::FindBestCultureBombPlot(CvUnit* pUnit, BuildTypes eBuild, co
 				}
 			}
 
-			// score resource
+			// score resource - this may be the dominant factor!
 			ResourceTypes eResource = pAdjacentPlot->getResourceType();
 			if(eResource != NO_RESOURCE)
 			{
@@ -2467,24 +2668,9 @@ CvPlot* CvPlayerAI::FindBestCultureBombPlot(CvUnit* pUnit, BuildTypes eBuild, co
 		}
 
 		//require a certain minimum score ...
-		if(iScore > 0)
+		if (iScore > 0)
 		{
-			if (goodPlots.empty())
-			{
-				goodPlots.push( SPlotWithScore(pPlot,iScore) );
-			}
-			else if (iScore > goodPlots.top().score * 0.8f )
-			{
-				//don't even keep it if it's much worse than the current best
-				goodPlots.push( SPlotWithScore(pPlot,iScore) );
-
-				if(GC.getLogging() && GC.getAILogging())
-				{
-					CvString strLogString;
-					strLogString.Format("Possible culture bomb location: X: %d, Y: %d. SCORE: %d", pPlot->getX(), pPlot->getY(), iScore);
-					GetHomelandAI()->LogHomelandMessage(strLogString);
-				}
-			}
+			goodPlots.push(SPlotWithScore(pPlot, iScore));
 		}
 	}
 
@@ -2507,7 +2693,7 @@ CvPlot* CvPlayerAI::FindBestCultureBombPlot(CvUnit* pUnit, BuildTypes eBuild, co
 		//look at the top two and take the closer one
 		SPlotWithScore nr1 = goodPlots.top(); goodPlots.pop();
 		SPlotWithScore nr2 = goodPlots.top(); goodPlots.pop();
-		if (nr2.score < nr1.score * 0.8f)
+		if (nr1.score * 0.8f > nr2.score)
 		{
 			if(GC.getLogging() && GC.getAILogging())
 			{
@@ -2519,11 +2705,9 @@ CvPlot* CvPlayerAI::FindBestCultureBombPlot(CvUnit* pUnit, BuildTypes eBuild, co
 		}
 		else
 		{
-			SPlotWithScore chosen = nr1;
 			int iTurns1 = pUnit->TurnsToReachTarget(nr1.pPlot, true);
 			int iTurns2 = pUnit->TurnsToReachTarget(nr2.pPlot, true);
-			if (iTurns2*nr1.score < iTurns1*nr2.score)
-				chosen = nr2;
+			SPlotWithScore chosen = (iTurns2<iTurns1) ? nr2 : nr1;
 
 			if (GC.getLogging() && GC.getAILogging())
 			{
@@ -2535,4 +2719,3 @@ CvPlot* CvPlayerAI::FindBestCultureBombPlot(CvUnit* pUnit, BuildTypes eBuild, co
 		}
 	}
 }
-

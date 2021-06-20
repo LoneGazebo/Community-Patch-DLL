@@ -98,6 +98,8 @@ public:
 	EraTypes GetPolicyEraUnlock() const;
 	int GetIdeologyPoint() const;
 	bool IsNoXPLossUnitPurchase() const;
+	bool IsEnablesTechSteal() const;
+	bool IsEnablesGWSteal() const;
 	int GetCorporationOfficesAsFranchises() const;
 	bool IsNoForeignCorpsInCities() const;
 	bool IsNoFranchisesInForeignCities() const;
@@ -356,7 +358,7 @@ public:
 	int GetInvestmentModifier() const;
 #endif
 	int GetImprovementYieldChanges(int i, int j) const;
-#if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
+#if defined(MOD_API_UNIFIED_YIELDS)
 	int GetPlotYieldChanges(int i, int j) const;
 #endif
 #if defined(MOD_API_UNIFIED_YIELDS)
@@ -430,6 +432,10 @@ public:
 #if defined(HH_MOD_API_TRADEROUTE_MODIFIERS)
 	int GetInternationalRouteYieldModifier(int i) const;
 	int* GetInternationalRouteYieldModifiersArray();
+#endif
+#if defined(MOD_POLICIES_UNIT_CLASS_REPLACEMENTS)
+	bool IsUnitClassReplacements() const;
+	std::map<UnitClassTypes, UnitClassTypes> GetUnitClassReplacements() const;
 #endif
 	int GetBuildingClassYieldModifiers(int i, int j) const;
 	int GetBuildingClassYieldChanges(int i, int j) const;
@@ -531,6 +537,8 @@ private:
 	EraTypes m_ePolicyEraUnlock;
 	int m_iIdeologyPoint;
 	bool m_bNoXPLossUnitPurchase;
+	bool m_bEnablesTechSteal;
+	bool m_bEnablesGWSteal;
 #endif
 	int m_iExtraHappinessPerLuxury;
 	int m_iUnhappinessFromUnitsMod;
@@ -804,7 +812,7 @@ private:
 //	bool* m_pabHurry;
 	bool* m_pabSpecialistValid;
 	int** m_ppiImprovementYieldChanges;
-#if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
+#if defined(MOD_API_UNIFIED_YIELDS)
 	int** m_ppiPlotYieldChanges;
 #endif
 #if defined(MOD_API_UNIFIED_YIELDS)
@@ -845,6 +853,9 @@ private:
 #endif
 #if defined(HH_MOD_API_TRADEROUTE_MODIFIERS)
 	int* m_piInternationalRouteYieldModifiers;
+#endif
+#if defined(MOD_POLICIES_UNIT_CLASS_REPLACEMENTS)
+	std::map<UnitClassTypes, UnitClassTypes> m_piUnitClassReplacements;
 #endif
 	int** m_ppiBuildingClassYieldModifiers;
 	int** m_ppiBuildingClassYieldChanges;
@@ -1045,11 +1056,7 @@ public:
 #else
 	void SetPolicy(PolicyTypes eIndex, bool bNewValue);
 #endif
-#if defined(MOD_BALANCE_CORE)
-	int GetNumPoliciesOwned(bool bSkipFinisher = false, bool bExcludeFree = false) const;
-#else
-	int GetNumPoliciesOwned() const;
-#endif
+	int GetNumPoliciesOwned(bool bSkipFinisher = false, bool bExcludeFree = false, bool bIncludeOpeners = false) const;
 	int GetNumPoliciesOwnedInBranch(PolicyBranchTypes eBranch) const;
 	int GetNumPoliciesPurchasedInBranch(PolicyBranchTypes eBranch) const;
 	CvPolicyXMLEntries* GetPolicies() const;

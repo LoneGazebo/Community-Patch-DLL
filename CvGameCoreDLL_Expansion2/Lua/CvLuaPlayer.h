@@ -98,9 +98,7 @@ protected:
 	static int lSetNumWondersBeatenTo(lua_State* L);
 
 	static int lIsCapitalConnectedToCity(lua_State* L);
-#if defined(MOD_API_LUA_EXTENSIONS)
-	LUAAPIEXTN(IsPlotConnectedToPlot, bool, pFromPlot, pToPlot);
-#endif
+	static int lIsPlotConnectedToPlot(lua_State* L);
 
 	static int lIsTurnActive(lua_State* L);
 	static int lIsSimultaneousTurns(lua_State* L);
@@ -240,8 +238,6 @@ protected:
 	static int lGetJONSCulturePerTurnForFree(lua_State* L);
 	static int lChangeJONSCulturePerTurnForFree(lua_State* L);
 
-	static int lGetJONSCulturePerTurnFromMinorCivs(lua_State* L); // DEPRECATED, use lGetCulturePerTurnFromMinorCivs instead
-	static int lChangeJONSCulturePerTurnFromMinorCivs(lua_State* L); // DEPRECATED, does nothing
 	static int lGetCulturePerTurnFromMinorCivs(lua_State* L);
 	static int lGetCulturePerTurnFromMinor(lua_State* L);
 
@@ -270,6 +266,7 @@ protected:
 	LUAAPIEXTN(SetCapitalCity, void);
 	LUAAPIEXTN(SetOriginalCapitalXY, void);
 	LUAAPIEXTN(GetNumWonders, int);
+	LUAAPIEXTN(GetOriginalCapitalPlot, int);
 #endif
 #if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_BALANCE_CORE_POLICIES)
 	LUAAPIEXTN(GetNoUnhappinessExpansion, int);
@@ -320,7 +317,7 @@ protected:
 	static int lGetFaithPerTurnFromReligion(lua_State* L);
 	static int lHasCreatedPantheon(lua_State* L);
 	static int lGetBeliefInPantheon(lua_State* L);
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_API_RELIGION)
+#if defined(MOD_API_LUA_EXTENSIONS)
 	LUAAPIEXTN(GetBeliefsInPantheon, table);
 #endif
 	static int lCanCreatePantheon(lua_State* L);
@@ -426,13 +423,13 @@ protected:
 	LUAAPIEXTN(GetWarScore, int);
 	LUAAPIEXTN(GetPlayerMilitaryStrengthComparedToUs, int);
 	LUAAPIEXTN(GetPlayerEconomicStrengthComparedToUs, int);
-	LUAAPIEXTN(GetWarDamageLevel, int);
-	LUAAPIEXTN(IsWillingToMakePeaceWithHuman, bool);
+	LUAAPIEXTN(GetWarDamageValue, int);
+	LUAAPIEXTN(IsWantsPeaceWithPlayer, bool);
 	LUAAPIEXTN(GetTreatyWillingToOffer, int);
-	LUAAPIEXTN(DoUpdateWarDamageLevel, void);
+	LUAAPIEXTN(DoUpdateWarDamage, void);
 	LUAAPIEXTN(DoUpdatePeaceTreatyWillingness, void);
 	LUAAPIEXTN(GetDominationResistance, int);
-	LUAAPIEXTN(GetMajorCivOpinion, int);
+	LUAAPIEXTN(GetCivOpinion, int);
 	LUAAPIEXTN(GetMajorityReligion, int);
 	//JFD
 	LUAAPIEXTN(GetWLTKDResourceTT, int);
@@ -1002,6 +999,10 @@ protected:
 #if defined(MOD_BALANCE_CORE)
 	static int lGetNumUnitsToSupply(lua_State* L);
 #endif
+#if defined(MOD_API_LUA_EXTENSIONS)
+	LUAAPIEXTN(GetNumUnitsOfType, int, iUnit, bIncludeBeingTrained);
+	LUAAPIEXTN(GetNumUnitPromotions, int, iPromotion);
+#endif
 	static int lGetUnitByID(lua_State* L);
 
 	static int lAI_updateFoundValues(lua_State* L);
@@ -1075,8 +1076,6 @@ protected:
 	static int lGetWonderDisputeLevel(lua_State* L);
 	static int lGetMinorCivDisputeLevel(lua_State* L);
 	static int lGetWarmongerThreat(lua_State* L);
-	static int lIsPlayerNoSettleRequestEverAsked(lua_State* L);
-	static int lIsPlayerStopSpyingRequestEverAsked(lua_State* L);
 	static int lIsDemandEverMade(lua_State* L);
 	static int lGetNumCiviliansReturnedToMe(lua_State* L);
 	static int lGetNumLandmarksBuiltForMe(lua_State* L);
@@ -1109,6 +1108,7 @@ protected:
 	static int lIsDenouncedPlayer(lua_State* L);
 	static int lGetDenouncedPlayerCounter(lua_State* L);
 	static int lIsDenouncingPlayer(lua_State* L);
+	static int lIsDenounceMessageTooSoon(lua_State* L);
 	static int lIsPlayerRecklessExpander(lua_State* L);
 	static int lGetRecentTradeValue(lua_State* L);
 	static int lGetCommonFoeValue(lua_State* L);
@@ -1262,17 +1262,17 @@ protected:
 	static int lGetEspionageCityStatus(lua_State* L);
 #if defined(MOD_BALANCE_CORE)
 	static int lGetRandomIntrigue(lua_State* L);
-	static int lDoAdvancedAction(lua_State* L);
 	static int lGetCachedValueOfPeaceWithHuman(lua_State* L);
 	static int lGetTotalValueToMe(lua_State* L);
 	static int lGetTotalValueToMeNormal(lua_State* L);
 	static int lGetSpyChanceAtCity(lua_State* L);
 	static int lGetCityPotentialInfo(lua_State* L);
+	static int lGetCityWithSpy(lua_State* L);
 #endif
 	static int lGetNumSpies(lua_State* L);
 	static int lGetNumUnassignedSpies(lua_State* L);
 	static int lGetEspionageSpies(lua_State* L);
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_API_ESPIONAGE)
+#if defined(MOD_API_LUA_EXTENSIONS)
 	LUAAPIEXTN(EspionageCreateSpy, void);
 	LUAAPIEXTN(EspionagePromoteSpy, void, iSpyIndex);
 	LUAAPIEXTN(EspionageSetPassive, void, iSpyIndex, bPassive);
@@ -1301,7 +1301,7 @@ protected:
 	static int lGetInternationalTradeRoutePlotMouseoverToolTip(lua_State* L);
 	static int lGetNumInternationalTradeRoutesUsed(lua_State* L);
 	static int lGetNumInternationalTradeRoutesAvailable(lua_State* L);
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_API_TRADEROUTES)
+#if defined(MOD_API_LUA_EXTENSIONS)
 	static int GetPotentialInternationalTradeRouteDestinationsHelper(lua_State* L, CvPlayerAI* pkPlayer, CvUnit* pkUnit, CvPlot* pkUnitPlot);
 	LUAAPIEXTN(GetPotentialInternationalTradeRouteDestinationsFrom, table, pUnit, pCity);
 #endif
@@ -1471,10 +1471,18 @@ protected:
 	LUAAPIEXTN(CountAllTerrain, int, iTerrainType);
 	LUAAPIEXTN(CountAllWorkedTerrain, int, iTerrainType);
 #endif
-#if defined(MOD_BALANCE_CORE_EVENTS)
+#if defined(MOD_IMPROVEMENTS_EXTENSIONS)
+	static int lGetResponsibleForRouteCount(lua_State* L);
+	static int lGetResponsibleForImprovementCount(lua_State* L);
+#endif
+#if defined(MOD_BALANCE_CORE)
+	static int lDoInstantYield(lua_State* L);
 	static int lGetInstantYieldHistoryTooltip(lua_State* L);
+#endif
+#if defined(MOD_BALANCE_CORE_EVENTS)
 	static int lGetDisabledTooltip (lua_State* L);
 	static int lGetScaledEventChoiceValue (lua_State* L);
+	static int lGetEspionageValues(lua_State* L);
 	static int lIsEventChoiceActive (lua_State* L);
 	static int lDoEventChoice (lua_State* L);
 	static int lDoStartEvent (lua_State* L);
@@ -1500,5 +1508,60 @@ protected:
 	static int lGetMilitaryLandMight(lua_State* L);
 #endif
 };
+
+namespace CvLuaArgs
+{
+	template<> inline const CvPlayerAI* toValue(lua_State* L, int idx)
+	{
+		return CvLuaPlayer::GetInstance(L, idx);
+	}
+	template<> inline CvPlayerAI* toValue(lua_State* L, int idx)
+	{
+		return CvLuaPlayer::GetInstance(L, idx);
+	}
+	template<> inline const CvPlayerAI& toValue(lua_State* L, int idx)
+	{
+		return *CvLuaPlayer::GetInstance(L, idx);
+	}
+	template<> inline CvPlayerAI& toValue(lua_State* L, int idx)
+	{
+		return *CvLuaPlayer::GetInstance(L, idx);
+	}
+
+	template<> inline const CvPlayer* toValue(lua_State* L, int idx)
+	{
+		return CvLuaPlayer::GetInstance(L, idx);
+	}
+	template<> inline CvPlayer* toValue(lua_State* L, int idx)
+	{
+		return CvLuaPlayer::GetInstance(L, idx);
+	}
+	template<> inline const CvPlayer& toValue(lua_State* L, int idx)
+	{
+		return *CvLuaPlayer::GetInstance(L, idx);
+	}
+	template<> inline CvPlayer& toValue(lua_State* L, int idx)
+	{
+		return *CvLuaPlayer::GetInstance(L, idx);
+	}
+
+	template<> inline void pushValue(lua_State* L, CvPlayerAI* p)
+	{
+		CvLuaPlayer::Push(L, p);
+	}
+	template<> inline void pushValue(lua_State* L, CvPlayerAI& r)
+	{
+		CvLuaPlayer::Push(L, &r);
+	}
+
+	template<> inline void pushValue(lua_State* L, CvPlayer* p)
+	{
+		CvLuaPlayer::Push(L, static_cast<CvPlayerAI*>(p));
+	}
+	template<> inline void pushValue(lua_State* L, CvPlayer& r)
+	{
+		CvLuaPlayer::Push(L, static_cast<CvPlayerAI*>(&r));
+	}
+}
 
 #endif //CVLUAPLAYER_H

@@ -7,7 +7,7 @@
     <Guid>d1b6328c-ff44-4b0d-aad7-c657f83610cd</Guid>
     <ModVersion>94</ModVersion>
     <Stability>Beta</Stability>
-    <Teaser>(12-1) Bugfixes, AI Improvements, Game Optimizations and API Extensions for Civ V</Teaser>
+    <Teaser>(6-7) Bugfixes, AI Improvements, Game Optimizations and API Extensions for Civ V</Teaser>
     <Description>Contains core AI improvements and bugfixes for the Civ 5 BNW DLL. Also contains support for Whoward's PNM Mods as well as the Community Balance Patch.</Description>
     <Authors>The Community Patch Team</Authors>
     <SpecialThanks>
@@ -200,21 +200,6 @@
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
-        <FileName>Core Files/PNM Mods DB/CONFIG/AiInXml.sql</FileName>
-      </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
-        <FileName>Core Files/PNM Mods DB/CONFIG/GameInXml.xml</FileName>
-      </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
-        <FileName>Core Files/PNM Mods DB/DIPLO/AIWarmongerAdjustments.xml</FileName>
-      </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
         <FileName>Core Files/PNM Mods DB/EVENTS/CanMoveInto.sql</FileName>
       </Action>
       <Action>
@@ -356,16 +341,6 @@
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
         <FileName>Core Files/PNM Mods DB/RELIGION/PolicyBranchFaithGp.xml</FileName>
-      </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
-        <FileName>Core Files/PNM Mods DB/SMART/XML/AISmart.xml</FileName>
-      </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
-        <FileName>Core Files/PNM Mods DB/SMART/SQL/AISmart.sql</FileName>
       </Action>
       <Action>
         <Set>OnModActivated</Set>
@@ -628,6 +603,12 @@
         <Description>Communitas Rewrite By tu_79. For use with full VP installation only.</Description>
         <FileName>Mapscripts/Communitu_79a.lua</FileName>
       </Content>
+      <Content>
+        <Type>InGameUIAddin</Type>
+        <Name>EspionageChoice</Name>
+        <Description>EspionageChoice</Description>
+        <FileName>Core Files/CoreLua/EspionageChoicePopup.lua</FileName>
+      </Content>
     </ModContent>
     <ReloadAudioSystem>true</ReloadAudioSystem>
   </PropertyGroup>
@@ -657,15 +638,10 @@
     <Folder Include="Core Files\PNM Mods DB\API\" />
     <Folder Include="Core Files\PNM Mods DB\ART\" />
     <Folder Include="Core Files\PNM Mods DB\BUGFIX\" />
-    <Folder Include="Core Files\PNM Mods DB\CONFIG\" />
     <Folder Include="Core Files\PNM Mods DB\EVENTS\" />
     <Folder Include="Core Files\PNM Mods DB\GLOBAL\" />
-    <Folder Include="Core Files\PNM Mods DB\DIPLO" />
-    <Folder Include="Core Files\PNM Mods DB\SMART" />
     <Folder Include="Core Files\PNM Mods DB\PROMOTIONS\" />
     <Folder Include="Core Files\PNM Mods DB\RELIGION\" />
-    <Folder Include="Core Files\PNM Mods DB\SMART\SQL\" />
-    <Folder Include="Core Files\PNM Mods DB\SMART\XML\" />
     <Folder Include="Core Files\PNM Mods DB\TRADE\" />
     <Folder Include="Core Files\PNM Mods DB\TRAITS\" />
     <Folder Include="Core Files\PNM Mods DB\UI\" />
@@ -676,7 +652,7 @@
     <Folder Include="Modules\Events\Text" />
     <Folder Include="Modules\Events\Text\en_US" />
     <Folder Include="Modules\MoreGP" />
-    <Folder Include="Modules\MoreGP\Extra_GPs_items\" />
+    <Folder Include="Modules\MoreGP\Extra_GPs_items" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="CommunityOptions.sql">
@@ -1143,7 +1119,15 @@
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
+    <Content Include="Core Files\CoreLua\EventArt\CounterSpy.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
     <Content Include="Core Files\CoreLua\EventArt\FireWorks.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Core Files\CoreLua\EventArt\Focus.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
@@ -1199,9 +1183,17 @@
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
+    <Content Include="Core Files\CoreLua\EspionageChoicePopup.xml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
     <Content Include="Core Files\CoreLua\InGame.lua">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Core Files\CoreLua\EspionageChoicePopup.lua">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
     <Content Include="Core Files\CoreLua\MPList.lua">
       <SubType>Lua</SubType>
@@ -1331,19 +1323,7 @@
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
-    <Content Include="Core Files\PNM Mods DB\CONFIG\AiInXml.sql">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
-    <Content Include="Core Files\PNM Mods DB\CONFIG\GameInXml.xml">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
     <Content Include="Core Files\PNM Mods DB\CustomModTables.xml">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
-    <Content Include="Core Files\PNM Mods DB\DIPLO\AIWarmongerAdjustments.xml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
@@ -1464,14 +1444,6 @@
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
     <Content Include="Core Files\PNM Mods DB\RELIGION\PolicyBranchFaithGp.xml">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
-    <Content Include="Core Files\PNM Mods DB\SMART\SQL\AISmart.sql">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
-    <Content Include="Core Files\PNM Mods DB\SMART\XML\AISmart.xml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
@@ -1691,14 +1663,6 @@
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
-    <Content Include="Modules\MoreGP\Extra_GPs_items\AgbaniNguruIkorodoGroup_IjeNwayo.mp3">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>True</ImportIntoVFS>
-    </Content>
-    <Content Include="Modules\MoreGP\Extra_GPs_items\AgimKrajka_Fantazi.mp3">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>True</ImportIntoVFS>
-    </Content>
     <Content Include="Modules\MoreGP\Extra_GPs_items\A__010.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
@@ -1735,23 +1699,11 @@
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Modules\MoreGP\Extra_GPs_items\A__092.dds">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>True</ImportIntoVFS>
-    </Content>
-    <Content Include="Modules\MoreGP\Extra_GPs_items\A__095.dds">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>True</ImportIntoVFS>
-    </Content>
     <Content Include="Modules\MoreGP\Extra_GPs_items\A__100.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
     <Content Include="Modules\MoreGP\Extra_GPs_items\A__110.dds">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>True</ImportIntoVFS>
-    </Content>
-    <Content Include="Modules\MoreGP\Extra_GPs_items\A__115.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
@@ -1763,19 +1715,11 @@
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Modules\MoreGP\Extra_GPs_items\A__135.dds">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>True</ImportIntoVFS>
-    </Content>
     <Content Include="Modules\MoreGP\Extra_GPs_items\A__140.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
     <Content Include="Modules\MoreGP\Extra_GPs_items\A__150.dds">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>True</ImportIntoVFS>
-    </Content>
-    <Content Include="Modules\MoreGP\Extra_GPs_items\A__155.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
@@ -1787,19 +1731,7 @@
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Modules\MoreGP\Extra_GPs_items\A__178.dds">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>True</ImportIntoVFS>
-    </Content>
     <Content Include="Modules\MoreGP\Extra_GPs_items\A__180.dds">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>True</ImportIntoVFS>
-    </Content>
-    <Content Include="Modules\MoreGP\Extra_GPs_items\A__185.dds">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>True</ImportIntoVFS>
-    </Content>
-    <Content Include="Modules\MoreGP\Extra_GPs_items\A__187.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
@@ -1807,31 +1739,7 @@
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Modules\MoreGP\Extra_GPs_items\A__193.dds">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>True</ImportIntoVFS>
-    </Content>
-    <Content Include="Modules\MoreGP\Extra_GPs_items\A__194.dds">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>True</ImportIntoVFS>
-    </Content>
-    <Content Include="Modules\MoreGP\Extra_GPs_items\A__195.dds">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>True</ImportIntoVFS>
-    </Content>
-    <Content Include="Modules\MoreGP\Extra_GPs_items\A__197.dds">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>True</ImportIntoVFS>
-    </Content>
     <Content Include="Modules\MoreGP\Extra_GPs_items\A__200.dds">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>True</ImportIntoVFS>
-    </Content>
-    <Content Include="Modules\MoreGP\Extra_GPs_items\A__205.dds">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>True</ImportIntoVFS>
-    </Content>
-    <Content Include="Modules\MoreGP\Extra_GPs_items\A__207.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
@@ -1839,39 +1747,11 @@
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Modules\MoreGP\Extra_GPs_items\A__215.dds">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>True</ImportIntoVFS>
-    </Content>
     <Content Include="Modules\MoreGP\Extra_GPs_items\A__220.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Modules\MoreGP\Extra_GPs_items\A__225.dds">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>True</ImportIntoVFS>
-    </Content>
     <Content Include="Modules\MoreGP\Extra_GPs_items\A__230.dds">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>True</ImportIntoVFS>
-    </Content>
-    <Content Include="Modules\MoreGP\Extra_GPs_items\A__235.dds">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>True</ImportIntoVFS>
-    </Content>
-    <Content Include="Modules\MoreGP\Extra_GPs_items\A__236.dds">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>True</ImportIntoVFS>
-    </Content>
-    <Content Include="Modules\MoreGP\Extra_GPs_items\A__237.dds">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>True</ImportIntoVFS>
-    </Content>
-    <Content Include="Modules\MoreGP\Extra_GPs_items\A__238.dds">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>True</ImportIntoVFS>
-    </Content>
-    <Content Include="Modules\MoreGP\Extra_GPs_items\A__239.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
@@ -1899,19 +1779,11 @@
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Modules\MoreGP\Extra_GPs_items\A__295.dds">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>True</ImportIntoVFS>
-    </Content>
     <Content Include="Modules\MoreGP\Extra_GPs_items\A__300.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
     <Content Include="Modules\MoreGP\Extra_GPs_items\A__310.dds">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>True</ImportIntoVFS>
-    </Content>
-    <Content Include="Modules\MoreGP\Extra_GPs_items\A__315.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
@@ -1939,15 +1811,7 @@
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Modules\MoreGP\Extra_GPs_items\A__375.dds">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>True</ImportIntoVFS>
-    </Content>
     <Content Include="Modules\MoreGP\Extra_GPs_items\A__380.dds">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>True</ImportIntoVFS>
-    </Content>
-    <Content Include="Modules\MoreGP\Extra_GPs_items\A__385.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
@@ -1959,119 +1823,387 @@
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
+    <Content Include="Modules\MoreGP\Extra_GPs_items\A__410.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
     <Content Include="Modules\MoreGP\Extra_GPs_items\A__420.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Modules\MoreGP\Extra_GPs_items\balti_YaLili.mp3">
+    <Content Include="Modules\MoreGP\Extra_GPs_items\A__430.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Modules\MoreGP\Extra_GPs_items\CarlOrff_CarminaBurana.mp3">
+    <Content Include="Modules\MoreGP\Extra_GPs_items\A__440.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Modules\MoreGP\Extra_GPs_items\ChadLawson_NocturneInFMinor.mp3">
+    <Content Include="Modules\MoreGP\Extra_GPs_items\A__450.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Modules\MoreGP\Extra_GPs_items\ChillyGonzales_Nimbus.mp3">
+    <Content Include="Modules\MoreGP\Extra_GPs_items\A__460.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Modules\MoreGP\Extra_GPs_items\DavidBowie_LifeOnMars.mp3">
+    <Content Include="Modules\MoreGP\Extra_GPs_items\A__470.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Modules\MoreGP\Extra_GPs_items\DegungSunda_MenyejukkanHati.mp3">
+    <Content Include="Modules\MoreGP\Extra_GPs_items\A__480.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Modules\MoreGP\Extra_GPs_items\DjangoReinhardt_MySerenade.mp3">
+    <Content Include="Modules\MoreGP\Extra_GPs_items\A__490.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Modules\MoreGP\Extra_GPs_items\DrMBalamuralikrishna_EndaroMahanubhavulu.mp3">
+    <Content Include="Modules\MoreGP\Extra_GPs_items\A__500.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Modules\MoreGP\Extra_GPs_items\EdithPiaf_LaVieEnRose.mp3">
+    <Content Include="Modules\MoreGP\Extra_GPs_items\A__510.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Modules\MoreGP\Extra_GPs_items\ErnstReijseger_Shadow.mp3">
+    <Content Include="Modules\MoreGP\Extra_GPs_items\A__520.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Modules\MoreGP\Extra_GPs_items\FelaAnikulapoKuti_WaterNoGetEnemy.mp3">
+    <Content Include="Modules\MoreGP\Extra_GPs_items\A__530.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Modules\MoreGP\Extra_GPs_items\FrancoDuCongo_Liberte.mp3">
+    <Content Include="Modules\MoreGP\Extra_GPs_items\A__540.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Modules\MoreGP\Extra_GPs_items\GabrielFaure_Requiem.mp3">
+    <Content Include="Modules\MoreGP\Extra_GPs_items\A__550.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Modules\MoreGP\Extra_GPs_items\GabrielGarzonMontano_Bloom.mp3">
+    <Content Include="Modules\MoreGP\Extra_GPs_items\A__560.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Modules\MoreGP\Extra_GPs_items\GaetanoDonizetti_ LuciaDiLammermoor.mp3">
+    <Content Include="Modules\MoreGP\Extra_GPs_items\A__570.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Modules\MoreGP\Extra_GPs_items\GeorgeLinley_IveLeftTheSnowCladHills.mp3">
+    <Content Include="Modules\MoreGP\Extra_GPs_items\A__580.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Modules\MoreGP\Extra_GPs_items\GlennMiller_InTheMood.mp3">
+    <Content Include="Modules\MoreGP\Extra_GPs_items\A__590.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Modules\MoreGP\Extra_GPs_items\HammamizadeIsmailDedeEfendi_EyButINevEdaOlmusumMuptela.mp3">
+    <Content Include="Modules\MoreGP\Extra_GPs_items\A__600.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Modules\MoreGP\Extra_GPs_items\HoraceAndy_ItSGonnaBeDread.mp3">
+    <Content Include="Modules\MoreGP\Extra_GPs_items\A__610.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Modules\MoreGP\Extra_GPs_items\JanisJoplin_Summertime.mp3">
+    <Content Include="Modules\MoreGP\Extra_GPs_items\A__620.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Modules\MoreGP\Extra_GPs_items\JosephineBaker_BlueSkies.mp3">
+    <Content Include="Modules\MoreGP\Extra_GPs_items\A__630.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Modules\MoreGP\Extra_GPs_items\KarlJenkins_Palladio.mp3">
+    <Content Include="Modules\MoreGP\Extra_GPs_items\A__640.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Modules\MoreGP\Extra_GPs_items\LuisAlberti_DameElSi.mp3">
+    <Content Include="Modules\MoreGP\Extra_GPs_items\A__650.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Modules\MoreGP\Extra_GPs_items\LuisFonsi_Despacito.mp3">
+    <Content Include="Modules\MoreGP\Extra_GPs_items\A__660.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Modules\MoreGP\Extra_GPs_items\MahmoudZolfonoun_RoohAfza.mp3">
+    <Content Include="Modules\MoreGP\Extra_GPs_items\A__670.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Modules\MoreGP\Extra_GPs_items\MannatNoor_LaungLaachi.mp3">
+    <Content Include="Modules\MoreGP\Extra_GPs_items\A__680.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Modules\MoreGP\Extra_GPs_items\ManuelDeSumaya_HieremiaeProphetaeLamentationes.mp3">
+    <Content Include="Modules\MoreGP\Extra_GPs_items\A__690.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Modules\MoreGP\Extra_GPs_items\MohamedElQasabgi_Zikrayati.mp3">
+    <Content Include="Modules\MoreGP\Extra_GPs_items\A__700.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Modules\MoreGP\Extra_GPs_items\A__710.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Modules\MoreGP\Extra_GPs_items\A__720.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Modules\MoreGP\Extra_GPs_items\A__730.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Modules\MoreGP\Extra_GPs_items\A__740.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Modules\MoreGP\Extra_GPs_items\A__750.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Modules\MoreGP\Extra_GPs_items\A__760.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Modules\MoreGP\Extra_GPs_items\A__770.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Modules\MoreGP\Extra_GPs_items\A__780.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Modules\MoreGP\Extra_GPs_items\A__790.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Modules\MoreGP\Extra_GPs_items\A__800.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Modules\MoreGP\Extra_GPs_items\A__810.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Modules\MoreGP\Extra_GPs_items\A__820.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Modules\MoreGP\Extra_GPs_items\A__830.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Modules\MoreGP\Extra_GPs_items\A__840.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Modules\MoreGP\Extra_GPs_items\A__850.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Modules\MoreGP\Extra_GPs_items\A__860.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Modules\MoreGP\Extra_GPs_items\A__870.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Modules\MoreGP\Extra_GPs_items\A__880.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Modules\MoreGP\Extra_GPs_items\A__890.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Modules\MoreGP\Extra_GPs_items\A__900.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Modules\MoreGP\Extra_GPs_items\BG_acd_01.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Modules\MoreGP\Extra_GPs_items\BG_asi_01.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Modules\MoreGP\Extra_GPs_items\BG_asi_02.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Modules\MoreGP\Extra_GPs_items\BG_chn_01.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Modules\MoreGP\Extra_GPs_items\BG_cls_01.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Modules\MoreGP\Extra_GPs_items\BG_cls_02.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Modules\MoreGP\Extra_GPs_items\BG_cls_03.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Modules\MoreGP\Extra_GPs_items\BG_cls_04.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Modules\MoreGP\Extra_GPs_items\BG_cls_05.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Modules\MoreGP\Extra_GPs_items\BG_cls_07.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Modules\MoreGP\Extra_GPs_items\BG_cls_10.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Modules\MoreGP\Extra_GPs_items\BG_dig_01.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Modules\MoreGP\Extra_GPs_items\BG_fms_01.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Modules\MoreGP\Extra_GPs_items\BG_ftv_01.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Modules\MoreGP\Extra_GPs_items\BG_grc_01.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Modules\MoreGP\Extra_GPs_items\BG_gtr_01.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Modules\MoreGP\Extra_GPs_items\BG_ind_01.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Modules\MoreGP\Extra_GPs_items\BG_ind_02.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Modules\MoreGP\Extra_GPs_items\BG_jaz_01.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Modules\MoreGP\Extra_GPs_items\BG_jaz_02.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Modules\MoreGP\Extra_GPs_items\BG_lat_01.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Modules\MoreGP\Extra_GPs_items\BG_lat_02.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Modules\MoreGP\Extra_GPs_items\BG_med_01.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Modules\MoreGP\Extra_GPs_items\BG_mic_03.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Modules\MoreGP\Extra_GPs_items\BG_mic_04.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Modules\MoreGP\Extra_GPs_items\BG_mic_05.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Modules\MoreGP\Extra_GPs_items\BG_opr_01.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Modules\MoreGP\Extra_GPs_items\BG_opr_02.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Modules\MoreGP\Extra_GPs_items\BG_ori_03.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Modules\MoreGP\Extra_GPs_items\BG_ori_07.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Modules\MoreGP\Extra_GPs_items\BG_ori_08.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Modules\MoreGP\Extra_GPs_items\BG_ori_09.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Modules\MoreGP\Extra_GPs_items\BG_rap_01.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Modules\MoreGP\Extra_GPs_items\BG_rcp_08.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Modules\MoreGP\Extra_GPs_items\BG_scd_02.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Modules\MoreGP\Extra_GPs_items\BG_scd_03.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Modules\MoreGP\Extra_GPs_items\BG_scd_05.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Modules\MoreGP\Extra_GPs_items\BG_scd_08.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Modules\MoreGP\Extra_GPs_items\BG_scn_01.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Modules\MoreGP\Extra_GPs_items\BG_scn_03.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Modules\MoreGP\Extra_GPs_items\BG_scn_07.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Modules\MoreGP\Extra_GPs_items\BG_scn_08.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Modules\MoreGP\Extra_GPs_items\BG_scn_09.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Modules\MoreGP\Extra_GPs_items\BG_spl_01.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Modules\MoreGP\Extra_GPs_items\BG_sum_01.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Modules\MoreGP\Extra_GPs_items\BG_tha_01.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
@@ -2275,83 +2407,163 @@
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Modules\MoreGP\Extra_GPs_items\NilsFrahm_Me.mp3">
+    <Content Include="Modules\MoreGP\Extra_GPs_items\M__510.mp3">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Modules\MoreGP\Extra_GPs_items\PeachesAndIggyPop_KickIt.mp3">
+    <Content Include="Modules\MoreGP\Extra_GPs_items\M__520.mp3">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Modules\MoreGP\Extra_GPs_items\RamJam_BlackBetty.mp3">
+    <Content Include="Modules\MoreGP\Extra_GPs_items\M__530.mp3">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Modules\MoreGP\Extra_GPs_items\RayBarretto_GuajiraYTambo.mp3">
+    <Content Include="Modules\MoreGP\Extra_GPs_items\M__540.mp3">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Modules\MoreGP\Extra_GPs_items\RickyLeeJones_ChuckEsInLove.mp3">
+    <Content Include="Modules\MoreGP\Extra_GPs_items\M__550.mp3">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Modules\MoreGP\Extra_GPs_items\RobertHerrick_CherryRipe.mp3">
+    <Content Include="Modules\MoreGP\Extra_GPs_items\M__560.mp3">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Modules\MoreGP\Extra_GPs_items\RobertoFonseca_DrumeNegrita.mp3">
+    <Content Include="Modules\MoreGP\Extra_GPs_items\M__570.mp3">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Modules\MoreGP\Extra_GPs_items\RubenGonzalez_Almendra.mp3">
+    <Content Include="Modules\MoreGP\Extra_GPs_items\M__580.mp3">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Modules\MoreGP\Extra_GPs_items\SawaiHikaru_Esoragoto.mp3">
+    <Content Include="Modules\MoreGP\Extra_GPs_items\M__590.mp3">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Modules\MoreGP\Extra_GPs_items\ShigeruUmebayashi_InTheMoodForLove.mp3">
+    <Content Include="Modules\MoreGP\Extra_GPs_items\M__600.mp3">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Modules\MoreGP\Extra_GPs_items\SineadOConnor_DontCryForMeArgentina.mp3">
+    <Content Include="Modules\MoreGP\Extra_GPs_items\M__610.mp3">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Modules\MoreGP\Extra_GPs_items\StephenFoster_GwineToRunAllNight.mp3">
+    <Content Include="Modules\MoreGP\Extra_GPs_items\M__620.mp3">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Modules\MoreGP\Extra_GPs_items\TheBeatles_Help.mp3">
+    <Content Include="Modules\MoreGP\Extra_GPs_items\M__630.mp3">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Modules\MoreGP\Extra_GPs_items\TheloniousMonk_Misterioso.mp3">
+    <Content Include="Modules\MoreGP\Extra_GPs_items\M__640.mp3">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Modules\MoreGP\Extra_GPs_items\TheSugarHillGang_RappersDelight.mp3">
+    <Content Include="Modules\MoreGP\Extra_GPs_items\M__650.mp3">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Modules\MoreGP\Extra_GPs_items\TheTemptations_PapaWasARollingStone.mp3">
+    <Content Include="Modules\MoreGP\Extra_GPs_items\M__660.mp3">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Modules\MoreGP\Extra_GPs_items\TheWeeknd_BlindingLights.mp3">
+    <Content Include="Modules\MoreGP\Extra_GPs_items\M__670.mp3">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Modules\MoreGP\Extra_GPs_items\UFO_LoudMinority.mp3">
+    <Content Include="Modules\MoreGP\Extra_GPs_items\M__680.mp3">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Modules\MoreGP\Extra_GPs_items\WilliamVincentWallace_Lurline.mp3">
+    <Content Include="Modules\MoreGP\Extra_GPs_items\M__690.mp3">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Modules\MoreGP\Extra_GPs_items\WomackAndWomack_Teardrops.mp3">
+    <Content Include="Modules\MoreGP\Extra_GPs_items\M__700.mp3">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Modules\MoreGP\Extra_GPs_items\M__710.mp3">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Modules\MoreGP\Extra_GPs_items\M__720.mp3">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Modules\MoreGP\Extra_GPs_items\M__730.mp3">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Modules\MoreGP\Extra_GPs_items\M__740.mp3">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Modules\MoreGP\Extra_GPs_items\M__750.mp3">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Modules\MoreGP\Extra_GPs_items\M__760.mp3">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Modules\MoreGP\Extra_GPs_items\M__770.mp3">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Modules\MoreGP\Extra_GPs_items\M__780.mp3">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Modules\MoreGP\Extra_GPs_items\M__790.mp3">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Modules\MoreGP\Extra_GPs_items\M__800.mp3">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Modules\MoreGP\Extra_GPs_items\M__810.mp3">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Modules\MoreGP\Extra_GPs_items\M__820.mp3">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Modules\MoreGP\Extra_GPs_items\M__830.mp3">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Modules\MoreGP\Extra_GPs_items\M__840.mp3">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Modules\MoreGP\Extra_GPs_items\M__850.mp3">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Modules\MoreGP\Extra_GPs_items\M__860.mp3">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Modules\MoreGP\Extra_GPs_items\M__870.mp3">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Modules\MoreGP\Extra_GPs_items\M__880.mp3">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Modules\MoreGP\Extra_GPs_items\M__890.mp3">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Modules\MoreGP\Extra_GPs_items\M__900.mp3">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
@@ -2380,6 +2592,10 @@
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
     <Content Include="Modules\MoreGP\Extra_GPs_items\W__070.mp3">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Modules\MoreGP\Extra_GPs_items\W__080.mp3">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
@@ -2416,6 +2632,10 @@
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
     <Content Include="Modules\MoreGP\Extra_GPs_items\W__170.mp3">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Modules\MoreGP\Extra_GPs_items\W__180.mp3">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
@@ -2488,6 +2708,78 @@
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
     <Content Include="Modules\MoreGP\Extra_GPs_items\W__360.mp3">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Modules\MoreGP\Extra_GPs_items\W__370.mp3">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Modules\MoreGP\Extra_GPs_items\W__380.mp3">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Modules\MoreGP\Extra_GPs_items\W__390.mp3">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Modules\MoreGP\Extra_GPs_items\W__400.mp3">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Modules\MoreGP\Extra_GPs_items\W__410.mp3">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Modules\MoreGP\Extra_GPs_items\W__420.mp3">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Modules\MoreGP\Extra_GPs_items\W__430.mp3">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Modules\MoreGP\Extra_GPs_items\W__440.mp3">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Modules\MoreGP\Extra_GPs_items\W__450.mp3">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Modules\MoreGP\Extra_GPs_items\W__460.mp3">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Modules\MoreGP\Extra_GPs_items\W__470.mp3">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Modules\MoreGP\Extra_GPs_items\W__480.mp3">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Modules\MoreGP\Extra_GPs_items\W__490.mp3">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Modules\MoreGP\Extra_GPs_items\W__500.mp3">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Modules\MoreGP\Extra_GPs_items\W__510.mp3">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Modules\MoreGP\Extra_GPs_items\W__520.mp3">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Modules\MoreGP\Extra_GPs_items\W__530.mp3">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Modules\MoreGP\Extra_GPs_items\W__540.mp3">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>

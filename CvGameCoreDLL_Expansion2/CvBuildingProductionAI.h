@@ -12,11 +12,6 @@
 
 #include "CvWeightedVector.h"
 
-// Allocate array for 50% more buildings than we have now (92)
-//   May want to tune this number closer to shipping, though safe enough
-//   given that each entry is only 8 bytes
-#define SAFE_ESTIMATE_NUM_BUILDINGS 135
-
 class CvCity;
 class CvCityBuildings;
 
@@ -52,16 +47,16 @@ public:
 	void LogPossibleBuilds();
 #if defined(MOD_BALANCE_CORE)
 	int CheckBuildingBuildSanity(BuildingTypes eBuilding, int iValue,
-		int iNumLandConnection = 0, int iNumSeaConnection = 0, int iGPT = 0, 
-		bool bInterruptBuildings = false, bool bNationalWonderCheck = false, bool bFreeBuilding = false, bool bIgnoreSituational = false);
+		int iNumLandConnection = 0, int iNumSeaConnection = 0, 
+		bool bNationalWonderCheck = false, bool bFreeBuilding = false, bool bIgnoreSituational = false);
 #endif
 private:
 
 	// Private data
 	CvCity* m_pCity;
 	CvCityBuildings* m_pCityBuildings;
-	CvWeightedVector<int, SAFE_ESTIMATE_NUM_BUILDINGS, true> m_BuildingAIWeights;
-	CvWeightedVector<int, SAFE_ESTIMATE_NUM_BUILDINGS, true> m_Buildables;
+	CvWeightedVector<int> m_BuildingAIWeights;
+	CvWeightedVector<int> m_Buildables;
 };
 
 #endif //CIV5_BUILDING_PRODUCTION_AI_H

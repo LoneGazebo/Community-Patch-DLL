@@ -47,11 +47,6 @@
 		
 		<!-- Economic AI Stuff -->
 		<Update>
-			<!-- Was 50% before, making the AI miss out on possible good city spots, especially for colonization -->
-			<Set Value="60" />
-			<Where Name="AI_STRATEGY_AREA_IS_FULL_PERCENT" />
-		</Update>
-		<Update>
 			<!-- Was 25 before, making the AI miss out on possible good city spots just because there might be cities nearby -->
 			<Set Value="20" />
 			<Where Name="AI_STRATEGY_EARLY_EXPANSION_NUM_UNOWNED_TILES_REQUIRED" />

@@ -62,29 +62,25 @@ void CvCityAI::AI_reset()
 
 	m_bChooseProductionDirty = false;
 
-	for(int iI = 0; iI < REALLY_MAX_PLAYERS; iI++)
-	{
-		m_aiPlayerCloseness[iI] = 0;
-		m_aiNumPlotsAcquiredByOtherPlayers[iI] = 0;
-	}
+	m_mapPlotsAcquiredByOtherPlayers.clear();
 	m_iCachePlayerClosenessTurn = -1;
 	m_iCachePlayerClosenessDistance = -1;
 }
 
 void CvCityAI::AI_doTurn()
 {
-	AI_PERF_FORMAT("City-AI-perf.csv", ("CvCityAI::AI_doTurn, Turn %03d, %s, %s", GC.getGame().getElapsedGameTurns(), GetPlayer()->getCivilizationShortDescription(), getName().c_str()) );
 	VALIDATE_OBJECT
 	if(!isHuman())
 	{
 		AI_stealPlots();
+
+		//might want to reconsider our build
+		if (m_iDamageTakenLastTurn > getHealRate())
+			AI_setChooseProductionDirty(true);
 	}
 }
-#if defined(MOD_BALANCE_CORE)
+
 void CvCityAI::AI_chooseProduction(bool bInterruptWonders, bool bInterruptBuildings)
-#else
-void CvCityAI::AI_chooseProduction(bool bInterruptWonders)
-#endif
 {
 	VALIDATE_OBJECT
 	CvPlayerAI& kOwner = GET_PLAYER(getOwner());
@@ -134,7 +130,7 @@ void CvCityAI::AI_chooseProduction(bool bInterruptWonders)
 		CvBuildingEntry* pkBuilding = GC.getBuildingInfo(eNextWonder);
 		if (pkBuilding)
 		{
-			if (IsBestForWonder((BuildingClassTypes)pkBuilding->GetBuildingClassType()))
+			if (IsBestForWonder(pkBuilding->GetBuildingClassType()))
 			{
 				if (kOwner.GetNumUnitsWithUnitAI(UNITAI_ENGINEER) > 0)
 					bBuildWonder = true;
@@ -223,8 +219,12 @@ int CvCityAI::AI_GetNumPlotsAcquiredByOtherPlayer(PlayerTypes ePlayer) const
 	VALIDATE_OBJECT
 	FAssert(ePlayer < MAX_PLAYERS);
 	FAssert(ePlayer > -1);
+	
+	map<PlayerTypes,int>::const_iterator it = m_mapPlotsAcquiredByOtherPlayers.find(ePlayer);
+	if (it != m_mapPlotsAcquiredByOtherPlayers.end())
+		return it->second;
 
-	return m_aiNumPlotsAcquiredByOtherPlayers[ePlayer];
+	return 0;
 }
 
 /// Changes how many of our City's plots have been grabbed by someone else
@@ -234,8 +234,12 @@ void CvCityAI::AI_ChangeNumPlotsAcquiredByOtherPlayer(PlayerTypes ePlayer, int i
 	FAssert(ePlayer < MAX_PLAYERS);
 	FAssert(ePlayer > -1);
 
-	m_aiNumPlotsAcquiredByOtherPlayers[ePlayer] += iChange;
+	m_mapPlotsAcquiredByOtherPlayers[ePlayer] += iChange;
+
+	if (m_mapPlotsAcquiredByOtherPlayers[ePlayer] == 0)
+		m_mapPlotsAcquiredByOtherPlayers.erase(ePlayer);
 }
+
 #if defined(MOD_BALANCE_CORE_EVENTS)
 void CvCityAI::AI_DoEventChoice(CityEventTypes eChosenEvent)
 {
@@ -265,7 +269,7 @@ void CvCityAI::AI_DoEventChoice(CityEventTypes eChosenEvent)
 				return;
 			}
 			// Now let's get the event flavors.
-			CvWeightedVector<int, SAFE_ESTIMATE_NUM_BUILDINGS * 2, true> flavorChoices;
+			CvWeightedVector<int> flavorChoices;
 			for(int iLoop = 0; iLoop < GC.getNumCityEventChoiceInfos(); iLoop++)
 			{
 				CityEventChoiceTypes eEventChoice = (CityEventChoiceTypes)iLoop;
@@ -325,7 +329,7 @@ void CvCityAI::AI_DoEventChoice(CityEventTypes eChosenEvent)
 				}
 			}
 			//If we got here, it is because we haven't made a choice yet. Do so now.
-			CvWeightedVector<int, SAFE_ESTIMATE_NUM_BUILDINGS, true> randomChoices;
+			CvWeightedVector<int> randomChoices;
 			for(int iLoop = 0; iLoop < GC.getNumCityEventChoiceInfos(); iLoop++)
 			{
 				CityEventChoiceTypes eEventChoice = (CityEventChoiceTypes)iLoop;
@@ -398,8 +402,7 @@ void CvCityAI::read(FDataStream& kStream)
 	kStream >> m_bChooseProductionDirty;
 	kStream >> m_iCachePlayerClosenessTurn;
 	kStream >> m_iCachePlayerClosenessDistance;
-	kStream >> m_aiPlayerCloseness;
-	kStream >> m_aiNumPlotsAcquiredByOtherPlayers;
+	kStream >> m_mapPlotsAcquiredByOtherPlayers;
 }
 
 //
@@ -418,8 +421,7 @@ void CvCityAI::write(FDataStream& kStream) const
 	kStream << m_bChooseProductionDirty;
 	kStream << m_iCachePlayerClosenessTurn;
 	kStream << m_iCachePlayerClosenessDistance;
-	kStream << m_aiPlayerCloseness;
-	kStream << m_aiNumPlotsAcquiredByOtherPlayers;
+	kStream << m_mapPlotsAcquiredByOtherPlayers;
 }
 
 FDataStream& operator<<(FDataStream& saveTo, const CvCityAI& readFrom)

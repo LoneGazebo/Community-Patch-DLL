@@ -187,6 +187,7 @@ protected:
 #endif
 	static int lIsAllowsOpenBordersToTeam(lua_State* L);
 	static int lIsForcePeace(lua_State* L);
+	static int lIsWarBlockedByPeaceTreaty(lua_State* L);
 	static int lIsDefensivePact(lua_State* L);
 	static int lGetRouteChange(lua_State* L);
 	static int lChangeRouteChange(lua_State* L);
@@ -261,5 +262,34 @@ protected:
 	LUAAPIEXTN(GetNumVassals, int);
 #endif
 };
+
+namespace CvLuaArgs
+{
+	template<> inline const CvTeam* toValue(lua_State* L, int idx)
+	{
+		return CvLuaTeam::GetInstance(L, idx);
+	}
+	template<> inline CvTeam* toValue(lua_State* L, int idx)
+	{
+		return CvLuaTeam::GetInstance(L, idx);
+	}
+	template<> inline const CvTeam& toValue(lua_State* L, int idx)
+	{
+		return *CvLuaTeam::GetInstance(L, idx);
+	}
+	template<> inline CvTeam& toValue(lua_State* L, int idx)
+	{
+		return *CvLuaTeam::GetInstance(L, idx);
+	}
+
+	template<> inline void pushValue(lua_State* L, CvTeam* p)
+	{
+		CvLuaTeam::Push(L, p);
+	}
+	template<> inline void pushValue(lua_State* L, CvTeam& r)
+	{
+		CvLuaTeam::Push(L, &r);
+	}
+}
 
 #endif //CVLUATEAM_H

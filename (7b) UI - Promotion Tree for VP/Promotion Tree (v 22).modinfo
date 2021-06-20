@@ -1,0 +1,61 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Mod id="1f0a153b-26ae-4496-a2c0-a106d9b43c95" version="22">
+  <Properties>
+    <Name>(7b) UI - Promotion Tree for VP</Name>
+    <Teaser>Shows promotions as a tree</Teaser>
+    <Description>Displays promotions in a tree format either for the current unit or by selecting one of the various combat classes (melee, naval, recon, siege, mounted, etc) from a drop-down menu
+
+Hooks into the DiploCorner drop-down.
+
+Layout derived from http://gaming.stackexchange.com/questions/15846/122</Description>
+    <Authors>William Howard (Updated for EUI by Amir Kamal; Enhancement update for VP by UndeadDevel)</Authors>
+    <SpecialThanks>Translation: Russian - Tomahawk.nsk</SpecialThanks>
+    <HideSetupGame>0</HideSetupGame>
+    <Homepage>https://forums.civfanatics.com/threads/community-patch-how-to-install.528034/</Homepage>
+    <AffectsSavedGames>0</AffectsSavedGames>
+    <SupportsSinglePlayer>1</SupportsSinglePlayer>
+    <SupportsMultiplayer>0</SupportsMultiplayer>
+    <SupportsHotSeat>1</SupportsHotSeat>
+    <SupportsMac>1</SupportsMac>
+    <ReloadAudioSystem>0</ReloadAudioSystem>
+    <ReloadLandmarkSystem>0</ReloadLandmarkSystem>
+    <ReloadStrategicViewSystem>0</ReloadStrategicViewSystem>
+    <ReloadUnitSystem>0</ReloadUnitSystem>
+  </Properties>
+  <Dependencies>
+    <Mod id="d1b6328c-ff44-4b0d-aad7-c657f83610cd" minversion="0" maxversion="999" title="Community Patch" />
+    <Mod id="8411a7a8-dad3-4622-a18e-fcc18324c799" minversion="0" maxversion="999" title="Community Balance Patch" />
+    <Mod id="eead0050-1e3f-4178-a91f-26cf1881ac39" minversion="0" maxversion="999" title="CSD" />
+    <Mod id="c7bf7064-d1b1-4708-9e93-7a1560868582" minversion="0" maxversion="999" title="C4DF" />
+  </Dependencies>
+  <References>
+    <Mod id="21e78f1f-06f9-4147-ac61-75aa7c403d18" minversion="3" maxversion="999" title="Utils - Modular DiploCorner" />
+    <Mod id="609a05b4-0231-4eaa-9ad1-a2d79e1fc16d" minversion="0" maxversion="999" title="Promotions - Subs Silent Running" />
+    <Mod id="a6e2d8b9-4675-4409-aa06-b9a9469d3cef" minversion="0" maxversion="999" title="Promotions - AntiAir Specialisations" />
+  </References>
+  <Blocks />
+  <Files>
+    <File md5="3F2F06F79FB80833A9D6A808651E8CAA" import="1">LUA/ButtonManager.lua</File>
+    <File md5="ECBE2176759205C61713615D3832DA25" import="1">LUA/ControlUtils.lua</File>
+    <File md5="C9954CCB7909269AA7AE77308D5880F5" import="1">LUA/DebugPrint.lua</File>
+    <File md5="BEF7B5EC3FA2810262122DC5F24B8413" import="1">LUA/PipeManager.lua</File>
+    <File md5="4E884A4B153C5BE16D00B906C52AB03B" import="1">LUA/PromotionUtils.lua</File>
+    <File md5="D276550C4D80DF9CB054FC4B1A5884A7" import="0">SQL/UIPromotionTree.sql</File>
+    <File md5="B6F6F71EBBCA4AD89A9B0141EF217480" import="0">UI/PromotionTree.lua</File>
+    <File md5="7639ED42D493F7831BD2E453EC1F9691" import="0">UI/PromotionTree.xml</File>
+    <File md5="CADB97B788CBC0DB0DB6D393DE5E646A" import="0">XML/UIPromotionTree.xml</File>
+  </Files>
+  <Actions>
+    <OnModActivated>
+      <UpdateDatabase>XML/UIPromotionTree.xml</UpdateDatabase>
+      <UpdateDatabase>SQL/UIPromotionTree.sql</UpdateDatabase>
+    </OnModActivated>
+  </Actions>
+  <EntryPoints>
+    <EntryPoint type="InGameUIAddin" file="UI/PromotionTree.xml">
+      <Name>PromotionTree</Name>
+      <Description>
+      </Description>
+    </EntryPoint>
+  </EntryPoints>
+</Mod>

@@ -1374,7 +1374,7 @@ void CvDllNetMessageHandler::ResponseUpdateCityCitizens(PlayerTypes ePlayer, int
 		if(pkCitizens != NULL)
 		{
 			pkCitizens->DoVerifyWorkingPlots();
-			pkCitizens->DoReallocateCitizens();
+			pkCitizens->DoReallocateCitizens(true,true);
 		}
 	}
 }

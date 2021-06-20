@@ -23,6 +23,8 @@ All rights reserved.
 // must be included after all other headers
 #include "LintFree.h"
 
+// global state ... it's a hack
+SPrecomputedExpensiveNumbers gCachedNumbers;
 
 //=====================================
 // CvCityCitizens
@@ -80,10 +82,8 @@ void CvCityCitizens::Reset()
 {
 	m_bAutomated = false;
 	m_bNoAutoAssignSpecialists = false;
-#if defined(MOD_BALANCE_CORE)
 	m_bIsDirty = false;
-	m_bIsBlockaded = false;
-#endif
+
 	m_iNumUnassignedCitizens = 0;
 	m_iNumCitizensWorkingPlots = 0;
 	m_iNumForcedWorkingPlots = 0;
@@ -99,6 +99,8 @@ void CvCityCitizens::Reset()
 		m_pabWorkingPlot[iI] = false;
 		m_pabForcedWorkingPlot[iI] = false;
 	}
+
+	m_vBlockadedPlots.clear();
 
 	m_iNumDefaultSpecialists = 0;
 	m_iNumForcedDefaultSpecialists = 0;
@@ -147,7 +149,6 @@ void CvCityCitizens::Reset()
 	}
 
 	m_bForceAvoidGrowth = false;
-	m_bDiscourageGrowth = false;
 }
 
 /// Serialization read
@@ -160,10 +161,7 @@ void CvCityCitizens::Read(FDataStream& kStream)
 
 	kStream >> m_bAutomated;
 	kStream >> m_bNoAutoAssignSpecialists;
-#if defined(MOD_BALANCE_CORE)
 	kStream >> m_bIsDirty;
-	kStream >> m_bIsBlockaded;
-#endif
 	kStream >> m_iNumUnassignedCitizens;
 	kStream >> m_iNumCitizensWorkingPlots;
 	kStream >> m_iNumForcedWorkingPlots;
@@ -171,19 +169,17 @@ void CvCityCitizens::Read(FDataStream& kStream)
 	kStream >> m_eCityAIFocusTypes;
 
 	kStream >> m_bForceAvoidGrowth;
-	kStream >> m_bDiscourageGrowth;
 
 	kStream >> m_pabWorkingPlot;
 	kStream >> m_pabForcedWorkingPlot;
+	kStream >> m_vBlockadedPlots;
 
 	kStream >> m_iNumDefaultSpecialists;
 	kStream >> m_iNumForcedDefaultSpecialists;
 
 	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_aiSpecialistCounts, GC.getNumSpecialistInfos());
 	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_aiSpecialistGreatPersonProgressTimes100, GC.getNumSpecialistInfos());
-#if defined(MOD_BALANCE_CORE)
 	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_aiSpecialistSlots, GC.getNumSpecialistInfos());
-#endif
 
 	BuildingArrayHelpers::Read(kStream, m_aiNumSpecialistsInBuilding);
 	BuildingArrayHelpers::Read(kStream, m_aiNumForcedSpecialistsInBuilding);
@@ -215,10 +211,7 @@ void CvCityCitizens::Write(FDataStream& kStream)
 
 	kStream << m_bAutomated;
 	kStream << m_bNoAutoAssignSpecialists;
-#if defined(MOD_BALANCE_CORE)
 	kStream << m_bIsDirty;
-	kStream << m_bIsBlockaded;
-#endif
 	kStream << m_iNumUnassignedCitizens;
 	kStream << m_iNumCitizensWorkingPlots;
 	kStream << m_iNumForcedWorkingPlots;
@@ -226,19 +219,17 @@ void CvCityCitizens::Write(FDataStream& kStream)
 	kStream << m_eCityAIFocusTypes;
 
 	kStream << m_bForceAvoidGrowth;
-	kStream << m_bDiscourageGrowth;
 
 	kStream << m_pabWorkingPlot;
 	kStream << m_pabForcedWorkingPlot;
+	kStream << m_vBlockadedPlots;
 
 	kStream << m_iNumDefaultSpecialists;
 	kStream << m_iNumForcedDefaultSpecialists;
 
 	CvInfosSerializationHelper::WriteHashedDataArray<SpecialistTypes, int>(kStream, m_aiSpecialistCounts, GC.getNumSpecialistInfos());
 	CvInfosSerializationHelper::WriteHashedDataArray<SpecialistTypes, int>(kStream, m_aiSpecialistGreatPersonProgressTimes100, GC.getNumSpecialistInfos());
-#if defined(MOD_BALANCE_CORE)
 	CvInfosSerializationHelper::WriteHashedDataArray<SpecialistTypes, int>(kStream, m_aiSpecialistSlots, GC.getNumSpecialistInfos());
-#endif
 	BuildingArrayHelpers::Write(kStream, m_aiNumSpecialistsInBuilding, GC.getNumBuildingInfos());
 	BuildingArrayHelpers::Write(kStream, m_aiNumForcedSpecialistsInBuilding, GC.getNumBuildingInfos());
 
@@ -277,530 +268,193 @@ void CvCityCitizens::DoFoundCity()
 	if (pHomePlot != NULL)
 	{
 		bool bWorkPlot = IsCanWork(pHomePlot);
-#if defined(MOD_BALANCE_CORE)
-		SetWorkingPlot(pHomePlot, bWorkPlot, /*bUseUnassignedPool*/ false, /*bUpdateNow */ false);
-#else
-		SetWorkingPlot(pHomePlot, bWorkPlot, /*bUseUnassignedPool*/ false);
-#endif
+		SetWorkingPlot(pHomePlot, bWorkPlot, CvCity::YIELD_UPDATE_GLOBAL);
 	}
 }
 
 /// Processed every turn
 void CvCityCitizens::DoTurn()
 {
-	AI_PERF_FORMAT("City-AI-perf.csv", ("CvCityCitizens::DoTurn, Turn %03d, %s, %s", GC.getGame().getElapsedGameTurns(), m_pCity->GetPlayer()->getCivilizationShortDescription(), m_pCity->getName().c_str()));
-	DoVerifyWorkingPlots();
-
 	CvPlayerAI& thisPlayer = GET_PLAYER(GetOwner());
 
 	bool bForceCheck = false;
-	if (!IsBlockade())
+	if (CityStrategyAIHelpers::IsTestCityStrategy_IsPuppetAndAnnexable(m_pCity))
 	{
-		if (m_pCity->isCoastal() && m_pCity->IsBlockaded(true))
-		{
-			SetBlockade(true);
-		}
-	}
-	else if (IsBlockade())
-	{
-		if (m_pCity->isCoastal() && !m_pCity->IsBlockaded(true))
-		{
-			SetBlockade(false);
-			bForceCheck = true;
-		}
-	}
-#if defined(MOD_AI_SMART_V3)
-	bool bWonder = false;
-	bool bSettler = false;
-	CvUnitEntry* pkUnitInfo = NULL;
+		bForceCheck |= SetFocusType(NO_CITY_AI_FOCUS_TYPE);
 
-	if (MOD_AI_SMART_V3)
-	{
-		const OrderData* pOrderNode = m_pCity->headOrderQueueNode();
-
-		CvBuildingClassInfo* pkBuildingClassInfo = NULL;
-		if (pOrderNode != NULL && pOrderNode->eOrderType == ORDER_TRAIN)
-		{
-			pkUnitInfo = GC.getUnitInfo((UnitTypes)pOrderNode->iData1);
-			if (pkUnitInfo != NULL && pkUnitInfo->IsFound())
-			{
-				bSettler = true;
-			}
-		}
-		else if (pOrderNode != NULL && pOrderNode->eOrderType == ORDER_CONSTRUCT)
-		{
-			CvBuildingEntry* pkOrderBuildingInfo = GC.getBuildingInfo((BuildingTypes)pOrderNode->iData1);
-
-			if (pkOrderBuildingInfo)
-			{
-				const BuildingClassTypes eOrderBuildingClass = (BuildingClassTypes)pkOrderBuildingInfo->GetBuildingClassType();
-				if (eOrderBuildingClass != NO_BUILDINGCLASS)
-				{
-					pkBuildingClassInfo = GC.getBuildingClassInfo(eOrderBuildingClass);
-					if (pkBuildingClassInfo && pkBuildingClassInfo->getMaxGlobalInstances() == 1)
-					{
-						bWonder = true;
-					}
-				}
-			}
-		}
-	}
-#endif
-
-	if (m_pCity->IsPuppet())
-	{
-#if defined(MOD_UI_CITY_PRODUCTION)
-		if (!(MOD_UI_CITY_PRODUCTION && thisPlayer.isHuman()))
-		{
-#endif
-			if (GetFocusType() != NO_CITY_AI_FOCUS_TYPE)
-			{
-				SetFocusType(NO_CITY_AI_FOCUS_TYPE);
-				bForceCheck = true;
-			}
-			if (IsNoAutoAssignSpecialists())
-			{
-				SetNoAutoAssignSpecialists(false);
-				bForceCheck = true;
-			}
-			if (IsForcedAvoidGrowth())
-			{
-				SetForcedAvoidGrowth(false);
-				bForceCheck = true;
-			}
-#if defined(MOD_UI_CITY_PRODUCTION)
-		}
-		if (!thisPlayer.isHuman())
-		{
-			if (GetFocusType() != NO_CITY_AI_FOCUS_TYPE)
-			{
-				SetFocusType(NO_CITY_AI_FOCUS_TYPE);
-				bForceCheck = true;
-			}
-			if (IsNoAutoAssignSpecialists())
-			{
-				SetNoAutoAssignSpecialists(false);
-				bForceCheck = true;
-			}
-			if (IsForcedAvoidGrowth())
-			{
-				SetForcedAvoidGrowth(false);
-				bForceCheck = true;
-			}
-		}
-#endif
-	}
-	else if (!thisPlayer.isHuman() && m_pCity->getPopulation() >= 10)
-	{
-		CitySpecializationTypes eWonderSpecializationType = thisPlayer.GetCitySpecializationAI()->GetWonderSpecialization();
-
-		if ((m_pCity->GetCityStrategyAI()->GetSpecialization() == eWonderSpecializationType) 
-			|| bWonder 
-			|| (pkUnitInfo != NULL && pkUnitInfo->IsFound()))
-		{
-			if (GetFocusType() != CITY_AI_FOCUS_TYPE_PRODUCTION)
-			{
-				SetFocusType(CITY_AI_FOCUS_TYPE_PRODUCTION);
-				bForceCheck = true;
-			}
-			if (IsNoAutoAssignSpecialists())
-			{
-				SetNoAutoAssignSpecialists(false);
-				bForceCheck = true;
-			}
-			if (IsForcedAvoidGrowth())
-			{
-				SetForcedAvoidGrowth(false);
-				bForceCheck = true;
-			}
-		}
-		else
-		{
-			// Are we running at a deficit?
-			EconomicAIStrategyTypes eStrategyLosingMoney = (EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_LOSING_MONEY", true);
-			bool bInDeficit = false;
-			if (eStrategyLosingMoney != NO_ECONOMICAISTRATEGY)
-			{
-				bInDeficit = thisPlayer.GetEconomicAI()->IsUsingStrategy(eStrategyLosingMoney);
-			}
-
-			EconomicAIStrategyTypes eStrategyBuildingReligion = (EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_DEVELOPING_RELIGION", true);
-			bool bBuildingReligion = false;
-			if (eStrategyBuildingReligion != NO_ECONOMICAISTRATEGY)
-			{
-				bBuildingReligion = thisPlayer.GetEconomicAI()->IsUsingStrategy(eStrategyBuildingReligion);
-			}
-
-			ProcessTypes eProcess = m_pCity->getProductionProcess();
-			ProjectTypes eProject = m_pCity->getProductionProject();
-
-			bool bNeedFood = m_pCity->GetCityStrategyAI()->IsYieldDeficient(YIELD_FOOD);
-
-			if (bInDeficit && !bNeedFood)
-			{
-				if (GetFocusType() != CITY_AI_FOCUS_TYPE_GOLD)
-				{
-					SetFocusType(CITY_AI_FOCUS_TYPE_GOLD);
-					bForceCheck = true;
-				}
-				if (IsNoAutoAssignSpecialists())
-				{
-					SetNoAutoAssignSpecialists(false);
-					bForceCheck = true;
-				}
-				if (IsForcedAvoidGrowth())
-				{
-					SetForcedAvoidGrowth(false);
-					bForceCheck = true;
-				}
-			}
-			else if (bInDeficit && bNeedFood)
-			{
-				if (GetFocusType() != CITY_AI_FOCUS_TYPE_GOLD_GROWTH)
-				{
-					SetFocusType(CITY_AI_FOCUS_TYPE_GOLD_GROWTH);
-					bForceCheck = true;
-				}
-				if (IsNoAutoAssignSpecialists())
-				{
-					SetNoAutoAssignSpecialists(false);
-					bForceCheck = true;
-				}
-				if (IsForcedAvoidGrowth())
-				{
-					SetForcedAvoidGrowth(false);
-					bForceCheck = true;
-				}
-			}
-			else if ((eProcess != NO_PROCESS) || (eProject != NO_PROJECT))
-			{
-				if (GetFocusType() != CITY_AI_FOCUS_TYPE_PRODUCTION)
-				{
-					SetFocusType(CITY_AI_FOCUS_TYPE_PRODUCTION);
-					bForceCheck = true;
-				}
-				if (IsNoAutoAssignSpecialists())
-				{
-					SetNoAutoAssignSpecialists(false);
-					bForceCheck = true;
-				}
-				if (IsForcedAvoidGrowth())
-				{
-					SetForcedAvoidGrowth(false);
-					bForceCheck = true;
-				}
-			}
-			else // no special cases? Alright, let's pick a function to follow...
-			{
-				bool bGPCity = false;
-				AICityStrategyTypes eGoodGP = (AICityStrategyTypes)GC.getInfoTypeForString("AICITYSTRATEGY_GOOD_GP_CITY");
-				if (eGoodGP != NO_AICITYSTRATEGY)
-				{
-					bGPCity = m_pCity->GetCityStrategyAI()->IsUsingCityStrategy(eGoodGP);
-					if (!bGPCity)
-					{
-						bGPCity = thisPlayer.GetDiplomacyAI()->IsGoingForCultureVictory();
-					}
-				}
-				bool bCultureBlock = false;
-				for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
-				{
-					PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
-
-					if (eLoopPlayer != NO_PLAYER && eLoopPlayer != m_pCity->getOwner() && thisPlayer.GetDiplomacyAI()->IsPlayerValid(eLoopPlayer) && !GET_PLAYER(eLoopPlayer).isMinorCiv())
-					{
-						if (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsCloseToCultureVictory())
-						{
-							bCultureBlock = true;
-							break;
-						}
-					}
-				}
-
-				if (IsNoAutoAssignSpecialists())
-				{
-					SetNoAutoAssignSpecialists(false);
-					bForceCheck = true;
-				}
-				if (IsForcedAvoidGrowth())
-				{
-					SetForcedAvoidGrowth(false);
-					bForceCheck = true;
-				}
-
-				if (bCultureBlock)
-				{
-					if (GetFocusType() != CITY_AI_FOCUS_TYPE_CULTURE)
-					{
-						SetFocusType(CITY_AI_FOCUS_TYPE_CULTURE);
-						bForceCheck = true;
-					}
-				}
-				else
-				{
-					CitySpecializationTypes eSpecialization = m_pCity->GetCityStrategyAI()->GetSpecialization();
-					if (eSpecialization != -1)
-					{
-						if (m_pCity->GetCityStrategyAI()->GetDefaultSpecialization() == eSpecialization)
-						{
-							SetFocusType(NO_CITY_AI_FOCUS_TYPE);
-							bForceCheck = true;
-						}
-						else
-						{
-							CvCitySpecializationXMLEntry* pCitySpecializationEntry = GC.getCitySpecializationInfo(eSpecialization);
-							if (pCitySpecializationEntry)
-							{
-								YieldTypes eYield = pCitySpecializationEntry->GetYieldType();
-								if (eYield == YIELD_FOOD)
-								{
-									if (GetFocusType() != CITY_AI_FOCUS_TYPE_FOOD)
-									{
-										SetFocusType(CITY_AI_FOCUS_TYPE_FOOD);
-										bForceCheck = true;
-									}
-								}
-								else if (eYield == YIELD_PRODUCTION && bNeedFood)
-								{
-									if (GetFocusType() != CITY_AI_FOCUS_TYPE_PROD_GROWTH)
-									{
-										SetFocusType(CITY_AI_FOCUS_TYPE_PROD_GROWTH);
-										bForceCheck = true;
-									}
-								}
-								else if (eYield == YIELD_PRODUCTION && !bNeedFood)
-								{
-									if (GetFocusType() != CITY_AI_FOCUS_TYPE_PRODUCTION)
-									{
-										SetFocusType(CITY_AI_FOCUS_TYPE_PRODUCTION);
-										bForceCheck = true;
-									}
-								}
-								else if (eYield == YIELD_GOLD && bNeedFood)
-								{
-									if (GetFocusType() != CITY_AI_FOCUS_TYPE_GOLD_GROWTH)
-									{
-										SetFocusType(CITY_AI_FOCUS_TYPE_GOLD_GROWTH);
-										bForceCheck = true;
-									}
-								}
-								else if (eYield == YIELD_GOLD && !bNeedFood)
-								{
-									if (GetFocusType() != CITY_AI_FOCUS_TYPE_GOLD)
-									{
-										SetFocusType(CITY_AI_FOCUS_TYPE_GOLD);
-										bForceCheck = true;
-									}
-								}
-								else if (eYield == YIELD_SCIENCE)
-								{
-									if (GetFocusType() != CITY_AI_FOCUS_TYPE_SCIENCE)
-									{
-										SetFocusType(CITY_AI_FOCUS_TYPE_SCIENCE);
-										bForceCheck = true;
-									}
-								}
-								else if (eYield == YIELD_FAITH)
-								{
-									if (bBuildingReligion)
-									{
-										if (GetFocusType() != CITY_AI_FOCUS_TYPE_FAITH)
-										{
-											SetFocusType(CITY_AI_FOCUS_TYPE_FAITH);
-											bForceCheck = true;
-										}
-									}
-									else
-									{
-										if (GetFocusType() != NO_CITY_AI_FOCUS_TYPE)
-										{
-											SetFocusType(NO_CITY_AI_FOCUS_TYPE);
-											bForceCheck = true;
-										}
-									}
-								}
-								else if (eYield == YIELD_CULTURE && (!bGPCity || bCultureBlock))
-								{
-									if (GetFocusType() != CITY_AI_FOCUS_TYPE_CULTURE)
-									{
-										SetFocusType(CITY_AI_FOCUS_TYPE_CULTURE);
-										bForceCheck = true;
-									}
-								}
-								else if (eYield == YIELD_CULTURE && bGPCity)
-								{
-									if (GetFocusType() != CITY_AI_FOCUS_TYPE_GREAT_PEOPLE)
-									{
-										SetFocusType(CITY_AI_FOCUS_TYPE_GREAT_PEOPLE);
-										bForceCheck = true;
-									}
-								}
-								else
-								{
-									if (GetFocusType() != NO_CITY_AI_FOCUS_TYPE)
-									{
-										SetFocusType(NO_CITY_AI_FOCUS_TYPE);
-										bForceCheck = true;
-									}
-								}
-							}
-							else
-							{
-								if (GetFocusType() != NO_CITY_AI_FOCUS_TYPE)
-								{
-									SetFocusType(NO_CITY_AI_FOCUS_TYPE);
-									bForceCheck = true;
-								}
-							}
-						}
-					}
-					else
-					{
-						if (GetFocusType() != NO_CITY_AI_FOCUS_TYPE)
-						{
-							SetFocusType(NO_CITY_AI_FOCUS_TYPE);
-							bForceCheck = true;
-						}
-					}
-				}
-			}
-		}
-	}
-
-	CvCity* pLoopCity;
-	int iLoop = 0;
-	for (pLoopCity = GET_PLAYER(thisPlayer.GetID()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(thisPlayer.GetID()).nextCity(&iLoop))
-	{
-		if (pLoopCity != NULL)
-		{
-			//mind the sign change
-			int iUnhappiness = pLoopCity->getHappinessDelta() * -1;
-			pLoopCity->setHappinessDelta(iUnhappiness * -1);
-		}
+		if (IsForcedAvoidGrowth())
+			bForceCheck |= SetForcedAvoidGrowth(false);
 	}
 
 	if (!thisPlayer.isHuman())
 	{
-		if (thisPlayer.IsEmpireUnhappy())
+		// Are we running at a deficit?
+		EconomicAIStrategyTypes eStrategyLosingMoney = (EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_LOSING_MONEY", true);
+		bool bInDeficit = thisPlayer.GetEconomicAI()->IsUsingStrategy(eStrategyLosingMoney);
+
+		EconomicAIStrategyTypes eStrategyBuildingReligion = (EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_DEVELOPING_RELIGION", true);
+		bool bBuildingReligion = thisPlayer.GetEconomicAI()->IsUsingStrategy(eStrategyBuildingReligion);
+		bool bNeedFood = m_pCity->GetCityStrategyAI()->GetMostDeficientYield() == YIELD_FOOD;
+
+		//---------------
+		// note that GetPlotValue already considers wonder/settler building so we don't do that here
+		//---------------
+
+		if (bInDeficit && !bNeedFood)
 		{
-			int iExcessHappiness = thisPlayer.GetExcessHappiness();
-			int iPotentialUnhappiness = max(0, m_pCity->getPotentialUnhappinessWithGrowthVal() - m_pCity->getPotentialHappinessWithGrowthVal());
+			bForceCheck |= SetFocusType(CITY_AI_FOCUS_TYPE_GOLD);
+		}
+		else if (bInDeficit && bNeedFood)
+		{
+			bForceCheck |= SetFocusType(CITY_AI_FOCUS_TYPE_GOLD_GROWTH);
+		}
+		else if (m_pCity->getProductionProcess() != NO_PROCESS || m_pCity->getProductionProject() != NO_PROJECT)
+		{
+			bForceCheck |= SetFocusType(CITY_AI_FOCUS_TYPE_PRODUCTION);
+		}
+		else // no special cases? Alright, let's pick a function to follow...
+		{
+			AICityStrategyTypes eGoodGP = (AICityStrategyTypes)GC.getInfoTypeForString("AICITYSTRATEGY_GOOD_GP_CITY");
+			bool bGPCity = m_pCity->GetCityStrategyAI()->IsUsingCityStrategy(eGoodGP) || thisPlayer.GetDiplomacyAI()->IsGoingForCultureVictory();
 
-			int iLock = MOD_BALANCE_CORE_HAPPINESS ? GC.getVERY_UNHAPPY_THRESHOLD() : -20;
-			bool bLockCity = (iExcessHappiness - iPotentialUnhappiness) <= iLock;
-
-			int iDiscourage = MOD_BALANCE_CORE_HAPPINESS ? GC.getUNHAPPY_THRESHOLD() : 0;
-			m_bDiscourageGrowth = (iExcessHappiness - iPotentialUnhappiness) <= iDiscourage;
-
-			if (!m_bDiscourageGrowth && m_pCity->getGrowthMods() <= -30)
-				m_bDiscourageGrowth = true;
-
-			if (!bLockCity && thisPlayer.IsEmpireVeryUnhappy())
+			bool bCultureBlock = false;
+			for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 			{
-				int iUnhappyAverage = 0;
+				PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
 
-				iLoop = 0;
-				int iNumCities = 0;
-				int iThisCityValue = 0;
-
-				for (pLoopCity = GET_PLAYER(thisPlayer.GetID()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(thisPlayer.GetID()).nextCity(&iLoop))
+				if (eLoopPlayer != NO_PLAYER && eLoopPlayer != m_pCity->getOwner() && thisPlayer.GetDiplomacyAI()->IsPlayerValid(eLoopPlayer) && !GET_PLAYER(eLoopPlayer).isMinorCiv())
 				{
-					if (pLoopCity != NULL)
+					if (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsCloseToCultureVictory())
 					{
-						//mind the sign change
-						int iUnhappiness = pLoopCity->getHappinessDelta(true) * -1;
-						iNumCities++;
+						bCultureBlock = true;
+						break;
+					}
+				}
+			}
 
-						if (iUnhappiness > 0)
+			if (bCultureBlock)
+			{
+				bForceCheck |= SetFocusType(CITY_AI_FOCUS_TYPE_CULTURE);
+			}
+			else
+			{
+				CitySpecializationTypes eSpecialization = m_pCity->GetCityStrategyAI()->GetSpecialization();
+				if (eSpecialization != NO_CITY_SPECIALIZATION)
+				{
+					if (m_pCity->GetCityStrategyAI()->GetDefaultSpecialization() == eSpecialization)
+					{
+						bForceCheck |= SetFocusType(NO_CITY_AI_FOCUS_TYPE);
+					}
+					else
+					{
+						CvCitySpecializationXMLEntry* pCitySpecializationEntry = GC.getCitySpecializationInfo(eSpecialization);
+						if (pCitySpecializationEntry)
 						{
-							iUnhappyAverage += iUnhappiness;
+							YieldTypes eYield = pCitySpecializationEntry->GetYieldType();
+							if (eYield == YIELD_FOOD && !IsAvoidGrowth()) //should really make sure the specialization is sane ...
+							{
+								bForceCheck |= SetFocusType(CITY_AI_FOCUS_TYPE_FOOD);
+							}
+							else if (eYield == YIELD_PRODUCTION && bNeedFood)
+							{
+								bForceCheck |= SetFocusType(CITY_AI_FOCUS_TYPE_PROD_GROWTH);
+							}
+							else if (eYield == YIELD_PRODUCTION && !bNeedFood)
+							{
+								bForceCheck |= SetFocusType(CITY_AI_FOCUS_TYPE_PRODUCTION);
+							}
+							else if (eYield == YIELD_GOLD && bNeedFood)
+							{
+								bForceCheck |= SetFocusType(CITY_AI_FOCUS_TYPE_GOLD_GROWTH);
+							}
+							else if (eYield == YIELD_GOLD && !bNeedFood)
+							{
+								bForceCheck |= SetFocusType(CITY_AI_FOCUS_TYPE_GOLD);
+							}
+							else if (eYield == YIELD_SCIENCE)
+							{
+								bForceCheck |= SetFocusType(CITY_AI_FOCUS_TYPE_SCIENCE);
+							}
+							else if (eYield == YIELD_FAITH)
+							{
+								if (bBuildingReligion)
+								{
+									bForceCheck |= SetFocusType(CITY_AI_FOCUS_TYPE_FAITH);
+								}
+								else
+								{
+									bForceCheck |= SetFocusType(NO_CITY_AI_FOCUS_TYPE);
+								}
+							}
+							else if (eYield == YIELD_CULTURE && (!bGPCity || bCultureBlock))
+							{
+								bForceCheck |= SetFocusType(CITY_AI_FOCUS_TYPE_CULTURE);
+							}
+							else if (eYield == YIELD_CULTURE && bGPCity)
+							{
+								bForceCheck |= SetFocusType(CITY_AI_FOCUS_TYPE_GREAT_PEOPLE);
+							}
+							else
+							{
+								bForceCheck |= SetFocusType(NO_CITY_AI_FOCUS_TYPE);
+							}
 						}
-						if (pLoopCity == m_pCity)
+						else
 						{
-							iThisCityValue = iUnhappiness;
+							bForceCheck |= SetFocusType(NO_CITY_AI_FOCUS_TYPE);
 						}
 					}
 				}
-				if (iNumCities > 0 && iUnhappyAverage > 0)
+				else
 				{
-					iUnhappyAverage /= iNumCities;
-				}
-				if ((iThisCityValue * 2) > (iUnhappyAverage * 3))
-				{
-					bLockCity = true;
+					bForceCheck |= SetFocusType(NO_CITY_AI_FOCUS_TYPE);
 				}
 			}
-			if (bLockCity)
+
+			EconomicAIStrategyTypes eEarlyExpand = (EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_EARLY_EXPANSION");
+			bool bWantSettlers = thisPlayer.GetEconomicAI()->IsUsingStrategy(eEarlyExpand);
+
+			int iPotentialUnhappiness = m_pCity->getPotentialUnhappinessWithGrowthVal() - m_pCity->getPotentialHappinessWithGrowthVal();
+			if (iPotentialUnhappiness > 0 && thisPlayer.IsEmpireUnhappy())
 			{
-				if (!IsForcedAvoidGrowth())
+				//default value for vanilla happiness
+				int iLockThreshold = -20;
+				if (MOD_BALANCE_CORE_HAPPINESS)
 				{
-					SetForcedAvoidGrowth(true);
-					bForceCheck = true;
+					if (bWantSettlers)
+						//if we fall below this threshold the early expansion strategy will be disabled and we leave good city sites to our enemies
+						iLockThreshold = GC.getUNHAPPY_THRESHOLD();
+					else
+						//later on tolerate some more unhappiness
+						iLockThreshold = GC.getVERY_UNHAPPY_THRESHOLD();
 				}
-				if (!IsNoAutoAssignSpecialists())
+
+				//lock the city if it's net negative and would take us over the threshold
+				int iExcessHappiness = thisPlayer.GetExcessHappiness();
+				if (iExcessHappiness - iPotentialUnhappiness <= iLockThreshold && m_pCity->getHappinessDelta() < 1)
 				{
-					SetNoAutoAssignSpecialists(true);
-					bForceCheck = true;
+					bForceCheck |= SetForcedAvoidGrowth(true);
+				}
+				//unlock only one city per turn, recheck next turn
+				else if (IsForcedAvoidGrowth() && thisPlayer.unlockedGrowthAnywhereThisTurn())
+				{
+					thisPlayer.setUnlockedGrowthAnywhereThisTurn(true);
+					bForceCheck |= SetForcedAvoidGrowth(false);
 				}
 			}
 			else
 			{
-				if (IsForcedAvoidGrowth())
-				{
-					SetForcedAvoidGrowth(false);
-					bForceCheck = true;
-				}
-				if (IsNoAutoAssignSpecialists())
-				{
-					SetNoAutoAssignSpecialists(false);
-					bForceCheck = true;
-				}
+				bForceCheck |= SetForcedAvoidGrowth(false);
 			}
 		}
-		else
-		{
-			m_bDiscourageGrowth = false;
-			if (IsNoAutoAssignSpecialists())
-			{
-				SetNoAutoAssignSpecialists(false);
-				bForceCheck = true;
-			}
-			if (IsForcedAvoidGrowth())
-			{
-				SetForcedAvoidGrowth(false);
-				bForceCheck = true;
-			}
-		}
-	}
+
 #if defined(MOD_GLOBAL_CITY_AUTOMATON_WORKERS)
-	CvAssertMsg((GetNumCitizensWorkingPlots() + GetTotalSpecialistCount() + GetNumUnassignedCitizens()) <= GetCity()->getPopulation(true), "Gameplay: More workers than population in the city.");
+		CvAssertMsg((GetNumCitizensWorkingPlots() + GetTotalSpecialistCount() + GetNumUnassignedCitizens()) <= GetCity()->getPopulation(true), "Gameplay: More workers than population in the city.");
 #else
-	CvAssertMsg((GetNumCitizensWorkingPlots() + GetTotalSpecialistCount() + GetNumUnassignedCitizens()) <= GetCity()->getPopulation(), "Gameplay: More workers than population in the city.");
+		CvAssertMsg((GetNumCitizensWorkingPlots() + GetTotalSpecialistCount() + GetNumUnassignedCitizens()) <= GetCity()->getPopulation(), "Gameplay: More workers than population in the city.");
 #endif
-	DoReallocateCitizens(bForceCheck);
-
-	/*
-	if (MOD_BALANCE_CORE_HAPPINESS)
-	{
-		int iHappinessDelta = m_pCity->getHappinessDelta();
-		int iTotalSpecialists = GetTotalSpecialistCount();
-		int iUrbanization = m_pCity->GetUnhappinessFromCitySpecialists();
-
-			// don't calculate specialist value over and over ...
-			std::map<SpecialistTypes, int> specialistValueCache;
-
-		while (iHappinessDelta < 0 && iTotalSpecialists > 0 && iUrbanization > 0)
-		{
-			if (!DoRemoveWorstSpecialist(NO_SPECIALIST, NO_BUILDING))
-				break;
-
-			iHappinessDelta = m_pCity->getHappinessDelta();
-			iTotalSpecialists = GetTotalSpecialistCount();
-			iUrbanization = m_pCity->GetUnhappinessFromCitySpecialists();
-			DoAddBestCitizenFromUnassigned(specialistValueCache, true, true);
-		}
+		DoReallocateCitizens(bForceCheck);
 	}
-	*/
 
 #if defined(MOD_GLOBAL_CITY_AUTOMATON_WORKERS)
 	CvAssertMsg((GetNumCitizensWorkingPlots() + GetTotalSpecialistCount() + GetNumUnassignedCitizens()) <= GetCity()->getPopulation(true), "Gameplay: More workers than population in the city.");
@@ -816,7 +470,7 @@ void CvCityCitizens::DoTurn()
 #endif
 }
 
-int CvCityCitizens::GetBonusPlotValue(CvPlot* pPlot, YieldTypes eYield)
+int CvCityCitizens::GetBonusPlotValue(CvPlot* pPlot, YieldTypes eYield, SPrecomputedExpensiveNumbers& cache)
 {
 	int iBonus = 0;
 
@@ -825,17 +479,26 @@ int CvCityCitizens::GetBonusPlotValue(CvPlot* pPlot, YieldTypes eYield)
 
 	if (eFeature != NO_FEATURE)
 	{
-		ReligionTypes eReligionFounded = m_pCity->GetCityReligions()->GetReligiousMajority();
-		if (eReligionFounded != NO_RELIGION)
+		if (eYield < (int)cache.bonusForXFeature.size() && eFeature < (int)cache.bonusForXFeature[eYield].size())
 		{
-			const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligionFounded, m_pCity->getOwner());
-			if (pReligion)
+			int iEffect = cache.bonusForXFeature[eYield][eFeature];
+
+			//update cache on demand only
+			if (iEffect == INT_MAX)
 			{
-				int iTempBonus = (pReligion->m_Beliefs.GetYieldPerXFeatureTimes100(eFeature, eYield, m_pCity->getOwner(), m_pCity) * (m_pCity->GetNumFeatureWorked(eFeature))) / 100;
-				int iTempBonusPlusOne = (pReligion->m_Beliefs.GetYieldPerXFeatureTimes100(eFeature, eYield, m_pCity->getOwner(), m_pCity) * (m_pCity->GetNumFeatureWorked(eFeature) + 1)) / 100;
-				if (iTempBonus != iTempBonusPlusOne)
-					iBonus += iTempBonusPlusOne;
+				const CvReligion* pReligion = m_pCity->GetCityReligions()->GetMajorityReligion();
+				if (pReligion)
+					iEffect = pReligion->m_Beliefs.GetYieldPerXFeatureTimes100(eFeature, eYield, m_pCity->getOwner(), m_pCity);
+				else
+					iEffect = 0;
+
+				cache.bonusForXFeature[eYield][eFeature] = iEffect;
 			}
+
+			int iTempBonus = (iEffect * (m_pCity->GetNumFeatureWorked(eFeature))) / 100;
+			int iTempBonusPlusOne = (iEffect * (m_pCity->GetNumFeatureWorked(eFeature) + 1)) / 100;
+			if (iTempBonus != iTempBonusPlusOne)
+				iBonus += iTempBonusPlusOne;
 		}
 
 		int iTempBonus = (m_pCity->GetYieldPerXFeatureFromBuildingsTimes100(eFeature, eYield) * (m_pCity->GetNumFeatureWorked(eFeature))) / 100;
@@ -845,17 +508,26 @@ int CvCityCitizens::GetBonusPlotValue(CvPlot* pPlot, YieldTypes eYield)
 	}
 	if (eTerrain != NO_TERRAIN)
 	{
-		ReligionTypes eReligionFounded = m_pCity->GetCityReligions()->GetReligiousMajority();
-		if (eReligionFounded != NO_RELIGION)
+		if (eYield < (int)cache.bonusForXTerrain.size() && eTerrain < (int)cache.bonusForXTerrain[eYield].size())
 		{
-			const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligionFounded, m_pCity->getOwner());
-			if (pReligion)
+			int iEffect = cache.bonusForXTerrain[eYield][eTerrain];
+
+			//update cache on demand only
+			if (iEffect == INT_MAX)
 			{
-				int iTempBonus = (pReligion->m_Beliefs.GetYieldPerXTerrainTimes100(eTerrain, eYield, m_pCity->getOwner(), m_pCity) * (m_pCity->GetNumTerrainWorked(eTerrain))) / 100;
-				int iTempBonusPlusOne = (pReligion->m_Beliefs.GetYieldPerXTerrainTimes100(eTerrain, eYield, m_pCity->getOwner(), m_pCity) * (m_pCity->GetNumTerrainWorked(eTerrain) + 1)) / 100;
-				if (iTempBonus != iTempBonusPlusOne)
-					iBonus += iTempBonusPlusOne;
+				const CvReligion* pReligion = m_pCity->GetCityReligions()->GetMajorityReligion();
+				if (pReligion)
+					iEffect = pReligion->m_Beliefs.GetYieldPerXTerrainTimes100(eTerrain, eYield, m_pCity->getOwner(), m_pCity);
+				else
+					iEffect = 0;
+
+				cache.bonusForXTerrain[eYield][eTerrain] = iEffect;
 			}
+
+			int iTempBonus = (iEffect * (m_pCity->GetNumTerrainWorked(eTerrain))) / 100;
+			int iTempBonusPlusOne = (iEffect * (m_pCity->GetNumTerrainWorked(eTerrain) + 1)) / 100;
+			if (iTempBonus != iTempBonusPlusOne)
+				iBonus += iTempBonusPlusOne;
 		}
 
 		int iTempBonus = (m_pCity->GetYieldPerXTerrainFromBuildingsTimes100(eTerrain, eYield) * (m_pCity->GetNumTerrainWorked(eTerrain))) / 100;
@@ -866,206 +538,78 @@ int CvCityCitizens::GetBonusPlotValue(CvPlot* pPlot, YieldTypes eYield)
 
 	return iBonus;
 }
-/// What is the overall value of the current Plot?
-int CvCityCitizens::GetPlotValue(CvPlot* pPlot, SPrecomputedExpensiveNumbers store)
+// What is the overall value of the current plot?
+// This is a bit tricky because the value of a plot changes depending on which other plots are being worked!
+int CvCityCitizens::GetPlotValue(CvPlot* pPlot, SPrecomputedExpensiveNumbers& cache)
 {
 	int iValue = 0;
 
-	bool bCityFoodProduction = m_pCity->isFoodProduction();
+	bool bCityFoodProduction = !GET_PLAYER(GetOwner()).isHuman() && m_pCity->getPopulation() > 3 && m_pCity->isFoodProduction(); //settler!
+	bool bCityWonderProduction = !GET_PLAYER(GetOwner()).isHuman() && m_pCity->getPopulation() > 3 && m_pCity->IsBuildingWorldWonder();
+	bool bSmallCity = m_pCity->getPopulation() < GC.getCITY_MIN_SIZE_FOR_SETTLERS();
 	ProcessTypes eProcess = m_pCity->getProductionProcess();
 	const CvProcessInfo* pkProcessInfo = GC.getProcessInfo(eProcess);
-	// Yield Values
-	///////
-	// Bonuses
-	//////////
+	CityAIFocusTypes eFocus = GetFocusType();
+	bool bIsWorking = IsWorkingPlot(pPlot);
 	bool bAvoidGrowth = IsAvoidGrowth();
-	bool bIsFoodPlot = false;
-	bool bIsProductionPlot = false;
+
+	//if we focus food, we will use all the food we can get anyway
+	//if have no focus we will try and make sure the city grows at a steady pace
+	//otherwise slow growth is ok
+	int iFoodThreshold = (eFocus == NO_CITY_AI_FOCUS_TYPE && !bAvoidGrowth) ? m_pCity->getPopulation()*100 : 200;
+	if (bAvoidGrowth && m_pCity->getFood() == m_pCity->growthThreshold())
+		iFoodThreshold = 0;
+
+	//do we have enough food? always want to grow a little bit a least, so don't use zero as threshold
+	bool bNeedFood = (cache.iExcessFoodTimes100 < iFoodThreshold);
+	if (bIsWorking)
+		//we might fall under the threshold if we no longer work it
+		bNeedFood = (cache.iExcessFoodTimes100 - pPlot->getYield(YIELD_FOOD)) < iFoodThreshold;
+
+	//we always want to be growing a little bit
+	bool bEmphasizeFood = (bNeedFood || bSmallCity);
+	bool bEmphasizeProduction = (bCityFoodProduction || bCityWonderProduction);
+
 	for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 	{
 		YieldTypes eYield = (YieldTypes)iI;
 
-		if (eYield == NO_YIELD)
-			continue;
-
 		//Simplification - errata yields not worth considering.
-		if ((YieldTypes)iI > YIELD_GOLDEN_AGE_POINTS && !MOD_BALANCE_CORE_JFD)
+		if (eYield > YIELD_GOLDEN_AGE_POINTS && !MOD_BALANCE_CORE_JFD)
 			break;
 
-		int iYield = pPlot->getYield(eYield);
-		int iYieldMod = 0;
-		
-		int iPlotBonus = GetBonusPlotValue(pPlot, eYield);
-		if (iPlotBonus > 0)
+		//base yield plus combo bonuses. 
+		int iYield100 = pPlot->getYield(eYield) * 100;
+
+		//FIXME: if we're trying to find the worst worked plot, we have to consider losing the combo bonus!
+		if (!bIsWorking)
+			iYield100 += GetBonusPlotValue(pPlot, eYield, cache) * 100;
+
+		if (iYield100 > 0)
 		{
-			iYield += iPlotBonus;
-		}
+			//processes can convert between yields
+			if (pkProcessInfo && pkProcessInfo->getProductionToYieldModifier(eYield) > 0)
+				iYield100 += (iYield100 * pkProcessInfo->getProductionToYieldModifier(eYield)) / 100;
 
-		if (iYield > 0)
-		{
-
-			//if this is a net-positive tile, that's good!
-			if (eYield == YIELD_FOOD && iYield >= 2)
-				bIsFoodPlot = true;
-
-			if (eYield == YIELD_PRODUCTION && iYield >= 2)
-				bIsProductionPlot = true;
-
-			if (m_pCity->GetCityStrategyAI()->GetMostDeficientYield() == eYield)
-			{
-				iYieldMod += 2;
-			}
-			else if (m_pCity->GetCityStrategyAI()->IsYieldDeficient(eYield))
-			{
-				iYieldMod += 2;
-			}
-			CityAIFocusTypes eFocus = GetFocusType();
-			//Food is unique, so let's separate it out for now.
+			//how much do we value certain yields
 			if (eYield == YIELD_FOOD)
 			{
-				int iFoodEmphasisModifier = 0;
-				// Food can be worth less if we don't want to grow
-				if (store.iExcessFoodTimes100 > 0 && bAvoidGrowth)
-				{
-					// If we at least have enough Food to feed everyone, zero out the value of additional food
-					iYield = 0;
-				}
-				// If our surplus is not at least 2, really emphasize food plots
-				else if (!bAvoidGrowth)
-				{
-					int iNoStarveModifier = (GC.getAI_CITIZEN_VALUE_FOOD() * 125) - store.iExcessFoodTimes100;
-					int iMultiplier = max(iNoStarveModifier, GC.getAI_CITIZEN_VALUE_FOOD());
-					int iFoodTurnsRemaining = bCityFoodProduction ? GC.getAI_CITIZEN_VALUE_FOOD() : m_pCity->getFoodTurnsLeft(store.iFoodCorpMod);
-					int iPopulation = m_pCity->getPopulation();
+				if (cache.iExcessFoodTimes100>0)
+					// if we have growth penalties, pretend the yield is lower
+					iYield100 += min(0, (iYield100*m_pCity->getGrowthMods()) / 100);
 
-					//Smaller cities want to grow fast - larger cities can slow down a bit.
-					iFoodEmphasisModifier = (int)sqrt((float)iMultiplier * iFoodTurnsRemaining * iPopulation);
-					//increase value by era
-					iFoodEmphasisModifier += GET_PLAYER(m_pCity->getOwner()).GetCurrentEra() * 2;
-
-					if (store.iExcessFoodTimes100 <= 0)
-						iFoodEmphasisModifier *= GC.getAI_CITIZEN_VALUE_FOOD();
-				}
-
-				if (store.iExcessFoodTimes100 > 0 && m_bDiscourageGrowth)
-					iFoodEmphasisModifier /= max(1, GC.getAI_CITIZEN_VALUE_FOOD());
-
-				if (eFocus == CITY_AI_FOCUS_TYPE_FOOD || bCityFoodProduction)
-				{
-					iYieldMod += GC.getAI_CITIZEN_VALUE_FOOD();
-				}
-				else if (eFocus == CITY_AI_FOCUS_TYPE_PROD_GROWTH || eFocus == CITY_AI_FOCUS_TYPE_GOLD_GROWTH)
-				{
-					iYieldMod += GC.getAI_CITIZEN_VALUE_FOOD()/2;
-
-				}
-
-				iYield *= 100 + iFoodEmphasisModifier;
-				iYield /= 100;
-			}
-			else if (eYield == YIELD_PRODUCTION)
-			{
-				if (eFocus == CITY_AI_FOCUS_TYPE_PRODUCTION || bCityFoodProduction)
-				{
-					iYieldMod += GC.getAI_CITIZEN_VALUE_PRODUCTION();
-				}
-				if (eFocus == CITY_AI_FOCUS_TYPE_PROD_GROWTH)
-				{
-					iYieldMod += GC.getAI_CITIZEN_VALUE_PRODUCTION()/2;
-				}
-			}
-			else if (eYield == YIELD_GOLD)
-			{		
-				if (eFocus == CITY_AI_FOCUS_TYPE_GOLD)
-				{
-					iYieldMod += GC.getAI_CITIZEN_VALUE_GOLD();
-				}
-				if (eFocus == CITY_AI_FOCUS_TYPE_GOLD_GROWTH)
-				{
-					iYieldMod += GC.getAI_CITIZEN_VALUE_GOLD()/2;
-				}
-			}
-			else if (eYield == YIELD_SCIENCE)
-			{
-				if (eFocus == CITY_AI_FOCUS_TYPE_SCIENCE)
-				{
-					iYieldMod += GC.getAI_CITIZEN_VALUE_SCIENCE();
-				}
-			}
-			else if (eYield == YIELD_CULTURE || eYield == YIELD_TOURISM)
-			{			
-				if (eFocus == CITY_AI_FOCUS_TYPE_CULTURE)
-				{
-					iYieldMod += GC.getAI_CITIZEN_VALUE_CULTURE();
-				}
-			}
-			else if (eYield == YIELD_FAITH || eYield == YIELD_GOLDEN_AGE_POINTS)
-			{			
-				if (eFocus == CITY_AI_FOCUS_TYPE_FAITH)
-				{
-					iYieldMod += GC.getAI_CITIZEN_VALUE_FAITH();
-				}
+				// even if we don't want to grow we care a little, extra food can help against unhappiness from distress!
+				if (!bNeedFood && bAvoidGrowth)
+					iYield100 /= 20;
 			}
 
-			if (iYield > 0)
-			{
-				int iUnhappyMod = 0;
-				switch (eYield)
-				{
-				case YIELD_GOLD:
-					if (store.iUnhappinessFromGold > 0)
-					{
-						iUnhappyMod += store.iUnhappinessFromGold;
-					}
-					break;
-				case YIELD_SCIENCE:
-					if (store.iUnhappinessFromScience > 0)
-					{
-						iUnhappyMod += store.iUnhappinessFromScience;
-					}
-					break;
-				case YIELD_CULTURE:
-					if (store.iUnhappinessFromCulture> 0)
-					{
-						iUnhappyMod += store.iUnhappinessFromCulture;
-					}
-					break;
-				case YIELD_FAITH:
-					if (store.iUnhappinessFromReligion > 0)
-					{
-						iUnhappyMod += store.iUnhappinessFromReligion;
-					}
-					break;
-				case YIELD_PRODUCTION:
-				case YIELD_FOOD:
-					if (store.iUnhappinessFromDistress > 0)
-					{
-						iUnhappyMod += store.iUnhappinessFromDistress;
-					}
-					break;
-				}
-				iUnhappyMod /= 2;
-				iYieldMod += iUnhappyMod;
-			}
+			int iYieldMod = GetYieldModForFocus(eYield, eFocus, bEmphasizeFood, bEmphasizeProduction, cache);
 
-			if (pkProcessInfo && pkProcessInfo->getProductionToYieldModifier(eYield) > 0)
-			{
-				iYieldMod += (pkProcessInfo->getProductionToYieldModifier(eYield) / 10);
-			}
-
-			//no yield mods until we're fed!
-			if (!bIsFoodPlot && eYield != YIELD_FOOD && store.iExcessFoodTimes100 <= (m_bDiscourageGrowth ? 0 : 2) && !bAvoidGrowth)
-				iYieldMod = 1;
-			else if (bIsFoodPlot || bIsProductionPlot)
-				iYieldMod += 2;
-
-			iYield *= max(1, iYieldMod);
-
-			iValue += iYield;
+			iValue += iYield100*max(1,iYieldMod);
 		}
 	}
 
-	return max(1, iValue);
+	return iValue;
 }
 
 /// Are this City's Citizens under automation?
@@ -1095,15 +639,10 @@ void CvCityCitizens::SetNoAutoAssignSpecialists(bool bValue, bool bReallocate)
 
 		// If we're giving the AI control clear all manually assigned Specialists
 		if (!bValue)
-		{
 			DoClearForcedSpecialists();
-		}
-#if defined(MOD_BALANCE_CORE)
+
 		if (bReallocate)
 			DoReallocateCitizens(true);
-#else
-		DoReallocateCitizens();
-#endif
 	}
 }
 
@@ -1114,11 +653,9 @@ bool CvCityCitizens::IsAvoidGrowth()
 	{
 		return false;
 	}
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
+
+	//failsafe for AI
 	if (!GetPlayer()->isHuman() && GetPlayer()->IsEmpireVeryUnhappy())
-#else
-	if (GetPlayer()->GetExcessHappiness() < 0)
-#endif
 	{
 		return true;
 	}
@@ -1131,18 +668,18 @@ bool CvCityCitizens::IsForcedAvoidGrowth()
 	return m_bForceAvoidGrowth;
 }
 
-void CvCityCitizens::SetForcedAvoidGrowth(bool bAvoidGrowth, bool bReallocate)
+bool CvCityCitizens::SetForcedAvoidGrowth(bool bAvoidGrowth, bool bReallocate)
 {
 	if (m_bForceAvoidGrowth != bAvoidGrowth)
 	{
 		m_bForceAvoidGrowth = bAvoidGrowth;
-#if defined(MOD_BALANCE_CORE)
 		if (bReallocate)
 			DoReallocateCitizens(true);
-#else
-		DoReallocateCitizens();
-#endif
+
+		return true;
 	}
+
+	return false;
 }
 
 /// What is this city focusing on?
@@ -1152,7 +689,7 @@ CityAIFocusTypes CvCityCitizens::GetFocusType() const
 }
 
 /// What is this city focusing on?
-void CvCityCitizens::SetFocusType(CityAIFocusTypes eFocus, bool bReallocate)
+bool CvCityCitizens::SetFocusType(CityAIFocusTypes eFocus, bool bReallocate)
 {
 	FAssert(eFocus >= NO_CITY_AI_FOCUS_TYPE);
 	FAssert(eFocus < NUM_CITY_AI_FOCUS_TYPES);
@@ -1161,360 +698,82 @@ void CvCityCitizens::SetFocusType(CityAIFocusTypes eFocus, bool bReallocate)
 	{
 		m_eCityAIFocusTypes = eFocus;
 		// Reallocate with our new focus
-#if defined(MOD_BALANCE_CORE)
 		if (bReallocate)
-			DoReallocateCitizens(true);
-#else
-		DoReallocateCitizens();
-#endif
-	}
-}
-
-/// Does the AI want a Specialist?
-bool CvCityCitizens::IsAIWantSpecialistRightNow()
-{
-	if (!CanCreateSpecialist())
-		return false;
-
-	int iWeight = 100;
-
-	// If the City is Size 1 or 2 then we probably don't want Specialists
-	if (m_pCity->getPopulation() < 3)
-	{
-		iWeight /= 2;
-	}
-
-	int iFoodPerTurn = m_pCity->getYieldRate(YIELD_FOOD, false);
-	int iFoodEatenPerTurn = m_pCity->foodConsumption();
-	int iSurplusFood = iFoodPerTurn - iFoodEatenPerTurn;
-
-	CityAIFocusTypes eFocusType = GetFocusType();
-	// Don't want specialists until we've met our food needs
-	if (iSurplusFood < 0)
-	{
-		return false;
-	}
-	else if (IsAvoidGrowth() && (eFocusType == NO_CITY_AI_FOCUS_TYPE || eFocusType == CITY_AI_FOCUS_TYPE_GREAT_PEOPLE))
-	{
-		iWeight *= 2;
-	}
-	else if (iSurplusFood <= 2)
-	{
-		iWeight /= 2;
-	}
-	else if (iSurplusFood > 2)
-	{
-		if (eFocusType == NO_CITY_AI_FOCUS_TYPE || eFocusType == CITY_AI_FOCUS_TYPE_GREAT_PEOPLE || eFocusType == CITY_AI_FOCUS_TYPE_PROD_GROWTH)
-		{
-			iWeight *= 100 + (20 * (iSurplusFood - 4));
-			iWeight /= 100;
-		}
-	}
-
-	// If we're deficient in Food then we're less likely to want Specialists
-	if (m_pCity->GetCityStrategyAI()->IsYieldDeficient(YIELD_FOOD))
-	{
-		iWeight *= 75;
-		iWeight /= 100;
-	}
-	// if we've got some slackers in town (since they provide Production)
-	else if (GetNumDefaultSpecialists() > 0 && eFocusType != CITY_AI_FOCUS_TYPE_PRODUCTION && eFocusType != CITY_AI_FOCUS_TYPE_PROD_GROWTH)
-	{
-		iWeight *= 150;
-		iWeight /= 100;
-	}
-
-	// Someone told this AI it should be focused on something that is usually gotten from specialists
-	if (eFocusType == CITY_AI_FOCUS_TYPE_GREAT_PEOPLE)
-	{
-		// Loop through all Buildings
-		BuildingTypes eBuilding;
-		for (int iBuildingLoop = 0; iBuildingLoop < GC.getNumBuildingInfos(); iBuildingLoop++)
-		{
-			eBuilding = (BuildingTypes)iBuildingLoop;
-
-			// Have this Building in the City?
-			if (m_pCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
-			{
-				// Can't add more than the max
-				if (IsCanAddSpecialistToBuilding(eBuilding))
-				{
-#if defined(MOD_BALANCE_CORE)
-					iWeight *= 5;
-#else
-					iWeight *= 3;
-#endif
-					break;
-				}
-			}
-		}
-	}
-	else if (eFocusType == CITY_AI_FOCUS_TYPE_CULTURE)
-	{
-		// Loop through all Buildings
-		for (int iBuildingLoop = 0; iBuildingLoop < GC.getNumBuildingInfos(); iBuildingLoop++)
-		{
-			const BuildingTypes eBuilding = static_cast<BuildingTypes>(iBuildingLoop);
-			CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
-			if (pkBuildingInfo)
-			{
-				// Have this Building in the City?
-				if (m_pCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
-				{
-					// Can't add more than the max
-					if (IsCanAddSpecialistToBuilding(eBuilding))
-					{
-						const SpecialistTypes eSpecialist = (SpecialistTypes)pkBuildingInfo->GetSpecialistType();
-						CvSpecialistInfo* pSpecialistInfo = GC.getSpecialistInfo(eSpecialist);
-						if (pSpecialistInfo && pSpecialistInfo->getCulturePerTurn() > 0)
-						{
-#if defined(MOD_BALANCE_CORE)
-							iWeight *= 5;
-#else
-							iWeight *= 3;
-#endif
-							break;
-						}
-					}
-				}
-			}
-		}
-	}
-	else if (eFocusType == CITY_AI_FOCUS_TYPE_SCIENCE)
-	{
-		// Loop through all Buildings
-		BuildingTypes eBuilding;
-		for (int iBuildingLoop = 0; iBuildingLoop < GC.getNumBuildingInfos(); iBuildingLoop++)
-		{
-			eBuilding = (BuildingTypes)iBuildingLoop;
-
-			// Have this Building in the City?
-			if (m_pCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
-			{
-				// Can't add more than the max
-				if (IsCanAddSpecialistToBuilding(eBuilding))
-				{
-					SpecialistTypes eSpecialist = (SpecialistTypes)GC.getBuildingInfo(eBuilding)->GetSpecialistType();
-					CvSpecialistInfo* pSpecialistInfo = GC.getSpecialistInfo(eSpecialist);
-					if (pSpecialistInfo && pSpecialistInfo->getYieldChange(YIELD_SCIENCE) > 0)
-					{
-						iWeight *= 3;
-					}
-
-					if (GetPlayer()->getSpecialistExtraYield(YIELD_SCIENCE) > 0)
-					{
-						iWeight *= 3;
-					}
-
-					if (GetPlayer()->GetPlayerTraits()->GetSpecialistYieldChange(eSpecialist, YIELD_SCIENCE) > 0)
-					{
-						iWeight *= 3;
-					}
-				}
-			}
-		}
-	}
-	else if (eFocusType == CITY_AI_FOCUS_TYPE_PRODUCTION)
-	{
-		// Loop through all Buildings
-		for (int iBuildingLoop = 0; iBuildingLoop < GC.getNumBuildingInfos(); iBuildingLoop++)
-		{
-			const BuildingTypes eBuilding = static_cast<BuildingTypes>(iBuildingLoop);
-			CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
-			if (pkBuildingInfo)
-			{
-				// Have this Building in the City?
-				if (m_pCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
-				{
-					// Can't add more than the max
-					if (IsCanAddSpecialistToBuilding(eBuilding))
-					{
-						SpecialistTypes eSpecialist = (SpecialistTypes)pkBuildingInfo->GetSpecialistType();
-						CvSpecialistInfo* pSpecialistInfo = GC.getSpecialistInfo(eSpecialist);
-						if (NULL != pSpecialistInfo && pSpecialistInfo->getYieldChange(YIELD_PRODUCTION) > 0)
-						{
-							iWeight *= 150;
-							iWeight /= 100;
-						}
-
-						if (GetPlayer()->getSpecialistExtraYield(YIELD_PRODUCTION) > 0)
-						{
-							iWeight *= 2;
-						}
-
-						if (GetPlayer()->GetPlayerTraits()->GetSpecialistYieldChange(eSpecialist, YIELD_PRODUCTION) > 0)
-						{
-							iWeight *= 2;
-						}
-					}
-				}
-			}
-		}
-	}
-	else if (eFocusType == CITY_AI_FOCUS_TYPE_GOLD)
-	{
-		// Loop through all Buildings
-		BuildingTypes eBuilding;
-		for (int iBuildingLoop = 0; iBuildingLoop < GC.getNumBuildingInfos(); iBuildingLoop++)
-		{
-			eBuilding = (BuildingTypes)iBuildingLoop;
-
-			// Have this Building in the City?
-			if (m_pCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
-			{
-				// Can't add more than the max
-				if (IsCanAddSpecialistToBuilding(eBuilding))
-				{
-					SpecialistTypes eSpecialist = (SpecialistTypes)GC.getBuildingInfo(eBuilding)->GetSpecialistType();
-					CvSpecialistInfo* pSpecialistInfo = GC.getSpecialistInfo(eSpecialist);
-					if (pSpecialistInfo && pSpecialistInfo->getYieldChange(YIELD_GOLD) > 0)
-					{
-						iWeight *= 150;
-						iWeight /= 100;
-						break;
-					}
-				}
-			}
-		}
-	}
-	else if (eFocusType == CITY_AI_FOCUS_TYPE_FOOD)
-	{
-		iWeight *= 50;
-		iWeight /= 100;
-	}
-	else if (eFocusType == CITY_AI_FOCUS_TYPE_PROD_GROWTH)
-	{
-		// Loop through all Buildings
-		for (int iBuildingLoop = 0; iBuildingLoop < GC.getNumBuildingInfos(); iBuildingLoop++)
-		{
-			const BuildingTypes eBuilding = static_cast<BuildingTypes>(iBuildingLoop);
-			CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
-			if (pkBuildingInfo)
-			{
-				// Have this Building in the City?
-				if (m_pCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
-				{
-					// Can't add more than the max
-					if (IsCanAddSpecialistToBuilding(eBuilding))
-					{
-						SpecialistTypes eSpecialist = (SpecialistTypes)pkBuildingInfo->GetSpecialistType();
-						CvSpecialistInfo* pSpecialistInfo = GC.getSpecialistInfo(eSpecialist);
-						if (pSpecialistInfo && pSpecialistInfo->getYieldChange(YIELD_PRODUCTION) > 0)
-						{
-							iWeight *= 150;
-							iWeight /= 100;
-							break;
-						}
-					}
-				}
-			}
-		}
-	}
-	else if (eFocusType == CITY_AI_FOCUS_TYPE_GOLD_GROWTH)
-	{
-		// Loop through all Buildings
-		for (int iBuildingLoop = 0; iBuildingLoop < GC.getNumBuildingInfos(); iBuildingLoop++)
-		{
-			const BuildingTypes eBuilding = static_cast<BuildingTypes>(iBuildingLoop);
-			CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
-			if (pkBuildingInfo)
-			{
-				// Have this Building in the City?
-				if (m_pCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
-				{
-					// Can't add more than the max
-					if (IsCanAddSpecialistToBuilding(eBuilding))
-					{
-						SpecialistTypes eSpecialist = (SpecialistTypes)pkBuildingInfo->GetSpecialistType();
-						CvSpecialistInfo* pSpecialistInfo = GC.getSpecialistInfo(eSpecialist);
-						if (pSpecialistInfo && pSpecialistInfo->getYieldChange(YIELD_GOLD) > 0)
-						{
-							iWeight *= 150;
-							iWeight /= 100;
-						}
-
-						if (GetPlayer()->getSpecialistExtraYield(YIELD_GOLD) > 0)
-						{
-							iWeight *= 2;
-						}
-
-						if (GetPlayer()->GetPlayerTraits()->GetSpecialistYieldChange(eSpecialist, YIELD_GOLD) > 0)
-						{
-							iWeight *= 2;
-						}
-					}
-				}
-			}
-		}
-	}
-	else if (eFocusType == CITY_AI_FOCUS_TYPE_FAITH)
-	{
-		// Loop through all Buildings
-		for (int iBuildingLoop = 0; iBuildingLoop < GC.getNumBuildingInfos(); iBuildingLoop++)
-		{
-			const BuildingTypes eBuilding = (BuildingTypes)iBuildingLoop;
-			CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
-			if (pkBuildingInfo)
-			{
-				// Have this Building in the City?
-				if (m_pCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
-				{
-					// Can't add more than the max
-					if (IsCanAddSpecialistToBuilding(eBuilding))
-					{
-						const SpecialistTypes eSpecialist = (SpecialistTypes)pkBuildingInfo->GetSpecialistType();
-						CvSpecialistInfo* pSpecialistInfo = GC.getSpecialistInfo(eSpecialist);
-						if (pSpecialistInfo && pSpecialistInfo->getYieldChange(YIELD_FAITH) > 0)
-						{
-							iWeight *= 3;
-							break;
-						}
-					}
-				}
-			}
-		}
-	}
-
-	// specialists are cheaper somehow
-	if (m_pCity->GetPlayer()->isHalfSpecialistUnhappiness() || m_pCity->GetPlayer()->isHalfSpecialistFood())
-	{
-		iWeight *= 150;
-		iWeight /= 100;
-	}
-#if defined(MOD_BALANCE_CORE)
-	else if (m_pCity->GetPlayer()->isHalfSpecialistFoodCapital() && m_pCity->isCapital())
-	{
-		iWeight *= 150;
-		iWeight /= 100;
-	}
-#endif
-
-	// Does the AI want it enough?
-	if (iWeight >= 150)
-	{
+			DoReallocateCitizens(true,true);
 		return true;
 	}
 
 	return false;
 }
 
-/// What is the Building Type the AI likes the Specialist of most right now?
-BuildingTypes CvCityCitizens::GetAIBestSpecialistBuilding(int& iSpecialistValue, std::map<SpecialistTypes, int>& specialistValueCache, bool bLogging)
+int CvCityCitizens::GetYieldModForFocus(YieldTypes eYield, CityAIFocusTypes eFocus, bool bEmphasizeFood, bool bEmphasizeProduction, const SPrecomputedExpensiveNumbers& cache)
 {
-	BuildingTypes eBestBuilding = NO_BUILDING;
-	int iBestSpecialistValue = -1;
-	int iBestUnmodifiedSpecialistValue = -1;
+	int iYieldMod = 6; //default
 
-	SpecialistTypes eSpecialist;
-	int iValue;
+	if (eYield == YIELD_FOOD)
+	{
+		if (eFocus == CITY_AI_FOCUS_TYPE_FOOD || bEmphasizeFood)
+			iYieldMod += GC.getAI_CITIZEN_VALUE_FOOD();
 
+		iYieldMod += cache.iUnhappinessFromDistress;
+	}
+	else if (eYield == YIELD_PRODUCTION)
+	{
+		if (eFocus == CITY_AI_FOCUS_TYPE_PRODUCTION || bEmphasizeProduction)
+			iYieldMod += GC.getAI_CITIZEN_VALUE_PRODUCTION();
+
+		iYieldMod += cache.iUnhappinessFromDistress;
+	}
+	else if (eYield == YIELD_GOLD)
+	{
+		if (eFocus == CITY_AI_FOCUS_TYPE_GOLD)
+			iYieldMod += GC.getAI_CITIZEN_VALUE_GOLD();
+
+		iYieldMod += cache.iUnhappinessFromGold;
+	}
+	else if (eYield == YIELD_SCIENCE)
+	{
+		if (eFocus == CITY_AI_FOCUS_TYPE_SCIENCE)
+			iYieldMod += GC.getAI_CITIZEN_VALUE_SCIENCE();
+
+		iYieldMod += cache.iUnhappinessFromScience;
+	}
+	else if (eYield == YIELD_CULTURE || eYield == YIELD_TOURISM)
+	{
+		if (eFocus == CITY_AI_FOCUS_TYPE_CULTURE)
+			iYieldMod += GC.getAI_CITIZEN_VALUE_CULTURE();
+
+		iYieldMod += cache.iUnhappinessFromCulture;
+	}
+	else if (eYield == YIELD_FAITH || eYield == YIELD_GOLDEN_AGE_POINTS)
+	{
+		if (eFocus == CITY_AI_FOCUS_TYPE_FAITH)
+			iYieldMod += GC.getAI_CITIZEN_VALUE_FAITH();
+
+		iYieldMod += cache.iUnhappinessFromReligion;
+	}
+
+	//prevent starvation if we have a focus on a specific yield
+	if (bEmphasizeFood && eYield != YIELD_FOOD)
+		iYieldMod /= 2;
+
+	return iYieldMod;
+}
+
+/// What is the Building Type the AI likes the Specialist of most right now?
+BuildingTypes CvCityCitizens::GetAIBestSpecialistBuilding(int& iSpecialistValue, bool bLogging)
+{
 	if (m_pCity->GetResistanceTurns() > 0)
 		return NO_BUILDING;
 
-	if (!CanCreateSpecialist())
-		return NO_BUILDING;
+	gCachedNumbers.update(m_pCity);
 
-	int iExcessFoodTimes100 = m_pCity->getYieldRateTimes100(YIELD_FOOD, false) - (m_pCity->foodConsumption(false, 1) * 100);
+	int iBestSpecialistValue = GetSpecialistValue((SpecialistTypes)GC.getDEFAULT_SPECIALIST(),gCachedNumbers);
+	BuildingTypes eBestBuilding = NO_BUILDING;
+	CvBuildingEntry* pBestBuildingInfo = NULL;
+
+	//many buildings have the same specialist yields ...
+	std::map<SpecialistTypes, int> specialistValueCache;
 
 	// Loop through all Buildings
 	for (int iBuildingLoop = 0; iBuildingLoop < GC.getNumBuildingInfos(); iBuildingLoop++)
@@ -1530,190 +789,103 @@ BuildingTypes CvCityCitizens::GetAIBestSpecialistBuilding(int& iSpecialistValue,
 				// Can't add more than the max
 				if (IsCanAddSpecialistToBuilding(eBuilding))
 				{
-					eSpecialist = (SpecialistTypes)pkBuildingInfo->GetSpecialistType();
+					SpecialistTypes eSpecialist = (SpecialistTypes)pkBuildingInfo->GetSpecialistType();
+					int iValue = 0;
 
 					std::map<SpecialistTypes, int>::iterator it = specialistValueCache.find(eSpecialist);
 					if (it != specialistValueCache.end())
 						iValue = specialistValueCache[eSpecialist];
 					else
 					{
-						iValue = GetSpecialistValue(eSpecialist, iExcessFoodTimes100);
+						iValue = GetSpecialistValue(eSpecialist, gCachedNumbers);
 						specialistValueCache[eSpecialist] = iValue;
 					}
 
-					// Add a bit more weight to a Building if it has more slots (10% per).  This will bias the AI to fill a single building over spreading Specialists out
-					int iTemp = ((GetNumSpecialistsAllowedByBuilding(*pkBuildingInfo) - 1) * iValue * 15);
-					iTemp /= 100;
-					iValue += iTemp;
+					// Add a bit more weight to a Building if it has more slots (10% per).
+					// This will bias the AI to fill a single building over spreading Specialists out
+					int iBonus = ((GetNumSpecialistsAllowedByBuilding(*pkBuildingInfo) - 1) * iValue * 10) / 100;
 
-					if (bLogging && (GC.getLogging() && GC.getAILogging()))
-					{
-						CvString playerName;
-						FILogFile* pLog;
-						CvString strBaseString;
-						CvString strOutBuf;
-						CvString strFileName = "CityTileScorer.csv";
-						playerName = GET_PLAYER(m_pCity->getOwner()).getCivilizationShortDescription();
-						pLog = LOGFILEMGR.GetLog(strFileName, FILogFile::kDontTimeStamp);
-						strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
-						strBaseString += playerName + ", ";
-						strOutBuf.Format("%s: Specialist Building: %s, Score: %d", m_pCity->getName().GetCString(), pkBuildingInfo->GetDescription(), iValue);
-						strBaseString += strOutBuf;
-						pLog->Msg(strBaseString);
-					}
-
-					if (iValue > iBestSpecialistValue)
+					if (iValue+iBonus > iBestSpecialistValue)
 					{
 						eBestBuilding = eBuilding;
-						iBestSpecialistValue = iValue;
-						iBestUnmodifiedSpecialistValue = iValue - iTemp;
+						iBestSpecialistValue = iValue + iBonus;
+						pBestBuildingInfo = pkBuildingInfo;
+
+						//return the unbiased value
+						iSpecialistValue = iValue;
 					}
 				}
 			}
 		}
 	}
 
-	iSpecialistValue = iBestUnmodifiedSpecialistValue;
+	if (bLogging && GC.getLogging() && pBestBuildingInfo)
+	{
+		CvString strBaseString;
+		CvString strOutBuf;
+		CvString strFileName = "CityTileScorer.csv";
+		FILogFile* pLog = LOGFILEMGR.GetLog(strFileName, FILogFile::kDontTimeStamp);
+		strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
+		strOutBuf.Format("%s, focus %d, idle citizens %d, specialist building: %s, score %d", 
+			m_pCity->getName().GetCString(), m_eCityAIFocusTypes, GetNumUnassignedCitizens(), pBestBuildingInfo->GetDescription(), iSpecialistValue);
+		strBaseString += strOutBuf;
+		pLog->Msg(strBaseString);
+	}
+
 	return eBestBuilding;
 }
-#if defined(MOD_BALANCE_CORE)
+
 /// What is the Building Type the AI likes the Specialist of most right now?
-BuildingTypes CvCityCitizens::GetAIBestSpecialistCurrentlyInBuilding(int& iSpecialistValue, std::map<SpecialistTypes, int>& specialistValueCache)
+BuildingTypes CvCityCitizens::GetAIBestSpecialistCurrentlyInBuilding(int& iSpecialistValue, bool bWantBest)
 {
 	BuildingTypes eBestBuilding = NO_BUILDING;
-	int iBestSpecialistValue = -1;
-	int iBestUnmodifiedSpecialistValue = -1;
+	int iBestSpecialistValue = bWantBest ? -INT_MAX : INT_MAX;
 
-	SpecialistTypes eSpecialist;
-	int iValue;
+	gCachedNumbers.update(m_pCity);
 
-	int iExcessFoodTimes100 = m_pCity->getYieldRateTimes100(YIELD_FOOD, false) - (m_pCity->foodConsumption(false, 1) * 100);
+	//many buildings have the same specialist yields ...
+	vector<int> checked(GC.getNumSpecialistInfos(),0);
 
-	// Loop through all Buildings
-	for (int iBuildingLoop = 0; iBuildingLoop < GC.getNumBuildingInfos(); iBuildingLoop++)
+	const vector<BuildingTypes>& allBuildings = m_pCity->GetCityBuildings()->GetAllBuildingsHere();
+	for (size_t i=0; i<allBuildings.size(); i++)
 	{
-		const BuildingTypes eBuilding = static_cast<BuildingTypes>(iBuildingLoop);
-		CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
-
-		if (pkBuildingInfo)
+		CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(allBuildings[i]);
+		int iUnforcedSpecialist = GetNumSpecialistsInBuilding(allBuildings[i]) - GetNumForcedSpecialistsInBuilding(allBuildings[i]);
+		if (pkBuildingInfo &&  iUnforcedSpecialist > 0)
 		{
-			// Have this Building in the City, and there's a specialist in it?
-			if (GetCity()->GetCityBuildings()->GetNumBuilding(eBuilding) > 0 && GetCity()->GetCityCitizens()->GetNumSpecialistsInBuilding(eBuilding) > 0)
+			SpecialistTypes eSpecialist = (SpecialistTypes)pkBuildingInfo->GetSpecialistType();
+			if (checked[eSpecialist]>0)
+				continue;
+
+			int iValue = GetSpecialistValue(eSpecialist,gCachedNumbers);
+			checked[eSpecialist] = iValue;
+
+			if (bWantBest && iValue > iBestSpecialistValue)
 			{
-				eSpecialist = (SpecialistTypes)pkBuildingInfo->GetSpecialistType();
-
-				std::map<SpecialistTypes, int>::iterator it = specialistValueCache.find(eSpecialist);
-				if (it != specialistValueCache.end())
-					iValue = specialistValueCache[eSpecialist];
-				else
-				{
-					iValue = GetSpecialistValue(eSpecialist, iExcessFoodTimes100);
-					specialistValueCache[eSpecialist] = iValue;
-				}
-
-				// Add a bit more weight to a Building if it has more slots (10% per).  This will bias the AI to fill a single building over spreading Specialists out
-				int iTemp = ((GetNumSpecialistsAllowedByBuilding(*pkBuildingInfo) - 1) * iValue * 15);
-				iTemp /= 100;
-				iValue += iTemp;
-
-				if (iValue > iBestSpecialistValue)
-				{
-					eBestBuilding = eBuilding;
-					iBestSpecialistValue = iValue;
-					iBestUnmodifiedSpecialistValue = iValue - iTemp;
-				}
+				eBestBuilding = allBuildings[i];
+				iBestSpecialistValue = iValue;
+			}
+			else if (!bWantBest && iValue < iBestSpecialistValue)
+			{
+				eBestBuilding = allBuildings[i];
+				iBestSpecialistValue = iValue;
 			}
 		}
 	}
 
-	iSpecialistValue = iBestUnmodifiedSpecialistValue;
+	iSpecialistValue = iBestSpecialistValue;
 	return eBestBuilding;
 }
-#endif
 
 /// How valuable is eSpecialist?
-int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist, int iExcessFoodTimes100)
+int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist, const SPrecomputedExpensiveNumbers& cache)
 {
-
 	CvSpecialistInfo* pSpecialistInfo = GC.getSpecialistInfo(eSpecialist);
 	if (pSpecialistInfo == NULL)
-	{
-		//This function should NEVER be called with an invalid specialist info type.
-		CvAssert(pSpecialistInfo);
 		return 0;
-	}
 
 	CvPlayer* pPlayer = m_pCity->GetPlayer();
-
-	int iFlavorGold = 0;
-	int iFlavorScience = 0;
-	int iFlavorCulture = 0;
-	int iFlavorProduction = 0;
-	int iFlavorFaith = 0;
-	int iFlavorHappiness = 0;
-	int iFlavorGrowth = 0;
-	int iFlavorDiplomacy = 0;
-
-	if (pPlayer->isHuman())
-	{
-		iFlavorGold = 7;
-		iFlavorScience = 7;
-		iFlavorCulture = 7;
-		iFlavorProduction = 7;
-		iFlavorFaith = 7;
-		iFlavorHappiness = 7;
-		iFlavorGrowth = 7;
-		iFlavorDiplomacy = 7;
-	}
-	else
-	{
-		iFlavorGold = GET_PLAYER(m_pCity->getOwner()).GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GOLD"));
-		iFlavorScience = GET_PLAYER(m_pCity->getOwner()).GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_SCIENCE"));
-		iFlavorCulture = GET_PLAYER(m_pCity->getOwner()).GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_CULTURE"));
-		iFlavorProduction = GET_PLAYER(m_pCity->getOwner()).GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_PRODUCTION"));
-		iFlavorFaith = GET_PLAYER(m_pCity->getOwner()).GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_RELIGION"));
-		iFlavorHappiness = GET_PLAYER(m_pCity->getOwner()).GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_HAPPINESS"));
-		iFlavorGrowth = GET_PLAYER(m_pCity->getOwner()).GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GROWTH"));
-		iFlavorDiplomacy = GET_PLAYER(m_pCity->getOwner()).GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_DIPLOMACY"));
-	}
-
-	int iValue = 0;
-
-	// factor in the fact that specialists may need less food
-	int iFoodConsumptionBonus = (pPlayer->isHalfSpecialistFood()) ? 1 : 0;
-	if (iFoodConsumptionBonus == 0 && m_pCity->isCapital())
-	{
-		iFoodConsumptionBonus = (pPlayer->isHalfSpecialistFoodCapital()) ? 1 : 0;
-	}
-	CityAIFocusTypes eFocus = GetFocusType();
-	//Calc food first (as it might end the function early)
-	int iFoodVal = 0;
-	bool bAvoidGrowth = IsAvoidGrowth();
-	if (iExcessFoodTimes100 < 0 && bAvoidGrowth)
-	{
-		return 0;
-	}
-	else if (iExcessFoodTimes100 <= 0 && !bAvoidGrowth)
-	{
-		return 0;
-	}
-	else if (iExcessFoodTimes100 > 0 && !bAvoidGrowth)
-	{
-		int iFoodFactor = iExcessFoodTimes100 / 100;
-
-		iFoodVal = range(iFoodFactor, 0, 100);
-		int iGrowth = m_pCity->getGrowthMods();
-		if (iGrowth <= 0)
-			iFoodVal += ((iGrowth/5) * -1);
-		else
-			iFoodVal += (iGrowth/5);
-
-		if (iFoodFactor > 0 && m_bDiscourageGrowth)
-			iFoodVal *= 4;
-
-		//increase value by era
-		iFoodVal += pPlayer->GetCurrentEra();
-	}
+	bool bCityWonderProduction = !pPlayer->isHuman() && m_pCity->getPopulation() > 3 && m_pCity->IsBuildingWorldWonder();
 
 	///////
 	// Bonuses
@@ -1721,176 +893,61 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist, int iExcessF
 	ProcessTypes eProcess = m_pCity->getProductionProcess();
 	const CvProcessInfo* pkProcessInfo = GC.getProcessInfo(eProcess);
 
+	int iYieldValue = 0;
+
+	CityAIFocusTypes eFocus = GetFocusType();
+
 	for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 	{
 		YieldTypes eYield = (YieldTypes)iI;
-
-		if (eYield == NO_YIELD)
-			continue;
 
 		//Simplification - errata yields not worth considering.
 		if ((YieldTypes)iI > YIELD_GOLDEN_AGE_POINTS && !MOD_BALANCE_CORE_JFD)
 			break;
 
-		int iYield = pPlayer->specialistYield(eSpecialist, eYield);
-		int iYieldMod = 0;
+		int iYield100 = pPlayer->specialistYield(eSpecialist, eYield) * 100;
 		//Culture is treated differently, sadly.
 		if (eYield == YIELD_CULTURE)
+			iYield100 = m_pCity->GetCultureFromSpecialist(eSpecialist) * 100;
+
+		//FIXME: should we consider the food consumed by the specialist ... foodConsumptionSpecialistTimes100()
+		//or maybe not, since we only consider specialists when we have food to spare
+
+		if (iYield100 > 0)
 		{
-			iYield = m_pCity->GetCultureFromSpecialist(eSpecialist);
-		}
-		if (iYield > 0)
-		{
+			//conversion to other yields
+			if (pkProcessInfo && pkProcessInfo->getProductionToYieldModifier(eYield) > 0)
+				iYield100 += (iYield100 * pkProcessInfo->getProductionToYieldModifier(eYield))/100;
+
+			//religion bonus
 			ReligionTypes eMajority = m_pCity->GetCityReligions()->GetReligiousMajority();
 			if (eMajority >= RELIGION_PANTHEON)
 			{
-				const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, m_pCity->getOwner());
+				const CvReligion* pReligion = m_pCity->GetCityReligions()->GetMajorityReligion();
 				if (pReligion)
 				{
-					iYield += pReligion->m_Beliefs.GetSpecialistYieldChange(eSpecialist, eYield, m_pCity->getOwner(), m_pCity);
+					iYield100 += pReligion->m_Beliefs.GetSpecialistYieldChange(eSpecialist, eYield, m_pCity->getOwner(), m_pCity)*100;
 					int iYield1Specialist = pReligion->m_Beliefs.GetYieldChangeAnySpecialist(eYield, m_pCity->getOwner(), m_pCity);
 					if (GetTotalSpecialistCount() <= 0 && iYield1Specialist > 0)
-					{
-						iYield += iYield1Specialist;
-					}
+						iYield100 += iYield1Specialist*100;
 				}
 			}
+
+			int iYieldMod = GetYieldModForFocus(eYield, eFocus, false, bCityWonderProduction, cache);
+
+			// prefer to even out yields
 			if (m_pCity->GetCityStrategyAI()->GetMostDeficientYield() == eYield)
-			{
-				iYieldMod += 5;
-			}
-			else if (m_pCity->GetCityStrategyAI()->IsYieldDeficient(eYield))
-			{
-				iYieldMod += 5;
-			}
-			if (eYield == YIELD_FOOD)
-			{
-				if (eFocus == CITY_AI_FOCUS_TYPE_FOOD)
-				{
-					iYieldMod += max(1, (GC.getAI_CITIZEN_VALUE_FOOD() - iFoodConsumptionBonus));
-				}
-				else if (eFocus == CITY_AI_FOCUS_TYPE_PROD_GROWTH)
-				{
-					iYieldMod += max(1, (GC.getAI_CITIZEN_VALUE_FOOD() - iFoodConsumptionBonus));
-				}
-				else if (eFocus == CITY_AI_FOCUS_TYPE_GOLD_GROWTH)
-				{
-					iYieldMod += max(1, (GC.getAI_CITIZEN_VALUE_FOOD() - iFoodConsumptionBonus));
-				}
-			}
-			else if (eYield == YIELD_PRODUCTION)
-			{
-				if (eFocus == CITY_AI_FOCUS_TYPE_PRODUCTION)
-				{
-					iYieldMod += GC.getAI_CITIZEN_VALUE_PRODUCTION();
-				}
-				else if (eFocus == CITY_AI_FOCUS_TYPE_PROD_GROWTH)
-				{
-					iYieldMod += GC.getAI_CITIZEN_VALUE_PRODUCTION()/2;
-				}
-			}
-			else if (eYield == YIELD_GOLD)
-			{
-				if (eFocus == CITY_AI_FOCUS_TYPE_GOLD)
-				{
-					iYieldMod += GC.getAI_CITIZEN_VALUE_GOLD();
-				}
-				if (eFocus == CITY_AI_FOCUS_TYPE_GOLD_GROWTH)
-				{
-					iYieldMod += GC.getAI_CITIZEN_VALUE_GOLD()/2;
-				}
-			}
-			else if (eYield == YIELD_SCIENCE)
-			{
-				if (eFocus == CITY_AI_FOCUS_TYPE_SCIENCE)
-				{
-					iYieldMod += GC.getAI_CITIZEN_VALUE_SCIENCE();
-				}
-			}
-			else if (eYield == YIELD_CULTURE || eYield == YIELD_TOURISM)
-			{
-				if (eFocus == CITY_AI_FOCUS_TYPE_CULTURE)
-				{
-					iYieldMod += GC.getAI_CITIZEN_VALUE_CULTURE();
-				}
-			}
-			else if (eYield == YIELD_FAITH || eYield == YIELD_GOLDEN_AGE_POINTS)
-			{
-				if (eFocus == CITY_AI_FOCUS_TYPE_FAITH)
-				{
-					iYieldMod += GC.getAI_CITIZEN_VALUE_FAITH();
-				}
-			}
+				iYieldMod += 3;
 
-			if (iYield > 0)
-			{
-				switch (eYield)
-				{
-				case YIELD_GOLD:
-					if (m_pCity->getUnhappinessFromGold() > 0)
-					{
-						iYieldMod += m_pCity->getUnhappinessFromGold();
-					}
-					break;
-				case YIELD_SCIENCE:
-					if (m_pCity->getUnhappinessFromScience() > 0)
-					{
-						iYieldMod += m_pCity->getUnhappinessFromScience();
-					}
-					break;
-				case YIELD_CULTURE:
-					if (m_pCity->getUnhappinessFromCulture() > 0)
-					{
-						iYieldMod += m_pCity->getUnhappinessFromCulture();
-					}
-					break;
-				case YIELD_FAITH:
-					if (m_pCity->getUnhappinessFromReligion() > 0)
-					{
-						iYieldMod += m_pCity->getUnhappinessFromReligion();
-					}
-					break;
-				case YIELD_PRODUCTION:
-				case YIELD_FOOD:
-					if (m_pCity->getUnhappinessFromDefense() > 0)
-					{
-						iYieldMod += m_pCity->getUnhappinessFromDefense();
-					}
-					break;
-				}
-			}
-
-			if (pkProcessInfo)
-			{
-				if (pkProcessInfo->getProductionToYieldModifier(eYield) > 0)
-				{
-					iYield *= pkProcessInfo->getProductionToYieldModifier(eYield);
-				}
-			}
-
-			iYield *= iYieldMod;
-
-			iValue += iYield;
+			iYieldValue += iYield100 * max(1, iYieldMod);
 		}
 	}
+
+	//nothing else for laborers ...
+	if (eSpecialist == (SpecialistTypes)GC.getDEFAULT_SPECIALIST())
+		return iYieldValue;
 
 	int iGPPYieldValue = pSpecialistInfo->getGreatPeopleRateChange();
-//	int iGPWeCurrentlyMake = GetSpecialistRate(eSpecialist);
-
-	int iProximityToGPBonus = 0;
-
-	//Let's see how close we are to a specialist. If close, emphasize.
-	int iGPWeHave = GetSpecialistGreatPersonProgress(eSpecialist);
-	if (iGPWeHave != 0)
-	{
-		int iGPNeededForNextGP = GetSpecialistUpgradeThreshold((UnitClassTypes)pSpecialistInfo->getGreatPeopleUnitClass());
-		if (iGPNeededForNextGP != 0)
-		{
-			iGPWeHave *= 100;
-			iProximityToGPBonus = iGPWeHave / iGPNeededForNextGP;
-		}
-	}
-
 	for (int i = 0; i < GC.getNumFlavorTypes(); i++)
 	{
 		int iSpecialistFlavor = pSpecialistInfo->getFlavorValue((FlavorTypes)i);
@@ -1898,35 +955,35 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist, int iExcessF
 		{
 			if (GC.getFlavorTypes((FlavorTypes)i) == "FLAVOR_GOLD")
 			{
-				iGPPYieldValue += (iSpecialistFlavor * iFlavorGold);
+				iGPPYieldValue += iSpecialistFlavor * pPlayer->GetGrandStrategyAI()->GetGoldFlavor();
 			}
 			else if (GC.getFlavorTypes((FlavorTypes)i) == "FLAVOR_PRODUCTION")
 			{
-				iGPPYieldValue += iSpecialistFlavor * iFlavorProduction;
+				iGPPYieldValue += iSpecialistFlavor * pPlayer->GetGrandStrategyAI()->GetProductionFlavor();
 			}
 			else if (GC.getFlavorTypes((FlavorTypes)i) == "FLAVOR_RELIGION")
 			{
-				iGPPYieldValue += iSpecialistFlavor * iFlavorFaith;
+				iGPPYieldValue += iSpecialistFlavor * pPlayer->GetGrandStrategyAI()->GetFaithFlavor();
 			}
 			else if (GC.getFlavorTypes((FlavorTypes)i) == "FLAVOR_CULTURE")
 			{
-				iGPPYieldValue += iSpecialistFlavor * iFlavorCulture;
+				iGPPYieldValue += iSpecialistFlavor * pPlayer->GetGrandStrategyAI()->GetCultureFlavor();
 			}
 			else if (GC.getFlavorTypes((FlavorTypes)i) == "FLAVOR_GROWTH")
 			{
-				iGPPYieldValue += iSpecialistFlavor * iFlavorGrowth;
+				iGPPYieldValue += iSpecialistFlavor * pPlayer->GetGrandStrategyAI()->GetGrowthFlavor();
 			}
 			else if (GC.getFlavorTypes((FlavorTypes)i) == "FLAVOR_SCIENCE")
 			{
-				iGPPYieldValue += iSpecialistFlavor * iFlavorScience;
+				iGPPYieldValue += iSpecialistFlavor * pPlayer->GetGrandStrategyAI()->GetScienceFlavor();
 			}
 			else if (GC.getFlavorTypes((FlavorTypes)i) == "FLAVOR_HAPPINESS")
 			{
-				iGPPYieldValue += iSpecialistFlavor * iFlavorHappiness;
+				iGPPYieldValue += iSpecialistFlavor * pPlayer->GetGrandStrategyAI()->GetHappinessFlavor();
 			}
 			else if (GC.getFlavorTypes((FlavorTypes)i) == "FLAVOR_DIPLOMACY")
 			{
-				iGPPYieldValue += iSpecialistFlavor * iFlavorDiplomacy;
+				iGPPYieldValue += iSpecialistFlavor * pPlayer->GetGrandStrategyAI()->GetDiploFlavor();
 			}
 			else
 			{
@@ -1935,38 +992,19 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist, int iExcessF
 		}
 	}
 
-	iGPPYieldValue /= 5;
+	AICityStrategyTypes eGoodGP = (AICityStrategyTypes)GC.getInfoTypeForString("AICITYSTRATEGY_GOOD_GP_CITY");
+	if (eGoodGP != NO_AICITYSTRATEGY && m_pCity->GetCityStrategyAI()->IsUsingCityStrategy(eGoodGP))
+		iGPPYieldValue *= 2;
 
 	if (eFocus == CITY_AI_FOCUS_TYPE_GREAT_PEOPLE)
-	{
-		iGPPYieldValue *= 2;
-	}
+		iGPPYieldValue /= 4;
 	else
-		iGPPYieldValue /= 2;
+		iGPPYieldValue /= 8;
 
-	bool bGPCity = false;
-	AICityStrategyTypes eGoodGP = (AICityStrategyTypes)GC.getInfoTypeForString("AICITYSTRATEGY_GOOD_GP_CITY");
-	if (eGoodGP != NO_AICITYSTRATEGY)
-	{
-		bGPCity = m_pCity->GetCityStrategyAI()->IsUsingCityStrategy(eGoodGP);
-	}
-	if (bGPCity)
-	{
-		iGPPYieldValue *= 2;
-	}
-	else
-	{
-		iGPPYieldValue /= 2;
-	}
+	int iValue = iYieldValue + iGPPYieldValue;
 
-	int iMod = 0;
-	// City mods
-	iMod += m_pCity->getGreatPeopleRateModifier();
-
-	// Player mod
-	iMod += GetPlayer()->getGreatPeopleRateModifier();
-
-	iMod += m_pCity->GetSpecialistRateModifier(eSpecialist);
+	// GPP modifiers
+	int iMod = m_pCity->getGreatPeopleRateModifier() + GetPlayer()->getGreatPeopleRateModifier() + m_pCity->GetSpecialistRateModifier(eSpecialist);
 
 	bool bWantArt = false;
 	bool bWantScience = false;
@@ -1993,7 +1031,7 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist, int iExcessF
 		iMod += GetPlayer()->getGreatScientistRateModifier();
 		if (bWantScience)
 		{
-			iGPPYieldValue *= 2;
+			iMod *= 2;
 		}
 	}
 	else if ((UnitClassTypes)pSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_WRITER"))
@@ -2005,7 +1043,7 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist, int iExcessF
 		iMod += GetPlayer()->getGreatWriterRateModifier();
 		if (bWantArt)
 		{
-			iGPPYieldValue *= 2;
+			iMod *= 2;
 		}
 	}
 	else if ((UnitClassTypes)pSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_ARTIST"))
@@ -2017,7 +1055,7 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist, int iExcessF
 		iMod += GetPlayer()->getGreatArtistRateModifier();
 		if (bWantArt)
 		{
-			iGPPYieldValue *= 2;
+			iMod *= 2;
 		}
 	}
 	else if ((UnitClassTypes)pSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_MUSICIAN"))
@@ -2029,7 +1067,7 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist, int iExcessF
 		iMod += GetPlayer()->getGreatMusicianRateModifier();
 		if (bWantArt)
 		{
-			iGPPYieldValue *= 2;
+			iMod *= 2;
 		}
 	}
 	else if ((UnitClassTypes)pSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_MERCHANT"))
@@ -2037,7 +1075,7 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist, int iExcessF
 		iMod += GetPlayer()->getGreatMerchantRateModifier();
 		if (bWantDiplo)
 		{
-			iGPPYieldValue *= 2;
+			iMod *= 2;
 		}
 	}
 	else if ((UnitClassTypes)pSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_ENGINEER"))
@@ -2045,7 +1083,7 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist, int iExcessF
 		iMod += GetPlayer()->getGreatEngineerRateModifier();
 		if (bWantScience || bWantArt)
 		{
-			iGPPYieldValue *= 2;
+			iMod *= 2;
 		}
 	}
 #if defined(MOD_DIPLOMACY_CITYSTATES)
@@ -2054,7 +1092,7 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist, int iExcessF
 		iMod += GetPlayer()->getGreatDiplomatRateModifier();
 		if (bWantDiplo)
 		{
-			iGPPYieldValue *= 2;
+			iMod *= 2;
 		}
 	}
 #endif
@@ -2069,20 +1107,36 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist, int iExcessF
 			iMod += GetPlayer()->getGoldenAgeGreatPersonRateModifier(eGreatPerson);
 			iMod += GetPlayer()->GetPlayerTraits()->GetGoldenAgeGreatPersonRateModifier(eGreatPerson);
 
-			ReligionTypes eMajority = GetCity()->GetCityReligions()->GetReligiousMajority();
-			if (eMajority != NO_RELIGION)
+			const CvReligion* pReligion = m_pCity->GetCityReligions()->GetMajorityReligion();
+			BeliefTypes eSecondaryPantheon = NO_BELIEF;
+			if (pReligion)
 			{
-				const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, m_pCity->getOwner());
-				if (pReligion)
+				iMod += pReligion->m_Beliefs.GetGoldenAgeGreatPersonRateModifier(eGreatPerson, m_pCity->getOwner(), m_pCity, true);
+				eSecondaryPantheon = GetCity()->GetCityReligions()->GetSecondaryReligionPantheonBelief();
+				if (eSecondaryPantheon != NO_BELIEF)
 				{
-					iMod += pReligion->m_Beliefs.GetGoldenAgeGreatPersonRateModifier(eGreatPerson, m_pCity->getOwner(), m_pCity, true);
-					BeliefTypes eSecondaryPantheon = GetCity()->GetCityReligions()->GetSecondaryReligionPantheonBelief();
-					if (eSecondaryPantheon != NO_BELIEF)
+					iMod += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetGoldenAgeGreatPersonRateModifier(eGreatPerson);
+				}
+			}
+
+#if defined(MOD_RELIGION_PERMANENT_PANTHEON)
+			// Mod for civs keeping their pantheon belief forever
+			if (MOD_RELIGION_PERMANENT_PANTHEON)
+			{
+				if (GC.getGame().GetGameReligions()->HasCreatedPantheon(GetOwner()))
+				{
+					const CvReligion* pPantheon = GC.getGame().GetGameReligions()->GetReligion(RELIGION_PANTHEON, GetOwner());
+					BeliefTypes ePantheonBelief = GC.getGame().GetGameReligions()->GetBeliefInPantheon(GetOwner());
+					if (pPantheon != NULL && ePantheonBelief != NO_BELIEF && ePantheonBelief != eSecondaryPantheon)
 					{
-						iMod += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetGoldenAgeGreatPersonRateModifier(eGreatPerson);
+						if (pReligion == NULL || (pReligion != NULL && !pReligion->m_Beliefs.IsPantheonBeliefInReligion(ePantheonBelief, pReligion->m_eReligion, GetOwner()))) // check that the our religion does not have our belief, to prevent double counting
+						{
+							iMod += GC.GetGameBeliefs()->GetEntry(ePantheonBelief)->GetGoldenAgeGreatPersonRateModifier(eGreatPerson);
+						}
 					}
 				}
 			}
+#endif
 		}
 		int iNumPuppets = GetPlayer()->GetNumPuppetCities();
 		if (iNumPuppets > 0)
@@ -2122,11 +1176,11 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist, int iExcessF
 			int iEmptySlots = GET_PLAYER(m_pCity->getOwner()).GetCulture()->GetNumAvailableGreatWorkSlots(CvTypes::getGREAT_WORK_SLOT_ART_ARTIFACT());
 			if (iEmptySlots == 0)
 			{
-				iGPPYieldValue /= 3;
+				iMod /= 3;
 			}
 			else
 			{
-				iGPPYieldValue += (iEmptySlots * 2);
+				iMod += (iEmptySlots * 2);
 			}
 		}
 		else if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_WRITER"))
@@ -2134,11 +1188,11 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist, int iExcessF
 			int iEmptySlots = GET_PLAYER(m_pCity->getOwner()).GetCulture()->GetNumAvailableGreatWorkSlots(CvTypes::getGREAT_WORK_SLOT_LITERATURE());
 			if (iEmptySlots == 0)
 			{
-				iGPPYieldValue /= 3;
+				iMod /= 3;
 			}
 			else
 			{
-				iGPPYieldValue += (iEmptySlots * 2);
+				iMod += (iEmptySlots * 2);
 			}
 		}
 		else if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_MUSICIAN"))
@@ -2146,22 +1200,32 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist, int iExcessF
 			int iEmptySlots = GET_PLAYER(m_pCity->getOwner()).GetCulture()->GetNumAvailableGreatWorkSlots(CvTypes::getGREAT_WORK_SLOT_MUSIC());
 			if (iEmptySlots == 0)
 			{
-				iGPPYieldValue /= 3;
+				iMod /= 3;
 			}
 			else
 			{
-				iGPPYieldValue += (iEmptySlots * 2);
+				iMod += (iEmptySlots * 2);
 			}
 			if (bWantArt)
 			{
-				iGPPYieldValue *= 2;
+				iMod *= 2;
 			}
 		}
 	}
 
-	iValue += iGPPYieldValue;
+	//Let's see how close we are to a specialist. If close, emphasize.
+	int iGPWeHave = GetSpecialistGreatPersonProgress(eSpecialist);
+	if (iGPWeHave != 0)
+	{
+		int iGPNeededForNextGP = GetSpecialistUpgradeThreshold((UnitClassTypes)pSpecialistInfo->getGreatPeopleUnitClass());
+		if (iGPNeededForNextGP != 0)
+		{
+			iGPWeHave *= 100;
+			iMod += iGPWeHave / iGPNeededForNextGP;
+		}
+	}
 
-	iValue *= (100 + iMod + iProximityToGPBonus);
+	iValue *= (100+iMod);
 	iValue /= 100;
 
 	///////
@@ -2182,7 +1246,6 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist, int iExcessF
 	else
 	{
 		iCityUnhappiness = m_pCity->GetUnhappinessFromCitySpecialists() / 100;
-
 		int iTotalUnhappiness = GetPlayer()->GetHappiness() - GetPlayer()->GetUnhappiness();
 
 		//What percent is this city's specialist count having on our overall unhappiness?
@@ -2197,115 +1260,12 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist, int iExcessF
 	iValue *= max(1, (100 - iCityUnhappiness));
 	iValue /= 100;
 
-	//and lastly increase it based on food val and stance.
-	iValue *= (100 + iFoodVal);
-	iValue /= 100;
-
-
-	if (pkProcessInfo && pkProcessInfo->getProductionToYieldModifier(YIELD_FOOD) > 0)
-	{
-		iValue /= 10;
-	}
-
 	if (eFocus == CITY_AI_FOCUS_TYPE_FOOD)
-		iValue /= 10;
-	else if ((eFocus == CITY_AI_FOCUS_TYPE_PROD_GROWTH || eFocus == CITY_AI_FOCUS_TYPE_GOLD_GROWTH) && !bAvoidGrowth)
-		iValue /= 4;
-	else if ((eFocus == NO_CITY_AI_FOCUS_TYPE))
 		iValue /= 2;
 	else if (eFocus == CITY_AI_FOCUS_TYPE_GREAT_PEOPLE)
 		iValue *= 2;
 
 	return iValue;
-}
-
-/// Determine if eSpecialist is preferable to a default specialist, based on our focus
-bool CvCityCitizens::IsBetterThanDefaultSpecialist(SpecialistTypes eSpecialist)
-{
-	CvSpecialistInfo* pSpecialistInfo = GC.getSpecialistInfo(eSpecialist);
-	CvAssertMsg(pSpecialistInfo, "Invalid specialist type when assigning citizens. Please send Anton your save file and version.");
-	if (!pSpecialistInfo) return false; // Assumes that default specialist will work out
-
-	SpecialistTypes eDefaultSpecialist = (SpecialistTypes)GC.getDEFAULT_SPECIALIST();
-	CvSpecialistInfo* pDefaultSpecialistInfo = GC.getSpecialistInfo(eDefaultSpecialist);
-	CvAssertMsg(pDefaultSpecialistInfo, "Invalid default specialist type when assigning citizens. Please send Anton your save file and version.");
-	if (!pDefaultSpecialistInfo) return false;
-
-	//antonjs: consider: deficient yield
-
-	CityAIFocusTypes eFocus = GetFocusType();
-	YieldTypes eYield = NO_YIELD;
-	switch (eFocus)
-	{
-	case CITY_AI_FOCUS_TYPE_FOOD:
-		eYield = YIELD_FOOD;
-		break;
-	case CITY_AI_FOCUS_TYPE_PRODUCTION:
-		eYield = YIELD_PRODUCTION;
-		break;
-	case CITY_AI_FOCUS_TYPE_GOLD:
-		eYield = YIELD_GOLD;
-		break;
-	case CITY_AI_FOCUS_TYPE_GREAT_PEOPLE:
-		eYield = NO_YIELD;
-		break;
-	case CITY_AI_FOCUS_TYPE_SCIENCE:
-		eYield = YIELD_SCIENCE;
-		break;
-	case CITY_AI_FOCUS_TYPE_CULTURE:
-		eYield = YIELD_CULTURE;
-		break;
-	case CITY_AI_FOCUS_TYPE_PROD_GROWTH:
-	case CITY_AI_FOCUS_TYPE_GOLD_GROWTH:
-		eYield = YIELD_FOOD;
-		break;
-	case CITY_AI_FOCUS_TYPE_FAITH:
-		eYield = YIELD_FAITH;
-		break;
-	default:
-		eYield = NO_YIELD;
-		break;
-	}
-
-	if (eYield == NO_YIELD)
-		return true;
-
-	int iSpecialistYield = pSpecialistInfo->getYieldChange(eYield);
-	int iDefaultSpecialistYield = pDefaultSpecialistInfo->getYieldChange(eYield);
-
-	if (m_pCity->GetPlayer()->isHalfSpecialistUnhappiness() || m_pCity->GetPlayer()->isHalfSpecialistFood())
-	{
-		iSpecialistYield *= 2;
-	}
-#if defined(MOD_BALANCE_CORE)
-	else if (m_pCity->isCapital() && m_pCity->GetPlayer()->isHalfSpecialistFoodCapital())
-	{
-		iSpecialistYield *= 2;
-	}
-#endif
-
-	return (iSpecialistYield >= iDefaultSpecialistYield); // Unless default Specialist has strictly more, this Specialist is better
-}
-
-bool CvCityCitizens::CanCreateSpecialist()
-{
-	return true;
-
-	/*
-	if (!MOD_BALANCE_CORE_HAPPINESS)
-		return true;
-
-	int iHappinessDelta = m_pCity->getHappinessDelta();
-	if (iHappinessDelta > 0)
-		return true;
-
-	int iCapital = m_pCity->isCapital() ? GET_PLAYER(m_pCity->getOwner()).GetNoUnhappfromXSpecialistsCapital() : 0;
-	int iFreeSpecialistsRemaining = (m_pCity->GetNoUnhappfromXSpecialists() + GET_PLAYER(m_pCity->getOwner()).GetNoUnhappfromXSpecialists() + iCapital) - GetTotalSpecialistCount();
-	if (iFreeSpecialistsRemaining > 0)
-		return true;
-
-	return false;
-	*/
 }
 
 /// How many Citizens need to be given a job?
@@ -2334,178 +1294,82 @@ void CvCityCitizens::ChangeNumCitizensWorkingPlots(int iChange)
 }
 
 /// Pick the best Plot to work from one of our unassigned pool
-bool CvCityCitizens::DoAddBestCitizenFromUnassigned(std::map<SpecialistTypes, int>& specialistValueCache, bool bLogging, bool bNoSpecialists)
+bool CvCityCitizens::DoAddBestCitizenFromUnassigned(CvCity::eUpdateMode updateMode, bool bLogging)
 {
 	// We only assign the unassigned here, folks
 	if (GetNumUnassignedCitizens() == 0)
+		return false;
+
+	int iNetFood100 = m_pCity->getYieldRateTimes100(YIELD_FOOD, false) - m_pCity->foodConsumptionTimes100();
+	bool bCanAffordSpecialist = (iNetFood100 >= m_pCity->foodConsumptionSpecialistTimes100());
+	bool bSpecialistForbidden = GET_PLAYER(GetOwner()).isHuman() && IsNoAutoAssignSpecialists();
+	FILogFile* pLog = bLogging && GC.getLogging() ? LOGFILEMGR.GetLog("CityTileScorer.csv", FILogFile::kDontTimeStamp) : NULL;
+
+	int iSpecialistValue = -1;
+	BuildingTypes eBestSpecialistBuilding = NO_BUILDING;
+
+	if (bCanAffordSpecialist && !bSpecialistForbidden)
+		eBestSpecialistBuilding = GetAIBestSpecialistBuilding(iSpecialistValue, bLogging);
+
+	int iBestPlotValue = -1;
+	CvPlot* pBestPlot = GetBestCityPlotWithValue(iBestPlotValue, /*bBest*/ true, /*bWorked*/ false, false, bLogging);
+
+	if (iBestPlotValue > iSpecialistValue)
 	{
+		// Plot is best
+		SetWorkingPlot(pBestPlot, true, updateMode);
+
+		if (pLog)
+		{
+#if defined(MOD_BALANCE_CORE)
+			int iExcessFoodTimes100 = m_pCity->getYieldRateTimes100(YIELD_FOOD, false) - (m_pCity->foodConsumptionTimes100());
+#else
+			int iExcessFoodTimes100 = m_pCity->getYieldRateTimes100(YIELD_FOOD, false) - (m_pCity->foodConsumption() * 100);
+#endif
+			CvString strOutBuf;
+			strOutBuf.Format("now working plot %d:%d, current net food %d", pBestPlot->getX(), pBestPlot->getY(), iExcessFoodTimes100);
+			pLog->Msg(strOutBuf);
+		}
+
+		return true;
+	}
+	else if (iSpecialistValue > iBestPlotValue)
+	{
+		// Specialist is best (can also be a default specialist aka laborer)
+		DoAddSpecialistToBuilding(eBestSpecialistBuilding, /*bForced*/ false, updateMode);
+
+		if (pLog)
+		{
+			int iExcessFoodTimes100 = m_pCity->getYieldRateTimes100(YIELD_FOOD, false) - (m_pCity->foodConsumptionTimes100());
+			CvString strOutBuf;
+			strOutBuf.Format("now working building %d, current net food %d", eBestSpecialistBuilding, iExcessFoodTimes100);
+			pLog->Msg(strOutBuf);
+		}
+
+		return true;
+	}
+	else
+	{
+		// Laborer if we can't do anything else
+		ChangeNumDefaultSpecialists(1, updateMode);
 		return false;
 	}
-#if defined(MOD_BALANCE_CORE)
-	//FOUR STAGE SETUP:
-	bool bAvoidGrowth = IsAvoidGrowth();
-	//FIRST, WE FEED OURSELVES!
-	int iPotentialExcessTimes100 = m_pCity->getYieldRateTimes100(YIELD_FOOD, false) - (m_pCity->foodConsumption(false, 1) * 100);
-	if ((!bAvoidGrowth && iPotentialExcessTimes100 <= 300) || (bAvoidGrowth && iPotentialExcessTimes100 <= 0))
-	{
-		int iBestPlotValue = 0;
-		CvPlot* pBestPlot = GetBestCityPlotWithValue(iBestPlotValue, /*bBest*/ true, /*bWorked*/ false, false, bLogging);
-		if (pBestPlot != NULL)
-		{
-			// Now assign the guy to the best possible Plot
-			SetWorkingPlot(pBestPlot, true);
-			return true;
-		}
-	}
-	//SECOND, WE CHECK SPECIALISTS!
-	else
-	{
-		int iSpecialistValue = 0;
-		BuildingTypes eBestSpecialistBuilding = NO_BUILDING;
-		if (!bNoSpecialists && (!GET_PLAYER(GetOwner()).isHuman() || !IsNoAutoAssignSpecialists()))
-		{
-			eBestSpecialistBuilding = GetAIBestSpecialistBuilding(iSpecialistValue, specialistValueCache, bLogging);
-		}
-
-		int iBestPlotValue = 0;
-		//GOOD PLOT? BAD PLOT? NYEH!
-		CvPlot* pBestPlot = GetBestCityPlotWithValue(iBestPlotValue, /*bBest*/ true, /*bWorked*/ false, false, bLogging);
-		if (pBestPlot != NULL)
-		{
-			bool bSpecialistBetterThanPlot = (eBestSpecialistBuilding != NO_BUILDING) && ((iSpecialistValue >= iBestPlotValue) && ((iPotentialExcessTimes100 > 0) || (bAvoidGrowth && iPotentialExcessTimes100 >= 0)));
-			if (bSpecialistBetterThanPlot)
-			{
-				DoAddSpecialistToBuilding(eBestSpecialistBuilding, /*bForced*/ false);
-				return true;
-			}
-			else
-			{
-				SetWorkingPlot(pBestPlot, true);
-				return true;
-			}
-		}
-		//THIRD, IF WE HAVE NO MORE GOOD PLOTS, WE DUMP EVERYTHING ELSE INTO SPECIALISTS UNLESS IT WOULD STARVE US
-		else if (eBestSpecialistBuilding != NO_BUILDING && iPotentialExcessTimes100 >= 0)
-		{
-			DoAddSpecialistToBuilding(eBestSpecialistBuilding, /*bForced*/ false);
-			return true;
-		}
-		//FOURTH, MANUAL LABOR FOREVER
-		else
-		{
-			CvPlot* pBestPlot = GetBestCityPlotWithValue(iBestPlotValue, /*bBest*/ true, /*bWorked*/ false, false, bLogging);
-			if (pBestPlot != NULL)
-			{
-				SetWorkingPlot(pBestPlot, true);
-				return true;
-			}
-			else
-			{
-				// Default Specialist if we can't do anything else
-				ChangeNumDefaultSpecialists(1);
-			}
-		}
-	}
-#else
-	// First Specialist Pass
-	int iSpecialistValue = 0;
-	BuildingTypes eBestSpecialistBuilding = NO_BUILDING;
-	if (!IsNoAutoAssignSpecialists())
-	{
-		eBestSpecialistBuilding = GetAIBestSpecialistBuilding(iSpecialistValue);
-	}
-
-	bool bBetterThanSlacker = false;
-	if (eBestSpecialistBuilding != NO_BUILDING)
-	{
-		CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBestSpecialistBuilding);
-		if (pkBuildingInfo)
-		{
-			SpecialistTypes eSpecialist = (SpecialistTypes)pkBuildingInfo->GetSpecialistType();
-			// Must not be worse than a default Specialist for our focus!
-			if (IsBetterThanDefaultSpecialist(eSpecialist))
-			{
-				bBetterThanSlacker = true;
-			}
-		}
-	}
-
-	int iBestPlotValue = 0;
-	CvPlot* pBestPlot = GetBestCityPlotWithValue(iBestPlotValue, /*bBest*/ true, /*bWorked*/ false);
-
-	bool bSpecialistBetterThanPlot = (eBestSpecialistBuilding != NO_BUILDING && iSpecialistValue >= iBestPlotValue);
-
-	// Is there a Specialist we can assign?
-	if (bSpecialistBetterThanPlot && bBetterThanSlacker)
-	{
-		DoAddSpecialistToBuilding(eBestSpecialistBuilding, /*bForced*/ false);
-		return true;
-	}
-	// Found a Valid Plot to place a guy?
-	else if (!bSpecialistBetterThanPlot && pBestPlot != NULL)
-	{
-		// Now assign the guy to the best possible Plot
-		SetWorkingPlot(pBestPlot, true);
-		return true;
-	}
-	// No Valid Plots left - and no good specialists
-	else
-	{
-		CvPlayer* pOwner = &GET_PLAYER(GetOwner());
-		CvAssertMsg(pOwner, "Could not find owner of city when assigning citizens. Please send Anton your save file and version.");
-
-		// Assign a cool Specialist! Only do this for AI players, or humans who do not have manual specialist control set
-		if (pOwner)
-		{
-			if (!GET_PLAYER(GetOwner()).isHuman() || !IsNoAutoAssignSpecialists())
-			{
-				BuildingTypes eBestBuilding = GetAIBestSpecialistBuilding(iSpecialistValue);
-				if (eBestBuilding != NO_BUILDING)
-				{
-					CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBestBuilding);
-					if (pkBuildingInfo)
-					{
-						SpecialistTypes eSpecialist = (SpecialistTypes)pkBuildingInfo->GetSpecialistType();
-						// Must not be worse than a default Specialist for our focus!
-						if (IsBetterThanDefaultSpecialist(eSpecialist))
-						{
-							DoAddSpecialistToBuilding(eBestBuilding, false);
-							return true;
-
-						}
-					}
-				}
-			}
-		}
-
-		// Default Specialist if we can't do anything else
-		ChangeNumDefaultSpecialists(1);
-	}
-#endif
-	return false;
 }
 
 /// Pick the worst Plot to stop working
-#if defined(MOD_BALANCE_CORE)
-bool CvCityCitizens::DoRemoveWorstCitizen(bool bRemoveForcedStatus, SpecialistTypes eDontChangeSpecialist, int iCurrentCityPopulation, bool bUpdateNow)
-#else
-bool CvCityCitizens::DoRemoveWorstCitizen(bool bRemoveForcedStatus, SpecialistTypes eDontChangeSpecialist, int iCurrentCityPopulation)
-#endif
+bool CvCityCitizens::DoRemoveWorstCitizen(CvCity::eUpdateMode updateMode, bool bRemoveForcedStatus, SpecialistTypes eDontChangeSpecialist)
 {
-	if (iCurrentCityPopulation == -1)
-	{
 #if defined(MOD_GLOBAL_CITY_AUTOMATON_WORKERS)
-		iCurrentCityPopulation = GetCity()->getPopulation(true);
+	int iCurrentCityPopulation = GetCity()->getPopulation(true);
 #else
-		iCurrentCityPopulation = GetCity()->getPopulation();
+	int iCurrentCityPopulation = GetCity()->getPopulation();
 #endif
-	}
 
 	// Are all of our guys already not working Plots?
 #if defined(MOD_GLOBAL_CITY_AUTOMATON_WORKERS)
-	if(GetNumUnassignedCitizens() == GetCity()->getPopulation(true))
+	if (GetNumUnassignedCitizens() == GetCity()->getPopulation(true))
 #else
-	if(GetNumUnassignedCitizens() == GetCity()->getPopulation())
+	if (GetNumUnassignedCitizens() == GetCity()->getPopulation())
 #endif
 	{
 		return false;
@@ -2517,68 +1381,39 @@ bool CvCityCitizens::DoRemoveWorstCitizen(bool bRemoveForcedStatus, SpecialistTy
 		// Do we either have unforced default specialists we can remove?
 		if (GetNumDefaultSpecialists() > GetNumForcedDefaultSpecialists())
 		{
-			ChangeNumDefaultSpecialists(-1);
+			ChangeNumDefaultSpecialists(-1, updateMode);
 			return true;
 		}
 		if (GetNumDefaultSpecialists() > iCurrentCityPopulation)
 		{
 			ChangeNumForcedDefaultSpecialists(-1);
-			ChangeNumDefaultSpecialists(-1);
+			ChangeNumDefaultSpecialists(-1, updateMode);
 			return true;
 		}
 	}
 
 	// No Default Specialists, remove a working Pop, if there is one
 	int iWorstPlotValue = 0;
-#if defined(MOD_BALANCE_CORE)
 	CvPlot* pWorstPlot = GetBestCityPlotWithValue(iWorstPlotValue, /*bBest*/ false, /*bWorked*/ true, bRemoveForcedStatus);
-#else
-	CvPlot* pWorstPlot = GetBestCityPlotWithValue(iWorstPlotValue, /*bBest*/ false, /*bWorked*/ true);
-#endif
 
 	if (pWorstPlot != NULL)
 	{
-#if defined(MOD_BALANCE_CORE)
 		// If we were force-working this Plot, turn it off
 		if (bRemoveForcedStatus && IsForcedWorkingPlot(pWorstPlot))
 		{
-			SetWorkingPlot(pWorstPlot, false, true, bUpdateNow);
-			SetForcedWorkingPlot(pWorstPlot, false);
-
+			SetWorkingPlot(pWorstPlot, false, updateMode); //this automatically removes forced status
 			return true;
 		}
 		else if (!IsForcedWorkingPlot(pWorstPlot))
 		{
-			SetWorkingPlot(pWorstPlot, false, true, bUpdateNow);
+			SetWorkingPlot(pWorstPlot, false, updateMode);
 			return true;
 		}
-#else
-		SetWorkingPlot(pWorstPlot, false);
-
-		// If we were force-working this Plot, turn it off
-		if (bRemoveForcedStatus)
-		{
-			if (IsForcedWorkingPlot(pWorstPlot))
-			{
-				SetForcedWorkingPlot(pWorstPlot, false);
-			}
-		}
-
-		return true;
-#endif
 	}
-	// Have to resort to pulling away a good Specialist
-#if defined(MOD_BALANCE_CORE)
-	else if (bRemoveForcedStatus)
-#else
-	else
-#endif
+	// Have to resort to pulling away a good Specialist if we're 
+	else if (!IsNoAutoAssignSpecialists() || bRemoveForcedStatus)
 	{
-#if defined(MOD_BALANCE_CORE)
-		if (DoRemoveWorstSpecialist(eDontChangeSpecialist, NO_BUILDING, bUpdateNow))
-#else
-		if (DoRemoveWorstSpecialist(eDontChangeSpecialist))
-#endif
+		if (DoRemoveWorstSpecialist(eDontChangeSpecialist, NO_BUILDING, updateMode))
 		{
 			return true;
 		}
@@ -2588,18 +1423,13 @@ bool CvCityCitizens::DoRemoveWorstCitizen(bool bRemoveForcedStatus, SpecialistTy
 }
 
 /// Find a Plot the City is either working or not, and the best/worst value for it - this function does "double duty" depending on what the user wants to find
-#if defined(MOD_BALANCE_CORE)
 CvPlot* CvCityCitizens::GetBestCityPlotWithValue(int& iValue, bool bWantBest, bool bWantWorked, bool bForced, bool bLogging)
-#else
-CvPlot* CvCityCitizens::GetBestCityPlotWithValue(int& iValue, bool bWantBest, bool bWantWorked)
-#endif
 {
-	bool bPlotForceWorked;
-
 	int iBestPlotValue = -1;
-	int iBestPlotID = -1;
+	CvPlot* pBestPlot = NULL;
 
-	SPrecomputedExpensiveNumbers store(m_pCity);
+	FILogFile* pLog = bLogging && GC.getLogging() ? LOGFILEMGR.GetLog("CityTileScorer.csv", FILogFile::kDontTimeStamp) : NULL;
+	gCachedNumbers.update(m_pCity);
 
 	// Look at all workable Plots
 	for (int iPlotLoop = 0; iPlotLoop < GetCity()->GetNumWorkablePlots(); iPlotLoop++)
@@ -2607,11 +1437,10 @@ CvPlot* CvCityCitizens::GetBestCityPlotWithValue(int& iValue, bool bWantBest, bo
 		if (iPlotLoop != CITY_HOME_PLOT)
 		{
 			CvPlot* pLoopPlot = GetCityPlotFromIndex(iPlotLoop);
-
 			if (pLoopPlot != NULL)
 			{
 				// Is this a Plot this City controls?
-				if (pLoopPlot->getOwningCityID() == GetCity()->GetID())
+				if (IsCanWork(pLoopPlot))
 				{
 					// Working the Plot and wanting to work it, or Not working it and wanting to find one to work?
 					if ((IsWorkingPlot(iPlotLoop) && bWantWorked) ||
@@ -2620,58 +1449,44 @@ CvPlot* CvCityCitizens::GetBestCityPlotWithValue(int& iValue, bool bWantBest, bo
 						// Working the Plot or CAN work the Plot?
 						if (bWantWorked || IsCanWork(pLoopPlot))
 						{
-							iValue = GetPlotValue(pLoopPlot, store);
-
-							if (bLogging && (GC.getLogging() && GC.getAILogging()))
-							{
-								CvString playerName;
-								FILogFile* pLog;
-								CvString strBaseString;
-								CvString strOutBuf;
-								CvString strFileName = "CityTileScorer.csv";
-								playerName = GET_PLAYER(m_pCity->getOwner()).getCivilizationShortDescription();
-								pLog = LOGFILEMGR.GetLog(strFileName, FILogFile::kDontTimeStamp);
-								strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
-								strBaseString += playerName + ", ";
-								strOutBuf.Format("%s: Plot %d, Score: %d", m_pCity->getName().GetCString(), pLoopPlot->GetPlotIndex(), iValue);
-								strBaseString += strOutBuf;
-								pLog->Msg(strBaseString);
-							}
-
-							bPlotForceWorked = IsForcedWorkingPlot(pLoopPlot);
-
-							if (bPlotForceWorked)
+							int iCurrent = GetPlotValue(pLoopPlot, gCachedNumbers);
+							
+							if (IsForcedWorkingPlot(pLoopPlot))
 							{
 								// Looking for best, unworked Plot: Forced plots are FIRST to be picked
 								if (bWantBest && !bWantWorked)
 								{
-									iValue += 10000;
+									iCurrent += 1000*1000;
 								}
 								// Looking for worst, worked Plot: Forced plots are LAST to be picked, so make it's value incredibly high
 								if (!bWantBest && bWantWorked)
 								{
-#if defined(MOD_BALANCE_CORE)
 									if (!bForced)
 									{
 										continue;
 									}
 									else
 									{
-#endif
-										iValue += 10000;
-#if defined(MOD_BALANCE_CORE)
+										iCurrent += 1000*1000;
 									}
-#endif
-
 								}
 							}
 
-							if (iBestPlotValue == -1 ||							// First Plot?
-								(bWantBest && iValue > iBestPlotValue) ||		// Best Plot so far?
-								(!bWantBest && iValue < iBestPlotValue))			// Worst Plot so far?
+							if (0) // (pLog)
 							{
-								iBestPlotValue = iValue;
-								iBestPlotID = iPlotLoop;
+								CvString strOutBuf;
+								strOutBuf.Format("check index %d, plot %d:%d (%df%dp%dg%do), score %d. current net food %d", 
+									iPlotLoop, pLoopPlot->getX(), pLoopPlot->getY(), pLoopPlot->getYield(YIELD_FOOD), pLoopPlot->getYield(YIELD_PRODUCTION), 
+									pLoopPlot->getYield(YIELD_GOLD), pBestPlot->getYield(YIELD_SCIENCE) + pBestPlot->getYield(YIELD_CULTURE) + pBestPlot->getYield(YIELD_FAITH), iCurrent, gCachedNumbers.iExcessFoodTimes100);
+								pLog->Msg(strOutBuf);
+							}
+
+							if ( pBestPlot == NULL ||							// First Plot?
+								(bWantBest && iCurrent > iBestPlotValue) ||		// Best Plot so far?
+								(!bWantBest && iCurrent < iBestPlotValue) )		// Worst Plot so far?
+							{
+								iBestPlotValue = iCurrent;
+								pBestPlot = pLoopPlot;
 							}
 						}
 					}
@@ -2682,32 +1497,150 @@ CvPlot* CvCityCitizens::GetBestCityPlotWithValue(int& iValue, bool bWantBest, bo
 
 	// Passed in by reference
 	iValue = iBestPlotValue;
-
-	if (iBestPlotID == -1)
-	{
+	if (pBestPlot == NULL)
 		return NULL;
+
+	if (pLog)
+	{
+		CvString strBaseString;
+		CvString strOutBuf;
+		strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
+		strOutBuf.Format("%s, focus %d%s, idle citizens %d, plot %d:%d (%df%dp%dg%do), score %d", 
+			m_pCity->getName().GetCString(), m_eCityAIFocusTypes, IsForcedAvoidGrowth()?" no growth":"", GetNumUnassignedCitizens(), pBestPlot->getX(), pBestPlot->getY(), 
+			pBestPlot->getYield(YIELD_FOOD), pBestPlot->getYield(YIELD_PRODUCTION), pBestPlot->getYield(YIELD_GOLD), 
+			pBestPlot->getYield(YIELD_SCIENCE) + pBestPlot->getYield(YIELD_CULTURE) + pBestPlot->getYield(YIELD_FAITH), iValue);
+		strBaseString += strOutBuf;
+		pLog->Msg(strBaseString);
 	}
 
-	return GetCityPlotFromIndex(iBestPlotID);
+	return pBestPlot;
 }
-#if defined(MOD_BALANCE_CORE)
+
+//see if we can find a better assignment when we're not assigning plots greedily from scratch but from the final state where all citizens are already fed
+void CvCityCitizens::OptimizeWorkedPlots(bool bLogging)
+{
+	int iCount = 0;
+	FILogFile* pLog = bLogging && GC.getLogging() ? LOGFILEMGR.GetLog("CityTileScorer.csv", FILogFile::kDontTimeStamp) : NULL;
+	bool bSpecialistForbidden = GET_PLAYER(GetOwner()).isHuman() && IsNoAutoAssignSpecialists();
+
+	//failsafe: if we have unassigned citizens get then assign them first
+	while (GetNumUnassignedCitizens() > 0)
+		DoAddBestCitizenFromUnassigned(CvCity::YIELD_UPDATE_LOCAL);
+
+	//failsafe against switching back and forth, don't try this too often
+	while (iCount < m_pCity->getPopulation()/2)
+	{
+		int iNetFood100 = m_pCity->getYieldRateTimes100(YIELD_FOOD, false) - m_pCity->foodConsumptionTimes100();
+		bool bCanAffordSpecialist = (iNetFood100 >= m_pCity->foodConsumptionSpecialistTimes100());
+
+		//now the real check
+		int iWorstWorkedPlotValue = 0;
+		int iWorstSpecialistValue = 0;
+		int iBestFreePlotValue = 0;
+		int iBestSpecialistValue = 0;
+
+		//where do we have potential for improvement?
+		CvPlot* pWorstWorkedPlot = GetBestCityPlotWithValue(iWorstWorkedPlotValue, /*bBest*/ false, /*bWorked*/ true);
+		BuildingTypes eWorstSpecialistBuilding = GetAIBestSpecialistCurrentlyInBuilding(iWorstSpecialistValue, false);
+
+		//both options are valid
+		if (pWorstWorkedPlot && eWorstSpecialistBuilding != NO_BUILDING)
+		{
+			if (iWorstWorkedPlotValue < iWorstSpecialistValue)
+				//remove the citizen from the plot (at least temporarily) so that combo bonuses can be considered correctly
+				SetWorkingPlot(pWorstWorkedPlot, false, CvCity::YIELD_UPDATE_LOCAL);
+			else
+				DoRemoveSpecialistFromBuilding(eWorstSpecialistBuilding, false, CvCity::YIELD_UPDATE_LOCAL);
+		}
+		else if (pWorstWorkedPlot)
+			//only plot can be freed
+			SetWorkingPlot(pWorstWorkedPlot, false, CvCity::YIELD_UPDATE_LOCAL);
+		else if (eWorstSpecialistBuilding != NO_BUILDING)
+			//only specialist can be freed
+			DoRemoveSpecialistFromBuilding(eWorstSpecialistBuilding, false, CvCity::YIELD_UPDATE_LOCAL);
+		else
+			//cannot change anything
+			break;
+
+		//consider alternatives
+		CvPlot* pBestFreePlot = GetBestCityPlotWithValue(iBestFreePlotValue, /*bBest*/ true, /*bWorked*/ false);
+		BuildingTypes eBestSpecialistBuilding = NO_BUILDING;
+		if (bCanAffordSpecialist && !bSpecialistForbidden) 
+			eBestSpecialistBuilding = GetAIBestSpecialistBuilding(iBestSpecialistValue);
+
+		//better work a plot or a specialist?
+		if (iBestFreePlotValue > iBestSpecialistValue)
+		{
+			SetWorkingPlot(pBestFreePlot, true, CvCity::YIELD_UPDATE_GLOBAL);
+
+			//new plot is same as old plot, we're done
+			if (pBestFreePlot == pWorstWorkedPlot)
+			{
+				if (pLog)
+				{
+					int iExcessFoodTimes100 = m_pCity->getYieldRateTimes100(YIELD_FOOD, false) - (m_pCity->foodConsumptionTimes100());
+					CvString strOutBuf;
+					strOutBuf.Format("nothing to optimize, current net food %d", iExcessFoodTimes100);
+					pLog->Msg(strOutBuf);
+				}
+				break;
+			}
+
+			if (pLog)
+			{
+				int iExcessFoodTimes100 = m_pCity->getYieldRateTimes100(YIELD_FOOD, false) - (m_pCity->foodConsumptionTimes100());
+				CvString strOutBuf;
+				strOutBuf.Format("switched plot %d:%d (score %d) to plot %d:%d (score %d), current net food %d", 
+					pWorstWorkedPlot->getX(), pWorstWorkedPlot->getY(), iWorstWorkedPlotValue, pBestFreePlot->getX(), pBestFreePlot->getY(), iBestFreePlotValue, iExcessFoodTimes100);
+				pLog->Msg(strOutBuf);
+			}
+		}
+		else
+		{
+			//is a specialist better?
+			if (iBestSpecialistValue > iWorstWorkedPlotValue)
+			{
+				DoAddSpecialistToBuilding(eBestSpecialistBuilding, /*bForced*/ false, CvCity::YIELD_UPDATE_GLOBAL);
+
+				if (pLog)
+				{
+					CvBuildingEntry* pBuilding = GC.getBuildingInfo(eBestSpecialistBuilding);
+					int iExcessFoodTimes100 = m_pCity->getYieldRateTimes100(YIELD_FOOD, false) - (m_pCity->foodConsumptionTimes100());
+					CvString strOutBuf;
+					strOutBuf.Format("switched plot %d:%d (score %d) to specialist (%s, score %d), current net food %d", 
+						pWorstWorkedPlot->getX(), pWorstWorkedPlot->getY(), iWorstWorkedPlotValue, pBuilding ? pBuilding->GetType() : "default", iBestSpecialistValue, iExcessFoodTimes100);
+					pLog->Msg(strOutBuf);
+				}
+			}
+			else
+			{
+				//add the citizen back to the original plot
+				SetWorkingPlot(pWorstWorkedPlot, true, CvCity::YIELD_UPDATE_GLOBAL);
+				break;
+			}
+		}
+
+		iCount++;
+	}
+}
+
 bool CvCityCitizens::NeedReworkCitizens()
 {
 	if (IsDirty())
 	{
-		SetDirty(false);
 		return true;
 	}
-	int iBestWorkedPlotValue = 0;
-	CvPlot* pBestworkedPlot = GetBestCityPlotWithValue(iBestWorkedPlotValue, /*bBest*/ true, /*bWorked*/ true);
+
+	int iWorstWorkedPlotValue = 0;
+	CvPlot* pWorstWorkedPlot = GetBestCityPlotWithValue(iWorstWorkedPlotValue, /*bBest*/ false, /*bWorked*/ true);
 
 	int iBestUnworkedPlotValue = 0;
 	CvPlot* pBestUnworkedPlot = GetBestCityPlotWithValue(iBestUnworkedPlotValue, /*bBest*/ true, /*bWorked*/ false);
 
 	//First let's look at plots - if there is a better plot not being worked, we need to reallocate.
-	if (pBestworkedPlot != NULL && pBestUnworkedPlot != NULL)
+	if (pWorstWorkedPlot != NULL && pBestUnworkedPlot != NULL)
 	{
-		if (iBestUnworkedPlotValue > iBestWorkedPlotValue)
+		if (iBestUnworkedPlotValue > iWorstWorkedPlotValue)
 		{
 			return true;
 		}
@@ -2716,41 +1649,28 @@ bool CvCityCitizens::NeedReworkCitizens()
 	//Second let's look at specialists - if there is a better specialist not being worked, we need to reallocate.
 	int iSpecialistValue = 0;
 	BuildingTypes eBestSpecialistBuilding = NO_BUILDING;
-
-	// don't calculate specialist value over and over ...
-	std::map<SpecialistTypes, int> specialistValueCache;
-
 	if (!GET_PLAYER(GetOwner()).isHuman() || !IsNoAutoAssignSpecialists())
 	{
-		eBestSpecialistBuilding = GetAIBestSpecialistBuilding(iSpecialistValue, specialistValueCache);
+		eBestSpecialistBuilding = GetAIBestSpecialistBuilding(iSpecialistValue);
 	}
-	if (eBestSpecialistBuilding == NO_BUILDING)
-	{
-		return false;
-	}
-	bool bSpecialistBetterThanPlot = (eBestSpecialistBuilding != NO_BUILDING && iSpecialistValue >= iBestWorkedPlotValue);
-	if (bSpecialistBetterThanPlot)
+
+	if (iSpecialistValue > iWorstWorkedPlotValue)
 	{
 		return true;
 	}
 
 	int iSpecialistInCityValue = 0;
 	BuildingTypes eBestSpecialistInCityBuilding = NO_BUILDING;
-
 	if (!GET_PLAYER(GetOwner()).isHuman() || !IsNoAutoAssignSpecialists())
 	{
-		eBestSpecialistInCityBuilding = GetAIBestSpecialistCurrentlyInBuilding(iSpecialistInCityValue, specialistValueCache);
+		eBestSpecialistInCityBuilding = GetAIBestSpecialistCurrentlyInBuilding(iSpecialistInCityValue,true);
 	}
-	bool bSpecialistBetterThanExistingSpecialist = (eBestSpecialistInCityBuilding != NO_BUILDING && eBestSpecialistBuilding != NO_BUILDING && iSpecialistValue >= iSpecialistInCityValue);
-	if (bSpecialistBetterThanExistingSpecialist)
-	{
-		return true;
-	}
-	return false;
+
+	//check if new specialist is better than existing specialist
+	return (iSpecialistValue > iSpecialistInCityValue);
 }
-#endif
+
 /// Optimize our Citizen Placement
-#if defined(MOD_BALANCE_CORE)
 void CvCityCitizens::SetDirty(bool bValue)
 {
 	if (m_bIsDirty != bValue)
@@ -2762,126 +1682,77 @@ bool CvCityCitizens::IsDirty()
 {
 	return m_bIsDirty;
 }
-void CvCityCitizens::SetBlockade(bool bValue)
-{
-	if (m_bIsBlockaded != bValue)
-	{
-		m_bIsBlockaded = bValue;
-	}
-}
-bool CvCityCitizens::IsBlockade()
-{
-	return m_bIsBlockaded;
-}
+
 void CvCityCitizens::DoReallocateCitizens(bool bForce, bool bLogging)
-#else
-void CvCityCitizens::DoReallocateCitizens()
-#endif
 {
-#if defined(MOD_BALANCE_CORE)
-	//Let's check if we need to do this.
-	if (!DoValidateForcedWorkingPlots() && !bForce && !NeedReworkCitizens())
-	{
-		return;
-	}
-#else
-	// Make sure we don't have more forced working plots than we have citizens working.  If so, clean it up before reallocating
+	DoVerifyWorkingPlots();
+
 	DoValidateForcedWorkingPlots();
-#endif
 
-	// Remove all of the allocated guys
-	int iNumCitizensToRemove = GetNumCitizensWorkingPlots();
-	for (int iWorkerLoop = 0; iWorkerLoop < iNumCitizensToRemove; iWorkerLoop++)
+	//Let's check if we need to do this.
+	if (!bForce && !NeedReworkCitizens())
+		return;
+
+	FILogFile* pLog = bLogging && GC.getLogging() ? LOGFILEMGR.GetLog("CityTileScorer.csv", FILogFile::kDontTimeStamp) : NULL;
+	if (pLog)
+		pLog->Msg("==== starting reallocation");
+
+	// Remove all of the allocated guys (except forced)
+	for (int iPlotLoop = 0; iPlotLoop < GetCity()->GetNumWorkablePlots(); iPlotLoop++)
 	{
-#if defined(MOD_BALANCE_CORE)
-		DoRemoveWorstCitizen(false, NO_SPECIALIST, -1, false);
-#else
-		DoRemoveWorstCitizen();
-#endif
+		if (iPlotLoop != CITY_HOME_PLOT && IsWorkingPlot(iPlotLoop) && !IsForcedWorkingPlot(iPlotLoop))
+			SetWorkingPlot(GetCityPlotFromIndex(iPlotLoop), false, CvCity::YIELD_UPDATE_NONE);
 	}
-
-	int iSpecialistLoop;
 
 	// Remove Non-Forced Specialists in Buildings
-	int iNumSpecialistsToRemove;
-	BuildingTypes eBuilding;
-	for (int iBuildingLoop = 0; iBuildingLoop < GC.getNumBuildingInfos(); iBuildingLoop++)
+	const vector<BuildingTypes>& allBuildings = m_pCity->GetCityBuildings()->GetAllBuildingsHere();
+	for (size_t iBuildingLoop = 0; iBuildingLoop < allBuildings.size(); iBuildingLoop++)
 	{
-		eBuilding = (BuildingTypes)iBuildingLoop;
+		const BuildingTypes eBuilding = allBuildings[iBuildingLoop];
 
-		// Have this Building in the City?
-		if (GetCity()->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
-		{
-			iNumSpecialistsToRemove = GetNumSpecialistsInBuilding(eBuilding) - GetNumForcedSpecialistsInBuilding(eBuilding);	// Don't include Forced guys
+		// Don't include Forced guys
+		int iNumSpecialistsToRemove = GetNumSpecialistsInBuilding(eBuilding) - GetNumForcedSpecialistsInBuilding(eBuilding);
 
-			// Loop through guys to remove (if there are any)
-			for (iSpecialistLoop = 0; iSpecialistLoop < iNumSpecialistsToRemove; iSpecialistLoop++)
-			{
-#if defined(MOD_BALANCE_CORE)
-				DoRemoveSpecialistFromBuilding(eBuilding, /*bForced*/ false, false);
-#else
-				DoRemoveSpecialistFromBuilding(eBuilding, /*bForced*/ false);
-#endif
-			}
-		}
+		// Loop through guys to remove (if there are any)
+		for (int iSpecialistLoop = 0; iSpecialistLoop < iNumSpecialistsToRemove; iSpecialistLoop++)
+			DoRemoveSpecialistFromBuilding(eBuilding, /*bForced*/ false, CvCity::YIELD_UPDATE_NONE);
 	}
 
-	// Remove Default Specialists
+	// Remove Default Specialists (Laborers)
 	int iNumDefaultsToRemove = GetNumDefaultSpecialists() - GetNumForcedDefaultSpecialists();
-	for (iSpecialistLoop = 0; iSpecialistLoop < iNumDefaultsToRemove; iSpecialistLoop++)
+	for (int iSpecialistLoop = 0; iSpecialistLoop < iNumDefaultsToRemove; iSpecialistLoop++)
 	{
-#if defined(MOD_BALANCE_CORE)
-		ChangeNumDefaultSpecialists(-1, false);
-#else
-		ChangeNumDefaultSpecialists(-1);
-#endif
+		ChangeNumDefaultSpecialists(-1, CvCity::YIELD_UPDATE_NONE);
 	}
-#if defined(MOD_BALANCE_CORE)
-	//We deferred all recalculations to this spot for optimization purposes (doesn't matter if we're just nuking the entire city's population above).
-	for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
-	{
-		YieldTypes eYield = (YieldTypes)iI;
-		if (eYield == NO_YIELD)
-			continue;
 
-		//Simplification - errata yields not worth considering.
-		if ((YieldTypes)iI > YIELD_GOLDEN_AGE_POINTS && !MOD_BALANCE_CORE_JFD)
-			break;
-
-		m_pCity->UpdateCityYields(eYield);
-		m_pCity->UpdateSpecialReligionYields(eYield);
-	}
-	m_pCity->GetCityCulture()->CalculateBaseTourismBeforeModifiers();
-	m_pCity->GetCityCulture()->CalculateBaseTourism();
-#endif
-	// don't calculate specialist value over and over ...
-	std::map<SpecialistTypes, int> specialistValueCache;
+	// do a single update, but treat player happiness as constant
+	m_pCity->UpdateAllNonPlotYields(false);
 
 	// Now put all of the unallocated guys back
 	int iNumToAllocate = GetNumUnassignedCitizens();
 	for (int iUnallocatedLoop = 0; iUnallocatedLoop < iNumToAllocate; iUnallocatedLoop++)
 	{
-		DoAddBestCitizenFromUnassigned(specialistValueCache, bLogging);
-	}
-#if defined(MOD_BALANCE_CORE)
-	//And then we do it again after everyone is allocated.
-	for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
-	{
-		YieldTypes eYield = (YieldTypes)iI;
-		if (eYield == NO_YIELD)
-			continue;
+		if (pLog)
+			pLog->Msg("--- next allocation");
 
-		//Simplification - errata yields not worth considering.
-		if ((YieldTypes)iI > YIELD_GOLDEN_AGE_POINTS && !MOD_BALANCE_CORE_JFD)
-			break;
-
-		GetCity()->UpdateCityYields(eYield);
-		GetCity()->UpdateSpecialReligionYields(eYield);
+		//here we need to make sure to update after each assignment so we correctly track our needs
+		DoAddBestCitizenFromUnassigned(CvCity::YIELD_UPDATE_LOCAL, bLogging);
 	}
-	GetCity()->GetCityCulture()->CalculateBaseTourismBeforeModifiers();
-	GetCity()->GetCityCulture()->CalculateBaseTourism();
-#endif
-	GET_PLAYER(GetCity()->getOwner()).CalculateNetHappiness();
+
+	if (pLog)
+		pLog->Msg("==== starting optimization");
+
+	//maybe we can reassign some citizens to work low food plots
+	//(the default algorithm is greedy, so picks high food plots first without knowing where we land)
+	OptimizeWorkedPlots(bLogging);
+
+	//final update, this time include player happiness
+	m_pCity->UpdateAllNonPlotYields(true);
+
+	SetDirty(false);
+
+	if (pLog)
+		pLog->Msg("==== finished reallocation");
 }
 
 
@@ -2909,14 +1780,8 @@ bool CvCityCitizens::IsWorkingPlot(const CvPlot* pPlot) const
 }
 
 /// Tell a City to start or stop working a Plot.  Citizens will go to/from the Unassigned Pool if the 3rd argument is true
-#if defined(MOD_BALANCE_CORE)
-void CvCityCitizens::SetWorkingPlot(CvPlot* pPlot, bool bNewValue, bool bUseUnassignedPool, bool bUpdateNow)
-#else
-void CvCityCitizens::SetWorkingPlot(CvPlot* pPlot, bool bNewValue, bool bUseUnassignedPool)
-#endif
+void CvCityCitizens::SetWorkingPlot(CvPlot* pPlot, bool bNewValue, CvCity::eUpdateMode updateMode)
 {
-	int iI;
-
 	int iIndex = GetCityIndexFromPlot(pPlot);
 
 	CvAssertMsg(iIndex >= 0, "iIndex expected to be >= 0");
@@ -2932,8 +1797,10 @@ void CvCityCitizens::SetWorkingPlot(CvPlot* pPlot, bool bNewValue, bool bUseUnas
 	{
 		if (it != m_vWorkedPlots.end())
 			m_vWorkedPlots.erase(it);
-	}
 
+		//make sure we stay consistent
+		SetForcedWorkingPlot(pPlot, false);
+	}
 
 	CvAssertMsg(iIndex < GetCity()->GetNumWorkablePlots(), "iIndex expected to be < NUM_CITY_PLOTS");
 
@@ -2948,20 +1815,12 @@ void CvCityCitizens::SetWorkingPlot(CvPlot* pPlot, bool bNewValue, bool bUseUnas
 			if (bNewValue)
 			{
 				ChangeNumCitizensWorkingPlots(1);
-
-				if (bUseUnassignedPool)
-				{
-					ChangeNumUnassignedCitizens(-1);
-				}
+				ChangeNumUnassignedCitizens(-1);
 			}
 			else
 			{
 				ChangeNumCitizensWorkingPlots(-1);
-
-				if (bUseUnassignedPool)
-				{
-					ChangeNumUnassignedCitizens(1);
-				}
+				ChangeNumUnassignedCitizens(1);
 			}
 		}
 
@@ -2970,7 +1829,7 @@ void CvCityCitizens::SetWorkingPlot(CvPlot* pPlot, bool bNewValue, bool bUseUnas
 			// Now working pPlot
 			if (IsWorkingPlot(pPlot))
 			{
-				for (iI = 0; iI < NUM_YIELD_TYPES; iI++)
+				for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 				{
 					//Simplification - errata yields not worth considering.
 					if ((YieldTypes)iI > YIELD_CULTURE_LOCAL && !MOD_BALANCE_CORE_JFD)
@@ -2978,7 +1837,7 @@ void CvCityCitizens::SetWorkingPlot(CvPlot* pPlot, bool bNewValue, bool bUseUnas
 
 					GetCity()->ChangeBaseYieldRateFromTerrain(((YieldTypes)iI), pPlot->getYield((YieldTypes)iI));
 				}
-#if defined(MOD_BALANCE_CORE)
+
 				if (iIndex != CITY_HOME_PLOT)
 				{
 					if (pPlot->getTerrainType() != NO_TERRAIN)
@@ -3002,12 +1861,11 @@ void CvCityCitizens::SetWorkingPlot(CvPlot* pPlot, bool bNewValue, bool bUseUnas
 						GetCity()->ChangeNumImprovementWorked(pPlot->getImprovementType(), 1);
 					}
 				}
-#endif
 			}
 			// No longer working pPlot
 			else
 			{
-				for (iI = 0; iI < NUM_YIELD_TYPES; iI++)
+				for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 				{
 					//Simplification - errata yields not worth considering.
 					if ((YieldTypes)iI > YIELD_CULTURE_LOCAL && !MOD_BALANCE_CORE_JFD)
@@ -3015,7 +1873,7 @@ void CvCityCitizens::SetWorkingPlot(CvPlot* pPlot, bool bNewValue, bool bUseUnas
 
 					GetCity()->ChangeBaseYieldRateFromTerrain(((YieldTypes)iI), -pPlot->getYield((YieldTypes)iI));
 				}
-#if defined(MOD_BALANCE_CORE)
+
 				if (iIndex != CITY_HOME_PLOT)
 				{
 					if (pPlot->getTerrainType() != NO_TERRAIN)
@@ -3039,33 +1897,15 @@ void CvCityCitizens::SetWorkingPlot(CvPlot* pPlot, bool bNewValue, bool bUseUnas
 						GetCity()->ChangeNumImprovementWorked(pPlot->getImprovementType(), -1);
 					}
 				}
-#endif
 			}
 		}
-#if defined(MOD_BALANCE_CORE)
+
 		//Let's only worry about yield changes if we need to update, or we're human (humans want instant feedback, whereas the AI doesn't always need that).
-		if (bUpdateNow)
-		{
-			if (iIndex != CITY_HOME_PLOT)
-			{
-				for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
-				{
-					//Simplification - errata yields not worth considering.
-					if ((YieldTypes)iI > YIELD_GOLDEN_AGE_POINTS && !MOD_BALANCE_CORE_JFD)
-						break;
+		if (updateMode == CvCity::YIELD_UPDATE_GLOBAL)
+			m_pCity->UpdateAllNonPlotYields(true);
+		else if (updateMode == CvCity::YIELD_UPDATE_LOCAL)
+			m_pCity->UpdateAllNonPlotYields(false);
 
-					YieldTypes eYield = (YieldTypes)iI;
-					if (eYield == NO_YIELD)
-						continue;
-
-					GetCity()->UpdateCityYields(eYield);
-					GetCity()->UpdateSpecialReligionYields(eYield);
-				}
-				GetCity()->GetCityCulture()->CalculateBaseTourismBeforeModifiers();
-				GetCity()->GetCityCulture()->CalculateBaseTourism();
-			}
-		}
-#endif
 		if (GetCity()->isCitySelected())
 		{
 			GC.GetEngineUserInterface()->setDirty(CityInfo_DIRTY_BIT, true);
@@ -3081,22 +1921,17 @@ void CvCityCitizens::SetWorkingPlot(CvPlot* pPlot, bool bNewValue, bool bUseUnas
 /// Tell City to work a Plot, pulling a Citizen from the worst location we can
 void CvCityCitizens::DoAlterWorkingPlot(int iIndex)
 {
-	CvAssertMsg(iIndex >= 0, "iIndex expected to be >= 0");
+	DoVerifyWorkingPlots();
 
-	CvAssertMsg(iIndex < GetCity()->GetNumWorkablePlots(), "iIndex expected to be < NUM_CITY_PLOTS");
 	// Clicking ON the city "resets" it to default setup
 	if (iIndex == CITY_HOME_PLOT)
 	{
-		CvPlot* pLoopPlot;
-
 		// If we've forced any plots to be worked, reset them to the normal state
-
 		for (int iPlotLoop = 0; iPlotLoop < GetCity()->GetNumWorkablePlots(); iPlotLoop++)
 		{
 			if (iPlotLoop != CITY_HOME_PLOT)
 			{
-				pLoopPlot = GetCityPlotFromIndex(iPlotLoop);
-
+				CvPlot* pLoopPlot = GetCityPlotFromIndex(iPlotLoop);
 				if (pLoopPlot != NULL)
 				{
 					if (IsForcedWorkingPlot(pLoopPlot))
@@ -3109,14 +1944,16 @@ void CvCityCitizens::DoAlterWorkingPlot(int iIndex)
 
 		// Reset Forced Default Specialists
 		ChangeNumForcedDefaultSpecialists(-GetNumForcedDefaultSpecialists());
-#if defined(MOD_BALANCE_CORE)
 		DoReallocateCitizens(true, true);
-#else
-		DoReallocateCitizens();
-#endif
 	}
 	else
 	{
+		//we have multiple types of citizens and need to do some bookkeeping when switching between categories
+		// * working a plot
+		// * specialists (in buildings)
+		// * laborers (default specialists)
+		// * unassigned (should be only temporary)
+
 		CvPlot* pPlot = GetCityPlotFromIndex(iIndex);
 
 		if (pPlot != NULL)
@@ -3126,9 +1963,8 @@ void CvCityCitizens::DoAlterWorkingPlot(int iIndex)
 				// If we're already working the Plot, then take the guy off and turn him into a Default Specialist
 				if (IsWorkingPlot(pPlot))
 				{
-					SetWorkingPlot(pPlot, false);
-					SetForcedWorkingPlot(pPlot, false);
-					ChangeNumDefaultSpecialists(1);
+					SetWorkingPlot(pPlot, false, CvCity::YIELD_UPDATE_LOCAL); //this automatically removes the forced status
+					ChangeNumDefaultSpecialists(1, CvCity::YIELD_UPDATE_GLOBAL);
 					ChangeNumForcedDefaultSpecialists(1);
 				}
 				// Player picked a new Plot to work
@@ -3137,45 +1973,32 @@ void CvCityCitizens::DoAlterWorkingPlot(int iIndex)
 					// Pull from the Default Specialist pool, if possible
 					if (GetNumDefaultSpecialists() > 0)
 					{
-						ChangeNumDefaultSpecialists(-1);
+						ChangeNumDefaultSpecialists(-1, CvCity::YIELD_UPDATE_LOCAL);
 						// Player is forcibly telling city to work a plot, so reduce count of forced default specialists
 						if (GetNumForcedDefaultSpecialists() > 0)
 							ChangeNumForcedDefaultSpecialists(-1);
 
-						SetWorkingPlot(pPlot, true);
+						SetWorkingPlot(pPlot, true, CvCity::YIELD_UPDATE_GLOBAL);
 						SetForcedWorkingPlot(pPlot, true);
-						
+					
 					}
 					// No Default Specialists, so grab a better allocated guy
 					else
 					{
-						// Working Plot
-						if (DoRemoveWorstCitizen(true))
+						// Shift a citizen to the new plot
+						if (DoRemoveWorstCitizen(CvCity::YIELD_UPDATE_LOCAL))
 						{
-							SetWorkingPlot(pPlot, true);
+							SetWorkingPlot(pPlot, true, CvCity::YIELD_UPDATE_GLOBAL);
 							SetForcedWorkingPlot(pPlot, true);
-							//ChangeNumUnassignedCitizens(-1);
-						}
-
-						// Good Specialist
-						else
-						{
-							CvAssert(false);
 						}
 					}
 				}
 			}
-			// JON: Need to update this block to work with new system
-			else if (pPlot->getOwner() == GetOwner())
+			else if (pPlot->getOwner() == GetOwner() && !pPlot->isBlockaded())
 			{
-				// Can't take away forced plots from puppet Cities
-				if (pPlot->getOwningCityOverride() != NULL)
-				{
-					if (pPlot->getOwningCityOverride()->IsPuppet())
-					{
-						return;
-					}
-				}
+				// Can't take away plots from puppet cities by force
+				if (pPlot->getOwningCity()->IsPuppet())
+					return;
 
 				pPlot->setOwningCityOverride(GetCity());
 			}
@@ -3185,13 +2008,18 @@ void CvCityCitizens::DoAlterWorkingPlot(int iIndex)
 
 
 
+bool CvCityCitizens::IsForcedWorkingPlot(int iRelativeIndex) const
+{
+	if (iRelativeIndex>=0 && iRelativeIndex<MAX_CITY_PLOTS)
+		return m_pabForcedWorkingPlot[iRelativeIndex];
+
+	return false;
+}
+
 /// Has our City been told it MUST a particular CvPlot?
 bool CvCityCitizens::IsForcedWorkingPlot(const CvPlot* pPlot) const
 {
-	int iIndex;
-
-	iIndex = GetCityIndexFromPlot(pPlot);
-
+	int iIndex = GetCityIndexFromPlot(pPlot);
 	if (iIndex != -1)
 	{
 		return m_pabForcedWorkingPlot[iIndex];
@@ -3218,10 +2046,7 @@ void CvCityCitizens::SetForcedWorkingPlot(CvPlot* pPlot, bool bNewValue)
 			ChangeNumForcedWorkingPlots(1);
 
 			// More forced plots than we have citizens working?  If so, then pick someone to lose their forced status
-			if (GetNumForcedWorkingPlots() > GetNumCitizensWorkingPlots())
-			{
-				DoValidateForcedWorkingPlots();
-			}
+			DoValidateForcedWorkingPlots();
 		}
 		else
 		{
@@ -3231,21 +2056,14 @@ void CvCityCitizens::SetForcedWorkingPlot(CvPlot* pPlot, bool bNewValue)
 }
 
 /// Make sure we don't have more forced working plots than we have citizens to work
-bool CvCityCitizens::DoValidateForcedWorkingPlots()
+void CvCityCitizens::DoValidateForcedWorkingPlots()
 {
-	bool bValue = false;
 	int iNumForcedWorkingPlotsToDemote = GetNumForcedWorkingPlots() - GetNumCitizensWorkingPlots();
-
 	if (iNumForcedWorkingPlotsToDemote > 0)
 	{
 		for (int iLoop = 0; iLoop < iNumForcedWorkingPlotsToDemote; iLoop++)
-		{
-			bValue = DoDemoteWorstForcedWorkingPlot();
-
-		}
+			DoDemoteWorstForcedWorkingPlot();
 	}
-
-	return bValue;
 }
 
 /// Remove the Forced status from the worst ForcedWorking plot
@@ -3254,7 +2072,7 @@ bool CvCityCitizens::DoDemoteWorstForcedWorkingPlot()
 	int iBestPlotValue = -1;
 	int iBestPlotID = -1;
 
-	SPrecomputedExpensiveNumbers store(m_pCity);
+	gCachedNumbers.update(m_pCity);
 
 	// Look at all workable Plots
 	for (int iPlotLoop = 0; iPlotLoop < GetCity()->GetNumWorkablePlots(); iPlotLoop++)
@@ -3267,7 +2085,7 @@ bool CvCityCitizens::DoDemoteWorstForcedWorkingPlot()
 			{
 				if (IsForcedWorkingPlot(pLoopPlot))
 				{
-					int iValue = GetPlotValue(pLoopPlot, store);
+					int iValue = GetPlotValue(pLoopPlot, gCachedNumbers);
 
 					// First, or worst yet?
 					if (iBestPlotValue == -1 || iValue < iBestPlotValue)
@@ -3308,14 +2126,12 @@ void CvCityCitizens::ChangeNumForcedWorkingPlots(int iChange)
 /// Can our City work a particular CvPlot?
 bool CvCityCitizens::IsCanWork(CvPlot* pPlot) const
 {
-	if (pPlot->getOwningCityID() != m_pCity->GetID())
+	if (!pPlot->isEffectiveOwner(m_pCity))
 	{
 		return false;
 	}
 
-	CvAssertMsg(GetCityIndexFromPlot(pPlot) != -1, "GetCityIndexFromPlot(pPlot) is expected to be assigned (not -1)");
-
-	if (pPlot->plotCheck(PUF_canSiege, GetOwner()) != NULL)
+	if (!pPlot->hasYield())
 	{
 		return false;
 	}
@@ -3326,15 +2142,9 @@ bool CvCityCitizens::IsCanWork(CvPlot* pPlot) const
 		{
 			return false;
 		}
-
 	}
 
-	if (!pPlot->hasYield())
-	{
-		return false;
-	}
-
-	if (pPlot->isBlockaded(GetOwner()))
+	if (IsBlockaded(pPlot))
 	{
 		return false;
 	}
@@ -3342,47 +2152,42 @@ bool CvCityCitizens::IsCanWork(CvPlot* pPlot) const
 	return true;
 }
 
-// Is there a naval blockade on any of this city's water tiles?
-bool CvCityCitizens::IsAnyPlotBlockaded() const
+bool CvCityCitizens::IsBlockaded(CvPlot * pPlot) const
 {
-	CvPlot* pLoopPlot;
+	return std::find( m_vBlockadedPlots.begin(), m_vBlockadedPlots.end(), pPlot->GetPlotIndex()) != m_vBlockadedPlots.end();
+}
 
-	// Look at all workable Plots
+void CvCityCitizens::SetBlockaded(CvPlot * pPlot)
+{
+	if (!IsBlockaded(pPlot))
+		m_vBlockadedPlots.push_back(pPlot->GetPlotIndex());
+}
 
-	for (int iPlotLoop = 0; iPlotLoop < m_pCity->GetNumWorkablePlots(); iPlotLoop++)
-	{
-		if (iPlotLoop != CITY_HOME_PLOT)
-		{
-			pLoopPlot = GetCityPlotFromIndex(iPlotLoop);
-
-			if (pLoopPlot != NULL)
-			{
-				if (pLoopPlot->isBlockaded(GetOwner()))
-				{
-					return true;
-				}
-			}
-		}
-	}
-
-	return false;
+void CvCityCitizens::ClearBlockades()
+{
+	m_vBlockadedPlots.clear();
 }
 
 /// Check all Plots by this City to see if we can actually be working them (if we are)
 void CvCityCitizens::DoVerifyWorkingPlots()
 {
+	ClearBlockades();
+
 	for (int iI = 0; iI < GetCity()->GetNumWorkablePlots(); iI++)
 	{
 		CvPlot* pPlot = GetCityPlotFromIndex(iI);
+		if (!pPlot)
+			continue;
 
-		if (pPlot && IsWorkingPlot(iI))
+		//cache which plots are blockaded, the check can be expensive
+		if (pPlot->isBlockaded())
+			SetBlockaded(pPlot);
+
+		//worked plot migh be invalid ...
+		if (IsWorkingPlot(iI) && !IsCanWork(pPlot))
 		{
-			if (!IsCanWork(pPlot))
-			{
-				SetWorkingPlot(pPlot, false, true, false);
-				std::map<SpecialistTypes, int> dummy;
-				DoAddBestCitizenFromUnassigned(dummy);
-			}
+			SetWorkingPlot(pPlot, false, CvCity::YIELD_UPDATE_LOCAL);
+			DoAddBestCitizenFromUnassigned(CvCity::YIELD_UPDATE_GLOBAL);
 		}
 	}
 }
@@ -3418,7 +2223,7 @@ CvPlot* CvCityCitizens::GetCityPlotFromIndex(int iIndex) const
 ///////////////////////////////////////////////////
 int CvCityCitizens::GetSpecialistRate(SpecialistTypes eSpecialist)
 {
-	if (m_pCity->IsPuppet() && MOD_BALANCE_CORE_PUPPET_CHANGES && !GET_PLAYER(m_pCity->getOwner()).GetPlayerTraits()->IsNoAnnexing())
+	if (CityStrategyAIHelpers::IsTestCityStrategy_IsPuppetAndAnnexable(m_pCity))
 		return 0;
 
 	int iGPPChange = 0;
@@ -3436,14 +2241,10 @@ int CvCityCitizens::GetSpecialistRate(SpecialistTypes eSpecialist)
 			// GPP from Buildings
 			iGPPChange += GetBuildingGreatPeopleRateChanges(eSpecialist) * 100;
 
-			ReligionTypes eMajority = m_pCity->GetCityReligions()->GetReligiousMajority();
-			if (eMajority != NO_RELIGION)
+			const CvReligion* pReligion = m_pCity->GetCityReligions()->GetMajorityReligion();
+			if (pReligion)
 			{
-				const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, m_pCity->getOwner());
-				if (pReligion)
-				{
-					iGPPChange += pReligion->m_Beliefs.GetGreatPersonPoints(GetGreatPersonFromSpecialist(eSpecialist), m_pCity->getOwner(), m_pCity, true) * 100;
-				}
+				iGPPChange += pReligion->m_Beliefs.GetGreatPersonPoints(GetGreatPersonFromSpecialist(eSpecialist), m_pCity->getOwner(), m_pCity, true) * 100;
 			}
 
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES) && defined(MOD_API_LUA_EXTENSIONS)
@@ -3523,20 +2324,36 @@ int CvCityCitizens::GetSpecialistRate(SpecialistTypes eSpecialist)
 						iMod += GetPlayer()->getGoldenAgeGreatPersonRateModifier(eGreatPerson);
 						iMod += GetPlayer()->GetPlayerTraits()->GetGoldenAgeGreatPersonRateModifier(eGreatPerson);
 
-						ReligionTypes eMajority = GetCity()->GetCityReligions()->GetReligiousMajority();
-						if (eMajority != NO_RELIGION)
+						const CvReligion* pReligion = m_pCity->GetCityReligions()->GetMajorityReligion();
+						BeliefTypes eSecondaryPantheon = NO_BELIEF;
+						if (pReligion)
 						{
-							const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, GetCity()->getOwner());
-							if (pReligion)
+							iMod += pReligion->m_Beliefs.GetGoldenAgeGreatPersonRateModifier(eGreatPerson, GetCity()->getOwner(), m_pCity);
+							eSecondaryPantheon = GetCity()->GetCityReligions()->GetSecondaryReligionPantheonBelief();
+							if (eSecondaryPantheon != NO_BELIEF)
 							{
-								iMod += pReligion->m_Beliefs.GetGoldenAgeGreatPersonRateModifier(eGreatPerson, GetCity()->getOwner(), m_pCity);
-								BeliefTypes eSecondaryPantheon = GetCity()->GetCityReligions()->GetSecondaryReligionPantheonBelief();
-								if (eSecondaryPantheon != NO_BELIEF)
+								iMod += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetGoldenAgeGreatPersonRateModifier(eGreatPerson);
+							}
+						}
+
+#if defined(MOD_RELIGION_PERMANENT_PANTHEON)
+						// Mod for civs keeping their pantheon belief forever
+						if (MOD_RELIGION_PERMANENT_PANTHEON)
+						{
+							if (GC.getGame().GetGameReligions()->HasCreatedPantheon(GetOwner()))
+							{
+								const CvReligion* pPantheon = GC.getGame().GetGameReligions()->GetReligion(RELIGION_PANTHEON, GetOwner());
+								BeliefTypes ePantheonBelief = GC.getGame().GetGameReligions()->GetBeliefInPantheon(GetOwner());
+								if (pPantheon != NULL && ePantheonBelief != NO_BELIEF && ePantheonBelief != eSecondaryPantheon)
 								{
-									iMod += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetGoldenAgeGreatPersonRateModifier(eGreatPerson);
+									if (pReligion == NULL || (pReligion != NULL && !pReligion->m_Beliefs.IsPantheonBeliefInReligion(ePantheonBelief, pReligion->m_eReligion, GetOwner()))) // check that the our religion does not have our belief, to prevent double counting
+									{
+										iMod += GC.GetGameBeliefs()->GetEntry(ePantheonBelief)->GetGoldenAgeGreatPersonRateModifier(eGreatPerson);
+									}
 								}
 							}
 						}
+#endif
 					}
 				}
 				int iNumPuppets = GetPlayer()->GetNumPuppetCities();
@@ -3610,19 +2427,13 @@ void CvCityCitizens::DoSpecialists()
 				if (!GET_PLAYER(GetCity()->getOwner()).isMinorCiv())
 				{
 					// Reset progress on this Specialist
-#if defined(MOD_BALANCE_CORE)
 					DoResetSpecialistGreatPersonProgressTimes100(eSpecialist, (iGPThreshold * 100));
-#else
-					DoResetSpecialistGreatPersonProgressTimes100(eSpecialist);
-#endif
 
 					// Now... actually create the GP!
 					const UnitClassTypes eUnitClass = (UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass();
-					const CivilizationTypes eCivilization = GetCity()->getCivilizationType();
-					CvCivilizationInfo* pCivilizationInfo = GC.getCivilizationInfo(eCivilization);
-					if (pCivilizationInfo != NULL)
+					if (eUnitClass != NO_UNITCLASS)
 					{
-						UnitTypes eUnit = (UnitTypes)pCivilizationInfo->getCivilizationUnits(eUnitClass);
+						UnitTypes eUnit = GET_PLAYER(GetCity()->getOwner()).GetSpecificUnitType(eUnitClass);
 
 #if defined(MOD_GLOBAL_TRULY_FREE_GP)
 						DoSpawnGreatPerson(eUnit, true, false, false);
@@ -3649,7 +2460,7 @@ bool CvCityCitizens::IsCanAddSpecialistToBuilding(BuildingTypes eBuilding)
 	CvAssert(eBuilding < GC.getNumBuildingInfos());
 
 #if defined(MOD_BALANCE_CORE)
-	if (m_pCity->IsResistance() || m_pCity->IsRazing() || !CanCreateSpecialist())
+	if (m_pCity->IsResistance() || m_pCity->IsRazing())
 	{
 		return false;
 	}
@@ -3672,10 +2483,17 @@ bool CvCityCitizens::IsCanAddSpecialistToBuilding(BuildingTypes eBuilding)
 }
 
 /// Adds and initializes a Specialist for this building
-void CvCityCitizens::DoAddSpecialistToBuilding(BuildingTypes eBuilding, bool bForced)
+void CvCityCitizens::DoAddSpecialistToBuilding(BuildingTypes eBuilding, bool bForced, CvCity::eUpdateMode updateMode)
 {
 	CvAssert(eBuilding > -1);
 	CvAssert(eBuilding < GC.getNumBuildingInfos());
+
+	//no building means laborer
+	if (eBuilding == NO_BUILDING)
+	{
+		ChangeNumDefaultSpecialists(1, updateMode);
+		return;
+	}
 
 	CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
 	if (pkBuildingInfo == NULL)
@@ -3698,19 +2516,12 @@ void CvCityCitizens::DoAddSpecialistToBuilding(BuildingTypes eBuilding, bool bFo
 		// If we don't already have an Unassigned Citizen to turn into a Specialist, find one from somewhere
 		if (GetNumUnassignedCitizens() == 0)
 		{
-#if defined(MOD_BALANCE_CORE)
-			DoRemoveWorstCitizen(true, /*Don't remove this type*/ eSpecialist, -1, false);
-#else
-			DoRemoveWorstCitizen(true, /*Don't remove this type*/ eSpecialist);
-#endif
+			DoRemoveWorstCitizen(updateMode, true, /*Don't remove this type*/ eSpecialist);
+
 			if (GetNumUnassignedCitizens() == 0)
 			{
 				// Still nobody, all the citizens may be assigned to the eSpecialist we are looking for, try again
-#if defined(MOD_BALANCE_CORE)
-				if (!DoRemoveWorstSpecialist(NO_SPECIALIST, eBuilding, false))
-#else
-				if (!DoRemoveWorstSpecialist(NO_SPECIALIST, eBuilding))
-#endif
+				if (!DoRemoveWorstSpecialist(NO_SPECIALIST, eBuilding, updateMode))
 				{
 					return; // For some reason we can't do this, we must exit, else we will be going over the population count
 				}
@@ -3722,24 +2533,17 @@ void CvCityCitizens::DoAddSpecialistToBuilding(BuildingTypes eBuilding, bool bFo
 		m_aiNumSpecialistsInBuilding[eBuilding]++;
 
 		if (bForced)
-		{
 			m_aiNumForcedSpecialistsInBuilding[eBuilding]++;
-		}
 
-		GET_PLAYER(GetCity()->getOwner()).CalculateNetHappiness();
-
-#if defined(MOD_BALANCE_CORE)
-		GetCity()->processSpecialist(eSpecialist, 1);
+		GetCity()->processSpecialist(eSpecialist, 1, updateMode);
+		ChangeNumUnassignedCitizens(-1);
 
 		//we added the first specialist, this may have religious effects
 		if (GetTotalSpecialistCount() == 1)
+		{
 			GetCity()->UpdateReligion(GetCity()->GetCityReligions()->GetReligiousMajority(), false);
-#else
-		GetCity()->processSpecialist(eSpecialist, 1);
-		GetCity()->UpdateReligion(GetCity()->GetCityReligions()->GetReligiousMajority());
-#endif
-
-		ChangeNumUnassignedCitizens(-1);
+			GetCity()->UpdateAllNonPlotYields(updateMode==CvCity::YIELD_UPDATE_GLOBAL);
+		}
 
 		ICvUserInterface2* pkIFace = GC.GetEngineUserInterface();
 		pkIFace->setDirty(GameData_DIRTY_BIT, true);
@@ -3756,11 +2560,7 @@ void CvCityCitizens::DoAddSpecialistToBuilding(BuildingTypes eBuilding, bool bFo
 }
 
 /// Removes and uninitializes a Specialist for this building
-#if defined(MOD_BALANCE_CORE)
-void CvCityCitizens::DoRemoveSpecialistFromBuilding(BuildingTypes eBuilding, bool bForced, bool bEliminatePopulation, bool bUpdateNow)
-#else
-void CvCityCitizens::DoRemoveSpecialistFromBuilding(BuildingTypes eBuilding, bool bForced, bool bEliminatePopulation)
-#endif
+void CvCityCitizens::DoRemoveSpecialistFromBuilding(BuildingTypes eBuilding, bool bForced, CvCity::eUpdateMode updateMode)
 {
 	CvAssert(eBuilding > -1);
 	CvAssert(eBuilding < GC.getNumBuildingInfos());
@@ -3787,33 +2587,24 @@ void CvCityCitizens::DoRemoveSpecialistFromBuilding(BuildingTypes eBuilding, boo
 			m_aiNumForcedSpecialistsInBuilding[eBuilding]--;
 		}
 
-		GET_PLAYER(GetCity()->getOwner()).CalculateNetHappiness();
-
-#if defined(MOD_BALANCE_CORE)
 		//we removed the last specialist, this may have religious effects
 		if (GetTotalSpecialistCount() == 0)
 		{
-			GetCity()->processSpecialist(eSpecialist, -1, true);
+			GetCity()->processSpecialist(eSpecialist, -1, updateMode);
 			GetCity()->UpdateReligion(GetCity()->GetCityReligions()->GetReligiousMajority(), false);
 		}
 		else
 		{
-			GetCity()->processSpecialist(eSpecialist, -1, bUpdateNow);
+			GetCity()->processSpecialist(eSpecialist, -1, updateMode);
 		}
-#else
-		GetCity()->processSpecialist(eSpecialist, -1);
-		GetCity()->UpdateReligion(GetCity()->GetCityReligions()->GetReligiousMajority());
-#endif
 
-		// Do we kill this population or reassign him?
-		if (bEliminatePopulation)
+		if (updateMode==CvCity::YIELD_UPDATE_GLOBAL)
 		{
-			GetCity()->changePopulation(-1, /*bReassignPop*/ false);
+			GET_PLAYER(GetCity()->getOwner()).CalculateNetHappiness();
+			GetCity()->updateNetHappiness();
 		}
-		else
-		{
-			ChangeNumUnassignedCitizens(1);
-		}
+
+		ChangeNumUnassignedCitizens(1);
 
 		GC.GetEngineUserInterface()->setDirty(GameData_DIRTY_BIT, true);
 		GC.GetEngineUserInterface()->setDirty(CityInfo_DIRTY_BIT, true);
@@ -3831,7 +2622,7 @@ void CvCityCitizens::DoRemoveSpecialistFromBuilding(BuildingTypes eBuilding, boo
 /// Clear EVERYONE from this Building
 /// Any one in the building will be put in the unassigned citizens list.
 /// It is up to the caller to reassign population.
-void CvCityCitizens::DoRemoveAllSpecialistsFromBuilding(BuildingTypes eBuilding, bool bEliminatePopulation)
+void CvCityCitizens::DoRemoveAllSpecialistsFromBuilding(BuildingTypes eBuilding, CvCity::eUpdateMode updateMode)
 {
 	CvAssert(eBuilding > -1);
 	CvAssert(eBuilding < GC.getNumBuildingInfos());
@@ -3853,19 +2644,8 @@ void CvCityCitizens::DoRemoveAllSpecialistsFromBuilding(BuildingTypes eBuilding,
 		// Decrease count for the whole city
 		m_aiSpecialistCounts[eSpecialist]--;
 		m_aiNumSpecialistsInBuilding[eBuilding]--;
-		GetCity()->processSpecialist(eSpecialist, -1);
-
-		GET_PLAYER(GetCity()->getOwner()).CalculateNetHappiness();
-
-		// Do we kill this population or reassign him?
-		if (bEliminatePopulation)
-		{
-			GetCity()->changePopulation(-1, /*bReassignPop*/ false);
-		}
-		else
-		{
-			ChangeNumUnassignedCitizens(1);
-		}
+		GetCity()->processSpecialist(eSpecialist, -1, updateMode);
+		ChangeNumUnassignedCitizens(1);
 
 		GC.GetEngineUserInterface()->setDirty(CityInfo_DIRTY_BIT, true);
 		//GC.GetEngineUserInterface()->setDirty(InfoPane_DIRTY_BIT, true );
@@ -3875,20 +2655,25 @@ void CvCityCitizens::DoRemoveAllSpecialistsFromBuilding(BuildingTypes eBuilding,
 		auto_ptr<ICvCity1> pCity = GC.WrapCityPointer(GetCity());
 		GC.GetEngineUserInterface()->SetSpecificCityInfoDirty(pCity.get(), CITY_UPDATE_TYPE_SPECIALISTS);
 	}
+
+	GET_PLAYER(GetCity()->getOwner()).CalculateNetHappiness();
+	GetCity()->updateNetHappiness();
 }
 
 
 /// Find the worst Specialist and remove him from duty
-#if defined(MOD_BALANCE_CORE)
-bool CvCityCitizens::DoRemoveWorstSpecialist(SpecialistTypes eDontChangeSpecialist, const BuildingTypes eDontRemoveFromBuilding /* = NO_BUILDING */, bool bUpdateNow)
-#else
-bool CvCityCitizens::DoRemoveWorstSpecialist(SpecialistTypes eDontChangeSpecialist, const BuildingTypes eDontRemoveFromBuilding /* = NO_BUILDING */)
-#endif
+bool CvCityCitizens::DoRemoveWorstSpecialist(SpecialistTypes eDontChangeSpecialist, const BuildingTypes eDontRemoveFromBuilding, CvCity::eUpdateMode updateMode)
 {
-	for (int iBuildingLoop = 0; iBuildingLoop < GC.getNumBuildingInfos(); iBuildingLoop++)
-	{
-		const BuildingTypes eBuilding = static_cast<BuildingTypes>(iBuildingLoop);
+	int iWorstValue = INT_MAX;
+	BuildingTypes eWorstType = NO_BUILDING;
 
+	gCachedNumbers.update(m_pCity);
+	vector<int> checked(GC.getNumSpecialistInfos(),0);
+
+	const vector<BuildingTypes>& allBuildings = m_pCity->GetCityBuildings()->GetAllBuildingsHere();
+	for (size_t iBuildingLoop = 0; iBuildingLoop < allBuildings.size(); iBuildingLoop++)
+	{
+		const BuildingTypes eBuilding = allBuildings[iBuildingLoop];
 		if (eBuilding == eDontRemoveFromBuilding)
 		{
 			continue;
@@ -3901,21 +2686,35 @@ bool CvCityCitizens::DoRemoveWorstSpecialist(SpecialistTypes eDontChangeSpeciali
 		}
 
 		// We might not be allowed to change this Building's Specialists
-		if (eDontChangeSpecialist == pkBuildingInfo->GetSpecialistType())
+		SpecialistTypes specType = (SpecialistTypes)pkBuildingInfo->GetSpecialistType();
+		if (eDontChangeSpecialist == specType)
+		{
+			continue;
+		}
+
+		//many buildings have the same specialist type
+		if (checked[specType] > 0)
 		{
 			continue;
 		}
 
 		if (GetNumSpecialistsInBuilding(eBuilding) > 0)
 		{
-#if defined(MOD_BALANCE_CORE)
-			DoRemoveSpecialistFromBuilding(eBuilding, true, false, bUpdateNow);
-#else
-			DoRemoveSpecialistFromBuilding(eBuilding, true);
-#endif
+			int iValue = GetSpecialistValue((SpecialistTypes)pkBuildingInfo->GetSpecialistType(), gCachedNumbers);
+			checked[specType] = iValue;
 
-			return true;
+			if (iValue < iWorstValue)
+			{
+				iWorstValue = iValue;
+				eWorstType = eBuilding;
+			}
 		}
+	}
+
+	if (eWorstType != NO_BUILDING)
+	{
+		DoRemoveSpecialistFromBuilding(eWorstType, true, updateMode);
+		return true;
 	}
 
 	return false;
@@ -3928,11 +2727,7 @@ int CvCityCitizens::GetNumDefaultSpecialists() const
 }
 
 /// Changes how many Default Specialists are assigned in this City
-#if defined(MOD_BALANCE_CORE)
-void CvCityCitizens::ChangeNumDefaultSpecialists(int iChange, bool bUpdateNow)
-#else
-void CvCityCitizens::ChangeNumDefaultSpecialists(int iChange)
-#endif
+void CvCityCitizens::ChangeNumDefaultSpecialists(int iChange, CvCity::eUpdateMode updateMode)
 {
 	m_iNumDefaultSpecialists += iChange;
 
@@ -3942,11 +2737,7 @@ void CvCityCitizens::ChangeNumDefaultSpecialists(int iChange)
 	if (m_aiSpecialistCounts[eSpecialist] > m_pCity->getPopulation())
 		OutputDebugString("warning: implausible number of specialists!\n");
 
-#if defined(MOD_BALANCE_CORE)
-	GetCity()->processSpecialist(eSpecialist, iChange, bUpdateNow);
-#else
-	GetCity()->processSpecialist(eSpecialist, iChange);
-#endif
+	GetCity()->processSpecialist(eSpecialist, iChange, updateMode);
 
 	ChangeNumUnassignedCitizens(-iChange);
 }
@@ -4096,17 +2887,17 @@ void CvCityCitizens::ChangeSpecialistGreatPersonProgressTimes100(SpecialistTypes
 
 					// Now... actually create the GP!
 					const UnitClassTypes eUnitClass = (UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass();
-					const CivilizationTypes eCivilization = GetCity()->getCivilizationType();
-					CvCivilizationInfo* pCivilizationInfo = GC.getCivilizationInfo(eCivilization);
-					if (pCivilizationInfo != NULL)
+					if (eUnitClass != NO_UNITCLASS)
 					{
-						UnitTypes eUnit = (UnitTypes)pCivilizationInfo->getCivilizationUnits(eUnitClass);
-
+						UnitTypes eUnit = GET_PLAYER(GetOwner()).GetSpecificUnitType(eUnitClass);
+						if (eUnit != NO_UNIT)
+						{
 #if defined(MOD_GLOBAL_TRULY_FREE_GP)
-						DoSpawnGreatPerson(eUnit, true, false, false);
+							DoSpawnGreatPerson(eUnit, true, false, false);
 #else
-						DoSpawnGreatPerson(eUnit, true, false);
+							DoSpawnGreatPerson(eUnit, true, false);
 #endif
+						}
 					}
 				}
 			}
@@ -4115,19 +2906,11 @@ void CvCityCitizens::ChangeSpecialistGreatPersonProgressTimes100(SpecialistTypes
 }
 
 /// Reset Specialist progress
-#if defined(MOD_BALANCE_CORE)
 void CvCityCitizens::DoResetSpecialistGreatPersonProgressTimes100(SpecialistTypes eIndex, int iAmountToRemove)
-#else
-void CvCityCitizens::DoResetSpecialistGreatPersonProgressTimes100(SpecialistTypes eIndex)
-#endif
 {
 	CvAssert(eIndex > -1);
 	CvAssert(eIndex < GC.getNumSpecialistInfos());
-#if defined(MOD_BALANCE_CORE)
 	m_aiSpecialistGreatPersonProgressTimes100[eIndex] -= iAmountToRemove;
-#else
-	m_aiSpecialistGreatPersonProgressTimes100[eIndex] = 0;
-#endif
 }
 
 /// How many Specialists are assigned to eBuilding?
@@ -4245,7 +3028,7 @@ int CvCityCitizens::GetSpecialistUpgradeThreshold(UnitClassTypes eUnitClass)
 #endif
 	}
 #if defined(MOD_BALANCE_CORE)
-	const UnitTypes eThisPlayersUnitType = (UnitTypes)GET_PLAYER(GetCity()->getOwner()).getCivilizationInfo().getCivilizationUnits(eUnitClass);
+	const UnitTypes eThisPlayersUnitType = GET_PLAYER(GetCity()->getOwner()).GetSpecificUnitType(eUnitClass);
 	if (eThisPlayersUnitType != NO_UNIT)
 	{
 		CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eThisPlayersUnitType);
@@ -4440,7 +3223,7 @@ void CvCityCitizens::DoSpawnGreatPerson(UnitTypes eUnit, bool bIncrementCount, b
 #else
 			kPlayer.incrementGreatAdmiralsCreated();
 #endif
-			CvPlot *pSpawnPlot = kPlayer.GetGreatAdmiralSpawnPlot(newUnit);
+			CvPlot *pSpawnPlot = kPlayer.GetBestCoastalSpawnPlot(newUnit);
 			if (newUnit->plot() != pSpawnPlot)
 			{
 				newUnit->setXY(pSpawnPlot->getX(), pSpawnPlot->getY());
@@ -4639,9 +3422,7 @@ void CvCityCitizens::DoSpawnGreatPerson(UnitTypes eUnit, bool bIncrementCount, b
 			}
 		}
 #endif
-#if defined(MOD_BUGFIX_MINOR)
 		if (bIncrementCount)
-#endif
 #if defined(MOD_GLOBAL_TRULY_FREE_GP)
 			kPlayer.GetReligions()->ChangeNumProphetsSpawned(1, bIsFree);
 #else
@@ -4659,6 +3440,21 @@ void CvCityCitizens::DoSpawnGreatPerson(UnitTypes eUnit, bool bIncrementCount, b
 	if (newUnit->getUnitInfo().GetOneShotTourism() > 0)
 	{
 		newUnit->SetTourismBlastStrength(kPlayer.GetCulture()->GetTourismBlastStrength(newUnit->getUnitInfo().GetOneShotTourism()));
+	}
+	if (newUnit->getUnitInfo().GetTourismBonusTurns() > 0)
+	{
+		int iNumTurns = newUnit->getUnitInfo().GetTourismBonusTurns();
+		CvCity *pLoopCity;
+		int iLoop;
+		for (pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
+		{
+			iNumTurns += pLoopCity->GetCityBuildings()->GetNumGreatWorks(CvTypes::getGREAT_WORK_SLOT_MUSIC());
+		}
+
+		iNumTurns *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+		iNumTurns /= 100;
+
+		newUnit->SetTourismBlastLength(iNumTurns);
 	}
 #if defined(MOD_BALANCE_CORE)
 	if (newUnit->getUnitInfo().GetBaseBeakersTurnsToCount() > 0)
@@ -4712,14 +3508,35 @@ YieldTypes CvCityCitizens::GetFocusTypeYield(CityAIFocusTypes eFocus)
 	return eTargetYield;
 }
 
-SPrecomputedExpensiveNumbers::SPrecomputedExpensiveNumbers(CvCity * pCity)
+SPrecomputedExpensiveNumbers::SPrecomputedExpensiveNumbers() :
+	bonusForXFeature(YIELD_TOURISM, vector<int>(GC.getNumFeatureInfos(),INT_MAX)),
+	bonusForXTerrain(YIELD_TOURISM, vector<int>(GC.getNumTerrainInfos(),INT_MAX)),
+	iUnhappinessFromGold(0),
+	iUnhappinessFromScience(0),
+	iUnhappinessFromCulture(0),
+	iUnhappinessFromReligion(0),
+	iUnhappinessFromDistress(0),
+	iExcessFoodTimes100(0),
+	iFoodCorpMod(0)
+{
+}
+
+void SPrecomputedExpensiveNumbers::update(CvCity * pCity)
 {
 	iUnhappinessFromGold = pCity->getUnhappinessFromGold();
 	iUnhappinessFromScience = pCity->getUnhappinessFromScience();
 	iUnhappinessFromCulture = pCity->getUnhappinessFromCulture();
 	iUnhappinessFromReligion = pCity->getUnhappinessFromReligion();
-	iUnhappinessFromDistress = pCity->getUnhappinessFromDefense();
-
-	iExcessFoodTimes100 = pCity->getYieldRateTimes100(YIELD_FOOD, false) - (pCity->foodConsumption() * 100);
+	iUnhappinessFromDistress = max(pCity->getUnhappinessFromDefense(), pCity->getUnhappinessFromStarving());
+	iExcessFoodTimes100 = pCity->getYieldRateTimes100(YIELD_FOOD, false) - (pCity->foodConsumptionTimes100());
 	iFoodCorpMod = pCity->GetTradeRouteCityMod(YIELD_FOOD);
+
+	//just reset this, we update it on demand
+	for (size_t i = 0; i < bonusForXFeature.size(); i++)
+		for (size_t j = 0; j < bonusForXFeature[i].size(); j++)
+			bonusForXFeature[i][j] = INT_MAX;
+
+	for (size_t i = 0; i < bonusForXTerrain.size(); i++)
+		for (size_t j = 0; j < bonusForXTerrain[i].size(); j++)
+			bonusForXTerrain[i][j] = INT_MAX;
 }

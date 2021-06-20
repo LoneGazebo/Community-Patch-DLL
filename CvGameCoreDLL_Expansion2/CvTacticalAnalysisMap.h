@@ -39,7 +39,7 @@ enum eTacticalPosture
 {
     TACTICAL_POSTURE_NONE,
     TACTICAL_POSTURE_WITHDRAW,
-    TACTICAL_POSTURE_ATTRIT_FROM_RANGE,
+    TACTICAL_POSTURE_ATTRITION,
     TACTICAL_POSTURE_EXPLOIT_FLANKS,
     TACTICAL_POSTURE_STEAMROLL,
     TACTICAL_POSTURE_SURGICAL_CITY_STRIKE,
@@ -303,7 +303,7 @@ public:
 	~CvTacticalAnalysisMap(void);
 
 	void Reset(PlayerTypes ePlayer);
-	void Refresh(bool force = false);
+	void RefreshIfOutdated();
 	bool IsUpToDate();
 	void Invalidate();
 

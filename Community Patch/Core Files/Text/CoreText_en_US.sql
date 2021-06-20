@@ -51,6 +51,19 @@ WHERE Tag = 'TXT_KEY_FOODMOD_WLTKD';
 
 -- Units
 
+-- Movement
+UPDATE Language_en_US
+SET Text = 'MOVE UNIT'
+WHERE Tag = 'TXT_KEY_MOVE_STACKED_UNIT';
+
+UPDATE Language_en_US
+SET Text = 'Move a unit to a tile where it can end the turn.'
+WHERE Tag = 'TXT_KEY_MOVE_STACKED_UNIT_TT';
+
+UPDATE Language_en_US
+SET Text = 'Allows land units to embark and cross water tiles.'
+WHERE Tag = 'TXT_KEY_ALLOWS_EMBARKING';
+
 -- Capture Chance
 UPDATE Language_en_US
 SET Text = '[COLOR_CYAN]Capture chance if defeated: {1_Num}%[ENDCOLOR]'
@@ -393,23 +406,27 @@ SET Text = 'Disrupting Plans'
 WHERE Tag = 'TXT_KEY_SPY_STATE_ESTABLISHED_SURVEILLANCE_PROGRESS_BAR';
 
 UPDATE Language_en_US
-SET Text = 'Potential reflects the vulnerability of a city to Espionage. The higher the value, the more vulnerable the city. The base value [COLOR_POSITIVE_TEXT](a scale, from 1 to 10)[ENDCOLOR] is based on the overall prosperity and happiness of the city, specifically its science and gold output. Potential may be decreased by defensive buildings in the city, such as the Constabulary and the Police Station. Potential may increase when using a higher ranking spy to steal technologies from the city.[NEWLINE][NEWLINE]Click to sort cities by their potential.'
+SET Text = 'Security Level'
+WHERE Tag = 'TXT_KEY_EO_POTENTIAL';
+
+UPDATE Language_en_US
+SET Text = 'Security Level reflects the difficulty of Espionage in a City. The higher the value, the more time it will take to complete Spy Actions. The base value [COLOR_POSITIVE_TEXT](a scale, from 1 to 10)[ENDCOLOR] is based on the overall economic value of the City (relative to all other cities). Security is also affected by Espionage modifiers and buildings in the city, such as the Constabulary and the Police Station. Security also increases when a City has a powerful Counterspy.[NEWLINE][NEWLINE]Click to sort cities by their Security level.'
 WHERE Tag = 'TXT_KEY_EO_POTENTIAL_SORT_TT';
 
 UPDATE Language_en_US
-SET Text = 'If your cities have high Potential, you should consider protecting them. There are two ways to do this. You may move your own spies to your cities to act as counterspies that have a chance to catch and kill enemy spies before they steal a technology. You may also slow down how quickly enemy spies can steal technologies by constructing buildings like the Constabulary, Police Station, and the Great Firewall.'
+SET Text = 'If your cities have low Security, you should consider protecting them. There are two ways to do this. You may move your own spies to your cities to act as counterspies that have a chance to catch and kill enemy spies before they steal something. You may also slow down how quickly enemy spies can steal things by constructing buildings like the Constabulary, Police Station, and the Great Firewall.'
 WHERE Tag = 'TXT_KEY_EO_OWN_CITY_POTENTIAL_TT';
 
 UPDATE Language_en_US
-SET Text = '{1_SpyRank} {2_SpyName} is stealing from {3_CityName}.[NEWLINE]The current Potential of {3_CityName} is {4_Num}.[NEWLINE][NEWLINE]Potential reflects the vulnerability of a city to Espionage. The higher the value, the more vulnerable the city. The base value [COLOR_POSITIVE_TEXT](a scale, from 1 to 10)[ENDCOLOR] is based on the overall prosperity and happiness of the city, specifically its science and gold output. Potential may be decreased by defensive buildings in the city, such as the Constabulary and the Police Station.'
+SET Text = '{1_SpyRank} {2_SpyName} is stealing from {3_CityName}.[NEWLINE]The current Security Level of {3_CityName} is {4_Num}.[NEWLINE][NEWLINE]Security reflects the vulnerability of a city to Espionage. The higher the value, the more protected the city. The base value [COLOR_POSITIVE_TEXT](a scale, from 1 to 10)[ENDCOLOR] is based on the overall prosperity and happiness of the city (relative to all other cities). Security may be decreased by Policies and Espionage buildings in the city, such as the Constabulary and the Police Station.'
 WHERE Tag = 'TXT_KEY_EO_CITY_POTENTIAL_TT';
 
 UPDATE Language_en_US
-SET Text = '{1_SpyRank} {2_SpyName} cannot steal technologies from {3_CityName}.[NEWLINE][NEWLINE]The base Potential of {4_CityName} is {5_Num}.[NEWLINE][NEWLINE]Potential reflects the vulnerability of a city to Espionage. The higher the value, the more vulnerable the city. The base value [COLOR_POSITIVE_TEXT](a scale, from 1 to 10)[ENDCOLOR] is based on the overall prosperity and happiness of the city, specifically its science and gold output. Potential may be decreased by defensive buildings in the city, such as the Constabulary and the Police Station.'
+SET Text = '{1_SpyRank} {2_SpyName} cannot steal technologies from {3_CityName}.[NEWLINE][NEWLINE]The Security Level of {4_CityName} is {5_Num}.[NEWLINE][NEWLINE]Security reflects the vulnerability of a city to Espionage. The higher the value, the more protected the city. The base value [COLOR_POSITIVE_TEXT](a scale, from 1 to 10)[ENDCOLOR] is based on the overall prosperity and happiness of the city. Security may be decreased by Policies and Espionage buildings in the city, such as the Constabulary and the Police Station..'
 WHERE Tag = 'TXT_KEY_EO_CITY_POTENTIAL_CANNOT_STEAL_TT';
 
 UPDATE Language_en_US
-SET Text = 'The Potential of {1_CityName} is believed to be {2_Num}. Send a [ICON_SPY] Spy to this City to learn more about it.[NEWLINE][NEWLINE]Potential reflects the vulnerability of a city to Espionage. The higher the value, the more vulnerable the city. The base value [COLOR_POSITIVE_TEXT](a scale, from 1 to 10)[ENDCOLOR] is based on the overall prosperity of the city, specifically its science and gold output.'
+SET Text = 'The Security Level of {1_CityName} is believed to be {2_Num}. Send a [ICON_SPY] Spy to this City to learn more about it.[NEWLINE][NEWLINE]Security reflects the vulnerability of a city to Espionage. The higher the value, the more protected the city. The base value [COLOR_POSITIVE_TEXT](a scale, from 1 to 10)[ENDCOLOR] is based on the overall prosperity and happiness of the city. Security may be decreased by Policies and Espionage buildings in the city, such as the Constabulary and the Police Station.'
 WHERE Tag = 'TXT_KEY_EO_CITY_ONCE_KNOWN_POTENTIAL_TT';
 
 UPDATE Language_en_US
@@ -435,6 +452,12 @@ WHERE Tag = 'TXT_KEY_SPY_NAME_BRAZIL_8';
 
 
 -- Trade
+
+-- Trade Deals
+
+UPDATE Language_en_US
+SET Text = 'Ends after: [NEWLINE]Turn {1_turn}'
+WHERE Tag = 'TXT_KEY_DO_ENDS_ON';
 
 -- Trade Routes
 UPDATE Language_en_US
@@ -581,6 +604,14 @@ UPDATE Language_en_US
 SET Text = 'Ranks players by the average [ICON_PRODUCTION] Production generated by all of their cities.'
 WHERE Tag = 'TXT_KEY_PROGRESS_SCREEN_PRODUCTION_TT';
 
+-- World Congress Proposals, Which Civs benefit
+UPDATE Language_en_US
+SET Text = '[NEWLINE][NEWLINE]Civilizations that would be positively affected by this:'
+WHERE Tag = 'TXT_KEY_LEAGUE_OVERVIEW_PROPOSAL_OPINIONS_POSITIVE';
+
+UPDATE Language_en_US
+SET Text = '[NEWLINE][NEWLINE]Civilizations that would be negatively affected by this:'
+WHERE Tag = 'TXT_KEY_LEAGUE_OVERVIEW_PROPOSAL_OPINIONS_NEGATIVE';
 
 -- Diplo Opinion Modifiers
 
@@ -617,6 +648,23 @@ UPDATE Language_en_US
 SET Text = 'You are competing for World Wonders.'
 WHERE Tag = 'TXT_KEY_DIPLO_WONDER_DISPUTE';
 
+-- Warmongering
+UPDATE Language_en_US
+SET Text = 'They have some early concerns about your warmongering.'
+WHERE Tag = 'TXT_KEY_DIPLO_WARMONGER_THREAT_MINOR';
+
+UPDATE Language_en_US
+SET Text = 'They are wary of the potential threat posed by your warmongering.'
+WHERE Tag = 'TXT_KEY_DIPLO_WARMONGER_THREAT_MAJOR';
+
+UPDATE Language_en_US
+SET Text = 'They believe your warmongering has become an existential threat.'
+WHERE Tag = 'TXT_KEY_DIPLO_WARMONGER_THREAT_SEVERE';
+
+UPDATE Language_en_US
+SET Text = 'They fear your warmongering will end this world in fire!'
+WHERE Tag = 'TXT_KEY_DIPLO_WARMONGER_THREAT_CRITICAL';
+
 -- Reckless Expansion
 UPDATE Language_en_US
 SET Text = 'They believe we are expanding our empire too aggressively!'
@@ -630,6 +678,15 @@ WHERE Tag = 'TXT_KEY_DIPLO_STOP_SPYING_ASKED';
 UPDATE Language_en_US
 SET Text = 'Your spies were caught stealing from them.'
 WHERE Tag = 'TXT_KEY_DIPLO_CAUGHT_STEALING';
+
+-- World Congress
+UPDATE Language_en_US
+SET Text = 'We passed their proposal in the World Congress.'
+WHERE Tag = 'TXT_KEY_DIPLO_SUPPORTED_THEIR_PROPOSAL';
+
+UPDATE Language_en_US
+SET Text = 'We defeated their proposal in the World Congress.'
+WHERE Tag = 'TXT_KEY_DIPLO_FOILED_THEIR_PROPOSAL';
 
 -- Promises
 UPDATE Language_en_US
@@ -667,6 +724,11 @@ WHERE Tag = 'TXT_KEY_DIPLO_MILITARY_PROMISE_BROKEN_WITH_OTHERS';
 UPDATE Language_en_US
 SET Text = 'You made a promise to stop excavating their artifacts, and then broke it!'
 WHERE Tag = 'TXT_KEY_DIPLO_NO_DIG_PROMISE_BROKEN';
+
+-- Denounced by Friend
+UPDATE Language_en_US
+SET Text = 'Their friends found reason to Denounce you!'
+WHERE Tag = 'TXT_KEY_DIPLO_DENOUNCED_BY_PEOPLE_WE_TRUST_MORE';
 
 -- Friend Betrayal
 UPDATE Language_en_US
@@ -1490,15 +1552,3 @@ WHERE Tag = 'TXT_KEY_LEADER_SHAKA_AGREE_SHORT_2';
 UPDATE Language_en_US
 SET Text = 'Very well.'
 WHERE Tag = 'TXT_KEY_LEADER_WILLIAM_AGREE_SHORT_2';
-
-UPDATE Language_en_US
-SET Text = 'Ends after: [NEWLINE]Turn {1_turn}'
-WHERE Tag = 'TXT_KEY_DO_ENDS_ON';
-
-UPDATE Language_en_US
-SET Text = 'MOVE UNIT'
-WHERE Tag = 'TXT_KEY_MOVE_STACKED_UNIT';
-
-UPDATE Language_en_US
-SET Text = 'Move a unit to a plot where it can end the turn'
-WHERE Tag = 'TXT_KEY_MOVE_STACKED_UNIT_TT';

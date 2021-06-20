@@ -196,8 +196,6 @@
 			<ConversionModifier>-10</ConversionModifier>
 			<Cost>-1</Cost>
 			<ReligiousPressureModifier>25</ReligiousPressureModifier>
-			<BlockGPDestructionSpies>1</BlockGPDestructionSpies>
-			<BlockUDestructionSpies>1</BlockUDestructionSpies>
 			<ArtDefineTag>TEMPLE</ArtDefineTag>
 			<MinAreaSize>-1</MinAreaSize>
 			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
@@ -263,6 +261,7 @@
 			<GreatWorkSlotType>GREAT_WORK_SLOT_MUSIC</GreatWorkSlotType>
 			<GreatWorkCount>1</GreatWorkCount>
 			<MinAreaSize>-1</MinAreaSize>
+			<NukeImmune>true</NukeImmune>
 			<GoldenAgeModifier>25</GoldenAgeModifier>
 			<CitySupplyFlat>4</CitySupplyFlat>
 			<CapitalOnly>true</CapitalOnly>
@@ -280,6 +279,7 @@
 			<ConquestProb>0</ConquestProb>
 			<ArtDefineTag>ART_DEF_BUILDING_MARKET</ArtDefineTag>
 			<MinAreaSize>-1</MinAreaSize>
+			<NukeImmune>true</NukeImmune>
 			<CapitalOnly>true</CapitalOnly>
 			<NeverCapture>true</NeverCapture>
 			<GreatPeopleRateModifier>25</GreatPeopleRateModifier>
@@ -299,6 +299,7 @@
 			<ArtDefineTag>ART_DEF_BUILDING_MARKET</ArtDefineTag>
 			<MinAreaSize>-1</MinAreaSize>
 			<Defense>300</Defense>
+			<NukeImmune>true</NukeImmune>
 			<NeverCapture>true</NeverCapture>
 			<ExtraCityHitPoints>50</ExtraCityHitPoints>
 			<CapitalOnly>true</CapitalOnly>
@@ -317,6 +318,7 @@
 			<ConquestProb>0</ConquestProb>
 			<ArtDefineTag>ART_DEF_BUILDING_MARKET</ArtDefineTag>
 			<MinAreaSize>-1</MinAreaSize>
+			<NukeImmune>true</NukeImmune>
 			<NeverCapture>true</NeverCapture>
 			<SpecialistType>SPECIALIST_WRITER</SpecialistType>
 			<SpecialistCount>1</SpecialistCount>
@@ -337,6 +339,7 @@
 			<NeverCapture>true</NeverCapture>
 			<ArtDefineTag>ART_DEF_BUILDING_MARKET</ArtDefineTag>
 			<MinAreaSize>-1</MinAreaSize>
+			<NukeImmune>true</NukeImmune>
 			<CapitalOnly>true</CapitalOnly>
 			<SpecialistType>SPECIALIST_ARTIST</SpecialistType>
 			<SpecialistCount>1</SpecialistCount>
@@ -355,6 +358,7 @@
 			<ConquestProb>0</ConquestProb>
 			<ArtDefineTag>ART_DEF_BUILDING_MARKET</ArtDefineTag>
 			<MinAreaSize>-1</MinAreaSize>
+			<NukeImmune>true</NukeImmune>
 			<CapitalOnly>true</CapitalOnly>
 			<NeverCapture>true</NeverCapture>
 			<SpecialistType>SPECIALIST_SCIENTIST</SpecialistType>
@@ -578,10 +582,12 @@
 			<ArtDefineTag>ART_DEF_BUILDING_NATIONAL_EPIC</ArtDefineTag>
 			<AllowsWaterRoutes>true</AllowsWaterRoutes>
 			<HurryCostModifier>25</HurryCostModifier>
+			<CitySupplyFlat>1</CitySupplyFlat>
 			<MinAreaSize>-1</MinAreaSize>
 			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
 			<PortraitIndex>25</PortraitIndex>
 		</Row>
+<!--	Mission not currently being used, probably can be deleted
 		<Row>
 			<Type>BUILDING_MISSION</Type>
 			<BuildingClass>BUILDINGCLASS_CASTLE</BuildingClass>
@@ -607,6 +613,7 @@
 			<DisplayPosition>1</DisplayPosition>
 			<NeverCapture>true</NeverCapture>
 		</Row>
+-->
 		<Row>
 			<Type>BUILDING_SKOLA</Type>
 			<BuildingClass>BUILDINGCLASS_PUBLIC_SCHOOL</BuildingClass>
@@ -644,8 +651,8 @@
 			<MinAreaSize>-1</MinAreaSize>
 			<ConquestProb>66</ConquestProb>
 			<HurryCostModifier>25</HurryCostModifier>
-			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
-			<PortraitIndex>33</PortraitIndex>
+			<IconAtlas>COMMUNITY_2_ATLAS</IconAtlas>
+			<PortraitIndex>14</PortraitIndex>
 		</Row>
 		<Row>
 			<Type>BUILDING_GREAT_COTHON</Type>
@@ -682,14 +689,6 @@
 			<ArtDefineTag>ART_DEF_BUILDING_NATIONAL_TREASURY</ArtDefineTag>
 			<NukeImmune>true</NukeImmune>
 			<PrereqTech>TECH_WRITING</PrereqTech>
-			<BlockGoldTheft>1</BlockGoldTheft>
-			<BlockScienceTheft>1</BlockScienceTheft>
-			<BlockUnrestSpies>1</BlockUnrestSpies>
-			<BlockRebellionSpies>1</BlockRebellionSpies>
-			<BlockGPDestructionSpies>1</BlockGPDestructionSpies>
-			<BlockUDestructionSpies>1</BlockUDestructionSpies>
-			<BlockWWDestructionSpies>1</BlockWWDestructionSpies>
-			<BlockBuildingDestructionSpies>1</BlockBuildingDestructionSpies>
 			<NationalPopRequired>10</NationalPopRequired>
 			<CitySupplyFlat>5</CitySupplyFlat>
 			<NumCityCostMod>10</NumCityCostMod>
@@ -934,11 +933,12 @@
 			<Strategy>TXT_KEY_BUILDING_MINEFIELD_STRATEGY</Strategy>
 			<Help>TXT_KEY_BUILDING_MINEFIELD_HELP</Help>
 			<ArtDefineTag>ART_DEF_BUILDING_GARDEN</ArtDefineTag>
-			<MinAreaSize>10</MinAreaSize>
+			<MinAreaSize>1</MinAreaSize>
 			<ConquestProb>66</ConquestProb>
 			<Water>true</Water>
 			<Defense>500</Defense>
 			<ExtraCityHitPoints>100</ExtraCityHitPoints>
+			<DeepWaterTileDamage>5</DeepWaterTileDamage>
 			<BorderObstacleWater>1</BorderObstacleWater>
 			<HurryCostModifier>0</HurryCostModifier>
 			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>

@@ -98,7 +98,7 @@ struct TradeConnection
 
 typedef std::vector<TradeConnection> TradeConnectionList;
 
-//plot index -> plot index -> path
+//org plot index -> dst plot index -> path
 typedef std::map<int,std::map<int,SPath>> TradePathLookup;
 
 class CvGameTrade
@@ -124,7 +124,7 @@ public:
 
 	bool IsCityConnectedToPlayer (CvCity* pCity, PlayerTypes eOtherPlayer, bool bOnlyOwnedByCityOwner);
 	bool IsPlayerConnectedToPlayer (PlayerTypes eFirstPlayer, PlayerTypes eSecondPlayer, bool bFirstPlayerOnly = false);
-	int CountNumPlayerConnectionsToPlayer (PlayerTypes eFirstPlayer, PlayerTypes eSecondPlayer);
+	int CountNumPlayerConnectionsToPlayer (PlayerTypes eFirstPlayer, PlayerTypes eSecondPlayer, bool bFirstPlayerOnly = false);
 
 	bool CitiesHaveTradeConnection (CvCity* pFirstCity, CvCity* pSecondCity);
 
@@ -142,11 +142,7 @@ public:
 	void UpdateTradePlots();
 	int GetTradeRouteTurns(CvCity* pOriginCity, CvCity* pDestCity, DomainTypes eDomain, int* piCircuitsToComplete = NULL);
 #endif
-#if defined(MOD_BUGFIX_MINOR)
 	void ClearAllCityTradeRoutes (CvPlot* pPlot, bool bIncludeTransits = false); // called when a city is captured or traded
-#else
-	void ClearAllCityTradeRoutes (CvPlot* pPlot); // called when a city is captured or traded
-#endif
 	void ClearAllCivTradeRoutes (PlayerTypes ePlayer, bool bFromEmbargo = false); // called from world congress code
 	void ClearAllCityStateTradeRoutes (void); // called from world congress code
 #if defined(MOD_BALANCE_CORE)
@@ -178,11 +174,11 @@ public:
 
 	void CreateTradeUnitForRoute (int iIndex); // Create the trade unit vis unit
 	CvUnit* GetTradeUnitForRoute(int iIndex);
-#if defined(MOD_API_TRADEROUTES)
+
 	bool IsRecalledUnit (int iIndex); // has the unit been recalled
 	void RecallUnit (int iIndex, bool bImmediate = false); // recall a trade unit
 	void EndTradeRoute (int iIndex); // end a trade route
-#endif
+
 	// trade unit movement
 	bool MoveUnit (int iIndex); // move a trade unit along its path for all its movement points
 	bool StepUnit (int iIndex); // move a trade unit a single step along its path (called by MoveUnit)
@@ -201,15 +197,15 @@ public:
 
 	const std::map<int, SPath>& GetAllPotentialTradeRoutesFromCity(CvCity* pOrigin, bool bWater);
 	bool HavePotentialTradePath(bool bWater, CvCity* pOriginCity, CvCity* pDestCity, SPath* pPathOut=NULL);
-	void UpdateTradePathCache(uint iOriginPlayer);
-	void InvalidateTradePathCache(uint iPlayer);
+	void UpdateTradePathCache(PlayerTypes iOriginPlayer);
+	void InvalidateTradePathCache(PlayerTypes iPlayer);
 
 protected:
 
 	TradeConnectionList m_aTradeConnections;
 	TradePathLookup m_aPotentialTradePathsLand;
 	TradePathLookup m_aPotentialTradePathsWater;
-	std::map<uint,int> m_lastTradePathUpdate;
+	std::map<PlayerTypes,int> m_lastTradePathUpdate;
 	std::vector<vector<int>> m_routesPerPlayer;
 	std::map<int, SPath> m_dummyTradePaths; //always empty, just for us to return a reference
 
@@ -340,11 +336,7 @@ public:
 	void AddTradeConnectionWasPlundered(const TradeConnection& kTradeConnection);
 	bool CheckTradeConnectionWasPlundered(const TradeConnection& kTradeConnection);
 
-#if defined(MOD_BUGFIX_UNITCLASS_NOT_UNIT)
 	static UnitTypes GetTradeUnit (DomainTypes eDomain, CvPlayer* pPlayer);
-#else
-	static UnitTypes GetTradeUnit (DomainTypes eDomain);
-#endif
 
 	std::vector<CvString> GetPlotToolTips (CvPlot* pPlot);
 	std::vector<CvString> GetPlotMouseoverToolTips (CvPlot* pPlot);

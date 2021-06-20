@@ -269,6 +269,7 @@ protected:
 	static int lChangeJONSCulturePerTurnFromSpecialists(lua_State* L);
 	static int lGetJONSCulturePerTurnFromGreatWorks(lua_State* L);
 	static int lGetJONSCulturePerTurnFromTraits(lua_State* L);
+	static int lChangeYieldFromTraits(lua_State* L);
 #if defined(MOD_BALANCE_CORE)
 	static int lGetYieldPerTurnFromTraits(lua_State* L);
 	static int lGetYieldFromUnitsInCity(lua_State* L);
@@ -443,6 +444,7 @@ protected:
 	static int lSetDrafted(lua_State* L);
 
 	static int lIsBlockaded(lua_State* L);
+	static int lIsMined(lua_State* L);
 
 	static int lGetWeLoveTheKingDayCounter(lua_State* L);
 	static int lSetWeLoveTheKingDayCounter(lua_State* L);
@@ -634,7 +636,7 @@ protected:
 	static int lGetBuildingEspionageModifier(lua_State* L);
 	static int lGetBuildingGlobalEspionageModifier(lua_State* L);
 	
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_API_ESPIONAGE)
+#if defined(MOD_API_LUA_EXTENSIONS)
 	LUAAPIEXTN(HasDiplomat, bool, iPlayer);
 	LUAAPIEXTN(HasSpy, bool, iPlayer);
 	LUAAPIEXTN(HasCounterSpy, bool);
@@ -752,6 +754,7 @@ protected:
 	static int lGetCityEventChoiceCooldown(lua_State* L);
 	static int lSetCityEventChoiceCooldown(lua_State* L);
 	static int lIsCityEventChoiceValid(lua_State* L);
+	static int lIsCityEventChoiceValidEspionage(lua_State* L);
 #endif
 
 #if defined(MOD_BALANCE_CORE_JFD)
@@ -821,5 +824,34 @@ protected:
 	
 #endif
 };
+
+namespace CvLuaArgs
+{
+	template<> inline const CvCity* toValue(lua_State* L, int idx)
+	{
+		return CvLuaCity::GetInstance(L, idx);
+	}
+	template<> inline CvCity* toValue(lua_State* L, int idx)
+	{
+		return CvLuaCity::GetInstance(L, idx);
+	}
+	template<> inline const CvCity& toValue(lua_State* L, int idx)
+	{
+		return *CvLuaCity::GetInstance(L, idx);
+	}
+	template<> inline CvCity& toValue(lua_State* L, int idx)
+	{
+		return *CvLuaCity::GetInstance(L, idx);
+	}
+
+	template<> inline void pushValue(lua_State* L, CvCity* p)
+	{
+		CvLuaCity::Push(L, p);
+	}
+	template<> inline void pushValue(lua_State* L, CvCity& r)
+	{
+		CvLuaCity::Push(L, &r);
+	}
+}
 
 #endif //CVLUACITY_H

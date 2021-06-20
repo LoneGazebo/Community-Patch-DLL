@@ -6,6 +6,11 @@ VALUES
 	('POLICY_THEIR_FINEST_HOUR', 'UNITCOMBAT_BOMBER', 25),
 	('POLICY_THEIR_FINEST_HOUR', 'UNITCOMBAT_FIGHTER', 25);
 
+INSERT INTO Policy_UnitClassReplacements
+	(PolicyType, ReplacedUnitClassType, ReplacementUnitClassType)
+VALUES
+	('POLICY_THEIR_FINEST_HOUR', 'UNITCLASS_BOMBER', 'UNITCLASS_B17');
+
 -- Arsenal of Democracy
 UPDATE Policies
 SET MilitaryUnitGiftExtraInfluence = '40'
@@ -54,6 +59,12 @@ SET Yield = '6'
 WHERE PolicyType = 'POLICY_NEW_DEAL' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 -- Civil Society
+
+INSERT INTO Policy_ImprovementYieldChanges
+	(PolicyType, ImprovementType, YieldType, Yield)
+VALUES
+	('POLICY_CIVIL_SOCIETY', 'IMPROVEMENT_TRADING_POST', 'YIELD_CULTURE', 3),
+	('POLICY_CIVIL_SOCIETY', 'IMPROVEMENT_TRADING_POST', 'YIELD_SCIENCE', 3);
 
 UPDATE Policies
 SET HalfSpecialistFood = '0'

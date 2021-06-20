@@ -46,17 +46,7 @@ void CvProjectProductionAI::Read(FDataStream& kStream)
 	kStream >> uiVersion;
 	MOD_SERIALIZE_INIT_READ(kStream);
 
-	int iWeight;
-
-	// Reset vector
-	m_ProjectAIWeights.clear();
-
-	// Loop through reading each one and adding it to our vector
-	for(int i = 0; i < GC.GetGameProjects()->GetNumProjects(); i++)
-	{
-		kStream >> iWeight;
-		m_ProjectAIWeights.push_back(i, iWeight);
-	}
+	kStream >> m_ProjectAIWeights;
 }
 
 /// Serialization write
@@ -67,11 +57,7 @@ void CvProjectProductionAI::Write(FDataStream& kStream) const
 	kStream << uiVersion;
 	MOD_SERIALIZE_INIT_WRITE(kStream);
 
-	// Loop through writing each entry
-	for(int i = 0; i < GC.GetGameProjects()->GetNumProjects(); i++)
-	{
-		kStream << m_ProjectAIWeights.GetWeight(i);
-	}
+	kStream << m_ProjectAIWeights;
 }
 
 /// Establish weights for one flavor; can be called multiple times to layer strategies
@@ -153,52 +139,43 @@ ProjectTypes CvProjectProductionAI::RecommendProject()
 #if defined(MOD_BALANCE_CORE)
 int CvProjectProductionAI::CheckProjectBuildSanity(ProjectTypes eProject, int iTempWeight)
 {
-
 	if(eProject == NO_PROJECT)
 		return 0;
 
 	CvProjectEntry* pkProjectInfo = GC.getProjectInfo(eProject);
 	if(!pkProjectInfo)
-	{
 		return 0;
-	}
 
 	CvPlayerAI& kPlayer = GET_PLAYER(m_pCity->getOwner());
 
-	if(iTempWeight == 0)
+	if(iTempWeight < 1)
 		return 0;
 
-	//Sanitize...
-	if(iTempWeight > 5000)
-	{
-		iTempWeight = 5000;
-	}
+	//this seems to work well to bring the raw flavor weight into a sensible range [0 ... 200]
+	iTempWeight = sqrti(10 * iTempWeight);
+
 	if (pkProjectInfo->IsRepeatable())
 	{
-		if (m_pCity->isUnderSiege() || m_pCity->IsResistance() || m_pCity->IsBlockaded(false) || m_pCity->IsBlockaded(true))
+		if (m_pCity->isUnderSiege() || m_pCity->IsResistance())
 			return 0;
-		
-		if (iTempWeight > 350)
-		{
-			iTempWeight = 350;
-		}
 	}
 
 	if(kPlayer.isMinorCiv())
 	{
 		return 0;
 	}
-	if(m_pCity->IsPuppet())
+
+	if(CityStrategyAIHelpers::IsTestCityStrategy_IsPuppetAndAnnexable(m_pCity))
 	{
 		return 0;
 	}
 
-	if(kPlayer.IsAtWarAnyMajor())
+	if (pkProjectInfo->IsAllowsNukes())
 	{
-		if(pkProjectInfo->IsAllowsNukes())
-		{
+		if(kPlayer.IsAtWarAnyMajor())
 			iTempWeight *= 25;
-		}
+		else
+			iTempWeight *= 10;
 	}
 	VictoryTypes ePrereqVictory = (VictoryTypes)pkProjectInfo->GetVictoryPrereq();
 	VictoryTypes eVictory = (VictoryTypes) GC.getInfoTypeForString("VICTORY_SPACE_RACE", true);
@@ -210,40 +187,36 @@ int CvProjectProductionAI::CheckProjectBuildSanity(ProjectTypes eProject, int iT
 		}
 		else
 		{
-			iTempWeight *= 15;
 			if(pkProjectInfo->IsSpaceship())
 			{
-				if (m_pCity->isCapital())
-					return (iTempWeight *= 100);
-				else
-					return (iTempWeight *= 50);
-			}
+				iTempWeight += m_pCity->getSpaceProductionModifier() * 10;
 
-			EconomicAIStrategyTypes eSpaceShipHomeStretch = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_GS_SPACESHIP_HOMESTRETCH");
-			if(eSpaceShipHomeStretch != NO_ECONOMICAISTRATEGY)
+				if (kPlayer.GetBestProductionCity(NO_BUILDING, eProject) == m_pCity)
+					iTempWeight += 5000 + (m_pCity->getSpaceProductionModifier() * 10);
+				else if (kPlayer.IsCityCompetitive(m_pCity, NO_BUILDING, eProject))
+					iTempWeight += 1000 + (m_pCity->getSpaceProductionModifier() * 10);
+				else
+					return 0;
+			}
+			else
 			{
-				if(kPlayer.GetDiplomacyAI()->IsGoingForCultureVictory())
-				{
-					iTempWeight /= 2;
-				}
-				else if(kPlayer.GetDiplomacyAI()->IsGoingForWorldConquest())
-				{
-					iTempWeight /= 2;
-				}
-				else if(kPlayer.GetDiplomacyAI()->IsGoingForCultureVictory())
-				{
-					iTempWeight /= 2;
-				}
+				if (kPlayer.GetBestProductionCity(NO_BUILDING, eProject) == m_pCity)
+					iTempWeight += 5000;
+				else if (kPlayer.IsCityCompetitive(m_pCity, NO_BUILDING, eProject))
+					iTempWeight += 1000;
 				else
-				{
-					iTempWeight *= 50;
-				}
-				if(kPlayer.GetEconomicAI()->IsUsingStrategy(eSpaceShipHomeStretch))
-				{
-					iTempWeight *= 50;
-				}
-
+					return 0;
 			}
+	
+			if (kPlayer.GetDiplomacyAI()->IsGoingForSpaceshipVictory())
+				iTempWeight *= 10;
+
+			EconomicAIStrategyTypes eSpaceShipHomeStretch = (EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_GS_SPACESHIP_HOMESTRETCH");
+			if (eSpaceShipHomeStretch != NO_ECONOMICAISTRATEGY)
+				if(kPlayer.GetEconomicAI()->IsUsingStrategy(eSpaceShipHomeStretch))
+					iTempWeight *= 10;
+
+			return iTempWeight;
 		}
 	}
 
@@ -256,16 +229,18 @@ int CvProjectProductionAI::CheckProjectBuildSanity(ProjectTypes eProject, int iT
 		}
 		else
 		{
-			if (m_pCity->isCapital())
-				return (iTempWeight *= 1000);
+			if (kPlayer.GetBestProductionCity(NO_BUILDING, eProject) == m_pCity)
+				iTempWeight += 10000;
+			else if (kPlayer.IsCityCompetitive(m_pCity, NO_BUILDING, eProject))
+				iTempWeight += 5000;
 			else
-				return (iTempWeight *= 500);
+				return 0;
+
+			return iTempWeight;
 		}
 	}
 
 	bool bGoodforHappiness = false;
-
-
 	if (pkProjectInfo->GetHappiness() > 0)
 	{
 		bGoodforHappiness = true;
@@ -276,6 +251,12 @@ int CvProjectProductionAI::CheckProjectBuildSanity(ProjectTypes eProject, int iT
 	{
 		bGoodforHappiness = true;
 		iTempWeight += ((m_pCity->getEmpireSizeMod()/2) * (pkProjectInfo->GetEmpireMod() * -1));
+	}
+
+	if (pkProjectInfo->GetEspionageMod() < 0)
+	{
+		int iEsp = ((GC.getESPIONAGE_GATHERING_INTEL_COST_PERCENT() * 2) - m_pCity->GetEspionageRankingForEspionage());
+		iTempWeight += (iEsp/2);
 	}
 
 	for (int i = 0; i < NUM_YIELD_TYPES; i++)
@@ -306,10 +287,6 @@ int CvProjectProductionAI::CheckProjectBuildSanity(ProjectTypes eProject, int iT
 		}
 		bGoodforHappiness = true;
 	}
-
-	//emphasis on keeping the task on hand.
-	if (m_pCity->isProductionProject() && m_pCity->getProductionProject() == eProject)
-		iTempWeight *= 2;
 
 	if (bGoodforHappiness && !GET_PLAYER(m_pCity->getOwner()).IsEmpireUnhappy())
 		iTempWeight /= 50;

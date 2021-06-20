@@ -20,9 +20,10 @@
 			<FreeCulturePerTurn>0</FreeCulturePerTurn>
 			<Gold>0</Gold>
 			<GoldFreeUnits>0</GoldFreeUnits>
+			<InflationPercent>100</InflationPercent>
 			<ProductionFreeUnits>9</ProductionFreeUnits>
 			<ProductionFreeUnitsPerCity>1</ProductionFreeUnitsPerCity>
-			<ProductionFreeUnitsPopulationPercent>35</ProductionFreeUnitsPopulationPercent>
+			<ProductionFreeUnitsPopulationPercent>30</ProductionFreeUnitsPopulationPercent>
 			<StartingDefenseUnits>0</StartingDefenseUnits>
 			<StartingExploreUnits>0</StartingExploreUnits>
 			<StartingWorkerUnits>0</StartingWorkerUnits>
@@ -41,8 +42,11 @@
 			<CityProductionNumOptionsConsidered>3</CityProductionNumOptionsConsidered>
 			<TechNumOptionsConsidered>3</TechNumOptionsConsidered>
 			<PolicyNumOptionsConsidered>3</PolicyNumOptionsConsidered>
-			<AttitudeChange>0</AttitudeChange>
-			<AIDeclareWarProb>50</AIDeclareWarProb>
+			<AttitudeChange>-15</AttitudeChange>
+			<AIDeclareWarProb>100</AIDeclareWarProb>
+			<AIHumanStrengthMod>10</AIHumanStrengthMod>
+			<TechTradeKnownModifier>0</TechTradeKnownModifier>
+			<NoTechTradeModifier>0</NoTechTradeModifier>
 			<AIStartingDefenseUnits>1</AIStartingDefenseUnits>
 			<AIStartingExploreUnits>0</AIStartingExploreUnits>
 			<AIStartingWorkerUnits>0</AIStartingWorkerUnits>
@@ -52,6 +56,7 @@
 			<AIGrowthPercent>100</AIGrowthPercent>
 			<AIUnitCostPercent>100</AIUnitCostPercent>
 			<AIBuildingCostPercent>100</AIBuildingCostPercent>
+			<AIInflationPercent>100</AIInflationPercent>
 			<AIUnitUpgradePercent>100</AIUnitUpgradePercent>
 			<AICreatePercent>110</AICreatePercent>
 			<AIWorldConstructPercent>110</AIWorldConstructPercent>
@@ -95,9 +100,10 @@
 			<FreeCulturePerTurn>0</FreeCulturePerTurn>
 			<Gold>0</Gold>
 			<GoldFreeUnits>0</GoldFreeUnits>
+			<InflationPercent>100</InflationPercent>
 			<ProductionFreeUnits>9</ProductionFreeUnits>
 			<ProductionFreeUnitsPerCity>1</ProductionFreeUnitsPerCity>
-			<ProductionFreeUnitsPopulationPercent>30</ProductionFreeUnitsPopulationPercent>
+			<ProductionFreeUnitsPopulationPercent>25</ProductionFreeUnitsPopulationPercent>
 			<StartingDefenseUnits>0</StartingDefenseUnits>
 			<StartingExploreUnits>0</StartingExploreUnits>
 			<StartingWorkerUnits>0</StartingWorkerUnits>
@@ -116,8 +122,11 @@
 			<CityProductionNumOptionsConsidered>3</CityProductionNumOptionsConsidered>
 			<TechNumOptionsConsidered>3</TechNumOptionsConsidered>
 			<PolicyNumOptionsConsidered>3</PolicyNumOptionsConsidered>
-			<AttitudeChange>0</AttitudeChange>
-			<AIDeclareWarProb>75</AIDeclareWarProb>
+			<AttitudeChange>-10</AttitudeChange>
+			<AIDeclareWarProb>120</AIDeclareWarProb>
+			<AIHumanStrengthMod>15</AIHumanStrengthMod>
+			<TechTradeKnownModifier>0</TechTradeKnownModifier>
+			<NoTechTradeModifier>0</NoTechTradeModifier>
 			<AIStartingDefenseUnits>1</AIStartingDefenseUnits>
 			<AIStartingExploreUnits>0</AIStartingExploreUnits>
 			<AIStartingWorkerUnits>0</AIStartingWorkerUnits>
@@ -127,6 +136,7 @@
 			<AIGrowthPercent>100</AIGrowthPercent>
 			<AIUnitCostPercent>100</AIUnitCostPercent>
 			<AIBuildingCostPercent>100</AIBuildingCostPercent>
+			<AIInflationPercent>100</AIInflationPercent>
 			<AIUnitUpgradePercent>95</AIUnitUpgradePercent>
 			<AICreatePercent>100</AICreatePercent>
 			<AIWorldConstructPercent>100</AIWorldConstructPercent>
@@ -170,9 +180,10 @@
 			<FreeCulturePerTurn>0</FreeCulturePerTurn>
 			<Gold>0</Gold>
 			<GoldFreeUnits>0</GoldFreeUnits>
+			<InflationPercent>100</InflationPercent>
 			<ProductionFreeUnits>9</ProductionFreeUnits>
 			<ProductionFreeUnitsPerCity>1</ProductionFreeUnitsPerCity>
-			<ProductionFreeUnitsPopulationPercent>30</ProductionFreeUnitsPopulationPercent>
+			<ProductionFreeUnitsPopulationPercent>25</ProductionFreeUnitsPopulationPercent>
 			<StartingDefenseUnits>0</StartingDefenseUnits>
 			<StartingExploreUnits>0</StartingExploreUnits>
 			<StartingWorkerUnits>0</StartingWorkerUnits>
@@ -191,8 +202,11 @@
 			<CityProductionNumOptionsConsidered>3</CityProductionNumOptionsConsidered>
 			<TechNumOptionsConsidered>3</TechNumOptionsConsidered>
 			<PolicyNumOptionsConsidered>3</PolicyNumOptionsConsidered>
-			<AttitudeChange>0</AttitudeChange>
-			<AIDeclareWarProb>100</AIDeclareWarProb>
+			<AttitudeChange>-5</AttitudeChange>
+			<AIDeclareWarProb>140</AIDeclareWarProb>
+			<AIHumanStrengthMod>20</AIHumanStrengthMod>
+			<TechTradeKnownModifier>0</TechTradeKnownModifier>
+			<NoTechTradeModifier>0</NoTechTradeModifier>
 			<AIStartingDefenseUnits>1</AIStartingDefenseUnits>
 			<AIStartingExploreUnits>0</AIStartingExploreUnits>
 			<AIStartingWorkerUnits>0</AIStartingWorkerUnits>
@@ -202,6 +216,7 @@
 			<AIGrowthPercent>100</AIGrowthPercent>
 			<AIUnitCostPercent>90</AIUnitCostPercent>
 			<AIBuildingCostPercent>90</AIBuildingCostPercent>
+			<AIInflationPercent>100</AIInflationPercent>
 			<AIUnitUpgradePercent>90</AIUnitUpgradePercent>
 			<AICreatePercent>100</AICreatePercent>
 			<AIWorldConstructPercent>100</AIWorldConstructPercent>
@@ -245,9 +260,10 @@
 			<FreeCulturePerTurn>0</FreeCulturePerTurn>
 			<Gold>0</Gold>
 			<GoldFreeUnits>0</GoldFreeUnits>
+			<InflationPercent>100</InflationPercent>
 			<ProductionFreeUnits>8</ProductionFreeUnits>
 			<ProductionFreeUnitsPerCity>1</ProductionFreeUnitsPerCity>
-			<ProductionFreeUnitsPopulationPercent>25</ProductionFreeUnitsPopulationPercent>
+			<ProductionFreeUnitsPopulationPercent>20</ProductionFreeUnitsPopulationPercent>
 			<StartingDefenseUnits>0</StartingDefenseUnits>
 			<StartingExploreUnits>0</StartingExploreUnits>
 			<StartingWorkerUnits>0</StartingWorkerUnits>
@@ -267,7 +283,10 @@
 			<TechNumOptionsConsidered>2</TechNumOptionsConsidered>
 			<PolicyNumOptionsConsidered>2</PolicyNumOptionsConsidered>
 			<AttitudeChange>0</AttitudeChange>
-			<AIDeclareWarProb>125</AIDeclareWarProb>
+			<AIDeclareWarProb>160</AIDeclareWarProb>
+			<AIHumanStrengthMod>25</AIHumanStrengthMod>
+			<TechTradeKnownModifier>0</TechTradeKnownModifier>
+			<NoTechTradeModifier>0</NoTechTradeModifier>
 			<AIStartingDefenseUnits>1</AIStartingDefenseUnits>
 			<AIStartingExploreUnits>0</AIStartingExploreUnits>
 			<AIStartingWorkerUnits>0</AIStartingWorkerUnits>
@@ -277,6 +296,7 @@
 			<AIGrowthPercent>100</AIGrowthPercent>
 			<AIUnitCostPercent>90</AIUnitCostPercent>
 			<AIBuildingCostPercent>90</AIBuildingCostPercent>
+			<AIInflationPercent>100</AIInflationPercent>
 			<AIUnitUpgradePercent>85</AIUnitUpgradePercent>
 			<AICreatePercent>100</AICreatePercent>
 			<AIWorldConstructPercent>100</AIWorldConstructPercent>
@@ -320,9 +340,10 @@
 			<FreeCulturePerTurn>0</FreeCulturePerTurn>
 			<Gold>0</Gold>
 			<GoldFreeUnits>0</GoldFreeUnits>
+			<InflationPercent>100</InflationPercent>
 			<ProductionFreeUnits>8</ProductionFreeUnits>
 			<ProductionFreeUnitsPerCity>1</ProductionFreeUnitsPerCity>
-			<ProductionFreeUnitsPopulationPercent>25</ProductionFreeUnitsPopulationPercent>
+			<ProductionFreeUnitsPopulationPercent>20</ProductionFreeUnitsPopulationPercent>
 			<StartingDefenseUnits>0</StartingDefenseUnits>
 			<StartingExploreUnits>0</StartingExploreUnits>
 			<StartingWorkerUnits>0</StartingWorkerUnits>
@@ -342,7 +363,10 @@
 			<TechNumOptionsConsidered>2</TechNumOptionsConsidered>
 			<PolicyNumOptionsConsidered>2</PolicyNumOptionsConsidered>
 			<AttitudeChange>0</AttitudeChange>
-			<AIDeclareWarProb>150</AIDeclareWarProb>
+			<AIDeclareWarProb>180</AIDeclareWarProb>
+			<AIHumanStrengthMod>30</AIHumanStrengthMod>
+			<TechTradeKnownModifier>0</TechTradeKnownModifier>
+			<NoTechTradeModifier>0</NoTechTradeModifier>
 			<AIStartingDefenseUnits>1</AIStartingDefenseUnits>
 			<AIStartingExploreUnits>0</AIStartingExploreUnits>
 			<AIStartingWorkerUnits>0</AIStartingWorkerUnits>
@@ -352,6 +376,7 @@
 			<AIGrowthPercent>100</AIGrowthPercent>
 			<AIUnitCostPercent>90</AIUnitCostPercent>
 			<AIBuildingCostPercent>90</AIBuildingCostPercent>
+			<AIInflationPercent>100</AIInflationPercent>
 			<AIUnitUpgradePercent>80</AIUnitUpgradePercent>
 			<AICreatePercent>100</AICreatePercent>
 			<AIWorldConstructPercent>100</AIWorldConstructPercent>
@@ -395,9 +420,10 @@
 			<FreeCulturePerTurn>0</FreeCulturePerTurn>
 			<Gold>0</Gold>
 			<GoldFreeUnits>0</GoldFreeUnits>
+			<InflationPercent>100</InflationPercent>
 			<ProductionFreeUnits>7</ProductionFreeUnits>
 			<ProductionFreeUnitsPerCity>1</ProductionFreeUnitsPerCity>
-			<ProductionFreeUnitsPopulationPercent>20</ProductionFreeUnitsPopulationPercent>
+			<ProductionFreeUnitsPopulationPercent>15</ProductionFreeUnitsPopulationPercent>
 			<StartingDefenseUnits>0</StartingDefenseUnits>
 			<StartingExploreUnits>0</StartingExploreUnits>
 			<StartingWorkerUnits>0</StartingWorkerUnits>
@@ -417,7 +443,10 @@
 			<TechNumOptionsConsidered>2</TechNumOptionsConsidered>
 			<PolicyNumOptionsConsidered>2</PolicyNumOptionsConsidered>
 			<AttitudeChange>0</AttitudeChange>
-			<AIDeclareWarProb>175</AIDeclareWarProb>
+			<AIDeclareWarProb>200</AIDeclareWarProb>
+			<AIHumanStrengthMod>35</AIHumanStrengthMod>
+			<TechTradeKnownModifier>0</TechTradeKnownModifier>
+			<NoTechTradeModifier>0</NoTechTradeModifier>
 			<AIStartingDefenseUnits>1</AIStartingDefenseUnits>
 			<AIStartingExploreUnits>0</AIStartingExploreUnits>
 			<AIStartingWorkerUnits>0</AIStartingWorkerUnits>
@@ -427,6 +456,7 @@
 			<AIGrowthPercent>100</AIGrowthPercent>
 			<AIUnitCostPercent>80</AIUnitCostPercent>
 			<AIBuildingCostPercent>80</AIBuildingCostPercent>
+			<AIInflationPercent>100</AIInflationPercent>
 			<AIUnitUpgradePercent>75</AIUnitUpgradePercent>
 			<AICreatePercent>100</AICreatePercent>
 			<AIWorldConstructPercent>100</AIWorldConstructPercent>
@@ -470,9 +500,10 @@
 			<FreeCulturePerTurn>0</FreeCulturePerTurn>
 			<Gold>0</Gold>
 			<GoldFreeUnits>0</GoldFreeUnits>
+			<InflationPercent>100</InflationPercent>
 			<ProductionFreeUnits>6</ProductionFreeUnits>
 			<ProductionFreeUnitsPerCity>1</ProductionFreeUnitsPerCity>
-			<ProductionFreeUnitsPopulationPercent>20</ProductionFreeUnitsPopulationPercent>
+			<ProductionFreeUnitsPopulationPercent>15</ProductionFreeUnitsPopulationPercent>
 			<StartingDefenseUnits>0</StartingDefenseUnits>
 			<StartingExploreUnits>0</StartingExploreUnits>
 			<StartingWorkerUnits>0</StartingWorkerUnits>
@@ -492,7 +523,10 @@
 			<TechNumOptionsConsidered>1</TechNumOptionsConsidered>
 			<PolicyNumOptionsConsidered>1</PolicyNumOptionsConsidered>
 			<AttitudeChange>0</AttitudeChange>
-			<AIDeclareWarProb>200</AIDeclareWarProb>
+			<AIDeclareWarProb>225</AIDeclareWarProb>
+			<AIHumanStrengthMod>42</AIHumanStrengthMod>
+			<TechTradeKnownModifier>0</TechTradeKnownModifier>
+			<NoTechTradeModifier>0</NoTechTradeModifier>
 			<AIStartingDefenseUnits>1</AIStartingDefenseUnits>
 			<AIStartingExploreUnits>0</AIStartingExploreUnits>
 			<AIStartingWorkerUnits>0</AIStartingWorkerUnits>
@@ -502,6 +536,7 @@
 			<AIGrowthPercent>100</AIGrowthPercent>
 			<AIUnitCostPercent>80</AIUnitCostPercent>
 			<AIBuildingCostPercent>80</AIBuildingCostPercent>
+			<AIInflationPercent>100</AIInflationPercent>
 			<AIUnitUpgradePercent>70</AIUnitUpgradePercent>
 			<AICreatePercent>100</AICreatePercent>
 			<AIWorldConstructPercent>100</AIWorldConstructPercent>
@@ -545,9 +580,10 @@
 			<FreeCulturePerTurn>0</FreeCulturePerTurn>
 			<Gold>0</Gold>
 			<GoldFreeUnits>0</GoldFreeUnits>
+			<InflationPercent>100</InflationPercent>
 			<ProductionFreeUnits>6</ProductionFreeUnits>
 			<ProductionFreeUnitsPerCity>1</ProductionFreeUnitsPerCity>
-			<ProductionFreeUnitsPopulationPercent>20</ProductionFreeUnitsPopulationPercent>
+			<ProductionFreeUnitsPopulationPercent>15</ProductionFreeUnitsPopulationPercent>
 			<StartingDefenseUnits>0</StartingDefenseUnits>
 			<StartingExploreUnits>0</StartingExploreUnits>
 			<StartingWorkerUnits>0</StartingWorkerUnits>
@@ -567,7 +603,10 @@
 			<TechNumOptionsConsidered>1</TechNumOptionsConsidered>
 			<PolicyNumOptionsConsidered>1</PolicyNumOptionsConsidered>
 			<AttitudeChange>0</AttitudeChange>
-			<AIDeclareWarProb>225</AIDeclareWarProb>
+			<AIDeclareWarProb>250</AIDeclareWarProb>
+			<AIHumanStrengthMod>50</AIHumanStrengthMod>
+			<TechTradeKnownModifier>0</TechTradeKnownModifier>
+			<NoTechTradeModifier>0</NoTechTradeModifier>
 			<AIStartingDefenseUnits>1</AIStartingDefenseUnits>
 			<AIStartingExploreUnits>0</AIStartingExploreUnits>
 			<AIStartingWorkerUnits>0</AIStartingWorkerUnits>
@@ -577,6 +616,7 @@
 			<AIGrowthPercent>100</AIGrowthPercent>
 			<AIUnitCostPercent>70</AIUnitCostPercent>
 			<AIBuildingCostPercent>70</AIBuildingCostPercent>
+			<AIInflationPercent>100</AIInflationPercent>
 			<AIUnitUpgradePercent>65</AIUnitUpgradePercent>
 			<AICreatePercent>100</AICreatePercent>
 			<AIWorldConstructPercent>100</AIWorldConstructPercent>
@@ -619,9 +659,10 @@
 			<FreeCulturePerTurn>0</FreeCulturePerTurn>
 			<Gold>0</Gold>
 			<GoldFreeUnits>0</GoldFreeUnits>
+			<InflationPercent>100</InflationPercent>
 			<ProductionFreeUnits>7</ProductionFreeUnits>
 			<ProductionFreeUnitsPerCity>1</ProductionFreeUnitsPerCity>
-			<ProductionFreeUnitsPopulationPercent>25</ProductionFreeUnitsPopulationPercent>
+			<ProductionFreeUnitsPopulationPercent>20</ProductionFreeUnitsPopulationPercent>
 			<StartingDefenseUnits>0</StartingDefenseUnits>
 			<StartingExploreUnits>0</StartingExploreUnits>
 			<StartingWorkerUnits>0</StartingWorkerUnits>
@@ -632,51 +673,6 @@
 			<PolicyPercent>100</PolicyPercent>
 			<ResearchPercent>100</ResearchPercent>
 			<ResistanceCap>50</ResistanceCap>
-
-			<!-- City-State Bonuses -->
-			<StartingMinorDefenseUnits>0</StartingMinorDefenseUnits>
-
-			<!-- AI Bonuses -->
-			<CityProductionNumOptionsConsidered>2</CityProductionNumOptionsConsidered>
-			<TechNumOptionsConsidered>2</TechNumOptionsConsidered>
-			<PolicyNumOptionsConsidered>2</PolicyNumOptionsConsidered>
-			<AttitudeChange>0</AttitudeChange>
-			<AIDeclareWarProb>100</AIDeclareWarProb>
-			<AIStartingDefenseUnits>0</AIStartingDefenseUnits>
-			<AIStartingExploreUnits>0</AIStartingExploreUnits>
-			<AIStartingWorkerUnits>0</AIStartingWorkerUnits>
-			<AIStartingUnitMultiplier>0</AIStartingUnitMultiplier>
-			<AIWorkRateModifier>0</AIWorkRateModifier>
-			<AIUnhappinessPercent>0</AIUnhappinessPercent>
-			<AIGrowthPercent>100</AIGrowthPercent>
-			<AIUnitCostPercent>100</AIUnitCostPercent>
-			<AIBuildingCostPercent>100</AIBuildingCostPercent>
-			<AIUnitUpgradePercent>100</AIUnitUpgradePercent>
-			<AICreatePercent>100</AICreatePercent>
-			<AIWorldConstructPercent>100</AIWorldConstructPercent>
-			<AIWorldCreatePercent>100</AIWorldCreatePercent>
-			<AIFreeXP>0</AIFreeXP>
-			<AIFreeXPPercent>0</AIFreeXPPercent>
-			<VisionBonus>0</VisionBonus>
-			<!-- Per Era Bonuses -->	
-			<AITrainPercent>100</AITrainPercent>
-			<AIConstructPercent>100</AIConstructPercent>
-			<AIUnitSupplyPercent>0</AIUnitSupplyPercent>
-			<AIPerEraModifier>0</AIPerEraModifier>
-			<!-- CBP Difficulty Bonus -->
-			<DifficultyBonusBase>0</DifficultyBonusBase>
-			<DifficultyBonusA>300</DifficultyBonusA>
-			<DifficultyBonusB>175</DifficultyBonusB>
-			<DifficultyBonusC>100</DifficultyBonusC>
-
-			<!-- Barbarians -->
-			<EarliestBarbarianReleaseTurn>0</EarliestBarbarianReleaseTurn>
-			<BarbarianBonus>0</BarbarianBonus>
-			<AIBarbarianBonus>0</AIBarbarianBonus>
-			<BarbCampGold>50</BarbCampGold>
-			<BarbSpawnMod>0</BarbSpawnMod>
-			<BarbarianLandTargetRange>5</BarbarianLandTargetRange>
-			<BarbarianSeaTargetRange>8</BarbarianSeaTargetRange>
 		</Row>
 	</HandicapInfos>
 </GameData>

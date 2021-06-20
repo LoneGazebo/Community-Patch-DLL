@@ -26,7 +26,6 @@ enum AIHomelandTargetType
     AI_HOMELAND_TARGET_FORT,
     AI_HOMELAND_TARGET_NAVAL_RESOURCE,
 	AI_HOMELAND_TARGET_WORKER,
-	AI_HOMELAND_TARGET_ANCIENT_RUIN,
 	AI_HOMELAND_TARGET_ANTIQUITY_SITE,
 };
 
@@ -232,9 +231,7 @@ private:
 	void PlotHealMoves();
 	void PlotMovesToSafety();
 
-#if defined(MOD_AI_SECONDARY_SETTLERS)
 	void PlotOpportunisticSettlementMoves();
-#endif
 
 //------------------------------------- move to tactical AI
 #if defined(MOD_BALANCE_CORE)
@@ -257,14 +254,8 @@ private:
 #endif
 //-------------------------------------
 
-#if defined(MOD_AI_SECONDARY_WORKERS)
 	void PlotWorkerMoves(bool bSecondary = false);
 	void PlotWorkerSeaMoves(bool bSecondary = false);
-#else
-	void PlotWorkerMoves();
-	void PlotWorkerSeaMoves();
-#endif
-	void PlotAncientRuinMoves();
 	void PlotWriterMoves();
 	void PlotArtistMoves();
 	void PlotMusicianMoves();
@@ -342,7 +333,6 @@ private:
 	// Lists of targets for the turn
 	std::vector<CvHomelandTarget> m_TargetedCities;
 	std::vector<CvHomelandTarget> m_TargetedNavalResources;
-	std::vector<CvHomelandTarget> m_TargetedAncientRuins;
 	std::vector<CvHomelandTarget> m_TargetedAntiquitySites;
 };
 
@@ -367,7 +357,7 @@ namespace HomelandAIHelpers
 bool CvHomelandUnitAuxIntSort(const CvHomelandUnit& obj1, const CvHomelandUnit& obj2);
 bool CvHomelandUnitAuxIntReverseSort(const CvHomelandUnit& obj1, const CvHomelandUnit& obj2);
 
-int ScoreAirBase(CvPlot* pAirBasePlot, PlayerTypes ePlayer, bool bDesperate = false, int iRange = -1);
+int ScoreAirBase(CvPlot* pAirBasePlot, PlayerTypes ePlayer, bool bDesperate, int iRange);
 bool IsGoodUnitMix(CvPlot* pAirBasePlot, CvUnit* pUnit);
 vector<SPatrolTarget> GetPatrolTargets(PlayerTypes ePlayer, bool bWater, int nMaxTargets = 5);
 }

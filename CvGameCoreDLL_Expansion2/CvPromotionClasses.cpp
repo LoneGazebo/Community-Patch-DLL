@@ -97,10 +97,8 @@ CvPromotionEntry::CvPromotionEntry():
 #if defined(MOD_UNITS_NO_SUPPLY)
 	m_bNoSupply(false),
 #endif
-#if defined(MOD_UNITS_MAX_HP)
 	m_iMaxHitPointsChange(0),
 	m_iMaxHitPointsModifier(0),
-#endif
 	m_iUpgradeDiscount(0),
 	m_iExperiencePercent(0),
 	m_iAdjacentMod(0),
@@ -141,6 +139,7 @@ CvPromotionEntry::CvPromotionEntry():
 	m_bCityStateOnly(false),
 	m_bBarbarianOnly(false),
 	m_bStrongerDamaged(false),
+	m_bFightWellDamaged(false),
 	m_iNegatesPromotion(NO_PROMOTION),
 	m_iForcedDamageValue(0),
 	m_iChangeDamageValue(0),
@@ -165,12 +164,10 @@ CvPromotionEntry::CvPromotionEntry():
 	m_bHealOutsideFriendly(false),
 	m_bHillsDoubleMove(false),
 	m_bIgnoreTerrainCost(false),
-#if defined(MOD_API_PLOT_BASED_DAMAGE)
 	m_bIgnoreTerrainDamage(false),
 	m_bIgnoreFeatureDamage(false),
 	m_bExtraTerrainDamage(false),
 	m_bExtraFeatureDamage(false),
-#endif
 #if defined(MOD_PROMOTIONS_IMPROVEMENT_BONUS)
 	m_iNearbyImprovementCombatBonus(0),
 	m_iNearbyImprovementBonusRange(0),
@@ -269,6 +266,7 @@ CvPromotionEntry::CvPromotionEntry():
 	m_iGiveExtraAttacks(0),
 	m_iGiveDefenseMod(0),
 	m_bGiveInvisibility(false),
+	m_bGiveOnlyOnStartingTurn(false),
 	m_iNearbyHealEnemyTerritory(0),
 	m_iNearbyHealNeutralTerritory(0),
 	m_iNearbyHealFriendlyTerritory(0),
@@ -396,6 +394,7 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 	m_bCityStateOnly = kResults.GetBool("CityStateOnly");
 	m_bBarbarianOnly = kResults.GetBool("BarbarianOnly");
 	m_bStrongerDamaged = kResults.GetBool("StrongerDamaged");
+	m_bFightWellDamaged = kResults.GetBool("FightWellDamaged");
 	const char* szNegatesPromotion = kResults.GetText("NegatesPromotion");
 	m_iNegatesPromotion = GC.getInfoTypeForString(szNegatesPromotion, true);
 	m_iForcedDamageValue = kResults.GetInt("ForcedDamageValue");
@@ -421,12 +420,10 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 	m_bHealOutsideFriendly = kResults.GetBool("HealOutsideFriendly");
 	m_bHillsDoubleMove = kResults.GetBool("HillsDoubleMove");
 	m_bIgnoreTerrainCost = kResults.GetBool("IgnoreTerrainCost");
-#if defined(MOD_API_PLOT_BASED_DAMAGE)
 	m_bIgnoreTerrainDamage = kResults.GetBool("IgnoreTerrainDamage");
 	m_bIgnoreFeatureDamage = kResults.GetBool("IgnoreFeatureDamage");
 	m_bExtraTerrainDamage = kResults.GetBool("ExtraTerrainDamage");
 	m_bExtraFeatureDamage = kResults.GetBool("ExtraFeatureDamage");
-#endif
 #if defined(MOD_PROMOTIONS_IMPROVEMENT_BONUS)
 	if (MOD_PROMOTIONS_IMPROVEMENT_BONUS) {
 		m_iNearbyImprovementCombatBonus = kResults.GetInt("NearbyImprovementCombatBonus");
@@ -540,6 +537,7 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 	m_iGiveExtraAttacks = kResults.GetInt("GiveExtraAttacks");
 	m_iGiveDefenseMod = kResults.GetInt("GiveDefenseMod");
 	m_bGiveInvisibility = kResults.GetBool("GiveInvisibility");
+	m_bGiveOnlyOnStartingTurn = kResults.GetBool("GiveOnlyOnStartingTurn");
 	m_iNearbyHealEnemyTerritory = kResults.GetInt("NearbyHealEnemyTerritory");
 	m_iNearbyHealNeutralTerritory = kResults.GetInt("NearbyHealNeutralTerritory");
 	m_iNearbyHealFriendlyTerritory = kResults.GetInt("NearbyHealFriendlyTerritory");
@@ -617,12 +615,8 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 #if defined(MOD_UNITS_NO_SUPPLY)
 	m_bNoSupply = kResults.GetBool("NoSupply");
 #endif
-#if defined(MOD_UNITS_MAX_HP)
-	if (MOD_UNITS_MAX_HP) {
-		m_iMaxHitPointsChange = kResults.GetInt("MaxHitPointsChange");
-		m_iMaxHitPointsModifier = kResults.GetInt("MaxHitPointsModifier");
-	}
-#endif
+	m_iMaxHitPointsChange = kResults.GetInt("MaxHitPointsChange");
+	m_iMaxHitPointsModifier = kResults.GetInt("MaxHitPointsModifier");
 	m_iUpgradeDiscount = kResults.GetInt("UpgradeDiscount");
 	m_iExperiencePercent = kResults.GetInt("ExperiencePercent");
 	m_iAdjacentMod = kResults.GetInt("AdjacentMod");
@@ -1723,7 +1717,6 @@ bool CvPromotionEntry::IsNoSupply() const
 }
 #endif
 
-#if defined(MOD_UNITS_MAX_HP)
 /// Accessor: Absolute change of max hit points
 int CvPromotionEntry::GetMaxHitPointsChange() const
 {
@@ -1735,7 +1728,6 @@ int CvPromotionEntry::GetMaxHitPointsModifier() const
 {
 	return m_iMaxHitPointsModifier;
 }
-#endif
 
 /// Accessor: How much upgrading this unit is discounted
 int CvPromotionEntry::GetUpgradeDiscount() const
@@ -1943,6 +1935,10 @@ bool CvPromotionEntry::IsStrongerDamaged() const
 {
 	return m_bStrongerDamaged;
 }
+bool CvPromotionEntry::IsFightWellDamaged() const
+{
+	return m_bFightWellDamaged;
+}
 int CvPromotionEntry::NegatesPromotion() const
 {
 	return m_iNegatesPromotion;
@@ -2068,7 +2064,6 @@ bool CvPromotionEntry::IsIgnoreTerrainCost() const
 	return m_bIgnoreTerrainCost;
 }
 
-#if defined(MOD_API_PLOT_BASED_DAMAGE)
 /// Accessor: Ignores terrain damage
 bool CvPromotionEntry::IsIgnoreTerrainDamage() const
 {
@@ -2092,7 +2087,6 @@ bool CvPromotionEntry::IsExtraFeatureDamage() const
 {
 	return m_bExtraFeatureDamage;
 }
-#endif
 
 #if defined(MOD_PROMOTIONS_IMPROVEMENT_BONUS)
 /// Accessor: Can cross mountains (but we'd rather they left them nice and straight!)
@@ -2496,6 +2490,10 @@ int CvPromotionEntry::GetGiveDefenseMod() const
 bool CvPromotionEntry::IsGiveInvisibility() const
 {
 	return m_bGiveInvisibility;
+}
+bool CvPromotionEntry::IsGiveOnlyOnStartingTurn() const
+{
+	return m_bGiveOnlyOnStartingTurn;
 }
 int CvPromotionEntry::GetNearbyHealEnemyTerritory() const
 {

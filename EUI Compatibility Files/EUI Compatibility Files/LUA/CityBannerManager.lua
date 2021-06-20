@@ -76,7 +76,6 @@ local Map_GetPlot = Map.GetPlot
 local Map_GetPlotByIndex = Map.GetPlotByIndex
 local MinorCivQuestTypes = MinorCivQuestTypes
 local Mouse = Mouse
-local Network_SendUpdateCityCitizens = Network.SendUpdateCityCitizens
 local OptionsManager = OptionsManager
 local Players = Players
 local ResourceUsageTypes = ResourceUsageTypes
@@ -508,6 +507,9 @@ local g_cityToolTips = {
 	CityIsOccupied = function()
 		return L"TXT_KEY_CITY_OCCUPIED"
 	end,
+	CityIsMined = function()
+		return L"TXT_KEY_CITY_MINED"
+	end,
 
 	CityIsUnhappy = function( city)
 		local delta = city:getHappinessDelta() * -1;
@@ -822,11 +824,6 @@ local function OnBannerMouseExit( ... ) -- UndeadDevel: using variadic form to p
 end
 
 local function OnBannerMouseEnter( ... )
-	local plot = Map_GetPlotByIndex( (...) )
-	local city = plot and plot:GetPlotCity()
-	if city and city:GetOwner() == g_activePlayerID and not( Game.IsNetworkMultiPlayer() and g_activePlayer:HasReceivedNetTurnComplete() ) then -- required to prevent turn interrupt
-		Network_SendUpdateCityCitizens( city:GetID() )
-	end
 	g_cityHexHighlight = ( ... )
 	return RefreshCityBanner( ... )
 end
@@ -991,6 +988,9 @@ local function RefreshCityBannersNow()
 
 			-- Occupied ?
 			instance.CityIsOccupied:SetHide( not city:IsOccupied() or city:IsNoOccupiedUnhappiness() )
+
+			-- Occupied ?
+			instance.CityIsMined:SetHide( not city:IsMined() )
 
 			-- Blockaded ?
 			instance.CityIsBlockaded:SetHide( not city:IsBlockaded() )

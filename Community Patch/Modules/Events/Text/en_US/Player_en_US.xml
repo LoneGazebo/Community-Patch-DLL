@@ -115,7 +115,7 @@
 			<Text>Quick, make a sacrifice!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PLAYER_EVENT_ECLIPSE_CHOICE_2_HELP">
-			<Text>Expend {1_YieldCost} in [ICON_CAPITAL] Capital, Gain {2_InstantYield}.</Text>
+			<Text>Expend {1_YieldCost} in [ICON_CAPITAL] Capital. Gain {2_InstantYield}.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PLAYER_EVENT_ECLIPSE_CHOICE_3">
 			<Text>Science can explain this!</Text>

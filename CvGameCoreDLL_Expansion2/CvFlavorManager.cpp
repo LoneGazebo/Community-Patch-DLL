@@ -424,26 +424,12 @@ void CvFlavorManager::AdjustWeightsForMap()
 	}
 }
 
-/// Retrieve the current value of one flavor
-int CvFlavorManager::GetIndividualFlavor(FlavorTypes eType)
-{
-	if ((int)eType < 0 || (int)eType >= GC.getNumFlavorTypes()) return 0;
-
-	return m_piActiveFlavor[eType];
-}
-
-/// Retrieve the current value of all flavors
-int* CvFlavorManager::GetAllFlavors()
-{
-	return m_piActiveFlavor;
-}
-
-/// Retrieve the value of one Personality flavor
+/// Retrieve the value of one Personality flavor, typically in the range [0,10]
 int CvFlavorManager::GetPersonalityIndividualFlavor(FlavorTypes eType)
 {
 	if ((int)eType < 0 || (int)eType >= GC.getNumFlavorTypes()) return 0;
 
-	return m_piPersonalityFlavor[eType];
+	return range(m_piPersonalityFlavor[eType],0,30);
 }
 
 /// Retrieve the value of all Personality flavors
@@ -467,23 +453,10 @@ int CvFlavorManager::GetPersonalityFlavorForDiplomacy(FlavorTypes eType)
 	}
 
 	// Must be within upper and lower bounds
-	int iMin = /*1*/ GC.getDIPLO_PERSONALITY_FLAVOR_MIN_VALUE();
-	int iMax = /*10*/ GC.getDIPLO_PERSONALITY_FLAVOR_MAX_VALUE();
+	int iMax = range(/*10*/ GC.getDIPLO_PERSONALITY_FLAVOR_MAX_VALUE(), 1, 20);
+	int iMin = range(/*1*/ GC.getDIPLO_PERSONALITY_FLAVOR_MIN_VALUE(), 1, iMax);
 
-	if (iMin < 1 || iMin > 20)
-	{
-		iMin = 1;
-	}
-	if (iMax < 1 || iMax > 20)
-	{
-		iMax = 20;
-	}
-	if (iMin > iMax)
-	{
-		iMin = iMax;
-	}
-
-	return std::max(iMin, std::min(iMax, iValue));
+	return range(iValue, iMin, iMax);
 }
 
 // PRIVATE METHODS
@@ -491,9 +464,9 @@ int CvFlavorManager::GetPersonalityFlavorForDiplomacy(FlavorTypes eType)
 /// Make a random adjustment to each flavor value for this leader so they don't play exactly the same
 void CvFlavorManager::RandomizeWeights()
 {
-	int iMin = /*0*/ GC.getPERSONALITY_FLAVOR_MIN_VALUE();
-	int iMax = /*20*/ GC.getPERSONALITY_FLAVOR_MAX_VALUE();
-	int iPlusMinus = /*2*/ GC.getFLAVOR_RANDOMIZATION_RANGE();
+	int iMax = range(/*20*/ GC.getPERSONALITY_FLAVOR_MAX_VALUE(), 1, 20);
+	int iMin = range(/*0*/ GC.getPERSONALITY_FLAVOR_MIN_VALUE(), 1, iMax);
+	int iPlusMinus = max(/*2*/ GC.getFLAVOR_RANDOMIZATION_RANGE(), 0);
 
 	// Random seed to ensure the fake RNG doesn't return the same value repeatedly
 	int iSeed = 0;
@@ -511,50 +484,17 @@ void CvFlavorManager::RandomizeWeights()
 /// Add a random plus/minus to an integer (but keep it in range)
 int CvFlavorManager::GetAdjustedValue(int iOriginalValue, int iPlusMinus, int iMin, int iMax, int& iSeed)
 {
-	// Error handling to prevent out of bounds values
-	if (iMin < 1 || iMin > 20)
-	{
-		iMin = 1;
-	}
-	if (iMax < 1 || iMax > 20)
-	{
-		iMax = 10;
-	}
-	if (iMin > iMax)
-	{
-		iMin = iMax;
-	}
-	if (iPlusMinus < 0)
-	{
-		iPlusMinus *= -1;
-	}
-	if (iOriginalValue < iMin)
-	{
-		iOriginalValue = iMin;
-	}
-	else if (iOriginalValue > iMax)
-	{
-		iOriginalValue = iMax;
-	}
-
 	// Increment the random seed (and make sure it's > 0)
 	if (iSeed < 0)
-	{
 		iSeed = 0;
-	}
-	iSeed++;
 
+	iSeed += (iOriginalValue + iPlusMinus) * 200;
+
+	// Randomize!
 	int iAdjust = GC.getGame().getSmallFakeRandNum((iPlusMinus * 2 + 1), (iOriginalValue * iSeed));
 	int iRtnValue = iOriginalValue + iAdjust - iPlusMinus;
 
-	//for stupid settings, try to make it so that we don't cluster at the extreme values
-	if (iRtnValue < iMin)
-		iRtnValue = iMin + ((iMin - iRtnValue) % (iMax - iMin));
-	if (iRtnValue > iMax)
-		iRtnValue = iMax - ((iRtnValue - iMax) % (iMax - iMin));
-
-	//if that didn't help, clamp it down hard
-	return std::max(iMin, std::min(iMax, iRtnValue));
+	return range(iRtnValue, iMin, iMax);
 }
 
 /// Sends current flavor settings to all recipients
@@ -621,7 +561,7 @@ void CvFlavorManager::LogFlavors(FlavorTypes eFlavor)
 				// Only dump if non-zero
 				//		if (m_piLatestFlavorValues[iI] > 0)
 				{
-					strTemp.Format("Flavor, %s, %d", GC.getFlavorTypes((FlavorTypes)iI).GetCString(), GetIndividualFlavor((FlavorTypes) iI));
+					strTemp.Format("Flavor, %s, %d", GC.getFlavorTypes((FlavorTypes)iI).GetCString(), m_piActiveFlavor[iI]);
 					strOutBuf = strBaseString + strTemp;
 					pLog->Msg(strOutBuf);
 				}
@@ -629,7 +569,7 @@ void CvFlavorManager::LogFlavors(FlavorTypes eFlavor)
 		}
 		else
 		{
-			strTemp.Format("Flavor, %s, %d", GC.getFlavorTypes(eFlavor).GetCString(), GetIndividualFlavor(eFlavor));
+			strTemp.Format("Flavor, %s, %d", GC.getFlavorTypes(eFlavor).GetCString(), m_piActiveFlavor[eFlavor]);
 			strOutBuf = strBaseString + strTemp;
 			pLog->Msg(strOutBuf);
 		}

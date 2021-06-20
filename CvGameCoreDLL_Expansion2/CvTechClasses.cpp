@@ -85,7 +85,6 @@ CvTechEntry::CvTechEntry(void):
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	m_bVassalageTradingAllowed(false),
 #endif
-	m_bUnlocksEspionageAdvancedActions(false),
 	m_pabFreePromotion(NULL)
 {
 }
@@ -162,7 +161,6 @@ bool CvTechEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 	if (MOD_DIPLOMACY_CIV4_FEATURES) {
 		m_bVassalageTradingAllowed = kResults.GetBool("VassalageTradingAllowed");
 	}
-	m_bUnlocksEspionageAdvancedActions = kResults.GetBool("UnlocksEspionageAdvancedActions");
 #endif
 #if defined(MOD_BALANCE_CORE)
 	m_iHappiness = kResults.GetInt("Happiness");
@@ -828,7 +826,6 @@ void CvPlayerTechs::Reset()
 						}
 					}
 
-#if defined(AUI_PLAYERTECHS_RESET_IDEOLOGY_UNLOCKERS_COUNT_AS_UNIQUE)
 					// Does this building unlock an ideology?
 					if (pkBuildingInfo->GetXBuiltTriggersIdeologyChoice() > 0)
 					{
@@ -838,7 +835,6 @@ void CvPlayerTechs::Reset()
 							m_piCivTechPriority[iTech] += GC.getTECH_PRIORITY_UNIQUE_ITEM();
 						}
 					}
-#endif // AUI_PLAYERTECHS_RESET_IDEOLOGY_UNLOCKERS_COUNT_AS_UNIQUE
 
 					//this is called at a time where m_pPlayer may not be initialized completely
 					/*
@@ -1334,11 +1330,10 @@ void CvPlayerTechs::SetGSPriorities()
 	}
 
 	// == Grand Strategy ==
-	AIGrandStrategyTypes eGrandStrategy = m_pPlayer->GetGrandStrategyAI()->GetActiveGrandStrategy();
-	bool bSeekingDiploVictory = (eGrandStrategy == GC.getInfoTypeForString("AIGRANDSTRATEGY_UNITED_NATIONS")) || m_pPlayer->GetDiplomacyAI()->IsCloseToDiploVictory() || m_pPlayer->GetPlayerTraits()->IsDiplomat();
-	bool bSeekingConquestVictory = (eGrandStrategy == GC.getInfoTypeForString("AIGRANDSTRATEGY_CONQUEST") ) || m_pPlayer->GetDiplomacyAI()->IsCloseToDominationVictory() || m_pPlayer->GetPlayerTraits()->IsWarmonger();
-	bool bSeekingCultureVictory = (eGrandStrategy == GC.getInfoTypeForString("AIGRANDSTRATEGY_CULTURE") ) || m_pPlayer->GetDiplomacyAI()->IsCloseToCultureVictory() || m_pPlayer->GetPlayerTraits()->IsTourism();
-	bool bSeekingScienceVictory = (eGrandStrategy == GC.getInfoTypeForString("AIGRANDSTRATEGY_SPACESHIP") ) || m_pPlayer->GetDiplomacyAI()->IsCloseToSSVictory() || m_pPlayer->GetPlayerTraits()->IsNerd();
+	bool bSeekingDiploVictory = m_pPlayer->GetDiplomacyAI()->IsGoingForDiploVictory() || m_pPlayer->GetDiplomacyAI()->IsCloseToDiploVictory() || m_pPlayer->GetPlayerTraits()->IsDiplomat();
+	bool bSeekingConquestVictory = m_pPlayer->GetDiplomacyAI()->IsGoingForWorldConquest() || m_pPlayer->GetDiplomacyAI()->IsCloseToDominationVictory() || m_pPlayer->GetPlayerTraits()->IsWarmonger();
+	bool bSeekingCultureVictory = m_pPlayer->GetDiplomacyAI()->IsGoingForCultureVictory() || m_pPlayer->GetDiplomacyAI()->IsCloseToCultureVictory() || m_pPlayer->GetPlayerTraits()->IsTourism();
+	bool bSeekingScienceVictory = m_pPlayer->GetDiplomacyAI()->IsGoingForSpaceshipVictory() || m_pPlayer->GetDiplomacyAI()->IsCloseToSSVictory() || m_pPlayer->GetPlayerTraits()->IsNerd();
 	for(int iTechLoop = 0; iTechLoop < GetTechs()->GetNumTechs(); iTechLoop++)
 	{
 		TechTypes eTech = (TechTypes)iTechLoop;
@@ -1446,19 +1441,6 @@ void CvPlayerTechs::SetGSPriorities()
 				{
 					m_piGSTechPriority[iTechLoop]++;
 				}
-			}
-		}
-
-		if (pkTechInfo->IsUnlocksEspionageAdvancedActions())
-		{
-			if (m_pPlayer->GetPlayerTraits()->GetExtraSpies() || m_pPlayer->GetPlayerTraits()->GetStartingSpyRank() > 0 || m_pPlayer->GetPlayerTraits()->GetStartingSpies() > 0)
-			{
-				m_piGSTechPriority[iTechLoop]++;
-			}
-
-			if (m_pPlayer->GetEspionage()->GetNumSpies() > 0)
-			{
-				m_piGSTechPriority[iTechLoop]++;
 			}
 		}
 	}
@@ -1879,14 +1861,14 @@ int CvPlayerTechs::GetResearchCost(TechTypes eTech) const
 
 	if (MOD_BALANCE_CORE_PURCHASE_COST_INCREASE)
 	{
-		iCityCountMod *= m_pPlayer->GetMaxEffectiveCities(/*bIncludePuppets*/ false);
+		iCityCountMod *= m_pPlayer->GetNumEffectiveCities(/*bIncludePuppets*/ false);
 	}
 	else
 	{
-		iCityCountMod *= m_pPlayer->GetMaxEffectiveCities(/*bIncludePuppets*/ true);
+		iCityCountMod *= m_pPlayer->GetNumEffectiveCities(/*bIncludePuppets*/ true);
 	}
 #else
-	iMod *= m_pPlayer->GetMaxEffectiveCities(/*bIncludePuppets*/ true);
+	iMod *= m_pPlayer->GetNumEffectiveCities(/*bIncludePuppets*/ true);
 #endif
 
 	//apply the modifiers
@@ -2100,13 +2082,9 @@ void CvPlayerTechs::AddFlavorAsStrategies(int iPropagatePercent)
 	}
 
 	// Now populate the AI with the current flavor information
-#if defined(MOD_AI_SMART_V3)
-	int iDifficultyBonus = (200 - ((GC.getGame().getHandicapInfo().getAIGrowthPercent() + GC.getGame().getHandicapInfo().getAITrainPercent()) / 2));
-	int estimatedTurnsWithDiff = MOD_AI_SMART_V3 ? (GC.getGame().getDefaultEstimateEndTurn() * 90) / iDifficultyBonus : GC.getGame().getDefaultEstimateEndTurn();
+	int iDifficultyBonus = (200 - ((GC.getGame().getHandicapInfo().getAIConstructPercent() + GC.getGame().getHandicapInfo().getAITrainPercent()) / 2));
+	int estimatedTurnsWithDiff = (GC.getGame().getDefaultEstimateEndTurn() * 90) / iDifficultyBonus;
 	int iGameProgressFactor = (GC.getGame().getElapsedGameTurns() * 1000) / estimatedTurnsWithDiff;
-#else
-	int iGameProgressFactor = (GC.getGame().getElapsedGameTurns() * 1000) / GC.getGame().getDefaultEstimateEndTurn();
-#endif
 	iGameProgressFactor = min(900,max(100,iGameProgressFactor));
 	for(int iFlavor = 0; iFlavor < GC.getNumFlavorTypes(); iFlavor++)
 	{
@@ -2115,25 +2093,19 @@ void CvPlayerTechs::AddFlavorAsStrategies(int iPropagatePercent)
 		// Scale the current to the same scale as the personality
 		iCurrentFlavorValue = (iCurrentFlavorValue * 10) / max(1,iBiggestFlavor);
 
-#if defined(MOD_AI_SMART_V3)
-		int iPersonalityFlavorValue = m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes) iFlavor, MOD_AI_SMART_V3 /*bBoostGSMainFlavor*/);
-#else
-		int iPersonalityFlavorValue = m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes) iFlavor);
-#endif
+		int iPersonalityFlavorValue = m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes) iFlavor, true /*bBoostGSMainFlavor*/);
 
 		// this should give a more even blend between the personality and long term strategy and the more fickle current needs
 		// in the beginning of the game it will be responsive to current events, but later it should try to go for the goal more strongly
 		int iFlavorValue = ((iCurrentFlavorValue * (1000 - iGameProgressFactor)) + (iPersonalityFlavorValue * iGameProgressFactor)) / 1000;
 
-#if defined(MOD_AI_SMART_V3)
 		// Try always give a significant flavor, as is easily zeroed with previous computations...
-		if (MOD_AI_SMART_V3 && iFlavorValue < 10)
+		if (iFlavorValue < 10)
 		{
 			int flavorDivisor = (iGameProgressFactor > 500) ? 8 : 4;
 			int boostValue = (10 - iFlavorValue) / flavorDivisor;
 			iFlavorValue += boostValue;
 		}
-#endif
 
 		if(iFlavorValue > 0)
 		{
@@ -2515,23 +2487,19 @@ void CvTeamTechs::SetResearchProgress(TechTypes eIndex, int iNewValue, PlayerTyp
 }
 
 /// Accessor: set research done on one tech (in hundredths)
-#if defined(MOD_BUGFIX_RESEARCH_OVERFLOW)
 void CvTeamTechs::SetResearchProgressTimes100(TechTypes eIndex, int iNewValue, PlayerTypes ePlayer, int iPlayerOverflow, int iPlayerOverflowDivisorTimes100)
-#else
-void CvTeamTechs::SetResearchProgressTimes100(TechTypes eIndex, int iNewValue, PlayerTypes ePlayer)
-#endif
 {
 	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
 	CvAssertMsg(eIndex < GC.getNumTechInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 	CvAssertMsg(ePlayer >= 0, "eIndex is expected to be non-negative (invalid Index)");
 	CvAssertMsg(ePlayer < MAX_PLAYERS, "ePlayer is expected to be within maximum bounds (invalid Index)");
-#if defined(MOD_BALANCE_CORE)
+
 	//Crash failsafe.
 	if(ePlayer == NO_PLAYER || eIndex == -1)
 	{
 		return;
 	}
-#endif
+
 	if(GetResearchProgressTimes100(eIndex) != iNewValue)
 	{
 		m_paiResearchProgress[eIndex] = max(0,iNewValue);
@@ -2553,45 +2521,32 @@ void CvTeamTechs::SetResearchProgressTimes100(TechTypes eIndex, int iNewValue, P
 #if defined(MOD_BALANCE_CORE_PURCHASE_COST_INCREASE)
 		if (MOD_BALANCE_CORE_PURCHASE_COST_INCREASE)
 		{
-			iNumCitiesMod = iNumCitiesMod * GET_PLAYER(ePlayer).GetMaxEffectiveCities(/*bIncludePuppets*/ false);
+			iNumCitiesMod = iNumCitiesMod * GET_PLAYER(ePlayer).GetNumEffectiveCities(/*bIncludePuppets*/ false);
 		}
 		else
 		{
-			iNumCitiesMod = iNumCitiesMod * GET_PLAYER(ePlayer).GetMaxEffectiveCities(/*bIncludePuppets*/ true);
+			iNumCitiesMod = iNumCitiesMod * GET_PLAYER(ePlayer).GetNumEffectiveCities(/*bIncludePuppets*/ true);
 		}
 #else
-		iNumCitiesMod = iNumCitiesMod * GET_PLAYER(ePlayer).GetMaxEffectiveCities(/*bIncludePuppets*/ true);
+		iNumCitiesMod = iNumCitiesMod * GET_PLAYER(ePlayer).GetNumEffectiveCities(/*bIncludePuppets*/ true);
 #endif
 		iResearchCost = iResearchCost * (100 + iNumCitiesMod) / 100;
 		
 		int iOverflow = iResearchProgress - iResearchCost;
-#if defined(MOD_BUGFIX_RESEARCH_OVERFLOW)
-		if (!MOD_BUGFIX_RESEARCH_OVERFLOW) {
-#endif
-		// April 2014 Balance Patch change - EFB
-		//    Don't allow the overflow to get out of hand
-		int iMaxOverflow = GetMaxResearchOverflow(eIndex, ePlayer);
-		if (iOverflow > iMaxOverflow)
+
+		if (iOverflow >= 0)
 		{
-			iOverflow = iMaxOverflow;
-		}
-#if defined(MOD_BUGFIX_RESEARCH_OVERFLOW)
-		}
-#endif
-		if(iOverflow >= 0)
-		{
-#if defined(MOD_BUGFIX_RESEARCH_OVERFLOW)
-			if (MOD_BUGFIX_RESEARCH_OVERFLOW) {
-				// iNewValue = iPlayerBeakersThisTurn + ((iPlayerOverflow * iPlayerOverflowDivisorTimes100) / 100)
-				if (iOverflow > iPlayerOverflow) {
-					// If we completed the tech using only iBeakersThisTurn, we need to hand back the remaining iPlayerBeakersThisTurn and the scaled down iPlayerOverflow
-					iOverflow = (iOverflow - iPlayerOverflow) + (iPlayerOverflow * 100 / iPlayerOverflowDivisorTimes100); 
-				} else {
-					// Otherwise we used all of iBeakersThisTurn and some of iPlayerOverflow, so we need to hand back the scaled down iOverflow
-					iOverflow = iOverflow * 100 / iPlayerOverflowDivisorTimes100;
-				}
+			// If we completed the tech using only iBeakersThisTurn, we need to hand back the remaining iPlayerBeakersThisTurn and the scaled down iPlayerOverflow
+			if (iOverflow > iPlayerOverflow) 
+			{
+				iOverflow = (iOverflow - iPlayerOverflow) + (iPlayerOverflow * 100 / iPlayerOverflowDivisorTimes100); 
 			}
-#endif
+			// Otherwise we used all of iBeakersThisTurn and some of iPlayerOverflow, so we need to hand back the scaled down iOverflow
+			else 
+			{
+				iOverflow = iOverflow * 100 / iPlayerOverflowDivisorTimes100;
+			}
+
 			GET_PLAYER(ePlayer).changeOverflowResearchTimes100(iOverflow);
 			m_pTeam->setHasTech(eIndex, true, ePlayer, true, true);
 			SetNoTradeTech(eIndex, true);
@@ -2624,18 +2579,7 @@ void CvTeamTechs::SetResearchProgressTimes100(TechTypes eIndex, int iNewValue, P
 /// Accessor: get research done on one tech
 int CvTeamTechs::GetResearchProgress(TechTypes eIndex) const
 {
-#if defined(MOD_BUGFIX_MINOR)
 	return GetResearchProgressTimes100(eIndex) / 100;
-#else
-	if(eIndex != NO_TECH)
-	{
-		return m_paiResearchProgress[eIndex] / 100;
-	}
-	else
-	{
-		return 0;
-	}
-#endif
 }
 
 /// Accessor: get research done on one tech (in hundredths)
@@ -2677,7 +2621,7 @@ int CvTeamTechs::GetResearchCost(TechTypes eTech) const
 	iModifier /= 100;
 	iModifier *= (GC.getGame().getStartEraInfo().getResearchPercent());
 	iModifier /= 100;
-	iModifier *= (100 + std::max(0, GC.getTECH_COST_EXTRA_TEAM_MEMBER_MODIFIER() * (m_pTeam->getNumMembers() - 1)));
+	iModifier *= (100 + std::max(0, /*100*/ GC.getTECH_COST_EXTRA_TEAM_MEMBER_MODIFIER() * (m_pTeam->getNumMembers() - 1)));
 	iModifier /= 100;
 
 #if defined(MOD_CIV6_EUREKA)
@@ -2724,20 +2668,12 @@ void CvTeamTechs::ChangeResearchProgress(TechTypes eIndex, int iChange, PlayerTy
 }
 
 /// Add an increment of research to a tech (in hundredths)
-#if defined(MOD_BUGFIX_RESEARCH_OVERFLOW)
 void CvTeamTechs::ChangeResearchProgressTimes100(TechTypes eIndex, int iChange, PlayerTypes ePlayer, int iPlayerOverflow, int iPlayerOverflowDivisorTimes100)
-#else
-void CvTeamTechs::ChangeResearchProgressTimes100(TechTypes eIndex, int iChange, PlayerTypes ePlayer)
-#endif
 {
 	if (GC.getGame().isOption(GAMEOPTION_NO_SCIENCE))
 		return;
 
-#if defined(MOD_BUGFIX_RESEARCH_OVERFLOW)
 	SetResearchProgressTimes100(eIndex, (GetResearchProgressTimes100(eIndex) + iChange), ePlayer, iPlayerOverflow, iPlayerOverflowDivisorTimes100);
-#else
-	SetResearchProgressTimes100(eIndex, (GetResearchProgressTimes100(eIndex) + iChange), ePlayer);
-#endif
 }
 
 /// Add research for a tech to a specified percent complete
@@ -2814,8 +2750,3 @@ bool CvTechEntry::IsVassalageTradingAllowed() const
 	return m_bVassalageTradingAllowed;
 }
 #endif
-
-bool CvTechEntry::IsUnlocksEspionageAdvancedActions() const
-{
-	return m_bUnlocksEspionageAdvancedActions;
-}

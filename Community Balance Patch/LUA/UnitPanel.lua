@@ -686,7 +686,14 @@ function UpdateUnitStats(unit)
         Controls.UnitStatStrength:SetText(strength);    
         local strengthTT = Locale.ConvertTextKey( "TXT_KEY_UPANEL_TOURISM_STRENGTH_TT" );
         Controls.UnitStatStrength:SetToolTipString(strengthTT);
-        Controls.UnitStatNameStrength:SetToolTipString(strengthTT);    
+        Controls.UnitStatNameStrength:SetToolTipString(strengthTT);
+	elseif (unit:GetTourismBlastLength() > 0) then
+        strength = unit:GetTourismBlastLength() .. " [ICON_TURNS_REMAINING]";
+        Controls.UnitStrengthBox:SetHide(false);
+        Controls.UnitStatStrength:SetText(strength);    
+        local strengthTT = Locale.ConvertTextKey( "TXT_KEY_UPANEL_TOURISM_TURNS_TT" );
+        Controls.UnitStatStrength:SetToolTipString(strengthTT);
+        Controls.UnitStatNameStrength:SetToolTipString(strengthTT);
     else
         Controls.UnitStrengthBox:SetHide(true);
     end        
@@ -1303,9 +1310,13 @@ function TipHandler( control )
 		
 		if (not bDisabled) then
 			strToolTip = strToolTip .. "[NEWLINE]----------------[NEWLINE]";
-			strToolTip = strToolTip .. "+" .. unit:GetTradeInfluence(unit:GetPlot()) .. " [ICON_INFLUENCE]";
-			strToolTip = strToolTip .. "[NEWLINE]";
-			strToolTip = strToolTip .. "+" .. unit:GetTradeGold(unit:GetPlot()) .. "[ICON_GOLD]";
+			if (unit:GetTradeInfluence(unit:GetPlot()) ~= 0) then
+				strToolTip = strToolTip .. "+" .. unit:GetTradeInfluence(unit:GetPlot()) .. " [ICON_INFLUENCE]";
+			end
+			if (unit:GetTradeGold(unit:GetPlot()) ~= 0) then
+				strToolTip = strToolTip .. "[NEWLINE]";
+				strToolTip = strToolTip .. "+" .. unit:GetTradeGold(unit:GetPlot()) .. "[ICON_GOLD]";
+			end
 		end
 		
 	-- Great Writer
@@ -1337,7 +1348,11 @@ function TipHandler( control )
 		
 		if (not bDisabled) then
 			strToolTip = strToolTip .. "[NEWLINE]----------------[NEWLINE]";
-			strToolTip = strToolTip .. "+" .. unit:GetBlastTourism() .. "[ICON_TOURISM]";
+			if(unit:GetBlastTourism() > 0) then
+				strToolTip = strToolTip .. "+" .. unit:GetBlastTourism() .. "[ICON_TOURISM]";
+			elseif(unit:GetTourismBlastLength() > 0) then
+				strToolTip = strToolTip .. "+" .. unit:GetTourismBlastLength() .. "[ICON_TURNS_REMAINING]";
+			end
 		end
 		
     -- Help text
@@ -1555,6 +1570,23 @@ function TipHandler( control )
 				
 				strDisabledString = strDisabledString .. "[NEWLINE]";
 				strDisabledString = strDisabledString .. Locale.ConvertTextKey("TXT_KEY_BUILD_BLOCKED_BY_FEATURE", pFeatureTech.Description, pFeature.Description);
+			end
+
+			-- Insufficient resource count?
+			if pImprovement or pRoute then
+				for resource in GameInfo.Resources() do
+					local iResource = resource.ID;
+					local iNumResource = 0;
+					if pImprovement then
+						iNumResource = Game.GetNumResourceRequiredForImprovement(iImprovement, iResource);
+					elseif pRoute then
+						iNumResource = Game.GetNumResourceRequiredForRoute(iRoute, iResource);
+					end
+					if iNumResource > 0 and pActivePlayer:GetNumResourceAvailable(iResource, true) <= 0 then
+						strDisabledString = strDisabledString .. "[NEWLINE]";
+						strDisabledString = strDisabledString .. Locale.ConvertTextKey("TXT_KEY_BUILD_BLOCKED_RESOURCE_REQUIRED", iNumResource, resource.IconString, resource.Description, strImpRouteKey);
+					end
+				end
 			end
 			
 		-- Not a Worker build, use normal disabled help from XML

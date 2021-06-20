@@ -290,6 +290,11 @@ protected:
 	static int lGetNumResourceRequiredForUnit(lua_State* L);
 	static int lGetNumResourceRequiredForBuilding(lua_State* L);
 
+#if defined(MOD_IMPROVEMENTS_EXTENSIONS)
+	static int lGetNumResourceRequiredForImprovement(lua_State* L);
+	static int lGetNumResourceRequiredForRoute(lua_State* L);
+#endif
+
 	static int lIsCombatWarned(lua_State* L);
 	static int lSetCombatWarned(lua_State* L);
 
@@ -354,7 +359,7 @@ protected:
 	static int lGetMinimumFaithNextPantheon(lua_State* L);
 	static int lSetMinimumFaithNextPantheon(lua_State* L);
 
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_API_RELIGION)
+#if defined(MOD_API_LUA_EXTENSIONS)
 	LUAAPIEXTN(IsInSomeReligion, bool, iBelief, iPlayer);
 #endif
 	static int lGetAvailablePantheonBeliefs(lua_State* L);
@@ -378,7 +383,7 @@ protected:
 	static int lGetFounderBenefitsReligion(lua_State* L);
 
 	static int lFoundPantheon(lua_State* L);
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_API_RELIGION)
+#if defined(MOD_API_LUA_EXTENSIONS)
 	LUAAPIEXTN(EnhancePantheon, void, iPlayer, iBelief);
 #endif
 	static int lFoundReligion(lua_State* L);
@@ -434,7 +439,7 @@ protected:
 
 	static int lGetLongestCityConnectionPlots(lua_State* L);
 
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_API_TRADEROUTES)
+#if defined(MOD_API_LUA_EXTENSIONS)
 	LUAAPIEXTN(GetTradeRoute, table, iRouteIndex);
 #endif
 	static int lSelectedUnit_SpeculativePopupTradeRoute_Display(lua_State* L);

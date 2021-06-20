@@ -15,7 +15,7 @@
 class CvBarbarians
 {
 public:
-	static void DoBarbCampCleared(CvPlot* pPlot, PlayerTypes ePlayer);
+	static void DoBarbCampCleared(CvPlot* pPlot, PlayerTypes ePlayer, CvUnit* pUnit = NULL);
 #if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
 	static void DoBarbCityCleared(CvPlot* pPlot);
 	static bool ShouldSpawnBarbFromCity(CvPlot* pPlot);
@@ -28,7 +28,8 @@ public:
 	static void DoUnits();
 	static void DoCampActivationNotice(CvPlot* pPlot);
 	static void DoSpawnBarbarianUnit(CvPlot* pPlot, bool bIgnoreMaxBarbarians, bool bFinishMoves);
-	static bool DoStealFromAdjacentCity(CvUnit* pUnit);
+	static bool DoStealFromCity(CvUnit* pUnit, CvCity* pCity);
+	static bool DoTakeOverCity(CvCity* pCity);
 
 	static void MapInit(int iWorldNumPlots);
 	static void Uninit();

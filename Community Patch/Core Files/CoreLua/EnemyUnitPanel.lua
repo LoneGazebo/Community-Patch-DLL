@@ -21,17 +21,6 @@ local g_iPortraitSize = Controls.UnitPortrait:GetSize().x;
 local g_bWorldMouseOver = true;
 local g_bShowPanel = false;
 
--- fix for DB cache issue, by merill
-local DB_HandicapInfos = {};
-if Game then
-	for realHandicap in DB.Query("SELECT * FROM HandicapInfos") do
-		DB_HandicapInfos[realHandicap["ID"]] = {};
-		for key,val in pairs(realHandicap) do 
-			DB_HandicapInfos[realHandicap["ID"]][key] = val;
-		end
-	end
-end
-
 function SetName(name)
 	
 	name = Locale.ToUpper(name);
@@ -580,17 +569,19 @@ function UpdateCombatOddsUnitVsCity(pMyUnit, pCity)
 			end
 
 			-- Policy Attack bonus
-			local iTurns = pMyPlayer:GetAttackBonusTurns();
-			iModifier = GameDefines["POLICY_ATTACK_BONUS_MOD"];
-			if (iTurns > 0 and bonusCount < maxBonusDisplay) then
-				
-				controlTable = g_MyCombatDataIM:GetInstance();
-				controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_POLICY_ATTACK_BONUS", iTurns );
-				controlTable.Value:SetText( GetFormattedText(strText, iModifier, true, true) );
-				bonusCount = bonusCount + 1;
-			elseif (iTurns > 0) then
-				bonusSum = bonusSum + iModifier;
-				bonusCount = bonusCount + 1;
+			if (not bRanged) then
+				local iTurns = pMyPlayer:GetAttackBonusTurns();
+				iModifier = GameDefines["POLICY_ATTACK_BONUS_MOD"];
+				if (iTurns > 0 and bonusCount < maxBonusDisplay) then
+					
+					controlTable = g_MyCombatDataIM:GetInstance();
+					controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_POLICY_ATTACK_BONUS", iTurns );
+					controlTable.Value:SetText( GetFormattedText(strText, iModifier, true, true) );
+					bonusCount = bonusCount + 1;
+				elseif (iTurns > 0) then
+					bonusSum = bonusSum + iModifier;
+					bonusCount = bonusCount + 1;
+				end
 			end
 
 			-- CBP (Monopoly)
@@ -963,6 +954,7 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 		if (iMyStrength > 0) then
 			
 			-- Start with logic of combat estimation
+			local iTheirStrength = 0;
 			local iMyDamageInflicted = 0;
 			local iTheirDamageInflicted = 0;
 			local iTheirFireSupportCombatDamage = 0;
@@ -974,11 +966,9 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 				
 				if (pTheirUnit:IsEmbarked()) then
 					iTheirStrength = pTheirUnit:GetEmbarkedUnitDefense();
-				else
+				elseif (pTheirUnit:IsCanAttackRanged()) then
 					iTheirStrength = pTheirUnit:GetMaxRangedCombatStrength(pMyUnit, nil, false);
-				end
-				
-				if (iTheirStrength == 0 or pTheirUnit:GetDomainType() == DomainTypes.DOMAIN_SEA or pTheirUnit:IsRangedSupportFire()) then
+				else
 					iTheirStrength = pTheirUnit:GetMaxDefenseStrength(pToPlot, pMyUnit, pFromPlot, true);
 				end
 				
@@ -1260,16 +1250,19 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 			end			
 
 			-- Policy Attack bonus
-			local iTurns = pMyPlayer:GetAttackBonusTurns();
-			iModifier = GameDefines["POLICY_ATTACK_BONUS_MOD"];
-			if (iTurns > 0 and bonusCount < maxBonusDisplay) then			
-				controlTable = g_MyCombatDataIM:GetInstance();
-				controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_POLICY_ATTACK_BONUS", iTurns );
-				controlTable.Value:SetText( GetFormattedText(strText, iModifier, true, true) );
-				bonusCount = bonusCount + 1;
-			elseif (iTurns > 0) then
-				bonusSum = bonusSum + iModifier;
-				bonusCount = bonusCount + 1;				
+			if (not bRanged) then
+				local iTurns = pMyPlayer:GetAttackBonusTurns();
+				iModifier = GameDefines["POLICY_ATTACK_BONUS_MOD"];
+				if (iTurns > 0 and bonusCount < maxBonusDisplay) then
+					
+					controlTable = g_MyCombatDataIM:GetInstance();
+					controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_POLICY_ATTACK_BONUS", iTurns );
+					controlTable.Value:SetText( GetFormattedText(strText, iModifier, true, true) );
+					bonusCount = bonusCount + 1;
+				elseif (iTurns > 0) then
+					bonusSum = bonusSum + iModifier;
+					bonusCount = bonusCount + 1;
+				end
 			end
 
 			-- CBP (Monopoly)
@@ -1922,9 +1915,6 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 			
 			-- BarbarianBonuses
 			if (pTheirUnit:IsBarbarian()) then
-				--iModifier = GameInfo.HandicapInfos[Game:GetHandicapType()].BarbarianBonus;
-				
-				iModifier = DB_HandicapInfos[Game:GetHandicapType()].BarbarianBonus;
 				iModifier = iModifier + Players[pMyUnit:GetOwner()]:GetBarbarianCombatBonus();
 
 				iModifier = iModifier + pMyUnit:BarbarianCombatBonus();
@@ -3252,9 +3242,6 @@ function UpdateCombatOddsCityVsUnit(myCity, theirUnit)
 		
 		-- BarbarianBonuses
 		if (theirUnit:IsBarbarian()) then
-			--iModifier = GameInfo.HandicapInfos[Game:GetHandicapType()].BarbarianBonus;
-			
-			iModifier = DB_HandicapInfos[Game:GetHandicapType()].BarbarianBonus;
 			iModifier = iModifier + myPlayer:GetBarbarianCombatBonus();
 
 			if (iModifier ~= 0 and bonusCount < maxBonusDisplay) then

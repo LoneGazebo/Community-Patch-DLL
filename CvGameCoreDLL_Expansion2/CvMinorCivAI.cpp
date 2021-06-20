@@ -407,11 +407,7 @@ void CvMinorCivQuest::DoRewards(PlayerTypes ePlayer)
 		{
 			if (pLoopUnit && pLoopUnit->IsCombatUnit())
 			{
-#if defined(MOD_UNITS_XP_TIMES_100)
 				pLoopUnit->changeExperienceTimes100(GetExperience() * 100);
-#else
-				pLoopUnit->changeExperience(GetExperience());
-#endif
 			}
 		}
 	}
@@ -628,14 +624,11 @@ void CvMinorCivAI::RecalculateRewards(PlayerTypes ePlayer)
 	if (m_QuestsGiven.empty() || m_QuestsGiven.size() <= (size_t)ePlayer)
 		return;
 
-	QuestListForPlayer::iterator itr_quest;
-	for (itr_quest = m_QuestsGiven[ePlayer].begin(); itr_quest != m_QuestsGiven[ePlayer].end(); itr_quest++)
-	{
-		if (itr_quest != NULL)
-			itr_quest->CalculateRewards(ePlayer);
-	}
+	for (QuestListForPlayer::iterator itr_quest = m_QuestsGiven[ePlayer].begin(); itr_quest != m_QuestsGiven[ePlayer].end(); itr_quest++)
+		itr_quest->CalculateRewards(ePlayer, true);
 }
-void CvMinorCivQuest::CalculateRewards(PlayerTypes ePlayer)
+
+void CvMinorCivQuest::CalculateRewards(PlayerTypes ePlayer, bool bRecalc)
 {
 	if(ePlayer == NO_PLAYER || m_eMinor == NO_PLAYER)
 	{
@@ -694,7 +687,15 @@ void CvMinorCivQuest::CalculateRewards(PlayerTypes ePlayer)
 			int iBaseBonus = (pkSmallAwardInfo->GetInfluence() * iEraScaler)/100 + iRandomContribution;
 			int iBonus = (iBaseBonus * iBaseModifier)/100;
 
-			SetInfluence(iBonus);
+			if (bRecalc)
+			{
+				if (iBonus > GetInfluence())
+				{
+					SetInfluence(iBonus);
+				}
+			}
+			else
+				SetInfluence(iBonus);
 		}
 		if(pkSmallAwardInfo->GetAdmiralPoints() > 0)
 		{
@@ -715,7 +716,15 @@ void CvMinorCivQuest::CalculateRewards(PlayerTypes ePlayer)
 				iBonus /= 100;
 			}
 
-			SetAdmiralPoints(iBonus);
+			if (bRecalc)
+			{
+				if (iBonus > GetAdmiralPoints())
+				{
+					SetAdmiralPoints(iBonus);
+				}
+			}
+			else
+				SetAdmiralPoints(iBonus);
 		}
 		if(pkSmallAwardInfo->GetGeneralPoints() > 0)
 		{
@@ -735,8 +744,15 @@ void CvMinorCivQuest::CalculateRewards(PlayerTypes ePlayer)
 				iBonus *= 75;
 				iBonus /= 100;
 			}
-
-			SetGeneralPoints(iBonus);
+			if (bRecalc)
+			{
+				if (iBonus > GetGeneralPoints())
+				{
+					SetGeneralPoints(iBonus);
+				}
+			}
+			else
+				SetGeneralPoints(iBonus);
 		}
 		if(pkSmallAwardInfo->GetCulture() > 0)
 		{
@@ -761,8 +777,15 @@ void CvMinorCivQuest::CalculateRewards(PlayerTypes ePlayer)
 				iBonus *= 125;
 				iBonus /= 100;
 			}
-
-			SetCulture(iBonus);
+			if (bRecalc)
+			{
+				if (iBonus > GetCulture())
+				{
+					SetCulture(iBonus);
+				}
+			}
+			else
+				SetCulture(iBonus);
 		}
 		if(pkSmallAwardInfo->GetExperience() > 0)
 		{
@@ -781,8 +804,15 @@ void CvMinorCivQuest::CalculateRewards(PlayerTypes ePlayer)
 				iBonus *= 50;
 				iBonus /= 100;
 			}
-
-			SetExperience(iBonus);
+			if (bRecalc)
+			{
+				if (iBonus > GetExperience())
+				{
+					SetExperience(iBonus);
+				}
+			}
+			else
+				SetExperience(iBonus);
 		}
 		if(pkSmallAwardInfo->GetFaith() > 0)
 		{
@@ -802,8 +832,15 @@ void CvMinorCivQuest::CalculateRewards(PlayerTypes ePlayer)
 				iBonus *= 60;
 				iBonus /= 100;
 			}
-
-			SetFaith(iBonus);
+			if (bRecalc)
+			{
+				if (iBonus > GetFaith())
+				{
+					SetFaith(iBonus);
+				}
+			}
+			else
+				SetFaith(iBonus);
 		}
 		if(pkSmallAwardInfo->GetFood() > 0)
 		{
@@ -828,8 +865,15 @@ void CvMinorCivQuest::CalculateRewards(PlayerTypes ePlayer)
 				iBonus *= 60;
 				iBonus /= 100;
 			}
-
-			SetFood(iBonus);
+			if (bRecalc)
+			{
+				if (iBonus > GetFood())
+				{
+					SetFood(iBonus);
+				}
+			}
+			else
+				SetFood(iBonus);
 		}
 		if(pkSmallAwardInfo->GetGAP() > 0)
 		{
@@ -854,8 +898,15 @@ void CvMinorCivQuest::CalculateRewards(PlayerTypes ePlayer)
 				iBonus *= 60;
 				iBonus /= 100;
 			}
-
-			SetGoldenAgePoints(iBonus);
+			if (bRecalc)
+			{
+				if (iBonus > GetGoldenAgePoints())
+				{
+					SetGoldenAgePoints(iBonus);
+				}
+			}
+			else
+				SetGoldenAgePoints(iBonus);
 		}
 		if(pkSmallAwardInfo->GetGold() > 0)
 		{
@@ -875,8 +926,15 @@ void CvMinorCivQuest::CalculateRewards(PlayerTypes ePlayer)
 				iBonus *= 125;
 				iBonus /= 100;
 			}
-
-			SetGold(iBonus);
+			if (bRecalc)
+			{
+				if (iBonus > GetGold())
+				{
+					SetGold(iBonus);
+				}
+			}
+			else
+				SetGold(iBonus);
 		}
 		if(pkSmallAwardInfo->GetGPPoints() > 0)
 		{
@@ -900,8 +958,15 @@ void CvMinorCivQuest::CalculateRewards(PlayerTypes ePlayer)
 				iBonus *= 75;
 				iBonus /= 100;
 			}
-
-			SetGP(iBonus);
+			if (bRecalc)
+			{
+				if (iBonus > GetGP())
+				{
+					SetGP(iBonus);
+				}
+			}
+			else
+				SetGP(iBonus);
 		}
 		if(pkSmallAwardInfo->GetGPPointsGlobal() > 0)
 		{
@@ -925,13 +990,28 @@ void CvMinorCivQuest::CalculateRewards(PlayerTypes ePlayer)
 				iBonus *= 125;
 				iBonus /= 100;
 			}
-
-			SetGPGlobal(iBonus);
+			if (bRecalc)
+			{
+				if (iBonus > GetGPGlobal())
+				{
+					SetGPGlobal(iBonus);
+				}
+			}
+			else
+				SetGPGlobal(iBonus);
 		}
 		if(pkSmallAwardInfo->GetHappiness() > 0)
 		{
 			int iBonus = (iEra/2) + pkSmallAwardInfo->GetHappiness();
-			SetHappiness(iBonus);
+			if (bRecalc)
+			{
+				if (iBonus > GetHappiness())
+				{
+					SetHappiness(iBonus);
+				}
+			}
+			else
+				SetHappiness(iBonus);
 		}
 		if(pkSmallAwardInfo->GetTourism() > 0)
 		{
@@ -961,8 +1041,15 @@ void CvMinorCivQuest::CalculateRewards(PlayerTypes ePlayer)
 				iBonus *= 75;
 				iBonus /= 100;
 			}
-
-			SetTourism(iBonus);	
+			if (bRecalc)
+			{
+				if (iBonus > GetTourism())
+				{
+					SetTourism(iBonus);
+				}
+			}
+			else
+				SetTourism(iBonus);	
 		}
 		if(pkSmallAwardInfo->GetProduction() > 0)
 		{
@@ -977,8 +1064,15 @@ void CvMinorCivQuest::CalculateRewards(PlayerTypes ePlayer)
 				iBonus *= 125;
 				iBonus /= 100;
 			}
-
-			SetProduction(iBonus);
+			if (bRecalc)
+			{
+				if (iBonus > GetProduction())
+				{
+					SetProduction(iBonus);
+				}
+			}
+			else
+				SetProduction(iBonus);
 		}
 		if(pkSmallAwardInfo->GetScience() > 0)
 		{
@@ -993,8 +1087,15 @@ void CvMinorCivQuest::CalculateRewards(PlayerTypes ePlayer)
 				iBonus *= 60;
 				iBonus /= 100;
 			}
-
-			SetScience(iBonus);
+			if (bRecalc)
+			{
+				if (iBonus > GetScience())
+				{
+					SetScience(iBonus);
+				}
+			}
+			else
+				SetScience(iBonus);
 		}
 
 		if(GC.getLogging() && GC.getAILogging())
@@ -1642,13 +1743,13 @@ bool CvMinorCivQuest::IsComplete()
 	//No barbarians in the city-state, so you win!
 	else if(m_eType == MINOR_CIV_QUEST_HORDE)
 	{
-		if ((GetEndTurn() == GC.getGame().getGameTurn()) && pMinor->GetMinorCivAI()->GetNumBarbariansInBorders() <= 0)
+		if ((GetEndTurn() == GC.getGame().getGameTurn()) && pMinor->GetMinorCivAI()->GetNumBarbariansInBorders(true) <= 0)
 			return true;
 	}
 	//You eliminated all of the rebels.
 	else if(m_eType == MINOR_CIV_QUEST_REBELLION)
 	{
-		if ((GetEndTurn() == GC.getGame().getGameTurn()) && (pMinor->GetMinorCivAI()->GetNumBarbariansInBorders() <= 0))
+		if ((GetEndTurn() == GC.getGame().getGameTurn()) && (pMinor->GetMinorCivAI()->GetNumBarbariansInBorders(false) <= 0))
 		{
 			return true;
 		}
@@ -1726,8 +1827,19 @@ bool CvMinorCivQuest::IsComplete()
 }
 
 /// Is this quest now revoked (ie. because the player bullied us)?
-bool CvMinorCivQuest::IsRevoked()
+bool CvMinorCivQuest::IsRevoked(bool bWar)
 {
+	if (bWar)
+	{
+		if (m_eType == MINOR_CIV_QUEST_HORDE || m_eType == MINOR_CIV_QUEST_REBELLION)
+			return false;
+		else
+			return true;
+	}
+
+	if (GET_PLAYER(m_eMinor).GetMinorCivAI()->IsGlobalQuest(m_eType))
+		return false;
+
 	if(GET_PLAYER(m_eMinor).GetMinorCivAI()->IsRecentlyBulliedByMajor(m_eAssignedPlayer))
 	{
 		if(m_eType == MINOR_CIV_QUEST_ROUTE)
@@ -2121,7 +2233,7 @@ bool CvMinorCivQuest::IsExpired()
 	// The Horde is still in the City-State's threat-radius - oh no!
 	else if(m_eType == MINOR_CIV_QUEST_HORDE)
 	{
-		if((GC.getGame().getGameTurn() == GetEndTurn()) && (GET_PLAYER(m_eMinor).GetMinorCivAI()->GetNumThreateningBarbarians() > 0))
+		if((GC.getGame().getGameTurn() == GetEndTurn()) && (GET_PLAYER(m_eMinor).GetMinorCivAI()->GetNumBarbariansInBorders(true) > 0))
 		{
 			return true;
 		}
@@ -2129,7 +2241,7 @@ bool CvMinorCivQuest::IsExpired()
 	//Are there still rebels milling about? You lose!
 	else if(m_eType == MINOR_CIV_QUEST_REBELLION)
 	{
-		if((GC.getGame().getGameTurn() == GetEndTurn()) && (GET_PLAYER(m_eMinor).GetMinorCivAI()->GetNumThreateningBarbarians() > 0))
+		if((GC.getGame().getGameTurn() == GetEndTurn()) && (GET_PLAYER(m_eMinor).GetMinorCivAI()->GetNumBarbariansInBorders(false) > 0))
 		{
 			return true;
 		}
@@ -2216,9 +2328,9 @@ bool CvMinorCivQuest::IsExpired()
 	return false;
 }
 
-bool CvMinorCivQuest::IsObsolete()
+bool CvMinorCivQuest::IsObsolete(bool bWar)
 {
-	return (IsRevoked() || IsExpired());
+	return (IsRevoked(bWar) || IsExpired());
 }
 
 // The end of this quest has been handled, no effects should happen, and it is marked to be deleted
@@ -3825,9 +3937,11 @@ bool CvMinorCivQuest::DoCancelQuest()
 			if(pMinor->GetMinorCivAI()->IsHordeActive())
 			{
 				pMinor->GetMinorCivAI()->SetHordeActive(false);
-				pMinor->GetMinorCivAI()->SetSacked(true);
 				pMinor->GetMinorCivAI()->SetTurnsSinceRebellion(0);
 				pMinor->GetMinorCivAI()->SetCooldownSpawn(50);
+
+				//cannot do this directly as it likely will kill the player, then we have a problem
+				pMinor->GetMinorCivAI()->SetReadyForTakeOver();
 			}
 
 			//Update Military AI
@@ -3970,18 +4084,13 @@ FDataStream& operator>>(FDataStream& loadFrom, CvMinorCivQuest& writeTo)
 	loadFrom >> uiVersion;
 	MOD_SERIALIZE_INIT_READ(loadFrom);
 
+	loadFrom >> writeTo.m_eMinor;
+	loadFrom >> writeTo.m_eAssignedPlayer;
 	loadFrom >> writeTo.m_eType;
 	loadFrom >> writeTo.m_iStartTurn;
 	loadFrom >> writeTo.m_iData1;
 	loadFrom >> writeTo.m_iData2;
-	if (uiVersion >= 2)
-	{
-		loadFrom >> writeTo.m_bHandled;
-	}
-	else
-	{
-		writeTo.m_bHandled = false;
-	}
+	loadFrom >> writeTo.m_bHandled;
 #if defined(MOD_BALANCE_CORE)
 	loadFrom >> writeTo.m_iData3;
 	loadFrom >> writeTo.m_iInfluence;
@@ -4012,6 +4121,8 @@ FDataStream& operator<<(FDataStream& saveTo, const CvMinorCivQuest& readFrom)
 	saveTo << uiVersion;
 	MOD_SERIALIZE_INIT_WRITE(saveTo);
 
+	saveTo << readFrom.m_eMinor;
+	saveTo << readFrom.m_eAssignedPlayer;
 	saveTo << readFrom.m_eType;
 	saveTo << readFrom.m_iStartTurn;
 	saveTo << readFrom.m_iData1;
@@ -4094,28 +4205,21 @@ void CvMinorCivAI::Reset()
 	m_bullyRelevantPlots.clear();
 
 #if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
-	m_bIsSacked = false;
 	m_bIsRebellion = false;
-	m_iIsRebellionCountdown = 0;
+	m_iTurnsSinceRebellion = 0;
 	m_bIsRebellionActive = 0;
 	m_bIsHordeActive = 0;
 	m_iCooldownSpawn = 0;
 	m_ePermanentAlly = NO_PLAYER;
 	m_bNoAlly = false;
 	m_iCoup = 0;
+	m_iTakeoverTurn = 0;
 #endif
 #if defined(MOD_BALANCE_CORE)
 	m_iTurnLiberated = 0;
 #endif
 	for(int iI = 0; iI < MAX_MAJOR_CIVS; iI++)
 	{
-		m_abWarQuestAgainstMajor[iI] = false;
-
-		for(int iJ = 0; iJ < MAX_MAJOR_CIVS; iJ++)
-		{
-			m_aaiNumEnemyUnitsLeftToKillByMajor[iI][iJ] = -1;
-		}
-
 		m_abRouteConnectionEstablished[iI] = false;
 
 		m_aiFriendshipWithMajorTimes100[iI] = 0;
@@ -4143,11 +4247,10 @@ void CvMinorCivAI::Reset()
 #endif
 	}
 
-	for(int iI = 0; iI < REALLY_MAX_TEAMS; iI++)
+	for (int iI = 0; iI < MAX_CIV_TEAMS; iI++)
 	{
-#if defined(MOD_BALANCE_CORE_MINORS) || defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
-		m_aiJerk[iI] = 0;
-#endif
+		m_aiTurnLastAttacked[iI] = -1;
+		m_abIgnoreJerk[iI] = false;
 		m_abPermanentWar[iI] = false;
 		m_abWaryOfTeam[iI] = false;
 	}
@@ -4214,10 +4317,6 @@ void CvMinorCivAI::Read(FDataStream& kStream)
 	kStream >> m_iNumThreateningBarbarians;
 	kStream >> m_bAllowMajorsToIntrude;
 
-	kStream >> m_abWarQuestAgainstMajor;
-
-	kStream >> m_aaiNumEnemyUnitsLeftToKillByMajor;
-
 	kStream >> m_abRouteConnectionEstablished;
 
 	kStream >> m_aiFriendshipWithMajorTimes100;
@@ -4247,13 +4346,13 @@ void CvMinorCivAI::Read(FDataStream& kStream)
 	kStream >> m_abWaryOfTeam;
 
 #if defined(MOD_BALANCE_CORE)
-	kStream >> m_bIsSacked;
 	kStream >> m_bIsRebellion;
-	kStream >> m_iIsRebellionCountdown;
+	kStream >> m_iTurnsSinceRebellion;
 	kStream >> m_bIsRebellionActive;
 	kStream >> m_bIsHordeActive;
 	kStream >> m_iCooldownSpawn;
-	kStream >> m_aiJerk;
+	kStream >> m_aiTurnLastAttacked;
+	kStream >> m_abIgnoreJerk;
 	kStream >> m_abIsMarried;
 	kStream >> m_ePermanentAlly;
 	kStream >> m_bNoAlly;
@@ -4270,27 +4369,7 @@ void CvMinorCivAI::Read(FDataStream& kStream)
 	// List of quests given
 	ResetQuestList();
 
-	int iPlayerEntriesToRead;
-	//antonjs: consider: change this; always read in iPlayerEntriesToRead
-	iPlayerEntriesToRead = MAX_MAJOR_CIVS;
-
-	for(int iPlayerLoop = 0; iPlayerLoop < iPlayerEntriesToRead; iPlayerLoop++)
-	{
-		int iQuestEntriesToRead;
-		kStream >> iQuestEntriesToRead;
-		CvMinorCivQuest tempQuest;
-		for(int iQuestLoop = 0; iQuestLoop < iQuestEntriesToRead; iQuestLoop++)
-		{
-			kStream >> tempQuest;
-
-			tempQuest.m_eMinor = GetPlayer()->GetID();
-			tempQuest.m_eAssignedPlayer = (PlayerTypes) iPlayerLoop;
-
-			m_QuestsGiven[iPlayerLoop].push_back(tempQuest);
-		}
-	}
-	CvAssertMsg(m_QuestsGiven.size() == MAX_MAJOR_CIVS, "Number of entries in minor's quest list does not match MAX_MAJOR_CIVS when read from memory!");
-
+	kStream >> m_QuestsGiven;
 	kStream >> m_bDisableNotifications;
 }
 
@@ -4320,10 +4399,6 @@ void CvMinorCivAI::Write(FDataStream& kStream) const
 	kStream << m_iNumThreateningBarbarians;
 	kStream << m_bAllowMajorsToIntrude;
 
-	kStream << m_abWarQuestAgainstMajor;
-
-	kStream << m_aaiNumEnemyUnitsLeftToKillByMajor;
-
 	kStream << m_abRouteConnectionEstablished;
 
 	kStream << m_aiFriendshipWithMajorTimes100;
@@ -4344,13 +4419,13 @@ void CvMinorCivAI::Write(FDataStream& kStream) const
 	kStream << m_abWaryOfTeam; // Version 12
 
 #if defined(MOD_BALANCE_CORE)
-	kStream << m_bIsSacked;
 	kStream << m_bIsRebellion;
-	kStream << m_iIsRebellionCountdown;
+	kStream << m_iTurnsSinceRebellion;
 	kStream << m_bIsRebellionActive;
 	kStream << m_bIsHordeActive;
 	kStream << m_iCooldownSpawn;
-	kStream << m_aiJerk;
+	kStream << m_aiTurnLastAttacked;
+	kStream << m_abIgnoreJerk;
 	kStream << m_abIsMarried;
 	kStream << m_ePermanentAlly;
 	kStream << m_bNoAlly;
@@ -4364,21 +4439,7 @@ void CvMinorCivAI::Write(FDataStream& kStream) const
 	kStream << m_aiTurnsSincePtPWarning;
 #endif
 
-	// List of quests given
-	CvAssertMsg(m_QuestsGiven.size() == MAX_MAJOR_CIVS, "Number of entries in minor's quest list does not match MAX_MAJOR_CIVS when writing to memory!");
-	QuestListForAllPlayers::const_iterator itr_player;
-	for(itr_player = m_QuestsGiven.begin(); itr_player != m_QuestsGiven.end(); itr_player++)
-	{
-		QuestListForPlayer* pvQuestList = (QuestListForPlayer*)itr_player;
-		int iQuestEntriesToWrite = pvQuestList->size();
-		kStream << iQuestEntriesToWrite;
-		QuestListForPlayer::const_iterator itr_quest;
-		for(itr_quest = pvQuestList->begin(); itr_quest != pvQuestList->end(); itr_quest++)
-		{
-			kStream << *itr_quest;
-		}
-	}
-
+	kStream << m_QuestsGiven;
 	kStream << m_bDisableNotifications;
 }
 
@@ -4541,7 +4602,6 @@ void CvMinorCivAI::DoPickUniqueUnit()
 	m_eUniqueUnit = NO_UNIT;
 	if (GetTrait() == MINOR_CIV_TRAIT_MILITARISTIC)
 	{
-		// Units from our starting era or before would be no fun because players won't get the chance to use them
 		int iCoastal = 0;
 		int iPlayers = 0;
 		bool bCoastal = false;
@@ -4575,7 +4635,7 @@ void CvMinorCivAI::DoPickUniqueUnit()
 				}
 			}
 
-			m_eUniqueUnit = GC.getGame().GetRandomUniqueUnitType(/*bIncludeCivsInGame*/ false, /*bIncludeStartEraUnits*/ false, /*bIncludeOldEras*/ false, /*bIncludeRanged*/ true, 
+			m_eUniqueUnit = GC.getGame().GetRandomUniqueUnitType(/*bIncludeCivsInGame*/ false, /*bIncludeStartEraUnits*/ true, /*bIncludeOldEras*/ false, /*bIncludeRanged*/ true, 
 																	bCoastal, GetPlayer()->getStartingPlot()->getX(), GetPlayer()->getStartingPlot()->getY());
 		}
 	}
@@ -4590,14 +4650,9 @@ void CvMinorCivAI::DoPickUniqueUnit()
 /// Processed every turn
 void CvMinorCivAI::DoTurn()
 {
-	AI_PERF_FORMAT("AI-perf.csv", ("CvMinorCivAI::DoTurn, Turn %03d, %s", GC.getGame().getElapsedGameTurns(), GetPlayer()->getCivilizationShortDescription()) );
 	if(GetPlayer()->isMinorCiv())
 	{
 		DoTurnStatus();
-
-#if defined(MOD_CONFIG_GAME_IN_XML)
-		m_pPlayer->GetDiplomacyAI()->DoCounters();
-#endif
 
 		DoElection();
 		DoFriendship();
@@ -4617,10 +4672,6 @@ void CvMinorCivAI::DoTurn()
 			if(GetCooldownSpawn() > 0)
 			{
 				ChangeCooldownSpawn(-1);
-			}
-			if(IsSacked())
-			{
-				DoSack();
 			}
 			if(IsRebellion())
 			{
@@ -4684,31 +4735,20 @@ void CvMinorCivAI::DoTurn()
 #if defined(MOD_BALANCE_CORE_MINORS) || defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
 		if (MOD_BALANCE_CORE_MINORS || MOD_DIPLOMACY_CITYSTATES_QUESTS) 
 		{
-			TeamTypes eLoopTeam;
-			for(int iTeamLoop = 0; iTeamLoop < REALLY_MAX_TEAMS; iTeamLoop++)
+			for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 			{
-				eLoopTeam = (TeamTypes) iTeamLoop;
-				if(eLoopTeam != NO_TEAM)
+				PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+
+				if (GET_PLAYER(eLoopPlayer).isMajorCiv() && GET_PLAYER(eLoopPlayer).isAlive())
 				{
-					if(GET_TEAM(eLoopTeam).isMajorCiv())
+					TeamTypes eLoopTeam = GET_PLAYER(eLoopPlayer).getTeam();
+
+					if (IsFriends(eLoopPlayer) && GetJerkTurnsRemaining(eLoopTeam) > 0)
 					{
-						if(GetJerk(eLoopTeam) > 0)
-						{
-							ChangeJerk(eLoopTeam, -1);
-						}
-						for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
-						{
-							PlayerTypes ePlayer = (PlayerTypes) iPlayerLoop;
-							if(ePlayer != NO_PLAYER && GET_PLAYER(ePlayer).getTeam() == eLoopTeam)
-							{
-								if(IsFriends(ePlayer))
-								{
-									SetJerk(eLoopTeam, 0);
-								}
-								TestChangeProtectionFromMajor(ePlayer);
-							}
-						}
+						SetIgnoreJerk(eLoopTeam, true);
 					}
+
+					TestChangeProtectionFromMajor(eLoopPlayer);
 				}
 			}
 		}
@@ -4762,15 +4802,6 @@ void CvMinorCivAI::DoChangeAliveStatus(bool bAlive)
 #if defined(MOD_BALANCE_CORE_MINORS) || defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
 		if (MOD_BALANCE_CORE_MINORS || MOD_DIPLOMACY_CITYSTATES_QUESTS) 
 		{
-			TeamTypes eLoopTeam;
-			for(int iTeamLoop = 0; iTeamLoop < REALLY_MAX_TEAMS; iTeamLoop++)
-			{
-				eLoopTeam = (TeamTypes) iTeamLoop;
-				if(eLoopTeam != NO_TEAM)
-				{
-					SetJerk(eLoopTeam, 0);
-				}
-			}
 			SetTurnsSinceRebellion(0);
 		}
 #endif
@@ -4910,16 +4941,11 @@ void CvMinorCivAI::DoFirstContactWithMajor(TeamTypes eTeam, bool bSuppressMessag
 					if (MOD_GLOBAL_CS_GIFTS) {
 						// Reduce gifts if we're not the first team to meet the CS
 						int iBonusMultiplier = GC.getMINOR_CIV_FIRST_CONTACT_SUBSEQUENT_TEAM_MULTIPLIER();
-						int iBonusDivisor = max(1,GC.getMINOR_CIV_FIRST_CONTACT_SUBSEQUENT_TEAM_DIVISOR());
+						int iBonusDivisor = GC.getMINOR_CIV_FIRST_CONTACT_SUBSEQUENT_TEAM_DIVISOR();
 
-						if (iBonusDivisor == 0) {
-							iFriendshipBoost = 0;
-						} else {
-							iFriendshipBoost = iFriendshipBoost * iBonusMultiplier / iBonusDivisor;
-						}
-
-						iCultureGift = iCultureGift / iBonusDivisor;
-						iFaithGift = iFaithGift / iBonusDivisor;
+						iFriendshipBoost = (iFriendshipBoost * iBonusMultiplier) / max(1,iBonusDivisor);
+						iCultureGift = iCultureGift / max(1,iBonusDivisor);
+						iFaithGift = iFaithGift / max(1,iBonusDivisor);
 
 						iGoldGift = 0;
 						iFoodGift = 0;
@@ -5058,11 +5084,7 @@ void CvMinorCivAI::DoFirstContactWithMajor(TeamTypes eTeam, bool bSuppressMessag
 									if (GC.getGame().getSmallFakeRandNum(100, pPlayer->GetPseudoRandomSeed()) < iUnitGift) {
 										CvUnit* pUnit = DoSpawnUnit(ePlayer, true, true);
 										if (pUnit != NULL) {
-#if defined(MOD_UNITS_XP_TIMES_100)
 											pUnit->changeExperienceTimes100(100 * (pPlayer->GetCurrentEra() * GC.getMINOR_CIV_FIRST_CONTACT_XP_PER_ERA() + GC.getGame().getSmallFakeRandNum(GC.getMINOR_CIV_FIRST_CONTACT_XP_RANDOM(), pPlayer->getTotalPopulation())));
-#else
-											pUnit->changeExperience(pPlayer->GetCurrentEra() * GC.getMINOR_CIV_FIRST_CONTACT_XP_PER_ERA() + GC.getGame().getJonRandNum(GC.getMINOR_CIV_FIRST_CONTACT_XP_RANDOM(), "Minor Civ AI: Random XP for unit"));
-#endif
 											iGift = pUnit->getUnitType();
 										}
 									}
@@ -5290,7 +5312,6 @@ void CvMinorCivAI::DoTestEndWarsVSMinors(PlayerTypes eOldAlly, PlayerTypes eNewA
 	}
 }
 
-#if defined(MOD_GLOBAL_CS_NO_ALLIED_SKIRMISHES)
 /// Are we at war with a minor also allied to our new BFF?
 void CvMinorCivAI::DoTestEndSkirmishes(PlayerTypes eNewAlly)
 {
@@ -5393,7 +5414,6 @@ void CvMinorCivAI::DoTestEndSkirmishes(PlayerTypes eNewAlly)
 		}
 	}
 }
-#endif
 
 /// Update what our status is
 void CvMinorCivAI::DoTurnStatus()
@@ -5571,7 +5591,7 @@ void CvMinorCivAI::DoAddStartingResources(CvPlot* pCityPlot)
 		// Pick and add a unique luxury
 		if (bAddUniqueLuxury)
 		{
-			FStaticVector< ResourceTypes, 64, true, c_eCiv5GameplayDLL > veUniqueLuxuries;
+			vector<ResourceTypes> veUniqueLuxuries;
 			for(int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
 			{
 				const ResourceTypes eResourceLoop = (ResourceTypes) iResourceLoop;
@@ -5595,45 +5615,6 @@ void CvMinorCivAI::DoAddStartingResources(CvPlot* pCityPlot)
 				pCityPlot->setResourceType(eSpecialLuxury, iQuantity, true);
 			}
 		}
-	}
-}
-
-/// Our city got destroyed or taken! Do cleanup for special starting resources we had.
-#if defined(MOD_GLOBAL_VENICE_KEEPS_RESOURCES)
-void CvMinorCivAI::DoRemoveStartingResources(CvPlot* pCityPlot, bool bVenice)
-#else
-void CvMinorCivAI::DoRemoveStartingResources(CvPlot* pCityPlot)
-#endif
-{
-	CvAssertMsg(pCityPlot != NULL, "City's plot should not be NULL. Please send Anton your save file and version.");
-	if (pCityPlot == NULL) return;
-
-	MinorCivTraitTypes eTrait = GetTrait();
-
-	// Mercantile
-	if(eTrait == MINOR_CIV_TRAIT_MERCANTILE)
-	{
-#if defined(MOD_GLOBAL_VENICE_KEEPS_RESOURCES)
-		pCityPlot->removeMinorResources(bVenice);
-#else
-		bool bRemoveUniqueLuxury = false;
-
-		if (GC.getMINOR_CIV_MERCANTILE_RESOURCES_KEEP_ON_CAPTURE_DISABLED() == 1)
-			bRemoveUniqueLuxury = true;
-
-		if (bRemoveUniqueLuxury)
-		{
-			ResourceTypes eOldResource = pCityPlot->getResourceType();
-			if (eOldResource != NO_RESOURCE)
-			{
-				CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eOldResource);
-				if (pkResourceInfo && pkResourceInfo->isOnlyMinorCivs())
-				{
-					pCityPlot->setResourceType(NO_RESOURCE, 0, true);
-				}
-			}
-		}
-#endif
 	}
 }
 
@@ -5730,8 +5711,39 @@ int CvMinorCivAI::GetNumThreateningBarbarians()
 	return iCount;
 }
 
+int CvMinorCivAI::GetNumThreateningMajors()
+{
+	int iCount = 0;
+
+	for (int i = 0; i < MAX_CIV_PLAYERS; i++)
+	{
+		PlayerTypes ePlayer = (PlayerTypes)i;
+		if (ePlayer == NO_PLAYER)
+			continue;
+
+		if (ePlayer == GetPlayer()->GetID())
+			continue;
+
+		CvPlayer& kPlayer = GET_PLAYER(ePlayer);
+
+		if (!kPlayer.isAlive())
+			continue;
+
+		if (!kPlayer.IsAtWarWith(GetPlayer()->GetID()))
+			continue;
+
+		int iLoop;
+		for (CvUnit* pLoopUnit = kPlayer.firstUnit(&iLoop); NULL != pLoopUnit; pLoopUnit = kPlayer.nextUnit(&iLoop))
+			if (pLoopUnit->plot()->isAdjacentTeam(GetPlayer()->getTeam()))
+				iCount++;
+	}
+	
+
+	return iCount;
+}
+
 /// Barbs in our borders?
-int CvMinorCivAI::GetNumBarbariansInBorders()
+int CvMinorCivAI::GetNumBarbariansInBorders(bool bOnlyAdjacentToCity)
 {
 	if (GetPlayer()->getCapitalCity() == NULL)
 		return 0;
@@ -5742,7 +5754,8 @@ int CvMinorCivAI::GetNumBarbariansInBorders()
 	for (CvUnit* pLoopUnit = GET_PLAYER(BARBARIAN_PLAYER).firstUnit(&iLoop); NULL != pLoopUnit; pLoopUnit = GET_PLAYER(BARBARIAN_PLAYER).nextUnit(&iLoop))
 	{
 		if (pLoopUnit->getDomainType() == DOMAIN_LAND && pLoopUnit->plot()->getOwner() == m_pPlayer->GetID())
-			iCount++;
+			if (!bOnlyAdjacentToCity || pLoopUnit->plot()->IsAdjacentCity())
+				iCount++;
 	}
 
 	return iCount;
@@ -6122,7 +6135,7 @@ void CvMinorCivAI::DoTestStartGlobalQuest()
 	}
 
 	// Pick a valid quest
-	FStaticVector<MinorCivQuestTypes, NUM_MINOR_CIV_QUEST_TYPES, true, c_eCiv5GameplayDLL, 0> veValidQuests;
+	vector<MinorCivQuestTypes> veValidQuests;
 	MinorCivQuestTypes eQuest;
 	PlayerTypes ePlayer;
 	for(int iQuestLoop = 0; iQuestLoop < NUM_MINOR_CIV_QUEST_TYPES; iQuestLoop++)
@@ -6207,7 +6220,7 @@ void CvMinorCivAI::DoTestStartPersonalQuest(PlayerTypes ePlayer)
 		return;
 	}
 
-	FStaticVector<MinorCivQuestTypes, NUM_MINOR_CIV_QUEST_TYPES, true, c_eCiv5GameplayDLL, 0> veValidQuests;
+	vector<MinorCivQuestTypes> veValidQuests;
 
 	int iCount, iCountLoop;
 
@@ -6461,7 +6474,7 @@ void CvMinorCivAI::DoObsoleteQuests()
 
 // Process obsolete quests that are active, and seed countdowns if needed.
 // If no quest type is specified, will check all quest types.
-void CvMinorCivAI::DoObsoleteQuestsForPlayer(PlayerTypes ePlayer, MinorCivQuestTypes eSpecifyQuestType)
+void CvMinorCivAI::DoObsoleteQuestsForPlayer(PlayerTypes ePlayer, MinorCivQuestTypes eSpecifyQuestType, bool bWar)
 {
 	CvAssertMsg(ePlayer >= 0, "ePlayer is expected to be non-negative (invalid Index)");
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "ePlayer is expected to be within maximum bounds (invalid Index)");
@@ -6478,7 +6491,7 @@ void CvMinorCivAI::DoObsoleteQuestsForPlayer(PlayerTypes ePlayer, MinorCivQuestT
 	{
 		if(bCheckAllQuests || itr_quest->GetType() == eSpecifyQuestType)
 		{
-			if(itr_quest->IsObsolete())
+			if(itr_quest->IsObsolete(bWar))
 			{
 				int iOldFriendshipTimes100 = GetEffectiveFriendshipWithMajorTimes100(ePlayer);
 				bool bCancelled = itr_quest->DoCancelQuest();
@@ -6835,10 +6848,12 @@ bool CvMinorCivAI::IsValidQuestForPlayer(PlayerTypes ePlayer, MinorCivQuestTypes
 	if(!GET_PLAYER(ePlayer).isAlive() || !GetPlayer()->isAlive())
 		return false;
 
+	bool bSpecialGlobal = eQuest == MINOR_CIV_QUEST_HORDE || eQuest == MINOR_CIV_QUEST_REBELLION;
+
 #if defined(MOD_BALANCE_CORE_MINORS) || defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
 	if (MOD_BALANCE_CORE_MINORS || MOD_DIPLOMACY_CITYSTATES_QUESTS) 
 	{
-		if(GetJerk(GET_PLAYER(ePlayer).getTeam()) > 0)
+		if (!bSpecialGlobal && GetJerkTurnsRemaining(GET_PLAYER(ePlayer).getTeam()) > 0)
 		{
 			return false;
 		}
@@ -6851,7 +6866,7 @@ bool CvMinorCivAI::IsValidQuestForPlayer(PlayerTypes ePlayer, MinorCivQuestTypes
 #endif
 
 	// No quests are valid if we are at war
-	if(IsAtWarWithPlayersTeam(ePlayer))
+	if (!bSpecialGlobal && IsAtWarWithPlayersTeam(ePlayer))
 		return false;
 
 	// No quests are valid if we don't know you yet
@@ -7155,7 +7170,7 @@ bool CvMinorCivAI::IsValidQuestForPlayer(PlayerTypes ePlayer, MinorCivQuestTypes
 			return false;
 
 		// Don't ask in always war games
-		if(GC.getGame().isOption(GAMEOPTION_ALWAYS_WAR))
+		if(GC.getGame().isOption(GAMEOPTION_ALWAYS_WAR) || GC.getGame().isOption(GAMEOPTION_NO_CHANGING_WAR_PEACE))
 			return false;
 		
 		PlayerTypes eMostRecentBully = GetMostRecentBullyForQuest();
@@ -7173,10 +7188,6 @@ bool CvMinorCivAI::IsValidQuestForPlayer(PlayerTypes ePlayer, MinorCivQuestTypes
 
 		// This player must have met the most recent bully
 		if(!GET_TEAM(GET_PLAYER(ePlayer).getTeam()).isHasMet(GET_PLAYER(eMostRecentBully).getTeam()))
-			return false;
-
-		// This player must not be at war with the most recent bully (cannot denounce)
-		if(GET_TEAM(GET_PLAYER(ePlayer).getTeam()).isAtWar(GET_PLAYER(eMostRecentBully).getTeam()))
 			return false;
 
 		// Humans are unable to denounce each other
@@ -7784,17 +7795,17 @@ int CvMinorCivAI::GetPersonalityQuestBias(MinorCivQuestTypes eQuest)
 	{
 		if(eTrait == MINOR_CIV_TRAIT_MILITARISTIC)					// Militaristic
 		{
-			iCount *= 150;
+			iCount *= /*150*/ GC.getMINOR_CIV_QUEST_WEIGHT_MULTIPLIER_MILITARISTIC_KILL_CITY_STATE();
 			iCount /= 100;
 		}
 		else if(eTrait != MINOR_CIV_TRAIT_RELIGIOUS)
 		{
-			iCount *= 33;
+			iCount *= /*33*/ GC.getMINOR_CIV_QUEST_WEIGHT_MULTIPLIER_NEUTRAL_KILL_CITY_STATE();
 			iCount /= 100;
 		}
 		if(ePersonality == MINOR_CIV_PERSONALITY_HOSTILE)		// Hostile
 		{
-			iCount *= 150;
+			iCount *= /*150*/ GC.getMINOR_CIV_QUEST_WEIGHT_MULTIPLIER_HOSTILE_KILL_CITY_STATE();
 			iCount /= 100;
 		}
 		else if(ePersonality == MINOR_CIV_PERSONALITY_IRRATIONAL)		// Neutral
@@ -7804,7 +7815,7 @@ int CvMinorCivAI::GetPersonalityQuestBias(MinorCivQuestTypes eQuest)
 		}
 		else if(ePersonality != MINOR_CIV_PERSONALITY_FRIENDLY)		// Neutral
 		{
-			iCount *= 33;
+			iCount *= /*33*/ GC.getMINOR_CIV_QUEST_WEIGHT_MULTIPLIER_NEUTRAL_KILL_CITY_STATE();
 			iCount /= 100;
 		}
 	}
@@ -7952,17 +7963,17 @@ int CvMinorCivAI::GetPersonalityQuestBias(MinorCivQuestTypes eQuest)
 	{
 		if(eTrait == MINOR_CIV_TRAIT_MILITARISTIC) //How dare they bully us!
 		{
-			iCount *= GC.getMINOR_CIV_QUEST_WAR_MILITARISTIC_VALUE(); //xml
+			iCount *= /*800*/ GC.getMINOR_CIV_QUEST_WAR_MILITARISTIC_VALUE();
 			iCount /= 100;
 		}
 		else if(ePersonality == MINOR_CIV_PERSONALITY_HOSTILE) //Arrrgh!
 		{
-			iCount *= GC.getMINOR_CIV_QUEST_WAR_HOSTILE_VALUE(); //xml
+			iCount *= /*600*/ GC.getMINOR_CIV_QUEST_WAR_HOSTILE_VALUE();
 			iCount /= 100;
 		}
 		else if(eTrait == MINOR_CIV_TRAIT_CULTURED) //Help!!
 		{
-			iCount *= GC.getMINOR_CIV_QUEST_WAR_CULTURED_VALUE(); //xml
+			iCount *= /*500*/ GC.getMINOR_CIV_QUEST_WAR_CULTURED_VALUE();
 			iCount /= 100;
 		}
 		else
@@ -7976,7 +7987,7 @@ int CvMinorCivAI::GetPersonalityQuestBias(MinorCivQuestTypes eQuest)
 	{
 		if(eTrait == MINOR_CIV_TRAIT_CULTURED)						// Cultured
 		{
-			iCount *= GC.getMINOR_CIV_QUEST_NATIONAL_WONDER_CULTURED_VALUE();
+			iCount *= /*300*/ GC.getMINOR_CIV_QUEST_NATIONAL_WONDER_CULTURED_VALUE();
 			iCount /= 100;
 		}
 		else
@@ -7990,12 +8001,12 @@ int CvMinorCivAI::GetPersonalityQuestBias(MinorCivQuestTypes eQuest)
 	{
 		if(eTrait == MINOR_CIV_TRAIT_MARITIME)						// Maritime
 		{
-			iCount *= GC.getMINOR_CIV_QUEST_FIND_CITYSTATE_MARITIME_VALUE();
+			iCount *= /*115*/ GC.getMINOR_CIV_QUEST_FIND_CITYSTATE_MARITIME_VALUE();
 			iCount /= 100;
 		}
 		else if(eTrait == MINOR_CIV_TRAIT_MERCANTILE)
 		{
-			iCount *= GC.getMINOR_CIV_QUEST_FIND_CITYSTATE_MERCANTILE_VALUE();
+			iCount *= /*120*/ GC.getMINOR_CIV_QUEST_FIND_CITYSTATE_MERCANTILE_VALUE();
 			iCount /= 100;
 		}
 	}
@@ -8003,12 +8014,12 @@ int CvMinorCivAI::GetPersonalityQuestBias(MinorCivQuestTypes eQuest)
 	{
 		if(eTrait == MINOR_CIV_TRAIT_MILITARISTIC) //Recover the spoils of ancient war!
 		{
-			iCount *= GC.getMINOR_CIV_QUEST_ARCHAEOLOGY_MILITARISTIC_VALUE();
+			iCount *= /*250*/ GC.getMINOR_CIV_QUEST_ARCHAEOLOGY_MILITARISTIC_VALUE();
 			iCount /= 100;
 		}
 		else if(eTrait == MINOR_CIV_TRAIT_RELIGIOUS) //Religious relics, you say?
 		{
-			iCount *= GC.getMINOR_CIV_QUEST_ARCHAEOLOGY_RELIGIOUS_VALUE();
+			iCount *= /*300*/ GC.getMINOR_CIV_QUEST_ARCHAEOLOGY_RELIGIOUS_VALUE();
 			iCount /= 100;
 		}
 		else
@@ -8021,7 +8032,7 @@ int CvMinorCivAI::GetPersonalityQuestBias(MinorCivQuestTypes eQuest)
 	{
 		if(eTrait == MINOR_CIV_TRAIT_MARITIME)	//We are the masters of the sea!					
 		{
-			iCount *= GC.getMINOR_CIV_QUEST_CIRCUMNAVIGATION_MARITIME_VALUE();
+			iCount *= /*250*/ GC.getMINOR_CIV_QUEST_CIRCUMNAVIGATION_MARITIME_VALUE();
 			iCount /= 100;
 		}
 	}
@@ -8030,22 +8041,22 @@ int CvMinorCivAI::GetPersonalityQuestBias(MinorCivQuestTypes eQuest)
 	{
 		if(eTrait == MINOR_CIV_TRAIT_RELIGIOUS)					// Let us all be peaceful!
 		{
-			iCount *= GC.getMINOR_CIV_QUEST_WEIGHT_MULTIPLIER_RELIGIOUS_LIBERATION();
+			iCount *= /*500*/ GC.getMINOR_CIV_QUEST_WEIGHT_MULTIPLIER_RELIGIOUS_LIBERATION();
 			iCount /= 100;
 		}
 		if(ePersonality == MINOR_CIV_PERSONALITY_FRIENDLY)		// Our friends were in that city!
 		{
-			iCount *= GC.getMINOR_CIV_QUEST_WEIGHT_MULTIPLIER_FRIENDLY_LIBERATION();
+			iCount *= /*400*/ GC.getMINOR_CIV_QUEST_WEIGHT_MULTIPLIER_FRIENDLY_LIBERATION();
 			iCount /= 100;
 		}
 		if(eTrait == MINOR_CIV_TRAIT_MILITARISTIC)		// War beckons - will you answer?
 		{
-			iCount *= GC.getMINOR_CIV_QUEST_WEIGHT_MULTIPLIER_MILITARISTIC_LIBERATION();
+			iCount *= /*600*/ GC.getMINOR_CIV_QUEST_WEIGHT_MULTIPLIER_MILITARISTIC_LIBERATION();
 			iCount /= 100;
 		}
 		else
 		{
-			iCount += 50;
+			iCount *= 50;
 			iCount /= 100;
 		}
 	}
@@ -8083,7 +8094,7 @@ int CvMinorCivAI::GetPersonalityQuestBias(MinorCivQuestTypes eQuest)
 	{
 		if(eTrait == MINOR_CIV_TRAIT_RELIGIOUS)
 		{
-			iCount += 50; //antonjs: todo: XML
+			iCount *= 50; //antonjs: todo: XML
 			iCount /= 100;
 		}
 	}
@@ -8116,7 +8127,7 @@ int CvMinorCivAI::GetPersonalityQuestBias(MinorCivQuestTypes eQuest)
 	{
 		if(ePersonality == MINOR_CIV_PERSONALITY_HOSTILE) //Leave us alone!
 		{
-			iCount += GC.getMINOR_CIV_QUEST_INFLUENCE_HOSTILE_VALUE();
+			iCount *= /*50*/ GC.getMINOR_CIV_QUEST_INFLUENCE_HOSTILE_VALUE();
 			iCount /= 100;
 		}
 		else
@@ -8130,7 +8141,7 @@ int CvMinorCivAI::GetPersonalityQuestBias(MinorCivQuestTypes eQuest)
 	{
 		if(eTrait == MINOR_CIV_PERSONALITY_FRIENDLY)
 		{
-			iCount *= GC.getMINOR_CIV_QUEST_TOURISM_FRIENDLY_VALUE();
+			iCount *= /*130*/ GC.getMINOR_CIV_QUEST_TOURISM_FRIENDLY_VALUE();
 			iCount /= 100;
 		}
 	}
@@ -8359,8 +8370,7 @@ void CvMinorCivAI::EndAllActiveQuestsForPlayer(PlayerTypes ePlayer)
 	if(ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return;
 
 	//antonjs: todo: instead, call for cancel quest (with flag for no notif)
-	if(GetNumActiveQuestsForPlayer(ePlayer) > 0)
-		m_QuestsGiven[ePlayer].clear();
+	DoObsoleteQuestsForPlayer(ePlayer);
 }
 #if defined(MOD_BALANCE_CORE)
 void CvMinorCivAI::DeleteQuest(PlayerTypes ePlayer, MinorCivQuestTypes eType)
@@ -8808,7 +8818,7 @@ CvPlot* CvMinorCivAI::GetBestNearbyCampToKill()
 		return NULL;
 	}
 
-	CvWeightedVector<int, 64, true> viPlotIndexes; // 64 camps in 12 hex radius should be enough
+	CvWeightedVector<int> viPlotIndexes; // 64 camps in 12 hex radius should be enough
 
 	int iRange = /*12*/ GC.getMINOR_CIV_QUEST_KILL_CAMP_RANGE();
 
@@ -8875,7 +8885,7 @@ CvPlot* CvMinorCivAI::GetBestNearbyDig()
 		return NULL;
 	}
 
-	CvWeightedVector<int, 64, true> viPlotIndexes; // 64 camps in 12 hex radius should be enough
+	CvWeightedVector<int> viPlotIndexes; // 64 camps in 12 hex radius should be enough
 
 	int iRange = 12;
 
@@ -8976,7 +8986,7 @@ PlayerTypes CvMinorCivAI::SpawnHorde()
 		iTopTier = 1;
 	}
 
-	CvWeightedVector<PlayerTypes, MAX_CIV_PLAYERS, true> veMinorRankings;
+	CvWeightedVector<PlayerTypes> veMinorRankings;
 	
 	for (int iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
 	{
@@ -9156,19 +9166,6 @@ PlayerTypes CvMinorCivAI::SpawnRebels()
 	return NO_PLAYER;
 }
 
-void CvMinorCivAI::SetSacked(bool bValue)
-{
-	if(m_bIsSacked != bValue)
-	{
-		m_bIsSacked = bValue;
-	}
-}
-
-bool CvMinorCivAI::IsSacked()
-{
-	return m_bIsSacked;
-}
-
 bool CvMinorCivAI::IsRebellion()
 {
 	return m_bIsRebellion;
@@ -9176,10 +9173,7 @@ bool CvMinorCivAI::IsRebellion()
 
 void CvMinorCivAI::SetRebellion(bool bValue)
 {
-	if(m_bIsRebellion != bValue)
-	{
-		m_bIsRebellion = bValue;
-	}
+	m_bIsRebellion = bValue;
 }
 
 void CvMinorCivAI::ChangeTurnsSinceRebellion(int iChange)
@@ -9189,13 +9183,12 @@ void CvMinorCivAI::ChangeTurnsSinceRebellion(int iChange)
 
 int CvMinorCivAI::GetTurnsSinceRebellion() const
 {
-	return m_iIsRebellionCountdown;
+	return m_iTurnsSinceRebellion;
 }
 
 void CvMinorCivAI::SetTurnsSinceRebellion(int iValue)
 {
-	if(GetTurnsSinceRebellion() != iValue)
-		m_iIsRebellionCountdown = iValue;
+	m_iTurnsSinceRebellion = iValue;
 }
 
 void CvMinorCivAI::DoRebellion()
@@ -9319,7 +9312,7 @@ ResourceTypes CvMinorCivAI::GetNearbyResourceForQuest(PlayerTypes ePlayer)
 	{
 		CvArea* pPlayerArea = GC.getMap().getArea(GET_PLAYER(ePlayer).getStartingPlot()->getArea());
 
-		FStaticVector<ResourceTypes, 64, true, c_eCiv5GameplayDLL, 0> veValidResources; // 64 resources should be way more than enough
+		vector<ResourceTypes> veValidResources; // 64 resources should be way more than enough
 		TechTypes eRevealTech;
 		TechTypes eConnectTech;
 
@@ -9401,7 +9394,7 @@ BuildingTypes CvMinorCivAI::GetBestWonderForQuest(PlayerTypes ePlayer)
 {
 	BuildingTypes eBestWonder;
 
-	FStaticVector<BuildingTypes, 50, true, c_eCiv5GameplayDLL, 0> veValidBuildings; // 50 wonders should be overkill
+	vector<BuildingTypes> veValidBuildings; // 50 wonders should be overkill
 
 	int iWorldPlayerLoop;
 	PlayerTypes eWorldPlayer;
@@ -9486,7 +9479,7 @@ BuildingTypes CvMinorCivAI::GetBestNationalWonderForQuest(PlayerTypes ePlayer)
 {
 	BuildingTypes eBestNationalWonder;
 
-	FStaticVector<BuildingTypes, 15, true, c_eCiv5GameplayDLL, 0> veValidBuildings; // 50 wonders should be overkill
+	vector<BuildingTypes> veValidBuildings; // 50 wonders should be overkill
 
 	int iWorldPlayerLoop;
 	PlayerTypes eWorldPlayer;
@@ -9515,10 +9508,10 @@ BuildingTypes CvMinorCivAI::GetBestNationalWonderForQuest(PlayerTypes ePlayer)
 		}
 #endif
 #if defined(MOD_BALANCE_CORE)
-		if(GC.getBuildingClassInfo((BuildingClassTypes)pkBuildingInfo->GetBuildingClassType())->getMaxPlayerInstances() > 1)
+		if(GC.getBuildingClassInfo(pkBuildingInfo->GetBuildingClassType())->getMaxPlayerInstances() > 1)
 			continue;
 
-		if(GC.getBuildingClassInfo((BuildingClassTypes)pkBuildingInfo->GetBuildingClassType())->getMaxTeamInstances() > 1)
+		if(GC.getBuildingClassInfo(pkBuildingInfo->GetBuildingClassType())->getMaxTeamInstances() > 1)
 			continue;
 
 		// Is a Corporation building?
@@ -9583,7 +9576,7 @@ PlayerTypes CvMinorCivAI::GetBestCityStateLiberate(PlayerTypes eForPlayer)
 
 	PlayerTypes eBestCityStateLiberate = NO_PLAYER;
 
-	FStaticVector<PlayerTypes, MAX_CIV_PLAYERS, true, c_eCiv5GameplayDLL, 0> veValidTargets;
+	vector<PlayerTypes> veValidTargets;
 
 	// First, loop through the Minors in the game to what the closest proximity is to any of the players
 	int iTargetLoop;
@@ -9664,7 +9657,7 @@ UnitTypes CvMinorCivAI::GetBestGreatPersonForQuest(PlayerTypes ePlayer)
 
 	SpecialUnitTypes eSpecialUnitGreatPerson = (SpecialUnitTypes) GC.getInfoTypeForString("SPECIALUNIT_PEOPLE");
 
-	FStaticVector<UnitTypes, 8, true, c_eCiv5GameplayDLL, 0> veValidUnits;
+	vector<UnitTypes> veValidUnits;
 
 	// Loop through all Units and see if they're useful
 	for(int iUnitLoop = 0; iUnitLoop < GC.getNumUnitInfos(); iUnitLoop++)
@@ -9688,7 +9681,7 @@ UnitTypes CvMinorCivAI::GetBestGreatPersonForQuest(PlayerTypes ePlayer)
 		}
 
 		// Must be a Great Person for this player's civ
-		if(!GET_PLAYER(ePlayer).canTrain(eUnit, /*bContinue*/ false, /*bTestVisible*/ false, /*bIgnoreCost*/ true))
+		if(!GET_PLAYER(ePlayer).canTrainUnit(eUnit, /*bContinue*/ false, /*bTestVisible*/ false, /*bIgnoreCost*/ true))
 		{
 			continue;
 		}
@@ -9828,7 +9821,7 @@ PlayerTypes CvMinorCivAI::GetBestCityStateTarget(PlayerTypes eForPlayer, bool bN
 		return NO_PLAYER;
 	}
 
-	CvWeightedVector<PlayerTypes, MAX_CIV_PLAYERS, true> veValidTargets;
+	CvWeightedVector<PlayerTypes> veValidTargets;
 
 	// Now loop through and come up with a list of valid players based on the proximity we found out earlier
 	for(iTargetLoop = MAX_MAJOR_CIVS; iTargetLoop < MAX_CIV_PLAYERS; iTargetLoop++)
@@ -10007,7 +10000,7 @@ BuildingTypes CvMinorCivAI::GetBestBuildingForQuest(PlayerTypes ePlayer)
 {
 	BuildingTypes eBestBuilding;
 
-	FStaticVector<BuildingTypes, 128, true, c_eCiv5GameplayDLL, 0> veValidBuildings;
+	vector<BuildingTypes> veValidBuildings;
 
 	// Have nowhere to build.
 	if(GET_PLAYER(ePlayer).getNumCities() <= 3 || GET_PLAYER(ePlayer).GetPlayerTraits()->IsNoAnnexing())
@@ -10028,7 +10021,7 @@ BuildingTypes CvMinorCivAI::GetBestBuildingForQuest(PlayerTypes ePlayer)
 		if (pkBuildingInfo->IsDummy())
 			continue;
 
-		CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo((BuildingClassTypes)pkBuildingInfo->GetBuildingClassType());
+		CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo(pkBuildingInfo->GetBuildingClassType());
 
 		if(pkBuildingClassInfo == NULL)
 			continue;
@@ -10186,7 +10179,7 @@ CvCity* CvMinorCivAI::GetBestSpyTarget(PlayerTypes ePlayer, bool bMinor)
 	// First, loop through the Majors in the game to what the closest proximity is to any of the players
 	PlayerTypes eTarget;
 
-	FStaticVector<PlayerTypes, MAX_CIV_PLAYERS, true, c_eCiv5GameplayDLL, 0> veValidTargets;
+	vector<PlayerTypes> veValidTargets;
 
 	// Now loop through and come up with a list of valid players based on the proximity we found out earlier
 	for(uint iTargetLoop = 0; iTargetLoop < MAX_CIV_PLAYERS; iTargetLoop++)
@@ -10260,7 +10253,7 @@ CvCity* CvMinorCivAI::GetBestSpyTarget(PlayerTypes ePlayer, bool bMinor)
 				int iValue = pLoopCity->getPopulation();
 				iValue += pLoopCity->getBaseYieldRate(YIELD_GOLD);
 				iValue += pLoopCity->getBaseYieldRate(YIELD_SCIENCE);
-				iValue *= pLoopCity->GetRank();
+				iValue *= pLoopCity->GetEspionageRanking();
 
 				if(iValue > iBestValue)
 				{
@@ -10510,7 +10503,7 @@ PlayerTypes CvMinorCivAI::GetBestPlayerToFind(PlayerTypes ePlayer)
 	TeamTypes eTeam = GET_PLAYER(ePlayer).getTeam();
 	CvTeam* pTeam = &GET_TEAM(eTeam);
 
-	FStaticVector<PlayerTypes, MAX_CIV_PLAYERS, true, c_eCiv5GameplayDLL, 0> veValidTargets;
+	vector<PlayerTypes> veValidTargets;
 
 	// First, loop through majors and see if the player has met them
 	PlayerTypes eTargetMajor;
@@ -10630,7 +10623,7 @@ PlayerTypes CvMinorCivAI::GetBestCityStateMeetTarget(PlayerTypes eForPlayer)
 		return NO_PLAYER;
 	}
 
-	FStaticVector<PlayerTypes, MAX_CIV_PLAYERS, true, c_eCiv5GameplayDLL, 0> veValidTargets;
+	vector<PlayerTypes> veValidTargets;
 
 	// Now loop through and come up with a list of valid players based on the proximity we found out earlier
 	for(iTargetLoop = MAX_MAJOR_CIVS; iTargetLoop < MAX_CIV_PLAYERS; iTargetLoop++)
@@ -11098,7 +11091,7 @@ int CvMinorCivAI::GetFriendshipAnchorWithMajor(PlayerTypes eMajor)
 #if defined(MOD_BALANCE_CORE_MINORS) || defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
 	if (MOD_BALANCE_CORE_MINORS || MOD_DIPLOMACY_CITYSTATES_QUESTS) 
 	{
-		if(GetJerk(pMajor->getTeam()) > 0)
+		if (GetJerkTurnsRemaining(pMajor->getTeam()) > 0)
 		{
 			iAnchor += GC.getMINOR_FRIENDSHIP_ANCHOR_MOD_WARY_OF();
 		}
@@ -11394,11 +11387,8 @@ void CvMinorCivAI::SetAlly(PlayerTypes eNewAlly)
 	}
 
 	DoTestEndWarsVSMinors(eOldAlly, eNewAlly);
-#if defined(MOD_GLOBAL_CS_NO_ALLIED_SKIRMISHES)
-	if (MOD_GLOBAL_CS_NO_ALLIED_SKIRMISHES) {
-		DoTestEndSkirmishes(eNewAlly);
-	}
-#endif
+	DoTestEndSkirmishes(eNewAlly);
+
 #if defined(MOD_BALANCE_CORE)
 	//If we get a yield bonus in all cities because of CS alliance, this is a good place to change it.
 	if(MOD_BALANCE_CORE && eNewAlly != NO_PLAYER)
@@ -11479,11 +11469,7 @@ int CvMinorCivAI::GetAlliedTurns() const
 /// Is ePlayer Allies with this minor?
 bool CvMinorCivAI::IsAllies(PlayerTypes ePlayer) const
 {
-#if defined(MOD_BALANCE_CORE)
-	return ((m_eAlly == ePlayer) || (MOD_DIPLOMACY_CITYSTATES && (GetPermanentAlly() == ePlayer) && !IsNoAlly()));
-#else
-	return m_eAlly == ePlayer;
-#endif
+	return (m_eAlly == ePlayer || (MOD_DIPLOMACY_CITYSTATES && GetPermanentAlly() == ePlayer && !IsNoAlly()));
 }
 
 /// Is ePlayer Friends with this minor?
@@ -11541,6 +11527,9 @@ void CvMinorCivAI::SetFriends(PlayerTypes ePlayer, bool bValue)
 /// Are we about to lose our status? (used in Diplo AI)
 bool CvMinorCivAI::IsCloseToNotBeingAllies(PlayerTypes ePlayer)
 {
+	if (GetPermanentAlly() == ePlayer)
+		return false;
+
 #if defined(MOD_CITY_STATE_SCALE)
 	int iBuffer = GetEffectiveFriendshipWithMajor(ePlayer) - GetAlliesThreshold(ePlayer);
 #else
@@ -11977,13 +11966,8 @@ void CvMinorCivAI::DoSetBonus(PlayerTypes ePlayer, bool bAdd, bool bFriends, boo
 			iOtherCitiesFoodTimes100 = -iOtherCitiesFoodTimes100;
 		}
 
-#if defined(MOD_BUGFIX_MINOR)
 		GET_PLAYER(ePlayer).ChangeCapitalYieldChangeTimes100(YIELD_FOOD, iCapitalFoodTimes100);
 		GET_PLAYER(ePlayer).ChangeCityYieldChangeTimes100(YIELD_FOOD, iOtherCitiesFoodTimes100);
-#else
-		GET_PLAYER(ePlayer).ChangeCapitalYieldChange(YIELD_FOOD, iCapitalFoodTimes100);
-		GET_PLAYER(ePlayer).ChangeCityYieldChange(YIELD_FOOD, iOtherCitiesFoodTimes100);
-#endif
 	}
 	// Mercantile
 	else if(eTrait == MINOR_CIV_TRAIT_MERCANTILE)
@@ -12157,7 +12141,7 @@ void CvMinorCivAI::DoSetBonus(PlayerTypes ePlayer, bool bAdd, bool bFriends, boo
 /// Major Civs intruding in our lands?
 void CvMinorCivAI::DoIntrusion()
 {
-	int iNewBarbCount = GetNumThreateningBarbarians();
+	int iNewBarbCount = GetNumThreateningBarbarians() + GetNumThreateningMajors();
 	
 	//allow major players in our territory for one turn after the barbarians have been vanquished
 	if (iNewBarbCount > 0)
@@ -12177,6 +12161,7 @@ void CvMinorCivAI::DoIntrusion()
 		if(MOD_DIPLOMACY_CITYSTATES_QUESTS && (GetPlayer()->GetMinorCivAI()->IsActiveQuestForPlayer(eMajor, MINOR_CIV_QUEST_HORDE) || GetPlayer()->GetMinorCivAI()->IsActiveQuestForPlayer(eMajor, MINOR_CIV_QUEST_REBELLION)))
 		{
 			m_bAllowMajorsToIntrude = true;
+			break;
 		}
 #endif
 	}
@@ -12245,22 +12230,18 @@ void CvMinorCivAI::DoIntrusion()
 }
 
 #if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
-//Sack a city-state
-void CvMinorCivAI::DoSack()
+
+//barbarians may take over the city once it's their turn
+void CvMinorCivAI::SetReadyForTakeOver()
 {
-	CvPlot* pPlot = GetPlayer()->getCapitalCity()->plot();
-	if(pPlot != NULL)
-	{
-		CvGame& theGame = GC.getGame();
-		UnitTypes eUnit = theGame.GetRandomSpawnUnitType(BARBARIAN_PLAYER, /*bIncludeUUs*/ true, /*bIncludeRanged*/ true);
-		if(eUnit != NO_UNIT)
-		{
-			// Init unit
-			GET_PLAYER(BARBARIAN_PLAYER).initUnit(eUnit, pPlot->getX(), pPlot->getY());
-		}
-		SetSacked(false);
-	}
+	m_iTakeoverTurn = GC.getGame().getGameTurn();
 }
+
+bool CvMinorCivAI::IsReadyForTakeOver() const
+{
+	return m_iTakeoverTurn == GC.getGame().getGameTurn();
+}
+
 //Do Defection
 void CvMinorCivAI::DoDefection()
 {
@@ -12354,12 +12335,10 @@ bool CvMinorCivAI::IsPlayerHasOpenBordersAutomatically(PlayerTypes ePlayer)
 /// Major liberates a Minor by recapturing its City!
 void CvMinorCivAI::DoLiberationByMajor(PlayerTypes eLiberator, TeamTypes eConquerorTeam)
 {
-#if defined(MOD_BUGFIX_MINOR)
-	// This is a bug fix as the Lua API can be used to by-pass the bought-out tests and liberate the minor regardless
-
 	// Clear the "bought out by" indicator
 	SetMajorBoughtOutBy(NO_PLAYER);
-#endif
+
+	SetIgnoreJerk(GET_PLAYER(eLiberator).getTeam(), true);
 
 	//set this to a value > 0 so that it takes one turn until other players may not enter our territory
 	//prevents immediate teleport of AI units in the neighborhood
@@ -12458,7 +12437,7 @@ void CvMinorCivAI::DoLiberationByMajor(PlayerTypes eLiberator, TeamTypes eConque
 	strSummary << GetPlayer()->getNameKey();
 	AddNotification(strMessage.toUTF8(), strSummary.toUTF8(), eLiberator);
 }
-#if defined(MOD_BALANCE_CORE)
+
 void CvMinorCivAI::SetTurnLiberated(int iValue)
 {
 	if(iValue != GetTurnLiberated())
@@ -12470,183 +12449,166 @@ int CvMinorCivAI::GetTurnLiberated()
 {
 	return m_iTurnLiberated;
 }
+
 void CvMinorCivAI::TestChangeProtectionFromMajor(PlayerTypes eMajor)
 {
-	CvAssertMsg(eMajor >= 0, "eMajor is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eMajor < MAX_MAJOR_CIVS, "eMajor is expected to be within maximum bounds (invalid Index)");
-	if(eMajor < 0 || eMajor >= MAX_MAJOR_CIVS) return;
+	if (eMajor < 0 || eMajor >= MAX_MAJOR_CIVS) return;
 
-	if(!MOD_BALANCE_CORE_MINOR_PTP_MINIMUM_VALUE)
+	if (!MOD_BALANCE_CORE_MINOR_PTP_MINIMUM_VALUE)
 		return;
 
-	bool bProtect = IsProtectedByMajor(eMajor);
+	if (!IsProtectedByMajor(eMajor))
+		return;
+
+	if (CanMajorProtect(eMajor))
+	{
+		if (GetNumTurnsSincePtPWarning(eMajor) > 0)
+		{
+			SetNumTurnsSincePtPWarning(eMajor, 0);
+			Localization::String strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING_TIMER_STOPPED");
+			strMessage << GetPlayer()->getNameKey();
+			Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING_TIMER_STOPPED_SHORT");
+			strSummary << GetPlayer()->getNameKey();
+			AddNotification(strMessage.toUTF8(), strSummary.toUTF8(), eMajor);
+		}
+		return;
+	}
+
+	// If they've fallen below 0 Influence, end protection immediately.
+	if (GetEffectiveFriendshipWithMajor(eMajor) < /*0*/ GC.getFRIENDSHIP_THRESHOLD_CAN_PLEDGE_TO_PROTECT())
+	{
+		DoChangeProtectionFromMajor(eMajor, false, true);
+		SetNumTurnsSincePtPWarning(eMajor, 0);
+
+		CvCity* pCity = m_pPlayer->getCapitalCity();
+		if (pCity != NULL)
+		{
+			pCity->updateStrengthValue();
+		}
+
+		Localization::String strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_STATE_PTP_CANCELLED_INFLUENCE");
+		strMessage << GetPlayer()->getNameKey();
+		Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_STATE_PTP_CANCELLED_SHORT_INFLUENCE");
+		strSummary << GetPlayer()->getNameKey();
+		AddNotification(strMessage.toUTF8(), strSummary.toUTF8(), eMajor);
+
+		return;
+	}
+
+	int iMaxWarningTurns = 12;
+	iMaxWarningTurns *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+	iMaxWarningTurns /= 100;
 
 	bool bBadMilitary = false;
-	if(bProtect)
+	int iHighestStrength = 0;
+
+	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
-		int iWarningMax = 12;
-		iWarningMax *= GC.getGame().getGameSpeedInfo().getTrainPercent();
-		iWarningMax /= 100;
+		PlayerTypes ePlayer = (PlayerTypes) iPlayerLoop;
 
-		CvWeightedVector<PlayerTypes, MAX_MAJOR_CIVS, true> veMilitaryRankings;
-		PlayerTypes eMajorLoop;
-		for(int iMajorLoop = 0; iMajorLoop < MAX_MAJOR_CIVS; iMajorLoop++)
+		if (GET_PLAYER(ePlayer).isAlive() && GET_PLAYER(ePlayer).isMajorCiv())
 		{
-			eMajorLoop = (PlayerTypes) iMajorLoop;
-			if(GET_PLAYER(eMajorLoop).isAlive() && !GET_PLAYER(eMajorLoop).isMinorCiv())
+			int iStrength = GET_PLAYER(ePlayer).GetMilitaryMight();
+
+			if (iStrength > iHighestStrength)
 			{
-				veMilitaryRankings.push_back(eMajorLoop, GET_PLAYER(eMajorLoop).GetMilitaryMight(true)); // Don't recalculate within a turn, can cause inconsistency
+				iHighestStrength = iStrength;
 			}
 		}
-		CvAssertMsg(veMilitaryRankings.size() > 0, "WeightedVector of military might rankings not expected to be size 0");
-		veMilitaryRankings.SortItems();
-		for(int iRanking = 0; iRanking < veMilitaryRankings.size(); iRanking++)
+	}
+
+	int iPercent = GET_PLAYER(eMajor).GetMilitaryMight() * 100 / max(iHighestStrength, 1);
+	int iMinimumPercent = /*60*/ GC.getMOD_BALANCE_CORE_MINIMUM_RANKING_PTP();
+
+	if (iPercent < iMinimumPercent)
+	{
+		bBadMilitary = true;
+	}
+
+	if (GetNumTurnsSincePtPWarning(eMajor) > iMaxWarningTurns)
+	{
+		DoChangeProtectionFromMajor(eMajor, false, true);
+		SetNumTurnsSincePtPWarning(eMajor, 0);
+
+		CvCity* pCity = m_pPlayer->getCapitalCity();
+		if (pCity != NULL)
 		{
-			if(veMilitaryRankings.GetElement(iRanking) == eMajor)
+			pCity->updateStrengthValue();
+		}
+
+		if (bBadMilitary)
+		{
+			Localization::String strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_STATE_PTP_CANCELLED");
+			strMessage << GetPlayer()->getNameKey();
+			Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_STATE_PTP_CANCELLED_SHORT");
+			strSummary << GetPlayer()->getNameKey();
+			AddNotification(strMessage.toUTF8(), strSummary.toUTF8(), eMajor);
+		}
+		else
+		{
+			Localization::String strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_STATE_PTP_CANCELLED_OPTIONAL");
+			strMessage << GetPlayer()->getNameKey();
+			Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_STATE_PTP_CANCELLED_SHORT_OPTIONAL");
+			strSummary << GetPlayer()->getNameKey();
+			AddNotification(strMessage.toUTF8(), strSummary.toUTF8(), eMajor);
+		}
+	}
+	else if (GetNumTurnsSincePtPWarning(eMajor) <= 0)
+	{
+		if (bBadMilitary)
+		{
+			Localization::String strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING");
+			strMessage << GetPlayer()->getNameKey();
+			strMessage << (iMaxWarningTurns - GetNumTurnsSincePtPWarning(eMajor));
+			strMessage << (iMinimumPercent - iPercent);
+			Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING_SHORT");
+			strSummary << GetPlayer()->getNameKey();
+			AddNotification(strMessage.toUTF8(), strSummary.toUTF8(), eMajor);
+		}
+		else
+		{
+			Localization::String strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING_OPTIONAL");
+			strMessage << GetPlayer()->getNameKey();
+			strMessage << (iMaxWarningTurns - GetNumTurnsSincePtPWarning(eMajor));
+			Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING_SHORT_OPTIONAL");
+			strSummary << GetPlayer()->getNameKey();
+			AddNotification(strMessage.toUTF8(), strSummary.toUTF8(), eMajor);
+		}
+
+		SetNumTurnsSincePtPWarning(eMajor, 1);
+	}
+	else if (GetNumTurnsSincePtPWarning(eMajor) > 0)
+	{
+		if (GetNumTurnsSincePtPWarning(eMajor) % 4 == 0)
+		{
+			if (bBadMilitary)
 			{
-				int iRankRatio = ((veMilitaryRankings.size() - iRanking) * 100) / veMilitaryRankings.size();
-				bBadMilitary = (iRankRatio < 60);
-				if (bBadMilitary && GetNumTurnsSincePtPWarning(eMajor) > iWarningMax)
-				{
-					DoChangeProtectionFromMajor(eMajor, false, true);
-
-					CvCity* pCity = m_pPlayer->getCapitalCity();
-					if(pCity != NULL)
-					{
-						pCity->updateStrengthValue();
-					}
-					Localization::String strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_STATE_PTP_CANCELLED");
-					strMessage << GetPlayer()->getNameKey();
-					Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_STATE_PTP_CANCELLED_SHORT");
-					strSummary << GetPlayer()->getNameKey();
-
-					AddNotification(strMessage.toUTF8(), strSummary.toUTF8(), eMajor);
-					break;
-				}
-				else if (bBadMilitary && GetNumTurnsSincePtPWarning(eMajor) <= 0)
-				{
-					Localization::String strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING");
-					strMessage << GetPlayer()->getNameKey();
-					strMessage << (iWarningMax - GetNumTurnsSincePtPWarning(eMajor));
-					strMessage << (60 - iRankRatio);
-					Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING_SHORT");
-					strSummary << GetPlayer()->getNameKey();
-					AddNotification(strMessage.toUTF8(), strSummary.toUTF8(), eMajor);
-					ChangeNumTurnsSincePtPWarning(eMajor, 1);
-					break;
-				}
-				else if (bBadMilitary && GetNumTurnsSincePtPWarning(eMajor) > 0)
-				{
-					if (GetNumTurnsSincePtPWarning(eMajor) % 4 == 0)
-					{
-						Localization::String strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING_TIMER");
-						strMessage << GetPlayer()->getNameKey(); 
-						strMessage << (iWarningMax - GetNumTurnsSincePtPWarning(eMajor));
-						strMessage << (60 - iRankRatio);
-						Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING_TIMER_SHORT");
-						strSummary << GetPlayer()->getNameKey();
-						AddNotification(strMessage.toUTF8(), strSummary.toUTF8(), eMajor);
-					}
-					ChangeNumTurnsSincePtPWarning(eMajor, 1);
-					break;
-				}
-				else
-				{
-					if(GetNumTurnsSincePtPWarning(eMajor) > 0)
-					{
-						SetNumTurnsSincePtPWarning(eMajor, 0);
-						if ((GetTurnLastPledgedProtectionByMajor(eMajor) > GC.getGame().getGameTurn() - 1))
-						{
-							Localization::String strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING_TIMER_STOPPED");
-							strMessage << GetPlayer()->getNameKey();
-							Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING_TIMER_STOPPED_SHORT");
-							strSummary << GetPlayer()->getNameKey();
-							AddNotification(strMessage.toUTF8(), strSummary.toUTF8(), eMajor);
-						}
-					}
-					break;
-				}
+				Localization::String strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING_TIMER");
+				strMessage << GetPlayer()->getNameKey(); 
+				strMessage << (iMaxWarningTurns - GetNumTurnsSincePtPWarning(eMajor));
+				strMessage << (iMinimumPercent - iPercent);
+				Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING_TIMER_SHORT");
+				strSummary << GetPlayer()->getNameKey();
+				AddNotification(strMessage.toUTF8(), strSummary.toUTF8(), eMajor);
+			}
+			else
+			{
+				Localization::String strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING_TIMER_OPTIONAL");
+				strMessage << GetPlayer()->getNameKey();
+				strMessage << (iMaxWarningTurns - GetNumTurnsSincePtPWarning(eMajor));
+				Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING_TIMER_SHORT_OPTIONAL");
+				strSummary << GetPlayer()->getNameKey();
+				AddNotification(strMessage.toUTF8(), strSummary.toUTF8(), eMajor);
 			}
 		}
-#if defined(MOD_BALANCE_CORE)
-		if (!bBadMilitary && MOD_BALANCE_CORE_MINOR_PTP_MINIMUM_VALUE)
-		{
-			bool bValid = false;
 
-			if (IsAllies(eMajor))
-			{
-				bValid = true;
-			}
-			else if (GET_PLAYER(eMajor).GetTrade()->IsConnectedToPlayer(GetPlayer()->GetID()))
-			{
-				bValid = true;
-			}
-			// This player must be able to build a trade route either by land or sea
-			else if (GC.getGame().GetGameTrade()->CanCreateTradeRoute(eMajor, GetPlayer()->GetID(), DOMAIN_LAND) || GC.getGame().GetGameTrade()->CanCreateTradeRoute(eMajor, GetPlayer()->GetID(), DOMAIN_SEA))
-			{
-				bValid = true;
-			}
-			if (!bValid)
-			{
-				if (GetNumTurnsSincePtPWarning(eMajor) > iWarningMax)
-				{
-					DoChangeProtectionFromMajor(eMajor, false, true);
-
-					CvCity* pCity = m_pPlayer->getCapitalCity();
-					if (pCity != NULL)
-					{
-						pCity->updateStrengthValue();
-					}
-					Localization::String strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_STATE_PTP_CANCELLED_OPTIONAL");
-					strMessage << GetPlayer()->getNameKey();
-					Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_STATE_PTP_CANCELLED_SHORT_OPTIONAL");
-					strSummary << GetPlayer()->getNameKey();
-
-					AddNotification(strMessage.toUTF8(), strSummary.toUTF8(), eMajor);
-				}
-				else if (GetNumTurnsSincePtPWarning(eMajor) <= 0)
-				{
-					Localization::String strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING_OPTIONAL");
-					strMessage << GetPlayer()->getNameKey();
-					strMessage << (iWarningMax - GetNumTurnsSincePtPWarning(eMajor));
-					Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING_SHORT_OPTIONAL");
-					strSummary << GetPlayer()->getNameKey();
-					AddNotification(strMessage.toUTF8(), strSummary.toUTF8(), eMajor);
-					ChangeNumTurnsSincePtPWarning(eMajor, 1);
-				}
-				else if (GetNumTurnsSincePtPWarning(eMajor) > 0)
-				{
-					if (GetNumTurnsSincePtPWarning(eMajor) % 4 == 0)
-					{
-						Localization::String strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING_TIMER_OPTIONAL");
-						strMessage << GetPlayer()->getNameKey();
-						strMessage << (iWarningMax - GetNumTurnsSincePtPWarning(eMajor));
-						Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING_TIMER_SHORT_OPTIONAL");
-						strSummary << GetPlayer()->getNameKey();
-						AddNotification(strMessage.toUTF8(), strSummary.toUTF8(), eMajor);
-					}
-					ChangeNumTurnsSincePtPWarning(eMajor, 1);
-				}
-				else
-				{
-					if (GetNumTurnsSincePtPWarning(eMajor) > 0)
-					{
-						SetNumTurnsSincePtPWarning(eMajor, 0);
-						Localization::String strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING_TIMER_STOPPED_OPTIONAL");
-						strMessage << GetPlayer()->getNameKey();
-						Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING_TIMER_STOPPED_SHORT_OPTIONAL");
-						strSummary << GetPlayer()->getNameKey();
-						AddNotification(strMessage.toUTF8(), strSummary.toUTF8(), eMajor);
-					}
-				}
-			}
-		}
-#endif
+		ChangeNumTurnsSincePtPWarning(eMajor, 1);
 	}
 
 	GC.GetEngineUserInterface()->setDirty(GameData_DIRTY_BIT, true);
 	GC.GetEngineUserInterface()->setDirty(CityInfo_DIRTY_BIT, true);
 }
+
 CvString CvMinorCivAI::GetPledgeProtectionInvalidReason(PlayerTypes eMajor)
 {
 	CvString sFactors = "";
@@ -12669,7 +12631,6 @@ CvString CvMinorCivAI::GetPledgeProtectionInvalidReason(PlayerTypes eMajor)
 		sFactors += sInf.toUTF8();
 	}
 
-
 	// Must not be too soon after a previous pledge was broken
 	int iCurrentTurn = GC.getGame().getGameTurn();
 	int iLastPledgeBrokenTurn = GetTurnLastPledgeBrokenByMajor(eMajor);
@@ -12684,32 +12645,30 @@ CvString CvMinorCivAI::GetPledgeProtectionInvalidReason(PlayerTypes eMajor)
 		sFactors += sPledgeBroken.toUTF8();
 	}
 
-	CvWeightedVector<PlayerTypes, MAX_MAJOR_CIVS, true> veMilitaryRankings;
-	PlayerTypes eMajorLoop;
-	for (int iMajorLoop = 0; iMajorLoop < MAX_MAJOR_CIVS; iMajorLoop++)
+	int iHighestStrength = 0;
+
+	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
-		eMajorLoop = (PlayerTypes)iMajorLoop;
-		if (GET_PLAYER(eMajorLoop).isAlive() && !GET_PLAYER(eMajorLoop).isMinorCiv())
+		PlayerTypes ePlayer = (PlayerTypes) iPlayerLoop;
+
+		if (GET_PLAYER(ePlayer).isAlive() && GET_PLAYER(ePlayer).isMajorCiv())
 		{
-			veMilitaryRankings.push_back(eMajorLoop, GET_PLAYER(eMajorLoop).GetMilitaryMight(true)); // Don't recalculate within a turn, can cause inconsistency
-		}
-	}
-	CvAssertMsg(veMilitaryRankings.size() > 0, "WeightedVector of military might rankings not expected to be size 0");
-	veMilitaryRankings.SortItems();
-	for (int iRanking = 0; iRanking < veMilitaryRankings.size(); iRanking++)
-	{
-		if (veMilitaryRankings.GetElement(iRanking) == eMajor)
-		{
-			float fRankRatio = (float)(veMilitaryRankings.size() - iRanking) / (float)(veMilitaryRankings.size());
-			if (fRankRatio < GC.getMOD_BALANCE_CORE_MINIMUM_RANKING_PTP())
+			int iStrength = GET_PLAYER(ePlayer).GetMilitaryMight();
+
+			if (iStrength > iHighestStrength)
 			{
-				Localization::String sMlitaryPower = Localization::Lookup("TXT_KEY_POP_CSTATE_PLEDGE_NEED_MORE_MILITARY_TT");
-				int iRank = (int)(fRankRatio * 100);
-				sMlitaryPower << iRank;
-				sFactors += sMlitaryPower.toUTF8();
-				break;
+				iHighestStrength = iStrength;
 			}
 		}
+	}
+
+	int iPercent = GET_PLAYER(eMajor).GetMilitaryMight() * 100 / max(iHighestStrength, 1);
+
+	if (iPercent < /*60*/ GC.getMOD_BALANCE_CORE_MINIMUM_RANKING_PTP())
+	{
+		Localization::String sMilitaryPower = Localization::Lookup("TXT_KEY_POP_CSTATE_PLEDGE_NEED_MORE_MILITARY_TT");
+		sMilitaryPower << iPercent;
+		sFactors += sMilitaryPower.toUTF8();
 	}
 
 	Localization::String sOptions = Localization::Lookup("TXT_KEY_POP_CSTATE_PTP_ANY_CORRECT");
@@ -12742,43 +12701,42 @@ CvString CvMinorCivAI::GetPledgeProtectionInvalidReason(PlayerTypes eMajor)
 	}
 	return sFactors;
 }
-#endif
+
 void CvMinorCivAI::DoChangeProtectionFromMajor(PlayerTypes eMajor, bool bProtect, bool bPledgeNowBroken)
 {
-	CvAssertMsg(eMajor >= 0, "eMajor is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eMajor < MAX_MAJOR_CIVS, "eMajor is expected to be within maximum bounds (invalid Index)");
 	if(eMajor < 0 || eMajor >= MAX_MAJOR_CIVS) return;
 
 	if(bProtect == IsProtectedByMajor(eMajor)) return;
 
-	if(bProtect)
+	if (bProtect)
 	{
-		if(!CanMajorProtect(eMajor))
-		{
+		if (!CanMajorProtect(eMajor))
 			return;
-		}
+
 		SetTurnLastPledgedProtectionByMajor(eMajor, GC.getGame().getGameTurn());
 		
 #if defined(MOD_EVENTS_MINORS_INTERACTION)
-		if (MOD_EVENTS_MINORS_INTERACTION) {
+		if (MOD_EVENTS_MINORS_INTERACTION) 
+		{
 			GAMEEVENTINVOKE_HOOK(GAMEEVENT_PlayerProtected, eMajor, GetPlayer()->GetID());
 		}
 #endif
 	}
 	else
 	{
-		if(bPledgeNowBroken)
+		if (bPledgeNowBroken)
 		{
 			SetTurnLastPledgeBrokenByMajor(eMajor, GC.getGame().getGameTurn());
-			ChangeFriendshipWithMajorTimes100(eMajor, GC.getMINOR_FRIENDSHIP_DROP_DISHONOR_PLEDGE_TO_PROTECT());
 
-			int iJerk = /*50*/ GC.getBALANCE_CS_WAR_COOLDOWN_RATE();
-			iJerk *= GC.getGame().getGameSpeedInfo().getTrainPercent();
-			iJerk /= 100;
-			SetJerk(GET_PLAYER(eMajor).getTeam(), iJerk);
+			int iEra = GET_PLAYER(eMajor).GetCurrentEra();
+			if (iEra <= 0 || !MOD_BALANCE_CORE_MINORS)
+				iEra = 1;
+
+			ChangeFriendshipWithMajorTimes100(eMajor, GC.getMINOR_FRIENDSHIP_DROP_DISHONOR_PLEDGE_TO_PROTECT() * iEra);
 		}
 #if defined(MOD_EVENTS_MINORS_INTERACTION)
-		if (MOD_EVENTS_MINORS_INTERACTION) {
+		if (MOD_EVENTS_MINORS_INTERACTION) 
+		{
 			GAMEEVENTINVOKE_HOOK(GAMEEVENT_PlayerRevoked, eMajor, GetPlayer()->GetID(), bPledgeNowBroken);
 		}
 #endif
@@ -12788,14 +12746,13 @@ void CvMinorCivAI::DoChangeProtectionFromMajor(PlayerTypes eMajor, bool bProtect
 
 	// In case we had a Pledge to Protect quest active, complete it now
 	DoTestActiveQuestsForPlayer(eMajor, /*bTestComplete*/ true, /*bTestObsolete*/ false, MINOR_CIV_QUEST_PLEDGE_TO_PROTECT);
-#if defined(MOD_BALANCE_CORE)
+
 	CvCity* pCity = m_pPlayer->getCapitalCity();
-	if(pCity != NULL)
+	if (pCity != NULL)
 	{
 		pCity->updateStrengthValue();
 	}
 	RecalculateRewards(eMajor);
-#endif
 
 	GC.GetEngineUserInterface()->setDirty(GameData_DIRTY_BIT, true);
 	GC.GetEngineUserInterface()->setDirty(CityInfo_DIRTY_BIT, true);
@@ -12803,75 +12760,68 @@ void CvMinorCivAI::DoChangeProtectionFromMajor(PlayerTypes eMajor, bool bProtect
 
 bool CvMinorCivAI::CanMajorProtect(PlayerTypes eMajor)
 {
-	CvAssertMsg(eMajor >= 0, "eMajor is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eMajor < MAX_MAJOR_CIVS, "eMajor is expected to be within maximum bounds (invalid Index)");
-	if(eMajor < 0 || eMajor >= MAX_MAJOR_CIVS) return false;
+	if (eMajor < 0 || eMajor >= MAX_MAJOR_CIVS) return false;
 
 	// If at war, may not protect
-	if(GET_TEAM(GET_PLAYER(eMajor).getTeam()).isAtWar(GetPlayer()->getTeam()))
+	if (GET_TEAM(GET_PLAYER(eMajor).getTeam()).isAtWar(GetPlayer()->getTeam()))
 		return false;
 
 	// Must have positive INF
-	if(GetEffectiveFriendshipWithMajor(eMajor) < /*0*/ GC.getFRIENDSHIP_THRESHOLD_CAN_PLEDGE_TO_PROTECT())
+	if (GetEffectiveFriendshipWithMajor(eMajor) < /*0*/ GC.getFRIENDSHIP_THRESHOLD_CAN_PLEDGE_TO_PROTECT())
 		return false;
 
 	// Must not be too soon after a previous pledge was broken
 	int iCurrentTurn = GC.getGame().getGameTurn();
 	int iLastPledgeBrokenTurn = GetTurnLastPledgeBrokenByMajor(eMajor);
 	const int iGracePeriod = 20; //antonjs: todo: xml
-#if defined(MOD_BALANCE_CORE)
+
 	if (iLastPledgeBrokenTurn >= 0 && iLastPledgeBrokenTurn + iGracePeriod <= iCurrentTurn)
 	{
-		SetTurnLastPledgeBrokenByMajor(eMajor, -1);
+		if ((iLastPledgeBrokenTurn + iGracePeriod) <= iCurrentTurn)
+			SetTurnLastPledgeBrokenByMajor(eMajor, -1);
+		else
+			return false;
 	}
-#endif
-	
-	if(iLastPledgeBrokenTurn >= 0 && iLastPledgeBrokenTurn + iGracePeriod > iCurrentTurn)
-		return false;
 
 #if defined(MOD_EVENTS_MINORS_INTERACTION)
-	if (MOD_EVENTS_MINORS_INTERACTION) {
+	if (MOD_EVENTS_MINORS_INTERACTION) 
+	{
 		if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_PlayerCanProtect, eMajor, GetPlayer()->GetID()) == GAMEEVENTRETURN_FALSE) {
 			return false;
 		}
 	}
 #endif
 
-#if defined(MOD_BALANCE_CORE)
-	if(MOD_BALANCE_CORE_MINOR_PTP_MINIMUM_VALUE)
+	if (MOD_BALANCE_CORE_MINOR_PTP_MINIMUM_VALUE)
 	{
-		CvWeightedVector<PlayerTypes, MAX_MAJOR_CIVS, true> veMilitaryRankings;
-		PlayerTypes eMajorLoop;
-		for(int iMajorLoop = 0; iMajorLoop < MAX_MAJOR_CIVS; iMajorLoop++)
+		int iHighestStrength = 0;
+
+		for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 		{
-			eMajorLoop = (PlayerTypes) iMajorLoop;
-			if(GET_PLAYER(eMajorLoop).isAlive() && !GET_PLAYER(eMajorLoop).isMinorCiv())
+			PlayerTypes ePlayer = (PlayerTypes) iPlayerLoop;
+
+			if (GET_PLAYER(ePlayer).isAlive() && GET_PLAYER(ePlayer).isMajorCiv())
 			{
-				veMilitaryRankings.push_back(eMajorLoop, GET_PLAYER(eMajorLoop).GetMilitaryMight(true)); // Don't recalculate within a turn, can cause inconsistency
-			}
-		}
-		CvAssertMsg(veMilitaryRankings.size() > 0, "WeightedVector of military might rankings not expected to be size 0");
-		veMilitaryRankings.SortItems();
-		for(int iRanking = 0; iRanking < veMilitaryRankings.size(); iRanking++)
-		{
-			if(veMilitaryRankings.GetElement(iRanking) == eMajor)
-			{
-				float fRankRatio = (float)(veMilitaryRankings.size() - iRanking) / (float)(veMilitaryRankings.size());
-				if(fRankRatio < GC.getMOD_BALANCE_CORE_MINIMUM_RANKING_PTP())
+				int iStrength = GET_PLAYER(ePlayer).GetMilitaryMight();
+
+				if (iStrength > iHighestStrength)
 				{
-					return false;
+					iHighestStrength = iStrength;
 				}
 			}
 		}
-	}
-#endif
 
-#if defined(MOD_BALANCE_CORE)
-	if (MOD_BALANCE_CORE_MINOR_PTP_MINIMUM_VALUE)
-	{
+		int iPercent = GET_PLAYER(eMajor).GetMilitaryMight() * 100 / max(iHighestStrength, 1);
+
+		if (iPercent < /*60*/ GC.getMOD_BALANCE_CORE_MINIMUM_RANKING_PTP())
+		{
+			return false;
+		}
+
+		// Do they meet one of the three conditions?
 		bool bValid = false;
 
-		if (IsAllies(eMajor) || GetPermanentAlly() == eMajor)
+		if (IsAllies(eMajor))
 		{
 			bValid = true;
 		}
@@ -12884,28 +12834,23 @@ bool CvMinorCivAI::CanMajorProtect(PlayerTypes eMajor)
 		{
 			bValid = true;
 		}
+
 		if (!bValid)
 			return false;
 	}
-#endif
 	
 	return true;
 }
 
 bool CvMinorCivAI::CanMajorStartProtection(PlayerTypes eMajor)
 {
-	CvAssertMsg(eMajor >= 0, "eMajor is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eMajor < MAX_MAJOR_CIVS, "eMajor is expected to be within maximum bounds (invalid Index)");
-	if(eMajor < 0 || eMajor >= MAX_MAJOR_CIVS) return false;
-
+	if (eMajor < 0 || eMajor >= MAX_MAJOR_CIVS) return false;
 	return (CanMajorProtect(eMajor) && !IsProtectedByMajor(eMajor));
 }
 
 bool CvMinorCivAI::CanMajorWithdrawProtection(PlayerTypes eMajor)
 {
-	CvAssertMsg(eMajor >= 0, "eMajor is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eMajor < MAX_MAJOR_CIVS, "eMajor is expected to be within maximum bounds (invalid Index)");
-	if(eMajor < 0 || eMajor >= MAX_MAJOR_CIVS) return false;
+	if (eMajor < 0 || eMajor >= MAX_MAJOR_CIVS) return false;
 
 	if (!IsProtectedByMajor(eMajor))
 		return false;
@@ -12913,22 +12858,19 @@ bool CvMinorCivAI::CanMajorWithdrawProtection(PlayerTypes eMajor)
 	// Pledge is locked in for a certain time
 	int iCurrentTurn = GC.getGame().getGameTurn();
 	int iLastPledgeTurn = GetTurnLastPledgedProtectionByMajor(eMajor);
-#if defined(MOD_BALANCE_CORE_MINOR_PROTECTION)
 	int iGracePeriod = 10; //antonjs: todo: xml
-#else
-	const int iGracePeriod = 10; //antonjs: todo: xml
-#endif
-#if defined(MOD_BALANCE_CORE_MINOR_PROTECTION)
-	if(MOD_BALANCE_CORE_MINOR_PROTECTION)
+
+	if (MOD_BALANCE_CORE_MINOR_PROTECTION)
 	{
 		iGracePeriod = /*50*/ GC.getBALANCE_MINOR_PROTECTION_MINIMUM_DURATION();
 	}
-#endif
+
 	if (iLastPledgeTurn >= 0 && iLastPledgeTurn + iGracePeriod > iCurrentTurn)
 		return false;
 
 #if defined(MOD_EVENTS_MINORS_INTERACTION)
-	if (MOD_EVENTS_MINORS_INTERACTION) {
+	if (MOD_EVENTS_MINORS_INTERACTION) 
+	{
 		if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_PlayerCanRevoke, eMajor, GetPlayer()->GetID()) == GAMEEVENTRETURN_FALSE) {
 			return false;
 		}
@@ -12940,9 +12882,7 @@ bool CvMinorCivAI::CanMajorWithdrawProtection(PlayerTypes eMajor)
 
 bool CvMinorCivAI::IsProtectedByMajor(PlayerTypes eMajor) const
 {
-	CvAssertMsg(eMajor >= 0, "eMajor is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eMajor < MAX_MAJOR_CIVS, "eMajor is expected to be within maximum bounds (invalid Index)");
-	if(eMajor < 0 || eMajor >= MAX_MAJOR_CIVS) return false;
+	if (eMajor < 0 || eMajor >= MAX_MAJOR_CIVS) return false;
 
 	if (!GET_PLAYER(eMajor).isAlive())
 		return false;
@@ -13024,11 +12964,7 @@ bool CvMinorCivAI::DoMajorCivEraChange(PlayerTypes ePlayer, EraTypes eNewEra)
 			if(iOldFood != iNewFood)
 			{
 				bSomethingChanged = true;
-#if defined(MOD_BUGFIX_MINOR)
 				GET_PLAYER(ePlayer).ChangeCapitalYieldChangeTimes100(YIELD_FOOD, iNewFood - iOldFood);
-#else
-				GET_PLAYER(ePlayer).ChangeCapitalYieldChange(YIELD_FOOD, iNewFood - iOldFood);
-#endif
 			}
 
 			// Other Cities
@@ -13038,11 +12974,7 @@ bool CvMinorCivAI::DoMajorCivEraChange(PlayerTypes ePlayer, EraTypes eNewEra)
 			if(iOldFood != iNewFood)
 			{
 				bSomethingChanged = true;
-#if defined(MOD_BUGFIX_MINOR)
 				GET_PLAYER(ePlayer).ChangeCityYieldChangeTimes100(YIELD_FOOD, iNewFood - iOldFood);
-#else
-				GET_PLAYER(ePlayer).ChangeCityYieldChange(YIELD_FOOD, iNewFood - iOldFood);
-#endif
 			}
 		}
 
@@ -13058,11 +12990,7 @@ bool CvMinorCivAI::DoMajorCivEraChange(PlayerTypes ePlayer, EraTypes eNewEra)
 			if(iOldFood != iNewFood)
 			{
 				bSomethingChanged = true;
-#if defined(MOD_BUGFIX_MINOR)
 				GET_PLAYER(ePlayer).ChangeCapitalYieldChangeTimes100(YIELD_FOOD, iNewFood - iOldFood);
-#else
-				GET_PLAYER(ePlayer).ChangeCapitalYieldChange(YIELD_FOOD, iNewFood - iOldFood);
-#endif
 			}
 
 			// Other Cities
@@ -13072,11 +13000,7 @@ bool CvMinorCivAI::DoMajorCivEraChange(PlayerTypes ePlayer, EraTypes eNewEra)
 			if(iOldFood != iNewFood)
 			{
 				bSomethingChanged = true;
-#if defined(MOD_BUGFIX_MINOR)
 				GET_PLAYER(ePlayer).ChangeCityYieldChangeTimes100(YIELD_FOOD, iNewFood - iOldFood);
-#else
-				GET_PLAYER(ePlayer).ChangeCityYieldChange(YIELD_FOOD, iNewFood - iOldFood);
-#endif
 			}
 		}
 	}
@@ -14356,6 +14280,10 @@ bool CvMinorCivAI::IsUnitSpawningAllowed(PlayerTypes ePlayer)
 	if(!GET_PLAYER(ePlayer).isAlive())
 		return false;
 
+	// They must allow unit spawning
+	if (IsUnitSpawningDisabled(ePlayer))
+		return false;
+
 	return true;
 }
 
@@ -14380,236 +14308,222 @@ void CvMinorCivAI::SetUnitSpawningDisabled(PlayerTypes ePlayer, bool bValue)
 }
 
 /// Create a unit
-#if defined(MOD_GLOBAL_CS_GIFTS)
 CvUnit* CvMinorCivAI::DoSpawnUnit(PlayerTypes eMajor, bool bLocal, bool bExplore)
-#else
-void CvMinorCivAI::DoSpawnUnit(PlayerTypes eMajor)
-#endif
 {
-#if defined(MOD_GLOBAL_CS_GIFTS)
-	CvUnit* pSpawnUnit = NULL;
-#endif
+	if (eMajor < 0 || eMajor >= MAX_MAJOR_CIVS) return NULL;
 
-	CvAssertMsg(eMajor >= 0, "eMajor is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eMajor < MAX_MAJOR_CIVS, "eMajor is expected to be within maximum bounds (invalid Index)");
-#if defined(MOD_GLOBAL_CS_GIFTS)
-	if(eMajor < 0 || eMajor >= MAX_MAJOR_CIVS) return NULL;
-#else
-	if(eMajor < 0 || eMajor >= MAX_MAJOR_CIVS) return;
-#endif
+	if (bExplore && !MOD_GLOBAL_CS_GIFTS)
+		return NULL;
 
-	if(!IsUnitSpawningDisabled(eMajor) && GET_PLAYER(eMajor).GetNumUnitsOutOfSupply() <= 0)
+	// Unit spawning is not allowed (manually disabled, or major is over supply limit)
+	if (IsUnitSpawningDisabled(eMajor) || GET_PLAYER(eMajor).GetNumUnitsOutOfSupply() > 0)
+		return NULL;
+
+	// Minor has no capital
+	CvCity* pMinorCapital = GetPlayer()->getCapitalCity();
+	if (!pMinorCapital)
+		return NULL;
+
+	if (pMinorCapital->plot() == NULL)
+		return NULL;
+
+	// Major has no capital
+	CvCity* pMajorCapital = GET_PLAYER(eMajor).getCapitalCity();
+	if (!pMajorCapital)
+		return NULL;
+
+	if (pMajorCapital->plot() == NULL)
+		return NULL;
+
+	CvCity* pClosestCity = NULL;
+	CvCity* pClosestCoastalCity = NULL;
+	bool bBoatsAllowed = MOD_GLOBAL_CS_GIFT_SHIPS && pMinorCapital->isCoastal();
+
+	// What's their closest city? If they have at least one coastal city, allow spawning naval units
+	int iLowestDistance = 1000;
+	int iLowestCoastalDistance = 1000;
+	int iCityLoop;
+	for (CvCity* pLoopCity = GET_PLAYER(eMajor).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(eMajor).nextCity(&iCityLoop))
 	{
-		// Minor must have Capital
-		CvCity* pMinorCapital = GetPlayer()->getCapitalCity();
-		if(pMinorCapital == NULL)
+		if (pLoopCity->plot() == NULL)
+			continue;
+
+		int iDistance = plotDistance(*pMinorCapital->plot(), *pLoopCity->plot());
+		if (iDistance < iLowestDistance)
 		{
-			FAssertMsg(false, "MINOR CIV AI: Trying to spawn a Unit for a major civ but the minor has no capital. Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-#if defined(MOD_GLOBAL_CS_GIFTS)
-			return NULL;
-#else
-			return;
-#endif
-		}
+			iLowestDistance = iDistance;
+			pClosestCity = pLoopCity;
 
-		CvPlot* pMinorCapitalPlot = pMinorCapital->plot();
-		if(pMinorCapitalPlot == NULL)
-		{
-			CvAssertMsg(false, "MINOR CIV AI: Trying to spawn a Unit for a major civ but the minor's capital has no plot. Please send Anton your save file and version.");
-#if defined(MOD_GLOBAL_CS_GIFTS)
-			return NULL;
-#else
-			return;
-#endif
-		}
-
-#if defined(MOD_GLOBAL_CS_GIFTS_LOCAL_XP)
-		CvCity* pMajorCapital = GET_PLAYER(eMajor).getCapitalCity();
-		CvCity* pSpawnCity = pMajorCapital ? pMajorCapital : pMinorCapital;
-#endif
-
-		// Pick Unit type
-		UnitTypes eUnit = NO_UNIT;
-		if (GetAlly() == eMajor)
-		{	
-			// Should we give our unique unit?
-			bool bUseUniqueUnit = false;
-			UnitTypes eUniqueUnit = GetUniqueUnit();
-			if (eUniqueUnit != NO_UNIT)
+			if (pLoopCity->isCoastal() && iDistance < iLowestCoastalDistance)
 			{
-				CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUniqueUnit);
-				if (pkUnitInfo)
+				iLowestCoastalDistance = iDistance;
+				pClosestCoastalCity = pLoopCity;
+			}
+		}
+	}
+
+	if (!pClosestCity)
+		pClosestCity = pMajorCapital;
+
+	if (pClosestCoastalCity == NULL)
+		bBoatsAllowed = false;
+
+	// Which Unit to choose?
+	UnitTypes eUnit = NO_UNIT;
+
+	// If they're our ally, should we give our unique unit?
+	if (GetAlly() == eMajor)
+	{
+		UnitTypes eUniqueUnit = GetUniqueUnit();
+		if (eUniqueUnit != NO_UNIT)
+		{
+			CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUniqueUnit);
+			if (pkUnitInfo)
+			{
+				// If naval, major must have a coastal city
+				if (bBoatsAllowed || pkUnitInfo->GetDomainType() != DOMAIN_SEA)
 				{
-					// Ally must have unit's prereq tech
-					TechTypes ePrereqTech = (TechTypes) pkUnitInfo->GetPrereqAndTech();
-					if (ePrereqTech == NO_TECH || GET_TEAM(GET_PLAYER(eMajor).getTeam()).GetTeamTechs()->HasTech(ePrereqTech))
+					// If scout, must be a scout
+					if (!bExplore || pkUnitInfo->GetDefaultUnitAIType() == UNITAI_EXPLORE || pkUnitInfo->GetDefaultUnitAIType() == UNITAI_EXPLORE_SEA)
 					{
-						// Ally must NOT have unit's obsolete tech
-						TechTypes eObsoleteTech = (TechTypes) pkUnitInfo->GetObsoleteTech();
-						if (eObsoleteTech == NO_TECH || !GET_TEAM(GET_PLAYER(eMajor).getTeam()).GetTeamTechs()->HasTech(eObsoleteTech))
+						// Ally must have unit's prereq tech
+						TechTypes ePrereqTech = (TechTypes) pkUnitInfo->GetPrereqAndTech();
+						if (ePrereqTech == NO_TECH || GET_TEAM(GET_PLAYER(eMajor).getTeam()).GetTeamTechs()->HasTech(ePrereqTech))
 						{
-							bUseUniqueUnit = true;
+							// Ally must NOT have unit's obsolete tech
+							TechTypes eObsoleteTech = (TechTypes) pkUnitInfo->GetObsoleteTech();
+							if (eObsoleteTech == NO_TECH || !GET_TEAM(GET_PLAYER(eMajor).getTeam()).GetTeamTechs()->HasTech(eObsoleteTech))
+							{
+								bool bFailedResourceCheck = false;
+
+								// Ally must meet this unit's strategic resource requirements
+								for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+								{
+									const ResourceTypes eResource = static_cast<ResourceTypes>(iResourceLoop);
+									CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
+									if (pkResourceInfo)
+									{
+										int iResourceRequirement = pkUnitInfo->GetResourceQuantityRequirement(eResource);
+
+										if (iResourceRequirement > 0 && iResourceRequirement > GET_PLAYER(eMajor).getNumResourceAvailable(eResource, true))
+										{
+											bFailedResourceCheck = true;
+											break;
+										}
+									}
+								}
+
+								if (!bFailedResourceCheck)
+									eUnit = eUniqueUnit;
+							}
 						}
 					}
 				}
 			}
-			
-#if defined(MOD_GLOBAL_CS_GIFTS)
-			if (bExplore) {
-#if defined(MOD_GLOBAL_CS_GIFT_SHIPS)
-				eUnit = GC.getGame().GetCsGiftSpawnUnitType(eMajor, pSpawnCity->plot()->isCoastalLand(GC.getMIN_WATER_SIZE_FOR_OCEAN()) && MOD_GLOBAL_CS_GIFT_SHIPS);
-#else
-				eUnit = GC.getGame().GetCsGiftSpawnUnitType(eMajor);
-#endif
-			} else {
-#endif
-				if (bUseUniqueUnit)
-				{
-					eUnit = eUniqueUnit;
-				}
-				else
-				{
-#if defined(MOD_GLOBAL_CS_GIFT_SHIPS)
-					eUnit = GC.getGame().GetCompetitiveSpawnUnitType(eMajor, /*bIncludeUUs*/ false, /*bIncludeRanged*/true, MOD_GLOBAL_CS_GIFT_SHIPS);
-#else
-					eUnit = GC.getGame().GetCompetitiveSpawnUnitType(eMajor, /*bIncludeUUs*/ false, /*bIncludeRanged*/true);
-#endif
-				}
-#if defined(MOD_GLOBAL_CS_GIFTS)
-			}
-#endif
-		}
-		else
-		{
-#if defined(MOD_GLOBAL_CS_GIFTS)
-			if (bExplore) {
-#if defined(MOD_GLOBAL_CS_GIFT_SHIPS)
-				eUnit = GC.getGame().GetCsGiftSpawnUnitType(eMajor, pSpawnCity->plot()->isCoastalLand(GC.getMIN_WATER_SIZE_FOR_OCEAN()) && MOD_GLOBAL_CS_GIFT_SHIPS);
-#else
-				eUnit = GC.getGame().GetCsGiftSpawnUnitType(eMajor);
-#endif
-			} else {
-#endif
-#if defined(MOD_GLOBAL_CS_GIFT_SHIPS)
-				eUnit = GC.getGame().GetCompetitiveSpawnUnitType(eMajor, /*bIncludeUUs*/ false, /*bIncludeRanged*/true, MOD_GLOBAL_CS_GIFT_SHIPS);
-#else
-				eUnit = GC.getGame().GetCompetitiveSpawnUnitType(eMajor, /*bIncludeUUs*/ false, /*bIncludeRanged*/true);
-#endif
-#if defined(MOD_GLOBAL_CS_GIFTS)
-			}
-#endif
-		}
-
-		//where to put the unit?
-		int iX = pSpawnCity->getX();
-		int iY = pSpawnCity->getY();
-		CvCity* pMajorCity = GET_PLAYER(eMajor).GetClosestCityByPathLength(pMinorCapitalPlot);
-
-#if defined(MOD_GLOBAL_CS_GIFTS)
-		if(!bLocal && pMajorCity != NULL)
-#else
-		if(pMajorCity != NULL)
-#endif
-		{
-			CvPlot* pUnitPlot = pMajorCity->GetPlotForNewUnit(eUnit);
-			if (pUnitPlot)
-			{
-				iX = pUnitPlot->getX();
-				iY = pUnitPlot->getY();
-			}
-			else
-			{
-				iX = pMajorCity->getX();
-				iY = pMajorCity->getY();
-			}
-			
-#if defined(MOD_GLOBAL_CS_GIFTS_LOCAL_XP)
-			pSpawnCity = pMajorCity;
-#endif
-		}
-
-		// Spawn Unit
-		if(eUnit != NO_UNIT)
-		{
-			CvUnit* pNewUnit = GET_PLAYER(eMajor).initUnit(eUnit, iX, iY);
-
-			// If player trait is to enhance minor bonuses, give this unit some free experience
-			if(GET_PLAYER(eMajor).GetPlayerTraits()->GetCityStateBonusModifier() > 0)
-			{
-#if defined(MOD_UNITS_XP_TIMES_100)
-				pNewUnit->changeExperienceTimes100(100 * GC.getMAX_EXPERIENCE_PER_COMBAT());
-#else
-				pNewUnit->changeExperience(GC.getMAX_EXPERIENCE_PER_COMBAT());
-#endif
-			}
-
-			if (pNewUnit->canMoveInto(*pNewUnit->plot(),CvUnit::MOVEFLAG_DESTINATION) || pNewUnit->jumpToNearestValidPlotWithinRange(3))
-			{
-#if defined(MOD_BUGFIX_MINOR)
-				// We tested for "GetPlayer()->getCapitalCity() != NULL" way, way up there!!!
-#if defined(MOD_GLOBAL_CS_GIFTS_LOCAL_XP)
-				if (MOD_GLOBAL_CS_GIFTS_LOCAL_XP) 
-					pSpawnCity->addProductionExperience(pNewUnit);
-				else
-#endif
-					pMinorCapital->addProductionExperience(pNewUnit);
-#else
-				if(GetPlayer()->getCapitalCity())
-					GetPlayer()->getCapitalCity()->addProductionExperience(pNewUnit);
-#endif
-
-				Localization::String strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_STATE_UNIT_SPAWN");
-				strMessage << GetPlayer()->getNameKey();
-				Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_CITY_STATE_UNIT_SPAWN");
-				strSummary << GetPlayer()->getNameKey();
-
-				AddNotification(strMessage.toUTF8(), strSummary.toUTF8(), eMajor, pNewUnit->getX(), pNewUnit->getY());
-
-#if defined(MOD_GLOBAL_CS_GIFTS)
-				pSpawnUnit = pNewUnit;
-#endif
-			}
-			else
-				pNewUnit->kill(false);	// Could not find a spot!
 		}
 	}
 
-	// Reseed counter
-	DoSeedUnitSpawnCounter(eMajor);
+	if (eUnit == NO_UNIT)
+	{
+		if (bExplore) // Free exploration unit (First contact bonus)
+			eUnit = GC.getGame().GetCsGiftSpawnUnitType(eMajor, bBoatsAllowed);
+		else
+			eUnit = GC.getGame().GetCompetitiveSpawnUnitType(eMajor, /*bIncludeUUs*/ false, /*bIncludeRanged*/ true, bBoatsAllowed);
+	}
 
-#if defined(MOD_GLOBAL_CS_GIFTS)
-	return pSpawnUnit;
-#endif
+	if (eUnit == NO_UNIT)
+		return NULL;
+
+	// Where to put the Unit?
+	CvPlot* pUnitPlot = NULL;
+	CvCity* pXPCity = MOD_GLOBAL_CS_GIFTS_LOCAL_XP ? pMajorCapital : pMinorCapital;
+
+	// Local units spawn in the minor's capital
+	if (bLocal)
+	{
+		pUnitPlot = pMinorCapital->GetPlotForNewUnit(eUnit);
+		if (!pUnitPlot)
+			pUnitPlot = pMinorCapital->plot();
+	}
+	else
+	{
+		// Is this a naval unit? Spawn it in their closest coastal city
+		CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUnit);
+		if (pkUnitInfo && pkUnitInfo->GetDomainType() == DOMAIN_SEA)
+		{
+			pXPCity = pClosestCoastalCity;
+			pUnitPlot = pClosestCoastalCity->GetPlotForNewUnit(eUnit);
+			if (!pUnitPlot)
+				pUnitPlot = pClosestCoastalCity->plot();
+		}
+		else
+		{
+			pXPCity = pClosestCity;
+			pUnitPlot = pClosestCity->GetPlotForNewUnit(eUnit);
+			if (!pUnitPlot)
+				pUnitPlot = pClosestCity->plot();
+		}
+	}
+
+	// Now actually spawn the Unit
+	CvUnit* pNewUnit = GET_PLAYER(eMajor).initUnit(eUnit, pUnitPlot->getX(), pUnitPlot->getY());
+	if (!pNewUnit)
+		return NULL;
+
+	if (pNewUnit->canMoveInto(*pNewUnit->plot(),CvUnit::MOVEFLAG_DESTINATION) || pNewUnit->jumpToNearestValidPlotWithinRange(3))
+	{
+		// Bonus experience for CS Units (Siam UA)
+		if (GET_PLAYER(eMajor).GetPlayerTraits()->GetCityStateBonusModifier() > 0)
+			pNewUnit->changeExperienceTimes100(100 * GC.getMAX_EXPERIENCE_PER_COMBAT());
+
+		pXPCity->addProductionExperience(pNewUnit);
+
+		// Reseed counter
+		DoSeedUnitSpawnCounter(eMajor);
+
+		// Notify the player
+		if (GET_PLAYER(eMajor).GetNotifications())
+		{
+			Localization::String strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_STATE_UNIT_SPAWN");
+			strMessage << GetPlayer()->getNameKey();
+			Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_CITY_STATE_UNIT_SPAWN");
+			strSummary << GetPlayer()->getNameKey();
+
+			AddNotification(strMessage.toUTF8(), strSummary.toUTF8(), eMajor, pNewUnit->getX(), pNewUnit->getY());
+		}
+	}
+	else
+	{
+		pNewUnit->kill(false); // Could not find a spot!
+		return NULL;
+	}
+
+	return pNewUnit;
 }
 
 /// Time to spawn a Unit?
 void CvMinorCivAI::DoUnitSpawnTurn()
 {
 	// Loop through all players and see if we should give them a Unit
-	PlayerTypes eMajor;
-	for(int iMajorLoop = 0; iMajorLoop < MAX_MAJOR_CIVS; iMajorLoop++)
+	for (int iMajorLoop = 0; iMajorLoop < MAX_MAJOR_CIVS; iMajorLoop++)
 	{
-		eMajor = (PlayerTypes) iMajorLoop;
+		PlayerTypes eMajor = (PlayerTypes) iMajorLoop;
 
-		if(IsUnitSpawningAllowed(eMajor))
+		if (IsUnitSpawningAllowed(eMajor))
 		{
 			// Tick down
-			if(GetUnitSpawnCounter(eMajor) > 0)
-			{
+			if (GetUnitSpawnCounter(eMajor) > 0)
 				ChangeUnitSpawnCounter(eMajor, -1);
-			}
 
 			// Time to spawn!
-			if(GetUnitSpawnCounter(eMajor) == 0)
+			if (GetUnitSpawnCounter(eMajor) == 0)
 			{
-#if defined(MOD_EVENTS_MINORS_GIFTS)
 				CvUnit* pSpawnUnit = DoSpawnUnit(eMajor);
+
+#if defined(MOD_EVENTS_MINORS_GIFTS)
 				// Send an event with the details
 				if (MOD_EVENTS_MINORS_GIFTS && pSpawnUnit != NULL)
-					// GameEvents.MinorGiftUnit.Add(function(iMinor, iMajor, iUnitType) end)
 					GAMEEVENTINVOKE_HOOK(GAMEEVENT_MinorGiftUnit, GetPlayer()->GetID(), eMajor, pSpawnUnit->getUnitType());
-#else
-				DoSpawnUnit(eMajor);
 #endif
 			}
 		}
@@ -14741,7 +14655,7 @@ void CvMinorCivAI::DoMarriage(PlayerTypes eMajor)
 
 	// Pay the cost
 	const int iBuyoutCost = GetMarriageCost(eMajor);
-	GET_PLAYER(eMajor).GetTreasury()->LogExpenditure(GetPlayer()->GetMinorCivAI()->GetNamesListAsString(0), iBuyoutCost,6);
+	GET_PLAYER(eMajor).GetTreasury()->LogExpenditure(GetPlayer()->GetMinorCivAI()->GetNamesListAsString( CivsList(1,GetPlayer()->GetID()) ), iBuyoutCost, 6);
 	GET_PLAYER(eMajor).GetTreasury()->ChangeGold(-iBuyoutCost);
 
 	SetMajorMarried(eMajor, true);
@@ -14929,13 +14843,13 @@ void CvMinorCivAI::DoBuyout(PlayerTypes eMajor)
 
 	// Pay the cost
 	const int iBuyoutCost = GetBuyoutCost(eMajor);
-	GET_PLAYER(eMajor).GetTreasury()->LogExpenditure(GetPlayer()->GetMinorCivAI()->GetNamesListAsString(0), iBuyoutCost,6);
+	GET_PLAYER(eMajor).GetTreasury()->LogExpenditure(GetPlayer()->GetMinorCivAI()->GetNamesListAsString( CivsList(1,GetPlayer()->GetID()) ), iBuyoutCost,6);
 	GET_PLAYER(eMajor).GetTreasury()->ChangeGold(-iBuyoutCost);
 
 	int iNumUnits = 0;
 	int iCapitalX = 0;
 	int iCapitalY = 0;
-	DoAcquire(eMajor, iNumUnits, iCapitalX, iCapitalY);
+	DoPassCitiesToMajor(eMajor, iNumUnits, iCapitalX, iCapitalY);
 
 	GET_PLAYER(eMajor).GetDiplomacyAI()->LogMinorCivBuyout(GetPlayer()->GetID(), iBuyoutCost, /*bSaving*/ false);
 
@@ -14972,11 +14886,7 @@ void CvMinorCivAI::DoBuyout(PlayerTypes eMajor)
 #endif
 }
 
-#if defined(MOD_GLOBAL_VENICE_KEEPS_RESOURCES)
-void CvMinorCivAI::DoAcquire(PlayerTypes eMajor, int &iNumUnits, int& iCapitalX, int& iCapitalY, bool bVenice)
-#else
-void CvMinorCivAI::DoAcquire(PlayerTypes eMajor, int &iNumUnits, int& iCapitalX, int& iCapitalY)
-#endif
+void CvMinorCivAI::DoPassCitiesToMajor(PlayerTypes eMajor, int &iNumUnits, int& iCapitalX, int& iCapitalY)
 {
 	// Take their units
 	CvUnit* pLoopUnit = NULL;
@@ -14992,30 +14902,27 @@ void CvMinorCivAI::DoAcquire(PlayerTypes eMajor, int &iNumUnits, int& iCapitalX,
 	SetDisableNotifications(true);
 	iCapitalX = -1;
 	iCapitalY = -1;
-	FStaticVector<CvCity*, 16, false, c_eCiv5GameplayDLL, 0> vpCitiesToAcquire;
+	vector<CvCity*> vpCitiesToAcquire;
 	int iLoopCity;
 	for (CvCity* pLoopCity = GetPlayer()->firstCity(&iLoopCity, true); pLoopCity != NULL; pLoopCity = GetPlayer()->nextCity(&iLoopCity, true))
 	{
 		vpCitiesToAcquire.push_back(pLoopCity);
-	}
-	for (uint iI = 0; iI < vpCitiesToAcquire.size(); iI++)
-	{
-		CvCity* pCity = vpCitiesToAcquire[iI];
-		CvAssertMsg(pCity, "pCity should not be NULL. Please send Anton your save file and version.");
-		if (pCity)
+		if (pLoopCity->isCapital())
 		{
-			if (pCity->isCapital())
-			{
-				iCapitalX = pCity->getX();
-				iCapitalY = pCity->getY();
-			}
-#if defined(MOD_GLOBAL_VENICE_KEEPS_RESOURCES)
-			GET_PLAYER(eMajor).acquireCity(pCity, false, true, bVenice); // deletes pCity, don't reuse the pointer
-#else
-			GET_PLAYER(eMajor).acquireCity(pCity, false, true); // deletes pCity, don't reuse the pointer
-#endif
+			iCapitalX = pLoopCity->getX();
+			iCapitalY = pLoopCity->getY();
 		}
 	}
+
+	//do this in two steps, don't invalidate the iterator
+	for (uint iI = 0; iI < vpCitiesToAcquire.size(); iI++)
+	{
+		CvCity* pNewCity = GET_PLAYER(eMajor).acquireCity(vpCitiesToAcquire[iI], false, true); 
+		if (pNewCity)
+			// reduce the resistence to 0 turns because we bought it fairly
+			pNewCity->ChangeResistanceTurns(-pNewCity->GetResistanceTurns());
+	}
+
 	SetDisableNotifications(false);
 
 	SetMajorBoughtOutBy(eMajor);
@@ -15023,7 +14930,6 @@ void CvMinorCivAI::DoAcquire(PlayerTypes eMajor, int &iNumUnits, int& iCapitalX,
 	GC.getGame().DoUpdateDiploVictory();
 
 	GC.GetEngineUserInterface()->setDirty(GameData_DIRTY_BIT, true);
-
 }
 
 // ******************************
@@ -15034,12 +14940,21 @@ const ReachablePlots & CvMinorCivAI::GetBullyRelevantPlots()
 {
 	if (m_iBullyPlotsBuilt != GC.getGame().getGameTurn())
 	{
-		if (GetPlayer()->getCapitalCity())
+		CvCity* pCapital = GetPlayer()->getCapitalCity();
+		if (pCapital)
 		{
 			SPathFinderUserData data(GetPlayer()->GetID(), PT_ARMY_MIXED, -1, MINOR_POWER_COMPARISON_RADIUS);
 			data.iFlags = CvUnit::MOVEFLAG_IGNORE_RIGHT_OF_PASSAGE;
 			m_bullyRelevantPlots = GC.GetStepFinder().GetPlotsInReach(GetPlayer()->getCapitalCity()->plot(), data);
 			m_iBullyPlotsBuilt = GC.getGame().getGameTurn();
+
+			//make sure we include all adjacent plots even if they are impassable for us ... but they might be passable for the bully (inca!)
+			for (int i = RING0_PLOTS; i < RING1_PLOTS; i++)
+			{
+				CvPlot* pPlot = iterateRingPlots(pCapital->plot(), i);
+				if (pPlot && m_bullyRelevantPlots.find(pPlot->GetPlotIndex()) == m_bullyRelevantPlots.end())
+					m_bullyRelevantPlots.insertWithIndex( SMovePlot(pPlot->GetPlotIndex(),1,0,500) );
+			}
 		}
 		else
 			m_bullyRelevantPlots.clear();
@@ -15051,11 +14966,7 @@ const ReachablePlots & CvMinorCivAI::GetBullyRelevantPlots()
 int CvMinorCivAI::GetBullyGoldAmount(PlayerTypes eBullyPlayer, bool bIgnoreScaling)
 {
 	int iGold = GC.getMINOR_BULLY_GOLD();
-#if defined(MOD_BALANCE_CORE)
-	int iGoldGrowthFactor = 400; //antonjs: todo: XML
-#else
-	int iGoldGrowthFactor = 350; //antonjs: todo: XML
-#endif
+	int iGoldGrowthFactor = 400;
 
 	// Add gold, more if later in game
 	float fGameProgressFactor = ((float) GC.getGame().getElapsedGameTurns() / (float) GC.getGame().getEstimateEndTurn());
@@ -15074,14 +14985,6 @@ int CvMinorCivAI::GetBullyGoldAmount(PlayerTypes eBullyPlayer, bool bIgnoreScali
 	iGold *= (100 + GET_PLAYER(eBullyPlayer).GetPlayerTraits()->GetBullyValueModifier());
 	iGold /= 100;
 
-	// Rounding
-	int iVisibleDivisor = /*5*/ GC.getMINOR_CIV_GOLD_GIFT_VISIBLE_DIVISOR(); //antonjs: consider: separate XML
-	iGold /= iVisibleDivisor;
-	iGold *= iVisibleDivisor;
-
-	iGold *= (100 + GET_PLAYER(eBullyPlayer).GetPlayerTraits()->GetBullyValueModifier());
-	iGold /= 100;
-
 	if (!bIgnoreScaling)
 	{
 		int iFactor = CalculateBullyScore(eBullyPlayer, false);
@@ -15089,7 +14992,7 @@ int CvMinorCivAI::GetBullyGoldAmount(PlayerTypes eBullyPlayer, bool bIgnoreScali
 		iGold /= 100;
 	}
 	if (iGold <= 0)
-		iGold = -1;
+		iGold = 0;
 
 	return iGold;
 }
@@ -15146,7 +15049,8 @@ int CvMinorCivAI::CalculateBullyScore(PlayerTypes eBullyPlayer, bool bForUnit, C
 	}
 
 	int iMilitaryMightPercent = (100 * GET_PLAYER(eBullyPlayer).GetMilitaryMight(true)) / max(1, iTotalMilitaryMight);
-	int	iGlobalMilitaryScore = (iMilitaryMightPercent * iGlobalMilitaryScoreMax)/100; 
+	int iGlobalMilitaryScore = (iMilitaryMightPercent * iGlobalMilitaryScoreMax)/100;
+	iScore += iGlobalMilitaryScore;
 
 	if (sTooltipSink)
 	{
@@ -15556,7 +15460,7 @@ CvString CvMinorCivAI::GetMajorBullyUnitDetails(PlayerTypes ePlayer)
 	CvUnitClassInfo* pkUnitClassInfo = GC.getUnitClassInfo(eUnitClassType);
 	if(pkUnitClassInfo != NULL)
 	{
-		eUnitType = ((UnitTypes)(GetPlayer()->getCivilizationInfo().getCivilizationUnits((int)eUnitClassType)));
+		eUnitType = (GET_PLAYER(ePlayer).GetSpecificUnitType(eUnitClassType));
 	}
 	if(eUnitType == NO_UNIT)
 	{
@@ -15656,7 +15560,7 @@ void CvMinorCivAI::DoMajorBullyGold(PlayerTypes eBully, int iGold)
 		CvCity* pCapital = GET_PLAYER(eBully).getCapitalCity();
 		if (pCapital != NULL)
 		{
-			GET_PLAYER(eBully).doInstantYield(INSTANT_YIELD_TYPE_BULLY, true, NO_GREATPERSON, NO_BUILDING, iGold, false, NO_PLAYER, NULL, false, pCapital);
+			GET_PLAYER(eBully).doInstantYield(INSTANT_YIELD_TYPE_BULLY, true, NO_GREATPERSON, NO_BUILDING, iGold, true, NO_PLAYER, NULL, false, pCapital);
 			//do we get a lump some of yields from this?
 			if (GET_PLAYER(eBully).GetPlayerTraits()->GetBullyYieldMultiplierAnnex() != 0)
 			{
@@ -15773,25 +15677,14 @@ int CvMinorCivAI::GetYieldTheftAmount(PlayerTypes eBully, YieldTypes eYield, boo
 	iGold *= (100 + GET_PLAYER(eBully).GetPlayerTraits()->GetBullyValueModifier());
 	iGold /= 100;
 
-	// Rounding
-	int iVisibleDivisor = /*5*/ GC.getMINOR_CIV_GOLD_GIFT_VISIBLE_DIVISOR(); //antonjs: consider: separate XML
-	iGold /= iVisibleDivisor;
-	iGold *= iVisibleDivisor;
-
-	iGold *= (100 + GET_PLAYER(eBully).GetPlayerTraits()->GetBullyValueModifier());
-	iGold /= 100;
-
 	if (!bIgnoreScaling)
 	{
-		int iFactor = CalculateBullyScore(eBully, false);
+		int iFactor = CalculateBullyScore(eBully, true);
 		iGold *= iFactor;
 		iGold /= 100;
 	}
 	if (iGold <= 0)
-		iGold = -1;
-
-	if (iGold <= 0)
-		return 0;
+		iGold = 0;
 
 	return iGold;
 }
@@ -15964,7 +15857,7 @@ void CvMinorCivAI::DoMajorBullyUnit(PlayerTypes eBully, UnitTypes eUnitType)
 
 					GC.getGame().SetLastTurnCSAnnexed(GC.getGame().getGameTurn());
 
-					GET_PLAYER(eBully).acquireCity(GetPlayer()->getCapitalCity(), true, true, false);
+					GET_PLAYER(eBully).acquireCity(GetPlayer()->getCapitalCity(), true, true);
 					return;
 				}
 			}
@@ -16163,7 +16056,7 @@ void CvMinorCivAI::DoMajorBullyUnit(PlayerTypes eBully, UnitTypes eUnitType)
 					iValue = GetYieldTheftAmount(eBully, YIELD_FOOD);
 					if (iValue > 0)
 					{
-						GET_PLAYER(eBully).doInstantYield(INSTANT_YIELD_TYPE_BULLY, true, NO_GREATPERSON, NO_BUILDING, iValue, false, NO_PLAYER, NULL, false, pBullyCapital);
+						GET_PLAYER(eBully).doInstantYield(INSTANT_YIELD_TYPE_BULLY, true, NO_GREATPERSON, NO_BUILDING, iValue, true, NO_PLAYER, NULL, false, pBullyCapital);
 
 						pBullyCapital->changeFood(iValue);
 						if (GC.getGame().getActivePlayer() != NULL)
@@ -16345,7 +16238,6 @@ void CvMinorCivAI::DoBulliedByMajorReaction(PlayerTypes eBully, int iInfluenceCh
 	CvAssertMsg(pBully, "pBully not expected to be NULL. Please send Anton your save file and version.");
 	if (!pBully) return;
 
-	SetTurnLastBulliedByMajor(eBully, GC.getGame().getGameTurn());
 	if (GET_PLAYER(eBully).GetBullyGlobalCSReduction() == 0)
 	{
 		ChangeFriendshipWithMajorTimes100(eBully, iInfluenceChangeTimes100);
@@ -16370,23 +16262,20 @@ void CvMinorCivAI::DoBulliedByMajorReaction(PlayerTypes eBully, int iInfluenceCh
 		CvPlayer* pMajorLoop = &GET_PLAYER(eMajorLoop);
 		if (!pMajorLoop) continue;
 
-		if (pMajorLoop->isAlive() && eMajorLoop != eBully && GET_TEAM(pMajorLoop->getTeam()).isHasMet(GetPlayer()->getTeam()))
+		if (pMajorLoop->isAlive() && eMajorLoop != eBully && GET_TEAM(pMajorLoop->getTeam()).isHasMet(GetPlayer()->getTeam()) && GET_TEAM(pMajorLoop->getTeam()).isHasMet(pBully->getTeam()))
 		{
-			if(GET_TEAM(pMajorLoop->getTeam()).isHasMet(pBully->getTeam()))
-			{
-				pMajorLoop->GetDiplomacyAI()->DoPlayerBulliedSomeone(eBully, GetPlayer()->GetID());
+			pMajorLoop->GetDiplomacyAI()->DoPlayerBulliedSomeone(eBully, GetPlayer()->GetID());
 
-				CvNotifications* pNotifications = pMajorLoop->GetNotifications();
-				if (pNotifications)
-				{
-					Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_MINOR_BULLIED_BY_SOMEONE_S");
-					strSummary << GetPlayer()->getNameKey();
-					strSummary << pBully->getNameKey();
-					Localization::String strNotification = Localization::Lookup("TXT_KEY_NOTIFICATION_MINOR_BULLIED_BY_SOMEONE");
-					strNotification << GetPlayer()->getNameKey();
-					strNotification << pBully->getNameKey();
-					pNotifications->Add(NOTIFICATION_MINOR, strNotification.toUTF8(), strSummary.toUTF8(), GetPlayer()->getCapitalCity()->getX(), GetPlayer()->getCapitalCity()->getY(), -1);
-				}
+			CvNotifications* pNotifications = pMajorLoop->GetNotifications();
+			if (pNotifications)
+			{
+				Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_MINOR_BULLIED_BY_SOMEONE_S");
+				strSummary << GetPlayer()->getNameKey();
+				strSummary << pBully->getNameKey();
+				Localization::String strNotification = Localization::Lookup("TXT_KEY_NOTIFICATION_MINOR_BULLIED_BY_SOMEONE");
+				strNotification << GetPlayer()->getNameKey();
+				strNotification << pBully->getNameKey();
+				pNotifications->Add(NOTIFICATION_MINOR, strNotification.toUTF8(), strSummary.toUTF8(), GetPlayer()->getCapitalCity()->getX(), GetPlayer()->getCapitalCity()->getY(), -1);
 			}
 		}
 	}
@@ -16405,6 +16294,8 @@ void CvMinorCivAI::DoBulliedByMajorReaction(PlayerTypes eBully, int iInfluenceCh
 			pMinorLoop->GetMinorCivAI()->DoTestActiveQuestsForPlayer(eBully, /*bTestComplete*/ true, /*bTestObsolete*/ false, MINOR_CIV_QUEST_BULLY_CITY_STATE);
 		}
 	}
+
+	SetTurnLastBulliedByMajor(eBully, GC.getGame().getGameTurn());
 }
 
 bool CvMinorCivAI::IsEverBulliedByAnyMajor() const
@@ -16481,7 +16372,7 @@ void CvMinorCivAI::DoElection()
 		return;
 	}
 
-	CvWeightedVector<PlayerTypes, MAX_MAJOR_CIVS, true> wvVotes;
+	CvWeightedVector<PlayerTypes> wvVotes;
 	Firaxis::Array<CvEspionageSpy*, MAX_MAJOR_CIVS> apSpy;
 	CvCity* pCapital = GetPlayer()->getCapitalCity();
 	if(!pCapital)
@@ -16559,11 +16450,7 @@ void CvMinorCivAI::DoElection()
 					strSummary << pCapital->getNameKey();
 					Localization::String strNotification = Localization::Lookup("TXT_KEY_NOTIFICATION_SPY_RIG_ELECTION_SUCCESS");
 					strNotification << GET_PLAYER(ePlayer).GetEspionage()->GetSpyRankName(apSpy[ui]->m_eRank);
-#if defined(MOD_BUGFIX_SPY_NAMES)
 					strNotification << apSpy[ui]->GetSpyName(&GET_PLAYER(ePlayer));
-#else
-					strNotification << GET_PLAYER(ePlayer).getCivilizationInfo().getSpyNames(apSpy[ui]->m_iName);
-#endif
 					strNotification << pCapital->getNameKey();
 					pNotifications->Add(NOTIFICATION_SPY_RIG_ELECTION_SUCCESS, strNotification.toUTF8(), strSummary.toUTF8(), pCapital->getX(), pCapital->getY(), -1);
 				}
@@ -16600,7 +16487,7 @@ void CvMinorCivAI::DoElection()
 				GET_PLAYER(ePlayer).doInstantYield(INSTANT_YIELD_TYPE_SPY_ATTACK, false, NO_GREATPERSON, NO_BUILDING, 1);
 
 				int iNewResult = GC.getGame().getSmallFakeRandNum(100, *pCapital->plot());
-				int iValueNeeded = 60;
+				int iValueNeeded = 90;
 
 				if (iNewResult > iValueNeeded)
 				{
@@ -16625,11 +16512,7 @@ void CvMinorCivAI::DoElection()
 						strSummary << pCapital->getNameKey();
 						Localization::String strNotification = Localization::Lookup("TXT_KEY_NOTIFICATION_SPY_RIG_ELECTION_FAILURE");
 						strNotification << GET_PLAYER(ePlayer).GetEspionage()->GetSpyRankName(apSpy[ui]->m_eRank);
-#if defined(MOD_BUGFIX_SPY_NAMES)
 						strNotification << apSpy[ui]->GetSpyName(&GET_PLAYER(ePlayer));
-#else
-						strNotification << GET_PLAYER(ePlayer).getCivilizationInfo().getSpyNames(apSpy[ui]->m_iName);
-#endif
 						strNotification << pCapital->getNameKey();
 						strNotification << GET_PLAYER(eElectionWinner).getCivilizationShortDescriptionKey();
 						pNotifications->Add(NOTIFICATION_SPY_RIG_ELECTION_FAILURE, strNotification.toUTF8(), strSummary.toUTF8(), pCapital->getX(), pCapital->getY(), -1);
@@ -16815,7 +16698,7 @@ void CvMinorCivAI::DoGoldGiftFromMajor(PlayerTypes ePlayer, int iGold)
 	{
 		int iFriendshipChange = GetFriendshipFromGoldGift(ePlayer, iGold);
 		if(iFriendshipChange > 0)
-			GET_PLAYER(ePlayer).GetTreasury()->LogExpenditure(GetPlayer()->GetMinorCivAI()->GetNamesListAsString(0), iGold,4);
+			GET_PLAYER(ePlayer).GetTreasury()->LogExpenditure(GetPlayer()->GetMinorCivAI()->GetNamesListAsString( CivsList(1,GetPlayer()->GetID()) ), iGold,4);
 
 		GET_PLAYER(ePlayer).GetTreasury()->ChangeGold(-iGold);
 		
@@ -17123,14 +17006,12 @@ void CvMinorCivAI::DoTileImprovementGiftFromMajor(PlayerTypes eMajor, int iPlotX
 		}
 	}
 #endif
-#if defined(MOD_BUGFIX_MINOR)
 	// Clear the pillage state on this plot (eg Minor builds a farm, barbs pillage it,
 	// minor discovers iron on the plot, player pays to build a mine, but the plot is still pillaged!)
 #if defined(MOD_EVENTS_TILE_IMPROVEMENTS)
 	pPlot->SetImprovementPillaged(false, false);
 #else
 	pPlot->SetImprovementPillaged(false);
-#endif
 #endif
 #if defined(MOD_BALANCE_CORE)
 	for(int iI = 0; iI < pPlot->getNumUnits(); iI++)
@@ -17152,7 +17033,7 @@ void CvMinorCivAI::DoTileImprovementGiftFromMajor(PlayerTypes eMajor, int iPlotX
 	gDLL->GameplayDoFX(pDllPlot.get());
 
 	const int iCost = GetGiftTileImprovementCost(eMajor);
-	GET_PLAYER(eMajor).GetTreasury()->LogExpenditure(GetPlayer()->GetMinorCivAI()->GetNamesListAsString(0), iCost,5);
+	GET_PLAYER(eMajor).GetTreasury()->LogExpenditure(GetPlayer()->GetMinorCivAI()->GetNamesListAsString( CivsList(1,GetPlayer()->GetID()) ), iCost,5);
 	pPlayer->GetTreasury()->ChangeGold(-iCost);
 
 #if defined(MOD_EVENTS_MINORS_INTERACTION)
@@ -17279,6 +17160,7 @@ void CvMinorCivAI::DoTeamDeclaredWarOnMe(TeamTypes eEnemyTeam)
 	CvTeam* pEnemyTeam = &GET_TEAM(eEnemyTeam);
 	CivsList veMinorsNowWary;
 	int iRand;
+	bool bOthersDontUpdateWariness = false;
 
 	// Since eEnemyTeam was the aggressor, drop the base influence to the minimum
 	for(int iEnemyMajorLoop = 0; iEnemyMajorLoop < MAX_MAJOR_CIVS; iEnemyMajorLoop++)
@@ -17287,7 +17169,17 @@ void CvMinorCivAI::DoTeamDeclaredWarOnMe(TeamTypes eEnemyTeam)
 		if(!GET_PLAYER(eEnemyMajorLoop).isAlive())
 			continue;
 		if(GET_PLAYER(eEnemyMajorLoop).getTeam() != eEnemyTeam)
-			continue;		
+			continue;
+
+		GET_PLAYER(eEnemyMajorLoop).SetTurnLastAttackedMinorCiv(GC.getGame().getGameTurn());
+
+		// Player has already attacked this minor recently
+		int iTurn = GetTurnLastAttacked(eEnemyTeam);
+		int iTurnDifference = GC.getGame().getGameTurn() - iTurn;
+		if (iTurn > -1 && iTurnDifference < 50)
+		{
+			bOthersDontUpdateWariness = true;
+		}
 
 		//antonjs: consider: forcibly revoke PtP here instead, and have negative INF / broken PtP fallout
 		
@@ -17329,7 +17221,7 @@ void CvMinorCivAI::DoTeamDeclaredWarOnMe(TeamTypes eEnemyTeam)
 	}
 
 	// See if other minors will declare war
-	if(pEnemyTeam->IsMinorCivAggressor())
+	if(pEnemyTeam->IsMinorCivAggressor() && !bOthersDontUpdateWariness)
 	{
 		int iChance;
 
@@ -17455,13 +17347,10 @@ void CvMinorCivAI::DoTeamDeclaredWarOnMe(TeamTypes eEnemyTeam)
 		}
 	}
 #if defined(MOD_BALANCE_CORE_MINORS) || defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
-	if(MOD_BALANCE_CORE_MINORS || MOD_DIPLOMACY_CITYSTATES_QUESTS) 
+	if (MOD_BALANCE_CORE_MINORS || MOD_DIPLOMACY_CITYSTATES_QUESTS) 
 	{
-		int iJerk = /*50*/ GC.getBALANCE_CS_WAR_COOLDOWN_RATE();
-		iJerk *= GC.getGame().getGameSpeedInfo().getTrainPercent();
-		iJerk /= 100;
-		SetJerk(eEnemyTeam, iJerk);
-
+		SetTurnLastAttacked(eEnemyTeam, GC.getGame().getGameTurn());
+		SetIgnoreJerk(eEnemyTeam, false);
 	}
 #endif
 
@@ -17471,68 +17360,83 @@ void CvMinorCivAI::DoTeamDeclaredWarOnMe(TeamTypes eEnemyTeam)
 /// Permanent War with eTeam?
 bool CvMinorCivAI::IsPermanentWar(TeamTypes eTeam) const
 {
-	CvAssertMsg(eTeam >= 0, "eTeam is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eTeam < MAX_TEAMS, "eTeam is expected to be within maximum bounds (invalid Index)");
-	if(eTeam < 0 || eTeam >= MAX_TEAMS) return false;
-
+	if (eTeam < 0 || eTeam >= MAX_CIV_TEAMS) return false;
 	return m_abPermanentWar[eTeam];
 }
 
 /// Permanent War with eTeam?
 void CvMinorCivAI::SetPermanentWar(TeamTypes eTeam, bool bValue)
 {
-	CvAssertMsg(eTeam >= 0, "eTeam is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eTeam < MAX_TEAMS, "eTeam is expected to be within maximum bounds (invalid Index)");
-	if(eTeam < 0 || eTeam >= MAX_TEAMS) return;
+	if (eTeam < 0 || eTeam >= MAX_CIV_TEAMS) return;
 
-	if(ENABLE_PERMANENT_WAR)
+	if (ENABLE_PERMANENT_WAR)
 		m_abPermanentWar[eTeam] = bValue;
-#if defined(MOD_BALANCE_CORE)
-	else if(GET_TEAM(eTeam).isMinorCiv() && GET_TEAM(GetPlayer()->getTeam()).isMinorCiv())
+
+	else if (GET_TEAM(eTeam).isMinorCiv() && GET_TEAM(GetPlayer()->getTeam()).isMinorCiv())
 		m_abPermanentWar[eTeam] = bValue;
-#endif
 }
 
 // Wary of eTeam?
 bool CvMinorCivAI::IsWaryOfTeam(TeamTypes eTeam) const
 {
-	CvAssertMsg(eTeam >= 0, "eTeam is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eTeam < MAX_TEAMS, "eTeam is expected to be within maximum bounds (invalid Index)");
-	if(eTeam < 0 || eTeam >= MAX_TEAMS) return false;
-
+	if (eTeam < 0 || eTeam >= MAX_CIV_TEAMS) return false;
 	return m_abWaryOfTeam[eTeam];
 }
 
 // Wary of eTeam?
 void CvMinorCivAI::SetWaryOfTeam(TeamTypes eTeam, bool bValue)
 {
-	CvAssertMsg(eTeam >= 0, "eTeam is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eTeam < MAX_TEAMS, "eTeam is expected to be within maximum bounds (invalid Index)");
-	if(eTeam < 0 || eTeam >= MAX_TEAMS) return;
-
-	if(IsWaryOfTeam(eTeam) == bValue)
-		return;
-
+	if (eTeam < 0 || eTeam >= MAX_CIV_TEAMS) return;
 	m_abWaryOfTeam[eTeam] = bValue;
 }
+
 #if defined(MOD_BALANCE_CORE_MINORS)  || defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
 //JERK COOLDOWN RATE
+int CvMinorCivAI::GetTurnLastAttacked(TeamTypes eTeam) const
+{
+	if (eTeam < 0 || eTeam >= MAX_CIV_TEAMS) return -1;
+	return m_aiTurnLastAttacked[eTeam];
+}
 
-void CvMinorCivAI::ChangeJerk(TeamTypes eTeam, int iChange)
+void CvMinorCivAI::SetTurnLastAttacked(TeamTypes eTeam, int iTurn)
 {
-	SetJerk(eTeam, GetJerk(eTeam) + iChange);
+	if (eTeam < 0 || eTeam >= MAX_CIV_TEAMS) return;
+	m_aiTurnLastAttacked[eTeam] = max(iTurn, -1);
 }
-int CvMinorCivAI::GetJerk(TeamTypes eTeam) const
+
+int CvMinorCivAI::GetJerkTurnsRemaining(TeamTypes eTeam) const
 {
-	CvAssertMsg(eTeam >= 0, "ePlayer is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eTeam < MAX_CIV_TEAMS, "ePlayer is expected to be within maximum bounds (invalid Index)");
-	if(eTeam < 0 || eTeam >= MAX_CIV_TEAMS) return 0;  // as defined in Reset()
-	return m_aiJerk[eTeam];
+	if (IsIgnoreJerk(eTeam))
+		return 0;
+
+	int iTurn = GetTurnLastAttacked(eTeam);
+	if (iTurn < 0)
+		return 0;
+
+	int iJerkTurns = /*50*/ GC.getBALANCE_CS_WAR_COOLDOWN_RATE();
+	iJerkTurns *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+	iJerkTurns /= 100;
+
+	if (iJerkTurns <= 0)
+		return 0;
+
+	int iTurnDifference = GC.getGame().getGameTurn() - iTurn;
+	if (iTurnDifference >= iJerkTurns)
+		return 0;
+
+	return (GC.getGame().getGameTurn() - iTurn);
 }
-void CvMinorCivAI::SetJerk(TeamTypes eTeam, int iValue)
+
+bool CvMinorCivAI::IsIgnoreJerk(TeamTypes eTeam) const
 {
-	if(GetJerk(eTeam) != iValue)
-		m_aiJerk[eTeam] = iValue;
+	if (eTeam < 0 || eTeam >= MAX_CIV_TEAMS) return false;
+	return m_abIgnoreJerk[eTeam];
+}
+
+void CvMinorCivAI::SetIgnoreJerk(TeamTypes eTeam, bool bValue)
+{
+	if (eTeam < 0 || eTeam >= MAX_CIV_TEAMS) return;
+	m_abIgnoreJerk[eTeam] = bValue;
 }
 
 PlayerTypes CvMinorCivAI::GetPermanentAlly() const
@@ -17655,7 +17559,7 @@ TechTypes CvMinorCivAI::GetGoodTechPlayerDoesntHave(PlayerTypes ePlayer, int iRo
 	CvAssertMsg(ePlayer >= 0, "ePlayer is expected to be non-negative (invalid Index)");
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "ePlayer is expected to be within maximum bounds (invalid Index)");
 
-	CvWeightedVector<int, SAFE_ESTIMATE_NUM_XML_WIDGETS, true> TechVector;
+	CvWeightedVector<int> TechVector;
 	int iValue, iProgress;
 
 
@@ -17722,7 +17626,9 @@ bool CvMinorCivAI::IsSameReligionAsMajor(PlayerTypes eMajor)
 	CvPlayer* pkPlayer = GetPlayer();
 	if(pkPlayer)
 	{
-		CvCity* pkCity = pkPlayer->getCapitalCity();
+		//don't use the capital, this is faster and mostly equivalent for a minor
+		int dummy;
+		const CvCity* pkCity = pkPlayer->firstCity(&dummy);
 		if(pkCity)
 		{
 			ReligionTypes eMinorReligion = pkCity->GetCityReligions()->GetReligiousMajority();
@@ -18016,7 +17922,7 @@ pair<CvString, CvString> CvMinorCivAI::GetStatusChangeNotificationStrings(Player
 
 				// Build Resource info
 				int iNumResourceTypes = 0;
-				FStaticVector<ResourceTypes, 64, true, c_eCiv5GameplayDLL, 0> veResources;
+				vector<ResourceTypes> veResources;
 				ResourceTypes eResource;
 				ResourceUsageTypes eUsage;
 				int iResourceQuantity;

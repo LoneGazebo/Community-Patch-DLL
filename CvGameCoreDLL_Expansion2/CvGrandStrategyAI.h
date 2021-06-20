@@ -53,12 +53,7 @@ public:
 	int GetGrandStrategyPriority(AIGrandStrategyTypes eGrandStrategy) const;
 	void SetGrandStrategyPriority(AIGrandStrategyTypes eGrandStrategy, int iValue);
 	void ChangeGrandStrategyPriority(AIGrandStrategyTypes eGrandStrategy, int iChange);
-
-#if defined(MOD_AI_SMART_V3)
 	int GetPersonalityAndGrandStrategy(FlavorTypes eFlavorType, bool bBoostGSMainFlavor = false);
-#else
-	int GetPersonalityAndGrandStrategy(FlavorTypes eFlavorType);
-#endif
 
 	// **********
 	// Stuff relating to guessing what other Players are up to
@@ -69,19 +64,26 @@ public:
 	AIGrandStrategyTypes GetGuessOtherPlayerActiveGrandStrategy(PlayerTypes ePlayer) const;
 	GuessConfidenceTypes GetGuessOtherPlayerActiveGrandStrategyConfidence(PlayerTypes ePlayer) const;
 	void SetGuessOtherPlayerActiveGrandStrategy(PlayerTypes ePlayer, AIGrandStrategyTypes eGrandStrategy, GuessConfidenceTypes eGuessConfidence);
-#if defined(MOD_BALANCE_CORE)
 	bool OtherPlayerDoingBetterThanUs(PlayerTypes ePlayer, AIGrandStrategyTypes eGrandStrategy);
-#endif
 
 	int GetGuessOtherPlayerConquestPriority(PlayerTypes ePlayer, int iWorldMilitaryAverage);
 	int GetGuessOtherPlayerCulturePriority(PlayerTypes ePlayer, int iWorldCultureAverage, int iWorldTourismAverage);
 	int GetGuessOtherPlayerUnitedNationsPriority(PlayerTypes ePlayer);
 	int GetGuessOtherPlayerSpaceshipPriority(PlayerTypes ePlayer, int iWorldNumTechsAverage);
 
+	int GetGoldFlavor() const { return m_iFlavorGold; }
+	int GetScienceFlavor() const { return m_iFlavorScience; }
+	int GetCultureFlavor() const { return m_iFlavorCulture; }
+	int GetProductionFlavor() const { return m_iFlavorProduction; }
+	int GetFaithFlavor() const { return m_iFlavorFaith; }
+	int GetHappinessFlavor() const { return m_iFlavorHappiness; }
+	int GetGrowthFlavor() const { return m_iFlavorGrowth; }
+	int GetDiploFlavor() const { return m_iFlavorDiplomacy; }
+
 private:
 
-	void LogGrandStrategies(const FStaticVector< int, 5, true, c_eCiv5GameplayDLL >& vGrandStrategyPriorities);
-	void LogGuessOtherPlayerGrandStrategy(const FStaticVector< int, 5, true, c_eCiv5GameplayDLL >& vGrandStrategyPriorities, PlayerTypes ePlayer);
+	void LogGrandStrategies(const vector<int>& vGrandStrategyPriorities);
+	void LogGuessOtherPlayerGrandStrategy(const vector<int>& vGrandStrategyPriorities, PlayerTypes ePlayer);
 
 	CvPlayer* m_pPlayer;
 	CvAIGrandStrategyXMLEntries* m_pAIGrandStrategies;
@@ -98,6 +100,16 @@ private:
 
 	int* m_eGuessOtherPlayerActiveGrandStrategy;
 	int* m_eGuessOtherPlayerActiveGrandStrategyConfidence;
+
+	// caching for faster accesss without a hash lookup
+	int m_iFlavorGold;
+	int m_iFlavorScience;
+	int m_iFlavorCulture;
+	int m_iFlavorProduction;
+	int m_iFlavorFaith;
+	int m_iFlavorHappiness;
+	int m_iFlavorGrowth;
+	int m_iFlavorDiplomacy;
 };
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

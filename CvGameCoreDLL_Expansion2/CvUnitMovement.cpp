@@ -77,7 +77,7 @@ int CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlot
 
 		iRouteCost = std::min(iRouteVariableCost, iRouteFlatCost);
 
-		if (pToPlot->isFriendlyCityOrPassableImprovement(pUnit->getOwner())) //don't consider terrain/feature effects for cities
+		if (pToPlot->isCity()) //don't consider terrain/feature effects for cities
 			return iRouteCost;
 	}
 
@@ -99,7 +99,7 @@ int CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlot
 
 #if defined(MOD_BALANCE_CORE_EMBARK_CITY_NO_COST)
 			//If city, and player has disembark to city at reduced cost...
-			if (pToPlot->isFriendlyCityOrPassableImprovement(pUnit->getOwner()))
+			if (pToPlot->isCoastalCityOrPassableImprovement(pUnit->getOwner(),true,true))
 			{
 				if (kUnitTeam.isCityNoEmbarkCost())
 					bFreeEmbarkStateChange = true;
@@ -120,7 +120,7 @@ int CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlot
 
 #if defined(MOD_BALANCE_CORE_EMBARK_CITY_NO_COST)
 			//If city, and player has embark from city at reduced cost...
-			if (pFromPlot->isFriendlyCityOrPassableImprovement(pUnit->getOwner()))
+			if (pFromPlot->isCoastalCityOrPassableImprovement(pUnit->getOwner(),true,true))
 			{
 				if (kUnitTeam.isCityNoEmbarkCost())
 					bFreeEmbarkStateChange = true;
@@ -184,6 +184,19 @@ int CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlot
 					return INT_MAX;
 				}
 			}
+			//city might have special defense buildings
+			CvCity* pCity = pToPlot->getOwningCity();
+			if (pCity)
+			{
+				if (!pToPlot->isWater() && pUnit->getDomainType() == DOMAIN_LAND && pCity->GetBorderObstacleLand() > 0)
+				{
+					return INT_MAX;
+				}
+				if (pToPlot->isWater() && pCity->GetBorderObstacleWater() > 0 && (pUnit->getDomainType() == DOMAIN_SEA || pToPlot->needsEmbarkation(pUnit)))
+				{
+					return INT_MAX;
+				}
+			}
 		}
 	}
 
@@ -199,7 +212,7 @@ int CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlot
 		return INT_MAX;
 	}
 	//case with route is already handled above
-	else if (pToPlot->isFriendlyCityOrPassableImprovement(pUnit->getOwner()) && (!bRiverCrossing || kUnitTeam.isBridgeBuilding())) 
+	else if (pToPlot->isCity() && (!bRiverCrossing || kUnitTeam.isBridgeBuilding())) 
 	{
 		return iMoveDenominator;
 	}
@@ -263,23 +276,6 @@ int CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlot
 			{
 				//unit itself may have a negative trait ...
 				bSlowDown = pUnit->isSlowInEnemyLand();
-
-				if (!bSlowDown)
-				{
-					//city might have special defense buildings
-					CvCity* pCity = pToPlot->getOwningCity();
-					if (pCity)
-					{
-						if (!pToPlot->isWater() && pUnit->getDomainType() == DOMAIN_LAND)
-						{
-							bSlowDown = (pCity->GetBorderObstacleCity() > 0);
-						}
-						if (pToPlot->isWater() && (pUnit->getDomainType() == DOMAIN_SEA || pToPlot->needsEmbarkation(pUnit)))
-						{
-							bSlowDown = (pCity->GetBorderObstacleWater() > 0);
-						}
-					}
-				}
 			}
 		}
 

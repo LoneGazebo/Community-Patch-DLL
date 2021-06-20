@@ -73,6 +73,8 @@
 			{3_CityYield}
 			{4_GPChange}
 			{5_Turns}
+			{6_SpyEventDuration} USE ONLY IF AN ESPIONAGE EVENT!
+			{7_PlayerEventEffect}
 	
 		EventChoiceNotifications (see two tables below) also have access to this:
 			Player Choices:
@@ -222,6 +224,7 @@
 		<Column name="NumChoices" type="integer" default="1"/>
 		<!-- Allows the event to ignore the global cooldown defined above. Use sparingly! -->
 		<Column name="IgnoresGlobalCooldown" type="boolean" default="false"/>
+
 		<!-- Filters 
 		
 		Determine whether or not an Event can occur for the player.
@@ -336,8 +339,7 @@
 		<Column name="EraScaling" type="boolean" default="false"/>
 		<!-- Expires: set to true if you want policies/buildings/promotions/resources granted to disappear after the duration. -->
 		<Column name="Expires" type="boolean" default="false"/>
-		
-		
+
 		<!-- Variables 
 		
 		Attriutes granted by Event Choices. Unless noted, city-related choices affect all cities.
@@ -705,6 +707,12 @@
 		<Column name="IsSuperUnhappy" type="boolean" default="false"/>
 		<Column name="RequiresNearbyNaturalWonder" type="boolean" default="false"/>
 		<Column name="RequiresNearbyMountain" type="boolean" default="false"/>
+		<!-- Allows the event to fire as a random event for a spy. City Choice Effects AFFECT CITY SPY IS IN. Uses a special table for getting event data, see below -->
+		<Column name="IsEspionage" type="boolean" default="false"/>
+		<!-- Espionage Setup Event for Spy Event Filter. Only need one per database, please.-->
+		<Column name="EspionageSetup" type="boolean" default="false"/>
+		<!-- Espionage Setup Event for Counterspy Spy Event Filter. Only need one per database, please.-->
+		<Column name="IsCounterSpy" type="boolean" default="false"/>
 	</Table>
 	
 	<!-- Filter -->
@@ -766,8 +774,11 @@
 		
 		Attributes granted by City Event Choices 
 		
-		-->		
+		-->
 		
+		<!-- Appplies chosen player event - useful for espionage. Note: due to coding, if you use this AND IsSpyBenefit, the player-level event will apply to spy owner but not the city event. This lets you give the spy owner a bonus and penalize the city owner in the same event-->
+		<Column name="TriggerPlayerEventChoice" type="text" reference="EventChoices(Type)" default="NULL"/>
+
 		<!-- Only affects local city. Destroys or adds a building type. -->
 		<Column name="EventBuildingClassDestruction" type="text" reference="BuildingClasses(Type)" default="NULL"/>
 		<Column name="EventBuildingClass" type="text" reference="BuildingClasses(Type)" default="NULL"/>
@@ -775,10 +786,15 @@
 		<Column name="CityWideBuildingDestructionChance" type="integer" default="0"/>
 		<!-- Local WLTKD Turns -->
 		<Column name="WLTKDTurns" type="integer" default="0"/>
+		<!-- Local Growth Mod %-->
+		<Column name="GrowthMod" type="integer" default="0"/>
 		<!-- Local Resistance Turns -->
 		<Column name="ResistanceTurns" type="integer" default="0"/>
 		<!-- Local Happiness Boost. Can be set to expire. -->
 		<Column name="CityHappiness" type="integer" default="0"/>
+		<!-- Pillage x number of SR around city. Resource chosen is random, but will be strategic. -->
+		<Column name="PillageCityStrategicNum" type="integer" default="0"/>
+
 		<!-- Chance of destruction for all buildings in city - use as a baseline for horrible disasters, etc. -->
 		<!-- Spawns X number of barbs near the City. Unit type scales with player tech. -->
 		<Column name="RandomBarbarianSpawn" type="integer" default="0"/>
@@ -791,6 +807,41 @@
 		<!-- Converts City to Player Majority Religion by x% (can be official religion, but not necessarily so).-->
 		<Column name="ConvertToPlayerMajorityReligionPercent" type="integer" default="0"/>
 
+		<!-- Associates a Choice with an espionage outcome. Only used with Espionage actions. False means spy stuff won't trigger in post-event figuring. -->
+		<Column name="IsEspionageEffect" type="boolean" default="false"/>
+		<!-- Set to true for any mission that's part of the 'setup' phase for a Spy -->
+		<Column name="MissionSetup" type="boolean" default="false"/>
+		<!-- Effect applies to spy owner capital instead! Note: if you use  -->
+		<Column name="IsSpyBenefit" type="boolean" default="false"/>
+		<!-- Bonus and/or cost etc. scale based on the potential of the city - higher potential = slower, but more reward! -->
+		<Column name="PotentialScaling" type="boolean" default="false"/>
+		<!-- Bonus and/or cost etc. scale based on the difference in techs with target player! Scales the potential value by a % amount-->
+		<Column name="ScienceScaling" type="integer" default="0"/>
+		<!-- Modifier to chance to be identified on a spy mission-->
+		<Column name="IDModifier" type="integer" default="0"/>
+		<!-- Modifier to chance to be killed on a spy mission-->
+		<Column name="DeathModifier" type="integer" default="0"/>
+		<!-- Minimum Spy Level -->
+		<Column name="SpyLevelRequired" type="integer" default="0"/>
+		<Column name="RequiresCounterSpy" type="boolean" default="false"/>
+		<Column name="ExpiresOnCounterSpyExit" type="boolean" default="false"/>
+		<!-- Affects duration of mission -->
+		<Column name="EspionageDifficultyMod" type="integer" default="0"/>
+		<!-- Damages city -->
+		<Column name="DamageCity" type="integer" default="0"/>
+		<!-- Damages garrison unit -->
+		<Column name="DamageGarrison" type="integer" default="0"/>
+		<!-- Prevents city healing for x turns -->
+		<Column name="SapCityTurns" type="integer" default="0"/>
+		<!-- Speeds up an espionage action if the city has a wonder under construction! -->
+		<Column name="WonderConstructionSpeedMod" type="integer" default="0"/>
+		<!-- Counterspy can affect city ranged strength %-->
+		<Column name="CityDefenseModifier" type="integer" default="0"/>
+
+		<!-- Spy copies num techs; if it fails at end, it converts amount to GA turns -->
+		<Column name="StealNumTechs" type="integer" default="0"/>
+		<!-- Spy copies num GWs; if it fails at end, it converts amount to GA turns-->
+		<Column name="ForgeNumGW" type="integer" default="0"/>
 		<!-- FILTERS: 
 		
 		Values below determine whether or not a City Event Choice appears in the City list 
@@ -1046,6 +1097,7 @@
 		<Column name="Description" type="text" reference="Language_en_US(Tag)"/>
 		<Column name="ShortDescription" type="text" reference="Language_en_US(Tag)"/>
 		<Column name="IsWorldEvent" type="boolean" default="false"/>
+		<Column name="EspionageEvent" type="boolean" default="false"/>
 		<!-- Grabs the coordinates for the city where the event fires - if left false, it returns -1/-1, so the camera won't move if the button is selected. -->
 		<Column name="NeedCityCoordinates" type="boolean" default="false"/>
 		<!-- Note that if you set NeedPlayerID to true, it takes over the slot where ExtraVariable goes, so ExtraVariable is inactive! -->
@@ -1078,3 +1130,11 @@
 		</Row>
 	</EventClassTypes>
 </GameData>
+
+<!-- ESPIONAGE TEXT FORMAT FOR DESCRIPTIONS
+These values allow you to have spy names, city names, risk of death, etc. as values in your description for the event. Purely flavor.
+	{1_SpyRank}
+	{2_SpyName}
+	{3_CityName}
+	{4_ChanceToDie}
+	{5_ChanceToBeIdentified} -->

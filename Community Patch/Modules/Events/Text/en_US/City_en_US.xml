@@ -68,7 +68,7 @@
 			<Text>Invest {1_Scaled}. 50% chance for a Harbor to be constructed in the City.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CITY_EVENT_FISHING_EXPEDITION_CHOICE_3_SUCCESSFUL">
-			<Text>The investment in {2_City} was successful and paved for construction!</Text>
+			<Text>The investment in {2_City} was successful and paid for construction!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CITY_EVENT_FISHING_EXPEDITION_CHOICE_3_SUCCESSFUL_S">
 			<Text>Harbor Constructed!</Text>

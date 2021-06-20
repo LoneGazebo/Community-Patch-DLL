@@ -15,5 +15,3 @@ ALTER TABLE UnitPromotions
   ADD ExtraTerrainDamage INTEGER DEFAULT 0;
 ALTER TABLE UnitPromotions
   ADD ExtraFeatureDamage INTEGER DEFAULT 0;
-
-INSERT INTO CustomModDbUpdates(Name, Value) VALUES('API_PLOT_BASED_DAMAGE', 1);

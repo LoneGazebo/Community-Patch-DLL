@@ -181,18 +181,14 @@ CvTraitEntry::CvTraitEntry() :
 	m_iTradeRouteResourceModifier(0),
 	m_iUniqueLuxuryCities(0),
 	m_iUniqueLuxuryQuantity(0),
-#if defined(MOD_BUGFIX_MINOR)
 	m_iWorkerSpeedModifier(0),
 	m_iAfraidMinorPerTurnInfluence(0),
 	m_iLandTradeRouteRangeBonus(0),
-#endif
 #if defined(MOD_TRAITS_TRADE_ROUTE_BONUSES)
 	m_iSeaTradeRouteRangeBonus(0),
 #endif
-#if defined(MOD_BUGFIX_MINOR)
 	m_iTradeReligionModifier(0),
 	m_iTradeBuildingModifier(0),
-#endif
 
 	m_eFreeUnitPrereqTech(NO_TECH),
 	m_eFreeBuilding(NO_BUILDING),
@@ -247,7 +243,7 @@ CvTraitEntry::CvTraitEntry() :
 	m_piStrategicResourceQuantityModifier(NULL),
 	m_piResourceQuantityModifiers(NULL),
 	m_ppiImprovementYieldChanges(NULL),
-#if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
+#if defined(MOD_API_UNIFIED_YIELDS)
 	m_ppiPlotYieldChanges(NULL),
 #endif
 #if defined(MOD_BALANCE_CORE)
@@ -334,7 +330,7 @@ CvTraitEntry::CvTraitEntry() :
 CvTraitEntry::~CvTraitEntry()
 {
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiImprovementYieldChanges);
-#if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
+#if defined(MOD_API_UNIFIED_YIELDS)
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiPlotYieldChanges);
 #endif
 #if defined(MOD_API_UNIFIED_YIELDS)
@@ -1554,19 +1550,15 @@ int CvTraitEntry::GetYieldFromBarbarianCampClear(YieldTypes eIndex1, bool bEraSc
 }
 #endif
 
-#if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
+#if defined(MOD_API_UNIFIED_YIELDS)
 /// Accessor:: Extra yield from a plot
 int CvTraitEntry::GetPlotYieldChanges(PlotTypes eIndex1, YieldTypes eIndex2) const
 {
-	if (MOD_API_PLOT_YIELDS) {
-		CvAssertMsg(eIndex1 < GC.getNumPlotInfos(), "Index out of bounds");
-		CvAssertMsg(eIndex1 > -1, "Index out of bounds");
-		CvAssertMsg(eIndex2 < NUM_YIELD_TYPES, "Index out of bounds");
-		CvAssertMsg(eIndex2 > -1, "Index out of bounds");
-		return m_ppiPlotYieldChanges ? m_ppiPlotYieldChanges[eIndex1][eIndex2] : 0;
-	} else {
-		return 0;
-	}
+	CvAssertMsg(eIndex1 < GC.getNumPlotInfos(), "Index out of bounds");
+	CvAssertMsg(eIndex1 > -1, "Index out of bounds");
+	CvAssertMsg(eIndex2 < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(eIndex2 > -1, "Index out of bounds");
+	return m_ppiPlotYieldChanges ? m_ppiPlotYieldChanges[eIndex1][eIndex2] : 0;
 }
 #endif
 #if defined(MOD_BALANCE_CORE)
@@ -2581,7 +2573,7 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 #if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
 	m_iPovertyHappinessChange = kResults.GetInt("PovertyHappinessTraitMod");
 	m_iDefenseHappinessChange = kResults.GetInt("DefenseHappinessTraitMod");
-	m_iUnculturedHappinessChange = kResults.GetInt("UnculturedHappinessChange");
+	m_iUnculturedHappinessChange = kResults.GetInt("UnculturedHappinessTraitMod");
 	m_iIlliteracyHappinessChange = kResults.GetInt("IlliteracyHappinessTraitMod");
 	m_iMinorityHappinessChange = kResults.GetInt("MinorityHappinessTraitMod");
 	m_bNoConnectionUnhappiness = kResults.GetBool("NoConnectionUnhappiness");
@@ -2884,7 +2876,7 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 		{
 			const int iYieldType = pResults->GetInt(0);
 			const int iYield = pResults->GetInt(1);
-			const int bEraScaling = pResults->GetBool(2);
+			const bool bEraScaling = pResults->GetBool(2);
 
 			m_pbiYieldFromBarbarianCampClear[iYieldType][bEraScaling] = iYield;
 		}
@@ -3188,9 +3180,9 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 		}
 	}
 
-#if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
+#if defined(MOD_API_UNIFIED_YIELDS)
 	//PlotYieldChanges
-	if (MOD_API_UNIFIED_YIELDS && MOD_API_PLOT_YIELDS)
+	if (MOD_API_UNIFIED_YIELDS)
 	{
 		kUtility.Initialize2DArray(m_ppiPlotYieldChanges, "Plots", "Yields");
 
@@ -4648,7 +4640,7 @@ void CvPlayerTraits::InitPlayerTraits()
 					}
 				}
 #endif
-#if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
+#if defined(MOD_API_UNIFIED_YIELDS)
 				for(int iPlotLoop = 0; iPlotLoop < GC.getNumPlotInfos(); iPlotLoop++)
 				{
 					int iChange = trait->GetPlotYieldChanges((PlotTypes)iPlotLoop, (YieldTypes)iYield);
@@ -4942,7 +4934,7 @@ void CvPlayerTraits::Uninit()
 #endif
 	m_paiMaintenanceModifierUnitCombat.clear();
 	m_ppaaiImprovementYieldChange.clear();
-#if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
+#if defined(MOD_API_UNIFIED_YIELDS)
 	m_ppiPlotYieldChange.clear();
 #endif
 #if defined(MOD_API_UNIFIED_YIELDS)
@@ -5229,7 +5221,7 @@ void CvPlayerTraits::Reset()
 #if defined(MOD_BALANCE_CORE) && defined(MOD_TRAITS_YIELD_FROM_ROUTE_MOVEMENT_IN_FOREIGN_TERRITORY)
 	m_pbiYieldFromRouteMovementInForeignTerritory.clear();
 #endif
-#if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
+#if defined(MOD_API_UNIFIED_YIELDS)
 	m_ppiPlotYieldChange.clear();
 	m_ppiPlotYieldChange.resize(GC.getNumPlotInfos());
 #endif
@@ -5283,7 +5275,7 @@ void CvPlayerTraits::Reset()
 		}
 		UpdateYieldChangeImprovementTypes();
 
-#if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
+#if defined(MOD_API_UNIFIED_YIELDS)
 		for(int iPlot = 0; iPlot < GC.getNumPlotInfos(); iPlot++)
 		{
 			m_ppiPlotYieldChange[iPlot] = yield;
@@ -5714,7 +5706,7 @@ void CvPlayerTraits::UpdateYieldChangeImprovementTypes()
 			if (m_ppaaiYieldChangePerImprovementBuilt[iImprovement][iYield] != 0)
 			{
 				m_vYieldChangeImprovementTypes.push_back((ImprovementTypes)iImprovement);
-				continue;
+				break;
 			}
 		}
 	}
@@ -5758,18 +5750,14 @@ int CvPlayerTraits::GetYieldFromRouteMovementInForeignTerritory(YieldTypes eInde
 	return 0;
 }
 #endif
-#if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
+#if defined(MOD_API_UNIFIED_YIELDS)
 /// Extra yield from this plot
 int CvPlayerTraits::GetPlotYieldChange(PlotTypes ePlot, YieldTypes eYield) const
 {
-	if (MOD_API_PLOT_YIELDS) {
-		CvAssertMsg(ePlot < GC.getNumPlotInfos(),  "Invalid ePlot parameter in call to CvPlayerTraits::GetPlotYieldChange()");
-		CvAssertMsg(eYield < NUM_YIELD_TYPES,  "Invalid eYield parameter in call to CvPlayerTraits::GetPlotYieldChange()");
+	CvAssertMsg(ePlot < GC.getNumPlotInfos(),  "Invalid ePlot parameter in call to CvPlayerTraits::GetPlotYieldChange()");
+	CvAssertMsg(eYield < NUM_YIELD_TYPES,  "Invalid eYield parameter in call to CvPlayerTraits::GetPlotYieldChange()");
 
-		return m_ppiPlotYieldChange[(int)ePlot][(int)eYield];
-	} else {
-		return 0;
-	}
+	return m_ppiPlotYieldChange[(int)ePlot][(int)eYield];
 }
 #endif
 
@@ -6197,7 +6185,6 @@ bool CvPlayerTraits::AddUniqueLuxuriesAround(CvCity *pCity, int iNumResourceToGi
 			if(pLoopPlot->getResourceType() == NO_RESOURCE && pLoopPlot->getImprovementType() == NO_IMPROVEMENT)
 			{
 				pLoopPlot->setResourceType(eResourceToGive, 1, false);
-				pLoopPlot->DoFindCityToLinkResourceTo();
 				iNumResourceGiven++;
 
 				if(iNumResourceGiven >= iNumResourceToGive)
@@ -6224,7 +6211,6 @@ bool CvPlayerTraits::AddUniqueLuxuriesAround(CvCity *pCity, int iNumResourceToGi
 						pLoopPlot->setImprovementType(NO_IMPROVEMENT);
 
 					pLoopPlot->setResourceType(eResourceToGive, 1, false);
-					pLoopPlot->DoFindCityToLinkResourceTo();
 					iNumResourceGiven++;
 
 					if(iNumResourceGiven >= iNumResourceToGive)
@@ -6244,7 +6230,6 @@ bool CvPlayerTraits::AddUniqueLuxuriesAround(CvCity *pCity, int iNumResourceToGi
 		if(eCurrentResource == NO_RESOURCE)
 		{
 			pCity->plot()->setResourceType(eResourceToGive, 1, false);
-			pCity->plot()->DoFindCityToLinkResourceTo();
 			bResult = true;
 		}
 	}
@@ -6267,7 +6252,7 @@ void CvPlayerTraits::SpawnBestUnitsOnImprovementDOW(CvCity *pCity)
 		CvUnitClassInfo* pkUnitClassInfo = GC.getUnitClassInfo(eUnitClass);
 		if(pkUnitClassInfo)
 		{
-			const UnitTypes eUnit = (UnitTypes) m_pPlayer->getCivilizationInfo().getCivilizationUnits(eUnitClass);
+			const UnitTypes eUnit = m_pPlayer->GetSpecificUnitType(eUnitClass);
 			CvUnitEntry* pUnitEntry = GC.getUnitInfo(eUnit);
 			if(pUnitEntry)
 			{
@@ -6721,11 +6706,9 @@ void CvPlayerTraits::ChooseMayaBoost()
 		bHasReligion = true;
 	}
 #endif
-#if defined(MOD_BUGFIX_UNITCLASS_NOT_UNIT)
+
 	ePossibleGreatPerson = m_pPlayer->GetSpecificUnitType("UNITCLASS_PROPHET", true);
-#else
-	ePossibleGreatPerson = (UnitTypes)GC.getInfoTypeForString("UNIT_PROPHET", true);
-#endif
+
 	if(GetUnitBaktun(ePossibleGreatPerson) == 0)
 	{
 		CvGameReligions* pReligions = GC.getGame().GetGameReligions();
@@ -6744,11 +6727,7 @@ void CvPlayerTraits::ChooseMayaBoost()
 		// Don't have a religion and they can still be founded?
 		else
 		{
-#if defined(MOD_BALANCE_CORE)
 			if(pReligions->GetNumReligionsStillToFound() > 0 || IsAlwaysReligion())
-#else
-			if(pReligions->GetNumReligionsStillToFound() > 0)
-#endif
 			{
 				eDesiredGreatPerson = ePossibleGreatPerson;
 			}
@@ -6764,11 +6743,8 @@ void CvPlayerTraits::ChooseMayaBoost()
 	// Highly wonder competitive and still early in game?
 	if(eDesiredGreatPerson == NO_UNIT)
 	{
-#if defined(MOD_BUGFIX_UNITCLASS_NOT_UNIT)
 		ePossibleGreatPerson = m_pPlayer->GetSpecificUnitType("UNITCLASS_ENGINEER");
-#else
-		ePossibleGreatPerson = (UnitTypes)GC.getInfoTypeForString("UNIT_ENGINEER");
-#endif
+
 		if(GetUnitBaktun(ePossibleGreatPerson) == 0)
 		{
 			if(m_pPlayer->GetDiplomacyAI()->GetWonderCompetitiveness() >= 8 && GC.getGame().getGameTurn() <= (GC.getGame().getEstimateEndTurn() / 2))
@@ -6779,17 +6755,13 @@ void CvPlayerTraits::ChooseMayaBoost()
 	}
 
 	// Does our grand strategy match one that is available?
-	AIGrandStrategyTypes eVictoryStrategy = m_pPlayer->GetGrandStrategyAI()->GetActiveGrandStrategy();
-	if(eDesiredGreatPerson == NO_UNIT)
+	if (eDesiredGreatPerson == NO_UNIT)
 	{
-#if defined(MOD_BUGFIX_UNITCLASS_NOT_UNIT)
 		ePossibleGreatPerson = m_pPlayer->GetSpecificUnitType("UNITCLASS_SCIENTIST");
-#else
-		ePossibleGreatPerson = (UnitTypes)GC.getInfoTypeForString("UNIT_SCIENTIST");
-#endif
-		if(GetUnitBaktun(ePossibleGreatPerson) == 0)
+
+		if (GetUnitBaktun(ePossibleGreatPerson) == 0)
 		{
-			if(eVictoryStrategy == (AIGrandStrategyTypes) GC.getInfoTypeForString("AIGRANDSTRATEGY_SPACESHIP"))
+			if (m_pPlayer->GetDiplomacyAI()->IsGoingForSpaceshipVictory())
 			{
 				eDesiredGreatPerson = ePossibleGreatPerson;
 			}
@@ -6797,14 +6769,11 @@ void CvPlayerTraits::ChooseMayaBoost()
 	}
 	if(eDesiredGreatPerson == NO_UNIT)
 	{
-#if defined(MOD_BUGFIX_UNITCLASS_NOT_UNIT)
 		ePossibleGreatPerson = m_pPlayer->GetSpecificUnitType("UNITCLASS_ARTIST");
-#else
-		ePossibleGreatPerson = (UnitTypes)GC.getInfoTypeForString("UNIT_ARTIST");
-#endif
+
 		if(GetUnitBaktun(ePossibleGreatPerson) == 0)
 		{
-			if(eVictoryStrategy == (AIGrandStrategyTypes) GC.getInfoTypeForString("AIGRANDSTRATEGY_CULTURE"))
+			if(m_pPlayer->GetDiplomacyAI()->IsGoingForCultureVictory())
 			{
 				eDesiredGreatPerson = ePossibleGreatPerson;
 			}
@@ -6812,23 +6781,18 @@ void CvPlayerTraits::ChooseMayaBoost()
 	}
 	if(eDesiredGreatPerson == NO_UNIT)
 	{
-#if defined(MOD_DIPLOMACY_CITYSTATES)
 		if (MOD_DIPLOMACY_CITYSTATES)
-#if defined(MOD_BUGFIX_UNITCLASS_NOT_UNIT)
+		{
 			ePossibleGreatPerson = m_pPlayer->GetSpecificUnitType("UNITCLASS_GREAT_DIPLOMAT");
-#else
-			ePossibleGreatPerson = (UnitTypes)GC.getInfoTypeForString("UNIT_GREAT_DIPLOMAT");
-#endif
+		}
 		else
-#endif
-#if defined(MOD_BUGFIX_UNITCLASS_NOT_UNIT)
+		{
 			ePossibleGreatPerson = m_pPlayer->GetSpecificUnitType("UNITCLASS_MERCHANT");
-#else
-			ePossibleGreatPerson = (UnitTypes)GC.getInfoTypeForString("UNIT_MERCHANT");
-#endif
+		}
+
 		if(GetUnitBaktun(ePossibleGreatPerson) == 0)
 		{
-			if(eVictoryStrategy == (AIGrandStrategyTypes) GC.getInfoTypeForString("AIGRANDSTRATEGY_UNITED_NATIONS"))
+			if(m_pPlayer->GetDiplomacyAI()->IsGoingForDiploVictory())
 			{
 				eDesiredGreatPerson = ePossibleGreatPerson;
 			}
@@ -6836,14 +6800,11 @@ void CvPlayerTraits::ChooseMayaBoost()
 	}
 	if(eDesiredGreatPerson == NO_UNIT)
 	{
-#if defined(MOD_BUGFIX_UNITCLASS_NOT_UNIT)
 		ePossibleGreatPerson = m_pPlayer->GetSpecificUnitType("UNITCLASS_GREAT_GENERAL");
-#else
-		ePossibleGreatPerson = (UnitTypes)GC.getInfoTypeForString("UNIT_GREAT_GENERAL");
-#endif
+
 		if(GetUnitBaktun(ePossibleGreatPerson) == 0)
 		{
-			if(eVictoryStrategy == (AIGrandStrategyTypes) GC.getInfoTypeForString("AIGRANDSTRATEGY_CONQUEST"))
+			if(m_pPlayer->GetDiplomacyAI()->IsGoingForWorldConquest())
 			{
 				eDesiredGreatPerson = ePossibleGreatPerson;
 			}
@@ -6852,14 +6813,11 @@ void CvPlayerTraits::ChooseMayaBoost()
 #if defined(MOD_DIPLOMACY_CITYSTATES)
 	if(MOD_DIPLOMACY_CITYSTATES)
 	{
-#if defined(MOD_BUGFIX_UNITCLASS_NOT_UNIT)
 		ePossibleGreatPerson = m_pPlayer->GetSpecificUnitType("UNITCLASS_GREAT_DIPLOMAT");
-#else
-		ePossibleGreatPerson = (UnitTypes)GC.getInfoTypeForString("UNIT_GREAT_DIPLOMAT");
-#endif
+
 		if(GetUnitBaktun(ePossibleGreatPerson) == 0)
 		{
-			if(eVictoryStrategy == (AIGrandStrategyTypes) GC.getInfoTypeForString("AIGRANDSTRATEGY_UNITED_NATIONS"))
+			if(m_pPlayer->GetDiplomacyAI()->IsGoingForDiploVictory())
 			{
 				eDesiredGreatPerson = ePossibleGreatPerson;
 			}
@@ -6870,11 +6828,8 @@ void CvPlayerTraits::ChooseMayaBoost()
 	// No obvious strategic choice, just go for first one available in a reasonable order
 	if(eDesiredGreatPerson == NO_UNIT)
 	{
-#if defined(MOD_BUGFIX_UNITCLASS_NOT_UNIT)
 		ePossibleGreatPerson = m_pPlayer->GetSpecificUnitType("UNITCLASS_PROPHET", true);
-#else
-		ePossibleGreatPerson = (UnitTypes)GC.getInfoTypeForString("UNIT_PROPHET", true);
-#endif
+
 		if(GetUnitBaktun(ePossibleGreatPerson) == 0)
 		{
 			eDesiredGreatPerson = ePossibleGreatPerson;
@@ -6891,88 +6846,64 @@ void CvPlayerTraits::ChooseMayaBoost()
 		else
 #endif
 		{
-#if defined(MOD_BUGFIX_UNITCLASS_NOT_UNIT)
 			ePossibleGreatPerson = m_pPlayer->GetSpecificUnitType("UNITCLASS_ENGINEER");
-#else
-			ePossibleGreatPerson = (UnitTypes)GC.getInfoTypeForString("UNIT_ENGINEER");
-#endif
+
 			if(GetUnitBaktun(ePossibleGreatPerson) == 0)
 			{
 				eDesiredGreatPerson = ePossibleGreatPerson;
 			}
 			else
 			{
-#if defined(MOD_BUGFIX_UNITCLASS_NOT_UNIT)
 				ePossibleGreatPerson = m_pPlayer->GetSpecificUnitType("UNITCLASS_WRITER");
-#else
-				ePossibleGreatPerson = (UnitTypes)GC.getInfoTypeForString("UNIT_WRITER");
-#endif
+
 				if(GetUnitBaktun(ePossibleGreatPerson) == 0)
 				{
 					eDesiredGreatPerson = ePossibleGreatPerson;
 				}
 				else
 				{
-#if defined(MOD_BUGFIX_UNITCLASS_NOT_UNIT)
 					ePossibleGreatPerson = m_pPlayer->GetSpecificUnitType("UNITCLASS_MERCHANT");
-#else
-					ePossibleGreatPerson = (UnitTypes)GC.getInfoTypeForString("UNIT_MERCHANT");
-#endif
+
 					if(GetUnitBaktun(ePossibleGreatPerson) == 0)
 					{
 						eDesiredGreatPerson = ePossibleGreatPerson;
 					}
 					else
 					{
-#if defined(MOD_BUGFIX_UNITCLASS_NOT_UNIT)
 						ePossibleGreatPerson = m_pPlayer->GetSpecificUnitType("UNITCLASS_SCIENTIST");
-#else
-						ePossibleGreatPerson = (UnitTypes)GC.getInfoTypeForString("UNIT_SCIENTIST");
-#endif
+
 						if(GetUnitBaktun(ePossibleGreatPerson) == 0)
 						{
 							eDesiredGreatPerson = ePossibleGreatPerson;
 						}
 						else
 						{
-#if defined(MOD_BUGFIX_UNITCLASS_NOT_UNIT)
 							ePossibleGreatPerson = m_pPlayer->GetSpecificUnitType("UNITCLASS_ARTIST");
-#else
-							ePossibleGreatPerson = (UnitTypes)GC.getInfoTypeForString("UNIT_ARTIST");
-#endif
+
 							if(GetUnitBaktun(ePossibleGreatPerson) == 0)
 							{
 								eDesiredGreatPerson = ePossibleGreatPerson;
 							}
 							else
 							{
-#if defined(MOD_BUGFIX_UNITCLASS_NOT_UNIT)
 								ePossibleGreatPerson = m_pPlayer->GetSpecificUnitType("UNITCLASS_MUSICIAN");
-#else
-								ePossibleGreatPerson = (UnitTypes)GC.getInfoTypeForString("UNIT_MUSICIAN");
-#endif
+
 								if(GetUnitBaktun(ePossibleGreatPerson) == 0)
 								{
 									eDesiredGreatPerson = ePossibleGreatPerson;
 								}
 								else
 								{
-#if defined(MOD_BUGFIX_UNITCLASS_NOT_UNIT)
 									ePossibleGreatPerson = m_pPlayer->GetSpecificUnitType("UNITCLASS_GREAT_GENERAL");
-#else
-									ePossibleGreatPerson = (UnitTypes)GC.getInfoTypeForString("UNIT_GREAT_GENERAL");
-#endif
+
 									if(GetUnitBaktun(ePossibleGreatPerson) == 0)
 									{
 										eDesiredGreatPerson = ePossibleGreatPerson;
 									}
 									else
 									{
-#if defined(MOD_BUGFIX_UNITCLASS_NOT_UNIT)
 										ePossibleGreatPerson = m_pPlayer->GetSpecificUnitType("UNITCLASS_GREAT_ADMIRAL");
-#else
-										ePossibleGreatPerson = (UnitTypes)GC.getInfoTypeForString("UNIT_GREAT_ADMIRAL");
-#endif
+
 										if(GetUnitBaktun(ePossibleGreatPerson) == 0)
 										{
 											eDesiredGreatPerson = ePossibleGreatPerson;
@@ -6980,11 +6911,8 @@ void CvPlayerTraits::ChooseMayaBoost()
 #if defined(MOD_DIPLOMACY_CITYSTATES)
 										else if(MOD_DIPLOMACY_CITYSTATES)
 										{
-#if defined(MOD_BUGFIX_UNITCLASS_NOT_UNIT)
 											ePossibleGreatPerson = m_pPlayer->GetSpecificUnitType("UNITCLASS_GREAT_DIPLOMAT");
-#else
-											ePossibleGreatPerson = (UnitTypes)GC.getInfoTypeForString("UNIT_GREAT_DIPLOMAT");
-#endif
+
 											if(GetUnitBaktun(ePossibleGreatPerson) == 0)
 											{
 												eDesiredGreatPerson = ePossibleGreatPerson;
@@ -7124,7 +7052,7 @@ bool CvPlayerTraits::IsFreeMayaGreatPersonChoice() const
 		CvUnitClassInfo* pkUnitClassInfo = GC.getUnitClassInfo(eUnitClass);
 		if(pkUnitClassInfo)
 		{
-			const UnitTypes eUnit = (UnitTypes)m_pPlayer->getCivilizationInfo().getCivilizationUnits(eUnitClass);
+			const UnitTypes eUnit = m_pPlayer->GetSpecificUnitType(eUnitClass);
 			if (eUnit != NO_UNIT)
 			{
 				CvUnitEntry* pUnitEntry = GC.getUnitInfo(eUnit);
@@ -7725,7 +7653,7 @@ void CvPlayerTraits::Read(FDataStream& kStream)
 		}
 	}
 	kStream >> m_ppaaiImprovementYieldChange;
-#if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
+#if defined(MOD_API_UNIFIED_YIELDS)
 	// MOD_SERIALIZE_READ - v57/v58/v59 broke the save format  couldn't be helped, but don't make a habit of it!!!
 	kStream >> m_ppiPlotYieldChange;
 #endif
@@ -8174,7 +8102,7 @@ void CvPlayerTraits::Write(FDataStream& kStream)
 		kStream << m_paiMaintenanceModifierUnitCombat[iI];
 	}
 	kStream << m_ppaaiImprovementYieldChange;
-#if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
+#if defined(MOD_API_UNIFIED_YIELDS)
 	// MOD_SERIALIZE_READ - v57/v58/v59 broke the save format  couldn't be helped, but don't make a habit of it!!!
 	kStream << m_ppiPlotYieldChange;
 #endif

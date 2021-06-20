@@ -1,0 +1,82 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Mod id="0f1eab20-b84e-4277-a3cc-f772b952be54" version="3">
+
+  <Properties>
+    <Name>(7a) Promotion Icons for VP</Name>
+    <Stability>Beta</Stability>   
+    <Teaser>(v 3) Promotion icons designed for Vox Populi</Teaser>
+    <Description>Version 3[NEWLINE][NEWLINE][COLOR_PROJECT_TEXT]. 250+ exclusive icons replace triangles and duplicates[NEWLINE]. Optimized for use with Promotion Flags EUI for VP[NEWLINE]. + 16 temporary Promotion Icons available to the development team.[NEWLINE]. + 64 Extra Promotion Icons you can use in your modmods:[ENDCOLOR] Extra Promo Icons.png[NEWLINE][COLOR_PROJECT_TEXT]. Informations and Credits: [ENDCOLOR]Promotion Icons for VP.txt</Description>
+    <Authors>Asterix Rage on civfanatics.com</Authors>
+
+    <HideSetupGame>0</HideSetupGame>
+    <Homepage></Homepage>
+    <AffectsSavedGames>0</AffectsSavedGames>
+    <SupportsSinglePlayer>1</SupportsSinglePlayer>
+    <SupportsMultiplayer>1</SupportsMultiplayer>
+    <SupportsHotSeat>1</SupportsHotSeat>
+    <SupportsMac>1</SupportsMac>
+    <ReloadAudioSystem>0</ReloadAudioSystem>
+    <ReloadLandmarkSystem>0</ReloadLandmarkSystem>
+    <ReloadStrategicViewSystem>0</ReloadStrategicViewSystem>
+    <ReloadUnitSystem>0</ReloadUnitSystem>
+  </Properties>
+  
+  <Dependencies>
+    <Mod id="8411a7a8-dad3-4622-a18e-fcc18324c799" minversion="13" maxversion="999" title="(2) Community Balance Overhaul" />
+  </Dependencies>
+  
+  <References>
+  </References>
+  <Blocks/>
+  
+  <Files>
+    <File md5="4a1ba322a37d4ed20f2abfd8f81e5cc4" import="1">dds/promoVP_00_016.dds</File>
+    <File md5="92e49522ca00127e62e6cce7abe567cc" import="1">dds/promoVP_00_032.dds</File>
+    <File md5="8e136c75b0548b21a0fb84b504878d36" import="1">dds/promoVP_00_045.dds</File>
+    <File md5="5dbfe9e17c8765e498185dc0c67a4e20" import="1">dds/promoVP_00_064.dds</File>
+    <File md5="114180dab5ee0e9a5dc057bb5e04f4e0" import="1">dds/promoVP_00_256.dds</File>
+    
+    <File md5="37e19eb2bf5f42f5ca5402d83c3759da" import="1">dds/promoVP_01_016.dds</File>
+    <File md5="babffaa3ac13948a424073baa57b0623" import="1">dds/promoVP_01_032.dds</File>
+    <File md5="3e5024e3ffe2fb52c53bb62b528230dd" import="1">dds/promoVP_01_045.dds</File>
+    <File md5="e7e5478b93246b37d2062db2d8e5e4f0" import="1">dds/promoVP_01_064.dds</File>
+    <File md5="6e6a3d261e394a6f60fc53ba5e3b542d" import="1">dds/promoVP_01_256.dds</File>
+    
+    <File md5="bd5f6b68ff28604b3157eb2c38927b20" import="1">dds/promoVP_02_016.dds</File>
+    <File md5="317c5dc40b202343b72de3e958ea0907" import="1">dds/promoVP_02_032.dds</File>
+    <File md5="03077e36c5d629e96eec8323932f48bf" import="1">dds/promoVP_02_045.dds</File>
+    <File md5="feaec827e82a011ea45c196c02fe6f21" import="1">dds/promoVP_02_064.dds</File>
+    <File md5="e8824861ad8c2d17e735a45abcf92294" import="1">dds/promoVP_02_256.dds</File>
+    
+    <File md5="a93a7e3b664d4d4268e6ec668788cf72" import="1">dds/promoVP_03_016.dds</File>
+    <File md5="42725be40b5df3fb182c851d07749d9e" import="1">dds/promoVP_03_032.dds</File>
+    <File md5="2d107e24c6410f3f9baddc6a3b31b619" import="1">dds/promoVP_03_045.dds</File>
+    <File md5="8e959e2718f7e9bc98b4de290816e3d9" import="1">dds/promoVP_03_064.dds</File>
+    <File md5="3eb802481872c4c7f4330e9143b3871d" import="1">dds/promoVP_03_256.dds</File>
+    
+    <File md5="23d32db7956af35953dd896f6bdac929" import="1">dds/extraPromo_016.dds</File>
+    <File md5="61c1c97da4bc3242d5cf9cf9a82a069b" import="1">dds/extraPromo_032.dds</File>
+    <File md5="5015c3fa07d87e5ffb57b523251e67f3" import="1">dds/extraPromo_045.dds</File>
+    <File md5="8341bd50eaa245dbe05a15f09c0366fa" import="1">dds/extraPromo_064.dds</File>
+    <File md5="46d6c357c6e857d8e97a635918bfd7b8" import="1">dds/extraPromo_256.dds</File>
+    
+    <File md5="41f57259ea46fe46eb95225b822faef8" import="1">dds/tempVPPI_016.dds</File>
+    <File md5="34dd10bc8e3fbf593c730aaff21d0524" import="1">dds/tempVPPI_032.dds</File>
+    <File md5="fa2b7db502d6b850dfbda1fdcf81c722" import="1">dds/tempVPPI_045.dds</File>
+    <File md5="b0e81971f669cadfea2baeeb0762977d" import="1">dds/tempVPPI_064.dds</File>
+    <File md5="1b53270a1c6c517bbbaf1b2ef0e1f5f5" import="1">dds/tempVPPI_256.dds</File>
+    
+    <File md5="cf82d6b9d46f269af2859fea74cc510f" import="0">Promotion Icons for VP.txt</File>
+    <File md5="c7b3f8cfae0f2ad5426a54f6ad33f46f" import="0">Extra Promo Icons.png</File>
+    
+    <File md5="99c1af716018a2ab8c30b3c978eaaa4d" import="0">sql/promoIcons_Atlas.sql</File>
+    <File md5="c4c1e39dc9597c0bd951a8f26dc99072" import="0">sql/promoIcons_Update_Main.sql</File>
+    
+  </Files>
+  <Actions>
+    <OnModActivated>
+      <UpdateDatabase>sql/promoIcons_Atlas.sql</UpdateDatabase>
+      <UpdateDatabase>sql/promoIcons_Update_Main.sql</UpdateDatabase>
+    </OnModActivated>
+  </Actions>
+</Mod>

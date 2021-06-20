@@ -57,49 +57,7 @@ void CvBuildingProductionAI::Read(FDataStream& kStream)
 	kStream >> uiVersion;
 	MOD_SERIALIZE_INIT_READ(kStream);
 
-	// Reset vector
-	m_BuildingAIWeights.clear();
-
-	// Loop through reading each one and adding it to our vector
-	if(m_pCityBuildings)
-	{
-		for(int i = 0; i < m_pCityBuildings->GetPossibleBuildings()->GetNumBuildings(); i++)
-		{
-			m_BuildingAIWeights.push_back(i, 0);
-		}
-
-		int iNumEntries;
-		FStringFixedBuffer(sTemp, 64);
-		int iType;
-
-		kStream >> iNumEntries;
-
-		for(int iI = 0; iI < iNumEntries; iI++)
-		{
-			bool bValid = true;
-			iType = CvInfosSerializationHelper::ReadHashed(kStream, &bValid);
-			if(iType != -1 || !bValid)
-			{
-				int iWeight;
-				kStream >> iWeight;
-				if(iType != -1)
-				{
-					m_BuildingAIWeights.IncreaseWeight(iType, iWeight);
-				}
-				else
-				{
-					CvString szError;
-					szError.Format("LOAD ERROR: Building Type not found");
-					GC.LogMessage(szError.GetCString());
-					CvAssertMsg(false, szError);
-				}
-			}
-		}
-	}
-	else
-	{
-		CvAssertMsg(m_pCityBuildings != NULL, "Building Production AI init failure: city buildings are NULL");
-	}
+	kStream >> m_BuildingAIWeights;
 }
 
 /// Serialization write
@@ -112,27 +70,7 @@ void CvBuildingProductionAI::Write(FDataStream& kStream)
 	kStream << uiVersion;
 	MOD_SERIALIZE_INIT_WRITE(kStream);
 
-	if(m_pCityBuildings)
-	{
-		int iNumBuildings = m_pCityBuildings->GetPossibleBuildings()->GetNumBuildings();
-		kStream << iNumBuildings;
-
-		// Loop through writing each entry
-		for(int iI = 0; iI < iNumBuildings; iI++)
-		{
-			const BuildingTypes eBuilding = static_cast<BuildingTypes>(iI);
-			CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
-			if(pkBuildingInfo)
-			{
-				CvInfosSerializationHelper::WriteHashed(kStream, pkBuildingInfo);
-				kStream << m_BuildingAIWeights.GetWeight(iI);
-			}
-			else
-			{
-				kStream << (int)0;
-			}
-		}
-	}
+	kStream << m_BuildingAIWeights;
 }
 
 /// Establish weights for one flavor; can be called multiple times to layer strategies
@@ -237,8 +175,7 @@ void CvBuildingProductionAI::LogPossibleBuilds()
 #if defined(MOD_BALANCE_CORE)
 /// Do all building sanity stuff here.
 int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, int iValue,
-	int iNumLandConnection, int iNumSeaConnection, int iGPT, 
-	bool bInterruptBuildings, bool bNationalWonderCheck, bool bFreeBuilding, bool bIgnoreSituational)
+	int iNumLandConnection, int iNumSeaConnection, bool bNationalWonderCheck, bool bFreeBuilding, bool bIgnoreSituational)
 {
 	if(m_pCity == NULL)
 		return 0;
@@ -251,12 +188,13 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	if(eBuilding == NO_BUILDING)
 		return 0;
 
-	if(iValue == 0)
+	if(iValue < 1)
 		return 0;
 
-	CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
+	//this seems to work well to bring the raw flavor weight into a sensible range [0 ... 200]
+	iValue = sqrti(10 * iValue);
 
-	//Skip if null
+	CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
 	if(pkBuildingInfo == NULL)
 		return 0;
 
@@ -264,41 +202,22 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	int iBonus = 0;
 
 	const CvBuildingClassInfo& kBuildingClassInfo = pkBuildingInfo->GetBuildingClassInfo();
-	bool bIsVenice = kPlayer.GetPlayerTraits()->IsNoAnnexing();
-	if ((m_pCity->IsPuppet() && !bIsVenice) || (m_pCity->getPopulation() <= 6 && !m_pCity->isCapital()))
+	if (m_pCity->getPopulation() <= 6 && !m_pCity->isCapital())
 	{
 		if(isWorldWonderClass(kBuildingClassInfo) || isTeamWonderClass(kBuildingClassInfo) || isNationalWonderClass(kBuildingClassInfo) || isLimitedWonderClass(kBuildingClassInfo))
 		{
 			return 0;
 		}
 	}
-	else if(m_pCity->IsPuppet() && bIsVenice)
-	{
-		if(isWorldWonderClass(kBuildingClassInfo) || isTeamWonderClass(kBuildingClassInfo))
-		{
-			return 0;
-		}
-		if(isNationalWonderClass(kBuildingClassInfo) || isLimitedWonderClass(kBuildingClassInfo))
-		{
-			if(kBuildingClassInfo.getMaxPlayerInstances() == 1)
-			{
-				return 0;
-			}
-		}
-	}
+
 	if (isNationalWonderClass(kBuildingClassInfo) || isWorldWonderClass(kBuildingClassInfo))
 	{
 		if (!bNationalWonderCheck)
 		{
-			if (!m_pCity->IsBestForWonder((BuildingClassTypes)pkBuildingInfo->GetBuildingClassType()))
+			if (!m_pCity->IsBestForWonder(pkBuildingInfo->GetBuildingClassType()))
 			{
 				return 0;
 			}
-		}
-
-		if (iValue > 300)
-		{
-			iValue = 300;
 		}
 
 		// we want this? ramp it up!
@@ -329,7 +248,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 				if (eLoopPlayer == kPlayer.GetID())
 					continue;
 
-				if (GET_PLAYER(eLoopPlayer).isAlive() && GET_TEAM(kPlayer.getTeam()).isHasMet(GET_PLAYER(eLoopPlayer).getTeam()) && GET_PLAYER(eLoopPlayer).getBuildingClassMaking((BuildingClassTypes)pkBuildingInfo->GetBuildingClassType()) > 0)
+				if (GET_PLAYER(eLoopPlayer).isAlive() && GET_TEAM(kPlayer.getTeam()).isHasMet(GET_PLAYER(eLoopPlayer).getTeam()) && GET_PLAYER(eLoopPlayer).getBuildingClassMaking(pkBuildingInfo->GetBuildingClassType()) > 0)
 				{
 					iNumOthersConstructing++;
 				}
@@ -337,25 +256,12 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 			iBonus -= iNumOthersConstructing * 150;
 
 			//probably early game, so if we haven't started yet, we're probably not going to win this one.
-			if (kPlayer.getNumCities() == 1 && !bIsVenice)
+			if (kPlayer.getNumCities() == 1)
 			{
 				iBonus -= iNumOthersConstructing * 100;
 			}
 		}
 	}
-	else
-	{
-		//Sanitize...
-		if (iValue > 100)
-		{
-			iValue = 100;
-		}
-		if (iValue <= 50)
-		{
-			iValue = 50;
-		}
-	}
-
 
 	////////////////
 	////QUESTS
@@ -440,64 +346,53 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	bool bGoodforHappiness = false;
 	bool bGoodforGPT = false;
 
-	//No Sea Trade Connections?
-	if (pkBuildingInfo->GetTradeRouteSeaDistanceModifier() > 0 || pkBuildingInfo->GetTradeRouteSeaGoldBonus() > 0 || pkBuildingInfo->GetSeaTourismEnd() > 0 || pkBuildingInfo->AllowsWaterRoutes())
+	//this is not about trade routes but city connections
+	if (pkBuildingInfo->AllowsWaterRoutes()) 
 	{
-		//we know the city must be coastal. but if this is a lake and there are no other cities reachable via water, then it makes no sense to build this
-		if (!m_pCity->plot()->isCoastalLand(-1) && GC.getGame().GetGameTrade()->GetAllPotentialTradeRoutesFromCity(m_pCity,true).empty())
-			return 0;
-
-		if (pkBuildingInfo->AllowsWaterRoutes()) //this is not about trade routes but city connections
+		CvCity* pCapital = kPlayer.getCapitalCity();
+		if(iNumSeaConnection <= 0 && m_pCity->IsRouteToCapitalConnected())
 		{
-			CvCity* pCapital = kPlayer.getCapitalCity();
-			if(iNumSeaConnection <= 0 && m_pCity->IsRouteToCapitalConnected())
-			{
-				iBonus -= 50;
-			}
-			else if(pCapital != NULL && pCapital->getArea() != m_pCity->getArea())
-			{
-				iBonus += 10 * max(1, m_pCity->getPopulation());
-			}
-			else
-			{
-				iBonus += 5 * max(1, m_pCity->getPopulation());
-			}
-
-			//Higher value the higher the number of routes.
-			iBonus += iNumSeaConnection;
-			if(kPlayer.GetPlayerTraits()->GetSeaTradeRouteRangeBonus() > 0 || kPlayer.getTradeRouteSeaDistanceModifier() != 0)
-			{
-				iBonus += 5 * max(1, iNumSeaConnection);
-			}
-
-			int iUnhappyConnection = m_pCity->getUnhappinessFromConnection();
-			if (iUnhappyConnection > 0)
-			{
-				iBonus += (iUnhappyConnection * 10);
-				bGoodforHappiness = true;
-				bGoodforGPT = true;
-			}
+			iBonus -= 50;
+		}
+		else if(pCapital != NULL && pCapital->getArea() != m_pCity->getArea())
+		{
+			iBonus += 10 * max(1, m_pCity->getPopulation());
 		}
 		else
 		{
-			if (iNumSeaConnection <= 0 && !bFreeBuilding)
-			{
-				if (pkBuildingInfo->GetTradeRouteSeaDistanceModifier() > 0)
-				{
-					iBonus -= 10;
-				}
-				else
-				{
-					iBonus -= 5;
-				}
-			}
-			//Higher value the higher the number of routes.
-			iBonus += iNumSeaConnection;
-			if (kPlayer.GetPlayerTraits()->GetSeaTradeRouteRangeBonus() > 0 || kPlayer.getTradeRouteSeaDistanceModifier() != 0)
-			{
-				iBonus += 5 * max(1, iNumSeaConnection);
-			}
+			iBonus += 5 * max(1, m_pCity->getPopulation());
 		}
+
+		//Higher value the higher the number of routes.
+		iBonus += iNumSeaConnection;
+		if(kPlayer.GetPlayerTraits()->GetSeaTradeRouteRangeBonus() > 0 || kPlayer.getTradeRouteSeaDistanceModifier() != 0)
+		{
+			iBonus += 5 * max(1, iNumSeaConnection);
+		}
+
+		int iUnhappyConnection = m_pCity->getUnhappinessFromConnection();
+		if (iUnhappyConnection > 0)
+		{
+			iBonus += (iUnhappyConnection * 10);
+			bGoodforHappiness = true;
+			bGoodforGPT = true;
+		}
+	}
+
+	//bonus to sea trade
+	if (pkBuildingInfo->GetTradeRouteSeaDistanceModifier() > 0)
+	{
+		//can we even have sea trade here
+		if (m_pCity->plot()->isCoastalLand() && GC.getGame().GetGameTrade()->GetAllPotentialTradeRoutesFromCity(m_pCity, true).size() > 0)
+			iBonus += 10;
+		else
+			iBonus -= 100;
+	}
+
+	if (pkBuildingInfo->GetTradeRouteSeaGoldBonus() > 0 || pkBuildingInfo->GetSeaTourismEnd() > 0)
+	{
+		//Higher value the higher the number of routes.
+		iBonus += 5 * iNumSeaConnection;
 	}
 
 	if(pkBuildingInfo->IsAddsFreshWater() && !m_pCity->plot()->isFreshWater())
@@ -539,10 +434,11 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 		if(pkResource)
 		{
 			//Building uses resources? Not if we're a puppet, thanks!
-			if(pkBuildingInfo->GetResourceQuantityRequirement(eResource) > 0 && m_pCity->IsPuppet())
+			if(pkBuildingInfo->GetResourceQuantityRequirement(eResource) > 0 && CityStrategyAIHelpers::IsTestCityStrategy_IsPuppetAndAnnexable(m_pCity))
 			{
 				return 0;
 			}
+
 			if(pkBuildingInfo->GetResourceQuantity(eResource) > 0)
 			{
 				//Decrease value based on # we own.
@@ -715,24 +611,25 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	if (m_pCity->isCoastal())
 	{
 		AICityStrategyTypes eStrategyLakeBound = (AICityStrategyTypes)GC.getInfoTypeForString("AICITYSTRATEGY_LAKEBOUND");
-		if (eStrategyLakeBound != NO_ECONOMICAISTRATEGY)
+		if (!m_pCity->GetCityStrategyAI()->IsUsingCityStrategy(eStrategyLakeBound))
 		{
-			if (!m_pCity->GetCityStrategyAI()->IsUsingCityStrategy(eStrategyLakeBound))
+			if (pkBuildingInfo->GetBorderObstacleWater() > 0)
 			{
-				if (pkBuildingInfo->GetBorderObstacleWater() > 0)
-				{
-					iDefense += 25;
-				}
+				iDefense += 25;
 			}
 		}
 	}
 	else
 	{
-		if (pkBuildingInfo->GetBorderObstacleCity() > 0)
+		if (pkBuildingInfo->GetBorderObstacleLand() > 0)
 		{
 			iDefense += 25;
 		}
 		if (pkBuildingInfo->IsBorderObstacle())
+		{
+			iDefense += 25;
+		}
+		if (pkBuildingInfo->GetDeepWaterTileDamage() > 0)
 		{
 			iDefense += 25;
 		}
@@ -747,9 +644,9 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	}
 	else if (kPlayer.IsAtWarAnyMajor())
 		iDefenseMod += 150;
-	bool bDesperate = !bIgnoreSituational && (m_pCity->isInDangerOfFalling() || m_pCity->isUnderSiege());
 
-	if (bDesperate || m_pCity->IsPuppet())
+	bool bDesperate = !bIgnoreSituational && (m_pCity->isInDangerOfFalling() || m_pCity->isUnderSiege());
+	if (bDesperate)
 		iDefenseMod += 1000;
 
 	iDefense *= iDefenseMod;
@@ -757,23 +654,13 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 
 	iBonus += iDefense;
 
-	//desperate, and this ISN'T a defensive building?
-	if (bDesperate && iDefense <= 0)
-		iBonus -= 500;
-
 	if (iBonus > 0 && (pkBuildingInfo->GetCitySupplyModifier() > 0 || pkBuildingInfo->GetCitySupplyModifierGlobal() > 0))
 	{
-		int iSupply = kPlayer.GetNumUnitsSupplied();
-		if (iSupply <= 0)
-		{
-			iSupply = 1;
-		}
+		int iSupply = max(1,kPlayer.GetNumUnitsSupplied());
 		int iDemand = kPlayer.GetMilitaryAI()->GetRecommendedMilitarySize();
-		int iPercent = (iDemand * 100) / iSupply;
-
 		int iGrowth = pkBuildingInfo->GetCitySupplyModifier() + (pkBuildingInfo->GetCitySupplyModifierGlobal() * kPlayer.getNumCities());
 
-		iPercent += max (1, iGrowth);
+		int iPercent = (iDemand * 100) / iSupply + max (0, iGrowth);
 
 		//Closer we get to cap, more we want this.
 		iBonus *= (100 + iPercent);
@@ -782,17 +669,11 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 
 	if (iBonus > 0 &&  (pkBuildingInfo->GetCitySupplyFlat() > 0 || pkBuildingInfo->GetCitySupplyFlatGlobal() > 0))
 	{
-		int iSupply = kPlayer.GetNumUnitsSupplied();
-		if (iSupply <= 0)
-		{
-			iSupply = 1;
-		}
+		int iSupply = max(1,kPlayer.GetNumUnitsSupplied());
 		int iDemand = kPlayer.GetMilitaryAI()->GetRecommendedMilitarySize();
-		int iPercent = (iDemand * 100) / iSupply;
-
 		int iGrowth = (pkBuildingInfo->GetCitySupplyFlat() + (pkBuildingInfo->GetCitySupplyFlatGlobal() * kPlayer.getNumCities()));
 
-		iPercent += max(1, iGrowth);
+		int iPercent = (iDemand * 100) / iSupply + max (0, iGrowth);
 
 		//Closer we get to cap, more we want this.
 		iBonus *= (100 + iPercent);
@@ -823,18 +704,33 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 			bCourthouse = true;
 		}
 	}
-	
-	//Unlocks another building?
-	int iNumNeeded;
+
+
 	//unfortunately we have to loop through all buildings in the game to do this. Sigh...
 	for (int iI = 0; iI < GC.getNumBuildingInfos(); iI++)
 	{
-		iNumNeeded = kPlayer.getBuildingClassPrereqBuilding((BuildingTypes)iI, (BuildingClassTypes)pkBuildingInfo->GetBuildingClassType(), true);
+		int iNumNeeded = kPlayer.getBuildingClassPrereqBuilding((BuildingTypes)iI, pkBuildingInfo->GetBuildingClassType());
 		//need in all?
 		if (iNumNeeded > 0)
 		{
 			int iNumHave = kPlayer.getNumBuildings(eBuilding);
-			iBonus += iNumNeeded * max(1, iNumHave) * 10;
+			iBonus += iNumNeeded * max(1, iNumHave) * 100;
+		}
+	}
+
+	//unlocks a unit?
+	for (int i = 0; i < GC.getNumUnitInfos(); i++)
+	{
+		const UnitTypes eUnit = static_cast<UnitTypes>(i);
+		CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUnit);
+		if (pkUnitInfo && pkUnitInfo->GetBuildingClassRequireds(pkBuildingInfo->GetBuildingClassType()))
+		{
+			if (pkUnitInfo->GetPrereqAndTech() == NO_TECH)
+				iBonus += 1000;
+			else if (kPlayer.HasTech((TechTypes)pkUnitInfo->GetPrereqAndTech()))
+				iBonus += 1000;
+			else
+				iBonus += 50;
 		}
 	}
 
@@ -858,48 +754,12 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 		}
 	}
 
-	//Espionage!
-	if (pkBuildingInfo->GetBlockBuildingDestruction() > 0)
-	{
-		iBonus += (m_pCity->getYieldRate(YIELD_PRODUCTION, false) / 100);
-	}
-	if (pkBuildingInfo->GetBlockWWDestruction() > 0)
-	{
-		iBonus += (m_pCity->getNumWorldWonders() * 25);
-	}
-	if (pkBuildingInfo->GetBlockUDestruction() > 0)
-	{
-		iBonus += (m_pCity->getYieldRate(YIELD_PRODUCTION, false) / 100);
-	}
-	if (pkBuildingInfo->GetBlockGPDestruction() > 0)
-	{
-		iBonus += m_pCity->getGreatPeopleRate() / 10;
-	}
-	if (pkBuildingInfo->GetBlockRebellion() > 0)
-	{
-		//Less happy = better!
-		iBonus += (100 - kPlayer.GetHappiness());
-	}
-	if (pkBuildingInfo->GetBlockUnrest() > 0)
-	{
-		//Less happy = better!
-		iBonus += (50 - kPlayer.GetHappiness());
-	}
-	if (pkBuildingInfo->GetBlockScience() > 0)
-	{
-		iBonus += (m_pCity->getYieldRate(YIELD_SCIENCE, false) / 100);
-	}
-	if (pkBuildingInfo->GetBlockGold() > 0)
-	{
-		iBonus += (m_pCity->getYieldRate(YIELD_GOLD, false) / 100);
-	}
-
 	///////////////////
 	//Military Stuff
 	////////////////////////
 
 	//Domain mods are good, and should be stacked.
-	if(bIsVenice || !m_pCity->IsPuppet())
+	if (!CityStrategyAIHelpers::IsTestCityStrategy_IsPuppetAndAnnexable(m_pCity))
 	{
 		for (int iDomainLoop = 0; iDomainLoop < NUM_DOMAIN_TYPES; iDomainLoop++)
 		{
@@ -952,7 +812,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 		}
 	}
 	//Unitcombat Bonuses should stack too.
-	if(bIsVenice || !m_pCity->IsPuppet())
+	if (!CityStrategyAIHelpers::IsTestCityStrategy_IsPuppetAndAnnexable(m_pCity))
 	{
 		for(int iI = 0; iI < GC.getNumUnitCombatClassInfos(); iI++)
 		{
@@ -1012,11 +872,12 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	////////////
 	///YIELD BONUSES
 	//////////
-	//Let's look at yield bonuses.
-	int iYieldValue = 0;
 
+	//Let's look at yield bonuses.
+	int iAvgGPT = kPlayer.GetTreasury()->AverageIncome100(10) / 100;
 	YieldTypes eFocusYield = m_pCity->GetCityCitizens()->GetFocusTypeYield(m_pCity->GetCityCitizens()->GetFocusType());
 
+	int iTotalYield = 0;
 	bool bSmall = m_pCity->getPopulation() <= 10;
 	for(int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 	{
@@ -1033,10 +894,11 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 		if(!MOD_BALANCE_CORE_JFD && eYield > YIELD_CULTURE_LOCAL)
 			continue;
 
-		iYieldValue = CityStrategyAIHelpers::GetBuildingYieldValue(m_pCity, eBuilding, eYield);
+		int iFlatYield = 0;
+		int iYieldValue = CityStrategyAIHelpers::GetBuildingYieldValue(m_pCity, eBuilding, eYield, iFlatYield);
+		iTotalYield += iFlatYield;
 
 		int iYieldTrait = CityStrategyAIHelpers::GetBuildingTraitValue(m_pCity, eYield, eBuilding, iYieldValue);
-
 		int iHappinessReduction = pkBuildingInfo->GetUnhappinessNeedsFlatReduction(eYield);
 
 		if ((iYieldValue > 0) || (iYieldTrait > 0))
@@ -1044,10 +906,10 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 			switch (eYield)
 			{
 			case YIELD_GOLD:
-				if (iGPT <= 10)
+				if (iAvgGPT < 0)
 				{
-					iYieldValue += (iGPT * -10);
-					iYieldTrait += (iGPT * -10);
+					iYieldValue += (iAvgGPT * -10);
+					iYieldTrait += (iAvgGPT * -10);
 					bGoodforHappiness = true;
 					bGoodforGPT = true;
 				}
@@ -1157,13 +1019,6 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 				iYieldValue *= 5;
 				iYieldTrait *= 5;
 			}
-			
-			//Puppets should focus on yield buildings.
-			if (m_pCity->IsPuppet())
-			{
-				iYieldValue *= 2;
-				iYieldTrait *= 2;
-			}
 		}
 
 		iBonus += iYieldValue;
@@ -1173,15 +1028,22 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	//////////////
 	///Maintenance
 	/////////////////////
-	if (pkBuildingInfo->GetGoldMaintenance() > 0 && !bCourthouse)
+	if (pkBuildingInfo->GetGoldMaintenance() > 0 && !bCourthouse && !bGoodforGPT)
 	{
-		if (!bGoodforGPT && iGPT <= pkBuildingInfo->GetGoldMaintenance())
+		//careful if it would bankrupt us
+		if (kPlayer.getTurnsToBankruptcy(pkBuildingInfo->GetGoldMaintenance()) < 9)
 		{
-			iBonus -= (pkBuildingInfo->GetGoldMaintenance() * pkBuildingInfo->GetGoldMaintenance() * pkBuildingInfo->GetGoldMaintenance());
-
-			if (iBonus <= 0)
-				iBonus = 1;
+			return 0;
 		}
+
+		/*
+		// it would be useful to have a check whether a building is worth building at all (eg skip hotel in a city without culture)
+		// however yields are not everything (eg growth bonus, resources etc). so it's difficult to write down a good condition ...
+		if (iTotalYield < pkBuildingInfo->GetGoldMaintenance() * 3 && pkBuildingInfo->GetDefenseModifier() == 0)
+		{
+			return 0;
+		}
+		*/
 	}
 
 	/////////
@@ -1205,15 +1067,11 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 		{
 			WarPenalty += 75;
 		}
-		if (iNumWar > 0 && pkBuildingInfo->GetDefenseModifier() <= 0 && !m_pCity->IsPuppet() && !bFreeBuilding && !kPlayer.IsEmpireVeryUnhappy())
+		if (iNumWar > 0 && pkBuildingInfo->GetDefenseModifier() <= 0 && !CityStrategyAIHelpers::IsTestCityStrategy_IsPuppetAndAnnexable(m_pCity) && !bFreeBuilding && !kPlayer.IsEmpireVeryUnhappy())
 		{
 			WarPenalty += 50 + m_pCity->getThreatValue();
 
 			if (bDesperate)
-			{
-				WarPenalty += 25;
-			}
-			if ((m_pCity->isCoastal() && m_pCity->IsBlockaded(true)) || ((!m_pCity->isCoastal() && m_pCity->IsBlockaded(false))))
 			{
 				WarPenalty += 25;
 			}
@@ -1222,10 +1080,6 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 			for (CvCity* pLoopCity = kPlayer.firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iCityLoop))
 			{
 				if (pLoopCity->isUnderSiege() || pLoopCity->isInDangerOfFalling())
-				{
-					WarPenalty += 25;
-				}
-				if ((pLoopCity->isCoastal() && pLoopCity->IsBlockaded(true)) || ((!pLoopCity->isCoastal() && pLoopCity->IsBlockaded(false))))
 				{
 					WarPenalty += 25;
 				}
@@ -1253,40 +1107,25 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	///Era Difference
 	/////////
 
+	int iEra = 0; //default
 	TechTypes eTech = (TechTypes)pkBuildingInfo->GetPrereqAndTech();
-	if(eTech != NO_TECH)
+	if (eTech != NO_TECH)
 	{
 		CvTechEntry* pEntry = GC.GetGameTechs()->GetEntry(eTech);
-		if(pEntry)
+		if (pEntry)
 		{
 			EraTypes eEra = (EraTypes)pEntry->GetEra();
-			if(eEra != NO_ERA)
-			{
-				int iEraValue = (kPlayer.GetCurrentEra() - eEra);
-				if (iEraValue > 0)
-				{
-					iBonus += (250 * iEraValue);
-				}
-			}
-			//No Era? Zero!
-			else
-			{
-				int iEraValue = kPlayer.GetCurrentEra(); //was 8
-				if (iEraValue > 0)
-				{
-					iBonus += (250 * iEraValue);
-				}
-			}
+			if (eEra != NO_ERA)
+				iEra = pEntry->GetEra();
 		}
 	}
-	else
-	{
-		int iEraValue = kPlayer.GetCurrentEra(); //was 8
-		if (iEraValue > 0)
-		{
-			iBonus += (250 * iEraValue);
-		}
-	}
+	int iEraValue =  max(1, kPlayer.GetCurrentEra() - iEra);
+	iBonus += (150 * iEraValue);
+
+	//Unlocks another building?
+	int iPrereqChain = kPlayer.GetChainLength(eBuilding);
+	if (iPrereqChain > 0)
+		iBonus += iPrereqChain * 50 * iEraValue;
 
 	//UB?
 	if (kPlayer.getCivilizationInfo().isCivilizationBuildingOverridden(pkBuildingInfo->GetBuildingClassType()))
@@ -1298,35 +1137,13 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 			iBonus += m_pCity->getPopulation() * 25;
 	}
 
-	//Danger? Prioritize units!
-	if (!bFreeBuilding && !bIgnoreSituational && bDesperate && iDefense <= 0)
-	{
-		iBonus -= 1000;
-	}
-
-	if (m_pCity->isProductionBuilding())
-	{
-		if (m_pCity->getProductionBuilding() == eBuilding)
-			iBonus += max(1, 1000 - m_pCity->getProductionTurnsLeft());
-		else
-			iBonus = (iBonus/2);
-	}
-
 	/////
 	///WEIGHT
 	//////
-	//Greatly reduce this if we're under siege somewhere.
-	if (bInterruptBuildings && !m_pCity->IsPuppet())
-	{
-		iBonus /= 10;
-	}
-
-	if (iBonus <= 0)
-		return 1;
+	if (iBonus < 1)
+		return 0;
 
 	//iValue is the compunded value of the items.
-	iValue += iBonus;
-
-	return iValue;
+	return iValue + iBonus;
 }
 #endif

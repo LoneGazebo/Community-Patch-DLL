@@ -10,11 +10,6 @@
 #ifndef CIV5_UNIT_PRODUCTION_AI_H
 #define CIV5_UNIT_PRODUCTION_AI_H
 
-// Allocate array for 50% more units than we have now (58)
-//   May want to tune this number closer to shipping, though safe enough
-//   given that each entry is only 8 bytes
-#define SAFE_ESTIMATE_NUM_UNITS 90
-
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //  CLASS:      CvUnitProductionAI
 //!  \brief		Handles unit production decisions for one city
@@ -41,13 +36,9 @@ public:
 	int GetWeight(UnitTypes eUnit);
 
 	// Recommend highest-weighted unit
-#if defined(MOD_BALANCE_CORE)
-	int CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation, CvArmyAI* pArmy, int iTempWeight, int iGPT, int iWaterRoutes = 0, int iLandRoutes = 0, bool bForPurchase = false, bool bFree = false, bool bInterruptBuildings = false);
+	int CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation, CvArmyAI* pArmy, int iTempWeight, 
+		int iWaterRoutes = 0, int iLandRoutes = 0, bool bForPurchase = false, bool bFree = false);
 	UnitTypes RecommendUnit(UnitAITypes eUnitAIType, bool bUsesStrategicResource);
-	bool IsHighestCombatExperienceCity(UnitTypes eUnit);
-#else
-	UnitTypes RecommendUnit(UnitAITypes eUnitAIType = NO_UNITAI);
-#endif
 
 	// Logging
 	void LogPossibleBuilds(UnitAITypes eUnitAIType = NO_UNITAI);
@@ -57,8 +48,8 @@ private:
 	// Private data
 	CvCity* m_pCity;
 	CvUnitXMLEntries* m_pUnits;
-	CvWeightedVector<int, SAFE_ESTIMATE_NUM_UNITS, true> m_UnitAIWeights;
-	CvWeightedVector<int, SAFE_ESTIMATE_NUM_UNITS, true> m_Buildables;
+	CvWeightedVector<int> m_UnitAIWeights;
+	CvWeightedVector<int> m_Buildables;
 };
 
 #endif //CIV5_UNIT_PRODUCTION_AI_H

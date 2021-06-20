@@ -103,7 +103,7 @@ protected:
 	static int lCanMakeTradeRoute(lua_State* L);
 	static int lCanMakeTradeRouteAt(lua_State* L);
 
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_API_TRADEROUTES)
+#if defined(MOD_API_LUA_EXTENSIONS)
 	LUAAPIEXTN(CanPlunderTradeRoute, bool, pPlot);
 	LUAAPIEXTN(PlunderTradeRoute, bool);
 #endif
@@ -208,6 +208,11 @@ protected:
 	static int lGetBuildType(lua_State* L);
 	static int lWorkRate(lua_State* L);
 
+#if defined(MOD_API_LUA_EXTENSIONS)
+	static int lGetImprovementBuildType(lua_State* L);
+	static int lGetRouteBuildType(lua_State* L);
+#endif
+
 #if defined(MOD_CIV6_WORKER)
 	static int lGetBuilderStrength(lua_State* L);
 #endif
@@ -238,11 +243,10 @@ protected:
 	static int lIsDefending(lua_State* L);
 	static int lIsInCombat(lua_State* L);
 
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_UNITS_MAX_HP)
 	LUAAPIEXTN(GetMaxHitPointsBase, int);
 	LUAAPIEXTN(SetMaxHitPointsBase, void, int);
 	LUAAPIEXTN(ChangeMaxHitPointsBase, void, int);
-#endif
+
 	static int lGetMaxHitPoints(lua_State* L);
 	static int lGetCurrHitPoints(lua_State* L);
 	static int lIsHurt(lua_State* L);
@@ -265,7 +269,7 @@ protected:
 	static int lIsEnemyInMovementRange(lua_State* L);
 
 	static int lIsTrade(lua_State* L);
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_API_TRADEROUTES)
+#if defined(MOD_API_LUA_EXTENSIONS)
 	LUAAPIEXTN(GetTradeRouteIndex, int);
 	LUAAPIEXTN(IsRecalledTrader, bool);
 	LUAAPIEXTN(RecallTrader, void, bImmediate);
@@ -321,7 +325,7 @@ protected:
 #endif
 	static int lFlatMovementCost(lua_State* L);
 	static int lIgnoreTerrainCost(lua_State* L);
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_API_PLOT_BASED_DAMAGE)
+#if defined(MOD_API_LUA_EXTENSIONS)
 	LUAAPIEXTN(IgnoreTerrainDamage, bool);
 	LUAAPIEXTN(IgnoreFeatureDamage, bool);
 	LUAAPIEXTN(ExtraTerrainDamage, bool);
@@ -447,11 +451,9 @@ protected:
 	static int lGetExperience(lua_State* L);
 	static int lSetExperience(lua_State* L);
 	static int lChangeExperience(lua_State* L);
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_UNITS_XP_TIMES_100)
 	LUAAPIEXTN(GetExperienceTimes100, int);
 	LUAAPIEXTN(SetExperienceTimes100, void, iExpTimes100, iMax);
 	LUAAPIEXTN(ChangeExperienceTimes100, void, iExpTimes100, iMax, bFromCombat, bInBorders, bUpdateGlobal);
-#endif
 	static int lGetLevel(lua_State* L);
 	static int lSetLevel(lua_State* L);
 	static int lChangeLevel(lua_State* L);
@@ -615,6 +617,7 @@ protected:
 #endif
 
 	static int lGetTourismBlastStrength(lua_State* L);
+	static int lGetTourismBlastLength(lua_State* L);
 
 	static int lGetGreatWorkSlotType(lua_State* L);
 
@@ -684,5 +687,33 @@ protected:
 #endif
 };
 
+namespace CvLuaArgs
+{
+	template<> inline const CvUnit* toValue(lua_State* L, int idx)
+	{
+		return CvLuaUnit::GetInstance(L, idx);
+	}
+	template<> inline CvUnit* toValue(lua_State* L, int idx)
+	{
+		return CvLuaUnit::GetInstance(L, idx);
+	}
+	template<> inline const CvUnit& toValue(lua_State* L, int idx)
+	{
+		return *CvLuaUnit::GetInstance(L, idx);
+	}
+	template<> inline CvUnit& toValue(lua_State* L, int idx)
+	{
+		return *CvLuaUnit::GetInstance(L, idx);
+	}
+
+	template<> inline void pushValue(lua_State* L, CvUnit* p)
+	{
+		CvLuaUnit::Push(L, p);
+	}
+	template<> inline void pushValue(lua_State* L, CvUnit& r)
+	{
+		CvLuaUnit::Push(L, &r);
+	}
+}
 
 #endif //CVLUAUNIT_H

@@ -20,7 +20,11 @@ struct SPrecomputedExpensiveNumbers
 	int iUnhappinessFromReligion;
 	int iUnhappinessFromDistress;
 
-	SPrecomputedExpensiveNumbers(CvCity* pCity);
+	vector<vector<int>> bonusForXTerrain;
+	vector<vector<int>> bonusForXFeature;
+
+	SPrecomputedExpensiveNumbers();
+	void update(CvCity* pCity);
 };
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -50,8 +54,8 @@ public:
 	void DoFoundCity();
 	void DoTurn();
 
-	int GetBonusPlotValue(CvPlot* pPlot, YieldTypes eYield);
-	int GetPlotValue(CvPlot* pPlot, SPrecomputedExpensiveNumbers store);
+	int GetBonusPlotValue(CvPlot* pPlot, YieldTypes eYield, SPrecomputedExpensiveNumbers& cache);
+	int GetPlotValue(CvPlot* pPlot, SPrecomputedExpensiveNumbers& cache);
 
 	// Are this City's Citizens automated? (always true for AI civs)
 	bool IsAutomated() const;
@@ -62,19 +66,15 @@ public:
 
 	bool IsAvoidGrowth();
 	bool IsForcedAvoidGrowth();
-	void SetForcedAvoidGrowth(bool bAvoidGrowth, bool bReallocate = false);
+	bool SetForcedAvoidGrowth(bool bAvoidGrowth, bool bReallocate = false);
 	CityAIFocusTypes GetFocusType() const;
-	void SetFocusType(CityAIFocusTypes eFocus, bool bReallocate = false);
+	bool SetFocusType(CityAIFocusTypes eFocus, bool bReallocate = false);
+	int GetYieldModForFocus(YieldTypes eYield, CityAIFocusTypes eFocus, bool bEmphasizeFood, bool bEmphasizeProduction, const SPrecomputedExpensiveNumbers& cache);
 
 	// Specialist AI
-	bool IsAIWantSpecialistRightNow();
-	BuildingTypes GetAIBestSpecialistBuilding(int& iSpecialistValue, std::map<SpecialistTypes, int>& specialistValueCache, bool bLogging = false);
-#if defined(MOD_BALANCE_CORE)
-	BuildingTypes GetAIBestSpecialistCurrentlyInBuilding(int& iSpecialistValue, std::map<SpecialistTypes, int>& specialistValueCache);
-#endif
-	int GetSpecialistValue(SpecialistTypes eSpecialist, int iExcessFoodTimes100); //precompute some expensive values
-	bool IsBetterThanDefaultSpecialist(SpecialistTypes eSpecialist);
-	bool CanCreateSpecialist();
+	BuildingTypes GetAIBestSpecialistBuilding(int& iSpecialistValue, bool bLogging = false);
+	BuildingTypes GetAIBestSpecialistCurrentlyInBuilding(int& iSpecialistValue, bool bWantBest);
+	int GetSpecialistValue(SpecialistTypes eSpecialist, const SPrecomputedExpensiveNumbers& cache);
 
 	// Citizen Assignment
 	int GetNumUnassignedCitizens() const;
@@ -82,52 +82,38 @@ public:
 	int GetNumCitizensWorkingPlots() const;
 	void ChangeNumCitizensWorkingPlots(int iChange);
 
-	bool DoAddBestCitizenFromUnassigned(std::map<SpecialistTypes, int>& specialistValueCache, bool bLogging = false, bool bNoSpecialists = false);
-#if defined(MOD_BALANCE_CORE)
-	bool DoRemoveWorstCitizen(bool bRemoveForcedStatus = false, SpecialistTypes eDontChangeSpecialist = NO_SPECIALIST, int iCurrentCityPopulation = -1, bool bUpdateNow = true);
-#else
-	bool DoRemoveWorstCitizen(bool bRemoveForcedStatus = false, SpecialistTypes eDontChangeSpecialist = NO_SPECIALIST, int iCurrentCityPopulation = -1);
-#endif
-#if defined(MOD_BALANCE_CORE)
-	void SetBlockade(bool bValue);
-	bool IsBlockade();
+	bool DoAddBestCitizenFromUnassigned(CvCity::eUpdateMode updateMode, bool bLogging = false);
+	bool DoRemoveWorstCitizen(CvCity::eUpdateMode updateMode, bool bRemoveForcedStatus = false, SpecialistTypes eDontChangeSpecialist = NO_SPECIALIST);
+
 	void SetDirty(bool bValue);
 	bool IsDirty();
 	void DoReallocateCitizens(bool bForce = false, bool bLogging = false);
-#else
-	void DoReallocateCitizens();
-#endif
-#if defined(MOD_BALANCE_CORE)
+
+	void OptimizeWorkedPlots(bool bLogging);
 	bool NeedReworkCitizens();
-#endif
-#if defined(MOD_BALANCE_CORE)
 	CvPlot* GetBestCityPlotWithValue(int& iValue, bool bWantBest, bool bWantWorked, bool bForced = false, bool Logging = false);
-#else
-	CvPlot* GetBestCityPlotWithValue(int& iValue, bool bWantBest, bool bWantWorked);
-#endif
 
 	// Worked Plots
 	bool IsWorkingPlot(int iRelativeIndex) const;
 	bool IsWorkingPlot(const CvPlot* pPlot) const;
-#if defined(MOD_BALANCE_CORE)
-	void SetWorkingPlot(CvPlot* pPlot, bool bNewValue, bool bUseUnassignedPool = true, bool bUpdateNow = true);
-#else
-	void SetWorkingPlot(CvPlot* pPlot, bool bNewValue, bool bUseUnassignedPool = true);
-#endif
+	void SetWorkingPlot(CvPlot* pPlot, bool bNewValue, CvCity::eUpdateMode updateMode);
 	void DoAlterWorkingPlot(int iIndex);
 
 	// Forced Working Plots (human override)
+	bool IsForcedWorkingPlot(int iRelativeIndex) const;
 	bool IsForcedWorkingPlot(const CvPlot* pPlot) const;
 	void SetForcedWorkingPlot(CvPlot* pPlot, bool bNewValue);
 
-	bool DoValidateForcedWorkingPlots();
+	void DoValidateForcedWorkingPlots();
 	bool DoDemoteWorstForcedWorkingPlot();
 
 	int GetNumForcedWorkingPlots() const;
 	void ChangeNumForcedWorkingPlots(int iChange);
 
 	bool IsCanWork(CvPlot* pPlot) const;
-	bool IsAnyPlotBlockaded() const;
+	bool IsBlockaded(CvPlot* pPlot) const;
+	void SetBlockaded(CvPlot* pPlot);
+	void ClearBlockades();
 
 	void DoVerifyWorkingPlots();
 
@@ -141,37 +127,22 @@ public:
 	void DoSpecialists();
 
 	int GetSpecialistRate(SpecialistTypes eSpecialist);
-
 	bool IsCanAddSpecialistToBuilding(BuildingTypes eBuilding);
-	void DoAddSpecialistToBuilding(BuildingTypes eBuilding, bool bForced);
-#if defined(MOD_BALANCE_CORE)
-	void DoRemoveSpecialistFromBuilding(BuildingTypes eBuilding, bool bForced, bool bEliminatePopulation = false, bool bUpdateNow = true);
-#else
-	void DoRemoveSpecialistFromBuilding(BuildingTypes eBuilding, bool bForced, bool bEliminatePopulation = false);
-#endif
-	void DoRemoveAllSpecialistsFromBuilding(BuildingTypes eBuilding, bool bEliminatePopulation = false);
-#if defined(MOD_BALANCE_CORE)
-	bool DoRemoveWorstSpecialist(SpecialistTypes eDontChangeSpecialist, const BuildingTypes eDontRemoveFromBuilding = NO_BUILDING, bool bUpdateNow = true);
-#else
-	bool DoRemoveWorstSpecialist(SpecialistTypes eDontChangeSpecialist, const BuildingTypes eDontRemoveFromBuilding = NO_BUILDING);
-#endif
+	void DoAddSpecialistToBuilding(BuildingTypes eBuilding, bool bForced, CvCity::eUpdateMode updateMode);
+	void DoRemoveSpecialistFromBuilding(BuildingTypes eBuilding, bool bForced, CvCity::eUpdateMode updateMode);
+	void DoRemoveAllSpecialistsFromBuilding(BuildingTypes eBuilding, CvCity::eUpdateMode updateMode);
+	bool DoRemoveWorstSpecialist(SpecialistTypes eDontChangeSpecialist, const BuildingTypes eDontRemoveFromBuilding, CvCity::eUpdateMode updateMode);
 
 	int GetNumDefaultSpecialists() const;
-#if defined(MOD_BALANCE_CORE)
-	void ChangeNumDefaultSpecialists(int iChange, bool bUpdateNow = true);
-#else
-	void ChangeNumDefaultSpecialists(int iChange);
-#endif
+	void ChangeNumDefaultSpecialists(int iChange, CvCity::eUpdateMode updateMode);
 	int GetNumForcedDefaultSpecialists() const;
 	void ChangeNumForcedDefaultSpecialists(int iChange);
 
 	int GetSpecialistCount(SpecialistTypes eIndex) const;
 	int GetTotalSpecialistCount() const;
-#if defined(MOD_BALANCE_CORE)
 	int GetSpecialistSlots(SpecialistTypes eIndex) const;
 	void ChangeNumSpecialistSlots(SpecialistTypes eIndex, int iValue);
 	int GetSpecialistSlotsTotal() const;
-#endif
 
 	int GetBuildingGreatPeopleRateChanges(SpecialistTypes eSpecialist) const;
 	void ChangeBuildingGreatPeopleRateChanges(SpecialistTypes eSpecialist, int iChange);
@@ -179,11 +150,7 @@ public:
 	int GetSpecialistGreatPersonProgress(SpecialistTypes eIndex) const;
 	int GetSpecialistGreatPersonProgressTimes100(SpecialistTypes eIndex) const;
 	void ChangeSpecialistGreatPersonProgressTimes100(SpecialistTypes eIndex, int iChange, bool bCheckForSpawn = false);
-#if defined(MOD_BALANCE_CORE)
 	void DoResetSpecialistGreatPersonProgressTimes100(SpecialistTypes eIndex, int iAmountToRemove);
-#else
-	void DoResetSpecialistGreatPersonProgressTimes100(SpecialistTypes eIndex);
-#endif
 
 	int GetNumSpecialistsInBuilding(BuildingTypes eBuilding) const;
 	int GetNumForcedSpecialistsInBuilding(BuildingTypes eBuilding) const;
@@ -207,10 +174,7 @@ private:
 
 	bool m_bAutomated;
 	bool m_bNoAutoAssignSpecialists;
-#if defined(MOD_BALANCE_CORE)
 	bool m_bIsDirty;
-	bool m_bIsBlockaded;
-#endif
 
 	int m_iNumUnassignedCitizens;
 	int m_iNumCitizensWorkingPlots;
@@ -218,25 +182,22 @@ private:
 
 	CityAIFocusTypes m_eCityAIFocusTypes;
 	bool m_bForceAvoidGrowth;
-	bool m_bDiscourageGrowth;
 
 	bool m_pabWorkingPlot[MAX_CITY_PLOTS];
 	bool m_pabForcedWorkingPlot[MAX_CITY_PLOTS];
 	std::vector<int> m_vWorkedPlots;
+	std::vector<int> m_vBlockadedPlots; //for caching, not serialized
 
 	int m_iNumDefaultSpecialists;
 	int m_iNumForcedDefaultSpecialists;
 	int* m_aiSpecialistCounts;
-#if defined(MOD_BALANCE_CORE)
 	int* m_aiSpecialistSlots;
-#endif
 	int* m_aiSpecialistGreatPersonProgressTimes100;
 	int* m_aiNumSpecialistsInBuilding;
 	int* m_aiNumForcedSpecialistsInBuilding;
 	int* m_piBuildingGreatPeopleRateChanges;
 
 	bool m_bInited;
-
 };
 
 #endif // CIV5_CITY_CITIZENS_H

@@ -101,11 +101,8 @@ static CvCombatMemberEntry* AddCombatMember(CvCombatMemberEntry* pkArray, int* p
 void CvUnitCombat::GenerateMeleeCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender, CvPlot& plot, CvCombatInfo* pkCombatInfo)
 {
 	BATTLE_STARTED(BATTLE_TYPE_MELEE, plot);
-#if defined(MOD_UNITS_MAX_HP)
+
 	int iAttackerMaxHP = kAttacker.GetMaxHitPoints();
-#else
-	int iMaxHP = GC.getMAX_HIT_POINTS();
-#endif
 
 	pkCombatInfo->setUnit(BATTLE_UNIT_ATTACKER, &kAttacker);
 	pkCombatInfo->setUnit(BATTLE_UNIT_DEFENDER, pkDefender);
@@ -177,20 +174,13 @@ void CvUnitCombat::GenerateMeleeCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender
 		int iDefenderTotalDamageInflicted = iDefenderDamageInflicted + kAttacker.getDamage();
 
 		// Will both the attacker die, and the city fall? If so, the unit wins
-#if defined(MOD_UNITS_MAX_HP)
 		if (iAttackerTotalDamageInflicted >= iMaxCityHP && iDefenderTotalDamageInflicted >= iAttackerMaxHP)
 		{
 			iDefenderDamageInflicted = iAttackerMaxHP - kAttacker.getDamage() - 1;
 			iDefenderTotalDamageInflicted = iAttackerMaxHP - 1;
 		}
-#else
-		if (iAttackerTotalDamageInflicted >= iMaxCityHP && iDefenderTotalDamageInflicted >= iMaxHP)
-		{
-			iDefenderDamageInflicted = iMaxHP - kAttacker.getDamage() - 1;
-			iDefenderTotalDamageInflicted = iMaxHP - 1;
-		}
-#endif
 
+		pkCombatInfo->setMaxExperienceAllowed(BATTLE_UNIT_ATTACKER, pkCity->maxXPValue());
 		pkCombatInfo->setFinalDamage(BATTLE_UNIT_ATTACKER, iDefenderTotalDamageInflicted);
 		pkCombatInfo->setDamageInflicted(BATTLE_UNIT_ATTACKER, iAttackerDamageInflicted);
 		pkCombatInfo->setFinalDamage(BATTLE_UNIT_DEFENDER, iAttackerTotalDamageInflicted);
@@ -241,9 +231,7 @@ void CvUnitCombat::GenerateMeleeCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender
 	// Attacking a Unit
 	else if (pkDefender)
 	{
-#if defined(MOD_UNITS_MAX_HP)
 		int iDefenderMaxHP = pkDefender->GetMaxHitPoints();
-#endif
 
 		int iDefenderStrength = pkDefender->GetMaxDefenseStrength(&plot, &kAttacker, kAttacker.plot());
 		int iAttackerStrength = 0;
@@ -258,11 +246,6 @@ void CvUnitCombat::GenerateMeleeCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender
 		else
 		{
 			iAttackerStrength = kAttacker.GetMaxAttackStrength(kAttacker.plot(), &plot, pkDefender);
-		}
-
-		if (kAttacker.IsCanHeavyCharge() && !pkDefender->CanFallBack(kAttacker,false))
-		{
-			iAttackerStrength = (iAttackerStrength * 150) / 100;
 		}
 
 		bool bIncludeRand = !GC.getGame().isGameMultiPlayer();
@@ -296,7 +279,7 @@ void CvUnitCombat::GenerateMeleeCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender
 		{
 			kAttacker.DoPlagueTransfer(*pkDefender);
 		}
-		if (pkDefender->getPlagueChance() > 0 && !pkDefender->isRanged())
+		if (pkDefender->getPlagueChance() > 0 && !pkDefender->IsCanAttackRanged())
 		{
 			pkDefender->DoPlagueTransfer(kAttacker);
 		}
@@ -305,36 +288,20 @@ void CvUnitCombat::GenerateMeleeCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender
 		int iDefenderTotalDamageInflicted = iDefenderDamageInflicted + kAttacker.getDamage();
 
 		// Will both units be killed by this? :o If so, take drastic corrective measures
-#if defined(MOD_UNITS_MAX_HP)
 		if (iAttackerTotalDamageInflicted >= iDefenderMaxHP && iDefenderTotalDamageInflicted >= iAttackerMaxHP)
-#else
-		if (iAttackerTotalDamageInflicted >= iMaxHP && iDefenderTotalDamageInflicted >= iMaxHP)
-#endif
 		{
 			// He who hath the least amount of damage survives with 1 HP left
 			if(iAttackerTotalDamageInflicted > iDefenderTotalDamageInflicted)
 			{
-#if defined(MOD_UNITS_MAX_HP)
 				iDefenderDamageInflicted = iAttackerMaxHP - kAttacker.getDamage() - 1;
 				iDefenderTotalDamageInflicted = iAttackerMaxHP - 1;
 				iAttackerTotalDamageInflicted = iDefenderMaxHP;
-#else
-				iDefenderDamageInflicted = iMaxHP - kAttacker.getDamage() - 1;
-				iDefenderTotalDamageInflicted = iMaxHP - 1;
-				iAttackerTotalDamageInflicted = iMaxHP;
-#endif
 			}
 			else
 			{
-#if defined(MOD_UNITS_MAX_HP)
 				iAttackerDamageInflicted = iDefenderMaxHP - pkDefender->getDamage() - 1;
 				iAttackerTotalDamageInflicted = iDefenderMaxHP - 1;
 				iDefenderTotalDamageInflicted = iAttackerMaxHP;
-#else
-				iAttackerDamageInflicted = iMaxHP - pkDefender->getDamage() - 1;
-				iAttackerTotalDamageInflicted = iMaxHP - 1;
-				iDefenderTotalDamageInflicted = iMaxHP;
-#endif
 			}
 		}
 
@@ -346,17 +313,9 @@ void CvUnitCombat::GenerateMeleeCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender
 		// Fear Damage
 		pkCombatInfo->setFearDamageInflicted(BATTLE_UNIT_ATTACKER, kAttacker.getCombatDamage(iAttackerStrength, iDefenderStrength, bIncludeRand, false, true));
 
-#if defined(MOD_UNITS_MAX_HP)
 		int iAttackerEffectiveStrength = iAttackerStrength * (iAttackerMaxHP - range(kAttacker.getDamage(), 0, iAttackerMaxHP - 1)) / iAttackerMaxHP;
-#else
-		int iAttackerEffectiveStrength = iAttackerStrength * (iMaxHP - range(kAttacker.getDamage(), 0, iMaxHP - 1)) / iMaxHP;
-#endif
 		iAttackerEffectiveStrength = iAttackerEffectiveStrength > 0 ? iAttackerEffectiveStrength : 1;
-#if defined(MOD_UNITS_MAX_HP)
 		int iDefenderEffectiveStrength = iDefenderStrength * (iDefenderMaxHP - range(pkDefender->getDamage(), 0, iDefenderMaxHP - 1)) / iDefenderMaxHP;
-#else
-		int iDefenderEffectiveStrength = iDefenderStrength * (iMaxHP - range(pkDefender->getDamage(), 0, iMaxHP - 1)) / iMaxHP;
-#endif
 		iDefenderEffectiveStrength = iDefenderEffectiveStrength > 0 ? iDefenderEffectiveStrength : 1;
 
 		//int iExperience = kAttacker.defenseXPValue();
@@ -411,11 +370,7 @@ void CvUnitCombat::GenerateMeleeCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender
 		{
 			bAdvance = false;
 		}
-#if defined(MOD_UNITS_MAX_HP)
 		else if (iAttackerTotalDamageInflicted >= iDefenderMaxHP && kAttacker.IsCaptureDefeatedEnemy() && kAttacker.getDomainType()==pkDefender->getDomainType())
-#else
-		else if (iAttackerTotalDamageInflicted >= iMaxHP && kAttacker.IsCaptureDefeatedEnemy() && kAttacker.getDomainType()==pkDefender->getDomainType())
-#endif
 		{
 			int iCaptureRoll = GC.getGame().getSmallFakeRandNum(50, plot) + GC.getGame().getSmallFakeRandNum(50, pkDefender->GetID());
 
@@ -430,7 +385,7 @@ void CvUnitCombat::GenerateMeleeCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender
 			bAdvance = true;
 		}
 
-		if (!kAttacker.plot()->MeleeAttackerAdvances(kAttacker.getTeam()))
+		if (kAttacker.plot()->isFortification(kAttacker.getTeam()))
 			bAdvance = false;
 
 		pkCombatInfo->setAttackerAdvances(bAdvance);
@@ -514,22 +469,14 @@ void CvUnitCombat::ResolveMeleeCombat(const CvCombatInfo& kCombatInfo, uint uiPa
 		pkDefender->ChangeNumTimesAttackedThisTurn(pkAttacker->getOwner(), 1);
 
 		// Update experience for both sides.
-#if defined(MOD_UNITS_XP_TIMES_100)
 		pkDefender->changeExperienceTimes100(100 *
-#else
-		pkDefender->changeExperience(
-#endif
 		    kCombatInfo.getExperience(BATTLE_UNIT_DEFENDER),
 		    kCombatInfo.getMaxExperienceAllowed(BATTLE_UNIT_DEFENDER),
 		    true,
 		    kCombatInfo.getInBorders(BATTLE_UNIT_DEFENDER),
 		    kCombatInfo.getUpdateGlobal(BATTLE_UNIT_DEFENDER));
 
-#if defined(MOD_UNITS_XP_TIMES_100)
 		pkAttacker->changeExperienceTimes100(100 * 
-#else
-		pkAttacker->changeExperience(
-#endif
 		    kCombatInfo.getExperience(BATTLE_UNIT_ATTACKER),
 		    kCombatInfo.getMaxExperienceAllowed(BATTLE_UNIT_ATTACKER),
 		    true,
@@ -537,13 +484,8 @@ void CvUnitCombat::ResolveMeleeCombat(const CvCombatInfo& kCombatInfo, uint uiPa
 		    kCombatInfo.getUpdateGlobal(BATTLE_UNIT_ATTACKER));
 
 		// Anyone eat it?
-#if defined(MOD_UNITS_MAX_HP)
 		bAttackerDead = (pkAttacker->getDamage() >= pkAttacker->GetMaxHitPoints());
 		bDefenderDead = (pkDefender->getDamage() >= pkDefender->GetMaxHitPoints());
-#else
-		bAttackerDead = (pkAttacker->getDamage() >= GC.getMAX_HIT_POINTS());
-		bDefenderDead = (pkDefender->getDamage() >= GC.getMAX_HIT_POINTS());
-#endif
 
 #if !defined(NO_ACHIEVEMENTS)
 		CvPlayerAI& kAttackerOwner = GET_PLAYER(pkAttacker->getOwner());
@@ -805,23 +747,10 @@ void CvUnitCombat::GenerateRangedCombatInfo(CvUnit& kAttacker, CvUnit* pkDefende
 				iDamage = 0;
 		}
 #endif
-#if defined(MOD_UNITS_MAX_HP)
 		if (iDamage + pkDefender->getDamage() > pkDefender->GetMaxHitPoints())
 		{
 			iDamage = pkDefender->GetMaxHitPoints() - pkDefender->getDamage();
 		}
-#else
-		if(iDamage + pkDefender->getDamage() > GC.getMAX_HIT_POINTS())
-		{
-			iDamage = GC.getMAX_HIT_POINTS() - pkDefender->getDamage();
-		}
-#endif
-#if defined(MOD_BALANCE_CORE)
-		if (kAttacker.GetMoraleBreakChance() > 0 && !pkDefender->CanFallBack(kAttacker,false))
-		{
-			iDamage = (iDamage * 150) / 100;
-		}
-#endif
 
 		iTotalDamage = std::max(pkDefender->getDamage(), pkDefender->getDamage() + iDamage);
 
@@ -845,7 +774,7 @@ void CvUnitCombat::GenerateRangedCombatInfo(CvUnit& kAttacker, CvUnit* pkDefende
 		iExperience = /*3*/ GC.getEXPERIENCE_ATTACKING_CITY_RANGED();
 		if(pCity->isBarbarian())
 			bBarbarian = true;
-		iMaxXP = 1000;
+		iMaxXP = pCity->maxXPValue();
 
 		iDamage = kAttacker.GetRangeCombatDamage(/*pDefender*/ NULL, pCity, /*bIncludeRand*/ true);
 
@@ -905,37 +834,17 @@ void CvUnitCombat::GenerateRangedCombatInfo(CvUnit& kAttacker, CvUnit* pkDefende
 	pkCombatInfo->setExperience(BATTLE_UNIT_ATTACKER, iExperience);
 	pkCombatInfo->setMaxExperienceAllowed(BATTLE_UNIT_ATTACKER, iMaxXP);
 	pkCombatInfo->setInBorders(BATTLE_UNIT_ATTACKER, plot.getOwner() == kAttacker.getOwner());
-#if defined(MOD_BUGFIX_BARB_GP_XP)
-	bool bGeneralsXP = !kAttacker.isBarbarian();
-	if (MOD_BUGFIX_BARB_GP_XP)
-	{
-		if (!plot.isCity())
-		{
-			bGeneralsXP = !pkDefender->isBarbarian();
-		} 
-		else
-		{
-			bGeneralsXP = !plot.getPlotCity()->isBarbarian();
-		}
-	}
-#if defined(MOD_BARBARIAN_GG_GA_POINTS)
-	if(GC.getGame().isOption(GAMEOPTION_BARB_GG_GA_POINTS))
-	{
-		pkCombatInfo->setUpdateGlobal(BATTLE_UNIT_ATTACKER, true);
-	}
-	else
-	{
-#if defined(MOD_TRAITS_GG_FROM_BARBARIANS) || defined(MOD_PROMOTIONS_GG_FROM_BARBARIANS)
-		pkCombatInfo->setUpdateGlobal(BATTLE_UNIT_ATTACKER, kAttacker.isGGFromBarbarians() || bGeneralsXP);
-#else
-		pkCombatInfo->setUpdateGlobal(BATTLE_UNIT_ATTACKER, bGeneralsXP);
-#endif
-	}
-#else
-	pkCombatInfo->setUpdateGlobal(BATTLE_UNIT_ATTACKER, bGeneralsXP);
-#endif
 
-#else
+	bool bGeneralsXP = !kAttacker.isBarbarian();
+	if (!plot.isCity())
+	{
+		bGeneralsXP = !pkDefender->isBarbarian();
+	} 
+	else
+	{
+		bGeneralsXP = !plot.getPlotCity()->isBarbarian();
+	}
+
 #if defined(MOD_BARBARIAN_GG_GA_POINTS)
 	if(GC.getGame().isOption(GAMEOPTION_BARB_GG_GA_POINTS))
 	{
@@ -951,7 +860,6 @@ void CvUnitCombat::GenerateRangedCombatInfo(CvUnit& kAttacker, CvUnit* pkDefende
 	}
 #else
 	pkCombatInfo->setUpdateGlobal(BATTLE_UNIT_ATTACKER, bGeneralsXP);
-#endif
 #endif
 
 	iExperience = /*2*/ GC.getEXPERIENCE_DEFENDING_UNIT_RANGED();
@@ -1032,17 +940,10 @@ void CvUnitCombat::GenerateRangedCombatInfo(CvCity& kAttacker, CvUnit* pkDefende
 				iDamage = 0;
 		}
 #endif
-#if defined(MOD_UNITS_MAX_HP)
 		if(iDamage + pkDefender->getDamage() > pkDefender->GetMaxHitPoints())
 		{
 			iDamage = pkDefender->GetMaxHitPoints() - pkDefender->getDamage();
 		}
-#else
-		if(iDamage + pkDefender->getDamage() > GC.getMAX_HIT_POINTS())
-		{
-			iDamage = GC.getMAX_HIT_POINTS() - pkDefender->getDamage();
-		}
-#endif
 
 		iTotalDamage = std::max(pkDefender->getDamage(), pkDefender->getDamage() + iDamage);
 	}
@@ -1052,7 +953,8 @@ void CvUnitCombat::GenerateRangedCombatInfo(CvCity& kAttacker, CvUnit* pkDefende
 	}
 
 	//////////////////////////////////////////////////////////////////////
-
+	int iMaxXP = kAttacker.maxXPValue();
+	pkCombatInfo->setMaxExperienceAllowed(BATTLE_UNIT_DEFENDER, iMaxXP);
 	pkCombatInfo->setFinalDamage(BATTLE_UNIT_ATTACKER, 0);				// Total damage to the unit
 	pkCombatInfo->setDamageInflicted(BATTLE_UNIT_ATTACKER, iDamage);		// Damage inflicted this round
 	pkCombatInfo->setFinalDamage(BATTLE_UNIT_DEFENDER, iTotalDamage);		// Total damage to the unit
@@ -1085,7 +987,6 @@ void CvUnitCombat::GenerateRangedCombatInfo(CvCity& kAttacker, CvUnit* pkDefende
 
 	int iExperience = /*2*/ GC.getEXPERIENCE_DEFENDING_UNIT_RANGED();
 	pkCombatInfo->setExperience(BATTLE_UNIT_DEFENDER, iExperience);
-	pkCombatInfo->setMaxExperienceAllowed(BATTLE_UNIT_DEFENDER, MAX_INT);
 	pkCombatInfo->setInBorders(BATTLE_UNIT_DEFENDER, plot.getOwner() == kAttacker.getOwner());
 #if defined(MOD_BARBARIAN_GG_GA_POINTS)
 	if(GC.getGame().isOption(GAMEOPTION_BARB_GG_GA_POINTS))
@@ -1123,7 +1024,6 @@ void CvUnitCombat::ResolveRangedUnitVsCombat(const CvCombatInfo& kCombatInfo, ui
 	int iDamage = kCombatInfo.getDamageInflicted(BATTLE_UNIT_ATTACKER);
 //	int iExperience = kCombatInfo.getExperience(BATTLE_UNIT_ATTACKER);
 //	int iMaxXP = kCombatInfo.getMaxExperienceAllowed(BATTLE_UNIT_ATTACKER);
-	bool bBarbarian = false;
 
 	CvUnit* pkAttacker = kCombatInfo.getUnit(BATTLE_UNIT_ATTACKER);
 	CvAssert_Debug(pkAttacker);
@@ -1145,47 +1045,11 @@ void CvUnitCombat::ResolveRangedUnitVsCombat(const CvCombatInfo& kCombatInfo, ui
 			{
 				if(pkAttacker)
 				{
-#if defined(MOD_BALANCE_CORE)
-					if (pkAttacker->getSplashDamage() != 0)
-					{
-						CvPlot* pAdjacentPlot = NULL;
-						CvPlot* pPlot = GC.getMap().plot(pkDefender->getX(), pkDefender->getY());
-
-						for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
-						{
-							pAdjacentPlot = plotDirection(pPlot->getX(), pPlot->getY(), ((DirectionTypes)iI));
-
-							if (pAdjacentPlot != NULL && pkAttacker->canEverRangeStrikeAt(pAdjacentPlot->getX(), pAdjacentPlot->getY(), pkAttacker->plot(), false))
-							{
-								for (int iUnitLoop = 0; iUnitLoop < pAdjacentPlot->getNumUnits(); iUnitLoop++)
-								{
-									CvUnit* pEnemyUnit = pAdjacentPlot->getUnitByIndex(iUnitLoop);
-									if (pEnemyUnit != NULL && pEnemyUnit->isEnemy(pkAttacker->getTeam()))
-									{
-										CvString strAppendText = GetLocalizedText("TXT_KEY_MISC_YOU_UNIT_WAS_DAMAGED_SPLASH");
-
-										if (pkAttacker->getSplashDamage() + pkDefender->getDamage() >= pkDefender->GetMaxHitPoints())
-										{
-											// Earn bonuses for kills?
-											CvPlayer& kAttackingPlayer = GET_PLAYER(pkAttacker->getOwner());
-											kAttackingPlayer.DoYieldsFromKill(pkAttacker, pkDefender);
-										}
-
-										pEnemyUnit->changeDamage(pkAttacker->getSplashDamage(), pkAttacker->getOwner(), 0.0, &strAppendText);
-									}
-								}
-							}
-						}
-					}
+					pkAttacker->DoAdjacentPlotDamage(pkTargetPlot,min(iDamage,pkAttacker->getSplashDamage()),"TXT_KEY_MISC_YOU_UNIT_WAS_DAMAGED_SPLASH");
 					pkDefender->ChangeNumTimesAttackedThisTurn(pkAttacker->getOwner(), 1);
-#endif
 
 					// Defender died
-#if defined(MOD_UNITS_MAX_HP)
 					if(iDamage + pkDefender->getDamage() >= pkDefender->GetMaxHitPoints())
-#else
-					if(iDamage + pkDefender->getDamage() >= GC.getMAX_HIT_POINTS())
-#endif
 					{
 #if !defined(NO_ACHIEVEMENTS)
 						//One Hit
@@ -1231,10 +1095,6 @@ void CvUnitCombat::ResolveRangedUnitVsCombat(const CvCombatInfo& kCombatInfo, ui
 						}
 						strBuffer = GetLocalizedText("TXT_KEY_MISC_YOU_ARE_ATTACKED_BY_AIR", pkDefender->getNameKey(), pkAttacker->getNameKey(), iDamage);
 #if defined(MOD_BALANCE_CORE)
-						if(pkDefender->IsFortified() || (pkDefender->GetActivityType() == ACTIVITY_HEAL))
-						{
-							pkDefender->SetActivityType(ACTIVITY_AWAKE);
-						}
 						if (pkAttacker->GetMoraleBreakChance() > 0 && !pkDefender->isDelayedDeath() && pkDefender->CanFallBack(*pkAttacker,false))
 						{
 							int iRand = GC.getGame().getSmallFakeRandNum(100, pkDefender->GetID()+pkDefender->plot()->GetPlotIndex());
@@ -1283,11 +1143,7 @@ void CvUnitCombat::ResolveRangedUnitVsCombat(const CvCombatInfo& kCombatInfo, ui
 #endif
 
 					// Update experience
-#if defined(MOD_UNITS_XP_TIMES_100)
 					pkDefender->changeExperienceTimes100(100 * 
-#else
-					pkDefender->changeExperience(
-#endif
 					    kCombatInfo.getExperience(BATTLE_UNIT_DEFENDER),
 					    kCombatInfo.getMaxExperienceAllowed(BATTLE_UNIT_DEFENDER),
 					    true,
@@ -1311,7 +1167,8 @@ void CvUnitCombat::ResolveRangedUnitVsCombat(const CvCombatInfo& kCombatInfo, ui
 			{
 				if(pkAttacker)
 				{
-					bBarbarian = pCity->isBarbarian();
+					pkAttacker->DoAdjacentPlotDamage(pkTargetPlot,min(iDamage,pkAttacker->getSplashDamage()),"TXT_KEY_MISC_YOU_UNIT_WAS_DAMAGED_SPLASH");
+
 #if defined(MOD_BALANCE_CORE)
 					if(pCity->getDamage() != pCity->GetMaxHitPoints())
 					{
@@ -1359,11 +1216,7 @@ void CvUnitCombat::ResolveRangedUnitVsCombat(const CvCombatInfo& kCombatInfo, ui
 		// Unit gains XP for executing a Range Strike
 		if(iDamage > 0) // && iDefenderStrength > 0)
 		{
-#if defined(MOD_UNITS_XP_TIMES_100)
 			pkAttacker->changeExperienceTimes100(100 * 
-#else
-			pkAttacker->changeExperience(
-#endif
 			    kCombatInfo.getExperience(BATTLE_UNIT_ATTACKER),
 			    kCombatInfo.getMaxExperienceAllowed(BATTLE_UNIT_ATTACKER),
 			    true,
@@ -1432,11 +1285,7 @@ void CvUnitCombat::ResolveRangedCityVsUnitCombat(const CvCombatInfo& kCombatInfo
 						pkDLLInterface->AddMessage(uiParentEventID, pkDefender->getOwner(), true, GC.getEVENT_MESSAGE_TIME(), localizedText.toUTF8());//, "AS2D_COMBAT", MESSAGE_TYPE_COMBAT_MESSAGE, pDefender->getUnitInfo().GetButton(), (ColorTypes)GC.getInfoTypeForString("COLOR_RED"), pDefender->getX(), pDefender->getY(), true, true);
 					}
 
-#if defined(MOD_UNITS_MAX_HP)
 					if(iDamage + pkDefender->getDamage() >= pkDefender->GetMaxHitPoints())
-#else
-					if(iDamage + pkDefender->getDamage() >= GC.getMAX_HIT_POINTS())
-#endif
 					{
 						CvNotifications* pNotifications = GET_PLAYER(pkDefender->getOwner()).GetNotifications();
 						if(pNotifications)
@@ -1461,11 +1310,7 @@ void CvUnitCombat::ResolveRangedCityVsUnitCombat(const CvCombatInfo& kCombatInfo
 #endif
 
 					// Update experience
-#if defined(MOD_UNITS_XP_TIMES_100)
 					pkDefender->changeExperienceTimes100(100 * 
-#else
-					pkDefender->changeExperience(
-#endif
 					    kCombatInfo.getExperience(BATTLE_UNIT_DEFENDER),
 					    kCombatInfo.getMaxExperienceAllowed(BATTLE_UNIT_DEFENDER),
 					    true,
@@ -1525,11 +1370,7 @@ void CvUnitCombat::ResolveCityMeleeCombat(const CvCombatInfo& kCombatInfo, uint 
 #endif
 		pkDefender->ChangeNumTimesAttackedThisTurn(pkAttacker->getOwner(), 1);
 
-#if defined(MOD_UNITS_XP_TIMES_100)
 		pkAttacker->changeExperienceTimes100(100 * kCombatInfo.getExperience(BATTLE_UNIT_ATTACKER),
-#else
-		pkAttacker->changeExperience(kCombatInfo.getExperience(BATTLE_UNIT_ATTACKER),
-#endif
 		                             kCombatInfo.getMaxExperienceAllowed(BATTLE_UNIT_ATTACKER),
 		                             true,
 		                             false,
@@ -1579,7 +1420,7 @@ void CvUnitCombat::ResolveCityMeleeCombat(const CvCombatInfo& kCombatInfo, uint 
 			}
 
 #if !defined(NO_ACHIEVEMENTS)
-			if( pkDefender->GetPlayer()->GetID() == GC.getGame().getActivePlayer() && pkDefender->isHuman() && !GC.getGame().isGameMultiPlayer())
+			if( pkDefender->getOwner() == GC.getGame().getActivePlayer() && pkDefender->isHuman() && !GC.getGame().isGameMultiPlayer())
 			{
 				gDLL->UnlockAchievement(ACHIEVEMENT_REALLY_SUCK);
 			}
@@ -1784,17 +1625,10 @@ void CvUnitCombat::GenerateAirCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender, 
 				iAttackerDamageInflicted = 0;
 		}
 #endif
-#if defined(MOD_UNITS_MAX_HP)
 		if(iAttackerDamageInflicted + pkDefender->getDamage() > pkDefender->GetMaxHitPoints())
 		{
 			iAttackerDamageInflicted = pkDefender->GetMaxHitPoints() - pkDefender->getDamage();
 		}
-#else
-		if(iAttackerDamageInflicted + pkDefender->getDamage() > GC.getMAX_HIT_POINTS())
-		{
-			iAttackerDamageInflicted = GC.getMAX_HIT_POINTS() - pkDefender->getDamage();
-		}
-#endif
 
 		iAttackerTotalDamageInflicted = std::max(pkDefender->getDamage(), pkDefender->getDamage() + iAttackerDamageInflicted);
 
@@ -1813,17 +1647,10 @@ void CvUnitCombat::GenerateAirCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender, 
 				iDefenderDamageInflicted = 0;
 		}
 #endif
-#if defined(MOD_UNITS_MAX_HP)
 		if(iDefenderDamageInflicted + kAttacker.getDamage() > kAttacker.GetMaxHitPoints())
 		{
 			iDefenderDamageInflicted = kAttacker.GetMaxHitPoints() - kAttacker.getDamage();
 		}
-#else
-		if(iDefenderDamageInflicted + kAttacker.getDamage() > GC.getMAX_HIT_POINTS())
-		{
-			iDefenderDamageInflicted = GC.getMAX_HIT_POINTS() - kAttacker.getDamage();
-		}
-#endif
 
 		iDefenderTotalDamageInflicted = std::max(kAttacker.getDamage(), kAttacker.getDamage() + iDefenderDamageInflicted);
 	}
@@ -1840,7 +1667,7 @@ void CvUnitCombat::GenerateAirCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender, 
 		iExperience = /*4*/ GC.getEXPERIENCE_ATTACKING_CITY_AIR();
 		if(pCity->isBarbarian())
 			bBarbarian = true;
-		iMaxXP = 1000;
+		iMaxXP = pCity->maxXPValue();
 
 		iAttackerDamageInflicted = kAttacker.GetAirCombatDamage(/*pUnit*/ NULL, pCity, /*bIncludeRand*/ true);
 
@@ -1891,12 +1718,8 @@ void CvUnitCombat::GenerateAirCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender, 
 
 		if(iDefenderDamageInflicted + kAttacker.getDamage() > pCity->GetMaxHitPoints())
 		{
-#if defined(MOD_BUGFIX_MINOR)
 			// Surely!!!
 			iDefenderDamageInflicted = kAttacker.GetMaxHitPoints() - kAttacker.getDamage();
-#else
-			iDefenderDamageInflicted = GC.getMAX_HIT_POINTS() - kAttacker.getDamage();
-#endif
 		}
 
 		iDefenderTotalDamageInflicted = std::max(kAttacker.getDamage(), kAttacker.getDamage() + iDefenderDamageInflicted);
@@ -1927,37 +1750,17 @@ void CvUnitCombat::GenerateAirCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender, 
 	pkCombatInfo->setExperience(BATTLE_UNIT_ATTACKER, iExperience);
 	pkCombatInfo->setMaxExperienceAllowed(BATTLE_UNIT_ATTACKER, iMaxXP);
 	pkCombatInfo->setInBorders(BATTLE_UNIT_ATTACKER, plot.getOwner() == eDefenderOwner);
-#if defined(MOD_BUGFIX_BARB_GP_XP)
-	bool bGeneralsXP = !kAttacker.isBarbarian();
-	if (MOD_BUGFIX_BARB_GP_XP)
-	{
-		if (!plot.isCity())
-		{
-			bGeneralsXP = !pkDefender->isBarbarian();
-		}
-		else
-		{
-			bGeneralsXP = !plot.getPlotCity()->isBarbarian();
-		}
-	}
-#if defined(MOD_BARBARIAN_GG_GA_POINTS)
-	if(GC.getGame().isOption(GAMEOPTION_BARB_GG_GA_POINTS))
-	{
-		pkCombatInfo->setUpdateGlobal(BATTLE_UNIT_ATTACKER, true);
-	}
-	else
-	{
-#if defined(MOD_TRAITS_GG_FROM_BARBARIANS) || defined(MOD_PROMOTIONS_GG_FROM_BARBARIANS)
-		pkCombatInfo->setUpdateGlobal(BATTLE_UNIT_ATTACKER, kAttacker.isGGFromBarbarians() || bGeneralsXP);
-#else
-		pkCombatInfo->setUpdateGlobal(BATTLE_UNIT_ATTACKER, bGeneralsXP);
-#endif
-	}
-#else
-	pkCombatInfo->setUpdateGlobal(BATTLE_UNIT_ATTACKER, bGeneralsXP);
-#endif
 
-#else
+	bool bGeneralsXP = !kAttacker.isBarbarian();
+	if (!plot.isCity())
+	{
+		bGeneralsXP = !pkDefender->isBarbarian();
+	}
+	else
+	{
+		bGeneralsXP = !plot.getPlotCity()->isBarbarian();
+	}
+
 #if defined(MOD_BARBARIAN_GG_GA_POINTS)
 	if(GC.getGame().isOption(GAMEOPTION_BARB_GG_GA_POINTS))
 	{
@@ -1973,7 +1776,6 @@ void CvUnitCombat::GenerateAirCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender, 
 	}
 #else
 	pkCombatInfo->setUpdateGlobal(BATTLE_UNIT_ATTACKER, bGeneralsXP);
-#endif
 #endif
 
 	iExperience = /*2*/ GC.getEXPERIENCE_DEFENDING_UNIT_AIR();
@@ -2035,11 +1837,7 @@ void CvUnitCombat::ResolveAirUnitVsCombat(const CvCombatInfo& kCombatInfo, uint 
 	{
 		pInterceptor->increaseInterceptionCount();
 		pInterceptor->setCombatUnit(NULL);
-#if defined(MOD_UNITS_XP_TIMES_100)
 		pInterceptor->changeExperienceTimes100(100 * 
-#else
-		pInterceptor->changeExperience(
-#endif
 			kCombatInfo.getExperience(BATTLE_UNIT_INTERCEPTOR),
 			kCombatInfo.getMaxExperienceAllowed(BATTLE_UNIT_INTERCEPTOR),
 			true,
@@ -2081,11 +1879,7 @@ void CvUnitCombat::ResolveAirUnitVsCombat(const CvCombatInfo& kCombatInfo, uint 
 				pkDefender->ChangeNumTimesAttackedThisTurn(pkAttacker->getOwner(), 1);
 
 					// Update experience
-#if defined(MOD_UNITS_XP_TIMES_100)
 				pkDefender->changeExperienceTimes100(100 * 
-#else
-				pkDefender->changeExperience(
-#endif
 					kCombatInfo.getExperience(BATTLE_UNIT_DEFENDER),
 					kCombatInfo.getMaxExperienceAllowed(BATTLE_UNIT_DEFENDER),
 					true,
@@ -2181,13 +1975,11 @@ void CvUnitCombat::ResolveAirUnitVsCombat(const CvCombatInfo& kCombatInfo, uint 
 
 					ApplyPostKillTraitEffects(pkAttacker, pkDefender);
 
-#if defined(MOD_BUGFIX_MINOR)
 					// Friendship from barb death via air-strike
 					if(pkDefender->isBarbarian())
 					{
 						DoTestBarbarianThreatToMinorsWithThisUnitsDeath(pkDefender, pkAttacker->getOwner());
 					}
-#endif
 				}
 				// Nobody died
 				else
@@ -2319,11 +2111,7 @@ void CvUnitCombat::ResolveAirUnitVsCombat(const CvCombatInfo& kCombatInfo, uint 
 			// Experience
 			if(iAttackerDamageInflicted > 0)
 			{
-#if defined(MOD_UNITS_XP_TIMES_100)
 				pkAttacker->changeExperienceTimes100(100 * kCombatInfo.getExperience(BATTLE_UNIT_ATTACKER),
-#else
-				pkAttacker->changeExperience(kCombatInfo.getExperience(BATTLE_UNIT_ATTACKER),
-#endif
 				                             kCombatInfo.getMaxExperienceAllowed(BATTLE_UNIT_ATTACKER),
 				                             true,
 				                             kCombatInfo.getInBorders(BATTLE_UNIT_ATTACKER),
@@ -2356,11 +2144,8 @@ void CvUnitCombat::ResolveAirUnitVsCombat(const CvCombatInfo& kCombatInfo, uint 
 void CvUnitCombat::GenerateAirSweepCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender, CvPlot& plot, CvCombatInfo* pkCombatInfo)
 {
 	BATTLE_STARTED(BATTLE_TYPE_SWEEP, plot);
-#if defined(MOD_UNITS_MAX_HP)
+
 	int iAttackerMaxHP = kAttacker.GetMaxHitPoints();
-#else
-	int iMaxHP = GC.getMAX_HIT_POINTS();
-#endif
 
 	pkCombatInfo->setUnit(BATTLE_UNIT_ATTACKER, &kAttacker);
 	pkCombatInfo->setUnit(BATTLE_UNIT_DEFENDER, pkDefender);
@@ -2394,9 +2179,7 @@ void CvUnitCombat::GenerateAirSweepCombatInfo(CvUnit& kAttacker, CvUnit* pkDefen
 	else
 	{
 		iDefenderStrength = pkDefender->GetMaxRangedCombatStrength(&kAttacker, /*pCity*/ NULL, false);
-#if defined(MOD_UNITS_MAX_HP)
 		int iDefenderMaxHP = pkDefender->GetMaxHitPoints();
-#endif
 
 		bool bIncludeRand = !GC.getGame().isGameMultiPlayer();
 
@@ -2407,36 +2190,20 @@ void CvUnitCombat::GenerateAirSweepCombatInfo(CvUnit& kAttacker, CvUnit* pkDefen
 		int iDefenderTotalDamageInflicted = iDefenderDamageInflicted + kAttacker.getDamage();
 
 		// Will both units be killed by this? :o If so, take drastic corrective measures
-#if defined(MOD_UNITS_MAX_HP)
 		if (iAttackerTotalDamageInflicted >= iDefenderMaxHP && iDefenderTotalDamageInflicted >= iAttackerMaxHP)
-#else
-		if (iAttackerTotalDamageInflicted >= iMaxHP && iDefenderTotalDamageInflicted >= iMaxHP)
-#endif
 		{
 			// He who hath the least amount of damage survives with 1 HP left
 			if(iAttackerTotalDamageInflicted > iDefenderTotalDamageInflicted)
 			{
-#if defined(MOD_UNITS_MAX_HP)
 				iDefenderDamageInflicted = iAttackerMaxHP - kAttacker.getDamage() - 1;
 				iDefenderTotalDamageInflicted = iAttackerMaxHP - 1;
 				iAttackerTotalDamageInflicted = iDefenderMaxHP;
-#else
-				iDefenderDamageInflicted = iMaxHP - kAttacker.getDamage() - 1;
-				iDefenderTotalDamageInflicted = iMaxHP - 1;
-				iAttackerTotalDamageInflicted = iMaxHP;
-#endif
 			}
 			else
 			{
-#if defined(MOD_UNITS_MAX_HP)
 				iAttackerDamageInflicted = iDefenderMaxHP - pkDefender->getDamage() - 1;
 				iAttackerTotalDamageInflicted = iDefenderMaxHP - 1;
 				iDefenderTotalDamageInflicted = iAttackerMaxHP;
-#else
-				iAttackerDamageInflicted = iMaxHP - pkDefender->getDamage() - 1;
-				iAttackerTotalDamageInflicted = iMaxHP - 1;
-				iDefenderTotalDamageInflicted = iMaxHP;
-#endif
 			}
 		}
 
@@ -2451,17 +2218,9 @@ void CvUnitCombat::GenerateAirSweepCombatInfo(CvUnit& kAttacker, CvUnit* pkDefen
 		//pkCombatInfo->setFearDamageInflicted( BATTLE_UNIT_ATTACKER, kAttacker.getCombatDamage(iAttackerStrength, iDefenderStrength, kAttacker.getDamage(), true, false, true) );
 		//	pkCombatInfo->setFearDamageInflicted( BATTLE_UNIT_DEFENDER, getCombatDamage(iDefenderStrength, iAttackerStrength, pDefender->getDamage(), true, false, true) );
 
-#if defined(MOD_UNITS_MAX_HP)
 		int iAttackerEffectiveStrength = iAttackerStrength * (iAttackerMaxHP - range(kAttacker.getDamage(), 0, iAttackerMaxHP - 1)) / iAttackerMaxHP;
-#else
-		int iAttackerEffectiveStrength = iAttackerStrength * (iMaxHP - range(kAttacker.getDamage(), 0, iMaxHP - 1)) / iMaxHP;
-#endif
 		iAttackerEffectiveStrength = iAttackerEffectiveStrength > 0 ? iAttackerEffectiveStrength : 1;
-#if defined(MOD_UNITS_MAX_HP)
 		int iDefenderEffectiveStrength = iDefenderStrength * (iDefenderMaxHP - range(pkDefender->getDamage(), 0, iDefenderMaxHP - 1)) / iDefenderMaxHP;
-#else
-		int iDefenderEffectiveStrength = iDefenderStrength * (iMaxHP - range(pkDefender->getDamage(), 0, iMaxHP - 1)) / iMaxHP;
-#endif
 		iDefenderEffectiveStrength = iDefenderEffectiveStrength > 0 ? iDefenderEffectiveStrength : 1;
 
 		//int iExperience = kAttacker.defenseXPValue();
@@ -2557,22 +2316,14 @@ void CvUnitCombat::ResolveAirSweep(const CvCombatInfo& kCombatInfo, uint uiParen
 			pkAttacker->changeDamage(iDefenderDamageInflicted, pkDefender->getOwner());
 
 			// Update experience for both sides.
-#if defined(MOD_UNITS_XP_TIMES_100)
 			pkDefender->changeExperienceTimes100(100 *
-#else
-			pkDefender->changeExperience(
-#endif
 			    kCombatInfo.getExperience(BATTLE_UNIT_DEFENDER),
 			    kCombatInfo.getMaxExperienceAllowed(BATTLE_UNIT_DEFENDER),
 			    true,
 			    kCombatInfo.getInBorders(BATTLE_UNIT_DEFENDER),
 			    kCombatInfo.getUpdateGlobal(BATTLE_UNIT_DEFENDER));
 
-#if defined(MOD_UNITS_XP_TIMES_100)
 			pkAttacker->changeExperienceTimes100(100 * 
-#else
-			pkAttacker->changeExperience(
-#endif
 			    kCombatInfo.getExperience(BATTLE_UNIT_ATTACKER),
 			    kCombatInfo.getMaxExperienceAllowed(BATTLE_UNIT_ATTACKER),
 			    true,
@@ -2580,13 +2331,8 @@ void CvUnitCombat::ResolveAirSweep(const CvCombatInfo& kCombatInfo, uint uiParen
 			    kCombatInfo.getUpdateGlobal(BATTLE_UNIT_ATTACKER));
 
 			// Anyone eat it?
-#if defined(MOD_UNITS_MAX_HP)
 			bAttackerDead = (pkAttacker->getDamage() >= pkAttacker->GetMaxHitPoints());
 			bDefenderDead = (pkDefender->getDamage() >= pkDefender->GetMaxHitPoints());
-#else
-			bAttackerDead = (pkAttacker->getDamage() >= GC.getMAX_HIT_POINTS());
-			bDefenderDead = (pkDefender->getDamage() >= GC.getMAX_HIT_POINTS());
-#endif
 
 			int iActivePlayerID = GC.getGame().getActivePlayer();
 
@@ -2850,6 +2596,27 @@ void CvUnitCombat::GenerateNuclearCombatInfo(CvUnit& kAttacker, CvPlot& plot, Cv
 
 	if (iInterceptionDamage > 0)
 	{
+		if (pInterceptionCity != NULL)
+		{
+			CvNotifications* pNotifications = GET_PLAYER(pInterceptionCity->getOwner()).GetNotifications();
+			if (pNotifications)
+			{
+				Localization::String strSummary = Localization::Lookup("TXT_KEY_NUKE_INTERCEPTED_S");
+				Localization::String strBuffer = Localization::Lookup("TXT_KEY_NUKE_INTERCEPTED");
+				strBuffer << GET_PLAYER(kAttacker.getOwner()).getCivilizationShortDescription();
+				strBuffer << pInterceptionCity->getNameKey();
+				pNotifications->Add(NOTIFICATION_UNIT_DIED, strBuffer.toUTF8(), strSummary.toUTF8(), pInterceptionCity->getX(), pInterceptionCity->getY(), (int)kAttacker.getUnitType(), pInterceptionCity->getOwner());
+			}
+
+			CvNotifications* pOtherNotifications = GET_PLAYER(kAttacker.getOwner()).GetNotifications();
+			if (pOtherNotifications)
+			{
+				Localization::String strSummary = Localization::Lookup("TXT_KEY_NUKE_INTERCEPTED_US_S");
+				Localization::String strBuffer = Localization::Lookup("TXT_KEY_NUKE_INTERCEPTED_US");
+				strBuffer << pInterceptionCity->getNameKey();
+				pOtherNotifications->Add(NOTIFICATION_UNIT_DIED, strBuffer.toUTF8(), strSummary.toUTF8(), pInterceptionCity->getX(), pInterceptionCity->getY(), (int)kAttacker.getUnitType(), pInterceptionCity->getOwner());
+			}
+		}
 		return;
 	}
 
@@ -3118,11 +2885,7 @@ void CvUnitCombat::GenerateNuclearExplosionDamage(CvPlot* pkTargetPlot, int iDam
 								// Wipe everything out
 								else
 								{
-#if defined(MOD_UNITS_MAX_HP)
 									iNukeDamage = pLoopUnit->GetMaxHitPoints();
-#else
-									iNukeDamage = GC.getMAX_HIT_POINTS();
-#endif
 								}
 
 								if(pLoopCity != NULL)
@@ -3141,13 +2904,9 @@ void CvUnitCombat::GenerateNuclearExplosionDamage(CvPlot* pkTargetPlot, int iDam
 									}
 #endif
 									pkDamageEntry->SetDamage(iNukeDamage);
-#if defined(MOD_UNITS_MAX_HP)
 									pkDamageEntry->SetFinalDamage(std::min(iNukeDamage + pLoopUnit->getDamage(), pLoopUnit->GetMaxHitPoints()));
 									pkDamageEntry->SetMaxHitPoints(pLoopUnit->GetMaxHitPoints());
-#else
-									pkDamageEntry->SetFinalDamage(std::min(iNukeDamage + pLoopUnit->getDamage(), GC.getMAX_HIT_POINTS()));
-									pkDamageEntry->SetMaxHitPoints(GC.getMAX_HIT_POINTS());
-#endif
+
 									if(pkAttacker)
 										pLoopUnit->setCombatUnit(pkAttacker);
 								}
@@ -3496,9 +3255,7 @@ void CvUnitCombat::ResolveCombat(const CvCombatInfo& kInfo, uint uiParentEventID
 			int iDefendingUnit = -1;
 			int iInterceptingUnit = -1;
 
-#if defined(MOD_UNITS_MAX_HP)
 			// Generic values for max hit points, changed below when we have the specific units available
-#endif
 			int attackerMaxHP = GC.getMAX_HIT_POINTS();
 			if (pAttacker)
 				attackerMaxHP = pAttacker->GetMaxHitPoints();
@@ -3533,19 +3290,15 @@ void CvUnitCombat::ResolveCombat(const CvCombatInfo& kInfo, uint uiParentEventID
 			{
 				iAttackingPlayer = pAttacker->getOwner();
 				iAttackingUnit = pAttacker->GetID();
-#if defined(MOD_UNITS_MAX_HP)
 				attackerMaxHP = pAttacker->GetMaxHitPoints();
 				// Generic values for max hit points, changed below when we have the specific units available
-#endif
 			}
 			if (pkDefender)
 			{
 				iDefendingPlayer = pkDefender->getOwner();
 				iDefendingUnit = pkDefender->GetID();
-#if defined(MOD_UNITS_MAX_HP)
 				defenderMaxHP = pkDefender->GetMaxHitPoints();
 				// Generic values for max hit points, changed below when we have the specific units available
-#endif
 			}
 			if (pInterceptor)
 			{
@@ -3678,9 +3431,7 @@ void CvUnitCombat::ResolveCombat(const CvCombatInfo& kInfo, uint uiParentEventID
 				int iDefendingUnit = -1;
 				int iInterceptingUnit = -1;
 
-#if defined(MOD_UNITS_MAX_HP)
 				// Generic values for max hit points, changed below when we have the specific units available
-#endif
 				int attackerMaxHP = GC.getMAX_HIT_POINTS();
 				if (pAttacker)
 					attackerMaxHP = pAttacker->GetMaxHitPoints();
@@ -3715,17 +3466,13 @@ void CvUnitCombat::ResolveCombat(const CvCombatInfo& kInfo, uint uiParentEventID
 				{
 					iAttackingPlayer = pAttacker->getOwner();
 					iAttackingUnit = pAttacker->GetID();
-#if defined(MOD_UNITS_MAX_HP)
 					attackerMaxHP = pAttacker->GetMaxHitPoints();
-#endif
 				}
 				if (pkDefender)
 				{
 					iDefendingPlayer = pkDefender->getOwner();
 					iDefendingUnit = pkDefender->GetID();
-#if defined(MOD_UNITS_MAX_HP)
 					defenderMaxHP = pkDefender->GetMaxHitPoints();
-#endif
 				}
 				if (pInterceptor)
 				{
@@ -3813,13 +3560,6 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::Attack(CvUnit& kAttacker, CvPlot& targ
 
 	kAttacker.SetAutomateType(NO_AUTOMATE);
 	pDefender->SetAutomateType(NO_AUTOMATE);
-#if defined(MOD_BUGFIX_UNITS_AWAKE_IN_DANGER)
-	// We want to "wake up" a unit that is being attacked by a hidden enemy (probably being bombed, indirect naval fire,
-	// or sneaky long-range archers) so the player can consider what to do with them
-	if (MOD_BUGFIX_UNITS_AWAKE_IN_DANGER) {
-		pDefender->SetActivityType(ACTIVITY_AWAKE); 
-	}
-#endif
 
 #if !defined(NO_TUTORIALS)
 	// slewis - tutorial'd
@@ -3837,7 +3577,7 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::Attack(CvUnit& kAttacker, CvPlot& targ
 		eFireSupportResult = AttackRanged(kAttacker, pDefender->getX(), pDefender->getY(), CvUnitCombat::ATTACK_OPTION_NO_DEFENSIVE_SUPPORT);
 		if (pDefender->isDelayedDeath())
 		{
-			if (kAttacker.plot()->MeleeAttackerAdvances(kAttacker.getTeam()))
+			if (!kAttacker.plot()->isFortification(kAttacker.getTeam()))
 			{
 				// Killed him, move to the plot if we can.
 				if (targetPlot.getNumVisibleEnemyDefenders(&kAttacker) == 0)
@@ -3903,11 +3643,7 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::Attack(CvUnit& kAttacker, CvPlot& targ
 		}
 
 		// Kill them!
-#if defined(MOD_UNITS_MAX_HP)
 		pDefender->setDamage(pDefender->GetMaxHitPoints());
-#else
-		pDefender->setDamage(GC.getMAX_HIT_POINTS());
-#endif
 
 		Localization::String strMessage;
 		Localization::String strSummary;
@@ -3983,7 +3719,7 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::Attack(CvUnit& kAttacker, CvPlot& targ
 
 			uint uiParentEventID = 0;
 			// Send the combat message if the target plot is visible.
-			bool isTargetVisibleToActivePlayer = targetPlot.isActiveVisible(false);
+			bool isTargetVisibleToActivePlayer = targetPlot.isActiveVisible();
 			bool quickCombat = CvPreGame::quickCombat();
 			if(!quickCombat)
 			{
@@ -4065,11 +3801,6 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::AttackRanged(CvUnit& kAttacker, int iX
 			return ATTACK_ABORTED;
 
 		pDefender->SetAutomateType(NO_AUTOMATE);
-#if defined(MOD_BUGFIX_UNITS_AWAKE_IN_DANGER)
-		if (MOD_BUGFIX_UNITS_AWAKE_IN_DANGER) {
-			pDefender->SetActivityType(ACTIVITY_AWAKE); 
-		}
-#endif
 
 		CvCombatInfo kCombatInfo;
 		CvUnitCombat::GenerateRangedCombatInfo(kAttacker, pDefender, *pPlot, &kCombatInfo);
@@ -4085,7 +3816,7 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::AttackRanged(CvUnit& kAttacker, int iX
 		if(!bDoImmediate)
 		{
 			// Center camera here!
-			bool isTargetVisibleToActivePlayer = pPlot->isActiveVisible(false);
+			bool isTargetVisibleToActivePlayer = pPlot->isActiveVisible();
 			if(isTargetVisibleToActivePlayer)
 			{
 				auto_ptr<ICvPlot1> pDllPlot = GC.WrapPlotPointer(pPlot);
@@ -4119,7 +3850,7 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::AttackRanged(CvUnit& kAttacker, int iX
 		if(!bDoImmediate)
 		{
 			// Center camera here!
-			bool isTargetVisibleToActivePlayer = pPlot->isActiveVisible(false);
+			bool isTargetVisibleToActivePlayer = pPlot->isActiveVisible();
 			if(isTargetVisibleToActivePlayer)
 			{
 				auto_ptr<ICvPlot1> pDllPlot = GC.WrapPlotPointer(pPlot);
@@ -4193,11 +3924,6 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::AttackAir(CvUnit& kAttacker, CvPlot& t
 			return CvUnitCombat::ATTACK_ABORTED;
 
 		pDefender->SetAutomateType(NO_AUTOMATE);
-#if defined(MOD_BUGFIX_UNITS_AWAKE_IN_DANGER)
-		if (MOD_BUGFIX_UNITS_AWAKE_IN_DANGER) {
-			pDefender->SetActivityType(ACTIVITY_AWAKE); 
-		}
-#endif
 
 		CvCombatInfo kCombatInfo;
 		CvUnitCombat::GenerateAirCombatInfo(kAttacker, pDefender, targetPlot, &kCombatInfo);
@@ -4208,7 +3934,7 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::AttackAir(CvUnit& kAttacker, CvPlot& t
 		if(!bDoImmediate)
 		{
 			// Center camera here!
-			bool isTargetVisibleToActivePlayer = targetPlot.isActiveVisible(false);
+			bool isTargetVisibleToActivePlayer = targetPlot.isActiveVisible();
 			if(isTargetVisibleToActivePlayer)
 			{
 				auto_ptr<ICvPlot1> pDllTargetPlot = GC.WrapPlotPointer(&targetPlot);
@@ -4245,7 +3971,7 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::AttackAir(CvUnit& kAttacker, CvPlot& t
 		if(!bDoImmediate)
 		{
 			// Center camera here!
-			bool isTargetVisibleToActivePlayer = targetPlot.isActiveVisible(false);
+			bool isTargetVisibleToActivePlayer = targetPlot.isActiveVisible();
 			if(isTargetVisibleToActivePlayer)
 			{
 				auto_ptr<ICvPlot1> pDllTargetPlot = GC.WrapPlotPointer(&targetPlot);
@@ -4301,11 +4027,6 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::AttackAirSweep(CvUnit& kAttacker, CvPl
 
 		CvUnit* pkDefender = kCombatInfo.getUnit(BATTLE_UNIT_DEFENDER);
 		pkDefender->SetAutomateType(NO_AUTOMATE);
-#if defined(MOD_BUGFIX_UNITS_AWAKE_IN_DANGER)
-		if (MOD_BUGFIX_UNITS_AWAKE_IN_DANGER) {
-			pkDefender->SetActivityType(ACTIVITY_AWAKE); 
-		}
-#endif
 		CvAssertMsg(!kAttacker.isDelayedDeath() && !pkDefender->isDelayedDeath(), "Trying to battle and one of the units is already dead!");
 
 		uint uiParentEventID = 0;
@@ -4313,7 +4034,7 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::AttackAirSweep(CvUnit& kAttacker, CvPl
 		if(!bDoImmediate)
 		{
 			// Center camera here!
-			bool isTargetVisibleToActivePlayer = targetPlot.isActiveVisible(false);
+			bool isTargetVisibleToActivePlayer = targetPlot.isActiveVisible();
 			if(isTargetVisibleToActivePlayer)
 			{
 				auto_ptr<ICvPlot1> pDllTargetPlot = GC.WrapPlotPointer(&targetPlot);
@@ -4336,12 +4057,16 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::AttackAirSweep(CvUnit& kAttacker, CvPl
 	}
 	else
 	{
-		bool bNothing = false;
+		bool bFallbackAttack = false;
 		if (MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED)
-			bNothing = kAttacker.attemptGroundAttacks(targetPlot);
+			bFallbackAttack = kAttacker.attemptGroundAttacks(targetPlot);
 
-		if (bNothing)
+		if (bFallbackAttack)
 		{
+			int iExperience = /*6*/ GC.getEXPERIENCE_ATTACKING_AIR_SWEEP();
+			kAttacker.changeExperienceTimes100(100 * iExperience, -1, true, targetPlot.getOwner() == kAttacker.getOwner(), true);
+			kAttacker.testPromotionReady();
+
 			// attempted to do a sweep in a plot that had no interceptors
 			// consume the movement and finish its moves
 			if (kAttacker.getOwner() == GC.getGame().getActivePlayer())
@@ -4353,8 +4078,6 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::AttackAirSweep(CvUnit& kAttacker, CvPl
 		}
 		else
 		{
-			// attempted to do a sweep in a plot that had no interceptors
-			// consume the movement and finish its moves
 			if (kAttacker.getOwner() == GC.getGame().getActivePlayer())
 			{
 				Localization::String localizedText = Localization::Lookup("TXT_KEY_AIR_PATROL_FOUND_NOTHING");
@@ -4416,7 +4139,7 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::AttackCity(CvUnit& kAttacker, CvPlot& 
 		kAttacker.setMadeAttack(true);
 
 		// Send the combat message if the target plot is visible.
-		bool isTargetVisibleToActivePlayer = plot.isActiveVisible(false);
+		bool isTargetVisibleToActivePlayer = plot.isActiveVisible();
 
 		uint uiParentEventID = 0;
 		bool bDoImmediate = CvPreGame::quickCombat();
@@ -4512,7 +4235,7 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::AttackNuclear(CvUnit& kAttacker, int i
 		// is involved in the combat
 		TeamTypes eActiveTeam = GC.getGame().getActiveTeam();
 
-		bool isTargetVisibleToActivePlayer = pPlot->isActiveVisible(false);
+		bool isTargetVisibleToActivePlayer = pPlot->isActiveVisible();
 		if(!isTargetVisibleToActivePlayer)
 		{
 			// Is the attacker part of the local team?
@@ -4600,7 +4323,6 @@ void CvUnitCombat::ApplyPostKillTraitEffects(CvUnit* pkWinner, CvUnit* pkLoser)
 		pkWinner->changeDamage(-iHealAmount);
 	}
 #endif
-#if defined(MOD_BUGFIX_MINOR)
 	// If the modder wants the healing to be negative (ie additional damage), then let it be
 	else if(pkWinner->getHPHealedIfDefeatEnemy() < 0 && (pkLoser->getOwner() != BARBARIAN_PLAYER || !(pkWinner->IsHealIfDefeatExcludeBarbarians()) || !(pkWinner->isExtraAttackHealthOnKill())))
 	{
@@ -4614,7 +4336,6 @@ void CvUnitCombat::ApplyPostKillTraitEffects(CvUnit* pkWinner, CvUnit* pkLoser)
 			pkWinner->changeDamage(-pkWinner->getHPHealedIfDefeatEnemy());
 		}
 	}
-#endif
 
 	CvPlayer& kPlayer = GET_PLAYER(pkWinner->getOwner());
 	if (pkWinner->GetGoldenAgeValueFromKills() > 0)

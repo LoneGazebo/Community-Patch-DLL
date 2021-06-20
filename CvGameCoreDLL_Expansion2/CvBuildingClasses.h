@@ -121,7 +121,7 @@ public:
 	virtual bool CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility);
 
 	// Accessor Functions (Non-Arrays)
-	int GetBuildingClassType() const;
+	BuildingClassTypes GetBuildingClassType() const;
 	const CvBuildingClassInfo& GetBuildingClassInfo() const;
 
 	int GetNearbyTerrainRequired() const;
@@ -225,6 +225,7 @@ public:
 	int GetNumRequiredTier3Tenets() const;
 	bool IsNoWater() const;
 	bool IsNoRiver() const;
+	bool IsNoCoast() const;
 	bool IsCapitalOnly() const;
 	bool IsReformation() const;
 	int GetReformationFollowerReduction() const;
@@ -234,25 +235,9 @@ public:
 	int GetResourceDiversityModifier() const;
 	int GetNoUnhappfromXSpecialists() const;
 	int GetNoUnhappfromXSpecialistsGlobal() const;
-#endif
-#if defined(MOD_BALANCE_CORE_SPIES)
-	int GetCannotFailSpies() const;
-	int GetAdvancedActionGold() const;
-	int GetAdvancedActionScience() const;
-	int GetAdvancedActionUnrest() const;
-	int GetAdvancedActionRebellion() const;
-	int GetAdvancedActionGP() const;
-	int GetAdvancedActionUnit() const;
-	int GetAdvancedActionWonder() const;
-	int GetAdvancedActionBuilding() const;
-	int GetBlockBuildingDestruction() const;
-	int GetBlockWWDestruction() const;
-	int GetBlockUDestruction() const;
-	int GetBlockGPDestruction() const;
-	int GetBlockRebellion() const;
-	int GetBlockUnrest() const;
-	int GetBlockScience() const;
-	int GetBlockGold() const;
+
+	bool IsEnablesTechSteal() const;
+	bool IsEnablesGWSteal() const;
 #endif
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	bool IsVassalLevyEra() const;
@@ -378,8 +363,9 @@ public:
 #if defined(MOD_BALANCE_CORE)
 	bool IsAnyBodyOfWater() const;
 	int GetCityAirStrikeDefense() const;
-	int GetBorderObstacleCity() const;
+	int GetBorderObstacleLand() const;
 	int GetBorderObstacleWater() const;
+	int GetDeepWaterTileDamage() const;
 	int GetWLTKDTurns() const;
 	int GetEventTourism() const;
 	int GetLandTourismEnd() const;
@@ -581,6 +567,8 @@ public:
 	bool IsResourcePlotsToPlace() const;
 	int GetYieldPerFriend(int i) const;
 	int GetYieldPerAlly(int i) const;
+	int GetYieldChangeWorldWonder(int i) const;
+	int GetYieldChangeWorldWonderGlobal(int i) const;
 #endif
 	int GetNumFreeUnits(int i) const;
 #if defined(MOD_BALANCE_CORE_BUILDING_INSTANT_YIELD)
@@ -611,7 +599,7 @@ public:
 	int* GetResourceYieldModifierArray(int i) const;
 	int GetTerrainYieldChange(int i, int j) const;
 	int* GetTerrainYieldChangeArray(int i) const;
-#if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
+#if defined(MOD_API_UNIFIED_YIELDS)
 	int GetYieldPerXTerrain(int i, int j) const;
 	int* GetYieldPerXTerrainArray(int i) const;
 
@@ -844,6 +832,7 @@ private:
 	int m_iNumRequiredTier3Tenets;
 	bool m_bIsNoWater;
 	bool m_bIsNoRiver;
+	bool m_bIsNoCoast;
 	bool m_bIsCapitalOnly;
 	bool m_bIsReformation;
 	int m_iReformationFollowerReduction;
@@ -854,29 +843,12 @@ private:
 	bool m_bAnyWater;
 	int m_iNoUnhappfromXSpecialists;
 	int m_iNoUnhappfromXSpecialistsGlobal;
+	bool m_bEnablesTechSteal;
+	bool m_bEnablesGWSteal;
 #endif
 #if defined(MOD_BALANCE_CORE_EVENTS)
 	int m_iEventRequiredActive;
 	int m_iCityEventRequiredActive;
-#endif
-#if defined(MOD_BALANCE_CORE_SPIES)
-	int m_iCannotFailSpies;
-	int m_iAdvancedActionGold;
-	int m_iAdvancedActionScience;
-	int m_iAdvancedActionUnrest;
-	int m_iAdvancedActionRebellion;
-	int m_iAdvancedActionGP;
-	int m_iAdvancedActionUnit;
-	int m_iAdvancedActionWonder;
-	int m_iAdvancedActionBuilding;
-	int m_iBlockBuildingDestruction;
-	int m_iBlockWWDestruction;
-	int m_iBlockUDestruction;
-	int m_iBlockGPDestruction;
-	int m_iBlockRebellion;
-	int m_iBlockUnrest;
-	int m_iBlockScience;
-	int m_iBlockGold;
 #endif
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	bool m_bVassalLevyEra;
@@ -899,6 +871,7 @@ private:
 	int m_iCityAirStrikeDefense;
 	int m_iBorderObstacleCity;
 	int m_iBorderObstacleWater;
+	int m_iDeepWaterTileDamage;
 	int m_iWLTKDTurns;
 	int m_iEventTourism;
 	int m_iLandTourism;
@@ -1029,6 +1002,8 @@ private:
 	std::map<int, std::map<int, int>> m_ppiResourcePlotsToPlace;
 	int* m_piYieldPerFriend;
 	int* m_piYieldPerAlly;
+	int* m_piYieldChangeWorldWonder;
+	int* m_piYieldChangeWorldWonderGlobal;
 #endif
 	int* m_piNumFreeUnits;
 
@@ -1044,7 +1019,7 @@ private:
 	int** m_ppaiSpecialistYieldChange;
 	int** m_ppaiResourceYieldModifier;
 	int** m_ppaiTerrainYieldChange;
-#if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
+#if defined(MOD_API_UNIFIED_YIELDS)
 	int** m_ppaiYieldPerXTerrain;
 	int** m_ppaiYieldPerXFeature;
 	int** m_ppaiPlotYieldChange;
@@ -1122,8 +1097,11 @@ public:
 	int GetNumBuildings() const;
 	void ChangeNumBuildings(int iChange);
 	int GetNumBuilding(BuildingTypes eIndex) const;
-#if defined(MOD_BALANCE_CORE)
+#if defined(MOD_BALANCE_CORE) || defined(MOD_BUILDINGS_THOROUGH_PREREQUISITES)
 	int GetNumBuildingClass(BuildingClassTypes eIndex) const;
+	bool HasBuildingClass(BuildingClassTypes eIndex) const;
+	BuildingTypes GetBuildingTypeFromClass(BuildingClassTypes eIndex) const;
+	void RemoveAllRealBuildingsOfClass(BuildingClassTypes eIndex);
 #endif
 	int GetNumActiveBuilding(BuildingTypes eIndex) const;
 
@@ -1177,9 +1155,8 @@ public:
   
 	bool HasAnyAvailableGreatWorkSlot() const;
 	bool HasAvailableGreatWorkSlot(GreatWorkSlotType eGreatWorkSlot) const;
-	int GetNumAvailableGreatWorkSlots() const;
-	int GetNumAvailableGreatWorkSlots(GreatWorkSlotType eGreatWorkSlot) const;
-	int GetNumFilledGreatWorkSlots(GreatWorkSlotType eGreatWorkSlot) const;
+	int GetNumAvailableGreatWorkSlots(GreatWorkSlotType eGreatWorkSlot = NO_GREAT_WORK_SLOT) const;
+	int GetNumFilledGreatWorkSlots(GreatWorkSlotType eGreatWorkSlot = NO_GREAT_WORK_SLOT) const;
 	bool GetNextAvailableGreatWorkSlot(BuildingClassTypes *eBuildingClass, int *iSlot) const;
 	bool GetNextAvailableGreatWorkSlot(GreatWorkSlotType eGreatWorkSlot, BuildingClassTypes *eBuildingClass, int *iSlot) const;
 
@@ -1208,9 +1185,9 @@ public:
 	void ChangeGreatWorksTourismModifier(int iChange);
 
 #if defined(MOD_GLOBAL_GREATWORK_YIELDTYPES)
-	int GetThemingBonuses(YieldTypes eYield) const;
+	int GetCurrentThemingBonuses(YieldTypes eYield) const;
 #else
-	int GetThemingBonuses() const;
+	int GetCurrentThemingBonuses() const;
 #endif
 	int GetTotalNumThemedBuildings() const;
 	int GetNumBuildingsFromFaith() const;

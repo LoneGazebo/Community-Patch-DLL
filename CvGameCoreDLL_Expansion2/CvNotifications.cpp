@@ -600,6 +600,7 @@ bool CvNotifications::MayUserDismiss(int iLookupIndex)
 #if defined(MOD_BALANCE_CORE)
 			case 826076831:
 			case 419811917:
+			case -1608954742:
 				return false;
 				break;
 #endif
@@ -803,6 +804,7 @@ bool CvNotifications::GetEndTurnBlockedType(EndTurnBlockingTypes& eBlockingType,
 
 			case 826076831:
 			case 419811917:
+			case -1608954742:
 				eBlockingType = ENDTURN_BLOCKING_EVENT_CHOICE;
 				iNotificationIndex = m_aNotifications[iIndex].m_iLookupIndex;
 				return true;
@@ -1259,6 +1261,20 @@ void CvNotifications::Activate(Notification& notification)
 			int iCityID = notification.m_iExtraGameData;
 			CvPopupInfo kPopup(BUTTONPOPUP_MODDER_8, m_ePlayer, eEvent, iCityID);
 			GC.GetEngineUserInterface()->AddPopup(kPopup);
+		}
+		break;
+	case -1608954742:
+		CvAssertMsg(notification.m_iGameDataIndex >= 0, "notification.m_iGameDataIndex is out of bounds");
+		if (notification.m_iGameDataIndex >= 0)
+		{
+			CityEventTypes eEvent = (CityEventTypes)notification.m_iGameDataIndex;
+			int iSpyID = notification.m_iExtraGameData;
+			CvPlot* pPlot = GC.getMap().plot(notification.m_iX, notification.m_iY);
+			if (pPlot)
+			{
+				CvPopupInfo kPopup(BUTTONPOPUP_MODDER_12, m_ePlayer, eEvent, pPlot->GetPlotIndex(), iSpyID);
+				GC.GetEngineUserInterface()->AddPopup(kPopup);
+			}
 		}
 		break;
 #endif
@@ -2106,12 +2122,27 @@ bool CvNotifications::IsNotificationExpired(int iIndex)
 		return true;
 	}
 	break;
+	case -1608954742:
+	{
+		CityEventTypes eCityEvent = (CityEventTypes)m_aNotifications[iIndex].m_iGameDataIndex;
+		if (eCityEvent != NO_EVENT_CITY)
+		{
+			CvCity* pCity = GC.getMap().plot(m_aNotifications[iIndex].m_iX, m_aNotifications[iIndex].m_iY)->getPlotCity();
+			if (!pCity)
+				return true;
+			
+			if (pCity->GetCityEspionage()->HasPendingEvents(m_ePlayer))
+				return false;
+		}
+		return true;
+	}
+	break;
 	case 419811917: // Player Event Notification
 	{
 		EventTypes eEvent = (EventTypes)m_aNotifications[iIndex].m_iGameDataIndex;
 		if(eEvent != NO_EVENT)
 		{
-			if(GET_PLAYER(m_ePlayer).IsEventActive(eEvent))
+			if (GET_PLAYER(m_ePlayer).IsEventActive(eEvent))
 			{
 				int iNumEvent = 0;
 				EventChoiceTypes eEventChoice = NO_EVENT_CHOICE;

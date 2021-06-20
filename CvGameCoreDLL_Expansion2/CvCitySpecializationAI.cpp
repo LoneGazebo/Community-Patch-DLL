@@ -176,7 +176,7 @@ CitySpecializationTypes CvCitySpecializationXMLEntries::GetFirstSpecializationFo
 /// Find the next specialization for a yield
 CitySpecializationTypes CvCitySpecializationXMLEntries::GetNextSpecializationForYield()
 {
-	for(m_CurrentIndex = m_CurrentIndex++; m_CurrentIndex < (int)m_paCitySpecializationEntries.size(); m_CurrentIndex++)
+	for(m_CurrentIndex = m_CurrentIndex+1; m_CurrentIndex < (int)m_paCitySpecializationEntries.size(); m_CurrentIndex++)
 	{
 		if(m_paCitySpecializationEntries[m_CurrentIndex]->GetYieldType() == m_CurrentYield)
 		{
@@ -224,7 +224,6 @@ CvCitySpecializationAI::CvCitySpecializationAI():
 	m_bInterruptBuildings(false),
 	m_bChooseNewWonder(false),
 #endif
-	m_eNextSpecializationDesired(NO_CITY_SPECIALIZATION),
 	m_eNextWonderDesired(NO_BUILDING),
 	m_iWonderCityID(-1),
 	m_iNextWonderWeight(0),
@@ -261,12 +260,9 @@ void CvCitySpecializationAI::Reset()
 	m_bInterruptBuildings = false;
 	m_bChooseNewWonder = false;
 #endif
-	m_eNextSpecializationDesired = NO_CITY_SPECIALIZATION;
 	m_eNextWonderDesired = NO_BUILDING;
 	m_iWonderCityID = -1;
 	m_iNextWonderWeight = 0;
-	m_YieldWeights.clear();
-	m_ProductionSubtypeWeights.clear();
 	m_iLastTurnEvaluated = 0;
 }
 
@@ -284,7 +280,6 @@ void CvCitySpecializationAI::Read(FDataStream& kStream)
 	kStream >> m_bInterruptBuildings;
 	kStream >> m_bChooseNewWonder;
 #endif
-	kStream >> m_eNextSpecializationDesired;
 	kStream >> (int&)m_eNextWonderDesired;
 	kStream >> m_iWonderCityID;
 	kStream >> m_iNextWonderWeight;
@@ -314,7 +309,6 @@ void CvCitySpecializationAI::Write(FDataStream& kStream) const
 	kStream << m_bInterruptBuildings;
 	kStream << m_bChooseNewWonder;
 #endif
-	kStream << m_eNextSpecializationDesired;
 	kStream << m_eNextWonderDesired;
 	kStream << m_iWonderCityID;
 	kStream << m_iNextWonderWeight;
@@ -336,7 +330,6 @@ CvCitySpecializationXMLEntries* CvCitySpecializationAI::GetCitySpecializations()
 /// Called every turn to see what Strategies this player should using (or not)
 void CvCitySpecializationAI::DoTurn()
 {
-	AI_PERF_FORMAT("AI-perf.csv", ("CvCitySpecializationAI::DoTurn, Turn %03d, %s", GC.getGame().getElapsedGameTurns(), GetPlayer()->getCivilizationShortDescription()) );
 
 	int iCityLoop = 0;
 
@@ -391,29 +384,20 @@ void CvCitySpecializationAI::DoTurn()
 	// See if need to update assignments
 	if(m_bSpecializationsDirty || ((m_iLastTurnEvaluated + GC.getAI_CITY_SPECIALIZATION_REEVALUATION_INTERVAL()) <= GC.getGame().getGameTurn()))
 	{
-		WeightSpecializations();
 		AssignSpecializations();
+
 		m_bSpecializationsDirty = false;
 		m_iLastTurnEvaluated = GC.getGame().getGameTurn();
 
-#if defined(MOD_BALANCE_CORE)
 		// Do we need to choose production again at all our cities?
 		if(m_bInterruptWonders || m_bInterruptBuildings)
-#else
-		// Do we need to choose production again at all our cities?
-		if(m_bInterruptWonders)
-#endif
 		{
 			CvCity* pLoopCity = NULL;
 			for(pLoopCity = m_pPlayer->firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iCityLoop))
 			{
-				if(pLoopCity->isProductionBuilding())
+				if(pLoopCity->isProductionBuilding() && pLoopCity->AI_isChooseProductionDirty())
 				{
-#if defined(MOD_BALANCE_CORE)
 					pLoopCity->AI_chooseProduction(m_bInterruptWonders, m_bInterruptBuildings);
-#else
-					pLoopCity->AI_chooseProduction(true /*bInterruptWonders*/);
-#endif
 				}
 			}
 		}
@@ -494,286 +478,98 @@ CvCity* CvCitySpecializationAI::GetWonderBuildCity() const
 }
 
 // PRIVATE METHODS
-#if defined(MOD_BALANCE_CORE)
-//Helper functions to round
-static double citystrategyround(double x)
-{
-	return (x >= 0) ? floor(x + .5) : ceil(x - .5);
-};
-#endif
-/// Evaluate which specializations we need
-void CvCitySpecializationAI::WeightSpecializations()
-{
-	int iFoodYieldWeight = 1;
-	int iProductionYieldWeight = 1;
-	int iGoldYieldWeight = 1;
-	int iScienceYieldWeight = 1;
-	int iGeneralEconomicWeight = 1;
-#if defined(MOD_BALANCE_CORE)
-	int iCultureYieldWeight = 1;
-	int iFaithYieldWeight = 1;
-#endif
 
-	// Clear old weights
-	m_YieldWeights.clear();
-	m_ProductionSubtypeWeights.clear();
+/// Evaluate which specializations we need
+CvWeightedVector<YieldTypes> CvCitySpecializationAI::WeightSpecializations()
+{
+	int iFoodYieldWeight = 100;
+	int iProductionYieldWeight = 100;
+	int iGoldYieldWeight = 100;
+	int iScienceYieldWeight = 100;
+	int iCultureYieldWeight = 100;
+	int iFaithYieldWeight = 100;
 
 	// Must have a capital to do any specialization
-	if(m_pPlayer->getCapitalCity() != NULL)
-	{
-		//int iFlavorExpansion = 0;
-		int iFlavorWonder = 0;
-		int iFlavorGold = 0;
-		int iFlavorScience = 0;
-		int iFlavorSpaceship = 0;
+	 if (m_pPlayer->getCapitalCity() != NULL)
+	 {
+		 int iFlavorGold = 10 * m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GOLD"));
+		 if (iFlavorGold < 0) iFlavorGold = 0;
 
-		//iFlavorExpansion = m_pPlayer->GetFlavorManager()->GetIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_EXPANSION"));
-		//if(iFlavorExpansion < 0) iFlavorExpansion = 0;
-		iFlavorWonder = m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_WONDER"));
-		if(iFlavorWonder < 0) iFlavorWonder = 0;
-		iFlavorGold = 10 * m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GOLD"));
-		if(iFlavorGold < 0) iFlavorGold = 0;
-		iFlavorScience = 10 * m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_SCIENCE"));
-		if(iFlavorScience < 0) iFlavorScience = 0;
-		iFlavorSpaceship = m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_SPACESHIP"));
-		if(iFlavorSpaceship < 0) iFlavorSpaceship = 0;
-#if defined(MOD_BALANCE_CORE)
-		int iFlavorGrowth = 10 * m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GROWTH"));
-		if(iFlavorGrowth < 0) iFlavorGrowth = 0;
-		int iFlavorCulture = 10 * (m_pPlayer->GetCulture()->GetNumCivsInfluentialOn() + m_pPlayer->GetFlavorManager()->GetIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_CULTURE")));
-		if(iFlavorCulture < 0) iFlavorCulture = 0;
-		int iFlavorFaith = 10 * m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_RELIGION"));
-		if(iFlavorFaith < 0) iFlavorFaith = 0;
-#endif
+		 int iFlavorScience = 10 * m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_SCIENCE"));
+		 if (iFlavorScience < 0) iFlavorScience = 0;
 
-		// COMPUTE NEW WEIGHTS
-#if defined(MOD_BALANCE_CORE)
-		//City Loop (to encourage specializations that capitalize on what we're good at).		
-		CvCity* pLoopCity;
-		int iLoop;
-		for(pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
-		{
-			if(pLoopCity == NULL || pLoopCity->IsPuppet())
-			{
-				continue;
-			}
-			
-			//Highest First
-			YieldTypes eHighestYield = pLoopCity->GetCityStrategyAI()->GetHighestYield();
-			int iYieldAverage = (int)citystrategyround(pLoopCity->GetCityStrategyAI()->GetYieldAverage(eHighestYield));
+		 int iFlavorGrowth = 10 * m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GROWTH"));
+		 if (iFlavorGrowth < 0) iFlavorGrowth = 0;
 
-			if(eHighestYield == YIELD_FOOD)
-			{
-				iFoodYieldWeight += iYieldAverage;
-			}
-			else if(eHighestYield == YIELD_PRODUCTION)
-			{
-				iProductionYieldWeight += iYieldAverage;
-			}
-			else if(eHighestYield == YIELD_GOLD)
-			{
-				iGoldYieldWeight += iYieldAverage;
-			}
-			else if(eHighestYield == YIELD_SCIENCE)
-			{
-				iScienceYieldWeight += iYieldAverage;
-			}
-			else if(eHighestYield == YIELD_CULTURE)
-			{
-				iCultureYieldWeight += iYieldAverage;
-			}
-			else if(eHighestYield == YIELD_FAITH)
-			{
-				iFaithYieldWeight += iYieldAverage;
-			}
+		 int iFlavorCulture = 10 * m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_CULTURE"));
+		 if (iFlavorCulture < 0) iFlavorCulture = 0;
 
-			iGeneralEconomicWeight += (iYieldAverage / 3);
+		 int iFlavorFaith = 10 * m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_RELIGION"));
+		 if (iFlavorFaith < 0) iFlavorFaith = 0;
 
-			//Then Lowest
-			YieldTypes eLowestYield = pLoopCity->GetCityStrategyAI()->GetMostDeficientYield();
-			int iLowestYieldAverage = (int)citystrategyround(pLoopCity->GetCityStrategyAI()->GetYieldAverage(eLowestYield));
+		 int iFlavorProduction = 10 * m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_PRODUCTION"));
+		 if (iFlavorProduction < 0) iFlavorProduction = 0;
 
-			int iDelta = iYieldAverage - iLowestYieldAverage;
+		 //   Add in any contribution from the current grand strategy
+		 CvAIGrandStrategyXMLEntry* grandStrategy = GC.getAIGrandStrategyInfo(m_pPlayer->GetGrandStrategyAI()->GetActiveGrandStrategy());
+		 if (grandStrategy)
+		 {
+			 if (grandStrategy->GetSpecializationBoost(YIELD_FOOD) > 0)
+			 {
+				 iFoodYieldWeight *= grandStrategy->GetSpecializationBoost(YIELD_FOOD);
+				 iFoodYieldWeight /= 100;
+			 }
+			 if (grandStrategy->GetSpecializationBoost(YIELD_GOLD) > 0)
+			 {
+				 iGoldYieldWeight *= grandStrategy->GetSpecializationBoost(YIELD_GOLD);
+				 iGoldYieldWeight /= 100;
+			 }
+			 if (grandStrategy->GetSpecializationBoost(YIELD_SCIENCE) > 0)
+			 {
+				 iScienceYieldWeight *= grandStrategy->GetSpecializationBoost(YIELD_SCIENCE);
+				 iScienceYieldWeight /= 100;
+			 }
+			 if (grandStrategy->GetSpecializationBoost(YIELD_PRODUCTION) > 0)
+			 {
+				 iProductionYieldWeight *= grandStrategy->GetSpecializationBoost(YIELD_PRODUCTION);
+				 iProductionYieldWeight /= 100;
+			 }
+			 if (grandStrategy->GetSpecializationBoost(YIELD_CULTURE) > 0)
+			 {
+				 iCultureYieldWeight *= grandStrategy->GetSpecializationBoost(YIELD_CULTURE);
+				 iCultureYieldWeight /= 100;
+			 }
+			 if (grandStrategy->GetSpecializationBoost(YIELD_FAITH) > 0)
+			 {
+				 iFaithYieldWeight *= grandStrategy->GetSpecializationBoost(YIELD_FAITH);
+				 iFaithYieldWeight /= 100;
+			 }
+		 }
 
-			if(eLowestYield == YIELD_FOOD)
-			{
-				iFoodYieldWeight += iDelta;
-			}
-			else if(eLowestYield == YIELD_PRODUCTION)
-			{
-				iProductionYieldWeight += iDelta;
-			}
-			else if(eLowestYield == YIELD_GOLD)
-			{
-				iGoldYieldWeight += iDelta;
-			}
-			else if(eLowestYield == YIELD_SCIENCE)
-			{
-				iScienceYieldWeight += iDelta;
-			}
-			else if(eLowestYield == YIELD_CULTURE)
-			{
-				iCultureYieldWeight += iDelta;
-			}
-			else if(eLowestYield == YIELD_FAITH)
-			{
-				iFaithYieldWeight += iDelta;
-			}
+		 iFoodYieldWeight *= (100 + iFlavorGrowth);
+		 iProductionYieldWeight *= (100 + iFlavorProduction);
+		 iGoldYieldWeight *= (100 + iFlavorGold);
+		 iScienceYieldWeight *= (100 + iFlavorScience);
+		 iCultureYieldWeight *= (100 + iFlavorCulture);
+		 iFaithYieldWeight *= (100 + iFlavorFaith);
+	 }
 
-			iGeneralEconomicWeight += (iDelta / 3);
-		}			
+	// Add weights to our weighted vector
+	CvWeightedVector<YieldTypes> yieldWeights;
+	yieldWeights.push_back(YIELD_FOOD, iFoodYieldWeight);
+	yieldWeights.push_back(YIELD_PRODUCTION, iProductionYieldWeight);
+	yieldWeights.push_back(YIELD_GOLD, iGoldYieldWeight);
+	yieldWeights.push_back(YIELD_SCIENCE, iScienceYieldWeight);
+	yieldWeights.push_back(YIELD_CULTURE, iCultureYieldWeight);
+	yieldWeights.push_back(YIELD_FAITH, iFaithYieldWeight);
 
-		//   Add in any contribution from the current grand strategy
-		for(int iGrandStrategyLoop = 0; iGrandStrategyLoop < GC.getNumAIGrandStrategyInfos(); iGrandStrategyLoop++)
-		{
-			CvAIGrandStrategyXMLEntry* grandStrategy = GC.getAIGrandStrategyInfo((AIGrandStrategyTypes)iGrandStrategyLoop);
-			if(grandStrategy)
-			{
-				if(iGrandStrategyLoop == m_pPlayer->GetGrandStrategyAI()->GetActiveGrandStrategy())
-				{
-					if(grandStrategy->GetSpecializationBoost(YIELD_FOOD) > 0)
-					{
-						iFoodYieldWeight *=	grandStrategy->GetSpecializationBoost(YIELD_FOOD);
-						iFoodYieldWeight /= 100;
-					}
-					else if(grandStrategy->GetSpecializationBoost(YIELD_GOLD) > 0)
-					{
-						iGoldYieldWeight *=	grandStrategy->GetSpecializationBoost(YIELD_GOLD);
-						iGoldYieldWeight /= 100;
-					}
-					else if(grandStrategy->GetSpecializationBoost(YIELD_SCIENCE) > 0)
-					{
-						iScienceYieldWeight *= grandStrategy->GetSpecializationBoost(YIELD_SCIENCE);
-						iScienceYieldWeight /= 100;
-					}
-					else if(grandStrategy->GetSpecializationBoost(YIELD_PRODUCTION) > 0)
-					{
-						iProductionYieldWeight *= grandStrategy->GetSpecializationBoost(YIELD_PRODUCTION);
-						iProductionYieldWeight /= 100;
-					}
-					else if(grandStrategy->GetSpecializationBoost(YIELD_CULTURE) > 0)
-					{
-						iCultureYieldWeight *= grandStrategy->GetSpecializationBoost(YIELD_CULTURE);
-						iCultureYieldWeight /= 100;
-					}
-					else if(grandStrategy->GetSpecializationBoost(YIELD_FAITH) > 0)
-					{
-						iFaithYieldWeight *= grandStrategy->GetSpecializationBoost(YIELD_FAITH);
-						iFaithYieldWeight /= 100;
-					}
-				}
-			}
-		}
-
-		//Food
-		iFoodYieldWeight *= (100 + iFlavorGrowth);
-		iFoodYieldWeight /= 100;
-
-		//Subtype considerations for Production (instead of flavor)
-		iProductionYieldWeight *= (100 + (WeightProductionSubtypes(iFlavorWonder, iFlavorSpaceship) / 125));
-		iProductionYieldWeight /= 100;
-
-		//Gold
-		iGoldYieldWeight *= (100 + iFlavorGold);
-		iGoldYieldWeight /= 100;
-
-		//Science
-		iScienceYieldWeight *= (100 + iFlavorScience);
-		iScienceYieldWeight /= 100;
-
-		//Culture
-		iCultureYieldWeight *= (100 + iFlavorCulture);
-		iCultureYieldWeight /= 100;
-
-		//Faith
-		iFaithYieldWeight *= (100 + iFlavorFaith);
-		iFaithYieldWeight /= 100;
-
-		//   General Economics
-		iGeneralEconomicWeight *= (100 + ((iFlavorGrowth + iFlavorGold + iFlavorCulture + iFlavorFaith + iFlavorScience) / 5));
-		iGeneralEconomicWeight /= 100;
-
-		// Add weights to our weighted vector
-		m_YieldWeights.push_back(YIELD_FOOD, iFoodYieldWeight);
-		m_YieldWeights.push_back(YIELD_PRODUCTION, iProductionYieldWeight);
-		m_YieldWeights.push_back(YIELD_GOLD, iGoldYieldWeight);
-		m_YieldWeights.push_back(YIELD_SCIENCE, iScienceYieldWeight);
-		m_YieldWeights.push_back(YIELD_CULTURE, iCultureYieldWeight);
-		m_YieldWeights.push_back(YIELD_FAITH, iFaithYieldWeight);
-		m_YieldWeights.push_back(NO_YIELD, iGeneralEconomicWeight);
-
-		// Log results
-		LogSpecializationWeights();
-#else
-		//   Food
-		CvArea* pArea = GC.getMap().getArea(m_pPlayer->getCapitalCity()->getArea());
-		int iNumUnownedTiles = pArea->getNumUnownedTiles();
-		int iNumCities = m_pPlayer->getNumCities();
-		int iNumSettlers = m_pPlayer->GetNumUnitsWithUnitAI(UNITAI_SETTLE, true);
-		EconomicAIStrategyTypes eStrategy = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_EARLY_EXPANSION");
-		if(eStrategy != NO_ECONOMICAISTRATEGY && m_pPlayer->GetEconomicAI()->IsUsingStrategy(eStrategy))
-		{
-			iFoodYieldWeight += GC.getAI_CITY_SPECIALIZATION_FOOD_WEIGHT_EARLY_EXPANSION() /* 500 */;
-		}
-		iFoodYieldWeight *= max(1, iFlavorGrowth);
-		iFoodYieldWeight += iFlavorExpansion * GC.getAI_CITY_SPECIALIZATION_FOOD_WEIGHT_FLAVOR_EXPANSION() /* 5 */;
-		iFoodYieldWeight += (iNumUnownedTiles * 100) / pArea->getNumTiles() * GC.getAI_CITY_SPECIALIZATION_FOOD_WEIGHT_PERCENT_CONTINENT_UNOWNED() /* 5 */;
-		iFoodYieldWeight += iNumCities * GC.getAI_CITY_SPECIALIZATION_FOOD_WEIGHT_NUM_CITIES() /* -50 */;
-		iFoodYieldWeight += iNumSettlers * GC.getAI_CITY_SPECIALIZATION_FOOD_WEIGHT_NUM_SETTLERS() /* -40 */;
-		if((iNumCities + iNumSettlers) == 1)
-		{
-			iFoodYieldWeight *= 3;   // Really want to get up over 1 city
-		}
-		if(iFoodYieldWeight < 0) iFoodYieldWeight = 0;
-
-		//   Production
-		iProductionYieldWeight = WeightProductionSubtypes(iFlavorWonder, iFlavorSpaceship);
-
-		//   Trade
-		int iLandDisputeLevel = m_pPlayer->GetDiplomacyAI()->GetTotalLandDisputeLevel();
-		iGoldYieldWeight += iFlavorGold * GC.getAI_CITY_SPECIALIZATION_GOLD_WEIGHT_FLAVOR_GOLD() /* 20 */;
-		iGoldYieldWeight += iLandDisputeLevel * GC.getAI_CITY_SPECIALIZATION_GOLD_WEIGHT_LAND_DISPUTE() /* 10 */;
-
-		//   Science
-		iScienceYieldWeight += iFlavorScience * GC.getAI_CITY_SPECIALIZATION_SCIENCE_WEIGHT_FLAVOR_SCIENCE() /* 20 */;
-		iScienceYieldWeight += iFlavorSpaceship * GC.getAI_CITY_SPECIALIZATION_SCIENCE_WEIGHT_FLAVOR_SPACESHIP() /* 10 */;
-
-		//   General Economics
-		iGeneralEconomicWeight = GC.getAI_CITY_SPECIALIZATION_GENERAL_ECONOMIC_WEIGHT() /* 200 */;
-
-		//   Add in any contribution from the current grand strategy
-		for(int iGrandStrategyLoop = 0; iGrandStrategyLoop < GC.getNumAIGrandStrategyInfos(); iGrandStrategyLoop++)
-		{
-			CvAIGrandStrategyXMLEntry* grandStrategy = GC.getAIGrandStrategyInfo((AIGrandStrategyTypes)iGrandStrategyLoop);
-			if(grandStrategy)
-			{
-				if(iGrandStrategyLoop == m_pPlayer->GetGrandStrategyAI()->GetActiveGrandStrategy())
-				{
-					iFoodYieldWeight +=	grandStrategy->GetSpecializationBoost(YIELD_FOOD);
-					iGoldYieldWeight += grandStrategy->GetSpecializationBoost(YIELD_GOLD);
-					iScienceYieldWeight += grandStrategy->GetSpecializationBoost(YIELD_SCIENCE);
-				}
-			}
-		}
-
-		// Add weights to our weighted vector
-		m_YieldWeights.push_back(YIELD_FOOD, iFoodYieldWeight);
-		m_YieldWeights.push_back(YIELD_PRODUCTION, iProductionYieldWeight);
-		m_YieldWeights.push_back(YIELD_GOLD, iGoldYieldWeight);
-		m_YieldWeights.push_back(YIELD_SCIENCE, iScienceYieldWeight);
-		m_YieldWeights.push_back(NO_YIELD, iGeneralEconomicWeight);
-
-		// Log results
-		LogSpecializationWeights();
-#endif
-	}
-
-	return;
+	return yieldWeights;
 }
 
 /// Compute the weight of each production subtype (return value is total of all these weights)
-int CvCitySpecializationAI::WeightProductionSubtypes(int iFlavorWonder, int iFlavorSpaceship)
+CvWeightedVector<ProductionSpecializationSubtypes> CvCitySpecializationAI::WeightProductionSubtypes()
 {
+	CvWeightedVector<ProductionSpecializationSubtypes> result;
 	bool bCriticalDefenseOn = false;
 
 	int iMilitaryTrainingWeight = 0;
@@ -782,14 +578,18 @@ int CvCitySpecializationAI::WeightProductionSubtypes(int iFlavorWonder, int iFla
 	int iWonderWeight = 0;
 	int iSpaceshipWeight = 0;
 
-	int iFlavorOffense = 0;
-	iFlavorOffense = m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_OFFENSE"));
+	int iFlavorWonder = m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_WONDER"));
+	if (iFlavorWonder < 0) iFlavorWonder = 0;
+	int iFlavorSpaceship = m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_SPACESHIP"));
+	if (iFlavorSpaceship < 0) iFlavorSpaceship = 0;
+	int iFlavorOffense = m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_OFFENSE"));
+	if (iFlavorOffense < 0) iFlavorOffense = 0;
 
 	int iUnitsRequested = m_pPlayer->GetNumUnitsNeededToBeBuilt();
 
 	// LONG-TERM MILITARY BUILD-UP
 	iMilitaryTrainingWeight += (iFlavorOffense * GC.getAI_CITY_SPECIALIZATION_PRODUCTION_TRAINING_PER_OFFENSE()) /* 10 */;
-	iMilitaryTrainingWeight += (m_pPlayer->GetDiplomacyAI()->GetPersonalityMajorCivApproachBias(MAJOR_CIV_APPROACH_WAR) * GC.getAI_CITY_SPECIALIZATION_PRODUCTION_TRAINING_PER_PERSONALITY() /* 10 */);
+	iMilitaryTrainingWeight += (m_pPlayer->GetDiplomacyAI()->GetMajorCivApproachBias(CIV_APPROACH_WAR) * GC.getAI_CITY_SPECIALIZATION_PRODUCTION_TRAINING_PER_PERSONALITY() /* 10 */);
 
 	// EMERGENCY UNITS
 	iEmergencyUnitWeight += iUnitsRequested * GC.getAI_CITY_SPECIALIZATION_PRODUCTION_WEIGHT_OPERATIONAL_UNITS_REQUESTED() /* 10 */;
@@ -797,8 +597,7 @@ int CvCitySpecializationAI::WeightProductionSubtypes(int iFlavorWonder, int iFla
 
 	// Is our capital under threat?
 	AICityStrategyTypes eCityStrategy = (AICityStrategyTypes) GC.getInfoTypeForString("AICITYSTRATEGY_CAPITAL_UNDER_THREAT");
-	CvCity* pCapital;
-	pCapital = m_pPlayer->getCapitalCity();
+	CvCity* pCapital = m_pPlayer->getCapitalCity();
 	if(pCapital && eCityStrategy != NO_AICITYSTRATEGY && pCapital->GetCityStrategyAI()->IsUsingCityStrategy(eCityStrategy))
 	{
 		iEmergencyUnitWeight += GC.getAI_CITY_SPECIALIZATION_PRODUCTION_WEIGHT_CAPITAL_THREAT() /* 50 */;
@@ -863,417 +662,204 @@ int CvCitySpecializationAI::WeightProductionSubtypes(int iFlavorWonder, int iFla
 		iSpaceshipWeight += iFlavorSpaceship * GC.getAI_CITY_SPECIALIZATION_PRODUCTION_WEIGHT_FLAVOR_SPACESHIP() /* 5 */;
 	}
 
-	for(int iGrandStrategyLoop = 0; iGrandStrategyLoop < GC.getNumAIGrandStrategyInfos(); iGrandStrategyLoop++)
+	CvAIGrandStrategyXMLEntry* grandStrategy = GC.getAIGrandStrategyInfo(m_pPlayer->GetGrandStrategyAI()->GetActiveGrandStrategy());
+	if(grandStrategy)
 	{
-		CvAIGrandStrategyXMLEntry* grandStrategy = GC.getAIGrandStrategyInfo((AIGrandStrategyTypes)iGrandStrategyLoop);
-		if(grandStrategy)
+		if(grandStrategy->GetSpecializationBoost(YIELD_PRODUCTION) > 0)
 		{
-			if(iGrandStrategyLoop == m_pPlayer->GetGrandStrategyAI()->GetActiveGrandStrategy())
+			if(grandStrategy->GetFlavorValue((FlavorTypes)GC.getInfoTypeForString("FLAVOR_OFFENSE")) > 0)
 			{
-				if(grandStrategy->GetSpecializationBoost(YIELD_PRODUCTION) > 0)
-				{
-					if(grandStrategy->GetFlavorValue((FlavorTypes)GC.getInfoTypeForString("FLAVOR_OFFENSE")) > 0)
-					{
-						iMilitaryTrainingWeight += grandStrategy->GetSpecializationBoost(YIELD_PRODUCTION);
-					}
-					else if(grandStrategy->GetFlavorValue((FlavorTypes)GC.getInfoTypeForString("FLAVOR_SPACESHIP")) > 0)
-					{
-						iSpaceshipWeight += grandStrategy->GetSpecializationBoost(YIELD_PRODUCTION);
-					}
-				}
+				iMilitaryTrainingWeight += grandStrategy->GetSpecializationBoost(YIELD_PRODUCTION);
+			}
+			else if(grandStrategy->GetFlavorValue((FlavorTypes)GC.getInfoTypeForString("FLAVOR_SPACESHIP")) > 0)
+			{
+				iSpaceshipWeight += grandStrategy->GetSpecializationBoost(YIELD_PRODUCTION);
 			}
 		}
 	}
 
 	// Add weights to our weighted vector
-	m_ProductionSubtypeWeights.push_back(PRODUCTION_SPECIALIZATION_MILITARY_TRAINING, iMilitaryTrainingWeight);
-	m_ProductionSubtypeWeights.push_back(PRODUCTION_SPECIALIZATION_EMERGENCY_UNITS, iEmergencyUnitWeight);
-	m_ProductionSubtypeWeights.push_back(PRODUCTION_SPECIALIZATION_MILITARY_NAVAL, iSeaWeight);
-	m_ProductionSubtypeWeights.push_back(PRODUCTION_SPECIALIZATION_WONDER, iWonderWeight);
-	m_ProductionSubtypeWeights.push_back(PRODUCTION_SPECIALIZATION_SPACESHIP, iSpaceshipWeight);
+	result.push_back(PRODUCTION_SPECIALIZATION_MILITARY_TRAINING, iMilitaryTrainingWeight);
+	result.push_back(PRODUCTION_SPECIALIZATION_EMERGENCY_UNITS, iEmergencyUnitWeight);
+	result.push_back(PRODUCTION_SPECIALIZATION_MILITARY_NAVAL, iSeaWeight);
+	result.push_back(PRODUCTION_SPECIALIZATION_WONDER, iWonderWeight);
+	result.push_back(PRODUCTION_SPECIALIZATION_SPACESHIP, iSpaceshipWeight);
 
-	return iMilitaryTrainingWeight + iEmergencyUnitWeight + iSeaWeight + iWonderWeight + iSpaceshipWeight;
+	return result;
 }
 
 /// Assign specializations to cities
 void CvCitySpecializationAI::AssignSpecializations()
 {
-	int iI;
-	CitySpecializationTypes eSpecialization;
-	CitySpecializationData cityData;
-	list<CitySpecializationData> citiesWithoutSpecialization;
-	list<CitySpecializationTypes>::iterator it;
-	list<CitySpecializationTypes>::iterator iterEnd;
-	list<CitySpecializationData>::iterator cityIter;
-	list<CitySpecializationData>::iterator cityIterEnd;
-	list<CitySpecializationData>::iterator bestCity;
-
-	m_eNextSpecializationDesired = NO_CITY_SPECIALIZATION;
-	citiesWithoutSpecialization.clear();
-
-	CitySpecializationTypes eWonderSpecialiation = GetWonderSpecialization();
-
-	// Find specializations needed (including for the next city we build)
-	SelectSpecializations();
+	map<int, vector<int>> citiesWithoutSpecialization;
+	CitySpecializationTypes eWonderSpecialization = GetWonderSpecialization();
+	vector<CitySpecializationTypes> specializationsNeeded =	SelectSpecializations();
+	vector<CitySpecializationTypes>::iterator it;
 
 	// OBVIOUS ASSIGNMENTS: Loop through our cities making obvious assignments
-	CvCity* pLoopCity;
 	int iLoop;
-	for(pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
+	for(CvCity* pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
 	{
-		if(pLoopCity->IsPuppet())
+		if(pLoopCity->IsPuppet() && pLoopCity->getPopulation()<5)
 		{
 			pLoopCity->GetCityStrategyAI()->SetSpecialization(GetEconomicDefaultSpecialization());
 			LogSpecializationAssignment(pLoopCity, GetEconomicDefaultSpecialization(), true);
 			continue;
 		}
 
-		// If this is the city to build our current wonder in, mark all that
-		if(m_bWonderChosen && pLoopCity->GetID() == m_iWonderCityID)
+		// If this city is building a wonder, set the specialization accordingly
+		if(pLoopCity->IsBuildingWorldWonder())
 		{
-			it = find(m_SpecializationsNeeded.begin(), m_SpecializationsNeeded.end(), eWonderSpecialiation);
-			if(it != m_SpecializationsNeeded.end())
-			{
-				m_SpecializationsNeeded.erase(it);
-				pLoopCity->GetCityStrategyAI()->SetSpecialization(eWonderSpecialiation);
-				LogSpecializationAssignment(pLoopCity, eWonderSpecialiation, true);
-				continue;
-			}
+			pLoopCity->GetCityStrategyAI()->SetSpecialization(eWonderSpecialization);
+			LogSpecializationAssignment(pLoopCity, eWonderSpecialization, true);
+			continue;
 		}
 
 		// If city default is equal to a needed type, go with that
-		eSpecialization = pLoopCity->GetCityStrategyAI()->GetDefaultSpecialization();
-		it = find(m_SpecializationsNeeded.begin(), m_SpecializationsNeeded.end(), eSpecialization);
-		if(it != m_SpecializationsNeeded.end())
+		CitySpecializationTypes eSpecialization = pLoopCity->GetCityStrategyAI()->GetDefaultSpecialization();
+		it = find(specializationsNeeded.begin(), specializationsNeeded.end(), eSpecialization);
+		if (it != specializationsNeeded.end())
 		{
-			m_SpecializationsNeeded.erase(it);
+			specializationsNeeded.erase(it);
 			pLoopCity->GetCityStrategyAI()->SetSpecialization(eSpecialization);
 			LogSpecializationAssignment(pLoopCity, eSpecialization);
+			continue;
 		}
-		else
+
+		// Store all other cities for later
+		vector<int> cityData = CityValueForUnworkedTileYields(pLoopCity);
+		for(int iI = 0; iI < YIELD_TOURISM; iI++)
 		{
-			// If cities' current specialization is needed, stick with that
-			eSpecialization = pLoopCity->GetCityStrategyAI()->GetSpecialization();
-			it = find(m_SpecializationsNeeded.begin(), m_SpecializationsNeeded.end(), eSpecialization);
-			if(it != m_SpecializationsNeeded.end())
-			{
-				m_SpecializationsNeeded.erase(it);
-				pLoopCity->GetCityStrategyAI()->SetSpecialization(eSpecialization);
-				LogSpecializationAssignment(pLoopCity, eSpecialization);
-			}
+			cityData[iI] = AdjustValueBasedOnBuildings(pLoopCity, (YieldTypes)iI, cityData[iI]);
+			if(MOD_BALANCE_CORE_HAPPINESS)
+				cityData[iI] = AdjustValueBasedOnHappiness(pLoopCity, (YieldTypes)iI, cityData[iI]);
 
-			// Save this city off (with detailed data about what it is good at) to assign later
-			else
-			{
-				cityData.m_eID = pLoopCity->GetID();
-#if defined(MOD_BALANCE_CORE)
-				for(iI = 0; iI <= YIELD_FAITH; iI++)
-#else
-				for(iI = 0; iI <= YIELD_SCIENCE; iI++)
-#endif
-				{
-					if(iI == YIELD_SCIENCE)
-					{
-						cityData.m_iWeight[iI] = PlotValueForScience(pLoopCity->plot()); // -- BKW, looks like PlotValueForScience is making some assumptions that are no longer true
-					}
-#if defined(MOD_BALANCE_CORE)
-					else if (iI == YIELD_CULTURE)
-					{
-						cityData.m_iWeight[iI] = PlotValueForCulture(pLoopCity->plot()); 
-					}
-					else if (iI == YIELD_FAITH)
-					{
-						cityData.m_iWeight[iI] = PlotValueForFaith(pLoopCity->plot());
-					}
-#endif
-					else
-					{
-						cityData.m_iWeight[iI] = PlotValueForSpecificYield(pLoopCity->plot(), (YieldTypes)iI);
-					}
-					cityData.m_iWeight[iI] = AdjustValueBasedOnBuildings(pLoopCity, (YieldTypes)iI, cityData.m_iWeight[iI]);
-#if defined(MOD_BALANCE_CORE)
-					if(MOD_BALANCE_CORE_HAPPINESS)
-					{
-						cityData.m_iWeight[iI] += AdjustValueBasedOnHappiness(pLoopCity, (YieldTypes)iI, cityData.m_iWeight[iI]);
-					}
-#endif
-					if(cityData.m_iWeight[iI] < 0)
-					{
-						cityData.m_iWeight[iI] = 0;
-					}
-				}
-				citiesWithoutSpecialization.push_back(cityData);
-
-				LogCity(pLoopCity, cityData);
-
-			}
-		}
-	}
-
-	FAssert(citiesWithoutSpecialization.size() + 1 == m_SpecializationsNeeded.size());
-
-	// NEXT SPECIALIZATION NEEDED: Now figure out what we want to assign as our "next specialization needed"
-
-	// If only one specialization left, it's easy
-	if(citiesWithoutSpecialization.empty())
-	{
-		it = m_SpecializationsNeeded.begin();
-		m_eNextSpecializationDesired = *it;
-		LogNextSpecialization(m_eNextSpecializationDesired);
-		return;
-	}
-
-	// If all specializations left are "general economic", set that as next needed
-	bool bAllGeneral = true;
-	it = m_SpecializationsNeeded.begin();
-	iterEnd = m_SpecializationsNeeded.end();
-	for(; it != iterEnd; ++it)
-	{
-		CitySpecializationTypes eType = *it;
-		if(eType != GetEconomicDefaultSpecialization())
-		{
-			bAllGeneral = false;
-		}
-	}
-
-	if(bAllGeneral)
-	{
-		m_eNextSpecializationDesired = GetEconomicDefaultSpecialization();
-		LogNextSpecialization(m_eNextSpecializationDesired);
-		m_SpecializationsNeeded.erase(m_SpecializationsNeeded.begin());
-	}
-
-	else
-	{
-		// Find best possible sites for each of the yield types
-		FindBestSites();
-
-		// Compute the yield which we can improve the most with a new city
-		int iCurrentDelta;
-		int iBestDelta[YIELD_FAITH + 1];
-		for(iI = 0; iI <= YIELD_FAITH; iI++)
-			iBestDelta[iI] = MIN_INT;
-
-		cityIter = citiesWithoutSpecialization.begin();
-		cityIterEnd = citiesWithoutSpecialization.end();
-		for(; cityIter != cityIterEnd; ++cityIter)
-		{
-			cityData = *cityIter;
-#if defined(MOD_BALANCE_CORE)
-			for(iI = 0; iI <= YIELD_FAITH; iI++)
-#else
-			for(iI = 0; iI <= YIELD_SCIENCE; iI++)
-#endif
-			{
-				iCurrentDelta = cityData.m_iWeight[iI] - m_iBestValue[iI];
-				if(iCurrentDelta > iBestDelta[iI])
-				{
-					iBestDelta[iI] = iCurrentDelta;
-				}
-			}
+			if(cityData[iI] < 0)
+				cityData[iI] = 0;
 		}
 
-		// Save yield improvements in a vector we can sort
-#if defined(MOD_BALANCE_CORE)
-		CvWeightedVector<int, YIELD_FAITH, true> yieldImprovements;
-		for(iI = 0; iI <= YIELD_FAITH; iI++)
-#else
-		CvWeightedVector<int, YIELD_SCIENCE+1, true> yieldImprovements;
-		for(iI = 0; iI <= YIELD_SCIENCE; iI++)
-#endif
-		{
-			int iImprovementWithNewCity;
-			if(iBestDelta[iI] > 0)
-			{
-				iImprovementWithNewCity = 0;
-			}
-			else
-			{
-				iImprovementWithNewCity = -iBestDelta[iI];
-			}
-			yieldImprovements.push_back(iI, iImprovementWithNewCity);
-		}
-		yieldImprovements.SortItems();
-
-		// Take them out in order and see if we need this specialization
-		bool bFoundIt = false;
-		for(iI = 0; iI < yieldImprovements.size(); iI++)
-		{
-			YieldTypes eMostImprovedYield = (YieldTypes)yieldImprovements.GetElement(iI);
-
-			// Loop through needed specializations until we find one that matches
-			it = m_SpecializationsNeeded.begin();
-			iterEnd = m_SpecializationsNeeded.end();
-			for(; it != iterEnd; ++it)
-			{
-				CitySpecializationTypes eType = *it;
-#if defined(MOD_BALANCE_CORE)
-				CvCitySpecializationXMLEntry* pkCitySpecializationEntry = GC.getCitySpecializationInfo(eType);
-				if(pkCitySpecializationEntry == NULL)
-					continue;
-#endif
-				YieldTypes eYield = GC.getCitySpecializationInfo(eType)->GetYieldType();
-				if(eYield == eMostImprovedYield)
-				{
-					m_eNextSpecializationDesired = eType;
-					LogNextSpecialization(m_eNextSpecializationDesired);
-					m_SpecializationsNeeded.erase(it);
-					bFoundIt = true;
-					break;
-				}
-			}
-			if(bFoundIt)
-			{
-				break;
-			}
-		}
+		citiesWithoutSpecialization[pLoopCity->GetID()] = cityData;
+		LogCity(pLoopCity, cityData);
 	}
-
-	FAssert(citiesWithoutSpecialization.size() == m_SpecializationsNeeded.size());
 
 	// REMAINING ASSIGNMENTS: Make the rest of the assignments
-	it = m_SpecializationsNeeded.begin();
-	iterEnd = m_SpecializationsNeeded.end();
-	for(; it != iterEnd; ++it)
+	for (it = specializationsNeeded.begin(); it != specializationsNeeded.end(); ++it)
 	{
-		const CitySpecializationTypes eType = *it;
+		CitySpecializationTypes eType = *it;
+
 		CvCitySpecializationXMLEntry* pkCitySpecializationEntry = GC.getCitySpecializationInfo(eType);
-		if(pkCitySpecializationEntry == NULL)
+		if (pkCitySpecializationEntry == NULL)
 			continue;
 
 		YieldTypes eYield = pkCitySpecializationEntry->GetYieldType();
 		bool bCoastal = pkCitySpecializationEntry->IsMustBeCoastal();
-		bestCity = citiesWithoutSpecialization.end();
 
 		// Pick best existing city based on a better computation of existing city's value for a yield type
-		int iBestValue = -1;
-		cityIter = citiesWithoutSpecialization.begin();
-		cityIterEnd = citiesWithoutSpecialization.end();
-		for(; cityIter != cityIterEnd; ++cityIter)
+		int iBestValue = 1;
+		int iBestCityID = -1;
+		for (map<int, vector<int>>::iterator itCity = citiesWithoutSpecialization.begin(); itCity != citiesWithoutSpecialization.end(); ++itCity)
 		{
-			cityData = *cityIter;
-
-			if(bCoastal && !m_pPlayer->getCity(cityData.m_eID)->isCoastal())
-			{
+			CvCity* pCity = m_pPlayer->getCity(itCity->first);
+			if (bCoastal && !pCity->isCoastal())
 				continue;
-			}
 
-			if(eYield == NO_YIELD)
+			//food is the one yield than can turn bad - don't grow unhappy cities
+			if (pCity->getHappinessDelta()<0 && eYield == YIELD_FOOD)
+				continue;
+
+			int iCityValue = 0;
+			if (eYield == NO_YIELD)
 			{
-				// General economic is all yields added together
-				int iCityValue = 0;
-#if defined(MOD_BALANCE_CORE)
-				for(iI = 0; iI <= YIELD_FAITH; iI++)
-#else
-				for(iI = 0; iI <= YIELD_SCIENCE; iI++)
-#endif
-				{
-					iCityValue += cityData.m_iWeight[iI];
-				}
-				if(iCityValue > iBestValue)
-				{
-					iBestValue = iCityValue;
-					bestCity = cityIter;
-				}
+				for (int iI = 0; iI < YIELD_TOURISM; iI++)
+					iCityValue += itCity->second[iI];
 			}
 			else
+				iCityValue = itCity->second[eYield];
+
+			if (iCityValue > iBestValue)
 			{
-				if(cityData.m_iWeight[(int)eYield] > iBestValue)
-				{
-					iBestValue = cityData.m_iWeight[(int)eYield];
-					bestCity = cityIter;
-				}
+				iBestValue = iCityValue;
+				iBestCityID = itCity->first;
 			}
 		}
 
 		// Found a city to set
-		if(bestCity != citiesWithoutSpecialization.end())
+		if (iBestCityID != -1)
 		{
-			CvCity* pCity = m_pPlayer->getCity(bestCity->m_eID);
+			CvCity* pCity = m_pPlayer->getCity(iBestCityID);
+
 			pCity->GetCityStrategyAI()->SetSpecialization(eType);
 			LogSpecializationAssignment(pCity, eType);
-			citiesWithoutSpecialization.erase(bestCity);
-		}
 
-		// No (coastal) city found, use default specialization as last resort
-		else
-		{
-			CvCity* pCity = m_pPlayer->getCity(citiesWithoutSpecialization.begin()->m_eID);
-			pCity->GetCityStrategyAI()->SetSpecialization(GetEconomicDefaultSpecialization());
-			LogSpecializationAssignment(pCity, GetEconomicDefaultSpecialization());
-			citiesWithoutSpecialization.erase(citiesWithoutSpecialization.begin());
+			citiesWithoutSpecialization.erase(iBestCityID);
 		}
+	}
+
+	//set all remaining cities to default
+	for(map<int,vector<int>>::iterator itCity = citiesWithoutSpecialization.begin(); itCity != citiesWithoutSpecialization.end(); ++itCity)
+	{
+		CvCity* pCity = m_pPlayer->getCity(itCity->first);
+		pCity->GetCityStrategyAI()->SetSpecialization(GetEconomicDefaultSpecialization());
+		LogSpecializationAssignment(pCity, GetEconomicDefaultSpecialization());
 	}
 
 	return;
 }
 
-/// Find specializations needed (including for the next city we build)
-void CvCitySpecializationAI::SelectSpecializations()
+/// Evaluate strength of an existing city for providing a specific type of yield
+vector<int> CvCitySpecializationAI::CityValueForUnworkedTileYields(CvCity* pCity)
 {
-	CitySpecializationTypes eSpecialization;
-	int iSpecializationsToAssign = m_pPlayer->getNumCities() - m_pPlayer->GetNumPuppetCities() + 1;
-	int iOldWeight;
-	int iNewWeight;
-	int iReductionAmount;
+	vector<int> result(YIELD_TOURISM, 0);
+	CvPlot* pPlot = pCity->plot();
 
-	m_SpecializationsNeeded.clear();
-	m_bWonderChosen = false;
+	// Evaluate potential from plots not currently being worked
+	for(int iI = 1; iI < pCity->GetNumWorkablePlots(); iI++)
+	{
+		CvPlot* pLoopPlot = iterateRingPlots(pPlot->getX(), pPlot->getY(), iI);
+		if(pLoopPlot != NULL && pCity->GetCityCitizens()->IsCanWork(pLoopPlot) && !pCity->GetCityCitizens()->IsWorkingPlot(pLoopPlot))
+		{
+			for (int iYield = 0; iYield < YIELD_TOURISM; iYield++)
+			{
+				int iPotentialYield = pLoopPlot->getYield((YieldTypes)iYield);
+				if (iYield == YIELD_FOOD) //a plot needs to be worked by a citizen who needs food
+					iPotentialYield = max(0, iPotentialYield - GC.getFOOD_CONSUMPTION_PER_POPULATION());
 
-	// Clear info about what we've picked
-	for(int iI = 0; iI < NUM_SPECIALIZATION_YIELDS; iI++)
-	{
-		m_iNumSpecializationsForThisYield[iI] = 0;
-	}
-	for(int iI = 0; iI < NUM_PRODUCTION_SPECIALIZATION_SUBTYPES; iI++)
-	{
-		m_iNumSpecializationsForThisSubtype[iI] = 0;
-	}
-
-	CvCity* pkWonderBuildCity = GetWonderBuildCity();
-	CvBuildingEntry* pkProductionBuildingInfo = NULL;
-	if(NULL != pkWonderBuildCity && pkWonderBuildCity->getProductionBuilding() != NO_BUILDING)
-	{
-		pkProductionBuildingInfo = GC.getBuildingInfo(pkWonderBuildCity->getProductionBuilding());
+				result[iYield] += iPotentialYield*100; //to make sure modifiers are not rounded away later on
+			}
+		}
 	}
 
-	// Do we have a wonder build in progress that we can't interrupt?
-	if(!m_bInterruptWonders && NULL != pkProductionBuildingInfo && m_pPlayer->GetWonderProductionAI()->IsWonder(*pkProductionBuildingInfo))
-	{
-		m_SpecializationsNeeded.push_back(GetWonderSpecialization());
-		m_iNumSpecializationsForThisYield[1 + (int)YIELD_PRODUCTION]++;
-		iOldWeight = m_YieldWeights.GetWeight(YIELD_PRODUCTION);
-		iReductionAmount = m_ProductionSubtypeWeights.GetWeight(GetWonderSubtype());
-		m_YieldWeights.SetWeight(YIELD_PRODUCTION, (iOldWeight - iReductionAmount));
+	return result;
+}
 
-		// Only one wonder at a time, so zero out the weight for this subtype entirely
-		m_ProductionSubtypeWeights.SetWeight(GetWonderSubtype(), 0);
-		m_bWonderChosen = true;
-	}
-	else
-	{
-		m_iWonderCityID = -1;
-	}
 
-	// LOOP as many times as we have cities PLUS ONE
-	while(m_SpecializationsNeeded.size() < (size_t)iSpecializationsToAssign)
+/// Find specializations needed (including for the next city we build)
+vector<CitySpecializationTypes> CvCitySpecializationAI::SelectSpecializations()
+{
+	vector<CitySpecializationTypes> specializationsNeeded;
+	map<YieldTypes,int> numSpecializationsPerYield;
+	map<ProductionSpecializationSubtypes, int> numSpecializationsPerSubtype;
+
+	CvWeightedVector<ProductionSpecializationSubtypes> prodSubtypeWeights = WeightProductionSubtypes();
+	CvWeightedVector<YieldTypes> yieldWeights = WeightSpecializations();
+	LogSpecializationWeights(prodSubtypeWeights,yieldWeights);
+
+	// LOOP we want to specialize half of our cities. the other half will use the default.
+	size_t iSpecializationsToAssign = size_t(m_pPlayer->getNumCities() - m_pPlayer->GetNumPuppetCities()) / 2;
+	while(specializationsNeeded.size() < iSpecializationsToAssign)
 	{
 		// Find highest weighted specialization
-		m_YieldWeights.SortItems();
+		yieldWeights.SortItems();
 
 		// Mark that we need one city of this type
-		YieldTypes eYield = m_YieldWeights.GetElement(0);
+		YieldTypes eYield = yieldWeights.GetElement(0);
 
+		CitySpecializationTypes eSpecialization = NO_CITY_SPECIALIZATION;
 		if(GC.GetGameCitySpecializations()->GetNumSpecializationsForYield(eYield) > 1)
 		{
 			if(eYield == YIELD_PRODUCTION)
 			{
-				eSpecialization = SelectProductionSpecialization(iReductionAmount);
-
-				iOldWeight = m_YieldWeights.GetWeight(0);
-				m_iNumSpecializationsForThisYield[1 + (int)eYield]++;
-				iNewWeight = iOldWeight - iReductionAmount;
-				m_YieldWeights.SetWeight(0, iNewWeight);
+				eSpecialization = SelectProductionSpecialization(prodSubtypeWeights,numSpecializationsPerSubtype);
 			}
 			else
 			{
@@ -1283,35 +869,40 @@ void CvCitySpecializationAI::SelectSpecializations()
 		else
 		{
 			eSpecialization = GC.GetGameCitySpecializations()->GetFirstSpecializationForYield(eYield);
-
-			// Reduce weight for this specialization based on dividing original weight by <num of this type + 1>
-			iOldWeight = m_YieldWeights.GetWeight(0);
-			m_iNumSpecializationsForThisYield[1 + (int)eYield]++;
-
-			iNewWeight = iOldWeight * m_iNumSpecializationsForThisYield[1 + (int)eYield] / (m_iNumSpecializationsForThisYield[1 + (int)eYield] + 1);
-			m_YieldWeights.SetWeight(0, iNewWeight);
 		}
-		m_SpecializationsNeeded.push_back(eSpecialization);
+
+		numSpecializationsPerYield[eYield]++;
+
+		// Reduce weight for this specialization based on dividing original weight by <num of this type + 1>
+		int iOldWeight = yieldWeights.GetWeight(0);
+		int iNewWeight = iOldWeight * numSpecializationsPerYield[eYield] / (numSpecializationsPerYield[eYield] + 1);
+
+		yieldWeights.SetWeight(0, iNewWeight);
+
+		specializationsNeeded.push_back(eSpecialization);
 	}
+
+	return specializationsNeeded;
 }
 
 /// Find production specializations needed
-CitySpecializationTypes CvCitySpecializationAI::SelectProductionSpecialization(int& iReductionAmount)
+CitySpecializationTypes CvCitySpecializationAI::SelectProductionSpecialization(
+	CvWeightedVector<ProductionSpecializationSubtypes>& prodSubtypeWeights, 
+	map<ProductionSpecializationSubtypes,int>& numSpecializationsPerSubtype)
 {
-	CitySpecializationTypes eSpecialization;
+	// Find current highest weighted subtype
+	prodSubtypeWeights.SortItems();
+	ProductionSpecializationSubtypes eSubtype = prodSubtypeWeights.GetElement(0);
 
-	// Find highest weighted subtype
-	m_ProductionSubtypeWeights.SortItems();
-
-	ProductionSpecializationSubtypes eSubtype = m_ProductionSubtypeWeights.GetElement(0);
-
-	int iNumSubTypes = 0;
-	eSpecialization = GC.GetGameCitySpecializations()->GetFirstSpecializationForYield(YIELD_PRODUCTION);
-	while(iNumSubTypes != (int)eSubtype)
+	// find the matching specialization in the stupidest possible way
+	CitySpecializationTypes eSpecialization = GC.GetGameCitySpecializations()->GetFirstSpecializationForYield(YIELD_PRODUCTION);
+	for (int i=0; i<10; i++) //failsafe ...
 	{
-		eSpecialization = GC.GetGameCitySpecializations()->GetNextSpecializationForYield();
-		iNumSubTypes++;
-		FAssertMsg(eSpecialization != NO_CITY_SPECIALIZATION, "Production specializations in XML doesn't match NUM_PRODUCTION_SPECIALIZATION_SUBTYPES");
+		if ((ProductionSpecializationSubtypes)i == eSubtype)
+		{
+			eSpecialization = GC.GetGameCitySpecializations()->GetNextSpecializationForYield();
+			break;
+		}
 	}
 
 	// If this is the wonder type, make sure we have a city to build it
@@ -1321,26 +912,24 @@ CitySpecializationTypes CvCitySpecializationAI::SelectProductionSpecialization(i
 		if(pCity != NULL)
 		{
 			m_iWonderCityID = pCity->GetID();
-			m_bWonderChosen = true;
 		}
-
 		// No wonder city, substitute default specialization instead
 		else
 		{
 			eSpecialization = GetEconomicDefaultSpecialization();
 		}
-		iReductionAmount = m_ProductionSubtypeWeights.GetWeight(0);
-		m_ProductionSubtypeWeights.SetWeight(0, 0);
-	}
 
+		prodSubtypeWeights.SetWeight(0, 0);
+	}
 	else
 	{
+		numSpecializationsPerSubtype[eSubtype]++;
+
 		// Reduce weight for this subtype based on dividing original weight by <num of this type + 1>
-		int iOldWeight = m_ProductionSubtypeWeights.GetWeight(0);
-		m_iNumSpecializationsForThisSubtype[(int)iNumSubTypes]++;
-		int iNewWeight = iOldWeight * m_iNumSpecializationsForThisSubtype[(int)iNumSubTypes] / (m_iNumSpecializationsForThisSubtype[(int)iNumSubTypes] + 1);
-		iReductionAmount = iOldWeight - iNewWeight;
-		m_ProductionSubtypeWeights.SetWeight(0, iNewWeight);
+		int iOldWeight = prodSubtypeWeights.GetWeight(0);
+		int iNewWeight = iOldWeight * numSpecializationsPerSubtype[eSubtype] / (numSpecializationsPerSubtype[eSubtype] + 1);
+
+		prodSubtypeWeights.SetWeight(0, iNewWeight);
 	}
 
 	return eSpecialization;
@@ -1360,7 +949,7 @@ CitySpecializationTypes CvCitySpecializationAI::GetWonderSpecialization() const
 		}
 	}
 
-	return (CitySpecializationTypes)-1;
+	return NO_CITY_SPECIALIZATION;
 }
 
 /// Find the specialization type for building wonders
@@ -1377,7 +966,7 @@ CitySpecializationTypes CvCitySpecializationAI::GetEconomicDefaultSpecialization
 		}
 	}
 
-	return (CitySpecializationTypes)-1;
+	return NO_CITY_SPECIALIZATION;
 }
 
 /// Find the production subtype for wonders
@@ -1417,7 +1006,7 @@ CvCity* CvCitySpecializationAI::FindBestWonderCity() const
 			if (!pkBuildingInfo)
 				continue;
 
-			if (pLoopCity->IsBestForWonder((BuildingClassTypes)pkBuildingInfo->GetBuildingClassType()))
+			if (pLoopCity->IsBestForWonder(pkBuildingInfo->GetBuildingClassType()))
 				return pBestCity;
 		}
 	}
@@ -1425,404 +1014,30 @@ CvCity* CvCitySpecializationAI::FindBestWonderCity() const
 	return NULL;
 }
 
-/// Find the best nearby city site for all yield types
-void CvCitySpecializationAI::FindBestSites()
-{
-	// Clear output
-	for(int iI = 0; iI <= YIELD_FAITH; iI++)
-		m_iBestValue[iI] = 0;
-
-	//we prefer settling close in the beginning
-	int iTimeOffset = (24 * GC.getGame().getElapsedGameTurns()) / max(512, GC.getGame().getMaxTurns());
-
-	//basic search area around existing cities
-	int iEvalDistance = GC.getSETTLER_EVALUATION_DISTANCE() + iTimeOffset;
-
-	for(int iPlotLoop = 0; iPlotLoop < GC.getMap().numPlots(); iPlotLoop++)
-	{
-		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(iPlotLoop);
-		if (m_pPlayer->canFoundCity( pPlot->getX(),pPlot->getY() ))
-		{
-			// Check if within range of any of our cities
-			CvCity* pNearestCity = m_pPlayer->GetClosestCityByPlots(pPlot);
-			if(pNearestCity != NULL)
-			{
-				if(plotDistance(pPlot->getX(), pPlot->getY(), pNearestCity->getX(), pNearestCity->getY()) <= iEvalDistance)
-				{
-					int iPlotValue = 0;
-					for(int iI = 0; iI <= YIELD_FAITH; iI++)
-					{
-						if(iI == YIELD_SCIENCE)
-						{
-							iPlotValue = PlotValueForScience(pPlot);
-						}
-						else if(iI == YIELD_CULTURE)
-						{
-							iPlotValue = PlotValueForCulture(pPlot);
-						}
-						else if(iI == YIELD_FAITH)
-						{
-							iPlotValue = PlotValueForFaith(pPlot);
-						}
-						else
-						{
-							iPlotValue = PlotValueForSpecificYield(pPlot, (YieldTypes)iI);
-						}
-
-						if(iPlotValue > m_iBestValue[iI])
-						{
-							m_iBestValue[iI] = iPlotValue;
-						}
-					}
-				}
-			}
-		}
-	}
-
-	LogBestSites();
-
-	return;
-}
-
-/// Evaluate strength of an existing city for providing a specific type of yield (except Science!)
-int CvCitySpecializationAI::PlotValueForSpecificYield(CvPlot* pPlot, YieldTypes eYield)
-{
-	int iTotalPotentialYield = 0;
-	int iMultiplier = 0;
-	int iPotentialYield = 0;
-	int iFirstRingMultiplier = GC.getAI_CITY_SPECIALIZATION_YIELD_WEIGHT_FIRST_RING();
-	int iSecondRingMultiplier = GC.getAI_CITY_SPECIALIZATION_YIELD_WEIGHT_SECOND_RING();
-	int iThirdRingMultiplier = GC.getAI_CITY_SPECIALIZATION_YIELD_WEIGHT_THIRD_RING();
-
-	// Evaluate potential from plots not currently being worked
-	for(int iI = 0; iI < GC.getAI_CITY_SPECIALIZATION_YIELD_NUM_TILES_CONSIDERED(); iI++)
-	{
-		if(iI != CITY_HOME_PLOT)
-		{
-			CvPlot* pLoopPlot = iterateRingPlots(pPlot->getX(), pPlot->getY(), iI);
-			if(pLoopPlot != NULL)
-			{
-				iPotentialYield = pLoopPlot->getYield(eYield);
-
-				// If owned by someone else, not worth anything
-				if(pLoopPlot->isOwned() && pLoopPlot->getOwner() != m_pPlayer->GetID())
-				{
-					iMultiplier = 0;
-				}
-				else
-				{
-					int iDistance = plotDistance(pLoopPlot->getX(), pLoopPlot->getY(), pPlot->getX(), pPlot->getY());
-					if(iDistance == 1)
-					{
-						iMultiplier = iFirstRingMultiplier;
-					}
-					else if(iDistance == 2)
-					{
-						iMultiplier = iSecondRingMultiplier;
-					}
-					else if(iDistance == 3)
-					{
-						iMultiplier = iThirdRingMultiplier;
-					}
-				}
-				iTotalPotentialYield += iPotentialYield * iMultiplier;
-			}
-		}
-	}
-
-	return iTotalPotentialYield;
-}
-
-/// Evaluate strength of a city plot for providing science
-int CvCitySpecializationAI::PlotValueForScience(CvPlot* pPlot)
-{
-	// Roughly half of weight comes from food yield
-	// The other half will be are there open tiles we can easily build schools on
-	int iTotalFoodYield = 0;
-	int iTotalClearTileWeight = 0;
-	int iMultiplier = 0;
-	int iPotentialYield = 0;
-	int iFirstRingMultiplier = GC.getAI_CITY_SPECIALIZATION_YIELD_WEIGHT_FIRST_RING();
-	int iSecondRingMultiplier = GC.getAI_CITY_SPECIALIZATION_YIELD_WEIGHT_SECOND_RING();
-	int iThirdRingMultiplier = GC.getAI_CITY_SPECIALIZATION_YIELD_WEIGHT_THIRD_RING();
-#if defined(MOD_BALANCE_CORE)
-	// Evaluate potential from plots not currently being worked
-	for(int iI = 0; iI < GC.getAI_CITY_SPECIALIZATION_YIELD_NUM_TILES_CONSIDERED(); iI++)
-	{
-		if(iI != CITY_HOME_PLOT)
-		{
-			CvPlot* pLoopPlot = iterateRingPlots(pPlot->getX(), pPlot->getY(), iI);
-			if(pLoopPlot != NULL)
-			{
-				// If owned by someone else, not worth anything
-				if(pLoopPlot->isOwned() && pLoopPlot->getOwner() != m_pPlayer->GetID())
-				{
-					iPotentialYield = 0;
-					iTotalClearTileWeight = 0;
-				}
-				else if(pLoopPlot->getImprovementType() != NO_IMPROVEMENT)
-				{
-#if defined(MOD_BALANCE_CORE)
-					if(GC.getSCIENCE_PER_POPULATION() > 0)
-					{
-						iPotentialYield = pLoopPlot->getYield(YIELD_FOOD) + pLoopPlot->getYield(YIELD_SCIENCE);
-					}
-					else
-					{
-						iPotentialYield = pLoopPlot->getYield(YIELD_SCIENCE);
-					}
-#else
-					iPotentialYield = pLoopPlot->getYield(YIELD_FOOD) + pLoopPlot->getYield(YIELD_SCIENCE);
-#endif
-				}
-
-				else if(pLoopPlot->getImprovementType() == NO_IMPROVEMENT)
-				{
-#if defined(MOD_BALANCE_CORE)
-					if(GC.getSCIENCE_PER_POPULATION() > 0)
-					{
-						iTotalClearTileWeight = pLoopPlot->getYield(YIELD_FOOD) + pLoopPlot->getYield(YIELD_SCIENCE);
-					}
-					else
-					{
-						iTotalClearTileWeight = pLoopPlot->getYield(YIELD_SCIENCE);
-					}
-#else
-					iTotalClearTileWeight = pLoopPlot->getYield(YIELD_FOOD) + pLoopPlot->getYield(YIELD_SCIENCE);
-#endif
-					iTotalClearTileWeight *= 2;
-				}
-				if(iPotentialYield > 0 || iTotalClearTileWeight > 0)
-				{
-					int iDistance = plotDistance(pLoopPlot->getX(), pLoopPlot->getY(), pPlot->getX(), pPlot->getY());
-					if(iDistance == 1)
-					{
-						iMultiplier = iFirstRingMultiplier;
-					}
-					else if(iDistance == 2)
-					{
-						iMultiplier = iSecondRingMultiplier;
-					}
-					else if(iDistance == 3)
-					{
-						iMultiplier = iThirdRingMultiplier;
-					}
-
-					iTotalFoodYield += iPotentialYield * iMultiplier;
-				}
-			}
-		}
-	}
-#else
-	// Evaluate potential from plots not currently being worked
-	for(int iI = 0; iI < GC.getAI_CITY_SPECIALIZATION_YIELD_NUM_TILES_CONSIDERED(); iI++)
-	{
-		bool bIsClear = false;
-
-		if(iI != CITY_HOME_PLOT)
-		{
-			CvPlot* pLoopPlot = iterateRingPlots(pPlot->getX(), pPlot->getY(), iI);
-			if(pLoopPlot != NULL)
-			{
-				if(pLoopPlot->getResourceType() == NO_RESOURCE)
-				{
-					if(pLoopPlot->getFeatureType() == NO_FEATURE)
-					{
-						if(!pLoopPlot->isHills())
-						{
-							if(pLoopPlot->getImprovementType() == NO_IMPROVEMENT)
-							{
-								bIsClear = true;
-							}
-						}
-					}
-				}
-
-				iPotentialYield = pLoopPlot->getYield(YIELD_FOOD) + pLoopPlot->getYield(YIELD_SCIENCE);
-
-				// If owned by someone else, not worth anything
-				if(pLoopPlot->isOwned() && pLoopPlot->getOwner() != m_pPlayer->GetID())
-				{
-					iMultiplier = 0;
-				}
-				else
-				{
-					int iDistance = plotDistance(pLoopPlot->getX(), pLoopPlot->getY(), pPlot->getX(), pPlot->getY());
-					if(iDistance == 1)
-					{
-						iMultiplier = iFirstRingMultiplier;
-					}
-					else if(iDistance == 2)
-					{
-						iMultiplier = iSecondRingMultiplier;
-					}
-					else if(iDistance == 3)
-					{
-						iMultiplier = iThirdRingMultiplier;
-					}
-				}
-
-				iTotalFoodYield += iPotentialYield * iMultiplier;
-				if(bIsClear)
-				{
-					iTotalClearTileWeight += iMultiplier;
-				}
-			}
-		}
-	}
-#endif
-	return iTotalFoodYield + iTotalClearTileWeight;
-}
-#if defined(MOD_BALANCE_CORE)
-/// Evaluate strength of a city plot for providing culture
-int CvCitySpecializationAI::PlotValueForCulture(CvPlot* pPlot)
-{
-	// Roughly half of weight comes from food yield
-	// The other half will be are there open tiles we can easily build schools on
-	int iTotalFoodYield = 0;
-	int iTotalClearTileWeight = 0;
-	int iMultiplier = 0;
-	int iPotentialYield = 0;
-	int iFirstRingMultiplier = GC.getAI_CITY_SPECIALIZATION_YIELD_WEIGHT_FIRST_RING();
-	int iSecondRingMultiplier = GC.getAI_CITY_SPECIALIZATION_YIELD_WEIGHT_SECOND_RING();
-	int iThirdRingMultiplier = GC.getAI_CITY_SPECIALIZATION_YIELD_WEIGHT_THIRD_RING();
-	// Evaluate potential from plots not currently being worked
-	for(int iI = 0; iI < GC.getAI_CITY_SPECIALIZATION_YIELD_NUM_TILES_CONSIDERED(); iI++)
-	{
-		if(iI != CITY_HOME_PLOT)
-		{
-			CvPlot* pLoopPlot = iterateRingPlots(pPlot->getX(), pPlot->getY(), iI);
-			if(pLoopPlot != NULL)
-			{
-				// If owned by someone else, not worth anything
-				if(pLoopPlot->isOwned() && pLoopPlot->getOwner() != m_pPlayer->GetID())
-				{
-					iPotentialYield = 0;
-					iTotalClearTileWeight = 0;
-				}
-				else if(pLoopPlot->getImprovementType() != NO_IMPROVEMENT)
-				{
-					iPotentialYield = pLoopPlot->getYield(YIELD_CULTURE) + pLoopPlot->getYield(YIELD_FOOD);
-				}
-
-				else if(pLoopPlot->getImprovementType() == NO_IMPROVEMENT)
-				{
-					iTotalClearTileWeight = pLoopPlot->getYield(YIELD_CULTURE) + pLoopPlot->getYield(YIELD_FOOD);
-					iTotalClearTileWeight *= 2;
-				}
-				if(iPotentialYield > 0 || iTotalClearTileWeight > 0)
-				{
-					int iDistance = plotDistance(pLoopPlot->getX(), pLoopPlot->getY(), pPlot->getX(), pPlot->getY());
-					if(iDistance == 1)
-					{
-						iMultiplier = iFirstRingMultiplier;
-					}
-					else if(iDistance == 2)
-					{
-						iMultiplier = iSecondRingMultiplier;
-					}
-					else if(iDistance == 3)
-					{
-						iMultiplier = iThirdRingMultiplier;
-					}
-
-					iTotalFoodYield += iPotentialYield * iMultiplier;
-				}
-			}
-		}
-	}
-	return iTotalFoodYield + iTotalClearTileWeight; 
-}
-/// Evaluate strength of a city plot for providing faith
-int CvCitySpecializationAI::PlotValueForFaith(CvPlot* pPlot)
-{
-	// Roughly half of weight comes from food yield
-	// The other half will be are there open tiles we can easily build schools on
-	int iTotalFoodYield = 0;
-	int iTotalClearTileWeight = 0;
-	int iMultiplier = 0;
-	int iPotentialYield = 0;
-	int iFirstRingMultiplier = GC.getAI_CITY_SPECIALIZATION_YIELD_WEIGHT_FIRST_RING();
-	int iSecondRingMultiplier = GC.getAI_CITY_SPECIALIZATION_YIELD_WEIGHT_SECOND_RING();
-	int iThirdRingMultiplier = GC.getAI_CITY_SPECIALIZATION_YIELD_WEIGHT_THIRD_RING();
-	// Evaluate potential from plots not currently being worked
-	for(int iI = 0; iI < GC.getAI_CITY_SPECIALIZATION_YIELD_NUM_TILES_CONSIDERED(); iI++)
-	{
-		if(iI != CITY_HOME_PLOT)
-		{
-			CvPlot* pLoopPlot = iterateRingPlots(pPlot->getX(), pPlot->getY(), iI);
-			if(pLoopPlot != NULL)
-			{
-				// If owned by someone else, not worth anything
-				if(pLoopPlot->isOwned() && pLoopPlot->getOwner() != m_pPlayer->GetID())
-				{
-					iPotentialYield = 0;
-					iTotalClearTileWeight = 0;
-				}
-				else if(pLoopPlot->getImprovementType() != NO_IMPROVEMENT)
-				{
-					iPotentialYield = pLoopPlot->getYield(YIELD_FAITH) + pLoopPlot->getYield(YIELD_FOOD);
-				}
-
-				else if(pLoopPlot->getImprovementType() == NO_IMPROVEMENT)
-				{
-					iTotalClearTileWeight = pLoopPlot->getYield(YIELD_FAITH) + pLoopPlot->getYield(YIELD_FOOD);
-					iTotalClearTileWeight *= 2;
-				}
-				if(iPotentialYield > 0 || iTotalClearTileWeight > 0)
-				{
-					int iDistance = plotDistance(pLoopPlot->getX(), pLoopPlot->getY(), pPlot->getX(), pPlot->getY());
-					if(iDistance == 1)
-					{
-						iMultiplier = iFirstRingMultiplier;
-					}
-					else if(iDistance == 2)
-					{
-						iMultiplier = iSecondRingMultiplier;
-					}
-					else if(iDistance == 3)
-					{
-						iMultiplier = iThirdRingMultiplier;
-					}
-
-					iTotalFoodYield += iPotentialYield * iMultiplier;
-				}
-			}
-		}
-	}
-	return iTotalFoodYield + iTotalClearTileWeight;
-}
-#endif
 #if defined(MOD_BALANCE_CORE)
 int CvCitySpecializationAI::AdjustValueBasedOnHappiness(CvCity* pCity, YieldTypes eYield, int iInitialValue)
 {
-	int iRtnValue = 0;
+	int iRtnValue = iInitialValue;
+
 	if(eYield == YIELD_GOLD)
 	{
-		int iValue = (pCity->getUnhappinessFromGold() * 10);
-		if(iValue > 0)
-		{
-			iRtnValue = ((iInitialValue * (100 + iValue)) / 100);
-		}
-		iValue = (GET_PLAYER(pCity->getOwner()).GetTreasury()->CalculateBaseNetGoldTimes100());
-		iValue /= 100;
-		if(iValue < 0)
-		{
-			iRtnValue = iInitialValue * (100 + (iValue * -1)) / 100;
-		}
+		int iMod = (pCity->getUnhappinessFromGold() * 20);
+		int iGPT = (GET_PLAYER(pCity->getOwner()).GetTreasury()->CalculateBaseNetGoldTimes100());
+		if (iGPT < 0)
+			iMod -= iGPT;
 
+		iRtnValue = iInitialValue * (100 + iMod) / 100;
 	}
 	else if(eYield == YIELD_FOOD)
 	{
-		int iValue = (pCity->getUnhappinessFromStarving() * 10);
-		if(iValue > 0)
-		{
-			iRtnValue = iInitialValue * (100 + iValue) / 100;
-		}
+		int iBonus = (pCity->getUnhappinessFromStarving() * 20);
+		int iMalus = pCity->getGrowthMods(); //if we're unhappy don't grow further
+
+		iRtnValue = iInitialValue * (100 + iBonus + iMalus) / 100;
 	}
 	else if(eYield == YIELD_CULTURE)
 	{
-		int iValue = (pCity->getUnhappinessFromCulture() * 10);
+		int iValue = (pCity->getUnhappinessFromCulture() * 20);
 		if(iValue > 0)
 		{
 			iRtnValue = iInitialValue * (100 + iValue) / 100;
@@ -1830,7 +1045,7 @@ int CvCitySpecializationAI::AdjustValueBasedOnHappiness(CvCity* pCity, YieldType
 	}
 	else if(eYield == YIELD_SCIENCE)
 	{
-		int iValue = (pCity->getUnhappinessFromScience() * 10);
+		int iValue = (pCity->getUnhappinessFromScience() * 20);
 		if(iValue > 0)
 		{
 			iRtnValue = iInitialValue * (100 + iValue) / 100;
@@ -1838,6 +1053,8 @@ int CvCitySpecializationAI::AdjustValueBasedOnHappiness(CvCity* pCity, YieldType
 	}
 	else if(eYield == YIELD_FAITH)
 	{
+		//cannot really heal religious unhappiness by faith
+		//but maybe we can buy an inquisitor eventually
 		int iValue = (pCity->getUnhappinessFromReligion() * 10);
 		if(iValue > 0)
 		{
@@ -1850,10 +1067,8 @@ int CvCitySpecializationAI::AdjustValueBasedOnHappiness(CvCity* pCity, YieldType
 /// Multiply city value for a yield based on buildings present
 int CvCitySpecializationAI::AdjustValueBasedOnBuildings(CvCity* pCity, YieldTypes eYield, int iInitialValue)
 {
-	int iRtnValue;
-
 	// Everything looks at yield modifier
-	iRtnValue = iInitialValue * (100 + pCity->getYieldRateModifier(eYield)) / 100;
+	int iRtnValue = iInitialValue * (100 + pCity->getYieldRateModifier(eYield)) / 100;
 
 	// ... and yield per pop
 	int iYieldPerPop = pCity->GetYieldPerPopTimes100(eYield);
@@ -1864,7 +1079,7 @@ int CvCitySpecializationAI::AdjustValueBasedOnBuildings(CvCity* pCity, YieldType
 
 	// ... and yield per pop
 	int iYieldPerReligion = pCity->GetYieldPerReligionTimes100(eYield);
-	if(iYieldPerPop > 0)
+	if(iYieldPerReligion > 0)
 	{
 		iRtnValue = iRtnValue * (100 + (iYieldPerReligion * pCity->GetCityReligions()->GetNumReligionsWithFollowers())) / 100;
 	}
@@ -2028,7 +1243,7 @@ bool CvCitySpecializationAI::CanBuildSpaceshipParts()
 }
 
 /// Log which specializations were needed
-void CvCitySpecializationAI::LogSpecializationWeights()
+void CvCitySpecializationAI::LogSpecializationWeights(CvWeightedVector<ProductionSpecializationSubtypes> prodSubtypeWeights, CvWeightedVector<YieldTypes> yieldWeights)
 {
 	if(GC.getLogging() && GC.getAILogging())
 	{
@@ -2047,25 +1262,15 @@ void CvCitySpecializationAI::LogSpecializationWeights()
 		strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
 		strBaseString += strPlayerName + ", Empire-wide specialization weight, ";
 
-		for(int iI = 0; iI < NUM_SPECIALIZATION_YIELDS; iI++)
+		for(int iI = 0; iI < YIELD_TOURISM; iI++)
 		{
-#if defined(MOD_BALANCE_CORE)
-			if(iI > YIELD_FAITH)
-#else
-			if(iI > YIELD_SCIENCE)
-#endif
+			CvYieldInfo* pYieldInfo = GC.getYieldInfo(yieldWeights.GetElement(iI));
+			if(pYieldInfo != NULL)
 			{
-				strYieldString = "General Economy";
+				strYieldString = pYieldInfo->GetDescription();
 			}
-			else
-			{
-				CvYieldInfo* pYieldInfo = GC.getYieldInfo((YieldTypes)m_YieldWeights.GetElement(iI));
-				if(pYieldInfo != NULL)
-				{
-					strYieldString = pYieldInfo->GetDescription();
-				}
-			}
-			strWeightString.Format("%d", m_YieldWeights.GetWeight(iI));
+
+			strWeightString.Format("%d", yieldWeights.GetWeight(iI));
 			strOutBuf = strBaseString + strYieldString + ", " + strWeightString;
 			pLog->Msg(strOutBuf);
 		}
@@ -2074,7 +1279,7 @@ void CvCitySpecializationAI::LogSpecializationWeights()
 		for(int iI = 0; iI < NUM_PRODUCTION_SPECIALIZATION_SUBTYPES; iI++)
 		{
 			strYieldString.Format("Production Specialization: %s", aNames[iI]);
-			strWeightString.Format("%d", m_ProductionSubtypeWeights.GetWeight(iI));
+			strWeightString.Format("%d", prodSubtypeWeights.GetWeight(iI));
 			strOutBuf = strBaseString + strYieldString + ", " + strWeightString;
 			pLog->Msg(strOutBuf);
 		}
@@ -2150,30 +1355,16 @@ void CvCitySpecializationAI::LogSpecializationUpdate(CitySpecializationUpdateTyp
 	}
 }
 
-/// Record the specialization we want for our next city
-void CvCitySpecializationAI::LogNextSpecialization(CitySpecializationTypes eType)
-{
-	if(GC.getLogging() && GC.getAILogging())
-	{
-		CvString strTypeString;
-		strTypeString.Format("Next Specialization: %d (%s)", eType, eType!=NO_CITY_SPECIALIZATION ? GC.getCitySpecializationInfo(eType)->GetType() : "none");
-		LogMsg(strTypeString);
-	}
-}
-
-void CvCitySpecializationAI::LogBestSites()
+void CvCitySpecializationAI::LogCity(CvCity* pCity, const vector<int>& data)
 {
 	if(GC.getLogging() && GC.getAILogging())
 	{
 		CvString strYieldString;
 		CvString strWeightString;
+		CvString strCityName = pCity->getName();
 
 		// Loop through each yield type
-#if defined(MOD_BALANCE_CORE)
 		for(int iI = 0; iI <= YIELD_FAITH; iI++)
-#else
-		for(int iI = 0; iI <= YIELD_SCIENCE; iI++)
-#endif
 		{
 			CvYieldInfo* pYieldInfo = GC.getYieldInfo((YieldTypes)iI);
 			if(pYieldInfo != NULL)
@@ -2181,36 +1372,7 @@ void CvCitySpecializationAI::LogBestSites()
 				strYieldString = pYieldInfo->GetDescription();
 			}
 
-			strWeightString.Format(", Best site value: %d", m_iBestValue[iI]);
-			LogMsg( strYieldString + strWeightString );
-		}
-	}
-}
-
-void CvCitySpecializationAI::LogCity(CvCity* pCity, CitySpecializationData data)
-{
-	if(GC.getLogging() && GC.getAILogging())
-	{
-		CvString strCityName;
-		CvString strYieldString;
-		CvString strWeightString;
-
-		strCityName = pCity->getName();
-
-		// Loop through each yield type
-#if defined(MOD_BALANCE_CORE)
-		for(int iI = 0; iI <= YIELD_FAITH; iI++)
-#else
-		for(int iI = 0; iI <= YIELD_SCIENCE; iI++)
-#endif
-		{
-			CvYieldInfo* pYieldInfo = GC.getYieldInfo((YieldTypes)iI);
-			if(pYieldInfo != NULL)
-			{
-				strYieldString = pYieldInfo->GetDescription();
-			}
-
-			strWeightString.Format(", Value: %d", data.m_iWeight[iI]);
+			strWeightString.Format(", Value: %d", data[iI]);
 			LogMsg(strCityName + ", " + strYieldString + strWeightString);
 		}
 	}

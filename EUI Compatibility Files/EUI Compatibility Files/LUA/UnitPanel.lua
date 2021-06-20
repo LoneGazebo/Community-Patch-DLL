@@ -579,11 +579,30 @@ local function UnitToolTip( unit, ... )
 		for row in GameInfo.Unit_Builds( thisUnitType ) do
 			local build = row.BuildType and GameInfo.Builds[row.BuildType]
 			if build then
+				local isAvailable = true
 				local buildImprovement = build.ImprovementType and GameInfo.Improvements[ build.ImprovementType ]
+				local buildRoute = build.RouteType and GameInfo.Routes[ build.RouteType ]
 				local requiredCivilizationType = buildImprovement and buildImprovement.CivilizationType
 				if not requiredCivilizationType or GameInfoTypes[ requiredCivilizationType ] == g_activePlayer:GetCivilizationType() then
+					-- technology check
 					local prereqTech = build.PrereqTech and GameInfo.Technologies[build.PrereqTech]
-					tips:insertIf( (not prereqTech or g_activeTechs:HasTech( prereqTech.ID or -1 ) ) and "[ICON_BULLET]" .. L(build.Description) )
+					if prereqTech and not g_activeTechs:HasTech(prereqTech.ID) then
+						isAvailable = false
+					end
+					-- resource check
+					if buildImprovement or buildRoute then
+						for resource in GameInfo.Resources() do
+							local resourceID = resource.ID
+							if buildImprovement and Game.GetNumResourceRequiredForImprovement(GameInfoTypes[buildImprovement], resourceID) > 0 and g_activePlayer:GetNumResourceAvailable( resourceID, true ) <= 0 then
+								isAvailable = false
+							elseif buildRoute and Game.GetNumResourceRequiredForRoute(GameInfoTypes[buildRoute], resourceID) and g_activePlayer:GetNumResourceAvailable( resourceID, true ) <= 0 then
+								isAvailable = false
+							end
+						end
+					end
+					if isAvailable then
+						tips:insert( "[ICON_BULLET]" .. L(build.Description) )
+					end
 				end
 			end
 		end
@@ -1323,6 +1342,9 @@ local function UpdateUnitStats(unit)
 	elseif bnw_mode and unit:GetTourismBlastStrength() > 0 then
 		Controls.UnitStatStrength:SetText( unit:GetTourismBlastStrength() .. "[ICON_TOURISM]" )
 		Controls.UnitStatStrength:LocalizeAndSetToolTip( "TXT_KEY_UPANEL_TOURISM_STRENGTH_TT" )
+	elseif bnw_mode and unit:GetTourismBlastLength() > 0 then
+		Controls.UnitStatStrength:SetText( unit:GetTourismBlastLength() .. "[ICON_TURNS_REMAINING]" )
+		Controls.UnitStatStrength:LocalizeAndSetToolTip( "TXT_KEY_UPANEL_TOURISM_TURNS_TT" )
 	else
 		Controls.UnitStatStrength:SetText()
 	end
@@ -1505,6 +1527,7 @@ function ActionToolTipHandler( control )
 
 	-- Route data
 	local route = build and build.RouteType and build.RouteType ~= "NONE" and GameInfo.Routes[build.RouteType]
+	local routeID = route and route.ID or -1
 
 	local strBuildTurnsString = ""
 	local toolTip = table()
@@ -1666,8 +1689,12 @@ function ActionToolTipHandler( control )
 
 		if gameCanHandleAction then
 			toolTip:insert( "----------------" )
-			toolTip:insert( "+" .. unit:GetTradeInfluence(plot) .. "[ICON_INFLUENCE]" )
-			toolTip:insert( "+" .. unit:GetTradeGold(plot) .. "[ICON_GOLD]" )
+			if (unit:GetTradeInfluence(plot) ~= 0) then
+				toolTip:insert( "+" .. unit:GetTradeInfluence(plot) .. "[ICON_INFLUENCE]" )
+			end
+			if (unit:GetTradeGold(plot) ~= 0) then
+				toolTip:insert( "+" .. unit:GetTradeGold(plot) .. "[ICON_GOLD]" )
+			end
 		end
 
 	-- Great Writer
@@ -1687,7 +1714,11 @@ function ActionToolTipHandler( control )
 
 		if gameCanHandleAction then
 			toolTip:insert( "----------------" )
-			toolTip:insert( "+" .. unit:GetBlastTourism() .. "[ICON_TOURISM]" )
+			if(unit:GetBlastTourism() > 0) then
+				toolTip:insert( "+" .. unit:GetBlastTourism() .. "[ICON_TOURISM]" )
+			elseif(unit:GetTourismBlastLength() > 0) then
+				toolTip:insert( "+" .. unit:GetTourismBlastLength() .. "[ICON_TURNS_REMAINING]" )
+			end
 		end
 
 	-- Help text
@@ -1790,6 +1821,22 @@ function ActionToolTipHandler( control )
 					disabledTip:insertLocalized( "TXT_KEY_BUILD_BLOCKED_BY_FEATURE", pFeatureTech.Description, feature.Description )
 				end
 
+			end
+
+			-- Insufficient resource count?
+			if improvement or route then
+				for resource in GameInfo.Resources() do
+					local resourceID = resource.ID
+					local numResource = 0
+					if improvement then
+						numResource = Game.GetNumResourceRequiredForImprovement(improvementID, resourceID)
+					elseif route then
+						numResource = Game.GetNumResourceRequiredForRoute(routeID, resourceID)
+					end
+					if numResource > 0 and g_activePlayer:GetNumResourceAvailable( resourceID, true ) <= 0 then
+						disabledTip:insertLocalized( "TXT_KEY_BUILD_BLOCKED_RESOURCE_REQUIRED", numResource, resource.IconString, resource.Description, strImpRouteKey )
+					end
+				end
 			end
 
 		-- Not a Worker build, use normal disabled help from XML

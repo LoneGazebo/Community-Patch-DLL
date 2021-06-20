@@ -126,6 +126,9 @@ bool CvDllDatabaseUtility::CacheGameDatabaseData()
 	ValidateGameDatabase();
 	//bSuccess &= PerformDatabasePostProcessing();
 
+	// Load up the CustomModOptions configuration
+	gCustomMods.preloadCache();
+
 	//HACK Legacy 'FindInfoByType' support.
 	//In order to support the legacy code still using the old infos system,
 	//all of the id/type pairs must be added to gc.m_infosMap
@@ -179,11 +182,6 @@ bool CvDllDatabaseUtility::CacheGameDatabaseData()
 
 	if(bSuccess)
 		m_bGameDatabaseNeedsCaching = false;
-		
-#if defined(CUSTOM_MODS_H)
-	// Load up the CustomModOptions configuration
-	gCustomMods.preloadCache();
-#endif
 
 	return bSuccess;
 }
@@ -239,11 +237,11 @@ bool CvDllDatabaseUtility::PerformDatabasePostProcessing()
 	}
 
 	// ** Modify ResourceUsage of Resources table **
-	// Set ResourceUsage to 1 if it's referenced in Unit_ResourceQuantityRequirements
+	// Set ResourceUsage to 1 if it's referenced in Unit_ResourceQuantityRequirements or Building_ResourceQuantityRequirements
 	// NOTE: This query could be simplified using the IN operator but when analyzed this
 	//			statement generates faster operations.
 	const char* szStrategicResource
-	    = "UPDATE Resources SET ResourceUsage = 1 WHERE EXISTS (SELECT * FROM Unit_ResourceQuantityRequirements WHERE ResourceType = Type)";
+	    = "UPDATE Resources SET ResourceUsage = 1 WHERE EXISTS (SELECT * FROM Unit_ResourceQuantityRequirements WHERE ResourceType = Type) OR EXISTS (SELECT * FROM Building_ResourceQuantityRequirements WHERE ResourceType = Type)";
 	db->Execute(szStrategicResource);
 
 	// Set ResourceUsage to 2 if the Resource has a happiness value greater than 0
@@ -269,11 +267,17 @@ bool CvDllDatabaseUtility::PerformDatabasePostProcessing()
 		InsertGameDefine(kInsertDefine, "MIN_CITY_RADIUS", MIN_CITY_RADIUS);
 		InsertGameDefine(kInsertDefine, "MAX_CITY_RADIUS", MAX_CITY_RADIUS);
 		InsertGameDefine(kInsertDefine, "CITY_HOME_PLOT", CITY_HOME_PLOT);
-		InsertGameDefine(kInsertDefine, "MAX_CITY_RADIUS", MAX_CITY_RADIUS);
 		InsertGameDefine(kInsertDefine, "MAX_CITY_DIAMETER", (2*MAX_CITY_RADIUS+1));
+
+		// These values are present in the base game but we don't have them here which would not be a problem
+		// if not for mods possibly relying on them; PlotHelpManager for instance references CITY_PLOTS_RADIUS
+		InsertGameDefine(kInsertDefine, "CITY_PLOTS_RADIUS", 3);
+		InsertGameDefine(kInsertDefine, "CITY_PLOTS_DIAMETER", 7);
 	}
 
 	db->EndTransaction();
+
+	GC.GameDataPostProcess();
 
 	return true;
 }
@@ -356,11 +360,7 @@ bool CvDllDatabaseUtility::PrefetchGameData()
 	PrefetchCollection(GC.getImprovementInfo(), "Improvements");
 	PrefetchCollection(GC.getResourceClassInfo(), "ResourceClasses");
 	PrefetchCollection(GC.getResourceInfo(), "Resources");
-#if defined(MOD_API_PLOT_YIELDS)
-	if (MOD_API_PLOT_YIELDS) {
-		PrefetchCollection(GC.getPlotInfo(), "Plots");
-	}
-#endif
+	PrefetchCollection(GC.getPlotInfo(), "Plots");
 #if defined(MOD_API_UNIFIED_YIELDS)
 	if (MOD_API_UNIFIED_YIELDS) {
 		PrefetchCollection(GC.getGreatPersonInfo(), "GreatPersons");
@@ -627,11 +627,7 @@ bool CvDllDatabaseUtility::ValidatePrefetchProcess()
 	ValidateVectorSize(GetNumPlayerColorInfos);
 	ValidateVectorSize(getNumEntityEventInfos);
 	ValidateVectorSize(getNumMultiUnitFormationInfos);
-#if defined(MOD_API_PLOT_YIELDS)
-	if (MOD_API_PLOT_YIELDS) {
-		ValidateVectorSize(getNumPlotInfos);
-	}
-#endif
+	ValidateVectorSize(getNumPlotInfos);
 	ValidateVectorSize(getNumTerrainInfos);
 	ValidateVectorSize(getNumResourceClassInfos);
 	ValidateVectorSize(getNumResourceInfos);

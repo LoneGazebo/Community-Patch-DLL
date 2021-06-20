@@ -1,6 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Created by ModBuddy on 4/30/2015 12:34:58 PM -->
 <GameData>
+	<PostDefines>
+		<Row Name="RELIGION_LAST_FOUND_ERA">
+			<Key>ERA_RENAISSANCE</Key>
+			<Table>Eras</Table>
+		</Row>
+		<Row Name="RELIGION_GP_FAITH_PURCHASE_ERA">
+			<Key>ERA_INDUSTRIAL</Key>
+			<Table>Eras</Table>
+		</Row>
+		<Row Name="IDEOLOGY_START_ERA">
+			<Key>ERA_INDUSTRIAL</Key>
+			<Table>Eras</Table>
+		</Row>
+		<Row Name="IDEOLOGY_PREREQ_ERA">
+			<Key>ERA_INDUSTRIAL</Key>
+			<Table>Eras</Table>
+		</Row>
+	</PostDefines>
 	<Natural_Wonder_Placement>
 		<Update>
 			<Where NaturalWonderType="FEATURE_VOLCANO"/>

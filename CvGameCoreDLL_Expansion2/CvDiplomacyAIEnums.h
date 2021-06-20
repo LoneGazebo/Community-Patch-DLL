@@ -12,59 +12,34 @@
 
 // WARNING: The order of many of these values is very important (many places in the code use > or < ENUM_VALUE to make important determinations.) Do not change unless you know what you're doing!
 
-enum MajorCivOpinionTypes
+enum CivOpinionTypes
 {
-	NO_MAJOR_CIV_OPINION = -1,
+	NO_CIV_OPINION = -1,
 
-	MAJOR_CIV_OPINION_UNFORGIVABLE,
-	MAJOR_CIV_OPINION_ENEMY,
-	MAJOR_CIV_OPINION_COMPETITOR,
-	MAJOR_CIV_OPINION_NEUTRAL,
-	MAJOR_CIV_OPINION_FAVORABLE,
-	MAJOR_CIV_OPINION_FRIEND,
-	MAJOR_CIV_OPINION_ALLY,
+	CIV_OPINION_UNFORGIVABLE,
+	CIV_OPINION_ENEMY,
+	CIV_OPINION_COMPETITOR,
+	CIV_OPINION_NEUTRAL,
+	CIV_OPINION_FAVORABLE,
+	CIV_OPINION_FRIEND,
+	CIV_OPINION_ALLY,
 
-	NUM_MAJOR_CIV_OPINIONS,
+	NUM_CIV_OPINIONS,
 };
 
-enum MajorCivApproachTypes
+enum CivApproachTypes
 {
-	NO_MAJOR_CIV_APPROACH = -1,
+	NO_CIV_APPROACH = -1,
 
-	MAJOR_CIV_APPROACH_WAR,
-	MAJOR_CIV_APPROACH_HOSTILE,
-	MAJOR_CIV_APPROACH_DECEPTIVE,
-	MAJOR_CIV_APPROACH_GUARDED,
-	MAJOR_CIV_APPROACH_AFRAID,
-	MAJOR_CIV_APPROACH_FRIENDLY,
-	MAJOR_CIV_APPROACH_NEUTRAL,
+	CIV_APPROACH_WAR,
+	CIV_APPROACH_HOSTILE,
+	CIV_APPROACH_DECEPTIVE,
+	CIV_APPROACH_GUARDED,
+	CIV_APPROACH_AFRAID,
+	CIV_APPROACH_NEUTRAL,
+	CIV_APPROACH_FRIENDLY,
 
-	NUM_MAJOR_CIV_APPROACHES,
-};
-
-enum MinorCivApproachTypes
-{
-	NO_MINOR_CIV_APPROACH = -1,
-
-	MINOR_CIV_APPROACH_IGNORE,
-	MINOR_CIV_APPROACH_FRIENDLY,
-	MINOR_CIV_APPROACH_PROTECTIVE,
-	MINOR_CIV_APPROACH_CONQUEST,
-	MINOR_CIV_APPROACH_BULLY,
-
-	NUM_MINOR_CIV_APPROACHES,
-};
-
-enum WarFaceTypes
-{
-	NO_WAR_FACE_TYPE = -1,
-
-	WAR_FACE_HOSTILE,
-	WAR_FACE_GUARDED,
-	WAR_FACE_NEUTRAL,
-	WAR_FACE_FRIENDLY,
-
-	NUM_WAR_FACES,
+	NUM_CIV_APPROACHES,
 };
 
 enum WarStateTypes
@@ -79,33 +54,6 @@ enum WarStateTypes
 	WAR_STATE_NEARLY_WON,
 
 	NUM_WAR_STATES,
-};
-
-enum WarProjectionTypes
-{
-	NO_WAR_PROJECTION_TYPE = -1,
-
-	WAR_PROJECTION_DESTRUCTION,
-	WAR_PROJECTION_DEFEAT,
-	WAR_PROJECTION_STALEMATE,
-	WAR_PROJECTION_UNKNOWN,
-	WAR_PROJECTION_GOOD,
-	WAR_PROJECTION_VERY_GOOD,
-
-	NUM_WAR_PROJECTION_TYPES,
-};
-
-enum WarGoalTypes
-{
-	NO_WAR_GOAL_TYPE = -1,
-
-	WAR_GOAL_DEMAND,
-	WAR_GOAL_PREPARE,
-	WAR_GOAL_CONQUEST,
-	WAR_GOAL_DAMAGE,
-	WAR_GOAL_PEACE,
-
-	NUM_WAR_GOALS,
 };
 
 enum StrengthTypes
@@ -134,19 +82,6 @@ enum TargetValueTypes
 	TARGET_VALUE_SOFT,
 
 	NUM_TARGET_VALUES,
-};
-
-enum WarDamageLevelTypes
-{
-	NO_WAR_DAMAGE_LEVEL_VALUE = -1,
-
-	WAR_DAMAGE_LEVEL_NONE,
-	WAR_DAMAGE_LEVEL_MINOR,
-	WAR_DAMAGE_LEVEL_MAJOR,
-	WAR_DAMAGE_LEVEL_SERIOUS,
-	WAR_DAMAGE_LEVEL_CRIPPLED,
-
-	NUM_WAR_DAMAGE_LEVEL_TYPES,
 };
 
 enum AggressivePostureTypes
@@ -199,17 +134,6 @@ enum BlockLevelTypes
 	NUM_BLOCK_LEVELS,
 };
 
-enum PromiseStates
-{
-	NO_PROMISE_STATE = -1,
-
-	PROMISE_STATE_MADE,
-	PROMISE_STATE_IGNORED,
-	PROMISE_STATE_BROKEN,
-
-	NUM_PROMISE_STATES,
-};
-
 enum DoFLevelTypes
 {
 	NO_DOF_TYPE = -1,
@@ -223,16 +147,38 @@ enum DoFLevelTypes
 	NUM_DOF_TYPES,
 };
 
-enum DiploPersonalityTypes
+enum VictoryFocusTypes
 {
-	NO_DIPLO_PERSONALITY_TYPE = -1,
+	NO_VICTORY_FOCUS_TYPE = -1,
 
-	DIPLO_PERSONALITY_CONQUEROR,
-	DIPLO_PERSONALITY_DIPLOMAT,
-	DIPLO_PERSONALITY_CULTURAL,
-	DIPLO_PERSONALITY_SCIENTIST,
+	VICTORY_FOCUS_DOMINATION,
+	VICTORY_FOCUS_DIPLOMACY,
+	VICTORY_FOCUS_CULTURE,
+	VICTORY_FOCUS_SCIENCE,
 
-	NUM_DIPLO_PERSONALITY_TYPES,
+	NUM_VICTORY_FOCUS_TYPES,
+};
+
+enum PromiseStates
+{
+	NO_PROMISE_STATE = -1,
+
+	PROMISE_STATE_MADE,
+	PROMISE_STATE_IGNORED,
+	PROMISE_STATE_BROKEN,
+
+	NUM_PROMISE_STATES,
+};
+
+enum ModifierTypes
+{
+	NO_MODIFIER_TYPE = -1,
+
+	MODIFIER_TYPE_NORMAL,
+	MODIFIER_TYPE_STACKED,
+	MODIFIER_TYPE_DIMINISHING,
+
+	NUM_MODIFIER_TYPES,
 };
 
 enum TheftTypes
@@ -269,19 +215,6 @@ enum StateAllWars
 	NUM_STATES_ALL_WARS,
 };
 
-inline FDataStream& operator<<(FDataStream& saveTo, const StateAllWars& readFrom)
-{
-	saveTo << static_cast<int>(readFrom);
-	return saveTo;
-}
-inline FDataStream& operator>>(FDataStream& loadFrom, StateAllWars& writeTo)
-{
-	int v;
-	loadFrom >> v;
-	writeTo = static_cast<StateAllWars>(v);
-	return loadFrom;
-}
-
 enum PeaceTreatyTypes
 {
 	NO_PEACE_TREATY_TYPE = -1,
@@ -298,32 +231,6 @@ enum PeaceTreatyTypes
 
 	NUM_PEACE_TREATY_TYPES,
 };
-
-inline FDataStream& operator<<(FDataStream& saveTo, const PeaceTreatyTypes& readFrom)
-{
-	saveTo << static_cast<int>(readFrom);
-	return saveTo;
-}
-inline FDataStream& operator>>(FDataStream& loadFrom, PeaceTreatyTypes& writeTo)
-{
-	int v;
-	loadFrom >> v;
-	writeTo = static_cast<PeaceTreatyTypes>(v);
-	return loadFrom;
-}
-
-inline FDataStream& operator<<(FDataStream& saveTo, const DiploStatementTypes& readFrom)
-{
-	saveTo << static_cast<int>(readFrom);
-	return saveTo;
-}
-inline FDataStream& operator>>(FDataStream& loadFrom, DiploStatementTypes& writeTo)
-{
-	int v;
-	loadFrom >> v;
-	writeTo = static_cast<DiploStatementTypes>(v);
-	return loadFrom;
-}
 
 enum DealOfferResponseTypes
 {
@@ -387,19 +294,6 @@ enum PublicDeclarationTypes
 	NUM_PUBLIC_DECLARATION_TYPES,
 };
 
-inline FDataStream& operator<<(FDataStream& saveTo, const PublicDeclarationTypes& readFrom)
-{
-	saveTo << static_cast<int>(readFrom);
-	return saveTo;
-}
-inline FDataStream& operator>>(FDataStream& loadFrom, PublicDeclarationTypes& writeTo)
-{
-	int v;
-	loadFrom >> v;
-	writeTo = static_cast<PublicDeclarationTypes>(v);
-	return loadFrom;
-}
-
 enum CoopWarStates
 {
 	NO_COOP_WAR_STATE = -1,
@@ -412,6 +306,19 @@ enum CoopWarStates
 
 	NUM_COOP_WAR_STATES,
 };
+
+inline FDataStream& operator<<(FDataStream& saveTo, const VictoryFocusTypes& readFrom)
+{
+	saveTo << static_cast<int>(readFrom);
+	return saveTo;
+}
+inline FDataStream& operator>>(FDataStream& loadFrom, VictoryFocusTypes& writeTo)
+{
+	int v;
+	loadFrom >> v;
+	writeTo = static_cast<VictoryFocusTypes>(v);
+	return loadFrom;
+}
 
 inline FDataStream& operator<<(FDataStream& saveTo, const CoopWarStates& readFrom)
 {
@@ -426,4 +333,71 @@ inline FDataStream& operator>>(FDataStream& loadFrom, CoopWarStates& writeTo)
 	return loadFrom;
 }
 
+inline FDataStream& operator<<(FDataStream& saveTo, const StateAllWars& readFrom)
+{
+	saveTo << static_cast<int>(readFrom);
+	return saveTo;
+}
+inline FDataStream& operator>>(FDataStream& loadFrom, StateAllWars& writeTo)
+{
+	int v;
+	loadFrom >> v;
+	writeTo = static_cast<StateAllWars>(v);
+	return loadFrom;
+}
+
+inline FDataStream& operator<<(FDataStream& saveTo, const PeaceTreatyTypes& readFrom)
+{
+	saveTo << static_cast<int>(readFrom);
+	return saveTo;
+}
+inline FDataStream& operator>>(FDataStream& loadFrom, PeaceTreatyTypes& writeTo)
+{
+	int v;
+	loadFrom >> v;
+	writeTo = static_cast<PeaceTreatyTypes>(v);
+	return loadFrom;
+}
+
+inline FDataStream& operator<<(FDataStream& saveTo, const DiploStatementTypes& readFrom)
+{
+	saveTo << static_cast<int>(readFrom);
+	return saveTo;
+}
+inline FDataStream& operator>>(FDataStream& loadFrom, DiploStatementTypes& writeTo)
+{
+	int v;
+	loadFrom >> v;
+	writeTo = static_cast<DiploStatementTypes>(v);
+	return loadFrom;
+}
+
+inline FDataStream& operator<<(FDataStream& saveTo, const PublicDeclarationTypes& readFrom)
+{
+	saveTo << static_cast<int>(readFrom);
+	return saveTo;
+}
+inline FDataStream& operator>>(FDataStream& loadFrom, PublicDeclarationTypes& writeTo)
+{
+	int v;
+	loadFrom >> v;
+	writeTo = static_cast<PublicDeclarationTypes>(v);
+	return loadFrom;
+}
+
+// Retained for LUA compatibility but not used...
+enum MajorCivApproachTypes
+{
+	NO_MAJOR_CIV_APPROACH = -1,
+
+	MAJOR_CIV_APPROACH_WAR,
+	MAJOR_CIV_APPROACH_HOSTILE,
+	MAJOR_CIV_APPROACH_DECEPTIVE,
+	MAJOR_CIV_APPROACH_GUARDED,
+	MAJOR_CIV_APPROACH_AFRAID,
+	MAJOR_CIV_APPROACH_NEUTRAL,
+	MAJOR_CIV_APPROACH_FRIENDLY,
+
+	NUM_MAJOR_CIV_APPROACHES,
+};
 #endif	// DIPLOMACY_AI_ENUMS_H

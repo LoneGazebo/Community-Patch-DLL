@@ -20,7 +20,6 @@
 #pragma		once
 
 #include <vector>
-#include <unordered_map>
 
 typedef std::vector<int> PlotIndexContainer; //no good place to put this
 
@@ -199,6 +198,10 @@ struct SPath
 	//convenience
 	inline int length() const { return vPlots.size(); }
 	CvPlot* get(int i) const;
+
+	//flip the order of the plots
+	void invert();
+
 	static int getNormalizedDistanceBase();
 
 	bool operator==(const SPath& other)
@@ -211,20 +214,20 @@ struct SPath
 struct SMovePlot
 {
 	int iPlotIndex;
-	int iTurns;
+	int iPathLength; //turns or steps, depending on pathfinder
 	int iMovesLeft;
 	int iNormalizedDistanceRaw; //fixed point float
 
-	SMovePlot(int iIndex) : iPlotIndex(iIndex), iTurns(0), iMovesLeft(0), iNormalizedDistanceRaw(0) {}
-	SMovePlot(int iIndex, int iTurns_, int iMovesLeft_, int iNormalizedDistance_) : 
-		iPlotIndex(iIndex), iTurns(iTurns_), iMovesLeft(iMovesLeft_), iNormalizedDistanceRaw(iNormalizedDistance_) {}
+	SMovePlot(int iIndex) : iPlotIndex(iIndex), iPathLength(0), iMovesLeft(0), iNormalizedDistanceRaw(0) {}
+	SMovePlot(int iIndex, int iLength_, int iMovesLeft_, int iNormalizedDistance_) : 
+		iPlotIndex(iIndex), iPathLength(iLength_), iMovesLeft(iMovesLeft_), iNormalizedDistanceRaw(iNormalizedDistance_) {}
 
 	//this ignores the turns/moves so std::find with just a plot index should work
 	bool operator==(const SMovePlot& rhs) const { return iPlotIndex==rhs.iPlotIndex; }
 	bool operator<(const SMovePlot& rhs) const { return iPlotIndex<rhs.iPlotIndex; }
 
 	//for the step finder normally turns==steps, but sometimes we want effective path length from cost
-	int turnsFromCost(int iMovesPerTurn) const;
+	int effectivePathLength(int iMovesPerTurn) const;
 };
 
 class ReachablePlots
@@ -246,14 +249,16 @@ public:
 
 	iterator find(int iPlotIndex);
 	const_iterator find(int iPlotIndex) const;
-	void insert(const SMovePlot& plot);
+	void insertWithIndex(const SMovePlot& plot);
+	void insertNoIndex(const SMovePlot& plot);
+	void createIndex();
 
 	bool operator==(const ReachablePlots& rhs) const { return storage == rhs.storage && lookup == rhs.lookup; }
 	bool operator!=(const ReachablePlots& rhs) const { return storage != rhs.storage || lookup != rhs.lookup; }
 
 protected:
-	std::tr1::unordered_map<int,size_t> lookup;
-	std::vector<SMovePlot> storage;
+	vector<pair<int,size_t>> lookup;
+	vector<SMovePlot> storage;
 };
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -292,6 +297,9 @@ public:
 	}
 };
 
+FDataStream & operator >> (FDataStream & kStream, CvPathNode & node);
+FDataStream & operator << (FDataStream & kStream, const CvPathNode & node);
+
 class CvPathNodeArray : public std::deque<CvPathNode>
 {
 public:
@@ -299,6 +307,9 @@ public:
 	CvPlot* GetFinalPlot() const;
 	CvPlot* GetFirstPlot() const;
 	CvPlot* GetPlotByIndex(int iIndex) const;
+
+	friend FDataStream& operator<<(FDataStream& saveTo, const CvPathNodeArray& readFrom);
+	friend FDataStream& operator>>(FDataStream& loadFrom, CvPathNodeArray& writeTo);
 };
 
 struct PrNodeIsBetter

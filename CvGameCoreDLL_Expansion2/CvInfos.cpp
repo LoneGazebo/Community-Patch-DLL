@@ -2962,7 +2962,6 @@ bool CvHurryInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 //======================================================================================================
 CvHandicapInfo::CvHandicapInfo() :
 	m_iStartingLocationPercent(0),
-	m_iAdvancedStartPointsMod(0),
 	m_iHappinessDefault(0),
 	m_iHappinessDefaultCapital(0),
 	m_iExtraHappinessPerLuxury(0),
@@ -2996,9 +2995,7 @@ CvHandicapInfo::CvHandicapInfo() :
 	m_iBarbarianLandTargetRange(0),
 	m_iBarbarianSeaTargetRange(0),
 	m_iStartingDefenseUnits(0),
-#if defined(MOD_BALANCE_CORE)
 	m_iStartingMinorDefenseUnits(0),
-#endif
 	m_iStartingWorkerUnits(0),
 	m_iStartingExploreUnits(0),
 	m_iAIStartingUnitMultiplier(0),
@@ -3006,6 +3003,7 @@ CvHandicapInfo::CvHandicapInfo() :
 	m_iAIStartingWorkerUnits(0),
 	m_iAIStartingExploreUnits(0),
 	m_iAIDeclareWarProb(0),
+	m_iAIHumanStrengthMod(0),
 	m_iAIWorkRateModifier(0),
 	m_iAIUnhappinessPercent(0),
 	m_iAIGrowthPercent(0),
@@ -3021,17 +3019,14 @@ CvHandicapInfo::CvHandicapInfo() :
 	m_iAIUnitUpgradePercent(0),
 	m_iAIInflationPercent(0),
 	m_iAIPerEraModifier(0),
-	m_iAIAdvancedStartPercent(0),
 	m_iAIFreeXP(0),
 	m_iAIFreeXPPercent(0),
-#if defined(MOD_BALANCE_CORE)
 	m_iResistanceCap(0),
 	m_iDifficultyBonusBase(0),
 	m_iDifficultyBonusEarly(0),
 	m_iDifficultyBonusMid(0),
 	m_iDifficultyBonusLate(0),
 	m_iVisionBonus(0),
-#endif
 	m_iNumGoodies(0),
 	m_piGoodies(NULL),
 	m_pbFreeTechs(NULL),
@@ -3049,11 +3044,6 @@ CvHandicapInfo::~CvHandicapInfo()
 int CvHandicapInfo::getStartingLocationPercent() const
 {
 	return m_iStartingLocationPercent;
-}
-//------------------------------------------------------------------------------
-int CvHandicapInfo::getAdvancedStartPointsMod() const
-{
-	return m_iAdvancedStartPointsMod;
 }
 //------------------------------------------------------------------------------
 int CvHandicapInfo::getStartingPolicyPoints() const
@@ -3220,12 +3210,11 @@ int CvHandicapInfo::getStartingDefenseUnits() const
 {
 	return m_iStartingDefenseUnits;
 }
-#if defined(MOD_BALANCE_CORE)
+//------------------------------------------------------------------------------
 int CvHandicapInfo::getStartingMinorDefenseUnits() const
 {
 	return m_iStartingMinorDefenseUnits;
 }
-#endif
 //------------------------------------------------------------------------------
 int CvHandicapInfo::getStartingWorkerUnits() const
 {
@@ -3260,6 +3249,11 @@ int CvHandicapInfo::getAIStartingExploreUnits() const
 int CvHandicapInfo::getAIDeclareWarProb() const
 {
 	return m_iAIDeclareWarProb;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getAIHumanStrengthMod() const
+{
+	return m_iAIHumanStrengthMod;
 }
 //------------------------------------------------------------------------------
 int CvHandicapInfo::getAIWorkRateModifier() const
@@ -3337,11 +3331,6 @@ int CvHandicapInfo::getAIPerEraModifier() const
 	return m_iAIPerEraModifier;
 }
 //------------------------------------------------------------------------------
-int CvHandicapInfo::getAIAdvancedStartPercent() const
-{
-	return m_iAIAdvancedStartPercent;
-}
-//------------------------------------------------------------------------------
 int CvHandicapInfo::getAIFreeXP() const
 {
 	return m_iAIFreeXP;
@@ -3356,7 +3345,6 @@ int CvHandicapInfo::getNumGoodies() const
 {
 	return m_iNumGoodies;
 }
-#if defined(MOD_BALANCE_CORE)
 //------------------------------------------------------------------------------
 int CvHandicapInfo::getResistanceCap() const
 {
@@ -3385,7 +3373,6 @@ int CvHandicapInfo::getAIVisionBonus() const
 {
 	return m_iVisionBonus;
 }
-#endif
 //------------------------------------------------------------------------------
 int CvHandicapInfo::getGoodies(int i) const
 {
@@ -3414,7 +3401,6 @@ bool CvHandicapInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility
 		return false;
 
 	m_iStartingLocationPercent = kResults.GetInt("StartingLocPercent");
-	m_iAdvancedStartPointsMod = kResults.GetInt("AdvancedStartPointsMod");
 	m_iStartingPolicyPoints = kResults.GetInt("StartingPolicyPoints");
 	m_iHappinessDefault = kResults.GetInt("HappinessDefault");
 	m_iHappinessDefaultCapital = kResults.GetInt("HappinessDefaultCapital");
@@ -3448,9 +3434,7 @@ bool CvHandicapInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility
 	m_iBarbarianLandTargetRange = kResults.GetInt("BarbarianLandTargetRange");
 	m_iBarbarianSeaTargetRange = kResults.GetInt("BarbarianSeaTargetRange");
 	m_iStartingDefenseUnits = kResults.GetInt("StartingDefenseUnits");
-#if defined(MOD_BALANCE_CORE)
 	m_iStartingMinorDefenseUnits = kResults.GetInt("StartingMinorDefenseUnits");
-#endif
 	m_iStartingWorkerUnits = kResults.GetInt("StartingWorkerUnits");
 	m_iStartingExploreUnits = kResults.GetInt("StartingExploreUnits");
 	m_iAIStartingUnitMultiplier = kResults.GetInt("AIStartingUnitMultiplier");
@@ -3458,6 +3442,7 @@ bool CvHandicapInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility
 	m_iAIStartingWorkerUnits = kResults.GetInt("AIStartingWorkerUnits");
 	m_iAIStartingExploreUnits = kResults.GetInt("AIStartingExploreUnits");
 	m_iAIDeclareWarProb = kResults.GetInt("AIDeclareWarProb");
+	m_iAIHumanStrengthMod = kResults.GetInt("AIHumanStrengthMod");
 	m_iAIWorkRateModifier = kResults.GetInt("AIWorkRateModifier");
 	m_iAIUnhappinessPercent = kResults.GetInt("AIUnhappinessPercent");
 	m_iAIGrowthPercent = kResults.GetInt("AIGrowthPercent");
@@ -3473,17 +3458,14 @@ bool CvHandicapInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility
 	m_iAIUnitUpgradePercent = kResults.GetInt("AIUnitUpgradePercent");
 	m_iAIInflationPercent = kResults.GetInt("AIInflationPercent");
 	m_iAIPerEraModifier = kResults.GetInt("AIPerEraModifier");
-	m_iAIAdvancedStartPercent = kResults.GetInt("AIAdvancedStartPercent");
 	m_iAIFreeXP = kResults.GetInt("AIFreeXP");
 	m_iAIFreeXPPercent = kResults.GetInt("AIFreeXPPercent");
-#if defined(MOD_BALANCE_CORE)
 	m_iResistanceCap = kResults.GetInt("ResistanceCap");
 	m_iDifficultyBonusBase = kResults.GetInt("DifficultyBonusBase");
 	m_iDifficultyBonusEarly = kResults.GetInt("DifficultyBonusA");
 	m_iDifficultyBonusMid = kResults.GetInt("DifficultyBonusB");
 	m_iDifficultyBonusLate = kResults.GetInt("DifficultyBonusC");
 	m_iVisionBonus = kResults.GetInt("VisionBonus");
-#endif
 
 	//Arrays
 	const char* szHandicapType = GetType();
@@ -3561,7 +3543,6 @@ CvGameSpeedInfo::CvGameSpeedInfo() :
 	m_iPietyMin(0),
 #endif
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-	m_iShareOpinionDuration(0),
 	m_iTechCostPerTurnMultiplier(0),
 	m_iMinimumVoluntaryVassalTurns(15),
 	m_iMinimumVassalTurns(75),
@@ -3825,7 +3806,6 @@ bool CvGameSpeedInfo::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	if (MOD_DIPLOMACY_CIV4_FEATURES) {
-		m_iShareOpinionDuration			= kResults.GetInt("ShareOpinionDuration");
 		m_iTechCostPerTurnMultiplier	= kResults.GetInt("TechCostPerTurnMultiplier");
 		m_iMinimumVoluntaryVassalTurns	= kResults.GetInt("MinimumVoluntaryVassalTurns");
 		m_iMinimumVassalTurns			= kResults.GetInt("MinimumVassalTurns");
@@ -4069,10 +4049,8 @@ CvBuildInfo::CvBuildInfo() :
 	m_paiFeatureProduction(NULL),
 	m_paiFeatureCost(NULL),
 	m_paiTechTimeChange(NULL),
-#if defined(MOD_BUGFIX_FEATURE_REMOVAL)
 	m_paiFeatureObsoleteTech(NULL),
 	m_pabFeatureRemoveOnly(NULL),
-#endif
 	m_pabFeatureRemove(NULL)
 {
 }
@@ -4085,10 +4063,8 @@ CvBuildInfo::~CvBuildInfo()
 	SAFE_DELETE_ARRAY(m_paiFeatureCost);
 	SAFE_DELETE_ARRAY(m_paiTechTimeChange);
 	SAFE_DELETE_ARRAY(m_pabFeatureRemove);
-#if defined(MOD_BUGFIX_FEATURE_REMOVAL)
 	SAFE_DELETE_ARRAY(m_paiFeatureObsoleteTech);
 	SAFE_DELETE_ARRAY(m_pabFeatureRemoveOnly);
-#endif
 }
 //------------------------------------------------------------------------------
 int CvBuildInfo::getTime() const
@@ -4233,7 +4209,7 @@ bool CvBuildInfo::isFeatureRemove(int i) const
 	CvAssertMsg(i > -1, "Index out of bounds");
 	return m_pabFeatureRemove ? m_pabFeatureRemove[i] : false;
 }
-#if defined(MOD_BUGFIX_FEATURE_REMOVAL)
+
 //------------------------------------------------------------------------------
 int CvBuildInfo::getFeatureObsoleteTech(int i) const
 {
@@ -4248,7 +4224,7 @@ bool CvBuildInfo::isFeatureRemoveOnly(int i) const
 	CvAssertMsg(i > -1, "Index out of bounds");
 	return m_pabFeatureRemoveOnly ? m_pabFeatureRemoveOnly[i] : false;
 }
-#endif
+
 //------------------------------------------------------------------------------
 bool CvBuildInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility)
 {
@@ -4296,10 +4272,8 @@ bool CvBuildInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 		kUtility.InitializeArray(m_paiFeatureProduction, "Features");
 		kUtility.InitializeArray(m_paiFeatureCost, "Features");
 		kUtility.InitializeArray(m_pabFeatureRemove, "Features");
-#if defined(MOD_BUGFIX_FEATURE_REMOVAL)
 		kUtility.InitializeArray(m_paiFeatureObsoleteTech, "Features");
 		kUtility.InitializeArray(m_pabFeatureRemoveOnly, "Features");
-#endif
 
 		char szQuery[512];
 		const char* szFeatureQuery = "select * from BuildFeatures where BuildType = '%s'";
@@ -4321,10 +4295,8 @@ bool CvBuildInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 				m_paiFeatureProduction[iFeatureIdx] = kArrayResults.GetInt("Production");
 				m_paiFeatureCost[iFeatureIdx]		= kArrayResults.GetInt("Cost");
 				m_pabFeatureRemove[iFeatureIdx]		= kArrayResults.GetBool("Remove");
-#if defined(MOD_BUGFIX_FEATURE_REMOVAL)
 				m_paiFeatureObsoleteTech[iFeatureIdx]= GC.getInfoTypeForString(kArrayResults.GetText("ObsoleteTech"), true);
 				m_pabFeatureRemoveOnly[iFeatureIdx]	= kArrayResults.GetBool("RemoveOnly");
-#endif
 			}
 		}
 	}
@@ -4414,6 +4386,7 @@ CvGoodyInfo::CvGoodyInfo() : CvBaseInfo()
 	, m_iProduction(0)
 	, m_iGoldenAge(0)
 	, m_iFreeTiles(0)
+	, m_iScience(0)
 #endif
 	, m_iCulture(0)
 	, m_iFaith(0)
@@ -4513,6 +4486,10 @@ int CvGoodyInfo::getFreeTiles() const
 {
 	return m_iFreeTiles;
 }
+int CvGoodyInfo::getScience() const
+{
+	return m_iScience;
+}
 #endif
 int CvGoodyInfo::getBarbarianUnitProb() const
 {
@@ -4608,6 +4585,7 @@ bool CvGoodyInfo::CacheResults(Database::Results& results, CvDatabaseUtility& kU
 	m_iProduction = results.GetInt("Production");
 	m_iGoldenAge = results.GetInt("GoldenAge");
 	m_iFreeTiles = results.GetInt("FreeTiles");
+	m_iScience = results.GetInt("Science");
 #endif
 	m_iCulture = results.GetInt("Culture");
 	m_iFaith = results.GetInt("Faith");
@@ -5840,9 +5818,7 @@ CvFeatureInfo::CvFeatureInfo() :
 	m_iInfluenceCost(0),
 	m_iAdvancedStartRemoveCost(0),
 	m_iTurnDamage(0),
-#if defined(MOD_API_PLOT_BASED_DAMAGE)
 	m_iExtraTurnDamage(0),
-#endif
 	m_iFirstFinderGold(0),
 	m_iInBorderHappiness(0),
 	m_iOccurrenceFrequency(0),
@@ -5959,13 +5935,11 @@ int CvFeatureInfo::getTurnDamage() const
 {
 	return m_iTurnDamage;
 }
-#if defined(MOD_API_PLOT_BASED_DAMAGE)
 //------------------------------------------------------------------------------
 int CvFeatureInfo::getExtraTurnDamage() const
 {
 	return m_iExtraTurnDamage;
 }
-#endif
 //------------------------------------------------------------------------------
 int CvFeatureInfo::getFirstFinderGold() const
 {
@@ -6222,9 +6196,7 @@ bool CvFeatureInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_iInfluenceCost = kResults.GetInt("InfluenceCost");
 	m_iAdvancedStartRemoveCost = kResults.GetInt("AdvancedStartRemoveCost");
 	m_iTurnDamage = kResults.GetInt("TurnDamage");
-#if defined(MOD_API_PLOT_BASED_DAMAGE)
-	m_iExtraTurnDamage = MOD_API_PLOT_BASED_DAMAGE ? kResults.GetInt("ExtraTurnDamage") : 0;
-#endif
+	m_iExtraTurnDamage = kResults.GetInt("ExtraTurnDamage");
 	m_iAppearanceProbability = kResults.GetInt("AppearanceProbability");
 	m_iDisappearanceProbability = kResults.GetInt("DisappearanceProbability");
 	m_iGrowthProbability = kResults.GetInt("Growth");
@@ -6513,10 +6485,8 @@ CvTerrainInfo::CvTerrainInfo() :
 	m_iBuildModifier(0),
 	m_iDefenseModifier(0),
 	m_iInfluenceCost(0),
-#if defined(MOD_API_PLOT_BASED_DAMAGE)
 	m_iTurnDamage(0),
 	m_iExtraTurnDamage(0),
-#endif
 #if defined(MOD_BALANCE_CORE)
 	m_iPrereqTechPassable(NO_TECH),
 	m_iLocationUnitFreePromotionTerrain(NO_PROMOTION),
@@ -6587,7 +6557,6 @@ int CvTerrainInfo::getInfluenceCost() const
 {
 	return m_iInfluenceCost;
 }
-#if defined(MOD_API_PLOT_BASED_DAMAGE)
 //------------------------------------------------------------------------------
 int CvTerrainInfo::getTurnDamage() const
 {
@@ -6598,7 +6567,6 @@ int CvTerrainInfo::getExtraTurnDamage() const
 {
 	return m_iExtraTurnDamage;
 }
-#endif
 #if defined(MOD_BALANCE_CORE)
 int CvTerrainInfo::getLocationUnitFreePromotion() const
 {
@@ -6743,10 +6711,8 @@ bool CvTerrainInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_iBuildModifier = kResults.GetInt("BuildModifier");
 	m_iDefenseModifier = kResults.GetInt("Defense");
 	m_iInfluenceCost = kResults.GetInt("InfluenceCost");
-#if defined(MOD_API_PLOT_BASED_DAMAGE)
-	m_iTurnDamage = MOD_API_PLOT_BASED_DAMAGE ? kResults.GetInt("TurnDamage") : 0;
-	m_iExtraTurnDamage = MOD_API_PLOT_BASED_DAMAGE ? kResults.GetInt("ExtraTurnDamage") : 0;
-#endif
+	m_iTurnDamage = kResults.GetInt("TurnDamage");
+	m_iExtraTurnDamage = kResults.GetInt("ExtraTurnDamage");
 
 	const char* szTextVal = kResults.GetText("WorldSoundscapeAudioScript");
 	if(szTextVal != NULL)
@@ -6945,14 +6911,14 @@ int CvLeaderHeadInfo::GetWarmongerHate() const
 	return m_iWarmongerHate;
 }
 //------------------------------------------------------------------------------
-int CvLeaderHeadInfo::GetDenounceWillingness() const
-{
-	return m_iDenounceWillingness;
-}
-//------------------------------------------------------------------------------
 int CvLeaderHeadInfo::GetDoFWillingness() const
 {
 	return m_iDoFWillingness;
+}
+//------------------------------------------------------------------------------
+int CvLeaderHeadInfo::GetDenounceWillingness() const
+{
+	return m_iDenounceWillingness;
 }
 //------------------------------------------------------------------------------
 int CvLeaderHeadInfo::GetLoyalty() const
@@ -6960,19 +6926,14 @@ int CvLeaderHeadInfo::GetLoyalty() const
 	return m_iLoyalty;
 }
 //------------------------------------------------------------------------------
-int CvLeaderHeadInfo::GetNeediness() const
-{
-	return m_iNeediness;
-}
-//------------------------------------------------------------------------------
 int CvLeaderHeadInfo::GetForgiveness() const
 {
 	return m_iForgiveness;
 }
 //------------------------------------------------------------------------------
-int CvLeaderHeadInfo::GetChattiness() const
+int CvLeaderHeadInfo::GetNeediness() const
 {
-	return m_iChattiness;
+	return m_iNeediness;
 }
 //------------------------------------------------------------------------------
 int CvLeaderHeadInfo::GetMeanness() const
@@ -6980,18 +6941,64 @@ int CvLeaderHeadInfo::GetMeanness() const
 	return m_iMeanness;
 }
 //------------------------------------------------------------------------------
-int CvLeaderHeadInfo::GetMajorCivApproachBias(int i) const
+int CvLeaderHeadInfo::GetChattiness() const
 {
-	CvAssertMsg(i < NUM_MAJOR_CIV_APPROACHES, "Index out of bounds");
-	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_piMajorCivApproachBiases? m_piMajorCivApproachBiases[i] : -1;
+	return m_iChattiness;
 }
 //------------------------------------------------------------------------------
-int CvLeaderHeadInfo::GetMinorCivApproachBias(int i) const
+// Recursive: Need to hardcode these references because of how Firaxis set up the table.
+int CvLeaderHeadInfo::GetWarBias(bool bMinor) const
 {
-	CvAssertMsg(i < NUM_MINOR_CIV_APPROACHES, "Index out of bounds");
-	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_piMinorCivApproachBiases? m_piMinorCivApproachBiases[i] : -1;
+	if (bMinor)
+		return m_piMinorCivApproachBiases ? m_piMinorCivApproachBiases[3] : 5; // xml: MINOR_CIV_APPROACH_CONQUEST
+
+	return m_piMajorCivApproachBiases ? m_piMajorCivApproachBiases[0] : 5; // xml: MAJOR_CIV_APPROACH_WAR
+}
+//------------------------------------------------------------------------------
+int CvLeaderHeadInfo::GetHostileBias(bool bMinor) const
+{
+	if (bMinor)
+		return m_piMinorCivApproachBiases ? m_piMinorCivApproachBiases[4] : 5; // xml: MINOR_CIV_APPROACH_BULLY
+
+	return m_piMajorCivApproachBiases ? m_piMajorCivApproachBiases[1] : 5; // xml: MAJOR_CIV_APPROACH_HOSTILE
+}
+//------------------------------------------------------------------------------
+int CvLeaderHeadInfo::GetDeceptiveBias() const
+{
+	return m_piMajorCivApproachBiases ? m_piMajorCivApproachBiases[2] : 5; // xml: MAJOR_CIV_APPROACH_DECEPTIVE
+}
+//------------------------------------------------------------------------------
+int CvLeaderHeadInfo::GetGuardedBias() const
+{
+	return m_piMajorCivApproachBiases ? m_piMajorCivApproachBiases[3] : 5; // xml: MAJOR_CIV_APPROACH_GUARDED
+}
+//------------------------------------------------------------------------------
+int CvLeaderHeadInfo::GetAfraidBias() const
+{
+	return m_piMajorCivApproachBiases ? m_piMajorCivApproachBiases[4] : 5; // xml: MAJOR_CIV_APPROACH_AFRAID
+}
+//------------------------------------------------------------------------------
+int CvLeaderHeadInfo::GetNeutralBias(bool bMinor) const
+{
+	if (bMinor)
+		return m_piMinorCivApproachBiases ? m_piMinorCivApproachBiases[0] : 5; // xml: MINOR_CIV_APPROACH_IGNORE
+
+	return m_piMajorCivApproachBiases ? m_piMajorCivApproachBiases[6] : 5; // xml: MAJOR_CIV_APPROACH_NEUTRAL
+}
+//------------------------------------------------------------------------------
+int CvLeaderHeadInfo::GetFriendlyBias(bool bMinor) const
+{
+	// We combine Friendly and Protective into a single approach, removing the dumb Firaxis distinction.
+	// Use the higher of the two for the diplomacy AI.
+	if (bMinor)
+	{
+		if (!m_piMinorCivApproachBiases)
+			return 5;
+
+		return max(m_piMinorCivApproachBiases[1], m_piMinorCivApproachBiases[2]); // xml: MINOR_CIV_APPROACH_FRIENDLY, MINOR_CIV_APPROACH_PROTECTIVE
+	}
+
+	return m_piMajorCivApproachBiases ? m_piMajorCivApproachBiases[5] : 5; // xml: MAJOR_CIV_APPROACH_FRIENDLY
 }
 //------------------------------------------------------------------------------
 const char* CvLeaderHeadInfo::getArtDefineTag() const
@@ -7025,38 +7032,35 @@ const char* CvLeaderHeadInfo::getLeaderHead() const
 //------------------------------------------------------------------------------
 bool CvLeaderHeadInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility)
 {
-	if(!CvBaseInfo::CacheResults(kResults, kUtility))
+	if (!CvBaseInfo::CacheResults(kResults, kUtility))
 		return false;
 
 	//Basic Properties
-
 	const char* szTextVal = NULL;	//Temp storage
 	szTextVal = kResults.GetText("ArtDefineTag");
 	setArtDefineTag(szTextVal);
 
+	// Diplomacy Flavors
 	m_iVictoryCompetitiveness					= kResults.GetInt("VictoryCompetitiveness");
 	m_iWonderCompetitiveness					= kResults.GetInt("WonderCompetitiveness");
 	m_iMinorCivCompetitiveness					= kResults.GetInt("MinorCivCompetitiveness");
 	m_iBoldness									= kResults.GetInt("Boldness");
-	m_iDiploBalance									= kResults.GetInt("DiploBalance");
-	m_iWarmongerHate									= kResults.GetInt("WarmongerHate");
-	m_iDenounceWillingness									= kResults.GetInt("DenounceWillingness");
-	m_iDoFWillingness									= kResults.GetInt("DoFWillingness");
+	m_iDiploBalance								= kResults.GetInt("DiploBalance");
+	m_iWarmongerHate							= kResults.GetInt("WarmongerHate");
+	m_iDenounceWillingness						= kResults.GetInt("DenounceWillingness");
+	m_iDoFWillingness							= kResults.GetInt("DoFWillingness");
 	m_iLoyalty									= kResults.GetInt("Loyalty");
-	m_iNeediness									= kResults.GetInt("Neediness");
-	m_iForgiveness									= kResults.GetInt("Forgiveness");
-	m_iChattiness									= kResults.GetInt("Chattiness");
+	m_iNeediness								= kResults.GetInt("Neediness");
+	m_iForgiveness								= kResults.GetInt("Forgiveness");
+	m_iChattiness								= kResults.GetInt("Chattiness");
 	m_iMeanness									= kResults.GetInt("Meanness");
 
 	//Arrays
 	const char* szType = GetType();
 
 	kUtility.SetFlavors(m_piFlavorValue, "Leader_Flavors", "LeaderType", szType);
-
 	kUtility.PopulateArrayByValue(m_piMajorCivApproachBiases, "MajorCivApproachTypes", "Leader_MajorCivApproachBiases", "MajorCivApproachType", "LeaderType", szType, "Bias");
-
 	kUtility.PopulateArrayByValue(m_piMinorCivApproachBiases, "MinorCivApproachTypes", "Leader_MinorCivApproachBiases", "MinorCivApproachType", "LeaderType", szType, "Bias");
-
 	kUtility.PopulateArrayByExistence(m_pbTraits, "Traits", "Leader_Traits", "TraitType", "LeaderType", szType);
 
 	return true;
@@ -7081,7 +7085,6 @@ CvWorldInfo::CvWorldInfo() :
 	m_iTerrainGrainChange(0),
 	m_iFeatureGrainChange(0),
 	m_iResearchPercent(0),
-	m_iAdvancedStartPointsMod(0),
 	m_iNumCitiesUnhappinessPercent(100),
 	m_iNumCitiesPolicyCostMod(10),
 	m_iNumCitiesTechCostMod(5),
@@ -7173,11 +7176,6 @@ int CvWorldInfo::getResearchPercent() const
 	return m_iResearchPercent;
 }
 //------------------------------------------------------------------------------
-int CvWorldInfo::getAdvancedStartPointsMod() const
-{
-	return m_iAdvancedStartPointsMod;
-}
-//------------------------------------------------------------------------------
 int CvWorldInfo::getNumCitiesUnhappinessPercent() const
 {
 	return m_iNumCitiesUnhappinessPercent;
@@ -7267,7 +7265,6 @@ bool CvWorldInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 	m_iTerrainGrainChange			= kResults.GetInt("TerrainGrainChange");
 	m_iFeatureGrainChange			= kResults.GetInt("FeatureGrainChange");
 	m_iResearchPercent				= kResults.GetInt("ResearchPercent");
-	m_iAdvancedStartPointsMod		= kResults.GetInt("AdvancedStartPointsMod");
 	m_iNumCitiesUnhappinessPercent	= kResults.GetInt("NumCitiesUnhappinessPercent");
 	m_iNumCitiesPolicyCostMod		= kResults.GetInt("NumCitiesPolicyCostMod");
 	m_iNumCitiesTechCostMod			= kResults.GetInt("NumCitiesTechCostMod");
@@ -7306,7 +7303,6 @@ bool CvWorldInfo::operator==(const CvWorldInfo& rhs) const
 	if(m_iTerrainGrainChange != rhs.m_iTerrainGrainChange) return false;
 	if(m_iFeatureGrainChange != rhs.m_iFeatureGrainChange) return false;
 	if(m_iResearchPercent != rhs.m_iResearchPercent) return false;
-	if(m_iAdvancedStartPointsMod != rhs.m_iAdvancedStartPointsMod) return false;
 	if(m_iNumCitiesUnhappinessPercent != rhs.m_iNumCitiesUnhappinessPercent) return false;
 	if(m_iNumCitiesPolicyCostMod != rhs.m_iNumCitiesPolicyCostMod) return false;
 #if defined(MOD_TRADE_ROUTE_SCALING)
@@ -7350,7 +7346,6 @@ void CvWorldInfo::readFrom(FDataStream& loadFrom)
 	loadFrom >> m_iTerrainGrainChange;
 	loadFrom >> m_iFeatureGrainChange;
 	loadFrom >> m_iResearchPercent;
-	loadFrom >> m_iAdvancedStartPointsMod;
 	loadFrom >> m_iNumCitiesUnhappinessPercent;
 	loadFrom >> m_iNumCitiesPolicyCostMod;
 
@@ -7391,7 +7386,6 @@ void CvWorldInfo::readFromVersion0(FDataStream& loadFrom)
 	loadFrom >> m_iTerrainGrainChange;
 	loadFrom >> m_iFeatureGrainChange;
 	loadFrom >> m_iResearchPercent;
-	loadFrom >> m_iAdvancedStartPointsMod;
 	loadFrom >> m_iNumCitiesUnhappinessPercent;
 	loadFrom >> m_iNumCitiesPolicyCostMod;
 }
@@ -7419,7 +7413,6 @@ void CvWorldInfo::writeTo(FDataStream& saveTo) const
 	saveTo << m_iTerrainGrainChange;
 	saveTo << m_iFeatureGrainChange;
 	saveTo << m_iResearchPercent;
-	saveTo << m_iAdvancedStartPointsMod;
 	saveTo << m_iNumCitiesUnhappinessPercent;
 	saveTo << m_iNumCitiesPolicyCostMod;
 	saveTo << m_iNumCitiesTechCostMod;
@@ -7584,6 +7577,9 @@ FDataStream& operator>>(FDataStream& loadFrom, CvSeaLevelInfo& writeTo)
 CvProcessInfo::CvProcessInfo() :
 	m_iTechPrereq(NO_TECH),
 	m_iDefenseValue(0),
+#if defined(MOD_CIVILIZATIONS_UNIQUE_PROCESSES)
+	m_eRequiredCivilization(NO_CIVILIZATION),
+#endif
 	m_paiProductionToYieldModifier(NULL),
 	m_paiFlavorValue(NULL)
 {
@@ -7605,6 +7601,14 @@ int CvProcessInfo::getDefenseValue() const
 {
 	return m_iDefenseValue;
 }
+
+#if defined(MOD_CIVILIZATIONS_UNIQUE_PROCESSES)
+//------------------------------------------------------------------------------
+CivilizationTypes CvProcessInfo::GetRequiredCivilization() const
+{
+	return m_eRequiredCivilization;
+}
+#endif
 
 //------------------------------------------------------------------------------
 int CvProcessInfo::getProductionToYieldModifier(int i) const
@@ -7633,6 +7637,11 @@ bool CvProcessInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_iTechPrereq = GC.getInfoTypeForString(szTechPrereq, true);
 
 	m_iDefenseValue = kResults.GetInt("DefenseValue");
+
+#if defined(MOD_CIVILIZATIONS_UNIQUE_PROCESSES)
+	const char* szCivilizationType = kResults.GetText("CivilizationType");
+	m_eRequiredCivilization = (CivilizationTypes)GC.getInfoTypeForString(szCivilizationType, true);
+#endif
 
 	const char* szProcessType = GetType();
 
@@ -8794,7 +8803,7 @@ bool CvModEventInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility
 
 	m_iCoastal = kResults.GetInt("MinimumNumCoastalCities");
 	m_bTradeCapped = kResults.GetBool("LessThanMaximumTradeRoutes");
-
+	
 	const char* szEventType = GetType();
 	kUtility.SetYields(m_piMinimumYield, "Event_MinimumStartYield", "EventType", szEventType);
 
@@ -8965,6 +8974,7 @@ int CvModEventChoiceInfo::getEventTech() const
 {
 	return m_iEventTech;
 }
+
 //------------------------------------------------------------------------------
 int CvModEventChoiceInfo::getEventPolicy() const
 {
@@ -9837,6 +9847,9 @@ CvModCityEventInfo::CvModCityEventInfo() :
 	 m_bHasPlayerMajority(false),
 	 m_bLacksPlayerReligion(false),
 	 m_bLacksPlayerMajority(false),
+	 m_bEspionage(false),
+	 m_bEspionageSetup(false),
+	 m_bIsCounterSpy(false),
 	 m_paCityLinkerInfo(NULL),
 	 m_iCityLinkerInfos(0)
 {
@@ -10144,6 +10157,18 @@ bool CvModCityEventInfo::lacksPlayerMajority() const
 {
 	return m_bLacksPlayerMajority;
 }
+bool CvModCityEventInfo::isEspionage() const
+{
+	return m_bEspionage;
+}
+bool CvModCityEventInfo::isEspionageSetup() const
+{
+	return m_bEspionageSetup;
+}
+bool CvModCityEventInfo::IsCounterSpy() const
+{
+	return m_bIsCounterSpy;
+}
 CvCityEventLinkingInfo *CvModCityEventInfo::GetLinkerInfo(int i) const
 {
 	CvAssertMsg(i < GC.getNumCityEventLinkingInfos(), "Index out of bounds");
@@ -10277,6 +10302,10 @@ bool CvModCityEventInfo::CacheResults(Database::Results& kResults, CvDatabaseUti
 	m_bNearMountain = kResults.GetBool("RequiresNearbyMountain");
 	m_bNearNaturalWonder = kResults.GetBool("RequiresNearbyNaturalWonder");
 
+	m_bEspionage = kResults.GetBool("IsEspionage");
+	m_bEspionageSetup = kResults.GetBool("EspionageSetup");
+	m_bIsCounterSpy = kResults.GetBool("IsCounterSpy");
+
 	{
 		//Initialize Linker Table
 		const size_t iNumLinkers = kUtility.MaxRows("Notifications");
@@ -10333,6 +10362,7 @@ CvModEventCityChoiceInfo::CvModEventCityChoiceInfo() :
 	 m_piNumFreeUnits(NULL),
 	 m_piNumFreeSpecificUnits(NULL),
 	 m_iNumWLTKD(0),
+	 m_iGrowthMod(0),
 	 m_iResistanceTurns(0),
 	 m_iRandomBarbs(0),
 	 m_iFreeScaledUnits(0),
@@ -10368,6 +10398,7 @@ CvModEventCityChoiceInfo::CvModEventCityChoiceInfo() :
 	 m_iLocalResourceRequired(-1),
 	 m_bIsResistance(false),
 	 m_bIsWLTKD(false),
+	 m_iWonderConstructionMod(0),
 	 m_bIsOccupied(false),
 	 m_bIsRazing(false),
 	 m_bHasAnyReligion(false),
@@ -10395,6 +10426,7 @@ CvModEventCityChoiceInfo::CvModEventCityChoiceInfo() :
 	 m_bVassal(false),
 	 m_bMaster(false),
 	 m_iCityWideDestructionChance(0),
+	 m_iCityStrategicResourcePillage(0),
 	 m_iEventPromotion(0),
 	 m_iCityHappiness(0),
 	 m_piResourceChange(NULL),
@@ -10402,10 +10434,28 @@ CvModEventCityChoiceInfo::CvModEventCityChoiceInfo() :
 	 m_strDisabledTooltip(""),
 	 m_iConvertsCityToPlayerReligion(0),
 	 m_iConvertsCityToPlayerMajorityReligion(0),
+	 m_iCityDefenseModifier(0),
+	 m_bEspionageEffect(false),
+	 m_bApplyEffectToSpyOwner(false),
+	 m_bPotentialScaling(false),
+	 m_iScienceScaling(0),
+	 m_iIdentificationModifier(0),
+	 m_iDeathModifier(0),
+	 m_iTriggerPlayerEventChoice(NO_EVENT_CHOICE),
 	 m_bHasPlayerReligion(false),
 	 m_bLacksPlayerReligion(false),
 	 m_bHasPlayerMajority(false),
 	 m_bLacksPlayerMajority(false),
+	 m_iSpyLevelRequired(0),
+	 m_iDifficultyModEsp(0),
+	 m_iDamageCity(0),
+	 m_iDamageGarrison(0),
+	 m_iStealTech(0),
+	 m_iForgeGW(0),
+	 m_iSapCityTurns(0),
+	 m_bRequiresCounterSpy(false),
+	 m_bExpiresOnCounterSpyExit(false),
+	 m_bIsMissionSetup(false),
 	 m_paCityLinkerInfo(NULL),
 	 m_iCityLinkerInfos(0)
 {
@@ -10474,6 +10524,82 @@ int CvModEventCityChoiceInfo::ConvertsCityToPlayerMajorityReligion() const
 {
 	return m_iConvertsCityToPlayerMajorityReligion;
 }
+
+int CvModEventCityChoiceInfo::getCityDefenseModifier() const
+{
+	return m_iCityDefenseModifier;
+}
+
+bool CvModEventCityChoiceInfo::IsEspionageEffect() const
+{
+	return m_bEspionageEffect;
+}
+bool CvModEventCityChoiceInfo::IsApplyEffectToSpyOwner() const
+{
+	return m_bApplyEffectToSpyOwner;
+}
+int CvModEventCityChoiceInfo::GetIdentificationModifier() const
+{
+	return m_iIdentificationModifier;
+}
+int CvModEventCityChoiceInfo::GetDeathModifier() const
+{
+	return m_iDeathModifier;
+}
+int CvModEventCityChoiceInfo::GetSpyLevelRequired() const
+{
+	return m_iSpyLevelRequired;
+}
+bool CvModEventCityChoiceInfo::isRequiresCounterSpy() const
+{
+	return m_bRequiresCounterSpy;
+}
+bool CvModEventCityChoiceInfo::isExpiresOnCounterSpyExit() const
+{
+	return m_bExpiresOnCounterSpyExit;
+}
+bool CvModEventCityChoiceInfo::isSpyMissionSetup() const
+{
+	return m_bIsMissionSetup;
+}
+int CvModEventCityChoiceInfo::getEspionageDifficultyModifier() const
+{
+	return m_iDifficultyModEsp;
+}
+int CvModEventCityChoiceInfo::getDamageCity() const
+{
+	return m_iDamageCity;
+}
+int CvModEventCityChoiceInfo::getDamageGarrison() const
+{
+	return m_iDamageGarrison;
+}
+int CvModEventCityChoiceInfo::getStealTech() const
+{
+	return m_iStealTech;
+}
+int CvModEventCityChoiceInfo::getForgeGW() const
+{
+	return m_iForgeGW;
+}
+int CvModEventCityChoiceInfo::getSapCityTurns() const
+{
+	return m_iSapCityTurns;
+}
+
+bool CvModEventCityChoiceInfo::IsPotentialScaling() const
+{
+	return m_bPotentialScaling;
+}
+int CvModEventCityChoiceInfo::GetScienceScaling() const
+{
+	return m_iScienceScaling;
+}
+EventChoiceTypes CvModEventCityChoiceInfo::GetTriggerPlayerEventChoice() const
+{
+	return (EventChoiceTypes)m_iTriggerPlayerEventChoice;
+}
+
 //------------------------------------------------------------------------------
 int CvModEventCityChoiceInfo::getEventBuilding() const
 {
@@ -10509,6 +10635,11 @@ int CvModEventCityChoiceInfo::getFlavorValue(int i) const
 int CvModEventCityChoiceInfo::getWLTKD() const
 {
 	return m_iNumWLTKD;
+}
+//------------------------------------------------------------------------------
+int CvModEventCityChoiceInfo::getGrowthMod() const
+{
+	return m_iGrowthMod;
 }
 //------------------------------------------------------------------------------
 int CvModEventCityChoiceInfo::getResistanceTurns() const
@@ -10592,6 +10723,11 @@ int CvModEventCityChoiceInfo::getBuildingDestructionChance(int i) const
 int CvModEventCityChoiceInfo::getCityWideDestructionChance() const
 {
 	return m_iCityWideDestructionChance;
+}
+
+int CvModEventCityChoiceInfo::getCityStrategicResourcePillage() const
+{
+	return m_iCityStrategicResourcePillage;
 }
 
 CvCityEventNotificationInfo *CvModEventCityChoiceInfo::GetNotificationInfo(int i) const
@@ -10827,6 +10963,10 @@ bool CvModEventCityChoiceInfo::isWLTKD() const
 {
 	return m_bIsWLTKD;
 }
+int CvModEventCityChoiceInfo::getWonderUnderConstructionSpeedMod() const
+{
+	return m_iWonderConstructionMod;
+}
 //------------------------------------------------------------------------------
 bool CvModEventCityChoiceInfo::isOccupied() const
 {
@@ -10985,6 +11125,28 @@ bool CvModEventCityChoiceInfo::CacheResults(Database::Results& kResults, CvDatab
 
 	m_bOneShot = kResults.GetBool("IsOneShot");
 
+	szTextVal = kResults.GetText("TriggerPlayerEventChoice");
+	m_iTriggerPlayerEventChoice = GC.getInfoTypeForString(szTextVal, true);
+
+	//espionage!
+	m_bEspionageEffect = kResults.GetBool("IsEspionageEffect");
+	m_bApplyEffectToSpyOwner = kResults.GetBool("IsSpyBenefit");
+	m_bPotentialScaling = kResults.GetBool("PotentialScaling");
+	m_iScienceScaling = kResults.GetInt("ScienceScaling");
+	m_iIdentificationModifier = kResults.GetInt("IDModifier");
+	m_iDeathModifier = kResults.GetInt("DeathModifier");
+	m_iSpyLevelRequired = kResults.GetInt("SpyLevelRequired");
+	m_iDifficultyModEsp = kResults.GetInt("EspionageDifficultyMod");
+	m_bRequiresCounterSpy = kResults.GetBool("RequiresCounterSpy");
+	m_bExpiresOnCounterSpyExit = kResults.GetBool("ExpiresOnCounterSpyExit");
+	m_bIsMissionSetup = kResults.GetBool("MissionSetup");
+	m_iDamageCity = kResults.GetInt("DamageCity");
+	m_iDamageGarrison = kResults.GetInt("DamageGarison");
+	m_iStealTech = kResults.GetInt("StealNumTechs");
+	m_iForgeGW = kResults.GetInt("ForgeNumGW");
+	m_iSapCityTurns = kResults.GetInt("SapCityTurns");
+	m_iCityDefenseModifier = kResults.GetInt("CityDefenseModifier");
+
 	m_iConvertsCityToPlayerReligion = kResults.GetBool("ConvertToPlayerReligionPercent");
 	m_iConvertsCityToPlayerMajorityReligion = kResults.GetBool("ConvertToPlayerMajorityReligionPercent");
 	m_bHasPlayerReligion = kResults.GetBool("CityHasPlayerReligion");
@@ -11020,12 +11182,14 @@ bool CvModEventCityChoiceInfo::CacheResults(Database::Results& kResults, CvDatab
 
 	kUtility.SetFlavors(m_piFlavor, "CityEventChoiceFlavors", "CityEventChoiceType", szEventType);
 
+	m_iGrowthMod = kResults.GetInt("GrowthMod");
 	m_iNumWLTKD = kResults.GetInt("WLTKDTurns");
 	m_iResistanceTurns = kResults.GetInt("ResistanceTurns");
 	m_iRandomBarbs = kResults.GetInt("RandomBarbarianSpawn");
 	m_iFreeScaledUnits = kResults.GetInt("FreeUnitsTechAppropriate");
 	m_iCityWideDestructionChance = kResults.GetInt("CityWideBuildingDestructionChance");
-	
+	m_iCityStrategicResourcePillage = kResults.GetInt("PillageCityStrategicNum");
+
 	m_iCityHappiness = kResults.GetInt("CityHappiness");
 
 	szTextVal = kResults.GetText("FreePromotionCity");
@@ -11053,7 +11217,7 @@ bool CvModEventCityChoiceInfo::CacheResults(Database::Results& kResults, CvDatab
 		Database::Results* pCityEventChoiceTypes = kUtility.GetResults(strCityEventChoiceTypesKey);
 		if(pCityEventChoiceTypes == NULL)
 		{
-			pCityEventChoiceTypes = kUtility.PrepareResults(strCityEventChoiceTypesKey, "select NotificationType, Description, ShortDescription, IsWorldEvent, NeedCityCoordinates, NeedPlayerID, ExtraVariable from CityEventChoice_Notification where CityEventChoiceType = ?");
+			pCityEventChoiceTypes = kUtility.PrepareResults(strCityEventChoiceTypesKey, "select NotificationType, Description, ShortDescription, IsWorldEvent, EspionageEvent, NeedCityCoordinates, NeedPlayerID, ExtraVariable from CityEventChoice_Notification where CityEventChoiceType = ?");
 		}
 
 		const size_t lenCityEventChoiceType = strlen(szEventType);
@@ -11066,6 +11230,7 @@ bool CvModEventCityChoiceInfo::CacheResults(Database::Results& kResults, CvDatab
 			pCityEventNotificationInfo.m_strDescription = pCityEventChoiceTypes->GetText("Description");
 			pCityEventNotificationInfo.m_strShortDescription = pCityEventChoiceTypes->GetText("ShortDescription");
 			pCityEventNotificationInfo.m_bWorldEvent = pCityEventChoiceTypes->GetBool("IsWorldEvent");
+			pCityEventNotificationInfo.m_bEspionageEvent = pCityEventChoiceTypes->GetBool("EspionageEvent");
 			pCityEventNotificationInfo.m_bNeedCityCoordinates = pCityEventChoiceTypes->GetInt("NeedCityCoordinates");
 			pCityEventNotificationInfo.m_bNeedPlayerID = pCityEventChoiceTypes->GetBool("NeedPlayerID");
 			pCityEventNotificationInfo.m_iVariable = pCityEventChoiceTypes->GetInt("ExtraVariable");
@@ -11322,6 +11487,7 @@ bool CvModEventCityChoiceInfo::CacheResults(Database::Results& kResults, CvDatab
 
 	m_bIsResistance = kResults.GetBool("RequiresResistance");
 	m_bIsWLTKD = kResults.GetBool("RequiresWLTKD");
+	m_iWonderConstructionMod = kResults.GetInt("WonderConstructionSpeedMod");
 	m_bIsOccupied = kResults.GetBool("RequiresOccupied");
 	m_bIsRazing = kResults.GetBool("RequiresRazing");
 	m_bHasAnyReligion = kResults.GetBool("HasAnyReligion");
@@ -11351,11 +11517,6 @@ bool CvModEventCityChoiceInfo::CacheResults(Database::Results& kResults, CvDatab
 bool CvEraInfo::getVassalageEnabled() const
 {
 	return m_bVassalageEnabled;
-}
-//------------------------------------------------------------------------------
-int CvGameSpeedInfo::getShareOpinionDuration() const
-{
-	return m_iShareOpinionDuration;
 }
 //------------------------------------------------------------------------------
 int CvGameSpeedInfo::getTechCostPerTurnMultiplier() const

@@ -371,7 +371,7 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 				{
 					if(pUnitEntry->GetPrereqAndTech() == eTech && pUnitEntry->GetUnitCombatType() != NO_UNITCOMBAT)
 					{
-						UnitTypes eCivUnit = ((UnitTypes)(GET_PLAYER(ePlayer).getCivilizationInfo().getCivilizationUnits(pUnitEntry->GetUnitClassType())));
+						UnitTypes eCivUnit = ((GET_PLAYER(ePlayer).GetSpecificUnitType((UnitClassTypes)pUnitEntry->GetUnitClassType())));
 						if(eUnitType != eCivUnit)
 						{
 							continue;
@@ -547,14 +547,14 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 			continue;
 		}
 
-		WarProjectionTypes eWarProjection = pDiplomacyAI->GetWarProjection(eOtherPlayer);
+		WarStateTypes eWarState = pDiplomacyAI->GetWarState(eOtherPlayer);
 		StrengthTypes eMilitaryStrengthComparedToUs = pDiplomacyAI->GetPlayerMilitaryStrengthComparedToUs(eOtherPlayer);
 
 		if(GET_TEAM(eTeam).isAtWar(eOtherTeam))
 		{
-			switch(eWarProjection)
+			switch(eWarState)
 			{
-			case WAR_PROJECTION_DESTRUCTION:
+			case WAR_STATE_NEARLY_DEFEATED:
 			{
 				//if (GET_TEAM(eTeam).isAtWar(eOtherTeam))
 				//{
@@ -582,7 +582,7 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 				//}
 			}
 			break;
-			case WAR_PROJECTION_DEFEAT:
+			case WAR_STATE_DEFENSIVE:
 			{
 				//if (GET_TEAM(eTeam).isAtWar(eOtherTeam))
 				//{
@@ -612,8 +612,8 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 				//}
 			}
 			break;
-			case WAR_PROJECTION_UNKNOWN:
-			case WAR_PROJECTION_STALEMATE:
+			case WAR_STATE_CALM:
+			case WAR_STATE_STALEMATE:
 			{
 				//if (GET_TEAM(eTeam).isAtWar(eOtherTeam))
 				//{
@@ -635,7 +635,7 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 				//}
 			}
 			break;
-			case WAR_PROJECTION_GOOD:
+			case WAR_STATE_OFFENSIVE:
 			{
 				//if (GET_TEAM(eTeam).isAtWar(eOtherTeam))
 				//{
@@ -665,7 +665,7 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 				//}
 			}
 			break;
-			case WAR_PROJECTION_VERY_GOOD:
+			case WAR_STATE_NEARLY_WON:
 			{
 				//if (GET_TEAM(eTeam).isAtWar(eOtherTeam))
 				//{
@@ -1836,7 +1836,7 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 			strLoc = Localization::Lookup("TXT_KEY_CITYIMPROVEMENTSTRATEGY_PLUG_UP_RESOURCES_HAVE_MORE");
 		}
 		strLoc << GC.getResourceInfo(eRecommendedResource)->GetTextKey();
-		strLoc << pResourcePlot->getOwningCity()->getNameKey();
+		strLoc << pResourcePlot->getEffectiveOwningCity()->getNameKey();
 
 		bool bSuccess = SetCounselEntry(uiCounselIndex, ADVISOR_ECONOMIC, strLoc.toUTF8(), 20);
 		DEBUG_VARIABLE(bSuccess);

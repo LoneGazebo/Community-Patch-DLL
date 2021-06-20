@@ -7,7 +7,7 @@
 
 #define DEFAULT_INFO_ARRAY_SIZE	8
 
-class CvIDInfoFixedVector : public FStaticVector<IDInfo, DEFAULT_INFO_ARRAY_SIZE, true, c_eCiv5GameplayDLL >
+class CvIDInfoFixedVector : public vector<IDInfo>
 {
 public:
 

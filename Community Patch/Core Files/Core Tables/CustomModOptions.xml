@@ -22,18 +22,10 @@
     <!--   The sql/xml changes for GLOBAL_STACKING_RULES can be found in DB/GLOBAL/SackingRules.sql/xml -->
     <!--   If these file(s) have been deleted, eg for compatibility with other mods, the option will be forced off -->
 
-	<!-- If A declares war on B that preempts a co-op war, A is locked into the war for the same number of turns as if they had agreed to the co-op war (v86) -->
-    <Row Class="5" Name="GLOBAL_EARLY_COOP_WAR_LOCK" Value="1"/>
-
     <!-- Changes the stacking limits based on what the tile is (city, fort, plain, etc) (v19) -->
     <!-- See also: "Global - 2 Units Per Fort" -->
     <!-- See also: "Global - 3 Units Per City" -->
     <Row Class="5" Name="GLOBAL_STACKING_RULES" Value="0" DbUpdates="1"/>
-    
-    <!-- This is the "No More Civilian Traffic Jams (NMCTJs) Mod" by Pazyryk - see http://forums.civfanatics.com/showthread.php?t=519754 (v45) -->
-    <!-- See also: "Global - No More Civilian Traffic Jams" -->
-    <Row Class="6" Name="GLOBAL_BREAK_CIVILIAN_1UPT" Value="0"/>
-    <Row Class="6" Name="GLOBAL_BREAK_CIVILIAN_RESTRICTIONS" Value="0"/>
 
     <!-- Great Generals and Admirals gained from combat experience spawn in the war-zone and not in a distant city (v19) -->
     <!-- See also: "Global - Local Generals" -->
@@ -92,10 +84,6 @@
     <!-- See also: "in Global - CS Unit Upgrades" -->
     <Row Class="5" Name="GLOBAL_CS_UPGRADES" Value="0"/>
 
-    <!-- City States will only raze captured cities if they are very unhappy (and not just unhappy) (v19) -->
-    <!-- See also: "Global - CS Raze Rarely" -->
-    <Row Class="5" Name="GLOBAL_CS_RAZE_RARELY" Value="0"/>
-
     <!-- City States can be liberated after they have been "bought" (Austria's or Venice's UA) (v19) -->
     <!-- See also: "Global - CS Liberate After Buyout" -->
     <Row Class="5" Name="GLOBAL_CS_LIBERATE_AFTER_BUYOUT" Value="1"/>
@@ -111,10 +99,6 @@
     <!-- City States allied to a major behave as an overseas territory of that major (v39) -->
     <!-- See also: "Global - City States Overseas Territory" -->
     <Row Class="6" Name="GLOBAL_CS_OVERSEAS_TERRITORY" Value="0"/>
-    
-    <!-- City States at war with each other but allied to the same major will declare peace (v39) -->
-    <!-- See also: "Global - City States No Allied Skirmishes" -->
-    <Row Class="4" Name="GLOBAL_CS_NO_ALLIED_SKIRMISHES" Value="1"/>
     
     <!-- Mercantile City States acquired via a Merchant of Venice do not lose their unique resources (v22) -->
     <!-- See also: "Global - Venice Keeps Resources" -->
@@ -224,16 +208,19 @@
 		- Column 'RandResourceChance' in 'Improvements'.
 		- Column 'NewOwner' in 'Improvements'.
 		- Column 'RemoveWhenComplete' in 'Improvements'.
+		- Column 'QuantityRequirement' in 'Improvement_ResourceTypes'.
 	-->
-    <Row Class="4" Name="IMPROVEMENTS_EXTENSIONS" Value="0" DbUpdates="1"/>
+    <Row Class="4" Name="IMPROVEMENTS_EXTENSIONS" Value="0"/>
+	
+    <!-- 
+	Various new tables and logics for plots. Currently, this is required to activate:
+		- Table 'Plot_AdjacentFeatureYieldChanges'. Columns are 'PlotType', 'FeatureType', 'YieldType', 'Yield', 'IgnoreNaturalWonderPlots'.
+	-->
+    <Row Class="4" Name="PLOTS_EXTENSIONS" Value="0"/>
 
     <!-- Tech bonuses from other teams require an embassy or spy in their capital and not from just having met them (v30) -->
     <!-- See also: "Diplomacy - Tech Bonuses" -->
     <Row Class="6" Name="DIPLOMACY_TECH_BONUSES" Value="0"/>
-
-    <!-- Human players will auto-denounce AI players before going to war with them (v39) -->
-    <!-- See also: "Diplomacy - Auto-Denounce" -->
-    <Row Class="6" Name="DIPLOMACY_AUTO_DENOUNCE" Value="0"/>
 
     <!-- Don't display leader heads (behaves more like multi-player diplomacy) (v67) -->
     <!-- See also: "Diplomacy - No Leaderheads" -->
@@ -322,6 +309,9 @@
     <!-- See also: "Global - City Automaton Workers" -->
     <Row Class="2" Name="POLICIES_CITY_AUTOMATON_WORKERS" Value="0"/>
 
+    <!-- Enables Policy_UnitClassReplacements -->
+    <Row Class="4" Name="POLICIES_UNIT_CLASS_REPLACEMENTS" Value="0"/>
+
     <!-- Permits cities to work more rings (v19) -->
     <!-- See also: "Global - City Working Distance" -->
     <Row Class="2" Name="TECHS_CITY_WORKING" Value="0"/>
@@ -394,6 +384,10 @@
     <!-- See also: "Global - City Automaton Workers" -->
     <Row Class="2" Name="BUILDINGS_CITY_AUTOMATON_WORKERS" Value="0"/>
 
+    <!-- When checking for a building's prerequisites in a city for Building_ClassesNeededInCity, loop through all buildings in the city to find a building belonging in the class, rather than the shortcut method of only checking if there is an entry in Civilization_BuildingClassOverrides. -->
+	<!-- A more thorough check for mods which replace buildings using Lua. Otherwise, the prerequisite for Building_ClassesNeededInCity will not be fulfilled correctly. -->
+    <Row Class="4" Name="BUILDINGS_THOROUGH_PREREQUISITES" Value="0"/>
+
     <!-- Scales trade routes based on map size and game speed (v52) -->
     <Row Class="5" Name="TRADE_ROUTE_SCALING" Value="0" DbUpdates="1"/>
 
@@ -404,15 +398,6 @@
 	<!-- Permits units to have no supply cost (v77) -->
 	<!-- See also: "Units - Missiles No Supply" -->
     <Row Class="5" Name="UNITS_NO_SUPPLY" Value="0" DbUpdates="1"/>
-
-    <!-- Permits units to have other than GameDefines.MAX_HIT_POINTS maximum hit points (v77) -->
-	<!-- Note: Enabling this option requires custom versions of PlotMouseoverInclude.lua, EnemyUnitPanel.lua and UnitPanel.lua to remove references to GameDefines.MAX_HIT_POINTS -->
-	<!-- See also: "Units - Tough Nuts" -->
-    <Row Class="5" Name="UNITS_MAX_HP" Value="0" DbUpdates="1"/>
-	
-    <!-- Enables the XP times 100 API (v77) -->
-	<!-- See also: "Units - XP Times 100" -->
-    <Row Class="4" Name="UNITS_XP_TIMES_100" Value="1"/>
 
     <!-- Restricts worker suggestions to local tiles (at the limits specified - limits are distances between the unit and the plot as the crow flies, NOT path lengths) (v19) -->
     <!-- See also: "UI - No Auto-Embark Workers" -->
@@ -451,9 +436,6 @@
     <!-- Send purchase notifications at every boundary and not just the first (v42) -->
     <!-- See also: "Religion - Recurring Purchase Notifications" -->
     <Row Class="4" Name="RELIGION_RECURRING_PURCHASE_NOTIFIY" Value="0"/>
-    <!-- Adds support for the Belief_PlotYieldChanges table (v35) -->
-    <!-- See also: "Religion - Bonus Beliefs" -->
-    <Row Class="6" Name="RELIGION_PLOT_YIELDS" Value="1" DbUpdates="1"/>
 	<!-- Adds support for Great People being purchased by faith to be specified on a policy (usually a finisher) and not hard-coded (v53) -->
     <Row Class="6" Name="RELIGION_POLICY_BRANCH_FAITH_GP" Value="1" DbUpdates="1"/>
     <!-- Adds support for "local" religions (ie ones that only have influence within the civ's own territory) (v48) -->
@@ -461,6 +443,16 @@
     <Row Class="5" Name="RELIGION_LOCAL_RELIGIONS" Value="0" DbUpdates="1"/>
     <!-- disable passive religious pressure without trade routes -->
     <Row Class="5" Name="RELIGION_PASSIVE_SPREAD_WITH_TRADE_ONLY" Value="0" DbUpdates="1"/>
+    <!-- 
+	Various new tables and logics for beliefs. Currently, this is required to activate:
+		- Table 'Belief_FreePromotions'. Columns are 'BeliefType', 'PromotionType'.
+		- Table 'Belief_YieldFromImprovementBuild'. Columns are 'BeliefType', 'YieldType', 'Yield', 'IsEraScaling'.
+		- Table 'Belief_YieldFromPillage'. Columns are 'BeliefType', 'YieldType', 'Yield', 'IsEraScaling'.
+	-->
+    <Row Class="4" Name="RELIGION_EXTENSIONS" Value="1"/>
+	
+	<!-- Civilizations always benefit from their pantheons, even after being converted. -->
+	<Row Class="5" Name="RELIGION_PERMANENT_PANTHEON" Value="0"/>
 
     <!-- disable ranged strikes from cities -->
     <Row Class="5" Name="CORE_NO_RANGED_ATTACK_FROM_CITIES" Value="0" DbUpdates="1"/>
@@ -473,43 +465,9 @@
 	<!-- Enables the various tables related to production cost modifiers triggered by access to resources -->
 	<Row Class="6" Name="RESOURCES_PRODUCTION_COST_MODIFIERS" Value="0"/>
 
-    <!-- Fixes the AI's inability to use combat units as secondary workers (v26) -->
-    <!-- See also: "AI - Secondary Workers And Settlers" -->
-    <Row Class="6" Name="AI_SECONDARY_WORKERS" Value="1"/>
-    <!-- Fixes the AI's inability to use combat units for founding cities (v26) -->
-    <!-- See also: "AI - Secondary Workers And Settlers" -->
-    <Row Class="6" Name="AI_SECONDARY_SETTLERS" Value="1"/>
+    <!-- Enables the column CivilizationType in Processes, allowing civilizations to have unique processes -->
+    <Row Class="5" Name="CIVILIZATIONS_UNIQUE_PROCESSES" Value="0"/>
 
-    <!-- Features from the "Smart AI mod" by Ninakoru - see http://forums.civfanatics.com/showthread.php?t=521955 (v50) -->
-    <!-- See also: "AI - Smart" -->
-    <Row Class="6" Name="AI_SMART" Value="0"/>
-    <!-- Omit obsolete/no value items as part of a deal if asked to balance things out (v50) -->
-    <Row Class="6" Name="AI_SMART_DEALS" Value="0"/>
-    <!-- Use Great people more effectively, plant some improvements early, and later use GP powers (v50) -->
-    <Row Class="6" Name="AI_SMART_GREAT_PEOPLE" Value="0"/>
-    <!-- Delay grand strategy bias until the Renaissance (v50) -->
-    <Row Class="6" Name="AI_SMART_GRAND_STRATEGY" Value="0"/>
-    <!-- Make better policy choices ignoring grand strategy until medieval and giving less importance to opening branches vs unlocked branches (v50) -->
-    <Row Class="6" Name="AI_SMART_POLICY_CHOICE" Value="0"/>
-    <!-- Stop making archaeologists sooner and also disband archaeologists if there are not valid targets (v50) -->
-    <Row Class="6" Name="AI_SMART_ARCHAEOLOGISTS" Value="0"/>
-    <!-- Disband long obsolete units, eg triremes in industrial era (v50) -->
-    <Row Class="6" Name="AI_SMART_DISBAND" Value="0"/>
-    <!-- Upgrade more units per turn if there are lots of units that can be upgraded. Also upgrade air units more often (v50) -->
-    <Row Class="6" Name="AI_SMART_UPGRADES" Value="0"/>
-    <!-- Units with at least 75% health will avoid healing (v50) -->
-    <Row Class="6" Name="AI_SMART_HEALING" Value="0"/>
-    <!-- Units won't randomly embark to water tiles (v50) -->
-    <Row Class="6" Name="AI_SMART_FLEE_FROM_DANGER" Value="0"/>
-    <!-- Ranged units are always able to move AND shoot on the same turn and should not attack over and over a city with 1 HP remaining. (v51) -->
-    <Row Class="6" Name="AI_SMART_RANGED_UNITS" Value="0"/>
-    <!-- AI will hold planes back for interceptions and perform air sweep missions more efficiently, if enemy aircraft are nearby (v50) -->
-    <Row Class="6" Name="AI_SMART_AIR_TACTICS" Value="0"/>
-    <!-- Improves the AI's melee tactics (v51) -->
-    <Row Class="6" Name="AI_SMART_MELEE_TACTICS" Value="0"/>
-	 <!-- Features from the "Smart AI V3 mod" by Ninakoru - see http://forums.civfanatics.com/showthread.php?t=562319 (v85) -->
-    <!-- See also: "AI - Smart V3" -->
-    <Row Class="6" Name="AI_SMART_V3" Value="1"/>
     <!-- Events sent when terraforming occurs (v33) -->
     <!--   GameEvents.TerraformingMap.Add(function(iEvent, iLoad) end) -->
     <!--   GameEvents.TerraformingPlot.Add(function(iEvent, iPlotX, iPlotY, iInfo, iNewValue, iOldValue, iNewExtra, iOldExtra) end) -->
@@ -839,16 +797,6 @@
     <!-- See also: "Civilization - Morindim" -->
     <Row Class="3" Name="EVENTS_CAN_MOVE_INTO" Value="0" DbUpdates="1"/>
 
-    <!-- Most API enhancements cannot be turned on or off, those entries (*) are just here to get their entries into the CustomMod.log file -->
-    <!-- Enables the Plot Based Damage API (replaces fixed damage from mountains) (v19) -->
-    <!-- Take care when enabling this and adding terrain based damage for ice as you will probably want to give submarines the IgnoreTerrainDamage promotion -->
-    <!-- See also: "Promotions - Terrain Crossing" -->
-    <Row Class="2" Name="API_PLOT_BASED_DAMAGE" Value="0" DbUpdates="1"/>
-
-    <!-- Enables the Plot Yield tables (v35) -->
-    <!-- See also: "Religion - Bonus Beliefs" -->
-    <Row Class="2" Name="API_PLOT_YIELDS" Value="1" DbUpdates="1"/>
-
     <!-- * Enables the Unified Yields extensions (v54) -->
     <Row Class="2" Name="API_UNIFIED_YIELDS" Value="1" DbUpdates="1"/>
     <!-- * Enables the Unified Yields (YIELD_TOURISM) extensions (v56) -->
@@ -859,111 +807,11 @@
     <!-- Enables the Achievements table (v45) -->
     <Row Class="2" Name="API_ACHIEVEMENTS" Value="0" DbUpdates="1"/>
 
-    <!-- * Enables the Espionage API (v19) -->
-    <!-- See also: "Global - Espionage Race" -->
-    <!-- See also: "Global - Espionage Mapping" -->
-    <Row Class="2" Name="API_ESPIONAGE" Value="1"/>
-
-    <!-- * Enables the Trade Routes API (v23) -->
-    <!-- See also: "UI - Trade Routes Enhancements" -->
-    <Row Class="2" Name="API_TRADEROUTES" Value="1"/>
-
-    <!-- * Enables the Religion API (v19) -->
-    <!-- See also: "Religion - Natural Wonder Epiphany" -->
-    <Row Class="2" Name="API_RELIGION" Value="1" DbUpdates="0"/>
-
     <!-- * Enables the LUA Extensions API - see http://forums.civfanatics.com/showthread.php?t=492305 (v19) -->
     <Row Class="2" Name="API_LUA_EXTENSIONS" Value="1"/>
     <!-- * Enables the Extensions API (v19) -->
     <!-- See also: "Unique Building - Cistern" -->
     <Row Class="2" Name="API_EXTENSIONS" Value="1"/>
-    <!-- * Push various hard-coded values controlling the game out into XML - see DB/CONFIG/GameInXml.sql for specific values (v53) -->
-    <Row Class="2" Name="CONFIG_GAME_IN_XML" Value="1" DbUpdates="0"/>
-    <!-- * Push various hard-coded values controlling the AI out into XML - see DB/CONFIG/AiInXml.sql for specific values (v19) -->
-    <Row Class="2" Name="CONFIG_AI_IN_XML" Value="1" DbUpdates="0"/>
-        
-    <!-- Some bug fixes cannot be turned on or off, those entries (*) are just here to get their entries into the CustomMod.log file -->
-	<!-- * Fixes the bug where a city doesn't work its centre tile (v45) -->
-    <Row Class="1" Name="BUGFIX_CITY_CENTRE_WORKING" Value="1"/>
-	<!-- * Fixes the bug of creating a capital from a puppet city, and leaving it that way (v73) -->
-    <Row Class="1" Name="BUGFIX_NO_PUPPET_CAPITALS" Value="1"/>
-    <!-- * Adds missing policy events when adopting an ideology (v33) -->
-    <Row Class="1" Name="BUGFIX_MISSING_POLICY_EVENTS" Value="1"/>
-	<!-- * Fixes trade routes sticking to coastal water when the player has the EmbarkAllWater trait (v33) -->
-    <Row Class="1" Name="BUGFIX_TRADE_ROUTES_EMBARK_ALL_WATER" Value="1"/>
-	<!-- * Fixes the bug where Venice puppets it's own capital (v42) -->
-    <Row Class="1" Name="BUGFIX_VENICE_PUPPETS_CAPITAL" Value="1"/>
-    <!-- Fixes the issues with using dummy policies (v77) -->
-    <!-- See also: "Policy - Dummies" -->
-    <Row Class="1" Name="BUGFIX_DUMMY_POLICIES" Value="0" DbUpdates="1"/>
-	<!-- Fixes the research overflow bug/exploit (v52) -->
-    <!-- See also: "Bugfix - Research Overflow Exploit" -->
-    <Row Class="1" Name="BUGFIX_RESEARCH_OVERFLOW" Value="1"/>
-	<!-- * Fixes the bug in the Lua Plot:ChangeVisibilityCount() method where iChange is treated as a boolean and not a signed int (v23) -->
-    <!-- See also: "Units - Visible Trade Units" -->
-    <Row Class="1" Name="BUGFIX_LUA_CHANGE_VISIBILITY_COUNT" Value="1"/>
-	<!-- Fixes the bug that excludes spy pressure (Underground Sects) from the city banner tooltip display (v45) -->
-    <Row Class="1" Name="BUGFIX_RELIGIOUS_SPY_PRESSURE" Value="1"/>
-    <!-- * Fixes the CanMoveAfterPurchase() bug where it is only tested for at one specific point in the code (v26) -->
-    <!-- See also: "Global - Civilians Move After Purchase" -->
-    <Row Class="1" Name="BUGFIX_MOVE_AFTER_PURCHASE" Value="1"/>
-    <!-- * Fixes the issues caused by using UNIT_XYZ instead of UNITCLASS_XYZ (v26) -->
-    <Row Class="1" Name="BUGFIX_UNITCLASS_NOT_UNIT" Value="1" DbUpdates="0"/>
-    <!-- * Fixes the issues caused by using BUILDING_XYZ instead of BUILDINGCLASS_XYZ (v26) -->
-    <Row Class="1" Name="BUGFIX_BUILDINGCLASS_NOT_BUILDING" Value="1"/>
-    <!-- * Fixes the NumCitiesFreeFoodBuilding (policy finisher) bug where the civilization has a UB for the Aquaduct (v19) -->
-    <!-- See also: "Unique Building - Turkish Baths" -->
-    <Row Class="1" Name="BUGFIX_FREE_FOOD_BUILDING" Value="1"/>
-    <!-- * Fixes the bug where the naval Civilization_FreeUnits start on land (v19) -->
-    <Row Class="1" Name="BUGFIX_NAVAL_FREE_UNITS" Value="1"/>
-    <!-- Fixes the bug where the naval units jump to the nearest city and not the nearest available non-lake water plot (v19) -->
-    <!-- See also: "Global - Naval Nearest Water" -->
-    <Row Class="1" Name="BUGFIX_NAVAL_NEAREST_WATER" Value="1"/>
-    <!-- Fixes the bug where stacked ranged units may attack out of cities but melee units may not (v19) -->
-    <!-- See also: "Global - 2 Units Per Fort" -->
-    <!-- See also: "Global - 3 Units Per City" -->
-    <!-- See also: "Global - No Followup From Cities" -->
-    <Row Class="1" Name="BUGFIX_CITY_STACKING" Value="1"/>
-    <!-- Fixes the bug where Barb Camps ignore the ValidTerrains and ValidFeatures tables (v19) -->
-    <Row Class="1" Name="BUGFIX_BARB_CAMP_TERRAINS" Value="1"/>
-    <!-- Fixes the bug where Barb Camps won't spawn units if they are added via pPlot:SetImprovementType() (v21) -->
-    <Row Class="1" Name="BUGFIX_BARB_CAMP_SPAWNING" Value="1"/>
-    <!-- Fixes the bug where ranged combat (archers, catapults, ships and planes) against barbarians generates Great People XP (v43) -->
-    <Row Class="1" Name="BUGFIX_BARB_GP_XP" Value="1"/>
-    <!-- Fixes the bug where you can't remove roads in no-mans-land originally built by a now dead player (v19) -->
-    <!-- See also: "Global - Remove Ghost Routes" -->
-    <Row Class="1" Name="BUGFIX_REMOVE_GHOST_ROUTES" Value="1"/>
-    <!-- Fixes healing units ignoring enemy units and sleeping units under direct fire remaining asleep (v19) -->
-    <!-- See also: "Global - Units Awake In Danger" -->
-    <Row Class="1" Name="BUGFIX_UNITS_AWAKE_IN_DANGER" Value="0"/>
-    <!-- Fixes workers stopping what they are doing at any hint of danger to only when they can see an enemy unit (v19) -->
-    <!-- See also: "Global - Units Awake In Danger" -->
-    <Row Class="1" Name="BUGFIX_WORKERS_VISIBLE_DANGER" Value="0"/>
-    <!-- Fixes the hard-coding of what builds remove which features (v45) -->
-    <Row Class="1" Name="BUGFIX_FEATURE_REMOVAL" Value="1" DbUpdates="1"/>
-    <!-- Fixes the bug in calculating AA interception strength which takes terrain into account (v19) -->
-    <!-- See also: "Promotions - AntiAir Only Defensive" -->
-    <Row Class="1" Name="BUGFIX_INTERCEPTOR_STRENGTH" Value="1"/>
-    <!-- Fixes the very dodgy maths in the calculation of a unit's power (v19) -->
-    <!-- See also: "Promotions - AntiAir Only Defensive" -->
-    <Row Class="1" Name="BUGFIX_UNIT_POWER_CALC" Value="1"/>
-    <!-- Fixes the Anti-Air non-domain bonuses issue, requires BUGFIX_UNIT_POWER_CALC to be enabled (v19) -->
-    <!-- See also: "Promotions - AntiAir Only Defensive" -->
-    <Row Class="1" Name="BUGFIX_UNIT_POWER_BONUS_VS_DOMAIN_ONLY" Value="0"/>
-    <!-- Fixes the naval imbalance in a unit's power calculation, requires BUGFIX_UNIT_POWER_CALC to be enabled (v19) -->
-    <!-- See also: "Promotions - AntiAir Only Defensive" -->
-    <Row Class="1" Name="BUGFIX_UNIT_POWER_NAVAL_CONSISTENCY" Value="0"/>
-    <!-- * Fixes the bug where units can upgrade even without any pre-req project being available (v22) -->  
-    <Row Class="1" Name="BUGFIX_UNIT_PREREQ_PROJECT" Value="1"/>
-    <!-- * Fixes a bug where hovering units can be chosen as rebels! (v39) -->  
-    <Row Class="1" Name="BUGFIX_NO_HOVERING_REBELS" Value="1"/>
-    <!-- * Fixes a bug in the pathfinder code for hovering units at the seaside! (v19) -->  
-    <Row Class="1" Name="BUGFIX_HOVERING_PATHFINDER" Value="1"/>
-	 
-	<!-- * Fixes a bug in the pathfinder code for hovering units at the seaside! (v19) -->
-	<Row Class="1" Name="BUGFIX_MINOR_CIV_STRATEGIES" Value="1"/>
-	<!-- * Fixes the ExtraMissionarySpreads column to affect naturally born Prophets -->
-	<Row Class="1" Name="BUGFIX_EXTRA_MISSIONARY_SPREADS" Value="1"/>
 
 	  <!-- Changes for the Community Patch  -->	
 	<Row Class="6" Name="COMMUNITY_PATCH" Value="0"/>
@@ -1111,6 +959,8 @@
 	  <Row Class="6" Name="BALANCE_CORE_INQUISITOR_TWEAKS" Value="0"/>
 	<!-- If true, no lua hooks are called from the game core, increasing performance and stability -->
 	<Row Class="6" Name="CORE_DISABLE_LUA_HOOKS" Value="0"/>
+	<!-- If true, additional promotions are enabled which may cause a significant slowdown if there are many units in the game -->
+	<Row Class="6" Name="CORE_AREA_EFFECT_PROMOTIONS" Value="0"/>
 	<!-- Roads are built automatically when a trade route end. -->
 	<Row Class="6" Name="CIV6_ROADS" Value="0"/>
 	<!-- You can use the BuilderStrength to limit the number of improvement and repair a unit can makes. -->

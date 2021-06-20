@@ -545,8 +545,8 @@ bool CvDllGameContext::GetDefineSTRING(char* szBuffer, size_t lenBuffer, const c
 {
 	if(szBuffer != NULL && lenBuffer > 0)
 	{
-		CvString strDefine = GC.getDefineSTRING(szName, bReportErrors);
-		if(strDefine.size() < lenBuffer)
+		CvString strDefine;
+		if (gGlobals.getDatabaseValue(szName, strDefine, bReportErrors))
 		{
 			strncpy_s(szBuffer, lenBuffer, strDefine.c_str(), strDefine.size());
 			return true;

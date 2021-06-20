@@ -47,6 +47,14 @@
 		<Row Tag="TXT_KEY_YIELD_FROM_EMPIRE_POP_EXTRA">
 			<Text>{1_Num} extra {2_IconString} from [ICON_CITIZEN] Population in Empire</Text>
 		</Row>
+
+		<!-- Include City Name in "Work Has Begun On" Notification -->
+		<Row Tag="TXT_KEY_MISC_WORK_HAS_BEGUN_IN_CITY">
+			<Text>[SPACE]Work has now begun on {TXT_KEY_GRAMMAR_A_AN &lt;&lt; {@1_ProdName}} in {@2_CityName}.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MISC_WORK_HAS_BEGUN_IN_CITY_LIMITED">
+			<Text>[SPACE]Work has now begun on {@1_ProdName} in {@2_CityName}.</Text>
+		</Row>
 		
 		<!-- America - Flavoured -->
 		<Row Tag="TXT_KEY_SPY_NAME_AMERICA_10">
@@ -2395,7 +2403,7 @@
 
 		<!-- Steal -->
 		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_STEAL_FROM">
-			<Text>Rogue agents in {@3_Civ} indicate that {@1_Civ} is currently quite vulnerable to espionage. If you complete [COLOR_POSITIVE_TEXT]{2_Num}[ENDCOLOR] Espionage actions against {@1_Civ} (Advanced Actions or Technology Theft), you will be greatly rewarded.</Text>
+			<Text>Rogue agents in {@3_Civ} indicate that {@1_Civ} is currently quite vulnerable to espionage. If you complete [COLOR_POSITIVE_TEXT]{2_Num}[ENDCOLOR] Espionage actions against {@1_Civ} (Spy Events or Technology Theft), you will be greatly rewarded.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_QUEST_STEAL_FROM">
 			<Text>Intelligence update from {@1_Civ}</Text>
@@ -2743,8 +2751,8 @@
 		<Row Tag="TXT_KEY_DIPLO_NEGOTIATE_PEACE_BLOCKED_MOD_TT">
 			<Text>You are always at war with this player!</Text>
 		</Row>
-		<Row Tag="TXT_KEY_DIPLO_MAY_NOT_ATTACK_VASSAL">
-			<Text>May not declare war on a vassal of another civilization (you must declare war on their master, {1_CivName}).</Text>
+		<Row Tag="TXT_KEY_DIPLO_MAY_NOT_ATTACK_DP">
+			<Text>May not attack this player until current Peace Treaty with their ally (Defensive Pact or Master) expires.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_DECLARE_WAR_VASSAL_BLOCKED_TT">
 			<Text>May not declare war as a vassal (war is automatically declared when your Master declares war with this civilization).</Text>
@@ -2819,7 +2827,7 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_DIPLO_NOT_BANK_TT_ONE_LINE">
-			<Text>Cannot have Gold Per Turn and Gold in same trade.</Text>
+			<Text>Cannot demand Gold or trade it for Gold Per Turn/Resources/Trade Agreements.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PRODMOD_UNIT_CLASS">
@@ -2897,42 +2905,47 @@
 		
 		<!-- Base Opinion Mod -->
 		<Row Tag="TXT_KEY_DIPLO_VERY_GOOD_BASE_OPINION">
-			<Text>They instinctively like you!</Text>
+			<Text>Diplomacy is much easier on your difficulty level.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_GOOD_BASE_OPINION">
-			<Text>They instinctively view you more favorably.</Text>
+			<Text>Diplomacy is easier on your difficulty level.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_BAD_BASE_OPINION">
-			<Text>They instinctively view you as a competitor.</Text>
+			<Text>Diplomacy is more difficult on your difficulty level.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_VERY_BAD_BASE_OPINION">
-			<Text>They instinctively hate you!</Text>
+			<Text>Diplomacy is much more difficult on your difficulty level.</Text>
 		</Row>
 		
-		<!-- Show True Approach Debug Text -->
-		<Row Tag="TXT_KEY_DIPLO_TRUE_APPROACH_WAR">
-			<Text>True Approach: War</Text>
+		<!-- Show Real Approach Debug Text -->
+		<Row Tag="TXT_KEY_DIPLO_REAL_APPROACH_WAR">
+			<Text>Real Approach is War.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_DIPLO_TRUE_APPROACH_PLANNING_WAR">
-			<Text>True Approach: Planning War</Text>
+		<Row Tag="TXT_KEY_DIPLO_REAL_APPROACH_PLANNING_WAR">
+			<Text>Real Approach is Planning War.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_DIPLO_TRUE_APPROACH_HOSTILE">
-			<Text>True Approach: Hostile</Text>
+		<Row Tag="TXT_KEY_DIPLO_REAL_APPROACH_HOSTILE">
+			<Text>Real Approach is Hostile.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_DIPLO_TRUE_APPROACH_DECEPTIVE">
-			<Text>True Approach: Deceptive</Text>
+		<Row Tag="TXT_KEY_DIPLO_REAL_APPROACH_DECEPTIVE">
+			<Text>Real Approach is Deceptive.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_DIPLO_TRUE_APPROACH_GUARDED">
-			<Text>True Approach: Guarded</Text>
+		<Row Tag="TXT_KEY_DIPLO_REAL_APPROACH_GUARDED">
+			<Text>Real Approach is Guarded.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_DIPLO_TRUE_APPROACH_AFRAID">
-			<Text>True Approach: Afraid</Text>
+		<Row Tag="TXT_KEY_DIPLO_REAL_APPROACH_AFRAID">
+			<Text>Real Approach is Afraid.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_DIPLO_TRUE_APPROACH_FRIENDLY">
-			<Text>True Approach: Friendly</Text>
+		<Row Tag="TXT_KEY_DIPLO_REAL_APPROACH_FRIENDLY">
+			<Text>Real Approach is Friendly.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_DIPLO_TRUE_APPROACH_NEUTRAL">
-			<Text>True Approach: Neutral</Text>
+		<Row Tag="TXT_KEY_DIPLO_REAL_APPROACH_NEUTRAL">
+			<Text>Real Approach is Neutral.</Text>
+		</Row>
+
+		<!-- Previous Friendship Diplo Mod -->
+		<Row Tag="TXT_KEY_DIPLO_PREVIOUSLY_FRIENDS">
+			<Text>We were previously friends with their civilization.</Text>
 		</Row>
 
 		<!-- Embassy Diplo Mod -->
@@ -2941,6 +2954,11 @@
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_WE_HAVE_EMBASSY">
 			<Text>We have an embassy in their capital.</Text>
+		</Row>
+
+		<!-- Diplomat Diplo Mod -->
+		<Row Tag="TXT_KEY_DIPLO_DIPLOMAT">
+			<Text>We have a Diplomat in their capital.</Text>
 		</Row>
 
 		<!-- Open Borders Diplo Mod -->
@@ -2970,14 +2988,36 @@
 			<Text>We have made a Research Agreement!</Text>
 		</Row>
 
+		<!-- City Liberation Diplo Mods -->
+		<Row Tag="TXT_KEY_DIPLO_LIBERATED_HOLY_CITY">
+			<Text>You liberated their Holy City!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_RETURNED_CAPITAL">
+			<Text>You gave them back their original capital.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_RETURNED_HOLY_CITY">
+			<Text>You gave them back their Holy City!</Text>
+		</Row>
+
 		<!-- Denouncement Diplo Mod -->
 		<Row Tag="TXT_KEY_DIPLO_MUTUAL_DENOUNCEMENT">
 			<Text>We have denounced each other!</Text>
 		</Row>
 		
 		<!-- Tech Dispute Mod (for scientific civs) -->
-		<Row Tag="TXT_KEY_DIPLO_TECH_DISPUTE">
+		<Row Tag="TXT_KEY_DIPLO_TECH_BLOCK">
 			<Text>You are competing for technological advancement.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_TECH_BLOCK_FIERCE">
+			<Text>They are jealous of our superior technology!</Text>
+		</Row>
+
+		<!-- Cultural Dispute Mod (for cultural civs) -->
+		<Row Tag="TXT_KEY_DIPLO_POLICY_BLOCK">
+			<Text>You are competing for cultural advancement.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_POLICY_BLOCK_FIERCE">
+			<Text>They are jealous of our superior culture!</Text>
 		</Row>
 
 		<!-- Non-Competition Diplo Mods -->
@@ -2987,8 +3027,11 @@
 		<Row Tag="TXT_KEY_DIPLO_NO_MINOR_CIV_DISPUTE">
 			<Text>You are not competing for the favor of the same City-States.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_DIPLO_NO_TECH_DISPUTE">
+		<Row Tag="TXT_KEY_DIPLO_NO_TECH_BLOCK">
 			<Text>You are not competing for technological advancement.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_NO_POLICY_BLOCK">
+			<Text>You are not competing for cultural advancement.</Text>
 		</Row>
 		
 		<!-- Wonder Spammer Diplo Mod -->
@@ -3026,7 +3069,7 @@
 		
 		<!-- City-State Coup Diplo Mod -->
 		<Row Tag="TXT_KEY_DIPLO_PERFORMED_COUP">
-			<Text>Our spies usurped their City-State Alliance in a coup d'état.</Text>
+			<Text>Your spies usurped their City-State Alliance in a coup d'état.</Text>
 		</Row>
 
 		<!-- Aggressive Posture Diplo Mod -->
@@ -3035,6 +3078,11 @@
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_AGGRESSIVE_POSTURE_HIGH">
 			<Text>Your military deployment is extremely threatening.</Text>
+		</Row>
+
+		<!-- Attacked Resurrected Civ Diplo Mod -->
+		<Row Tag="TXT_KEY_DIPLO_RESURRECTOR_ATTACKED_US">
+			<Text>You restored their civilization and then attacked them!</Text>
 		</Row>
 
 		<!-- Religion Diplo Mods -->
@@ -3059,6 +3107,26 @@
 			<Text>You have adopted the {1_YourPolicyTree} Ideology, but they believe in {2_TheirPolicyTree}.</Text>
 		</Row>
 
+		<!-- World Congress Diplo Mods -->
+		<Row Tag="TXT_KEY_DIPLO_MAINTAINED_THEIR_HOSTING">
+			<Text>We helped them remain the host of the World Congress.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_SUPPORTED_THEIR_PROPOSAL_PREVIOUSLY">
+			<Text>We previously passed their proposal in the World Congress.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_FOILED_THEIR_PROPOSAL_PREVIOUSLY">
+			<Text>We previously defeated their proposal in the World Congress.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_GOOD_LEAGUE_ALIGNMENT">
+			<Text>They consider us an ally in the World Congress.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_BAD_LEAGUE_ALIGNMENT">
+			<Text>They consider us a rival in the World Congress.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_PRIME_LEAGUE_COMPETITOR">
+			<Text>We are their greatest rival in the World Congress.</Text>
+		</Row>
+
 		<!-- World Congress >>> United Nations -->
 		<Row Tag="TXT_KEY_DIPLO_LIKED_OUR_PROPOSAL_UN">
 			<Text>They liked our proposal to the United Nations.</Text>
@@ -3067,16 +3135,57 @@
 			<Text>They disliked our proposal to the United Nations.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_SUPPORTED_THEIR_PROPOSAL_UN">
-			<Text>We helped them pass their proposal in the United Nations.</Text>
+			<Text>We passed their proposal in the United Nations.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_FOILED_THEIR_PROPOSAL_UN">
-			<Text>We helped their proposal fail in the United Nations.</Text>
+			<Text>We defeated their proposal in the United Nations.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_SUPPORTED_THEIR_HOSTING_UN">
 			<Text>We helped them become the host of the United Nations.</Text>
 		</Row>
+		<Row Tag="TXT_KEY_DIPLO_MAINTAINED_THEIR_HOSTING_UN">
+			<Text>We helped them remain the host of the United Nations.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_SUPPORTED_THEIR_PROPOSAL_PREVIOUSLY_UN">
+			<Text>We previously passed their proposal in the United Nations.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_FOILED_THEIR_PROPOSAL_PREVIOUSLY_UN">
+			<Text>We previously defeated their proposal in the United Nations.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_GOOD_LEAGUE_ALIGNMENT_UN">
+			<Text>They consider us an ally in the United Nations.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_BAD_LEAGUE_ALIGNMENT_UN">
+			<Text>They consider us a rival in the United Nations.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_PRIME_LEAGUE_COMPETITOR_UN">
+			<Text>We are their greatest rival in the United Nations.</Text>
+		</Row>
 
-		<!-- Special Warmonger Hate Descriptor for Aztecs -->
+		<Row Tag="TXT_KEY_LEAGUE_OVERVIEW_PROPOSAL_OPINIONS_NEUTRAL">
+			<Text>[NEWLINE][NEWLINE]Civilizations that would be mostly unaffected by this:</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_LEAGUE_OVERVIEW_PROPOSAL_OPINIONS_END">
+			<Text>[NEWLINE][NEWLINE]Civilizations will vote to help themselves and friends, and hurt their enemies/competitors.</Text>
+		</Row>
+
+		<!-- New Warmonger Hate Descriptors -->
+		<Row Tag="TXT_KEY_DIPLO_WARMONGER_THREAT_CRITICAL_NUCLEAR">
+			<Text>They fear your warmongering will plunge the world into nuclear winter!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WARMONGER_HATE_MAXIMAL">
+			<Text> (They furiously abhor warmongers!)</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WARMONGER_HATE_EXTREME">
+			<Text> (They hate warmongers!)</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WARMONGER_HATE_HIGH_CBP">
+			<Text> (They strongly dislike warmongers.)</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WARMONGER_HATE_MINIMAL">
+			<Text> (They ignore most warmongering.)</Text>
+		</Row>
 		<Row Tag="TXT_KEY_WARMONGER_HATE_AZTECS">
 			<Text> (They are bloodthirsty warmongers!)</Text>
 		</Row>
@@ -3193,22 +3302,22 @@
 			<Text>{1_CivName:textkey} and {2_CivName:textkey} are no longer Friends!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_VICTORY_DISPUTE_CBP_WEAK">
-			<Text>[COLOR_NEGATIVE_TEXT]They fear you are competing with them.[ENDCOLOR]</Text>
+			<Text>They fear you are competing with them.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_VICTORY_DISPUTE_CBP_STRONG">
-			<Text>[COLOR_NEGATIVE_TEXT]They suspect you are competing with them.[ENDCOLOR]</Text>
+			<Text>They suspect you are competing with them.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_VICTORY_DISPUTE_CBP_FIERCE">
-			<Text>[COLOR_NEGATIVE_TEXT]They know you are competing with them, and they hate it![ENDCOLOR]</Text>
+			<Text>They know you are competing with them, and they hate it!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_VICTORY_BLOCK_FIERCE">
-			<Text>[COLOR_NEGATIVE_TEXT]Your behavior infuriates them.[ENDCOLOR]</Text>
+			<Text>Your behavior infuriates them.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_VICTORY_BLOCK_STRONG">
-			<Text>[COLOR_NEGATIVE_TEXT]Your behavior angers them.[ENDCOLOR]</Text>
+			<Text>Your behavior angers them.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_VICTORY_BLOCK_WEAK">
-			<Text>[COLOR_NEGATIVE_TEXT]Your behavior worries them.[ENDCOLOR]</Text>
+			<Text>Your behavior worries them.</Text>
 		</Row>
 		<!-- END DOF Texts -->
 		<Row Tag="TXT_KEY_END_WORK_WITH_US_BLOCK_1">
@@ -5225,259 +5334,16 @@
 			<Text>Your spy {1_SpyRank} {2_SpyName} killed {TXT_KEY_GRAMMAR_A_AN &lt;&lt; {3_CivAdj}} spy operating out of {4_CityName}!</Text>
 		</Row>
 
-		<!-- Building Damaged -->
-
-		<!-- Spy Owner Notification (Wonder)  -->
-		<Row Tag="TXT_KEY_NOTIFICATION_SPY_SETBACK_WONDER_S">
-			<Text>Wonder construction sabotaged in {1_CityName}!</Text>
-		</Row>
-		<Row Tag="TXT_KEY_NOTIFICATION_SPY_SETBACK_WONDER">
-			<Text>{1_SpyRank} {2_SpyName} in {3_CityName} sabotaged a Wonder, costing the city {4_Setback} [ICON_PRODUCTION] Production!</Text>
-		</Row>
-
-		<!-- Spy Owner Notification (Building)  -->
-		<Row Tag="TXT_KEY_NOTIFICATION_SPY_SETBACK_BUILDING_S">
-			<Text>Building project sabotaged in {1_CityName}!</Text>
-		</Row>
-		<Row Tag="TXT_KEY_NOTIFICATION_SPY_SETBACK_BUIDLING">
-			<Text>{1_SpyRank} {2_SpyName} in {3_CityName} sabotaged a building project, costing the city {4_Setback} [ICON_PRODUCTION] Production!</Text>
-		</Row>
-
-		<!-- Detected-->
-		<Row Tag="TXT_KEY_NOTIFICATION_BUILDING_DAMAGED_SPY_DETECTED_S">
-			<Text>{1_BuildingName} sabotaged in {2_CityName}!</Text>
-		</Row>
-		<Row Tag="TXT_KEY_NOTIFICATION_BUILDING_DAMAGED_SPY_DETECTED_W_TIP">
-			<Text>An unidentified spy sabotaged your [COLOR_NEGATIVE_TEXT]{1_Building}[ENDCOLOR] in {2_CityName}, costing you {3_Lost} [ICON_PRODUCTION] Production![NEWLINE]You may want to place one of your own spies in this city to protect it.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_NOTIFICATION_BUILDING_DAMAGED_SPY_DETECTED">
-			<Text>An unidentified spy sabotaged your [COLOR_NEGATIVE_TEXT]{1_Building}[ENDCOLOR] in {2_CityName}, costing you {3_Lost} [ICON_PRODUCTION] Production!</Text>
-		</Row>
-		<!-- Identified  -->
-		<Row Tag="TXT_KEY_NOTIFICATION_BUILDING_DAMAGED_SPY_IDENTIFIED_S">
-			<Text>{1_CivShortDesc} sabotaged your {2_BuildingName} in {3_CityName}!</Text>
-		</Row>
-		<Row Tag="TXT_KEY_NOTIFICATION_BUILDING_DAMAGED_SPY_IDENTIFIED_W_TIP">
-			<Text>{TXT_KEY_GRAMMAR_UPPER_A_AN &lt;&lt; {1_CivAdj}} spy sabotaged your {2_Building} in {3_CityName}, costing you {4_Lost} [ICON_PRODUCTION] Production![NEWLINE]You may want to place one of your own spies in this city to protect it.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_NOTIFICATION_BUILDING_DAMAGED_SPY_IDENTIFIED">
-			<Text>{TXT_KEY_GRAMMAR_UPPER_A_AN &lt;&lt; {1_CivAdj}} spy sabotaged your {2_Building} in {3_CityName}, costing you {4_Lost} [ICON_PRODUCTION] Production!</Text>
-		</Row>
-		<!-- Unit Damaged -->
-
-		<!-- Spy Owner Notification (Unit)  -->
-		<Row Tag="TXT_KEY_NOTIFICATION_SPY_SETBACK_UNIT_S">
-			<Text>Military plans stolen from {1_CityName}!</Text>
-		</Row>
-		<Row Tag="TXT_KEY_NOTIFICATION_SPY_SETBACK_UNIT">
-			<Text>{1_SpyRank} {2_SpyName} stole military plans from {3_CityName}, costing the city {4_Setback} [ICON_PRODUCTION] Production towards their current military unit!</Text>
-		</Row>
-
-		<!-- Detected-->
-		<Row Tag="TXT_KEY_NOTIFICATION_UNIT_DAMAGED_SPY_DETECTED_S">
-			<Text>{1_UnitName} delayed in {2_CityName}!</Text>
-		</Row>
-		<Row Tag="TXT_KEY_NOTIFICATION_UNIT_DAMAGED_SPY_DETECTED_W_TIP">
-			<Text>An unidentified spy stole military plans from {2_CityName}, costing your {1_Unit} {3_Lost} [ICON_PRODUCTION] Production![NEWLINE]You may want to place one of your own spies in this city to protect it.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_NOTIFICATION_UNIT_DAMAGED_SPY_DETECTED">
-			<Text>An unidentified spy stole military plans from {2_CityName}, costing your {1_Unit} {3_Lost} [ICON_PRODUCTION] Production!!</Text>
-		</Row>
-		<!-- Identified  -->
-		<Row Tag="TXT_KEY_NOTIFICATION_UNIT_DAMAGED_SPY_IDENTIFIED_S">
-			<Text>{1_CivShortDesc} delayed your {2_UnitName} in {3_CityName}!</Text>
-		</Row>
-		<Row Tag="TXT_KEY_NOTIFICATION_UNIT_DAMAGED_SPY_IDENTIFIED_W_TIP">
-			<Text>{TXT_KEY_GRAMMAR_UPPER_A_AN &lt;&lt; {1_CivAdj}} spy stole military plans from {3_CityName}, costing your {2_Unit} {4_Lost} [ICON_PRODUCTION] Production![NEWLINE]You may want to place one of your own spies in this city to protect it.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_NOTIFICATION_UNIT_DAMAGED_SPY_IDENTIFIED">
-			<Text>{TXT_KEY_GRAMMAR_UPPER_A_AN &lt;&lt; {1_CivAdj}} spy stole  military plans from {3_CityName}, costing your {2_Unit} {4_Lost} [ICON_PRODUCTION] Production!</Text>
-		</Row>
-		<!-- City Damaged -->
-
-		<!-- Spy Owner Notification (City)  -->
-		<Row Tag="TXT_KEY_NOTIFICATION_SPY_SETBACK_RESISTANCE_S">
-			<Text>Riot in {1_CityName}!</Text>
-		</Row>
-		<Row Tag="TXT_KEY_NOTIFICATION_SPY_SETBACK_RESISTANCE">
-			<Text>{1_SpyRank} {2_SpyName} incited a riot in {3_CityName}, causing temporary resistance and destroying the city's [ICON_FOOD] Food supply!</Text>
-		</Row>
-
-		<!-- Detected-->
-		<Row Tag="TXT_KEY_NOTIFICATION_CITY_DAMAGED_SPY_DETECTED_S">
-			<Text>Riot provoked in {1_CityName}!</Text>
-		</Row>
-		<Row Tag="TXT_KEY_NOTIFICATION_CITY_DAMAGED_SPY_DETECTED_W_TIP">
-			<Text>An unidentified spy provoked a riot in {1_CityName}, causing temporary resistance and destroying the city's [ICON_FOOD] Food supply![NEWLINE]You may want to place one of your own spies in this city to protect it.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_NOTIFICATION_CITY_DAMAGED_SPY_DETECTED">
-			<Text>An unidentified spy provoked a riot in {1_CityName}, causing temporary resistance and destroying the city's [ICON_FOOD] Food supply!</Text>
-		</Row>
-		<!-- Identified  -->
-		<Row Tag="TXT_KEY_NOTIFICATION_CITY_DAMAGED_SPY_IDENTIFIED_S">
-			<Text>{1_CivShortDesc} has provoked a riot in {2_CityName}!</Text>
-		</Row>
-		<Row Tag="TXT_KEY_NOTIFICATION_CITY_DAMAGED_SPY_IDENTIFIED_W_TIP">
-			<Text>{TXT_KEY_GRAMMAR_UPPER_A_AN &lt;&lt; {1_CivAdj}} spy provoked a riot in {2_CityName}, causing temporary resistance and destroying the city's [ICON_FOOD] Food supply![NEWLINE]You may want to place one of your own spies in this city to protect it.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_NOTIFICATION_CITY_DAMAGED_SPY_IDENTIFIED">
-			<Text>{TXT_KEY_GRAMMAR_UPPER_A_AN &lt;&lt; {1_CivAdj}} spy provoked a riot in in {2_CityName}, causing temporary resistance and destroying the city's [ICON_FOOD] Food supply!</Text>
-		</Row>
-		<!-- GP Damaged -->
-
-		<!-- Spy Owner Notification (City)  -->
-		<Row Tag="TXT_KEY_NOTIFICATION_SPY_SETBACK_GP_S">
-			<Text>Successful assassination in {1_CityName}!</Text>
-		</Row>
-		<Row Tag="TXT_KEY_NOTIFICATION_SPY_SETBACK_GP">
-			<Text>{1_SpyRank} {2_SpyName} has successfully committed an assassination in {3_CityName}, delaying [ICON_GREAT_PEOPLE] Great Person progress by {4_Num}!</Text>
-		</Row>
-
-		<!-- Detected-->
-		<Row Tag="TXT_KEY_NOTIFICATION_GP_DAMAGED_SPY_DETECTED_S">
-			<Text>Assassination in {1_CityName}!</Text>
-		</Row>
-		<Row Tag="TXT_KEY_NOTIFICATION_GP_DAMAGED_SPY_DETECTED_W_TIP">
-			<Text>An unidentified spy committed an assassination in {2_CityName}, reducing the city's [ICON_GREAT_PEOPLE] {1_Unit} Points by {3_Num}![NEWLINE]You may want to place one of your own spies in this city to protect it.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_NOTIFICATION_GP_DAMAGED_SPY_DETECTED">
-			<Text>An unidentified spy committed an assassination in {2_CityName}, reducing the city's [ICON_GREAT_PEOPLE] {1_Unit} Points by {3_Num}!</Text>
-		</Row>
-		<!-- Identified  -->
-		<Row Tag="TXT_KEY_NOTIFICATION_GP_DAMAGED_SPY_IDENTIFIED_S">
-			<Text>{1_CivShortDesc} committed an assassination in {2_CityName}!</Text>
-		</Row>
-		<Row Tag="TXT_KEY_NOTIFICATION_GP_DAMAGED_SPY_IDENTIFIED_W_TIP">
-			<Text>{TXT_KEY_GRAMMAR_UPPER_A_AN &lt;&lt; {1_CivAdj}} spy committed an assassination in {3_CityName}, reducing the city's [ICON_GREAT_PEOPLE] {2_Unit} Points by {4_Num}![NEWLINE]You may want to place one of your own spies in this city to protect it.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_NOTIFICATION_GP_DAMAGED_SPY_IDENTIFIED">
-			<Text>{TXT_KEY_GRAMMAR_UPPER_A_AN &lt;&lt; {1_CivAdj}} spy committed an assassination in {3_CityName}, reducing the city's [ICON_GREAT_PEOPLE] {2_Unit} Points by {4_Num}!!</Text>
-		</Row>
-		<!-- Rebellion Trigger -->
-		<!-- Spy Owner Notification (Rebellion)  -->
-		<Row Tag="TXT_KEY_NOTIFICATION_SPY_SETBACK_REBELLION_S">
-			<Text>Arming rebels in {1_CityName}!</Text>
-		</Row>
-		<Row Tag="TXT_KEY_NOTIFICATION_SPY_REBELLION_RESISTANCE">
-			<Text>{1_SpyRank} {2_SpyName} has armed rebels in {3_CityName}, allowing them to damage the city and spawn nearby!</Text>
-		</Row>
-
-		<!-- Detected-->
-		<Row Tag="TXT_KEY_NOTIFICATION_REBEL_ARMED_SPY_DETECTED_S">
-			<Text>Rebellion brewing in {1_CityName}!</Text>
-		</Row>
-		<Row Tag="TXT_KEY_NOTIFICATION_REBEL_ARMED_SPY_DETECTED_W_TIP">
-			<Text>An unidentified spy helped rebels in {1_CityName}, allowing them to damage the city and spawn nearby![NEWLINE]You may want to place one of your own spies in this city to protect it.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_NOTIFICATION_REBEL_ARMED_SPY_DETECTED">
-			<Text>An unidentified spy helped rebels in {1_CityName}, allowing them to damage the city and spawn nearby!</Text>
-		</Row>
-		<!-- Identified  -->
-		<Row Tag="TXT_KEY_NOTIFICATION_REBEL_ARMED_SPY_IDENTIFIED_S">
-			<Text>{1_CivShortDesc} armed rebels in {2_CityName}!</Text>
-		</Row>
-		<Row Tag="TXT_KEY_NOTIFICATION_REBEL_ARMED_SPY_IDENTIFIED_W_TIP">
-			<Text>{TXT_KEY_GRAMMAR_UPPER_A_AN &lt;&lt; {1_CivAdj}} spy helped rebels in {2_CityName}, allowing them to damage the city and spawn nearby![NEWLINE]You may want to place one of your own spies in this city to protect it.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_NOTIFICATION_REBEL_ARMED_SPY_IDENTIFIED">
-			<Text>{TXT_KEY_GRAMMAR_UPPER_A_AN &lt;&lt; {1_CivAdj}} spy helped rebels in {2_CityName}, allowing them to damage the city and spawn nearby!</Text>
-		</Row>
-
-		<!-- Gold Theft -->
-		<!-- Spy Owner Notification (Gold)  -->
-		<Row Tag="TXT_KEY_NOTIFICATION_SPY_SETBACK_GOLD_S">
-			<Text>Successful robbery in {1_CityName}!</Text>
-		</Row>
-		<Row Tag="TXT_KEY_NOTIFICATION_SPY_SETBACK_GOLD">
-			<Text>{1_SpyRank} {2_SpyName} robbed the treasury of {3_CityName}, taking {4_Gold} [ICON_GOLD] Gold!</Text>
-		</Row>
-
-		<!-- Detected-->
-		<Row Tag="TXT_KEY_NOTIFICATION_GOLD_STOLEN_SPY_DETECTED_S">
-			<Text>Treasury robbed in {1_CityName}!</Text>
-		</Row>
-		<Row Tag="TXT_KEY_NOTIFICATION_GOLD_STOLEN_SPY_DETECTED_W_TIP">
-			<Text>An unidentified spy robbed the treasury of {1_CityName}, taking {2_Gold} [ICON_GOLD] Gold![NEWLINE]You may want to place one of your own spies in this city to protect it.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_NOTIFICATION_GOLD_STOLEN_SPY_DETECTED">
-			<Text>An unidentified spy robbed the treasury of {1_CityName}, taking {2_Gold} [ICON_GOLD] Gold!</Text>
-		</Row>
-		<!-- Identified  -->
-		<Row Tag="TXT_KEY_NOTIFICATION_GOLD_STOLEN_SPY_IDENTIFIED_S">
-			<Text>{1_CivShortDesc} robbed the treasury of {2_CityName}!</Text>
-		</Row>
-		<Row Tag="TXT_KEY_NOTIFICATION_GOLD_STOLEN_SPY_IDENTIFIED_W_TIP">
-			<Text>{TXT_KEY_GRAMMAR_UPPER_A_AN &lt;&lt; {1_CivAdj}} spy robbed the treasury of {2_CityName}, taking {3_Gold} [ICON_GOLD] Gold![NEWLINE]You may want to place one of your own spies in this city to protect it.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_NOTIFICATION_GOLD_STOLEN_SPY_IDENTIFIED">
-			<Text>{TXT_KEY_GRAMMAR_UPPER_A_AN &lt;&lt; {1_CivAdj}} spy robbed the treasury of {2_CityName}, taking {3_Gold} [ICON_GOLD] Gold!</Text>
-		</Row>
-
-		<!-- Science Pilfered -->
-		<Row Tag="TXT_KEY_NOTIFICATION_SPY_SETBACK_SCIENCE_S">
-			<Text>Research stolen from {1_CityName}!</Text>
-		</Row>
-		<Row Tag="TXT_KEY_NOTIFICATION_SPY_SETBACK_SCIENCE">
-			<Text>{1_SpyRank} {2_SpyName} stole research from {3_CityName}, boosting our [ICON_RESEARCH] Science by {4_Science}!</Text>
-		</Row>
-
-		<!-- Detected-->
-		<Row Tag="TXT_KEY_NOTIFICATION_SCIENCE_STOLEN_SPY_DETECTED_S">
-			<Text>Research stolen from {1_CityName}!</Text>
-		</Row>
-		<Row Tag="TXT_KEY_NOTIFICATION_SCIENCE_STOLEN_SPY_DETECTED_W_TIP">
-			<Text>An unidentified spy stole research secrets from {1_CityName} worth {2_Science} [ICON_RESEARCH] Science![NEWLINE]You may want to place one of your own spies in this city to protect it.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_NOTIFICATION_SCIENCE_STOLEN_SPY_DETECTED">
-			<Text>An unidentified spy stole research secrets from {1_CityName} worth {2_Science} [ICON_RESEARCH] Science!</Text>
-		</Row>
-		<!-- Identified  -->
-		<Row Tag="TXT_KEY_NOTIFICATION_SCIENCE_STOLEN_SPY_IDENTIFIED_S">
-			<Text>{1_CivShortDesc} stole research from {2_CityName}!</Text>
-		</Row>
-		<Row Tag="TXT_KEY_NOTIFICATION_SCIENCE_STOLEN_SPY_IDENTIFIED_W_TIP">
-			<Text>{TXT_KEY_GRAMMAR_UPPER_A_AN &lt;&lt; {1_CivAdj}} spy stole research secrets from {2_CityName} worth {3_Science} [ICON_RESEARCH] Science![NEWLINE]You may want to place one of your own spies in this city to protect it.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_NOTIFICATION_SCIENCE_STOLEN_SPY_IDENTIFIED">
-			<Text>{TXT_KEY_GRAMMAR_UPPER_A_AN &lt;&lt; {1_CivAdj}} spy stole research secrets from {2_CityName} worth {3_Science} [ICON_RESEARCH] Science!</Text>
-		</Row>
-
-		<!-- Generic Message -->
-
-		<Row Tag="TXT_KEY_NOTIFICATION_SPY_SETBACK_NOTHING_S">
-			<Text>Spy mission aborted in {1_CityName}!</Text>
-		</Row>
-		<Row Tag="TXT_KEY_NOTIFICATION_SPY_SETBACK_NOTHING">
-			<Text>{1_SpyRank} {2_SpyName} failed their mission in {3_CityName}, and they may have been detected.</Text>
-		</Row>
-
-		<!-- Detected-->
-		<Row Tag="TXT_KEY_NOTIFICATION_SPY_DETECTED_S">
-			<Text>Foreign Spies detected in {1_CityName}!</Text>
-		</Row>
-		<Row Tag="TXT_KEY_NOTIFICATION_SPY_DETECTED_W_TIP">
-			<Text>Foreign Spies are rumored to be operating out of {1_CityName}.[NEWLINE]You may want to place one of your own spies in this city to protect it.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_NOTIFICATION_SPY_DETECTED">
-			<Text>Foreign Spies are rumored to be operating out of {1_CityName}.</Text>
-		</Row>
-		<!-- Identified  -->
-		<Row Tag="TXT_KEY_NOTIFICATION_SPY_IDENTIFIED_S">
-			<Text>A Spy loyal to {1_CivShortDesc} was detected in {2_CityName}!</Text>
-		</Row>
-		<Row Tag="TXT_KEY_NOTIFICATION_SPY_IDENTIFIED_W_TIP">
-			<Text>{TXT_KEY_GRAMMAR_UPPER_A_AN &lt;&lt; {1_CivAdj}} spy was detected in {2_CityName}, but the spy failed to do anything nefarious...for now.[NEWLINE]You may want to place one of your own spies in this city to protect it.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_NOTIFICATION_SPY_IDENTIFIED">
-			<Text>{TXT_KEY_GRAMMAR_UPPER_A_AN &lt;&lt; {1_CivAdj}} spy was detected in {2_CityName}, but the spy failed to do anything nefarious...for now.</Text>
-		</Row>
-
 		<!-- City Rank Increasing -->
 		<Row Tag="TXT_KEY_NOTIFICATION_CITY_RANK_INCREASING">
-			<Text>{1_CityName} is [COLOR_NEGATIVE_TEXT]increasingly vulnerable[ENDCOLOR] to foreign [ICON_SPY] Spies.[NEWLINE]The City is currently [COLOR_NEGATIVE_TEXT]Rank {2_Num} of 10[ENDCOLOR], with higher ranks making it easier for foreign Spies to operate in the city.[NEWLINE]Move a Spy to this city and build Espionage buildings here to [COLOR_POSITIVE_TEXT]reduce[ENDCOLOR] the City's rank.</Text>
+			<Text>{1_CityName} is [COLOR_NEGATIVE_TEXT]increasingly vulnerable[ENDCOLOR] to foreign [ICON_SPY] Spies.[NEWLINE]The City currently has a Security Level of [COLOR_NEGATIVE_TEXT]{2_Num}[ENDCOLOR] (out of 10), with lower ranks making it easier for foreign Spies to operate in the city.[NEWLINE]Move a Spy to this city, build Espionage buildings here, and resolve [ICON_HAPPINESS_3] Unhappiness issues to [COLOR_POSITIVE_TEXT]improve[ENDCOLOR] the City's Security Level.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_CITY_RANK_INCREASING_SUMMARY">
-			<Text>Espionage update for {1_CityName}.</Text>
+			<Text>Security Level update for {1_CityName}.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_SPY_STATE_BUILDING_NETWORK">
+			<Text>Building Network</Text>
 		</Row>
 
 		<!-- Trade Route for Land Modifiers -->
@@ -6406,6 +6272,9 @@
 		<Row Tag="TXT_KEY_FOODMOD_TOURISM">
 			<Text>[NEWLINE][ICON_BULLET][ICON_TOURISM] Tourism Modifier (Trade Routes): {1_Num}%</Text>
 		</Row>
+		<Row Tag="TXT_KEY_FOODMOD_EVENT">
+			<Text>[NEWLINE][ICON_BULLET][ICON_CITIZEN] Event Modifier: {1_Num}%</Text>
+		</Row>
 		<Row Tag="TXT_KEY_FOODMOD_YIELD_OVER_SUPPLY">
 			<Text>[NEWLINE][ICON_BULLET][ICON_SILVER_FIST] Growth [COLOR_NEGATIVE_TEXT]Penalty[ENDCOLOR] (Over Military Unit Supply Cap): {1_Num}%</Text>
 		</Row>
@@ -6504,7 +6373,7 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING_TIMER_STOPPED">
-			<Text>Your military status in the world has been restored, thus your [COLOR_POSITIVE_TEXT]Pledge of Protection[ENDCOLOR] to {1_CSName} is once again secure.</Text>
+			<Text>Your military status in the world and/or alliance and/or trade connection to {1_CSName} has been restored, thus your [COLOR_POSITIVE_TEXT]Pledge of Protection[ENDCOLOR] to {1_CSName} is once again secure.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING_TIMER_STOPPED_SHORT">
 			<Text>Pledge of Protection secured.</Text>
@@ -6514,7 +6383,7 @@
 			<Text>[NEWLINE][COLOR_WARNING_TEXT][ICON_BULLET]Because you broke a previous promise, you must wait {1_Turns} more turn(s) to pledge.[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_POP_CSTATE_PLEDGE_NEED_MORE_MILITARY_TT">
-			<Text>[NEWLINE][COLOR_WARNING_TEXT][ICON_BULLET] Must be above 60% of the world in terms of Military Power. Your military is ranked at {1_Num}% of world Military Power.[ENDCOLOR]</Text>
+			<Text>[NEWLINE][COLOR_WARNING_TEXT][ICON_BULLET] Must have at least 60% of the world's highest Military Power. Your military is ranked at {1_Num}% of the highest Military Power.[ENDCOLOR]</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_POP_CSTATE_PLEDGE_NEED_ALLIES_TT">
@@ -6541,7 +6410,12 @@
 		</Row>
 
 
-
+		<Row Tag="TXT_KEY_NOTIFICATION_CITY_STATE_PTP_CANCELLED_INFLUENCE">
+			<Text>Because of {1_CSName}'s anger with you, they no longer value your [COLOR_POSITIVE_TEXT]Pledge of Protection[ENDCOLOR] to them. As a result, your Pledge of Protection to {1_CSName} was [COLOR_NEGATIVE_TEXT]annulled[ENDCOLOR].</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_CITY_STATE_PTP_CANCELLED_SHORT_INFLUENCE">
+			<Text>Pledge of Protection annulled by {1_CSName}!</Text>
+		</Row>
 
 		<Row Tag="TXT_KEY_NOTIFICATION_CITY_STATE_PTP_CANCELLED_OPTIONAL">
 			<Text>After due consideration and plenty of warnings, {1_CSName} believes that long distances render you incapable of fulfilling the [COLOR_POSITIVE_TEXT]Pledge of Protection[ENDCOLOR] you promised. As a result, your Pledge of Protection to {1_CSName} was [COLOR_NEGATIVE_TEXT]annulled[ENDCOLOR].</Text>
@@ -6562,13 +6436,6 @@
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING_TIMER_SHORT_OPTIONAL">
 			<Text>Pledge of Protection in jeopardy!</Text>
-		</Row>
-
-		<Row Tag="TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING_TIMER_STOPPED_OPTIONAL">
-			<Text>Your alliance and/or trade connection to {1_CSName} has been restored, thus your [COLOR_POSITIVE_TEXT]Pledge of Protection[ENDCOLOR] to {1_CSName} is once again secure.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING_TIMER_STOPPED_SHORT_OPTIONAL">
-			<Text>Pledge of Protection secured.</Text>
 		</Row>
 
 		
@@ -6624,29 +6491,29 @@
 			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_GOLD] Economic Power:[ENDCOLOR] They're very wealthy!</Text>
 		</Row>
 
-		<Row Tag="TXT_KEY_WAR_DAMAGE_US_MINOR">
+		<Row Tag="TXT_KEY_WAR_DAMAGE_THEM_MINOR">
 			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_WAR] War Status:[ENDCOLOR] The war goes well.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_WAR_DAMAGE_US_MAJOR">
+		<Row Tag="TXT_KEY_WAR_DAMAGE_THEM_MAJOR">
 			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_WAR] War Status:[ENDCOLOR] We are winning.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_WAR_DAMAGE_US_SERIOUS">
+		<Row Tag="TXT_KEY_WAR_DAMAGE_THEM_SERIOUS">
 			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_WAR] War Status:[ENDCOLOR] Our victory is assured.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_WAR_DAMAGE_US_CRIPPLED">
+		<Row Tag="TXT_KEY_WAR_DAMAGE_THEM_CRIPPLED">
 			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_WAR] War Status:[ENDCOLOR] They are overwhelmed!</Text>
 		</Row>
 
-		<Row Tag="TXT_KEY_WAR_DAMAGE_THEM_MINOR">
+		<Row Tag="TXT_KEY_WAR_DAMAGE_US_MINOR">
 			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_RAZING] War Status:[ENDCOLOR] The war goes poorly.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_WAR_DAMAGE_THEM_MAJOR">
+		<Row Tag="TXT_KEY_WAR_DAMAGE_US_MAJOR">
 			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_RAZING] War Status:[ENDCOLOR] They are winning.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_WAR_DAMAGE_THEM_SERIOUS">
+		<Row Tag="TXT_KEY_WAR_DAMAGE_US_SERIOUS">
 			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_RAZING] War Status:[ENDCOLOR] Defeat is likely.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_WAR_DAMAGE_THEM_CRIPPLED">
+		<Row Tag="TXT_KEY_WAR_DAMAGE_US_CRIPPLED">
 			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_RAZING] War Status:[ENDCOLOR] Destruction is imminent!</Text>
 		</Row>
 
@@ -6750,7 +6617,7 @@
 			<Text>Our {2_Unit} was forced to retreat by an enemy {1_Unit}!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_UNIT_MORALE_FALL_BACK_S">
-			<Text>{1_Unit} has routed!</Text>
+			<Text>{1_Unit} was routed!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_UNIT_MORALE_FALL_BACK_THEM">
 			<Text>Our {1_Unit} forced an enemy {2_Unit} to retreat!</Text>
@@ -6807,7 +6674,7 @@
 			<Text>Bonus Yields in {1_City}!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_INSTANT_YIELD_CITY">
-			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT]{1_City}[ENDCOLOR]</Text>
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT]{1_City}: [ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_INSTANT_YIELD_DETAILS">
 			<Text>+{3_Num} {2_Icon} {1_Name}</Text>
@@ -6837,7 +6704,7 @@
 			<Text>Researching a [ICON_RESEARCH] Technology:[NEWLINE]{1_YieldString}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_INSTANT_YIELD_CONSTRUCTION">
-			<Text>Constructing {TXT_KEY_GRAMMAR_A_AN {@2_Building}}:[NEWLINE]{1_YieldString}</Text>
+			<Text>Constructing {TXT_KEY_GRAMMAR_A_AN &lt;&lt; {2_BuildingType}}:[NEWLINE]{1_YieldString}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_INSTANT_YIELD_BORDERS">
 			<Text>Expanding [ICON_CULTURE] Borders:[NEWLINE]{1_YieldString}</Text>
@@ -6885,7 +6752,7 @@
 			<Text>[ICON_PIRATE] Death of a military unit:[NEWLINE]{1_YieldString}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_INSTANT_YIELD_BULLY">
-			<Text>[ICON_PIRATE] Bullying a Minor Civ:[NEWLINE]{1_YieldString}</Text>
+			<Text>[ICON_PIRATE] Bullying a City-State:[NEWLINE]{1_YieldString}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_INSTANT_YIELD_SPREAD">
 			<Text>Spreading your [ICON_RELIGION] Religion to a City:[NEWLINE]{1_YieldString}</Text>
@@ -6931,6 +6798,15 @@
 		</Row>
 		<Row Tag="TXT_KEY_INSTANT_YIELD_TR_PRODUCTION_SIPHON">
 			<Text>Process in destination City linked by [ICON_INTERNATIONAL_TRADE] Trade Route:[NEWLINE]{1_YieldString}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_IMPROVEMENT_BUILD">
+			<Text>Building an Improvement:[NEWLINE]{1_YieldString}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_RESEARCH_AGREEMENT">
+			<Text>[ICON_RESEARCH] Research Agreement:[NEWLINE]{1_YieldString}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_REFUND">
+			<Text>[ICON_PRODUCTION] Refund from Free Building Replacement:[NEWLINE]{1_YieldString}</Text>
 		</Row>
 
 		<!-- Quest Data -->
@@ -7239,94 +7115,80 @@
 		<Row Tag="TXT_KEY_POLICY_BRANCH_CANNOT_UNLOCK_NEED_MORE">
 			<Text>[COLOR_WARNING_TEXT]You must unlock {1_Num} Policies from other Branches before this Branch becomes unlocked. Finishers do not count towards this amount.[ENDCOLOR]</Text>
 		</Row>
-		
-		<!-- Spy GW Theft Text-->
-		<Row Tag="TXT_KEY_NOTIFICATION_SPY_CANT_STEAL_GREAT_WORK">
-			<Text>{1_SpyRank} {2_SpyName} cannot steal Great Works from {@3_CivShortName} because they have none, or we have no empty slots in our Empire!</Text>
-		</Row>
-		<Row Tag="TXT_KEY_NOTIFICATION_SPY_CANT_STEAL_GREAT_WORK_S">
-			<Text>Can't steal Great Works from {@1_CivShortName}</Text>
-		</Row>
-
-		<Row Tag="TXT_KEY_NOTIFICATION_SPY_WAS_KILLED_GW_S">
-			<Text>{1_SpyName} killed during heist!</Text>
-		</Row>
-		<Row Tag="TXT_KEY_NOTIFICATION_SPY_WAS_KILLED_GW">
-			<Text>Your spy {1_SpyRank} {2_SpyName} was killed by {TXT_KEY_GRAMMAR_A_AN &lt;&lt; {3_CivAdj}} counterspy during a Great Work heist in {4_CityName}!</Text>
-		</Row>
-
-		<Row Tag="TXT_KEY_NOTIFICATION_SPY_STEAL_GW">
-			<Text>{1_SpyRank} {2_SpyName} gathered enough intelligence in {3_CityName} to conduct a Great Work heist against {@4_CivShortName}!</Text>
-		</Row>
-		<Row Tag="TXT_KEY_NOTIFICATION_SPY_STEAL_GW_S">
-			<Text>Great Work Heist</Text>
-		</Row>
-		<Row Tag="TXT_KEY_SPY_STATE_PREPARING_HEIST">
-			<Text>Preparing Heist</Text>
-		</Row>
-		<Row Tag="TXT_KEY_EO_SPY_HEIST_TT">
-			<Text>{1_SpyRank} {2_SpyName} is preparing for a Great Work Heist in {3_CityName}.[NEWLINE][NEWLINE]A spy may only attempt a Heist if the targeted civilization's cities have at least one Great Work (and you have spies in those cities), and if you have an empty Great Work slot of the same type.[NEWLINE][NEWLINE]If the city's owner has a spy in the city, your spy has a chance of being discovered and killed when they attempt the Heist![NEWLINE][NEWLINE]While preparing, your Spy will also disrupt the city through Advanced Actions.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_SPY_BE_THIEF">
-			<Text>Do you want this spy to be a Thief? A spy can be a Thief if they are placed in a non-capital city of another major civilization. A Thief will attempt a Great Work Heist (if possible) and will conduct Advanced Actions against the City.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_DIPLOMAT_PICKER_THIEF">
-			<Text>Thief</Text>
-		</Row>
-		
-		<Row Tag="TXT_KEY_NOTIFICATION_GW_STOLEN_SPY_DETECTED_S">
-			<Text>{1_GW} stolen!</Text>
-		</Row>
-		<Row Tag="TXT_KEY_NOTIFICATION_GW_STOLEN_SPY_DETECTED_W_TIP">
-			<Text>During a Heist, an unidentified spy stole {1_GW} from {2_CityName}![NEWLINE]You may want to place one of your own spies in this city to help protect it in the future.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_NOTIFICATION_GW_STOLEN_SPY_DETECTED">
-			<Text>An unidentified spy stole {1_GW} from {2_CityName}!</Text>
-		</Row>
-		<Row Tag="TXT_KEY_NOTIFICATION_GW_STOLEN_SPY_IDENTIFIED_S">
-			<Text>{1_CivShortDesc} stole {2_GW}!</Text>
-		</Row>
-		<Row Tag="TXT_KEY_NOTIFICATION_GW_STOLEN_SPY_IDENTIFIED_W_TIP">
-			<Text>{TXT_KEY_GRAMMAR_UPPER_A_AN &lt;&lt; {1_CivAdj}} spy stole {2_GW} from {3_CityName} during a heist![NEWLINE]You may want to place one of your own spies in this city to help protect it in the future.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_NOTIFICATION_GW_STOLEN_SPY_IDENTIFIED">
-			<Text>{TXT_KEY_GRAMMAR_UPPER_A_AN &lt;&lt; {1_CivAdj}} spy stole {2_GW} from {3_CityName} during a heist!</Text>
-		</Row>
 
 		<Row Tag="TXT_KEY_EO_SPY_RANK_TT_SHORT">
 			<Text>{1_SpyName} has achieved the rank of {2_RankName}.</Text>
 		</Row>
-		
+
+		<Row Tag="TXT_KEY_EVENT_SPY_RANK">
+			<Text>[NEWLINE] [ICON_BULLET] Spy is not high enough Rank for this choice.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EVENT_SPY_ALREADY_HERE">
+			<Text>[NEWLINE] [ICON_BULLET] Foreign Spies are already performing this action here! Shh!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EVENT_NO_TECH_STEAL">
+			<Text>[NEWLINE] [ICON_BULLET] No Technologies to Steal. Requires [COLOR_POSITIVE_TEXT]Bletchley Park[ENDCOLOR] World Wonder.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EVENT_NO_GW_FORGE">
+			<Text>[NEWLINE] [ICON_BULLET] No Great Works in City to copy. Requires [COLOR_POSITIVE_TEXT]Avant Garde[ENDCOLOR] Policy.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_EVENT_NO_COUNTERSPY">
+			<Text>Requires a Counterspy in the city.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_EVENT_SPY_DURATION_SCALED">
+			<Text>Spy Mission Duration: [COLOR_POSITIVE_TEXT]{1_Time}[ENDCOLOR].[NEWLINE]Identification Chance: [COLOR_NEGATIVE_TEXT]{2_ID}%[ENDCOLOR].[NEWLINE]Chance to be killed: [COLOR_NEGATIVE_TEXT]{3_Death}%[ENDCOLOR][NEWLINE][NEWLINE]</Text>
+		</Row>
+
 		<Row Tag="TXT_KEY_EO_OWN_CITY_POTENTIAL_SHORT_TT">
-			<Text>The Potential of {1_CityName} is {2_Num}.</Text>
+			<Text>The Security Level of {1_CityName} is [COLOR_POSITIVE_TEXT]{2_Num}[ENDCOLOR].</Text>
 		</Row>
 		<Row Tag="TXT_KEY_EO_CITY_ONCE_KNOWN_POTENTIAL_TT_SHORT">
-			<Text>The Potential of {1_CityName} is believed to be {2_Num}. Send a [ICON_SPY] Spy to learn more.</Text>
+			<Text>The Security Level of {1_CityName} is believed to be {2_Num}. Send a [ICON_SPY] Spy to learn more.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_POTENTIAL_CALCULATION">
+			<Text>[ICON_SPY] Spy Resistance: [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR][NEWLINE][NEWLINE]If [ICON_SPY] Spy Resistance is negative, the City's Security Level will slowly [COLOR_NEGATIVE_TEXT]reduce[ENDCOLOR] to 1. If positive, it will slowly [COLOR_POSITIVE_TEXT]increase[ENDCOLOR] to 10.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_POTENTIAL_BREAKDOWN_NEGATIVE">
+			<Text>[COLOR_NEGATIVE_TEXT]Negative Modifiers[ENDCOLOR][NEWLINE]  [ICON_BULLET] [ICON_GOLD] Economic Value (-{1_Num})[NEWLINE]  [ICON_BULLET] [ICON_CITIZEN] Population (-{2_Num})[NEWLINE]  [ICON_BULLET] [ICON_HAPPINESS_3] Unhappiness (-{3_Num})</Text>
+		</Row>
+		<Row Tag="TXT_KEY_POTENTIAL_BREAKDOWN_POSITIVE">
+			<Text>[COLOR_POSITIVE_TEXT]Positive Modifiers[ENDCOLOR][NEWLINE]  [ICON_BULLET] [ICON_SPY] Policies and Wonders (+{1_Num})[NEWLINE]  [ICON_BULLET] [ICON_SPY] Local Modifiers (+{2_Num})[NEWLINE]  [ICON_BULLET] [ICON_SPY] Counter-Espionage (+{3_Num})</Text>
+		</Row>
+		
+		<Row Tag="TXT_KEY_CITY_DEFENSIVE_BONUSES_AGAINST">
+			<Text>[NEWLINE]  [ICON_BULLET]Our [ICON_SPY] Spies operate: [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR]% more slowly.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_EO_INCREASED_CHANCE_TO_CATCH_SPY">
-			<Text>Policies: {2_Num}% increased chance in catching enemy spies.</Text>
+			<Text>[NEWLINE]  [ICON_BULLET]Policies: {1_Num}% increased chance in catching enemy spies.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_EO_INCREASED_CHANCE_TO_CATCH_SPY_AGAINST">
-			<Text>Policies: {2_Num}% increased chance in catching our spies.</Text>
+			<Text>[NEWLINE]  [ICON_BULLET]Policies: {1_Num}% increased chance in catching our spies.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_DEFENSIVE_SPY_POTENTIAL">
 			<Text>Possible outcomes while defending:</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DEFENSIVE_SPY_POTENTIAL_AA">
-			<Text>Possible outcomes while defending (Advanced Actions):</Text>
+			<Text>Possible outcomes while defending against Spy Events:</Text>
 		</Row>
 		<Row Tag="TXT_KEY_OFFENSIVE_SPY_RISKS">
 			<Text>Possible outcomes from Espionage:</Text>
 		</Row>
 		<Row Tag="TXT_KEY_OFFENSIVE_SPY_RISKS_AA">
-			<Text>Possible outcomes from Advanced Actions:</Text>
+			<Text>Possible outcomes from Spy Events:</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_SPY_INTRIGUE_DISCOVERED">
 			<Text>[COLOR_POSITIVE_TEXT]Intrigue Discovered:[ENDCOLOR][NEWLINE]</Text>
 		</Row>
+
+
+		
 
 		<Row Tag="TXT_KEY_DEFENSIVE_SPY_BONUSES_KILL">
 			<Text>[ICON_BULLET] Chance to kill [ICON_SPY] Spies: [COLOR_POSITIVE_TEXT]{1_Num}%[ENDCOLOR].</Text>
@@ -7350,37 +7212,28 @@
 		<Row Tag="TXT_KEY_OFFENSIVE_SPY_DANGER_UNDETECTED">
 			<Text>[ICON_BULLET] Chance to remain undetected: [COLOR_POSITIVE_TEXT]{1_Num}%[ENDCOLOR].</Text>
 		</Row>
-		<Row Tag="TXT_KEY_OFFENSIVE_SPY_DANGER_ADVANCED_ACTION_KILL">
-			<Text>[ICON_BULLET] Chance to be killed (if Counterspy): [COLOR_POSITIVE_TEXT]{1_Num}%[ENDCOLOR].</Text>
-		</Row>
-		<Row Tag="TXT_KEY_OFFENSIVE_SPY_DANGER_ADVANCED_ACTION_CATCH">
-			<Text>[ICON_BULLET] Chance to be caught: [COLOR_POSITIVE_TEXT]{1_Num}%[ENDCOLOR].</Text>
-		</Row>
-		<Row Tag="TXT_KEY_OFFENSIVE_SPY_DANGER_ADVANCED_ACTION_DETECT">
-			<Text>[ICON_BULLET] Chance to be detected: [COLOR_POSITIVE_TEXT]{1_Num}%[ENDCOLOR].</Text>
+
+		<Row Tag="TXT_KEY_CITY_ESPIONAGE_RATIO">
+			<Text>Your current Spy Power: [COLOR_POSITIVE_TEXT]{3_Num}[ENDCOLOR].[NEWLINE]Security Threshold for City: [COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR].[NEWLINE][NEWLINE]Your Spy earns [COLOR_POSITIVE_TEXT]+{2_Num}[ENDCOLOR] Spy Power each turn.[NEWLINE][NEWLINE]When it exceeds the Security Threshold, the [COLOR_POSITIVE_TEXT]Spy Event[ENDCOLOR] will occur.</Text>
 		</Row>
 
-		<Row Tag="TXT_KEY_DEFENSIVE_SPY_BONUSES_ADVANCED_ACTION_KILL">
-			<Text>[ICON_BULLET] Chance to kill [ICON_SPY] Spies: [COLOR_POSITIVE_TEXT]{1_Num}%[ENDCOLOR].</Text>
-		</Row>
-		<Row Tag="TXT_KEY_DEFENSIVE_SPY_BONUSES_ADVANCED_ACTION_CATCH">
-			<Text>[ICON_BULLET] Chance to identify [ICON_SPY] Spies: [COLOR_POSITIVE_TEXT]{1_Num}%[ENDCOLOR].</Text>
-		</Row>
-		<Row Tag="TXT_KEY_DEFENSIVE_SPY_BONUSES_ADVANCED_ACTION_DETECT">
-			<Text>[ICON_BULLET] Chance to detect [ICON_SPY] Spies: [COLOR_POSITIVE_TEXT]{1_Num}%[ENDCOLOR].</Text>
+		<Row Tag="TXT_KEY_ESPIONAGE_CURRENT_MISSION">
+			<Text>[COLOR_POSITIVE_TEXT]Current Mission:[ENDCOLOR][NEWLINE]{1_Mission}</Text>
 		</Row>
 
-		<Row Tag="TXT_KEY_DEFENSIVE_SPY_BONUSES">
-			<Text>Defensive Espionage Modifier: [COLOR_POSITIVE_TEXT]{1_Num}%[ENDCOLOR].</Text>
+		<Row Tag="TXT_KEY_NOTIFICATION_SPY_MISSION_SOON_S">
+			<Text>Encrypted message from {1_Title} {2_Name}!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SPY_MISSION_SOON">
+			<Text>{1_Title} {2_Name} has transmitted a secret message, stating that they are almost ready to complete their mission in {3_City}.</Text>
+		</Row>
+
+
+		<Row Tag="TXT_KEY_OFFENSIVE_SPY_BONUSES_BASE_POWER">
+			<Text>Base Spy Power: [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR].</Text>
 		</Row>
 		<Row Tag="TXT_KEY_OFFENSIVE_SPY_BONUSES">
-			<Text>Offensive Espionage Modifier: [COLOR_POSITIVE_TEXT]{1_Num}%[ENDCOLOR].</Text>
-		</Row>
-		<Row Tag="TXT_KEY_OFFENSIVE_SPY_BONUSES_DETAIL_CITY_MOD">
-			<Text>[NEWLINE]  [ICON_BULLET] City Modifier: [COLOR_POSITIVE_TEXT]{1_Num}%[ENDCOLOR].</Text>
-		</Row>
-		<Row Tag="TXT_KEY_OFFENSIVE_SPY_BONUSES_DETAIL_THEIR_MOD">
-			<Text>[NEWLINE]  [ICON_BULLET] Their Modifier: [COLOR_POSITIVE_TEXT]{1_Num}%[ENDCOLOR].</Text>
+			<Text>Spy Power Modifiers: [COLOR_POSITIVE_TEXT]{1_Num}%[ENDCOLOR].</Text>
 		</Row>
 		<Row Tag="TXT_KEY_OFFENSIVE_SPY_BONUSES_DETAIL_OUR_MOD">
 			<Text>[NEWLINE]  [ICON_BULLET] Our Modifier: [COLOR_POSITIVE_TEXT]{1_Num}%[ENDCOLOR].</Text>
@@ -7391,16 +7244,57 @@
 		<Row Tag="TXT_KEY_OFFENSIVE_SPY_BONUSES_DETAIL_SPY_MOD">
 			<Text>[NEWLINE]  [ICON_BULLET] Spy Rank Modifier: [COLOR_POSITIVE_TEXT]{1_Num}%[ENDCOLOR].</Text>
 		</Row>
+		<Row Tag="TXT_KEY_OFFENSIVE_SPY_BONUSES_DETAIL_SPY_MOD_OB">
+			<Text>[NEWLINE]  [ICON_BULLET] Open Borders: [COLOR_POSITIVE_TEXT]{1_Num}%[ENDCOLOR].</Text>
+		</Row>
+		<Row Tag="TXT_KEY_OFFENSIVE_SPY_BONUSES_DETAIL_SPY_MOD_INFLUENCE">
+			<Text>[NEWLINE]  [ICON_BULLET] Cultural Influence over them: [COLOR_POSITIVE_TEXT]{1_Num}%[ENDCOLOR].</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_OFFENSIVE_SPY_BONUSES_BASE_DEFENSE">
+			<Text>Security Threshold: [COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR].</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DEFENSIVE_SPY_BONUSES">
+			<Text>Security Modifiers: [COLOR_NEGATIVE_TEXT]{1_Num}%[ENDCOLOR].</Text>
+		</Row>
+		<Row Tag="TXT_KEY_OFFENSIVE_SPY_BONUSES_DETAIL_THEIR_MOD">
+			<Text>[NEWLINE]  [ICON_BULLET] Their Modifier: [COLOR_NEGATIVE_TEXT]{1_Num}%[ENDCOLOR].</Text>
+		</Row>
+		<Row Tag="TXT_KEY_OFFENSIVE_SPY_BONUSES_DETAIL_CITY_MOD">
+			<Text>[NEWLINE]  [ICON_BULLET] City Modifier: [COLOR_NEGATIVE_TEXT]{1_Num}%[ENDCOLOR].</Text>
+		</Row>
+		<Row Tag="TXT_KEY_OFFENSIVE_SPY_BONUSES_DETAIL_SPY_MOD_POLICY">
+			<Text>[NEWLINE]  [ICON_BULLET] Policy Difference: [COLOR_NEGATIVE_TEXT]{1_Num}%[ENDCOLOR].</Text>
+		</Row>
+		<Row Tag="TXT_KEY_OFFENSIVE_SPY_BONUSES_DETAIL_SPY_MOD_TECH">
+			<Text>[NEWLINE]  [ICON_BULLET] Tech Difference: [COLOR_NEGATIVE_TEXT]{1_Num}%[ENDCOLOR].</Text>
+		</Row>
+		<Row Tag="TXT_KEY_OFFENSIVE_SPY_BONUSES_DETAIL_SPY_MOD_REPEAT">
+			<Text>[NEWLINE]  [ICON_BULLET] Spy Events Against Civ: [COLOR_NEGATIVE_TEXT]{1_Num}%[ENDCOLOR].</Text>
+		</Row>
+		
+		<!-- Spy Focus -->
+		<Row Tag="TXT_KEY_OFFENSIVE_SPY_FOCUS_ECONOMIC">
+			<Text>Current Focus: [COLOR_POSITIVE_TEXT]Economics and Industry[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_OFFENSIVE_SPY_FOCUS_MILITARY">
+			<Text>Current Focus: [COLOR_POSITIVE_TEXT]Military Infiltration[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_OFFENSIVE_SPY_FOCUS_SCIENTIFIC">
+			<Text>Current Focus: [COLOR_POSITIVE_TEXT]Research and Development[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_OFFENSIVE_SPY_FOCUS_URBAN">
+			<Text>Current Focus: [COLOR_POSITIVE_TEXT]Embedding in the Citizenry[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_OFFENSIVE_SPY_FOCUS_ALL">
+			<Text>Current Focus: [COLOR_POSITIVE_TEXT]All Opportunities[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_OFFENSIVE_SPY_FOCUS_NONE">
+			<Text>Current Focus: [COLOR_POSITIVE_TEXT]No Focus[ENDCOLOR]</Text>
+		</Row>
 
 		<Row Tag="TXT_KEY_OFFENSIVE_SPY_RELIGOUS_PRESSURE">
-			<Text>Bonus [ICON_RELIGION] Religious Pressure from [ICON_SPY] Spy: [COLOR_POSITIVE_TEXT]{1_Num}%[ENDCOLOR].</Text>
-		</Row>
-
-		<Row Tag="TXT_KEY_CITY_DEFENSIVE_BONUSES">
-			<Text>Foreign [ICON_SPY] Spies operate [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR]% more slowly.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_CITY_DEFENSIVE_BONUSES_AGAINST">
-			<Text>Our [ICON_SPY] Spies operate: [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR]% more slowly.</Text>
+			<Text>[NEWLINE]  [ICON_BULLET] Religious Pressure from [ICON_SPY] Spy: [COLOR_POSITIVE_TEXT]{1_Num}%[ENDCOLOR].</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_OFFENSIVE_COUP_CHANCE">
@@ -7414,81 +7308,10 @@
 			<Text>Current chance to Rig Election here: [COLOR_POSITIVE_TEXT]{1_Num}%[ENDCOLOR].</Text>
 		</Row>
 
-		<Row Tag="TXT_KEY_EO_OWN_CITY_ADVANCED_POTENTIAL_LIST_TT">
-			<Text>Potential Enemy Advanced Actions in this City:</Text>
-		</Row>
-		<Row Tag="TXT_KEY_EO_OWN_CITY_ADVANCED_REBELLION">
-			<Text>[NEWLINE][ICON_BULLET] Rebellion in City</Text>
-		</Row>
-		<Row Tag="TXT_KEY_EO_OWN_CITY_ADVANCED_UNREST">
-			<Text>[NEWLINE][ICON_BULLET] Unrest in City</Text>
-		</Row>
-		<Row Tag="TXT_KEY_EO_OWN_CITY_ADVANCED_GP_ASSASSINATION">
-			<Text>[NEWLINE][ICON_BULLET] Assassinate a Great Person</Text>
-		</Row>
-		<Row Tag="TXT_KEY_EO_OWN_CITY_ADVANCED_WONDER">
-			<Text>[NEWLINE][ICON_BULLET] Delay World Wonder</Text>
-		</Row>
-		<Row Tag="TXT_KEY_EO_OWN_CITY_ADVANCED_BUILDING">
-			<Text>[NEWLINE][ICON_BULLET] Slow Building construction</Text>
-		</Row>
-		<Row Tag="TXT_KEY_EO_OWN_CITY_ADVANCED_UNIT">
-			<Text>[NEWLINE][ICON_BULLET] Slow Unit production</Text>
-		</Row>
-		<Row Tag="TXT_KEY_EO_OWN_CITY_ADVANCED_SCIENCE">
-			<Text>[NEWLINE][ICON_BULLET] Steal Science</Text>
-		</Row>
-		<Row Tag="TXT_KEY_EO_OWN_CITY_ADVANCED_GOLD">
-			<Text>[NEWLINE][ICON_BULLET] Steal Gold</Text>
-		</Row>
-		<Row Tag="TXT_KEY_EO_OWN_CITY_ADVANCED_FAIL">
-			<Text>[NEWLINE][ICON_BULLET] Failure (nothing happens)</Text>
-		</Row>
-
-		<Row Tag="TXT_KEY_EO_OWN_CITY_ADVANCED_REBELLION_OTHER">
-			<Text>[NEWLINE][ICON_BULLET] Rebellion in City: [COLOR_POSITIVE_TEXT]: {1_Num}%[ENDCOLOR] Chance</Text>
-		</Row>
-		<Row Tag="TXT_KEY_EO_OWN_CITY_ADVANCED_UNREST_OTHER">
-			<Text>[NEWLINE][ICON_BULLET] Unrest in City: [COLOR_POSITIVE_TEXT]{1_Num}%[ENDCOLOR] Chance</Text>
-		</Row>
-		<Row Tag="TXT_KEY_EO_OWN_CITY_ADVANCED_GP_ASSASSINATION_OTHER">
-			<Text>[NEWLINE][ICON_BULLET] Assasinate a Great Person: [COLOR_POSITIVE_TEXT]{1_Num}%[ENDCOLOR] Chance</Text>
-		</Row>
-		<Row Tag="TXT_KEY_EO_OWN_CITY_ADVANCED_WONDER_OTHER">
-			<Text>[NEWLINE][ICON_BULLET] Delay World Wonder: [COLOR_POSITIVE_TEXT]{1_Num}%[ENDCOLOR] Chance</Text>
-		</Row>
-		<Row Tag="TXT_KEY_EO_OWN_CITY_ADVANCED_BUILDING_OTHER">
-			<Text>[NEWLINE][ICON_BULLET] Slow Building construction: [COLOR_POSITIVE_TEXT]{1_Num}%[ENDCOLOR] Chance</Text>
-		</Row>
-		<Row Tag="TXT_KEY_EO_OWN_CITY_ADVANCED_UNIT_OTHER">
-			<Text>[NEWLINE][ICON_BULLET] Slow Unit construction: [COLOR_POSITIVE_TEXT] {1_Num}%[ENDCOLOR] Chance</Text>
-		</Row>
-		<Row Tag="TXT_KEY_EO_OWN_CITY_ADVANCED_SCIENCE_OTHER">
-			<Text>[NEWLINE][ICON_BULLET] Steal Science: [COLOR_POSITIVE_TEXT]{1_Num}%[ENDCOLOR] Chance</Text>
-		</Row>
-		<Row Tag="TXT_KEY_EO_OWN_CITY_ADVANCED_GOLD_OTHER">
-			<Text>[NEWLINE][ICON_BULLET] Steal Gold: [COLOR_POSITIVE_TEXT]{1_Num}%[ENDCOLOR] Chance</Text>
-		</Row>
-		<Row Tag="TXT_KEY_EO_OWN_CITY_ADVANCED_FAIL_OTHER">
-			<Text>[NEWLINE][ICON_BULLET] Failure (nothing happens): [COLOR_POSITIVE_TEXT]{1_Num}%[ENDCOLOR] Chance</Text>
-		</Row>
-		<Row Tag="TXT_KEY_EO_OWN_CITY_ADVANCED_FAIL_OTHER_NOTHING">
-			<Text>[NEWLINE][ICON_BULLET] Nothing happens: [COLOR_POSITIVE_TEXT]{1_Num}%[ENDCOLOR] Chance</Text>
-		</Row>
-
-		<Row Tag="TXT_KEY_OFFENSIVE_ADVANCED_DEATH_POSSIBILITY">
-			<Text>[NEWLINE][ICON_BULLET] Foreign agents given License to Kill - is possible to [COLOR_NEGATIVE_TEXT]die[ENDCOLOR] during Advanced Actions!</Text>
-		</Row>
 		<Row Tag="TXT_KEY_OFFENSIVE_SPY_COUNTERSPY_POSSIBLY_PRESENT">
 			<Text>Foreign [ICON_SPY] Counterspies are rumored to be in the City - be careful!</Text>
 		</Row>
-		<Row Tag="TXT_KEY_OFFENSIVE_ADVANCED_HUNTERS">
-			<Text>Foreign agents pursuing {2_SpyName}: [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR]. Laying low (no Advanced Actions) until number reaches [COLOR_POSITIVE_TEXT]0[ENDCOLOR].</Text>
-		</Row>
-		<Row Tag="TXT_KEY_OFFENSIVE_ADVANCED_ACTIONS_POSSIBLE">
-			<Text>{1_SpyName} may now perform Advanced Actions in City.</Text>
-		</Row>
-
+		
 		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_DIPLOMATIC_REQUEST">
 			<Text>PENDING DIPLOMACY</Text>
 		</Row>
@@ -7613,18 +7436,6 @@
 			<Text>The following cities currently demand this Resource:</Text>
 		</Row>
 
-		<Row Tag="TXT_KEY_TECH_ADVANCED_ACTIONS_ENABLED">
-			<Text>Advanced Actions, such as stealing Gold or inciting Rebellion, are now available for your Spies. See the Espionage Overview for more information.</Text>
-		</Row>
-
-		<Row Tag="TXT_KEY_TECH_ADVANCED_ACTIONS_ENABLED_S">
-			<Text>Espionage Advanced Actions Enabled!</Text>
-		</Row>
-
-		<Row Tag="TXT_KEY_ALLOWS_ADVANCED_ACTIONS_STRING">
-			<Text>Allows Advanced Actions for Spies</Text>
-		</Row>
-
 		<!-- Tooltip helpers for unhappiness -->
 		<Row Tag="TXT_KEY_POTENTIAL_HAPPINESS_GROWTH">
 			<Text>[NEWLINE][NEWLINE]With [ICON_CITIZEN] Growth, [ICON_HAPPINESS_1] Happiness is estimated to increase by: [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR]</Text>
@@ -7661,6 +7472,24 @@
 		<!-- Great person rate modifiers -->
 		<Row Tag="TXT_KEY_MONOPOLY_GP_MOD">
 			<Text>[ICON_BULLET] Resource Monopoly Bonus: +{1_num}%</Text>
+		</Row>
+		<!-- Build blocked -->
+		<Row Tag="TXT_KEY_BUILD_BLOCKED_RESOURCE_REQUIRED">
+			<Text>{1_Num} {2_ResourceIcon} {3_ResourceName:textkey} is required to construct {TXT_KEY_GRAMMAR_A_AN &lt;&lt; {@4_ImprovementName:textkey}}.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_NUKE_INTERCEPTED">
+			<Text>A {1_CIV} Nuclear Missile was intercepted by {2_City}!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NUKE_INTERCEPTED_S">
+			<Text>Nuclear Interception!</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_NUKE_INTERCEPTED_US">
+			<Text>Defenses in {2_City} intercepted our Nuke, destroying it!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NUKE_INTERCEPTED_US_S">
+			<Text>Nuclear Attack Intercepted!</Text>
 		</Row>
 	</Language_en_US>
 	<PostDefines>

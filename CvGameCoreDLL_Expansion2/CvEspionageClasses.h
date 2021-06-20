@@ -24,20 +24,13 @@ enum CvSpyRank
     NUM_SPY_RANKS
 };
 
-enum CvAdvancedAction
+enum CvEspionageType
 {
-	ADVANCED_ACTION_NONE,
-	ADVANCED_ACTION_UNIT,
-	ADVANCED_ACTION_GP,
-	ADVANCED_ACTION_BUILDING,
-	ADVANCED_ACTION_WW,
-	ADVANCED_ACTION_GOLD_THEFT,
-	ADVANCED_ACTION_SCIENCE_THEFT,
-	ADVANCED_ACTION_UNREST,
-	ADVANCED_ACTION_REBELLION,
-	ADVANCED_ACTION_FAILURE,
-
-	NUM_ADVANCED_ACTIONS
+	NO_ESPIONAGE_TYPE,
+	ESPIONAGE_TYPE_KILL,
+	ESPIONAGE_TYPE_IDENTIFY,
+	ESPIONAGE_TYPE_DETECT,
+	NUM_ESPIONAGE_TYPES
 };
 
 enum CvSpyState
@@ -46,17 +39,13 @@ enum CvSpyState
     SPY_STATE_TRAVELLING,
     SPY_STATE_SURVEILLANCE,
     SPY_STATE_GATHERING_INTEL,
-#if defined(MOD_BALANCE_CORE)
-	SPY_STATE_PREPARING_HEIST,
-#endif
     SPY_STATE_RIG_ELECTION,
     SPY_STATE_COUNTER_INTEL,
 	SPY_STATE_MAKING_INTRODUCTIONS,
 	SPY_STATE_SCHMOOZE,
     SPY_STATE_DEAD,
-#if defined(MOD_API_ESPIONAGE)
     SPY_STATE_TERMINATED,
-#endif
+	SPY_STATE_BUILDING_NETWORK,
     NUM_SPY_STATES
 };
 
@@ -66,9 +55,7 @@ enum CvSpyResult // what was the result of the last spy action
     SPY_RESULT_DETECTED,   // a spy was detected in the city, but the defensive player can't tell which player
     SPY_RESULT_IDENTIFIED, // a spy was detected and identified in the city
     SPY_RESULT_KILLED,     // a spy was detected, identified, and killed in the city
-#if defined(MOD_API_ESPIONAGE)
     SPY_RESULT_ELIMINATED, // a spy was detected, identified, and killed in the city, in such an embarrassing way that another spy won't be recruited!
-#endif
     NUM_SPY_RESULTS
 };
 
@@ -88,19 +75,14 @@ class CvEspionageSpy
 public:
 	CvEspionageSpy();
 
-#if defined(MOD_BUGFIX_SPY_NAMES)
 	const char* GetSpyName(CvPlayer* pPlayer);
-#endif
 
-#if defined(MOD_API_ESPIONAGE)
 	void SetSpyState(PlayerTypes eSpyOwner, int iSpyIndex, CvSpyState eSpyState);
-#endif
+	void SetSpyFocus(CityEventChoiceTypes m_eSpyFocus);
 
 	// Public data
 	int m_iName;
-#if defined(MOD_BUGFIX_SPY_NAMES)
 	CvString m_sName;
-#endif
 	int m_iCityX;
 	int m_iCityY;
 	CvSpyRank m_eRank;
@@ -109,23 +91,9 @@ public:
 	int m_iReviveCounter; // after killed, counter to reincarnate a spy
 	bool m_bIsDiplomat;
 	bool m_bEvaluateReassignment; // used by the AI. Flag to indicate if the spy should be evaluated to be reassigned
-#if defined(MOD_API_ESPIONAGE)
 	bool m_bPassive;
-#endif
-#if defined(MOD_BALANCE_CORE_SPIES)
-	bool m_bIsThief;
-	void SetSpyActiveTurn(int iGameTurn);
-	int GetSpyActiveTurn();
-	void ChangeAdvancedActions(int iValue);
-	void SetAdvancedActions(int iValue);
-	int GetAdvancedActions();
-	int m_iTurnActivated;
-	int m_iActionsDone;
-	int m_iCooldown;
-	void ChangeAdvancedActionsCooldown(int iValue);
-	void SetAdvancedActionsCooldown(int iValue);
-	int GetAdvancedActionsCooldown();
-#endif
+	CityEventChoiceTypes m_eSpyFocus; // focus type for events- events are classified.
+	int m_iPotentialAtStart;
 };
 
 FDataStream& operator>>(FDataStream&, CvEspionageSpy&);
@@ -139,17 +107,27 @@ FDataStream& operator<<(FDataStream&, const CvEspionageSpy&);
 //!  - Core data in this class is a list of CvEspionageSpies
 //!  - This object is created inside the CvPlayer object and accessed through CvPlayer
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-struct HeistLocation
+struct ScoreCityEntry
 {
-	int m_iX;
-	int m_iY;
+	CvCity* m_pCity;
+	int m_iScore;
+	bool m_bDiplomat;
 };
-#if defined(MOD_BALANCE_CORE)
-struct GWList
+struct ScoreCityEntryHighEval
 {
-	int m_iGreatWorkIndex;
+	bool operator()(ScoreCityEntry const& a, ScoreCityEntry const& b) const
+	{
+		return a.m_iScore > b.m_iScore;
+	}
 };
-#endif
+
+struct ScoreCityEntryLowEval
+{
+	bool operator()(ScoreCityEntry const& a, ScoreCityEntry const& b) const
+	{
+		return a.m_iScore < b.m_iScore;
+	}
+};
 struct SpyNotificationMessage
 {
 	int m_iCityX;
@@ -157,15 +135,6 @@ struct SpyNotificationMessage
 	PlayerTypes m_eAttackingPlayer;
 	int m_iSpyResult;
 	TechTypes m_eStolenTech;
-#if defined(MOD_BALANCE_CORE_SPIES)
-	BuildingTypes m_eDamagedBuilding;
-	UnitTypes m_eDamagedUnit;
-	bool m_bDamagedCity;
-	int m_iGold;
-	int m_iScience;
-	bool m_bRebellion;
-	int m_iGWIndex;
-#endif
 };
 struct IntrigueNotificationMessage
 {
@@ -182,19 +151,13 @@ struct IntrigueNotificationMessage
 	int iSpyID;
 	bool m_bShared;
 };
-typedef FStaticVector<CvEspionageSpy, 14, false, c_eCiv5GameplayDLL > SpyList;
-typedef FStaticVector<TechTypes, 1, false, c_eCiv5GameplayDLL> TechList;
-typedef FStaticVector<TechList, MAX_MAJOR_CIVS, false, c_eCiv5GameplayDLL> PlayerTechList;
-typedef FStaticVector<int, MAX_MAJOR_CIVS, false, c_eCiv5GameplayDLL> NumTechsToStealList;
-#if defined(MOD_BALANCE_CORE)
-typedef FStaticVector<int, MAX_MAJOR_CIVS, false, c_eCiv5GameplayDLL> NumGWToStealList;
-typedef Firaxis::Array<std::vector<GWList>, MAX_MAJOR_CIVS> GreatWorkStealList;
-typedef FStaticVector<int, MAX_MAJOR_CIVS, false, c_eCiv5GameplayDLL> NumSpyActionsDone;
-typedef Firaxis::Array<int, MAX_MAJOR_CIVS> MaxGWCost;
-#endif
-typedef Firaxis::Array<int, MAX_MAJOR_CIVS> MaxTechCost;
-typedef Firaxis::Array<std::vector<HeistLocation>, MAX_MAJOR_CIVS> HeistLocationList;
-
+typedef vector<CvEspionageSpy> SpyList;
+typedef vector<TechTypes> TechList;
+typedef vector<TechList> PlayerTechList;
+typedef vector<int> NumTechsToStealList;
+typedef vector<int> NumGWToStealList;
+typedef vector<int> NumSpyActionsDone;
+typedef vector<int> MaxTechCost;
 class CvPlayerEspionage
 {
 public:
@@ -210,50 +173,54 @@ public:
 	void CreateSpy(void);
 	void ProcessSpy(uint uiSpyIndex);
 #if defined(MOD_BALANCE_CORE_SPIES)
-	void AttemptAdvancedActions(uint uiSpyIndex);
-	void DoAdvancedAction(uint uiSpyIndex, CvCity* pCity, CvAdvancedAction eAdvancedAction, int iRank, BuildingTypes eBuilding, UnitTypes eUnit, SpecialistTypes eSpecialist);
-	bool CanAdvancedAction(uint uiSpyIndex, CvCity* pCity, CvAdvancedAction eAdvancedAction);
-	std::vector<CvAdvancedAction> GetAdvancedActionPool(CvCity* pCity, BuildingTypes &eBuilding, UnitTypes &eUnit, SpecialistTypes &eSpecialist, int iRank);
-	void DoAdvancedActionNotification(CvAdvancedAction eAdvancedAction, int iPassValue, CvCity* pCity, uint uiSpyIndex);
-	void DoAdvancedActionLevelUp(CvAdvancedAction eAdvancedAction, uint uiSpyIndex, CvCity* pCity, int iPassValue);
-	void DoAdvancedActionLogging(CvAdvancedAction eAdvancedAction, int iPassValue, CvCity* pCity, uint uiSpyIndex);
+	void ProcessSpyFocus();
+	void TriggerSpyFocusSetup(CvCity* pCity, int uiSpyIndex);
+	bool DoSpyFocusEvent(uint uiSpyIndex);
+	bool DoStealTechnology(PlayerTypes eTargetPlayer);
+	bool DoStealGW(CvCity* pCity, int iGWID);
 
+	CvSpyResult ProcessSpyFocusResult(PlayerTypes ePlayer, CvCity* pCity, int uiSpyIndex, CityEventChoiceTypes eEventChoice, bool bDefer = false);
+
+	void CreateSpyChoiceEvent(CityEventTypes eEvent, CvCity* pCity, int uiSpyIndex);
+
+	void DoSpyFocusLevelUp(uint uiSpyIndex, int iChance);
+
+	CvString GetEventHelpText(CityEventTypes eEvent, int uiSpyIndex);
+
+	CvWeightedVector<int>GetRandomActionEventPool(CvCity* pCity);
+
+	//Tooltips
+	CvString GetSpyInfo(uint uiSpyIndex, bool bNoBasic, CvCity* pCity = NULL);
 	CvString GetSpyChanceAtCity(CvCity* pCity, uint uiSpyIndex, bool bNoBasic);
 	CvString GetCityPotentialInfo(CvCity* pCity, bool bNoBasic);
+
+	int GetDefenseChance(CvEspionageType eEspionage, CvCity* pCity, CityEventChoiceTypes eEventChoice = NO_EVENT_CHOICE_CITY, bool bPreview = false);
+	CvSpyResult GetSpyRollResult(CvCity* pCity, CityEventChoiceTypes eEventChoice = NO_EVENT_CHOICE_CITY);
 #endif
 	void UncoverIntrigue(uint uiSpyIndex);
-#if defined(MOD_BALANCE_CORE)
 	void GetRandomIntrigue(CvCity* pCity, uint uiSpyIndex);
-#endif
-#if defined(MOD_BUGFIX_SPY_NAMES)
 	void GetNextSpyName(CvEspionageSpy* pSpy);
-#else
-	int  GetNextSpyName(void);
-#endif
 	bool IsSpyInCity(uint uiSpyIndex);
 	CvCity* GetCityWithSpy(uint uiSpyIndex);
+	CvEspionageSpy* GetSpyByID(uint uiSpyIndex);
 	int  GetSpyIndexInCity(CvCity* pCity);
 	bool CanEverMoveSpyTo(CvCity* pCity);
-#if defined(MOD_BALANCE_CORE)
-	bool CanMoveSpyTo(CvCity* pCity, uint uiSpyIndex, bool bAsDiplomat, bool bAsThief);
-	bool MoveSpyTo(CvCity* pCity, uint uiSpyIndex, bool bAsDiplomat, bool bAsThief = false);
-#else
 	bool CanMoveSpyTo(CvCity* pCity, uint uiSpyIndex, bool bAsDiplomat);
 	bool MoveSpyTo(CvCity* pCity, uint uiSpyIndex, bool bAsDiplomat);
-#endif
 	bool ExtractSpyFromCity(uint uiSpyIndex);
 	void LevelUpSpy(uint uiSpyIndex);
 
-#if defined(MOD_API_ESPIONAGE)
 	void SetPassive(uint uiSpyIndex, bool bPassive);
 	void SetOutcome(uint uiSpyIndex, uint uiSpyResult, bool bAffectsDiplomacy = true);
-#endif
 
 	void UpdateSpies();
 	void UpdateCity(CvCity* pCity);
 
-	int CalcPerTurn(int iSpyState, CvCity* pCity, int iSpyIndex);
-	int CalcRequired(int iSpyState, CvCity* pCity, int iSpyIndex);
+	int CalcPerTurn(int iSpyState, CvCity* pCity, int iSpyIndex, bool bGlobalCheck = false, bool bFirstTime = false);
+	int CalcRequired(int iSpyState, CvCity* pCity, int iSpyIndex, bool bGlobalCheck = false);
+
+	int GetSpyPower(CvCity* pCity, int iSpyIndex);
+	int GetSpyResistance(CvCity* pCity, bool bConsiderPotentialSpy = false);
 
 	const char* GetSpyRankName(int iRank) const;
 
@@ -265,14 +232,10 @@ public:
 	bool IsSchmoozing (uint uiSpyIndex);
 	bool IsAnySchmoozing (CvCity* pCity);
 
-#if defined(MOD_BALANCE_CORE)
-	bool IsThief(uint uiSpyIndex);
-	bool IsPreparingHeist(uint uiSpyIndex);
-	bool IsAnyPreparingHeist(CvCity* pCity);
-#endif
-
 	bool CanStageCoup(uint uiSpyIndex);
+	bool CanStageCoup(CvCity* pCity);
 	int GetCoupChanceOfSuccess(uint uiSpyIndex);
+	int GetTheoreticalChanceOfCoup(CvCity* pCity);
 	bool AttemptCoup(uint uiSpyIndex);
 
 	int GetTurnsUntilStateComplete(uint uiSpyIndex);
@@ -283,26 +246,18 @@ public:
 	int GetNumAssignedSpies(void);
 	int GetNumUnassignedSpies(void);
 
+	std::vector<int> BuildGWList(CvCity* pCity);
+
 	void BuildStealableTechList(PlayerTypes ePlayer);
 	bool IsTechStealable(PlayerTypes ePlayer, TechTypes eTech);
 
 	int GetNumTechsToSteal(PlayerTypes ePlayer);
-#if defined(MOD_BALANCE_CORE)
 	int GetNumSpyActionsDone(PlayerTypes ePlayer);
-
-	void BuildStealableGWList(PlayerTypes ePlayer);
-	bool IsGWStealable(PlayerTypes ePlayer, int iGreatWorkIndex);
-	int GetNumGWToSteal(PlayerTypes ePlayer);
-#endif
 
 	bool IsMyDiplomatVisitingThem(PlayerTypes ePlayer, bool bIncludeTravelling = false);
 	bool IsOtherDiplomatVisitingMe(PlayerTypes ePlayer);
 
-#if defined(MOD_BALANCE_CORE_SPIES)
-	void AddSpyMessage(int iCityX, int iCityY, PlayerTypes ePlayer, int iSpyResult, TechTypes eStolenTech, BuildingTypes eBuilding, UnitTypes eUnit, bool bUnrest, int iValue, int iScienceValue, bool bRebel, int iGreatWorkIndex = -1);
-#else
-	void AddSpyMessage(int iCityX, int iCityY, PlayerTypes ePlayer, int iSpyResult, TechTypes eStolenTech);
-#endif
+	void AddSpyMessage(int iCityX, int iCityY, PlayerTypes ePlayer, int iSpyResult, TechTypes eStolenTech, int iGreatWorkIndex = -1);
 	void ProcessSpyMessages(void);
 
 	void AddIntrigueMessage(PlayerTypes eDiscoveringPlayer, PlayerTypes eSourcePlayer, PlayerTypes eTargetPlayer, BuildingTypes eBuilding, ProjectTypes eProject, CvIntrigueType eIntrigueType, uint uiSpyIndex, CvCity* pCity, bool bShowNotification);
@@ -323,15 +278,10 @@ public:
 
 	PlayerTechList m_aaPlayerStealableTechList;
 	NumTechsToStealList m_aiNumTechsToStealList;
-	HeistLocationList m_aHeistLocations;
 	std::vector<SpyNotificationMessage> m_aSpyNotificationMessages; // cleared every turn after displayed for the player
 	std::vector<IntrigueNotificationMessage> m_aIntrigueNotificationMessages; // cleared only between games
-#if defined(MOD_BALANCE_CORE)
-	MaxGWCost m_aiMaxGWCost;
-	NumGWToStealList m_aiNumGWToStealList;
-	GreatWorkStealList m_aPlayerStealableGWList;
 	NumSpyActionsDone m_aiNumSpyActionsDone;
-#endif
+
 private:
 	CvPlayer* m_pPlayer;
 };
@@ -358,6 +308,7 @@ typedef Firaxis::Array<int, MAX_MAJOR_CIVS> LastProgressList;
 typedef Firaxis::Array<int, MAX_MAJOR_CIVS> SpyResultList;
 typedef Firaxis::Array<int, MAX_MAJOR_CIVS> LastPotentialList;
 typedef Firaxis::Array<int, MAX_MAJOR_CIVS> NumTimesCityRobbedList;
+typedef Firaxis::Array<int, MAX_MAJOR_CIVS> CityPendingEventsList;
 
 class CvCityEspionage
 {
@@ -378,8 +329,10 @@ public:
 #if defined(MOD_EVENTS_ESPIONAGE)
 	void SetSpyResult(PlayerTypes eSpyOwner, int iSpyIndex, int iResult);
 #else
-	void SetSpyResulttsp(PlayerTypes ePlayer, int iResult);
+	void SetSpyResult(PlayerTypes ePlayer, int iResult);
 #endif
+
+	bool HasPendingEvents(PlayerTypes ePlayer) const;
 
 	bool HasCounterSpy();
 
@@ -393,6 +346,7 @@ public:
 	LastPotentialList m_aiLastBasePotential; // the last potential we calculated from this city without taking into account the spy
 	SpyResultList m_aiResult; // what was the spy result this turn
 	NumTimesCityRobbedList m_aiNumTimesCityRobbed; // how many times has this city had a tech stolen from it?
+	CityPendingEventsList m_aiPendingEventsForPlayer;
 };
 
 FDataStream& operator>>(FDataStream&, CvCityEspionage&);
@@ -405,13 +359,10 @@ FDataStream& operator<<(FDataStream&, const CvCityEspionage&);
 //!  Key Attributes:
 //!  - Object is in the player class
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-typedef FStaticVector<int, MAX_MAJOR_CIVS, false, c_eCiv5GameplayDLL> EspionageAIOutOfTechTurnList;
-#if defined(MOD_BALANCE_CORE)
-typedef FStaticVector<int, MAX_MAJOR_CIVS, false, c_eCiv5GameplayDLL> EspionageAIOutOfGWTurnList;
-#endif
-typedef FStaticVector<int, MAX_MAJOR_CIVS, false, c_eCiv5GameplayDLL> EspionageAILastTurns;
-typedef FStaticVector<int, MAX_MAJOR_CIVS, false, c_eCiv5GameplayDLL> EspionageAICount;
-typedef std::vector<CvCity*> EspionageCityList;
+typedef vector<int> EspionageAIOutOfTechTurnList;
+typedef vector<int> EspionageAILastTurns;
+typedef vector<int> EspionageAICount;
+typedef vector<CvCity*> EspionageCityList;
 
 class CvEspionageAI
 {
@@ -432,17 +383,13 @@ public:
 
 	void DoTurn(void);
 	void StealTechnology(void);
-#if defined(MOD_BALANCE_CORE)
-	void StealGreatWork(void);
-	void UpdateCivOutOfGWTurn();
-#endif
 	void UpdateCivOutOfTechTurn(void);
 	void AttemptCoups(void);
-	void FindTargetSpyNumbers(int* piTargetOffensiveSpies, int* piTargetDefensiveSpies, int* piTargetCityStateSpies, int* piTargetDiplomatSpies);
-	void BuildDiplomatCityList(EspionageCityList& aEspionageCityList);
-	void BuildOffenseCityList(EspionageCityList& aOffenseCityList);
-	void BuildDefenseCityList(EspionageCityList& aDefenseCityList);
-	void BuildMinorCityList(EspionageCityList& aMinorCityList);
+
+	std::vector<ScoreCityEntry> BuildDiplomatCityList();
+	std::vector<ScoreCityEntry> BuildOffenseCityList();
+	std::vector<ScoreCityEntry> BuildDefenseCityList();
+	std::vector<ScoreCityEntry> BuildMinorCityList();
 
 	int GetCityStatePlan(PlayerTypes* peThreatPlayer = NULL);
 
@@ -453,9 +400,6 @@ public:
 
 	CvPlayer* m_pPlayer;
 	EspionageAIOutOfTechTurnList m_aiCivOutOfTechTurn; // when a civ has run out of techs to steal relative to us
-#if defined(MOD_BALANCE_CORE)
-	EspionageAIOutOfGWTurnList m_aiCivOutOfGWTurn; // when a civ has run out of techs to steal relative to us
-#endif
 
 	EspionageAICount m_aiNumSpiesCaught; // how many spies we caught
 	EspionageAICount m_aiNumSpiesKilled;   // how many spies we killed

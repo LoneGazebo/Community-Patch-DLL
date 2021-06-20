@@ -98,7 +98,7 @@ typedef wchar_t          wchar;
 #include "CvGameCoreDLLUtil.h"
 #include "CvDefines.h"
 #include "CvGameCoreEnums.h"
-#include "CvStructs.h"
+#include "CvGameCoreStructs.h"
 #include "ICvDLLUtility.h"
 #include "ICvDllUserInterface.h"
 #include "ICvDLLScriptSystem.h"
@@ -115,9 +115,7 @@ typedef wchar_t          wchar;
 #include "CvUnit.h"
 #include "CvGlobals.h"
 #include "CvCity.h"
-#if defined(MOD_API_PLOT_YIELDS)
 #include "CvPlotInfo.h"
-#endif
 #if defined(MOD_API_UNIFIED_YIELDS)
 #include "CvGreatPersonInfo.h"
 #endif

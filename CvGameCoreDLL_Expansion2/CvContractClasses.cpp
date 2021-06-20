@@ -485,9 +485,6 @@ void CvPlayerContracts::InitContractUnits(ContractTypes eContract)
 					int iBestPop = 0;
 					for(pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
 					{
-						if(pLoopCity == NULL)
-							continue;
-
 						if(pkUnitInfo->GetDomainType() == DOMAIN_SEA)
 						{
 							if(!pLoopCity->isCoastal())
@@ -737,7 +734,7 @@ CvContract* CvGameContracts::GetActiveContract(ContractTypes eContract)
 	{
 		if(it->m_eContract == eContract)
 		{
-			return it;
+			return &(*it);
 		}
 	}
 
@@ -753,7 +750,7 @@ CvContract* CvGameContracts::GetInactiveContract(ContractTypes eContract)
 	{
 		if(it->m_eContract == eContract)
 		{
-			return it;
+			return &(*it);
 		}
 	}
 

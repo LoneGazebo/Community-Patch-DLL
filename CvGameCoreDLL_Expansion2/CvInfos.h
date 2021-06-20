@@ -17,7 +17,7 @@
 #ifndef CV_INFO_H
 #define CV_INFO_H
 
-#include "CvStructs.h"
+#include "CvGameCoreStructs.h"
 
 #include <unordered_map>
 
@@ -948,7 +948,6 @@ public:
 	virtual ~CvHandicapInfo();
 
 	int getStartingLocationPercent() const;
-	int getAdvancedStartPointsMod() const;
 	int getStartingPolicyPoints() const;
 	int getHappinessDefault() const;
 	int getHappinessDefaultCapital() const;
@@ -983,9 +982,7 @@ public:
 	int getBarbarianSeaTargetRange() const;
 
 	int getStartingDefenseUnits() const;
-#if defined(MOD_BALANCE_CORE)
 	int getStartingMinorDefenseUnits() const;
-#endif
 	int getStartingWorkerUnits() const;
 	int getStartingExploreUnits() const;
 	int getAIStartingUnitMultiplier() const;
@@ -993,6 +990,7 @@ public:
 	int getAIStartingWorkerUnits() const;
 	int getAIStartingExploreUnits() const;
 	int getAIDeclareWarProb() const;
+	int getAIHumanStrengthMod() const;
 	int getAIWorkRateModifier() const;
 	int getAIUnhappinessPercent() const;
 	int getAIGrowthPercent() const;
@@ -1008,18 +1006,15 @@ public:
 	int getAIUnitUpgradePercent() const;
 	int getAIInflationPercent() const;
 	int getAIPerEraModifier() const;
-	int getAIAdvancedStartPercent() const;
 	int getAIFreeXP() const;
 	int getAIFreeXPPercent() const;
 	int getNumGoodies() const;
-#if defined(MOD_BALANCE_CORE)
 	int getResistanceCap() const;
 	int getAIDifficultyBonusBase() const;
 	int getAIDifficultyBonusEarly() const;
 	int getAIDifficultyBonusMid() const;
 	int getAIDifficultyBonusLate() const;
 	int getAIVisionBonus() const;
-#endif
 
 	// Arrays
 	int getGoodies(int i) const;
@@ -1030,7 +1025,6 @@ public:
 
 protected:
 	int m_iStartingLocationPercent;
-	int m_iAdvancedStartPointsMod;
 	int m_iStartingPolicyPoints;
 	int m_iHappinessDefault;
 	int m_iHappinessDefaultCapital;
@@ -1065,9 +1059,7 @@ protected:
 	int m_iBarbarianSeaTargetRange;
 
 	int m_iStartingDefenseUnits;
-#if defined(MOD_BALANCE_CORE)
 	int m_iStartingMinorDefenseUnits;
-#endif
 	int m_iStartingWorkerUnits;
 	int m_iStartingExploreUnits;
 	int m_iAIStartingUnitMultiplier;
@@ -1075,6 +1067,7 @@ protected:
 	int m_iAIStartingWorkerUnits;
 	int m_iAIStartingExploreUnits;
 	int m_iAIDeclareWarProb;
+	int m_iAIHumanStrengthMod;
 	int m_iAIWorkRateModifier;
 	int m_iAIUnhappinessPercent;
 	int m_iAIGrowthPercent;
@@ -1090,18 +1083,15 @@ protected:
 	int m_iAIUnitUpgradePercent;
 	int m_iAIInflationPercent;
 	int m_iAIPerEraModifier;
-	int m_iAIAdvancedStartPercent;
 	int m_iAIFreeXP;
 	int m_iAIFreeXPPercent;
 	int m_iNumGoodies;
-#if defined(MOD_BALANCE_CORE)
 	int m_iResistanceCap;
 	int m_iDifficultyBonusBase;
 	int m_iDifficultyBonusEarly;
 	int m_iDifficultyBonusMid;
 	int m_iDifficultyBonusLate;
 	int m_iVisionBonus;
-#endif
 
 	CvString m_strHandicapName;
 
@@ -1169,7 +1159,6 @@ public:
 	int getNumTurnIncrements() const;
 
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-	int getShareOpinionDuration() const;
 	int getTechCostPerTurnMultiplier() const;
 	int getMinimumVoluntaryVassalTurns() const;
 	int getMinimumVassalTurns() const;
@@ -1227,7 +1216,6 @@ protected:
 	int m_iLeaguePercent;
 
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-	int m_iShareOpinionDuration;
 	int m_iTechCostPerTurnMultiplier;
 	int m_iMinimumVoluntaryVassalTurns;
 	int m_iMinimumVassalTurns;
@@ -1344,10 +1332,8 @@ public:
 	int getTechTimeChange(int i) const;
 
 	bool isFeatureRemove(int i) const;
-#if defined(MOD_BUGFIX_FEATURE_REMOVAL)
 	int getFeatureObsoleteTech(int i) const;
 	bool isFeatureRemoveOnly(int i) const;
-#endif
 
 	virtual bool CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility);
 
@@ -1383,10 +1369,8 @@ protected:
 	int* m_paiFeatureCost;
 	int* m_paiTechTimeChange;
 	bool* m_pabFeatureRemove;
-#if defined(MOD_BUGFIX_FEATURE_REMOVAL)
 	int* m_paiFeatureObsoleteTech;
 	bool* m_pabFeatureRemoveOnly;
-#endif
 
 private:
 	CvBuildInfo(const CvBuildInfo&);
@@ -1424,6 +1408,7 @@ public:
 	int getProduction() const;
 	int getGoldenAge() const;
 	int getFreeTiles() const;
+	int getScience() const;
 #endif
 	int getCulture() const;
 	int getFaith() const;
@@ -1463,6 +1448,7 @@ protected:
 	int m_iProduction;
 	int m_iGoldenAge;
 	int m_iFreeTiles;
+	int m_iScience;
 #endif
 	int m_iCulture;
 	int m_iFaith;
@@ -1758,9 +1744,7 @@ public:
 	int getInfluenceCost() const;
 	int getAdvancedStartRemoveCost() const;
 	int getTurnDamage() const;
-#if defined(MOD_API_PLOT_BASED_DAMAGE)
 	int getExtraTurnDamage() const;
-#endif
 	int getFirstFinderGold() const;
 	int getInBorderHappiness() const;
 	int getOccurrenceFrequency() const;
@@ -1837,9 +1821,7 @@ protected:
 	int m_iInfluenceCost;
 	int m_iAdvancedStartRemoveCost;
 	int m_iTurnDamage;
-#if defined(MOD_API_PLOT_BASED_DAMAGE)
 	int m_iExtraTurnDamage;
-#endif
 	int m_iFirstFinderGold;
 	int m_iInBorderHappiness;
 	int m_iOccurrenceFrequency;
@@ -1980,10 +1962,8 @@ public:
 	int getBuildModifier() const;
 	int getDefenseModifier() const;
 	int getInfluenceCost() const;
-#if defined(MOD_API_PLOT_BASED_DAMAGE)
 	int getTurnDamage() const;
 	int getExtraTurnDamage() const;
-#endif
 #if defined(MOD_BALANCE_CORE)
 	int getLocationUnitFreePromotion() const;
 	int getSpawnLocationUnitFreePromotion() const;
@@ -2028,10 +2008,8 @@ protected:
 	int m_iBuildModifier;
 	int m_iDefenseModifier;
 	int m_iInfluenceCost;
-#if defined(MOD_API_PLOT_BASED_DAMAGE)
 	int m_iTurnDamage;
 	int m_iExtraTurnDamage;
-#endif
 #if defined(MOD_BALANCE_CORE)
 	int m_iLocationUnitFreePromotionTerrain;
 	int m_iSpawnLocationUnitFreePromotionTerrain;
@@ -2115,16 +2093,21 @@ public:
 	int GetBoldness() const;
 	int GetDiploBalance() const;
 	int GetWarmongerHate() const;
-	int GetDenounceWillingness() const;
 	int GetDoFWillingness() const;
+	int GetDenounceWillingness() const;
 	int GetLoyalty() const;
-	int GetNeediness() const;
 	int GetForgiveness() const;
-	int GetChattiness() const;
+	int GetNeediness() const;
 	int GetMeanness() const;
+	int GetChattiness() const;
 
-	int GetMajorCivApproachBias(int i) const;
-	int GetMinorCivApproachBias(int i) const;
+	int GetWarBias(bool bMinor) const;
+	int GetHostileBias(bool bMinor) const;
+	int GetDeceptiveBias() const;
+	int GetGuardedBias() const;
+	int GetAfraidBias() const;
+	int GetNeutralBias(bool bMinor) const;
+	int GetFriendlyBias(bool bMinor) const;
 
 	const char* getArtDefineTag() const;
 	void setArtDefineTag(const char* szVal);
@@ -2191,7 +2174,6 @@ public:
 	int getTerrainGrainChange() const;
 	int getFeatureGrainChange() const;
 	int getResearchPercent() const;
-	int getAdvancedStartPointsMod() const;
 	int getNumCitiesUnhappinessPercent() const;
 	int GetNumCitiesPolicyCostMod() const;
 	int GetNumCitiesTechCostMod() const;
@@ -2238,7 +2220,6 @@ protected:
 	int m_iTerrainGrainChange;
 	int m_iFeatureGrainChange;
 	int m_iResearchPercent;
-	int m_iAdvancedStartPointsMod;
 	int m_iNumCitiesUnhappinessPercent;
 	int m_iNumCitiesPolicyCostMod;
 	int m_iNumCitiesTechCostMod;
@@ -2381,6 +2362,10 @@ public:
 	int getTechPrereq() const;
 	int getDefenseValue() const;
 
+#if defined(MOD_CIVILIZATIONS_UNIQUE_PROCESSES)
+	CivilizationTypes GetRequiredCivilization() const;
+#endif
+
 	// Arrays
 	int getProductionToYieldModifier(int i) const;
 	int GetFlavorValue(int i) const;
@@ -2390,6 +2375,10 @@ public:
 protected:
 	int m_iTechPrereq;
 	int m_iDefenseValue;
+
+#if defined(MOD_CIVILIZATIONS_UNIQUE_PROCESSES)
+	CivilizationTypes m_eRequiredCivilization;
+#endif
 
 	// Arrays
 	int* m_paiProductionToYieldModifier;
@@ -2939,6 +2928,7 @@ public:
 	virtual ~CvModEventChoiceInfo();
 
 	bool isParentEvent(EventTypes eEvent) const;
+	int getAdvancedActionID() const;
 	int getEventPolicy() const;
 	int getEventBuilding() const;
 	int getEventDuration() const;
@@ -3218,7 +3208,11 @@ public:
 	bool lacksPlayerReligion() const;
 	bool hasPlayerMajority() const;
 	bool lacksPlayerMajority() const;
-	
+
+	bool isEspionage() const;
+	bool isEspionageSetup() const;
+	bool IsCounterSpy() const;
+
 	CvCityEventLinkingInfo *GetLinkerInfo(int i) const;
 	int GetNumLinkers() const {return m_iCityLinkerInfos;};
 
@@ -3284,6 +3278,10 @@ protected:
 	bool m_bLacksPlayerReligion;
 	bool m_bHasPlayerMajority;
 	bool m_bLacksPlayerMajority;
+
+	bool m_bEspionage;
+	bool m_bEspionageSetup;
+	bool m_bIsCounterSpy;
 	
 	CvCityEventLinkingInfo* m_paCityLinkerInfo;
 	int m_iCityLinkerInfos;
@@ -3302,6 +3300,7 @@ class CvCityEventNotificationInfo
 public:
 	CvCityEventNotificationInfo() :
 	  m_bWorldEvent(false),
+	  m_bEspionageEvent(false),
 	  m_bNeedCityCoordinates(false),
 	  m_iVariable(-1),
 	  m_bNeedPlayerID(false)
@@ -3311,6 +3310,7 @@ public:
 	  CvString GetDescription() {return m_strDescription;};
 	  CvString GetShortDescription() {return m_strShortDescription;};
 	  bool IsWorldEvent() {return m_bWorldEvent;};
+	  bool IsEspionageEvent() { return m_bEspionageEvent;};
 	  bool IsNeedPlayerID() {return m_bNeedPlayerID;};
 	  bool IsNeedCityCoordinates() {return m_bNeedCityCoordinates;};
 	  CvString GetNotificationString() {return m_strNotificationType;};
@@ -3322,6 +3322,7 @@ protected:
 	CvString m_strDescription;
 	CvString m_strShortDescription;
 	bool m_bWorldEvent;
+	bool m_bEspionageEvent;
 	bool m_bNeedPlayerID;
 };
 
@@ -3382,8 +3383,10 @@ public:
 	int getImprovementDestruction(ImprovementTypes eImprovement) const;
 	int getBuildingDestructionChance(int i) const;
 	int getCityWideDestructionChance() const;
+	int getCityStrategicResourcePillage() const;
 	int getFlavorValue(int i) const;
 	int getWLTKD() const;
+	int getGrowthMod() const;
 	int getResistanceTurns() const;
 	int getRandomBarbs() const;
 	int getFreeScaledUnits() const;
@@ -3407,6 +3410,27 @@ public:
 	int getEventPromotion() const;
 	int ConvertsCityToPlayerReligion() const;
 	int ConvertsCityToPlayerMajorityReligion() const;
+	int getCityDefenseModifier() const;
+
+	
+	//espionage
+	bool IsEspionageEffect() const;
+	bool IsApplyEffectToSpyOwner() const;
+	int GetIdentificationModifier() const;
+	int GetDeathModifier() const;
+	int GetSpyLevelRequired() const;
+	int getEspionageDifficultyModifier() const;
+	int getDamageCity() const;
+	int getDamageGarrison() const;
+	int getStealTech() const;
+	int getForgeGW() const;
+	int getSapCityTurns() const;
+	bool isRequiresCounterSpy() const;
+	bool isExpiresOnCounterSpyExit() const;
+	bool isSpyMissionSetup() const;
+	bool IsPotentialScaling() const;
+	int GetScienceScaling() const;
+	EventChoiceTypes GetTriggerPlayerEventChoice() const;
 
 	//Filters
 	int getPrereqTech() const;
@@ -3437,6 +3461,7 @@ public:
 	int getLocalResourceRequired() const;
 	bool isResistance() const;
 	bool isWLTKD() const;
+	int getWonderUnderConstructionSpeedMod() const;
 	bool isOccupied() const;
 	bool isRazing() const;
 	bool hasAnyReligion() const;
@@ -3482,6 +3507,7 @@ protected:
 	int* m_piFlavor;
 	int* m_piGPChange;
 	int m_iNumWLTKD;
+	int m_iGrowthMod;
 	int m_iResistanceTurns;
 	int m_iRandomBarbs;
 	int m_iFreeScaledUnits;
@@ -3502,12 +3528,33 @@ protected:
 	int** m_ppiResourceYield;
 	bool* m_pbParentEventIDs;
 	int m_iCityWideDestructionChance;
+	int m_iCityStrategicResourcePillage;
 	int m_iCityHappiness;
 	int* m_piResourceChange;
 	int* m_piCityUnhappinessNeedMod;
 	CvString m_strDisabledTooltip;
 	int m_iConvertsCityToPlayerReligion;
 	int m_iConvertsCityToPlayerMajorityReligion;
+	int m_iCityDefenseModifier;
+	int m_iTriggerPlayerEventChoice;
+
+	//espionage
+	bool m_bEspionageEffect;
+	bool m_bApplyEffectToSpyOwner;
+	bool m_bPotentialScaling;
+	int m_iScienceScaling;
+	int m_iIdentificationModifier;
+	int m_iDeathModifier;
+	int m_iSpyLevelRequired;
+	int m_iDifficultyModEsp;
+	bool m_bIsMissionSetup;
+	bool m_bRequiresCounterSpy;
+	bool m_bExpiresOnCounterSpyExit;
+	int m_iDamageCity;
+	int m_iDamageGarrison;
+	int m_iStealTech;
+	int m_iForgeGW;
+	int m_iSapCityTurns;
 
 	//Filters
 	int m_iPrereqTech;
@@ -3537,6 +3584,7 @@ protected:
 	bool m_bSuperUnhappy;
 	bool m_bIsResistance;
 	bool m_bIsWLTKD;
+	int m_iWonderConstructionMod;
 	bool m_bIsOccupied;
 	bool m_bIsRazing;
 	bool m_bHasAnyReligion;

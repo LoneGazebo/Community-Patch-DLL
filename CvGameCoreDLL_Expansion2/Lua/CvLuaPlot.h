@@ -41,7 +41,7 @@ protected:
 	//! (LUA) CvPlot::GetTerrainType.
 	static int lGetTerrainType(lua_State* L);
 
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_API_PLOT_BASED_DAMAGE)
+#if defined(MOD_API_LUA_EXTENSIONS)
 	LUAAPIEXTN(GetTurnDamage, int, bIgnoreTerrainDamage, bIgnoreFeatureDamage, bExtraTerrainDamage, bExtraFeatureDamage);
 #endif
 
@@ -142,7 +142,7 @@ protected:
 	static int lIsCity(lua_State* L);
 	static int lIsFriendlyCity(lua_State* L);
 #if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_GLOBAL_PASSABLE_FORTS)
-	LUAAPIEXTN(IsFriendlyCityOrPassableImprovement, bool, pUnit, bCheckImprovement);
+	LUAAPIEXTN(isFriendlyCityOrPassableImprovement, bool, pUnit, bCheckImprovement);
 #endif
 	static int lIsEnemyCity(lua_State* L);
 	static int lIsBeingWorked(lua_State* L);
@@ -155,6 +155,7 @@ protected:
 	static int lIsVisibleEnemyUnit(lua_State* L);
 	static int lIsVisibleOtherUnit(lua_State* L);
 	static int lGetNumFriendlyUnitsOfType(lua_State* L);
+	static int lgetNumFriendlyUnitsOfType(lua_State* L);
 	static int lIsFighting(lua_State* L);
 
 #if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_GLOBAL_STACKING_RULES)
@@ -396,4 +397,34 @@ protected:
 
 #endif
 };
+
+namespace CvLuaArgs
+{
+	template<> inline const CvPlot* toValue(lua_State* L, int idx)
+	{
+		return CvLuaPlot::GetInstance(L, idx);
+	}
+	template<> inline CvPlot* toValue(lua_State* L, int idx)
+	{
+		return CvLuaPlot::GetInstance(L, idx);
+	}
+	template<> inline const CvPlot& toValue(lua_State* L, int idx)
+	{
+		return *CvLuaPlot::GetInstance(L, idx);
+	}
+	template<> inline CvPlot& toValue(lua_State* L, int idx)
+	{
+		return *CvLuaPlot::GetInstance(L, idx);
+	}
+
+	template<> inline void pushValue(lua_State* L, CvPlot* p)
+	{
+		CvLuaPlot::Push(L, p);
+	}
+	template<> inline void pushValue(lua_State* L, CvPlot& r)
+	{
+		CvLuaPlot::Push(L, &r);
+	}
+}
+
 #endif

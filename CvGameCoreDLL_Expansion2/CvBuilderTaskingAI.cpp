@@ -171,6 +171,7 @@ void CvBuilderTaskingAI::Read(FDataStream& kStream)
 
 	kStream >> m_routeNeededPlots;
 	kStream >> m_routeWantedPlots;
+	kStream >> m_canalWantedPlots;
 }
 
 /// Serialization write
@@ -183,20 +184,16 @@ void CvBuilderTaskingAI::Write(FDataStream& kStream)
 
 	kStream << m_routeNeededPlots;
 	kStream << m_routeWantedPlots;
+	kStream << m_canalWantedPlots;
 }
 
 /// Update
 void CvBuilderTaskingAI::Update(void)
 {
 	UpdateRoutePlots();
+	UpdateCanalPlots();
 
 	m_eRouteBuild = GetBuildRoute();
-
-	int iLoop;
-	for(CvCity* pCity = m_pPlayer->firstCity(&iLoop); pCity != NULL; pCity = m_pPlayer->nextCity(&iLoop))
-	{
-		pCity->GetCityStrategyAI()->UpdateBestYields();
-	}
 
 	if(m_bLogging)
 	{
@@ -209,86 +206,38 @@ void CvBuilderTaskingAI::Update(void)
 		}
 
 		// show crisis states
-		CvCity* pLoopCity;
-		for(pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
+		int iLoop;
+		for(CvCity* pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
 		{
-			CvString str;
-			str += "// ";
-			CvString strCityName;
-			strCityName = pLoopCity->getName();
-			str += strCityName;
-			str += " \\\\";
+			CvString str("// ");
+			str += pLoopCity->getName();
+			str += " // missing ";
 
-			LogInfo(str, m_pPlayer, bShowOutput);
-
-			for(uint ui = 0; ui < NUM_YIELD_TYPES; ui++)
+			YieldTypes eMissing = pLoopCity->GetCityStrategyAI()->GetMostDeficientYield();
+			switch(eMissing)
 			{
-				//double fYield = pLoopCity->GetCityStrategyAI()->GetYieldAverage((YieldTypes)ui);
-				//double fYieldDeficient = pLoopCity->GetCityStrategyAI()->GetDeficientYieldValue((YieldTypes)ui);
-				CvString strYield;
-				switch(ui)
-				{
-				case YIELD_FOOD:
-					strYield = "food       ";
-					break;
-				case YIELD_PRODUCTION:
-					strYield = "production ";
-					break;
-				case YIELD_SCIENCE:
-					strYield = "science    ";
-					break;
-				case YIELD_GOLD:
-					strYield = "gold       ";
-					break;
-				case YIELD_CULTURE:
-					strYield = "culture    ";
-					break;
-				case YIELD_FAITH:
-					strYield = "faith      ";
-					break;
-#if defined(MOD_API_UNIFIED_YIELDS_TOURISM)
-				case YIELD_TOURISM:
-					strYield = "tourism    ";
-					break;
-#endif
-#if defined(MOD_API_UNIFIED_YIELDS_GOLDEN_AGE)
-				case YIELD_GOLDEN_AGE_POINTS:
-					strYield = "goldenage  ";
-					break;
-#endif
-				}
-
-				CvString strNumbers;
-				strNumbers.Format("%d, %d", pLoopCity->GetCityStrategyAI()->GetBestYieldAverageTimes100((YieldTypes)ui), pLoopCity->GetCityStrategyAI()->GetYieldDeltaTimes100((YieldTypes)ui));
-
-				//int iYieldAdjusted = (int)workerround(fYield * 100);
-				//int iYieldDeficientAdjacent = (int)workerround(fYieldDeficient * 100);
-
-				//strNumbers.Format("%d / %d", iYieldAdjusted, iYieldDeficientAdjacent);
-				strYield += strNumbers;
-
-				if(ui == pLoopCity->GetCityStrategyAI()->GetFocusYield())
-				{
-					strYield += " *";
-				}
-
-				//if (iYieldAdjusted < iYieldDeficientAdjacent)
-				//{
-				//if (GetDeficientYield(pLoopCity, false) != GetDeficientYield(pLoopCity, true))
-				//{
-				//	strYield += "  Problem, but happiness over is overriding it";
-				//}
-				//else
-				//{
-				//	strYield += "  PROBLEM!!";
-				//}
-				//}
-				LogInfo(strYield, m_pPlayer, bShowOutput);
+			case YIELD_FOOD:
+				str += "food";
+				break;
+			case YIELD_PRODUCTION:
+				str += "production";
+				break;
+			case YIELD_SCIENCE:
+				str += "science";
+				break;
+			case YIELD_GOLD:
+				str += "gold";
+				break;
+			case YIELD_CULTURE:
+				str += "culture";
+				break;
+			case YIELD_FAITH:
+				str += "faith";
+				break;
+			default:
+				str += "unknown";
 			}
 
-			str = "\\\\ end ";
-			str += strCityName;
-			str += " //";
 			LogInfo(str, m_pPlayer, bShowOutput);
 		}
 	}
@@ -500,6 +449,16 @@ bool CvBuilderTaskingAI::NeedRouteAtPlot(const CvPlot* pPlot) const
 	return (it != m_routeNeededPlots.end());
 }
 
+bool CvBuilderTaskingAI::WantCanalAtPlot(const CvPlot* pPlot) const
+{
+	if (!pPlot)
+		return false;
+
+	//do not check IsWaterAreaSeparator() but wait until there are cities on both sides
+	set<int>::const_iterator it = m_canalWantedPlots.find(pPlot->GetPlotIndex());
+	return (it != m_canalWantedPlots.end());
+}
+
 void CvBuilderTaskingAI::AddRoutePlot(CvPlot* pPlot, RouteTypes eRoute, int iValue)
 {
 	if (!pPlot)
@@ -531,6 +490,67 @@ int CvBuilderTaskingAI::GetRouteValue(CvPlot* pPlot)
 		return it->second.second;
 	else
 		return -1;
+}
+
+void CvBuilderTaskingAI::UpdateCanalPlots()
+{
+	//not needed every turn ... simple performance optimization
+	if ((GC.getGame().getGameTurn() + m_pPlayer->GetID()) % 7 == 0)
+		return;
+
+	//only majors build canals
+	if (m_pPlayer->isMinorCiv())
+		return;
+
+	m_canalWantedPlots.clear();
+
+	vector<CvPlot*> vDestPlots;
+	for(int iPlayer = 0; iPlayer < MAX_PLAYERS; ++iPlayer)
+	{
+		int iCity;
+		CvPlayer& kLoopPlayer = GET_PLAYER((PlayerTypes)iPlayer);
+		for (CvCity* pDestCity = kLoopPlayer.firstCity(&iCity); pDestCity != NULL; pDestCity = kLoopPlayer.nextCity(&iCity))
+			vDestPlots.push_back(pDestCity->plot());
+	}
+
+	int iOriginCityLoop;
+	for (CvCity* pOriginCity = m_pPlayer->firstCity(&iOriginCityLoop); pOriginCity != NULL; pOriginCity = m_pPlayer->nextCity(&iOriginCityLoop))
+	{
+		SPathFinderUserData data(m_pPlayer->GetID(), PT_TRADE_WATER);
+		//this is the important flag
+		data.iFlags = CvUnit::MOVEFLAG_PRETEND_CANALS;
+		//doesn't really matter but we don't want to underestimate the real range, so use the real range
+		data.iMaxNormalizedDistance = m_pPlayer->GetTrade()->GetTradeRouteRange(DOMAIN_SEA, pOriginCity);
+
+		//get all paths
+		map<CvPlot*, SPath> waterpaths = GC.GetStepFinder().GetMultiplePaths(pOriginCity->plot(), vDestPlots, data);
+		for (map<CvPlot*, SPath>::iterator it = waterpaths.begin(); it != waterpaths.end(); ++it)
+		{
+			//the paths may contain not-yet-existing canals but the path cost for them is very high
+			//so they should only be used if there really is no other way.
+			SPath& currentPath = it->second;
+			for (int i = 0; i < currentPath.length(); i++)
+			{
+				CvPlot* pCheck = currentPath.get(i);
+
+				if (pCheck->isWater() || pCheck->isCity())
+					continue;
+
+				//existing canal in use, remember that so we don't replace it by something else
+				if (pCheck->IsImprovementPassable())
+				{
+					if (pCheck->getOwner() == m_pPlayer->GetID())
+						m_canalWantedPlots.insert(pCheck->GetPlotIndex());
+				}
+				else
+				{
+					//this is where we must build a new canal
+					if (pCheck->getOwner() == m_pPlayer->GetID())
+						m_canalWantedPlots.insert(pCheck->GetPlotIndex());
+				}
+			}
+		}
+	}
 }
 
 
@@ -766,7 +786,7 @@ CvUnit* CvBuilderTaskingAI::FindBestWorker(const std::map<CvUnit*, ReachablePlot
 		int iTurns = INT_MAX;
 		ReachablePlots::const_iterator itPlot = itUnit->second.find(pTarget->GetPlotIndex());
 		if (itPlot != itUnit->second.end())
-			iTurns = itPlot->iTurns;
+			iTurns = itPlot->iPathLength;
 		else
 			continue;
 
@@ -806,7 +826,7 @@ BuilderDirective CvBuilderTaskingAI::EvaluateBuilder(CvUnit* pUnit, const map<Cv
 	for(ReachablePlots::const_iterator it=thisUnitPlots->second.begin(); it!=thisUnitPlots->second.end(); ++it)
 	{
 		CvPlot* pPlot = GC.getMap().plotByIndex(it->iPlotIndex);
-		int iMoveTurnsAway = it->iTurns;
+		int iMoveTurnsAway = it->iPathLength;
 
 		if(!ShouldBuilderConsiderPlot(pUnit, pPlot))
 		{
@@ -1076,14 +1096,8 @@ void CvBuilderTaskingAI::AddImprovingPlotsDirectives(CvUnit* pUnit, CvPlot* pPlo
 	if (pPlot->IsImprovementPillaged())
 		return;
 
-	if (!m_bEvaluateAdjacent)
-	{
-		CvCity* pCity = getOwningCity(pPlot);
-		if(!pCity)
-		{
-			return;
-		}
-	}
+	if (!m_bEvaluateAdjacent && pPlot->getOwningCityID() == -1)
+		return;
 
 	// loop through the build types to find one that we can use
 	BuildTypes eBuild;
@@ -1262,7 +1276,7 @@ void CvBuilderTaskingAI::AddImprovingPlotsDirectives(CvUnit* pUnit, CvPlot* pPlo
 
 		if (eFeature != NO_FEATURE && pkBuild->isFeatureRemove(eFeature))
 		{
-			CvCity* pCity = getOwningCity(pPlot);
+			CvCity* pCity = pPlot->getEffectiveOwningCity();
 			if (pCity)
 			{
 				int iWeightPenalty = 0;
@@ -1477,7 +1491,7 @@ void CvBuilderTaskingAI::AddChopDirectives(CvUnit* pUnit, CvPlot* pPlot, int iMo
 		return;
 	}
 
-	CvCity* pCity = getOwningCity(pPlot);
+	CvCity* pCity = pPlot->getEffectiveOwningCity();
 	if(!pCity)
 	{
 		return;
@@ -1673,6 +1687,9 @@ void CvBuilderTaskingAI::AddRepairTilesDirectives(CvUnit* pUnit, CvPlot* pPlot, 
 	iWeight += GetBuildTimeWeight(pUnit, pPlot, m_eRepairBuild, false);
 	iWeight /= (iMoveTurnsAway*iMoveTurnsAway + 1);
 
+	if (pPlot->isRevealedFortification(m_pPlayer->getTeam()))
+		iWeight *= 10;
+
 	if (iWeight > 0)
 	{
 		BuilderDirective directive;
@@ -1695,8 +1712,7 @@ void CvBuilderTaskingAI::AddScrubFalloutDirectives(CvUnit* pUnit, CvPlot* pPlot,
 		return;
 	}
 
-	CvCity* pCity = getOwningCity(pPlot);
-	if(!pCity)
+	if (pPlot->getTeam() != pUnit->getTeam())
 	{
 		return;
 	}
@@ -1743,12 +1759,8 @@ bool CvBuilderTaskingAI::ShouldBuilderConsiderPlot(CvUnit* pUnit, CvPlot* pPlot)
 	switch(pUnit->getDomainType())
 	{
 	case DOMAIN_LAND:
-#if defined(MOD_AI_SECONDARY_WORKERS)
 		// As embarked workers can now build fishing boats, we need to consider coastal plots
 		if(pPlot->isDeepWater())
-#else
-		if(pPlot->isWater())
-#endif
 		{
 			return false;
 		}
@@ -1923,31 +1935,6 @@ int CvBuilderTaskingAI::GetResourceWeight(ResourceTypes eResource, ImprovementTy
 	return iWeight;
 }
 
-/// Get this city that can interact with this plot
-CvCity* CvBuilderTaskingAI::getOwningCity(CvPlot* pPlot)
-{
-	CvCity* pCity = NULL;
-	if(pPlot->getOwningCity())
-	{
-		pCity = pPlot->getOwningCity();
-	}
-	else
-	{
-		CvCity* pLoopCity;
-		int iLoop;
-		for(pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
-		{
-			if(pLoopCity->GetCityCitizens()->IsCanWork(pPlot))
-			{
-				pCity = pLoopCity;
-				break;
-			}
-		}
-	}
-
-	return pCity;
-}
-
 /// Does this city want to rush a unit?
 bool CvBuilderTaskingAI::DoesBuildHelpRush(CvUnit* pUnit, CvPlot* pPlot, BuildTypes eBuild)
 {
@@ -1987,21 +1974,13 @@ int CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes eImprovem
 {
 	UpdateProjectedPlotYields(pPlot, eBuild);
 
-#if defined(MOD_BALANCE_CORE)
-	if(eImprovement == NO_IMPROVEMENT)
-	{
+	if(eImprovement == NO_IMPROVEMENT || eBuild == NO_BUILD)
 		return -1;
-	}
-	if(eBuild == NO_BUILD)
-	{
-		return -1;
-	}
 
 	CvImprovementEntry* pImprovement = GC.getImprovementInfo(eImprovement);
 	if(!pImprovement)
-	{
 		return -1;
-	}
+
 	ResourceTypes eResource = pPlot->getResourceType(m_pPlayer->getTeam());
 
 	//Some base value.
@@ -2022,61 +2001,23 @@ int CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes eImprovem
 				return -1;
 		}
 
-		CvCity* pCapitalCity = m_pPlayer->getCapitalCity();
-		if(pCapitalCity)
+		for(uint ui = 0; ui < NUM_YIELD_TYPES; ui++)
 		{
-			CvCityStrategyAI* pCapitalCityStrategy = pCapitalCity->GetCityStrategyAI();
-			bool bAnyNegativeMultiplier = false;
-			YieldTypes eFocusYield = pCapitalCityStrategy->GetFocusYield();
-			if(!pCapitalCityStrategy)
+			int iYieldDelta = m_aiProjectedPlotYields[ui] - m_aiCurrentPlotYields[ui] * 100;
+			if(iYieldDelta >= 0)
 			{
-				return -1;
+				iYieldScore += m_aiProjectedPlotYields[ui]; // provide a nominal score to plots that improve anything
 			}
-			for(uint ui = 0; ui < NUM_YIELD_TYPES; ui++)
+			else if(iYieldDelta < 0)
 			{
-				int iMultiplier = pCapitalCityStrategy->GetYieldDeltaTimes100((YieldTypes)ui);
-				//int iAbsMultiplier = abs(iMultiplier);
-				int iYieldDelta = m_aiProjectedPlotYields[ui] - m_aiCurrentPlotYields[ui] * 100;
-
-				// the multiplier being lower than zero means that we need more of this resource
-				if(iMultiplier < 0)
-				{
-					bAnyNegativeMultiplier = true;
-					if(iYieldDelta > 0)  // this would be an improvement to the yield
-					{
-						iYieldScore += m_aiProjectedPlotYields[ui];
-					}
-					else if(iYieldDelta < 0)  // the yield would go down
-					{
-						iYieldScore += iYieldDelta;
-					}
-				}
-				else
-				{
-					if(iYieldDelta >= 0)
-					{
-						iYieldScore += m_aiProjectedPlotYields[ui]; // provide a nominal score to plots that improve anything
-					}
-					else if(iYieldDelta < 0)
-					{
-						iYieldScore += iYieldDelta;
-					}
-				}
+				iYieldScore += iYieldDelta;
 			}
-			if(!bAnyNegativeMultiplier && eFocusYield != NO_YIELD)
-			{
-				int iYieldDelta = m_aiProjectedPlotYields[eFocusYield] - m_aiCurrentPlotYields[eFocusYield];
-				if(iYieldDelta > 0)
-				{
-					iYieldScore += m_aiProjectedPlotYields[eFocusYield];
-				}
-			}
-			
-			//Because this evaluates territory outside of our base territory, let's cut this down a bit.
-			iYieldScore -= iSmallBuff;
 		}
+			
+		//Because this evaluates territory outside of our base territory, let's cut this down a bit.
+		iYieldScore -= iSmallBuff;
 	}
-#endif
+
 	CvCity* pCity = pPlot->getOwningCity();
 	//Great improvements are great!
 	if (pImprovement->IsCreatedByGreatPerson() && pImprovement->GetCultureBombRadius() <= 0)
@@ -2084,6 +2025,7 @@ int CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes eImprovem
 		if (!m_bEvaluateAdjacent && !pCity)
 			return 0;
 	}
+
 	if(pCity)
 	{
 		CvCityStrategyAI* pCityStrategy = pCity->GetCityStrategyAI();
@@ -2095,7 +2037,7 @@ int CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes eImprovem
 		{
 			//int iAbsMultiplier = abs(iMultiplier);
 			int iYieldDelta = (m_aiProjectedPlotYields[ui] - m_aiCurrentPlotYields[ui]) * 100;
-			if (iYieldDelta > 0 && pCityStrategy->GetFocusYield() == (YieldTypes)ui)
+			if (iYieldDelta > 0 && pCityStrategy->GetMostDeficientYield() == (YieldTypes)ui)
 				iYieldScore += iYieldDelta * 5;
 			else
 				iYieldScore += iYieldDelta;
@@ -2105,7 +2047,7 @@ int CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes eImprovem
 		{
 			iYieldScore += iSmallBuff;
 		}
-#if defined(MOD_BALANCE_CORE)
+
 		//Plots with resources on them need emphasis, especially if they offer happiness.
 		if (!pImprovement->IsCreatedByGreatPerson() && pPlot->getResourceType(pCity->getTeam()) != NO_RESOURCE)
 		{
@@ -2282,56 +2224,80 @@ int CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes eImprovem
 			switch(eYield)
 			{
 				case YIELD_FOOD:
-					iTempWeight = GC.getBUILDER_TASKING_BASELINE_ADDS_FOOD() * GC.getImprovementInfo(eImprovement)->GetYieldChange(iI);
+					iTempWeight = GC.getBUILDER_TASKING_BASELINE_ADDS_FOOD() * pImprovement->GetYieldChange(iI);
 #if defined(MOD_IMPROVEMENTS_EXTENSIONS)
 					if (MOD_IMPROVEMENTS_EXTENSIONS)
 					{
-						iTempWeight += GC.getBUILDER_TASKING_BASELINE_ADDS_FOOD() * GC.getFeatureInfo(GC.getImprovementInfo(eImprovement)->GetCreatedFeature())->getYieldChange(iI);
+						CvFeatureInfo* pFeature = GC.getFeatureInfo(pImprovement->GetCreatedFeature());
+						if (pFeature)
+						{
+							iTempWeight += GC.getBUILDER_TASKING_BASELINE_ADDS_FOOD() * pFeature->getYieldChange(iI);
+						}
 					}
 #endif
 					break;
 				case YIELD_PRODUCTION:
-					iTempWeight = GC.getBUILDER_TASKING_BASELINE_ADDS_PRODUCTION() * GC.getImprovementInfo(eImprovement)->GetYieldChange(iI);
+					iTempWeight = GC.getBUILDER_TASKING_BASELINE_ADDS_PRODUCTION() * pImprovement->GetYieldChange(iI);
 #if defined(MOD_IMPROVEMENTS_EXTENSIONS)
 					if (MOD_IMPROVEMENTS_EXTENSIONS)
 					{
-						iTempWeight += GC.getBUILDER_TASKING_BASELINE_ADDS_PRODUCTION() * GC.getFeatureInfo(GC.getImprovementInfo(eImprovement)->GetCreatedFeature())->getYieldChange(iI);
+						CvFeatureInfo* pFeature = GC.getFeatureInfo(pImprovement->GetCreatedFeature());
+						if (pFeature)
+						{
+							iTempWeight += GC.getBUILDER_TASKING_BASELINE_ADDS_PRODUCTION() * pFeature->getYieldChange(iI);
+						}
 					}
 #endif
 					break;
 				case YIELD_GOLD:
-					iTempWeight = GC.getBUILDER_TASKING_BASELINE_ADDS_GOLD() * GC.getImprovementInfo(eImprovement)->GetYieldChange(iI);
+					iTempWeight = GC.getBUILDER_TASKING_BASELINE_ADDS_GOLD() * pImprovement->GetYieldChange(iI);
 #if defined(MOD_IMPROVEMENTS_EXTENSIONS)
 					if (MOD_IMPROVEMENTS_EXTENSIONS)
 					{
-						iTempWeight += GC.getBUILDER_TASKING_BASELINE_ADDS_GOLD() * GC.getFeatureInfo(GC.getImprovementInfo(eImprovement)->GetCreatedFeature())->getYieldChange(iI);
+						CvFeatureInfo* pFeature = GC.getFeatureInfo(pImprovement->GetCreatedFeature());
+						if (pFeature)
+						{
+							iTempWeight += GC.getBUILDER_TASKING_BASELINE_ADDS_GOLD() * pFeature->getYieldChange(iI);
+						}
 					}
 #endif
 					break;
 				case YIELD_SCIENCE:
-					iTempWeight = GC.getBUILDER_TASKING_BASELINE_ADDS_SCIENCE() * GC.getImprovementInfo(eImprovement)->GetYieldChange(iI);
+					iTempWeight = GC.getBUILDER_TASKING_BASELINE_ADDS_SCIENCE() * pImprovement->GetYieldChange(iI);
 #if defined(MOD_IMPROVEMENTS_EXTENSIONS)
 					if (MOD_IMPROVEMENTS_EXTENSIONS)
 					{
-						iTempWeight += GC.getBUILDER_TASKING_BASELINE_ADDS_SCIENCE() * GC.getFeatureInfo(GC.getImprovementInfo(eImprovement)->GetCreatedFeature())->getYieldChange(iI);
+						CvFeatureInfo* pFeature = GC.getFeatureInfo(pImprovement->GetCreatedFeature());
+						if (pFeature)
+						{
+							iTempWeight += GC.getBUILDER_TASKING_BASELINE_ADDS_SCIENCE() * pFeature->getYieldChange(iI);
+						}
 					}
 #endif
 					break;
 				case YIELD_CULTURE:
-					iTempWeight = GC.getBUILDER_TASKING_BASELINE_ADDS_CULTURE() * GC.getImprovementInfo(eImprovement)->GetYieldChange(iI);
+					iTempWeight = GC.getBUILDER_TASKING_BASELINE_ADDS_CULTURE() * pImprovement->GetYieldChange(iI);
 #if defined(MOD_IMPROVEMENTS_EXTENSIONS)
 					if (MOD_IMPROVEMENTS_EXTENSIONS)
 					{
-						iTempWeight += GC.getBUILDER_TASKING_BASELINE_ADDS_CULTURE() * GC.getFeatureInfo(GC.getImprovementInfo(eImprovement)->GetCreatedFeature())->getYieldChange(iI);
+						CvFeatureInfo* pFeature = GC.getFeatureInfo(pImprovement->GetCreatedFeature());
+						if (pFeature)
+						{
+							iTempWeight += GC.getBUILDER_TASKING_BASELINE_ADDS_CULTURE() * pFeature->getYieldChange(iI);
+						}
 					}
 #endif
 					break;
 				case YIELD_FAITH:
-					iTempWeight = GC.getBUILDER_TASKING_BASELINE_ADDS_FAITH() * GC.getImprovementInfo(eImprovement)->GetYieldChange(iI);
+					iTempWeight = GC.getBUILDER_TASKING_BASELINE_ADDS_FAITH() * pImprovement->GetYieldChange(iI);
 #if defined(MOD_IMPROVEMENTS_EXTENSIONS)
 					if (MOD_IMPROVEMENTS_EXTENSIONS)
 					{
-						iTempWeight += GC.getBUILDER_TASKING_BASELINE_ADDS_FAITH() * GC.getFeatureInfo(GC.getImprovementInfo(eImprovement)->GetCreatedFeature())->getYieldChange(iI);
+						CvFeatureInfo* pFeature = GC.getFeatureInfo(pImprovement->GetCreatedFeature());
+						if (pFeature)
+						{
+							iTempWeight += GC.getBUILDER_TASKING_BASELINE_ADDS_FAITH() * pFeature->getYieldChange(iI);
+						}
 					}
 #endif
 					break;
@@ -2452,7 +2418,7 @@ int CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes eImprovem
 			if (pkBuild->isFeatureRemove(pPlot->getFeatureType()))
 			{
 				//how many do we have left?
-				CvCity* pCity = pPlot->getOwningCity();
+				CvCity* pCity = pPlot->getEffectiveOwningCity();
 				if (pCity)
 				{
 					//we don't want to remove all features, we might need them later!
@@ -2467,7 +2433,7 @@ int CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes eImprovem
 			{
 				//bump to encourage these in cities with lots of features
 				//how many do we have left?
-				CvCity* pCity = pPlot->getOwningCity();
+				CvCity* pCity = pPlot->getEffectiveOwningCity();
 				if (pCity)
 				{
 					int iNumFeatureRemaining = pCity->CountFeature(pPlot->getFeatureType());
@@ -2494,25 +2460,12 @@ int CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes eImprovem
 			iSecondaryScore -= iRouteScore;
 	}
 
-	//City adjacenct improvement? Ramp it up!
+	//City adjacenct improvement? Ramp it up - other stuff can move somewhere else
 	if(pImprovement->IsAdjacentCity() && pPlot->IsAdjacentCity())
 	{
 		iSecondaryScore += iBigBuff;
 	}
-	//Holy Sites should be built near Holy Cities.
-	ImprovementTypes eHolySite = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_HOLY_SITE");
-	if (eHolySite != NO_IMPROVEMENT && eHolySite == eImprovement)
-	{
-		ReligionTypes eReligion = m_pPlayer->GetReligions()->GetReligionCreatedByPlayer();
-		if(eReligion != NO_RELIGION)
-		{
-			if(pPlot->getOwningCity() != NULL && pPlot->getOwningCity()->GetCityReligions()->IsHolyCityForReligion(eReligion))
-			{
-				iSecondaryScore += iBigBuff;
-			}
-		}
-	}
-	
+
 	//Does this improvement connect a resource? Increase the score!
 	if(eResource != NO_RESOURCE)
 	{
@@ -2582,7 +2535,6 @@ int CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes eImprovem
 		}
 	}
 
-	int iDefense = 0;
 	//Fort test.
 	ImprovementTypes eFort = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_FORT");
 	if (eFort != NO_IMPROVEMENT && eImprovement == eFort && pPlot->canBuild(eBuild, m_pPlayer->GetID()))
@@ -2593,36 +2545,31 @@ int CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes eImprovem
 			if(pPlot->getOwner() == m_pPlayer->GetID())
 			{
 				//looking to build a fort
-				iDefense = pPlot->GetDefenseBuildValue(m_pPlayer->GetID());
-				if(iDefense==0)
+				int iFortScore = pPlot->GetDefenseBuildValue(m_pPlayer->GetID());
+				if (MOD_GLOBAL_PASSABLE_FORTS && WantCanalAtPlot(pPlot))
+					iFortScore += iBigBuff*3;
+
+				if(iFortScore==0)
 					return -1;
 
-				if (iDefense > iSecondaryScore)
-					iSecondaryScore = iDefense;
+				if (iFortScore > iSecondaryScore)
+					iSecondaryScore = iFortScore;
 			}
 		}
 	}
 	//Looking to build something else on top of a fort? It'd better be good.
-	else if((eImprovement != eFort) && (pPlot->getImprovementType() != NO_IMPROVEMENT))
+	else if(eImprovement != eFort && pPlot->getImprovementType() != eFort)
 	{
-		if(pPlot->getImprovementType() == eFort)
-		{
-			//looking to replace a fort
-			iDefense = pPlot->GetDefenseBuildValue(m_pPlayer->GetID());
-		}
-		if ((iDefense * 3) > (iSecondaryScore * 2))
-		{
+		//looking to replace a fort - score might have changed because the border moved!
+		int iFortScore = pPlot->GetDefenseBuildValue(m_pPlayer->GetID());
+		if (MOD_GLOBAL_PASSABLE_FORTS && WantCanalAtPlot(pPlot))
+			iFortScore += iBigBuff*3;
+
+		if (iFortScore * 4 > iSecondaryScore * 3)
 			return -1;
-		}
 	}
-#endif
-	//if we're doing this solely for the secondary benefit, let's not overweight it. We need yields first and foremost.
-	if (iYieldScore < iSecondaryScore)
-		iSecondaryScore /= 2;
 
-	iScore = iYieldScore + iSecondaryScore;
-
-	return iScore;
+	return iYieldScore + iSecondaryScore;
 }
 
 BuildTypes CvBuilderTaskingAI::GetBuildTypeFromImprovement(ImprovementTypes eImprovement)
@@ -2975,7 +2922,7 @@ void CvBuilderTaskingAI::UpdateProjectedPlotYields(CvPlot* pPlot, BuildTypes eBu
 {
 	UpdateCurrentPlotYields(pPlot);
 
-	const CvCity* pOwningCity = getOwningCity(pPlot);
+	const CvCity* pOwningCity = pPlot->getEffectiveOwningCity();
 	if (pOwningCity)
 	{
 		ReligionTypes eMajority = pOwningCity->GetCityReligions()->GetReligiousMajority();
@@ -2983,6 +2930,17 @@ void CvBuilderTaskingAI::UpdateProjectedPlotYields(CvPlot* pPlot, BuildTypes eBu
 
 		const CvReligion* pReligion = (eMajority != NO_RELIGION) ? GC.getGame().GetGameReligions()->GetReligion(eMajority, pOwningCity->getOwner()) : 0;
 		const CvBeliefEntry* pBelief = (eSecondaryPantheon != NO_BELIEF) ? GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon) : 0;
+
+#if defined(MOD_RELIGION_PERMANENT_PANTHEON)
+		const CvReligion* pPantheon = NULL;
+		BeliefTypes ePantheonBelief = NO_BELIEF;
+		// Mod for civs keeping their pantheon belief forever
+		if (MOD_RELIGION_PERMANENT_PANTHEON)
+		{
+			pPantheon = GC.getGame().GetGameReligions()->GetReligion(RELIGION_PANTHEON, pOwningCity->getOwner());
+			ePantheonBelief = GC.getGame().GetGameReligions()->GetBeliefInPantheon(pOwningCity->getOwner());
+		}
+#endif
 
 		for (uint ui = 0; ui < NUM_YIELD_TYPES; ui++)
 		{
@@ -2992,6 +2950,23 @@ void CvBuilderTaskingAI::UpdateProjectedPlotYields(CvPlot* pPlot, BuildTypes eBu
 #endif
 				m_aiProjectedPlotYields[ui] = pPlot->getYieldWithBuild(eBuild, (YieldTypes)ui, false, m_pPlayer->GetID(), pOwningCity, pReligion, pBelief);
 				m_aiProjectedPlotYields[ui] = max(m_aiProjectedPlotYields[ui], 0);
+
+#if defined(MOD_RELIGION_PERMANENT_PANTHEON)
+				if (MOD_RELIGION_PERMANENT_PANTHEON)
+				{
+					if (GC.getGame().GetGameReligions()->HasCreatedPantheon(m_pPlayer->GetID()))
+					{
+						if (pPantheon != NULL && ePantheonBelief != NO_BELIEF && ePantheonBelief != eSecondaryPantheon)
+						{
+							if (pReligion == NULL || (pReligion != NULL && !pReligion->m_Beliefs.IsPantheonBeliefInReligion(ePantheonBelief, eMajority, m_pPlayer->GetID()))) // check that the our religion does not have our belief, to prevent double counting
+							{
+								m_aiProjectedPlotYields[ui] += pPlot->getYieldWithBuild(eBuild, (YieldTypes)ui, false, m_pPlayer->GetID(), pOwningCity, pPantheon, NULL);
+								m_aiProjectedPlotYields[ui] = max(m_aiProjectedPlotYields[ui], 0);
+							}
+						}
+					}
+				}
+#endif
 
 				if (m_bLogging){
 					CvString strLog;

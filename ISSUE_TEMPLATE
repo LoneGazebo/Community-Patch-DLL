@@ -1,4 +1,4 @@
-_1. Mod version (i.e Date - 12/1):_
+_1. Mod version (i.e Date - 4/14):_
 
 
 _2. Mod list (if using Vox Populi only, leave blank):_
@@ -14,9 +14,9 @@ _4. Steps to reproduce (optional):_
 Supporting information:
 Please note that you can attach .zip files by dragging-and-dropping them. If possible, zip up all supporting data and post that way.
 
-1. Log files (always attach your Logs folder, located at My Documents/My Games/Sid Meier's Civilization 5. Make sure you have enabled logging before experiencing an error! Go here to find out how: http://forums.civfanatics.com/showthread.php?t=487482):
+1. Log files (always attach your Logs folder, located at My Documents/My Games/Sid Meier's Civilization 5. For instructions, go to the repository's main page, under "To enable logging for bug reports"):
 
-2. Save game (always attach a save that was made a turn before the error; located at My Documents/My Games/Sid Meier's Civilization 5/ModdedSaves):
+2. Save game (always attach a save that was made a turn before the error; located at My Documents/My Games/Sid Meier's Civilization 5/ModdedSaves; you can change autosave frequency in the game's Options menu):
 
 3. CvMiniDump.dmp file (attach if experiencing a game crash. Located at Program Files/Steam/steamapps/common/Sid Meier's Civilization V):
 

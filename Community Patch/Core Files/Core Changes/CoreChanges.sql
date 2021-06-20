@@ -1,411 +1,216 @@
--- Adjusted for Religion Spread Rework
-UPDATE Defines
-SET Value = '9'
-WHERE Name = 'RELIGION_ADJACENT_CITY_DISTANCE';
-
--- For CBO
-INSERT INTO Defines (Name, Value)
-SELECT 'RELIGION_MIN_FAITH_SECOND_PROPHET', '600';
-
--- FOR JFD
-INSERT INTO Defines (Name, Value)
-SELECT 'UNHAPPINESS_PER_POPULATION_FLOAT', '0.0';
-
--- FOR JFD
-INSERT INTO Defines (Name, Value)
-SELECT 'UNHAPPY_THRESHOLD', '25';
-
--- AI combat tuning knobs
-
--- this controls how much damage an attack needs to inflict to be considered worthwhile
--- default value 100. higher -> more aggressive
-INSERT INTO Defines (Name, Value)
-SELECT 'COMBAT_AI_OFFENSE_DAMAGEWEIGHT', '100';
-
--- this controls whether ending the turn on a certain plot is acceptable during offense
--- default value 50. higher -> more timid
-INSERT INTO Defines (Name, Value)
-SELECT 'COMBAT_AI_OFFENSE_DANGERWEIGHT', '50';
-
--- this controls whether a 'bad' offensive move should still be considered
--- default value 20. higher -> more reckless
-INSERT INTO Defines (Name, Value)
-SELECT 'COMBAT_AI_OFFENSE_SCORE_BIAS', '20';
-
--- this controls whether ending the turn on a certain plot is acceptable during defense
--- default value 20. higher -> more timid
-INSERT INTO Defines (Name, Value)
-SELECT 'COMBAT_AI_DEFENSE_DANGERWEIGHT', '20';
-
--- this controls whether a 'bad' defensive move should still be considered
--- default value 200. higher -> more desperate
-INSERT INTO Defines (Name, Value)
-SELECT 'COMBAT_AI_DEFENSE_SCORE_BIAS', '200';
-
-
--- AI Citystrategy
-
--- food is different because we include consumption.
-UPDATE Defines
-SET Value = '0.5'
-WHERE Name = 'AI_CITYSTRATEGY_YIELD_DEFICIENT_FOOD';
-
-UPDATE Defines
-SET Value = '1.0'
-WHERE Name = 'AI_CITYSTRATEGY_YIELD_DEFICIENT_PRODUCTION';
-
-UPDATE Defines
-SET Value = '1.5'
-WHERE Name = 'AI_CITYSTRATEGY_YIELD_DEFICIENT_GOLD';
-
-UPDATE Defines
-SET Value = '2.5'
-WHERE Name = 'AI_CITYSTRATEGY_YIELD_DEFICIENT_SCIENCE';
-
-INSERT INTO Defines (Name, Value)
-SELECT 'AI_CITYSTRATEGY_YIELD_DEFICIENT_CULTURE', '2.5';
-
-UPDATE Defines
-SET Value = '150'
-WHERE Name = 'AI_GOLD_PRIORITY_MINIMUM_PLOT_BUY_VALUE';
-
--- Warmonger Values
-UPDATE Defines
-SET Value = '5'
-WHERE Name = 'WARMONGER_THREAT_MINOR_ATTACKED_WEIGHT';
-
-UPDATE Defines
-SET Value = '10'
-WHERE Name = 'WARMONGER_THREAT_MAJOR_ATTACKED_WEIGHT';
-
--- 200
-UPDATE Defines
-SET Value = '80'
-WHERE Name = 'WARMONGER_THREAT_CRITICAL_THRESHOLD';
-
--- 100
-UPDATE Defines
-SET Value = '60'
-WHERE Name = 'WARMONGER_THREAT_SEVERE_THRESHOLD';
-
--- 50
-UPDATE Defines
-SET Value = '40'
-WHERE Name = 'WARMONGER_THREAT_MAJOR_THRESHOLD';
-
--- 20
-UPDATE Defines
-SET Value = '20'
-WHERE Name = 'WARMONGER_THREAT_MINOR_THRESHOLD';
-
--- CS Buff to keep up with AI
-UPDATE Defines
-SET Value = '80'
-WHERE Name = 'MINOR_CIV_GROWTH_PERCENT';
-
-UPDATE Defines
-SET Value = '120'
-WHERE Name = 'MINOR_CIV_PRODUCTION_PERCENT';
-
-UPDATE Defines
-SET Value = '120'
-WHERE Name = 'MINOR_CIV_GOLD_PERCENT';
-
-UPDATE AIEconomicStrategies
-SET NoMinorCivs = '1'
-WHERE Type = 'ECONOMICAISTRATEGY_LOSING_MONEY';
-
--- Warmonger Percent
-UPDATE Eras Set WarmongerPercent = '60' WHERE Type = 'ERA_ANCIENT';
-UPDATE Eras Set WarmongerPercent = '70' WHERE Type = 'ERA_CLASSICAL';
-UPDATE Eras Set WarmongerPercent = '80' WHERE Type = 'ERA_MEDIEVAL';
-UPDATE Eras Set WarmongerPercent = '90' WHERE Type = 'ERA_RENAISSANCE';
-UPDATE Eras Set WarmongerPercent = '100' WHERE Type = 'ERA_INDUSTRIAL';
-UPDATE Eras Set WarmongerPercent = '110' WHERE Type = 'ERA_MODERN';
-UPDATE Eras Set WarmongerPercent = '120' WHERE Type = 'ERA_POSTMODERN';
-UPDATE Eras Set WarmongerPercent = '130' WHERE Type = 'ERA_FUTURE';
-
--- Revolt Timer
-
-UPDATE Defines
-SET Value = '10'
-WHERE Name = 'REVOLT_COUNTER_MIN';
-
--- AI Spam message reduction
-UPDATE Defines
-SET Value = '5'
-WHERE Name = 'AI_HOMELAND_GREAT_PERSON_TURNS_TO_WAIT';
-
--- Annex Values
-UPDATE Defines
-SET Value = '0.55'
-WHERE Name = 'NORMAL_ANNEX';
-
-UPDATE Defines
-SET Value = '0.8'
-WHERE Name = 'AGGRESSIVE_ANNEX';
-
--- Religion Score value reduced
-UPDATE Defines
-SET Value = '5'
-WHERE Name = 'SCORE_BELIEF_MULTIPLIER';
-
-UPDATE Defines
-SET Value = '3'
-WHERE Name = 'SCORE_RELIGION_CITIES_MULTIPLIER';
-
--- Deal AI Interest Rate for GPT
-UPDATE Defines
-SET Value = '1'
-WHERE Name = 'EACH_GOLD_PER_TURN_VALUE_PERCENT';
-
--- AI Peace
-UPDATE Defines
-SET Value = '11'
-WHERE Name = 'REQUEST_PEACE_TURN_THRESHOLD';
-
-UPDATE Defines
-SET Value = '-3000'
-WHERE Name = 'MINOR_FRIENDSHIP_DROP_BULLY_GOLD_SUCCESS';
-
-UPDATE Defines
-SET Value = '-6000'
-WHERE Name = 'MINOR_FRIENDSHIP_DROP_BULLY_WORKER_SUCCESS';
-
-
-UPDATE Defines
-SET Value = '60'
-WHERE Name = 'WAR_PROJECTION_THRESHOLD_VERY_GOOD';
-
-UPDATE Defines
-SET Value = '30'
-WHERE Name = 'WAR_PROJECTION_THRESHOLD_GOOD';
-
-UPDATE Defines
-SET Value = '-50'
-WHERE Name = 'WAR_PROJECTION_THRESHOLD_DESTRUCTION';
-
-UPDATE Defines
-SET Value = '-30'
-WHERE Name = 'WAR_PROJECTION_THRESHOLD_DEFEAT';
-
-UPDATE Defines
-SET Value = '0'
-WHERE Name = 'WAR_PROJECTION_THRESHOLD_STALEMATE';
-
--- Land Dispute
-UPDATE Defines
-SET Value = '150' 
-WHERE Name = 'LAND_DISPUTE_CRAMPED_MULTIPLIER';
-
-UPDATE Defines
-SET Value = '8'
-WHERE Name = 'LAND_DISPUTE_FIERCE_THRESHOLD';
-
-UPDATE Defines
-SET Value = '4'
-WHERE Name = 'LAND_DISPUTE_STRONG_THRESHOLD';
-
-UPDATE Defines
-SET Value = '1'
-WHERE Name = 'LAND_DISPUTE_WEAK_THRESHOLD';
-
--- Military Threat
-UPDATE Defines
-SET Value = '25'
-WHERE Name = 'MILITARY_THREAT_PER_MINOR_ATTACKED';
-
-UPDATE Defines
-SET Value = '50'
-WHERE Name = 'MILITARY_THREAT_PER_MINOR_CONQUERED';
-
-UPDATE Defines
-SET Value = '25'
-WHERE Name = 'MILITARY_THREAT_PER_MAJOR_CONQUERED';
-
-UPDATE Defines
-SET Value = '50'
-WHERE Name = 'MILITARY_THREAT_PER_MAJOR_ATTACKED';
-
-UPDATE Defines
-SET Value = '15'
-WHERE Name = 'MILITARY_STRENGTH_CITY_MOD';
-
-UPDATE Defines
-SET Value = '60'
-WHERE Name = 'MILITARY_THREAT_NEIGHBORS';
-
-UPDATE Defines
-SET Value = '20'
-WHERE Name = 'MILITARY_THREAT_FAR';
-
-UPDATE Defines
-SET Value = '0'
-WHERE Name = 'MILITARY_THREAT_DISTANT';
-
--- Settler Stuff
-
-UPDATE Defines
-SET Value = '35'
-WHERE Name = 'BUILD_ON_RIVER_PERCENT';
-
-UPDATE Defines
-SET Value = '40'
-WHERE Name = 'SETTLER_BUILD_ON_COAST_PERCENT';
-
-UPDATE Defines
-SET Value = '-10'
-WHERE Name = 'BUILD_ON_RESOURCE_PERCENT';
-
-UPDATE Defines
-SET Value = '3'
-WHERE Name = 'SETTLER_STRATEGIC_MULTIPLIER';
-
-UPDATE Defines
-SET Value = '5'
-WHERE Name = 'AI_CITYSTRATEGY_WANT_TILE_IMPROVERS_MINIMUM_SIZE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
-
-UPDATE AICityStrategies
-SET WeightThreshold = '1'
-WHERE Type = 'AICITYSTRATEGY_WANT_TILE_IMPROVERS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
-
--- Start of settle plot devaluation (prefer close settling)
-UPDATE Defines
-SET Value = '4'
-WHERE Name = 'SETTLER_DISTANCE_DROPOFF_MODIFIER';
-
--- Max range for settling (time offset will be added)
-UPDATE Defines
-SET Value = '8'
-WHERE Name = 'SETTLER_EVALUATION_DISTANCE';
-
--- Unfortunately this depends a lot on the site evaluation algorithm ...
-UPDATE Defines
-SET Value = '50000'
-WHERE Name = 'AI_STRATEGY_MINIMUM_SETTLE_FERTILITY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
-
-UPDATE Defines
-SET Value = '66'
-WHERE Name = 'AI_STRATEGY_AREA_IS_FULL_PERCENT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
-
--- this is in plots
-UPDATE Defines
-SET Value = '5'
-WHERE Name = 'AI_DIPLO_PLOT_RANGE_FROM_CITY_HOME_FRONT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
-
--- there are 6 ring1 plots but don't overemphasize the very short term
-UPDATE Defines
-SET Value = '6'
-WHERE Name = 'CITY_RING_1_MULTIPLIER' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
-
--- there are 12 ring2 plots, workable soon
-UPDATE Defines
-SET Value = '6'
-WHERE Name = 'CITY_RING_2_MULTIPLIER' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
-
--- there are 18 ring3 plots, workable late and often conflicted
-UPDATE Defines
-SET Value = '3'
-WHERE Name = 'CITY_RING_3_MULTIPLIER' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
-
-UPDATE Defines
-SET Value = '12'
-WHERE Name = 'SETTLER_FOOD_MULTIPLIER' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
-
-UPDATE Defines
-SET Value = '12'
-WHERE Name = 'SETTLER_PRODUCTION_MULTIPLIER' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
-
-UPDATE Defines
-SET Value = '8'
-WHERE Name = 'SETTLER_GOLD_MULTIPLIER' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
-
-UPDATE Defines
-SET Value = '5'
-WHERE Name = 'SETTLER_SCIENCE_MULTIPLIER' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
-
-UPDATE Defines
-SET Value = '4'
-WHERE Name = 'SETTLER_FAITH_MULTIPLIER' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
-
-UPDATE AIEconomicStrategy_Player_Flavors
-SET Flavor = '100'
-WHERE AIEconomicStrategyType = 'ECONOMICAISTRATEGY_REALLY_EXPAND_TO_OTHER_CONTINENTS' AND FlavorType = 'FLAVOR_EXPANSION';
-
-UPDATE AIEconomicStrategy_Player_Flavors
+------------------------------
+-- GameOptions
+------------------------------
+INSERT INTO GameOptions
+			(Type,								Description,								Help,											"Default",	"SupportsSinglePlayer",	"SupportsMultiplayer")
+VALUES		('GAMEOPTION_BARB_GG_GA_POINTS',	'TXT_KEY_GAME_OPTION_BARB_GG_GA_POINTS',	'TXT_KEY_GAME_OPTION_BARB_GG_GA_POINTS_HELP',	0,	1,	1),
+			('GAMEOPTION_EVENTS',	'TXT_KEY_GAME_OPTION_EVENTS',	'TXT_KEY_GAME_OPTION_EVENTS_HELP',	1,	1,	1),
+			('GAMEOPTION_GOOD_EVENTS_OFF',	'TXT_KEY_GAME_OPTION_EVENTS_GOOD',	'TXT_KEY_GAME_OPTION_EVENTS_GOOD_HELP',	0,	1,	1),
+			('GAMEOPTION_NEUTRAL_EVENTS_OFF',	'TXT_KEY_GAME_OPTION_EVENTS_NEUTRAL',	'TXT_KEY_GAME_OPTION_EVENTS_NEUTRAL_HELP',	0,	1,	1),
+			('GAMEOPTION_BAD_EVENTS_OFF',	'TXT_KEY_GAME_OPTION_EVENTS_BAD',	'TXT_KEY_GAME_OPTION_EVENTS_BAD_HELP',	0,	1,	1),
+			('GAMEOPTION_TRADE_EVENTS_OFF',	'TXT_KEY_GAME_OPTION_EVENTS_TRADE',	'TXT_KEY_GAME_OPTION_EVENTS_TRADE_HELP',	0,	1,	1),
+			('GAMEOPTION_CIV_SPECIFIC_EVENTS_OFF',	'TXT_KEY_GAMEOPTION_CIV_SPECIFIC_EVENTS',	'TXT_KEY_GAMEOPTION_CIV_SPECIFIC_EVENTS_HELP',	0,	1,	1),
+			('GAMEOPTION_CHILL_BARBARIANS',	'TXT_KEY_GAMEOPTION_CHILL_BARBARIANS',	'TXT_KEY_GAMEOPTION_CHILL_BARBARIANS_HELP',	0,	1,	1),
+			('GAMEOPTION_RANDOM_VICTORY',	'TXT_KEY_GAMEOPTION_RANDOM_VICTORY',	'TXT_KEY_GAMEOPTION_RANDOM_VICTORY_HELP',	0,	1,	1),
+			('GAMEOPTION_KEEP_UNMET_PLAYERS_UNKNOWN',	'TXT_KEY_GAMEOPTION_KEEP_UNMET_PLAYERS_UNKNOWN',	'TXT_KEY_GAMEOPTION_KEEP_UNMET_PLAYERS_UNKNOWN_HELP',	0,	0,	1);
+
+------------------------------
+-- End GameOptions
+------------------------------
+
+-- No pillage and repairing in foreign lands
+UPDATE CustomModOptions SET Value = 1 WHERE Name = 'NO_REPAIR_FOREIGN_LANDS';
+
+-- No yield from Ice Features
+UPDATE CustomModOptions SET Value = 1 WHERE Name = 'NO_YIELD_ICE';
+
+-- No major civ gifting exploit fix
+UPDATE CustomModOptions SET Value = 1 WHERE Name = 'NO_MAJORCIV_GIFTING';
+
+-- No healing on mountains if not city plot
+UPDATE CustomModOptions SET Value = 1 WHERE Name = 'NO_HEALING_ON_MOUNTAINS';
+
+-- If player is using Alternate Assyria Trait...choose a free tech
+UPDATE CustomModOptions SET Value = 0 WHERE Name = 'ALTERNATE_ASSYRIA_TRAIT';
+
+-- Activates Active Diplomacy in DLL for Multiplayer trade deals between Human and AI
+UPDATE CustomModOptions SET Value = 1 WHERE Name = 'ACTIVE_DIPLOMACY';
+
+-- TR fix for religion spread
+UPDATE Gamespeeds
+SET ReligiousPressureAdjacentCity = '25' WHERE Type = 'GAMESPEED_MARATHON';
+
+UPDATE Gamespeeds
+SET ReligiousPressureAdjacentCity = '45' WHERE Type = 'GAMESPEED_EPIC';
+
+UPDATE Gamespeeds
+SET ReligiousPressureAdjacentCity = '65' WHERE Type = 'GAMESPEED_STANDARD';
+
+UPDATE Gamespeeds
+SET ReligiousPressureAdjacentCity = '95' WHERE Type = 'GAMESPEED_QUICK';
+
+-- Art Stuff for Artifacts
+UPDATE GreatWorks SET Image = 'artifact.dds' WHERE GreatWorkClassType = 'GREAT_WORK_ARTIFACT' AND NOT ArtifactClassType = 'ARTIFACT_SARCOPHAGUS';
+
+-- Terrain Fixes
+UPDATE Features SET NoImprovement = 'true' WHERE Type = 'FEATURE_ICE';
+UPDATE Features SET SeeThrough = '0' WHERE Type = 'FEATURE_SOLOMONS_MINES';
+UPDATE Features SET SeeThrough = '1' WHERE Type = 'FEATURE_GEYSER';
+UPDATE Features SET SeeThrough = '1' WHERE Type = 'FEATURE_FOUNTAIN_YOUTH';
+UPDATE Features SET SeeThrough = '0' WHERE Type = 'FEATURE_SOLOMONS_MINES';
+
+-- Shrink Citadel
+UPDATE ArtDefine_Landmarks
+SET Scale= '0.8'
+WHERE ImprovementType = 'ART_DEF_IMPROVEMENT_CITADEL';
+
+-- Set Forbidden Palace to 2 votes for CP (we'll reset in CBP)
+UPDATE Buildings
+SET SingleLeagueVotes = '2'
+WHERE Type = 'BUILDING_FORBIDDEN_PALACE';
+
+UPDATE Buildings
+SET ExtraLeagueVotes = '0'
+WHERE Type = 'BUILDING_FORBIDDEN_PALACE';
+
+-- Unit Promotions
+UPDATE UnitPromotions
+SET FlankAttackModifier = '5'
+WHERE FlankAttackModifier = '50' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
+
+UPDATE UnitPromotions
+SET FlankAttackModifier = '3'
+WHERE FlankAttackModifier = '25' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
+
+-- Resource Priority Changes
+
+UPDATE Resources
+SET AITradeModifier = '30'
+WHERE Type = 'RESOURCE_URANIUM';
+
+UPDATE Resources
+SET AITradeModifier = '30'
+WHERE Type = 'RESOURCE_ALUMINUM';
+
+UPDATE Resources
+SET AITradeModifier = '25'
+WHERE Type = 'RESOURCE_OIL';
+
+UPDATE Resources
+SET AITradeModifier = '25'
+WHERE Type = 'RESOURCE_COAL';
+
+UPDATE Resources
+SET AITradeModifier = '20'
+WHERE Type = 'RESOURCE_IRON';
+
+UPDATE Resources
+SET AITradeModifier = '20'
+WHERE Type = 'RESOURCE_HORSES';
+
+-- Technologies
+UPDATE Technology_Flavors
 SET Flavor = '50'
-WHERE AIEconomicStrategyType = 'ECONOMICAISTRATEGY_EXPAND_TO_OTHER_CONTINENTS' AND FlavorType = 'FLAVOR_EXPANSION';
+WHERE TechType = 'TECH_SAILING' AND FlavorType = 'FLAVOR_NAVAL';
 
-UPDATE AIEconomicStrategy_Player_Flavors
-SET Flavor = '30'
-WHERE AIEconomicStrategyType = 'ECONOMICAISTRATEGY_EXPAND_TO_OTHER_CONTINENTS' AND FlavorType = 'FLAVOR_RECON';
+-- Policy Helpers
+UPDATE Policies SET IsOpener = '1' WHERE Type = 'POLICY_LIBERTY';
+UPDATE Policies SET IsOpener = '1' WHERE Type = 'POLICY_TRADITION';
+UPDATE Policies SET IsOpener = '1' WHERE Type = 'POLICY_HONOR';
+UPDATE Policies SET IsOpener = '1' WHERE Type = 'POLICY_PIETY';
+UPDATE Policies SET IsOpener = '1' WHERE Type = 'POLICY_PATRONAGE';
+UPDATE Policies SET IsOpener = '1' WHERE Type = 'POLICY_COMMERCE';
+UPDATE Policies SET IsOpener = '1' WHERE Type = 'POLICY_RATIONALISM';
+UPDATE Policies SET IsOpener = '1' WHERE Type = 'POLICY_AESTHETICS';
+UPDATE Policies SET IsOpener = '1' WHERE Type = 'POLICY_EXPLORATION';
 
-UPDATE AIEconomicStrategy_Player_Flavors
-SET Flavor = '40'
-WHERE AIEconomicStrategyType = 'ECONOMICAISTRATEGY_EXPAND_TO_OTHER_CONTINENTS' AND FlavorType = 'FLAVOR_NAVAL_RECON';
+UPDATE Policies SET IsFinisher = '1' WHERE Type = 'POLICY_TRADITION_FINISHER';
+UPDATE Policies SET IsFinisher = '1' WHERE Type = 'POLICY_LIBERTY_FINISHER';
+UPDATE Policies SET IsFinisher = '1' WHERE Type = 'POLICY_HONOR_FINISHER';
+UPDATE Policies SET IsFinisher = '1' WHERE Type = 'POLICY_PIETY_FINISHER';
+UPDATE Policies SET IsFinisher = '1' WHERE Type = 'POLICY_PATRONAGE_FINISHER';
+UPDATE Policies SET IsFinisher = '1' WHERE Type = 'POLICY_COMMERCE_FINISHER';
+UPDATE Policies SET IsFinisher = '1' WHERE Type = 'POLICY_RATIONALISM_FINISHER';
+UPDATE Policies SET IsFinisher = '1' WHERE Type = 'POLICY_AESTHETICS_FINISHER';
+UPDATE Policies SET IsFinisher = '1' WHERE Type = 'POLICY_EXPLORATION_FINISHER';
 
-UPDATE AIEconomicStrategy_Player_Flavors
-SET Flavor = '50'
-WHERE AIEconomicStrategyType = 'ECONOMICAISTRATEGY_REALLY_NEED_RECON_SEA' AND FlavorType = 'FLAVOR_NAVAL';
+-- Policy Decision Stuff
 
-UPDATE AIEconomicStrategy_Player_Flavors
-SET Flavor = '40'
-WHERE AIEconomicStrategyType = 'ECONOMICAISTRATEGY_NEED_RECON' AND FlavorType = 'FLAVOR_RECON';
+UPDATE Policy_Flavors
+SET Flavor = '15'
+WHERE PolicyType = 'POLICY_PIETY';
 
-UPDATE AIEconomicStrategy_City_Flavors
-SET Flavor = '8'
-WHERE AIEconomicStrategyType = 'ECONOMICAISTRATEGY_GS_CULTURE' AND FlavorType = 'FLAVOR_EXPANSION';
+UPDATE Policy_Flavors
+SET Flavor = '15'
+WHERE PolicyType = 'POLICY_LIBERTY';
 
-UPDATE AIEconomicStrategy_City_Flavors
-SET Flavor = '40'
-WHERE AIEconomicStrategyType = 'ECONOMICAISTRATEGY_REALLY_NEED_RECON_SEA' AND FlavorType = 'FLAVOR_NAVAL';
+UPDATE Policy_Flavors
+SET Flavor = '15'
+WHERE PolicyType = 'POLICY_TRADITION' AND FlavorType = 'FLAVOR_CULTURE';
 
-UPDATE AIEconomicStrategy_City_Flavors
-SET Flavor = '50'
-WHERE AIEconomicStrategyType = 'ECONOMICAISTRATEGY_REALLY_NEED_RECON_SEA' AND FlavorType = 'FLAVOR_NAVAL_RECON';
+UPDATE Policy_Flavors
+SET Flavor = '15'
+WHERE PolicyType = 'POLICY_TRADITION' AND FlavorType = 'FLAVOR_GROWTH';
 
-UPDATE AIEconomicStrategy_City_Flavors
-SET Flavor = '50'
-WHERE AIEconomicStrategyType = 'ECONOMICAISTRATEGY_NEED_RECON' AND FlavorType = 'FLAVOR_RECON';
+UPDATE Policy_Flavors
+SET Flavor = '10'
+WHERE PolicyType = 'POLICY_TRADITION' AND FlavorType = 'FLAVOR_WONDER';
 
--- Combat Stuff
+-- Grand Strategy
+UPDATE AIGrandStrategy_Flavors SET Flavor = '20' WHERE FlavorType= 'FLAVOR_OFFENSE' AND AIGrandStrategyType = 'AIGRANDSTRATEGY_CONQUEST';
+UPDATE AIGrandStrategy_Flavors SET Flavor = '20' WHERE FlavorType= 'FLAVOR_CULTURE' AND AIGrandStrategyType = 'AIGRANDSTRATEGY_CULTURE';
+UPDATE AIGrandStrategy_Flavors SET Flavor = '20' WHERE FlavorType= 'FLAVOR_DIPLOMACY' AND AIGrandStrategyType = 'AIGRANDSTRATEGY_UNITED_NATIONS';
+UPDATE AIGrandStrategy_Flavors SET Flavor = '20' WHERE FlavorType= 'FLAVOR_SPACESHIP' AND AIGrandStrategyType = 'AIGRANDSTRATEGY_SPACESHIP';
 
--- Number of turns AI waits while recruiting before disbanding an operation
-UPDATE Defines
-SET Value = '5'
-WHERE Name = 'AI_TACTICAL_MAP_TEMP_ZONE_TURNS';
+UPDATE AIGrandStrategy_Yields SET Yield = '200' WHERE YieldType= 'YIELD_GOLD' AND AIGrandStrategyType = 'AIGRANDSTRATEGY_UNITED_NATIONS';
+UPDATE AIGrandStrategy_Yields SET Yield = '200' WHERE YieldType= 'YIELD_SCIENCE' AND AIGrandStrategyType = 'AIGRANDSTRATEGY_SPACESHIP';
+UPDATE AIGrandStrategy_Yields SET Yield = '200' WHERE YieldType= 'YIELD_PRODUCTION' AND AIGrandStrategyType = 'AIGRANDSTRATEGY_SPACESHIP';
+UPDATE AIGrandStrategy_Yields SET Yield = '200' WHERE YieldType= 'YIELD_PRODUCTION' AND AIGrandStrategyType = 'AIGRANDSTRATEGY_CONQUEST';
+UPDATE AIGrandStrategy_Yields SET Yield = '150' WHERE YieldType= 'YIELD_GOLD' AND AIGrandStrategyType = 'AIGRANDSTRATEGY_CULTURE';
+UPDATE AIGrandStrategy_Yields SET YieldType = 'YIELD_CULTURE' WHERE YieldType= 'YIELD_SCIENCE' AND AIGrandStrategyType = 'AIGRANDSTRATEGY_CULTURE';
 
-UPDATE Defines
-SET Value = '10'
-WHERE Name = 'AI_OPERATIONAL_MAX_RECRUIT_TURNS_ENEMY_TERRITORY';
+-- City Specialization Stuff
 
-UPDATE Defines
-SET Value = '5000'
-WHERE Name = 'AI_CITYSTRATEGY_OPERATION_UNIT_BASE_WEIGHT';
+UPDATE CitySpecialization_TargetYields
+SET Yield = '100'
+WHERE YieldType = 'YIELD_GOLD';
 
-UPDATE Defines
-SET Value = '2'
-WHERE Name = 'AI_MILITARY_BARBARIANS_FOR_MINOR_THREAT';
+UPDATE CitySpecialization_TargetYields
+SET Yield = '175'
+WHERE YieldType = 'YIELD_SCIENCE';
 
-UPDATE Defines
-SET Value = '40'
-WHERE Name = 'AI_TACTICAL_MAP_DOMINANCE_PERCENTAGE';
+-- Anti Air AI fix
+DELETE FROM Unit_AITypes WHERE UnitType = 'UNIT_ANTI_AIRCRAFT_GUN' AND UnitAIType = 'UNITAI_CITY_SPECIAL';
+DELETE FROM Unit_AITypes WHERE UnitType = 'UNIT_MOBILE_SAM' AND UnitAIType = 'UNITAI_CITY_SPECIAL';
 
--- 150
-UPDATE Defines
-SET Value = '500'
-WHERE Name = 'AI_GOLD_PRIORITY_UPGRADE_BASE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
+-- Operational AI changes
+UPDATE MultiUnitFormations
+SET RequiresNavalUnitConsistency = '0'
+WHERE Type = 'MUFORMATION_NAVAL_INVASION';
 
--- 75
-UPDATE Defines
-SET Value = '100'
-WHERE Name = 'AI_GOLD_PRIORITY_UPGRADE_PER_FLAVOR_POINT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
+UPDATE MultiUnitFormations
+SET RequiresNavalUnitConsistency = '0'
+WHERE Type = 'MUFORMATION_CITY_STATE_INVASION';
 
--- 25
-UPDATE Defines
-SET Value = '100'
-WHERE Name = 'AI_HOMELAND_MOVE_PRIORITY_UPGRADE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
+-- Recruitment
 
+UPDATE TacticalMoves
+SET OperationsCanRecruit = '1'
+WHERE Type = 'TACTICAL_BASTION_ALREADY_THERE';
+
+UPDATE TacticalMoves
+SET OperationsCanRecruit = '1'
+WHERE Type = 'TACTICAL_GUARD_IMPROVEMENT_ALREADY_THERE';
+
+UPDATE TacticalMoves
+SET OperationsCanRecruit = '1'
+WHERE Type = 'TACTICAL_GARRISON_ALREADY_THERE';
+
+UPDATE TacticalMoves
+SET OperationsCanRecruit = '1'
+WHERE Type = 'TACTICAL_BARBARIAN_CAMP';
+
+-- Tactical AI Stuff
 UPDATE TacticalMoves
 SET Priority = '75'
 WHERE Type = 'TACTICAL_ESCORT_EMBARKED_UNIT';
@@ -517,73 +322,8 @@ UPDATE TacticalMoves
 SET Priority = '2'
 WHERE Type = 'TACTICAL_BASTION_2_TURN';
 
--- Recruitment
-
-UPDATE TacticalMoves
-SET OperationsCanRecruit = '1'
-WHERE Type = 'TACTICAL_BASTION_ALREADY_THERE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
-
-UPDATE TacticalMoves
-SET OperationsCanRecruit = '1'
-WHERE Type = 'TACTICAL_GUARD_IMPROVEMENT_ALREADY_THERE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
-
-UPDATE TacticalMoves
-SET OperationsCanRecruit = '1'
-WHERE Type = 'TACTICAL_GARRISON_ALREADY_THERE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
-
-UPDATE TacticalMoves
-SET OperationsCanRecruit = '1'
-WHERE Type = 'TACTICAL_BARBARIAN_CAMP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
-
-UPDATE Defines
-SET Value = '14'
-WHERE Name = 'AI_TACTICAL_REPOSITION_RANGE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
-
--- Policy Decision Stuff
-
-UPDATE Policy_Flavors
-SET Flavor = '15'
-WHERE PolicyType = 'POLICY_PIETY';
-
-UPDATE Policy_Flavors
-SET Flavor = '15'
-WHERE PolicyType = 'POLICY_LIBERTY';
-
-UPDATE Policy_Flavors
-SET Flavor = '15'
-WHERE PolicyType = 'POLICY_TRADITION' AND FlavorType = 'FLAVOR_CULTURE';
-
-UPDATE Policy_Flavors
-SET Flavor = '15'
-WHERE PolicyType = 'POLICY_TRADITION' AND FlavorType = 'FLAVOR_GROWTH';
-
-UPDATE Policy_Flavors
-SET Flavor = '10'
-WHERE PolicyType = 'POLICY_TRADITION' AND FlavorType = 'FLAVOR_WONDER';
-
-UPDATE Defines
-SET Value = '90'
-WHERE Name = 'POLICY_WEIGHT_PERCENT_DROP_NEW_BRANCH';
-
-UPDATE Defines
-SET Value = '45'
-WHERE Name = 'IDEOLOGY_SCORE_PER_FREE_TENET';
-
-UPDATE Defines
-SET Value = '10'
-WHERE Name = 'IDEOLOGY_SCORE_HAPPINESS';
-
--- 300
-UPDATE Defines
-SET Value = '600'
-WHERE Name = 'AI_GS_SS_TECH_PROGRESS_MOD';
-
--- 50
-UPDATE Defines
-SET Value = '33'
-WHERE Name = 'AI_GRAND_STRATEGY_OTHER_PLAYERS_GS_MULTIPLIER';
-
 -- Military Strategy Flavors
+
 DELETE FROM Unit_Flavors
 WHERE UnitType = 'UNIT_ANTI_AIRCRAFT_GUN' AND FlavorType = 'FLAVOR_DEFENSE';
 
@@ -621,10 +361,8 @@ UPDATE AIMilitaryStrategy_Player_Flavors
 SET Flavor = '30'
 WHERE AIMilitaryStrategyType = 'MILITARYAISTRATEGY_WAR_MOBILIZATION' AND FlavorType = 'FLAVOR_NAVAL';
 
-INSERT INTO AIMilitaryStrategy_Player_Flavors (
-AIMilitaryStrategyType, FlavorType, Flavor)
-SELECT 'MILITARYAISTRATEGY_WAR_MOBILIZATION', 'FLAVOR_NAVAL_RECON' , '30'
-WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
+INSERT INTO AIMilitaryStrategy_Player_Flavors (AIMilitaryStrategyType, FlavorType, Flavor)
+SELECT 'MILITARYAISTRATEGY_WAR_MOBILIZATION', 'FLAVOR_NAVAL_RECON' , '25';
 
 UPDATE AIMilitaryStrategy_City_Flavors
 SET Flavor = '-15'
@@ -650,10 +388,8 @@ UPDATE AIMilitaryStrategy_Player_Flavors
 SET Flavor = '75'
 WHERE AIMilitaryStrategyType = 'MILITARYAISTRATEGY_EMPIRE_DEFENSE' AND FlavorType = 'FLAVOR_DEFENSE';
 
-INSERT INTO AIMilitaryStrategy_Player_Flavors (
-AIMilitaryStrategyType, FlavorType, Flavor)
-SELECT 'MILITARYAISTRATEGY_EMPIRE_DEFENSE', 'FLAVOR_MOBILE' , '25'
-WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
+INSERT INTO AIMilitaryStrategy_Player_Flavors (AIMilitaryStrategyType, FlavorType, Flavor)
+SELECT 'MILITARYAISTRATEGY_EMPIRE_DEFENSE', 'FLAVOR_MOBILE' , '25';
 
 UPDATE AIMilitaryStrategy_Player_Flavors
 SET Flavor = '30'
@@ -667,17 +403,13 @@ UPDATE AIMilitaryStrategy_Player_Flavors
 SET Flavor = '150'
 WHERE AIMilitaryStrategyType = 'MILITARYAISTRATEGY_EMPIRE_DEFENSE_CRITICAL' AND FlavorType = 'FLAVOR_DEFENSE';
 
-INSERT INTO AIMilitaryStrategy_Player_Flavors (
-AIMilitaryStrategyType, FlavorType, Flavor)
-SELECT 'MILITARYAISTRATEGY_EMPIRE_DEFENSE_CRITICAL', 'FLAVOR_MOBILE' , '60'
-WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
+INSERT INTO AIMilitaryStrategy_Player_Flavors (AIMilitaryStrategyType, FlavorType, Flavor)
+SELECT 'MILITARYAISTRATEGY_EMPIRE_DEFENSE_CRITICAL', 'FLAVOR_MOBILE' , '60';
 
-INSERT INTO AIMilitaryStrategy_Player_Flavors (
-AIMilitaryStrategyType, FlavorType, Flavor)
-SELECT 'MILITARYAISTRATEGY_EMPIRE_DEFENSE_CRITICAL', 'FLAVOR_AIR' , '60'
-WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
+INSERT INTO AIMilitaryStrategy_Player_Flavors (AIMilitaryStrategyType, FlavorType, Flavor)
+SELECT 'MILITARYAISTRATEGY_EMPIRE_DEFENSE_CRITICAL', 'FLAVOR_AIR' , '60';
 
--- City Strategy Flavors
+-- Military City Strategy Flavors
 
 UPDATE AIMilitaryStrategy_City_Flavors
 SET Flavor = '50'
@@ -691,15 +423,11 @@ UPDATE AIMilitaryStrategy_City_Flavors
 SET Flavor = '30'
 WHERE AIMilitaryStrategyType = 'MILITARYAISTRATEGY_EMPIRE_DEFENSE' AND FlavorType = 'FLAVOR_NAVAL';
 
-INSERT INTO AIMilitaryStrategy_City_Flavors (
-AIMilitaryStrategyType, FlavorType, Flavor)
-SELECT 'MILITARYAISTRATEGY_EMPIRE_DEFENSE_CRITICAL', 'FLAVOR_MOBILE' , '40'
-WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
+INSERT INTO AIMilitaryStrategy_City_Flavors (AIMilitaryStrategyType, FlavorType, Flavor)
+SELECT 'MILITARYAISTRATEGY_EMPIRE_DEFENSE_CRITICAL', 'FLAVOR_MOBILE' , '40';
 
-INSERT INTO AIMilitaryStrategy_City_Flavors (
-AIMilitaryStrategyType, FlavorType, Flavor)
-SELECT 'MILITARYAISTRATEGY_EMPIRE_DEFENSE_CRITICAL', 'FLAVOR_AIR' , '50'
-WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
+INSERT INTO AIMilitaryStrategy_City_Flavors (AIMilitaryStrategyType, FlavorType, Flavor)
+SELECT 'MILITARYAISTRATEGY_EMPIRE_DEFENSE_CRITICAL', 'FLAVOR_AIR' , '50';
 
 UPDATE AIMilitaryStrategy_City_Flavors
 SET Flavor = '40'
@@ -713,8 +441,7 @@ UPDATE AIMilitaryStrategy_City_Flavors
 SET Flavor = '150'
 WHERE AIMilitaryStrategyType = 'MILITARYAISTRATEGY_EMPIRE_DEFENSE_CRITICAL' AND FlavorType = 'FLAVOR_DEFENSE';
 
-INSERT INTO AIMilitaryStrategy_City_Flavors (
-AIMilitaryStrategyType, FlavorType, Flavor)
+INSERT INTO AIMilitaryStrategy_City_Flavors (AIMilitaryStrategyType, FlavorType, Flavor)
 SELECT 'MILITARYAISTRATEGY_EMPIRE_DEFENSE_CRITICAL', 'FLAVOR_MOBILE' , '60'
 WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='MILITARYAISTRATEGY_EMPIRE_DEFENSE_CRITICAL' AND Value= 1 );
 
@@ -726,7 +453,70 @@ UPDATE AIMilitaryStrategy_City_Flavors
 SET Flavor = '60'
 WHERE AIMilitaryStrategyType = 'MILITARYAISTRATEGY_NEED_NAVAL_UNITS_CRITICAL' AND FlavorType = 'FLAVOR_NAVAL';
 
+UPDATE AICityStrategy_Flavors
+SET Flavor = '10' 
+WHERE FlavorType = 'FLAVOR_MILITARY_TRAINING' AND AICityStrategyType = 'AICITYSTRATEGY_IS_PUPPET';
+
 -- Economic Strategies
+
+UPDATE AIEconomicStrategy_Player_Flavors
+SET Flavor = '100'
+WHERE AIEconomicStrategyType = 'ECONOMICAISTRATEGY_REALLY_EXPAND_TO_OTHER_CONTINENTS' AND FlavorType = 'FLAVOR_EXPANSION';
+
+UPDATE AIEconomicStrategy_Player_Flavors
+SET Flavor = '50'
+WHERE AIEconomicStrategyType = 'ECONOMICAISTRATEGY_EXPAND_TO_OTHER_CONTINENTS' AND FlavorType = 'FLAVOR_EXPANSION';
+
+UPDATE AIEconomicStrategy_Player_Flavors
+SET Flavor = '15'
+WHERE AIEconomicStrategyType = 'ECONOMICAISTRATEGY_EXPAND_TO_OTHER_CONTINENTS' AND FlavorType = 'FLAVOR_RECON';
+
+UPDATE AIEconomicStrategy_Player_Flavors
+SET Flavor = '40'
+WHERE AIEconomicStrategyType = 'ECONOMICAISTRATEGY_EXPAND_TO_OTHER_CONTINENTS' AND FlavorType = 'FLAVOR_NAVAL_RECON';
+
+UPDATE AIEconomicStrategy_Player_Flavors
+SET Flavor = '50'
+WHERE AIEconomicStrategyType = 'ECONOMICAISTRATEGY_REALLY_NEED_RECON_SEA' AND FlavorType = 'FLAVOR_NAVAL';
+
+UPDATE AIEconomicStrategy_Player_Flavors
+SET Flavor = '15'
+WHERE AIEconomicStrategyType = 'ECONOMICAISTRATEGY_NEED_RECON' AND FlavorType = 'FLAVOR_RECON';
+
+UPDATE AIEconomicStrategy_Player_Flavors
+SET Flavor = '150'
+WHERE AIEconomicStrategyType = 'ECONOMICAISTRATEGY_NAVAL_MAP' AND FlavorType = 'FLAVOR_NAVAL_RECON';
+
+UPDATE AIEconomicStrategy_Player_Flavors
+SET Flavor = '75'
+WHERE AIEconomicStrategyType = 'ECONOMICAISTRATEGY_OFFSHORE_EXPANSION_MAP' AND FlavorType = 'FLAVOR_NAVAL_RECON';
+
+UPDATE AIEconomicStrategies
+SET MinimumNumTurnsExecuted = '50'
+WHERE Type = 'ECONOMICAISTRATEGY_TOO_MANY_UNITS';
+
+UPDATE AIEconomicStrategies
+SET CheckTriggerTurnCount = '50'
+WHERE Type = 'ECONOMICAISTRATEGY_TOO_MANY_UNITS';
+
+-- Economic City Strategy Flavors
+
+UPDATE AIEconomicStrategy_City_Flavors
+SET Flavor = '8'
+WHERE AIEconomicStrategyType = 'ECONOMICAISTRATEGY_GS_CULTURE' AND FlavorType = 'FLAVOR_EXPANSION';
+
+UPDATE AIEconomicStrategy_City_Flavors
+SET Flavor = '40'
+WHERE AIEconomicStrategyType = 'ECONOMICAISTRATEGY_REALLY_NEED_RECON_SEA' AND FlavorType = 'FLAVOR_NAVAL';
+
+UPDATE AIEconomicStrategy_City_Flavors
+SET Flavor = '50'
+WHERE AIEconomicStrategyType = 'ECONOMICAISTRATEGY_REALLY_NEED_RECON_SEA' AND FlavorType = 'FLAVOR_NAVAL_RECON';
+
+UPDATE AIEconomicStrategy_City_Flavors
+SET Flavor = '20'
+WHERE AIEconomicStrategyType = 'ECONOMICAISTRATEGY_NEED_RECON' AND FlavorType = 'FLAVOR_RECON';
+
 UPDATE AIEconomicStrategy_City_Flavors
 SET Flavor = '-100'
 WHERE AIEconomicStrategyType = 'ECONOMICAISTRATEGY_TOO_MANY_UNITS' AND FlavorType = 'FLAVOR_OFFENSE';
@@ -767,234 +557,6 @@ UPDATE AIEconomicStrategy_City_Flavors
 SET Flavor = '100'
 WHERE AIEconomicStrategyType = 'ECONOMICAISTRATEGY_LOSING_MONEY' AND FlavorType = 'FLAVOR_GOLD';
 
-UPDATE AIEconomicStrategies
-SET MinimumNumTurnsExecuted = '50'
-WHERE Type = 'ECONOMICAISTRATEGY_TOO_MANY_UNITS';
-
-UPDATE AIEconomicStrategies
-SET CheckTriggerTurnCount = '50'
-WHERE Type = 'ECONOMICAISTRATEGY_TOO_MANY_UNITS';
-
--- Other
-
---7
-UPDATE Defines
-SET Value = '10'
-WHERE Name = 'AI_CITIZEN_VALUE_SCIENCE';
-
---14
-UPDATE Defines
-SET Value = '12'
-WHERE Name = 'AI_CITIZEN_VALUE_FOOD';
-
---18
-UPDATE Defines
-SET Value = '14'
-WHERE Name = 'AI_CITIZEN_VALUE_PRODUCTION';
-
---8
-UPDATE Defines
-SET Value = '6'
-WHERE Name = 'AI_CITIZEN_VALUE_GOLD';
-
---15
-UPDATE Defines
-SET Value = '16'
-WHERE Name = 'AI_CITIZEN_VALUE_CULTURE';
-
---5
-UPDATE Defines
-SET Value = '8'
-WHERE Name = 'AI_CITIZEN_VALUE_FAITH';
-
-UPDATE Defines
-SET Value = '2'
-WHERE Name = 'RELIGION_MAX_MISSIONARIES';
-
-UPDATE Defines
-SET Value = '20'
-WHERE Name = 'RELIGION_MISSIONARY_RANGE_IN_TURNS';
-
-UPDATE Defines
-SET Value = '70'
-WHERE Name = 'AI_OPERATIONAL_PERCENT_HEALTH_FOR_OPERATION';
-
--- Barb stuff
-UPDATE Defines
-SET Value = '60'
-WHERE Name = 'BARBARIAN_TECH_PERCENT';
-
-UPDATE Defines
-SET Value = '4'
-WHERE Name = 'BARBARIAN_CAMP_MINIMUM_DISTANCE_ANOTHER_CAMP';
-
--- Diplomacy and War Likelihood
---200
-UPDATE Defines
-SET Value = '300'
-WHERE Name = 'MILITARY_THREAT_CRITICAL_THRESHOLD';
-
---150
-UPDATE Defines
-SET Value = '200'
-WHERE Name = 'MILITARY_THREAT_SEVERE_THRESHOLD';
-
---100
-UPDATE Defines
-SET Value = '125'
-WHERE Name = 'MILITARY_THREAT_MAJOR_THRESHOLD';
-
--- -10
-UPDATE Defines
-SET Value = '-5'
-WHERE Name = 'TARGET_NEIGHBORS';
-
--- 80
-UPDATE Defines
-SET Value = '75'
-WHERE Name = 'TARGET_DISTANT';
-
--- 30
-UPDATE Defines
-SET Value = '25'
-WHERE Name = 'TARGET_FAR';
-
--- 14
-UPDATE Defines
-SET Value = '25'
-WHERE Name = 'VICTORY_DISPUTE_GRAND_STRATEGY_MATCH_POSITIVE';
-
--- 10
-UPDATE Defines
-SET Value = '15'
-WHERE Name = 'VICTORY_DISPUTE_GRAND_STRATEGY_MATCH_LIKELY';
-
--- 6
-UPDATE Defines
-SET Value = '5'
-WHERE Name = 'VICTORY_DISPUTE_GRAND_STRATEGY_MATCH_UNSURE';
-
-INSERT INTO Defines (Name, Value)
-SELECT 'VICTORY_BLOCK_GRAND_STRATEGY_DIFFERENCE_POSITIVE', '20';
-
-INSERT INTO Defines (Name, Value)
-SELECT 'VICTORY_BLOCK_GRAND_STRATEGY_DIFFERENCE_LIKELY', '15';
-
-INSERT INTO Defines (Name, Value)
-SELECT 'VICTORY_BLOCK_GRAND_STRATEGY_DIFFERENCE_UNSURE', '5';
-
-INSERT INTO Defines (Name, Value)
-SELECT 'VICTORY_BLOCK_FIERCE_THRESHOLD', '40';
-
-INSERT INTO Defines (Name, Value)
-SELECT 'VICTORY_BLOCK_STRONG_THRESHOLD', '30';
-
-INSERT INTO Defines (Name, Value)
-SELECT 'VICTORY_BLOCK_WEAK_THRESHOLD', '20';
-
--- 120
-UPDATE Defines
-SET Value = '150'
-WHERE Name = 'AI_GRAND_STRATEGY_GUESS_POSITIVE_THRESHOLD';
-
--- 70
-UPDATE Defines
-SET Value = '80'
-WHERE Name = 'AI_GRAND_STRATEGY_GUESS_LIKELY_THRESHOLD';
-
--- Sentry Points
-UPDATE Defines
-SET Value = '16'
-WHERE Name = 'AI_HOMELAND_MOVE_PRIORITY_SENTRY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
-
-UPDATE Defines
-SET Value = '9'
-WHERE Name = 'AI_HOMELAND_MOVE_PRIORITY_PATROL' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
-
-UPDATE Defines
-SET Value = '24'
-WHERE Name = 'AI_HOMELAND_MOVE_PRIORITY_GARRISON' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
-
-UPDATE Defines
-SET Value = '124'
-WHERE Name = 'AI_HOMELAND_MOVE_ANCIENT_RUINS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
-
-
--- Worker Stuff
-UPDATE Defines
-SET Value = '1000'
-WHERE Name = 'BUILDER_TASKING_BASELINE_REPAIR' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
-
-UPDATE Defines
-SET Value = '750'
-WHERE Name = 'BUILDER_TASKING_BASELINE_BUILD_ROUTES' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
-
-UPDATE Defines
-SET Value = '300'
-WHERE Name = 'BUILDER_TASKING_BASELINE_BUILD_RESOURCE_IMPROVEMENTS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
-
-UPDATE Defines
-SET Value = '100'
-WHERE Name = 'BUILDER_TASKING_BASELINE_BUILD_IMPROVEMENTS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
-
--- City Specialization Stuff
-
-UPDATE CitySpecialization_TargetYields
-SET Yield = '100'
-WHERE YieldType = 'YIELD_GOLD' AND Yield ='0' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
-
-UPDATE CitySpecialization_TargetYields
-SET Yield = '175'
-WHERE YieldType = 'YIELD_SCIENCE' AND Yield ='0' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
-
--- Resource Priority Changes
-
-UPDATE Resources
-SET AITradeModifier = '30'
-WHERE Type = 'RESOURCE_URANIUM' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
-
-UPDATE Resources
-SET AITradeModifier = '30'
-WHERE Type = 'RESOURCE_ALUMINUM' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
-
-UPDATE Resources
-SET AITradeModifier = '25'
-WHERE Type = 'RESOURCE_OIL' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
-
-UPDATE Resources
-SET AITradeModifier = '25'
-WHERE Type = 'RESOURCE_COAL' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
-
-UPDATE Resources
-SET AITradeModifier = '20'
-WHERE Type = 'RESOURCE_IRON' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
-
-UPDATE Resources
-SET AITradeModifier = '20'
-WHERE Type = 'RESOURCE_HORSES' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
-
--- emphasis on uniques - changed formula
-UPDATE Defines
-SET Value = '25'
-WHERE Name = 'TECH_PRIORITY_UNIQUE_ITEM' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
-
-
--- DOF too soon buffer:
-UPDATE Defines
-SET Value = '50'
-WHERE Name = 'DOF_TURN_BUFFER' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
-
--- Operational AI changes
-UPDATE MultiUnitFormations
-SET RequiresNavalUnitConsistency = '0'
-WHERE Type = 'MUFORMATION_NAVAL_INVASION' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
-
-UPDATE MultiUnitFormations
-SET RequiresNavalUnitConsistency = '0'
-WHERE Type = 'MUFORMATION_CITY_STATE_INVASION' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
-
--- Workboat buff for Oil
-
 UPDATE AICityStrategy_Flavors
 SET Flavor = '150'
 WHERE AICityStrategyType = 'AICITYSTRATEGY_NEED_NAVAL_TILE_IMPROVEMENT' AND FlavorType = 'FLAVOR_NAVAL_TILE_IMPROVEMENT';
@@ -1002,14 +564,6 @@ WHERE AICityStrategyType = 'AICITYSTRATEGY_NEED_NAVAL_TILE_IMPROVEMENT' AND Flav
 UPDATE AIEconomicStrategy_City_Flavors
 SET Flavor = '100'
 WHERE AIEconomicStrategyType = 'ECONOMICAISTRATEGY_NEED_ARCHAEOLOGISTS';
-
-UPDATE AIEconomicStrategy_Player_Flavors
-SET Flavor = '150'
-WHERE AIEconomicStrategyType = 'ECONOMICAISTRATEGY_NAVAL_MAP';
-
-UPDATE AIEconomicStrategy_Player_Flavors
-SET Flavor = '75'
-WHERE AIEconomicStrategyType = 'ECONOMICAISTRATEGY_OFFSHORE_EXPANSION_MAP';
 
 UPDATE AIEconomicStrategy_City_Flavors
 SET Flavor = '80'
@@ -1035,312 +589,83 @@ UPDATE AIEconomicStrategy_City_Flavors
 SET Flavor = '30'
 WHERE AIEconomicStrategyType = 'ECONOMICAISTRATEGY_OFFSHORE_EXPANSION_MAP' AND FlavorType = 'FLAVOR_WATER_CONNECTION';
 
--- Grand Strategy
-UPDATE AIGrandStrategy_Flavors SET Flavor = '20' WHERE FlavorType= 'FLAVOR_OFFENSE' AND AIGrandStrategyType = 'AIGRANDSTRATEGY_CONQUEST';
-UPDATE AIGrandStrategy_Flavors SET Flavor = '20' WHERE FlavorType= 'FLAVOR_CULTURE' AND AIGrandStrategyType = 'AIGRANDSTRATEGY_CULTURE';
-UPDATE AIGrandStrategy_Flavors SET Flavor = '20' WHERE FlavorType= 'FLAVOR_DIPLOMACY' AND AIGrandStrategyType = 'AIGRANDSTRATEGY_UNITED_NATIONS';
-UPDATE AIGrandStrategy_Flavors SET Flavor = '20' WHERE FlavorType= 'FLAVOR_SPACESHIP' AND AIGrandStrategyType = 'AIGRANDSTRATEGY_SPACESHIP';
+-- AI Strategies - no CSs
+UPDATE AIEconomicStrategies
+SET NoMinorCivs = '1'
+WHERE Type = 'ECONOMICAISTRATEGY_LOSING_MONEY';
 
-UPDATE AIGrandStrategy_Yields SET Yield = '200' WHERE YieldType= 'YIELD_GOLD' AND AIGrandStrategyType = 'AIGRANDSTRATEGY_UNITED_NATIONS';
-UPDATE AIGrandStrategy_Yields SET Yield = '200' WHERE YieldType= 'YIELD_SCIENCE' AND AIGrandStrategyType = 'AIGRANDSTRATEGY_SPACESHIP';
-UPDATE AIGrandStrategy_Yields SET Yield = '200' WHERE YieldType= 'YIELD_PRODUCTION' AND AIGrandStrategyType = 'AIGRANDSTRATEGY_SPACESHIP';
-UPDATE AIGrandStrategy_Yields SET Yield = '200' WHERE YieldType= 'YIELD_PRODUCTION' AND AIGrandStrategyType = 'AIGRANDSTRATEGY_CONQUEST';
-UPDATE AIGrandStrategy_Yields SET Yield = '150' WHERE YieldType= 'YIELD_GOLD' AND AIGrandStrategyType = 'AIGRANDSTRATEGY_CULTURE';
-UPDATE AIGrandStrategy_Yields SET YieldType = 'YIELD_CULTURE' WHERE YieldType= 'YIELD_SCIENCE' AND AIGrandStrategyType = 'AIGRANDSTRATEGY_CULTURE';
+UPDATE AIMilitaryStrategies
+SET NoMinorCivs = '1'
+WHERE Type = 'MILITARYAISTRATEGY_NEED_RANGED';
 
--- Specialization Values
-UPDATE Defines
-SET Value = '20'
-WHERE Name = 'AI_CITY_SPECIALIZATION_PRODUCTION_WEIGHT_OPERATIONAL_UNITS_REQUESTED' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 ); 
+UPDATE AIMilitaryStrategies
+SET NoMinorCivs = '1'
+WHERE Type = 'MILITARYAISTRATEGY_EMPIRE_DEFENSE_CRITICAL';
 
-UPDATE Defines
-SET Value = '150'
-WHERE Name = 'AI_CITY_SPECIALIZATION_PRODUCTION_WEIGHT_CIVS_AT_WAR_WITH' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 ); 
+UPDATE AIMilitaryStrategies
+SET NoMinorCivs = '1'
+WHERE Type = 'MILITARYAISTRATEGY_ENOUGH_RANGED';
 
-UPDATE Defines
-SET Value = '250'
-WHERE Name = 'AI_CITY_SPECIALIZATION_PRODUCTION_WEIGHT_WAR_MOBILIZATION' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 ); 
+UPDATE AIMilitaryStrategies
+SET NoMinorCivs = '1'
+WHERE Type = 'MILITARYAISTRATEGY_NEED_MOBILE';
 
-UPDATE Defines
-SET Value = '250'
-WHERE Name = 'AI_CITY_SPECIALIZATION_PRODUCTION_WEIGHT_EMPIRE_DEFENSE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 ); 
+UPDATE AIMilitaryStrategies
+SET NoMinorCivs = '1'
+WHERE Type = 'MILITARYAISTRATEGY_ENOUGH_MOBILE';
 
-UPDATE Defines
-SET Value = '1250'
-WHERE Name = 'AI_CITY_SPECIALIZATION_PRODUCTION_WEIGHT_EMPIRE_DEFENSE_CRITICAL' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 ); 
+UPDATE AIMilitaryStrategies
+SET NoMinorCivs = '1'
+WHERE Type = 'MILITARYAISTRATEGY_NEED_ANTIAIR';
 
-UPDATE Defines
-SET Value = '250'
-WHERE Name = 'AI_CITY_SPECIALIZATION_PRODUCTION_WEIGHT_FLAVOR_WONDER' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
+UPDATE AIMilitaryStrategies
+SET NoMinorCivs = '1'
+WHERE Type = 'MILITARYAISTRATEGY_ENOUGH_ANTIAIR';
 
--- Military Strength
+UPDATE AIMilitaryStrategies
+SET NoMinorCivs = '1'
+WHERE Type = 'MILITARYAISTRATEGY_NEED_AIR_CARRIER';
 
---40
-UPDATE Defines
-SET Value = '33'
-WHERE Name = 'MILITARY_STRENGTH_WEAK_THRESHOLD';
+UPDATE AIMilitaryStrategy_City_Flavors
+SET Flavor = '40'
+WHERE FlavorType = 'FLAVOR_CITY_DEFENSE' and AIMilitaryStrategyType = 'MILITARYAISTRATEGY_MINOR_CIV_THREAT_CRITICAL';
 
--- 60
-UPDATE Defines
-SET Value = '50'
-WHERE Name = 'MILITARY_STRENGTH_POOR_THRESHOLD';
+UPDATE AIMilitaryStrategy_City_Flavors
+SET Flavor = '80'
+WHERE FlavorType = 'FLAVOR_DEFENSE' and AIMilitaryStrategyType = 'MILITARYAISTRATEGY_MINOR_CIV_THREAT_CRITICAL';
 
--- 85
-UPDATE Defines
-SET Value = '75'
-WHERE Name = 'MILITARY_STRENGTH_AVERAGE_THRESHOLD';
+UPDATE AIMilitaryStrategy_City_Flavors
+SET Flavor = '80'
+WHERE FlavorType = 'FLAVOR_OFFENSE' and AIMilitaryStrategyType = 'MILITARYAISTRATEGY_MINOR_CIV_THREAT_CRITICAL';
 
---115
-UPDATE Defines
-SET Value = '125'
-WHERE Name = 'MILITARY_STRENGTH_STRONG_THRESHOLD';
+UPDATE AIMilitaryStrategy_City_Flavors
+SET Flavor = '15'
+WHERE FlavorType = 'FLAVOR_NAVAL' and AIMilitaryStrategyType = 'MILITARYAISTRATEGY_MINOR_CIV_THREAT_CRITICAL';
 
---165
-UPDATE Defines
-SET Value = '200'
-WHERE Name = 'MILITARY_STRENGTH_POWERFUL_THRESHOLD';
-
---250
-UPDATE Defines
-SET Value = '300'
-WHERE Name = 'MILITARY_STRENGTH_IMMENSE_THRESHOLD';
-
--- Economic Strength
-
---40
-UPDATE Defines
-SET Value = '33'
-WHERE Name = 'ECONOMIC_STRENGTH_WEAK_THRESHOLD';
-
--- 65
-UPDATE Defines
-SET Value = '50'
-WHERE Name = 'ECONOMIC_STRENGTH_POOR_THRESHOLD';
-
--- 83
-UPDATE Defines
-SET Value = '75'
-WHERE Name = 'ECONOMIC_STRENGTH_AVERAGE_THRESHOLD';
-
---120
-UPDATE Defines
-SET Value = '125'
-WHERE Name = 'ECONOMIC_STRENGTH_STRONG_THRESHOLD';
-
---153
-UPDATE Defines
-SET Value = '200'
-WHERE Name = 'ECONOMIC_STRENGTH_POWERFUL_THRESHOLD';
-
---250
-UPDATE Defines
-SET Value = '300'
-WHERE Name = 'ECONOMIC_STRENGTH_IMMENSE_THRESHOLD';
-
-UPDATE Technology_Flavors
+UPDATE AIMilitaryStrategy_City_Flavors
 SET Flavor = '50'
-WHERE TechType = 'TECH_SAILING' AND FlavorType = 'FLAVOR_NAVAL';
+WHERE FlavorType = 'FLAVOR_DEFENSE' and AIMilitaryStrategyType = 'MILITARYAISTRATEGY_MINOR_CIV_THREAT_ELEVATED';
 
--- Value of units and cities
-INSERT INTO Defines (Name, Value)
-SELECT 'PILLAGED_TILE_BASE_WAR_VALUE', '40';
+UPDATE AIMilitaryStrategy_City_Flavors
+SET Flavor = '25'
+WHERE FlavorType = 'FLAVOR_CITY_DEFENSE' and AIMilitaryStrategyType = 'MILITARYAISTRATEGY_MINOR_CIV_THREAT_ELEVATED';
 
-INSERT INTO Defines (Name, Value)
-SELECT 'STOLEN_TILE_BASE_WAR_VALUE', '80';
+UPDATE AIMilitaryStrategy_City_Flavors
+SET Flavor = '-10'
+WHERE FlavorType = 'FLAVOR_NAVAL' and AIMilitaryStrategyType = 'MILITARYAISTRATEGY_MINOR_CIV_THREAT_ELEVATED';
 
-UPDATE Defines
-SET Value = '175'
-WHERE Name = 'WAR_DAMAGE_LEVEL_CITY_WEIGHT';
+UPDATE AIMilitaryStrategy_City_Flavors
+SET Flavor = '10'
+WHERE FlavorType = 'FLAVOR_CITY_DEFENSE' and AIMilitaryStrategyType = 'MILITARYAISTRATEGY_MINOR_CIV_GENERAL_DEFENSE';
 
-UPDATE Defines
-SET Value = '150'
-WHERE Name = 'WAR_DAMAGE_LEVEL_INVOLVED_CITY_POP_MULTIPLIER';
+UPDATE AIMilitaryStrategy_City_Flavors
+SET Flavor = '30'
+WHERE FlavorType = 'FLAVOR_DEFENSE' and AIMilitaryStrategyType = 'MILITARYAISTRATEGY_MINOR_CIV_GENERAL_DEFENSE';
 
-INSERT INTO Defines (Name, Value)
-SELECT 'WAR_DAMAGE_LEVEL_WORLD_WONDER_MULTIPLIER', '200';
+UPDATE AIMilitaryStrategy_City_Flavors
+SET Flavor = '20'
+WHERE FlavorType = 'FLAVOR_OFFENSE' and AIMilitaryStrategyType = 'MILITARYAISTRATEGY_MINOR_CIV_GENERAL_DEFENSE';
 
-UPDATE Defines
-SET Value = '15'
-WHERE Name = 'WAR_DAMAGE_LEVEL_THRESHOLD_MINOR';
-
-UPDATE Defines
-SET Value = '35'
-WHERE Name = 'WAR_DAMAGE_LEVEL_THRESHOLD_MAJOR';
-
-UPDATE Defines
-SET Value = '65'
-WHERE Name = 'WAR_DAMAGE_LEVEL_THRESHOLD_SERIOUS';
-
-UPDATE Defines
-SET Value = '90'
-WHERE Name = 'WAR_DAMAGE_LEVEL_THRESHOLD_CRIPPLED';
-
--- Peace Values (caps at 100)
-UPDATE Defines
-SET Value = '100'
-WHERE Name = 'PEACE_WILLINGNESS_OFFER_THRESHOLD_UN_SURRENDER';
-UPDATE Defines
-SET Value = '90'
-WHERE Name = 'PEACE_WILLINGNESS_OFFER_THRESHOLD_CAPITULATION';
-UPDATE Defines
-SET Value = '80'
-WHERE Name = 'PEACE_WILLINGNESS_OFFER_THRESHOLD_CESSION';
-UPDATE Defines
-SET Value = '70'
-WHERE Name = 'PEACE_WILLINGNESS_OFFER_THRESHOLD_SURRENDER';
-UPDATE Defines
-SET Value = '60'
-WHERE Name = 'PEACE_WILLINGNESS_OFFER_THRESHOLD_SUBMISSION';
-UPDATE Defines
-SET Value = '40'
-WHERE Name = 'PEACE_WILLINGNESS_OFFER_THRESHOLD_BACKDOWN';
-UPDATE Defines
-SET Value = '30'
-WHERE Name = 'PEACE_WILLINGNESS_OFFER_THRESHOLD_SETTLEMENT';
-UPDATE Defines
-SET Value = '15'
-WHERE Name = 'PEACE_WILLINGNESS_OFFER_THRESHOLD_ARMISTICE';
-
-UPDATE Defines
-SET Value = '100'
-WHERE Name = 'PEACE_WILLINGNESS_ACCEPT_THRESHOLD_UN_SURRENDER';
-UPDATE Defines
-SET Value = '90'
-WHERE Name = 'PEACE_WILLINGNESS_ACCEPT_THRESHOLD_CAPITULATION';
-UPDATE Defines
-SET Value = '80'
-WHERE Name = 'PEACE_WILLINGNESS_ACCEPT_THRESHOLD_CESSION';
-UPDATE Defines
-SET Value = '70'
-WHERE Name = 'PEACE_WILLINGNESS_ACCEPT_THRESHOLD_SURRENDER';
-UPDATE Defines
-SET Value = '60'
-WHERE Name = 'PEACE_WILLINGNESS_ACCEPT_THRESHOLD_SUBMISSION';
-UPDATE Defines
-SET Value = '40'
-WHERE Name = 'PEACE_WILLINGNESS_ACCEPT_THRESHOLD_BACKDOWN';
-UPDATE Defines
-SET Value = '30'
-WHERE Name = 'PEACE_WILLINGNESS_ACCEPT_THRESHOLD_SETTLEMENT';
-UPDATE Defines
-SET Value = '15'
-WHERE Name = 'PEACE_WILLINGNESS_ACCEPT_THRESHOLD_ARMISTICE';
-
-UPDATE Defines
-SET Value = '5'
-WHERE Name = 'ARMISTICE_MIN_GOLD'; 
-
-UPDATE Defines
-SET Value = '5'
-WHERE Name = 'ESPIONAGE_COUP_MULTIPLY_CONSTANT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
-
-UPDATE Defines
-SET Value = '5'
-WHERE Name = 'BONUS_PER_ADJACENT_FRIEND' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
-
-UPDATE Defines
-SET Value = '-40'
-WHERE Name = 'CITY_RANGED_ATTACK_STRENGTH_MULTIPLIER' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
-
-UPDATE UnitPromotions
-SET FlankAttackModifier = '5'
-WHERE FlankAttackModifier = '50' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
-
-UPDATE UnitPromotions
-SET FlankAttackModifier = '3'
-WHERE FlankAttackModifier = '25' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
-
-
-UPDATE AICityStrategy_Flavors
-SET Flavor = '10' 
-WHERE FlavorType = 'FLAVOR_MILITARY_TRAINING' AND AICityStrategyType = 'AICITYSTRATEGY_IS_PUPPET';
-
--- Set Forbidden Palace to 2 votes for CP (we'll reset in CBP)
-UPDATE Buildings
-SET SingleLeagueVotes = '2'
-WHERE Type = 'BUILDING_FORBIDDEN_PALACE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
-
-UPDATE Buildings
-SET ExtraLeagueVotes = '0'
-WHERE Type = 'BUILDING_FORBIDDEN_PALACE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
-
--- TR fix for religion spread
-UPDATE Gamespeeds
-SET ReligiousPressureAdjacentCity = '25' WHERE Type = 'GAMESPEED_MARATHON';
-
-UPDATE Gamespeeds
-SET ReligiousPressureAdjacentCity = '45' WHERE Type = 'GAMESPEED_EPIC';
-
-UPDATE Gamespeeds
-SET ReligiousPressureAdjacentCity = '65' WHERE Type = 'GAMESPEED_STANDARD';
-
-UPDATE Gamespeeds
-SET ReligiousPressureAdjacentCity = '95' WHERE Type = 'GAMESPEED_QUICK';
-
--- Spies
-UPDATE Defines SET Value =  '200' WHERE Name = 'ESPIONAGE_GATHERING_INTEL_COST_PERCENT';
-
--- Policy Helpers
-UPDATE Policies SET IsOpener = '1' WHERE Type = 'POLICY_LIBERTY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
-UPDATE Policies SET IsOpener = '1' WHERE Type = 'POLICY_TRADITION' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
-UPDATE Policies SET IsOpener = '1' WHERE Type = 'POLICY_HONOR' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
-UPDATE Policies SET IsOpener = '1' WHERE Type = 'POLICY_PIETY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
-UPDATE Policies SET IsOpener = '1' WHERE Type = 'POLICY_PATRONAGE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
-UPDATE Policies SET IsOpener = '1' WHERE Type = 'POLICY_COMMERCE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
-UPDATE Policies SET IsOpener = '1' WHERE Type = 'POLICY_RATIONALISM' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
-UPDATE Policies SET IsOpener = '1' WHERE Type = 'POLICY_AESTHETICS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
-UPDATE Policies SET IsOpener = '1' WHERE Type = 'POLICY_EXPLORATION' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
-
-
-UPDATE Policies SET IsFinisher = '1' WHERE Type = 'POLICY_TRADITION_FINISHER' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
-UPDATE Policies SET IsFinisher = '1' WHERE Type = 'POLICY_LIBERTY_FINISHER' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
-UPDATE Policies SET IsFinisher = '1' WHERE Type = 'POLICY_HONOR_FINISHER' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
-UPDATE Policies SET IsFinisher = '1' WHERE Type = 'POLICY_PIETY_FINISHER' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
-UPDATE Policies SET IsFinisher = '1' WHERE Type = 'POLICY_PATRONAGE_FINISHER' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
-UPDATE Policies SET IsFinisher = '1' WHERE Type = 'POLICY_COMMERCE_FINISHER' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
-UPDATE Policies SET IsFinisher = '1' WHERE Type = 'POLICY_RATIONALISM_FINISHER' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
-UPDATE Policies SET IsFinisher = '1' WHERE Type = 'POLICY_AESTHETICS_FINISHER' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
-UPDATE Policies SET IsFinisher = '1' WHERE Type = 'POLICY_EXPLORATION_FINISHER' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
-
--- Art Stuff for Artifacts
-UPDATE GreatWorks SET Image = 'artifact.dds' WHERE GreatWorkClassType = 'GREAT_WORK_ARTIFACT' AND NOT ArtifactClassType = 'ARTIFACT_SARCOPHAGUS';
-
--- Ice
-UPDATE Features SET NoImprovement = 'true' WHERE Type = 'FEATURE_ICE';
-
-UPDATE Features SET SeeThrough = '0' WHERE Type = 'FEATURE_SOLOMONS_MINES';
-UPDATE Features SET SeeThrough = '1' WHERE Type = 'FEATURE_GEYSER';
-UPDATE Features SET SeeThrough = '1' WHERE Type = 'FEATURE_FOUNTAIN_YOUTH';
-UPDATE Features SET SeeThrough = '0' WHERE Type = 'FEATURE_SOLOMONS_MINES';
-
-
--- Shrink Citadel
-UPDATE ArtDefine_Landmarks
-SET Scale= '0.8'
-WHERE ImprovementType = 'ART_DEF_IMPROVEMENT_CITADEL';
-
-
---Anti Air AI fix.
-DELETE FROM Unit_AITypes WHERE UnitType = 'UNIT_ANTI_AIRCRAFT_GUN' AND UnitAIType = 'UNITAI_CITY_SPECIAL';
-DELETE FROM Unit_AITypes WHERE UnitType = 'UNIT_MOBILE_SAM' AND UnitAIType = 'UNITAI_CITY_SPECIAL';
-
--- Unit SelectionSound fix
-UPDATE UnitGameplay2DScripts
-SET FirstSelectionSound = 'AS2D_BIRTH_HORSEMAN', SelectionSound = 'AS2D_SELECT_HORSEMAN'
-WHERE UnitType = 'UNIT_BARBARIAN_HORSEMAN';
-
-UPDATE UnitGameplay2DScripts
-SET FirstSelectionSound = 'AS2D_BIRTH_WARRIER', SelectionSound = 'AS2D_SELECT_WARRIER'
-WHERE UnitType = 'UNIT_BARBARIAN_WARRIOR';
-
-UPDATE UnitGameplay2DScripts
-SET FirstSelectionSound = 'AS2D_BIRTH_CANNON', SelectionSound = 'AS2D_SELECT_CANNON'
-WHERE UnitType = 'UNIT_GATLINGGUN';
-
-UPDATE UnitGameplay2DScripts
-SET FirstSelectionSound = 'AS2D_BIRTH_FRIGATE', SelectionSound = 'AS2D_SELECT_FRIGATE'
-WHERE UnitType = 'UNIT_PRIVATEER';
-
-UPDATE UnitGameplay2DScripts
-SET FirstSelectionSound = 'AS2D_BIRTH_MUSKETMAN', SelectionSound = 'AS2D_SELECT_MUSKETMAN'
-WHERE UnitType = 'UNIT_SWEDISH_CAROLEAN';
+UPDATE AIMilitaryStrategy_City_Flavors
+SET Flavor = '-20'
+WHERE FlavorType = 'FLAVOR_NAVAL' and AIMilitaryStrategyType = 'MILITARYAISTRATEGY_MINOR_CIV_GENERAL_DEFENSE';

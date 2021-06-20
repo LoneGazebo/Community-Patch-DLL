@@ -99,7 +99,7 @@ bool CvDangerPlots::UpdateDangerSingleUnit(const CvUnit* pLoopUnit, bool bIgnore
 		{
 			CvPlot* pMoveTile = GC.getMap().plotByIndexUnchecked(moveTile->iPlotIndex);
 			if (pLoopUnit->isNativeDomain(pMoveTile))
-				m_DangerPlots[moveTile->iPlotIndex].m_bEnemyCanCapture = true;
+				m_DangerPlots[moveTile->iPlotIndex].m_apCaptureUnits.push_back(make_pair(pLoopUnit->getOwner(), pLoopUnit->GetID()));
 		}
 	}
 	else
@@ -112,16 +112,9 @@ bool CvDangerPlots::UpdateDangerSingleUnit(const CvUnit* pLoopUnit, bool bIgnore
 			{
 				AssignUnitDangerValue(pLoopUnit, pMoveTile);
 				if (!pMoveTile->isEnemyCity(*pLoopUnit)) //only melee units can move into enemy cities
-					m_DangerPlots[moveTile->iPlotIndex].m_bEnemyCanCapture = true;
+					m_DangerPlots[moveTile->iPlotIndex].m_apCaptureUnits.push_back(make_pair(pLoopUnit->getOwner(), pLoopUnit->GetID()));
 			}
 		}
-	}
-
-	CvPlot** aNeighbors = GC.getMap().getNeighborsUnchecked(pLoopUnit->plot());
-	for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
-	{
-		if (aNeighbors[iI])
-			m_DangerPlots[aNeighbors[iI]->GetPlotIndex()].m_bEnemyAdjacent = true;
 	}
 
 	return true;
@@ -307,6 +300,29 @@ void CvDangerPlots::UpdateDangerInternal(bool bKeepKnownUnits, const PlotIndexCo
 			if (pPlot->getTerrainType() != NO_FEATURE)
 				iPlotDamage += (GC.getTerrainInfo(pPlot->getTerrainType())->getTurnDamage());
 
+			if (pPlot->isWater())
+			{
+				CvCity* pOwner = pPlot->getEffectiveOwningCity();
+				if (pOwner != NULL)
+				{
+					int iTempDamage = pPlot->getEffectiveOwningCity()->GetDeepWaterTileDamage();
+					if (iTempDamage > 0)
+					{
+						//only affected BY adjacent plots
+						for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
+						{
+							CvPlot* pAdjacentPlot = plotDirection(pPlot->getX(), pPlot->getY(), ((DirectionTypes)iI));
+
+							if (pAdjacentPlot != NULL && pAdjacentPlot->isWater() && pAdjacentPlot->getEffectiveOwningCity() == pOwner && pAdjacentPlot->isBeingWorked())
+							{
+								iPlotDamage += iTempDamage;
+								break;
+							}
+						}
+					}
+				}
+			}
+
 			m_DangerPlots[iPlotLoop].m_bFlatPlotDamage = (iPlotDamage>0);
 
 			ImprovementTypes eImprovement = pPlot->getRevealedImprovementType(thisTeam);
@@ -354,12 +370,12 @@ int CvDangerPlots::GetDanger(const CvCity* pCity, const CvUnit* pPretendGarrison
 }
 
 /// Return the maximum amount of damage a unit could take at this plot
-int CvDangerPlots::GetDanger(const CvPlot& Plot, const CvUnit* pUnit, const UnitIdContainer& unitsToIgnore, AirActionType iAirAction)
+int CvDangerPlots::GetDanger(const CvPlot& Plot, const CvUnit* pUnit, const UnitIdContainer& unitsToIgnore, int iExtraDamage, AirActionType iAirAction)
 {
 	if(m_DangerPlots.empty() || !pUnit)
 		return 0;
 
-	return m_DangerPlots[Plot.GetPlotIndex()].GetDanger(pUnit, unitsToIgnore, iAirAction);
+	return m_DangerPlots[Plot.GetPlotIndex()].GetDanger(pUnit, unitsToIgnore, iExtraDamage, iAirAction);
 }
 
 std::vector<CvUnit*> CvDangerPlots::GetPossibleAttackers(const CvPlot& Plot, TeamTypes eTeamForVisibilityCheck) const
@@ -738,7 +754,7 @@ int CvDangerPlotContents::GetAirUnitDamage(const CvUnit* pUnit, AirActionType iA
 #define DANGER_MAX_CACHE_SIZE 9
 
 // Get the maximum damage unit could receive at this plot in the next turn (update this with CvUnitCombat changes!)
-int CvDangerPlotContents::GetDanger(const CvUnit* pUnit, const UnitIdContainer& unitsToIgnore, AirActionType iAirAction)
+int CvDangerPlotContents::GetDanger(const CvUnit* pUnit, const UnitIdContainer& unitsToIgnore, int iExtraDamage, AirActionType iAirAction)
 {
 	if (!m_pPlot || !pUnit)
 		return 0;
@@ -759,10 +775,6 @@ int CvDangerPlotContents::GetDanger(const CvUnit* pUnit, const UnitIdContainer& 
 		if (m_pPlot->isEnemyUnit(pUnit->getOwner(),true,true))
 			return MAX_INT;
 
-		// We do not check for covering units, it's too unreliable since they might move
-		if (m_bEnemyCanCapture)
-			return MAX_INT;
-
 		if (pFriendlyCity)
 		{
 			// Can't hide in a city forever
@@ -772,21 +784,25 @@ int CvDangerPlotContents::GetDanger(const CvUnit* pUnit, const UnitIdContainer& 
 				return 0;
 		}
 
-		//need to use m_bEnemyCanCapture to differentiate between plots that the enemy can move into and those merely under ranged attack
+		//need to differentiate between plots that the enemy can move into and those merely under ranged attack
+		for (DangerUnitVector::iterator it = m_apCaptureUnits.begin(); it < m_apCaptureUnits.end(); ++it)
+		{
+			CvUnit* pAttacker = GET_PLAYER(it->first).getUnit(it->second);
+			if (pAttacker && !pAttacker->isDelayedDeath() && !pAttacker->IsDead())
+				return MAX_INT;
+		}
+
+		//attacks are less important for civilians ...
 		for (DangerUnitVector::iterator it = m_apUnits.begin(); it < m_apUnits.end(); ++it)
 		{
 			CvUnit* pAttacker = GET_PLAYER(it->first).getUnit(it->second);
 			if ( pAttacker && !pAttacker->isDelayedDeath() && !pAttacker->IsDead() )
 			{
-				//ranged attack but no capture
 				int iDummy = 0;
-				if (pAttacker->plot() != m_pPlot)
-				{
-					int iDamage = TacticalAIHelpers::GetSimulatedDamageFromAttackOnUnit(pUnit, pAttacker, m_pPlot, pAttacker->plot(), iDummy, false, 0, true);
-					if (!m_pPlot->isVisible(pAttacker->getTeam()))
-						iDamage = (iDamage * 80) / 100; //there's a chance they won't spot us
-					iPlotDamage += iDamage;
-				}
+				int iDamage = TacticalAIHelpers::GetSimulatedDamageFromAttackOnUnit(pUnit, pAttacker, m_pPlot, pAttacker->plot(), iDummy, false, 0, true);
+				if (!m_pPlot->isVisible(pAttacker->getTeam()))
+					iDamage = (iDamage * 80) / 100; //there's a chance they won't spot us
+				iPlotDamage += iDamage;
 			}
 		}
 
@@ -814,7 +830,7 @@ int CvDangerPlotContents::GetDanger(const CvUnit* pUnit, const UnitIdContainer& 
 
 	//simple caching for speedup
 	//only for combat units - civilian danger depends on cover from other units, hard to cache that
-	SUnitInfo unitStats(pUnit, unitsToIgnore);
+	SUnitInfo unitStats(pUnit, unitsToIgnore, iExtraDamage);
 	for (size_t i=0; i<m_lastResults.size(); i++)
 		if (unitStats == m_lastResults[i].first)
 			return m_lastResults[i].second;
@@ -861,11 +877,11 @@ int CvDangerPlotContents::GetDanger(const CvUnit* pUnit, const UnitIdContainer& 
 		if (pAttacker->plot() != m_pPlot)
 		{
 			int iAttackerDamage = 0;
-			int iEnemyRange = pAttacker->isRanged() ? pAttacker->GetRange() : 1;
+			int iEnemyRange = pAttacker->IsCanAttackRanged() ? pAttacker->GetRange() : 1;
 			bool bOutOfRange = plotDistance(*m_pPlot, *pAttacker->plot()) > iEnemyRange;
 
 			//if the attacker is not out of range, assume they need to move for the attack, so we don't know their plot
-			int iDamage = TacticalAIHelpers::GetSimulatedDamageFromAttackOnUnit(pUnit, pAttacker, m_pPlot, bOutOfRange ? pAttacker->plot() : NULL, iAttackerDamage, false, 0, true);
+			int iDamage = TacticalAIHelpers::GetSimulatedDamageFromAttackOnUnit(pUnit, pAttacker, m_pPlot, bOutOfRange ? pAttacker->plot() : NULL, iAttackerDamage, false, iExtraDamage, true);
 
 			if (!m_pPlot->isVisible(pAttacker->getTeam()))
 				iDamage = (iDamage * 80) / 100; //there's a chance they won't spot us

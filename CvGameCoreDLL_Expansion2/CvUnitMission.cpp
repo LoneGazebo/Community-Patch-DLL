@@ -76,7 +76,7 @@ void CvUnitMission::AutoMission(CvUnit* hUnit)
 				}
 			}
 
-			bool bAbortMission = !hUnit->IsCombatUnit() && !bEscortedBuilder && hUnit->SentryAlert();
+			bool bAbortMission = !hUnit->IsCombatUnit() && !bEscortedBuilder && hUnit->SentryAlert(false);
 			if(bAbortMission)
 			{
 				hUnit->ClearMissionQueue();
@@ -94,8 +94,6 @@ void CvUnitMission::AutoMission(CvUnit* hUnit)
 			}
 		}
 	}
-
-	hUnit->doDelayedDeath();
 }
 
 //	---------------------------------------------------------------------------
@@ -219,7 +217,6 @@ void CvUnitMission::PushMission(CvUnit* hUnit, MissionTypes eMission, int iData1
 		}
 
 		////gDLL->getEventReporterIFace()->selectionGroupPushMission(this, eMission);
-		hUnit->doDelayedDeath();
 	}
 }
 
@@ -401,6 +398,7 @@ void CvUnitMission::ContinueMission(CvUnit* hUnit, int iSteps)
 				if(hUnit->IsAutomated() && pDestPlot->isVisible(hUnit->getTeam()) && hUnit->canMoveInto(*pDestPlot, CvUnit::MOVEFLAG_ATTACK))
 				{
 					// if we're automated and try to attack, consider this move OVAH
+					hUnit->SetAutomateType(NO_AUTOMATE);
 					bDone = true;
 				}
 				else
@@ -816,6 +814,62 @@ void CvUnitMission::ContinueMission(CvUnit* hUnit, int iSteps)
 					auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(hUnit));
 					gDLL->GameplayUnitWork(pDllUnit.get(), -1);
 				}
+
+#if defined(MOD_IMPROVEMENTS_EXTENSIONS)
+				// update the amount of a Resource used up by cancelled Build
+				if (MOD_IMPROVEMENTS_EXTENSIONS)
+				{
+					BuildTypes eBuild = hUnit->getBuildType();
+					if (eBuild != NO_BUILD)
+					{
+						CvBuildInfo* pkBuildInfo = GC.getBuildInfo(eBuild);
+						if (pkBuildInfo)
+						{
+							ImprovementTypes eImprovement = NO_IMPROVEMENT;
+							RouteTypes eRoute = NO_ROUTE;
+
+							if (pkBuildInfo->getImprovement() != NO_IMPROVEMENT)
+							{
+								eImprovement = (ImprovementTypes)pkBuildInfo->getImprovement();
+							}
+							else if (pkBuildInfo->getRoute() != NO_ROUTE)
+							{
+								eRoute = (RouteTypes)pkBuildInfo->getRoute();
+							}
+
+							if (eImprovement != NO_IMPROVEMENT || eRoute != NO_ROUTE)
+							{
+								for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+								{
+									int iNumResource = 0;
+
+									if (eImprovement != NO_IMPROVEMENT)
+									{
+										CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(eImprovement);
+										if (pkImprovementInfo)
+										{
+											iNumResource += pkImprovementInfo->GetResourceQuantityRequirement(iResourceLoop);
+										}
+									}
+									else if (eRoute != NO_ROUTE)
+									{
+										CvRouteInfo* pkRouteInfo = GC.getRouteInfo(eRoute);
+										if (pkRouteInfo)
+										{
+											iNumResource += pkRouteInfo->getResourceQuantityRequirement(iResourceLoop);
+										}
+									}
+
+									if (iNumResource > 0)
+									{
+										GET_PLAYER(hUnit->getOwner()).changeNumResourceUsed((ResourceTypes)iResourceLoop, -iNumResource);
+									}
+								}
+							}
+						}
+					}
+				}
+#endif
 
 				if(hUnit->GetMissionTimer() == 0 && !hUnit->isInCombat())	// Was hUnit->IsBusy(), but its ok to clear the mission if the unit is just completing a move visualization
 				{
@@ -2053,16 +2107,12 @@ MissionData* CvUnitMission::DeleteMissionData(CvUnit* hUnit, MissionData* pNode)
 	CvAssert(hUnit->getOwner() != NO_PLAYER);
 
 	MissionQueue& kQueue = hUnit->m_missionQueue;
-
 	if(pNode == HeadMissionData(kQueue))
 	{
 		DeactivateHeadMission(hUnit, /*iUnitCycleTimer*/ 1);
 	}
 
 	pNextMissionNode = kQueue.deleteNode(pNode);
-	if(pNextMissionNode == NULL)
-		hUnit->ClearPathCache();
-
 	if(pNextMissionNode == HeadMissionData(kQueue))
 	{
 		ActivateHeadMission(hUnit);

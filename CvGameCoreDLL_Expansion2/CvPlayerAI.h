@@ -92,6 +92,7 @@ public:
 
 #if defined(MOD_BALANCE_CORE_EVENTS)
 	void AI_DoEventChoice(EventTypes eEvent);
+	void AI_DoEspionageEventChoice(CityEventTypes eEvent, int uiSpyIndex, CvCity* pCity);
 #endif
 
 	// for serialization

@@ -101,8 +101,6 @@ const char * CvAIOperation::GetOperationName() const
 	{
 	case AI_OPERATION_FOUND_CITY:
 		return "OP_FOUND_CITY";
-	case AI_OPERATION_DESTROY_BARBARIAN_CAMP:
-		return "OP_KILL_BARBARIANS";
 	case AI_OPERATION_PILLAGE_ENEMY:
 		return "OP_PILLAGE";
 	case AI_OPERATION_CITY_ATTACK_LAND:
@@ -278,8 +276,6 @@ CvAIOperation* CreateAIOperation(AIOperationTypes eAIOperationType, int iID, Pla
 		return new CvAIOperationCityAttackNaval(iID, eOwner, eEnemy);
 	case AI_OPERATION_CITY_ATTACK_COMBINED:
 		return new CvAIOperationCityAttackCombined(iID, eOwner, eEnemy);
-	case AI_OPERATION_DESTROY_BARBARIAN_CAMP:
-		return new CvAIOperationAntiBarbarian(iID, eOwner, eEnemy);
 	case AI_OPERATION_PILLAGE_ENEMY:
 		return new CvAIOperationPillageEnemy(iID, eOwner, eEnemy);
 	case AI_OPERATION_NAVAL_SUPERIORITY:
@@ -540,8 +536,8 @@ CvPlot* CvAIOperation::GetPlotXInStepPath(CvPlot* pCurrentPosition, CvPlot* pTar
 			return NULL;
 	}
 
-	// use the step path finder to compute distance (pass type param 1 to ignore barbarian camps)
 	//once the army has gathered both pure and mixed naval ops can only use water plots
+	//we assume we can enter the enemy player's territory even in peacetime, don't need to pass any flags
 	SPathFinderUserData data(m_eOwner, IsNavalOperation() ? PT_ARMY_WATER : PT_ARMY_LAND, m_eEnemy);
 	if (GetArmy(0) && !GetArmy(0)->IsAllOceanGoing())
 		data.iFlags |= CvUnit::MOVEFLAG_NO_OCEAN;
@@ -1432,12 +1428,6 @@ AIOperationAbortReason CvAIOperationMilitary::VerifyOrAdjustTarget(CvArmyAI*)
 	return NO_ABORT_REASON;
 }
 
-//sometimes we don't really mean it
-bool CvAIOperationMilitary::IsShowOfForce() const
-{
-	return GET_PLAYER(m_eOwner).GetDiplomacyAI()->GetWarGoal(GetEnemy()) == WAR_GOAL_DEMAND;
-}
-
 MultiunitFormationTypes OperationalAIHelpers::GetArmyFormationForOpType(AIOperationTypes eType)
 {
 	switch (eType)
@@ -1453,8 +1443,6 @@ MultiunitFormationTypes OperationalAIHelpers::GetArmyFormationForOpType(AIOperat
 		return MUFORMATION_MERCHANT_ESCORT;
 	
 	//offensive
-	case AI_OPERATION_DESTROY_BARBARIAN_CAMP:
-		return MUFORMATION_ANTI_BARBARIAN_TEAM;
 	case AI_OPERATION_PILLAGE_ENEMY:
 		return MUFORMATION_FAST_PILLAGERS;
 	case AI_OPERATION_NUKE_ATTACK:
@@ -1634,27 +1622,13 @@ bool CvAIOperationMilitary::CheckTransitionToNextStage()
 					{
 						LogOperationSpecialMessage("Discovered by enemy");
 						bInPlace = true;
-
-						CvPlot *pOtherTarget = NULL;
-						for (int i=0; i<RING3_PLOTS; i++)
-						{
-							CvPlot* pTestPlot = iterateRingPlots( pCenterOfMass, i );
-							if (pTestPlot && pTestPlot->getOwner()==m_eEnemy && pTestPlot->getOwningCity())
-							{
-								pOtherTarget = pTestPlot;
-								break;
-							}
-						}
-
-						if (pOtherTarget != NULL)
-							pTarget = pOtherTarget;
 					}
 				}
 
 				if(bInPlace)
 				{
-					// Notify Diplo AI we're in place for attack (unless this is just for show)
-					if(!IsShowOfForce() && GET_PLAYER(m_eOwner).IsAtPeaceWith(m_eEnemy))
+					// Notify Diplo AI we're in place for attack
+					if(GET_PLAYER(m_eOwner).IsAtPeaceWith(m_eEnemy))
 						GET_PLAYER(m_eOwner).GetDiplomacyAI()->SetArmyInPlaceForAttack(m_eEnemy, true);
 
 					//that's it. skip STATE_AT_TARGET so the army will be disbanded next turn!
@@ -1671,68 +1645,6 @@ bool CvAIOperationMilitary::CheckTransitionToNextStage()
 	}
 
 	return bStateChanged;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-// CvAIOperationAntiBarbarian
-////////////////////////////////////////////////////////////////////////////////
-
-
-bool CvAIOperationAntiBarbarian::PreconditionsAreMet(CvPlot* pMusterPlot, CvPlot* pTargetPlot, int iMaxMissingUnits)
-{
-	//overwrite pTarget / pMuster (should be null anyway)
-	pTargetPlot = FindBestTarget(&pMusterPlot);
-	if (!pTargetPlot || !pMusterPlot)
-		return false;
-
-	if (!CvAIOperation::PreconditionsAreMet(pMusterPlot, pTargetPlot, iMaxMissingUnits))
-		return false;
-
-	return true;
-}
-
-/// How close to target do we end up?
-int CvAIOperationAntiBarbarian::GetDeployRange() const
-{
-	return GC.getAI_OPERATIONAL_BARBARIAN_CAMP_DEPLOY_RANGE();
-}
-
-int CvAIOperationAntiBarbarian::GetMaximumRecruitTurns() const
-{
-	//don't block units in partial armies early on
-	return 4;
-}
-
-/// Read serialized data
-void CvAIOperationAntiBarbarian::Read(FDataStream& kStream)
-{
-	// read the base class' entries
-	CvAIOperation::Read(kStream);
-
-	// Version number to maintain backwards compatibility
-	uint uiVersion;
-	kStream >> uiVersion;
-	MOD_SERIALIZE_INIT_READ(kStream);
-	kStream >> m_iUnitToRescue;
-}
-
-/// Write serialized data
-void CvAIOperationAntiBarbarian::Write(FDataStream& kStream) const
-{
-	// write the base class' entries
-	CvAIOperation::Write(kStream);
-
-	// Current version number
-	uint uiVersion = 1;
-	kStream << uiVersion;
-	MOD_SERIALIZE_INIT_WRITE(kStream);
-	kStream << m_iUnitToRescue;
-}
-
-/// Find the barbarian camp we want to eliminate
-CvPlot* CvAIOperationAntiBarbarian::FindBestTarget(CvPlot** ppMuster) const
-{
-	return OperationalAIHelpers::FindClosestBarbarianCamp(m_eOwner,ppMuster);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -2086,12 +1998,23 @@ AIOperationAbortReason CvAIOperationCivilianFoundCity::VerifyOrAdjustTarget(CvAr
 			return AI_ABORT_NO_TARGET;
 		}
 
-		// swtich if we have a better target
+		// switch if we have a better target
 		if (pBetterTarget != GetTargetPlot())
 		{
 			SetTargetPlot(pBetterTarget);
 			pArmy->SetGoalPlot(pBetterTarget);
+
+			//refresh the path
+			pSettler->GeneratePath(pBetterTarget,iFlags);
 		}
+
+		// make sure we're not heading for disaster
+		CvPlot* pWaypoint = pSettler->GetPathEndFirstTurnPlot();
+		if (!pWaypoint && pSettler->plot()!=pBetterTarget)
+			return AI_ABORT_LOST_PATH;
+
+		if (pSettler->IsCurrentPathUnsafe())
+			return AI_ABORT_TOO_DANGEROUS;
 
 		return NO_ABORT_REASON;
 	}
@@ -2879,11 +2802,11 @@ CvPlot* CvAIOperationNukeAttack::FindBestTarget(CvPlot** ppMuster) const
 						}
 						else if (eUnitOwner != NO_PLAYER && GET_PLAYER(eUnitOwner).isMajorCiv()) // this will trigger a war
 						{
-							if(GET_PLAYER(m_eOwner).GetDiplomacyAI()->GetMajorCivApproach(eUnitOwner, false) == MAJOR_CIV_APPROACH_WAR)
+							if(GET_PLAYER(m_eOwner).GetDiplomacyAI()->GetCivApproach(eUnitOwner) == CIV_APPROACH_WAR)
 							{
 								iThisCityValue += 500;
 							}
-							else if(GET_PLAYER(m_eOwner).GetDiplomacyAI()->GetMajorCivApproach(eUnitOwner, false) == MAJOR_CIV_APPROACH_HOSTILE)
+							else if(GET_PLAYER(m_eOwner).GetDiplomacyAI()->GetCivApproach(eUnitOwner) == CIV_APPROACH_HOSTILE)
 							{
 								iThisCityValue += 200;
 							}
@@ -2955,90 +2878,6 @@ bool CvAIOperationNukeAttack::FindBestFitReserveUnit(OperationSlot thisOperation
 	}
 
 	return false;
-}
-
-//----------------------------------------------
-/// Every time the army moves on its way to the destination lets double-check that we don't have a better target
-AIOperationAbortReason CvAIOperationAntiBarbarian::VerifyOrAdjustTarget(CvArmyAI* pArmy)
-{
-	// camp might have spawned ... abort
-	if (m_eCurrentState != AI_OPERATION_STATE_RECRUITING_UNITS)
-	{
-		pair<int, int> localStrength = GetTargetPlot()->GetLocalUnitPower(m_eOwner,2,true);
-		if (pArmy->GetTotalPower() < localStrength.second)
-			return AI_ABORT_TOO_DANGEROUS;
-	}
-
-	bool bNeedNewTarget = false;
-	CvString strMsg;
-
-	if(GetTargetPlot()==NULL)
-		bNeedNewTarget = true;
-	else if (m_iUnitToRescue<0)
-	{
-		// See if our target camp is still there
-		ImprovementTypes eBarbCamp = (ImprovementTypes) GC.getBARBARIAN_CAMP_IMPROVEMENT();
-		if (GetTargetPlot()->getImprovementType() != eBarbCamp)
-		{
-			if(GC.getLogging() && GC.getAILogging())
-			{
-				strMsg.Format("Barbarian camp at (x=%d y=%d) no longer exists.", GetTargetPlot()->getX(), GetTargetPlot()->getY());
-				LogOperationSpecialMessage(strMsg);
-			}
-			bNeedNewTarget = true;
-		}
-	}
-	else
-	{
-		// is the unit rescued?
-		CvPlayerAI& BarbPlayer = GET_PLAYER(BARBARIAN_PLAYER);
-		CvUnit* pUnitToRescue = BarbPlayer.getUnit(m_iUnitToRescue);
-		if (!pUnitToRescue)
-		{
-			if (GC.getLogging() && GC.getAILogging())
-			{
-				strMsg.Format ("Civilian %d can no longer be rescued from barbarians.", m_iUnitToRescue);
-				LogOperationSpecialMessage(strMsg);
-			}
-			bNeedNewTarget = true;
-		}
-	}
-
-	if (bNeedNewTarget)
-	{
-		//todo: enforce area of new target?
-		CvPlot* pNewTarget = FindBestTarget(NULL);
-		if(pNewTarget != NULL)
-		{
-			CvCity* pMusterCity = GET_PLAYER(m_eOwner).GetClosestCity(pNewTarget,15,true);
-			if (!pMusterCity)
-				return AI_ABORT_NO_MUSTER;
-
-			SetTargetPlot(pNewTarget);
-			SetMusterPlot(pMusterCity->plot());
-
-			CvUnit* pRescueUnit = pNewTarget->getFirstUnitOfAITypeSameTeam(BARBARIAN_TEAM, UNITAI_SETTLE);
-			if (!pRescueUnit)
-				pRescueUnit = pNewTarget->getFirstUnitOfAITypeSameTeam(BARBARIAN_TEAM, UNITAI_WORKER);
-			if (pRescueUnit)
-				m_iUnitToRescue = pRescueUnit->GetID();
-
-			pArmy->SetGoalPlot(GetTargetPlot());
-			SetTargetPlot(GetTargetPlot());
-
-			if(GC.getLogging() && GC.getAILogging())
-			{
-				strMsg.Format("Moving on to a new target (%d,%d).", GetTargetPlot()->getX(), GetTargetPlot()->getY());
-				LogOperationSpecialMessage(strMsg);
-			}
-
-			return NO_ABORT_REASON;
-		}
-		else
-			return AI_ABORT_NO_TARGET;
-	}
-	else
-		return NO_ABORT_REASON;
 }
 
 AIOperationAbortReason CvAIOperationCivilian::VerifyOrAdjustTarget(CvArmyAI* pArmy)
@@ -3327,11 +3166,7 @@ bool OperationalAIHelpers::IsSlotRequired(PlayerTypes ePlayer, const OperationSl
 int OperationalAIHelpers::IsUnitSuitableForRecruitment(CvUnit* pLoopUnit, const ReachablePlots& turnsFromMuster, bool bMustEmbark, bool bMustBeDeepWaterNaval, const vector<pair<size_t,CvFormationSlotEntry>>& availableSlots)
 {
 	//otherwise engaged?
-	if (!pLoopUnit->canRecruitFromTacticalAI())
-		return -1;
-
-	//In an army?
-	if (pLoopUnit->getArmyID() != -1)
+	if (!pLoopUnit->canUseForAIOperation())
 		return -1;
 
 	//don't recruit if currently healing
@@ -3537,7 +3372,7 @@ pair<CvCity*,CvCity*> OperationalAIHelpers::GetClosestCoastalCityPair(PlayerType
 				if(pLoopCityB->isCoastal())
 				{
 					// On same body of water?
-					if(pLoopCityA->hasSharedAdjacentArea(pLoopCityB))
+					if(pLoopCityA->plot()->hasSharedAdjacentArea(pLoopCityB->plot()))
 					{
 						//pathfinding for player A, not entirely symmetric ...
 						SPathFinderUserData data(ePlayerA, PT_ARMY_WATER, ePlayerB);
@@ -3672,4 +3507,3 @@ bool CvAIOperation::PreconditionsAreMet(CvPlot* pMusterPlot, CvPlot* pTargetPlot
 
 	return OperationalAIHelpers::HaveEnoughUnits(fakeStatus,iMaxMissingUnits);
 }
-

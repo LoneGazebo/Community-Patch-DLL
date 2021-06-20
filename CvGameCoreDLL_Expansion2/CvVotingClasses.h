@@ -30,7 +30,7 @@ namespace LeagueHelpers
 	ResolutionTypes IsResolutionForTriggerActive(ResolutionTypes eType);
 #endif
 
-	typedef FStaticVector<PlayerTypes, MAX_CIV_PLAYERS, true, c_eCiv5GameplayDLL> PlayerList;
+	typedef vector<PlayerTypes> PlayerList;
 
 	struct VoteTextSortElement
 	{
@@ -104,9 +104,9 @@ namespace LeagueHelpers
 struct CvResolutionEffects
 {
 	CvResolutionEffects(void);
-	CvResolutionEffects(ResolutionTypes eType);
 	~CvResolutionEffects(void);
 
+	bool SetType(ResolutionTypes eType);
 	bool HasOngoingEffects() const;
 	void AddOngoingEffects(const CvResolutionEffects* pOtherEffects);
 
@@ -179,7 +179,7 @@ public:
 		int iNumVotes;
 		int iChoice; // Interpreted differently based on ResolutionDecisionTypes
 	};
-	typedef FStaticVector<PlayerVote, MAX_MAJOR_CIVS, false, c_eCiv5GameplayDLL> PlayerVoteList;
+	typedef vector<PlayerVote> PlayerVoteList;
 
 	// Pure virtual functions
 	virtual int GetDecision() = 0;
@@ -245,6 +245,7 @@ public:
 	int GetVotesCastForChoice(int iChoice);
 	int GetVotesMarginOfTopChoice();
 	int GetVotesCastByPlayer(PlayerTypes ePlayer);
+	int GetPercentContributionToOutcome(PlayerTypes eVoter, int iChoice, bool bChangeHost);
 	LeagueHelpers::PlayerList GetPlayersVotingForChoice(int iChoice);
 	void ProcessVote(PlayerTypes eVoter, int iNumVotes, int iChoice);
 	CvString GetVotesAsText(CvLeague* pLeague);
@@ -285,6 +286,7 @@ public:
 	CvProposerDecision* GetProposerDecision();
 	CvString GetName();
 
+protected:
 	int m_iID;
 	ResolutionTypes m_eType;
 	LeagueTypes m_eLeague;
@@ -292,11 +294,10 @@ public:
 	CvVoterDecision m_VoterDecision;
 	CvProposerDecision m_ProposerDecision;
 
-protected:
+friend FDataStream& operator>>(FDataStream&, CvResolution&);
+friend FDataStream& operator<<(FDataStream&, const CvResolution&);
 };
 
-FDataStream& operator>>(FDataStream&, CvResolution&);
-FDataStream& operator<<(FDataStream&, const CvResolution&);
 
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -352,7 +353,7 @@ private:
 FDataStream& operator>>(FDataStream&, CvEnactProposal&);
 FDataStream& operator<<(FDataStream&, const CvEnactProposal&);
 
-typedef FStaticVector<CvEnactProposal, 2, false, c_eCiv5GameplayDLL> EnactProposalList;
+typedef vector<CvEnactProposal> EnactProposalList;
 
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -385,7 +386,7 @@ private:
 FDataStream& operator>>(FDataStream&, CvActiveResolution&);
 FDataStream& operator<<(FDataStream&, const CvActiveResolution&);
 
-typedef FStaticVector<CvActiveResolution, 12, false, c_eCiv5GameplayDLL> ActiveResolutionList;
+typedef vector<CvActiveResolution> ActiveResolutionList;
 
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -418,7 +419,7 @@ private:
 FDataStream& operator>>(FDataStream&, CvRepealProposal&);
 FDataStream& operator<<(FDataStream&, const CvRepealProposal&);
 
-typedef FStaticVector<CvRepealProposal, 2, false, c_eCiv5GameplayDLL> RepealProposalList;
+typedef vector<CvRepealProposal> RepealProposalList;
 
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -452,10 +453,13 @@ public:
 
 		bool bEverBeenHost;
 		bool bAlwaysBeenHost;
-	};
-	typedef FStaticVector<Member, MAX_CIV_PLAYERS, false, c_eCiv5GameplayDLL> MemberList;
 
-	typedef FStaticVector<int, MAX_MAJOR_CIVS, true, c_eCiv5GameplayDLL> ProjectProductionList;
+		int m_startingVotesCacheTime; //not serialized
+		int m_startingVotesCached; //not serialized
+	};
+	typedef vector<Member> MemberList;
+
+	typedef vector<int> ProjectProductionList;
 	struct Project {
 		Project(void);
 		~Project(void);
@@ -465,7 +469,7 @@ public:
 		bool bComplete;
 		bool bProgressWarningSent;
 	};
-	typedef FStaticVector<Project, 3, false, c_eCiv5GameplayDLL> ProjectList;
+	typedef vector<Project> ProjectList;
 
 	enum ContributionTier {
 		CONTRIBUTION_TIER_0,
@@ -549,10 +553,10 @@ public:
 	bool CanEverPropose(PlayerTypes ePlayer);
 	int GetRemainingProposalsForMember(PlayerTypes ePlayer);
 	int GetNumProposalsByMember(PlayerTypes ePlayer);
-	LeagueHelpers::PlayerList GetMembersThatLikeProposal(ResolutionTypes eResolution, PlayerTypes eObserver, int iProposerChoice);
-	LeagueHelpers::PlayerList GetMembersThatLikeProposal(int iTargetResolutionID, PlayerTypes eObserver);
-	LeagueHelpers::PlayerList GetMembersThatDislikeProposal(ResolutionTypes eResolution, PlayerTypes eObserver, int iProposerChoice);
-	LeagueHelpers::PlayerList GetMembersThatDislikeProposal(int iTargetResolutionID, PlayerTypes eObserver);
+	LeagueHelpers::PlayerList GetMembersThatLikeProposal(ResolutionTypes eResolution, PlayerTypes eObserver, int iProposerChoice, bool bChosen = false);
+	LeagueHelpers::PlayerList GetMembersThatLikeProposal(int iTargetResolutionID, PlayerTypes eObserver, bool bChosen = false);
+	LeagueHelpers::PlayerList GetMembersThatDislikeProposal(ResolutionTypes eResolution, PlayerTypes eObserver, int iProposerChoice, bool bChosen = false);
+	LeagueHelpers::PlayerList GetMembersThatDislikeProposal(int iTargetResolutionID, PlayerTypes eObserver, bool bChosen = false);
 
 	// Host
 	bool HasHostMember() const;
@@ -601,6 +605,7 @@ public:
 	int GetSpaceShipPurchaseMod();
 	int GetWorldWar();
 	int GetUnitMaintenanceMod();
+	bool IsCityStateEmbargo();
 	bool IsIdeologyEmbargoed(PlayerTypes eTrader, PlayerTypes eRecipient);
 #endif
 #if defined(MOD_BALANCE_CORE)
@@ -703,7 +708,7 @@ private:
 FDataStream& operator>>(FDataStream&, CvLeague&);
 FDataStream& operator<<(FDataStream&, const CvLeague&);
 
-typedef FStaticVector<CvLeague, 2, false, c_eCiv5GameplayDLL> LeagueList;
+typedef vector<CvLeague> LeagueList;
 
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -764,6 +769,7 @@ public:
 	int GetSpaceShipPurchaseMod(PlayerTypes ePlayer);
 	int IsWorldWar(PlayerTypes ePlayer);
 	int GetUnitMaintenanceMod(PlayerTypes ePlayer);
+	bool IsCityStateEmbargo(PlayerTypes ePlayer);
 	bool IsIdeologyEmbargoed(PlayerTypes eTrader, PlayerTypes eRecipient);
 #endif
 
@@ -837,7 +843,7 @@ public:
 	// Increments of how much we think our interests are aligned with another player's
 	enum AlignmentLevels {
 		ALIGNMENT_WAR,
-		
+
 		ALIGNMENT_ENEMY,
 		ALIGNMENT_HATRED,
 		ALIGNMENT_RIVAL,
@@ -845,10 +851,13 @@ public:
 		ALIGNMENT_FRIEND,
 		ALIGNMENT_CONFIDANT,
 		ALIGNMENT_ALLY,
-		
-		ALIGNMENT_SELF,
-		ALIGNMENT_LEADER,
 		ALIGNMENT_LIBERATOR,
+
+		ALIGNMENT_TEAMMATE,
+		ALIGNMENT_LEADER,
+
+		ALIGNMENT_SELF,
+
 
 		NUM_ALIGNMENT_LEVELS,
 	};
@@ -864,7 +873,7 @@ public:
 		int iNumVotes;
 		bool bEnact;
 	};
-	typedef FStaticVector<VoteCommitment, 4, false, c_eCiv5GameplayDLL> VoteCommitmentList;
+	typedef vector<VoteCommitment> VoteCommitmentList;
 
 	struct VoteConsideration {
 		VoteConsideration(void);
@@ -876,7 +885,7 @@ public:
 		int iChoice;
 		int iNumAllocated;
 	};
-	typedef CvWeightedVector<VoteConsideration, 32, false> VoteConsiderationList;
+	typedef CvWeightedVector<VoteConsideration> VoteConsiderationList;
 
 	struct ProposalConsideration {
 		ProposalConsideration(void);
@@ -887,7 +896,7 @@ public:
 		int iIndex;
 		int iChoice;
 	};
-	typedef CvWeightedVector<ProposalConsideration, 128, false> ProposalConsiderationList;
+	typedef CvWeightedVector<ProposalConsideration> ProposalConsiderationList;
 
 	void Init(CvPlayer* pPlayer);
 	void Uninit();
@@ -914,7 +923,7 @@ public:
 	DesireLevels EvaluateVoteForTrade(int iResolutionID, int iVoteChoice, int iNumVotes, bool bRepeal);
 	DesireLevels EvaluateProposalForProposer(CvLeague* pLeague, PlayerTypes eProposer, ResolutionTypes eResolution, int iProposerChoice = LeagueHelpers::CHOICE_NONE);
 	DesireLevels EvaluateProposalForProposer(CvLeague* pLeague, PlayerTypes eProposer, int iTargetResolutionID);
-	AlignmentLevels EvaluateAlignment(PlayerTypes ePlayer);
+	AlignmentLevels EvaluateAlignment(PlayerTypes ePlayer, bool bIgnoreWar = false);
 
 	// Masked knowledge for other players
 	KnowledgeLevels GetKnowledgeGivenToOtherPlayer(PlayerTypes eToPlayer, CvString* sTooltipSink = NULL);
@@ -926,6 +935,8 @@ public:
 	int GetExtraVotesPerDiplomat();
 	int GetExtraVotesPerCityStateAlly();
 
+
+
 	// String composition for UI
 	CvString GetCommitVoteDetails(PlayerTypes eToPlayer);
 
@@ -933,26 +944,28 @@ public:
 
 	CvPlayer* m_pPlayer;
 
+	DesireLevels EvaluateDesire(int iRawEvaluationScore);
+
 	VoteCommitmentList m_vVoteCommitmentList;
+
+	int ScoreProposal(CvLeague* pLeague, ResolutionTypes eResolution, int iChoice, PlayerTypes eProposer = NO_PLAYER, bool bConsiderGlobal = false);
+	int ScoreProposal(CvLeague* pLeague, CvActiveResolution* pResolution, PlayerTypes eProposer = NO_PLAYER, bool bConsiderGlobal = false);
 
 private:
 	
 	CvString GetTextForDesire(DesireLevels eDesire);
-	DesireLevels EvaluateDesire(int iRawEvaluationScore);
 
 	// Voting
 	void AllocateVotes(CvLeague* pLeague);
 	void FindBestVoteChoices(CvEnactProposal* pProposal, VoteConsiderationList& considerations);
 	void FindBestVoteChoices(CvRepealProposal* pProposal, VoteConsiderationList& considerations);
-	int ScoreVoteChoice(CvEnactProposal* pProposal, int iChoice);
-	int ScoreVoteChoice(CvRepealProposal* pProposal, int iChoice);
-	int ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bEnact);
+	int ScoreVoteChoice(CvEnactProposal* pProposal, int iChoice, bool bConsiderGlobal = false);
+	int ScoreVoteChoice(CvRepealProposal* pProposal, int iChoice, bool bConsiderGlobal = false);
+	int ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bEnact, bool bConsiderGlobal, bool bForSelf = true);
 	int ScoreVoteChoicePlayer(CvProposal* pProposal, int iChoice, bool bEnact);
 
 	// Proposing
 	void AllocateProposals(CvLeague* pLeague);
-	int ScoreProposal(CvLeague* pLeague, ResolutionTypes eResolution, int iChoice = LeagueHelpers::CHOICE_NONE, bool bIsProposing = false);
-	int ScoreProposal(CvLeague* pLeague, CvActiveResolution* pResolution, bool bIsProposing = false);
 
 	// Logging
 	void LogProposalConsidered(ProposalConsideration* pProposal, int iChoice, int iScore, bool bPre);

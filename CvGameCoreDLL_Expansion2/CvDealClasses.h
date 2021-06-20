@@ -92,11 +92,11 @@ public:
 	    DEAL_SUPPLEMENTAL
 	};
 
-	CvDeal();
-	CvDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer);
+	CvDeal(PlayerTypes eFromPlayer=NO_PLAYER, PlayerTypes eToPlayer=NO_PLAYER);
 	CvDeal(const CvDeal& source);
 	virtual ~CvDeal();
 	CvDeal& operator=(const CvDeal& source);
+	bool operator==(const CvDeal& other) const;
 
 	// Public data
 	PlayerTypes m_eFromPlayer;
@@ -115,7 +115,6 @@ public:
 
 	bool m_bConsideringForRenewal; // is currently considering renewing this deal
 	bool m_bCheckedForRenewal; // this deal has been discussed with the player for renewal
-	bool m_bRealDeal;
 	bool m_bIsGift;
 	bool m_bDoNotModifyFrom;
 	bool m_bDoNotModifyTo;
@@ -204,11 +203,7 @@ public:
 
 	bool IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, TradeableItems eItem, int iData1 = -1, int iData2 = -1, int iData3 = -1, bool bFlag1 = false, bool bCheckOtherPlayerValidity = true, bool bFinalizing = false);
 	int GetNumResourceInDeal(PlayerTypes ePlayer, ResourceTypes eResource);
-
-#if defined(MOD_BALANCE_CORE)
-	int GetNumCities(PlayerTypes ePlayer);
-	bool IsCityInDeal(PlayerTypes ePlayer, int iCityID);
-#endif
+	int GetNumCitiesInDeal(PlayerTypes ePlayer);
 
 	// Methods to add a CvTradedItem to a deal
 	void AddGoldTrade(PlayerTypes eFrom, int iAmount);
@@ -279,7 +274,7 @@ FDataStream& OldLoad(FDataStream&, CvDeal&);
 FDataStream& operator>>(FDataStream&, CvDeal&);
 FDataStream& operator<<(FDataStream&, const CvDeal&);
 
-typedef FStaticVector<CvDeal, 20, false, c_eCiv5GameplayDLL > DealList;
+typedef vector<CvDeal> DealList;
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //  CLASS: CvGameDeals
 //!  \brief All the information about deals made between players
@@ -302,10 +297,10 @@ public:
 	bool RemoveProposedDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, CvDeal* pDealOut, bool latest);
 	bool FinalizeMPDeal(CvDeal kDeal, bool bAccepted);
 	bool FinalizeMPDealLatest(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, bool bAccepted, bool latest);
-	void FinalizeDealValidAndAccepted(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, CvDeal& kDeal, bool bAccepted, CvWeightedVector<TeamTypes, MAX_CIV_TEAMS, true>& veNowAtPeacePairs);
-	void FinalizeDealNotify(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, CvWeightedVector<TeamTypes, MAX_CIV_TEAMS, true>& veNowAtPeacePairs);
+	void FinalizeDealValidAndAccepted(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, CvDeal& kDeal, bool bAccepted, CvWeightedVector<TeamTypes>& veNowAtPeacePairs);
+	void FinalizeDealNotify(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, CvWeightedVector<TeamTypes>& veNowAtPeacePairs);
 	CvDeal* GetProposedMPDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, bool latest = false);
-	void DoCancelAllProposedMPDealsWithPlayer(PlayerTypes eCancelPlayer, DiplomacyPlayerType eTargetPlayers);
+	void DoCancelAllProposedMPDealsWithPlayer(PlayerTypes eCancelPlayer, DiplomacyMode eTargetPlayers);
 #endif
 	bool FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, bool bAccepted);
 	void DoTurn();
@@ -328,10 +323,9 @@ public:
 	CvDeal* GetHistoricDealWithPlayer(PlayerTypes ePlayer, PlayerTypes eOtherPlayer, uint indx);
 	uint GetNumCurrentDealsWithPlayer(PlayerTypes ePlayer, PlayerTypes eOtherPlayer);
 	uint GetNumHistoricDealsWithPlayer(PlayerTypes ePlayer, PlayerTypes eOtherPlayer, uint iMaxCount = UINT_MAX);
-	uint GetRenewableDealsWithPlayer(PlayerTypes ePlayer, PlayerTypes eOtherPlayer, uint iMaxCount = UINT_MAX);
-	CvDeal* GetRenewableDealWithPlayer(PlayerTypes ePlayer, PlayerTypes eOtherPlayer, uint indx);
+	std::vector<CvDeal*> GetRenewableDealsWithPlayer(PlayerTypes ePlayer, PlayerTypes eOtherPlayer, uint iMaxCount = UINT_MAX);
 	bool IsReceivingItemsFromPlayer(PlayerTypes ePlayer, PlayerTypes eOtherPlayer, bool bMutual);
-	int GetDealValueWithPlayer(PlayerTypes ePlayer, PlayerTypes eOtherPlayer);
+	int GetDealValueWithPlayer(PlayerTypes ePlayer, PlayerTypes eOtherPlayer, bool bConsiderDuration = true);
 	int GetDealGPTLostFromWar(PlayerTypes ePlayer, PlayerTypes eOtherPlayer);
 
 	uint CreateDeal();
@@ -346,7 +340,7 @@ public:
 
 	int GetTradeItemGoldCost(TradeableItems eItem, PlayerTypes ePlayer1, PlayerTypes ePlayer2) const;
 
-	static void PrepareRenewDeal(CvDeal* pOldDeal, CvDeal* pNewDeal);
+	static void PrepareRenewDeal(CvDeal* pOldDeal);
 
 	// Variables below should really be lists to support easy deletion
 	DealList m_ProposedDeals;

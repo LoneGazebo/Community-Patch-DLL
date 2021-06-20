@@ -105,9 +105,7 @@ public:
 #if defined(MOD_UNITS_NO_SUPPLY)
 	bool IsNoSupply() const;
 #endif
-#if defined(MOD_UNITS_MAX_HP)
 	int GetMaxHitPoints() const;
-#endif
 	int GetXPValueAttack() const;
 	int GetXPValueDefense() const;
 	int GetSpecialCargo() const;
@@ -127,7 +125,7 @@ public:
 #if defined(MOD_EVENTS_CAN_MOVE_INTO)
 	bool IsSendCanMoveIntoEvent() const;
 #endif
-	inline int CvUnitEntry::GetDomainType() const { return m_iDomainType; } //this is used very often
+	inline DomainTypes CvUnitEntry::GetDomainType() const { return (DomainTypes)m_iDomainType; } //this is used very often
 	int GetCivilianAttackPriority() const;
 	UnitAITypes GetDefaultUnitAIType() const;
 	int GetPrereqPillageTech() const;
@@ -135,6 +133,7 @@ public:
 	int GetObsoleteTech() const;
 #if defined(MOD_BALANCE_CORE)
 	int GetEra() const;
+	int GetCostScalerNumberBuilt() const;
 #endif
 	int GetPolicyType() const;
 	int GetGoodyHutUpgradeUnitClass() const;
@@ -171,6 +170,7 @@ public:
 	int GetFreePolicies() const;
 	int GetOneShotTourism() const;
 	int GetOneShotTourismPercentOthers() const;
+	int GetTourismBonusTurns() const;
 	bool IsIgnoreBuildingDefense() const;
 	bool IsPrereqResources() const;
 	bool IsMechUnit() const;
@@ -251,7 +251,7 @@ public:
 	int* GetUnitNewEraCombatTypeChangesArray(int i);
 	int GetUnitNewEraPromotions(int i, int j) const;
 	int* GetUnitNewEraPromotionsChangesArray(int i);
-#endif'
+#endif
 #if defined(MOD_UNITS_RESOURCE_QUANTITY_TOTALS)
 	int GetResourceQuantityTotal(int i) const;
 #endif
@@ -341,9 +341,7 @@ private:
 #if defined(MOD_UNITS_NO_SUPPLY)
 	bool m_bNoSupply;
 #endif
-#if defined(MOD_UNITS_MAX_HP)
 	int m_iMaxHitPoints;
-#endif
 	int m_iXPValueAttack;
 	int m_iXPValueDefense;
 	int m_iSpecialCargo;
@@ -398,6 +396,7 @@ private:
 #endif
 #if defined(MOD_BALANCE_CORE)
 	int m_iResourceType;
+	int m_iCostScalerNumBuilt;
 	bool m_bPuppetPurchaseOverride;
 	bool m_bMinorCivGift;
 	bool m_bNoMinorCivGift;
@@ -423,6 +422,7 @@ private:
 	int m_iFreePolicies;
 	int m_iOneShotTourism;
 	int m_iOneShotTourismPercentOthers;
+	int m_iTourismBonusTurns;
 	bool m_bIgnoreBuildingDefense;
 	bool m_bPrereqResources;
 	bool m_bMechanized;

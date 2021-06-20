@@ -104,8 +104,8 @@ INSERT INTO Civilization_UnitClassOverrides
 VALUES		('CIVILIZATION_SPAIN',	'UNITCLASS_INQUISITOR', 	'UNIT_SPAIN_INQUISITOR');
 
 INSERT INTO Units 	
-			(Type,						RequiresEnhancedReligion, 	ReligiousStrength, 		ShowInPedia, 	NoMaintenance, 	ProhibitsSpread, RemoveHeresy, Class, BaseSightRange, Combat, Cost, FaithCost,	RequiresFaithPurchaseEnabled, Moves, CombatClass, Domain, DefaultUnitAI, ObsoleteTech, GoodyHutUpgradeUnitClass, XPValueAttack,	Description, Civilopedia, Strategy, Help, Pillage, MilitarySupport, MilitaryProduction, IgnoreBuildingDefense, CivilianAttackPriority, Mechanized, AirUnitCap, AdvancedStartCost, RangedCombatLimit, CombatLimit, XPValueDefense, UnitArtInfo, UnitFlagIconOffset, UnitFlagAtlas, PortraitIndex, IconAtlas, MoveRate, PurchaseCooldown)
-SELECT		'UNIT_SPAIN_INQUISITOR',	0, 							ReligiousStrength*2, 	0, 				NoMaintenance, 	ProhibitsSpread, RemoveHeresy, Class, BaseSightRange, Combat, Cost, FaithCost,	RequiresFaithPurchaseEnabled, Moves, CombatClass, Domain, DefaultUnitAI, ObsoleteTech, GoodyHutUpgradeUnitClass, XPValueAttack,	Description, Civilopedia, Strategy,	Help, Pillage, MilitarySupport, MilitaryProduction, IgnoreBuildingDefense, CivilianAttackPriority, Mechanized, AirUnitCap, AdvancedStartCost, RangedCombatLimit, CombatLimit, XPValueDefense, UnitArtInfo, UnitFlagIconOffset, UnitFlagAtlas, PortraitIndex, IconAtlas, MoveRate, PurchaseCooldown
+			(Type,						RequiresEnhancedReligion, 	ReligiousStrength, ShowInPedia, NoMaintenance, 	ProhibitsSpread, RemoveHeresy, Class, BaseSightRange, Combat, Cost, FaithCost,	RequiresFaithPurchaseEnabled, Moves, CombatClass, Domain, DefaultUnitAI, ObsoleteTech, GoodyHutUpgradeUnitClass, XPValueAttack,	Description, Civilopedia, Strategy, Help, Pillage, MilitarySupport, MilitaryProduction, IgnoreBuildingDefense, CivilianAttackPriority, Mechanized, AirUnitCap, AdvancedStartCost, RangedCombatLimit, CombatLimit, XPValueDefense, UnitArtInfo, UnitFlagIconOffset, UnitFlagAtlas, PortraitIndex, IconAtlas, MoveRate, PurchaseCooldown)
+SELECT		'UNIT_SPAIN_INQUISITOR',	0, 							ReligiousStrength, 0, 			1, 				ProhibitsSpread, RemoveHeresy, Class, BaseSightRange, Combat, Cost, FaithCost,	RequiresFaithPurchaseEnabled, Moves, CombatClass, Domain, DefaultUnitAI, ObsoleteTech, GoodyHutUpgradeUnitClass, XPValueAttack,	Description, Civilopedia, Strategy,	Help, Pillage, MilitarySupport, MilitaryProduction, IgnoreBuildingDefense, CivilianAttackPriority, Mechanized, AirUnitCap, AdvancedStartCost, RangedCombatLimit, CombatLimit, XPValueDefense, UnitArtInfo, UnitFlagIconOffset, UnitFlagAtlas, PortraitIndex, IconAtlas, MoveRate, PurchaseCooldown
 FROM Units WHERE Type = 'UNIT_INQUISITOR';
 
 INSERT INTO UnitGameplay2DScripts 	
@@ -169,92 +169,61 @@ VALUES		('IMPROVEMENT_SPAIN_HACIENDA',	'TERRAIN_PLAINS'),
 			('IMPROVEMENT_SPAIN_HACIENDA',	'TERRAIN_SNOW');
 	
 INSERT INTO Improvement_Yields 	
-			(ImprovementType, 				YieldType,					Yield)
-VALUES		('IMPROVEMENT_SPAIN_HACIENDA',	'YIELD_GOLD',				1),
+			(ImprovementType, 				YieldType,			Yield)
+VALUES		('IMPROVEMENT_SPAIN_HACIENDA',	'YIELD_GOLD',		1),
 			('IMPROVEMENT_SPAIN_HACIENDA',	'YIELD_FOOD',		1),
-			('IMPROVEMENT_SPAIN_HACIENDA',	'YIELD_PRODUCTION',		1);
+			('IMPROVEMENT_SPAIN_HACIENDA',	'YIELD_PRODUCTION',	1);
 	
 INSERT INTO Improvement_AdjacentCityYields 	
 			(ImprovementType, 				YieldType,				Yield)
 VALUES		('IMPROVEMENT_SPAIN_HACIENDA',	'YIELD_CULTURE',	2);
 	
 INSERT INTO Improvement_AdjacentResourceYieldChanges	
-			(ImprovementType,				ResourceType,			YieldType,				Yield)
-VALUES		('IMPROVEMENT_SPAIN_HACIENDA',	'RESOURCE_WHALE',		'YIELD_GOLD',			2),
-			('IMPROVEMENT_SPAIN_HACIENDA',	'RESOURCE_PEARLS',		'YIELD_GOLD',			2),
-			('IMPROVEMENT_SPAIN_HACIENDA',	'RESOURCE_GOLD',		'YIELD_GOLD',			2),
-			('IMPROVEMENT_SPAIN_HACIENDA',	'RESOURCE_SILVER',		'YIELD_GOLD',			2),
-			('IMPROVEMENT_SPAIN_HACIENDA',	'RESOURCE_GEMS',		'YIELD_GOLD',			2),
-			('IMPROVEMENT_SPAIN_HACIENDA',	'RESOURCE_MARBLE',		'YIELD_GOLD',			2),
-			('IMPROVEMENT_SPAIN_HACIENDA',	'RESOURCE_IVORY',		'YIELD_GOLD',			2),
-			('IMPROVEMENT_SPAIN_HACIENDA',	'RESOURCE_FUR',			'YIELD_GOLD',			2),
-			('IMPROVEMENT_SPAIN_HACIENDA',	'RESOURCE_DYE',			'YIELD_GOLD',			2),
-			('IMPROVEMENT_SPAIN_HACIENDA',	'RESOURCE_SPICES',		'YIELD_GOLD',			2),
-			('IMPROVEMENT_SPAIN_HACIENDA',	'RESOURCE_SILK',		'YIELD_GOLD',			2),
-			('IMPROVEMENT_SPAIN_HACIENDA',	'RESOURCE_SUGAR',		'YIELD_GOLD',			2),
-			('IMPROVEMENT_SPAIN_HACIENDA',	'RESOURCE_COTTON',		'YIELD_GOLD',			2),
-			('IMPROVEMENT_SPAIN_HACIENDA',	'RESOURCE_WINE',		'YIELD_GOLD',			2),
-			('IMPROVEMENT_SPAIN_HACIENDA',	'RESOURCE_INCENSE',		'YIELD_GOLD',			2),
-			('IMPROVEMENT_SPAIN_HACIENDA',	'RESOURCE_JEWELRY',		'YIELD_GOLD',			2),
-			('IMPROVEMENT_SPAIN_HACIENDA',	'RESOURCE_PORCELAIN',	'YIELD_GOLD',			2),
-			('IMPROVEMENT_SPAIN_HACIENDA',	'RESOURCE_COPPER',		'YIELD_GOLD',			2),
-			('IMPROVEMENT_SPAIN_HACIENDA',	'RESOURCE_SALT',		'YIELD_GOLD',			2),
-			('IMPROVEMENT_SPAIN_HACIENDA',	'RESOURCE_CRAB',		'YIELD_GOLD',			2),
-			('IMPROVEMENT_SPAIN_HACIENDA',	'RESOURCE_TRUFFLES',	'YIELD_GOLD',			2),
-			('IMPROVEMENT_SPAIN_HACIENDA',	'RESOURCE_CITRUS',		'YIELD_GOLD',			2),
-			('IMPROVEMENT_SPAIN_HACIENDA',	'RESOURCE_NUTMEG',		'YIELD_GOLD',			2),
-			('IMPROVEMENT_SPAIN_HACIENDA',	'RESOURCE_CLOVES',		'YIELD_GOLD',			2),
-			('IMPROVEMENT_SPAIN_HACIENDA',	'RESOURCE_PEPPER',		'YIELD_GOLD',			2),
-			('IMPROVEMENT_SPAIN_HACIENDA',	'RESOURCE_COCOA',		'YIELD_GOLD',			2),
-			('IMPROVEMENT_SPAIN_HACIENDA',	'RESOURCE_BRAZILWOOD',	'YIELD_GOLD',			2),
-			('IMPROVEMENT_SPAIN_HACIENDA',	'RESOURCE_COFFEE',		'YIELD_GOLD',			2),
-			('IMPROVEMENT_SPAIN_HACIENDA',	'RESOURCE_TEA',			'YIELD_GOLD',			2),
-			('IMPROVEMENT_SPAIN_HACIENDA',	'RESOURCE_TOBACCO',		'YIELD_GOLD',			2),
-			('IMPROVEMENT_SPAIN_HACIENDA',	'RESOURCE_AMBER',		'YIELD_GOLD',			2),
-			('IMPROVEMENT_SPAIN_HACIENDA',	'RESOURCE_JADE',		'YIELD_GOLD',			2),
-			('IMPROVEMENT_SPAIN_HACIENDA',	'RESOURCE_OLIVE',		'YIELD_GOLD',			2),
-			('IMPROVEMENT_SPAIN_HACIENDA',	'RESOURCE_PERFUME',		'YIELD_GOLD',			2),
-			('IMPROVEMENT_SPAIN_HACIENDA',	'RESOURCE_CORAL',		'YIELD_GOLD',			2),
-			('IMPROVEMENT_SPAIN_HACIENDA',	'RESOURCE_LAPIS',		'YIELD_GOLD',			2),
-			('IMPROVEMENT_SPAIN_HACIENDA',	'RESOURCE_GLASS',		'YIELD_GOLD',			2),
-			('IMPROVEMENT_SPAIN_HACIENDA',	'RESOURCE_COCA',		'YIELD_GOLD',			2),
-			('IMPROVEMENT_SPAIN_HACIENDA',	'RESOURCE_CLSEALS',		'YIELD_GOLD',			2),
-			('IMPROVEMENT_SPAIN_HACIENDA',	'RESOURCE_LAVENDER',	'YIELD_GOLD',			2),
-			('IMPROVEMENT_SPAIN_HACIENDA',	'RESOURCE_OBSIDIAN',	'YIELD_GOLD',			2),
-			('IMPROVEMENT_SPAIN_HACIENDA',	'RESOURCE_PLATINUM',	'YIELD_GOLD',			2),
-			('IMPROVEMENT_SPAIN_HACIENDA',	'RESOURCE_POPPY',		'YIELD_GOLD',			2),
-			('IMPROVEMENT_SPAIN_HACIENDA',	'RESOURCE_TIN',			'YIELD_GOLD',			2);
+			(ImprovementType,				ResourceType,	YieldType,		Yield)
+SELECT		'IMPROVEMENT_SPAIN_HACIENDA',	Type,			'YIELD_GOLD',	2
+FROM Resources WHERE ResourceClassType = 'RESOURCECLASS_LUXURY';
+
+CREATE TRIGGER VP_HaciendaCompatibility_Luxury
+AFTER INSERT ON Resources 
+WHEN NEW.ResourceClassType = 'RESOURCECLASS_LUXURY'
+BEGIN
+	INSERT INTO Improvement_AdjacentResourceYieldChanges
+				(ImprovementType, ResourceType, YieldType, Yield)
+	SELECT		'IMPROVEMENT_SPAIN_HACIENDA', NEW.Type, 'YIELD_GOLD', 2;
+END;
 
 INSERT INTO Improvement_AdjacentResourceYieldChanges	
-			(ImprovementType,				ResourceType,			YieldType,				Yield)
-VALUES		('IMPROVEMENT_SPAIN_HACIENDA',	'RESOURCE_WHEAT',		'YIELD_FOOD',			2),
-			('IMPROVEMENT_SPAIN_HACIENDA',	'RESOURCE_COW',			'YIELD_FOOD',			2),
-			('IMPROVEMENT_SPAIN_HACIENDA',	'RESOURCE_SHEEP',		'YIELD_FOOD',			2),
-			('IMPROVEMENT_SPAIN_HACIENDA',	'RESOURCE_DEER',		'YIELD_FOOD',			2),
-			('IMPROVEMENT_SPAIN_HACIENDA',	'RESOURCE_BANANA',		'YIELD_FOOD',			2),
-			('IMPROVEMENT_SPAIN_HACIENDA',	'RESOURCE_FISH',		'YIELD_FOOD',			2),
-			('IMPROVEMENT_SPAIN_HACIENDA',	'RESOURCE_STONE',		'YIELD_FOOD',			2),
-			('IMPROVEMENT_SPAIN_HACIENDA',	'RESOURCE_BISON',		'YIELD_FOOD',			2),
-			('IMPROVEMENT_SPAIN_HACIENDA',	'RESOURCE_ROME_FIGS',	'YIELD_FOOD',			2),
-			('IMPROVEMENT_SPAIN_HACIENDA',	'RESOURCE_EGYPT_FLAX',	'YIELD_FOOD',			2),
-			('IMPROVEMENT_SPAIN_HACIENDA',	'RESOURCE_COCONUT',		'YIELD_FOOD',			2),
-			('IMPROVEMENT_SPAIN_HACIENDA',	'RESOURCE_HARDWOOD',	'YIELD_FOOD',			2),
-			('IMPROVEMENT_SPAIN_HACIENDA',	'RESOURCE_LEAD',		'YIELD_FOOD',			2),
-			('IMPROVEMENT_SPAIN_HACIENDA',	'RESOURCE_PINEAPPLE',	'YIELD_FOOD',			2),
-			('IMPROVEMENT_SPAIN_HACIENDA',	'RESOURCE_POTATO',		'YIELD_FOOD',			2),
-			('IMPROVEMENT_SPAIN_HACIENDA',	'RESOURCE_RICE',		'YIELD_FOOD',			2),
-			('IMPROVEMENT_SPAIN_HACIENDA',	'RESOURCE_RUBBER',		'YIELD_FOOD',			2),
-			('IMPROVEMENT_SPAIN_HACIENDA',	'RESOURCE_SULFUR',		'YIELD_FOOD',			2),
-			('IMPROVEMENT_SPAIN_HACIENDA',	'RESOURCE_TITANIUM',	'YIELD_FOOD',			2);
+			(ImprovementType,				ResourceType,	YieldType,		Yield)
+SELECT		'IMPROVEMENT_SPAIN_HACIENDA',	Type,			'YIELD_FOOD',	2
+FROM Resources WHERE ResourceClassType = 'RESOURCECLASS_BONUS';
+
+CREATE TRIGGER VP_HaciendaCompatibility_Bonus
+AFTER INSERT ON Resources 
+WHEN NEW.ResourceClassType = 'RESOURCECLASS_BONUS'
+BEGIN
+	INSERT INTO Improvement_AdjacentResourceYieldChanges
+				(ImprovementType, ResourceType, YieldType, Yield)
+	SELECT		'IMPROVEMENT_SPAIN_HACIENDA', NEW.Type, 'YIELD_FOOD', 2;
+END;
+
+INSERT INTO Improvement_AdjacentResourceYieldChanges	
+			(ImprovementType,				ResourceType,	YieldType,			Yield)
+SELECT		'IMPROVEMENT_SPAIN_HACIENDA',	Type,			'YIELD_PRODUCTION',	2
+FROM Resources WHERE ResourceClassType = 'RESOURCECLASS_MODERN';
 
 INSERT INTO Improvement_AdjacentResourceYieldChanges	
 			(ImprovementType, 				ResourceType,			YieldType,				Yield)
 VALUES		('IMPROVEMENT_SPAIN_HACIENDA',	'RESOURCE_HORSE',		'YIELD_PRODUCTION',		2),
-			('IMPROVEMENT_SPAIN_HACIENDA',	'RESOURCE_IRON',		'YIELD_PRODUCTION',		2),
-			('IMPROVEMENT_SPAIN_HACIENDA',	'RESOURCE_COAL',		'YIELD_PRODUCTION',		2),
-			('IMPROVEMENT_SPAIN_HACIENDA',	'RESOURCE_OIL',			'YIELD_PRODUCTION',		2),
-			('IMPROVEMENT_SPAIN_HACIENDA',	'RESOURCE_ALUMINUM',	'YIELD_PRODUCTION',		2),
-			('IMPROVEMENT_SPAIN_HACIENDA',	'RESOURCE_URANIUM',		'YIELD_PRODUCTION',		2);
+			('IMPROVEMENT_SPAIN_HACIENDA',	'RESOURCE_IRON',		'YIELD_PRODUCTION',		2);
+
+CREATE TRIGGER VP_HaciendaCompatibility_Strategic
+AFTER INSERT ON Resources 
+WHEN NEW.ResourceClassType IN('RESOURCECLASS_MODERN', 'RESOURCECLASS_RUSH')
+BEGIN
+	INSERT INTO Improvement_AdjacentResourceYieldChanges
+				(ImprovementType, ResourceType, YieldType, Yield)
+	SELECT		'IMPROVEMENT_SPAIN_HACIENDA', NEW.Type, 'YIELD_PRODUCTION', 2;
+END;
 
 INSERT INTO Improvement_TechYieldChanges
 			(ImprovementType,				TechType,					YieldType,			Yield)
@@ -401,32 +370,33 @@ INSERT INTO Trait_YieldFromTileSettle 		(TraitType, TerrainType, YieldType, Yiel
 
 -- NEW DLC Leader Data and Yields
 
-UPDATE Buildings
-SET CitySupplyModifier = '10'
-WHERE Type = 'BUILDING_MISSION' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
+--UPDATE Buildings
+--SET CitySupplyModifier = '10'
+--WHERE Type = 'BUILDING_MISSION' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
-UPDATE Buildings
-SET GreatWorkSlotType = 'GREAT_WORK_SLOT_ART_ARTIFACT'
-WHERE Type = 'BUILDING_MISSION' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
+--UPDATE Buildings
+--SET GreatWorkSlotType = 'GREAT_WORK_SLOT_ART_ARTIFACT'
+--WHERE Type = 'BUILDING_MISSION' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
-UPDATE Buildings
-SET GreatWorkCount = '1'
-WHERE Type = 'BUILDING_MISSION' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
+--UPDATE Buildings
+--SET GreatWorkCount = '1'
+--WHERE Type = 'BUILDING_MISSION' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 
 UPDATE Buildings
 SET CitySupplyModifier = '10'
 WHERE Type = 'BUILDING_WALLS_OF_BABYLON' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
+--('BUILDING_MISSION', 'FLAVOR_HAPPINESS', 40),
+--	('BUILDING_MISSION', 'FLAVOR_DEFENSE', 50),
+--	('BUILDING_MISSION', 'FLAVOR_GOLD', 30),
+--	('BUILDING_MISSION', 'FLAVOR_HAPPINESS', 25),
+--	('BUILDING_MISSION', 'FLAVOR_RELIGION', 30),
+
 INSERT INTO Building_Flavors
 	(BuildingType, FlavorType, Flavor)
 VALUES
 	('BUILDING_WALLS_OF_BABYLON', 'FLAVOR_HAPPINESS', 40),
-	('BUILDING_MISSION', 'FLAVOR_HAPPINESS', 40),
-	('BUILDING_MISSION', 'FLAVOR_DEFENSE', 50),
-	('BUILDING_MISSION', 'FLAVOR_GOLD', 30),
-	('BUILDING_MISSION', 'FLAVOR_HAPPINESS', 25),
-	('BUILDING_MISSION', 'FLAVOR_RELIGION', 30),
 	('BUILDING_JELLING_STONES', 'FLAVOR_CULTURE', 20),
 	('BUILDING_JELLING_STONES', 'FLAVOR_GREAT_PEOPLE', 30),
 	('BUILDING_JELLING_STONES', 'FLAVOR_NAVAL_GROWTH', 20),
@@ -440,11 +410,11 @@ VALUES
 	('BUILDING_YURT', 'FLAVOR_I_LAND_TRADE_ROUTE', 10),
 	('BUILDING_YURT', 'FLAVOR_I_SEA_TRADE_ROUTE', 10);
 
-INSERT INTO Building_GrowthExtraYield
-	(BuildingType, YieldType, Yield)
-VALUES
-	('BUILDING_MISSION', 'YIELD_GOLD', 300),
-	('BUILDING_MISSION', 'YIELD_FAITH', 300);
+--INSERT INTO Building_GrowthExtraYield
+--	(BuildingType, YieldType, Yield)
+--VALUES
+--	('BUILDING_MISSION', 'YIELD_GOLD', 300),
+--	('BUILDING_MISSION', 'YIELD_FAITH', 300);
 
 INSERT INTO Civilization_BuildingClassOverrides
 	(CivilizationType, BuildingClassType, BuildingType)
@@ -517,6 +487,11 @@ INSERT INTO Building_FeatureYieldChanges
 	(BuildingType, FeatureType, YieldType, Yield)
 VALUES
 	('BUILDING_SEOWON', 'FEATURE_JUNGLE', 'YIELD_SCIENCE', 1);
+	
+INSERT INTO Building_TerrainYieldChanges
+	(BuildingType, TerrainType, YieldType, Yield)
+VALUES
+	('BUILDING_SEOWON', 'TERRAIN_SNOW', 'YIELD_SCIENCE', 1);
 
 INSERT INTO Building_ResourceYieldChanges
 	(BuildingType, ResourceType, YieldType, Yield)

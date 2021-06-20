@@ -36,7 +36,7 @@ void CvLuaPlot::PushMethods(lua_State* L, int t)
 	Method(CanHaveFeature);
 	Method(GetFeatureType);
 	Method(GetTerrainType);
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_API_PLOT_BASED_DAMAGE)
+#if defined(MOD_API_LUA_EXTENSIONS)
 	Method(GetTurnDamage);
 #endif
 	Method(IsRiver);
@@ -125,7 +125,7 @@ void CvLuaPlot::PushMethods(lua_State* L, int t)
 	Method(IsCity);
 	Method(IsFriendlyCity);
 #if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_GLOBAL_PASSABLE_FORTS)
-	Method(IsFriendlyCityOrPassableImprovement);
+	Method(isFriendlyCityOrPassableImprovement);
 #endif
 	Method(IsEnemyCity);
 	Method(IsBeingWorked);
@@ -139,6 +139,7 @@ void CvLuaPlot::PushMethods(lua_State* L, int t)
 	Method(IsVisibleOtherUnit);
 
 	Method(GetNumFriendlyUnitsOfType);
+	Method(getNumFriendlyUnitsOfType);
 	Method(IsFighting);
 
 #if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_GLOBAL_STACKING_RULES)
@@ -422,7 +423,7 @@ int CvLuaPlot::lGetTerrainType(lua_State* L)
 
 	return 1;
 }
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_API_PLOT_BASED_DAMAGE)
+#if defined(MOD_API_LUA_EXTENSIONS)
 //------------------------------------------------------------------------------
 int CvLuaPlot::lGetTurnDamage(lua_State* L)
 {
@@ -461,9 +462,8 @@ int CvLuaPlot::lIsWater(lua_State* L)
 int CvLuaPlot::lIsBlockaded(lua_State* L)
 {
 	CvPlot* pkPlot = GetInstance(L); CHECK_PLOT_VALID(pkPlot);
-	const int playerType = lua_tointeger(L, 2);
 
-	lua_pushboolean(L, pkPlot->isBlockaded((PlayerTypes)playerType));
+	lua_pushboolean(L, pkPlot->isBlockaded());
 
 	return 1;
 }
@@ -851,10 +851,10 @@ int CvLuaPlot::lIsActiveVisible(lua_State* L)
 	CvPlot* pkPlot = GetInstance(L); CHECK_PLOT_VALID(pkPlot);
 	const bool bDebug = luaL_optbool(L, 2, false);
 
-	if (!bDebug)
-		lua_pushboolean(L, pkPlot->isActiveVisible());
+	if (bDebug)
+		lua_pushboolean(L, pkPlot->isVisible(GC.getGame().getActiveTeam(), true) );
 	else
-		lua_pushboolean(L, pkPlot->isActiveVisible(true));
+		lua_pushboolean(L, pkPlot->isActiveVisible());
 
 	return 1;
 }
@@ -950,7 +950,7 @@ int CvLuaPlot::lIsFriendlyCity(lua_State* L)
 }
 #if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_GLOBAL_PASSABLE_FORTS)
 //bool isFriendlyCityOrPassableImprovement(CyUnit* pUnit, bool bCheckImprovement);
-int CvLuaPlot::lIsFriendlyCityOrPassableImprovement(lua_State* L)
+int CvLuaPlot::lisFriendlyCityOrPassableImprovement(lua_State* L)
 {
 	CvPlot* pkPlot = GetInstance(L); CHECK_PLOT_VALID(pkPlot);
 	CvUnit* pkUnit = CvLuaUnit::GetInstance(L, 2);
@@ -958,7 +958,7 @@ int CvLuaPlot::lIsFriendlyCityOrPassableImprovement(lua_State* L)
 	//unused, only for backward compatibility
 	const bool bCheckImprovement = lua_toboolean(L, 3); bCheckImprovement;
 
-	const bool bResult = pkPlot->isCityOrPassableImprovement(pkUnit->getOwner(), true);
+	const bool bResult = pkPlot->isCoastalCityOrPassableImprovement(pkUnit->getOwner(), true, true);
 	lua_pushboolean(L, bResult);
 	return 1;
 }
@@ -1036,6 +1036,19 @@ int CvLuaPlot::lIsVisibleOtherUnit(lua_State* L)
 //------------------------------------------------------------------------------
 //int GetNumFriendlyUnitsOfType(CvUnit* pUnit);
 int CvLuaPlot::lGetNumFriendlyUnitsOfType(lua_State* L)
+{
+	CvPlot* pkPlot = GetInstance(L); CHECK_PLOT_VALID(pkPlot);
+	CvUnit* pkUnit = CvLuaUnit::GetInstance(L, 2);
+
+	int iResult = pkUnit->CountStackingUnitsAtPlot(pkPlot);
+
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+
+//------------------------------------------------------------------------------
+//int GetNumFriendlyUnitsOfType(CvUnit* pUnit);
+int CvLuaPlot::lgetNumFriendlyUnitsOfType(lua_State* L)
 {
 	CvPlot* pkPlot = GetInstance(L); CHECK_PLOT_VALID(pkPlot);
 	CvUnit* pkUnit = CvLuaUnit::GetInstance(L, 2);
@@ -1358,7 +1371,7 @@ int CvLuaPlot::lGetOwner(lua_State* L)
 #if defined(MOD_API_LUA_EXTENSIONS)
 	CvPlot* pkPlot = GetInstance(L); CHECK_PLOT_VALID(pkPlot);
 	const int iPlayer  = pkPlot->getOwner();
-	const int iCity = pkPlot->GetCityPurchaseID();
+	const int iCity = pkPlot->getOwningCityID();
 
 	lua_pushinteger(L, iPlayer);
 	lua_pushinteger(L, iCity);
@@ -1576,7 +1589,7 @@ int CvLuaPlot::lGetPlotCity(lua_State* L)
 int CvLuaPlot::lGetWorkingCity(lua_State* L)
 {
 	CvPlot* pkPlot = GetInstance(L); CHECK_PLOT_VALID(pkPlot);
-	CvCity* pkCity = pkPlot->getOwningCity();
+	CvCity* pkCity = pkPlot->getEffectiveOwningCity();
 	CvLuaCity::Push(L, pkCity);
 	return 1;
 }
@@ -1584,9 +1597,11 @@ int CvLuaPlot::lGetWorkingCity(lua_State* L)
 //CyCity* getOwningCityOverride();
 int CvLuaPlot::lGetWorkingCityOverride(lua_State* L)
 {
-	CvPlot* pkPlot = GetInstance(L); CHECK_PLOT_VALID(pkPlot);
-	CvCity* pkCity = pkPlot->getOwningCityOverride();
-	CvLuaCity::Push(L, pkCity);
+	//CvPlot* pkPlot = GetInstance(L); CHECK_PLOT_VALID(pkPlot);
+	//CvCity* pkCity = pkPlot->getOwningCityOverride();
+
+	//working city already considers override
+	CvLuaCity::Push(L, NULL);
 	return 1;
 }
 //------------------------------------------------------------------------------
@@ -1651,13 +1666,10 @@ int CvLuaPlot::lCalculateImprovementYieldChange(lua_State* L)
 	const YieldTypes eYield = (YieldTypes)lua_tointeger(L,3);
 	const PlayerTypes ePlayer = (PlayerTypes)lua_tointeger(L, 4);
 	const bool bOptional = luaL_optbool(L, 5, false);
-#if defined(MOD_BUGFIX_LUA_API)
+
 	RouteTypes eRoute = (RouteTypes)luaL_optint(L, 6, NUM_ROUTE_TYPES);
 	if (lua_gettop(L) == 6)
 		eRoute = (RouteTypes)lua_tointeger(L, 6);
-#else
-	const RouteTypes eRoute = (RouteTypes)luaL_optint(L, 5, NUM_ROUTE_TYPES);
-#endif
 
 	const int iResult = pkPlot->calculateImprovementYield(eImprovement, eYield, pkPlot->calculateBestNatureYield(eYield, ePlayer), ePlayer, bOptional, eRoute);
 	lua_pushinteger(L, iResult);
@@ -1685,7 +1697,7 @@ int CvLuaPlot::lGetYieldWithBuild(lua_State* L)
 	const bool bUpgrade = luaL_optbool(L, 4, false);
 	const PlayerTypes ePlayer = (PlayerTypes)lua_tointeger(L, 5);
 
-	const CvCity* pOwningCity = pkPlot->getOwningCity();
+	const CvCity* pOwningCity = pkPlot->getEffectiveOwningCity();
 	if (pOwningCity)
 	{
 		ReligionTypes eMajority = pOwningCity->GetCityReligions()->GetReligiousMajority();
@@ -1693,7 +1705,25 @@ int CvLuaPlot::lGetYieldWithBuild(lua_State* L)
 
 		const CvReligion* pReligion = (eMajority != NO_RELIGION) ? GC.getGame().GetGameReligions()->GetReligion(eMajority, pOwningCity->getOwner()) : 0;
 		const CvBeliefEntry* pBelief = (eSecondaryPantheon != NO_BELIEF) ? GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon) : 0;
-		const int iResult = pkPlot->getYieldWithBuild(eBuild, eYield, bUpgrade, ePlayer, pOwningCity, pReligion, pBelief);
+		int iResult = pkPlot->getYieldWithBuild(eBuild, eYield, bUpgrade, ePlayer, pOwningCity, pReligion, pBelief);
+#if defined(MOD_RELIGION_PERMANENT_PANTHEON)
+		// Mod for civs keeping their pantheon belief forever
+		if (MOD_RELIGION_PERMANENT_PANTHEON)
+		{
+			if (GC.getGame().GetGameReligions()->HasCreatedPantheon(pOwningCity->getOwner()))
+			{
+				const CvReligion* pPantheon = GC.getGame().GetGameReligions()->GetReligion(RELIGION_PANTHEON, pOwningCity->getOwner());
+				BeliefTypes ePantheonBelief = GC.getGame().GetGameReligions()->GetBeliefInPantheon(pOwningCity->getOwner());
+				if (pPantheon != NULL && ePantheonBelief != NO_BELIEF && ePantheonBelief != eSecondaryPantheon)
+				{
+					if (pReligion == NULL || (pReligion != NULL && !pReligion->m_Beliefs.IsPantheonBeliefInReligion(ePantheonBelief, eMajority, pOwningCity->getOwner()))) // check that the our religion does not have our belief, to prevent double counting
+					{
+						iResult += pkPlot->getYieldWithBuild(eBuild, eYield, bUpgrade, ePlayer, pOwningCity, pPantheon, NULL);
+					}
+				}
+			}
+		}
+#endif
 		lua_pushinteger(L, iResult);
 		return 1;
 	}
@@ -1746,11 +1776,7 @@ int CvLuaPlot::lChangeVisibilityCount(lua_State* L)
 {
 	CvPlot* pkPlot = GetInstance(L); CHECK_PLOT_VALID(pkPlot);
 	const TeamTypes eTeam = (TeamTypes)lua_tointeger(L, 2);
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_BUGFIX_LUA_CHANGE_VISIBILITY_COUNT)
 	const int iChange = lua_tointeger(L, 3);
-#else
-	const int iChange = lua_toboolean(L, 3);
-#endif
 	const int eSeeInvisible = lua_tointeger(L, 4);
 	const bool bInformExplorationTracking = lua_toboolean(L, 5);
 	const bool bAlwaysSeeInvisible = lua_toboolean(L, 6);
@@ -2179,14 +2205,14 @@ int CvLuaPlot::lHasWrittenArtifact(lua_State* L)
 //int GetCityPurchaseID();
 int CvLuaPlot::lGetCityPurchaseID(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvPlot::GetCityPurchaseID);
+	return BasicLuaMethod(L, &CvPlot::getOwningCityID);
 }
 
 //------------------------------------------------------------------------------
 //void SetCityPurchaseID(int ID);
 int CvLuaPlot::lSetCityPurchaseID(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvPlot::SetCityPurchaseID);
+	return BasicLuaMethod(L, &CvPlot::setOwningCityID);
 }
 
 int CvLuaPlot::lGetAirUnitsTooltip(lua_State* L)

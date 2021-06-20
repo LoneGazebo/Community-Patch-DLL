@@ -128,8 +128,8 @@ public:
 	int m_iTemp;
 };
 
-typedef FStaticVector<CvReligion, 16, false, c_eCiv5GameplayDLL > ReligionList;
-typedef FStaticVector<CvReligionInCity, 8, false, c_eCiv5GameplayDLL > ReligionInCityList;
+typedef vector<CvReligion> ReligionList;
+typedef vector<CvReligionInCity> ReligionInCityList;
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //  CLASS:		CvGameReligions
@@ -181,11 +181,7 @@ public:
 	ReligionTypes GetReligionToFound(PlayerTypes ePlayer);
 	void FoundPantheon(PlayerTypes ePlayer, BeliefTypes eBelief);
 	void FoundReligion(PlayerTypes ePlayer, ReligionTypes eReligion, const char* szCustomName, BeliefTypes eBelief1, BeliefTypes eBelief2, BeliefTypes eBelief3, BeliefTypes eBelief4, CvCity* pkHolyCity);
-#if defined(MOD_API_RELIGION)
 	void EnhanceReligion(PlayerTypes ePlayer, ReligionTypes eReligion, BeliefTypes eBelief1, BeliefTypes eBelief2=NO_BELIEF, bool bNotify=true);
-#else
-	void EnhanceReligion(PlayerTypes ePlayer, ReligionTypes eReligion, BeliefTypes eBelief1, BeliefTypes eBelief2);
-#endif
 	void AddReformationBelief(PlayerTypes ePlayer, ReligionTypes eReligion, BeliefTypes eBelief1);
 	void SetHolyCity(ReligionTypes eReligion, CvCity* pkHolyCity);
 	void SetFounder(ReligionTypes eReligion, PlayerTypes eFounder);
@@ -235,6 +231,7 @@ public:
 #endif
 	int GetNumCitiesFollowing(ReligionTypes eReligion) const;
 	int GetNumDomesticCitiesFollowing(ReligionTypes eReligion, PlayerTypes ePlayer) const;
+	bool HasAnyDomesticCityFollowing(ReligionTypes eReligion, PlayerTypes ePlayer) const;
 #if defined(MOD_RELIGION_LOCAL_RELIGIONS)
 	bool HasCreatedReligion(PlayerTypes ePlayer, bool bIgnoreLocal = false) const;
 #else
@@ -470,16 +467,6 @@ public:
 	ReligionTypes GetSecondaryReligion();
 	BeliefTypes GetSecondaryReligionPantheonBelief();
 	int GetFollowersOtherReligions(ReligionTypes eReligion, bool bIncludePantheons = false);
-#if !defined(MOD_BALANCE_CORE)
-	bool HasPaidAdoptionBonus() const
-	{
-		return m_bHasPaidAdoptionBonus;
-	};
-	void SetPaidAdoptionBonus(bool bNewValue)
-	{
-		m_bHasPaidAdoptionBonus = bNewValue;
-	};
-#endif
 	int GetReligiousPressureModifier(ReligionTypes eReligion) const;
 	void SetReligiousPressureModifier(ReligionTypes eReligion, int iNewValue);
 	void ChangeReligiousPressureModifier(ReligionTypes eReligion, int iNewValue);
@@ -518,14 +505,10 @@ public:
 
 	void ResetNumTradeRoutePressure();
 
-	ReligionInCityList m_ReligionStatus;
-	ReligionInCityList m_SimulatedStatus;
+	bool ComputeReligiousMajority(bool bNotifications = false);
+	const CvReligion* GetMajorityReligion();
 
-#if defined(MOD_BALANCE_CORE)
-	bool ComputeReligiousMajority(bool bNotifications = false, bool bNotLoad = true);
-#endif
-
-private:
+protected:
 	void RecomputeFollowers(CvReligiousFollowChangeReason eReason, ReligionTypes eOldMajorityReligion, PlayerTypes eResponsibleParty=NO_PLAYER);
 	void SimulateFollowers();
 	void CopyToSimulatedStatus();
@@ -535,19 +518,17 @@ private:
 #endif
 	void LogFollowersChange(CvReligiousFollowChangeReason eReason);
 
-	CvCity* m_pCity;
-#if !defined(MOD_BALANCE_CORE)
-	bool m_bHasPaidAdoptionBonus;
-	int m_iReligiousPressureModifier;
-#endif
+	CvCity* m_pCity; //not serialized
+	ReligionInCityList m_SimulatedStatus; //not serialized
 
-#if defined(MOD_BALANCE_CORE)
+	ReligionInCityList m_ReligionStatus;
 	ReligionTypes m_majorityCityReligion;
-#endif
-};
 
-FDataStream& operator>>(FDataStream&, CvCityReligions&);
-FDataStream& operator<<(FDataStream&, const CvCityReligions&);
+	const CvReligion* m_pMajorityReligionCached; //for faster access, not serialized
+
+	friend FDataStream& operator>>(FDataStream&, CvCityReligions&);
+	friend FDataStream& operator<<(FDataStream&, const CvCityReligions&);
+};
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //  CLASS:      CvUnitReligion
@@ -576,13 +557,22 @@ public:
 	{
 		return m_iStrength;
 	};
-	int GetSpreadsLeft() const
+	int GetMaxSpreads(const CvUnit* pUnit) const;
+	int GetSpreadsLeft(const CvUnit* pUnit) const
 	{
-		return m_iSpreadsLeft;
+		return GetMaxSpreads(pUnit) - m_iSpreadsUsed;
 	};
-	void SetSpreadsLeft(int iValue)
+	int GetSpreadsUsed() const
 	{
-		m_iSpreadsLeft = iValue;
+		return m_iSpreadsUsed;
+	};
+	void IncrementSpreadsUsed()
+	{
+		m_iSpreadsUsed++;
+	};
+	void SetSpreadsUsed(int iValue)
+	{
+		m_iSpreadsUsed = iValue;
 	};
 	void SetReligiousStrength(int iValue)
 	{
@@ -594,9 +584,8 @@ public:
 private:
 	ReligionTypes m_eReligion;
 	unsigned short m_iStrength;
-	unsigned short m_iSpreadsLeft;
+	unsigned short m_iSpreadsUsed;
 	unsigned short m_iMaxStrength;
-	unsigned short m_iMaxSpreads;
 
 	friend FDataStream& operator>>(FDataStream&, CvUnitReligion&);
 	friend FDataStream& operator<<(FDataStream&, const CvUnitReligion&);
@@ -651,6 +640,7 @@ public:
 private:
 #if defined(MOD_BALANCE_CORE)
 	bool DoFaithPurchasesInCities(CvCity* pCity);
+	bool DoReligionDefenseInCities();
 #endif
 	int GetSpreadScore() const;
 	bool DoFaithPurchases();
@@ -686,7 +676,7 @@ private:
 #endif
 	bool CanBuyNonFaithBuilding() const;
 	UnitTypes GetDesiredFaithGreatPerson() const;
-	void LogBeliefChoices(CvWeightedVector<BeliefTypes, SAFE_ESTIMATE_NUM_BELIEFS, true>& beliefChoices, int iChoice);
+	void LogBeliefChoices(CvWeightedVector<BeliefTypes>& beliefChoices, int iChoice);
 
 	CvBeliefXMLEntries* m_pBeliefs;
 	CvPlayer* m_pPlayer;

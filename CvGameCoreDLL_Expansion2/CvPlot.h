@@ -45,7 +45,7 @@ typedef bool (*PlotUnitFunc)(CvUnit* pUnit, int iData1, int iData2);
 #define NUM_INVISIBLE_TYPES 1
 #endif
 
-typedef FFastVector<IDInfo, true, c_eCiv5GameplayDLL, 0> IDInfoVector;
+typedef vector<IDInfo> IDInfoVector;
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //  STRUCT: CvArchaeologyData
@@ -221,7 +221,7 @@ public:
 	int countPassableNeighbors(DomainTypes eDomain=NO_DOMAIN, CvPlot** aPassableNeighbors=NULL) const;
 	bool IsBorderLand(PlayerTypes eDefendingPlayer) const;
 	bool IsChokePoint() const;
-	bool IsLandbridge(int iMinDistanceSaved, int iMinOceanSize) const;
+	bool IsWaterAreaSeparator() const;
 
 	void plotAction(PlotUnitFunc func, int iData1 = -1, int iData2 = -1, PlayerTypes eOwner = NO_PLAYER, TeamTypes eTeam = NO_TEAM);
 	int plotCount(ConstPlotUnitFunc funcA, int iData1A = -1, int iData2A = -1, PlayerTypes eOwner = NO_PLAYER, TeamTypes eTeam = NO_TEAM, ConstPlotUnitFunc funcB = NULL, int iData1B = -1, int iData2B = -1) const;
@@ -232,7 +232,7 @@ public:
 	bool isRevealedBarbarian() const;
 
 	bool HasBarbarianCamp();
-	bool MeleeAttackerAdvances(TeamTypes eAttackerTeam) const;
+	bool isFortification(TeamTypes eDefenderTeam) const;
 
 #if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
 	bool HasDig();
@@ -241,13 +241,9 @@ public:
 	bool isVisible(TeamTypes eTeam, bool bDebug) const;
 	bool isVisible(TeamTypes eTeam) const;
 
-	bool isActiveVisible(bool bDebug) const;
 	bool isActiveVisible() const;
-#if defined(MOD_BALANCE_CORE)
-	bool isVisibleToCivTeam(bool bNoObserver = false, bool bNoMinor = false) const;
-#else
-	bool isVisibleToCivTeam() const;
-#endif
+	bool isVisibleToAnyTeam(bool bNoMinor = false) const;
+
 	bool isVisibleToEnemy(PlayerTypes eFriendlyPlayer) const;
 	bool isVisibleToWatchingHuman() const;
 	bool isAdjacentVisible(TeamTypes eTeam, bool bDebug=false) const;
@@ -272,31 +268,10 @@ public:
 		}
 	}
 
-	bool isCity() const
-	{
-		if((m_plotCity.eOwner >= 0) && m_plotCity.eOwner < MAX_PLAYERS && m_plotCity.iID>0)
-		{
-#if defined(MOD_CORE_DEBUGGING)
-			 if (MOD_CORE_DEBUGGING && (GET_PLAYER((PlayerTypes)m_plotCity.eOwner).getCity(m_plotCity.iID)) == NULL)
-				 OutputDebugString("warning: inconsistent plot state! bad city ID.");
-#endif
-			 return true;
-		}
-
-		return false;
-	}
-
-	bool isEnemyCity(const CvUnit& kUnit) const
-	{
-		if(isCity())
-			return kUnit.isEnemy(GET_PLAYER(m_plotCity.eOwner).getTeam(), this);
-
-		return false;
-	}
-
+	bool isCity() const;
+	bool isEnemyCity(const CvUnit& kUnit) const;
 	bool isFriendlyCity(const CvUnit& kUnit) const;
-	bool isFriendlyCityOrPassableImprovement(PlayerTypes ePlayer, const CvUnit* pUnit = NULL) const;
-	bool isCityOrPassableImprovement(PlayerTypes ePlayer, bool bMustBeFriendly, const CvUnit* pUnit = NULL) const;
+	bool isCoastalCityOrPassableImprovement(PlayerTypes ePlayer, bool bCityMustBeFriendly, bool bImprovementMustBeFriendly) const;
 	bool IsFriendlyTerritory(PlayerTypes ePlayer) const;
 
 	bool isBeingWorked() const;
@@ -318,9 +293,7 @@ public:
 	bool isEnemyUnit(PlayerTypes ePlayer, bool bCombatOnly, bool bCheckVisibility, bool bIgnoreBarbs = false) const;
 	bool isNeutralUnit(PlayerTypes ePlayer, bool bCombatOnly, bool bCheckVisibility, bool bIgnoreMinors = false) const;
 	bool isNeutralUnitAdjacent(PlayerTypes ePlayer, bool bCombatOnly, bool bCheckVisibility, bool bIgnoreMinors = false) const;
-
-	//units which can cause or lift a blockade
-	bool IsBlockadeUnit(PlayerTypes ePlayer, bool bFriendly) const;
+	bool isFriendlyUnit(PlayerTypes ePlayer, bool bCombatOnly, bool bSamePlayer) const;
 
 	bool isFighting() const;
 	bool isUnitFighting() const;
@@ -362,6 +335,8 @@ public:
 	void setArea(int iNewValue);
 
 	std::vector<int> getAllAdjacentAreas() const;
+
+	bool hasSharedAdjacentArea(const CvPlot* pOther) const;
 
 	inline int getLandmass() const
 	{
@@ -438,10 +413,6 @@ public:
 	}
 
 	void setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUnits = true, bool bUpdateResources = true);
-	void ClearCityPurchaseInfo(void);
-	PlayerTypes GetCityPurchaseOwner(void);
-	int GetCityPurchaseID(void);
-	void SetCityPurchaseID(int iAcquiringCityID);
 
 	bool IsCloseToBorder(PlayerTypes ePlayer) const;
 
@@ -478,7 +449,7 @@ public:
 	//can a generic unit move through this plot (disregarding promotions, combat/civilian etc)
 	bool isValidMovePlot(PlayerTypes ePlayer, bool bCheckTerritory=true) const;
 
-	bool isBlockaded(PlayerTypes ePlayer);
+	bool isBlockaded();
 
 	inline TerrainTypes getTerrainType() const
 	{
@@ -489,62 +460,14 @@ public:
 		return (FeatureTypes)m_eFeatureType.get();
 	}
 
-#if defined(MOD_API_PLOT_BASED_DAMAGE)
-	int getTurnDamage(bool bIgnoreTerrainDamage, bool bIgnoreFeatureDamage, bool bExtraTerrainDamage, bool bExtraFeatureDamage) const
-	{
-		int damage = 0;
-
-		if (MOD_API_PLOT_BASED_DAMAGE) {
-			const TerrainTypes eTerrain = getTerrainType();
-			const FeatureTypes eFeature = getFeatureType();
-			
-			// Make an exception for the volcano
-			if (eFeature != NO_FEATURE) {
-				CvFeatureInfo* pkFeatureInfo = GC.getFeatureInfo(eFeature);
-				if (pkFeatureInfo && pkFeatureInfo->GetType() == "FEATURE_VOLCANO") {
-					bIgnoreTerrainDamage = false;
-					bIgnoreFeatureDamage = false;
-				}
-			}
-
-			if (eTerrain != NO_TERRAIN) {
-				CvTerrainInfo* pkTerrainInfo = GC.getTerrainInfo(eTerrain);
-				if (pkTerrainInfo) {
-					// no damage for units on montain cities
-					if (!bIgnoreTerrainDamage && !isCity())
-					{						
-						damage += pkTerrainInfo->getTurnDamage();
-					}
-					if (bExtraTerrainDamage) {
-						damage += pkTerrainInfo->getExtraTurnDamage();
-					}
-				}
-			}
-
-			if (eFeature != NO_FEATURE) {
-				CvFeatureInfo* pkFeatureInfo = GC.getFeatureInfo(eFeature);
-				if (pkFeatureInfo) {
-					if (!bIgnoreFeatureDamage) {
-						damage += pkFeatureInfo->getTurnDamage();
-					}
-					
-					if (bExtraFeatureDamage) {
-						damage += pkFeatureInfo->getExtraTurnDamage();
-					}
-				}
-			}
-		}		
-		return damage;
-	}
-#endif
-
+	int getTurnDamage(bool bIgnoreTerrainDamage, bool bIgnoreFeatureDamage, bool bExtraTerrainDamage, bool bExtraFeatureDamage) const;
 	bool isImpassable(TeamTypes eTeam = NO_TEAM) const;
 	bool IsAllowsWalkWater() const;
 	bool needsEmbarkation(const CvUnit* pUnit) const;
 
 	bool isRoughGround() const
 	{
-		return m_bHighMoveCost;
+		return m_bRoughPlot; //limited visibility
 	}
 
 	bool isFlatlands() const;
@@ -564,10 +487,9 @@ public:
 	void setNumResource(int iNum);
 	void changeNumResource(int iChange);
 	int getNumResourceForPlayer(PlayerTypes ePlayer) const;
-#if defined(MOD_GLOBAL_VENICE_KEEPS_RESOURCES)
-	void removeMinorResources(bool bVenice = false);
-#endif
+	void removeMinorResources();
 
+	void setIsCity(bool bValue, int iCityID, int iWorkRange);
 	ImprovementTypes getImprovementType() const;
 	ImprovementTypes getImprovementTypeNeededToImproveResource(PlayerTypes ePlayer = NO_PLAYER, bool bTestPlotOwner = true, bool bNonSpecialOnly = false);
 	void setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder = NO_PLAYER);
@@ -608,7 +530,7 @@ public:
 	void SetWorldAnchor(GenericWorldAnchorTypes eAnchor, int iData1 = -1);
 
 	RouteTypes getRouteType() const;
-	void setRouteType(RouteTypes eNewValue);
+	void setRouteType(RouteTypes eNewValue, PlayerTypes eBuilder = NO_PLAYER);
 	void updateCityRoute();
 
 	bool IsRoutePillaged() const;
@@ -626,25 +548,17 @@ public:
 	void SetPlayerThatClearedDigHere(PlayerTypes eNewValue);
 #endif
 
-	CvCity* GetResourceLinkedCity() const;
-	void SetResourceLinkedCity(const CvCity* pNewValue);
 	bool IsResourceLinkedCityActive() const;
 	void SetResourceLinkedCityActive(bool bValue);
-	void DoFindCityToLinkResourceTo(CvCity* pCityToExclude = NULL);
 
-	CvCity* getPlotCity() const
-	{
-		if((m_plotCity.eOwner >= 0) && m_plotCity.eOwner < MAX_PLAYERS)
-			return (GET_PLAYER((PlayerTypes)m_plotCity.eOwner).getCity(m_plotCity.iID));
-
-		return NULL;
-	}
-
-	void setPlotCity(CvCity* pNewValue);
-
+	CvCity* getPlotCity() const;
+	void setOwningCityID(int iID);
 	int getOwningCityID() const;
 	CvCity* getOwningCity() const;
 	void updateOwningCity();
+
+	CvCity* getEffectiveOwningCity() const;
+	bool isEffectiveOwner(CvCity* pCity) const;
 
 	CvCity* getOwningCityOverride() const;
 	void setOwningCityOverride(const CvCity* pNewValue);
@@ -667,20 +581,36 @@ public:
 
 	int calculateImprovementYield(ImprovementTypes eImprovement, YieldTypes eYield, int iCurrentYield, PlayerTypes ePlayer, bool bOptimal = false, RouteTypes eAssumeThisRoute = NUM_ROUTE_TYPES) const;
 
+#if defined(MOD_RELIGION_PERMANENT_PANTHEON)
+	int calculatePlayerYield(YieldTypes eYield, int iCurrentYield, PlayerTypes ePlayer, ImprovementTypes eImprovement, const CvCity* pOwningCity, const CvReligion* pMajorityReligion, const CvBeliefEntry* pSecondaryPantheon, const CvReligion* pPlayerPantheon, bool bDisplay) const;
+#else
 	int calculatePlayerYield(YieldTypes eYield, int iCurrentYield, PlayerTypes ePlayer, ImprovementTypes eImprovement, const CvCity* pOwningCity, const CvReligion* pMajorityReligion, const CvBeliefEntry* pSecondaryPantheon, bool bDisplay) const;
+#endif
 
 	int calculateReligionNatureYield(YieldTypes eYield, PlayerTypes ePlayer, const CvCity* pOwningCity, const CvReligion* pMajorityReligion, const CvBeliefEntry* pSecondaryPantheon) const;
 	int calculateReligionImprovementYield(ImprovementTypes eImprovement, YieldTypes eYield, PlayerTypes ePlayer, const CvCity* pOwningCity, const CvReligion* pMajorityReligion, const CvBeliefEntry* pSecondaryPantheon) const;
 
 	int calculateYield(YieldTypes eIndex, bool bDisplay = false);
+#if defined(MOD_RELIGION_PERMANENT_PANTHEON)
+	int calculateYieldFast(YieldTypes eYield, bool bDisplay, const CvCity* pOwningCity, const CvReligion* pMajorityReligion, const CvBeliefEntry* pSecondaryPantheon, const CvReligion* pPlayerPantheon = NULL);
+#else
 	int calculateYieldFast(YieldTypes eYield, bool bDisplay, const CvCity* pOwningCity, const CvReligion* pMajorityReligion, const CvBeliefEntry* pSecondaryPantheon);
+#endif
 
 	bool hasYield() const;
 
 	void updateYield();
+#if defined(MOD_RELIGION_PERMANENT_PANTHEON)
+	void updateYieldFast(CvCity* pOwningCity, const CvReligion* pMajorityReligion, const CvBeliefEntry* pSecondaryPantheon, const CvReligion* pPlayerPantheon = NULL);
+#else
 	void updateYieldFast(CvCity* pOwningCity, const CvReligion* pMajorityReligion, const CvBeliefEntry* pSecondaryPantheon);
+#endif
 
+#if defined(MOD_RELIGION_PERMANENT_PANTHEON)
+	int getYieldWithBuild(BuildTypes eBuild, YieldTypes eYield, bool bWithUpgrade, PlayerTypes ePlayer, const CvCity* pOwningCity, const CvReligion* pMajorityReligion, const CvBeliefEntry* pSecondaryPantheon, const CvReligion* pPlayerPantheon = NULL) const;
+#else
 	int getYieldWithBuild(BuildTypes eBuild, YieldTypes eYield, bool bWithUpgrade, PlayerTypes ePlayer, const CvCity* pOwningCity, const CvReligion* pMajorityReligion, const CvBeliefEntry* pSecondaryPantheon) const;
+#endif
 
 	int countNumAirUnits(TeamTypes eTeam, bool bNoSuicide = false) const;
 
@@ -1002,16 +932,14 @@ protected:
 	char /*PlayerTypes*/  m_eOwner;
 	char /*PlotTypes*/    m_ePlotType;
 	char /*TerrainTypes*/ m_eTerrainType;
+	bool m_bIsCity;
 
 	PlotBoolField m_bfRevealed;
 
 	FFastSmallFixedList<IDInfo, 4, true, c_eCiv5GameplayDLL > m_units;
 
-	IDInfo m_plotCity;
 	IDInfo m_owningCity;
 	IDInfo m_owningCityOverride;
-	IDInfo m_ResourceLinkedCity;
-	IDInfo m_purchaseCity;
 
 	//external memory allocated by CvMap
 	friend class CvMap;
@@ -1029,10 +957,9 @@ protected:
 	bool m_bIsTradeUnitRoute;
 	short m_iLastTurnBuildChanged;
 #endif
-    // memory allocated by the plot object itself
-#if defined(MOD_API_EXTENSIONS)
-    uint8* m_aiArbitraryYields;
-#endif
+
+	//can add extra yield from lua. no overhead if unused!
+	vector<pair<YieldTypes, int>> m_vExtraYields;
 
 	char* m_szScriptData;
 	map<BuildTypes,int> m_buildProgress;
@@ -1076,7 +1003,6 @@ protected:
 	char /*FlowDirectionTypes*/ m_eRiverEFlowDirection; // flow direction on the E edge (isWofRiver)
 	char /*FlowDirectionTypes*/ m_eRiverSEFlowDirection; // flow direction on the SE edge (isNWofRiver)
 	char /*FlowDirectionTypes*/ m_eRiverSWFlowDirection; // flow direction on the SW edge (isNEofRiver)
-	char m_iDummy; //unused
 	char m_iNumMajorCivsRevealed;
 	char m_iCityRadiusCount;
 	char m_iReconCount;
@@ -1100,14 +1026,14 @@ protected:
 	bool m_bPlotLayoutDirty:1;
 	bool m_bLayoutStateWorked:1;
 	bool m_bBarbCampNotConverting:1;
-	bool m_bHighMoveCost:1;
+	bool m_bRoughPlot:1;
 	bool m_bResourceLinkedCityActive:1;
 	bool m_bImprovedByGiftFromMajor:1;
 	bool m_bIsImpassable:1;
 
 	mutable bool m_bIsFreshwater:1;						// Cached value, do not serialize
 	mutable bool m_bIsAdjacentToLand:1;					// Cached value, do not serialize
-	mutable bool m_bIsAdjacentToOcean:1;				// Cached value, do not serialize
+	mutable bool m_bIsAdjacentToWater:1;				// Cached value, do not serialize
 	mutable bool m_bIsLake:1;							// Cached value, do not serialize
 
 	CvArchaeologyData m_kArchaeologyData;

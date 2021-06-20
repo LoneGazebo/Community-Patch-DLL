@@ -275,13 +275,12 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 	Method(ChangeJONSCulturePerTurnFromSpecialists);
 	Method(GetJONSCulturePerTurnFromGreatWorks);
 	Method(GetJONSCulturePerTurnFromTraits);
+	Method(ChangeYieldFromTraits);
 #if defined(MOD_BALANCE_CORE)
 	Method(GetYieldPerTurnFromTraits);
 	Method(GetYieldFromUnitsInCity);
 #endif
-#if defined(MOD_BUGFIX_LUA_API)
 	Method(ChangeJONSCulturePerTurnFromReligion);
-#endif
 	Method(GetJONSCulturePerTurnFromReligion);
 	Method(GetJONSCulturePerTurnFromLeagues);
 
@@ -320,9 +319,7 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 	Method(GetFaithPerTurnFromPolicies);
 	Method(GetFaithPerTurnFromTraits);
 	Method(GetFaithPerTurnFromReligion);
-#if defined(MOD_BUGFIX_LUA_API)
 	Method(ChangeFaithPerTurnFromReligion);
-#endif
 
 	Method(HasConvertedToReligionEver);
 	Method(IsReligionInCity);
@@ -452,6 +449,7 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 	Method(SetDrafted);
 
 	Method(IsBlockaded);
+	Method(IsMined);
 
 	Method(GetWeLoveTheKingDayCounter);
 	Method(SetWeLoveTheKingDayCounter);
@@ -639,7 +637,7 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 	Method(GetBuildingEspionageModifier);
 	Method(GetBuildingGlobalEspionageModifier);
 
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_API_ESPIONAGE)
+#if defined(MOD_API_LUA_EXTENSIONS)
 	Method(HasDiplomat);
 	Method(HasSpy);
 	Method(HasCounterSpy);
@@ -750,6 +748,7 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 	Method(GetCityEventChoiceCooldown);
 	Method(SetCityEventChoiceCooldown);
 	Method(IsCityEventChoiceValid);
+	Method(IsCityEventChoiceValidEspionage);
 #endif
 
 
@@ -921,9 +920,9 @@ int CvLuaCity::lCanWork(lua_State* L)
 //bool IsBlockaded(CvPlot* pPlot);
 int CvLuaCity::lIsPlotBlockaded(lua_State* L)
 {
-	CvCity* pkCity = GetInstance(L);
+	//CvCity* pkCity = GetInstance(L);
 	CvPlot* pkPlot = CvLuaPlot::GetInstance(L, 2);
-	const bool bResult = pkPlot->isBlockaded(pkCity->getOwner());
+	const bool bResult = pkPlot->isBlockaded();
 
 	lua_pushboolean(L, bResult);
 	return 1;
@@ -1238,9 +1237,28 @@ int CvLuaCity::lGetPurchaseUnitTooltip(lua_State* L)
 			// Requires Building
 			if(thisUnitInfo->GetBuildingClassPurchaseRequireds(eBuildingClass))
 			{
-				const BuildingTypes ePrereqBuilding = (BuildingTypes)(thisCivilization.getCivilizationBuildings(eBuildingClass));
+				BuildingTypes ePrereqBuilding = NO_BUILDING;
+#if defined(MOD_BALANCE_CORE)
+				if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || GET_PLAYER(pkCity->getOwner()).GetPlayerTraits()->IsKeepConqueredBuildings())
+#else
+				if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
+#endif
+				{
+					if (pkCity->HasBuildingClass(eBuildingClass))
+					{
+						ePrereqBuilding = pkCity->GetCityBuildings()->GetBuildingTypeFromClass(eBuildingClass);
+					}
+					else
+					{
+						ePrereqBuilding = (BuildingTypes)(thisCivilization.getCivilizationBuildings(eBuildingClass));
+					}
+				}
+				else
+				{
+					ePrereqBuilding = (BuildingTypes)(thisCivilization.getCivilizationBuildings(eBuildingClass));
+				}
 
-				if(pkCity->GetCityBuildings()->GetNumBuilding(ePrereqBuilding) == 0)
+				if(ePrereqBuilding != NO_BUILDING && pkCity->GetCityBuildings()->GetNumBuilding(ePrereqBuilding) == 0)
 				{
 					CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(ePrereqBuilding);
 					if(pkBuildingInfo)
@@ -1529,7 +1547,10 @@ int CvLuaCity::lCanJoin(lua_State* L)
 //bool IsBuildingLocalResourceValid(BuildingTypes eBuilding, bool bCheckForImprovement);
 int CvLuaCity::lIsBuildingLocalResourceValid(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvCity::IsBuildingLocalResourceValid);
+	CvCity* pkCity = GetInstance(L);
+
+	lua_pushboolean(L, pkCity->IsBuildingLocalResourceValid(static_cast<BuildingTypes>(lua_tointeger(L, 2)), lua_toboolean(L, 3)));
+	return 1;
 }
 //------------------------------------------------------------------------------
 //bool GetResourceDemanded();
@@ -1704,12 +1725,7 @@ int CvLuaCity::lGetGeneralProductionTurnsLeft(lua_State* L)
 //bool isFoodProduction();
 int CvLuaCity::lIsFoodProduction(lua_State* L)
 {
-	//return BasicLuaMethod<bool, UnitTypes>(L, &CvCity::isFoodProduction);
-	CvCity* pkCity = GetInstance(L);
-	const int iResult = pkCity->isFoodProduction();
-
-	lua_pushboolean(L, iResult);
-	return 1;
+	return BasicLuaMethod<bool>(L, &CvCity::isFoodProduction);
 }
 //------------------------------------------------------------------------------
 //int getFirstUnitOrder(UnitTypes eUnit);
@@ -1745,7 +1761,13 @@ int CvLuaCity::lGetFirstBuildingOrder(lua_State* L)
 //bool isUnitFoodProduction(UnitTypes iUnit);
 int CvLuaCity::lIsUnitFoodProduction(lua_State* L)
 {
-	return BasicLuaMethod<bool, UnitTypes>(L, &CvCity::isFoodProduction);
+	CvCity* pkCity = GetInstance(L);
+	const UnitTypes eUnitType = (UnitTypes) lua_tointeger(L, 2);
+	PlayerTypes eOwner = pkCity->getOwner();
+
+	const int iResult = isUnitTypeFoodProduction(eOwner,eUnitType);
+	lua_pushboolean(L, iResult);
+	return 1;
 }
 //------------------------------------------------------------------------------
 //int getProduction();
@@ -2497,8 +2519,22 @@ int CvLuaCity::lGetNumBuildingClass(lua_State* L)
 	if(eBuildingClassType != NO_BUILDINGCLASS)
 	{
 		const CvCivilizationInfo& playerCivilizationInfo = GET_PLAYER(pkCity->getOwner()).getCivilizationInfo();
-		BuildingTypes eBuilding = (BuildingTypes)playerCivilizationInfo.getCivilizationBuildings(eBuildingClassType);
-		const int iResult = pkCity->GetCityBuildings()->GetNumBuilding(eBuilding);
+		BuildingTypes eBuilding = NO_BUILDING;
+		int iResult = 0;
+#if defined(MOD_BALANCE_CORE)
+		bool bRome = GET_PLAYER(pkCity->getOwner()).GetPlayerTraits()->IsKeepConqueredBuildings();
+		if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || bRome)
+#else
+		if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
+#endif
+		{
+			iResult = pkCity->GetCityBuildings()->GetNumBuildingClass(eBuildingClassType);
+		}
+		else
+		{
+			eBuilding = (BuildingTypes)playerCivilizationInfo.getCivilizationBuildings(eBuildingClassType);
+			iResult = pkCity->GetCityBuildings()->GetNumBuilding(eBuilding);
+		}
 		lua_pushinteger(L, iResult);
 	}
 	else
@@ -2515,10 +2551,22 @@ int CvLuaCity::lIsHasBuildingClass(lua_State* L)
 	const BuildingClassTypes eBuildingClassType = (BuildingClassTypes)lua_tointeger(L, 2);
 	if(eBuildingClassType != NO_BUILDINGCLASS)
 	{
-		const CvCivilizationInfo& playerCivilizationInfo = GET_PLAYER(pkCity->getOwner()).getCivilizationInfo();
-		BuildingTypes eBuilding = (BuildingTypes)playerCivilizationInfo.getCivilizationBuildings(eBuildingClassType);
-		const bool bResult = pkCity->GetCityBuildings()->GetNumBuilding(eBuilding);
-		lua_pushboolean(L, bResult);
+#if defined(MOD_BALANCE_CORE)
+		if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || GET_PLAYER(pkCity->getOwner()).GetPlayerTraits()->IsKeepConqueredBuildings())
+#else
+		if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
+#endif
+		{
+			const bool bResult = pkCity->HasBuildingClass(eBuildingClassType);
+			lua_pushboolean(L, bResult);
+		}
+		else
+		{
+			const CvCivilizationInfo& playerCivilizationInfo = GET_PLAYER(pkCity->getOwner()).getCivilizationInfo();
+			BuildingTypes eBuilding = (BuildingTypes)playerCivilizationInfo.getCivilizationBuildings(eBuildingClassType);
+			const bool bResult = pkCity->GetCityBuildings()->GetNumBuilding(eBuilding);
+			lua_pushboolean(L, bResult);
+		}
 	}
 	else
 	{
@@ -3058,6 +3106,11 @@ int CvLuaCity::lGetJONSCulturePerTurnFromTraits(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvCity::GetJONSCulturePerTurnFromTraits);
 }
+//void ChangeYieldFromTraits(YieldTypes eIndex, int iChange);
+int CvLuaCity::lChangeYieldFromTraits(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvCity::ChangeYieldFromTraits);
+}
 #if defined(MOD_BALANCE_CORE)
 //------------------------------------------------------------------------------
 //int GetYieldPerTurnFromTraits() const;
@@ -3545,6 +3598,7 @@ int CvLuaCity::lGetReligionBuildingClassYieldChange(lua_State* L)
 	YieldTypes eYieldType = (YieldTypes)lua_tointeger(L, 3);
 
 	ReligionTypes eMajority = pkCity->GetCityReligions()->GetReligiousMajority();
+	BeliefTypes eSecondaryPantheon = NO_BELIEF;
 	if(eMajority != NO_RELIGION)
 	{
 		const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, pkCity->getOwner());
@@ -3556,7 +3610,7 @@ int CvLuaCity::lGetReligionBuildingClassYieldChange(lua_State* L)
 			{
 				iYieldFromBuilding += pReligion->m_Beliefs.GetYieldChangeWorldWonder(eYieldType, pkCity->getOwner(), pkCity);
 			}
-			BeliefTypes eSecondaryPantheon = pkCity->GetCityReligions()->GetSecondaryReligionPantheonBelief();
+			eSecondaryPantheon = pkCity->GetCityReligions()->GetSecondaryReligionPantheonBelief();
 			if (eSecondaryPantheon != NO_BELIEF)
 			{
 				iFollowers =  pkCity->GetCityReligions()->GetNumFollowers(pkCity->GetCityReligions()->GetSecondaryReligion());
@@ -3567,6 +3621,25 @@ int CvLuaCity::lGetReligionBuildingClassYieldChange(lua_State* L)
 			}
 		}
 	}
+#if defined(MOD_RELIGION_PERMANENT_PANTHEON)
+	// Mod for civs keeping their pantheon belief forever
+	if (MOD_RELIGION_PERMANENT_PANTHEON)
+	{
+		if (GC.getGame().GetGameReligions()->HasCreatedPantheon(pkCity->getOwner()))
+		{
+			const CvReligion* pPantheon = GC.getGame().GetGameReligions()->GetReligion(RELIGION_PANTHEON, pkCity->getOwner());
+			BeliefTypes ePantheonBelief = GC.getGame().GetGameReligions()->GetBeliefInPantheon(pkCity->getOwner());
+			if (pPantheon != NULL && ePantheonBelief != NO_BELIEF && ePantheonBelief != eSecondaryPantheon)
+			{
+				const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, pkCity->getOwner());
+				if (pReligion == NULL || (pReligion != NULL && !pReligion->m_Beliefs.IsPantheonBeliefInReligion(ePantheonBelief, eMajority, pkCity->getOwner()))) // check that the our religion does not have our belief, to prevent double counting
+				{
+					iYieldFromBuilding += GC.GetGameBeliefs()->GetEntry(ePantheonBelief)->GetBuildingClassYieldChange(eBuildingClass, eYieldType);
+				}
+			}
+		}
+	}
+#endif
 	lua_pushinteger(L, iYieldFromBuilding);
 	return 1;
 }
@@ -3681,7 +3754,10 @@ int CvLuaCity::lChangeWonderProductionModifier(lua_State* L)
 //int GetLocalResourceWonderProductionMod(BuildingTypes eBuilding);
 int CvLuaCity::lGetLocalResourceWonderProductionMod(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvCity::GetLocalResourceWonderProductionMod);
+	CvCity* pkCity = GetInstance(L);
+
+	lua_pushinteger(L, pkCity->GetLocalResourceWonderProductionMod(static_cast<BuildingTypes>(lua_tointeger(L, 2))));
+	return 1;
 }
 
 #if defined(MOD_API_LUA_EXTENSIONS)
@@ -4361,6 +4437,15 @@ int CvLuaCity::lIsBlockaded(lua_State* L)
 	return BasicLuaMethod(L, &CvCity::IsBlockadedWaterAndLand);
 }
 
+int CvLuaCity::lIsMined(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const bool bResult = pkCity->GetDeepWaterTileDamage() > 0;
+
+	lua_pushboolean(L, bResult);
+	return 1;
+}
+
 //------------------------------------------------------------------------------
 //int GetWeLoveTheKingDayCounter();
 int CvLuaCity::lGetWeLoveTheKingDayCounter(lua_State* L)
@@ -5003,19 +5088,39 @@ int CvLuaCity::lGetSpecialistCityModifier(lua_State* L)
 		if (GET_PLAYER(pkCity->getOwner()).getGoldenAgeTurns() > 0)
 		{
 			ReligionTypes eMajority = pkCity->GetCityReligions()->GetReligiousMajority();
+			BeliefTypes eSecondaryPantheon = NO_BELIEF;
 			if (eMajority != NO_RELIGION)
 			{
 				const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, pkCity->getOwner());
 				if (pReligion)
 				{
 					iResult += pReligion->m_Beliefs.GetGoldenAgeGreatPersonRateModifier(eGreatPerson, pkCity->getOwner(), pkCity);
-					BeliefTypes eSecondaryPantheon = pkCity->GetCityReligions()->GetSecondaryReligionPantheonBelief();
+					eSecondaryPantheon = pkCity->GetCityReligions()->GetSecondaryReligionPantheonBelief();
 					if (eSecondaryPantheon != NO_BELIEF)
 					{
 						iResult += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetGoldenAgeGreatPersonRateModifier(eGreatPerson);
 					}
 				}
 			}
+#if defined(MOD_RELIGION_PERMANENT_PANTHEON)
+			// Mod for civs keeping their pantheon belief forever
+			if (MOD_RELIGION_PERMANENT_PANTHEON)
+			{
+				if (GC.getGame().GetGameReligions()->HasCreatedPantheon(pkCity->getOwner()))
+				{
+					const CvReligion* pPantheon = GC.getGame().GetGameReligions()->GetReligion(RELIGION_PANTHEON, pkCity->getOwner());
+					BeliefTypes ePantheonBelief = GC.getGame().GetGameReligions()->GetBeliefInPantheon(pkCity->getOwner());
+					if (pPantheon != NULL && ePantheonBelief != NO_BELIEF && ePantheonBelief != eSecondaryPantheon)
+					{
+						const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, pkCity->getOwner());
+						if (pReligion == NULL || (pReligion != NULL && !pReligion->m_Beliefs.IsPantheonBeliefInReligion(ePantheonBelief, eMajority, pkCity->getOwner()))) // check that the our religion does not have our belief, to prevent double counting
+						{
+							iResult += GC.GetGameBeliefs()->GetEntry(ePantheonBelief)->GetGoldenAgeGreatPersonRateModifier(eGreatPerson);
+						}
+					}
+				}
+			}
+#endif
 		}
 	}
 
@@ -5178,7 +5283,22 @@ int CvLuaCity::lGetFreePromotionCount(lua_State* L)
 //bool isFreePromotion(PromotionTypes eIndex);
 int CvLuaCity::lIsFreePromotion(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvCity::isFreePromotion);
+	CvCity* pkCity = GetInstance(L);
+	PromotionTypes promo = CvLuaArgs::toValue<PromotionTypes>(L, 2);
+
+	bool bFound = false;
+	vector<PromotionTypes> freePromotions = pkCity->getFreePromotions();
+	for (size_t iI = 0; iI < freePromotions.size(); iI++)
+	{
+		if (freePromotions[iI] == promo)
+		{
+			bFound = true;
+			break;
+		}
+	}
+
+	lua_pushboolean(L, bFound);
+	return 1;
 }
 //------------------------------------------------------------------------------
 //int getSpecialistFreeExperience();
@@ -5606,11 +5726,7 @@ int CvLuaCity::lGetOrderFromQueue(lua_State* L)
 		{
 			lua_pushinteger(L, pkOrder->eOrderType);
 			lua_pushinteger(L, pkOrder->iData1);
-#if defined(MOD_BUGFIX_LUA_API)
 			lua_pushinteger(L, pkOrder->iData2);
-#else
-			lua_pushinteger(L, pkOrder->iData1);
-#endif
 			lua_pushboolean(L, pkOrder->bSave);
 			lua_pushboolean(L, pkOrder->bRush);
 			return 5;
@@ -5823,6 +5939,24 @@ int CvLuaCity::lGetSpecialistYieldChange(lua_State* L)
 	{
 		iRtnValue += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetSpecialistYieldChange(eSpecialist, eYield);
 	}
+#if defined(MOD_RELIGION_PERMANENT_PANTHEON)
+	// Mod for civs keeping their pantheon belief forever
+	if (MOD_RELIGION_PERMANENT_PANTHEON)
+	{
+		if (GC.getGame().GetGameReligions()->HasCreatedPantheon(pkCity->getOwner()))
+		{
+			const CvReligion* pPantheon = GC.getGame().GetGameReligions()->GetReligion(RELIGION_PANTHEON, pkCity->getOwner());
+			BeliefTypes ePantheonBelief = GC.getGame().GetGameReligions()->GetBeliefInPantheon(pkCity->getOwner());
+			if (pPantheon != NULL && ePantheonBelief != NO_BELIEF && ePantheonBelief != eSecondaryPantheon)
+			{
+				if (pReligion == NULL || (pReligion != NULL && !pReligion->m_Beliefs.IsPantheonBeliefInReligion(ePantheonBelief, eReligion, pkCity->getOwner()))) // check that the our religion does not have our belief, to prevent double counting
+				{
+					iRtnValue += GC.GetGameBeliefs()->GetEntry(ePantheonBelief)->GetSpecialistYieldChange(eSpecialist, eYield);
+				}
+			}
+		}
+	}
+#endif
 #if defined(MOD_BALANCE_CORE_EVENTS)
 	iRtnValue += pkCity->GetEventSpecialistYield(eSpecialist, eYield);
 #endif
@@ -5928,7 +6062,7 @@ int CvLuaCity::lGetBuildingGlobalEspionageModifier(lua_State* L)
 	return 1;
 }
 
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_API_ESPIONAGE)
+#if defined(MOD_API_LUA_EXTENSIONS)
 //------------------------------------------------------------------------------
 int CvLuaCity::lHasDiplomat(lua_State* L)
 {
@@ -6074,19 +6208,40 @@ int CvLuaCity::lGetReligionCityRangeStrikeModifier(lua_State* L)
 
 	CvCity* pkCity = GetInstance(L);
 	ReligionTypes eMajority = pkCity->GetCityReligions()->GetReligiousMajority();
+	BeliefTypes eSecondaryPantheon = NO_BELIEF;
 	if(eMajority != NO_RELIGION)
 	{
 		const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, pkCity->getOwner());
 		if(pReligion)
 		{
 			iReligionRangeStrikeMod = pReligion->m_Beliefs.GetCityRangeStrikeModifier(pkCity->getOwner(), pkCity);
-			BeliefTypes eSecondaryPantheon = pkCity->GetCityReligions()->GetSecondaryReligionPantheonBelief();
+			eSecondaryPantheon = pkCity->GetCityReligions()->GetSecondaryReligionPantheonBelief();
 			if (eSecondaryPantheon != NO_BELIEF)
 			{
 				iReligionRangeStrikeMod += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetCityRangeStrikeModifier();
 			}
 		}
 	}
+
+#if defined(MOD_RELIGION_PERMANENT_PANTHEON)
+	// Mod for civs keeping their pantheon belief forever
+	if (MOD_RELIGION_PERMANENT_PANTHEON)
+	{
+		if (GC.getGame().GetGameReligions()->HasCreatedPantheon(pkCity->getOwner()))
+		{
+			const CvReligion* pPantheon = GC.getGame().GetGameReligions()->GetReligion(RELIGION_PANTHEON, pkCity->getOwner());
+			BeliefTypes ePantheonBelief = GC.getGame().GetGameReligions()->GetBeliefInPantheon(pkCity->getOwner());
+			if (pPantheon != NULL && ePantheonBelief != NO_BELIEF && ePantheonBelief != eSecondaryPantheon)
+			{
+				const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, pkCity->getOwner());
+				if (pReligion == NULL || (pReligion != NULL && !pReligion->m_Beliefs.IsPantheonBeliefInReligion(ePantheonBelief, eMajority, pkCity->getOwner()))) // check that the our religion does not have our belief, to prevent double counting
+				{
+					iReligionRangeStrikeMod += GC.GetGameBeliefs()->GetEntry(ePantheonBelief)->GetCityRangeStrikeModifier();
+				}
+			}
+		}
+	}
+#endif
 
 	lua_pushinteger(L, iReligionRangeStrikeMod);
 
@@ -6264,9 +6419,11 @@ int CvLuaCity::lGetDisabledTooltip(lua_State* L)
 	CvString DisabledTT = "";
 	CvCity* pkCity = GetInstance(L);
 	const CityEventChoiceTypes eEventChoice = (CityEventChoiceTypes)lua_tointeger(L, 2);
+	const int iSpyID = luaL_optint(L, 3, -1);
+	const PlayerTypes eSpyOwner = (PlayerTypes)luaL_optint(L, 4, NO_PLAYER);
 	if(eEventChoice != NO_EVENT_CHOICE_CITY)
 	{
-		DisabledTT = pkCity->GetDisabledTooltip(eEventChoice);
+		DisabledTT = pkCity->GetDisabledTooltip(eEventChoice, iSpyID, eSpyOwner);
 	}
 
 	lua_pushstring(L, DisabledTT.c_str());
@@ -6278,9 +6435,11 @@ int CvLuaCity::lGetScaledEventChoiceValue(lua_State* L)
 	CvCity* pkCity = GetInstance(L);
 	const CityEventChoiceTypes eEventChoice = (CityEventChoiceTypes)lua_tointeger(L, 2);
 	const bool bYieldsOnly = lua_toboolean(L, 3);
+	const int iSpyID = luaL_optint(L, 4, -1);
+	const PlayerTypes eSpyOwner = (PlayerTypes)luaL_optint(L, 5, NO_PLAYER);
 	if(eEventChoice != NO_EVENT_CHOICE_CITY)
 	{
-		CoreYieldTip = pkCity->GetScaledHelpText(eEventChoice, bYieldsOnly);
+		CoreYieldTip = pkCity->GetScaledHelpText(eEventChoice, bYieldsOnly, iSpyID, eSpyOwner);
 	}
 
 	lua_pushstring(L, CoreYieldTip.c_str());
@@ -6346,7 +6505,9 @@ int CvLuaCity::lDoCityEventChoice(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
 	const CityEventChoiceTypes eEventChoice = (CityEventChoiceTypes)lua_tointeger(L, 2);
-	pkCity->DoEventChoice(eEventChoice);
+	const int iSpyID = luaL_optint(L, 3, -1);
+	const PlayerTypes eSpyOwner = (PlayerTypes)luaL_optint(L, 4, -1);
+	pkCity->DoEventChoice(eEventChoice, NO_EVENT_CITY, true, iSpyID, eSpyOwner);
 	return 1;
 }
 int CvLuaCity::lDoCityStartEvent(lua_State* L)
@@ -6418,7 +6579,19 @@ int CvLuaCity::lIsCityEventChoiceValid(lua_State* L)
 
 	return 1;
 }
+int CvLuaCity::lIsCityEventChoiceValidEspionage(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const CityEventChoiceTypes eEventChoice = (CityEventChoiceTypes)lua_tointeger(L, 2);
+	const CityEventTypes eEvent = (CityEventTypes)lua_tointeger(L, 3);
+	const int uiSpyIndex = lua_tointeger(L, 4);
+	const PlayerTypes eSpyOwner = (PlayerTypes)lua_tointeger(L, 5);
+	const bool bValue = pkCity->IsCityEventChoiceValidEspionage(eEventChoice, eEvent, uiSpyIndex, eSpyOwner);
 
+	lua_pushboolean(L, bValue);
+
+	return 1;
+}
 #endif
 
 #if defined(MOD_BALANCE_CORE_JFD)

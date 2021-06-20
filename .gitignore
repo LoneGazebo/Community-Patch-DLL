@@ -19,6 +19,7 @@
 !*.civ5mod
 !*.civ5proj
 !*.civ5sln
+!*.natvis
 !*.dll
 !*.sln
 !*.iss
@@ -26,6 +27,7 @@
 !*.txt
 !*.rtf
 !*.ico
+!*.modinfo
 
 !*.py
 !*.inl

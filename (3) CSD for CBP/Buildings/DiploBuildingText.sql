@@ -1,6 +1,6 @@
 INSERT INTO Language_en_US (
   Tag, Text)
-SELECT 'TXT_KEY_BUILDING_COURT_SCRIBE_HELP', '+1 [ICON_RES_PAPER] Paper. +10% [ICON_PRODUCTION] Production of Diplomatic Units in this City.[NEWLINE][NEWLINE]+1 [ICON_FOOD] Food in City for every City-State Friend, and +2 [ICON_PEACE] Faith for every Ally.';
+SELECT 'TXT_KEY_BUILDING_COURT_SCRIBE_HELP', '+1 [ICON_RES_PAPER] Paper. +10% [ICON_PRODUCTION] Production of Diplomatic Units in this City.[NEWLINE][NEWLINE]+1 [ICON_FOOD] Food in City for every City-State Friend, and +1 [ICON_PEACE] Faith for every Ally.';
 
 INSERT INTO Language_en_US (
   Tag, Text)

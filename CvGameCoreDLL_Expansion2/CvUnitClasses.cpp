@@ -97,9 +97,7 @@ CvUnitEntry::CvUnitEntry(void) :
 #if defined(MOD_UNITS_NO_SUPPLY)
 	m_bNoSupply(false),
 #endif
-#if defined(MOD_UNITS_MAX_HP)
 	m_iMaxHitPoints(100),
-#endif
 	m_iXPValueAttack(0),
 	m_iXPValueDefense(0),
 	m_iSpecialCargo(0),
@@ -155,6 +153,7 @@ CvUnitEntry::CvUnitEntry(void) :
 	m_iFreePolicies(0),
 	m_iOneShotTourism(0),
 	m_iOneShotTourismPercentOthers(0),
+	m_iTourismBonusTurns(0),
 	m_bIgnoreBuildingDefense(false),
 	m_bPrereqResources(false),
 	m_bMechanized(false),
@@ -183,6 +182,7 @@ CvUnitEntry::CvUnitEntry(void) :
 	m_iGlobalFaithCooldown(0),
 	m_iLocalFaithCooldown(0),
 	m_iFriendlyLandsPromotion(NO_PROMOTION),
+	m_iCostScalerNumBuilt(0),
 #endif
 	m_piPrereqAndTechs(NULL),
 	m_piResourceQuantityRequirements(NULL),
@@ -334,13 +334,7 @@ bool CvUnitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 #if defined(MOD_UNITS_NO_SUPPLY)
 	m_bNoSupply = (kResults.GetInt("NoSupply") != 0);
 #endif
-#if defined(MOD_UNITS_MAX_HP)
-	if (MOD_UNITS_MAX_HP) {
-		m_iMaxHitPoints = kResults.GetInt("MaxHitPoints");
-	} else {
-		m_iMaxHitPoints = GC.getMAX_HIT_POINTS();
-	}
-#endif
+	m_iMaxHitPoints = kResults.GetInt("MaxHitPoints");
 	m_iXPValueAttack = kResults.GetInt("XPValueAttack");
 	m_iXPValueDefense = kResults.GetInt("XPValueDefense");
 	m_iConscriptionValue = kResults.GetInt("Conscription");
@@ -373,6 +367,7 @@ bool CvUnitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 	m_iFreePolicies = kResults.GetInt("FreePolicies");
 	m_iOneShotTourism = kResults.GetInt("OneShotTourism");
 	m_iOneShotTourismPercentOthers = kResults.GetInt("OneShotTourismPercentOthers");
+	m_iTourismBonusTurns = kResults.GetInt("TourismBonusTurns");
 	m_bIgnoreBuildingDefense = kResults.GetBool("IgnoreBuildingDefense");
 	m_bPrereqResources = kResults.GetBool("PrereqResources");
 	m_bMechanized = kResults.GetBool("Mechanized");
@@ -422,6 +417,9 @@ bool CvUnitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 	m_iSpecialUnitCargoLoad = GC.getInfoTypeForString(szTextVal, true);
 #endif
 #if defined(MOD_BALANCE_CORE)
+	
+	m_iCostScalerNumBuilt = kResults.GetInt("CostScalerNumRepeats");
+
 	szTextVal = kResults.GetText("ResourceType");
 	m_iResourceType = GC.getInfoTypeForString(szTextVal, true);
 
@@ -1069,13 +1067,11 @@ bool CvUnitEntry::IsNoSupply() const
 }
 #endif
 
-#if defined(MOD_UNITS_MAX_HP)
 /// Maximum hit points, usually 100
 int CvUnitEntry::GetMaxHitPoints() const
 {
 	return m_iMaxHitPoints;
 }
-#endif
 
 /// Experience point value when attacking
 int CvUnitEntry::GetXPValueAttack() const
@@ -1215,6 +1211,11 @@ int CvUnitEntry::GetEra() const
 	}
 
 	return -1;
+}
+
+int CvUnitEntry::GetCostScalerNumberBuilt() const
+{
+	return m_iCostScalerNumBuilt;
 }
 #endif
 
@@ -1378,6 +1379,12 @@ int CvUnitEntry::GetOneShotTourism() const
 int CvUnitEntry::GetOneShotTourismPercentOthers() const
 {
 	return m_iOneShotTourismPercentOthers;
+}
+
+/// Trickle over to civs other than primary target from one-shot tourism blast
+int CvUnitEntry::GetTourismBonusTurns() const
+{
+	return m_iTourismBonusTurns;
 }
 
 /// Not affected by walls?
@@ -1887,28 +1894,6 @@ void CvUnitEntry::DoUpdatePower()
 	// Ranged Strength
 	int iRangedStrength = int(pow((double) GetRangedCombat(), 1.45));
 
-	// Naval ranged attacks are less useful
-	if(GetDomainType() == DOMAIN_SEA)
-	{
-#if defined(MOD_BUGFIX_UNIT_POWER_CALC)
-		if (!MOD_BUGFIX_UNIT_POWER_CALC)
-		{
-#if defined(MOD_BUGFIX_UNIT_POWER_NAVAL_CONSISTENCY)
-			if (!MOD_BUGFIX_UNIT_POWER_NAVAL_CONSISTENCY)
-			{
-				// We can either ignore this or divide naval melee attacks by two, but if we leave this alone Destroyers are more than twice as powerful as Battleships!!!
-#endif
-#endif
-				iRangedStrength *= 3;
-				iRangedStrength /= 4;
-#if defined(MOD_BUGFIX_UNIT_POWER_CALC)
-#if defined(MOD_BUGFIX_UNIT_POWER_NAVAL_CONSISTENCY)
-			}
-#endif
-		}
-#endif
-	}
-
 	if(iRangedStrength > iPower)
 	{
 		iPower = iRangedStrength;
@@ -1916,12 +1901,12 @@ void CvUnitEntry::DoUpdatePower()
 
 	// We want Movement rate to be important, but not a dominating factor; a Unit with double the moves of a similarly-strengthed Unit should be ~1.5x as Powerful
 	iPower = int((float) iPower * pow(min(1.0,(double) GetMoves()), 0.3));
-#if defined(MOD_BUGFIX_UNIT_POWER_CALC)
-	if (IsImmobile()) {
+
+	if (IsImmobile()) 
+	{
 		// A unit that can't move should be worth half of one that can
 		iPower /= 2;
 	}
-#endif
 
 // ***************
 // Other modifiers
@@ -1945,19 +1930,16 @@ void CvUnitEntry::DoUpdatePower()
 
 	int iTemp;
 	int iLoop;
+	int iBasePower = iPower;
+	int iBonusPower = 0;
 
-#if defined(MOD_BUGFIX_UNIT_POWER_CALC)
-	if (MOD_BUGFIX_UNIT_POWER_CALC) {
-		int iBasePower = iPower;
-		int iBonusPower = 0;
-
-	for(int iPromotionLoop = 0; iPromotionLoop < GC.getNumPromotionInfos(); iPromotionLoop++)
+	for (int iPromotionLoop = 0; iPromotionLoop < GC.getNumPromotionInfos(); iPromotionLoop++)
 	{
 		CvPromotionEntry* kPromotion = GC.getPromotionInfo((PromotionTypes)iPromotionLoop);
-		if(kPromotion == NULL)
+		if (kPromotion == NULL)
 			continue;
 
-		if(GetFreePromotions(iPromotionLoop))
+		if (GetFreePromotions(iPromotionLoop))
 		{
 			// City Attack - add half of the bonus
 			if(kPromotion->GetCityAttackPercent() > 0)
@@ -2051,56 +2033,18 @@ void CvUnitEntry::DoUpdatePower()
 				}
 			}
 
-#if defined(MOD_BUGFIX_UNITCOMBAT_BONUS_VS_DOMAIN_ONLY)
-			if (MOD_BUGFIX_UNITCOMBAT_BONUS_VS_DOMAIN_ONLY) {
-				// Only add UNITCOMBAT bonuses against the same domain, so we need to know the domain of combat classes
-				//   DOMAIN_SEA is UNITCOMBAT_NAVALRANGED and UNITCOMBAT_NAVALMELEE
-				//   DOMAIN_AIR is UNITCOMBAT_HELICOPTER, UNITCOMBAT_FIGHTER and UNITCOMBAT_BOMBER
-				//   DOMAIN_LAND is everything else
-				int iMyDomain = GetDomainType();
-				for(iLoop = 0; iLoop < GC.getNumUnitCombatClassInfos(); iLoop++)
+			for (iLoop = 0; iLoop < GC.getNumUnitCombatClassInfos(); iLoop++)
+			{
+				// Unit Combat Class (e.g. Pikemen) - add one quarter of the bonus
+				if(kPromotion->GetUnitCombatModifierPercent(iLoop) > 0)
 				{
-					int iTheirDomain = NO_DOMAIN;
-					CvBaseInfo* pkUnitCombatInfo = GC.getUnitCombatClassInfo((UnitCombatTypes)iLoop);
-					if (pkUnitCombatInfo) {
-						int iTheirUnitCombat = pkUnitCombatInfo->GetID();
-					
-						if (iTheirUnitCombat == GC.getInfoTypeForString("UNITCOMBAT_NAVALRANGED", true) || iTheirUnitCombat == GC.getInfoTypeForString("UNITCOMBAT_NAVALMELEE", true)) {
-							iTheirDomain = DOMAIN_SEA;
-						} else if (iTheirUnitCombat == GC.getInfoTypeForString("UNITCOMBAT_HELICOPTER", true) || iTheirUnitCombat == GC.getInfoTypeForString("UNITCOMBAT_FIGHTER", true) || iTheirUnitCombat == GC.getInfoTypeForString("UNITCOMBAT_BOMBER", true)) {
-							iTheirDomain = DOMAIN_AIR;
-						} else {
-							iTheirDomain = DOMAIN_LAND;
-						}
-					}
-
-					if (iMyDomain == iTheirDomain) {
-						// Unit Combat Class (e.g. Pikemen) - add one quarter of the bonus
-						if(kPromotion->GetUnitCombatModifierPercent(iLoop) > 0)
-						{
-							iTemp = (iBasePower * kPromotion->GetUnitCombatModifierPercent(iLoop) / 4);
-							iTemp /= 100;
-							iBonusPower += iTemp;
-						}
-					}
+					iTemp = (iBasePower * kPromotion->GetUnitCombatModifierPercent(iLoop) / 4);
+					iTemp /= 100;
+					iBonusPower += iTemp;
 				}
-			} else {
-#endif
-				for(iLoop = 0; iLoop < GC.getNumUnitCombatClassInfos(); iLoop++)
-				{
-					// Unit Combat Class (e.g. Pikemen) - add one quarter of the bonus
-					if(kPromotion->GetUnitCombatModifierPercent(iLoop) > 0)
-					{
-						iTemp = (iBasePower * kPromotion->GetUnitCombatModifierPercent(iLoop) / 4);
-						iTemp /= 100;
-						iBonusPower += iTemp;
-					}
-				}
-#if defined(MOD_BUGFIX_UNITCOMBAT_BONUS_VS_DOMAIN_ONLY)
 			}
-#endif
 
-			for(iLoop = 0; iLoop < GC.getNumUnitClassInfos(); iLoop++)
+			for (iLoop = 0; iLoop < GC.getNumUnitClassInfos(); iLoop++)
 			{
 				// Unit Class (e.g. bonus ONLY against Galleys) - add one eighth of the bonus
 				// We're assuming here that the bonus against the other Unit is at least going to be somewhat useful - trust the XML! :o
@@ -2141,164 +2085,7 @@ void CvUnitEntry::DoUpdatePower()
 
 	iPower = iBasePower + iBonusPower;
 
-	} else {
-#endif
-
-	for(int iPromotionLoop = 0; iPromotionLoop < GC.getNumPromotionInfos(); iPromotionLoop++)
-	{
-		CvPromotionEntry* kPromotion = GC.getPromotionInfo((PromotionTypes)iPromotionLoop);
-		if(kPromotion == NULL)
-			continue;
-
-		if(GetFreePromotions(iPromotionLoop))
-		{
-			// City Attack - add half of the bonus
-			if(kPromotion->GetCityAttackPercent() > 0)
-			{
-				iTemp = (iPower * kPromotion->GetCityAttackPercent() / 2);
-				iTemp /= 100;
-				iPower += iTemp;
-			}
-
-			// Attack - add half of the bonus
-			if(kPromotion->GetAttackMod() > 0)
-			{
-				iTemp = (iPower * kPromotion->GetAttackMod() / 2);
-				iTemp /= 100;
-				iPower += iTemp;
-			}
-
-			// Defense - add half of the bonus
-			if(kPromotion->GetDefenseMod() > 0)
-			{
-				iTemp = (iPower * kPromotion->GetDefenseMod() / 2);
-				iTemp /= 100;
-				iPower += iTemp;
-			}
-
-			// Paradrop - add 25%
-			if(kPromotion->GetDropRange() > 0)
-			{
-				iTemp = iPower;
-				iTemp /= 4;
-				iPower += iTemp;
-			}
-
-			// Blitz - add 20%
-			if(kPromotion->IsBlitz())
-			{
-				iTemp = iPower;
-				iTemp /= 5;
-				iPower += iTemp;
-			}
-
-			// Set Up For Ranged Attack - reduce by 20%
-			if(kPromotion->IsMustSetUpToRangedAttack())
-			{
-				iTemp = iPower;
-				iTemp /= 5;
-				iPower -= iTemp;
-			}
-
-			// Only Defensive - reduce  by 25%, but only if the Unit has no ranged capability
-			if(kPromotion->IsOnlyDefensive() && GetRangedCombat() == 0)
-			{
-				iTemp = iPower;
-				iTemp /= 4;
-				iPower -= iTemp;
-			}
-
-			for(iLoop = 0; iLoop < GC.getNumTerrainInfos(); iLoop++)
-			{
-				// Terrain Attack - add one quarter of the bonus
-				if(kPromotion->GetTerrainAttackPercent(iLoop) > 0)
-				{
-					iTemp = (iPower * kPromotion->GetTerrainAttackPercent(iLoop) / 4);
-					iTemp /= 100;
-					iPower += iTemp;
-				}
-				// Terrain Defense - add one quarter of the bonus
-				if(kPromotion->GetTerrainDefensePercent(iLoop) > 0)
-				{
-					iTemp = (iPower * kPromotion->GetTerrainDefensePercent(iLoop) / 4);
-					iTemp /= 100;
-					iPower += iTemp;
-				}
-			}
-
-			for(iLoop = 0; iLoop < GC.getNumFeatureInfos(); iLoop++)
-			{
-				// Feature Attack - add one quarter of the bonus
-				if(kPromotion->GetFeatureAttackPercent(iLoop) > 0)
-				{
-					iTemp = (iPower * kPromotion->GetFeatureAttackPercent(iLoop) / 4);
-					iTemp /= 100;
-					iPower += iTemp;
-				}
-				// Feature Defense - add one quarter of the bonus
-				if(kPromotion->GetFeatureDefensePercent(iLoop) > 0)
-				{
-					iTemp = (iPower * kPromotion->GetFeatureDefensePercent(iLoop) / 4);
-					iTemp /= 100;
-					iPower += iTemp;
-				}
-			}
-
-			for(iLoop = 0; iLoop < GC.getNumUnitCombatClassInfos(); iLoop++)
-			{
-				// Unit Combat Class (e.g. Pikemen) - add one quarter of the bonus
-				if(kPromotion->GetUnitCombatModifierPercent(iLoop) > 0)
-				{
-					iTemp = (iPower * kPromotion->GetUnitCombatModifierPercent(iLoop) / 4);
-					iTemp /= 100;
-					iPower += iTemp;
-				}
-			}
-
-			for(iLoop = 0; iLoop < GC.getNumUnitClassInfos(); iLoop++)
-			{
-				// Unit Class (e.g. bonus ONLY against Galleys) - add one eighth of the bonus
-				// We're assuming here that the bonus against the other Unit is at least going to be somewhat useful - trust the XML! :o
-				if(kPromotion->GetUnitClassModifierPercent(iLoop) > 0)
-				{
-					iTemp = (iPower * kPromotion->GetUnitClassModifierPercent(iLoop) / 8);
-					iTemp /= 100;
-					iPower += iTemp;
-				}
-				// Unit Class Attack - one tenth of the bonus
-				if(kPromotion->GetUnitClassAttackModifier(iLoop) > 0)
-				{
-					iTemp = (iPower * kPromotion->GetUnitClassAttackModifier(iLoop) / 10);
-					iTemp /= 100;
-					iPower += iTemp;
-				}
-				// Unit Class Defense - one tenth of the bonus
-				if(kPromotion->GetUnitClassDefenseModifier(iLoop) > 0)
-				{
-					iTemp = (iPower * kPromotion->GetUnitClassDefenseModifier(iLoop) / 10);
-					iTemp /= 100;
-					iPower += iTemp;
-				}
-			}
-
-			for(iLoop = 0; iLoop < NUM_DOMAIN_TYPES; iLoop++)
-			{
-				// Domain - add one quarter of the bonus
-				if(kPromotion->GetDomainModifierPercent(iLoop) > 0)
-				{
-					iTemp = (iPower * kPromotion->GetDomainModifierPercent(iLoop) / 4);
-					iTemp /= 100;
-					iPower += iTemp;
-				}
-			}
-		}
-	}
-
-#if defined(MOD_BUGFIX_UNIT_POWER_CALC)
-	}
-
 	// CUSTOMLOG("UnitClass::Power\t%s\t%i", GetDescription(), iPower);
-#endif
 
 	// Debug output
 	//char temp[256];

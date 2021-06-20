@@ -59,6 +59,9 @@
 		<Row Tag="TXT_KEY_TP_BONUS">
 			<Text>Instant Event</Text>
 		</Row>
+		<Row Tag="TXT_KEY_TP_ESPIONAGE_EVENT">
+			<Text>[ICON_SPY] [COLOR_NEGATIVE_TEXT]ESPIONAGE ACTION[ENDCOLOR] Against City</Text>
+		</Row>
 		<Row Tag="TXT_KEY_EVENT_CHOICE_SORT_NAME">
 			<Text>Sort by Event Name</Text>
 		</Row>
@@ -99,6 +102,42 @@
 		<Row Tag="TXT_KEY_NOTIFICATION_EVENT_FAILED_CITY_T">
 			<Text>{2_City}: '{1_Event}' did not occur.</Text>
 		</Row>
+		<!-- Espionage Version FAILURE -->
+		<Row Tag="TXT_KEY_NOTIFICATION_EVENT_FAILED_CITY_ESPIONAGE">
+			<Text>{TXT_KEY_GRAMMAR_A_AN &lt;&lt; {5_CivAdj}} spies [COLOR_POSITIVE_TEXT]failed[ENDCOLOR] a Spy Action in {4_City}: '{3_Event}'.[NEWLINE][NEWLINE]{1_EventChoice} ({2_EventChoiceHelp})</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_EVENT_FAILED_CITY_T_ESPIONAGE">
+			<Text>{TXT_KEY_GRAMMAR_A_AN &lt;&lt; {2_CivAdj}} Operatives Thwarted in {1_City}!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_EVENT_FAILED_CITY_ESPIONAGE_UNKNOWN">
+			<Text>Unknown foreign operatives [COLOR_POSITIVE_TEXT]failed[ENDCOLOR] a Spy Action in {4_City}: '{3_Event}'.[NEWLINE][NEWLINE]{1_EventChoice} ({2_EventChoiceHelp})</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_EVENT_FAILED_CITY_T_ESPIONAGE_UNKNOWN">
+			<Text>Unknown Foreign Operatives Thwarted in {1_City}!</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_NOTIFICATION_EVENT_FAILED_CITY_ESPIONAGE_US">
+			<Text>Our attempted Spy Action in {4_City} failed. '{3_Event}': [NEWLINE][NEWLINE]{1_EventChoice} ({2_EventChoiceHelp})</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_EVENT_FAILED_CITY_T_ESPIONAGE_US">
+			<Text>Our Operatives Thwarted in {1_City}!</Text>
+		</Row>
+		
+		<!-- Espionage Success -->
+		<Row Tag="TXT_KEY_NOTIFICATION_EVENT_SUCCEEDED_ESPIONAGE">
+			<Text>{TXT_KEY_GRAMMAR_A_AN &lt;&lt; {5_CivAdj}} spies [COLOR_NEGATIVE_TEXT]completed[ENDCOLOR] a Spy Action in {4_City}: '{3_Event}'.[NEWLINE][NEWLINE]{1_EventChoice} ({2_EventChoiceHelp})</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_EVENT_SUCCEEDED_ESPIONAGE_T_ESPIONAGE">
+			<Text>{TXT_KEY_GRAMMAR_A_AN &lt;&lt; {2_CivAdj}} Operatives Succeed in {1_City}!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_EVENT_SUCCEEDED_ESPIONAGE_UNKNOWN">
+			<Text>Unknown foreign operatives [COLOR_NEGATIVE_TEXT]completed[ENDCOLOR] a Spy Action in {4_City}: '{3_Event}'.[NEWLINE][NEWLINE]{1_EventChoice} ({2_EventChoiceHelp})</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_EVENT_SUCCEEDED_T_ESPIONAGE_UNKNOWN">
+			<Text>Unknown Foreign Operatives Succeed in {1_City}!</Text>
+		</Row>
+		
+
 		<Row Tag="TXT_KEY_CITY_EVENT_TITLE">
 			<Text>Event in {1_City}: {2_Event}</Text>
 		</Row>
@@ -107,6 +146,9 @@
 		</Row>
 		<Row Tag="TXT_KEY_MISC_IMPROVEMENT_DESTROYED_EVENT">
 			<Text>{2_Num} {1_Improvement}(s) pillaged near {3_City} due to Event Choice!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MISC_STRATEGIC_RESOURCE_PILLAGED_EVENT">
+			<Text>{2_Num} source(s) of {1_Resource} pillaged near {3_City} due to Event Choice!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_MISC_BUILDING_DESTROYED_EVENT">
 			<Text>[COLOR_NEGATIVE_TEXT]{1_Building}[ENDCOLOR] destroyed in {2_City} due to Event Choice!</Text>

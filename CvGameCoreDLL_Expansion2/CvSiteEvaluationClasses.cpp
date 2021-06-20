@@ -193,13 +193,6 @@ void CvSiteEvaluatorForSettler::ComputeFlavorMultipliers(const CvPlayer* pPlayer
 	// Find out if player has a desired next city specialization
 	CvCitySpecializationXMLEntry* pkCitySpecializationEntry = NULL;
 
-	//disable this, it leads to strange results
-	/*
-	CitySpecializationTypes eNextSpecialization = pPlayer->GetCitySpecializationAI()->GetNextSpecializationDesired();
-	if(eNextSpecialization != NO_CITY_SPECIALIZATION)
-		pkCitySpecializationEntry = GC.getCitySpecializationInfo(eNextSpecialization);
-	*/
-
 	for(int iFlavorLoop = 0; iFlavorLoop < GC.getNumFlavorTypes(); iFlavorLoop++)
 	{
 		const FlavorTypes eFlavor = static_cast<FlavorTypes>(iFlavorLoop);
@@ -297,7 +290,7 @@ int CvSiteEvaluatorForSettler::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPl
 		int iNumAreaCities = pArea->getCitiesPerPlayer(pPlayer->GetID());
 		if(bCoastOnly && !bIsCoastal && iNumAreaCities == 0)
 		{
-			return 0;
+			return -1;
 		}
 	}
 
@@ -362,7 +355,13 @@ int CvSiteEvaluatorForSettler::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPl
 		//do not check fog of war!
 		CvPlot* pLoopPlot = iterateRingPlots(pPlot, iI);
 		if (!pLoopPlot)
-			continue;
+		{
+			//AI never settle at the edge of the map
+			if (iI < RING1_PLOTS)
+				return -1;
+			else
+				continue;
+		}
 
 		//ignore some plots (typically enemy or close to enemy)
 		if (plotDistance(*pLoopPlot,*pPlot)>1) //but only if we can't instantly claim them
@@ -542,9 +541,9 @@ int CvSiteEvaluatorForSettler::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPl
 	//hard cutoffs
 	if (iTotalPlotValue < 0)
 		return 0;
-	if (nFoodPlots < 4)
+	if (nFoodPlots < 5)
 		return 0;
-	if (nHammerPlots < 3)
+	if (nHammerPlots < 4)
 		return 0;
 	if (iResourceLuxuryCount < 2 && iResourceStrategicCount < 2 && iResourceBonusCount < 2 && nGoodPlots < 2)
 		return 0;
@@ -680,7 +679,7 @@ int CvSiteEvaluatorForSettler::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPl
 		if (pDebug) vQualifiersNegative.push_back("(V) almost coast");
 	}
 
-	if (pPlot->isCoastalLand())
+	if (pPlot->isCoastalLand(GC.getMIN_WATER_SIZE_FOR_OCEAN()))
 	{
 		if (nWaterPlots <= 3)
 		{
@@ -704,13 +703,12 @@ int CvSiteEvaluatorForSettler::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPl
 	{
 		iStratModifier += (iTotalPlotValue * /*100*/ GC.getBALANCE_CHOKEPOINT_STRATEGIC_VALUE()) / 100;
 		if (pDebug) vQualifiersPositive.push_back("(S) chokepoint");
-
-		//each landbride is a chokepoint, but not every chokepoint is a landbridge
-		if(pPlot->IsLandbridge(12,54))
-		{
-			iStratModifier += (iTotalPlotValue * /*100*/ GC.getBALANCE_CHOKEPOINT_STRATEGIC_VALUE()) / 100;
-			if (pDebug) vQualifiersPositive.push_back("(S) landbridge");
-		}
+	}
+	//Can we create a canal here?
+	if(pPlot->IsWaterAreaSeparator())
+	{
+		iStratModifier += (iTotalPlotValue * /*100*/ GC.getBALANCE_CHOKEPOINT_STRATEGIC_VALUE()) / 100;
+		if (pDebug) vQualifiersPositive.push_back("(S) landbridge");
 	}
 
 	// AI only (and not for initial city)
@@ -1016,11 +1014,8 @@ int CvCitySiteEvaluator::ComputeTradeableResourceValue(CvPlot* pPlot, const CvPl
 {
 	int rtnValue = 0;
 
-	CvAssert(pPlot);
-	if(!pPlot) return rtnValue;
-
 	// If we already own this Tile then we already have access to the Strategic Resource
-	if(pPlot->isOwned())
+	if(!pPlot || pPlot->isOwned())
 	{
 		return rtnValue;
 	}
@@ -1042,11 +1037,9 @@ int CvCitySiteEvaluator::ComputeTradeableResourceValue(CvPlot* pPlot, const CvPl
 		{
 			rtnValue += pPlot->getNumResource() * m_iFlavorMultiplier[SITE_EVALUATION_RESOURCES];
 
-#if defined(MOD_BALANCE_CORE)
 			//Since there aren't 'multiple' luxuries on a tile, increase this value.
 			if(eResourceUsage == RESOURCEUSAGE_LUXURY)
 				rtnValue *= 3;
-#endif
 
 			if(pPlayer)
 			{
@@ -1054,11 +1047,6 @@ int CvCitySiteEvaluator::ComputeTradeableResourceValue(CvPlot* pPlot, const CvPl
 				if(pPlayer->getNumResourceTotal(eResource) == 0)
 					rtnValue *= 3;
 
-#if defined(MOD_BALANCE_CORE)
-				//If luxury and we already do, increase a little for trade
-				else if(eResourceUsage == RESOURCEUSAGE_LUXURY && pPlayer->getNumResourceTotal(eResource) > 0)
-					rtnValue *= 2;
-#endif
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 				if(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES && (GC.getMap().getNumResources(eResource) > 0))
 				{

@@ -10,11 +10,6 @@
 #ifndef CIV5_POLICYAI_H
 #define CIV5_POLICYAI_H
 
-// Allocate array for 50% more policies than we have now (22)
-//   May want to tune this number closer to shipping, though safe enough
-//   given that each entry is only 8 bytes
-#define SAFE_ESTIMATE_NUM_POLICIES 64
-
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //  CLASS:      CvPolicyAI
 //!  \brief		Handles policy AI decisions for one player
@@ -67,10 +62,10 @@ private:
 
 	// Private data
 	CvPlayerPolicies* m_pCurrentPolicies;
-	CvWeightedVector<int, SAFE_ESTIMATE_NUM_POLICIES, true> m_PolicyAIWeights;
+	CvWeightedVector<int> m_PolicyAIWeights;
 
 	// First NUM_POLICY_BRANCH_TYPE entries are branches; policies start after that
-	CvWeightedVector<int, SAFE_ESTIMATE_NUM_POLICIES, true> m_AdoptablePolicies;
+	CvWeightedVector<int> m_AdoptablePolicies;
 
 	// Locally cached GlobalAIDefines
 	int m_iPolicyWeightPropagationLevels;

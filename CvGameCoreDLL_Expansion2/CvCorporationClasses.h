@@ -137,7 +137,7 @@ FDataStream& operator<<(FDataStream&, const CorporationTypes&);
 
 class CvPlayerCorporations;
 
-typedef FStaticVector<CvCorporation, 16, false, c_eCiv5GameplayDLL > CorporationList;
+typedef vector<CvCorporation> CorporationList;
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //  CLASS:		CvGameCorporations
@@ -235,7 +235,7 @@ public:
 
 	void ClearCorporationFromCity(CvCity* pCity, CorporationTypes eCorporation, bool bAllButThis = false);
 
-	void ClearCorporationFromForeignCities(bool bMinorsOnly = false, bool bFromEmbargo = false);
+	void ClearCorporationFromForeignCities(bool bMinorsOnly = false, bool bExcludeVassals = false, bool bExcludeMasters = false);
 
 	bool CanCreateFranchiseInCity(CvCity* pOriginCity, CvCity* pTargetCity);
 

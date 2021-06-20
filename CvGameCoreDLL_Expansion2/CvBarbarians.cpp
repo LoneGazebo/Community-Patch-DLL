@@ -62,13 +62,15 @@ bool CvBarbarians::IsPlotValidForBarbCamp(CvPlot* pPlot)
 
 //	--------------------------------------------------------------------------------
 /// Camp cleared, so reset counter
-void CvBarbarians::DoBarbCampCleared(CvPlot* pPlot, PlayerTypes ePlayer)
+void CvBarbarians::DoBarbCampCleared(CvPlot* pPlot, PlayerTypes ePlayer, CvUnit* pUnit)
 {
+	if (!pPlot)
+		return;
+
 	m_aiPlotBarbCampSpawnCounter[pPlot->GetPlotIndex()] = -16;
 
 	pPlot->AddArchaeologicalRecord(CvTypes::getARTIFACT_BARBARIAN_CAMP(), ePlayer, NO_PLAYER);
 
-#if defined(MOD_BALANCE_CORE)
 	if (ePlayer != NO_PLAYER)
 	{
 		CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
@@ -76,38 +78,108 @@ void CvBarbarians::DoBarbCampCleared(CvPlot* pPlot, PlayerTypes ePlayer)
 		// find closest city belonging to the player who cleared the camp
 
 		int iBestCityID = -1;
-
 		int iBestCityDistance = -1;
-
-		int iDistance;
 
 		CvCity* pLoopCity = NULL;
 		int iLoop = 0;
-		for (pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
+		if (pPlot)
 		{
-			CvPlot* pPlot = pLoopCity->plot();
-			if (pPlot)
+			for (pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
 			{
-				iDistance = plotDistance(pPlot->getX(), pPlot->getY(), pLoopCity->getX(), pLoopCity->getY());
-
-				if (iBestCityDistance == -1 || iDistance < iBestCityDistance)
+				CvPlot* pCityPlot = pLoopCity->plot();
+				if (pCityPlot)
 				{
-					iBestCityID = pLoopCity->GetID();
-					iBestCityDistance = iDistance;
+					int iDistance = plotDistance(pPlot->getX(), pPlot->getY(), pCityPlot->getX(), pCityPlot->getY());
+
+					if (iBestCityDistance == -1 || iDistance < iBestCityDistance)
+					{
+						iBestCityID = pLoopCity->GetID();
+						iBestCityDistance = iDistance;
+					}
 				}
 			}
 		}
 
 		CvCity* pBestCity = kPlayer.getCity(iBestCityID);
+		if (pBestCity == NULL)
+			pBestCity = kPlayer.getCapitalCity();
 
 		if (pBestCity != NULL)
 		{
+			int iNumGold = GC.getGame().getHandicapInfo().getBarbCampGold();
+
+			// Game Speed Mod
+			iNumGold *= GC.getGameSpeedInfo(GC.getGame().getGameSpeedType())->getGoldPercent();
+			iNumGold /= 100;
+
+			kPlayer.doInstantYield(INSTANT_YIELD_TYPE_BARBARIAN_CAMP_CLEARED, false, NO_GREATPERSON, NO_BUILDING, iNumGold, true, NO_PLAYER, NULL, false, pBestCity, false, true, false, YIELD_GOLD, pUnit);
+
+			if (GET_PLAYER(ePlayer).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CULTURE_FROM_BARBARIAN_KILLS) > 0 || GET_PLAYER(ePlayer).GetBarbarianCombatBonus(true) > 0)
+			{
+				int iCulturePoints = (GET_PLAYER(ePlayer).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CULTURE_FROM_BARBARIAN_KILLS) / 5);
+				if (iCulturePoints <= 0)
+				{
+					iCulturePoints = GET_PLAYER(ePlayer).GetBarbarianCombatBonus(true);
+				}
+
+				kPlayer.doInstantYield(INSTANT_YIELD_TYPE_BARBARIAN_CAMP_CLEARED, false, NO_GREATPERSON, NO_BUILDING, iCulturePoints, true, NO_PLAYER, NULL, false, pBestCity, false, true, false, YIELD_CULTURE, pUnit);
+
+				if (ePlayer == GC.getGame().getActivePlayer())
+				{
+					char text[256] = { 0 };
+
+					sprintf_s(text, "[COLOR_MAGENTA]+%d[ENDCOLOR][ICON_CULTURE]", iCulturePoints);
+					SHOW_PLOT_POPUP(pPlot, ePlayer, text);
+				}
+			}
 			// call one for era scaling, and another for non-era scaling
 			GET_PLAYER(ePlayer).doInstantYield(INSTANT_YIELD_TYPE_BARBARIAN_CAMP_CLEARED, false, NO_GREATPERSON, NO_BUILDING, 0, true, NO_PLAYER, NULL, false, pBestCity);
 			GET_PLAYER(ePlayer).doInstantYield(INSTANT_YIELD_TYPE_BARBARIAN_CAMP_CLEARED, false, NO_GREATPERSON, NO_BUILDING, 0, false, NO_PLAYER, NULL, false, pBestCity);
+
+			// If it's the active player then show the popup
+			if (ePlayer == GC.getGame().getActivePlayer())
+			{
+				// Don't show in MP
+#if defined(MOD_API_EXTENSIONS)
+				if (!GC.getGame().isReallyNetworkMultiPlayer())
+#else
+				if (!GC.getGame().isNetworkMultiPlayer())	// KWG: Candidate for !GC.getGame().isOption(GAMEOPTION_SIMULTANEOUS_TURNS)
+#endif
+				{
+					CvPopupInfo kPopupInfo(BUTTONPOPUP_BARBARIAN_CAMP_REWARD, iNumGold);
+					DLLUI->AddPopup(kPopupInfo);
+					// We are adding a popup that the player must make a choice in, make sure they are not in the end-turn phase.
+					CancelActivePlayerEndTurn();
+
+#if !defined(NO_ACHIEVEMENTS)
+					//Increment Stat
+					if (kPlayer.isHuman() && !GC.getGame().isGameMultiPlayer())
+					{
+						gDLL->IncrementSteamStatAndUnlock(ESTEAMSTAT_BARBARIANCAMPS, 100, ACHIEVEMENT_100CAMPS);
+					}
+#endif
+
+				}
+			}
+
+			if (ePlayer < MAX_MAJOR_CIVS)
+			{
+				// Completes a quest for anyone?
+				PlayerTypes eMinor;
+				for (int iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
+				{
+					eMinor = (PlayerTypes)iMinorLoop;
+					CvPlayer& minorPlayer = GET_PLAYER(eMinor);
+
+					if (!minorPlayer.isAlive())
+						continue;
+
+					CvMinorCivAI* pMinorCivAI = minorPlayer.GetMinorCivAI();
+					pMinorCivAI->DoTestActiveQuestsForPlayer(ePlayer, /*bTestComplete*/ true, /*bTestObsolete*/ false, MINOR_CIV_QUEST_KILL_CAMP);
+				}
+			}
 		}
 	}
-#endif
 
 #if defined(MOD_EVENTS_BARBARIANS)
 	if (MOD_EVENTS_BARBARIANS) {
@@ -181,9 +253,7 @@ void CvBarbarians::DoCampActivationNotice(CvPlot* pPlot)
 	// Default to between 8 and 12 turns per spawn
 #if defined(MOD_CORE_REDUCE_RANDOMNESS)
 	int iSpawnTurnAddition = 12;
-	bool isMP = kGame.isReallyNetworkMultiPlayer();
-	int iRand = kGame.getSmallFakeRandNum(10, *pPlot);
-	int iAddVal = isMP ? 5 : iRand;
+	int iAddVal = kGame.isReallyNetworkMultiPlayer() ? 5 : kGame.getSmallFakeRandNum(10, *pPlot);
 	int iNumTurnsToSpawn = iSpawnTurnAddition + iAddVal;
 #else
 	int iNumTurnsToSpawn = 8 + kGame.getJonRandNum(5, "Barb Spawn Rand call");
@@ -198,13 +268,12 @@ void CvBarbarians::DoCampActivationNotice(CvPlot* pPlot)
 	if (kGame.isOption(GAMEOPTION_RAGING_BARBARIANS))
 		iNumTurnsToSpawn /= 2;
 
-#if defined(MOD_BUGFIX_BARB_CAMP_SPAWNING)
-	if (m_aiPlotBarbCampNumUnitsSpawned == NULL) {
-		// Probably means we are being called as CvWorldBuilderMapLoaded is adding camps, MapInit() will follow soon and set everything up correctly
+	// Probably means we are being called as CvWorldBuilderMapLoaded is adding camps, MapInit() will follow soon and set everything up correctly
+	if (m_aiPlotBarbCampNumUnitsSpawned == NULL) 
+	{
 		return;
 	}
-#endif
-		
+
 	// Num Units Spawned
 	int iNumUnitsSpawned = m_aiPlotBarbCampNumUnitsSpawned[pPlot->GetPlotIndex()];
 
@@ -247,9 +316,7 @@ void CvBarbarians::DoCityActivationNotice(CvPlot* pPlot)
 	//bumped a bit - too many barbs gets annoying.
 
 #if defined(MOD_CORE_REDUCE_RANDOMNESS)
-	bool isMP = kGame.isReallyNetworkMultiPlayer();
-	int iRand = kGame.getSmallFakeRandNum(10, *pPlot);
-	int iAddVal = isMP ? 5 : iRand;
+	int iAddVal = kGame.isReallyNetworkMultiPlayer() ? 5 : kGame.getSmallFakeRandNum(10, *pPlot);
 	int iNumTurnsToSpawn = 7 + iAddVal;
 #else
 	int iNumTurnsToSpawn = 15 + kGame.getJonRandNum(5, "Barb Spawn Rand call");
@@ -265,12 +332,11 @@ void CvBarbarians::DoCityActivationNotice(CvPlot* pPlot)
 	if (kGame.isOption(GAMEOPTION_RAGING_BARBARIANS))
 		iNumTurnsToSpawn /= 2;
 
-#if defined(MOD_BUGFIX_BARB_CAMP_SPAWNING)
-	if (m_aiPlotBarbCityNumUnitsSpawned == NULL) {
+	if (m_aiPlotBarbCityNumUnitsSpawned == NULL) 
+	{
 		return;
 	}
-#endif
-		
+
 	// Num Units Spawned
 	int iNumUnitsSpawned = m_aiPlotBarbCityNumUnitsSpawned[pPlot->GetPlotIndex()];
 
@@ -546,11 +612,10 @@ void CvBarbarians::DoCamps()
 
 			bool bMinors = MOD_BALANCE_CORE_BARBARIAN_THEFT;
 			if (GC.getGame().getGameTurn() <= 5)
-			{
 				bMinors = false;
-			}
+
 			// No new camps on plots in sight of a player
-			if (pLoopPlot->isVisibleToCivTeam(true, bMinors))
+			if (pLoopPlot->isVisibleToAnyTeam(bMinors))
 				continue;
 
 			iNumNotVisiblePlots++;
@@ -656,12 +721,9 @@ void CvBarbarians::DoCamps()
 				CvPlot* pLoopPlot = vRelevantPlots[iPlotIndex];
 
 				//now do some additional (expensive) checks we shouldn't do above
-#if defined(MOD_BUGFIX_BARB_CAMP_TERRAINS)
 				CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(eCamp);
-				if(MOD_BUGFIX_BARB_CAMP_TERRAINS == false || pkImprovementInfo == NULL || 
-					(pkImprovementInfo->GetTerrainMakesValid(pLoopPlot->getTerrainType()) && pkImprovementInfo->GetFeatureMakesValid(pLoopPlot->getFeatureType())))
+				if (pkImprovementInfo == NULL || (pkImprovementInfo->GetTerrainMakesValid(pLoopPlot->getTerrainType()) && pkImprovementInfo->GetFeatureMakesValid(pLoopPlot->getFeatureType())))
 				{
-#endif
 					// Max Camps for this area
 					int iMaxCampsThisArea = iCampTargetNum * pLoopPlot->area()->getNumTiles() / iNumLandPlots + 1;
 
@@ -775,7 +837,6 @@ void CvBarbarians::DoCamps()
 
 						iNumCampsToAdd--;
 					}
-#if defined(MOD_BUGFIX_BARB_CAMP_TERRAINS)
 				}
 				else
 				{
@@ -784,7 +845,6 @@ void CvBarbarians::DoCamps()
 					vRelevantPlots.erase(vRelevantPlots.begin() + iPlotIndex);
 #endif
 				}
-#endif
 			}
 			while(iNumCampsToAdd > 0 && iCount < iNumLandPlots);
 		}
@@ -1050,7 +1110,6 @@ void CvBarbarians::DoSpawnBarbarianUnit(CvPlot* pPlot, bool bIgnoreMaxBarbarians
 					pUnit->finishMoves();
 				}
 
-#if defined(MOD_BUGFIX_MINOR)
 				// Stop units from plundered trade routes ending up in the ocean
 				if(bIgnoreMaxBarbarians && pUnit)
 				{
@@ -1063,23 +1122,18 @@ void CvBarbarians::DoSpawnBarbarianUnit(CvPlot* pPlot, bool bIgnoreMaxBarbarians
 					}
 #endif
 				}
-#endif
 			}
 		}
 	}
 }
 
 //return false if stealing is impossible and the unit should do something else instead
-bool CvBarbarians::DoStealFromAdjacentCity(CvUnit * pUnit)
+bool CvBarbarians::DoStealFromCity(CvUnit * pUnit, CvCity* pCity)
 {
 	if (!MOD_BALANCE_CORE_BARBARIAN_THEFT)
 		return false;
 
-	if (!pUnit || !pUnit->IsCanAttack())
-		return false;
-
-	CvCity* pCity = pUnit->plot()->GetAdjacentCity();
-	if (!pCity)
+	if (!pUnit || !pUnit->IsCanAttack() || !pCity)
 		return false;
 
 	//don't steal from ourselves
@@ -1109,7 +1163,7 @@ bool CvBarbarians::DoStealFromAdjacentCity(CvUnit * pUnit)
 	int iYield = GC.getGame().getSmallFakeRandNum(10, pUnit->plot()->GetPlotIndex() + GET_PLAYER(pCity->getOwner()).GetPseudoRandomSeed());
 	if(iYield <= 2)
 	{
-		int iGold = pCity->getBaseYieldRate(YIELD_GOLD) * iTheftTurns;
+		int iGold = min(pCity->getBaseYieldRate(YIELD_GOLD) * iTheftTurns, pUnit->GetCurrHitPoints());
 		if(iGold > 0)
 		{
 			GET_PLAYER(pCity->getOwner()).GetTreasury()->ChangeGold(-iGold);
@@ -1133,7 +1187,7 @@ bool CvBarbarians::DoStealFromAdjacentCity(CvUnit * pUnit)
 	}
 	else if(iYield <= 4)
 	{
-		int iCulture = pCity->getJONSCulturePerTurn() * iTheftTurns;
+		int iCulture = min(pCity->getJONSCulturePerTurn() * iTheftTurns, pUnit->GetCurrHitPoints());
 		if(iCulture > 0)
 		{
 			GET_PLAYER(pCity->getOwner()).changeJONSCulture(-iCulture);
@@ -1160,7 +1214,7 @@ bool CvBarbarians::DoStealFromAdjacentCity(CvUnit * pUnit)
 		int iScience = 0;
 		if(eCurrentTech != NO_TECH)
 		{
-			iScience = pCity->getBaseYieldRate(YIELD_SCIENCE) * iTheftTurns;
+			iScience = min(pCity->getBaseYieldRate(YIELD_SCIENCE) * iTheftTurns, pUnit->GetCurrHitPoints());
 			if(iScience > 0)
 			{
 				GET_TEAM(pCity->getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, -iScience, pCity->getOwner());
@@ -1185,7 +1239,7 @@ bool CvBarbarians::DoStealFromAdjacentCity(CvUnit * pUnit)
 	}
 	else if(iYield <= 8)
 	{
-		int iFood = pCity->getBaseYieldRate(YIELD_FOOD) * iTheftTurns;
+		int iFood = min(pCity->getBaseYieldRate(YIELD_FOOD) * iTheftTurns, pUnit->GetCurrHitPoints());
 		if(iFood > 0)
 		{
 			pCity->changeFood(-iFood);
@@ -1211,7 +1265,7 @@ bool CvBarbarians::DoStealFromAdjacentCity(CvUnit * pUnit)
 	{
 		if((pCity->getProduction() > 0) && (pCity->getProductionTurnsLeft() >= 2) && (pCity->getProductionTurnsLeft() != INT_MAX))
 		{
-			int iProduction = pCity->getBaseYieldRate(YIELD_PRODUCTION) * iTheftTurns;
+			int iProduction = min(pCity->getBaseYieldRate(YIELD_PRODUCTION) * iTheftTurns, pUnit->GetCurrHitPoints());
 			if(iProduction > 0)
 			{
 				pCity->changeProduction(-iProduction);
@@ -1236,4 +1290,24 @@ bool CvBarbarians::DoStealFromAdjacentCity(CvUnit * pUnit)
 	}
 	
 	return true;
+}
+
+bool CvBarbarians::DoTakeOverCity(CvCity * pCity)
+{
+	if (!pCity)
+		return false;
+
+	CvPlayer& owner = GET_PLAYER(pCity->getOwner());
+	if (!owner.isMinorCiv() || !owner.GetMinorCivAI()->IsReadyForTakeOver())
+		return false;
+
+	// create a barbarian unit in the city, taking it over
+	UnitTypes eUnit = GC.getGame().GetRandomSpawnUnitType(BARBARIAN_PLAYER, /*bIncludeUUs*/ true, /*bIncludeRanged*/ true);
+	if (eUnit != NO_UNIT)
+	{
+		GET_PLAYER(BARBARIAN_PLAYER).initUnit(eUnit, pCity->getX(), pCity->getY());
+		return true;
+	}
+
+	return false;
 }

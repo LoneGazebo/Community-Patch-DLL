@@ -57,7 +57,7 @@ struct CvUnitCaptureDefinition
 #endif
 	ReligionTypes eReligion;
 	int iReligiousStrength;
-	int iSpreadsLeft;
+	int iSpreadsUsed;
 
 	CvUnitCaptureDefinition()
 		: eOriginalOwner(NO_PLAYER)
@@ -75,7 +75,7 @@ struct CvUnitCaptureDefinition
 #endif
 		, eReligion(NO_RELIGION)
 		, iReligiousStrength(0)
-		, iSpreadsLeft(0) { }
+		, iSpreadsUsed(0) { }
 
 	inline bool IsValid() const
 	{
@@ -147,6 +147,7 @@ public:
 		MOVEFLAG_IGNORE_ENEMIES					= 0x2000000, //similar to IGNORE_STACKING but pretend we can pass through enemies
 		MOVEFLAG_TURN_END_IS_NEXT_TURN			= 0x4000000, //consider when a unit may take action again, ie if the target plot has zero moves left, add one to the turn count
 		MOVEFLAG_APPROX_TARGET_SAME_OWNER		= 0x8000000, //same owner of approximate target tile
+		MOVEFLAG_PRETEND_CANALS					= 0x10000000, //pretend ships can move one tile inland to see if a canal would make sense
 
 		//some flags are relevant during pathfinding, some only during execution
 		PATHFINDER_FLAG_MASK					= ~(MOVEFLAG_ABORT_IF_NEW_ENEMY_REVEALED|MOVEFLAG_TURN_END_IS_NEXT_TURN),
@@ -212,7 +213,7 @@ public:
 	bool ReadyToSwap() const;
 	bool ReadyToAuto() const;
 	bool IsBusy() const;
-	bool SentryAlert() const;
+	bool SentryAlert(bool bAllowAttacks) const;
 
 	bool CanDoInterfaceMode(InterfaceModeTypes eInterfaceMode, bool bTestVisibility = false);
 
@@ -232,7 +233,7 @@ public:
 	int getCombatDamage(int iStrength, int iOpponentStrength, bool bIncludeRand, bool bAttackerIsCity, bool bDefenderIsCity) const;
 	void move(CvPlot& pPlot, bool bShow);
 	bool jumpToNearestValidPlot();
-	bool jumpToNearestValidPlotWithinRange(int iRange, CvPlot* pStartPlot = NULL);
+	bool jumpToNearestValidPlotWithinRange(int iRange, CvPlot* pStartPlot=NULL);
 
 	bool canScrap(bool bTestVisible = false) const;
 	void scrap();
@@ -336,7 +337,7 @@ public:
 	void doHeal();
 	void DoAttrition();
 	int GetDanger(const CvPlot* pAtPlot=NULL) const;
-	int GetDanger(const CvPlot* pAtPlot, const UnitIdContainer& unitsToIgnore) const;
+	int GetDanger(const CvPlot* pAtPlot, const UnitIdContainer& unitsToIgnore, int iExtraDamage) const;
 
 #if defined(MOD_GLOBAL_RELOCATION)
 	const CvPlot* getAirliftFromPlot(const CvPlot* pPlot) const;
@@ -645,7 +646,6 @@ public:
 	int firstStrikes() const;
 	int chanceFirstStrikes() const;
 	int maxFirstStrikes() const;
-	bool isRanged() const;
 
 	bool immuneToFirstStrikes() const;
 	bool ignoreBuildingDefense() const;
@@ -654,7 +654,6 @@ public:
 	int getIgnoreTerrainCostCount() const;
 	void changeIgnoreTerrainCostCount(int iValue);
 
-#if defined(MOD_API_PLOT_BASED_DAMAGE)
 	bool ignoreTerrainDamage() const;
 	int getIgnoreTerrainDamageCount() const;
 	void changeIgnoreTerrainDamageCount(int iValue);
@@ -670,7 +669,6 @@ public:
 	bool extraFeatureDamage() const;
 	int getExtraFeatureDamageCount() const;
 	void changeExtraFeatureDamageCount(int iValue);
-#endif
 
 #if defined(MOD_PROMOTIONS_IMPROVEMENT_BONUS)
 	int GetNearbyImprovementCombatBonus() const;
@@ -736,6 +734,8 @@ public:
 	void ChangeIsGiveInvisibility(int iValue);
 	int GetIsGiveInvisibility() const;
 	bool isGiveInvisibility() const;
+	bool isGiveOnlyOnStartingTurn() const;
+	void SetIsGiveOnlyOnStartingTurn(bool bNewValue);
 	void ChangeIsConvertUnit(int iValue);
 	int getIsConvertUnit() const;
 	bool isConvertUnit() const;
@@ -897,7 +897,7 @@ public:
 	void ChangeAirSweepCombatModifier(int iValue);
 	int getAttackModifier() const;
 	void changeAttackModifier(int iValue);
-	int getDefenseModifier() const;
+	int getDefenseModifier(bool bQuick = false) const;
 	void changeDefenseModifier(int iValue);
 
 	int getGroundAttackDamage() const;
@@ -949,7 +949,6 @@ public:
 	{
 		return m_iID;
 	}
-	int getIndex() const;
 	IDInfo GetIDInfo() const;
 	void SetID(int iID);
 
@@ -1021,19 +1020,11 @@ public:
 	bool IsImmobile() const;
 	void SetImmobile(bool bValue);
 
-#if defined(MOD_BALANCE_CORE)
 	bool IsInForeignOwnedTerritory() const;
-#endif
 
-#if defined(MOD_UNITS_XP_TIMES_100)
 	int getExperienceTimes100() const;
 	void setExperienceTimes100(int iNewValueTimes100, int iMax = -1);
 	void changeExperienceTimes100(int iChangeTimes100, int iMax = -1, bool bFromCombat = false, bool bInBorders = false, bool bUpdateGlobal = false);
-#else
-	int getExperience() const;
-	void setExperience(int iNewValue, int iMax = -1);
-	void changeExperience(int iChange, int iMax = -1, bool bFromCombat = false, bool bInBorders = false, bool bUpdateGlobal = false);
-#endif
 
 	int getLevel() const;
 	void setLevel(int iNewValue);
@@ -1063,7 +1054,7 @@ public:
 	bool IsFortified() const;
 	void SetFortified(bool bValue);
 	
-	void DoAoEDamage(int iValue, const char* chText = NULL);
+	int DoAdjacentPlotDamage(CvPlot* pWhere, int iValue, const char* chTextKey = NULL);
 
 	int getBlitzCount() const;
 	bool isBlitz() const;
@@ -1295,7 +1286,8 @@ public:
 	int getNumAttacksMadeThisTurn() const;
 	void changeExtraAttacks(int iChange);
 
-#if defined(MOD_BALANCE_CORE_AREA_EFFECT_PROMOTIONS)
+	int GetNearbyCityBonusCombatMod(const CvPlot * pAtPlot = NULL) const;
+
 	int GetGoldenAgeGeneralExpPercent() const;
 	int GetGiveExperiencePercentToUnit() const;
 	int GetGiveCombatModToUnit(const CvPlot * pAtPlot = NULL) const;
@@ -1303,11 +1295,9 @@ public:
 	int GetHealEnemyTerritoryFromNearbyUnit() const;
 	int GetHealNeutralTerritoryFromNearbyUnit() const;
 	int GetHealFriendlyTerritoryFromNearbyUnit() const;
-	int GetNearbyCityBonusCombatMod(const CvPlot * pAtPlot = NULL) const;
 	int GetGiveOutsideFriendlyLandsModifierToUnit() const;
 	int GetGiveExtraAttacksToUnit() const;
 	int GetGiveHPIfEnemyKilledToUnit() const;
-#endif
 	bool IsHiddenByNearbyUnit(const CvPlot * pAtPlot = NULL) const;
 
 	// Great General Stuff
@@ -1362,7 +1352,6 @@ public:
 	void changeNoSupply(int iChange);
 #endif
 
-#if defined(MOD_UNITS_MAX_HP)
 	int getMaxHitPointsBase() const;
 	void setMaxHitPointsBase(int iMaxHitPoints);
 	void changeMaxHitPointsBase(int iChange);
@@ -1371,7 +1360,6 @@ public:
 	void changeMaxHitPointsChange(int iChange);
 	int getMaxHitPointsModifier() const;
 	void changeMaxHitPointsModifier(int iChange);
-#endif
 
 	bool IsIgnoreZOC() const;
 	void ChangeIgnoreZOCCount(int iChange);
@@ -1385,6 +1373,8 @@ public:
 	void DoImprovementExperience(const CvPlot* pPlot = NULL);
 	bool IsStrongerDamaged() const;
 	void ChangeIsStrongerDamaged(int iChange);
+	bool IsFightWellDamaged() const;
+	void ChangeIsFightWellDamaged(int iChange);
 
 	int GetGoodyHutYieldBonus() const;
 	void ChangeGoodyHutYieldBonus(int iChange);
@@ -1396,6 +1386,7 @@ public:
 	void DoConvertOnDamageThreshold(const CvPlot* pPlot = NULL);
 	void DoConvertEnemyUnitToBarbarian(const CvPlot* pPlot = NULL);
 	void DoConvertReligiousUnitsToMilitary(const CvPlot* pPlot = NULL);
+	void DoFinishBuildIfSafe();
 #endif
 
 	bool IsCanHeavyCharge() const;
@@ -1456,7 +1447,7 @@ public:
 	int GetExtraAirInterceptRange() const; // JJ: New
 	void ChangeExtraAirInterceptRange(int iChange);
 
-	bool isOutOfInterceptions() const;
+	bool canInterceptNow() const;
 	int getMadeInterceptionCount() const;
 	void increaseInterceptionCount();
 	void resetInterceptionCount();
@@ -1544,6 +1535,9 @@ public:
 #endif
 	int GetTourismBlastStrength() const;
 	void SetTourismBlastStrength(int iValue);
+
+	int GetTourismBlastLength() const;
+	void SetTourismBlastLength(int iValue);
 
 #if defined(MOD_BALANCE_CORE)
 	int GetScienceBlastStrength() const;
@@ -1710,7 +1704,7 @@ public:
 
 	void setTacticalMove(AITacticalMove eMove);
 	AITacticalMove getTacticalMove(int* pTurnSet=NULL) const;
-	bool canRecruitFromTacticalAI() const;
+	bool canUseForAIOperation() const;
 	bool canUseForTacticalAI() const;
 
 	void SetTacticalAIPlot(CvPlot* pPlot);
@@ -1769,17 +1763,6 @@ public:
 	void SetMissionAI(MissionAITypes eNewMissionAI, CvPlot* pNewPlot, CvUnit* pNewUnit);
 	CvUnit* GetMissionAIUnit();
 
-	inline bool IsCivilianUnit() const
-	{
-		return !(IsCombatUnit() || isRanged());
-	}
-
-	// Combat eligibility routines
-	inline bool IsCombatUnit() const
-	{
-		return (m_iBaseCombat > 0);
-	}
-
 	CvUnit* rangeStrikeTarget(const CvPlot& pPlot, bool bNoncombatAllowed) const;
 
 	bool IsCanAttackWithMove() const;
@@ -1787,6 +1770,8 @@ public:
 	bool IsCanAttack() const;
 	bool IsCanAttackWithMoveNow() const;
 	bool IsCanDefend() const;
+	bool IsCivilianUnit() const;
+	bool IsCombatUnit() const;
 
 	ReachablePlots GetAllPlotsInReachThisTurn(bool bCheckTerritory=true, bool bCheckZOC=true, bool bAllowEmbark=true, int iMinMovesLeft=0) const;
 	bool IsEnemyInMovementRange(bool bOnlyFortified = false, bool bOnlyCities = false);
@@ -1801,6 +1786,7 @@ public:
 	int GetMovementPointsAtCachedTarget() const;
 	CvPlot* GetLastValidDestinationPlotInCachedPath() const;
 	const CvPathNodeArray& GetLastPath() const;
+	bool IsCurrentPathUnsafe() const;
 
 	bool IsEmbarkAllWater() const;
 	void ChangeEmbarkAllWaterCount(int iValue);
@@ -1961,10 +1947,7 @@ protected:
 	FAutoVariable<int, CvUnit> m_iReconCount;
 	FAutoVariable<int, CvUnit> m_iGameTurnCreated;
 	FAutoVariable<bool, CvUnit> m_bImmobile;
-	FAutoVariable<int, CvUnit> m_iExperience;
-#if defined(MOD_UNITS_XP_TIMES_100)
 	FAutoVariable<int, CvUnit> m_iExperienceTimes100;
-#endif
 	FAutoVariable<int, CvUnit> m_iLevel;
 	FAutoVariable<int, CvUnit> m_iCargo;
 	FAutoVariable<int, CvUnit> m_iCargoCapacity;
@@ -2077,14 +2060,11 @@ protected:
 	FAutoVariable<int, CvUnit> m_iExtraNavalMoves;
 	FAutoVariable<int, CvUnit> m_iKamikazePercent;
 	FAutoVariable<DirectionTypes, CvUnit> m_eFacingDirection;
-
 	FAutoVariable<int, CvUnit> m_iIgnoreTerrainCostCount;
-#if defined(MOD_API_PLOT_BASED_DAMAGE)
 	FAutoVariable<int, CvUnit> m_iIgnoreTerrainDamageCount;
 	FAutoVariable<int, CvUnit> m_iIgnoreFeatureDamageCount;
 	FAutoVariable<int, CvUnit> m_iExtraTerrainDamageCount;
 	FAutoVariable<int, CvUnit> m_iExtraFeatureDamageCount;
-#endif
 #if defined(MOD_PROMOTIONS_IMPROVEMENT_BONUS)
 	FAutoVariable<int, CvUnit> m_iNearbyImprovementCombatBonus;
 	FAutoVariable<int, CvUnit> m_iNearbyImprovementBonusRange;
@@ -2114,6 +2094,7 @@ protected:
 	FAutoVariable<int, CvUnit> m_iGiveExtraAttacks;
 	FAutoVariable<int, CvUnit> m_iGiveDefenseMod;
 	FAutoVariable<int, CvUnit> m_bGiveInvisibility;
+	FAutoVariable<int, CvUnit> m_bGiveOnlyOnStartingTurn;
 	FAutoVariable<int, CvUnit> m_bConvertUnit;
 	FAutoVariable<int, CvUnit> m_eConvertDomain;
 	FAutoVariable<UnitTypes, CvUnit> m_eConvertDomainUnit;
@@ -2188,17 +2169,15 @@ protected:
 #if defined(MOD_UNITS_NO_SUPPLY)
 	FAutoVariable<int, CvUnit> m_iNoSupply;
 #endif
-#if defined(MOD_UNITS_MAX_HP)
 	int m_iMaxHitPointsBase;
 	FAutoVariable<int, CvUnit> m_iMaxHitPointsChange;
 	FAutoVariable<int, CvUnit> m_iMaxHitPointsModifier;
-#endif
 	FAutoVariable<int, CvUnit> m_iFriendlyLandsModifier;
 	FAutoVariable<int, CvUnit> m_iFriendlyLandsAttackModifier;
 	FAutoVariable<int, CvUnit> m_iOutsideFriendlyLandsModifier;
 	FAutoVariable<int, CvUnit> m_iHealIfDefeatExcludeBarbariansCount;
 	FAutoVariable<int, CvUnit> m_iNumInterceptions;
-#if defined(MOD_BALANCE_CORE) // JJ: NEW
+#if defined(MOD_BALANCE_CORE)
 	FAutoVariable<int, CvUnit> m_iExtraAirInterceptRange;
 #endif
 	FAutoVariable<int, CvUnit> m_iMadeInterceptionCount;
@@ -2207,6 +2186,7 @@ protected:
 	FAutoVariable<int, CvUnit> m_iCanHeavyCharge;
 #if defined(MOD_BALANCE_CORE)
 	FAutoVariable<int, CvUnit> m_iStrongerDamaged;
+	FAutoVariable<int, CvUnit> m_iFightWellDamaged;
 	FAutoVariable<int, CvUnit> m_iCanMoraleBreak;
 	FAutoVariable<int, CvUnit> m_iDamageAoEFortified;
 	FAutoVariable<int, CvUnit> m_iWorkRateMod;
@@ -2327,6 +2307,7 @@ protected:
 	FAutoVariable<int, CvUnit> m_iMapLayer;		// Which layer does the unit reside on for pathing/stacking/etc.
 	FAutoVariable<int, CvUnit> m_iNumGoodyHutsPopped;
 	FAutoVariable<int, CvUnit> m_iTourismBlastStrength;
+	FAutoVariable<int, CvUnit> m_iTourismBlastLength;
 #if defined(MOD_BALANCE_CORE)
 	FAutoVariable<int, CvUnit> m_iHurryStrength;
 	FAutoVariable<int, CvUnit> m_iScienceBlastStrength;
@@ -2362,8 +2343,8 @@ protected:
 	void RemoveCargoPromotions(CvUnit& cargounit);
 #endif
 
-	bool CanFallBack(CvUnit& pAttacker, bool bCheckChances);
-	bool DoFallBack(CvUnit& pAttacker);
+	bool CanFallBack(const CvUnit& pAttacker, bool bCheckChances) const;
+	bool DoFallBack(const CvUnit& pAttacker);
 
 private:
 

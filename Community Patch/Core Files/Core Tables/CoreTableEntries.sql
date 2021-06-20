@@ -35,6 +35,9 @@ ALTER TABLE Unit_UniqueNames ADD COLUMN 'EraType' TEXT DEFAULT NULL;
 ALTER TABLE Buildings ADD COLUMN 'IsNoWater' BOOLEAN DEFAULT 0;
 ALTER TABLE Buildings ADD COLUMN 'IsNoRiver' BOOLEAN DEFAULT 0;
 
+-- Create buildings that cannot have access to fresh water.
+ALTER TABLE Buildings ADD COLUMN 'IsNoCoast' BOOLEAN DEFAULT 0;
+
 -- Create buildings that must be in the Capital
 
 ALTER TABLE Buildings ADD COLUMN 'CapitalOnly' BOOLEAN DEFAULT 0;
@@ -97,23 +100,18 @@ ALTER TABLE Policies ADD COLUMN 'StealGWFasterModifier' INTEGER DEFAULT 0;
 -- Policy Branch - number of unlocked policies (finishers excluded) before branch is unlocked.
 ALTER TABLE PolicyBranchTypes ADD COLUMN 'NumPolicyRequirement' INTEGER DEFAULT 100;
 
--- Adds ability to turn production into defense/healing in a city for a process
-ALTER TABLE Processes ADD COLUMN 'DefenseValue' INTEGER DEFAULT 0;
-
 -- Belief - increases pressure from trade routes
 
 ALTER TABLE Beliefs ADD COLUMN 'PressureChangeTradeRoute' INTEGER DEFAULT 0;
 
 -- Give CSs defensive units at the beginning of the game.
-
 ALTER TABLE Eras ADD COLUMN 'StartingMinorDefenseUnits' INTEGER DEFAULT 0;
-
--- Give CSs defensive units at the beginning of the game.
-
 ALTER TABLE HandicapInfos ADD COLUMN 'StartingMinorDefenseUnits' INTEGER DEFAULT 0;
 
--- AIs get more vision.
+-- Multiplier to AI perception of human military strength.
+ALTER TABLE HandicapInfos ADD COLUMN 'AIHumanStrengthMod' INTEGER DEFAULT 0;
 
+-- AIs get more vision.
 ALTER TABLE HandicapInfos ADD COLUMN 'VisionBonus' INTEGER DEFAULT 0;
 
 -- CBO Handicap Happiness System
@@ -160,7 +158,7 @@ ALTER TABLE Traits ADD COLUMN 'IsNoReligiousStrife' BOOLEAN DEFAULT 0;
 
 ALTER TABLE Traits ADD COLUMN 'WonderProductionModGA' INTEGER DEFAULT 0;
 
--- TRAIT: Changes the food consumed by each non-specialist citizen. --
+-- TRAIT: Changes the food (times 100) consumed by each non-specialist citizen. --
 ALTER TABLE Traits ADD COLUMN 'NonSpecialistFoodChange' INTEGER DEFAULT 0;
 
 -- Abnormal scaler. Works for:
@@ -175,7 +173,7 @@ ALTER TABLE Traits ADD COLUMN 'IsOddEraScaler' BOOLEAN DEFAULT 0;
 
 ALTER TABLE Traits ADD COLUMN 'IsCapitalOnly' BOOLEAN DEFAULT 0;
 
--- No natural religion spread to/from unowned cities
+-- No natural religion spread to/from other players' cities
 
 ALTER TABLE Traits ADD COLUMN 'NoNaturalReligionSpread' BOOLEAN DEFAULT 0;
 
@@ -330,6 +328,12 @@ ALTER TABLE Units ADD COLUMN 'CityAttackOnly' BOOLEAN DEFAULT 0;
 -- Adds Culture from experience to owner of unit when disbanded or upgraded
 ALTER TABLE Units ADD COLUMN 'CulExpOnDisbandUpgrade' BOOLEAN DEFAULT 0;
 
+-- Increases the cost by this amount every time you build the unit
+ALTER TABLE Units ADD 'CostScalerNumRepeats' INTEGER DEFAULT 0;
+
+-- Tourism Bomb can now alternative give 50% of tourism to all civs, and 100% of tourism output to target civ for x turns
+ALTER TABLE Units ADD COLUMN 'TourismBonusTurns' INTEGER DEFAULT 0;
+
 -- Adds minimum national population requirement for a building.
 ALTER TABLE Buildings ADD COLUMN 'NationalPopRequired' INTEGER DEFAULT 0;
 
@@ -345,6 +349,9 @@ ALTER TABLE Buildings ADD COLUMN 'BorderObstacleCity' INTEGER DEFAULT 0;
 -- Movement speed penalty (like Great Wall) for water plots worked by a City.
 ALTER TABLE Buildings ADD COLUMN 'BorderObstacleWater' INTEGER DEFAULT 0;
 
+-- x damage to units that end turn on a deep water tile owned by a city
+ALTER TABLE Buildings ADD COLUMN 'DeepWaterTileDamage' INTEGER DEFAULT 0;
+
 -- One building gives all cities this ability
 ALTER TABLE Buildings ADD COLUMN 'AllowsFoodTradeRoutesGlobal' BOOLEAN DEFAULT 0;
 ALTER TABLE Buildings ADD COLUMN 'AllowsProductionTradeRoutesGlobal' BOOLEAN DEFAULT 0;
@@ -354,6 +361,13 @@ ALTER TABLE Buildings ADD COLUMN 'CityConnectionGoldModifier' INTEGER DEFAULT 0;
 
 -- Adds abiility for units to upgrade in allied CS or vassal lands.
 ALTER TABLE Policies ADD COLUMN 'UpgradeCSVassalTerritory' BOOLEAN DEFAULT 0;
+
+-- Adds ability for spies to steal GW/tech through Spy Actions
+ALTER TABLE Policies ADD COLUMN 'EnablesTechSteal' BOOLEAN DEFAULT 0;
+ALTER TABLE Policies ADD COLUMN 'EnablesGWSteal' BOOLEAN DEFAULT 0;
+ALTER TABLE Buildings ADD COLUMN 'EnablesTechSteal' BOOLEAN DEFAULT 0;
+ALTER TABLE Buildings ADD COLUMN 'EnablesGWSteal' BOOLEAN DEFAULT 0;
+
 
 -- Adds event tourism from digging up sites.
 ALTER TABLE Policies ADD COLUMN 'ArchaeologicalDigTourism' INTEGER DEFAULT 0;
@@ -829,6 +843,7 @@ ALTER TABLE Improvements ADD COLUMN 'GrantsVisionXTiles' INTEGER DEFAULT 0;
 ALTER TABLE GoodyHuts ADD COLUMN 'Production' INTEGER DEFAULT 0;
 ALTER TABLE GoodyHuts ADD COLUMN 'GoldenAge' INTEGER DEFAULT 0;
 ALTER TABLE GoodyHuts ADD COLUMN 'FreeTiles' INTEGER DEFAULT 0;
+ALTER TABLE GoodyHuts ADD COLUMN 'Science' INTEGER DEFAULT 0;
 
 -- Tech Additions
 ALTER TABLE Technologies ADD COLUMN 'CityLessEmbarkCost' BOOLEAN;
@@ -901,7 +916,8 @@ ALTER TABLE UnitPromotions ADD COLUMN 'BarbarianOnly' BOOLEAN DEFAULT 0;
 ALTER TABLE UnitPromotions ADD COLUMN 'CityStateOnly' BOOLEAN DEFAULT 0;
 
 -- Promotion grants the same bonus as the Japan UA
-ALTER TABLE UnitPromotions ADD COLUMN 'StrongerDamaged' BOOLEAN DEFAULT 0;
+ALTER TABLE UnitPromotions ADD COLUMN 'StrongerDamaged' BOOLEAN DEFAULT 0;  -- No wounded penalty, instead gains a combat bonus the more damage the unit has
+ALTER TABLE UnitPromotions ADD COLUMN 'FightWellDamaged' BOOLEAN DEFAULT 0; -- No wounded penalty, no additional bonus
 
 -- Great General gives extra XP% during a golden age (Persia)
 ALTER TABLE UnitPromotions ADD COLUMN 'GeneralGoldenAgeExpPercent' INTEGER DEFAULT 0;
@@ -932,6 +948,9 @@ ALTER TABLE UnitPromotions ADD COLUMN 'GiveDefenseMod' INTEGER DEFAULT 0;
 
 -- Unit gives Invisibility to another Unit? Requires IsNearbyPromotion, NearbyRange, and GiveDomain Set on this Promotion.
 ALTER TABLE UnitPromotions ADD COLUMN 'GiveInvisibility' BOOLEAN DEFAULT 0;
+
+-- Unit only gives these effects at the start of the turn (works for GiveExperiencePercent, GiveCombatMod, GiveDefenseMod, GiveInvisibility, GiveOutsideFriendlyLandsModifier, GiveHPHealedIfEnemyKilled, GiveExtraAttacks)
+ALTER TABLE UnitPromotions ADD COLUMN 'GiveOnlyOnStartingTurn' BOOLEAN DEFAULT 0;
 
 -- Unit gains Combat modifier when near cities. Requires IsNearbyPromotion and NearbyRange Set on this Promotion.
 ALTER TABLE UnitPromotions ADD NearbyCityCombatMod INTEGER DEFAULT 0;
@@ -1122,6 +1141,15 @@ ALTER TABLE Policies ADD COLUMN 'EspionageModifier' INTEGER DEFAULT 0;
 
 ALTER TABLE Buildings ADD COLUMN 'VassalLevyEra' BOOLEAN DEFAULT 0;
 
+-- Processes
+
+-- Adds ability to turn production into defense/healing in a city for a process
+ALTER TABLE Processes ADD COLUMN 'DefenseValue' INTEGER DEFAULT 0;
+
+-- Unique processes, requires CIVILIZATIONS_UNIQUE_PROCESSES in CustomModOptions
+ALTER TABLE Processes ADD COLUMN 'CivilizationType' TEXT DEFAULT NULL;
+
+
 -- Projects
 ALTER TABLE Projects ADD COLUMN 'FreeBuildingClassIfFirst' TEXT DEFAULT NULL;
 ALTER TABLE Projects ADD COLUMN 'FreePolicyIfFirst' TEXT DEFAULT NULL;
@@ -1131,6 +1159,7 @@ ALTER TABLE Projects ADD COLUMN 'CostScalerNumRepeats' INTEGER DEFAULT 0;
 ALTER TABLE Projects ADD COLUMN 'IsRepeatable' BOOLEAN DEFAULT 0;
 ALTER TABLE Projects ADD COLUMN 'Happiness' INTEGER DEFAULT 0;
 ALTER TABLE Projects ADD COLUMN 'EmpireMod' INTEGER DEFAULT 0;
+ALTER TABLE Projects ADD COLUMN 'EspionageMod' INTEGER DEFAULT 0;
 
 ALTER TABLE Projects ADD COLUMN 'InfluenceAllRequired' BOOLEAN DEFAULT 0;
 ALTER TABLE Projects ADD COLUMN 'IdeologyRequired' BOOLEAN DEFAULT 0;
@@ -1138,33 +1167,6 @@ ALTER TABLE Projects ADD COLUMN 'IdeologyRequired' BOOLEAN DEFAULT 0;
 -- require x tier 3 tenets prior to construction
 ALTER TABLE Projects ADD COLUMN 'NumRequiredTier3Tenets' INTEGER DEFAULT 0;
 ALTER TABLE Buildings ADD COLUMN 'NumRequiredTier3Tenets' INTEGER DEFAULT 0;
-
--- Advanced Action Spy Stuff (for CBP)
-
--- Spies cannot fail advanced actions -- they won't trigger unless they can do damage
-ALTER TABLE Buildings ADD COLUMN 'CannotFailSpies' INTEGER DEFAULT 0;
-
--- Each point in these columns increases the chances of the event happening by 1
--- All possible events are pooled and then selected from at random - each point in these adds that value to the pool again
--- Are empire-wide values - affect all spies
-ALTER TABLE Buildings ADD COLUMN 'AdvancedActionGold' INTEGER DEFAULT 0; -- starts at 3 
-ALTER TABLE Buildings ADD COLUMN 'AdvancedActionScience' INTEGER DEFAULT 0; -- starts at 3 
-ALTER TABLE Buildings ADD COLUMN 'AdvancedActionUnrest' INTEGER DEFAULT 0; -- starts at 1 
-ALTER TABLE Buildings ADD COLUMN 'AdvancedActionRebellion' INTEGER DEFAULT 0; -- starts at 1
-ALTER TABLE Buildings ADD COLUMN 'AdvancedActionGP' INTEGER DEFAULT 0; -- starts at 1
-ALTER TABLE Buildings ADD COLUMN 'AdvancedActionUnit' INTEGER DEFAULT 0; -- starts at 2
-ALTER TABLE Buildings ADD COLUMN 'AdvancedActionWonder' INTEGER DEFAULT 0; -- starts at 1
-ALTER TABLE Buildings ADD COLUMN 'AdvancedActionBuilding' INTEGER DEFAULT 0; -- starts at 2
-
--- Blocks advanced actions entirely in a city -- 1 enables
-ALTER TABLE Buildings ADD COLUMN 'BlockBuildingDestructionSpies' INTEGER DEFAULT 0;
-ALTER TABLE Buildings ADD COLUMN 'BlockWWDestructionSpies' INTEGER DEFAULT 0;
-ALTER TABLE Buildings ADD COLUMN 'BlockUDestructionSpies' INTEGER DEFAULT 0;
-ALTER TABLE Buildings ADD COLUMN 'BlockGPDestructionSpies' INTEGER DEFAULT 0;
-ALTER TABLE Buildings ADD COLUMN 'BlockRebellionSpies' INTEGER DEFAULT 0;
-ALTER TABLE Buildings ADD COLUMN 'BlockUnrestSpies' INTEGER DEFAULT 0;
-ALTER TABLE Buildings ADD COLUMN 'BlockScienceTheft' INTEGER DEFAULT 0;
-ALTER TABLE Buildings ADD COLUMN 'BlockGoldTheft' INTEGER DEFAULT 0;
 
 --Increase Air Unit Support Per City Global
 ALTER TABLE Buildings ADD COLUMN 'AirModifierGlobal' INTEGER DEFAULT 0;
@@ -1186,9 +1188,6 @@ ALTER TABLE Policies ADD COLUMN 'SpecialistFoodChange' INTEGER DEFAULT 0;
 
 -- Trade Routes
 ALTER TABLE Policies ADD COLUMN 'ExtraCultureandScienceTradeRoutes' INTEGER DEFAULT 0;
-
--- Choose Enabling Point for Advanced Actions
-ALTER TABLE Technologies ADD COLUMN 'UnlocksEspionageAdvancedActions' BOOLEAN;
 
 -- CORPORATIONS
 ALTER TABLE Technologies ADD COLUMN 'CorporationsEnabled' BOOLEAN;
@@ -1516,7 +1515,6 @@ ALTER TABLE Improvements ADD COLUMN 'IsEmbassy' boolean default 0;
 
 -- Insert SQL Rules Here 
 
-ALTER TABLE GameSpeeds		ADD		ShareOpinionDuration			integer;									-- How long do we have to wait after Share Opinion rejection?
 ALTER TABLE GameSpeeds		ADD		TechCostPerTurnMultiplier		float;										-- How much does each turn of research add to tech cost?
 ALTER TABLE GameSpeeds		ADD		MinimumVassalLiberateTurns		integer;									-- Minimum turns of vassalage (before master can liberate them)
 ALTER TABLE GameSpeeds		ADD		MinimumVassalTurns				integer;									-- Minimum turns of vassalage (before vassal can break it off)

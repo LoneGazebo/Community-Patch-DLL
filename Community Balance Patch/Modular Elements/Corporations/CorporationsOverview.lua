@@ -569,9 +569,41 @@ function UpdateAvailableCorporations()
 
 	pediaSearchStrings = {};
 
+	local iPlayer = Game.GetActivePlayer();	
+	local pPlayer = Players[iPlayer];
+	local civType = GameInfo.Civilizations[pPlayer:GetCivilizationType()].Type;
+	
+	local iNumAvailable = 0;
+
 	for row in GameInfo.Corporations() do
 		local HQClass = GameInfo.BuildingClasses[row.HeadquartersBuildingClass];
-		local HQ = GameInfo.Buildings[HQClass.DefaultBuilding];
+		local HQ = nil;
+		local bSpecificCivRequired = false
+
+		-- Checking for civilization
+		if HQClass then
+			-- First check if the civ has an override
+			local bOverride = false
+			for thisOverride in GameInfo.Civilization_BuildingClassOverrides() do
+				if thisOverride.CivilizationType == civType and thisOverride.BuildingClassType == row.HeadquartersBuildingClass then
+					if thisOverride.BuildingType then
+						HQ = thisOverride.BuildingType
+					end
+					bOverride = true
+					break
+				end
+			end
+			-- If no override, look for the default building
+			if not bOverride then
+				if HQClass.DefaultBuilding then -- modders may put in nil as the default building
+					HQ = GameInfo.Buildings[ HQClass.DefaultBuilding ]
+				end
+			end
+			-- Is the headquarters only allowed for a certain civilization?
+			if not HQ or (HQ.CivilizationRequired and HQ.CivilizationRequired ~= civType) then
+				bSpecificCivRequired = true
+			end
+		end
 		
 		local OfficeClass = GameInfo.BuildingClasses[row.OfficeBuildingClass];
 		local Office = GameInfo.Buildings[OfficeClass.DefaultBuilding];
@@ -619,10 +651,11 @@ function UpdateAvailableCorporations()
 		end
 		
 		-- darken the box if it is not available
-		if( not bAvailable ) then
+		if( not bAvailable or bSpecificCivRequired ) then
 			instance.AvailableCorporationBox:SetAlpha( 0.4 );
 		else
 			instance.AvailableCorporationBox:SetAlpha( 1.0 );
+			iNumAvailable = iNumAvailable + 1
 		end
 		
 		if( row.Help ~= nil) then
@@ -631,7 +664,7 @@ function UpdateAvailableCorporations()
 		end
 	end
 
-	if(Game.GetNumAvailableCorporations() > 0) then
+	if(iNumAvailable > 0) then
 		Controls.FoundCorporationStatus:LocalizeAndSetText( "TXT_KEY_CPO_FOUND_CORPORATION_AVAILABLE" );
 	else
 		Controls.FoundCorporationStatus:LocalizeAndSetText( "TXT_KEY_CPO_FOUND_CORPORATION_UNAVAILABLE" );

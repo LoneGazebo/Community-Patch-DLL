@@ -5,8 +5,4 @@
 			<Text>Eliminated!</Text>
 		</Row>
 	</Language_en_US>
-
-	<CustomModDbUpdates>
-		<Row Name="API_ESPIONAGE" Value="1"/>
-	</CustomModDbUpdates>
 </GameData>

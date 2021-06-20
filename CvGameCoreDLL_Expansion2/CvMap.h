@@ -130,7 +130,7 @@ public:
 	void updateLayout(bool bDebug);
 	void updateSight(bool bIncrement);
 	void updateCenterUnit();
-	void updateOwningCity(CvPlot* pPlot = 0, int iRange = 0);
+	void updateOwningCityForPlots(CvPlot* pPlot = 0, int iRange = 0);
 	void updateYield();
 	void updateAdjacency();
 
@@ -322,8 +322,8 @@ public:
 	int GetAIMapHint();
 	// End Natural Wonders stuff
 
-	void ClearPlotsAtRange(const CvPlot* pPlot);
-	std::vector<CvPlot*> GetPlotsAtRange(const CvPlot* pPlot, int iRange, bool bFromPlot, bool bWithLOS);
+	void LineOfSightChanged(const CvPlot* pPlot);
+	const vector<CvPlot*>& GetPlotsAtRangeX(const CvPlot* pPlot, int iRange, bool bFromPlot, bool bWithLoS);
 
 	int GetPopupCount(int iPlotIndex);
 	void IncreasePopupCount(int iPlotIndex);
@@ -332,7 +332,7 @@ public:
 	int GetUnitKillCount(PlayerTypes ePlayer, int iPlotIndex);
 	void IncrementUnitKillCount(PlayerTypes ePlayer, int iPlotIndex);
 	void ExportUnitKillCount(PlayerTypes ePlayer);
-	void DoKillCountDecay(float fDecayFactor = 0.98);
+	void DoKillCountDecay(float fDecayFactor = 0.98f);
 #endif
 
 protected:
@@ -393,11 +393,14 @@ protected:
 	DeferredFogPlots m_vDeferredFogPlots; // don't serialize me
 
 	//caching some semi-static data, not serialized
-	typedef map<int, vector<CvPlot*>> PlotNeighborLookup;
+	typedef vector<vector<CvPlot*>> PlotNeighborLookup;
 	PlotNeighborLookup m_vPlotsWithLineOfSightFromPlot2;
 	PlotNeighborLookup m_vPlotsWithLineOfSightFromPlot3;
 	PlotNeighborLookup m_vPlotsWithLineOfSightToPlot2;
 	PlotNeighborLookup m_vPlotsWithLineOfSightToPlot3;
+	PlotNeighborLookup m_vPlotsAtRange2;
+	PlotNeighborLookup m_vPlotsAtRange3;
+	vector<CvPlot*>	   m_vPlotsShared; //for rare usecases which don't merit a dedicated cache
 
 	map<int, int> m_plotPopupCount; //not serialized
 
