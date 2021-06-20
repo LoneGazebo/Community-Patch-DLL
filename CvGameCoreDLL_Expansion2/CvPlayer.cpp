@@ -74,7 +74,7 @@
 // Version 1 
 //	 * CvPlayer save version reset for expansion pack 2.
 //------------------------------------------------------------------------------
-const int g_CurrentCvPlayerVersion = 17;
+const int g_CurrentCvPlayerVersion = 16;
 
 //Simply empty check utility.
 bool isEmpty(const char* szString)
@@ -46258,12 +46258,11 @@ void CvPlayer::Read(FDataStream& kStream)
 	}
 
 	kStream >> m_strEmbarkedGraphicOverride;
-	if (uiVersion >= 17)
-	{
-		int iTempFaithType;
-		kStream >> iTempFaithType;
-		m_eFaithPurchaseType = FaithPurchaseTypes(iTempFaithType);
-	}
+
+	int iTempFaithType;
+	kStream >> iTempFaithType;
+	m_eFaithPurchaseType = FaithPurchaseTypes(iTempFaithType);
+
 	m_kPlayerAchievements.Read(kStream);
 
 	if(GetID() < MAX_MAJOR_CIVS)
