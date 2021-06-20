@@ -1180,7 +1180,7 @@ int CvGameTrade::GetTradeRouteTurns(CvCity* pOriginCity, CvCity* pDestCity, Doma
 #else
 	int iTargetTurns = 30; // how many turns do we want the cycle to consume
 #endif
-	iTargetTurns += iTargetTurns * (GET_PLAYER(pOriginCity->getOwner()).GetTrade()->GetTradeRouteTurnMod(pOriginCity) / 100.0);
+	iTargetTurns += (int)(iTargetTurns * (GET_PLAYER(pOriginCity->getOwner()).GetTrade()->GetTradeRouteTurnMod(pOriginCity) / 100.0));
 
 	// calculate how many circuits do we want this trade route to run to reach the target turns
 	int iCircuitsToComplete = 1; 

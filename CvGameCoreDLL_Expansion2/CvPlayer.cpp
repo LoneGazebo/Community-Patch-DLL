@@ -9820,7 +9820,7 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 					pDiploAI->SetWarmongerThreat(eMyTeamPlayer, THREAT_NONE);
 					pDiploAI->SetOtherPlayerWarmongerAmountTimes100(eMyTeamPlayer, 0);
 					
-					pDiploAI->SetNumDemandEverMade(eMyTeamPlayer, 0);
+					pDiploAI->SetNumDemandsMade(eMyTeamPlayer, 0);
 
 					if (pDiploAI->GetCoopWarScore(eMyTeamPlayer) < 0)
 					{

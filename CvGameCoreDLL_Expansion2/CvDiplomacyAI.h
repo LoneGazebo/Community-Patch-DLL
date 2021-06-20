@@ -320,10 +320,10 @@ public:
 	void SetCantMatchDeal(PlayerTypes ePlayer, bool bValue);
 
 	// Demands
-	int GetNumDemandEverMade(PlayerTypes ePlayer) const;
-	void SetNumDemandEverMade(PlayerTypes ePlayer, int iValue);
-	void ChangeNumDemandEverMade(PlayerTypes ePlayer, int iChange);
-	bool IsDemandEverMade(PlayerTypes ePlayer) const;
+	int GetNumDemandsMade(PlayerTypes ePlayer) const;
+	void SetNumDemandsMade(PlayerTypes ePlayer, int iValue);
+	void ChangeNumDemandsMade(PlayerTypes ePlayer, int iChange);
+	bool IsDemandMade(PlayerTypes ePlayer) const;
 
 	int GetDemandMadeTurn(PlayerTypes ePlayer) const;
 	void SetDemandMadeTurn(PlayerTypes ePlayer, int iTurn);
@@ -946,10 +946,6 @@ public:
 
 	bool IsHasPaidTributeTo(PlayerTypes ePlayer) const;
 	void SetHasPaidTributeTo(PlayerTypes ePlayer, bool bValue);
-
-	int GetNumTimesDemandedWhileVassal(PlayerTypes ePlayer) const;
-	void SetNumTimesDemandedWhileVassal(PlayerTypes ePlayer, int iValue);
-	void ChangeNumTimesDemandedWhileVassal(PlayerTypes ePlayer, int iChange);
 
 	int GetVassalProtectValue(PlayerTypes ePlayer) const;
 	void SetVassalProtectValue(PlayerTypes ePlayer, int iValue);
@@ -1585,7 +1581,7 @@ public:
 	// Player has asked us to do things we don't like
 	int GetNoSettleRequestScore(PlayerTypes ePlayer);
 	int GetStopSpyingRequestScore(PlayerTypes ePlayer);
-	int GetDemandEverMadeScore(PlayerTypes ePlayer);
+	int GetDemandMadeScore(PlayerTypes ePlayer);
 
 	// Denouncing
 	int GetMutualDenouncementScore(PlayerTypes ePlayer);
@@ -1886,7 +1882,7 @@ private:
 	char m_aeDoFType[MAX_MAJOR_CIVS];
 	int m_aiDenouncedPlayerTurn[MAX_MAJOR_CIVS];
 	bool m_abCantMatchDeal[MAX_MAJOR_CIVS];
-	unsigned char m_aiDemandEverMade[MAX_MAJOR_CIVS];
+	unsigned char m_aiNumDemandsMade[MAX_MAJOR_CIVS];
 	int m_aiDemandMadeTurn[MAX_MAJOR_CIVS];
 	char m_aiDemandTooSoonNumTurns[MAX_MAJOR_CIVS];
 	unsigned short m_aiTradeValue[MAX_MAJOR_CIVS];
@@ -2079,7 +2075,6 @@ private:
 	char m_aiHelpRequestTooSoonNumTurns[MAX_MAJOR_CIVS];
 	bool m_abOfferingGift[MAX_MAJOR_CIVS];
 	bool m_abOfferedGift[MAX_MAJOR_CIVS];
-	unsigned char m_aiNumTimesDemandedWhenVassal[MAX_MAJOR_CIVS];
 	bool m_abHasPaidTributeTo[MAX_MAJOR_CIVS];
 	int m_aiBrokenVassalAgreementTurn[MAX_MAJOR_CIVS];
 	short m_aiPlayerVassalageFailedProtectValue[MAX_MAJOR_CIVS];

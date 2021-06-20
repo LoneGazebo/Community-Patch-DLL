@@ -161,7 +161,7 @@ void CvDiplomacyAI::Reset()
 		m_aeDoFType[iI] = NO_DOF_TYPE;
 		m_aiDenouncedPlayerTurn[iI] = -1;
 		m_abCantMatchDeal[iI] = false;
-		m_aiDemandEverMade[iI] = 0;
+		m_aiNumDemandsMade[iI] = 0;
 		m_aiDemandMadeTurn[iI] = -1;
 		m_aiDemandTooSoonNumTurns[iI] = -1;
 		m_aiTradeValue[iI] = 0;
@@ -341,7 +341,6 @@ void CvDiplomacyAI::Reset()
 		m_aiPlayerVassalageProtectValue[iI] = 0;
 		m_aiPlayerVassalagePeacefullyRevokedTurn[iI] = -1;
 		m_aiPlayerVassalageForcefullyRevokedTurn[iI] = -1;
-		m_aiNumTimesDemandedWhenVassal[iI] = 0;
 		m_abHasPaidTributeTo[iI] = false;
 		m_aiBrokenVassalAgreementTurn[iI] = -1;
 		m_aiMoveTroopsRequestAcceptedTurn[iI] = -1;
@@ -478,7 +477,7 @@ void CvDiplomacyAI::Read(FDataStream& kStream)
 	kStream >> m_aeDoFType;
 	kStream >> m_aiDenouncedPlayerTurn;
 	kStream >> m_abCantMatchDeal;
-	kStream >> m_aiDemandEverMade;
+	kStream >> m_aiNumDemandsMade;
 	kStream >> m_aiDemandMadeTurn;
 	kStream >> m_aiDemandTooSoonNumTurns;
 	kStream >> m_aiTradeValue;
@@ -674,7 +673,6 @@ void CvDiplomacyAI::Read(FDataStream& kStream)
 	kStream >> m_aiPlayerVassalageProtectValue;
 	kStream >> m_aiPlayerVassalagePeacefullyRevokedTurn;
 	kStream >> m_aiPlayerVassalageForcefullyRevokedTurn;
-	kStream >> m_aiNumTimesDemandedWhenVassal;
 	kStream >> m_abHasPaidTributeTo;
 	kStream >> m_aiBrokenVassalAgreementTurn;
 	kStream >> m_aiMoveTroopsRequestAcceptedTurn;
@@ -767,7 +765,7 @@ void CvDiplomacyAI::Write(FDataStream& kStream)
 	kStream << m_aeDoFType;
 	kStream << m_aiDenouncedPlayerTurn;
 	kStream << m_abCantMatchDeal;
-	kStream << m_aiDemandEverMade;
+	kStream << m_aiNumDemandsMade;
 	kStream << m_aiDemandMadeTurn;
 	kStream << m_aiDemandTooSoonNumTurns;
 	kStream << m_aiTradeValue;
@@ -963,7 +961,6 @@ void CvDiplomacyAI::Write(FDataStream& kStream)
 	kStream << m_aiPlayerVassalageProtectValue;
 	kStream << m_aiPlayerVassalagePeacefullyRevokedTurn;
 	kStream << m_aiPlayerVassalageForcefullyRevokedTurn;
-	kStream << m_aiNumTimesDemandedWhenVassal;
 	kStream << m_abHasPaidTributeTo;
 	kStream << m_aiBrokenVassalAgreementTurn;
 	kStream << m_aiMoveTroopsRequestAcceptedTurn;
@@ -3147,17 +3144,17 @@ void CvDiplomacyAI::SetCantMatchDeal(PlayerTypes ePlayer, bool bValue)
 	m_abCantMatchDeal[ePlayer] = bValue;
 }
 
-/// Returns the number of demands ePlayer has ever made of us
-int CvDiplomacyAI::GetNumDemandEverMade(PlayerTypes ePlayer) const
+/// Returns the number of trade demands ePlayer has made of us
+int CvDiplomacyAI::GetNumDemandsMade(PlayerTypes ePlayer) const
 {
 	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return 0;
-	return m_aiDemandEverMade[ePlayer];
+	return m_aiNumDemandsMade[ePlayer];
 }
 
-void CvDiplomacyAI::SetNumDemandEverMade(PlayerTypes ePlayer, int iValue)
+void CvDiplomacyAI::SetNumDemandsMade(PlayerTypes ePlayer, int iValue)
 {
 	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return;
-	m_aiDemandEverMade[ePlayer] = range(iValue, 0, UCHAR_MAX);
+	m_aiNumDemandsMade[ePlayer] = range(iValue, 0, UCHAR_MAX);
 
 	if (iValue > 0)
 	{
@@ -3167,17 +3164,18 @@ void CvDiplomacyAI::SetNumDemandEverMade(PlayerTypes ePlayer, int iValue)
 	{
 		SetDemandMadeTurn(ePlayer, -1);
 		SetDemandTooSoonNumTurns(ePlayer, -1);
+		SetHasPaidTributeTo(ePlayer, false);
 	}
 }
 
-void CvDiplomacyAI::ChangeNumDemandEverMade(PlayerTypes ePlayer, int iChange)
+void CvDiplomacyAI::ChangeNumDemandsMade(PlayerTypes ePlayer, int iChange)
 {
-	SetNumDemandEverMade(ePlayer, GetNumDemandEverMade(ePlayer) + iChange);
+	SetNumDemandsMade(ePlayer, GetNumDemandsMade(ePlayer) + iChange);
 }
 
-bool CvDiplomacyAI::IsDemandEverMade(PlayerTypes ePlayer) const
+bool CvDiplomacyAI::IsDemandMade(PlayerTypes ePlayer) const
 {
-	return GetNumDemandEverMade(ePlayer) > 0;
+	return GetNumDemandsMade(ePlayer) > 0;
 }
 
 /// On what turn did ePlayer most recently make a demand of us?
@@ -7225,29 +7223,6 @@ void CvDiplomacyAI::SetHasPaidTributeTo(PlayerTypes ePlayer, bool bValue)
 {
 	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return;
 	m_abHasPaidTributeTo[ePlayer] = bValue;
-}
-
-/// How many times did ePlayer demand from us since we've been his vassal?
-int CvDiplomacyAI::GetNumTimesDemandedWhileVassal(PlayerTypes ePlayer) const
-{
-	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return 0;
-	return m_aiNumTimesDemandedWhenVassal[ePlayer];
-}
-
-void CvDiplomacyAI::SetNumTimesDemandedWhileVassal(PlayerTypes ePlayer, int iValue)
-{
-	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return;
-	m_aiNumTimesDemandedWhenVassal[ePlayer] = range(iValue, 0, UCHAR_MAX);
-
-	if (iValue <= 0)
-	{
-		SetHasPaidTributeTo(ePlayer, false);
-	}
-}
-
-void CvDiplomacyAI::ChangeNumTimesDemandedWhileVassal(PlayerTypes ePlayer, int iChange)
-{
-	SetNumTimesDemandedWhileVassal(ePlayer, GetNumTimesDemandedWhileVassal(ePlayer) + iChange);
 }
 
 /// Returns value of vassal protection given
@@ -14060,7 +14035,7 @@ int CvDiplomacyAI::GetCivOpinionWeight(PlayerTypes ePlayer)
 
 	iOpinionWeight += GetNoSettleRequestScore(ePlayer);
 	iOpinionWeight += GetStopSpyingRequestScore(ePlayer);
-	iOpinionWeight += GetDemandEverMadeScore(ePlayer);
+	iOpinionWeight += GetDemandMadeScore(ePlayer);
 
 	//////////////////////////////////////
 	// DENOUNCING
@@ -15670,23 +15645,23 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	// DEMANDS
 	////////////////////////////////////
 
-	if (GetNumDemandEverMade(ePlayer) > 0)
+	if (GetNumDemandsMade(ePlayer) > 0)
 	{
-		vApproachScores[CIV_APPROACH_HOSTILE] += vApproachBias[CIV_APPROACH_HOSTILE] * GetNumDemandEverMade(ePlayer);
-		vApproachScores[CIV_APPROACH_DECEPTIVE] += vApproachBias[CIV_APPROACH_DECEPTIVE] * GetNumDemandEverMade(ePlayer) / 2;
+		vApproachScores[CIV_APPROACH_HOSTILE] += vApproachBias[CIV_APPROACH_HOSTILE] * GetNumDemandsMade(ePlayer);
+		vApproachScores[CIV_APPROACH_DECEPTIVE] += vApproachBias[CIV_APPROACH_DECEPTIVE] * GetNumDemandsMade(ePlayer) / 2;
 
-		if (GetNumDemandEverMade(ePlayer) > 1)
+		if (GetNumDemandsMade(ePlayer) > 1 || IsAtWar(ePlayer))
 		{
 			bProvokedUs = true;
 		}
 
 		if (bEasyTarget || eMilitaryStrength < STRENGTH_AVERAGE)
 		{
-			vApproachScores[CIV_APPROACH_WAR] += vApproachBias[CIV_APPROACH_WAR] * GetNumDemandEverMade(ePlayer);
+			vApproachScores[CIV_APPROACH_WAR] += vApproachBias[CIV_APPROACH_WAR] * GetNumDemandsMade(ePlayer);
 		}
 		else
 		{
-			vApproachScores[CIV_APPROACH_GUARDED] += vApproachBias[CIV_APPROACH_GUARDED] * GetNumDemandEverMade(ePlayer);
+			vApproachScores[CIV_APPROACH_GUARDED] += vApproachBias[CIV_APPROACH_GUARDED] * GetNumDemandsMade(ePlayer);
 		}
 	}
 
@@ -25510,7 +25485,7 @@ bool CvDiplomacyAI::IsEarlyGameCompetitor(PlayerTypes ePlayer)
 	if (GetNumWondersBeatenTo(ePlayer) > 0)
 		return true;
 
-	if (GetNumDemandEverMade(ePlayer) > 0)
+	if (GetNumDemandsMade(ePlayer) > 0)
 		return true;
 
 	if (GetNegativeReligiousConversionPoints(ePlayer) > 0)
@@ -27485,12 +27460,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 		else
 		{
 			// Apply diplomacy penalties!
-			GET_PLAYER(ePlayer).GetDiplomacyAI()->ChangeNumDemandEverMade(GetID(), 1);
-
-			if (IsMaster(ePlayer))
-			{
-				GET_PLAYER(ePlayer).GetDiplomacyAI()->ChangeNumTimesDemandedWhileVassal(GetID(), 1);
-			}
+			GET_PLAYER(ePlayer).GetDiplomacyAI()->ChangeNumDemandsMade(GetID(), 1);
 
 			// For now the AI will always give in
 			bool bValid = false;
@@ -39752,7 +39722,7 @@ void CvDiplomacyAI::DoDemandMade(PlayerTypes ePlayer, DemandResponseTypes eRespo
 	// We accepted the demand
 	if (eResponse == DEMAND_RESPONSE_ACCEPT)
 	{
-		ChangeNumDemandEverMade(ePlayer, 1);
+		ChangeNumDemandsMade(ePlayer, 1);
 
 		// See how long it'll be before we might agree to another demand
 		int iNumTurns = /*20*/ GC.getDEMAND_TURN_LIMIT_MIN();
@@ -39761,7 +39731,6 @@ void CvDiplomacyAI::DoDemandMade(PlayerTypes ePlayer, DemandResponseTypes eRespo
 
 		if (IsVassal(ePlayer))
 		{
-			ChangeNumTimesDemandedWhileVassal(ePlayer, 1);
 			SetHasPaidTributeTo(ePlayer, true);
 		}
 	}
@@ -39769,13 +39738,9 @@ void CvDiplomacyAI::DoDemandMade(PlayerTypes ePlayer, DemandResponseTypes eRespo
 	else
 	{
 		// Prevent exploit wherein the human spams the demand button to reduce AI Opinion - only allow for one penalty unless the demand is accepted
-		if (GetNumDemandEverMade(ePlayer) <= 0)
+		if (GetNumDemandsMade(ePlayer) <= 0)
 		{
-			SetNumDemandEverMade(ePlayer, 1);
-		}
-		if (IsVassal(ePlayer) && GetNumTimesDemandedWhileVassal(ePlayer) <= 0)
-		{
-			SetNumTimesDemandedWhileVassal(ePlayer, 1);
+			SetNumDemandsMade(ePlayer, 1);
 		}
 
 		// Do, however, reset the turn counter for the penalty
@@ -41994,7 +41959,7 @@ void CvDiplomacyAI::DoTestOpinionModifiers()
 		}
 
 		// Trade demands?
-		iStacks = GetNumDemandEverMade(ePlayer);
+		iStacks = GetNumDemandsMade(ePlayer);
 		if (iStacks > 0)
 		{
 			iTurnDifference = iTurn - GetDemandMadeTurn(ePlayer);
@@ -42003,17 +41968,7 @@ void CvDiplomacyAI::DoTestOpinionModifiers()
 			if (iTurnDifference >= iDuration)
 			{
 				iStacks /= 2;
-				SetNumDemandEverMade(ePlayer, iStacks);
-			}
-
-			if (IsVassal(ePlayer))
-			{
-				iStacks = GetNumTimesDemandedWhileVassal(ePlayer);
-				if (iTurnDifference >= iDuration)
-				{
-					iStacks /= 2;
-					SetNumTimesDemandedWhileVassal(ePlayer, iStacks);
-				}
+				SetNumDemandsMade(ePlayer, iStacks);
 			}
 		}
 
@@ -43387,10 +43342,10 @@ int CvDiplomacyAI::GetStopSpyingRequestScore(PlayerTypes ePlayer)
 	return iOpinionWeight;
 }
 
-int CvDiplomacyAI::GetDemandEverMadeScore(PlayerTypes ePlayer)
+int CvDiplomacyAI::GetDemandMadeScore(PlayerTypes ePlayer)
 {
 	int iOpinionWeight = 0;
-	int iNumDemands = GetNumDemandEverMade(ePlayer);
+	int iNumDemands = GetNumDemandsMade(ePlayer);
 
 	if (iNumDemands > 0)
 	{
@@ -45065,7 +45020,7 @@ int CvDiplomacyAI::GetVassalDemandScore(PlayerTypes ePlayer) const
 	if (!IsVassal(ePlayer)) 
 		return 0;
 
-	int iOpinionWeight = GetNumTimesDemandedWhileVassal(ePlayer) * GC.getOPINION_WEIGHT_DEMANDED_WHILE_VASSAL();
+	int iOpinionWeight = GetNumDemandsMade(ePlayer) * GC.getOPINION_WEIGHT_DEMANDED_WHILE_VASSAL();
 	
 	if (IsVoluntaryVassalage(ePlayer))
 	{
@@ -54236,7 +54191,7 @@ void CvDiplomacyAI::DoWeMadeVassalageWithSomeone(TeamTypes eMasterTeam, bool bVo
 			SetOtherPlayerWarmongerAmountTimes100(eOtherTeamPlayer, 0);
 
 			// Reset memory of demands made
-			SetNumDemandEverMade(eOtherTeamPlayer, 0);
+			SetNumDemandsMade(eOtherTeamPlayer, 0);
 
 			// Vassal thought they were a liberator, but Master had other plans...
 			SetMasterLiberatedMeFromVassalage(eOtherTeamPlayer, false);
@@ -54339,8 +54294,8 @@ void CvDiplomacyAI::DoWeEndedVassalageWithSomeone(TeamTypes eTeam)
 		
 		if (GET_PLAYER(ePlayer).getTeam() == eTeam)
 		{
-			// Set number of times demanded while vassal to be 0, since, y'know, we're not a vassal anymore...
-			SetNumTimesDemandedWhileVassal(ePlayer, 0);
+			// Reset tribute memory
+			SetHasPaidTributeTo(ePlayer, false);
 
 			// Reset our memory of GPT that was taxed from us
 			SetVassalGoldPerTurnCollectedSinceVassalStarted(ePlayer, 0);
