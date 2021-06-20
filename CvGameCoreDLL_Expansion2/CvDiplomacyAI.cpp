@@ -8999,20 +8999,31 @@ void CvDiplomacyAI::DoUpdateWarStates()
 					eWarState = WAR_STATE_STALEMATE;
 			}
 
-			// Which of us has more city danger?
+			// Which of us has more city danger? Also consider the war score!
 			if (eWarState == NO_WAR_STATE_TYPE)
 			{
 				if (iDangerPercent < 100)
 				{
-					eWarState = WAR_STATE_DEFENSIVE;
+					if (WarScore >= 25)
+						eWarState = WAR_STATE_STALEMATE;
+					else
+						eWarState = WAR_STATE_DEFENSIVE;
 				}
 				else if (iDangerPercent == 100)
 				{
-					eWarState = WAR_STATE_STALEMATE;
+					if (WarScore <= -25)
+						eWarState = WAR_STATE_DEFENSIVE;
+					else if (WarScore >= 25)
+						eWarState = WAR_STATE_OFFENSIVE;
+					else
+						eWarState = WAR_STATE_STALEMATE;
 				}
 				else if (iDangerPercent > 100)
 				{
-					eWarState = WAR_STATE_OFFENSIVE;
+					if (WarScore <= -25)
+						eWarState = WAR_STATE_STALEMATE;
+					else
+						eWarState = WAR_STATE_OFFENSIVE;
 				}
 			}
 
@@ -9027,10 +9038,10 @@ void CvDiplomacyAI::DoUpdateWarStates()
 
 			//Exceptions?
 
-			//If low warscore and it has been a while since either side captured a city, let's bring it down to calm.
-			if (GetPlayer()->GetPlayerNumTurnsSinceCityCapture(eLoopPlayer) > 10 && GET_PLAYER(eLoopPlayer).GetPlayerNumTurnsSinceCityCapture(GetID()) > 10)
+			//If low warscore, no serious danger, and it has been a while since either side captured a city, let's bring it down to calm.
+			if (!bSeriousDangerThem && !bSeriousDangerUs && GetPlayer()->GetPlayerNumTurnsSinceCityCapture(eLoopPlayer) > 10 && GET_PLAYER(eLoopPlayer).GetPlayerNumTurnsSinceCityCapture(GetID()) > 10)
 			{
-				if (WarScore <= 15 && WarScore >= -15)
+				if (WarScore <= 20 && WarScore >= -20)
 					eWarState = WAR_STATE_CALM;
 			}
 
@@ -9043,11 +9054,11 @@ void CvDiplomacyAI::DoUpdateWarStates()
 				}
 				else if (eWarState == WAR_STATE_OFFENSIVE)
 				{
-					iStateAllWars += 1;
+					iStateAllWars += (bSeriousDangerThem && !bSeriousDangerUs) ? 2 : 1;
 				}
 				else if (eWarState == WAR_STATE_DEFENSIVE)
 				{
-					iStateAllWars -= 1;
+					iStateAllWars -= bSeriousDangerUs ? 2 : 1;
 
 					// If we are defensive in any war and our capital has been damaged to 75% or lower, overall state should be defensive
 					CvCity *pCapital = m_pPlayer->getCapitalCity();
@@ -9073,7 +9084,7 @@ void CvDiplomacyAI::DoUpdateWarStates()
 	}
 
 	// Finalize overall assessment
-	if (iStateAllWars < 0 || GetStateAllWars() == STATE_ALL_WARS_LOSING)
+	if (iStateAllWars < -1 || GetStateAllWars() == STATE_ALL_WARS_LOSING)
 	{
 		SetStateAllWars(STATE_ALL_WARS_LOSING);
 	}
@@ -9085,11 +9096,11 @@ void CvDiplomacyAI::DoUpdateWarStates()
 
 bool CvDiplomacyAI::CanSeeEnemyCity(CvCity* pCity) const
 {
-	if (pCity == NULL)
+	if (!pCity)
 		return false;
 
 	CvPlot* pCityPlot = pCity->plot();
-	if (pCityPlot == NULL)
+	if (!pCityPlot)
 		return false;
 
 	TeamTypes eMyTeam = GetTeam();
@@ -11322,16 +11333,24 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 
 		if (iWarScore <= 0)
 		{
-			iPeaceScore += iWarScore / -10;
+			iPeaceScore += iWarScore / -2;
 			bProlong = false;
 		}
 		else if (GetPlayer()->GetPositiveWarScoreTourismMod() <= 0 || GET_PLAYER(GetHighestWarscorePlayer()).getTeam() != GET_PLAYER(*it).getTeam())
 		{
-			iPeaceScore += iWarScore / -10;
+			iPeaceScore += iWarScore / -5;
 			bProlong = false;
 		}
 
-		int iTooLongWarThreshold = bProlong ? 30 : 15;
+		int iMinimumWarDuration = max(0, /*10*/ GD_INT_GET(WAR_MAJOR_MINIMUM_TURNS));
+		int iTooLongWarThreshold = max(15, iMinimumWarDuration);
+		if (bProlong)
+		{
+			iTooLongWarThreshold *= 2;
+			iMinimumWarDuration *= 2;
+		}
+
+		int iDurationPenalty = iWarDuration - iMinimumWarDuration;
 
 		// Lack of progress in war increases desire for peace (moreso if far away).
 		if (iWarDuration > iTooLongWarThreshold)
@@ -11339,16 +11358,16 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 			switch (GetPlayer()->GetProximityToPlayer(*it))
 			{
 			case PLAYER_PROXIMITY_NEIGHBORS:
-				iPeaceScore += iWarDuration;
+				iPeaceScore += iDurationPenalty;
 				break;
 			case PLAYER_PROXIMITY_CLOSE:
-				iPeaceScore += (iWarDuration * 150) / 100;
+				iPeaceScore += (iDurationPenalty * 150) / 100;
 				break;
 			case PLAYER_PROXIMITY_FAR:
-				iPeaceScore += iWarDuration * 2;
+				iPeaceScore += iDurationPenalty * 2;
 				break;
 			case PLAYER_PROXIMITY_DISTANT:
-				iPeaceScore += iWarDuration * 3;
+				iPeaceScore += iDurationPenalty * 3;
 				break;
 			}
 		}
@@ -11446,9 +11465,14 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 			int iWarWeariness = GetPlayer()->GetCulture()->GetWarWeariness();
 			iPeaceScore += iWarWeariness / 4;
 
-			if (iWarWeariness > 0 && GetPlayer()->IsEmpireUnhappy())
+			bool bWarWeary = false;
+			int iPercentOfPop = iWarWeariness * 100 / max(1, GetPlayer()->getTotalPopulation());
+			if (iPercentOfPop >= /*17*/ (GC.getBALANCE_WAR_WEARINESS_POPULATION_CAP() / 2))
+				bWarWeary = true;
+
+			if (iWarWeariness > 0 && (bWarWeary || GetPlayer()->IsEmpireUnhappy()))
 			{
-				if (GetPlayer()->IsEmpireVeryUnhappy())
+				if (GetPlayer()->IsEmpireVeryUnhappy() || (GetPlayer()->IsEmpireUnhappy() && bWarWeary))
 					iPeaceScore += iWarWeariness / 2;
 				else
 					iPeaceScore += iWarWeariness / 3;
@@ -11462,7 +11486,7 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 		}
 
 		// If we want to conquer them, let's hold out longer.
-		if (IsWantsToConquer(*it) || IsUntrustworthy(*it))
+		if (!bReadyForVassalage && IsWantsToConquer(*it))
 		{
 			iPeaceScore -= 10;
 		}
@@ -11500,7 +11524,7 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 							if (GetPlayerEconomicStrengthComparedToUs(*it) <= STRENGTH_WEAK || GetPlayerTargetValue(*it) <= TARGET_VALUE_BAD)
 								iPeaceScore *= 2;
 						}
-						else
+						else if (IsWantsToConquer(*it))
 						{
 							iPeaceScore /= 2;
 						}
@@ -21230,16 +21254,11 @@ void CvDiplomacyAI::DoRelationshipPairing()
 		// Our master?
 		if (IsVassal(eLoopPlayer))
 		{
-			if (IsVoluntaryVassalage(eLoopPlayer) && GetVassalTreatmentLevel(eLoopPlayer) >= VASSAL_TREATMENT_DISAGREE)
-			{
+			if (GetVassalTreatmentLevel(eLoopPlayer) <= VASSAL_TREATMENT_DISAGREE)
 				SetStrategicTradePartner(eLoopPlayer, true);
-				continue;
-			}
-			else if (GetVassalTreatmentLevel(eLoopPlayer) == VASSAL_TREATMENT_CONTENT)
-			{
-				SetStrategicTradePartner(eLoopPlayer, true);
-				continue;
-			}
+			else
+				SetStrategicTradePartner(eLoopPlayer, false);
+			continue;
 		}
 
 		if (GetVictoryDisputeLevel(eLoopPlayer) == DISPUTE_LEVEL_FIERCE)
