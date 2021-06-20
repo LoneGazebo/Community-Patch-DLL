@@ -47762,6 +47762,11 @@ void CvPlayer::UpdateAreaEffectUnit(CvUnit* pUnit)
 	if (!pUnit || pUnit->isDelayedDeath())
 		return;
 
+	CvPlot* pPlot = pUnit->plot();
+
+	if (!pPlot)
+		return;
+
 	if ((pUnit->IsGreatGeneral() || pUnit->GetGreatGeneralCount() > 0) || (pUnit->IsGreatAdmiral() || pUnit->GetGreatAdmiralCount() > 0) || pUnit->IsCityAttackSupport() || pUnit->IsSapper())
 	{
 		bool bFound = false;
@@ -47769,14 +47774,14 @@ void CvPlayer::UpdateAreaEffectUnit(CvUnit* pUnit)
 		{
 			if ( m_unitsAreaEffectPositive[i].first == pUnit->GetID() )
 			{
-				m_unitsAreaEffectPositive[i].second = pUnit->plot()->GetPlotIndex();
+				m_unitsAreaEffectPositive[i].second = pPlot->GetPlotIndex();
 				bFound = true;
 				break;
 			}
 		}
 
 		if (!bFound)
-			m_unitsAreaEffectPositive.push_back(std::make_pair(pUnit->GetID(), pUnit->plot()->GetPlotIndex()));
+			m_unitsAreaEffectPositive.push_back(std::make_pair(pUnit->GetID(), pPlot->GetPlotIndex()));
 	}
 
 	if (pUnit->getNearbyEnemyCombatMod() < 0)
@@ -47786,14 +47791,14 @@ void CvPlayer::UpdateAreaEffectUnit(CvUnit* pUnit)
 		{
 			if ( m_unitsAreaEffectNegative[i].first == pUnit->GetID() )
 			{
-				m_unitsAreaEffectNegative[i].second = pUnit->plot()->GetPlotIndex();
+				m_unitsAreaEffectNegative[i].second = pPlot->GetPlotIndex();
 				bFound = true;
 				break;
 			}
 		}
 
 		if (!bFound)
-			m_unitsAreaEffectNegative.push_back(std::make_pair(pUnit->GetID(), pUnit->plot()->GetPlotIndex()));
+			m_unitsAreaEffectNegative.push_back(std::make_pair(pUnit->GetID(), pPlot->GetPlotIndex()));
 	}
 
 	//do not include medics here, it kills performance
@@ -47805,14 +47810,14 @@ void CvPlayer::UpdateAreaEffectUnit(CvUnit* pUnit)
 		{
 			if (m_unitsAreaEffectPromotion[i].first == pUnit->GetID())
 			{
-				m_unitsAreaEffectPromotion[i].second = pUnit->plot()->GetPlotIndex();
+				m_unitsAreaEffectPromotion[i].second = pPlot->GetPlotIndex();
 				bFound = true;
 				break;
 			}
 		}
 
 		if (!bFound)
-			m_unitsAreaEffectPromotion.push_back(std::make_pair(pUnit->GetID(), pUnit->plot()->GetPlotIndex()));
+			m_unitsAreaEffectPromotion.push_back(std::make_pair(pUnit->GetID(), pPlot->GetPlotIndex()));
 	}
 
 	// Must be able to intercept
@@ -47823,14 +47828,14 @@ void CvPlayer::UpdateAreaEffectUnit(CvUnit* pUnit)
 		{
 			if (m_unitsWhichCanIntercept[i].first == pUnit->GetID())
 			{
-				m_unitsWhichCanIntercept[i].second = pUnit->plot()->GetPlotIndex();
+				m_unitsWhichCanIntercept[i].second = pPlot->GetPlotIndex();
 				bFound = true;
 				break;
 			}
 		}
 
 		if (!bFound)
-			m_unitsWhichCanIntercept.push_back(std::make_pair(pUnit->GetID(), pUnit->plot()->GetPlotIndex()));
+			m_unitsWhichCanIntercept.push_back(std::make_pair(pUnit->GetID(), pPlot->GetPlotIndex()));
 	}
 
 	//might need to update the UI
@@ -47852,21 +47857,28 @@ void CvPlayer::UpdateAreaEffectUnits()
 	int iLoop;
 	for (CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit; pLoopUnit = nextUnit(&iLoop))
 	{
+		CvPlot* pPlot = pLoopUnit->plot();
+
+		if (!pPlot)
+		{
+			continue;
+		}
+
 		if ((pLoopUnit->IsGreatGeneral() || pLoopUnit->GetGreatGeneralCount() > 0) || 
 			(pLoopUnit->IsGreatAdmiral() || pLoopUnit->GetGreatAdmiralCount() > 0) || 
 			 pLoopUnit->IsCityAttackSupport() || pLoopUnit->IsSapper())
-			m_unitsAreaEffectPositive.push_back(std::make_pair(pLoopUnit->GetID(), pLoopUnit->plot()->GetPlotIndex()));
+			m_unitsAreaEffectPositive.push_back(std::make_pair(pLoopUnit->GetID(), pPlot->GetPlotIndex()));
 
 		if (pLoopUnit->getNearbyEnemyCombatMod() < 0)
-			m_unitsAreaEffectNegative.push_back(std::make_pair(pLoopUnit->GetID(), pLoopUnit->plot()->GetPlotIndex()));
+			m_unitsAreaEffectNegative.push_back(std::make_pair(pLoopUnit->GetID(), pPlot->GetPlotIndex()));
 
 		//do not include medics here, it kills performance
 		//medics are range 1, they can easily be found by iterating the 6 neighbor plots
 		if (pLoopUnit->isNearbyPromotion())
-			m_unitsAreaEffectPromotion.push_back(std::make_pair(pLoopUnit->GetID(), pLoopUnit->plot()->GetPlotIndex()));
+			m_unitsAreaEffectPromotion.push_back(std::make_pair(pLoopUnit->GetID(), pPlot->GetPlotIndex()));
 
 		if (pLoopUnit->canIntercept())
-			m_unitsWhichCanIntercept.push_back(std::make_pair(pLoopUnit->GetID(), pLoopUnit->plot()->GetPlotIndex()));
+			m_unitsWhichCanIntercept.push_back(std::make_pair(pLoopUnit->GetID(), pPlot->GetPlotIndex()));
 	}
 
 	//might need to update the UI
