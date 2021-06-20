@@ -965,8 +965,9 @@ protected:
 	map<BuildTypes,int> m_buildProgress;
 	CvUnit* m_pCenterUnit;
 
-	unsigned char m_apaiInvisibleVisibilityCount[MAX_TEAMS][NUM_INVISIBLE_TYPES];
-	unsigned char m_paiInvisibleVisibilityUnitCount[MAX_TEAMS];
+	//this is totally f'd ... don't waste memory on it
+	vector<pair<TeamTypes,int>> m_vInvisibleVisibilityUnitCount;
+	vector<pair<TeamTypes,vector<int>>> m_vInvisibleVisibilityCount;
 
 	short m_iArea;
 	short m_iLandmass;

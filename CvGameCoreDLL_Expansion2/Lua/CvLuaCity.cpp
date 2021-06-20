@@ -3539,10 +3539,10 @@ int CvLuaCity::lGetPressurePerTurn(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
 	ReligionTypes eReligion = (ReligionTypes)lua_tointeger(L, 2);
-	int iNumTradeRoutes;
-	const int iResult = (int)pkCity->GetCityReligions()->GetPressurePerTurn(eReligion, iNumTradeRoutes);
+	int iNumSourceCities = 0;
+	const int iResult = (int)pkCity->GetCityReligions()->GetPressurePerTurn(eReligion, &iNumSourceCities);
 	lua_pushinteger(L, iResult);
-	lua_pushinteger(L, iNumTradeRoutes);
+	lua_pushinteger(L, iNumSourceCities);
 	return 2;
 }
 //------------------------------------------------------------------------------

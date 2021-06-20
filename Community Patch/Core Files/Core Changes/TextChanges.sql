@@ -301,6 +301,11 @@ WHERE RelatedConcept = 'CONCEPT_SOCIAL_POLICY_BRANCH_EXPLORATION';
 DELETE FROM Concepts_RelatedConcept
 WHERE ConceptType = 'CONCEPT_SOCIAL_POLICY_BRANCH_EXPLORATION';
 
+--redefine param 4, it's about cities in trade range not actual trade routes
+UPDATE Language_en_US
+SET Text = '{1_ReligionIcon} {2_NumFollowers} Followers {3_PressureString} ({4_Num} source cities)'
+WHERE Tag = 'TXT_KEY_RELIGION_TOOLTIP_LINE_WITH_TRADE';
+
 --Texts for New Wonder and Building Production Modifiers, either by Trait, Improvement or UnitPromotion
 INSERT INTO Language_en_US
 			(Tag,															Text)
