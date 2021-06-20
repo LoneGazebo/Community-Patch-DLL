@@ -50,6 +50,11 @@ ALTER TABLE Buildings ADD COLUMN 'NoUnhappfromXSpecialists' INTEGER DEFAULT 0;
 -- Reduce specialist unhappiness from urbanization (CBO)
 ALTER TABLE Buildings ADD COLUMN 'NoUnhappfromXSpecialistsGlobal' INTEGER DEFAULT 0;
 
+-- BUILDING: PlayerBorderGainlessPillage & CityGainlessPillage
+-- If such a building's effect applies, other teams get neither gold nor heal from pillaging the appropriate tiles.
+-- CityGainlessPillage affects the constructing city's worked tiles, PlayerBorderGainlessPillage proofs every tile of the player
+ALTER TABLE Buildings ADD PlayerBorderGainlessPillage BOOLEAN DEFAULT 0;
+ALTER TABLE Buildings ADD CityGainlessPillage BOOLEAN DEFAULT 0;
 
 -- Belief requires an improvement on a terrain type to grant its yield.
 
