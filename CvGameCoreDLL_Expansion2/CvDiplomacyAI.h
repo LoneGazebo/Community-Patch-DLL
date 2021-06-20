@@ -705,9 +705,6 @@ public:
 	bool IsPlayerLiberatedHolyCity(PlayerTypes ePlayer) const;
 	void SetPlayerLiberatedHolyCity(PlayerTypes ePlayer, bool bValue);
 
-	bool IsDoFEverAsked(PlayerTypes ePlayer) const;
-	void SetDoFEverAsked(PlayerTypes ePlayer, bool bValue);
-
 	bool IsPlayerCapturedCapital(PlayerTypes ePlayer, bool bEver = false) const;
 	void SetPlayerCapturedCapital(PlayerTypes ePlayer, bool bValue);
 	bool IsCapitalCapturedBy(PlayerTypes ePlayer, bool bCurrently = false, bool bTeammates = true, bool bCheckEver = false) const;
@@ -2011,7 +2008,6 @@ private:
 	bool m_abReturnedHolyCity[MAX_MAJOR_CIVS];
 	bool m_abLiberatedCapital[MAX_MAJOR_CIVS];
 	bool m_abLiberatedHolyCity[MAX_MAJOR_CIVS];
-	bool m_abDoFEverAsked[MAX_MAJOR_CIVS];
 	bool m_abCapturedCapital[MAX_MAJOR_CIVS];
 	bool m_abCapturedHolyCity[MAX_MAJOR_CIVS];
 	bool m_abResurrectorAttackedUs[MAX_MAJOR_CIVS];

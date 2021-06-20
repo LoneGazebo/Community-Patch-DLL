@@ -268,7 +268,6 @@ void CvDiplomacyAI::Reset()
 		m_abReturnedHolyCity[iI] = false;
 		m_abLiberatedCapital[iI] = false;
 		m_abLiberatedHolyCity[iI] = false;
-		m_abDoFEverAsked[iI] = false;
 		m_abCapturedCapital[iI] = false;
 		m_abCapturedHolyCity[iI] = false;
 		m_abResurrectorAttackedUs[iI] = false;
@@ -601,7 +600,6 @@ void CvDiplomacyAI::Read(FDataStream& kStream)
 	kStream >> m_abReturnedHolyCity;
 	kStream >> m_abLiberatedCapital;
 	kStream >> m_abLiberatedHolyCity;
-	kStream >> m_abDoFEverAsked;
 	kStream >> m_abCapturedCapital;
 	kStream >> m_abCapturedHolyCity;
 	kStream >> m_abResurrectorAttackedUs;
@@ -891,7 +889,6 @@ void CvDiplomacyAI::Write(FDataStream& kStream)
 	kStream << m_abReturnedHolyCity;
 	kStream << m_abLiberatedCapital;
 	kStream << m_abLiberatedHolyCity;
-	kStream << m_abDoFEverAsked;
 	kStream << m_abCapturedCapital;
 	kStream << m_abCapturedHolyCity;
 	kStream << m_abResurrectorAttackedUs;
@@ -5615,19 +5612,6 @@ void CvDiplomacyAI::SetPlayerLiberatedHolyCity(PlayerTypes ePlayer, bool bValue)
 {
 	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return;
 	m_abLiberatedHolyCity[ePlayer] = bValue;
-}
-
-/// Has ePlayer ever asked us to make a Declaration of Friendship?
-bool CvDiplomacyAI::IsDoFEverAsked(PlayerTypes ePlayer) const
-{
-	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return false;
-	return m_abDoFEverAsked[ePlayer];
-}
-
-void CvDiplomacyAI::SetDoFEverAsked(PlayerTypes ePlayer, bool bValue)
-{
-	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return;
-	m_abDoFEverAsked[ePlayer] = bValue;
 }
 
 /// Did this player capture our original capital?
