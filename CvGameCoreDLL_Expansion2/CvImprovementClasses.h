@@ -105,6 +105,10 @@ public:
 	int GetRequiresXAdjacentWater() const;
 #endif
 
+#if defined(MOD_GLOBAL_NO_FOLLOWUP_FROM_CITIES)
+	bool IsNoFollowUp() const;
+#endif
+
 #if defined(MOD_GLOBAL_RELOCATION)
 	bool IsAllowsRebaseTo() const;
 	bool IsAllowsAirliftFrom() const;
@@ -279,6 +283,9 @@ protected:
 	int m_iRequiresXAdjacentLand;
 #if defined(MOD_API_EXTENSIONS)
 	int m_iRequiresXAdjacentWater;
+#endif
+#if defined(MOD_GLOBAL_NO_FOLLOWUP_FROM_CITIES)
+	bool m_bNoFollowUp;
 #endif
 
 #if defined(MOD_GLOBAL_RELOCATION)

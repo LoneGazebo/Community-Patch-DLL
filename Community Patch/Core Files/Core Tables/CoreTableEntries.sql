@@ -1383,6 +1383,9 @@ ALTER TABLE Improvements ADD COLUMN 'RandResourceChance' INTEGER DEFAULT 0;
 -- Removes the improvement when built. Useful in combination with CreatesFeature.
 ALTER TABLE Improvements ADD COLUMN 'RemoveWhenComplete' BOOLEAN DEFAULT 0;
 
+-- Units that stand on this improvement don't leave it when they attack (like from a city)
+ALTER TABLE Improvements ADD COLUMN 'NoFollowUp' BOOLEAN DEFAULT 0;
+
 -- Start a WLTKD when this unit is born or gained. GP's only.
 ALTER TABLE Units ADD COLUMN 'WLTKDFromBirth' BOOLEAN DEFAULT 0;
 
