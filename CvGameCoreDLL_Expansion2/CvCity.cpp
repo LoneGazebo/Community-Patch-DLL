@@ -608,8 +608,8 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 	pPlot->SetRoutePillaged(false);
 #endif
 
+	//clear the first ring
 	int iRange = min(1, GD_INT_GET(CITY_STARTING_RINGS));
-
 	for(int iDX = -iRange; iDX <= iRange; iDX++)
 	{
 		for(int iDY = -iRange; iDY <= iRange; iDY++)
@@ -30440,7 +30440,7 @@ void CvCity::startHeadOrder()
 
 	if(pOrderNode != NULL)
 	{
-		GetCityCitizens()->DoReallocateCitizens();
+		GetCityCitizens()->OptimizeWorkedPlots(false);
 
 		if(pOrderNode->eOrderType == ORDER_MAINTAIN)
 		{
@@ -35656,18 +35656,12 @@ int CvCity::CountFeature(FeatureTypes iFeatureType) const
 	{
 		CvPlot* pLoopPlot = iterateRingPlots(iX, iY, iCityPlotLoop);
 
-		// Invalid plot or not owned by this player
-		if (pLoopPlot == NULL || pLoopPlot->getOwner() != iOwner) {
-			continue;
-		}
-
-		// Not owned by this city
-		if (!GetCityCitizens()->IsCanWork(pLoopPlot))
+		// Invalid plot or not owned by this city
+		if (pLoopPlot == NULL || pLoopPlot->getOwningCityID()!=GetID())
 			continue;
 
-		if (pLoopPlot->HasFeature(iFeatureType)) {
+		if (pLoopPlot->HasFeature(iFeatureType))
 			++iCount;
-		}
 	}
 	
 	return iCount;
@@ -35709,13 +35703,8 @@ int CvCity::CountImprovement(ImprovementTypes iImprovementType, bool bOnlyCreate
 	{
 		CvPlot* pLoopPlot = iterateRingPlots(iX, iY, iCityPlotLoop);
 
-		// Invalid plot or not owned by this player
-		if (pLoopPlot == NULL || pLoopPlot->getOwner() != iOwner) {
-			continue;
-		}
-
-		// Not owned by this city
-		if (!GetCityCitizens()->IsCanWork(pLoopPlot))
+		// Invalid plot or not owned by this city
+		if (pLoopPlot == NULL || pLoopPlot->getOwningCityID()!=GetID())
 			continue;
 
 		if (pLoopPlot->HasImprovement(iImprovementType)) 
@@ -35766,18 +35755,12 @@ int CvCity::CountPlotType(PlotTypes iPlotType) const
 	{
 		CvPlot* pLoopPlot = iterateRingPlots(iX, iY, iCityPlotLoop);
 
-		// Invalid plot or not owned by this player
-		if (pLoopPlot == NULL || pLoopPlot->getOwner() != iOwner) {
-			continue;
-		}
-
-		// Not owned by this city
-		if (!GetCityCitizens()->IsCanWork(pLoopPlot))
+		// Invalid plot or not owned by this city
+		if (pLoopPlot == NULL || pLoopPlot->getOwningCityID()!=GetID())
 			continue;
 
-		if (pLoopPlot->HasPlotType(iPlotType)) {
+		if (pLoopPlot->HasPlotType(iPlotType))
 			++iCount;
-		}
 	}
 	
 	return iCount;
@@ -35872,18 +35855,12 @@ int CvCity::CountTerrain(TerrainTypes iTerrainType) const
 	{
 		CvPlot* pLoopPlot = iterateRingPlots(iX, iY, iCityPlotLoop);
 
-		// Invalid plot or not owned by this player
-		if (pLoopPlot == NULL || pLoopPlot->getOwner() != iOwner) {
-			continue;
-		}
-
-		// Not owned by this city
-		if (!GetCityCitizens()->IsCanWork(pLoopPlot))
+		// Invalid plot or not owned by this city
+		if (pLoopPlot == NULL || pLoopPlot->getOwningCityID()!=GetID())
 			continue;
 
-		if (pLoopPlot->HasTerrain(iTerrainType)) {
+		if (pLoopPlot->HasTerrain(iTerrainType))
 			++iCount;
-		}
 	}
 	
 	return iCount;
@@ -35929,10 +35906,6 @@ int CvCity::CountAllOwnedTerrain(TerrainTypes iTerrainType) const
 		if (pLoopPlot == NULL || pLoopPlot->getOwner() != iOwner) {
 			continue;
 		}
-
-		// Not owned by this city
-		if (!GetCityCitizens()->IsCanWork(pLoopPlot))
-			continue;
 
 		if (pLoopPlot->HasTerrain(iTerrainType)) {
 			++iCount;
