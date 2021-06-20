@@ -21258,6 +21258,7 @@ void CvDiplomacyAI::DoRelationshipPairing()
 				SetStrategicTradePartner(eLoopPlayer, true);
 			else
 				SetStrategicTradePartner(eLoopPlayer, false);
+
 			continue;
 		}
 
@@ -21282,21 +21283,7 @@ void CvDiplomacyAI::DoRelationshipPairing()
 		// Vassals are usually strategic trade partners.
 		if (IsMaster(eLoopPlayer))
 		{
-			if (bGoingForConquest || bCloseToConquest)
-			{
-				if (GET_PLAYER(eLoopPlayer).GetCapitalConqueror() != NO_PLAYER)
-				{
-					SetStrategicTradePartner(eLoopPlayer, true);
-				}
-				else
-				{
-					SetStrategicTradePartner(eLoopPlayer, false);
-				}
-			}
-			else
-			{
-				SetStrategicTradePartner(eLoopPlayer, true);
-			}
+			SetStrategicTradePartner(eLoopPlayer, true);
 			continue;
 		}
 
