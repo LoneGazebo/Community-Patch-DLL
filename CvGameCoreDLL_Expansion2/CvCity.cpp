@@ -2222,29 +2222,7 @@ void CvCity::PreKill()
 
 	GC.getGame().GetGameTrade()->ClearAllCityTradeRoutes(pPlot, true);
 
-	// Update resources linked to this city
-	for(int iI = 0; iI < GetNumWorkablePlots(); iI++)
-	{
-		CvPlot* pLoopPlot = GetCityCitizens()->GetCityPlotFromIndex(iI);
-		if(pLoopPlot != NULL)
-		{
-			if(pLoopPlot->getOwningCityOverride() == this)
-			{
-				pLoopPlot->setOwningCityOverride(NULL);
-			}
-		}
-	}
-
-	// If this city was built on a Resource, remove its Quantity from total
-	if(pPlot->getResourceType(getTeam()) != NO_RESOURCE)
-	{
-		if(GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes) GC.getResourceInfo(pPlot->getResourceType())->getTechCityTrade()))
-		{
-			GET_PLAYER(getOwner()).changeNumResourceTotal(pPlot->getResourceType(), -pPlot->getNumResourceForPlayer(getOwner()));
-		}
-	}
-
-	plot()->removeMinorResources();
+	pPlot->removeMinorResources();
 
 	for(int iI = 0; iI < GC.getNumBuildingInfos(); iI++)
 	{
@@ -2285,7 +2263,7 @@ void CvCity::PreKill()
 		CvPlot* pLoopPlot = GC.getMap().plotByIndexUnchecked(iPlotLoop);
 		if(NULL != pLoopPlot && pLoopPlot->getOwningCityID() == GetID())
 		{
-			pLoopPlot->setOwner(NO_PLAYER, NO_PLAYER, /*bCheckUnits*/ true, /*bUpdateResources*/ true);
+			pLoopPlot->setOwner(NO_PLAYER, NO_PLAYER, /*bCheckUnits*/ false, /*bUpdateResources*/ true);
 		}
 	}
 
@@ -35650,11 +35628,10 @@ const std::vector<int>& CvCity::GetAttachedUnits() const
 int CvCity::CountFeature(FeatureTypes iFeatureType) const
 {
 	int iCount = 0;
-	int iX = getX(); int iY = getY();
 
 	for (int iCityPlotLoop = 0; iCityPlotLoop < GetNumWorkablePlots(); iCityPlotLoop++)
 	{
-		CvPlot* pLoopPlot = iterateRingPlots(iX, iY, iCityPlotLoop);
+		CvPlot* pLoopPlot = iterateRingPlots(getX(), getY(), iCityPlotLoop);
 
 		// Invalid plot or not owned by this city
 		if (pLoopPlot == NULL || pLoopPlot->getOwningCityID()!=GetID())
@@ -35697,11 +35674,10 @@ int CvCity::CountWorkedFeature(FeatureTypes iFeatureType) const
 int CvCity::CountImprovement(ImprovementTypes iImprovementType, bool bOnlyCreated) const
 {
 	int iCount = 0;
-	int iX = getX(); int iY = getY();
 
 	for (int iCityPlotLoop = 0; iCityPlotLoop < GetNumWorkablePlots(); iCityPlotLoop++)
 	{
-		CvPlot* pLoopPlot = iterateRingPlots(iX, iY, iCityPlotLoop);
+		CvPlot* pLoopPlot = iterateRingPlots(getX(), getY(), iCityPlotLoop);
 
 		// Invalid plot or not owned by this city
 		if (pLoopPlot == NULL || pLoopPlot->getOwningCityID()!=GetID())
@@ -35749,11 +35725,10 @@ int CvCity::CountWorkedImprovement(ImprovementTypes iImprovementType) const
 int CvCity::CountPlotType(PlotTypes iPlotType) const
 {
 	int iCount = 0;
-	int iX = getX(); int iY = getY();
 
 	for (int iCityPlotLoop = 0; iCityPlotLoop < GetNumWorkablePlots(); iCityPlotLoop++)
 	{
-		CvPlot* pLoopPlot = iterateRingPlots(iX, iY, iCityPlotLoop);
+		CvPlot* pLoopPlot = iterateRingPlots(getX(), getY(), iCityPlotLoop);
 
 		// Invalid plot or not owned by this city
 		if (pLoopPlot == NULL || pLoopPlot->getOwningCityID()!=GetID())
@@ -35849,11 +35824,10 @@ int CvCity::CountWorkedResource(ResourceTypes iResourceType) const
 int CvCity::CountTerrain(TerrainTypes iTerrainType) const
 {
 	int iCount = 0;
-	int iX = getX(); int iY = getY();
 
 	for (int iCityPlotLoop = 0; iCityPlotLoop < GetNumWorkablePlots(); iCityPlotLoop++)
 	{
-		CvPlot* pLoopPlot = iterateRingPlots(iX, iY, iCityPlotLoop);
+		CvPlot* pLoopPlot = iterateRingPlots(getX(), getY(), iCityPlotLoop);
 
 		// Invalid plot or not owned by this city
 		if (pLoopPlot == NULL || pLoopPlot->getOwningCityID()!=GetID())
