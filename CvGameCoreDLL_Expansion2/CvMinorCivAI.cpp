@@ -1908,11 +1908,6 @@ bool CvMinorCivQuest::IsExpired()
 		return true;
 	}
 
-	if (!GET_PLAYER(m_eMinor).isAlive())
-	{
-		return true;
-	}
-
 	// Build a Route
 	if(m_eType == MINOR_CIV_QUEST_ROUTE)
 	{
