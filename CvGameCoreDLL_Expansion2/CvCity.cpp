@@ -2222,29 +2222,7 @@ void CvCity::PreKill()
 
 	GC.getGame().GetGameTrade()->ClearAllCityTradeRoutes(pPlot, true);
 
-	// Update resources linked to this city
-	for(int iI = 0; iI < GetNumWorkablePlots(); iI++)
-	{
-		CvPlot* pLoopPlot = GetCityCitizens()->GetCityPlotFromIndex(iI);
-		if(pLoopPlot != NULL)
-		{
-			if(pLoopPlot->getOwningCityOverride() == this)
-			{
-				pLoopPlot->setOwningCityOverride(NULL);
-			}
-		}
-	}
-
-	// If this city was built on a Resource, remove its Quantity from total
-	if(pPlot->getResourceType(getTeam()) != NO_RESOURCE)
-	{
-		if(GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes) GC.getResourceInfo(pPlot->getResourceType())->getTechCityTrade()))
-		{
-			GET_PLAYER(getOwner()).changeNumResourceTotal(pPlot->getResourceType(), -pPlot->getNumResourceForPlayer(getOwner()));
-		}
-	}
-
-	plot()->removeMinorResources();
+	pPlot->removeMinorResources();
 
 	for(int iI = 0; iI < GC.getNumBuildingInfos(); iI++)
 	{
@@ -2285,7 +2263,7 @@ void CvCity::PreKill()
 		CvPlot* pLoopPlot = GC.getMap().plotByIndexUnchecked(iPlotLoop);
 		if(NULL != pLoopPlot && pLoopPlot->getOwningCityID() == GetID())
 		{
-			pLoopPlot->setOwner(NO_PLAYER, NO_PLAYER, /*bCheckUnits*/ true, /*bUpdateResources*/ true);
+			pLoopPlot->setOwner(NO_PLAYER, NO_PLAYER, /*bCheckUnits*/ false, /*bUpdateResources*/ true);
 		}
 	}
 
