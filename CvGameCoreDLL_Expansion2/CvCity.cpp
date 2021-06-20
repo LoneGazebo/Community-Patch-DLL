@@ -35650,7 +35650,7 @@ const std::vector<int>& CvCity::GetAttachedUnits() const
 int CvCity::CountFeature(FeatureTypes iFeatureType) const
 {
 	int iCount = 0;
-	int iX = getX(); int iY = getY(); int iOwner = getOwner();
+	int iX = getX(); int iY = getY();
 
 	for (int iCityPlotLoop = 0; iCityPlotLoop < GetNumWorkablePlots(); iCityPlotLoop++)
 	{
@@ -35697,7 +35697,7 @@ int CvCity::CountWorkedFeature(FeatureTypes iFeatureType) const
 int CvCity::CountImprovement(ImprovementTypes iImprovementType, bool bOnlyCreated) const
 {
 	int iCount = 0;
-	int iX = getX(); int iY = getY(); int iOwner = getOwner();
+	int iX = getX(); int iY = getY();
 
 	for (int iCityPlotLoop = 0; iCityPlotLoop < GetNumWorkablePlots(); iCityPlotLoop++)
 	{
@@ -35749,7 +35749,7 @@ int CvCity::CountWorkedImprovement(ImprovementTypes iImprovementType) const
 int CvCity::CountPlotType(PlotTypes iPlotType) const
 {
 	int iCount = 0;
-	int iX = getX(); int iY = getY(); int iOwner = getOwner();
+	int iX = getX(); int iY = getY();
 
 	for (int iCityPlotLoop = 0; iCityPlotLoop < GetNumWorkablePlots(); iCityPlotLoop++)
 	{
@@ -35849,7 +35849,7 @@ int CvCity::CountWorkedResource(ResourceTypes iResourceType) const
 int CvCity::CountTerrain(TerrainTypes iTerrainType) const
 {
 	int iCount = 0;
-	int iX = getX(); int iY = getY(); int iOwner = getOwner();
+	int iX = getX(); int iY = getY();
 
 	for (int iCityPlotLoop = 0; iCityPlotLoop < GetNumWorkablePlots(); iCityPlotLoop++)
 	{
