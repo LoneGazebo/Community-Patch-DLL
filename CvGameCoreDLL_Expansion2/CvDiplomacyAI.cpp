@@ -9047,7 +9047,7 @@ void CvDiplomacyAI::DoUpdateWarStates()
 	{
 		SetStateAllWars(STATE_ALL_WARS_LOSING);
 	}
-	else if (iStateAllWars > 0)
+	else if (iStateAllWars > 1)
 	{
 		SetStateAllWars(STATE_ALL_WARS_WINNING);
 	}
