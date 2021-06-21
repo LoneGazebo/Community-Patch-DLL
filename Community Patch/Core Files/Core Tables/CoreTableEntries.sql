@@ -262,7 +262,7 @@ ALTER TABLE Traits ADD COLUMN 'MultipleAttackBonus' INTEGER DEFAULT 0;
 -- Does this Civ get extra influence from meeting a CS?
 ALTER TABLE Traits ADD COLUMN 'InfluenceMeetCS' INTEGER DEFAULT 0;
 
--- Civ gets bonuses to monoply yields
+-- Civ gets bonuses to monopoly yields
 ALTER TABLE Traits ADD COLUMN 'MonopolyModFlat' INTEGER DEFAULT 0;
 ALTER TABLE Traits ADD COLUMN 'MonopolyModPercent' INTEGER DEFAULT 0;
 

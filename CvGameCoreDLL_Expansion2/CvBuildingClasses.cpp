@@ -4485,7 +4485,7 @@ int CvCityBuildings::GetNumBuilding(BuildingTypes eIndex) const
 		return (GetNumRealBuilding(eIndex) + GetNumFreeBuilding(eIndex));
 	}
 }
-#if defined(MOD_BALANCE_CORE) || defined(MOD_BUILDINGS_THOROUGH_PREREQUISITES)
+
 /// Accessor: How many of these building classes in the city?
 int CvCityBuildings::GetNumBuildingClass(BuildingClassTypes eIndex) const
 {
@@ -4558,7 +4558,7 @@ void CvCityBuildings::RemoveAllRealBuildingsOfClass(BuildingClassTypes eIndex)
 		}
 	}
 }
-#endif
+
 /// Accessor: How many of these buildings are not obsolete?
 int CvCityBuildings::GetNumActiveBuilding(BuildingTypes eIndex) const
 {
@@ -5256,11 +5256,8 @@ void CvCityBuildings::SetBuildingYieldChange(BuildingClassTypes eBuildingClass, 
 				}
 
 				BuildingTypes eBuilding = NO_BUILDING;
-#if defined(MOD_BALANCE_CORE)
+
 				if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || GET_PLAYER(m_pCity->getOwner()).GetPlayerTraits()->IsKeepConqueredBuildings())
-#else
-				if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
-#endif
 				{
 					eBuilding = GetBuildingTypeFromClass(eBuildingClass);
 				}
@@ -5290,11 +5287,8 @@ void CvCityBuildings::SetBuildingYieldChange(BuildingClassTypes eBuildingClass, 
 		m_aBuildingYieldChange.push_back(kChange);
 
 		BuildingTypes eBuilding = NO_BUILDING;
-#if defined(MOD_BALANCE_CORE)
+
 		if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || GET_PLAYER(m_pCity->getOwner()).GetPlayerTraits()->IsKeepConqueredBuildings())
-#else
-		if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
-#endif
 		{
 			eBuilding = GetBuildingTypeFromClass(eBuildingClass);
 		}
@@ -5471,11 +5465,8 @@ bool CvCityBuildings::GetNextAvailableGreatWorkSlot(BuildingClassTypes *eBuildin
 		{
 			BuildingClassTypes eLoopBuildingClass = (BuildingClassTypes) iI;
 			BuildingTypes eBuilding = NO_BUILDING;
-#if defined(MOD_BALANCE_CORE)
+
 			if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || GET_PLAYER(m_pCity->getOwner()).GetPlayerTraits()->IsKeepConqueredBuildings())
-#else
-			if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
-#endif
 			{
 				eBuilding = GetBuildingTypeFromClass(eLoopBuildingClass);
 			}
@@ -5514,11 +5505,8 @@ bool CvCityBuildings::GetNextAvailableGreatWorkSlot(GreatWorkSlotType eGreatWork
 		{
 			BuildingClassTypes eLoopBuildingClass = (BuildingClassTypes) iI;
 			BuildingTypes eBuilding = NO_BUILDING;
-#if defined(MOD_BALANCE_CORE)
+
 			if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || GET_PLAYER(m_pCity->getOwner()).GetPlayerTraits()->IsKeepConqueredBuildings())
-#else
-			if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
-#endif
 			{
 				eBuilding = GetBuildingTypeFromClass(eLoopBuildingClass);
 			}
@@ -5734,11 +5722,8 @@ int CvCityBuildings::GetNumGreatWorks() const
 			if (pkClassInfo)
 			{
 				BuildingTypes eBuilding = NO_BUILDING;
-#if defined(MOD_BALANCE_CORE)
+
 				if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || GET_PLAYER(m_pCity->getOwner()).GetPlayerTraits()->IsKeepConqueredBuildings())
-#else
-				if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
-#endif
 				{
 					eBuilding = GetBuildingTypeFromClass(eBldgClass);
 				}
@@ -5790,11 +5775,8 @@ int CvCityBuildings::GetNumGreatWorks(GreatWorkSlotType eGreatWorkSlot) const
 			if (pkClassInfo)
 			{
 				BuildingTypes eBuilding = NO_BUILDING;
-#if defined(MOD_BALANCE_CORE)
+
 				if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || GET_PLAYER(m_pCity->getOwner()).GetPlayerTraits()->IsKeepConqueredBuildings())
-#else
-				if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
-#endif
 				{
 
 					eBuilding = GetBuildingTypeFromClass(eBldgClass);

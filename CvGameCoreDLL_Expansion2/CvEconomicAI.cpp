@@ -4655,17 +4655,11 @@ bool EconomicAIHelpers::IsTestStrategy_NeedMuseums(CvPlayer* pPlayer)
 bool EconomicAIHelpers::IsTestStrategy_NeedGuilds(CvPlayer* pPlayer)
 {
 	CvTeam &kTeam = GET_TEAM(pPlayer->getTeam());
-
-#if defined(MOD_BUILDINGS_THOROUGH_PREREQUISITES)
 	const CvCivilizationInfo& playerCivilizationInfo = pPlayer->getCivilizationInfo();
-	BuildingTypes eWritersGuild = (BuildingTypes)playerCivilizationInfo.getCivilizationBuildings((BuildingClassTypes)GC.getInfoTypeForString("BUILDINGCLASS_WRITERS_GUILD"));
-	BuildingTypes eArtistsGuild = (BuildingTypes)playerCivilizationInfo.getCivilizationBuildings((BuildingClassTypes)GC.getInfoTypeForString("BUILDINGCLASS_ARTISTS_GUILD"));
-	BuildingTypes eMusiciansGuild = (BuildingTypes)playerCivilizationInfo.getCivilizationBuildings((BuildingClassTypes)GC.getInfoTypeForString("BUILDINGCLASS_MUSICIANS_GUILD"));
-#else
-	BuildingTypes eWritersGuild = (BuildingTypes)GC.getInfoTypeForString("BUILDING_WRITERS_GUILD", true);
-	BuildingTypes eArtistsGuild = (BuildingTypes)GC.getInfoTypeForString("BUILDING_ARTISTS_GUILD", true);
-	BuildingTypes eMusiciansGuild = (BuildingTypes)GC.getInfoTypeForString("BUILDING_MUSICIANS_GUILD", true);
-#endif
+
+	BuildingTypes eWritersGuild = MOD_BUILDINGS_THOROUGH_PREREQUISITES ? (BuildingTypes)playerCivilizationInfo.getCivilizationBuildings((BuildingClassTypes)GC.getInfoTypeForString("BUILDINGCLASS_WRITERS_GUILD")) : (BuildingTypes)GC.getInfoTypeForString("BUILDING_WRITERS_GUILD", true);
+	BuildingTypes eArtistsGuild = MOD_BUILDINGS_THOROUGH_PREREQUISITES ? (BuildingTypes)playerCivilizationInfo.getCivilizationBuildings((BuildingClassTypes)GC.getInfoTypeForString("BUILDINGCLASS_ARTISTS_GUILD")) : (BuildingTypes)GC.getInfoTypeForString("BUILDING_ARTISTS_GUILD", true);
+	BuildingTypes eMusiciansGuild = MOD_BUILDINGS_THOROUGH_PREREQUISITES ? (BuildingTypes)playerCivilizationInfo.getCivilizationBuildings((BuildingClassTypes)GC.getInfoTypeForString("BUILDINGCLASS_MUSICIANS_GUILD")) : (BuildingTypes)GC.getInfoTypeForString("BUILDING_MUSICIANS_GUILD", true);
 
 	CvBuildingEntry *pkBuilding;
 	pkBuilding = GC.getBuildingInfo(eWritersGuild);

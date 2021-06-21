@@ -5526,18 +5526,14 @@ int CvPlayerTrade::GetTradeRouteTurnMod(CvCity* pOriginCity)
 
 	const CvCivilizationInfo& kCivInfo = m_pPlayer->getCivilizationInfo();
 	int iLoop = 0;
-	CvCity* pLoopCity;
-	for (pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
+	for (CvCity* pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
 	{
 		bool bSameCity = pLoopCity == pOriginCity;
 		for (int iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
 		{
 			BuildingTypes eBuilding = NO_BUILDING;
-#if defined(MOD_BALANCE_CORE)
+
 			if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || m_pPlayer->GetPlayerTraits()->IsKeepConqueredBuildings())
-#else
-			if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
-#endif
 			{
 				eBuilding = pLoopCity->GetCityBuildings()->GetBuildingTypeFromClass((BuildingClassTypes)iI);
 			}
@@ -5614,17 +5610,13 @@ uint CvPlayerTrade::GetNumTradeRoutesPossible (void)
 
 	const CvCivilizationInfo& kCivInfo = m_pPlayer->getCivilizationInfo();
 	int iLoop = 0;
-	CvCity* pLoopCity;
-	for(pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
+	for (CvCity* pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
 	{
 		for (int iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
 		{
 			BuildingTypes eBuilding = NO_BUILDING;
-#if defined(MOD_BALANCE_CORE)
+
 			if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || m_pPlayer->GetPlayerTraits()->IsKeepConqueredBuildings())
-#else
-			if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
-#endif
 			{
 				eBuilding = pLoopCity->GetCityBuildings()->GetBuildingTypeFromClass((BuildingClassTypes)iI);
 			}
@@ -6886,11 +6878,8 @@ std::vector<int> CvTradeAI::ScoreInternationalTR(const TradeConnection& kTradeCo
 					if (pInfo)
 					{
 						BuildingTypes eOfficeBuilding = NO_BUILDING;
-#if defined(MOD_BALANCE_CORE)
+
 						if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || m_pPlayer->GetPlayerTraits()->IsKeepConqueredBuildings())
-#else
-						if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
-#endif
 						{
 							if (pFromCity->HasBuildingClass(eOffice))
 							{

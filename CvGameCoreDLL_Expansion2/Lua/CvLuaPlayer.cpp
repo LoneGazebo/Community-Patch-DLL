@@ -3517,12 +3517,7 @@ int CvLuaPlayer::lGetBuildingOfClosestGreatWorkSlot(lua_State* L)
 	if (pkCity && pkCivInfo)
 	{
 		int iBuilding = -1;
-#if defined(MOD_BALANCE_CORE)
-		bool bRome = pkPlayer->GetPlayerTraits()->IsKeepConqueredBuildings();
-		if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || bRome)
-#else
-		if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
-#endif
+		if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || pkPlayer->GetPlayerTraits()->IsKeepConqueredBuildings())
 		{
 			iBuilding = (int)pkCity->GetCityBuildings()->GetBuildingTypeFromClass(eBuildingClass);
 		}
@@ -6200,12 +6195,8 @@ int CvLuaPlayer::lGetGreatWorks(lua_State* L)
 		{
 			const CvCivilizationInfo& playerCivilizationInfo = pkPlayer->getCivilizationInfo();
 			BuildingTypes eBuilding = NO_BUILDING;
-#if defined(MOD_BALANCE_CORE)
-			bool bRome = pkPlayer->GetPlayerTraits()->IsKeepConqueredBuildings();
-			if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || bRome)
-#else
-			if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
-#endif
+
+			if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || pkPlayer->GetPlayerTraits()->IsKeepConqueredBuildings())
 			{
 				eBuilding = pCity->GetCityBuildings()->GetBuildingTypeFromClass((BuildingClassTypes)iBuildingClassLoop);
 			}
@@ -12460,26 +12451,19 @@ int CvLuaPlayer::lGetPlayerBuildingClassHappiness(lua_State* L)
 	const BuildingClassTypes eOtherBuildingClass = (BuildingClassTypes)luaL_checkint(L, 2);
 
 	CvPlayer* pkPlayer = GetInstance(L);
-	if(pkPlayer)
+	if (pkPlayer)
 	{
 		int iChange = 0;
 
-		for(int iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
+		for (int iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
 		{
 			BuildingClassTypes eParentBuildingClass = (BuildingClassTypes) iI;
 
 			CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo(eParentBuildingClass);
-			if(!pkBuildingClassInfo)
-			{
+			if (!pkBuildingClassInfo)
 				continue;
-			}
-			
-#if defined(MOD_BALANCE_CORE)
-			bool bRome = pkPlayer->GetPlayerTraits()->IsKeepConqueredBuildings();
-			if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || bRome)
-#else
-			if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
-#endif
+
+			if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || pkPlayer->GetPlayerTraits()->IsKeepConqueredBuildings())
 			{
 				if (pkPlayer->getBuildingClassCount(eParentBuildingClass) > 0)
 				{
@@ -12523,9 +12507,7 @@ int CvLuaPlayer::lGetPlayerBuildingClassHappiness(lua_State* L)
 	}
 
 	return 0;
-	
 }
-
 
 //------------------------------------------------------------------------------
 int CvLuaPlayer::lWasResurrectedBy(lua_State* L)
