@@ -62,24 +62,30 @@ void CvDiplomacyAI::Uninit()
 void CvDiplomacyAI::Reset()
 {
 	// Personality Values
-	m_iVictoryCompetitiveness = 0;
-	m_iWonderCompetitiveness = 0;
-	m_iMinorCivCompetitiveness = 0;
-	m_iBoldness = 0;
-	m_iDiploBalance = 0;
-	m_iWarmongerHate = 0;
-	m_iDoFWillingness = 0;
-	m_iDenounceWillingness = 0;
-	m_iLoyalty = 0;
-	m_iForgiveness = 0;
-	m_iNeediness = 0;
-	m_iMeanness = 0;
-	m_iChattiness = 0;
+	int iDefaultFlavorValue = /*5*/ GC.getGame().GetDefaultFlavorValue();
+	m_iVictoryCompetitiveness = iDefaultFlavorValue;
+	m_iWonderCompetitiveness = iDefaultFlavorValue;
+	m_iMinorCivCompetitiveness = iDefaultFlavorValue;
+	m_iBoldness = iDefaultFlavorValue;
+	m_iDiploBalance = iDefaultFlavorValue;
+	m_iWarmongerHate = iDefaultFlavorValue;
+	m_iDoFWillingness = iDefaultFlavorValue;
+	m_iDenounceWillingness = iDefaultFlavorValue;
+	m_iLoyalty = iDefaultFlavorValue;
+	m_iForgiveness = iDefaultFlavorValue;
+	m_iNeediness = iDefaultFlavorValue;
+	m_iMeanness = iDefaultFlavorValue;
+	m_iChattiness = iDefaultFlavorValue;
 
 	for (int iI = 0; iI < NUM_CIV_APPROACHES; iI++)
 	{
-		m_aiMajorCivApproachBiases[iI] = 0;
-		m_aiMinorCivApproachBiases[iI] = 0;
+		m_aiMajorCivApproachBiases[iI] = iDefaultFlavorValue;
+
+		CivApproachTypes eApproach = (CivApproachTypes)iI;
+		if (eApproach == CIV_APPROACH_WAR || eApproach == CIV_APPROACH_HOSTILE || eApproach == CIV_APPROACH_NEUTRAL || eApproach == CIV_APPROACH_FRIENDLY)
+			m_aiMinorCivApproachBiases[iI] = iDefaultFlavorValue;
+		else
+			m_aiMinorCivApproachBiases[iI] = 0;
 	}
 
 	// Key Players
@@ -1479,7 +1485,7 @@ int CvDiplomacyAI::GetRandomPersonalityWeight(int iOriginalValue, int& iSeed)
 /// Initializes Personality Values for this player (XML value + random element)
 void CvDiplomacyAI::DoInitializePersonality()
 {
-	// AI Player
+	// AI Players only
 	if (!GetPlayer()->isHuman())
 	{
 		const CvLeaderHeadInfo& playerLeaderInfo = GetPlayer()->getLeaderInfo();
@@ -1511,35 +1517,6 @@ void CvDiplomacyAI::DoInitializePersonality()
 		m_aiMinorCivApproachBiases[CIV_APPROACH_HOSTILE] = GetRandomPersonalityWeight(playerLeaderInfo.GetHostileBias(true), iSeed);
 		m_aiMinorCivApproachBiases[CIV_APPROACH_NEUTRAL] = GetRandomPersonalityWeight(playerLeaderInfo.GetNeutralBias(true), iSeed);
 		m_aiMinorCivApproachBiases[CIV_APPROACH_FRIENDLY] = GetRandomPersonalityWeight(playerLeaderInfo.GetFriendlyBias(true), iSeed);
-	}
-	// Human player
-	else
-	{
-		int iDefaultFlavorValue = /*5*/ GC.getGame().GetDefaultFlavorValue();
-
-		m_iVictoryCompetitiveness = iDefaultFlavorValue;
-		m_iWonderCompetitiveness = iDefaultFlavorValue;
-		m_iMinorCivCompetitiveness = iDefaultFlavorValue;
-		m_iBoldness = iDefaultFlavorValue;
-		m_iDiploBalance = iDefaultFlavorValue;
-		m_iWarmongerHate = iDefaultFlavorValue;
-		m_iDoFWillingness = iDefaultFlavorValue;
-		m_iDenounceWillingness = iDefaultFlavorValue;
-		m_iLoyalty = iDefaultFlavorValue;
-		m_iForgiveness = iDefaultFlavorValue;
-		m_iNeediness = iDefaultFlavorValue;
-		m_iMeanness = iDefaultFlavorValue;
-		m_iChattiness = iDefaultFlavorValue;
-
-		for (int iApproachLoop = 0; iApproachLoop < NUM_CIV_APPROACHES; iApproachLoop++)
-		{
-			m_aiMajorCivApproachBiases[iApproachLoop] = iDefaultFlavorValue;
-		}
-
-		m_aiMinorCivApproachBiases[CIV_APPROACH_WAR] = iDefaultFlavorValue;
-		m_aiMinorCivApproachBiases[CIV_APPROACH_HOSTILE] = iDefaultFlavorValue;
-		m_aiMinorCivApproachBiases[CIV_APPROACH_NEUTRAL] = iDefaultFlavorValue;
-		m_aiMinorCivApproachBiases[CIV_APPROACH_FRIENDLY] = iDefaultFlavorValue;
 	}
 
 	// Now that we've picked our flavors, select our default Victory Focus.
@@ -13929,8 +13906,11 @@ void CvDiplomacyAI::DoUpdateOnePlayerOpinion(PlayerTypes ePlayer)
 		{
 			if (IsAtWar(ePlayer) || IsDenouncedPlayer(ePlayer))
 				SetCivOpinion(ePlayer, CIV_OPINION_ENEMY);
+			else if (IsDoFAccepted(ePlayer) || IsHasDefensivePact(ePlayer))
+				SetCivOpinion(ePlayer, CIV_OPINION_FRIEND);
 			else
 				SetCivOpinion(ePlayer, CIV_OPINION_NEUTRAL);
+
 			return;
 		}
 
@@ -14041,9 +14021,7 @@ int CvDiplomacyAI::GetCivOpinionWeight(PlayerTypes ePlayer)
 	// DENOUNCING
 	//////////////////////////////////////
 
-	iOpinionWeight += GetMutualDenouncementScore(ePlayer);
-	iOpinionWeight += GetDenouncedUsScore(ePlayer);
-	iOpinionWeight += GetDenouncedThemScore(ePlayer);
+	iOpinionWeight += GetDenouncedScore(ePlayer);
 	iOpinionWeight += GetDenouncedFriendScore(ePlayer);
 	iOpinionWeight += GetDenouncedEnemyScore(ePlayer);
 	iOpinionWeight += GetDenouncedByOurFriendScore(ePlayer);
@@ -25919,6 +25897,7 @@ void CvDiplomacyAI::DoPlayerDeclaredWarOnSomeone(PlayerTypes ePlayer, TeamTypes 
 					// HAD been resurrected by this player
 					if (WasResurrectedBy(ePlayer))
 					{
+						ChangeRecentAssistValue(ePlayer, 300);
 						SetResurrectorAttackedUs(ePlayer, true);
 
 						if (GetCoopWarScore(ePlayer) > 0)
@@ -43369,42 +43348,24 @@ int CvDiplomacyAI::GetDemandMadeScore(PlayerTypes ePlayer)
 // DENOUNCING
 //////////////////////////////////////
 
-int CvDiplomacyAI::GetMutualDenouncementScore(PlayerTypes ePlayer)
+int CvDiplomacyAI::GetDenouncedScore(PlayerTypes ePlayer)
 {
 	int iOpinionWeight = 0;
 
 	// We denounced each other!
 	if (IsDenouncedPlayer(ePlayer) && IsDenouncedByPlayer(ePlayer))
 	{
-		iOpinionWeight += /*50*/ GC.getOPINION_WEIGHT_MUTUAL_DENOUNCEMENT();
+		iOpinionWeight = /*50*/ GC.getOPINION_WEIGHT_MUTUAL_DENOUNCEMENT();
+	}
+	else if (IsDenouncedPlayer(ePlayer))
+	{
+		iOpinionWeight = /*35*/ GC.getOPINION_WEIGHT_DENOUNCED_THEM();
+	}
+	else if (IsDenouncedByPlayer(ePlayer))
+	{
+		iOpinionWeight = /*35*/ GC.getOPINION_WEIGHT_DENOUNCED_ME();
 	}
 	
-	return iOpinionWeight;
-}
-
-int CvDiplomacyAI::GetDenouncedUsScore(PlayerTypes ePlayer)
-{
-	int iOpinionWeight = 0;
-
-	// They denounced us!
-	if (IsDenouncedByPlayer(ePlayer) && !IsDenouncedPlayer(ePlayer))
-	{
-		iOpinionWeight += /*35*/ GC.getOPINION_WEIGHT_DENOUNCED_ME();
-	}
-
-	return iOpinionWeight;
-}
-
-int CvDiplomacyAI::GetDenouncedThemScore(PlayerTypes ePlayer)
-{
-	int iOpinionWeight = 0;
-
-	// We denounced them!
-	if (IsDenouncedPlayer(ePlayer) && !IsDenouncedByPlayer(ePlayer))
-	{
-		iOpinionWeight += /*35*/ GC.getOPINION_WEIGHT_DENOUNCED_THEM();
-	}
-
 	return iOpinionWeight;
 }
 

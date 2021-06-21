@@ -1584,9 +1584,7 @@ public:
 	int GetDemandMadeScore(PlayerTypes ePlayer);
 
 	// Denouncing
-	int GetMutualDenouncementScore(PlayerTypes ePlayer);
-	int GetDenouncedUsScore(PlayerTypes ePlayer);
-	int GetDenouncedThemScore(PlayerTypes ePlayer);
+	int GetDenouncedScore(PlayerTypes ePlayer);
 	int GetDenouncedFriendScore(PlayerTypes ePlayer);
 	int GetDenouncedEnemyScore(PlayerTypes ePlayer);
 	int GetDenouncedByOurFriendScore(PlayerTypes ePlayer);

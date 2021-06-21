@@ -3056,6 +3056,14 @@
 		<Row Tag="TXT_KEY_DIPLO_SAME_MASTER">
 			<Text>We are vassals of the same master!</Text>
 		</Row>
+
+		<!-- Civilian Killer Diplo Mods -->
+		<Row Tag="TXT_KEY_DIPLO_RAZED">
+			<Text>You killed or captured their civilians!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_RAZED_OTHER">
+			<Text>You killed or captured civilians during war!</Text>
+		</Row>
 		
 		<!-- Stolen Artifacts Diplo Mod -->
 		<Row Tag="TXT_KEY_DIPLO_STOLEN_ARTIFACTS">
@@ -3082,7 +3090,7 @@
 
 		<!-- Attacked Resurrected Civ Diplo Mod -->
 		<Row Tag="TXT_KEY_DIPLO_RESURRECTOR_ATTACKED_US">
-			<Text>You restored their civilization and then attacked them!</Text>
+			<Text>You restored their civilization and then declared war on them!</Text>
 		</Row>
 
 		<!-- Religion Diplo Mods -->
@@ -5956,14 +5964,6 @@
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_UNIT_RETURNED_AI_SUMMARY">
 			<Text>{@2_UnitName} saved by {1_Player:textkey}!</Text>
-		</Row>
-
-		<!-- Razing -->
-		<Row Tag="TXT_KEY_DIPLO_RAZED">
-			<Text>[COLOR_NEGATIVE_TEXT]You killed or captured their civilians![ENDCOLOR]</Text>
-		</Row>
-		<Row Tag="TXT_KEY_DIPLO_RAZED_OTHER">
-			<Text>[COLOR_NEGATIVE_TEXT]You killed or captured civilians during war![ENDCOLOR]</Text>
 		</Row>
 
 		<!-- Tooltip for 'You'll Pay' Text -->
