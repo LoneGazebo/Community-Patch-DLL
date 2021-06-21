@@ -5395,12 +5395,8 @@ void CvTeam::changeProjectCount(ProjectTypes eIndex, int iChange)
 									if(pCapital == NULL)
 										continue;
 
-#if defined(MOD_BALANCE_CORE)
 									bool bRome = GET_PLAYER((PlayerTypes)iJ).GetPlayerTraits()->IsKeepConqueredBuildings();
-									if ( (MOD_BUILDINGS_THOROUGH_PREREQUISITES || bRome) && pCapital->HasBuildingClass(eBuildingClass))
-#else
-									if (MOD_BUILDINGS_THOROUGH_PREREQUISITES && pCapital->HasBuildingClass(eBuildingClass))
-#endif
+									if ((MOD_BUILDINGS_THOROUGH_PREREQUISITES || bRome) && pCapital->HasBuildingClass(eBuildingClass))
 									{
 										eBuilding = pCapital->GetCityBuildings()->GetBuildingTypeFromClass(eBuildingClass);
 									}

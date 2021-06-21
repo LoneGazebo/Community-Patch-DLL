@@ -613,33 +613,14 @@ UPDATE Language_en_US
 SET Text = '[NEWLINE][NEWLINE]Civilizations that would be negatively affected by this:'
 WHERE Tag = 'TXT_KEY_LEAGUE_OVERVIEW_PROPOSAL_OPINIONS_NEGATIVE';
 
--- Diplo Opinion Modifiers
+-- Diplo Opinion Table Modifiers
 
--- Liberation
+-- Neutral Indicators
 UPDATE Language_en_US
-SET Text = 'You liberated their original capital.'
-WHERE Tag = 'TXT_KEY_DIPLO_LIBERATED_CAPITAL';
+SET Text = 'You have gone to war in the past.'
+WHERE Tag = 'TXT_KEY_DIPLO_PAST_WAR_BAD';
 
--- Recent Trade
-UPDATE Language_en_US
-SET Text = 'We are trade partners.'
-WHERE Tag = 'TXT_KEY_DIPLO_TRADE_PARTNER';
-
--- Shared Intrigue
-UPDATE Language_en_US
-SET Text = 'You have shared intrigue with them.'
-WHERE Tag = 'TXT_KEY_DIPLO_SHARED_INTRIGUE';
-
--- Diplo Assistance
-UPDATE Language_en_US
-SET Text = 'Your recent diplomatic actions please them.'
-WHERE Tag = 'TXT_KEY_DIPLO_ASSISTANCE_TO_THEM';
-
-UPDATE Language_en_US
-SET Text = 'Your recent diplomatic actions disappoint them.'
-WHERE Tag = 'TXT_KEY_DIPLO_REFUSED_REQUESTS';
-
--- Issues of Dispute
+-- Dispute Modifiers
 UPDATE Language_en_US
 SET Text = 'Territorial disputes strain your relationship.'
 WHERE Tag = 'TXT_KEY_DIPLO_LAND_DISPUTE';
@@ -648,7 +629,11 @@ UPDATE Language_en_US
 SET Text = 'You are competing for World Wonders.'
 WHERE Tag = 'TXT_KEY_DIPLO_WONDER_DISPUTE';
 
--- Warmongering
+UPDATE Language_en_US
+SET Text = 'You are competing for the favor of the same City-States!'
+WHERE Tag = 'TXT_KEY_DIPLO_MINOR_CIV_DISPUTE';
+
+-- War Stuff
 UPDATE Language_en_US
 SET Text = 'They have some early concerns about your warmongering.'
 WHERE Tag = 'TXT_KEY_DIPLO_WARMONGER_THREAT_MINOR';
@@ -665,30 +650,144 @@ UPDATE Language_en_US
 SET Text = 'They fear your warmongering will end this world in fire!'
 WHERE Tag = 'TXT_KEY_DIPLO_WARMONGER_THREAT_CRITICAL';
 
--- Reckless Expansion
 UPDATE Language_en_US
-SET Text = 'They believe we are expanding our empire too aggressively!'
-WHERE Tag = 'TXT_KEY_DIPLO_RECKLESS_EXPANDER';
+SET Text = 'You plundered their trade routes!'
+WHERE Tag = 'TXT_KEY_DIPLO_PLUNDERING_OUR_TRADE_ROUTES';
 
--- Spying
 UPDATE Language_en_US
-SET Text = 'You asked them not to spy on you.'
-WHERE Tag = 'TXT_KEY_DIPLO_STOP_SPYING_ASKED';
+SET Text = 'You nuked them!'
+WHERE Tag = 'TXT_KEY_DIPLO_NUKED';
+
+UPDATE Language_en_US
+SET Text = 'You captured their original capital.'
+WHERE Tag = 'TXT_KEY_DIPLO_CAPTURED_CAPITAL';
+
+-- Recent diplomatic actions
+UPDATE Language_en_US
+SET Text = 'Your recent diplomatic actions please them.'
+WHERE Tag = 'TXT_KEY_DIPLO_ASSISTANCE_TO_THEM';
+
+UPDATE Language_en_US
+SET Text = 'Your recent diplomatic actions disappoint them.'
+WHERE Tag = 'TXT_KEY_DIPLO_REFUSED_REQUESTS';
+
+-- Player has done nice stuff
+UPDATE Language_en_US
+SET Text = 'We are trade partners.'
+WHERE Tag = 'TXT_KEY_DIPLO_TRADE_PARTNER';
+
+UPDATE Language_en_US
+SET Text = 'We fought together against a common foe.'
+WHERE Tag = 'TXT_KEY_DIPLO_COMMON_FOE';
+
+UPDATE Language_en_US
+SET Text = 'You freed their captured citizens!'
+WHERE Tag = 'TXT_KEY_DIPLO_CIVILIANS_RETURNED';
+
+UPDATE Language_en_US
+SET Text = 'You built a Landmark in their territory.'
+WHERE Tag = 'TXT_KEY_DIPLO_LANDMARKS_BUILT';
+
+UPDATE Language_en_US
+SET Text = 'You restored their civilization after they were annihilated!'
+WHERE Tag = 'TXT_KEY_DIPLO_RESURRECTED';
+
+UPDATE Language_en_US
+SET Text = 'You liberated their original capital.'
+WHERE Tag = 'TXT_KEY_DIPLO_LIBERATED_CAPITAL';
+
+UPDATE Language_en_US
+SET Text = 'You have liberated some of their people!'
+WHERE Tag = 'TXT_KEY_DIPLO_CITIES_LIBERATED';
+
+UPDATE Language_en_US
+SET Text = 'They have an embassy in your capital.'
+WHERE Tag = 'TXT_KEY_DIPLO_HAS_EMBASSY';
+
+UPDATE Language_en_US
+SET Text = 'You forgave them for spying.'
+WHERE Tag = 'TXT_KEY_DIPLO_FORGAVE_FOR_SPYING';
+
+UPDATE Language_en_US
+SET Text = 'You have shared intrigue with them.'
+WHERE Tag = 'TXT_KEY_DIPLO_SHARED_INTRIGUE';
+
+-- Player has done mean stuff
+UPDATE Language_en_US
+SET Text = 'You stole their territory!'
+WHERE Tag = 'TXT_KEY_DIPLO_CULTURE_BOMB';
 
 UPDATE Language_en_US
 SET Text = 'Your spies were caught stealing from them.'
 WHERE Tag = 'TXT_KEY_DIPLO_CAUGHT_STEALING';
 
--- World Congress
+-- Player has asked us to do things we don't like
 UPDATE Language_en_US
-SET Text = 'We passed their proposal in the World Congress.'
-WHERE Tag = 'TXT_KEY_DIPLO_SUPPORTED_THEIR_PROPOSAL';
+SET Text = 'You demanded they not settle near your lands!'
+WHERE Tag = 'TXT_KEY_DIPLO_NO_SETTLE_ASKED';
 
 UPDATE Language_en_US
-SET Text = 'We defeated their proposal in the World Congress.'
-WHERE Tag = 'TXT_KEY_DIPLO_FOILED_THEIR_PROPOSAL';
+SET Text = 'You asked them not to spy on you.'
+WHERE Tag = 'TXT_KEY_DIPLO_STOP_SPYING_ASKED';
+
+UPDATE Language_en_US
+SET Text = 'You made a trade demand of them!'
+WHERE Tag = 'TXT_KEY_DIPLO_TRADE_DEMAND';
+
+UPDATE Language_en_US
+SET Text = 'You forced them to pay tribute.'
+WHERE Tag = 'TXT_KEY_DIPLO_PAID_TRIBUTE';
+
+-- Denouncing
+UPDATE Language_en_US
+SET Text = 'We have denounced them!'
+WHERE Tag = 'TXT_KEY_DIPLO_DENOUNCED_BY_US';
+
+UPDATE Language_en_US
+SET Text = 'They have denounced us!'
+WHERE Tag = 'TXT_KEY_DIPLO_DENOUNCED_BY_THEM';
+
+UPDATE Language_en_US
+SET Text = 'You have denounced a leader they made a Declaration of Friendship with!'
+WHERE Tag = 'TXT_KEY_DIPLO_HUMAN_DENOUNCED_FRIEND';
+
+UPDATE Language_en_US
+SET Text = 'We have denounced the same leaders!'
+WHERE Tag = 'TXT_KEY_DIPLO_MUTUAL_ENEMY';
+
+UPDATE Language_en_US
+SET Text = 'Their friends or allies have denounced you!'
+WHERE Tag = 'TXT_KEY_DIPLO_DENOUNCED_BY_PEOPLE_WE_TRUST_MORE';
 
 -- Promises
+UPDATE Language_en_US
+SET Text = 'You made a promise not to declare war on them, and then broke it!'
+WHERE Tag = 'TXT_KEY_DIPLO_MILITARY_PROMISE';
+
+UPDATE Language_en_US
+SET Text = 'You made a promise not to declare war on another civilization, and then broke it!'
+WHERE Tag = 'TXT_KEY_DIPLO_MILITARY_PROMISE_BROKEN_WITH_OTHERS';
+
+UPDATE Language_en_US
+SET Text = 'You refused to move your troops away from their borders when they asked!'
+WHERE Tag = 'TXT_KEY_DIPLO_MILITARY_PROMISE_IGNORED';
+
+UPDATE Language_en_US
+SET Text = 'You made a promise to stop expanding near them, and then broke it!'
+WHERE Tag = 'TXT_KEY_DIPLO_EXPANSION_PROMISE';
+
+UPDATE Language_en_US
+SET Text = 'They asked you to stop expanding near them, and you ignored them!'
+WHERE Tag = 'TXT_KEY_DIPLO_EXPANSION_PROMISE_IGNORED';
+
+UPDATE Language_en_US
+SET Text = 'You made a promise to stop buying land near them, and then broke it!'
+WHERE Tag = 'TXT_KEY_DIPLO_BORDER_PROMISE';
+
+UPDATE Language_en_US
+SET Text = 'They asked you to stop buying land near them, and you ignored them!'
+WHERE Tag = 'TXT_KEY_DIPLO_BORDER_PROMISE_IGNORED';
+
 UPDATE Language_en_US
 SET Text = 'You made a promise not to conquer a City-State protected by them, and then broke it!'
 WHERE Tag = 'TXT_KEY_DIPLO_CITY_STATE_PROMISE';
@@ -702,42 +801,138 @@ SET Text = 'They asked you to stop attacking a City-State protected by them, and
 WHERE Tag = 'TXT_KEY_DIPLO_CITY_STATE_PROMISE_IGNORED';
 
 UPDATE Language_en_US
-SET Text = 'You made a promise to start a cooperative war against another empire, and then broke it!'
-WHERE Tag = 'TXT_KEY_DIPLO_COOP_WAR_PROMISE';
+SET Text = 'You made a promise to stop demanding tribute from a City-State protected by them, and then broke it!'
+WHERE Tag = 'TXT_KEY_DIPLO_BULLY_CITY_STATE_PROMISE_BROKEN';
 
 UPDATE Language_en_US
-SET Text = 'They asked you to stop expanding near them, and you ignored them!'
-WHERE Tag = 'TXT_KEY_DIPLO_EXPANSION_PROMISE_IGNORED';
+SET Text = 'They asked you to stop demanding tribute from a City-State protected by them, and you ignored them!'
+WHERE Tag = 'TXT_KEY_DIPLO_BULLY_CITY_STATE_PROMISE_IGNORED';
+
+UPDATE Language_en_US
+SET Text = 'You made a promise to stop converting their cities, and then broke it!'
+WHERE Tag = 'TXT_KEY_DIPLO_NO_CONVERT_PROMISE_BROKEN';
+
+UPDATE Language_en_US
+SET Text = 'They asked you to stop converting their cities, and you ignored them!'
+WHERE Tag = 'TXT_KEY_DIPLO_NO_CONVERT_PROMISE_IGNORED';
+
+UPDATE Language_en_US
+SET Text = 'You made a promise to stop excavating their artifacts, and then broke it!'
+WHERE Tag = 'TXT_KEY_DIPLO_NO_DIG_PROMISE_BROKEN';
+
+UPDATE Language_en_US
+SET Text = 'They asked you to stop excavating their artifacts, and you ignored them!'
+WHERE Tag = 'TXT_KEY_DIPLO_NO_DIG_PROMISE_IGNORED';
+
+UPDATE Language_en_US
+SET Text = 'You made a promise to stop spying on them, and then broke it!'
+WHERE Tag = 'TXT_KEY_DIPLO_SPY_PROMISE_BROKEN';
 
 UPDATE Language_en_US
 SET Text = 'They asked you to stop spying on them, and you ignored them!'
 WHERE Tag = 'TXT_KEY_DIPLO_SPY_PROMISE_IGNORED';
 
 UPDATE Language_en_US
-SET Text = 'You made a promise not to declare war on them, and then broke it!'
-WHERE Tag = 'TXT_KEY_DIPLO_MILITARY_PROMISE';
+SET Text = 'You made a promise to start a cooperative war against another empire, and then broke it!'
+WHERE Tag = 'TXT_KEY_DIPLO_COOP_WAR_PROMISE';
+
+-- Religion / Ideology
+UPDATE Language_en_US
+SET Text = 'They have happily adopted your religion in the majority of their cities.'
+WHERE Tag = 'TXT_KEY_DIPLO_ADOPTING_HIS_RELIGION';
 
 UPDATE Language_en_US
-SET Text = 'You made a promise not to declare war on another civilization, and then broke it!'
-WHERE Tag = 'TXT_KEY_DIPLO_MILITARY_PROMISE_BROKEN_WITH_OTHERS';
+SET Text = 'You have adopted their religion in the majority of your cities.'
+WHERE Tag = 'TXT_KEY_DIPLO_ADOPTING_MY_RELIGION';
 
 UPDATE Language_en_US
-SET Text = 'You made a promise to stop excavating their artifacts, and then broke it!'
-WHERE Tag = 'TXT_KEY_DIPLO_NO_DIG_PROMISE_BROKEN';
+SET Text = 'They are spreading their own religion, but you converted some of their cities to your religion.'
+WHERE Tag = 'TXT_KEY_DIPLO_RELIGIOUS_CONVERSIONS';
 
--- Denounced by Friend
 UPDATE Language_en_US
-SET Text = 'Their friends found reason to Denounce you!'
-WHERE Tag = 'TXT_KEY_DIPLO_DENOUNCED_BY_PEOPLE_WE_TRUST_MORE';
+SET Text = 'You have both chosen to adopt the {1_PolicyTree} Ideology.'
+WHERE Tag = 'TXT_KEY_DIPLO_SAME_LATE_POLICY_TREES';
 
--- Friend Betrayal
+UPDATE Language_en_US
+SET Text = 'You have chosen to adopt the {1_YourPolicyTree} Ideology, but they believe in {2_TheirPolicyTree}.'
+WHERE Tag = 'TXT_KEY_DIPLO_DIFFERENT_LATE_POLICY_TREES';
+
+-- Protected Minors
+UPDATE Language_en_US
+SET Text = 'You have killed City-States under their protection!'
+WHERE Tag = 'TXT_KEY_DIPLO_PROTECTED_MINORS_KILLED';
+
+UPDATE Language_en_US
+SET Text = 'You have attacked City-States under their protection!'
+WHERE Tag = 'TXT_KEY_DIPLO_PROTECTED_MINORS_ATTACKED';
+
+UPDATE Language_en_US
+SET Text = 'You have demanded tribute from City-States under their protection!'
+WHERE Tag = 'TXT_KEY_DIPLO_PROTECTED_MINORS_BULLIED';
+
+UPDATE Language_en_US
+SET Text = 'They mistreated your protected City-States, and you didn''t look the other way!'
+WHERE Tag = 'TXT_KEY_DIPLO_SIDED_WITH_MINOR';
+
+-- Declaration of Friendship
+UPDATE Language_en_US
+SET Text = 'We have made a public Declaration of Friendship!'
+WHERE Tag = 'TXT_KEY_DIPLO_DOF';
+
+UPDATE Language_en_US
+SET Text = 'We have made Declarations of Friendship with the same leaders!'
+WHERE Tag = 'TXT_KEY_DIPLO_MUTUAL_DOF';
+
+UPDATE Language_en_US
+SET Text = 'You have made a Declaration of Friendship with one of their enemies!'
+WHERE Tag = 'TXT_KEY_DIPLO_HUMAN_DOF_WITH_ENEMY';
+
+-- Traitor Opinion
+UPDATE Language_en_US
+SET Text = 'Your friends found reason to denounce you!'
+WHERE Tag = 'TXT_KEY_DIPLO_HUMAN_DENOUNCED_BY_FRIENDS';
+
+UPDATE Language_en_US
+SET Text = 'You have denounced leaders you''ve made Declarations of Friendship with!'
+WHERE Tag = 'TXT_KEY_DIPLO_HUMAN_DENOUNCED_FRIENDS';
+
 UPDATE Language_en_US
 SET Text = 'We made a Declaration of Friendship and then denounced them!'
 WHERE Tag = 'TXT_KEY_DIPLO_HUMAN_FRIEND_DENOUNCED';
 
 UPDATE Language_en_US
+SET Text = 'You have declared war on leaders you''ve made Declarations of Friendship with!'
+WHERE Tag = 'TXT_KEY_DIPLO_HUMAN_DECLARED_WAR_ON_FRIENDS';
+
+UPDATE Language_en_US
 SET Text = 'We made a Declaration of Friendship and then declared war on them!'
 WHERE Tag = 'TXT_KEY_DIPLO_HUMAN_FRIEND_DECLARED_WAR';
+
+-- Reckless Expander
+UPDATE Language_en_US
+SET Text = 'They believe we are expanding our empire too aggressively!'
+WHERE Tag = 'TXT_KEY_DIPLO_RECKLESS_EXPANDER';
+
+-- World Congress
+UPDATE Language_en_US
+SET Text = 'They liked our proposal to the World Congress.'
+WHERE Tag = 'TXT_KEY_DIPLO_LIKED_OUR_PROPOSAL';
+
+UPDATE Language_en_US
+SET Text = 'They disliked our proposal to the World Congress.'
+WHERE Tag = 'TXT_KEY_DIPLO_DISLIKED_OUR_PROPOSAL';
+
+UPDATE Language_en_US
+SET Text = 'We passed their proposal in the World Congress.'
+WHERE Tag = 'TXT_KEY_DIPLO_SUPPORTED_THEIR_PROPOSAL';
+
+UPDATE Language_en_US
+SET Text = 'We defeated their proposal in the World Congress.'
+WHERE Tag = 'TXT_KEY_DIPLO_FOILED_THEIR_PROPOSAL';
+
+UPDATE Language_en_US
+SET Text = 'We helped relocate the World Congress to their lands.'
+WHERE Tag = 'TXT_KEY_DIPLO_SUPPORTED_THEIR_HOSTING';
 
 
 -- Civilization Leader Dialog

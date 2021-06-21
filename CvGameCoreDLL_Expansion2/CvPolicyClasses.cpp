@@ -5750,11 +5750,8 @@ void CvPlayerPolicies::DoSwitchIdeologies(PolicyBranchTypes eNewBranchType)
 			{
 				const CvCivilizationInfo& playerCivilizationInfo = kCityPlayer.getCivilizationInfo();
 				BuildingTypes eBuilding = NO_BUILDING;
-#if defined(MOD_BALANCE_CORE)
+
 				if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || m_pPlayer->GetPlayerTraits()->IsKeepConqueredBuildings())
-#else
-				if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
-#endif
 				{
 					eBuilding = pLoopCity->GetCityBuildings()->GetBuildingTypeFromClass((BuildingClassTypes)iBuildingClassLoop);
 				}

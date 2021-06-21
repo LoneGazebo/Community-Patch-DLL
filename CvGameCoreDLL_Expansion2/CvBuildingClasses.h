@@ -1101,12 +1101,12 @@ public:
 	int GetNumBuildings() const;
 	void ChangeNumBuildings(int iChange);
 	int GetNumBuilding(BuildingTypes eIndex) const;
-#if defined(MOD_BALANCE_CORE) || defined(MOD_BUILDINGS_THOROUGH_PREREQUISITES)
+
 	int GetNumBuildingClass(BuildingClassTypes eIndex) const;
 	bool HasBuildingClass(BuildingClassTypes eIndex) const;
 	BuildingTypes GetBuildingTypeFromClass(BuildingClassTypes eIndex) const;
 	void RemoveAllRealBuildingsOfClass(BuildingClassTypes eIndex);
-#endif
+
 	int GetNumActiveBuilding(BuildingTypes eIndex) const;
 
 	bool IsBuildingSellable(const CvBuildingEntry& kBuilding) const;
