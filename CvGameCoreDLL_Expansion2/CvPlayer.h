@@ -1926,6 +1926,18 @@ public:
 	int getYieldFromDelegateCount(YieldTypes eIndex)	const;
 	void changeYieldFromDelegateCount(YieldTypes eIndex, int iChange);
 
+	int getYieldForLiberation(YieldTypes eIndex)	const;
+	void changeYieldForLiberation(YieldTypes eIndex, int iChange);
+
+	int getInfluenceForLiberation()	const;
+	void changeInfluenceForLiberation(int iChange);
+
+	BuildingClassTypes getBuildingClassInLiberatedCities()	const;
+	void setBuildingClassInLiberatedCities(BuildingClassTypes eIndex);
+
+	int getUnitsInLiberatedCities()	const;
+	void changeUnitsInLiberatedCities(int iChange);
+
 	int GetGarrisonsOccupiedUnhapppinessMod() const;
 	void changeGarrisonsOccupiedUnhapppinessMod(int iChange);
 
@@ -3413,6 +3425,10 @@ protected:
 
 	int m_iLastSliceMoved;
 
+	int m_iInfluenceForLiberation;
+	int m_iUnitsInLiberatedCities;
+	BuildingClassTypes  m_eBuildingClassInLiberatedCities;
+
 	uint m_uiStartTime;  // XXX save these?
 
 	bool m_bHasUUPeriod;
@@ -3476,6 +3492,7 @@ protected:
 	std::vector<int> m_aiYieldModifierFromGreatWorks;
 	std::vector<int> m_aiYieldModifierFromActiveSpies;
 	std::vector<int> m_aiYieldFromDelegateCount;
+	std::vector<int> m_aiYieldForLiberation;
 	std::vector<int> m_paiBuildingClassCulture;
 	std::vector<int> m_aiDomainFreeExperiencePerGreatWorkGlobal;
 	std::vector<int> m_aiCityYieldModFromMonopoly;

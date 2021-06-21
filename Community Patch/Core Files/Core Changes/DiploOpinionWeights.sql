@@ -364,8 +364,8 @@ INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_SIDED_WITH_THEIR_MINOR_
 UPDATE Defines SET Value = '-30' WHERE Name = 'OPINION_WEIGHT_DOF';
 INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_DOF_MOST_VALUED_FRIEND', '-20'; -- additional bonus if player is AI's most valued friend
 INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_DOF_TYPE_FRIENDS', '-10'; -- bonus for 1 previous DoF that wasn't ended early, without a denouncement/DoW in the interim (if not currently friends)
-INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_DOF_TYPE_ALLIES', '-20'; -- bonus for 2 consecutive DoFs that weren't ended early, without a denouncement/DoW in the interim (if not currently friends)
-INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_DOF_TYPE_BATTLE_BROTHERS', '-30'; -- bonus for 3 consecutive DoFs that weren't ended early, without a denouncement/DoW in the interim (if not currently friends)
+INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_DOF_TYPE_ALLIES', '-20'; -- bonus for 2 consecutive DoFs ""
+INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_DOF_TYPE_BATTLE_BROTHERS', '-30'; -- bonus for 3+ consecutive DoFs ""
 
 -- We have made Declarations of Friendship with the same leaders!
 UPDATE Defines SET Value = '-20' WHERE Name = 'OPINION_WEIGHT_DOF_WITH_FRIEND';
@@ -386,7 +386,7 @@ INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_DOF_WITH_BIGGEST_LEAGUE
 
 -- We have made a Defensive Pact!
 INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_DP', '-15';
-INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_DP_MOST_VALUED_ALLY', '-15'; -- player is AI's most valued DP
+INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_DP_MOST_VALUED_ALLY', '-15'; -- additional bonus if player is AI's most valued DP
 
 -- We have made a Defensive Pact with the same leaders!
 INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_DP_WITH_FRIEND', '-10';

@@ -2367,7 +2367,7 @@ int CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes eImprovem
 			}
 			if(iAdjacentResourceValue > 0)
 			{
-				iYieldScore += (100 * pPlot->ComputeYieldFromAdjacentResource(*pImprovement, eYield));
+				iYieldScore += (100 * pPlot->ComputeYieldFromAdjacentResource(*pImprovement, eYield, GET_PLAYER(m_pPlayer->GetID()).getTeam()));
 			}
 			if (iAdjacentFeatureValue > 0)
 			{

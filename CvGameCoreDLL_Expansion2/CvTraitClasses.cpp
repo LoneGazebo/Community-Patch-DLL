@@ -175,6 +175,8 @@ CvTraitEntry::CvTraitEntry() :
 #if defined(MOD_BALANCE_CORE)
 	m_iExtraConqueredCityTerritoryClaimRange(0),
 	m_iExtraTenetsFirstAdoption(0),
+	m_iMonopolyModFlat(0),
+	m_iMonopolyModPercent(0),
 #endif
 	m_iFreeSocialPoliciesPerEra(0),
 	m_iNumTradeRoutesModifier(0),
@@ -1040,6 +1042,14 @@ int CvTraitEntry::GetExtraConqueredCityTerritoryClaimRange() const
 int CvTraitEntry::GetExtraTenetsFirstAdoption() const
 {
 	return m_iExtraTenetsFirstAdoption;
+}
+int CvTraitEntry::GetMonopolyModFlat() const
+{
+	return m_iMonopolyModFlat;
+}
+int CvTraitEntry::GetMonopolyModPercent() const
+{
+	return m_iMonopolyModPercent;
 }
 #endif
 /// Accessor: extra social policy from advancing to the next age
@@ -2400,6 +2410,8 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 #if defined(MOD_BALANCE_CORE)
 	m_iExtraConqueredCityTerritoryClaimRange = kResults.GetInt("ExtraConqueredCityTerritoryClaimRange");
 	m_iExtraTenetsFirstAdoption = kResults.GetInt("ExtraTenetsFirstAdoption");
+	m_iMonopolyModFlat = kResults.GetInt("MonopolyModFlat");
+	m_iMonopolyModPercent = kResults.GetInt("MonopolyModPercent");
 #endif
 	m_iFreeSocialPoliciesPerEra				= kResults.GetInt("FreeSocialPoliciesPerEra");
 	m_iNumTradeRoutesModifier				= kResults.GetInt("NumTradeRoutesModifier");
@@ -4367,6 +4379,8 @@ void CvPlayerTraits::InitPlayerTraits()
 #if defined(MOD_BALANCE_CORE)
 			m_iExtraConqueredCityTerritoryClaimRange += trait->GetExtraConqueredCityTerritoryClaimRange();
 			m_iExtraTenetsFirstAdoption += trait->GetExtraTenetsFirstAdoption();
+			m_iMonopolyModFlat += trait->GetMonopolyModFlat();
+			m_iMonopolyModPercent += trait->GetMonopolyModPercent();
 #endif
 			m_iFreeSocialPoliciesPerEra += trait->GetFreeSocialPoliciesPerEra();
 			m_iNumTradeRoutesModifier += trait->GetNumTradeRoutesModifier();
@@ -5126,6 +5140,8 @@ void CvPlayerTraits::Reset()
 #if defined(MOD_BALANCE_CORE)
 	m_iExtraConqueredCityTerritoryClaimRange = 0;
 	m_iExtraTenetsFirstAdoption = 0;
+	m_iMonopolyModFlat = 0;
+	m_iMonopolyModPercent = 0;
 #endif
 	m_iFreeSocialPoliciesPerEra = 0;
 	m_iNumTradeRoutesModifier = 0;

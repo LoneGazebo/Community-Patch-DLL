@@ -274,7 +274,7 @@ UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_01' WHERE Type = 'PROMOTION
 UPDATE UnitPromotions SET PortraitIndex = '35' WHERE Type = 'PROMOTION_CAN_MOVE_AFTER_ATTACKING_NAVAL';
 UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_01' WHERE Type = 'PROMOTION_ONLY_DEFENSIVE'; --                         ->  May not melee attack
 UPDATE UnitPromotions SET PortraitIndex = '36' WHERE Type = 'PROMOTION_ONLY_DEFENSIVE';
-UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_01' WHERE Type = 'PROMOTION_WITHDRAW_BEFORE_MELEE'; --                  ->  Withdraw Before Melee
+UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_01' WHERE Type = 'PROMOTION_WITHDRAW_BEFORE_MELEE'; --                  ->  Withdraw Before Melee (80)
 UPDATE UnitPromotions SET PortraitIndex = '37' WHERE Type = 'PROMOTION_WITHDRAW_BEFORE_MELEE';
 UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_01' WHERE Type = 'PROMOTION_FOLIAGE_IMPASSABLE'; --                     ->  Can Not Enter in Forest or Jungle
 UPDATE UnitPromotions SET PortraitIndex = '38' WHERE Type = 'PROMOTION_FOLIAGE_IMPASSABLE';
@@ -399,6 +399,8 @@ UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_02' WHERE Type = 'PROMOTION
 UPDATE UnitPromotions SET PortraitIndex = '27' WHERE Type = 'PROMOTION_WOODLAND_TRAILBLAZER_II';
 UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_02' WHERE Type = 'PROMOTION_WOODLAND_TRAILBLAZER_III'; --               ->  Trailblazer III
 UPDATE UnitPromotions SET PortraitIndex = '28' WHERE Type = 'PROMOTION_WOODLAND_TRAILBLAZER_III';
+UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_02' WHERE Type = 'PROMOTION_WITHDRAW_BEFORE_MELEE_I'; --                ->  Withdraw Before Melee (60)
+UPDATE UnitPromotions SET PortraitIndex = '28' WHERE Type = 'PROMOTION_WITHDRAW_BEFORE_MELEE_I';
 UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_02' WHERE Type = 'PROMOTION_PARADROP'; --                               ->  May Paradrop
 UPDATE UnitPromotions SET PortraitIndex = '29' WHERE Type = 'PROMOTION_PARADROP';
 UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_02' WHERE Type = 'PROMOTION_PRIZE_SHIPS'; --                            ->  Prize Ships
@@ -612,7 +614,8 @@ UPDATE UnitPromotions SET PortraitIndex = '59' WHERE Type = 'PROMOTION_MECH';
 --UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_03' WHERE Type = ''; --                                                  ->  
 --UPDATE UnitPromotions SET PortraitIndex = '63' WHERE Type = '';
 
-
+UPDATE UnitPromotions SET IconAtlas = 'extraPromo_Atlas' WHERE Type = 'PROMOTION_KNOCKOUT_III'; --                   	 	 ->  Scout Line Attack (25)
+UPDATE UnitPromotions SET PortraitIndex = '17' WHERE Type = 'PROMOTION_KNOCKOUT_III';
 
 --
 -- Firaxis Icons reassignment

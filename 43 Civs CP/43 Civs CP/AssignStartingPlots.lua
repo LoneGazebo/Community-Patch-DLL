@@ -11380,13 +11380,23 @@ end
 ------------------------------------------------------------------------------
 -- Check if Even More Resources for Vox Populi is activated
 function AssignStartingPlots:IsEvenMoreResourcesActive()
+	local communityPatchModID = "d1b6328c-ff44-4b0d-aad7-c657f83610cd"
 	local evenMoreResourcesModID = "8e54eb87-31e8-4fcd-aafe-ede055b463d0"
+	local isUsingCommunityPatch = false
 	local isUsingEvenMoreResources = false
-	
+
 	for _, mod in pairs(Modding.GetActivatedMods()) do
-		if (mod.ID == evenMoreResourcesModID) then
+		if (mod.ID == communityPatchModID) then -- if Community Patch is not activated, then we are running in modpack mode
+			isUsingCommunityPatch = true
+		elseif (mod.ID == evenMoreResourcesModID) then
 			isUsingEvenMoreResources = true
 			break
+		end
+	end
+	
+	if isUsingCommunityPatch == false then -- fallback method for modpack mode
+		for row in DB.Query("SELECT * FROM Resources WHERE Type = 'RESOURCE_BEER'") do
+			isUsingEvenMoreResources = true
 		end
 	end
 

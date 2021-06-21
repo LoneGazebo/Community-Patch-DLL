@@ -609,8 +609,8 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 	pPlot->SetRoutePillaged(false);
 #endif
 
+	//clear the first ring
 	int iRange = min(1, GD_INT_GET(CITY_STARTING_RINGS));
-
 	for(int iDX = -iRange; iDX <= iRange; iDX++)
 	{
 		for(int iDY = -iRange; iDY <= iRange; iDY++)
@@ -2218,29 +2218,7 @@ void CvCity::PreKill()
 
 	GC.getGame().GetGameTrade()->ClearAllCityTradeRoutes(pPlot, true);
 
-	// Update resources linked to this city
-	for(int iI = 0; iI < GetNumWorkablePlots(); iI++)
-	{
-		CvPlot* pLoopPlot = GetCityCitizens()->GetCityPlotFromIndex(iI);
-		if(pLoopPlot != NULL)
-		{
-			if(pLoopPlot->getOwningCityOverride() == this)
-			{
-				pLoopPlot->setOwningCityOverride(NULL);
-			}
-		}
-	}
-
-	// If this city was built on a Resource, remove its Quantity from total
-	if(pPlot->getResourceType(getTeam()) != NO_RESOURCE)
-	{
-		if(GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes) GC.getResourceInfo(pPlot->getResourceType())->getTechCityTrade()))
-		{
-			GET_PLAYER(getOwner()).changeNumResourceTotal(pPlot->getResourceType(), -pPlot->getNumResourceForPlayer(getOwner()));
-		}
-	}
-
-	plot()->removeMinorResources();
+	pPlot->removeMinorResources();
 
 	for(int iI = 0; iI < GC.getNumBuildingInfos(); iI++)
 	{
@@ -2281,7 +2259,7 @@ void CvCity::PreKill()
 		CvPlot* pLoopPlot = GC.getMap().plotByIndexUnchecked(iPlotLoop);
 		if(NULL != pLoopPlot && pLoopPlot->getOwningCityID() == GetID())
 		{
-			pLoopPlot->setOwner(NO_PLAYER, NO_PLAYER, /*bCheckUnits*/ true, /*bUpdateResources*/ true);
+			pLoopPlot->setOwner(NO_PLAYER, NO_PLAYER, /*bCheckUnits*/ false, /*bUpdateResources*/ true);
 		}
 	}
 
@@ -8425,7 +8403,6 @@ bool CvCity::hasBuildingPrerequisites(BuildingTypes eBuilding) const
 
 		if (pkBuildingInfo->IsBuildingClassNeededInCity(iI))
 		{
-#if defined(MOD_BALANCE_CORE)
 			//Exception for new Rome UA, because civ type doesn't help you here.
 			//Also use this if the option to check for all buildings in a class is enabled.
 			if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || GET_PLAYER(getOwner()).GetPlayerTraits()->IsKeepConqueredBuildings())
@@ -8435,10 +8412,7 @@ bool CvCity::hasBuildingPrerequisites(BuildingTypes eBuilding) const
 					return false;
 				}
 			}
-			else
-#endif
-
-			if (ePrereqBuilding != NO_BUILDING)
+			else if (ePrereqBuilding != NO_BUILDING)
 			{
 				if (0 == m_pCityBuildings->GetNumBuilding(ePrereqBuilding) /* && (bContinue || (getFirstBuildingOrder(ePrereqBuilding) == -1))*/)
 				{
@@ -8447,25 +8421,18 @@ bool CvCity::hasBuildingPrerequisites(BuildingTypes eBuilding) const
 			}
 		}
 
-#if defined(MOD_BALANCE_CORE)
 		if (MOD_BALANCE_CORE)
 		{
 			if (pkBuildingInfo->IsBuildingClassNeededAnywhere(iI))
 			{
 				bool bHasBuildingClass = false;
 
-#if defined(MOD_BUILDINGS_THOROUGH_PREREQUISITES)
 				//Exception for new Rome UA, because civ type doesn't help you here.
 				//Also use this if the option to check for all buildings in a class is enabled.
-#if defined(MOD_BALANCE_CORE)
 				if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || GET_PLAYER(getOwner()).GetPlayerTraits()->IsKeepConqueredBuildings())
-#else
-				if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
-#endif
 				{
-					CvCity* pLoopCity;
 					int iLoop;
-					for (pLoopCity = GET_PLAYER(getOwner()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(getOwner()).nextCity(&iLoop))
+					for (CvCity* pLoopCity = GET_PLAYER(getOwner()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(getOwner()).nextCity(&iLoop))
 					{
 						if (pLoopCity->HasBuildingClass((BuildingClassTypes)iI))
 						{
@@ -8478,14 +8445,10 @@ bool CvCity::hasBuildingPrerequisites(BuildingTypes eBuilding) const
 						return false;
 					}
 				}
-				else
-#endif
-
-				if (ePrereqBuilding != NO_BUILDING)
+				else if (ePrereqBuilding != NO_BUILDING)
 				{
-					CvCity* pLoopCity;
 					int iLoop;
-					for (pLoopCity = GET_PLAYER(getOwner()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(getOwner()).nextCity(&iLoop))
+					for (CvCity* pLoopCity = GET_PLAYER(getOwner()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(getOwner()).nextCity(&iLoop))
 					{
 						if (pLoopCity->GetCityBuildings()->GetNumBuilding(ePrereqBuilding) > 0)
 						{
@@ -8502,14 +8465,12 @@ bool CvCity::hasBuildingPrerequisites(BuildingTypes eBuilding) const
 			// Does this city have prereq buildings?
 			if (pkBuildingInfo->IsBuildingClassNeededNowhere(iI))
 			{
-#if defined(MOD_BUILDINGS_THOROUGH_PREREQUISITES)
 				//Exception for new Rome UA, because civ type doesn't help you here.
 				//Also use this if the option to check for all buildings in a class is enabled.
 				if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || GET_PLAYER(getOwner()).GetPlayerTraits()->IsKeepConqueredBuildings())
 				{
-					CvCity* pLoopCity;
 					int iLoop;
-					for (pLoopCity = GET_PLAYER(getOwner()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(getOwner()).nextCity(&iLoop))
+					for (CvCity* pLoopCity = GET_PLAYER(getOwner()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(getOwner()).nextCity(&iLoop))
 					{
 						if (pLoopCity->HasBuildingClass((BuildingClassTypes)iI))
 						{
@@ -8517,14 +8478,10 @@ bool CvCity::hasBuildingPrerequisites(BuildingTypes eBuilding) const
 						}
 					}
 				}
-				else
-#endif
-
-				if (ePrereqBuilding != NO_BUILDING)
+				else if (ePrereqBuilding != NO_BUILDING)
 				{
-					CvCity* pLoopCity;
 					int iLoop;
-					for (pLoopCity = GET_PLAYER(getOwner()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(getOwner()).nextCity(&iLoop))
+					for (CvCity* pLoopCity = GET_PLAYER(getOwner()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(getOwner()).nextCity(&iLoop))
 					{
 						if (pLoopCity->GetCityBuildings()->GetNumBuilding(ePrereqBuilding) > 0)
 						{
@@ -8534,10 +8491,8 @@ bool CvCity::hasBuildingPrerequisites(BuildingTypes eBuilding) const
 				}
 			}
 		}
-#endif
 	}
 
-#if defined(MOD_BALANCE_CORE)
 	if (MOD_BALANCE_CORE && pkBuildingInfo->GetNeedBuildingThisCity() != NO_BUILDING)
 	{
 		BuildingTypes ePrereqBuilding = (BuildingTypes)pkBuildingInfo->GetNeedBuildingThisCity();
@@ -8546,7 +8501,6 @@ bool CvCity::hasBuildingPrerequisites(BuildingTypes eBuilding) const
 			return false;
 		}
 	}
-#endif
 
 	return true;
 }
@@ -8648,11 +8602,8 @@ bool CvCity::canTrain(UnitTypes eUnit, bool bContinue, bool bTestVisible, bool b
 			if(thisUnitInfo.GetBuildingClassRequireds(eBuildingClass))
 			{
 				BuildingTypes ePrereqBuilding = NO_BUILDING;
-#if defined(MOD_BALANCE_CORE)
+
 				if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || GET_PLAYER(getOwner()).GetPlayerTraits()->IsKeepConqueredBuildings())
-#else
-				if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
-#endif
 				{
 					if (HasBuildingClass(eBuildingClass))
 					{
@@ -14905,11 +14856,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 			{
 				BuildingTypes eFreeBuildingThisCity = (BuildingTypes)(thisCiv.getCivilizationBuildings(eFreeBuildingClassThisCity));
 
-#if defined(MOD_BALANCE_CORE)
 				if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || owningPlayer.GetPlayerTraits()->IsKeepConqueredBuildings())
-#else
-				if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
-#endif
 				{
 					if (HasBuildingClass(eFreeBuildingClassThisCity))
 					{
@@ -21289,12 +21236,8 @@ bool CvCity::CanAirlift() const
 
 		BuildingTypes eBuilding = NO_BUILDING;
 		// If Rome, or if the option to check for all buildings in a class is enabled, we loop through all buildings in the city
-#if defined(MOD_BALANCE_CORE)
 		bool bRome = kPlayer.GetPlayerTraits()->IsKeepConqueredBuildings();
 		if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || bRome)
-#else
-		if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
-#endif
 		{
 			eBuilding = GetCityBuildings()->GetBuildingTypeFromClass((BuildingClassTypes)iBuildingClassLoop);
 		}
@@ -21302,11 +21245,8 @@ bool CvCity::CanAirlift() const
 		{
 			eBuilding = (BuildingTypes)kPlayer.getCivilizationInfo().getCivilizationBuildings(eBuildingClass);
 		}
-#if defined(MOD_BALANCE_CORE)
+
 		if (eBuilding != NO_BUILDING && (MOD_BUILDINGS_THOROUGH_PREREQUISITES || bRome || GetCityBuildings()->GetNumBuilding(eBuilding) > 0)) // slewis - added the NO_BUILDING check for the ConquestDLX scenario which has civ specific wonders
-#else
-		if (eBuilding != NO_BUILDING && (MOD_BUILDINGS_THOROUGH_PREREQUISITES || GetCityBuildings()->GetNumBuilding(eBuilding) > 0))
-#endif
 		{
 			CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
 			if(!pkBuildingInfo)
@@ -22189,12 +22129,9 @@ void CvCity::UpdateHappinessFromBuildingClasses()
 
 	// Building Class Mods
 	iSpecialBuildingHappiness = 0;
-#if defined(MOD_BALANCE_CORE)
+
 	bool bRome = kPlayer.GetPlayerTraits()->IsKeepConqueredBuildings();
 	if (!MOD_BUILDINGS_THOROUGH_PREREQUISITES && !bRome)
-#else
-	if (!MOD_BUILDINGS_THOROUGH_PREREQUISITES)
-#endif
 	{
 		for (int iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
 		{
@@ -26963,11 +26900,8 @@ bool CvCity::IsHasOffice() const
 
 	const CvCivilizationInfo& thisCivInfo = getCivilizationInfo();
 	BuildingTypes eBuilding = NO_BUILDING;
-#if defined(MOD_BALANCE_CORE)
+
 	if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || GET_PLAYER(getOwner()).GetPlayerTraits()->IsKeepConqueredBuildings())
-#else
-	if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
-#endif
 	{
 		eBuilding = GetCityBuildings()->GetBuildingTypeFromClass(eOffice);
 	}
@@ -27012,11 +26946,8 @@ bool CvCity::IsHasFranchise(CorporationTypes eCorporation) const
 
 	const CvCivilizationInfo& thisCivInfo = getCivilizationInfo();
 	BuildingTypes eBuilding = NO_BUILDING;
-#if defined(MOD_BALANCE_CORE)
+
 	if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || GET_PLAYER(getOwner()).GetPlayerTraits()->IsKeepConqueredBuildings())
-#else
-	if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
-#endif
 	{
 		eBuilding = GetCityBuildings()->GetBuildingTypeFromClass(eFranchise);
 	}
@@ -27100,11 +27031,8 @@ void CvCity::UpdateYieldFromCorporationFranchises(YieldTypes eIndex)
 			continue;
 		}
 		BuildingTypes eLoopBuilding = NO_BUILDING;
-#if defined(MOD_BALANCE_CORE)
+
 		if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || GET_PLAYER(getOwner()).GetPlayerTraits()->IsKeepConqueredBuildings())
-#else
-		if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
-#endif
 		{
 			eLoopBuilding = GetCityBuildings()->GetBuildingTypeFromClass((BuildingClassTypes)iI);
 		}
@@ -30464,7 +30392,7 @@ void CvCity::startHeadOrder()
 
 	if(pOrderNode != NULL)
 	{
-		GetCityCitizens()->DoReallocateCitizens();
+		GetCityCitizens()->OptimizeWorkedPlots(false);
 
 		if(pOrderNode->eOrderType == ORDER_MAINTAIN)
 		{
@@ -35889,24 +35817,17 @@ const std::vector<int>& CvCity::GetAttachedUnits() const
 int CvCity::CountFeature(FeatureTypes iFeatureType) const
 {
 	int iCount = 0;
-	int iX = getX(); int iY = getY(); int iOwner = getOwner();
 
 	for (int iCityPlotLoop = 0; iCityPlotLoop < GetNumWorkablePlots(); iCityPlotLoop++)
 	{
-		CvPlot* pLoopPlot = iterateRingPlots(iX, iY, iCityPlotLoop);
+		CvPlot* pLoopPlot = iterateRingPlots(getX(), getY(), iCityPlotLoop);
 
-		// Invalid plot or not owned by this player
-		if (pLoopPlot == NULL || pLoopPlot->getOwner() != iOwner) {
-			continue;
-		}
-
-		// Not owned by this city
-		if (!GetCityCitizens()->IsCanWork(pLoopPlot))
+		// Invalid plot or not owned by this city
+		if (pLoopPlot == NULL || pLoopPlot->getOwningCityID()!=GetID())
 			continue;
 
-		if (pLoopPlot->HasFeature(iFeatureType)) {
+		if (pLoopPlot->HasFeature(iFeatureType))
 			++iCount;
-		}
 	}
 	
 	return iCount;
@@ -35942,19 +35863,13 @@ int CvCity::CountWorkedFeature(FeatureTypes iFeatureType) const
 int CvCity::CountImprovement(ImprovementTypes iImprovementType, bool bOnlyCreated) const
 {
 	int iCount = 0;
-	int iX = getX(); int iY = getY(); int iOwner = getOwner();
 
 	for (int iCityPlotLoop = 0; iCityPlotLoop < GetNumWorkablePlots(); iCityPlotLoop++)
 	{
-		CvPlot* pLoopPlot = iterateRingPlots(iX, iY, iCityPlotLoop);
+		CvPlot* pLoopPlot = iterateRingPlots(getX(), getY(), iCityPlotLoop);
 
-		// Invalid plot or not owned by this player
-		if (pLoopPlot == NULL || pLoopPlot->getOwner() != iOwner) {
-			continue;
-		}
-
-		// Not owned by this city
-		if (!GetCityCitizens()->IsCanWork(pLoopPlot))
+		// Invalid plot or not owned by this city
+		if (pLoopPlot == NULL || pLoopPlot->getOwningCityID()!=GetID())
 			continue;
 
 		if (pLoopPlot->HasImprovement(iImprovementType)) 
@@ -35999,24 +35914,17 @@ int CvCity::CountWorkedImprovement(ImprovementTypes iImprovementType) const
 int CvCity::CountPlotType(PlotTypes iPlotType) const
 {
 	int iCount = 0;
-	int iX = getX(); int iY = getY(); int iOwner = getOwner();
 
 	for (int iCityPlotLoop = 0; iCityPlotLoop < GetNumWorkablePlots(); iCityPlotLoop++)
 	{
-		CvPlot* pLoopPlot = iterateRingPlots(iX, iY, iCityPlotLoop);
+		CvPlot* pLoopPlot = iterateRingPlots(getX(), getY(), iCityPlotLoop);
 
-		// Invalid plot or not owned by this player
-		if (pLoopPlot == NULL || pLoopPlot->getOwner() != iOwner) {
-			continue;
-		}
-
-		// Not owned by this city
-		if (!GetCityCitizens()->IsCanWork(pLoopPlot))
+		// Invalid plot or not owned by this city
+		if (pLoopPlot == NULL || pLoopPlot->getOwningCityID()!=GetID())
 			continue;
 
-		if (pLoopPlot->HasPlotType(iPlotType)) {
+		if (pLoopPlot->HasPlotType(iPlotType))
 			++iCount;
-		}
 	}
 	
 	return iCount;
@@ -36105,24 +36013,17 @@ int CvCity::CountWorkedResource(ResourceTypes iResourceType) const
 int CvCity::CountTerrain(TerrainTypes iTerrainType) const
 {
 	int iCount = 0;
-	int iX = getX(); int iY = getY(); int iOwner = getOwner();
 
 	for (int iCityPlotLoop = 0; iCityPlotLoop < GetNumWorkablePlots(); iCityPlotLoop++)
 	{
-		CvPlot* pLoopPlot = iterateRingPlots(iX, iY, iCityPlotLoop);
+		CvPlot* pLoopPlot = iterateRingPlots(getX(), getY(), iCityPlotLoop);
 
-		// Invalid plot or not owned by this player
-		if (pLoopPlot == NULL || pLoopPlot->getOwner() != iOwner) {
-			continue;
-		}
-
-		// Not owned by this city
-		if (!GetCityCitizens()->IsCanWork(pLoopPlot))
+		// Invalid plot or not owned by this city
+		if (pLoopPlot == NULL || pLoopPlot->getOwningCityID()!=GetID())
 			continue;
 
-		if (pLoopPlot->HasTerrain(iTerrainType)) {
+		if (pLoopPlot->HasTerrain(iTerrainType))
 			++iCount;
-		}
 	}
 	
 	return iCount;
@@ -36168,10 +36069,6 @@ int CvCity::CountAllOwnedTerrain(TerrainTypes iTerrainType) const
 		if (pLoopPlot == NULL || pLoopPlot->getOwner() != iOwner) {
 			continue;
 		}
-
-		// Not owned by this city
-		if (!GetCityCitizens()->IsCanWork(pLoopPlot))
-			continue;
 
 		if (pLoopPlot->HasTerrain(iTerrainType)) {
 			++iCount;

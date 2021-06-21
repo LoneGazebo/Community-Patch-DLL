@@ -104,8 +104,8 @@ INSERT INTO Civilization_UnitClassOverrides
 VALUES		('CIVILIZATION_SPAIN',	'UNITCLASS_INQUISITOR', 	'UNIT_SPAIN_INQUISITOR');
 
 INSERT INTO Units 	
-			(Type,						RequiresEnhancedReligion, 	ReligiousStrength, 		ShowInPedia, 	NoMaintenance, 	ProhibitsSpread, RemoveHeresy, Class, BaseSightRange, Combat, Cost, FaithCost,	RequiresFaithPurchaseEnabled, Moves, CombatClass, Domain, DefaultUnitAI, ObsoleteTech, GoodyHutUpgradeUnitClass, XPValueAttack,	Description, Civilopedia, Strategy, Help, Pillage, MilitarySupport, MilitaryProduction, IgnoreBuildingDefense, CivilianAttackPriority, Mechanized, AirUnitCap, AdvancedStartCost, RangedCombatLimit, CombatLimit, XPValueDefense, UnitArtInfo, UnitFlagIconOffset, UnitFlagAtlas, PortraitIndex, IconAtlas, MoveRate, PurchaseCooldown)
-SELECT		'UNIT_SPAIN_INQUISITOR',	0, 							ReligiousStrength*2, 	0, 				NoMaintenance, 	ProhibitsSpread, RemoveHeresy, Class, BaseSightRange, Combat, Cost, FaithCost,	RequiresFaithPurchaseEnabled, Moves, CombatClass, Domain, DefaultUnitAI, ObsoleteTech, GoodyHutUpgradeUnitClass, XPValueAttack,	Description, Civilopedia, Strategy,	Help, Pillage, MilitarySupport, MilitaryProduction, IgnoreBuildingDefense, CivilianAttackPriority, Mechanized, AirUnitCap, AdvancedStartCost, RangedCombatLimit, CombatLimit, XPValueDefense, UnitArtInfo, UnitFlagIconOffset, UnitFlagAtlas, PortraitIndex, IconAtlas, MoveRate, PurchaseCooldown
+			(Type,						RequiresEnhancedReligion, 	ReligiousStrength, ShowInPedia, NoMaintenance, 	ProhibitsSpread, RemoveHeresy, Class, BaseSightRange, Combat, Cost, FaithCost,	RequiresFaithPurchaseEnabled, Moves, CombatClass, Domain, DefaultUnitAI, ObsoleteTech, GoodyHutUpgradeUnitClass, XPValueAttack,	Description, Civilopedia, Strategy, Help, Pillage, MilitarySupport, MilitaryProduction, IgnoreBuildingDefense, CivilianAttackPriority, Mechanized, AirUnitCap, AdvancedStartCost, RangedCombatLimit, CombatLimit, XPValueDefense, UnitArtInfo, UnitFlagIconOffset, UnitFlagAtlas, PortraitIndex, IconAtlas, MoveRate, PurchaseCooldown)
+SELECT		'UNIT_SPAIN_INQUISITOR',	0, 							ReligiousStrength, 0, 			1, 				ProhibitsSpread, RemoveHeresy, Class, BaseSightRange, Combat, Cost, FaithCost,	RequiresFaithPurchaseEnabled, Moves, CombatClass, Domain, DefaultUnitAI, ObsoleteTech, GoodyHutUpgradeUnitClass, XPValueAttack,	Description, Civilopedia, Strategy,	Help, Pillage, MilitarySupport, MilitaryProduction, IgnoreBuildingDefense, CivilianAttackPriority, Mechanized, AirUnitCap, AdvancedStartCost, RangedCombatLimit, CombatLimit, XPValueDefense, UnitArtInfo, UnitFlagIconOffset, UnitFlagAtlas, PortraitIndex, IconAtlas, MoveRate, PurchaseCooldown
 FROM Units WHERE Type = 'UNIT_INQUISITOR';
 
 INSERT INTO UnitGameplay2DScripts 	
@@ -169,10 +169,10 @@ VALUES		('IMPROVEMENT_SPAIN_HACIENDA',	'TERRAIN_PLAINS'),
 			('IMPROVEMENT_SPAIN_HACIENDA',	'TERRAIN_SNOW');
 	
 INSERT INTO Improvement_Yields 	
-			(ImprovementType, 				YieldType,					Yield)
-VALUES		('IMPROVEMENT_SPAIN_HACIENDA',	'YIELD_GOLD',				1),
+			(ImprovementType, 				YieldType,			Yield)
+VALUES		('IMPROVEMENT_SPAIN_HACIENDA',	'YIELD_GOLD',		1),
 			('IMPROVEMENT_SPAIN_HACIENDA',	'YIELD_FOOD',		1),
-			('IMPROVEMENT_SPAIN_HACIENDA',	'YIELD_PRODUCTION',		1);
+			('IMPROVEMENT_SPAIN_HACIENDA',	'YIELD_PRODUCTION',	1);
 	
 INSERT INTO Improvement_AdjacentCityYields 	
 			(ImprovementType, 				YieldType,				Yield)

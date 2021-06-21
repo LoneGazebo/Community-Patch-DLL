@@ -367,7 +367,7 @@ public:
 	int ComputeYieldFromTwoAdjacentImprovement(CvImprovementEntry& kImprovement, ImprovementTypes eValue, YieldTypes eYield) const;
 	int ComputeYieldFromOtherAdjacentImprovement(CvImprovementEntry& kImprovement, YieldTypes eYield) const;
 	int ComputeYieldFromAdjacentTerrain(CvImprovementEntry& kImprovement, YieldTypes eYield) const;
-	int ComputeYieldFromAdjacentResource(CvImprovementEntry& kImprovement, YieldTypes eYield) const;
+	int ComputeYieldFromAdjacentResource(CvImprovementEntry& kImprovement, YieldTypes eYield, TeamTypes eTeam) const;
 	int ComputeYieldFromAdjacentFeature(CvImprovementEntry& kImprovement, YieldTypes eYield) const;
 #else
 	int ComputeCultureFromAdjacentImprovement(CvImprovementEntry& kImprovement, ImprovementTypes eValue) const;
@@ -562,7 +562,7 @@ public:
 	void updateOwningCity();
 
 	CvCity* getEffectiveOwningCity() const;
-	bool isEffectiveOwner(CvCity* pCity) const;
+	bool isEffectiveOwner(const CvCity* pCity) const;
 
 	CvCity* getOwningCityOverride() const;
 	void setOwningCityOverride(const CvCity* pNewValue);
@@ -975,8 +975,9 @@ protected:
 	map<BuildTypes,int> m_buildProgress;
 	CvUnit* m_pCenterUnit;
 
-	unsigned char m_apaiInvisibleVisibilityCount[MAX_TEAMS][NUM_INVISIBLE_TYPES];
-	unsigned char m_paiInvisibleVisibilityUnitCount[MAX_TEAMS];
+	//this is totally f'd ... don't waste memory on it
+	vector<pair<TeamTypes,int>> m_vInvisibleVisibilityUnitCount;
+	vector<pair<TeamTypes,vector<int>>> m_vInvisibleVisibilityCount;
 
 	short m_iArea;
 	short m_iLandmass;
