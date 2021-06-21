@@ -6672,8 +6672,8 @@ std::vector<int> CvTradeAI::ScoreInternationalTR(const TradeConnection& kTradeCo
 			// "to" and "from" religions need to be different for us to care
 			if (eToReligion != eFromReligion)
 			{
-				int iExistingToPressureAtFrom = pFromCity->GetCityReligions()->GetPressure(eFromReligion);
-				int iExistingGoodPressureAtTo = pToCity->GetCityReligions()->GetPressure(eOwnerFoundedReligion);
+				int iExistingToPressureAtFrom = pFromCity->GetCityReligions()->GetPressureAccumulated(eFromReligion);
+				int iExistingGoodPressureAtTo = pToCity->GetCityReligions()->GetPressureAccumulated(eOwnerFoundedReligion);
 				if (eToReligion != eOwnerFoundedReligion)
 					iToPressure = 0;
 				if (eFromReligion == eOwnerFoundedReligion)
@@ -7318,8 +7318,8 @@ std::vector<int> CvTradeAI::ScoreGoldInternalTR(const TradeConnection& kTradeCon
 			// "to" and "from" religions need to be different for us to care
 			if (eToReligion != eFromReligion)
 			{
-				int iExistingToPressureAtFrom = pFromCity->GetCityReligions()->GetPressure(eFromReligion);
-				int iExistingGoodPressureAtTo = pToCity->GetCityReligions()->GetPressure(eOwnerFoundedReligion);
+				int iExistingToPressureAtFrom = pFromCity->GetCityReligions()->GetPressureAccumulated(eFromReligion);
+				int iExistingGoodPressureAtTo = pToCity->GetCityReligions()->GetPressureAccumulated(eOwnerFoundedReligion);
 				if (eToReligion != eOwnerFoundedReligion)
 					iToPressure = 0;
 				if (eFromReligion == eOwnerFoundedReligion)

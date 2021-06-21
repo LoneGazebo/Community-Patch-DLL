@@ -2110,6 +2110,11 @@ bool CvCityCitizens::IsCanWorkWithOverride(CvPlot* pPlot) const
 	if (!pPlot->isEffectiveOwner(m_pCity))
 	{
 		CvCity* pEffectiveOwner = pPlot->getEffectiveOwningCity();
+		if (!pEffectiveOwner)
+		{
+			return false;
+		}
+
 		//we do not want to steal plots which are currently being worked or in the innermost ring
 		//humans can still re-assign plots manually (see DoAlterWorkingPlot)
 		if (pEffectiveOwner->GetCityCitizens()->IsWorkingPlot(pPlot) || plotDistance(pPlot->getX(),pPlot->getY(),pEffectiveOwner->getX(),pEffectiveOwner->getY())<2)

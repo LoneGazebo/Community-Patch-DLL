@@ -5124,7 +5124,7 @@ int CvCityReligions::GetTotalPressure()
 }
 
 /// Pressure exerted by one religion
-int CvCityReligions::GetPressure(ReligionTypes eReligion)
+int CvCityReligions::GetPressureAccumulated(ReligionTypes eReligion)
 {
 	ReligionInCityList::iterator it;
 	for(it = m_ReligionStatus.begin(); it != m_ReligionStatus.end(); it++)
@@ -5139,10 +5139,10 @@ int CvCityReligions::GetPressure(ReligionTypes eReligion)
 }
 
 /// Pressure exerted by one religion per turn
-int CvCityReligions::GetPressurePerTurn(ReligionTypes eReligion, int& iNumTradeRoutesInvolved)
+int CvCityReligions::GetPressurePerTurn(ReligionTypes eReligion, int* piNumSourceCities)
 {
 	int iPressure = 0;
-	iNumTradeRoutesInvolved = 0;
+	int iCount = 0;
 	
 	// Loop through all the players
 	for(int iI = 0; iI < MAX_PLAYERS; iI++)
@@ -5175,8 +5175,11 @@ int CvCityReligions::GetPressurePerTurn(ReligionTypes eReligion, int& iNumTradeR
 				int iNumTradeRoutes = 0;
 				int iNewPressure = GC.getGame().GetGameReligions()->GetAdjacentCityReligiousPressure(eReligion, pLoopCity, m_pCity, iNumTradeRoutes, false, false, bConnectedWithTrade, iRelativeDistancePercent);
 
-				iPressure += iNewPressure;
-				iNumTradeRoutesInvolved += iNumTradeRoutes;
+				if (iNewPressure > 0)
+				{
+					iPressure += iNewPressure;
+					iCount++;
+				}
 			}
 
 			// Include any pressure from "Underground Sects"
@@ -5202,6 +5205,9 @@ int CvCityReligions::GetPressurePerTurn(ReligionTypes eReligion, int& iNumTradeR
 		iPressure += iHolyCityPressure;
 	}
 	
+	if (piNumSourceCities)
+		*piNumSourceCities = iCount;
+
 	// CUSTOMLOG("GetPressurePerTurn for %i on %s is %i", eReligion, m_pCity->getName().c_str(), iPressure);
 	return iPressure;
 }
@@ -7227,10 +7233,8 @@ CvCity *CvReligionAI::ChooseProphetConversionCity(CvUnit* pUnit, int* piTurns) c
 					if (eMajorityReligion == eReligion)
 						continue;
 
-					int iDummy = 0;
-					int iOurPressure = max(1,pCR->GetPressurePerTurn(eReligion, iDummy));
-
-					int iMajorityPressure = pCR->GetPressurePerTurn(eMajorityReligion, iDummy);
+					int iOurPressure = max(1,pCR->GetPressurePerTurn(eReligion));
+					int iMajorityPressure = pCR->GetPressurePerTurn(eMajorityReligion);
 					int iDistanceToHolyCity = plotDistance(pLoopCity->getX(), pLoopCity->getY(), pHolyCity->getX(), pHolyCity->getY());
 
 					// Score this city
@@ -10603,7 +10607,7 @@ int CvReligionAI::ScoreCityForMissionary(CvCity* pCity, CvUnit* pUnit, ReligionT
 	int iImpactPercent = min(100, (iPressureFromUnit * 100) / iTotalPressure);
 
 	//see if our missionary can make a dent
-	int iOurPressure = pCity->GetCityReligions()->GetPressure(eMyReligion);
+	int iOurPressure = pCity->GetCityReligions()->GetPressureAccumulated(eMyReligion);
 	int iCurrentRatio = (iOurPressure * 100) / iTotalPressure;
 
 	//make up some thresholds ...
