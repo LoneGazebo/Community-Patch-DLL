@@ -51,6 +51,7 @@ INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SE
 INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SELECT 'UNIT_POLISH_WINGED_HUSSAR','BUILDINGCLASS_STABLE'; 
 INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SELECT 'UNIT_POLISH_WINGED_HUSSAR','BUILDINGCLASS_ARMORY'; 
 -- Industrial
+INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SELECT 'UNIT_COMMANDO','BUILDINGCLASS_ARMORY';
 INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SELECT 'UNIT_FIELD_GUN','BUILDINGCLASS_ARMORY'; 
 INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SELECT 'UNIT_BERBER_CAVALRY','BUILDINGCLASS_ARMORY'; 
 INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SELECT 'UNIT_BERBER_CAVALRY','BUILDINGCLASS_STABLE'; 
