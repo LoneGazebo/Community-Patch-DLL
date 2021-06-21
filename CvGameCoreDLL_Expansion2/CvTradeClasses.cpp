@@ -1180,6 +1180,7 @@ int CvGameTrade::GetTradeRouteTurns(CvCity* pOriginCity, CvCity* pDestCity, Doma
 #else
 	int iTargetTurns = 30; // how many turns do we want the cycle to consume
 #endif
+	iTargetTurns += (int)(iTargetTurns * (GET_PLAYER(pOriginCity->getOwner()).GetTrade()->GetTradeRouteTurnMod(pOriginCity) / 100.0));
 
 	// calculate how many circuits do we want this trade route to run to reach the target turns
 	int iCircuitsToComplete = 1; 
@@ -5519,6 +5520,65 @@ int CvPlayerTrade::GetTradeRouteSpeed (DomainTypes eDomain)
 }
 
 //	--------------------------------------------------------------------------------
+int CvPlayerTrade::GetTradeRouteTurnMod(CvCity* pOriginCity)
+{
+	int iTurnChange = 0;
+
+	const CvCivilizationInfo& kCivInfo = m_pPlayer->getCivilizationInfo();
+	int iLoop = 0;
+	CvCity* pLoopCity;
+	for (pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
+	{
+		bool bSameCity = pLoopCity == pOriginCity;
+		for (int iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
+		{
+			BuildingTypes eBuilding = NO_BUILDING;
+#if defined(MOD_BALANCE_CORE)
+			if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || m_pPlayer->GetPlayerTraits()->IsKeepConqueredBuildings())
+#else
+			if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
+#endif
+			{
+				eBuilding = pLoopCity->GetCityBuildings()->GetBuildingTypeFromClass((BuildingClassTypes)iI);
+			}
+			else
+			{
+				eBuilding = (BuildingTypes)kCivInfo.getCivilizationBuildings((BuildingClassTypes)iI);
+			}
+			if (eBuilding != NO_BUILDING)
+			{
+				CvBuildingEntry* pBuildingEntry = GC.GetGameBuildings()->GetEntry(eBuilding);
+				if (!pBuildingEntry)
+				{
+					continue;
+				}
+
+				if (pBuildingEntry)
+				{
+					if (pLoopCity->GetCityBuildings()->GetNumBuilding((BuildingTypes)pBuildingEntry->GetID()))
+					{
+						int iTurnMod = pBuildingEntry->GetTRTurnModGlobal();
+						if (iTurnMod != 0)
+						{
+							iTurnChange += (iTurnMod * pLoopCity->GetCityBuildings()->GetNumBuilding((BuildingTypes)pBuildingEntry->GetID()));
+						}
+						int iTurnModLocal = pBuildingEntry->GetTRTurnModLocal();
+						if (iTurnModLocal != 0 && bSameCity)
+						{
+							iTurnChange += (iTurnModLocal * pLoopCity->GetCityBuildings()->GetNumBuilding((BuildingTypes)pBuildingEntry->GetID()));
+						}
+					}
+				}
+			}
+		}
+	}
+	if (abs(iTurnChange) > 100) {
+		return 100 * (iTurnChange / abs(iTurnChange));
+	}
+	return iTurnChange;
+}
+
+//	--------------------------------------------------------------------------------
 uint CvPlayerTrade::GetNumTradeRoutesPossible (void)
 {
 	int iNumRoutes = 0;
@@ -6612,8 +6672,8 @@ std::vector<int> CvTradeAI::ScoreInternationalTR(const TradeConnection& kTradeCo
 			// "to" and "from" religions need to be different for us to care
 			if (eToReligion != eFromReligion)
 			{
-				int iExistingToPressureAtFrom = pFromCity->GetCityReligions()->GetPressure(eFromReligion);
-				int iExistingGoodPressureAtTo = pToCity->GetCityReligions()->GetPressure(eOwnerFoundedReligion);
+				int iExistingToPressureAtFrom = pFromCity->GetCityReligions()->GetPressureAccumulated(eFromReligion);
+				int iExistingGoodPressureAtTo = pToCity->GetCityReligions()->GetPressureAccumulated(eOwnerFoundedReligion);
 				if (eToReligion != eOwnerFoundedReligion)
 					iToPressure = 0;
 				if (eFromReligion == eOwnerFoundedReligion)
@@ -7258,8 +7318,8 @@ std::vector<int> CvTradeAI::ScoreGoldInternalTR(const TradeConnection& kTradeCon
 			// "to" and "from" religions need to be different for us to care
 			if (eToReligion != eFromReligion)
 			{
-				int iExistingToPressureAtFrom = pFromCity->GetCityReligions()->GetPressure(eFromReligion);
-				int iExistingGoodPressureAtTo = pToCity->GetCityReligions()->GetPressure(eOwnerFoundedReligion);
+				int iExistingToPressureAtFrom = pFromCity->GetCityReligions()->GetPressureAccumulated(eFromReligion);
+				int iExistingGoodPressureAtTo = pToCity->GetCityReligions()->GetPressureAccumulated(eOwnerFoundedReligion);
 				if (eToReligion != eOwnerFoundedReligion)
 					iToPressure = 0;
 				if (eFromReligion == eOwnerFoundedReligion)

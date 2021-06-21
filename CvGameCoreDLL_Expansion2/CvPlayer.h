@@ -1925,6 +1925,18 @@ public:
 	int getYieldFromDelegateCount(YieldTypes eIndex)	const;
 	void changeYieldFromDelegateCount(YieldTypes eIndex, int iChange);
 
+	int getYieldForLiberation(YieldTypes eIndex)	const;
+	void changeYieldForLiberation(YieldTypes eIndex, int iChange);
+
+	int getInfluenceForLiberation()	const;
+	void changeInfluenceForLiberation(int iChange);
+
+	BuildingClassTypes getBuildingClassInLiberatedCities()	const;
+	void setBuildingClassInLiberatedCities(BuildingClassTypes eIndex);
+
+	int getUnitsInLiberatedCities()	const;
+	void changeUnitsInLiberatedCities(int iChange);
+
 	int GetGarrisonsOccupiedUnhapppinessMod() const;
 	void changeGarrisonsOccupiedUnhapppinessMod(int iChange);
 
@@ -3403,6 +3415,10 @@ protected:
 
 	FAutoVariable<int, CvPlayer> m_iLastSliceMoved;
 
+	FAutoVariable<int, CvPlayer> m_iInfluenceForLiberation;
+	FAutoVariable<int, CvPlayer> m_iUnitsInLiberatedCities;
+	FAutoVariable<BuildingClassTypes, CvPlayer> m_eBuildingClassInLiberatedCities;
+
 	FAutoVariable<uint, CvPlayer> m_uiStartTime;  // XXX save these?
 
 	FAutoVariable<bool, CvPlayer> m_bHasUUPeriod;
@@ -3466,6 +3482,7 @@ protected:
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiYieldModifierFromGreatWorks;
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiYieldModifierFromActiveSpies;
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiYieldFromDelegateCount;
+	FAutoVariable<std::vector<int>, CvPlayer> m_aiYieldForLiberation;
 	FAutoVariable<std::vector<int>, CvPlayer> m_paiBuildingClassCulture;
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiDomainFreeExperiencePerGreatWorkGlobal;
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiCityYieldModFromMonopoly;

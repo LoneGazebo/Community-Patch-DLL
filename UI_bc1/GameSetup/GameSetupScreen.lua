@@ -36,7 +36,7 @@ Controls.StartButton:RegisterCallback( Mouse.eLClick,
 function()
 	PreGame.SetPersistSettings( not bIsModding ); -- Whether or not to save settings for the "Play Now" option.
 
-	if bIsModding and isWBMap( PreGame.GetMapScript() ) then
+	if isWBMap( PreGame.GetMapScript() ) then
 		PreGame.SetRandomMapScript(false);
 		PreGame.SetLoadWBScenario(PreGame.GetLoadWBScenario());
 		PreGame.SetOverrideScenarioHandicap(true);

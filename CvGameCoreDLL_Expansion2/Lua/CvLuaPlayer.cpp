@@ -10597,7 +10597,7 @@ int CvLuaPlayer::lIsDemandEverMade(lua_State* L)
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	PlayerTypes eOtherPlayer = (PlayerTypes) lua_tointeger(L, 2);
 
-	const bool bValue = pkPlayer->GetDiplomacyAI()->IsDemandEverMade(eOtherPlayer);
+	const bool bValue = pkPlayer->GetDiplomacyAI()->IsDemandMade(eOtherPlayer);
 
 	lua_pushboolean(L, bValue);
 	return 1;
@@ -14441,7 +14441,7 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 			aOpinions.push_back(kOpinion);
 		}
 
-		iValue = pDiplo->GetDemandEverMadeScore(ePlayer);
+		iValue = pDiplo->GetDemandMadeScore(ePlayer);
 		if (iValue != 0)
 		{
 			Opinion kOpinion;

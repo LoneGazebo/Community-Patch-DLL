@@ -221,6 +221,8 @@ public:
 #if defined(MOD_BALANCE_CORE)
 	int GetExtraConqueredCityTerritoryClaimRange() const;
 	int GetExtraTenetsFirstAdoption() const;
+	int GetMonopolyModFlat() const;
+	int GetMonopolyModPercent() const;
 #endif
 	int GetFreeSocialPoliciesPerEra() const;
 	int GetNumTradeRoutesModifier() const;
@@ -587,6 +589,8 @@ protected:
 #if defined(MOD_BALANCE_CORE)
 	int m_iExtraConqueredCityTerritoryClaimRange;
 	int m_iExtraTenetsFirstAdoption;
+	int m_iMonopolyModFlat;
+	int m_iMonopolyModPercent;
 #endif
 	int m_iFreeSocialPoliciesPerEra;
 	int m_iNumTradeRoutesModifier;
@@ -1432,6 +1436,14 @@ public:
 	{
 		return m_iExtraTenetsFirstAdoption;
 	}
+	int GetMonopolyModFlat() const
+	{
+		return m_iMonopolyModFlat;
+	}
+	int GetMonopolyModPercent() const
+	{
+		return m_iMonopolyModPercent;
+	}
 #endif
 	int GetFreeSocialPoliciesPerEra() const
 	{
@@ -2174,6 +2186,8 @@ private:
 #if defined(MOD_BALANCE_CORE)
 	int m_iExtraConqueredCityTerritoryClaimRange;
 	int m_iExtraTenetsFirstAdoption;
+	int m_iMonopolyModFlat;
+	int m_iMonopolyModPercent;
 #endif
 	int m_iFreeSocialPoliciesPerEra;
 	int m_iNumTradeRoutesModifier;

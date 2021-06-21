@@ -70,6 +70,9 @@ CvImprovementEntry::CvImprovementEntry(void):
 #if defined(MOD_API_EXTENSIONS)
 	m_iRequiresXAdjacentWater(-1),
 #endif
+#if defined(MOD_GLOBAL_NO_FOLLOWUP_FROM_CITIES)
+	m_bNoFollowUp(false),
+#endif
 #if defined(MOD_GLOBAL_STACKING_RULES)
 	m_iAdditionalUnits(0),
 #endif
@@ -272,6 +275,9 @@ bool CvImprovementEntry::CacheResults(Database::Results& kResults, CvDatabaseUti
 	m_iRequiresXAdjacentLand = kResults.GetInt("RequiresXAdjacentLand");
 #if defined(MOD_API_EXTENSIONS)
 	m_iRequiresXAdjacentWater = kResults.GetInt("RequiresXAdjacentWater");
+#endif
+#if defined(MOD_GLOBAL_NO_FOLLOWUP_FROM_CITIES)
+	m_bNoFollowUp = kResults.GetBool("NoFollowUp");
 #endif
 #if defined(MOD_GLOBAL_STACKING_RULES)
 	m_iAdditionalUnits = kResults.GetInt("AdditionalUnits");
@@ -793,6 +799,14 @@ int CvImprovementEntry::GetRequiresXAdjacentLand() const
 int CvImprovementEntry::GetRequiresXAdjacentWater() const
 {
 	return m_iRequiresXAdjacentWater;
+}
+#endif
+
+#if defined(MOD_GLOBAL_NO_FOLLOWUP_FROM_CITIES)
+/// Units that stand on this improvement don't leave it when they attack (like from a city)
+bool CvImprovementEntry::IsNoFollowUp() const
+{
+	return m_bNoFollowUp;
 }
 #endif
 

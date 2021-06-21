@@ -2449,8 +2449,28 @@ void CvMilitaryAI::DisbandObsoleteUnits()
 	}
 }
 
+bool NeedShipInArea(PlayerTypes ePlayer, CvArea* pWaterBody)
+{
+	if (pWaterBody)
+	{
+		int iForeignCities = pWaterBody->getNumCities() - pWaterBody->getCitiesPerPlayer(ePlayer);
+		int iForeignUnits = pWaterBody->getNumUnits() - pWaterBody->getUnitsPerPlayer(ePlayer);
+		bool bTooManyUnits = (pWaterBody->getNumTiles() < pWaterBody->getUnitsPerPlayer(ePlayer) * GC.getAI_CONFIG_MILITARY_TILES_PER_SHIP());
+
+		if (!bTooManyUnits)
+			if (iForeignCities > 0 || iForeignUnits > 0)
+				return true;
+	}
+
+	return false;
+}
+
+
+
 CvUnit* CvMilitaryAI::FindUselessShip()
 {
+	vector<CvUnit*> candidates;
+
 	int iUnitLoop;
 	for (CvUnit* pLoopUnit = m_pPlayer->firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iUnitLoop))
 	{
@@ -2463,38 +2483,52 @@ CvUnit* CvMilitaryAI::FindUselessShip()
 		// Is this a ship on a water body without enemies and without exits?
 		if (pLoopUnit->getDomainType() == DOMAIN_SEA)
 		{
-			//assume it's useless until proven otherwise
-			bool bIsUseless = true;
+			//check the current area first
+			if (NeedShipInArea(m_pPlayer->GetID(), pLoopUnit->plot()->area()))
+				continue;
 
-			//two turns is a good compromise between reliability and performance 
-			SPathFinderUserData data(pLoopUnit, CvUnit::MOVEFLAG_IGNORE_STACKING | CvUnit::MOVEFLAG_IGNORE_ENEMIES | CvUnit::MOVEFLAG_IGNORE_RIGHT_OF_PASSAGE, 2);
-			ReachablePlots plots = GC.GetPathFinder().GetPlotsInReach(pLoopUnit->getX(), pLoopUnit->getY(), data);
-			set<int> areas;
-
-			for (ReachablePlots::iterator it = plots.begin(); it != plots.end(); ++it)
-			{
-				CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(it->iPlotIndex);
-				if (pPlot && pPlot->isWater())
-					areas.insert(pPlot->getArea());
-			}
-			for (set<int>::iterator it = areas.begin(); it != areas.end(); ++it)
-			{
-				CvArea* pWaterBody = GC.getMap().getArea(*it);
-				if (pWaterBody)
-				{
-					int iForeignCities = pWaterBody->getNumCities() - pWaterBody->getCitiesPerPlayer(m_pPlayer->GetID());
-					int iForeignUnits = pWaterBody->getNumUnits() - pWaterBody->getUnitsPerPlayer(m_pPlayer->GetID());
-					bool bTooManyUnits = (pWaterBody->getNumTiles() <  pWaterBody->getUnitsPerPlayer(m_pPlayer->GetID()) * GC.getAI_CONFIG_MILITARY_TILES_PER_SHIP());
-
-					if (!bTooManyUnits)
-						if (iForeignCities > 0 || iForeignUnits > 0)
-							bIsUseless = false;
-				}
-			}
-
-			if (bIsUseless)
-				return pLoopUnit;
+			candidates.push_back(pLoopUnit);
 		}
+	}
+
+	//sort ships by experience: we want to scrap the veterans last ...
+	struct PrSortByExperience
+	{
+		bool operator()(const CvUnit* lhs, const CvUnit* rhs) const { return lhs->getExperienceTimes100() < rhs->getExperienceTimes100(); }
+	};
+	std::sort( candidates.begin(), candidates.end(), PrSortByExperience() );
+
+	//check other areas we can reach before deciding
+	for (size_t i=0; i<candidates.size(); i++)
+	{
+		CvUnit* pLoopUnit = candidates[i];
+
+		//assume it's useless until proven otherwise
+		bool bIsUseless = true;
+
+		//two turns is a good compromise between reliability and performance 
+		SPathFinderUserData data(pLoopUnit, CvUnit::MOVEFLAG_IGNORE_STACKING | CvUnit::MOVEFLAG_IGNORE_ENEMIES | CvUnit::MOVEFLAG_IGNORE_RIGHT_OF_PASSAGE, 2);
+		ReachablePlots plots = GC.GetPathFinder().GetPlotsInReach(pLoopUnit->getX(), pLoopUnit->getY(), data);
+		set<int> areas;
+
+		for (ReachablePlots::iterator it = plots.begin(); it != plots.end(); ++it)
+		{
+			CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(it->iPlotIndex);
+			if (pPlot && pPlot->isWater())
+				areas.insert(pPlot->getArea());
+		}
+		for (set<int>::iterator it = areas.begin(); it != areas.end(); ++it)
+		{
+			CvArea* pWaterBody = GC.getMap().getArea(*it);
+			if (NeedShipInArea(m_pPlayer->GetID(), pWaterBody))
+			{
+				bIsUseless = false;
+				break;
+			}
+		}
+
+		if (bIsUseless)
+			return pLoopUnit;
 	}
 
 	return NULL;

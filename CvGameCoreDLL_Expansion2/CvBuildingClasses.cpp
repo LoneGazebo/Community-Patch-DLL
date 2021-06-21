@@ -56,6 +56,8 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_bTradeRouteInvulnerable(false),
 	m_iTRSpeedBoost(0),
 	m_iTRVisionBoost(0),
+	m_iTRTurnModGlobal(0),
+	m_iTRTurnModLocal(0),
 	m_iVotesPerGPT(0),
 	m_bRequiresRail(false),
 	m_bDummy(false),
@@ -827,6 +829,8 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	m_bTradeRouteInvulnerable = kResults.GetBool("TradeRouteInvulnerable");
 	m_iTRSpeedBoost = kResults.GetInt("TRSpeedBoost");
 	m_iTRVisionBoost = kResults.GetInt("TRVisionBoost");
+	m_iTRTurnModGlobal = kResults.GetInt("TRTurnModGlobal");
+	m_iTRTurnModLocal = kResults.GetInt("TRTurnModLocal");
 	m_iVotesPerGPT = kResults.GetInt("VotesPerGPT");
 	m_bRequiresRail = kResults.GetBool("RequiresRail");
 	m_bDummy = kResults.GetBool("IsDummy");
@@ -1772,6 +1776,16 @@ int CvBuildingEntry::GetTRSpeedBoost() const
 int CvBuildingEntry::GetTRVisionBoost() const
 {
 	return m_iTRVisionBoost;
+}
+// TRs take less time on empire
+int CvBuildingEntry::GetTRTurnModGlobal() const
+{
+	return m_iTRTurnModGlobal;
+}
+// TRs take less time from the city
+int CvBuildingEntry::GetTRTurnModLocal() const
+{
+	return m_iTRTurnModLocal;
 }
 
 int CvBuildingEntry::GetVotesPerGPT() const

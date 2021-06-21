@@ -306,14 +306,8 @@ void CvPlot::reset(int iX, int iY, bool bConstructorCall)
 		}
 	}
 
-	for(int iI = 0; iI < MAX_TEAMS; ++iI)
-	{
-		m_paiInvisibleVisibilityUnitCount[iI] = 0;
-		for(int iJ = 0; iJ < NUM_INVISIBLE_TYPES; ++iJ)
-		{
-			m_apaiInvisibleVisibilityCount[iI][iJ] = 0;
-		}
-	}
+	m_vInvisibleVisibilityUnitCount.clear();
+	m_vInvisibleVisibilityCount.clear();
 
 	m_kArchaeologyData.Reset();
 #if defined(MOD_BALANCE_CORE)
@@ -4239,15 +4233,12 @@ bool CvPlot::isFortification(TeamTypes eDefenderTeam) const
 #if defined(MOD_GLOBAL_NO_FOLLOWUP_FROM_CITIES)
 	if (MOD_GLOBAL_NO_FOLLOWUP_FROM_CITIES)
 	{
-		// If the attacker is in a city, fort or citadel, don't advance
-		static const  ImprovementTypes eImprovementFort = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_FORT");
-		static const  ImprovementTypes eImprovementCitadel = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_CITADEL");
-		static const  ImprovementTypes eImprovementCamp = (ImprovementTypes)GC.getBARBARIAN_CAMP_IMPROVEMENT();
+		// If the attacker is in a fort or citadel or other improvement with NoFollowUp, don't advance
 
 		if (getTeam() == eDefenderTeam && !IsImprovementPillaged())
 		{
-			ImprovementTypes eImprovement = getImprovementType();
-			if (eImprovement == eImprovementFort || eImprovement == eImprovementCitadel || eImprovement == eImprovementCamp)
+			CvImprovementEntry* pImprovementInfo = GC.getImprovementInfo(getImprovementType());
+			if (pImprovementInfo && pImprovementInfo->IsNoFollowUp())
 				return true;
 		}
 	}
@@ -5318,7 +5309,7 @@ int CvPlot::ComputeYieldFromOtherAdjacentImprovement(CvImprovementEntry& kImprov
 
 	return iRtnValue;
 }
-int CvPlot::ComputeYieldFromAdjacentResource(CvImprovementEntry& kImprovement, YieldTypes eYield) const
+int CvPlot::ComputeYieldFromAdjacentResource(CvImprovementEntry& kImprovement, YieldTypes eYield, TeamTypes eTeam) const
 {
 	CvPlot* pAdjacentPlot;
 	int iRtnValue = 0;
@@ -5333,7 +5324,7 @@ int CvPlot::ComputeYieldFromAdjacentResource(CvImprovementEntry& kImprovement, Y
 				for(int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
 				{
 					pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
-					if(pAdjacentPlot && pAdjacentPlot->getResourceType() == eResource)
+					if(pAdjacentPlot && pAdjacentPlot->getResourceType(eTeam) == eResource)
 					{
 						iRtnValue += kImprovement.GetAdjacentResourceYieldChanges(eResource, eYield);
 					}
@@ -6374,6 +6365,13 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 		GC.GetEngineUserInterface()->setDirty(NationalBorders_DIRTY_BIT, true);
 		updateSymbols();
 	}
+
+	// Sometimes we already own the plot but it's a different city
+	if (getOwningCityID() != iAcquiringCityID)
+	{
+		m_owningCityOverride.reset();
+		m_owningCity = IDInfo(eNewValue, iAcquiringCityID);
+	}
 }
 
 //	--------------------------------------------------------------------------------
@@ -7234,6 +7232,8 @@ void CvPlot::setIsCity(bool bValue, int iCityID, int iWorkRange)
 			SetPlayerResponsibleForRoute(getOwner());
 		}
 
+		// plot ownership will be changed in CvCity::preKill
+
 		// do not call getPlotCity() here, it might be invalid
 		for(int iI = 0; iI < RING_PLOTS[iWorkRange]; ++iI)
 		{
@@ -7264,6 +7264,10 @@ void CvPlot::setIsCity(bool bValue, int iCityID, int iWorkRange)
 			OutputDebugString("wtf\n");
 			return;
 		}
+
+		//make sure this is correct
+		m_owningCityOverride.reset();
+		m_owningCity = IDInfo(getOwner(), iCityID);
 
 		// do not call getPlotCity() here, it might be invalid
 		for(int iI = 0; iI < RING_PLOTS[iWorkRange]; ++iI)
@@ -8104,7 +8108,8 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 							if ((YieldTypes)iK > YIELD_GOLDEN_AGE_POINTS && !MOD_BALANCE_CORE_JFD)
 								break;
 
-							if(pImprovement2->GetAdjacentResourceYieldChanges(pAdjacentPlot->getResourceType(), (YieldTypes)iK) > 0)
+							ResourceTypes eResource = pAdjacentPlot->getResourceType(GET_PLAYER(eBuilder).getTeam());
+							if(eResource != NO_RESOURCE && pImprovement2->GetAdjacentResourceYieldChanges(eResource, (YieldTypes)iK) > 0)
 							{
 								bUp = true;								
 								break;
@@ -9061,7 +9066,7 @@ CvCity * CvPlot::getEffectiveOwningCity() const
 	return ::GetPlayerCity(m_owningCityOverride);
 }
 
-bool CvPlot::isEffectiveOwner(CvCity * pCity) const
+bool CvPlot::isEffectiveOwner(const CvCity * pCity) const
 {
 	//no override
 	if (m_owningCityOverride.isInvalid())
@@ -9789,7 +9794,7 @@ int CvPlot::calculateImprovementYield(ImprovementTypes eImprovement, YieldTypes 
 					iYield += pImprovement->GetAdjacentFeatureYieldChanges(pAdjacentPlot->getFeatureType(), eYield);
 				}
 
-				if (pAdjacentPlot->getResourceType() != NO_RESOURCE)
+				if (pAdjacentPlot->getResourceType(kPlayer.getTeam()) != NO_RESOURCE)
 				{
 					iYield += pImprovement->GetAdjacentResourceYieldChanges(pAdjacentPlot->getResourceType(), eYield);
 				}
@@ -11990,12 +11995,18 @@ int CvPlot::getInvisibleVisibilityCountUnit(TeamTypes eTeam) const
 {
 	CvAssertMsg(eTeam >= 0, "eTeam is expected to be non-negative (invalid Index)");
 	CvAssertMsg(eTeam < MAX_TEAMS, "eTeam is expected to be within maximum bounds (invalid Index)");
-	return m_paiInvisibleVisibilityUnitCount[eTeam];
+	for (size_t i = 0; i < m_vInvisibleVisibilityUnitCount.size(); i++)
+		if (m_vInvisibleVisibilityUnitCount[i].first == eTeam)
+			return m_vInvisibleVisibilityUnitCount[i].second;
+
+	return 0;
 }
+
 bool CvPlot::isInvisibleVisibleUnit(TeamTypes eTeam) const
 {
 	return (getInvisibleVisibilityCountUnit(eTeam) > 0);
 }
+
 void CvPlot::changeInvisibleVisibilityCountUnit(TeamTypes eTeam, int iChange)
 {
 	bool bOldInvisibleVisible;
@@ -12009,9 +12020,24 @@ void CvPlot::changeInvisibleVisibilityCountUnit(TeamTypes eTeam, int iChange)
 	{
 		bOldInvisibleVisible = isInvisibleVisibleUnit(eTeam);
 
-		m_paiInvisibleVisibilityUnitCount[eTeam] = (m_paiInvisibleVisibilityUnitCount[eTeam] + iChange);
+		//-------- rarely used, so use a sparse format
+		bool bFound = false;
+		for (size_t i = 0; i < m_vInvisibleVisibilityUnitCount.size(); i++)
+		{
+			if (m_vInvisibleVisibilityUnitCount[i].first == eTeam)
+			{
+				m_vInvisibleVisibilityUnitCount[i].second += iChange;
+				bFound = true;
 
-		CvAssertFmt(m_apaiInvisibleVisibilityCount[eTeam] >= 0, "Invisible Visibility going negative for %d, %d", m_iX, m_iY);
+				if (m_vInvisibleVisibilityUnitCount[i].second == 0)
+					m_vInvisibleVisibilityUnitCount.erase(m_vInvisibleVisibilityUnitCount.begin() + i);
+
+				break;
+			}
+		}
+		if (!bFound)
+			m_vInvisibleVisibilityUnitCount.push_back( make_pair(eTeam,iChange) );
+		//--------
 
 		bNewInvisibleVisible = isInvisibleVisibleUnit(eTeam);
 		if (bOldInvisibleVisible != bNewInvisibleVisible)
@@ -12051,7 +12077,12 @@ int CvPlot::getInvisibleVisibilityCount(TeamTypes eTeam, InvisibleTypes eInvisib
 	CvAssertMsg(eInvisible < NUM_INVISIBLE_TYPES, "eInvisible is expected to be within maximum bounds (invalid Index)");
 	if (eTeam < 0 || eTeam >= MAX_TEAMS) return 0;
 	if (eInvisible < 0 || eInvisible >= NUM_INVISIBLE_TYPES) return 0;
-	return m_apaiInvisibleVisibilityCount[eTeam][eInvisible];
+
+	for (size_t i = 0; i < m_vInvisibleVisibilityCount.size(); i++)
+		if (m_vInvisibleVisibilityCount[i].first == eTeam)
+			return m_vInvisibleVisibilityCount[i].second[eInvisible];
+
+	return 0;
 }
 
 
@@ -12067,13 +12098,11 @@ void CvPlot::changeInvisibleVisibilityCount(TeamTypes eTeam, InvisibleTypes eInv
 {
 	bool bOldInvisibleVisible;
 	bool bNewInvisibleVisible;
-	const int iNumInvisibleInfos = NUM_INVISIBLE_TYPES;
-	DEBUG_VARIABLE(iNumInvisibleInfos);
 
 	CvAssertMsg(eTeam >= 0, "eTeam is expected to be non-negative (invalid Index)");
 	CvAssertMsg(eTeam < MAX_TEAMS, "eTeam is expected to be within maximum bounds (invalid Index)");
 	CvAssertMsg(eInvisible >= 0, "eInvisible is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eInvisible < iNumInvisibleInfos, "eInvisible is expected to be within maximum bounds (invalid Index)");
+	CvAssertMsg(eInvisible < NUM_INVISIBLE_TYPES, "eInvisible is expected to be within maximum bounds (invalid Index)");
 	if (eTeam < 0 || eTeam >= MAX_TEAMS) return;
 	if (eInvisible < 0 || eInvisible >= NUM_INVISIBLE_TYPES) return;
 
@@ -12081,9 +12110,33 @@ void CvPlot::changeInvisibleVisibilityCount(TeamTypes eTeam, InvisibleTypes eInv
 	{
 		bOldInvisibleVisible = isInvisibleVisible(eTeam, eInvisible);
 
-		m_apaiInvisibleVisibilityCount[eTeam][eInvisible] = (m_apaiInvisibleVisibilityCount[eTeam][eInvisible] + iChange);
+		//-------- rarely used, so use a sparse format
+		bool bFound = false;
+		for (size_t i = 0; i < m_vInvisibleVisibilityCount.size(); i++)
+		{
+			if (m_vInvisibleVisibilityCount[i].first == eTeam)
+			{
+				m_vInvisibleVisibilityCount[i].second[eInvisible] += iChange;
+				bFound = true;
 
-		CvAssertFmt(m_apaiInvisibleVisibilityCount[eTeam][eInvisible] >= 0, "Invisible Visibility going negative for %d, %d", m_iX, m_iY);
+				bool bAllZero = true;
+				for (size_t j = 0; j < NUM_INVISIBLE_TYPES; j++)
+					if (m_vInvisibleVisibilityCount[i].second[j] != 0)
+						bAllZero = false;
+
+				if (bAllZero)
+					m_vInvisibleVisibilityCount.erase(m_vInvisibleVisibilityCount.begin() + i);
+
+				break;
+			}
+		}
+		if (!bFound)
+		{
+			vector<int> values(NUM_INVISIBLE_TYPES, 0);
+			values[eInvisible] = iChange;
+			m_vInvisibleVisibilityCount.push_back(make_pair(eTeam, values));
+		}
+		//--------
 
 		bNewInvisibleVisible = isInvisibleVisible(eTeam, eInvisible);
 
@@ -12726,10 +12779,9 @@ void CvPlot::read(FDataStream& kStream)
 		setScriptData(scriptData.c_str());
 	}
 
-
 	kStream >> m_buildProgress;
-	kStream >> m_apaiInvisibleVisibilityCount;
-	kStream >> m_paiInvisibleVisibilityUnitCount;
+	kStream >> m_vInvisibleVisibilityUnitCount;
+	kStream >> m_vInvisibleVisibilityCount;
 
 	//m_units.Read(kStream);
 	UINT uLength;
@@ -12871,10 +12923,9 @@ void CvPlot::write(FDataStream& kStream) const
 		kStream << scriptData;
 	}
 
-
 	kStream << m_buildProgress;
-	kStream << m_apaiInvisibleVisibilityCount;
-	kStream << m_paiInvisibleVisibilityUnitCount;
+	kStream << m_vInvisibleVisibilityUnitCount;
+	kStream << m_vInvisibleVisibilityCount;
 
 	//  Write m_units.Write(kStream);
 	UINT uLength = (UINT)m_units.getLength();

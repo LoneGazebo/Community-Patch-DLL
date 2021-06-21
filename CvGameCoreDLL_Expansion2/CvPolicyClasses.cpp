@@ -388,7 +388,11 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_ppiBuildingClassYieldModifiers(NULL),
 	m_ppiBuildingClassYieldChanges(NULL),
 	m_piFlavorValue(NULL),
-	m_eFreeBuildingOnConquest(NO_BUILDING)
+	m_eFreeBuildingOnConquest(NO_BUILDING),
+	m_piYieldForLiberation(NULL),
+	m_iInfluenceForLiberation(0),
+	m_eBuildingClassInLiberatedCities(NO_BUILDINGCLASS),
+	m_iUnitsInLiberatedCities(0)
 {
 }
 
@@ -471,6 +475,7 @@ CvPolicyEntry::~CvPolicyEntry(void)
 	SAFE_DELETE_ARRAY(m_piYieldModifierFromActiveSpies);
 	SAFE_DELETE_ARRAY(m_piYieldFromDelegateCount);
 	SAFE_DELETE_ARRAY(m_piYieldChangesPerReligion);
+	SAFE_DELETE_ARRAY(m_piYieldForLiberation);
 #endif
 #if defined(HH_MOD_API_TRADEROUTE_MODIFIERS)
 	SAFE_DELETE_ARRAY(m_piInternationalRouteYieldModifiers);
@@ -1233,6 +1238,16 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 
 	//ImprovementCultureChanges
 	kUtility.PopulateArrayByValue(m_piImprovementCultureChange, "Improvements", "Policy_ImprovementCultureChanges", "ImprovementType", "PolicyType", szPolicyType, "CultureChange");
+	
+	kUtility.SetYields(m_piYieldForLiberation, "Policy_YieldForLiberation", "PolicyType", szPolicyType);
+	m_iInfluenceForLiberation = kResults.GetInt("InfluenceAllCSFromLiberation");
+	m_iUnitsInLiberatedCities = kResults.GetInt("NumUnitsInLiberatedCities");
+	
+	const char* szBuildingClassInLiberatedCities = kResults.GetText("BuildingClassInLiberatedCities");
+	if (szBuildingClassInLiberatedCities)
+	{
+		m_eBuildingClassInLiberatedCities = (BuildingClassTypes)GC.getInfoTypeForString(szBuildingClassInLiberatedCities, true);
+	}
 
 	//OrPreReqs
 	{
@@ -3596,6 +3611,29 @@ int CvPolicyEntry::GetImprovementCultureChanges(int i) const
 	return m_piImprovementCultureChange[i];
 }
 
+/// Yields whenever you liberate a city
+int CvPolicyEntry::GetYieldForLiberation(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piYieldForLiberation[i];
+}
+/// Influence in all CS whenever you liberate a city
+int CvPolicyEntry::GetInfluenceForLiberation() const
+{
+	return m_iInfluenceForLiberation;
+}
+/// Building in the liberated city whenever you liberate a city
+BuildingClassTypes CvPolicyEntry::GetBuildingClassInLiberatedCities() const
+{
+	return m_eBuildingClassInLiberatedCities;
+}
+/// Units in the liberated city whenever you liberate a city
+int CvPolicyEntry::GetUnitsInLiberatedCities() const
+{
+	return m_iUnitsInLiberatedCities;
+}
+
 /// Free building in each city conquered
 BuildingTypes CvPolicyEntry::GetFreeBuildingOnConquest() const
 {
@@ -5191,13 +5229,6 @@ void CvPlayerPolicies::DoUnlockPolicyBranch(PolicyBranchTypes eBranchType)
 	// Are we blocked? If so, unblock us
 	DoSwitchToPolicyBranch(eBranchType);
 
-	// Free Policy with this Branch?
-	PolicyTypes eFreePolicy = (PolicyTypes) pkPolicyBranchInfo->GetFreePolicy();
-	if(eFreePolicy != NO_POLICY)
-	{
-		GetPlayer()->setHasPolicy(eFreePolicy, true);
-	}
-
 	// Pay Culture cost - if applicable
 	if(GetPlayer()->GetNumFreePolicies() == 0)
 	{
@@ -5358,13 +5389,14 @@ void CvPlayerPolicies::SetPolicyBranchUnlocked(PolicyBranchTypes eBranchType, bo
 
 	if(IsPolicyBranchUnlocked(eBranchType) != bNewValue)
 	{
+		CvPolicyBranchEntry* pkPolicyBranchInfo = GC.getPolicyBranchInfo(eBranchType);
+
 		// Unlocked?
 		if (bNewValue)
 		{
 			int iFreePolicies = PolicyHelpers::GetNumFreePolicies(eBranchType);
 
 			// Late-game tree so want to issue notification?
-			CvPolicyBranchEntry* pkPolicyBranchInfo = GC.getPolicyBranchInfo(eBranchType);
 			if(pkPolicyBranchInfo != NULL)
 			{
 				if (pkPolicyBranchInfo->IsPurchaseByLevel())
@@ -5424,6 +5456,16 @@ void CvPlayerPolicies::SetPolicyBranchUnlocked(PolicyBranchTypes eBranchType, bo
 				{
 					m_pPlayer->ChangeNumFreePolicies(iFreePolicies);
 				}
+			}
+		}
+
+		// Free Policy with this Branch?
+		if (pkPolicyBranchInfo != NULL)
+		{
+			PolicyTypes eFreePolicy = (PolicyTypes)pkPolicyBranchInfo->GetFreePolicy();
+			if (eFreePolicy != NO_POLICY)
+			{
+				GetPlayer()->setHasPolicy(eFreePolicy, bNewValue, pkPolicyBranchInfo->IsPurchaseByLevel());
 			}
 		}
 
