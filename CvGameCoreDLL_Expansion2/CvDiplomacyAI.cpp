@@ -9511,7 +9511,7 @@ void CvDiplomacyAI::DoUpdatePlayerMilitaryStrengths()
 				eMilitaryStrength = STRENGTH_IMMENSE;
 			else if (iMilitaryRatio >= /*200*/ GC.getMILITARY_STRENGTH_POWERFUL_THRESHOLD())
 				eMilitaryStrength = STRENGTH_POWERFUL;
-			else if (iMilitaryRatio >= /*125*/ GC.getMILITARY_STRENGTH_STRONG_THRESHOLD())
+			else if (iMilitaryRatio >= /*126*/ GC.getMILITARY_STRENGTH_STRONG_THRESHOLD())
 				eMilitaryStrength = STRENGTH_STRONG;
 			else if (iMilitaryRatio >= /*75*/ GC.getMILITARY_STRENGTH_AVERAGE_THRESHOLD())
 				eMilitaryStrength = STRENGTH_AVERAGE;
@@ -9607,7 +9607,7 @@ void CvDiplomacyAI::DoUpdatePlayerEconomicStrengths()
 				eEconomicStrength = STRENGTH_IMMENSE;
 			else if (iEconomicRatio >= /*200*/ GC.getECONOMIC_STRENGTH_POWERFUL_THRESHOLD())
 				eEconomicStrength = STRENGTH_POWERFUL;
-			else if (iEconomicRatio >= /*125*/ GC.getECONOMIC_STRENGTH_STRONG_THRESHOLD())
+			else if (iEconomicRatio >= /*126*/ GC.getECONOMIC_STRENGTH_STRONG_THRESHOLD())
 				eEconomicStrength = STRENGTH_STRONG;
 			else if (iEconomicRatio >= /*75*/ GC.getECONOMIC_STRENGTH_AVERAGE_THRESHOLD())
 				eEconomicStrength = STRENGTH_AVERAGE;
