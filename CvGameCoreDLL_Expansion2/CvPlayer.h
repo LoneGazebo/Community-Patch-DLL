@@ -1938,6 +1938,9 @@ public:
 	int getUnitsInLiberatedCities()	const;
 	void changeUnitsInLiberatedCities(int iChange);
 
+	int getExperienceForLiberation() const;
+	void changeExperienceForLiberation(int iChange); 
+	
 	int GetGarrisonsOccupiedUnhapppinessMod() const;
 	void changeGarrisonsOccupiedUnhapppinessMod(int iChange);
 
@@ -3428,6 +3431,7 @@ protected:
 	int m_iInfluenceForLiberation;
 	int m_iUnitsInLiberatedCities;
 	BuildingClassTypes  m_eBuildingClassInLiberatedCities;
+	int m_iExperienceForLiberation;
 
 	uint m_uiStartTime;  // XXX save these?
 

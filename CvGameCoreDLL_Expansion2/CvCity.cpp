@@ -306,6 +306,7 @@ CvCity::CvCity() :
 	, m_iBuildingClassHappiness()
 	, m_iReligionHappiness()
 #endif
+	, m_abEverLiberated()
 	, m_abEverOwned()
 	, m_strScriptData()
 	, m_paiNoResource()
@@ -1682,6 +1683,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	}
 
 	m_abEverOwned.resize(REALLY_MAX_PLAYERS);
+	m_abEverLiberated.resize(REALLY_MAX_PLAYERS);
 #if defined(MOD_BALANCE_CORE)
 	m_abIsBestForWonder.resize(GC.getNumBuildingClassInfos());
 	m_abIsPurchased.resize(GC.getNumBuildingClassInfos());
@@ -1701,6 +1703,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	for (iI = 0; iI < REALLY_MAX_PLAYERS; iI++)
 	{
 		m_abEverOwned[iI] = false;
+		m_abEverLiberated[iI] = false;
 #if defined(MOD_BALANCE_CORE)
 		m_abTraded[iI] = false;
 		m_aiNumTimesOwned[iI] = false;
@@ -27846,6 +27849,25 @@ void CvCity::setEverOwned(PlayerTypes eIndex, bool bNewValue)
 		CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
 	CvAssertMsg(eIndex < MAX_PLAYERS, "eIndex expected to be < MAX_PLAYERS");
 	m_abEverOwned[eIndex] = bNewValue;
+}
+
+
+//	--------------------------------------------------------------------------------
+bool CvCity::isEverLiberated(PlayerTypes eIndex) const
+{
+	VALIDATE_OBJECT
+		CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
+	CvAssertMsg(eIndex < MAX_PLAYERS, "eIndex expected to be < MAX_PLAYERS");
+	return m_abEverLiberated[eIndex];
+}
+
+//	--------------------------------------------------------------------------------
+void CvCity::setEverLiberated(PlayerTypes eIndex, bool bNewValue)
+{
+	VALIDATE_OBJECT
+		CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
+	CvAssertMsg(eIndex < MAX_PLAYERS, "eIndex expected to be < MAX_PLAYERS");
+	m_abEverLiberated[eIndex] = bNewValue;
 }
 
 //	--------------------------------------------------------------------------------

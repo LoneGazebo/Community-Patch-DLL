@@ -393,7 +393,8 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_piYieldForLiberation(NULL),
 	m_iInfluenceForLiberation(0),
 	m_eBuildingClassInLiberatedCities(NO_BUILDINGCLASS),
-	m_iUnitsInLiberatedCities(0)
+	m_iUnitsInLiberatedCities(0),
+	m_iExperienceForLiberation(0)
 {
 }
 
@@ -1243,6 +1244,7 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	kUtility.SetYields(m_piYieldForLiberation, "Policy_YieldForLiberation", "PolicyType", szPolicyType);
 	m_iInfluenceForLiberation = kResults.GetInt("InfluenceAllCSFromLiberation");
 	m_iUnitsInLiberatedCities = kResults.GetInt("NumUnitsInLiberatedCities");
+	m_iExperienceForLiberation = kResults.GetInt("ExperienceAllUnitsFromLiberation");
 	
 	const char* szBuildingClassInLiberatedCities = kResults.GetText("BuildingClassInLiberatedCities");
 	if (szBuildingClassInLiberatedCities)
@@ -3633,6 +3635,11 @@ BuildingClassTypes CvPolicyEntry::GetBuildingClassInLiberatedCities() const
 int CvPolicyEntry::GetUnitsInLiberatedCities() const
 {
 	return m_iUnitsInLiberatedCities;
+}
+/// All units get XP whenever you liberate a city
+int CvPolicyEntry::GetExperienceForLiberation() const
+{
+	return m_iExperienceForLiberation;
 }
 
 /// Free building in each city conquered

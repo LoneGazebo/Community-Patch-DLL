@@ -303,6 +303,7 @@ public:
 	int GetInfluenceForLiberation() const;
 	BuildingClassTypes GetBuildingClassInLiberatedCities() const;
 	int GetUnitsInLiberatedCities() const;
+	int GetExperienceForLiberation() const;
 
 	int GetHurryModifier(int i) const;
 	bool IsSpecialistValid(int i) const;
@@ -730,6 +731,7 @@ private:
 	int m_iInfluenceForLiberation;
 	BuildingClassTypes m_eBuildingClassInLiberatedCities;
 	int m_iUnitsInLiberatedCities;
+	int m_iExperienceForLiberation;
 	bool* m_pabFreePromotion;
 	int* m_paiUnitCombatProductionModifiers;
 	int* m_paiUnitCombatFreeExperiences;
