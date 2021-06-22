@@ -14586,14 +14586,26 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 #endif
 									pFreeUnit = owningPlayer.initUnit(eFreeUnitType, getX(), getY());
 #if defined(MOD_BALANCE_CORE)
-									if(pFreeUnit && pFreeUnit->isTrade())
+									if (pFreeUnit)
 									{
-										if(GC.getLogging() && GC.getAILogging())
+										if (pFreeUnit->isTrade())
 										{
-											CvString strCiv = GET_PLAYER(getOwner()).getCivilizationAdjective();
-											CvString strLogString;
-											strLogString.Format("FREE TRADE UNIT CREATED: %s %s at %d,d", strCiv.c_str(), pFreeUnit->getName().c_str(), pFreeUnit->getX(), pFreeUnit->getY() );
-											GET_PLAYER(getOwner()).GetHomelandAI()->LogHomelandMessage(strLogString);
+											if (GC.getLogging() && GC.getAILogging())
+											{
+												CvString strCiv = GET_PLAYER(getOwner()).getCivilizationAdjective();
+												CvString strLogString;
+												strLogString.Format("FREE TRADE UNIT CREATED: %s %s at %d,d", strCiv.c_str(), pFreeUnit->getName().c_str(), pFreeUnit->getX(), pFreeUnit->getY());
+												GET_PLAYER(getOwner()).GetHomelandAI()->LogHomelandMessage(strLogString);
+											}
+										}
+										bool bJumpSuccess = pFreeUnit->jumpToNearestValidPlot();
+										if (bJumpSuccess)
+										{
+											addProductionExperience(pFreeUnit);
+										}
+										else
+										{
+											pFreeUnit->kill(false);
 										}
 									}
 #endif
