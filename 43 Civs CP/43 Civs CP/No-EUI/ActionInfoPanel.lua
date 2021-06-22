@@ -138,6 +138,7 @@ function OnEndTurnClicked()
 		--CP
 		or blockingType == EndTurnBlockingTypes.ENDTURN_BLOCKING_PENDING_DEAL
 		or blockingType == EndTurnBlockingTypes.ENDTURN_BLOCKING_EVENT_CHOICE
+		or blockingType == EndTurnBlockingTypes.ENDTURN_BLOCKING_CHOOSE_CITY_FATE
 		--END
 		or blockingType == EndTurnBlockingTypes.ENDTURN_BLOCKING_CHOOSE_IDEOLOGY) then
 		UI.ActivateNotification(blockingNotificationIndex);
@@ -212,6 +213,7 @@ function OnEndTurnRightClicked()
 		--CP
 		or blockingType == EndTurnBlockingTypes.ENDTURN_BLOCKING_PENDING_DEAL
 		or blockingType == EndTurnBlockingTypes.ENDTURN_BLOCKING_EVENT_CHOICE
+		or blockingType == EndTurnBlockingTypes.ENDTURN_BLOCKING_CHOOSE_CITY_FATE
 		--END
 		or blockingType == EndTurnBlockingTypes.ENDTURN_BLOCKING_CHOOSE_IDEOLOGY) then
 		UI.ActivateNotification(blockingNotificationIndex);
@@ -501,6 +503,11 @@ function OnEndTurnDirty()
 	elseif (EndTurnBlockingType == EndTurnBlockingTypes.ENDTURN_BLOCKING_EVENT_CHOICE) then
 		strEndTurnMessage = Locale.ConvertTextKey("TXT_KEY_NOTIFICATION_SUMMARY_CHOOSE_EVENT");
 		strButtonToolTip = Locale.ConvertTextKey("TXT_KEY_NOTIFICATION_SUMMARY_CHOOSE_EVENT_TT");
+		buttonDisabled = false;
+		iFlashingState = FLASHING_END_TURN;
+	elseif (EndTurnBlockingType == EndTurnBlockingTypes.ENDTURN_BLOCKING_CHOOSE_CITY_FATE) then
+		strEndTurnMessage = Locale.ConvertTextKey("TXT_KEY_NOTIFICATION_SUMMARY_CHOOSE_CITY_FATE");
+		strButtonToolTip = Locale.ConvertTextKey("TXT_KEY_NOTIFICATION_SUMMARY_CHOOSE_CITY_FATE_TT");
 		buttonDisabled = false;
 		iFlashingState = FLASHING_END_TURN;
 --END

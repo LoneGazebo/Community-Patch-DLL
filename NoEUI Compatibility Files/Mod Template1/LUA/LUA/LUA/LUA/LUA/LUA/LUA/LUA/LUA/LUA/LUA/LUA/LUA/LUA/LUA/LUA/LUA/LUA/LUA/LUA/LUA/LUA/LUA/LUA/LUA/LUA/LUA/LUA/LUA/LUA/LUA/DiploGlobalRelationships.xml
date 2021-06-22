@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Context Color0="Beige" Color1="Black,256" Font="TwCenMT18" FontStyle="Shadow" >
+
+    <Instance Name="TextEntry" >
+        <Label WrapWidth="200" Font="TwCenMT18" Anchor="R,T" ID="Text" />
+    </Instance>
+	<Instance Name="LTextEntry" >
+		<Label WrapWidth="200" Font="TwCenMT18" Anchor="L,T" ID="Text" />
+	</Instance>
+	<Instance Name="TextEntryShort" >
+		<Label WrapWidth="150" Font="TwCenMT18" Anchor="L,T" ID="Text" />
+	</Instance>
+	<Instance Name="TextEntryLong" >
+		<Label WrapWidth="250" Font="TwCenMT18" Anchor="L,T" ID="Text" />
+	</Instance>
+
+	<Instance Name="MajorInstance" >
+
+		<Button Anchor="L,T" Size="900,300" Color="255,255,255,0"  ID="Button" >
+			<ShowOnMouseOver>
+				<AlphaAnim ID="ButtonAnim" Offset="0,-3" Anchor="L,T" Size="900,300" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1"  >
+					<Grid ID="ButtonAnimGrid" Anchor="L,C"   Size="900,300" Offset="0,0" Padding="0,0" Style="Grid9FrameTurnsHL" />
+				</AlphaAnim>
+			</ShowOnMouseOver>
+			
+			<Image Anchor="L,T" Offset="0,0" Size="128,128"   Texture="Assets/UI/Art/Icons/LeaderPortraits1024Frame.dds"  >
+				<Image Anchor="C,C" Offset="0,0" Size="128,128"   Texture="Assets/UI/Art/Icons/LeaderPortraits1024.dds"  ID="LeaderPortrait"/>
+			</Image>
+
+			<Stack ID="PlayerInfoStack" Offset="128,0" StackGrowth="B" Anchor="L,T" Padding="5">
+				<Label Anchor="L,T" Font="TwCenMT22" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" String="t" ID="LeaderName" />
+				<Label Anchor="L,T" Font="TwCenMT16" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" String="t" ID="CivName"/>
+				<Label Anchor="L,T" Font="TwCenMT16" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" String="t" ID="EraLabel" />
+			</Stack>
+
+			<!--<Label Anchor="L,T"  TruncateWidth="500" Offset="128,0" Font="TwCenMT22" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" String="Leader Name" ID="LeaderName" >
+				<Label Anchor="R,B"  AnchorSide="i,o" Offset="0,3" Font="TwCenMT16" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" String="TXT_KEY_DIPLO_CIVILIZATION_NAME" ID="CivName">
+					<Label Anchor="R,B"  AnchorSide="i,o" Offset="0,3" Font="TwCenMT16" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" String="TXT_KEY_DIPLO_CIVILIZATION_NAME" ID="CivName2" />
+				</Label>
+			</Label>-->
+
+			<Image Anchor="L,T" Offset="80,60" Texture="IconFrame64.dds" Size="64.64" ID="CivIconFrame">
+				<Image ID="CivIconBG" Size="64.64" Anchor="C,C" Offset="-1,-1" Texture="CivIconBGSizes.dds" />
+				<Image ID="CivIconShadow" Size="48.48" Anchor="C,C" Offset="1,1" Texture="CivSymbolAtlas48.dds" Color="Black.128"/>
+				<Image ID="CivSymbol" Size="48,48" Offset="0,0"  Anchor="C,C" Texture="CivSymbolsColor512.dds" />
+			</Image>
+
+			<!-- Policies -->
+			<Label Anchor="L,T" Offset="300,0" String="TXT_KEY_TOPIC_SOCIALPOLICY">
+				<Stack ID="PoliciesStack" Offset="0,10" AnchorSide="i,o" StackGrowth="B" Anchor="L,B" Padding="5" />
+			</Label>
+
+			<!-- Wonders -->
+			<Stack ID="WondersStack" Offset="470,0" StackGrowth="B" Anchor="L,T" Padding="5" />
+
+			<Stack Anchor="L,B" Offset="620,12" StackGrowth="Bottom" Padding="6" ID="OuterStack" >
+				<!-- <Label Anchor="R,C" String="TXT_KEY_NO_DIPLO_ACTIONS" ID="NothingLabel" /> -->
+				<Label Anchor="L,C" String="TXT_KEY_DO_AT_WAR" ID="WarLabel" Font="TwCenMT22" />
+				<Label Anchor="L,C" String="x" ID="DenounceLabel" Font="TwCenMT22" />
+				<Label Anchor="L,C" String="x" ID="VassalLabel" Font="TwCenMT22" />
+				<Stack Anchor="L,C" Offset="0,0" StackGrowth="Bottom" Padding="6" ID="PactStack" >
+				</Stack>
+				<Stack Anchor="L,C" Offset="0,0" StackGrowth="Bottom" Padding="6" ID="WarStack" >
+				</Stack>
+				<Stack Anchor="L,C" Offset="0,0" StackGrowth="Bottom" Padding="6" ID="MinorStack" >
+				</Stack>
+			</Stack>
+			<Image Anchor="C,B" Offset="0,3" Texture="bar900x2.dds" Size="900.1" />
+		</Button>
+
+    </Instance>
+
+
+
+    <!--=======================================================================================================================-->
+    <!--=======================================================================================================================-->
+    <Box Size="990,650" Anchor="C,C" Offset="0,42" Color="White.0"   >
+        <Box Anchor="T.L" Size="954,463" Offset="19,72" Color="White.0"  ID="RelationsPanel" >
+
+            <Label ID="NoMajorCivs" Offset="0,0" Anchor="C,C" String="{TXT_KEY_DO_NO_MAJORS:upper}" WrapWidth="425" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" />
+
+            <ScrollPanel Anchor="L,T" ID="MajorCivScrollPanel" Vertical="1"  Size="950,452" Offset="0,8" AutoScrollBar="1">
+
+                <!-- Scroll Controls -->
+                <ScrollBar  Anchor="R,T" Offset="0.18" Length="416" Style="VertSlider"/>
+                <UpButton   Anchor="R,T" Offset="0.0" Style="ScrollBarUp"/>
+                <DownButton Anchor="R,B" Offset="0.0" Style="ScrollBarDown"/>
+
+                <!-- Listing Stack (Dynamic) -->
+                <Stack ID="ItemStack" StackGrowth="B" Offset="20,0" Padding="0" />
+
+            </ScrollPanel>
+        </Box>
+
+
+        <Image Anchor="C,B" Offset="0,110" Texture="HorizontalTrim.dds" Size="960.5" />
+    </Box>
+</Context>

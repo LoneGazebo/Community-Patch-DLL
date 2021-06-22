@@ -62,6 +62,8 @@ Controls["CityEventChoiceButton"]:RegisterCallback(Mouse.eLClick, GenericLeftCli
 Controls["CityEventChoiceButton"]:RegisterCallback(Mouse.eRClick, GenericRightClick);
 Controls["EspionageAAButton"]:RegisterCallback(Mouse.eLClick, GenericLeftClick);
 Controls["EspionageAAButton"]:RegisterCallback(Mouse.eRClick, GenericRightClick);
+Controls["ChooseCityFateButton"]:RegisterCallback(Mouse.eLClick, GenericLeftClick);
+Controls["ChooseCityFateButton"]:RegisterCallback(Mouse.eRClick, GenericRightClick);
 
 ------------------------------------------------------------------------------------
 -- build the list of types we can handle
@@ -240,6 +242,7 @@ g_NameTable[ NotificationTypes.NOTIFICATION_INSTANT_YIELD ] = "InstantYield";
 g_NameTable[ NotificationTypes.NOTIFICATION_EVENT_CHOICE_CITY ] = "CityEventChoice";
 g_NameTable[ NotificationTypes.NOTIFICATION_EVENT_CHOICE ] = "EventChoice";
 g_NameTable[ NotificationTypes.NOTIFICATION_ESPIONAGE_AA ] = "EspionageAA";
+g_NameTable[ NotificationTypes.NOTIFICATION_CITY_CHOOSE_FATE ] = "ChooseCityFate";
 
 g_NameTable[ NotificationTypes.NOTIFICATION_PRODUCTION_COST_MODIFIERS_FROM_RESOURCES ] = "BonusResource";
 --END
@@ -281,6 +284,7 @@ function OnNotificationAdded( Id, type, toolTip, strSummary, iGameValue, iExtraG
 		name == "EventChoice" or
 		name == "CityEventChoice" or
 		name == "EspionageAA" or
+		name == "ChooseCityFate" or
 		-- END
 		name == "ChooseIdeology") then
         
@@ -463,6 +467,7 @@ function RemoveNotificationID( Id )
 		name == "EventChoice" or
 		name == "CityEventChoice" or
 		name == "EspionageAA" or
+		name == "ChooseCityFate" or
 		--END
 		name == "ChooseIdeology")
     then
