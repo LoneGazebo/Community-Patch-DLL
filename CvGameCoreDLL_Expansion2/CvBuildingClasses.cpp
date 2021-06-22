@@ -16,10 +16,10 @@
 #include "CvDllPlot.h"
 #include "CvInfosSerializationHelper.h"
 
-#if defined(MOD_BALANCE_CORE)
 #include "CvTypes.h"
-	#include <algorithm>
-#endif
+#include "CvSpanSerialization.h"
+
+#include <algorithm>
 
 // include after all other headers
 #include "LintFree.h"
@@ -56,6 +56,8 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_bTradeRouteInvulnerable(false),
 	m_iTRSpeedBoost(0),
 	m_iTRVisionBoost(0),
+	m_iTRTurnModGlobal(0),
+	m_iTRTurnModLocal(0),
 	m_iVotesPerGPT(0),
 	m_bRequiresRail(false),
 	m_bDummy(false),
@@ -827,6 +829,8 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	m_bTradeRouteInvulnerable = kResults.GetBool("TradeRouteInvulnerable");
 	m_iTRSpeedBoost = kResults.GetInt("TRSpeedBoost");
 	m_iTRVisionBoost = kResults.GetInt("TRVisionBoost");
+	m_iTRTurnModGlobal = kResults.GetInt("TRTurnModGlobal");
+	m_iTRTurnModLocal = kResults.GetInt("TRTurnModLocal");
 	m_iVotesPerGPT = kResults.GetInt("VotesPerGPT");
 	m_bRequiresRail = kResults.GetBool("RequiresRail");
 	m_bDummy = kResults.GetBool("IsDummy");
@@ -1772,6 +1776,16 @@ int CvBuildingEntry::GetTRSpeedBoost() const
 int CvBuildingEntry::GetTRVisionBoost() const
 {
 	return m_iTRVisionBoost;
+}
+// TRs take less time on empire
+int CvBuildingEntry::GetTRTurnModGlobal() const
+{
+	return m_iTRTurnModGlobal;
+}
+// TRs take less time from the city
+int CvBuildingEntry::GetTRTurnModLocal() const
+{
+	return m_iTRTurnModLocal;
 }
 
 int CvBuildingEntry::GetVotesPerGPT() const
@@ -4349,91 +4363,66 @@ void CvCityBuildings::Reset()
 
 }
 
+template<typename CityBuildings, typename Visitor>
+void CvCityBuildings::Serialize(CityBuildings& cityBuildings, Visitor& visitor)
+{
+	visitor(cityBuildings.m_iNumBuildings);
+	visitor(cityBuildings.m_iBuildingProductionModifier);
+	visitor(cityBuildings.m_iBuildingProductionModifierPotentialFromMinorTrade);
+	visitor(cityBuildings.m_iBuildingDefense);
+	visitor(cityBuildings.m_iBuildingDefenseMod);
+	visitor(cityBuildings.m_iMissionaryExtraSpreads);
+	visitor(cityBuildings.m_iLandmarksTourismPercent);
+	visitor(cityBuildings.m_iGreatWorksTourismModifier);
+
+	visitor(cityBuildings.m_bSoldBuildingThisTurn);
+
+	int iNumBuildings = cityBuildings.m_pPossibleBuildings->GetNumBuildings();
+	visitor(MakeConstSpan(cityBuildings.m_paiBuildingProduction, iNumBuildings));
+	visitor(MakeConstSpan(cityBuildings.m_paiBuildingProductionTime, iNumBuildings));
+	visitor(MakeConstSpan(cityBuildings.m_paiBuildingOriginalOwner, iNumBuildings));
+	visitor(MakeConstSpan(cityBuildings.m_paiBuildingOriginalTime, iNumBuildings));
+	visitor(MakeConstSpan(cityBuildings.m_paiNumRealBuilding, iNumBuildings));
+	visitor(MakeConstSpan(cityBuildings.m_paiNumFreeBuilding, iNumBuildings));
+	visitor(MakeConstSpan(cityBuildings.m_paiFirstTimeBuilding, iNumBuildings));
+	visitor(MakeConstSpan(cityBuildings.m_paiThemingBonusIndex, iNumBuildings));
+
+	visitor(cityBuildings.m_aBuildingYieldChange);
+	visitor(cityBuildings.m_aBuildingGreatWork);
+}
+
 /// Serialization read
 void CvCityBuildings::Read(FDataStream& kStream)
 {
 	CvAssertMsg(GetNumBuildings() > 0, "Number of buildings to serialize is expected to greater than 0");
 
-	// Version number to maintain backwards compatibility
-	uint uiVersion;
-	kStream >> uiVersion;
-	MOD_SERIALIZE_INIT_READ(kStream);
+	CvStreamLoadVisitor serialVisitor(kStream);
+	Serialize(*this, serialVisitor);
 
-	kStream >> m_iNumBuildings;
-	kStream >> m_iBuildingProductionModifier;
-	kStream >> m_iBuildingProductionModifierPotentialFromMinorTrade;
-	kStream >> m_iBuildingDefense;
-	kStream >> m_iBuildingDefenseMod;
-	kStream >> m_iMissionaryExtraSpreads;
-	kStream >> m_iLandmarksTourismPercent;
-	kStream >> m_iGreatWorksTourismModifier;
-
-	kStream >> m_bSoldBuildingThisTurn;
-
-	BuildingArrayHelpers::Read(kStream, m_paiBuildingProduction);
-	BuildingArrayHelpers::Read(kStream, m_paiBuildingProductionTime);
-	BuildingArrayHelpers::Read(kStream, m_paiBuildingOriginalOwner);
-	BuildingArrayHelpers::Read(kStream, m_paiBuildingOriginalTime);
-	BuildingArrayHelpers::Read(kStream, m_paiNumRealBuilding);
-	BuildingArrayHelpers::Read(kStream, m_paiNumFreeBuilding);
-#if defined(MOD_BALANCE_CORE)
-	BuildingArrayHelpers::Read(kStream, m_paiFirstTimeBuilding);
-	BuildingArrayHelpers::Read(kStream, m_paiThemingBonusIndex);
-#endif
-
-	kStream >> m_aBuildingYieldChange;
-	kStream >> m_aBuildingGreatWork;
-
-#if defined(MOD_BALANCE_CORE)
 	for (int i=0; i<m_pPossibleBuildings->GetNumBuildings(); i++)
 		if (m_paiNumRealBuilding[i]>0 || m_paiNumFreeBuilding[i]>0)
 			m_buildingsThatExistAtLeastOnce.push_back( (BuildingTypes)i );
-#endif
 
 }
 
 /// Serialization write
-void CvCityBuildings::Write(FDataStream& kStream)
+void CvCityBuildings::Write(FDataStream& kStream) const
 {
 	CvAssertMsg(GetNumBuildings() > 0, "Number of buildings to serialize is expected to greater than 0");
 
-	// Current version number
-	uint uiVersion = 1;
-	kStream << uiVersion;
-	MOD_SERIALIZE_INIT_WRITE(kStream);
+	CvStreamSaveVisitor serialVisitor(kStream);
+	Serialize(*this, serialVisitor);
+}
 
-	kStream << m_iNumBuildings;
-	kStream << m_iBuildingProductionModifier;
-	kStream << m_iBuildingProductionModifierPotentialFromMinorTrade;
-	kStream << m_iBuildingDefense;
-	kStream << m_iBuildingDefenseMod;
-	kStream << m_iMissionaryExtraSpreads;
-	kStream << m_iLandmarksTourismPercent;
-	kStream << m_iGreatWorksTourismModifier;
-	kStream << m_bSoldBuildingThisTurn;
-
-#ifdef _MSC_VER
-#pragma warning ( push )
-#pragma warning ( disable : 6011 ) // if m_pBuildings is NULL during load, we're screwed. Redesign the class or the loader code.
-#endif//_MSC_VER
-	int iNumBuildings = m_pPossibleBuildings->GetNumBuildings();
-#ifdef _MSC_VER
-#pragma warning ( pop )
-#endif//_MSC_VER
-
-	BuildingArrayHelpers::Write(kStream, m_paiBuildingProduction, iNumBuildings);
-	BuildingArrayHelpers::Write(kStream, m_paiBuildingProductionTime, iNumBuildings);
-	BuildingArrayHelpers::Write(kStream, m_paiBuildingOriginalOwner, iNumBuildings);
-	BuildingArrayHelpers::Write(kStream, m_paiBuildingOriginalTime, iNumBuildings);
-	BuildingArrayHelpers::Write(kStream, m_paiNumRealBuilding, iNumBuildings);
-	BuildingArrayHelpers::Write(kStream, m_paiNumFreeBuilding, iNumBuildings);
-#if defined(MOD_BALANCE_CORE)
-	BuildingArrayHelpers::Write(kStream, m_paiFirstTimeBuilding, iNumBuildings);
-	BuildingArrayHelpers::Write(kStream, m_paiThemingBonusIndex, iNumBuildings);
-#endif
-
-	kStream << m_aBuildingYieldChange;
-	kStream << m_aBuildingGreatWork;
+FDataStream& operator>>(FDataStream& stream, CvCityBuildings& cityBuildings)
+{
+	cityBuildings.Read(stream);
+	return stream;
+}
+FDataStream& operator<<(FDataStream& stream, const CvCityBuildings& cityBuildings)
+{
+	cityBuildings.Write(stream);
+	return stream;
 }
 
 /// Accessor: Get full array of all building XML data
@@ -4471,7 +4460,7 @@ int CvCityBuildings::GetNumBuilding(BuildingTypes eIndex) const
 		return (GetNumRealBuilding(eIndex) + GetNumFreeBuilding(eIndex));
 	}
 }
-#if defined(MOD_BALANCE_CORE) || defined(MOD_BUILDINGS_THOROUGH_PREREQUISITES)
+
 /// Accessor: How many of these building classes in the city?
 int CvCityBuildings::GetNumBuildingClass(BuildingClassTypes eIndex) const
 {
@@ -4544,7 +4533,7 @@ void CvCityBuildings::RemoveAllRealBuildingsOfClass(BuildingClassTypes eIndex)
 		}
 	}
 }
-#endif
+
 /// Accessor: How many of these buildings are not obsolete?
 int CvCityBuildings::GetNumActiveBuilding(BuildingTypes eIndex) const
 {
@@ -5242,11 +5231,8 @@ void CvCityBuildings::SetBuildingYieldChange(BuildingClassTypes eBuildingClass, 
 				}
 
 				BuildingTypes eBuilding = NO_BUILDING;
-#if defined(MOD_BALANCE_CORE)
+
 				if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || GET_PLAYER(m_pCity->getOwner()).GetPlayerTraits()->IsKeepConqueredBuildings())
-#else
-				if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
-#endif
 				{
 					eBuilding = GetBuildingTypeFromClass(eBuildingClass);
 				}
@@ -5276,11 +5262,8 @@ void CvCityBuildings::SetBuildingYieldChange(BuildingClassTypes eBuildingClass, 
 		m_aBuildingYieldChange.push_back(kChange);
 
 		BuildingTypes eBuilding = NO_BUILDING;
-#if defined(MOD_BALANCE_CORE)
+
 		if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || GET_PLAYER(m_pCity->getOwner()).GetPlayerTraits()->IsKeepConqueredBuildings())
-#else
-		if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
-#endif
 		{
 			eBuilding = GetBuildingTypeFromClass(eBuildingClass);
 		}
@@ -5457,11 +5440,8 @@ bool CvCityBuildings::GetNextAvailableGreatWorkSlot(BuildingClassTypes *eBuildin
 		{
 			BuildingClassTypes eLoopBuildingClass = (BuildingClassTypes) iI;
 			BuildingTypes eBuilding = NO_BUILDING;
-#if defined(MOD_BALANCE_CORE)
+
 			if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || GET_PLAYER(m_pCity->getOwner()).GetPlayerTraits()->IsKeepConqueredBuildings())
-#else
-			if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
-#endif
 			{
 				eBuilding = GetBuildingTypeFromClass(eLoopBuildingClass);
 			}
@@ -5500,11 +5480,8 @@ bool CvCityBuildings::GetNextAvailableGreatWorkSlot(GreatWorkSlotType eGreatWork
 		{
 			BuildingClassTypes eLoopBuildingClass = (BuildingClassTypes) iI;
 			BuildingTypes eBuilding = NO_BUILDING;
-#if defined(MOD_BALANCE_CORE)
+
 			if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || GET_PLAYER(m_pCity->getOwner()).GetPlayerTraits()->IsKeepConqueredBuildings())
-#else
-			if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
-#endif
 			{
 				eBuilding = GetBuildingTypeFromClass(eLoopBuildingClass);
 			}
@@ -5720,11 +5697,8 @@ int CvCityBuildings::GetNumGreatWorks() const
 			if (pkClassInfo)
 			{
 				BuildingTypes eBuilding = NO_BUILDING;
-#if defined(MOD_BALANCE_CORE)
+
 				if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || GET_PLAYER(m_pCity->getOwner()).GetPlayerTraits()->IsKeepConqueredBuildings())
-#else
-				if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
-#endif
 				{
 					eBuilding = GetBuildingTypeFromClass(eBldgClass);
 				}
@@ -5776,11 +5750,8 @@ int CvCityBuildings::GetNumGreatWorks(GreatWorkSlotType eGreatWorkSlot) const
 			if (pkClassInfo)
 			{
 				BuildingTypes eBuilding = NO_BUILDING;
-#if defined(MOD_BALANCE_CORE)
+
 				if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || GET_PLAYER(m_pCity->getOwner()).GetPlayerTraits()->IsKeepConqueredBuildings())
-#else
-				if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
-#endif
 				{
 
 					eBuilding = GetBuildingTypeFromClass(eBldgClass);

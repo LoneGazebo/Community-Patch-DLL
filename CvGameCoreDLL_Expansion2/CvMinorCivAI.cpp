@@ -1908,6 +1908,11 @@ bool CvMinorCivQuest::IsExpired()
 		return true;
 	}
 
+	if (!GET_PLAYER(m_eMinor).isAlive())
+	{
+		return true;
+	}
+
 	// Build a Route
 	if(m_eType == MINOR_CIV_QUEST_ROUTE)
 	{
@@ -4077,76 +4082,49 @@ bool CvMinorCivQuest::DoCancelQuest()
 	return true;
 }
 
+///
+template<typename MinorCivQuest, typename Visitor>
+void CvMinorCivQuest::Serialize(MinorCivQuest& minorCivQuest, Visitor& visitor)
+{
+	visitor(minorCivQuest.m_eMinor);
+	visitor(minorCivQuest.m_eAssignedPlayer);
+	visitor(minorCivQuest.m_eType);
+	visitor(minorCivQuest.m_iStartTurn);
+	visitor(minorCivQuest.m_iData1);
+	visitor(minorCivQuest.m_iData2);
+	visitor(minorCivQuest.m_bHandled);
+	visitor(minorCivQuest.m_iData3);
+	visitor(minorCivQuest.m_iInfluence);
+	visitor(minorCivQuest.m_iGPGlobal);
+	visitor(minorCivQuest.m_iGP);
+	visitor(minorCivQuest.m_iCulture);
+	visitor(minorCivQuest.m_iExperience);
+	visitor(minorCivQuest.m_iFaith);
+	visitor(minorCivQuest.m_iGold);
+	visitor(minorCivQuest.m_iScience);
+	visitor(minorCivQuest.m_iFood);
+	visitor(minorCivQuest.m_iProduction);
+	visitor(minorCivQuest.m_iGoldenAgePoints);
+	visitor(minorCivQuest.m_iHappiness);
+	visitor(minorCivQuest.m_iTourism);
+	visitor(minorCivQuest.m_iGeneralPoints);
+	visitor(minorCivQuest.m_iAdmiralPoints);
+	visitor(minorCivQuest.m_bPartialQuest);
+}
+
 /// Serialization read
 FDataStream& operator>>(FDataStream& loadFrom, CvMinorCivQuest& writeTo)
 {
-	uint uiVersion;
-	loadFrom >> uiVersion;
-	MOD_SERIALIZE_INIT_READ(loadFrom);
-
-	loadFrom >> writeTo.m_eMinor;
-	loadFrom >> writeTo.m_eAssignedPlayer;
-	loadFrom >> writeTo.m_eType;
-	loadFrom >> writeTo.m_iStartTurn;
-	loadFrom >> writeTo.m_iData1;
-	loadFrom >> writeTo.m_iData2;
-	loadFrom >> writeTo.m_bHandled;
-#if defined(MOD_BALANCE_CORE)
-	loadFrom >> writeTo.m_iData3;
-	loadFrom >> writeTo.m_iInfluence;
-	loadFrom >> writeTo.m_iGPGlobal;
-	loadFrom >> writeTo.m_iGP;
-	loadFrom >> writeTo.m_iCulture;
-	loadFrom >> writeTo.m_iExperience;
-	loadFrom >> writeTo.m_iFaith;
-	loadFrom >> writeTo.m_iGold;
-	loadFrom >> writeTo.m_iScience;
-	loadFrom >> writeTo.m_iFood;
-	loadFrom >> writeTo.m_iProduction;
-	loadFrom >> writeTo.m_iGoldenAgePoints;
-	loadFrom >> writeTo.m_iHappiness;
-	loadFrom >> writeTo.m_iTourism;
-	loadFrom >> writeTo.m_iGeneralPoints;
-	loadFrom >> writeTo.m_iAdmiralPoints;
-	loadFrom >> writeTo.m_bPartialQuest;
-#endif
-
+	CvStreamLoadVisitor serialVisitor(loadFrom);
+	CvMinorCivQuest::Serialize(writeTo, serialVisitor);
 	return loadFrom;
 }
 
 /// Serialization write
 FDataStream& operator<<(FDataStream& saveTo, const CvMinorCivQuest& readFrom)
 {
-	uint uiVersion = 2;
-	saveTo << uiVersion;
-	MOD_SERIALIZE_INIT_WRITE(saveTo);
-
-	saveTo << readFrom.m_eMinor;
-	saveTo << readFrom.m_eAssignedPlayer;
-	saveTo << readFrom.m_eType;
-	saveTo << readFrom.m_iStartTurn;
-	saveTo << readFrom.m_iData1;
-	saveTo << readFrom.m_iData2;
-	saveTo << readFrom.m_bHandled;
-#if defined(MOD_BALANCE_CORE)
-	saveTo << readFrom.m_iData3;
-	saveTo << readFrom.m_iInfluence;
-	saveTo << readFrom.m_iGPGlobal;
-	saveTo << readFrom.m_iGP;
-	saveTo << readFrom.m_iCulture;
-	saveTo << readFrom.m_iExperience;
-	saveTo << readFrom.m_iFaith;
-	saveTo << readFrom.m_iGold;
-	saveTo << readFrom.m_iScience;
-	saveTo << readFrom.m_iFood;
-	saveTo << readFrom.m_iProduction;
-	saveTo << readFrom.m_iGoldenAgePoints;
-	saveTo << readFrom.m_iHappiness;
-	saveTo << readFrom.m_iTourism;
-	saveTo << readFrom.m_iGeneralPoints;
-	saveTo << readFrom.m_iAdmiralPoints;
-	saveTo << readFrom.m_bPartialQuest;
-#endif
+	CvStreamSaveVisitor serialVisitor(saveTo);
+	CvMinorCivQuest::Serialize(readFrom, serialVisitor);
 	return saveTo;
 }
 
@@ -4290,157 +4268,99 @@ void CvMinorCivAI::ResetQuestList()
 	}
 }
 
+///
+template<typename MinorCivAI, typename Visitor>
+void CvMinorCivAI::Serialize(MinorCivAI& minorCivAI, Visitor& visitor)
+{
+	visitor(minorCivAI.m_ePersonality);
+	visitor(minorCivAI.m_eStatus);
+	visitor(minorCivAI.m_eUniqueUnit);
+	visitor(minorCivAI.m_eBullyUnit);
+
+	visitor(minorCivAI.m_iTurnsSinceThreatenedByBarbarians);
+
+	visitor(minorCivAI.m_iGlobalQuestCountdown);
+
+	visitor(minorCivAI.m_eAlly);
+
+	visitor(minorCivAI.m_iTurnAllied);
+
+	visitor(minorCivAI.m_eMajorBoughtOutBy);
+	visitor(minorCivAI.m_iNumThreateningBarbarians);
+	visitor(minorCivAI.m_bAllowMajorsToIntrude);
+
+	visitor(minorCivAI.m_abRouteConnectionEstablished);
+
+	visitor(minorCivAI.m_aiFriendshipWithMajorTimes100);
+
+	visitor(minorCivAI.m_aiQuestCountdown);
+	visitor(minorCivAI.m_aiUnitSpawnCounter);
+
+	visitor(minorCivAI.m_aiNumUnitsGifted);
+
+	visitor(minorCivAI.m_aiNumGoldGifted);
+
+	visitor(minorCivAI.m_aiTurnLastBullied);
+
+	visitor(minorCivAI.m_aiTurnLastPledged);
+	visitor(minorCivAI.m_aiTurnLastBrokePledge);
+
+	visitor(minorCivAI.m_abUnitSpawningDisabled);
+	visitor(minorCivAI.m_abEverFriends);
+	visitor(minorCivAI.m_abFriends);
+
+	visitor(minorCivAI.m_abPledgeToProtect);
+
+	visitor(minorCivAI.m_abPermanentWar);
+
+	visitor(minorCivAI.m_abWaryOfTeam);
+
+	visitor(minorCivAI.m_bIsRebellion);
+	visitor(minorCivAI.m_iTurnsSinceRebellion);
+	visitor(minorCivAI.m_bIsRebellionActive);
+	visitor(minorCivAI.m_bIsHordeActive);
+	visitor(minorCivAI.m_iCooldownSpawn);
+	visitor(minorCivAI.m_aiTurnLastAttacked);
+	visitor(minorCivAI.m_abIgnoreJerk);
+	visitor(minorCivAI.m_abIsMarried);
+	visitor(minorCivAI.m_ePermanentAlly);
+	visitor(minorCivAI.m_bNoAlly);
+	visitor(minorCivAI.m_iCoup);
+	visitor(minorCivAI.m_abSiphoned);
+	visitor(minorCivAI.m_abCoupAttempted);
+	visitor(minorCivAI.m_iTurnLiberated);
+	visitor(minorCivAI.m_aiAssignedPlotAreaID);
+	visitor(minorCivAI.m_aiTargetedCityX);
+	visitor(minorCivAI.m_aiTargetedCityY);
+	visitor(minorCivAI.m_aiTurnsSincePtPWarning);
+
+	visitor(minorCivAI.m_QuestsGiven);
+	visitor(minorCivAI.m_bDisableNotifications);
+}
+
 /// Serialization read
 void CvMinorCivAI::Read(FDataStream& kStream)
 {
-	// Version number to maintain backwards compatibility
-	uint uiVersion;
-	kStream >> uiVersion;
-	MOD_SERIALIZE_INIT_READ(kStream);
-
-	kStream >> m_ePersonality;
-	kStream >> m_eStatus;
-	kStream >> m_eUniqueUnit;
-#if defined(MOD_BALANCE_CORE)
-	kStream >> m_eBullyUnit;
-#endif
-
-	kStream >> m_iTurnsSinceThreatenedByBarbarians;
-
-	kStream >> m_iGlobalQuestCountdown;
-
-	kStream >> m_eAlly;
-
-	kStream >> m_iTurnAllied;
-
-	kStream >> m_eMajorBoughtOutBy;
-	kStream >> m_iNumThreateningBarbarians;
-	kStream >> m_bAllowMajorsToIntrude;
-
-	kStream >> m_abRouteConnectionEstablished;
-
-	kStream >> m_aiFriendshipWithMajorTimes100;
-
-	kStream >> m_aiQuestCountdown;
-	kStream >> m_aiUnitSpawnCounter;
-
-	kStream >> m_aiNumUnitsGifted;
-
-	kStream >> m_aiNumGoldGifted;
-
-	kStream >> m_aiTurnLastBullied;
-
-	kStream >> m_aiTurnLastPledged;
-	kStream >> m_aiTurnLastBrokePledge;
-
-	kStream >> m_abUnitSpawningDisabled;
-	kStream >> m_abEverFriends;
-#if defined(MOD_CITY_STATE_SCALE)
-	kStream >> m_abFriends;
-#endif
-
-	kStream >> m_abPledgeToProtect;
-
-	kStream >> m_abPermanentWar;
-
-	kStream >> m_abWaryOfTeam;
-
-#if defined(MOD_BALANCE_CORE)
-	kStream >> m_bIsRebellion;
-	kStream >> m_iTurnsSinceRebellion;
-	kStream >> m_bIsRebellionActive;
-	kStream >> m_bIsHordeActive;
-	kStream >> m_iCooldownSpawn;
-	kStream >> m_aiTurnLastAttacked;
-	kStream >> m_abIgnoreJerk;
-	kStream >> m_abIsMarried;
-	kStream >> m_ePermanentAlly;
-	kStream >> m_bNoAlly;
-	kStream >> m_iCoup;
-	kStream >> m_abSiphoned;
-	kStream >> m_abCoupAttempted;
-	kStream >> m_iTurnLiberated;
-	kStream >> m_aiAssignedPlotAreaID;
-	kStream >> m_aiTargetedCityX;
-	kStream >> m_aiTargetedCityY;
-	kStream >> m_aiTurnsSincePtPWarning;
-#endif
-
-	// List of quests given
-	ResetQuestList();
-
-	kStream >> m_QuestsGiven;
-	kStream >> m_bDisableNotifications;
+	CvStreamLoadVisitor serialVisitor(kStream);
+	Serialize(*this, serialVisitor);
 }
 
 /// Serialization write
 void CvMinorCivAI::Write(FDataStream& kStream) const
 {
-	// Current version number
-	uint uiVersion = 1;
-	kStream << uiVersion;
-	MOD_SERIALIZE_INIT_WRITE(kStream);
+	CvStreamSaveVisitor serialVisitor(kStream);
+	Serialize(*this, serialVisitor);
+}
 
-	kStream << m_ePersonality;
-	kStream << m_eStatus;
-	kStream << m_eUniqueUnit; // Version 14
-#if defined(MOD_BALANCE_CORE)
-	kStream << m_eBullyUnit;
-#endif
-
-	kStream << m_iTurnsSinceThreatenedByBarbarians;
-
-	kStream << m_iGlobalQuestCountdown; // Version 11
-
-	kStream << m_eAlly;
-	kStream << m_iTurnAllied;
-
-	kStream << m_eMajorBoughtOutBy; // Version 16
-	kStream << m_iNumThreateningBarbarians;
-	kStream << m_bAllowMajorsToIntrude;
-
-	kStream << m_abRouteConnectionEstablished;
-
-	kStream << m_aiFriendshipWithMajorTimes100;
-	kStream << m_aiQuestCountdown;
-	kStream << m_aiUnitSpawnCounter;
-	kStream << m_aiNumUnitsGifted;
-	kStream << m_aiNumGoldGifted;
-	kStream << m_aiTurnLastBullied;
-	kStream << m_aiTurnLastPledged;
-	kStream << m_aiTurnLastBrokePledge;
-	kStream << m_abUnitSpawningDisabled;
-	kStream << m_abEverFriends;
-#if defined(MOD_CITY_STATE_SCALE)
-	kStream << m_abFriends;
-#endif
-	kStream << m_abPledgeToProtect;
-	kStream << m_abPermanentWar;
-	kStream << m_abWaryOfTeam; // Version 12
-
-#if defined(MOD_BALANCE_CORE)
-	kStream << m_bIsRebellion;
-	kStream << m_iTurnsSinceRebellion;
-	kStream << m_bIsRebellionActive;
-	kStream << m_bIsHordeActive;
-	kStream << m_iCooldownSpawn;
-	kStream << m_aiTurnLastAttacked;
-	kStream << m_abIgnoreJerk;
-	kStream << m_abIsMarried;
-	kStream << m_ePermanentAlly;
-	kStream << m_bNoAlly;
-	kStream << m_iCoup;
-	kStream << m_abSiphoned;
-	kStream << m_abCoupAttempted;
-	kStream << m_iTurnLiberated;
-	kStream << m_aiAssignedPlotAreaID;
-	kStream << m_aiTargetedCityX;
-	kStream << m_aiTargetedCityY;
-	kStream << m_aiTurnsSincePtPWarning;
-#endif
-
-	kStream << m_QuestsGiven;
-	kStream << m_bDisableNotifications;
+FDataStream& operator>>(FDataStream& stream, CvMinorCivAI& minorCivAI)
+{
+	minorCivAI.Read(stream);
+	return stream;
+}
+FDataStream& operator<<(FDataStream& stream, const CvMinorCivAI& minorCivAI)
+{
+	minorCivAI.Write(stream);
+	return stream;
 }
 
 /// Pick the minor civ's personality and any special traits (ie. unique unit for Militaristic)
@@ -4531,7 +4451,7 @@ void CvMinorCivAI::DoPickPersonality()
 	}
 
 	CvFlavorManager* pFlavorManager = m_pPlayer->GetFlavorManager();
-	int* pFlavors = pFlavorManager->GetAllPersonalityFlavors();
+	CvEnumMap<FlavorTypes, int>& pFlavors = pFlavorManager->GetAllPersonalityFlavors();
 
 	MinorCivPersonalityTypes eRandPersonality = (MinorCivPersonalityTypes)GC.getGame().getSmallFakeRandNum(NUM_MINOR_CIV_PERSONALITY_TYPES-1, m_pPlayer->GetID());
 	if (eRandPersonality == NO_MINOR_CIV_PERSONALITY_TYPE)

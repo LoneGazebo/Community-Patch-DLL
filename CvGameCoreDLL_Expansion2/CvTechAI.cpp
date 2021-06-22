@@ -45,27 +45,36 @@ void CvTechAI::Reset()
 	}
 }
 
-extern const char* ms_V0ExpansionTechTags[81];
+///
+template<typename TechAI, typename Visitor>
+void CvTechAI::Serialize(TechAI& techAI, Visitor& visitor)
+{
+	visitor(techAI.m_TechAIWeights);
+}
+
 /// Serialization read
 void CvTechAI::Read(FDataStream& kStream)
 {
-	// Version number to maintain backwards compatibility
-	uint uiVersion;
-	kStream >> uiVersion;
-	MOD_SERIALIZE_INIT_READ(kStream);
-
-	kStream >> m_TechAIWeights;
+	CvStreamLoadVisitor serialVisitor(kStream);
+	Serialize(*this, serialVisitor);
 }
 
 /// Serialization write
 void CvTechAI::Write(FDataStream& kStream) const
 {
-	// Current version number
-	uint uiVersion = 1;
-	kStream << uiVersion;
-	MOD_SERIALIZE_INIT_WRITE(kStream);
+	CvStreamSaveVisitor serialVisitor(kStream);
+	Serialize(*this, serialVisitor);
+}
 
-	kStream << m_TechAIWeights;
+FDataStream& operator<<(FDataStream& saveTo, const CvTechAI& readFrom)
+{
+	readFrom.Write(saveTo);
+	return saveTo;
+}
+FDataStream& operator>>(FDataStream& loadFrom, CvTechAI& writeTo)
+{
+	writeTo.Read(loadFrom);
+	return loadFrom;
 }
 
 /// Establish weights for one flavor; can be called multiple times to layer strategies

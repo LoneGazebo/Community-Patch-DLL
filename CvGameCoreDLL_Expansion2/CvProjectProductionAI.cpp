@@ -38,26 +38,36 @@ void CvProjectProductionAI::Reset()
 	}
 }
 
+///
+template<typename ProjectProductionAI, typename Visitor>
+void CvProjectProductionAI::Serialize(ProjectProductionAI& projectProductionAI, Visitor& visitor)
+{
+	visitor(projectProductionAI.m_ProjectAIWeights);
+}
+
 /// Serialization read
 void CvProjectProductionAI::Read(FDataStream& kStream)
 {
-	// Version number to maintain backwards compatibility
-	uint uiVersion;
-	kStream >> uiVersion;
-	MOD_SERIALIZE_INIT_READ(kStream);
-
-	kStream >> m_ProjectAIWeights;
+	CvStreamLoadVisitor serialVisitor(kStream);
+	Serialize(*this, serialVisitor);
 }
 
 /// Serialization write
 void CvProjectProductionAI::Write(FDataStream& kStream) const
 {
-	// Current version number
-	uint uiVersion = 1;
-	kStream << uiVersion;
-	MOD_SERIALIZE_INIT_WRITE(kStream);
+	CvStreamSaveVisitor serialVisitor(kStream);
+	Serialize(*this, serialVisitor);
+}
 
-	kStream << m_ProjectAIWeights;
+FDataStream& operator>>(FDataStream& loadFrom, CvProjectProductionAI& writeTo)
+{
+	writeTo.Read(loadFrom);
+	return loadFrom;
+}
+FDataStream& operator<<(FDataStream& saveTo, const CvProjectProductionAI& readFrom)
+{
+	readFrom.Write(saveTo);
+	return saveTo;
 }
 
 /// Establish weights for one flavor; can be called multiple times to layer strategies

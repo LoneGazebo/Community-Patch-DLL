@@ -69,12 +69,18 @@ struct VoteSelectionSubData
 	{
 	}
 
+	template<typename VoteSelectionSubDataT, typename Visitor>
+	static void Serialize(VoteSelectionSubDataT& voteSelectionSubData, Visitor& visitor);
+
 	VoteTypes eVote;
 	PlayerTypes ePlayer;
 	int iCityId;
 	PlayerTypes eOtherPlayer;
 	CvString strText;
 };
+
+FDataStream& operator<<(FDataStream&, const VoteSelectionSubData&);
+FDataStream& operator>>(FDataStream&, VoteSelectionSubData&);
 
 struct VoteSelectionData
 {
@@ -91,6 +97,8 @@ struct VoteSelectionData
 
 	int  GetID() const;
 	void SetID(int iID);
+	template<typename VoteSelectionDataT, typename Visitor>
+	static void Serialize(VoteSelectionDataT& voteSelectionData, Visitor& visitor);
 	void read(FDataStream& kStream);
 	void write(FDataStream& kStream) const;
 };
@@ -113,6 +121,8 @@ struct VoteTriggeredData
 
 	int  GetID() const;
 	void SetID(int iID);
+	template<typename VoteTriggeredDataT, typename Visitor>
+	static void Serialize(VoteTriggeredDataT& voteTriggeredData, Visitor& visitor);
 	void read(FDataStream& kStream);
 	void write(FDataStream& kStream) const;
 };

@@ -277,6 +277,9 @@ private:
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 struct CvFocusArea
 {
+	template<typename FocusArea, typename Visitor>
+	static void Serialize(FocusArea& focusArea, Visitor& visitor);
+
 	int m_iX;
 	int m_iY;
 	int m_iRadius;
@@ -330,8 +333,10 @@ public:
 	void Uninit();
 
 	// Serialization routines
+	template<typename TacticalAI, typename Visitor>
+	static void Serialize(TacticalAI& tacticalAI, Visitor& visitor);
 	void Read(FDataStream& kStream);
-	void Write(FDataStream& kStream);
+	void Write(FDataStream& kStream) const;
 
 	// Public turn update routines
 	void Update();
@@ -514,6 +519,9 @@ private:
 
 	std::vector<CvFocusArea> m_focusAreas;
 };
+
+FDataStream& operator>>(FDataStream&, CvTacticalAI&);
+FDataStream& operator<<(FDataStream&, const CvTacticalAI&);
 
 enum eUnitMoveEvalMode { EM_INITIAL, EM_INTERMEDIATE, EM_FINAL };
 enum eUnitMovementStrategy { MS_NONE,MS_FIRSTLINE,MS_SECONDLINE,MS_THIRDLINE,MS_SUPPORT,MS_EMBARKED }; //we should probably differentiate between regular ranged and siege ranged ...

@@ -15,9 +15,9 @@
 #include "CvDiplomacyAI.h"
 #include "CvGrandStrategyAI.h"
 #include "CvTypes.h"
-#if defined(MOD_BALANCE_CORE)
 #include "CvMilitaryAI.h"
-#endif
+
+#include <utility>
 
 #include "LintFree.h"
 
@@ -46,59 +46,30 @@ CvGreatWork::CvGreatWork(CvString szGreatPersonName, GreatWorkType eType, GreatW
 	m_iTurnFounded = GC.getGame().getGameTurn();
 }
 
+template<typename GreatWork, typename Visitor>
+void CvGreatWork::Serialize(GreatWork& greatWork, Visitor& visitor)
+{
+	visitor(greatWork.m_szGreatPersonName);
+	visitor(greatWork.m_eType);
+	visitor(greatWork.m_eClassType);
+	visitor(greatWork.m_iTurnFounded);
+	visitor(greatWork.m_eEra);
+	visitor(greatWork.m_ePlayer);
+}
+
 /// Serialization read
 FDataStream& operator>>(FDataStream& loadFrom, CvGreatWork& writeTo)
 {
-	int iTemp;
-
-	uint uiVersion;
-	loadFrom >> uiVersion;
-	MOD_SERIALIZE_INIT_READ(loadFrom);
-
-	if(uiVersion == 1)
-	{
-		CvString oldGreatWorkName;
-		loadFrom >> oldGreatWorkName;
-	}
-
-	loadFrom >> writeTo.m_szGreatPersonName;
-
-	loadFrom >> iTemp;
-	writeTo.m_eType = (GreatWorkType)iTemp;
-
-	if (uiVersion >= 3)
-	{
-		loadFrom >> iTemp;
-		writeTo.m_eClassType = (GreatWorkClass)iTemp;
-	}
-	else
-	{
-		writeTo.m_eClassType = CultureHelpers::GetGreatWorkClass(writeTo.m_eType);
-	}
-
-	loadFrom >> writeTo.m_iTurnFounded;
-	loadFrom >> writeTo.m_eEra;
-	loadFrom >> writeTo.m_ePlayer;
-
+	CvStreamLoadVisitor serialVisitor(loadFrom);
+	CvGreatWork::Serialize(writeTo, serialVisitor);
 	return loadFrom;
 }
 
 /// Serialization write
 FDataStream& operator<<(FDataStream& saveTo, const CvGreatWork& readFrom)
 {
-	uint uiVersion = 3;
-	saveTo << uiVersion;
-	MOD_SERIALIZE_INIT_WRITE(saveTo);
-
-	saveTo << readFrom.m_szGreatPersonName;
-
-	saveTo << readFrom.m_eType;
-	saveTo << readFrom.m_eClassType;
-	
-	saveTo << readFrom.m_iTurnFounded;
-	saveTo << readFrom.m_eEra;
-	saveTo << readFrom.m_ePlayer;
-
+	CvStreamSaveVisitor serialVisitor(saveTo);
+	CvGreatWork::Serialize(readFrom, serialVisitor);
 	return saveTo;
 }
 
@@ -413,18 +384,14 @@ PlayerTypes CvGameCulture::GetGreatWorkController(int iIndex) const
 		PlayerTypes ePlayer = (PlayerTypes)uiPlayer;
 
 		int iCityLoop;
-		CvCity* pCity = NULL;
-		for (pCity = GET_PLAYER(ePlayer).firstCity(&iCityLoop); pCity != NULL; pCity = GET_PLAYER(ePlayer).nextCity(&iCityLoop))
+		for (CvCity* pCity = GET_PLAYER(ePlayer).firstCity(&iCityLoop); pCity != NULL; pCity = GET_PLAYER(ePlayer).nextCity(&iCityLoop))
 		{
 			for(int iBuildingClassLoop = 0; iBuildingClassLoop < GC.getNumBuildingClassInfos(); iBuildingClassLoop++)
 			{
 				const CvCivilizationInfo& playerCivilizationInfo = GET_PLAYER(ePlayer).getCivilizationInfo();
 				BuildingTypes eBuilding = NO_BUILDING;
-#if defined(MOD_BALANCE_CORE)
+
 				if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || GET_PLAYER(ePlayer).GetPlayerTraits()->IsKeepConqueredBuildings())
-#else
-				if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
-#endif
 				{
 					eBuilding = pCity->GetCityBuildings()->GetBuildingTypeFromClass((BuildingClassTypes)iBuildingClassLoop);
 				}
@@ -494,11 +461,8 @@ CvCity* CvGameCulture::GetGreatWorkCity(int iIndex) const
 			{
 				const CvCivilizationInfo& playerCivilizationInfo = GET_PLAYER(ePlayer).getCivilizationInfo();
 				BuildingTypes eBuilding = NO_BUILDING;
-#if defined(MOD_BALANCE_CORE)
+
 				if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || GET_PLAYER(ePlayer).GetPlayerTraits()->IsKeepConqueredBuildings())
-#else
-				if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
-#endif
 				{
 					eBuilding = pCity->GetCityBuildings()->GetBuildingTypeFromClass((BuildingClassTypes)iBuildingClassLoop);
 				}
@@ -555,11 +519,8 @@ int CvGameCulture::GetGreatWorkCurrentThemingBonus (int iIndex) const
 				BuildingClassTypes eBuildingClass = (BuildingClassTypes)iBuildingClassLoop;
 				const CvCivilizationInfo& playerCivilizationInfo = GET_PLAYER(ePlayer).getCivilizationInfo();
 				BuildingTypes eBuilding = NO_BUILDING;
-#if defined(MOD_BALANCE_CORE)
+
 				if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || GET_PLAYER(ePlayer).GetPlayerTraits()->IsKeepConqueredBuildings())
-#else
-				if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
-#endif
 				{
 					eBuilding = pCity->GetCityBuildings()->GetBuildingTypeFromClass(eBuildingClass);
 				}
@@ -739,11 +700,8 @@ bool CvGameCulture::SwapGreatWorks (PlayerTypes ePlayer1, int iWork1, PlayerType
 			{
 				const CvCivilizationInfo& playerCivilizationInfo = GET_PLAYER(eTempPlayer).getCivilizationInfo();
 				BuildingTypes eBuilding = NO_BUILDING;
-#if defined(MOD_BALANCE_CORE)
+
 				if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || GET_PLAYER(eTempPlayer).GetPlayerTraits()->IsKeepConqueredBuildings())
-#else
-				if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
-#endif
 				{
 					eBuilding = pCity->GetCityBuildings()->GetBuildingTypeFromClass((BuildingClassTypes)iBuildingClassLoop);
 				}
@@ -875,55 +833,38 @@ int CvGameCulture::GetNumCivsInfluentialForWin() const
 
 // SERIALIZATION
 
+FDataStream& operator<<(FDataStream& saveTo, const PublicOpinionTypes& readFrom)
+{
+	return saveTo << static_cast<int>(readFrom);
+}
+FDataStream& operator>>(FDataStream& loadFrom, PublicOpinionTypes& writeTo)
+{
+	int v;
+	loadFrom >> v;
+	writeTo = static_cast<PublicOpinionTypes>(v);
+	return loadFrom;
+}
+
+template<typename GameCulture, typename Visitor>
+void CvGameCulture::Serialize(GameCulture& gameCulture, Visitor& visitor)
+{
+	visitor(gameCulture.m_CurrentGreatWorks);
+	visitor(gameCulture.m_bReportedSomeoneInfluential);
+}
+
 /// Serialization read
 FDataStream& operator>>(FDataStream& loadFrom, CvGameCulture& writeTo)
 {
-	uint uiVersion;
-
-	loadFrom >> uiVersion;
-	MOD_SERIALIZE_INIT_READ(loadFrom);
-
-	int iEntriesToRead;
-	CvGreatWork tempItem;
-
-	writeTo.m_CurrentGreatWorks.clear();
-	loadFrom >> iEntriesToRead;
-	for(int iI = 0; iI < iEntriesToRead; iI++)
-	{
-		loadFrom >> tempItem;
-		writeTo.m_CurrentGreatWorks.push_back(tempItem);
-	}
-
-	if (uiVersion >= 2)
-	{
-		bool bTempBool;
-		loadFrom >> bTempBool;
-		writeTo.SetReportedSomeoneInfluential(bTempBool);
-	}
-	else
-	{
-		writeTo.SetReportedSomeoneInfluential(false);
-	}
-
+	CvStreamLoadVisitor serialVisitor(loadFrom);
+	CvGameCulture::Serialize(writeTo, serialVisitor);
 	return loadFrom;
 }
 
 /// Serialization write
 FDataStream& operator<<(FDataStream& saveTo, const CvGameCulture& readFrom)
 {
-	uint uiVersion = 2;
-	saveTo << uiVersion;
-	MOD_SERIALIZE_INIT_WRITE(saveTo);
-
-	GreatWorkList::const_iterator it;
-	saveTo << readFrom.m_CurrentGreatWorks.size();
-	for(it = readFrom.m_CurrentGreatWorks.begin(); it != readFrom.m_CurrentGreatWorks.end(); it++)
-	{
-		saveTo << *it;
-	}
-
-	saveTo << readFrom.GetReportedSomeoneInfluential();
-
+	CvStreamSaveVisitor serialVisitor(saveTo);
+	CvGameCulture::Serialize(readFrom, serialVisitor);
 	return saveTo;
 }
 
@@ -1145,12 +1086,8 @@ bool CvPlayerCulture::ControlsGreatWork (int iIndex)
 			const CvCivilizationInfo& playerCivilizationInfo = m_pPlayer->getCivilizationInfo();
 			BuildingTypes eBuilding = NO_BUILDING;
 			// If Rome, or if the option to check for all buildings in a class is enabled, we loop through all buildings in the city
-#if defined(MOD_BALANCE_CORE)
 			bool bRome = m_pPlayer->GetPlayerTraits()->IsKeepConqueredBuildings();
 			if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || bRome)
-#else
-			if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
-#endif
 			{
 				eBuilding = pLoopCity->GetCityBuildings()->GetBuildingTypeFromClass((BuildingClassTypes)iBuildingClassLoop);
 			}
@@ -1163,11 +1100,7 @@ bool CvPlayerCulture::ControlsGreatWork (int iIndex)
 				CvBuildingEntry *pkBuilding = GC.getBuildingInfo(eBuilding);
 				if (pkBuilding)
 				{
-#if defined(MOD_BALANCE_CORE)
 					if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || bRome || pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
-#else
-					if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
-#endif
 					{
 						int iNumSlots = pkBuilding->GetGreatWorkCount();
 						for (int iI = 0; iI < iNumSlots; iI++)
@@ -1198,11 +1131,8 @@ bool CvPlayerCulture::GetGreatWorkLocation(int iSearchIndex, int &iReturnCityID,
 		{
 			const CvCivilizationInfo& playerCivilizationInfo = m_pPlayer->getCivilizationInfo();
 			BuildingTypes eBuilding = NO_BUILDING;
-#if defined(MOD_BALANCE_CORE)
+
 			if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || m_pPlayer->GetPlayerTraits()->IsKeepConqueredBuildings())
-#else
-			if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
-#endif
 			{
 				eBuilding = pLoopCity->GetCityBuildings()->GetBuildingTypeFromClass((BuildingClassTypes)iBuildingClassLoop);
 			}
@@ -1377,11 +1307,8 @@ void CvPlayerCulture::DoSwapGreatWorks()
 		{
 			const CvCivilizationInfo& playerCivilizationInfo = m_pPlayer->getCivilizationInfo();
 			BuildingTypes eBuilding = NO_BUILDING;
-#if defined(MOD_BALANCE_CORE)
+
 			if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || m_pPlayer->GetPlayerTraits()->IsKeepConqueredBuildings())
-#else
-			if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
-#endif
 			{
 				eBuilding = pLoopCity->GetCityBuildings()->GetBuildingTypeFromClass((BuildingClassTypes)iBuildingClassLoop);
 			}
@@ -3265,23 +3192,20 @@ void CvPlayerCulture::SetSwappableMusicIndex (int iIndex)
 // ARCHAEOLOGY
 
 /// Add to the list of plots where we have archaeologists waiting for orders
-void CvPlayerCulture::AddDigCompletePlot(CvPlot *pPlot)
+void CvPlayerCulture::AddDigCompletePlot(CvPlot* pPlot)
 {
+	CvAssert(pPlot != NULL);
 	m_aDigCompletePlots.push_back(pPlot);
 }
 
 /// Remove a plot from the list of plots where we have archaeologists waiting for orders
-void CvPlayerCulture::RemoveDigCompletePlot(CvPlot *pPlot)
+void CvPlayerCulture::RemoveDigCompletePlot(CvPlot* pPlot)
 {
-	vector<CvPlot *>::const_iterator it;
-
-	for (it = m_aDigCompletePlots.begin(); it != m_aDigCompletePlots.end(); it++)
+	CvAssert(pPlot != NULL);
+	vector<CvPlot*>::iterator it = std::find(m_aDigCompletePlots.begin(), m_aDigCompletePlots.end(), pPlot);
+	if (it != m_aDigCompletePlots.end())
 	{
-		if (*it == pPlot)
-		{
-			m_aDigCompletePlots.erase(it);
-			break;
-		}
+		m_aDigCompletePlots.erase(it);
 	}
 }
 
@@ -3292,9 +3216,9 @@ void CvPlayerCulture::ResetDigCompletePlots()
 }
 
 /// Find the next plot where we have an archaeologist waiting for orders
-CvPlot *CvPlayerCulture::GetNextDigCompletePlot() const
+CvPlot* CvPlayerCulture::GetNextDigCompletePlot() const
 {
-	CvPlot *pRtnValue = NULL;
+	CvPlot* pRtnValue = NULL;
 
 	if (m_aDigCompletePlots.size() > 0)
 	{
@@ -3335,19 +3259,10 @@ CvUnit *CvPlayerCulture::GetNextDigCompleteArchaeologist(CvPlot **ppPlot) const
 }
 
 /// Is there a dig that completed at this plot?
-bool CvPlayerCulture::HasDigCompleteHere(CvPlot *pPlot) const
+bool CvPlayerCulture::HasDigCompleteHere(CvPlot* pPlot) const
 {
-	vector<CvPlot *>::const_iterator it;
-
-	for (it = m_aDigCompletePlots.begin(); it != m_aDigCompletePlots.end(); it++)
-	{
-		if (*it == pPlot)
-		{
-			return true;
-		}
-	}
-
-	return false;
+	CvAssert(pPlot != NULL);
+	return std::find(m_aDigCompletePlots.begin(), m_aDigCompletePlots.end(), pPlot) != m_aDigCompletePlots.end();
 }
 
 /// How much culture can we receive from cashing in a written artifact?
@@ -4152,11 +4067,8 @@ void CvPlayerCulture::DoTurn()
 			{
 				const CvCivilizationInfo& playerCivilizationInfo = m_pPlayer->getCivilizationInfo();
 				BuildingTypes eBuilding = NO_BUILDING;
-#if defined(MOD_BALANCE_CORE)
+
 				if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || m_pPlayer->GetPlayerTraits()->IsKeepConqueredBuildings())
-#else
-				if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
-#endif
 				{
 					eBuilding = pLoopCity->GetCityBuildings()->GetBuildingTypeFromClass((BuildingClassTypes)iBuildingClassLoop);
 				}
@@ -4220,11 +4132,8 @@ void CvPlayerCulture::DoTurn()
 				{
 					const CvCivilizationInfo& playerCivilizationInfo = m_pPlayer->getCivilizationInfo();
 					BuildingTypes eBuilding = NO_BUILDING;
-#if defined(MOD_BALANCE_CORE)
+
 					if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || m_pPlayer->GetPlayerTraits()->IsKeepConqueredBuildings())
-#else
-					if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
-#endif
 					{
 						eBuilding = pLoopCity->GetCityBuildings()->GetBuildingTypeFromClass((BuildingClassTypes)iBuildingClassLoop);
 					}
@@ -7069,163 +6978,51 @@ CvString CvPlayerCulture::GetLogFileName(CvString& playerName) const
 
 // SERIALIZATION
 
+template<typename PlayerCulture, typename Visitor>
+void CvPlayerCulture::Serialize(PlayerCulture& playerCulture, Visitor& visitor)
+{
+	visitor(playerCulture.m_aDigCompletePlots);
+	visitor(playerCulture.m_iLastTurnLifetimeCulture);
+	visitor(playerCulture.m_iLastTurnCPT);
+
+	visitor(playerCulture.m_aiCulturalInfluence);
+	visitor(playerCulture.m_aiLastTurnCulturalInfluence);
+	visitor(playerCulture.m_aiLastTurnCulturalIPT);
+
+	visitor(playerCulture.m_bReportedTwoCivsAway);
+	visitor(playerCulture.m_bReportedOneCivAway);
+
+	visitor(playerCulture.m_eOpinion);
+	visitor(playerCulture.m_ePreferredIdeology);
+	visitor(playerCulture.m_iOpinionUnhappiness);
+	visitor(playerCulture.m_iRawWarWeariness);
+	visitor(playerCulture.m_iLastUpdate);
+	visitor(playerCulture.m_iLastThemUpdate);
+	visitor(playerCulture.m_strOpinionTooltip);
+	visitor(playerCulture.m_strOpinionUnhappinessTooltip);
+	visitor(playerCulture.m_eOpinionBiggestInfluence);
+	visitor(playerCulture.m_iTurnIdeologyAdopted);
+	visitor(playerCulture.m_iTurnIdeologySwitch);
+
+	visitor(playerCulture.m_iSwappableWritingIndex);
+	visitor(playerCulture.m_iSwappableArtIndex);
+	visitor(playerCulture.m_iSwappableArtifactIndex);
+	visitor(playerCulture.m_iSwappableMusicIndex);
+}
+
 /// Serialization read
 FDataStream& operator>>(FDataStream& loadFrom, CvPlayerCulture& writeTo)
 {
-	uint uiVersion;
-
-	loadFrom >> uiVersion;
-	MOD_SERIALIZE_INIT_READ(loadFrom);
-
-	int iEntriesToRead;
-	int iTempX;
-	int iTempY;
-	CvPlot *pPlot;
-
-	writeTo.m_aDigCompletePlots.clear();
-	loadFrom >> iEntriesToRead;
-	for(int iI = 0; iI < iEntriesToRead; iI++)
-	{
-		loadFrom >> iTempX;
-		loadFrom >> iTempY;
-		pPlot = GC.getMap().plot(iTempX, iTempY);
-		writeTo.m_aDigCompletePlots.push_back(pPlot);
-	}
-
-	loadFrom >> writeTo.m_iLastTurnLifetimeCulture;
-	loadFrom >> writeTo.m_iLastTurnCPT;
-	loadFrom >> iEntriesToRead;
-	for(int iI = 0; iI < iEntriesToRead; iI++)
-	{
-		loadFrom >> writeTo.m_aiCulturalInfluence[iI];
-		loadFrom >> writeTo.m_aiLastTurnCulturalInfluence[iI];
-		loadFrom >> writeTo.m_aiLastTurnCulturalIPT[iI];
-	}
-
-	if (uiVersion >= 2)
-	{
-		loadFrom >> writeTo.m_bReportedTwoCivsAway;
-		loadFrom >> writeTo.m_bReportedOneCivAway;
-	}
-	else
-	{
-		writeTo.m_bReportedTwoCivsAway = false;
-		writeTo.m_bReportedOneCivAway = false;
-	}
-
-	if (uiVersion >= 3)
-	{
-		int iTemp;
-		loadFrom >> iTemp;
-		writeTo.m_eOpinion = (PublicOpinionTypes)iTemp;
-		loadFrom >> writeTo.m_ePreferredIdeology;
-		loadFrom >> writeTo.m_iOpinionUnhappiness;
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
-		loadFrom >> writeTo.m_iRawWarWeariness;
-		loadFrom >> writeTo.m_iLastUpdate;
-		loadFrom >> writeTo.m_iLastThemUpdate;
-#endif
-		loadFrom >> writeTo.m_strOpinionTooltip;
-	}
-	else
-	{
-		writeTo.m_eOpinion = NO_PUBLIC_OPINION;
-		writeTo.m_ePreferredIdeology = NO_POLICY_BRANCH_TYPE;
-		writeTo.m_iOpinionUnhappiness = 0;
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
-		writeTo.m_iRawWarWeariness = 0;
-#endif
-		writeTo.m_strOpinionTooltip = "";
-	}
-
-	if (uiVersion >= 5)
-	{
-		loadFrom >> writeTo.m_strOpinionUnhappinessTooltip;
-	}
-	else
-	{
-		writeTo.m_strOpinionUnhappinessTooltip = "";
-	}
-
-	if (uiVersion >= 6)
-	{
-		loadFrom >> writeTo.m_eOpinionBiggestInfluence;
-		loadFrom >> writeTo.m_iTurnIdeologyAdopted;
-		loadFrom >> writeTo.m_iTurnIdeologySwitch;
-	}
-	else
-	{
-		writeTo.m_eOpinionBiggestInfluence = NO_PLAYER;
-		writeTo.m_iTurnIdeologySwitch = -1;
-		writeTo.m_iTurnIdeologyAdopted = -1;
-
-	}
-	if (uiVersion >= 4)
-	{
-		loadFrom >> writeTo.m_iSwappableWritingIndex;
-		loadFrom >> writeTo.m_iSwappableArtIndex;
-		loadFrom >> writeTo.m_iSwappableArtifactIndex;
-		loadFrom >> writeTo.m_iSwappableMusicIndex;
-	}
-	else
-	{
-		writeTo.m_iSwappableWritingIndex = -1;
-		writeTo.m_iSwappableArtIndex = -1;
-		writeTo.m_iSwappableArtifactIndex = -1;
-		writeTo.m_iSwappableMusicIndex = -1;
-	}
-
+	CvStreamLoadVisitor serialVisitor(loadFrom);
+	CvPlayerCulture::Serialize(writeTo, serialVisitor);
 	return loadFrom;
 }
 
 /// Serialization write
 FDataStream& operator<<(FDataStream& saveTo, const CvPlayerCulture& readFrom)
 {
-	uint uiVersion = 6;
-	saveTo << uiVersion;
-	MOD_SERIALIZE_INIT_WRITE(saveTo);
-
-	vector<CvPlot *>::const_iterator it;
-	saveTo << readFrom.m_aDigCompletePlots.size();
-	for(it = readFrom.m_aDigCompletePlots.begin(); it != readFrom.m_aDigCompletePlots.end(); it++)
-	{
-		CvPlot *pPlot = *it;
-		saveTo << pPlot->getX();
-		saveTo << pPlot->getY();
-	}
-
-	saveTo << readFrom.m_iLastTurnLifetimeCulture;
-	saveTo << readFrom.m_iLastTurnCPT;
-	saveTo << MAX_MAJOR_CIVS;
-	for(int iI = 0; iI < MAX_MAJOR_CIVS; iI++)
-	{
-		saveTo << readFrom.m_aiCulturalInfluence[iI];
-		saveTo << readFrom.m_aiLastTurnCulturalInfluence[iI];
-		saveTo << readFrom.m_aiLastTurnCulturalIPT[iI];
-	}
-
-	saveTo << readFrom.m_bReportedTwoCivsAway;
-	saveTo << readFrom.m_bReportedOneCivAway;
-
-	saveTo << readFrom.m_eOpinion;
-	saveTo << readFrom.m_ePreferredIdeology;
-	saveTo << readFrom.m_iOpinionUnhappiness;
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
-	saveTo << readFrom.m_iRawWarWeariness;
-	saveTo << readFrom.m_iLastUpdate;
-	saveTo << readFrom.m_iLastThemUpdate;
-#endif
-	saveTo << readFrom.m_strOpinionTooltip;
-	saveTo << readFrom.m_strOpinionUnhappinessTooltip;
-	saveTo << readFrom.m_eOpinionBiggestInfluence;
-	saveTo << readFrom.m_iTurnIdeologyAdopted;
-	saveTo << readFrom.m_iTurnIdeologySwitch;
-
-	saveTo << readFrom.m_iSwappableWritingIndex;
-	saveTo << readFrom.m_iSwappableArtIndex;
-	saveTo << readFrom.m_iSwappableArtifactIndex;
-	saveTo << readFrom.m_iSwappableMusicIndex;
-
+	CvStreamSaveVisitor serialVisitor(saveTo);
+	CvPlayerCulture::Serialize(readFrom, serialVisitor);
 	return saveTo;
 }
 
@@ -7290,12 +7087,8 @@ void CvCityCulture::ClearGreatWorks()
 		const CvCivilizationInfo& playerCivilizationInfo = kCityPlayer.getCivilizationInfo();
 		BuildingTypes eBuilding = NO_BUILDING;
 		// If Rome, or if the option to check for all buildings in a class is enabled, we loop through all buildings in the city
-#if defined(MOD_BALANCE_CORE)
 		bool bRome = kCityPlayer.GetPlayerTraits()->IsKeepConqueredBuildings();
 		if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || bRome)
-#else
-		if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
-#endif
 		{
 			eBuilding = m_pCity ->GetCityBuildings()->GetBuildingTypeFromClass((BuildingClassTypes)iBuildingClassLoop);
 		}
@@ -7308,11 +7101,7 @@ void CvCityCulture::ClearGreatWorks()
 			CvBuildingEntry *pkBuilding = GC.getBuildingInfo(eBuilding);
 			if (pkBuilding)
 			{
-#if defined(MOD_BALANCE_CORE)
 				if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || bRome || m_pCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
-#else
-				if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || m_pCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
-#endif
 				{
 					int iNumSlots = pkBuilding->GetGreatWorkCount();
 					for (int iI = 0; iI < iNumSlots; iI++)
@@ -7334,11 +7123,7 @@ GreatWorkSlotType CvCityCulture::GetSlotTypeFirstAvailableCultureBuilding() cons
 
 	for(int iBuildingClassLoop = 0; iBuildingClassLoop < GC.getNumBuildingClassInfos(); iBuildingClassLoop++)
 	{
-#if defined(MOD_BALANCE_CORE)
-		if ( (MOD_BUILDINGS_THOROUGH_PREREQUISITES || kCityPlayer.GetPlayerTraits()->IsKeepConqueredBuildings()) && m_pCity->HasBuildingClass((BuildingClassTypes)iBuildingClassLoop))
-#else
-		if (MOD_BUILDINGS_THOROUGH_PREREQUISITES && m_pCity->HasBuildingClass((BuildingClassTypes)iBuildingClassLoop))
-#endif
+		if ((MOD_BUILDINGS_THOROUGH_PREREQUISITES || kCityPlayer.GetPlayerTraits()->IsKeepConqueredBuildings()) && m_pCity->HasBuildingClass((BuildingClassTypes)iBuildingClassLoop))
 		{
 			continue;
 		}
@@ -8578,11 +8363,8 @@ bool CvCityCulture::IsThemingBonusPossible(BuildingClassTypes eBuildingClass) co
 {
 	CvPlayer &kPlayer = GET_PLAYER(m_pCity->getOwner());
 	BuildingTypes eBuilding = NO_BUILDING;
-#if defined(MOD_BALANCE_CORE)
+
 	if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || kPlayer.GetPlayerTraits()->IsKeepConqueredBuildings())
-#else
-	if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
-#endif
 	{
 		if (m_pCity->HasBuildingClass(eBuildingClass))
 		{
@@ -8620,11 +8402,8 @@ int CvCityCulture::GetThemingBonus(BuildingClassTypes eBuildingClass) const
 		if (iIndex >= 0)
 		{
 			BuildingTypes eBuilding = NO_BUILDING;
-#if defined(MOD_BALANCE_CORE)
+
 			if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || kPlayer.GetPlayerTraits()->IsKeepConqueredBuildings())
-#else
-			if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
-#endif
 			{
 				if (m_pCity->HasBuildingClass(eBuildingClass))
 				{
@@ -8679,11 +8458,8 @@ CvString CvCityCulture::GetThemingTooltip(BuildingClassTypes eBuildingClass) con
 	if (IsThemingBonusPossible(eBuildingClass))
 	{
 		BuildingTypes eBuilding = NO_BUILDING;
-#if defined(MOD_BALANCE_CORE)
+
 		if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || kPlayer.GetPlayerTraits()->IsKeepConqueredBuildings())
-#else
-		if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
-#endif
 		{
 			if (m_pCity->HasBuildingClass(eBuildingClass))
 			{
@@ -8878,11 +8654,8 @@ int CvCityCulture::GetThemingBonusIndex(BuildingClassTypes eBuildingClass) const
 	if (pkCivInfo)
 	{
 		BuildingTypes eBuilding = NO_BUILDING;
-#if defined(MOD_BALANCE_CORE)
+
 		if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || GET_PLAYER(m_pCity->getOwner()).GetPlayerTraits()->IsKeepConqueredBuildings())
-#else
-		if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
-#endif
 		{
 			eBuilding = m_pCity->GetCityBuildings()->GetBuildingTypeFromClass(eBuildingClass);
 		}
@@ -8894,28 +8667,7 @@ int CvCityCulture::GetThemingBonusIndex(BuildingClassTypes eBuildingClass) const
 		{
 			if (m_pCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
 			{
-#if defined(MOD_BALANCE_CORE)
 				return m_pCity->GetCityBuildings()->GetThemingBonusIndex(eBuilding);
-#else
-				CvBuildingEntry *pkBuilding = GC.getBuildingInfo(eBuilding);
-				if (pkBuilding)
-				{
-					int iNumSlots = pkBuilding->GetGreatWorkCount();
-					if (m_pCity->GetCityBuildings()->GetNumGreatWorksInBuilding(eBuildingClass) < iNumSlots)
-					{
-						return -1;  // No theming bonus if some slots still empty
-					}
-
-					// Store info on the attributes of all our Great Works
-					for (int iI = 0; iI < iNumSlots; iI++)
-					{
-						int iGreatWork = m_pCity->GetCityBuildings()->GetBuildingGreatWork(eBuildingClass, iI);
-						aGreatWorkIndices.push_back(iGreatWork);
-					}
-
-					return CultureHelpers::GetThemingBonusIndex(m_pCity->getOwner(), pkBuilding, aGreatWorkIndices);
-				}
-#endif
 			}
 		}
 	}
@@ -8930,11 +8682,8 @@ void CvCityCulture::UpdateThemingBonusIndex(BuildingClassTypes eBuildingClass)
 	if (pkCivInfo)
 	{
 		BuildingTypes eBuilding = NO_BUILDING;
-#if defined(MOD_BALANCE_CORE)
+
 		if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || GET_PLAYER(m_pCity->getOwner()).GetPlayerTraits()->IsKeepConqueredBuildings())
-#else
-		if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
-#endif
 		{
 			eBuilding = m_pCity->GetCityBuildings()->GetBuildingTypeFromClass(eBuildingClass);
 		}

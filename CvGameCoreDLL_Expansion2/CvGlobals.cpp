@@ -2781,6 +2781,10 @@ void CvGlobals::uninit()
 	CvPlayerAI::freeStatics();
 	CvTeam::freeStatics();
 
+	SAFE_DELETE(m_map);
+	SAFE_DELETE(m_game);
+	SAFE_DELETE(m_asyncRand);
+
 	deleteInfoArrays();
 
 	SAFE_DELETE(m_pEconomicAIStrategies);
@@ -2811,11 +2815,6 @@ void CvGlobals::uninit()
 #endif
 	SAFE_DELETE(m_pImprovements); // player uses the improvement count in deallocating.
 	SAFE_DELETE(m_pTechs);        // improvements uses tech to deallocate. arrghh!
-
-	SAFE_DELETE(m_map);
-	SAFE_DELETE(m_game);
-
-	SAFE_DELETE(m_asyncRand);
 
 	m_kGlobalDefinesLookup.Release();
 

@@ -53,26 +53,36 @@ void CvPolicyAI::Reset()
 	}
 }
 
+///
+template<typename PolicyAI, typename Visitor>
+void CvPolicyAI::Serialize(PolicyAI& policyAI, Visitor& visitor)
+{
+	visitor(policyAI.m_PolicyAIWeights);
+}
+
 /// Serialization read
 void CvPolicyAI::Read(FDataStream& kStream)
 {
-	// Version number to maintain backwards compatibility
-	uint uiVersion;
-	kStream >> uiVersion;
-	MOD_SERIALIZE_INIT_READ(kStream);
-
-	kStream >> m_PolicyAIWeights;
+	CvStreamLoadVisitor serialVisitor(kStream);
+	Serialize(*this, serialVisitor);
 }
 
 /// Serialization write
-void CvPolicyAI::Write(FDataStream& kStream)
+void CvPolicyAI::Write(FDataStream& kStream) const
 {
-	// Current version number
-	uint uiVersion = 1;
-	kStream << uiVersion;
-	MOD_SERIALIZE_INIT_WRITE(kStream);
+	CvStreamSaveVisitor serialVisitor(kStream);
+	Serialize(*this, serialVisitor);
+}
 
-	kStream << m_PolicyAIWeights;
+FDataStream& operator<<(FDataStream& saveTo, const CvPolicyAI& readFrom)
+{
+	readFrom.Write(saveTo);
+	return saveTo;
+}
+FDataStream& operator>>(FDataStream& loadFrom, CvPolicyAI& writeTo)
+{
+	writeTo.Read(loadFrom);
+	return loadFrom;
 }
 
 /// Establish weights for one flavor; can be called multiple times to layer strategies
@@ -893,30 +903,18 @@ int CvPolicyAI::GetBranchBuildingHappiness(CvPlayer* pPlayer, PolicyBranchTypes 
 					if (pkPolicyInfo->GetBuildingClassHappiness(eBuildingClass) != 0)
 					{
 						BuildingTypes eBuilding = NO_BUILDING;
-#if defined(MOD_BALANCE_CORE)
 						bool bRome = pPlayer->GetPlayerTraits()->IsKeepConqueredBuildings();
+
 						if (!MOD_BUILDINGS_THOROUGH_PREREQUISITES && !bRome)
-#else
-						if (!MOD_BUILDINGS_THOROUGH_PREREQUISITES)
-#endif
 						{
 							eBuilding = (BuildingTypes)pPlayer->getCivilizationInfo().getCivilizationBuildings(eBuildingClass);
 						}
-#if defined(MOD_BALANCE_CORE)
 						if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || bRome || eBuilding != NO_BUILDING)
-#else
-						if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || eBuilding != NO_BUILDING)
-#endif
 						{
-							CvCity *pCity;
 							int iLoop;
-							for (pCity = pPlayer->firstCity(&iLoop); pCity != NULL; pCity = pPlayer->nextCity(&iLoop))
+							for (CvCity* pCity = pPlayer->firstCity(&iLoop); pCity != NULL; pCity = pPlayer->nextCity(&iLoop))
 							{
-#if defined(MOD_BALANCE_CORE)
 								if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || bRome)
-#else
-								if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
-#endif
 								{
 									eBuilding = pCity->GetCityBuildings()->GetBuildingTypeFromClass(eBuildingClass);
 									if (eBuilding == NO_BUILDING)

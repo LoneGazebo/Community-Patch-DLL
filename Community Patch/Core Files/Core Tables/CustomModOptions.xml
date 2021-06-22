@@ -334,7 +334,7 @@
     <!-- Permits land units to cross mountains (like the Carthage trait) (v19) -->
     <!-- See also: "Improvement - Tunnel" -->
     <!-- See also: "Promotions - Terrain Crossing" -->
-    <Row Class="2" Name="PROMOTIONS_CROSS_MOUNTAINS" Value="0" DbUpdates="1"/>
+    <Row Class="2" Name="PROMOTIONS_CROSS_MOUNTAINS" Value="1" DbUpdates="1"/>
     <!-- Permits coastal units to cross oceans (v19) -->
     <!-- See also: "Promotions - Terrain Crossing" -->
     <!-- See also: "Unique Unit - Longboat" -->

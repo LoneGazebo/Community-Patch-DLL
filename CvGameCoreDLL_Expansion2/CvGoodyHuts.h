@@ -23,7 +23,9 @@ public:
 	static void Reset();
 	static void Uninit();
 
-	static void Read(FDataStream& kStream, uint uiParentVersion);
+	template<typename Visitor>
+	static void Serialize(Visitor& visitor);
+	static void Read(FDataStream& kStream);
 	static void Write(FDataStream& kStream);
 
 private:

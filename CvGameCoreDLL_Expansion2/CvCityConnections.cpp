@@ -61,74 +61,51 @@ void CvCityConnections::Reset(void)
 	m_bDirty = true;
 }
 
+template<typename CityConnections, typename Visitor>
+void CvCityConnections::Serialize(CityConnections& cityConnections, Visitor& visitor)
+{
+	visitor(cityConnections.m_plotsWithConnectionToCapital);
+	visitor(cityConnections.m_connectionState);
+	visitor(cityConnections.m_plotIdsToConnect);
+}
+
 /// Serialization read
 void CvCityConnections::Read(FDataStream& kStream)
 {
-	// Version number to maintain backwards compatibility
-	uint uiVersion;
-	kStream >> uiVersion;
-	MOD_SERIALIZE_INIT_READ(kStream);
-
-	size_t nItems;
-	kStream >> nItems;
-	m_plotsWithConnectionToCapital.clear();
-	for (size_t i = 0; i < nItems; i++)
-	{
-		int temp;
-		kStream >> temp;
-		m_plotsWithConnectionToCapital.push_back(temp);
-	}
-
-	kStream >> nItems;
-	m_connectionState.clear();
-	for (size_t i = 0; i < nItems; i++)
-	{
-		int origin;
-		kStream >> origin;
-		size_t nItems2;
-		kStream >> nItems2;
-		for (size_t j = 0; j < nItems2; j++)
-		{
-			pair<int, int> destination;
-			int temp3;
-			kStream >> destination;
-			kStream >> temp3;
-			m_connectionState[origin][destination] = (CityConnectionTypes)temp3;
-		}
-	}
-
-	// read in city locations
-	kStream >> m_plotIdsToConnect;
+	CvStreamLoadVisitor serialVisitor(kStream);
+	Serialize(*this, serialVisitor);
 }
 
 /// Serialization write
 void CvCityConnections::Write(FDataStream& kStream) const
 {
-	// Version number to maintain backwards compatibility
-	uint uiVersion = 1;
-	kStream << uiVersion;
-	MOD_SERIALIZE_INIT_WRITE(kStream);
+	CvStreamSaveVisitor serialVisitor(kStream);
+	Serialize(*this, serialVisitor);
+}
 
-	kStream << m_plotsWithConnectionToCapital.size();
-	for (PlotIndexStore::const_iterator it=m_plotsWithConnectionToCapital.begin(); it!=m_plotsWithConnectionToCapital.end(); ++it)
-	{
-		kStream << *(it);
-	}
+FDataStream& operator>>(FDataStream& loadFrom, CvCityConnections::CityConnectionTypes& writeTo)
+{
+	int value;
+	loadFrom >> value;
+	writeTo = static_cast<CvCityConnections::CityConnectionTypes>(value);
+	return loadFrom;
+}
+FDataStream& operator<<(FDataStream& saveTo, const CvCityConnections::CityConnectionTypes& readFrom)
+{
+	int value = static_cast<int>(readFrom);
+	saveTo << value;
+	return saveTo;
+}
 
-	kStream << m_connectionState.size();
-	for (AllCityConnectionStore::const_iterator it=m_connectionState.begin(); it!=m_connectionState.end(); ++it)
-	{
-		kStream << it->first;
-		kStream << it->second.size();
-		for (AllCityConnectionStore::value_type::second_type::const_iterator it2=it->second.begin(); it2!=it->second.end(); ++it2)
-		{
-			kStream << it2->first;
-			kStream << it2->second;
-		}
-	}
-
-	// read in city locations
-	kStream << m_plotIdsToConnect;
+FDataStream& operator>>(FDataStream& loadFrom, CvCityConnections& writeTo)
+{
+	writeTo.Read(loadFrom);
+	return loadFrom;
+}
+FDataStream& operator<<(FDataStream& saveTo, const CvCityConnections& readFrom)
+{
+	readFrom.Write(saveTo);
+	return saveTo;
 }
 
 /// Update - called from within CvPlayer

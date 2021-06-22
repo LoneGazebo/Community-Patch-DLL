@@ -106,6 +106,8 @@ public:
 	void Kill();
 
 	// for serialization
+	template<typename ArmyAI, typename Visitor>
+	static void Serialize(ArmyAI& armyAI, Visitor& visitor);
 	virtual void Read(FDataStream& kStream);
 	virtual void Write(FDataStream& kStream) const;
 

@@ -85,6 +85,9 @@ public:
 	CvReligion();
 	CvReligion(ReligionTypes eReligion, PlayerTypes eFounder, CvCity* pHolyCity, bool bPantheon);
 
+	template<typename Religion, typename Visitor>
+	static void Serialize(Religion& religion, Visitor& visitor);
+
 	CvString GetName() const;
 	CvCity* GetHolyCity() const;
 
@@ -118,6 +121,9 @@ class CvReligionInCity
 public:
 	CvReligionInCity();
 	CvReligionInCity(ReligionTypes eReligion, bool bFoundedHere, int iFollowers, int iPressure);
+
+	template<typename ReligionInCity, typename Visitor>
+	static void Serialize(ReligionInCity& religionInCity, Visitor& visitor);
 
 	// Public data
 	ReligionTypes m_eReligion;
@@ -163,6 +169,9 @@ public:
 	};
 
 	void Init();
+
+	template<typename GameReligions, typename Visitor>
+	static void Serialize(GameReligions& gameReligions, Visitor& visitor);
 
 	// Functions invoked each game turn
 	void DoTurn();
@@ -300,6 +309,9 @@ private:
 	bool CheckSpawnGreatProphet(CvPlayer& kPlayer);
 
 	int m_iMinimumFaithForNextPantheon;
+
+	friend FDataStream& operator>>(FDataStream&, CvGameReligions&);
+	friend FDataStream& operator<<(FDataStream&, const CvGameReligions&);
 };
 
 FDataStream& operator>>(FDataStream&, CvGameReligions&);
@@ -342,8 +354,10 @@ public:
 	void Init(CvPlayer* pPlayer);
 	void Uninit();
 	void Reset();
+	template<typename PlayerReligions, typename Visitor>
+	static void Serialize(PlayerReligions& playerReligions, Visitor& visitor);
 	void Read(FDataStream& kStream);
-	void Write(FDataStream& kStream);
+	void Write(FDataStream& kStream) const;
 
 	// Data accessors
 #if defined(MOD_GLOBAL_TRULY_FREE_GP)
@@ -432,6 +446,9 @@ private:
 #endif
 };
 
+FDataStream& operator>>(FDataStream&, CvPlayerReligions&);
+FDataStream& operator<<(FDataStream&, const CvPlayerReligions&);
+
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //  CLASS:		CvCityReligions
 //!  \brief		All the information about religious activity in a city
@@ -448,6 +465,9 @@ public:
 	void Init(CvCity* pCity);
 	void Uninit();
 	void Copy(CvCityReligions* pOldCity);
+
+	template<typename CityReligions, typename Visitor>
+	static void Serialize(CityReligions& cityReligions, Visitor& visitor);
 
 	// Data accessors
 	int GetNumFollowers(ReligionTypes eReligion);
@@ -471,8 +491,8 @@ public:
 	void SetReligiousPressureModifier(ReligionTypes eReligion, int iNewValue);
 	void ChangeReligiousPressureModifier(ReligionTypes eReligion, int iNewValue);
 	int GetTotalPressure();
-	int GetPressure(ReligionTypes eReligion);
-	int GetPressurePerTurn(ReligionTypes eReligion, int& iNumTradeRoutesInvolved);
+	int GetPressureAccumulated(ReligionTypes eReligion);
+	int GetPressurePerTurn(ReligionTypes eReligion, int* piNumSourceCities = 0);
 	int GetNumTradeRouteConnections (ReligionTypes eReligion);
 	bool WouldExertTradeRoutePressureToward (CvCity* pTargetCity, ReligionTypes& eReligion, int& iAmount);
 
@@ -544,6 +564,9 @@ public:
 	CvUnitReligion(void);
 	void Init();
 
+	template<typename UnitReligion, typename Visitor>
+	static void Serialize(UnitReligion& unitReligion, Visitor& visitor);
+
 	// Accessors
 	ReligionTypes GetReligion() const
 	{
@@ -609,8 +632,10 @@ public:
 	void Init(CvBeliefXMLEntries* pBeliefs, CvPlayer* pPlayer);
 	void Uninit();
 	void Reset();
+	template<typename ReligionAI, typename Visitor>
+	static void Serialize(ReligionAI& religionAI, Visitor& visitor);
 	void Read(FDataStream& kStream);
-	void Write(FDataStream& kStream);
+	void Write(FDataStream& kStream) const;
 
 	void DoTurn();
 
@@ -680,8 +705,10 @@ private:
 
 	CvBeliefXMLEntries* m_pBeliefs;
 	CvPlayer* m_pPlayer;
-
 };
+
+FDataStream& operator>>(FDataStream&, CvReligionAI&);
+FDataStream& operator<<(FDataStream&, const CvReligionAI&);
 
 namespace CvReligionAIHelpers
 {

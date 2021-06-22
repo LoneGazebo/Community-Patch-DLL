@@ -29,6 +29,8 @@ public:
 	void Reset();
 
 	// Serialization routines
+	template<typename WonderProductionAI, typename Visitor>
+	static void Serialize(WonderProductionAI& wonderProductionAI, Visitor& visitor);
 	void Read(FDataStream& kStream);
 	void Write(FDataStream& kStream) const;
 
@@ -58,5 +60,8 @@ private:
 	CvWeightedVector<int> m_WonderAIWeights;
 	CvWeightedVector<int> m_Buildables;
 };
+
+FDataStream& operator>>(FDataStream&, CvWonderProductionAI&);
+FDataStream& operator<<(FDataStream&, const CvWonderProductionAI&);
 
 #endif //CIV5_WONDER_PRODUCTION_AI_H

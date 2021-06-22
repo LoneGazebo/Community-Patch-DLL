@@ -931,7 +931,7 @@
 			<PromotionPrereqOr1>PROMOTION_SURVIVALISM_2</PromotionPrereqOr1>
 			<OrderPriority>2</OrderPriority>
 			<AlwaysHeal>true</AlwaysHeal>
-			<EnemyRoute>true</EnemyRoute>
+			<FreePillageMoves>true</FreePillageMoves>
 			<PortraitIndex>51</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_HEAL</PediaType>
@@ -1328,6 +1328,7 @@
 			<CannotBeChosen>true</CannotBeChosen>
 			<TechPrereq>TECH_OPTICS</TechPrereq>
 			<AllowsEmbarkation>true</AllowsEmbarkation>
+			<LostWithUpgrade>true</LostWithUpgrade>
 			<EmbarkDefenseModifier>100</EmbarkDefenseModifier>
 			<PortraitIndex>22</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
@@ -2235,6 +2236,17 @@
 			<PediaEntry>TXT_KEY_PROMOTION_WITHDRAW_BEFORE_MELEE</PediaEntry>
 		</Replace>
 		<Replace>
+			<Type>PROMOTION_WITHDRAW_BEFORE_MELEE_I</Type>
+			<Description>TXT_KEY_PROMOTION_WITHDRAW_BEFORE_MELEE_I</Description>
+			<Help>TXT_KEY_PROMOTION_WITHDRAW_BEFORE_MELEE_HELP_I</Help>
+			<Sound>AS2D_IF_LEVELUP</Sound>
+			<ExtraWithdrawal>60</ExtraWithdrawal>
+			<PortraitIndex>59</PortraitIndex>
+			<IconAtlas>ABILITY_ATLAS</IconAtlas>
+			<PediaType>PEDIA_ATTRIBUTES</PediaType>
+			<PediaEntry>TXT_KEY_PROMOTION_WITHDRAW_BEFORE_MELEE_I</PediaEntry>
+		</Replace>
+		<Replace>
 			<Type>PROMOTION_MEDIC_GENERAL</Type>
 			<Description>TXT_KEY_PROMOTION_MEDIC_GENERAL</Description>
 			<Help>TXT_KEY_PROMOTION_MEDIC_GENERAL_HELP</Help>
@@ -3133,6 +3145,18 @@
 			<PediaEntry>TXT_KEY_PROMOTION_KNOCKOUT_II</PediaEntry>
 		</Row>
 		<Row>
+			<Type>PROMOTION_KNOCKOUT_III</Type>
+			<Description>TXT_KEY_PROMOTION_KNOCKOUT_III</Description>
+			<Help>TXT_KEY_PROMOTION_KNOCKOUT_III_HELP</Help>
+			<Sound>AS2D_IF_LEVELUP</Sound>
+			<AttackMod>25</AttackMod>
+			<PortraitIndex>59</PortraitIndex>
+			<CannotBeChosen>true</CannotBeChosen>
+			<IconAtlas>ABILITY_ATLAS</IconAtlas>
+			<PediaType>PEDIA_MELEE</PediaType>
+			<PediaEntry>TXT_KEY_PROMOTION_KNOCKOUT_III</PediaEntry>
+		</Row>
+		<Row>
 			<Type>PROMOTION_WOODLAND_TRAILBLAZER_I</Type>
 			<Description>TXT_KEY_PROMOTION_WOODLAND_TRAILBLAZER_I</Description>
 			<Help>TXT_KEY_PROMOTION_WOODLAND_TRAILBLAZER_I_HELP</Help>
@@ -3166,7 +3190,9 @@
 			<PromotionPrereqOr1>PROMOTION_WOODLAND_TRAILBLAZER_II</PromotionPrereqOr1>
 			<OutsideFriendlyLandsModifier>10</OutsideFriendlyLandsModifier>
 			<OrderPriority>1</OrderPriority>
-			<ExtraWithdrawal>60</ExtraWithdrawal>
+			<CanCrossMountains>1</CanCrossMountains>
+			<AllowsEmbarkation>1</AllowsEmbarkation>
+			<EnemyRoute>1</EnemyRoute>
 			<PortraitIndex>46</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_SCOUTING</PediaType>

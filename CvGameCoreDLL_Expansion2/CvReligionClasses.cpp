@@ -155,72 +155,36 @@ CvReligion::CvReligion(ReligionTypes eReligion, PlayerTypes eFounder, CvCity* pH
 	ZeroMemory(m_szCustomName, sizeof(m_szCustomName));
 }
 
+///
+template<typename Religion, typename Visitor>
+void CvReligion::Serialize(Religion& religion, Visitor& visitor)
+{
+	visitor(religion.m_eReligion);
+	visitor(religion.m_eFounder);
+	visitor(religion.m_iHolyCityX);
+	visitor(religion.m_iHolyCityY);
+	visitor(religion.m_iTurnFounded);
+	visitor(religion.m_bPantheon);
+	visitor(religion.m_bEnhanced);
+	visitor(religion.m_szCustomName);
+	visitor(religion.m_bReformed);
+
+	visitor(religion.m_Beliefs);
+}
+
 /// Serialization read
 FDataStream& operator>>(FDataStream& loadFrom, CvReligion& writeTo)
 {
-	uint uiVersion;
-	loadFrom >> uiVersion;
-	MOD_SERIALIZE_INIT_READ(loadFrom);
-
-	loadFrom >> writeTo.m_eReligion;
-	loadFrom >> writeTo.m_eFounder;
-	loadFrom >> writeTo.m_iHolyCityX;
-	loadFrom >> writeTo.m_iHolyCityY;
-	loadFrom >> writeTo.m_iTurnFounded;
-
-	if(uiVersion >= 2)
-	{
-		loadFrom >> writeTo.m_bPantheon;
-	}
-	else
-	{
-		writeTo.m_bPantheon = false;
-	}
-
-	if(uiVersion >= 4)
-	{
-		loadFrom >> writeTo.m_bEnhanced;
-	}
-	else
-	{
-		writeTo.m_bEnhanced = false;
-	}
-
-	ZeroMemory(writeTo.m_szCustomName, sizeof(writeTo.m_szCustomName));
-	if(uiVersion >= 3)
-	{
-		loadFrom >> writeTo.m_szCustomName;
-	}
-#if defined(MOD_BALANCE_CORE)
-	loadFrom >> writeTo.m_bReformed;
-#endif
-
-	writeTo.m_Beliefs.Read(loadFrom);
-
+	CvStreamLoadVisitor serialVisitor(loadFrom);
+	CvReligion::Serialize(writeTo, serialVisitor);
 	return loadFrom;
 }
 
 /// Serialization write
 FDataStream& operator<<(FDataStream& saveTo, const CvReligion& readFrom)
 {
-	uint uiVersion = 4;
-	saveTo << uiVersion;
-	MOD_SERIALIZE_INIT_WRITE(saveTo);
-
-	saveTo << readFrom.m_eReligion;
-	saveTo << readFrom.m_eFounder;
-	saveTo << readFrom.m_iHolyCityX;
-	saveTo << readFrom.m_iHolyCityY;
-	saveTo << readFrom.m_iTurnFounded;
-	saveTo << readFrom.m_bPantheon;
-	saveTo << readFrom.m_bEnhanced;
-	saveTo << readFrom.m_szCustomName;
-#if defined(MOD_BALANCE_CORE)
-	saveTo << readFrom.m_bReformed;
-#endif
-
-	readFrom.m_Beliefs.Write(saveTo);
-
+	CvStreamSaveVisitor serialVisitor(saveTo);
+	CvReligion::Serialize(readFrom, serialVisitor);
 	return saveTo;
 }
 
@@ -272,43 +236,29 @@ CvReligionInCity::CvReligionInCity(ReligionTypes eReligion, bool bFoundedHere, i
 {
 }
 
+template<typename ReligionInCity, typename Visitor>
+void CvReligionInCity::Serialize(ReligionInCity& religionInCity, Visitor& visitor)
+{
+	visitor(religionInCity.m_eReligion);
+	visitor(religionInCity.m_bFoundedHere);
+	visitor(religionInCity.m_iFollowers);
+	visitor(religionInCity.m_iPressure);
+	visitor(religionInCity.m_iNumTradeRoutesApplyingPressure);
+}
+
 /// Serialization read
 FDataStream& operator>>(FDataStream& loadFrom, CvReligionInCity& writeTo)
 {
-	uint uiVersion;
-	loadFrom >> uiVersion;
-	MOD_SERIALIZE_INIT_READ(loadFrom);
-
-	loadFrom >> writeTo.m_eReligion;
-	loadFrom >> writeTo.m_bFoundedHere;
-	loadFrom >> writeTo.m_iFollowers;
-	loadFrom >> writeTo.m_iPressure;
-
-	if (uiVersion == 2)
-	{
-		loadFrom >> writeTo.m_iNumTradeRoutesApplyingPressure;
-	}
-	else
-	{
-		writeTo.m_iNumTradeRoutesApplyingPressure = 0;
-	}
-
+	CvStreamLoadVisitor serialVisitor(loadFrom);
+	CvReligionInCity::Serialize(writeTo, serialVisitor);
 	return loadFrom;
 }
 
 /// Serialization write
 FDataStream& operator<<(FDataStream& saveTo, const CvReligionInCity& readFrom)
 {
-	uint uiVersion = 2;
-	saveTo << uiVersion;
-	MOD_SERIALIZE_INIT_WRITE(saveTo);
-
-	saveTo << readFrom.m_eReligion;
-	saveTo << readFrom.m_bFoundedHere;
-	saveTo << readFrom.m_iFollowers;
-	saveTo << readFrom.m_iPressure;
-	saveTo << readFrom.m_iNumTradeRoutesApplyingPressure;
-
+	CvStreamSaveVisitor serialVisitor(saveTo);
+	CvReligionInCity::Serialize(readFrom, serialVisitor);
 	return saveTo;
 }
 
@@ -3899,64 +3849,27 @@ void CvGameReligions::NotifyPlayer(PlayerTypes ePlayer, CvGameReligions::FOUNDIN
 
 // SERIALIZATION
 
+///
+template<typename GameReligions, typename Visitor>
+void CvGameReligions::Serialize(GameReligions& gameReligions, Visitor& visitor)
+{
+	visitor(gameReligions.m_iMinimumFaithForNextPantheon);
+	visitor(gameReligions.m_CurrentReligions);
+}
+
 /// Serialization read
 FDataStream& operator>>(FDataStream& loadFrom, CvGameReligions& writeTo)
 {
-	uint uiVersion;
-	int iMinFaith;
-
-	loadFrom >> uiVersion;
-	MOD_SERIALIZE_INIT_READ(loadFrom);
-
-	if(uiVersion >= 3)
-	{
-		loadFrom >> iMinFaith;
-		writeTo.SetMinimumFaithNextPantheon(iMinFaith);
-	}
-	else
-	{
-		writeTo.SetMinimumFaithNextPantheon(0);
-	}
-
-	if(uiVersion < 4)
-	{
-		loadFrom >> iMinFaith;
-		//	writeTo.SetMinimumFaithNextGreatProphet(iMinFaith);  -- eliminated in Version 4
-	}
-
-	if(uiVersion >= 2)
-	{
-		int iEntriesToRead;
-		CvReligion tempItem;
-
-		writeTo.m_CurrentReligions.clear();
-		loadFrom >> iEntriesToRead;
-		for(int iI = 0; iI < iEntriesToRead; iI++)
-		{
-			loadFrom >> tempItem;
-			writeTo.m_CurrentReligions.push_back(tempItem);
-		}
-	}
-
+	CvStreamLoadVisitor serialVisitor(loadFrom);
+	CvGameReligions::Serialize(writeTo, serialVisitor);
 	return loadFrom;
 }
 
 /// Serialization write
 FDataStream& operator<<(FDataStream& saveTo, const CvGameReligions& readFrom)
 {
-	uint uiVersion = 4;
-	saveTo << uiVersion;
-	MOD_SERIALIZE_INIT_WRITE(saveTo);
-
-	saveTo << readFrom.GetMinimumFaithNextPantheon();
-
-	ReligionList::const_iterator it;
-	saveTo << readFrom.m_CurrentReligions.size();
-	for(it = readFrom.m_CurrentReligions.begin(); it != readFrom.m_CurrentReligions.end(); it++)
-	{
-		saveTo << *it;
-	}
-
+	CvStreamSaveVisitor serialVisitor(saveTo);
+	CvGameReligions::Serialize(readFrom, serialVisitor);
 	return saveTo;
 }
 
@@ -4020,48 +3933,31 @@ void CvPlayerReligions::Reset()
 #endif
 }
 
+///
+template<typename PlayerReligions, typename Visitor>
+void CvPlayerReligions::Serialize(PlayerReligions& playerReligions, Visitor& visitor)
+{
+	visitor(playerReligions.m_iNumFreeProphetsSpawned);
+	visitor(playerReligions.m_iNumProphetsSpawned);
+	visitor(playerReligions.m_bFoundingReligion);
+	visitor(playerReligions.m_majorityPlayerReligion);
+	visitor(playerReligions.m_ePlayerCurrentReligion);
+	visitor(playerReligions.m_PlayerStateReligion);
+	visitor(playerReligions.m_iFaithAtLastNotify);
+}
+
 /// Serialization read
 void CvPlayerReligions::Read(FDataStream& kStream)
 {
-	// Version number to maintain backwards compatibility
-	uint uiVersion;
-	kStream >> uiVersion;
-	MOD_SERIALIZE_INIT_READ(kStream);
-#if defined(MOD_GLOBAL_TRULY_FREE_GP)
-	MOD_SERIALIZE_READ(61, kStream, m_iNumFreeProphetsSpawned, 0);
-#endif
-	kStream >> m_iNumProphetsSpawned;
-	kStream >> m_bFoundingReligion;
-#if defined(MOD_BALANCE_CORE)
-	kStream >> m_majorityPlayerReligion;
-	kStream >> m_ePlayerCurrentReligion;
-	kStream >> m_PlayerStateReligion;
-#endif
-#if defined(MOD_RELIGION_RECURRING_PURCHASE_NOTIFIY)
-	MOD_SERIALIZE_READ(42, kStream, m_iFaithAtLastNotify, 0);
-#endif
+	CvStreamLoadVisitor serialVisitor(kStream);
+	Serialize(*this, serialVisitor);
 }
 
 /// Serialization write
-void CvPlayerReligions::Write(FDataStream& kStream)
+void CvPlayerReligions::Write(FDataStream& kStream) const
 {
-	// Current version number
-	uint uiVersion = 1;
-	kStream << uiVersion;
-	MOD_SERIALIZE_INIT_WRITE(kStream);
-#if defined(MOD_GLOBAL_TRULY_FREE_GP)
-	MOD_SERIALIZE_WRITE(kStream, m_iNumFreeProphetsSpawned);
-#endif
-	kStream << m_iNumProphetsSpawned;
-	kStream << m_bFoundingReligion;
-#if defined(MOD_BALANCE_CORE)
-	kStream << m_majorityPlayerReligion;
-	kStream << m_ePlayerCurrentReligion;
-	kStream << m_PlayerStateReligion;
-#endif
-#if defined(MOD_RELIGION_RECURRING_PURCHASE_NOTIFIY)
-	MOD_SERIALIZE_WRITE(kStream, m_iFaithAtLastNotify);
-#endif
+	CvStreamSaveVisitor serialVisitor(kStream);
+	Serialize(*this, serialVisitor);
 }
 
 /// How many prophets have we spawned
@@ -4078,6 +3974,17 @@ int CvPlayerReligions::GetNumProphetsSpawned() const
 #else
 	return m_iNumProphetsSpawned;
 #endif
+}
+
+FDataStream& operator>>(FDataStream& stream, CvPlayerReligions& playerReligions)
+{
+	playerReligions.Read(stream);
+	return stream;
+}
+FDataStream& operator<<(FDataStream& stream, const CvPlayerReligions& playerReligions)
+{
+	playerReligions.Write(stream);
+	return stream;
 }
 
 /// Change count of prophets spawned
@@ -5124,7 +5031,7 @@ int CvCityReligions::GetTotalPressure()
 }
 
 /// Pressure exerted by one religion
-int CvCityReligions::GetPressure(ReligionTypes eReligion)
+int CvCityReligions::GetPressureAccumulated(ReligionTypes eReligion)
 {
 	ReligionInCityList::iterator it;
 	for(it = m_ReligionStatus.begin(); it != m_ReligionStatus.end(); it++)
@@ -5139,10 +5046,10 @@ int CvCityReligions::GetPressure(ReligionTypes eReligion)
 }
 
 /// Pressure exerted by one religion per turn
-int CvCityReligions::GetPressurePerTurn(ReligionTypes eReligion, int& iNumTradeRoutesInvolved)
+int CvCityReligions::GetPressurePerTurn(ReligionTypes eReligion, int* piNumSourceCities)
 {
 	int iPressure = 0;
-	iNumTradeRoutesInvolved = 0;
+	int iCount = 0;
 	
 	// Loop through all the players
 	for(int iI = 0; iI < MAX_PLAYERS; iI++)
@@ -5175,8 +5082,11 @@ int CvCityReligions::GetPressurePerTurn(ReligionTypes eReligion, int& iNumTradeR
 				int iNumTradeRoutes = 0;
 				int iNewPressure = GC.getGame().GetGameReligions()->GetAdjacentCityReligiousPressure(eReligion, pLoopCity, m_pCity, iNumTradeRoutes, false, false, bConnectedWithTrade, iRelativeDistancePercent);
 
-				iPressure += iNewPressure;
-				iNumTradeRoutesInvolved += iNumTradeRoutes;
+				if (iNewPressure > 0)
+				{
+					iPressure += iNewPressure;
+					iCount++;
+				}
 			}
 
 			// Include any pressure from "Underground Sects"
@@ -5202,6 +5112,9 @@ int CvCityReligions::GetPressurePerTurn(ReligionTypes eReligion, int& iNumTradeR
 		iPressure += iHolyCityPressure;
 	}
 	
+	if (piNumSourceCities)
+		*piNumSourceCities = iCount;
+
 	// CUSTOMLOG("GetPressurePerTurn for %i on %s is %i", eReligion, m_pCity->getName().c_str(), iPressure);
 	return iPressure;
 }
@@ -6502,45 +6415,28 @@ void CvCityReligions::LogFollowersChange(CvReligiousFollowChangeReason eReason)
 		pLog->Msg(strOutBuf);
 	}
 }
+
+///
+template<typename CityReligions, typename Visitor>
+void CvCityReligions::Serialize(CityReligions& cityReligions, Visitor& visitor)
+{
+	visitor(cityReligions.m_ReligionStatus);
+	visitor(cityReligions.m_majorityCityReligion);
+}
+
 /// Serialization read
 FDataStream& operator>>(FDataStream& loadFrom, CvCityReligions& writeTo)
 {
-	uint uiVersion;
-
-	loadFrom >> uiVersion;
-	MOD_SERIALIZE_INIT_READ(loadFrom);
-
-	int iEntriesToRead;
-	CvReligionInCity tempItem;
-
-	writeTo.m_ReligionStatus.clear();
-	loadFrom >> iEntriesToRead;
-	for(int iI = 0; iI < iEntriesToRead; iI++)
-	{
-		loadFrom >> tempItem;
-		writeTo.m_ReligionStatus.push_back(tempItem);
-	}
-
-	loadFrom >> writeTo.m_majorityCityReligion;
+	CvStreamLoadVisitor serialVisitor(loadFrom);
+	CvCityReligions::Serialize(writeTo, serialVisitor);
 	return loadFrom;
 }
 
 /// Serialization write
 FDataStream& operator<<(FDataStream& saveTo, const CvCityReligions& readFrom)
 {
-	uint uiVersion = 3;
-
-	saveTo << uiVersion;
-	MOD_SERIALIZE_INIT_WRITE(saveTo);
-
-	ReligionInCityList::const_iterator it;
-	saveTo << readFrom.m_ReligionStatus.size();
-	for(it = readFrom.m_ReligionStatus.begin(); it != readFrom.m_ReligionStatus.end(); it++)
-	{
-		saveTo << *it;
-	}
-
-	saveTo << readFrom.m_majorityCityReligion;
+	CvStreamSaveVisitor serialVisitor(saveTo);
+	CvCityReligions::Serialize(readFrom, serialVisitor);
 	return saveTo;
 }
 
@@ -6602,35 +6498,29 @@ bool CvUnitReligion::IsFullStrength() const
 	return m_iSpreadsUsed == 0 && m_iStrength == m_iMaxStrength;
 }
 
+///
+template<typename UnitReligion, typename Visitor>
+void CvUnitReligion::Serialize(UnitReligion& unitReligion, Visitor& visitor)
+{
+	visitor(unitReligion.m_eReligion);
+	visitor(unitReligion.m_iStrength);
+	visitor(unitReligion.m_iMaxStrength);
+	visitor(unitReligion.m_iSpreadsUsed);
+}
+
 /// Serialization read
 FDataStream& operator>>(FDataStream& loadFrom, CvUnitReligion& writeTo)
 {
-	uint uiVersion;
-
-	loadFrom >> uiVersion;
-	MOD_SERIALIZE_INIT_READ(loadFrom);
-
-	int temp;
-	loadFrom >> temp;
-	writeTo.SetReligion((ReligionTypes)temp);
-	loadFrom >> writeTo.m_iStrength;
-	loadFrom >> writeTo.m_iMaxStrength;
-	loadFrom >> writeTo.m_iSpreadsUsed;
+	CvStreamLoadVisitor serialVisitor(loadFrom);
+	CvUnitReligion::Serialize(writeTo, serialVisitor);
 	return loadFrom;
 }
 
 /// Serialization write
 FDataStream& operator<<(FDataStream& saveTo, const CvUnitReligion& readFrom)
 {
-	uint uiVersion = 2;
-
-	saveTo << uiVersion;
-	MOD_SERIALIZE_INIT_WRITE(saveTo);
-
-	saveTo << readFrom.m_eReligion;
-	saveTo << readFrom.m_iStrength;
-	saveTo << readFrom.m_iMaxStrength;
-	saveTo << readFrom.m_iSpreadsUsed;
+	CvStreamSaveVisitor serialVisitor(saveTo);
+	CvUnitReligion::Serialize(readFrom, serialVisitor);
 	return saveTo;
 }
 
@@ -6670,22 +6560,35 @@ void CvReligionAI::Reset()
 
 }
 
+///
+template<typename ReligionAI, typename Visitor>
+void CvReligionAI::Serialize(ReligionAI& /*religionAI*/, Visitor& /*visitor*/)
+{
+}
+
 /// Serialization read
 void CvReligionAI::Read(FDataStream& kStream)
 {
-	// Version number to maintain backwards compatibility
-	uint uiVersion;
-	kStream >> uiVersion;
-	MOD_SERIALIZE_INIT_READ(kStream);
+	CvStreamLoadVisitor serialVisitor(kStream);
+	Serialize(*this, serialVisitor);
+}
+ 
+/// Serialization write
+void CvReligionAI::Write(FDataStream& kStream) const
+{
+	CvStreamSaveVisitor serialVisitor(kStream);
+	Serialize(*this, serialVisitor);
 }
 
-/// Serialization write
-void CvReligionAI::Write(FDataStream& kStream)
+FDataStream& operator>>(FDataStream& stream, CvReligionAI& religionAI)
 {
-	// Current version number
-	uint uiVersion = 1;
-	kStream << uiVersion;
-	MOD_SERIALIZE_INIT_WRITE(kStream);
+	religionAI.Read(stream);
+	return stream;
+}
+FDataStream& operator<<(FDataStream& stream, const CvReligionAI& religionAI)
+{
+	religionAI.Write(stream);
+	return stream;
 }
 
 /// Called every turn to see what to spend Faith on
@@ -7227,10 +7130,8 @@ CvCity *CvReligionAI::ChooseProphetConversionCity(CvUnit* pUnit, int* piTurns) c
 					if (eMajorityReligion == eReligion)
 						continue;
 
-					int iDummy = 0;
-					int iOurPressure = max(1,pCR->GetPressurePerTurn(eReligion, iDummy));
-
-					int iMajorityPressure = pCR->GetPressurePerTurn(eMajorityReligion, iDummy);
+					int iOurPressure = max(1,pCR->GetPressurePerTurn(eReligion));
+					int iMajorityPressure = pCR->GetPressurePerTurn(eMajorityReligion);
 					int iDistanceToHolyCity = plotDistance(pLoopCity->getX(), pLoopCity->getY(), pHolyCity->getX(), pHolyCity->getY());
 
 					// Score this city
@@ -9077,11 +8978,8 @@ int CvReligionAI::ScoreBeliefAtCity(CvBeliefEntry* pEntry, CvCity* pCity)
 			}
 
 			BuildingTypes eBuilding = NO_BUILDING;
-#if defined(MOD_BALANCE_CORE)
+
 			if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || m_pPlayer->GetPlayerTraits()->IsKeepConqueredBuildings())
-#else
-			if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
-#endif
 			{
 				eBuilding = pCity->GetCityBuildings()->GetBuildingTypeFromClass((BuildingClassTypes)jJ);
 			}
@@ -10603,7 +10501,7 @@ int CvReligionAI::ScoreCityForMissionary(CvCity* pCity, CvUnit* pUnit, ReligionT
 	int iImpactPercent = min(100, (iPressureFromUnit * 100) / iTotalPressure);
 
 	//see if our missionary can make a dent
-	int iOurPressure = pCity->GetCityReligions()->GetPressure(eMyReligion);
+	int iOurPressure = pCity->GetCityReligions()->GetPressureAccumulated(eMyReligion);
 	int iCurrentRatio = (iOurPressure * 100) / iTotalPressure;
 
 	//make up some thresholds ...
@@ -10763,8 +10661,7 @@ bool CvReligionAI::AreAllOurCitiesHaveFaithBuilding(ReligionTypes eReligion, boo
 	BuildingClassTypes eFaithBuildingClass = NO_BUILDINGCLASS;
 
 	int iLoop;
-	CvCity* pLoopCity;
-	for(pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
+	for(CvCity* pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
 	{
 		if(pLoopCity->GetCityReligions()->GetReligiousMajority() == eReligion)
 		{
@@ -10778,14 +10675,9 @@ bool CvReligionAI::AreAllOurCitiesHaveFaithBuilding(ReligionTypes eReligion, boo
 					continue;
 				}
 
-#if defined(MOD_BALANCE_CORE) || defined(MOD_BUILDINGS_THOROUGH_PREREQUISITES)
 				//Exception for new Rome UA, because civ type doesn't help you here.
 				//Also use this if the option to check for all buildings in a class is enabled.
-#if defined(MOD_BALANCE_CORE)
 				if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || m_pPlayer->GetPlayerTraits()->IsKeepConqueredBuildings())
-#else
-				if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
-#endif
 				{
 					if (!pLoopCity->HasBuildingClass(eFaithBuildingClass))
 					{
@@ -10793,9 +10685,7 @@ bool CvReligionAI::AreAllOurCitiesHaveFaithBuilding(ReligionTypes eReligion, boo
 						break;
 					}
 				}
-				else
-#endif
-				if (eFaithBuilding != NO_BUILDING)
+				else if (eFaithBuilding != NO_BUILDING)
 				{
 					if (pLoopCity->GetCityBuildings()->GetNumBuilding(eFaithBuilding) < 1)
 					{

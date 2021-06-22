@@ -156,7 +156,7 @@ INSERT INTO Unit_FreePromotions (UnitType, PromotionType) SELECT 'UNIT_BANDEIRAN
 INSERT INTO Unit_ClassUpgrades
 	(UnitType, UnitClassType)
 VALUES
-	('UNIT_BANDEIRANTES', 'UNITCLASS_ZEPPELIN');
+	('UNIT_BANDEIRANTES', 'UNITCLASS_COMMANDO');
 
 INSERT INTO Unit_AITypes
 	(UnitType, UnitAIType)

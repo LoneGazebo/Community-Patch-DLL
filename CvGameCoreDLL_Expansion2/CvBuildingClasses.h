@@ -154,6 +154,8 @@ public:
 	bool IsTradeRouteInvulnerable() const;
 	int GetTRSpeedBoost() const;
 	int GetTRVisionBoost() const;
+	int GetTRTurnModGlobal() const;
+	int GetTRTurnModLocal() const;
 	int GetVotesPerGPT() const;
 	bool IsRequiresRail() const;
 	bool IsDummy() const;
@@ -656,6 +658,8 @@ private:
 	int m_iGetCooldown;
 	bool m_bTradeRouteInvulnerable;
 	int m_iTRSpeedBoost;
+	int m_iTRTurnModGlobal;
+	int m_iTRTurnModLocal;
 	int m_iTRVisionBoost;
 	int m_iVotesPerGPT;
 	bool m_bRequiresRail;
@@ -1088,8 +1092,10 @@ public:
 	void Init(CvBuildingXMLEntries* pPossibleBuildings, CvCity* pCity);
 	void Uninit();
 	void Reset();
+	template<typename CityBuildings, typename Visitor>
+	static void Serialize(CityBuildings& cityBuildings, Visitor& visitor);
 	void Read(FDataStream& kStream);
-	void Write(FDataStream& kStream);
+	void Write(FDataStream& kStream) const;
 
 	// Accessor functions
 	CvBuildingXMLEntries* GetPossibleBuildings() const;
@@ -1097,12 +1103,12 @@ public:
 	int GetNumBuildings() const;
 	void ChangeNumBuildings(int iChange);
 	int GetNumBuilding(BuildingTypes eIndex) const;
-#if defined(MOD_BALANCE_CORE) || defined(MOD_BUILDINGS_THOROUGH_PREREQUISITES)
+
 	int GetNumBuildingClass(BuildingClassTypes eIndex) const;
 	bool HasBuildingClass(BuildingClassTypes eIndex) const;
 	BuildingTypes GetBuildingTypeFromClass(BuildingClassTypes eIndex) const;
 	void RemoveAllRealBuildingsOfClass(BuildingClassTypes eIndex);
-#endif
+
 	int GetNumActiveBuilding(BuildingTypes eIndex) const;
 
 	bool IsBuildingSellable(const CvBuildingEntry& kBuilding) const;
@@ -1250,6 +1256,9 @@ private:
 	CvBuildingXMLEntries* m_pPossibleBuildings;
 	CvCity* m_pCity;
 };
+
+FDataStream& operator>>(FDataStream&, CvCityBuildings&);
+FDataStream& operator<<(FDataStream&, const CvCityBuildings&);
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // Helper Functions to serialize arrays of variable length (based on number of buildings defined in game)

@@ -28,6 +28,8 @@ public:
 	void Reset();
 
 	// Serialization routines
+	template<typename UnitProductionAI, typename Visitor>
+	static void Serialize(UnitProductionAI& unitProductionAI, Visitor& visitor);
 	void Read(FDataStream& kStream);
 	void Write(FDataStream& kStream) const;
 
@@ -51,5 +53,8 @@ private:
 	CvWeightedVector<int> m_UnitAIWeights;
 	CvWeightedVector<int> m_Buildables;
 };
+
+FDataStream& operator>>(FDataStream&, CvUnitProductionAI&);
+FDataStream& operator<<(FDataStream&, const CvUnitProductionAI&);
 
 #endif //CIV5_UNIT_PRODUCTION_AI_H

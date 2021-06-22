@@ -21,20 +21,6 @@
 // include this after all other headers!
 #include "LintFree.h"
 
-int CvReplayInfo::REPLAY_VERSION = 1;
-
-//Replay Version History
-//
-// * Version 3
-//		Storing per-plot PlotTypes.
-//		FeatureTypes are now stored per turn.
-//
-// * Version 2
-//		Replaced fixed score tracking w/ dynamic one based on database
-//
-// * Version 1
-//		First Version
-
 CvReplayInfo::CvReplayInfo() :
 	m_iActivePlayer(0),
 	m_eWorldSize(NO_WORLDSIZE),
@@ -514,122 +500,76 @@ bool CvReplayInfo::getPlotState(unsigned int x, unsigned int y, unsigned int uiT
 	return false;
 }
 
+template<typename ReplayInfo, typename Visitor>
+void CvReplayInfo::Serialize(ReplayInfo& replayInfo, Visitor& visitor)
+{
+	visitor(replayInfo.m_iActivePlayer);
+	visitor(replayInfo.m_strMapScriptName);
+	visitor(replayInfo.m_eWorldSize);
+	visitor(replayInfo.m_eClimate);
+	visitor(replayInfo.m_eSeaLevel);
+	visitor(replayInfo.m_eEra);
+	visitor(replayInfo.m_eGameSpeed);
+	visitor(replayInfo.m_listGameOptions);
+	visitor(replayInfo.m_listVictoryTypes);
+	visitor(replayInfo.m_eVictoryType);
+	visitor(replayInfo.m_eGameType);
+	visitor(replayInfo.m_iInitialTurn);
+	visitor(replayInfo.m_iStartYear);
+	visitor(replayInfo.m_iFinalTurn);
+	visitor(replayInfo.m_strFinalDate);
+	visitor(replayInfo.m_eCalendar);
+	visitor(replayInfo.m_iNormalizedScore);
+
+	visitor(replayInfo.m_listPlayerInfo);
+
+	visitor(replayInfo.m_dataSetMap);
+	visitor(replayInfo.m_listPlayerDataSets);
+
+	visitor(replayInfo.m_listReplayMessages);
+
+	visitor(replayInfo.m_iMapWidth);
+	visitor(replayInfo.m_iMapHeight);
+	visitor(replayInfo.m_listPlots);
+}
+
 bool CvReplayInfo::read(FDataStream& kStream)
 {
-	bool bSuccess = true;
-
-	int iVersion;
-	kStream >> iVersion;
-	MOD_SERIALIZE_INIT_READ(kStream);
-
-	kStream >> m_iActivePlayer;
-	kStream >> m_strMapScriptName;
-	kStream >> m_eWorldSize;
-	kStream >> m_eClimate;
-	kStream >> m_eSeaLevel;
-	kStream >> m_eEra;
-	kStream >> m_eGameSpeed;
-	kStream >> m_listGameOptions;
-	kStream >> m_listVictoryTypes;
-	kStream >> m_eVictoryType;
-	kStream >> m_eGameType;
-	kStream >> m_iInitialTurn;
-	kStream >> m_iStartYear;
-	kStream >> m_iFinalTurn;
-	kStream >> m_strFinalDate;
-	kStream >> m_eCalendar;
-	kStream >> m_iNormalizedScore;
-
-	kStream >> m_listPlayerInfo;
-
-	kStream >> m_dataSetMap;
-	kStream >> m_listPlayerDataSets;
-
-	unsigned int uiReplayMessageVersion = 2;
-	kStream >> uiReplayMessageVersion;
-
-	unsigned int uiReplayMessageCount = 0;
-	kStream >> uiReplayMessageCount;
-
-	m_listReplayMessages.clear();
-	m_listReplayMessages.reserve(uiReplayMessageCount);
-	for(unsigned int ui = 0; ui < uiReplayMessageCount; ++ui)
-	{
-		CvReplayMessage message;
-		message.read(kStream, uiReplayMessageVersion);
-		m_listReplayMessages.push_back(message);
-	}
-
-	kStream >> m_iMapWidth;
-	kStream >> m_iMapHeight;
-	kStream >> m_listPlots;
-
-	return bSuccess;
+	CvStreamLoadVisitor serialVisitor(kStream);
+	Serialize(*this, serialVisitor);
+	return true;
 }
 
 void CvReplayInfo::write(FDataStream& kStream) const
 {
-	kStream << REPLAY_VERSION;
-	MOD_SERIALIZE_INIT_WRITE(kStream);
-	kStream << m_iActivePlayer;
-	kStream << m_strMapScriptName;
-	kStream << m_eWorldSize;
-	kStream << m_eClimate;
-	kStream << m_eSeaLevel;
-	kStream << m_eEra;
-	kStream << m_eGameSpeed;
-	kStream << m_listGameOptions;
-	kStream << m_listVictoryTypes;
-	kStream << m_eVictoryType;
-	kStream << m_eGameType;
-	kStream << m_iInitialTurn;
-	kStream << m_iStartYear;
-	kStream << m_iFinalTurn;
-	kStream << m_strFinalDate;
-	kStream << m_eCalendar;
-	kStream << m_iNormalizedScore;
+	CvStreamSaveVisitor serialVisitor(kStream);
+	Serialize(*this, serialVisitor);
+}
 
-	kStream << m_listPlayerInfo;
-	kStream << m_dataSetMap;
-	kStream << m_listPlayerDataSets;
-
-	kStream << CvReplayMessage::Version();
-	kStream << m_listReplayMessages.size();
-	for(ReplayMessageList::const_iterator it = m_listReplayMessages.begin(); it != m_listReplayMessages.end(); ++it)
-	{
-		(*it).write(kStream);
-	}
-
-	kStream << m_iMapWidth;
-	kStream << m_iMapHeight;
-	kStream << m_listPlots;
+template<typename PlayeInfoT, typename Visitor>
+void CvReplayInfo::PlayerInfo::Serialize(PlayeInfoT& playerInfo, Visitor& visitor)
+{
+	visitor(playerInfo.m_eCivilization);
+	visitor(playerInfo.m_eLeader);
+	visitor(playerInfo.m_ePlayerColor);
+	visitor(playerInfo.m_eDifficulty);
+	visitor(playerInfo.m_strCustomLeaderName);
+	visitor(playerInfo.m_strCustomCivilizationName);
+	visitor(playerInfo.m_strCustomCivilizationShortName);
+	visitor(playerInfo.m_strCustomCivilizationAdjective);
 }
 
 FDataStream& operator<<(FDataStream& saveTo, const CvReplayInfo::PlayerInfo& readFrom)
 {
-	saveTo << readFrom.m_eCivilization;
-	saveTo << readFrom.m_eLeader;
-	saveTo << readFrom.m_ePlayerColor;
-	saveTo << readFrom.m_eDifficulty;
-	saveTo << readFrom.m_strCustomLeaderName;
-	saveTo << readFrom.m_strCustomCivilizationName;
-	saveTo << readFrom.m_strCustomCivilizationShortName;
-	saveTo << readFrom.m_strCustomCivilizationAdjective;
-
+	CvStreamSaveVisitor serialVisitor(saveTo);
+	CvReplayInfo::PlayerInfo::Serialize(readFrom, serialVisitor);
 	return saveTo;
 }
 
 FDataStream& operator>>(FDataStream& loadFrom, CvReplayInfo::PlayerInfo& writeTo)
 {
-	loadFrom >> writeTo.m_eCivilization;
-	loadFrom >> writeTo.m_eLeader;
-	loadFrom >> writeTo.m_ePlayerColor;
-	loadFrom >> writeTo.m_eDifficulty;
-	loadFrom >> writeTo.m_strCustomLeaderName;
-	loadFrom >> writeTo.m_strCustomCivilizationName;
-	loadFrom >> writeTo.m_strCustomCivilizationShortName;
-	loadFrom >> writeTo.m_strCustomCivilizationAdjective;
-
+	CvStreamLoadVisitor serialVisitor(loadFrom);
+	CvReplayInfo::PlayerInfo::Serialize(writeTo, serialVisitor);
 	return loadFrom;
 }
 
@@ -698,37 +638,6 @@ FDataStream& operator>>(FDataStream& loadFrom, CvReplayInfo::PlotState& writeTo)
 	writeTo.m_bNWOfRiver = (ucTempVal & (1 << 1)) != 0;
 	writeTo.m_bWOfRiver = (ucTempVal & (1 << 2)) != 0;
 	writeTo.m_bNEOfRiver = (ucTempVal & (1 << 3)) != 0;
-
-	return loadFrom;
-}
-
-
-FDataStream& operator<<(FDataStream& saveTo, const CvReplayInfo::TurnData& readFrom)
-{
-	const size_t count = readFrom.size();
-	saveTo << count;
-	for(CvReplayInfo::TurnData::const_iterator it = readFrom.begin(); it != readFrom.end(); ++it)
-	{
-		saveTo << (*it).first;
-		saveTo << (*it).second;
-	}
-	return saveTo;
-}
-
-FDataStream& operator>>(FDataStream& loadFrom, CvReplayInfo::TurnData& writeTo)
-{
-	size_t uiSize;
-	loadFrom >> uiSize;
-
-	unsigned int uiTurn;
-	int iValue;
-
-	for(unsigned int i = 0; i < uiSize; ++i)
-	{
-		loadFrom >> uiTurn;
-		loadFrom >> iValue;
-		writeTo[uiTurn] = iValue;
-	}
 
 	return loadFrom;
 }

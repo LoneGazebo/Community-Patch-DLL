@@ -11,12 +11,6 @@
 
 // include this after all other headers!
 #include "LintFree.h"
-
-//------------------------------------------------------------------------------
-unsigned int CvReplayMessage::Version()
-{
-	return 2;
-}
 //------------------------------------------------------------------------------
 CvReplayMessage::CvReplayMessage()
 	: m_iTurn(-1)
@@ -114,44 +108,36 @@ void CvReplayMessage::clearPlots()
 	m_Plots.clear();
 }
 //------------------------------------------------------------------------------
-void CvReplayMessage::read(FDataStream& kStream, unsigned int uiVersion)
+template<typename ReplayMessage, typename Visitor>
+void CvReplayMessage::Serialize(ReplayMessage& replayMessage, Visitor& visitor)
 {
-	UNREFERENCED_PARAMETER(uiVersion);
-
-	kStream >> m_iTurn;
-	kStream >> m_eType;
-
-	int nPlots = -1;
-	kStream >> nPlots;
-	if(nPlots > 0)
-	{
-		m_Plots.reserve(nPlots);
-		for(int i = 0; i < nPlots; ++i)
-		{
-			short sPlotX, sPlotY;
-			kStream >> sPlotX;
-			kStream >> sPlotY;
-			m_Plots.push_back(PlotPosition(sPlotX, sPlotY));
-		}
-	}
-
-	kStream >> m_ePlayer;
-	kStream >> m_strText;
+	visitor(replayMessage.m_iTurn);
+	visitor(replayMessage.m_eType);
+	visitor(replayMessage.m_Plots);
+	visitor(replayMessage.m_ePlayer);
+	visitor(replayMessage.m_strText);
+}
+//------------------------------------------------------------------------------
+void CvReplayMessage::read(FDataStream& kStream)
+{
+	CvStreamLoadVisitor serialVisitor(kStream);
+	Serialize(*this, serialVisitor);
 }
 //------------------------------------------------------------------------------
 void CvReplayMessage::write(FDataStream& kStream) const
 {
-	kStream << m_iTurn;
-	kStream << m_eType;
-
-	kStream << (int)m_Plots.size();
-	for(PlotPositionList::const_iterator it = m_Plots.begin(); it != m_Plots.end(); ++it)
-	{
-		kStream << (*it).first;
-		kStream << (*it).second;
-	}
-
-	kStream << m_ePlayer;
-	kStream << m_strText;
+	CvStreamSaveVisitor serialVisitor(kStream);
+	Serialize(*this, serialVisitor);
 }
 //------------------------------------------------------------------------------
+FDataStream& operator<<(FDataStream& saveTo, const CvReplayMessage& readFrom)
+{
+	readFrom.write(saveTo);
+	return saveTo;
+}
+//------------------------------------------------------------------------------
+FDataStream& operator>>(FDataStream& loadFrom, CvReplayMessage& writeTo)
+{
+	writeTo.read(loadFrom);
+	return loadFrom;
+}

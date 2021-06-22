@@ -152,6 +152,8 @@ public:
 
 	virtual bool operator==(const CvBaseInfo&) const;
 
+	template<typename BaseInfo, typename Visitor>
+	static void Serialize(BaseInfo& baseInfo, Visitor& visitor);
 	virtual void readFrom(FDataStream&);
 	virtual void writeTo(FDataStream&) const;
 
@@ -1250,6 +1252,8 @@ public:
 	virtual bool CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility);
 	virtual bool operator==(const CvTurnTimerInfo&) const;
 
+	template<typename TurnTimerInfo, typename Visitor>
+	static void Serialize(TurnTimerInfo& turnTimerInfo, Visitor& visitor);
 	virtual void readFrom(FDataStream& readFrom);
 	virtual void writeTo(FDataStream& saveTo) const;
 
@@ -1278,6 +1282,8 @@ public:
 	bool isForFromCiv(CivilizationTypes eFromCiv);
 	bool isForToCiv(CivilizationTypes eToCiv);
 
+	template<typename DiploModifierInfo, typename Visitor>
+	static void Serialize(DiploModifierInfo& diploModifierInfo, Visitor& visitor);
 	virtual void readFrom(FDataStream& readFrom);
 	virtual void writeTo(FDataStream& saveTo) const;
 
@@ -2193,6 +2199,8 @@ public:
 
 	//Cached result overrides.
 	virtual bool CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility);
+	template<typename WorldInfo, typename Visitor>
+	static void Serialize(WorldInfo& worldInfo, Visitor& visitor);
 	virtual void readFrom(FDataStream&);
 	virtual void writeTo(FDataStream&) const;
 	virtual bool operator==(const CvWorldInfo&) const;
@@ -2304,6 +2312,8 @@ public:
 	//Cached result overrides.
 	virtual bool CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility);
 
+	template<typename ClimateInfo, typename Visitor>
+	static void Serialize(ClimateInfo& climateInfo, Visitor& visitor);
 	virtual void readFrom(FDataStream&);
 	virtual void writeTo(FDataStream&) const;
 
@@ -2340,6 +2350,8 @@ public:
 
 	virtual bool CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility);
 
+	template<typename SeaLevelInfo, typename Visitor>
+	static void Serialize(SeaLevelInfo& seaLevelInfo, Visitor& visitor);
 	virtual void readFrom(FDataStream&);
 	virtual void writeTo(FDataStream&) const;
 

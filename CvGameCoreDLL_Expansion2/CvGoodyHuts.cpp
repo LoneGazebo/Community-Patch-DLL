@@ -8,6 +8,7 @@
 
 #include "CvGameCoreDLLPCH.h"
 #include "CvGoodyHuts.h"
+#include "CvSpanSerialization.h"
 
 // static
 int **CvGoodyHuts::m_aaiPlayerGoodyHutResults = NULL;
@@ -105,30 +106,27 @@ void CvGoodyHuts::Uninit()
 }
 
 //	---------------------------------------------------------------------------
-void CvGoodyHuts::Read(FDataStream& kStream, uint uiParentVersion)
+template<typename Visitor>
+void CvGoodyHuts::Serialize(Visitor& visitor)
+{
+	for (int iI = 0; iI < MAX_MAJOR_CIVS; iI++)
+	{
+		visitor(MakeConstSpan(m_aaiPlayerGoodyHutResults[iI], NUM_GOODIES_REMEMBERED));
+	}
+}
+
+//	---------------------------------------------------------------------------
+void CvGoodyHuts::Read(FDataStream& kStream)
 {
 	Reset();
 
-	uint uiVersion;
-	kStream >> uiVersion;
-	MOD_SERIALIZE_INIT_READ(kStream);
-
-	for (int iI = 0; iI < MAX_MAJOR_CIVS; iI++)
-	{
-		kStream >> ArrayWrapper<int>(NUM_GOODIES_REMEMBERED, m_aaiPlayerGoodyHutResults[iI]);
-	}
+	CvStreamLoadVisitor serialVisitor(kStream);
+	Serialize(serialVisitor);
 }
 
 //	---------------------------------------------------------------------------
 void CvGoodyHuts::Write(FDataStream& kStream)
 {
-	// Current version number
-	uint uiVersion = 1;
-	kStream << uiVersion;
-	MOD_SERIALIZE_INIT_WRITE(kStream);
-
-	for (int iI = 0; iI < MAX_MAJOR_CIVS; iI++)
-	{
-		kStream << ArrayWrapper<int>(NUM_GOODIES_REMEMBERED, m_aaiPlayerGoodyHutResults[iI]);
-	}
+	CvStreamSaveVisitor serialVisitor(kStream);
+	Serialize(serialVisitor);
 }

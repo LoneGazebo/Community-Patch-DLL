@@ -9,6 +9,7 @@
 #include "CvGameCoreDLLUtil.h"
 #include "ICvDLLUserInterface.h"
 #include "CvInfosSerializationHelper.h"
+#include "CvEnumMapSerialization.h"
 
 // must be included after all other headers
 #include "LintFree.h"
@@ -114,7 +115,6 @@ CvEmphasisEntry* CvEmphasisXMLEntries::GetEntry(int index)
 /// Constructor
 CvCityEmphases::CvCityEmphases()
 {
-	m_pbEmphasize = NULL;
 }
 
 /// Destructor
@@ -124,10 +124,9 @@ CvCityEmphases::~CvCityEmphases(void)
 }
 
 /// Initialize
-void CvCityEmphases::Init(CvEmphasisXMLEntries* pEmphases, CvCity* pCity)
+void CvCityEmphases::Init(CvCity* pCity)
 {
 	// Store off the pointers to objects we'll need later
-	m_pEmphases = pEmphases;
 	m_pCity = pCity;
 
 	Reset();
@@ -136,7 +135,8 @@ void CvCityEmphases::Init(CvEmphasisXMLEntries* pEmphases, CvCity* pCity)
 /// Deallocate memory created in initialize
 void CvCityEmphases::Uninit()
 {
-	SAFE_DELETE_ARRAY(m_pbEmphasize);
+	m_aiEmphasizeYieldCount.uninit();
+	m_pbEmphasize.uninit();
 }
 
 /// Reset status arrays to all false
@@ -147,18 +147,9 @@ void CvCityEmphases::Reset()
 	m_iEmphasizeAvoidGrowthCount = 0;
 	m_iEmphasizeGreatPeopleCount = 0;
 
-	for(int iI = 0; iI < NUM_YIELD_TYPES; iI++)
-	{
-		m_aiEmphasizeYieldCount[iI] = 0;
-	}
-
-	CvAssertMsg(m_pbEmphasize == NULL, "m_pbEmphasize not NULL!!!");
+	m_aiEmphasizeYieldCount.init(0);
 	CvAssertMsg(GC.getNumEmphasisInfos() > 0,  "GC.getNumEmphasizeInfos() is not greater than zero but an array is being allocated in CvCityEmphases::Reset");
-	m_pbEmphasize = FNEW(bool[GC.getNumEmphasisInfos()], c_eCiv5GameplayDLL, 0);
-	for(int iI = 0; iI < GC.getNumEmphasisInfos(); iI++)
-	{
-		m_pbEmphasize[iI] = false;
-	}
+	m_pbEmphasize.init(false);
 }
 
 /// How much does this city emphasize avoiding growth?
@@ -194,9 +185,7 @@ bool CvCityEmphases::IsEmphasize(EmphasizeTypes eIndex)
 {
 	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
 	CvAssertMsg(eIndex < GC.getNumEmphasisInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
-	CvAssertMsg(m_pbEmphasize != NULL, "m_pbEmphasize is not expected to be equal with NULL");
-
-	if(!m_pbEmphasize) return false;
+	CvAssertMsg(m_pbEmphasize.valid(), "m_pbEmphasize is expected to be valid");
 
 	return m_pbEmphasize[eIndex];
 }
@@ -240,34 +229,37 @@ void CvCityEmphases::SetEmphasize(EmphasizeTypes eIndex, bool bNewValue)
 	}
 }
 
+///
+template<typename CityEmphases, typename Visitor>
+void CvCityEmphases::Serialize(CityEmphases& cityEmphases, Visitor& visitor)
+{
+	visitor(cityEmphases.m_iEmphasizeAvoidGrowthCount);
+	visitor(cityEmphases.m_iEmphasizeGreatPeopleCount);
+	visitor(cityEmphases.m_aiEmphasizeYieldCount);
+	visitor(cityEmphases.m_pbEmphasize);
+}
+
 /// Serialization read
 void CvCityEmphases::Read(FDataStream& kStream)
 {
-	// Version number to maintain backwards compatibility
-	uint uiVersion;
-	kStream >> uiVersion;
-	MOD_SERIALIZE_INIT_READ(kStream);
-
-	kStream >> m_iEmphasizeAvoidGrowthCount;
-	kStream >> m_iEmphasizeGreatPeopleCount;
-
-	kStream >> m_aiEmphasizeYieldCount;
-
-	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_pbEmphasize, GC.getNumEmphasisInfos());
+	CvStreamLoadVisitor serialVisitor(kStream);
+	CvCityEmphases::Serialize(*this, serialVisitor);
 }
 
 /// Serialization write
-void CvCityEmphases::Write(FDataStream& kStream)
+void CvCityEmphases::Write(FDataStream& kStream) const
 {
-	// Current version number
-	uint uiVersion = 1;
-	kStream << uiVersion;
-	MOD_SERIALIZE_INIT_WRITE(kStream);
+	CvStreamSaveVisitor serialVisitor(kStream);
+	CvCityEmphases::Serialize(*this, serialVisitor);
+}
 
-	kStream << m_iEmphasizeAvoidGrowthCount;
-	kStream << m_iEmphasizeGreatPeopleCount;
-
-	kStream << m_aiEmphasizeYieldCount;
-
-	CvInfosSerializationHelper::WriteHashedDataArray<EmphasizeTypes, bool>(kStream, m_pbEmphasize, GC.getNumEmphasisInfos());
+FDataStream& operator>>(FDataStream& stream, CvCityEmphases& cityEmphases)
+{
+	cityEmphases.Read(stream);
+	return stream;
+}
+FDataStream& operator<<(FDataStream& stream, const CvCityEmphases& cityEmphases)
+{
+	cityEmphases.Write(stream);
+	return stream;
 }

@@ -20,6 +20,29 @@
 // include this after all other headers!
 #include "LintFree.h"
 
+template<typename VoteSelectionSubDataT, typename Visitor>
+void VoteSelectionSubData::Serialize(VoteSelectionSubDataT& voteSelectionSubData, Visitor& visitor)
+{
+	visitor(voteSelectionSubData.eVote);
+	visitor(voteSelectionSubData.ePlayer);
+	visitor(voteSelectionSubData.iCityId);
+	visitor(voteSelectionSubData.eOtherPlayer);
+	visitor(voteSelectionSubData.strText);
+}
+
+FDataStream& operator>>(FDataStream& loadFrom, VoteSelectionSubData& writeTo)
+{
+	CvStreamLoadVisitor serialVisitor(loadFrom);
+	VoteSelectionSubData::Serialize(writeTo, serialVisitor);
+	return loadFrom;
+}
+FDataStream& operator<<(FDataStream& saveTo, const VoteSelectionSubData& readFrom)
+{
+	CvStreamSaveVisitor serialVisitor(saveTo);
+	VoteSelectionSubData::Serialize(readFrom, serialVisitor);
+	return saveTo;
+}
+
 int VoteSelectionData::GetID() const
 {
 	return iId;
@@ -30,28 +53,18 @@ void VoteSelectionData::SetID(int iID)
 	iId = iID;
 }
 
+template<typename VoteSelectionDataT, typename Visitor>
+void VoteSelectionData::Serialize(VoteSelectionDataT& voteSelectionData, Visitor& visitor)
+{
+	visitor(voteSelectionData.iId);
+	visitor(voteSelectionData.eVoteSource);
+	visitor(voteSelectionData.aVoteOptions);
+}
+
 void VoteSelectionData::read(FDataStream& kStream)
 {
-	// Version number to maintain backwards compatibility
-	uint uiVersion;
-	kStream >> uiVersion;
-	MOD_SERIALIZE_INIT_READ(kStream);
-
-	kStream >> iId;
-	kStream >> eVoteSource;
-	size_t iSize;
-	kStream >> iSize;
-	size_t i = 0;
-	for(i = 0; i < iSize; ++i)
-	{
-		VoteSelectionSubData kData;
-		kStream >> kData.eVote;
-		kStream >> kData.ePlayer;
-		kStream >> kData.iCityId;
-		kStream >> kData.eOtherPlayer;
-		kStream >> kData.strText;
-		aVoteOptions.push_back(kData);
-	}
+	CvStreamLoadVisitor serialVisitor(kStream);
+	VoteSelectionData::Serialize(*this, serialVisitor);
 }
 FDataStream& operator>>(FDataStream& loadFrom, VoteSelectionData& writeTo)
 {
@@ -61,22 +74,8 @@ FDataStream& operator>>(FDataStream& loadFrom, VoteSelectionData& writeTo)
 
 void VoteSelectionData::write(FDataStream& kStream) const
 {
-	// Current version number
-	uint uiVersion = 1;
-	kStream << uiVersion;
-	MOD_SERIALIZE_INIT_WRITE(kStream);
-
-	kStream << iId;
-	kStream << eVoteSource;
-	kStream << aVoteOptions.size();
-	for(std::vector<VoteSelectionSubData>::const_iterator it = aVoteOptions.begin(); it != aVoteOptions.end(); ++it)
-	{
-		kStream << (*it).eVote;
-		kStream << (*it).ePlayer;
-		kStream << (*it).iCityId;
-		kStream << (*it).eOtherPlayer;
-		kStream << (*it).strText;
-	}
+	CvStreamSaveVisitor serialVisitor(kStream);
+	VoteSelectionData::Serialize(*this, serialVisitor);
 }
 FDataStream& operator<<(FDataStream& saveTo, const VoteSelectionData& readFrom)
 {
@@ -94,20 +93,18 @@ void VoteTriggeredData::SetID(int iID)
 	iId = iID;
 }
 
+template<typename VoteTriggeredDataT, typename Visitor>
+void VoteTriggeredData::Serialize(VoteTriggeredDataT& voteTriggeredData, Visitor& visitor)
+{
+	visitor(voteTriggeredData.iId);
+	visitor(voteTriggeredData.eVoteSource);
+	visitor(voteTriggeredData.kVoteOption);
+}
+
 void VoteTriggeredData::read(FDataStream& kStream)
 {
-	// Version number to maintain backwards compatibility
-	uint uiVersion;
-	kStream >> uiVersion;
-	MOD_SERIALIZE_INIT_READ(kStream);
-
-	kStream >> iId;
-	kStream >> eVoteSource;
-	kStream >> kVoteOption.eVote;
-	kStream >> kVoteOption.ePlayer;
-	kStream >> kVoteOption.iCityId;
-	kStream >> kVoteOption.eOtherPlayer;
-	kStream >> kVoteOption.strText;
+	CvStreamLoadVisitor serialVisitor(kStream);
+	VoteTriggeredData::Serialize(*this, serialVisitor);
 }
 FDataStream& operator>>(FDataStream& loadFrom, VoteTriggeredData& writeTo)
 {
@@ -117,18 +114,8 @@ FDataStream& operator>>(FDataStream& loadFrom, VoteTriggeredData& writeTo)
 
 void VoteTriggeredData::write(FDataStream& kStream) const
 {
-	// Current version number
-	uint uiVersion = 1;
-	kStream << uiVersion;
-	MOD_SERIALIZE_INIT_WRITE(kStream);
-
-	kStream << iId;
-	kStream << eVoteSource;
-	kStream << kVoteOption.eVote;
-	kStream << kVoteOption.ePlayer;
-	kStream << kVoteOption.iCityId;
-	kStream << kVoteOption.eOtherPlayer;
-	kStream << kVoteOption.strText;
+	CvStreamSaveVisitor serialVisitor(kStream);
+	VoteTriggeredData::Serialize(*this, serialVisitor);
 }
 FDataStream& operator<<(FDataStream& saveTo, const VoteTriggeredData& readFrom)
 {

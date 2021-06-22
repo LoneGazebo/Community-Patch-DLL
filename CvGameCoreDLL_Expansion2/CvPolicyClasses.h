@@ -299,6 +299,10 @@ public:
 	int GetNumFreeUnitsByClass(int i) const;
 	int GetTourismByUnitClassCreated(int i) const;
 	int GetImprovementCultureChanges(int i) const;
+	int GetYieldForLiberation(int i) const;
+	int GetInfluenceForLiberation() const;
+	BuildingClassTypes GetBuildingClassInLiberatedCities() const;
+	int GetUnitsInLiberatedCities() const;
 
 	int GetHurryModifier(int i) const;
 	bool IsSpecialistValid(int i) const;
@@ -722,6 +726,10 @@ private:
 	int* m_piGreatWorkYieldChange;
 	int* m_piSpecialistExtraYield;
 	int* m_piImprovementCultureChange;
+	int* m_piYieldForLiberation;
+	int m_iInfluenceForLiberation;
+	BuildingClassTypes m_eBuildingClassInLiberatedCities;
+	int m_iUnitsInLiberatedCities;
 	bool* m_pabFreePromotion;
 	int* m_paiUnitCombatProductionModifiers;
 	int* m_paiUnitCombatFreeExperiences;
@@ -1040,6 +1048,8 @@ public:
 	void Init(CvPolicyXMLEntries* pPolicies, CvPlayer* pPlayer, bool bIsCity);
 	void Uninit();
 	void Reset();
+	template<typename PlayerPolicies, typename Visitor>
+	static void Serialize(PlayerPolicies& playerPolicies, Visitor& visitor);
 	void Read(FDataStream& kStream);
 	void Write(FDataStream& kStream) const;
 
@@ -1199,6 +1209,9 @@ private:
 	pair<int, int> currentHappinessModifier;
 	pair<int, int> currentHappinessModifierPerCity;
 };
+
+FDataStream& operator>>(FDataStream&, CvPlayerPolicies&);
+FDataStream& operator<<(FDataStream&, const CvPlayerPolicies&);
 
 namespace PolicyHelpers
 {

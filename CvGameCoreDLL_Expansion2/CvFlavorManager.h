@@ -10,6 +10,8 @@
 #ifndef CIV5_FLAVOR_MANAGER_H
 #define CIV5_FLAVOR_MANAGER_H
 
+#include "CvEnumMap.h"
+
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //  CLASS:      CvFlavorRecipient
 //!  \brief		Based class - all classes that are going to receive flavor updates derive from this
@@ -29,8 +31,8 @@ public:
 
 	bool IsCity();
 
-	void SetFlavors(int* piUpdatedFlavorValues);
-	void ChangeFlavors(int* piDeltaFlavorValues, bool bDontLog = false);
+	void SetFlavors(const CvEnumMap<FlavorTypes, int>& piUpdatedFlavorValues);
+	void ChangeFlavors(const CvEnumMap<FlavorTypes, int>& piDeltaFlavorValues, bool bDontLog = false);
 
 	int GetLatestFlavorValue(FlavorTypes eFlavor, bool bAllowNegative = false);
 
@@ -41,7 +43,7 @@ protected:
 
 	bool m_bIsCity;
 
-	int* m_piLatestFlavorValues;
+	CvEnumMap<FlavorTypes, int> m_piLatestFlavorValues;
 };
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -65,8 +67,10 @@ public:
 	void Init(CvPlayer* pPlayer);
 	void Uninit();
 	void Reset();
+	template<typename FlavorManager, typename Visitor>
+	static void Serialize(FlavorManager& flavorManager, Visitor& visitor);
 	void Read(FDataStream& kStream);
-	void Write(FDataStream& kStream);
+	void Write(FDataStream& kStream) const;
 
 	// Routines to add/remove a target object to receive flavor updates
 	void AddFlavorRecipient(CvFlavorRecipient* pTargetObject, bool bPropogateFlavorValues = true);
@@ -77,13 +81,13 @@ public:
 #endif
 
 	// External routines used to set flavors - each call broadcasts a flavor update to all recipients
-	void ChangeFlavors(int* piDeltaFlavorValues, bool bDontUpdateCityFlavors);
+	void ChangeFlavors(const CvEnumMap<FlavorTypes, int>& piDeltaFlavorValues, bool bDontUpdateCityFlavors);
 	void ResetToBasePersonality();
 	void AdjustWeightsForMap();
 
 	// External routines to retrieve Default Personality flavor values
 	int GetPersonalityIndividualFlavor(FlavorTypes eType);
-	int* GetAllPersonalityFlavors();
+	CvEnumMap<FlavorTypes, int>& GetAllPersonalityFlavors();
 	int GetPersonalityFlavorForDiplomacy(FlavorTypes eType);
 
 	int GetAdjustedValue(int iOriginalValue, int iPlusMinus, int iMin, int iMax, int& iSeed);
@@ -91,16 +95,19 @@ public:
 private:
 
 	void RandomizeWeights();
-	void BroadcastFlavors(int* piDeltaFlavorValues, bool bDontUpdateCityFlavors);
+	void BroadcastFlavors(const CvEnumMap<FlavorTypes, int>& piDeltaFlavorValues, bool bDontUpdateCityFlavors);
 	void BroadcastBaseFlavors();
 
 	void LogFlavors(FlavorTypes eFlavor = NO_FLAVOR);
 
-	int* m_piPersonalityFlavor;
-	int* m_piActiveFlavor;
+	CvEnumMap<FlavorTypes, int> m_piPersonalityFlavor;
+	CvEnumMap<FlavorTypes, int> m_piActiveFlavor;
 	CvPlayer* m_pPlayer;
 	typedef vector<CvFlavorRecipient*> Flavor_List;
 	Flavor_List m_FlavorTargetList;
 };
+
+FDataStream& operator>>(FDataStream&, CvFlavorManager&);
+FDataStream& operator<<(FDataStream&, const CvFlavorManager&);
 
 #endif // CIV5_FLAVOR_MANAGER_H

@@ -170,33 +170,27 @@ unsigned long CvRandom::getResetCount() const
 	return m_ulResetCount;
 }
 
+template<typename Random, typename Visitor>
+void CvRandom::Serialize(Random& random, Visitor& visitor)
+{
+	visitor(random.m_ullRandomSeed);
+	visitor(random.m_ulCallCount);
+	visitor(random.m_ulResetCount);
+}
+
 void CvRandom::read(FDataStream& kStream)
 {
 	reset();
 
-	// Version number to maintain backwards compatibility
-	uint uiVersion;
-	kStream >> uiVersion;
-	MOD_SERIALIZE_INIT_READ_NO_SENTINEL(kStream);
-
-	//don't load the name
-	kStream >> m_ullRandomSeed;
-	kStream >> m_ulCallCount;
-	kStream >> m_ulResetCount;
+	CvStreamLoadVisitor serialVisitor(kStream);
+	Serialize(*this, serialVisitor);
 }
 
 
 void CvRandom::write(FDataStream& kStream) const
 {
-	// Current version number
-	uint uiVersion = 1;
-	kStream << uiVersion;
-	MOD_SERIALIZE_INIT_WRITE_NO_SENTINEL(kStream);
-
-	//don't save the name
-	kStream << m_ullRandomSeed;
-	kStream << m_ulCallCount;
-	kStream << m_ulResetCount;
+	CvStreamSaveVisitor serialVisitor(kStream);
+	Serialize(*this, serialVisitor);
 }
 
 FDataStream& operator<<(FDataStream& saveTo, const CvRandom& readFrom)

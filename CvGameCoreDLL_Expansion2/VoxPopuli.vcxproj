@@ -58,6 +58,7 @@
       <AdditionalIncludeDirectories>$(SolutionDir)CvGameCoreDLL_Expansion2\;$(SolutionDir)CvWorldBuilderMap\include\;$(SolutionDir)CvGameCoreDLLUtil\include\;$(SolutionDir)CvLocalization\include\;$(SolutionDir)CvGameDatabase\include\;$(SolutionDir)FirePlace\include\;$(SolutionDir)FirePlace\include\FireWorks\;$(SolutionDir)ThirdPartyLibs\Lua51\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>CvGameCoreDLLPCH.h</PrecompiledHeaderFile>
+      <AdditionalOptions>/Zm200 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <TargetMachine>MachineX86</TargetMachine>
@@ -78,6 +79,8 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>CvGameCoreDLLPCH.h</PrecompiledHeaderFile>
       <Optimization>Full</Optimization>
+      <AdditionalOptions>/Zm200 %(AdditionalOptions)</AdditionalOptions>
+      <WholeProgramOptimization>true</WholeProgramOptimization>
     </ClCompile>
     <Link>
       <TargetMachine>MachineX86</TargetMachine>
@@ -517,10 +520,6 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CvGameCoreDLLPCH.h</PrecompiledHeaderFile>
     </ClCompile>
-    <ClCompile Include="CvPopupReturn.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CvGameCoreDLLPCH.h</PrecompiledHeaderFile>
-    </ClCompile>
     <ClCompile Include="CvPreGame.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CvGameCoreDLLPCH.h</PrecompiledHeaderFile>
@@ -557,6 +556,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CvGameCoreDLLPCH.h</PrecompiledHeaderFile>
     </ClCompile>
+    <ClCompile Include="CvSerialize.cpp" />
     <ClCompile Include="CvSiteEvaluationClasses.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CvGameCoreDLLPCH.h</PrecompiledHeaderFile>
@@ -720,6 +720,7 @@
     <ClInclude Include="CvAdvisorCounsel.h" />
     <ClInclude Include="CvAdvisorRecommender.h" />
     <ClInclude Include="CvAIOperation.h" />
+    <ClInclude Include="CvAlignedStorage.h" />
     <ClInclude Include="CvArea.h" />
     <ClInclude Include="CvArmyAI.h" />
     <ClInclude Include="CvAStar.h" />
@@ -805,6 +806,7 @@
     <ClInclude Include="CvDllWorldInfo.h" />
     <ClInclude Include="CvEconomicAI.h" />
     <ClInclude Include="CvEmphasisClasses.h" />
+    <ClInclude Include="CvEnumMapSerialization.h" />
     <ClInclude Include="CvEspionageClasses.h" />
     <ClInclude Include="CvFlavorManager.h" />
     <ClInclude Include="CvFractal.h" />
@@ -824,11 +826,14 @@
     <ClInclude Include="CvHomelandAI.h" />
     <ClInclude Include="CvImprovementClasses.h" />
     <ClInclude Include="CvInfos.h" />
+    <ClInclude Include="CvEnumMap.h" />
+    <ClInclude Include="CvEnumsUtil.h" />
     <ClInclude Include="CvInfosSerializationHelper.h" />
     <ClInclude Include="CvInternalGameCoreUtils.h" />
     <ClInclude Include="CvLoggerCSV.h" />
     <ClInclude Include="CvMap.h" />
     <ClInclude Include="CvMapGenerator.h" />
+    <ClInclude Include="CvMeta.h" />
     <ClInclude Include="CvMilitaryAI.h" />
     <ClInclude Include="CvMinorCivAI.h" />
     <ClInclude Include="CvNotificationClasses.h" />
@@ -842,7 +847,6 @@
     <ClInclude Include="CvPolicyAI.h" />
     <ClInclude Include="CvPolicyClasses.h" />
     <ClInclude Include="CvPopupInfoSerialization.h" />
-    <ClInclude Include="CvPopupReturn.h" />
     <ClInclude Include="CvPreGame.h" />
     <ClInclude Include="CvProcessProductionAI.h" />
     <ClInclude Include="CvProjectClasses.h" />
@@ -852,7 +856,10 @@
     <ClInclude Include="CvReligionClasses.h" />
     <ClInclude Include="CvReplayInfo.h" />
     <ClInclude Include="CvReplayMessage.h" />
+    <ClInclude Include="CvSerialize.h" />
     <ClInclude Include="CvSiteEvaluationClasses.h" />
+    <ClInclude Include="CvSpan.h" />
+    <ClInclude Include="CvSpanSerialization.h" />
     <ClInclude Include="CvStartPositioner.h" />
     <ClInclude Include="cvStopWatch.h" />
     <ClInclude Include="CvTacticalAI.h" />

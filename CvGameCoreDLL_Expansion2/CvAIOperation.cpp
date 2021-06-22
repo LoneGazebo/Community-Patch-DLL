@@ -968,60 +968,51 @@ bool CvAIOperation::BuyFinalUnit()
 	return false;
 }
 
+template<typename AIOperation, typename Visitor>
+void CvAIOperation::Serialize(AIOperation& aiOperation, Visitor& visitor)
+{
+	visitor(aiOperation.m_iID);
+	visitor(aiOperation.m_eType);
+	visitor(aiOperation.m_eArmyType);
+	visitor(aiOperation.m_eOwner);
+	visitor(aiOperation.m_eEnemy);
+	visitor(aiOperation.m_eCurrentState);
+	visitor(aiOperation.m_eAbortReason);
+	visitor(aiOperation.m_iTargetX);
+	visitor(aiOperation.m_iTargetY);
+	visitor(aiOperation.m_iMusterX);
+	visitor(aiOperation.m_iMusterY);
+	visitor(aiOperation.m_iTurnStarted);
+	visitor(aiOperation.m_iLastTurnMoved);
+	visitor(aiOperation.m_viArmyIDs);
+	visitor(aiOperation.m_viListOfUnitsWeStillNeedToBuild);
+	visitor(aiOperation.m_viListOfUnitsCitiesHaveCommittedToBuild);
+	visitor(aiOperation.m_iDistanceMusterToTarget);
+}
+
 /// Read serialized data
 void CvAIOperation::Read(FDataStream& kStream)
 {
-	// Version number to maintain backwards compatibility
-	uint uiVersion;
-	kStream >> uiVersion;
-	MOD_SERIALIZE_INIT_READ(kStream);
-
-	kStream >> m_iID;
-	kStream >> m_eType;
-	kStream >> m_eArmyType;
-	kStream >> m_eOwner;
-	kStream >> m_eEnemy;
-	kStream >> m_eCurrentState;
-	kStream >> m_eAbortReason;
-	kStream >> m_iTargetX;
-	kStream >> m_iTargetY;
-	kStream >> m_iMusterX;
-	kStream >> m_iMusterY;
-	kStream >> m_iTurnStarted;
-	kStream >> m_iLastTurnMoved;
-	kStream >> m_viArmyIDs;
-	kStream >> m_viListOfUnitsWeStillNeedToBuild;
-	kStream >> m_viListOfUnitsCitiesHaveCommittedToBuild;
-	kStream >> m_iDistanceMusterToTarget;
-	//kStream >> m_progressToTarget;
+	CvStreamLoadVisitor serialVisitor(kStream);
+	Serialize(*this, serialVisitor);
 }
 
 /// Write serialized data
 void CvAIOperation::Write(FDataStream& kStream) const
 {
-	// Current version number
-	uint uiVersion = 1;
-	kStream << uiVersion;
-	MOD_SERIALIZE_INIT_WRITE(kStream);
+	CvStreamSaveVisitor serialVisitor(kStream);
+	Serialize(*this, serialVisitor);
+}
 
-	kStream << m_iID;
-	kStream << m_eType;
-	kStream << m_eArmyType;
-	kStream << m_eOwner;
-	kStream << m_eEnemy;
-	kStream << m_eCurrentState;
-	kStream << m_eAbortReason;
-	kStream << m_iTargetX;
-	kStream << m_iTargetY;
-	kStream << m_iMusterX;
-	kStream << m_iMusterY;
-	kStream << m_iTurnStarted;
-	kStream << m_iLastTurnMoved;
-	kStream << m_viArmyIDs;
-	kStream << m_viListOfUnitsWeStillNeedToBuild;
-	kStream << m_viListOfUnitsCitiesHaveCommittedToBuild;
-	kStream << m_iDistanceMusterToTarget;
-	//kStream << m_progressToTarget;
+FDataStream& operator>>(FDataStream& stream, CvAIOperation& aiOperation)
+{
+	aiOperation.Read(stream);
+	return stream;
+}
+FDataStream& operator<<(FDataStream& stream, const CvAIOperation& aiOperation)
+{
+	aiOperation.Write(stream);
+	return stream;
 }
 
 #if defined(MOD_BALANCE_CORE)

@@ -149,29 +149,26 @@ bool CvTacticalTarget::IsTargetValidInThisDomain(DomainTypes eDomain)
 	return bRtnValue;
 }
 
+template<typename FocusArea, typename Visitor>
+void CvFocusArea::Serialize(FocusArea& focusArea, Visitor& visitor)
+{
+	visitor(focusArea.m_iX);
+	visitor(focusArea.m_iY);
+	visitor(focusArea.m_iRadius);
+	visitor(focusArea.m_iLastTurn);
+}
+
 FDataStream& operator<<(FDataStream& saveTo, const CvFocusArea& readFrom)
 {
-	uint uiVersion = 1;
-	saveTo << uiVersion;
-	MOD_SERIALIZE_INIT_WRITE(saveTo);
-
-	saveTo << readFrom.m_iX;
-	saveTo << readFrom.m_iY;
-	saveTo << readFrom.m_iRadius;
-	saveTo << readFrom.m_iLastTurn;
+	CvStreamSaveVisitor serialVisitor(saveTo);
+	CvFocusArea::Serialize(readFrom, serialVisitor);
 	return saveTo;
 }
 
 FDataStream& operator>>(FDataStream& loadFrom, CvFocusArea& writeTo)
 {
-	uint uiVersion;
-	loadFrom >> uiVersion;
-	MOD_SERIALIZE_INIT_READ(loadFrom);
-
-	loadFrom >> writeTo.m_iX;
-	loadFrom >> writeTo.m_iY;
-	loadFrom >> writeTo.m_iRadius;
-	loadFrom >> writeTo.m_iLastTurn;
+	CvStreamLoadVisitor serialVisitor(loadFrom);
+	CvFocusArea::Serialize(writeTo, serialVisitor);
 	return loadFrom;
 }
 
@@ -209,31 +206,37 @@ void CvTacticalAI::Uninit()
 {
 }
 
+///
+template<typename TacticalAI, typename Visitor>
+void CvTacticalAI::Serialize(TacticalAI& tacticalAI, Visitor& visitor)
+{
+	visitor(tacticalAI.m_focusAreas);
+	visitor(tacticalAI.m_tacticalMap);
+}
+
 /// Serialization read
 void CvTacticalAI::Read(FDataStream& kStream)
 {
-	// Version number to maintain backwards compatibility
-	uint uiVersion;
-	kStream >> uiVersion;
-	MOD_SERIALIZE_INIT_READ(kStream);
-
-	int phony = 0;
-	kStream >> phony;
-	kStream >> m_focusAreas;
-	kStream >> m_tacticalMap;
+	CvStreamLoadVisitor serialVisitor(kStream);
+	Serialize(*this, serialVisitor);
 }
 
 /// Serialization write
-void CvTacticalAI::Write(FDataStream& kStream)
+void CvTacticalAI::Write(FDataStream& kStream) const
 {
-	// Current version number
-	uint uiVersion = 1;
-	kStream << uiVersion;
-	MOD_SERIALIZE_INIT_WRITE(kStream);
-	int phony = 0;
-	kStream << phony;
-	kStream << m_focusAreas;
-	kStream << m_tacticalMap;
+	CvStreamSaveVisitor serialVisitor(kStream);
+	Serialize(*this, serialVisitor);
+}
+
+FDataStream& operator>>(FDataStream& stream, CvTacticalAI& tacticalAI)
+{
+	tacticalAI.Read(stream);
+	return stream;
+}
+FDataStream& operator<<(FDataStream& stream, const CvTacticalAI& tacticalAI)
+{
+	tacticalAI.Write(stream);
+	return stream;
 }
 
 /// Mark all the units that will be under tactical AI control this turn

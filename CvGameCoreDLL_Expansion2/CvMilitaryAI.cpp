@@ -15,6 +15,7 @@
 #include "CvGrandStrategyAI.h"
 #include "CvCitySpecializationAI.h"
 #include "cvStopWatch.h"
+#include "CvSpanSerialization.h"
 
 // must be included after all other headers
 #include "LintFree.h"
@@ -258,10 +259,8 @@ _Ret_maybenull_ CvMilitaryAIStrategyXMLEntry* CvMilitaryAIStrategyXMLEntries::Ge
 CvMilitaryAI::CvMilitaryAI():
 	m_pabUsingStrategy(NULL),
 	m_paiTurnStrategyAdopted(NULL),
-	m_aiTempFlavors(NULL),
 	m_iNumberOfTimesOpsBuildSkippedOver(0),
-	m_iNumberOfTimesSettlerBuildSkippedOver(0),
-	m_aiWarFocus(NULL)
+	m_iNumberOfTimesSettlerBuildSkippedOver(0)
 {
 }
 
@@ -286,11 +285,7 @@ void CvMilitaryAI::Init(CvMilitaryAIStrategyXMLEntries* pAIStrategies, CvPlayer*
 	CvAssertMsg(m_paiTurnStrategyAdopted==NULL, "about to leak memory, CvMilitaryAI::m_paiTurnStrategyAdopted");
 	m_paiTurnStrategyAdopted = FNEW(int[m_pAIStrategies->GetNumMilitaryAIStrategies()], c_eCiv5GameplayDLL, 0);
 
-	CvAssertMsg(m_aiTempFlavors==NULL, "about to leak memory, CvMilitaryAI::m_aiTempFlavors");
-	m_aiTempFlavors = FNEW(int[GC.getNumFlavorTypes()], c_eCiv5GameplayDLL, 0);
-
-	CvAssertMsg(m_aiWarFocus == NULL, "about to leak memory, CvMilitaryAI::m_aiWarFocus");
-	m_aiWarFocus = FNEW(int[MAX_MAJOR_CIVS], c_eCiv5GameplayDLL, 0);
+	m_aiTempFlavors.init();
 
 	Reset();
 }
@@ -300,8 +295,7 @@ void CvMilitaryAI::Uninit()
 {
 	SAFE_DELETE_ARRAY(m_pabUsingStrategy);
 	SAFE_DELETE_ARRAY(m_paiTurnStrategyAdopted);
-	SAFE_DELETE_ARRAY(m_aiTempFlavors);
-	SAFE_DELETE_ARRAY(m_aiWarFocus);
+	m_aiTempFlavors.uninit();
 }
 
 /// Reset AIStrategy status array to all false
@@ -341,75 +335,52 @@ void CvMilitaryAI::Reset()
 	}
 }
 
+///
+template<typename MilitaryAI, typename Visitor>
+void CvMilitaryAI::Serialize(MilitaryAI& militaryAI, Visitor& visitor)
+{
+	CvAssertMsg(militaryAI.m_pAIStrategies != NULL && militaryAI.m_pAIStrategies->GetNumMilitaryAIStrategies() > 0, "Number of AIStrategies to serialize is expected to greater than 0");
+	visitor(militaryAI.m_iNumberOfTimesOpsBuildSkippedOver);
+	visitor(militaryAI.m_iNumberOfTimesSettlerBuildSkippedOver);
+
+	visitor(militaryAI.m_iNumAntiAirUnits);
+	visitor(militaryAI.m_iNumLandUnits);
+	visitor(militaryAI.m_iNumNavalUnits);
+	visitor(militaryAI.m_iRecOffensiveLandUnits);
+	visitor(militaryAI.m_iRecOffensiveNavalUnits);
+	visitor(militaryAI.m_iNumFreeCarriers);
+	visitor(militaryAI.m_potentialAttackTargets);
+	visitor(militaryAI.m_exposedCities);
+
+	const int iNumMilitaryAIStrategies = militaryAI.m_pAIStrategies->GetNumMilitaryAIStrategies();
+	visitor(MakeConstSpan(militaryAI.m_pabUsingStrategy, iNumMilitaryAIStrategies));
+	visitor(MakeConstSpan(militaryAI.m_paiTurnStrategyAdopted, iNumMilitaryAIStrategies));
+	visitor(militaryAI.m_aiWarFocus);
+}
+
 /// Serialization read
 void CvMilitaryAI::Read(FDataStream& kStream)
 {
-	// Version number to maintain backwards compatibility
-	uint uiVersion;
-	kStream >> uiVersion;
-	MOD_SERIALIZE_INIT_READ(kStream);
-
-	FAssertMsg(m_pAIStrategies != NULL && m_pAIStrategies->GetNumMilitaryAIStrategies() > 0, "Number of AIStrategies to serialize is expected to greater than 0");
-	kStream >> m_iNumberOfTimesOpsBuildSkippedOver;
-	kStream >> m_iNumberOfTimesSettlerBuildSkippedOver;
-
-#if defined(MOD_BALANCE_CORE_MILITARY)
-	kStream >> m_iNumAntiAirUnits;
-	kStream >> m_iNumLandUnits;
-	kStream >> m_iNumNavalUnits;
-	kStream >> m_iRecOffensiveLandUnits;
-	kStream >> m_iRecOffensiveNavalUnits;
-	kStream >> m_iNumFreeCarriers;
-	kStream >> m_potentialAttackTargets;
-	kStream >> m_exposedCities;
-#endif
-
-	int iNumStrategies;
-	kStream >> iNumStrategies;
-#ifdef _MSC_VER
-#pragma warning ( push )
-#pragma warning ( disable : 6011 ) // dereferencing null : no recovery during load, go ahead and crash here.
-#endif//_MSC_VER
-	ArrayWrapper<bool> wrapm_pabUsingStrategy(iNumStrategies, m_pabUsingStrategy);
-#ifdef _MSC_VER
-#pragma warning ( pop )
-#endif//_MSC_VER
-	kStream >> wrapm_pabUsingStrategy;
-
-	ArrayWrapper<int> wrapm_paiTurnStrategyAdopted(iNumStrategies, m_paiTurnStrategyAdopted);
-	kStream >> wrapm_paiTurnStrategyAdopted;
-
-	ArrayWrapper<int> wrapm_aiWarFocus(MAX_MAJOR_CIVS, m_aiWarFocus);
-	kStream >> wrapm_aiWarFocus;
+	CvStreamLoadVisitor serialVisitor(kStream);
+	Serialize(*this, serialVisitor);
 }
 
 /// Serialization write
-void CvMilitaryAI::Write(FDataStream& kStream)
+void CvMilitaryAI::Write(FDataStream& kStream) const
 {
-	// Current version number
-	uint uiVersion = 1;
-	kStream << uiVersion;
-	MOD_SERIALIZE_INIT_WRITE(kStream);
+	CvStreamSaveVisitor serialVisitor(kStream);
+	Serialize(*this, serialVisitor);
+}
 
-	FAssertMsg(GC.getNumMilitaryAIStrategyInfos() > 0, "Number of AIStrategies to serialize is expected to greater than 0");
-	kStream << m_iNumberOfTimesOpsBuildSkippedOver;
-	kStream << m_iNumberOfTimesSettlerBuildSkippedOver;
-
-#if defined(MOD_BALANCE_CORE_MILITARY)
-	kStream << m_iNumAntiAirUnits;
-	kStream << m_iNumLandUnits;
-	kStream << m_iNumNavalUnits;
-	kStream << m_iRecOffensiveLandUnits;
-	kStream << m_iRecOffensiveNavalUnits;
-	kStream << m_iNumFreeCarriers;
-	kStream << m_potentialAttackTargets;
-	kStream << m_exposedCities;
-#endif
-
-	kStream << GC.getNumMilitaryAIStrategyInfos();
-	kStream << ArrayWrapper<bool>(m_pAIStrategies->GetNumMilitaryAIStrategies(), m_pabUsingStrategy);
-	kStream << ArrayWrapper<int>(m_pAIStrategies->GetNumMilitaryAIStrategies(), m_paiTurnStrategyAdopted);
-	kStream << ArrayWrapper<int>(MAX_MAJOR_CIVS, m_aiWarFocus);
+FDataStream& operator>>(FDataStream& stream, CvMilitaryAI& militaryAI)
+{
+	militaryAI.Read(stream);
+	return stream;
+}
+FDataStream& operator<<(FDataStream& stream, const CvMilitaryAI& militaryAI)
+{
+	militaryAI.Write(stream);
+	return stream;
 }
 
 /// Returns the Player object the Strategies are associated with
@@ -2449,8 +2420,28 @@ void CvMilitaryAI::DisbandObsoleteUnits()
 	}
 }
 
+bool NeedShipInArea(PlayerTypes ePlayer, CvArea* pWaterBody)
+{
+	if (pWaterBody)
+	{
+		int iForeignCities = pWaterBody->getNumCities() - pWaterBody->getCitiesPerPlayer(ePlayer);
+		int iForeignUnits = pWaterBody->getNumUnits() - pWaterBody->getUnitsPerPlayer(ePlayer);
+		bool bTooManyUnits = (pWaterBody->getNumTiles() < pWaterBody->getUnitsPerPlayer(ePlayer) * GC.getAI_CONFIG_MILITARY_TILES_PER_SHIP());
+
+		if (!bTooManyUnits)
+			if (iForeignCities > 0 || iForeignUnits > 0)
+				return true;
+	}
+
+	return false;
+}
+
+
+
 CvUnit* CvMilitaryAI::FindUselessShip()
 {
+	vector<CvUnit*> candidates;
+
 	int iUnitLoop;
 	for (CvUnit* pLoopUnit = m_pPlayer->firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iUnitLoop))
 	{
@@ -2463,38 +2454,52 @@ CvUnit* CvMilitaryAI::FindUselessShip()
 		// Is this a ship on a water body without enemies and without exits?
 		if (pLoopUnit->getDomainType() == DOMAIN_SEA)
 		{
-			//assume it's useless until proven otherwise
-			bool bIsUseless = true;
+			//check the current area first
+			if (NeedShipInArea(m_pPlayer->GetID(), pLoopUnit->plot()->area()))
+				continue;
 
-			//two turns is a good compromise between reliability and performance 
-			SPathFinderUserData data(pLoopUnit, CvUnit::MOVEFLAG_IGNORE_STACKING | CvUnit::MOVEFLAG_IGNORE_ENEMIES | CvUnit::MOVEFLAG_IGNORE_RIGHT_OF_PASSAGE, 2);
-			ReachablePlots plots = GC.GetPathFinder().GetPlotsInReach(pLoopUnit->getX(), pLoopUnit->getY(), data);
-			set<int> areas;
-
-			for (ReachablePlots::iterator it = plots.begin(); it != plots.end(); ++it)
-			{
-				CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(it->iPlotIndex);
-				if (pPlot && pPlot->isWater())
-					areas.insert(pPlot->getArea());
-			}
-			for (set<int>::iterator it = areas.begin(); it != areas.end(); ++it)
-			{
-				CvArea* pWaterBody = GC.getMap().getArea(*it);
-				if (pWaterBody)
-				{
-					int iForeignCities = pWaterBody->getNumCities() - pWaterBody->getCitiesPerPlayer(m_pPlayer->GetID());
-					int iForeignUnits = pWaterBody->getNumUnits() - pWaterBody->getUnitsPerPlayer(m_pPlayer->GetID());
-					bool bTooManyUnits = (pWaterBody->getNumTiles() <  pWaterBody->getUnitsPerPlayer(m_pPlayer->GetID()) * GC.getAI_CONFIG_MILITARY_TILES_PER_SHIP());
-
-					if (!bTooManyUnits)
-						if (iForeignCities > 0 || iForeignUnits > 0)
-							bIsUseless = false;
-				}
-			}
-
-			if (bIsUseless)
-				return pLoopUnit;
+			candidates.push_back(pLoopUnit);
 		}
+	}
+
+	//sort ships by experience: we want to scrap the veterans last ...
+	struct PrSortByExperience
+	{
+		bool operator()(const CvUnit* lhs, const CvUnit* rhs) const { return lhs->getExperienceTimes100() < rhs->getExperienceTimes100(); }
+	};
+	std::sort( candidates.begin(), candidates.end(), PrSortByExperience() );
+
+	//check other areas we can reach before deciding
+	for (size_t i=0; i<candidates.size(); i++)
+	{
+		CvUnit* pLoopUnit = candidates[i];
+
+		//assume it's useless until proven otherwise
+		bool bIsUseless = true;
+
+		//two turns is a good compromise between reliability and performance 
+		SPathFinderUserData data(pLoopUnit, CvUnit::MOVEFLAG_IGNORE_STACKING | CvUnit::MOVEFLAG_IGNORE_ENEMIES | CvUnit::MOVEFLAG_IGNORE_RIGHT_OF_PASSAGE, 2);
+		ReachablePlots plots = GC.GetPathFinder().GetPlotsInReach(pLoopUnit->getX(), pLoopUnit->getY(), data);
+		set<int> areas;
+
+		for (ReachablePlots::iterator it = plots.begin(); it != plots.end(); ++it)
+		{
+			CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(it->iPlotIndex);
+			if (pPlot && pPlot->isWater())
+				areas.insert(pPlot->getArea());
+		}
+		for (set<int>::iterator it = areas.begin(); it != areas.end(); ++it)
+		{
+			CvArea* pWaterBody = GC.getMap().getArea(*it);
+			if (NeedShipInArea(m_pPlayer->GetID(), pWaterBody))
+			{
+				bIsUseless = false;
+				break;
+			}
+		}
+
+		if (bIsUseless)
+			return pLoopUnit;
 	}
 
 	return NULL;

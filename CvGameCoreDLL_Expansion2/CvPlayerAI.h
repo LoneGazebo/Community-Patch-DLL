@@ -96,13 +96,12 @@ public:
 #endif
 
 	// for serialization
+	template<typename PlayerAI, typename Visitor>
+	static void Serialize(PlayerAI& playerAI, Visitor& visitor);
 	virtual void Read(FDataStream& kStream);
 	virtual void Write(FDataStream& kStream) const;
 
 protected:
-
-	static CvPlayerAI* m_aPlayers;
-
 	void AI_doResearch();
 };
 
