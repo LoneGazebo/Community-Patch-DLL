@@ -1995,7 +1995,6 @@ protected:
 	std::vector<int> m_aiDomainFreeExperience;
 	std::vector<int> m_aiDomainProductionModifier;
 
-	std::vector<bool> m_abEverOwned;
 	std::vector<bool> m_abEverLiberated;
 #if defined(MOD_BALANCE_CORE)
 	std::vector<bool> m_abIsBestForWonder;
@@ -2374,7 +2373,6 @@ SYNC_ARCHIVE_VAR(std::vector<int>, m_aiExtraSpecialistYield)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiProductionToYieldModifier)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiDomainFreeExperience)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiDomainProductionModifier)
-SYNC_ARCHIVE_VAR(std::vector<bool>, m_abEverOwned)
 SYNC_ARCHIVE_VAR(std::vector<bool>, m_abEverLiberated)
 SYNC_ARCHIVE_VAR(std::vector<bool>, m_abIsBestForWonder)
 SYNC_ARCHIVE_VAR(std::vector<bool>, m_abIsPurchased)
