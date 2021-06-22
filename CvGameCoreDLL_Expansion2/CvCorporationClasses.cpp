@@ -439,36 +439,29 @@ bool CvCorporation::IsCorporationBuilding(BuildingClassTypes eBuildingClass)
 	return pBuildingClassInfo->getCorporationType() == m_eCorporation;
 }
 
+template<typename Corporation, typename Visitor>
+void CvCorporation::Serialize(Corporation& corporation, Visitor& visitor)
+{
+	visitor(corporation.m_eCorporation);
+	visitor(corporation.m_eFounder);
+	visitor(corporation.m_iHeadquartersCityX);
+	visitor(corporation.m_iHeadquartersCityY);
+	visitor(corporation.m_iTurnFounded);
+}
+
 /// Serialization read
 FDataStream& operator>>(FDataStream& loadFrom, CvCorporation& writeTo)
 {
-	uint uiVersion;
-	loadFrom >> uiVersion;
-	MOD_SERIALIZE_INIT_READ(loadFrom);
-
-	loadFrom >> writeTo.m_eCorporation;
-	loadFrom >> writeTo.m_eFounder;
-	loadFrom >> writeTo.m_iHeadquartersCityX;
-	loadFrom >> writeTo.m_iHeadquartersCityY;
-
-	loadFrom >> writeTo.m_iTurnFounded;
-
+	CvStreamLoadVisitor serialVisitor(loadFrom);
+	CvCorporation::Serialize(writeTo, serialVisitor);
 	return loadFrom;
 }
 
 /// Serialization write
 FDataStream& operator<<(FDataStream& saveTo, const CvCorporation& readFrom)
 {
-	uint uiVersion = 4;
-	saveTo << uiVersion;
-	MOD_SERIALIZE_INIT_WRITE(saveTo);
-
-	saveTo << readFrom.m_eCorporation;
-	saveTo << readFrom.m_eFounder;
-	saveTo << readFrom.m_iHeadquartersCityX;
-	saveTo << readFrom.m_iHeadquartersCityY;
-	saveTo << readFrom.m_iTurnFounded;
-
+	CvStreamSaveVisitor serialVisitor(saveTo);
+	CvCorporation::Serialize(readFrom, serialVisitor);
 	return saveTo;
 }
 
@@ -505,7 +498,7 @@ CvPlayerCorporations::CvPlayerCorporations(void):
 {
 }
 
-	/// Destructor
+/// Destructor
 CvPlayerCorporations::~CvPlayerCorporations(void)
 {
 	Uninit();
@@ -539,51 +532,46 @@ void CvPlayerCorporations::Reset()
 {
 }
 
+template<typename PlayerCorporations, typename Visitor>
+void CvPlayerCorporations::Serialize(PlayerCorporations& playerCorporations, Visitor& visitor)
+{
+	visitor(playerCorporations.m_eFoundedCorporation);
+
+	visitor(playerCorporations.m_iNumOffices);
+	visitor(playerCorporations.m_iNumFranchises);
+	visitor(playerCorporations.m_iAdditionalNumFranchises);
+	visitor(playerCorporations.m_iAdditionalNumFranchisesMod);
+
+	visitor(playerCorporations.m_iCorporationOfficesAsFranchises);
+	visitor(playerCorporations.m_iCorporationRandomForeignFranchiseMod);
+	visitor(playerCorporations.m_iCorporationFreeFranchiseAbovePopular);
+	visitor(playerCorporations.m_bIsNoForeignCorpsInCities);
+	visitor(playerCorporations.m_bIsNoFranchisesInForeignCities);
+}
+
 /// Serialization read
 void CvPlayerCorporations::Read(FDataStream& kStream)
 {
-	// Version number to maintain backwards compatibility
-	uint uiVersion;
-	kStream >> uiVersion;
-	MOD_SERIALIZE_INIT_READ(kStream);
-
-	MOD_SERIALIZE_READ(79, kStream, m_eFoundedCorporation, NO_CORPORATION);
-
-	MOD_SERIALIZE_READ(79, kStream, m_iNumOffices, 0);
-	MOD_SERIALIZE_READ(79, kStream, m_iNumFranchises, 0);
-	MOD_SERIALIZE_READ(79, kStream, m_iAdditionalNumFranchises, 0);
-	MOD_SERIALIZE_READ(79, kStream, m_iAdditionalNumFranchisesMod, 0);
-
-	MOD_SERIALIZE_READ(79, kStream, m_iCorporationOfficesAsFranchises, 0);
-	MOD_SERIALIZE_READ(79, kStream, m_iCorporationRandomForeignFranchiseMod, 0);
-	MOD_SERIALIZE_READ(79, kStream, m_iCorporationFreeFranchiseAbovePopular, 0);
-	MOD_SERIALIZE_READ(79, kStream, m_bIsNoForeignCorpsInCities, false);
-	MOD_SERIALIZE_READ(79, kStream, m_bIsNoFranchisesInForeignCities, false);
-
+	CvStreamLoadVisitor serialVisitor(kStream);
+	Serialize(*this, serialVisitor);
 }
 
 /// Serialization write
 void CvPlayerCorporations::Write(FDataStream& kStream) const
 {
-	// Current version number
-	uint uiVersion = 1;
-	kStream << uiVersion;
-	MOD_SERIALIZE_INIT_WRITE(kStream);
+	CvStreamSaveVisitor serialVisitor(kStream);
+	Serialize(*this, serialVisitor);
+}
 
-	MOD_SERIALIZE_WRITE(kStream, m_eFoundedCorporation);
-
-	MOD_SERIALIZE_WRITE(kStream, m_iNumOffices);
-	MOD_SERIALIZE_WRITE(kStream, m_iNumFranchises);
-	MOD_SERIALIZE_WRITE(kStream, m_iAdditionalNumFranchises);
-	MOD_SERIALIZE_WRITE(kStream, m_iAdditionalNumFranchisesMod);
-
-	MOD_SERIALIZE_WRITE(kStream, m_iCorporationOfficesAsFranchises);
-	MOD_SERIALIZE_WRITE(kStream, m_iCorporationRandomForeignFranchiseMod);
-	MOD_SERIALIZE_WRITE(kStream, m_iCorporationFreeFranchiseAbovePopular);
-
-	MOD_SERIALIZE_WRITE(kStream, m_bIsNoForeignCorpsInCities);
-	MOD_SERIALIZE_WRITE(kStream, m_bIsNoFranchisesInForeignCities);
-
+FDataStream& operator>>(FDataStream& stream, CvPlayerCorporations& playerCorporations)
+{
+	playerCorporations.Read(stream);
+	return stream;
+}
+FDataStream& operator<<(FDataStream& stream, const CvPlayerCorporations& playerCorporations)
+{
+	playerCorporations.Write(stream);
+	return stream;
 }
 
 CvCorporation * CvPlayerCorporations::GetCorporation() const
@@ -2057,42 +2045,25 @@ bool CvGameCorporations::IsCorporationHeadquarters(CvCity* pCity) const
 	return false;
 }
 
+template<typename GameCorporations, typename Visitor>
+void CvGameCorporations::Serialize(GameCorporations& gameCorporations, Visitor& visitor)
+{
+	visitor(gameCorporations.m_ActiveCorporations);
+}
+
 /// Serialization read
 FDataStream& operator>>(FDataStream& loadFrom, CvGameCorporations& writeTo)
 {
-	uint uiVersion;
-
-	loadFrom >> uiVersion;
-	MOD_SERIALIZE_INIT_READ(loadFrom);
-
-	int iEntriesToRead;
-	CvCorporation tempItem;
-
-	writeTo.m_ActiveCorporations.clear();
-	loadFrom >> iEntriesToRead;
-	for(int iI = 0; iI < iEntriesToRead; iI++)
-	{
-		loadFrom >> tempItem;
-		writeTo.m_ActiveCorporations.push_back(tempItem);
-	}
-
+	CvStreamLoadVisitor serialVisitor(loadFrom);
+	CvGameCorporations::Serialize(writeTo, serialVisitor);
 	return loadFrom;
 }
 
 /// Serialization write
 FDataStream& operator<<(FDataStream& saveTo, const CvGameCorporations& readFrom)
 {
-	uint uiVersion = 0;
-	saveTo << uiVersion;
-	MOD_SERIALIZE_INIT_WRITE(saveTo);
-
-	CorporationList::const_iterator it;
-	saveTo << readFrom.m_ActiveCorporations.size();
-	for(it = readFrom.m_ActiveCorporations.begin(); it != readFrom.m_ActiveCorporations.end(); it++)
-	{
-		saveTo << *it;
-	}
-
+	CvStreamSaveVisitor serialVisitor(saveTo);
+	CvGameCorporations::Serialize(readFrom, serialVisitor);
 	return saveTo;
 }
 

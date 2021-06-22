@@ -386,6 +386,15 @@ void CvCityAI::AI_DoEventChoice(CityEventTypes eChosenEvent)
 }
 #endif
 
+template<typename CityAI, typename Visitor>
+void CvCityAI::Serialize(CityAI& cityAI, Visitor& visitor)
+{
+	visitor(cityAI.m_bChooseProductionDirty);
+	visitor(cityAI.m_iCachePlayerClosenessTurn);
+	visitor(cityAI.m_iCachePlayerClosenessDistance);
+	visitor(cityAI.m_mapPlotsAcquiredByOtherPlayers);
+}
+
 //
 //
 //
@@ -394,15 +403,8 @@ void CvCityAI::read(FDataStream& kStream)
 	VALIDATE_OBJECT
 	CvCity::read(kStream);
 
-	// Version number to maintain backwards compatibility
-	uint uiVersion;
-	kStream >> uiVersion;
-	MOD_SERIALIZE_INIT_READ(kStream);
-
-	kStream >> m_bChooseProductionDirty;
-	kStream >> m_iCachePlayerClosenessTurn;
-	kStream >> m_iCachePlayerClosenessDistance;
-	kStream >> m_mapPlotsAcquiredByOtherPlayers;
+	CvStreamLoadVisitor serialVisitor(kStream);
+	Serialize(*this, serialVisitor);
 }
 
 //
@@ -413,15 +415,8 @@ void CvCityAI::write(FDataStream& kStream) const
 	VALIDATE_OBJECT
 	CvCity::write(kStream);
 
-	// Current version number
-	uint uiVersion = 1;
-	kStream << uiVersion;
-	MOD_SERIALIZE_INIT_WRITE(kStream);
-
-	kStream << m_bChooseProductionDirty;
-	kStream << m_iCachePlayerClosenessTurn;
-	kStream << m_iCachePlayerClosenessDistance;
-	kStream << m_mapPlotsAcquiredByOtherPlayers;
+	CvStreamSaveVisitor serialVisitor(kStream);
+	Serialize(*this, serialVisitor);
 }
 
 FDataStream& operator<<(FDataStream& saveTo, const CvCityAI& readFrom)

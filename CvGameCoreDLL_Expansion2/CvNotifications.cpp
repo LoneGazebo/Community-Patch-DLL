@@ -20,197 +20,43 @@
 // Include this after all other headers.
 #include "LintFree.h"
 
-#define MAX_NOTIFICATIONS 150
-
-static uint V1_IndexToHash[] = 
+///
+template<typename NotificationT, typename Visitor>
+void CvNotifications::Notification::Serialize(NotificationT& notification, Visitor& visitor)
 {
-	NOTIFICATION_GENERIC,
-	NOTIFICATION_TECH,
-	NOTIFICATION_FREE_TECH,
-	NOTIFICATION_POLICY,
-	NOTIFICATION_PRODUCTION,
-	NOTIFICATION_MET_MINOR,
-	NOTIFICATION_MINOR,
-	NOTIFICATION_MINOR_QUEST,
-	NOTIFICATION_ENEMY_IN_TERRITORY,
-	NOTIFICATION_CITY_RANGE_ATTACK,
-	NOTIFICATION_BARBARIAN,
-	NOTIFICATION_GOODY,
-	NOTIFICATION_BUY_TILE,
-	NOTIFICATION_CITY_GROWTH,
-	NOTIFICATION_CITY_TILE,
-	NOTIFICATION_DEMAND_RESOURCE,
-	NOTIFICATION_UNIT_PROMOTION,
-	NOTIFICATION_WONDER_COMPLETED_ACTIVE_PLAYER,
-	NOTIFICATION_WONDER_COMPLETED,
-	NOTIFICATION_WONDER_BEATEN,
-	NOTIFICATION_GOLDEN_AGE_BEGUN_ACTIVE_PLAYER,
-	NOTIFICATION_GOLDEN_AGE_ENDED_ACTIVE_PLAYER,
-	NOTIFICATION_GREAT_PERSON_ACTIVE_PLAYER,
-	NOTIFICATION_STARVING,
-	NOTIFICATION_WAR_ACTIVE_PLAYER,
-	NOTIFICATION_WAR,
-	NOTIFICATION_PEACE_ACTIVE_PLAYER,
-	NOTIFICATION_PEACE,
-	NOTIFICATION_VICTORY,
-	NOTIFICATION_UNIT_DIED,
-	NOTIFICATION_CITY_LOST,
-	NOTIFICATION_CAPITAL_LOST_ACTIVE_PLAYER,
-	NOTIFICATION_CAPITAL_LOST,
-	NOTIFICATION_CAPITAL_RECOVERED,
-	NOTIFICATION_PLAYER_KILLED,
-	NOTIFICATION_DISCOVERED_LUXURY_RESOURCE,
-	NOTIFICATION_DISCOVERED_STRATEGIC_RESOURCE,
-	NOTIFICATION_DISCOVERED_BONUS_RESOURCE,
-	NOTIFICATION_DIPLO_VOTE,
-	NOTIFICATION_RELIGION_RACE,
-	NOTIFICATION_EXPLORATION_RACE,
-	NOTIFICATION_DIPLOMACY_DECLARATION,
-	NOTIFICATION_DEAL_EXPIRED_GPT,
-	NOTIFICATION_DEAL_EXPIRED_RESOURCE,
-	NOTIFICATION_DEAL_EXPIRED_OPEN_BORDERS,
-	NOTIFICATION_DEAL_EXPIRED_DEFENSIVE_PACT,
-	NOTIFICATION_DEAL_EXPIRED_RESEARCH_AGREEMENT,
-	NOTIFICATION_DEAL_EXPIRED_TRADE_AGREEMENT,
-	NOTIFICATION_TECH_AWARD,
-	NOTIFICATION_PLAYER_DEAL,
-	NOTIFICATION_PLAYER_DEAL_RECEIVED,
-	NOTIFICATION_PLAYER_DEAL_RESOLVED,
-	NOTIFICATION_PROJECT_COMPLETED,
-	NOTIFICATION_REBELS,
-	NOTIFICATION_FREE_POLICY,
-	NOTIFICATION_FREE_GREAT_PERSON,
-	NOTIFICATION_DENUNCIATION_EXPIRED,
-	NOTIFICATION_FRIENDSHIP_EXPIRED,
-	NOTIFICATION_RELIGION_FOUNDED_ACTIVE_PLAYER,
-	NOTIFICATION_RELIGION_FOUNDED,
-	NOTIFICATION_PANTHEON_FOUNDED_ACTIVE_PLAYER,
-	NOTIFICATION_PANTHEON_FOUNDED,
-	NOTIFICATION_FOUND_PANTHEON,
-	NOTIFICATION_FOUND_RELIGION,
-	NOTIFICATION_ENHANCE_RELIGION,
-	NOTIFICATION_RELIGION_ENHANCED_ACTIVE_PLAYER,
-	NOTIFICATION_RELIGION_ENHANCED,
-	NOTIFICATION_SPY_CREATED_ACTIVE_PLAYER,
-	NOTIFICATION_SPY_STOLE_TECH,
-	NOTIFICATION_SPY_CANT_STEAL_TECH,
-	NOTIFICATION_CAN_BUILD_MISSIONARY,
-	NOTIFICATION_OTHER_PLAYER_NEW_ERA,
-	NOTIFICATION_SPY_EVICTED,
-	NOTIFICATION_RELIGION_SPREAD,
-	NOTIFICATION_TECH_STOLEN_SPY_DETECTED,
-	NOTIFICATION_TECH_STOLEN_SPY_IDENTIFIED,
-	NOTIFICATION_SPY_WAS_KILLED,
-	NOTIFICATION_SPY_KILLED_A_SPY,
-	NOTIFICATION_SPY_REPLACEMENT,
-	NOTIFICATION_MAYA_LONG_COUNT,
-	NOTIFICATION_FAITH_GREAT_PERSON,
-	NOTIFICATION_SPY_PROMOTION,
-	NOTIFICATION_INTRIGUE_DECEPTION,
-	NOTIFICATION_SPY_RIG_ELECTION_SUCCESS,
-	NOTIFICATION_SPY_RIG_ELECTION_FAILURE,
-	NOTIFICATION_SPY_RIG_ELECTION_ALERT,
-	NOTIFICATION_SPY_YOU_STAGE_COUP_SUCCESS,
-	NOTIFICATION_SPY_YOU_STAGE_COUP_FAILURE,
-	NOTIFICATION_SPY_STAGE_COUP_SUCCESS,
-	NOTIFICATION_SPY_STAGE_COUP_FAILURE,
-	NOTIFICATION_INTRIGUE_BUILDING_SNEAK_ATTACK_ARMY,
-	NOTIFICATION_INTRIGUE_BUILDING_SNEAK_ATTACK_AMPHIBIOUS,
-	NOTIFICATION_INTRIGUE_SNEAK_ATTACK_ARMY_AGAINST_KNOWN_CITY_UNKNOWN,
-	NOTIFICATION_INTRIGUE_SNEAK_ATTACK_ARMY_AGAINST_KNOWN_CITY_KNOWN,
-	NOTIFICATION_INTRIGUE_SNEAK_ATTACK_ARMY_AGAINST_YOU_CITY_UNKNOWN,
-	NOTIFICATION_INTRIGUE_SNEAK_ATTACK_ARMY_AGAINST_YOU_CITY_KNOWN,
-	NOTIFICATION_INTRIGUE_SNEAK_ATTACK_ARMY_AGAINST_UNKNOWN,
-	NOTIFICATION_INTRIGUE_SNEAK_ATTACK_AMPHIB_AGAINST_KNOWN_CITY_UNKNOWN,
-	NOTIFICATION_INTRIGUE_SNEAK_ATTACK_AMPHIB_AGAINST_KNOWN_CITY_KNOWN,
-	NOTIFICATION_INTRIGUE_SNEAK_ATTACK_AMPHIB_AGAINST_YOU_CITY_UNKNOWN,
-	NOTIFICATION_INTRIGUE_SNEAK_ATTACK_AMPHIB_AGAINST_YOU_CITY_KNOWN,
-	NOTIFICATION_INTRIGUE_SNEAK_ATTACK_AMPHIB_AGAINST_UNKNOWN,
-	NOTIFICATION_RELIGION_ERROR,
-	NOTIFICATION_AUTOMATIC_FAITH_PURCHASE_STOPPED,
-	NOTIFICATION_EXPANSION_PROMISE_EXPIRED,
-	NOTIFICATION_BORDER_PROMISE_EXPIRED,
-	NOTIFICATION_TRADE_ROUTE,
-	NOTIFICATION_TRADE_ROUTE_BROKEN,
-	NOTIFICATION_RELIGION_SPREAD_NATURAL,
-	NOTIFICATION_INTRIGUE_CONSTRUCTING_WONDER,
-	NOTIFICATION_MINOR_BUYOUT,
-	NOTIFICATION_REQUEST_RESOURCE,
-	NOTIFICATION_LIBERATED_MAJOR_CITY,
-	NOTIFICATION_RESURRECTED_MAJOR_CIV,
-	NOTIFICATION_ADD_REFORMATION_BELIEF,
-	NOTIFICATION_LEAGUE_CALL_FOR_PROPOSALS,
-	NOTIFICATION_CHOOSE_ARCHAEOLOGY,
-	NOTIFICATION_LEAGUE_CALL_FOR_VOTES,
-	NOTIFICATION_CHOOSE_IDEOLOGY,
-	NOTIFICATION_IDEOLOGY_CHOSEN,
-	NOTIFICATION_DIPLOMAT_EJECTED,
-	NOTIFICATION_INTERNATIONAL_TRADE_UNIT_PLUNDERED_TRADER,
-	NOTIFICATION_INTERNATIONAL_TRADE_UNIT_PLUNDERED_TRADEE,
-	NOTIFICATION_REFORMATION_BELIEF_ADDED_ACTIVE_PLAYER,
-	NOTIFICATION_REFORMATION_BELIEF_ADDED,
-	NOTIFICATION_GREAT_WORK_COMPLETED_ACTIVE_PLAYER,
-	NOTIFICATION_LEAGUE_VOTING_DONE,
-	NOTIFICATION_LEAGUE_VOTING_SOON,
-	NOTIFICATION_CULTURE_VICTORY_SOMEONE_INFLUENTIAL,
-	NOTIFICATION_CULTURE_VICTORY_WITHIN_TWO,
-	NOTIFICATION_CULTURE_VICTORY_WITHIN_TWO_ACTIVE_PLAYER,
-	NOTIFICATION_CULTURE_VICTORY_WITHIN_ONE,
-	NOTIFICATION_CULTURE_VICTORY_WITHIN_ONE_ACTIVE_PLAYER,
-	NOTIFICATION_CULTURE_VICTORY_NO_LONGER_INFLUENTIAL,
-	NOTIFICATION_PLAYER_RECONNECTED,
-	NOTIFICATION_PLAYER_DISCONNECTED,
-	NOTIFICATION_TURN_MODE_SEQUENTIAL,
-	NOTIFICATION_TURN_MODE_SIMULTANEOUS,
-	NOTIFICATION_HOST_MIGRATION,
-	NOTIFICATION_PLAYER_CONNECTING,
-	NOTIFICATION_CITY_REVOLT_POSSIBLE,
-	NOTIFICATION_CITY_REVOLT,
-};
+	const bool bLoading = visitor.isLoading();
+
+	visitor(notification.m_eNotificationType);
+	visitor(notification.m_strMessage);
+	visitor(notification.m_strSummary);
+	visitor(notification.m_iX);
+	visitor(notification.m_iY);
+	visitor(notification.m_iGameDataIndex);
+	visitor(notification.m_iExtraGameData);
+	visitor(notification.m_iTurn);
+	visitor(notification.m_iLookupIndex);
+	visitor(notification.m_bDismissed);
+	visitor(notification.m_ePlayerID);
+	if (bLoading)
+	{
+		visitor.loadAssign(notification.m_bNeedsBroadcast, true); // all loads should re-broadcast their events
+		visitor.loadAssign(notification.m_bWaitExtraTurn, false); // not saving this
+	}
+}
 
 /// Serialization read
 FDataStream& operator>>(FDataStream& loadFrom, CvNotifications::Notification& writeTo)
 {
-	loadFrom >> writeTo.m_eNotificationType;
-	loadFrom >> writeTo.m_strMessage;
-	loadFrom >> writeTo.m_strSummary;
-	loadFrom >> writeTo.m_iX;
-	loadFrom >> writeTo.m_iY;
-	loadFrom >> writeTo.m_iGameDataIndex;
-	loadFrom >> writeTo.m_iExtraGameData;
-	loadFrom >> writeTo.m_iTurn;
-	loadFrom >> writeTo.m_iLookupIndex;
-	loadFrom >> writeTo.m_bDismissed;
-	loadFrom >> writeTo.m_ePlayerID;
-	writeTo.m_bNeedsBroadcast = true; // all loads should re-broadcast their events
-	writeTo.m_bWaitExtraTurn = false; // not saving this
-
-	MOD_SERIALIZE_INIT_READ(loadFrom);
-
+	CvStreamLoadVisitor serialVisitor(loadFrom);
+	CvNotifications::Notification::Serialize(writeTo, serialVisitor);
 	return loadFrom;
 }
 
 /// Serialization write
 FDataStream& operator<<(FDataStream& saveTo, const CvNotifications::Notification& readFrom)
 {
-	saveTo << readFrom.m_eNotificationType;
-	saveTo << readFrom.m_strMessage;
-	saveTo << readFrom.m_strSummary;
-	saveTo << readFrom.m_iX;
-	saveTo << readFrom.m_iY;
-	saveTo << readFrom.m_iGameDataIndex;
-	saveTo << readFrom.m_iExtraGameData;
-	saveTo << readFrom.m_iTurn;
-	saveTo << readFrom.m_iLookupIndex;
-	saveTo << readFrom.m_bDismissed;
-	saveTo << readFrom.m_ePlayerID;
-	// this is not saved because we want to re-broadcast on load
-	// saveTo << writeTo.m_bBroadcast;
-	// Not saving this either
-	// saveTo << readFrom.m_bWaitExtraTurn;
-
-	MOD_SERIALIZE_INIT_WRITE(saveTo);
-
+	CvStreamSaveVisitor serialVisitor(saveTo);
+	CvNotifications::Notification::Serialize(readFrom, serialVisitor);
 	return saveTo;
 }
 
@@ -247,8 +93,7 @@ void CvNotifications::Init(PlayerTypes ePlayer)
 	Uninit();
 	m_ePlayer = ePlayer;
 
-	m_aNotifications.resize(MAX_NOTIFICATIONS);
-	for(uint ui = 0; ui < m_aNotifications.size(); ui++)
+	for(uint ui = 0; ui < MaxNotifications; ui++)
 	{
 		m_aNotifications[ui].Clear();
 	}
@@ -261,56 +106,45 @@ void CvNotifications::Uninit(void)
 {
 	m_ePlayer = NO_PLAYER;
 	m_iCurrentLookupIndex = 0;
-	m_aNotifications.clear();
 
 	m_iNotificationsBeginIndex = -1;
 	m_iNotificationsEndIndex = -1;
 }
 
+///
+template<typename Notifications, typename Visitor>
+void CvNotifications::Serialize(Notifications& notifications, Visitor& visitor)
+{
+	visitor(notifications.m_ePlayer);
+	visitor(notifications.m_iCurrentLookupIndex);
+	visitor(notifications.m_iNotificationsBeginIndex);
+	visitor(notifications.m_iNotificationsEndIndex);
+	visitor(notifications.m_aNotifications);
+}
+
 /// Serialization read
 void CvNotifications::Read(FDataStream& kStream)
 {
-	// Version number to maintain backwards compatibility
-	uint uiVersion;
-	kStream >> uiVersion;
-	MOD_SERIALIZE_INIT_READ(kStream);
-
-	kStream >> m_ePlayer;
-	kStream >> m_iCurrentLookupIndex;
-	kStream >> m_iNotificationsBeginIndex;
-	kStream >> m_iNotificationsEndIndex;
-
-	for(uint ui = 0; ui < MAX_NOTIFICATIONS; ui++)
-	{
-		kStream >> m_aNotifications[ui];
-		if (uiVersion <= 1)
-		{
-			// Translate the old index the hash ID.
-			int iIndex = (int)(m_aNotifications[ui].m_eNotificationType);
-			if (iIndex >= 0 && iIndex < sizeof(V1_IndexToHash)/sizeof(uint))
-				m_aNotifications[ui].m_eNotificationType = (NotificationTypes)V1_IndexToHash[iIndex];
-		}
-	}
+	CvStreamLoadVisitor serialVisitor(kStream);
+	Serialize(*this, serialVisitor);
 }
 
 /// Serialization write
 void CvNotifications::Write(FDataStream& kStream) const
 {
-	// Current version number
-	uint uiVersion = 2;
-	kStream << uiVersion;
-	MOD_SERIALIZE_INIT_WRITE(kStream);
+	CvStreamSaveVisitor serialVisitor(kStream);
+	Serialize(*this, serialVisitor);
+}
 
-	// need to serialize notification list
-	kStream << m_ePlayer;
-	kStream << m_iCurrentLookupIndex;
-	kStream << m_iNotificationsBeginIndex;
-	kStream << m_iNotificationsEndIndex;
-
-	for(uint ui = 0; ui < MAX_NOTIFICATIONS; ui++)
-	{
-		kStream << m_aNotifications[ui];
-	}
+FDataStream& operator>>(FDataStream& stream, CvNotifications& notifications)
+{
+	notifications.Read(stream);
+	return stream;
+}
+FDataStream& operator<<(FDataStream& stream, const CvNotifications& notifications)
+{
+	notifications.Write(stream);
+	return stream;
 }
 
 /// Update - called from within CvPlayer
@@ -354,7 +188,7 @@ void CvNotifications::Update(void)
 
 		iIndex++;
 
-		if(iIndex >= (int)m_aNotifications.size())
+		if(iIndex >= int(MaxNotifications))
 		{
 			iIndex = 0;
 		}
@@ -380,7 +214,7 @@ void CvNotifications::EndOfTurnCleanup(void)
 
 		iIndex++;
 
-		if(iIndex >= (int)m_aNotifications.size())
+		if(iIndex >= int(MaxNotifications))
 		{
 			iIndex = 0;
 		}
@@ -515,7 +349,7 @@ void CvNotifications::Activate(int iLookupIndex)
 			break;
 		}
 		iIndex++;
-		if(iIndex >= (int)m_aNotifications.size())
+		if(iIndex >= int(MaxNotifications))
 		{
 			iIndex = 0;
 		}
@@ -550,7 +384,7 @@ void CvNotifications::Dismiss(int iLookupIndex, bool bUserInvoked)
 		}
 
 		iIndex++;
-		if(iIndex >= (int)m_aNotifications.size())
+		if(iIndex >= int(MaxNotifications))
 		{
 			iIndex = 0;
 		}
@@ -624,7 +458,7 @@ bool CvNotifications::MayUserDismiss(int iLookupIndex)
 		}
 
 		iIndex++;
-		if(iIndex >= (int)m_aNotifications.size())
+		if(iIndex >= int(MaxNotifications))
 		{
 			iIndex = 0;
 		}
@@ -645,7 +479,7 @@ void CvNotifications::Rebroadcast(void)
 		}
 
 		iIndex++;
-		if(iIndex >= (int)m_aNotifications.size())
+		if(iIndex >= int(MaxNotifications))
 		{
 			iIndex = 0;
 		}
@@ -818,7 +652,7 @@ bool CvNotifications::GetEndTurnBlockedType(EndTurnBlockingTypes& eBlockingType,
 		}
 
 		iIndex++;
-		if(iIndex >= (int)m_aNotifications.size())
+		if(iIndex >= int(MaxNotifications))
 		{
 			iIndex = 0;
 		}
@@ -836,38 +670,38 @@ int CvNotifications::GetNumNotifications(void)
 		return iValue;
 	}
 
-	int iValue = (m_aNotifications.size() - m_iNotificationsBeginIndex) + m_iNotificationsEndIndex;
+	int iValue = (int(MaxNotifications) - m_iNotificationsBeginIndex) + m_iNotificationsEndIndex;
 	return iValue;
 }
 
 CvString CvNotifications::GetNotificationStr(int iZeroBasedIndex)  // ignores the begin/end values
 {
-	int iRealIndex = (m_iNotificationsBeginIndex + iZeroBasedIndex) % m_aNotifications.size();
+	int iRealIndex = (m_iNotificationsBeginIndex + iZeroBasedIndex) % int(MaxNotifications);
 	return m_aNotifications[iRealIndex].m_strMessage;
 }
 
 CvString CvNotifications::GetNotificationSummary(int iZeroBasedIndex)
 {
-	int iRealIndex = (m_iNotificationsBeginIndex + iZeroBasedIndex) % m_aNotifications.size();
+	int iRealIndex = (m_iNotificationsBeginIndex + iZeroBasedIndex) % int(MaxNotifications);
 	return m_aNotifications[iRealIndex].m_strSummary;
 }
 
 
 int CvNotifications::GetNotificationID(int iZeroBasedIndex)  // ignores begin/end values
 {
-	int iRealIndex = (m_iNotificationsBeginIndex + iZeroBasedIndex) % m_aNotifications.size();
+	int iRealIndex = (m_iNotificationsBeginIndex + iZeroBasedIndex) % int(MaxNotifications);
 	return m_aNotifications[iRealIndex].m_iLookupIndex;
 }
 
 int CvNotifications::GetNotificationTurn(int iZeroBasedIndex)
 {
-	int iRealIndex = (m_iNotificationsBeginIndex + iZeroBasedIndex) % m_aNotifications.size();
+	int iRealIndex = (m_iNotificationsBeginIndex + iZeroBasedIndex) % int(MaxNotifications);
 	return m_aNotifications[iRealIndex].m_iTurn;
 }
 
 bool CvNotifications::IsNotificationDismissed(int iZeroBasedIndex)
 {
-	int iRealIndex = (m_iNotificationsBeginIndex + iZeroBasedIndex) % m_aNotifications.size();
+	int iRealIndex = (m_iNotificationsBeginIndex + iZeroBasedIndex) % int(MaxNotifications);
 	return m_aNotifications[iRealIndex].m_bDismissed;
 }
 
@@ -1321,7 +1155,7 @@ bool CvNotifications::IsNotificationRedundant(Notification& notification)
 
 
 			iIndex++;
-			if(iIndex >= (int)m_aNotifications.size())
+			if(iIndex >= int(MaxNotifications))
 			{
 				iIndex = 0;
 			}
@@ -1347,7 +1181,7 @@ bool CvNotifications::IsNotificationRedundant(Notification& notification)
 
 
 			iIndex++;
-			if(iIndex >= (int)m_aNotifications.size())
+			if(iIndex >= int(MaxNotifications))
 			{
 				iIndex = 0;
 			}
@@ -1373,7 +1207,7 @@ bool CvNotifications::IsNotificationRedundant(Notification& notification)
 
 
 			iIndex++;
-			if(iIndex >= (int)m_aNotifications.size())
+			if(iIndex >= int(MaxNotifications))
 			{
 				iIndex = 0;
 			}
@@ -1399,7 +1233,7 @@ bool CvNotifications::IsNotificationRedundant(Notification& notification)
 
 
 			iIndex++;
-			if(iIndex >= (int)m_aNotifications.size())
+			if(iIndex >= int(MaxNotifications))
 			{
 				iIndex = 0;
 			}
@@ -1426,7 +1260,7 @@ bool CvNotifications::IsNotificationRedundant(Notification& notification)
 			}
 
 			iIndex++;
-			if(iIndex >= (int)m_aNotifications.size())
+			if(iIndex >= int(MaxNotifications))
 			{
 				iIndex = 0;
 			}
@@ -1454,7 +1288,7 @@ bool CvNotifications::IsNotificationRedundant(Notification& notification)
 				}
 
 				iIndex++;
-				if(iIndex >= (int)m_aNotifications.size())
+				if(iIndex >= int(MaxNotifications))
 				{
 					iIndex = 0;
 				}
@@ -1481,7 +1315,7 @@ bool CvNotifications::IsNotificationRedundant(Notification& notification)
 			}
 
 			iIndex++;
-			if(iIndex >= (int)m_aNotifications.size())
+			if(iIndex >= int(MaxNotifications))
 			{
 				iIndex = 0;
 			}
@@ -1509,7 +1343,7 @@ bool CvNotifications::IsNotificationRedundant(Notification& notification)
 			}
 
 			iIndex++;
-			if(iIndex >= (int)m_aNotifications.size())
+			if(iIndex >= int(MaxNotifications))
 			{
 				iIndex = 0;
 			}
@@ -1547,7 +1381,7 @@ bool CvNotifications::IsNotificationRedundant(Notification& notification)
 			}
 
 			iIndex++;
-			if(iIndex >= (int)m_aNotifications.size())
+			if(iIndex >= int(MaxNotifications))
 				iIndex = 0;
 		}
 
@@ -1576,7 +1410,7 @@ bool CvNotifications::IsNotificationRedundant(Notification& notification)
 
 
 			iIndex++;
-			if(iIndex >= (int)m_aNotifications.size())
+			if(iIndex >= int(MaxNotifications))
 			{
 				iIndex = 0;
 			}
@@ -1604,7 +1438,7 @@ bool CvNotifications::IsNotificationRedundant(Notification& notification)
 
 
 			iIndex++;
-			if(iIndex >= (int)m_aNotifications.size())
+			if(iIndex >= int(MaxNotifications))
 			{
 				iIndex = 0;
 			}
@@ -1637,7 +1471,7 @@ bool CvNotifications::IsNotificationRedundant(Notification& notification)
 
 
 				iIndex++;
-				if(iIndex >= (int)m_aNotifications.size())
+				if(iIndex >= int(MaxNotifications))
 				{
 					iIndex = 0;
 				}
@@ -1719,7 +1553,7 @@ bool CvNotifications::IsNotificationExpired(int iIndex)
 			}
 
 			iNotificationIndex++;
-			if(iNotificationIndex >= (int)m_aNotifications.size())
+			if(iNotificationIndex >= int(MaxNotifications))
 			{
 				iNotificationIndex = 0;
 			}
@@ -2298,7 +2132,7 @@ bool CvNotifications::IsNotificationEndOfTurnExpired(int iIndex)
 bool CvNotifications::IsArrayFull()
 {
 	int iAdjustedEndIndex = m_iNotificationsEndIndex + 1;
-	if(iAdjustedEndIndex >= (int)m_aNotifications.size())
+	if(iAdjustedEndIndex >= int(MaxNotifications))
 	{
 		iAdjustedEndIndex = 0;
 	}
@@ -2328,7 +2162,7 @@ void CvNotifications::RemoveOldestNotification()
 void CvNotifications::IncrementBeginIndex()
 {
 	m_iNotificationsBeginIndex++;
-	if(m_iNotificationsBeginIndex >= (int)m_aNotifications.size())
+	if(m_iNotificationsBeginIndex >= int(MaxNotifications))
 	{
 		m_iNotificationsBeginIndex = 0;
 	}
@@ -2337,7 +2171,7 @@ void CvNotifications::IncrementBeginIndex()
 void CvNotifications::IncrementEndIndex()
 {
 	m_iNotificationsEndIndex++;
-	if(m_iNotificationsEndIndex >= (int)m_aNotifications.size())
+	if(m_iNotificationsEndIndex >= int(MaxNotifications))
 	{
 		m_iNotificationsEndIndex = 0;
 	}

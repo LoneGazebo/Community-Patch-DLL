@@ -62,26 +62,35 @@ void CvWonderProductionAI::Reset()
 	}
 }
 
+template<typename WonderProductionAI, typename Visitor>
+void CvWonderProductionAI::Serialize(WonderProductionAI& wonderProductionAI, Visitor& visitor)
+{
+	visitor(wonderProductionAI.m_WonderAIWeights);
+}
+
 /// Serialization read
 void CvWonderProductionAI::Read(FDataStream& kStream)
 {
-	// Version number to maintain backwards compatibility
-	uint uiVersion;
-	kStream >> uiVersion;
-	MOD_SERIALIZE_INIT_READ(kStream);
-
-	kStream >> m_WonderAIWeights;
+	CvStreamLoadVisitor serialVisitor(kStream);
+	Serialize(*this, serialVisitor);
 }
 
 /// Serialization write
 void CvWonderProductionAI::Write(FDataStream& kStream) const
 {
-	// Current version number
-	uint uiVersion = 1;
-	kStream << uiVersion;
-	MOD_SERIALIZE_INIT_WRITE(kStream);
+	CvStreamSaveVisitor serialVisitor(kStream);
+	Serialize(*this, serialVisitor);
+}
 
-	kStream << m_WonderAIWeights;
+FDataStream& operator>>(FDataStream& stream, CvWonderProductionAI& wonderProductionAI)
+{
+	wonderProductionAI.Read(stream);
+	return stream;
+}
+FDataStream& operator<<(FDataStream& stream, const CvWonderProductionAI& wonderProductionAI)
+{
+	wonderProductionAI.Write(stream);
+	return stream;
 }
 
 /// Respond to a new set of flavor values

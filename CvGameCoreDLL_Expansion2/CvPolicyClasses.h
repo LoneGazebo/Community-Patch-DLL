@@ -1048,6 +1048,8 @@ public:
 	void Init(CvPolicyXMLEntries* pPolicies, CvPlayer* pPlayer, bool bIsCity);
 	void Uninit();
 	void Reset();
+	template<typename PlayerPolicies, typename Visitor>
+	static void Serialize(PlayerPolicies& playerPolicies, Visitor& visitor);
 	void Read(FDataStream& kStream);
 	void Write(FDataStream& kStream) const;
 
@@ -1207,6 +1209,9 @@ private:
 	pair<int, int> currentHappinessModifier;
 	pair<int, int> currentHappinessModifierPerCity;
 };
+
+FDataStream& operator>>(FDataStream&, CvPlayerPolicies&);
+FDataStream& operator<<(FDataStream&, const CvPlayerPolicies&);
 
 namespace PolicyHelpers
 {

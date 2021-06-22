@@ -208,6 +208,8 @@ public:
 	virtual void UnitWasRemoved(int iArmyID, int iSlotID);
 	virtual CvPlot* ComputeTargetPlotForThisTurn(CvArmyAI* pArmy) const;
 
+	template<typename AIOperation, typename Visitor>
+	static void Serialize(AIOperation& aiOperation, Visitor& visitor);
 	virtual void Read(FDataStream& kStream);
 	virtual void Write(FDataStream& kStream) const;
 
@@ -263,6 +265,9 @@ protected:
 	// for debugging
 	CvString m_strInfoString;
 };
+
+FDataStream& operator>>(FDataStream&, CvAIOperation&);
+FDataStream& operator<<(FDataStream&, const CvAIOperation&);
 
 // simple factory method to create new subclassed operations
 CvAIOperation* CreateAIOperation(AIOperationTypes eAIOperationType, int iID, PlayerTypes eOwner, PlayerTypes eEnemy);

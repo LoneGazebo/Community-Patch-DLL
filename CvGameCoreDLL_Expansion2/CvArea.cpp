@@ -709,89 +709,58 @@ int CvArea::GetAreaMinLatitude()
 }
 
 //	--------------------------------------------------------------------------------
+template<typename Area, typename Visitor>
+void CvArea::Serialize(Area& area, Visitor& visitor)
+{
+	visitor(area.m_iID);
+	visitor(area.m_iNumTiles);
+	visitor(area.m_iNumOwnedTiles);
+	visitor(area.m_iNumRiverEdges);
+	visitor(area.m_iNumUnits);
+	visitor(area.m_iNumCities);
+	visitor(area.m_iTotalPopulation);
+	visitor(area.m_iNumStartingPlots);
+
+	visitor(area.m_iNumNaturalWonders);
+	visitor(area.m_iTotalFoundValue);
+	visitor(area.m_iBadPlots);
+
+	visitor(area.m_Boundaries.m_iNorthEdge);
+	visitor(area.m_Boundaries.m_iSouthEdge);
+	visitor(area.m_Boundaries.m_iEastEdge);
+	visitor(area.m_Boundaries.m_iWestEdge);
+
+	visitor(area.m_bWater);
+	visitor(area.m_bMountains);
+
+	visitor(area.m_aiUnitsPerPlayer);
+	visitor(area.m_aiCitiesPerPlayer);
+	visitor(area.m_aiPopulationPerPlayer);
+	visitor(area.m_aiFreeSpecialist);
+	visitor(area.m_aiNumRevealedTiles);
+	visitor(area.m_aTargetCities);
+	visitor(area.m_aaiYieldRateModifier);
+
+	visitor(area.m_aiNumResources);
+	visitor(area.m_aiNumImprovements);
+}
+
+//	--------------------------------------------------------------------------------
 void CvArea::read(FDataStream& kStream)
 {
 	// Init saved data
 	reset();
 
-	// Version number to maintain backwards compatibility
-	uint uiVersion;
-	kStream >> uiVersion;
-	MOD_SERIALIZE_INIT_READ(kStream);
-
-	kStream >> m_iID;
-	kStream >> m_iNumTiles;
-	kStream >> m_iNumOwnedTiles;
-	kStream >> m_iNumRiverEdges;
-	kStream >> m_iNumUnits;
-	kStream >> m_iNumCities;
-	kStream >> m_iTotalPopulation;
-	kStream >> m_iNumStartingPlots;
-
-	kStream >> m_iNumNaturalWonders;
-	kStream >> m_iTotalFoundValue;
-	kStream >> m_iBadPlots;
-
-	kStream >> m_Boundaries.m_iNorthEdge;
-	kStream >> m_Boundaries.m_iSouthEdge;
-	kStream >> m_Boundaries.m_iEastEdge;
-	kStream >> m_Boundaries.m_iWestEdge;
-
-	kStream >> m_bWater;
-	kStream >> m_bMountains;
-
-	kStream >> m_aiUnitsPerPlayer;
-	kStream >> m_aiCitiesPerPlayer;
-	kStream >> m_aiPopulationPerPlayer;
-	kStream >> m_aiFreeSpecialist;
-	kStream >> m_aiNumRevealedTiles;
-	kStream >> m_aTargetCities;
-	kStream >> m_aaiYieldRateModifier;
-
-	kStream >> m_aiNumResources;
-	kStream >> m_aiNumImprovements;
+	CvStreamLoadVisitor serialVisitor(kStream);
+	Serialize(*this, serialVisitor);
 }
 
 
 //	--------------------------------------------------------------------------------
 void CvArea::write(FDataStream& kStream) const
 {
-	// Current version number
-	uint uiVersion = 1;
-	kStream << uiVersion;
-	MOD_SERIALIZE_INIT_WRITE(kStream);
-
-	kStream << m_iID;
-	kStream << m_iNumTiles;
-	kStream << m_iNumOwnedTiles;
-	kStream << m_iNumRiverEdges;
-	kStream << m_iNumUnits;
-	kStream << m_iNumCities;
-	kStream << m_iTotalPopulation;
-	kStream << m_iNumStartingPlots;
-
-	kStream << m_iNumNaturalWonders;
-	kStream << m_iTotalFoundValue;
-	kStream << m_iBadPlots;
-
-	kStream << m_Boundaries.m_iNorthEdge;
-	kStream << m_Boundaries.m_iSouthEdge;
-	kStream << m_Boundaries.m_iEastEdge;
-	kStream << m_Boundaries.m_iWestEdge;
-
-	kStream << m_bWater;
-	kStream << m_bMountains;
-
-	kStream << m_aiUnitsPerPlayer;
-	kStream << m_aiCitiesPerPlayer;
-	kStream << m_aiPopulationPerPlayer;
-	kStream << m_aiFreeSpecialist;
-	kStream << m_aiNumRevealedTiles;
-	kStream << m_aTargetCities;
-	kStream << m_aaiYieldRateModifier;
-
-	kStream << m_aiNumResources;
-	kStream << m_aiNumImprovements;
+	CvStreamSaveVisitor serialVisitor(kStream);
+	Serialize(*this, serialVisitor);
 }
 
 //	--------------------------------------------------------------------------------

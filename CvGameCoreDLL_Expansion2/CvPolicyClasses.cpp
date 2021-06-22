@@ -14,6 +14,7 @@
 #include "CvEconomicAI.h"
 #include "CvGrandStrategyAI.h"
 #include "CvInfosSerializationHelper.h"
+#include "CvEnumMapSerialization.h"
 
 // Include this after all other headers.
 #include "LintFree.h"
@@ -4054,99 +4055,62 @@ void CvPlayerPolicies::Reset()
 	}
 }
 
+///
+template<typename PlayerPolicies, typename Visitor>
+void CvPlayerPolicies::Serialize(PlayerPolicies& playerPolicies, Visitor& visitor)
+{
+	CvAssertMsg(playerPolicies.m_pPolicies != NULL && playerPolicies.m_pPolicies->GetNumPolicies() > 0, "Number of policies to serialize is expected to greater than 0");
+	const int iPolicyCount = playerPolicies.m_pPolicies->GetNumPolicies();
+	const int iPolicyBranchCount = playerPolicies.m_pPolicies->GetNumPolicyBranches();
+
+	visitor(MakeConstSpan(playerPolicies.m_pabFreePolicy, iPolicyCount));
+	visitor(MakeConstSpan(playerPolicies.m_pabHasPolicy, iPolicyCount));
+	visitor(MakeConstSpan(playerPolicies.m_pabHasOneShotPolicyFired, iPolicyCount));
+	visitor(MakeConstSpan(playerPolicies.m_pabHaveOneShotFreeUnitsFired, iPolicyCount));
+
+	visitor(MakeConstSpan(playerPolicies.m_pabPolicyBranchUnlocked, iPolicyBranchCount));
+	visitor(MakeConstSpan(playerPolicies.m_pabPolicyBranchBlocked, iPolicyBranchCount));
+	visitor(MakeConstSpan(playerPolicies.m_pabPolicyBranchFinished, iPolicyBranchCount));
+	visitor(MakeConstSpan(playerPolicies.m_paePolicyBranchesChosen, iPolicyBranchCount));
+
+	visitor(playerPolicies.m_iNumExtraBranches);
+
+	visitor(playerPolicies.m_eBranchPicked1);
+	visitor(playerPolicies.m_eBranchPicked2);
+	visitor(playerPolicies.m_eBranchPicked3);
+
+	CvAssertMsg(playerPolicies.m_piLatestFlavorValues.valid() && GC.getNumFlavorTypes() > 0, "Number of flavor values to serialize is expected to greater than 0");
+	visitor(playerPolicies.m_piLatestFlavorValues);
+
+	// Now for AI
+	visitor(*playerPolicies.m_pPolicyAI);
+}
+
 /// Serialization read
 void CvPlayerPolicies::Read(FDataStream& kStream)
 {
-	// Version number to maintain backwards compatibility
-	uint uiVersion;
-	kStream >> uiVersion;
-	MOD_SERIALIZE_INIT_READ(kStream);
+	CvStreamLoadVisitor serialVisitor(kStream);
+	Serialize(*this, serialVisitor);
 
-	CvAssertMsg(m_pPolicies != NULL && m_pPolicies->GetNumPolicies() > 0, "Number of policies to serialize is expected to greater than 0");
-
-	uint uiPolicyCount = 0;
-	uint uiPolicyBranchCount = 0;
-	if(m_pPolicies)
-	{
-		uiPolicyCount = m_pPolicies->GetNumPolicies();
-		uiPolicyBranchCount = m_pPolicies->GetNumPolicyBranches();
-	}
-
-#if defined(MOD_API_EXTENSIONS)
-	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_pabFreePolicy, uiPolicyCount);
-#endif
-	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_pabHasPolicy, uiPolicyCount);
-	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_pabHasOneShotPolicyFired, uiPolicyCount);
-	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_pabHaveOneShotFreeUnitsFired, uiPolicyCount);
-
-	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_pabPolicyBranchUnlocked, uiPolicyBranchCount);
-	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_pabPolicyBranchBlocked, uiPolicyBranchCount);
-	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_pabPolicyBranchFinished, uiPolicyBranchCount);
-	CvInfosSerializationHelper::ReadHashedTypeArray(kStream, m_paePolicyBranchesChosen, uiPolicyBranchCount);
-
-	kStream >> m_iNumExtraBranches;
-
-	m_eBranchPicked1 = (PolicyBranchTypes)CvInfosSerializationHelper::ReadHashed(kStream);
-	m_eBranchPicked2 = (PolicyBranchTypes)CvInfosSerializationHelper::ReadHashed(kStream);
-	m_eBranchPicked3 = (PolicyBranchTypes)CvInfosSerializationHelper::ReadHashed(kStream);
-
-	// Now for AI
-	m_pPolicyAI->Read(kStream);
-
-	CvAssertMsg(m_piLatestFlavorValues != NULL && GC.getNumFlavorTypes() > 0, "Number of flavor values to serialize is expected to greater than 0");
-
-	int iNumFlavors;
-	kStream >> iNumFlavors;
-
-	ArrayWrapper<int> wrapm_piLatestFlavorValues(iNumFlavors, m_piLatestFlavorValues);
-	kStream >> wrapm_piLatestFlavorValues;
-
-#if defined(MOD_BALANCE_CORE)
 	UpdateModifierCache();
-#endif
 }
 
 /// Serialization write
 void CvPlayerPolicies::Write(FDataStream& kStream) const
 {
-	// Current version number
-	uint uiVersion = 2;
-	kStream << uiVersion;
-	MOD_SERIALIZE_INIT_WRITE(kStream);
+	CvStreamSaveVisitor serialVisitor(kStream);
+	Serialize(*this, serialVisitor);
+}
 
-	CvAssertMsg(m_pPolicies != NULL && GC.getNumPolicyInfos() > 0, "Number of policies to serialize is expected to greater than 0");
-
-	uint uiPolicyCount = 0;
-	uint uiPolicyBranchCount = 0;
-	if(m_pPolicies)
-	{
-		uiPolicyCount = m_pPolicies->GetNumPolicies();
-		uiPolicyBranchCount = m_pPolicies->GetNumPolicyBranches();
-	}
-
-#if defined(MOD_API_EXTENSIONS)
-	CvInfosSerializationHelper::WriteHashedDataArray<PolicyTypes>(kStream, m_pabFreePolicy, uiPolicyCount);
-#endif
-	CvInfosSerializationHelper::WriteHashedDataArray<PolicyTypes>(kStream, m_pabHasPolicy, uiPolicyCount);
-	CvInfosSerializationHelper::WriteHashedDataArray<PolicyTypes>(kStream, m_pabHasOneShotPolicyFired, uiPolicyCount);
-	CvInfosSerializationHelper::WriteHashedDataArray<PolicyTypes>(kStream, m_pabHaveOneShotFreeUnitsFired, uiPolicyCount);
-	CvInfosSerializationHelper::WriteHashedDataArray<PolicyBranchTypes>(kStream, m_pabPolicyBranchUnlocked, uiPolicyBranchCount);
-	CvInfosSerializationHelper::WriteHashedDataArray<PolicyBranchTypes>(kStream, m_pabPolicyBranchBlocked, uiPolicyBranchCount);
-	CvInfosSerializationHelper::WriteHashedDataArray<PolicyBranchTypes>(kStream, m_pabPolicyBranchFinished, uiPolicyBranchCount);
-	CvInfosSerializationHelper::WriteHashedTypeArray<PolicyBranchTypes>(kStream, m_paePolicyBranchesChosen, uiPolicyBranchCount);
-
-	kStream << m_iNumExtraBranches;
-
-	CvInfosSerializationHelper::WriteHashed(kStream, m_eBranchPicked1);
-	CvInfosSerializationHelper::WriteHashed(kStream, m_eBranchPicked2);
-	CvInfosSerializationHelper::WriteHashed(kStream, m_eBranchPicked3);
-
-	// Now for AI
-	m_pPolicyAI->Write(kStream);
-
-	CvAssertMsg(m_piLatestFlavorValues != NULL && GC.getNumFlavorTypes() > 0, "Number of flavor values to serialize is expected to greater than 0");
-	kStream << GC.getNumFlavorTypes();
-	kStream << ArrayWrapper<int>(GC.getNumFlavorTypes(), m_piLatestFlavorValues);
+FDataStream& operator>>(FDataStream& stream, CvPlayerPolicies& playerPolicies)
+{
+	playerPolicies.Read(stream);
+	return stream;
+}
+FDataStream& operator<<(FDataStream& stream, const CvPlayerPolicies& playerPolicies)
+{
+	playerPolicies.Write(stream);
+	return stream;
 }
 
 /// Respond to a new set of flavor values

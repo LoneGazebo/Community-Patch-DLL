@@ -27,6 +27,7 @@
 #include "CvGlobals.h"
 #include "CvGame.h"
 #include "CvEnums.h"
+#include "CvSerialize.h"
 
 #pragma warning( disable: 4251 )		// needs to have dll-interface to be used by clients of class
 
@@ -63,6 +64,9 @@ struct CvArchaeologyData
 	PlayerTypes m_ePlayer2;
 	GreatWorkType m_eWork;
 
+	template<typename ArchaeologyData, typename Visitor>
+	static void Serialize(ArchaeologyData& archaeologyData, Visitor& visitor);
+
 	CvArchaeologyData():
 		m_eArtifactType(NO_GREAT_WORK_ARTIFACT_CLASS),
 		m_eEra(NO_ERA),
@@ -92,7 +96,7 @@ public:
 
 	void init(int iX, int iY);
 	void uninit();
-	void reset(int iX = 0, int iY = 0, bool bConstructorCall=false);
+	void reset();
 
 	void setupGraphical();
 
@@ -457,7 +461,7 @@ public:
 	}
 	inline FeatureTypes getFeatureType() const
 	{
-		return (FeatureTypes)m_eFeatureType.get();
+		return (FeatureTypes)m_eFeatureType;
 	}
 
 	int getTurnDamage(bool bIgnoreTerrainDamage, bool bIgnoreFeatureDamage, bool bExtraTerrainDamage, bool bExtraFeatureDamage) const;
@@ -756,7 +760,9 @@ public:
 
 	bool canTrain(UnitTypes eUnit, bool bContinue, bool bTestVisible) const;
 
-	void read(FDataStream& kStream);
+	template<typename Plot, typename Visitor>
+	static void Serialize(Plot& plot, Visitor& visitor);
+	void read(FDataStream& kStream, int iX, int iY);
 	void write(FDataStream& kStream) const;
 
 	int GetPlotIndex() const;
@@ -764,8 +770,8 @@ public:
 	char GetContinentType() const;
 	void SetContinentType(const char cContinent);
 
-	const FAutoArchive& getSyncArchive() const;
-	FAutoArchive& getSyncArchive();
+	const CvSyncArchive<CvPlot>& getSyncArchive() const;
+	CvSyncArchive<CvPlot>& getSyncArchive();
 	std::string debugDump(const FAutoVariableBase&) const;
 	std::string stackTraceRemark(const FAutoVariableBase&) const;
 
@@ -878,35 +884,39 @@ protected:
 	class PlotBoolField
 	{
 	public:
-		//two 32 bit DWORDS for 64 bit capacity
-		enum config { eCount = 2, eSize = 32 };
-		DWORD m_dwBits[eCount];
+		enum
+		{
+			eSize = 32,
+			eCount = (MAX_PLAYERS / eSize) + (MAX_PLAYERS % eSize == 0 ? 0 : 1),
+			eTotalBits = eCount * eSize
+		};
+		uint32 m_bits[eTotalBits];
 
 		bool GetBit(const uint uiEntry) const
 		{
 			const uint uiOffset = uiEntry/eSize;
-			return m_dwBits[uiOffset] & 1<<(uiEntry-(eSize*uiOffset));
+			return m_bits[uiOffset] & 1<<(uiEntry-(eSize*uiOffset));
 		}
 		void SetBit(const uint uiEntry)
 		{
 			const uint uiOffset = uiEntry/eSize;
-			m_dwBits[uiOffset] |= 1<<(uiEntry-(eSize*uiOffset));
+			m_bits[uiOffset] |= 1<<(uiEntry-(eSize*uiOffset));
 		}
 		void ClearBit(const uint uiEntry)
 		{
 			const uint uiOffset = uiEntry/eSize;
-			m_dwBits[uiOffset] &= ~(1<<(uiEntry-(eSize*uiOffset)));
+			m_bits[uiOffset] &= ~(1<<(uiEntry-(eSize*uiOffset)));
 		}
 		void ToggleBit(const uint uiEntry)
 		{
 			const uint uiOffset = uiEntry/eSize;
-			m_dwBits[uiOffset] ^= 1<<(uiEntry-(eSize*uiOffset));
+			m_bits[uiOffset] ^= 1<<(uiEntry-(eSize*uiOffset));
 		}
 		void ClearAll()
 		{
 			for(uint i = 0; i <eCount; ++i)
 			{
-				m_dwBits[i] = 0;
+				m_bits[i] = 0;
 			}
 		}
 
@@ -975,8 +985,8 @@ protected:
 	short m_iImprovementDuration;
 	short m_iUpgradeProgress;
 
-	FAutoArchiveClassContainer<CvPlot> m_syncArchive; // this must appear before the first auto variable in the class
-	FAutoVariable<char, CvPlot> /*FeatureTypes*/ m_eFeatureType; 
+	SYNC_ARCHIVE_MEMBER(CvPlot)
+	char /*FeatureTypes*/ m_eFeatureType; 
 	//why only one autovariable? probably should extend this to everything the players may change about the plot
 	//ie improvements, routes, etc
 
@@ -1045,6 +1055,11 @@ protected:
 	// added so under cheat mode we can access protected stuff
 	friend class CvGameTextMgr;
 };
+FDataStream& operator<<(FDataStream&, const CvPlot* const&);
+FDataStream& operator<<(FDataStream&, CvPlot* const&);
+FDataStream& operator>>(FDataStream&, const CvPlot*&);
+FDataStream& operator>>(FDataStream&, CvPlot*&);
+
 
 namespace FSerialization
 {
@@ -1052,9 +1067,14 @@ void SyncPlots();
 void ClearPlotDeltas();
 }
 
+SYNC_ARCHIVE_BEGIN(CvPlot)
+SYNC_ARCHIVE_VAR(char, m_eFeatureType)
+SYNC_ARCHIVE_END()
+
 #if defined(MOD_BALANCE_CORE_MILITARY)
 struct SPlotWithScore
 {
+	SPlotWithScore() {}
 	SPlotWithScore(CvPlot* pPlot_, int score_) : pPlot(pPlot_), score(score_) {}
     bool operator<(const SPlotWithScore& other) const //for sorting
     {
@@ -1069,11 +1089,18 @@ struct SPlotWithScore
         return pPlot == other.pPlot;
     }
 
+	template<typename PlotWithScore, typename Visitor>
+	static void Serialize(PlotWithScore& plotWithScore, Visitor& visitor);
+
 	CvPlot* pPlot;
 	int score;
 };
+FDataStream& operator<<(FDataStream&, const SPlotWithScore&);
+FDataStream& operator>>(FDataStream&, SPlotWithScore&);
+
 struct SPlotWithTwoScoresL2
 {
+	SPlotWithTwoScoresL2() {}
 	SPlotWithTwoScoresL2(CvPlot* pPlot_, int score1_, int score2_) : pPlot(pPlot_), score1(score1_), score2(score2_) {}
 
 	bool operator<(const SPlotWithTwoScoresL2& other) const
@@ -1081,9 +1108,14 @@ struct SPlotWithTwoScoresL2
         return score1*score1+score2*score2 < other.score1*other.score1+other.score2*other.score2;
     }
 
+	template<typename PlotWithTwoScoresL2, typename Visitor>
+	static void Serialize(PlotWithTwoScoresL2& plotWithTwoScoresL2, Visitor& visitor);
+
 	CvPlot* pPlot;
 	int score1,score2;
 };
+FDataStream& operator<<(FDataStream&, const SPlotWithTwoScoresL2&);
+FDataStream& operator>>(FDataStream&, SPlotWithTwoScoresL2&);
 #endif
 
 #endif

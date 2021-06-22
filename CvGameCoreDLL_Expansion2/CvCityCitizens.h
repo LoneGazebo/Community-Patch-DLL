@@ -10,6 +10,10 @@
 #ifndef CIV5_CITY_CITIZENS_H
 #define CIV5_CITY_CITIZENS_H
 
+#include "CvEnumMap.h"
+
+#include <bitset>
+
 struct SPrecomputedExpensiveNumbers
 {
 	int iExcessFoodTimes100;
@@ -51,8 +55,10 @@ public:
 	void Init(CvCity* pCity);
 	void Uninit();
 	void Reset();
+	template<typename CityCitizens, typename Visitor>
+	static void Serialize(CityCitizens& cityCitizens, Visitor& visitor);
 	void Read(FDataStream& kStream);
-	void Write(FDataStream& kStream);
+	void Write(FDataStream& kStream) const;
 
 	CvCity* GetCity();
 	CvPlayer* GetPlayer();
@@ -200,14 +206,15 @@ private:
 
 	int m_iNumDefaultSpecialists;
 	int m_iNumForcedDefaultSpecialists;
-	int* m_aiSpecialistCounts;
-	int* m_aiSpecialistSlots;
-	int* m_aiSpecialistGreatPersonProgressTimes100;
-	int* m_aiNumSpecialistsInBuilding;
-	int* m_aiNumForcedSpecialistsInBuilding;
-	int* m_piBuildingGreatPeopleRateChanges;
-
-	bool m_bInited;
+	CvEnumMap<SpecialistTypes, int> m_aiSpecialistCounts;
+	CvEnumMap<SpecialistTypes, int> m_aiSpecialistSlots;
+	CvEnumMap<SpecialistTypes, int> m_aiSpecialistGreatPersonProgressTimes100;
+	CvEnumMap<BuildingTypes, int> m_aiNumSpecialistsInBuilding;
+	CvEnumMap<BuildingTypes, int> m_aiNumForcedSpecialistsInBuilding;
+	CvEnumMap<SpecialistTypes, int> m_piBuildingGreatPeopleRateChanges;
 };
+
+FDataStream& operator>>(FDataStream&, CvCityCitizens&);
+FDataStream& operator<<(FDataStream&, const CvCityCitizens&);
 
 #endif // CIV5_CITY_CITIZENS_H

@@ -26,6 +26,9 @@ struct Opinion
 
 struct DiploLogData
 {
+	template<typename DiploLogDataT, typename Visitor>
+	static void Serialize(DiploLogDataT& diploLogData, Visitor& visitor);
+
 	DiploStatementTypes m_eDiploLogStatement;
 	int m_iTurn;
 };
@@ -34,6 +37,9 @@ FDataStream& operator>>(FDataStream&, DiploLogData&);
 
 struct DeclarationLogData
 {
+	template<typename DeclarationLogDataT, typename Visitor>
+	static void Serialize(DeclarationLogDataT& declarationLogData, Visitor& visitor);
+
 	PublicDeclarationTypes m_eDeclaration;
 	int m_iData1;
 	int m_iData2;
@@ -76,8 +82,10 @@ public:
 	void Init(CvPlayer* pPlayer);
 	void Uninit();
 	void Reset();
+	template<typename DiplomacyAI, typename Visitor>
+	static void Serialize(DiplomacyAI& diplomacyAI, Visitor& visitor);
 	void Read(FDataStream& kStream);
-	void Write(FDataStream& kStream);
+	void Write(FDataStream& kStream) const;
 	void update();
 
 	// ************************************
@@ -2104,6 +2112,9 @@ private:
 	DiploStatementTypes m_eTestStatement;
 	int					m_iTestStatementArg1;
 };
+
+FDataStream& operator>>(FDataStream&, CvDiplomacyAI&);
+FDataStream& operator<<(FDataStream&, const CvDiplomacyAI&);
 
 namespace CvDiplomacyAIHelpers
 {

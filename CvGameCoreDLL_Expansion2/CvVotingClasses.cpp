@@ -471,175 +471,59 @@ void CvResolutionEffects::AddOngoingEffects(const CvResolutionEffects* pOtherEff
 #endif
 }
 
+template<typename ResolutionEffects, typename Visitor>
+void CvResolutionEffects::Serialize(ResolutionEffects& resolutionEffects, Visitor& visitor)
+{
+	visitor(resolutionEffects.bDiplomaticVictory);
+	visitor(resolutionEffects.bChangeLeagueHost);
+	visitor(resolutionEffects.iOneTimeGold);
+	visitor(resolutionEffects.iOneTimeGoldPercent);
+	visitor(resolutionEffects.bRaiseCityStateInfluenceToNeutral);
+	visitor(resolutionEffects.eLeagueProjectEnabled);
+	visitor(resolutionEffects.iGoldPerTurn);
+	visitor(resolutionEffects.iResourceQuantity);
+	visitor(resolutionEffects.bEmbargoCityStates);
+	visitor(resolutionEffects.bEmbargoPlayer);
+	visitor(resolutionEffects.bNoResourceHappiness);
+	visitor(resolutionEffects.iUnitMaintenanceGoldPercent);
+	visitor(resolutionEffects.iMemberDiscoveredTechMod);
+	visitor(resolutionEffects.iCulturePerWonder);
+	visitor(resolutionEffects.iCulturePerNaturalWonder);
+	visitor(resolutionEffects.bNoTrainingNuclearWeapons);
+	visitor(resolutionEffects.iVotesForFollowingReligion);
+	visitor(resolutionEffects.iHolyCityTourism);
+	visitor(resolutionEffects.iReligionSpreadStrengthMod);
+	visitor(resolutionEffects.iVotesForFollowingIdeology);
+	visitor(resolutionEffects.iOtherIdeologyRebellionMod);
+	visitor(resolutionEffects.iArtsyGreatPersonRateMod);
+	visitor(resolutionEffects.iScienceyGreatPersonRateMod);
+	visitor(resolutionEffects.iGreatPersonTileImprovementCulture);
+	visitor(resolutionEffects.iLandmarkCulture);
+	visitor(resolutionEffects.bOpenDoor);
+	visitor(resolutionEffects.bSphereOfInfluence);
+	visitor(resolutionEffects.bDecolonization);
+	visitor(resolutionEffects.iLimitSpaceshipProduction);
+	visitor(resolutionEffects.iLimitSpaceshipPurchase);
+	visitor(resolutionEffects.iIsWorldWar);
+	visitor(resolutionEffects.bEmbargoIdeology);
+	visitor(resolutionEffects.iChangeTourism);
+	visitor(resolutionEffects.iVassalMaintenanceGoldPercent);
+	visitor(resolutionEffects.bEndAllCurrentVassals);
+}
+
 // Serialization Read
 FDataStream& operator>>(FDataStream& loadFrom, CvResolutionEffects& writeTo)
 {
-	uint uiVersion;
-
-	loadFrom >> uiVersion;
-	MOD_SERIALIZE_INIT_READ(loadFrom);
-	loadFrom >> writeTo.bDiplomaticVictory;
-	if (uiVersion >= 2)
-	{
-		loadFrom >> writeTo.bChangeLeagueHost;
-	}
-	else
-	{
-		writeTo.bChangeLeagueHost = false;
-	}
-	loadFrom >> writeTo.iOneTimeGold;
-	loadFrom >> writeTo.iOneTimeGoldPercent;
-	loadFrom >> writeTo.bRaiseCityStateInfluenceToNeutral;
-	if (uiVersion >= 3)
-	{
-		loadFrom >> writeTo.eLeagueProjectEnabled;
-	}
-	else
-	{
-		writeTo.eLeagueProjectEnabled = NO_LEAGUE_PROJECT;
-	}
-	loadFrom >> writeTo.iGoldPerTurn;
-	loadFrom >> writeTo.iResourceQuantity;
-	loadFrom >> writeTo.bEmbargoCityStates;
-	loadFrom >> writeTo.bEmbargoPlayer;
-	loadFrom >> writeTo.bNoResourceHappiness;
-	loadFrom >> writeTo.iUnitMaintenanceGoldPercent;
-	loadFrom >> writeTo.iMemberDiscoveredTechMod;
-	if (uiVersion >= 4)
-	{
-		loadFrom >> writeTo.iCulturePerWonder;
-		loadFrom >> writeTo.iCulturePerNaturalWonder;
-	}
-	else
-	{
-		writeTo.iCulturePerWonder = 0;
-		writeTo.iCulturePerNaturalWonder = 0;
-	}
-	if (uiVersion >= 5)
-	{
-		loadFrom >> writeTo.bNoTrainingNuclearWeapons;
-	}
-	else
-	{
-		writeTo.bNoTrainingNuclearWeapons = false;
-	}
-	if (uiVersion >= 6)
-	{
-		loadFrom >> writeTo.iVotesForFollowingReligion;
-		loadFrom >> writeTo.iHolyCityTourism;
-	}
-	else
-	{
-		writeTo.iVotesForFollowingReligion = 0;
-		writeTo.iHolyCityTourism = 0;		
-	}
-	if (uiVersion >= 9)
-	{
-		loadFrom >> writeTo.iReligionSpreadStrengthMod;
-	}
-	else
-	{
-		writeTo.iReligionSpreadStrengthMod = 0;
-	}
-	if (uiVersion >= 6)
-	{
-		loadFrom >> writeTo.iVotesForFollowingIdeology;
-		loadFrom >> writeTo.iOtherIdeologyRebellionMod;
-	}
-	else
-	{
-		writeTo.iVotesForFollowingIdeology = 0;
-		writeTo.iOtherIdeologyRebellionMod = 0;
-	}
-	if (uiVersion >= 7)
-	{
-		loadFrom >> writeTo.iArtsyGreatPersonRateMod;
-		loadFrom >> writeTo.iScienceyGreatPersonRateMod;
-	}
-	else
-	{
-		writeTo.iArtsyGreatPersonRateMod = 0;
-		writeTo.iScienceyGreatPersonRateMod = 0;
-	}
-	if (uiVersion >= 8)
-	{
-		loadFrom >> writeTo.iGreatPersonTileImprovementCulture;
-		loadFrom >> writeTo.iLandmarkCulture;
-	}
-	else
-	{
-		writeTo.iGreatPersonTileImprovementCulture = 0;
-		writeTo.iLandmarkCulture = 0;
-	}
-#if defined(MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS)
-	MOD_SERIALIZE_READ(35, loadFrom, writeTo.bOpenDoor, false);
-	MOD_SERIALIZE_READ(35, loadFrom, writeTo.bSphereOfInfluence, false);
-	MOD_SERIALIZE_READ(49, loadFrom, writeTo.bDecolonization, false);
-	MOD_SERIALIZE_READ(49, loadFrom, writeTo.iLimitSpaceshipProduction, 0);
-	MOD_SERIALIZE_READ(49, loadFrom, writeTo.iLimitSpaceshipPurchase, 0);
-	MOD_SERIALIZE_READ(49, loadFrom, writeTo.iIsWorldWar, 0);
-	MOD_SERIALIZE_READ(49, loadFrom, writeTo.bEmbargoIdeology, false);
-#endif
-#if defined(MOD_BALANCE_CORE)
-	MOD_SERIALIZE_READ(66, loadFrom, writeTo.iChangeTourism, 0);
-#endif
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-	MOD_SERIALIZE_READ(36, loadFrom, writeTo.iVassalMaintenanceGoldPercent, 0);
-	MOD_SERIALIZE_READ(36, loadFrom, writeTo.bEndAllCurrentVassals, 0);
-#endif
-	
+	CvStreamLoadVisitor serialVisitor(loadFrom);
+	CvResolutionEffects::Serialize(writeTo, serialVisitor);
 	return loadFrom;
 }
 
 // Serialization Write
 FDataStream& operator<<(FDataStream& saveTo, const CvResolutionEffects& readFrom)
 {
-	uint uiVersion = 9;
-
-	saveTo << uiVersion;
-	MOD_SERIALIZE_INIT_WRITE(saveTo);
-	saveTo << readFrom.bDiplomaticVictory;
-	saveTo << readFrom.bChangeLeagueHost;
-	saveTo << readFrom.iOneTimeGold;
-	saveTo << readFrom.iOneTimeGoldPercent;
-	saveTo << readFrom.bRaiseCityStateInfluenceToNeutral;
-	saveTo << readFrom.eLeagueProjectEnabled;
-	saveTo << readFrom.iGoldPerTurn;
-	saveTo << readFrom.iResourceQuantity;
-	saveTo << readFrom.bEmbargoCityStates;
-	saveTo << readFrom.bEmbargoPlayer;
-	saveTo << readFrom.bNoResourceHappiness;
-	saveTo << readFrom.iUnitMaintenanceGoldPercent;
-	saveTo << readFrom.iMemberDiscoveredTechMod;
-	saveTo << readFrom.iCulturePerWonder;
-	saveTo << readFrom.iCulturePerNaturalWonder;
-	saveTo << readFrom.bNoTrainingNuclearWeapons;
-	saveTo << readFrom.iVotesForFollowingReligion;
-	saveTo << readFrom.iHolyCityTourism;
-	saveTo << readFrom.iReligionSpreadStrengthMod;
-	saveTo << readFrom.iVotesForFollowingIdeology;
-	saveTo << readFrom.iOtherIdeologyRebellionMod;
-	saveTo << readFrom.iArtsyGreatPersonRateMod;
-	saveTo << readFrom.iScienceyGreatPersonRateMod;
-	saveTo << readFrom.iGreatPersonTileImprovementCulture;
-	saveTo << readFrom.iLandmarkCulture;
-#if defined(MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS)
-	MOD_SERIALIZE_WRITE(saveTo, readFrom.bOpenDoor);
-	MOD_SERIALIZE_WRITE(saveTo, readFrom.bSphereOfInfluence);
-	MOD_SERIALIZE_WRITE(saveTo, readFrom.bDecolonization);
-	MOD_SERIALIZE_WRITE(saveTo, readFrom.iLimitSpaceshipProduction);
-	MOD_SERIALIZE_WRITE(saveTo, readFrom.iLimitSpaceshipPurchase);
-	MOD_SERIALIZE_WRITE(saveTo, readFrom.iIsWorldWar);
-	MOD_SERIALIZE_WRITE(saveTo, readFrom.bEmbargoIdeology);
-#endif
-#if defined(MOD_BALANCE_CORE)
-	MOD_SERIALIZE_WRITE(saveTo, readFrom.iChangeTourism);
-#endif
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-	MOD_SERIALIZE_WRITE(saveTo, readFrom.iVassalMaintenanceGoldPercent);
-	MOD_SERIALIZE_WRITE(saveTo, readFrom.bEndAllCurrentVassals);
-#endif
-
+	CvStreamSaveVisitor serialVisitor(saveTo);
+	CvResolutionEffects::Serialize(readFrom, serialVisitor);
 	return saveTo;
 }
 
@@ -677,55 +561,49 @@ ResolutionDecisionTypes CvResolutionDecision::GetType() const
 	return m_eType;
 }
 
+template<typename PlayerVoteT, typename Visitor>
+void CvResolutionDecision::PlayerVote::Serialize(PlayerVoteT& playerVote, Visitor& visitor)
+{
+	visitor(playerVote.ePlayer);
+	visitor(playerVote.iNumVotes);
+	visitor(playerVote.iChoice);
+}
+
 // Serialization Read
 FDataStream& operator>>(FDataStream& loadFrom, CvResolutionDecision::PlayerVote& writeTo)
 {
-	uint uiVersion;
-
-	loadFrom >> uiVersion;
-	MOD_SERIALIZE_INIT_READ(loadFrom);
-	loadFrom >> writeTo.ePlayer;
-	loadFrom >> writeTo.iNumVotes;
-	loadFrom >> writeTo.iChoice;
-
+	CvStreamLoadVisitor serialVisitor(loadFrom);
+	CvResolutionDecision::PlayerVote::Serialize(writeTo, serialVisitor);
 	return loadFrom;
 }
 
 // Serialization Write
 FDataStream& operator<<(FDataStream& saveTo, const CvResolutionDecision::PlayerVote& readFrom)
 {
-	uint uiVersion = 1;
-
-	saveTo << uiVersion;
-	MOD_SERIALIZE_INIT_WRITE(saveTo);
-	saveTo << readFrom.ePlayer;
-	saveTo << readFrom.iNumVotes;
-	saveTo << readFrom.iChoice;
-
+	CvStreamSaveVisitor serialVisitor(saveTo);
+	CvResolutionDecision::PlayerVote::Serialize(readFrom, serialVisitor);
 	return saveTo;
+}
+
+template<typename ResolutionDecision, typename Visitor>
+void CvResolutionDecision::Serialize(ResolutionDecision& resolutionDecision, Visitor& visitor)
+{
+	visitor(resolutionDecision.m_eType);
 }
 
 // Serialization Read
 FDataStream& operator>>(FDataStream& loadFrom, CvResolutionDecision& writeTo)
 {
-	uint uiVersion;
-
-	loadFrom >> uiVersion;
-	MOD_SERIALIZE_INIT_READ(loadFrom);
-	loadFrom >> writeTo.m_eType;
-
+	CvStreamLoadVisitor serialVisitor(loadFrom);
+	CvResolutionDecision::Serialize(writeTo, serialVisitor);
 	return loadFrom;
 }
 
 // Serialization Write
 FDataStream& operator<<(FDataStream& saveTo, const CvResolutionDecision& readFrom)
 {
-	uint uiVersion = 1;
-
-	saveTo << uiVersion;
-	MOD_SERIALIZE_INIT_WRITE(saveTo);
-	saveTo << readFrom.m_eType;
-
+	CvStreamSaveVisitor serialVisitor(saveTo);
+	CvResolutionDecision::Serialize(readFrom, serialVisitor);
 	return saveTo;
 }
 
@@ -759,31 +637,26 @@ PlayerTypes CvProposerDecision::GetProposer()
 	return m_sVote.ePlayer;
 }
 
+template<typename ProposerDecision, typename Visitor>
+void CvProposerDecision::Serialize(ProposerDecision& proposerDecision, Visitor& visitor)
+{
+	proposerDecision.CvResolutionDecision::serialize(visitor);
+	visitor(proposerDecision.m_sVote);
+}
+
 // Serialization Read
 FDataStream& operator>>(FDataStream& loadFrom, CvProposerDecision& writeTo)
 {
-	loadFrom >> (CvResolutionDecision&) writeTo;
-
-	uint uiVersion;
-
-	loadFrom >> uiVersion;
-	MOD_SERIALIZE_INIT_READ(loadFrom);
-	loadFrom >> writeTo.m_sVote;
-
+	CvStreamLoadVisitor serialVisitor(loadFrom);
+	CvProposerDecision::Serialize(writeTo, serialVisitor);
 	return loadFrom;
 }
 
 // Serialization Write
 FDataStream& operator<<(FDataStream& saveTo, const CvProposerDecision& readFrom)
 {
-	saveTo << (CvResolutionDecision&) readFrom;
-
-	uint uiVersion = 1;
-
-	saveTo << uiVersion;
-	MOD_SERIALIZE_INIT_WRITE(saveTo);
-	saveTo << readFrom.m_sVote;
-
+	CvStreamSaveVisitor serialVisitor(saveTo);
+	CvProposerDecision::Serialize(readFrom, serialVisitor);
 	return saveTo;
 }
 
@@ -1093,43 +966,26 @@ CvString CvVoterDecision::GetVotesAsText(CvLeague* pLeague)
 	return s;
 }
 
+template<typename VoterDecision, typename Visitor>
+void CvVoterDecision::Serialize(VoterDecision& voterDecision, Visitor& visitor)
+{
+	voterDecision.CvResolutionDecision::serialize(visitor);
+	visitor(voterDecision.m_vVotes);
+}
+
 // Serialization Read
 FDataStream& operator>>(FDataStream& loadFrom, CvVoterDecision& writeTo)
 {
-	loadFrom >> (CvResolutionDecision&) writeTo;
-
-	uint uiVersion;
-
-	loadFrom >> uiVersion;
-	MOD_SERIALIZE_INIT_READ(loadFrom);
-	
-	int iNumVotes;
-	loadFrom >> iNumVotes;
-	for (int i = 0; i < iNumVotes; i++)
-	{
-		CvResolutionDecision::PlayerVote temp;
-		loadFrom >> temp;
-		writeTo.m_vVotes.push_back(temp);
-	}
-
+	CvStreamLoadVisitor serialVisitor(loadFrom);
+	CvVoterDecision::Serialize(writeTo, serialVisitor);
 	return loadFrom;
 }
 
 // Serialization Write
 FDataStream& operator<<(FDataStream& saveTo, const CvVoterDecision& readFrom)
 {
-	saveTo << (CvResolutionDecision&) readFrom;
-
-	uint uiVersion = 1;
-
-	saveTo << uiVersion;
-	MOD_SERIALIZE_INIT_WRITE(saveTo);
-	saveTo << readFrom.m_vVotes.size();
-	for (CvResolutionDecision::PlayerVoteList::const_iterator it = readFrom.m_vVotes.begin(); it != readFrom.m_vVotes.end(); it++)
-	{
-		saveTo << *it;
-	}
-
+	CvStreamSaveVisitor serialVisitor(saveTo);
+	CvVoterDecision::Serialize(readFrom, serialVisitor);
 	return saveTo;
 }
 
@@ -1206,44 +1062,30 @@ CvString CvResolution::GetName()
 	return s;
 }
 
+template<typename Resolution, typename Visitor>
+void CvResolution::Serialize(Resolution& resolution, Visitor& visitor)
+{
+	visitor(resolution.m_iID);
+	visitor(resolution.m_eType);
+	visitor(resolution.m_eLeague);
+	visitor(resolution.m_sEffects);
+	visitor(resolution.m_VoterDecision);
+	visitor(resolution.m_ProposerDecision);
+}
+
 // Serialization Read
 FDataStream& operator>>(FDataStream& loadFrom, CvResolution& writeTo)
 {
-	uint uiVersion;
-
-	loadFrom >> uiVersion;
-	MOD_SERIALIZE_INIT_READ(loadFrom);
-	if (uiVersion >= 2)
-	{
-		loadFrom >> writeTo.m_iID;
-	}
-	else
-	{
-		writeTo.m_iID = GC.getGame().GetGameLeagues()->GenerateResolutionUniqueID();
-	}
-	loadFrom >> writeTo.m_eType;
-	loadFrom >> writeTo.m_eLeague;
-	loadFrom >> writeTo.m_sEffects;
-	loadFrom >> writeTo.m_VoterDecision;
-	loadFrom >> writeTo.m_ProposerDecision;
-
+	CvStreamLoadVisitor serialVisitor(loadFrom);
+	CvResolution::Serialize(writeTo, serialVisitor);
 	return loadFrom;
 }
 
 // Serialization Write
 FDataStream& operator<<(FDataStream& saveTo, const CvResolution& readFrom)
 {
-	uint uiVersion = 2;
-
-	saveTo << uiVersion;
-	MOD_SERIALIZE_INIT_WRITE(saveTo);
-	saveTo << readFrom.m_iID;
-	saveTo << readFrom.m_eType;
-	saveTo << readFrom.m_eLeague;
-	saveTo << readFrom.m_sEffects;
-	saveTo << readFrom.m_VoterDecision;
-	saveTo << readFrom.m_ProposerDecision;
-
+	CvStreamSaveVisitor serialVisitor(saveTo);
+	CvResolution::Serialize(readFrom, serialVisitor);
 	return saveTo;
 }
 
@@ -1270,31 +1112,26 @@ PlayerTypes CvProposal::GetProposalPlayer() const
 	return m_eProposalPlayer;
 }
 
+template<typename Proposal, typename Visitor>
+void CvProposal::Serialize(Proposal& proposal, Visitor& visitor)
+{
+	proposal.CvResolution::serialize(visitor);
+	visitor(proposal.m_eProposalPlayer);
+}
+
 // Serialization Read
 FDataStream& operator>>(FDataStream& loadFrom, CvProposal& writeTo)
 {
-	loadFrom >> (CvResolution&) writeTo;
-
-	uint uiVersion;
-
-	loadFrom >> uiVersion;
-	MOD_SERIALIZE_INIT_READ(loadFrom);
-	loadFrom >> writeTo.m_eProposalPlayer;
-
+	CvStreamLoadVisitor serialVisitor(loadFrom);
+	CvProposal::Serialize(writeTo, serialVisitor);
 	return loadFrom;
 }
 
 // Serialization Write
 FDataStream& operator<<(FDataStream& saveTo, const CvProposal& readFrom)
 {
-	saveTo << (CvResolution&) readFrom;
-
-	uint uiVersion = 1;
-
-	saveTo << uiVersion;
-	MOD_SERIALIZE_INIT_WRITE(saveTo);
-	saveTo << readFrom.m_eProposalPlayer;
-
+	CvStreamSaveVisitor serialVisitor(saveTo);
+	CvProposal::Serialize(readFrom, serialVisitor);
 	return saveTo;
 }
 
@@ -1389,29 +1226,25 @@ CvString CvEnactProposal::GetProposalName(bool bForLogging)
 	return s;
 }
 
+template<typename EnactProposal, typename Visitor>
+void CvEnactProposal::Serialize(EnactProposal& enactProposal, Visitor& visitor)
+{
+	enactProposal.CvProposal::serialize(visitor);
+}
+
 // Serialization Read
 FDataStream& operator>>(FDataStream& loadFrom, CvEnactProposal& writeTo)
 {
-	loadFrom >> (CvProposal&) writeTo;
-	
-	uint uiVersion;
-
-	loadFrom >> uiVersion;
-	MOD_SERIALIZE_INIT_READ(loadFrom);
-
+	CvStreamLoadVisitor serialVisitor(loadFrom);
+	CvEnactProposal::Serialize(writeTo, serialVisitor);
 	return loadFrom;
 }
 
 // Serialization Write
 FDataStream& operator<<(FDataStream& saveTo, const CvEnactProposal& readFrom)
 {
-	saveTo << (CvProposal&) readFrom;
-	
-	uint uiVersion = 1;
-
-	saveTo << uiVersion;
-	MOD_SERIALIZE_INIT_WRITE(saveTo);
-
+	CvStreamSaveVisitor serialVisitor(saveTo);
+	CvEnactProposal::Serialize(readFrom, serialVisitor);
 	return saveTo;
 }
 
@@ -2153,37 +1986,26 @@ int CvActiveResolution::GetTurnEnacted() const
 	return m_iTurnEnacted;
 }
 
+template<typename ActiveResolution, typename Visitor>
+void CvActiveResolution::Serialize(ActiveResolution& activeResolution, Visitor& visitor)
+{
+	activeResolution.CvResolution::serialize(visitor);
+	visitor(activeResolution.m_iTurnEnacted);
+}
+
 // Serialization Read
 FDataStream& operator>>(FDataStream& loadFrom, CvActiveResolution& writeTo)
 {
-	loadFrom >> (CvResolution&) writeTo;
-
-	uint uiVersion;
-
-	loadFrom >> uiVersion;
-	MOD_SERIALIZE_INIT_READ(loadFrom);
-	if (uiVersion < 2)
-	{
-		// Since version 2, m_iID was moved to a different class
-		int iTrash;
-		loadFrom >> iTrash;
-	}
-	loadFrom >> writeTo.m_iTurnEnacted;
-
+	CvStreamLoadVisitor serialVisitor(loadFrom);
+	CvActiveResolution::Serialize(writeTo, serialVisitor);
 	return loadFrom;
 }
 
 // Serialization Write
 FDataStream& operator<<(FDataStream& saveTo, const CvActiveResolution& readFrom)
 {
-	saveTo << (CvResolution&) readFrom;
-
-	uint uiVersion = 2;
-
-	saveTo << uiVersion;
-	MOD_SERIALIZE_INIT_WRITE(saveTo);
-	saveTo << readFrom.m_iTurnEnacted;
-
+	CvStreamSaveVisitor serialVisitor(saveTo);
+	CvActiveResolution::Serialize(readFrom, serialVisitor);
 	return saveTo;
 }
 
@@ -2273,33 +2095,27 @@ CvVoterDecision* CvRepealProposal::GetRepealDecision()
 	return &m_RepealDecision;
 }
 
+template<typename RepealProposal, typename Visitor>
+void CvRepealProposal::Serialize(RepealProposal& repealProposal, Visitor& visitor)
+{
+	repealProposal.CvProposal::serialize(visitor);
+	visitor(repealProposal.m_iTargetResolutionID);
+	visitor(repealProposal.m_RepealDecision);
+}
+
 // Serialization Read
 FDataStream& operator>>(FDataStream& loadFrom, CvRepealProposal& writeTo)
 {
-	loadFrom >> (CvProposal&) writeTo;
-
-	uint uiVersion;
-
-	loadFrom >> uiVersion;
-	MOD_SERIALIZE_INIT_READ(loadFrom);
-	loadFrom >> writeTo.m_iTargetResolutionID;
-	loadFrom >> writeTo.m_RepealDecision;
-
+	CvStreamLoadVisitor serialVisitor(loadFrom);
+	CvRepealProposal::Serialize(writeTo, serialVisitor);
 	return loadFrom;
 }
 
 // Serialization Write
 FDataStream& operator<<(FDataStream& saveTo, const CvRepealProposal& readFrom)
 {
-	saveTo << (CvProposal&) readFrom;
-
-	uint uiVersion = 1;
-
-	saveTo << uiVersion;
-	MOD_SERIALIZE_INIT_WRITE(saveTo);
-	saveTo << readFrom.m_iTargetResolutionID;
-	saveTo << readFrom.m_RepealDecision;
-
+	CvStreamSaveVisitor serialVisitor(saveTo);
+	CvRepealProposal::Serialize(readFrom, serialVisitor);
 	return saveTo;
 }
 
@@ -8576,310 +8392,96 @@ CvLeague::Project* CvLeague::GetProject(LeagueProjectTypes eLeagueProject)
 	return NULL;
 }
 
+template<typename MemberT, typename Visitor>
+void CvLeague::Member::Serialize(MemberT& member, Visitor& visitor)
+{
+	visitor(member.ePlayer);
+	visitor(member.iExtraVotes);
+	visitor(member.sVoteSources);
+	visitor(member.bMayPropose);
+	visitor(member.iProposals);
+	visitor(member.iVotes);
+	visitor(member.iAbstainedVotes);
+	visitor(member.bEverBeenHost);
+	visitor(member.bAlwaysBeenHost);
+}
+
+FDataStream& operator>>(FDataStream& stream, CvLeague::Member& member)
+{
+	CvStreamLoadVisitor serialVisitor(stream);
+	CvLeague::Member::Serialize(member, serialVisitor);
+	return stream;
+}
+FDataStream& operator<<(FDataStream& stream, const CvLeague::Member& member)
+{
+	CvStreamSaveVisitor serialVisitor(stream);
+	CvLeague::Member::Serialize(member, serialVisitor);
+	return stream;
+}
+
+template<typename ProjectT, typename Visitor>
+void CvLeague::Project::Serialize(ProjectT& project, Visitor& visitor)
+{
+	visitor(project.eType);
+	visitor(project.vProductionList);
+	visitor(project.bComplete);
+	visitor(project.bProgressWarningSent);
+}
+
+FDataStream& operator>>(FDataStream& stream, CvLeague::Project& project)
+{
+	CvStreamLoadVisitor serialVisitor(stream);
+	CvLeague::Project::Serialize(project, serialVisitor);
+	return stream;
+}
+FDataStream& operator<<(FDataStream& stream, const CvLeague::Project& project)
+{
+	CvStreamSaveVisitor serialVisitor(stream);
+	CvLeague::Project::Serialize(project, serialVisitor);
+	return stream;
+}
+
+template<typename League, typename Visitor>
+void CvLeague::Serialize(League& league, Visitor& visitor)
+{
+	visitor(league.m_eID);
+	visitor(league.m_bUnitedNations);
+	visitor(league.m_bInSession);
+	visitor(league.m_iTurnsUntilSession);
+	visitor(league.m_iNumResolutionsEverEnacted);
+	visitor(league.m_vEnactProposals);
+	visitor(league.m_vRepealProposals);
+	visitor(league.m_vActiveResolutions);
+	visitor(league.m_vMembers);
+	visitor(league.m_eHost);
+	visitor(league.m_vProjects);
+	visitor(league.m_iConsecutiveHostedSessions);
+	visitor(league.m_eAssignedName);
+	visitor(league.m_szCustomName);
+	visitor(league.m_eLastSpecialSession);
+	visitor(league.m_eCurrentSpecialSession);
+	visitor(league.m_vEnactProposalsOnHold);
+	visitor(league.m_vRepealProposalsOnHold);
+
+	visitor(league.m_vLastTurnEnactProposals);
+	visitor(league.m_vLastTurnRepealProposals);
+}
+
 // Serialization Read
 FDataStream& operator>>(FDataStream& loadFrom, CvLeague& writeTo)
 {
-	uint uiVersion;
-
-	loadFrom >> uiVersion;
-	MOD_SERIALIZE_INIT_READ(loadFrom);
-	loadFrom >> writeTo.m_eID;
-	if (uiVersion >= 4)
-	{
-		loadFrom >> writeTo.m_bUnitedNations;
-	}
-	else
-	{
-		writeTo.m_bUnitedNations = false;
-	}
-	if (uiVersion >= 2)
-	{
-		loadFrom >> writeTo.m_bInSession;
-	}
-	else
-	{
-		writeTo.m_bInSession = false;
-	}
-	loadFrom >> writeTo.m_iTurnsUntilSession;
-	loadFrom >> writeTo.m_iNumResolutionsEverEnacted;
-	
-	int iNumEnactProposals;
-	loadFrom >> iNumEnactProposals;
-	for (int i = 0; i < iNumEnactProposals; i++)
-	{
-		CvEnactProposal temp;
-		loadFrom >> temp;
-		writeTo.m_vEnactProposals.push_back(temp);
-	}
-
-	int iNumRepealProposals;
-	loadFrom >> iNumRepealProposals;
-	for (int i = 0; i < iNumRepealProposals; i++)
-	{
-		CvRepealProposal temp;
-		loadFrom >> temp;
-		writeTo.m_vRepealProposals.push_back(temp);
-	}
-
-	int iNumActiveResolutions;
-	loadFrom >> iNumActiveResolutions;
-	for (int i = 0; i < iNumActiveResolutions; i++)
-	{
-		CvActiveResolution temp;
-		loadFrom >> temp;
-		writeTo.m_vActiveResolutions.push_back(temp);
-	}
-
-	int iNumMembers;
-	loadFrom >> iNumMembers;
-	for (int i = 0; i < iNumMembers; i++)
-	{
-		CvLeague::Member temp;
-		loadFrom >> temp.ePlayer;
-		if (uiVersion >= 9)
-		{
-			loadFrom >> temp.iExtraVotes;
-		}
-		else
-		{
-			temp.iExtraVotes = 0;
-		}
-		if (uiVersion >= 10)
-		{
-			loadFrom >> temp.sVoteSources;
-		}
-		else
-		{
-			temp.sVoteSources = "";
-		}
-		loadFrom >> temp.bMayPropose;
-		if (uiVersion >= 12)
-		{
-			loadFrom >> temp.iProposals;
-		}
-		else
-		{
-			temp.iProposals = 0;
-		}
-		loadFrom >> temp.iVotes;
-		if (uiVersion >= 13)
-		{
-			loadFrom >> temp.iAbstainedVotes;
-		}
-		else
-		{
-			temp.iAbstainedVotes = 0;
-		}
-		if (uiVersion >= 14)
-		{
-			loadFrom >> temp.bEverBeenHost;
-			loadFrom >> temp.bAlwaysBeenHost;
-		}
-		else
-		{
-			temp.bEverBeenHost = false;
-			temp.bAlwaysBeenHost = true;
-		}
-		writeTo.m_vMembers.push_back(temp);
-	}
-	if (uiVersion >= 3)
-	{
-		loadFrom >> writeTo.m_eHost;
-	}
-	else
-	{
-		writeTo.m_eHost = NO_PLAYER;
-	}
-	if (uiVersion >= 5)
-	{
-		int iNumProjects;
-		loadFrom >> iNumProjects;
-		for (int iOuter = 0; iOuter < iNumProjects; iOuter++)
-		{
-			CvLeague::Project temp;
-			loadFrom >> temp.eType;
-			int iListSize;
-			loadFrom >> iListSize;
-			for (int iInner = 0; iInner < iListSize; iInner++)
-			{
-				int iContribution;
-				loadFrom >> iContribution;
-				temp.vProductionList[iInner] = iContribution;
-			}
-			if (uiVersion >= 6)
-			{
-				loadFrom >> temp.bComplete;
-			}
-			else
-			{
-				temp.bComplete = false;
-			}
-			if (uiVersion >= 11)
-			{
-				loadFrom >> temp.bProgressWarningSent;
-			}
-			else
-			{
-				temp.bProgressWarningSent = false;
-			}
-			writeTo.m_vProjects.push_back(temp);
-		}
-	}
-	else
-	{
-		writeTo.m_vProjects.clear();
-	}
-	if (uiVersion >= 7)
-	{
-		loadFrom >> writeTo.m_iConsecutiveHostedSessions;
-		loadFrom >> writeTo.m_eAssignedName;
-		ZeroMemory(writeTo.m_szCustomName, sizeof(writeTo.m_szCustomName));
-		loadFrom >> writeTo.m_szCustomName;
-	}
-	else
-	{
-		writeTo.m_iConsecutiveHostedSessions = 0;
-		writeTo.m_eAssignedName = NO_LEAGUE_NAME;
-		ZeroMemory(writeTo.m_szCustomName, sizeof(writeTo.m_szCustomName));
-	}
-	if (uiVersion >= 8)
-	{
-		loadFrom >> writeTo.m_eLastSpecialSession;
-
-		loadFrom >> writeTo.m_eCurrentSpecialSession;
-
-		int iNumEnactProposalsOnHold;
-		loadFrom >> iNumEnactProposalsOnHold;
-		for (int i = 0; i < iNumEnactProposalsOnHold; i++)
-		{
-			CvEnactProposal temp;
-			loadFrom >> temp;
-			writeTo.m_vEnactProposalsOnHold.push_back(temp);
-		}
-
-		int iNumRepealProposalsOnHold;
-		loadFrom >> iNumRepealProposalsOnHold;
-		for (int i = 0; i < iNumRepealProposalsOnHold; i++)
-		{
-			CvRepealProposal temp;
-			loadFrom >> temp;
-			writeTo.m_vRepealProposalsOnHold.push_back(temp);
-		}
-
-		int iNumLastTurnEnactProposals;
-		loadFrom >> iNumLastTurnEnactProposals;
-		for (int i = 0; i < iNumLastTurnEnactProposals; i++)
-		{
-			CvEnactProposal temp;
-			loadFrom >> temp;
-			writeTo.m_vLastTurnEnactProposals.push_back(temp);
-		}
-
-		int iNumLastTurnRepealProposals;
-		loadFrom >> iNumLastTurnRepealProposals;
-		for (int i = 0; i < iNumLastTurnRepealProposals; i++)
-		{
-			CvRepealProposal temp;
-			loadFrom >> temp;
-			writeTo.m_vLastTurnRepealProposals.push_back(temp);
-		}
-	}
-	else
-	{
-		writeTo.m_eLastSpecialSession = NO_LEAGUE_SPECIAL_SESSION;
-		writeTo.m_eCurrentSpecialSession = NO_LEAGUE_SPECIAL_SESSION;
-		writeTo.m_vEnactProposalsOnHold.clear();
-		writeTo.m_vRepealProposalsOnHold.clear();
-		writeTo.m_vLastTurnEnactProposals.clear();
-		writeTo.m_vLastTurnRepealProposals.clear();
-	}
-
+	CvStreamLoadVisitor serialVisitor(loadFrom);
+	CvLeague::Serialize(writeTo, serialVisitor);
 	return loadFrom;
 }
 
 // Serialization Write
 FDataStream& operator<<(FDataStream& saveTo, const CvLeague& readFrom)
 {
-	uint uiVersion = 14;
-	
-	saveTo << uiVersion;
-	MOD_SERIALIZE_INIT_WRITE(saveTo);
-	saveTo << readFrom.m_eID;
-	saveTo << readFrom.m_bUnitedNations;
-	saveTo << readFrom.m_bInSession;
-	saveTo << readFrom.m_iTurnsUntilSession;
-	saveTo << readFrom.m_iNumResolutionsEverEnacted;
-	saveTo << readFrom.m_vEnactProposals.size();
-	for (EnactProposalList::const_iterator it = readFrom.m_vEnactProposals.begin(); it != readFrom.m_vEnactProposals.end(); it++)
-	{
-		saveTo << *it;
-	}
-	saveTo << readFrom.m_vRepealProposals.size();
-	for (RepealProposalList::const_iterator it = readFrom.m_vRepealProposals.begin(); it != readFrom.m_vRepealProposals.end(); it++)
-	{
-		saveTo << *it;
-	}
-	saveTo << readFrom.m_vActiveResolutions.size();
-	for (ActiveResolutionList::const_iterator it = readFrom.m_vActiveResolutions.begin(); it != readFrom.m_vActiveResolutions.end(); it++)
-	{
-		saveTo << *it;
-	}
-	saveTo << readFrom.m_vMembers.size();
-	for (CvLeague::MemberList::const_iterator it = readFrom.m_vMembers.begin(); it != readFrom.m_vMembers.end(); it++)
-	{
-		saveTo << it->ePlayer;
-		saveTo << it->iExtraVotes;
-		saveTo << it->sVoteSources;
-		saveTo << it->bMayPropose;
-		saveTo << it->iProposals;
-		saveTo << it->iVotes;
-		saveTo << it->iAbstainedVotes;
-		saveTo << it->bEverBeenHost;
-		saveTo << it->bAlwaysBeenHost;
-	}
-	saveTo << readFrom.m_eHost;
-	saveTo << readFrom.m_vProjects.size();
-	for (CvLeague::ProjectList::const_iterator it = readFrom.m_vProjects.begin(); it != readFrom.m_vProjects.end(); it++)
-	{
-		saveTo << it->eType;
-		saveTo << it->vProductionList.size();
-		for (CvLeague::ProjectProductionList::const_iterator innerIt = it->vProductionList.begin(); innerIt != it->vProductionList.end(); innerIt++)
-		{
-			saveTo << *innerIt;
-		}
-		saveTo << it->bComplete;
-		saveTo << it->bProgressWarningSent;
-	}
-	saveTo << readFrom.m_iConsecutiveHostedSessions;
-	saveTo << readFrom.m_eAssignedName;
-	saveTo << readFrom.m_szCustomName;
-	saveTo << readFrom.m_eLastSpecialSession;
-	saveTo << readFrom.m_eCurrentSpecialSession;
-	saveTo << readFrom.m_vEnactProposalsOnHold.size();
-	for (EnactProposalList::const_iterator it = readFrom.m_vEnactProposalsOnHold.begin(); it != readFrom.m_vEnactProposalsOnHold.end(); ++it)
-	{
-		saveTo << *it;
-	}
-	saveTo << readFrom.m_vRepealProposalsOnHold.size();
-	for (RepealProposalList::const_iterator it = readFrom.m_vRepealProposalsOnHold.begin(); it != readFrom.m_vRepealProposalsOnHold.end(); ++it)
-	{
-		saveTo << *it;
-	}
-
-	saveTo << readFrom.m_vLastTurnEnactProposals.size();
-	for (EnactProposalList::const_iterator it = readFrom.m_vLastTurnEnactProposals.begin(); it != readFrom.m_vLastTurnEnactProposals.end(); ++it)
-	{
-		saveTo << *it;
-	}
-	saveTo << readFrom.m_vLastTurnRepealProposals.size();
-	for (RepealProposalList::const_iterator it = readFrom.m_vLastTurnRepealProposals.begin(); it != readFrom.m_vLastTurnRepealProposals.end(); ++it)
-	{
-		saveTo << *it;
-	}
-
+	CvStreamSaveVisitor serialVisitor(saveTo);
+	CvLeague::Serialize(readFrom, serialVisitor);
 	return saveTo;
 }
-
 
 // ================================================================================
 //			CvGameLeagues
@@ -9699,78 +9301,31 @@ void CvGameLeagues::LogSpecialSession(LeagueSpecialSessionTypes eSpecialSession)
 	LogLeagueMessage(sMessage);
 }
 
+template<typename GameLeagues, typename Visitor>
+void CvGameLeagues::Serialize(GameLeagues& gameLeagues, Visitor& visitor)
+{
+	visitor(gameLeagues.m_iGeneratedIDCount);
+	visitor(gameLeagues.m_vActiveLeagues);
+	visitor(gameLeagues.m_iNumLeaguesEverFounded);
+	visitor(gameLeagues.m_eDiplomaticVictor);
+	visitor(gameLeagues.m_eLastEraTrigger);
+}
+
 // Serialization Read
 FDataStream& operator>>(FDataStream& loadFrom, CvGameLeagues& writeTo)
 {
-	uint uiVersion;
-	int iNumLeagues;
-
-	loadFrom >> uiVersion;
-	MOD_SERIALIZE_INIT_READ(loadFrom);
-	if (uiVersion >= 4)
-	{
-		loadFrom >> writeTo.m_iGeneratedIDCount;
-	}
-	else
-	{
-		writeTo.m_iGeneratedIDCount = 0;
-	}
-	loadFrom >> iNumLeagues;
-	writeTo.m_vActiveLeagues.clear();
-	for (int iLeague = 0; iLeague < iNumLeagues; iLeague++)
-	{
-		CvLeague tempLeague;
-		loadFrom >> tempLeague;
-		writeTo.m_vActiveLeagues.push_back(tempLeague);
-	}
-	if (uiVersion >= 2)
-	{
-		loadFrom >> writeTo.m_iNumLeaguesEverFounded;
-	}
-	else
-	{
-		writeTo.m_iNumLeaguesEverFounded = 0;
-	}
-	if (uiVersion >= 3)
-	{
-		loadFrom >> writeTo.m_eDiplomaticVictor;
-	}
-	else
-	{
-		writeTo.m_eDiplomaticVictor = NO_PLAYER;
-	}
-	if (uiVersion >= 5)
-	{
-		loadFrom >> writeTo.m_eLastEraTrigger;
-	}
-	else
-	{
-		writeTo.m_eLastEraTrigger = NO_ERA;
-	}
-
+	CvStreamLoadVisitor serialVisitor(loadFrom);
+	CvGameLeagues::Serialize(writeTo, serialVisitor);
 	return loadFrom;
 }
 
 // Serialization Write
 FDataStream& operator<<(FDataStream& saveTo, const CvGameLeagues& readFrom)
 {
-	uint uiVersion = 5;
-	
-	saveTo << uiVersion;
-	MOD_SERIALIZE_INIT_WRITE(saveTo);
-	saveTo << readFrom.m_iGeneratedIDCount;
-	saveTo << readFrom.m_vActiveLeagues.size();
-	for (uint iLeague = 0; iLeague < readFrom.m_vActiveLeagues.size(); iLeague++)
-	{
-		saveTo << readFrom.m_vActiveLeagues[iLeague];
-	}
-	saveTo << readFrom.m_iNumLeaguesEverFounded;
-	saveTo << readFrom.m_eDiplomaticVictor;
-	saveTo << readFrom.m_eLastEraTrigger;
-	
+	CvStreamSaveVisitor serialVisitor(saveTo);
+	CvGameLeagues::Serialize(readFrom, serialVisitor);
 	return saveTo;
 }
-
 
 // ================================================================================
 //			CvLeagueAI
@@ -9804,49 +9359,56 @@ void CvLeagueAI::Reset()
 	m_vVoteCommitmentList.clear();
 }
 
-void CvLeagueAI::Read(FDataStream& kStream)
+template<typename VoteCommitmentT, typename Visitor>
+void CvLeagueAI::VoteCommitment::Serialize(VoteCommitmentT& voteCommitment, Visitor& visitor)
 {
-	uint uiVersion;
-	kStream >> uiVersion;
-	MOD_SERIALIZE_INIT_READ(kStream);
-
-	if (uiVersion >= 2)
-	{
-		m_vVoteCommitmentList.clear();
-		uint uiNumVoteCommitments;
-		kStream >> uiNumVoteCommitments;
-		for (uint i = 0; i < uiNumVoteCommitments; i++)
-		{
-			VoteCommitment temp;
-			kStream >> temp.eToPlayer;
-			kStream >> temp.iResolutionID;
-			kStream >> temp.iVoteChoice;
-			kStream >> temp.iNumVotes;
-			kStream >> temp.bEnact;
-			m_vVoteCommitmentList.push_back(temp);
-		}
-	}
-	else
-	{
-		m_vVoteCommitmentList.clear();
-	}
+	visitor(voteCommitment.eToPlayer);
+	visitor(voteCommitment.iResolutionID);
+	visitor(voteCommitment.iVoteChoice);
+	visitor(voteCommitment.iNumVotes);
+	visitor(voteCommitment.bEnact);
 }
 
-void CvLeagueAI::Write(FDataStream& kStream)
+FDataStream& operator>>(FDataStream& stream, CvLeagueAI::VoteCommitment& voteCommitment)
 {
-	uint uiVersion = 2;
-	kStream << uiVersion;
-	MOD_SERIALIZE_INIT_WRITE(kStream);
+	CvStreamLoadVisitor serialVisitor(stream);
+	CvLeagueAI::VoteCommitment::Serialize(voteCommitment, serialVisitor);
+	return stream;
+}
+FDataStream& operator<<(FDataStream& stream, const CvLeagueAI::VoteCommitment& voteCommitment)
+{
+	CvStreamSaveVisitor serialVisitor(stream);
+	CvLeagueAI::VoteCommitment::Serialize(voteCommitment, serialVisitor);
+	return stream;
+}
 
-	kStream << m_vVoteCommitmentList.size();
-	for (VoteCommitmentList::iterator it = m_vVoteCommitmentList.begin(); it != m_vVoteCommitmentList.end(); ++it)
-	{
-		kStream << it->eToPlayer;
-		kStream << it->iResolutionID;
-		kStream << it->iVoteChoice;
-		kStream << it->iNumVotes;
-		kStream << it->bEnact;
-	}
+template<typename LeagueAI, typename Visitor>
+void CvLeagueAI::Serialize(LeagueAI& leagueAI, Visitor& visitor)
+{
+	visitor(leagueAI.m_vVoteCommitmentList);
+}
+
+void CvLeagueAI::Read(FDataStream& kStream)
+{
+	CvStreamLoadVisitor serialVisitor(kStream);
+	Serialize(*this, serialVisitor);
+}
+
+void CvLeagueAI::Write(FDataStream& kStream) const
+{
+	CvStreamSaveVisitor serialVisitor(kStream);
+	Serialize(*this, serialVisitor);
+}
+
+FDataStream& operator>>(FDataStream& stream, CvLeagueAI& leagueAI)
+{
+	leagueAI.Read(stream);
+	return stream;
+}
+FDataStream& operator<<(FDataStream& stream, const CvLeagueAI& leagueAI)
+{
+	leagueAI.Write(stream);
+	return stream;
 }
 
 void CvLeagueAI::DoTurn()

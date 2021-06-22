@@ -55,6 +55,9 @@ struct CvTradedItem
 	CvTradedItem();
 	bool operator==(const CvTradedItem& rhs) const;
 
+	template<typename TradedItem, typename Visitor>
+	static void Serialize(TradedItem& tradedItem, Visitor& visitor);
+
 	TradeableItems m_eItemType;		// What type of item is this
 	int m_iDuration;
 	int m_iFinalTurn;
@@ -66,7 +69,6 @@ struct CvTradedItem
 	int m_iValue;					// not serialized, only temporary
 	bool m_bValueIsEven;			// not serialized, only temporary
 };
-FDataStream& OldLoad(FDataStream&, CvTradedItem&);
 FDataStream& operator>>(FDataStream&, CvTradedItem&);
 FDataStream& operator<<(FDataStream&, const CvTradedItem&);
 typedef vector<CvTradedItem> TradedItemList;
@@ -97,6 +99,9 @@ public:
 	virtual ~CvDeal();
 	CvDeal& operator=(const CvDeal& source);
 	bool operator==(const CvDeal& other) const;
+
+	template<typename Deal, typename Visitor>
+	static void Serialize(Deal& deal, Visitor& visitor);
 
 	// Public data
 	PlayerTypes m_eFromPlayer;
@@ -270,7 +275,6 @@ public:
 	bool ContainsItemType(TradeableItems eItemType, PlayerTypes eFrom = NO_PLAYER);
 };
 
-FDataStream& OldLoad(FDataStream&, CvDeal&);
 FDataStream& operator>>(FDataStream&, CvDeal&);
 FDataStream& operator<<(FDataStream&, const CvDeal&);
 
@@ -291,6 +295,9 @@ public:
 	CvGameDeals();
 	virtual ~CvGameDeals();
 	void Init();
+
+	template<typename GameDeals, typename Visitor>
+	static void Serialize(GameDeals& gameDeals, Visitor& visitor);
 
 	void AddProposedDeal(CvDeal kDeal);
 #if defined(MOD_ACTIVE_DIPLOMACY)
@@ -363,7 +370,6 @@ protected:
 	unsigned int m_uiDealCounter;
 };
 
-FDataStream& OldLoad(FDataStream& loadFrom, CvGameDeals& writeTo);
 FDataStream& operator>>(FDataStream&, CvGameDeals&);
 FDataStream& operator<<(FDataStream&, const CvGameDeals&);
 

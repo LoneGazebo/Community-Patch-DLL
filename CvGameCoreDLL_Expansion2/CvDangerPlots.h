@@ -165,6 +165,8 @@ public:
 	bool IsDirty() const { return m_bDirty; }
 	int GetTurnSliceBuilt() const { return m_iTurnSliceBuilt; }
 
+	template<typename DangerPlots, typename Visitor>
+	static void Serialize(DangerPlots& dangerPlots, Visitor& visitor);
 	void Read(FDataStream& kStream);
 	void Write(FDataStream& kStream) const;
 
@@ -188,5 +190,8 @@ protected:
 	vector<CvDangerPlotContents> m_DangerPlots; //not serialized!
 	UnitSet m_knownUnits;
 };
+
+FDataStream& operator>>(FDataStream&, CvDangerPlots&);
+FDataStream& operator<<(FDataStream&, const CvDangerPlots&);
 
 #endif //CIV5_PROJECT_CLASSES_H

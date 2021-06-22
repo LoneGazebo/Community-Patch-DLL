@@ -477,7 +477,7 @@ public:
 	CvBuildingXMLEntries* GetGameBuildings() const;
 
 	//some caching to avoid iterating all building types
-	const vector <BuildingTypes>& getBuildingInteractions(BuildingTypes eRefBuilding) const;
+	const std::vector <BuildingTypes>& getBuildingInteractions(BuildingTypes eRefBuilding) const;
 
 	int getNumUnitClassInfos();
 	std::vector<CvUnitClassInfo*>& getUnitClassInfo();

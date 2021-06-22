@@ -127,6 +127,8 @@ public:
 #endif
 
 	// for serialization
+	template<typename Area, typename Visitor>
+	static void Serialize(Area& area, Visitor& visitor);
 	virtual void read(FDataStream& kStream);
 	virtual void write(FDataStream& kStream) const;
 

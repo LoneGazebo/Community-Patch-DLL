@@ -40,43 +40,26 @@
 
 // Public Functions...
 
-//------------------------------------------------------------------------------
-// CvPlot Version History
-// Version 5
-//	 * ImprovementType is now hashed.
-// Version 6
-//	 * Improvement Revealed array is now hashed
-// Version 7
-//   * Added m_eImprovementTypeUnderConstruction variable to be serialized
-//------------------------------------------------------------------------------
-const int g_CurrentCvPlotVersion = 7;
-
 //	--------------------------------------------------------------------------------
 namespace FSerialization
 {
-
-std::set<int> plotsToCheck;
-
 void SyncPlots()
 {
 	if(GC.getGame().isNetworkMultiPlayer())
 	{
 		PlayerTypes authoritativePlayer = GC.getGame().getActivePlayer();
-		std::set<int>::const_iterator i;
-		for(i = plotsToCheck.begin(); i != plotsToCheck.end(); ++i)
+		CvMap& map = GC.getMap();
+		for(int i = 0; i < map.numPlots(); ++i)
 		{
-			const CvPlot* plot = GC.getMap().plotByIndexUnchecked(*i);
-
-			if(plot)
+			CvPlot* plot = map.plotByIndexUnchecked(i);
+			CvSyncArchive<CvPlot>& archive = plot->getSyncArchive();
+			archive.collectDeltas();
+			if(archive.hasDeltas())
 			{
-				const FAutoArchive& archive = plot->getSyncArchive();
-				if(archive.hasDeltas())
-				{
-					FMemoryStream memoryStream;
-					std::vector<std::pair<std::string, std::string> > callStacks;
-					archive.saveDelta(memoryStream, callStacks);
-					gDLL->sendPlotSyncCheck(authoritativePlayer, plot->getX(), plot->getY(), memoryStream, callStacks);
-				}
+				FMemoryStream memoryStream;
+				std::vector<std::pair<std::string, std::string> > callStacks;
+				archive.saveDelta(memoryStream, callStacks);
+				gDLL->sendPlotSyncCheck(authoritativePlayer, plot->getX(), plot->getY(), memoryStream, callStacks);
 			}
 		}
 	}
@@ -85,17 +68,12 @@ void SyncPlots()
 // clears ALL deltas for ALL plots
 void ClearPlotDeltas()
 {
-	std::set<int>::iterator i;
-	for(i = plotsToCheck.begin(); i != plotsToCheck.end(); ++i)
+	CvMap& map = GC.getMap();
+	for (int i = 0; i < map.numPlots(); ++i)
 	{
-		CvPlot* plot = GC.getMap().plotByIndex(*i);
-
-		if(plot)
-		{
-			FAutoArchive& archive = plot->getSyncArchive();
-
-			archive.clearDelta();
-		}
+		CvPlot* plot = map.plotByIndexUnchecked(i);
+		FAutoArchive& archive = plot->getSyncArchive();
+		archive.clearDelta();
 	}
 }
 }
@@ -103,68 +81,48 @@ void ClearPlotDeltas()
 //////////////////////////////////////////////////////////////////////////
 // CvArchaeologyData serialization
 //////////////////////////////////////////////////////////////////////////
+template<typename ArchaeologyData, typename Visitor>
+void CvArchaeologyData::Serialize(ArchaeologyData& archaeologyData, Visitor& visitor)
+{
+	visitor(archaeologyData.m_eArtifactType);
+	visitor(archaeologyData.m_eEra);
+	visitor(archaeologyData.m_ePlayer1);
+	visitor(archaeologyData.m_ePlayer2);
+	visitor(archaeologyData.m_eWork);
+}
+
 FDataStream& operator>>(FDataStream& loadFrom, CvArchaeologyData& writeTo)
 {
-	uint uiVersion;
-	loadFrom >> uiVersion;
-	MOD_SERIALIZE_INIT_READ(loadFrom);
-
-	int iTemp;
-	loadFrom >> iTemp;
-	writeTo.m_eArtifactType = (GreatWorkArtifactClass)iTemp;
-	loadFrom >> writeTo.m_eEra;
-	loadFrom >> writeTo.m_ePlayer1;
-	loadFrom >> writeTo.m_ePlayer2;
-	if (uiVersion >= 2)
-	{
-		loadFrom >> iTemp;
-		writeTo.m_eWork = (GreatWorkType)iTemp;
-	}
-	else
-	{
-		writeTo.m_eWork = NO_GREAT_WORK;
-	}
-
+	CvStreamLoadVisitor serialVisitor(loadFrom);
+	CvArchaeologyData::Serialize(writeTo, serialVisitor);
 	return loadFrom;
 }
 
 /// Serialization write
 FDataStream& operator<<(FDataStream& saveTo, const CvArchaeologyData& readFrom)
 {
-	uint uiVersion = 2;
-	saveTo << uiVersion;
-	MOD_SERIALIZE_INIT_WRITE(saveTo);
-
-	saveTo << readFrom.m_eArtifactType;
-	saveTo << readFrom.m_eEra;
-	saveTo << readFrom.m_ePlayer1;
-	saveTo << readFrom.m_ePlayer2;
-	saveTo << readFrom.m_eWork;
-
+	CvStreamSaveVisitor serialVisitor(saveTo);
+	CvArchaeologyData::Serialize(readFrom, serialVisitor);
 	return saveTo;
 }
 
 //////////////////////////////////////////////////////////////////////////
 // CvPlot
 //////////////////////////////////////////////////////////////////////////
-CvPlot::CvPlot() :
-	m_syncArchive(*this)
-	, m_eFeatureType("CvPlot::m_eFeatureType", m_syncArchive, true)
+CvPlot::CvPlot()
+	: m_syncArchive()
+	, m_szScriptData(NULL)
 {
-	FSerialization::plotsToCheck.insert(m_iPlotIndex);
-
-	m_szScriptData = NULL;
-
-	reset(0, 0, true);
+	if (GC.getGame().isNetworkMultiPlayer())
+	{
+		m_syncArchive.initSyncVars(*FNEW(CvSyncArchive<CvPlot>::SyncVars(*this), c_eCiv5GameplayDLL, 0));
+	}
 }
 
 
 //	--------------------------------------------------------------------------------
 CvPlot::~CvPlot()
 {
-	std::set<int>::iterator it = FSerialization::plotsToCheck.find(m_iPlotIndex);
-	if (it!=FSerialization::plotsToCheck.end())
-		FSerialization::plotsToCheck.erase(it);
 	uninit();
 }
 
@@ -172,14 +130,16 @@ CvPlot::~CvPlot()
 void CvPlot::init(int iX, int iY)
 {
 	//--------------------------------
-	// Init saved data
-	reset(iX, iY);
-
-	//--------------------------------
 	// Init non-saved data
 
+	m_iX = iX;
+	m_iY = iY;
+
+	m_iPlotIndex = GC.getMap().plotNum(m_iX, m_iY);
+
 	//--------------------------------
-	// Init other game data
+	// Init saved data
+	reset();
 }
 
 
@@ -196,18 +156,11 @@ void CvPlot::uninit()
 //	--------------------------------------------------------------------------------
 // FUNCTION: reset()
 // Initializes data members that are serialized.
-void CvPlot::reset(int iX, int iY, bool bConstructorCall)
+void CvPlot::reset()
 {
 	//--------------------------------
 	// Uninit class
 	uninit();
-
-	m_iX = iX;
-	m_iY = iY;
-
-#if defined(MOD_BALANCE_CORE)
-	m_iPlotIndex = GC.getMap().plotNum(m_iX,m_iY);
-#endif
 
 	m_iArea = -1;
 	m_iLandmass = -1;
@@ -282,28 +235,25 @@ void CvPlot::reset(int iX, int iY, bool bConstructorCall)
 
 	m_vExtraYields.clear();
 
-	if(!bConstructorCall)
+	m_bfRevealed.ClearAll();
+
+	for(int iI = 0; iI < NUM_YIELD_TYPES; ++iI)
 	{
-		m_bfRevealed.ClearAll();
+		m_aiYield[iI] = 0;
+	}
 
-		for(int iI = 0; iI < NUM_YIELD_TYPES; ++iI)
-		{
-			m_aiYield[iI] = 0;
-		}
-
-		for(int iI = 0; iI < MAX_TEAMS; ++iI)
-		{
-			m_aiPlayerCityRadiusCount[iI] = 0;
-			m_aiVisibilityCount[iI] = 0;
-			m_aiRevealedOwner[iI] = -1;
-			m_abResourceForceReveal[iI] = false;
-			m_aeRevealedImprovementType[iI] = NO_IMPROVEMENT;
-			m_aeRevealedRouteType[iI] = NO_ROUTE;
+	for(int iI = 0; iI < MAX_TEAMS; ++iI)
+	{
+		m_aiPlayerCityRadiusCount[iI] = 0;
+		m_aiVisibilityCount[iI] = 0;
+		m_aiRevealedOwner[iI] = -1;
+		m_abResourceForceReveal[iI] = false;
+		m_aeRevealedImprovementType[iI] = NO_IMPROVEMENT;
+		m_aeRevealedRouteType[iI] = NO_ROUTE;
 #if defined(MOD_BALANCE_CORE)
-			m_abIsImpassable[iI] = false;
-			m_abStrategicRoute[iI] = false;
+		m_abIsImpassable[iI] = false;
+		m_abStrategicRoute[iI] = false;
 #endif
-		}
 	}
 
 	m_vInvisibleVisibilityUnitCount.clear();
@@ -6772,7 +6722,7 @@ void CvPlot::setFeatureType(FeatureTypes eNewValue)
 
 #if defined(MOD_EVENTS_TERRAFORMING)
 		if (MOD_EVENTS_TERRAFORMING) {
-			GAMEEVENTINVOKE_HOOK(GAMEEVENT_TerraformingPlot, TERRAFORMINGEVENT_FEATURE, m_iX, m_iY, 0, eNewValue, m_eFeatureType.get(), -1, -1);
+			GAMEEVENTINVOKE_HOOK(GAMEEVENT_TerraformingPlot, TERRAFORMINGEVENT_FEATURE, m_iX, m_iY, 0, eNewValue, m_eFeatureType, -1, -1);
 		}
 #endif
 
@@ -8971,7 +8921,7 @@ void CvPlot::SetResourceLinkedCityActive(bool bValue)
 
 		// Now change num resource local to linked city (new or former)
 
-		FAssertMsg(GetResourceLinkedCity() != NULL, "Resource linked city is null for some reason. Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+		//FAssertMsg(GetResourceLinkedCity() != NULL, "Resource linked city is null for some reason. Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 		FAssertMsg(getOwner() != NO_PLAYER, "Owner of a tile with a resource linkned to a city is not valid. Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 
 		int iResourceChange = bValue ? getNumResource() : -getNumResource();
@@ -12601,207 +12551,206 @@ void CvPlot::processArea(CvArea* pArea, int iChange)
 }
 
 //	--------------------------------------------------------------------------------
+template<typename Plot, typename Visitor>
+void CvPlot::Serialize(Plot& plot, Visitor& visitor)
+{
+	const bool bLoading = visitor.isLoading();
+	const bool bSaving = visitor.isSaving();
+
+	// Hack for where we need to mutate the plot directly
+	// Necessary because C++03 has no if constexpr =(
+	// Don't use this in save branches and things will be okay
+	CvPlot& mutPlot = const_cast<CvPlot&>(plot);
+
+	visitor(plot.m_iArea);
+	visitor(plot.m_iOwnershipDuration);
+	visitor(plot.m_iImprovementDuration);
+	visitor(plot.m_iUpgradeProgress);
+	visitor(plot.m_iNumMajorCivsRevealed);
+	visitor(plot.m_iCityRadiusCount);
+	visitor(plot.m_iReconCount);
+	visitor(plot.m_iRiverCrossingCount);
+	visitor(plot.m_iResourceNum);
+	visitor(plot.m_iLandmass);
+
+	// Bit fields
+	{
+		enum PlotSaveStructBitFlags
+		{
+			PLOT_BIT_FLAG_IMPROVEMENT_EMBASSY			= (1 << 0),
+			PLOT_BIT_FLAG_IMPROVEMENT_PASSABLE			= (1 << 1),
+			PLOT_BIT_FLAG_IMPROVEMENT_PILLAGED			= (1 << 2),
+			PLOT_BIT_FLAG_ROUTE_PILLAGED				= (1 << 3),
+			PLOT_BIT_FLAG_STARTING_PLOT					= (1 << 4),
+			PLOT_BIT_FLAG_HILLS							= (1 << 5),
+			PLOT_BIT_FLAG_NE_OF_RIVER					= (1 << 6),
+			PLOT_BIT_FLAG_W_OF_RIVER					= (1 << 7),
+			PLOT_BIT_FLAG_NW_OF_RIVER					= (1 << 8),
+			PLOT_BIT_FLAG_POTENTIAL_CITY_WORK			= (1 << 9),
+			PLOT_BIT_FLAG_BARB_CAMP_NOT_CONVERTING		= (1 << 10),
+			PLOT_BIT_FLAG_ROUGH_PLOT					= (1 << 11),
+			PLOT_BIT_FLAG_RESOURCE_LINKED_CITY_ACTIVE	= (1 << 12),
+			PLOT_BIT_FLAG_IMPROVED_BY_GIFT_FROM_MAYOR	= (1 << 13),
+			PLOT_BIT_FLAG_IS_IMPASSABLE					= (1 << 14),
+		};
+
+		uint16 plotBits;
+		if (bLoading)
+		{
+			visitor >> plotBits;
+			mutPlot.m_bImprovementEmbassy		= !!(plotBits & PLOT_BIT_FLAG_IMPROVEMENT_EMBASSY);
+			mutPlot.m_bImprovementPassable		= !!(plotBits & PLOT_BIT_FLAG_IMPROVEMENT_PASSABLE);
+			mutPlot.m_bImprovementPillaged		= !!(plotBits & PLOT_BIT_FLAG_IMPROVEMENT_PILLAGED);
+			mutPlot.m_bRoutePillaged			= !!(plotBits & PLOT_BIT_FLAG_ROUTE_PILLAGED);
+			mutPlot.m_bStartingPlot				= !!(plotBits & PLOT_BIT_FLAG_STARTING_PLOT);
+			mutPlot.m_bHills					= !!(plotBits & PLOT_BIT_FLAG_HILLS);
+			mutPlot.m_bNEOfRiver				= !!(plotBits & PLOT_BIT_FLAG_NE_OF_RIVER);
+			mutPlot.m_bWOfRiver					= !!(plotBits & PLOT_BIT_FLAG_W_OF_RIVER);
+			mutPlot.m_bNWOfRiver				= !!(plotBits & PLOT_BIT_FLAG_NW_OF_RIVER);
+			mutPlot.m_bPotentialCityWork		= !!(plotBits & PLOT_BIT_FLAG_POTENTIAL_CITY_WORK);
+			mutPlot.m_bBarbCampNotConverting	= !!(plotBits & PLOT_BIT_FLAG_BARB_CAMP_NOT_CONVERTING);
+			mutPlot.m_bRoughPlot				= !!(plotBits & PLOT_BIT_FLAG_ROUGH_PLOT);
+			mutPlot.m_bResourceLinkedCityActive	= !!(plotBits & PLOT_BIT_FLAG_RESOURCE_LINKED_CITY_ACTIVE);
+			mutPlot.m_bImprovedByGiftFromMajor	= !!(plotBits & PLOT_BIT_FLAG_IMPROVED_BY_GIFT_FROM_MAYOR);
+			mutPlot.m_bIsImpassable				= !!(plotBits & PLOT_BIT_FLAG_IS_IMPASSABLE);
+		}
+		if (bSaving)
+		{
+			plotBits = 0;
+			if (plot.m_bImprovementEmbassy)			{ plotBits |= PLOT_BIT_FLAG_IMPROVEMENT_EMBASSY; }
+			if (plot.m_bImprovementPassable)		{ plotBits |= PLOT_BIT_FLAG_IMPROVEMENT_PASSABLE; }
+			if (plot.m_bImprovementPillaged)		{ plotBits |= PLOT_BIT_FLAG_IMPROVEMENT_PILLAGED; }
+			if (plot.m_bRoutePillaged)				{ plotBits |= PLOT_BIT_FLAG_ROUTE_PILLAGED; }
+			if (plot.m_bStartingPlot)				{ plotBits |= PLOT_BIT_FLAG_STARTING_PLOT; }
+			if (plot.m_bHills)						{ plotBits |= PLOT_BIT_FLAG_HILLS; }
+			if (plot.m_bNEOfRiver)					{ plotBits |= PLOT_BIT_FLAG_NE_OF_RIVER; }
+			if (plot.m_bWOfRiver)					{ plotBits |= PLOT_BIT_FLAG_W_OF_RIVER; }
+			if (plot.m_bNWOfRiver)					{ plotBits |= PLOT_BIT_FLAG_NW_OF_RIVER; }
+			if (plot.m_bPotentialCityWork)			{ plotBits |= PLOT_BIT_FLAG_POTENTIAL_CITY_WORK; }
+			if (plot.m_bBarbCampNotConverting)		{ plotBits |= PLOT_BIT_FLAG_BARB_CAMP_NOT_CONVERTING; }
+			if (plot.m_bRoughPlot)					{ plotBits |= PLOT_BIT_FLAG_ROUGH_PLOT; }
+			if (plot.m_bResourceLinkedCityActive)	{ plotBits |= PLOT_BIT_FLAG_RESOURCE_LINKED_CITY_ACTIVE; }
+			if (plot.m_bImprovedByGiftFromMajor)	{ plotBits |= PLOT_BIT_FLAG_IMPROVED_BY_GIFT_FROM_MAYOR; }
+			if (plot.m_bIsImpassable)				{ plotBits |= PLOT_BIT_FLAG_IS_IMPASSABLE; }
+			visitor << plotBits;
+		}
+	}
+
+	visitor(plot.m_iUnitPlotExperience);
+	visitor(plot.m_iUnitPlotGAExperience);
+	visitor(plot.m_iPlotChangeMoves);
+
+	visitor(plot.m_eOwner);
+	visitor(plot.m_ePlotType);
+	visitor(plot.m_eTerrainType);
+
+	visitor.as<FeatureTypes>(plot.m_eFeatureType);
+	visitor.as<ResourceTypes>(plot.m_eResourceType);
+	visitor.as<ImprovementTypes>(plot.m_eImprovementType);
+	visitor.as<ImprovementTypes>(plot.m_eImprovementTypeUnderConstruction);
+
+	visitor(plot.m_ePlayerBuiltImprovement);
+	visitor(plot.m_ePlayerResponsibleForImprovement);
+	visitor(plot.m_ePlayerResponsibleForRoute);
+	visitor(plot.m_ePlayerThatClearedBarbCampHere);
+	visitor(plot.m_ePlayerThatClearedDigHere);
+	visitor(plot.m_eRouteType);
+	visitor(plot.m_eUnitIncrement);
+	visitor(plot.m_eWorldAnchor);
+	visitor(plot.m_cWorldAnchorData);
+
+	visitor(plot.m_eRiverEFlowDirection);
+	visitor(plot.m_eRiverSEFlowDirection);
+	visitor(plot.m_eRiverSWFlowDirection);
+
+	visitor(plot.m_bIsCity);
+	
+	visitor(plot.m_owningCity.eOwner);
+	visitor(plot.m_owningCity.iID);
+	visitor(plot.m_owningCityOverride.eOwner);
+	visitor(plot.m_owningCityOverride.iID);
+
+	for (uint i = 0; i < NUM_YIELD_TYPES; i++)
+	{
+		visitor(plot.m_aiYield[i]);
+	}
+
+	for (int i = 0; i < MAX_TEAMS; i++)
+	{
+		visitor(plot.m_aiPlayerCityRadiusCount[i]);
+		visitor(plot.m_aiVisibilityCount[i]);
+		visitor(plot.m_aiVisibilityCountThisTurnMax[i]);
+		visitor(plot.m_aiRevealedOwner[i]);
+		visitor(plot.m_abResourceForceReveal[i]);
+		visitor.as<ImprovementTypes>(plot.m_aeRevealedImprovementType[i]);
+		visitor.as<RouteTypes>(plot.m_aeRevealedRouteType[i]);
+		visitor(plot.m_abIsImpassable[i]);
+		visitor(plot.m_abStrategicRoute[i]);
+	}
+
+	visitor(plot.m_bfRevealed.m_bits);
+	visitor(plot.m_cRiverCrossing);
+
+	// Script data
+	{
+		// FIXME - This is simply dreadful.
+		bool hasScriptData;
+		if (bSaving)
+			hasScriptData = (plot.m_szScriptData != NULL);
+		visitor(hasScriptData);
+		if (hasScriptData)
+		{
+			std::string scriptData;
+			if (bSaving)
+				scriptData.assign(plot.m_szScriptData);
+			visitor(scriptData);
+			if (bLoading)
+				mutPlot.setScriptData(scriptData.c_str());
+		}
+	}
+
+	visitor(plot.m_buildProgress);
+	visitor(plot.m_vInvisibleVisibilityUnitCount);
+	visitor(plot.m_vInvisibleVisibilityCount);
+
+	// m_units
+	{
+		uint32 uLength;
+		if (bSaving)
+			uLength = uint32(plot.m_units.getLength());
+		visitor(uLength);
+
+		for (uint32 uIdx = 0; uIdx < uLength; ++uIdx)
+		{
+			IDInfo data;
+			if (bSaving)
+				data = *plot.m_units.getAt(uIdx);
+
+			visitor(data);
+
+			if (bLoading)
+				mutPlot.m_units.insertAtEnd(&data);
+		}
+	}
+
+	visitor(plot.m_cContinentType);
+	visitor(plot.m_kArchaeologyData);
+	visitor(plot.m_bIsTradeUnitRoute);
+	visitor(plot.m_iLastTurnBuildChanged);
+}
+
+//	--------------------------------------------------------------------------------
 //
 // read object from a stream
 // used during load
 //
-void CvPlot::read(FDataStream& kStream)
+void CvPlot::read(FDataStream& kStream, int iX, int iY)
 {
-	// Init saved data
-	reset();
+	init(iX, iY);
 
-	// Version number to maintain backwards compatibility
-	uint uiVersion;
-	kStream >> uiVersion;
-	CvAssertMsg(uiVersion <= g_CurrentCvPlotVersion, "Unexpected Version.  This could be caused by serialization errors.");
-	MOD_SERIALIZE_INIT_READ(kStream);
-
-	kStream >> m_iX;
-	kStream >> m_iY;
-	m_iPlotIndex = GC.getMap().plotNum(m_iX,m_iY);
-
-	kStream >> m_iArea;
-	kStream >> m_iOwnershipDuration;
-	kStream >> m_iImprovementDuration;
-	kStream >> m_iUpgradeProgress;
-	kStream >> m_iUpgradeProgress; //dummy
-	kStream >> m_iNumMajorCivsRevealed;
-	kStream >> m_iCityRadiusCount;
-	kStream >> m_iReconCount;
-	kStream >> m_iRiverCrossingCount;
-	kStream >> m_iResourceNum;
-	kStream >> m_iLandmass;
-
-	// the following members specify bit packing and do not resolve to
-	// any serializable type.
-	bool bitPackWorkaround;
-	kStream >> bitPackWorkaround;
-	m_bStartingPlot = bitPackWorkaround;
-	kStream >> bitPackWorkaround;
-	m_bHills = bitPackWorkaround;
-	kStream >> bitPackWorkaround;
-	m_bNEOfRiver = bitPackWorkaround;
-	kStream >> bitPackWorkaround;
-	m_bWOfRiver = bitPackWorkaround;
-	kStream >> bitPackWorkaround;
-	m_bNWOfRiver = bitPackWorkaround;
-	kStream >> bitPackWorkaround;
-	m_bPotentialCityWork = bitPackWorkaround;
-	kStream >> bitPackWorkaround;
-	m_bImprovementPassable = bitPackWorkaround;
-	kStream >> bitPackWorkaround;
-	m_bImprovementPillaged = bitPackWorkaround;
-	kStream >> bitPackWorkaround;
-	m_bRoutePillaged = bitPackWorkaround;
-	kStream >> bitPackWorkaround;
-	m_bBarbCampNotConverting = bitPackWorkaround;
-	kStream >> bitPackWorkaround;
-	m_bRoughPlot = bitPackWorkaround;
-	kStream >> bitPackWorkaround;
-	m_bResourceLinkedCityActive = bitPackWorkaround;
-	kStream >> bitPackWorkaround;
-	m_bImprovedByGiftFromMajor = bitPackWorkaround;
-#if defined(MOD_DIPLOMACY_CITYSTATES)
-	MOD_SERIALIZE_READ(49, kStream, bitPackWorkaround, 0);
-	m_bImprovementEmbassy = bitPackWorkaround;
-#endif
-#if defined(MOD_BALANCE_CORE)
-	kStream >> bitPackWorkaround;
-	m_bIsImpassable = bitPackWorkaround;
-	kStream >> bitPackWorkaround;
-	m_iUnitPlotExperience = bitPackWorkaround;
-	kStream >> bitPackWorkaround;
-	m_iUnitPlotGAExperience = bitPackWorkaround;
-	kStream >> bitPackWorkaround;
-	m_iPlotChangeMoves = bitPackWorkaround;
-#endif
-
-	kStream >> m_eOwner;
-	kStream >> m_ePlotType;
-	kStream >> m_eTerrainType;
-	if (uiVersion >= 3)
-		m_eFeatureType = (FeatureTypes) CvInfosSerializationHelper::ReadHashed(kStream);
-	else
-	{
-		kStream >> m_eFeatureType;
-		if ((int)m_eFeatureType >= GC.getNumFeatureInfos())
-			m_eFeatureType = NO_FEATURE;
-	}
-	m_eResourceType = (ResourceTypes) CvInfosSerializationHelper::ReadHashed(kStream);
-
-	if(uiVersion >= 5)
-	{
-		m_eImprovementType = (ImprovementTypes) CvInfosSerializationHelper::ReadHashed(kStream);
-	}
-	else
-	{
-		kStream >> m_eImprovementType;
-		// Filter out improvements that have been removed
-		if (m_eImprovementType != NO_IMPROVEMENT)
-			if (GC.getImprovementInfo((ImprovementTypes)m_eImprovementType) == NULL)
-				m_eImprovementType = NO_IMPROVEMENT;
-	}
-
-	if (uiVersion >= 7)
-	{
-		m_eImprovementTypeUnderConstruction = (ImprovementTypes)CvInfosSerializationHelper::ReadHashed(kStream);
-	}
-	else
-	{
-		m_eImprovementTypeUnderConstruction = NO_IMPROVEMENT;
-	}
-
-	if (uiVersion >= 2)
-	{
-		kStream >> m_ePlayerBuiltImprovement;
-	}
-	else
-	{
-		m_ePlayerBuiltImprovement = NO_PLAYER;
-	}
-	kStream >> m_ePlayerResponsibleForImprovement;
-	kStream >> m_ePlayerResponsibleForRoute;
-	kStream >> m_ePlayerThatClearedBarbCampHere;
-#if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
-	MOD_SERIALIZE_READ(39, kStream, m_ePlayerThatClearedDigHere, NO_PLAYER);
-#endif
-	kStream >> m_eRouteType;
-#if defined(MOD_GLOBAL_STACKING_RULES)
-	MOD_SERIALIZE_READ(30, kStream, m_eUnitIncrement, 0);
-#endif
-	kStream >> m_eWorldAnchor;
-	kStream >> m_cWorldAnchorData;
-
-	kStream >> m_eRiverEFlowDirection;
-	kStream >> m_eRiverSEFlowDirection;
-	kStream >> m_eRiverSWFlowDirection;
-
-	kStream >> m_bIsCity;
-	kStream >> m_owningCity.eOwner;
-	kStream >> m_owningCity.iID;
-	kStream >> m_owningCityOverride.eOwner;
-	kStream >> m_owningCityOverride.iID;
-
-	kStream >> m_vExtraYields;
-
-    for(uint i = 0; i < NUM_YIELD_TYPES; i++)
-    {
-        kStream >> m_aiYield[i];
-    }
-
-	for(int i = 0; i < MAX_TEAMS; i++)
-	{
-		kStream >> m_aiPlayerCityRadiusCount[i];
-		kStream >> m_aiVisibilityCount[i];
-		kStream >> m_aiVisibilityCountThisTurnMax[i];
-		kStream >> m_aiRevealedOwner[i];
-		kStream >> m_abResourceForceReveal[i];
-		m_aeRevealedImprovementType[i] = (ImprovementTypes) CvInfosSerializationHelper::ReadHashed(kStream);
-		kStream >> m_aeRevealedRouteType[i];
-#if defined(MOD_BALANCE_CORE)
-		kStream >> m_abIsImpassable[i];
-		kStream >> m_abStrategicRoute[i];
-#endif
-	}
-
-	for (uint i = 0; i<PlotBoolField::eCount; ++i)
-	{
-		kStream >> m_bfRevealed.m_dwBits[i];
-	}
-	kStream >> m_cRiverCrossing;
-
-	bool hasScriptData = false;
-	kStream >> hasScriptData;
-	if(hasScriptData)
-	{
-		std::string scriptData;
-		kStream >> scriptData;
-		setScriptData(scriptData.c_str());
-	}
-
-	kStream >> m_buildProgress;
-	kStream >> m_vInvisibleVisibilityUnitCount;
-	kStream >> m_vInvisibleVisibilityCount;
-
-	//m_units.Read(kStream);
-	UINT uLength;
-	kStream >> uLength;
-	for(UINT uIdx = 0; uIdx < uLength; ++uIdx)
-	{
-		IDInfo  Data;
-
-		kStream >> Data.eOwner;
-		kStream >> Data.iID;
-
-		m_units.insertAtEnd(&Data);
-	}
-
-	kStream >> m_cContinentType;
-	kStream >> m_kArchaeologyData;
-#if defined(MOD_BALANCE_CORE)
-	kStream >> m_bIsTradeUnitRoute;
-	kStream >> m_iLastTurnBuildChanged;
-#endif
+	// Perform shared serialize
+	CvStreamLoadVisitor serialVisitor(kStream);
+	Serialize(*this, serialVisitor);
 }
 
 //	--------------------------------------------------------------------------------
@@ -12811,139 +12760,9 @@ void CvPlot::read(FDataStream& kStream)
 //
 void CvPlot::write(FDataStream& kStream) const
 {
-	// Current version number
-	uint uiVersion = g_CurrentCvPlotVersion;
-	kStream << uiVersion;
-	MOD_SERIALIZE_INIT_WRITE(kStream);
-
-	kStream << m_iX;
-	kStream << m_iY;
-	kStream << m_iArea;
-	kStream << m_iOwnershipDuration;
-	kStream << m_iImprovementDuration;
-	kStream << m_iUpgradeProgress;
-	kStream << m_iUpgradeProgress; //dummy
-	kStream << m_iNumMajorCivsRevealed;
-	kStream << m_iCityRadiusCount;
-	kStream << m_iReconCount;
-	kStream << m_iRiverCrossingCount;
-	kStream << m_iResourceNum;
-	kStream << m_iLandmass;
-
-	kStream << m_bStartingPlot;
-	kStream << m_bHills;
-	kStream << m_bNEOfRiver;
-	kStream << m_bWOfRiver;
-	kStream << m_bNWOfRiver;
-	kStream << m_bPotentialCityWork;
-	kStream << m_bImprovementPassable;
-	kStream << m_bImprovementPillaged;
-	kStream << m_bRoutePillaged;
-	kStream << m_bBarbCampNotConverting;
-	kStream << m_bRoughPlot;
-	kStream << m_bResourceLinkedCityActive;
-	kStream << m_bImprovedByGiftFromMajor;
-#if defined(MOD_DIPLOMACY_CITYSTATES)
-	MOD_SERIALIZE_WRITE(kStream, m_bImprovementEmbassy);
-#endif
-#if defined(MOD_BALANCE_CORE)
-	kStream << m_bIsImpassable;
-	kStream << m_iUnitPlotExperience;
-	kStream << m_iUnitPlotGAExperience;
-	kStream << m_iPlotChangeMoves;
-#endif
-	// m_bPlotLayoutDirty not saved
-	// m_bLayoutStateWorked not saved
-
-	kStream << m_eOwner;
-	kStream << m_ePlotType;
-	kStream << m_eTerrainType;
-
-	CvInfosSerializationHelper::WriteHashed(kStream, (const FeatureTypes)m_eFeatureType.get());
-	CvInfosSerializationHelper::WriteHashed(kStream, (const ResourceTypes)m_eResourceType);
-	CvInfosSerializationHelper::WriteHashed(kStream, (const ImprovementTypes)m_eImprovementType);
-	CvInfosSerializationHelper::WriteHashed(kStream, (const ImprovementTypes)m_eImprovementTypeUnderConstruction);
-	kStream << m_ePlayerBuiltImprovement;
-	kStream << m_ePlayerResponsibleForImprovement;
-	kStream << m_ePlayerResponsibleForRoute;
-	kStream << m_ePlayerThatClearedBarbCampHere;
-#if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
-	MOD_SERIALIZE_WRITE(kStream, m_ePlayerThatClearedDigHere);
-#endif
-	kStream << m_eRouteType;
-#if defined(MOD_GLOBAL_STACKING_RULES)
-	MOD_SERIALIZE_WRITE(kStream, m_eUnitIncrement);
-#endif
-	kStream << m_eWorldAnchor;
-	kStream << m_cWorldAnchorData;
-	kStream << m_eRiverEFlowDirection;
-	kStream << m_eRiverSEFlowDirection;
-	kStream << m_eRiverSWFlowDirection;
-
-	kStream << m_bIsCity;
-	kStream << m_owningCity.eOwner;
-	kStream << m_owningCity.iID;
-	kStream << m_owningCityOverride.eOwner;
-	kStream << m_owningCityOverride.iID;
-
-	kStream << m_vExtraYields;
-
-    for(uint i = 0; i < NUM_YIELD_TYPES; i++)
-    {
-        kStream << m_aiYield[i];
-    }
-
-	for (int i = 0; i < MAX_TEAMS; i++)
-	{
-		kStream << m_aiPlayerCityRadiusCount[i];
-		kStream << m_aiVisibilityCount[i];
-		kStream << m_aiVisibilityCountThisTurnMax[i];
-		kStream << m_aiRevealedOwner[i];
-		kStream << m_abResourceForceReveal[i];
-		CvInfosSerializationHelper::WriteHashed(kStream, (const ImprovementTypes)m_aeRevealedImprovementType[i]);
-		kStream << m_aeRevealedRouteType[i];
-#if defined(MOD_BALANCE_CORE)
-		kStream << m_abIsImpassable[i];
-		kStream << m_abStrategicRoute[i];
-#endif
-	}
-
-	for (uint i = 0; i<PlotBoolField::eCount; ++i)
-	{
-		kStream << m_bfRevealed.m_dwBits[i];
-	}
-	kStream << m_cRiverCrossing;
-
-	// char * should have died in 1989...
-	bool hasScriptData = (m_szScriptData != NULL);
-	kStream << hasScriptData;
-	if(hasScriptData)
-	{
-		const std::string scriptData(m_szScriptData);
-		kStream << scriptData;
-	}
-
-	kStream << m_buildProgress;
-	kStream << m_vInvisibleVisibilityUnitCount;
-	kStream << m_vInvisibleVisibilityCount;
-
-	//  Write m_units.Write(kStream);
-	UINT uLength = (UINT)m_units.getLength();
-	kStream << uLength;
-	for(UINT uIdx = 0; uIdx < uLength; ++uIdx)
-	{
-		const IDInfo* pData = m_units.getAt(uIdx);
-
-		kStream << pData->eOwner;
-		kStream << pData->iID;
-	}
-
-	kStream << m_cContinentType;
-	kStream << m_kArchaeologyData;
-#if defined(MOD_BALANCE_CORE)
-	kStream << m_bIsTradeUnitRoute;
-	kStream << m_iLastTurnBuildChanged;
-#endif
+	// Perform shared serialize
+	CvStreamSaveVisitor serialVisitor(kStream);
+	Serialize(*this, serialVisitor);
 }
 
 //	--------------------------------------------------------------------------------
@@ -13557,13 +13376,13 @@ void CvPlot::SetContinentType(const char cContinent)
 }
 
 //	--------------------------------------------------------------------------------
-FAutoArchive& CvPlot::getSyncArchive()
+CvSyncArchive<CvPlot>& CvPlot::getSyncArchive()
 {
 	return m_syncArchive;
 }
 
 //	--------------------------------------------------------------------------------
-const FAutoArchive& CvPlot::getSyncArchive() const
+const CvSyncArchive<CvPlot>& CvPlot::getSyncArchive() const
 {
 	return m_syncArchive;
 }
@@ -15216,3 +15035,79 @@ int CvPlot::GetDefenseBuildValue(PlayerTypes eOwner)
 }
 
 #endif
+
+FDataStream& operator<<(FDataStream& saveTo, const CvPlot* const& readFrom)
+{
+	int idx = -1;
+	if (readFrom != NULL)
+	{
+		idx = readFrom->GetPlotIndex();
+		CvAssertMsg(GC.getMap().plotByIndex(idx) == readFrom, "Saving plot pointer that is not member of map");
+	}
+	saveTo << idx;
+	return saveTo;
+}
+FDataStream& operator<<(FDataStream& saveTo, CvPlot* const& readFrom)
+{
+	return saveTo << const_cast<const CvPlot* const&>(readFrom);
+}
+FDataStream& operator>>(FDataStream& loadFrom, const CvPlot*& writeTo)
+{
+	int idx;
+	loadFrom >> idx;
+	if (idx != -1)
+	{
+		writeTo = GC.getMap().plotByIndex(idx);
+		CvAssertMsg(writeTo != NULL, "Read plot pointer index that is out of bounds");
+	}
+	else
+	{
+		writeTo = NULL;
+	}
+	return loadFrom;
+}
+FDataStream& operator>>(FDataStream& loadFrom, CvPlot*& writeTo)
+{
+	return loadFrom >> const_cast<const CvPlot*&>(writeTo);
+}
+
+template<typename PlotWithScore, typename Visitor>
+void SPlotWithScore::Serialize(PlotWithScore& plotWithScore, Visitor& visitor)
+{
+	visitor(plotWithScore.pPlot);
+	visitor(plotWithScore.score);
+}
+
+FDataStream& operator<<(FDataStream& saveTo, const SPlotWithScore& readFrom)
+{
+	CvStreamSaveVisitor serialVisitor(saveTo);
+	SPlotWithScore::Serialize(readFrom, serialVisitor);
+	return saveTo;
+}
+FDataStream& operator>>(FDataStream& loadFrom, SPlotWithScore& writeTo)
+{
+	CvStreamLoadVisitor serialVisitor(loadFrom);
+	SPlotWithScore::Serialize(writeTo, serialVisitor);
+	return loadFrom;
+}
+
+template<typename PlotWithTwoScoresL2, typename Visitor>
+void SPlotWithTwoScoresL2::Serialize(PlotWithTwoScoresL2& plotWithTwoScoresL2, Visitor& visitor)
+{
+	visitor(plotWithTwoScoresL2.pPlot);
+	visitor(plotWithTwoScoresL2.score1);
+	visitor(plotWithTwoScoresL2.score2);
+}
+
+FDataStream& operator<<(FDataStream& saveTo, const SPlotWithTwoScoresL2& readFrom)
+{
+	CvStreamSaveVisitor serialVisitor(saveTo);
+	SPlotWithTwoScoresL2::Serialize(readFrom, serialVisitor);
+	return saveTo;
+}
+FDataStream& operator>>(FDataStream& loadFrom, SPlotWithTwoScoresL2& writeTo)
+{
+	CvStreamLoadVisitor serialVisitor(loadFrom);
+	SPlotWithTwoScoresL2::Serialize(writeTo, serialVisitor);
+	return loadFrom;
+}

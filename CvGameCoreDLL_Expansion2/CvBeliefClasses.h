@@ -598,6 +598,8 @@ public:
 #endif
 
 	// Serialization
+	template<typename ReligionBeliefs, typename Visitor>
+	static void Serialize(ReligionBeliefs& religionBeliefs, Visitor& visitor);
 	void Read(FDataStream& kStream);
 	void Write(FDataStream& kStream) const;
 
@@ -605,9 +607,10 @@ private:
 	BeliefList m_ReligionBeliefs;
 	ReligionTypes m_eReligion;
 	std::vector<int> m_BeliefLookup;
-
-
 };
+
+FDataStream& operator<<(FDataStream&, const CvReligionBeliefs&);
+FDataStream& operator>>(FDataStream&, CvReligionBeliefs&);
 
 namespace CvBeliefHelpers
 {

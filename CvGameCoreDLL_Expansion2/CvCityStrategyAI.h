@@ -10,6 +10,8 @@
 #ifndef CIV5_CITY_STRATEGY_AI_H
 #define CIV5_CITY_STRATEGY_AI_H
 
+#include "CvEnumMap.h"
+
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //  CLASS:      CvAICityStrategyEntry
 //!  \brief		A single entry in the AI strategy XML file
@@ -147,8 +149,10 @@ public:
 	void Init(CvAICityStrategies* pAICityStrategies, CvCity* pCity, bool bIsCity);
 	void Uninit();
 	void Reset();
+	template<typename CityStrategyAI, typename Visitor>
+	static void Serialize(CityStrategyAI& cityStrategyAI, Visitor& visitor);
 	void Read(FDataStream& kStream);
-	void Write(FDataStream& kStream);
+	void Write(FDataStream& kStream) const;
 
 	// Flavor recipient required function
 	void FlavorUpdate();
@@ -220,9 +224,9 @@ private:
 	CitySpecializationTypes m_eSpecialization;
 	CitySpecializationTypes m_eDefaultSpecialization;
 
-	bool* m_pabUsingCityStrategy;
-	int* m_paiTurnCityStrategyAdopted;
-	int* m_aiTempFlavors;
+	CvEnumMap<AICityStrategyTypes, bool> m_pabUsingCityStrategy;
+	CvEnumMap<AICityStrategyTypes, int> m_paiTurnCityStrategyAdopted;
+	CvEnumMap<FlavorTypes, int> m_aiTempFlavors;
 
 	// AI sub objects
 	CvBuildingProductionAI* m_pBuildingProductionAI;
@@ -236,6 +240,9 @@ private:
 	YieldTypes m_eMostDeficientYield;
 	YieldTypes m_eMostAbundantYield;
 };
+
+FDataStream& operator>>(FDataStream&, CvCityStrategyAI&);
+FDataStream& operator<<(FDataStream&, const CvCityStrategyAI&);
 
 namespace CityStrategyAIHelpers
 {

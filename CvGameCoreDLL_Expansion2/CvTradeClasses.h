@@ -14,9 +14,15 @@
 
 struct TradeConnectionPlot
 {
+	template<typename TradeConnectionPlotT, typename Visitor>
+	static void Serialize(TradeConnectionPlotT& tradeConnectionPlot, Visitor& visitor);
+
 	int m_iX;
 	int m_iY;
 };
+
+FDataStream& operator<<(FDataStream&, const TradeConnectionPlot&);
+FDataStream& operator>>(FDataStream&, TradeConnectionPlot&);
 
 typedef std::vector<TradeConnectionPlot> TradeConnectionPlotList;
 
@@ -52,6 +58,9 @@ struct TradeConnection
 			m_aiDestYields[ui] = 0;
 		}
 	}
+
+	template<typename TradeConnectionT, typename Visitor>
+	static void Serialize(TradeConnectionT& tradeConnection, Visitor& visitor);
 
 	bool isValid() const
 	{
@@ -96,6 +105,9 @@ struct TradeConnection
 	int m_aiDestYields[NUM_YIELD_TYPES];
 };
 
+FDataStream& operator<<(FDataStream&, const TradeConnection&);
+FDataStream& operator>>(FDataStream&, TradeConnection&);
+
 typedef std::vector<TradeConnection> TradeConnectionList;
 
 //org plot index -> dst plot index -> path
@@ -110,6 +122,9 @@ public:
 	void Init (void);
 	void Uninit (void);
 	void Reset (void);
+
+	template<typename GameTrade, typename Visitor>
+	static void Serialize(GameTrade& gameTrade, Visitor& visitor);
 
 	void DoTurn (void);
 
@@ -227,9 +242,15 @@ FDataStream& operator<<(FDataStream&, const CvGameTrade&);
 
 struct TradeConnectionWasPlundered
 {
+	template<typename TradeConnectionWasPlunderedT, typename Visitor>
+	static void Serialize(TradeConnectionWasPlunderedT& tradeConnectionWasPlundered, Visitor& visitor);
+
 	TradeConnection m_kTradeConnection;
 	int m_iTurnPlundered;
 };
+
+FDataStream& operator<<(FDataStream&, const TradeConnectionWasPlundered&);
+FDataStream& operator>>(FDataStream&, TradeConnectionWasPlundered&);
 
 typedef std::vector<TradeConnectionWasPlundered> TradeConnectionWasPlunderedList;
 
@@ -241,6 +262,9 @@ public:
 	void Init(CvPlayer* pPlayer);
 	void Uninit(void);
 	void Reset(void);
+
+	template<typename PlayerTrade, typename Visitor>
+	static void Serialize(PlayerTrade& playerTrade, Visitor& visitor);
 
 	// Functions invoked each player turn
 	void DoTurn(void);
@@ -376,6 +400,9 @@ public:
 	void Init(CvPlayer* pPlayer);
 	void Uninit(void);
 	void Reset(void);
+
+	template<typename TradeAI, typename Visitor>
+	static void Serialize(TradeAI& tradeAI, Visitor& visitor);
 
 	void DoTurn(void);
 

@@ -499,21 +499,33 @@ void CvPlayerAchievements::FinishedBuilding(CvCity* pkCity, BuildingTypes eBuild
 #endif
 }
 //------------------------------------------------------------------------------
+template<typename PlayerAchievements, typename Visitor>
+void CvPlayerAchievements::Serialize(PlayerAchievements& playerAchievements, Visitor& visitor)
+{
+	visitor(playerAchievements.m_iAchievement_XP1_32_Progress);
+	visitor(playerAchievements.m_iAchievement_XP1_33_Progress);
+}
+//------------------------------------------------------------------------------
 void CvPlayerAchievements::Read(FDataStream& kStream)
 {
-	int iVersion = 0;
-	kStream >> iVersion;
-	MOD_SERIALIZE_INIT_READ(kStream);
-	kStream >> m_iAchievement_XP1_32_Progress;
-	kStream >> m_iAchievement_XP1_33_Progress;
+	CvStreamLoadVisitor serialVisitor(kStream);
+	Serialize(*this, serialVisitor);
 }
 //------------------------------------------------------------------------------
 void CvPlayerAchievements::Write(FDataStream& kStream) const
 {
-	int iVersion = 1;
-	kStream << iVersion;
-	MOD_SERIALIZE_INIT_WRITE(kStream);
-	kStream << m_iAchievement_XP1_32_Progress;
-	kStream << m_iAchievement_XP1_33_Progress;
+	CvStreamSaveVisitor serialVisitor(kStream);
+	Serialize(*this, serialVisitor);
 }
 //------------------------------------------------------------------------------
+
+FDataStream& operator>>(FDataStream& stream, CvPlayerAchievements& playerAchievements)
+{
+	playerAchievements.Read(stream);
+	return stream;
+}
+FDataStream& operator<<(FDataStream& stream, const CvPlayerAchievements& playerAchievements)
+{
+	playerAchievements.Write(stream);
+	return stream;
+}

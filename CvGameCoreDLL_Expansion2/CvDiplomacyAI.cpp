@@ -402,582 +402,307 @@ void CvDiplomacyAI::Reset()
 	m_eTargetPlayer = NO_PLAYER;
 }
 
+///
+template<typename DiplomacyAI, typename Visitor>
+void CvDiplomacyAI::Serialize(DiplomacyAI& diplomacyAI, Visitor& visitor)
+{
+	// Personality Values
+	visitor(diplomacyAI.m_iVictoryCompetitiveness);
+	visitor(diplomacyAI.m_iWonderCompetitiveness);
+	visitor(diplomacyAI.m_iMinorCivCompetitiveness);
+	visitor(diplomacyAI.m_iBoldness);
+	visitor(diplomacyAI.m_iDiploBalance);
+	visitor(diplomacyAI.m_iWarmongerHate);
+	visitor(diplomacyAI.m_iDoFWillingness);
+	visitor(diplomacyAI.m_iDenounceWillingness);
+	visitor(diplomacyAI.m_iLoyalty);
+	visitor(diplomacyAI.m_iForgiveness);
+	visitor(diplomacyAI.m_iNeediness);
+	visitor(diplomacyAI.m_iMeanness);
+	visitor(diplomacyAI.m_iChattiness);
+	visitor(diplomacyAI.m_aiMajorCivApproachBiases);
+	visitor(diplomacyAI.m_aiMinorCivApproachBiases);
+
+	// Key Players
+	visitor(diplomacyAI.m_eMostValuableFriend);
+	visitor(diplomacyAI.m_eMostValuableAlly);
+	visitor(diplomacyAI.m_eBiggestCompetitor);
+	visitor(diplomacyAI.m_ePrimeLeagueCompetitor);
+	visitor(diplomacyAI.m_eDemandTargetPlayer);
+	visitor(diplomacyAI.m_eCSWarTarget);
+	visitor(diplomacyAI.m_eCSBullyTarget);
+
+	// Other Global Memory
+	visitor(diplomacyAI.m_bEndedFriendshipThisTurn);
+	visitor(diplomacyAI.m_bBackstabber);
+	visitor(diplomacyAI.m_bCompetingForVictory);
+	visitor(diplomacyAI.m_eDefaultVictoryFocus);
+	visitor(diplomacyAI.m_eVictoryFocus);
+	visitor(diplomacyAI.m_eStateAllWars);
+
+	// Diplomatic Interactions
+	visitor(diplomacyAI.m_aaDiploStatementsLog);
+	visitor(diplomacyAI.m_aDeclarationsLog);
+
+	visitor(diplomacyAI.m_aDiploLogStatementTurnCountScratchPad);
+	visitor(diplomacyAI.m_aabSentAttackMessageToMinorCivProtector);
+
+	// Opinion & Approach
+	visitor(diplomacyAI.m_aeCivOpinion);
+	visitor(diplomacyAI.m_aiCachedOpinionWeight);
+	visitor(diplomacyAI.m_aeCivApproach);
+	visitor(diplomacyAI.m_aeCivStrategicApproach);
+	visitor(diplomacyAI.m_aeCachedSurfaceApproach);
+	visitor(diplomacyAI.m_aaiApproachValues);
+	visitor(diplomacyAI.m_aaiStrategicApproachValues);
+
+	// Minor Civs
+	visitor(diplomacyAI.m_abWantToRouteToMinor);
+
+	// Planning Exchanges
+	visitor(diplomacyAI.m_abMajorCompetitor);
+	visitor(diplomacyAI.m_abStrategicTradePartner);
+	visitor(diplomacyAI.m_abWantsDoFWithPlayer);
+	visitor(diplomacyAI.m_abWantsDefensivePactWithPlayer);
+	visitor(diplomacyAI.m_abWantsToEndDoFWithPlayer);
+	visitor(diplomacyAI.m_abWantsToEndDefensivePactWithPlayer);
+	visitor(diplomacyAI.m_abWantsResearchAgreementWithPlayer);
+
+	// Exchanges
+	visitor(diplomacyAI.m_aiDoFAcceptedTurn);
+	visitor(diplomacyAI.m_aeDoFType);
+	visitor(diplomacyAI.m_aiDenouncedPlayerTurn);
+	visitor(diplomacyAI.m_abCantMatchDeal);
+	visitor(diplomacyAI.m_aiNumDemandsMade);
+	visitor(diplomacyAI.m_aiDemandMadeTurn);
+	visitor(diplomacyAI.m_aiDemandTooSoonNumTurns);
+	visitor(diplomacyAI.m_aiTradeValue);
+	visitor(diplomacyAI.m_aiCommonFoeValue);
+	visitor(diplomacyAI.m_aiAssistValue);
+
+	// Coop Wars
+	visitor(diplomacyAI.m_aaeCoopWarState);
+	visitor(diplomacyAI.m_aaiCoopWarStateChangeTurn);
+	visitor(diplomacyAI.m_aiCoopWarScore);
+
+	// War
+	visitor(diplomacyAI.m_abSaneDiplomaticTarget);
+	visitor(diplomacyAI.m_abPotentialWarTarget);
+	visitor(diplomacyAI.m_abWantsSneakAttack);
+	visitor(diplomacyAI.m_abArmyInPlaceForAttack);
+	visitor(diplomacyAI.m_abAggressor);
+	visitor(diplomacyAI.m_aiNumWarsFought);
+	visitor(diplomacyAI.m_aiNumWarsDeclaredOnUs);
+	visitor(diplomacyAI.m_aiCivilianKillerValue);
+	visitor(diplomacyAI.m_aiNumCitiesCaptured);
+	visitor(diplomacyAI.m_aiWarValueLost);
+	visitor(diplomacyAI.m_aiWarDamageValue);
+	visitor(diplomacyAI.m_aeWarState);
+
+	// Peace
+	visitor(diplomacyAI.m_aePeaceTreatyWillingToOffer);
+	visitor(diplomacyAI.m_aePeaceTreatyWillingToAccept);
+
+	// Backstabbing Penalties
+	visitor(diplomacyAI.m_abUntrustworthyFriend);
+	visitor(diplomacyAI.m_abEverBackstabbedBy);
+	visitor(diplomacyAI.m_aiDoFBrokenTurn);
+	visitor(diplomacyAI.m_aiFriendDenouncedUsTurn);
+	visitor(diplomacyAI.m_aiFriendDeclaredWarOnUsTurn);
+
+	// Warmongering Penalties
+	visitor(diplomacyAI.m_aiNumMinorsAttacked);
+	visitor(diplomacyAI.m_aiNumMinorsConquered);
+	visitor(diplomacyAI.m_aiNumMajorsAttacked);
+	visitor(diplomacyAI.m_aiNumMajorsConquered);
+	visitor(diplomacyAI.m_aiWarmongerAmountTimes100);
+
+	// Aggressive Postures
+	visitor(diplomacyAI.m_aeMilitaryAggressivePosture);
+	visitor(diplomacyAI.m_aeLastTurnMilitaryAggressivePosture);
+	visitor(diplomacyAI.m_aeExpansionAggressivePosture);
+	visitor(diplomacyAI.m_aePlotBuyingAggressivePosture);
+
+	// Dispute Levels
+	visitor(diplomacyAI.m_abEndgameAggressiveTo);
+	visitor(diplomacyAI.m_abRecklessExpander);
+	visitor(diplomacyAI.m_abWonderSpammer);
+	visitor(diplomacyAI.m_aeLandDisputeLevel);
+	visitor(diplomacyAI.m_aeVictoryDisputeLevel);
+	visitor(diplomacyAI.m_aeVictoryBlockLevel);
+	visitor(diplomacyAI.m_aeWonderDisputeLevel);
+	visitor(diplomacyAI.m_aeMinorCivDisputeLevel);
+	visitor(diplomacyAI.m_aeTechBlockLevel);
+	visitor(diplomacyAI.m_aePolicyBlockLevel);
+
+	// Threat Levels
+	visitor(diplomacyAI.m_aeWarmongerThreat);
+
+	// Strength Assessments
+	visitor(diplomacyAI.m_aeMilitaryStrengthComparedToUs);
+	visitor(diplomacyAI.m_aeEconomicStrengthComparedToUs);
+	visitor(diplomacyAI.m_aeTargetValue);
+	visitor(diplomacyAI.m_abEasyTarget);
+
+	// PROMISES
+	// Military Promise
+	visitor(diplomacyAI.m_aeMilitaryPromiseState);
+	visitor(diplomacyAI.m_aiMilitaryPromiseTurn);
+
+	// Expansion Promise
+	visitor(diplomacyAI.m_aeExpansionPromiseState);
+	visitor(diplomacyAI.m_aeExpansionPromisePosture);
+	visitor(diplomacyAI.m_aiExpansionPromiseTurn);
+	visitor(diplomacyAI.m_aNoExpansionPromise);
+	visitor(diplomacyAI.m_aLastTurnEmpireDistance);
+	visitor(diplomacyAI.m_abEverMadeExpansionPromise);
+
+	// Border Promise
+	visitor(diplomacyAI.m_aeBorderPromiseState);
+	visitor(diplomacyAI.m_aeBorderPromisePosture);
+	visitor(diplomacyAI.m_aiBorderPromiseTurn);
+	visitor(diplomacyAI.m_abEverMadeBorderPromise);
+
+	// Bully City-State Promise
+	visitor(diplomacyAI.m_aeBullyCityStatePromiseState);
+	visitor(diplomacyAI.m_aiBullyCityStatePromiseTurn);
+
+	// Attack City-State Promise
+	visitor(diplomacyAI.m_aeAttackCityStatePromiseState);
+	visitor(diplomacyAI.m_aiAttackCityStatePromiseTurn);
+
+	// Spy Promise
+	visitor(diplomacyAI.m_aeSpyPromiseState);
+	visitor(diplomacyAI.m_aiSpyPromiseTurn);
+
+	// No Convert Promise
+	visitor(diplomacyAI.m_aeNoConvertPromiseState);
+	visitor(diplomacyAI.m_aiNoConvertPromiseTurn);
+	visitor(diplomacyAI.m_abAskedNotToConvert);
+	visitor(diplomacyAI.m_abEverConvertedCity);
+
+	// No Digging Promise
+	visitor(diplomacyAI.m_aeNoDiggingPromiseState);
+	visitor(diplomacyAI.m_aiNoDiggingPromiseTurn);
+	visitor(diplomacyAI.m_abAskedNotToDig);
+
+	// Coop War Promise
+	visitor(diplomacyAI.m_aiBrokenCoopWarPromiseTurn);
+
+	// END PROMISES
+	// Event Flags
+	visitor(diplomacyAI.m_abReturnedCapital);
+	visitor(diplomacyAI.m_abReturnedHolyCity);
+	visitor(diplomacyAI.m_abLiberatedCapital);
+	visitor(diplomacyAI.m_abLiberatedHolyCity);
+	visitor(diplomacyAI.m_abCapturedCapital);
+	visitor(diplomacyAI.m_abCapturedHolyCity);
+	visitor(diplomacyAI.m_abResurrectorAttackedUs);
+
+	// # of times/points counters
+	visitor(diplomacyAI.m_aiNumCitiesLiberated);
+	visitor(diplomacyAI.m_aiNumCiviliansReturnedToMe);
+	visitor(diplomacyAI.m_aiNumTimesIntrigueSharedBy);
+	visitor(diplomacyAI.m_aiNumLandmarksBuiltForMe);
+	visitor(diplomacyAI.m_aiTheyPlottedAgainstUs);
+	visitor(diplomacyAI.m_aiNumTradeRoutesPlundered);
+	visitor(diplomacyAI.m_aiNumWondersBeatenTo);
+	visitor(diplomacyAI.m_aiNumTimesCultureBombed);
+	visitor(diplomacyAI.m_aiTheyLoweredOurInfluence);
+	visitor(diplomacyAI.m_aiNumProtectedMinorsBullied);
+	visitor(diplomacyAI.m_aiNumProtectedMinorsAttacked);
+	visitor(diplomacyAI.m_aiNumProtectedMinorsKilled);
+	visitor(diplomacyAI.m_aiNegativeReligiousConversionPoints);
+	visitor(diplomacyAI.m_aiNumTimesRobbedBy);
+	visitor(diplomacyAI.m_aiPerformedCoupAgainstUs);
+	visitor(diplomacyAI.m_aiLikedTheirProposalValue);
+	visitor(diplomacyAI.m_aiSupportedOurProposalValue);
+	visitor(diplomacyAI.m_aiSupportedOurHostingValue);
+	visitor(diplomacyAI.m_aiNegativeArchaeologyPoints);
+	visitor(diplomacyAI.m_aiArtifactsEverDugUp);
+	visitor(diplomacyAI.m_aiNumTimesNuked);
+
+	// Turn counters
+	visitor(diplomacyAI.m_aiResurrectedOnTurn);
+	visitor(diplomacyAI.m_aiLiberatedCitiesTurn);
+	visitor(diplomacyAI.m_aiCiviliansReturnedToMeTurn);
+	visitor(diplomacyAI.m_aiIntrigueSharedTurn);
+	visitor(diplomacyAI.m_aiPlayerForgaveForSpyingTurn);
+	visitor(diplomacyAI.m_aiLandmarksBuiltForMeTurn);
+	visitor(diplomacyAI.m_aiPlottedAgainstUsTurn);
+	visitor(diplomacyAI.m_aiPlunderedTradeRouteTurn);
+	visitor(diplomacyAI.m_aiBeatenToWonderTurn);
+	visitor(diplomacyAI.m_aiLoweredOurInfluenceTurn);
+	visitor(diplomacyAI.m_aiSidedWithProtectedMinorTurn);
+	visitor(diplomacyAI.m_aiBulliedProtectedMinorTurn);
+	visitor(diplomacyAI.m_aiAttackedProtectedMinorTurn);
+	visitor(diplomacyAI.m_aiKilledProtectedMinorTurn);
+	visitor(diplomacyAI.m_aiReligiousConversionTurn);
+	visitor(diplomacyAI.m_aiTimesRobbedTurn);
+	visitor(diplomacyAI.m_aiPerformedCoupTurn);
+	visitor(diplomacyAI.m_aiStoleArtifactTurn);
+	visitor(diplomacyAI.m_aiWeLikedTheirProposalTurn);
+	visitor(diplomacyAI.m_aiWeDislikedTheirProposalTurn);
+	visitor(diplomacyAI.m_aiTheySupportedOurProposalTurn);
+	visitor(diplomacyAI.m_aiTheyFoiledOurProposalTurn);
+	visitor(diplomacyAI.m_aiTheySupportedOurHostingTurn);
+
+	// Player-Specific Memory
+	visitor(diplomacyAI.m_aeProtectedMinorBullied);
+	visitor(diplomacyAI.m_aeProtectedMinorAttacked);
+	visitor(diplomacyAI.m_aeProtectedMinorKilled);
+
+	// GUESSES
+	// Guesses about other players' feelings towards us
+	visitor(diplomacyAI.m_aeOpinionTowardsUsGuess);
+	visitor(diplomacyAI.m_aeApproachTowardsUsGuess);
+	visitor(diplomacyAI.m_aeApproachTowardsUsGuessCounter);
+
+	// C4DF Values
+	visitor(diplomacyAI.m_abShareOpinionAccepted);
+	visitor(diplomacyAI.m_abShareOpinionRefused);
+	visitor(diplomacyAI.m_aiHelpRequestAcceptedTurn);
+	visitor(diplomacyAI.m_aiHelpRequestTooSoonNumTurns);
+	visitor(diplomacyAI.m_abTargetingVassal);
+	visitor(diplomacyAI.m_aiPlayerVassalageFailedProtectValue);
+	visitor(diplomacyAI.m_aiPlayerVassalageProtectValue);
+	visitor(diplomacyAI.m_aiPlayerVassalagePeacefullyRevokedTurn);
+	visitor(diplomacyAI.m_aiPlayerVassalageForcefullyRevokedTurn);
+	visitor(diplomacyAI.m_abHasPaidTributeTo);
+	visitor(diplomacyAI.m_aiBrokenVassalAgreementTurn);
+	visitor(diplomacyAI.m_aiMoveTroopsRequestAcceptedTurn);
+	visitor(diplomacyAI.m_abOfferingGift);
+	visitor(diplomacyAI.m_abOfferedGift);
+	visitor(diplomacyAI.m_abMasterLiberatedMeFromVassalage);
+	visitor(diplomacyAI.m_abVassalTaxRaised);
+	visitor(diplomacyAI.m_abVassalTaxLowered);
+	visitor(diplomacyAI.m_aiVassalGoldPerTurnTaxedSinceVassalStarted);
+	visitor(diplomacyAI.m_aiVassalGoldPerTurnCollectedSinceVassalStarted);
+}
+
 /// Serialization read
 void CvDiplomacyAI::Read(FDataStream& kStream)
 {
-	// Version number to maintain backwards compatibility
-	uint uiVersion;
-	kStream >> uiVersion;
-	MOD_SERIALIZE_INIT_READ(kStream);
-
-	// Personality Values
-	kStream >> m_iVictoryCompetitiveness;
-	kStream >> m_iWonderCompetitiveness;
-	kStream >> m_iMinorCivCompetitiveness;
-	kStream >> m_iBoldness;
-	kStream >> m_iDiploBalance;
-	kStream >> m_iWarmongerHate;
-	kStream >> m_iDoFWillingness;
-	kStream >> m_iDenounceWillingness;
-	kStream >> m_iLoyalty;
-	kStream >> m_iForgiveness;
-	kStream >> m_iNeediness;
-	kStream >> m_iMeanness;
-	kStream >> m_iChattiness;
-	kStream >> m_aiMajorCivApproachBiases;
-	kStream >> m_aiMinorCivApproachBiases;
-
-	// Key Players
-	kStream >> m_eMostValuableFriend;
-	kStream >> m_eMostValuableAlly;
-	kStream >> m_eBiggestCompetitor;
-	kStream >> m_ePrimeLeagueCompetitor;
-	kStream >> m_eDemandTargetPlayer;
-	kStream >> m_eCSWarTarget;
-	kStream >> m_eCSBullyTarget;
-
-	// Other Global Memory
-	kStream >> m_bEndedFriendshipThisTurn;
-	kStream >> m_bBackstabber;
-	kStream >> m_bCompetingForVictory;
-	kStream >> m_eDefaultVictoryFocus;
-	kStream >> m_eVictoryFocus;
-	kStream >> m_eStateAllWars;
-
-	// Diplomatic Interactions
-	for (int iI = 0; iI < MAX_MAJOR_CIVS; iI++)
-	{
-		ArrayWrapper<DiploLogData> wrapm_aaDiploStatementsLog(MAX_DIPLO_LOG_STATEMENTS, m_aaDiploStatementsLog[iI]);
-		kStream >> wrapm_aaDiploStatementsLog;
-	}
-
-	ArrayWrapper<DeclarationLogData> wrapm_aDeclarationsLog(MAX_DIPLO_LOG_STATEMENTS, m_aDeclarationsLog);
-	kStream >> wrapm_aDeclarationsLog;
-
-	kStream >> m_aDiploLogStatementTurnCountScratchPad;
-	kStream >> m_aabSentAttackMessageToMinorCivProtector;
-
-	// Opinion & Approach
-	kStream >> m_aeCivOpinion;
-	kStream >> m_aiCachedOpinionWeight;
-	kStream >> m_aeCivApproach;
-	kStream >> m_aeCivStrategicApproach;
-	kStream >> m_aeCachedSurfaceApproach;
-	kStream >> m_aaiApproachValues;
-	kStream >> m_aaiStrategicApproachValues;
-
-	// Minor Civs
-	kStream >> m_abWantToRouteToMinor;
-
-	// Planning Exchanges
-	kStream >> m_abMajorCompetitor;
-	kStream >> m_abStrategicTradePartner;
-	kStream >> m_abWantsDoFWithPlayer;
-	kStream >> m_abWantsDefensivePactWithPlayer;
-	kStream >> m_abWantsToEndDoFWithPlayer;
-	kStream >> m_abWantsToEndDefensivePactWithPlayer;
-	kStream >> m_abWantsResearchAgreementWithPlayer;
-
-	// Exchanges
-	kStream >> m_aiDoFAcceptedTurn;
-	kStream >> m_aeDoFType;
-	kStream >> m_aiDenouncedPlayerTurn;
-	kStream >> m_abCantMatchDeal;
-	kStream >> m_aiNumDemandsMade;
-	kStream >> m_aiDemandMadeTurn;
-	kStream >> m_aiDemandTooSoonNumTurns;
-	kStream >> m_aiTradeValue;
-	kStream >> m_aiCommonFoeValue;
-	kStream >> m_aiAssistValue;
-
-	// Coop Wars
-	kStream >> m_aaeCoopWarState;
-	kStream >> m_aaiCoopWarStateChangeTurn;
-	kStream >> m_aiCoopWarScore;
-
-	// War
-	kStream >> m_abSaneDiplomaticTarget;
-	kStream >> m_abPotentialWarTarget;
-	kStream >> m_abWantsSneakAttack;
-	kStream >> m_abArmyInPlaceForAttack;
-	kStream >> m_abAggressor;
-	kStream >> m_aiNumWarsFought;
-	kStream >> m_aiNumWarsDeclaredOnUs;
-	kStream >> m_aiCivilianKillerValue;
-	kStream >> m_aiNumCitiesCaptured;
-	kStream >> m_aiWarValueLost;
-	kStream >> m_aiWarDamageValue;
-	kStream >> m_aeWarState;
-
-	// Peace
-	kStream >> m_aePeaceTreatyWillingToOffer;
-	kStream >> m_aePeaceTreatyWillingToAccept;
-
-	// Backstabbing Penalties
-	kStream >> m_abUntrustworthyFriend;
-	kStream >> m_abEverBackstabbedBy;
-	kStream >> m_aiDoFBrokenTurn;
-	kStream >> m_aiFriendDenouncedUsTurn;
-	kStream >> m_aiFriendDeclaredWarOnUsTurn;
-
-	// Warmongering Penalties
-	kStream >> m_aiNumMinorsAttacked;
-	kStream >> m_aiNumMinorsConquered;
-	kStream >> m_aiNumMajorsAttacked;
-	kStream >> m_aiNumMajorsConquered;
-	kStream >> m_aiWarmongerAmountTimes100;
-
-	// Aggressive Postures
-	kStream >> m_aeMilitaryAggressivePosture;
-	kStream >> m_aeLastTurnMilitaryAggressivePosture;
-	kStream >> m_aeExpansionAggressivePosture;
-	kStream >> m_aePlotBuyingAggressivePosture;
-
-	// Dispute Levels
-	kStream >> m_abEndgameAggressiveTo;
-	kStream >> m_abRecklessExpander;
-	kStream >> m_abWonderSpammer;
-	kStream >> m_aeLandDisputeLevel;
-	kStream >> m_aeVictoryDisputeLevel;
-	kStream >> m_aeVictoryBlockLevel;
-	kStream >> m_aeWonderDisputeLevel;
-	kStream >> m_aeMinorCivDisputeLevel;
-	kStream >> m_aeTechBlockLevel;
-	kStream >> m_aePolicyBlockLevel;
-
-	// Threat Levels
-	kStream >> m_aeWarmongerThreat;
-
-	// Strength Assessments
-	kStream >> m_aeMilitaryStrengthComparedToUs;
-	kStream >> m_aeEconomicStrengthComparedToUs;
-	kStream >> m_aeTargetValue;
-	kStream >> m_abEasyTarget;
-
-	// PROMISES
-	// Military Promise
-	kStream >> m_aeMilitaryPromiseState;
-	kStream >> m_aiMilitaryPromiseTurn;
-
-	// Expansion Promise
-	kStream >> m_aeExpansionPromiseState;
-	kStream >> m_aeExpansionPromisePosture;
-	kStream >> m_aiExpansionPromiseTurn;
-	kStream >> m_aNoExpansionPromise;
-	kStream >> m_aLastTurnEmpireDistance;
-	kStream >> m_abEverMadeExpansionPromise;
-
-	// Border Promise
-	kStream >> m_aeBorderPromiseState;
-	kStream >> m_aeBorderPromisePosture;
-	kStream >> m_aiBorderPromiseTurn;
-	kStream >> m_abEverMadeBorderPromise;
-
-	// Bully City-State Promise
-	kStream >> m_aeBullyCityStatePromiseState;
-	kStream >> m_aiBullyCityStatePromiseTurn;
-
-	// Attack City-State Promise
-	kStream >> m_aeAttackCityStatePromiseState;
-	kStream >> m_aiAttackCityStatePromiseTurn;
-
-	// Spy Promise
-	kStream >> m_aeSpyPromiseState;
-	kStream >> m_aiSpyPromiseTurn;
-
-	// No Convert Promise
-	kStream >> m_aeNoConvertPromiseState;
-	kStream >> m_aiNoConvertPromiseTurn;
-	kStream >> m_abAskedNotToConvert;
-	kStream >> m_abEverConvertedCity;
-
-	// No Digging Promise
-	kStream >> m_aeNoDiggingPromiseState;
-	kStream >> m_aiNoDiggingPromiseTurn;
-	kStream >> m_abAskedNotToDig;
-
-	// Coop War Promise
-	kStream >> m_aiBrokenCoopWarPromiseTurn;
-
-	// END PROMISES
-	// Event Flags
-	kStream >> m_abReturnedCapital;
-	kStream >> m_abReturnedHolyCity;
-	kStream >> m_abLiberatedCapital;
-	kStream >> m_abLiberatedHolyCity;
-	kStream >> m_abCapturedCapital;
-	kStream >> m_abCapturedHolyCity;
-	kStream >> m_abResurrectorAttackedUs;
-
-	// # of times/points counters
-	kStream >> m_aiNumCitiesLiberated;
-	kStream >> m_aiNumCiviliansReturnedToMe;
-	kStream >> m_aiNumTimesIntrigueSharedBy;
-	kStream >> m_aiNumLandmarksBuiltForMe;
-	kStream >> m_aiTheyPlottedAgainstUs;
-	kStream >> m_aiNumTradeRoutesPlundered;	
-	kStream >> m_aiNumWondersBeatenTo;
-	kStream >> m_aiNumTimesCultureBombed;
-	kStream >> m_aiTheyLoweredOurInfluence;
-	kStream >> m_aiNumProtectedMinorsBullied;
-	kStream >> m_aiNumProtectedMinorsAttacked;
-	kStream >> m_aiNumProtectedMinorsKilled;
-	kStream >> m_aiNegativeReligiousConversionPoints;
-	kStream >> m_aiNumTimesRobbedBy;
-	kStream >> m_aiPerformedCoupAgainstUs;
-	kStream >> m_aiLikedTheirProposalValue;
-	kStream >> m_aiSupportedOurProposalValue;
-	kStream >> m_aiSupportedOurHostingValue;
-	kStream >> m_aiNegativeArchaeologyPoints;
-	kStream >> m_aiArtifactsEverDugUp;
-	kStream >> m_aiNumTimesNuked;
-
-	// Turn counters
-	kStream >> m_aiResurrectedOnTurn;
-	kStream >> m_aiLiberatedCitiesTurn;
-	kStream >> m_aiCiviliansReturnedToMeTurn;
-	kStream >> m_aiIntrigueSharedTurn;
-	kStream >> m_aiPlayerForgaveForSpyingTurn;
-	kStream >> m_aiLandmarksBuiltForMeTurn;
-	kStream >> m_aiPlottedAgainstUsTurn;
-	kStream >> m_aiPlunderedTradeRouteTurn;
-	kStream >> m_aiBeatenToWonderTurn;
-	kStream >> m_aiLoweredOurInfluenceTurn;
-	kStream >> m_aiSidedWithProtectedMinorTurn;
-	kStream >> m_aiBulliedProtectedMinorTurn;
-	kStream >> m_aiAttackedProtectedMinorTurn;
-	kStream >> m_aiKilledProtectedMinorTurn;
-	kStream >> m_aiReligiousConversionTurn;
-	kStream >> m_aiTimesRobbedTurn;
-	kStream >> m_aiPerformedCoupTurn;
-	kStream >> m_aiStoleArtifactTurn;
-	kStream >> m_aiWeLikedTheirProposalTurn;
-	kStream >> m_aiWeDislikedTheirProposalTurn;
-	kStream >> m_aiTheySupportedOurProposalTurn;
-	kStream >> m_aiTheyFoiledOurProposalTurn;
-	kStream >> m_aiTheySupportedOurHostingTurn;
-
-	// Player-Specific Memory
-	kStream >> m_aeProtectedMinorBullied;
-	kStream >> m_aeProtectedMinorAttacked;
-	kStream >> m_aeProtectedMinorKilled;
-
-	// GUESSES
-	// Guesses about other players' feelings towards us
-	kStream >> m_aeOpinionTowardsUsGuess;
-	kStream >> m_aeApproachTowardsUsGuess;
-	kStream >> m_aeApproachTowardsUsGuessCounter;
-
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-	// C4DF Values
-	kStream >> m_abShareOpinionAccepted;
-	kStream >> m_abShareOpinionRefused;
-	kStream >> m_aiHelpRequestAcceptedTurn;
-	kStream >> m_aiHelpRequestTooSoonNumTurns;
-	kStream >> m_abTargetingVassal;
-	kStream >> m_aiPlayerVassalageFailedProtectValue;
-	kStream >> m_aiPlayerVassalageProtectValue;
-	kStream >> m_aiPlayerVassalagePeacefullyRevokedTurn;
-	kStream >> m_aiPlayerVassalageForcefullyRevokedTurn;
-	kStream >> m_abHasPaidTributeTo;
-	kStream >> m_aiBrokenVassalAgreementTurn;
-	kStream >> m_aiMoveTroopsRequestAcceptedTurn;
-	kStream >> m_abOfferingGift;
-	kStream >> m_abOfferedGift;
-	kStream >> m_abMasterLiberatedMeFromVassalage;
-	kStream >> m_abVassalTaxRaised;
-	kStream >> m_abVassalTaxLowered;
-	kStream >> m_aiVassalGoldPerTurnTaxedSinceVassalStarted;
-	kStream >> m_aiVassalGoldPerTurnCollectedSinceVassalStarted;
-#endif
+	CvStreamLoadVisitor serialVisitor(kStream);
+	CvDiplomacyAI::Serialize(*this, serialVisitor);
 }
 
 /// Serialization write
-void CvDiplomacyAI::Write(FDataStream& kStream)
+void CvDiplomacyAI::Write(FDataStream& kStream) const
 {
-	// Current version number
-	uint uiVersion = 4;
-	kStream << uiVersion;
-	MOD_SERIALIZE_INIT_WRITE(kStream);
+	CvStreamSaveVisitor serialVisitor(kStream);
+	CvDiplomacyAI::Serialize(*this, serialVisitor);
+}
 
-	// Personality Values
-	kStream << m_iVictoryCompetitiveness;
-	kStream << m_iWonderCompetitiveness;
-	kStream << m_iMinorCivCompetitiveness;
-	kStream << m_iBoldness;
-	kStream << m_iDiploBalance;
-	kStream << m_iWarmongerHate;
-	kStream << m_iDoFWillingness;
-	kStream << m_iDenounceWillingness;
-	kStream << m_iLoyalty;
-	kStream << m_iForgiveness;
-	kStream << m_iNeediness;
-	kStream << m_iMeanness;
-	kStream << m_iChattiness;
-	kStream << m_aiMajorCivApproachBiases;
-	kStream << m_aiMinorCivApproachBiases;
-
-	// Key Players
-	kStream << m_eMostValuableFriend;
-	kStream << m_eMostValuableAlly;
-	kStream << m_eBiggestCompetitor;
-	kStream << m_ePrimeLeagueCompetitor;
-	kStream << m_eDemandTargetPlayer;
-	kStream << m_eCSWarTarget;
-	kStream << m_eCSBullyTarget;
-
-	// Other Global Memory
-	kStream << m_bEndedFriendshipThisTurn;
-	kStream << m_bBackstabber;
-	kStream << m_bCompetingForVictory;
-	kStream << m_eDefaultVictoryFocus;
-	kStream << m_eVictoryFocus;
-	kStream << m_eStateAllWars;
-
-	// Diplomatic Interactions
-	for (int iI = 0; iI < MAX_MAJOR_CIVS; iI++)
-	{
-		kStream << ArrayWrapper<DiploLogData>(MAX_DIPLO_LOG_STATEMENTS, m_aaDiploStatementsLog[iI]);
-	}
-
-	kStream << ArrayWrapper<DeclarationLogData>(MAX_DIPLO_LOG_STATEMENTS, m_aDeclarationsLog);
-
-	kStream << m_aDiploLogStatementTurnCountScratchPad;
-	kStream << m_aabSentAttackMessageToMinorCivProtector;
-
-	// Opinion & Approach
-	kStream << m_aeCivOpinion;
-	kStream << m_aiCachedOpinionWeight;
-	kStream << m_aeCivApproach;
-	kStream << m_aeCivStrategicApproach;
-	kStream << m_aeCachedSurfaceApproach;
-	kStream << m_aaiApproachValues;
-	kStream << m_aaiStrategicApproachValues;
-
-	// Minor Civs
-	kStream << m_abWantToRouteToMinor;
-
-	// Planning Exchanges
-	kStream << m_abMajorCompetitor;
-	kStream << m_abStrategicTradePartner;
-	kStream << m_abWantsDoFWithPlayer;
-	kStream << m_abWantsDefensivePactWithPlayer;
-	kStream << m_abWantsToEndDoFWithPlayer;
-	kStream << m_abWantsToEndDefensivePactWithPlayer;
-	kStream << m_abWantsResearchAgreementWithPlayer;
-
-	// Exchanges
-	kStream << m_aiDoFAcceptedTurn;
-	kStream << m_aeDoFType;
-	kStream << m_aiDenouncedPlayerTurn;
-	kStream << m_abCantMatchDeal;
-	kStream << m_aiNumDemandsMade;
-	kStream << m_aiDemandMadeTurn;
-	kStream << m_aiDemandTooSoonNumTurns;
-	kStream << m_aiTradeValue;
-	kStream << m_aiCommonFoeValue;
-	kStream << m_aiAssistValue;
-
-	// Coop Wars
-	kStream << m_aaeCoopWarState;
-	kStream << m_aaiCoopWarStateChangeTurn;
-	kStream << m_aiCoopWarScore;
-
-	// War
-	kStream << m_abSaneDiplomaticTarget;
-	kStream << m_abPotentialWarTarget;
-	kStream << m_abWantsSneakAttack;
-	kStream << m_abArmyInPlaceForAttack;
-	kStream << m_abAggressor;
-	kStream << m_aiNumWarsFought;
-	kStream << m_aiNumWarsDeclaredOnUs;
-	kStream << m_aiCivilianKillerValue;
-	kStream << m_aiNumCitiesCaptured;
-	kStream << m_aiWarValueLost;
-	kStream << m_aiWarDamageValue;
-	kStream << m_aeWarState;
-
-	// Peace
-	kStream << m_aePeaceTreatyWillingToOffer;
-	kStream << m_aePeaceTreatyWillingToAccept;
-
-	// Backstabbing Penalties
-	kStream << m_abUntrustworthyFriend;
-	kStream << m_abEverBackstabbedBy;
-	kStream << m_aiDoFBrokenTurn;
-	kStream << m_aiFriendDenouncedUsTurn;
-	kStream << m_aiFriendDeclaredWarOnUsTurn;
-
-	// Warmongering Penalties
-	kStream << m_aiNumMinorsAttacked;
-	kStream << m_aiNumMinorsConquered;
-	kStream << m_aiNumMajorsAttacked;
-	kStream << m_aiNumMajorsConquered;
-	kStream << m_aiWarmongerAmountTimes100;
-
-	// Aggressive Postures
-	kStream << m_aeMilitaryAggressivePosture;
-	kStream << m_aeLastTurnMilitaryAggressivePosture;
-	kStream << m_aeExpansionAggressivePosture;
-	kStream << m_aePlotBuyingAggressivePosture;
-
-	// Dispute Levels
-	kStream << m_abEndgameAggressiveTo;
-	kStream << m_abRecklessExpander;
-	kStream << m_abWonderSpammer;
-	kStream << m_aeLandDisputeLevel;
-	kStream << m_aeVictoryDisputeLevel;
-	kStream << m_aeVictoryBlockLevel;
-	kStream << m_aeWonderDisputeLevel;
-	kStream << m_aeMinorCivDisputeLevel;
-	kStream << m_aeTechBlockLevel;
-	kStream << m_aePolicyBlockLevel;
-
-	// Threat Levels
-	kStream << m_aeWarmongerThreat;
-
-	// Strength Assessments
-	kStream << m_aeMilitaryStrengthComparedToUs;
-	kStream << m_aeEconomicStrengthComparedToUs;
-	kStream << m_aeTargetValue;
-	kStream << m_abEasyTarget;
-
-	// PROMISES
-	// Military Promise
-	kStream << m_aeMilitaryPromiseState;
-	kStream << m_aiMilitaryPromiseTurn;
-
-	// Expansion Promise
-	kStream << m_aeExpansionPromiseState;
-	kStream << m_aeExpansionPromisePosture;
-	kStream << m_aiExpansionPromiseTurn;
-	kStream << m_aNoExpansionPromise;
-	kStream << m_aLastTurnEmpireDistance;
-	kStream << m_abEverMadeExpansionPromise;
-
-	// Border Promise
-	kStream << m_aeBorderPromiseState;
-	kStream << m_aeBorderPromisePosture;
-	kStream << m_aiBorderPromiseTurn;
-	kStream << m_abEverMadeBorderPromise;
-
-	// Bully City-State Promise
-	kStream << m_aeBullyCityStatePromiseState;
-	kStream << m_aiBullyCityStatePromiseTurn;
-
-	// Attack City-State Promise
-	kStream << m_aeAttackCityStatePromiseState;
-	kStream << m_aiAttackCityStatePromiseTurn;
-
-	// Spy Promise
-	kStream << m_aeSpyPromiseState;
-	kStream << m_aiSpyPromiseTurn;
-
-	// No Convert Promise
-	kStream << m_aeNoConvertPromiseState;
-	kStream << m_aiNoConvertPromiseTurn;
-	kStream << m_abAskedNotToConvert;
-	kStream << m_abEverConvertedCity;
-
-	// No Digging Promise
-	kStream << m_aeNoDiggingPromiseState;
-	kStream << m_aiNoDiggingPromiseTurn;
-	kStream << m_abAskedNotToDig;
-
-	// Coop War Promise
-	kStream << m_aiBrokenCoopWarPromiseTurn;
-
-	// END PROMISES
-	// Event Flags
-	kStream << m_abReturnedCapital;
-	kStream << m_abReturnedHolyCity;
-	kStream << m_abLiberatedCapital;
-	kStream << m_abLiberatedHolyCity;
-	kStream << m_abCapturedCapital;
-	kStream << m_abCapturedHolyCity;
-	kStream << m_abResurrectorAttackedUs;
-
-	// # of times/points counters
-	kStream << m_aiNumCitiesLiberated;
-	kStream << m_aiNumCiviliansReturnedToMe;
-	kStream << m_aiNumTimesIntrigueSharedBy;
-	kStream << m_aiNumLandmarksBuiltForMe;
-	kStream << m_aiTheyPlottedAgainstUs;
-	kStream << m_aiNumTradeRoutesPlundered;	
-	kStream << m_aiNumWondersBeatenTo;
-	kStream << m_aiNumTimesCultureBombed;
-	kStream << m_aiTheyLoweredOurInfluence;
-	kStream << m_aiNumProtectedMinorsBullied;
-	kStream << m_aiNumProtectedMinorsAttacked;
-	kStream << m_aiNumProtectedMinorsKilled;
-	kStream << m_aiNegativeReligiousConversionPoints;
-	kStream << m_aiNumTimesRobbedBy;
-	kStream << m_aiPerformedCoupAgainstUs;
-	kStream << m_aiLikedTheirProposalValue;
-	kStream << m_aiSupportedOurProposalValue;
-	kStream << m_aiSupportedOurHostingValue;
-	kStream << m_aiNegativeArchaeologyPoints;
-	kStream << m_aiArtifactsEverDugUp;
-	kStream << m_aiNumTimesNuked;
-
-	// Turn counters
-	kStream << m_aiResurrectedOnTurn;
-	kStream << m_aiLiberatedCitiesTurn;
-	kStream << m_aiCiviliansReturnedToMeTurn;
-	kStream << m_aiIntrigueSharedTurn;
-	kStream << m_aiPlayerForgaveForSpyingTurn;
-	kStream << m_aiLandmarksBuiltForMeTurn;
-	kStream << m_aiPlottedAgainstUsTurn;
-	kStream << m_aiPlunderedTradeRouteTurn;
-	kStream << m_aiBeatenToWonderTurn;
-	kStream << m_aiLoweredOurInfluenceTurn;
-	kStream << m_aiSidedWithProtectedMinorTurn;
-	kStream << m_aiBulliedProtectedMinorTurn;
-	kStream << m_aiAttackedProtectedMinorTurn;
-	kStream << m_aiKilledProtectedMinorTurn;
-	kStream << m_aiReligiousConversionTurn;
-	kStream << m_aiTimesRobbedTurn;
-	kStream << m_aiPerformedCoupTurn;
-	kStream << m_aiStoleArtifactTurn;
-	kStream << m_aiWeLikedTheirProposalTurn;
-	kStream << m_aiWeDislikedTheirProposalTurn;
-	kStream << m_aiTheySupportedOurProposalTurn;
-	kStream << m_aiTheyFoiledOurProposalTurn;
-	kStream << m_aiTheySupportedOurHostingTurn;
-
-	// Player-Specific Memory
-	kStream << m_aeProtectedMinorBullied;
-	kStream << m_aeProtectedMinorAttacked;
-	kStream << m_aeProtectedMinorKilled;
-
-	// GUESSES
-	// Guesses about other players' feelings towards us
-	kStream << m_aeOpinionTowardsUsGuess;
-	kStream << m_aeApproachTowardsUsGuess;
-	kStream << m_aeApproachTowardsUsGuessCounter;
-
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-	// C4DF Values
-	kStream << m_abShareOpinionAccepted;
-	kStream << m_abShareOpinionRefused;
-	kStream << m_aiHelpRequestAcceptedTurn;
-	kStream << m_aiHelpRequestTooSoonNumTurns;
-	kStream << m_abTargetingVassal;
-	kStream << m_aiPlayerVassalageFailedProtectValue;
-	kStream << m_aiPlayerVassalageProtectValue;
-	kStream << m_aiPlayerVassalagePeacefullyRevokedTurn;
-	kStream << m_aiPlayerVassalageForcefullyRevokedTurn;
-	kStream << m_abHasPaidTributeTo;
-	kStream << m_aiBrokenVassalAgreementTurn;
-	kStream << m_aiMoveTroopsRequestAcceptedTurn;
-	kStream << m_abOfferingGift;
-	kStream << m_abOfferedGift;
-	kStream << m_abMasterLiberatedMeFromVassalage;
-	kStream << m_abVassalTaxRaised;
-	kStream << m_abVassalTaxLowered;
-	kStream << m_aiVassalGoldPerTurnTaxedSinceVassalStarted;
-	kStream << m_aiVassalGoldPerTurnCollectedSinceVassalStarted;
-#endif
+FDataStream& operator>>(FDataStream& stream, CvDiplomacyAI& diplomacyAI)
+{
+	diplomacyAI.Read(stream);
+	return stream;
+}
+FDataStream& operator<<(FDataStream& stream, const CvDiplomacyAI& diplomacyAI)
+{
+	diplomacyAI.Write(stream);
+	return stream;
 }
 
 //	-----------------------------------------------------------------------------------------------
@@ -50383,39 +50108,49 @@ bool CvDiplomacyAI::IsValidUIDiplomacyTarget(PlayerTypes eTargetPlayer)
 	return false;
 }
 
+template<typename DiploLogDataT, typename Visitor>
+void DiploLogData::Serialize(DiploLogDataT& diploLogData, Visitor& visitor)
+{
+	visitor(diploLogData.m_eDiploLogStatement);
+	visitor(diploLogData.m_iTurn);
+}
+
 FDataStream& operator<<(FDataStream& saveTo, const DiploLogData& readFrom)
 {
-	saveTo << readFrom.m_eDiploLogStatement;
-	saveTo << readFrom.m_iTurn;
+	CvStreamSaveVisitor serialVisitor(saveTo);
+	DiploLogData::Serialize(readFrom, serialVisitor);
 	return saveTo;
 }
 
 FDataStream& operator>>(FDataStream& loadFrom, DiploLogData& writeTo)
 {
-	loadFrom >> writeTo.m_eDiploLogStatement;
-	loadFrom >> writeTo.m_iTurn;
+	CvStreamLoadVisitor serialVisitor(loadFrom);
+	DiploLogData::Serialize(writeTo, serialVisitor);
 	return loadFrom;
+}
+
+template<typename DeclarationLogDataT, typename Visitor>
+void DeclarationLogData::Serialize(DeclarationLogDataT& declarationLogData, Visitor& visitor)
+{
+	visitor(declarationLogData.m_eDeclaration);
+	visitor(declarationLogData.m_iData1);
+	visitor(declarationLogData.m_iData2);
+	visitor(declarationLogData.m_eMustHaveMetPlayer);
+	visitor(declarationLogData.m_bActive);
+	visitor(declarationLogData.m_iTurn);
 }
 
 FDataStream& operator<<(FDataStream& saveTo, const DeclarationLogData& readFrom)
 {
-	saveTo << readFrom.m_eDeclaration;
-	saveTo << readFrom.m_iData1;
-	saveTo << readFrom.m_iData2;
-	saveTo << readFrom.m_eMustHaveMetPlayer;
-	saveTo << readFrom.m_bActive;
-	saveTo << readFrom.m_iTurn;
+	CvStreamSaveVisitor serialVisitor(saveTo);
+	DeclarationLogData::Serialize(readFrom, serialVisitor);
 	return saveTo;
 }
 
 FDataStream& operator>>(FDataStream& loadFrom, DeclarationLogData& writeTo)
 {
-	loadFrom >> writeTo.m_eDeclaration;
-	loadFrom >> writeTo.m_iData1;
-	loadFrom >> writeTo.m_iData2;
-	loadFrom >> writeTo.m_eMustHaveMetPlayer;
-	loadFrom >> writeTo.m_bActive;
-	loadFrom >> writeTo.m_iTurn;
+	CvStreamLoadVisitor serialVisitor(loadFrom);
+	DeclarationLogData::Serialize(writeTo, serialVisitor);
 	return loadFrom;
 }
 

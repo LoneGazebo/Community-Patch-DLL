@@ -721,6 +721,8 @@ public:
 	void Init(CvPromotionXMLEntries* pPromotions, CvUnit* pUnit);
 	void Uninit();
 	void Reset();
+	template<typename UnitPromotions, typename Visitor>
+	static void Serialize(UnitPromotions& unitPromotions, Visitor& visitor);
 	void Read(FDataStream& kStream);
 	void Write(FDataStream& kStream) const;
 
@@ -752,6 +754,9 @@ private:
 	CvPromotionXMLEntries* m_pPromotions;
 	CvUnit* m_pUnit;
 };
+
+FDataStream& operator>>(FDataStream&, CvUnitPromotions&);
+FDataStream& operator<<(FDataStream&, const CvUnitPromotions&);
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // Helper Functions to serialize arrays of variable length (based on number of promotions defined in game)

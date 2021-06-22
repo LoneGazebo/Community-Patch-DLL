@@ -13,47 +13,31 @@
 // Include this after all other headers.
 #include "LintFree.h"
 
+template<typename PopupInfo, typename Visitor>
+static void SerializePopupInfo(PopupInfo& popupInfo, Visitor& visitor)
+{
+	visitor(popupInfo.iData1);
+	visitor(popupInfo.iData2);
+	visitor(popupInfo.iData3);
+	visitor(popupInfo.iFlags);
+	visitor(popupInfo.bOption1);
+	visitor(popupInfo.bOption2);
+
+	visitor(popupInfo.eButtonPopupType);
+
+	visitor(popupInfo.szText);
+}
+
 FDataStream& operator<<(FDataStream& kStream, const CvPopupInfo& kPopupInfo)
 {
-	// Current version number
-	uint uiVersion = 1;
-	kStream << uiVersion;
-	MOD_SERIALIZE_INIT_WRITE(kStream);
-
-	kStream << kPopupInfo.iData1;
-	kStream << kPopupInfo.iData2;
-	kStream << kPopupInfo.iData3;
-	kStream << kPopupInfo.iFlags;
-	kStream << kPopupInfo.bOption1;
-	kStream << kPopupInfo.bOption2;
-
-	kStream << kPopupInfo.eButtonPopupType;
-
-	kStream << kPopupInfo.szText;
-
+	CvStreamSaveVisitor serialVisitor(kStream);
+	SerializePopupInfo(kPopupInfo, serialVisitor);
 	return kStream;
 }
 //------------------------------------------------------------------------------
 FDataStream& operator>>(FDataStream& kStream, CvPopupInfo& kPopupInfo)
 {
-	// Version number to maintain backwards compatibility
-	uint uiVersion;
-	kStream >> uiVersion;
-	MOD_SERIALIZE_INIT_READ(kStream);
-
-	kStream >> kPopupInfo.iData1;
-	kStream >> kPopupInfo.iData2;
-	kStream >> kPopupInfo.iData3;
-	kStream >> kPopupInfo.iFlags;
-	kStream >> kPopupInfo.bOption1;
-	kStream >> kPopupInfo.bOption2;
-
-	kStream >> kPopupInfo.eButtonPopupType;
-
-	CvString strDummy;
-	kStream >> strDummy;
-
-	strcpy_s(kPopupInfo.szText, strDummy.c_str());
-
+	CvStreamLoadVisitor serialVisitor(kStream);
+	SerializePopupInfo(kPopupInfo, serialVisitor);
 	return kStream;
 }

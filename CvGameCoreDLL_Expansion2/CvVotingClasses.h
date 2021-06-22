@@ -106,6 +106,9 @@ struct CvResolutionEffects
 	CvResolutionEffects(void);
 	~CvResolutionEffects(void);
 
+	template<typename ResolutionEffects, typename Visitor>
+	static void Serialize(ResolutionEffects& resolutionEffects, Visitor& visitor);
+
 	bool SetType(ResolutionTypes eType);
 	bool HasOngoingEffects() const;
 	void AddOngoingEffects(const CvResolutionEffects* pOtherEffects);
@@ -171,15 +174,31 @@ public:
 	CvResolutionDecision(ResolutionDecisionTypes eType);
 	~CvResolutionDecision(void);
 
+	template<typename ResolutionDecision, typename Visitor>
+	static void Serialize(ResolutionDecision& resolutionDecision, Visitor& visitor);
+
+	// Helpers for invoking base serializers
+	template<typename Visitor> inline void serialize(Visitor& visitor) const
+	{
+		CvResolutionDecision::Serialize(*this, visitor);
+	}
+	template<typename Visitor> inline void serialize(Visitor& visitor)
+	{
+		CvResolutionDecision::Serialize(*this, visitor);
+	}
+
 	struct PlayerVote {
 		PlayerVote(void);
 		~PlayerVote(void);
+
+		template<typename PlayerVoteT, typename Visitor>
+		static void Serialize(PlayerVoteT& voteCommitment, Visitor& visitor);
 
 		PlayerTypes ePlayer;
 		int iNumVotes;
 		int iChoice; // Interpreted differently based on ResolutionDecisionTypes
 	};
-	typedef vector<PlayerVote> PlayerVoteList;
+	typedef std::vector<PlayerVote> PlayerVoteList;
 
 	// Pure virtual functions
 	virtual int GetDecision() = 0;
@@ -212,6 +231,9 @@ public:
 	CvProposerDecision(ResolutionDecisionTypes eType, PlayerTypes eProposer, int iChoice);
 	~CvProposerDecision(void);
 
+	template<typename ProposerDecision, typename Visitor>
+	static void Serialize(ProposerDecision& proposerDecision, Visitor& visitor);
+
 	int GetDecision();
 	PlayerTypes GetProposer();
 
@@ -237,6 +259,9 @@ public:
 	CvVoterDecision(void);
 	CvVoterDecision(ResolutionDecisionTypes eType);
 	~CvVoterDecision(void);
+
+	template<typename VoterDecision, typename Visitor>
+	static void Serialize(VoterDecision& voterDecision, Visitor& visitor);
 
 	int GetDecision();
 	bool IsTie();
@@ -278,6 +303,19 @@ public:
 	// Pure virtual functions
 	virtual void Init() = 0;
 
+	template<typename Resolution, typename Visitor>
+	static void Serialize(Resolution& resolution, Visitor& visitor);
+
+	// Helpers for invoking base serializers
+	template<typename Visitor> inline void serialize(Visitor& visitor) const
+	{
+		CvResolution::Serialize(*this, visitor);
+	}
+	template<typename Visitor> inline void serialize(Visitor& visitor)
+	{
+		CvResolution::Serialize(*this, visitor);
+	}
+
 	int GetID() const;
 	ResolutionTypes GetType() const;
 	LeagueTypes GetLeague() const;
@@ -315,6 +353,19 @@ public:
 	CvProposal(int iID, ResolutionTypes eType, LeagueTypes eLeague, PlayerTypes eProposalPlayer);
 	~CvProposal(void);
 
+	template<typename Proposal, typename Visitor>
+	static void Serialize(Proposal& proposal, Visitor& visitor);
+
+	// Helpers for invoking base serializers
+	template<typename Visitor> inline void serialize(Visitor& visitor) const
+	{
+		CvProposal::Serialize(*this, visitor);
+	}
+	template<typename Visitor> inline void serialize(Visitor& visitor)
+	{
+		CvProposal::Serialize(*this, visitor);
+	}
+
 	// Pure virtual functions
 	virtual bool IsPassed(int iTotalSessionVotes) = 0;
 	virtual CvString GetProposalName(bool bForLogging) = 0;
@@ -343,6 +394,9 @@ public:
 	CvEnactProposal(int iID, ResolutionTypes eType, LeagueTypes eLeague, PlayerTypes eProposalPlayer, int iChoice = LeagueHelpers::CHOICE_NONE);
 	~CvEnactProposal(void);
 
+	template<typename EnactProposal, typename Visitor>
+	static void Serialize(EnactProposal& enactProposal, Visitor& visitor);
+
 	void Init();
 	bool IsPassed(int iTotalSessionVotes);
 	CvString GetProposalName(bool bForLogging = false);
@@ -370,6 +424,9 @@ public:
 	CvActiveResolution(void);
 	CvActiveResolution(CvEnactProposal* pResolution);
 	~CvActiveResolution(void);
+
+	template<typename ActiveResolution, typename Visitor>
+	static void Serialize(ActiveResolution& activeResolution, Visitor& visitor);
 
 	void Init();
 	void DoEffects(PlayerTypes ePlayer);
@@ -404,6 +461,8 @@ public:
 	~CvRepealProposal(void);
 
 	void Init();
+	template<typename RepealProposal, typename Visitor>
+	static void Serialize(RepealProposal& repealProposal, Visitor& visitor);
 	bool IsPassed(int iTotalSessionVotes);
 	CvString GetProposalName(bool bForLogging = false);
 
@@ -441,6 +500,9 @@ public:
 	struct Member {
 		Member(void);
 		~Member(void);
+
+		template<typename MemberT, typename Visitor>
+		static void Serialize(MemberT& member, Visitor& visitor);
 		
 		PlayerTypes ePlayer;
 		int iExtraVotes;
@@ -464,6 +526,9 @@ public:
 		Project(void);
 		~Project(void);
 
+		template<typename ProjectT, typename Visitor>
+		static void Serialize(ProjectT& project, Visitor& visitor);
+
 		LeagueProjectTypes eType;
 		ProjectProductionList vProductionList;
 		bool bComplete;
@@ -481,6 +546,9 @@ public:
 	};
 
 	void Init(LeagueSpecialSessionTypes eGoverningSpecialSession);
+
+	template<typename League, typename Visitor>
+	static void Serialize(League& league, Visitor& visitor);
 
 	void DoTurn(LeagueSpecialSessionTypes eTriggeredSpecialSession = NO_LEAGUE_SPECIAL_SESSION);
 	LeagueTypes GetID() const;
@@ -705,10 +773,16 @@ private:
 	Project* GetProject(LeagueProjectTypes eLeagueProject);
 };
 
+FDataStream& operator>>(FDataStream&, CvLeague::Project&);
+FDataStream& operator<<(FDataStream&, const CvLeague::Project&);
+
+FDataStream& operator>>(FDataStream&, CvLeague::Member&);
+FDataStream& operator<<(FDataStream&, const CvLeague::Member&);
+
 FDataStream& operator>>(FDataStream&, CvLeague&);
 FDataStream& operator<<(FDataStream&, const CvLeague&);
 
-typedef vector<CvLeague> LeagueList;
+typedef std::vector<CvLeague> LeagueList;
 
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -726,6 +800,9 @@ public:
 	~CvGameLeagues(void);
 
 	void Init();
+
+	template<typename GameLeagues, typename Visitor>
+	static void Serialize(GameLeagues& gameLeagues, Visitor& visitor);
 
 	// Called each game turn
 	void DoTurn();
@@ -867,13 +944,16 @@ public:
 		VoteCommitment(PlayerTypes player, int resolutionID, int voteChoice, int numVotes, bool enact);
 		~VoteCommitment(void);
 
+		template<typename VoteCommitmentT, typename Visitor>
+		static void Serialize(VoteCommitmentT& voteCommitment, Visitor& visitor);
+
 		PlayerTypes eToPlayer;
 		int iResolutionID;
 		int iVoteChoice;
 		int iNumVotes;
 		bool bEnact;
 	};
-	typedef vector<VoteCommitment> VoteCommitmentList;
+	typedef std::vector<VoteCommitment> VoteCommitmentList;
 
 	struct VoteConsideration {
 		VoteConsideration(void);
@@ -901,8 +981,10 @@ public:
 	void Init(CvPlayer* pPlayer);
 	void Uninit();
 	void Reset();
+	template<typename LeagueAI, typename Visitor>
+	static void Serialize(LeagueAI& leagueAI, Visitor& visitor);
 	void Read(FDataStream& kStream);
-	void Write(FDataStream& kStream);
+	void Write(FDataStream& kStream) const;
 
 	void DoTurn();
 
@@ -974,6 +1056,12 @@ private:
 	void LogVoteChoiceCommitted(CvEnactProposal* pProposal, int iChoice, int iVotes);
 	void LogVoteChoiceCommitted(CvRepealProposal* pProposal, int iChoice, int iVotes);
 };
+
+FDataStream& operator>>(FDataStream&, CvLeagueAI::VoteCommitment&);
+FDataStream& operator<<(FDataStream&, const CvLeagueAI::VoteCommitment&);
+
+FDataStream& operator>>(FDataStream&, CvLeagueAI&);
+FDataStream& operator<<(FDataStream&, const CvLeagueAI&);
 
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

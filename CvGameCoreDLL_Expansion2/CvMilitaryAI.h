@@ -10,6 +10,8 @@
 #ifndef CIV5_MILITARY_AI_H
 #define CIV5_MILITARY_AI_H
 
+#include "CvEnumMap.h"
+
 enum DefenseState
 {
     NO_DEFENSE_STATE = -1,
@@ -152,8 +154,10 @@ public:
 	void Init(CvMilitaryAIStrategyXMLEntries* pAIStrategies, CvPlayer* pPlayer, CvDiplomacyAI* pDiplomacyAI);
 	void Uninit();
 	void Reset();
+	template<typename MilitaryAI, typename Visitor>
+	static void Serialize(MilitaryAI& militaryAI, Visitor& visitor);
 	void Read(FDataStream& kStream);
-	void Write(FDataStream& kStream);
+	void Write(FDataStream& kStream) const;
 
 	CvPlayer* GetPlayer();
 	CvMilitaryAIStrategyXMLEntries* GetMilitaryAIStrategies();
@@ -315,8 +319,8 @@ private:
 	CvMilitaryAIStrategyXMLEntries* m_pAIStrategies;
 	bool* m_pabUsingStrategy;
 	int* m_paiTurnStrategyAdopted;
-	int* m_aiTempFlavors;
-	int* m_aiWarFocus;
+	CvEnumMap<FlavorTypes, int> m_aiTempFlavors;
+	int m_aiWarFocus[MAX_MAJOR_CIVS];
 
 	// Internal calculated values - must be serialized
 	int m_iNumberOfTimesOpsBuildSkippedOver;
@@ -347,6 +351,9 @@ private:
 	DefenseState m_eLandDefenseState;
 	DefenseState m_eNavalDefenseState;
 };
+
+FDataStream& operator>>(FDataStream&, CvMilitaryAI&);
+FDataStream& operator<<(FDataStream&, const CvMilitaryAI&);
 
 namespace MilitaryAIHelpers
 {
