@@ -7,7 +7,7 @@
 	------------------------------------------------------------------------------------------------------- */
 #pragma once
 
-	// city.h
+// city.h
 
 #ifndef CIV5_CITY_H
 #define CIV5_CITY_H
@@ -1757,7 +1757,7 @@ public:
 protected:
 	SYNC_ARCHIVE_MEMBER(CvCity)
 
-		PlayerTypes m_eOwner;
+	PlayerTypes m_eOwner;
 	int m_iX;
 	int m_iY;
 	int m_iID;

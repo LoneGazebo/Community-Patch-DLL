@@ -43090,7 +43090,7 @@ int CvDiplomacyAI::GetDenouncedScore(PlayerTypes ePlayer)
 	{
 		iOpinionWeight = /*35*/ GC.getOPINION_WEIGHT_DENOUNCED_ME();
 	}
-	
+
 	return iOpinionWeight;
 }
 
