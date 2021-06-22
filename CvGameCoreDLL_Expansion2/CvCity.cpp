@@ -305,7 +305,7 @@ CvCity::CvCity() :
 	, m_iBuildingClassHappiness()
 	, m_iReligionHappiness()
 #endif
-	, m_abEverOwned()
+	, m_abEverLiberated()
 	, m_strScriptData()
 	, m_paiNoResource()
 	, m_paiFreeResource()
@@ -579,7 +579,7 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 		gDLL->UnlockAchievement(ACHIEVEMENT_XP1_34);
 	}
 #endif
-#if defined(MOD_BALANCE_CORE)
+
 	if (bInitialFounding)
 	{
 		SetNumTimesOwned(eOwner, 1);
@@ -588,11 +588,8 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 	{
 		ChangeNumTimesOwned(eOwner, 1);
 	}
-#endif
 
 	// Plot Ownership
-	setEverOwned(getOwner(), true);
-
 	pPlot->setOwner(getOwner(), m_iID, bBumpUnits);
 
 	// Clear the improvement before the city attaches itself to the plot, else the improvement does not
@@ -1679,7 +1676,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 		m_aiDomainProductionModifier[iI] = 0;
 	}
 
-	m_abEverOwned.resize(REALLY_MAX_PLAYERS);
+	m_abEverLiberated.resize(REALLY_MAX_PLAYERS);
 #if defined(MOD_BALANCE_CORE)
 	m_abIsBestForWonder.resize(GC.getNumBuildingClassInfos());
 	m_abIsPurchased.resize(GC.getNumBuildingClassInfos());
@@ -1698,11 +1695,9 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 #endif
 	for (iI = 0; iI < REALLY_MAX_PLAYERS; iI++)
 	{
-		m_abEverOwned[iI] = false;
-#if defined(MOD_BALANCE_CORE)
+		m_abEverLiberated[iI] = false;
 		m_abTraded[iI] = false;
 		m_aiNumTimesOwned[iI] = false;
-#endif
 	}
 #if defined(MOD_BALANCE_CORE)
 	m_abPaidAdoptionBonus.resize(GC.getNumReligionInfos());
@@ -24319,7 +24314,7 @@ void CvCity::SetPlayersReligion(PlayerTypes eNewValue)
 	VALIDATE_OBJECT
 	m_ePlayersReligion = eNewValue;
 }
-#if defined(MOD_BALANCE_CORE)
+
 void CvCity::SetNoWarmonger(bool bValue)
 {
 	VALIDATE_OBJECT
@@ -24331,6 +24326,11 @@ bool CvCity::IsNoWarmongerYet()
 	return m_bNoWarmonger;
 }
 
+int CvCity::GetNumTimesOwned(PlayerTypes ePlayer) const
+{
+	VALIDATE_OBJECT
+	return m_aiNumTimesOwned[ePlayer];
+}
 void CvCity::SetNumTimesOwned(PlayerTypes ePlayer, int iValue)
 {
 	CvAssertMsg(ePlayer >= 0, "eIndex expected to be >= 0");
@@ -24343,12 +24343,11 @@ void CvCity::ChangeNumTimesOwned(PlayerTypes ePlayer, int iValue)
 	CvAssertMsg(ePlayer < MAX_PLAYERS, "eIndex expected to be < MAX_PLAYERS");
 	SetNumTimesOwned(ePlayer, (GetNumTimesOwned(ePlayer) + iValue));
 }
-int CvCity::GetNumTimesOwned(PlayerTypes ePlayer)
+bool CvCity::isEverOwned(PlayerTypes ePlayer) const
 {
-	VALIDATE_OBJECT
-	return m_aiNumTimesOwned[ePlayer];
+	return GetNumTimesOwned(ePlayer) > 0;
 }
-#endif
+
 //	--------------------------------------------------------------------------------
 TeamTypes CvCity::getTeam() const
 {
@@ -27622,22 +27621,22 @@ void CvCity::changeDomainProductionModifier(DomainTypes eIndex, int iChange)
 
 
 //	--------------------------------------------------------------------------------
-bool CvCity::isEverOwned(PlayerTypes eIndex) const
+bool CvCity::isEverLiberated(PlayerTypes eIndex) const
 {
 	VALIDATE_OBJECT
 	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
 	CvAssertMsg(eIndex < MAX_PLAYERS, "eIndex expected to be < MAX_PLAYERS");
-	return m_abEverOwned[eIndex];
+	return m_abEverLiberated[eIndex];
 }
 
 
 //	--------------------------------------------------------------------------------
-void CvCity::setEverOwned(PlayerTypes eIndex, bool bNewValue)
+void CvCity::setEverLiberated(PlayerTypes eIndex, bool bNewValue)
 {
 	VALIDATE_OBJECT
 	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
 	CvAssertMsg(eIndex < MAX_PLAYERS, "eIndex expected to be < MAX_PLAYERS");
-	m_abEverOwned[eIndex] = bNewValue;
+	m_abEverLiberated[eIndex] = bNewValue;
 }
 
 //	--------------------------------------------------------------------------------
@@ -33119,7 +33118,7 @@ void CvCity::Serialize(City& city, Visitor& visitor)
 	visitor(city.m_aiProductionToYieldModifier);
 	visitor(city.m_aiDomainFreeExperience);
 	visitor(city.m_aiDomainProductionModifier);
-	visitor(city.m_abEverOwned);
+	visitor(city.m_abEverLiberated);
 	visitor(city.m_abIsBestForWonder);
 	visitor(city.m_abIsPurchased);
 	visitor(city.m_abTraded);

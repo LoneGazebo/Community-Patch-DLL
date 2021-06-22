@@ -392,6 +392,7 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_eFreeBuildingOnConquest(NO_BUILDING),
 	m_piYieldForLiberation(NULL),
 	m_iInfluenceForLiberation(0),
+	m_iExperienceForLiberation(0),
 	m_eBuildingClassInLiberatedCities(NO_BUILDINGCLASS),
 	m_iUnitsInLiberatedCities(0)
 {
@@ -1242,6 +1243,7 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	
 	kUtility.SetYields(m_piYieldForLiberation, "Policy_YieldForLiberation", "PolicyType", szPolicyType);
 	m_iInfluenceForLiberation = kResults.GetInt("InfluenceAllCSFromLiberation");
+	m_iExperienceForLiberation = kResults.GetInt("ExperienceAllUnitsFromLiberation");
 	m_iUnitsInLiberatedCities = kResults.GetInt("NumUnitsInLiberatedCities");
 	
 	const char* szBuildingClassInLiberatedCities = kResults.GetText("BuildingClassInLiberatedCities");
@@ -3612,17 +3614,22 @@ int CvPolicyEntry::GetImprovementCultureChanges(int i) const
 	return m_piImprovementCultureChange[i];
 }
 
-/// Yields whenever you liberate a city
+/// Yields whenever you liberate a city for the first time
 int CvPolicyEntry::GetYieldForLiberation(int i) const
 {
 	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
 	return m_piYieldForLiberation[i];
 }
-/// Influence in all CS whenever you liberate a city
+/// Influence in all CS whenever you liberate a city for the first time
 int CvPolicyEntry::GetInfluenceForLiberation() const
 {
 	return m_iInfluenceForLiberation;
+}
+/// All units get XP whenever you liberate a city for the first time
+int CvPolicyEntry::GetExperienceForLiberation() const
+{
+	return m_iExperienceForLiberation;
 }
 /// Building in the liberated city whenever you liberate a city
 BuildingClassTypes CvPolicyEntry::GetBuildingClassInLiberatedCities() const
