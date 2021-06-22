@@ -1932,6 +1932,9 @@ public:
 	int getInfluenceForLiberation()	const;
 	void changeInfluenceForLiberation(int iChange);
 
+	int getExperienceForLiberation()	const;
+	void changeExperienceForLiberation(int iChange);
+
 	BuildingClassTypes getBuildingClassInLiberatedCities()	const;
 	void setBuildingClassInLiberatedCities(BuildingClassTypes eIndex);
 
@@ -3426,8 +3429,9 @@ protected:
 	int m_iLastSliceMoved;
 
 	int m_iInfluenceForLiberation;
-	int m_iUnitsInLiberatedCities;
+	int m_iExperienceForLiberation;
 	BuildingClassTypes  m_eBuildingClassInLiberatedCities;
+	int m_iUnitsInLiberatedCities;
 
 	uint m_uiStartTime;  // XXX save these?
 

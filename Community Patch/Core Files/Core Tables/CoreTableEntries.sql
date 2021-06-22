@@ -433,6 +433,9 @@ ALTER TABLE Policies ADD COLUMN 'NumUnitsInLiberatedCities' INTEGER DEFAULT 0;
 -- Liberating a city gives that city 1 buildingclass
 ALTER TABLE Policies ADD COLUMN 'BuildingClassInLiberatedCities' INTEGER DEFAULT 0;
 
+-- Liberating a city gives XP to all units
+ALTER TABLE Policies ADD COLUMN 'ExperienceAllUnitsFromLiberation' INTEGER DEFAULT 0;
+
 -- % modifiers to empire needs modifier - negative = good!
 ALTER TABLE Buildings ADD COLUMN 'EmpireNeedsModifier' INTEGER DEFAULT 0;
 ALTER TABLE Buildings ADD COLUMN 'EmpireNeedsModifierGlobal' INTEGER DEFAULT 0;

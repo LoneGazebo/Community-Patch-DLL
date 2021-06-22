@@ -1366,6 +1366,9 @@ public:
 	bool isEverOwned(PlayerTypes eIndex) const;
 	void setEverOwned(PlayerTypes eIndex, bool bNewValue);
 
+	bool isEverLiberated(PlayerTypes eIndex) const;
+	void setEverLiberated(PlayerTypes eIndex, bool bNewValue);
+
 	bool isRevealed(TeamTypes eIndex, bool bDebug) const;
 	bool setRevealed(TeamTypes eIndex, bool bNewValue);
 
@@ -1995,6 +1998,7 @@ protected:
 	std::vector<int> m_aiDomainProductionModifier;
 
 	std::vector<bool> m_abEverOwned;
+	std::vector<bool> m_abEverLiberated;
 #if defined(MOD_BALANCE_CORE)
 	std::vector<bool> m_abIsBestForWonder;
 	std::vector<bool> m_abIsPurchased;
@@ -2373,6 +2377,7 @@ SYNC_ARCHIVE_VAR(std::vector<int>, m_aiProductionToYieldModifier)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiDomainFreeExperience)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiDomainProductionModifier)
 SYNC_ARCHIVE_VAR(std::vector<bool>, m_abEverOwned)
+SYNC_ARCHIVE_VAR(std::vector<bool>, m_abEverLiberated)
 SYNC_ARCHIVE_VAR(std::vector<bool>, m_abIsBestForWonder)
 SYNC_ARCHIVE_VAR(std::vector<bool>, m_abIsPurchased)
 SYNC_ARCHIVE_VAR(std::vector<bool>, m_abTraded)

@@ -301,6 +301,7 @@ public:
 	int GetImprovementCultureChanges(int i) const;
 	int GetYieldForLiberation(int i) const;
 	int GetInfluenceForLiberation() const;
+	int GetExperienceForLiberation() const;
 	BuildingClassTypes GetBuildingClassInLiberatedCities() const;
 	int GetUnitsInLiberatedCities() const;
 
@@ -728,6 +729,7 @@ private:
 	int* m_piImprovementCultureChange;
 	int* m_piYieldForLiberation;
 	int m_iInfluenceForLiberation;
+	int m_iExperienceForLiberation;
 	BuildingClassTypes m_eBuildingClassInLiberatedCities;
 	int m_iUnitsInLiberatedCities;
 	bool* m_pabFreePromotion;
