@@ -1717,8 +1717,15 @@ function AssignStartingPlots:GenerateRegions(args)
 		-- Fertility data in land_area_fert is stored with areaID index keys.
 		-- Need to generate a version of this table with indices of 1 to n, where n is number of land areas.
 		local interim_table = {};
+		local min_area_fertility = iGlobalFertilityOfLands / self.iNumCivs * 0.5;
+		print("Minimum area fertility required =", min_area_fertility);
 		for loop_index, data_entry in pairs(land_area_fert) do
-			table.insert(interim_table, data_entry);
+			-- add fertility check to prevent tiny islands from being considered
+			if data_entry >= min_area_fertility then
+				table.insert(interim_table, data_entry);
+			else
+				iNumLandAreas = iNumLandAreas - 1;
+			end
 		end
 		
 		--[[for AreaID, fert in ipairs(interim_table) do
@@ -1736,6 +1743,7 @@ function AssignStartingPlots:GenerateRegions(args)
 
 		-- If less players than landmasses, we will ignore the extra landmasses.
 		local iNumRelevantLandAreas = math.min(iNumLandAreas, self.iNumCivs);
+		print("Number of relevant areas =", iNumRelevantLandAreas);
 		-- Now re-match the AreaID numbers with their corresponding fertility values
 		-- by comparing the original fertility table with the sorted interim table.
 		-- During this comparison, best_areas will be constructed from sorted AreaIDs, richest stored first.
@@ -1784,7 +1792,7 @@ function AssignStartingPlots:GenerateRegions(args)
 		local inhabitedAreaIDs = {};
 		local numberOfCivsPerArea = table.fill(0, iNumRelevantLandAreas); -- Indexed in synch with best_areas. Use same index to match values from each table.
 		for civToAssign = 1, self.iNumCivs do
-			local bestRemainingArea;
+			local bestRemainingArea = -1;
 			local bestRemainingFertility = 0;
 			local bestAreaTableIndex;
 			-- Loop through areas, find the one with the best remaining fertility (civs added 
@@ -1803,6 +1811,12 @@ function AssignStartingPlots:GenerateRegions(args)
 					-- print("- Found new candidate landmass with Area ID#:", bestRemainingArea, " with fertility of ", bestRemainingFertility);
 				end
 			end
+			if bestRemainingArea == -1 then
+				print("Failed to find an area somehow, assign to first area as a failsafe");
+				bestRemainingArea = best_areas[1];
+				bestAreaTableIndex = 1;
+			end
+
 			-- Record results for this pass. (A landmass has been assigned to receive one more start point than it previously had).
 			numberOfCivsPerArea[bestAreaTableIndex] = numberOfCivsPerArea[bestAreaTableIndex] + 1;
 			if TestMembership(inhabitedAreaIDs, bestRemainingArea) == false then
