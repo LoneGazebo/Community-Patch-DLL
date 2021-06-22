@@ -38251,15 +38251,13 @@ void CvPlayer::changeNumResourceTotal(ResourceTypes eIndex, int iChange, bool /*
 			GET_PLAYER((PlayerTypes)iPlayerLoop).UpdateResourcesSiphoned();
 		}
 	}
-	if (!bIgnoreResourceWarning)
-	{
+
 #if !defined(MOD_BALANCE_CORE)
-		if (iChange < 0)
+		if (iChange < 0 && !bIgnoreResourceWarning)
 		{
 			DoTestOverResourceNotification(eIndex);
 		}
 #endif
-	}
 
 	GC.GetEngineUserInterface()->setDirty(GameData_DIRTY_BIT, true);
 

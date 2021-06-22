@@ -1,13 +1,13 @@
 /*	-------------------------------------------------------------------------------------------------------
-	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
-	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
-	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
-	All other marks and trademarks are the property of their respective owners.  
-	All rights reserved. 
+	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.
+	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software
+	and their respective logos are all trademarks of Take-Two interactive Software, Inc.
+	All other marks and trademarks are the property of their respective owners.
+	All rights reserved.
 	------------------------------------------------------------------------------------------------------- */
 #pragma once
 
-// city.h
+	// city.h
 
 #ifndef CIV5_CITY_H
 #define CIV5_CITY_H
@@ -19,6 +19,7 @@
 #include "FStlContainerSerialization.h"
 #include "FAutoVariable.h"
 #include "CvPreGame.h"
+#include "CvSerialize.h"
 
 // 0 = center of city, 1-6 = the edge of city on points, 7-12 = one tile out
 #define NUM_CITY_BUILDING_DISPLAY_SLOTS (13)
@@ -64,7 +65,7 @@ public:
 	CvCity();
 	virtual ~CvCity();
 
-	enum eUpdateMode { 
+	enum eUpdateMode {
 		YIELD_UPDATE_NONE, //don't do any bookkeeping
 		YIELD_UPDATE_LOCAL, //update yields only (plot or city)
 		YIELD_UPDATE_GLOBAL //update yields and player happiness
@@ -467,7 +468,7 @@ public:
 	void processProcess(ProcessTypes eProcess, int iChange);
 	void processSpecialist(SpecialistTypes eSpecialist, int iChange, eUpdateMode updateMode);
 
-	void UpdateReligion(ReligionTypes eNewMajority, bool bRecalcPlotYields=true);
+	void UpdateReligion(ReligionTypes eNewMajority, bool bRecalcPlotYields = true);
 
 #if defined(MOD_BALANCE_CORE)
 	bool HasPaidAdoptionBonus(ReligionTypes eReligion) const;
@@ -586,7 +587,7 @@ public:
 
 	int getGameTurnLastExpanded() const;
 	void setGameTurnLastExpanded(int iNewValue);
-	
+
 #if defined(MOD_BALANCE_CORE)
 	int GetAdditionalFood() const;
 	void SetAdditionalFood(int iValue);
@@ -862,7 +863,7 @@ public:
 
 	int GetLocalHappiness(int iPopMod = 0, bool bExcludeEmpireContributions = false) const;
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
-	int updateNetHappiness();	
+	int updateNetHappiness();
 	int getHappinessDelta() const;
 	int getHappinessThresholdMod(YieldTypes eYield, int iMod = 0, bool bForceGlobal = false) const;
 	int getThresholdSubtractions(YieldTypes eYield) const;
@@ -913,7 +914,7 @@ public:
 
 	CvString getPotentialUnhappinessWithGrowth();
 	int getPotentialUnhappinessWithGrowthVal() const;
-	
+
 	int GetNumPillagedPlots() const;
 	void SetNumPillagedPlots(int iValue);
 	void ChangeNumPillagedPlots(int iValue);
@@ -1260,7 +1261,7 @@ public:
 	bool IsHasFranchise(CorporationTypes eCorporation) const;
 
 	int GetBuildingYieldChangeFromCorporationFranchises(BuildingClassTypes eBuildingClass, YieldTypes eIndex) const;
-	
+
 	int GetYieldChangeFromCorporationFranchises(YieldTypes eIndex) const;
 	void UpdateYieldFromCorporationFranchises(YieldTypes eIndex);
 	void SetYieldChangeFromCorporationFranchises(YieldTypes eIndex, int iValue);
@@ -1358,7 +1359,7 @@ public:
 #if defined(MOD_BALANCE_CORE)
 	int getDomainFreeExperienceFromGreatWorksGlobal(DomainTypes eIndex) const;
 #endif
-	
+
 	int getDomainProductionModifier(DomainTypes eIndex) const;
 	void changeDomainProductionModifier(DomainTypes eIndex, int iChange);
 
@@ -1439,7 +1440,7 @@ public:
 	int GetPower() const;
 
 	int getDamage() const;
-	void setDamage(int iValue, bool noMessage=false);
+	void setDamage(int iValue, bool noMessage = false);
 	void changeDamage(int iChange);
 
 	bool isMadeAttack() const;
@@ -1490,7 +1491,7 @@ public:
 	bool CanBuyPlot(int iPlotX, int iPlotY, bool bIgnoreCost = false);
 	bool CanBuyAnyPlot(void);
 	CvPlot* GetNextBuyablePlot(bool bForPurchase);
-	void GetBuyablePlotList(std::vector<int>& aiPlotList, bool bForPurchase, int nChoices=3);
+	void GetBuyablePlotList(std::vector<int>& aiPlotList, bool bForPurchase, int nChoices = 3);
 	int GetBuyPlotCost(int iPlotX, int iPlotY) const;
 	void BuyPlot(int iPlotX, int iPlotY);
 	void DoAcquirePlot(int iPlotX, int iPlotY);
@@ -1510,7 +1511,7 @@ public:
 	int getThreatValue() const;
 
 	void clearOrderQueue();
-	void pushOrder(OrderTypes eOrder, int iData1, int iData2, bool bSave, bool bPop, bool bAppend, bool bRush=false);
+	void pushOrder(OrderTypes eOrder, int iData1, int iData2, bool bSave, bool bPop, bool bAppend, bool bRush = false);
 	void popOrder(int iNum, bool bFinish = false, bool bChoose = false);
 	void swapOrder(int iNum);
 	bool hasOrder(OrderTypes eOrder, int iData1, int iData2) const;
@@ -1531,13 +1532,13 @@ public:
 	void produce(ProjectTypes eCreateProject, bool bCanOverflow = true);
 	void produce(SpecialistTypes eSpecialist, bool bCanOverflow = true);
 
-	int CreateUnit(UnitTypes eUnitType, UnitAITypes eAIType = NO_UNITAI, UnitCreationReason eReason = REASON_DEFAULT, bool bUseToSatisfyOperation=true, bool bIsPurchase = false);
+	int CreateUnit(UnitTypes eUnitType, UnitAITypes eAIType = NO_UNITAI, UnitCreationReason eReason = REASON_DEFAULT, bool bUseToSatisfyOperation = true, bool bIsPurchase = false);
 	bool CreateBuilding(BuildingTypes eBuildType);
 	bool CreateProject(ProjectTypes eProjectType);
 
 	void changeProjectCount(ProjectTypes eProject, int iValue);
 	int getProjectCount(ProjectTypes eProject) const;
-	
+
 
 	CvPlot* GetPlotForNewUnit(UnitTypes eUnitType) const;
 	bool CanPlaceUnitHere(UnitTypes eUnitType) const;
@@ -1552,6 +1553,8 @@ public:
 	CvCityEspionage* GetCityEspionage() const;
 	CvCityCulture* GetCityCulture() const;
 
+	template<typename City, typename Visitor>
+	static void Serialize(City& city, Visitor& visitor);
 	void read(FDataStream& kStream);
 	void write(FDataStream& kStream) const;
 
@@ -1581,15 +1584,15 @@ public:
 	void ChangeExtraHitPoints(int iValue);
 
 	int GetMaxHitPoints() const;
-	const FAutoArchive& getSyncArchive() const;
-	FAutoArchive& getSyncArchive();
+	const CvSyncArchive<CvCity>& getSyncArchive() const;
+	CvSyncArchive<CvCity>& getSyncArchive();
 	std::string debugDump(const FAutoVariableBase&) const;
 	std::string stackTraceRemark(const FAutoVariableBase&) const;
 
 	bool			IsBusy() const;
 	// Combat related
-	const CvUnit*	getCombatUnit() const;
-	CvUnit*			getCombatUnit();
+	const CvUnit* getCombatUnit() const;
+	CvUnit* getCombatUnit();
 	void			setCombatUnit(CvUnit* pUnit, bool bAttacking = false);
 	void			clearCombat();
 	bool			isFighting() const;
@@ -1752,313 +1755,308 @@ public:
 #endif
 
 protected:
-	FAutoArchiveClassContainer<CvCity> m_syncArchive;
+	SYNC_ARCHIVE_MEMBER(CvCity)
 
-	FAutoVariable<PlayerTypes, CvCity> m_eOwner;
-	FAutoVariable<int, CvCity> m_iX;
-	FAutoVariable<int, CvCity> m_iY;
-	FAutoVariable<int, CvCity> m_iID;
+		PlayerTypes m_eOwner;
+	int m_iX;
+	int m_iY;
+	int m_iID;
 
-	FAutoVariable<int, CvCity> m_iRallyX;
-	FAutoVariable<int, CvCity> m_iRallyY;
-	FAutoVariable<int, CvCity> m_iGameTurnFounded;
-	FAutoVariable<int, CvCity> m_iGameTurnAcquired;
-	FAutoVariable<int, CvCity> m_iGameTurnLastExpanded;
-	FAutoVariable<int, CvCity> m_iPopulation;
+	int m_iRallyX;
+	int m_iRallyY;
+	int m_iGameTurnFounded;
+	int m_iGameTurnAcquired;
+	int m_iGameTurnLastExpanded;
+	int m_iPopulation;
 #if defined(MOD_GLOBAL_CITY_AUTOMATON_WORKERS)
 	int m_iAutomatons;
 #endif
-	FAutoVariable<int, CvCity> m_iHighestPopulation;
-	FAutoVariable<int, CvCity> m_iExtraHitPoints;
+	int m_iHighestPopulation;
+	int m_iExtraHitPoints;
 
-	FAutoVariable<int, CvCity> m_iNumGreatPeople;
-	FAutoVariable<int, CvCity> m_iBaseGreatPeopleRate;
-	FAutoVariable<int, CvCity> m_iGreatPeopleRateModifier;
-	FAutoVariable<int, CvCity> m_iJONSCultureStored;
-	FAutoVariable<int, CvCity> m_iJONSCultureLevel;
+	int m_iNumGreatPeople;
+	int m_iBaseGreatPeopleRate;
+	int m_iGreatPeopleRateModifier;
+	int m_iJONSCultureStored;
+	int m_iJONSCultureLevel;
 #if !defined(MOD_API_UNIFIED_YIELDS_CONSOLIDATION)
-	FAutoVariable<int, CvCity> m_iJONSCulturePerTurnFromBuildings;
+	int m_iJONSCulturePerTurnFromBuildings;
 #endif
-	FAutoVariable<int, CvCity> m_iJONSCulturePerTurnFromPolicies;
-	FAutoVariable<int, CvCity> m_iJONSCulturePerTurnFromSpecialists;
-	FAutoVariable<std::vector<int>, CvCity> m_iaAddedYieldPerTurnFromTraits;
+	int m_iJONSCulturePerTurnFromPolicies;
+	int m_iJONSCulturePerTurnFromSpecialists;
+	std::vector<int> m_iaAddedYieldPerTurnFromTraits;
 #if !defined(MOD_API_UNIFIED_YIELDS_CONSOLIDATION)
-	FAutoVariable<int, CvCity> m_iJONSCulturePerTurnFromReligion;
+	int m_iJONSCulturePerTurnFromReligion;
 #endif
 #if !defined(MOD_API_UNIFIED_YIELDS_CONSOLIDATION)
-	FAutoVariable<int, CvCity> m_iFaithPerTurnFromBuildings;
+	int m_iFaithPerTurnFromBuildings;
 #endif
-	FAutoVariable<int, CvCity> m_iFaithPerTurnFromPolicies;
+	int m_iFaithPerTurnFromPolicies;
 #if !defined(MOD_API_UNIFIED_YIELDS_CONSOLIDATION)
-	FAutoVariable<int, CvCity> m_iFaithPerTurnFromReligion;
+	int m_iFaithPerTurnFromReligion;
 #endif
 #if defined(MOD_BALANCE_CORE)
-	FAutoVariable<int, CvCity> m_iAdditionalFood;
-	FAutoVariable<int, CvCity> m_iCityBuildingBombardRange;
-	FAutoVariable<int, CvCity> m_iCityIndirectFire;
-	FAutoVariable<int, CvCity> m_iCityBuildingRangeStrikeModifier;
+	int m_iAdditionalFood;
+	int m_iCityBuildingBombardRange;
+	int m_iCityIndirectFire;
+	int m_iCityBuildingRangeStrikeModifier;
 #endif
-	FAutoVariable<int, CvCity> m_iCultureRateModifier;
-	FAutoVariable<int, CvCity> m_iNumWorldWonders;
-	FAutoVariable<int, CvCity> m_iNumTeamWonders;
-	FAutoVariable<int, CvCity> m_iNumNationalWonders;
-	FAutoVariable<int, CvCity> m_iWonderProductionModifier;
-	FAutoVariable<int, CvCity> m_iCapturePlunderModifier;
-	FAutoVariable<int, CvCity> m_iPlotCultureCostModifier;
-	FAutoVariable<int, CvCity> m_iPlotBuyCostModifier;
+	int m_iCultureRateModifier;
+	int m_iNumWorldWonders;
+	int m_iNumTeamWonders;
+	int m_iNumNationalWonders;
+	int m_iWonderProductionModifier;
+	int m_iCapturePlunderModifier;
+	int m_iPlotCultureCostModifier;
+	int m_iPlotBuyCostModifier;
 #if defined(MOD_BUILDINGS_CITY_WORKING)
-	FAutoVariable<int, CvCity> m_iCityWorkingChange;
-	FAutoVariable<int, CvCity> m_iCitySupplyModifier;
-	FAutoVariable<int, CvCity> m_iCitySupplyFlat;
-	FAutoVariable<bool, CvCity> m_bAllowsProductionTradeRoutes;
-	FAutoVariable<bool, CvCity> m_bAllowsFoodTradeRoutes;
-	FAutoVariable<bool, CvCity> m_bAllowPuppetPurchase;
+	int m_iCityWorkingChange;
+	int m_iCitySupplyModifier;
+	int m_iCitySupplyFlat;
+	bool m_bAllowsProductionTradeRoutes;
+	bool m_bAllowsFoodTradeRoutes;
+	bool m_bAllowPuppetPurchase;
 #endif
 #if defined(MOD_BUILDINGS_CITY_AUTOMATON_WORKERS)
-	FAutoVariable<int, CvCity> m_iCityAutomatonWorkersChange;
+	int m_iCityAutomatonWorkersChange;
 #endif
-	FAutoVariable<int, CvCity> m_iMaintenance;
-	FAutoVariable<int, CvCity> m_iHealRate;
-	FAutoVariable<int, CvCity> m_iNoOccupiedUnhappinessCount;
+	int m_iMaintenance;
+	int m_iHealRate;
+	int m_iNoOccupiedUnhappinessCount;
 #if defined(HH_MOD_BUILDINGS_FRUITLESS_PILLAGE)
-	FAutoVariable<int, CvCity> m_iLocalGainlessPillageCount;
+	int m_iLocalGainlessPillageCount;
 #endif
-	FAutoVariable<int, CvCity> m_iFood;
-	FAutoVariable<int, CvCity> m_iFoodKept; //unused
-	FAutoVariable<int, CvCity> m_iMaxFoodKeptPercent;
-	FAutoVariable<int, CvCity> m_iOverflowProduction;
-	FAutoVariable<int, CvCity> m_iFeatureProduction;
-	FAutoVariable<int, CvCity> m_iMilitaryProductionModifier;
-	FAutoVariable<int, CvCity> m_iSpaceProductionModifier;
-	FAutoVariable<int, CvCity> m_iFreeExperience;
-	FAutoVariable<int, CvCity> m_iCurrAirlift; // unused
-	FAutoVariable<int, CvCity> m_iMaxAirUnits;
-	FAutoVariable<int, CvCity> m_iAirModifier; // unused
-	FAutoVariable<int, CvCity> m_iNukeModifier;
-	FAutoVariable<int, CvCity> m_iTradeRouteTargetBonus;
-	FAutoVariable<int, CvCity> m_iTradeRouteRecipientBonus;
-	FAutoVariable<int, CvCity> m_iTradeRouteSeaGoldBonus;
-	FAutoVariable<int, CvCity> m_iTradeRouteLandGoldBonus;
-	FAutoVariable<int, CvCity> m_iNumTradeRouteBonus;
-	FAutoVariable<int, CvCity> m_iCityConnectionTradeRouteGoldModifier;
-	FAutoVariable<int, CvCity> m_iCultureUpdateTimer;
-	FAutoVariable<int, CvCity> m_iCitySizeBoost;
-	FAutoVariable<int, CvCity> m_iSpecialistFreeExperience;
-	FAutoVariable<int, CvCity> m_iStrengthValue;
-	FAutoVariable<int, CvCity> m_iDamage;
-	FAutoVariable<int, CvCity> m_iThreatValue;
-	FAutoVariable<int, CvCity> m_hGarrison;  // unused
+	int m_iFood;
+	int m_iMaxFoodKeptPercent;
+	int m_iOverflowProduction;
+	int m_iFeatureProduction;
+	int m_iMilitaryProductionModifier;
+	int m_iSpaceProductionModifier;
+	int m_iFreeExperience;
+	int m_iMaxAirUnits;
+	int m_iNukeModifier;
+	int m_iTradeRouteTargetBonus;
+	int m_iTradeRouteRecipientBonus;
+	int m_iTradeRouteSeaGoldBonus;
+	int m_iTradeRouteLandGoldBonus;
+	int m_iNumTradeRouteBonus;
+	int m_iCityConnectionTradeRouteGoldModifier;
+	int m_iCitySizeBoost;
+	int m_iSpecialistFreeExperience;
+	int m_iStrengthValue;
+	int m_iDamage;
+	int m_iThreatValue;
+	int m_hGarrison;  // unused
 	mutable int m_hGarrisonOverride; //only temporary, not serialized
-	FAutoVariable<int, CvCity> m_iResourceDemanded;
-	FAutoVariable<int, CvCity> m_iWeLoveTheKingDayCounter;
-	FAutoVariable<int, CvCity> m_iLastTurnGarrisonAssigned;
-	FAutoVariable<int, CvCity> m_iThingsProduced; // total number of units, buildings, wonders, etc. this city has constructed
-	FAutoVariable<int, CvCity> m_iDemandResourceCounter;
-	FAutoVariable<int, CvCity> m_iResistanceTurns;
-	FAutoVariable<int, CvCity> m_iRazingTurns;
-	FAutoVariable<int, CvCity> m_iLowestRazingPop;
-	FAutoVariable<int, CvCity> m_iCountExtraLuxuries;
-	FAutoVariable<int, CvCity> m_iCheapestPlotInfluenceDistance;
-	FAutoVariable<int, CvCity> m_iEspionageModifier;
+	int m_iResourceDemanded;
+	int m_iWeLoveTheKingDayCounter;
+	int m_iLastTurnGarrisonAssigned;
+	int m_iThingsProduced; // total number of units, buildings, wonders, etc. this city has constructed
+	int m_iDemandResourceCounter;
+	int m_iResistanceTurns;
+	int m_iRazingTurns;
+	int m_iLowestRazingPop;
+	int m_iCountExtraLuxuries;
+	int m_iCheapestPlotInfluenceDistance;
+	int m_iEspionageModifier;
 #if defined(MOD_RELIGION_CONVERSION_MODIFIERS)
-	FAutoVariable<int, CvCity> m_iConversionModifier;
+	int m_iConversionModifier;
 #endif
 
 	OperationSlot m_unitBeingBuiltForOperation;
 
-	FAutoVariable<bool, CvCity> m_bNeverLost;
-	FAutoVariable<bool, CvCity> m_bDrafted;
-	FAutoVariable<bool, CvCity> m_bAirliftTargeted;   // unused
-	FAutoVariable<bool, CvCity> m_bProductionAutomated;
-	FAutoVariable<bool, CvCity> m_bLayoutDirty;
-	FAutoVariable<bool, CvCity> m_bMadeAttack;
-	FAutoVariable<bool, CvCity> m_bOccupied;
-	FAutoVariable<bool, CvCity> m_bPuppet;
-	FAutoVariable<bool, CvCity> m_bIgnoreCityForHappiness;
-	FAutoVariable<bool, CvCity> m_bIndustrialRouteToCapital; //also set for water connection once railroad is available
-	FAutoVariable<int, CvCity> m_iTerrainImprovementNeed;
+	bool m_bNeverLost;
+	bool m_bDrafted;
+	bool m_bProductionAutomated;
+	bool m_bLayoutDirty;
+	bool m_bMadeAttack;
+	bool m_bOccupied;
+	bool m_bPuppet;
+	bool m_bIgnoreCityForHappiness;
+	bool m_bIndustrialRouteToCapital; //also set for water connection once railroad is available
+	int m_iTerrainImprovementNeed;
 
-	FAutoVariable<PlayerTypes, CvCity> m_ePreviousOwner;
-	FAutoVariable<PlayerTypes, CvCity> m_eOriginalOwner;
-	FAutoVariable<PlayerTypes, CvCity> m_ePlayersReligion;
+	PlayerTypes m_ePreviousOwner;
+	PlayerTypes m_eOriginalOwner;
+	PlayerTypes m_ePlayersReligion;
 
-	FAutoVariable<std::vector<int>, CvCity> m_aiSeaPlotYield;
-	FAutoVariable<std::vector<int>, CvCity> m_aiRiverPlotYield;
-	FAutoVariable<std::vector<int>, CvCity> m_aiLakePlotYield;
-	FAutoVariable<std::vector<int>, CvCity> m_aiSeaResourceYield;
-	FAutoVariable<std::vector<int>, CvCity> m_aiBaseYieldRateFromTerrain;
-	FAutoVariable<std::vector<int>, CvCity> m_aiBaseYieldRateFromBuildings;
-	FAutoVariable<std::vector<int>, CvCity> m_aiBaseYieldRateFromSpecialists;
-	FAutoVariable<std::vector<int>, CvCity> m_aiBaseYieldRateFromMisc;
+	std::vector<int> m_aiSeaPlotYield;
+	std::vector<int> m_aiRiverPlotYield;
+	std::vector<int> m_aiLakePlotYield;
+	std::vector<int> m_aiSeaResourceYield;
+	std::vector<int> m_aiBaseYieldRateFromTerrain;
+	std::vector<int> m_aiBaseYieldRateFromBuildings;
+	std::vector<int> m_aiBaseYieldRateFromSpecialists;
+	std::vector<int> m_aiBaseYieldRateFromMisc;
 #if defined(MOD_DIPLOMACY_CITYSTATES)
-	FAutoVariable<std::vector<int>, CvCity> m_aiBaseYieldRateFromLeague;
-	FAutoVariable<int, CvCity> m_iTotalScienceyAid;
-	FAutoVariable<int, CvCity> m_iTotalArtsyAid;
-	FAutoVariable<int, CvCity> m_iTotalGreatWorkAid;
+	std::vector<int> m_aiBaseYieldRateFromLeague;
+	int m_iTotalScienceyAid;
+	int m_iTotalArtsyAid;
+	int m_iTotalGreatWorkAid;
 #endif
 #if defined(MOD_DIPLOMACY_CITYSTATES) || defined(MOD_BALANCE_CORE)
-	FAutoVariable<std::vector<int>, CvCity> m_aiChangeGrowthExtraYield;
+	std::vector<int> m_aiChangeGrowthExtraYield;
 #endif
 #if defined(MOD_BALANCE_CORE)
-	FAutoVariable<int, CvCity> m_iHappinessFromEmpire;
-	FAutoVariable<int, CvCity> m_iHappinessFromLuxuries;
-	FAutoVariable<int, CvCity> m_iUnhappinessFromEmpire;
-	FAutoVariable<int, CvCity> m_iStaticTechDeviation;
-	FAutoVariable<std::vector<int>, CvCity> m_aiNumProjects;
-	FAutoVariable<std::vector<int>, CvCity> m_aiStaticGlobalYield;
-	FAutoVariable<std::vector<int>, CvCity> m_aiStaticNeedAdditives;
-	FAutoVariable<std::vector<int>, CvCity> m_aiLongestPotentialTradeRoute;
-	FAutoVariable<std::vector<int>, CvCity> m_aiNumTimesAttackedThisTurn;
-	FAutoVariable<std::vector<int>, CvCity> m_aiYieldFromKnownPantheons;
-	FAutoVariable<std::vector<int>, CvCity> m_aiYieldFromVictory;
-	FAutoVariable<std::vector<int>, CvCity> m_aiYieldFromVictoryGlobal;
-	FAutoVariable<std::vector<int>, CvCity> m_aiYieldFromPillage;
-	FAutoVariable<std::vector<int>, CvCity> m_aiYieldFromPillageGlobal;
-	FAutoVariable<std::vector<int>, CvCity> m_aiGoldenAgeYieldMod;
-	FAutoVariable<std::vector<int>, CvCity> m_aiYieldFromWLTKD;
-	FAutoVariable<std::vector<int>, CvCity> m_aiYieldFromConstruction;
-	FAutoVariable<std::vector<int>, CvCity> m_aiYieldFromTech;
-	FAutoVariable<std::vector<int>, CvCity> m_aiYieldFromBirth;
-	FAutoVariable<std::vector<int>, CvCity> m_aiYieldFromUnitProduction;
-	FAutoVariable<std::vector<int>, CvCity> m_aiYieldFromBorderGrowth;
-	FAutoVariable<std::vector<int>, CvCity> m_aiYieldFromPolicyUnlock;
-	FAutoVariable<std::vector<int>, CvCity> m_aiYieldFromPurchase;
-	FAutoVariable<std::vector<int>, CvCity> m_aiYieldFromFaithPurchase;
-	FAutoVariable<std::vector<int>, CvCity> m_aiYieldFromUnitLevelUp;
-	FAutoVariable<std::vector<int>, CvCity> m_aiYieldPerAlly;
-	FAutoVariable<std::vector<int>, CvCity> m_aiYieldPerFriend;
-	FAutoVariable<std::vector<int>, CvCity> m_aiYieldFromInternalTREnd;
-	FAutoVariable<std::vector<int>, CvCity> m_aiYieldFromInternalTR;
-	FAutoVariable<std::vector<int>, CvCity> m_aiYieldFromProcessModifier;
-	FAutoVariable<std::vector<int>, CvCity> m_aiSpecialistRateModifier;
-	FAutoVariable<std::vector<int>, CvCity> m_aiThemingYieldBonus;
-	FAutoVariable<std::vector<int>, CvCity> m_aiYieldFromSpyAttack;
-	FAutoVariable<std::vector<int>, CvCity> m_aiYieldFromSpyDefense;
-	FAutoVariable<std::vector<int>, CvCity> m_aiNumTimesOwned;
-	FAutoVariable<std::vector<int>, CvCity> m_aiStaticCityYield;
-	FAutoVariable<int, CvCity> m_iTradePriorityLand;
-	FAutoVariable<int, CvCity> m_iTradePrioritySea;
-	FAutoVariable<int, CvCity> m_iUnitPurchaseCooldown;
-	FAutoVariable<int, CvCity> m_iUnitPurchaseCooldownCivilian;
-	FAutoVariable<int, CvCity> m_iUnitFaithPurchaseCooldown;
-	FAutoVariable<int, CvCity> m_iUnitFaithPurchaseCooldownCivilian;
-	FAutoVariable<int, CvCity> m_iBuildingPurchaseCooldown;
-	FAutoVariable<int, CvCity> m_iReligiousTradeModifier;
-	FAutoVariable<int, CvCity> m_iCityAirStrikeDefense;
-	FAutoVariable<int, CvCity> m_iFreeBuildingTradeTargetCity;
-	FAutoVariable<int, CvCity> m_iBaseTourism;
-	FAutoVariable<int, CvCity> m_iBaseTourismBeforeModifiers;
-	FAutoVariable<int, CvCity> m_iBorderObstacleCity;
-	FAutoVariable<int, CvCity> m_iBorderObstacleWater;
-	FAutoVariable<int, CvCity> m_iDeepWaterTileDamage;
-	FAutoVariable<int, CvCity> m_iNumNearbyMountains;
-	FAutoVariable<int, CvCity> m_iLocalUnhappinessMod;
-	FAutoVariable<bool, CvCity> m_bNoWarmonger;
-	FAutoVariable<int, CvCity> m_iCitySpyRank;
-	FAutoVariable<int, CvCity> m_iTurnsSinceRankAnnouncement;
-	FAutoVariable<int, CvCity> m_iChangePovertyUnhappiness;
-	FAutoVariable<int, CvCity> m_iEmpireNeedsModifier;
-	FAutoVariable<int, CvCity> m_iChangeDefenseUnhappiness;
-	FAutoVariable<int, CvCity> m_iChangeUnculturedUnhappiness;
-	FAutoVariable<int, CvCity> m_iChangeIlliteracyUnhappiness;
-	FAutoVariable<int, CvCity> m_iChangeMinorityUnhappiness;
-	FAutoVariable<int, CvCity> m_iTradeRouteSeaDistanceModifier;
-	FAutoVariable<int, CvCity> m_iTradeRouteLandDistanceModifier;
-	FAutoVariable<int, CvCity> m_iNukeInterceptionChance;
-	FAutoVariable<std::vector<int>, CvCity> m_aiEconomicValue;
+	int m_iHappinessFromEmpire;
+	int m_iHappinessFromLuxuries;
+	int m_iUnhappinessFromEmpire;
+	int m_iStaticTechDeviation;
+	std::vector<int> m_aiNumProjects;
+	std::vector<int> m_aiStaticGlobalYield;
+	std::vector<int> m_aiStaticNeedAdditives;
+	std::vector<int> m_aiLongestPotentialTradeRoute;
+	std::vector<int> m_aiNumTimesAttackedThisTurn;
+	std::vector<int> m_aiYieldFromKnownPantheons;
+	std::vector<int> m_aiYieldFromVictory;
+	std::vector<int> m_aiYieldFromVictoryGlobal;
+	std::vector<int> m_aiYieldFromPillage;
+	std::vector<int> m_aiYieldFromPillageGlobal;
+	std::vector<int> m_aiGoldenAgeYieldMod;
+	std::vector<int> m_aiYieldFromWLTKD;
+	std::vector<int> m_aiYieldFromConstruction;
+	std::vector<int> m_aiYieldFromTech;
+	std::vector<int> m_aiYieldFromBirth;
+	std::vector<int> m_aiYieldFromUnitProduction;
+	std::vector<int> m_aiYieldFromBorderGrowth;
+	std::vector<int> m_aiYieldFromPolicyUnlock;
+	std::vector<int> m_aiYieldFromPurchase;
+	std::vector<int> m_aiYieldFromFaithPurchase;
+	std::vector<int> m_aiYieldFromUnitLevelUp;
+	std::vector<int> m_aiYieldPerAlly;
+	std::vector<int> m_aiYieldPerFriend;
+	std::vector<int> m_aiYieldFromInternalTREnd;
+	std::vector<int> m_aiYieldFromInternalTR;
+	std::vector<int> m_aiYieldFromProcessModifier;
+	std::vector<int> m_aiSpecialistRateModifier;
+	std::vector<int> m_aiThemingYieldBonus;
+	std::vector<int> m_aiYieldFromSpyAttack;
+	std::vector<int> m_aiYieldFromSpyDefense;
+	std::vector<int> m_aiNumTimesOwned;
+	std::vector<int> m_aiStaticCityYield;
+	int m_iTradePriorityLand;
+	int m_iTradePrioritySea;
+	int m_iUnitPurchaseCooldown;
+	int m_iUnitPurchaseCooldownCivilian;
+	int m_iUnitFaithPurchaseCooldown;
+	int m_iUnitFaithPurchaseCooldownCivilian;
+	int m_iBuildingPurchaseCooldown;
+	int m_iReligiousTradeModifier;
+	int m_iCityAirStrikeDefense;
+	int m_iFreeBuildingTradeTargetCity;
+	int m_iBaseTourism;
+	int m_iBaseTourismBeforeModifiers;
+	int m_iBorderObstacleCity;
+	int m_iBorderObstacleWater;
+	int m_iDeepWaterTileDamage;
+	int m_iNumNearbyMountains;
+	int m_iLocalUnhappinessMod;
+	bool m_bNoWarmonger;
+	int m_iCitySpyRank;
+	int m_iTurnsSinceRankAnnouncement;
+	int m_iChangePovertyUnhappiness;
+	int m_iEmpireNeedsModifier;
+	int m_iChangeDefenseUnhappiness;
+	int m_iChangeUnculturedUnhappiness;
+	int m_iChangeIlliteracyUnhappiness;
+	int m_iChangeMinorityUnhappiness;
+	int m_iTradeRouteSeaDistanceModifier;
+	int m_iTradeRouteLandDistanceModifier;
+	int m_iNukeInterceptionChance;
+	std::vector<int> m_aiEconomicValue;
 #endif
-	FAutoVariable<std::vector<int>, CvCity> m_aiBaseYieldRateFromReligion;
+	std::vector<int> m_aiBaseYieldRateFromReligion;
 #if defined(MOD_BALANCE_CORE)
-	FAutoVariable<std::vector<int>, CvCity> m_aiBaseYieldRateFromCSAlliance;
-	FAutoVariable<std::vector<int>, CvCity> m_aiBaseYieldRateFromCSFriendship;
-	FAutoVariable<std::vector<int>, CvCity> m_aiYieldFromMinors;
-	FAutoVariable<std::vector<int>, CvCity> m_aiResourceQuantityPerXFranchises;
-	FAutoVariable<std::vector<int>, CvCity> m_aiYieldChangeFromCorporationFranchises;
-	FAutoVariable<std::vector<int>, CvCity> m_aiNeedsFlatReduction;
-	FAutoVariable<int, CvCity> m_iLandTourismBonus;
-	FAutoVariable<int, CvCity> m_iSeaTourismBonus;
-	FAutoVariable<int, CvCity> m_iAlwaysHeal;
-	FAutoVariable<int, CvCity> m_iResourceDiversityModifier;
-	FAutoVariable<int, CvCity> m_iNoUnhappfromXSpecialists;
-	FAutoVariable<int, CvCity> m_aiStaticNeedsUpdateTurn;
-	FAutoVariable<std::vector<int>, CvCity> m_aiGreatWorkYieldChange;
+	std::vector<int> m_aiBaseYieldRateFromCSAlliance;
+	std::vector<int> m_aiBaseYieldRateFromCSFriendship;
+	std::vector<int> m_aiYieldFromMinors;
+	std::vector<int> m_aiResourceQuantityPerXFranchises;
+	std::vector<int> m_aiYieldChangeFromCorporationFranchises;
+	std::vector<int> m_aiNeedsFlatReduction;
+	int m_iLandTourismBonus;
+	int m_iSeaTourismBonus;
+	int m_iAlwaysHeal;
+	int m_iResourceDiversityModifier;
+	int m_iNoUnhappfromXSpecialists;
+	int m_aiStaticNeedsUpdateTurn;
+	std::vector<int> m_aiGreatWorkYieldChange;
 #endif
-	FAutoVariable<std::vector<int>, CvCity> m_aiYieldRateModifier;
-	FAutoVariable<std::vector<int>, CvCity> m_aiYieldPerPop;
+	std::vector<int> m_aiYieldRateModifier;
+	std::vector<int> m_aiYieldPerPop;
 #if defined(MOD_BALANCE_CORE)
 	std::map<int, int> m_aiYieldPerPopInEmpire;
 #endif
-	FAutoVariable<std::vector<int>, CvCity> m_aiYieldPerReligion;
-	FAutoVariable<std::vector<int>, CvCity> m_aiPowerYieldRateModifier;
-	FAutoVariable<std::vector<int>, CvCity> m_aiResourceYieldRateModifier;
-	FAutoVariable<std::vector<int>, CvCity> m_aiExtraSpecialistYield;
-	FAutoVariable<std::vector<int>, CvCity> m_aiProductionToYieldModifier;
-	FAutoVariable<std::vector<int>, CvCity> m_aiDomainFreeExperience;
-	FAutoVariable<std::vector<int>, CvCity> m_aiDomainProductionModifier;
+	std::vector<int> m_aiYieldPerReligion;
+	std::vector<int> m_aiPowerYieldRateModifier;
+	std::vector<int> m_aiResourceYieldRateModifier;
+	std::vector<int> m_aiExtraSpecialistYield;
+	std::vector<int> m_aiProductionToYieldModifier;
+	std::vector<int> m_aiDomainFreeExperience;
+	std::vector<int> m_aiDomainProductionModifier;
 
-	FAutoVariable<std::vector<bool>, CvCity> m_abEverOwned;
+	std::vector<bool> m_abEverOwned;
 #if defined(MOD_BALANCE_CORE)
-	FAutoVariable<std::vector<bool>, CvCity> m_abIsBestForWonder;
-	FAutoVariable<std::vector<bool>, CvCity> m_abIsPurchased;
-	FAutoVariable<std::vector<bool>, CvCity> m_abTraded;
-	FAutoVariable<std::vector<bool>, CvCity> m_abPaidAdoptionBonus;
-	FAutoVariable<std::vector<int>, CvCity> m_aiReligiousPressureModifier;
-	FAutoVariable<int, CvCity> m_iExtraBuildingMaintenance;
-	FAutoVariable<std::vector<int>, CvCity> m_paiNumTerrainWorked;
-	FAutoVariable<std::vector<int>, CvCity> m_paiNumFeaturelessTerrainWorked;
-	FAutoVariable<std::vector<int>, CvCity> m_paiNumFeatureWorked;
-	FAutoVariable<std::vector<int>, CvCity> m_paiNumResourceWorked;
-	FAutoVariable<std::vector<int>, CvCity> m_paiNumImprovementWorked;
+	std::vector<bool> m_abIsBestForWonder;
+	std::vector<bool> m_abIsPurchased;
+	std::vector<bool> m_abTraded;
+	std::vector<bool> m_abPaidAdoptionBonus;
+	std::vector<int> m_aiReligiousPressureModifier;
+	int m_iExtraBuildingMaintenance;
+	std::vector<int> m_paiNumTerrainWorked;
+	std::vector<int> m_paiNumFeaturelessTerrainWorked;
+	std::vector<int> m_paiNumFeatureWorked;
+	std::vector<int> m_paiNumResourceWorked;
+	std::vector<int> m_paiNumImprovementWorked;
 #endif
-	FAutoVariable<CvString, CvCity> m_strScriptData;
+	CvString m_strScriptData;
 
 #if defined(MOD_CORE_PER_TURN_DAMAGE)
-	FAutoVariable<int, CvCity> m_iDamageTakenThisTurn;
-	FAutoVariable<int, CvCity> m_iDamageTakenLastTurn;
+	int m_iDamageTakenThisTurn;
+	int m_iDamageTakenLastTurn;
 #endif
 
-	FAutoVariable<std::vector<int>, CvCity> m_paiNoResource;
-	FAutoVariable<std::vector<int>, CvCity> m_paiFreeResource;
-	FAutoVariable<std::vector<int>, CvCity> m_paiNumResourcesLocal;
-	FAutoVariable<std::vector<int>, CvCity> m_paiNumUnimprovedResourcesLocal;
-	FAutoVariable<std::vector<int>, CvCity> m_paiProjectProduction;
-	FAutoVariable<std::vector<int>, CvCity> m_paiSpecialistProduction;
-	FAutoVariable<std::vector<int>, CvCity> m_paiUnitProduction;
-	FAutoVariable<std::vector<int>, CvCity> m_paiUnitProductionTime;
-	FAutoVariable<std::vector<int>, CvCity> m_paiSpecialistCount;
-	FAutoVariable<std::vector<int>, CvCity> m_paiMaxSpecialistCount;
-	FAutoVariable<std::vector<int>, CvCity> m_paiForceSpecialistCount;
-	FAutoVariable<std::vector<int>, CvCity> m_paiFreeSpecialistCount;
-	FAutoVariable<std::vector<int>, CvCity> m_paiImprovementFreeSpecialists;
-	FAutoVariable<std::vector<int>, CvCity> m_paiUnitCombatFreeExperience;
-	FAutoVariable<std::vector<int>, CvCity> m_paiUnitCombatProductionModifier;
-	FAutoVariable<std::map<PromotionTypes,int>, CvCity> m_paiFreePromotionCount;
+	std::vector<int> m_paiNoResource;
+	std::vector<int> m_paiFreeResource;
+	std::vector<int> m_paiNumResourcesLocal;
+	std::vector<int> m_paiNumUnimprovedResourcesLocal;
+	std::vector<int> m_paiProjectProduction;
+	std::vector<int> m_paiSpecialistProduction;
+	std::vector<int> m_paiUnitProduction;
+	std::vector<int> m_paiUnitProductionTime;
+	std::vector<int> m_paiSpecialistCount;
+	std::vector<int> m_paiMaxSpecialistCount;
+	std::vector<int> m_paiForceSpecialistCount;
+	std::vector<int> m_paiFreeSpecialistCount;
+	std::vector<int> m_paiImprovementFreeSpecialists;
+	std::vector<int> m_paiUnitCombatFreeExperience;
+	std::vector<int> m_paiUnitCombatProductionModifier;
+	std::map<PromotionTypes, int> m_paiFreePromotionCount;
 #if defined(MOD_BALANCE_CORE_POLICIES)
-	FAutoVariable<std::vector<int>, CvCity> m_paiBuildingClassCulture;
-	FAutoVariable<std::vector<int>, CvCity> m_paiHurryModifier;
+	std::vector<int> m_paiBuildingClassCulture;
+	std::vector<int> m_paiHurryModifier;
 #endif
 
 #if defined(MOD_BALANCE_CORE)
-	FAutoVariable<int, CvCity> m_iHappinessDelta;
-	FAutoVariable<int, CvCity> m_iPillagedPlots;
-	FAutoVariable<int, CvCity> m_iGrowthEvent;
-	FAutoVariable<int, CvCity> m_iGrowthFromTourism;
-	FAutoVariable<int, CvCity> m_iBuildingClassHappiness;
-	FAutoVariable<int, CvCity> m_iReligionHappiness;
-	FAutoVariable<std::vector<int>, CvCity> m_vClosestNeighbors;
+	int m_iHappinessDelta;
+	int m_iPillagedPlots;
+	int m_iGrowthEvent;
+	int m_iGrowthFromTourism;
+	int m_iBuildingClassHappiness;
+	int m_iReligionHappiness;
+	std::vector<int> m_vClosestNeighbors;
 	std::vector<int> m_vAttachedUnits;
 #endif
 
-	FAutoVariable<int, CvCity> m_iBaseHappinessFromBuildings;
-	FAutoVariable<int, CvCity> m_iUnmoddedHappinessFromBuildings;
+	int m_iBaseHappinessFromBuildings;
+	int m_iUnmoddedHappinessFromBuildings;
 
-	FAutoVariable<bool, CvCity> m_bRouteToCapitalConnectedLastTurn;
-	FAutoVariable<bool, CvCity> m_bRouteToCapitalConnectedThisTurn;
+	bool m_bRouteToCapitalConnectedLastTurn;
+	bool m_bRouteToCapitalConnectedThisTurn;
 
-	FAutoVariable<CvString, CvCity> m_strName;
+	CvString m_strName;
 
-	FAutoVariable<bool, CvCity> m_bOwedCultureBuilding;
-	FAutoVariable<bool, CvCity> m_bOwedFoodBuilding;
+	bool m_bOwedCultureBuilding;
+	bool m_bOwedFoodBuilding;
 
 	mutable FFastSmallFixedList< OrderData, 25, true, c_eCiv5GameplayDLL > m_orderQueue;
 
@@ -2068,44 +2066,42 @@ protected:
 	std::map<std::pair<int, int>, short> m_ppiGreatPersonProgressFromConstruction;
 #endif
 #if defined(MOD_BALANCE_CORE_EVENTS)
-	FAutoVariable<std::vector<int>, CvCity> m_aiEventCooldown;
-	FAutoVariable<std::vector<bool>, CvCity> m_abEventActive;
-	FAutoVariable<std::vector<bool>, CvCity> m_abEventChoiceActive;
-	FAutoVariable<std::vector<bool>, CvCity> m_abEventChoiceFired;
-	FAutoVariable<std::vector<bool>, CvCity> m_abEventFired;
-	FAutoVariable<std::vector<int>, CvCity> m_aiEventChoiceDuration;
-	FAutoVariable<std::vector<int>, CvCity> m_aiEventIncrement;
-	FAutoVariable<std::vector<int>, CvCity> m_aiEventCityYield;
-	FAutoVariable<int, CvCity> m_iEventHappiness;
-	FAutoVariable<int, CvCity> m_iCityEventCooldown;
+	std::vector<int> m_aiEventCooldown;
+	std::vector<bool> m_abEventActive;
+	std::vector<bool> m_abEventChoiceActive;
+	std::vector<bool> m_abEventChoiceFired;
+	std::vector<bool> m_abEventFired;
+	std::vector<int> m_aiEventChoiceDuration;
+	std::vector<int> m_aiEventIncrement;
+	std::vector<int> m_aiEventCityYield;
+	int m_iEventHappiness;
+	int m_iCityEventCooldown;
 	vector<SCityEventYields> m_eventYields; //[NUM_YIELD_TYPES]
 #endif
 
 #if defined(MOD_BALANCE_CORE)
-	FAutoVariable<bool, CvCity> m_bIsColony;
-	FAutoVariable<int, CvCity> m_iProvinceLevel;
-	FAutoVariable<int, CvCity> m_iOrganizedCrime;
-	FAutoVariable<int, CvCity> m_iResistanceCounter;
-	FAutoVariable<int, CvCity> m_iPlagueCounter;
-	FAutoVariable<int, CvCity> m_iPlagueTurns;
-	FAutoVariable<int, CvCity> m_iPlagueType;
-	FAutoVariable<int, CvCity> m_iSappedTurns;
-	FAutoVariable<int, CvCity> m_iLoyaltyCounter;
-	FAutoVariable<int, CvCity> m_iDisloyaltyCounter;
-	FAutoVariable<int, CvCity> m_iLoyaltyStateType;
-	FAutoVariable<std::vector<int>, CvCity> m_aiYieldModifierFromHappiness;
-	FAutoVariable<std::vector<int>, CvCity> m_aiYieldModifierFromHealth;
-	FAutoVariable<std::vector<int>, CvCity> m_aiYieldModifierFromCrime;
-	FAutoVariable<std::vector<int>, CvCity> m_aiYieldModifierFromDevelopment;
-	FAutoVariable<std::vector<int>, CvCity> m_aiYieldFromHappiness;
-	FAutoVariable<std::vector<int>, CvCity> m_aiYieldFromHealth;
-	FAutoVariable<std::vector<int>, CvCity> m_aiYieldFromCrime;
-	FAutoVariable<std::vector<int>, CvCity> m_aiYieldFromDevelopment;
-
-	FAutoVariable<std::vector<int>, CvCity> m_aiTempCaptureData;
-	FAutoVariable<std::vector<bool>, CvCity> m_abTempCaptureData;
-	FAutoVariable<bool, CvCity> m_bIsPendingCapture;
-	
+	bool m_bIsColony;
+	int m_iProvinceLevel;
+	int m_iOrganizedCrime;
+	int m_iResistanceCounter;
+	int m_iPlagueCounter;
+	int m_iPlagueTurns;
+	int m_iPlagueType;
+	int m_iSappedTurns;
+	int m_iLoyaltyCounter;
+	int m_iDisloyaltyCounter;
+	int m_iLoyaltyStateType;
+	std::vector<int> m_aiYieldModifierFromHappiness;
+	std::vector<int> m_aiYieldModifierFromHealth;
+	std::vector<int> m_aiYieldModifierFromCrime;
+	std::vector<int> m_aiYieldModifierFromDevelopment;
+	std::vector<int> m_aiYieldFromHappiness;
+	std::vector<int> m_aiYieldFromHealth;
+	std::vector<int> m_aiYieldFromCrime;
+	std::vector<int> m_aiYieldFromDevelopment;
+	std::vector<int> m_aiTempCaptureData;
+	std::vector<bool> m_abTempCaptureData;
+	bool m_bIsPendingCapture;
 #endif
 
 	CvCityBuildings* m_pCityBuildings;
@@ -2119,17 +2115,17 @@ protected:
 	mutable int m_bombardCheckTurn;
 
 	// CACHE: cache frequently used values
-	FAutoVariable<int, CvCity> m_iPopulationRank;
-	FAutoVariable<bool, CvCity> m_bPopulationRankValid;
-	FAutoVariable<std::vector<int>, CvCity> m_aiBaseYieldRank;
-	FAutoVariable<std::vector<bool>, CvCity> m_abBaseYieldRankValid;
-	FAutoVariable<std::vector<int>, CvCity> m_aiYieldRank;
-	FAutoVariable<std::vector<bool>, CvCity> m_abYieldRankValid;
+	int m_iPopulationRank;
+	bool m_bPopulationRankValid;
+	std::vector<int> m_aiBaseYieldRank;
+	std::vector<bool> m_abBaseYieldRankValid;
+	std::vector<int> m_aiYieldRank;
+	std::vector<bool> m_abYieldRankValid;
 #if defined(MOD_BALANCE_CORE)
-	FAutoVariable<std::vector<bool>, CvCity> m_abOwedChosenBuilding;
-	FAutoVariable<std::vector<bool>, CvCity> m_abBuildingInvestment;
-	FAutoVariable<std::vector<bool>, CvCity> m_abUnitInvestment;
-	FAutoVariable<std::vector<bool>, CvCity> m_abBuildingConstructed;
+	std::vector<bool> m_abOwedChosenBuilding;
+	std::vector<bool> m_abBuildingInvestment;
+	std::vector<bool> m_abUnitInvestment;
+	std::vector<bool> m_abBuildingConstructed;
 #endif
 
 	//cache for great work yields, they are need often during citizen re-assignment but they don't change
@@ -2167,9 +2163,305 @@ protected:
 
 namespace FSerialization
 {
-void SyncCities();
-void ClearCityDeltas();
+	void SyncCities();
+	void ClearCityDeltas();
 }
+
+SYNC_ARCHIVE_BEGIN(CvCity)
+SYNC_ARCHIVE_VAR(PlayerTypes, m_eOwner)
+SYNC_ARCHIVE_VAR(int, m_iX)
+SYNC_ARCHIVE_VAR(int, m_iY)
+SYNC_ARCHIVE_VAR(int, m_iID)
+SYNC_ARCHIVE_VAR(int, m_iRallyX)
+SYNC_ARCHIVE_VAR(int, m_iRallyY)
+SYNC_ARCHIVE_VAR(int, m_iGameTurnFounded)
+SYNC_ARCHIVE_VAR(int, m_iGameTurnAcquired)
+SYNC_ARCHIVE_VAR(int, m_iGameTurnLastExpanded)
+SYNC_ARCHIVE_VAR(int, m_iPopulation)
+SYNC_ARCHIVE_VAR(int, m_iHighestPopulation)
+SYNC_ARCHIVE_VAR(int, m_iExtraHitPoints)
+SYNC_ARCHIVE_VAR(int, m_iNumGreatPeople)
+SYNC_ARCHIVE_VAR(int, m_iBaseGreatPeopleRate)
+SYNC_ARCHIVE_VAR(int, m_iGreatPeopleRateModifier)
+SYNC_ARCHIVE_VAR(int, m_iJONSCultureStored)
+SYNC_ARCHIVE_VAR(int, m_iJONSCultureLevel)
+#if !defined(MOD_API_UNIFIED_YIELDS_CONSOLIDATION)
+SYNC_ARCHIVE_VAR(int, m_iJONSCulturePerTurnFromBuildings)
+#endif
+SYNC_ARCHIVE_VAR(int, m_iJONSCulturePerTurnFromPolicies)
+SYNC_ARCHIVE_VAR(int, m_iJONSCulturePerTurnFromSpecialists)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_iaAddedYieldPerTurnFromTraits)
+#if !defined(MOD_API_UNIFIED_YIELDS_CONSOLIDATION)
+SYNC_ARCHIVE_VAR(int, m_iJONSCulturePerTurnFromReligion)
+#endif
+#if !defined(MOD_API_UNIFIED_YIELDS_CONSOLIDATION)
+SYNC_ARCHIVE_VAR(int, m_iFaithPerTurnFromBuildings)
+#endif
+SYNC_ARCHIVE_VAR(int, m_iFaithPerTurnFromPolicies)
+#if !defined(MOD_API_UNIFIED_YIELDS_CONSOLIDATION)
+SYNC_ARCHIVE_VAR(int, m_iFaithPerTurnFromReligion)
+#endif
+SYNC_ARCHIVE_VAR(int, m_iAdditionalFood)
+SYNC_ARCHIVE_VAR(int, m_iCityBuildingBombardRange)
+SYNC_ARCHIVE_VAR(int, m_iCityIndirectFire)
+SYNC_ARCHIVE_VAR(int, m_iCityBuildingRangeStrikeModifier)
+SYNC_ARCHIVE_VAR(int, m_iCultureRateModifier)
+SYNC_ARCHIVE_VAR(int, m_iNumWorldWonders)
+SYNC_ARCHIVE_VAR(int, m_iNumTeamWonders)
+SYNC_ARCHIVE_VAR(int, m_iNumNationalWonders)
+SYNC_ARCHIVE_VAR(int, m_iWonderProductionModifier)
+SYNC_ARCHIVE_VAR(int, m_iCapturePlunderModifier)
+SYNC_ARCHIVE_VAR(int, m_iPlotCultureCostModifier)
+SYNC_ARCHIVE_VAR(int, m_iPlotBuyCostModifier)
+SYNC_ARCHIVE_VAR(int, m_iCityWorkingChange)
+SYNC_ARCHIVE_VAR(int, m_iCitySupplyModifier)
+SYNC_ARCHIVE_VAR(int, m_iCitySupplyFlat)
+SYNC_ARCHIVE_VAR(bool, m_bAllowsProductionTradeRoutes)
+SYNC_ARCHIVE_VAR(bool, m_bAllowsFoodTradeRoutes)
+SYNC_ARCHIVE_VAR(bool, m_bAllowPuppetPurchase)
+SYNC_ARCHIVE_VAR(int, m_iCityAutomatonWorkersChange)
+SYNC_ARCHIVE_VAR(int, m_iMaintenance)
+SYNC_ARCHIVE_VAR(int, m_iHealRate)
+SYNC_ARCHIVE_VAR(int, m_iNoOccupiedUnhappinessCount)
+SYNC_ARCHIVE_VAR(int, m_iLocalGainlessPillageCount)
+SYNC_ARCHIVE_VAR(int, m_iFood)
+SYNC_ARCHIVE_VAR(int, m_iMaxFoodKeptPercent)
+SYNC_ARCHIVE_VAR(int, m_iOverflowProduction)
+SYNC_ARCHIVE_VAR(int, m_iFeatureProduction)
+SYNC_ARCHIVE_VAR(int, m_iMilitaryProductionModifier)
+SYNC_ARCHIVE_VAR(int, m_iSpaceProductionModifier)
+SYNC_ARCHIVE_VAR(int, m_iFreeExperience)
+SYNC_ARCHIVE_VAR(int, m_iMaxAirUnits)
+SYNC_ARCHIVE_VAR(int, m_iNukeModifier)
+SYNC_ARCHIVE_VAR(int, m_iTradeRouteTargetBonus)
+SYNC_ARCHIVE_VAR(int, m_iTradeRouteRecipientBonus)
+SYNC_ARCHIVE_VAR(int, m_iTradeRouteSeaGoldBonus)
+SYNC_ARCHIVE_VAR(int, m_iTradeRouteLandGoldBonus)
+SYNC_ARCHIVE_VAR(int, m_iNumTradeRouteBonus)
+SYNC_ARCHIVE_VAR(int, m_iCityConnectionTradeRouteGoldModifier)
+SYNC_ARCHIVE_VAR(int, m_iCitySizeBoost)
+SYNC_ARCHIVE_VAR(int, m_iSpecialistFreeExperience)
+SYNC_ARCHIVE_VAR(int, m_iStrengthValue)
+SYNC_ARCHIVE_VAR(int, m_iDamage)
+SYNC_ARCHIVE_VAR(int, m_iThreatValue)
+SYNC_ARCHIVE_VAR(int, m_hGarrison)
+SYNC_ARCHIVE_VAR(int, m_iResourceDemanded)
+SYNC_ARCHIVE_VAR(int, m_iWeLoveTheKingDayCounter)
+SYNC_ARCHIVE_VAR(int, m_iLastTurnGarrisonAssigned)
+SYNC_ARCHIVE_VAR(int, m_iThingsProduced)
+SYNC_ARCHIVE_VAR(int, m_iDemandResourceCounter)
+SYNC_ARCHIVE_VAR(int, m_iResistanceTurns)
+SYNC_ARCHIVE_VAR(int, m_iRazingTurns)
+SYNC_ARCHIVE_VAR(int, m_iLowestRazingPop)
+SYNC_ARCHIVE_VAR(int, m_iCountExtraLuxuries)
+SYNC_ARCHIVE_VAR(int, m_iCheapestPlotInfluenceDistance)
+SYNC_ARCHIVE_VAR(int, m_iEspionageModifier)
+SYNC_ARCHIVE_VAR(int, m_iConversionModifier)
+SYNC_ARCHIVE_VAR(bool, m_bNeverLost)
+SYNC_ARCHIVE_VAR(bool, m_bDrafted)
+SYNC_ARCHIVE_VAR(bool, m_bProductionAutomated)
+SYNC_ARCHIVE_VAR(bool, m_bLayoutDirty)
+SYNC_ARCHIVE_VAR(bool, m_bMadeAttack)
+SYNC_ARCHIVE_VAR(bool, m_bOccupied)
+SYNC_ARCHIVE_VAR(bool, m_bPuppet)
+SYNC_ARCHIVE_VAR(bool, m_bIgnoreCityForHappiness)
+SYNC_ARCHIVE_VAR(bool, m_bIndustrialRouteToCapital)
+SYNC_ARCHIVE_VAR(int, m_iTerrainImprovementNeed)
+SYNC_ARCHIVE_VAR(PlayerTypes, m_ePreviousOwner)
+SYNC_ARCHIVE_VAR(PlayerTypes, m_eOriginalOwner)
+SYNC_ARCHIVE_VAR(PlayerTypes, m_ePlayersReligion)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiSeaPlotYield)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiRiverPlotYield)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiLakePlotYield)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiSeaResourceYield)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiBaseYieldRateFromTerrain)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiBaseYieldRateFromBuildings)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiBaseYieldRateFromSpecialists)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiBaseYieldRateFromMisc)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiBaseYieldRateFromLeague)
+SYNC_ARCHIVE_VAR(int, m_iTotalScienceyAid)
+SYNC_ARCHIVE_VAR(int, m_iTotalArtsyAid)
+SYNC_ARCHIVE_VAR(int, m_iTotalGreatWorkAid)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiChangeGrowthExtraYield)
+SYNC_ARCHIVE_VAR(int, m_iHappinessFromEmpire)
+SYNC_ARCHIVE_VAR(int, m_iHappinessFromLuxuries)
+SYNC_ARCHIVE_VAR(int, m_iUnhappinessFromEmpire)
+SYNC_ARCHIVE_VAR(int, m_iStaticTechDeviation)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiNumProjects)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiStaticGlobalYield)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiStaticNeedAdditives)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiLongestPotentialTradeRoute)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiNumTimesAttackedThisTurn)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromKnownPantheons)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromVictory)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromVictoryGlobal)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromPillage)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromPillageGlobal)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiGoldenAgeYieldMod)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromWLTKD)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromConstruction)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromTech)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromBirth)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromUnitProduction)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromBorderGrowth)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromPolicyUnlock)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromPurchase)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromFaithPurchase)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromUnitLevelUp)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldPerAlly)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldPerFriend)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromInternalTREnd)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromInternalTR)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromProcessModifier)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiSpecialistRateModifier)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiThemingYieldBonus)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromSpyAttack)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromSpyDefense)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiNumTimesOwned)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiStaticCityYield)
+SYNC_ARCHIVE_VAR(int, m_iTradePriorityLand)
+SYNC_ARCHIVE_VAR(int, m_iTradePrioritySea)
+SYNC_ARCHIVE_VAR(int, m_iUnitPurchaseCooldown)
+SYNC_ARCHIVE_VAR(int, m_iUnitPurchaseCooldownCivilian)
+SYNC_ARCHIVE_VAR(int, m_iUnitFaithPurchaseCooldown)
+SYNC_ARCHIVE_VAR(int, m_iUnitFaithPurchaseCooldownCivilian)
+SYNC_ARCHIVE_VAR(int, m_iBuildingPurchaseCooldown)
+SYNC_ARCHIVE_VAR(int, m_iReligiousTradeModifier)
+SYNC_ARCHIVE_VAR(int, m_iCityAirStrikeDefense)
+SYNC_ARCHIVE_VAR(int, m_iFreeBuildingTradeTargetCity)
+SYNC_ARCHIVE_VAR(int, m_iBaseTourism)
+SYNC_ARCHIVE_VAR(int, m_iBaseTourismBeforeModifiers)
+SYNC_ARCHIVE_VAR(int, m_iBorderObstacleCity)
+SYNC_ARCHIVE_VAR(int, m_iBorderObstacleWater)
+SYNC_ARCHIVE_VAR(int, m_iDeepWaterTileDamage)
+SYNC_ARCHIVE_VAR(int, m_iNumNearbyMountains)
+SYNC_ARCHIVE_VAR(int, m_iLocalUnhappinessMod)
+SYNC_ARCHIVE_VAR(bool, m_bNoWarmonger)
+SYNC_ARCHIVE_VAR(int, m_iCitySpyRank)
+SYNC_ARCHIVE_VAR(int, m_iTurnsSinceRankAnnouncement)
+SYNC_ARCHIVE_VAR(int, m_iChangePovertyUnhappiness)
+SYNC_ARCHIVE_VAR(int, m_iEmpireNeedsModifier)
+SYNC_ARCHIVE_VAR(int, m_iChangeDefenseUnhappiness)
+SYNC_ARCHIVE_VAR(int, m_iChangeUnculturedUnhappiness)
+SYNC_ARCHIVE_VAR(int, m_iChangeIlliteracyUnhappiness)
+SYNC_ARCHIVE_VAR(int, m_iChangeMinorityUnhappiness)
+SYNC_ARCHIVE_VAR(int, m_iTradeRouteSeaDistanceModifier)
+SYNC_ARCHIVE_VAR(int, m_iTradeRouteLandDistanceModifier)
+SYNC_ARCHIVE_VAR(int, m_iNukeInterceptionChance)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiEconomicValue)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiBaseYieldRateFromReligion)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiBaseYieldRateFromCSAlliance)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiBaseYieldRateFromCSFriendship)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromMinors)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiResourceQuantityPerXFranchises)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldChangeFromCorporationFranchises)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiNeedsFlatReduction)
+SYNC_ARCHIVE_VAR(int, m_iLandTourismBonus)
+SYNC_ARCHIVE_VAR(int, m_iSeaTourismBonus)
+SYNC_ARCHIVE_VAR(int, m_iAlwaysHeal)
+SYNC_ARCHIVE_VAR(int, m_iResourceDiversityModifier)
+SYNC_ARCHIVE_VAR(int, m_iNoUnhappfromXSpecialists)
+SYNC_ARCHIVE_VAR(int, m_aiStaticNeedsUpdateTurn)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiGreatWorkYieldChange)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldRateModifier)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldPerPop)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldPerReligion)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiPowerYieldRateModifier)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiResourceYieldRateModifier)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiExtraSpecialistYield)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiProductionToYieldModifier)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiDomainFreeExperience)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiDomainProductionModifier)
+SYNC_ARCHIVE_VAR(std::vector<bool>, m_abEverOwned)
+SYNC_ARCHIVE_VAR(std::vector<bool>, m_abIsBestForWonder)
+SYNC_ARCHIVE_VAR(std::vector<bool>, m_abIsPurchased)
+SYNC_ARCHIVE_VAR(std::vector<bool>, m_abTraded)
+SYNC_ARCHIVE_VAR(std::vector<bool>, m_abPaidAdoptionBonus)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiReligiousPressureModifier)
+SYNC_ARCHIVE_VAR(int, m_iExtraBuildingMaintenance)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_paiNumTerrainWorked)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_paiNumFeaturelessTerrainWorked)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_paiNumFeatureWorked)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_paiNumResourceWorked)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_paiNumImprovementWorked)
+SYNC_ARCHIVE_VAR(CvString, m_strScriptData)
+SYNC_ARCHIVE_VAR(int, m_iDamageTakenThisTurn)
+SYNC_ARCHIVE_VAR(int, m_iDamageTakenLastTurn)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_paiNoResource)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_paiFreeResource)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_paiNumResourcesLocal)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_paiNumUnimprovedResourcesLocal)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_paiProjectProduction)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_paiSpecialistProduction)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_paiUnitProduction)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_paiUnitProductionTime)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_paiSpecialistCount)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_paiMaxSpecialistCount)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_paiForceSpecialistCount)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_paiFreeSpecialistCount)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_paiImprovementFreeSpecialists)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_paiUnitCombatFreeExperience)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_paiUnitCombatProductionModifier)
+SYNC_ARCHIVE_VAR(SYNC_ARCHIVE_VAR_TYPE(std::map<PromotionTypes, int>), m_paiFreePromotionCount)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_paiBuildingClassCulture)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_paiHurryModifier)
+SYNC_ARCHIVE_VAR(int, m_iHappinessDelta)
+SYNC_ARCHIVE_VAR(int, m_iPillagedPlots)
+SYNC_ARCHIVE_VAR(int, m_iGrowthEvent)
+SYNC_ARCHIVE_VAR(int, m_iGrowthFromTourism)
+SYNC_ARCHIVE_VAR(int, m_iBuildingClassHappiness)
+SYNC_ARCHIVE_VAR(int, m_iReligionHappiness)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_vClosestNeighbors)
+SYNC_ARCHIVE_VAR(int, m_iBaseHappinessFromBuildings)
+SYNC_ARCHIVE_VAR(int, m_iUnmoddedHappinessFromBuildings)
+SYNC_ARCHIVE_VAR(bool, m_bRouteToCapitalConnectedLastTurn)
+SYNC_ARCHIVE_VAR(bool, m_bRouteToCapitalConnectedThisTurn)
+SYNC_ARCHIVE_VAR(CvString, m_strName)
+SYNC_ARCHIVE_VAR(bool, m_bOwedCultureBuilding)
+SYNC_ARCHIVE_VAR(bool, m_bOwedFoodBuilding)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiEventCooldown)
+SYNC_ARCHIVE_VAR(std::vector<bool>, m_abEventActive)
+SYNC_ARCHIVE_VAR(std::vector<bool>, m_abEventChoiceActive)
+SYNC_ARCHIVE_VAR(std::vector<bool>, m_abEventChoiceFired)
+SYNC_ARCHIVE_VAR(std::vector<bool>, m_abEventFired)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiEventChoiceDuration)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiEventIncrement)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiEventCityYield)
+SYNC_ARCHIVE_VAR(int, m_iEventHappiness)
+SYNC_ARCHIVE_VAR(int, m_iCityEventCooldown)
+SYNC_ARCHIVE_VAR(bool, m_bIsColony)
+SYNC_ARCHIVE_VAR(int, m_iProvinceLevel)
+SYNC_ARCHIVE_VAR(int, m_iOrganizedCrime)
+SYNC_ARCHIVE_VAR(int, m_iResistanceCounter)
+SYNC_ARCHIVE_VAR(int, m_iPlagueCounter)
+SYNC_ARCHIVE_VAR(int, m_iPlagueTurns)
+SYNC_ARCHIVE_VAR(int, m_iPlagueType)
+SYNC_ARCHIVE_VAR(int, m_iSappedTurns)
+SYNC_ARCHIVE_VAR(int, m_iLoyaltyCounter)
+SYNC_ARCHIVE_VAR(int, m_iDisloyaltyCounter)
+SYNC_ARCHIVE_VAR(int, m_iLoyaltyStateType)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldModifierFromHappiness)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldModifierFromHealth)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldModifierFromCrime)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldModifierFromDevelopment)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromHappiness)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromHealth)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromCrime)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromDevelopment)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiTempCaptureData)
+SYNC_ARCHIVE_VAR(std::vector<bool>, m_abTempCaptureData)
+SYNC_ARCHIVE_VAR(bool, m_bIsPendingCapture)
+SYNC_ARCHIVE_VAR(int, m_iPopulationRank)
+SYNC_ARCHIVE_VAR(bool, m_bPopulationRankValid)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiBaseYieldRank)
+SYNC_ARCHIVE_VAR(std::vector<bool>, m_abBaseYieldRankValid)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldRank)
+SYNC_ARCHIVE_VAR(std::vector<bool>, m_abYieldRankValid)
+SYNC_ARCHIVE_VAR(std::vector<bool>, m_abOwedChosenBuilding)
+SYNC_ARCHIVE_VAR(std::vector<bool>, m_abBuildingInvestment)
+SYNC_ARCHIVE_VAR(std::vector<bool>, m_abUnitInvestment)
+SYNC_ARCHIVE_VAR(std::vector<bool>, m_abBuildingConstructed)
+SYNC_ARCHIVE_END()
 
 //just a guard class so we never forget to unset the garrison override
 class CvCityGarrisonOverride
@@ -2179,7 +2471,7 @@ public:
 	{
 		m_pCity = pCity;
 		//can only garrison units of the city owner!
-		if (m_pCity && pUnit && m_pCity->getOwner()==pUnit->getOwner())
+		if (m_pCity && pUnit && m_pCity->getOwner() == pUnit->getOwner())
 			m_pCity->OverrideGarrison(pUnit);
 	}
 	~CvCityGarrisonOverride()
