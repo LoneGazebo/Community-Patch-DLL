@@ -1012,14 +1012,15 @@ public:
 
 	PlayerTypes GetPlayersReligion() const;
 	void SetPlayersReligion(PlayerTypes eNewValue);
-#if defined(MOD_BALANCE_CORE)
+
 	void SetNoWarmonger(bool bValue);
 	bool IsNoWarmongerYet();
 
-	void ChangeNumTimesOwned(PlayerTypes ePlayer, int iValue);
+	int GetNumTimesOwned(PlayerTypes ePlayer) const;
 	void SetNumTimesOwned(PlayerTypes ePlayer, int iValue);
-	int GetNumTimesOwned(PlayerTypes ePlayer);
-#endif
+	void ChangeNumTimesOwned(PlayerTypes ePlayer, int iValue);
+	bool isEverOwned(PlayerTypes ePlayer) const;
+
 	// Yield
 
 	int getSeaPlotYield(YieldTypes eIndex) const;
@@ -1362,9 +1363,6 @@ public:
 
 	int getDomainProductionModifier(DomainTypes eIndex) const;
 	void changeDomainProductionModifier(DomainTypes eIndex, int iChange);
-
-	bool isEverOwned(PlayerTypes eIndex) const;
-	void setEverOwned(PlayerTypes eIndex, bool bNewValue);
 
 	bool isEverLiberated(PlayerTypes eIndex) const;
 	void setEverLiberated(PlayerTypes eIndex, bool bNewValue);

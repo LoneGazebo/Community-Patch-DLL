@@ -2908,7 +2908,6 @@ CvCity* CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 
 	CvString strBuffer;
 	CvString strName;
-	bool abEverOwned[MAX_PLAYERS];
 	bool abEverLiberated[MAX_PLAYERS];
 	PlayerTypes eOldOwner;
 	PlayerTypes eOriginalOwner;
@@ -3642,12 +3641,9 @@ CvCity* CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 
 	for(iI = 0; iI < MAX_PLAYERS; iI++)
 	{
-		abEverOwned[iI] = pOldCity->isEverOwned((PlayerTypes)iI);
 		abEverLiberated[iI] = pOldCity->isEverLiberated((PlayerTypes)iI);
 	}
 
-	abEverOwned[GetID()] = true;
-#if defined(MOD_BALANCE_CORE)
 	bool abTraded[MAX_PLAYERS];
 	int aiNumTimesOwned[MAX_PLAYERS];
 	for(iI = 0; iI < MAX_PLAYERS; iI++)
@@ -3668,7 +3664,6 @@ CvCity* CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 
 		pabAdoptionBonus[eReligion] = pOldCity->HasPaidAdoptionBonus(eReligion);
 	}
-#endif
 
 	for(iI = 0; iI < GC.getNumBuildingInfos(); iI++)
 	{
@@ -3930,12 +3925,9 @@ CvCity* CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 	GetCorporations()->ClearAllCorporationsFromCity(pNewCity);
 	for(iI = 0; iI < MAX_PLAYERS; iI++)
 	{
-		pNewCity->setEverOwned(((PlayerTypes)iI), abEverOwned[iI]);
 		pNewCity->setEverLiberated(((PlayerTypes)iI), abEverLiberated[iI]);
-#if defined(MOD_BALANCE_CORE)
 		pNewCity->SetTraded(((PlayerTypes)iI), abTraded[iI]);
 		pNewCity->SetNumTimesOwned(((PlayerTypes)iI), aiNumTimesOwned[iI]);
-#endif
 	}
 #if defined(MOD_BALANCE_CORE)
 	for (iI = 0; iI < GC.getNumReligionInfos(); iI++)
