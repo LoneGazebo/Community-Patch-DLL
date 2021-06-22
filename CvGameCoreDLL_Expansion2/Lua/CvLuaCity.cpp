@@ -1238,11 +1238,8 @@ int CvLuaCity::lGetPurchaseUnitTooltip(lua_State* L)
 			if(thisUnitInfo->GetBuildingClassPurchaseRequireds(eBuildingClass))
 			{
 				BuildingTypes ePrereqBuilding = NO_BUILDING;
-#if defined(MOD_BALANCE_CORE)
+
 				if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || GET_PLAYER(pkCity->getOwner()).GetPlayerTraits()->IsKeepConqueredBuildings())
-#else
-				if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
-#endif
 				{
 					if (pkCity->HasBuildingClass(eBuildingClass))
 					{
@@ -2521,12 +2518,7 @@ int CvLuaCity::lGetNumBuildingClass(lua_State* L)
 		const CvCivilizationInfo& playerCivilizationInfo = GET_PLAYER(pkCity->getOwner()).getCivilizationInfo();
 		BuildingTypes eBuilding = NO_BUILDING;
 		int iResult = 0;
-#if defined(MOD_BALANCE_CORE)
-		bool bRome = GET_PLAYER(pkCity->getOwner()).GetPlayerTraits()->IsKeepConqueredBuildings();
-		if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || bRome)
-#else
-		if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
-#endif
+		if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || GET_PLAYER(pkCity->getOwner()).GetPlayerTraits()->IsKeepConqueredBuildings())
 		{
 			iResult = pkCity->GetCityBuildings()->GetNumBuildingClass(eBuildingClassType);
 		}
@@ -2551,11 +2543,7 @@ int CvLuaCity::lIsHasBuildingClass(lua_State* L)
 	const BuildingClassTypes eBuildingClassType = (BuildingClassTypes)lua_tointeger(L, 2);
 	if(eBuildingClassType != NO_BUILDINGCLASS)
 	{
-#if defined(MOD_BALANCE_CORE)
 		if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || GET_PLAYER(pkCity->getOwner()).GetPlayerTraits()->IsKeepConqueredBuildings())
-#else
-		if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
-#endif
 		{
 			const bool bResult = pkCity->HasBuildingClass(eBuildingClassType);
 			lua_pushboolean(L, bResult);
@@ -3539,10 +3527,10 @@ int CvLuaCity::lGetPressurePerTurn(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
 	ReligionTypes eReligion = (ReligionTypes)lua_tointeger(L, 2);
-	int iNumTradeRoutes;
-	const int iResult = (int)pkCity->GetCityReligions()->GetPressurePerTurn(eReligion, iNumTradeRoutes);
+	int iNumSourceCities = 0;
+	const int iResult = (int)pkCity->GetCityReligions()->GetPressurePerTurn(eReligion, &iNumSourceCities);
 	lua_pushinteger(L, iResult);
-	lua_pushinteger(L, iNumTradeRoutes);
+	lua_pushinteger(L, iNumSourceCities);
 	return 2;
 }
 //------------------------------------------------------------------------------

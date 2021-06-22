@@ -32,6 +32,8 @@ public:
 	unsigned int getNumPlots() const;
 	void clearPlots();
 
+	template<typename ReplayMessage, typename Visitor>
+	static void Serialize(ReplayMessage& replayMessage, Visitor& visitor);
 	void read(FDataStream& kStream);
 	void write(FDataStream& kStream) const;
 

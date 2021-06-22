@@ -77,6 +77,8 @@ public:
 
 	bool getPlotState(unsigned int x, unsigned int y, unsigned int uiTurn, PlotState& plotState) const;
 
+	template<typename ReplayInfo, typename Visitor>
+	static void Serialize(ReplayInfo& replayInfo, Visitor& visitor);
 	bool read(FDataStream& kStream);
 	void write(FDataStream& kStream) const;
 
@@ -106,6 +108,9 @@ protected:
 
 	struct PlayerInfo
 	{
+		template<typename PlayerInfoT, typename Visitor>
+		static void Serialize(PlayerInfoT& playerInfo, Visitor& visitor);
+
 		CivilizationTypes m_eCivilization;
 		LeaderHeadTypes m_eLeader;
 		PlayerColorTypes m_ePlayerColor;
@@ -152,14 +157,10 @@ protected:
 	// serialization support
 	friend FDataStream& operator<<(FDataStream& saveTo, const CvReplayInfo::PlayerInfo& readFrom);
 	friend FDataStream& operator>>(FDataStream& loadFrom, CvReplayInfo::PlayerInfo& writeTo);
-	friend FDataStream& operator<<(FDataStream& saveTo, const CvReplayInfo::TurnData& readFrom);
-	friend FDataStream& operator>>(FDataStream& loadFrom, CvReplayInfo::TurnData& writeTo);
 	friend FDataStream& operator<<(FDataStream& saveTo, const CvReplayInfo::OldPlotState& readFrom);
 	friend FDataStream& operator>>(FDataStream& loadFrom, CvReplayInfo::OldPlotState& writeTo);
 	friend FDataStream& operator<<(FDataStream& saveTo, const CvReplayInfo::PlotState& readFrom);
 	friend FDataStream& operator>>(FDataStream& loadFrom, CvReplayInfo::PlotState& writeTo);
-	friend FDataStream& operator<<(FDataStream& saveTo, const CvReplayInfo::TurnData& readFrom);
-	friend FDataStream& operator>>(FDataStream& loadFrom, CvReplayInfo::TurnData& writeTo);
 };
 
 #endif

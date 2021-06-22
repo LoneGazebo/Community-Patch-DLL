@@ -207,35 +207,52 @@ static uint sgCvMapInstanceCount = 0;
 
 //	--------------------------------------------------------------------------------
 CvMap::CvMap()
+	: m_iGridWidth(0)
+	, m_iGridHeight(0)
+	, m_iGridSize(0)
+	, m_iLandPlots(0)
+	, m_iOwnedPlots(0)
+	, m_iTopLatitude(0)
+	, m_iBottomLatitude(0)
+	, m_iNumNaturalWonders(0)
+	, m_iAIMapHints(0)
+	, m_bWrapX(false)
+	, m_bWrapY(false)
+	, m_paiNumResource()
+	, m_paiNumResourceOnLand()
+	, m_pMapPlots(NULL)
+	, m_pPlotNeighbors(NULL)
+	, m_vVisibilityScratchpad()
+	, m_pYields(NULL)
+	, m_pPlayerCityRadiusCount(NULL)
+	, m_pVisibilityCount(NULL)
+	, m_pVisibilityCountThisTurnMax(NULL)
+	, m_pRevealedOwner(NULL)
+	, m_pIsImpassable(NULL)
+	, m_pIsStrategic(NULL)
+	, m_pRevealed(NULL)
+	, m_pRevealedImprovementType(NULL)
+	, m_pRevealedRouteType(NULL)
+	, m_pResourceForceReveal(NULL)
+	, m_areas()
+	, m_landmasses()
+	, m_invisibleVisibilityCount()
+	, m_guid()
+	, m_kPlotManager()
+	, m_vDeferredFogPlots()
+	, m_vPlotsWithLineOfSightFromPlot2()
+	, m_vPlotsWithLineOfSightFromPlot3()
+	, m_vPlotsWithLineOfSightToPlot2()
+	, m_vPlotsWithLineOfSightToPlot3()
+	, m_vPlotsAtRange2()
+	, m_vPlotsAtRange3()
+	, m_vPlotsShared()
+	, m_plotPopupCount()
 {
-	CvMapInitData defaultMapData;
-
 	CvAssert(sgCvMapInstanceCount == 0);
 	++sgCvMapInstanceCount;
 
-	m_pMapPlots = NULL;
-#if defined(MOD_BALANCE_CORE)
-	m_pPlotNeighbors = NULL;
 	memset(m_apShuffledNeighbors,0,sizeof(CvPlot*)*6);
-#endif
-
-	//memory slabs to be shared between all the plots
-	m_pYields = NULL;
-	m_pPlayerCityRadiusCount = NULL;
-	m_pVisibilityCount = NULL;
-	m_pRevealedOwner = NULL;
-	m_pRevealed = NULL;
-	m_pRevealedImprovementType = NULL;
-	m_pRevealedRouteType = NULL;
-	m_pResourceForceReveal = NULL;
-#if defined(MOD_BALANCE_CORE)
-	m_pIsImpassable = NULL;
-	m_pIsStrategic = NULL;
-#endif
-
-	m_iAIMapHints = 0;
-
-	reset(&defaultMapData);
 }
 
 
@@ -253,7 +270,7 @@ void CvMap::InitPlots()
 	m_pMapPlots = FNEW(CvPlot[iNumPlots], c_eCiv5GameplayDLL, 0);
 
 	//have to include barbarian here ...
-	int iNumTeams = MAX_TEAMS;
+	const int iNumTeams = MAX_TEAMS;
 
 	//allocate all the memory we need up front
 	m_pYields = FNEW(uint8[NUM_YIELD_TYPES*iNumPlots], c_eCiv5GameplayDLL, 0);

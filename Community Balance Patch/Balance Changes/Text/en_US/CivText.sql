@@ -22,10 +22,6 @@ UPDATE Language_en_US
 SET Text = 'Air Unit that rains death from above onto Enemy Units and Cities. This Unit has a chance of evading interception, and does additional damage to Cities compared to the Bomber. [COLOR_POSITIVE_TEXT]Does not use Military Supply.[ENDCOLOR][NEWLINE][NEWLINE]Only available to Civilizations following the [COLOR_MAGENTA]Freedom[ENDCOLOR] Ideology. Requires the [COLOR_MAGENTA]Their Finest Hour[ENDCOLOR] Tenet to be unlocked.'
 WHERE Tag = 'TXT_KEY_UNIT_HELP_B17' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
-UPDATE Language_en_US
-SET Text = '[COLOR_NEGATIVE_TEXT]You stole their territory![ENDCOLOR]'
-WHERE Tag = 'TXT_KEY_DIPLO_CULTURE_BOMB' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
-
 --------------------
 -- Arabia
 --------------------
@@ -1025,7 +1021,7 @@ WHERE Tag = 'TXT_KEY_UNIT_HELP_COSSACK' AND EXISTS (SELECT * FROM COMMUNITY WHER
 -- Spain
 --------------------
 UPDATE Language_en_US
-SET Text = 'Gaining tiles generates [ICON_PEACE] Faith and [ICON_GOLD] Gold, scaling with Era. [ICON_INQUISITOR] Inquisitors are stronger, unlock earlier, and a free [ICON_INQUISITOR] Inquisitor appears every time a City is conquered. May purchase Naval Units with [ICON_PEACE] Faith.'
+SET Text = 'Gaining tiles generates [ICON_PEACE] Faith and [ICON_GOLD] Gold, scaling with Era. [ICON_INQUISITOR] Inquisitors unlock earlier, do not cost [ICON_GOLD] Gold Maintenance. Gain an [ICON_INQUISITOR] Inquisitor whenever a City is conquered. May purchase Naval Units with [ICON_PEACE] Faith.'
 WHERE Tag = 'TXT_KEY_TRAIT_SEVEN_CITIES' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Language_en_US

@@ -1613,7 +1613,6 @@ void CvPlayerCorporations::ClearCorporationFromForeignCities(bool bMinorsOnly, b
 		if (bMinorsOnly && !GET_PLAYER(eLoopPlayer).isMinorCiv())
 			continue;
 
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 		if (MOD_DIPLOMACY_CIV4_FEATURES)
 		{
 			if (bExcludeVassals && GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).IsVassal(m_pPlayer->getTeam()))
@@ -1625,7 +1624,6 @@ void CvPlayerCorporations::ClearCorporationFromForeignCities(bool bMinorsOnly, b
 				continue;
 			}
 		}
-#endif
 
 		int iLoop = 0;
 		for (CvCity* pCity = GET_PLAYER(eLoopPlayer).firstCity(&iLoop); pCity != NULL; pCity = GET_PLAYER(eLoopPlayer).nextCity(&iLoop))

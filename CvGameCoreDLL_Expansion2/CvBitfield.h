@@ -63,9 +63,21 @@ public:
 	void SetSize(uint uiSize)
 	{
 		uint uiByteSize = (uiSize >> 3) + ((uiSize&0x07)?1:0);
+		resizeBytes(uiByteSize);
+	}
+
+private:
+	void resizeBytes(uint uiByteSize)
+	{
 		if (uiByteSize == 0)
 		{
-			delete []m_pBits;
+			delete[]m_pBits;
+			m_uiByteSize = 0;
+			m_pBits = NULL;
+		}
+		if (uiByteSize == 0)
+		{
+			delete[]m_pBits;
 			m_uiByteSize = 0;
 			m_pBits = NULL;
 		}
@@ -77,7 +89,7 @@ public:
 				if (m_uiByteSize)
 				{
 					memcpy(pNewBits, m_pBits, m_uiByteSize);
-					delete []m_pBits;
+					delete[]m_pBits;
 				}
 				m_pBits = pNewBits;
 				m_uiByteSize = uiByteSize;
@@ -90,16 +102,35 @@ public:
 					if (m_uiByteSize)
 					{
 						memcpy(pNewBits, m_pBits, uiByteSize);
-						delete []m_pBits;
+						delete[]m_pBits;
 					}
 					m_pBits = pNewBits;
 					m_uiByteSize = uiByteSize;
 				}
 	}
 
-private:
 	uint m_uiByteSize;
 	byte* m_pBits;
+
+	friend FDataStream& operator<<(FDataStream&, const CvBitfield&);
+	friend FDataStream& operator>>(FDataStream&, CvBitfield&);
 };
+
+inline FDataStream& operator<<(FDataStream& saveTo, const CvBitfield& readFrom)
+{
+	saveTo << readFrom.m_uiByteSize;
+	if (readFrom.m_uiByteSize > 0)
+		saveTo.WriteIt(readFrom.m_uiByteSize, readFrom.m_pBits);
+	return saveTo;
+}
+inline FDataStream& operator>>(FDataStream& loadFrom, CvBitfield& writeTo)
+{
+	uint uiByteSize;
+	loadFrom >> uiByteSize;
+	writeTo.resizeBytes(uiByteSize);
+	if (uiByteSize > 0)
+		loadFrom.ReadIt(uiByteSize, writeTo.m_pBits);
+	return loadFrom;
+}
 
 #endif // CVBITFIELD_H

@@ -31,6 +31,7 @@
 #include "CvInfosSerializationHelper.h"
 #include "CvPlayerManager.h"
 #include "CvCitySpecializationAI.h"
+#include "CvEnumMapSerialization.h"
 
 #include "CvDllUnit.h"
 
@@ -80,7 +81,6 @@ CvTeam::CvTeam()
 	m_paiBuildTimeChange = NULL;
 	m_paiProjectCount = NULL;
 	m_paiProjectDefaultArtTypes = NULL;
-	m_pavProjectArtTypes = NULL;
 	m_paiProjectMaking = NULL;
 	m_paiUnitClassCount = NULL;
 	m_paiBuildingClassCount = NULL;
@@ -152,7 +152,7 @@ void CvTeam::uninit()
 	m_paiBuildTimeChange = NULL;
 	m_paiProjectCount = NULL;
 	m_paiProjectDefaultArtTypes = NULL;
-	m_pavProjectArtTypes = NULL;
+	m_pavProjectArtTypes.uninit();
 	m_paiProjectMaking = NULL;
 	m_paiUnitClassCount = NULL;
 	m_paiBuildingClassCount = NULL;
@@ -173,7 +173,6 @@ void CvTeam::uninit()
 
 	m_pTeamTechs->Uninit();
 
-	m_iNumMembers = 0;
 	m_iAliveCount = 0;
 	m_iEverAliveCount = 0;
 	m_iNumCities = 0;
@@ -440,7 +439,7 @@ void CvTeam::reset(TeamTypes eID, bool bConstructorCall)
 		}
 
 		m_pTeamTechs->Init(GC.GetGameTechs(), this);
-		m_pavProjectArtTypes = FNEW(std::vector<int> [GC.getNumProjectInfos()], c_eCiv5GameplayDLL, 0);
+		m_pavProjectArtTypes.init();
 		m_aeRevealedResources.clear();
 	}
 }
@@ -3265,15 +3264,7 @@ CvString CvTeam::getNameKey() const
 //	--------------------------------------------------------------------------------
 int CvTeam::getNumMembers() const
 {
-	return m_iNumMembers;
-}
-
-
-//	--------------------------------------------------------------------------------
-void CvTeam::changeNumMembers(int iChange)
-{
-	m_iNumMembers = (m_iNumMembers + iChange);
-	CvAssert(getNumMembers() >= 0);
+	return int(m_members.size());
 }
 
 #if defined(MOD_BALANCE_CORE)
@@ -5395,12 +5386,8 @@ void CvTeam::changeProjectCount(ProjectTypes eIndex, int iChange)
 									if(pCapital == NULL)
 										continue;
 
-#if defined(MOD_BALANCE_CORE)
 									bool bRome = GET_PLAYER((PlayerTypes)iJ).GetPlayerTraits()->IsKeepConqueredBuildings();
-									if ( (MOD_BUILDINGS_THOROUGH_PREREQUISITES || bRome) && pCapital->HasBuildingClass(eBuildingClass))
-#else
-									if (MOD_BUILDINGS_THOROUGH_PREREQUISITES && pCapital->HasBuildingClass(eBuildingClass))
-#endif
+									if ((MOD_BUILDINGS_THOROUGH_PREREQUISITES || bRome) && pCapital->HasBuildingClass(eBuildingClass))
 									{
 										eBuilding = pCapital->GetCityBuildings()->GetBuildingTypeFromClass(eBuildingClass);
 									}
@@ -8854,6 +8841,136 @@ void CvTeam::setDynamicTurnsSimultMode(bool simultaneousTurns)
 	}
 }
 
+//	--------------------------------------------------------------------------------
+template<typename Team, typename Visitor>
+void CvTeam::Serialize(Team& team, Visitor& visitor)
+{
+	visitor(team.m_members);
+
+	visitor(team.m_iAliveCount);
+	visitor(team.m_iEverAliveCount);
+	visitor(team.m_iNumCities);
+	visitor(team.m_iTotalPopulation);
+	visitor(team.m_iTotalLand);
+	visitor(team.m_iNukeInterception);
+	visitor(team.m_iExtraWaterSeeFromCount);
+	visitor(team.m_iMapTradingCount);
+	visitor(team.m_iTechTradingCount);
+	visitor(team.m_iGoldTradingCount);
+	visitor(team.m_iAllowEmbassyTradingAllowedCount);
+	visitor(team.m_iOpenBordersTradingAllowedCount);
+	visitor(team.m_iDefensivePactTradingAllowedCount);
+	visitor(team.m_iResearchAgreementTradingAllowedCount);
+	visitor(team.m_iCityWorkingChange);
+	visitor(team.m_iCityAutomatonWorkersChange);
+	visitor(team.m_iBridgeBuildingCount);
+	visitor(team.m_iCityLessEmbarkCost);
+	visitor(team.m_iCityNoEmbarkCost);
+
+	visitor(team.m_iWaterWorkCount);
+	visitor(team.m_iRiverTradeCount);
+	visitor(team.m_iBorderObstacleCount);
+	visitor(team.m_iVictoryPoints);
+	visitor(team.m_iEmbarkedExtraMoves);
+	visitor(team.m_iCanEmbarkCount);
+	visitor(team.m_iDefensiveEmbarkCount);
+	visitor(team.m_iEmbarkedAllWaterPassageCount);
+	visitor(team.m_iNumNaturalWondersDiscovered);
+	visitor(team.m_iNumLandmarksBuilt);
+	visitor(team.m_iBestPossibleRoute);
+	visitor(team.m_iNumMinorCivsAttacked);
+
+	visitor(team.m_bMapCentering);
+	visitor(team.m_bHomeOfUnitedNations);
+	visitor(team.m_bHasTechForWorldCongress);
+
+	visitor(team.m_eID);
+
+	visitor(team.m_eCurrentEra);
+	visitor(team.m_eLiberatedByTeam);
+	visitor(team.m_eKilledByTeam);
+
+	visitor(team.m_aiTechShareCount);
+	visitor(team.m_aiNumTurnsAtWar);
+	visitor(team.m_aiNumTurnsLockedIntoWar);
+	visitor(team.m_aiExtraMoves);
+
+	visitor(MakeConstSpan(team.m_aiForceTeamVoteEligibilityCount, GC.getNumVoteSourceInfos()));
+
+	visitor(team.m_paiTurnMadePeaceTreatyWithTeam);
+	visitor(team.m_aiIgnoreWarningCount);
+
+	visitor(team.m_abHasMet);
+	visitor(team.m_abHasFoundPlayersTerritory);
+	visitor(team.m_abAtWar);
+	visitor(team.m_abAggressorPacifier);
+	visitor(team.m_abPermanentWarPeace);
+	visitor(team.m_abEmbassy);
+	visitor(team.m_abOpenBorders);
+	visitor(team.m_abDefensivePact);
+	visitor(team.m_abResearchAgreement);
+	visitor(team.m_abForcePeace);
+
+	visitor(MakeConstSpan(team.m_abCanLaunch, GC.getNumVictoryInfos()));
+	visitor(MakeConstSpan(team.m_abVictoryAchieved, GC.getNumVictoryInfos()));
+	visitor(MakeConstSpan(team.m_abSmallAwardAchieved, GC.getNumSmallAwardInfos()));
+	visitor(MakeConstSpan(team.m_pabTradeTech, GC.getNumTechInfos()));
+
+	visitor(MakeConstSpan(team.m_paiRouteChange, GC.getNumRouteInfos()));
+	visitor(MakeConstSpan(team.m_paiBuildTimeChange, GC.getNumBuildInfos()));
+	visitor(MakeConstSpan(team.m_paiProjectCount, GC.getNumProjectInfos()));
+	visitor(MakeConstSpan(team.m_paiProjectDefaultArtTypes, GC.getNumProjectInfos()));
+
+	visitor(team.m_pavProjectArtTypes);
+
+	visitor(MakeConstSpan(team.m_paiProjectMaking, GC.getNumProjectInfos()));
+
+	visitor(MakeConstSpan(team.m_paiUnitClassCount, GC.getNumUnitClassInfos()));
+
+	visitor(MakeConstSpan(team.m_paiBuildingClassCount, GC.getNumBuildingClassInfos()));
+	visitor(MakeConstSpan(team.m_paiObsoleteBuildingCount, GC.getNumBuildingInfos()));
+
+	visitor(MakeConstSpan(team.m_paiTerrainTradeCount, GC.getNumTerrainInfos()));
+	visitor(MakeConstSpan(team.m_aiVictoryCountdown, GC.getNumVictoryInfos()));
+
+	visitor(team.m_aiTurnTeamMet);
+
+	visitor(*team.m_pTeamTechs);
+
+	visitor(MakeConstSpan(team.m_paiTradeRouteDomainExtraRange, NUM_DOMAIN_TYPES));
+	for (int i = 0; i < GC.getNumFeatureInfos(); ++i)
+	{
+		visitor(MakeConstSpan(team.m_ppaaiFeatureYieldChange[i], NUM_YIELD_TYPES));
+	}
+	for (int i = 0; i < GC.getNumTerrainInfos(); ++i)
+	{
+		visitor(MakeConstSpan(team.m_ppaaiTerrainYieldChange[i], NUM_YIELD_TYPES));
+	}
+
+	for (int i = 0; i < GC.getNumImprovementInfos(); ++i)
+	{
+		visitor(MakeConstSpan(team.m_ppaaiImprovementYieldChange[i], NUM_YIELD_TYPES));
+		visitor(MakeConstSpan(team.m_ppaaiImprovementNoFreshWaterYieldChange[i], NUM_YIELD_TYPES));
+		visitor(MakeConstSpan(team.m_ppaaiImprovementFreshWaterYieldChange[i], NUM_YIELD_TYPES));
+	}
+
+	visitor(team.m_aeRevealedResources);
+
+	visitor(team.m_iVassalageTradingAllowedCount);
+	visitor(team.m_eMaster);
+	visitor(team.m_bIsVoluntaryVassal);
+	visitor(team.m_iNumTurnsIsVassal);
+	visitor(team.m_iNumCitiesWhenVassalMade);
+	visitor(team.m_iTotalPopulationWhenVassalMade);
+	visitor(team.m_aiNumTurnsSinceVassalEnded);
+	visitor(team.m_aiNumTurnsSinceVassalTaxSet);
+	visitor(team.m_aiVassalTax);
+	visitor(team.m_iCorporationsEnabledCount);
+
+	visitor(team.m_abAtWar);
+	visitor(team.m_aiNumTurnsAtWar);
+	visitor(team.m_abAggressorPacifier);
+}
 
 //	--------------------------------------------------------------------------------
 void CvTeam::Read(FDataStream& kStream)
@@ -8861,366 +8978,18 @@ void CvTeam::Read(FDataStream& kStream)
 	// Init data before load
 	reset();
 
-	// Version number to maintain backwards compatibility
-	uint uiVersion;
-	kStream >> uiVersion;
-	MOD_SERIALIZE_INIT_READ(kStream);
+	CvStreamLoadVisitor serialVisitor(kStream);
+	Serialize(*this, serialVisitor);
 
-	kStream >> m_iNumMembers;
-
-#if defined(MOD_BALANCE_CORE)
-	for(int i=0; i<m_iNumMembers; i++)
-	{
-		int tmp;
-		kStream >> tmp;
-		m_members.push_back( (PlayerTypes)tmp );
-	}
-#endif
-
-	kStream >> m_iAliveCount;
-	kStream >> m_iEverAliveCount;
-	kStream >> m_iNumCities;
-	kStream >> m_iTotalPopulation;
-	kStream >> m_iTotalLand;
-	kStream >> m_iNukeInterception;
-	kStream >> m_iExtraWaterSeeFromCount;
-	kStream >> m_iMapTradingCount;
-	kStream >> m_iTechTradingCount;
-	kStream >> m_iGoldTradingCount;
-	kStream >> m_iAllowEmbassyTradingAllowedCount;
-	kStream >> m_iOpenBordersTradingAllowedCount;
-	kStream >> m_iDefensivePactTradingAllowedCount;
-	kStream >> m_iResearchAgreementTradingAllowedCount;
-#if defined(MOD_TECHS_CITY_WORKING)
-	MOD_SERIALIZE_READ(23, kStream, m_iCityWorkingChange, 0);
-#endif
-#if defined(MOD_TECHS_CITY_AUTOMATON_WORKERS)
-	MOD_SERIALIZE_READ(89, kStream, m_iCityAutomatonWorkersChange, 0);
-#endif
-	kStream >> m_iBridgeBuildingCount;
-#if defined(MOD_BALANCE_CORE_EMBARK_CITY_NO_COST)
-	MOD_SERIALIZE_READ(66, kStream, m_iCityLessEmbarkCost, 0);
-	MOD_SERIALIZE_READ(66, kStream, m_iCityNoEmbarkCost, 0);
-#endif
-	kStream >> m_iWaterWorkCount;
-	kStream >> m_iRiverTradeCount;
-	kStream >> m_iBorderObstacleCount;
-	kStream >> m_iVictoryPoints;
-	kStream >> m_iEmbarkedExtraMoves;
-	kStream >> m_iCanEmbarkCount;
-	kStream >> m_iDefensiveEmbarkCount;
-	kStream >> m_iEmbarkedAllWaterPassageCount;
-	kStream >> m_iNumNaturalWondersDiscovered;
-	kStream >> m_iNumLandmarksBuilt;
-	kStream >> m_iBestPossibleRoute;
-	kStream >> m_iNumMinorCivsAttacked;
-
-	kStream >> m_bMapCentering;
-	kStream >> m_bHomeOfUnitedNations;
-	kStream >> m_bHasTechForWorldCongress;
-
-	kStream >> m_eID;
-
-	kStream >> m_eCurrentEra;
-	kStream >> m_eLiberatedByTeam;
-	kStream >> m_eKilledByTeam;
-
-	ArrayWrapper<int> kTechShareCountWrapper(MAX_TEAMS, &m_aiTechShareCount[0]);
-	kStream >> kTechShareCountWrapper;
-
-	ArrayWrapper<int> kNumTurnsAtWarWrapper(MAX_TEAMS, &m_aiNumTurnsAtWar[0]);
-	kStream >> kNumTurnsAtWarWrapper;
-
-	ArrayWrapper<int> kNumTurnsLockedIntoWarWrapper(MAX_TEAMS, &m_aiNumTurnsLockedIntoWar[0]);
-	kStream >> kNumTurnsLockedIntoWarWrapper;
-
-	ArrayWrapper<int> kExtraMovesWrapper(NUM_DOMAIN_TYPES, &m_aiExtraMoves[0]);
-	kStream >> kExtraMovesWrapper;
-
-	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_aiForceTeamVoteEligibilityCount, GC.getNumVoteSourceInfos());
-
-	ArrayWrapper<int> kTurnMadePeaceWrapper(MAX_TEAMS, &m_paiTurnMadePeaceTreatyWithTeam[0]);
-	kStream >> kTurnMadePeaceWrapper;
-
-	ArrayWrapper<int> kIgnoreWarningWrapper(MAX_TEAMS, &m_aiIgnoreWarningCount[0]);
-	kStream >> kIgnoreWarningWrapper;
-
-	ArrayWrapper<bool> kHasMetWrapper(MAX_TEAMS, &m_abHasMet[0]);
-	kStream >> kHasMetWrapper;
-
-	ArrayWrapper<bool> kHasFoundPlayerWrapper(MAX_PLAYERS, &m_abHasFoundPlayersTerritory[0]);
-	kStream >> kHasFoundPlayerWrapper;
-
-	ArrayWrapper<bool> kAtWarWrapper(MAX_TEAMS, &m_abAtWar[0]);
-	kStream >> kAtWarWrapper;
-
-	ArrayWrapper<bool> kAggressorPacifierWrapper(MAX_TEAMS, &m_abAggressorPacifier[0]);
-	kStream >> kAggressorPacifierWrapper;
-
-	ArrayWrapper<bool> kPermanentWarWrapper(MAX_TEAMS, &m_abPermanentWarPeace[0]);
-	kStream >> kPermanentWarWrapper;
-
-	ArrayWrapper<bool> kEmbassyWrapper(MAX_TEAMS, &m_abEmbassy[0]);
-	kStream >> kEmbassyWrapper;
-
-	ArrayWrapper<bool> kOpenBordersWrapper(MAX_TEAMS, &m_abOpenBorders[0]);
-	kStream >> kOpenBordersWrapper;
-
-	ArrayWrapper<bool> kDefensivePactWrapper(MAX_TEAMS, &m_abDefensivePact[0]);
-	kStream >> kDefensivePactWrapper;
-
-	ArrayWrapper<bool> kResearchAgreementWrapper(MAX_TEAMS, &m_abResearchAgreement[0]);
-	kStream >> kResearchAgreementWrapper;
-
-	ArrayWrapper<bool> kForcePeaceWrapper(MAX_TEAMS, &m_abForcePeace[0]);
-	kStream >> kForcePeaceWrapper;
-
-	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_abCanLaunch, GC.getNumVictoryInfos());
-	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_abVictoryAchieved, GC.getNumVictoryInfos());
-	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_abSmallAwardAchieved, GC.getNumSmallAwardInfos());
-	
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-	MOD_SERIALIZE_READ_HASH(36, kStream, m_pabTradeTech, bool, GC.getNumTechInfos(), false)
-#endif
-
-	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_paiRouteChange, GC.getNumRouteInfos());
-	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_paiBuildTimeChange, GC.getNumBuildInfos());
-	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_paiProjectCount, GC.getNumProjectInfos());
-	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_paiProjectDefaultArtTypes, GC.getNumProjectInfos());
-
-	//project art types
-
-	int iNumProjects;
-	kStream >> iNumProjects;
-	for(int i=0; i<iNumProjects; i++)
-	{
-		int iType = CvInfosSerializationHelper::ReadHashed(kStream);
-		if (iType != -1)
-		{
-			for(int j=0; j<m_paiProjectCount[iType]; j++)
-			{
-				int temp;
-				kStream >> temp;
-				m_pavProjectArtTypes[iType].push_back(temp);
-			}
-		}
-		else
-		{
-			for(int j=0; j<m_paiProjectCount[iType]; j++)
-			{
-				int temp;
-				kStream >> temp;
-			}
-			m_paiProjectCount[iType] = 0;
-		}
-	}
-
-	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_paiProjectMaking, GC.getNumProjectInfos());
-
-	UnitClassArrayHelpers::Read(kStream, m_paiUnitClassCount);
-
-	BuildingClassArrayHelpers::Read(kStream, m_paiBuildingClassCount);
-	BuildingArrayHelpers::Read(kStream, m_paiObsoleteBuildingCount);
-
-	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_paiTerrainTradeCount, GC.getNumTerrainInfos());
-	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_aiVictoryCountdown, GC.getNumVictoryInfos());
-
-	ArrayWrapper<int> kTurnTeamMetWrapper(MAX_CIV_TEAMS, &m_aiTurnTeamMet[0]);
-	kStream >> kTurnTeamMetWrapper;
-
-	m_pTeamTechs->Read(kStream);
-
-#if defined(MOD_API_UNIFIED_YIELDS)
-	MOD_SERIALIZE_READ_ARRAY(66, kStream, &m_paiTradeRouteDomainExtraRange[0], int, NUM_DOMAIN_TYPES, 0);
-	FeatureArrayHelpers::ReadYieldArray(kStream, m_ppaaiFeatureYieldChange, NUM_YIELD_TYPES);
-	TerrainArrayHelpers::ReadYieldArray(kStream, m_ppaaiTerrainYieldChange, NUM_YIELD_TYPES);
-#endif
-
-	ImprovementArrayHelpers::ReadYieldArray(kStream, m_ppaaiImprovementYieldChange, NUM_YIELD_TYPES);
-	ImprovementArrayHelpers::ReadYieldArray(kStream, m_ppaaiImprovementNoFreshWaterYieldChange, NUM_YIELD_TYPES);
-	ImprovementArrayHelpers::ReadYieldArray(kStream, m_ppaaiImprovementFreshWaterYieldChange, NUM_YIELD_TYPES);
-
-	CvInfosSerializationHelper::ReadHashedTypeArray(kStream, m_aeRevealedResources);
-
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-	MOD_SERIALIZE_READ(36, kStream, m_iVassalageTradingAllowedCount, 0);
-	int temp;
-	MOD_SERIALIZE_READ(36, kStream, temp, -1);
-	m_eMaster = (TeamTypes)temp;
-	MOD_SERIALIZE_READ(36, kStream, m_bIsVoluntaryVassal, false);
-	MOD_SERIALIZE_READ(36, kStream, m_iNumTurnsIsVassal, -1);
-	MOD_SERIALIZE_READ(36, kStream, m_iNumCitiesWhenVassalMade, 0);
-	MOD_SERIALIZE_READ(36, kStream, m_iTotalPopulationWhenVassalMade, 0);
-	MOD_SERIALIZE_READ_ARRAY(36, kStream, &m_aiNumTurnsSinceVassalEnded[0], int, MAX_TEAMS, -1);
-	MOD_SERIALIZE_READ_ARRAY(37, kStream, &m_aiNumTurnsSinceVassalTaxSet[0], int, MAX_MAJOR_CIVS, -1);
-	MOD_SERIALIZE_READ_ARRAY(37, kStream, &m_aiVassalTax[0], int, MAX_MAJOR_CIVS, 0);
-#endif
-
-#if defined(MOD_BALANCE_CORE)
-	MOD_SERIALIZE_READ(79, kStream, m_iCorporationsEnabledCount, false);
-#endif
-
-	// Fix bad 'at war' flags where we are at war with ourselves.  Not a good thing.
-	if(m_eID >= 0 && m_eID < MAX_TEAMS)
-	{
-		m_abAtWar[m_eID] = false;
-		m_aiNumTurnsAtWar[m_eID] = 0;
-		m_abAggressorPacifier[m_eID] = false;
-	}
-
-#if defined(MOD_BALANCE_CORE)
 	DoUpdateBestRoute();
-#endif
 }
 
 
 //	--------------------------------------------------------------------------------
 void CvTeam::Write(FDataStream& kStream) const
 {
-	// Current version number
-	uint uiVersion = 1;
-	kStream << uiVersion;
-	MOD_SERIALIZE_INIT_WRITE(kStream);
-
-	kStream << m_iNumMembers;
-
-#if defined(MOD_BALANCE_CORE)
-	for(std::vector<PlayerTypes>::const_iterator iI = m_members.begin(); iI != m_members.end(); ++iI)
-		kStream << (int)(*iI);
-#endif
-
-	kStream << m_iAliveCount;
-	kStream << m_iEverAliveCount;
-	kStream << m_iNumCities;
-	kStream << m_iTotalPopulation;
-	kStream << m_iTotalLand;
-	kStream << m_iNukeInterception;
-	kStream << m_iExtraWaterSeeFromCount;
-	kStream << m_iMapTradingCount;
-	kStream << m_iTechTradingCount;
-	kStream << m_iGoldTradingCount;
-	kStream << m_iAllowEmbassyTradingAllowedCount;
-	kStream << m_iOpenBordersTradingAllowedCount;
-	kStream << m_iDefensivePactTradingAllowedCount;
-	kStream << m_iResearchAgreementTradingAllowedCount;
-#if defined(MOD_TECHS_CITY_WORKING)
-	MOD_SERIALIZE_WRITE(kStream, m_iCityWorkingChange);
-#endif
-#if defined(MOD_TECHS_CITY_AUTOMATON_WORKERS)
-	MOD_SERIALIZE_WRITE(kStream, m_iCityAutomatonWorkersChange);
-#endif
-	kStream << m_iBridgeBuildingCount;
-#if defined(MOD_BALANCE_CORE_EMBARK_CITY_NO_COST)
-	MOD_SERIALIZE_WRITE(kStream, m_iCityLessEmbarkCost);
-	MOD_SERIALIZE_WRITE(kStream, m_iCityNoEmbarkCost);
-#endif
-	kStream << m_iWaterWorkCount;
-	kStream << m_iRiverTradeCount;
-	kStream << m_iBorderObstacleCount;
-	kStream << m_iVictoryPoints;
-	kStream << m_iEmbarkedExtraMoves;
-	kStream << m_iCanEmbarkCount;
-	kStream << m_iDefensiveEmbarkCount;
-	kStream << m_iEmbarkedAllWaterPassageCount;
-	kStream << m_iNumNaturalWondersDiscovered;
-	kStream << m_iNumLandmarksBuilt;
-	kStream << m_iBestPossibleRoute;
-	kStream << m_iNumMinorCivsAttacked;
-
-	kStream << m_bMapCentering;
-	kStream << m_bHomeOfUnitedNations;
-	kStream << m_bHasTechForWorldCongress;
-
-	kStream << m_eID;
-
-	kStream << m_eCurrentEra;
-	kStream << m_eLiberatedByTeam;
-	kStream << m_eKilledByTeam;
-
-	kStream << ArrayWrapperConst<int>(MAX_TEAMS, &m_aiTechShareCount[0]);
-	kStream << ArrayWrapperConst<int>(MAX_TEAMS, &m_aiNumTurnsAtWar[0]);
-	kStream << ArrayWrapperConst<int>(MAX_TEAMS, &m_aiNumTurnsLockedIntoWar[0]);
-	kStream << ArrayWrapperConst<int>(NUM_DOMAIN_TYPES, &m_aiExtraMoves[0]);
-
-	CvInfosSerializationHelper::WriteHashedDataArray<VoteSourceTypes, int>(kStream, m_aiForceTeamVoteEligibilityCount, GC.getNumVoteSourceInfos());
-
-	kStream << ArrayWrapperConst<int>(MAX_TEAMS, &m_paiTurnMadePeaceTreatyWithTeam[0]);
-	kStream << ArrayWrapperConst<int>(MAX_TEAMS, &m_aiIgnoreWarningCount[0]);
-
-	kStream << ArrayWrapperConst<bool>(MAX_TEAMS, &m_abHasMet[0]);
-	kStream << ArrayWrapperConst<bool>(MAX_PLAYERS, &m_abHasFoundPlayersTerritory[0]);
-	kStream << ArrayWrapperConst<bool>(MAX_TEAMS, &m_abAtWar[0]);
-	kStream << ArrayWrapperConst<bool>(MAX_TEAMS, &m_abAggressorPacifier[0]);
-	kStream << ArrayWrapperConst<bool>(MAX_TEAMS, &m_abPermanentWarPeace[0]);
-	kStream << ArrayWrapperConst<bool>(MAX_TEAMS, &m_abEmbassy[0]);
-	kStream << ArrayWrapperConst<bool>(MAX_TEAMS, &m_abOpenBorders[0]);
-	kStream << ArrayWrapperConst<bool>(MAX_TEAMS, &m_abDefensivePact[0]);
-	kStream << ArrayWrapperConst<bool>(MAX_TEAMS, &m_abResearchAgreement[0]);
-	kStream << ArrayWrapperConst<bool>(MAX_TEAMS, &m_abForcePeace[0]);
-
-	CvInfosSerializationHelper::WriteHashedDataArray<VictoryTypes, bool>(kStream, m_abCanLaunch, GC.getNumVictoryInfos());
-	CvInfosSerializationHelper::WriteHashedDataArray<VictoryTypes, bool>(kStream, m_abVictoryAchieved, GC.getNumVictoryInfos());
-	CvInfosSerializationHelper::WriteHashedDataArray<SmallAwardTypes, bool>(kStream, m_abSmallAwardAchieved, GC.getNumSmallAwardInfos());
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-	MOD_SERIALIZE_WRITE_HASH(kStream, m_pabTradeTech, bool, GC.getNumTechInfos(), TechTypes);
-#endif
-	CvInfosSerializationHelper::WriteHashedDataArray<RouteTypes, int>(kStream, m_paiRouteChange, GC.getNumRouteInfos());
-	CvInfosSerializationHelper::WriteHashedDataArray<BuildTypes, int>(kStream, m_paiBuildTimeChange, GC.getNumBuildInfos());
-	CvInfosSerializationHelper::WriteHashedDataArray<ProjectTypes, int>(kStream, m_paiProjectCount, GC.getNumProjectInfos());
-	CvInfosSerializationHelper::WriteHashedDataArray<ProjectTypes, int>(kStream, m_paiProjectDefaultArtTypes, GC.getNumProjectInfos());
-
-	//project art types
-	kStream << GC.getNumProjectInfos();
-
-	for(int i=0; i<GC.getNumProjectInfos(); i++)
-	{
-		CvInfosSerializationHelper::WriteHashed(kStream, GC.getProjectInfo((ProjectTypes)i));
-		for(int j=0; j<m_paiProjectCount[i]; j++)
-		{
-			kStream << m_pavProjectArtTypes[i][j];
-		}
-	}
-
-	CvInfosSerializationHelper::WriteHashedDataArray<ProjectTypes, int>(kStream, m_paiProjectMaking, GC.getNumProjectInfos());
-
-	UnitClassArrayHelpers::Write(kStream, m_paiUnitClassCount, GC.getNumUnitClassInfos());
-	BuildingClassArrayHelpers::Write(kStream, m_paiBuildingClassCount, GC.getNumBuildingClassInfos());
-	BuildingArrayHelpers::Write(kStream, m_paiObsoleteBuildingCount, GC.getNumBuildingInfos());
-
-	CvInfosSerializationHelper::WriteHashedDataArray<TerrainTypes, int>(kStream, m_paiTerrainTradeCount, GC.getNumTerrainInfos());
-	CvInfosSerializationHelper::WriteHashedDataArray<VictoryTypes, int>(kStream, m_aiVictoryCountdown, GC.getNumVictoryInfos());
-	kStream << ArrayWrapperConst<int>(MAX_CIV_TEAMS, &m_aiTurnTeamMet[0]);
-
-	m_pTeamTechs->Write(kStream);
-
-#if defined(MOD_API_UNIFIED_YIELDS)
-	MOD_SERIALIZE_WRITE_CONSTARRAY(kStream, &m_paiTradeRouteDomainExtraRange[0], int, NUM_DOMAIN_TYPES);
-	FeatureArrayHelpers::WriteYieldArray(kStream, m_ppaaiFeatureYieldChange, GC.getNumFeatureInfos());
-	TerrainArrayHelpers::WriteYieldArray(kStream, m_ppaaiTerrainYieldChange, GC.getNumTerrainInfos());
-#endif
-
-	int iNumImprovements = GC.getNumImprovementInfos();
-	ImprovementArrayHelpers::WriteYieldArray(kStream, m_ppaaiImprovementYieldChange, iNumImprovements);
-	ImprovementArrayHelpers::WriteYieldArray(kStream, m_ppaaiImprovementNoFreshWaterYieldChange, iNumImprovements);
-	ImprovementArrayHelpers::WriteYieldArray(kStream, m_ppaaiImprovementFreshWaterYieldChange, iNumImprovements);
-
-	CvInfosSerializationHelper::WriteHashedTypeArray(kStream, m_aeRevealedResources);
-
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-	MOD_SERIALIZE_WRITE(kStream, m_iVassalageTradingAllowedCount);
-	MOD_SERIALIZE_WRITE(kStream, m_eMaster);
-	MOD_SERIALIZE_WRITE(kStream, m_bIsVoluntaryVassal);
-	MOD_SERIALIZE_WRITE(kStream, m_iNumTurnsIsVassal);
-	MOD_SERIALIZE_WRITE(kStream, m_iNumCitiesWhenVassalMade);
-	MOD_SERIALIZE_WRITE(kStream, m_iTotalPopulationWhenVassalMade);
-	MOD_SERIALIZE_WRITE_CONSTARRAY(kStream, &m_aiNumTurnsSinceVassalEnded[0], int, MAX_TEAMS);
-	MOD_SERIALIZE_WRITE_CONSTARRAY(kStream, &m_aiNumTurnsSinceVassalTaxSet[0], int, MAX_MAJOR_CIVS);
-	MOD_SERIALIZE_WRITE_CONSTARRAY(kStream, &m_aiVassalTax[0], int, MAX_MAJOR_CIVS);
-#endif
-
-#if defined(MOD_BALANCE_CORE)
-	MOD_SERIALIZE_WRITE(kStream, m_iCorporationsEnabledCount);
-#endif
+	CvStreamSaveVisitor serialVisitor(kStream);
+	Serialize(*this, serialVisitor);
 }
 
 // CACHE: cache frequently used values

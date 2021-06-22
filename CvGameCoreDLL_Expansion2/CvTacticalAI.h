@@ -277,6 +277,9 @@ private:
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 struct CvFocusArea
 {
+	template<typename FocusArea, typename Visitor>
+	static void Serialize(FocusArea& focusArea, Visitor& visitor);
+
 	int m_iX;
 	int m_iY;
 	int m_iRadius;
@@ -330,6 +333,8 @@ public:
 	void Uninit();
 
 	// Serialization routines
+	template<typename TacticalAI, typename Visitor>
+	static void Serialize(TacticalAI& tacticalAI, Visitor& visitor);
 	void Read(FDataStream& kStream);
 	void Write(FDataStream& kStream) const;
 

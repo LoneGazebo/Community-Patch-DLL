@@ -678,6 +678,10 @@ CvPlayer::CvPlayer() :
 	, m_aiYieldModifierFromGreatWorks()
 	, m_aiYieldModifierFromActiveSpies()
 	, m_aiYieldFromDelegateCount()
+	, m_aiYieldForLiberation()
+	, m_iInfluenceForLiberation()
+	, m_eBuildingClassInLiberatedCities()
+	, m_iUnitsInLiberatedCities()
 	, m_paiBuildingClassCulture()
 	, m_aiDomainFreeExperiencePerGreatWorkGlobal()
 	, m_iGarrisonsOccupiedUnhapppinessMod()
@@ -891,21 +895,17 @@ void CvPlayer::init(PlayerTypes eID)
 	//--------------------------------
 	// Init other game data
 	CvAssert(getTeam() != NO_TEAM);
-	GET_TEAM(getTeam()).changeNumMembers(1);
 
 	PlayerTypes p = GetID();
 	SlotStatus s = CvPreGame::slotStatus(p);
 
-#if defined(MOD_BALANCE_CORE)
-	if (!GET_TEAM(getTeam()).addPlayer( GetID() ))
-		GET_TEAM(getTeam()).changeNumMembers(-1);
+	GET_TEAM(getTeam()).addPlayer(GetID());
 
 	//minors can become free cities...but we have to make sure the UI can know this.
 	if (eID >= MAX_MAJOR_CIVS && eID < MAX_CIV_PLAYERS && s == SS_CLOSED && CvPreGame::isMinorCiv(eID))
 	{
 		m_bPotentiallyAlive = true;
 	}
-#endif
 
 	
 	if((s == SS_TAKEN) || (s == SS_COMPUTER))
@@ -1669,6 +1669,9 @@ void CvPlayer::uninit()
 	m_eFaithPurchaseType = NO_AUTOMATIC_FAITH_PURCHASE;
 	m_iFaithPurchaseIndex = 0;
 	m_iLastSliceMoved = 0;
+	m_iInfluenceForLiberation = 0;
+	m_iUnitsInLiberatedCities = 0;
+	m_eBuildingClassInLiberatedCities = NO_BUILDINGCLASS;
 
 	m_bHasBetrayedMinorCiv = false;
 	m_bNoNewWars = false;
@@ -1838,6 +1841,9 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 
 	m_aiYieldFromDelegateCount.clear();
 	m_aiYieldFromDelegateCount.resize(NUM_YIELD_TYPES, 0);
+
+	m_aiYieldForLiberation.clear();
+	m_aiYieldForLiberation.resize(NUM_YIELD_TYPES, 0);
 
 	m_aiDomainFreeExperiencePerGreatWorkGlobal.clear();
 	m_aiDomainFreeExperiencePerGreatWorkGlobal.resize(NUM_DOMAIN_TYPES, 0);
@@ -4427,19 +4433,13 @@ CvCity* CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 		{
 #if defined(MOD_EVENTS_CITY_CAPITAL)
 			CvCity* pOldCapital = getCapitalCity();
-#if defined(MOD_BALANCE_CORE)
 			bool bRome = GetPlayerTraits()->IsKeepConqueredBuildings();
-#endif
 			if (pOldCapital != NULL)
 #else
 			if (getCapitalCity() != NULL)
 #endif
 			{
-#if defined(MOD_BALANCE_CORE)
 				if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || bRome)
-#else
-				if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
-#endif
 				{
 					pOldCapital->GetCityBuildings()->RemoveAllRealBuildingsOfClass((BuildingClassTypes)GC.getCAPITAL_BUILDINGCLASS());
 				}
@@ -4447,17 +4447,14 @@ CvCity* CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 				{
 					pOldCapital->GetCityBuildings()->SetNumRealBuilding(eCapitalBuilding, 0);
 				}
-#if defined(MOD_BALANCE_CORE)
 				if (GetPlayerTraits()->IsNoAnnexing())
 				{
 					pOldCapital->SetPuppet(true);
 				}
-#endif
 			}
 			CvAssertMsg(!(pNewCity->GetCityBuildings()->GetNumRealBuilding(eCapitalBuilding)), "(pBestCity->getNumRealBuilding(eCapitalBuilding)) did not return false as expected");
 			pNewCity->GetCityBuildings()->SetNumRealBuilding(eCapitalBuilding, 1);
 
-#if defined(MOD_BALANCE_CORE)
 			//Check for policies that add capital buildings and move them over.
 			for (int iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
 			{
@@ -4477,11 +4474,7 @@ CvCity* CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 								pNewCity->GetCityBuildings()->SetNumRealBuilding(eBuilding, 1);
 								if (pOldCapital != NULL)
 								{
-#if defined(MOD_BALANCE_CORE)
 									if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || bRome)
-#else
-									if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
-#endif
 									{
 										pOldCapital->GetCityBuildings()->RemoveAllRealBuildingsOfClass(eBuildingClass);
 									}
@@ -4495,7 +4488,6 @@ CvCity* CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 					}
 				}
 			}
-#endif
 
 #if defined(MOD_EVENTS_CITY_CAPITAL)
 			if (MOD_EVENTS_CITY_CAPITAL) {
@@ -9815,7 +9807,7 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 					pDiploAI->SetWarmongerThreat(eMyTeamPlayer, THREAT_NONE);
 					pDiploAI->SetOtherPlayerWarmongerAmountTimes100(eMyTeamPlayer, 0);
 					
-					pDiploAI->SetNumDemandEverMade(eMyTeamPlayer, 0);
+					pDiploAI->SetNumDemandsMade(eMyTeamPlayer, 0);
 
 					if (pDiploAI->GetCoopWarScore(eMyTeamPlayer) < 0)
 					{
@@ -10011,6 +10003,64 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 		if (getTeam() != GET_PLAYER(ePlayer).getTeam())
 		{
 			CvDiplomacyAIHelpers::ApplyLiberationBonuses(pNewCity, GetID(), ePlayer);
+		}
+
+		//gain yields for liberation
+		int iPop = pNewCity->getPopulation();
+		for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+		{
+			YieldTypes eYield = (YieldTypes)iI;
+			int iLiberationYield = getYieldForLiberation(eYield);
+			if (iLiberationYield > 0) {
+				doInstantYield(INSTANT_YIELD_TYPE_INSTANT, false, NO_GREATPERSON, NO_BUILDING, iLiberationYield * iPop, true, NO_PLAYER, NULL, false, getCapitalCity(), false, true, true, eYield);
+			}
+		}
+
+		//Influence Gained with all CS when liberate
+		int iInfluence = getInfluenceForLiberation();
+		if (iInfluence > 0)
+		{
+			for (int iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
+			{
+				PlayerTypes eMinorLoop = (PlayerTypes)iMinorLoop;
+				if (eMinorLoop != NO_PLAYER)
+				{
+					CvPlayer* pMinorLoop = &GET_PLAYER(eMinorLoop);
+					if (pMinorLoop->isMinorCiv() && pMinorLoop->isAlive())
+					{
+						if (GET_TEAM(pMinorLoop->getTeam()).isHasMet(getTeam()))
+						{
+							pMinorLoop->GetMinorCivAI()->ChangeFriendshipWithMajor(GetID(), iInfluence, false);
+						}
+					}
+				}
+			}
+		}
+
+		const BuildingClassTypes eBuildingClass = getBuildingClassInLiberatedCities();
+		if (eBuildingClass && eBuildingClass != NO_BUILDINGCLASS) {
+			CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo(eBuildingClass);
+			if (pkBuildingClassInfo)
+			{
+				const BuildingTypes eBuilding = ((BuildingTypes)(getCivilizationInfo().getCivilizationBuildings(pkBuildingClassInfo->GetID())));
+				if (NO_BUILDING != eBuilding)
+				{
+					CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
+					if (pkBuildingInfo)
+					{
+						pNewCity->GetCityBuildings()->SetNumRealBuilding(eBuilding, 1);
+					}
+				}
+			}
+		}
+
+		int iNumUnit = getUnitsInLiberatedCities();
+		if (iNumUnit > 0) {
+			for (int i = 0; i < iNumUnit; i++) {
+				UnitTypes eUnit = GC.getGame().GetCompetitiveSpawnUnitType(ePlayer, false, false, false, true, true);
+				if (eUnit != NO_UNIT)
+					GET_PLAYER(ePlayer).initUnit(eUnit, pNewCity->getX(), pNewCity->getY());
+			}
 		}
 	}
 
@@ -12564,9 +12614,7 @@ void CvPlayer::findNewCapital()
 
 	BuildingClassTypes eCapitalBuildingClass = (BuildingClassTypes)GC.getCAPITAL_BUILDINGCLASS();
 	BuildingTypes eCapitalBuilding = ((BuildingTypes)(getCivilizationInfo().getCivilizationBuildings(eCapitalBuildingClass)));
-#if defined(MOD_BALANCE_CORE)
 	bool bRome = GetPlayerTraits()->IsKeepConqueredBuildings();
-#endif
 
 	CvCity* pOldCapital = getCapitalCity();
 	int iBestValue = 0;
@@ -12576,11 +12624,7 @@ void CvPlayer::findNewCapital()
 	{
 		if(pLoopCity != pOldCapital)
 		{
-#if defined(MOD_BALANCE_CORE)
 			if(0 == pLoopCity->GetCityBuildings()->GetNumRealBuilding(eCapitalBuilding) || ((MOD_BUILDINGS_THOROUGH_PREREQUISITES || bRome) && !HasBuildingClass(eCapitalBuildingClass)))
-#else
-			if (0 == pLoopCity->GetCityBuildings()->GetNumRealBuilding(eCapitalBuilding) || (MOD_BUILDINGS_THOROUGH_PREREQUISITES && !HasBuildingClass(eCapitalBuildingClass)))
-#endif
 			{
 				// First pass, exclude cities in resistance, puppets, and those burning to the ground
 				if (!(pLoopCity->IsResistance() || pLoopCity->IsPuppet() || pLoopCity->IsRazing()))
@@ -12610,11 +12654,7 @@ void CvPlayer::findNewCapital()
 		{
 			if (pLoopCity != pOldCapital)
 			{
-#if defined(MOD_BALANCE_CORE)
 				if (0 == pLoopCity->GetCityBuildings()->GetNumRealBuilding(eCapitalBuilding) || ((MOD_BUILDINGS_THOROUGH_PREREQUISITES || bRome) && !HasBuildingClass(eCapitalBuildingClass)))
-#else
-				if (0 == pLoopCity->GetCityBuildings()->GetNumRealBuilding(eCapitalBuilding) || (MOD_BUILDINGS_THOROUGH_PREREQUISITES && !HasBuildingClass(eCapitalBuildingClass)))
-#endif
 				{
 					int iValue = 0;
 
@@ -12649,11 +12689,7 @@ void CvPlayer::findNewCapital()
 	{
 		if (pOldCapital != NULL)
 		{
-#if defined(MOD_BALANCE_CORE)
 			if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || bRome)
-#else
-			if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
-#endif
 			{
 				if (pOldCapital->HasBuildingClass(eCapitalBuildingClass))
 				{
@@ -16913,24 +16949,16 @@ void CvPlayer::removeBuildingClass(BuildingClassTypes eBuildingClass)
 	BuildingTypes eBuilding = ((BuildingTypes)(getCivilizationInfo().getCivilizationBuildings(eBuildingClass)));
 	int iLoop;
 
-#if defined(MOD_BALANCE_CORE)
 	bool bRome = GetPlayerTraits()->IsKeepConqueredBuildings();
 	if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || eBuilding != NO_BUILDING || bRome)
-#else
-	if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || eBuilding != NO_BUILDING)
-#endif
 	{
 		for(CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 		{
-#if defined(MOD_BALANCE_CORE)
 			if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || bRome)
-#else
-			if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
-#endif
 			{
 				eBuilding = pLoopCity->GetCityBuildings()->GetBuildingTypeFromClass(eBuildingClass);
 			}
-			if(eBuilding != NO_BUILDING && pLoopCity->GetCityBuildings()->GetNumRealBuilding(eBuilding) > 0)
+			if (eBuilding != NO_BUILDING && pLoopCity->GetCityBuildings()->GetNumRealBuilding(eBuilding) > 0)
 			{
 				pLoopCity->GetCityBuildings()->SetNumRealBuilding(eBuilding, 0);
 				break;
@@ -17368,11 +17396,7 @@ void CvPlayer::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst
 			}
 
 			BuildingTypes eTestBuilding = NO_BUILDING;
-#if defined(MOD_BALANCE_CORE)
 			if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || GetPlayerTraits()->IsKeepConqueredBuildings())
-#else
-			if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
-#endif
 			{
 				eTestBuilding = pLoopCityBuildings->GetBuildingTypeFromClass(eBuildingClass);
 			}
@@ -31981,7 +32005,7 @@ void CvPlayer::SetMonopolyModFlat(int iChange)
 //	--------------------------------------------------------------------------------
 int CvPlayer::GetMonopolyModFlat() const
 {
-	return m_iMonopolyModFlat;
+	return (m_iMonopolyModFlat + GetPlayerTraits()->GetMonopolyModFlat());
 }
 
 //	--------------------------------------------------------------------------------
@@ -31997,7 +32021,7 @@ void CvPlayer::SetMonopolyModPercent(int iChange)
 //	--------------------------------------------------------------------------------
 int CvPlayer::GetMonopolyModPercent() const
 {
-	return m_iMonopolyModPercent;
+	return (m_iMonopolyModPercent + GetPlayerTraits()->GetMonopolyModPercent());
 }
 
 /// What are we willing to give/receive for peace with the active human player?
@@ -34887,8 +34911,6 @@ void CvPlayer::setTeam(TeamTypes eTeam)
 {
 	CvAssert(eTeam != NO_TEAM);
 	CvAssert(getTeam() != NO_TEAM);
-
-	GET_TEAM(getTeam()).changeNumMembers(-1);
 	if(isAlive())
 	{
 		GET_TEAM(getTeam()).changeAliveCount(-1);
@@ -34901,18 +34923,11 @@ void CvPlayer::setTeam(TeamTypes eTeam)
 	GET_TEAM(getTeam()).changeTotalPopulation(-(getTotalPopulation()));
 	GET_TEAM(getTeam()).changeTotalLand(-(getTotalLand()));
 
-#if defined(MOD_BALANCE_CORE)
 	GET_TEAM(getTeam()).removePlayer(GetID());
-#endif
 
 	CvPreGame::setTeamType(GetID(), eTeam);
 
-#if defined(MOD_BALANCE_CORE)
-	if (GET_TEAM(getTeam()).addPlayer(GetID()))
-		GET_TEAM(getTeam()).changeNumMembers(1);
-#else
-	GET_TEAM(getTeam()).changeNumMembers(1);
-#endif
+	GET_TEAM(getTeam()).addPlayer(GetID());
 
 	if(isAlive())
 	{
@@ -35619,6 +35634,58 @@ void CvPlayer::changeYieldFromDelegateCount(YieldTypes eIndex, int iChange)
 			GC.GetEngineUserInterface()->setDirty(CityInfo_DIRTY_BIT, true);
 		}
 	}
+}
+
+//	--------------------------------------------------------------------------------
+int CvPlayer::getYieldForLiberation(YieldTypes eIndex)	const
+{
+	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
+	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	return m_aiYieldForLiberation[eIndex];
+}
+//	--------------------------------------------------------------------------------
+void CvPlayer::changeYieldForLiberation(YieldTypes eIndex, int iChange)
+{
+	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+
+	if (iChange != 0)
+		m_aiYieldForLiberation[eIndex] = m_aiYieldForLiberation[eIndex] + iChange;
+}
+
+//	--------------------------------------------------------------------------------
+int CvPlayer::getInfluenceForLiberation()	const
+{
+	return m_iInfluenceForLiberation;
+}
+//	--------------------------------------------------------------------------------
+void CvPlayer::changeInfluenceForLiberation(int iChange)
+{
+	m_iInfluenceForLiberation += iChange;
+}
+
+//	--------------------------------------------------------------------------------
+BuildingClassTypes CvPlayer::getBuildingClassInLiberatedCities()	const
+{
+	return m_eBuildingClassInLiberatedCities;
+}
+//	--------------------------------------------------------------------------------
+void CvPlayer::setBuildingClassInLiberatedCities(BuildingClassTypes eIndex)
+{
+	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
+	CvAssertMsg(eIndex < GC.getNumBuildingClassInfos(), "eIndex expected to be < GC.getNumBuildingClassInfos()");
+	m_eBuildingClassInLiberatedCities = eIndex;
+}
+
+//	--------------------------------------------------------------------------------
+int CvPlayer::getUnitsInLiberatedCities()	const
+{
+	return m_iUnitsInLiberatedCities;
+}
+//	--------------------------------------------------------------------------------
+void CvPlayer::changeUnitsInLiberatedCities(int iChange)
+{
+	m_iUnitsInLiberatedCities += iChange;
 }
 
 
@@ -38098,7 +38165,7 @@ int CvPlayer::getNumResourceTotal(ResourceTypes eIndex, bool bIncludeImport) con
 }
 
 //	--------------------------------------------------------------------------------
-void CvPlayer::changeNumResourceTotal(ResourceTypes eIndex, int iChange, bool bIgnoreResourceWarning)
+void CvPlayer::changeNumResourceTotal(ResourceTypes eIndex, int iChange, bool /*bIgnoreResourceWarning*/)
 {
 	CvAssert(eIndex >= 0);
 	CvAssert(eIndex < GC.getNumResourceInfos());
@@ -43304,9 +43371,8 @@ int CvPlayer::getAdvancedStartBuildingCost(BuildingTypes eBuilding, bool bAdd, C
 
 									if(ePrereqBuilding != NO_BUILDING || MOD_BUILDINGS_THOROUGH_PREREQUISITES || bRome)
 									{
-										CvCity* pLoopCity;
 										int iLoop;
-										for(pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+										for(CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 										{
 											if(pLoopCity->GetCityBuildings()->GetNumBuilding(ePrereqBuilding) > 0 || ((MOD_BUILDINGS_THOROUGH_PREREQUISITES || bRome) && pLoopCity->HasBuildingClass(eBuildingClass)))
 											{
@@ -43968,6 +44034,12 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 	ChangeNewCityExtraPopulation(pPolicy->GetNewCityExtraPopulation() * iChange);
 	ChangeFreeFoodBox(pPolicy->GetFreeFoodBox() * iChange);
 	ChangeStrategicResourceMod(pPolicy->GetStrategicResourceMod() * iChange);
+	changeInfluenceForLiberation(pPolicy->GetInfluenceForLiberation() * iChange);
+	changeUnitsInLiberatedCities(pPolicy->GetUnitsInLiberatedCities() * iChange);
+
+	setBuildingClassInLiberatedCities(pPolicy->GetBuildingClassInLiberatedCities());
+
+
 #if defined(MOD_BALANCE_CORE)
 	if(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES_STRATEGIC && pPolicy->GetStrategicResourceMod() > 0)
 	{
@@ -44239,6 +44311,8 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 		changeYieldModifierFromGreatWorks(eYield, (pPolicy->GetYieldModifierFromGreatWorks(iI) * iChange));
 		changeYieldModifierFromActiveSpies(eYield, (pPolicy->GetYieldModifierFromActiveSpies(iI) * iChange));
 		changeYieldFromDelegateCount(eYield, (pPolicy->GetYieldFromDelegateCount(iI) * iChange));
+
+		changeYieldForLiberation(eYield, (pPolicy->GetYieldForLiberation(iI) * iChange));
 
 		if (pPolicy->GetYieldFromBirthRetroactive(eYield) != 0)
 		{
@@ -44579,11 +44653,7 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 			}
 
 			eBuilding = NO_BUILDING;
-#if defined(MOD_BALANCE_CORE)
 			if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || GetPlayerTraits()->IsKeepConqueredBuildings())
-#else
-			if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
-#endif
 			{
 				eBuilding = pLoopCity->GetCityBuildings()->GetBuildingTypeFromClass(eBuildingClass);
 			}
@@ -45711,11 +45781,7 @@ void CvPlayer::processCorporations(CorporationTypes eCorporation, int iChange)
 			}
 
 			BuildingTypes eTestBuilding = NO_BUILDING;
-#if defined(MOD_BALANCE_CORE)
 			if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || GetPlayerTraits()->IsKeepConqueredBuildings())
-#else
-			if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
-#endif
 			{
 				eTestBuilding = pLoopCity->GetCityBuildings()->GetBuildingTypeFromClass(eBuildingClass);
 			}
@@ -46499,6 +46565,10 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 	visitor(player.m_aiYieldModifierFromGreatWorks);
 	visitor(player.m_aiYieldModifierFromActiveSpies);
 	visitor(player.m_aiYieldFromDelegateCount);
+	visitor(player.m_aiYieldForLiberation);
+	visitor(player.m_iInfluenceForLiberation);
+	visitor(player.m_eBuildingClassInLiberatedCities);
+	visitor(player.m_iUnitsInLiberatedCities);
 	visitor(player.m_paiBuildingClassCulture);
 	visitor(player.m_aiDomainFreeExperiencePerGreatWorkGlobal);
 	visitor(player.m_aiCityYieldModFromMonopoly);
@@ -47995,6 +48065,11 @@ void CvPlayer::UpdateAreaEffectUnit(CvUnit* pUnit)
 	if (!pUnit || pUnit->isDelayedDeath())
 		return;
 
+	CvPlot* pPlot = pUnit->plot();
+
+	if (!pPlot)
+		return;
+
 	if ((pUnit->IsGreatGeneral() || pUnit->GetGreatGeneralCount() > 0) || (pUnit->IsGreatAdmiral() || pUnit->GetGreatAdmiralCount() > 0) || pUnit->IsCityAttackSupport() || pUnit->IsSapper())
 	{
 		bool bFound = false;
@@ -48002,14 +48077,14 @@ void CvPlayer::UpdateAreaEffectUnit(CvUnit* pUnit)
 		{
 			if ( m_unitsAreaEffectPositive[i].first == pUnit->GetID() )
 			{
-				m_unitsAreaEffectPositive[i].second = pUnit->plot()->GetPlotIndex();
+				m_unitsAreaEffectPositive[i].second = pPlot->GetPlotIndex();
 				bFound = true;
 				break;
 			}
 		}
 
 		if (!bFound)
-			m_unitsAreaEffectPositive.push_back(std::make_pair(pUnit->GetID(), pUnit->plot()->GetPlotIndex()));
+			m_unitsAreaEffectPositive.push_back(std::make_pair(pUnit->GetID(), pPlot->GetPlotIndex()));
 	}
 
 	if (pUnit->getNearbyEnemyCombatMod() < 0)
@@ -48019,14 +48094,14 @@ void CvPlayer::UpdateAreaEffectUnit(CvUnit* pUnit)
 		{
 			if ( m_unitsAreaEffectNegative[i].first == pUnit->GetID() )
 			{
-				m_unitsAreaEffectNegative[i].second = pUnit->plot()->GetPlotIndex();
+				m_unitsAreaEffectNegative[i].second = pPlot->GetPlotIndex();
 				bFound = true;
 				break;
 			}
 		}
 
 		if (!bFound)
-			m_unitsAreaEffectNegative.push_back(std::make_pair(pUnit->GetID(), pUnit->plot()->GetPlotIndex()));
+			m_unitsAreaEffectNegative.push_back(std::make_pair(pUnit->GetID(), pPlot->GetPlotIndex()));
 	}
 
 	//do not include medics here, it kills performance
@@ -48038,14 +48113,14 @@ void CvPlayer::UpdateAreaEffectUnit(CvUnit* pUnit)
 		{
 			if (m_unitsAreaEffectPromotion[i].first == pUnit->GetID())
 			{
-				m_unitsAreaEffectPromotion[i].second = pUnit->plot()->GetPlotIndex();
+				m_unitsAreaEffectPromotion[i].second = pPlot->GetPlotIndex();
 				bFound = true;
 				break;
 			}
 		}
 
 		if (!bFound)
-			m_unitsAreaEffectPromotion.push_back(std::make_pair(pUnit->GetID(), pUnit->plot()->GetPlotIndex()));
+			m_unitsAreaEffectPromotion.push_back(std::make_pair(pUnit->GetID(), pPlot->GetPlotIndex()));
 	}
 
 	// Must be able to intercept
@@ -48056,14 +48131,14 @@ void CvPlayer::UpdateAreaEffectUnit(CvUnit* pUnit)
 		{
 			if (m_unitsWhichCanIntercept[i].first == pUnit->GetID())
 			{
-				m_unitsWhichCanIntercept[i].second = pUnit->plot()->GetPlotIndex();
+				m_unitsWhichCanIntercept[i].second = pPlot->GetPlotIndex();
 				bFound = true;
 				break;
 			}
 		}
 
 		if (!bFound)
-			m_unitsWhichCanIntercept.push_back(std::make_pair(pUnit->GetID(), pUnit->plot()->GetPlotIndex()));
+			m_unitsWhichCanIntercept.push_back(std::make_pair(pUnit->GetID(), pPlot->GetPlotIndex()));
 	}
 
 	//might need to update the UI
@@ -48085,21 +48160,28 @@ void CvPlayer::UpdateAreaEffectUnits()
 	int iLoop;
 	for (CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit; pLoopUnit = nextUnit(&iLoop))
 	{
+		CvPlot* pPlot = pLoopUnit->plot();
+
+		if (!pPlot)
+		{
+			continue;
+		}
+
 		if ((pLoopUnit->IsGreatGeneral() || pLoopUnit->GetGreatGeneralCount() > 0) || 
 			(pLoopUnit->IsGreatAdmiral() || pLoopUnit->GetGreatAdmiralCount() > 0) || 
 			 pLoopUnit->IsCityAttackSupport() || pLoopUnit->IsSapper())
-			m_unitsAreaEffectPositive.push_back(std::make_pair(pLoopUnit->GetID(), pLoopUnit->plot()->GetPlotIndex()));
+			m_unitsAreaEffectPositive.push_back(std::make_pair(pLoopUnit->GetID(), pPlot->GetPlotIndex()));
 
 		if (pLoopUnit->getNearbyEnemyCombatMod() < 0)
-			m_unitsAreaEffectNegative.push_back(std::make_pair(pLoopUnit->GetID(), pLoopUnit->plot()->GetPlotIndex()));
+			m_unitsAreaEffectNegative.push_back(std::make_pair(pLoopUnit->GetID(), pPlot->GetPlotIndex()));
 
 		//do not include medics here, it kills performance
 		//medics are range 1, they can easily be found by iterating the 6 neighbor plots
 		if (pLoopUnit->isNearbyPromotion())
-			m_unitsAreaEffectPromotion.push_back(std::make_pair(pLoopUnit->GetID(), pLoopUnit->plot()->GetPlotIndex()));
+			m_unitsAreaEffectPromotion.push_back(std::make_pair(pLoopUnit->GetID(), pPlot->GetPlotIndex()));
 
 		if (pLoopUnit->canIntercept())
-			m_unitsWhichCanIntercept.push_back(std::make_pair(pLoopUnit->GetID(), pLoopUnit->plot()->GetPlotIndex()));
+			m_unitsWhichCanIntercept.push_back(std::make_pair(pLoopUnit->GetID(), pPlot->GetPlotIndex()));
 	}
 
 	//might need to update the UI

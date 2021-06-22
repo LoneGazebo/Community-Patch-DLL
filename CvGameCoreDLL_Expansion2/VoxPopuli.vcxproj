@@ -720,6 +720,7 @@
     <ClInclude Include="CvAdvisorCounsel.h" />
     <ClInclude Include="CvAdvisorRecommender.h" />
     <ClInclude Include="CvAIOperation.h" />
+    <ClInclude Include="CvAlignedStorage.h" />
     <ClInclude Include="CvArea.h" />
     <ClInclude Include="CvArmyAI.h" />
     <ClInclude Include="CvAStar.h" />

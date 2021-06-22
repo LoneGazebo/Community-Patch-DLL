@@ -903,30 +903,18 @@ int CvPolicyAI::GetBranchBuildingHappiness(CvPlayer* pPlayer, PolicyBranchTypes 
 					if (pkPolicyInfo->GetBuildingClassHappiness(eBuildingClass) != 0)
 					{
 						BuildingTypes eBuilding = NO_BUILDING;
-#if defined(MOD_BALANCE_CORE)
 						bool bRome = pPlayer->GetPlayerTraits()->IsKeepConqueredBuildings();
+
 						if (!MOD_BUILDINGS_THOROUGH_PREREQUISITES && !bRome)
-#else
-						if (!MOD_BUILDINGS_THOROUGH_PREREQUISITES)
-#endif
 						{
 							eBuilding = (BuildingTypes)pPlayer->getCivilizationInfo().getCivilizationBuildings(eBuildingClass);
 						}
-#if defined(MOD_BALANCE_CORE)
 						if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || bRome || eBuilding != NO_BUILDING)
-#else
-						if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || eBuilding != NO_BUILDING)
-#endif
 						{
-							CvCity *pCity;
 							int iLoop;
-							for (pCity = pPlayer->firstCity(&iLoop); pCity != NULL; pCity = pPlayer->nextCity(&iLoop))
+							for (CvCity* pCity = pPlayer->firstCity(&iLoop); pCity != NULL; pCity = pPlayer->nextCity(&iLoop))
 							{
-#if defined(MOD_BALANCE_CORE)
 								if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || bRome)
-#else
-								if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
-#endif
 								{
 									eBuilding = pCity->GetCityBuildings()->GetBuildingTypeFromClass(eBuildingClass);
 									if (eBuilding == NO_BUILDING)

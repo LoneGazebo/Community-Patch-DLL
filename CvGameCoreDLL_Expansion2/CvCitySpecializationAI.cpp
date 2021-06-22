@@ -319,9 +319,6 @@ CvCitySpecializationXMLEntries* CvCitySpecializationAI::GetCitySpecializations()
 /// Called every turn to see what Strategies this player should using (or not)
 void CvCitySpecializationAI::DoTurn()
 {
-
-	int iCityLoop = 0;
-
 	// No city specializations for humans!
 	if(m_pPlayer->isHuman())
 	{
@@ -340,8 +337,8 @@ void CvCitySpecializationAI::DoTurn()
 		return;
 	}
 
-	CvCity* pLoopCity = NULL;
-	for (pLoopCity = m_pPlayer->firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iCityLoop))
+	int iCityLoop = 0;
+	for (CvCity* pLoopCity = m_pPlayer->firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iCityLoop))
 	{
 		if (pLoopCity->isInDangerOfFalling() || pLoopCity->isUnderSiege())
 		{
