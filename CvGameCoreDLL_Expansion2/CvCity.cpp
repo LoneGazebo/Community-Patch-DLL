@@ -511,6 +511,10 @@ CvCity::CvCity() :
 	, m_aiYieldFromHealth("CvCity::m_aiYieldFromHealth", m_syncArchive)
 	, m_aiYieldFromCrime("CvCity::m_aiYieldFromCrime", m_syncArchive)
 	, m_aiYieldFromDevelopment("CvCity::m_aiYieldFromDevelopment", m_syncArchive)
+	, m_aiTempCaptureData("CvCity::m_aiTempCaptureData", m_syncArchive)
+	, m_abTempCaptureData("CvCity::m_abTempCaptureData", m_syncArchive)
+	, m_bIsPendingCapture("CvCity::m_bIsPendingCapture", m_syncArchive)
+	
 #endif
 {
 	OBJECT_ALLOCATED
@@ -1751,6 +1755,8 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_aiYieldFromHealth.resize(NUM_YIELD_TYPES);
 	m_aiYieldFromCrime.resize(NUM_YIELD_TYPES);
 	m_aiYieldFromDevelopment.resize(NUM_YIELD_TYPES);
+	m_aiTempCaptureData.resize(5);
+	m_abTempCaptureData.resize(2);
 #endif
 	for(iI = 0; iI < NUM_YIELD_TYPES; iI++)
 	{
@@ -1770,6 +1776,14 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 		m_aiYieldFromCrime.setAt(iI, 0);
 		m_aiYieldFromDevelopment.setAt(iI, 0);
 #endif
+	}
+	for (int iI = 0; iI < 5; iI++)
+	{
+		m_aiTempCaptureData.setAt(iI, 0);
+	}
+	for (int iI = 0; iI < 2; iI++)
+	{
+		m_abTempCaptureData.setAt(iI, false);
 	}
 #if defined(MOD_BALANCE_CORE)
 	m_abOwedChosenBuilding.resize(GC.getNumBuildingClassInfos());
@@ -1799,6 +1813,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_iLoyaltyCounter = 0;
 	m_iDisloyaltyCounter = 0;
 	m_iLoyaltyStateType = 0;
+	m_bIsPendingCapture = false;
 #endif
 	if(!bConstructorCall)
 	{
@@ -7508,10 +7523,12 @@ CityTaskResult CvCity::doTask(TaskTypes eTask, int iData1, int iData2, bool bOpt
 
 	case TASK_CREATE_PUPPET:
 		DoCreatePuppet();
+		resetCaptureData();
 		break;
 
 	case TASK_ANNEX_PUPPET:
 		DoAnnex();
+		resetCaptureData();
 		break;
 
 	default:
@@ -27978,6 +27995,48 @@ void CvCity::setName(const char* szNewValue, bool bFound, bool bForceChange)
 	}
 }
 
+void CvCity::setCaptureData(int iTemp[5], bool bTemp[2])
+{
+	m_aiTempCaptureData.setAt(0, iTemp[0]);
+	m_aiTempCaptureData.setAt(1, iTemp[1]);
+	m_aiTempCaptureData.setAt(2, iTemp[2]);
+	m_aiTempCaptureData.setAt(3, iTemp[3]);
+	m_aiTempCaptureData.setAt(4, iTemp[4]);
+
+	m_abTempCaptureData.setAt(0, bTemp[0]);
+	m_abTempCaptureData.setAt(0, bTemp[1]);
+
+	m_bIsPendingCapture = true;
+}
+
+std::vector<int> CvCity::getCaptureDataInt() const
+{	
+	return m_aiTempCaptureData;
+}
+
+std::vector<bool> CvCity::getCaptureDataBool() const
+{ 
+	return m_abTempCaptureData;
+}
+
+bool CvCity::isPendingCapture() const
+{
+	return m_bIsPendingCapture;
+}
+
+void CvCity::resetCaptureData()
+{
+	for (int i = 0; i < 5; i++)
+	{
+		m_aiTempCaptureData.setAt(i, 0);
+	}
+	for (int i = 0; i < 2; i++)
+	{
+		m_abTempCaptureData.setAt(i, false);
+	}
+
+	m_bIsPendingCapture = false;
+}
 
 //	--------------------------------------------------------------------------------
 void CvCity::doFoundMessage()

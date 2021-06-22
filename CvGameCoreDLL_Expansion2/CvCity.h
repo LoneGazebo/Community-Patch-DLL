@@ -1372,6 +1372,13 @@ public:
 	const CvString getNameNoSpace() const;
 	const char* getNameKey() const;
 	void setName(const char* szNewValue, bool bFound = false, bool bForceChange = false);
+
+	void setCaptureData(int iTemp[5], bool bTemp[2]);
+	std::vector<int> getCaptureDataInt() const;
+	std::vector<bool> getCaptureDataBool() const;
+	void resetCaptureData();
+	bool isPendingCapture() const;
+
 	void doFoundMessage();
 
 	bool IsExtraLuxuryResources();
@@ -2094,6 +2101,11 @@ protected:
 	FAutoVariable<std::vector<int>, CvCity> m_aiYieldFromHealth;
 	FAutoVariable<std::vector<int>, CvCity> m_aiYieldFromCrime;
 	FAutoVariable<std::vector<int>, CvCity> m_aiYieldFromDevelopment;
+
+	FAutoVariable<std::vector<int>, CvCity> m_aiTempCaptureData;
+	FAutoVariable<std::vector<bool>, CvCity> m_abTempCaptureData;
+	FAutoVariable<bool, CvCity> m_bIsPendingCapture;
+	
 #endif
 
 	CvCityBuildings* m_pCityBuildings;

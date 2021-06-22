@@ -4757,9 +4757,15 @@ CvCity* CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 				{
 					int iTemp[5] = { pNewCity->GetID(), iCaptureGold, iCaptureCulture, iCaptureGreatWorks, eLiberatedPlayer };
 					bool bTemp[2] = { bIsMinorCivBuyout, bConquest };
-					GC.GetEngineUserInterface()->AddPopup(BUTTONPOPUP_CITY_CAPTURED, POPUP_PARAM_INT_ARRAY(iTemp), POPUP_PARAM_BOOL_ARRAY(bTemp));
-					// We are adding a popup that the player must make a choice in, make sure they are not in the end-turn phase.
-					CancelActivePlayerEndTurn();
+					pNewCity->setCaptureData(iTemp, bTemp);
+
+					CvNotifications* pNotifications = GetNotifications();
+					if (pNotifications)
+					{
+						CvString strBuffer = GetLocalizedText("TXT_KEY_CHOOSE_CITY_CAPTURE", pNewCity->getNameKey());
+						CvString strSummary = GetLocalizedText("TXT_KEY_CHOOSE_CITY_CAPTURE_TT", pNewCity->getNameKey());
+						pNotifications->Add((NotificationTypes)FString::Hash("NOTIFICATION_CITY_CAPTURE"), strSummary.c_str(), strBuffer.c_str(), pNewCity->getX(), pNewCity->getY(), -1);
+					}
 				}
 			}
 			else
@@ -38173,12 +38179,15 @@ void CvPlayer::changeNumResourceTotal(ResourceTypes eIndex, int iChange, bool bI
 			GET_PLAYER((PlayerTypes)iPlayerLoop).UpdateResourcesSiphoned();
 		}
 	}
-#if !defined(MOD_BALANCE_CORE)
-	if(iChange < 0 && !bIgnoreResourceWarning)
+	if (!bIgnoreResourceWarning)
 	{
-		DoTestOverResourceNotification(eIndex);
-	}
+#if !defined(MOD_BALANCE_CORE)
+		if (iChange < 0)
+		{
+			DoTestOverResourceNotification(eIndex);
+		}
 #endif
+	}
 
 	GC.GetEngineUserInterface()->setDirty(GameData_DIRTY_BIT, true);
 

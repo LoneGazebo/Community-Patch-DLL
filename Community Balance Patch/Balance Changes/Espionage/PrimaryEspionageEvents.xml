@@ -74,6 +74,7 @@
 			<Description>TXT_KEY_ESPIONAGE_EVENT_CHOICE_SCIENTIFIC_GREATPEOPLE</Description>
 			<Help>TXT_KEY_ESPIONAGE_EVENT_CHOICE_SCIENTIFIC_GREATPEOPLE_HELP</Help>
 			<IsEspionageEffect>true</IsEspionageEffect>
+			<Expires>true</Expires>
 			<MissionSetup>true</MissionSetup>
 			<TriggerPlayerEventChoice>ESPIONAGE_EVENT_PLAYER_YIELD_BASIC</TriggerPlayerEventChoice>
 			<IDModifier>15</IDModifier>

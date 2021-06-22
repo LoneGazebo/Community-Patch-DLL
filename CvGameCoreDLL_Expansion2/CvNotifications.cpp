@@ -8,6 +8,7 @@
 #include "CvGameCoreDLLPCH.h"
 #include "CvNotifications.h"
 #include "CvPlayer.h"
+#include "CvCity.h"
 #include "CvDiplomacyAI.h"
 #include "FStlContainerSerialization.h"
 #include "ICvDLLUserInterface.h"
@@ -598,6 +599,7 @@ bool CvNotifications::MayUserDismiss(int iLookupIndex)
 				break;
 #endif
 #if defined(MOD_BALANCE_CORE)
+			case -364200720:
 			case 826076831:
 			case 419811917:
 			case -1608954742:
@@ -806,6 +808,12 @@ bool CvNotifications::GetEndTurnBlockedType(EndTurnBlockingTypes& eBlockingType,
 			case 419811917:
 			case -1608954742:
 				eBlockingType = ENDTURN_BLOCKING_EVENT_CHOICE;
+				iNotificationIndex = m_aNotifications[iIndex].m_iLookupIndex;
+				return true;
+				break;
+
+			case -364200720:
+				eBlockingType = ENDTURN_BLOCKING_CHOOSE_CITY_FATE;
 				iNotificationIndex = m_aNotifications[iIndex].m_iLookupIndex;
 				return true;
 				break;
@@ -1274,6 +1282,23 @@ void CvNotifications::Activate(Notification& notification)
 			{
 				CvPopupInfo kPopup(BUTTONPOPUP_MODDER_12, m_ePlayer, eEvent, pPlot->GetPlotIndex(), iSpyID);
 				GC.GetEngineUserInterface()->AddPopup(kPopup);
+			}
+		}
+		break;
+	case -364200720:
+		if (GC.getMap().plot(notification.m_iX, notification.m_iY) != NULL)
+		{
+			CvPlot* pPlot = GC.getMap().plot(notification.m_iX, notification.m_iY);
+			CvCity* pCity = pPlot->getPlotCity();
+			if (pCity)
+			{
+				std::vector<int> tempInt = pCity->getCaptureDataInt();
+				std::vector<bool> tempBool = pCity->getCaptureDataBool();
+
+				int iTemp[5] = { tempInt[0], tempInt[1], tempInt[2], tempInt[3], tempInt[4] };
+				bool bTemp[2] = { tempBool[0], tempBool[1] };
+
+				GC.GetEngineUserInterface()->AddPopup(BUTTONPOPUP_CITY_CAPTURED, POPUP_PARAM_INT_ARRAY(iTemp), POPUP_PARAM_BOOL_ARRAY(bTemp));
 			}
 		}
 		break;
@@ -2179,6 +2204,16 @@ bool CvNotifications::IsNotificationExpired(int iIndex)
 			}
 		}
 		return true;
+	}
+	break;
+	case -364200720:
+	{
+		CvCity* pCity = GC.getMap().plot(m_aNotifications[iIndex].m_iX, m_aNotifications[iIndex].m_iY)->getPlotCity();
+		if (!pCity)
+			return true;
+
+		if (!pCity->isPendingCapture())
+			return true;
 	}
 	break;
 #endif

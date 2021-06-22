@@ -7491,6 +7491,20 @@
 		<Row Tag="TXT_KEY_NUKE_INTERCEPTED_US_S">
 			<Text>Nuclear Attack Intercepted!</Text>
 		</Row>
+
+		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_CHOOSE_CITY_FATE">
+			<Text>CHOOSE CITY FATE</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_CHOOSE_CITY_FATE_TT">
+			<Text>Choose a Captured City's Fate...</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_CHOOSE_CITY_CAPTURE">
+			<Text>You have captured {1_City}!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CHOOSE_CITY_CAPTURE_TT">
+			<Text>Choose the fate of {1_City}...</Text>
+		</Row>
 	</Language_en_US>
 	<PostDefines>
 		<Row Name="PROMOTION_DEEPWATER_EMBARKATION">

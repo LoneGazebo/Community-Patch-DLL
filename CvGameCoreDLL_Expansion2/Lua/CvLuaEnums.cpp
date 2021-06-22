@@ -814,6 +814,7 @@ int CvLuaEnums::pRegister(lua_State* L)
 #if defined(MOD_BALANCE_CORE)
 	RegisterEnum(ENDTURN_BLOCKING_PENDING_DEAL);
 	RegisterEnum(ENDTURN_BLOCKING_EVENT_CHOICE);
+	RegisterEnum(ENDTURN_BLOCKING_CHOOSE_CITY_FATE);
 #endif
 	RegisterEnum(NUM_ENDTURN_BLOCKING_TYPES);
 	EnumEnd(L);
