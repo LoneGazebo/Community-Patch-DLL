@@ -2241,6 +2241,7 @@
 			<Help>TXT_KEY_PROMOTION_WITHDRAW_BEFORE_MELEE_HELP_I</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<ExtraWithdrawal>60</ExtraWithdrawal>
+			<LostWithUpgrade>true</LostWithUpgrade>
 			<PortraitIndex>59</PortraitIndex>
 			<IconAtlas>ABILITY_ATLAS</IconAtlas>
 			<PediaType>PEDIA_ATTRIBUTES</PediaType>
