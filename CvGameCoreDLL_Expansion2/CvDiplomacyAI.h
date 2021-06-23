@@ -923,11 +923,8 @@ public:
 	// C4DF Values
 	// ------------------------------------
 
-	bool IsShareOpinionAccepted(PlayerTypes ePlayer) const;
-	void SetShareOpinionAccepted(PlayerTypes ePlayer, bool bValue);
-
-	bool IsShareOpinionRefused(PlayerTypes ePlayer) const;
-	void SetShareOpinionRefused(PlayerTypes ePlayer, bool bValue);
+	ShareOpinionResponseTypes GetShareOpinionResponse(PlayerTypes ePlayer) const;
+	void SetShareOpinionResponse(PlayerTypes ePlayer, ShareOpinionResponseTypes eResponse);
 
 	bool IsPlayerMoveTroopsRequestAccepted(PlayerTypes ePlayer) const;
 	void SetPlayerMoveTroopsRequestAccepted(PlayerTypes ePlayer, bool bValue);
@@ -2075,8 +2072,7 @@ private:
 
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	// C4DF Values
-	bool m_abShareOpinionAccepted[MAX_MAJOR_CIVS];
-	bool m_abShareOpinionRefused[MAX_MAJOR_CIVS];
+	char m_aeShareOpinionResponse[MAX_MAJOR_CIVS];
 	int m_aiHelpRequestAcceptedTurn[MAX_MAJOR_CIVS];
 	char m_aiHelpRequestTooSoonNumTurns[MAX_MAJOR_CIVS];
 	bool m_abOfferingGift[MAX_MAJOR_CIVS];
