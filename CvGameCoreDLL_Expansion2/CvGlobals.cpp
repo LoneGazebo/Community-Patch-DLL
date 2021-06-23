@@ -2486,8 +2486,8 @@ CvGlobals::CvGlobals() :
 	m_pContracts(NULL),
 #endif
 	m_pGameDatabase(NULL),
+	m_saveVersion(SAVE_VERSION_LATEST),
 	m_gameDataHash(),
-	m_saveVersion(SAVE_VERSION_LATEST)
 {
 }
 
