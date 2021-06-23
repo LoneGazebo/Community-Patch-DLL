@@ -192,7 +192,7 @@
 			<Text>Commando</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_WITHDRAW_BEFORE_MELEE_HELP_I">
-			<Text>60% chance to withdraw from Melee combat. Chance of withdrawal decreased against fast Enemy Units or if there are limited open tiles behind the Unit.</Text>
+			<Text>60% chance to withdraw from Melee combat. Chance of withdrawal decreased against fast Enemy Units or if there are limited open tiles behind the Unit.[NEWLINE][NEWLINE][COLOR_NEGATIVE_TEXT]Lost on upgrade.[ENDCOLOR]</Text>
 		</Row>
 		
 		<Row Tag="TXT_KEY_PROMOTION_COERCION">
