@@ -38,6 +38,7 @@ public:
 
 	// Choose a player's next policy purchase
 	int ChooseNextPolicy(CvPlayer* pPlayer);
+	bool CanContinuePolicyBranch(PolicyBranchTypes ePolicyBranch);
 
 	// Ideology
 	void DoChooseIdeology(CvPlayer* pPlayer);
