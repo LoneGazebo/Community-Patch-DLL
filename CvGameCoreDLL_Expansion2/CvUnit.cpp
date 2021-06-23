@@ -12971,11 +12971,11 @@ void CvUnit::PerformCultureBomb(int iRadius)
 			// Have to set owner after we do the above stuff
 			pLoopPlot->setOwner(getOwner(), iBestCityID);
 #if defined(MOD_BALANCE_CORE_POLICIES)
-			CvCity* pCapitalCity = GET_PLAYER(getOwner()).getCapitalCity();
-			if(pCapitalCity != NULL)
-			{
-				GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_BORDERS, false, NO_GREATPERSON, NO_BUILDING, 0, true, NO_PLAYER, NULL, true, pCapitalCity);
-			}
+			//CvCity* pCapitalCity = GET_PLAYER(getOwner()).getCapitalCity();
+			//if(pCapitalCity != NULL)
+			//{
+			//	GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_BORDERS, false, NO_GREATPERSON, NO_BUILDING, 0, true, NO_PLAYER, NULL, true, pCapitalCity);
+			//}
 #endif
 		}
 	}
