@@ -11770,6 +11770,29 @@ void CvGame::Read(FDataStream& kStream)
 
 	reset(NO_HANDICAP);
 
+	// Save header information
+	{
+		uint32 saveVersion;
+		kStream >> saveVersion;
+		GC.setSaveVersion(saveVersion);
+		
+		const CvGlobals::GameDataHash& gameDataHash = GC.getGameDataHash();
+		CvGlobals::GameDataHash saveDataHash;
+		kStream >> saveDataHash;
+
+		if (saveDataHash != gameDataHash)
+		{
+			CUSTOMLOG(
+				"WARNING - Save data hash mismatch!\n"
+				"\tLoad will be attempted but corruption or crash is likely.\n"
+				"\tSave Hash = [%#010x-%#010x-%#010x-%#010x]\n"
+				"\tGame Hash = [%#010x-%#010x-%#010x-%#010x]",
+				saveDataHash[0], saveDataHash[1], saveDataHash[2], saveDataHash[3],
+				gameDataHash[0], gameDataHash[1], gameDataHash[2], gameDataHash[3]
+			);
+		}
+	}
+
 	CvStreamLoadVisitor serialVisitor(kStream);
 	Serialize(*this, serialVisitor);
 
@@ -11834,6 +11857,13 @@ void CvGame::Read(FDataStream& kStream)
 //	--------------------------------------------------------------------------------
 void CvGame::Write(FDataStream& kStream) const
 {
+	// Save header information
+	{
+		GC.setSaveVersion(CvGlobals::SAVE_VERSION_LATEST);
+		kStream << GC.getSaveVersion();
+		kStream << GC.getGameDataHash();
+	}
+
 	CvStreamSaveVisitor serialVisitor(kStream);
 	Serialize(*this, serialVisitor);
 

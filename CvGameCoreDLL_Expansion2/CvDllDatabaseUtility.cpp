@@ -180,6 +180,8 @@ bool CvDllDatabaseUtility::CacheGameDatabaseData()
 
 	CvAssertMsg(bSuccess, "Failed to load Gameplay Database Data! Not Good!");
 
+	GC.GameDataPostCache();
+
 	if(bSuccess)
 		m_bGameDatabaseNeedsCaching = false;
 
@@ -276,8 +278,6 @@ bool CvDllDatabaseUtility::PerformDatabasePostProcessing()
 	}
 
 	db->EndTransaction();
-
-	GC.GameDataPostProcess();
 
 	return true;
 }

@@ -11,6 +11,10 @@
 #include "CvGameCoreEnums.h"
 #include "CvGameCoreEnumSerialization.h"
 
+#include "CvSpanSerialization.h"
+
+#include <array>
+
 // Shared empty string
 extern const std::string EmptyString;
 
@@ -419,5 +423,17 @@ public:
 // Useful if you need to pass multiple template parameters since the preprocessor wont cooperate otherwise
 // Feel free to move this to another file and give it a better name
 #define SYNC_ARCHIVE_VAR_TYPE(...) __VA_ARGS__
+
+template <typename T, std::size_t N>
+FDataStream& operator<<(FDataStream& saveTo, const tr1::array<T, N>& readFrom) {
+	const CvSpan<const T, N> span(readFrom.begin(), readFrom.end());
+	return saveTo << span;
+}
+template <typename T, std::size_t N>
+FDataStream& operator>>(FDataStream& loadFrom, tr1::array<T, N>& writeTo) {
+	const CvSpan<T, N> span(writeTo.begin(), writeTo.end());
+	return loadFrom >> span;
+}
+
 
 #endif CVSERIALIZE_H

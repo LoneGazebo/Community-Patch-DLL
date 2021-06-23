@@ -963,8 +963,6 @@ protected:
 
 	void PopulateDigSite(CvPlot& kPlot, EraTypes eEra, GreatWorkArtifactClass eArtifact);
 	void SpawnArchaeologySitesHistorically();
-
-
 };
 
 extern int gTactMovesCount[NUM_AI_TACTICAL_MOVES];

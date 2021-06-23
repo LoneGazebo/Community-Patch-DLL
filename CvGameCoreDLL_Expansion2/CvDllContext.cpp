@@ -722,7 +722,7 @@ const char* CvDllGameContext::GetNotificationType(int NotificationID) const
 	{
 		CvNotificationEntry* pkEntry = pkEntries->GetEntry(NotificationID);
 		if(pkEntry != NULL)
-			return pkEntry->GetTypeName();
+			return pkEntry->GetType();
 	}
 
 	return NULL;
