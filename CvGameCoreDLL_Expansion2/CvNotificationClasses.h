@@ -30,7 +30,7 @@ public:
 	virtual bool CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility);
 
 	// Accessor Functions (Non-Arrays)
-	const char* GetTypeName();
+	const char* GetType();
 
 private:
 	CvString m_strNotificationType;

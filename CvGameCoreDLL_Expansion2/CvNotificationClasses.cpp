@@ -32,7 +32,7 @@ bool CvNotificationEntry::CacheResults(Database::Results& kResults, CvDatabaseUt
 }
 
 /// Get the type name that we can use to look up in other files
-const char* CvNotificationEntry::GetTypeName()
+const char* CvNotificationEntry::GetType()
 {
 	return m_strNotificationType.c_str();
 }
