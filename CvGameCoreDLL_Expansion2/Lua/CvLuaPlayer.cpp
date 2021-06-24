@@ -3752,7 +3752,10 @@ int CvLuaPlayer::lSetHappiness(lua_State* L)
 //------------------------------------------------------------------------------
 int CvLuaPlayer::lGetEmpireHappinessForCity(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvPlayer::GetEmpireHappinessForCity);
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const int iResult = pkPlayer->GetEmpireHappinessForCity();
+	lua_pushinteger(L, iResult);
+	return 1;
 }
 //------------------------------------------------------------------------------
 int CvLuaPlayer::lGetEmpireUnhappinessForCity(lua_State* L)
