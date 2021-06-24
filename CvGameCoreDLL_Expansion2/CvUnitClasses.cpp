@@ -94,9 +94,7 @@ CvUnitEntry::CvUnitEntry(void) :
 	m_iRangedCombat(0),
 	m_iRangedCombatLimit(0),
 	m_bCoastalFire(false),
-#if defined(MOD_UNITS_NO_SUPPLY)
 	m_bNoSupply(false),
-#endif
 	m_iMaxHitPoints(100),
 	m_iXPValueAttack(0),
 	m_iXPValueDefense(0),
@@ -331,9 +329,7 @@ bool CvUnitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 	m_iRangedCombat = kResults.GetInt("RangedCombat");
 	m_iRangedCombatLimit = kResults.GetInt("RangedCombatLimit");
 	m_bCoastalFire = kResults.GetBool("CoastalFireOnly");
-#if defined(MOD_UNITS_NO_SUPPLY)
 	m_bNoSupply = (kResults.GetInt("NoSupply") != 0);
-#endif
 	m_iMaxHitPoints = kResults.GetInt("MaxHitPoints");
 	m_iXPValueAttack = kResults.GetInt("XPValueAttack");
 	m_iXPValueDefense = kResults.GetInt("XPValueDefense");
@@ -1059,13 +1055,11 @@ bool CvUnitEntry::IsCoastalFireOnly() const
 	return m_bCoastalFire;
 }
 
-#if defined(MOD_UNITS_NO_SUPPLY)
 /// Unit has no supply cost
 bool CvUnitEntry::IsNoSupply() const
 {
 	return m_bNoSupply;
 }
-#endif
 
 /// Maximum hit points, usually 100
 int CvUnitEntry::GetMaxHitPoints() const

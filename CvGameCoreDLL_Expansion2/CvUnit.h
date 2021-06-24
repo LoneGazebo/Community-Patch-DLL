@@ -1348,10 +1348,8 @@ public:
 	void ChangeIgnoreGreatGeneralBenefitCount(int iChange);
 	// END Great General Stuff
 
-#if defined(MOD_UNITS_NO_SUPPLY)
 	bool isNoSupply() const;
 	void changeNoSupply(int iChange);
-#endif
 
 	int getMaxHitPointsBase() const;
 	void setMaxHitPointsBase(int iMaxHitPoints);
@@ -2168,9 +2166,7 @@ protected:
 	int m_iGreatGeneralCombatModifier;
 	int m_iIgnoreGreatGeneralBenefit;
 	int m_iIgnoreZOC;
-#if defined(MOD_UNITS_NO_SUPPLY)
 	int m_iNoSupply;
-#endif
 	int m_iMaxHitPointsBase;
 	int m_iMaxHitPointsChange;
 	int m_iMaxHitPointsModifier;

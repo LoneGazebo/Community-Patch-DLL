@@ -395,10 +395,6 @@
     <!-- See also: "Trade - Marble Shipments" -->
     <Row Class="6" Name="TRADE_WONDER_RESOURCE_ROUTES" Value="0"/>
 
-	<!-- Permits units to have no supply cost (v77) -->
-	<!-- See also: "Units - Missiles No Supply" -->
-    <Row Class="5" Name="UNITS_NO_SUPPLY" Value="0" DbUpdates="1"/>
-
     <!-- Restricts worker suggestions to local tiles (at the limits specified - limits are distances between the unit and the plot as the crow flies, NOT path lengths) (v19) -->
     <!-- See also: "UI - No Auto-Embark Workers" -->
     <Row Class="5" Name="UNITS_LOCAL_WORKERS" Value="1"/>

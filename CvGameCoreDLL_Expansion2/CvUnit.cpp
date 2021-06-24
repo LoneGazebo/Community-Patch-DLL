@@ -291,9 +291,7 @@ CvUnit::CvUnit() :
 	, m_iGreatGeneralCombatModifier()
 	, m_iIgnoreGreatGeneralBenefit()
 	, m_iIgnoreZOC()
-#if defined(MOD_UNITS_NO_SUPPLY)
 	, m_iNoSupply()
-#endif
 	, m_iMaxHitPointsBase(GC.getMAX_HIT_POINTS())
 	, m_iMaxHitPointsChange()
 	, m_iMaxHitPointsModifier()
@@ -1653,9 +1651,7 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_iGreatGeneralCombatModifier = 0;
 	m_iIgnoreGreatGeneralBenefit = 0;
 	m_iIgnoreZOC = 0;
-#if defined(MOD_UNITS_NO_SUPPLY)
 	m_iNoSupply = 0;
-#endif
 	m_iHealIfDefeatExcludeBarbariansCount = 0;
 	m_iNumInterceptions = 1;
 	m_iMadeInterceptionCount = 0;
@@ -24065,7 +24061,7 @@ void CvUnit::ChangeIgnoreGreatGeneralBenefitCount(int iChange)
 {
 	m_iIgnoreGreatGeneralBenefit += iChange;
 }
-#if defined(MOD_UNITS_NO_SUPPLY)
+
 //	--------------------------------------------------------------------------------
 bool CvUnit::isNoSupply() const
 {
@@ -24078,7 +24074,6 @@ void CvUnit::changeNoSupply(int iChange)
 {
 	m_iNoSupply += iChange;
 }
-#endif
 
 //	--------------------------------------------------------------------------------
 int CvUnit::getMaxHitPointsBase() const
@@ -26779,9 +26774,7 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 		ChangeIgnoreGreatGeneralBenefitCount(thisPromotion.IsIgnoreGreatGeneralBenefit() ? iChange: 0);
 		ChangeIgnoreZOCCount(thisPromotion.IsIgnoreZOC() ? iChange: 0);
 
-#if defined(MOD_UNITS_NO_SUPPLY)
 		changeNoSupply(thisPromotion.IsNoSupply() ? iChange : 0);
-#endif
 
 		changeMaxHitPointsChange(thisPromotion.GetMaxHitPointsChange() * iChange);
 		changeMaxHitPointsModifier(thisPromotion.GetMaxHitPointsModifier() * iChange);
