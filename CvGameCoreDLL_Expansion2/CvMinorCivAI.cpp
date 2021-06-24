@@ -4419,13 +4419,11 @@ void CvMinorCivAI::SetBullyUnit(UnitClassTypes eUnitClassType)
 	}
 }
 #endif
-#if defined(MOD_API_EXTENSIONS)
 /// Set a Personality for this minor
 void CvMinorCivAI::SetPersonality(MinorCivPersonalityTypes ePersonality)
 {
 	m_ePersonality = ePersonality;
 }
-#endif
 
 /// Picks a random Personality for this minor
 void CvMinorCivAI::DoPickPersonality()
@@ -4456,11 +4454,8 @@ void CvMinorCivAI::DoPickPersonality()
 	MinorCivPersonalityTypes eRandPersonality = (MinorCivPersonalityTypes)GC.getGame().getSmallFakeRandNum(NUM_MINOR_CIV_PERSONALITY_TYPES-1, m_pPlayer->GetID());
 	if (eRandPersonality == NO_MINOR_CIV_PERSONALITY_TYPE)
 		eRandPersonality = MINOR_CIV_PERSONALITY_FRIENDLY;
-#if defined(MOD_API_EXTENSIONS)
+
 	SetPersonality(eRandPersonality);
-#else
-	m_ePersonality = eRandPersonality;
-#endif
 #if defined(MOD_BALANCE_CORE)
 	SetBullyUnit();
 #endif
@@ -11206,11 +11201,7 @@ void CvMinorCivAI::SetAlly(PlayerTypes eNewAlly)
 			CvPlot* pPlot = theMap.plotByIndexUnchecked(iI);
 			if(pPlot->getOwner() == m_pPlayer->GetID())
 			{
-#if defined(MOD_API_EXTENSIONS)
 				pPlot->changeAdjacentSight(GET_PLAYER(eOldAlly).getTeam(), iPlotVisRange, false, NO_INVISIBLE, NO_DIRECTION);
-#else
-				pPlot->changeAdjacentSight(GET_PLAYER(eOldAlly).getTeam(), iPlotVisRange, false, NO_INVISIBLE, NO_DIRECTION, false);
-#endif
 			}
 		}
 
@@ -11237,11 +11228,7 @@ void CvMinorCivAI::SetAlly(PlayerTypes eNewAlly)
 			CvPlot* pPlot = theMap.plotByIndexUnchecked(iI);
 			if(pPlot->getOwner() == m_pPlayer->GetID())
 			{
-#if defined(MOD_API_EXTENSIONS)
 				pPlot->changeAdjacentSight(kNewAlly.getTeam(), iPlotVisRange, true, NO_INVISIBLE, NO_DIRECTION);
-#else
-				pPlot->changeAdjacentSight(kNewAlly.getTeam(), iPlotVisRange, true, NO_INVISIBLE, NO_DIRECTION, false);
-#endif
 			}
 		}
 

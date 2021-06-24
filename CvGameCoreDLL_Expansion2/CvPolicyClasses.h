@@ -1062,12 +1062,8 @@ public:
 
 	// Accessor functions
 	bool HasPolicy(PolicyTypes eIndex) const;
-#if defined(MOD_API_EXTENSIONS)
 	bool IsFreePolicy(PolicyTypes eIndex) const;
 	void SetPolicy(PolicyTypes eIndex, bool bNewValue, bool bFree);
-#else
-	void SetPolicy(PolicyTypes eIndex, bool bNewValue);
-#endif
 	int GetNumPoliciesOwned(bool bSkipFinisher = false, bool bExcludeFree = false, bool bIncludeOpeners = false) const;
 	int GetNumPoliciesOwnedInBranch(PolicyBranchTypes eBranch) const;
 	int GetNumPoliciesPurchasedInBranch(PolicyBranchTypes eBranch) const;
@@ -1117,10 +1113,8 @@ public:
 	bool IsPolicyBranchBlocked(PolicyBranchTypes eBranchType) const;
 	bool IsPolicyBlocked(PolicyTypes eType) const;
 
-#if defined(MOD_API_EXTENSIONS)
 	bool CanAdoptIdeology(PolicyBranchTypes eIdeology) const;
 	bool HasAdoptedIdeology(PolicyBranchTypes eIdeology) const;
-#endif
 
 	// Ideology change
 	void DoSwitchIdeologies(PolicyBranchTypes eBranchType);
@@ -1180,9 +1174,7 @@ private:
 	// Logging functions
 	void LogFlavors(FlavorTypes eFlavor = NO_FLAVOR);
 
-#if defined(MOD_API_EXTENSIONS)
 	bool* m_pabFreePolicy;
-#endif
 	bool* m_pabHasPolicy;
 	bool* m_pabHasOneShotPolicyFired;
 	bool* m_pabHaveOneShotFreeUnitsFired;

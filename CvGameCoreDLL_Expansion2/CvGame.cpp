@@ -4428,14 +4428,11 @@ CivilizationTypes CvGame::getActiveCivilizationType()
 	}
 }
 
-
-#if defined(MOD_API_EXTENSIONS)
 //	--------------------------------------------------------------------------------
 bool CvGame::isReallyNetworkMultiPlayer() const
 {
 	return CvPreGame::isReallyNetworkMultiPlayer();
 }
-#endif
 
 //	--------------------------------------------------------------------------------
 bool CvGame::isNetworkMultiPlayer() const
@@ -8482,14 +8479,12 @@ void CvGame::addGreatPersonBornName(const CvString& szName)
 	m_aszGreatPeopleBorn.push_back( hasher(szName.c_str()) );
 }
 
-#if defined(MOD_API_EXTENSIONS)
 //	--------------------------------------------------------------------------------
 void CvGame::removeGreatPersonBornName(const CvString& szName)
 {
 	stringHash hasher;
 	m_aszGreatPeopleBorn.erase(std::remove(m_aszGreatPeopleBorn.begin(), m_aszGreatPeopleBorn.end(), hasher(szName.c_str())), m_aszGreatPeopleBorn.end());
 }
-#endif
 
 // Protected Functions...
 
@@ -8719,11 +8714,7 @@ void CvGame::doTurn()
 	if(GET_PLAYER(getActivePlayer()).isAlive() && !IsStaticTutorialActive())
 	{
 		// Don't show this stuff in MP
-#if defined(MOD_API_EXTENSIONS)
 		if(!isReallyNetworkMultiPlayer() && !isPbem() && !isHotSeat())
-#else
-		if(!isGameMultiPlayer())
-#endif
 		{
 			int iTurnFrequency = /*25*/ GC.getPROGRESS_POPUP_TURN_FREQUENCY();
 
@@ -14248,7 +14239,6 @@ void CvGame::SetLastTurnAICivsProcessed()
 	}
 }
 
-#if defined(MOD_API_EXTENSIONS)
 bool CvGame::AnyoneHasBelief(BeliefTypes iBeliefType) const
 {
 	for (int i = 0; i < MAX_PLAYERS; ++i) {
@@ -14519,7 +14509,7 @@ bool CvGame::AnyoneHasUnitClass(UnitClassTypes iUnitClassType) const
 
 	return false;
 }
-#endif
+
 #if defined(MOD_BALANCE_CORE_JFD)	
 void CvGame::SetContractUnits(ContractTypes eContract, UnitTypes eUnit, int iValue)
 {

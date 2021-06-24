@@ -253,9 +253,7 @@ void CvLuaUnit::PushMethods(lua_State* L, int t)
 	Method(EndTrader);
 
 	Method(GetBaseRangedCombatStrength);
-#if defined(MOD_API_EXTENSIONS)
 	Method(SetBaseRangedCombatStrength);
-#endif
 	Method(GetDamageCombatModifier);
 	Method(GetMaxRangedCombatStrength);
 	Method(GetCombatLimit);
@@ -2900,7 +2898,6 @@ int CvLuaUnit::lGetBaseRangedCombatStrength(lua_State* L)
 	return 1;
 }
 
-#if defined(MOD_API_EXTENSIONS)
 //------------------------------------------------------------------------------
 int CvLuaUnit::lSetBaseRangedCombatStrength(lua_State* L)
 {
@@ -2909,7 +2906,6 @@ int CvLuaUnit::lSetBaseRangedCombatStrength(lua_State* L)
 	pkUnit->SetBaseRangedCombatStrength(iStrength);
 	return 0;
 }
-#endif
 
 //------------------------------------------------------------------------------
 int CvLuaUnit::lGetDamageCombatModifier(lua_State* L)

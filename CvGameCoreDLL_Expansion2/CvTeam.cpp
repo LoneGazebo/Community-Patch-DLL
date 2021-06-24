@@ -4770,7 +4770,6 @@ void CvTeam::SetHasEmbassyAtTeam(TeamTypes eIndex, bool bNewValue)
 	}
 }
 
-#if defined(MOD_API_EXTENSIONS)
 //	--------------------------------------------------------------------------------
 bool CvTeam::HasSpyAtTeam(TeamTypes eIndex) const
 {
@@ -4798,7 +4797,6 @@ bool CvTeam::HasSpyAtTeam(TeamTypes eIndex) const
 
 	return false;
 }
-#endif
 
 //	--------------------------------------------------------------------------------
 void CvTeam::EvacuateDiplomatsAtTeam(TeamTypes eIndex)
@@ -7125,11 +7123,7 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 				bool bDontShowRewardPopup = DLLUI->IsOptionNoRewardPopups();
 
 				// Notification in MP games
-#if defined(MOD_API_EXTENSIONS)
 				if(bDontShowRewardPopup || GC.getGame().isReallyNetworkMultiPlayer())
-#else
-				if(bDontShowRewardPopup || GC.getGame().isNetworkMultiPlayer())
-#endif
 				{
 					Localization::String localizedText = Localization::Lookup("TXT_KEY_MISC_YOU_DISCOVERED_TECH");
 					localizedText << pkTechInfo->GetTextKey();
@@ -8300,15 +8294,12 @@ void CvTeam::SetCurrentEra(EraTypes eNewValue)
 				
 				if(!isBarbarian() && (eNewValue != GC.getGame().getStartEra())){
 					//Era Popup
-#if defined(MOD_API_EXTENSIONS)
-					if (!GC.getGame().isReallyNetworkMultiPlayer() && isHuman() && GetID() == GC.getGame().getActiveTeam()){
-#else
-					if (!GC.getGame().isNetworkMultiPlayer() && isHuman() && GetID() == GC.getGame().getActiveTeam()){
-#endif
+					if (!GC.getGame().isReallyNetworkMultiPlayer() && isHuman() && GetID() == GC.getGame().getActiveTeam())
+					{
 						CvPopupInfo kPopupInfo(BUTTONPOPUP_NEW_ERA, eNewValue);
 						DLLUI->AddPopup(kPopupInfo);
 					}
-#if defined(MOD_BALANCE_CORE)
+
 					for(iI = 0; iI < GC.getNumFeatureInfos(); iI++)
 					{
 						CvFeatureInfo* pFeatureEntry = GC.getFeatureInfo((FeatureTypes)iI);
@@ -8324,7 +8315,6 @@ void CvTeam::SetCurrentEra(EraTypes eNewValue)
 							}
 						}
 					}
-#endif
 
 					//Notify Everyone
 					for(int iNotifyLoop = 0; iNotifyLoop < MAX_MAJOR_CIVS; ++iNotifyLoop){

@@ -2949,11 +2949,7 @@ CvCity* CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 			if(pLoopUnit->IsImmobile() && !pLoopUnit->isCargo())
 			{
 				pLoopUnit->kill(false, GetID());
-#if defined(MOD_API_EXTENSIONS)
 				DoUnitKilledCombat(NULL, pLoopUnit->getOwner(), pLoopUnit->getUnitType());
-#else
-				DoUnitKilledCombat(pLoopUnit->getOwner(), pLoopUnit->getUnitType());
-#endif
 			}
 		}
 	}
@@ -3857,11 +3853,7 @@ CvCity* CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 	GC.GetEngineUserInterface()->setDirty(NationalBorders_DIRTY_BIT, true);
 	// end adapted from PostKill()
 
-#if defined(MOD_API_EXTENSIONS)
 	pNewCity = initCity(pCityPlot->getX(), pCityPlot->getY(), !bConquest, (!bConquest && !bGift), NO_RELIGION, strName.c_str());
-#else
-	pNewCity = initCity(pCityPlot->getX(), pCityPlot->getY(), !bConquest, (!bConquest && !bGift));
-#endif
 
 	CvAssertMsg(pNewCity != NULL, "NewCity is not assigned a valid value");
 
@@ -10842,7 +10834,6 @@ int CvPlayer::GetNumUnitsOfType(UnitTypes eUnit, bool bIncludeBeingTrained)
 	return iNumUnits;
 }
 
-#if defined(MOD_API_EXTENSIONS)
 //	-----------------------------------------------------------------------------------------------
 int CvPlayer::GetNumUnitPromotions(PromotionTypes ePromotion)
 {
@@ -10862,7 +10853,6 @@ int CvPlayer::GetNumUnitPromotions(PromotionTypes ePromotion)
 
 	return iNum;
 }
-#endif
 
 //	-----------------------------------------------------------------------------------------------
 void CvPlayer::UpdateDangerPlots(bool bKeepKnownUnits)
@@ -14337,11 +14327,7 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 		bool bDontShowRewardPopup = GC.GetEngineUserInterface()->IsOptionNoRewardPopups();
 
 		// Don't show in MP, or if the player has turned it off
-#if defined(MOD_API_EXTENSIONS)
 		if(!GC.getGame().isReallyNetworkMultiPlayer() && !bDontShowRewardPopup)
-#else
-		if(!GC.getGame().isNetworkMultiPlayer() && !bDontShowRewardPopup)	// KWG: Candidate for !GC.getGame().isOption(GAMEOPTION_SIMULTANEOUS_TURNS)
-#endif
 		{
 			int iSpecialValue = 0;
 
@@ -14708,9 +14694,9 @@ void CvPlayer::foundCity(int iX, int iY)
 
 	SetTurnsSinceSettledLastCity(0);
 
-#if defined(MOD_GLOBAL_RELIGIOUS_SETTLERS) && defined(MOD_API_EXTENSIONS) && defined(MOD_BALANCE_CORE)
+#if defined(MOD_GLOBAL_RELIGIOUS_SETTLERS) && defined(MOD_BALANCE_CORE)
 	CvCity* pCity = initCity(iX, iY, true, true, eReligion, NULL, pkSettlerUnitEntry);
-#elif defined(MOD_GLOBAL_RELIGIOUS_SETTLERS) && defined(MOD_API_EXTENSIONS)
+#elif defined(MOD_GLOBAL_RELIGIOUS_SETTLERS)
 	CvCity* pCity = initCity(iX, iY, true, true, eReligion);
 #elif defined(MOD_BALANCE_CORE)
 	CvCity* pCity = initCity(iX, iY, pkSettlerUnitEntry);
@@ -22355,29 +22341,13 @@ int CvPlayer::GetUnhappinessFromUnits() const
 	int iFreeUnitUnhappiness = /*0*/ GC.getFREE_UNIT_HAPPINESS();
 	if(iFreeUnitUnhappiness != 0)
 	{
-#if defined(MOD_API_EXTENSIONS)
 		// If unhappy is 2 and free happy is 4, we need to subtract 2
 		// If unhappy is 5 and free happy is 4, we need to subtract 4 --> these two make "the min of unhappy and free happy"
 		// If unhappy is -2 and free happy is 4, we need to subtract 0 --> this one adds "the previous figure not to be negative"
 		iUnhappinessFromUnits -= std::max(0, std::min(iUnhappinessFromUnits, iFreeUnitUnhappiness));
-#else
-		iUnhappinessFromUnits -= iFreeUnitUnhappiness;
-#endif
 	}
 
-#if !defined(MOD_API_EXTENSIONS)
-	// Can't be less than 0
-	if(iUnhappinessFromUnits < 0)
-	{
-		iUnhappinessFromUnits = 0;
-	}
-#endif
-
-#if defined(MOD_API_EXTENSIONS)
 	if(iUnhappinessFromUnits > 0 && GetUnhappinessFromUnitsMod() != 0)
-#else
-	if(GetUnhappinessFromUnitsMod() != 0)
-#endif
 	{
 		iUnhappinessFromUnits *= (100 + GetUnhappinessFromUnitsMod());
 		iUnhappinessFromUnits /= 100;
@@ -24495,7 +24465,6 @@ CvHomelandAI* CvPlayer::GetHomelandAI() const
 	return m_pHomelandAI;
 }
 
-#if defined(MOD_API_EXTENSIONS)
 bool CvPlayer::grantPolicy(PolicyTypes iPolicy, bool bFree)
 {
 	if (!HasPolicy(iPolicy)) {
@@ -24528,29 +24497,18 @@ bool CvPlayer::swapPolicy(PolicyTypes iNewPolicy, PolicyTypes iOldPolicy)
 	
 	return false;
 }
-#endif
 
 //	--------------------------------------------------------------------------------
-#if defined(MOD_API_EXTENSIONS)
 void CvPlayer::setHasPolicy(PolicyTypes eIndex, bool bNewValue, bool bFree)
-#else
-void CvPlayer::setHasPolicy(PolicyTypes eIndex, bool bNewValue)
-#endif
 {
 	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
 	CvAssertMsg(eIndex < GC.getNumPolicyInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 	
 	if(m_pPlayerPolicies->HasPolicy(eIndex) != bNewValue)
 	{
-#if defined(MOD_API_EXTENSIONS)
 		m_pPlayerPolicies->SetPolicy(eIndex, bNewValue, bFree);
-#else
-		m_pPlayerPolicies->SetPolicy(eIndex, bNewValue);
-#endif
 		processPolicies(eIndex, bNewValue ? 1 : -1);
-#if defined(MOD_BALANCE_CORE)
 		GetPlayerPolicies()->ClearCache();
-#endif
 	}
 }
 
@@ -26268,11 +26226,7 @@ void CvPlayer::changeGreatGeneralRateModFromBldgs(int ichange)
 
 //	--------------------------------------------------------------------------------
 /// Do effects when a unit is killed in combat
-#if defined(MOD_API_EXTENSIONS)
 void CvPlayer::DoUnitKilledCombat(CvUnit* pKillingUnit, PlayerTypes eKilledPlayer, UnitTypes eUnitType)
-#else
-void CvPlayer::DoUnitKilledCombat(PlayerTypes eKilledPlayer, UnitTypes eUnitType)
-#endif
 {
 	ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
 	if(pkScriptSystem)
@@ -26281,9 +26235,7 @@ void CvPlayer::DoUnitKilledCombat(PlayerTypes eKilledPlayer, UnitTypes eUnitType
 		args->Push(GetID());
 		args->Push(eKilledPlayer);
 		args->Push(eUnitType);
-#if defined(MOD_API_EXTENSIONS)
 		args->Push(pKillingUnit ? pKillingUnit->GetID() : -1);
-#endif
 
 		bool bResult;
 		LuaSupport::CallHook(pkScriptSystem, "UnitKilledInCombat", args.get(), bResult);
@@ -26754,11 +26706,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 									CvTechEntry* pkTechInfo = GC.getTechInfo(ePrereq);
 									if (pkTechInfo && !GET_TEAM(getTeam()).GetTeamTechs()->HasTech(ePrereq))
 									{
-#if defined(MOD_API_EXTENSIONS)
 										int iCombatStrength = pUnit != NULL ? max(pUnit->GetBaseCombatStrength(), pUnit->GetBaseRangedCombatStrength()) : max(pkUnitInfo->GetCombat(), pkUnitInfo->GetRangedCombat());
-#else
-										int iCombatStrength = max(pkUnitInfo->GetCombat(), pkUnitInfo->GetRangedCombat());
-#endif
 										if (iCombatStrength > 0)
 										{
 											int iTechCost = GetPlayerTechs()->GetResearchCost(ePrereq);
@@ -26785,11 +26733,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 					CvUnitEntry* pkKilledUnitInfo = GC.getUnitInfo(pUnit->getUnitType());
 					if (pkKilledUnitInfo)
 					{
-#if defined(MOD_API_EXTENSIONS)
 						int iCombatStrength = pUnit != NULL ? max(pUnit->GetBaseCombatStrength(), pUnit->GetBaseRangedCombatStrength()) : max(pkKilledUnitInfo->GetCombat(), pkKilledUnitInfo->GetRangedCombat());
-#else
-						int iCombatStrength = max(pkKilledUnitInfo->GetCombat(), pkKilledUnitInfo->GetRangedCombat());
-#endif
 						int iKillYield = 0;
 						if (iCombatStrength > 0)
 						{
@@ -34877,7 +34821,7 @@ LeaderHeadTypes CvPlayer::getLeaderType() const
 {
 	return CvPreGame::leaderHead(GetID());
 }
-#if defined(MOD_API_EXTENSIONS)
+
 //	--------------------------------------------------------------------------------
 void CvPlayer::setLeaderType(LeaderHeadTypes eNewLeader)
 {
@@ -34909,7 +34853,6 @@ void CvPlayer::setLeaderType(LeaderHeadTypes eNewLeader)
 		}
 	}
 }
-#endif
 
 //	--------------------------------------------------------------------------------
 LeaderHeadTypes CvPlayer::getPersonalityType() const
@@ -42966,11 +42909,7 @@ void CvPlayer::doAdvancedStartAction(AdvancedStartActionTypes eAction, int iX, i
 		{
 			if(getAdvancedStartPoints() >= iCost)
 			{
-#if defined(MOD_API_EXTENSIONS)
 				pPlot->setRevealed(getTeam(), true, NULL, true);
-#else
-				pPlot->setRevealed(getTeam(), true, true);
-#endif
 				changeAdvancedStartPoints(-iCost);
 			}
 		}
@@ -42978,11 +42917,7 @@ void CvPlayer::doAdvancedStartAction(AdvancedStartActionTypes eAction, int iX, i
 		// Remove Visibility from the Plot
 		else
 		{
-#if defined(MOD_API_EXTENSIONS)
 			pPlot->setRevealed(getTeam(), false, NULL, true);
-#else
-			pPlot->setRevealed(getTeam(), false, true);
-#endif
 			changeAdvancedStartPoints(iCost);
 		}
 	}
@@ -46031,7 +45966,6 @@ CvNotifications* CvPlayer::GetNotifications() const
 	return m_pNotifications;
 }
 
-#if defined(MOD_API_EXTENSIONS)
 //	--------------------------------------------------------------------------------
 int CvPlayer::AddNotification(NotificationTypes eNotificationType, const char* sMessage, const char* sSummary, int iGameDataIndex, int iExtraGameData)
 {
@@ -46053,7 +45987,6 @@ int CvPlayer::AddNotification(NotificationTypes eNotificationType, const char* s
   
   return iNotification;
 }
-#endif
 
 //	--------------------------------------------------------------------------------
 CvTreasury* CvPlayer::GetTreasury() const
@@ -49346,11 +49279,7 @@ void CvPlayer::DoAnnounceReligionAdoption()
 				localizedText = Localization::Lookup("TXT_KEY_MISC_RELIGION_ADOPTED_UNKNOWN");
 			}
 
-#if defined(MOD_API_EXTENSIONS)
 			thisPlayer.GetNotifications()->Add(NOTIFICATION_RELIGION_RACE, localizedText.toUTF8(), localizedText.toUTF8(), iX, iY, GetReligions()->GetReligionCreatedByPlayer(), -1);
-#else
-			thisPlayer.GetNotifications()->Add(NOTIFICATION_RELIGION_RACE, localizedText.toUTF8(), localizedText.toUTF8(), iX, iY, -1);
-#endif
 		}
 	}
 }
@@ -50623,7 +50552,6 @@ int CvPlayer::GetScoreFromMilitarySize() const
 }
 #endif
 
-#if defined(MOD_API_EXTENSIONS)
 //	----------------------------------------------------------------------------
 bool CvPlayer::HasBelief(BeliefTypes iBeliefType) const
 {
@@ -51289,7 +51217,6 @@ int CvPlayer::CountAllWorkedTerrain(TerrainTypes iTerrainType)
 	
 	return iCount;
 }
-#endif
 
 void CvPlayer::invalidatePlotFoundValues()
 {

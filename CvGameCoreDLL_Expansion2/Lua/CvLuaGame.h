@@ -424,9 +424,7 @@ protected:
 	static int lGetNumArchaeologySites(lua_State *L);
 	static int lGetNumHiddenArchaeologySites(lua_State *L);
 
-#if defined(MOD_API_EXTENSIONS)
 	LUAAPIEXTN(ExitLeaderScreen, void);
-#endif
 
 	LUAAPIEXTN(GetDllGuid, char*);
 	LUAAPIEXTN(ReloadGameDataDefines, void);

@@ -434,9 +434,7 @@ void CvLuaGame::RegisterMembers(lua_State* L)
 	Method(GetNumArchaeologySites);
 	Method(GetNumHiddenArchaeologySites);
 
-#if defined(MOD_API_EXTENSIONS)
 	Method(ExitLeaderScreen);
-#endif
 
 	Method(GetDllGuid);
 	Method(ReloadGameDataDefines);
@@ -3549,13 +3547,11 @@ int CvLuaGame::lGetNumHiddenArchaeologySites(lua_State* L)
 	return 1;
 }
 
-#if defined(MOD_API_EXTENSIONS)
 int CvLuaGame::lExitLeaderScreen(lua_State* L)
 {
 	CvPreGame::popGameType();
 	return 0;
 }
-#endif
 
 //------------------------------------------------------------------------------
 int CvLuaGame::lGetDllGuid(lua_State* L)

@@ -71,7 +71,7 @@ public:
 		YIELD_UPDATE_GLOBAL //update yields and player happiness
 	};
 
-#if defined(MOD_API_EXTENSIONS) && defined(MOD_BALANCE_CORE)
+#if defined(MOD_BALANCE_CORE)
 	void init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits = true, bool bInitialFounding = true, ReligionTypes eInitialReligion = NO_RELIGION, const char* szName = NULL, CvUnitEntry* pkSettlerUnitEntry = NULL);
 #else
 	void init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits = true, bool bInitialFounding = true);
@@ -249,12 +249,8 @@ public:
 
 	bool canTrain(UnitTypes eUnit, bool bContinue = false, bool bTestVisible = false, bool bIgnoreCost = false, bool bWillPurchase = false, CvString* toolTipSink = NULL) const;
 	bool canTrain(UnitCombatTypes eUnitCombat) const;
-#if defined(MOD_API_EXTENSIONS)
 	bool canConstruct(BuildingTypes eBuilding, const std::vector<int>& vPreExistingBuildings, bool bContinue = false, bool bTestVisible = false, bool bIgnoreCost = false, bool bWillPurchase = false, CvString* toolTipSink = NULL) const;
 	bool canConstruct(BuildingTypes eBuilding, bool bContinue = false, bool bTestVisible = false, bool bIgnoreCost = false, bool bWillPurchase = false, CvString* toolTipSink = NULL) const;
-#else
-	bool canConstruct(BuildingTypes eBuilding, bool bContinue = false, bool bTestVisible = false, bool bIgnoreCost = false, CvString* toolTipSink = NULL) const;
-#endif
 	bool canCreate(ProjectTypes eProject, bool bContinue = false, bool bTestVisible = false) const;
 	bool canPrepare(SpecialistTypes eSpecialist, bool bContinue = false) const;
 	bool canMaintain(ProcessTypes eProcess, bool bContinue = false) const;
@@ -324,15 +320,14 @@ public:
 	int GetTerrainExtraYield(TerrainTypes eTerrain, YieldTypes eYield) const;
 	void ChangeTerrainExtraYield(TerrainTypes eTerrain, YieldTypes eYield, int iChange);
 
-#if defined(MOD_API_UNIFIED_YIELDS)
 	int GetPlotExtraYield(PlotTypes ePlot, YieldTypes eYield) const;
 	void ChangePlotExtraYield(PlotTypes ePlot, YieldTypes eYield, int iChange);
-#endif
+
 #if defined(MOD_BALANCE_CORE)
 	bool IsHasFeatureLocal(FeatureTypes eFeature) const;
 #endif
 	bool IsHasResourceLocal(ResourceTypes eResource, bool bTestVisible) const;
-#if defined(MOD_API_EXTENSIONS) || defined(MOD_TRADE_WONDER_RESOURCE_ROUTES)
+#if defined(MOD_TRADE_WONDER_RESOURCE_ROUTES)
 	int GetNumResourceLocal(ResourceTypes eResource, bool bImproved = false);
 #endif
 	int GetNumTotalResource(ResourceTypes eResource) const;
@@ -504,9 +499,7 @@ public:
 	bool IsOriginalCapitalForPlayer(PlayerTypes ePlayer) const;
 
 	bool isCoastal(int iMinWaterSize = -1) const;
-#if defined(MOD_API_EXTENSIONS)
 	bool isAddsFreshWater() const;
-#endif
 #if defined(MOD_BALANCE_CORE)
 	int GetUnitPurchaseCooldown(bool bCivilian = false) const;
 	void SetUnitPurchaseCooldown(bool bCivilian = false, int iValue = 0);
@@ -522,9 +515,7 @@ public:
 	void SetTraded(PlayerTypes ePlayer, bool bValue);
 	bool IsTraded(PlayerTypes ePlayer);
 #endif
-#if defined(MOD_API_EXTENSIONS)
 	int foodConsumptionSpecialistTimes100() const;
-#endif
 	int foodConsumption(bool bNoAngry = false, int iExtra = 0) const;
 	int foodConsumptionTimes100(bool bNoAngry = false, int iExtra = 0) const;
 	int foodDifference(bool bBottom = true, bool bJustCheckingStarve = false) const;
@@ -683,10 +674,8 @@ public:
 #endif
 	// END Culture
 
-#if defined(MOD_API_EXTENSIONS)
 	int getTourismRateModifier() const;
 	void changeTourismRateModifier(int iChange);
-#endif
 #if defined(MOD_BALANCE_CORE)
 	int GetFaithPerTurn(bool bStatic = true) const;
 #else
@@ -1598,7 +1587,6 @@ public:
 	void			clearCombat();
 	bool			isFighting() const;
 
-#if defined(MOD_API_EXTENSIONS)
 	bool HasBelief(BeliefTypes iBeliefType) const;
 	bool HasBuilding(BuildingTypes iBuildingType) const;
 	bool HasBuildingClass(BuildingClassTypes iBuildingClassType) const;
@@ -1668,7 +1656,6 @@ public:
 	int CountTerrain(TerrainTypes iTerrainType) const;
 	int CountWorkedTerrain(TerrainTypes iTerrainType) const;
 	int CountAllOwnedTerrain(TerrainTypes iTerrainType) const;
-#endif
 
 #if defined(MOD_CORE_PER_TURN_DAMAGE)
 	int addDamageReceivedThisTurn(int iDamage);

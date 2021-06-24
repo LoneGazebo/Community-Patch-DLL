@@ -1835,7 +1835,6 @@ int CvLuaPlot::lSetRevealed(lua_State* L)
 	const bool bNewValue = lua_toboolean(L, 3);
 	const bool bTerrainOnly = luaL_optint(L, 4, 0);
 	const TeamTypes eFromTeam = (TeamTypes)luaL_optint(L, 5, NO_TEAM);
-#if defined(MOD_API_EXTENSIONS)
 	if(lua_gettop(L) >= 6)
 	{
 		CvUnit* pkUnit = CvLuaUnit::GetInstance(L, 6);
@@ -1845,9 +1844,6 @@ int CvLuaPlot::lSetRevealed(lua_State* L)
 	{
 		pkPlot->setRevealed(eTeam, bNewValue, NULL, bTerrainOnly, eFromTeam);
 	}
-#else
-	pkPlot->setRevealed(eTeam, bNewValue, bTerrainOnly, eFromTeam);
-#endif
 
 	return 0;
 }

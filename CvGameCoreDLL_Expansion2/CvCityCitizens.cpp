@@ -3036,11 +3036,7 @@ void CvCityCitizens::DoSpawnGreatPerson(UnitTypes eUnit, bool bIncrementCount, b
 	if (GetCity()->getOwner() == GC.getGame().getActivePlayer())
 	{
 		// Don't show in MP
-#if defined(MOD_API_EXTENSIONS)
 		if (!GC.getGame().isReallyNetworkMultiPlayer())
-#else
-		if (!GC.getGame().isNetworkMultiPlayer())	// KWG: Candidate for !GC.getGame().IsOption(GAMEOPTION_SIMULTANEOUS_TURNS)
-#endif
 		{
 			CvPopupInfo kPopupInfo(BUTTONPOPUP_GREAT_PERSON_REWARD, eUnit, GetCity()->GetID());
 			GC.GetEngineUserInterface()->AddPopup(kPopupInfo);

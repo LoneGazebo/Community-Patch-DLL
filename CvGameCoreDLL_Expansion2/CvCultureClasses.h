@@ -80,10 +80,8 @@ public:
 	CvString GetGreatWorkEraShort(int iIndex) const;
 	PlayerTypes GetGreatWorkCreator (int iIndex) const;
 	PlayerTypes GetGreatWorkController(int iIndex) const;
-#if defined(MOD_API_EXTENSIONS)
 	bool IsGreatWorkCreated(GreatWorkType eType) const;
 	CvCity* GetGreatWorkCity(int iIndex) const;
-#endif
 	int GetGreatWorkCurrentThemingBonus (int iIndex) const;
 
 	bool SwapGreatWorks (PlayerTypes ePlayer1, int iWork1, PlayerTypes ePlayer2, int iWork2);
@@ -262,9 +260,7 @@ public:
 	void SetLastTurnCPT(int iValue);
 	int GetInfluenceOn(PlayerTypes ePlayer) const;
 	void ChangeInfluenceOn(PlayerTypes ePlayer, int iValue);
-#if defined(MOD_API_EXTENSIONS)
 	int ChangeInfluenceOn(PlayerTypes eOtherPlayer, int iBaseInfluence, bool bApplyModifiers, bool bModifyForGameSpeed);
-#endif
 	int GetLastTurnInfluenceOn(PlayerTypes ePlayer) const;
 	int GetLastTurnInfluenceIPT(PlayerTypes ePlayer) const;
 	int GetInfluencePerTurn(PlayerTypes ePlayer) const;

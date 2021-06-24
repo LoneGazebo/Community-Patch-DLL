@@ -425,7 +425,6 @@ PlayerTypes CvGameCulture::GetGreatWorkController(int iIndex) const
 	return NO_PLAYER;
 }
 
-#if defined(MOD_API_EXTENSIONS)
 bool CvGameCulture::IsGreatWorkCreated(GreatWorkType eType) const
 {
 	GreatWorkList::const_iterator it;
@@ -495,7 +494,6 @@ CvCity* CvGameCulture::GetGreatWorkCity(int iIndex) const
 	
 	return NULL;
 }
-#endif
 
 int CvGameCulture::GetGreatWorkCurrentThemingBonus (int iIndex) const
 {
@@ -2404,9 +2402,6 @@ bool CvPlayerCulture::ThemeEqualArtArtifact(CvGreatWorkBuildingInMyEmpire kBldg,
 				{
 					continue;
 				}
-#if defined(MOD_API_EXTENSIONS)
-				// ConsecutiveEras implies UniqueEras, so we don't need any tests in addition to those for UniqueEras
-#endif
 
 				aWorksChosen = aArtifactsChosen;
 				aPlayersSeen = aArtifactsPlayersSeen;
@@ -4264,7 +4259,6 @@ void CvPlayerCulture::ChangeInfluenceOn(PlayerTypes ePlayer, int iValue)
 	m_pPlayer->changeInstantTourismPerPlayerValue(ePlayer, iValue);
 }
 
-#if defined(MOD_API_EXTENSIONS)
 int CvPlayerCulture::ChangeInfluenceOn(PlayerTypes eOtherPlayer, int iBaseInfluence, bool bApplyModifiers /* = false */, bool bModifyForGameSpeed /* = true */)
 {
     int iInfluence = iBaseInfluence;
@@ -4280,13 +4274,11 @@ int CvPlayerCulture::ChangeInfluenceOn(PlayerTypes eOtherPlayer, int iBaseInflue
         }
     }
 
-#if defined(MOD_BALANCE_CORE)
 	if (eOtherPlayer != m_pPlayer->GetID() && GET_PLAYER(eOtherPlayer).isMajorCiv() && GET_PLAYER(eOtherPlayer).GetPlayerTraits()->IsNoOpenTrade())
 	{
 		if (!GC.getGame().GetGameTrade()->IsPlayerConnectedToPlayer(eOtherPlayer, m_pPlayer->GetID(), true))
 			iInfluence /= 2;
 	}
-#endif
     
     if (iInfluence != 0) {
 		ChangeInfluenceOn(eOtherPlayer, iInfluence);
@@ -4294,7 +4286,6 @@ int CvPlayerCulture::ChangeInfluenceOn(PlayerTypes eOtherPlayer, int iBaseInflue
 
 	return iInfluence;
  }
-#endif
 
 /// What was our cultural influence last turn?
 int CvPlayerCulture::GetLastTurnInfluenceOn(PlayerTypes ePlayer) const
@@ -8913,10 +8904,8 @@ int CultureHelpers::GetThemingBonusIndex(PlayerTypes eOwner, CvBuildingEntry *pk
 			return -1;  // No theming bonus if some slots still empty or too many entries
 		}
 
-#if defined(MOD_API_EXTENSIONS)
 		EraTypes eFirstEra = (EraTypes) GC.getNumEraInfos();
 		EraTypes eLastEra = NO_ERA;
-#endif
 
 		// Store info on the attributes of all our Great Works
 		for (int iI = 0; iI < iNumSlots; iI++)
@@ -8938,14 +8927,14 @@ int CultureHelpers::GetThemingBonusIndex(PlayerTypes eOwner, CvBuildingEntry *pk
 			aErasSeen.insert(work.m_eEra);
 			aPlayersSeen.insert(work.m_ePlayer);
 
-#if defined(MOD_API_EXTENSIONS)
-			if (work.m_eEra < eFirstEra) {
+			if (work.m_eEra < eFirstEra) 
+			{
 				eFirstEra = work.m_eEra;
 			}
-			if (work.m_eEra > eLastEra) {
+			if (work.m_eEra > eLastEra) 
+			{
 				eLastEra = work.m_eEra;
 			}
-#endif
 		}
 
 		// Now see if we match a theme bonus
@@ -8979,7 +8968,7 @@ int CultureHelpers::GetThemingBonusIndex(PlayerTypes eOwner, CvBuildingEntry *pk
 			{
 				bValid = false;
 			}
-#if defined(MOD_API_EXTENSIONS)
+
 			if (bValid && bonusInfo->IsConsecutiveEras())
 			{
 				if ((eLastEra - eFirstEra + 1) != iNumSlots)
@@ -8987,7 +8976,6 @@ int CultureHelpers::GetThemingBonusIndex(PlayerTypes eOwner, CvBuildingEntry *pk
 					bValid = false;
 				}
 			}
-#endif
 
 			// Can we rule this out based on player?
 			if (bValid && bonusInfo->IsRequiresOwner() && (aPlayersSeen.size()>1 || *(aPlayersSeen.begin())!=eOwner) )
@@ -9096,9 +9084,6 @@ bool CultureHelpers::IsValidForThemingBonus(CvThemingBonusInfo *pBonusInfo, EraT
 			bValid = false;
 		}
 	}
-#if defined(MOD_API_EXTENSIONS)
-	// ConsecutiveEras implies UniqueEras, so we don't need any tests in addition to those for UniqueEras
-#endif
 
 	// Can we rule this out based on player?
 	if (bValid && pBonusInfo->IsRequiresOwner())

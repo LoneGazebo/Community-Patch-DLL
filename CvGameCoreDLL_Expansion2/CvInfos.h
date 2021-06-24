@@ -1899,10 +1899,8 @@ class CvYieldInfo : public CvBaseInfo
 public:
 	CvYieldInfo();
 
-#if defined(MOD_API_EXTENSIONS)
 	const char* getIconString() const;
 	const char* getColorString() const;
-#endif
 	int getHillsChange() const;
 	int getMountainChange() const;
 	int getLakeChange() const;
@@ -1926,10 +1924,8 @@ public:
 	virtual bool CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility);
 
 protected:
-#if defined(MOD_API_EXTENSIONS)
 	CvString m_strIconString;
 	CvString m_strColorString;
-#endif
 	int m_iHillsChange;
 	int m_iMountainChange;
 	int m_iLakeChange;

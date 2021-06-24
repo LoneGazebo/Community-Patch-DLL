@@ -190,9 +190,7 @@ public:
 	int GetNumUnitsWithDomain(DomainTypes eDomain, bool bMilitaryOnly);
 	int GetNumUnitsWithUnitCombat(UnitCombatTypes eDomain);
 	int GetNumUnitsOfType(UnitTypes eUnit, bool bIncludeBeingTrained = false);
-#if defined(MOD_API_EXTENSIONS)
 	int GetNumUnitPromotions(PromotionTypes ePromotion);
-#endif
 	void UpdateDangerPlots(bool bKeepKnownUnits);
 	void SetDangerPlotsDirty();
 
@@ -877,14 +875,10 @@ public:
 	void SetAlwaysSeeBarbCampsCount(int iValue);
 	void ChangeAlwaysSeeBarbCampsCount(int iChange);
 
-#if defined(MOD_API_EXTENSIONS)
 	bool grantPolicy(PolicyTypes iPolicy, bool bFree=false);
 	bool revokePolicy(PolicyTypes iPolicy);
 	bool swapPolicy(PolicyTypes iNewPolicy, PolicyTypes iOldPolicy);
 	void setHasPolicy(PolicyTypes eIndex, bool bNewValue, bool bFree=false);
-#else
-	void setHasPolicy(PolicyTypes eIndex, bool bNewValue);
-#endif
 	int getNextPolicyCost() const;
 	void DoUpdateNextPolicyCost();
 	bool canAdoptPolicy(PolicyTypes ePolicy) const;
@@ -1163,11 +1157,7 @@ public:
 	void ChangeGreatGeneralCombatBonus(int iValue);
 
 	// Unit Killed in Combat
-#if defined(MOD_API_EXTENSIONS)
 	void DoUnitKilledCombat(CvUnit* pKillingUnit, PlayerTypes eKilledPlayer, UnitTypes eUnitType);
-#else
-	void DoUnitKilledCombat(PlayerTypes eKilledPlayer, UnitTypes eUnit);
-#endif
 #if defined(MOD_BALANCE_CORE)
 	void doInstantYield(InstantYieldType iType, bool bCityFaith = false, GreatPersonTypes eGreatPerson = NO_GREATPERSON, BuildingTypes eBuilding = NO_BUILDING, int iPassYield = 0, bool bEraScale = true, PlayerTypes ePlayer = NO_PLAYER, CvPlot* pPlot = NULL, bool bSuppress = false, CvCity* pCity = NULL, bool bSeaTrade = false, bool bInternational = true, bool bEvent = false, YieldTypes eYield = NO_YIELD, CvUnit* pUnit = NULL, TerrainTypes ePassTerrain = NO_TERRAIN, CvMinorCivQuest* pQuestData = NULL, CvCity* pOtherCity = NULL, CvUnit* pAttackingUnit = NULL);
 	void addInstantYieldText(InstantYieldType iType, CvString strInstantYield);
@@ -1819,9 +1809,7 @@ public:
 
 	const CvLeaderHeadInfo& getLeaderInfo() const;
 	LeaderHeadTypes getLeaderType() const;
-#if defined(MOD_API_EXTENSIONS)
 	void setLeaderType(LeaderHeadTypes eNewLeader);
-#endif
 
 	LeaderHeadTypes getPersonalityType() const;
 	void setPersonalityType(LeaderHeadTypes eNewValue);
@@ -2720,10 +2708,9 @@ public:
 	CvPlayerCorporations* GetCorporations() const;
 	CvPlayerContracts* GetContracts() const;
 #endif
-#if defined(MOD_API_EXTENSIONS)
 	int AddNotification(NotificationTypes eNotificationType, const char* sMessage, const char* sSummary, CvPlot* pPlot = NULL, int iGameDataIndex = -1, int iExtraGameData = -1);
 	int AddNotification(NotificationTypes eNotificationType, const char* sMessage, const char* sSummary, int iGameDataIndex, int iExtraGameData = -1);
-#endif
+
 	CvDiplomacyRequests* GetDiplomacyRequests() const;
 	bool HasActiveDiplomacyRequests() const;
 
@@ -2742,7 +2729,6 @@ public:
 		return m_strEmbarkedGraphicOverride;
 	};
 
-#if defined(MOD_API_EXTENSIONS)
 	bool HasBelief(BeliefTypes iBeliefType) const;
 	bool HasBuilding(BuildingTypes iBuildingType);
 	bool HasBuildingClass(BuildingClassTypes iBuildingClassType);
@@ -2803,7 +2789,6 @@ public:
 	int CountAllWorkedResource(ResourceTypes iResourceType);
 	int CountAllTerrain(TerrainTypes iTerrainType);
 	int CountAllWorkedTerrain(TerrainTypes iTerrainType);
-#endif
 
 	// for serialization
 	template<typename Player, typename Visitor>

@@ -53,9 +53,7 @@ struct CvUnitCaptureDefinition
 	int iY;
 	bool bEmbarked;
 	bool bAsIs;
-#if defined(MOD_API_EXTENSIONS)
 	int iScenarioData;
-#endif
 	ReligionTypes eReligion;
 	int iReligiousStrength;
 	int iSpreadsUsed;
@@ -71,9 +69,7 @@ struct CvUnitCaptureDefinition
 		, iY(-1)
 		, bEmbarked(false)
 		, bAsIs(false)
-#if defined(MOD_API_EXTENSIONS)
 		, iScenarioData(0)
-#endif
 		, eReligion(NO_RELIGION)
 		, iReligiousStrength(0)
 		, iSpreadsUsed(0) { }
@@ -496,22 +492,15 @@ public:
 
 	bool isReadyForUpgrade() const;
 	bool CanUpgradeRightNow(bool bOnlyTestVisible) const;
-#if defined(MOD_API_EXTENSIONS)
 	bool CanUpgradeTo(UnitTypes eUpgradeUnitType, bool bOnlyTestVisible) const;
-#endif
+
 #if defined(MOD_GLOBAL_CS_UPGRADES)
 	bool CanUpgradeInTerritory(bool bOnlyTestVisible) const;
 #endif
 	UnitTypes GetUpgradeUnitType() const;
 	int upgradePrice(UnitTypes eUnit) const;
-#if defined(MOD_API_EXTENSIONS)
 	CvUnit* DoUpgrade(bool bFree = false);
-#else
-	CvUnit* DoUpgrade();
-#endif
-#if defined(MOD_API_EXTENSIONS)
 	CvUnit* DoUpgradeTo(UnitTypes eUpgradeUnitType, bool bFree = false);
-#endif
 
 	HandicapTypes getHandicapType() const;
 	const CvCivilizationInfo& getCivilizationInfo() const;
@@ -608,9 +597,7 @@ public:
 	int GetEmbarkedUnitDefense() const;
 
 	int GetBaseRangedCombatStrength() const;
-#if defined(MOD_API_EXTENSIONS)
 	void SetBaseRangedCombatStrength(int iStrength);
-#endif
 
 	int GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* pCity, bool bAttacking, 
 									const CvPlot* pMyPlot = NULL, const CvPlot* pOtherPlot = NULL, 
@@ -1528,10 +1515,8 @@ public:
 #endif
 	GreatWorkType GetGreatWork() const;
 	void SetGreatWork(GreatWorkType eGreatWork);
-#if defined(MOD_API_EXTENSIONS)
 	bool HasGreatWork() const;
 	bool HasUnusedGreatWork() const;
-#endif
 	int GetTourismBlastStrength() const;
 	void SetTourismBlastStrength(int iValue);
 
@@ -1859,7 +1844,6 @@ public:
 	bool hasCurrentTacticalMove() const;
 #endif
 
-#if defined(MOD_API_EXTENSIONS)
 	bool IsCivilization(CivilizationTypes iCivilizationType) const;
 	bool HasPromotion(PromotionTypes iPromotionType) const;
 	bool IsUnit(UnitTypes iUnitType) const;
@@ -1867,7 +1851,6 @@ public:
 	bool IsOnFeature(FeatureTypes iFeatureType) const;
 	bool IsAdjacentToFeature(FeatureTypes iFeatureType) const;
 	bool IsWithinDistanceOfFeature(FeatureTypes iFeatureType, int iDistance) const;
-#if defined(MOD_BALANCE_CORE)
 	bool IsWithinDistanceOfUnit(UnitTypes eOtherUnit, int iDistance, bool bIsFriendly, bool bIsEnemy) const;
 	bool IsWithinDistanceOfUnitClass(UnitClassTypes eUnitClass, int iDistance, bool bIsFriendly, bool bIsEnemy) const;
 	bool IsWithinDistanceOfUnitCombatType(UnitCombatTypes eUnitCombat, int iDistance, bool bIsFriendly, bool bIsEnemy) const;
@@ -1877,7 +1860,6 @@ public:
 	bool IsAdjacentToUnitClass(UnitClassTypes eUnitClass, bool bIsFriendly, bool bIsEnemy) const;
 	bool IsAdjacentToUnitCombatType(UnitCombatTypes eUnitCombat, bool bIsFriendly, bool bIsEnemy) const;
 	bool IsAdjacentToUnitPromotion(PromotionTypes eUnitPromotion, bool bIsFriendly, bool bIsEnemy) const;
-#endif
 	bool IsOnImprovement(ImprovementTypes iImprovementType) const;
 	bool IsAdjacentToImprovement(ImprovementTypes iImprovementType) const;
 	bool IsWithinDistanceOfImprovement(ImprovementTypes iImprovementType, int iDistance) const;
@@ -1890,7 +1872,6 @@ public:
 	bool IsOnTerrain(TerrainTypes iTerrainType) const;
 	bool IsAdjacentToTerrain(TerrainTypes iTerrainType) const;
 	bool IsWithinDistanceOfTerrain(TerrainTypes iTerrainType, int iDistance) const;
-#endif
 
 	int TurnsToReachTarget(const CvPlot* pTarget,int iFlags, int iMaxTurns);
 	int TurnsToReachTarget(const CvPlot* pTarget, bool bIgnoreUnits = false, bool bIgnoreStacking = false, int iMaxTurns = MAX_INT);
@@ -1936,9 +1917,7 @@ protected:
 	int m_iMoves;
 	int m_iArmyId;
 	int m_iBaseCombat;
-#if defined(MOD_API_EXTENSIONS)
 	int m_iBaseRangedCombat;
-#endif
 
 	int m_iHotKeyNumber;
 	int m_iDeployFromOperationTurn;

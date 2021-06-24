@@ -196,9 +196,7 @@ CvString s_gameName;
 GameSpeedTypes s_gameSpeed(NO_GAMESPEED);
 bool s_gameStarted(false);
 int s_gameTurn(-1);
-#if defined(MOD_API_EXTENSIONS)
 GameTypes s_pushedGameType = GAME_TYPE_NONE;
-#endif
 GameTypes s_gameType(GAME_TYPE_NONE);
 GameMapTypes s_gameMapType(GAME_USER_PARAMETERS);
 int s_gameUpdateTime(0);
@@ -1166,7 +1164,6 @@ bool isMinorCiv(PlayerTypes p)
 	return false;
 }
 
-#if defined(MOD_API_EXTENSIONS)
 bool isReallyNetworkMultiPlayer()
 {
 	GameTypes eType = gameType();
@@ -1179,7 +1176,6 @@ bool isReallyNetworkMultiPlayer()
 
 	return eType == GAME_NETWORK_MULTIPLAYER;
 }
-#endif
 
 bool isNetworkMultiplayerGame()
 {
@@ -2570,7 +2566,6 @@ void setGameType(const CvString& g)
 	}
 }
 
-#if defined(MOD_API_EXTENSIONS)
 void pushGameType(GameTypes g)
 {
 	if (s_pushedGameType == GAME_TYPE_NONE) {
@@ -2587,7 +2582,6 @@ void popGameType()
 		s_pushedGameType = GAME_TYPE_NONE;
 	}
 }
-#endif
 
 void setGameStartType(GameStartTypes eStartType)
 {

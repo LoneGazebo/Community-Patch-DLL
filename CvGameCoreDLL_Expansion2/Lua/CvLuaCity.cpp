@@ -1056,11 +1056,7 @@ int CvLuaCity::lCanConstructTooltip(lua_State* L)
 	const BuildingTypes eBuilding = (BuildingTypes) lua_tointeger(L, 2);
 
 	// City Production Modifier
-#if defined(MOD_API_EXTENSIONS)
 	pkCity->canConstruct(eBuilding, false, false, false, false, &toolTip);
-#else
-	pkCity->canConstruct(eBuilding, false, false, false, &toolTip);
-#endif
 
 	lua_pushstring(L, toolTip.c_str());
 	return 1;
@@ -1074,12 +1070,8 @@ int CvLuaCity::lCanConstruct(lua_State* L)
 	const bool bContinue = luaL_optint(L, 3, 0);
 	const bool bTestVisible = luaL_optint(L, 4, 0);
 	const bool bIgnoreCost = luaL_optint(L, 5, 0);
-#if defined(MOD_API_EXTENSIONS)
 	const bool bWillPurchase = luaL_optint(L, 6, 0);
 	const bool bResult = pkCity->canConstruct((BuildingTypes)iBuilding, bContinue, bTestVisible, bIgnoreCost, bWillPurchase);
-#else
-	const bool bResult = pkCity->canConstruct((BuildingTypes)iBuilding, bContinue, bTestVisible, bIgnoreCost);
-#endif
 
 	lua_pushboolean(L, bResult);
 	return 1;
@@ -1392,11 +1384,8 @@ int CvLuaCity::lGetPurchaseBuildingTooltip(lua_State* L)
 	const BuildingTypes eBuilding = (BuildingTypes) lua_tointeger(L, 2);
 
 	// City Production Modifier
-#if defined(MOD_API_EXTENSIONS)
 	pkCity->canConstruct(eBuilding, false, false, false, false, &toolTip);
-#else
-	pkCity->canConstruct(eBuilding, false, false, false, &toolTip);
-#endif
+
 #if defined(MOD_BALANCE_CORE)
 	if(MOD_BALANCE_CORE && pkCity->GetBuildingPurchaseCooldown() > 0)
 	{
@@ -1467,11 +1456,7 @@ int CvLuaCity::lGetFaithPurchaseBuildingTooltip(lua_State* L)
 	const BuildingTypes eBuilding = (BuildingTypes) lua_tointeger(L, 2);
 
 	// City Production Modifier
-#if defined(MOD_API_EXTENSIONS)
 	pkCity->canConstruct(eBuilding, false, false, false, false, &toolTip);
-#else
-	pkCity->canConstruct(eBuilding, false, false, false, &toolTip);
-#endif
 
 	// Not enough faith
 	if(pkCity->GetFaithPurchaseCost(eBuilding) > GET_PLAYER(pkCity->getOwner()).GetFaith())

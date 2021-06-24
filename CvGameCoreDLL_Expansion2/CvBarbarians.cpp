@@ -142,11 +142,7 @@ void CvBarbarians::DoBarbCampCleared(CvPlot* pPlot, PlayerTypes ePlayer, CvUnit*
 			if (ePlayer == GC.getGame().getActivePlayer())
 			{
 				// Don't show in MP
-#if defined(MOD_API_EXTENSIONS)
 				if (!GC.getGame().isReallyNetworkMultiPlayer())
-#else
-				if (!GC.getGame().isNetworkMultiPlayer())	// KWG: Candidate for !GC.getGame().isOption(GAMEOPTION_SIMULTANEOUS_TURNS)
-#endif
 				{
 					CvPopupInfo kPopupInfo(BUTTONPOPUP_BARBARIAN_CAMP_REWARD, iNumGold);
 					DLLUI->AddPopup(kPopupInfo);

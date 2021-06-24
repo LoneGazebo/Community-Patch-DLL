@@ -88,9 +88,7 @@ void CvLuaLeague::PushMethods(lua_State* L, int t)
 	Method(GetSpaceShipPurchaseMod);
 #endif
 	Method(GetPotentialVotesForMember);
-#if defined(MOD_API_EXTENSIONS)
 	Method(IsPlayerEmbargoed);
-#endif
 	Method(GetResolutionName);
 	Method(GetResolutionDetails);
 	Method(GetMemberDetails);
@@ -741,7 +739,6 @@ int CvLuaLeague::lGetPotentialVotesForMember(lua_State* L)
 	lua_pushinteger(L, iValue);
 	return 1;
 }
-#if defined(MOD_API_EXTENSIONS)
 //------------------------------------------------------------------------------
 //bool IsPlayerEmbargoed(PlayerTypes iPlayer);
 int CvLuaLeague::lIsPlayerEmbargoed(lua_State* L)
@@ -753,7 +750,6 @@ int CvLuaLeague::lIsPlayerEmbargoed(lua_State* L)
 	lua_pushboolean(L, bValue);
 	return 1;
 }
-#endif
 //------------------------------------------------------------------------------
 //string GetResolutionName(ResolutionTypes eResolution, int iResolutionID, int iProposerChoice, bool bIncludePrefix);
 int CvLuaLeague::lGetResolutionName(lua_State* L)

@@ -788,9 +788,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetHandicapType);
 	Method(GetCivilizationType);
 	Method(GetLeaderType);
-#if defined(MOD_API_EXTENSIONS)
 	Method(SetLeaderType);
-#endif
 	Method(GetPersonalityType);
 	Method(SetPersonalityType);
 	Method(GetCurrentEra);
@@ -9199,14 +9197,12 @@ int CvLuaPlayer::lGetLeaderType(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvPlayerAI::getLeaderType);
 }
-#if defined(MOD_API_EXTENSIONS)
 //------------------------------------------------------------------------------
 //void  setLeaderType(LeaderHeadTypes eNewleader);
 int CvLuaPlayer::lSetLeaderType(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvPlayerAI::setLeaderType);
 }
-#endif
 //------------------------------------------------------------------------------
 //LeaderHeadTypes  getPersonalityType()
 int CvLuaPlayer::lGetPersonalityType(lua_State* L)

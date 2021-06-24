@@ -86,9 +86,7 @@ protected:
 	LUAAPIEXTN(GetSpaceShipPurchaseMod, int);
 #endif
 	LUAAPIEXTN(GetPotentialVotesForMember, int);
-#if defined(MOD_API_EXTENSIONS)
 	LUAAPIEXTN(IsPlayerEmbargoed, bool, iPlayer);
-#endif
 	static int lGetResolutionName(lua_State* L);
 	static int lGetResolutionDetails(lua_State* L);
 	static int lGetMemberDetails(lua_State* L);

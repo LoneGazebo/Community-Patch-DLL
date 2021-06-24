@@ -803,10 +803,6 @@
     <!-- Enables the Achievements table (v45) -->
     <Row Class="2" Name="API_ACHIEVEMENTS" Value="0" DbUpdates="1"/>
 
-    <!-- * Enables the Extensions API (v19) -->
-    <!-- See also: "Unique Building - Cistern" -->
-    <Row Class="2" Name="API_EXTENSIONS" Value="1"/>
-
 	  <!-- Changes for the Community Patch  -->	
 	<Row Class="6" Name="COMMUNITY_PATCH" Value="0"/>
 	<!-- The core sub-feature of COMMUNITY_PATCH -->

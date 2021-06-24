@@ -112,8 +112,6 @@
 
 // Enables the Achievements table (v45)
 #define MOD_API_ACHIEVEMENTS                        gCustomMods.isAPI_ACHIEVEMENTS()
-// Enables the Extensions API
-#define MOD_API_EXTENSIONS                          gCustomMods.isAPI_EXTENSIONS()
 // Enables the Unified Yields extensions - thanks to bane_, JFD and Ulixes for extensive testing (v54)
 #define MOD_API_UNIFIED_YIELDS                      (true)
 // TODO - WH - Enabling consolidation introduces a double counting bug with faith added to buildings from a policy - which I don't have time to track down
@@ -1496,7 +1494,6 @@ public:
 	MOD_OPT_DECL(EVENTS_RED_COMBAT_ENDED);
 	MOD_OPT_DECL(ACTIVE_DIPLOMACY);
 	MOD_OPT_DECL(API_ACHIEVEMENTS);
-	MOD_OPT_DECL(API_EXTENSIONS);
 
 	MOD_OPT_DECL(ISKA_HERITAGE);
 	MOD_OPT_DECL(ISKA_PANTHEONS);
