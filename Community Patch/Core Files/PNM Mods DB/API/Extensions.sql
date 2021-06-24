@@ -10,5 +10,3 @@ ALTER TABLE Building_ThemingBonuses
 
 ALTER TABLE Improvements
   ADD AddsFreshWater INTEGER DEFAULT 0;
-
-INSERT INTO CustomModDbUpdates(Name, Value) VALUES('API_EXTENSIONS', 1);

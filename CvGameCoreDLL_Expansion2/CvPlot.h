@@ -150,23 +150,14 @@ public:
 
 	int seeFromLevel(TeamTypes eTeam) const;
 	int seeThroughLevel(bool bIncludeShubbery=true) const;
-#if defined(MOD_API_EXTENSIONS)
 	void changeSeeFromSight(TeamTypes eTeam, DirectionTypes eDirection, int iFromLevel, bool bIncrement, InvisibleTypes eSeeInvisible, CvUnit* pUnit=NULL);
 	void changeAdjacentSight(TeamTypes eTeam, int iRange, bool bIncrement, InvisibleTypes eSeeInvisible, DirectionTypes eFacingDirection, CvUnit* pUnit=NULL);
-#else
-	void changeSeeFromSight(TeamTypes eTeam, DirectionTypes eDirection, int iFromLevel, bool bIncrement, InvisibleTypes eSeeInvisible);
-	void changeAdjacentSight(TeamTypes eTeam, int iRange, bool bIncrement, InvisibleTypes eSeeInvisible, DirectionTypes eFacingDirection, bool bBasedOnUnit=true);
-#endif
 	bool canSeePlot(const CvPlot* plot, TeamTypes eTeam, int iRange, DirectionTypes eFacingDirection) const;
 	bool shouldProcessDisplacementPlot(int dx, int dy, int range, DirectionTypes eFacingDirection) const;
 	void updateSight(bool bIncrement);
 	void updateSeeFromSight(bool bIncrement, bool bRecalculate);
 
-#if defined(MOD_API_EXTENSIONS)
 	bool canHaveResource(ResourceTypes eResource, bool bIgnoreLatitude = false, bool bIgnoreCiv = false) const;
-#else
-	bool canHaveResource(ResourceTypes eResource, bool bIgnoreLatitude = false) const;
-#endif
 	bool canHaveImprovement(ImprovementTypes eImprovement, PlayerTypes ePlayer = NO_PLAYER, bool bOnlyTestVisible = false) const;
 
 	bool canBuild(BuildTypes eBuild, PlayerTypes ePlayer = NO_PLAYER, bool bTestVisible = false, bool bTestPlotOwner = true) const;
@@ -574,9 +565,7 @@ public:
 	void changeRiverCrossingCount(int iChange);
 
 	int getYield(YieldTypes eIndex) const;
-#if defined(MOD_API_EXTENSIONS)
     void changeYield(YieldTypes eYield, int iChange);
-#endif
 
 	int calculateNatureYield(YieldTypes eIndex, PlayerTypes ePlayer, const CvCity* pOwningCity, bool bIgnoreFeature = false, bool bDisplay = false) const;
 
@@ -642,11 +631,7 @@ public:
 	}
 
 	void flipVisibility(TeamTypes eTeam);
-#if defined(MOD_API_EXTENSIONS)
 	PlotVisibilityChangeResult changeVisibilityCount(TeamTypes eTeam, int iChange, InvisibleTypes eSeeInvisible, bool bInformExplorationTracking, bool bAlwaysSeeInvisible, CvUnit* pUnit = NULL);
-#else
-	PlotVisibilityChangeResult changeVisibilityCount(TeamTypes eTeam, int iChange, InvisibleTypes eSeeInvisible, bool bInformExplorationTracking, bool bAlwaysSeeInvisible);
-#endif
 
 	PlayerTypes getRevealedOwner(TeamTypes eTeam, bool bDebug) const;
 	TeamTypes getRevealedTeam(TeamTypes eTeam, bool bDebug) const;
@@ -675,11 +660,7 @@ public:
 		return m_bfRevealed.GetBit(eTeam);
 	}
 
-#if defined(MOD_API_EXTENSIONS)
 	bool setRevealed(TeamTypes eTeam, bool bNewValue, CvUnit* pUnit = NULL, bool bTerrainOnly = false, TeamTypes eFromTeam = NO_TEAM);
-#else
-	bool setRevealed(TeamTypes eTeam, bool bNewValue, bool bTerrainOnly = false, TeamTypes eFromTeam = NO_TEAM);
-#endif
 	bool isAdjacentRevealed(TeamTypes eTeam) const;
 	bool isAdjacentNonrevealed(TeamTypes eTeam) const;
 	int getNumAdjacentNonrevealed(TeamTypes eTeam) const;
@@ -779,10 +760,8 @@ public:
 	int Validate(CvMap& kParentMap);
 
 	bool MustPayMaintenanceHere(PlayerTypes ePlayer) const;
-#if defined(MOD_API_EXTENSIONS)
 	void SetArchaeologicalRecord(GreatWorkArtifactClass eType, PlayerTypes ePlayer1, PlayerTypes ePlayer2);
 	void SetArchaeologicalRecord(GreatWorkArtifactClass eType, EraTypes eEra, PlayerTypes ePlayer1, PlayerTypes ePlayer2);
-#endif
 	void AddArchaeologicalRecord(GreatWorkArtifactClass eType, PlayerTypes ePlayer1, PlayerTypes ePlayer2);
 	void AddArchaeologicalRecord(GreatWorkArtifactClass eType, EraTypes eEra, PlayerTypes ePlayer1, PlayerTypes ePlayer2);
 	void ClearArchaeologicalRecord();
@@ -793,7 +772,6 @@ public:
 
 	int GetDamageFromAdjacentPlots(PlayerTypes ePlayer) const;
 
-#if defined(MOD_API_EXTENSIONS)
 	bool IsCivilization(CivilizationTypes iCivilizationType) const;
 	bool HasFeature(FeatureTypes iFeatureType) const;
 	bool HasAnyNaturalWonder() const;
@@ -855,7 +833,6 @@ public:
 	bool IsWithinDistanceOfResource(ResourceTypes iResourceType, int iDistance) const;
 	bool IsAdjacentToTerrain(TerrainTypes iTerrainType) const;
 	bool IsWithinDistanceOfTerrain(TerrainTypes iTerrainType, int iDistance) const;
-#endif
 
 #if defined(MOD_BALANCE_CORE)
 	bool IsEnemyCityAdjacent(TeamTypes eMyTeam, const CvCity* pSpecifyCity) const;

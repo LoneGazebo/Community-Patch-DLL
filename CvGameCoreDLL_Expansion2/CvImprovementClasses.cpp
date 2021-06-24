@@ -67,9 +67,7 @@ CvImprovementEntry::CvImprovementEntry(void):
 	m_iGoldMaintenance(0),
 	m_iCultureBombRadius(0),
 	m_iRequiresXAdjacentLand(-1),
-#if defined(MOD_API_EXTENSIONS)
 	m_iRequiresXAdjacentWater(-1),
-#endif
 #if defined(MOD_GLOBAL_NO_FOLLOWUP_FROM_CITIES)
 	m_bNoFollowUp(false),
 #endif
@@ -123,9 +121,7 @@ CvImprovementEntry::CvImprovementEntry(void):
 	m_bFreshWaterMakesValid(false),
 	m_bRiverSideMakesValid(false),
 	m_bNoFreshWater(false),
-#if defined(MOD_API_EXTENSIONS)
 	m_bAddsFreshWater(false),
-#endif
 	m_bRequiresFlatlands(false),
 	m_bRequiresFlatlandsOrFreshWater(false),
 	m_bRequiresFeature(false),
@@ -273,9 +269,7 @@ bool CvImprovementEntry::CacheResults(Database::Results& kResults, CvDatabaseUti
 	m_iGoldMaintenance = kResults.GetInt("GoldMaintenance");
 	m_iCultureBombRadius = kResults.GetInt("CultureBombRadius");
 	m_iRequiresXAdjacentLand = kResults.GetInt("RequiresXAdjacentLand");
-#if defined(MOD_API_EXTENSIONS)
 	m_iRequiresXAdjacentWater = kResults.GetInt("RequiresXAdjacentWater");
-#endif
 #if defined(MOD_GLOBAL_NO_FOLLOWUP_FROM_CITIES)
 	m_bNoFollowUp = kResults.GetBool("NoFollowUp");
 #endif
@@ -299,11 +293,7 @@ bool CvImprovementEntry::CacheResults(Database::Results& kResults, CvDatabaseUti
 	m_bFreshWaterMakesValid = kResults.GetBool("FreshWaterMakesValid");
 	m_bRiverSideMakesValid = kResults.GetBool("RiverSideMakesValid");
 	m_bNoFreshWater = kResults.GetBool("NoFreshWater");
-#if defined(MOD_API_EXTENSIONS)
-	if (MOD_API_EXTENSIONS) {
-		m_bAddsFreshWater = kResults.GetBool("AddsFreshWater");
-	}
-#endif
+	m_bAddsFreshWater = kResults.GetBool("AddsFreshWater");
 	m_bRequiresFlatlands = kResults.GetBool("RequiresFlatlands");
 	m_bRequiresFlatlandsOrFreshWater = kResults.GetBool("RequiresFlatlandsOrFreshWater");
 	m_bRequiresFeature = kResults.GetBool("RequiresFeature");
@@ -794,13 +784,11 @@ int CvImprovementEntry::GetRequiresXAdjacentLand() const
 	return m_iRequiresXAdjacentLand;
 }
 
-#if defined(MOD_API_EXTENSIONS)
 /// How many adjacent tiles must be water?
 int CvImprovementEntry::GetRequiresXAdjacentWater() const
 {
 	return m_iRequiresXAdjacentWater;
 }
-#endif
 
 #if defined(MOD_GLOBAL_NO_FOLLOWUP_FROM_CITIES)
 /// Units that stand on this improvement don't leave it when they attack (like from a city)
@@ -1074,13 +1062,11 @@ bool CvImprovementEntry::IsNoFreshWater() const
 	return m_bNoFreshWater;
 }
 
-#if defined(MOD_API_EXTENSIONS)
 /// Adds fresh water to the plot
 bool CvImprovementEntry::IsAddsFreshWater() const
 {
 	return m_bAddsFreshWater;
 }
-#endif
 
 /// Requires that it must be built on something other than a hill
 bool CvImprovementEntry::IsRequiresFlatlands() const

@@ -598,14 +598,10 @@ int CvLuaEnums::pRegister(lua_State* L)
 
 	RegisterEnum(DIPLO_UI_STATE_STOP_DIGGING);
 
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	RegisterEnum(DIPLO_UI_STATE_HUMAN_REQUEST);
 	RegisterEnum(DIPLO_UI_STATE_TRADE_AI_MAKES_GENEROUS_OFFER);
 	RegisterEnum(DIPLO_UI_STATE_DISCUSS_AI_REVOKE_VASSALAGE);
-#endif
-#if defined(MOD_BALANCE_CORE)
 	RegisterEnum(DIPLO_UI_STATE_DISCUSS_END_WORK_WITH_US);
-#endif
 
 	RegisterEnum(NUM_DIPLO_UI_STATES);
 	EnumEnd(L);
@@ -690,16 +686,12 @@ int CvLuaEnums::pRegister(lua_State* L)
 	RegisterEnum(FROM_UI_DIPLO_EVENT_HUMAN_DISCUSSION_STOP_DIGGING);
 	RegisterEnum(FROM_UI_DIPLO_EVENT_STOP_DIGGING);
 
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	RegisterEnum(FROM_UI_DIPLO_EVENT_HUMAN_DISCUSSION_SHARE_OPINION);
 	RegisterEnum(FROM_UI_DIPLO_EVENT_HUMAN_REQUEST);
 	RegisterEnum(FROM_UI_DIPLO_EVENT_HUMAN_ENDS_VASSALAGE);
 	RegisterEnum(FROM_UI_DIPLO_EVENT_HUMAN_MOVE_TROOPS_RESPONSE);
-#endif
-#if defined(MOD_BALANCE_CORE)
 	RegisterEnum(FROM_UI_DIPLO_EVENT_HUMAN_END_WORK_WITH_US_RESPONSE);
 	RegisterEnum(FROM_UI_DIPLO_EVENT_MEAN_RESPONSE);
-#endif
 
 	RegisterEnum(NUM_FROM_UI_DIPLO_EVENTS);
 	EnumEnd(L);
@@ -773,11 +765,9 @@ int CvLuaEnums::pRegister(lua_State* L)
 	RegisterEnum(TRADE_ITEM_ALLOW_EMBASSY);
 	RegisterEnum(TRADE_ITEM_DECLARATION_OF_FRIENDSHIP);
 	RegisterEnum(TRADE_ITEM_VOTE_COMMITMENT);
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	RegisterEnum(TRADE_ITEM_TECHS);
 	RegisterEnum(TRADE_ITEM_VASSALAGE);
 	RegisterEnum(TRADE_ITEM_VASSALAGE_REVOKE);
-#endif
 	RegisterEnum(NUM_TRADEABLE_ITEMS);
 	EnumEnd(L);
 
@@ -808,14 +798,12 @@ int CvLuaEnums::pRegister(lua_State* L)
 	RegisterEnum(ENDTURN_BLOCKING_CHOOSE_ARCHAEOLOGY);
 	RegisterEnum(ENDTURN_BLOCKING_LEAGUE_CALL_FOR_VOTES);
 	RegisterEnum(ENDTURN_BLOCKING_CHOOSE_IDEOLOGY);
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_UI_CITY_EXPANSION)
+#if defined(MOD_UI_CITY_EXPANSION)
 	RegisterEnum(ENDTURN_BLOCKING_CITY_TILE);
 #endif
-#if defined(MOD_BALANCE_CORE)
 	RegisterEnum(ENDTURN_BLOCKING_PENDING_DEAL);
 	RegisterEnum(ENDTURN_BLOCKING_EVENT_CHOICE);
 	RegisterEnum(ENDTURN_BLOCKING_CHOOSE_CITY_FATE);
-#endif
 	RegisterEnum(NUM_ENDTURN_BLOCKING_TYPES);
 	EnumEnd(L);
 
@@ -905,7 +893,7 @@ int CvLuaEnums::pRegister(lua_State* L)
 	RegisterEnum(MINOR_CIV_QUEST_DENOUNCE_MAJOR);
 	RegisterEnum(MINOR_CIV_QUEST_SPREAD_RELIGION);
 	RegisterEnum(MINOR_CIV_QUEST_TRADE_ROUTE);
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
+#if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
 	RegisterEnum(MINOR_CIV_QUEST_WAR);
 	RegisterEnum(MINOR_CIV_QUEST_CONSTRUCT_NATIONAL_WONDER);
 	RegisterEnum(MINOR_CIV_QUEST_FIND_CITY_STATE);
@@ -917,17 +905,14 @@ int CvLuaEnums::pRegister(lua_State* L)
 	RegisterEnum(MINOR_CIV_QUEST_HORDE);
 	RegisterEnum(MINOR_CIV_QUEST_REBELLION);
 #endif
-#if defined(MOD_BALANCE_CORE)
 	RegisterEnum(MINOR_CIV_QUEST_DISCOVER_PLOT);
 	RegisterEnum(MINOR_CIV_QUEST_BUILD_X_BUILDINGS);
 	RegisterEnum(MINOR_CIV_QUEST_UNIT_STEAL_FROM);
 	RegisterEnum(MINOR_CIV_QUEST_UNIT_COUP_CITY);
 	RegisterEnum(MINOR_CIV_QUEST_UNIT_GET_CITY);
-#endif
 	RegisterEnum(NUM_MINOR_CIV_QUEST_TYPES);
 	EnumEnd(L);
 
-#if defined(MOD_BALANCE_CORE)
 	//Corps
 	EnumStart(L, "CorporationTypes");
 	RegisterEnum(NO_CORPORATION);
@@ -937,7 +922,6 @@ int CvLuaEnums::pRegister(lua_State* L)
 	EnumStart(L, "ContractTypes");
 	RegisterEnum(NO_CONTRACT);
 	EnumEnd(L);
-#endif
 
 
 	// Resource Usage
@@ -1046,7 +1030,7 @@ int CvLuaEnums::pRegister(lua_State* L)
 	RegisterEnum(RESOLUTION_DECISION_OTHER_MAJOR_CIV_MEMBER);
 	RegisterEnum(RESOLUTION_DECISION_RELIGION);
 	RegisterEnum(RESOLUTION_DECISION_IDEOLOGY);
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS)
+#if defined(MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS)
 	RegisterEnum(RESOLUTION_DECISION_CITY_CSD);
 	RegisterEnum(RESOLUTION_DECISION_MAJOR_CIV_MEMBER_IDEOLOGY);
 #endif
@@ -1162,23 +1146,21 @@ int CvLuaEnums::pRegister(lua_State* L)
 	RegisterEnum(CONTROL_RESTART_GAME);
 	EnumEnd(L);
 
-#if defined(MOD_API_LUA_EXTENSIONS)
 	// TradeConnectionTypes
 	EnumStart(L, "TradeConnectionTypes");
 	RegisterEnum(TRADE_CONNECTION_INTERNATIONAL);
 	RegisterEnum(TRADE_CONNECTION_FOOD);
 	RegisterEnum(TRADE_CONNECTION_PRODUCTION);
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_TRADE_WONDER_RESOURCE_ROUTES)
+#if defined(MOD_TRADE_WONDER_RESOURCE_ROUTES)
 	RegisterEnum(TRADE_CONNECTION_WONDER_RESOURCE);
 #endif
-#if defined(MOD_BALANCE_CORE) && defined(MOD_BALANCE_CORE_GOLD_INTERNAL_TRADE_ROUTES)
+#if defined(MOD_BALANCE_CORE_GOLD_INTERNAL_TRADE_ROUTES)
 	RegisterEnum(TRADE_CONNECTION_GOLD_INTERNAL);
 #endif
 	RegisterEnum(NUM_TRADE_CONNECTION_TYPES);
 	EnumEnd(L);
-#endif
 
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_EVENTS_TERRAFORMING)	
+#if defined(MOD_EVENTS_TERRAFORMING)	
 	// TerraformingEventTypes
 	EnumStart(L, "TerraformingEventTypes");
 	RegisterEnum(NO_TERRAFORMINGEVENT);

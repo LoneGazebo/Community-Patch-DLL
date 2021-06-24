@@ -102,9 +102,7 @@ public:
 	int GetRangedCombat() const;
 	int GetRangedCombatLimit() const;
 	bool IsCoastalFireOnly() const;
-#if defined(MOD_UNITS_NO_SUPPLY)
 	bool IsNoSupply() const;
-#endif
 	int GetMaxHitPoints() const;
 	int GetXPValueAttack() const;
 	int GetXPValueDefense() const;
@@ -338,9 +336,7 @@ private:
 	int m_iRangedCombat;
 	int m_iRangedCombatLimit;
 	bool m_bCoastalFire;
-#if defined(MOD_UNITS_NO_SUPPLY)
 	bool m_bNoSupply;
-#endif
 	int m_iMaxHitPoints;
 	int m_iXPValueAttack;
 	int m_iXPValueDefense;

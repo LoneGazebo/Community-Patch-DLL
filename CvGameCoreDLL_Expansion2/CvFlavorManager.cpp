@@ -292,7 +292,6 @@ void CvFlavorManager::RemoveFlavorRecipient(CvFlavorRecipient* pTargetObject)
 	}
 }
 
-#if defined(MOD_API_EXTENSIONS)
 void CvFlavorManager::ChangeLeader(LeaderHeadTypes eOldLeader, LeaderHeadTypes eNewLeader)
 {
 	CvLeaderHeadInfo* pkOldLeaderHeadInfo = GC.getLeaderHeadInfo(eOldLeader);
@@ -313,7 +312,6 @@ void CvFlavorManager::ChangeLeader(LeaderHeadTypes eOldLeader, LeaderHeadTypes e
 		aiTempFlavors.uninit();
 	}
 }
-#endif
 
 /// Update to a new set of flavors
 void CvFlavorManager::ChangeFlavors(const CvEnumMap<FlavorTypes, int>& piDeltaFlavorValues, bool	bPlayerLevelUpdate)

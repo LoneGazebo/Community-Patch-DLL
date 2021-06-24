@@ -1516,11 +1516,7 @@ void CvGameTrade::DoAutoWarPlundering(TeamTypes eTeam1, TeamTypes eTeam2)
 							if (pLoopUnit->canPlunderTradeRoute(pPlot, true))
 							{
 								// cheating to get around war!
-#if defined(MOD_API_EXTENSIONS)
 								GET_PLAYER(pLoopUnit->getOwner()).GetTrade()->PlunderTradeRoute(m_aTradeConnections[uiTradeRoute].m_iID, pLoopUnit);
-#else
-								GET_PLAYER(pLoopUnit->getOwner()).GetTrade()->PlunderTradeRoute(m_aTradeConnections[uiTradeRoute].m_iID);
-#endif
 								break;
 							}
 						}
@@ -2041,11 +2037,7 @@ bool CvGameTrade::StepUnit (int iIndex)
 		{
 			if (pEnemyUnit->canPlunderTradeRoute(pPlot, false))
 			{
-#if defined(MOD_API_EXTENSIONS)
 				GET_PLAYER(pEnemyUnit->getOwner()).GetTrade()->PlunderTradeRoute(kTradeConnection.m_iID, pEnemyUnit);
-#else
-				GET_PLAYER(pEnemyUnit->getOwner()).GetTrade()->PlunderTradeRoute(kTradeConnection.m_iID);
-#endif
 				// done died!
 				return false;
 			}
@@ -4985,11 +4977,7 @@ bool CvPlayerTrade::ContainsEnemyTradePlot(const CvPlot* pPlot)
 }
 
 //	--------------------------------------------------------------------------------
-#if defined(MOD_API_EXTENSIONS)
 bool CvPlayerTrade::PlunderTradeRoute(int iTradeConnectionID, CvUnit* pUnit)
-#else
-bool CvPlayerTrade::PlunderTradeRoute(int iTradeConnectionID)
-#endif
 {
 	CvGameTrade* pTrade = GC.getGame().GetGameTrade();
 	int iTradeConnectionIndex = pTrade->GetIndexFromID(iTradeConnectionID);

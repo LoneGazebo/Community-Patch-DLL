@@ -269,9 +269,7 @@ public:
 	UnitClassTypes GetBullyUnit() const;
 	void SetBullyUnit(UnitClassTypes eUnitClass = NO_UNITCLASS);
 #endif
-#if defined(MOD_API_EXTENSIONS)
 	void SetPersonality(MinorCivPersonalityTypes ePersonality);
-#endif
 	void DoPickPersonality();
 
 	MinorCivTraitTypes GetTrait() const;

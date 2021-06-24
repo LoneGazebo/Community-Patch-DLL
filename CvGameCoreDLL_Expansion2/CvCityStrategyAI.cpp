@@ -3318,7 +3318,7 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_GoodGPCity(CvCity* pCity)
 					}
 				}
 
-#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES) && defined(MOD_API_LUA_EXTENSIONS)
+#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 				// GPP from resource monopolies
 				GreatPersonTypes eGreatPerson = GetGreatPersonFromSpecialist(eSpecialist);
 				if (eGreatPerson != NO_GREATPERSON)
@@ -3336,10 +3336,8 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_GoodGPCity(CvCity* pCity)
 
 					// Player mod
 					iMod += pCity->GetPlayer()->getGreatPeopleRateModifier();
-
 					iMod += pCity->GetPlayer()->GetPlayerTraits()->GetWLTKDGPImprovementModifier() * 10;
 
-#if defined(MOD_API_LUA_EXTENSIONS)
 					GreatPersonTypes eGreatPerson = GetGreatPersonFromSpecialist(eSpecialist);
 					if(eGreatPerson != NO_GREATPERSON)
 					{
@@ -3388,7 +3386,6 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_GoodGPCity(CvCity* pCity)
 										}
 									}
 								}
-#endif
 							}
 						}
 						if (pCity->GetPlayer()->GetPlayerTraits()->GetGreatPersonGWAM(eGreatPerson) > 0)
