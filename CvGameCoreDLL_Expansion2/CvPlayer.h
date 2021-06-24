@@ -107,10 +107,9 @@ public:
 	int getWorkPlotDistance() const;
 	int GetNumWorkablePlots() const;
 
-#if defined(MOD_BALANCE_CORE)
 	void DoRevolutionPlayer(PlayerTypes ePlayer, int iOldCityID);
-	void SetCenterOfMassEmpire();
-	CvPlot* GetCenterOfMassEmpire() const;
+	//void SetCenterOfMassEmpire();
+	//CvPlot* GetCenterOfMassEmpire() const;
 
 	void UpdateCityThreatCriteria();
 	//0 == highest, 1 = second highest, etc. Not all cities will be assigned!
@@ -123,7 +122,7 @@ public:
 
 	// Declared public because CvPlayerCorporations needs to access this. Maybe want to use a friend
 	void processCorporations(CorporationTypes eCorporation, int iChange);
-#endif
+
 #if defined(MOD_BALANCE_CORE_EVENTS)
 	void DoEvents();
 	void DoCancelEventChoice(EventChoiceTypes eEventChoice);

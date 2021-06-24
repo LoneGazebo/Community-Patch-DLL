@@ -5229,6 +5229,7 @@ void CvPlayer::DoRevolutionPlayer(PlayerTypes ePlayer, int iOldCityID)
 
 	DoLiberatePlayer(ePlayer, pCity->GetID(), true);
 }
+/*
 CvPlot* CvPlayer::GetCenterOfMassEmpire() const
 {
 	if(m_iCenterOfMassX == -1 || m_iCenterOfMassY == -1)
@@ -5308,7 +5309,7 @@ void CvPlayer::SetCenterOfMassEmpire()
 	m_iCenterOfMassX = iAvgX;
 	m_iCenterOfMassY = iAvgY;
 }
-
+*/
 void CvPlayer::UpdateCityThreatCriteria()
 {
 	CvTacticalAnalysisMap* pTactMap = GetTacticalAI()->GetTacticalAnalysisMap();

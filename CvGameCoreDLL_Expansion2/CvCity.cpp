@@ -547,11 +547,7 @@ CvCity::~CvCity()
 
 
 //	--------------------------------------------------------------------------------
-#if defined(MOD_BALANCE_CORE)
 void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, bool bInitialFounding, ReligionTypes eInitialReligion, const char* szName, CvUnitEntry* pkSettlerUnitEntry)
-#else
-void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, bool bInitialFounding)
-#endif
 {
 	VALIDATE_OBJECT
 	//CvPlot* pAdjacentPlot;
@@ -671,17 +667,7 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 	}
 
 	// wipe out dig sites
-#if !defined(MOD_BALANCE_CORE)
-	ResourceTypes eArtifactResourceType = static_cast<ResourceTypes>(GC.getARTIFACT_RESOURCE());
-	ResourceTypes eHiddenArtifactResourceType = static_cast<ResourceTypes>(GC.getHIDDEN_ARTIFACT_RESOURCE());
-	if (pPlot->getResourceType() == eArtifactResourceType || pPlot->getResourceType() == eHiddenArtifactResourceType)
-	{
-		pPlot->setResourceType(NO_RESOURCE, 0);
-#endif
-		pPlot->ClearArchaeologicalRecord();
-#if !defined(MOD_BALANCE_CORE)
-	}
-#endif
+	pPlot->ClearArchaeologicalRecord();
 
 	setupGraphical();
 
@@ -712,7 +698,7 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 			}
 		}
 	}
-#if defined(MOD_BALANCE_CORE)
+
 	// Free Buildings
 	const CvCivilizationInfo& thisCiv = getCivilizationInfo();
 	bool bRome = GET_PLAYER(getOwner()).GetPlayerTraits()->IsKeepConqueredBuildings();
@@ -808,10 +794,8 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 			}
 		}
 	}
-#endif
 
 	GC.getMap().getArea(pPlot->getArea())->changeCitiesPerPlayer(getOwner(), 1);
-#if defined(MOD_BALANCE_CORE)
 	std::vector<int> areas = pPlot->getAllAdjacentAreas();
 	for (std::vector<int>::iterator it = areas.begin(); it != areas.end(); ++it)
 	{
@@ -819,7 +803,6 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 		if (pkArea->isWater())
 			pkArea->changeCitiesPerPlayer(getOwner(), 1);
 	}
-#endif
 
 	GET_TEAM(getTeam()).changeNumCities(1);
 
@@ -854,7 +837,6 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 		owningPlayer.setFoundedFirstCity(true);
 		owningPlayer.ChangeNumCitiesFounded(1);
 
-#if defined(MOD_BALANCE_CORE)
 		if (MOD_BALANCE_CORE && isCapital())
 		{
 			int iNumAllies = GET_PLAYER(getOwner()).GetNumCSAllies();
@@ -881,7 +863,7 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 				}
 			}
 		}
-#endif
+
 		// Free resources under city?
 		for (int i = 0; i < GC.getNumResourceInfos(); i++)
 		{
@@ -924,7 +906,6 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 			GET_PLAYER(ePlayer).GetCityConnections()->SetDirty();
 		}
 	}
-#if defined(MOD_BALANCE_CORE)
 	for (int iFeatureLoop = 0; iFeatureLoop < GC.getNumFeatureInfos(); iFeatureLoop++)
 	{
 		FeatureTypes eFeature2 = (FeatureTypes)iFeatureLoop;
@@ -933,7 +914,6 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 			GET_PLAYER(getOwner()).countCityFeatures(eFeature2, true);
 		}
 	}
-#endif
 
 	// Policy changes
 	for (int iPoliciesLoop = 0; iPoliciesLoop < GC.getNumPolicyInfos(); iPoliciesLoop++)
@@ -948,11 +928,7 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 	}
 
 	// Add Resource Quantity to total
-#if defined(MOD_BALANCE_CORE)
 	if (plot()->getResourceType(getTeam()) != NO_RESOURCE)
-#else
-	if (plot()->getResourceType() != NO_RESOURCE)
-#endif
 	{
 		if (GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes)GC.getResourceInfo(plot()->getResourceType())->getTechCityTrade()))
 		{
@@ -966,10 +942,8 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 	}
 #endif
 
-#if defined(MOD_BALANCE_CORE)
 	//Update our CoM for the diplo AI.
-	owningPlayer.SetCenterOfMassEmpire();
-#endif	
+	//owningPlayer.SetCenterOfMassEmpire();
 
 	// Update Proximity between this Player and all others
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
@@ -1019,7 +993,7 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 					}
 				}
 			}
-#if defined(MOD_BALANCE_CORE)
+
 			//Free building in Capital from Trait?
 			if (owningPlayer.GetPlayerTraits()->GetFreeCapitalBuilding() != NO_BUILDING)
 			{
@@ -1035,7 +1009,6 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 					}
 				}
 			}
-#endif
 
 			if (!isHuman())
 			{
@@ -1050,13 +1023,11 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 		}
 	}
 
-#if defined(MOD_BALANCE_CORE_DIFFICULTY)
 	// Do this only after the capital has been chosen
 	if (MOD_BALANCE_CORE_DIFFICULTY && !owningPlayer.isMinorCiv() && !owningPlayer.isHuman() && bInitialFounding)
 	{
 		owningPlayer.DoDifficultyBonus(owningPlayer.getNumCities() <= 1 ? HISTORIC_EVENT_CITY_FOUND_CAPITAL : HISTORIC_EVENT_CITY_FOUND);
 	}
-#endif
 
 	// How long before this City picks a Resource to demand?
 	DoSeedResourceDemandedCountdown();
@@ -1067,7 +1038,7 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 	// Update Unit Maintenance for the player
 	CvPlayer& kPlayer = GET_PLAYER(getOwner());
 	kPlayer.UpdateUnitProductionMaintenanceMod();
-#if defined(MOD_BALANCE_CORE)
+
 	for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 	{
 		UpdateYieldPerXUnimprovedFeature(((YieldTypes)iI));
@@ -1090,7 +1061,7 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 	}
 	SetNearbyMountains(iMountain);
 	InitEspionageRanking();
-#endif
+
 	// Spread a pantheon here if one is active
 	CvPlayerReligions* pReligions = kPlayer.GetReligions();
 	if (pReligions->HasCreatedPantheon() && !pReligions->HasCreatedReligion())
@@ -1105,7 +1076,8 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 		}
 
 #if defined(MOD_RELIGION_LOCAL_RELIGIONS)
-		else if (MOD_RELIGION_LOCAL_RELIGIONS) {
+		else if (MOD_RELIGION_LOCAL_RELIGIONS) 
+		{
 			// Spread a local religion here if one is active
 			if (pReligions->HasCreatedReligion() && GC.getReligionInfo(pReligions->GetReligionCreatedByPlayer())->IsLocalReligion()) {
 				GetCityReligions()->AdoptReligionFully(pReligions->GetReligionCreatedByPlayer());
@@ -1176,7 +1148,7 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 		}
 	}
 #endif
-#if defined(MOD_BALANCE_CORE_SETTLER_ADVANCED) && defined(MOD_BALANCE_CORE)
+#if defined(MOD_BALANCE_CORE_SETTLER_ADVANCED)
 	// Stuff for Pioneers and Colonists
 	if (MOD_BALANCE_CORE_SETTLER_ADVANCED && bInitialFounding && pkSettlerUnitEntry != NULL)
 	{
@@ -1200,7 +1172,7 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 		}
 	}
 #endif
-#if defined(MOD_BALANCE_CORE)
+
 	if (GET_PLAYER(getOwner()).GetPlayerTraits()->IsReconquista() && bInitialFounding)
 	{
 		ReligionTypes eReligion = GET_PLAYER(getOwner()).GetReligions()->GetReligionCreatedByPlayer(false);
@@ -1220,7 +1192,7 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 	if (bInitialFounding)
 	{
 		owningPlayer.doInstantYield(INSTANT_YIELD_TYPE_FOUND, false, NO_GREATPERSON, NO_BUILDING, 0, true, NO_PLAYER, NULL, false, this);
-#if defined(MOD_BALANCE_CORE)
+
 		if (owningPlayer.GetPlayerTraits()->IsExpansionWLTKD())
 		{
 			int iWLTKD = (GC.getCITY_RESOURCE_WLTKD_TURNS() / 3);
@@ -1251,7 +1223,6 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 				}
 			}
 		}
-#endif
 	}
 	for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 	{
@@ -1275,7 +1246,6 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 			}
 		}
 	}
-#endif
 
 	owningPlayer.CalculateNetHappiness();
 
