@@ -66,13 +66,11 @@ void CvLuaLeague::PushMethods(lua_State* L, int t)
 	Method(GetHostMember);
 	Method(IsUnitedNations);
 
-#if defined(MOD_API_LUA_EXTENSIONS)
 	Method(DoProposeEnact);
 	Method(DoProposeRepeal);
 	Method(DoVoteEnact);
 	Method(DoVoteRepeal);
 	Method(DoVoteAbstain);
-#endif
 
 	Method(IsProjectActive);
 	Method(IsProjectComplete);
@@ -85,12 +83,12 @@ void CvLuaLeague::PushMethods(lua_State* L, int t)
 
 	Method(GetArtsyGreatPersonRateModifier);
 	Method(GetScienceyGreatPersonRateModifier);
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS)
+#if defined(MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS)
 	Method(GetSpaceShipProductionMod);
 	Method(GetSpaceShipPurchaseMod);
 #endif
 	Method(GetPotentialVotesForMember);
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_API_EXTENSIONS)
+#if defined(MOD_API_EXTENSIONS)
 	Method(IsPlayerEmbargoed);
 #endif
 	Method(GetResolutionName);
@@ -536,7 +534,6 @@ int CvLuaLeague::lIsUnitedNations(lua_State* L)
 	lua_pushboolean(L, bValue);
 	return 1;
 }
-#if defined(MOD_API_LUA_EXTENSIONS)
 //------------------------------------------------------------------------------
 //void DoProposeEnact(ResolutionTypes eResolution, PlayerTypes iPlayer, int iChoice=-1);
 int CvLuaLeague::lDoProposeEnact(lua_State* L)
@@ -597,7 +594,6 @@ int CvLuaLeague::lDoVoteAbstain(lua_State* L)
 	pLeague->DoVoteAbstain(ePlayer, iNumVotes);
 	return 0;
 }
-#endif
 //------------------------------------------------------------------------------
 //bool IsProjectActive(LeagueProjectTypes eLeagueProject);
 int CvLuaLeague::lIsProjectActive(lua_State* L)
@@ -711,7 +707,7 @@ int CvLuaLeague::lGetScienceyGreatPersonRateModifier(lua_State* L)
 	lua_pushinteger(L, iValue);
 	return 1;
 }
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS)
+#if defined(MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS)
 //------------------------------------------------------------------------------
 //int GetSpaceShipProductionMod();
 int CvLuaLeague::lGetSpaceShipProductionMod(lua_State* L)
@@ -745,7 +741,7 @@ int CvLuaLeague::lGetPotentialVotesForMember(lua_State* L)
 	lua_pushinteger(L, iValue);
 	return 1;
 }
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_API_EXTENSIONS)
+#if defined(MOD_API_EXTENSIONS)
 //------------------------------------------------------------------------------
 //bool IsPlayerEmbargoed(PlayerTypes iPlayer);
 int CvLuaLeague::lIsPlayerEmbargoed(lua_State* L)

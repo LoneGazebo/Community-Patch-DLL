@@ -1510,11 +1510,9 @@ CvString CvPlayerEspionage::GetSpyInfo(uint uiSpyIndex, bool bNoBasic, CvCity* p
 			case SPY_STATE_SCHMOOZE:
 				strSpyAtCity += GetLocalizedText("TXT_KEY_EO_SPY_UNASSIGNED_TT", GetSpyRankName(pSpy->m_eRank), pSpy->GetSpyName(m_pPlayer), pCity->getNameKey());
 				break;
-#if defined(MOD_API_LUA_EXTENSIONS)
 			case SPY_STATE_TERMINATED:
 				strSpyAtCity += GetLocalizedText("TXT_KEY_EO_SPY_UNASSIGNED_TT", GetSpyRankName(pSpy->m_eRank), pSpy->GetSpyName(m_pPlayer));
 				return strSpyAtCity;
-#endif
 			}
 			strSpyAtCity += "[NEWLINE][NEWLINE]";
 		}

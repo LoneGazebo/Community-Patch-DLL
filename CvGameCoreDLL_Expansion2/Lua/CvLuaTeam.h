@@ -81,9 +81,7 @@ protected:
 	static int lIsHuman(lua_State* L);
 	static int lIsBarbarian(lua_State* L);
 
-#if defined(MOD_API_LUA_EXTENSIONS)
 	LUAAPIEXTN(IsMajorCiv, bool);
-#endif
 	static int lIsMinorCiv(lua_State* L);
 	static int lIsMinorCivWarmonger(lua_State* L);
 
@@ -131,18 +129,16 @@ protected:
 	static int lChangeDefensivePactTradingAllowedCount(lua_State* L);
 	static int lIsResearchAgreementTradingAllowed(lua_State* L);
 	static int lIsResearchAgreementTradingAllowedWithTeam(lua_State* L);
-#if defined(MOD_BALANCE_CORE)
 	LUAAPIEXTN(SetOpenBorders, int);
 	LUAAPIEXTN(SetForcePeace, int);
 	LUAAPIEXTN(GetNumTurnsAtWar, int);
 	LUAAPIEXTN(GetNumNaturalWondersDiscovered, int);
-#endif
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_TECHS_CITY_WORKING)
+#if defined(MOD_TECHS_CITY_WORKING)
 	LUAAPIEXTN(GetCityWorkingChange, int);
 	LUAAPIEXTN(IsCityWorkingChange, bool);
 	LUAAPIEXTN(ChangeCityWorkingChange, void, iChange);
 #endif
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_TECHS_CITY_AUTOMATON_WORKERS)
+#if defined(MOD_TECHS_CITY_AUTOMATON_WORKERS)
 	LUAAPIEXTN(GetCityAutomatonWorkersChange, int);
 	LUAAPIEXTN(IsCityAutomatonWorkersChange, bool);
 	LUAAPIEXTN(ChangeCityAutomatonWorkersChange, void, iChange);
@@ -182,9 +178,7 @@ protected:
 	static int lGetKilledByTeam(lua_State* L);
 
 	static int lHasEmbassyAtTeam(lua_State* L);
-#if defined(MOD_API_LUA_EXTENSIONS)
 	LUAAPIEXTN(HasSpyAtTeam, bool, iTeam);
-#endif
 	static int lIsAllowsOpenBordersToTeam(lua_State* L);
 	static int lIsForcePeace(lua_State* L);
 	static int lIsWarBlockedByPeaceTreaty(lua_State* L);
@@ -235,7 +229,6 @@ protected:
 	static int lIsCorporationsEnabled(lua_State* L);
 #endif
 
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	LUAAPIEXTN(IsVassal, bool, iteam);
 	LUAAPIEXTN(CanBecomeVassal, bool, iTeam);
 	LUAAPIEXTN(CanMakeVassal, bool, iTeam);
@@ -260,7 +253,6 @@ protected:
 	LUAAPIEXTN(GetVassalTax, int, iPlayer);
 	LUAAPIEXTN(GetNumTurnsSinceVassalTaxSet, int, iPlayer);
 	LUAAPIEXTN(GetNumVassals, int);
-#endif
 };
 
 namespace CvLuaArgs

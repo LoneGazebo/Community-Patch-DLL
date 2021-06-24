@@ -79,9 +79,7 @@ void CvLuaTeam::PushMethods(lua_State* L, int t)
 	Method(IsHuman);
 	Method(IsBarbarian);
 
-#if defined(MOD_API_LUA_EXTENSIONS)
 	Method(IsMajorCiv);
-#endif
 	Method(IsMinorCiv);
 	Method(IsMinorCivWarmonger);
 
@@ -128,18 +126,16 @@ void CvLuaTeam::PushMethods(lua_State* L, int t)
 	Method(ChangeDefensivePactTradingAllowedCount);
 	Method(IsResearchAgreementTradingAllowed);
 	Method(IsResearchAgreementTradingAllowedWithTeam);
-#if defined(MOD_BALANCE_CORE)
 	Method(SetOpenBorders);
 	Method(SetForcePeace);
 	Method(GetNumTurnsAtWar);
 	Method(GetNumNaturalWondersDiscovered);
-#endif
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_TECHS_CITY_WORKING)
+#if defined(MOD_TECHS_CITY_WORKING)
 	Method(GetCityWorkingChange);
 	Method(IsCityWorkingChange);
 	Method(ChangeCityWorkingChange);
 #endif
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_TECHS_CITY_AUTOMATON_WORKERS)
+#if defined(MOD_TECHS_CITY_AUTOMATON_WORKERS)
 	Method(GetCityAutomatonWorkersChange);
 	Method(IsCityAutomatonWorkersChange);
 	Method(ChangeCityAutomatonWorkersChange);
@@ -179,9 +175,7 @@ void CvLuaTeam::PushMethods(lua_State* L, int t)
 	Method(GetKilledByTeam);
 
 	Method(HasEmbassyAtTeam);
-#if defined(MOD_API_LUA_EXTENSIONS)
 	Method(HasSpyAtTeam);
-#endif
 	Method(IsAllowsOpenBordersToTeam);
 	Method(IsForcePeace);
 	Method(IsWarBlockedByPeaceTreaty);
@@ -228,7 +222,6 @@ void CvLuaTeam::PushMethods(lua_State* L, int t)
 
 	Method(UpdateEmbarkGraphics);
 
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	Method(IsVassal);
 	Method(CanBecomeVassal);
 	Method(CanMakeVassal);
@@ -253,11 +246,8 @@ void CvLuaTeam::PushMethods(lua_State* L, int t)
 	Method(GetNumTurnsSinceVassalTaxSet);
 	Method(DoApplyVassalTax);
 	Method(GetNumVassals);
-#endif
 
-#if defined(MOD_BALANCE_CORE)
 	Method(IsCorporationsEnabled);
-#endif
 }
 //------------------------------------------------------------------------------
 const char* CvLuaTeam::GetTypeName()
@@ -526,14 +516,12 @@ int CvLuaTeam::lIsBarbarian(lua_State* L)
 	return BasicLuaMethod(L, &CvTeam::isBarbarian);
 }
 
-#if defined(MOD_API_LUA_EXTENSIONS)
 //------------------------------------------------------------------------------
 //bool isMajorCiv();
 int CvLuaTeam::lIsMajorCiv(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvTeam::isMajorCiv);
 }
-#endif
 
 //------------------------------------------------------------------------------
 //bool isMinorCiv();
@@ -839,7 +827,6 @@ int CvLuaTeam::lIsResearchAgreementTradingAllowedWithTeam(lua_State* L)
 	return BasicLuaMethod(L, &CvTeam::IsResearchAgreementTradingAllowedWithTeam);
 }
 
-#if defined(MOD_BALANCE_CORE)
 //void SetAllowsOpenBordersToTeam(eOtherTeam, bool bValue)
 int CvLuaTeam::lSetOpenBorders(lua_State* L)
 {
@@ -883,8 +870,8 @@ int CvLuaTeam::lGetNumNaturalWondersDiscovered(lua_State* L)
 	lua_pushnumber(L, iValue);
 	return 1;
 }
-#endif
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_TECHS_CITY_WORKING)
+
+#if defined(MOD_TECHS_CITY_WORKING)
 //------------------------------------------------------------------------------
 //int getCityWorkingChange();
 int CvLuaTeam::lGetCityWorkingChange(lua_State* L)
@@ -907,7 +894,7 @@ int CvLuaTeam::lChangeCityWorkingChange(lua_State* L)
 }
 #endif
 
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_TECHS_CITY_AUTOMATON_WORKERS)
+#if defined(MOD_TECHS_CITY_AUTOMATON_WORKERS)
 //------------------------------------------------------------------------------
 //int getCityAutomatonWorkersChange();
 int CvLuaTeam::lGetCityAutomatonWorkersChange(lua_State* L)
@@ -1108,13 +1095,11 @@ int CvLuaTeam::lHasEmbassyAtTeam(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvTeam::HasEmbassyAtTeam);
 }
-#if defined(MOD_API_LUA_EXTENSIONS)
 //------------------------------------------------------------------------------
 int CvLuaTeam::lHasSpyAtTeam(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvTeam::HasSpyAtTeam);
 }
-#endif
 //------------------------------------------------------------------------------
 //bool isAllowsOpenBordersToTeam(TeamTypes eIndex);
 int CvLuaTeam::lIsAllowsOpenBordersToTeam(lua_State* L)
@@ -1424,7 +1409,6 @@ int CvLuaTeam::lUpdateEmbarkGraphics(lua_State* L)
 	return BasicLuaMethod(L, &CvTeam::UpdateEmbarkGraphics);
 }
 
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_DIPLOMACY_CIV4_FEATURES)
 //------------------------------------------------------------------------------
 //int GetNumTurnsIsVassal(TeamTypes eIndex) const;
 int CvLuaTeam::lGetNumTurnsIsVassal(lua_State* L)
@@ -1573,11 +1557,8 @@ int CvLuaTeam::lGetNumVassals(lua_State *L)
 {
 	return BasicLuaMethod(L, &CvTeam::GetNumVassals);
 }
-#endif
 
-#if defined(MOD_BALANCE_CORE)
 int CvLuaTeam::lIsCorporationsEnabled(lua_State *L)
 {
 	return BasicLuaMethod(L, &CvTeam::IsCorporationsEnabled);
 }
-#endif

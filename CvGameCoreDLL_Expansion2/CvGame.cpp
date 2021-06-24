@@ -59,13 +59,8 @@
 
 #include "CvInfosSerializationHelper.h"
 #include "CvCityManager.h"
-
-#if defined(MOD_BALANCE_CORE)
 #include "CvPlayerManager.h"
-#endif
-#if defined(MOD_API_LUA_EXTENSIONS)
 #include "CvDllContext.h"
-#endif
 
 #include "CvSpanSerialization.h"
 #include "CvEnumMapSerialization.h"
@@ -12395,7 +12390,6 @@ CvGameTrade* CvGame::GetGameTrade()
 	return m_pGameTrade;
 }
 
-#if defined(MOD_API_LUA_EXTENSIONS)
 //	--------------------------------------------------------------------------------
 CvString CvGame::getDllGuid() const
 {
@@ -12411,7 +12405,6 @@ CvString CvGame::getDllGuid() const
 
 	return szDllGuid;
 }
-#endif
 
 //	--------------------------------------------------------------------------------
 CvAdvisorCounsel* CvGame::GetAdvisorCounsel()

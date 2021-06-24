@@ -594,9 +594,7 @@ public:
 	CvGameCulture* GetGameCulture();
 	CvGameLeagues* GetGameLeagues();
 	CvGameTrade* GetGameTrade();
-#if defined(MOD_API_LUA_EXTENSIONS)
 	CvString getDllGuid() const;
-#endif
 #if defined(MOD_BALANCE_CORE)
 	CvGameCorporations* GetGameCorporations();
 	CvGameContracts* GetGameContracts();

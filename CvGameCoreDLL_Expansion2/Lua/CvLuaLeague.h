@@ -64,13 +64,11 @@ protected:
 	static int lGetHostMember(lua_State* L);
 	static int lIsUnitedNations(lua_State* L);
 
-#if defined(MOD_API_LUA_EXTENSIONS)
 	LUAAPIEXTN(DoProposeEnact, void, eResolution, iPlayer, iChoice=-1);
 	LUAAPIEXTN(DoProposeRepeal, void, iProposal, iPlayer);
 	LUAAPIEXTN(DoVoteEnact, void, iProposal, iPlayer, iNumVotes, iChoice);
 	LUAAPIEXTN(DoVoteRepeal, void, iProposal, iPlayer, iNumVotes, iChoice);
 	LUAAPIEXTN(DoVoteAbstain, void, iPlayer, iNumVotes);
-#endif
 
 	static int lIsProjectActive(lua_State* L);
 	static int lIsProjectComplete(lua_State* L);
@@ -83,12 +81,12 @@ protected:
 
 	static int lGetArtsyGreatPersonRateModifier(lua_State* L);
 	static int lGetScienceyGreatPersonRateModifier(lua_State* L);
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS)
+#if defined(MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS)
 	LUAAPIEXTN(GetSpaceShipProductionMod, int);
 	LUAAPIEXTN(GetSpaceShipPurchaseMod, int);
 #endif
 	LUAAPIEXTN(GetPotentialVotesForMember, int);
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_API_EXTENSIONS)
+#if defined(MOD_API_EXTENSIONS)
 	LUAAPIEXTN(IsPlayerEmbargoed, bool, iPlayer);
 #endif
 	static int lGetResolutionName(lua_State* L);

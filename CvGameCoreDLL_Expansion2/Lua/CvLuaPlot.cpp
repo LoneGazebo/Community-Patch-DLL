@@ -36,14 +36,10 @@ void CvLuaPlot::PushMethods(lua_State* L, int t)
 	Method(CanHaveFeature);
 	Method(GetFeatureType);
 	Method(GetTerrainType);
-#if defined(MOD_API_LUA_EXTENSIONS)
 	Method(GetTurnDamage);
-#endif
 	Method(IsRiver);
 	Method(IsWater);
-#if defined(MOD_API_LUA_EXTENSIONS)
 	Method(IsBlockaded);
-#endif
 	Method(SetFeatureType);
 	Method(SetTerrainType);
 
@@ -61,7 +57,7 @@ void CvLuaPlot::PushMethods(lua_State* L, int t)
 	Method(ShareAdjacentArea);
 	Method(IsAdjacentToLand);
 	Method(IsAdjacentToShallowWater);
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_PROMOTIONS_CROSS_ICE)
+#if defined(MOD_PROMOTIONS_CROSS_ICE)
 	Method(IsAdjacentToIce);
 #endif
 	Method(IsCoastalLand);
@@ -105,7 +101,7 @@ void CvLuaPlot::PushMethods(lua_State* L, int t)
 	Method(IsBarbarian);
 	Method(IsRevealedBarbarian);
 	Method(HasBarbarianCamp);
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
+#if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
 	Method(HasDig);
 #endif
 	Method(IsVisible);
@@ -124,7 +120,7 @@ void CvLuaPlot::PushMethods(lua_State* L, int t)
 
 	Method(IsCity);
 	Method(IsFriendlyCity);
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_GLOBAL_PASSABLE_FORTS)
+#if defined(MOD_GLOBAL_PASSABLE_FORTS)
 	Method(isFriendlyCityOrPassableImprovement);
 #endif
 	Method(IsEnemyCity);
@@ -142,7 +138,7 @@ void CvLuaPlot::PushMethods(lua_State* L, int t)
 	Method(getNumFriendlyUnitsOfType);
 	Method(IsFighting);
 
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_GLOBAL_STACKING_RULES)
+#if defined(MOD_GLOBAL_STACKING_RULES)
 	Method(GetUnitLimit);
 #endif
 
@@ -152,9 +148,7 @@ void CvLuaPlot::PushMethods(lua_State* L, int t)
 
 	Method(GetX);
 	Method(GetY);
-#if defined(MOD_API_LUA_EXTENSIONS)
 	Method(GetIndex);
-#endif
 	Method(At);
 	Method(GetPlotIndex);
 	Method(GetLatitude);
@@ -220,11 +214,8 @@ void CvLuaPlot::PushMethods(lua_State* L, int t)
 	Method(GetRouteType);
 	Method(SetRouteType);
 	Method(IsRoutePillaged);
-#if defined(MOD_API_LUA_EXTENSIONS)
 	Method(SetRoutePillaged);
-#endif
 
-#if defined(MOD_API_LUA_EXTENSIONS)
 	Method(GetPlayerThatBuiltImprovement);
 	Method(SetPlayerThatBuiltImprovement);
 	Method(GetPlayerResponsibleForImprovement);
@@ -233,7 +224,6 @@ void CvLuaPlot::PushMethods(lua_State* L, int t)
 	Method(SetPlayerResponsibleForRoute);
 	Method(GetPlayerThatClearedBarbCampHere);
 	Method(SetPlayerThatClearedBarbCampHere);
-#endif
 
 	Method(GetPlotCity);
 	Method(GetWorkingCity);
@@ -241,9 +231,7 @@ void CvLuaPlot::PushMethods(lua_State* L, int t)
 	Method(GetReconCount);
 	Method(GetRiverCrossingCount);
 	Method(GetYield);
-#if defined(MOD_API_LUA_EXTENSIONS)
     Method(ChangeYield);
-#endif
 	Method(CalculateNatureYield);
 	Method(CalculateBestNatureYield);
 	Method(CalculateTotalBestNatureYield);
@@ -292,7 +280,7 @@ void CvLuaPlot::PushMethods(lua_State* L, int t)
 	Method(GetActiveFogOfWarMode);
 
 	Method(IsImprovementPillaged);
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_DIPLOMACY_CITYSTATES)
+#if defined(MOD_DIPLOMACY_CITYSTATES)
 	Method(IsImprovementEmbassy);
 #endif
 
@@ -305,10 +293,8 @@ void CvLuaPlot::PushMethods(lua_State* L, int t)
 
 	Method(IsBuildRemovesFeature);
 
-#if defined(MOD_API_LUA_EXTENSIONS)
 	Method(SetArchaeologicalRecord);
 	Method(AddArchaeologicalRecord);
-#endif
 	Method(GetArchaeologyArtifactType);
 	Method(GetArchaeologyArtifactEra);
 	Method(GetArchaeologyArtifactPlayer1);
@@ -320,12 +306,9 @@ void CvLuaPlot::PushMethods(lua_State* L, int t)
 	Method(SetCityPurchaseID);
 	Method(GetAirUnitsTooltip);
 
-#if defined(MOD_API_LUA_EXTENSIONS)
 	Method(AddMessage);
 	Method(AddPopupMessage);
-#endif
 
-#if defined(MOD_API_LUA_EXTENSIONS)
 	Method(IsCivilization);
 	Method(HasFeature);
 	Method(IsNaturalWonder);
@@ -376,7 +359,6 @@ void CvLuaPlot::PushMethods(lua_State* L, int t)
 	Method(IsAdjacentToTerrain);
 	Method(IsWithinDistanceOfTerrain);
 	Method(GetEffectiveFlankingBonus);
-#endif
 }
 //------------------------------------------------------------------------------
 void CvLuaPlot::HandleMissingInstance(lua_State* L)
@@ -423,7 +405,6 @@ int CvLuaPlot::lGetTerrainType(lua_State* L)
 
 	return 1;
 }
-#if defined(MOD_API_LUA_EXTENSIONS)
 //------------------------------------------------------------------------------
 int CvLuaPlot::lGetTurnDamage(lua_State* L)
 {
@@ -438,7 +419,6 @@ int CvLuaPlot::lGetTurnDamage(lua_State* L)
 
 	return 1;
 }
-#endif
 //------------------------------------------------------------------------------
 int CvLuaPlot::lIsRiver(lua_State* L)
 {
@@ -457,7 +437,6 @@ int CvLuaPlot::lIsWater(lua_State* L)
 
 	return 1;
 }
-#if defined(MOD_API_LUA_EXTENSIONS)
 //------------------------------------------------------------------------------
 int CvLuaPlot::lIsBlockaded(lua_State* L)
 {
@@ -467,7 +446,6 @@ int CvLuaPlot::lIsBlockaded(lua_State* L)
 
 	return 1;
 }
-#endif
 //------------------------------------------------------------------------------
 int CvLuaPlot::lSetFeatureType(lua_State* L)
 {
@@ -576,7 +554,7 @@ int CvLuaPlot::lIsAdjacentToShallowWater(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvPlot::isAdjacentToShallowWater);
 }
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_PROMOTIONS_CROSS_ICE)
+#if defined(MOD_PROMOTIONS_CROSS_ICE)
 //------------------------------------------------------------------------------
 //bool IsAdjacentToIce()
 int CvLuaPlot::lIsAdjacentToIce(lua_State* L)
@@ -825,7 +803,7 @@ int CvLuaPlot::lHasBarbarianCamp(lua_State* L)
 	return BasicLuaMethod(L, &CvPlot::HasBarbarianCamp);
 }
 
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
+#if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
 //------------------------------------------------------------------------------
 int CvLuaPlot::lHasDig(lua_State* L)
 {
@@ -948,7 +926,7 @@ int CvLuaPlot::lIsFriendlyCity(lua_State* L)
 	lua_pushboolean(L, bResult);
 	return 1;
 }
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_GLOBAL_PASSABLE_FORTS)
+#if defined(MOD_GLOBAL_PASSABLE_FORTS)
 //bool isFriendlyCityOrPassableImprovement(CyUnit* pUnit, bool bCheckImprovement);
 int CvLuaPlot::lisFriendlyCityOrPassableImprovement(lua_State* L)
 {
@@ -1065,7 +1043,7 @@ int CvLuaPlot::lIsFighting(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvPlot::isFighting);
 }
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_GLOBAL_STACKING_RULES)
+#if defined(MOD_GLOBAL_STACKING_RULES)
 //------------------------------------------------------------------------------
 //int getUnitLimit();
 int CvLuaPlot::lGetUnitLimit(lua_State* L)
@@ -1116,14 +1094,12 @@ int CvLuaPlot::lGetY(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvPlot::getY);
 }
-#if defined(MOD_API_LUA_EXTENSIONS)
 //------------------------------------------------------------------------------
 //int getIndex();
 int CvLuaPlot::lGetIndex(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvPlot::GetPlotIndex);
 }
-#endif
 //------------------------------------------------------------------------------
 //bool at(int iX, int iY);
 int CvLuaPlot::lAt(lua_State* L)
@@ -1368,7 +1344,6 @@ int CvLuaPlot::lIsPotentialCityWorkForArea(lua_State* L)
 //PlayerTypes getOwner();
 int CvLuaPlot::lGetOwner(lua_State* L)
 {
-#if defined(MOD_API_LUA_EXTENSIONS)
 	CvPlot* pkPlot = GetInstance(L); CHECK_PLOT_VALID(pkPlot);
 	const int iPlayer  = pkPlot->getOwner();
 	const int iCity = pkPlot->getOwningCityID();
@@ -1376,9 +1351,6 @@ int CvLuaPlot::lGetOwner(lua_State* L)
 	lua_pushinteger(L, iPlayer);
 	lua_pushinteger(L, iCity);
 	return 2;
-#else
-	return BasicLuaMethod(L, &CvPlot::getOwner);
-#endif
 }
 //------------------------------------------------------------------------------
 //void setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUnits = true, bool bUpdateResources = true);
@@ -1525,15 +1497,12 @@ int CvLuaPlot::lIsRoutePillaged(lua_State* L)
 	lua_pushboolean(L, pkPlot->IsRoutePillaged());
 	return 1;
 }
-#if defined(MOD_API_LUA_EXTENSIONS)
 //------------------------------------------------------------------------------
 //void setRoutePillaged(bool b);
 int CvLuaPlot::lSetRoutePillaged(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvPlot::SetRoutePillaged);
 }
-#endif
-#if defined(MOD_API_LUA_EXTENSIONS)
 //------------------------------------------------------------------------------
 int CvLuaPlot::lGetPlayerThatBuiltImprovement(lua_State* L)
 {
@@ -1574,7 +1543,6 @@ int CvLuaPlot::lSetPlayerThatClearedBarbCampHere(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvPlot::SetPlayerThatClearedBarbCampHere);
 }
-#endif
 //------------------------------------------------------------------------------
 //CyCity* getPlotCity();
 int CvLuaPlot::lGetPlotCity(lua_State* L)
@@ -1626,14 +1594,12 @@ int CvLuaPlot::lGetYield(lua_State* L)
 	lua_pushinteger(L, iResult);
 	return 1;
 }
-#if defined(MOD_API_LUA_EXTENSIONS)
 //------------------------------------------------------------------------------
 //void changeYield(YieldTypes eYield, int iChange);
 int CvLuaPlot::lChangeYield(lua_State* L)
 {
     return BasicLuaMethod(L, &CvPlot::changeYield);
 }
-#endif
 //------------------------------------------------------------------------------
 //int calculateNatureYield(YieldTypes eIndex, TeamTypes eTeam, bool bIgnoreFeature = false);
 int CvLuaPlot::lCalculateNatureYield(lua_State* L)
@@ -2031,7 +1997,7 @@ int CvLuaPlot::lIsImprovementPillaged(lua_State* L)
 	return BasicLuaMethod(L, &CvPlot::IsImprovementPillaged);
 }
 
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_DIPLOMACY_CITYSTATES)
+#if defined(MOD_DIPLOMACY_CITYSTATES)
 //------------------------------------------------------------------------------
 int CvLuaPlot::lIsImprovementEmbassy(lua_State* L)
 {
@@ -2120,7 +2086,6 @@ int CvLuaPlot::lIsBuildRemovesFeature(lua_State* L)
 	return 1;
 }
 
-#if defined(MOD_API_LUA_EXTENSIONS)
 //------------------------------------------------------------------------------
 int CvLuaPlot::lSetArchaeologicalRecord(lua_State* L)
 {
@@ -2145,7 +2110,6 @@ int CvLuaPlot::lAddArchaeologicalRecord(lua_State* L)
 	pPlot->AddArchaeologicalRecord(eType, eEra, ePlayer1, ePlayer2);
 	return 0;
 }
-#endif
 
 //------------------------------------------------------------------------------
 int CvLuaPlot::lGetArchaeologyArtifactType(lua_State* L)
@@ -2257,7 +2221,6 @@ int CvLuaPlot::lGetAirUnitsTooltip(lua_State* L)
 	return 1;
 }
 
-#if defined(MOD_API_LUA_EXTENSIONS)
 //------------------------------------------------------------------------------
 int CvLuaPlot::lAddMessage(lua_State* L)
 {
@@ -2279,9 +2242,7 @@ int CvLuaPlot::lAddPopupMessage(lua_State* L)
 	SHOW_PLOT_POPUP(pPlot, ePlayer, szMessage);
 	return 0;
 }
-#endif
 
-#if defined(MOD_API_LUA_EXTENSIONS)
 LUAAPIIMPL(Plot, IsCivilization)
 LUAAPIIMPL(Plot, HasFeature)
 LUAAPIIMPL(Plot, IsNaturalWonder)
@@ -2331,4 +2292,3 @@ LUAAPIIMPL(Plot, IsAdjacentToResource)
 LUAAPIIMPL(Plot, IsWithinDistanceOfResource)
 LUAAPIIMPL(Plot, IsAdjacentToTerrain)
 LUAAPIIMPL(Plot, IsWithinDistanceOfTerrain)
-#endif

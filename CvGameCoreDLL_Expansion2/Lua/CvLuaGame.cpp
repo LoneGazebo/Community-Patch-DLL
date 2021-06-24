@@ -107,9 +107,7 @@ void CvLuaGame::RegisterMembers(lua_State* L)
 	Method(GetTurnYear);
 	Method(GetGameTurnYear);
 	Method(GetTurnString);
-#if defined(MOD_API_LUA_EXTENSIONS)
 	Method(GetDateString);
-#endif
 
 	Method(GetElapsedGameTurns);
 	Method(GetMaxTurns);
@@ -165,9 +163,7 @@ void CvLuaGame::RegisterMembers(lua_State* L)
 	Method(GetInitTech);
 	Method(GetInitWonders);
 	Method(GetNumWorldWonders);
-#if defined(MOD_API_LUA_EXTENSIONS)
 	Method(IsWorldWonderClass);
-#endif
 
 	Method(GetAIAutoPlay);
 	Method(SetAIAutoPlay);
@@ -282,9 +278,7 @@ void CvLuaGame::RegisterMembers(lua_State* L)
 	Method(DoMinorBullyGold);
 	Method(DoMinorBullyUnit);
 	Method(DoMinorBuyout);
-#if defined(MOD_BALANCE_CORE)
 	Method(DoMinorMarriage);
-#endif
 
 	Method(GetBestWondersPlayer);
 	Method(GetBestPoliciesPlayer);
@@ -333,7 +327,6 @@ void CvLuaGame::RegisterMembers(lua_State* L)
 
 	Method(GetBuildingYieldChange);
 	Method(GetBuildingYieldModifier);
-#if defined(MOD_BALANCE_CORE)
 	Method(GetBuildingCorporateGPChange);
 	Method(GetPovertyHappinessChangeBuilding);
 	Method(GetDefenseHappinessChangeBuilding);
@@ -353,7 +346,6 @@ void CvLuaGame::RegisterMembers(lua_State* L)
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	Method(GetGreatestPlayerResourceMonopoly);
 #endif
-#endif
 
 	Method(GetWorldNumCitiesUnhappinessPercent);
 
@@ -370,9 +362,7 @@ void CvLuaGame::RegisterMembers(lua_State* L)
 	Method(GetMinimumFaithNextPantheon);
 	Method(SetMinimumFaithNextPantheon);
 
-#if defined(MOD_API_LUA_EXTENSIONS)
 	Method(IsInSomeReligion);
-#endif
 	Method(GetAvailablePantheonBeliefs);
 	Method(GetAvailableFounderBeliefs);
 	Method(GetAvailableFollowerBeliefs);
@@ -385,30 +375,22 @@ void CvLuaGame::RegisterMembers(lua_State* L)
 
 	Method(GetBeliefsInReligion);
 	Method(GetNumReligionsStillToFound);
-#if defined(MOD_BALANCE_CORE)
 	Method(BeliefIsInReligion);
-#endif
 	Method(GetNumReligionsFounded);
 	Method(GetHolyCityForReligion);
 	Method(GetReligionName);
 	Method(GetFounderBenefitsReligion);
 
 	Method(FoundPantheon);
-#if defined(MOD_API_LUA_EXTENSIONS)
 	Method(EnhancePantheon);
-#endif
 	Method(FoundReligion);
 	Method(EnhanceReligion);
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_BALANCE_CORE)
 	Method(AddReformation);
-#endif
 	Method(SetHolyCity);
 	Method(GetFounder);
 	Method(SetFounder);
-#if defined(MOD_BALANCE_CORE)
 	Method(SetFoundYear);
 	Method(GetFoundYear);
-#endif
 
 	Method(GetTurnsBetweenMinorCivElections);
 	Method(GetTurnsUntilMinorCivElection);
@@ -417,22 +399,16 @@ void CvLuaGame::RegisterMembers(lua_State* L)
 	Method(GetNumLeaguesEverFounded);
 	Method(GetLeague);
 	Method(GetActiveLeague);
-#if defined(MOD_BALANCE_CORE)
 	Method(DoEnactResolution);
 	Method(DoRepealResolution);
 	Method(IsBeliefValid);
-#endif
 
-#if defined(MOD_API_LUA_EXTENSIONS)
 	Method(IsAchievementUnlocked);
 	Method(GetSteamStat);
-#endif
 
 	Method(IsProcessingMessages);
 
-#if defined(MOD_API_LUA_EXTENSIONS)
 	Method(CreateGreatWork);
-#endif
 	Method(GetGreatWorkTooltip);
 	Method(GetGreatWorkName);
 	Method(GetGreatWorkType);
@@ -450,9 +426,7 @@ void CvLuaGame::RegisterMembers(lua_State* L)
 
 	Method(GetLongestCityConnectionPlots);
 
-#if defined(MOD_API_LUA_EXTENSIONS)
 	Method(GetTradeRoute);
-#endif
 	Method(SelectedUnit_SpeculativePopupTradeRoute_Display);
 	Method(SelectedUnit_SpeculativePopupTradeRoute_Hide);
 	Method(MouseoverUnit);
@@ -460,20 +434,17 @@ void CvLuaGame::RegisterMembers(lua_State* L)
 	Method(GetNumArchaeologySites);
 	Method(GetNumHiddenArchaeologySites);
 
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_API_EXTENSIONS)
+#if defined(MOD_API_EXTENSIONS)
 	Method(ExitLeaderScreen);
 #endif
 
-#if defined(MOD_API_LUA_EXTENSIONS)
 	Method(GetDllGuid);
 	Method(ReloadGameDataDefines);
 	Method(ReloadCustomModOptions);
 	Method(IsCustomModOption);
 	Method(GetCustomModOption);
 	Method(SpewTestEvents);
-#endif
 
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	Method(GetMinimumVassalTurns);
 	Method(GetNumTurnsBetweenVassals);
 	Method(GetMinimumVoluntaryVassalTurns);
@@ -482,9 +453,7 @@ void CvLuaGame::RegisterMembers(lua_State* L)
 	Method(GetMinimumVassalLiberateTurns);
 	Method(GetMinimumVassalTaxTurns);
 	Method(GetVassalageEnabledEra);
-#endif
 
-#if defined(MOD_API_LUA_EXTENSIONS)
 	Method(AnyoneHasBelief);
 	Method(AnyoneHasBuilding);
 	Method(AnyoneHasBuildingClass);
@@ -507,9 +476,7 @@ void CvLuaGame::RegisterMembers(lua_State* L)
 	Method(AnyoneHasTech);
 	Method(AnyoneHasUnit);
 	Method(AnyoneHasUnitClass);
-#endif
 
-#if defined(MOD_BALANCE_CORE)
 	Method(FoundCorporation);
 	Method(CanFoundCorporation);
 	Method(IsCorporationFounded);
@@ -530,19 +497,15 @@ void CvLuaGame::RegisterMembers(lua_State* L)
 	Method(GetActiveContractUnitList);
 
 	Method(DoSpawnFreeCity);
-#endif
 
 #if defined(MOD_BATTLE_ROYALE)
 	Method(DeleteCSV);
 	Method(WriteCSV);
 #endif
 
-#if defined(MOD_API_LUA_EXTENSIONS)
 	Method(IsPitbossHost);
 	Method(IsHost);
 	Method(GetTimeStringForYear);
-#endif
-
 }
 //------------------------------------------------------------------------------
 
@@ -904,7 +867,6 @@ int CvLuaGame::lGetTurnString(lua_State* L)
 	lua_pushstring(L, strString);
 	return 1;
 }
-#if defined(MOD_API_LUA_EXTENSIONS)
 //------------------------------------------------------------------------------
 int CvLuaGame::lGetDateString(lua_State* L)
 {
@@ -917,7 +879,6 @@ int CvLuaGame::lGetDateString(lua_State* L)
     lua_pushstring(L, strString);
     return 1;
 }
-#endif
 //------------------------------------------------------------------------------
 //int getElapsedGameTurns();
 int CvLuaGame::lGetElapsedGameTurns(lua_State* L)
@@ -1238,7 +1199,6 @@ int CvLuaGame::lGetNumWorldWonders(lua_State* L)
 	lua_pushinteger(L, iWonderCount);
 	return 1;
 }
-#if defined(MOD_API_LUA_EXTENSIONS)
 //------------------------------------------------------------------------------
 //bool isWorldWonderClass(const CvBuildingClassInfo& kBuildingClass);
 int CvLuaGame::lIsWorldWonderClass(lua_State* L)
@@ -1249,7 +1209,6 @@ int CvLuaGame::lIsWorldWonderClass(lua_State* L)
 	lua_pushboolean(L, bResult);
 	return 1;
 }
-#endif
 //------------------------------------------------------------------------------
 //int getAIAutoPlay();
 int CvLuaGame::lGetAIAutoPlay(lua_State* L)
@@ -2646,16 +2605,15 @@ int CvLuaGame::lSetMinimumFaithNextPantheon(lua_State* L)
 	GC.getGame().GetGameReligions()->SetMinimumFaithNextPantheon(lua_tointeger(L, 1));
 	return 1;
 }
-#if defined(MOD_API_LUA_EXTENSIONS)
 //------------------------------------------------------------------------------
 int CvLuaGame::lIsInSomeReligion(lua_State* L)
 {
 	BeliefTypes eBelief = (BeliefTypes)luaL_optint(L, 1, NO_BELIEF);
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_TRAITS_ANY_BELIEF)
+#if defined(MOD_TRAITS_ANY_BELIEF)
 	PlayerTypes ePlayer = (PlayerTypes)luaL_optint(L, 2, NO_PLAYER);
 #endif
 
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_TRAITS_ANY_BELIEF)
+#if defined(MOD_TRAITS_ANY_BELIEF)
 	const bool bResult = GC.getGame().GetGameReligions()->IsInSomeReligion(eBelief, ePlayer);
 #else
 	const bool bResult = GC.getGame().GetGameReligions()->IsInSomeReligion(eBelief);
@@ -2664,7 +2622,6 @@ int CvLuaGame::lIsInSomeReligion(lua_State* L)
 
 	return 1;
 }
-#endif
 //------------------------------------------------------------------------------
 int CvLuaGame::lGetAvailablePantheonBeliefs(lua_State* L)
 {
@@ -2866,7 +2823,6 @@ int CvLuaGame::lGetBeliefsInReligion(lua_State* L)
 
 	return 1;
 }
-#if defined(MOD_BALANCE_CORE)
 //------------------------------------------------------------------------------
 int CvLuaGame::lBeliefIsInReligion(lua_State* L)
 {
@@ -2883,12 +2839,11 @@ int CvLuaGame::lBeliefIsInReligion(lua_State* L)
 	lua_pushboolean(L, false);
 	return 1;
 }
-#endif
 //------------------------------------------------------------------------------
 int CvLuaGame::lGetNumReligionsStillToFound(lua_State* L)
 {
 	int iRtnValue;
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_RELIGION_LOCAL_RELIGIONS)
+#if defined(MOD_RELIGION_LOCAL_RELIGIONS)
 	const bool bIgnoreLocal = luaL_optbool(L, 1, false);
 	PlayerTypes ePlayer = (PlayerTypes)luaL_optint(L, 2, NO_PLAYER);
 	iRtnValue = GC.getGame().GetGameReligions()->GetNumReligionsStillToFound(bIgnoreLocal, ePlayer);
@@ -2902,7 +2857,7 @@ int CvLuaGame::lGetNumReligionsStillToFound(lua_State* L)
 int CvLuaGame::lGetNumReligionsFounded(lua_State* L)
 {
 	int iRtnValue;
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_RELIGION_LOCAL_RELIGIONS)
+#if defined(MOD_RELIGION_LOCAL_RELIGIONS)
 	const bool bIgnoreLocal	= luaL_optint(L, 1, 1);
 	iRtnValue = GC.getGame().GetGameReligions()->GetNumReligionsFounded(bIgnoreLocal);
 #else
@@ -2981,7 +2936,6 @@ int CvLuaGame::lFoundPantheon(lua_State* L)
 
 	return 0;
 }
-#if defined(MOD_API_LUA_EXTENSIONS)
 //------------------------------------------------------------------------------
 int CvLuaGame::lEnhancePantheon(lua_State* L)
 {
@@ -2997,7 +2951,6 @@ int CvLuaGame::lEnhancePantheon(lua_State* L)
 
 	return 0;
 }
-#endif
 //------------------------------------------------------------------------------
 int CvLuaGame::lFoundReligion(lua_State* L)
 {
@@ -3021,17 +2974,11 @@ int CvLuaGame::lEnhanceReligion(lua_State* L)
 	const ReligionTypes eReligion = static_cast<ReligionTypes>(luaL_checkint(L, 2));
 	const BeliefTypes eBelief1 = static_cast<BeliefTypes>(luaL_checkint(L, 3));
 	const BeliefTypes eBelief2 = static_cast<BeliefTypes>(luaL_checkint(L, 4));
-#if defined(MOD_API_LUA_EXTENSIONS)
 	const bool bNotify = luaL_optbool(L, 5, true);
-
 	GC.getGame().GetGameReligions()->EnhanceReligion(ePlayer, eReligion, eBelief1, eBelief2, bNotify);
-#else
-	GC.getGame().GetGameReligions()->EnhanceReligion(ePlayer, eReligion, eBelief1, eBelief2);
-#endif
 
 	return 0;
 }
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_BALANCE_CORE)
 //------------------------------------------------------------------------------
 int CvLuaGame::lAddReformation(lua_State* L)
 {
@@ -3048,7 +2995,6 @@ int CvLuaGame::lAddReformation(lua_State* L)
 
 	return 0;
 }
-#endif
 //------------------------------------------------------------------------------
 int CvLuaGame::lSetHolyCity(lua_State* L)
 {
@@ -3080,7 +3026,6 @@ int CvLuaGame::lSetFounder(lua_State* L)
 
 	return 0;
 }
-#if defined(MOD_BALANCE_CORE)
 //------------------------------------------------------------------------------
 int CvLuaGame::lSetFoundYear(lua_State* L)
 {
@@ -3101,7 +3046,6 @@ int CvLuaGame::lGetFoundYear(lua_State* L)
 	lua_pushinteger(L, iValue);
 	return 1;
 }
-#endif
 //------------------------------------------------------------------------------
 int CvLuaGame::lGetTurnsBetweenMinorCivElections(lua_State* L)
 {
@@ -3114,7 +3058,6 @@ int CvLuaGame::lGetTurnsUntilMinorCivElection(lua_State* L)
 	lua_pushinteger(L, GC.getGame().GetTurnsUntilMinorCivElection());
 	return 1;
 }
-#if defined(MOD_API_LUA_EXTENSIONS)
 //------------------------------------------------------------------------------
 int CvLuaGame::lIsAchievementUnlocked(lua_State* L)
 {
@@ -3131,7 +3074,6 @@ int CvLuaGame::lGetSteamStat(lua_State* L)
 	lua_pushinteger(L, iValue);
 	return 1;
 }
-#endif
 //------------------------------------------------------------------------------
 int CvLuaGame::lGetNumActiveLeagues(lua_State* L)
 {
@@ -3174,7 +3116,7 @@ int CvLuaGame::lGetActiveLeague(lua_State* L)
 	}
 	return 1;
 }
-#if defined(MOD_BALANCE_CORE)
+
 int CvLuaGame::lDoEnactResolution(lua_State* L)
 {
 	CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
@@ -3230,14 +3172,12 @@ int CvLuaGame::lIsBeliefValid(lua_State* L)
 	return 1;
 }
 
-#endif
 //------------------------------------------------------------------------------
 int CvLuaGame::lIsProcessingMessages(lua_State* L)
 {
 	lua_pushboolean(L, gDLL->IsProcessingGameCoreMessages());
 	return 1;
 }
-#if defined(MOD_API_LUA_EXTENSIONS)
 //------------------------------------------------------------------------------
 int CvLuaGame::lCreateGreatWork(lua_State* L)
 {
@@ -3251,7 +3191,6 @@ int CvLuaGame::lCreateGreatWork(lua_State* L)
 	lua_pushinteger(L, iGWindex);
 	return 1;
 }
-#endif
 //------------------------------------------------------------------------------
 int CvLuaGame::lGetGreatWorkTooltip(lua_State* L)
 {
@@ -3460,7 +3399,6 @@ int CvLuaGame::lGetLongestCityConnectionPlots(lua_State* L)
 	return 2;
 }
 
-#if defined(MOD_API_LUA_EXTENSIONS)
 //------------------------------------------------------------------------------
 // Most of this came from CvLuaPlayer::lGetTradeRoutes(lua_State* L)
 int CvLuaGame::lGetTradeRoute(lua_State* L)
@@ -3558,7 +3496,6 @@ int CvLuaGame::lGetTradeRoute(lua_State* L)
 
 	return 0;
 }
-#endif
 
 //------------------------------------------------------------------------------
 int CvLuaGame::lSelectedUnit_SpeculativePopupTradeRoute_Display(lua_State* L)
@@ -3612,7 +3549,7 @@ int CvLuaGame::lGetNumHiddenArchaeologySites(lua_State* L)
 	return 1;
 }
 
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_API_EXTENSIONS)
+#if defined(MOD_API_EXTENSIONS)
 int CvLuaGame::lExitLeaderScreen(lua_State* L)
 {
 	CvPreGame::popGameType();
@@ -3620,7 +3557,6 @@ int CvLuaGame::lExitLeaderScreen(lua_State* L)
 }
 #endif
 
-#if defined(MOD_API_LUA_EXTENSIONS)
 //------------------------------------------------------------------------------
 int CvLuaGame::lGetDllGuid(lua_State* L)
 {
@@ -3700,10 +3636,7 @@ int CvLuaGame::lSpewTestEvents(lua_State* L)
 	lua_pushinteger(L, iValue);
 	return 3;
 }
-#endif
 
-
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_DIPLOMACY_CIV4_FEATURES)
 //------------------------------------------------------------------------------
 int CvLuaGame::lGetMinimumVoluntaryVassalTurns(lua_State* L)
 {
@@ -3759,9 +3692,7 @@ int CvLuaGame::lGetVassalageEnabledEra(lua_State* L)
 	lua_pushinteger(L, iEra);
 	return 1;
 }
-#endif
 
-#if defined(MOD_API_LUA_EXTENSIONS)
 int CvLuaGame::lAnyoneHasBelief(lua_State* L)
 {
 	const BeliefTypes iBeliefType = static_cast<BeliefTypes>(luaL_checkint(L, 1));
@@ -3912,9 +3843,7 @@ int CvLuaGame::lAnyoneHasUnitClass(lua_State* L)
 	lua_pushboolean(L, GC.getGame().AnyoneHasUnitClass(iUnitClassType));
 	return 1;
 }
-#endif
 
-#if defined(MOD_BALANCE_CORE)
 int CvLuaGame::lFoundCorporation(lua_State* L)
 {
 	const PlayerTypes ePlayer = static_cast<PlayerTypes>(luaL_checkint(L, 1));
@@ -4123,7 +4052,6 @@ int CvLuaGame::lDoSpawnFreeCity(lua_State* L)
 	GC.getGame().CreateFreeCityPlayer(pkCity);
 	return 0;
 }
-#endif
 
 #if defined(MOD_BATTLE_ROYALE)
 int CvLuaGame::lDeleteCSV(lua_State * L)
@@ -4146,7 +4074,6 @@ int CvLuaGame::lWriteCSV(lua_State * L)
 }
 #endif
 
-#if defined(MOD_API_LUA_EXTENSIONS)
 int CvLuaGame::lIsPitbossHost(lua_State* L)
 {
 	lua_pushboolean(L, gDLL->IsPitbossHost());
@@ -4171,4 +4098,3 @@ int CvLuaGame::lGetTimeStringForYear(lua_State* L)
 	lua_pushstring(L, timeString.GetCString());
 	return 1;
 }
-#endif
