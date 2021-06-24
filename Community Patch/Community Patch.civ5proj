@@ -375,11 +375,6 @@
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
-        <FileName>Core Files/PNM Mods DB/UNITS/MaxHp.sql</FileName>
-      </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
         <FileName>Core Files/Core Changes/EraSpecificArtists.sql</FileName>
       </Action>
       <Action>
@@ -612,7 +607,6 @@
     <Folder Include="Core Files\Core Values\" />
     <Folder Include="Core Files\CoreLua" />
     <Folder Include="Core Files\CoreLua\EventArt" />
-    <Folder Include="Core Files\PNM Mods DB\UNITS\" />
     <Folder Include="Core Files\Text" />
     <Folder Include="Core Files\PNM Mods DB" />
     <Folder Include="Core Files\PNM Mods DB\API\" />
@@ -1436,10 +1430,6 @@
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
     <Content Include="Core Files\PNM Mods DB\UI\CityExpansion.sql">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
-    <Content Include="Core Files\PNM Mods DB\UNITS\MaxHp.sql">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
