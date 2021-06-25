@@ -3214,7 +3214,8 @@ int CvGameReligions::GetAdjacentCityReligiousPressure(ReligionTypes eReligion, C
 
 		//if there is no traderoute, base pressure falls off with distance
 		int iPressurePercent = max(100 - iRelativeDistancePercent,1);
-		iBasePressure = (iBasePressure*iPressurePercent) / 100;
+		//make the scaling quadratic - four times as many cities in range if we double the radius!
+		iBasePressure = (iBasePressure*iPressurePercent*iPressurePercent) / (100*100);
 	}
 
 	// If we are spreading to a friendly city state, increase the effectiveness if we have the right belief
