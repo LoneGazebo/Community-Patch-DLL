@@ -4520,7 +4520,7 @@ bool CvPlot::isVisibleOtherUnit(PlayerTypes ePlayer) const
 	return false;
 }
 
-bool CvPlot::isEnemyUnit(PlayerTypes ePlayer, bool bCombat, bool bCheckVisibility, bool bIgnoreBarbs) const
+bool CvPlot::isEnemyUnit(PlayerTypes ePlayer, bool bCombat, bool bCheckVisibility, bool bIgnoreBarbs, bool bIgnoreEmbarked) const
 {
 	TeamTypes eTeam = GET_PLAYER(ePlayer).getTeam();
 
@@ -4539,10 +4539,13 @@ bool CvPlot::isEnemyUnit(PlayerTypes ePlayer, bool bCombat, bool bCheckVisibilit
 			if(pLoopUnit && !pLoopUnit->isInvisible(eTeam, false) && !pLoopUnit->IsDead())
 			{
 				//airplanes not included
-				if (bCombat && (!pLoopUnit->IsCanDefend() || !pLoopUnit->isNativeDomain(this)))
+				if (bCombat && !pLoopUnit->IsCanDefend())
 					continue;
 
 				if (bIgnoreBarbs && pLoopUnit->isBarbarian())
+					continue;
+
+				if (bIgnoreEmbarked && !pLoopUnit->isNativeDomain(pLoopUnit->plot()))
 					continue;
 
 				if(isOtherTeam(pLoopUnit, eTeam) && isEnemy(pLoopUnit,eTeam,false))
@@ -6240,7 +6243,8 @@ bool CvPlot::isBlockaded()
 			CvPlot* pNeighbor = iterateRingPlots(this, i);
 			if (pNeighbor && pNeighbor->getArea() == getArea())
 			{
-				if (pNeighbor->isEnemyUnit(getOwner(), true, false))
+				//no halo around embarked units
+				if (pNeighbor->isEnemyUnit(getOwner(), true, false, false, true))
 					return true;
 			}
 		}
