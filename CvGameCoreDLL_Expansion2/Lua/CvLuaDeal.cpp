@@ -80,12 +80,10 @@ void CvLuaDeal::PushMethods(lua_State* L, int t)
 	Method(ChangeThirdPartyWarDuration);
 	Method(ChangeThirdPartyPeaceDuration);
 
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	Method(AddTechTrade);
 	Method(AddVassalageTrade);
 	Method(AddRevokeVassalageTrade);
 	Method(RemoveTechTrade);
-#endif
 }
 
 //------------------------------------------------------------------------------

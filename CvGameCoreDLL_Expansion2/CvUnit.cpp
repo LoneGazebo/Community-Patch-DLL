@@ -291,9 +291,7 @@ CvUnit::CvUnit() :
 	, m_iGreatGeneralCombatModifier()
 	, m_iIgnoreGreatGeneralBenefit()
 	, m_iIgnoreZOC()
-#if defined(MOD_UNITS_NO_SUPPLY)
 	, m_iNoSupply()
-#endif
 	, m_iMaxHitPointsBase(GC.getMAX_HIT_POINTS())
 	, m_iMaxHitPointsChange()
 	, m_iMaxHitPointsModifier()
@@ -402,9 +400,7 @@ CvUnit::CvUnit() :
 #if defined(MOD_PROMOTIONS_VARIABLE_RECON)
 	, m_iExtraReconRange()
 #endif
-#if defined(MOD_API_EXTENSIONS)
 	, m_iBaseRangedCombat()
-#endif
 	, m_iIgnoreTerrainDamageCount()
 	, m_iIgnoreFeatureDamageCount()
 	, m_iExtraTerrainDamageCount()
@@ -1653,9 +1649,7 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_iGreatGeneralCombatModifier = 0;
 	m_iIgnoreGreatGeneralBenefit = 0;
 	m_iIgnoreZOC = 0;
-#if defined(MOD_UNITS_NO_SUPPLY)
 	m_iNoSupply = 0;
-#endif
 	m_iHealIfDefeatExcludeBarbariansCount = 0;
 	m_iNumInterceptions = 1;
 	m_iMadeInterceptionCount = 0;
@@ -1698,9 +1692,7 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_pUnitInfo = (NO_UNIT != m_eUnitType) ? GC.getUnitInfo(m_eUnitType) : NULL;
 	m_iBaseCombat = (NO_UNIT != m_eUnitType) ? m_pUnitInfo->GetCombat() : 0;
 	m_eCombatType = (NO_UNIT != m_eUnitType) ? (UnitCombatTypes)m_pUnitInfo->GetUnitCombatType() : NO_UNITCOMBAT;
-#if defined(MOD_API_EXTENSIONS)
 	m_iBaseRangedCombat = (NO_UNIT != m_eUnitType) ? m_pUnitInfo->GetRangedCombat() : 0;
-#endif
 	m_iMaxHitPointsBase = (NO_UNIT != m_eUnitType) ? m_pUnitInfo->GetMaxHitPoints() : GC.getMAX_HIT_POINTS();
 	m_iMaxHitPointsChange = 0;
 	m_iMaxHitPointsModifier = 0;
@@ -2885,9 +2877,8 @@ bool CvUnit::getCaptureDefinition(CvUnitCaptureDefinition* pkCaptureDef, PlayerT
 	kCaptureDef.bEmbarked = m_bEmbarked;
 	kCaptureDef.eCaptureUnitType = NO_UNIT;
 	kCaptureDef.iUnitID = GetID();
-#if defined(MOD_API_EXTENSIONS)
 	kCaptureDef.iScenarioData = m_iScenarioData;
-#endif
+
 	if (GetReligionData())
 	{
 		kCaptureDef.eReligion = GetReligionData()->GetReligion();
@@ -2973,9 +2964,9 @@ bool CvUnit::getCaptureDefinition(CvUnitCaptureDefinition* pkCaptureDef, PlayerT
 			pkCapturedUnit->setHasPromotion(ePromotionForced, true);
 		}
 	}
-#if defined(MOD_API_EXTENSIONS)
+
 	pkCapturedUnit->setScenarioData(kCaptureDef.iScenarioData);
-#endif
+
 
 	if(GC.getLogging() && GC.getAILogging())
 	{
@@ -6940,20 +6931,12 @@ void CvUnit::embark(CvPlot* pPlot)
 {
 	VALIDATE_OBJECT
 	if (canChangeVisibility())
-#if defined(MOD_API_EXTENSIONS)
 		pPlot->changeAdjacentSight(getTeam(), visibilityRange(), false, getSeeInvisibleType(), getFacingDirection(true), this);
-#else
-		pPlot->changeAdjacentSight(getTeam(), visibilityRange(), false, getSeeInvisibleType(), getFacingDirection(true));
-#endif
 
 	setEmbarked(true);
 
 	if (canChangeVisibility())
-#if defined(MOD_API_EXTENSIONS)
 		pPlot->changeAdjacentSight(getTeam(), visibilityRange(), true, getSeeInvisibleType(), getFacingDirection(true), this);
-#else
-		pPlot->changeAdjacentSight(getTeam(), visibilityRange(), true, getSeeInvisibleType(), getFacingDirection(true));
-#endif
 
 	auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(this));
 	gDLL->GameplayUnitEmbark(pDllUnit.get(), true);
@@ -6971,20 +6954,12 @@ void CvUnit::disembark(CvPlot* pPlot)
 {
 	VALIDATE_OBJECT
 	if (canChangeVisibility())
-#if defined(MOD_API_EXTENSIONS)
 		pPlot->changeAdjacentSight(getTeam(), visibilityRange(), false, getSeeInvisibleType(), getFacingDirection(true), this);
-#else
-		pPlot->changeAdjacentSight(getTeam(), visibilityRange(), false, getSeeInvisibleType(), getFacingDirection(true));
-#endif
 
 	setEmbarked(false);
 
 	if (canChangeVisibility())
-#if defined(MOD_API_EXTENSIONS)
 		pPlot->changeAdjacentSight(getTeam(), visibilityRange(), true, getSeeInvisibleType(), getFacingDirection(true), this);
-#else
-		pPlot->changeAdjacentSight(getTeam(), visibilityRange(), true, getSeeInvisibleType(), getFacingDirection(true));
-#endif
 
 	auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(this));
 	gDLL->GameplayUnitEmbark(pDllUnit.get(), false);
@@ -9251,7 +9226,6 @@ bool CvUnit::plunderTradeRoute()
 	}
 
 	// right now, plunder the first unit
-#if defined(MOD_BALANCE_CORE)
 	//No!
 	bool bGood = false;
 	for (uint uiTradeRoute = 0; uiTradeRoute < aiTradeUnitsAtPlot.size(); uiTradeRoute++)
@@ -9274,11 +9248,7 @@ bool CvUnit::plunderTradeRoute()
 		TeamTypes eTeam = GET_PLAYER(eTradeUnitOwner).getTeam();
 		if (GET_TEAM(GET_PLAYER(m_eOwner).getTeam()).isAtWar(eTeam) || GET_PLAYER(m_eOwner).GetPlayerTraits()->IsCanPlunderWithoutWar())
 		{
-#if defined(MOD_API_EXTENSIONS)
 			pTrade->PlunderTradeRoute(aiTradeUnitsAtPlot[0], this);
-#else
-			pTrade->PlunderTradeRoute(aiTradeUnitsAtPlot[0]);
-#endif
 			bGood = true;
 
 			if (GC.getLogging() && GC.getAILogging() && GET_PLAYER(m_eOwner).GetPlayerTraits()->IsCanPlunderWithoutWar())
@@ -9293,13 +9263,7 @@ bool CvUnit::plunderTradeRoute()
 	{
 		return true;
 	}
-#else
-#if defined(MOD_API_EXTENSIONS)
-	pTrade->PlunderTradeRoute(aiTradeUnitsAtPlot[0], this);
-#else
-	pTrade->PlunderTradeRoute(aiTradeUnitsAtPlot[0]);
-#endif
-#endif
+
 	return true;
 }
 
@@ -9449,11 +9413,7 @@ bool CvUnit::createGreatWork()
 		Localization::String localizedText;
 
 		// Notification in MP games
-#if defined(MOD_API_EXTENSIONS)
 		if(bDontShowRewardPopup || GC.getGame().isReallyNetworkMultiPlayer())
-#else
-		if(bDontShowRewardPopup || GC.getGame().isNetworkMultiPlayer())
-#endif
 		{
 			CvNotifications* pNotifications = kPlayer.GetNotifications();
 			if(pNotifications)
@@ -12971,11 +12931,11 @@ void CvUnit::PerformCultureBomb(int iRadius)
 			// Have to set owner after we do the above stuff
 			pLoopPlot->setOwner(getOwner(), iBestCityID);
 #if defined(MOD_BALANCE_CORE_POLICIES)
-			CvCity* pCapitalCity = GET_PLAYER(getOwner()).getCapitalCity();
-			if(pCapitalCity != NULL)
-			{
-				GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_BORDERS, false, NO_GREATPERSON, NO_BUILDING, 0, true, NO_PLAYER, NULL, true, pCapitalCity);
-			}
+			//CvCity* pCapitalCity = GET_PLAYER(getOwner()).getCapitalCity();
+			//if(pCapitalCity != NULL)
+			//{
+			//	GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_BORDERS, false, NO_GREATPERSON, NO_BUILDING, 0, true, NO_PLAYER, NULL, true, pCapitalCity);
+			//}
 #endif
 		}
 	}
@@ -14404,14 +14364,9 @@ bool CvUnit::CanUpgradeRightNow(bool bOnlyTestVisible) const
 	if(!isReadyForUpgrade())
 		return false;
 
-	UnitTypes eUpgradeUnitType = GetUpgradeUnitType();
-	
-#if defined(MOD_API_EXTENSIONS)
-	return CanUpgradeTo(eUpgradeUnitType, bOnlyTestVisible);
-#endif
+	return CanUpgradeTo(GetUpgradeUnitType(), bOnlyTestVisible);
 }
 
-#if defined(MOD_API_EXTENSIONS)
 bool CvUnit::CanUpgradeTo(UnitTypes eUpgradeUnitType, bool bOnlyTestVisible) const
 {
 	// Does the Unit actually upgrade into anything?
@@ -14457,7 +14412,6 @@ bool CvUnit::CanUpgradeTo(UnitTypes eUpgradeUnitType, bool bOnlyTestVisible) con
 		{
 			return false;
 		}
-
 
 		if (GC.getUnitInfo(eUpgradeUnitType)->GetSpecialUnitType() != -1)
 		{
@@ -14597,7 +14551,7 @@ bool CvUnit::CanUpgradeTo(UnitTypes eUpgradeUnitType, bool bOnlyTestVisible) con
 
 	return true;
 }
-#endif
+
 #if defined(MOD_GLOBAL_CS_UPGRADES)
 /// Can this Unit upgrade with anything right now?
 bool CvUnit::CanUpgradeInTerritory(bool bOnlyTestVisible) const
@@ -14791,36 +14745,23 @@ int CvUnit::upgradePrice(UnitTypes eUnit) const
 
 //	--------------------------------------------------------------------------------
 /// Upgrades this Unit - returns a pointer to the newly created unit
-#if defined(MOD_API_EXTENSIONS)
 CvUnit* CvUnit::DoUpgrade(bool bFree)
-#else
-CvUnit* CvUnit::DoUpgrade()
-#endif
 {
 	VALIDATE_OBJECT
-
-	UnitTypes eUnitType = GetUpgradeUnitType();
-
-#if defined(MOD_API_EXTENSIONS)
-	return DoUpgradeTo(eUnitType, bFree);
-#endif
+	return DoUpgradeTo(GetUpgradeUnitType(), bFree);
 }
-#if defined(MOD_API_EXTENSIONS)
+
 CvUnit* CvUnit::DoUpgradeTo(UnitTypes eUnitType, bool bFree)
 {
-#endif
 	// Gold Cost
 	int iUpgradeCost = upgradePrice(eUnitType);
 	CvPlayerAI& thisPlayer = GET_PLAYER(getOwner());
-#if defined(MOD_API_EXTENSIONS)
+
 	if (!bFree) 
 	{
-#endif
 		thisPlayer.GetTreasury()->LogExpenditure(getUnitInfo().GetText(), iUpgradeCost, 3);
 		thisPlayer.GetTreasury()->ChangeGold(-iUpgradeCost);
-#if defined(MOD_API_EXTENSIONS)
 	}
-#endif
 
 	// Add newly upgraded Unit & kill the old one
 #if defined(MOD_BALANCE_CORE)
@@ -16560,16 +16501,10 @@ bool CvUnit::canSiege(TeamTypes eTeam) const
 int CvUnit::GetBaseRangedCombatStrength() const
 {
 	VALIDATE_OBJECT
-
-#if defined(MOD_API_EXTENSIONS)
 	return m_iBaseRangedCombat;
-#else
-	return m_pUnitInfo->GetRangedCombat();
-#endif
 }
 
 
-#if defined(MOD_API_EXTENSIONS)
 //	--------------------------------------------------------------------------------
 void CvUnit::SetBaseRangedCombatStrength(int iStrength)
 {
@@ -16577,7 +16512,6 @@ void CvUnit::SetBaseRangedCombatStrength(int iStrength)
 
 	m_iBaseRangedCombat = iStrength;
 }
-#endif
 
 
 //	--------------------------------------------------------------------------------
@@ -19587,11 +19521,7 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 											DLLUI->AddUnitMessage(0, GetIDInfo(), getOwner(), true, GC.getEVENT_MESSAGE_TIME(), strBuffer/*, GC.getEraInfo(GC.getGame().getCurrentEra())->getAudioUnitVictoryScript(), MESSAGE_TYPE_INFO, NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_GREEN"), pkTargetPlot->getX(), pkTargetPlot->getY()*/);
 
 											kPlayer.DoYieldsFromKill(this, pLoopUnit);
-#if defined(MOD_API_EXTENSIONS)
 											kPlayer.DoUnitKilledCombat(this, pLoopUnit->getOwner(), pLoopUnit->getUnitType());
-#else
-											kPlayer.DoUnitKilledCombat(pLoopUnit->getOwner(), pLoopUnit->getUnitType());
-#endif
 											CvNotifications* pNotification = GET_PLAYER(pLoopUnit->getOwner()).GetNotifications();
 											if (pNotification)
 											{
@@ -19642,11 +19572,7 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 
 		if (canChangeVisibility())
 		{
-#if defined(MOD_API_EXTENSIONS)
 			pOldPlot->changeAdjacentSight(eOurTeam, visibilityRange(), false, getSeeInvisibleType(), getFacingDirection(true), this);
-#else
-			pOldPlot->changeAdjacentSight(eOurTeam, visibilityRange(), false, getSeeInvisibleType(), getFacingDirection(true));
-#endif
 		}
 
 		if (m_iMapLayer == DEFAULT_UNIT_MAP_LAYER)
@@ -20528,7 +20454,6 @@ bool CvUnit::onMap() const
 	return (plot() != NULL);
 }
 
-#if defined(MOD_BALANCE_CORE)
 //	--------------------------------------------------------------------------------
 CvCity* CvUnit::getOriginCity() const
 {
@@ -20552,7 +20477,7 @@ void CvUnit::setOriginCity(int iNewValue)
 	VALIDATE_OBJECT
 	m_iOriginCity = iNewValue;
 }
-#endif
+
 //	--------------------------------------------------------------------------------
 int CvUnit::getLastMoveTurn() const
 {
@@ -20620,17 +20545,9 @@ void CvUnit::setReconPlot(CvPlot* pNewValue)
 		{
 			if (canChangeVisibility())
 #if defined(MOD_PROMOTIONS_VARIABLE_RECON)
-#if defined(MOD_API_EXTENSIONS)
 				pOldPlot->changeAdjacentSight(getTeam(), reconRange(), false, getSeeInvisibleType(), getFacingDirection(true), this);
 #else
-				pOldPlot->changeAdjacentSight(getTeam(), reconRange(), false, getSeeInvisibleType(), getFacingDirection(true));
-#endif
-#else
-#if defined(MOD_API_EXTENSIONS)
 				pOldPlot->changeAdjacentSight(getTeam(), GC.getRECON_VISIBILITY_RANGE(), false, getSeeInvisibleType(), getFacingDirection(true), *this);
-#else
-				pOldPlot->changeAdjacentSight(getTeam(), GC.getRECON_VISIBILITY_RANGE(), false, getSeeInvisibleType(), getFacingDirection(true));
-#endif
 #endif
 			pOldPlot->changeReconCount(-1); // changeAdjacentSight() tests for getReconCount()
 		}
@@ -20648,17 +20565,9 @@ void CvUnit::setReconPlot(CvPlot* pNewValue)
 			pNewValue->changeReconCount(1); // changeAdjacentSight() tests for getReconCount()
 			if (canChangeVisibility())
 #if defined(MOD_PROMOTIONS_VARIABLE_RECON)
-#if defined(MOD_API_EXTENSIONS)
 				pNewValue->changeAdjacentSight(getTeam(), reconRange(), true, getSeeInvisibleType(), getFacingDirection(true), this);
 #else
-				pNewValue->changeAdjacentSight(getTeam(), reconRange(), true, getSeeInvisibleType(), getFacingDirection(true));
-#endif
-#else
-#if defined(MOD_API_EXTENSIONS)
 				pNewValue->changeAdjacentSight(getTeam(), GC.getRECON_VISIBILITY_RANGE(), true, getSeeInvisibleType(), getFacingDirection(true), *this);
-#else
-				pNewValue->changeAdjacentSight(getTeam(), GC.getRECON_VISIBILITY_RANGE(), true, getSeeInvisibleType(), getFacingDirection(true));
-#endif
 #endif
 		}
 	}
@@ -20822,11 +20731,7 @@ int CvUnit::setDamage(int iNewValue, PlayerTypes ePlayer, float fAdditionalTextD
 				GET_PLAYER(ePlayer).GetPlayerTraits()->SetDefeatedBarbarianCampGuardType(getUnitType());
 			}
 
-#if defined(MOD_API_EXTENSIONS)
 			GET_PLAYER(ePlayer).DoUnitKilledCombat(NULL, getOwner(), getUnitType());
-#else
-			GET_PLAYER(ePlayer).DoUnitKilledCombat(getOwner(), getUnitType());
-#endif
 		}
 	}
 
@@ -21802,18 +21707,10 @@ void CvUnit::changeExtraVisibilityRange(int iChange)
 	{
 		CvPlot* pkPlot = plot();
 		if (canChangeVisibility())
-#if defined(MOD_API_EXTENSIONS)
 			pkPlot->changeAdjacentSight(getTeam(), visibilityRange(), false, getSeeInvisibleType(), getFacingDirection(true), this);
-#else
-			pkPlot->changeAdjacentSight(getTeam(), visibilityRange(), false, getSeeInvisibleType(), getFacingDirection(true));
-#endif
 		m_iExtraVisibilityRange = (m_iExtraVisibilityRange + iChange);
 		if (canChangeVisibility())
-#if defined(MOD_API_EXTENSIONS)
 			pkPlot->changeAdjacentSight(getTeam(), visibilityRange(), true, getSeeInvisibleType(), getFacingDirection(true), this);
-#else
-			pkPlot->changeAdjacentSight(getTeam(), visibilityRange(), true, getSeeInvisibleType(), getFacingDirection(true));
-#endif
 	}
 }
 
@@ -21834,17 +21731,9 @@ void CvUnit::changeExtraReconRange(int iChange)
 	if(iChange != 0)
 	{
 		CvPlot* pkPlot = plot();
-#if defined(MOD_API_EXTENSIONS)
 		pkPlot->changeAdjacentSight(getTeam(), reconRange(), false, getSeeInvisibleType(), getFacingDirection(true), this);
-#else
-		pkPlot->changeAdjacentSight(getTeam(), reconRange(), false, getSeeInvisibleType(), getFacingDirection(true));
-#endif
 		m_iExtraReconRange = (m_iExtraReconRange + iChange);
-#if defined(MOD_API_EXTENSIONS)
 		pkPlot->changeAdjacentSight(getTeam(), reconRange(), true, getSeeInvisibleType(), getFacingDirection(true), this);
-#else
-		pkPlot->changeAdjacentSight(getTeam(), reconRange(), true, getSeeInvisibleType(), getFacingDirection(true));
-#endif
 	}
 }
 #endif
@@ -24065,7 +23954,7 @@ void CvUnit::ChangeIgnoreGreatGeneralBenefitCount(int iChange)
 {
 	m_iIgnoreGreatGeneralBenefit += iChange;
 }
-#if defined(MOD_UNITS_NO_SUPPLY)
+
 //	--------------------------------------------------------------------------------
 bool CvUnit::isNoSupply() const
 {
@@ -24078,7 +23967,6 @@ void CvUnit::changeNoSupply(int iChange)
 {
 	m_iNoSupply += iChange;
 }
-#endif
 
 //	--------------------------------------------------------------------------------
 int CvUnit::getMaxHitPointsBase() const
@@ -25186,7 +25074,6 @@ void CvUnit::SetGreatWork(GreatWorkType eGreatWork)
 	m_eGreatWork = eGreatWork;
 }
 
-#if defined(MOD_API_EXTENSIONS)
 //	--------------------------------------------------------------------------------
 bool CvUnit::HasGreatWork() const
 {
@@ -25198,7 +25085,6 @@ bool CvUnit::HasUnusedGreatWork() const
 {
 	return (HasGreatWork() && !GC.getGame().GetGameCulture()->IsGreatWorkCreated(m_eGreatWork));
 }
-#endif
 //	--------------------------------------------------------------------------------
 int CvUnit::GetTourismBlastStrength() const
 {
@@ -26779,9 +26665,7 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 		ChangeIgnoreGreatGeneralBenefitCount(thisPromotion.IsIgnoreGreatGeneralBenefit() ? iChange: 0);
 		ChangeIgnoreZOCCount(thisPromotion.IsIgnoreZOC() ? iChange: 0);
 
-#if defined(MOD_UNITS_NO_SUPPLY)
 		changeNoSupply(thisPromotion.IsNoSupply() ? iChange : 0);
-#endif
 
 		changeMaxHitPointsChange(thisPromotion.GetMaxHitPointsChange() * iChange);
 		changeMaxHitPointsModifier(thisPromotion.GetMaxHitPointsModifier() * iChange);
@@ -31708,7 +31592,6 @@ std::string CvUnit::stackTraceRemark(const FAutoVariableBase& /*var*/) const
 	return EmptyString;
 }
 
-#if defined(MOD_API_EXTENSIONS)
 bool CvUnit::IsCivilization(CivilizationTypes iCivilizationType) const
 {
 	return (GET_PLAYER(getOwner()).getCivilizationType() == iCivilizationType);
@@ -31936,7 +31819,6 @@ bool CvUnit::IsWithinDistanceOfTerrain(TerrainTypes iTerrainType, int iDistance)
 	}
 	return false;
 }
-#endif
 
 
 //	--------------------------------------------------------------------------------

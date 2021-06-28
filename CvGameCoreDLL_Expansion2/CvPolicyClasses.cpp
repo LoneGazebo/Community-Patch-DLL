@@ -3895,9 +3895,7 @@ CvPolicyBranchEntry* CvPolicyXMLEntries::GetPolicyBranchEntry(int index)
 //=====================================
 /// Constructor
 CvPlayerPolicies::CvPlayerPolicies():
-#if defined(MOD_API_EXTENSIONS)
 	m_pabFreePolicy(NULL),
-#endif
 	m_pabHasPolicy(NULL),
 	m_pabHasOneShotPolicyFired(NULL),
 	m_pabHaveOneShotFreeUnitsFired(NULL),
@@ -3933,10 +3931,8 @@ void CvPlayerPolicies::Init(CvPolicyXMLEntries* pPolicies, CvPlayer* pPlayer, bo
 	m_pPlayer = pPlayer;
 
 	// Initialize policy status array
-#if defined(MOD_API_EXTENSIONS)
 	CvAssertMsg(m_pabFreePolicy==NULL, "about to leak memory, CvPlayerPolicies::m_pabFreePolicy");
 	m_pabFreePolicy = FNEW(bool[m_pPolicies->GetNumPolicies()], c_eCiv5GameplayDLL, 0);
-#endif
 	CvAssertMsg(m_pabHasPolicy==NULL, "about to leak memory, CvPlayerPolicies::m_pabHasPolicy");
 	m_pabHasPolicy = FNEW(bool[m_pPolicies->GetNumPolicies()], c_eCiv5GameplayDLL, 0);
 	CvAssertMsg(m_pabHasOneShotPolicyFired==NULL, "about to leak memory, CvPlayerPolicies::m_pabHasOneShotPolicyFired");
@@ -3974,9 +3970,7 @@ void CvPlayerPolicies::Uninit()
 	// Uninit base class
 	CvFlavorRecipient::Uninit();
 
-#if defined(MOD_API_EXTENSIONS)
 	SAFE_DELETE_ARRAY(m_pabFreePolicy);
-#endif
 	SAFE_DELETE_ARRAY(m_pabHasPolicy);
 	SAFE_DELETE_ARRAY(m_pabHasOneShotPolicyFired);
 	SAFE_DELETE_ARRAY(m_pabHaveOneShotFreeUnitsFired);
@@ -3995,9 +3989,7 @@ void CvPlayerPolicies::Reset()
 
 	for(iI = 0; iI < m_pPolicies->GetNumPolicies(); iI++)
 	{
-#if defined(MOD_API_EXTENSIONS)
 		m_pabFreePolicy[iI] = false;
-#endif
 		m_pabHasPolicy[iI] = false;
 		m_pabHasOneShotPolicyFired[iI] = false;
 		m_pabHaveOneShotFreeUnitsFired[iI] = false;
@@ -4171,7 +4163,6 @@ bool CvPlayerPolicies::HasPolicy(PolicyTypes eIndex) const
 	CvAssertMsg(eIndex < GC.getNumPolicyInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 	return m_pabHasPolicy[eIndex];
 }
-#if defined(MOD_API_EXTENSIONS)
 /// Accessor: was this policy given for free
 bool CvPlayerPolicies::IsFreePolicy(PolicyTypes eIndex) const
 {
@@ -4179,13 +4170,8 @@ bool CvPlayerPolicies::IsFreePolicy(PolicyTypes eIndex) const
 	CvAssertMsg(eIndex < GC.getNumPolicyInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 	return m_pabFreePolicy[eIndex];
 }
-#endif
 /// Accessor: set whether player has a policy
-#if defined(MOD_API_EXTENSIONS)
 void CvPlayerPolicies::SetPolicy(PolicyTypes eIndex, bool bNewValue, bool bFree)
-#else
-void CvPlayerPolicies::SetPolicy(PolicyTypes eIndex, bool bNewValue)
-#endif
 {
 	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
 	CvAssertMsg(eIndex < m_pPolicies->GetNumPolicies(), "eIndex is expected to be within maximum bounds (invalid Index)");
@@ -4197,12 +4183,12 @@ void CvPlayerPolicies::SetPolicy(PolicyTypes eIndex, bool bNewValue)
 	if(HasPolicy(eIndex) != bNewValue)
 	{
 		m_pabHasPolicy[eIndex] = bNewValue;
-
 		int iChange = bNewValue ? 1 : -1;
-#if defined(MOD_API_EXTENSIONS)
+
 		m_pabFreePolicy[eIndex] = bFree;
-		if (bFree) iChange = 0;
-#endif
+		if (bFree) 
+			iChange = 0;
+
 		GetPlayer()->ChangeNumPolicies(iChange);
 
 #if defined(MOD_BALANCE_CORE)
@@ -5657,11 +5643,11 @@ bool CvPlayerPolicies::IsPolicyBlocked(PolicyTypes eType) const
 	return IsPolicyBranchBlocked(eBranch);
 }
 
-#if defined(MOD_API_EXTENSIONS)
 bool CvPlayerPolicies::CanAdoptIdeology(PolicyBranchTypes eIdeology) const
 {
 #if defined(MOD_EVENTS_IDEOLOGIES)
-	if (MOD_EVENTS_IDEOLOGIES) {
+	if (MOD_EVENTS_IDEOLOGIES) 
+	{
 		if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_PlayerCanAdoptIdeology, m_pPlayer->GetID(), eIdeology) == GAMEEVENTRETURN_FALSE) {
 			return false;
 		}
@@ -5675,7 +5661,6 @@ bool CvPlayerPolicies::HasAdoptedIdeology(PolicyBranchTypes eIdeology) const
 {
 	return IsPolicyBranchUnlocked(eIdeology);
 }
-#endif
 
 /// Implement a switch of ideologies
 void CvPlayerPolicies::DoSwitchIdeologies(PolicyBranchTypes eNewBranchType)

@@ -386,11 +386,7 @@ public:
 	bool HasCreatedReligion() const;
 #endif
 	bool HasAddedReformationBelief() const;
-#if defined(MOD_API_EXTENSIONS)
 	ReligionTypes GetReligionCreatedByPlayer(bool bIncludePantheon = false) const;
-#else
-	ReligionTypes GetReligionCreatedByPlayer() const;
-#endif
 	ReligionTypes GetOriginalReligionCreatedByPlayer() const;
 #if defined(MOD_BALANCE_CORE)
 	void SetPlayerReligion(ReligionTypes eReligion);

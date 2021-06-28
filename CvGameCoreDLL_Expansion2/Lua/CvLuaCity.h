@@ -38,9 +38,7 @@ protected:
 	static int lGetCityIndexPlot(lua_State* L);
 	static int lCanWork(lua_State* L);
 	static int lIsPlotBlockaded(lua_State* L);
-#if defined(MOD_BALANCE_CORE)
 	static int lIsBlockadedTest(lua_State* L);
-#endif
 	static int lClearWorkingOverride(lua_State* L);
 	static int lCountNumImprovedPlots(lua_State* L);
 	static int lCountNumWaterPlots(lua_State* L);
@@ -124,16 +122,14 @@ protected:
 	static int lGetBuildingProductionTurnsLeft(lua_State* L);
 	static int lGetProjectProductionTurnsLeft(lua_State* L);
 	static int lGetSpecialistProductionTurnsLeft(lua_State* L);
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_PROCESS_STOCKPILE)
+#if defined(MOD_PROCESS_STOCKPILE)
 	LUAAPIEXTN(GetProcessProductionTurnsLeft, int);
 #endif
 
 	static int lCreateApolloProgram(lua_State* L);
 
 	static int lIsCanPurchase(lua_State* L);
-#if defined(MOD_API_LUA_EXTENSIONS)
 	LUAAPIEXTN(Purchase, void, int, int, int, int);
-#endif
 	static int lGetUnitPurchaseCost(lua_State* L);
 	static int lGetUnitFaithPurchaseCost(lua_State* L);
 	static int lGetBuildingPurchaseCost(lua_State* L);
@@ -178,10 +174,8 @@ protected:
 	static int lIsOriginalCapital(lua_State* L);
 	static int lIsOriginalMajorCapital(lua_State* L);
 	static int lIsCoastal(lua_State* L);
-#if defined(MOD_API_LUA_EXTENSIONS)
 	LUAAPIEXTN(IsAddsFreshWater, bool);
 	LUAAPIEXTN(FoodConsumptionSpecialistTimes100, int);
-#endif
 
 	static int lFoodConsumption(lua_State* L);
 	static int lFoodDifference(lua_State* L);
@@ -196,14 +190,12 @@ protected:
 
 	static int lGetNumBuilding(lua_State* L);
 	static int lIsHasBuilding(lua_State* L);
-#if defined(MOD_API_LUA_EXTENSIONS)
 	LUAAPIEXTN(GetNumBuildingClass, int, iBuildingClassType);
 	LUAAPIEXTN(IsHasBuildingClass, bool, iBuildingClassType);
 	static int lGetLocalBuildingClassYield(lua_State* L);
 	static int lGetEventBuildingClassYield(lua_State* L);
 	static int lGetEventBuildingClassModifier(lua_State* L);
 	static int lGetEventCityYield(lua_State* L);
-#endif
 	static int lGetNumActiveBuilding(lua_State* L);
 	static int lGetID(lua_State* L);
 	static int lGetX(lua_State* L);
@@ -232,7 +224,7 @@ protected:
 	static int lChangePopulation(lua_State* L);
 	static int lGetRealPopulation(lua_State* L);
 	
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_GLOBAL_CITY_AUTOMATON_WORKERS)
+#if defined(MOD_GLOBAL_CITY_AUTOMATON_WORKERS)
 	LUAAPIEXTN(GetAutomatons, int);
 	LUAAPIEXTN(SetAutomatons, void, iAutomatons, bReassignPop);
 #endif
@@ -270,10 +262,8 @@ protected:
 	static int lGetJONSCulturePerTurnFromGreatWorks(lua_State* L);
 	static int lGetJONSCulturePerTurnFromTraits(lua_State* L);
 	static int lChangeYieldFromTraits(lua_State* L);
-#if defined(MOD_BALANCE_CORE)
 	static int lGetYieldPerTurnFromTraits(lua_State* L);
 	static int lGetYieldFromUnitsInCity(lua_State* L);
-#endif
 	static int lGetJONSCulturePerTurnFromReligion(lua_State* L);
 	static int lChangeJONSCulturePerTurnFromReligion(lua_State* L);
 	static int lGetJONSCulturePerTurnFromLeagues(lua_State* L);
@@ -284,19 +274,15 @@ protected:
 	LUAAPIEXTN(GetCityYieldModFromMonopoly, int);
 #endif
 
-#if defined(MOD_API_LUA_EXTENSIONS)
 	LUAAPIEXTN(GetTourismRateModifier, int);
 	LUAAPIEXTN(ChangeTourismRateModifier, void, iChange);
-#endif
 
 	static int lGetNumGreatWorks(lua_State* L);
 	static int lGetNumGreatWorkSlots(lua_State* L);
 	static int lGetBaseTourism(lua_State* L);
-#if defined(MOD_BALANCE_CORE)
 	static int lGetNumGreatWorksFilled(lua_State* L);
 	static int lGetNumAvailableGreatWorkSlots(lua_State* L);
 	static int lRefreshTourism(lua_State* L);
-#endif
 	static int lGetTourismMultiplier(lua_State* L);
 	static int lGetTourismTooltip(lua_State* L);
 	static int lGetFilledSlotsTooltip(lua_State* L);
@@ -337,28 +323,24 @@ protected:
 	static int lGetNumTeamWonders(lua_State* L);
 	static int lGetNumNationalWonders(lua_State* L);
 	static int lGetNumBuildings(lua_State* L);
-#if defined(MOD_BALANCE_CORE)
 	static int lGetNumTotalBuildings(lua_State* L);
-#endif
 
 	static int lGetWonderProductionModifier(lua_State* L);
 	static int lChangeWonderProductionModifier(lua_State* L);
 
 	static int lGetLocalResourceWonderProductionMod(lua_State* L);
 
-#if defined(MOD_API_LUA_EXTENSIONS)
 	LUAAPIEXTN(GetBuyPlotDistance, int);
 	LUAAPIEXTN(GetWorkPlotDistance, int);
-#endif
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_BUILDINGS_CITY_WORKING)
+#if defined(MOD_BUILDINGS_CITY_WORKING)
 	LUAAPIEXTN(GetCityWorkingChange, int);
 	LUAAPIEXTN(ChangeCityWorkingChange, void, iChange);
 #endif
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_BUILDINGS_CITY_AUTOMATON_WORKERS)
+#if defined(MOD_BUILDINGS_CITY_AUTOMATON_WORKERS)
 	LUAAPIEXTN(GetCityAutomatonWorkersChange, int);
 	LUAAPIEXTN(ChangeCityAutomatonWorkersChange, void, iChange);
 #endif
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_BALANCE_CORE_HAPPINESS)
+#if defined(MOD_BALANCE_CORE_HAPPINESS)
 	LUAAPIEXTN(GetRemainingFreeSpecialists, int);
 	LUAAPIEXTN(GetTheoreticalUnhappinessDecrease, int);
 	LUAAPIEXTN(getHappinessDelta, int);
@@ -408,9 +390,7 @@ protected:
 	static int lGetMaxFoodKeptPercent(lua_State* L);
 	static int lGetOverflowProduction(lua_State* L);
 	static int lSetOverflowProduction(lua_State* L);
-#if defined(MOD_API_LUA_EXTENSIONS)
 	LUAAPIEXTN(ChangeOverflowProduction, void, int);
-#endif
 	static int lGetFeatureProduction(lua_State* L);
 	static int lSetFeatureProduction(lua_State* L);
 	static int lGetMilitaryProductionModifier(lua_State* L);
@@ -467,7 +447,7 @@ protected:
 
 	static int lGetBaseYieldRate(lua_State* L);
 
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_GLOBAL_GREATWORK_YIELDTYPES)
+#if defined(MOD_GLOBAL_GREATWORK_YIELDTYPES)
 	LUAAPIEXTN(GetBaseYieldRateFromGreatWorks, int, iYield);
 #endif
 
@@ -483,23 +463,17 @@ protected:
 	static int lGetBaseYieldRateFromMisc(lua_State* L);
 	static int lChangeBaseYieldRateFromMisc(lua_State* L);
 
-#if defined(MOD_API_LUA_EXTENSIONS)
 	static int lGetBaseYieldRateFromProcess(lua_State* L);
 	static int lGetBaseYieldRateFromTradeRoutes(lua_State* L);
-#endif
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_DIPLOMACY_CITYSTATES)
+#if defined(MOD_DIPLOMACY_CITYSTATES)
 	LUAAPIEXTN(GetBaseYieldRateFromLeague, int, iYield);
 #endif
-#if defined(MOD_BALANCE_CORE)
 	static int lGetYieldFromCityYield(lua_State* L);
-#endif
 	static int lGetBaseYieldRateFromReligion(lua_State* L);
 	static int lChangeBaseYieldRateFromReligion(lua_State* L);
 
 	static int lGetYieldPerPopTimes100(lua_State* L);
-#if defined(MOD_BALANCE_CORE)
 	static int lGetYieldPerPopInEmpireTimes100(lua_State* L);
-#endif
 
 	static int lGetBaseYieldRateModifier(lua_State* L);
 	static int lGetYieldRate(lua_State* L);
@@ -536,10 +510,8 @@ protected:
 	static int lGetSpecialistUpgradeThreshold(lua_State* L);
 	static int lGetNumSpecialistsAllowedByBuilding(lua_State* L);
 	static int lGetSpecialistCount(lua_State* L);
-#if defined(MOD_BALANCE_CORE)
 	static int lGetTotalSpecialistCount(lua_State* L);
 	static int lGetSpecialistCityModifier(lua_State* L);
-#endif
 	static int lGetSpecialistGreatPersonProgress(lua_State* L);
 	static int lGetSpecialistGreatPersonProgressTimes100(lua_State* L);
 	static int lChangeSpecialistGreatPersonProgressTimes100(lua_State* L);
@@ -567,7 +539,7 @@ protected:
 	static int lChangeDamage(lua_State* L);
 	static int lGetMaxHitPoints(lua_State* L);
 
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_EVENTS_CITY_BOMBARD)
+#if defined(MOD_EVENTS_CITY_BOMBARD)
 	LUAAPIEXTN(GetBombardRange, int); // returns iRange, bIndirectFire
 	LUAAPIEXTN(GetCityBuildingRangeStrikeModifier, int);
 #endif
@@ -587,9 +559,7 @@ protected:
 	static int lGetNumRealBuilding(lua_State* L);
 	static int lSetNumRealBuilding(lua_State* L);
 	static int lGetNumFreeBuilding(lua_State* L);
-#if defined(MOD_API_LUA_EXTENSIONS)
 	LUAAPIEXTN(SetNumFreeBuilding, void, iBuildingType, iCount);
-#endif
 	static int lIsBuildingSellable(lua_State* L);
 	static int lGetSellBuildingRefund(lua_State* L);
 	static int lGetTotalBaseBuildingMaintenance(lua_State* L);
@@ -608,14 +578,11 @@ protected:
 	static int lGetBuildingYieldChange(lua_State* L);
 	static int lSetBuildingYieldChange(lua_State* L);
 
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_BALANCE_CORE_POLICIES)
 	LUAAPIEXTN(GetBuildingClassCultureChange, int);
 	LUAAPIEXTN(GetReligionYieldRateModifier, int);
 	LUAAPIEXTN(GetReligionBuildingYieldRateModifier, int);
 	LUAAPIEXTN(SetYieldPerTurnFromMinors, int);
 	LUAAPIEXTN(GetYieldPerTurnFromMinors, int);
-#endif
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_BALANCE_CORE)
 	LUAAPIEXTN(GetBaseYieldRateFromCSAlliance, int);
 	LUAAPIEXTN(GetBuildingYieldChangeFromCorporationFranchises, int);
 	LUAAPIEXTN(GetYieldChangeFromCorporationFranchises, int);
@@ -632,18 +599,15 @@ protected:
 	LUAAPIEXTN(GetModFromWLTKD, int);
 	LUAAPIEXTN(GetCultureModFromCarnaval, int);
 	LUAAPIEXTN(GetModFromGoldenAge, int);
-#endif
 	static int lGetBuildingEspionageModifier(lua_State* L);
 	static int lGetBuildingGlobalEspionageModifier(lua_State* L);
-	
-#if defined(MOD_API_LUA_EXTENSIONS)
+
 	LUAAPIEXTN(HasDiplomat, bool, iPlayer);
 	LUAAPIEXTN(HasSpy, bool, iPlayer);
 	LUAAPIEXTN(HasCounterSpy, bool);
 	LUAAPIEXTN(GetCounterSpy, int);
-#endif
 
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_RELIGION_CONVERSION_MODIFIERS)
+#if defined(MOD_RELIGION_CONVERSION_MODIFIERS)
 	LUAAPIEXTN(GetBuildingConversionModifier, int, iBuildingType);
 	LUAAPIEXTN(GetBuildingGlobalConversionModifier, int, iBuildingType);
 #endif
@@ -662,11 +626,8 @@ protected:
 
 	static int lGetReligionCityRangeStrikeModifier(lua_State* L);
 
-#if defined(MOD_API_LUA_EXTENSIONS)
 	LUAAPIEXTN(AddMessage, void, sMessage, iNotifyPlayer);
-#endif
 
-#if defined(MOD_API_LUA_EXTENSIONS)
 	LUAAPIEXTN(HasBelief, bool, iBeliefType);
 	LUAAPIEXTN(HasBuilding, bool, iBuildingType);
 	LUAAPIEXTN(HasBuildingClass, bool, iBuildingClassType);
@@ -700,12 +661,10 @@ protected:
 	LUAAPIEXTN(IsOnFeature, bool, iFeatureType);
 	LUAAPIEXTN(IsAdjacentToFeature, bool, iFeatureType);
 	LUAAPIEXTN(IsWithinDistanceOfFeature, bool, iFeatureType, iDistance);
-#if defined(MOD_BALANCE_CORE)
 	LUAAPIEXTN(IsWithinDistanceOfUnit, iUnitType, iDistance, bool, bool);
 	LUAAPIEXTN(IsWithinDistanceOfUnitClass, iUnitClassType, iDistance, bool, bool);
 	LUAAPIEXTN(IsWithinDistanceOfUnitCombatType, iUnitCombatType, iDistance, bool, bool);
 	LUAAPIEXTN(IsWithinDistanceOfUnitPromotion, iPromotionType, iDistance, bool, bool);
-#endif
 	LUAAPIEXTN(IsOnImprovement, bool, iImprovementType);
 	LUAAPIEXTN(IsAdjacentToImprovement, bool, iImprovementType);
 	LUAAPIEXTN(IsWithinDistanceOfImprovement, bool, iImprovementType, iDistance);
@@ -741,7 +700,7 @@ protected:
 
 	LUAAPIEXTN(IsProductionRoutes, bool);
 	LUAAPIEXTN(IsFoodRoutes, bool);
-#endif
+
 #if defined(MOD_BALANCE_CORE_EVENTS)
 	static int lGetDisabledTooltip(lua_State* L);
 	static int lGetScaledEventChoiceValue(lua_State* L);

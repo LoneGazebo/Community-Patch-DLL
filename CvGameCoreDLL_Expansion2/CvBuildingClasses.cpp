@@ -207,13 +207,11 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_iEventRequiredActive(NO_EVENT_CHOICE),
 	m_iCityEventRequiredActive(NO_EVENT_CHOICE_CITY),
 #endif
-#if defined(MOD_API_EXTENSIONS)
 	m_bAddsFreshWater(false),
 	m_bPurchaseOnly(false),
 	m_bSecondaryPantheon(false),
 	m_piGreatWorkYieldChange(NULL),
 	m_piGreatWorkYieldChangeLocal(NULL),
-#endif
 #if defined(MOD_BALANCE_CORE)
 	m_iNumRequiredTier3Tenets(0),
 	m_bIsNoWater(false),
@@ -560,11 +558,9 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	m_bRiver = kResults.GetBool("River");
 	m_bFreshWater = kResults.GetBool("FreshWater");
 	m_bAnyWater = kResults.GetBool("AnyWater");
-#if defined(MOD_API_EXTENSIONS)
 	m_bAddsFreshWater = kResults.GetBool("AddsFreshWater");
 	m_bPurchaseOnly = kResults.GetBool("PurchaseOnly");
 	m_bSecondaryPantheon = kResults.GetBool("SecondaryPantheon");
-#endif
 #if defined(MOD_BALANCE_CORE)
 	m_iNumRequiredTier3Tenets = kResults.GetInt("NumRequiredTier3Tenets");
 	m_bIsNoWater = kResults.GetBool("IsNoWater");
@@ -579,10 +575,8 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	m_iResourceDiversityModifier = kResults.GetInt("ResourceDiversityModifier");
 	m_iNoUnhappfromXSpecialists = kResults.GetInt("NoUnhappfromXSpecialists");
 	m_iNoUnhappfromXSpecialistsGlobal = kResults.GetInt("NoUnhappfromXSpecialistsGlobal");
-
 	m_bEnablesTechSteal = kResults.GetBool("EnablesTechSteal");
 	m_bEnablesGWSteal = kResults.GetBool("EnablesGWSteal");
-
 #endif
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	m_bVassalLevyEra = kResults.GetBool("VassalLevyEra");
@@ -1505,11 +1499,7 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 		Database::Results* pResourceTypes = kUtility.GetResults(strResourceTypesKey);
 		if(pResourceTypes == NULL)
 		{
-#if defined(MOD_API_EXTENSIONS)
 			pResourceTypes = kUtility.PrepareResults(strResourceTypesKey, "select Bonus, Description, SameEra, UniqueEras, ConsecutiveEras, MustBeArt, MustBeArtifact, MustBeEqualArtArtifact, RequiresOwner, RequiresAnyButOwner, RequiresSamePlayer, RequiresUniquePlayers, AIPriority from Building_ThemingBonuses where BuildingType = ?");
-#else
-			pResourceTypes = kUtility.PrepareResults(strResourceTypesKey, "select Bonus, Description, SameEra, UniqueEras, MustBeArt, MustBeArtifact, MustBeEqualArtArtifact, RequiresOwner, RequiresAnyButOwner, RequiresSamePlayer, RequiresUniquePlayers, AIPriority from Building_ThemingBonuses where BuildingType = ?");
-#endif
 		}
 
 		const size_t lenBuildingType = strlen(szBuildingType);
@@ -1523,9 +1513,7 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 			pThemingInfo.m_strDescription = pResourceTypes->GetText("Description");
 			pThemingInfo.m_bSameEra = pResourceTypes->GetBool("SameEra");
 			pThemingInfo.m_bUniqueEras = pResourceTypes->GetBool("UniqueEras");
-#if defined(MOD_API_EXTENSIONS)
 			pThemingInfo.m_bConsecutiveEras = pResourceTypes->GetBool("ConsecutiveEras");
-#endif
 			pThemingInfo.m_bMustBeArt = pResourceTypes->GetBool("MustBeArt");
 			pThemingInfo.m_bMustBeArtifact = pResourceTypes->GetBool("MustBeArtifact");
 			pThemingInfo.m_bMustBeEqualArtArtifact = pResourceTypes->GetBool("MustBeEqualArtArtifact");
@@ -2556,7 +2544,6 @@ bool CvBuildingEntry::IsFreshWater() const
 	return m_bFreshWater;
 }
 
-#if defined(MOD_API_EXTENSIONS)
 /// Does this building add FreshWater?
 bool CvBuildingEntry::IsAddsFreshWater() const
 {
@@ -2598,8 +2585,6 @@ int* CvBuildingEntry::GetGreatWorkYieldChangeLocalArray() const
 {
 	return m_piGreatWorkYieldChangeLocal;
 }
-
-#endif
 
 /// Must this be built in a city next to Mountain?
 bool CvBuildingEntry::IsMountain() const
@@ -5031,11 +5016,7 @@ void CvCityBuildings::SetNumRealBuildingTimed(BuildingTypes eIndex, int iNewValu
 						bool bDontShowRewardPopup = GC.GetEngineUserInterface()->IsOptionNoRewardPopups();
 
 						// Notification in MP games
-#if defined(MOD_API_EXTENSIONS)
 						if(bDontShowRewardPopup || GC.getGame().isReallyNetworkMultiPlayer())
-#else
-						if(bDontShowRewardPopup || GC.getGame().isNetworkMultiPlayer())	// KWG: Candidate for !GC.getGame().IsOption(GAMEOPTION_SIMULTANEOUS_TURNS)
-#endif
 						{
 							CvNotifications* pNotifications = GET_PLAYER(m_pCity->getOwner()).GetNotifications();
 							if(pNotifications)

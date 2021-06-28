@@ -120,9 +120,7 @@ public:
 	int  GetCommandType() const;
 	void SetCommandType(int iNewType);
 
-#if defined(MOD_UNITS_NO_SUPPLY)
 	bool IsNoSupply() const;
-#endif
 
 	int GetMaxHitPointsChange() const;
 	int GetMaxHitPointsModifier() const;
@@ -438,9 +436,7 @@ protected:
 	int m_iFriendlyLandsAttackModifier;
 	int m_iOutsideFriendlyLandsModifier;
 	int m_iCommandType;
-#if defined(MOD_UNITS_NO_SUPPLY)
 	bool m_bNoSupply;
-#endif
 	int m_iMaxHitPointsChange;
 	int m_iMaxHitPointsModifier;
 	int m_iUpgradeDiscount;

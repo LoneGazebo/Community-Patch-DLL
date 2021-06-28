@@ -1210,12 +1210,7 @@ void CvGameReligions::FoundPantheon(PlayerTypes ePlayer, BeliefTypes eBelief)
 				{
 					Localization::String localizedText = Localization::Lookup("TXT_KEY_NOTIFICATION_PANTHEON_FOUNDED_ACTIVE_PLAYER");
 					localizedText << pBelief->getShortDescription() << pBelief->GetDescriptionKey();
-
-#if defined(MOD_API_EXTENSIONS)
 					pNotifications->Add(NOTIFICATION_PANTHEON_FOUNDED_ACTIVE_PLAYER, localizedText.toUTF8(), strSummary.toUTF8(), -1, -1, RELIGION_PANTHEON, -1);
-#else
-					pNotifications->Add(NOTIFICATION_PANTHEON_FOUNDED_ACTIVE_PLAYER, localizedText.toUTF8(), strSummary.toUTF8(), -1, -1, -1);
-#endif
 				}
 				else
 				{
@@ -1223,22 +1218,13 @@ void CvGameReligions::FoundPantheon(PlayerTypes ePlayer, BeliefTypes eBelief)
 					CvTeam& kTeam = GET_TEAM(kCurNotifyPlayer.getTeam());
 					if(kTeam.isHasMet(kPlayer.getTeam()))
 					{
-#if defined(MOD_API_EXTENSIONS)
 						pNotifications->Add(NOTIFICATION_PANTHEON_FOUNDED, replayText.toUTF8(), strSummary.toUTF8(), -1, -1, RELIGION_PANTHEON, -1);
-#else
-						pNotifications->Add(NOTIFICATION_PANTHEON_FOUNDED, replayText.toUTF8(), strSummary.toUTF8(), -1, -1, -1);
-#endif
 					}
 					else
 					{
 						Localization::String unknownFoundedText = Localization::Lookup("TXT_KEY_NOTIFICATION_PANTHEON_FOUNDED_UNKNOWN");
 						unknownFoundedText << pBelief->getShortDescription() << pBelief->GetDescriptionKey();
-
-#if defined(MOD_API_EXTENSIONS)
 						pNotifications->Add(NOTIFICATION_PANTHEON_FOUNDED, unknownFoundedText.toUTF8(), strSummary.toUTF8(), -1, -1, RELIGION_PANTHEON, -1);
-#else
-						pNotifications->Add(NOTIFICATION_PANTHEON_FOUNDED, unknownFoundedText.toUTF8(), strSummary.toUTF8(), -1, -1, -1);
-#endif
 					}
 				}
 			}
@@ -1407,12 +1393,7 @@ void CvGameReligions::FoundReligion(PlayerTypes ePlayer, ReligionTypes eReligion
 					{
 						Localization::String localizedText = Localization::Lookup("TXT_KEY_NOTIFICATION_RELIGION_FOUNDED_ACTIVE_PLAYER");
 						localizedText << szReligionName << pkHolyCity->getNameKey();
-
-#if defined(MOD_API_EXTENSIONS)
 						pNotifications->Add(NOTIFICATION_RELIGION_FOUNDED_ACTIVE_PLAYER, localizedText.toUTF8(), strSummary.toUTF8(), -1, -1, eReligion, -1);
-#else
-						pNotifications->Add(NOTIFICATION_RELIGION_FOUNDED_ACTIVE_PLAYER, localizedText.toUTF8(), strSummary.toUTF8(), -1, -1, -1);
-#endif
 					}
 					else
 					{
@@ -1420,22 +1401,13 @@ void CvGameReligions::FoundReligion(PlayerTypes ePlayer, ReligionTypes eReligion
 
 						if(kNotifyTeam.isHasMet(kPlayer.getTeam()))
 						{
-#if defined(MOD_API_EXTENSIONS)
 							pNotifications->Add(NOTIFICATION_RELIGION_FOUNDED, replayText.toUTF8(), strSummary.toUTF8(), -1, -1, eReligion, -1);
-#else
-							pNotifications->Add(NOTIFICATION_RELIGION_FOUNDED, replayText.toUTF8(), strSummary.toUTF8(), -1, -1, -1);
-#endif
 						}
 						else
 						{
 							Localization::String unknownCivText = Localization::Lookup("TXT_KEY_NOTIFICATION_RELIGION_FOUNDED_UNKNOWN");
 							unknownCivText << szReligionName;
-
-#if defined(MOD_API_EXTENSIONS)
 							pNotifications->Add(NOTIFICATION_RELIGION_FOUNDED, unknownCivText.toUTF8(), strSummary.toUTF8(), -1, -1, eReligion, -1);
-#else
-							pNotifications->Add(NOTIFICATION_RELIGION_FOUNDED, unknownCivText.toUTF8(), strSummary.toUTF8(), -1, -1, -1);
-#endif
 						}
 					}
 				}
@@ -3242,7 +3214,8 @@ int CvGameReligions::GetAdjacentCityReligiousPressure(ReligionTypes eReligion, C
 
 		//if there is no traderoute, base pressure falls off with distance
 		int iPressurePercent = max(100 - iRelativeDistancePercent,1);
-		iBasePressure = (iBasePressure*iPressurePercent) / 100;
+		//make the scaling quadratic - four times as many cities in range if we double the radius!
+		iBasePressure = (iBasePressure*iPressurePercent*iPressurePercent) / (100*100);
 	}
 
 	// If we are spreading to a friendly city state, increase the effectiveness if we have the right belief
@@ -4114,11 +4087,7 @@ void CvPlayerReligions::SetPlayerReligion(ReligionTypes eReligion)
 				strSummary << szReligionName;
 				Localization::String localizedText = Localization::Lookup("TXT_KEY_NOTIFICATION_RELIGION_NEW_PLAYER_STATE_RELIGION");
 				localizedText << szReligionName;
-#if defined(MOD_API_EXTENSIONS)
 				m_pPlayer->GetNotifications()->Add(NOTIFICATION_RELIGION_FOUNDED_ACTIVE_PLAYER, localizedText.toUTF8(), strSummary.toUTF8(), -1, -1, eReligion, -1);
-#else
-				m_pPlayer->GetNotifications()->Add(NOTIFICATION_RELIGION_FOUNDED_ACTIVE_PLAYER, localizedText.toUTF8(), strSummary.toUTF8(), -1, -1, -1);
-#endif
 			}
 
 			if (m_pPlayer->GetFaith() > 0 && !m_pPlayer->GetPlayerTraits()->IsAlwaysReligion())
@@ -4399,11 +4368,7 @@ bool CvPlayerReligions::ComputeMajority(bool bNotifications)
 						strSummary << szReligionName;
 						Localization::String localizedText = Localization::Lookup("TXT_KEY_NOTIFICATION_RELIGION_NEW_PLAYER_MAJORITY");
 						localizedText << szReligionName;
-#if defined(MOD_API_EXTENSIONS)
 						m_pPlayer->GetNotifications()->Add(NOTIFICATION_RELIGION_FOUNDED_ACTIVE_PLAYER, localizedText.toUTF8(), strSummary.toUTF8(), -1, -1, eReligion, -1);
-#else
-						m_pPlayer->GetNotifications()->Add(NOTIFICATION_RELIGION_FOUNDED_ACTIVE_PLAYER, localizedText.toUTF8(), strSummary.toUTF8(), -1, -1, -1);
-#endif
 					}
 				}
 			}
@@ -6118,11 +6083,7 @@ void CvCityReligions::CityConvertsReligion(ReligionTypes eMajority, ReligionType
 				Localization::String strSummary;
 				strMessage = GetLocalizedText("TXT_KEY_NOTIFICATION_RELIGION_SPREAD_ACTIVE_PLAYER", m_pCity->getName());
 				strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_RELIGION_SPREAD_ACTIVE_PLAYER_S");
-#if defined(MOD_API_EXTENSIONS)
 				kOwnerPlayer.GetNotifications()->Add(NOTIFICATION_RELIGION_SPREAD, strMessage.toUTF8(), strSummary.toUTF8(), m_pCity->getX(), m_pCity->getY(), eMajority, -1);
-#else
-				kOwnerPlayer.GetNotifications()->Add(NOTIFICATION_RELIGION_SPREAD, strMessage.toUTF8(), strSummary.toUTF8(), m_pCity->getX(), m_pCity->getY(), -1);
-#endif
 			}
 
 #if !defined(NO_ACHIEVEMENTS)
@@ -6148,11 +6109,7 @@ void CvCityReligions::CityConvertsReligion(ReligionTypes eMajority, ReligionType
 				Localization::String strSummary;
 				strMessage = GetLocalizedText("TXT_KEY_NOTIFICATION_RELIGION_SPREAD_INITIAL_CONVERSION", m_pCity->getName());
 				strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_RELIGION_SPREAD_INITIAL_CONVERSION_S");
-#if defined(MOD_API_EXTENSIONS)
 				kOwnerPlayer.GetNotifications()->Add(NOTIFICATION_RELIGION_SPREAD_NATURAL, strMessage.toUTF8(), strSummary.toUTF8(), m_pCity->getX(), m_pCity->getY(), eMajority, -1);
-#else
-				kOwnerPlayer.GetNotifications()->Add(NOTIFICATION_RELIGION_SPREAD_NATURAL, strMessage.toUTF8(), strSummary.toUTF8(), m_pCity->getX(), m_pCity->getY(), -1);
-#endif
 			}
 		}
 

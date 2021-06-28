@@ -6321,10 +6321,8 @@ bool CvFeatureInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 //					CvYieldInfo
 //======================================================================================================
 CvYieldInfo::CvYieldInfo() :
-#if defined(MOD_API_EXTENSIONS)
 	m_strIconString(""),
 	m_strColorString(""),
-#endif
 	m_iHillsChange(0),
 	m_iMountainChange(0),
 	m_iLakeChange(0),
@@ -6346,7 +6344,6 @@ CvYieldInfo::CvYieldInfo() :
 	m_iAIWeightPercent(0)
 {
 }
-#if defined(MOD_API_EXTENSIONS)
 //------------------------------------------------------------------------------
 const char* CvYieldInfo::getIconString() const
 {
@@ -6357,7 +6354,6 @@ const char* CvYieldInfo::getColorString() const
 {
 	return m_strColorString;
 }
-#endif
 //------------------------------------------------------------------------------
 int CvYieldInfo::getHillsChange() const
 {
@@ -6451,10 +6447,8 @@ bool CvYieldInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 	if(!CvBaseInfo::CacheResults(kResults, kUtility))
 		return false;
 
-#if defined(MOD_API_EXTENSIONS)
 	m_strIconString = kResults.GetText("IconString");
 	m_strColorString = kResults.GetText("ColorString");
-#endif
 	kResults.GetValue("HillsChange", m_iHillsChange);
 	kResults.GetValue("MountainChange", m_iMountainChange);
 	kResults.GetValue("LakeChange", m_iLakeChange);

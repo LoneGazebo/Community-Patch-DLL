@@ -28,10 +28,8 @@ protected:
 
 	static int lIsNone(lua_State* L);
 	static int lConvert(lua_State* L);
-#if defined(MOD_API_LUA_EXTENSIONS)
 	LUAAPIEXTN(Upgrade, pUnit, bIsFree);
 	LUAAPIEXTN(UpgradeTo, pUnit, iUpgradeUnitType, bIsFree);
-#endif
 	static int lKill(lua_State* L);
 
 	static int lIsActionRecommended(lua_State* L);
@@ -42,9 +40,7 @@ protected:
 
 	static int lGetPathEndTurnPlot(lua_State* L);
 	static int lGeneratePath(lua_State* L);
-#if defined(MOD_API_LUA_EXTENSIONS)
 	static int lGetActivePath(lua_State* L);
-#endif
 
 	static int lCanEnterTerritory(lua_State* L);
 	static int lCanEnterArea(lua_State* L);
@@ -79,9 +75,7 @@ protected:
 	static int lCanEmbarkOnto(lua_State* L);
 	static int lCanDisembarkOnto(lua_State* L);
 	static int lCanRebaseAt(lua_State* L);
-#if defined(MOD_API_LUA_EXTENSIONS)
 	LUAAPIEXTN(RebaseAt, void, iPlotX, iPlotY);
-#endif
 	static int lEmbark(lua_State* L);
 
 	static int lIsRangeAttackIgnoreLOS(lua_State* L);
@@ -103,18 +97,14 @@ protected:
 	static int lCanMakeTradeRoute(lua_State* L);
 	static int lCanMakeTradeRouteAt(lua_State* L);
 
-#if defined(MOD_API_LUA_EXTENSIONS)
 	LUAAPIEXTN(CanPlunderTradeRoute, bool, pPlot);
 	LUAAPIEXTN(PlunderTradeRoute, bool);
-#endif
 
-#if defined(MOD_API_LUA_EXTENSIONS)
 	LUAAPIEXTN(CanCreateGreatWork, bool, pPlot);
 	LUAAPIEXTN(CreateGreatWork, bool);
 	LUAAPIEXTN(greatperson, bool);
 	static int lGetCombatVersusOtherReligionOwnLands(lua_State* L);
 	static int lGetCombatVersusOtherReligionTheirLands(lua_State* L);
-#endif
 
 	static int lGetExoticGoodsGoldAmount(lua_State* L);
 	static int lGetExoticGoodsXPAmount(lua_State* L);
@@ -142,7 +132,7 @@ protected:
 	static int lCanTrade(lua_State* L);
 	static int lCanBuyCityState(lua_State* L);
 	static int lCanRepairFleet(lua_State* L);
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_GLOBAL_SEPARATE_GREAT_ADMIRAL)
+#if defined(MOD_GLOBAL_SEPARATE_GREAT_ADMIRAL)
 	LUAAPIEXTN(CanChangePort, bool);
 #endif
 	static int lCanBuildSpaceship(lua_State* L);
@@ -164,10 +154,8 @@ protected:
 	static int lGetUpgradeUnitType(lua_State* L);
 	static int lUpgradePrice(lua_State* L);
 	static int lCanUpgradeRightNow(lua_State* L);
-#if defined(MOD_API_LUA_EXTENSIONS)
 	LUAAPIEXTN(CanUpgradeTo, bool, iUpgradeUnitType, bTestVisible);
-#endif
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_GLOBAL_CS_UPGRADES)
+#if defined(MOD_GLOBAL_CS_UPGRADES)
 	LUAAPIEXTN(CanUpgradeInTerritory, bool, bTestVisible);
 #endif
 	static int lGetNumResourceNeededToUpgrade(lua_State* L);
@@ -181,7 +169,7 @@ protected:
 	static int lGetSpecialUnitType(lua_State* L);
 	static int lGetCaptureUnitType(lua_State* L);
 	static int lGetUnitCombatType(lua_State* L);
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_GLOBAL_PROMOTION_CLASSES)
+#if defined(MOD_GLOBAL_PROMOTION_CLASSES)
 	LUAAPIEXTN(GetUnitPromotionType, int);
 #endif
 	static int lGetUnitAIType(lua_State* L);
@@ -208,10 +196,8 @@ protected:
 	static int lGetBuildType(lua_State* L);
 	static int lWorkRate(lua_State* L);
 
-#if defined(MOD_API_LUA_EXTENSIONS)
 	static int lGetImprovementBuildType(lua_State* L);
 	static int lGetRouteBuildType(lua_State* L);
-#endif
 
 #if defined(MOD_CIV6_WORKER)
 	static int lGetBuilderStrength(lua_State* L);
@@ -223,9 +209,7 @@ protected:
 	static int lIsNoCapture(lua_State* L);
 	static int lIsRivalTerritory(lua_State* L);
 	static int lIsFound(lua_State* L);
-#if defined(MOD_API_LUA_EXTENSIONS)
 	LUAAPIEXTN(IsFoundAbroad, bool);
-#endif
 	static int lIsWork(lua_State* L);
 	static int lIsGoldenAge(lua_State* L);
 	static int lCanCoexistWithEnemyUnit(lua_State* L);
@@ -269,17 +253,13 @@ protected:
 	static int lIsEnemyInMovementRange(lua_State* L);
 
 	static int lIsTrade(lua_State* L);
-#if defined(MOD_API_LUA_EXTENSIONS)
 	LUAAPIEXTN(GetTradeRouteIndex, int);
 	LUAAPIEXTN(IsRecalledTrader, bool);
 	LUAAPIEXTN(RecallTrader, void, bImmediate);
 	LUAAPIEXTN(EndTrader, void);
-#endif
 
 	static int lGetBaseRangedCombatStrength(lua_State* L);
-#if defined(MOD_API_EXTENSIONS)
 	LUAAPIEXTN(SetBaseRangedCombatStrength, void, int);
-#endif
 	static int lGetDamageCombatModifier(lua_State* L);
 	static int lGetMaxRangedCombatStrength(lua_State* L);
 	static int lGetCombatLimit(lua_State* L);
@@ -320,34 +300,30 @@ protected:
 	static int lIgnoreBuildingDefense(lua_State* L);
 	static int lCanMoveImpassable(lua_State* L);
 	static int lCanMoveAllTerrain(lua_State* L);
-#if defined(MOD_API_LUA_EXTENSIONS)
 	LUAAPIEXTN(IsHoveringUnit, bool);
-#endif
 	static int lFlatMovementCost(lua_State* L);
 	static int lIgnoreTerrainCost(lua_State* L);
-#if defined(MOD_API_LUA_EXTENSIONS)
 	LUAAPIEXTN(IgnoreTerrainDamage, bool);
 	LUAAPIEXTN(IgnoreFeatureDamage, bool);
 	LUAAPIEXTN(ExtraTerrainDamage, bool);
 	LUAAPIEXTN(ExtraFeatureDamage, bool);
 	LUAAPIEXTN(GetMovementRules, int);
 	LUAAPIEXTN(GetZOCStatus, int);
-#endif
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_PROMOTIONS_IMPROVEMENT_BONUS)
+#if defined(MOD_PROMOTIONS_IMPROVEMENT_BONUS)
 	LUAAPIEXTN(GetNearbyImprovementCombatBonus, int);
 	LUAAPIEXTN(GetNearbyImprovementBonusRange, int);
 	LUAAPIEXTN(GetCombatBonusImprovement, int);
 #endif
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_PROMOTIONS_CROSS_MOUNTAINS)
+#if defined(MOD_PROMOTIONS_CROSS_MOUNTAINS)
 	LUAAPIEXTN(CanCrossMountains, bool);
 #endif
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_PROMOTIONS_CROSS_OCEANS)
+#if defined(MOD_PROMOTIONS_CROSS_OCEANS)
 	LUAAPIEXTN(CanCrossOceans, bool);
 #endif
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_PROMOTIONS_CROSS_ICE)
+#if defined(MOD_PROMOTIONS_CROSS_ICE)
 	LUAAPIEXTN(CanCrossIce, bool);
 #endif
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_PROMOTIONS_GG_FROM_BARBARIANS)
+#if defined(MOD_PROMOTIONS_GG_FROM_BARBARIANS)
 	LUAAPIEXTN(IsGGFromBarbarians, bool);
 #endif
 	static int lIsNeverInvisible(lua_State* L);
@@ -476,7 +452,7 @@ protected:
 	static int lGetGarrisonedCity(lua_State* L);
 
 	static int lGetExtraVisibilityRange(lua_State* L);
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_PROMOTIONS_VARIABLE_RECON)
+#if defined(MOD_PROMOTIONS_VARIABLE_RECON)
 	LUAAPIEXTN(GetExtraReconRange, int);
 #endif
 	static int lGetExtraMoves(lua_State* L);
@@ -540,7 +516,7 @@ protected:
 	static int lIsIgnoreGreatGeneralBenefit(lua_State* L);
 	static int lGetReverseGreatGeneralModifier(lua_State* L);
 	static int lGetGreatGeneralCombatModifier(lua_State* L);
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_PROMOTIONS_AURA_CHANGE)
+#if defined(MOD_PROMOTIONS_AURA_CHANGE)
 	LUAAPIEXTN(GetAuraRange, int);
 	LUAAPIEXTN(GetAuraEffect, int);
 #endif
@@ -570,7 +546,7 @@ protected:
 	static int lGetCityName(lua_State* L);
 	static int lIsTerrainDoubleMove(lua_State* L);
 	static int lIsFeatureDoubleMove(lua_State* L);
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_PROMOTIONS_HALF_MOVE)
+#if defined(MOD_PROMOTIONS_HALF_MOVE)
 	LUAAPIEXTN(IsTerrainHalfMove, bool, iTerrainType);
 	LUAAPIEXTN(IsFeatureHalfMove, bool, iFeatureType);
 #endif
@@ -592,14 +568,10 @@ protected:
 	static int lIsPromotionValid(lua_State* L);
 	static int lIsHasPromotion(lua_State* L);
 	static int lSetHasPromotion(lua_State* L);
-#if defined(MOD_API_LUA_EXTENSIONS)
 	static int lGetPromotionDuration(lua_State* L);
 	static int lGetTurnPromotionGained(lua_State* L);
-#endif
 
-#if defined(MOD_API_LUA_EXTENSIONS)
 	LUAAPIEXTN(SetActivityType, void, iActivityType, bClearFortify);
-#endif
 	static int lGetActivityType(lua_State* L);
 	static int lIsReadyToMove(lua_State* L);
 	static int lIsBusy(lua_State* L);
@@ -610,11 +582,9 @@ protected:
 	static int lGetChargesLeft(lua_State* L);
 	static int lGetNumFollowersAfterSpread(lua_State* L);
 	static int lGetMajorityReligionAfterSpread(lua_State* L);
-#if defined(MOD_API_LUA_EXTENSIONS)
 	LUAAPIEXTN(SetReligion, void, iReligion);
 	LUAAPIEXTN(SetConversionStrength, void, iStrength);
 	LUAAPIEXTN(SetSpreadsLeft, void, iSpreads);
-#endif
 
 	static int lGetTourismBlastStrength(lua_State* L);
 	static int lGetTourismBlastLength(lua_State* L);
@@ -652,7 +622,6 @@ protected:
 	static int CvLuaUnit::lGetDanger(lua_State* L);
 #endif
 
-#if defined(MOD_API_LUA_EXTENSIONS)
 	LUAAPIEXTN(AddMessage, void, sMessage, iNotifyPlayer);
 	LUAAPIEXTN(IsCivilization, bool, iCivilizationType);
 	LUAAPIEXTN(HasPromotion, bool, iPromotionType);
@@ -661,7 +630,6 @@ protected:
 	LUAAPIEXTN(IsOnFeature, bool, iFeatureType);
 	LUAAPIEXTN(IsAdjacentToFeature, bool, iFeatureType);
 	LUAAPIEXTN(IsWithinDistanceOfFeature, bool, iFeatureType, iDistance);
-#if defined(MOD_BALANCE_CORE)
 	LUAAPIEXTN(IsWithinDistanceOfUnit, iUnitType, iDistance, bool, bool);
 	LUAAPIEXTN(IsWithinDistanceOfUnitClass, iUnitClassType, iDistance, bool, bool);
 	LUAAPIEXTN(IsWithinDistanceOfUnitCombatType, iUnitCombatType, iDistance, bool, bool);
@@ -671,7 +639,6 @@ protected:
 	LUAAPIEXTN(IsAdjacentToUnitCombatType, iUnitCombatType, bool, bool);
 	LUAAPIEXTN(IsAdjacentToUnitPromotion, iPromotionType, bool, bool);
 	LUAAPIEXTN(IsWithinDistanceOfCity, iDistance, bool, bool);
-#endif
 	LUAAPIEXTN(IsOnImprovement, bool, iImprovementType);
 	LUAAPIEXTN(IsAdjacentToImprovement, bool, iImprovementType);
 	LUAAPIEXTN(IsWithinDistanceOfImprovement, bool, iImprovementType, iDistance);
@@ -684,7 +651,6 @@ protected:
 	LUAAPIEXTN(IsOnTerrain, bool, iTerrainType);
 	LUAAPIEXTN(IsAdjacentToTerrain, bool, iTerrainType);
 	LUAAPIEXTN(IsWithinDistanceOfTerrain, bool, iTerrainType, iDistance);
-#endif
 };
 
 namespace CvLuaArgs

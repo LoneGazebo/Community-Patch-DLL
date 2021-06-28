@@ -601,11 +601,7 @@ void CvMap::setRevealedPlots(TeamTypes eTeam, bool bNewValue, bool bTerrainOnly)
 {
 	for(int iI = 0; iI < numPlots(); iI++)
 	{
-#if defined(MOD_API_EXTENSIONS)
 		plotByIndexUnchecked(iI)->setRevealed(eTeam, bNewValue, NULL, bTerrainOnly);
-#else
-		plotByIndexUnchecked(iI)->setRevealed(eTeam, bNewValue, bTerrainOnly);
-#endif
 	}
 }
 

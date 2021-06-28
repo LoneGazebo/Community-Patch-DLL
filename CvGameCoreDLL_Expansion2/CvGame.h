@@ -134,9 +134,7 @@ public:
 	TeamTypes getActiveTeam();
 	CivilizationTypes getActiveCivilizationType();
 
-#if defined(MOD_API_EXTENSIONS)
 	bool isReallyNetworkMultiPlayer() const;
-#endif
 	bool isNetworkMultiPlayer() const;
 	bool isGameMultiPlayer() const;
 	bool isTeamGame() const;
@@ -474,9 +472,7 @@ public:
 
 	bool isGreatPersonBorn(CvString& szName) const;
 	void addGreatPersonBornName(const CvString& szName);
-#if defined(MOD_API_EXTENSIONS)
 	void removeGreatPersonBornName(const CvString& szName);
-#endif
 
 	CvRandom& getMapRand();
 	int getMapRandNum(int iNum, const char* pszLog);
@@ -594,9 +590,7 @@ public:
 	CvGameCulture* GetGameCulture();
 	CvGameLeagues* GetGameLeagues();
 	CvGameTrade* GetGameTrade();
-#if defined(MOD_API_LUA_EXTENSIONS)
 	CvString getDllGuid() const;
-#endif
 #if defined(MOD_BALANCE_CORE)
 	CvGameCorporations* GetGameCorporations();
 	CvGameContracts* GetGameContracts();
@@ -686,7 +680,6 @@ public:
 	void SetTeamThatCircumnavigated(TeamTypes eNewValue);
 #endif
 
-#if defined(MOD_API_EXTENSIONS)
 	bool AnyoneHasBelief(BeliefTypes iBeliefType) const;
 	bool AnyoneHasBuilding(BuildingTypes iBuildingType) const;
 	bool AnyoneHasBuildingClass(BuildingClassTypes iBuildingClassType) const;
@@ -709,7 +702,7 @@ public:
 	bool AnyoneHasTech(TechTypes iTechType) const;
 	bool AnyoneHasUnit(UnitTypes iUnitType) const;
 	bool AnyoneHasUnitClass(UnitClassTypes iUnitClassType) const;
-#endif
+
 #if defined(MOD_BALANCE_CORE_JFD)	
 	void SetContractUnits(ContractTypes eContract, UnitTypes eUnit, int iValue);
 	int GetContractUnits(ContractTypes eContract, UnitTypes eUnit) const;
@@ -963,8 +956,6 @@ protected:
 
 	void PopulateDigSite(CvPlot& kPlot, EraTypes eEra, GreatWorkArtifactClass eArtifact);
 	void SpawnArchaeologySitesHistorically();
-
-
 };
 
 extern int gTactMovesCount[NUM_AI_TACTICAL_MOVES];

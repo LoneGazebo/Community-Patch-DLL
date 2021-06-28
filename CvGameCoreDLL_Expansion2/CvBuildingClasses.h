@@ -26,9 +26,7 @@ public:
 	  m_iBonus(0),
 	  m_bSameEra(false),
 	  m_bUniqueEras(false),
-#if defined(MOD_API_EXTENSIONS)
 	  m_bConsecutiveEras(false),
-#endif
 	  m_bMustBeArt(false),
 	  m_bMustBeArtifact(false),
 	  m_bMustBeEqualArtArtifact(false),
@@ -44,12 +42,8 @@ public:
 	int GetBonus() {return m_iBonus;};
 	CvString GetDescription() {return m_strDescription;};
 	bool IsSameEra() {return m_bSameEra;};
-#if defined(MOD_API_EXTENSIONS)
 	bool IsUniqueEras() {return m_bUniqueEras || IsConsecutiveEras();};
 	bool IsConsecutiveEras() {return m_bConsecutiveEras;};
-#else
-	bool IsUniqueEras() {return m_bUniqueEras;};
-#endif
 	bool IsMustBeArt() {return m_bMustBeArt;};
 	bool IsMustBeArtifact() {return m_bMustBeArtifact;};
 	bool IsMustBeEqualArtArtifact() {return m_bMustBeEqualArtArtifact;};
@@ -64,9 +58,7 @@ protected:
 	CvString m_strDescription;
 	bool m_bSameEra;
 	bool m_bUniqueEras;
-#if defined(MOD_API_EXTENSIONS)
 	bool m_bConsecutiveEras;
-#endif
 	bool m_bMustBeArt;
 	bool m_bMustBeArtifact;
 	bool m_bMustBeEqualArtArtifact;
@@ -346,7 +338,6 @@ public:
 	bool IsWater() const;
 	bool IsRiver() const;
 	bool IsFreshWater() const;
-#if defined(MOD_API_EXTENSIONS)
 	bool IsAddsFreshWater() const;
 	bool IsPurchaseOnly() const;
 	bool IsSecondaryPantheon() const;
@@ -355,7 +346,6 @@ public:
 
 	int GetGreatWorkYieldChangeLocal(int i) const;
 	int* GetGreatWorkYieldChangeLocalArray() const;
-#endif
 	bool IsMountain() const;
 	bool IsHill() const;
 	bool IsFlat() const;
@@ -825,13 +815,11 @@ private:
 	bool m_bWater;
 	bool m_bRiver;
 	bool m_bFreshWater;
-#if defined(MOD_API_EXTENSIONS)
 	bool m_bAddsFreshWater;
 	bool m_bPurchaseOnly;
 	bool m_bSecondaryPantheon;
 	int* m_piGreatWorkYieldChange;
 	int* m_piGreatWorkYieldChangeLocal;
-#endif
 #if defined(MOD_BALANCE_CORE)
 	int m_iNumRequiredTier3Tenets;
 	bool m_bIsNoWater;

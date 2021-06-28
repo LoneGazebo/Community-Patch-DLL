@@ -547,11 +547,7 @@ CvCity::~CvCity()
 
 
 //	--------------------------------------------------------------------------------
-#if defined(MOD_API_EXTENSIONS) && defined(MOD_BALANCE_CORE)
 void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, bool bInitialFounding, ReligionTypes eInitialReligion, const char* szName, CvUnitEntry* pkSettlerUnitEntry)
-#else
-void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, bool bInitialFounding)
-#endif
 {
 	VALIDATE_OBJECT
 	//CvPlot* pAdjacentPlot;
@@ -671,17 +667,7 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 	}
 
 	// wipe out dig sites
-#if !defined(MOD_BALANCE_CORE)
-	ResourceTypes eArtifactResourceType = static_cast<ResourceTypes>(GC.getARTIFACT_RESOURCE());
-	ResourceTypes eHiddenArtifactResourceType = static_cast<ResourceTypes>(GC.getHIDDEN_ARTIFACT_RESOURCE());
-	if (pPlot->getResourceType() == eArtifactResourceType || pPlot->getResourceType() == eHiddenArtifactResourceType)
-	{
-		pPlot->setResourceType(NO_RESOURCE, 0);
-#endif
-		pPlot->ClearArchaeologicalRecord();
-#if !defined(MOD_BALANCE_CORE)
-	}
-#endif
+	pPlot->ClearArchaeologicalRecord();
 
 	setupGraphical();
 
@@ -712,7 +698,7 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 			}
 		}
 	}
-#if defined(MOD_BALANCE_CORE)
+
 	// Free Buildings
 	const CvCivilizationInfo& thisCiv = getCivilizationInfo();
 	bool bRome = GET_PLAYER(getOwner()).GetPlayerTraits()->IsKeepConqueredBuildings();
@@ -808,10 +794,8 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 			}
 		}
 	}
-#endif
 
 	GC.getMap().getArea(pPlot->getArea())->changeCitiesPerPlayer(getOwner(), 1);
-#if defined(MOD_BALANCE_CORE)
 	std::vector<int> areas = pPlot->getAllAdjacentAreas();
 	for (std::vector<int>::iterator it = areas.begin(); it != areas.end(); ++it)
 	{
@@ -819,7 +803,6 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 		if (pkArea->isWater())
 			pkArea->changeCitiesPerPlayer(getOwner(), 1);
 	}
-#endif
 
 	GET_TEAM(getTeam()).changeNumCities(1);
 
@@ -839,12 +822,12 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 	// Free population from things (e.g. Policies)
 	changePopulation(GET_PLAYER(getOwner()).GetNewCityExtraPopulation(), true, true);
 
-#if defined(MOD_API_EXTENSIONS)
 	// We do this here as changePopulation() sends a game event we may have caught to do funky renaming things
-	if (szName) {
+	if (szName) 
+	{
 		setName(szName);
 	}
-#endif
+
 	// Free food from things (e.g. Policies)
 	int iFreeFood = growthThreshold() * GET_PLAYER(getOwner()).GetFreeFoodBox();
 	changeFoodTimes100(iFreeFood);
@@ -854,7 +837,6 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 		owningPlayer.setFoundedFirstCity(true);
 		owningPlayer.ChangeNumCitiesFounded(1);
 
-#if defined(MOD_BALANCE_CORE)
 		if (MOD_BALANCE_CORE && isCapital())
 		{
 			int iNumAllies = GET_PLAYER(getOwner()).GetNumCSAllies();
@@ -881,7 +863,7 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 				}
 			}
 		}
-#endif
+
 		// Free resources under city?
 		for (int i = 0; i < GC.getNumResourceInfos(); i++)
 		{
@@ -924,7 +906,6 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 			GET_PLAYER(ePlayer).GetCityConnections()->SetDirty();
 		}
 	}
-#if defined(MOD_BALANCE_CORE)
 	for (int iFeatureLoop = 0; iFeatureLoop < GC.getNumFeatureInfos(); iFeatureLoop++)
 	{
 		FeatureTypes eFeature2 = (FeatureTypes)iFeatureLoop;
@@ -933,7 +914,6 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 			GET_PLAYER(getOwner()).countCityFeatures(eFeature2, true);
 		}
 	}
-#endif
 
 	// Policy changes
 	for (int iPoliciesLoop = 0; iPoliciesLoop < GC.getNumPolicyInfos(); iPoliciesLoop++)
@@ -948,11 +928,7 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 	}
 
 	// Add Resource Quantity to total
-#if defined(MOD_BALANCE_CORE)
 	if (plot()->getResourceType(getTeam()) != NO_RESOURCE)
-#else
-	if (plot()->getResourceType() != NO_RESOURCE)
-#endif
 	{
 		if (GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes)GC.getResourceInfo(plot()->getResourceType())->getTechCityTrade()))
 		{
@@ -966,10 +942,8 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 	}
 #endif
 
-#if defined(MOD_BALANCE_CORE)
 	//Update our CoM for the diplo AI.
-	owningPlayer.SetCenterOfMassEmpire();
-#endif	
+	//owningPlayer.SetCenterOfMassEmpire();
 
 	// Update Proximity between this Player and all others
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
@@ -1019,7 +993,7 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 					}
 				}
 			}
-#if defined(MOD_BALANCE_CORE)
+
 			//Free building in Capital from Trait?
 			if (owningPlayer.GetPlayerTraits()->GetFreeCapitalBuilding() != NO_BUILDING)
 			{
@@ -1035,7 +1009,6 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 					}
 				}
 			}
-#endif
 
 			if (!isHuman())
 			{
@@ -1050,13 +1023,11 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 		}
 	}
 
-#if defined(MOD_BALANCE_CORE_DIFFICULTY)
 	// Do this only after the capital has been chosen
 	if (MOD_BALANCE_CORE_DIFFICULTY && !owningPlayer.isMinorCiv() && !owningPlayer.isHuman() && bInitialFounding)
 	{
 		owningPlayer.DoDifficultyBonus(owningPlayer.getNumCities() <= 1 ? HISTORIC_EVENT_CITY_FOUND_CAPITAL : HISTORIC_EVENT_CITY_FOUND);
 	}
-#endif
 
 	// How long before this City picks a Resource to demand?
 	DoSeedResourceDemandedCountdown();
@@ -1067,7 +1038,7 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 	// Update Unit Maintenance for the player
 	CvPlayer& kPlayer = GET_PLAYER(getOwner());
 	kPlayer.UpdateUnitProductionMaintenanceMod();
-#if defined(MOD_BALANCE_CORE)
+
 	for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 	{
 		UpdateYieldPerXUnimprovedFeature(((YieldTypes)iI));
@@ -1090,7 +1061,7 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 	}
 	SetNearbyMountains(iMountain);
 	InitEspionageRanking();
-#endif
+
 	// Spread a pantheon here if one is active
 	CvPlayerReligions* pReligions = kPlayer.GetReligions();
 	if (pReligions->HasCreatedPantheon() && !pReligions->HasCreatedReligion())
@@ -1098,7 +1069,6 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 		GetCityReligions()->AddReligiousPressure(FOLLOWER_CHANGE_PANTHEON_FOUNDED, RELIGION_PANTHEON, GC.getRELIGION_ATHEISM_PRESSURE_PER_POP() * getPopulation() * 2);
 	}
 
-#if defined(MOD_API_EXTENSIONS)
 	if (bInitialFounding) {
 		if (eInitialReligion != NO_RELIGION) {
 			// Spread an initial religion here if one was given
@@ -1106,7 +1076,8 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 		}
 
 #if defined(MOD_RELIGION_LOCAL_RELIGIONS)
-		else if (MOD_RELIGION_LOCAL_RELIGIONS) {
+		else if (MOD_RELIGION_LOCAL_RELIGIONS) 
+		{
 			// Spread a local religion here if one is active
 			if (pReligions->HasCreatedReligion() && GC.getReligionInfo(pReligions->GetReligionCreatedByPlayer())->IsLocalReligion()) {
 				GetCityReligions()->AdoptReligionFully(pReligions->GetReligionCreatedByPlayer());
@@ -1114,7 +1085,6 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 		}
 #endif
 	}
-#endif
 
 	// A new City might change our victory progress
 	GET_TEAM(getTeam()).DoTestSmallAwards();
@@ -1178,7 +1148,7 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 		}
 	}
 #endif
-#if defined(MOD_BALANCE_CORE_SETTLER_ADVANCED) && defined(MOD_BALANCE_CORE)
+#if defined(MOD_BALANCE_CORE_SETTLER_ADVANCED)
 	// Stuff for Pioneers and Colonists
 	if (MOD_BALANCE_CORE_SETTLER_ADVANCED && bInitialFounding && pkSettlerUnitEntry != NULL)
 	{
@@ -1202,7 +1172,7 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 		}
 	}
 #endif
-#if defined(MOD_BALANCE_CORE)
+
 	if (GET_PLAYER(getOwner()).GetPlayerTraits()->IsReconquista() && bInitialFounding)
 	{
 		ReligionTypes eReligion = GET_PLAYER(getOwner()).GetReligions()->GetReligionCreatedByPlayer(false);
@@ -1222,7 +1192,7 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 	if (bInitialFounding)
 	{
 		owningPlayer.doInstantYield(INSTANT_YIELD_TYPE_FOUND, false, NO_GREATPERSON, NO_BUILDING, 0, true, NO_PLAYER, NULL, false, this);
-#if defined(MOD_BALANCE_CORE)
+
 		if (owningPlayer.GetPlayerTraits()->IsExpansionWLTKD())
 		{
 			int iWLTKD = (GC.getCITY_RESOURCE_WLTKD_TURNS() / 3);
@@ -1253,7 +1223,6 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 				}
 			}
 		}
-#endif
 	}
 	for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 	{
@@ -1277,7 +1246,6 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 			}
 		}
 	}
-#endif
 
 	owningPlayer.CalculateNetHappiness();
 
@@ -8691,7 +8659,6 @@ bool CvCity::canTrain(UnitCombatTypes eUnitCombat) const
 
 
 //	--------------------------------------------------------------------------------
-#if defined(MOD_API_EXTENSIONS)
 bool CvCity::canConstruct(BuildingTypes eBuilding, bool bContinue, bool bTestVisible, bool bIgnoreCost, bool bWillPurchase, CvString* toolTipSink) const
 {
 	std::vector<int> vTotalBuildingCount(GC.getNumBuildingInfos(), 0);
@@ -8710,9 +8677,6 @@ bool CvCity::canConstruct(BuildingTypes eBuilding, bool bContinue, bool bTestVis
 }
 
 bool CvCity::canConstruct(BuildingTypes eBuilding, const std::vector<int>& vPreExistingBuildings, bool bContinue, bool bTestVisible, bool bIgnoreCost, bool bWillPurchase, CvString* toolTipSink) const
-#else
-bool CvCity::canConstruct(BuildingTypes eBuilding, bool bContinue, bool bTestVisible, bool bIgnoreCost, CvString* toolTipSink) const
-#endif
 {
 	if (eBuilding == NO_BUILDING)
 	{
@@ -8739,7 +8703,6 @@ bool CvCity::canConstruct(BuildingTypes eBuilding, bool bContinue, bool bTestVis
 		return false;
 	}
 
-#if defined(MOD_API_EXTENSIONS)
 	if (!bWillPurchase && pkBuildingInfo->IsPurchaseOnly())
 	{
 		return false;
@@ -8780,7 +8743,6 @@ bool CvCity::canConstruct(BuildingTypes eBuilding, bool bContinue, bool bTestVis
 		if (!IsEventChoiceActive((CityEventChoiceTypes)pkBuildingInfo->GetEventRequiredActive()))
 			return false;
 	}
-#endif
 
 	if (m_pCityBuildings->GetNumBuilding(eBuilding) >= GC.getCITY_MAX_NUM_BUILDINGS())
 	{
@@ -9452,7 +9414,7 @@ bool CvCity::IsHasResourceLocal(ResourceTypes eResource, bool bTestVisible) cons
 	}
 }
 
-#if defined(MOD_API_EXTENSIONS) || defined(MOD_TRADE_WONDER_RESOURCE_ROUTES)
+#if defined(MOD_TRADE_WONDER_RESOURCE_ROUTES)
 int CvCity::GetNumResourceLocal(ResourceTypes eResource, bool bImproved)
 {
 	VALIDATE_OBJECT
@@ -15000,13 +14962,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 		ChangeLocalGainlessPillageCount(pBuildingInfo->IsCityGainlessPillage() * iChange); //bool promotion
 #endif
 
-#if !defined(MOD_API_EXTENSIONS)
-		// Trust the modder if they set a building to negative happiness
-		if (pBuildingInfo->GetHappiness() > 0)
-#endif
-		{
-			ChangeBaseHappinessFromBuildings(pBuildingInfo->GetHappiness() * iChange);
-		}
+		ChangeBaseHappinessFromBuildings(pBuildingInfo->GetHappiness() * iChange);
 
 		if (pBuildingInfo->GetUnmoddedHappiness() != 0)
 		{
@@ -16595,9 +16551,9 @@ bool CvCity::isCoastal(int iMinWaterSize) const
 	return plot()->isCoastalLand(iMinWaterSize);
 }
 
-#if defined(MOD_API_EXTENSIONS)
 //	--------------------------------------------------------------------------------
-bool CvCity::isAddsFreshWater() const {
+bool CvCity::isAddsFreshWater() const 
+{
 	VALIDATE_OBJECT
 
 	//ideally this should be cached and changed when a building is added/removed ...
@@ -16611,7 +16567,6 @@ bool CvCity::isAddsFreshWater() const {
 
 	return false;
 }
-#endif
 
 #if defined(MOD_BALANCE_CORE)
 //	--------------------------------------------------------------------------------
@@ -17023,7 +16978,6 @@ void CvCity::CheckForOperationUnits()
 }
 #endif
 
-#if defined(MOD_API_EXTENSIONS)
 //	--------------------------------------------------------------------------------
 //	Returns food consumed by a specialist depending on Era and applicable modifiers
 int CvCity::foodConsumptionSpecialistTimes100() const
@@ -17072,7 +17026,6 @@ int CvCity::foodConsumptionSpecialistTimes100() const
 #endif
 	return iFoodPerSpec;
 }
-#endif
 
 // --------------------------------------------------------------------------------
 int CvCity::foodConsumption(bool bNoAngry, int iExtra) const
@@ -20447,7 +20400,7 @@ void CvCity::SetBaseTourismBeforeModifiers(int iValue)
 	m_iBaseTourismBeforeModifiers = iValue;
 }
 #endif
-#if defined(MOD_API_EXTENSIONS)
+
 //	--------------------------------------------------------------------------------
 int CvCity::getTourismRateModifier() const
 {
@@ -20464,7 +20417,6 @@ void CvCity::changeTourismRateModifier(int iChange)
 		GetCityBuildings()->ChangeGreatWorksTourismModifier(iChange);
 	}
 }
-#endif
 
 //	--------------------------------------------------------------------------------
 int CvCity::getNumWorldWonders() const
@@ -31349,11 +31301,7 @@ bool CvCity::IsCanPurchase(const std::vector<int>& vPreExistingBuildings, bool b
 		// Building
 		else if (eBuildingType != NO_BUILDING)
 		{
-#if defined(MOD_API_EXTENSIONS)
 			if (!canConstruct(eBuildingType, vPreExistingBuildings, false, !bTestTrainable, false /*bIgnoreCost*/, true /*bWillPurchase*/))
-#else
-			if (!canConstruct(eBuildingType, false, !bTestTrainable))
-#endif
 			{
 				bool bAlreadyUnderConstruction = canConstruct(eBuildingType, true, !bTestTrainable) && getFirstBuildingOrder(eBuildingType) != -1;
 				if (!bAlreadyUnderConstruction)
@@ -31644,11 +31592,7 @@ bool CvCity::IsCanPurchase(const std::vector<int>& vPreExistingBuildings, bool b
 				}
 			}
 
-#if defined(MOD_API_EXTENSIONS)
 			if (!canConstruct(eBuildingType, false, !bTestTrainable, true /*bIgnoreCost*/, true /*bWillPurchase*/))
-#else
-			if (!canConstruct(eBuildingType, false, !bTestTrainable, true /*bIgnoreCost*/))
-#endif
 			{
 				return false;
 			}
@@ -34819,7 +34763,6 @@ bool CvCity::isFighting() const
 	return getCombatUnit() != NULL;
 }
 
-#if defined(MOD_API_EXTENSIONS)
 //	----------------------------------------------------------------------------
 bool CvCity::HasBelief(BeliefTypes iBeliefType) const
 {
@@ -35526,7 +35469,6 @@ int CvCity::CountNumWorkedRiverTiles(TerrainTypes eTerrain)
 
 	return iNum;
 }
-#endif
 
 //	--------------------------------------------------------------------------------
 #if defined(MOD_CORE_PER_TURN_DAMAGE)

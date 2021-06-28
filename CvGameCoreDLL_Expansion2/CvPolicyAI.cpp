@@ -161,7 +161,7 @@ int CvPolicyAI::ChooseNextPolicy(CvPlayer* pPlayer)
 		CvPolicyBranchEntry* pkPolicyBranchInfo = GC.getPolicyBranchInfo(ePolicyBranch);
 		if(pkPolicyBranchInfo)
 		{
-			if(pPlayer->GetPlayerPolicies()->IsPolicyBranchUnlocked(ePolicyBranch))
+			if(m_pCurrentPolicies->IsPolicyBranchUnlocked(ePolicyBranch))
 			{
 				if(pkPolicyBranchInfo->IsMutuallyExclusive())
 				{
@@ -176,11 +176,11 @@ int CvPolicyAI::ChooseNextPolicy(CvPlayer* pPlayer)
 	{
 		const PolicyBranchTypes ePolicyBranch2 = static_cast<PolicyBranchTypes>(iBranchLoop2);
 		CvPolicyBranchEntry* pkPolicyBranchInfo2 = GC.getPolicyBranchInfo(ePolicyBranch2);
-		//Do we already have a different policy branch unlocked?
-		if (pkPolicyBranchInfo2 && pPlayer->GetPlayerPolicies()->IsPolicyBranchUnlocked(ePolicyBranch2))
+		// Do we already have a different policy branch unlocked?
+		if (pkPolicyBranchInfo2 && m_pCurrentPolicies->IsPolicyBranchUnlocked(ePolicyBranch2))
 		{
-			//Have we not finished it yet? If so, let's not open a new one.
-			if (!pPlayer->GetPlayerPolicies()->HasPolicy((PolicyTypes)pkPolicyBranchInfo2->GetFreeFinishingPolicy()))
+			// Have we not finished it yet? If we can finish it, let's not open a new one.
+			if (!m_pCurrentPolicies->HasPolicy((PolicyTypes)pkPolicyBranchInfo2->GetFreeFinishingPolicy()) && CanContinuePolicyBranch(ePolicyBranch2))
 			{
 				bNeedToFinish = true;
 				break;
@@ -202,7 +202,7 @@ int CvPolicyAI::ChooseNextPolicy(CvPlayer* pPlayer)
 					continue;
 				}
 
-				if(pPlayer->GetPlayerPolicies()->CanUnlockPolicyBranch(ePolicyBranch) && !pPlayer->GetPlayerPolicies()->IsPolicyBranchUnlocked(ePolicyBranch))
+				if(m_pCurrentPolicies->CanUnlockPolicyBranch(ePolicyBranch) && !m_pCurrentPolicies->IsPolicyBranchUnlocked(ePolicyBranch))
 				{
 					int iBranchWeight = 0;
 
@@ -263,6 +263,25 @@ int CvPolicyAI::ChooseNextPolicy(CvPlayer* pPlayer)
 	}
 
 	return iRtnValue;
+}
+
+bool CvPolicyAI::CanContinuePolicyBranch(PolicyBranchTypes ePolicyBranch)
+{
+	for (int iAdoptableIndex = 0; iAdoptableIndex < m_AdoptablePolicies.size(); ++iAdoptableIndex)
+	{
+		const PolicyTypes ePolicyIndex = PolicyTypes(m_AdoptablePolicies.GetElement(iAdoptableIndex) - GC.getNumPolicyBranchInfos());
+		const CvPolicyEntry* pkPolicyEntry = GC.getPolicyInfo(ePolicyIndex);
+		if (pkPolicyEntry == NULL)
+			continue;
+
+		const PolicyBranchTypes ePolicyBranchIndex = PolicyBranchTypes(pkPolicyEntry->GetPolicyBranchType());
+		if (ePolicyBranchIndex == ePolicyBranch)
+		{
+			return true;
+		}
+	}
+
+	return false;
 }
 
 void CvPolicyAI::DoChooseIdeology(CvPlayer *pPlayer)

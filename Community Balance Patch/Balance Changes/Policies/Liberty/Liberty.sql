@@ -74,7 +74,7 @@ WHERE Type = 'POLICY_CITIZENSHIP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type
 
 -- Republic (Now Civil Engineers)
 UPDATE Policies
-SET BuildingProductionModifier = '10'
+SET BuildingProductionModifier = '15'
 WHERE Type = 'POLICY_REPUBLIC' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 DELETE FROM Policy_CityYieldChanges

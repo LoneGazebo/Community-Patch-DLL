@@ -94,9 +94,7 @@ CvPromotionEntry::CvPromotionEntry():
 	m_iFriendlyLandsAttackModifier(0),
 	m_iOutsideFriendlyLandsModifier(0),
 	m_iCommandType(NO_COMMAND),
-#if defined(MOD_UNITS_NO_SUPPLY)
 	m_bNoSupply(false),
-#endif
 	m_iMaxHitPointsChange(0),
 	m_iMaxHitPointsModifier(0),
 	m_iUpgradeDiscount(0),
@@ -612,9 +610,7 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 	m_iFriendlyLandsModifier = kResults.GetInt("FriendlyLandsModifier");
 	m_iFriendlyLandsAttackModifier = kResults.GetInt("FriendlyLandsAttackModifier");
 	m_iOutsideFriendlyLandsModifier = kResults.GetInt("OutsideFriendlyLandsModifier");
-#if defined(MOD_UNITS_NO_SUPPLY)
 	m_bNoSupply = kResults.GetBool("NoSupply");
-#endif
 	m_iMaxHitPointsChange = kResults.GetInt("MaxHitPointsChange");
 	m_iMaxHitPointsModifier = kResults.GetInt("MaxHitPointsModifier");
 	m_iUpgradeDiscount = kResults.GetInt("UpgradeDiscount");
@@ -1709,13 +1705,11 @@ void CvPromotionEntry::SetCommandType(int iNewType)
 	m_iCommandType = iNewType;
 }
 
-#if defined(MOD_UNITS_NO_SUPPLY)
 /// Accessor: Unit has no supply cost
 bool CvPromotionEntry::IsNoSupply() const
 {
 	return m_bNoSupply;
 }
-#endif
 
 /// Accessor: Absolute change of max hit points
 int CvPromotionEntry::GetMaxHitPointsChange() const

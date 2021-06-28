@@ -2133,7 +2133,7 @@ void CvHomelandAI::ExecuteFirstTurnSettlerMoves()
 				if (GC.getLogging() && GC.getAILogging())
 				{
 					CvString strLogString;
-					strLogString.Format("Founded city state in place due to scenario flag, X: %d, Y: %d", pUnit->getX(), pUnit->getY());
+					strLogString.Format("Founded city state in place, X: %d, Y: %d", pUnit->getX(), pUnit->getY());
 					LogHomelandMessage(strLogString);
 				}
 				continue;

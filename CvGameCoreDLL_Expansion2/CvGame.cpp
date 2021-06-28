@@ -59,13 +59,8 @@
 
 #include "CvInfosSerializationHelper.h"
 #include "CvCityManager.h"
-
-#if defined(MOD_BALANCE_CORE)
 #include "CvPlayerManager.h"
-#endif
-#if defined(MOD_API_LUA_EXTENSIONS)
 #include "CvDllContext.h"
-#endif
 
 #include "CvSpanSerialization.h"
 #include "CvEnumMapSerialization.h"
@@ -4433,14 +4428,11 @@ CivilizationTypes CvGame::getActiveCivilizationType()
 	}
 }
 
-
-#if defined(MOD_API_EXTENSIONS)
 //	--------------------------------------------------------------------------------
 bool CvGame::isReallyNetworkMultiPlayer() const
 {
 	return CvPreGame::isReallyNetworkMultiPlayer();
 }
-#endif
 
 //	--------------------------------------------------------------------------------
 bool CvGame::isNetworkMultiPlayer() const
@@ -8487,14 +8479,12 @@ void CvGame::addGreatPersonBornName(const CvString& szName)
 	m_aszGreatPeopleBorn.push_back( hasher(szName.c_str()) );
 }
 
-#if defined(MOD_API_EXTENSIONS)
 //	--------------------------------------------------------------------------------
 void CvGame::removeGreatPersonBornName(const CvString& szName)
 {
 	stringHash hasher;
 	m_aszGreatPeopleBorn.erase(std::remove(m_aszGreatPeopleBorn.begin(), m_aszGreatPeopleBorn.end(), hasher(szName.c_str())), m_aszGreatPeopleBorn.end());
 }
-#endif
 
 // Protected Functions...
 
@@ -8724,11 +8714,7 @@ void CvGame::doTurn()
 	if(GET_PLAYER(getActivePlayer()).isAlive() && !IsStaticTutorialActive())
 	{
 		// Don't show this stuff in MP
-#if defined(MOD_API_EXTENSIONS)
 		if(!isReallyNetworkMultiPlayer() && !isPbem() && !isHotSeat())
-#else
-		if(!isGameMultiPlayer())
-#endif
 		{
 			int iTurnFrequency = /*25*/ GC.getPROGRESS_POPUP_TURN_FREQUENCY();
 
@@ -11770,6 +11756,29 @@ void CvGame::Read(FDataStream& kStream)
 
 	reset(NO_HANDICAP);
 
+	// Save header information
+	{
+		uint32 saveVersion;
+		kStream >> saveVersion;
+		GC.setSaveVersion(saveVersion);
+		
+		const CvGlobals::GameDataHash& gameDataHash = GC.getGameDataHash();
+		CvGlobals::GameDataHash saveDataHash;
+		kStream >> saveDataHash;
+
+		if (saveDataHash != gameDataHash)
+		{
+			CUSTOMLOG(
+				"WARNING - Save data hash mismatch!\n"
+				"\tLoad will be attempted but corruption or crash is likely.\n"
+				"\tSave Hash = [%#010x-%#010x-%#010x-%#010x]\n"
+				"\tGame Hash = [%#010x-%#010x-%#010x-%#010x]",
+				saveDataHash[0], saveDataHash[1], saveDataHash[2], saveDataHash[3],
+				gameDataHash[0], gameDataHash[1], gameDataHash[2], gameDataHash[3]
+			);
+		}
+	}
+
 	CvStreamLoadVisitor serialVisitor(kStream);
 	Serialize(*this, serialVisitor);
 
@@ -11834,6 +11843,13 @@ void CvGame::Read(FDataStream& kStream)
 //	--------------------------------------------------------------------------------
 void CvGame::Write(FDataStream& kStream) const
 {
+	// Save header information
+	{
+		GC.setSaveVersion(CvGlobals::SAVE_VERSION_LATEST);
+		kStream << GC.getSaveVersion();
+		kStream << GC.getGameDataHash();
+	}
+
 	CvStreamSaveVisitor serialVisitor(kStream);
 	Serialize(*this, serialVisitor);
 
@@ -12365,7 +12381,6 @@ CvGameTrade* CvGame::GetGameTrade()
 	return m_pGameTrade;
 }
 
-#if defined(MOD_API_LUA_EXTENSIONS)
 //	--------------------------------------------------------------------------------
 CvString CvGame::getDllGuid() const
 {
@@ -12381,7 +12396,6 @@ CvString CvGame::getDllGuid() const
 
 	return szDllGuid;
 }
-#endif
 
 //	--------------------------------------------------------------------------------
 CvAdvisorCounsel* CvGame::GetAdvisorCounsel()
@@ -14225,7 +14239,6 @@ void CvGame::SetLastTurnAICivsProcessed()
 	}
 }
 
-#if defined(MOD_API_EXTENSIONS)
 bool CvGame::AnyoneHasBelief(BeliefTypes iBeliefType) const
 {
 	for (int i = 0; i < MAX_PLAYERS; ++i) {
@@ -14496,7 +14509,7 @@ bool CvGame::AnyoneHasUnitClass(UnitClassTypes iUnitClassType) const
 
 	return false;
 }
-#endif
+
 #if defined(MOD_BALANCE_CORE_JFD)	
 void CvGame::SetContractUnits(ContractTypes eContract, UnitTypes eUnit, int iValue)
 {

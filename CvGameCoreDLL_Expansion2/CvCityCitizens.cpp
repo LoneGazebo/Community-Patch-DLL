@@ -973,7 +973,6 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist, const SPreco
 	}
 #endif
 
-#if defined(MOD_API_LUA_EXTENSIONS)
 	GreatPersonTypes eGreatPerson = GetGreatPersonFromSpecialist(eSpecialist);
 	if (eGreatPerson != NO_GREATPERSON)
 	{
@@ -1020,7 +1019,7 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist, const SPreco
 			iMod += (iNumPuppets * GetPlayer()->GetPlayerTraits()->GetPerPuppetGreatPersonRateModifier(eGreatPerson));
 		}
 	}
-#endif
+
 	if (GetCity()->isCapital() && GetPlayer()->IsDiplomaticMarriage())
 	{
 		int iNumMarried = 0;
@@ -2169,7 +2168,7 @@ int CvCityCitizens::GetSpecialistRate(SpecialistTypes eSpecialist)
 				iGPPChange += pReligion->m_Beliefs.GetGreatPersonPoints(GetGreatPersonFromSpecialist(eSpecialist), m_pCity->getOwner(), m_pCity, true) * 100;
 			}
 
-#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES) && defined(MOD_API_LUA_EXTENSIONS)
+#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 			// GPP from resource monopolies
 			GreatPersonTypes eGreatPerson = GetGreatPersonFromSpecialist(eSpecialist);
 			if (eGreatPerson != NO_GREATPERSON)
@@ -3037,11 +3036,7 @@ void CvCityCitizens::DoSpawnGreatPerson(UnitTypes eUnit, bool bIncrementCount, b
 	if (GetCity()->getOwner() == GC.getGame().getActivePlayer())
 	{
 		// Don't show in MP
-#if defined(MOD_API_EXTENSIONS)
 		if (!GC.getGame().isReallyNetworkMultiPlayer())
-#else
-		if (!GC.getGame().isNetworkMultiPlayer())	// KWG: Candidate for !GC.getGame().IsOption(GAMEOPTION_SIMULTANEOUS_TURNS)
-#endif
 		{
 			CvPopupInfo kPopupInfo(BUTTONPOPUP_GREAT_PERSON_REWARD, eUnit, GetCity()->GetID());
 			GC.GetEngineUserInterface()->AddPopup(kPopupInfo);

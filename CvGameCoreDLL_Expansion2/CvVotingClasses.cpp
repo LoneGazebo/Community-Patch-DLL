@@ -5098,7 +5098,6 @@ bool CvLeague::IsTradeEmbargoed(PlayerTypes eTrader, PlayerTypes eRecipient)
 	return false;
 }
 
-#if defined(MOD_API_EXTENSIONS)
 bool CvLeague::IsPlayerEmbargoed(PlayerTypes ePlayer)
 {
 	if (ePlayer < 0 || ePlayer >= MAX_CIV_PLAYERS) return false;
@@ -5118,7 +5117,6 @@ bool CvLeague::IsPlayerEmbargoed(PlayerTypes ePlayer)
 
 	return false;
 }
-#endif
 
 bool CvLeague::IsLuxuryHappinessBanned(ResourceTypes eResource)
 {
@@ -7144,11 +7142,8 @@ void CvLeague::CheckStartSpecialSession(LeagueSpecialSessionTypes eSpecialSessio
 			CvGame& kGame = GC.getGame();
 			CvPlayer& kActivePlayer = GET_PLAYER(kGame.getActivePlayer());
 
-#if defined(MOD_API_EXTENSIONS)
-			if(!kGame.isReallyNetworkMultiPlayer() && !kActivePlayer.isObserver()){
-#else
-			if(!kGame.isNetworkMultiPlayer() && !kActivePlayer.isObserver()){
-#endif
+			if(!kGame.isReallyNetworkMultiPlayer() && !kActivePlayer.isObserver())
+			{
 				// Show splash screen
 				CvPopupInfo kPopup(BUTTONPOPUP_LEAGUE_SPLASH, GetID(), GetHostMember(), eSpecialSession, 0, /*bJustFounded*/ false);
 				GC.GetEngineUserInterface()->AddPopup(kPopup);
@@ -8043,11 +8038,7 @@ void CvLeague::CheckProjectsProgress()
 						CvGame& kGame = GC.getGame();
 						CvPlayer& kActivePlayer = GET_PLAYER(kGame.getActivePlayer());
 
-#if defined(MOD_API_EXTENSIONS)
 						if(!kGame.isReallyNetworkMultiPlayer() && !kActivePlayer.isObserver())
-#else
-						if(!kGame.isNetworkMultiPlayer() && !kActivePlayer.isObserver())
-#endif
 						{
 							CvPopupInfo kPopup(BUTTONPOPUP_LEAGUE_PROJECT_COMPLETED, GetID(), it->eType);
 							GC.GetEngineUserInterface()->AddPopup(kPopup);
@@ -8812,11 +8803,8 @@ void CvGameLeagues::FoundLeague(PlayerTypes eFounder)
 			CvGame& kGame = GC.getGame();
 			CvPlayer& kActivePlayer = GET_PLAYER(kGame.getActivePlayer());
 
-#if defined(MOD_API_EXTENSIONS)
-			if(!kGame.isReallyNetworkMultiPlayer() && !kActivePlayer.isObserver()){
-#else
-			if(!kGame.isNetworkMultiPlayer() && !kActivePlayer.isObserver()){
-#endif
+			if(!kGame.isReallyNetworkMultiPlayer() && !kActivePlayer.isObserver())
+			{
 				// Show splash screen
 				CvPopupInfo kPopup(BUTTONPOPUP_LEAGUE_SPLASH, league.GetID(), league.GetHostMember(), eGoverningSpecialSession, 0, /*bJustFounded*/ true);
 				GC.GetEngineUserInterface()->AddPopup(kPopup);
