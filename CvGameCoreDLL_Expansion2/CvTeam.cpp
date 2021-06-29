@@ -6198,7 +6198,7 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 
 	if(GetTeamTechs()->HasTech(eIndex) != bNewValue)
 	{
-#if !defined(NO_ACHIEVEMENTS)
+#if defined(MOD_API_ACHIEVEMENTS)
 		CvPlayerAI& kResearchingPlayer = GET_PLAYER(ePlayer);
 
 		if(	GC.getGame().getActivePlayer() == ePlayer &&
@@ -7446,7 +7446,7 @@ void CvTeam::testCircumnavigated()
 					GC.getGame().SetTeamThatCircumnavigated(eTeamID);
 #endif
 
-#if !defined(NO_ACHIEVEMENTS)
+#if defined(MOD_API_ACHIEVEMENTS)
 					if(!kGame.isGameMultiPlayer() && kPlayer.isHuman())
 					{
 						gDLL->UnlockAchievement(ACHIEVEMENT_ROUND_WORLD);

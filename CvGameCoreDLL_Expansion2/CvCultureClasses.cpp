@@ -4049,7 +4049,7 @@ void CvPlayerCulture::DoTurn()
 		}
 	}
 #endif
-#if !defined(NO_ACHIEVEMENTS)
+#if defined(MOD_API_ACHIEVEMENTS)
 	if (m_pPlayer->isHuman() && !GC.getGame().isGameMultiPlayer())
 	{
 		// check for having city-state artifacts
@@ -8422,7 +8422,7 @@ int CvCityCulture::GetThemingBonus(BuildingClassTypes eBuildingClass) const
 					{
 						iRtnValue = iRtnValue * (100 + iModifier) / 100;
 
-#if !defined(NO_ACHIEVEMENTS)
+#if defined(MOD_API_ACHIEVEMENTS)
 						if (kPlayer.isHuman() && !GC.getGame().isGameMultiPlayer() && iRtnValue >= 16)
 						{
 							gDLL->UnlockAchievement(ACHIEVEMENT_XP2_40);

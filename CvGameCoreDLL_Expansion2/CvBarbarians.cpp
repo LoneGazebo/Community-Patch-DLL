@@ -149,7 +149,7 @@ void CvBarbarians::DoBarbCampCleared(CvPlot* pPlot, PlayerTypes ePlayer, CvUnit*
 					// We are adding a popup that the player must make a choice in, make sure they are not in the end-turn phase.
 					CancelActivePlayerEndTurn();
 
-#if !defined(NO_ACHIEVEMENTS)
+#if defined(MOD_API_ACHIEVEMENTS)
 					//Increment Stat
 					if (kPlayer.isHuman() && !GC.getGame().isGameMultiPlayer())
 					{

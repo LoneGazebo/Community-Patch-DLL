@@ -23,7 +23,7 @@ public:
 	static void EndTurn();
 	static void AlexanderConquest(PlayerTypes ePlayer);
 
-#if defined(ACHIEVEMENT_HACKS)
+#if defined(MOD_API_ACHIEVEMENTS)
 	static void UnlockFromDatabase();
 #endif
 

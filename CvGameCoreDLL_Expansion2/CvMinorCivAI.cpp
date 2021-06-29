@@ -10678,11 +10678,7 @@ void CvMinorCivAI::DoFriendship()
 				const int iFriendsThreshold = GetFriendsThreshold() * 100;
 #endif
 				int iEffectiveFriendship = GetEffectiveFriendshipWithMajorTimes100(ePlayer);
-#if defined(MOD_BALANCE_CORE)
 				if(IsAllies(ePlayer) && GetPermanentAlly() != ePlayer)
-#else
-				if(IsAllies(ePlayer))
-#endif
 				{
 					if(iEffectiveFriendship + (iTurnsWarning * iChangeThisTurn) < iAlliesThreshold &&
 						iEffectiveFriendship + ((iTurnsWarning-1) * iChangeThisTurn) >= iAlliesThreshold)
@@ -10694,7 +10690,7 @@ void CvMinorCivAI::DoFriendship()
 
 						AddNotification(strMessage.toUTF8(), strSummary.toUTF8(), ePlayer);
 					}
-#if !defined(NO_ACHIEVEMENTS)
+#if defined(MOD_API_ACHIEVEMENTS)
 					if(!GC.getGame().isGameMultiPlayer() && GET_PLAYER(ePlayer).isHuman())
 					{
 						gDLL->UnlockAchievement(ACHIEVEMENT_CITYSTATE_ALLY);
@@ -10702,11 +10698,7 @@ void CvMinorCivAI::DoFriendship()
 #endif
 
 				}
-#if defined(MOD_BALANCE_CORE)
 				else if(IsFriends(ePlayer) && GetPermanentAlly() != ePlayer)
-#else
-				else if(IsFriends(ePlayer))
-#endif
 				{
 					if(iEffectiveFriendship + (iTurnsWarning * iChangeThisTurn) < iFriendsThreshold &&
 						iEffectiveFriendship + ((iTurnsWarning-1) * iChangeThisTurn) >= iFriendsThreshold)
@@ -11252,7 +11244,7 @@ void CvMinorCivAI::SetAlly(PlayerTypes eNewAlly)
 			}
 		}
 
-#if !defined(NO_ACHIEVEMENTS)
+#if defined(MOD_API_ACHIEVEMENTS)
 		//Achievement Test
 		kNewAlly.GetPlayerAchievements().AlliedWithCityState(GetPlayer()->GetID());
 #endif
@@ -14737,7 +14729,7 @@ void CvMinorCivAI::DoBuyout(PlayerTypes eMajor)
 		return;
 	
 
-#if !defined(NO_ACHIEVEMENTS)
+#if defined(MOD_API_ACHIEVEMENTS)
 	//Nigerian Prince Achievement
 	MinorCivTypes eBornu =(MinorCivTypes) GC.getInfoTypeForString("MINOR_CIV_BORNU", /*bHideAssert*/ true);
 	MinorCivTypes  eSokoto =(MinorCivTypes) GC.getInfoTypeForString("MINOR_CIV_SOKOTO", /*bHideAssert*/ true);
@@ -14787,7 +14779,7 @@ void CvMinorCivAI::DoBuyout(PlayerTypes eMajor)
 	}
 #endif
 	
-#if !defined(NO_ACHIEVEMENTS)
+#if defined(MOD_API_ACHIEVEMENTS)
 	CvPlayerAI& kMajorPlayer = GET_PLAYER(eMajor);
 	kMajorPlayer.GetPlayerAchievements().BoughtCityState(iNumUnits);
 #endif
@@ -16375,7 +16367,7 @@ void CvMinorCivAI::DoElection()
 				}
 				ChangeFriendshipWithMajor(ePlayer, iValue, false);
 
-#if !defined(NO_ACHIEVEMENTS)
+#if defined(MOD_API_ACHIEVEMENTS)
 				//Achievements!
 				if(ePlayer == GC.getGame().getActivePlayer())
 				{

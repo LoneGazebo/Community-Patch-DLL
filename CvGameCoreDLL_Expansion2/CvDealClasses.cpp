@@ -2825,7 +2825,7 @@ void CvGameDeals::FinalizeDealValidAndAccepted(PlayerTypes eFromPlayer, PlayerTy
 			GET_PLAYER(eAcceptedFromPlayer).changeResourceExport(eResource, iResourceQuantity);
 			GET_PLAYER(eAcceptedToPlayer).changeResourceImportFromMajor(eResource, iResourceQuantity);
 
-#if !defined(NO_ACHIEVEMENTS)
+#if defined(MOD_API_ACHIEVEMENTS)
 			//Resource Trading Achievements
 			if(!GC.getGame().isGameMultiPlayer())
 			{
@@ -3494,7 +3494,7 @@ bool CvGameDeals::FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, b
 					GET_PLAYER(eAcceptedFromPlayer).changeResourceExport(eResource, iResourceQuantity);
 					GET_PLAYER(eAcceptedToPlayer).changeResourceImportFromMajor(eResource, iResourceQuantity);
 
-#if !defined(NO_ACHIEVEMENTS)
+#if defined(MOD_API_ACHIEVEMENTS)
 					//Resource Trading Achievements
 					if(!GC.getGame().isGameMultiPlayer())
 					{

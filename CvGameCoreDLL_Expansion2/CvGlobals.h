@@ -117,7 +117,7 @@ class CvTraitEntry;
 class CvTraitXMLEntries;
 class CvNotificationEntry;
 class CvNotificationXMLEntries;
-#if defined(MOD_API_ACHIEVEMENTS) || defined(ACHIEVEMENT_HACKS)
+#if defined(MOD_API_ACHIEVEMENTS)
 class CvAchievementInfo;
 class CvAchievementXMLEntries;
 #endif
@@ -629,7 +629,7 @@ public:
 	_Ret_maybenull_ CvSmallAwardInfo* getSmallAwardInfo(SmallAwardTypes eSmallAwardNum);
 
 	CvNotificationXMLEntries* GetNotificationEntries();
-#if defined(MOD_API_ACHIEVEMENTS) || defined(ACHIEVEMENT_HACKS)
+#if defined(MOD_API_ACHIEVEMENTS)
 	int getNumAchievementInfos();
 	std::vector<CvAchievementInfo*>& getAchievementInfo();
 	_Ret_maybenull_ CvAchievementInfo* getAchievementInfo(EAchievement eAchievementNum);
@@ -9788,7 +9788,7 @@ protected:
 	CvLeagueProjectRewardXMLEntries* m_pLeagueProjectRewards;
 	CvResolutionXMLEntries* m_pResolutions;
 	CvNotificationXMLEntries* m_pNotifications;
-#if defined(MOD_API_ACHIEVEMENTS) || defined(ACHIEVEMENT_HACKS)
+#if defined(MOD_API_ACHIEVEMENTS)
 	CvAchievementXMLEntries* m_pAchievements;
 #endif
 #if defined(MOD_BALANCE_CORE)

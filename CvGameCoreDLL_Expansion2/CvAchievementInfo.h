@@ -3,7 +3,7 @@
 #ifndef CV_ACHIEVEMENT_INFO_H
 #define CV_ACHIEVEMENT_INFO_H
 
-#if defined(MOD_API_ACHIEVEMENTS) || defined(ACHIEVEMENT_HACKS)
+#if defined(MOD_API_ACHIEVEMENTS)
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //  class : CvAchievementInfo
