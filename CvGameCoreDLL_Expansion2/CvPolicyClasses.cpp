@@ -5808,8 +5808,7 @@ void CvPlayerPolicies::SetPolicyBranchFinished(PolicyBranchTypes eBranchType, bo
 	{
 		m_pabPolicyBranchFinished[eBranchType] = bValue;
 
-
-#if !defined(NO_ACHIEVEMENTS)
+#if defined(MOD_API_ACHIEVEMENTS)
 		bool bUsingXP1Scenario3 = gDLL->IsModActivated(CIV5_XP1_SCENARIO3_MODID);
 
 		//Achievements for fulfilling branches
@@ -5856,7 +5855,6 @@ void CvPlayerPolicies::SetPolicyBranchFinished(PolicyBranchTypes eBranchType, bo
 			}
 		}
 #endif
-
 	}
 }
 

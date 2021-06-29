@@ -6148,7 +6148,7 @@ void CvDiplomacyAI::SetNumArtifactsEverDugUp(PlayerTypes ePlayer, int iValue)
 	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return;
 	m_aiArtifactsEverDugUp[ePlayer] = range(iValue, 0, UCHAR_MAX);
 
-#if !defined(NO_ACHIEVEMENTS)
+#if defined(MOD_API_ACHIEVEMENTS)
 	if (!GC.getGame().isGameMultiPlayer() && GET_PLAYER(ePlayer).isHuman() && ePlayer == GC.getGame().getActivePlayer())
 	{
 		if (iValue >= 5)
@@ -26137,7 +26137,7 @@ void CvDiplomacyAI::DoKilledByPlayer(PlayerTypes ePlayer)
 		gDLL->GameplayDiplomacyAILeaderMessage(GetID(), DIPLO_UI_STATE_BLANK_DISCUSSION, szText, LEADERHEAD_ANIM_DEFEATED);
 #endif
 
-#if !defined(NO_ACHIEVEMENTS)
+#if defined(MOD_API_ACHIEVEMENTS)
 		if(!GC.getGame().isGameMultiPlayer())
 		{
 			gDLL->UnlockAchievement(ACHIEVEMENT_DESTROY_CIV);
@@ -36691,7 +36691,7 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 
 			if (bActivePlayer)
 			{
-#if !defined(NO_ACHIEVEMENTS)
+#if defined(MOD_API_ACHIEVEMENTS)
 				if(GET_PLAYER(eFromPlayer).GetEspionage()->HasSharedIntrigueAboutMe(eMyPlayer))
 				{
 					gDLL->UnlockAchievement(ACHIEVEMENT_XP1_37);

@@ -2478,7 +2478,7 @@ CvGlobals::CvGlobals() :
 	m_pLeagueProjects(NULL),
 	m_pLeagueProjectRewards(NULL),
 	m_pResolutions(NULL),
-#if defined(MOD_API_ACHIEVEMENTS) || defined(ACHIEVEMENT_HACKS)
+#if defined(MOD_API_ACHIEVEMENTS)
 	m_pAchievements(NULL),
 #endif
 #if defined(MOD_BALANCE_CORE)
@@ -2749,7 +2749,7 @@ void CvGlobals::init()
 	m_pLeagueProjectRewards = FNEW(CvLeagueProjectRewardXMLEntries, c_eCiv5GameplayDLL, 0);
 	m_pResolutions = FNEW(CvResolutionXMLEntries, c_eCiv5GameplayDLL, 0);
 	m_pNotifications = FNEW(CvNotificationXMLEntries, c_eCiv5GameplayDLL, 0);
-#if defined(MOD_API_ACHIEVEMENTS) || defined(ACHIEVEMENT_HACKS)
+#if defined(MOD_API_ACHIEVEMENTS)
 	m_pAchievements = FNEW(CvAchievementXMLEntries, c_eCiv5GameplayDLL, 0);
 #endif
 #if defined(MOD_BALANCE_CORE)
@@ -2811,7 +2811,7 @@ void CvGlobals::uninit()
 	SAFE_DELETE(m_pLeagueProjectRewards);
 	SAFE_DELETE(m_pResolutions);
 	SAFE_DELETE(m_pNotifications);
-#if defined(MOD_API_ACHIEVEMENTS) || defined(ACHIEVEMENT_HACKS)
+#if defined(MOD_API_ACHIEVEMENTS)
 	SAFE_DELETE(m_pAchievements);
 #endif
 	SAFE_DELETE(m_pImprovements); // player uses the improvement count in deallocating.
@@ -4830,7 +4830,7 @@ CvNotificationXMLEntries* CvGlobals::GetNotificationEntries()
 	return m_pNotifications;
 }
 
-#if defined(MOD_API_ACHIEVEMENTS) || defined(ACHIEVEMENT_HACKS)
+#if defined(MOD_API_ACHIEVEMENTS)
 int CvGlobals::getNumAchievementInfos()
 {
 	return m_pAchievements->GetNumAchievements();

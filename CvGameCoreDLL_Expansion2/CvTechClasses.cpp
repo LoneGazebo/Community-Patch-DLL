@@ -1648,7 +1648,7 @@ bool CvPlayerTechs::IsNoResearchAvailable() const
 ///Check for Achievement
 void CvPlayerTechs::CheckForTechAchievement() const
 {
-#if !defined(NO_ACHIEVEMENTS)
+#if defined(MOD_API_ACHIEVEMENTS)
 	if(m_pPlayer->isHuman() && !GC.getGame().isGameMultiPlayer())
 	{
 		//Check for Catherine Achievement

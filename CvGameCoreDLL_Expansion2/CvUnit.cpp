@@ -6941,7 +6941,7 @@ void CvUnit::embark(CvPlot* pPlot)
 	auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(this));
 	gDLL->GameplayUnitEmbark(pDllUnit.get(), true);
 
-#if !defined(NO_ACHIEVEMENTS)
+#if defined(MOD_API_ACHIEVEMENTS)
 	if(isHuman() && !GC.getGame().isGameMultiPlayer() && GET_PLAYER(GC.getGame().getActivePlayer()).isLocalPlayer())
 	{
 		gDLL->UnlockAchievement(ACHIEVEMENT_UNIT_EMBARK);
@@ -8417,7 +8417,7 @@ bool CvUnit::airlift(int iX, int iY)
 	CvAssert(pTargetPlot != NULL);
 
 
-#if !defined(NO_ACHIEVEMENTS)
+#if defined(MOD_API_ACHIEVEMENTS)
 	//Here's Looking at You, Kid
 	CvPlayerAI& kActivePlayer = GET_PLAYER(GC.getGame().getActivePlayer());
 	if(pTargetPlot != NULL && getOwner() == kActivePlayer.GetID() && kActivePlayer.isHuman())
@@ -10449,7 +10449,7 @@ bool CvUnit::pillage()
 				}
 			}
 
-#if !defined(NO_ACHIEVEMENTS)
+#if defined(MOD_API_ACHIEVEMENTS)
 			//Unlock any possible achievements.
 			if(getOwner() == GC.getGame().getActivePlayer() && strcmp(pkImprovement->GetType(), "IMPROVEMENT_FARM") == 0)
 				CvAchievementUnlocker::FarmImprovementPillaged();
@@ -10614,7 +10614,7 @@ bool CvUnit::foundCity()
 	}
 
 	CvPlayerAI& kPlayer = GET_PLAYER(getOwner());
-#if !defined(NO_ACHIEVEMENTS)
+#if defined(MOD_API_ACHIEVEMENTS)
 	CvPlayerAI& kActivePlayer = GET_PLAYER(eActivePlayer);
 #endif
 
@@ -10653,7 +10653,7 @@ bool CvUnit::foundCity()
 		auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(this));
 		gDLL->GameplayUnitActivate(pDllUnit.get());
 
-#if !defined(NO_ACHIEVEMENTS)
+#if defined(MOD_API_ACHIEVEMENTS)
 		//Achievement
 		if(eActivePlayer == getOwner() && kActivePlayer.getNumCities() >= 2 && kActivePlayer.isHuman() && !GC.getGame().isGameMultiPlayer())
 		{
@@ -11367,7 +11367,7 @@ bool CvUnit::DoSpreadReligion()
 				finishMoves();
 			}
 
-#if !defined(NO_ACHIEVEMENTS)
+#if defined(MOD_API_ACHIEVEMENTS)
 			//Achievements
 			const PlayerTypes eActivePlayer = GC.getGame().getActivePlayer();
 			if(getOwner() == eActivePlayer && pCity->getOwner() != eActivePlayer)
@@ -11491,7 +11491,7 @@ bool CvUnit::DoRemoveHeresy()
 				}
 			}
 
-#if !defined(NO_ACHIEVEMENTS)
+#if defined(MOD_API_ACHIEVEMENTS)
 			//Achievements
 			if(getOwner() == GC.getGame().getActivePlayer())
 			{
@@ -12048,7 +12048,7 @@ bool CvUnit::hurry()
 
 	if(pPlot->isActiveVisible())
 	{
-#if !defined(NO_ACHIEVEMENTS)
+#if defined(MOD_API_ACHIEVEMENTS)
 		//Achievement check
 		if(pCity != NULL && pCity->getProductionBuilding() != NO_BUILDING)
 		{
@@ -13450,7 +13450,7 @@ bool CvUnit::blastTourism()
 		SHOW_PLOT_POPUP(pPlot, getOwner(), text);
 	}
 
-#if !defined(NO_ACHIEVEMENTS)
+#if defined(MOD_API_ACHIEVEMENTS)
 	// Achievements
 	if (GET_PLAYER(m_eOwner).isHuman() && !GC.getGame().isGameMultiPlayer())
 	{
@@ -14839,7 +14839,7 @@ CvUnit* CvUnit::DoUpgradeTo(UnitTypes eUnitType, bool bFree)
 		kill(true);
 	}
 
-#if !defined(NO_ACHIEVEMENTS)
+#if defined(MOD_API_ACHIEVEMENTS)
 	if(isHuman() && !GC.getGame().isGameMultiPlayer() && GET_PLAYER(GC.getGame().getActivePlayer()).isLocalPlayer())
 	{
 		gDLL->UnlockAchievement(ACHIEVEMENT_UNIT_UPGRADE);
@@ -19735,18 +19735,13 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 		// Moving into a City (friend or foe)
 		if(pNewCity != NULL)
 		{
-#if defined(MOD_BALANCE_CORE)
 			if(isEnemy(pNewCity->getTeam()))
-#else
-			if(isEnemy(pNewCity->getTeam()) && !canCoexistWithEnemyUnit(pNewCity->getTeam()))
-#endif
 			{
 				PlayerTypes eNewOwner = GET_PLAYER(getOwner()).pickConqueredCityOwner(*pNewCity);
 
 				if(NO_PLAYER != eNewOwner)
 				{
-					
-#if !defined(NO_ACHIEVEMENTS)
+#if defined(MOD_API_ACHIEVEMENTS)
 					//Test for City Achievements here since we need to know about the capturing unit.
 					if(getOwner() == GC.getGame().getActivePlayer())
 					{
@@ -20386,7 +20381,7 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 		LuaSupport::CallHook(pkScriptSystem, "UnitSetXY", args.get(), bResult);
 	}
 
-#if !defined(NO_ACHIEVEMENTS)
+#if defined(MOD_API_ACHIEVEMENTS)
 	//Dr. Livingstone I presume?
 	if (isHuman() && !isDelayedDeath())
 	{
@@ -24458,7 +24453,7 @@ void CvUnit::setPromotionReady(bool bNewValue)
 				CvString strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_UNIT_CAN_GET_PROMOTION");
 				CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_UNIT_CAN_GET_PROMOTION");
 				pNotifications->Add(NOTIFICATION_UNIT_PROMOTION, strBuffer, strSummary, -1, -1, getUnitType(), GetID());
-#if !defined(NO_ACHIEVEMENTS)
+#if defined(MOD_API_ACHIEVEMENTS)
 				if(isHuman() && !GC.getGame().isGameMultiPlayer() && GET_PLAYER(GC.getGame().getActivePlayer()).isLocalPlayer())
 				{
 					gDLL->UnlockAchievement(ACHIEVEMENT_UNIT_PROMOTE);
@@ -26793,7 +26788,7 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 				GC.getMap().updateDeferredFog();
 		}
 
-#if !defined(NO_ACHIEVEMENTS)
+#if defined(MOD_API_ACHIEVEMENTS)
 		PromotionTypes eBuffaloChest =(PromotionTypes) GC.getInfoTypeForString("PROMOTION_BUFFALO_CHEST", true /*bHideAssert*/);
 		PromotionTypes eBuffaloLoins =(PromotionTypes) GC.getInfoTypeForString("PROMOTION_BUFFALO_LOINS", true /*bHideAssert*/);
 
