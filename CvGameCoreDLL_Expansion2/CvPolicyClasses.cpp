@@ -3616,19 +3616,19 @@ int CvPolicyEntry::GetImprovementCultureChanges(int i) const
 	return m_piImprovementCultureChange[i];
 }
 
-/// Yields whenever you liberate a city for the first time
+/// Yields whenever you liberate a city
 int CvPolicyEntry::GetYieldForLiberation(int i) const
 {
 	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
 	return m_piYieldForLiberation[i];
 }
-/// Influence in all CS whenever you liberate a city for the first time
+/// Influence in all CS whenever you liberate a city 
 int CvPolicyEntry::GetInfluenceForLiberation() const
 {
 	return m_iInfluenceForLiberation;
 }
-/// All units get XP whenever you liberate a city for the first time
+/// All units get XP whenever you liberate a city
 int CvPolicyEntry::GetExperienceForLiberation() const
 {
 	return m_iExperienceForLiberation;

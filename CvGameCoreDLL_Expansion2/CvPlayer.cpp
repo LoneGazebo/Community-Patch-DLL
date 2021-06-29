@@ -10002,57 +10002,54 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 
 			// Reduce liberator's war weariness by 25%
 			GetCulture()->SetWarWeariness(GetCulture()->GetWarWeariness() - (GetCulture()->GetWarWeariness() / 4));
-
+		}
 #if defined(MOD_BALANCE_CORE_POLICIES)
 
-			//gain yields for liberation
-			int iPop = pNewCity->getPopulation();
-			for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
-			{
-				YieldTypes eYield = (YieldTypes)iI;
-				int iLiberationYield = getYieldForLiberation(eYield);
-				if (iLiberationYield > 0)
-					doInstantYield(INSTANT_YIELD_TYPE_INSTANT, false, NO_GREATPERSON, NO_BUILDING, iLiberationYield * iPop, true, NO_PLAYER, NULL, false, getCapitalCity(), false, true, true, eYield);
-			}
+		//gain yields for liberation
+		int iPop = pNewCity->getPopulation();
+		for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+		{
+			YieldTypes eYield = (YieldTypes)iI;
+			int iLiberationYield = getYieldForLiberation(eYield);
+			if (iLiberationYield > 0)
+				doInstantYield(INSTANT_YIELD_TYPE_INSTANT, false, NO_GREATPERSON, NO_BUILDING, iLiberationYield * iPop, true, NO_PLAYER, NULL, false, getCapitalCity(), false, true, true, eYield);
+		}
 
-			//liberator gets influence with all City-States?
-			int iInfluence = getInfluenceForLiberation();
-			if (iInfluence > 0)
+		//liberator gets influence with all City-States?
+		int iInfluence = getInfluenceForLiberation();
+		if (iInfluence > 0)
+		{
+			for (int iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
 			{
-				for (int iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
+				PlayerTypes eMinorLoop = (PlayerTypes)iMinorLoop;
+				if (eMinorLoop != NO_PLAYER)
 				{
-					PlayerTypes eMinorLoop = (PlayerTypes)iMinorLoop;
-					if (eMinorLoop != NO_PLAYER)
+					CvPlayer* pMinorLoop = &GET_PLAYER(eMinorLoop);
+					if (pMinorLoop->isMinorCiv() && pMinorLoop->isAlive())
 					{
-						CvPlayer* pMinorLoop = &GET_PLAYER(eMinorLoop);
-						if (pMinorLoop->isMinorCiv() && pMinorLoop->isAlive())
+						if (GET_TEAM(pMinorLoop->getTeam()).isHasMet(getTeam()))
 						{
-							if (GET_TEAM(pMinorLoop->getTeam()).isHasMet(getTeam()))
-							{
-								pMinorLoop->GetMinorCivAI()->ChangeFriendshipWithMajor(GetID(), iInfluence, false);
-							}
+							pMinorLoop->GetMinorCivAI()->ChangeFriendshipWithMajor(GetID(), iInfluence, false);
 						}
 					}
 				}
 			}
+		}
 
-			//liberator gets XP with all of their units?
-			int iNumXP = getExperienceForLiberation();
-			if (iNumXP > 0) 
+		//liberator gets XP with all of their units?
+		int iNumXP = getExperienceForLiberation();
+		if (iNumXP > 0)
+		{
+			doInstantYield(INSTANT_YIELD_TYPE_INSTANT, false, NO_GREATPERSON, NO_BUILDING, iNumXP, false, NO_PLAYER, NULL, false, getCapitalCity(), false, true, false, YIELD_JFD_SOVEREIGNTY);
+			int iLoop;
+			for (CvUnit* pLoopUnit = firstUnit(&iLoop); NULL != pLoopUnit; pLoopUnit = nextUnit(&iLoop))
 			{
-				doInstantYield(INSTANT_YIELD_TYPE_INSTANT, false, NO_GREATPERSON, NO_BUILDING, iNumXP, false, NO_PLAYER, NULL, false, getCapitalCity(), false, true, false, YIELD_JFD_SOVEREIGNTY);
-				int iLoop;
-				for (CvUnit* pLoopUnit = firstUnit(&iLoop); NULL != pLoopUnit; pLoopUnit = nextUnit(&iLoop))
+				if (pLoopUnit && pLoopUnit->IsCombatUnit())
 				{
-					if (pLoopUnit && pLoopUnit->IsCombatUnit())
-					{
-						pLoopUnit->changeExperienceTimes100(iNumXP * 100);
-					}
+					pLoopUnit->changeExperienceTimes100(iNumXP * 100);
 				}
 			}
-#endif
 		}
-#if defined(MOD_BALANCE_CORE_POLICIES)
 
 		//liberated city gets a building?
 		const BuildingClassTypes eBuildingClass = getBuildingClassInLiberatedCities();
