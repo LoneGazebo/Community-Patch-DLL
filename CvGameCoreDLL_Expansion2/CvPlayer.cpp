@@ -35606,7 +35606,7 @@ void CvPlayer::changeYieldFromDelegateCount(YieldTypes eIndex, int iChange)
 		}
 	}
 }
-
+#if defined(MOD_BALANCE_CORE_POLICIES)
 //	--------------------------------------------------------------------------------
 int CvPlayer::getYieldForLiberation(YieldTypes eIndex)	const
 {
@@ -35669,7 +35669,7 @@ void CvPlayer::changeUnitsInLiberatedCities(int iChange)
 {
 	m_iUnitsInLiberatedCities += iChange;
 }
-
+#endif
 
 //	--------------------------------------------------------------------------------
 int CvPlayer::getReligionYieldRateModifier(YieldTypes eIndex)	const

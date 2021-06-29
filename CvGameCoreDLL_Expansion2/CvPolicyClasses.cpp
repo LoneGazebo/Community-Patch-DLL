@@ -3616,6 +3616,7 @@ int CvPolicyEntry::GetImprovementCultureChanges(int i) const
 	return m_piImprovementCultureChange[i];
 }
 
+#if defined(MOD_BALANCE_CORE_POLICIES)
 /// Yields whenever you liberate a city
 int CvPolicyEntry::GetYieldForLiberation(int i) const
 {
@@ -3643,6 +3644,7 @@ int CvPolicyEntry::GetUnitsInLiberatedCities() const
 {
 	return m_iUnitsInLiberatedCities;
 }
+#endif
 
 /// Free building in each city conquered
 BuildingTypes CvPolicyEntry::GetFreeBuildingOnConquest() const
