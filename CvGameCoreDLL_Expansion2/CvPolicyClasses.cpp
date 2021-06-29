@@ -337,6 +337,11 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_piFounderYield(NULL),
 	m_piReligionYieldMod(NULL),
 	m_ppiReligionBuildingYieldMod(NULL),
+	m_piYieldForLiberation(NULL),
+	m_iInfluenceForLiberation(0),
+	m_iExperienceForLiberation(0),
+	m_eBuildingClassInLiberatedCities(NO_BUILDINGCLASS),
+	m_iUnitsInLiberatedCities(0),
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	m_iInvestmentModifier(0),
@@ -389,12 +394,7 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_ppiBuildingClassYieldModifiers(NULL),
 	m_ppiBuildingClassYieldChanges(NULL),
 	m_piFlavorValue(NULL),
-	m_eFreeBuildingOnConquest(NO_BUILDING),
-	m_piYieldForLiberation(NULL),
-	m_iInfluenceForLiberation(0),
-	m_iExperienceForLiberation(0),
-	m_eBuildingClassInLiberatedCities(NO_BUILDINGCLASS),
-	m_iUnitsInLiberatedCities(0)
+	m_eFreeBuildingOnConquest(NO_BUILDING)
 {
 }
 
@@ -446,6 +446,7 @@ CvPolicyEntry::~CvPolicyEntry(void)
 	SAFE_DELETE_ARRAY(m_piReligionYieldMod);
 	SAFE_DELETE_ARRAY(m_piGoldenAgeYieldMod);
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiReligionBuildingYieldMod);
+	SAFE_DELETE_ARRAY(m_piYieldForLiberation);
 #endif
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiImprovementYieldChanges);
 #if defined(MOD_API_UNIFIED_YIELDS)
@@ -477,7 +478,6 @@ CvPolicyEntry::~CvPolicyEntry(void)
 	SAFE_DELETE_ARRAY(m_piYieldModifierFromActiveSpies);
 	SAFE_DELETE_ARRAY(m_piYieldFromDelegateCount);
 	SAFE_DELETE_ARRAY(m_piYieldChangesPerReligion);
-	SAFE_DELETE_ARRAY(m_piYieldForLiberation);
 #endif
 #if defined(HH_MOD_API_TRADEROUTE_MODIFIERS)
 	SAFE_DELETE_ARRAY(m_piInternationalRouteYieldModifiers);
@@ -1240,17 +1240,19 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 
 	//ImprovementCultureChanges
 	kUtility.PopulateArrayByValue(m_piImprovementCultureChange, "Improvements", "Policy_ImprovementCultureChanges", "ImprovementType", "PolicyType", szPolicyType, "CultureChange");
-	
+
+#if defined(MOD_BALANCE_CORE_POLICIES)
 	kUtility.SetYields(m_piYieldForLiberation, "Policy_YieldForLiberation", "PolicyType", szPolicyType);
 	m_iInfluenceForLiberation = kResults.GetInt("InfluenceAllCSFromLiberation");
 	m_iExperienceForLiberation = kResults.GetInt("ExperienceAllUnitsFromLiberation");
 	m_iUnitsInLiberatedCities = kResults.GetInt("NumUnitsInLiberatedCities");
-	
+
 	const char* szBuildingClassInLiberatedCities = kResults.GetText("BuildingClassInLiberatedCities");
 	if (szBuildingClassInLiberatedCities)
 	{
 		m_eBuildingClassInLiberatedCities = (BuildingClassTypes)GC.getInfoTypeForString(szBuildingClassInLiberatedCities, true);
 	}
+#endif
 
 	//OrPreReqs
 	{

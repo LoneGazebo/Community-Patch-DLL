@@ -299,11 +299,6 @@ public:
 	int GetNumFreeUnitsByClass(int i) const;
 	int GetTourismByUnitClassCreated(int i) const;
 	int GetImprovementCultureChanges(int i) const;
-	int GetYieldForLiberation(int i) const;
-	int GetInfluenceForLiberation() const;
-	int GetExperienceForLiberation() const;
-	BuildingClassTypes GetBuildingClassInLiberatedCities() const;
-	int GetUnitsInLiberatedCities() const;
 
 	int GetHurryModifier(int i) const;
 	bool IsSpecialistValid(int i) const;
@@ -358,6 +353,11 @@ public:
 	int GetRazingSpeedBonus() const;
 	bool IsNoPartisans() const;
 	int GetExtraSupplyPerPopulation() const;
+	int GetYieldForLiberation(int i) const;
+	int GetInfluenceForLiberation() const;
+	int GetExperienceForLiberation() const;
+	BuildingClassTypes GetBuildingClassInLiberatedCities() const;
+	int GetUnitsInLiberatedCities() const;
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	int GetInvestmentModifier() const;
@@ -727,11 +727,6 @@ private:
 	int* m_piGreatWorkYieldChange;
 	int* m_piSpecialistExtraYield;
 	int* m_piImprovementCultureChange;
-	int* m_piYieldForLiberation;
-	int m_iInfluenceForLiberation;
-	int m_iExperienceForLiberation;
-	BuildingClassTypes m_eBuildingClassInLiberatedCities;
-	int m_iUnitsInLiberatedCities;
 	bool* m_pabFreePromotion;
 	int* m_paiUnitCombatProductionModifiers;
 	int* m_paiUnitCombatFreeExperiences;
@@ -815,6 +810,11 @@ private:
 	int m_iHappinessPerXGreatWorks;
 	int m_iExtraMissionaryStrength;
 	int m_iExtraMissionarySpreads;
+	int* m_piYieldForLiberation;
+	int m_iInfluenceForLiberation;
+	int m_iExperienceForLiberation;
+	BuildingClassTypes m_eBuildingClassInLiberatedCities;
+	int m_iUnitsInLiberatedCities;
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	int m_iInvestmentModifier;
