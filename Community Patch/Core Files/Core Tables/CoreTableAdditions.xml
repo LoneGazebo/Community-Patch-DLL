@@ -1440,6 +1440,16 @@
 		<Column name="Modifier" type="integer" default="0"/>
 	</Table>
 	<!-- End Corporations -->
+	<!-- Start bias -->
+	<Table name="Civilization_Start_Prefer_Mountain">
+		<Column name="CivilizationType" type="text"  />
+		<Column name="StartPreferMountain" type="boolean"  default="0"/>
+	</Table>
+	<Table name="Civilization_Start_Prefer_Snow">
+		<Column name="CivilizationType" type="text"  />
+		<Column name="StartPreferSnow" type="boolean"  default="0"/>
+	</Table>
+	<!-- End of start bias -->
 	<!-- Stuff for CBO Egypt-->
 	<GreatWorkArtifactClasses>
 		<Row Type="ARTIFACT_SARCOPHAGUS" Value="7"/>
