@@ -6881,107 +6881,179 @@ CvLeaderHeadInfo::~CvLeaderHeadInfo()
 //------------------------------------------------------------------------------
 int CvLeaderHeadInfo::GetVictoryCompetitiveness() const
 {
+	if (m_iVictoryCompetitiveness <= 0 || m_iVictoryCompetitiveness > 30)
+		return GC.getGame().GetDefaultFlavorValue();
+
 	return m_iVictoryCompetitiveness;
 }
 //------------------------------------------------------------------------------
 int CvLeaderHeadInfo::GetWonderCompetitiveness() const
 {
+	if (m_iWonderCompetitiveness <= 0 || m_iWonderCompetitiveness > 30)
+		return GC.getGame().GetDefaultFlavorValue();
+
 	return m_iWonderCompetitiveness;
 }
 //------------------------------------------------------------------------------
 int CvLeaderHeadInfo::GetMinorCivCompetitiveness() const
 {
+	if (m_iMinorCivCompetitiveness <= 0 || m_iMinorCivCompetitiveness > 30)
+		return GC.getGame().GetDefaultFlavorValue();
+
 	return m_iMinorCivCompetitiveness;
 }
 //------------------------------------------------------------------------------
 int CvLeaderHeadInfo::GetBoldness() const
 {
+	if (m_iBoldness <= 0 || m_iBoldness > 30)
+		return GC.getGame().GetDefaultFlavorValue();
+
 	return m_iBoldness;
 }
 //------------------------------------------------------------------------------
 int CvLeaderHeadInfo::GetDiploBalance() const
 {
+	if (m_iDiploBalance <= 0 || m_iDiploBalance > 30)
+		return GC.getGame().GetDefaultFlavorValue();
+
 	return m_iDiploBalance;
 }
 //------------------------------------------------------------------------------
 int CvLeaderHeadInfo::GetWarmongerHate() const
 {
+	if (m_iWarmongerHate <= 0 || m_iWarmongerHate > 30)
+		return GC.getGame().GetDefaultFlavorValue();
+
 	return m_iWarmongerHate;
 }
 //------------------------------------------------------------------------------
 int CvLeaderHeadInfo::GetDoFWillingness() const
 {
+	if (m_iDoFWillingness <= 0 || m_iDoFWillingness > 30)
+		return GC.getGame().GetDefaultFlavorValue();
+
 	return m_iDoFWillingness;
 }
 //------------------------------------------------------------------------------
 int CvLeaderHeadInfo::GetDenounceWillingness() const
 {
+	if (m_iDenounceWillingness <= 0 || m_iDenounceWillingness > 30)
+		return GC.getGame().GetDefaultFlavorValue();
+
 	return m_iDenounceWillingness;
 }
 //------------------------------------------------------------------------------
 int CvLeaderHeadInfo::GetLoyalty() const
 {
+	if (m_iLoyalty <= 0 || m_iLoyalty > 30)
+		return GC.getGame().GetDefaultFlavorValue();
+
 	return m_iLoyalty;
 }
 //------------------------------------------------------------------------------
 int CvLeaderHeadInfo::GetForgiveness() const
 {
+	if (m_iForgiveness <= 0 || m_iForgiveness > 30)
+		return GC.getGame().GetDefaultFlavorValue();
+
 	return m_iForgiveness;
 }
 //------------------------------------------------------------------------------
 int CvLeaderHeadInfo::GetNeediness() const
 {
+	if (m_iNeediness <= 0 || m_iNeediness > 30)
+		return GC.getGame().GetDefaultFlavorValue();
+
 	return m_iNeediness;
 }
 //------------------------------------------------------------------------------
 int CvLeaderHeadInfo::GetMeanness() const
 {
+	if (m_iMeanness <= 0 || m_iMeanness > 30)
+		return GC.getGame().GetDefaultFlavorValue();
+
 	return m_iMeanness;
 }
 //------------------------------------------------------------------------------
 int CvLeaderHeadInfo::GetChattiness() const
 {
+	if (m_iChattiness <= 0 || m_iChattiness > 30)
+		return GC.getGame().GetDefaultFlavorValue();
+
 	return m_iChattiness;
 }
 //------------------------------------------------------------------------------
-// Recursive: Need to hardcode these references because of how Firaxis set up the table.
+// Recursive: Need to hardcode these references because of how Firaxis set up the table. Added extra failsafes here in case modders fail to specify custom civ diplo flavors.
 int CvLeaderHeadInfo::GetWarBias(bool bMinor) const
 {
 	if (bMinor)
-		return m_piMinorCivApproachBiases ? m_piMinorCivApproachBiases[3] : 5; // xml: MINOR_CIV_APPROACH_CONQUEST
+	{
+		if (!m_piMinorCivApproachBiases || m_piMinorCivApproachBiases[3] <= 0 || m_piMinorCivApproachBiases[3] > 30)
+			return GC.getGame().GetDefaultFlavorValue();
 
-	return m_piMajorCivApproachBiases ? m_piMajorCivApproachBiases[0] : 5; // xml: MAJOR_CIV_APPROACH_WAR
+		return m_piMinorCivApproachBiases[3]; // xml: MINOR_CIV_APPROACH_CONQUEST
+	}
+
+	if (!m_piMajorCivApproachBiases || m_piMajorCivApproachBiases[0] <= 0 || m_piMajorCivApproachBiases[0] > 30)
+		return GC.getGame().GetDefaultFlavorValue();
+
+	return m_piMajorCivApproachBiases[0]; // xml: MAJOR_CIV_APPROACH_WAR
 }
 //------------------------------------------------------------------------------
 int CvLeaderHeadInfo::GetHostileBias(bool bMinor) const
 {
 	if (bMinor)
-		return m_piMinorCivApproachBiases ? m_piMinorCivApproachBiases[4] : 5; // xml: MINOR_CIV_APPROACH_BULLY
+	{
+		if (!m_piMinorCivApproachBiases || m_piMinorCivApproachBiases[4] <= 0 || m_piMinorCivApproachBiases[4] > 30)
+			return GC.getGame().GetDefaultFlavorValue();
 
-	return m_piMajorCivApproachBiases ? m_piMajorCivApproachBiases[1] : 5; // xml: MAJOR_CIV_APPROACH_HOSTILE
+		return m_piMinorCivApproachBiases[4]; // xml: MINOR_CIV_APPROACH_BULLY
+	}
+
+	if (!m_piMajorCivApproachBiases || m_piMajorCivApproachBiases[1] <= 0 || m_piMajorCivApproachBiases[1] > 30)
+		return GC.getGame().GetDefaultFlavorValue();
+
+	return m_piMajorCivApproachBiases[1]; // xml: MAJOR_CIV_APPROACH_HOSTILE
 }
 //------------------------------------------------------------------------------
 int CvLeaderHeadInfo::GetDeceptiveBias() const
 {
-	return m_piMajorCivApproachBiases ? m_piMajorCivApproachBiases[2] : 5; // xml: MAJOR_CIV_APPROACH_DECEPTIVE
+	if (!m_piMajorCivApproachBiases || m_piMajorCivApproachBiases[2] <= 0 || m_piMajorCivApproachBiases[2] > 30)
+		return GC.getGame().GetDefaultFlavorValue();
+
+	return m_piMajorCivApproachBiases[2]; // xml: MAJOR_CIV_APPROACH_DECEPTIVE
 }
 //------------------------------------------------------------------------------
 int CvLeaderHeadInfo::GetGuardedBias() const
 {
-	return m_piMajorCivApproachBiases ? m_piMajorCivApproachBiases[3] : 5; // xml: MAJOR_CIV_APPROACH_GUARDED
+	if (!m_piMajorCivApproachBiases || m_piMajorCivApproachBiases[3] <= 0 || m_piMajorCivApproachBiases[3] > 30)
+		return GC.getGame().GetDefaultFlavorValue();
+
+	return m_piMajorCivApproachBiases[3]; // xml: MAJOR_CIV_APPROACH_GUARDED
 }
 //------------------------------------------------------------------------------
 int CvLeaderHeadInfo::GetAfraidBias() const
 {
-	return m_piMajorCivApproachBiases ? m_piMajorCivApproachBiases[4] : 5; // xml: MAJOR_CIV_APPROACH_AFRAID
+	if (!m_piMajorCivApproachBiases || m_piMajorCivApproachBiases[4] <= 0 || m_piMajorCivApproachBiases[4] > 30)
+		return GC.getGame().GetDefaultFlavorValue();
+
+	return m_piMajorCivApproachBiases[4]; // xml: MAJOR_CIV_APPROACH_AFRAID
 }
 //------------------------------------------------------------------------------
 int CvLeaderHeadInfo::GetNeutralBias(bool bMinor) const
 {
 	if (bMinor)
-		return m_piMinorCivApproachBiases ? m_piMinorCivApproachBiases[0] : 5; // xml: MINOR_CIV_APPROACH_IGNORE
+	{
+		if (!m_piMinorCivApproachBiases || m_piMinorCivApproachBiases[0] <= 0 || m_piMinorCivApproachBiases[0] > 30)
+			return GC.getGame().GetDefaultFlavorValue();
 
-	return m_piMajorCivApproachBiases ? m_piMajorCivApproachBiases[6] : 5; // xml: MAJOR_CIV_APPROACH_NEUTRAL
+		return m_piMinorCivApproachBiases[0]; // xml: MINOR_CIV_APPROACH_IGNORE
+	}
+
+	if (!m_piMajorCivApproachBiases || m_piMajorCivApproachBiases[6] <= 0 || m_piMajorCivApproachBiases[6] > 30)
+		return GC.getGame().GetDefaultFlavorValue();
+
+	return m_piMajorCivApproachBiases[6]; // xml: MAJOR_CIV_APPROACH_NEUTRAL
 }
 //------------------------------------------------------------------------------
 int CvLeaderHeadInfo::GetFriendlyBias(bool bMinor) const
@@ -6991,12 +7063,30 @@ int CvLeaderHeadInfo::GetFriendlyBias(bool bMinor) const
 	if (bMinor)
 	{
 		if (!m_piMinorCivApproachBiases)
-			return 5;
+			return GC.getGame().GetDefaultFlavorValue();
 
-		return max(m_piMinorCivApproachBiases[1], m_piMinorCivApproachBiases[2]); // xml: MINOR_CIV_APPROACH_FRIENDLY, MINOR_CIV_APPROACH_PROTECTIVE
+		// If neither flavor exists, use the default flavor value.
+		// If only one flavor exists, use that flavor value.
+		// If both flavors exist, use the maximum.
+		if (m_piMinorCivApproachBiases[1] <= 0 || m_piMinorCivApproachBiases[1] > 30)
+		{
+			if (m_piMinorCivApproachBiases[2] <= 0 || m_piMinorCivApproachBiases[2] > 30)
+				return GC.getGame().GetDefaultFlavorValue();
+
+			return m_piMinorCivApproachBiases[2];
+		}
+		else if (m_piMinorCivApproachBiases[2] <= 0 || m_piMinorCivApproachBiases[2] > 30)
+		{
+			return m_piMinorCivApproachBiases[1];
+		}
+
+		return std::max(m_piMinorCivApproachBiases[1], m_piMinorCivApproachBiases[2]); // xml: MINOR_CIV_APPROACH_FRIENDLY, MINOR_CIV_APPROACH_PROTECTIVE
 	}
 
-	return m_piMajorCivApproachBiases ? m_piMajorCivApproachBiases[5] : 5; // xml: MAJOR_CIV_APPROACH_FRIENDLY
+	if (!m_piMajorCivApproachBiases || m_piMajorCivApproachBiases[5] <= 0 || m_piMajorCivApproachBiases[5] > 30)
+		return GC.getGame().GetDefaultFlavorValue();
+
+	return m_piMajorCivApproachBiases[5]; // xml: MAJOR_CIV_APPROACH_FRIENDLY
 }
 //------------------------------------------------------------------------------
 const char* CvLeaderHeadInfo::getArtDefineTag() const

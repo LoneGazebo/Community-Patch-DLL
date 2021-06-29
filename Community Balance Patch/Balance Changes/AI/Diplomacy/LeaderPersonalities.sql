@@ -1215,6 +1215,9 @@ WHERE CivilizationType = 'CIVILIZATION_PERSIA';
 DELETE FROM Civilization_Start_Region_Priority
 WHERE CivilizationType = 'CIVILIZATION_ETHIOPIA';
 
+DELETE FROM Civilization_Start_Region_Priority
+WHERE CivilizationType = 'CIVILIZATION_INCA';
+
 INSERT INTO Civilization_Start_Region_Priority
 	(CivilizationType, RegionType)
 VALUES
@@ -1251,3 +1254,8 @@ WHERE CivilizationType = 'CIVILIZATION_INDONESIA';
 
 DELETE FROM Civilization_Start_Along_Ocean
 WHERE CivilizationType = 'CIVILIZATION_OTTOMAN';
+
+INSERT INTO Civilization_Start_Prefer_Mountain
+	(CivilizationType, StartPreferMountain)
+VALUES
+	('CIVILIZATION_INCA', 1);

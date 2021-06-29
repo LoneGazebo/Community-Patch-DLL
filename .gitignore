@@ -28,6 +28,8 @@
 !*.rtf
 !*.ico
 !*.modinfo
+!*.civ5sln
+!*.civ5proj
 
 !*.py
 !*.inl
