@@ -1572,6 +1572,10 @@ void CvPlayer::uninit()
 	m_iPressureMod = 0;
 	m_iTradeReligionModifier = 0;
 	m_iCityStateCombatModifier = 0;
+	m_iInfluenceForLiberation = 0;
+	m_iExperienceForLiberation = 0;
+	m_eBuildingClassInLiberatedCities = NO_BUILDINGCLASS;
+	m_iUnitsInLiberatedCities = 0;
 #endif
 #if defined(MOD_BALANCE_CORE_SPIES)
 	m_iMaxAirUnits = 0;
@@ -1670,10 +1674,6 @@ void CvPlayer::uninit()
 	m_eFaithPurchaseType = NO_AUTOMATIC_FAITH_PURCHASE;
 	m_iFaithPurchaseIndex = 0;
 	m_iLastSliceMoved = 0;
-	m_iInfluenceForLiberation = 0;
-	m_iExperienceForLiberation = 0;
-	m_eBuildingClassInLiberatedCities = NO_BUILDINGCLASS;
-	m_iUnitsInLiberatedCities = 0;
 
 	m_bHasBetrayedMinorCiv = false;
 	m_bNoNewWars = false;
@@ -10002,50 +10002,51 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 
 			// Reduce liberator's war weariness by 25%
 			GetCulture()->SetWarWeariness(GetCulture()->GetWarWeariness() - (GetCulture()->GetWarWeariness() / 4));
+		}
+#if defined(MOD_BALANCE_CORE_POLICIES)
 
-			//gain yields for liberation
-			int iPop = pNewCity->getPopulation();
-			for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
-			{
-				YieldTypes eYield = (YieldTypes)iI;
-				int iLiberationYield = getYieldForLiberation(eYield);
-				if (iLiberationYield > 0)
-					doInstantYield(INSTANT_YIELD_TYPE_INSTANT, false, NO_GREATPERSON, NO_BUILDING, iLiberationYield * iPop, true, NO_PLAYER, NULL, false, getCapitalCity(), false, true, true, eYield);
-			}
+		//gain yields for liberation
+		int iPop = pNewCity->getPopulation();
+		for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+		{
+			YieldTypes eYield = (YieldTypes)iI;
+			int iLiberationYield = getYieldForLiberation(eYield);
+			if (iLiberationYield > 0)
+				doInstantYield(INSTANT_YIELD_TYPE_INSTANT, false, NO_GREATPERSON, NO_BUILDING, iLiberationYield * iPop, true, NO_PLAYER, NULL, false, getCapitalCity(), false, true, true, eYield);
+		}
 
-			//liberator gets XP with all City-States?
-			int iInfluence = getInfluenceForLiberation();
-			if (iInfluence > 0)
+		//liberator gets influence with all City-States?
+		int iInfluence = getInfluenceForLiberation();
+		if (iInfluence > 0)
+		{
+			for (int iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
 			{
-				for (int iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
+				PlayerTypes eMinorLoop = (PlayerTypes)iMinorLoop;
+				if (eMinorLoop != NO_PLAYER)
 				{
-					PlayerTypes eMinorLoop = (PlayerTypes)iMinorLoop;
-					if (eMinorLoop != NO_PLAYER)
+					CvPlayer* pMinorLoop = &GET_PLAYER(eMinorLoop);
+					if (pMinorLoop->isMinorCiv() && pMinorLoop->isAlive())
 					{
-						CvPlayer* pMinorLoop = &GET_PLAYER(eMinorLoop);
-						if (pMinorLoop->isMinorCiv() && pMinorLoop->isAlive())
+						if (GET_TEAM(pMinorLoop->getTeam()).isHasMet(getTeam()))
 						{
-							if (GET_TEAM(pMinorLoop->getTeam()).isHasMet(getTeam()))
-							{
-								pMinorLoop->GetMinorCivAI()->ChangeFriendshipWithMajor(GetID(), iInfluence, false);
-							}
+							pMinorLoop->GetMinorCivAI()->ChangeFriendshipWithMajor(GetID(), iInfluence, false);
 						}
 					}
 				}
 			}
+		}
 
-			//liberator gets XP with all of their units?
-			int iNumXP = getExperienceForLiberation();
-			if (iNumXP > 0) 
+		//liberator gets XP with all of their units?
+		int iNumXP = getExperienceForLiberation();
+		if (iNumXP > 0)
+		{
+			doInstantYield(INSTANT_YIELD_TYPE_INSTANT, false, NO_GREATPERSON, NO_BUILDING, iNumXP, false, NO_PLAYER, NULL, false, getCapitalCity(), false, true, false, YIELD_JFD_SOVEREIGNTY);
+			int iLoop;
+			for (CvUnit* pLoopUnit = firstUnit(&iLoop); NULL != pLoopUnit; pLoopUnit = nextUnit(&iLoop))
 			{
-				doInstantYield(INSTANT_YIELD_TYPE_INSTANT, false, NO_GREATPERSON, NO_BUILDING, iNumXP, false, NO_PLAYER, NULL, false, getCapitalCity(), false, true, false, YIELD_JFD_SOVEREIGNTY);
-				int iLoop;
-				for (CvUnit* pLoopUnit = firstUnit(&iLoop); NULL != pLoopUnit; pLoopUnit = nextUnit(&iLoop))
+				if (pLoopUnit && pLoopUnit->IsCombatUnit())
 				{
-					if (pLoopUnit && pLoopUnit->IsCombatUnit())
-					{
-						pLoopUnit->changeExperienceTimes100(iNumXP * 100);
-					}
+					pLoopUnit->changeExperienceTimes100(iNumXP * 100);
 				}
 			}
 		}
@@ -10080,6 +10081,7 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 					GET_PLAYER(ePlayer).initUnit(eUnit, pNewCity->getX(), pNewCity->getY());
 			}
 		}
+#endif
 	}
 
 	GET_PLAYER(ePlayer).GetDiplomacyAI()->DoUpdateConquestStats();
@@ -35604,7 +35606,7 @@ void CvPlayer::changeYieldFromDelegateCount(YieldTypes eIndex, int iChange)
 		}
 	}
 }
-
+#if defined(MOD_BALANCE_CORE_POLICIES)
 //	--------------------------------------------------------------------------------
 int CvPlayer::getYieldForLiberation(YieldTypes eIndex)	const
 {
@@ -35667,7 +35669,7 @@ void CvPlayer::changeUnitsInLiberatedCities(int iChange)
 {
 	m_iUnitsInLiberatedCities += iChange;
 }
-
+#endif
 
 //	--------------------------------------------------------------------------------
 int CvPlayer::getReligionYieldRateModifier(YieldTypes eIndex)	const
@@ -43869,6 +43871,10 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 	ChangeIsNoCSDecayAtWar(pPolicy->IsNoCSDecayAtWar() * iChange);
 	ChangeCanBullyFriendlyCS(pPolicy->CanBullyFriendlyCS() * iChange);
 	ChangeBullyGlobalCSReduction(pPolicy->GetBullyGlobalCSReduction() * iChange);
+	changeInfluenceForLiberation(pPolicy->GetInfluenceForLiberation() * iChange);
+	changeExperienceForLiberation(pPolicy->GetExperienceForLiberation() * iChange);
+	setBuildingClassInLiberatedCities((iChange > 0) ? pPolicy->GetBuildingClassInLiberatedCities() : NO_BUILDINGCLASS);
+	changeUnitsInLiberatedCities(pPolicy->GetUnitsInLiberatedCities() * iChange);
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	ChangeIsVassalsNoRebel(pPolicy->IsVassalsNoRebel() * iChange);
 	ChangeVassalCSBonusModifier(pPolicy->GetVassalCSBonusModifier() * iChange);
@@ -44007,10 +44013,6 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 	ChangeNewCityExtraPopulation(pPolicy->GetNewCityExtraPopulation() * iChange);
 	ChangeFreeFoodBox(pPolicy->GetFreeFoodBox() * iChange);
 	ChangeStrategicResourceMod(pPolicy->GetStrategicResourceMod() * iChange);
-	changeInfluenceForLiberation(pPolicy->GetInfluenceForLiberation() * iChange);
-	changeExperienceForLiberation(pPolicy->GetExperienceForLiberation() * iChange);
-	setBuildingClassInLiberatedCities(pPolicy->GetBuildingClassInLiberatedCities());
-	changeUnitsInLiberatedCities(pPolicy->GetUnitsInLiberatedCities() * iChange);
 
 #if defined(MOD_BALANCE_CORE)
 	if(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES_STRATEGIC && pPolicy->GetStrategicResourceMod() > 0)

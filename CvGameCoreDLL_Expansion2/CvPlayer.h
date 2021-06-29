@@ -746,34 +746,6 @@ public:
 	void SetHappinessPerXPopulation(int iValue);
 	void ChangeHappinessPerXPopulation(int iChange);
 
-#if defined(MOD_BALANCE_CORE_POLICIES)
-	int GetHappinessPerXPopulationGlobal() const;
-	void SetHappinessPerXPopulationGlobal(int iValue);
-	void ChangeHappinessPerXPopulationGlobal(int iChange);
-
-	int GetIdeologyPoint() const;
-	void SetIdeologyPoint(int iValue);
-	void ChangeIdeologyPoint(int iChange);
-
-	int GetNoXPLossUnitPurchase() const;
-	void SetNoXPLossUnitPurchase(int iValue);
-	void ChangeNoXPLossUnitPurchase(int iChange);
-
-	void ChangeCSAlliesLowersPolicyNeedWonders(int iValue);
-	int GetCSAlliesLowersPolicyNeedWonders() const;
-
-	void ChangePositiveWarScoreTourismMod(int iValue);
-	int GetPositiveWarScoreTourismMod() const;
-
-	void ChangeIsNoCSDecayAtWar(int iValue);
-	bool IsNoCSDecayAtWar() const;
-
-	void ChangeCanBullyFriendlyCS(int iValue);
-	bool IsCanBullyFriendlyCS() const;
-
-	void ChangeBullyGlobalCSReduction(int iValue);
-	int GetBullyGlobalCSReduction() const;
-#endif
 
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	void ChangeIsVassalsNoRebel(int iValue);
@@ -1994,6 +1966,32 @@ public:
 	int GetCityStateCombatModifier() const;
 	void changeCityStateCombatModifier(int iChange);
 
+	int GetHappinessPerXPopulationGlobal() const;
+	void SetHappinessPerXPopulationGlobal(int iValue);
+	void ChangeHappinessPerXPopulationGlobal(int iChange);
+
+	int GetIdeologyPoint() const;
+	void SetIdeologyPoint(int iValue);
+	void ChangeIdeologyPoint(int iChange);
+
+	int GetNoXPLossUnitPurchase() const;
+	void SetNoXPLossUnitPurchase(int iValue);
+	void ChangeNoXPLossUnitPurchase(int iChange);
+
+	void ChangeCSAlliesLowersPolicyNeedWonders(int iValue);
+	int GetCSAlliesLowersPolicyNeedWonders() const;
+
+	void ChangePositiveWarScoreTourismMod(int iValue);
+	int GetPositiveWarScoreTourismMod() const;
+
+	void ChangeIsNoCSDecayAtWar(int iValue);
+	bool IsNoCSDecayAtWar() const;
+
+	void ChangeCanBullyFriendlyCS(int iValue);
+	bool IsCanBullyFriendlyCS() const;
+
+	void ChangeBullyGlobalCSReduction(int iValue);
+	int GetBullyGlobalCSReduction() const;
 #endif
 #if defined(MOD_BALANCE_CORE_SPIES)
 	void changeMaxAirUnits(int iChange);
@@ -3181,6 +3179,10 @@ protected:
 	int m_iPressureMod;
 	int m_iTradeReligionModifier;
 	int m_iCityStateCombatModifier;
+	int m_iInfluenceForLiberation;
+	int m_iExperienceForLiberation;
+	BuildingClassTypes  m_eBuildingClassInLiberatedCities;
+	int m_iUnitsInLiberatedCities;
 #endif
 #if defined(MOD_BALANCE_CORE_SPIES)
 	int m_iMaxAirUnits;
@@ -3412,10 +3414,6 @@ protected:
 
 	int m_iLastSliceMoved;
 
-	int m_iInfluenceForLiberation;
-	int m_iExperienceForLiberation;
-	BuildingClassTypes  m_eBuildingClassInLiberatedCities;
-	int m_iUnitsInLiberatedCities;
 
 	uint m_uiStartTime;  // XXX save these?
 
