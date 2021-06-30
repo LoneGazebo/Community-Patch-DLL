@@ -1117,7 +1117,7 @@ void CvPlot::updateWaterFlags() const
 	//------ finally freshwater
 	
 	m_bIsFreshwater = isRiver();
-	if(isWater() || isImpassable() || isMountain())
+	if(isWater() || isImpassable() || m_bIsFreshwater)
 		return;
 
 	//now the more complex checks
