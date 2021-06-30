@@ -13296,6 +13296,9 @@ bool CvDiplomacyAI::DoUpdateOnePlayerSaneDiplomaticTarget(PlayerTypes ePlayer, b
 
 			if (!GET_PLAYER(vOurTeam[i]).GetDiplomacyAI()->IsSaneDiplomaticTarget(ePlayer))
 				return false;
+
+			if (GET_PLAYER(vOurTeam[i]).GetDiplomacyAI()->GetGlobalCoopWarAgainstState(ePlayer) == COOP_WAR_STATE_PREPARING)
+				return false;
 		}
 	}
 
