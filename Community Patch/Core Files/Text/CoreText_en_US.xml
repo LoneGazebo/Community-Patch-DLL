@@ -2898,6 +2898,11 @@
 			<Text>They do not consider us relevant to their interests.</Text>
 		</Row>
 
+		<!-- Opinion Indicator If Eliminated -->
+		<Row Tag="TXT_KEY_DIPLO_ELIMINATED_INDICATOR">
+			<Text>This leader has been eliminated from the game.</Text>
+		</Row>
+
 		<!-- Opinion Indicator If Untrustworthy -->
 		<Row Tag="TXT_KEY_DIPLO_UNTRUSTWORTHY_FRIEND">
 			<Text>We are completely untrustworthy to them.</Text>

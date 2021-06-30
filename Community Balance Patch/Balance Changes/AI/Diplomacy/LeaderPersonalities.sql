@@ -395,7 +395,7 @@ UPDATE Leaders SET MinorCivCompetitiveness = 5 		WHERE Type = 'LEADER_GAJAH_MADA
 UPDATE Leaders SET Boldness = 8 					WHERE Type = 'LEADER_GAJAH_MADA';
 UPDATE Leaders SET DiploBalance = 4 				WHERE Type = 'LEADER_GAJAH_MADA';
 UPDATE Leaders SET WarmongerHate = 4 				WHERE Type = 'LEADER_GAJAH_MADA';
-UPDATE Leaders SET DoFWillingness = 4 				WHERE Type = 'LEADER_GAJAH_MADA';
+UPDATE Leaders SET DoFWillingness = 7 				WHERE Type = 'LEADER_GAJAH_MADA';
 UPDATE Leaders SET DenounceWillingness = 6 			WHERE Type = 'LEADER_GAJAH_MADA';
 UPDATE Leaders SET Loyalty = 10 					WHERE Type = 'LEADER_GAJAH_MADA';
 UPDATE Leaders SET Forgiveness = 7 					WHERE Type = 'LEADER_GAJAH_MADA';
@@ -408,7 +408,7 @@ UPDATE Leader_MajorCivApproachBiases SET Bias = 4 	WHERE LeaderType = 'LEADER_GA
 UPDATE Leader_MajorCivApproachBiases SET Bias = 5 	WHERE LeaderType = 'LEADER_GAJAH_MADA' 	AND MajorCivApproachType = 'MAJOR_CIV_APPROACH_GUARDED';
 UPDATE Leader_MajorCivApproachBiases SET Bias = 2 	WHERE LeaderType = 'LEADER_GAJAH_MADA' 	AND MajorCivApproachType = 'MAJOR_CIV_APPROACH_AFRAID';
 UPDATE Leader_MajorCivApproachBiases SET Bias = 5 	WHERE LeaderType = 'LEADER_GAJAH_MADA' 	AND MajorCivApproachType = 'MAJOR_CIV_APPROACH_NEUTRAL';
-UPDATE Leader_MajorCivApproachBiases SET Bias = 7 	WHERE LeaderType = 'LEADER_GAJAH_MADA' 	AND MajorCivApproachType = 'MAJOR_CIV_APPROACH_FRIENDLY';
+UPDATE Leader_MajorCivApproachBiases SET Bias = 8 	WHERE LeaderType = 'LEADER_GAJAH_MADA' 	AND MajorCivApproachType = 'MAJOR_CIV_APPROACH_FRIENDLY';
 UPDATE Leader_MinorCivApproachBiases SET Bias = 4 	WHERE LeaderType = 'LEADER_GAJAH_MADA' 	AND MinorCivApproachType = 'MINOR_CIV_APPROACH_IGNORE';
 UPDATE Leader_MinorCivApproachBiases SET Bias = 7 	WHERE LeaderType = 'LEADER_GAJAH_MADA' 	AND MinorCivApproachType = 'MINOR_CIV_APPROACH_PROTECTIVE';
 UPDATE Leader_MinorCivApproachBiases SET Bias = 5 	WHERE LeaderType = 'LEADER_GAJAH_MADA' 	AND MinorCivApproachType = 'MINOR_CIV_APPROACH_BULLY';

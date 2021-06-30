@@ -11454,6 +11454,7 @@ void CvDiplomacyAI::DoUpdateMilitaryAggressivePostures()
 	TeamTypes eOurTeam = GetTeam();
 	PlayerTypes eOurPlayerID = GetID();
 	vector<PlayerTypes> v;
+	int iUnitLoop;
 
 	int iTypicalLandPower = GetPlayer()->GetMilitaryAI()->GetPowerOfStrongestBuildableUnit(DOMAIN_LAND);
 	int iTypicalNavalPower = GetPlayer()->GetMilitaryAI()->GetPowerOfStrongestBuildableUnit(DOMAIN_SEA);
@@ -11513,7 +11514,6 @@ void CvDiplomacyAI::DoUpdateMilitaryAggressivePostures()
 			bool bIgnoreOtherWars = (GetPlayer()->isHuman() || IsAtWar(ePlayer));
 
 			// Loop through the other guy's units
-			int iUnitLoop;
 			for (CvUnit* pLoopUnit = kPlayer.firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = kPlayer.nextUnit(&iUnitLoop))
 			{
 				// Don't be scared of noncombat Units!
@@ -13260,6 +13260,10 @@ bool CvDiplomacyAI::DoUpdateOnePlayerSaneDiplomaticTarget(PlayerTypes ePlayer, b
 		return true;
 	}
 
+	// Don't start an impulse war if we have a coop war planned!
+	if (bImpulse && GetGlobalCoopWarAgainstState(ePlayer) == COOP_WAR_STATE_PREPARING)
+		return false;
+
 	// For major civs we have a lot more to consider...
 	vector<PlayerTypes> vLinkedWarPlayers = GetLinkedWarPlayers(ePlayer, false, false, false);
 	vLinkedWarPlayers.push_back(ePlayer);
@@ -13291,6 +13295,9 @@ bool CvDiplomacyAI::DoUpdateOnePlayerSaneDiplomaticTarget(PlayerTypes ePlayer, b
 				continue;
 
 			if (!GET_PLAYER(vOurTeam[i]).GetDiplomacyAI()->IsSaneDiplomaticTarget(ePlayer))
+				return false;
+
+			if (GET_PLAYER(vOurTeam[i]).GetDiplomacyAI()->GetGlobalCoopWarAgainstState(ePlayer) == COOP_WAR_STATE_PREPARING)
 				return false;
 		}
 	}
@@ -23707,7 +23714,7 @@ void CvDiplomacyAI::DoMakeWarOnPlayer(PlayerTypes eTargetPlayer)
 	// Major Civ
 	else
 	{
-		bWantToAttack = GetCivApproach(eTargetPlayer) == CIV_APPROACH_WAR && IsWarSane(eTargetPlayer);
+		bWantToAttack = (GetCivApproach(eTargetPlayer) == CIV_APPROACH_WAR && IsWarSane(eTargetPlayer)) || GetGlobalCoopWarAgainstState(eTargetPlayer) >= COOP_WAR_STATE_PREPARING;
 		bWantShowOfForce = GetDemandTargetPlayer() == eTargetPlayer;
 
 		// Don't attack someone else's vassal unless we want to attack the master too
@@ -23721,10 +23728,20 @@ void CvDiplomacyAI::DoMakeWarOnPlayer(PlayerTypes eTargetPlayer)
 
 	if (IsArmyInPlaceForAttack(eTargetPlayer))
 	{
+		bool bWaitForAllies = false;
+
 		// Our Approach with this player calls for war
 		if (bWantToAttack)
 		{
-			DeclareWar(eTargetPlayer);
+			// Don't declare war until any coop war allies are ready!
+			if (GetGlobalCoopWarAgainstState(eTargetPlayer) == COOP_WAR_STATE_PREPARING)
+			{
+				bWaitForAllies = true;
+			}
+			else
+			{
+				DeclareWar(eTargetPlayer); // let loose the dogs of war!
+			}
 		}
 		else if (bWantShowOfForce)
 		{
@@ -23746,8 +23763,11 @@ void CvDiplomacyAI::DoMakeWarOnPlayer(PlayerTypes eTargetPlayer)
 				SetCivApproach(eTargetPlayer, GetHighestValueApproach(eTargetPlayer, true, true));
 		}
 
-		SetArmyInPlaceForAttack(eTargetPlayer, false);
-		SetWantsSneakAttack(eTargetPlayer, false);
+		if (!bWaitForAllies)
+		{
+			SetArmyInPlaceForAttack(eTargetPlayer, false);
+			SetWantsSneakAttack(eTargetPlayer, false);
+		}
 	}
 	else
 	{
@@ -30235,6 +30255,18 @@ void CvDiplomacyAI::DoAggressiveMilitaryStatement(PlayerTypes ePlayer, DiploStat
 		if (GetPlayerMilitaryPromiseState(ePlayer) > NO_PROMISE_STATE)
 			return;
 
+		// Don't threaten if this person resurrected us
+		if (WasResurrectedBy(ePlayer))
+			return;
+
+		// We're working together, so don't worry about it
+		if (IsDoFAccepted(ePlayer) || IsHasDefensivePact(ePlayer))
+			return;
+
+		//We're allowing them Open Borders? We shouldn't care.
+		if (GET_TEAM(GetTeam()).IsAllowsOpenBordersToTeam(GET_PLAYER(ePlayer).getTeam()))
+			return;
+
 		// They must be able to declare war on us
 		if (!GET_TEAM(GET_PLAYER(ePlayer).getTeam()).canDeclareWar(GetTeam(), ePlayer))
 			return;
@@ -30243,25 +30275,13 @@ void CvDiplomacyAI::DoAggressiveMilitaryStatement(PlayerTypes ePlayer, DiploStat
 		if (!GET_PLAYER(ePlayer).isHuman() && GET_TEAM(GetTeam()).IsVassalOfSomeone())
 			return;
 
-		// Don't threaten if this person resurrected us
-		if (WasResurrectedBy(ePlayer))
-			return;
-
-		// They're HIGH this turn and weren't last turn
-		if (GetMilitaryAggressivePosture(ePlayer) >= AGGRESSIVE_POSTURE_HIGH && GetLastTurnMilitaryAggressivePosture(ePlayer) < AGGRESSIVE_POSTURE_HIGH)
+		// They're HIGH or INCREDIBLE this turn
+		if (GetMilitaryAggressivePosture(ePlayer) >= AGGRESSIVE_POSTURE_HIGH)
 			bSendStatement = true;
 
 		// They're MEDIUM this turn and were NONE last turn
 		else if (GetMilitaryAggressivePosture(ePlayer) >= AGGRESSIVE_POSTURE_MEDIUM && GetLastTurnMilitaryAggressivePosture(ePlayer) <= AGGRESSIVE_POSTURE_NONE)
 			bSendStatement = true;
-
-		// We're working together, so don't worry about it
-		if (IsDoFAccepted(ePlayer))
-			return;
-
-		//We're allowing them Open Borders? We shouldn't care.
-		if (GET_TEAM(GetTeam()).IsAllowsOpenBordersToTeam(GET_PLAYER(ePlayer).getTeam()))
-			return;
 
 		// Check other player status
 		for (int iThirdPartyLoop = 0; iThirdPartyLoop < MAX_MAJOR_CIVS; iThirdPartyLoop++)
