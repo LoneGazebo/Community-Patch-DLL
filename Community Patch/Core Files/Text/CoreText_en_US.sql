@@ -1611,6 +1611,10 @@ UPDATE Language_en_US
 SET Text = 'You have done well. I shall put in a good word for you to the demons.'
 WHERE Tag = 'TXT_KEY_LEADER_NEBUCHADNEZZAR_DEFEATED_1';
 
+UPDATE Language_en_US
+SET Text = 'This is why I prefer diplomacy to violence!'
+WHERE Tag = 'TXT_KEY_LEADER_PEDRO_DEFEATED_1';
+
 
 -- Report Coop War Plans to Target AI
 UPDATE Language_en_US
