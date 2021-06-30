@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Created by ModBuddy on 6/16/2015 8:41:55 PM -->
+<GameData>
+	<GreatPersons>
+		<Row>
+			<Type>GREATPERSON_DIPLOMAT</Type>
+			<Class>UNITCLASS_GREAT_DIPLOMAT</Class>
+			<Specialist>SPECIALIST_CIVIL_SERVANT</Specialist>
+		</Row>
+	</GreatPersons>
+</GameData>
