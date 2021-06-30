@@ -2098,7 +2098,7 @@ void CvGame::updateTestEndTurn()
 				{
 					if(pkIface->canEndTurn() && gDLL->allAICivsProcessedThisTurn() && allUnitAIProcessed() && !gDLL->HasSentTurnComplete())
 					{
-#if !defined(NO_ACHIEVEMENTS)
+#if defined(MOD_API_ACHIEVEMENTS)
 						activePlayer.GetPlayerAchievements().EndTurn();
 #endif
 
@@ -2121,7 +2121,7 @@ void CvGame::updateTestEndTurn()
 #endif
 
 						gDLL->sendTurnComplete();
-#if !defined(NO_ACHIEVEMENTS)
+#if defined(MOD_API_ACHIEVEMENTS)
 						CvAchievementUnlocker::EndTurn();
 #endif
 						m_endTurnTimer.Start();
@@ -2203,7 +2203,7 @@ void CvGame::updateTestEndTurn()
 							{
 								if(!gDLL->HasSentTurnComplete() && gDLL->allAICivsProcessedThisTurn() && allUnitAIProcessed() && pkIface && pkIface->IsMPAutoEndTurnEnabled())
 								{
-#if !defined(NO_ACHIEVEMENTS)
+#if defined(MOD_API_ACHIEVEMENTS)
 									activePlayer.GetPlayerAchievements().EndTurn();
 #endif
 
@@ -2226,7 +2226,7 @@ void CvGame::updateTestEndTurn()
 #endif
 
 									gDLL->sendTurnComplete();
-#if !defined(NO_ACHIEVEMENTS)
+#if defined(MOD_API_ACHIEVEMENTS)
 									CvAchievementUnlocker::EndTurn();
 #endif
 								}
@@ -3628,11 +3628,11 @@ void CvGame::doControl(ControlTypes eControl)
 			// RED >>>>>
 #endif
 
-#if !defined(NO_ACHIEVEMENTS)
+#if defined(MOD_API_ACHIEVEMENTS)
 			kActivePlayer.GetPlayerAchievements().EndTurn();
 #endif
 			gDLL->sendTurnComplete();
-#if !defined(NO_ACHIEVEMENTS)
+#if defined(MOD_API_ACHIEVEMENTS)
 			CvAchievementUnlocker::EndTurn();
 #endif
 			GC.GetEngineUserInterface()->setInterfaceMode(INTERFACEMODE_SELECTION);
@@ -3644,7 +3644,7 @@ void CvGame::doControl(ControlTypes eControl)
 		EndTurnBlockingTypes eBlock = GET_PLAYER(getActivePlayer()).GetEndTurnBlockingType();
 		if(gDLL->allAICivsProcessedThisTurn() && allUnitAIProcessed() && (eBlock == NO_ENDTURN_BLOCKING_TYPE || eBlock == ENDTURN_BLOCKING_UNITS))
 		{
-#if !defined(NO_ACHIEVEMENTS)
+#if defined(MOD_API_ACHIEVEMENTS)
 			CvPlayerAI& kActivePlayer = GET_PLAYER(getActivePlayer());
 			kActivePlayer.GetPlayerAchievements().EndTurn();
 #endif
@@ -3668,7 +3668,7 @@ void CvGame::doControl(ControlTypes eControl)
 #endif
 
 			gDLL->sendTurnComplete();
-#if !defined(NO_ACHIEVEMENTS)
+#if defined(MOD_API_ACHIEVEMENTS)
 			CvAchievementUnlocker::EndTurn();
 #endif
 			SetForceEndingTurn(true);
@@ -6820,7 +6820,7 @@ void CvGame::setWinner(TeamTypes eNewWinner, VictoryTypes eNewVictory)
 					}
 				}
 
-#if !defined(NO_ACHIEVEMENTS)
+#if defined(MOD_API_ACHIEVEMENTS)
 				//--Start Achievements
 				//--Don't allow most in multiplayer so friends can't achieve-whore it up together
 				if(!GC.getGame().isGameMultiPlayer() && kWinningTeamLeader.isHuman() && kWinningTeamLeader.isLocalPlayer())
@@ -7883,7 +7883,7 @@ void CvGame::setGameState(GameStateTypes eNewValue)
 	{
 		m_eGameState = eNewValue;
 
-#if !defined(NO_ACHIEVEMENTS)
+#if defined(MOD_API_ACHIEVEMENTS)
 		if(eNewValue == GAMESTATE_OVER || eNewValue == GAMESTATE_EXTENDED)
 		{
 			if (!isGameMultiPlayer())
@@ -7905,8 +7905,7 @@ void CvGame::setGameState(GameStateTypes eNewValue)
 
 		if(eNewValue == GAMESTATE_OVER)
 		{
-
-#if !defined(NO_ACHIEVEMENTS)
+#if defined(MOD_API_ACHIEVEMENTS)
 			if(!isGameMultiPlayer())
 			{
 				bool bLocalPlayerLost = true;
@@ -9674,12 +9673,12 @@ void CvGame::updateMoves()
 			{//if the active player is an observer, send a turn complete so we don't hold up the game.
 				//We wait until allAICivsProcessedThisTurn to prevent a race condition where an observer could send turn complete,
 				//before all clients have cleared the netbarrier locally.
-#if !defined(NO_ACHIEVEMENTS)
+#if defined(MOD_API_ACHIEVEMENTS)
 				CvPlayer& kActivePlayer = GET_PLAYER(eActivePlayer);
 				kActivePlayer.GetPlayerAchievements().EndTurn();
 #endif
 				gDLL->sendTurnComplete();
-#if !defined(NO_ACHIEVEMENTS)
+#if defined(MOD_API_ACHIEVEMENTS)
 				CvAchievementUnlocker::EndTurn();
 #endif
 			}

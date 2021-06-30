@@ -31,16 +31,12 @@
 //MULTIPLAYER INSTRUCTIONS:
 /////////////////////////////////////////
 
-// FIRST: Comment out this line to include all the achievements code (which don't work in modded games, so we don't need the code!)
-//#define NO_ACHIEVEMENTS
 //adds active diplomacy to Multiplayer games
 #define MOD_ACTIVE_DIPLOMACY			 gCustomMods.isACTIVE_DIPLOMACY()
 
 /////////////////////////////////
 //END MULTIPLAYER INSTRUCTIONS
 ////////////////////////////////////////
-
-
 
 // Enables not showing, during pregame, the details of the civs that have not been met by the local player, i.e. as it doesn't during the game
 #define MOD_KEEP_CIVS_UNKNOWN_PREGAME	(true)
@@ -83,12 +79,6 @@
 // track how much damage a unit takes per turn in order to better predict whether it might die
 #define MOD_CORE_PER_TURN_DAMAGE
 
-// Uncomment this line to include the achievements hack code
-// #define ACHIEVEMENT_HACKS
-#if defined(ACHIEVEMENT_HACKS)
-#undef NO_ACHIEVEMENTS
-#else
-
 // Comment out this line to include all the tutorials code
 #define NO_TUTORIALS
 
@@ -110,7 +100,7 @@
 // Comment these lines out to remove the associated code from the DLL,
 // Alternatively, set the associated entries in the CustomModOptions table to disable(0) or enable(1) at load-time
 
-// Enables the Achievements table (v45)
+// Enables Achievements and the Achievements table (v45, modified to include all achievements-related code)
 #define MOD_API_ACHIEVEMENTS                        gCustomMods.isAPI_ACHIEVEMENTS()
 // Enables the Unified Yields extensions - thanks to bane_, JFD and Ulixes for extensive testing (v54)
 #define MOD_API_UNIFIED_YIELDS                      (true)
@@ -790,8 +780,6 @@
 #define MOD_EVENTS_RED_COMBAT_ABORT                 (MOD_EVENTS_RED_COMBAT && gCustomMods.isEVENTS_RED_COMBAT_ABORT())
 #define MOD_EVENTS_RED_COMBAT_RESULT                (MOD_EVENTS_RED_COMBAT && gCustomMods.isEVENTS_RED_COMBAT_RESULT())
 #define MOD_EVENTS_RED_COMBAT_ENDED                 (MOD_EVENTS_RED_COMBAT && gCustomMods.isEVENTS_RED_COMBAT_ENDED())
-
-#endif // ACHIEVEMENT_HACKS
 
 //
 // NOTHING BELOW HERE SHOULD NEED CHANGING

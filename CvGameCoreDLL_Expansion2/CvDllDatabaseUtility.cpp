@@ -394,7 +394,7 @@ bool CvDllDatabaseUtility::PrefetchGameData()
 	PrefetchCollection(GC.getLeagueProjectRewardInfo(), "LeagueProjectRewards");
 	PrefetchCollection(GC.getResolutionInfo(), "Resolutions");
 
-#if defined(MOD_API_ACHIEVEMENTS) || defined(ACHIEVEMENT_HACKS)
+#if defined(MOD_API_ACHIEVEMENTS)
 	PrefetchCollection(GC.getAchievementInfo(), "Achievements");
 #endif
 

@@ -555,7 +555,7 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 					pCityEspionage->SetSpyResult(ePlayer, SPY_RESULT_KILLED);
 #endif
 
-#if !defined(NO_ACHIEVEMENTS)
+#if defined(MOD_API_ACHIEVEMENTS)
 					CvPlayerAI& kCityOwner = GET_PLAYER(eCityOwner);
 					CvPlayerAI& kSpyOwner = GET_PLAYER(ePlayer);
 
@@ -723,7 +723,7 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 					m_aiNumTechsToStealList[iCityOwner] = 0;
 				}
 
-#if !defined(NO_ACHIEVEMENTS)
+#if defined(MOD_API_ACHIEVEMENTS)
 				//Achievements!
 				if(m_pPlayer->GetID() == GC.getGame().getActivePlayer())
 				{
@@ -3967,7 +3967,7 @@ bool CvPlayerEspionage::AttemptCoup(uint uiSpyIndex)
 		pNotifications->Add(eNotification, strNotification.toUTF8(), strSummary.toUTF8(), pCity->getX(), pCity->getY(), -1);
 	}
 
-#if !defined(NO_ACHIEVEMENTS)
+#if defined(MOD_API_ACHIEVEMENTS)
 	//Achievements!
 	if(bAttemptSuccess && m_pPlayer->GetID() == GC.getGame().getActivePlayer())
 	{
@@ -4536,7 +4536,7 @@ void CvPlayerEspionage::ProcessSpyMessages()
 
 					pNotifications->Add(NOTIFICATION_SPY_KILLED_A_SPY, strNotification.toUTF8(), strSummary.toUTF8(), -1, -1, m_aSpyNotificationMessages[ui].m_eAttackingPlayer);
 				
-#if !defined(NO_ACHIEVEMENTS)
+#if defined(MOD_API_ACHIEVEMENTS)
 					//Achievements
 					if(m_pPlayer->GetID() == GC.getGame().getActivePlayer())
 					{

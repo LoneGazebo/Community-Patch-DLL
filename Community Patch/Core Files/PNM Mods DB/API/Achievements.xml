@@ -1259,7 +1259,8 @@
 		</Row>
 	</Achievements>
 
+	<!-- Recursive: Default is now 0. Change to 1 to enable all achievements-related code in the DLL. Functionality not guaranteed. -->
 	<CustomModDbUpdates>
-		<Row Name="API_ACHIEVEMENTS" Value="1"/>
+		<Row Name="API_ACHIEVEMENTS" Value="0"/>
 	</CustomModDbUpdates>
 </GameData>

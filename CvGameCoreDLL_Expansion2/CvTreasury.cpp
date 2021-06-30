@@ -119,7 +119,7 @@ void CvTreasury::DoGold()
 		m_GoldBalanceForTurnTimes100.push_back(GetGoldTimes100());
 	}
 
-#if !defined(NO_ACHIEVEMENTS)
+#if defined(MOD_API_ACHIEVEMENTS)
 	if (m_pPlayer->isHuman() && !GC.getGame().isGameMultiPlayer())
 	{
 		int iGoldDelta = (GetGoldFromCitiesTimes100(false) - GetGoldFromCitiesTimes100(true)) / 100;

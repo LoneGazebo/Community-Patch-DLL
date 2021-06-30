@@ -2676,7 +2676,7 @@ void CvLeague::DoProposeRepeal(int iResolutionID, PlayerTypes eProposer)
 			m_vRepealProposals.push_back(proposal);
 			iFound++;
 
-#if !defined(NO_ACHIEVEMENTS)
+#if defined(MOD_API_ACHIEVEMENTS)
 			// XP2 Achievement
 			if (!GC.getGame().isGameMultiPlayer())
 			{
@@ -7067,7 +7067,7 @@ void CvLeague::CheckProjectAchievements()
 				}
 			}
 
-#if !defined(NO_ACHIEVEMENTS)
+#if defined(MOD_API_ACHIEVEMENTS)
 			if (iHighestContributorProjects >= GC.getNumLeagueProjectInfos() && GC.getNumLeagueProjectInfos() > 0)
 			{
 				gDLL->UnlockAchievement(ACHIEVEMENT_XP2_44);

@@ -569,7 +569,7 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 	CvString strNewCityName = owningPlayer.getNewCityName();
 	setName(strNewCityName.c_str());
 
-#if !defined(NO_ACHIEVEMENTS)
+#if defined(MOD_API_ACHIEVEMENTS)
 	if (strcmp(strNewCityName.c_str(), "TXT_KEY_CITY_NAME_LLANFAIRPWLLGWYNGYLL") == 0)
 	{
 		gDLL->UnlockAchievement(ACHIEVEMENT_XP1_34);
@@ -1013,7 +1013,7 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 			if (!isHuman())
 			{
 				changeOverflowProduction(GC.getINITIAL_AI_CITY_PRODUCTION());
-#if defined(ACHIEVEMENT_HACKS)
+#if defined(MOD_API_ACHIEVEMENTS)
 			}
 			else
 			{
@@ -2752,7 +2752,7 @@ void CvCity::doTurn()
 		updateStrengthValue();
 
 		DoNearbyEnemy();
-#if !defined(NO_ACHIEVEMENTS)
+#if defined(MOD_API_ACHIEVEMENTS)
 		//Check for Achievements
 		if (isHuman() && !GC.getGame().isGameMultiPlayer() && GET_PLAYER(GC.getGame().getActivePlayer()).isLocalPlayer())
 		{
@@ -10453,7 +10453,7 @@ void CvCity::addProductionExperience(CvUnit* pUnit, bool bConscript, bool bGoldP
 	{
 		pUnit->changeExperienceTimes100(getProductionExperience(pUnit->getUnitType()) * 100 / ((HalveXP) ? 2 : 1));
 
-#if !defined(NO_ACHIEVEMENTS)
+#if defined(MOD_API_ACHIEVEMENTS)
 		// XP2 Achievement
 		if (getOwner() != NO_PLAYER)
 		{
@@ -21635,7 +21635,7 @@ void CvCity::DoAnnex()
 	setProductionAutomated(false, true);
 	UpdateAllNonPlotYields(true);
 
-#if !defined(NO_ACHIEVEMENTS)
+#if defined(MOD_API_ACHIEVEMENTS)
 	if (getOriginalOwner() != GetID())
 	{
 		if (GET_PLAYER(getOriginalOwner()).isMinorCiv())
@@ -29403,7 +29403,7 @@ void CvCity::BuyPlot(int iPlotX, int iPlotY)
 	}
 #endif
 
-#if !defined(NO_ACHIEVEMENTS)
+#if defined(MOD_API_ACHIEVEMENTS)
 	//Achievement test for purchasing 1000 tiles
 	if (thisPlayer.isHuman() && !GC.getGame().isGameMultiPlayer())
 	{
@@ -30849,7 +30849,7 @@ bool CvCity::CreateBuilding(BuildingTypes eBuildingType)
 
 	m_pCityBuildings->SetNumRealBuilding(eBuildingType, m_pCityBuildings->GetNumRealBuilding(eBuildingType) + 1);
 
-#if !defined(NO_ACHIEVEMENTS)
+#if defined(MOD_API_ACHIEVEMENTS)
 	//Achievements
 	if (kPlayer.isHuman() && !GC.getGame().isGameMultiPlayer())
 	{
@@ -32386,7 +32386,7 @@ bool CvCity::doCheckProduction()
 
 					auto_ptr<ICvCity1> pDllCity(new CvDllCity(this));
 					DLLUI->AddDeferredWonderCommand(WONDER_REMOVED, pDllCity.get(), (BuildingTypes)eExpiredBuilding, 0);
-#if !defined(NO_ACHIEVEMENTS)
+#if defined(MOD_API_ACHIEVEMENTS)
 					//Add "achievement" for sucking it up
 					gDLL->IncrementSteamStatAndUnlock(ESTEAMSTAT_BEATWONDERS, 10, ACHIEVEMENT_SUCK_AT_WONDERS);
 #endif
@@ -34137,7 +34137,7 @@ void CvCity::CheckForAchievementBuilding(BuildingTypes eBuilding)
 	if (pkBuildingInfo == NULL)
 		return;
 
-#if !defined(NO_ACHIEVEMENTS)
+#if defined(MOD_API_ACHIEVEMENTS)
 	const char* szBuildingTypeChar = pkBuildingInfo->GetType();
 	CvString szBuilding = szBuildingTypeChar;
 
@@ -34216,7 +34216,7 @@ void CvCity::IncrementUnitStatCount(CvUnit* pUnit)
 {
 	CvString szUnitType = pUnit->getUnitInfo().GetType();
 
-#if !defined(NO_ACHIEVEMENTS)
+#if defined(MOD_API_ACHIEVEMENTS)
 	if (szUnitType == "UNIT_WARRIOR")
 	{
 		gDLL->IncrementSteamStat(ESTEAMSTAT_WARRIOR);

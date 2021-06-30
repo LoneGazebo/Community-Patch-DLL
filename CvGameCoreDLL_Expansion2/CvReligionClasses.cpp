@@ -1240,7 +1240,7 @@ void CvGameReligions::FoundPantheon(PlayerTypes ePlayer, BeliefTypes eBelief)
 			LogReligionMessage(strLogMsg);
 		}
 
-#if !defined(NO_ACHIEVEMENTS)
+#if defined(MOD_API_ACHIEVEMENTS)
 		//Achievements!
 		if(ePlayer == GC.getGame().getActivePlayer())
 		{
@@ -1428,7 +1428,7 @@ void CvGameReligions::FoundReligion(PlayerTypes ePlayer, ReligionTypes eReligion
 			LogReligionMessage(strLogMsg);
 		}
 
-#if !defined(NO_ACHIEVEMENTS)
+#if defined(MOD_API_ACHIEVEMENTS)
 		//Achievements!
 		if(ePlayer == GC.getGame().getActivePlayer())
 		{
@@ -6086,7 +6086,7 @@ void CvCityReligions::CityConvertsReligion(ReligionTypes eMajority, ReligionType
 				kOwnerPlayer.GetNotifications()->Add(NOTIFICATION_RELIGION_SPREAD, strMessage.toUTF8(), strSummary.toUTF8(), m_pCity->getX(), m_pCity->getY(), eMajority, -1);
 			}
 
-#if !defined(NO_ACHIEVEMENTS)
+#if defined(MOD_API_ACHIEVEMENTS)
 			//Achievements!
 			if(eOwnerPlayer == GC.getGame().getActivePlayer()){
 				const CvReligion* pkReligion = GC.getGame().GetGameReligions()->GetReligion(eOwnerPlayerReligion, eOwnerPlayer);
@@ -6113,7 +6113,7 @@ void CvCityReligions::CityConvertsReligion(ReligionTypes eMajority, ReligionType
 			}
 		}
 
-#if !defined(NO_ACHIEVEMENTS)
+#if defined(MOD_API_ACHIEVEMENTS)
 		//More Achievements
 		if(m_pCity->getOwner() != GC.getGame().getActivePlayer() && pNewReligion->m_eFounder == GC.getGame().getActivePlayer())
 		{
