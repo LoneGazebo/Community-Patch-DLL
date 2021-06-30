@@ -23707,7 +23707,7 @@ void CvDiplomacyAI::DoMakeWarOnPlayer(PlayerTypes eTargetPlayer)
 	// Major Civ
 	else
 	{
-		bWantToAttack = GetCivApproach(eTargetPlayer) == CIV_APPROACH_WAR && IsWarSane(eTargetPlayer);
+		bWantToAttack = (GetCivApproach(eTargetPlayer) == CIV_APPROACH_WAR && IsWarSane(eTargetPlayer)) || GetGlobalCoopWarAgainstState(eTargetPlayer) >= COOP_WAR_STATE_PREPARING;
 		bWantShowOfForce = GetDemandTargetPlayer() == eTargetPlayer;
 
 		// Don't attack someone else's vassal unless we want to attack the master too
@@ -23721,10 +23721,20 @@ void CvDiplomacyAI::DoMakeWarOnPlayer(PlayerTypes eTargetPlayer)
 
 	if (IsArmyInPlaceForAttack(eTargetPlayer))
 	{
+		bool bWaitForAllies = false;
+
 		// Our Approach with this player calls for war
 		if (bWantToAttack)
 		{
-			DeclareWar(eTargetPlayer);
+			// Don't declare war until any coop war allies are ready!
+			if (GetGlobalCoopWarAgainstState(eTargetPlayer) == COOP_WAR_STATE_PREPARING)
+			{
+				bWaitForAllies = true;
+			}
+			else
+			{
+				DeclareWar(eTargetPlayer); // let loose the dogs of war!
+			}
 		}
 		else if (bWantShowOfForce)
 		{
@@ -23746,8 +23756,11 @@ void CvDiplomacyAI::DoMakeWarOnPlayer(PlayerTypes eTargetPlayer)
 				SetCivApproach(eTargetPlayer, GetHighestValueApproach(eTargetPlayer, true, true));
 		}
 
-		SetArmyInPlaceForAttack(eTargetPlayer, false);
-		SetWantsSneakAttack(eTargetPlayer, false);
+		if (!bWaitForAllies)
+		{
+			SetArmyInPlaceForAttack(eTargetPlayer, false);
+			SetWantsSneakAttack(eTargetPlayer, false);
+		}
 	}
 	else
 	{
