@@ -2510,6 +2510,7 @@
 			<PediaEntry>TXT_KEY_PROMOTION_HEROISM</PediaEntry>
 			<CannotBeChosen>true</CannotBeChosen>
 			<GreatGeneral>true</GreatGeneral>
+			<ChangeDamageValue>-10</ChangeDamageValue>
 		</Replace>
 		<Replace>
 			<Type>PROMOTION_AMBITION</Type>
@@ -2563,6 +2564,7 @@
 			<PediaEntry>TXT_KEY_PROMOTION_ENEMY_BLADE</PediaEntry>
 			<CannotBeChosen>true</CannotBeChosen>
 			<EnemyDamageChance>50</EnemyDamageChance>
+			<EnemyRoute>true</EnemyRoute>
 			<EnemyDamage>-10</EnemyDamage>
 		</Replace>
 		<Replace>

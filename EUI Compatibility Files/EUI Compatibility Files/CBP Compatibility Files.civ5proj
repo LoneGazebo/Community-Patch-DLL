@@ -381,7 +381,7 @@ NOTE: Make sure to delete the LUA folder in the CBO if you are using this!</Desc
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-	<Content Include="LUA\MapmakerUtilities.lua">
+    <Content Include="LUA\MapmakerUtilities.lua">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>

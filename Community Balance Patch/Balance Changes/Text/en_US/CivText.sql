@@ -632,7 +632,7 @@ SET Text = 'Classical Era Melee unit that has a mystical weapon whose abilities 
 WHERE Tag = 'TXT_KEY_UNIT_HELP_INDONESIAN_KRIS_SWORDSMAN' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = '50% chance of Healing 10 HP if the unit ends its turn in [COLOR_POSITIVE_TEXT]Enemy Territory[ENDCOLOR].'
+SET Text = '50% chance of Healing 10 HP if the unit ends its turn in [COLOR_POSITIVE_TEXT]Enemy Territory[ENDCOLOR]. Treats Roads in [COLOR_POSITIVE_TEXT]Enemy Territory[ENDCOLOR] as friendly.'
  WHERE Tag = 'TXT_KEY_PROMOTION_ENEMY_BLADE_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Language_en_US
