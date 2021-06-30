@@ -358,6 +358,7 @@ public:
 	int GetExperienceForLiberation() const;
 	BuildingClassTypes GetBuildingClassInLiberatedCities() const;
 	int GetUnitsInLiberatedCities() const;
+	int getFranchisesPerImprovement(int i) const;
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	int GetInvestmentModifier() const;
@@ -815,6 +816,7 @@ private:
 	int m_iExperienceForLiberation;
 	BuildingClassTypes m_eBuildingClassInLiberatedCities;
 	int m_iUnitsInLiberatedCities;
+	int* m_piFranchisesPerImprovement;
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	int m_iInvestmentModifier;

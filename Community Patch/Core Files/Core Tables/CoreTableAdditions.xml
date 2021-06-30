@@ -42,6 +42,12 @@
 		<Column name="BuildingClassType" type="text" reference="BuildingClasses(Type)"/>
 		<Column name="Count" type="integer" default="0"/>
 	</Table>
+	<!-- The policy will give you a franchise for each of the specified improvement -->
+		<Table name="Policy_FranchisePerImprovement">
+		<Column name="PolicyType" type="text" reference="Policies(Type)"/>
+		<Column name="ImprovementType" type="text" reference="Improvements(Type)"/>
+		<Column name="NumFranchise" type="integer"/>
+	</Table>
 	<!-- Allows you to define an instant yield granted when a building is constructed. -->
 	<Table name="Building_InstantYield">
 		<Column name="BuildingType" type="text" reference="Buildings(Type)"/>

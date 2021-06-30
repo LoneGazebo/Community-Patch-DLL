@@ -44460,6 +44460,12 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 		{
 			changeImprovementYieldChange(((ImprovementTypes)iI), ((YieldTypes)iJ), (pPolicy->GetImprovementYieldChanges(iI, iJ) * iChange));
 		}
+	
+		if (pPolicy->getFranchisesPerImprovement(iI) != 0)
+		{
+			GetCorporations()->ChangeFranchisesPerImprovement((ImprovementTypes)iI, pPolicy->getFranchisesPerImprovement(iI) * iChange);
+			GetCorporations()->RecalculateNumFranchises();
+		}
 	}
 
 	// Free Promotions

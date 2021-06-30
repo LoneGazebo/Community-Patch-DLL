@@ -342,6 +342,7 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_iExperienceForLiberation(0),
 	m_eBuildingClassInLiberatedCities(NO_BUILDINGCLASS),
 	m_iUnitsInLiberatedCities(0),
+	m_piFranchisesPerImprovement(NULL),
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	m_iInvestmentModifier(0),
@@ -447,6 +448,7 @@ CvPolicyEntry::~CvPolicyEntry(void)
 	SAFE_DELETE_ARRAY(m_piGoldenAgeYieldMod);
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiReligionBuildingYieldMod);
 	SAFE_DELETE_ARRAY(m_piYieldForLiberation);
+	SAFE_DELETE_ARRAY(m_piFranchisesPerImprovement);
 #endif
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiImprovementYieldChanges);
 #if defined(MOD_API_UNIFIED_YIELDS)
@@ -1252,6 +1254,8 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	{
 		m_eBuildingClassInLiberatedCities = (BuildingClassTypes)GC.getInfoTypeForString(szBuildingClassInLiberatedCities, true);
 	}
+
+	kUtility.PopulateArrayByValue(m_piFranchisesPerImprovement, "Improvements", "Policy_FranchisePerImprovement", "ImprovementType", "PolicyType", szPolicyType, "NumFranchise");
 #endif
 
 	//OrPreReqs
@@ -3643,6 +3647,12 @@ BuildingClassTypes CvPolicyEntry::GetBuildingClassInLiberatedCities() const
 int CvPolicyEntry::GetUnitsInLiberatedCities() const
 {
 	return m_iUnitsInLiberatedCities;
+}
+int CvPolicyEntry::getFranchisesPerImprovement(int i) const
+{
+	CvAssertMsg(i < GC.getNumImprovementInfos(), "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piFranchisesPerImprovement[i];
 }
 #endif
 
