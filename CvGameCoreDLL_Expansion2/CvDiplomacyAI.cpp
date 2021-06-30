@@ -24041,19 +24041,9 @@ bool CvDiplomacyAI::IsHasActiveGoldQuest()
 /// Returns ePlayer's visible Diplomatic Approach towards us
 CivApproachTypes CvDiplomacyAI::GetVisibleApproachTowardsUs(PlayerTypes ePlayer) const
 {
-	if (ePlayer < 0 || ePlayer >= MAX_PLAYERS) return NO_CIV_APPROACH;
+	if (ePlayer < 0 || ePlayer >= MAX_PLAYERS || !GET_PLAYER(ePlayer).isAlive()) return NO_CIV_APPROACH;
 
-	if (GET_PLAYER(ePlayer).isBarbarian())
-	{
-		return CIV_APPROACH_WAR;
-	}
-
-	if (!GET_PLAYER(ePlayer).isAlive()) // shows up only when AI is killed in singleplayer
-	{
-		return CIV_APPROACH_NEUTRAL;
-	}
-
-	if (IsAtWar(ePlayer))
+	if (IsAtWar(ePlayer) || GET_PLAYER(ePlayer).isBarbarian())
 	{
 		return CIV_APPROACH_WAR;
 	}

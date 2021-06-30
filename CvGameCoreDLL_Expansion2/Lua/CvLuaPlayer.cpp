@@ -12440,7 +12440,7 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 	// [PART 1: SPECIAL INDICATORS]	  //
 	//--------------------------------//
 
-	if (!bObserver && pkPlayer->isAlive())
+	if (!bObserver)
 	{
 		// Gone to war in the past?
 		if (!pDiplo->IsAtWar(ePlayer) && pDiplo->GetNumWarsFought(ePlayer) > 0)

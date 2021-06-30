@@ -617,6 +617,10 @@ WHERE Tag = 'TXT_KEY_LEAGUE_OVERVIEW_PROPOSAL_OPINIONS_NEGATIVE';
 
 -- Neutral Indicators
 UPDATE Language_en_US
+SET Text = 'ELIMINATED'
+WHERE Tag = 'TXT_KEY_EMOTIONLESS';
+
+UPDATE Language_en_US
 SET Text = 'You have gone to war in the past.'
 WHERE Tag = 'TXT_KEY_DIPLO_PAST_WAR_BAD';
 

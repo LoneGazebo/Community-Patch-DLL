@@ -2986,8 +2986,11 @@ local function GetMoodInfo( playerID )
 		if player.GetOpinionTable then
 			opinions = player:GetOpinionTable( activePlayerID )
 		else
+			-- Eliminated
+			if (not player:IsAlive()) then
+				opinions = { L"TXT_KEY_DIPLO_ELIMINATED_INDICATOR" }
 			-- Teammates
-			if teamID == activeTeamID then
+			elseif teamID == activeTeamID then
 				opinions = { L"TXT_KEY_DIPLO_HUMAN_TEAMMATE" }
 			-- At war
 			elseif activeTeam:IsAtWar( teamID ) then
@@ -3012,8 +3015,11 @@ local function GetMoodInfo( playerID )
 
 		--  No specific modifiers are visible, so let's see what string we should use (based on visible approach towards us)
 		if #opinions == 0 then
+			-- Eliminated
+			if (not player:IsAlive()) then
+				opinions = { L"TXT_KEY_DIPLO_ELIMINATED_INDICATOR" }
 			-- Teammates
-			if teamID == activeTeamID then
+			elseif teamID == activeTeamID then
 				opinions = { L"TXT_KEY_DIPLO_HUMAN_TEAMMATE" }
 			-- At war
 			elseif activeTeam:IsAtWar( teamID ) then
