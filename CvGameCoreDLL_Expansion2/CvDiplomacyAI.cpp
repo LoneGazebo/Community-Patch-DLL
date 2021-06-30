@@ -13260,6 +13260,10 @@ bool CvDiplomacyAI::DoUpdateOnePlayerSaneDiplomaticTarget(PlayerTypes ePlayer, b
 		return true;
 	}
 
+	// Don't start an impulse war if we have a coop war planned!
+	if (bImpulse && GetGlobalCoopWarAgainstState(ePlayer) == COOP_WAR_STATE_PREPARING)
+		return false;
+
 	// For major civs we have a lot more to consider...
 	vector<PlayerTypes> vLinkedWarPlayers = GetLinkedWarPlayers(ePlayer, false, false, false);
 	vLinkedWarPlayers.push_back(ePlayer);
