@@ -11454,6 +11454,7 @@ void CvDiplomacyAI::DoUpdateMilitaryAggressivePostures()
 	TeamTypes eOurTeam = GetTeam();
 	PlayerTypes eOurPlayerID = GetID();
 	vector<PlayerTypes> v;
+	int iUnitLoop;
 
 	int iTypicalLandPower = GetPlayer()->GetMilitaryAI()->GetPowerOfStrongestBuildableUnit(DOMAIN_LAND);
 	int iTypicalNavalPower = GetPlayer()->GetMilitaryAI()->GetPowerOfStrongestBuildableUnit(DOMAIN_SEA);
@@ -11513,7 +11514,6 @@ void CvDiplomacyAI::DoUpdateMilitaryAggressivePostures()
 			bool bIgnoreOtherWars = (GetPlayer()->isHuman() || IsAtWar(ePlayer));
 
 			// Loop through the other guy's units
-			int iUnitLoop;
 			for (CvUnit* pLoopUnit = kPlayer.firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = kPlayer.nextUnit(&iUnitLoop))
 			{
 				// Don't be scared of noncombat Units!
@@ -30265,6 +30265,18 @@ void CvDiplomacyAI::DoAggressiveMilitaryStatement(PlayerTypes ePlayer, DiploStat
 		if (GetPlayerMilitaryPromiseState(ePlayer) > NO_PROMISE_STATE)
 			return;
 
+		// Don't threaten if this person resurrected us
+		if (WasResurrectedBy(ePlayer))
+			return;
+
+		// We're working together, so don't worry about it
+		if (IsDoFAccepted(ePlayer) || IsHasDefensivePact(ePlayer))
+			return;
+
+		//We're allowing them Open Borders? We shouldn't care.
+		if (GET_TEAM(GetTeam()).IsAllowsOpenBordersToTeam(GET_PLAYER(ePlayer).getTeam()))
+			return;
+
 		// They must be able to declare war on us
 		if (!GET_TEAM(GET_PLAYER(ePlayer).getTeam()).canDeclareWar(GetTeam(), ePlayer))
 			return;
@@ -30273,25 +30285,13 @@ void CvDiplomacyAI::DoAggressiveMilitaryStatement(PlayerTypes ePlayer, DiploStat
 		if (!GET_PLAYER(ePlayer).isHuman() && GET_TEAM(GetTeam()).IsVassalOfSomeone())
 			return;
 
-		// Don't threaten if this person resurrected us
-		if (WasResurrectedBy(ePlayer))
-			return;
-
-		// They're HIGH this turn and weren't last turn
-		if (GetMilitaryAggressivePosture(ePlayer) >= AGGRESSIVE_POSTURE_HIGH && GetLastTurnMilitaryAggressivePosture(ePlayer) < AGGRESSIVE_POSTURE_HIGH)
+		// They're HIGH or INCREDIBLE this turn
+		if (GetMilitaryAggressivePosture(ePlayer) >= AGGRESSIVE_POSTURE_HIGH)
 			bSendStatement = true;
 
 		// They're MEDIUM this turn and were NONE last turn
 		else if (GetMilitaryAggressivePosture(ePlayer) >= AGGRESSIVE_POSTURE_MEDIUM && GetLastTurnMilitaryAggressivePosture(ePlayer) <= AGGRESSIVE_POSTURE_NONE)
 			bSendStatement = true;
-
-		// We're working together, so don't worry about it
-		if (IsDoFAccepted(ePlayer))
-			return;
-
-		//We're allowing them Open Borders? We shouldn't care.
-		if (GET_TEAM(GetTeam()).IsAllowsOpenBordersToTeam(GET_PLAYER(ePlayer).getTeam()))
-			return;
 
 		// Check other player status
 		for (int iThirdPartyLoop = 0; iThirdPartyLoop < MAX_MAJOR_CIVS; iThirdPartyLoop++)
