@@ -266,6 +266,9 @@ public:
 	bool IsNoFranchisesInForeignCities();
 	void SetNoFranchisesInForeignCities(bool bValue);
 
+	int GetFranchisesPerImprovement(ImprovementTypes eIndex) const;
+	void ChangeFranchisesPerImprovement(ImprovementTypes eIndex, int iValue);
+
 	void DestroyCorporation();
 
 private:
@@ -281,6 +284,8 @@ private:
 	int m_iCorporationOfficesAsFranchises;
 	int m_iCorporationRandomForeignFranchiseMod;
 	int m_iCorporationFreeFranchiseAbovePopular;
+
+	std::vector<int> m_aiFranchisesPerImprovement;
 
 	bool m_bIsNoForeignCorpsInCities;
 	bool m_bIsNoFranchisesInForeignCities;

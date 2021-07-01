@@ -494,7 +494,8 @@ CvPlayerCorporations::CvPlayerCorporations(void):
 	m_iCorporationRandomForeignFranchiseMod(0),
 	m_iCorporationFreeFranchiseAbovePopular(0),
 	m_bIsNoForeignCorpsInCities(false),
-	m_bIsNoFranchisesInForeignCities(false)
+	m_bIsNoFranchisesInForeignCities(false),
+	m_aiFranchisesPerImprovement(NULL)
 {
 }
 
@@ -508,6 +509,9 @@ CvPlayerCorporations::~CvPlayerCorporations(void)
 void CvPlayerCorporations::Init(CvPlayer* pPlayer)
 {
 	m_pPlayer = pPlayer;
+
+	m_aiFranchisesPerImprovement.clear();
+	m_aiFranchisesPerImprovement.resize(GC.getNumImprovementInfos(), 0);
 
 	Reset();
 }
@@ -547,6 +551,7 @@ void CvPlayerCorporations::Serialize(PlayerCorporations& playerCorporations, Vis
 	visitor(playerCorporations.m_iCorporationFreeFranchiseAbovePopular);
 	visitor(playerCorporations.m_bIsNoForeignCorpsInCities);
 	visitor(playerCorporations.m_bIsNoFranchisesInForeignCities);
+	visitor(playerCorporations.m_aiFranchisesPerImprovement);
 }
 
 /// Serialization read
@@ -753,6 +758,23 @@ void CvPlayerCorporations::SetNoFranchisesInForeignCities(bool bValue)
 	}
 }
 
+int CvPlayerCorporations::GetFranchisesPerImprovement(ImprovementTypes eIndex) const
+{
+	CvAssertMsg(eIndex < GC.getNumImprovementInfos(), "Index out of bounds");
+	CvAssertMsg(eIndex > -1, "Index out of bounds");
+	return m_aiFranchisesPerImprovement[eIndex];
+}
+
+void CvPlayerCorporations::ChangeFranchisesPerImprovement(ImprovementTypes eIndex, int iValue)
+{
+	CvAssertMsg(eIndex < GC.getNumImprovementInfos(), "Index out of bounds");
+	CvAssertMsg(eIndex > -1, "Index out of bounds");
+	if (iValue != 0)
+	{
+		m_aiFranchisesPerImprovement[eIndex] += iValue;
+	}
+}
+
 // Get our headquarters
 CvCity* CvPlayerCorporations::GetHeadquarters() const
 {
@@ -864,6 +886,14 @@ void CvPlayerCorporations::RecalculateNumFranchises()
 	}
 
 	iFranchises += iFreeFranchises;
+
+	for (int iI = 0; iI < GC.getNumImprovementInfos(); iI++)
+	{
+		if (GetFranchisesPerImprovement((ImprovementTypes)iI) > 0)
+		{
+			iFranchises += (m_pPlayer->CountAllImprovement((ImprovementTypes)iI, false) * GetFranchisesPerImprovement((ImprovementTypes)iI));
+		}
+	}
 
 	m_iNumFranchises = iFranchises;
 
