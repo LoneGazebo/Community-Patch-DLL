@@ -24330,6 +24330,8 @@ void CvDiplomacyAI::DoUpdateDemands()
 		vePotentialDemandTargets.push_back(ePlayer, iWeight);
 	}
 
+	vePotentialDemandTargets.SortItems();
+
 	// Any valid possibilities?
 	if (vePotentialDemandTargets.size() > 0)
 	{
