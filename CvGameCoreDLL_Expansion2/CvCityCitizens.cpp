@@ -1365,9 +1365,9 @@ CvPlot* CvCityCitizens::GetBestCityPlotWithValue(int& iChosenValue, ePlotSelecti
 
 				// Select forced working plots but prioritize unforced working plots.
 				const bool bDisallowedByUnforcedPriority = !bBestPlotIsForcedWork && bIsForcedWork;
-				const bool bSuperceedsByUnforcedPriority = bBestPlotIsForcedWork && !bIsForcedWork;
+				const bool bSupersedesByUnforcedPriority = bBestPlotIsForcedWork && !bIsForcedWork;
 				iValue = GetPlotValue(pLoopPlot, gCachedNumbers);
-				if ((pBestPlot == NULL || bSuperceedsByUnforcedPriority) || (!bDisallowedByUnforcedPriority && iValue < iBestPlotValue))
+				if ((pBestPlot == NULL || bSupersedesByUnforcedPriority) || (!bDisallowedByUnforcedPriority && iValue < iBestPlotValue))
 				{
 					iBestPlotValue = iValue;
 					bBestPlotIsForcedWork = bIsForcedWork;
