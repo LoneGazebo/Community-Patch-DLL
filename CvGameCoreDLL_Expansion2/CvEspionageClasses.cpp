@@ -6847,7 +6847,7 @@ std::vector<ScoreCityEntry> CvEspionageAI::BuildDefenseCityList()
 	CvCity* pLoopCity = NULL;
 	int iLoop = 0;
 
-	if (m_pPlayer->GetDiplomacyAI()->GetNumValidMajorCivs(true) <= 0)
+	if (m_pPlayer->GetDiplomacyAI()->GetNumValidMajorCivs() <= 0)
 		return aCityScores;
 	
 	for(pLoopCity = GET_PLAYER(ePlayer).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iLoop))

@@ -100,7 +100,7 @@ public:
 	// ************************************
 
 	bool IsPlayerValid(PlayerTypes eOtherPlayer, bool bMyTeamIsValid = false) const;
-	int GetNumValidMajorCivs(bool bHasMet = false) const;
+	int GetNumValidMajorCivs() const;
 	vector<PlayerTypes> GetAllValidMajorCivs() const;
 
 	bool IsAtWar(PlayerTypes eOtherPlayer) const;
