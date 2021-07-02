@@ -3861,6 +3861,24 @@ function AssignStartingPlots:FindStartWithoutRegardToAreaID(region_number, bMust
 	return bSuccessFlag, bForcedPlacementFlag
 end
 ------------------------------------------------------------------------------
+function CivNeedsMountainStart(civType)
+	for row in GameInfo.Civilization_Start_Prefer_Mountain{CivilizationType = civType} do
+		if(row.StartPreferMountain == true) then
+			return true;
+		end
+	end
+	return false;
+end
+------------------------------------------------------------------------------
+function CivNeedsSnowStart(civType)
+	for row in GameInfo.Civilization_Start_Prefer_Snow{CivilizationType = civType} do
+		if(row.StartPreferSnow == true) then
+			return true;
+		end
+	end
+	return false;
+end
+------------------------------------------------------------------------------
 function AssignStartingPlots:ChooseLocations(args)
 	print("Map Generation - Choosing Start Locations for Civilizations");
 	local args = args or {};

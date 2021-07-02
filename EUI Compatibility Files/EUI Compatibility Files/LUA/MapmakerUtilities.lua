@@ -471,24 +471,6 @@ function CivNeedsPlaceFirstCoastalStart(civType)
 	return false;
 end
 ------------------------------------------------------------------------------
-function CivNeedsMountainStart(civType)
-	for row in GameInfo.Civilization_Start_Prefer_Mountain{CivilizationType = civType} do
-		if(row.StartPreferMountain == true) then
-			return true;
-		end
-	end
-	return false;
-end
-------------------------------------------------------------------------------
-function CivNeedsSnowStart(civType)
-	for row in GameInfo.Civilization_Start_Prefer_Snow{CivilizationType = civType} do
-		if(row.StartPreferSnow == true) then
-			return true;
-		end
-	end
-	return false;
-end
-------------------------------------------------------------------------------
 function GetNumStartRegionPriorityForCiv(civType)
 	-- This function detects if a civ has Start Region Priority needs and counts how many.
 	for row in DB.Query("select count(*) as count from Civilization_Start_Region_Priority where CivilizationType = ?", civType) do
