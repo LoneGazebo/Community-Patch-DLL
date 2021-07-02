@@ -331,7 +331,7 @@ WHERE Tag = 'TXT_KEY_BELIEF_MISSIONARY_ZEAL_SHORT' AND EXISTS (SELECT * FROM COM
 
 -- Holy Order
 UPDATE Language_en_US
-SET Text = '[ICON_RELIGION] Religion spreads to Cities 25% further away. Pressure doubled to friendly [ICON_CITY_STATE] City-States and foreign Cities connected via [ICON_INTERNATIONAL_TRADE] Trade Routes.'
+SET Text = '[ICON_RELIGION] Religion spreads to Cities 25% further away. Pressure tripled to friendly [ICON_CITY_STATE] City-States and foreign Cities connected via [ICON_INTERNATIONAL_TRADE] Trade Routes.'
 WHERE Tag = 'TXT_KEY_BELIEF_HOLY_ORDER' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Language_en_US
