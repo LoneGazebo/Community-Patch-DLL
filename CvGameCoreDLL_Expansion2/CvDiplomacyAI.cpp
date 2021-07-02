@@ -790,7 +790,7 @@ bool CvDiplomacyAI::IsPlayerValid(PlayerTypes eOtherPlayer, bool bMyTeamIsValid 
 }
 
 /// Returns the number of valid major civs
-int CvDiplomacyAI::GetNumValidMajorCivs(bool bHasMet) const
+int CvDiplomacyAI::GetNumValidMajorCivs() const
 {
 	int iCount = 0;
 
@@ -800,8 +800,6 @@ int CvDiplomacyAI::GetNumValidMajorCivs(bool bHasMet) const
 		if (IsPlayerValid(ePlayer) && GET_PLAYER(ePlayer).isMajorCiv())
 		{
 			iCount++;
-			if (bHasMet && !IsHasMet(ePlayer))
-				iCount--;
 		}
 	}
 
@@ -24331,6 +24329,8 @@ void CvDiplomacyAI::DoUpdateDemands()
 
 		vePotentialDemandTargets.push_back(ePlayer, iWeight);
 	}
+
+	vePotentialDemandTargets.SortItems();
 
 	// Any valid possibilities?
 	if (vePotentialDemandTargets.size() > 0)

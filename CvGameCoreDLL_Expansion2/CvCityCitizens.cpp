@@ -1258,7 +1258,7 @@ bool CvCityCitizens::DoRemoveWorstCitizen(CvCity::eUpdateMode updateMode, bool b
 
 	// No Default Specialists, remove a working Pop, if there is one
 	int iWorstPlotValue = 0;
-	CvPlot* pWorstPlot = GetBestCityPlotWithValue(iWorstPlotValue, bRemoveForcedStatus ? eWORST_WORKED_FORCED : eWORST_WORKED_UNFORCED);
+	CvPlot* pWorstPlot = GetBestCityPlotWithValue(iWorstPlotValue, bRemoveForcedStatus ? eWORST_WORKED_ANY : eWORST_WORKED_UNFORCED);
 
 	if (pWorstPlot != NULL)
 	{
@@ -1290,6 +1290,7 @@ bool CvCityCitizens::DoRemoveWorstCitizen(CvCity::eUpdateMode updateMode, bool b
 CvPlot* CvCityCitizens::GetBestCityPlotWithValue(int& iChosenValue, ePlotSelectionMode eMode, bool bLogging)
 {
 	int iBestPlotValue = -1;
+	bool bBestPlotIsForcedWork = false;
 	CvPlot* pBestPlot = NULL;
 
 	FILogFile* pLog = bLogging && GC.getLogging() ? LOGFILEMGR.GetLog("CityTileScorer.csv", FILogFile::kDontTimeStamp) : NULL;
@@ -1316,6 +1317,7 @@ CvPlot* CvCityCitizens::GetBestCityPlotWithValue(int& iChosenValue, ePlotSelecti
 				if ( pBestPlot==NULL || iValue > iBestPlotValue )
 				{
 					iBestPlotValue = iValue;
+					bBestPlotIsForcedWork = IsForcedWorkingPlot(iPlotLoop);
 					pBestPlot = pLoopPlot;
 				}
 			}
@@ -1327,6 +1329,7 @@ CvPlot* CvCityCitizens::GetBestCityPlotWithValue(int& iChosenValue, ePlotSelecti
 				if ( pBestPlot==NULL || iValue > iBestPlotValue )
 				{
 					iBestPlotValue = iValue;
+					bBestPlotIsForcedWork = IsForcedWorkingPlot(iPlotLoop);
 					pBestPlot = pLoopPlot;
 				}
 			}
@@ -1338,6 +1341,7 @@ CvPlot* CvCityCitizens::GetBestCityPlotWithValue(int& iChosenValue, ePlotSelecti
 				if ( pBestPlot==NULL || iValue < iBestPlotValue )
 				{
 					iBestPlotValue = iValue;
+					bBestPlotIsForcedWork = false;
 					pBestPlot = pLoopPlot;
 				}
 			}
@@ -1349,6 +1353,24 @@ CvPlot* CvCityCitizens::GetBestCityPlotWithValue(int& iChosenValue, ePlotSelecti
 				if ( pBestPlot==NULL || iValue < iBestPlotValue )
 				{
 					iBestPlotValue = iValue;
+					bBestPlotIsForcedWork = true;
+					pBestPlot = pLoopPlot;
+				}
+			}
+			break;
+		case eWORST_WORKED_ANY:
+			if (IsWorkingPlot(iPlotLoop))
+			{
+				const bool bIsForcedWork = IsForcedWorkingPlot(iPlotLoop);
+
+				// Select forced working plots but prioritize unforced working plots.
+				const bool bDisallowedByUnforcedPriority = !bBestPlotIsForcedWork && bIsForcedWork;
+				const bool bSupersedesByUnforcedPriority = bBestPlotIsForcedWork && !bIsForcedWork;
+				iValue = GetPlotValue(pLoopPlot, gCachedNumbers);
+				if ((pBestPlot == NULL || bSupersedesByUnforcedPriority) || (!bDisallowedByUnforcedPriority && iValue < iBestPlotValue))
+				{
+					iBestPlotValue = iValue;
+					bBestPlotIsForcedWork = bIsForcedWork;
 					pBestPlot = pLoopPlot;
 				}
 			}
@@ -1358,9 +1380,9 @@ CvPlot* CvCityCitizens::GetBestCityPlotWithValue(int& iChosenValue, ePlotSelecti
 		if (0) // (pLog)
 		{
 			CvString strOutBuf;
-			strOutBuf.Format("check index %d, plot %d:%d (%df%dp%dg%do), score %d. current net food %d", 
+			strOutBuf.Format("check index %d, plot %d:%d (%df%dp%dg%do), score %d with forced work status %d. current net food %d", 
 				iPlotLoop, pLoopPlot->getX(), pLoopPlot->getY(), pLoopPlot->getYield(YIELD_FOOD), pLoopPlot->getYield(YIELD_PRODUCTION), 
-				pLoopPlot->getYield(YIELD_GOLD), pBestPlot->getYield(YIELD_SCIENCE) + pBestPlot->getYield(YIELD_CULTURE) + pBestPlot->getYield(YIELD_FAITH), iValue, gCachedNumbers.iExcessFoodTimes100);
+				pLoopPlot->getYield(YIELD_GOLD), pBestPlot->getYield(YIELD_SCIENCE) + pBestPlot->getYield(YIELD_CULTURE) + pBestPlot->getYield(YIELD_FAITH), iValue, int(bBestPlotIsForcedWork), gCachedNumbers.iExcessFoodTimes100);
 			pLog->Msg(strOutBuf);
 		}
 	}
