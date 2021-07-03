@@ -54765,19 +54765,19 @@ void CvDiplomacyAI::DoDetermineVassalTaxRates()
 		// Decided we might raise - by how much?
 		if (bCanRaise)
 		{
-			if (iScoreForRaise >= 300)
+			if (iScoreForRaise >= 350)
 			{
 				iNewTaxValue = 25;
 			}
-			else if (iScoreForRaise >= 200)
+			else if (iScoreForRaise >= 250)
 			{
 				iNewTaxValue = 20;
 			}
-			else if (iScoreForRaise >= 150)
+			else if (iScoreForRaise >= 200)
 			{
 				iNewTaxValue = 15;
 			}
-			else if (iScoreForRaise >= 75)
+			else if (iScoreForRaise >= 125)
 			{
 				iNewTaxValue = 10;
 			}
@@ -54792,19 +54792,19 @@ void CvDiplomacyAI::DoDetermineVassalTaxRates()
 		// Decided we might lower - by how much?
 		else if (bCanLower)
 		{
-			if (iScoreForLower >= 300)
+			if (iScoreForLower >= 350)
 			{
 				iNewTaxValue = 0;
 			}
-			else if (iScoreForLower >= 200)
+			else if (iScoreForLower >= 250)
 			{
 				iNewTaxValue = 5;
 			}
-			else if (iScoreForLower >= 150)
+			else if (iScoreForLower >= 200)
 			{
 				iNewTaxValue = 10;
 			}
-			else if (iScoreForLower >= 75)
+			else if (iScoreForLower >= 125)
 			{
 				iNewTaxValue = 15;
 			}
