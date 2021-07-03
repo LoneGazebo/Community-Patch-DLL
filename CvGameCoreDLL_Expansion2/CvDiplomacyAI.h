@@ -1506,8 +1506,7 @@ public:
 	void DoRevokeVassalageStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal);
 
 	void DoLiberateMyVassalStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement);
-	void DoDetermineTaxRateForVassals();
-	void DoDetermineTaxRateForVassalOnePlayer(PlayerTypes ePlayer);
+	void DoDetermineVassalTaxRates();
 
 	void DoVassalTaxesRaisedStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement);
 	void DoVassalTaxesLoweredStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement);

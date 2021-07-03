@@ -7180,7 +7180,7 @@ void CvDiplomacyAI::DoTurn(DiplomacyMode eDiploMode, PlayerTypes ePlayer)
 	// These functions actually DO things, and we don't want the shadow AI behind a human player doing things for him
 	if (!GetPlayer()->isHuman())
 	{
-		DoDetermineTaxRateForVassals();
+		DoDetermineVassalTaxRates();
 		DoUpdateDemands();
 		MakeWar();
 		DoContactMinorCivs();
@@ -54497,262 +54497,328 @@ void CvDiplomacyAI::DoLiberatedFromVassalage(TeamTypes eTeam)
 //}
 
 /// Determine tax rates for all vassals, if we can
-void CvDiplomacyAI::DoDetermineTaxRateForVassals()
+void CvDiplomacyAI::DoDetermineVassalTaxRates()
 {
-	// Update global comparisons for each player
-	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
-	{
-		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
-		if(IsPlayerValid(eLoopPlayer, true))
-		{
-			if(!GET_PLAYER(eLoopPlayer).isMinorCiv())
-			{
-				// Don't process ourselves...
-				if(eLoopPlayer != GetID())
-				{
-					DoDetermineTaxRateForVassalOnePlayer(eLoopPlayer);
-				}
-			}
-		}
-	}
-}
-
-/// Determine how much we are going to tax this player, if we can
-void CvDiplomacyAI::DoDetermineTaxRateForVassalOnePlayer(PlayerTypes ePlayer)
-{
-	// Must be able to set taxes for player
-	if(!GET_TEAM(GetTeam()).CanSetVassalTax(ePlayer))
+	if (!MOD_DIPLOMACY_CIV4_FEATURES || GC.getGame().isOption(GAMEOPTION_NO_VASSALAGE) || GC.getGame().isOption(GAMEOPTION_ALWAYS_WAR) || GetPlayer()->GetNumVassals() <= 0)
 		return;
-
-	TeamTypes eMyTeam = GetTeam();
-	CvTeam& kMyTeam = GET_TEAM(eMyTeam);
 
 	// Do not allow an AI teammate to do this for a human
-	if(!GetPlayer()->isHuman() && kMyTeam.isHuman())
+	if (GetPlayer()->IsAITeammateOfHuman())
+	{
+		for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+		{
+			PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+			SetVassalTaxRaised(eLoopPlayer, false);
+			SetVassalTaxLowered(eLoopPlayer, false);
+		}
 		return;
+	}
 
-	// Current tax rate
-	int iTaxRate = kMyTeam.GetVassalTax(ePlayer);
-
-	// Make sure we can actually do that...
-	bool bWantToLower = iTaxRate > GC.getVASSALAGE_VASSAL_TAX_PERCENT_MINIMUM();
-	bool bWantToRaise = iTaxRate < GC.getVASSALAGE_VASSAL_TAX_PERCENT_MAXIMUM();
-
-	// Because this function will involve lots of iteration over team members, let's store all alive team members in temporary vectors to improve the speed of this function
-	std::vector<CvPlayerAI*> m_MasterTeam;
-	std::vector<CvPlayerAI*> m_VassalTeam;
-
-	for(int iI=0; iI < MAX_MAJOR_CIVS; iI++)
+	vector<PlayerTypes> vMyTeam = GET_TEAM(GetTeam()).getPlayers();
+	int iMyCurrentGPT = 0, iAverageMeanness = 0, iAverageDoFWillingness = 0, iNumTeamMembers = 0;
+	bool bNotLowestEconomicMight = false;
+	bool bAnyoneInDireStraits = false;
+	for (size_t i=0; i<vMyTeam.size(); i++)
 	{
-		PlayerTypes eLoopPlayer = (PlayerTypes) iI;
-		if(GET_PLAYER(eLoopPlayer).isAlive())
+		if (!GET_PLAYER(vMyTeam[i]).isAlive() || GET_PLAYER(vMyTeam[i]).getNumCities() <= 0)
+			continue;
+
+		if (GET_PLAYER(vMyTeam[i]).getTurnsToBankruptcy(0) != INT_MAX || GET_PLAYER(vMyTeam[i]).GetDiplomacyAI()->GetStateAllWars() == STATE_ALL_WARS_LOSING || GET_PLAYER(vMyTeam[i]).IsEmpireVeryUnhappy())
 		{
-			// Master team
-			if(GET_PLAYER(eLoopPlayer).getTeam() == GetTeam())
-			{
-				m_MasterTeam.push_back(&GET_PLAYER(eLoopPlayer));
-			}
-			// Vassal team
-			else if(GET_PLAYER(eLoopPlayer).getTeam() == GET_PLAYER(ePlayer).getTeam())
-			{
-				m_VassalTeam.push_back(&GET_PLAYER(eLoopPlayer));
-			}
+			bAnyoneInDireStraits = true;
+			break;
 		}
-	}
-	
-	CivOpinionTypes eTeamOpinion = CIV_OPINION_NEUTRAL;
-	int iMyCurrentGPT = 0, iMyCurrentGross = 0, iAverageMeanness = 0, iAverageDoFWillingness = 0, iAverageOpinionScore = 0;
-	for(std::vector<CvPlayerAI*>::iterator it = m_MasterTeam.begin(); it != m_MasterTeam.end(); it++)
-	{
-		iMyCurrentGPT += (*it)->GetTreasury()->CalculateBaseNetGoldTimes100();
-		iMyCurrentGross += (*it)->GetTreasury()->CalculateBaseNetGoldTimes100();
 
-		iAverageMeanness += (*it)->GetDiplomacyAI()->GetMeanness();
-		iAverageDoFWillingness += (*it)->GetDiplomacyAI()->GetDoFWillingness();
+		// If another AI on our team is at least 20% weaker than us, we should let that AI decide
+		if ((GetPlayer()->GetEconomicMight() * 80) > (GET_PLAYER(vMyTeam[i]).GetEconomicMight() * 100))
+			bNotLowestEconomicMight = true;
 
-		iAverageOpinionScore += (*it)->GetDiplomacyAI()->GetCivOpinion(ePlayer);
+		iMyCurrentGPT += GET_PLAYER(vMyTeam[i]).getAvgGoldRate() * 100;
+		iAverageMeanness += GET_PLAYER(vMyTeam[i]).GetDiplomacyAI()->GetMeanness();
+		iAverageDoFWillingness += GET_PLAYER(vMyTeam[i]).GetDiplomacyAI()->GetDoFWillingness();
+		iNumTeamMembers++;
 	}
 
-	iAverageMeanness /= m_MasterTeam.size();
-	iAverageDoFWillingness /= m_MasterTeam.size();
-	iAverageOpinionScore /= m_MasterTeam.size();
-
-	eTeamOpinion = (CivOpinionTypes) iAverageOpinionScore;
-
-	int iVassalCurrentGPT = 0, iVassalCurrentGross = 0;
-	for(std::vector<CvPlayerAI*>::iterator it = m_VassalTeam.begin(); it != m_VassalTeam.end(); it++)
+	if (!bAnyoneInDireStraits)
 	{
-		iVassalCurrentGPT += (*it)->GetTreasury()->CalculateBaseNetGoldTimes100();
-		iVassalCurrentGross += (*it)->GetTreasury()->CalculateGrossGoldTimes100();
+		// If no one is in dire straits, let the player with the lowest economic might make this decision...
+		if (bNotLowestEconomicMight)
+			return;
+
+		iAverageMeanness /= max(iNumTeamMembers, 1);
+		iAverageDoFWillingness /= max(iNumTeamMembers, 1);
 	}
 
-	// Hate him? Don't consider lowering!
-	if(eTeamOpinion == CIV_OPINION_UNFORGIVABLE)
-		bWantToLower = false;
-	
-	// Like him? Don't consider raising!
-	if(eTeamOpinion == CIV_OPINION_ALLY)
-		bWantToRaise = false;
-
-	// We have some choice in the direction taxes can go - pick a direction so we can start deciding
-	if(bWantToLower && bWantToRaise)
+	vector<TeamTypes> vProcessedTeams;
+	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
-		// We're in dire straits
-		if(iMyCurrentGPT <= 0)
+		PlayerTypes ePlayer = (PlayerTypes) iPlayerLoop;
+
+		if (!IsPlayerValid(ePlayer) || !IsMaster(ePlayer))
+			continue;
+
+		if (std::find(vProcessedTeams.begin(), vProcessedTeams.end(), GET_PLAYER(ePlayer).getTeam()) != vProcessedTeams.end())
+			continue;
+
+		if (!GET_TEAM(GetTeam()).CanSetVassalTax(ePlayer))
+			continue;
+
+		vector<PlayerTypes> vTheirTeam = GET_TEAM(GET_PLAYER(ePlayer).getTeam()).getPlayers();
+
+		// Current tax rate
+		int iTaxRate = GET_TEAM(GetTeam()).GetVassalTax(ePlayer);
+
+		// Are we able to raise or lower?
+		bool bCanLower = iTaxRate > GC.getVASSALAGE_VASSAL_TAX_PERCENT_MINIMUM();
+		bool bCanRaise = iTaxRate < GC.getVASSALAGE_VASSAL_TAX_PERCENT_MAXIMUM();
+
+		// If anyone is in dire straits, tax all vassals the maximum, their feelings be damned!
+		if (bAnyoneInDireStraits)
 		{
-			bWantToLower = false;	// don't even consider lowering
-			
-			// Check to see if taxing the vassal the maximum would get us out of dire straits
-			if(bWantToRaise)
-			{
-				// Wouldn't help us out at all
-				if((iVassalCurrentGross * GC.getVASSALAGE_VASSAL_TAX_PERCENT_MAXIMUM() / 100 < 100))
-				{
-					bWantToRaise = false;
-				}
-				// Tax vassal the maximum to get us out of trouble - his feelings be damned
-				else
-				{
-					kMyTeam.DoApplyVassalTax(ePlayer, GC.getVASSALAGE_VASSAL_TAX_PERCENT_MAXIMUM());
-					return;
-				}
-			}
+			if (bCanRaise)
+				GET_TEAM(GetTeam()).DoApplyVassalTax(ePlayer, GC.getVASSALAGE_VASSAL_TAX_PERCENT_MAXIMUM());
+
+			vProcessedTeams.push_back(GET_PLAYER(ePlayer).getTeam());
+			continue;
 		}
-		// Doing fine - have some choice
-		else
-		{	
 
-			int iScoreForLower = 0;
-			int iScoreForRaise = 0;
-
-			// Starting values based on opinion
-			switch(eTeamOpinion)
-			{
-			case CIV_OPINION_ENEMY:
-				iScoreForLower = -25;
-				iScoreForRaise = 25;
-			case CIV_OPINION_COMPETITOR:
-				iScoreForLower = -10;
-				iScoreForRaise = 10;
-				break;
-			case CIV_OPINION_NEUTRAL:
-				iScoreForLower = 0;
-				iScoreForRaise = 0;
-				break;
-			case CIV_OPINION_FAVORABLE:
-				iScoreForLower = 10;
-				iScoreForRaise = -10;
-				break;
-			case CIV_OPINION_FRIEND:
-				iScoreForLower = 25;
-				iScoreForRaise = -25;
-				break;
-			default:
-				CvAssertMsg(false, "Should not have gotten here.");
-			}
-
-			// Still deciding what to be done?
-			if(bWantToLower && bWantToRaise)
-			{
-				// Is our vassal doing better than us monetarily?
-				if(iVassalCurrentGPT >= iMyCurrentGPT)
-				{
-					iScoreForLower *= 75;
-					iScoreForLower /= 100;
-
-					iScoreForRaise *= 125;
-					iScoreForRaise /= 100;
-				}
-				// He is doing worse than 85% of our GPT
-				else if(iVassalCurrentGPT * 85 <= iMyCurrentGPT * 100)
-				{
-					// Have to like the vassal
-					if(eTeamOpinion > CIV_OPINION_NEUTRAL)
-					{
-						// Determine a percentage to lower
-						int iThreshold = 3;
-
-						// He is doing REALLY bad
-						if(iVassalCurrentGPT * 150 < iMyCurrentGPT * 100)
-							iThreshold = 7;
-
-						int iRand = GC.getGame().getSmallFakeRandNum(10, m_pPlayer->getGlobalAverage(YIELD_CULTURE));
-						if(iRand < iThreshold)
-						{
-							iScoreForLower *= 150;
-							iScoreForLower /= 100;
-						}
-					}
-				}
-
-				// Raise score for lowering based on DoF Willingness
-				iScoreForLower *= 100 + (iAverageDoFWillingness - 5) * 10;
-				iScoreForLower /= 100;
-
-				// Raise score for lowering based on meanness
-				iScoreForRaise *= 100 + (iAverageMeanness - 5) * 10;
-				iScoreForRaise /= 100;
-
-				bWantToLower = (iScoreForLower > iScoreForRaise);
-				bWantToRaise = (iScoreForLower < iScoreForRaise);
-			}
-		}
-	}
-
-	CvWeightedVector<int> aPossibleValues;	// in case changed, 100 / 5  is a safe bet for number of possible elements
-	
-	// New tax value defaults to current tax rate
-	int iNewTaxValue = iTaxRate;
-
-	// Decided we're going to lower - figure out by how much
-	if(bWantToLower)
-	{
-		int iCurrentIndex = 0;
-
-		// Possible values are determined by increments of 5 starting from below the current tax line
-		for(int i = (iTaxRate - 5); i >= GC.getVASSALAGE_VASSAL_TAX_PERCENT_MINIMUM(); i -= 5)
+		bool bTheyAreInDireStraits = false;
+		StrengthTypes eHighestMilitaryStrength = STRENGTH_PATHETIC;
+		StrengthTypes eHighestEconomicStrength = STRENGTH_PATHETIC;
+		int iVassalCurrentGPT = 0, iVassalCurrentGross = 0, iAverageOpinionScore = 0, iNumOpinions = 0;
+		for (size_t i=0; i<vTheirTeam.size(); i++)
 		{
-			int iValue = i;
-			int iWeight = (iAverageOpinionScore - 3) * iCurrentIndex + 100;
-			
-			// Determine if we will make at least one GPT profit off of this value, if not, then decentivize
-			if(iVassalCurrentGross * iValue < 10000)
-				iWeight /= 4;
+			if (!GET_PLAYER(vTheirTeam[i]).isAlive() || GET_PLAYER(vTheirTeam[i]).getNumCities() <= 0)
+				continue;
 
-			aPossibleValues.push_back(iValue, iWeight);
-			iCurrentIndex++;
+			if (GET_PLAYER(vTheirTeam[i]).GetDiplomacyAI()->GetStateAllWars() == STATE_ALL_WARS_LOSING || GET_PLAYER(vTheirTeam[i]).IsEmpireVeryUnhappy())
+			{
+				bTheyAreInDireStraits = true;
+			}
+
+			iVassalCurrentGPT += GET_PLAYER(vTheirTeam[i]).getAvgGoldRate();
+			iVassalCurrentGross += GET_PLAYER(vTheirTeam[i]).GetTreasury()->CalculateGrossGoldTimes100();
+
+			StrengthTypes eMilitaryStrength = GetPlayerMilitaryStrengthComparedToUs(vTheirTeam[i]);
+			StrengthTypes eEconomicStrength = GetPlayerEconomicStrengthComparedToUs(vTheirTeam[i]);
+			if (eMilitaryStrength > eHighestMilitaryStrength)
+				eHighestMilitaryStrength = eMilitaryStrength;
+			if (eEconomicStrength > eHighestEconomicStrength)
+				eHighestEconomicStrength = eEconomicStrength;
+
+			int iNumTeammateOpinions = 0;
+			int iTeamOpinionScoreForPlayer = 0;
+			for (size_t j=0; j<vMyTeam.size(); j++)
+			{
+				if (!GET_PLAYER(vMyTeam[j]).isAlive() || GET_PLAYER(vMyTeam[j]).getNumCities() <= 0)
+					continue;
+
+				iTeamOpinionScoreForPlayer += GET_PLAYER(vMyTeam[j]).GetDiplomacyAI()->GetCachedOpinionWeight(vTheirTeam[i]);
+				iNumTeammateOpinions++;
+			}
+
+			iTeamOpinionScoreForPlayer /= max(iNumTeammateOpinions,1);
+			iAverageOpinionScore += iTeamOpinionScoreForPlayer;
+			iNumOpinions++;
 		}
 
-		RandomNumberDelegate fcn;
-		fcn = MakeDelegate(&GC.getGame(), &CvGame::getJonRandNum);
-		iNewTaxValue = aPossibleValues.ChooseByWeight(&fcn, "Choose the tax value to assign");
-	}
-	// Decided we're going to raise - figure out by how much
-	else
-	{
-		int iCurrentIndex = 0;
-		
-		// Possible values are determined by increments of 5 starting from above the current tax line
-		for(int i = (iTaxRate + 5); i <= GC.getVASSALAGE_VASSAL_TAX_PERCENT_MAXIMUM(); i += 5)
+		iAverageOpinionScore /= max(iNumOpinions, 1);
+
+		CivOpinionTypes eTeamOpinion = CIV_OPINION_ALLY;
+		if (iAverageOpinionScore >= /*160*/ GC.getOPINION_THRESHOLD_UNFORGIVABLE())
+			eTeamOpinion = CIV_OPINION_UNFORGIVABLE;
+		else if (iAverageOpinionScore >= /*80*/ GC.getOPINION_THRESHOLD_ENEMY())
+			eTeamOpinion = CIV_OPINION_ENEMY;
+		else if (iAverageOpinionScore >= /*30*/ GC.getOPINION_THRESHOLD_COMPETITOR())
+			eTeamOpinion = CIV_OPINION_COMPETITOR;
+		else if (iAverageOpinionScore > /*-30*/ GC.getOPINION_THRESHOLD_FAVORABLE())
+			eTeamOpinion = CIV_OPINION_NEUTRAL;
+		else if (iAverageOpinionScore > /*-80*/ GC.getOPINION_THRESHOLD_FRIEND())
+			eTeamOpinion = CIV_OPINION_FAVORABLE;
+		else if (iAverageOpinionScore > /*-160*/ GC.getOPINION_THRESHOLD_ALLY())
+			eTeamOpinion = CIV_OPINION_FRIEND;
+
+		// Hate him? Tax the maximum!
+		if (eTeamOpinion <= CIV_OPINION_ENEMY)
 		{
-			int iValue = i;
-			int iWeight = (3 - iAverageOpinionScore) * iCurrentIndex + 100;
-			
-			// Determine if we will make at least one GPT profit off of this value, if not, then decentivize
-			if(iVassalCurrentGross * iValue < 10000)
-				iWeight /= 4;
-			
-			aPossibleValues.push_back(iValue, iWeight);
-			iCurrentIndex++;
+			if (iTaxRate < GC.getVASSALAGE_VASSAL_TAX_PERCENT_MAXIMUM())
+				GET_TEAM(GetTeam()).DoApplyVassalTax(ePlayer, GC.getVASSALAGE_VASSAL_TAX_PERCENT_MAXIMUM());
+
+			vProcessedTeams.push_back(GET_PLAYER(ePlayer).getTeam());
+			continue;
+		}
+		// Like him a lot? Tax the minimum!
+		else if (eTeamOpinion == CIV_OPINION_ALLY || (IsVoluntaryVassalage(ePlayer) && eTeamOpinion == CIV_OPINION_FRIEND))
+		{
+			if (iTaxRate > GC.getVASSALAGE_VASSAL_TAX_PERCENT_MINIMUM())
+				GET_TEAM(GetTeam()).DoApplyVassalTax(ePlayer, GC.getVASSALAGE_VASSAL_TAX_PERCENT_MINIMUM());
+
+			vProcessedTeams.push_back(GET_PLAYER(ePlayer).getTeam());
+			continue;
 		}
 
-		RandomNumberDelegate fcn;
-		fcn = MakeDelegate(&GC.getGame(), &CvGame::getJonRandNum);
-		iNewTaxValue = aPossibleValues.ChooseByWeight(&fcn, "Choose the tax value to assign");
-	}
+		int iScoreForRaise = iAverageMeanness * 20;
+		int iScoreForLower = iAverageDoFWillingness * 20;
 
-	// Set the tax.
-	kMyTeam.DoApplyVassalTax(ePlayer, iNewTaxValue);
+		// Opinion matters
+		switch (eTeamOpinion)
+		{
+		case CIV_OPINION_COMPETITOR:
+			iScoreForRaise += 100;
+			break;
+		case CIV_OPINION_FAVORABLE:
+			iScoreForLower += 50;
+			break;
+		case CIV_OPINION_FRIEND:
+			iScoreForLower += 100;
+			break;
+		}
+
+		// Strength compared to us matters
+		switch (eHighestEconomicStrength)
+		{
+		case STRENGTH_IMMENSE:
+			iScoreForRaise += 300;
+			break;
+		case STRENGTH_POWERFUL:
+			iScoreForRaise += 200;
+			break;
+		case STRENGTH_STRONG:
+		case STRENGTH_AVERAGE:
+			iScoreForRaise += 100;
+			break;
+		case STRENGTH_POOR:
+			iScoreForLower += 100;
+			break;
+		case STRENGTH_WEAK:
+			iScoreForLower += 200;
+			break;
+		case STRENGTH_PATHETIC:
+			iScoreForLower += 300;
+			break;
+		}
+
+		switch (eHighestMilitaryStrength)
+		{
+		case STRENGTH_IMMENSE:
+			iScoreForRaise += 300;
+			break;
+		case STRENGTH_POWERFUL:
+			iScoreForRaise += 200;
+			break;
+		case STRENGTH_STRONG:
+		case STRENGTH_AVERAGE:
+			iScoreForRaise += 100;
+			break;
+		case STRENGTH_POOR:
+			iScoreForLower += 50;
+			break;
+		case STRENGTH_WEAK:
+			iScoreForLower += 100;
+			break;
+		case STRENGTH_PATHETIC:
+			iScoreForLower += 150;
+			break;
+		}
+
+		// Is our vassal's income worse than 60% of our GPT (or are they doing VERY poorly)?
+		if (bTheyAreInDireStraits || (eTeamOpinion >= CIV_OPINION_NEUTRAL && (iVassalCurrentGPT * 100) < (iMyCurrentGPT * 60)))
+		{
+			iScoreForLower += 100;
+
+			// Doing VERY poorly or worse than 40%?
+			if (bTheyAreInDireStraits || (iVassalCurrentGPT * 100) < (iMyCurrentGPT * 40))
+			{
+				iScoreForLower += 200;
+			}
+		}
+		// Does our vassal have at least 60% of our GPT?
+		else if ((iVassalCurrentGPT * 100) >= (iMyCurrentGPT * 60))
+		{
+			iScoreForRaise += 150;
+		}
+		// At least 80%?
+		else if ((iVassalCurrentGPT * 100) >= (iMyCurrentGPT * 80))
+		{
+			iScoreForRaise += 225;
+		}
+		// Is our vassal doing better than us monetarily?
+		else if (iVassalCurrentGPT >= iMyCurrentGPT)
+		{
+			iScoreForRaise += 300;
+		}
+
+		// Less likely to aggressively tax them if we liberated them...
+		if (GET_TEAM(GET_PLAYER(ePlayer).getTeam()).GetLiberatedByTeam() == GetTeam())
+		{
+			iScoreForRaise /= 2;
+		}
+
+		int iNewTaxValue = 0;
+
+		if (bCanRaise)
+			bCanRaise = (iScoreForRaise > iScoreForLower);
+
+		if (bCanLower)
+			bCanLower = (iScoreForLower > iScoreForRaise);
+
+		// Decided we might raise - by how much?
+		if (bCanRaise)
+		{
+			if (iScoreForRaise >= 300)
+			{
+				iNewTaxValue = 25;
+			}
+			else if (iScoreForRaise >= 200)
+			{
+				iNewTaxValue = 20;
+			}
+			else if (iScoreForRaise >= 150)
+			{
+				iNewTaxValue = 15;
+			}
+			else if (iScoreForRaise >= 75)
+			{
+				iNewTaxValue = 10;
+			}
+			else
+			{
+				iNewTaxValue = 5;
+			}
+
+			if (iNewTaxValue > iTaxRate)
+				GET_TEAM(GetTeam()).DoApplyVassalTax(ePlayer, iNewTaxValue);
+		}
+		// Decided we might lower - by how much?
+		else if (bCanLower)
+		{
+			if (iScoreForLower >= 300)
+			{
+				iNewTaxValue = 0;
+			}
+			else if (iScoreForLower >= 200)
+			{
+				iNewTaxValue = 5;
+			}
+			else if (iScoreForLower >= 150)
+			{
+				iNewTaxValue = 10;
+			}
+			else if (iScoreForLower >= 75)
+			{
+				iNewTaxValue = 15;
+			}
+			else
+			{
+				iNewTaxValue = 20;
+			}
+
+			if (iNewTaxValue < iTaxRate)
+				GET_TEAM(GetTeam()).DoApplyVassalTax(ePlayer, iNewTaxValue);
+		}
+
+		vProcessedTeams.push_back(GET_PLAYER(ePlayer).getTeam());
+	}
 }
 
 /// Log Global State

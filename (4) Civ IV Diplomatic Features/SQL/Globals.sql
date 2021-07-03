@@ -49,7 +49,7 @@ INSERT INTO Defines ('Name', 'Value')	VALUES	('OPINION_WEIGHT_VASSAL_TAX_DIVISOR
 INSERT INTO Defines ('Name', 'Value')	VALUES	('OPINION_WEIGHT_VASSAL_CURRENT_TAX_MODIFIER', 50);
 INSERT INTO Defines ('Name', 'Value')	VALUES	('OPINION_WEIGHT_VASSALAGE_WE_ARE_VOLUNTARY_VASSAL', -20);	-- Opinion Weight for AI voluntary vassal
 INSERT INTO	Defines ('Name', 'Value')	VALUES	('OPINION_WEIGHT_VASSALAGE_WE_ARE_VASSAL', 0);				-- Opinion Weight for AI being your Vassal
-INSERT INTO Defines ('Name', 'Value')	VALUES	('OPINION_WEIGHT_VASSALAGE_WE_ARE_MASTER', -50);			-- Opinion Weight for AI being your Master
+INSERT INTO Defines ('Name', 'Value')	VALUES	('OPINION_WEIGHT_VASSALAGE_WE_ARE_MASTER', -40);			-- Opinion Weight for AI being your Master
 INSERT INTO Defines ('Name', 'Value')	VALUES	('OPINION_WEIGHT_VASSALAGE_THEY_PEACEFULLY_REVOKED', -25);	-- We peacefully revoked Vassalage
 INSERT INTO	Defines ('Name', 'Value')	VALUES	('OPINION_WEIGHT_VASSALAGE_THEY_FORCIBLY_REVOKED', 50);		-- We forcefully revoked Vassalage
 INSERT INTO	Defines ('Name', 'Value')	VALUES	('OPINION_WEIGHT_VASSALAGE_FAILED_PROTECT_MAX', 50);		-- Failed to protect a Vassal Maximum Opinion
