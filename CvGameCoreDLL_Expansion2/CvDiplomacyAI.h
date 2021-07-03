@@ -226,6 +226,7 @@ public:
 	void SetCachedSurfaceApproach(PlayerTypes ePlayer, CivApproachTypes eApproach);
 
 	CivApproachTypes GetSurfaceApproach(PlayerTypes ePlayer) const;
+	CivApproachTypes GetVisibleApproachTowardsUs(PlayerTypes ePlayer) const; // Our guess as to another player's approach towards us
 
 	// Approach Values: Cached weight for each approach
 	int GetPlayerApproachValue(PlayerTypes ePlayer, CivApproachTypes eApproach) const;
@@ -1162,8 +1163,38 @@ public:
 	int CountUnitsAroundEnemyCities(PlayerTypes ePlayer, int iTurnRange) const;
 
 	// ------------------------------------
-	// Counters
+	// Vassal Taxation
 	// ------------------------------------
+
+	void DetermineVassalTaxRates();
+
+	// ------------------------------------
+	// Demands
+	// ------------------------------------
+
+	void DoUpdateDemands();
+	int GetPlayerDemandValueScore(PlayerTypes ePlayer);
+
+	// ------------------------------------
+	// WAR!
+	// ------------------------------------
+
+	void MakeWar();
+	void DoMakeWarOnPlayer(PlayerTypes eTargetPlayer);
+	bool DeclareWar(PlayerTypes ePlayer);
+	bool DeclareWar(TeamTypes eTeam);
+
+	// ************************************
+	// City-State Diplomacy
+	// ************************************
+
+	// ************************************
+	// Diplomatic Interactions
+	// ************************************
+
+	// ************************************
+	// Counters
+	// ************************************
 
 	void DoCounters();
 
@@ -1176,18 +1207,6 @@ public:
 	/////////////////////////////////////////////////////////
 
 	bool IsHasActiveGoldQuest();
-
-	// Our guess as to another player's approach towards us
-	CivApproachTypes GetVisibleApproachTowardsUs(PlayerTypes ePlayer) const;
-
-	void DoUpdateApproachTowardsUsGuesses();
-
-	/////////////////////////////////////////////////////////
-	// Demands
-	/////////////////////////////////////////////////////////
-
-	void DoUpdateDemands();
-	int GetPlayerDemandValueScore(PlayerTypes ePlayer);
 
 	/////////////////////////////////////////////////////////
 	// Requests
@@ -1202,14 +1221,6 @@ public:
 	bool IsWantsOpenBordersWithPlayer(PlayerTypes ePlayer);
 	bool IsWillingToGiveOpenBordersToPlayer(PlayerTypes ePlayer);
 	bool IsOpenBordersExchangeAcceptable(PlayerTypes ePlayer);
-
-	/////////////////////////////////////////////////////////
-	// War & Military Assessment
-	/////////////////////////////////////////////////////////
-
-	void MakeWar();
-	bool DeclareWar(PlayerTypes ePlayer);
-	bool DeclareWar(TeamTypes eTeam);
 
 	/////////////////////////////////////////////////////////
 	// Planning Exchanges
@@ -1506,7 +1517,6 @@ public:
 	void DoRevokeVassalageStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal);
 
 	void DoLiberateMyVassalStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement);
-	void DoDetermineVassalTaxRates();
 
 	void DoVassalTaxesRaisedStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement);
 	void DoVassalTaxesLoweredStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement);
@@ -1759,8 +1769,6 @@ private:
 	int GetDifferenceFromAverageFlavorValue(int iValue) const;
 
 	bool IsValidUIDiplomacyTarget(PlayerTypes eTargetPlayer);
-
-	void DoMakeWarOnPlayer(PlayerTypes eTargetPlayer);
 
 	void LogPublicDeclaration(PublicDeclarationTypes eDeclaration, int iData1, PlayerTypes eForSpecificPlayer = NO_PLAYER);
 	void LogWarDeclaration(PlayerTypes ePlayer, int iTotalWarWeight = -1);
