@@ -54549,15 +54549,11 @@ void CvDiplomacyAI::DoDetermineVassalTaxRates()
 		iAverageDoFWillingness /= max(iNumTeamMembers, 1);
 	}
 
-	vector<TeamTypes> vProcessedTeams;
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
 		PlayerTypes ePlayer = (PlayerTypes) iPlayerLoop;
 
-		if (!IsPlayerValid(ePlayer) || !IsMaster(ePlayer))
-			continue;
-
-		if (std::find(vProcessedTeams.begin(), vProcessedTeams.end(), GET_PLAYER(ePlayer).getTeam()) != vProcessedTeams.end())
+		if (!IsPlayerValid(ePlayer))
 			continue;
 
 		if (!GET_TEAM(GetTeam()).CanSetVassalTax(ePlayer))
@@ -54578,7 +54574,6 @@ void CvDiplomacyAI::DoDetermineVassalTaxRates()
 			if (bCanRaise)
 				GET_TEAM(GetTeam()).DoApplyVassalTax(ePlayer, GC.getVASSALAGE_VASSAL_TAX_PERCENT_MAXIMUM());
 
-			vProcessedTeams.push_back(GET_PLAYER(ePlayer).getTeam());
 			continue;
 		}
 
@@ -54644,7 +54639,6 @@ void CvDiplomacyAI::DoDetermineVassalTaxRates()
 			if (iTaxRate < GC.getVASSALAGE_VASSAL_TAX_PERCENT_MAXIMUM())
 				GET_TEAM(GetTeam()).DoApplyVassalTax(ePlayer, GC.getVASSALAGE_VASSAL_TAX_PERCENT_MAXIMUM());
 
-			vProcessedTeams.push_back(GET_PLAYER(ePlayer).getTeam());
 			continue;
 		}
 		// Like him a lot? Tax the minimum!
@@ -54653,7 +54647,6 @@ void CvDiplomacyAI::DoDetermineVassalTaxRates()
 			if (iTaxRate > GC.getVASSALAGE_VASSAL_TAX_PERCENT_MINIMUM())
 				GET_TEAM(GetTeam()).DoApplyVassalTax(ePlayer, GC.getVASSALAGE_VASSAL_TAX_PERCENT_MINIMUM());
 
-			vProcessedTeams.push_back(GET_PLAYER(ePlayer).getTeam());
 			continue;
 		}
 
@@ -54786,7 +54779,11 @@ void CvDiplomacyAI::DoDetermineVassalTaxRates()
 				iNewTaxValue = 5;
 			}
 
-			if (iNewTaxValue > iTaxRate)
+			int iCurrentTaxAmount = iTaxRate * iVassalCurrentGross;
+			int iNewTaxAmount = iNewTaxValue * iVassalCurrentGross;
+
+			// Only apply the tax increase if we gain at least 3 GPT in profit
+			if (iNewTaxValue > iTaxRate && ((iNewTaxAmount - iCurrentTaxAmount) >= 30000))
 				GET_TEAM(GetTeam()).DoApplyVassalTax(ePlayer, iNewTaxValue);
 		}
 		// Decided we might lower - by how much?
@@ -54813,11 +54810,13 @@ void CvDiplomacyAI::DoDetermineVassalTaxRates()
 				iNewTaxValue = 20;
 			}
 
-			if (iNewTaxValue < iTaxRate)
+			int iCurrentTaxAmount = iTaxRate * iVassalCurrentGross;
+			int iNewTaxAmount = iNewTaxValue * iVassalCurrentGross;
+
+			// Only apply the tax decrease if they gain at least 1 GPT in profit
+			if (iNewTaxValue < iTaxRate && ((iCurrentTaxAmount - iNewTaxAmount) >= 10000))
 				GET_TEAM(GetTeam()).DoApplyVassalTax(ePlayer, iNewTaxValue);
 		}
-
-		vProcessedTeams.push_back(GET_PLAYER(ePlayer).getTeam());
 	}
 }
 

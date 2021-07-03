@@ -9917,23 +9917,10 @@ void CvTeam::ChangeNumTurnsSinceVassalEnded(TeamTypes eTeam, int iChange)
 // Can we tax ePlayer right now?
 bool CvTeam::CanSetVassalTax(PlayerTypes ePlayer) const
 {
-	// can't tax ourselves
-	if(GET_PLAYER(ePlayer).getTeam() == GetID())
+	if (!MOD_DIPLOMACY_CIV4_FEATURES || GC.getGame().isOption(GAMEOPTION_NO_VASSALAGE))
 		return false;
 
-	if(!isAlive())
-		return false;
-
-	// must be alive
-	if(!GET_PLAYER(ePlayer).isAlive())
-		return false;
-
-	// Must be a major
-	if(!GET_PLAYER(ePlayer).isMajorCiv())
-		return false;
-
-	// Vassalage cannot be disabled
-	if(GC.getGame().isOption(GAMEOPTION_NO_VASSALAGE))
+	if (!isAlive() || !GET_PLAYER(ePlayer).isAlive() || !GET_PLAYER(ePlayer).isMajorCiv())
 		return false;
 
 	// They must be our vassal
@@ -9951,7 +9938,7 @@ bool CvTeam::CanSetVassalTax(PlayerTypes ePlayer) const
 // We apply a vassal tax to ePlayer
 void CvTeam::DoApplyVassalTax(PlayerTypes ePlayer, int iPercent)
 {
-	if(!CanSetVassalTax(ePlayer))
+	if (!CanSetVassalTax(ePlayer))
 		return;
 
 	iPercent = std::max(iPercent, GC.getVASSALAGE_VASSAL_TAX_PERCENT_MINIMUM());
