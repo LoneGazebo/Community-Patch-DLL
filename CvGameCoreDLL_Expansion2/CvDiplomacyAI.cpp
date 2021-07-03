@@ -54633,19 +54633,19 @@ void CvDiplomacyAI::DoDetermineVassalTaxRates()
 		else if (iAverageOpinionScore > /*-160*/ GC.getOPINION_THRESHOLD_ALLY())
 			eTeamOpinion = CIV_OPINION_FRIEND;
 
-		// Hate him? Tax the maximum!
-		if (eTeamOpinion <= CIV_OPINION_ENEMY)
-		{
-			if (iTaxRate < GC.getVASSALAGE_VASSAL_TAX_PERCENT_MAXIMUM())
-				GET_TEAM(GetTeam()).DoApplyVassalTax(ePlayer, GC.getVASSALAGE_VASSAL_TAX_PERCENT_MAXIMUM());
-
-			continue;
-		}
 		// Like him a lot? Tax the minimum!
-		else if (eTeamOpinion == CIV_OPINION_ALLY || (IsVoluntaryVassalage(ePlayer) && eTeamOpinion == CIV_OPINION_FRIEND))
+		if (eTeamOpinion == CIV_OPINION_ALLY || GET_TEAM(GetTeam()).GetLiberatedByTeam() == GET_PLAYER(ePlayer).getTeam())
 		{
 			if (iTaxRate > GC.getVASSALAGE_VASSAL_TAX_PERCENT_MINIMUM())
 				GET_TEAM(GetTeam()).DoApplyVassalTax(ePlayer, GC.getVASSALAGE_VASSAL_TAX_PERCENT_MINIMUM());
+
+			continue;
+		}
+		// Hate him? Tax the maximum!
+		else if (eTeamOpinion <= CIV_OPINION_ENEMY)
+		{
+			if (iTaxRate < GC.getVASSALAGE_VASSAL_TAX_PERCENT_MAXIMUM())
+				GET_TEAM(GetTeam()).DoApplyVassalTax(ePlayer, GC.getVASSALAGE_VASSAL_TAX_PERCENT_MAXIMUM());
 
 			continue;
 		}
@@ -54741,8 +54741,8 @@ void CvDiplomacyAI::DoDetermineVassalTaxRates()
 			iScoreForRaise += 300;
 		}
 
-		// Less likely to aggressively tax them if we liberated them...
-		if (GET_TEAM(GET_PLAYER(ePlayer).getTeam()).GetLiberatedByTeam() == GetTeam())
+		// Less likely to aggressively tax them if we liberated them, or if they're a voluntary vassal we like...
+		if (GET_TEAM(GET_PLAYER(ePlayer).getTeam()).GetLiberatedByTeam() == GetTeam() || (IsVoluntaryVassalage(ePlayer) && eTeamOpinion == CIV_OPINION_FRIEND))
 		{
 			iScoreForRaise /= 2;
 		}
