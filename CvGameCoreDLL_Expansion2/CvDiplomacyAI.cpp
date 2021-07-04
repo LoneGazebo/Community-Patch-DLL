@@ -2846,7 +2846,7 @@ bool CvDiplomacyAI::IsDenouncingPlayer(PlayerTypes ePlayer) const
 	if (GetDenouncedPlayerTurn(ePlayer) == iTurn)
 		return true;
 
-	if ((GetDenouncedPlayerTurn(ePlayer) == (iTurn - 1)) && (iTurn >= 0))
+	if ((GetDenouncedPlayerTurn(ePlayer) == (iTurn - 1)) && (iTurn > 0))
 		return true;
 
 	return false;
