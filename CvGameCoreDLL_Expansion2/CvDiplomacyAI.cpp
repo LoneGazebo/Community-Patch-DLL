@@ -2048,6 +2048,19 @@ CivApproachTypes CvDiplomacyAI::GetSurfaceApproach(PlayerTypes ePlayer) const
 
 	CivApproachTypes eRealApproach = GetCivApproach(ePlayer);
 
+	// Reset human approach if invalid
+	if (GetPlayer()->isHuman())
+	{
+		SetCachedSurfaceApproach(NO_CIV_APPROACH);
+
+		if ((!IsAtWar(ePlayer) && eRealApproach == CIV_APPROACH_WAR) || eRealApproach == CIV_APPROACH_DECEPTIVE || eRealApproach == CIV_APPROACH_AFRAID)
+		{
+			SelectHumanApproach(ePlayer);
+		}
+
+		return GetCivApproach(ePlayer);
+	}
+
 	// Pick a surface approach to disguise our war plans (this approach is cached to prevent erratic behavior)
 	if (eRealApproach == CIV_APPROACH_WAR)
 	{
@@ -2135,11 +2148,6 @@ CivApproachTypes CvDiplomacyAI::GetVisibleApproachTowardsUs(PlayerTypes ePlayer)
 	if (IsAtWar(ePlayer) || GET_PLAYER(ePlayer).isBarbarian())
 	{
 		return CIV_APPROACH_WAR;
-	}
-
-	if (!GetPlayer()->isHuman() && GET_PLAYER(ePlayer).isHuman())
-	{
-		return CIV_APPROACH_NEUTRAL;
 	}
 
 	// If called for a City-State, base it on their ally, whether we can demand tribute, and our Influence total
@@ -2838,7 +2846,7 @@ bool CvDiplomacyAI::IsDenouncingPlayer(PlayerTypes ePlayer) const
 	if (GetDenouncedPlayerTurn(ePlayer) == iTurn)
 		return true;
 
-	if ((GetDenouncedPlayerTurn(ePlayer) == (iTurn - 1)) && (iTurn > 0))
+	if ((GetDenouncedPlayerTurn(ePlayer) == (iTurn - 1)) && (iTurn >= 0))
 		return true;
 
 	return false;
