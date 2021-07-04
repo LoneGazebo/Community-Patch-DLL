@@ -2051,7 +2051,7 @@ CivApproachTypes CvDiplomacyAI::GetSurfaceApproach(PlayerTypes ePlayer) const
 	// Reset human approach if invalid
 	if (GetPlayer()->isHuman())
 	{
-		SetCachedSurfaceApproach(ePlayer, NO_CIV_APPROACH);
+		GetPlayer()->GetDiplomacyAI()->SetCachedSurfaceApproach(ePlayer, NO_CIV_APPROACH);
 
 		if ((!IsAtWar(ePlayer) && eRealApproach == CIV_APPROACH_WAR) || eRealApproach == CIV_APPROACH_DECEPTIVE || eRealApproach == CIV_APPROACH_AFRAID)
 		{
