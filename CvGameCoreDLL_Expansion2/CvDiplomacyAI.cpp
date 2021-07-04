@@ -2051,11 +2051,11 @@ CivApproachTypes CvDiplomacyAI::GetSurfaceApproach(PlayerTypes ePlayer) const
 	// Reset human approach if invalid
 	if (GetPlayer()->isHuman())
 	{
-		SetCachedSurfaceApproach(NO_CIV_APPROACH);
+		SetCachedSurfaceApproach(ePlayer, NO_CIV_APPROACH);
 
 		if ((!IsAtWar(ePlayer) && eRealApproach == CIV_APPROACH_WAR) || eRealApproach == CIV_APPROACH_DECEPTIVE || eRealApproach == CIV_APPROACH_AFRAID)
 		{
-			SelectHumanApproach(ePlayer);
+			GetPlayer()->GetDiplomacyAI()->SelectHumanApproach(ePlayer);
 		}
 
 		return GetCivApproach(ePlayer);
@@ -13647,7 +13647,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	// Victory stuff
 	bool bCloseToWorldConquest = IsCloseToDominationVictory(), bCloseToDiploVictory = IsCloseToDiploVictory(), bCloseToScienceVictory = IsCloseToSSVictory(), bCloseToCultureVictory = IsCloseToCultureVictory();
 	bool bCloseToAnyVictory = bCloseToWorldConquest || bCloseToDiploVictory || bCloseToScienceVictory || bCloseToCultureVictory;
-	bool bTheyAreCloseToWorldConquest = pTheirDiplo->IsCloseToDominationVictory(), bTheyAreCloseToDiploVictory = pTheirDiplo->IsCloseToDiploVictory(), bTheyAreCloseToScienceVictory = pTheirDiplo->IsCloseToSSVictory(), bCloseToCultureVictory = pTheirDiplo->IsCloseToCultureVictory();
+	bool bTheyAreCloseToWorldConquest = pTheirDiplo->IsCloseToDominationVictory(), bTheyAreCloseToDiploVictory = pTheirDiplo->IsCloseToDiploVictory(), bTheyAreCloseToScienceVictory = pTheirDiplo->IsCloseToSSVictory(), bTheyAreCloseToCultureVictory = pTheirDiplo->IsCloseToCultureVictory();
 
 	// Possessions
 	int iNumOurTechs = GET_TEAM(GetTeam()).GetTeamTechs()->GetNumTechsKnown(), iNumTheirTechs = GET_TEAM(eTeam).GetTeamTechs()->GetNumTechsKnown();
