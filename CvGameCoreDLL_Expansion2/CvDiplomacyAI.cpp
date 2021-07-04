@@ -2127,6 +2127,57 @@ CivApproachTypes CvDiplomacyAI::GetSurfaceApproach(PlayerTypes ePlayer) const
 	return eRealApproach;
 }
 
+/// Returns ePlayer's visible Diplomatic Approach towards us
+CivApproachTypes CvDiplomacyAI::GetVisibleApproachTowardsUs(PlayerTypes ePlayer) const
+{
+	if (ePlayer < 0 || ePlayer >= MAX_PLAYERS || !GET_PLAYER(ePlayer).isAlive()) return NO_CIV_APPROACH;
+
+	if (IsAtWar(ePlayer) || GET_PLAYER(ePlayer).isBarbarian())
+	{
+		return CIV_APPROACH_WAR;
+	}
+
+	if (!GetPlayer()->isHuman() && GET_PLAYER(ePlayer).isHuman())
+	{
+		return CIV_APPROACH_NEUTRAL;
+	}
+
+	// If called for a City-State, base it on their ally, whether we can demand tribute, and our Influence total
+	if (GET_PLAYER(ePlayer).isMinorCiv())
+	{
+		CvMinorCivAI* pMinorAI = GET_PLAYER(ePlayer).GetMinorCivAI();
+		PlayerTypes eAlly = pMinorAI->GetAlly();
+		if (eAlly != NO_PLAYER && GET_PLAYER(eAlly).getTeam() == GetTeam())
+		{
+			return CIV_APPROACH_FRIENDLY;
+		}
+
+		if (pMinorAI->IsFriends(GetID()))
+		{
+			return CIV_APPROACH_FRIENDLY;
+		}
+		else if (pMinorAI->CalculateBullyScore(GetID(), false) > 0)
+		{
+			return CIV_APPROACH_AFRAID;
+		}
+		else if (pMinorAI->GetEffectiveFriendshipWithMajor(GetID()) < 0)
+		{
+			if (eAlly != NO_PLAYER && GetVisibleApproachTowardsUs(eAlly) <= CIV_APPROACH_GUARDED)
+			{
+				return CIV_APPROACH_HOSTILE;
+			}
+			else
+			{
+				return CIV_APPROACH_GUARDED;
+			}
+		}
+
+		return CIV_APPROACH_NEUTRAL;
+	}
+
+	return GET_PLAYER(ePlayer).GetDiplomacyAI()->GetSurfaceApproach(GetID());
+}
+
 /// Returns the value for a specific approach from the last SelectBestApproachTowardsMajorCiv() NORMAL (non-strategic) update
 int CvDiplomacyAI::GetPlayerApproachValue(PlayerTypes ePlayer, CivApproachTypes eApproach) const
 {
@@ -24677,57 +24728,6 @@ bool CvDiplomacyAI::IsHasActiveGoldQuest()
 			return true;
 	}
 	return false;
-}
-
-/// Returns ePlayer's visible Diplomatic Approach towards us
-CivApproachTypes CvDiplomacyAI::GetVisibleApproachTowardsUs(PlayerTypes ePlayer) const
-{
-	if (ePlayer < 0 || ePlayer >= MAX_PLAYERS || !GET_PLAYER(ePlayer).isAlive()) return NO_CIV_APPROACH;
-
-	if (IsAtWar(ePlayer) || GET_PLAYER(ePlayer).isBarbarian())
-	{
-		return CIV_APPROACH_WAR;
-	}
-
-	if (!GetPlayer()->isHuman() && GET_PLAYER(ePlayer).isHuman())
-	{
-		return CIV_APPROACH_NEUTRAL;
-	}
-
-	// If called for a City-State, base it on their ally, whether we can demand tribute, and our Influence total
-	if (GET_PLAYER(ePlayer).isMinorCiv())
-	{
-		CvMinorCivAI* pMinorAI = GET_PLAYER(ePlayer).GetMinorCivAI();
-		PlayerTypes eAlly = pMinorAI->GetAlly();
-		if (eAlly != NO_PLAYER && GET_PLAYER(eAlly).getTeam() == GetTeam())
-		{
-			return CIV_APPROACH_FRIENDLY;
-		}
-
-		if (pMinorAI->IsFriends(GetID()))
-		{
-			return CIV_APPROACH_FRIENDLY;
-		}
-		else if (pMinorAI->CalculateBullyScore(GetID(), false) > 0)
-		{
-			return CIV_APPROACH_AFRAID;
-		}
-		else if (pMinorAI->GetEffectiveFriendshipWithMajor(GetID()) < 0)
-		{
-			if (eAlly != NO_PLAYER && GetVisibleApproachTowardsUs(eAlly) <= CIV_APPROACH_GUARDED)
-			{
-				return CIV_APPROACH_HOSTILE;
-			}
-			else
-			{
-				return CIV_APPROACH_GUARDED;
-			}
-		}
-
-		return CIV_APPROACH_NEUTRAL;
-	}
-
-	return GET_PLAYER(ePlayer).GetDiplomacyAI()->GetSurfaceApproach(GetID());
 }
 
 /////////////////////////////////////////////////////////
