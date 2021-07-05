@@ -23724,29 +23724,12 @@ void CvDiplomacyAI::DetermineVassalTaxRates()
 			continue;
 		}
 
-		bool bTheyAreInDireStraits = false;
-		StrengthTypes eHighestMilitaryStrength = STRENGTH_PATHETIC;
-		StrengthTypes eHighestEconomicStrength = STRENGTH_PATHETIC;
-		int iVassalCurrentGPT = 0, iVassalCurrentGross = 0, iAverageOpinionScore = 0, iNumOpinions = 0;
+		bool bTheyAreInDireStraits = GET_PLAYER(ePlayer).GetDiplomacyAI()->GetStateAllWars() == STATE_ALL_WARS_LOSING || GET_PLAYER(ePlayer).IsEmpireVeryUnhappy();
+		int iVassalCurrentGPT = GET_PLAYER(ePlayer).getAvgGoldRate(), iVassalCurrentGross = GET_PLAYER(ePlayer).GetTreasury()->CalculateGrossGoldTimes100(), iAverageOpinionScore = 0, iNumOpinions = 0;
 		for (size_t i=0; i<vTheirTeam.size(); i++)
 		{
 			if (!GET_PLAYER(vTheirTeam[i]).isAlive() || GET_PLAYER(vTheirTeam[i]).getNumCities() <= 0)
 				continue;
-
-			if (GET_PLAYER(vTheirTeam[i]).GetDiplomacyAI()->GetStateAllWars() == STATE_ALL_WARS_LOSING || GET_PLAYER(vTheirTeam[i]).IsEmpireVeryUnhappy())
-			{
-				bTheyAreInDireStraits = true;
-			}
-
-			iVassalCurrentGPT += GET_PLAYER(vTheirTeam[i]).getAvgGoldRate();
-			iVassalCurrentGross += GET_PLAYER(vTheirTeam[i]).GetTreasury()->CalculateGrossGoldTimes100();
-
-			StrengthTypes eMilitaryStrength = GetPlayerMilitaryStrengthComparedToUs(vTheirTeam[i]);
-			StrengthTypes eEconomicStrength = GetPlayerEconomicStrengthComparedToUs(vTheirTeam[i]);
-			if (eMilitaryStrength > eHighestMilitaryStrength)
-				eHighestMilitaryStrength = eMilitaryStrength;
-			if (eEconomicStrength > eHighestEconomicStrength)
-				eHighestEconomicStrength = eEconomicStrength;
 
 			int iNumTeammateOpinions = 0;
 			int iTeamOpinionScoreForPlayer = 0;
@@ -23815,7 +23798,7 @@ void CvDiplomacyAI::DetermineVassalTaxRates()
 		}
 
 		// Strength compared to us matters
-		switch (eHighestEconomicStrength)
+		switch (GetPlayerEconomicStrengthComparedToUs(ePlayer))
 		{
 		case STRENGTH_IMMENSE:
 			iScoreForRaise += 300;
@@ -23838,7 +23821,7 @@ void CvDiplomacyAI::DetermineVassalTaxRates()
 			break;
 		}
 
-		switch (eHighestMilitaryStrength)
+		switch (GetPlayerMilitaryStrengthComparedToUs(ePlayer))
 		{
 		case STRENGTH_IMMENSE:
 			iScoreForRaise += 300;
