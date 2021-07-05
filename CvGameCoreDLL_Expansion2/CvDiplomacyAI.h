@@ -1167,6 +1167,7 @@ public:
 	// ------------------------------------
 
 	void DetermineVassalTaxRates();
+	void DoVassalTaxChanged(TeamTypes eTeam, bool bTaxesLowered);
 
 	// ------------------------------------
 	// Demands
@@ -1494,8 +1495,6 @@ public:
 	void DoHelpRequestMade(PlayerTypes ePlayer, DemandResponseTypes eResponse);
 
 	// Vassals
-	void DoVassalTaxChanged(TeamTypes eTeam, bool bTaxesLowered);
-
 	VassalTreatmentTypes GetVassalTreatmentLevel(PlayerTypes ePlayer) const;
 	CvString GetVassalTreatmentToolTip(PlayerTypes ePlayer) const;
 

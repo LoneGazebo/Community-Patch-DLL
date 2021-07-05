@@ -23658,20 +23658,8 @@ int CvDiplomacyAI::CountUnitsAroundEnemyCities(PlayerTypes ePlayer, int iTurnRan
 /// Determine tax rates for all vassals, if we can
 void CvDiplomacyAI::DetermineVassalTaxRates()
 {
-	if (!MOD_DIPLOMACY_CIV4_FEATURES || GC.getGame().isOption(GAMEOPTION_NO_VASSALAGE) || GC.getGame().isOption(GAMEOPTION_ALWAYS_WAR) || GetPlayer()->GetNumVassals() <= 0)
+	if (!MOD_DIPLOMACY_CIV4_FEATURES || GC.getGame().isOption(GAMEOPTION_NO_VASSALAGE) || GC.getGame().isOption(GAMEOPTION_ALWAYS_WAR) || GetPlayer()->IsAITeammateOfHuman() || GetPlayer()->GetNumVassals() <= 0)
 		return;
-
-	// Do not allow an AI teammate to do this for a human
-	if (GetPlayer()->IsAITeammateOfHuman())
-	{
-		for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
-		{
-			PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
-			SetVassalTaxRaised(eLoopPlayer, false);
-			SetVassalTaxLowered(eLoopPlayer, false);
-		}
-		return;
-	}
 
 	vector<PlayerTypes> vMyTeam = GET_TEAM(GetTeam()).getPlayers();
 	int iMyCurrentGPT = 0, iAverageMeanness = 0, iAverageDoFWillingness = 0, iNumTeamMembers = 0;
@@ -23975,6 +23963,20 @@ void CvDiplomacyAI::DetermineVassalTaxRates()
 			// Only apply the tax decrease if they gain at least 1 GPT in profit
 			if (iNewTaxValue < iTaxRate && ((iCurrentTaxAmount - iNewTaxAmount) >= 10000))
 				GET_TEAM(GetTeam()).DoApplyVassalTax(ePlayer, iNewTaxValue);
+		}
+	}
+}
+
+/// eMasterTeam has changed our taxes
+void CvDiplomacyAI::DoVassalTaxChanged(TeamTypes eMasterTeam, bool bTaxesLowered)
+{
+	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+	{
+		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+		if (GET_PLAYER(eLoopPlayer).getTeam() == eMasterTeam)
+		{
+			SetVassalTaxRaised(eLoopPlayer, !bTaxesLowered);
+			SetVassalTaxLowered(eLoopPlayer, bTaxesLowered);
 		}
 	}
 }
@@ -54132,25 +54134,6 @@ bool CvDiplomacyAI::IsAngryAboutPlayerVassalageForcefullyRevoked(PlayerTypes ePl
 	}
 
 	return false;
-}
-
-/// eMasterTeam has changed our taxes
-void CvDiplomacyAI::DoVassalTaxChanged(TeamTypes eMasterTeam, bool bTaxesLowered)
-{
-	if(!GET_TEAM(GetTeam()).IsVassal(eMasterTeam))
-		return;
-
-	for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
-	{
-		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
-		if(GET_PLAYER(eLoopPlayer).getTeam() == eMasterTeam)
-		{
-			eLoopPlayer = (PlayerTypes) iPlayerLoop;
-		
-			SetVassalTaxRaised(eLoopPlayer, !bTaxesLowered);
-			SetVassalTaxLowered(eLoopPlayer, bTaxesLowered);
-		}
-	}
 }
 
 /// eMasterTeam became our master
