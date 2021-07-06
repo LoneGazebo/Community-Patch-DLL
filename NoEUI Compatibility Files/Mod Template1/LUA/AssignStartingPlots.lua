@@ -223,6 +223,8 @@ function AssignStartingPlots.Create()
 		distanceData = table.fill(0, iW * iH), -- Stores "impact and ripple" data of start points as each is placed
 		playerCollisionData = table.fill(false, iW * iH), -- Stores "impact" data only, of start points, to avoid player collisions
 		startLocationConditions = {},   -- Stores info regarding conditions at each start location
+		hasMountainBias = false;		-- Stores whether there's a civ that prefers to start near mountains
+		hasSnowBias = false;			-- Stores whether there's a civ that prefers to start near snow
 		
 		-- Team info variables (not used in the core process, but necessary to many Multiplayer map scripts)
 		bTeamGame,
@@ -742,6 +744,9 @@ function AssignStartingPlots:__InitLuxuryWeights()
 	end
 	-- MOD.HungryForFood: End
 
+	-- Added for snow bias
+	self.luxury_region_weights[10] = self.luxury_region_weights[1];
+
 	self.luxury_region_weights[2] = {			-- Jungle
 	{self.citrus_ID,	40},
 	{self.cocoa_ID,		40},
@@ -830,6 +835,9 @@ function AssignStartingPlots:__InitLuxuryWeights()
 		table.insert(self.luxury_region_weights[5], {self.tin_ID,		30});
 	end
 	-- MOD.HungryForFood: End
+
+	-- Added for mountain bias
+	self.luxury_region_weights[9] = self.luxury_region_weights[5];
 
 	
 	self.luxury_region_weights[6] = {			-- Plains
@@ -2095,7 +2103,7 @@ function AssignStartingPlots:MeasureTerrainInRegions()
 						local i = iW * y + x + 1;
 			
 						-- Record plot data
-						if plotType == PlotTypes.PLOT_HILLS then
+						if plotType == PlotTypes.PLOT_HILLS and terrainType ~= TerrainTypes.TERRAIN_SNOW then
 							hillsCount = hillsCount + 1;
 
 							if self.plotDataIsCoastal[i] then
@@ -2121,7 +2129,7 @@ function AssignStartingPlots:MeasureTerrainInRegions()
 								oasisCount = oasisCount + 1;
 							end
 								
-						else -- Flatlands plot
+						else -- Flatlands plot OR snow
 							flatlandsCount = flatlandsCount + 1;
 	
 							if self.plotDataIsCoastal[i] then
@@ -2241,6 +2249,8 @@ function AssignStartingPlots:DetermineRegionTypes()
 	-- 6. Plains
 	-- 7. Grassland
 	-- 8. Hybrid
+	-- 9. Mountain
+	-- 10. Snow
 
 	-- Main loop
 	for this_region, terrainCounts in ipairs(self.regionTerrainCounts) do
@@ -2389,6 +2399,54 @@ function AssignStartingPlots:DetermineRegionTypes()
 		--print("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -")
 		
 	end
+
+	-- Added by azum4roll: Support for Mountain and Snow "bias"
+	-- This changes one region to a "Mountain region" or "Snow region", if a civ with the respective start bias exists
+	-- It's possible that there's no snow/mountain on the map, so we need to handle it later in BalanceAndAssign
+
+	if self.hasSnowBias then
+		-- Get ID of region with the most snow, prioritizing tundra regions first
+		local snowRegion = -1;
+		local snowCount = 0;
+		for this_region, terrainCounts in ipairs(self.regionTerrainCounts) do
+			local regionType = self.regionTypes[this_region];
+			local thisSnowCount = terrainCounts[15];
+			if regionType == 1 then
+				thisSnowCount = thisSnowCount + 1000;
+			end
+			if thisSnowCount > snowCount then
+				snowRegion = this_region;
+				snowCount = thisSnowCount;
+			end
+		end
+
+		if snowRegion ~= -1 then
+			self.regionTypes[snowRegion] = 10;
+			print("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -");
+			print("Region #", snowRegion, " has been converted into a SNOW Region.");
+		end
+	end
+
+	if self.hasMountainBias then
+		-- Get ID of region with the most mountains
+		local mountainRegion = -1;
+		local mountainCount = 0;
+		for this_region, terrainCounts in ipairs(self.regionTerrainCounts) do
+			local regionType = self.regionTypes[this_region];
+			local thisMountainCount = terrainCounts[6];
+			if thisMountainCount > mountainCount and regionType ~= 10 then
+				mountainRegion = this_region;
+				mountainCount = thisMountainCount;
+			end
+		end
+
+		if mountainRegion ~= -1 then
+			self.regionTypes[mountainRegion] = 9;
+			print("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -");
+			print("Region #", mountainRegion, " has been converted into a MOUNTAIN Region.");
+		end
+	end
+
 	-- MOD.Barathor: Disabled old method.
 	--[[
 		-- Tundra check first.
@@ -2588,13 +2646,20 @@ function AssignStartingPlots:MeasureSinglePlot(x, y, region_type)
 	local plotType = plot:GetPlotType()
 	local terrainType = plot:GetTerrainType()
 	local featureType = plot:GetFeatureType()
-	
-	if plotType == PlotTypes.PLOT_MOUNTAIN then -- Mountains are Junk.
-		data[4] = true;
+
+	if plotType == PlotTypes.PLOT_MOUNTAIN then -- Mountains are Junk, except in Mountain regions (made for mountain bias)
+		if region_type ~= 9 then
+			data[4] = true;
+		else
+			data[1] = true;
+			data[3] = true;
+		end
 		return data
 	elseif plotType == PlotTypes.PLOT_OCEAN then
-		if featureType == FeatureTypes.FEATURE_ICE then -- Icebergs are Junk.
-			data[4] = true;
+		if featureType == FeatureTypes.FEATURE_ICE then -- Icebergs are Junk, except in snow bias where it's ignored.
+			if region_type ~= 10 then
+				data[4] = true;
+			end
 			return data
 		elseif plot:IsLake() then -- Lakes are Food, Good.
 			data[1] = true;
@@ -2605,6 +2670,9 @@ function AssignStartingPlots:MeasureSinglePlot(x, y, region_type)
 				data[3] = true;
 				return data
 			end
+		elseif terrainType == TerrainTypes.TERRAIN_COAST and region_type == 10 then -- Give more coastal score for snow bias
+			data[3] = true;
+			return data
 		end
 		-- Other water plots are ignored.
 		return data
@@ -2621,7 +2689,7 @@ function AssignStartingPlots:MeasureSinglePlot(x, y, region_type)
 	elseif featureType == FeatureTypes.FEATURE_FOREST then -- Forests are Prod, Good.
 		data[2] = true;
 		data[3] = true;
-		if region_type == 3 or region_type == 1 then -- In Forest or Tundra Regions, Forests are also Food.
+		if region_type == 3 or region_type == 1 or region_type == 10 then -- In Forest or Tundra or Snow Regions, Forests are also Food.
 			data[1] = true;
 		end
 		return data
@@ -2637,15 +2705,21 @@ function AssignStartingPlots:MeasureSinglePlot(x, y, region_type)
 		return data
 	end
 
-	if plotType == PlotTypes.PLOT_HILLS then -- Hills with no features are Prod, Good.
+	if plotType == PlotTypes.PLOT_HILLS and terrainType ~= TerrainTypes.TERRAIN_SNOW then -- Non-Snow Hills with no features are Prod, Good.
 		data[2] = true;
 		data[3] = true;
 		return data
 	end
 	
-	-- If we have reached this point in the process, the plot is flatlands.
-	if terrainType == TerrainTypes.TERRAIN_SNOW then -- Snow are Junk.
-		data[4] = true;
+	-- If we have reached this point in the process, the plot is flatlands and snow.
+	if terrainType == TerrainTypes.TERRAIN_SNOW then -- Snow are Junk, except in Snow regions (made for snow bias)
+		if region_type ~= 10 then
+			data[4] = true;
+		else
+			data[1] = true;
+			data[2] = true;
+			data[3] = true;
+		end
 		return data
 		
 	elseif terrainType == TerrainTypes.TERRAIN_DESERT then -- Non-Oasis, non-FloodPlain flat deserts are Junk, except in Desert regions.
@@ -2654,23 +2728,30 @@ function AssignStartingPlots:MeasureSinglePlot(x, y, region_type)
 		end
 		return data
 
-	elseif terrainType == TerrainTypes.TERRAIN_TUNDRA then -- Tundra are ignored, except in Tundra Regions where they are Food, Good.
-		if region_type == 1 then
+	elseif terrainType == TerrainTypes.TERRAIN_TUNDRA then -- Tundra are ignored, except in Tundra/Snow Regions where they are Food, Good.
+		if region_type == 1 or region_type == 10 then
 			data[1] = true;
 			data[3] = true;
+		end
+		if region_type == 10 then
+			data[2] = true;
 		end
 		return data
 
 	elseif terrainType == TerrainTypes.TERRAIN_PLAINS then -- Plains are Good for all region types, but Food in only about half of them.
-		data[3] = true;
-		if region_type == 1 or region_type == 4 or region_type == 5 or region_type == 6 or region_type == 8 then
+		if region_type ~= 10 then
+			data[3] = true;
+		end
+		if region_type == 1 or region_type == 4 or region_type == 5 or region_type == 6 or region_type == 8 or region_type == 9 then
 			data[1] = true;
 		end
 		return data
 
 	elseif terrainType == TerrainTypes.TERRAIN_GRASS then -- Grass is Good for all region types, but Food in only about half of them.
-		data[3] = true;
-		if region_type == 2 or region_type == 3 or region_type == 5 or region_type == 7 or region_type == 8 then
+		if region_type ~= 10 then
+			data[3] = true;
+		end
+		if region_type == 2 or region_type == 3 or region_type == 5 or region_type == 7 or region_type == 8 or region_type == 9 or region_type == 10 then
 			data[1] = true;
 		end
 		return data
@@ -2694,14 +2775,18 @@ function AssignStartingPlots:EvaluateCandidatePlot(plotIndex, region_type)
 	local wrapX = Map:IsWrapX();
 	local wrapY = Map:IsWrapY();
 	local distance_bias = self.distanceData[plotIndex];
-	local foodTotal, prodTotal, goodTotal, junkTotal, riverTotal, coastScore = 0, 0, 0, 0, 0, 0;
+	local foodTotal, prodTotal, goodTotal, junkTotal, riverTotal, mountainTotal, coastScore = 0, 0, 0, 0, 0, 0, 0;
 	local search_table = {};
-	
-	-- Check candidate plot to see if it's adjacent to saltwater.
+
+	-- Check candidate plot to see if it's adjacent to saltwater. Add higher score for snow bias
 	if self.plotDataIsCoastal[plotIndex] == true then
-		coastScore = 40;
+		if region_type == 10 then
+			coastScore = 120;
+		else
+			coastScore = 60;
+		end
 	end
-		
+
 	-- Evaluate First Ring
 	if isEvenY then
 		search_table = self.firstRingYIsEven;
@@ -2726,6 +2811,9 @@ function AssignStartingPlots:EvaluateCandidatePlot(plotIndex, region_type)
 			-- This plot does not exist. It's off the map edge.
 			junkTotal = junkTotal + 1;
 		else
+			if Map.GetPlot(searchX, searchY):GetPlotType() == PlotTypes.PLOT_MOUNTAIN then
+				mountainTotal = mountainTotal + 1;
+			end
 			local result = self:MeasureSinglePlot(searchX, searchY, region_type)
 			if result[4] then
 				junkTotal = junkTotal + 1;
@@ -2757,13 +2845,17 @@ function AssignStartingPlots:EvaluateCandidatePlot(plotIndex, region_type)
 	end
 
 	-- Set up the "score" for this candidate. Inner ring results weigh the heaviest.
-	local weightedFoodInner = {0, 8, 14, 19, 22, 24, 25};
+	local weightedFoodInner = {0, 8, 14, 18, 19, 18, 14};	-- too much food is bad
 	local foodResultInner = weightedFoodInner[foodTotal + 1];
-	local weightedProdInner = {0, 10, 16, 20, 20, 12, 0};
+	local weightedProdInner = {0, 10, 16, 20, 22, 24, 25};
 	local prodResultInner = weightedProdInner[prodTotal + 1];
 	local goodResultInner = goodTotal * 2;
 	local innerRingScore = foodResultInner + prodResultInner + goodResultInner + riverTotal - (junkTotal * 3);
-	
+
+	if region_type == 9 then
+		innerRingScore = innerRingScore + mountainTotal * 3;
+	end
+
 	-- Evaluate Second Ring
 	if isEvenY then
 		search_table = self.secondRingYIsEven;
@@ -2787,6 +2879,9 @@ function AssignStartingPlots:EvaluateCandidatePlot(plotIndex, region_type)
 			-- This plot does not exist. It's off the map edge.
 			junkTotal = junkTotal + 1;
 		else
+			if Map.GetPlot(searchX, searchY):GetPlotType() == PlotTypes.PLOT_MOUNTAIN then
+				mountainTotal = mountainTotal + 1;
+			end
 			local result = self:MeasureSinglePlot(searchX, searchY, region_type)
 			if result[4] then
 				junkTotal = junkTotal + 1;
@@ -2815,14 +2910,14 @@ function AssignStartingPlots:EvaluateCandidatePlot(plotIndex, region_type)
 	elseif goodTotal < self.minGoodMiddle then
 		goodSoFar = false;
 	end
-	
+
 	-- Update up the "score" for this candidate. Middle ring results weigh significantly.
 	local weightedFoodMiddle = {0, 2, 5, 10, 20, 25, 28, 30, 32, 34, 35}; -- 35 for any further values.
 	local foodResultMiddle = 35;
 	if foodTotal < 10 then
 		foodResultMiddle = weightedFoodMiddle[foodTotal + 1];
 	end
-	local weightedProdMiddle = {0, 10, 20, 25, 30, 35}; -- 35 for any further values.
+	local weightedProdMiddle = {0, 10, 20, 25, 30, 35, 39, 42, 44, 45}; -- 45 for any further values.
 	local effectiveProdTotal = prodTotal;
 	if foodTotal * 2 < prodTotal then
 		effectiveProdTotal = math.ceil(foodTotal / 2);
@@ -2833,7 +2928,11 @@ function AssignStartingPlots:EvaluateCandidatePlot(plotIndex, region_type)
 	end
 	local goodResultMiddle = goodTotal * 2;
 	local middleRingScore = foodResultMiddle + prodResultMiddle + goodResultMiddle + riverTotal - (junkTotal * 3);
-	
+
+	if region_type == 9 then
+		middleRingScore = middleRingScore + mountainTotal * 2;
+	end
+
 	-- Evaluate Third Ring
 	if isEvenY then
 		search_table = self.thirdRingYIsEven;
@@ -2857,6 +2956,9 @@ function AssignStartingPlots:EvaluateCandidatePlot(plotIndex, region_type)
 			-- This plot does not exist. It's off the map edge.
 			junkTotal = junkTotal + 1;
 		else
+			if Map.GetPlot(searchX, searchY):GetPlotType() == PlotTypes.PLOT_MOUNTAIN then
+				mountainTotal = mountainTotal + 1;
+			end
 			local result = self:MeasureSinglePlot(searchX, searchY, region_type)
 			if result[4] then
 				junkTotal = junkTotal + 1;
@@ -2891,6 +2993,9 @@ function AssignStartingPlots:EvaluateCandidatePlot(plotIndex, region_type)
 
 	-- Tally the final "score" for this candidate.
 	local outerRingScore = foodTotal + prodTotal + goodTotal + riverTotal - (junkTotal * 2);
+	if region_type == 9 then
+		outerRingScore = outerRingScore + mountainTotal;
+	end
 	local finalScore = innerRingScore + middleRingScore + outerRingScore + coastScore;
 
 	-- Check Impact and Ripple data to see if candidate is near an already-placed start point.
@@ -3120,7 +3225,8 @@ function AssignStartingPlots:FindStart(region_number)
 			-- If any candidates are eligible, choose one.
 			local found_eligible = election_returns[1];
 			if found_eligible then
-				local bestPlotScore = election_returns[2]; 
+				local bestPlotScore = election_returns[2];
+				print("Region #", region_number, "has", bestPlotScore, "score.");
 				local bestPlotIndex = election_returns[3];
 				local x = (bestPlotIndex - 1) % iW;
 				local y = (bestPlotIndex - x - 1) / iW;
@@ -3132,6 +3238,7 @@ function AssignStartingPlots:FindStart(region_number)
 			local found_fallback = election_returns[4];
 			if found_fallback then
 				local bestFallbackScore = election_returns[5];
+				print("Region #", region_number, "has", bestFallbackScore, "fallback score.");
 				local bestFallbackIndex = election_returns[6];
 				local x = (bestFallbackIndex - 1) % iW;
 				local y = (bestFallbackIndex - x - 1) / iW;
@@ -3754,6 +3861,24 @@ function AssignStartingPlots:FindStartWithoutRegardToAreaID(region_number, bMust
 	return bSuccessFlag, bForcedPlacementFlag
 end
 ------------------------------------------------------------------------------
+function CivNeedsMountainStart(civType)
+	for row in GameInfo.Civilization_Start_Prefer_Mountain{CivilizationType = civType} do
+		if(row.StartPreferMountain == true) then
+			return true;
+		end
+	end
+	return false;
+end
+------------------------------------------------------------------------------
+function CivNeedsSnowStart(civType)
+	for row in GameInfo.Civilization_Start_Prefer_Snow{CivilizationType = civType} do
+		if(row.StartPreferSnow == true) then
+			return true;
+		end
+	end
+	return false;
+end
+------------------------------------------------------------------------------
 function AssignStartingPlots:ChooseLocations(args)
 	print("Map Generation - Choosing Start Locations for Civilizations");
 	local args = args or {};
@@ -3775,6 +3900,19 @@ function AssignStartingPlots:ChooseLocations(args)
 	self.minProdOuter = args.minProdOuter or self.minProdOuter;
 	self.minGoodOuter = args.minGoodOuter or self.minGoodOuter;
 	self.maxJunk = args.maxJunk or self.maxJunk;
+
+	-- Determine whether any civ should start near mountain or snow
+	for loop = 1, self.iNumCivs do
+		local playerNum = self.player_ID_list[loop]; -- MP games can have gaps between player numbers, so we cannot assume a sequential set of IDs.
+		local player = Players[playerNum];
+		local civType = GameInfo.Civilizations[player:GetCivilizationType()].Type;
+		if CivNeedsMountainStart(civType) then
+			self.hasMountainBias = true;
+		end
+		if CivNeedsSnowStart(civType) then
+			self.hasSnowBias = true;
+		end 
+	end
 
 	-- Measure terrain/plot/feature in regions.
 	self:MeasureTerrainInRegions()
@@ -5051,6 +5189,8 @@ function AssignStartingPlots:BalanceAndAssign()
 	local civs_needing_river_start = {};
 	local civs_needing_region_priority = {};
 	local civs_needing_region_avoid = {};
+	local civs_needing_mountain_start = {};
+	local civs_needing_snow_start = {};
 	local regions_with_coastal_start = {};
 	local regions_with_lake_start = {};
 	local regions_with_river_start = {};
@@ -5059,8 +5199,8 @@ function AssignStartingPlots:BalanceAndAssign()
 	local region_status = table.fill(false, self.iNumCivs);
 	local priority_lists = {};
 	local avoid_lists = {};
-	local iNumCoastalCivs, iNumRiverCivs, iNumPriorityCivs, iNumAvoidCivs = 0, 0, 0, 0;
-	local iNumCoastalCivsRemaining, iNumRiverCivsRemaining, iNumPriorityCivsRemaining, iNumAvoidCivsRemaining = 0, 0, 0, 0;
+	local iNumCoastalCivs, iNumRiverCivs, iNumPriorityCivs, iNumAvoidCivs, iNumMountainCivs, iNumSnowCivs = 0, 0, 0, 0, 0, 0;
+	local iNumCoastalCivsRemaining, iNumRiverCivsRemaining, iNumPriorityCivsRemaining, iNumAvoidCivsRemaining, iNumMountainCivsRemaining, iNumSnowCivsRemaining = 0, 0, 0, 0, 0, 0;
 	
 	--print("-"); print("-"); print("--- DEBUG READOUT OF PLAYER START ASSIGNMENTS ---"); print("-");
 	
@@ -5070,46 +5210,46 @@ function AssignStartingPlots:BalanceAndAssign()
 		local playerNum = self.player_ID_list[loop]; -- MP games can have gaps between player numbers, so we cannot assume a sequential set of IDs.
 		local player = Players[playerNum];
 		local civType = GameInfo.Civilizations[player:GetCivilizationType()].Type;
-		--print("Player", playerNum, "of Civ Type", civType);
-		local bNeedsCoastalStart = CivNeedsCoastalStart(civType)
-		if bNeedsCoastalStart == true then
-			--print("- - - - - - - needs Coastal Start!"); print("-");
+		print("Player", playerNum, "of Civ Type", civType);
+		if CivNeedsMountainStart(civType) then
+			print("- - - - - - - needs Mountain Start!"); print("-");
+			iNumMountainCivs = iNumMountainCivs + 1;
+			iNumMountainCivsRemaining = iNumMountainCivsRemaining + 1;
+			table.insert(civs_needing_mountain_start, playerNum);
+		elseif CivNeedsSnowStart(civType) then
+			print("- - - - - - - needs Snow Start!"); print("-");
+			iNumSnowCivs = iNumSnowCivs + 1;
+			iNumSnowCivsRemaining = iNumSnowCivsRemaining + 1;
+			table.insert(civs_needing_snow_start, playerNum);
+		elseif CivNeedsCoastalStart(civType) then
+			print("- - - - - - - needs Coastal Start!"); print("-");
 			iNumCoastalCivs = iNumCoastalCivs + 1;
 			iNumCoastalCivsRemaining = iNumCoastalCivsRemaining + 1;
 			table.insert(civs_needing_coastal_start, playerNum);
 			local bPlaceFirst = CivNeedsPlaceFirstCoastalStart(civType);
 			if bPlaceFirst then
-				--print("- - - - - - - needs to Place First!"); print("-");
+				print("- - - - - - - needs to Place First!"); print("-");
 				table.insert(civs_priority_coastal_start, playerNum);
 			end
-		else
-			local bNeedsRiverStart = CivNeedsRiverStart(civType)
-			if bNeedsRiverStart == true then
-				--print("- - - - - - - needs River Start!"); print("-");
-				iNumRiverCivs = iNumRiverCivs + 1;
-				iNumRiverCivsRemaining = iNumRiverCivsRemaining + 1;
-				table.insert(civs_needing_river_start, playerNum);
-			else
-				local iNumRegionPriority = GetNumStartRegionPriorityForCiv(civType)
-				if iNumRegionPriority > 0 then
-					--print("- - - - - - - needs Region Priority!"); print("-");
-					local table_of_this_civs_priority_needs = GetStartRegionPriorityListForCiv_GetIDs(civType)
-					iNumPriorityCivs = iNumPriorityCivs + 1;
-					iNumPriorityCivsRemaining = iNumPriorityCivsRemaining + 1;
-					table.insert(civs_needing_region_priority, playerNum);
-					priority_lists[playerNum] = table_of_this_civs_priority_needs;
-				else
-					local iNumRegionAvoid = GetNumStartRegionAvoidForCiv(civType)
-					if iNumRegionAvoid > 0 then
-						--print("- - - - - - - needs Region Avoid!"); print("-");
-						local table_of_this_civs_avoid_needs = GetStartRegionAvoidListForCiv_GetIDs(civType)
-						iNumAvoidCivs = iNumAvoidCivs + 1;
-						iNumAvoidCivsRemaining = iNumAvoidCivsRemaining + 1;
-						table.insert(civs_needing_region_avoid, playerNum);
-						avoid_lists[playerNum] = table_of_this_civs_avoid_needs;
-					end
-				end
-			end
+		elseif CivNeedsRiverStart(civType) then
+			print("- - - - - - - needs River Start!"); print("-");
+			iNumRiverCivs = iNumRiverCivs + 1;
+			iNumRiverCivsRemaining = iNumRiverCivsRemaining + 1;
+			table.insert(civs_needing_river_start, playerNum);
+		elseif GetNumStartRegionPriorityForCiv(civType) > 0 then
+			print("- - - - - - - needs Region Priority!"); print("-");
+			local table_of_this_civs_priority_needs = GetStartRegionPriorityListForCiv_GetIDs(civType)
+			iNumPriorityCivs = iNumPriorityCivs + 1;
+			iNumPriorityCivsRemaining = iNumPriorityCivsRemaining + 1;
+			table.insert(civs_needing_region_priority, playerNum);
+			priority_lists[playerNum] = table_of_this_civs_priority_needs;
+		elseif GetNumStartRegionAvoidForCiv(civType) > 0 then
+			print("- - - - - - - needs Region Avoid!"); print("-");
+			local table_of_this_civs_avoid_needs = GetStartRegionAvoidListForCiv_GetIDs(civType)
+			iNumAvoidCivs = iNumAvoidCivs + 1;
+			iNumAvoidCivsRemaining = iNumAvoidCivsRemaining + 1;
+			table.insert(civs_needing_region_avoid, playerNum);
+			avoid_lists[playerNum] = table_of_this_civs_avoid_needs;
 		end
 	end
 	--[[
@@ -5118,6 +5258,50 @@ function AssignStartingPlots:BalanceAndAssign()
 	print("Civs with Region Priority:", iNumPriorityCivs);
 	print("Civs with Region Avoid:", iNumAvoidCivs); print("-");
 	]]--
+	-- Handle Snow Bias (maximum one civ for now)
+	if iNumSnowCivs > 0 then
+		for region_number, bAlreadyAssigned in ipairs(region_status) do
+			if not bAlreadyAssigned and self.regionTypes[region_number] == 10 then
+				local iPlayerNum = civs_needing_snow_start[1];
+				local x = self.startingPlots[region_number][1];
+				local y = self.startingPlots[region_number][2];
+				local plot = Map.GetPlot(x, y);
+				local player = Players[iPlayerNum];
+				player:SetStartingPlot(plot);
+				print("Player Number", iPlayerNum, "with Snow bias assigned to Region#", region_number, "at Plot", x, y);
+				iNumSnowCivsRemaining = iNumSnowCivsRemaining - 1;
+				region_status[region_number] = true;
+				civ_status[iPlayerNum + 1] = true;
+				local a, b, c = IdentifyTableIndex(regions_still_available, region_number);
+				if a then
+					table.remove(regions_still_available, c[1]);
+				end
+			end
+		end
+	end
+
+	-- Handle Mountain Bias (maximum one civ for now)
+	if iNumMountainCivs > 0 then
+		for region_number, bAlreadyAssigned in ipairs(region_status) do
+			if not bAlreadyAssigned and self.regionTypes[region_number] == 9 then
+				local iPlayerNum = civs_needing_mountain_start[1];
+				local x = self.startingPlots[region_number][1];
+				local y = self.startingPlots[region_number][2];
+				local plot = Map.GetPlot(x, y);
+				local player = Players[iPlayerNum];
+				player:SetStartingPlot(plot);
+				print("Player Number", iPlayerNum, "with Mountain bias assigned to Region#", region_number, "at Plot", x, y);
+				iNumMountainCivsRemaining = iNumMountainCivsRemaining - 1;
+				region_status[region_number] = true;
+				civ_status[iPlayerNum + 1] = true;
+				local a, b, c = IdentifyTableIndex(regions_still_available, region_number);
+				if a then
+					table.remove(regions_still_available, c[1]);
+				end
+			end
+		end
+	end
+
 	-- Handle Coastal Start Bias
 	if iNumCoastalCivs > 0 then
 		-- Generate lists of regions eligible to support a coastal start.
@@ -5415,7 +5599,7 @@ function AssignStartingPlots:BalanceAndAssign()
 		-- Single priority civs go first, and will engage fallback methods if no match found.
 		if iNumSinglePriority > 0 then
 			-- Sort the list so that proper order of execution occurs. (Going to use a blunt method for easy coding.)
-			for region_type = 1, 8 do							-- Must expand if new region types are added.
+			for region_type = 1, 10 do							-- Must expand if new region types are added.
 				for loop, data in ipairs(single_priority) do
 					if data[2] == region_type then
 						--print("Adding Player#", data[1], "to sorted list of single Region Priority.");
@@ -8337,7 +8521,7 @@ end
 ------------------------------------------------------------------------------
 function AssignStartingPlots:SortRegionsByType()
 	-- Necessary for assigning luxury types to regions.
-	for check_this_type = 1, 8 do -- Valid range for default Region Types. Any regions modders be alert to this.
+	for check_this_type = 1, 10 do -- Valid range for default Region Types. Any regions modders be alert to this.
 		self:IdentifyRegionsOfThisType(check_this_type)
 	end
 	self:IdentifyRegionsOfThisType(0) -- If any Undefined Regions, put them at the bottom of the list.
@@ -8347,7 +8531,7 @@ function AssignStartingPlots:AssignLuxuryToRegion(region_number)
 	-- Assigns a luxury type to an individual region.
 	local region_type = self.regionTypes[region_number];
 	local luxury_candidates;
-	if region_type > 0 and region_type < 9 then -- Note: if number of Region Types is modified, this line and the table to which it refers need adjustment.
+	if region_type > 0 and region_type < 11 then -- Note: if number of Region Types is modified, this line and the table to which it refers need adjustment.
 		luxury_candidates = self.luxury_region_weights[region_type];
 	else
 		luxury_candidates = self.luxury_fallback_weights; -- Undefined Region, enable all possible luxury types.
@@ -10397,7 +10581,8 @@ function AssignStartingPlots:PlaceSexyBonusAtCivStarts()
 	local nextX, nextY, plot_adjustments;
 	
 	local bonus_type_associated_with_region_type = {self.deer_ID, self.banana_ID, 
-	self.deer_ID, self.wheat_ID, self.sheep_ID, self.wheat_ID, self.cow_ID, self.cow_ID};
+	self.deer_ID, self.wheat_ID, self.sheep_ID, self.wheat_ID, self.cow_ID, self.cow_ID,
+	self.sheep_ID, self.deer_ID};
 	
 	for region_number = 1, self.iNumCivs do
 		local x = self.startingPlots[region_number][1];
@@ -10508,7 +10693,7 @@ function AssignStartingPlots:PlaceSexyBonusAtCivStarts()
 end
 ------------------------------------------------------------------------------
 function AssignStartingPlots:AddExtraBonusesToHillsRegions()
-	-- Hills regions are very low on food, yet not deemed by the fertility measurements to be so.
+	-- Hills/Mountain regions are very low on food, yet not deemed by the fertility measurements to be so.
 	-- Spreading some food bonus around in these regions will help bring them up closer to par.
 	local iW, iH = Map.GetGridSize();
 	local wrapX = Map:IsWrapX();
@@ -10516,7 +10701,7 @@ function AssignStartingPlots:AddExtraBonusesToHillsRegions()
 	-- Identify Hills Regions, if any.
 	local hills_regions, iNumHillsRegions = {}, 0;
 	for region_number = 1, self.iNumCivs do
-		if self.regionTypes[region_number] == 5 then
+		if self.regionTypes[region_number] == 5 or self.regionTypes[region_number] == 9 then
 			iNumHillsRegions = iNumHillsRegions + 1;
 			table.insert(hills_regions, region_number);
 		end
@@ -11553,15 +11738,15 @@ function AssignStartingPlots:IsEvenMoreResourcesActive()
 			break
 		end
 	end
-	
+
 	if isUsingCommunityPatch == false then -- fallback method for modpack mode
 		for row in DB.Query("SELECT * FROM Resources WHERE Type = 'RESOURCE_BEER'") do
 			isUsingEvenMoreResources = true
 		end
 	end
-
 	return isUsingEvenMoreResources
 end
+
 ----------------------------------------------------------------
 function AssignStartingPlots:Plot_GetPlotsInCircle(plot, minR, maxR)
 	if not plot then
