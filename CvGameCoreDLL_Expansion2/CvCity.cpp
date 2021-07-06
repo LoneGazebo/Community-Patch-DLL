@@ -7366,6 +7366,7 @@ CityTaskResult CvCity::doTask(TaskTypes eTask, int iData1, int iData2, bool bOpt
 	{
 	case TASK_RAZE:
 		GET_PLAYER(getOwner()).raze(this);
+		resetCaptureData();
 		break;
 
 	case TASK_UNRAZE:
