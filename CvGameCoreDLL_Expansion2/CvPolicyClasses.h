@@ -356,7 +356,7 @@ public:
 	int GetYieldForLiberation(int i) const;
 	int GetInfluenceForLiberation() const;
 	int GetExperienceForLiberation() const;
-	BuildingClassTypes GetBuildingClassInLiberatedCities() const;
+	int GetBuildingClassInLiberatedCities(int i) const;
 	int GetUnitsInLiberatedCities() const;
 	int getFranchisesPerImprovement(int i) const;
 #endif
@@ -814,7 +814,7 @@ private:
 	int* m_piYieldForLiberation;
 	int m_iInfluenceForLiberation;
 	int m_iExperienceForLiberation;
-	BuildingClassTypes m_eBuildingClassInLiberatedCities;
+	int* m_piBuildingClassInLiberatedCities;
 	int m_iUnitsInLiberatedCities;
 	int* m_piFranchisesPerImprovement;
 #endif

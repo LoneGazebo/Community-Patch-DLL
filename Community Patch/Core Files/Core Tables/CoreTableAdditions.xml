@@ -606,6 +606,13 @@
 		<Column name="Yield" type="integer" default="0"/>
 	</Table>
 	
+	<!-- POLICY: Liberating a city gives that city this buildingclass -->
+	<Table name="Policy_BuildingClassInLiberatedCities">
+		<Column name="PolicyType" type="text" reference="Policies(Type)"/>
+		<Column name="BuildingClassType" type="text" reference="BuildingClasses(Type)"/>
+		<Column name="Count" type="integer" default="0"/>
+	</Table>
+	
 	<!-- BUILDING: Allows you to define a building yield earned from a GP being expended -->
 	<Table name="Building_YieldFromGPExpend">
 		<Column name="BuildingType" type="text" reference="Buildings(Type)"/>

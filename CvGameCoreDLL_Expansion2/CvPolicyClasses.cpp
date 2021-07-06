@@ -340,7 +340,7 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_piYieldForLiberation(NULL),
 	m_iInfluenceForLiberation(0),
 	m_iExperienceForLiberation(0),
-	m_eBuildingClassInLiberatedCities(NO_BUILDINGCLASS),
+	m_piBuildingClassInLiberatedCities(NULL),
 	m_iUnitsInLiberatedCities(0),
 	m_piFranchisesPerImprovement(NULL),
 #endif
@@ -448,6 +448,7 @@ CvPolicyEntry::~CvPolicyEntry(void)
 	SAFE_DELETE_ARRAY(m_piGoldenAgeYieldMod);
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiReligionBuildingYieldMod);
 	SAFE_DELETE_ARRAY(m_piYieldForLiberation);
+	SAFE_DELETE_ARRAY(m_piBuildingClassInLiberatedCities);
 	SAFE_DELETE_ARRAY(m_piFranchisesPerImprovement);
 #endif
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiImprovementYieldChanges);
@@ -1248,12 +1249,7 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_iInfluenceForLiberation = kResults.GetInt("InfluenceAllCSFromLiberation");
 	m_iExperienceForLiberation = kResults.GetInt("ExperienceAllUnitsFromLiberation");
 	m_iUnitsInLiberatedCities = kResults.GetInt("NumUnitsInLiberatedCities");
-
-	const char* szBuildingClassInLiberatedCities = kResults.GetText("BuildingClassInLiberatedCities");
-	if (szBuildingClassInLiberatedCities)
-	{
-		m_eBuildingClassInLiberatedCities = (BuildingClassTypes)GC.getInfoTypeForString(szBuildingClassInLiberatedCities, true);
-	}
+	kUtility.PopulateArrayByValue(m_piBuildingClassInLiberatedCities, "BuildingClasses", "Policy_BuildingClassInLiberatedCities", "BuildingClassType", "PolicyType", szPolicyType, "Count");
 
 	kUtility.PopulateArrayByValue(m_piFranchisesPerImprovement, "Improvements", "Policy_FranchisePerImprovement", "ImprovementType", "PolicyType", szPolicyType, "NumFranchise");
 #endif
@@ -3639,9 +3635,11 @@ int CvPolicyEntry::GetExperienceForLiberation() const
 	return m_iExperienceForLiberation;
 }
 /// Building in the liberated city whenever you liberate a city
-BuildingClassTypes CvPolicyEntry::GetBuildingClassInLiberatedCities() const
+int CvPolicyEntry::GetBuildingClassInLiberatedCities(int i) const
 {
-	return m_eBuildingClassInLiberatedCities;
+	CvAssertMsg(i < GC.getNumBuildingClassInfos(), "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piBuildingClassInLiberatedCities[i];
 }
 /// Units in the liberated city whenever you liberate a city
 int CvPolicyEntry::GetUnitsInLiberatedCities() const
