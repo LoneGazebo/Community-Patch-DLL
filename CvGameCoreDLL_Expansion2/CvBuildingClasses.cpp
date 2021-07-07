@@ -407,6 +407,7 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_piInstantYield(NULL),
 	m_paiBuildingClassLocalHappiness(NULL),
 	m_paiSpecificGreatPersonRateModifier(NULL),
+	m_iInstantReligionPressure(0),
 #endif
 #if defined(MOD_BALANCE_CORE) && defined(MOD_API_UNIFIED_YIELDS)
 	m_piiGreatPersonProgressFromConstruction(),
@@ -942,6 +943,7 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	kUtility.SetYields(m_piTechEnhancedYieldChange, "Building_TechEnhancedYieldChanges", "BuildingType", szBuildingType);
 #if defined(MOD_BALANCE_CORE_BUILDING_INSTANT_YIELD)
 	kUtility.SetYields(m_piInstantYield, "Building_InstantYield", "BuildingType", szBuildingType);
+	m_iInstantReligionPressure = kResults.GetInt("InstantReligiousPressure");
 #endif
 
 	kUtility.PopulateArrayByValue(m_piResourceQuantityRequirements, "Resources", "Building_ResourceQuantityRequirements", "ResourceType", "BuildingType", szBuildingType, "Cost");
@@ -4149,6 +4151,11 @@ int* CvBuildingEntry::GetInstantYieldArray() const
 	return m_piInstantYield;
 }
 
+/// Instant Boost of religious pressure in the city when built
+int CvBuildingEntry::GetInstantReligionPressure() const
+{
+	return m_iInstantReligionPressure;
+}
 #endif
 
 CvThemingBonusInfo *CvBuildingEntry::GetThemingBonusInfo(int i) const

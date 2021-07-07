@@ -14913,6 +14913,15 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 				{
 					SetBuildingConstructed(eBuildingClass, true);
 					GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_INSTANT, false, NO_GREATPERSON, eBuilding, 0, false, NO_PLAYER, NULL, false, this);
+					
+					if (pBuildingInfo->GetInstantReligionPressure() > 0) 
+					{
+						ReligionTypes eReligion = GET_PLAYER(getOwner()).getCapitalCity()->GetCityReligions()->GetReligiousMajority();
+						if (eReligion > RELIGION_PANTHEON)
+						{
+							GetCityReligions()->AddReligiousPressure(FOLLOWER_CHANGE_SCRIPTED_CONVERSION, eReligion, pBuildingInfo->GetInstantReligionPressure());
+						}
+					}
 				}
 			}
 #endif
