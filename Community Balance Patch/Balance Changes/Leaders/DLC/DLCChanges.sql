@@ -365,6 +365,9 @@ INSERT INTO Trait_YieldFromTileConquest		(TraitType, TerrainType, YieldType, Yie
 INSERT INTO Trait_YieldFromTileCultureBomb 	(TraitType, TerrainType, YieldType, Yield) SELECT 'TRAIT_SEVEN_CITIES', Type, 'YIELD_GOLD', 10 FROM Terrains;
 INSERT INTO Trait_YieldFromTileCultureBomb 	(TraitType, TerrainType, YieldType, Yield) SELECT 'TRAIT_SEVEN_CITIES', Type, 'YIELD_FAITH', 4 FROM Terrains;
 
+INSERT INTO Trait_YieldFromTileStealCultureBomb (TraitType, TerrainType, YieldType, Yield) SELECT 'TRAIT_SEVEN_CITIES', Type, 'YIELD_GOLD', 10 FROM Terrains;
+INSERT INTO Trait_YieldFromTileStealCultureBomb (TraitType, TerrainType, YieldType, Yield) SELECT 'TRAIT_SEVEN_CITIES', Type, 'YIELD_FAITH', 4 FROM Terrains;
+
 INSERT INTO Trait_YieldFromTileSettle 		(TraitType, TerrainType, YieldType, Yield) SELECT 'TRAIT_SEVEN_CITIES', Type, 'YIELD_GOLD', 10 FROM Terrains;
 INSERT INTO Trait_YieldFromTileSettle 		(TraitType, TerrainType, YieldType, Yield) SELECT 'TRAIT_SEVEN_CITIES', Type, 'YIELD_FAITH', 4 FROM Terrains;
 
