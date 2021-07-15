@@ -10,6 +10,10 @@ INSERT INTO Policy_UnitClassReplacements
 	(PolicyType, ReplacedUnitClassType, ReplacementUnitClassType)
 VALUES
 	('POLICY_THEIR_FINEST_HOUR', 'UNITCLASS_BOMBER', 'UNITCLASS_B17');
+	
+UPDATE Policies
+SET MaxAirUnitsChangeGlobal = 1
+WHERE Type = 'POLICY_THEIR_FINEST_HOUR' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 -- Arsenal of Democracy
 UPDATE Policies

@@ -43875,6 +43875,7 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 	changeInfluenceForLiberation(pPolicy->GetInfluenceForLiberation() * iChange);
 	changeExperienceForLiberation(pPolicy->GetExperienceForLiberation() * iChange);
 	changeUnitsInLiberatedCities(pPolicy->GetUnitsInLiberatedCities() * iChange);
+	changeMaxAirUnits(pPolicy->GetMaxAirUnitsChange() * iChange);
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	ChangeIsVassalsNoRebel(pPolicy->IsVassalsNoRebel() * iChange);
 	ChangeVassalCSBonusModifier(pPolicy->GetVassalCSBonusModifier() * iChange);

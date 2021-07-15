@@ -359,6 +359,7 @@ public:
 	int GetBuildingClassInLiberatedCities(int i) const;
 	int GetUnitsInLiberatedCities() const;
 	int getFranchisesPerImprovement(int i) const;
+	int GetMaxAirUnitsChange() const;
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	int GetInvestmentModifier() const;
@@ -817,6 +818,7 @@ private:
 	int* m_piBuildingClassInLiberatedCities;
 	int m_iUnitsInLiberatedCities;
 	int* m_piFranchisesPerImprovement;
+	int m_iMaxAirUnitsChange;
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	int m_iInvestmentModifier;

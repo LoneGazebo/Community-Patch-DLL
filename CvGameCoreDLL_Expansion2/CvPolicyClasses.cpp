@@ -343,6 +343,7 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_piBuildingClassInLiberatedCities(NULL),
 	m_iUnitsInLiberatedCities(0),
 	m_piFranchisesPerImprovement(NULL),
+	m_iMaxAirUnitsChange(0),
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	m_iInvestmentModifier(0),
@@ -1252,6 +1253,8 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	kUtility.PopulateArrayByValue(m_piBuildingClassInLiberatedCities, "BuildingClasses", "Policy_BuildingClassInLiberatedCities", "BuildingClassType", "PolicyType", szPolicyType, "Count");
 
 	kUtility.PopulateArrayByValue(m_piFranchisesPerImprovement, "Improvements", "Policy_FranchisePerImprovement", "ImprovementType", "PolicyType", szPolicyType, "NumFranchise");
+
+	m_iMaxAirUnitsChange = kResults.GetInt("MaxAirUnitsChangeGlobal");
 #endif
 
 	//OrPreReqs
@@ -3646,11 +3649,17 @@ int CvPolicyEntry::GetUnitsInLiberatedCities() const
 {
 	return m_iUnitsInLiberatedCities;
 }
+///Gives your corp an extra franchise for every improvement of this type
 int CvPolicyEntry::getFranchisesPerImprovement(int i) const
 {
 	CvAssertMsg(i < GC.getNumImprovementInfos(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
 	return m_piFranchisesPerImprovement[i];
+}
+///Gives extra air slots to every city
+int CvPolicyEntry::GetMaxAirUnitsChange() const
+{
+	return m_iMaxAirUnitsChange;
 }
 #endif
 
