@@ -101,7 +101,7 @@
 			<Text>They are extremely unhappy with your rule over them!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_VASSAL_TREATMENT_ENSLAVED">
-			<Text>They believe they are being enslaved by your rule over them!</Text>
+			<Text>They believe they are being enslaved under your rule!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_VASSAL_PROTECT">
 			<Text>You protected their territory as their master!</Text>

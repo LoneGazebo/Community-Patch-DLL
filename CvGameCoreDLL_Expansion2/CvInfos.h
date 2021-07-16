@@ -2092,6 +2092,7 @@ public:
 	int GetVictoryCompetitiveness() const;
 	int GetWonderCompetitiveness() const;
 	int GetMinorCivCompetitiveness() const;
+	int GetReligionCompetitiveness() const;
 	int GetBoldness() const;
 	int GetDiploBalance() const;
 	int GetWarmongerHate() const;
@@ -2127,6 +2128,7 @@ protected:
 	int m_iVictoryCompetitiveness;
 	int m_iWonderCompetitiveness;
 	int m_iMinorCivCompetitiveness;
+	int m_iReligionCompetitiveness;
 	int m_iBoldness;
 	int m_iDiploBalance;
 	int m_iWarmongerHate;

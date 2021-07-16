@@ -309,7 +309,7 @@
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
-        <FileName>Balance Changes/AI/Diplomacy/LeaderCompatibility.sql</FileName>
+        <FileName>Balance Changes/AI/StartBiases/StartBiases.sql</FileName>
       </Action>
       <Action>
         <Set>OnModActivated</Set>
@@ -730,6 +730,7 @@
     <Folder Include="Art\Units\Corvette" />
     <Folder Include="Balance Changes\AI\Diplomacy\" />
     <Folder Include="Balance Changes\AI\Flavors" />
+	<Folder Include="Balance Changes\AI\StartBiases" />
     <Folder Include="Balance Changes\Barbarians" />
     <Folder Include="Balance Changes\Beliefs\ReligiousBuildings" />
     <Folder Include="Balance Changes\Beliefs\ReligiousNW" />
@@ -1855,10 +1856,6 @@
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Balance Changes\AI\Diplomacy\LeaderCompatibility.sql">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
     <Content Include="Balance Changes\AI\Diplomacy\LeaderPersonalities.sql">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
@@ -1872,6 +1869,10 @@
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
     <Content Include="Balance Changes\AI\Flavors\UnitFlavors.sql">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="Balance Changes\AI\StartBiases\StartBiases.sql">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>

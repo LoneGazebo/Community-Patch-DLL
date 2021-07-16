@@ -10125,7 +10125,7 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 		pDiploAI->DoUpdateVictoryDisputeLevels();
 		pDiploAI->DoUpdateVictoryBlockLevels();
 		vector<PlayerTypes> v = GET_PLAYER(ePlayer).GetDiplomacyAI()->GetAllValidMajorCivs();
-		pDiploAI->DoReevaluatePlayers(v);
+		pDiploAI->DoReevaluatePlayers(v, false, false, true);
 	}
 
 	vector<PlayerTypes> v = GET_TEAM(GET_PLAYER(ePlayer).getTeam()).getPlayers();

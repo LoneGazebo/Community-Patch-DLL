@@ -1,3 +1,64 @@
+-- Recreate Leader Tables
+-- Default diplomacy flavors now 5, adds Personality and ReligionCompetitiveness columns, drops unused WorkWith/WorkAgainst Willingness columns
+PRAGMA foreign_keys=off;
+
+CREATE TABLE IF NOT EXISTS Leaders_NEW(
+	ID INTEGER PRIMARY KEY AUTOINCREMENT,
+	Type text NOT NULL UNIQUE,
+	Description text,
+	Civilopedia text,
+	CivilopediaTag text,
+	ArtDefineTag text,
+	Personality text DEFAULT NULL,
+	VictoryCompetitiveness INTEGER DEFAULT 5,
+	WonderCompetitiveness INTEGER DEFAULT 5,
+	MinorCivCompetitiveness INTEGER DEFAULT 5,
+	ReligionCompetitiveness INTEGER DEFAULT 5,
+	Boldness INTEGER DEFAULT 5,
+	DiploBalance INTEGER DEFAULT 5,
+	WarmongerHate INTEGER DEFAULT 5,
+	DoFWillingness INTEGER DEFAULT 5,
+	DenounceWillingness INTEGER DEFAULT 5,
+	Loyalty INTEGER DEFAULT 5,
+	Forgiveness INTEGER DEFAULT 5,
+	Neediness INTEGER DEFAULT 5,
+	Meanness INTEGER DEFAULT 5,
+	Chattiness INTEGER DEFAULT 5,
+	PortraitIndex INTEGER DEFAULT -1,
+	IconAtlas text DEFAULT NULL REFERENCES IconTextureAtlases(Atlas),
+	PackageID text DEFAULT NULL
+);
+
+INSERT INTO Leaders_NEW(Type, Description, Civilopedia, CivilopediaTag, ArtDefineTag, VictoryCompetitiveness, WonderCompetitiveness, MinorCivCompetitiveness, Boldness, DiploBalance, WarmongerHate, DoFWillingness, DenounceWillingness, Loyalty, Forgiveness, Neediness, Meanness, Chattiness, PortraitIndex, IconAtlas, PackageID)
+SELECT Type, Description, Civilopedia, CivilopediaTag, ArtDefineTag, VictoryCompetitiveness, WonderCompetitiveness, MinorCivCompetitiveness, Boldness, DiploBalance, WarmongerHate, DoFWillingness, DenounceWillingness, Loyalty, Forgiveness, Neediness, Meanness, Chattiness, PortraitIndex, IconAtlas, PackageID
+FROM Leaders;
+
+DROP TABLE Leaders;
+ALTER TABLE Leaders_NEW RENAME TO Leaders;
+
+CREATE TABLE IF NOT EXISTS Leader_MajorCivApproachBiases_NEW(
+	LeaderType text REFERENCES Leaders(Type),
+	MajorCivApproachType text REFERENCES MajorCivApproachTypes(Type),
+	Bias INTEGER DEFAULT 5
+);
+
+INSERT INTO Leader_MajorCivApproachBiases_NEW(LeaderType, MajorCivApproachType) SELECT LeaderType, MajorCivApproachType FROM Leader_MajorCivApproachBiases;
+DROP TABLE Leader_MajorCivApproachBiases;
+ALTER TABLE Leader_MajorCivApproachBiases_NEW RENAME TO Leader_MajorCivApproachBiases;
+
+CREATE TABLE IF NOT EXISTS Leader_MinorCivApproachBiases_NEW(
+	LeaderType text REFERENCES Leaders(Type),
+	MinorCivApproachType text REFERENCES MinorCivApproachTypes(Type),
+	Bias INTEGER DEFAULT 5
+);
+
+INSERT INTO Leader_MinorCivApproachBiases_NEW(LeaderType, MinorCivApproachType) SELECT LeaderType, MinorCivApproachType FROM Leader_MinorCivApproachBiases;
+DROP TABLE Leader_MinorCivApproachBiases;
+ALTER TABLE Leader_MinorCivApproachBiases_NEW RENAME TO Leader_MinorCivApproachBiases;
+
+PRAGMA foreign_keys=on;
+
+
 -- Table for Growth Extra Yield Buildings
 CREATE TABLE IF NOT EXISTS Building_GrowthExtraYield (
 BuildingType TEXT, YieldType TEXT, Yield INTEGER

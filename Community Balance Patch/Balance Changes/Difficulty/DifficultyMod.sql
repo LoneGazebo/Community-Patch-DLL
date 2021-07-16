@@ -1,5 +1,3 @@
-
-
 --Difficulties
 DELETE FROM HandicapInfos;
 DELETE FROM HandicapInfo_AIFreeTechs;
