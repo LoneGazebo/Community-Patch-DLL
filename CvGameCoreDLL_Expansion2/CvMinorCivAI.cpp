@@ -4679,6 +4679,7 @@ void CvMinorCivAI::DoChangeAliveStatus(bool bAlive)
 	{
 		// Final check for quests
 		DoTestActiveQuests(/*bTestComplete*/ true, /*bTestObsolete*/ true);
+		DoQuestsCleanup();
 
 		std::vector<int> vNewInfluence;
 		for (int i = 0; i < MAX_MAJOR_CIVS; ++i)
@@ -4687,7 +4688,6 @@ void CvMinorCivAI::DoChangeAliveStatus(bool bAlive)
 
 			// Cancel quests and PtPs
 			DoChangeProtectionFromMajor(e, false);
-			EndAllActiveQuestsForPlayer(e);
 
 			// Calculate new influence levels (don't set here, since that could create a false temporary ally)
 			int iOldInfluence = GetBaseFriendshipWithMajor(e);
