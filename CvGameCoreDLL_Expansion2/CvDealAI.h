@@ -31,6 +31,8 @@ public:
 	void Init(CvPlayer* pPlayer);
 	void Uninit();
 	void Reset();
+	template<typename DealAI, typename Visitor>
+	static void Serialize(DealAI& dealAI, Visitor& visitor);
 	void Read(FDataStream& kStream);
 	void Write(FDataStream& kStream) const;
 
@@ -238,5 +240,8 @@ protected:
 	tr1::unordered_map<SDealItemValueParams, int, SDealItemValueParamsHash> m_dealItemValues;
 	int m_iDealItemValuesTurnSlice;
 };
+
+FDataStream& operator>>(FDataStream&, CvDealAI&);
+FDataStream& operator<<(FDataStream&, const CvDealAI&);
 
 #endif //CIV5_DEALAI_H

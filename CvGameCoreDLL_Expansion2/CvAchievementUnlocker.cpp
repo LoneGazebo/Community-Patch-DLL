@@ -31,7 +31,7 @@ int CvAchievementUnlocker::ms_iNumImprovementsPillagedPerTurn = 0;
 //	Test the conditions for the ACHIEVEMENT_PSG
 bool CvAchievementUnlocker::Check_PSG()
 {
-#if !defined(NO_ACHIEVEMENTS)
+#if defined(MOD_API_ACHIEVEMENTS)
 	const int PSG_STAT_MATCH_VALUE = 100;
 
 	int32 iGeneralsStat = 0;
@@ -53,7 +53,7 @@ bool CvAchievementUnlocker::Check_PSG()
 //------------------------------------------------------------------------------
 void CvAchievementUnlocker::FarmImprovementPillaged()
 {
-#if !defined(NO_ACHIEVEMENTS)
+#if defined(MOD_API_ACHIEVEMENTS)
 	ms_iNumImprovementsPillagedPerTurn++;
 
 	if(ms_iNumImprovementsPillagedPerTurn >= 9)
@@ -70,7 +70,7 @@ void CvAchievementUnlocker::EndTurn()
 //------------------------------------------------------------------------------
 void CvAchievementUnlocker::AlexanderConquest(PlayerTypes ePlayer)
 {
-#if !defined(NO_ACHIEVEMENTS)
+#if defined(MOD_API_ACHIEVEMENTS)
 	//Test For Alexander Conquest
 	CvGame& kGame = GC.getGame();
 	if (ePlayer == kGame.getActivePlayer())
@@ -104,7 +104,7 @@ void CvAchievementUnlocker::AlexanderConquest(PlayerTypes ePlayer)
 #endif
 }
 
-#if defined(ACHIEVEMENT_HACKS)
+#if defined(MOD_API_ACHIEVEMENTS)
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 
@@ -214,7 +214,7 @@ CvPlayerAchievements::CvPlayerAchievements(const CvPlayer& kPlayer)
 //------------------------------------------------------------------------------
 void CvPlayerAchievements::AlliedWithCityState(PlayerTypes eNewCityStateAlly)
 {
-#if !defined(NO_ACHIEVEMENTS)
+#if defined(MOD_API_ACHIEVEMENTS)
 	if(m_kPlayer.GetID() != GC.getGame().getActivePlayer())
 		return;
 
@@ -261,7 +261,7 @@ void CvPlayerAchievements::AlliedWithCityState(PlayerTypes eNewCityStateAlly)
 //------------------------------------------------------------------------------
 void CvPlayerAchievements::AddUnit(CvUnit* pUnit)
 {
-#if !defined(NO_ACHIEVEMENTS)
+#if defined(MOD_API_ACHIEVEMENTS)
 	if(m_kPlayer.GetID() != GC.getGame().getActivePlayer())
 		return;
 
@@ -293,7 +293,7 @@ void CvPlayerAchievements::AddUnit(CvUnit* pUnit)
 //------------------------------------------------------------------------------
 void CvPlayerAchievements::AttackedUnitWithUnit(CvUnit* pAttackingUnit, CvUnit* pDefendingUnit)
 {
-#if !defined(NO_ACHIEVEMENTS)
+#if defined(MOD_API_ACHIEVEMENTS)
 	if(m_kPlayer.GetID() != GC.getGame().getActivePlayer())
 		return;
 
@@ -327,7 +327,7 @@ void CvPlayerAchievements::AttackedUnitWithUnit(CvUnit* pAttackingUnit, CvUnit* 
 //------------------------------------------------------------------------------
 void CvPlayerAchievements::BoughtCityState(int iNumUnits)
 {
-#if !defined(NO_ACHIEVEMENTS)
+#if defined(MOD_API_ACHIEVEMENTS)
 	if (iNumUnits >= 15)
 	{
 		gDLL->UnlockAchievement(ACHIEVEMENT_XP1_35);
@@ -337,7 +337,7 @@ void CvPlayerAchievements::BoughtCityState(int iNumUnits)
 //------------------------------------------------------------------------------
 void CvPlayerAchievements::KilledUnitWithUnit(CvUnit* pKillingUnit, CvUnit* pKilledUnit)
 {
-#if !defined(NO_ACHIEVEMENTS)
+#if defined(MOD_API_ACHIEVEMENTS)
 	if(m_kPlayer.GetID() != GC.getGame().getActivePlayer())
 		return;
 
@@ -405,7 +405,7 @@ void CvPlayerAchievements::KilledUnitWithUnit(CvUnit* pKillingUnit, CvUnit* pKil
 //------------------------------------------------------------------------------
 void CvPlayerAchievements::StartTurn()
 {
-#if !defined(NO_ACHIEVEMENTS)
+#if defined(MOD_API_ACHIEVEMENTS)
 	if(m_kPlayer.GetID() != GC.getGame().getActivePlayer())
 		return;
 
@@ -461,7 +461,7 @@ void CvPlayerAchievements::EndTurn()
 //-------------------------------------------------------------------------
 void CvPlayerAchievements::FinishedBuilding(CvCity* pkCity, BuildingTypes eBuilding)
 {
-#if !defined(NO_ACHIEVEMENTS)
+#if defined(MOD_API_ACHIEVEMENTS)
 	if(m_eCollossusType == UNDEFINED_TYPE)
 	{
 		m_eCollossusType = (BuildingTypes)GC.getInfoTypeForString("BUILDING_COLOSSUS", true);
@@ -499,21 +499,33 @@ void CvPlayerAchievements::FinishedBuilding(CvCity* pkCity, BuildingTypes eBuild
 #endif
 }
 //------------------------------------------------------------------------------
+template<typename PlayerAchievements, typename Visitor>
+void CvPlayerAchievements::Serialize(PlayerAchievements& playerAchievements, Visitor& visitor)
+{
+	visitor(playerAchievements.m_iAchievement_XP1_32_Progress);
+	visitor(playerAchievements.m_iAchievement_XP1_33_Progress);
+}
+//------------------------------------------------------------------------------
 void CvPlayerAchievements::Read(FDataStream& kStream)
 {
-	int iVersion = 0;
-	kStream >> iVersion;
-	MOD_SERIALIZE_INIT_READ(kStream);
-	kStream >> m_iAchievement_XP1_32_Progress;
-	kStream >> m_iAchievement_XP1_33_Progress;
+	CvStreamLoadVisitor serialVisitor(kStream);
+	Serialize(*this, serialVisitor);
 }
 //------------------------------------------------------------------------------
 void CvPlayerAchievements::Write(FDataStream& kStream) const
 {
-	int iVersion = 1;
-	kStream << iVersion;
-	MOD_SERIALIZE_INIT_WRITE(kStream);
-	kStream << m_iAchievement_XP1_32_Progress;
-	kStream << m_iAchievement_XP1_33_Progress;
+	CvStreamSaveVisitor serialVisitor(kStream);
+	Serialize(*this, serialVisitor);
 }
 //------------------------------------------------------------------------------
+
+FDataStream& operator>>(FDataStream& stream, CvPlayerAchievements& playerAchievements)
+{
+	playerAchievements.Read(stream);
+	return stream;
+}
+FDataStream& operator<<(FDataStream& stream, const CvPlayerAchievements& playerAchievements)
+{
+	playerAchievements.Write(stream);
+	return stream;
+}

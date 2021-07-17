@@ -35,6 +35,8 @@ public:
 
 	void AI_DoEventChoice(CityEventTypes eEvent);
 
+	template<typename CityAI, typename Visitor>
+	static void Serialize(CityAI& cityAI, Visitor& visitor);
 	void read(FDataStream& kStream);
 	void write(FDataStream& kStream) const;
 

@@ -110,9 +110,7 @@ bool                                       isHotSeatGame();
 bool                                       isHuman(PlayerTypes p);
 bool                                       isInternetGame();
 bool                                       isMinorCiv(PlayerTypes p);
-#if defined(MOD_API_EXTENSIONS)
 bool                                       isReallyNetworkMultiPlayer();
-#endif
 bool                                       isNetworkMultiplayerGame();
 bool                                       isPitBoss();
 bool                                       isPlayable(PlayerTypes p);
@@ -214,10 +212,8 @@ bool										 SetGameOptions(const std::vector<CustomOption>& gameOptions);
 void                                       setGameType(GameTypes g);
 void                                       setGameType(GameTypes g, GameStartTypes eStartType);
 void                                       setGameType(const CvString& g);
-#if defined(MOD_API_EXTENSIONS)
 void                                       pushGameType(GameTypes g);
 void                                       popGameType();
-#endif
 void                                       setGameStartType(GameStartTypes g);
 void                                       setGameUpdateTime(int updateTime);                 // setupdata
 void                                       setHandicap(PlayerTypes p, HandicapTypes h);

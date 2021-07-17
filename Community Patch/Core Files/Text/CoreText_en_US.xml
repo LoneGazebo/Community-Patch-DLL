@@ -2898,6 +2898,11 @@
 			<Text>They do not consider us relevant to their interests.</Text>
 		</Row>
 
+		<!-- Opinion Indicator If Eliminated -->
+		<Row Tag="TXT_KEY_DIPLO_ELIMINATED_INDICATOR">
+			<Text>This leader has been eliminated from the game.</Text>
+		</Row>
+
 		<!-- Opinion Indicator If Untrustworthy -->
 		<Row Tag="TXT_KEY_DIPLO_UNTRUSTWORTHY_FRIEND">
 			<Text>We are completely untrustworthy to them.</Text>
@@ -3056,6 +3061,14 @@
 		<Row Tag="TXT_KEY_DIPLO_SAME_MASTER">
 			<Text>We are vassals of the same master!</Text>
 		</Row>
+
+		<!-- Civilian Killer Diplo Mods -->
+		<Row Tag="TXT_KEY_DIPLO_RAZED">
+			<Text>You killed or captured their civilians!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_RAZED_OTHER">
+			<Text>You killed or captured civilians during war!</Text>
+		</Row>
 		
 		<!-- Stolen Artifacts Diplo Mod -->
 		<Row Tag="TXT_KEY_DIPLO_STOLEN_ARTIFACTS">
@@ -3082,7 +3095,7 @@
 
 		<!-- Attacked Resurrected Civ Diplo Mod -->
 		<Row Tag="TXT_KEY_DIPLO_RESURRECTOR_ATTACKED_US">
-			<Text>You restored their civilization and then attacked them!</Text>
+			<Text>You restored their civilization and then declared war on them!</Text>
 		</Row>
 
 		<!-- Religion Diplo Mods -->
@@ -5958,14 +5971,6 @@
 			<Text>{@2_UnitName} saved by {1_Player:textkey}!</Text>
 		</Row>
 
-		<!-- Razing -->
-		<Row Tag="TXT_KEY_DIPLO_RAZED">
-			<Text>[COLOR_NEGATIVE_TEXT]You killed or captured their civilians![ENDCOLOR]</Text>
-		</Row>
-		<Row Tag="TXT_KEY_DIPLO_RAZED_OTHER">
-			<Text>[COLOR_NEGATIVE_TEXT]You killed or captured civilians during war![ENDCOLOR]</Text>
-		</Row>
-
 		<!-- Tooltip for 'You'll Pay' Text -->
 		<Row Tag ="TXT_KEY_DIPLO_DISCUSS_MESSAGE_YOULL_PAY_TT">
 			<Text>Selecting this insulting response may result in [COLOR_NEGATIVE_TEXT]war[ENDCOLOR]! If this insult does not result in war, the leader will be humbled, and their opinion of you will temporarily be reset to Neutral.</Text>
@@ -7490,6 +7495,20 @@
 		</Row>
 		<Row Tag="TXT_KEY_NUKE_INTERCEPTED_US_S">
 			<Text>Nuclear Attack Intercepted!</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_CHOOSE_CITY_FATE">
+			<Text>CHOOSE CITY FATE</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_CHOOSE_CITY_FATE_TT">
+			<Text>Choose a Captured City's Fate...</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_CHOOSE_CITY_CAPTURE">
+			<Text>You have captured {1_City}!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CHOOSE_CITY_CAPTURE_TT">
+			<Text>Choose the fate of {1_City}...</Text>
 		</Row>
 	</Language_en_US>
 	<PostDefines>

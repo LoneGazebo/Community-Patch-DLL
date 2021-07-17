@@ -27,6 +27,7 @@
 #include "CvGlobals.h"
 #include "CvGame.h"
 #include "CvEnums.h"
+#include "CvSerialize.h"
 
 #pragma warning( disable: 4251 )		// needs to have dll-interface to be used by clients of class
 
@@ -63,6 +64,9 @@ struct CvArchaeologyData
 	PlayerTypes m_ePlayer2;
 	GreatWorkType m_eWork;
 
+	template<typename ArchaeologyData, typename Visitor>
+	static void Serialize(ArchaeologyData& archaeologyData, Visitor& visitor);
+
 	CvArchaeologyData():
 		m_eArtifactType(NO_GREAT_WORK_ARTIFACT_CLASS),
 		m_eEra(NO_ERA),
@@ -92,7 +96,7 @@ public:
 
 	void init(int iX, int iY);
 	void uninit();
-	void reset(int iX = 0, int iY = 0, bool bConstructorCall=false);
+	void reset();
 
 	void setupGraphical();
 
@@ -146,23 +150,14 @@ public:
 
 	int seeFromLevel(TeamTypes eTeam) const;
 	int seeThroughLevel(bool bIncludeShubbery=true) const;
-#if defined(MOD_API_EXTENSIONS)
 	void changeSeeFromSight(TeamTypes eTeam, DirectionTypes eDirection, int iFromLevel, bool bIncrement, InvisibleTypes eSeeInvisible, CvUnit* pUnit=NULL);
 	void changeAdjacentSight(TeamTypes eTeam, int iRange, bool bIncrement, InvisibleTypes eSeeInvisible, DirectionTypes eFacingDirection, CvUnit* pUnit=NULL);
-#else
-	void changeSeeFromSight(TeamTypes eTeam, DirectionTypes eDirection, int iFromLevel, bool bIncrement, InvisibleTypes eSeeInvisible);
-	void changeAdjacentSight(TeamTypes eTeam, int iRange, bool bIncrement, InvisibleTypes eSeeInvisible, DirectionTypes eFacingDirection, bool bBasedOnUnit=true);
-#endif
 	bool canSeePlot(const CvPlot* plot, TeamTypes eTeam, int iRange, DirectionTypes eFacingDirection) const;
 	bool shouldProcessDisplacementPlot(int dx, int dy, int range, DirectionTypes eFacingDirection) const;
 	void updateSight(bool bIncrement);
 	void updateSeeFromSight(bool bIncrement, bool bRecalculate);
 
-#if defined(MOD_API_EXTENSIONS)
 	bool canHaveResource(ResourceTypes eResource, bool bIgnoreLatitude = false, bool bIgnoreCiv = false) const;
-#else
-	bool canHaveResource(ResourceTypes eResource, bool bIgnoreLatitude = false) const;
-#endif
 	bool canHaveImprovement(ImprovementTypes eImprovement, PlayerTypes ePlayer = NO_PLAYER, bool bOnlyTestVisible = false) const;
 
 	bool canBuild(BuildTypes eBuild, PlayerTypes ePlayer = NO_PLAYER, bool bTestVisible = false, bool bTestPlotOwner = true) const;
@@ -290,7 +285,7 @@ public:
 	bool isVisibleOtherUnit(PlayerTypes ePlayer) const;
 
 	//if there is a combat unit we can't stack. should really call CvUnit::CanStackWithUnitHere() but sometimes we don't know the unit yet
-	bool isEnemyUnit(PlayerTypes ePlayer, bool bCombatOnly, bool bCheckVisibility, bool bIgnoreBarbs = false) const;
+	bool isEnemyUnit(PlayerTypes ePlayer, bool bCombatOnly, bool bCheckVisibility, bool bIgnoreBarbs = false, bool bIgnoreEmbarked = false) const;
 	bool isNeutralUnit(PlayerTypes ePlayer, bool bCombatOnly, bool bCheckVisibility, bool bIgnoreMinors = false) const;
 	bool isNeutralUnitAdjacent(PlayerTypes ePlayer, bool bCombatOnly, bool bCheckVisibility, bool bIgnoreMinors = false) const;
 	bool isFriendlyUnit(PlayerTypes ePlayer, bool bCombatOnly, bool bSamePlayer) const;
@@ -363,7 +358,7 @@ public:
 	int ComputeYieldFromTwoAdjacentImprovement(CvImprovementEntry& kImprovement, ImprovementTypes eValue, YieldTypes eYield) const;
 	int ComputeYieldFromOtherAdjacentImprovement(CvImprovementEntry& kImprovement, YieldTypes eYield) const;
 	int ComputeYieldFromAdjacentTerrain(CvImprovementEntry& kImprovement, YieldTypes eYield) const;
-	int ComputeYieldFromAdjacentResource(CvImprovementEntry& kImprovement, YieldTypes eYield) const;
+	int ComputeYieldFromAdjacentResource(CvImprovementEntry& kImprovement, YieldTypes eYield, TeamTypes eTeam) const;
 	int ComputeYieldFromAdjacentFeature(CvImprovementEntry& kImprovement, YieldTypes eYield) const;
 #else
 	int ComputeCultureFromAdjacentImprovement(CvImprovementEntry& kImprovement, ImprovementTypes eValue) const;
@@ -457,7 +452,7 @@ public:
 	}
 	inline FeatureTypes getFeatureType() const
 	{
-		return (FeatureTypes)m_eFeatureType.get();
+		return (FeatureTypes)m_eFeatureType;
 	}
 
 	int getTurnDamage(bool bIgnoreTerrainDamage, bool bIgnoreFeatureDamage, bool bExtraTerrainDamage, bool bExtraFeatureDamage) const;
@@ -558,7 +553,7 @@ public:
 	void updateOwningCity();
 
 	CvCity* getEffectiveOwningCity() const;
-	bool isEffectiveOwner(CvCity* pCity) const;
+	bool isEffectiveOwner(const CvCity* pCity) const;
 
 	CvCity* getOwningCityOverride() const;
 	void setOwningCityOverride(const CvCity* pNewValue);
@@ -570,9 +565,7 @@ public:
 	void changeRiverCrossingCount(int iChange);
 
 	int getYield(YieldTypes eIndex) const;
-#if defined(MOD_API_EXTENSIONS)
     void changeYield(YieldTypes eYield, int iChange);
-#endif
 
 	int calculateNatureYield(YieldTypes eIndex, PlayerTypes ePlayer, const CvCity* pOwningCity, bool bIgnoreFeature = false, bool bDisplay = false) const;
 
@@ -638,11 +631,7 @@ public:
 	}
 
 	void flipVisibility(TeamTypes eTeam);
-#if defined(MOD_API_EXTENSIONS)
 	PlotVisibilityChangeResult changeVisibilityCount(TeamTypes eTeam, int iChange, InvisibleTypes eSeeInvisible, bool bInformExplorationTracking, bool bAlwaysSeeInvisible, CvUnit* pUnit = NULL);
-#else
-	PlotVisibilityChangeResult changeVisibilityCount(TeamTypes eTeam, int iChange, InvisibleTypes eSeeInvisible, bool bInformExplorationTracking, bool bAlwaysSeeInvisible);
-#endif
 
 	PlayerTypes getRevealedOwner(TeamTypes eTeam, bool bDebug) const;
 	TeamTypes getRevealedTeam(TeamTypes eTeam, bool bDebug) const;
@@ -671,11 +660,7 @@ public:
 		return m_bfRevealed.GetBit(eTeam);
 	}
 
-#if defined(MOD_API_EXTENSIONS)
 	bool setRevealed(TeamTypes eTeam, bool bNewValue, CvUnit* pUnit = NULL, bool bTerrainOnly = false, TeamTypes eFromTeam = NO_TEAM);
-#else
-	bool setRevealed(TeamTypes eTeam, bool bNewValue, bool bTerrainOnly = false, TeamTypes eFromTeam = NO_TEAM);
-#endif
 	bool isAdjacentRevealed(TeamTypes eTeam) const;
 	bool isAdjacentNonrevealed(TeamTypes eTeam) const;
 	int getNumAdjacentNonrevealed(TeamTypes eTeam) const;
@@ -756,7 +741,9 @@ public:
 
 	bool canTrain(UnitTypes eUnit, bool bContinue, bool bTestVisible) const;
 
-	void read(FDataStream& kStream);
+	template<typename Plot, typename Visitor>
+	static void Serialize(Plot& plot, Visitor& visitor);
+	void read(FDataStream& kStream, int iX, int iY);
 	void write(FDataStream& kStream) const;
 
 	int GetPlotIndex() const;
@@ -764,8 +751,8 @@ public:
 	char GetContinentType() const;
 	void SetContinentType(const char cContinent);
 
-	const FAutoArchive& getSyncArchive() const;
-	FAutoArchive& getSyncArchive();
+	const CvSyncArchive<CvPlot>& getSyncArchive() const;
+	CvSyncArchive<CvPlot>& getSyncArchive();
 	std::string debugDump(const FAutoVariableBase&) const;
 	std::string stackTraceRemark(const FAutoVariableBase&) const;
 
@@ -773,10 +760,8 @@ public:
 	int Validate(CvMap& kParentMap);
 
 	bool MustPayMaintenanceHere(PlayerTypes ePlayer) const;
-#if defined(MOD_API_EXTENSIONS)
 	void SetArchaeologicalRecord(GreatWorkArtifactClass eType, PlayerTypes ePlayer1, PlayerTypes ePlayer2);
 	void SetArchaeologicalRecord(GreatWorkArtifactClass eType, EraTypes eEra, PlayerTypes ePlayer1, PlayerTypes ePlayer2);
-#endif
 	void AddArchaeologicalRecord(GreatWorkArtifactClass eType, PlayerTypes ePlayer1, PlayerTypes ePlayer2);
 	void AddArchaeologicalRecord(GreatWorkArtifactClass eType, EraTypes eEra, PlayerTypes ePlayer1, PlayerTypes ePlayer2);
 	void ClearArchaeologicalRecord();
@@ -787,7 +772,6 @@ public:
 
 	int GetDamageFromAdjacentPlots(PlayerTypes ePlayer) const;
 
-#if defined(MOD_API_EXTENSIONS)
 	bool IsCivilization(CivilizationTypes iCivilizationType) const;
 	bool HasFeature(FeatureTypes iFeatureType) const;
 	bool HasAnyNaturalWonder() const;
@@ -849,7 +833,6 @@ public:
 	bool IsWithinDistanceOfResource(ResourceTypes iResourceType, int iDistance) const;
 	bool IsAdjacentToTerrain(TerrainTypes iTerrainType) const;
 	bool IsWithinDistanceOfTerrain(TerrainTypes iTerrainType, int iDistance) const;
-#endif
 
 #if defined(MOD_BALANCE_CORE)
 	bool IsEnemyCityAdjacent(TeamTypes eMyTeam, const CvCity* pSpecifyCity) const;
@@ -878,35 +861,39 @@ protected:
 	class PlotBoolField
 	{
 	public:
-		//two 32 bit DWORDS for 64 bit capacity
-		enum config { eCount = 2, eSize = 32 };
-		DWORD m_dwBits[eCount];
+		enum
+		{
+			eSize = 32,
+			eCount = (MAX_PLAYERS / eSize) + (MAX_PLAYERS % eSize == 0 ? 0 : 1),
+			eTotalBits = eCount * eSize
+		};
+		uint32 m_bits[eTotalBits];
 
 		bool GetBit(const uint uiEntry) const
 		{
 			const uint uiOffset = uiEntry/eSize;
-			return m_dwBits[uiOffset] & 1<<(uiEntry-(eSize*uiOffset));
+			return m_bits[uiOffset] & 1<<(uiEntry-(eSize*uiOffset));
 		}
 		void SetBit(const uint uiEntry)
 		{
 			const uint uiOffset = uiEntry/eSize;
-			m_dwBits[uiOffset] |= 1<<(uiEntry-(eSize*uiOffset));
+			m_bits[uiOffset] |= 1<<(uiEntry-(eSize*uiOffset));
 		}
 		void ClearBit(const uint uiEntry)
 		{
 			const uint uiOffset = uiEntry/eSize;
-			m_dwBits[uiOffset] &= ~(1<<(uiEntry-(eSize*uiOffset)));
+			m_bits[uiOffset] &= ~(1<<(uiEntry-(eSize*uiOffset)));
 		}
 		void ToggleBit(const uint uiEntry)
 		{
 			const uint uiOffset = uiEntry/eSize;
-			m_dwBits[uiOffset] ^= 1<<(uiEntry-(eSize*uiOffset));
+			m_bits[uiOffset] ^= 1<<(uiEntry-(eSize*uiOffset));
 		}
 		void ClearAll()
 		{
 			for(uint i = 0; i <eCount; ++i)
 			{
-				m_dwBits[i] = 0;
+				m_bits[i] = 0;
 			}
 		}
 
@@ -965,8 +952,9 @@ protected:
 	map<BuildTypes,int> m_buildProgress;
 	CvUnit* m_pCenterUnit;
 
-	unsigned char m_apaiInvisibleVisibilityCount[MAX_TEAMS][NUM_INVISIBLE_TYPES];
-	unsigned char m_paiInvisibleVisibilityUnitCount[MAX_TEAMS];
+	//this is totally f'd ... don't waste memory on it
+	vector<pair<TeamTypes,int>> m_vInvisibleVisibilityUnitCount;
+	vector<pair<TeamTypes,vector<int>>> m_vInvisibleVisibilityCount;
 
 	short m_iArea;
 	short m_iLandmass;
@@ -974,8 +962,8 @@ protected:
 	short m_iImprovementDuration;
 	short m_iUpgradeProgress;
 
-	FAutoArchiveClassContainer<CvPlot> m_syncArchive; // this must appear before the first auto variable in the class
-	FAutoVariable<char, CvPlot> /*FeatureTypes*/ m_eFeatureType; 
+	SYNC_ARCHIVE_MEMBER(CvPlot)
+	char /*FeatureTypes*/ m_eFeatureType; 
 	//why only one autovariable? probably should extend this to everything the players may change about the plot
 	//ie improvements, routes, etc
 
@@ -1044,6 +1032,11 @@ protected:
 	// added so under cheat mode we can access protected stuff
 	friend class CvGameTextMgr;
 };
+FDataStream& operator<<(FDataStream&, const CvPlot* const&);
+FDataStream& operator<<(FDataStream&, CvPlot* const&);
+FDataStream& operator>>(FDataStream&, const CvPlot*&);
+FDataStream& operator>>(FDataStream&, CvPlot*&);
+
 
 namespace FSerialization
 {
@@ -1051,9 +1044,14 @@ void SyncPlots();
 void ClearPlotDeltas();
 }
 
+SYNC_ARCHIVE_BEGIN(CvPlot)
+SYNC_ARCHIVE_VAR(char, m_eFeatureType)
+SYNC_ARCHIVE_END()
+
 #if defined(MOD_BALANCE_CORE_MILITARY)
 struct SPlotWithScore
 {
+	SPlotWithScore() {}
 	SPlotWithScore(CvPlot* pPlot_, int score_) : pPlot(pPlot_), score(score_) {}
     bool operator<(const SPlotWithScore& other) const //for sorting
     {
@@ -1068,11 +1066,18 @@ struct SPlotWithScore
         return pPlot == other.pPlot;
     }
 
+	template<typename PlotWithScore, typename Visitor>
+	static void Serialize(PlotWithScore& plotWithScore, Visitor& visitor);
+
 	CvPlot* pPlot;
 	int score;
 };
+FDataStream& operator<<(FDataStream&, const SPlotWithScore&);
+FDataStream& operator>>(FDataStream&, SPlotWithScore&);
+
 struct SPlotWithTwoScoresL2
 {
+	SPlotWithTwoScoresL2() {}
 	SPlotWithTwoScoresL2(CvPlot* pPlot_, int score1_, int score2_) : pPlot(pPlot_), score1(score1_), score2(score2_) {}
 
 	bool operator<(const SPlotWithTwoScoresL2& other) const
@@ -1080,9 +1085,14 @@ struct SPlotWithTwoScoresL2
         return score1*score1+score2*score2 < other.score1*other.score1+other.score2*other.score2;
     }
 
+	template<typename PlotWithTwoScoresL2, typename Visitor>
+	static void Serialize(PlotWithTwoScoresL2& plotWithTwoScoresL2, Visitor& visitor);
+
 	CvPlot* pPlot;
 	int score1,score2;
 };
+FDataStream& operator<<(FDataStream&, const SPlotWithTwoScoresL2&);
+FDataStream& operator>>(FDataStream&, SPlotWithTwoScoresL2&);
 #endif
 
 #endif

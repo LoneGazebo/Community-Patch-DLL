@@ -87,7 +87,7 @@
  -- added Heroism
 
 	UPDATE Language_en_US
-	SET Text = 'Unit awards combat bonus to nearby Units as if it is a Great General.'
+	SET Text = 'Unit awards combat bonus to nearby Units as if it is a Great General. Damage from all sources reduced by 10.'
 	WHERE Tag = 'TXT_KEY_PROMOTION_HEROISM_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	-- added Bonuses in Snow, Tundra, and Hills
@@ -174,9 +174,8 @@
 
 -- Survivalism
 	UPDATE Language_en_US
-	SET Text = 'Unit will [COLOR_POSITIVE_TEXT]Heal Every Turn[ENDCOLOR], even if it performs an action.[NEWLINE]Can Use Enemy Roads/Railroads.'
+	SET Text = 'Unit will [COLOR_POSITIVE_TEXT]Heal Every Turn[ENDCOLOR], even if it performs an action.[NEWLINE]Can pillage without expending movement.'
 	WHERE Tag = 'TXT_KEY_PROMOTION_SURVIVALISM_3_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
-
 
 -- Replace Accuracy
 

@@ -266,53 +266,42 @@ void CvCitySpecializationAI::Reset()
 	m_iLastTurnEvaluated = 0;
 }
 
+template<typename CitySpecializationAI, typename Visitor>
+void CvCitySpecializationAI::Serialize(CitySpecializationAI& citySpecializationAI, Visitor& visitor)
+{
+	visitor(citySpecializationAI.m_bSpecializationsDirty);
+	visitor(citySpecializationAI.m_bInterruptWonders);
+	visitor(citySpecializationAI.m_bInterruptBuildings);
+	visitor(citySpecializationAI.m_bChooseNewWonder);
+	visitor(citySpecializationAI.m_eNextWonderDesired);
+	visitor(citySpecializationAI.m_iWonderCityID);
+	visitor(citySpecializationAI.m_iNextWonderWeight);
+	visitor(citySpecializationAI.m_iLastTurnEvaluated);
+}
+
 /// Serialization read
 void CvCitySpecializationAI::Read(FDataStream& kStream)
 {
-	// Version number to maintain backwards compatibility
-	uint uiVersion;
-	kStream >> uiVersion;
-	MOD_SERIALIZE_INIT_READ(kStream);
-
-	kStream >> m_bSpecializationsDirty;
-	kStream >> m_bInterruptWonders;
-#if defined(MOD_BALANCE_CORE)
-	kStream >> m_bInterruptBuildings;
-	kStream >> m_bChooseNewWonder;
-#endif
-	kStream >> (int&)m_eNextWonderDesired;
-	kStream >> m_iWonderCityID;
-	kStream >> m_iNextWonderWeight;
-
-	if (uiVersion >= 2)
-	{
-		kStream >> m_iLastTurnEvaluated;
-	}
-	else
-	{
-		m_iLastTurnEvaluated = 0;
-		m_bSpecializationsDirty = true;
-	}
+	CvStreamLoadVisitor serialVisitor(kStream);
+	Serialize(*this, serialVisitor);
 }
 
 /// Serialization write
 void CvCitySpecializationAI::Write(FDataStream& kStream) const
 {
-	// Current version number
-	uint uiVersion = 2;
-	kStream << uiVersion;
-	MOD_SERIALIZE_INIT_WRITE(kStream);
+	CvStreamSaveVisitor serialVisitor(kStream);
+	Serialize(*this, serialVisitor);
+}
 
-	kStream << m_bSpecializationsDirty;
-	kStream << m_bInterruptWonders;
-#if defined(MOD_BALANCE_CORE)
-	kStream << m_bInterruptBuildings;
-	kStream << m_bChooseNewWonder;
-#endif
-	kStream << m_eNextWonderDesired;
-	kStream << m_iWonderCityID;
-	kStream << m_iNextWonderWeight;
-	kStream << m_iLastTurnEvaluated;
+FDataStream& operator>>(FDataStream& stream, CvCitySpecializationAI& citySpecializationAI)
+{
+	citySpecializationAI.Read(stream);
+	return stream;
+}
+FDataStream& operator<<(FDataStream& stream, const CvCitySpecializationAI& citySpecializationAI)
+{
+	citySpecializationAI.Write(stream);
+	return stream;
 }
 
 /// Returns the Player object the Strategies are associated with
@@ -330,9 +319,6 @@ CvCitySpecializationXMLEntries* CvCitySpecializationAI::GetCitySpecializations()
 /// Called every turn to see what Strategies this player should using (or not)
 void CvCitySpecializationAI::DoTurn()
 {
-
-	int iCityLoop = 0;
-
 	// No city specializations for humans!
 	if(m_pPlayer->isHuman())
 	{
@@ -351,8 +337,8 @@ void CvCitySpecializationAI::DoTurn()
 		return;
 	}
 
-	CvCity* pLoopCity = NULL;
-	for (pLoopCity = m_pPlayer->firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iCityLoop))
+	int iCityLoop = 0;
+	for (CvCity* pLoopCity = m_pPlayer->firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iCityLoop))
 	{
 		if (pLoopCity->isInDangerOfFalling() || pLoopCity->isUnderSiege())
 		{

@@ -23,7 +23,7 @@ public:
 	static void EndTurn();
 	static void AlexanderConquest(PlayerTypes ePlayer);
 
-#if defined(ACHIEVEMENT_HACKS)
+#if defined(MOD_API_ACHIEVEMENTS)
 	static void UnlockFromDatabase();
 #endif
 
@@ -59,6 +59,8 @@ public:
 	void EndTurn();
 	void FinishedBuilding(CvCity* pkCity, BuildingTypes eBuilding);
 
+	template<typename PlayerAchievements, typename Visitor>
+	static void Serialize(PlayerAchievements& playerAchievements, Visitor& visitor);
 	void Read(FDataStream& kStream);
 	void Write(FDataStream& kStream) const;
 
@@ -87,5 +89,8 @@ private:
 	UnitTypes m_eHakkapelittaType;
 	UnitTypes m_eSkyFortress;
 };
+
+FDataStream& operator>>(FDataStream&, CvPlayerAchievements&);
+FDataStream& operator<<(FDataStream&, const CvPlayerAchievements&);
 
 #endif // CVACHIEVEMENTUNLOCKER_H

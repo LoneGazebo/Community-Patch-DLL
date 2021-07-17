@@ -322,6 +322,9 @@ for k, v, w in ([[
 	NOTIFICATION_INSTANT_YIELD			InstantYieldItem 
 	NOTIFICATION_EVENT_CHOICE			ChooseEvent
 	NOTIFICATION_EVENT_CHOICE_CITY		ChooseCityEvent
+	NOTIFICATION_ESPIONAGE_AA			EspionageAA
+
+	NOTIFICATION_CITY_CHOOSE_FATE		ChooseCityFate
 	
 	NOTIFICATION_PRODUCTION_COST_MODIFIERS_FROM_RESOURCES		BonusResource
 
@@ -964,7 +967,7 @@ local g_civListInstanceToolTips = { -- the tooltip function names need to match 
 		local player = FindPlayer( g_majorControlTable, control )
 		local team = Teams[ player:GetTeam() ]
 		if team:IsVassal( g_activeTeamID ) then
-			ShowSimpleTip( L( "TXT_KEY_DIPLO_MASTER_OF", player:GetCivilizationShortDescriptionKey() ) )
+			ShowSimpleTip( L"TXT_KEY_DIPLO_MASTER_OF" )
 		end
 	end;
 
@@ -1025,7 +1028,7 @@ local g_civListInstanceToolTips = { -- the tooltip function names need to match 
 			player:DoUpdatePeaceTreatyWillingness();
 			
 			local strWarInfo = "";
-
+	
 			if(player:IsWantsPeaceWithPlayer(g_activePlayerID)) then
 				local iPeaceValue = player:GetTreatyWillingToOffer(g_activePlayerID);
 				if(iPeaceValue >  PeaceTreatyTypes.PEACE_TREATY_WHITE_PEACE) then

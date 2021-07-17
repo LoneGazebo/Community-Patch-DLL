@@ -25,6 +25,8 @@
 // must be included after all other headers
 #include "LintFree.h"
 
+#include "CvEnumMapSerialization.h"
+
 //=====================================
 // CvAICityStrategyEntry
 //=====================================
@@ -235,9 +237,6 @@ CvAICityStrategyEntry* CvAICityStrategies::GetEntry(int index)
 
 /// Constructor
 CvCityStrategyAI::CvCityStrategyAI():
-	m_pabUsingCityStrategy(NULL),
-	m_paiTurnCityStrategyAdopted(NULL),
-	m_aiTempFlavors(NULL),
 	m_pBuildingProductionAI(NULL),
 	m_pUnitProductionAI(NULL),
 	m_pProjectProductionAI(NULL),
@@ -265,14 +264,9 @@ void CvCityStrategyAI::Init(CvAICityStrategies* pAICityStrategies, CvCity* pCity
 	m_pCity = pCity;
 
 	// Initialize arrays
-	CvAssertMsg(m_pabUsingCityStrategy==NULL, "about to leak memory, CvCityAIStrategies::m_pabUsingCityStrategy");
-	m_pabUsingCityStrategy = FNEW(bool[m_pAICityStrategies->GetNumAICityStrategies()], c_eCiv5GameplayDLL, 0);
-
-	CvAssertMsg(m_paiTurnCityStrategyAdopted==NULL, "about to leak memory, CvCityAIStrategies::m_paiTurnCityStrategyAdopted");
-	m_paiTurnCityStrategyAdopted = FNEW(int[m_pAICityStrategies->GetNumAICityStrategies()], c_eCiv5GameplayDLL, 0);
-
-	CvAssertMsg(m_aiTempFlavors==NULL, "about to leak memory, CvCityAIStrategies::m_aiTempFlavors");
-	m_aiTempFlavors = FNEW(int[GC.getNumFlavorTypes()], c_eCiv5GameplayDLL, 0);
+	m_pabUsingCityStrategy.init();
+	m_paiTurnCityStrategyAdopted.init();
+	m_aiTempFlavors.init();
 
 	// Create AI subobjects
 	m_pBuildingProductionAI = FNEW(CvBuildingProductionAI(pCity, pCity->GetCityBuildings()), c_eCiv5GameplayDLL, 0);
@@ -291,9 +285,9 @@ void CvCityStrategyAI::Uninit()
 	CvFlavorRecipient::Uninit();
 
 	// Deallocate member variables
-	SAFE_DELETE_ARRAY(m_pabUsingCityStrategy);
-	SAFE_DELETE_ARRAY(m_paiTurnCityStrategyAdopted);
-	SAFE_DELETE_ARRAY(m_aiTempFlavors);
+	m_pabUsingCityStrategy.uninit();
+	m_paiTurnCityStrategyAdopted.uninit();
+	m_aiTempFlavors.uninit();
 	SAFE_DELETE(m_pBuildingProductionAI);
 	SAFE_DELETE(m_pUnitProductionAI);
 	SAFE_DELETE(m_pProjectProductionAI);
@@ -303,11 +297,8 @@ void CvCityStrategyAI::Uninit()
 /// Reset member variables
 void CvCityStrategyAI::Reset()
 {
-	for(int iI = 0; iI < m_pAICityStrategies->GetNumAICityStrategies(); iI++)
-	{
-		m_pabUsingCityStrategy[iI] = false;
-		m_paiTurnCityStrategyAdopted[iI] = -1;
-	}
+	m_pabUsingCityStrategy.assign(false);
+	m_paiTurnCityStrategyAdopted.assign(NO_AICITYSTRATEGY);
 
 	m_eSpecialization = NO_CITY_SPECIALIZATION;
 	m_eDefaultSpecialization = NO_CITY_SPECIALIZATION;
@@ -321,61 +312,35 @@ void CvCityStrategyAI::Reset()
 	m_pProcessProductionAI->Reset();
 }
 
+template<typename CityStrategyAI, typename Visitor>
+void CvCityStrategyAI::Serialize(CityStrategyAI& cityStrategyAI, Visitor& visitor)
+{
+	visitor(cityStrategyAI.m_piLatestFlavorValues);
+
+	visitor(cityStrategyAI.m_pabUsingCityStrategy);
+	visitor(cityStrategyAI.m_paiTurnCityStrategyAdopted);
+
+	visitor(cityStrategyAI.m_eSpecialization);
+	visitor(cityStrategyAI.m_eDefaultSpecialization);
+
+	visitor(*cityStrategyAI.m_pBuildingProductionAI);
+	visitor(*cityStrategyAI.m_pUnitProductionAI);
+	visitor(*cityStrategyAI.m_pProjectProductionAI);
+	visitor(*cityStrategyAI.m_pProcessProductionAI);
+}
+
 /// Serialization read
 void CvCityStrategyAI::Read(FDataStream& kStream)
 {
-	// Version number to maintain backwards compatibility
-	uint uiVersion;
-	kStream >> uiVersion;
-	MOD_SERIALIZE_INIT_READ(kStream);
-
-	CvAssertMsg(m_piLatestFlavorValues != NULL && GC.getNumFlavorTypes() > 0, "Number of flavor values to serialize is expected to greater than 0");
-
-	int iNumFlavors;
-	kStream >> iNumFlavors;
-	ArrayWrapper<int> wrapLatestFlavor(iNumFlavors, m_piLatestFlavorValues);
-	kStream >> wrapLatestFlavor;
-
-	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_pabUsingCityStrategy, GC.getNumAICityStrategyInfos());
-	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_paiTurnCityStrategyAdopted, GC.getNumAICityStrategyInfos());
-
-	kStream >> m_eSpecialization;
-	kStream >> m_eDefaultSpecialization;
-	//force yield to default since we don't serialize it.
-	m_eMostDeficientYield = NO_YIELD;
-	m_eMostAbundantYield = NO_YIELD;
-
-	m_pBuildingProductionAI->Read(kStream);
-	m_pUnitProductionAI->Read(kStream);
-	m_pProjectProductionAI->Read(kStream);
-	m_pProcessProductionAI->Read(kStream);
+	CvStreamLoadVisitor serialVisitor(kStream);
+	Serialize(*this, serialVisitor);
 }
 
 /// Serialization write
-void CvCityStrategyAI::Write(FDataStream& kStream)
+void CvCityStrategyAI::Write(FDataStream& kStream) const
 {
-	// Current version number
-	uint uiVersion = 1;
-	kStream << uiVersion;
-	MOD_SERIALIZE_INIT_WRITE(kStream);
-
-	CvAssertMsg(GC.getNumFlavorTypes() > 0, "Number of flavor values to serialize is expected to greater than 0");
-	int iNumFlavors = GC.getNumFlavorTypes();
-	kStream << iNumFlavors;
-	kStream << ArrayWrapper<int>(iNumFlavors, m_piLatestFlavorValues);
-
-	int iNumStrategies = GC.getNumAICityStrategyInfos();
-
-	CvInfosSerializationHelper::WriteHashedDataArray<AICityStrategyTypes, bool>(kStream, m_pabUsingCityStrategy, iNumStrategies);
-	CvInfosSerializationHelper::WriteHashedDataArray<AICityStrategyTypes, int>(kStream, m_paiTurnCityStrategyAdopted, iNumStrategies);
-
-	kStream << m_eSpecialization;
-	kStream << m_eDefaultSpecialization;
-
-	m_pBuildingProductionAI->Write(kStream);
-	m_pUnitProductionAI->Write(kStream);
-	m_pProjectProductionAI->Write(kStream);
-	m_pProcessProductionAI->Write(kStream);
+	CvStreamSaveVisitor serialVisitor(kStream);
+	Serialize(*this, serialVisitor);
 }
 
 /// Respond to a new set of flavor values
@@ -399,6 +364,17 @@ void CvCityStrategyAI::FlavorUpdate()
 		m_pProjectProductionAI->AddFlavorWeights((FlavorTypes)iFlavor, iFlavorValue);
 		m_pProcessProductionAI->AddFlavorWeights((FlavorTypes)iFlavor, iFlavorValue);
 	}
+}
+
+FDataStream& operator>>(FDataStream& stream, CvCityStrategyAI& cityStrategyAI)
+{
+	cityStrategyAI.Read(stream);
+	return stream;
+}
+FDataStream& operator<<(FDataStream& stream, const CvCityStrategyAI& cityStrategyAI)
+{
+	cityStrategyAI.Write(stream);
+	return stream;
 }
 
 /// Runs through all active player strategies and propagates Flavors down to this City
@@ -3342,7 +3318,7 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_GoodGPCity(CvCity* pCity)
 					}
 				}
 
-#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES) && defined(MOD_API_LUA_EXTENSIONS)
+#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 				// GPP from resource monopolies
 				GreatPersonTypes eGreatPerson = GetGreatPersonFromSpecialist(eSpecialist);
 				if (eGreatPerson != NO_GREATPERSON)
@@ -3360,10 +3336,8 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_GoodGPCity(CvCity* pCity)
 
 					// Player mod
 					iMod += pCity->GetPlayer()->getGreatPeopleRateModifier();
-
 					iMod += pCity->GetPlayer()->GetPlayerTraits()->GetWLTKDGPImprovementModifier() * 10;
 
-#if defined(MOD_API_LUA_EXTENSIONS)
 					GreatPersonTypes eGreatPerson = GetGreatPersonFromSpecialist(eSpecialist);
 					if(eGreatPerson != NO_GREATPERSON)
 					{
@@ -3412,7 +3386,6 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_GoodGPCity(CvCity* pCity)
 										}
 									}
 								}
-#endif
 							}
 						}
 						if (pCity->GetPlayer()->GetPlayerTraits()->GetGreatPersonGWAM(eGreatPerson) > 0)

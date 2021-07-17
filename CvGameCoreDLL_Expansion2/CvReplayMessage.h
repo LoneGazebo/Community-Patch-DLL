@@ -12,8 +12,6 @@
 class CvReplayMessage
 {
 public:
-	static unsigned int Version();	//used for serialization.
-
 	CvReplayMessage();
 	CvReplayMessage(int iTurn, ReplayMessageTypes eType = NO_REPLAY_MESSAGE, PlayerTypes ePlayer = NO_PLAYER);
 	virtual ~CvReplayMessage();
@@ -34,7 +32,9 @@ public:
 	unsigned int getNumPlots() const;
 	void clearPlots();
 
-	void read(FDataStream& kStream, unsigned int uiVersion);
+	template<typename ReplayMessage, typename Visitor>
+	static void Serialize(ReplayMessage& replayMessage, Visitor& visitor);
+	void read(FDataStream& kStream);
 	void write(FDataStream& kStream) const;
 
 private:
@@ -48,5 +48,8 @@ private:
 	PlayerTypes m_ePlayer;
 	CvString m_strText;
 };
+
+FDataStream& operator<<(FDataStream&, const CvReplayMessage&);
+FDataStream& operator>>(FDataStream&, CvReplayMessage&);
 
 #endif

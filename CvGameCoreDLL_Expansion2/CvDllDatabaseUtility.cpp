@@ -180,6 +180,8 @@ bool CvDllDatabaseUtility::CacheGameDatabaseData()
 
 	CvAssertMsg(bSuccess, "Failed to load Gameplay Database Data! Not Good!");
 
+	GC.GameDataPostCache();
+
 	if(bSuccess)
 		m_bGameDatabaseNeedsCaching = false;
 
@@ -276,8 +278,6 @@ bool CvDllDatabaseUtility::PerformDatabasePostProcessing()
 	}
 
 	db->EndTransaction();
-
-	GC.GameDataPostProcess();
 
 	return true;
 }
@@ -394,7 +394,7 @@ bool CvDllDatabaseUtility::PrefetchGameData()
 	PrefetchCollection(GC.getLeagueProjectRewardInfo(), "LeagueProjectRewards");
 	PrefetchCollection(GC.getResolutionInfo(), "Resolutions");
 
-#if defined(MOD_API_ACHIEVEMENTS) || defined(ACHIEVEMENT_HACKS)
+#if defined(MOD_API_ACHIEVEMENTS)
 	PrefetchCollection(GC.getAchievementInfo(), "Achievements");
 #endif
 

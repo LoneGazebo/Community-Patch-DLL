@@ -80,7 +80,6 @@ CvGlobals::CvGlobals() :
 	m_bAILogging(false),
 	m_bAIPerfLogging(false),
 	m_bBuilderAILogging(false),
-	m_bSerializationLogging(false),
 	m_bPlayerAndCityAILogSplit(false),
 	m_bTutorialLogging(false),
 	m_bTutorialDebugging(false),
@@ -2479,14 +2478,16 @@ CvGlobals::CvGlobals() :
 	m_pLeagueProjects(NULL),
 	m_pLeagueProjectRewards(NULL),
 	m_pResolutions(NULL),
-#if defined(MOD_API_ACHIEVEMENTS) || defined(ACHIEVEMENT_HACKS)
+#if defined(MOD_API_ACHIEVEMENTS)
 	m_pAchievements(NULL),
 #endif
 #if defined(MOD_BALANCE_CORE)
 	m_pCorporations(NULL),
 	m_pContracts(NULL),
 #endif
-	m_pGameDatabase(NULL)
+	m_pGameDatabase(NULL),
+	m_saveVersion(SAVE_VERSION_LATEST),
+	m_gameDataHash()
 {
 }
 
@@ -2748,7 +2749,7 @@ void CvGlobals::init()
 	m_pLeagueProjectRewards = FNEW(CvLeagueProjectRewardXMLEntries, c_eCiv5GameplayDLL, 0);
 	m_pResolutions = FNEW(CvResolutionXMLEntries, c_eCiv5GameplayDLL, 0);
 	m_pNotifications = FNEW(CvNotificationXMLEntries, c_eCiv5GameplayDLL, 0);
-#if defined(MOD_API_ACHIEVEMENTS) || defined(ACHIEVEMENT_HACKS)
+#if defined(MOD_API_ACHIEVEMENTS)
 	m_pAchievements = FNEW(CvAchievementXMLEntries, c_eCiv5GameplayDLL, 0);
 #endif
 #if defined(MOD_BALANCE_CORE)
@@ -2781,6 +2782,10 @@ void CvGlobals::uninit()
 	CvPlayerAI::freeStatics();
 	CvTeam::freeStatics();
 
+	SAFE_DELETE(m_map);
+	SAFE_DELETE(m_game);
+	SAFE_DELETE(m_asyncRand);
+
 	deleteInfoArrays();
 
 	SAFE_DELETE(m_pEconomicAIStrategies);
@@ -2806,16 +2811,11 @@ void CvGlobals::uninit()
 	SAFE_DELETE(m_pLeagueProjectRewards);
 	SAFE_DELETE(m_pResolutions);
 	SAFE_DELETE(m_pNotifications);
-#if defined(MOD_API_ACHIEVEMENTS) || defined(ACHIEVEMENT_HACKS)
+#if defined(MOD_API_ACHIEVEMENTS)
 	SAFE_DELETE(m_pAchievements);
 #endif
 	SAFE_DELETE(m_pImprovements); // player uses the improvement count in deallocating.
 	SAFE_DELETE(m_pTechs);        // improvements uses tech to deallocate. arrghh!
-
-	SAFE_DELETE(m_map);
-	SAFE_DELETE(m_game);
-
-	SAFE_DELETE(m_asyncRand);
 
 	m_kGlobalDefinesLookup.Release();
 
@@ -3990,7 +3990,7 @@ CvBuildingXMLEntries* CvGlobals::GetGameBuildings() const
 	return m_pBuildings;
 }
 
-void CvGlobals::GameDataPostProcess()
+void CvGlobals::GameDataPostCache()
 {
 	for (int iI = 0; iI < getNumBuildingInfos(); iI++)
 	{
@@ -4023,6 +4023,126 @@ void CvGlobals::GameDataPostProcess()
 				m_buildingInteractionLookup[eOuter].push_back(eInner);
 		}
 	}
+
+	calcGameDataHash();
+}
+
+template<typename T>
+static void HashGameDataCombine(CvGlobals::GameDataHash& seed, std::size_t& word, const T& container)
+{
+	// This hash algorithm could be better...
+
+	// Hash the size of the container.
+	{
+		const uint32 containerSize = container.size();
+		seed[word] ^= containerSize + 0x9e3779b9 + (seed[word] << 6) + (seed[word] >> 2);
+		if (++word >= 4)
+			word = 0;
+	}
+
+	// Hash all the members of the container.
+	typedef typename T::const_iterator It;
+	const It begin = container.begin();
+	const It end = container.end();
+	for (It it = begin; it < end; ++it) {
+		uint32 infoHash;
+		// FIXME - NULL entries in the database make no sense yet they're here anyway??
+		// We have no choice but to hash these as well because they impact the database order.
+		if (*it == NULL)
+			infoHash = 0xFFFFFFFF; // Just an unlikely value.
+		else
+			infoHash = FString::Hash((*it)->GetType());
+		seed[word] ^= infoHash + 0x9e3779b9 + (seed[word] << 6) + (seed[word] >> 2);
+		if (++word >= 4)
+			word = 0;
+	}
+}
+
+void CvGlobals::calcGameDataHash()
+{
+	// 128 bits ought to be enough to prevent collisions.
+	m_gameDataHash[0] = uint32(0xc1ed4a43);
+	m_gameDataHash[1] = uint32(0x8f3cd5e7);
+	m_gameDataHash[2] = uint32(0x653301d3);
+	m_gameDataHash[3] = uint32(0x822fad48);
+	std::size_t writeWord = 0;
+
+	HashGameDataCombine(m_gameDataHash, writeWord, m_paColorInfo);
+	HashGameDataCombine(m_gameDataHash, writeWord, m_paPlayerColorInfo);
+	HashGameDataCombine(m_gameDataHash, writeWord, m_paPlotInfo);
+	HashGameDataCombine(m_gameDataHash, writeWord, m_paGreatPersonInfo);
+	HashGameDataCombine(m_gameDataHash, writeWord, m_paTerrainInfo);
+	HashGameDataCombine(m_gameDataHash, writeWord, m_paYieldInfo);
+	HashGameDataCombine(m_gameDataHash, writeWord, m_paRouteInfo);
+	HashGameDataCombine(m_gameDataHash, writeWord, m_paFeatureInfo);
+	HashGameDataCombine(m_gameDataHash, writeWord, m_paResourceClassInfo);
+	HashGameDataCombine(m_gameDataHash, writeWord, m_paResourceInfo);
+	HashGameDataCombine(m_gameDataHash, writeWord, m_paBuildInfo);
+	HashGameDataCombine(m_gameDataHash, writeWord, m_paHandicapInfo);
+	HashGameDataCombine(m_gameDataHash, writeWord, m_paGameSpeedInfo);
+	HashGameDataCombine(m_gameDataHash, writeWord, m_paDiploModifierInfo);
+	HashGameDataCombine(m_gameDataHash, writeWord, m_paTurnTimerInfo);
+	HashGameDataCombine(m_gameDataHash, writeWord, m_paCivilizationInfo);
+	HashGameDataCombine(m_gameDataHash, writeWord, m_paMinorCivInfo);
+	HashGameDataCombine(m_gameDataHash, writeWord, m_paLeaderHeadInfo);
+	HashGameDataCombine(m_gameDataHash, writeWord, m_paProcessInfo);
+	HashGameDataCombine(m_gameDataHash, writeWord, m_paVoteInfo);
+	HashGameDataCombine(m_gameDataHash, writeWord, m_paBuildingClassInfo);
+	HashGameDataCombine(m_gameDataHash, writeWord, m_paUnitClassInfo);
+	HashGameDataCombine(m_gameDataHash, writeWord, m_paSpecialUnitInfo);
+	HashGameDataCombine(m_gameDataHash, writeWord, m_paVoteSourceInfo);
+	HashGameDataCombine(m_gameDataHash, writeWord, m_paEventInfo);
+	HashGameDataCombine(m_gameDataHash, writeWord, m_paEventChoiceInfo);
+	HashGameDataCombine(m_gameDataHash, writeWord, m_paCityEventInfo);
+	HashGameDataCombine(m_gameDataHash, writeWord, m_paCityEventChoiceInfo);
+	//HashGameDataCombine(m_gameDataHash, writeWord, m_paEventLinkingInfo);
+	//HashGameDataCombine(m_gameDataHash, writeWord, m_paEventChoiceLinkingInfo);
+	//HashGameDataCombine(m_gameDataHash, writeWord, m_paCityEventLinkingInfo);
+	//HashGameDataCombine(m_gameDataHash, writeWord, m_paCityEventChoiceLinkingInfo);
+	HashGameDataCombine(m_gameDataHash, writeWord, m_paContractInfo);
+	HashGameDataCombine(m_gameDataHash, writeWord, m_paUnitCombatClassInfo);
+	HashGameDataCombine(m_gameDataHash, writeWord, m_paUnitAIInfos);
+	HashGameDataCombine(m_gameDataHash, writeWord, m_paGameOptionInfos);
+	HashGameDataCombine(m_gameDataHash, writeWord, m_paMPOptionInfos);
+	HashGameDataCombine(m_gameDataHash, writeWord, m_paPlayerOptionInfos);
+	HashGameDataCombine(m_gameDataHash, writeWord, m_paSpecialistInfo);
+	HashGameDataCombine(m_gameDataHash, writeWord, m_paActionInfo);
+	HashGameDataCombine(m_gameDataHash, writeWord, m_paMissionInfo);
+	HashGameDataCombine(m_gameDataHash, writeWord, m_paControlInfo);
+	HashGameDataCombine(m_gameDataHash, writeWord, m_paCommandInfo);
+	HashGameDataCombine(m_gameDataHash, writeWord, m_paAutomateInfo);
+	HashGameDataCombine(m_gameDataHash, writeWord, m_aEraInfo);
+	HashGameDataCombine(m_gameDataHash, writeWord, m_paHurryInfo);
+	HashGameDataCombine(m_gameDataHash, writeWord, m_paVictoryInfo);
+	HashGameDataCombine(m_gameDataHash, writeWord, m_paSmallAwardInfo);
+	HashGameDataCombine(m_gameDataHash, writeWord, m_paEntityEventInfo);
+	HashGameDataCombine(m_gameDataHash, writeWord, m_paUnitDomainInfo);
+	HashGameDataCombine(m_gameDataHash, writeWord, m_paMultiUnitFormationInfo);
+	HashGameDataCombine(m_gameDataHash, writeWord, m_pEconomicAIStrategies->GetEconomicAIStrategyEntries());
+	HashGameDataCombine(m_gameDataHash, writeWord, m_pCitySpecializations->GetCitySpecializationEntries());
+	HashGameDataCombine(m_gameDataHash, writeWord, m_pMilitaryAIStrategies->GetMilitaryAIStrategyEntries());
+	HashGameDataCombine(m_gameDataHash, writeWord, m_pAIGrandStrategies->GetAIGrandStrategyEntries());
+	HashGameDataCombine(m_gameDataHash, writeWord, m_pAICityStrategies->GetAICityStrategyEntries());
+	HashGameDataCombine(m_gameDataHash, writeWord, m_pPolicies->GetPolicyEntries());
+	HashGameDataCombine(m_gameDataHash, writeWord, m_pTechs->GetTechEntries());
+	HashGameDataCombine(m_gameDataHash, writeWord, m_pBuildings->GetBuildingEntries());
+	HashGameDataCombine(m_gameDataHash, writeWord, m_pUnits->GetUnitEntries());
+	HashGameDataCombine(m_gameDataHash, writeWord, m_pProjects->GetProjectEntries());
+	HashGameDataCombine(m_gameDataHash, writeWord, m_pPromotions->GetPromotionEntries());
+	HashGameDataCombine(m_gameDataHash, writeWord, m_pImprovements->GetImprovementEntries());
+	HashGameDataCombine(m_gameDataHash, writeWord, m_pEmphases->GetEmphasisEntries());
+	HashGameDataCombine(m_gameDataHash, writeWord, m_pTraits->GetTraitEntries());
+	HashGameDataCombine(m_gameDataHash, writeWord, m_pReligions->GetReligionEntries());
+	HashGameDataCombine(m_gameDataHash, writeWord, m_pBeliefs->GetBeliefEntries());
+	HashGameDataCombine(m_gameDataHash, writeWord, m_pLeagueSpecialSessions->GetLeagueSpecialSessionEntries());
+	HashGameDataCombine(m_gameDataHash, writeWord, m_pLeagueNames->GetLeagueNameEntries());
+	HashGameDataCombine(m_gameDataHash, writeWord, m_pLeagueProjects->GetLeagueProjectEntries());
+	HashGameDataCombine(m_gameDataHash, writeWord, m_pLeagueProjectRewards->GetLeagueProjectRewardEntries());
+	HashGameDataCombine(m_gameDataHash, writeWord, m_pResolutions->GetResolutionEntries());
+	HashGameDataCombine(m_gameDataHash, writeWord, m_pNotifications->GetNotificationEntries());
+	HashGameDataCombine(m_gameDataHash, writeWord, m_pAchievements->GetAchievementEntries());
+	HashGameDataCombine(m_gameDataHash, writeWord, m_pCorporations->GetCorporationEntries());
+	HashGameDataCombine(m_gameDataHash, writeWord, m_pContracts->GetContractEntries());
 }
 
 const vector<BuildingTypes>& CvGlobals::getBuildingInteractions(BuildingTypes eRefBuilding) const
@@ -4710,7 +4830,7 @@ CvNotificationXMLEntries* CvGlobals::GetNotificationEntries()
 	return m_pNotifications;
 }
 
-#if defined(MOD_API_ACHIEVEMENTS) || defined(ACHIEVEMENT_HACKS)
+#if defined(MOD_API_ACHIEVEMENTS)
 int CvGlobals::getNumAchievementInfos()
 {
 	return m_pAchievements->GetNumAchievements();

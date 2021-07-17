@@ -25,6 +25,9 @@ public:
 	CvGreatWork();
 	CvGreatWork(CvString szGreatPersonName, GreatWorkType eType, GreatWorkClass eClassType, int iTurn, EraTypes eEra, PlayerTypes ePlayer);
 
+	template<typename GreatWork, typename Visitor>
+	static void Serialize(GreatWork& greatWork, Visitor& visitor);
+
 	// Public data
 	CvString m_szGreatPersonName;
 	GreatWorkType m_eType;
@@ -64,6 +67,9 @@ public:
 		return m_CurrentGreatWorks.size();
 	}
 
+	template<typename GameCulture, typename Visitor>
+	static void Serialize(GameCulture& gameCulture, Visitor& visitor);
+
 	GreatWorkType GetGreatWorkType(int iIndex) const;
 	GreatWorkClass GetGreatWorkClass(int iIndex) const;
 	CvString GetGreatWorkTooltip(int iIndex, PlayerTypes eOwner) const;
@@ -74,10 +80,8 @@ public:
 	CvString GetGreatWorkEraShort(int iIndex) const;
 	PlayerTypes GetGreatWorkCreator (int iIndex) const;
 	PlayerTypes GetGreatWorkController(int iIndex) const;
-#if defined(MOD_API_EXTENSIONS)
 	bool IsGreatWorkCreated(GreatWorkType eType) const;
 	CvCity* GetGreatWorkCity(int iIndex) const;
-#endif
 	int GetGreatWorkCurrentThemingBonus (int iIndex) const;
 
 	bool SwapGreatWorks (PlayerTypes ePlayer1, int iWork1, PlayerTypes ePlayer2, int iWork2);
@@ -130,6 +134,9 @@ enum PublicOpinionTypes
 	PUBLIC_OPINION_REVOLUTIONARY_WAVE,
 };
 
+FDataStream& operator<<(FDataStream&, const PublicOpinionTypes&);
+FDataStream& operator>>(FDataStream&, PublicOpinionTypes&);
+
 class CvGreatWorkInMyEmpire
 {
 public:
@@ -179,6 +186,10 @@ public:
 
 	void Init(CvPlayer* pPlayer);
 
+	template<typename PlayerCulture, typename Visitor>
+	static void Serialize(PlayerCulture& playerCulture, Visitor& visitor);
+
+
 	// Great Work routines
 	bool HasAvailableGreatWorkSlot(GreatWorkSlotType eGreatWorkSlot);
 	int GetNumAvailableGreatWorkSlots(GreatWorkSlotType eGreatWorkSlot) const;
@@ -219,12 +230,12 @@ public:
 	void SetSwappableMusicIndex (int iIndex);
 
 	// Archaeology 
-	void AddDigCompletePlot(CvPlot *pPlot);
-	void RemoveDigCompletePlot(CvPlot *pPlot);
+	void AddDigCompletePlot(CvPlot* pPlot);
+	void RemoveDigCompletePlot(CvPlot* pPlot);
 	void ResetDigCompletePlots();
 	CvPlot *GetNextDigCompletePlot() const;
-	CvUnit *GetNextDigCompleteArchaeologist(CvPlot **ppPlot) const;
-	bool HasDigCompleteHere(CvPlot *pPlot) const;
+	CvUnit *GetNextDigCompleteArchaeologist(CvPlot** ppPlot) const;
+	bool HasDigCompleteHere(CvPlot* pPlot) const;
 	int GetWrittenArtifactCulture() const;
 
 	void DoArchaeologyChoice (ArchaeologyChoiceType eChoice);
@@ -249,9 +260,7 @@ public:
 	void SetLastTurnCPT(int iValue);
 	int GetInfluenceOn(PlayerTypes ePlayer) const;
 	void ChangeInfluenceOn(PlayerTypes ePlayer, int iValue);
-#if defined(MOD_API_EXTENSIONS)
 	int ChangeInfluenceOn(PlayerTypes eOtherPlayer, int iBaseInfluence, bool bApplyModifiers, bool bModifyForGameSpeed);
-#endif
 	int GetLastTurnInfluenceOn(PlayerTypes ePlayer) const;
 	int GetLastTurnInfluenceIPT(PlayerTypes ePlayer) const;
 	int GetInfluencePerTurn(PlayerTypes ePlayer) const;
@@ -310,7 +319,7 @@ public:
 	int GetTotalThemingBonuses() const;
 
 	// Public data
-	vector<CvPlot *> m_aDigCompletePlots;
+	vector<CvPlot*> m_aDigCompletePlots;
 	int m_iLastTurnLifetimeCulture;
 	int m_iLastTurnCPT;
 	int m_aiCulturalInfluence[MAX_MAJOR_CIVS];

@@ -243,8 +243,10 @@ public:
 	void Init(CvTechXMLEntries* pTechs, CvPlayer* pPlayer, bool bIsCity);
 	void Uninit();
 	void Reset();
+	template<typename PlayerTechs, typename Visitor>
+	static void Serialize(PlayerTechs& playerTechs, Visitor& visitor);
 	void Read(FDataStream& kStream);
-	void Write(FDataStream& kStream);
+	void Write(FDataStream& kStream) const;
 
 	// Flavor recipient required function
 	void FlavorUpdate();
@@ -316,6 +318,9 @@ private:
 	CvTechAI* m_pTechAI;
 };
 
+FDataStream& operator>>(FDataStream&, CvPlayerTechs&);
+FDataStream& operator<<(FDataStream&, const CvPlayerTechs&);
+
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //  CLASS:      CvTeamTechs
 //!  \brief		Information about the technologies owned by a team of players
@@ -334,7 +339,7 @@ public:
 	void Uninit();
 	void Reset();
 	void Read(FDataStream& kStream);
-	void Write(FDataStream& kStream);
+	void Write(FDataStream& kStream) const;
 
 	// Accessor functions
 	void SetHasTech(TechTypes eIndex, bool bNewValue);
@@ -384,5 +389,7 @@ private:
 	CvTechXMLEntries* m_pTechs;
 	CvTeam* m_pTeam;
 };
+FDataStream& operator<<(FDataStream&, const CvTeamTechs&);
+FDataStream& operator>>(FDataStream&, CvTeamTechs&);
 
 #endif //CIV5_TECH_CLASSES_H

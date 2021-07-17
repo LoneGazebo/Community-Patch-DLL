@@ -73,56 +73,32 @@ bool CvTradedItem::operator==(const CvTradedItem& rhs) const
 	        m_iFinalTurn == rhs.m_iFinalTurn);
 }
 
-FDataStream& OldLoad(FDataStream& loadFrom, CvTradedItem& writeTo)
+template<typename TradedItem, typename Visitor>
+void CvTradedItem::Serialize(TradedItem& tradedItem, Visitor& visitor)
 {
-	loadFrom >> writeTo.m_eItemType;
-	loadFrom >> writeTo.m_iDuration;
-	loadFrom >> writeTo.m_iFinalTurn;
-	loadFrom >> writeTo.m_iData1;
-	loadFrom >> writeTo.m_iData2;
-	loadFrom >> writeTo.m_eFromPlayer;
-	return loadFrom;
+	visitor(tradedItem.m_eItemType);
+	visitor(tradedItem.m_iDuration);
+	visitor(tradedItem.m_iFinalTurn);
+	visitor(tradedItem.m_iData1);
+	visitor(tradedItem.m_iData2);
+	visitor(tradedItem.m_iData3);
+	visitor(tradedItem.m_bFlag1);
+	visitor(tradedItem.m_eFromPlayer);
 }
 
 /// Serialization read
 FDataStream& operator>>(FDataStream& loadFrom, CvTradedItem& writeTo)
 {
-	uint uiVersion;
-	loadFrom >> uiVersion;
-	MOD_SERIALIZE_INIT_READ(loadFrom);
-	loadFrom >> writeTo.m_eItemType;
-	loadFrom >> writeTo.m_iDuration;
-	loadFrom >> writeTo.m_iFinalTurn;
-	loadFrom >> writeTo.m_iData1;
-	loadFrom >> writeTo.m_iData2;
-	if (uiVersion >= 2)
-	{
-		loadFrom >> writeTo.m_iData3;
-		loadFrom >> writeTo.m_bFlag1;
-	}
-	else
-	{
-		writeTo.m_iData3 = 0;
-		writeTo.m_bFlag1 = false;
-	}
-	loadFrom >> writeTo.m_eFromPlayer;
+	CvStreamLoadVisitor serialVisitor(loadFrom);
+	CvTradedItem::Serialize(writeTo, serialVisitor);
 	return loadFrom;
 }
 
 /// Serialization write
 FDataStream& operator<<(FDataStream& saveTo, const CvTradedItem& readFrom)
 {
-	uint uiVersion = 2;
-	saveTo << uiVersion;
-	MOD_SERIALIZE_INIT_WRITE(saveTo);
-	saveTo << readFrom.m_eItemType;
-	saveTo << readFrom.m_iDuration;
-	saveTo << readFrom.m_iFinalTurn;
-	saveTo << readFrom.m_iData1;
-	saveTo << readFrom.m_iData2;
-	saveTo << readFrom.m_iData3;
-	saveTo << readFrom.m_bFlag1;
-	saveTo << readFrom.m_eFromPlayer;
+	CvStreamSaveVisitor serialVisitor(saveTo);
+	CvTradedItem::Serialize(readFrom, serialVisitor);
 	return saveTo;
 }
 
@@ -2371,104 +2347,37 @@ bool CvDeal::ContainsItemType(TradeableItems eItemType, PlayerTypes eFrom /* = N
 
 // PRIVATE METHODS
 
-FDataStream& OldLoad(FDataStream& loadFrom, CvDeal& writeTo)
+template<typename Deal, typename Visitor>
+void CvDeal::Serialize(Deal& deal, Visitor& visitor)
 {
-	int iEntriesToRead;
-	CvTradedItem tempItem;
-
-	loadFrom >> writeTo.m_eFromPlayer;
-	loadFrom >> writeTo.m_eToPlayer;
-	loadFrom >> writeTo.m_iFinalTurn;
-	loadFrom >> writeTo.m_iDuration;
-	loadFrom >> writeTo.m_iStartTurn;
-	loadFrom >> writeTo.m_bConsideringForRenewal;
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-	loadFrom >> writeTo.m_bIsGift;
-#endif
-	loadFrom >> writeTo.m_ePeaceTreatyType;
-	loadFrom >> writeTo.m_eSurrenderingPlayer;
-	loadFrom >> writeTo.m_eDemandingPlayer;
-	loadFrom >> writeTo.m_eRequestingPlayer;
-	loadFrom >> iEntriesToRead;
-
-	writeTo.m_TradedItems.clear();
-	for(int iI = 0; iI < iEntriesToRead; iI++)
-	{
-		loadFrom = OldLoad(loadFrom, tempItem);
-		writeTo.m_TradedItems.push_back(tempItem);
-	}
-	return loadFrom;
+	visitor(deal.m_eFromPlayer);
+	visitor(deal.m_eToPlayer);
+	visitor(deal.m_iFinalTurn);
+	visitor(deal.m_iDuration);
+	visitor(deal.m_iStartTurn);
+	visitor(deal.m_bConsideringForRenewal);
+	visitor(deal.m_bCheckedForRenewal);
+	visitor(deal.m_bIsGift);
+	visitor(deal.m_ePeaceTreatyType);
+	visitor(deal.m_eSurrenderingPlayer);
+	visitor(deal.m_eDemandingPlayer);
+	visitor(deal.m_eRequestingPlayer);
+	visitor(deal.m_TradedItems);
 }
 
 /// Serialization read
 FDataStream& operator>>(FDataStream& loadFrom, CvDeal& writeTo)
 {
-	uint uiVersion;
-	int iEntriesToRead;
-	CvTradedItem tempItem;
-
-	loadFrom >> uiVersion;
-	MOD_SERIALIZE_INIT_READ(loadFrom);
-	loadFrom >> writeTo.m_eFromPlayer;
-	loadFrom >> writeTo.m_eToPlayer;
-	loadFrom >> writeTo.m_iFinalTurn;
-	loadFrom >> writeTo.m_iDuration;
-	loadFrom >> writeTo.m_iStartTurn;
-	loadFrom >> writeTo.m_bConsideringForRenewal;
-	loadFrom >> writeTo.m_bCheckedForRenewal;
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-	loadFrom >> writeTo.m_bIsGift;
-#endif
-	loadFrom >> writeTo.m_ePeaceTreatyType;
-	loadFrom >> writeTo.m_eSurrenderingPlayer;
-	loadFrom >> writeTo.m_eDemandingPlayer;
-	loadFrom >> writeTo.m_eRequestingPlayer;
-	loadFrom >> iEntriesToRead;
-
-	writeTo.m_TradedItems.clear();
-	for(int iI = 0; iI < iEntriesToRead; iI++)
-	{
-		if(uiVersion >= 2)
-		{
-			loadFrom >> tempItem;
-		}
-		else
-		{
-			loadFrom = OldLoad(loadFrom, tempItem);
-		}
-		writeTo.m_TradedItems.push_back(tempItem);
-	}
+	CvStreamLoadVisitor serialVisitor(loadFrom);
+	CvDeal::Serialize(writeTo, serialVisitor);
 	return loadFrom;
 }
 
 /// Serialization write
 FDataStream& operator<<(FDataStream& saveTo, const CvDeal& readFrom)
 {
-	// Current version number
-	uint uiVersion = 3;
-	saveTo << uiVersion;
-	MOD_SERIALIZE_INIT_WRITE(saveTo);
-	saveTo << readFrom.m_eFromPlayer;
-	saveTo << readFrom.m_eToPlayer;
-	saveTo << readFrom.m_iFinalTurn;
-	saveTo << readFrom.m_iDuration;
-	saveTo << readFrom.m_iStartTurn;
-	saveTo << readFrom.m_bConsideringForRenewal;
-	saveTo << readFrom.m_bCheckedForRenewal;
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-	saveTo << readFrom.m_bIsGift;
-#endif
-	saveTo << readFrom.m_ePeaceTreatyType;
-	saveTo << readFrom.m_eSurrenderingPlayer;
-	saveTo << readFrom.m_eDemandingPlayer;
-	saveTo << readFrom.m_eRequestingPlayer;
-	saveTo << readFrom.m_TradedItems.size();
-	TradedItemList::const_iterator it;
-	for(it = readFrom.m_TradedItems.begin(); it != readFrom.m_TradedItems.end(); ++it)
-	{
-		saveTo << *it;
-	}
-
+	CvStreamSaveVisitor serialVisitor(saveTo);
+	CvDeal::Serialize(readFrom, serialVisitor);
 	return saveTo;
 }
 
@@ -2916,7 +2825,7 @@ void CvGameDeals::FinalizeDealValidAndAccepted(PlayerTypes eFromPlayer, PlayerTy
 			GET_PLAYER(eAcceptedFromPlayer).changeResourceExport(eResource, iResourceQuantity);
 			GET_PLAYER(eAcceptedToPlayer).changeResourceImportFromMajor(eResource, iResourceQuantity);
 
-#if !defined(NO_ACHIEVEMENTS)
+#if defined(MOD_API_ACHIEVEMENTS)
 			//Resource Trading Achievements
 			if(!GC.getGame().isGameMultiPlayer())
 			{
@@ -3585,7 +3494,7 @@ bool CvGameDeals::FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, b
 					GET_PLAYER(eAcceptedFromPlayer).changeResourceExport(eResource, iResourceQuantity);
 					GET_PLAYER(eAcceptedToPlayer).changeResourceImportFromMajor(eResource, iResourceQuantity);
 
-#if !defined(NO_ACHIEVEMENTS)
+#if defined(MOD_API_ACHIEVEMENTS)
 					//Resource Trading Achievements
 					if(!GC.getGame().isGameMultiPlayer())
 					{
@@ -5730,126 +5639,27 @@ void CvGameDeals::DestroyDeal(uint index)
 		m_Deals.erase(it);
 	}
 }
-//------------------------------------------------------------------------------
-FDataStream& OldLoad(FDataStream& loadFrom, CvGameDeals& writeTo)
+
+template<typename GameDeals, typename Visitor>
+void CvGameDeals::Serialize(GameDeals& gameDeals, Visitor& visitor)
 {
-	int iEntriesToRead;
-	CvDeal tempItem;
-
-#if defined(MOD_ACTIVE_DIPLOMACY)
-	if(GC.getGame().isReallyNetworkMultiPlayer() && MOD_ACTIVE_DIPLOMACY)
-	{
-		// JdH => savegame compatible load
-		loadFrom >> iEntriesToRead;
-		for (int iI = 0; iI < iEntriesToRead; iI++)
-		{
-			loadFrom >> tempItem;
-			if (CvPreGame::isHuman(tempItem.GetFromPlayer()) && CvPreGame::isHuman(tempItem.GetToPlayer())) 
-			{
-				// only load human to humand deals until other problems are fixed
-				writeTo.m_ProposedDeals.push_back(tempItem);
-			}
-		}
-	}
-	else
-	{
-		writeTo.m_ProposedDeals.clear();
-		loadFrom >> iEntriesToRead;
-		for(int iI = 0; iI < iEntriesToRead; iI++)
-		{
-			loadFrom = OldLoad(loadFrom, tempItem);
-			writeTo.m_ProposedDeals.push_back(tempItem);
-		}
-	}
-#else
-	writeTo.m_ProposedDeals.clear();
-	loadFrom >> iEntriesToRead;
-	for(int iI = 0; iI < iEntriesToRead; iI++)
-	{
-		loadFrom = OldLoad(loadFrom, tempItem);
-		writeTo.m_ProposedDeals.push_back(tempItem);
-	}
-
-#endif
-
-	writeTo.m_CurrentDeals.clear();
-	loadFrom >> iEntriesToRead;
-	for(int iI = 0; iI < iEntriesToRead; iI++)
-	{
-		loadFrom = OldLoad(loadFrom, tempItem);
-		writeTo.m_CurrentDeals.push_back(tempItem);
-	}
-
-	writeTo.m_HistoricalDeals.clear();
-	loadFrom >> iEntriesToRead;
-	for(int iI = 0; iI < iEntriesToRead; iI++)
-	{
-		loadFrom = OldLoad(loadFrom, tempItem);
-		writeTo.m_HistoricalDeals.push_back(tempItem);
-	}
-
-	return loadFrom;
+	visitor(gameDeals.m_ProposedDeals);
+	visitor(gameDeals.m_CurrentDeals);
+	visitor(gameDeals.m_HistoricalDeals);
 }
 
 /// Serialization read
 FDataStream& operator>>(FDataStream& loadFrom, CvGameDeals& writeTo)
 {
-	uint uiVersion;
-	int iEntriesToRead;
-	CvDeal tempItem;
-
-	loadFrom >> uiVersion;
-	MOD_SERIALIZE_INIT_READ(loadFrom);
-
-	writeTo.m_ProposedDeals.clear();
-	loadFrom >> iEntriesToRead;
-	for(int iI = 0; iI < iEntriesToRead; iI++)
-	{
-		loadFrom >> tempItem;
-		writeTo.m_ProposedDeals.push_back(tempItem);
-	}
-	writeTo.m_CurrentDeals.clear();
-	loadFrom >> iEntriesToRead;
-	for(int iI = 0; iI < iEntriesToRead; iI++)
-	{
-		loadFrom >> tempItem;
-		writeTo.m_CurrentDeals.push_back(tempItem);
-	}
-
-	writeTo.m_HistoricalDeals.clear();
-	loadFrom >> iEntriesToRead;
-	for(int iI = 0; iI < iEntriesToRead; iI++)
-	{
-		loadFrom >> tempItem;
-		writeTo.m_HistoricalDeals.push_back(tempItem);
-	}
-
+	CvStreamLoadVisitor serialVisitor(loadFrom);
+	CvGameDeals::Serialize(writeTo, serialVisitor);
 	return loadFrom;
 }
 
 /// Serialization write
 FDataStream& operator<<(FDataStream& saveTo, const CvGameDeals& readFrom)
 {
-	uint uiVersion = 1;
-	DealList::const_iterator it;
-	saveTo << uiVersion;
-	MOD_SERIALIZE_INIT_WRITE(saveTo);
-
-	saveTo << readFrom.m_ProposedDeals.size();
-	for(it = readFrom.m_ProposedDeals.begin(); it != readFrom.m_ProposedDeals.end(); ++it)
-	{
-		saveTo << *it;
-	}
-	saveTo << readFrom.m_CurrentDeals.size();
-	for(it = readFrom.m_CurrentDeals.begin(); it != readFrom.m_CurrentDeals.end(); ++it)
-	{
-		saveTo << *it;
-	}
-	saveTo << readFrom.m_HistoricalDeals.size();
-	for(it = readFrom.m_HistoricalDeals.begin(); it != readFrom.m_HistoricalDeals.end(); ++it)
-	{
-		saveTo << *it;
-	}
-
+	CvStreamSaveVisitor serialVisitor(saveTo);
+	CvGameDeals::Serialize(readFrom, serialVisitor);
 	return saveTo;
 }

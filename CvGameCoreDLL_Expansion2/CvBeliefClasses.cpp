@@ -4678,141 +4678,38 @@ CivilizationTypes CvReligionBeliefs::GetUniqueCiv(PlayerTypes ePlayer, bool bHol
 	return eCivilization;
 }
 #endif
+
+template<typename ReligionBeliefs, typename Visitor>
+void CvReligionBeliefs::Serialize(ReligionBeliefs& religionBeliefs, Visitor& visitor)
+{
+	visitor(religionBeliefs.m_eReligion);
+	visitor(religionBeliefs.m_ReligionBeliefs);
+	visitor(religionBeliefs.m_BeliefLookup);
+}
+
 /// Serialization read
 void CvReligionBeliefs::Read(FDataStream& kStream)
 {
-	// Version number to maintain backwards compatibility
-	uint uiVersion;
-	kStream >> uiVersion;
-	MOD_SERIALIZE_INIT_READ(kStream);
-#if !defined(MOD_BALANCE_CORE)
-	kStream >> m_iFaithFromDyingUnits;
-	kStream >> m_iRiverHappiness;
-	kStream >> m_iPlotCultureCostModifier;
-	kStream >> m_iCityRangeStrikeModifier;
-	kStream >> m_iCombatModifierEnemyCities;
-	kStream >> m_iCombatModifierFriendlyCities;
-	kStream >> m_iFriendlyHealChange;
-	kStream >> m_iCityStateFriendshipModifier;
-	kStream >> m_iLandBarbarianConversionPercent;
-	kStream >> m_iSpreadStrengthModifier;
-	kStream >> m_iSpreadDistanceModifier;
-	kStream >> m_iProphetStrengthModifier;
-	kStream >> m_iProphetCostModifier;
-	kStream >> m_iMissionaryStrengthModifier;
-	kStream >> m_iMissionaryCostModifier;
-	kStream >> m_iFriendlyCityStateSpreadModifier;
-	kStream >> m_iGreatPersonExpendedFaith;
-	kStream >> m_iCityStateMinimumInfluence;
-	kStream >> m_iCityStateInfluenceModifier;
-	kStream >> m_iOtherReligionPressureErosion;
-	kStream >> m_iSpyPressure;
-	kStream >> m_iInquisitorPressureRetention;
-#if defined(MOD_BALANCE_CORE_BELIEFS)
-	MOD_SERIALIZE_READ(60, kStream, m_iCombatVersusOtherReligionOwnLands, 0);
-	MOD_SERIALIZE_READ(60, kStream, m_iCombatVersusOtherReligionTheirLands, 0);
-	MOD_SERIALIZE_READ(60, kStream, m_iMissionaryInfluenceCS, 0);
-	MOD_SERIALIZE_READ(60, kStream, m_iHappinessPerPantheon, 0);
-	MOD_SERIALIZE_READ(60, kStream, m_iExtraVotes, 0);
-#endif
-#if defined(MOD_BALANCE_CORE)
-	kStream >> m_eRequiredCivilization;
-#endif
-	if (uiVersion >= 2)
-	{
-		kStream >> m_iFaithBuildingTourism;
-	}
-	else
-	{
-		m_iFaithBuildingTourism = 0;
-	}
-
-	kStream >> m_eObsoleteEra;
-	kStream >> m_eResourceRevealed;
-	kStream >> m_eSpreadModifierDoublingTech;
-#endif
-#if defined(MOD_BALANCE_CORE)
-	kStream >> m_eReligion;
-#endif
-
-	m_ReligionBeliefs.clear();
-#if defined(MOD_BALANCE_CORE)
-	m_BeliefLookup = std::vector<int>(GC.GetGameBeliefs()->GetNumBeliefs(),0);
-#endif
-	uint uiBeliefCount;
-	kStream >> uiBeliefCount;
-	while(uiBeliefCount--)
-	{
-		int iBeliefIndex = CvInfosSerializationHelper::ReadHashed(kStream);
-		m_ReligionBeliefs.push_back(iBeliefIndex);
-#if defined(MOD_BALANCE_CORE)
-		m_BeliefLookup[iBeliefIndex] = 1;
-#endif
-	}
-#if !defined(MOD_BALANCE_CORE)
-	BuildingClassArrayHelpers::Read(kStream, m_paiBuildingClassEnabled);
-#endif
+	CvStreamLoadVisitor serialVisitor(kStream);
+	Serialize(*this, serialVisitor);
 }
 
 /// Serialization write
 void CvReligionBeliefs::Write(FDataStream& kStream) const
 {
-	// Current version number
-	uint uiVersion = 2;
-	kStream << uiVersion;
-	MOD_SERIALIZE_INIT_WRITE(kStream);
-#if !defined(MOD_BALANCE_CORE)
-	kStream << m_iFaithFromDyingUnits;
-	kStream << m_iRiverHappiness;
-	kStream << m_iPlotCultureCostModifier;
-	kStream << m_iCityRangeStrikeModifier;
-	kStream << m_iCombatModifierEnemyCities;
-	kStream << m_iCombatModifierFriendlyCities;
-	kStream << m_iFriendlyHealChange;
-	kStream << m_iCityStateFriendshipModifier;
-	kStream << m_iLandBarbarianConversionPercent;
-	kStream << m_iSpreadStrengthModifier;
-	kStream << m_iSpreadDistanceModifier;
-	kStream << m_iProphetStrengthModifier;
-	kStream << m_iProphetCostModifier;
-	kStream << m_iMissionaryStrengthModifier;
-	kStream << m_iMissionaryCostModifier;
-	kStream << m_iFriendlyCityStateSpreadModifier;
-	kStream << m_iGreatPersonExpendedFaith;
-	kStream << m_iCityStateMinimumInfluence;
-	kStream << m_iCityStateInfluenceModifier;
-	kStream << m_iOtherReligionPressureErosion;
-	kStream << m_iSpyPressure;
-	kStream << m_iInquisitorPressureRetention;
-#if defined(MOD_BALANCE_CORE_BELIEFS)
-	MOD_SERIALIZE_WRITE(kStream, m_iCombatVersusOtherReligionOwnLands);
-	MOD_SERIALIZE_WRITE(kStream, m_iCombatVersusOtherReligionTheirLands);
-	MOD_SERIALIZE_WRITE(kStream, m_iMissionaryInfluenceCS);
-	MOD_SERIALIZE_WRITE(kStream, m_iHappinessPerPantheon);
-	MOD_SERIALIZE_WRITE(kStream, m_iExtraVotes);
-#endif
-#if defined(MOD_BALANCE_CORE)
-	kStream << m_eRequiredCivilization;
-#endif
-	kStream << m_iFaithBuildingTourism;
+	CvStreamSaveVisitor serialVisitor(kStream);
+	Serialize(*this, serialVisitor);
+}
 
-	kStream << m_eObsoleteEra;
-	kStream << m_eResourceRevealed;
-	kStream << m_eSpreadModifierDoublingTech;
-#endif
-#if defined(MOD_BALANCE_CORE)
-	kStream << m_eReligion;
-#endif
-
-	// m_ReligionBeliefs contains the BeliefTypes, which are indices into the religion info table (GC.getBeliefInfo).  Write out the info hashes
-	kStream << m_ReligionBeliefs.size();
-	for (uint i = 0; i < m_ReligionBeliefs.size(); ++i)
-	{
-		CvInfosSerializationHelper::WriteHashed(kStream, (BeliefTypes)m_ReligionBeliefs[i]);
-	}
-#if !defined(MOD_BALANCE_CORE)
-	BuildingClassArrayHelpers::Write(kStream, m_paiBuildingClassEnabled, GC.getNumBuildingClassInfos());
-#endif
+FDataStream& operator<<(FDataStream& saveTo, const CvReligionBeliefs& readFrom)
+{
+	readFrom.Write(saveTo);
+	return saveTo;
+}
+FDataStream& operator>>(FDataStream& loadFrom, CvReligionBeliefs& writeTo)
+{
+	writeTo.Read(loadFrom);
+	return loadFrom;
 }
 
 /// BELIEF HELPER CLASSES

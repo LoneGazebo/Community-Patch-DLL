@@ -14,6 +14,8 @@
 #include "CvCitySpecializationAI.h"
 #include "CvGrandStrategyAI.h"
 #include "CvInfosSerializationHelper.h"
+#include "CvEnumMapSerialization.h"
+#include "CvSpanSerialization.h"
 
 #include "LintFree.h"
 
@@ -986,82 +988,52 @@ void CvPlayerTechs::Reset()
 	m_pTechAI->Reset();
 }
 
+template<typename PlayerTechs, typename Visitor>
+void CvPlayerTechs::Serialize(PlayerTechs& playerTechs, Visitor& visitor)
+{
+	CvAssertMsg(playerTechs.m_pTechs != NULL && playerTechs.m_pTechs->GetNumTechs() > 0, "Number of techs to serialize is expected to greater than 0");
+	const int iNumTechs = playerTechs.m_pTechs->GetNumTechs();
+	visitor(MakeConstSpan(playerTechs.m_pabResearchingTech, iNumTechs));
+	visitor(MakeConstSpan(playerTechs.m_piCivTechPriority, iNumTechs));
+	visitor(MakeConstSpan(playerTechs.m_piLocaleTechPriority, iNumTechs));
+	visitor(MakeConstSpan(playerTechs.m_piGSTechPriority, iNumTechs));
+	visitor(MakeConstSpan(playerTechs.m_peLocaleTechResources, iNumTechs));
+	visitor(MakeConstSpan(playerTechs.m_peCivTechUniqueUnits, iNumTechs));
+	visitor(MakeConstSpan(playerTechs.m_peCivTechUniqueBuildings, iNumTechs));
+	visitor(MakeConstSpan(playerTechs.m_peCivTechUniqueImprovements, iNumTechs));
+
+	visitor(*playerTechs.m_pTechAI);
+
+	CvAssertMsg(playerTechs.m_piLatestFlavorValues.valid() && GC.getNumFlavorTypes() > 0, "Number of flavor values to serialize is expected to greater than 0");
+	visitor(playerTechs.m_piLatestFlavorValues);
+
+	visitor(playerTechs.m_bHasUUTech);
+	visitor(playerTechs.m_bWillHaveUUTechSoon);
+}
+
 /// Serialization read
 void CvPlayerTechs::Read(FDataStream& kStream)
 {
-	// Version number to maintain backwards compatibility
-	uint uiVersion;
-	kStream >> uiVersion;
-	MOD_SERIALIZE_INIT_READ(kStream);
-
-	// TODO: If m_pTechs is NULL then the stream will not be advanced causing errors to occur.
-	CvAssertMsg(m_pTechs != NULL && m_pTechs->GetNumTechs() > 0, "Number of techs to serialize is expected to greater than 0");
-	if(m_pTechs != NULL)
-	{
-		const int iNumTechs = m_pTechs->GetNumTechs();
-
-		CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_pabResearchingTech, iNumTechs);
-		CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_piCivTechPriority, iNumTechs);
-		CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_piLocaleTechPriority, iNumTechs);
-#if defined(MOD_BALANCE_CORE)
-		CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_piGSTechPriority, iNumTechs);
-#endif
-		CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_peLocaleTechResources, iNumTechs);
-		CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_peCivTechUniqueUnits, iNumTechs);
-		CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_peCivTechUniqueBuildings, iNumTechs);
-		CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_peCivTechUniqueImprovements, iNumTechs);
-	}
-
-	// Now for AI
-	m_pTechAI->Read(kStream);
-
-	CvAssertMsg(m_piLatestFlavorValues != NULL && GC.getNumFlavorTypes() > 0, "Number of flavor values to serialize is expected to greater than 0");
-
-	int iNumFlavors;
-	kStream >> iNumFlavors;
-
-	ArrayWrapper<int> kLatestFlavorWrapper(iNumFlavors, m_piLatestFlavorValues);
-	kStream >> kLatestFlavorWrapper;
-
-	kStream >> m_bHasUUTech;
-	kStream >> m_bWillHaveUUTechSoon;
+	CvStreamLoadVisitor serialVisitor(kStream);
+	Serialize(*this, serialVisitor);
 }
 
 /// Serialization write
-void CvPlayerTechs::Write(FDataStream& kStream)
+void CvPlayerTechs::Write(FDataStream& kStream) const
 {
-	// Current version number
-	uint uiVersion = 1;
-	kStream << uiVersion;
-	MOD_SERIALIZE_INIT_WRITE(kStream);
+	CvStreamSaveVisitor serialVisitor(kStream);
+	Serialize(*this, serialVisitor);
+}
 
-	// TODO: If m_pTechs is NULL then the stream will not advance
-	CvAssertMsg(m_pTechs != NULL && m_pTechs->GetNumTechs() > 0, "Number of techs to serialize is expected to greater than 0");
-	if(m_pTechs != NULL)
-	{
-		const int iNumTechs = m_pTechs->GetNumTechs();
-
-		CvInfosSerializationHelper::WriteHashedDataArray<TechTypes, bool>(kStream, m_pabResearchingTech, iNumTechs);
-		CvInfosSerializationHelper::WriteHashedDataArray<TechTypes, int>(kStream, m_piCivTechPriority, iNumTechs);
-		CvInfosSerializationHelper::WriteHashedDataArray<TechTypes, int>(kStream, m_piLocaleTechPriority, iNumTechs);
-#if defined(MOD_BALANCE_CORE)
-		CvInfosSerializationHelper::WriteHashedDataArray<TechTypes, int>(kStream, m_piGSTechPriority, iNumTechs);
-#endif
-		CvInfosSerializationHelper::WriteHashedDataArray<TechTypes, ResourceTypes>(kStream, m_peLocaleTechResources, iNumTechs);
-		CvInfosSerializationHelper::WriteHashedDataArray<TechTypes, UnitTypes>(kStream, m_peCivTechUniqueUnits, iNumTechs);
-		CvInfosSerializationHelper::WriteHashedDataArray<TechTypes, BuildingTypes>(kStream, m_peCivTechUniqueBuildings, iNumTechs);
-		CvInfosSerializationHelper::WriteHashedDataArray<TechTypes, ImprovementTypes>(kStream, m_peCivTechUniqueImprovements, iNumTechs);
-	}
-
-	// Now for AI
-	m_pTechAI->Write(kStream);
-
-	CvAssertMsg(m_piLatestFlavorValues != NULL && GC.getNumFlavorTypes() > 0, "Number of flavor values to serialize is expected to greater than 0");
-	kStream << GC.getNumFlavorTypes();
-	kStream << ArrayWrapper<int>(GC.getNumFlavorTypes(), m_piLatestFlavorValues);
-
-	kStream << m_bHasUUTech;
-	kStream << m_bWillHaveUUTechSoon;
+FDataStream& operator>>(FDataStream& stream, CvPlayerTechs& playerTechs)
+{
+	playerTechs.Read(stream);
+	return stream;
+}
+FDataStream& operator<<(FDataStream& stream, const CvPlayerTechs& playerTechs)
+{
+	playerTechs.Write(stream);
+	return stream;
 }
 
 /// Respond to a new set of flavor values
@@ -1676,7 +1648,7 @@ bool CvPlayerTechs::IsNoResearchAvailable() const
 ///Check for Achievement
 void CvPlayerTechs::CheckForTechAchievement() const
 {
-#if !defined(NO_ACHIEVEMENTS)
+#if defined(MOD_API_ACHIEVEMENTS)
 	if(m_pPlayer->isHuman() && !GC.getGame().isGameMultiPlayer())
 	{
 		//Check for Catherine Achievement
@@ -2337,7 +2309,7 @@ void CvTeamTechs::Read(FDataStream& kStream)
 
 //	---------------------------------------------------------------------------
 /// Serialization write
-void CvTeamTechs::Write(FDataStream& kStream)
+void CvTeamTechs::Write(FDataStream& kStream) const
 {
 	// Current version number
 	uint uiVersion = 1;
@@ -2368,6 +2340,17 @@ void CvTeamTechs::Write(FDataStream& kStream)
 	{
 		kStream << (int)0;
 	}
+}
+
+FDataStream& operator<<(FDataStream& saveTo, const CvTeamTechs& readFrom)
+{
+	readFrom.Write(saveTo);
+	return saveTo;
+}
+FDataStream& operator>>(FDataStream& loadFrom, CvTeamTechs& writeTo)
+{
+	writeTo.Read(loadFrom);
+	return loadFrom;
 }
 
 /// Accessor: set whether team owns a tech

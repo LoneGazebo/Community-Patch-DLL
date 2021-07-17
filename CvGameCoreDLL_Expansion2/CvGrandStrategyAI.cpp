@@ -12,6 +12,7 @@
 #include "CvDiplomacyAI.h"
 #include "CvMinorCivAI.h"
 #include "ICvDLLUserInterface.h"
+#include "CvSpanSerialization.h"
 
 // must be included after all other headers
 #include "LintFree.h"
@@ -122,9 +123,7 @@ CvAIGrandStrategyXMLEntry* CvAIGrandStrategyXMLEntries::GetEntry(int index)
 //=====================================
 /// Constructor
 CvGrandStrategyAI::CvGrandStrategyAI():
-	m_paiGrandStrategyPriority(NULL),
-	m_eGuessOtherPlayerActiveGrandStrategy(NULL),
-	m_eGuessOtherPlayerActiveGrandStrategyConfidence(NULL)
+	m_paiGrandStrategyPriority(NULL)
 {
 }
 
@@ -145,12 +144,6 @@ void CvGrandStrategyAI::Init(CvAIGrandStrategyXMLEntries* pAIGrandStrategies, Cv
 	FAssertMsg(m_paiGrandStrategyPriority==NULL, "about to leak memory, CvGrandStrategyAI::m_paiGrandStrategyPriority");
 	m_paiGrandStrategyPriority = FNEW(int[m_pAIGrandStrategies->GetNumAIGrandStrategies()], c_eCiv5GameplayDLL, 0);
 
-	FAssertMsg(m_eGuessOtherPlayerActiveGrandStrategy==NULL, "about to leak memory, CvGrandStrategyAI::m_eGuessOtherPlayerActiveGrandStrategy");
-	m_eGuessOtherPlayerActiveGrandStrategy = FNEW(int[MAX_MAJOR_CIVS], c_eCiv5GameplayDLL, 0);
-
-	FAssertMsg(m_eGuessOtherPlayerActiveGrandStrategyConfidence==NULL, "about to leak memory, CvGrandStrategyAI::m_eGuessOtherPlayerActiveGrandStrategyConfidence");
-	m_eGuessOtherPlayerActiveGrandStrategyConfidence = FNEW(int[MAX_MAJOR_CIVS], c_eCiv5GameplayDLL, 0);
-
 	Reset();
 }
 
@@ -158,8 +151,6 @@ void CvGrandStrategyAI::Init(CvAIGrandStrategyXMLEntries* pAIGrandStrategies, Cv
 void CvGrandStrategyAI::Uninit()
 {
 	SAFE_DELETE_ARRAY(m_paiGrandStrategyPriority);
-	SAFE_DELETE_ARRAY(m_eGuessOtherPlayerActiveGrandStrategy);
-	SAFE_DELETE_ARRAY(m_eGuessOtherPlayerActiveGrandStrategyConfidence);
 }
 
 /// Reset AIStrategy status array to all false
@@ -193,56 +184,44 @@ void CvGrandStrategyAI::Reset()
 	m_iFlavorDiplomacy = 7;
 }
 
+///
+template<typename GrandStrategyAI, typename Visitor>
+void CvGrandStrategyAI::Serialize(GrandStrategyAI& grandStrategyAI, Visitor& visitor)
+{
+	visitor(grandStrategyAI.m_iNumTurnsSinceActiveSet);
+	visitor(grandStrategyAI.m_eActiveGrandStrategy);
+
+	CvAssertMsg(grandStrategyAI.m_pAIGrandStrategies != NULL && grandStrategyAI.m_pAIGrandStrategies->GetNumAIGrandStrategies() > 0, "Number of AIGrandStrategies to serialize is expected to greater than 0");
+	visitor(MakeConstSpan(grandStrategyAI.m_paiGrandStrategyPriority, grandStrategyAI.m_pAIGrandStrategies->GetNumAIGrandStrategies()));
+
+	visitor(grandStrategyAI.m_eGuessOtherPlayerActiveGrandStrategy);
+	visitor(grandStrategyAI.m_eGuessOtherPlayerActiveGrandStrategyConfidence);
+}
+
 /// Serialization read
 void CvGrandStrategyAI::Read(FDataStream& kStream)
 {
-	// Version number to maintain backwards compatibility
-	uint uiVersion;
-	kStream >> uiVersion;
-	MOD_SERIALIZE_INIT_READ(kStream);
-
-	kStream >> m_iNumTurnsSinceActiveSet;
-	kStream >> (int&)m_eActiveGrandStrategy;
-
-	FAssertMsg(m_pAIGrandStrategies != NULL && m_pAIGrandStrategies->GetNumAIGrandStrategies() > 0, "Number of AIGrandStrategies to serialize is expected to greater than 0");
-#ifdef _MSC_VER
-// JAR - if m_pAIGrandStrategies can be NULL at this point,
-// the load will fail if the data isn't read. Better to crash
-// here where the problem is than defer it.
-#pragma warning ( push )
-#pragma warning ( disable : 6011 )
-#endif//_MSC_VER
-	ArrayWrapper<int> wrapm_paiGrandStrategyPriority(m_pAIGrandStrategies->GetNumAIGrandStrategies(), m_paiGrandStrategyPriority);
-#ifdef _MSC_VER
-#pragma warning ( pop )
-#endif//_MSC_VER
-
-	kStream >> wrapm_paiGrandStrategyPriority;
-
-	ArrayWrapper<int> wrapm_eGuessOtherPlayerActiveGrandStrategy(MAX_MAJOR_CIVS, m_eGuessOtherPlayerActiveGrandStrategy);
-	kStream >> wrapm_eGuessOtherPlayerActiveGrandStrategy;
-
-	ArrayWrapper<int> wrapm_eGuessOtherPlayerActiveGrandStrategyConfidence(MAX_MAJOR_CIVS, m_eGuessOtherPlayerActiveGrandStrategyConfidence);
-	kStream >> wrapm_eGuessOtherPlayerActiveGrandStrategyConfidence;
+	CvStreamLoadVisitor serialVisitor(kStream);
+	CvGrandStrategyAI::Serialize(*this, serialVisitor);
 
 }
 
 /// Serialization write
-void CvGrandStrategyAI::Write(FDataStream& kStream)
+void CvGrandStrategyAI::Write(FDataStream& kStream) const
 {
-	// Current version number
-	uint uiVersion = 1;
-	kStream << uiVersion;
-	MOD_SERIALIZE_INIT_WRITE(kStream);
+	CvStreamSaveVisitor serialVisitor(kStream);
+	CvGrandStrategyAI::Serialize(*this, serialVisitor);
+}
 
-	kStream << m_iNumTurnsSinceActiveSet;
-	kStream << m_eActiveGrandStrategy;
-
-	FAssertMsg(GC.getNumAIGrandStrategyInfos() > 0, "Number of AIStrategies to serialize is expected to greater than 0");
-	kStream << ArrayWrapper<int>(m_pAIGrandStrategies->GetNumAIGrandStrategies(), m_paiGrandStrategyPriority);
-
-	kStream << ArrayWrapper<int>(MAX_MAJOR_CIVS, m_eGuessOtherPlayerActiveGrandStrategy);
-	kStream << ArrayWrapper<int>(MAX_MAJOR_CIVS, m_eGuessOtherPlayerActiveGrandStrategyConfidence);
+FDataStream& operator>>(FDataStream& stream, CvGrandStrategyAI& grandStrategyAI)
+{
+	grandStrategyAI.Read(stream);
+	return stream;
+}
+FDataStream& operator<<(FDataStream& stream, const CvGrandStrategyAI& grandStrategyAI)
+{
+	grandStrategyAI.Write(stream);
+	return stream;
 }
 
 /// Returns the Player object the Strategies are associated with

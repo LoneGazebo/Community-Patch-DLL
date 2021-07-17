@@ -16,10 +16,10 @@
 #include "CvDllPlot.h"
 #include "CvInfosSerializationHelper.h"
 
-#if defined(MOD_BALANCE_CORE)
 #include "CvTypes.h"
-	#include <algorithm>
-#endif
+#include "CvSpanSerialization.h"
+
+#include <algorithm>
 
 // include after all other headers
 #include "LintFree.h"
@@ -56,6 +56,8 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_bTradeRouteInvulnerable(false),
 	m_iTRSpeedBoost(0),
 	m_iTRVisionBoost(0),
+	m_iTRTurnModGlobal(0),
+	m_iTRTurnModLocal(0),
 	m_iVotesPerGPT(0),
 	m_bRequiresRail(false),
 	m_bDummy(false),
@@ -205,13 +207,11 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_iEventRequiredActive(NO_EVENT_CHOICE),
 	m_iCityEventRequiredActive(NO_EVENT_CHOICE_CITY),
 #endif
-#if defined(MOD_API_EXTENSIONS)
 	m_bAddsFreshWater(false),
 	m_bPurchaseOnly(false),
 	m_bSecondaryPantheon(false),
 	m_piGreatWorkYieldChange(NULL),
 	m_piGreatWorkYieldChangeLocal(NULL),
-#endif
 #if defined(MOD_BALANCE_CORE)
 	m_iNumRequiredTier3Tenets(0),
 	m_bIsNoWater(false),
@@ -558,11 +558,9 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	m_bRiver = kResults.GetBool("River");
 	m_bFreshWater = kResults.GetBool("FreshWater");
 	m_bAnyWater = kResults.GetBool("AnyWater");
-#if defined(MOD_API_EXTENSIONS)
 	m_bAddsFreshWater = kResults.GetBool("AddsFreshWater");
 	m_bPurchaseOnly = kResults.GetBool("PurchaseOnly");
 	m_bSecondaryPantheon = kResults.GetBool("SecondaryPantheon");
-#endif
 #if defined(MOD_BALANCE_CORE)
 	m_iNumRequiredTier3Tenets = kResults.GetInt("NumRequiredTier3Tenets");
 	m_bIsNoWater = kResults.GetBool("IsNoWater");
@@ -577,10 +575,8 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	m_iResourceDiversityModifier = kResults.GetInt("ResourceDiversityModifier");
 	m_iNoUnhappfromXSpecialists = kResults.GetInt("NoUnhappfromXSpecialists");
 	m_iNoUnhappfromXSpecialistsGlobal = kResults.GetInt("NoUnhappfromXSpecialistsGlobal");
-
 	m_bEnablesTechSteal = kResults.GetBool("EnablesTechSteal");
 	m_bEnablesGWSteal = kResults.GetBool("EnablesGWSteal");
-
 #endif
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	m_bVassalLevyEra = kResults.GetBool("VassalLevyEra");
@@ -827,6 +823,8 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	m_bTradeRouteInvulnerable = kResults.GetBool("TradeRouteInvulnerable");
 	m_iTRSpeedBoost = kResults.GetInt("TRSpeedBoost");
 	m_iTRVisionBoost = kResults.GetInt("TRVisionBoost");
+	m_iTRTurnModGlobal = kResults.GetInt("TRTurnModGlobal");
+	m_iTRTurnModLocal = kResults.GetInt("TRTurnModLocal");
 	m_iVotesPerGPT = kResults.GetInt("VotesPerGPT");
 	m_bRequiresRail = kResults.GetBool("RequiresRail");
 	m_bDummy = kResults.GetBool("IsDummy");
@@ -1501,11 +1499,7 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 		Database::Results* pResourceTypes = kUtility.GetResults(strResourceTypesKey);
 		if(pResourceTypes == NULL)
 		{
-#if defined(MOD_API_EXTENSIONS)
 			pResourceTypes = kUtility.PrepareResults(strResourceTypesKey, "select Bonus, Description, SameEra, UniqueEras, ConsecutiveEras, MustBeArt, MustBeArtifact, MustBeEqualArtArtifact, RequiresOwner, RequiresAnyButOwner, RequiresSamePlayer, RequiresUniquePlayers, AIPriority from Building_ThemingBonuses where BuildingType = ?");
-#else
-			pResourceTypes = kUtility.PrepareResults(strResourceTypesKey, "select Bonus, Description, SameEra, UniqueEras, MustBeArt, MustBeArtifact, MustBeEqualArtArtifact, RequiresOwner, RequiresAnyButOwner, RequiresSamePlayer, RequiresUniquePlayers, AIPriority from Building_ThemingBonuses where BuildingType = ?");
-#endif
 		}
 
 		const size_t lenBuildingType = strlen(szBuildingType);
@@ -1519,9 +1513,7 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 			pThemingInfo.m_strDescription = pResourceTypes->GetText("Description");
 			pThemingInfo.m_bSameEra = pResourceTypes->GetBool("SameEra");
 			pThemingInfo.m_bUniqueEras = pResourceTypes->GetBool("UniqueEras");
-#if defined(MOD_API_EXTENSIONS)
 			pThemingInfo.m_bConsecutiveEras = pResourceTypes->GetBool("ConsecutiveEras");
-#endif
 			pThemingInfo.m_bMustBeArt = pResourceTypes->GetBool("MustBeArt");
 			pThemingInfo.m_bMustBeArtifact = pResourceTypes->GetBool("MustBeArtifact");
 			pThemingInfo.m_bMustBeEqualArtArtifact = pResourceTypes->GetBool("MustBeEqualArtArtifact");
@@ -1772,6 +1764,16 @@ int CvBuildingEntry::GetTRSpeedBoost() const
 int CvBuildingEntry::GetTRVisionBoost() const
 {
 	return m_iTRVisionBoost;
+}
+// TRs take less time on empire
+int CvBuildingEntry::GetTRTurnModGlobal() const
+{
+	return m_iTRTurnModGlobal;
+}
+// TRs take less time from the city
+int CvBuildingEntry::GetTRTurnModLocal() const
+{
+	return m_iTRTurnModLocal;
 }
 
 int CvBuildingEntry::GetVotesPerGPT() const
@@ -2542,7 +2544,6 @@ bool CvBuildingEntry::IsFreshWater() const
 	return m_bFreshWater;
 }
 
-#if defined(MOD_API_EXTENSIONS)
 /// Does this building add FreshWater?
 bool CvBuildingEntry::IsAddsFreshWater() const
 {
@@ -2584,8 +2585,6 @@ int* CvBuildingEntry::GetGreatWorkYieldChangeLocalArray() const
 {
 	return m_piGreatWorkYieldChangeLocal;
 }
-
-#endif
 
 /// Must this be built in a city next to Mountain?
 bool CvBuildingEntry::IsMountain() const
@@ -4349,91 +4348,66 @@ void CvCityBuildings::Reset()
 
 }
 
+template<typename CityBuildings, typename Visitor>
+void CvCityBuildings::Serialize(CityBuildings& cityBuildings, Visitor& visitor)
+{
+	visitor(cityBuildings.m_iNumBuildings);
+	visitor(cityBuildings.m_iBuildingProductionModifier);
+	visitor(cityBuildings.m_iBuildingProductionModifierPotentialFromMinorTrade);
+	visitor(cityBuildings.m_iBuildingDefense);
+	visitor(cityBuildings.m_iBuildingDefenseMod);
+	visitor(cityBuildings.m_iMissionaryExtraSpreads);
+	visitor(cityBuildings.m_iLandmarksTourismPercent);
+	visitor(cityBuildings.m_iGreatWorksTourismModifier);
+
+	visitor(cityBuildings.m_bSoldBuildingThisTurn);
+
+	int iNumBuildings = cityBuildings.m_pPossibleBuildings->GetNumBuildings();
+	visitor(MakeConstSpan(cityBuildings.m_paiBuildingProduction, iNumBuildings));
+	visitor(MakeConstSpan(cityBuildings.m_paiBuildingProductionTime, iNumBuildings));
+	visitor(MakeConstSpan(cityBuildings.m_paiBuildingOriginalOwner, iNumBuildings));
+	visitor(MakeConstSpan(cityBuildings.m_paiBuildingOriginalTime, iNumBuildings));
+	visitor(MakeConstSpan(cityBuildings.m_paiNumRealBuilding, iNumBuildings));
+	visitor(MakeConstSpan(cityBuildings.m_paiNumFreeBuilding, iNumBuildings));
+	visitor(MakeConstSpan(cityBuildings.m_paiFirstTimeBuilding, iNumBuildings));
+	visitor(MakeConstSpan(cityBuildings.m_paiThemingBonusIndex, iNumBuildings));
+
+	visitor(cityBuildings.m_aBuildingYieldChange);
+	visitor(cityBuildings.m_aBuildingGreatWork);
+}
+
 /// Serialization read
 void CvCityBuildings::Read(FDataStream& kStream)
 {
 	CvAssertMsg(GetNumBuildings() > 0, "Number of buildings to serialize is expected to greater than 0");
 
-	// Version number to maintain backwards compatibility
-	uint uiVersion;
-	kStream >> uiVersion;
-	MOD_SERIALIZE_INIT_READ(kStream);
+	CvStreamLoadVisitor serialVisitor(kStream);
+	Serialize(*this, serialVisitor);
 
-	kStream >> m_iNumBuildings;
-	kStream >> m_iBuildingProductionModifier;
-	kStream >> m_iBuildingProductionModifierPotentialFromMinorTrade;
-	kStream >> m_iBuildingDefense;
-	kStream >> m_iBuildingDefenseMod;
-	kStream >> m_iMissionaryExtraSpreads;
-	kStream >> m_iLandmarksTourismPercent;
-	kStream >> m_iGreatWorksTourismModifier;
-
-	kStream >> m_bSoldBuildingThisTurn;
-
-	BuildingArrayHelpers::Read(kStream, m_paiBuildingProduction);
-	BuildingArrayHelpers::Read(kStream, m_paiBuildingProductionTime);
-	BuildingArrayHelpers::Read(kStream, m_paiBuildingOriginalOwner);
-	BuildingArrayHelpers::Read(kStream, m_paiBuildingOriginalTime);
-	BuildingArrayHelpers::Read(kStream, m_paiNumRealBuilding);
-	BuildingArrayHelpers::Read(kStream, m_paiNumFreeBuilding);
-#if defined(MOD_BALANCE_CORE)
-	BuildingArrayHelpers::Read(kStream, m_paiFirstTimeBuilding);
-	BuildingArrayHelpers::Read(kStream, m_paiThemingBonusIndex);
-#endif
-
-	kStream >> m_aBuildingYieldChange;
-	kStream >> m_aBuildingGreatWork;
-
-#if defined(MOD_BALANCE_CORE)
 	for (int i=0; i<m_pPossibleBuildings->GetNumBuildings(); i++)
 		if (m_paiNumRealBuilding[i]>0 || m_paiNumFreeBuilding[i]>0)
 			m_buildingsThatExistAtLeastOnce.push_back( (BuildingTypes)i );
-#endif
 
 }
 
 /// Serialization write
-void CvCityBuildings::Write(FDataStream& kStream)
+void CvCityBuildings::Write(FDataStream& kStream) const
 {
 	CvAssertMsg(GetNumBuildings() > 0, "Number of buildings to serialize is expected to greater than 0");
 
-	// Current version number
-	uint uiVersion = 1;
-	kStream << uiVersion;
-	MOD_SERIALIZE_INIT_WRITE(kStream);
+	CvStreamSaveVisitor serialVisitor(kStream);
+	Serialize(*this, serialVisitor);
+}
 
-	kStream << m_iNumBuildings;
-	kStream << m_iBuildingProductionModifier;
-	kStream << m_iBuildingProductionModifierPotentialFromMinorTrade;
-	kStream << m_iBuildingDefense;
-	kStream << m_iBuildingDefenseMod;
-	kStream << m_iMissionaryExtraSpreads;
-	kStream << m_iLandmarksTourismPercent;
-	kStream << m_iGreatWorksTourismModifier;
-	kStream << m_bSoldBuildingThisTurn;
-
-#ifdef _MSC_VER
-#pragma warning ( push )
-#pragma warning ( disable : 6011 ) // if m_pBuildings is NULL during load, we're screwed. Redesign the class or the loader code.
-#endif//_MSC_VER
-	int iNumBuildings = m_pPossibleBuildings->GetNumBuildings();
-#ifdef _MSC_VER
-#pragma warning ( pop )
-#endif//_MSC_VER
-
-	BuildingArrayHelpers::Write(kStream, m_paiBuildingProduction, iNumBuildings);
-	BuildingArrayHelpers::Write(kStream, m_paiBuildingProductionTime, iNumBuildings);
-	BuildingArrayHelpers::Write(kStream, m_paiBuildingOriginalOwner, iNumBuildings);
-	BuildingArrayHelpers::Write(kStream, m_paiBuildingOriginalTime, iNumBuildings);
-	BuildingArrayHelpers::Write(kStream, m_paiNumRealBuilding, iNumBuildings);
-	BuildingArrayHelpers::Write(kStream, m_paiNumFreeBuilding, iNumBuildings);
-#if defined(MOD_BALANCE_CORE)
-	BuildingArrayHelpers::Write(kStream, m_paiFirstTimeBuilding, iNumBuildings);
-	BuildingArrayHelpers::Write(kStream, m_paiThemingBonusIndex, iNumBuildings);
-#endif
-
-	kStream << m_aBuildingYieldChange;
-	kStream << m_aBuildingGreatWork;
+FDataStream& operator>>(FDataStream& stream, CvCityBuildings& cityBuildings)
+{
+	cityBuildings.Read(stream);
+	return stream;
+}
+FDataStream& operator<<(FDataStream& stream, const CvCityBuildings& cityBuildings)
+{
+	cityBuildings.Write(stream);
+	return stream;
 }
 
 /// Accessor: Get full array of all building XML data
@@ -4471,7 +4445,7 @@ int CvCityBuildings::GetNumBuilding(BuildingTypes eIndex) const
 		return (GetNumRealBuilding(eIndex) + GetNumFreeBuilding(eIndex));
 	}
 }
-#if defined(MOD_BALANCE_CORE) || defined(MOD_BUILDINGS_THOROUGH_PREREQUISITES)
+
 /// Accessor: How many of these building classes in the city?
 int CvCityBuildings::GetNumBuildingClass(BuildingClassTypes eIndex) const
 {
@@ -4544,7 +4518,7 @@ void CvCityBuildings::RemoveAllRealBuildingsOfClass(BuildingClassTypes eIndex)
 		}
 	}
 }
-#endif
+
 /// Accessor: How many of these buildings are not obsolete?
 int CvCityBuildings::GetNumActiveBuilding(BuildingTypes eIndex) const
 {
@@ -4936,7 +4910,7 @@ void CvCityBuildings::SetNumRealBuildingTimed(BuildingTypes eIndex, int iNewValu
 			pPlayer->GetTreasury()->ChangeBaseBuildingGoldMaintenance(buildingEntry->GetGoldMaintenance() * iChangeNumRealBuilding);
 		}
 
-#if !defined(NO_ACHIEVEMENTS)
+#if defined(MOD_API_ACHIEVEMENTS)
 		//Achievement for Temples
 		const char* szBuildingTypeC = buildingEntry->GetType();
 		CvString szBuildingType = szBuildingTypeC;
@@ -5042,11 +5016,7 @@ void CvCityBuildings::SetNumRealBuildingTimed(BuildingTypes eIndex, int iNewValu
 						bool bDontShowRewardPopup = GC.GetEngineUserInterface()->IsOptionNoRewardPopups();
 
 						// Notification in MP games
-#if defined(MOD_API_EXTENSIONS)
 						if(bDontShowRewardPopup || GC.getGame().isReallyNetworkMultiPlayer())
-#else
-						if(bDontShowRewardPopup || GC.getGame().isNetworkMultiPlayer())	// KWG: Candidate for !GC.getGame().IsOption(GAMEOPTION_SIMULTANEOUS_TURNS)
-#endif
 						{
 							CvNotifications* pNotifications = GET_PLAYER(m_pCity->getOwner()).GetNotifications();
 							if(pNotifications)
@@ -5064,7 +5034,7 @@ void CvCityBuildings::SetNumRealBuildingTimed(BuildingTypes eIndex, int iNewValu
 								CvPopupInfo kPopup(BUTTONPOPUP_WONDER_COMPLETED_ACTIVE_PLAYER, eIndex);
 								GC.GetEngineUserInterface()->AddPopup(kPopup);
 
-#if !defined(NO_ACHIEVEMENTS)
+#if defined(MOD_API_ACHIEVEMENTS)
 								if(GET_PLAYER(GC.getGame().getActivePlayer()).isHuman())
 								{
 									gDLL->UnlockAchievement(ACHIEVEMENT_BUILD_WONDER);
@@ -5111,7 +5081,7 @@ void CvCityBuildings::SetNumRealBuildingTimed(BuildingTypes eIndex, int iNewValu
 								}
 							}
 
-#if !defined(NO_ACHIEVEMENTS)
+#if defined(MOD_API_ACHIEVEMENTS)
 							//Achievements!
 							if(pPlayer->GetID() == GC.getGame().getActivePlayer() && strcmp(buildingEntry->GetType(), "BUILDING_GREAT_FIREWALL") == 0)
 							{
@@ -5132,7 +5102,7 @@ void CvCityBuildings::SetNumRealBuildingTimed(BuildingTypes eIndex, int iNewValu
 		auto_ptr<ICvCity1> pCity = GC.WrapCityPointer(m_pCity);
 		GC.GetEngineUserInterface()->SetSpecificCityInfoDirty(pCity.get(), CITY_UPDATE_TYPE_BANNER);
 
-#if !defined(NO_ACHIEVEMENTS)
+#if defined(MOD_API_ACHIEVEMENTS)
 		//Test for any achievements being unlocked.
 		pPlayer->GetPlayerAchievements().FinishedBuilding(m_pCity, eIndex);
 #endif
@@ -5242,11 +5212,8 @@ void CvCityBuildings::SetBuildingYieldChange(BuildingClassTypes eBuildingClass, 
 				}
 
 				BuildingTypes eBuilding = NO_BUILDING;
-#if defined(MOD_BALANCE_CORE)
+
 				if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || GET_PLAYER(m_pCity->getOwner()).GetPlayerTraits()->IsKeepConqueredBuildings())
-#else
-				if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
-#endif
 				{
 					eBuilding = GetBuildingTypeFromClass(eBuildingClass);
 				}
@@ -5276,11 +5243,8 @@ void CvCityBuildings::SetBuildingYieldChange(BuildingClassTypes eBuildingClass, 
 		m_aBuildingYieldChange.push_back(kChange);
 
 		BuildingTypes eBuilding = NO_BUILDING;
-#if defined(MOD_BALANCE_CORE)
+
 		if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || GET_PLAYER(m_pCity->getOwner()).GetPlayerTraits()->IsKeepConqueredBuildings())
-#else
-		if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
-#endif
 		{
 			eBuilding = GetBuildingTypeFromClass(eBuildingClass);
 		}
@@ -5457,11 +5421,8 @@ bool CvCityBuildings::GetNextAvailableGreatWorkSlot(BuildingClassTypes *eBuildin
 		{
 			BuildingClassTypes eLoopBuildingClass = (BuildingClassTypes) iI;
 			BuildingTypes eBuilding = NO_BUILDING;
-#if defined(MOD_BALANCE_CORE)
+
 			if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || GET_PLAYER(m_pCity->getOwner()).GetPlayerTraits()->IsKeepConqueredBuildings())
-#else
-			if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
-#endif
 			{
 				eBuilding = GetBuildingTypeFromClass(eLoopBuildingClass);
 			}
@@ -5500,11 +5461,8 @@ bool CvCityBuildings::GetNextAvailableGreatWorkSlot(GreatWorkSlotType eGreatWork
 		{
 			BuildingClassTypes eLoopBuildingClass = (BuildingClassTypes) iI;
 			BuildingTypes eBuilding = NO_BUILDING;
-#if defined(MOD_BALANCE_CORE)
+
 			if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || GET_PLAYER(m_pCity->getOwner()).GetPlayerTraits()->IsKeepConqueredBuildings())
-#else
-			if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
-#endif
 			{
 				eBuilding = GetBuildingTypeFromClass(eLoopBuildingClass);
 			}
@@ -5720,11 +5678,8 @@ int CvCityBuildings::GetNumGreatWorks() const
 			if (pkClassInfo)
 			{
 				BuildingTypes eBuilding = NO_BUILDING;
-#if defined(MOD_BALANCE_CORE)
+
 				if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || GET_PLAYER(m_pCity->getOwner()).GetPlayerTraits()->IsKeepConqueredBuildings())
-#else
-				if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
-#endif
 				{
 					eBuilding = GetBuildingTypeFromClass(eBldgClass);
 				}
@@ -5776,11 +5731,8 @@ int CvCityBuildings::GetNumGreatWorks(GreatWorkSlotType eGreatWorkSlot) const
 			if (pkClassInfo)
 			{
 				BuildingTypes eBuilding = NO_BUILDING;
-#if defined(MOD_BALANCE_CORE)
+
 				if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || GET_PLAYER(m_pCity->getOwner()).GetPlayerTraits()->IsKeepConqueredBuildings())
-#else
-				if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
-#endif
 				{
 
 					eBuilding = GetBuildingTypeFromClass(eBldgClass);
@@ -5900,7 +5852,7 @@ int CvCityBuildings::GetCurrentThemingBonuses() const
 					iModifier += m_pCity->GetPlayer()->GetPlayerTraits()->GetCapitalThemingBonusModifier();
 
 				iBonus = iBonus * (100 + iModifier) / 100;
-#if !defined(NO_ACHIEVEMENTS)
+#if defined(MOD_API_ACHIEVEMENTS)
 				if (m_pCity->GetPlayer()->isHuman() && !GC.getGame().isGameMultiPlayer() && iBonus >= 16)
 					gDLL->UnlockAchievement(ACHIEVEMENT_XP2_40);
 #endif
@@ -6206,7 +6158,7 @@ void CvCityBuildings::IncrementWonderStats(BuildingClassTypes eIndex)
 		OutputDebugString("\n");
 	}
 
-#if !defined(NO_ACHIEVEMENTS)
+#if defined(MOD_API_ACHIEVEMENTS)
 	bool bCheckForWonders = false;
 	bCheckForWonders = CheckForAllWondersBuilt();
 	if(bCheckForWonders)
@@ -6215,7 +6167,7 @@ void CvCityBuildings::IncrementWonderStats(BuildingClassTypes eIndex)
 	}
 #endif
 
-#if !defined(NO_ACHIEVEMENTS)
+#if defined(MOD_API_ACHIEVEMENTS)
 	//DLC_06
 	bool bCheckForAncientWonders = false;
 	bCheckForAncientWonders = CheckForSevenAncientWondersBuilt();

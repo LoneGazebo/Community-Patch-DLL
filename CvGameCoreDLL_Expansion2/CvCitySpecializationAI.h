@@ -121,6 +121,8 @@ public:
 	void Init(CvCitySpecializationXMLEntries* pSpecializations, CvPlayer* pPlayer);
 	void Uninit();
 	void Reset();
+	template<typename CitySpecializationAI, typename Visitor>
+	static void Serialize(CitySpecializationAI& citySpecializationAI, Visitor& visitor);
 	void Read(FDataStream& kStream);
 	void Write(FDataStream& kStream) const;
 
@@ -177,5 +179,8 @@ private:
 	int m_iWonderCityID;
 	int m_iNextWonderWeight;
 };
+
+FDataStream& operator>>(FDataStream&, CvCitySpecializationAI&);
+FDataStream& operator<<(FDataStream&, const CvCitySpecializationAI&);
 
 #endif //CIV5_CITY_SPECIALIZATION_AI_H

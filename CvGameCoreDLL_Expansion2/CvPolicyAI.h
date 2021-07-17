@@ -28,14 +28,17 @@ public:
 	void Reset();
 
 	// Serialization routines
+	template<typename PolicyAI, typename Visitor>
+	static void Serialize(PolicyAI& policyAI, Visitor& visitor);
 	void Read(FDataStream& kStream);
-	void Write(FDataStream& kStream);
+	void Write(FDataStream& kStream) const;
 
 	// Establish weights for one flavor
 	void AddFlavorWeights(FlavorTypes eFlavor, int iWeight, int iPropagationPercent);
 
 	// Choose a player's next policy purchase
 	int ChooseNextPolicy(CvPlayer* pPlayer);
+	bool CanContinuePolicyBranch(PolicyBranchTypes ePolicyBranch);
 
 	// Ideology
 	void DoChooseIdeology(CvPlayer* pPlayer);
@@ -71,5 +74,7 @@ private:
 	int m_iPolicyWeightPropagationLevels;
 	int m_iPolicyWeightPercentDropNewBranch;
 };
+FDataStream& operator<<(FDataStream&, const CvPolicyAI&);
+FDataStream& operator>>(FDataStream&, CvPolicyAI&);
 
 #endif //CIV5_POLICYAI_H

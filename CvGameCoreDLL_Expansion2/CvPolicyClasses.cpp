@@ -14,6 +14,7 @@
 #include "CvEconomicAI.h"
 #include "CvGrandStrategyAI.h"
 #include "CvInfosSerializationHelper.h"
+#include "CvEnumMapSerialization.h"
 
 // Include this after all other headers.
 #include "LintFree.h"
@@ -336,6 +337,12 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_piFounderYield(NULL),
 	m_piReligionYieldMod(NULL),
 	m_ppiReligionBuildingYieldMod(NULL),
+	m_piYieldForLiberation(NULL),
+	m_iInfluenceForLiberation(0),
+	m_iExperienceForLiberation(0),
+	m_eBuildingClassInLiberatedCities(NO_BUILDINGCLASS),
+	m_iUnitsInLiberatedCities(0),
+	m_piFranchisesPerImprovement(NULL),
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	m_iInvestmentModifier(0),
@@ -440,6 +447,8 @@ CvPolicyEntry::~CvPolicyEntry(void)
 	SAFE_DELETE_ARRAY(m_piReligionYieldMod);
 	SAFE_DELETE_ARRAY(m_piGoldenAgeYieldMod);
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiReligionBuildingYieldMod);
+	SAFE_DELETE_ARRAY(m_piYieldForLiberation);
+	SAFE_DELETE_ARRAY(m_piFranchisesPerImprovement);
 #endif
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiImprovementYieldChanges);
 #if defined(MOD_API_UNIFIED_YIELDS)
@@ -1233,6 +1242,21 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 
 	//ImprovementCultureChanges
 	kUtility.PopulateArrayByValue(m_piImprovementCultureChange, "Improvements", "Policy_ImprovementCultureChanges", "ImprovementType", "PolicyType", szPolicyType, "CultureChange");
+
+#if defined(MOD_BALANCE_CORE_POLICIES)
+	kUtility.SetYields(m_piYieldForLiberation, "Policy_YieldForLiberation", "PolicyType", szPolicyType);
+	m_iInfluenceForLiberation = kResults.GetInt("InfluenceAllCSFromLiberation");
+	m_iExperienceForLiberation = kResults.GetInt("ExperienceAllUnitsFromLiberation");
+	m_iUnitsInLiberatedCities = kResults.GetInt("NumUnitsInLiberatedCities");
+
+	const char* szBuildingClassInLiberatedCities = kResults.GetText("BuildingClassInLiberatedCities");
+	if (szBuildingClassInLiberatedCities)
+	{
+		m_eBuildingClassInLiberatedCities = (BuildingClassTypes)GC.getInfoTypeForString(szBuildingClassInLiberatedCities, true);
+	}
+
+	kUtility.PopulateArrayByValue(m_piFranchisesPerImprovement, "Improvements", "Policy_FranchisePerImprovement", "ImprovementType", "PolicyType", szPolicyType, "NumFranchise");
+#endif
 
 	//OrPreReqs
 	{
@@ -3596,6 +3620,42 @@ int CvPolicyEntry::GetImprovementCultureChanges(int i) const
 	return m_piImprovementCultureChange[i];
 }
 
+#if defined(MOD_BALANCE_CORE_POLICIES)
+/// Yields whenever you liberate a city
+int CvPolicyEntry::GetYieldForLiberation(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piYieldForLiberation[i];
+}
+/// Influence in all CS whenever you liberate a city 
+int CvPolicyEntry::GetInfluenceForLiberation() const
+{
+	return m_iInfluenceForLiberation;
+}
+/// All units get XP whenever you liberate a city
+int CvPolicyEntry::GetExperienceForLiberation() const
+{
+	return m_iExperienceForLiberation;
+}
+/// Building in the liberated city whenever you liberate a city
+BuildingClassTypes CvPolicyEntry::GetBuildingClassInLiberatedCities() const
+{
+	return m_eBuildingClassInLiberatedCities;
+}
+/// Units in the liberated city whenever you liberate a city
+int CvPolicyEntry::GetUnitsInLiberatedCities() const
+{
+	return m_iUnitsInLiberatedCities;
+}
+int CvPolicyEntry::getFranchisesPerImprovement(int i) const
+{
+	CvAssertMsg(i < GC.getNumImprovementInfos(), "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piFranchisesPerImprovement[i];
+}
+#endif
+
 /// Free building in each city conquered
 BuildingTypes CvPolicyEntry::GetFreeBuildingOnConquest() const
 {
@@ -3849,9 +3909,7 @@ CvPolicyBranchEntry* CvPolicyXMLEntries::GetPolicyBranchEntry(int index)
 //=====================================
 /// Constructor
 CvPlayerPolicies::CvPlayerPolicies():
-#if defined(MOD_API_EXTENSIONS)
 	m_pabFreePolicy(NULL),
-#endif
 	m_pabHasPolicy(NULL),
 	m_pabHasOneShotPolicyFired(NULL),
 	m_pabHaveOneShotFreeUnitsFired(NULL),
@@ -3887,10 +3945,8 @@ void CvPlayerPolicies::Init(CvPolicyXMLEntries* pPolicies, CvPlayer* pPlayer, bo
 	m_pPlayer = pPlayer;
 
 	// Initialize policy status array
-#if defined(MOD_API_EXTENSIONS)
 	CvAssertMsg(m_pabFreePolicy==NULL, "about to leak memory, CvPlayerPolicies::m_pabFreePolicy");
 	m_pabFreePolicy = FNEW(bool[m_pPolicies->GetNumPolicies()], c_eCiv5GameplayDLL, 0);
-#endif
 	CvAssertMsg(m_pabHasPolicy==NULL, "about to leak memory, CvPlayerPolicies::m_pabHasPolicy");
 	m_pabHasPolicy = FNEW(bool[m_pPolicies->GetNumPolicies()], c_eCiv5GameplayDLL, 0);
 	CvAssertMsg(m_pabHasOneShotPolicyFired==NULL, "about to leak memory, CvPlayerPolicies::m_pabHasOneShotPolicyFired");
@@ -3928,9 +3984,7 @@ void CvPlayerPolicies::Uninit()
 	// Uninit base class
 	CvFlavorRecipient::Uninit();
 
-#if defined(MOD_API_EXTENSIONS)
 	SAFE_DELETE_ARRAY(m_pabFreePolicy);
-#endif
 	SAFE_DELETE_ARRAY(m_pabHasPolicy);
 	SAFE_DELETE_ARRAY(m_pabHasOneShotPolicyFired);
 	SAFE_DELETE_ARRAY(m_pabHaveOneShotFreeUnitsFired);
@@ -3949,9 +4003,7 @@ void CvPlayerPolicies::Reset()
 
 	for(iI = 0; iI < m_pPolicies->GetNumPolicies(); iI++)
 	{
-#if defined(MOD_API_EXTENSIONS)
 		m_pabFreePolicy[iI] = false;
-#endif
 		m_pabHasPolicy[iI] = false;
 		m_pabHasOneShotPolicyFired[iI] = false;
 		m_pabHaveOneShotFreeUnitsFired[iI] = false;
@@ -4016,99 +4068,62 @@ void CvPlayerPolicies::Reset()
 	}
 }
 
+///
+template<typename PlayerPolicies, typename Visitor>
+void CvPlayerPolicies::Serialize(PlayerPolicies& playerPolicies, Visitor& visitor)
+{
+	CvAssertMsg(playerPolicies.m_pPolicies != NULL && playerPolicies.m_pPolicies->GetNumPolicies() > 0, "Number of policies to serialize is expected to greater than 0");
+	const int iPolicyCount = playerPolicies.m_pPolicies->GetNumPolicies();
+	const int iPolicyBranchCount = playerPolicies.m_pPolicies->GetNumPolicyBranches();
+
+	visitor(MakeConstSpan(playerPolicies.m_pabFreePolicy, iPolicyCount));
+	visitor(MakeConstSpan(playerPolicies.m_pabHasPolicy, iPolicyCount));
+	visitor(MakeConstSpan(playerPolicies.m_pabHasOneShotPolicyFired, iPolicyCount));
+	visitor(MakeConstSpan(playerPolicies.m_pabHaveOneShotFreeUnitsFired, iPolicyCount));
+
+	visitor(MakeConstSpan(playerPolicies.m_pabPolicyBranchUnlocked, iPolicyBranchCount));
+	visitor(MakeConstSpan(playerPolicies.m_pabPolicyBranchBlocked, iPolicyBranchCount));
+	visitor(MakeConstSpan(playerPolicies.m_pabPolicyBranchFinished, iPolicyBranchCount));
+	visitor(MakeConstSpan(playerPolicies.m_paePolicyBranchesChosen, iPolicyBranchCount));
+
+	visitor(playerPolicies.m_iNumExtraBranches);
+
+	visitor(playerPolicies.m_eBranchPicked1);
+	visitor(playerPolicies.m_eBranchPicked2);
+	visitor(playerPolicies.m_eBranchPicked3);
+
+	CvAssertMsg(playerPolicies.m_piLatestFlavorValues.valid() && GC.getNumFlavorTypes() > 0, "Number of flavor values to serialize is expected to greater than 0");
+	visitor(playerPolicies.m_piLatestFlavorValues);
+
+	// Now for AI
+	visitor(*playerPolicies.m_pPolicyAI);
+}
+
 /// Serialization read
 void CvPlayerPolicies::Read(FDataStream& kStream)
 {
-	// Version number to maintain backwards compatibility
-	uint uiVersion;
-	kStream >> uiVersion;
-	MOD_SERIALIZE_INIT_READ(kStream);
+	CvStreamLoadVisitor serialVisitor(kStream);
+	Serialize(*this, serialVisitor);
 
-	CvAssertMsg(m_pPolicies != NULL && m_pPolicies->GetNumPolicies() > 0, "Number of policies to serialize is expected to greater than 0");
-
-	uint uiPolicyCount = 0;
-	uint uiPolicyBranchCount = 0;
-	if(m_pPolicies)
-	{
-		uiPolicyCount = m_pPolicies->GetNumPolicies();
-		uiPolicyBranchCount = m_pPolicies->GetNumPolicyBranches();
-	}
-
-#if defined(MOD_API_EXTENSIONS)
-	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_pabFreePolicy, uiPolicyCount);
-#endif
-	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_pabHasPolicy, uiPolicyCount);
-	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_pabHasOneShotPolicyFired, uiPolicyCount);
-	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_pabHaveOneShotFreeUnitsFired, uiPolicyCount);
-
-	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_pabPolicyBranchUnlocked, uiPolicyBranchCount);
-	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_pabPolicyBranchBlocked, uiPolicyBranchCount);
-	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_pabPolicyBranchFinished, uiPolicyBranchCount);
-	CvInfosSerializationHelper::ReadHashedTypeArray(kStream, m_paePolicyBranchesChosen, uiPolicyBranchCount);
-
-	kStream >> m_iNumExtraBranches;
-
-	m_eBranchPicked1 = (PolicyBranchTypes)CvInfosSerializationHelper::ReadHashed(kStream);
-	m_eBranchPicked2 = (PolicyBranchTypes)CvInfosSerializationHelper::ReadHashed(kStream);
-	m_eBranchPicked3 = (PolicyBranchTypes)CvInfosSerializationHelper::ReadHashed(kStream);
-
-	// Now for AI
-	m_pPolicyAI->Read(kStream);
-
-	CvAssertMsg(m_piLatestFlavorValues != NULL && GC.getNumFlavorTypes() > 0, "Number of flavor values to serialize is expected to greater than 0");
-
-	int iNumFlavors;
-	kStream >> iNumFlavors;
-
-	ArrayWrapper<int> wrapm_piLatestFlavorValues(iNumFlavors, m_piLatestFlavorValues);
-	kStream >> wrapm_piLatestFlavorValues;
-
-#if defined(MOD_BALANCE_CORE)
 	UpdateModifierCache();
-#endif
 }
 
 /// Serialization write
 void CvPlayerPolicies::Write(FDataStream& kStream) const
 {
-	// Current version number
-	uint uiVersion = 2;
-	kStream << uiVersion;
-	MOD_SERIALIZE_INIT_WRITE(kStream);
+	CvStreamSaveVisitor serialVisitor(kStream);
+	Serialize(*this, serialVisitor);
+}
 
-	CvAssertMsg(m_pPolicies != NULL && GC.getNumPolicyInfos() > 0, "Number of policies to serialize is expected to greater than 0");
-
-	uint uiPolicyCount = 0;
-	uint uiPolicyBranchCount = 0;
-	if(m_pPolicies)
-	{
-		uiPolicyCount = m_pPolicies->GetNumPolicies();
-		uiPolicyBranchCount = m_pPolicies->GetNumPolicyBranches();
-	}
-
-#if defined(MOD_API_EXTENSIONS)
-	CvInfosSerializationHelper::WriteHashedDataArray<PolicyTypes>(kStream, m_pabFreePolicy, uiPolicyCount);
-#endif
-	CvInfosSerializationHelper::WriteHashedDataArray<PolicyTypes>(kStream, m_pabHasPolicy, uiPolicyCount);
-	CvInfosSerializationHelper::WriteHashedDataArray<PolicyTypes>(kStream, m_pabHasOneShotPolicyFired, uiPolicyCount);
-	CvInfosSerializationHelper::WriteHashedDataArray<PolicyTypes>(kStream, m_pabHaveOneShotFreeUnitsFired, uiPolicyCount);
-	CvInfosSerializationHelper::WriteHashedDataArray<PolicyBranchTypes>(kStream, m_pabPolicyBranchUnlocked, uiPolicyBranchCount);
-	CvInfosSerializationHelper::WriteHashedDataArray<PolicyBranchTypes>(kStream, m_pabPolicyBranchBlocked, uiPolicyBranchCount);
-	CvInfosSerializationHelper::WriteHashedDataArray<PolicyBranchTypes>(kStream, m_pabPolicyBranchFinished, uiPolicyBranchCount);
-	CvInfosSerializationHelper::WriteHashedTypeArray<PolicyBranchTypes>(kStream, m_paePolicyBranchesChosen, uiPolicyBranchCount);
-
-	kStream << m_iNumExtraBranches;
-
-	CvInfosSerializationHelper::WriteHashed(kStream, m_eBranchPicked1);
-	CvInfosSerializationHelper::WriteHashed(kStream, m_eBranchPicked2);
-	CvInfosSerializationHelper::WriteHashed(kStream, m_eBranchPicked3);
-
-	// Now for AI
-	m_pPolicyAI->Write(kStream);
-
-	CvAssertMsg(m_piLatestFlavorValues != NULL && GC.getNumFlavorTypes() > 0, "Number of flavor values to serialize is expected to greater than 0");
-	kStream << GC.getNumFlavorTypes();
-	kStream << ArrayWrapper<int>(GC.getNumFlavorTypes(), m_piLatestFlavorValues);
+FDataStream& operator>>(FDataStream& stream, CvPlayerPolicies& playerPolicies)
+{
+	playerPolicies.Read(stream);
+	return stream;
+}
+FDataStream& operator<<(FDataStream& stream, const CvPlayerPolicies& playerPolicies)
+{
+	playerPolicies.Write(stream);
+	return stream;
 }
 
 /// Respond to a new set of flavor values
@@ -4162,7 +4177,6 @@ bool CvPlayerPolicies::HasPolicy(PolicyTypes eIndex) const
 	CvAssertMsg(eIndex < GC.getNumPolicyInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 	return m_pabHasPolicy[eIndex];
 }
-#if defined(MOD_API_EXTENSIONS)
 /// Accessor: was this policy given for free
 bool CvPlayerPolicies::IsFreePolicy(PolicyTypes eIndex) const
 {
@@ -4170,13 +4184,8 @@ bool CvPlayerPolicies::IsFreePolicy(PolicyTypes eIndex) const
 	CvAssertMsg(eIndex < GC.getNumPolicyInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 	return m_pabFreePolicy[eIndex];
 }
-#endif
 /// Accessor: set whether player has a policy
-#if defined(MOD_API_EXTENSIONS)
 void CvPlayerPolicies::SetPolicy(PolicyTypes eIndex, bool bNewValue, bool bFree)
-#else
-void CvPlayerPolicies::SetPolicy(PolicyTypes eIndex, bool bNewValue)
-#endif
 {
 	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
 	CvAssertMsg(eIndex < m_pPolicies->GetNumPolicies(), "eIndex is expected to be within maximum bounds (invalid Index)");
@@ -4188,12 +4197,12 @@ void CvPlayerPolicies::SetPolicy(PolicyTypes eIndex, bool bNewValue)
 	if(HasPolicy(eIndex) != bNewValue)
 	{
 		m_pabHasPolicy[eIndex] = bNewValue;
-
 		int iChange = bNewValue ? 1 : -1;
-#if defined(MOD_API_EXTENSIONS)
+
 		m_pabFreePolicy[eIndex] = bFree;
-		if (bFree) iChange = 0;
-#endif
+		if (bFree) 
+			iChange = 0;
+
 		GetPlayer()->ChangeNumPolicies(iChange);
 
 #if defined(MOD_BALANCE_CORE)
@@ -5191,13 +5200,6 @@ void CvPlayerPolicies::DoUnlockPolicyBranch(PolicyBranchTypes eBranchType)
 	// Are we blocked? If so, unblock us
 	DoSwitchToPolicyBranch(eBranchType);
 
-	// Free Policy with this Branch?
-	PolicyTypes eFreePolicy = (PolicyTypes) pkPolicyBranchInfo->GetFreePolicy();
-	if(eFreePolicy != NO_POLICY)
-	{
-		GetPlayer()->setHasPolicy(eFreePolicy, true);
-	}
-
 	// Pay Culture cost - if applicable
 	if(GetPlayer()->GetNumFreePolicies() == 0)
 	{
@@ -5358,13 +5360,14 @@ void CvPlayerPolicies::SetPolicyBranchUnlocked(PolicyBranchTypes eBranchType, bo
 
 	if(IsPolicyBranchUnlocked(eBranchType) != bNewValue)
 	{
+		CvPolicyBranchEntry* pkPolicyBranchInfo = GC.getPolicyBranchInfo(eBranchType);
+
 		// Unlocked?
 		if (bNewValue)
 		{
 			int iFreePolicies = PolicyHelpers::GetNumFreePolicies(eBranchType);
 
 			// Late-game tree so want to issue notification?
-			CvPolicyBranchEntry* pkPolicyBranchInfo = GC.getPolicyBranchInfo(eBranchType);
 			if(pkPolicyBranchInfo != NULL)
 			{
 				if (pkPolicyBranchInfo->IsPurchaseByLevel())
@@ -5424,6 +5427,16 @@ void CvPlayerPolicies::SetPolicyBranchUnlocked(PolicyBranchTypes eBranchType, bo
 				{
 					m_pPlayer->ChangeNumFreePolicies(iFreePolicies);
 				}
+			}
+		}
+
+		// Free Policy with this Branch?
+		if (pkPolicyBranchInfo != NULL)
+		{
+			PolicyTypes eFreePolicy = (PolicyTypes)pkPolicyBranchInfo->GetFreePolicy();
+			if (eFreePolicy != NO_POLICY)
+			{
+				GetPlayer()->setHasPolicy(eFreePolicy, bNewValue, pkPolicyBranchInfo->IsPurchaseByLevel());
 			}
 		}
 
@@ -5644,11 +5657,11 @@ bool CvPlayerPolicies::IsPolicyBlocked(PolicyTypes eType) const
 	return IsPolicyBranchBlocked(eBranch);
 }
 
-#if defined(MOD_API_EXTENSIONS)
 bool CvPlayerPolicies::CanAdoptIdeology(PolicyBranchTypes eIdeology) const
 {
 #if defined(MOD_EVENTS_IDEOLOGIES)
-	if (MOD_EVENTS_IDEOLOGIES) {
+	if (MOD_EVENTS_IDEOLOGIES) 
+	{
 		if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_PlayerCanAdoptIdeology, m_pPlayer->GetID(), eIdeology) == GAMEEVENTRETURN_FALSE) {
 			return false;
 		}
@@ -5662,7 +5675,6 @@ bool CvPlayerPolicies::HasAdoptedIdeology(PolicyBranchTypes eIdeology) const
 {
 	return IsPolicyBranchUnlocked(eIdeology);
 }
-#endif
 
 /// Implement a switch of ideologies
 void CvPlayerPolicies::DoSwitchIdeologies(PolicyBranchTypes eNewBranchType)
@@ -5708,11 +5720,8 @@ void CvPlayerPolicies::DoSwitchIdeologies(PolicyBranchTypes eNewBranchType)
 			{
 				const CvCivilizationInfo& playerCivilizationInfo = kCityPlayer.getCivilizationInfo();
 				BuildingTypes eBuilding = NO_BUILDING;
-#if defined(MOD_BALANCE_CORE)
+
 				if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || m_pPlayer->GetPlayerTraits()->IsKeepConqueredBuildings())
-#else
-				if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
-#endif
 				{
 					eBuilding = pLoopCity->GetCityBuildings()->GetBuildingTypeFromClass((BuildingClassTypes)iBuildingClassLoop);
 				}
@@ -5813,8 +5822,7 @@ void CvPlayerPolicies::SetPolicyBranchFinished(PolicyBranchTypes eBranchType, bo
 	{
 		m_pabPolicyBranchFinished[eBranchType] = bValue;
 
-
-#if !defined(NO_ACHIEVEMENTS)
+#if defined(MOD_API_ACHIEVEMENTS)
 		bool bUsingXP1Scenario3 = gDLL->IsModActivated(CIV5_XP1_SCENARIO3_MODID);
 
 		//Achievements for fulfilling branches
@@ -5861,7 +5869,6 @@ void CvPlayerPolicies::SetPolicyBranchFinished(PolicyBranchTypes eBranchType, bo
 			}
 		}
 #endif
-
 	}
 }
 

@@ -26,9 +26,7 @@ public:
 	  m_iBonus(0),
 	  m_bSameEra(false),
 	  m_bUniqueEras(false),
-#if defined(MOD_API_EXTENSIONS)
 	  m_bConsecutiveEras(false),
-#endif
 	  m_bMustBeArt(false),
 	  m_bMustBeArtifact(false),
 	  m_bMustBeEqualArtArtifact(false),
@@ -44,12 +42,8 @@ public:
 	int GetBonus() {return m_iBonus;};
 	CvString GetDescription() {return m_strDescription;};
 	bool IsSameEra() {return m_bSameEra;};
-#if defined(MOD_API_EXTENSIONS)
 	bool IsUniqueEras() {return m_bUniqueEras || IsConsecutiveEras();};
 	bool IsConsecutiveEras() {return m_bConsecutiveEras;};
-#else
-	bool IsUniqueEras() {return m_bUniqueEras;};
-#endif
 	bool IsMustBeArt() {return m_bMustBeArt;};
 	bool IsMustBeArtifact() {return m_bMustBeArtifact;};
 	bool IsMustBeEqualArtArtifact() {return m_bMustBeEqualArtArtifact;};
@@ -64,9 +58,7 @@ protected:
 	CvString m_strDescription;
 	bool m_bSameEra;
 	bool m_bUniqueEras;
-#if defined(MOD_API_EXTENSIONS)
 	bool m_bConsecutiveEras;
-#endif
 	bool m_bMustBeArt;
 	bool m_bMustBeArtifact;
 	bool m_bMustBeEqualArtArtifact;
@@ -154,6 +146,8 @@ public:
 	bool IsTradeRouteInvulnerable() const;
 	int GetTRSpeedBoost() const;
 	int GetTRVisionBoost() const;
+	int GetTRTurnModGlobal() const;
+	int GetTRTurnModLocal() const;
 	int GetVotesPerGPT() const;
 	bool IsRequiresRail() const;
 	bool IsDummy() const;
@@ -344,7 +338,6 @@ public:
 	bool IsWater() const;
 	bool IsRiver() const;
 	bool IsFreshWater() const;
-#if defined(MOD_API_EXTENSIONS)
 	bool IsAddsFreshWater() const;
 	bool IsPurchaseOnly() const;
 	bool IsSecondaryPantheon() const;
@@ -353,7 +346,6 @@ public:
 
 	int GetGreatWorkYieldChangeLocal(int i) const;
 	int* GetGreatWorkYieldChangeLocalArray() const;
-#endif
 	bool IsMountain() const;
 	bool IsHill() const;
 	bool IsFlat() const;
@@ -656,6 +648,8 @@ private:
 	int m_iGetCooldown;
 	bool m_bTradeRouteInvulnerable;
 	int m_iTRSpeedBoost;
+	int m_iTRTurnModGlobal;
+	int m_iTRTurnModLocal;
 	int m_iTRVisionBoost;
 	int m_iVotesPerGPT;
 	bool m_bRequiresRail;
@@ -821,13 +815,11 @@ private:
 	bool m_bWater;
 	bool m_bRiver;
 	bool m_bFreshWater;
-#if defined(MOD_API_EXTENSIONS)
 	bool m_bAddsFreshWater;
 	bool m_bPurchaseOnly;
 	bool m_bSecondaryPantheon;
 	int* m_piGreatWorkYieldChange;
 	int* m_piGreatWorkYieldChangeLocal;
-#endif
 #if defined(MOD_BALANCE_CORE)
 	int m_iNumRequiredTier3Tenets;
 	bool m_bIsNoWater;
@@ -1088,8 +1080,10 @@ public:
 	void Init(CvBuildingXMLEntries* pPossibleBuildings, CvCity* pCity);
 	void Uninit();
 	void Reset();
+	template<typename CityBuildings, typename Visitor>
+	static void Serialize(CityBuildings& cityBuildings, Visitor& visitor);
 	void Read(FDataStream& kStream);
-	void Write(FDataStream& kStream);
+	void Write(FDataStream& kStream) const;
 
 	// Accessor functions
 	CvBuildingXMLEntries* GetPossibleBuildings() const;
@@ -1097,12 +1091,12 @@ public:
 	int GetNumBuildings() const;
 	void ChangeNumBuildings(int iChange);
 	int GetNumBuilding(BuildingTypes eIndex) const;
-#if defined(MOD_BALANCE_CORE) || defined(MOD_BUILDINGS_THOROUGH_PREREQUISITES)
+
 	int GetNumBuildingClass(BuildingClassTypes eIndex) const;
 	bool HasBuildingClass(BuildingClassTypes eIndex) const;
 	BuildingTypes GetBuildingTypeFromClass(BuildingClassTypes eIndex) const;
 	void RemoveAllRealBuildingsOfClass(BuildingClassTypes eIndex);
-#endif
+
 	int GetNumActiveBuilding(BuildingTypes eIndex) const;
 
 	bool IsBuildingSellable(const CvBuildingEntry& kBuilding) const;
@@ -1250,6 +1244,9 @@ private:
 	CvBuildingXMLEntries* m_pPossibleBuildings;
 	CvCity* m_pCity;
 };
+
+FDataStream& operator>>(FDataStream&, CvCityBuildings&);
+FDataStream& operator<<(FDataStream&, const CvCityBuildings&);
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // Helper Functions to serialize arrays of variable length (based on number of buildings defined in game)

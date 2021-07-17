@@ -59,13 +59,11 @@
 
 #include "CvInfosSerializationHelper.h"
 #include "CvCityManager.h"
-
-#if defined(MOD_BALANCE_CORE)
 #include "CvPlayerManager.h"
-#endif
-#if defined(MOD_API_LUA_EXTENSIONS)
 #include "CvDllContext.h"
-#endif
+
+#include "CvSpanSerialization.h"
+#include "CvEnumMapSerialization.h"
 
 // Public Functions...
 // must be included after all other headers
@@ -131,32 +129,6 @@ CvGame::CvGame() :
 	, m_cityDistancePathLength(NO_DOMAIN) //for now!
 	, m_cityDistancePlots()
 {
-	m_aiEndTurnMessagesReceived = FNEW(int[MAX_PLAYERS], c_eCiv5GameplayDLL, 0);
-	m_aiRankPlayer = FNEW(int[MAX_PLAYERS], c_eCiv5GameplayDLL, 0);        // Ordered by rank...
-	m_aiPlayerRank = FNEW(int[MAX_PLAYERS], c_eCiv5GameplayDLL, 0);        // Ordered by player ID...
-	m_aiPlayerScore = FNEW(int[MAX_PLAYERS], c_eCiv5GameplayDLL, 0);       // Ordered by player ID...
-	m_aiRankTeam = FNEW(int[MAX_TEAMS], c_eCiv5GameplayDLL, 0);						// Ordered by rank...
-	m_aiTeamRank = FNEW(int[MAX_TEAMS], c_eCiv5GameplayDLL, 0);						// Ordered by team ID...
-	m_aiTeamScore = FNEW(int[MAX_TEAMS], c_eCiv5GameplayDLL, 0);						// Ordered by team ID...
-
-	m_paiUnitCreatedCount = NULL;
-	m_paiUnitClassCreatedCount = NULL;
-	m_paiBuildingClassCreatedCount = NULL;
-	m_paiProjectCreatedCount = NULL;
-	m_paiVoteOutcome = NULL;
-	m_aiSecretaryGeneralTimer = NULL;
-	m_aiVoteTimer = NULL;
-	m_aiDiploVote = NULL;
-	m_aiVotesCast = NULL;
-	m_aiPreviousVotesCast = NULL;
-	m_aiNumVotesForTeam = NULL;
-	m_aiTeamCompetitionWinnersScratchPad = NULL;
-	m_aiGreatestMonopolyPlayer = NULL;
-
-	m_pabSpecialUnitValid = NULL;
-
-	m_ppaaiTeamVictoryRank = NULL;
-
 	m_pSettlerSiteEvaluator = NULL;
 	m_pStartSiteEvaluator = NULL;
 	m_pStartPositioner = NULL;
@@ -168,7 +140,6 @@ CvGame::CvGame() :
 #if defined(MOD_BALANCE_CORE)
 	m_pGameCorporations = NULL;
 	m_pGameContracts = NULL;
-	m_ppaiContractUnits = NULL;
 #endif
 
 	m_pAdvisorCounsel = NULL;
@@ -198,14 +169,6 @@ CvGame::~CvGame()
 #endif
 
 	uninit();
-
-	SAFE_DELETE_ARRAY(m_aiEndTurnMessagesReceived);
-	SAFE_DELETE_ARRAY(m_aiRankPlayer);
-	SAFE_DELETE_ARRAY(m_aiPlayerRank);
-	SAFE_DELETE_ARRAY(m_aiPlayerScore);
-	SAFE_DELETE_ARRAY(m_aiRankTeam);
-	SAFE_DELETE_ARRAY(m_aiTeamRank);
-	SAFE_DELETE_ARRAY(m_aiTeamScore);
 }
 
 //	--------------------------------------------------------------------------------
@@ -1056,38 +1019,45 @@ void CvGame::uninit()
 	CvGoodyHuts::Uninit();
 	CvBarbarians::Uninit();
 
-	SAFE_DELETE_ARRAY(m_paiUnitCreatedCount);
-	SAFE_DELETE_ARRAY(m_paiUnitClassCreatedCount);
-	SAFE_DELETE_ARRAY(m_paiBuildingClassCreatedCount);
-	SAFE_DELETE_ARRAY(m_paiProjectCreatedCount);
-	SAFE_DELETE_ARRAY(m_paiVoteOutcome);
-	SAFE_DELETE_ARRAY(m_aiSecretaryGeneralTimer);
-	SAFE_DELETE_ARRAY(m_aiVoteTimer);
-	SAFE_DELETE_ARRAY(m_aiDiploVote);
-	SAFE_DELETE_ARRAY(m_aiVotesCast);
-	SAFE_DELETE_ARRAY(m_aiPreviousVotesCast);
-	SAFE_DELETE_ARRAY(m_aiNumVotesForTeam);
-	SAFE_DELETE_ARRAY(m_aiTeamCompetitionWinnersScratchPad);
-	SAFE_DELETE_ARRAY(m_aiGreatestMonopolyPlayer);
+	m_aiGreatestMonopolyPlayer.uninit();
 
-	SAFE_DELETE_ARRAY(m_pabSpecialUnitValid);
+	m_aiEndTurnMessagesReceived.uninit();
+	m_aiRankPlayer.uninit();
+	m_aiPlayerRank.uninit();
+	m_aiPlayerScore.uninit();
 
-	if(m_ppaaiTeamVictoryRank != NULL)
+	m_aiRankTeam.uninit();
+	m_aiTeamRank.uninit();
+	m_aiTeamScore.uninit();
+
+	m_paiUnitCreatedCount.uninit();
+	m_paiUnitClassCreatedCount.uninit();
+	m_paiBuildingClassCreatedCount.uninit();
+	m_paiProjectCreatedCount.uninit();
+	m_paiVoteOutcome.uninit();
+	m_aiVotesCast.uninit();
+	m_aiPreviousVotesCast.uninit();
+	m_aiNumVotesForTeam.uninit();
+	m_aiTeamCompetitionWinnersScratchPad.uninit();
+
+	m_pabSpecialUnitValid.uninit();
+
+	if(m_ppaaiTeamVictoryRank.valid())
 	{
-		for(int iI = 0; iI < GC.getNumVictoryInfos(); iI++)
+		for(CvEnumMap<VictoryTypes, TeamTypes*>::Iterator it = m_ppaaiTeamVictoryRank.begin(); it != m_ppaaiTeamVictoryRank.end(); ++it)
 		{
-			SAFE_DELETE_ARRAY(m_ppaaiTeamVictoryRank[iI]);
+			SAFE_DELETE_ARRAY(*it);
 		}
-		SAFE_DELETE_ARRAY(m_ppaaiTeamVictoryRank);
+		m_ppaaiTeamVictoryRank.uninit();
 	}
 #if defined(MOD_BALANCE_CORE_JFD)
-	if(m_ppaiContractUnits != NULL)
+	if(m_ppaiContractUnits.valid())
 	{
-		for(int iI = 0; iI < GC.getNumContractInfos(); iI++)
+		for(CvEnumMap<ContractTypes, CvEnumMap<UnitTypes, int>>::Iterator it = m_ppaiContractUnits.begin(); it != m_ppaiContractUnits.end(); ++it)
 		{
-			SAFE_DELETE_ARRAY(m_ppaiContractUnits[iI]);
+			it->uninit();
 		}
-		SAFE_DELETE_ARRAY(m_ppaiContractUnits);
+		m_ppaiContractUnits.uninit();
 	}
 #endif
 
@@ -1140,9 +1110,6 @@ void CvGame::uninit()
 	m_iNoNukesCount = 0;
 	m_iNukesExploded = 0;
 	m_iMaxPopulation = 0;
-	m_iUnused1 = 0;
-	m_iUnused2 = 0;
-	m_iUnused3 = 0;
 	m_iInitPopulation = 0;
 	m_iInitLand = 0;
 	m_iInitTech = 0;
@@ -1207,21 +1174,6 @@ void CvGame::uninit()
 	m_strScriptData = "";
 	m_iEarliestBarbarianReleaseTurn = 0;
 
-	for(int iI = 0; iI < MAX_PLAYERS; iI++)
-	{
-		m_aiEndTurnMessagesReceived[iI] = 0;
-		m_aiRankPlayer[iI] = 0;
-		m_aiPlayerRank[iI] = 0;
-		m_aiPlayerScore[iI] = 0;
-	}
-
-	for(int iI = 0; iI < MAX_TEAMS; iI++)
-	{
-		m_aiRankTeam[iI] = 0;
-		m_aiTeamRank[iI] = 0;
-		m_aiTeamScore[iI] = 0;
-	}
-
 	m_iLastMouseoverUnitID = 0;
 
 	CvCityManager::Shutdown();
@@ -1232,8 +1184,6 @@ void CvGame::uninit()
 // Initializes data members that are serialized.
 void CvGame::reset(HandicapTypes eHandicap, bool bConstructorCall)
 {
-	int iI;
-
 	//--------------------------------
 	// Uninit class
 	uninit();
@@ -1268,149 +1218,47 @@ void CvGame::reset(HandicapTypes eHandicap, bool bConstructorCall)
 
 	if(!bConstructorCall)
 	{
-		
-		CvAssertMsg(m_aiGreatestMonopolyPlayer == NULL, "about to leak memory, CvGame::m_aiGreatestMonopolyPlayer");
-		m_aiGreatestMonopolyPlayer = FNEW(int[GC.getNumResourceInfos()], c_eCiv5GameplayDLL, 0);
-		for (iI = 0; iI < GC.getNumResourceInfos(); iI++)
-		{
-			CvResourceInfo* pkResourceInfo = GC.getResourceInfo((ResourceTypes)iI);
-			if (!pkResourceInfo)
-			{
-				continue;
-			}
-			m_aiGreatestMonopolyPlayer[iI] = NO_PLAYER;
-		}
+		m_aiGreatestMonopolyPlayer.init(NO_PLAYER);
 
-		CvAssertMsg(m_paiUnitCreatedCount==NULL, "about to leak memory, CvGame::m_paiUnitCreatedCount");
-		m_paiUnitCreatedCount = FNEW(int[GC.getNumUnitInfos()], c_eCiv5GameplayDLL, 0);
-		for(iI = 0; iI < GC.getNumUnitInfos(); iI++)
-		{
-			CvUnitEntry* pkUnitInfo = GC.getUnitInfo((UnitTypes)iI);
-			if(!pkUnitInfo)
-			{
-				continue;
-			}
-			m_paiUnitCreatedCount[iI] = 0;
-		}
+		m_aiEndTurnMessagesReceived.init(0);
+		m_aiRankPlayer.init(0);
+		m_aiPlayerRank.init(0);
+		m_aiPlayerScore.init(0);
 
-		CvAssertMsg(m_paiUnitClassCreatedCount==NULL, "about to leak memory, CvGame::m_paiUnitClassCreatedCount");
-		m_paiUnitClassCreatedCount = FNEW(int[GC.getNumUnitClassInfos()], c_eCiv5GameplayDLL, 0);
-		for(iI = 0; iI < GC.getNumUnitClassInfos(); iI++)
-		{
-			CvUnitClassInfo* pkUnitClassInfo = GC.getUnitClassInfo((UnitClassTypes)iI);
-			if(!pkUnitClassInfo)
-			{
-				continue;
-			}
-			m_paiUnitClassCreatedCount[iI] = 0;
-		}
+		m_aiRankTeam.init(0);
+		m_aiTeamRank.init(0);
+		m_aiTeamScore.init(0);
 
-		CvAssertMsg(m_paiBuildingClassCreatedCount==NULL, "about to leak memory, CvGame::m_paiBuildingClassCreatedCount");
-		m_paiBuildingClassCreatedCount = FNEW(int[GC.getNumBuildingClassInfos()], c_eCiv5GameplayDLL, 0);
-		for(iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
-		{
-			CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo((BuildingClassTypes)iI);
-			if(!pkBuildingClassInfo)
-			{
-				continue;
-			}
-
-			m_paiBuildingClassCreatedCount[iI] = 0;
-		}
-
-		CvAssertMsg(m_paiProjectCreatedCount==NULL, "about to leak memory, CvGame::m_paiProjectCreatedCount");
-		m_paiProjectCreatedCount = FNEW(int[GC.getNumProjectInfos()], c_eCiv5GameplayDLL, 0);
-		for(iI = 0; iI < GC.getNumProjectInfos(); iI++)
-		{
-			m_paiProjectCreatedCount[iI] = 0;
-		}
+		m_paiUnitCreatedCount.init(0);
+		m_paiUnitClassCreatedCount.init(0);
+		m_paiBuildingClassCreatedCount.init(0);
+		m_paiProjectCreatedCount.init(0);
 
 		//antonjs: todo: remove unused UN and voting variables and allocations
 		CvAssertMsg(0 < GC.getNumVoteInfos(), "GC.getNumVoteInfos() is not greater than zero in CvGame::reset");
-		CvAssertMsg(m_paiVoteOutcome==NULL, "about to leak memory, CvGame::m_paiVoteOutcome");
-		m_paiVoteOutcome = FNEW(PlayerVoteTypes[GC.getNumVoteInfos()], c_eCiv5GameplayDLL, 0);
-		for(iI = 0; iI < GC.getNumVoteInfos(); iI++)
-		{
-			m_paiVoteOutcome[iI] = NO_PLAYER_VOTE;
-		}
+		m_paiVoteOutcome.init(NO_PLAYER_VOTE);
 
 		CvAssertMsg(0 < GC.getNumVoteSourceInfos(), "GC.getNumVoteSourceInfos() is not greater than zero in CvGame::reset");
-		CvAssertMsg(m_aiDiploVote==NULL, "about to leak memory, CvGame::m_aiDiploVote");
-		m_aiDiploVote = FNEW(int[GC.getNumVoteSourceInfos()], c_eCiv5GameplayDLL, 0);
-		for(iI = 0; iI < GC.getNumVoteSourceInfos(); iI++)
-		{
-			m_aiDiploVote[iI] = 0;
-		}
+		m_aiVotesCast.init(NO_TEAM);
+		m_aiPreviousVotesCast.init(NO_TEAM);
+		m_aiNumVotesForTeam.init(0);
+		m_aiTeamCompetitionWinnersScratchPad.init(0);
+		m_pabSpecialUnitValid.init(false);
 
-		CvAssertMsg(0 < MAX_CIV_TEAMS, "MAX_CIV_TEAMS is not greater than zero in CvGame::reset");
-		CvAssertMsg(m_aiVotesCast==NULL, "about to leak memory, CvGame::m_aiVotesCast");
-		m_aiVotesCast = FNEW(int[MAX_CIV_TEAMS], c_eCiv5GameplayDLL, 0);
-		for(iI = 0; iI < MAX_CIV_TEAMS; iI++)
+		m_ppaaiTeamVictoryRank.init();
+		for(CvEnumMap<VictoryTypes, TeamTypes*>::Iterator it = m_ppaaiTeamVictoryRank.begin(); it != m_ppaaiTeamVictoryRank.end(); ++it)
 		{
-			m_aiVotesCast[iI] = NO_TEAM;
-		}
-
-		CvAssertMsg(0 < MAX_CIV_TEAMS, "MAX_CIV_TEAMS is not greater than zero in CvGame::reset");
-		CvAssertMsg(m_aiPreviousVotesCast == NULL, "About to leak memory, CvGame::m_aiPreviousVotesCast. Please send Anton your save file and version.");
-		m_aiPreviousVotesCast = FNEW(int[MAX_CIV_TEAMS], c_eCiv5GameplayDLL, 0);
-		for (iI = 0; iI < MAX_CIV_TEAMS; iI++)
-		{
-			m_aiPreviousVotesCast[iI] = NO_TEAM;
-		}
-
-		CvAssertMsg(0 < MAX_CIV_TEAMS, "MAX_CIV_TEAMS is not greater than zero in CvGame::reset");
-		CvAssertMsg(m_aiNumVotesForTeam==NULL, "about to leak memory, CvGame::m_aiNumVotesForTeam");
-		m_aiNumVotesForTeam = FNEW(int[MAX_CIV_TEAMS], c_eCiv5GameplayDLL, 0);
-		for(iI = 0; iI < MAX_CIV_TEAMS; iI++)
-		{
-			m_aiNumVotesForTeam[iI] = 0;
-		}
-
-		CvAssertMsg(0 < MAX_CIV_TEAMS, "MAX_CIV_TEAMS is not greater than zero in CvGame::reset");
-		CvAssertMsg(m_aiTeamCompetitionWinnersScratchPad==NULL, "about to leak memory, CvGame::m_aiTeamCompetitionWinnersScratchPad");
-		m_aiTeamCompetitionWinnersScratchPad = FNEW(int[MAX_CIV_TEAMS], c_eCiv5GameplayDLL, 0);
-		for(iI = 0; iI < MAX_CIV_TEAMS; iI++)
-		{
-			m_aiTeamCompetitionWinnersScratchPad[iI] = 0;
-		}
-
-		CvAssertMsg(m_pabSpecialUnitValid==NULL, "about to leak memory, CvGame::m_pabSpecialUnitValid");
-		m_pabSpecialUnitValid = FNEW(bool[GC.getNumSpecialUnitInfos()], c_eCiv5GameplayDLL, 0);
-		for(iI = 0; iI < GC.getNumSpecialUnitInfos(); iI++)
-		{
-			m_pabSpecialUnitValid[iI] = false;
-		}
-
-		CvAssertMsg(m_aiSecretaryGeneralTimer==NULL, "about to leak memory, CvGame::m_aiSecretaryGeneralTimer");
-		CvAssertMsg(m_aiVoteTimer==NULL, "about to leak memory, CvGame::m_aiVoteTimer");
-		m_aiSecretaryGeneralTimer = FNEW(int[GC.getNumVoteSourceInfos()], c_eCiv5GameplayDLL, 0);
-		m_aiVoteTimer = FNEW(int[GC.getNumVoteSourceInfos()], c_eCiv5GameplayDLL, 0);
-		for(iI = 0; iI < GC.getNumVoteSourceInfos(); iI++)
-		{
-			m_aiSecretaryGeneralTimer[iI] = 0;
-			m_aiVoteTimer[iI] = 0;
-		}
-
-		CvAssertMsg(m_ppaaiTeamVictoryRank==NULL, "about to leak memory, CvGame::m_ppaaiTeamVictoryRank");
-		m_ppaaiTeamVictoryRank = FNEW(int*[GC.getNumVictoryInfos()], c_eCiv5GameplayDLL, 0);
-		for(iI = 0; iI < GC.getNumVictoryInfos(); iI++)
-		{
-			m_ppaaiTeamVictoryRank[iI] = FNEW(int[GC.getNUM_VICTORY_POINT_AWARDS()], c_eCiv5GameplayDLL, 0);
-			for(int iJ = 0; iJ < GC.getNUM_VICTORY_POINT_AWARDS(); iJ++)
+			*it = FNEW(TeamTypes[GC.getNUM_VICTORY_POINT_AWARDS()], c_eCiv5GameplayDLL, 0);
+			for(int i = 0; i < GC.getNUM_VICTORY_POINT_AWARDS(); ++i)
 			{
-				m_ppaaiTeamVictoryRank[iI][iJ] = NO_TEAM;
+				(*it)[i] = NO_TEAM;
 			}
 		}
 #if defined(MOD_BALANCE_CORE_JFD)
-		CvAssertMsg(m_ppaiContractUnits==NULL, "about to leak memory, CvGame::m_ppaiContractUnits");
-		m_ppaiContractUnits = FNEW(int*[GC.getNumContractInfos()], c_eCiv5GameplayDLL, 0);
-		for(iI = 0; iI < GC.getNumContractInfos(); iI++)
+		m_ppaiContractUnits.init();
+		for(CvEnumMap<ContractTypes, CvEnumMap<UnitTypes, int>>::Iterator it = m_ppaiContractUnits.begin(); it != m_ppaiContractUnits.end(); ++it)
 		{
-			m_ppaiContractUnits[iI] = FNEW(int[GC.getNumUnitInfos()], c_eCiv5GameplayDLL, 0);
-			for(int iJ = 0; iJ <GC.getNumUnitInfos(); iJ++)
-			{
-				m_ppaiContractUnits[iI][iJ] = 0;
-			}
+			it->init(0);
 		}
 #endif
 
@@ -2250,7 +2098,7 @@ void CvGame::updateTestEndTurn()
 				{
 					if(pkIface->canEndTurn() && gDLL->allAICivsProcessedThisTurn() && allUnitAIProcessed() && !gDLL->HasSentTurnComplete())
 					{
-#if !defined(NO_ACHIEVEMENTS)
+#if defined(MOD_API_ACHIEVEMENTS)
 						activePlayer.GetPlayerAchievements().EndTurn();
 #endif
 
@@ -2273,7 +2121,7 @@ void CvGame::updateTestEndTurn()
 #endif
 
 						gDLL->sendTurnComplete();
-#if !defined(NO_ACHIEVEMENTS)
+#if defined(MOD_API_ACHIEVEMENTS)
 						CvAchievementUnlocker::EndTurn();
 #endif
 						m_endTurnTimer.Start();
@@ -2355,7 +2203,7 @@ void CvGame::updateTestEndTurn()
 							{
 								if(!gDLL->HasSentTurnComplete() && gDLL->allAICivsProcessedThisTurn() && allUnitAIProcessed() && pkIface && pkIface->IsMPAutoEndTurnEnabled())
 								{
-#if !defined(NO_ACHIEVEMENTS)
+#if defined(MOD_API_ACHIEVEMENTS)
 									activePlayer.GetPlayerAchievements().EndTurn();
 #endif
 
@@ -2378,7 +2226,7 @@ void CvGame::updateTestEndTurn()
 #endif
 
 									gDLL->sendTurnComplete();
-#if !defined(NO_ACHIEVEMENTS)
+#if defined(MOD_API_ACHIEVEMENTS)
 									CvAchievementUnlocker::EndTurn();
 #endif
 								}
@@ -3780,11 +3628,11 @@ void CvGame::doControl(ControlTypes eControl)
 			// RED >>>>>
 #endif
 
-#if !defined(NO_ACHIEVEMENTS)
+#if defined(MOD_API_ACHIEVEMENTS)
 			kActivePlayer.GetPlayerAchievements().EndTurn();
 #endif
 			gDLL->sendTurnComplete();
-#if !defined(NO_ACHIEVEMENTS)
+#if defined(MOD_API_ACHIEVEMENTS)
 			CvAchievementUnlocker::EndTurn();
 #endif
 			GC.GetEngineUserInterface()->setInterfaceMode(INTERFACEMODE_SELECTION);
@@ -3796,7 +3644,7 @@ void CvGame::doControl(ControlTypes eControl)
 		EndTurnBlockingTypes eBlock = GET_PLAYER(getActivePlayer()).GetEndTurnBlockingType();
 		if(gDLL->allAICivsProcessedThisTurn() && allUnitAIProcessed() && (eBlock == NO_ENDTURN_BLOCKING_TYPE || eBlock == ENDTURN_BLOCKING_UNITS))
 		{
-#if !defined(NO_ACHIEVEMENTS)
+#if defined(MOD_API_ACHIEVEMENTS)
 			CvPlayerAI& kActivePlayer = GET_PLAYER(getActivePlayer());
 			kActivePlayer.GetPlayerAchievements().EndTurn();
 #endif
@@ -3820,7 +3668,7 @@ void CvGame::doControl(ControlTypes eControl)
 #endif
 
 			gDLL->sendTurnComplete();
-#if !defined(NO_ACHIEVEMENTS)
+#if defined(MOD_API_ACHIEVEMENTS)
 			CvAchievementUnlocker::EndTurn();
 #endif
 			SetForceEndingTurn(true);
@@ -4580,14 +4428,11 @@ CivilizationTypes CvGame::getActiveCivilizationType()
 	}
 }
 
-
-#if defined(MOD_API_EXTENSIONS)
 //	--------------------------------------------------------------------------------
 bool CvGame::isReallyNetworkMultiPlayer() const
 {
 	return CvPreGame::isReallyNetworkMultiPlayer();
 }
-#endif
 
 //	--------------------------------------------------------------------------------
 bool CvGame::isNetworkMultiPlayer() const
@@ -6975,7 +6820,7 @@ void CvGame::setWinner(TeamTypes eNewWinner, VictoryTypes eNewVictory)
 					}
 				}
 
-#if !defined(NO_ACHIEVEMENTS)
+#if defined(MOD_API_ACHIEVEMENTS)
 				//--Start Achievements
 				//--Don't allow most in multiplayer so friends can't achieve-whore it up together
 				if(!GC.getGame().isGameMultiPlayer() && kWinningTeamLeader.isHuman() && kWinningTeamLeader.isLocalPlayer())
@@ -7840,7 +7685,7 @@ TeamTypes CvGame::getTeamVictoryRank(VictoryTypes eNewVictory, int iRank) const
 	CvAssert(iRank >= 0);
 	CvAssert(iRank < GC.getNUM_VICTORY_POINT_AWARDS());
 
-	return (TeamTypes) m_ppaaiTeamVictoryRank[eNewVictory][iRank];
+	return m_ppaaiTeamVictoryRank[eNewVictory][iRank];
 }
 
 
@@ -8038,7 +7883,7 @@ void CvGame::setGameState(GameStateTypes eNewValue)
 	{
 		m_eGameState = eNewValue;
 
-#if !defined(NO_ACHIEVEMENTS)
+#if defined(MOD_API_ACHIEVEMENTS)
 		if(eNewValue == GAMESTATE_OVER || eNewValue == GAMESTATE_EXTENDED)
 		{
 			if (!isGameMultiPlayer())
@@ -8060,8 +7905,7 @@ void CvGame::setGameState(GameStateTypes eNewValue)
 
 		if(eNewValue == GAMESTATE_OVER)
 		{
-
-#if !defined(NO_ACHIEVEMENTS)
+#if defined(MOD_API_ACHIEVEMENTS)
 			if(!isGameMultiPlayer())
 			{
 				bool bLocalPlayerLost = true;
@@ -8634,14 +8478,12 @@ void CvGame::addGreatPersonBornName(const CvString& szName)
 	m_aszGreatPeopleBorn.push_back( hasher(szName.c_str()) );
 }
 
-#if defined(MOD_API_EXTENSIONS)
 //	--------------------------------------------------------------------------------
 void CvGame::removeGreatPersonBornName(const CvString& szName)
 {
 	stringHash hasher;
 	m_aszGreatPeopleBorn.erase(std::remove(m_aszGreatPeopleBorn.begin(), m_aszGreatPeopleBorn.end(), hasher(szName.c_str())), m_aszGreatPeopleBorn.end());
 }
-#endif
 
 // Protected Functions...
 
@@ -8871,11 +8713,7 @@ void CvGame::doTurn()
 	if(GET_PLAYER(getActivePlayer()).isAlive() && !IsStaticTutorialActive())
 	{
 		// Don't show this stuff in MP
-#if defined(MOD_API_EXTENSIONS)
 		if(!isReallyNetworkMultiPlayer() && !isPbem() && !isHotSeat())
-#else
-		if(!isGameMultiPlayer())
-#endif
 		{
 			int iTurnFrequency = /*25*/ GC.getPROGRESS_POPUP_TURN_FREQUENCY();
 
@@ -9835,12 +9673,12 @@ void CvGame::updateMoves()
 			{//if the active player is an observer, send a turn complete so we don't hold up the game.
 				//We wait until allAICivsProcessedThisTurn to prevent a race condition where an observer could send turn complete,
 				//before all clients have cleared the netbarrier locally.
-#if !defined(NO_ACHIEVEMENTS)
+#if defined(MOD_API_ACHIEVEMENTS)
 				CvPlayer& kActivePlayer = GET_PLAYER(eActivePlayer);
 				kActivePlayer.GetPlayerAchievements().EndTurn();
 #endif
 				gDLL->sendTurnComplete();
-#if !defined(NO_ACHIEVEMENTS)
+#if defined(MOD_API_ACHIEVEMENTS)
 				CvAchievementUnlocker::EndTurn();
 #endif
 			}
@@ -11769,185 +11607,187 @@ const CvReplayMessage* CvGame::getReplayMessage(uint i) const
 // Private Functions...
 
 //	--------------------------------------------------------------------------------
+template<typename Game, typename Visitor>
+void CvGame::Serialize(Game& game, Visitor& visitor)
+{
+	const bool bLoading = visitor.isLoading();
+	//const bool bSaving = visitor.isSaving();
+
+	visitor(game.m_iEndTurnMessagesSent);
+	visitor(game.m_iElapsedGameTurns);
+	visitor(game.m_iStartTurn);
+	visitor(game.m_iWinningTurn);
+	visitor(game.m_iStartYear);
+	visitor(game.m_iEstimateEndTurn);
+	visitor(game.m_iDefaultEstimateEndTurn);
+	visitor(game.m_iTurnSlice);
+	visitor(game.m_iCutoffSlice);
+	visitor(game.m_iNumCities);
+	visitor(game.m_iTotalPopulation);
+	visitor(game.m_iTotalEconomicValue);
+	visitor(game.m_iHighestEconomicValue);
+	visitor(game.m_iNoNukesCount);
+	visitor(game.m_iNukesExploded);
+	visitor(game.m_iMaxPopulation);
+	visitor(game.m_iGlobalAssetCounterAllPreviousTurns);
+	visitor(game.m_iGlobalAssetCounterCurrentTurn);
+	visitor(game.m_iInitPopulation);
+	visitor(game.m_iInitLand);
+	visitor(game.m_iInitTech);
+	visitor(game.m_iInitWonders);
+	visitor(game.m_iAIAutoPlay);
+
+	visitor(game.m_iTotalReligionTechCost);
+	visitor(game.m_iCachedWorldReligionTechProgress);
+	visitor(game.m_iUnitedNationsCountdown);
+	visitor(game.m_iNumVictoryVotesTallied);
+	visitor(game.m_iNumVictoryVotesExpected);
+	visitor(game.m_iVotesNeededForDiploVictory);
+	visitor(game.m_iMapScoreMod);
+
+	// m_uiInitialTime not saved
+
+	visitor(game.m_bScoreDirty);
+	visitor(game.m_bCircumnavigated);
+	// m_bDebugMode not saved
+	visitor(game.m_bFinalInitialized);
+	// m_bPbemTurnSent not saved
+	visitor(game.m_bHotPbemBetweenTurns);
+	// m_bPlayerOptionsSent not saved
+	visitor(game.m_bNukesValid);
+	visitor(game.m_bEndGameTechResearched);
+	visitor(game.m_bTunerEverConnected);
+	visitor(game.m_bTutorialEverAttacked);
+	visitor(game.m_bStaticTutorialActive);
+	visitor(game.m_bEverRightClickMoved);
+	visitor(game.m_AdvisorMessagesViewed);
+	visitor(game.m_eHandicap);
+	visitor(game.m_ePausePlayer);
+	visitor(game.m_eAIAutoPlayReturnPlayer);
+	visitor(game.m_eBestLandUnit);
+	visitor(game.m_eWinner);
+	visitor(game.m_eVictory);
+	visitor(game.m_eGameState);
+	if (bLoading && game.m_eGameState == GAMESTATE_OVER)
+	{
+		visitor.loadAssign(game.m_eGameState, GAMESTATE_EXTENDED);
+	}
+	visitor(game.m_eBestWondersPlayer);
+	visitor(game.m_eBestPoliciesPlayer);
+	visitor(game.m_eBestGreatPeoplePlayer);
+	visitor(game.m_eReligionTech);
+	visitor(game.m_eIndustrialRoute);
+
+	visitor(game.m_eTeamThatCircumnavigated);
+	visitor(game.m_bVictoryRandomization);
+	visitor(game.m_iCultureAverage);
+	visitor(game.m_iScienceAverage);
+	visitor(game.m_iDefenseAverage);
+	visitor(game.m_iGoldAverage);
+	visitor(game.m_iGlobalTechAvg);
+	visitor(game.m_iGlobalPopulation);
+	visitor(game.m_iLastTurnCSSurrendered);
+
+	visitor(game.m_aiGreatestMonopolyPlayer);
+
+	visitor(game.m_strScriptData);
+
+	visitor(game.m_aiEndTurnMessagesReceived);
+	visitor(game.m_aiRankPlayer);
+	visitor(game.m_aiPlayerRank);
+	visitor(game.m_aiPlayerScore);
+	visitor(game.m_aiRankTeam);
+	visitor(game.m_aiTeamRank);
+	visitor(game.m_aiTeamScore);
+
+	visitor(game.m_paiUnitCreatedCount);
+	visitor(game.m_paiUnitClassCreatedCount);
+	visitor(game.m_paiBuildingClassCreatedCount);
+
+	visitor(game.m_paiProjectCreatedCount);
+	visitor(game.m_paiVoteOutcome);
+
+	visitor(game.m_aiVotesCast);
+	visitor(game.m_aiPreviousVotesCast);
+	visitor(game.m_aiNumVotesForTeam);
+
+	visitor(game.m_pabSpecialUnitValid);
+	for (std::size_t i = 0; i < game.m_ppaaiTeamVictoryRank.size(); ++i)
+	{
+		for (int j = 0; j < GC.getNUM_VICTORY_POINT_AWARDS(); ++j)
+		{
+			visitor(game.m_ppaaiTeamVictoryRank[i][j]);
+		}
+	}
+	visitor(game.m_ppaiContractUnits);
+
+	visitor(game.m_aszDestroyedCities);
+	visitor(game.m_aszGreatPeopleBorn);
+
+	visitor(game.m_mapRand);
+	visitor(game.m_jonRand);
+
+	visitor(game.m_listReplayMessages);
+
+	visitor(game.m_iNumSessions);
+
+	visitor(game.m_aPlotExtraYields);
+	visitor(game.m_aPlotExtraCosts);
+
+	visitor(game.m_bArchaeologyTriggered);
+
+	visitor(game.m_iEarliestBarbarianReleaseTurn);
+
+	visitor(game.m_kGameDeals);
+	visitor(*game.m_pGameReligions);
+	visitor(*game.m_pGameCulture);
+	visitor(*game.m_pGameLeagues);
+	visitor(*game.m_pGameTrade);
+
+	visitor(*game.m_pGameCorporations);
+	visitor(*game.m_pGameContracts);
+}
+
+//	--------------------------------------------------------------------------------
 void CvGame::Read(FDataStream& kStream)
 {
 	int iI;
 
 	reset(NO_HANDICAP);
 
-	// Version number to maintain backwards compatibility
-	uint uiVersion;
-	kStream >> uiVersion;
-	MOD_SERIALIZE_INIT_READ(kStream);
-
-	kStream >> m_iEndTurnMessagesSent;
-	kStream >> m_iElapsedGameTurns;
-	kStream >> m_iStartTurn;
-	kStream >> m_iWinningTurn;
-	kStream >> m_iStartYear;
-	kStream >> m_iEstimateEndTurn;
-	kStream >> m_iDefaultEstimateEndTurn;
-	kStream >> m_iTurnSlice;
-	kStream >> m_iCutoffSlice;
-	kStream >> m_iNumCities;
-	kStream >> m_iTotalPopulation;
-	kStream >> m_iTotalEconomicValue;
-	kStream >> m_iHighestEconomicValue;
-	kStream >> m_iNoNukesCount;
-	kStream >> m_iNukesExploded;
-	kStream >> m_iMaxPopulation;
-#if defined(MOD_BALANCE_CORE_GLOBAL_IDS)
-	kStream >> m_iGlobalAssetCounterAllPreviousTurns;
-	kStream >> m_iGlobalAssetCounterCurrentTurn;
-#endif
-	kStream >> m_iUnused1;
-	kStream >> m_iUnused2;
-	kStream >> m_iUnused3;
-	kStream >> m_iInitPopulation;
-	kStream >> m_iInitLand;
-	kStream >> m_iInitTech;
-	kStream >> m_iInitWonders;
-	kStream >> m_iAIAutoPlay;
-
-	kStream >> m_iTotalReligionTechCost;
-	kStream >> m_iCachedWorldReligionTechProgress;
-	kStream >> m_iUnitedNationsCountdown;
-	kStream >> m_iNumVictoryVotesTallied;
-	kStream >> m_iNumVictoryVotesExpected;
-	kStream >> m_iVotesNeededForDiploVictory;
-	kStream >> m_iMapScoreMod;
-
-	// m_uiInitialTime not saved
-
-	kStream >> m_bScoreDirty;
-	kStream >> m_bCircumnavigated;
-	// m_bDebugMode not saved
-	kStream >> m_bFinalInitialized;
-	// m_bPbemTurnSent not saved
-	kStream >> m_bHotPbemBetweenTurns;
-	// m_bPlayerOptionsSent not saved
-	kStream >> m_bNukesValid;
-	kStream >> m_bEndGameTechResearched;
-	kStream >> m_bTunerEverConnected;
-	kStream >> m_bTutorialEverAttacked;
-	kStream >> m_bStaticTutorialActive;
-	kStream >> m_bEverRightClickMoved;
-	kStream >> m_AdvisorMessagesViewed;
-	kStream >> m_eHandicap;
-	kStream >> m_ePausePlayer;
-	kStream >> m_eAIAutoPlayReturnPlayer;
-	kStream >> m_eBestLandUnit;
-	kStream >> m_eWinner;
-	kStream >> m_eVictory;
-	kStream >> m_eGameState;
-	if(m_eGameState == GAMESTATE_OVER)
+	// Save header information
 	{
-		m_eGameState = GAMESTATE_EXTENDED;
-	}
-	kStream >> m_eBestWondersPlayer;
-	kStream >> m_eBestPoliciesPlayer;
-	kStream >> m_eBestGreatPeoplePlayer;
-	kStream >> m_eReligionTech;
-	kStream >> m_eIndustrialRoute;
+		uint32 saveVersion;
+		kStream >> saveVersion;
+		GC.setSaveVersion(saveVersion);
+		
+		const CvGlobals::GameDataHash& gameDataHash = GC.getGameDataHash();
+		CvGlobals::GameDataHash saveDataHash;
+		kStream >> saveDataHash;
 
-#if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
-	MOD_SERIALIZE_READ(39, kStream, m_eTeamThatCircumnavigated, NO_TEAM);
-#endif
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
-	MOD_SERIALIZE_READ(55, kStream, m_bVictoryRandomization, false);
-	MOD_SERIALIZE_READ(55, kStream, m_iCultureAverage, 0);
-	MOD_SERIALIZE_READ(55, kStream, m_iScienceAverage, 0);
-	MOD_SERIALIZE_READ(55, kStream, m_iDefenseAverage, 0);
-	MOD_SERIALIZE_READ(55, kStream, m_iGoldAverage, 0);
-	MOD_SERIALIZE_READ(55, kStream, m_iGlobalTechAvg, 0);
-	MOD_SERIALIZE_READ(55, kStream, m_iGlobalPopulation, 0);
-	MOD_SERIALIZE_READ(55, kStream, m_iLastTurnCSSurrendered, 0);
-
-	ArrayWrapper<int> wrapm_aiGreatestMonopolyPlayer(GC.getNumResourceInfos(), m_aiGreatestMonopolyPlayer);
-	kStream >> wrapm_aiGreatestMonopolyPlayer;
-#endif
-
-	kStream >> m_strScriptData;
-
-	ArrayWrapper<int> wrapm_aiEndTurnMessagesReceived(MAX_PLAYERS, m_aiEndTurnMessagesReceived);
-	kStream >> wrapm_aiEndTurnMessagesReceived;
-
-	ArrayWrapper<int> wrapm_aiRankPlayer(MAX_PLAYERS, m_aiRankPlayer);
-	kStream >> wrapm_aiRankPlayer;
-
-	ArrayWrapper<int> wrapm_aiPlayerRank(MAX_PLAYERS, m_aiPlayerRank);
-	kStream >> wrapm_aiPlayerRank;
-
-	ArrayWrapper<int> wrapm_aiPlayerScore(MAX_PLAYERS, m_aiPlayerScore);
-	kStream >> wrapm_aiPlayerScore;
-
-	ArrayWrapper<int> wrapm_aiRankTeam(MAX_TEAMS, m_aiRankTeam);
-	kStream >> wrapm_aiRankTeam;
-
-	ArrayWrapper<int> wrapm_aiTeamRank(MAX_TEAMS, m_aiTeamRank);
-	kStream >> wrapm_aiTeamRank;
-
-	ArrayWrapper<int> wrapm_aiTeamScore(MAX_TEAMS, m_aiTeamScore);
-	kStream >> wrapm_aiTeamScore;
-
-	UnitArrayHelpers::Read(kStream, m_paiUnitCreatedCount);
-	UnitClassArrayHelpers::Read(kStream, m_paiUnitClassCreatedCount);
-	BuildingClassArrayHelpers::Read(kStream, m_paiBuildingClassCreatedCount);
-
-	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_paiProjectCreatedCount, GC.getNumProjectInfos());
-	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_paiVoteOutcome, GC.getNumVoteInfos());
-
-	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_aiSecretaryGeneralTimer, GC.getNumVoteSourceInfos());
-	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_aiVoteTimer, GC.getNumVoteSourceInfos());
-	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_aiDiploVote, GC.getNumVoteSourceInfos());
-
-	ArrayWrapper<int> wrapm_aiVotesCast(MAX_CIV_TEAMS, m_aiVotesCast);
-	kStream >> wrapm_aiVotesCast;
-
-	ArrayWrapper<int> wrapm_aiPreviousVotesCast(MAX_CIV_TEAMS, m_aiPreviousVotesCast);
-	kStream >> wrapm_aiPreviousVotesCast;
-
-	ArrayWrapper<int> wrapm_aiNumVotesForTeam(MAX_CIV_TEAMS, m_aiNumVotesForTeam);
-	kStream >> wrapm_aiNumVotesForTeam;
-
-	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_pabSpecialUnitValid, GC.getNumSpecialUnitInfos());
-
-	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_ppaaiTeamVictoryRank, GC.getNUM_VICTORY_POINT_AWARDS(), GC.getNumVictoryInfos());
-#if defined(MOD_BALANCE_CORE_JFD)
-	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_ppaiContractUnits, GC.getNumUnitInfos(), GC.getNumContractInfos());
-#endif
-	kStream >> m_aszDestroyedCities;
-	kStream >> m_aszGreatPeopleBorn;
-
-	m_mapRand.read(kStream);
-	m_jonRand.read(kStream);
-	{
-		clearReplayMessageMap();
-
-		unsigned int uiReplayMessageVersion = 1;
-		int iSize = 0;
-
-		kStream >> uiReplayMessageVersion;
-
-		kStream >> iSize;
-		for(int i = 0; i < iSize; i++)
+		if (saveDataHash != gameDataHash)
 		{
-			CvReplayMessage message;
-			message.read(kStream, uiReplayMessageVersion);
-			m_listReplayMessages.push_back(message);
+			CUSTOMLOG(
+				"WARNING - Save data hash mismatch!\n"
+				"\tLoad will be attempted but corruption or crash is likely.\n"
+				"\tSave Hash = [%#010x-%#010x-%#010x-%#010x]\n"
+				"\tGame Hash = [%#010x-%#010x-%#010x-%#010x]",
+				saveDataHash[0], saveDataHash[1], saveDataHash[2], saveDataHash[3],
+				gameDataHash[0], gameDataHash[1], gameDataHash[2], gameDataHash[3]
+			);
 		}
-
 	}
 
-	kStream >> m_iNumSessions;
+	CvStreamLoadVisitor serialVisitor(kStream);
+	Serialize(*this, serialVisitor);
+
+	// Save game database comes last
+	readSaveGameDB(kStream);
+
 	if(!isNetworkMultiPlayer())
 	{
 		++m_iNumSessions;
 	}
-
-	kStream >> m_aPlotExtraYields;
-	kStream >> m_aPlotExtraCosts;
-
 
 	// Get the active player information from the initialization structure
 	if(!isGameMultiPlayer())
@@ -11973,21 +11813,6 @@ void CvGame::Read(FDataStream& kStream)
 		}
 	}
 
-	kStream >> m_bArchaeologyTriggered;
-
-	kStream >> m_iEarliestBarbarianReleaseTurn;
-	kStream >> m_kGameDeals;
-	kStream >> *m_pGameReligions;
-	kStream >> *m_pGameCulture;
-	kStream >> *m_pGameLeagues;
-	kStream >> *m_pGameTrade;
-
-#if defined(MOD_BALANCE_CORE)
-	// Don't even try to worry about save compatibility
-	kStream >> *m_pGameCorporations;
-	kStream >> *m_pGameContracts;
-#endif
-
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	if (MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	{
@@ -12006,9 +11831,37 @@ void CvGame::Read(FDataStream& kStream)
 	}
 #endif
 
+	//when loading from file, we need to reset m_lastTurnAICivsProcessed 
+	//so that updateMoves() can turn active players after loading an autosave in simultaneous turns multiplayer.
+	m_lastTurnAICivsProcessed = -1;
+
+	// used to be a static in updateMoves but made a member due to it not being re-inited and maybe causing issues when loading after an exit-to-menu. Not serialized - I wasn't willing to think about the implications.
+	m_processPlayerAutoMoves = false;
+}
+
+//	--------------------------------------------------------------------------------
+void CvGame::Write(FDataStream& kStream) const
+{
+	// Save header information
+	{
+		GC.setSaveVersion(CvGlobals::SAVE_VERSION_LATEST);
+		kStream << GC.getSaveVersion();
+		kStream << GC.getGameDataHash();
+	}
+
+	CvStreamSaveVisitor serialVisitor(kStream);
+	Serialize(*this, serialVisitor);
+
+	// Save game database comes last
+	writeSaveGameDB(kStream);
+}
+
+//	--------------------------------------------------------------------------------
+void CvGame::readSaveGameDB(FDataStream& kStream)
+{
 	unsigned int lSize = 0;
 	kStream >> lSize;
-	if(lSize > 0)
+	if (lSize > 0)
 	{
 		//Deserialize the embedded SQLite database file.
 		CvString strUTF8DatabasePath = gDLL->GetCacheFolderPath();
@@ -12036,202 +11889,29 @@ void CvGame::Read(FDataStream& kStream)
 			CvAssertMsg(false, "Cannot open Civ5SavedGameDatabase.db for write! Does something have this opened?");
 		}
 	}
-
-	//when loading from file, we need to reset m_lastTurnAICivsProcessed 
-	//so that updateMoves() can turn active players after loading an autosave in simultaneous turns multiplayer.
-	m_lastTurnAICivsProcessed = -1;
-
-	// used to be a static in updateMoves but made a member due to it not being re-inited and maybe causing issues when loading after an exit-to-menu. Not serialized - I wasn't willing to think about the implications.
-	m_processPlayerAutoMoves = false;
-}
-
-//	---------------------------------------------------------------------------
-void CvGame::ReadSupportingClassData(FDataStream& kStream)
-{
-	// Version number to maintain backwards compatibility
-	uint uiVersion;
-	kStream >> uiVersion;	
-	MOD_SERIALIZE_INIT_READ(kStream);
-
-	CvBarbarians::Read(kStream, uiVersion);
-	CvGoodyHuts::Read(kStream, uiVersion);
 }
 
 //	--------------------------------------------------------------------------------
-void CvGame::Write(FDataStream& kStream) const
+void CvGame::writeSaveGameDB(FDataStream& kStream) const
 {
-	// Current version number
-	kStream << g_CurrentCvGameVersion;
-	MOD_SERIALIZE_INIT_WRITE(kStream);
-
-	kStream << m_iEndTurnMessagesSent;
-	kStream << m_iElapsedGameTurns;
-	kStream << m_iStartTurn;
-	kStream << m_iWinningTurn;
-	kStream << m_iStartYear;
-	kStream << m_iEstimateEndTurn;
-	kStream << m_iDefaultEstimateEndTurn;
-	kStream << m_iTurnSlice;
-	kStream << m_iCutoffSlice;
-	kStream << m_iNumCities;
-	kStream << m_iTotalPopulation;
-	kStream << m_iTotalEconomicValue;
-	kStream << m_iHighestEconomicValue;
-	kStream << m_iNoNukesCount;
-	kStream << m_iNukesExploded;
-	kStream << m_iMaxPopulation;
-#if defined(MOD_BALANCE_CORE_GLOBAL_IDS)
-	kStream << m_iGlobalAssetCounterAllPreviousTurns;
-	kStream << m_iGlobalAssetCounterCurrentTurn;
-#endif
-	kStream << m_iUnused1;
-	kStream << m_iUnused2;
-	kStream << m_iUnused3;
-	kStream << m_iInitPopulation;
-	kStream << m_iInitLand;
-	kStream << m_iInitTech;
-	kStream << m_iInitWonders;
-	kStream << m_iAIAutoPlay;
-	kStream << m_iTotalReligionTechCost;
-	kStream << m_iCachedWorldReligionTechProgress;
-	kStream << m_iUnitedNationsCountdown;
-	kStream << m_iNumVictoryVotesTallied;
-	kStream << m_iNumVictoryVotesExpected;
-	kStream << m_iVotesNeededForDiploVictory;
-	kStream << m_iMapScoreMod;
-
-	// m_uiInitialTime not saved
-
-	kStream << m_bScoreDirty;
-	kStream << m_bCircumnavigated;
-	// m_bDebugMode not saved
-	kStream << m_bFinalInitialized;
-	// m_bPbemTurnSent not saved
-	kStream << m_bHotPbemBetweenTurns;
-	// m_bPlayerOptionsSent not saved
-	kStream << m_bNukesValid;
-	kStream << m_bEndGameTechResearched;
-	kStream << TunerEverConnected();
-	kStream << m_bTutorialEverAttacked;
-	kStream << m_bStaticTutorialActive;
-	kStream << m_bEverRightClickMoved;
-	kStream << m_AdvisorMessagesViewed;
-
-	kStream << m_eHandicap;
-	kStream << m_ePausePlayer;
-	kStream << m_eAIAutoPlayReturnPlayer;
-	kStream << m_eBestLandUnit;
-	kStream << m_eWinner;
-	kStream << m_eVictory;
-	kStream << m_eGameState;
-	kStream << m_eBestWondersPlayer;
-	kStream << m_eBestPoliciesPlayer;
-	kStream << m_eBestGreatPeoplePlayer;
-	kStream << m_eReligionTech;
-	kStream << m_eIndustrialRoute;
-
-#if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
-	MOD_SERIALIZE_WRITE(kStream, m_eTeamThatCircumnavigated);
-#endif
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
-	MOD_SERIALIZE_WRITE(kStream, m_bVictoryRandomization);
-	MOD_SERIALIZE_WRITE(kStream, m_iCultureAverage);
-	MOD_SERIALIZE_WRITE(kStream, m_iScienceAverage);
-	MOD_SERIALIZE_WRITE(kStream, m_iDefenseAverage);
-	MOD_SERIALIZE_WRITE(kStream, m_iGoldAverage);
-	MOD_SERIALIZE_WRITE(kStream, m_iGlobalTechAvg);
-	MOD_SERIALIZE_WRITE(kStream, m_iGlobalPopulation);
-	MOD_SERIALIZE_WRITE(kStream, m_iLastTurnCSSurrendered);
-	kStream << ArrayWrapper<int>(GC.getNumResourceInfos(), m_aiGreatestMonopolyPlayer);
-#endif
-
-	kStream << m_strScriptData;
-
-	kStream << ArrayWrapper<int>(MAX_PLAYERS, m_aiEndTurnMessagesReceived);
-	kStream << ArrayWrapper<int>(MAX_PLAYERS, m_aiRankPlayer);
-	kStream << ArrayWrapper<int>(MAX_PLAYERS, m_aiPlayerRank);
-	kStream << ArrayWrapper<int>(MAX_PLAYERS, m_aiPlayerScore);
-	kStream << ArrayWrapper<int>(MAX_TEAMS, m_aiRankTeam);
-	kStream << ArrayWrapper<int>(MAX_TEAMS, m_aiTeamRank);
-	kStream << ArrayWrapper<int>(MAX_TEAMS, m_aiTeamScore);
-
-	UnitArrayHelpers::Write(kStream, m_paiUnitCreatedCount, GC.getNumUnitInfos());
-
-	UnitClassArrayHelpers::Write(kStream, m_paiUnitClassCreatedCount, GC.getNumUnitClassInfos());
-	BuildingClassArrayHelpers::Write(kStream, m_paiBuildingClassCreatedCount, GC.getNumBuildingClassInfos());
-
-	CvInfosSerializationHelper::WriteHashedDataArray<ProjectTypes, int>(kStream, m_paiProjectCreatedCount, GC.getNumProjectInfos());
-	CvInfosSerializationHelper::WriteHashedDataArray<VoteTypes, PlayerVoteTypes>(kStream, m_paiVoteOutcome, GC.getNumVoteInfos());
-
-	CvInfosSerializationHelper::WriteHashedDataArray<VoteSourceTypes, int>(kStream, m_aiSecretaryGeneralTimer, GC.getNumVoteSourceInfos());
-	CvInfosSerializationHelper::WriteHashedDataArray<VoteSourceTypes, int>(kStream, m_aiVoteTimer, GC.getNumVoteSourceInfos());
-	CvInfosSerializationHelper::WriteHashedDataArray<VoteSourceTypes, int>(kStream, m_aiDiploVote, GC.getNumVoteSourceInfos());
-
-	kStream << ArrayWrapper<int>(MAX_CIV_TEAMS, m_aiVotesCast);
-	kStream << ArrayWrapper<int>(MAX_CIV_TEAMS, m_aiPreviousVotesCast);
-	kStream << ArrayWrapper<int>(MAX_CIV_TEAMS, m_aiNumVotesForTeam);
-
-	CvInfosSerializationHelper::WriteHashedDataArray<SpecialUnitTypes, bool>(kStream, m_pabSpecialUnitValid, GC.getNumSpecialUnitInfos());
-
-	CvInfosSerializationHelper::WriteHashedDataArray<VictoryTypes, int>(kStream, m_ppaaiTeamVictoryRank, GC.getNUM_VICTORY_POINT_AWARDS(), GC.getNumSpecialUnitInfos());
-#if defined(MOD_BALANCE_CORE_JFD)
-	CvInfosSerializationHelper::WriteHashedDataArray<ContractTypes, int>(kStream, m_ppaiContractUnits,  GC.getNumUnitInfos(), GC.getNumContractInfos());
-#endif
-	kStream << m_aszDestroyedCities;
-	kStream << m_aszGreatPeopleBorn;
-
-	m_mapRand.write(kStream);
-	m_jonRand.write(kStream);
-
-	const int iSize = m_listReplayMessages.size();
-	kStream << CvReplayMessage::Version();
-	kStream << iSize;
-
-	ReplayMessageList::const_iterator it;
-	for(it = m_listReplayMessages.begin(); it != m_listReplayMessages.end(); ++it)
-	{
-		(*it).write(kStream);
-	}
-
-	kStream << m_iNumSessions;
-
-	kStream << m_aPlotExtraYields;
-	kStream << m_aPlotExtraCosts;
-
-	kStream << m_bArchaeologyTriggered;
-
-	kStream << m_iEarliestBarbarianReleaseTurn;
-
-	kStream << m_kGameDeals;
-	kStream << *m_pGameReligions;
-	kStream << *m_pGameCulture;
-	kStream << *m_pGameLeagues;
-	kStream << *m_pGameTrade;
-
-#if defined(MOD_BALANCE_CORE)
-	kStream << *m_pGameCorporations;
-	kStream << *m_pGameContracts;
-#endif
-
-	//In Version 8, Serialize Saved Game database
 	CvString strPath = gDLL->GetCacheFolderPath();
 	strPath += "Civ5SavedGameDatabase.db";
 
 	//Need to Convert the UTF-8 string into a wide character string so windows can open this file.
-	wchar_t savePath[MAX_PATH] = {0};
+	wchar_t savePath[MAX_PATH] = { 0 };
 	MultiByteToWideChar(CP_UTF8, 0, strPath.c_str(), -1, savePath, MAX_PATH);
 
 	HANDLE hFile = CreateFileW(savePath, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN, NULL);
-	if(hFile != INVALID_HANDLE_VALUE)
+	if (hFile != INVALID_HANDLE_VALUE)
 	{
 		DWORD dwSize = GetFileSize(hFile, NULL);
-		if(dwSize != INVALID_FILE_SIZE)
+		if (dwSize != INVALID_FILE_SIZE)
 		{
 			byte* szBuffer = GetTempHeap()->Allocate(sizeof(char) * dwSize);
 			ZeroMemory((void*)szBuffer, dwSize);
 
 			DWORD dwBytesRead = 0;
-			if(ReadFile(hFile, szBuffer, dwSize, &dwBytesRead, NULL) == TRUE)
+			if (ReadFile(hFile, szBuffer, dwSize, &dwBytesRead, NULL) == TRUE)
 			{
 				//Serialize out the file size first.
 				kStream << dwBytesRead;
@@ -12244,8 +11924,8 @@ void CvGame::Write(FDataStream& kStream) const
 		{
 			CvAssertMsg(false, "Saved game database exists, but could not get file size???");
 		}
-	
-		if(CloseHandle(hFile) == FALSE)
+
+		if (CloseHandle(hFile) == FALSE)
 		{
 			CvAssertMsg(false, "Could not close file handle to saved game database!");
 		}
@@ -12253,9 +11933,9 @@ void CvGame::Write(FDataStream& kStream) const
 	else
 	{
 		WIN32_FILE_ATTRIBUTE_DATA fileAttributes;
-		if(GetFileAttributesExW(savePath, GetFileExInfoStandard, &fileAttributes) != INVALID_FILE_ATTRIBUTES)
+		if (GetFileAttributesExW(savePath, GetFileExInfoStandard, &fileAttributes) != INVALID_FILE_ATTRIBUTES)
 		{
-			CvAssertMsg(false,"Saved game database exists, but could not open it!");
+			CvAssertMsg(false, "Saved game database exists, but could not open it!");
 		}
 
 		long nilSize = 0;
@@ -12264,13 +11944,15 @@ void CvGame::Write(FDataStream& kStream) const
 }
 
 //	---------------------------------------------------------------------------
-void CvGame::WriteSupportingClassData(FDataStream& kStream)
+void CvGame::ReadSupportingClassData(FDataStream& kStream)
 {
-	// Current version number
-	uint uiVersion = 1;
-	kStream << uiVersion;
-	MOD_SERIALIZE_INIT_WRITE(kStream);
+	CvBarbarians::Read(kStream);
+	CvGoodyHuts::Read(kStream);
+}
 
+//	---------------------------------------------------------------------------
+void CvGame::WriteSupportingClassData(FDataStream& kStream) const
+{
 	CvBarbarians::Write(kStream);
 	CvGoodyHuts::Write(kStream);
 }
@@ -12698,7 +12380,6 @@ CvGameTrade* CvGame::GetGameTrade()
 	return m_pGameTrade;
 }
 
-#if defined(MOD_API_LUA_EXTENSIONS)
 //	--------------------------------------------------------------------------------
 CvString CvGame::getDllGuid() const
 {
@@ -12714,7 +12395,6 @@ CvString CvGame::getDllGuid() const
 
 	return szDllGuid;
 }
-#endif
 
 //	--------------------------------------------------------------------------------
 CvAdvisorCounsel* CvGame::GetAdvisorCounsel()
@@ -14558,7 +14238,6 @@ void CvGame::SetLastTurnAICivsProcessed()
 	}
 }
 
-#if defined(MOD_API_EXTENSIONS)
 bool CvGame::AnyoneHasBelief(BeliefTypes iBeliefType) const
 {
 	for (int i = 0; i < MAX_PLAYERS; ++i) {
@@ -14829,7 +14508,7 @@ bool CvGame::AnyoneHasUnitClass(UnitClassTypes iUnitClassType) const
 
 	return false;
 }
-#endif
+
 #if defined(MOD_BALANCE_CORE_JFD)	
 void CvGame::SetContractUnits(ContractTypes eContract, UnitTypes eUnit, int iValue)
 {

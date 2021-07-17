@@ -1680,8 +1680,11 @@ function GetMoodInfo(iOtherPlayer)
 
 	--  No specific modifiers are visible, so let's see what string we should use (based on visible approach towards us)
 	if (strInfo == "") then
+		-- Eliminated
+		if (not pOtherPlayer:IsAlive()) then
+			return "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_DIPLO_ELIMINATED_INDICATOR");
 		-- Teammates
-		if (Game.GetActiveTeam() == iOtherTeam) then
+		elseif (Game.GetActiveTeam() == iOtherTeam) then
 			return "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_DIPLO_HUMAN_TEAMMATE");
 		-- At war with us
 		elseif (pActiveTeam:IsAtWar(iOtherTeam)) then

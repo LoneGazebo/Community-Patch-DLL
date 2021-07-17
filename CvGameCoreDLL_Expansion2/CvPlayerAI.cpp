@@ -31,11 +31,11 @@
 #include "cvStopWatch.h"
 #include "CvEconomicAI.h"
 #include "CvBarbarians.h"
+#include <CvEnumMap.h>
 
 #if defined(MOD_BALANCE_CORE)
 #include "CvDistanceMap.h"
 #endif
-
 
 // Include this after all other headers.
 #include "LintFree.h"
@@ -46,7 +46,7 @@
 
 // statics
 
-CvPlayerAI* CvPlayerAI::m_aPlayers = NULL;
+static CvEnumMap<PlayerTypes, CvPlayerAI> s_players;;
 
 // inlined for performance reasons
 inline CvPlayerAI& CvPlayerAI::getPlayer(PlayerTypes ePlayer)
@@ -57,21 +57,21 @@ inline CvPlayerAI& CvPlayerAI::getPlayer(PlayerTypes ePlayer)
 	if (ePlayer == NO_PLAYER || ePlayer >= MAX_PLAYERS)
 		ePlayer = BARBARIAN_PLAYER;
 
-	return m_aPlayers[ePlayer];
+	return s_players[ePlayer];
 }
 
 void CvPlayerAI::initStatics()
 {
-	m_aPlayers = FNEW(CvPlayerAI[MAX_PLAYERS], c_eCiv5GameplayDLL, 0);
-	for(int iI = 0; iI < MAX_PLAYERS; iI++)
+	s_players.init();
+	for(std::size_t i = 0; i < s_players.size(); ++i)
 	{
-		m_aPlayers[iI].m_eID = ((PlayerTypes)iI);
+		s_players[i].m_eID = PlayerTypes(i);
 	}
 }
 
 void CvPlayerAI::freeStatics()
 {
-	SAFE_DELETE_ARRAY(m_aPlayers);
+	s_players.uninit();
 }
 
 // Public Functions...
@@ -1024,6 +1024,10 @@ void CvPlayerAI::AI_doResearch()
 	}
 }
 
+template<typename PlayerAI, typename Visitor>
+void CvPlayerAI::Serialize(PlayerAI& /*playerAI*/, Visitor& /*visitor*/)
+{
+}
 
 //
 // read object from a stream
@@ -1033,10 +1037,8 @@ void CvPlayerAI::Read(FDataStream& kStream)
 {
 	CvPlayer::Read(kStream);	// read base class data first
 
-	// Version number to maintain backwards compatibility
-	uint uiVersion;
-	kStream >> uiVersion;
-	MOD_SERIALIZE_INIT_READ(kStream);
+	CvStreamLoadVisitor serialVisitor(kStream);
+	Serialize(*this, serialVisitor);
 }
 
 
@@ -1048,10 +1050,8 @@ void CvPlayerAI::Write(FDataStream& kStream) const
 {
 	CvPlayer::Write(kStream);	// write base class data first
 
-	// Current version number
-	uint uiVersion = 1;
-	kStream << uiVersion;
-	MOD_SERIALIZE_INIT_WRITE(kStream);
+	CvStreamSaveVisitor serialVisitor(kStream);
+	Serialize(*this, serialVisitor);
 }
 
 void CvPlayerAI::AI_launch(VictoryTypes eVictory)

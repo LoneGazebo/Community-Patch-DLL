@@ -10,6 +10,10 @@
 #ifndef CIV5_CITY_CITIZENS_H
 #define CIV5_CITY_CITIZENS_H
 
+#include "CvEnumMap.h"
+
+#include <bitset>
+
 struct SPrecomputedExpensiveNumbers
 {
 	int iExcessFoodTimes100;
@@ -40,11 +44,22 @@ public:
 	CvCityCitizens(void);
 	~CvCityCitizens(void);
 
+	enum ePlotSelectionMode
+	{
+		eBEST_UNWORKED_NO_OVERRIDE,
+		eBEST_UNWORKED_ALLOW_OVERRIDE,
+		eWORST_WORKED_UNFORCED,
+		eWORST_WORKED_FORCED,
+		eWORST_WORKED_ANY,
+	};
+
 	void Init(CvCity* pCity);
 	void Uninit();
 	void Reset();
+	template<typename CityCitizens, typename Visitor>
+	static void Serialize(CityCitizens& cityCitizens, Visitor& visitor);
 	void Read(FDataStream& kStream);
-	void Write(FDataStream& kStream);
+	void Write(FDataStream& kStream) const;
 
 	CvCity* GetCity();
 	CvPlayer* GetPlayer();
@@ -64,8 +79,9 @@ public:
 	bool IsNoAutoAssignSpecialists() const;
 	void SetNoAutoAssignSpecialists(bool bValue, bool bReallocate = false);
 
-	bool IsAvoidGrowth();
-	bool IsForcedAvoidGrowth();
+	int GetExcessFoodThreshold100() const;
+	bool IsAvoidGrowth() const;
+	bool IsForcedAvoidGrowth() const;
 	bool SetForcedAvoidGrowth(bool bAvoidGrowth, bool bReallocate = false);
 	CityAIFocusTypes GetFocusType() const;
 	bool SetFocusType(CityAIFocusTypes eFocus, bool bReallocate = false);
@@ -91,7 +107,7 @@ public:
 
 	void OptimizeWorkedPlots(bool bLogging);
 	bool NeedReworkCitizens();
-	CvPlot* GetBestCityPlotWithValue(int& iValue, bool bWantBest, bool bWantWorked, bool bForced = false, bool Logging = false);
+	CvPlot* GetBestCityPlotWithValue(int& iValue, ePlotSelectionMode eMode, bool Logging = false);
 
 	// Worked Plots
 	bool IsWorkingPlot(int iRelativeIndex) const;
@@ -110,6 +126,7 @@ public:
 	int GetNumForcedWorkingPlots() const;
 	void ChangeNumForcedWorkingPlots(int iChange);
 
+	bool IsCanWorkWithOverride(CvPlot* pPlot) const;
 	bool IsCanWork(CvPlot* pPlot) const;
 	bool IsBlockaded(CvPlot* pPlot) const;
 	void SetBlockaded(CvPlot* pPlot);
@@ -190,14 +207,15 @@ private:
 
 	int m_iNumDefaultSpecialists;
 	int m_iNumForcedDefaultSpecialists;
-	int* m_aiSpecialistCounts;
-	int* m_aiSpecialistSlots;
-	int* m_aiSpecialistGreatPersonProgressTimes100;
-	int* m_aiNumSpecialistsInBuilding;
-	int* m_aiNumForcedSpecialistsInBuilding;
-	int* m_piBuildingGreatPeopleRateChanges;
-
-	bool m_bInited;
+	CvEnumMap<SpecialistTypes, int> m_aiSpecialistCounts;
+	CvEnumMap<SpecialistTypes, int> m_aiSpecialistSlots;
+	CvEnumMap<SpecialistTypes, int> m_aiSpecialistGreatPersonProgressTimes100;
+	CvEnumMap<BuildingTypes, int> m_aiNumSpecialistsInBuilding;
+	CvEnumMap<BuildingTypes, int> m_aiNumForcedSpecialistsInBuilding;
+	CvEnumMap<SpecialistTypes, int> m_piBuildingGreatPeopleRateChanges;
 };
+
+FDataStream& operator>>(FDataStream&, CvCityCitizens&);
+FDataStream& operator<<(FDataStream&, const CvCityCitizens&);
 
 #endif // CIV5_CITY_CITIZENS_H

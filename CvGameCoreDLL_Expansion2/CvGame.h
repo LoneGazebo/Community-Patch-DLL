@@ -18,6 +18,7 @@
 #include <CvLocalization.h>
 #include "CvDistanceMap.h"
 #include "CvDealClasses.h"
+#include "CvEnumMap.h"
 
 class CvPlot;
 class CvCity;
@@ -133,9 +134,7 @@ public:
 	TeamTypes getActiveTeam();
 	CivilizationTypes getActiveCivilizationType();
 
-#if defined(MOD_API_EXTENSIONS)
 	bool isReallyNetworkMultiPlayer() const;
-#endif
 	bool isNetworkMultiPlayer() const;
 	bool isGameMultiPlayer() const;
 	bool isTeamGame() const;
@@ -473,9 +472,7 @@ public:
 
 	bool isGreatPersonBorn(CvString& szName) const;
 	void addGreatPersonBornName(const CvString& szName);
-#if defined(MOD_API_EXTENSIONS)
 	void removeGreatPersonBornName(const CvString& szName);
-#endif
 
 	CvRandom& getMapRand();
 	int getMapRandNum(int iNum, const char* pszLog);
@@ -537,10 +534,14 @@ public:
 	void SetLastTurnCSAnnexed(int iValue);
 	int GetLastTurnCSAnnexed();
 #endif
+	template<typename Game, typename Visitor>
+	static void Serialize(Game& game, Visitor& visitor);
 	void Read(FDataStream& kStream);
 	void Write(FDataStream& kStream) const;
+	void readSaveGameDB(FDataStream& kStream);
+	void writeSaveGameDB(FDataStream& kStream) const;
 	void ReadSupportingClassData(FDataStream& kStream);
-	void WriteSupportingClassData(FDataStream& kStream);
+	void WriteSupportingClassData(FDataStream& kStream) const;
 
 	void writeReplay(FDataStream& kStream);
 	void saveReplay();
@@ -589,9 +590,7 @@ public:
 	CvGameCulture* GetGameCulture();
 	CvGameLeagues* GetGameLeagues();
 	CvGameTrade* GetGameTrade();
-#if defined(MOD_API_LUA_EXTENSIONS)
 	CvString getDllGuid() const;
-#endif
 #if defined(MOD_BALANCE_CORE)
 	CvGameCorporations* GetGameCorporations();
 	CvGameContracts* GetGameContracts();
@@ -681,7 +680,6 @@ public:
 	void SetTeamThatCircumnavigated(TeamTypes eNewValue);
 #endif
 
-#if defined(MOD_API_EXTENSIONS)
 	bool AnyoneHasBelief(BeliefTypes iBeliefType) const;
 	bool AnyoneHasBuilding(BuildingTypes iBuildingType) const;
 	bool AnyoneHasBuildingClass(BuildingClassTypes iBuildingClassType) const;
@@ -704,7 +702,7 @@ public:
 	bool AnyoneHasTech(TechTypes iTechType) const;
 	bool AnyoneHasUnit(UnitTypes iUnitType) const;
 	bool AnyoneHasUnitClass(UnitClassTypes iUnitClassType) const;
-#endif
+
 #if defined(MOD_BALANCE_CORE_JFD)	
 	void SetContractUnits(ContractTypes eContract, UnitTypes eUnit, int iValue);
 	int GetContractUnits(ContractTypes eContract, UnitTypes eUnit) const;
@@ -769,9 +767,6 @@ protected:
 	int m_iNoNukesCount;
 	int m_iNukesExploded;
 	int m_iMaxPopulation;
-	int m_iUnused1;  //unused
-	int m_iUnused2;  //unused
-	int m_iUnused3;  //unused
 	int m_iInitPopulation;
 	int m_iInitLand;
 	int m_iInitTech;
@@ -839,39 +834,35 @@ protected:
 	int m_iGlobalPopulation;
 	int m_iGlobalTechAvg;
 	int m_iLastTurnCSSurrendered;
-	int* m_aiGreatestMonopolyPlayer;
+	CvEnumMap<ResourceTypes, PlayerTypes> m_aiGreatestMonopolyPlayer;
 #endif
 
 	CvString m_strScriptData;
 
-	int* m_aiEndTurnMessagesReceived;
-	int* m_aiRankPlayer;        // Ordered by rank...
-	int* m_aiPlayerRank;        // Ordered by player ID...
-	int* m_aiPlayerScore;       // Ordered by player ID...
-	int* m_aiRankTeam;						// Ordered by rank...
-	int* m_aiTeamRank;						// Ordered by team ID...
-	int* m_aiTeamScore;						// Ordered by team ID...
+	CvEnumMap<PlayerTypes, int> m_aiEndTurnMessagesReceived;
+	CvEnumMap<PlayerTypes, int> m_aiRankPlayer;		// Ordered by rank...
+	CvEnumMap<PlayerTypes, int> m_aiPlayerRank;		// Ordered by player ID...
+	CvEnumMap<PlayerTypes, int> m_aiPlayerScore;	// Ordered by player ID...
+	CvEnumMap<TeamTypes, int> m_aiRankTeam;			// Ordered by rank...
+	CvEnumMap<TeamTypes, int> m_aiTeamRank;			// Ordered by team ID...
+	CvEnumMap<TeamTypes, int> m_aiTeamScore;		// Ordered by team ID...
 
-	int* m_paiUnitCreatedCount;
-	int* m_paiUnitClassCreatedCount;
-	int* m_paiBuildingClassCreatedCount;
-	int* m_paiProjectCreatedCount;
-	PlayerVoteTypes* m_paiVoteOutcome;
-	int* m_aiSecretaryGeneralTimer;
-	int* m_aiVoteTimer;
-	int* m_aiDiploVote;
-	int* m_aiVotesCast;
-	int* m_aiPreviousVotesCast;
-	int* m_aiNumVotesForTeam;
+	CvEnumMap<UnitTypes, int> m_paiUnitCreatedCount;
+	CvEnumMap<UnitClassTypes, int> m_paiUnitClassCreatedCount;
+	CvEnumMap<BuildingClassTypes, int> m_paiBuildingClassCreatedCount;
+	CvEnumMap<ProjectTypes, int> m_paiProjectCreatedCount;
+	CvEnumMap<VoteTypes, PlayerVoteTypes> m_paiVoteOutcome;
+	CvEnumMap<TeamTypes, TeamTypes> m_aiVotesCast;
+	CvEnumMap<TeamTypes, TeamTypes> m_aiPreviousVotesCast;
+	CvEnumMap<TeamTypes, int> m_aiNumVotesForTeam;
 
-	int* m_aiTeamCompetitionWinnersScratchPad;
+	CvEnumMap<TeamTypes, int> m_aiTeamCompetitionWinnersScratchPad;
 
-	bool* m_pabSpecialUnitValid;
+	CvEnumMap<SpecialUnitTypes, bool> m_pabSpecialUnitValid;
 
-	int** m_apaiPlayerVote;
-	int** m_ppaaiTeamVictoryRank;
+	CvEnumMap<VictoryTypes, TeamTypes*> m_ppaaiTeamVictoryRank;
 #if defined(MOD_BALANCE_CORE_JFD)
-	int** m_ppaiContractUnits;
+	CvEnumMap<ContractTypes, CvEnumMap<UnitTypes, int>> m_ppaiContractUnits;
 #endif
 
 	Database::Results* m_pDiploResponseQuery;
@@ -959,16 +950,12 @@ protected:
 
 	void showEndGameSequence();
 
-	CvPlot* normalizeFindLakePlot(PlayerTypes ePlayer);
-
 	void doUpdateCacheOnTurn();
 
 	void CheckPlayerTurnDeactivate();
 
 	void PopulateDigSite(CvPlot& kPlot, EraTypes eEra, GreatWorkArtifactClass eArtifact);
 	void SpawnArchaeologySitesHistorically();
-
-
 };
 
 extern int gTactMovesCount[NUM_AI_TACTICAL_MOVES];

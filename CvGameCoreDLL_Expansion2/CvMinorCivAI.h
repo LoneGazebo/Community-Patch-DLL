@@ -119,6 +119,9 @@ public:
 
 	~CvMinorCivQuest();
 
+	template<typename MinorCivQuest, typename Visitor>
+	static void Serialize(MinorCivQuest& minorCivQuest, Visitor& visitor);
+
 	PlayerTypes GetMinor() const;
 	PlayerTypes GetPlayerAssignedTo() const;
 	MinorCivQuestTypes GetType() const;
@@ -250,6 +253,8 @@ public:
 	void Uninit();
 	void Reset();
 	void ResetQuestList();
+	template<typename MinorCivAI, typename Visitor>
+	static void Serialize(MinorCivAI& minorCivAI, Visitor& visitor);
 	void Read(FDataStream& kStream);
 	void Write(FDataStream& kStream) const;
 
@@ -264,9 +269,7 @@ public:
 	UnitClassTypes GetBullyUnit() const;
 	void SetBullyUnit(UnitClassTypes eUnitClass = NO_UNITCLASS);
 #endif
-#if defined(MOD_API_EXTENSIONS)
 	void SetPersonality(MinorCivPersonalityTypes ePersonality);
-#endif
 	void DoPickPersonality();
 
 	MinorCivTraitTypes GetTrait() const;
@@ -842,6 +845,8 @@ private:
 	ReachablePlots m_bullyRelevantPlots;
 };
 
+FDataStream& operator>>(FDataStream&, CvMinorCivAI&);
+FDataStream& operator<<(FDataStream&, const CvMinorCivAI&);
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //

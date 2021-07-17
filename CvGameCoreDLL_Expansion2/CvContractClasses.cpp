@@ -243,37 +243,29 @@ CvContract::CvContract(ContractTypes eContract, PlayerTypes eContractHolder, int
 	m_iContractTurnStart = GC.getGame().getGameTurn();
 }
 
+template<typename Contract, typename Visitor>
+void CvContract::Serialize(Contract& contract, Visitor& visitor)
+{
+	visitor(contract.m_eContract);
+	visitor(contract.m_eContractHolder);
+	visitor(contract.m_iContractTurns);
+	visitor(contract.m_iContractMaintenance);
+	visitor(contract.m_iContractTurnStart);
+}
+
 /// Serialization read
 FDataStream& operator>>(FDataStream& loadFrom, CvContract& writeTo)
 {
-	uint uiVersion;
-	loadFrom >> uiVersion;
-	MOD_SERIALIZE_INIT_READ(loadFrom);
-
-	loadFrom >> writeTo.m_eContract;
-	loadFrom >> writeTo.m_eContractHolder;
-	loadFrom >> writeTo.m_iContractTurns;
-	loadFrom >> writeTo.m_iContractMaintenance;
-
-	loadFrom >> writeTo.m_iContractTurnStart;
-
+	CvStreamLoadVisitor serialVisitor(loadFrom);
+	CvContract::Serialize(writeTo, serialVisitor);
 	return loadFrom;
 }
 
 /// Serialization write
 FDataStream& operator<<(FDataStream& saveTo, const CvContract& readFrom)
 {
-	uint uiVersion = 4;
-	saveTo << uiVersion;
-	MOD_SERIALIZE_INIT_WRITE(saveTo);
-
-	saveTo << readFrom.m_eContract;
-	saveTo << readFrom.m_eContractHolder;
-	saveTo << readFrom.m_iContractTurns;
-	saveTo << readFrom.m_iContractMaintenance;
-
-	saveTo << readFrom.m_iContractTurnStart;
-
+	CvStreamSaveVisitor serialVisitor(saveTo);
+	CvContract::Serialize(readFrom, serialVisitor);
 	return saveTo;
 }
 
@@ -857,55 +849,26 @@ void CvGameContracts::EndContract(ContractTypes eContract, PlayerTypes ePlayer)
 	}
 }
 
+template<typename GameContracts, typename Visitor>
+void CvGameContracts::Serialize(GameContracts& gameContracts, Visitor& visitor)
+{
+	visitor(gameContracts.m_ActiveContracts);
+	visitor(gameContracts.m_InactiveContracts);
+}
+
 /// Serialization read
 FDataStream& operator>>(FDataStream& loadFrom, CvGameContracts& writeTo)
 {
-	uint uiVersion;
-
-	loadFrom >> uiVersion;
-	MOD_SERIALIZE_INIT_READ(loadFrom);
-
-	int iEntriesToRead;
-	CvContract tempItem;
-
-	writeTo.m_ActiveContracts.clear();
-	loadFrom >> iEntriesToRead;
-	for(int iI = 0; iI < iEntriesToRead; iI++)
-	{
-		loadFrom >> tempItem;
-		writeTo.m_ActiveContracts.push_back(tempItem);
-	}
-
-	writeTo.m_InactiveContracts.clear();
-	loadFrom >> iEntriesToRead;
-	for(int iI = 0; iI < iEntriesToRead; iI++)
-	{
-		loadFrom >> tempItem;
-		writeTo.m_InactiveContracts.push_back(tempItem);
-	}
-
+	CvStreamLoadVisitor serialVisitor(loadFrom);
+	CvGameContracts::Serialize(writeTo, serialVisitor);
 	return loadFrom;
 }
 
 /// Serialization write
 FDataStream& operator<<(FDataStream& saveTo, const CvGameContracts& readFrom)
 {
-	uint uiVersion = 0;
-	saveTo << uiVersion;
-	MOD_SERIALIZE_INIT_WRITE(saveTo);
-
-	ContractList::const_iterator it;
-	saveTo << readFrom.m_ActiveContracts.size();
-	for(it = readFrom.m_ActiveContracts.begin(); it != readFrom.m_ActiveContracts.end(); it++)
-	{
-		saveTo << *it;
-	}
-	saveTo << readFrom.m_InactiveContracts.size();
-	for(it = readFrom.m_InactiveContracts.begin(); it != readFrom.m_InactiveContracts.end(); it++)
-	{
-		saveTo << *it;
-	}
-
+	CvStreamSaveVisitor serialVisitor(saveTo);
+	CvGameContracts::Serialize(readFrom, serialVisitor);
 	return saveTo;
 }
 

@@ -28,6 +28,8 @@ public:
 	void Reset(void);
 
 	//// Serialization routines
+	template<typename CityConnections, typename Visitor>
+	static void Serialize(CityConnections& cityConnections, Visitor& visitor);
 	void Read(FDataStream& kStream);
 	void Write(FDataStream& kStream) const;
 
@@ -72,5 +74,11 @@ protected:
 	bool m_bDirty;
 	SingleCityConnectionStore dummy;
 };
+
+FDataStream& operator>>(FDataStream&, CvCityConnections::CityConnectionTypes&);
+FDataStream& operator<<(FDataStream&, const CvCityConnections::CityConnectionTypes&);
+
+FDataStream& operator>>(FDataStream&, CvCityConnections&);
+FDataStream& operator<<(FDataStream&, const CvCityConnections&);
 
 #endif //CIV5_BUILDER_TASKING_AI_H

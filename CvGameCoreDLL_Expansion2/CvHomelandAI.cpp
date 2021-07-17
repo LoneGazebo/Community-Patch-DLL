@@ -62,28 +62,35 @@ void CvHomelandAI::Reset()
 {
 }
 
+///
+template<typename HomelandAI, typename Visitor>
+void CvHomelandAI::Serialize(HomelandAI& /*homelandAI*/, Visitor& /*visitor*/)
+{
+}
+
 /// Serialization read
 void CvHomelandAI::Read(FDataStream& kStream)
 {
-	// Version number to maintain backwards compatibility
-	uint uiVersion;
-	kStream >> uiVersion;
-	MOD_SERIALIZE_INIT_READ(kStream);
-
-	int iDummy;
-	kStream >> iDummy;
+	CvStreamLoadVisitor serialVisitor(kStream);
+	CvHomelandAI::Serialize(*this, serialVisitor);
 }
 
 /// Serialization write
-void CvHomelandAI::Write(FDataStream& kStream)
+void CvHomelandAI::Write(FDataStream& kStream) const
 {
-	// Current version number
-	uint uiVersion = 1;
-	kStream << uiVersion;
-	MOD_SERIALIZE_INIT_WRITE(kStream);
+	CvStreamSaveVisitor serialVisitor(kStream);
+	CvHomelandAI::Serialize(*this, serialVisitor);
+}
 
-	//dummy value
-	kStream << 0L;
+FDataStream& operator>>(FDataStream& stream, CvHomelandAI& homelandAI)
+{
+	homelandAI.Read(stream);
+	return stream;
+}
+FDataStream& operator<<(FDataStream& stream, const CvHomelandAI& homelandAI)
+{
+	homelandAI.Write(stream);
+	return stream;
 }
 
 /// Mark all the units that will be under tactical AI control this turn
@@ -2126,7 +2133,7 @@ void CvHomelandAI::ExecuteFirstTurnSettlerMoves()
 				if (GC.getLogging() && GC.getAILogging())
 				{
 					CvString strLogString;
-					strLogString.Format("Founded city state in place due to scenario flag, X: %d, Y: %d", pUnit->getX(), pUnit->getY());
+					strLogString.Format("Founded city state in place, X: %d, Y: %d", pUnit->getX(), pUnit->getY());
 					LogHomelandMessage(strLogString);
 				}
 				continue;

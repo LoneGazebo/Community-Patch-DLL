@@ -334,7 +334,7 @@
     <!-- Permits land units to cross mountains (like the Carthage trait) (v19) -->
     <!-- See also: "Improvement - Tunnel" -->
     <!-- See also: "Promotions - Terrain Crossing" -->
-    <Row Class="2" Name="PROMOTIONS_CROSS_MOUNTAINS" Value="0" DbUpdates="1"/>
+    <Row Class="2" Name="PROMOTIONS_CROSS_MOUNTAINS" Value="1" DbUpdates="1"/>
     <!-- Permits coastal units to cross oceans (v19) -->
     <!-- See also: "Promotions - Terrain Crossing" -->
     <!-- See also: "Unique Unit - Longboat" -->
@@ -394,10 +394,6 @@
     <!-- Permits wonder resource (ie Marble) trade routes to be established (v43) -->
     <!-- See also: "Trade - Marble Shipments" -->
     <Row Class="6" Name="TRADE_WONDER_RESOURCE_ROUTES" Value="0"/>
-
-	<!-- Permits units to have no supply cost (v77) -->
-	<!-- See also: "Units - Missiles No Supply" -->
-    <Row Class="5" Name="UNITS_NO_SUPPLY" Value="0" DbUpdates="1"/>
 
     <!-- Restricts worker suggestions to local tiles (at the limits specified - limits are distances between the unit and the plot as the crow flies, NOT path lengths) (v19) -->
     <!-- See also: "UI - No Auto-Embark Workers" -->
@@ -806,12 +802,6 @@
 
     <!-- Enables the Achievements table (v45) -->
     <Row Class="2" Name="API_ACHIEVEMENTS" Value="0" DbUpdates="1"/>
-
-    <!-- * Enables the LUA Extensions API - see http://forums.civfanatics.com/showthread.php?t=492305 (v19) -->
-    <Row Class="2" Name="API_LUA_EXTENSIONS" Value="1"/>
-    <!-- * Enables the Extensions API (v19) -->
-    <!-- See also: "Unique Building - Cistern" -->
-    <Row Class="2" Name="API_EXTENSIONS" Value="1"/>
 
 	  <!-- Changes for the Community Patch  -->	
 	<Row Class="6" Name="COMMUNITY_PATCH" Value="0"/>

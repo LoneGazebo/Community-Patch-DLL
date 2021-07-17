@@ -32,6 +32,8 @@ public:
 	void Reset();
 
 	// Serialization routines
+	template<typename TechAI, typename Visitor>
+	static void Serialize(TechAI& techAI, Visitor& visitor);
 	void Read(FDataStream& kStream);
 	void Write(FDataStream& kStream) const;
 
@@ -65,5 +67,8 @@ private:
 	CvWeightedVector<int> m_TechAIWeights;
 	CvWeightedVector<int> m_ResearchableTechs;
 };
+
+FDataStream& operator<<(FDataStream&, const CvTechAI&);
+FDataStream& operator>>(FDataStream&, CvTechAI&);
 
 #endif //CIV5_TECHAI_H

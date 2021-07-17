@@ -50,6 +50,11 @@ ALTER TABLE Buildings ADD COLUMN 'NoUnhappfromXSpecialists' INTEGER DEFAULT 0;
 -- Reduce specialist unhappiness from urbanization (CBO)
 ALTER TABLE Buildings ADD COLUMN 'NoUnhappfromXSpecialistsGlobal' INTEGER DEFAULT 0;
 
+-- BUILDING: PlayerBorderGainlessPillage & CityGainlessPillage
+-- If such a building's effect applies, other teams get neither gold nor heal from pillaging the appropriate tiles.
+-- CityGainlessPillage affects the constructing city's worked tiles, PlayerBorderGainlessPillage proofs every tile of the player
+ALTER TABLE Buildings ADD PlayerBorderGainlessPillage BOOLEAN DEFAULT 0;
+ALTER TABLE Buildings ADD CityGainlessPillage BOOLEAN DEFAULT 0;
 
 -- Belief requires an improvement on a terrain type to grant its yield.
 
@@ -257,6 +262,10 @@ ALTER TABLE Traits ADD COLUMN 'MultipleAttackBonus' INTEGER DEFAULT 0;
 -- Does this Civ get extra influence from meeting a CS?
 ALTER TABLE Traits ADD COLUMN 'InfluenceMeetCS' INTEGER DEFAULT 0;
 
+-- Civ gets bonuses to monopoly yields
+ALTER TABLE Traits ADD COLUMN 'MonopolyModFlat' INTEGER DEFAULT 0;
+ALTER TABLE Traits ADD COLUMN 'MonopolyModPercent' INTEGER DEFAULT 0;
+
 
 -- Grants a free valid promotion to a unit when it is on a type of improvement (farm, mine, etc.).
 
@@ -312,6 +321,11 @@ ALTER TABLE Terrains ADD COLUMN 'AdjacentSpawnLocationUnitFreePromotion' TEXT DE
 -- Grants a free valid promotion to a unit when it is adjacent to a type of terrain (grassland, plains, coast, etc.). Generally used for barbarians.
 
 ALTER TABLE Terrains ADD COLUMN 'AdjacentUnitFreePromotion' TEXT DEFAULT NULL;
+
+-- Adds ability for units to have max HP values other than 100 (whoward)
+ALTER TABLE Units ADD MaxHitPoints INTEGER DEFAULT 100;
+ALTER TABLE UnitPromotions ADD MaxHitPointsChange INTEGER DEFAULT 0;
+ALTER TABLE UnitPromotions ADD MaxHitPointsModifier INTEGER DEFAULT 0;
 
 -- Adds ability for settlers to get free buildings when a city is founded.
 ALTER TABLE Units ADD COLUMN 'FoundMid' BOOLEAN DEFAULT 0;
@@ -414,6 +428,18 @@ ALTER TABLE Policies ADD COLUMN 'AdmiralLuxuryBonus' INTEGER DEFAULT 0;
 
 -- CS resources count towards monopolies
 ALTER TABLE Policies ADD COLUMN 'CSResourcesCountForMonopolies' BOOLEAN DEFAULT 0;
+
+-- Liberating a city gives influence to all CS
+ALTER TABLE Policies ADD COLUMN 'InfluenceAllCSFromLiberation' INTEGER DEFAULT 0;
+
+-- Liberating a city gives that city some units 
+ALTER TABLE Policies ADD COLUMN 'NumUnitsInLiberatedCities' INTEGER DEFAULT 0;
+
+-- Liberating a city gives that city 1 buildingclass
+ALTER TABLE Policies ADD COLUMN 'BuildingClassInLiberatedCities' INTEGER DEFAULT 0;
+
+-- Liberating a city gives XP to all units
+ALTER TABLE Policies ADD COLUMN 'ExperienceAllUnitsFromLiberation' INTEGER DEFAULT 0;
 
 -- % modifiers to empire needs modifier - negative = good!
 ALTER TABLE Buildings ADD COLUMN 'EmpireNeedsModifier' INTEGER DEFAULT 0;
@@ -1196,6 +1222,8 @@ ALTER TABLE Buildings ADD COLUMN 'IsCorporation' BOOLEAN DEFAULT 0;
 ALTER TABLE Buildings ADD COLUMN 'GPRateModifierPerXFranchises' INTEGER DEFAULT 0;
 ALTER TABLE Buildings ADD COLUMN 'TRSpeedBoost' INTEGER DEFAULT 0;
 ALTER TABLE Buildings ADD COLUMN 'TRVisionBoost' INTEGER DEFAULT 0;
+ALTER TABLE Buildings ADD COLUMN 'TRTurnModGlobal' INTEGER DEFAULT 0; --modifies the turns a TR takes to complete, an int between 100 and -100, like a percent
+ALTER TABLE Buildings ADD COLUMN 'TRTurnModLocal' INTEGER DEFAULT 0;
 ALTER TABLE Buildings ADD COLUMN 'OfficeBenefitHelper' TEXT DEFAULT NULL;
 
 -- Corporation Policies
@@ -1362,6 +1390,9 @@ ALTER TABLE Improvements ADD COLUMN 'RandResourceChance' INTEGER DEFAULT 0;
 
 -- Removes the improvement when built. Useful in combination with CreatesFeature.
 ALTER TABLE Improvements ADD COLUMN 'RemoveWhenComplete' BOOLEAN DEFAULT 0;
+
+-- Units that stand on this improvement don't leave it when they attack (like from a city)
+ALTER TABLE Improvements ADD COLUMN 'NoFollowUp' BOOLEAN DEFAULT 0;
 
 -- Start a WLTKD when this unit is born or gained. GP's only.
 ALTER TABLE Units ADD COLUMN 'WLTKDFromBirth' BOOLEAN DEFAULT 0;

@@ -30,6 +30,8 @@ public:
 	void Reset();
 
 	// Serialization routines
+	template<typename ProjectProductionAI, typename Visitor>
+	static void Serialize(ProjectProductionAI& projectProductionAI, Visitor& visitor);
 	void Read(FDataStream& kStream);
 	void Write(FDataStream& kStream) const;
 
@@ -53,5 +55,8 @@ private:
 	CvWeightedVector<int> m_ProjectAIWeights;
 	CvWeightedVector<int> m_Buildables;
 };
+
+FDataStream& operator>>(FDataStream&, CvProjectProductionAI&);
+FDataStream& operator<<(FDataStream&, const CvProjectProductionAI&);
 
 #endif //CIV5_PROJECT_PRODUCTION_AI_H

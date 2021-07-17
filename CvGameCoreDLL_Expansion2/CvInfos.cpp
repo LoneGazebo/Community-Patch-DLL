@@ -110,30 +110,30 @@ bool CvBaseInfo::operator==(const CvBaseInfo& rhs) const
 	return true;
 }
 
+template<typename BaseInfo, typename Visitor>
+void CvBaseInfo::Serialize(BaseInfo& baseInfo, Visitor& visitor)
+{
+	visitor(baseInfo.m_iID);
+	visitor(baseInfo.m_strCivilopedia);
+	visitor(baseInfo.m_strDescription);
+	visitor(baseInfo.m_strHelp);
+	visitor(baseInfo.m_strDisabledHelp);
+	visitor(baseInfo.m_strStrategy);
+	visitor(baseInfo.m_strType);
+	visitor(baseInfo.m_strTextKey);
+	visitor(baseInfo.m_strText);
+}
+
 void CvBaseInfo::readFrom(FDataStream& loadFrom)
 {
-	loadFrom >> m_iID;
-	loadFrom >> m_strCivilopedia;
-	loadFrom >> m_strDescription;
-	loadFrom >> m_strHelp;
-	loadFrom >> m_strDisabledHelp;
-	loadFrom >> m_strStrategy;
-	loadFrom >> m_strType;
-	loadFrom >> m_strTextKey;
-	loadFrom >> m_strText;
+	CvStreamLoadVisitor serialVisitor(loadFrom);
+	Serialize(*this, serialVisitor);
 }
 
 void CvBaseInfo::writeTo(FDataStream& saveTo) const
 {
-	saveTo << m_iID;
-	saveTo << m_strCivilopedia;
-	saveTo << m_strDescription;
-	saveTo << m_strHelp;
-	saveTo << m_strDisabledHelp;
-	saveTo << m_strStrategy;
-	saveTo << m_strType;
-	saveTo << m_strTextKey;
-	saveTo << m_strText;
+	CvStreamSaveVisitor serialVisitor(saveTo);
+	Serialize(*this, serialVisitor);
 }
 
 FDataStream& operator<<(FDataStream& saveTo, const CvBaseInfo& readFrom)
@@ -3905,26 +3905,27 @@ bool CvTurnTimerInfo::operator==(const CvTurnTimerInfo& rhs) const
 	return true;
 }
 
+template<typename TurnTimerInfo, typename Visitor>
+void CvTurnTimerInfo::Serialize(TurnTimerInfo& turnTimerInfo, Visitor& visitor)
+{
+	visitor(turnTimerInfo.m_iBaseTime);
+	visitor(turnTimerInfo.m_iCityResource);
+	visitor(turnTimerInfo.m_iUnitResource);
+	visitor(turnTimerInfo.m_iFirstTurnMultiplier);
+}
+
 void CvTurnTimerInfo::writeTo(FDataStream& saveTo) const
 {
-	MOD_SERIALIZE_INIT_WRITE(saveTo);
-
 	CvBaseInfo::writeTo(saveTo);
-	saveTo << m_iBaseTime;
-	saveTo << m_iCityResource;
-	saveTo << m_iUnitResource;
-	saveTo << m_iFirstTurnMultiplier;
+	CvStreamSaveVisitor serialVisitor(saveTo);
+	Serialize(*this, serialVisitor);
 }
 
 void CvTurnTimerInfo::readFrom(FDataStream& loadFrom)
 {
-	MOD_SERIALIZE_INIT_READ(loadFrom);
-
 	CvBaseInfo::readFrom(loadFrom);
-	loadFrom >> m_iBaseTime;
-	loadFrom >> m_iCityResource;
-	loadFrom >> m_iUnitResource;
-	loadFrom >> m_iFirstTurnMultiplier;
+	CvStreamLoadVisitor serialVisitor(loadFrom);
+	Serialize(*this, serialVisitor);
 }
 
 FDataStream& operator<<(FDataStream& saveTo, const CvTurnTimerInfo& readFrom)
@@ -3986,22 +3987,25 @@ bool CvDiploModifierInfo::operator==(const CvDiploModifierInfo& rhs) const
 	return true;
 }
 
+template<typename DiploModifierInfo, typename Visitor>
+void CvDiploModifierInfo::Serialize(DiploModifierInfo& diploModifierInfo, Visitor& visitor)
+{
+	visitor(diploModifierInfo.m_eFromCiv);
+	visitor(diploModifierInfo.m_eToCiv);
+}
+
 void CvDiploModifierInfo::writeTo(FDataStream& saveTo) const
 {
-	MOD_SERIALIZE_INIT_WRITE(saveTo);
-
 	CvBaseInfo::writeTo(saveTo);
-	MOD_SERIALIZE_WRITE(saveTo, m_eFromCiv);
-	MOD_SERIALIZE_WRITE(saveTo, m_eToCiv);
+	CvStreamSaveVisitor serialVisitor(saveTo);
+	Serialize(*this, serialVisitor);
 }
 
 void CvDiploModifierInfo::readFrom(FDataStream& loadFrom)
 {
-	MOD_SERIALIZE_INIT_READ(loadFrom);
-
 	CvBaseInfo::readFrom(loadFrom);
-	MOD_SERIALIZE_READ(53, loadFrom, m_eFromCiv, NO_CIVILIZATION);
-	MOD_SERIALIZE_READ(53, loadFrom, m_eToCiv, NO_CIVILIZATION);
+	CvStreamLoadVisitor serialVisitor(loadFrom);
+	Serialize(*this, serialVisitor);
 }
 
 FDataStream& operator<<(FDataStream& saveTo, const CvDiploModifierInfo& readFrom)
@@ -6317,10 +6321,8 @@ bool CvFeatureInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 //					CvYieldInfo
 //======================================================================================================
 CvYieldInfo::CvYieldInfo() :
-#if defined(MOD_API_EXTENSIONS)
 	m_strIconString(""),
 	m_strColorString(""),
-#endif
 	m_iHillsChange(0),
 	m_iMountainChange(0),
 	m_iLakeChange(0),
@@ -6342,7 +6344,6 @@ CvYieldInfo::CvYieldInfo() :
 	m_iAIWeightPercent(0)
 {
 }
-#if defined(MOD_API_EXTENSIONS)
 //------------------------------------------------------------------------------
 const char* CvYieldInfo::getIconString() const
 {
@@ -6353,7 +6354,6 @@ const char* CvYieldInfo::getColorString() const
 {
 	return m_strColorString;
 }
-#endif
 //------------------------------------------------------------------------------
 int CvYieldInfo::getHillsChange() const
 {
@@ -6447,10 +6447,8 @@ bool CvYieldInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 	if(!CvBaseInfo::CacheResults(kResults, kUtility))
 		return false;
 
-#if defined(MOD_API_EXTENSIONS)
 	m_strIconString = kResults.GetText("IconString");
 	m_strColorString = kResults.GetText("ColorString");
-#endif
 	kResults.GetValue("HillsChange", m_iHillsChange);
 	kResults.GetValue("MountainChange", m_iMountainChange);
 	kResults.GetValue("LakeChange", m_iLakeChange);
@@ -6883,107 +6881,179 @@ CvLeaderHeadInfo::~CvLeaderHeadInfo()
 //------------------------------------------------------------------------------
 int CvLeaderHeadInfo::GetVictoryCompetitiveness() const
 {
+	if (m_iVictoryCompetitiveness <= 0 || m_iVictoryCompetitiveness > 30)
+		return GC.getGame().GetDefaultFlavorValue();
+
 	return m_iVictoryCompetitiveness;
 }
 //------------------------------------------------------------------------------
 int CvLeaderHeadInfo::GetWonderCompetitiveness() const
 {
+	if (m_iWonderCompetitiveness <= 0 || m_iWonderCompetitiveness > 30)
+		return GC.getGame().GetDefaultFlavorValue();
+
 	return m_iWonderCompetitiveness;
 }
 //------------------------------------------------------------------------------
 int CvLeaderHeadInfo::GetMinorCivCompetitiveness() const
 {
+	if (m_iMinorCivCompetitiveness <= 0 || m_iMinorCivCompetitiveness > 30)
+		return GC.getGame().GetDefaultFlavorValue();
+
 	return m_iMinorCivCompetitiveness;
 }
 //------------------------------------------------------------------------------
 int CvLeaderHeadInfo::GetBoldness() const
 {
+	if (m_iBoldness <= 0 || m_iBoldness > 30)
+		return GC.getGame().GetDefaultFlavorValue();
+
 	return m_iBoldness;
 }
 //------------------------------------------------------------------------------
 int CvLeaderHeadInfo::GetDiploBalance() const
 {
+	if (m_iDiploBalance <= 0 || m_iDiploBalance > 30)
+		return GC.getGame().GetDefaultFlavorValue();
+
 	return m_iDiploBalance;
 }
 //------------------------------------------------------------------------------
 int CvLeaderHeadInfo::GetWarmongerHate() const
 {
+	if (m_iWarmongerHate <= 0 || m_iWarmongerHate > 30)
+		return GC.getGame().GetDefaultFlavorValue();
+
 	return m_iWarmongerHate;
 }
 //------------------------------------------------------------------------------
 int CvLeaderHeadInfo::GetDoFWillingness() const
 {
+	if (m_iDoFWillingness <= 0 || m_iDoFWillingness > 30)
+		return GC.getGame().GetDefaultFlavorValue();
+
 	return m_iDoFWillingness;
 }
 //------------------------------------------------------------------------------
 int CvLeaderHeadInfo::GetDenounceWillingness() const
 {
+	if (m_iDenounceWillingness <= 0 || m_iDenounceWillingness > 30)
+		return GC.getGame().GetDefaultFlavorValue();
+
 	return m_iDenounceWillingness;
 }
 //------------------------------------------------------------------------------
 int CvLeaderHeadInfo::GetLoyalty() const
 {
+	if (m_iLoyalty <= 0 || m_iLoyalty > 30)
+		return GC.getGame().GetDefaultFlavorValue();
+
 	return m_iLoyalty;
 }
 //------------------------------------------------------------------------------
 int CvLeaderHeadInfo::GetForgiveness() const
 {
+	if (m_iForgiveness <= 0 || m_iForgiveness > 30)
+		return GC.getGame().GetDefaultFlavorValue();
+
 	return m_iForgiveness;
 }
 //------------------------------------------------------------------------------
 int CvLeaderHeadInfo::GetNeediness() const
 {
+	if (m_iNeediness <= 0 || m_iNeediness > 30)
+		return GC.getGame().GetDefaultFlavorValue();
+
 	return m_iNeediness;
 }
 //------------------------------------------------------------------------------
 int CvLeaderHeadInfo::GetMeanness() const
 {
+	if (m_iMeanness <= 0 || m_iMeanness > 30)
+		return GC.getGame().GetDefaultFlavorValue();
+
 	return m_iMeanness;
 }
 //------------------------------------------------------------------------------
 int CvLeaderHeadInfo::GetChattiness() const
 {
+	if (m_iChattiness <= 0 || m_iChattiness > 30)
+		return GC.getGame().GetDefaultFlavorValue();
+
 	return m_iChattiness;
 }
 //------------------------------------------------------------------------------
-// Recursive: Need to hardcode these references because of how Firaxis set up the table.
+// Recursive: Need to hardcode these references because of how Firaxis set up the table. Added extra failsafes here in case modders fail to specify custom civ diplo flavors.
 int CvLeaderHeadInfo::GetWarBias(bool bMinor) const
 {
 	if (bMinor)
-		return m_piMinorCivApproachBiases ? m_piMinorCivApproachBiases[3] : 5; // xml: MINOR_CIV_APPROACH_CONQUEST
+	{
+		if (!m_piMinorCivApproachBiases || m_piMinorCivApproachBiases[3] <= 0 || m_piMinorCivApproachBiases[3] > 30)
+			return GC.getGame().GetDefaultFlavorValue();
 
-	return m_piMajorCivApproachBiases ? m_piMajorCivApproachBiases[0] : 5; // xml: MAJOR_CIV_APPROACH_WAR
+		return m_piMinorCivApproachBiases[3]; // xml: MINOR_CIV_APPROACH_CONQUEST
+	}
+
+	if (!m_piMajorCivApproachBiases || m_piMajorCivApproachBiases[0] <= 0 || m_piMajorCivApproachBiases[0] > 30)
+		return GC.getGame().GetDefaultFlavorValue();
+
+	return m_piMajorCivApproachBiases[0]; // xml: MAJOR_CIV_APPROACH_WAR
 }
 //------------------------------------------------------------------------------
 int CvLeaderHeadInfo::GetHostileBias(bool bMinor) const
 {
 	if (bMinor)
-		return m_piMinorCivApproachBiases ? m_piMinorCivApproachBiases[4] : 5; // xml: MINOR_CIV_APPROACH_BULLY
+	{
+		if (!m_piMinorCivApproachBiases || m_piMinorCivApproachBiases[4] <= 0 || m_piMinorCivApproachBiases[4] > 30)
+			return GC.getGame().GetDefaultFlavorValue();
 
-	return m_piMajorCivApproachBiases ? m_piMajorCivApproachBiases[1] : 5; // xml: MAJOR_CIV_APPROACH_HOSTILE
+		return m_piMinorCivApproachBiases[4]; // xml: MINOR_CIV_APPROACH_BULLY
+	}
+
+	if (!m_piMajorCivApproachBiases || m_piMajorCivApproachBiases[1] <= 0 || m_piMajorCivApproachBiases[1] > 30)
+		return GC.getGame().GetDefaultFlavorValue();
+
+	return m_piMajorCivApproachBiases[1]; // xml: MAJOR_CIV_APPROACH_HOSTILE
 }
 //------------------------------------------------------------------------------
 int CvLeaderHeadInfo::GetDeceptiveBias() const
 {
-	return m_piMajorCivApproachBiases ? m_piMajorCivApproachBiases[2] : 5; // xml: MAJOR_CIV_APPROACH_DECEPTIVE
+	if (!m_piMajorCivApproachBiases || m_piMajorCivApproachBiases[2] <= 0 || m_piMajorCivApproachBiases[2] > 30)
+		return GC.getGame().GetDefaultFlavorValue();
+
+	return m_piMajorCivApproachBiases[2]; // xml: MAJOR_CIV_APPROACH_DECEPTIVE
 }
 //------------------------------------------------------------------------------
 int CvLeaderHeadInfo::GetGuardedBias() const
 {
-	return m_piMajorCivApproachBiases ? m_piMajorCivApproachBiases[3] : 5; // xml: MAJOR_CIV_APPROACH_GUARDED
+	if (!m_piMajorCivApproachBiases || m_piMajorCivApproachBiases[3] <= 0 || m_piMajorCivApproachBiases[3] > 30)
+		return GC.getGame().GetDefaultFlavorValue();
+
+	return m_piMajorCivApproachBiases[3]; // xml: MAJOR_CIV_APPROACH_GUARDED
 }
 //------------------------------------------------------------------------------
 int CvLeaderHeadInfo::GetAfraidBias() const
 {
-	return m_piMajorCivApproachBiases ? m_piMajorCivApproachBiases[4] : 5; // xml: MAJOR_CIV_APPROACH_AFRAID
+	if (!m_piMajorCivApproachBiases || m_piMajorCivApproachBiases[4] <= 0 || m_piMajorCivApproachBiases[4] > 30)
+		return GC.getGame().GetDefaultFlavorValue();
+
+	return m_piMajorCivApproachBiases[4]; // xml: MAJOR_CIV_APPROACH_AFRAID
 }
 //------------------------------------------------------------------------------
 int CvLeaderHeadInfo::GetNeutralBias(bool bMinor) const
 {
 	if (bMinor)
-		return m_piMinorCivApproachBiases ? m_piMinorCivApproachBiases[0] : 5; // xml: MINOR_CIV_APPROACH_IGNORE
+	{
+		if (!m_piMinorCivApproachBiases || m_piMinorCivApproachBiases[0] <= 0 || m_piMinorCivApproachBiases[0] > 30)
+			return GC.getGame().GetDefaultFlavorValue();
 
-	return m_piMajorCivApproachBiases ? m_piMajorCivApproachBiases[6] : 5; // xml: MAJOR_CIV_APPROACH_NEUTRAL
+		return m_piMinorCivApproachBiases[0]; // xml: MINOR_CIV_APPROACH_IGNORE
+	}
+
+	if (!m_piMajorCivApproachBiases || m_piMajorCivApproachBiases[6] <= 0 || m_piMajorCivApproachBiases[6] > 30)
+		return GC.getGame().GetDefaultFlavorValue();
+
+	return m_piMajorCivApproachBiases[6]; // xml: MAJOR_CIV_APPROACH_NEUTRAL
 }
 //------------------------------------------------------------------------------
 int CvLeaderHeadInfo::GetFriendlyBias(bool bMinor) const
@@ -6993,12 +7063,30 @@ int CvLeaderHeadInfo::GetFriendlyBias(bool bMinor) const
 	if (bMinor)
 	{
 		if (!m_piMinorCivApproachBiases)
-			return 5;
+			return GC.getGame().GetDefaultFlavorValue();
 
-		return max(m_piMinorCivApproachBiases[1], m_piMinorCivApproachBiases[2]); // xml: MINOR_CIV_APPROACH_FRIENDLY, MINOR_CIV_APPROACH_PROTECTIVE
+		// If neither flavor exists, use the default flavor value.
+		// If only one flavor exists, use that flavor value.
+		// If both flavors exist, use the maximum.
+		if (m_piMinorCivApproachBiases[1] <= 0 || m_piMinorCivApproachBiases[1] > 30)
+		{
+			if (m_piMinorCivApproachBiases[2] <= 0 || m_piMinorCivApproachBiases[2] > 30)
+				return GC.getGame().GetDefaultFlavorValue();
+
+			return m_piMinorCivApproachBiases[2];
+		}
+		else if (m_piMinorCivApproachBiases[2] <= 0 || m_piMinorCivApproachBiases[2] > 30)
+		{
+			return m_piMinorCivApproachBiases[1];
+		}
+
+		return std::max(m_piMinorCivApproachBiases[1], m_piMinorCivApproachBiases[2]); // xml: MINOR_CIV_APPROACH_FRIENDLY, MINOR_CIV_APPROACH_PROTECTIVE
 	}
 
-	return m_piMajorCivApproachBiases ? m_piMajorCivApproachBiases[5] : 5; // xml: MAJOR_CIV_APPROACH_FRIENDLY
+	if (!m_piMajorCivApproachBiases || m_piMajorCivApproachBiases[5] <= 0 || m_piMajorCivApproachBiases[5] > 30)
+		return GC.getGame().GetDefaultFlavorValue();
+
+	return m_piMajorCivApproachBiases[5]; // xml: MAJOR_CIV_APPROACH_FRIENDLY
 }
 //------------------------------------------------------------------------------
 const char* CvLeaderHeadInfo::getArtDefineTag() const
@@ -7323,49 +7411,39 @@ bool CvWorldInfo::operator!=(const CvWorldInfo& rhs) const
 	return !(*this == rhs);
 }
 
+template<typename WorldInfo, typename Visitor>
+void CvWorldInfo::Serialize(WorldInfo& worldInfo, Visitor& visitor)
+{
+	visitor(worldInfo.m_iDefaultPlayers);
+	visitor(worldInfo.m_iDefaultMinorCivs);
+	visitor(worldInfo.m_iFogTilesPerBarbarianCamp);
+	visitor(worldInfo.m_iNumNaturalWonders);
+	visitor(worldInfo.m_iUnitNameModifier);
+	visitor(worldInfo.m_iTargetNumCities);
+	visitor(worldInfo.m_iNumFreeBuildingResources);
+	visitor(worldInfo.m_iBuildingClassPrereqModifier);
+	visitor(worldInfo.m_iMaxConscriptModifier);
+	visitor(worldInfo.m_iGridWidth);
+	visitor(worldInfo.m_iGridHeight);
+	visitor(worldInfo.m_iMaxActiveReligions);
+	visitor(worldInfo.m_iTerrainGrainChange);
+	visitor(worldInfo.m_iFeatureGrainChange);
+	visitor(worldInfo.m_iResearchPercent);
+	visitor(worldInfo.m_iNumCitiesUnhappinessPercent);
+	visitor(worldInfo.m_iNumCitiesPolicyCostMod);
+	visitor(worldInfo.m_iNumCitiesTechCostMod);
+	visitor(worldInfo.m_iTradeRouteDistanceMod);
+	visitor(worldInfo.m_iNumCitiesTourismCostMod);
+	visitor(worldInfo.m_iMinDistanceCities);
+	visitor(worldInfo.m_iMinDistanceCityStates);
+	visitor(worldInfo.m_iReformationPercent);
+}
+
 void CvWorldInfo::readFrom(FDataStream& loadFrom)
 {
-	int iVersion;
-	loadFrom >> iVersion;				// Make sure to update versioning if the members change!
-	MOD_SERIALIZE_INIT_READ(loadFrom);
-
 	CvBaseInfo::readFrom(loadFrom);
-
-	loadFrom >> m_iDefaultPlayers;
-	loadFrom >> m_iDefaultMinorCivs;
-	loadFrom >> m_iFogTilesPerBarbarianCamp;
-	loadFrom >> m_iNumNaturalWonders;
-	loadFrom >> m_iUnitNameModifier;
-	loadFrom >> m_iTargetNumCities;
-	loadFrom >> m_iNumFreeBuildingResources;
-	loadFrom >> m_iBuildingClassPrereqModifier;
-	loadFrom >> m_iMaxConscriptModifier;
-	loadFrom >> m_iGridWidth;
-	loadFrom >> m_iGridHeight;
-	loadFrom >> m_iMaxActiveReligions;
-	loadFrom >> m_iTerrainGrainChange;
-	loadFrom >> m_iFeatureGrainChange;
-	loadFrom >> m_iResearchPercent;
-	loadFrom >> m_iNumCitiesUnhappinessPercent;
-	loadFrom >> m_iNumCitiesPolicyCostMod;
-
-	if (iVersion >= 2)
-	{
-		loadFrom >> m_iNumCitiesTechCostMod;
-	}
-	else
-	{
-		m_iNumCitiesTechCostMod = 0;
-	}
-#if defined(MOD_TRADE_ROUTE_SCALING)
-	MOD_SERIALIZE_READ(52, loadFrom, m_iTradeRouteDistanceMod, 100);
-#endif
-#if defined(MOD_BALANCE_CORE)
-	MOD_SERIALIZE_READ(67, loadFrom, m_iNumCitiesTourismCostMod, 5);
-	MOD_SERIALIZE_READ(67, loadFrom, m_iMinDistanceCities, 3);
-	MOD_SERIALIZE_READ(67, loadFrom, m_iMinDistanceCityStates, 3);
-	MOD_SERIALIZE_READ(67, loadFrom, m_iReformationPercent, 100);
-#endif
+	CvStreamLoadVisitor serialVisitor(loadFrom);
+	Serialize(*this, serialVisitor);
 }
 
 // A special reader for version 0 (pre-versioning)
@@ -7392,39 +7470,9 @@ void CvWorldInfo::readFromVersion0(FDataStream& loadFrom)
 
 void CvWorldInfo::writeTo(FDataStream& saveTo) const
 {
-	int iVersion = 2;		// Make sure to update the versioning if the members change!
-	saveTo << iVersion;
-	MOD_SERIALIZE_INIT_WRITE(saveTo);
-
 	CvBaseInfo::writeTo(saveTo);
-
-	saveTo << m_iDefaultPlayers;
-	saveTo << m_iDefaultMinorCivs;
-	saveTo << m_iFogTilesPerBarbarianCamp;
-	saveTo << m_iNumNaturalWonders;
-	saveTo << m_iUnitNameModifier;
-	saveTo << m_iTargetNumCities;
-	saveTo << m_iNumFreeBuildingResources;
-	saveTo << m_iBuildingClassPrereqModifier;
-	saveTo << m_iMaxConscriptModifier;
-	saveTo << m_iGridWidth;
-	saveTo << m_iGridHeight;
-	saveTo << m_iMaxActiveReligions;
-	saveTo << m_iTerrainGrainChange;
-	saveTo << m_iFeatureGrainChange;
-	saveTo << m_iResearchPercent;
-	saveTo << m_iNumCitiesUnhappinessPercent;
-	saveTo << m_iNumCitiesPolicyCostMod;
-	saveTo << m_iNumCitiesTechCostMod;
-#if defined(MOD_TRADE_ROUTE_SCALING)
-	MOD_SERIALIZE_WRITE(saveTo, m_iTradeRouteDistanceMod);
-#endif
-#if defined(MOD_BALANCE_CORE)
-	MOD_SERIALIZE_WRITE(saveTo, m_iNumCitiesTourismCostMod);
-	MOD_SERIALIZE_WRITE(saveTo, m_iMinDistanceCities);
-	MOD_SERIALIZE_WRITE(saveTo, m_iMinDistanceCityStates);
-	MOD_SERIALIZE_WRITE(saveTo, m_iReformationPercent);
-#endif
+	CvStreamSaveVisitor serialVisitor(saveTo);
+	Serialize(*this, serialVisitor);
 }
 
 FDataStream& operator<<(FDataStream& saveTo, const CvWorldInfo& readFrom)
@@ -7478,42 +7526,34 @@ bool CvClimateInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	return true;
 }
 
+template<typename ClimateInfo, typename Visitor>
+void CvClimateInfo::Serialize(ClimateInfo& climateInfo, Visitor& visitor)
+{
+	visitor(climateInfo.m_iDesertPercentChange);
+	visitor(climateInfo.m_iJungleLatitude);
+	visitor(climateInfo.m_iHillRange);
+	visitor(climateInfo.m_iMountainPercent);
+	visitor(climateInfo.m_fSnowLatitudeChange);
+	visitor(climateInfo.m_fTundraLatitudeChange);
+	visitor(climateInfo.m_fGrassLatitudeChange);
+	visitor(climateInfo.m_fDesertBottomLatitudeChange);
+	visitor(climateInfo.m_fDesertTopLatitudeChange);
+	visitor(climateInfo.m_fIceLatitude);
+	visitor(climateInfo.m_fRandIceLatitude);
+}
+
 void CvClimateInfo::readFrom(FDataStream& loadFrom)
 {
-	MOD_SERIALIZE_INIT_READ(loadFrom);
-
 	CvBaseInfo::readFrom(loadFrom);
-
-	loadFrom >> m_iDesertPercentChange;
-	loadFrom >> m_iJungleLatitude;
-	loadFrom >> m_iHillRange;
-	loadFrom >> m_iMountainPercent;
-	loadFrom >> m_fSnowLatitudeChange;
-	loadFrom >> m_fTundraLatitudeChange;
-	loadFrom >> m_fGrassLatitudeChange;
-	loadFrom >> m_fDesertBottomLatitudeChange;
-	loadFrom >> m_fDesertTopLatitudeChange;
-	loadFrom >> m_fIceLatitude;
-	loadFrom >> m_fRandIceLatitude;
+	CvStreamLoadVisitor serialVisitor(loadFrom);
+	Serialize(*this, serialVisitor);
 }
 
 void CvClimateInfo::writeTo(FDataStream& saveTo) const
 {
-	MOD_SERIALIZE_INIT_WRITE(saveTo);
-
 	CvBaseInfo::writeTo(saveTo);
-
-	saveTo << m_iDesertPercentChange;
-	saveTo << m_iJungleLatitude;
-	saveTo << m_iHillRange;
-	saveTo << m_iMountainPercent;
-	saveTo << m_fSnowLatitudeChange;
-	saveTo << m_fTundraLatitudeChange;
-	saveTo << m_fGrassLatitudeChange;
-	saveTo << m_fDesertBottomLatitudeChange;
-	saveTo << m_fDesertTopLatitudeChange;
-	saveTo << m_fIceLatitude;
-	saveTo << m_fRandIceLatitude;
+	CvStreamSaveVisitor serialVisitor(saveTo);
+	Serialize(*this, serialVisitor);
 }
 
 FDataStream& operator<<(FDataStream& saveTo, const CvClimateInfo& readFrom)
@@ -7545,18 +7585,24 @@ bool CvSeaLevelInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility
 	return true;
 }
 
+template<typename SeaLevelInfo, typename Visitor>
+void CvSeaLevelInfo::Serialize(SeaLevelInfo& seaLevelInfo, Visitor& visitor)
+{
+	visitor(seaLevelInfo.m_iSeaLevelChange);
+}
+
 void CvSeaLevelInfo::readFrom(FDataStream& loadFrom)
 {
-	MOD_SERIALIZE_INIT_READ(loadFrom);
 	CvBaseInfo::readFrom(loadFrom);
-	loadFrom >> m_iSeaLevelChange;
+	CvStreamLoadVisitor serialVisitor(loadFrom);
+	Serialize(*this, serialVisitor);
 }
 
 void CvSeaLevelInfo::writeTo(FDataStream& saveTo) const
 {
-	MOD_SERIALIZE_INIT_WRITE(saveTo);
 	CvBaseInfo::writeTo(saveTo);
-	saveTo << m_iSeaLevelChange;
+	CvStreamSaveVisitor serialVisitor(saveTo);
+	Serialize(*this, serialVisitor);
 }
 
 FDataStream& operator<<(FDataStream& saveTo, const CvSeaLevelInfo& readFrom)

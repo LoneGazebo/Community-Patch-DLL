@@ -22,7 +22,8 @@ class CvPlayer;
 #define NOTIFICATION_INSTANT_YIELD ((NotificationTypes)0x69B207DE)
 #define NOTIFICATION_EVENT_CHOICE ((NotificationTypes)0xE6FA2DB2)
 #define NOTIFICATION_EVENT_CHOICE_CITY ((NotificationTypes)0xCEC31160)
-#define NOTIFICATION_ESPIONAGE_AA ((NotificationTypes)0xCEC31160)
+#define NOTIFICATION_ESPIONAGE_AA ((NotificationTypes)0xFAB31160)
+#define NOTIFICATION_CITY_CHOOSE_FATE ((NotificationTypes)0xECF31160)
 #endif
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -34,6 +35,11 @@ class CvPlayer;
 class CvNotifications
 {
 public:
+	enum
+	{
+		MaxNotifications = 150
+	};
+
 	CvNotifications(void);
 	~CvNotifications(void);
 
@@ -41,6 +47,8 @@ public:
 	void Uninit(void);
 
 	//// Serialization routines
+	template<typename Notifications, typename Visitor>
+	static void Serialize(Notifications& notifications, Visitor& visitor);
 	void Read(FDataStream& kStream);
 	void Write(FDataStream& kStream) const;
 
@@ -67,6 +75,9 @@ public:
 	struct Notification
 	{
 		void Clear();
+
+		template<typename NotificationT, typename Visitor>
+		static void Serialize(NotificationT& notification, Visitor& visitor);
 
 		NotificationTypes m_eNotificationType;
 		PlayerTypes m_ePlayerID;
@@ -102,12 +113,15 @@ protected:
 
 	PlayerTypes m_ePlayer;
 
-	std::vector<Notification> m_aNotifications;
+	Notification m_aNotifications[MaxNotifications];
 	int m_iNotificationsBeginIndex;
 	int m_iNotificationsEndIndex;
 
 	int m_iCurrentLookupIndex;
 };
+
+FDataStream& operator>>(FDataStream&, CvNotifications&);
+FDataStream& operator<<(FDataStream&, const CvNotifications&);
 
 FDataStream& operator>>(FDataStream&, CvNotifications::Notification&);
 FDataStream& operator<<(FDataStream&, const CvNotifications::Notification&);

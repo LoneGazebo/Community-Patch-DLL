@@ -10,6 +10,8 @@
 #ifndef CIV5_ECONOMIC_AI_H
 #define CIV5_ECONOMIC_AI_H
 
+#include "CvEnumMap.h"
+
 enum PurchaseType
 {
     NO_PURCHASE_TYPE = -1,
@@ -21,6 +23,8 @@ enum PurchaseType
     PURCHASE_TYPE_BUILDING,
     NUM_PURCHASE_TYPES,
 };
+FDataStream& operator>>(FDataStream&, PurchaseType&);
+FDataStream& operator<<(FDataStream&, const PurchaseType&);
 
 enum ReconState
 {
@@ -29,6 +33,8 @@ enum ReconState
     RECON_STATE_NEUTRAL,
     RECON_STATE_NEEDED,
 };
+FDataStream& operator>>(FDataStream&, ReconState&);
+FDataStream& operator<<(FDataStream&, const ReconState&);
 
 class CvPurchaseRequest
 {
@@ -44,6 +50,9 @@ public:
 	{
 		return (m_iPriority > rhs.m_iPriority);
 	}
+
+	template<typename PurchaseRequest, typename Visitor>
+	static void Serialize(PurchaseRequest& purchaseRequest, Visitor& visitor);
 
 	PurchaseType m_eType;
 	int m_iAmount;
@@ -149,8 +158,10 @@ public:
 	void Init(CvEconomicAIStrategyXMLEntries* pAIStrategies, CvPlayer* pPlayer);
 	void Uninit();
 	void Reset();
+	template<typename EconomicAI, typename Visitor>
+	static void Serialize(EconomicAI& economicAI, Visitor& visitor);
 	void Read(FDataStream& kStream);
-	void Write(FDataStream& kStream);
+	void Write(FDataStream& kStream) const;
 
 	CvPlayer* GetPlayer();
 	CvEconomicAIStrategyXMLEntries* GetEconomicAIStrategies();
@@ -262,7 +273,7 @@ private:
 	CvEconomicAIStrategyXMLEntries* m_pAIStrategies;
 	bool* m_pabUsingStrategy;
 	int* m_paiTurnStrategyAdopted;
-	int* m_aiTempFlavors;
+	CvEnumMap<FlavorTypes, int> m_aiTempFlavors;
 	ReconState m_eReconState;
 	ReconState m_eNavalReconState;
 	int m_iExplorersDisbanded;
@@ -281,6 +292,9 @@ private:
 
 	vector<CvPurchaseRequest> m_RequestedSavings;
 };
+
+FDataStream& operator>>(FDataStream&, CvEconomicAI&);
+FDataStream& operator<<(FDataStream&, const CvEconomicAI&);
 
 FDataStream& operator<<(FDataStream&, const CvPurchaseRequest&);
 FDataStream& operator>>(FDataStream&, CvPurchaseRequest&);

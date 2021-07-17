@@ -13,6 +13,7 @@
 #define CIV5_GLOBALS_H
 
 #include <vector>
+#include <array>
 
 //
 // 'global' vars for Civ V.  singleton class.
@@ -116,7 +117,7 @@ class CvTraitEntry;
 class CvTraitXMLEntries;
 class CvNotificationEntry;
 class CvNotificationXMLEntries;
-#if defined(MOD_API_ACHIEVEMENTS) || defined(ACHIEVEMENT_HACKS)
+#if defined(MOD_API_ACHIEVEMENTS)
 class CvAchievementInfo;
 class CvAchievementXMLEntries;
 #endif
@@ -163,9 +164,14 @@ class ICvUnit1;
 class CvGlobals
 {
 public:
+	enum SaveVersionTags
+	{
+		SAVE_VERSION_LATEST = 0,
+	};
 
 	typedef stdext::hash_map<std::string /* type string */, int /* info index */> InfosMap;
 	typedef std::map<uint /* FString::HashType */, int /* info index */> InfosHashMap;
+	typedef tr1::array<uint32, 4> GameDataHash;
 
 	// singleton accessor
 	static CvGlobals& getInstance();
@@ -294,7 +300,8 @@ public:
 	void infoTypeFromStringReset();
 	void infosReset();
 
-	void GameDataPostProcess(); ///prepare some more caching
+	void GameDataPostCache(); ///prepare some more caching
+	void calcGameDataHash();
 
 	int getNumWorldInfos();
 	int getNumClimateInfos();
@@ -477,7 +484,7 @@ public:
 	CvBuildingXMLEntries* GetGameBuildings() const;
 
 	//some caching to avoid iterating all building types
-	const vector <BuildingTypes>& getBuildingInteractions(BuildingTypes eRefBuilding) const;
+	const std::vector <BuildingTypes>& getBuildingInteractions(BuildingTypes eRefBuilding) const;
 
 	int getNumUnitClassInfos();
 	std::vector<CvUnitClassInfo*>& getUnitClassInfo();
@@ -622,7 +629,7 @@ public:
 	_Ret_maybenull_ CvSmallAwardInfo* getSmallAwardInfo(SmallAwardTypes eSmallAwardNum);
 
 	CvNotificationXMLEntries* GetNotificationEntries();
-#if defined(MOD_API_ACHIEVEMENTS) || defined(ACHIEVEMENT_HACKS)
+#if defined(MOD_API_ACHIEVEMENTS)
 	int getNumAchievementInfos();
 	std::vector<CvAchievementInfo*>& getAchievementInfo();
 	_Ret_maybenull_ CvAchievementInfo* getAchievementInfo(EAchievement eAchievementNum);
@@ -9631,6 +9638,10 @@ public:
 	bool getDatabaseValue(const char* szName, float& fValue, bool bReportErrors = true);
 	bool getDatabaseValue(const char* szName, CvString& szValue, bool bReportErrors = true);
 
+	inline const GameDataHash& getGameDataHash() const { return m_gameDataHash; }
+	inline uint32 getSaveVersion() const { return m_saveVersion; }
+	inline void setSaveVersion(uint32 version) { m_saveVersion = version; }
+
 protected:
 
 	bool m_bGraphicsInitialized;
@@ -9642,7 +9653,6 @@ protected:
 	bool m_bAILogging;
 	bool m_bAIPerfLogging;
 	bool m_bBuilderAILogging;
-	bool m_bSerializationLogging;
 	bool m_bPlayerAndCityAILogSplit;
 	bool m_bTutorialLogging;
 	bool m_bTutorialDebugging;
@@ -9763,7 +9773,7 @@ protected:
 	CvPolicyXMLEntries* m_pPolicies;
 	CvTechXMLEntries* m_pTechs;
 	CvBuildingXMLEntries* m_pBuildings;
-	map<BuildingTypes, vector<BuildingTypes>> m_buildingInteractionLookup;
+	std::map<BuildingTypes, std::vector<BuildingTypes>> m_buildingInteractionLookup;
 	CvUnitXMLEntries* m_pUnits;
 	CvProjectXMLEntries* m_pProjects;
 	CvPromotionXMLEntries* m_pPromotions;
@@ -9778,7 +9788,7 @@ protected:
 	CvLeagueProjectRewardXMLEntries* m_pLeagueProjectRewards;
 	CvResolutionXMLEntries* m_pResolutions;
 	CvNotificationXMLEntries* m_pNotifications;
-#if defined(MOD_API_ACHIEVEMENTS) || defined(ACHIEVEMENT_HACKS)
+#if defined(MOD_API_ACHIEVEMENTS)
 	CvAchievementXMLEntries* m_pAchievements;
 #endif
 #if defined(MOD_BALANCE_CORE)
@@ -12173,6 +12183,11 @@ protected:
 	int m_iVASSAL_TOURISM_MODIFIER;
 	int m_iMAX_PLOTS_PER_EXPLORER;
 #endif
+
+	// The version number in save file being loaded.
+	uint32 m_saveVersion;
+
+	GameDataHash m_gameDataHash;
 
 	// DLL interface
 	ICvEngineUtility4* m_pDLL;

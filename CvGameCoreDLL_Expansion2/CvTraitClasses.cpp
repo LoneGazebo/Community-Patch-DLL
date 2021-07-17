@@ -175,6 +175,8 @@ CvTraitEntry::CvTraitEntry() :
 #if defined(MOD_BALANCE_CORE)
 	m_iExtraConqueredCityTerritoryClaimRange(0),
 	m_iExtraTenetsFirstAdoption(0),
+	m_iMonopolyModFlat(0),
+	m_iMonopolyModPercent(0),
 #endif
 	m_iFreeSocialPoliciesPerEra(0),
 	m_iNumTradeRoutesModifier(0),
@@ -1040,6 +1042,14 @@ int CvTraitEntry::GetExtraConqueredCityTerritoryClaimRange() const
 int CvTraitEntry::GetExtraTenetsFirstAdoption() const
 {
 	return m_iExtraTenetsFirstAdoption;
+}
+int CvTraitEntry::GetMonopolyModFlat() const
+{
+	return m_iMonopolyModFlat;
+}
+int CvTraitEntry::GetMonopolyModPercent() const
+{
+	return m_iMonopolyModPercent;
 }
 #endif
 /// Accessor: extra social policy from advancing to the next age
@@ -2400,6 +2410,8 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 #if defined(MOD_BALANCE_CORE)
 	m_iExtraConqueredCityTerritoryClaimRange = kResults.GetInt("ExtraConqueredCityTerritoryClaimRange");
 	m_iExtraTenetsFirstAdoption = kResults.GetInt("ExtraTenetsFirstAdoption");
+	m_iMonopolyModFlat = kResults.GetInt("MonopolyModFlat");
+	m_iMonopolyModPercent = kResults.GetInt("MonopolyModPercent");
 #endif
 	m_iFreeSocialPoliciesPerEra				= kResults.GetInt("FreeSocialPoliciesPerEra");
 	m_iNumTradeRoutesModifier				= kResults.GetInt("NumTradeRoutesModifier");
@@ -4367,6 +4379,8 @@ void CvPlayerTraits::InitPlayerTraits()
 #if defined(MOD_BALANCE_CORE)
 			m_iExtraConqueredCityTerritoryClaimRange += trait->GetExtraConqueredCityTerritoryClaimRange();
 			m_iExtraTenetsFirstAdoption += trait->GetExtraTenetsFirstAdoption();
+			m_iMonopolyModFlat += trait->GetMonopolyModFlat();
+			m_iMonopolyModPercent += trait->GetMonopolyModPercent();
 #endif
 			m_iFreeSocialPoliciesPerEra += trait->GetFreeSocialPoliciesPerEra();
 			m_iNumTradeRoutesModifier += trait->GetNumTradeRoutesModifier();
@@ -5126,6 +5140,8 @@ void CvPlayerTraits::Reset()
 #if defined(MOD_BALANCE_CORE)
 	m_iExtraConqueredCityTerritoryClaimRange = 0;
 	m_iExtraTenetsFirstAdoption = 0;
+	m_iMonopolyModFlat = 0;
+	m_iMonopolyModPercent = 0;
 #endif
 	m_iFreeSocialPoliciesPerEra = 0;
 	m_iNumTradeRoutesModifier = 0;
@@ -7083,1091 +7099,394 @@ bool CvPlayerTraits::IsFreeMayaGreatPersonChoice() const
 
 // SERIALIZATION METHODS
 
+// MayaBonusChoice
+template<typename MayaBonusChoiceT, typename Visitor>
+void MayaBonusChoice::Serialize(MayaBonusChoiceT& mayaBonusChoice, Visitor& visitor)
+{
+	visitor(mayaBonusChoice.m_eUnitType);
+	visitor(mayaBonusChoice.m_iBaktunJustFinished);
+}
+FDataStream& operator<<(FDataStream& saveTo, const MayaBonusChoice& readFrom)
+{
+	CvStreamSaveVisitor serialVisitor(saveTo);
+	MayaBonusChoice::Serialize(readFrom, serialVisitor);
+	return saveTo;
+}
+FDataStream& operator>>(FDataStream& loadFrom, MayaBonusChoice& writeTo)
+{
+	CvStreamLoadVisitor serialVisitor(loadFrom);
+	MayaBonusChoice::Serialize(writeTo, serialVisitor);
+	return loadFrom;
+}
+
+// FreeTraitUnit
+template<typename FreeTraitUnitT, typename Visitor>
+void FreeTraitUnit::Serialize(FreeTraitUnitT& freeTraitUnit, Visitor& visitor)
+{
+	visitor(freeTraitUnit.m_iFreeUnit);
+	visitor(freeTraitUnit.m_ePrereqTech);
+}
+FDataStream& operator<<(FDataStream& saveTo, const FreeTraitUnit& readFrom)
+{
+	CvStreamSaveVisitor serialVisitor(saveTo);
+	FreeTraitUnit::Serialize(readFrom, serialVisitor);
+	return saveTo;
+}
+FDataStream& operator>>(FDataStream& loadFrom, FreeTraitUnit& writeTo)
+{
+	CvStreamLoadVisitor serialVisitor(loadFrom);
+	FreeTraitUnit::Serialize(writeTo, serialVisitor);
+	return loadFrom;
+}
+
+// TradeRouteProductionSiphon
+template<typename TradeRouteProductionSiphonT, typename Visitor>
+void TradeRouteProductionSiphon::Serialize(TradeRouteProductionSiphonT& tradeRouteProductionSiphon, Visitor& visitor)
+{
+	visitor(tradeRouteProductionSiphon.m_iSiphonPercent);
+	visitor(tradeRouteProductionSiphon.m_iPercentIncreaseWithOpenBorders);
+}
+FDataStream& operator<<(FDataStream& saveTo, const TradeRouteProductionSiphon& readFrom)
+{
+	CvStreamSaveVisitor serialVisitor(saveTo);
+	TradeRouteProductionSiphon::Serialize(readFrom, serialVisitor);
+	return saveTo;
+}
+FDataStream& operator>>(FDataStream& loadFrom, TradeRouteProductionSiphon& writeTo)
+{
+	CvStreamLoadVisitor serialVisitor(loadFrom);
+	TradeRouteProductionSiphon::Serialize(writeTo, serialVisitor);
+	return loadFrom;
+}
+
+// --
+
+template<typename PlayerTraits, typename Visitor>
+void CvPlayerTraits::Serialize(PlayerTraits& playerTraits, Visitor& visitor)
+{
+	visitor(playerTraits.m_bIsWarmonger);
+	visitor(playerTraits.m_bIsNerd);
+	visitor(playerTraits.m_bIsTourism);
+	visitor(playerTraits.m_bIsDiplomat);
+	visitor(playerTraits.m_bIsExpansionist);
+	visitor(playerTraits.m_bIsSmaller);
+	visitor(playerTraits.m_bIsReligious);
+	visitor(playerTraits.m_iGreatPeopleRateModifier);
+	visitor(playerTraits.m_iGreatScientistRateModifier);
+	visitor(playerTraits.m_iGreatGeneralRateModifier);
+	visitor(playerTraits.m_iGreatGeneralExtraBonus);
+	visitor(playerTraits.m_iGreatPersonGiftInfluence);
+	visitor(playerTraits.m_iLevelExperienceModifier);
+	visitor(playerTraits.m_iMaxGlobalBuildingProductionModifier);
+	visitor(playerTraits.m_iMaxTeamBuildingProductionModifier);
+	visitor(playerTraits.m_iMaxPlayerBuildingProductionModifier);
+	visitor(playerTraits.m_iCityUnhappinessModifier);
+	visitor(playerTraits.m_iPopulationUnhappinessModifier);
+	visitor(playerTraits.m_iCityStateBonusModifier);
+	visitor(playerTraits.m_iCityStateFriendshipModifier);
+	visitor(playerTraits.m_iCityStateCombatModifier);
+	visitor(playerTraits.m_iLandBarbarianConversionPercent);
+	visitor(playerTraits.m_iLandBarbarianConversionExtraUnits);
+	visitor(playerTraits.m_iSeaBarbarianConversionPercent);
+	visitor(playerTraits.m_iCapitalBuildingModifier);
+	visitor(playerTraits.m_iPlotBuyCostModifier);
+	visitor(playerTraits.m_iNationalPopReqModifier);
+	visitor(playerTraits.m_iCityWorkingChange);
+	visitor(playerTraits.m_iCityAutomatonWorkersChange);
+	visitor(playerTraits.m_iPlotCultureCostModifier);
+	visitor(playerTraits.m_iCultureFromKills);
+	visitor(playerTraits.m_iFaithFromKills);
+	visitor(playerTraits.m_iCityCultureBonus);
+	visitor(playerTraits.m_iCapitalThemingBonusModifier);
+	visitor(playerTraits.m_iPolicyCostModifier);
+	visitor(playerTraits.m_iCityConnectionTradeRouteChange);
+	visitor(playerTraits.m_iWonderProductionModifier);
+	visitor(playerTraits.m_iPlunderModifier);
+	visitor(playerTraits.m_iImprovementMaintenanceModifier);
+	visitor(playerTraits.m_iGoldenAgeDurationModifier);
+	visitor(playerTraits.m_iGoldenAgeMoveChange);
+	visitor(playerTraits.m_iGoldenAgeCombatModifier);
+	visitor(playerTraits.m_iGoldenAgeTourismModifier);
+	visitor(playerTraits.m_iGoldenAgeGreatArtistRateModifier);
+	visitor(playerTraits.m_iGoldenAgeGreatMusicianRateModifier);
+	visitor(playerTraits.m_iGoldenAgeGreatWriterRateModifier);
+	visitor(playerTraits.m_iExtraEmbarkMoves);
+	visitor(playerTraits.m_iNaturalWonderFirstFinderGold);
+	visitor(playerTraits.m_iNaturalWonderSubsequentFinderGold);
+	visitor(playerTraits.m_iNaturalWonderYieldModifier);
+	visitor(playerTraits.m_iNaturalWonderHappinessModifier);
+	visitor(playerTraits.m_iNearbyImprovementCombatBonus);
+	visitor(playerTraits.m_iNearbyImprovementBonusRange);
+	visitor(playerTraits.m_iCultureBuildingYieldChange);
+	visitor(playerTraits.m_iWarWearinessModifier);
+	visitor(playerTraits.m_iEnemyWarWearinessModifier);
+	visitor(playerTraits.m_iCombatBonusVsHigherPop);
+	visitor(playerTraits.m_bBuyOwnedTiles);
+	visitor(playerTraits.m_bReconquista);
+	visitor(playerTraits.m_bNoSpread);
+	visitor(playerTraits.m_iInspirationalLeader);
+	visitor(playerTraits.m_iBullyMilitaryStrengthModifier);
+	visitor(playerTraits.m_iBullyValueModifier);
+	visitor(playerTraits.m_bIgnoreBullyPenalties);
+	visitor(playerTraits.m_bDiplomaticMarriage);
+	visitor(playerTraits.m_bAdoptionFreeTech);
+	visitor(playerTraits.m_bGPWLTKD);
+	visitor(playerTraits.m_bGreatWorkWLTKD);
+	visitor(playerTraits.m_bExpansionWLTKD);
+	visitor(playerTraits.m_bTradeRouteOnly);
+	visitor(playerTraits.m_bKeepConqueredBuildings);
+	visitor(playerTraits.m_bMountainPass);
+	visitor(playerTraits.m_bUniqueBeliefsOnly);
+	visitor(playerTraits.m_bNoNaturalReligionSpread);
+	visitor(playerTraits.m_bNoOpenTrade);
+	visitor(playerTraits.m_bGoldenAgeOnWar);
+	visitor(playerTraits.m_bUnableToCancelRazing);
+	visitor(playerTraits.m_iWLTKDGPImprovementModifier);
+	visitor(playerTraits.m_iGrowthBoon);
+	visitor(playerTraits.m_iAllianceCSDefense);
+	visitor(playerTraits.m_iAllianceCSStrength);
+	visitor(playerTraits.m_iTourismGABonus);
+	visitor(playerTraits.m_iTourismToGAP);
+	visitor(playerTraits.m_iGoldToGAP);
+	visitor(playerTraits.m_iInfluenceMeetCS);
+	visitor(playerTraits.m_iMultipleAttackBonus);
+	visitor(playerTraits.m_iCityConquestGWAM);
+	visitor(playerTraits.m_iEventTourismBoost);
+	visitor(playerTraits.m_iEventGP);
+	visitor(playerTraits.m_iWLTKDCulture);
+	visitor(playerTraits.m_iWLTKDGATimer);
+	visitor(playerTraits.m_iGAUnhappinesNeedMod);
+	visitor(playerTraits.m_iStartingSpies);
+	visitor(playerTraits.m_iStartingSpyRank);
+	visitor(playerTraits.m_iSpyMoveRateBonus);
+	visitor(playerTraits.m_iEspionageModifier);
+	visitor(playerTraits.m_iSpyExtraRankBonus);
+	visitor(playerTraits.m_iQuestYieldModifier);
+	visitor(playerTraits.m_iWonderProductionModifierToBuilding);
+	visitor(playerTraits.m_iPolicyGEorGM);
+	visitor(playerTraits.m_iGAGarrisonCityRangeStrikeModifier);
+	visitor(playerTraits.m_bBestUnitSpawnOnImpDOW);
+	visitor(playerTraits.m_iBestUnitImprovement);
+	visitor(playerTraits.m_iGGGARateFromDenunciationsAndWars);
+	visitor(playerTraits.m_bTradeRouteMinorInfluenceAP);
+	visitor(playerTraits.m_bProdModFromNumSpecialists);
+	visitor(playerTraits.m_iConquestOfTheWorldCityAttack);
+	visitor(playerTraits.m_bConquestOfTheWorld);
+	visitor(playerTraits.m_bFreeUpgrade);
+	visitor(playerTraits.m_bWarsawPact);
+	visitor(playerTraits.m_iEnemyWarSawPactPromotion);
+	visitor(playerTraits.m_bFreeZuluPikemanToImpi);
+	visitor(playerTraits.m_bPermanentYieldsDecreaseEveryEra);
+	visitor(playerTraits.m_bImportsCountTowardsMonopolies);
+	visitor(playerTraits.m_bCanPurchaseNavalUnitsFaith);
+	visitor(playerTraits.m_iPuppetPenaltyReduction);
+	visitor(playerTraits.m_iSharedReligionTourismModifier);
+	visitor(playerTraits.m_iExtraMissionaryStrength);
+	visitor(playerTraits.m_bCanGoldInternalTradeRoutes);
+	visitor(playerTraits.m_iExtraTradeRoutesPerXOwnedCities);
+	visitor(playerTraits.m_iExtraTradeRoutesPerXOwnedVassals);
+	visitor(playerTraits.m_bIsCapitalOnly);
+	visitor(playerTraits.m_iInvestmentModifier);
+	visitor(playerTraits.m_iCombatBonusVsHigherTech);
+	visitor(playerTraits.m_iCombatBonusVsLargerCiv);
+	visitor(playerTraits.m_iLandUnitMaintenanceModifier);
+	visitor(playerTraits.m_iNavalUnitMaintenanceModifier);
+	visitor(playerTraits.m_iRazeSpeedModifier);
+	visitor(playerTraits.m_iDOFGreatPersonModifier);
+	visitor(playerTraits.m_iLuxuryHappinessRetention);
+	visitor(playerTraits.m_iExtraSupply);
+	visitor(playerTraits.m_iExtraSupplyPerCity);
+	visitor(playerTraits.m_iExtraSupplyPerPopulation);
+	visitor(playerTraits.m_iExtraSpies);
+	visitor(playerTraits.m_iUnresearchedTechBonusFromKills);
+	visitor(playerTraits.m_iExtraFoundedCityTerritoryClaimRange);
+	visitor(playerTraits.m_iExtraConqueredCityTerritoryClaimRange);
+	visitor(playerTraits.m_iExtraTenetsFirstAdoption);
+	visitor(playerTraits.m_iFreeSocialPoliciesPerEra);
+	visitor(playerTraits.m_iNumTradeRoutesModifier);
+	visitor(playerTraits.m_iTradeRouteResourceModifier);
+	visitor(playerTraits.m_iUniqueLuxuryCities);
+	visitor(playerTraits.m_iUniqueLuxuryQuantity);
+	visitor(playerTraits.m_iUniqueLuxuryCitiesPlaced);
+	visitor(playerTraits.m_iWorkerSpeedModifier);
+	visitor(playerTraits.m_iAfraidMinorPerTurnInfluence);
+	visitor(playerTraits.m_iLandTradeRouteRangeBonus);
+	visitor(playerTraits.m_iTradeReligionModifier);
+	visitor(playerTraits.m_iTradeBuildingModifier);
+	visitor(playerTraits.m_iSeaTradeRouteRangeBonus);
+	visitor(playerTraits.m_iNumFreeBuildings);
+	visitor(playerTraits.m_bBullyAnnex);
+	visitor(playerTraits.m_iBullyYieldMultiplierAnnex);
+	visitor(playerTraits.m_bFightWellDamaged);
+	visitor(playerTraits.m_bWoodlandMovementBonus);
+	visitor(playerTraits.m_bRiverMovementBonus);
+	visitor(playerTraits.m_bFasterInHills);
+	visitor(playerTraits.m_bEmbarkedAllWater);
+	visitor(playerTraits.m_bEmbarkedToLandFlatCost);
+	visitor(playerTraits.m_bNoHillsImprovementMaintenance);
+	visitor(playerTraits.m_bTechBoostFromCapitalScienceBuildings);
+	visitor(playerTraits.m_bStaysAliveZeroCities);
+	visitor(playerTraits.m_bFaithFromUnimprovedForest);
+	visitor(playerTraits.m_bAnyBelief);
+	visitor(playerTraits.m_bAlwaysReligion);
+	visitor(playerTraits.m_bIgnoreTradeDistanceScaling);
+	visitor(playerTraits.m_bCanPlunderWithoutWar);
+	visitor(playerTraits.m_bBonusReligiousBelief);
+	visitor(playerTraits.m_bAbleToAnnexCityStates);
+	visitor(playerTraits.m_bCrossesMountainsAfterGreatGeneral);
+	visitor(playerTraits.m_bCrossesIce);
+	visitor(playerTraits.m_bGGFromBarbarians);
+	visitor(playerTraits.m_bMayaCalendarBonuses);
+	visitor(playerTraits.m_iBaktunPreviousTurn);
+	visitor(playerTraits.m_aMayaBonusChoices);
+	visitor(playerTraits.m_bNoAnnexing);
+	visitor(playerTraits.m_bTechFromCityConquer);
+	visitor(playerTraits.m_bUniqueLuxuryRequiresNewArea);
+	visitor(playerTraits.m_bRiverTradeRoad);
+	visitor(playerTraits.m_bAngerFreeIntrusionOfCityStates);
+	visitor(playerTraits.m_iPovertyHappinessChange);
+	visitor(playerTraits.m_iDefenseHappinessChange);
+	visitor(playerTraits.m_iUnculturedHappinessChange);
+	visitor(playerTraits.m_iIlliteracyHappinessChange);
+	visitor(playerTraits.m_iMinorityHappinessChange);
+	visitor(playerTraits.m_bNoConnectionUnhappiness);
+	visitor(playerTraits.m_bIsNoReligiousStrife);
+	visitor(playerTraits.m_bIsOddEraScaler);
+	visitor(playerTraits.m_iWonderProductionModGA);
+	visitor(playerTraits.m_iCultureBonusModifierConquest);
+	visitor(playerTraits.m_iProductionBonusModifierConquest);
+	visitor(playerTraits.m_eCampGuardType);
+	visitor(playerTraits.m_eCombatBonusImprovement);
+	visitor(playerTraits.m_iExtraYieldThreshold);
+	visitor(playerTraits.m_iFreeCityYield);
+	visitor(playerTraits.m_iYieldChangeStrategicResources);
+	visitor(playerTraits.m_iYieldRateModifier);
+	visitor(playerTraits.m_iYieldChangeNaturalWonder);
+	visitor(playerTraits.m_iYieldChangePerTradePartner);
+	visitor(playerTraits.m_iYieldChangeIncomingTradeRoute);
+	visitor(playerTraits.m_iStrategicResourceQuantityModifier);
+	visitor(playerTraits.m_aiResourceQuantityModifier);
+	visitor(playerTraits.m_abNoTrain);
+	visitor(playerTraits.m_aFreeTraitUnits);
+	visitor(playerTraits.m_aiGreatPersonCostReduction);
+	visitor(playerTraits.m_aiPerPuppetGreatPersonRateModifier);
+	visitor(playerTraits.m_aiGreatPersonGWAM);
+	visitor(playerTraits.m_aiGoldenAgeGreatPersonRateModifier);
+	visitor(playerTraits.m_aiGoldenAgeFromGreatPersonBirth);
+	visitor(playerTraits.m_aiGreatPersonProgressFromPolicyUnlock);
+	visitor(playerTraits.m_aiNumPledgesDomainProdMod);
+	visitor(playerTraits.m_aiFreeUnitClassesDOW);
+	visitor(playerTraits.m_aiDomainFreeExperienceModifier);
+	visitor(playerTraits.m_ppiYieldFromTileEarnTerrainType);
+	visitor(playerTraits.m_ppiYieldFromTilePurchaseTerrainType);
+	visitor(playerTraits.m_ppiYieldFromTileConquest);
+	visitor(playerTraits.m_ppiYieldFromTileCultureBomb);
+	visitor(playerTraits.m_ppiYieldFromTileStealCultureBomb);
+	visitor(playerTraits.m_ppiYieldFromTileSettle);
+	visitor(playerTraits.m_ppaaiYieldChangePerImprovementBuilt);
+	visitor(playerTraits.m_pbiYieldFromBarbarianCampClear);
+	visitor(playerTraits.m_aiGoldenAgeYieldModifier);
+	visitor(playerTraits.m_aibUnitCombatProductionCostModifier);
+	visitor(playerTraits.m_iNonSpecialistFoodChange);
+	visitor(playerTraits.m_aiNoBuilds);
+	visitor(playerTraits.m_aiDomainProductionModifiersPerSpecialist);
+	visitor(playerTraits.m_paiMovesChangeUnitClass);
+	visitor(playerTraits.m_abTerrainClaimBoost);
+	visitor(playerTraits.m_pbiYieldFromRouteMovementInForeignTerritory);
+	visitor(playerTraits.m_aiiTradeRouteProductionSiphon);
+	visitor(playerTraits.m_paiMovesChangeUnitCombat);
+	visitor(playerTraits.m_paiMaintenanceModifierUnitCombat);
+	visitor(playerTraits.m_ppaaiImprovementYieldChange);
+	visitor(playerTraits.m_ppiPlotYieldChange);
+	visitor(playerTraits.m_iYieldFromLevelUp);
+	visitor(playerTraits.m_iYieldFromHistoricEvent);
+	visitor(playerTraits.m_iYieldFromOwnPantheon);
+	visitor(playerTraits.m_iTradeRouteStartYield);
+	visitor(playerTraits.m_iYieldFromRouteMovement);
+	visitor(playerTraits.m_iYieldFromExport);
+	visitor(playerTraits.m_iYieldFromImport);
+	visitor(playerTraits.m_iYieldFromTilePurchase);
+	visitor(playerTraits.m_iYieldFromTileEarn);
+	visitor(playerTraits.m_iYieldFromSettle);
+	visitor(playerTraits.m_iYieldFromConquest);
+	visitor(playerTraits.m_iYieldFromCSAlly);
+	visitor(playerTraits.m_iYieldFromCSFriend);
+	visitor(playerTraits.m_iGAPToYield);
+	visitor(playerTraits.m_iMountainRangeYield);
+	visitor(playerTraits.m_bFreeGreatWorkOnConquest);
+	visitor(playerTraits.m_bPopulationBoostReligion);
+	visitor(playerTraits.m_bCombatBoostNearNaturalWonder);
+	visitor(playerTraits.m_iVotePerXCSAlliance);
+	visitor(playerTraits.m_iGoldenAgeFromVictory);
+	visitor(playerTraits.m_iFreePolicyPerXTechs);
+	visitor(playerTraits.m_eGPFaithPurchaseEra);
+	visitor(playerTraits.m_iFaithCostModifier);
+	visitor(playerTraits.m_iVotePerXCSFollowingFollowingYourReligion);
+	visitor(playerTraits.m_iChanceToConvertReligiousUnits);
+	visitor(playerTraits.m_ppiBuildingClassYieldChange);
+	visitor(playerTraits.m_iCapitalYieldChanges);
+	visitor(playerTraits.m_iCityYieldChanges);
+	visitor(playerTraits.m_iPermanentYieldChangeWLTKD);
+	visitor(playerTraits.m_iCoastalCityYieldChanges);
+	visitor(playerTraits.m_iGreatWorkYieldChanges);
+	visitor(playerTraits.m_iArtifactYieldChanges);
+	visitor(playerTraits.m_iArtYieldChanges);
+	visitor(playerTraits.m_iLitYieldChanges);
+	visitor(playerTraits.m_iMusicYieldChanges);
+	visitor(playerTraits.m_iSeaPlotYieldChanges);
+	visitor(playerTraits.m_ppiFeatureYieldChange);
+	visitor(playerTraits.m_ppiResourceYieldChange);
+	visitor(playerTraits.m_ppiTerrainYieldChange);
+	visitor(playerTraits.m_iYieldFromKills);
+	visitor(playerTraits.m_iYieldFromBarbarianKills);
+	visitor(playerTraits.m_iYieldChangeTradeRoute);
+	visitor(playerTraits.m_iYieldChangeWorldWonder);
+	visitor(playerTraits.m_ppiTradeRouteYieldChange);
+	visitor(playerTraits.m_ppaaiSpecialistYieldChange);
+	visitor(playerTraits.m_ppiGreatPersonExpendedYield);
+	visitor(playerTraits.m_ppiGreatPersonBornYield);
+	visitor(playerTraits.m_ppiCityYieldFromUnimprovedFeature);
+	visitor(playerTraits.m_ppaaiUnimprovedFeatureYieldChange);
+	visitor(playerTraits.m_aUniqueLuxuryAreas);
+}
+
 /// Serialization read
 void CvPlayerTraits::Read(FDataStream& kStream)
 {
-	int iNumEntries;
-
-	// Version number to maintain backwards compatibility
-	uint uiVersion;
-	kStream >> uiVersion;
-	MOD_SERIALIZE_INIT_READ(kStream);
-
-#if defined(MOD_BALANCE_CORE)
-	kStream >> m_bIsWarmonger;
-	kStream >> m_bIsNerd;
-	kStream >> m_bIsTourism;
-	kStream >> m_bIsDiplomat;
-	kStream >> m_bIsExpansionist;
-	kStream >> m_bIsSmaller;
-	kStream >> m_bIsReligious;
-
 	// precompute the traits our leader has
 	m_vPotentiallyActiveLeaderTraits.clear();
-	for(int iI = 0; iI < GC.getNumTraitInfos(); iI++)
+	for (int iI = 0; iI < GC.getNumTraitInfos(); iI++)
 	{
 		m_vLeaderHasTrait[iI] = false;
-		if (m_pPlayer && m_pPlayer->isMajorCiv() && m_pPlayer->isAlive() && m_pPlayer->getLeaderInfo().hasTrait( (TraitTypes)iI ))
+		if (m_pPlayer && m_pPlayer->isMajorCiv() && m_pPlayer->isAlive() && m_pPlayer->getLeaderInfo().hasTrait((TraitTypes)iI))
 		{
 			m_vLeaderHasTrait[iI] = true;
-			m_vPotentiallyActiveLeaderTraits.push_back( (TraitTypes)iI );
-		}
-	}
-#endif
-
-	kStream >> m_iGreatPeopleRateModifier;
-	kStream >> m_iGreatScientistRateModifier;
-	kStream >> m_iGreatGeneralRateModifier;
-	kStream >> m_iGreatGeneralExtraBonus;
-
-	kStream >> m_iGreatPersonGiftInfluence;
-
-	kStream >> m_iLevelExperienceModifier;
-	kStream >> m_iMaxGlobalBuildingProductionModifier;
-	kStream >> m_iMaxTeamBuildingProductionModifier;
-	kStream >> m_iMaxPlayerBuildingProductionModifier;
-	kStream >> m_iCityUnhappinessModifier;
-	kStream >> m_iPopulationUnhappinessModifier;
-	kStream >> m_iCityStateBonusModifier;
-	kStream >> m_iCityStateFriendshipModifier;
-	kStream >> m_iCityStateCombatModifier;
-	kStream >> m_iLandBarbarianConversionPercent;
-	kStream >> m_iLandBarbarianConversionExtraUnits;
-	kStream >> m_iSeaBarbarianConversionPercent;
-	kStream >> m_iCapitalBuildingModifier;
-	kStream >> m_iPlotBuyCostModifier;
-	kStream >> m_iNationalPopReqModifier;
-#if defined(MOD_TRAITS_CITY_WORKING)
-    MOD_SERIALIZE_READ(23, kStream, m_iCityWorkingChange, 0);
-#endif
-#if defined(MOD_TRAITS_CITY_AUTOMATON_WORKERS)
-	kStream >> m_iCityAutomatonWorkersChange;
-#endif
-	kStream >> m_iPlotCultureCostModifier;
-	kStream >> m_iCultureFromKills;
-	if (uiVersion >= 19)
-	{
-		kStream >> m_iFaithFromKills;
-	}
-	else
-	{
-		m_iFaithFromKills = 0;
-	}
-	kStream >> m_iCityCultureBonus;
-
-	if (uiVersion >= 17)
-	{
-		kStream >> m_iCapitalThemingBonusModifier;
-	}
-	else
-	{
-		m_iCapitalThemingBonusModifier = 0;
-	}
-
-	kStream >> m_iPolicyCostModifier;
-	kStream >> m_iCityConnectionTradeRouteChange;
-	kStream >> m_iWonderProductionModifier;
-	kStream >> m_iPlunderModifier;
-
-	kStream >> m_iImprovementMaintenanceModifier;
-
-	kStream >> m_iGoldenAgeDurationModifier;
-	kStream >> m_iGoldenAgeMoveChange;
-	kStream >> m_iGoldenAgeCombatModifier;
-
-	if (uiVersion >= 2)
-	{
-		kStream >> m_iGoldenAgeTourismModifier;
-		kStream >> m_iGoldenAgeGreatArtistRateModifier;
-		kStream >> m_iGoldenAgeGreatMusicianRateModifier;
-		kStream >> m_iGoldenAgeGreatWriterRateModifier;
-	}
-	else
-	{
-		m_iGoldenAgeTourismModifier = 0;
-		m_iGoldenAgeGreatArtistRateModifier = 0;
-		m_iGoldenAgeGreatMusicianRateModifier = 0;
-		m_iGoldenAgeGreatWriterRateModifier = 0;
-	}
-
-	kStream >> m_iExtraEmbarkMoves;
-
-	kStream >> m_iNaturalWonderFirstFinderGold;
-
-	kStream >> m_iNaturalWonderSubsequentFinderGold;
-
-	kStream >> m_iNaturalWonderYieldModifier;
-	kStream >> m_iNaturalWonderHappinessModifier;
-
-	kStream >> m_iNearbyImprovementCombatBonus;
-	kStream >> m_iNearbyImprovementBonusRange;
-
-	kStream >> m_iCultureBuildingYieldChange;
-
-#if defined(MOD_BALANCE_CORE)
-	MOD_SERIALIZE_READ(66, kStream, m_iWarWearinessModifier, 0);
-	MOD_SERIALIZE_READ(66, kStream, m_iEnemyWarWearinessModifier, 0);
-	MOD_SERIALIZE_READ(66, kStream, m_iCombatBonusVsHigherPop, 0);
-	MOD_SERIALIZE_READ(66, kStream, m_bBuyOwnedTiles, false);
-	MOD_SERIALIZE_READ(66, kStream, m_bReconquista, false);
-	MOD_SERIALIZE_READ(66, kStream, m_bNoSpread, false);
-	MOD_SERIALIZE_READ(66, kStream, m_iInspirationalLeader, 0);
-	MOD_SERIALIZE_READ(66, kStream, m_iBullyMilitaryStrengthModifier, 0);
-	MOD_SERIALIZE_READ(66, kStream, m_iBullyValueModifier, 0);
-	MOD_SERIALIZE_READ(66, kStream, m_bIgnoreBullyPenalties, 0);
-	MOD_SERIALIZE_READ(66, kStream, m_bDiplomaticMarriage, false);
-	MOD_SERIALIZE_READ(66, kStream, m_bAdoptionFreeTech, false);
-	MOD_SERIALIZE_READ(66, kStream, m_bGPWLTKD, false);
-	MOD_SERIALIZE_READ(66, kStream, m_bGreatWorkWLTKD, false);
-	MOD_SERIALIZE_READ(66, kStream, m_bExpansionWLTKD, false);
-	MOD_SERIALIZE_READ(66, kStream, m_bTradeRouteOnly, false);
-	MOD_SERIALIZE_READ(66, kStream, m_bKeepConqueredBuildings, false);
-	MOD_SERIALIZE_READ(66, kStream, m_bMountainPass, false);
-	MOD_SERIALIZE_READ(66, kStream, m_bUniqueBeliefsOnly, false);
-	MOD_SERIALIZE_READ(66, kStream, m_bNoNaturalReligionSpread, false);
-	MOD_SERIALIZE_READ(66, kStream, m_bNoOpenTrade, false);
-	MOD_SERIALIZE_READ(66, kStream, m_bGoldenAgeOnWar, false);
-	MOD_SERIALIZE_READ(66, kStream, m_bUnableToCancelRazing, false);
-	MOD_SERIALIZE_READ(66, kStream, m_iWLTKDGPImprovementModifier, 0);
-	MOD_SERIALIZE_READ(66, kStream, m_iGrowthBoon, 0);
-	MOD_SERIALIZE_READ(66, kStream, m_iAllianceCSDefense, 0);
-	MOD_SERIALIZE_READ(66, kStream, m_iAllianceCSStrength, 0);
-	MOD_SERIALIZE_READ(66, kStream, m_iTourismGABonus, 0);
-	MOD_SERIALIZE_READ(66, kStream, m_iTourismToGAP, 0);
-	MOD_SERIALIZE_READ(66, kStream, m_iGoldToGAP, 0);
-	MOD_SERIALIZE_READ(66, kStream, m_iInfluenceMeetCS, 0);
-	MOD_SERIALIZE_READ(66, kStream, m_iMultipleAttackBonus, 0);
-	MOD_SERIALIZE_READ(66, kStream, m_iCityConquestGWAM, 0);
-	MOD_SERIALIZE_READ(66, kStream, m_iEventTourismBoost, 0);
-	MOD_SERIALIZE_READ(66, kStream, m_iEventGP, 0);
-	MOD_SERIALIZE_READ(74, kStream, m_iWLTKDCulture, 0);
-	MOD_SERIALIZE_READ(74, kStream, m_iWLTKDGATimer, 0);
-	MOD_SERIALIZE_READ(74, kStream, m_iGAUnhappinesNeedMod, 0);
-	MOD_SERIALIZE_READ(74, kStream, m_iStartingSpies, 0);
-	MOD_SERIALIZE_READ(74, kStream, m_iStartingSpyRank, 0);
-	MOD_SERIALIZE_READ(74, kStream, m_iSpyMoveRateBonus, 0);
-	MOD_SERIALIZE_READ(74, kStream, m_iEspionageModifier, 0);
-	MOD_SERIALIZE_READ(74, kStream, m_iSpyExtraRankBonus, 0);
-	MOD_SERIALIZE_READ(74, kStream, m_iQuestYieldModifier, 0);
-	MOD_SERIALIZE_READ(74, kStream, m_iWonderProductionModifierToBuilding, 0);
-	MOD_SERIALIZE_READ(74, kStream, m_iPolicyGEorGM, 0);
-	MOD_SERIALIZE_READ(74, kStream, m_iGAGarrisonCityRangeStrikeModifier, 0);
-	MOD_SERIALIZE_READ(74, kStream, m_bBestUnitSpawnOnImpDOW, false);
-	MOD_SERIALIZE_READ(74, kStream, m_iBestUnitImprovement, NO_IMPROVEMENT);
-	MOD_SERIALIZE_READ(74, kStream, m_iGGGARateFromDenunciationsAndWars, 0);
-	MOD_SERIALIZE_READ(74, kStream, m_bTradeRouteMinorInfluenceAP, false);
-	MOD_SERIALIZE_READ(74, kStream, m_bProdModFromNumSpecialists, false);
-	MOD_SERIALIZE_READ(74, kStream, m_iConquestOfTheWorldCityAttack, 0);
-	MOD_SERIALIZE_READ(74, kStream, m_bConquestOfTheWorld, false);
-	MOD_SERIALIZE_READ(88, kStream, m_bFreeUpgrade, false);
-	MOD_SERIALIZE_READ(88, kStream, m_bWarsawPact, false);
-	MOD_SERIALIZE_READ(88, kStream, m_iEnemyWarSawPactPromotion, NO_PROMOTION);
-	MOD_SERIALIZE_READ(88, kStream, m_bFreeZuluPikemanToImpi, false);
-	MOD_SERIALIZE_READ(88, kStream, m_bPermanentYieldsDecreaseEveryEra, false);
-	MOD_SERIALIZE_READ(88, kStream, m_bImportsCountTowardsMonopolies, false);
-	MOD_SERIALIZE_READ(88, kStream, m_bCanPurchaseNavalUnitsFaith, false);
-	MOD_SERIALIZE_READ(88, kStream, m_iPuppetPenaltyReduction, 0);
-	MOD_SERIALIZE_READ(88, kStream, m_iSharedReligionTourismModifier, 0);
-	MOD_SERIALIZE_READ(88, kStream, m_iExtraMissionaryStrength, 0);
-	MOD_SERIALIZE_READ(88, kStream, m_bCanGoldInternalTradeRoutes, false);
-	MOD_SERIALIZE_READ(88, kStream, m_iExtraTradeRoutesPerXOwnedCities, 0);
-	MOD_SERIALIZE_READ(88, kStream, m_iExtraTradeRoutesPerXOwnedVassals, 0);
-	MOD_SERIALIZE_READ(88, kStream, m_bIsCapitalOnly, false);
-#endif
-#if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
-	MOD_SERIALIZE_READ(66, kStream, m_iInvestmentModifier , 0);
-#endif
-
-	kStream >> m_iCombatBonusVsHigherTech;
-
-	kStream >> m_iCombatBonusVsLargerCiv;
-
-	kStream >> m_iLandUnitMaintenanceModifier;
-
-	kStream >> m_iNavalUnitMaintenanceModifier;
-
-	kStream >> m_iRazeSpeedModifier;
-
-	kStream >> m_iDOFGreatPersonModifier;
-
-	kStream >> m_iLuxuryHappinessRetention;
-
-#if defined(MOD_TRAITS_EXTRA_SUPPLY)
-	MOD_SERIALIZE_READ(78, kStream, m_iExtraSupply, 0);
-	MOD_SERIALIZE_READ(78, kStream, m_iExtraSupplyPerCity, 0);
-	MOD_SERIALIZE_READ(78, kStream, m_iExtraSupplyPerPopulation, 0);
-#endif
-
-	kStream >> m_iExtraSpies;
-
-	kStream >> m_iUnresearchedTechBonusFromKills;
-
-	if (uiVersion >= 4)
-	{
-		kStream >> m_iExtraFoundedCityTerritoryClaimRange;
-	}
-	else
-	{
-		m_iExtraFoundedCityTerritoryClaimRange = 0;
-	}
-#if defined(MOD_BALANCE_CORE)
-	kStream >> m_iExtraConqueredCityTerritoryClaimRange;
-	kStream >> m_iExtraTenetsFirstAdoption;
-#endif
-	if (uiVersion >= 5)
-	{
-		kStream >> m_iFreeSocialPoliciesPerEra;
-	}
-	else
-	{
-		m_iFreeSocialPoliciesPerEra = 0;
-	}
-
-	if (uiVersion >= 6)
-	{
-		kStream >> m_iNumTradeRoutesModifier;
-	}
-	else
-	{
-		m_iNumTradeRoutesModifier = 0;
-	}
-
-	if (uiVersion >= 8)
-	{
-		kStream >> m_iTradeRouteResourceModifier;
-	}
-	else
-	{
-		m_iTradeRouteResourceModifier = 0;
-	}
-
-	if (uiVersion >= 9)
-	{
-		kStream >> m_iUniqueLuxuryCities;
-		kStream >> m_iUniqueLuxuryQuantity;
-	}
-	else
-	{
-		m_iUniqueLuxuryCities = 0;
-		m_iUniqueLuxuryQuantity = 0;
-	}
-
-	if (uiVersion >= 11)
-	{
-		kStream >> m_iUniqueLuxuryCitiesPlaced;
-	}
-	else
-	{
-		m_iUniqueLuxuryCitiesPlaced = 0;
-	}
-
-	if (uiVersion >= 13)
-	{
-		kStream >> m_iWorkerSpeedModifier;
-	}
-	else
-	{
-		m_iWorkerSpeedModifier = 0;
-	}
-
-	if (uiVersion >= 14)
-	{
-		kStream >> m_iAfraidMinorPerTurnInfluence;
-	}
-	else
-	{
-		m_iAfraidMinorPerTurnInfluence = 0;
-	}
-	
-	if (uiVersion >= 15)
-	{
-		kStream >> m_iLandTradeRouteRangeBonus;
-		kStream >> m_iTradeReligionModifier;
-	}
-	else
-	{
-		m_iLandTradeRouteRangeBonus = 0;
-		m_iTradeReligionModifier = 0;
-	}
-
-	if (uiVersion >= 16)
-	{
-		kStream >> m_iTradeBuildingModifier;
-	}
-	else
-	{
-		m_iTradeBuildingModifier = 0;
-	}
-
-#if defined(MOD_TRAITS_TRADE_ROUTE_BONUSES)
-	MOD_SERIALIZE_READ(52, kStream, m_iSeaTradeRouteRangeBonus, 0);
-#endif
-
-#if defined(MOD_BALANCE_CORE)
-	MOD_SERIALIZE_READ(51, kStream, m_iNumFreeBuildings, 0);
-#endif
-#if defined(MOD_BALANCE_CORE_AFRAID_ANNEX)
-	MOD_SERIALIZE_READ(55, kStream, m_bBullyAnnex, false);
-	kStream >> m_iBullyYieldMultiplierAnnex;
-#endif
-	kStream >> m_bFightWellDamaged;
-	kStream >> m_bWoodlandMovementBonus;
-	kStream >> m_bRiverMovementBonus;
-
-	kStream >> m_bFasterInHills;
-
-	kStream >> m_bEmbarkedAllWater;
-
-	kStream >> m_bEmbarkedToLandFlatCost;
-
-	kStream >> m_bNoHillsImprovementMaintenance;
-
-	kStream >> m_bTechBoostFromCapitalScienceBuildings;
-	kStream >> m_bStaysAliveZeroCities;
-
-	kStream >> m_bFaithFromUnimprovedForest;
-
-#if defined(MOD_TRAITS_ANY_BELIEF)
-	MOD_SERIALIZE_READ(46, kStream, m_bAnyBelief, false);
-	MOD_SERIALIZE_READ(46, kStream, m_bAlwaysReligion, false);
-
-	kStream >> m_bIgnoreTradeDistanceScaling;
-	kStream >> m_bCanPlunderWithoutWar;
-#endif
-	kStream >> m_bBonusReligiousBelief;
-
-	kStream >> m_bAbleToAnnexCityStates;
-
-	kStream >> m_bCrossesMountainsAfterGreatGeneral;
-#if defined(MOD_TRAITS_CROSSES_ICE)
-	MOD_SERIALIZE_READ(23, kStream, m_bCrossesIce, false);
-#endif
-#if defined(MOD_TRAITS_GG_FROM_BARBARIANS)
-	MOD_SERIALIZE_READ(83, kStream, m_bGGFromBarbarians, false);
-#endif
-
-	kStream >> m_bMayaCalendarBonuses;
-	kStream >> m_iBaktunPreviousTurn;
-
-	kStream >> iNumEntries;
-	m_aMayaBonusChoices.clear();
-	MayaBonusChoice choice;
-	for(int iI = 0; iI < iNumEntries; iI++)
-	{
-		kStream >> choice.m_eUnitType;
-		kStream >> choice.m_iBaktunJustFinished;
-		m_aMayaBonusChoices.push_back(choice);
-	}
-
-	kStream >> m_bNoAnnexing;
-	if (uiVersion >= 3)
-	{
-		kStream >> m_bTechFromCityConquer;
-	}
-	else
-	{
-		m_bTechFromCityConquer = false;
-	}
-
-	if (uiVersion >= 9)
-	{
-		kStream >> m_bUniqueLuxuryRequiresNewArea;
-	}
-	else
-	{
-		m_bUniqueLuxuryRequiresNewArea = false;
-	}
-
-	if (uiVersion >= 12)
-	{
-		kStream >> m_bRiverTradeRoad;
-	}
-	else
-	{
-		m_bRiverTradeRoad = false;
-	}
-
-	if (uiVersion >= 18)
-	{
-		kStream >> m_bAngerFreeIntrusionOfCityStates;
-	}
-	else
-	{
-		m_bAngerFreeIntrusionOfCityStates = false;
-	}
-#if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
-	MOD_SERIALIZE_READ(53, kStream, m_iPovertyHappinessChange, 0);
-	MOD_SERIALIZE_READ(53, kStream, m_iDefenseHappinessChange, 0);
-	MOD_SERIALIZE_READ(53, kStream, m_iUnculturedHappinessChange, 0);
-	MOD_SERIALIZE_READ(53, kStream, m_iIlliteracyHappinessChange, 0);
-	MOD_SERIALIZE_READ(53, kStream, m_iMinorityHappinessChange, 0);
-	MOD_SERIALIZE_READ(54, kStream, m_bNoConnectionUnhappiness, false);
-	MOD_SERIALIZE_READ(54, kStream, m_bIsNoReligiousStrife, false);
-	MOD_SERIALIZE_READ(65, kStream, m_bIsOddEraScaler, false);
-	MOD_SERIALIZE_READ(65, kStream, m_iWonderProductionModGA, 0);
-	MOD_SERIALIZE_READ(65, kStream, m_iCultureBonusModifierConquest, 0);
-	MOD_SERIALIZE_READ(65, kStream, m_iProductionBonusModifierConquest, 0);
-#endif
-
-	kStream >> m_eCampGuardType;
-
-	kStream >> m_eCombatBonusImprovement;
-
-	ArrayWrapper<int> kExtraYieldThreshold(NUM_YIELD_TYPES, m_iExtraYieldThreshold);
-	kStream >> kExtraYieldThreshold;
-
-	ArrayWrapper<int> kFreeCityYield(NUM_YIELD_TYPES, m_iFreeCityYield);
-	kStream >> kFreeCityYield;
-
-	ArrayWrapper<int> kYieldChangeResourcesWrapper(NUM_YIELD_TYPES, m_iYieldChangeStrategicResources);
-	kStream >> kYieldChangeResourcesWrapper;
-
-	ArrayWrapper<int> kYieldRateModifierWrapper(NUM_YIELD_TYPES, m_iYieldRateModifier);
-	kStream >> kYieldRateModifierWrapper;
-
-	ArrayWrapper<int> kYieldChangeNaturalWonderWrapper(NUM_YIELD_TYPES, m_iYieldChangeNaturalWonder);
-	kStream >> kYieldChangeNaturalWonderWrapper;
-
-	if (uiVersion >= 7)
-	{
-		ArrayWrapper<int> kYieldChangePerTradePartnerWrapper(NUM_YIELD_TYPES, m_iYieldChangePerTradePartner);
-		kStream >> kYieldChangePerTradePartnerWrapper;
-
-		ArrayWrapper<int> kYieldChangeIncomingTradeRouteWrapper(NUM_YIELD_TYPES, m_iYieldChangeIncomingTradeRoute);
-		kStream >> kYieldChangeIncomingTradeRouteWrapper;
-	}
-	else
-	{
-		for(int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
-		{
-			m_iYieldChangePerTradePartner[iYield] = 0;
-			m_iYieldChangeIncomingTradeRoute[iYield] = 0;
+			m_vPotentiallyActiveLeaderTraits.push_back((TraitTypes)iI);
 		}
 	}
 
-	CvAssert(GC.getNumTerrainInfos() == NUM_TERRAIN_TYPES);	// If this is not true, m_iStrategicResourceQuantityModifier must be resized dynamically
-	CvInfosSerializationHelper::ReadHashedDataArray(kStream, &m_iStrategicResourceQuantityModifier[0], GC.getNumTerrainInfos());
+	CvStreamLoadVisitor serialVisitor(kStream);
+	Serialize(*this, serialVisitor);
 
-	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_aiResourceQuantityModifier);
-
-	kStream >> iNumEntries;
-	m_abNoTrain.clear();
-	for (int i = 0; i < iNumEntries; i++)
-	{
-		bool bValue;
-		kStream >> bValue;
-		m_abNoTrain.push_back(bValue);
-	}
-
-	kStream >> iNumEntries;
-	m_aFreeTraitUnits.clear();
-	for(int iI = 0; iI < iNumEntries; iI++)
-	{
-		FreeTraitUnit trait;
-		kStream >> trait.m_iFreeUnit;
-		kStream >> trait.m_ePrereqTech;
-		m_aFreeTraitUnits.push_back(trait);
-	}
-
-#if defined(MOD_BALANCE_CORE)
-	kStream >> m_aiGreatPersonCostReduction;
-	kStream >> m_aiPerPuppetGreatPersonRateModifier;
-	kStream >> m_aiGreatPersonGWAM;
-	kStream >> m_aiGoldenAgeGreatPersonRateModifier;
-	kStream >> m_aiGoldenAgeFromGreatPersonBirth;
-	kStream >> m_aiGreatPersonProgressFromPolicyUnlock;
-	kStream >> m_aiNumPledgesDomainProdMod;
-	kStream >> m_aiFreeUnitClassesDOW;
-	kStream >> m_aiDomainFreeExperienceModifier;
-	kStream >> m_ppiYieldFromTileEarnTerrainType;
-	kStream >> m_ppiYieldFromTilePurchaseTerrainType;
-	kStream >> m_ppiYieldFromTileConquest;
-	kStream >> m_ppiYieldFromTileCultureBomb;
-	kStream >> m_ppiYieldFromTileStealCultureBomb;
-	kStream >> m_ppiYieldFromTileSettle;
-	kStream >> m_ppaaiYieldChangePerImprovementBuilt;
 	UpdateYieldChangeImprovementTypes();
-	kStream >> m_pbiYieldFromBarbarianCampClear;
-	kStream >> m_aiGoldenAgeYieldModifier;
-	kStream >> m_aibUnitCombatProductionCostModifier;
-	kStream >> m_iNonSpecialistFoodChange;
-	kStream >> m_aiNoBuilds;
-	kStream >> m_aiDomainProductionModifiersPerSpecialist;
-
-	kStream >> iNumEntries;
-	m_paiMovesChangeUnitClass.clear();
-	for (int iI = 0; iI < iNumEntries; iI++)
-	{
-		kStream >> m_paiMovesChangeUnitClass[iI];
-	}
-
-	kStream >> iNumEntries;
-	m_abTerrainClaimBoost.clear();
-	for (int iI = 0; iI < iNumEntries; iI++)
-	{
-		bool bValue;
-		kStream >> bValue;
-		m_abTerrainClaimBoost.push_back(bValue);
-	}
-#endif
-#if defined(MOD_BALANCE_CORE) && defined(MOD_TRAITS_YIELD_FROM_ROUTE_MOVEMENT_IN_FOREIGN_TERRITORY)
-	kStream >> m_pbiYieldFromRouteMovementInForeignTerritory;
-#endif
-#if defined(MOD_TRAITS_TRADE_ROUTE_PRODUCTION_SIPHON)
-	kStream >> iNumEntries;
-	m_aiiTradeRouteProductionSiphon.clear();
-	for (int iI = 0; iI < iNumEntries; iI++)
-	{
-		bool bSiphonInternationalOnly;
-		int iSiphonPercent;
-		int iPercentIncreaseWithOpenBorders;
-
-		kStream >> bSiphonInternationalOnly;
-		kStream >> iSiphonPercent;
-		kStream >> iPercentIncreaseWithOpenBorders;
-
-		m_aiiTradeRouteProductionSiphon[bSiphonInternationalOnly].m_iSiphonPercent = iSiphonPercent;
-		m_aiiTradeRouteProductionSiphon[bSiphonInternationalOnly].m_iPercentIncreaseWithOpenBorders = iPercentIncreaseWithOpenBorders;
-	}
-#endif
-
-	kStream >> iNumEntries;
-	for(int iI = 0; iI < iNumEntries; iI++)
-	{
-		kStream >> m_paiMovesChangeUnitCombat[iI];
-	}
-	if (uiVersion >= 10)
-	{
-		for(int iI = 0; iI < iNumEntries; iI++)
-		{
-			kStream >> m_paiMaintenanceModifierUnitCombat[iI];
-		}
-	}
-	else
-	{
-		int iNumUnitCombatClassInfos = GC.getNumUnitCombatClassInfos();
-		m_paiMaintenanceModifierUnitCombat.resize(iNumUnitCombatClassInfos);
-		for(int iI = 0; iI < iNumUnitCombatClassInfos; iI++)
-		{
-			m_paiMaintenanceModifierUnitCombat[iI] = 0;
-		}
-	}
-	kStream >> m_ppaaiImprovementYieldChange;
-#if defined(MOD_API_UNIFIED_YIELDS)
-	// MOD_SERIALIZE_READ - v57/v58/v59 broke the save format  couldn't be helped, but don't make a habit of it!!!
-	kStream >> m_ppiPlotYieldChange;
-#endif
-#if defined(MOD_BALANCE_CORE)
-	ArrayWrapper<int> kYieldFromLevelUpWrapper(NUM_YIELD_TYPES, m_iYieldFromLevelUp);
-	kStream >> kYieldFromLevelUpWrapper;
-	ArrayWrapper<int> kYieldFromHistoricEventWrapper(NUM_YIELD_TYPES, m_iYieldFromHistoricEvent);
-	kStream >> kYieldFromHistoricEventWrapper;
-	ArrayWrapper<int> kYieldFromOwnPantheonWrapper(NUM_YIELD_TYPES, m_iYieldFromOwnPantheon);
-	kStream >> kYieldFromOwnPantheonWrapper;
-	ArrayWrapper<int> kTradeRouteStartYieldWrapper(NUM_YIELD_TYPES, m_iTradeRouteStartYield);
-	kStream >> kTradeRouteStartYieldWrapper;
-	ArrayWrapper<int> kYieldFromRouteMovementWrapper(NUM_YIELD_TYPES, m_iYieldFromRouteMovement);
-	kStream >> kYieldFromRouteMovementWrapper;
-	ArrayWrapper<int> kYieldFromExportWrapper(NUM_YIELD_TYPES, m_iYieldFromExport);
-	kStream >> kYieldFromExportWrapper;
-	ArrayWrapper<int> kYieldFromImportWrapper(NUM_YIELD_TYPES, m_iYieldFromImport);
-	kStream >> kYieldFromImportWrapper;
-	ArrayWrapper<int> kYieldFromTilePurchaseWrapper(NUM_YIELD_TYPES, m_iYieldFromTilePurchase);
-	kStream >> kYieldFromTilePurchaseWrapper;
-	ArrayWrapper<int> kYieldFromTileEarnWrapper(NUM_YIELD_TYPES, m_iYieldFromTileEarn);
-	kStream >> kYieldFromTileEarnWrapper;
-	ArrayWrapper<int> kYieldFromSettleWrapper(NUM_YIELD_TYPES, m_iYieldFromSettle);
-	kStream >> kYieldFromSettleWrapper;
-	ArrayWrapper<int> kYieldFromConquestWrapper(NUM_YIELD_TYPES, m_iYieldFromConquest);
-	kStream >> kYieldFromConquestWrapper;
-	ArrayWrapper<int> kYieldFromCSAllyWrapper(NUM_YIELD_TYPES, m_iYieldFromCSAlly);
-	kStream >> kYieldFromCSAllyWrapper;
-	ArrayWrapper<int> kYieldFromCSFriendWrapper(NUM_YIELD_TYPES, m_iYieldFromCSFriend);
-	kStream >> kYieldFromCSFriendWrapper;
-	ArrayWrapper<int> kGAPToYieldWrapper(NUM_YIELD_TYPES, m_iGAPToYield);
-	kStream >> kGAPToYieldWrapper;
-	ArrayWrapper<int> kMountainRangeYieldWrapper(NUM_YIELD_TYPES, m_iMountainRangeYield);
-	kStream >> kMountainRangeYieldWrapper;
-	MOD_SERIALIZE_READ(66, kStream, m_bFreeGreatWorkOnConquest, false);
-	MOD_SERIALIZE_READ(66, kStream, m_bPopulationBoostReligion, false);
-	MOD_SERIALIZE_READ(66, kStream, m_bCombatBoostNearNaturalWonder, false);
-	MOD_SERIALIZE_READ(66, kStream, m_iVotePerXCSAlliance, 0);
-	MOD_SERIALIZE_READ(66, kStream, m_iGoldenAgeFromVictory, 0);
-	MOD_SERIALIZE_READ(66, kStream, m_iFreePolicyPerXTechs, 0);
-	MOD_SERIALIZE_READ(66, kStream, m_eGPFaithPurchaseEra, NO_ERA);
-	MOD_SERIALIZE_READ(66, kStream, m_iFaithCostModifier, 0);
-	MOD_SERIALIZE_READ(88, kStream, m_iVotePerXCSFollowingFollowingYourReligion, 0);
-	MOD_SERIALIZE_READ(88, kStream, m_iChanceToConvertReligiousUnits, 0);
-#endif
-#if defined(MOD_API_UNIFIED_YIELDS)
-	// MOD_SERIALIZE_READ - v57/v58/v59 and v61 broke the save format  couldn't be helped, but don't make a habit of it!!!
-	kStream >> m_ppiBuildingClassYieldChange;
-	
-	ArrayWrapper<int> kCapitalYieldChangesWrapper(NUM_YIELD_TYPES, m_iCapitalYieldChanges);
-	kStream >> kCapitalYieldChangesWrapper;
-
-	ArrayWrapper<int> kCityYieldChangesWrapper(NUM_YIELD_TYPES, m_iCityYieldChanges);
-	kStream >> kCityYieldChangesWrapper;
-
-	ArrayWrapper<int> kPermanentYieldChangeWLTKDWrapper(NUM_YIELD_TYPES, m_iPermanentYieldChangeWLTKD);
-	kStream >> kPermanentYieldChangeWLTKDWrapper;
-
-	ArrayWrapper<int> kCoastalCityYieldChangesWrapper(NUM_YIELD_TYPES, m_iCoastalCityYieldChanges);
-	kStream >> kCoastalCityYieldChangesWrapper;
-
-	ArrayWrapper<int> kGreatWorkYieldChangesWrapper(NUM_YIELD_TYPES, m_iGreatWorkYieldChanges);
-	kStream >> kGreatWorkYieldChangesWrapper;
-
-	ArrayWrapper<int> kArtifactYieldChangesWrapper(NUM_YIELD_TYPES, m_iArtifactYieldChanges);
-	kStream >> kArtifactYieldChangesWrapper;
-
-	ArrayWrapper<int> kArtYieldChangesWrapper(NUM_YIELD_TYPES, m_iArtYieldChanges);
-	kStream >> kArtYieldChangesWrapper;
-
-	ArrayWrapper<int> kLitYieldChangesWrapper(NUM_YIELD_TYPES, m_iLitYieldChanges);
-	kStream >> kLitYieldChangesWrapper;
-
-	ArrayWrapper<int> kMusicYieldChangesWrapper(NUM_YIELD_TYPES, m_iMusicYieldChanges);
-	kStream >> kMusicYieldChangesWrapper;
-
-	ArrayWrapper<int> kSeaPlotYieldChangesWrapper(NUM_YIELD_TYPES, m_iSeaPlotYieldChanges);
-	kStream >> kSeaPlotYieldChangesWrapper;
-
-	kStream >> m_ppiFeatureYieldChange;
-	kStream >> m_ppiResourceYieldChange;
-	kStream >> m_ppiTerrainYieldChange;
-
-	ArrayWrapper<int> kYieldFromKillsWrapper(NUM_YIELD_TYPES, m_iYieldFromKills);
-	kStream >> kYieldFromKillsWrapper;
-
-	ArrayWrapper<int> kYieldFromBarbarianKillsWrapper(NUM_YIELD_TYPES, m_iYieldFromBarbarianKills);
-	kStream >> kYieldFromBarbarianKillsWrapper;
-
-	ArrayWrapper<int> kYieldChangeTradeRouteWrapper(NUM_YIELD_TYPES, m_iYieldChangeTradeRoute);
-	kStream >> kYieldChangeTradeRouteWrapper;
-
-	ArrayWrapper<int> kYieldChangeWorldWonderWrapper(NUM_YIELD_TYPES, m_iYieldChangeWorldWonder);
-	kStream >> kYieldChangeWorldWonderWrapper;
-
-	kStream >> m_ppiTradeRouteYieldChange;
-#endif
-	kStream >> m_ppaaiSpecialistYieldChange;
-
-#if defined(MOD_API_UNIFIED_YIELDS)
-	kStream >> m_ppiGreatPersonExpendedYield;
-	kStream >> m_ppiGreatPersonBornYield;
-	kStream >> m_ppiCityYieldFromUnimprovedFeature;
-#endif
-	kStream >> m_ppaaiUnimprovedFeatureYieldChange;
-
-	if (uiVersion >= 11)
-	{
-		kStream >> iNumEntries;
-		m_aUniqueLuxuryAreas.clear();
-		for (int iI = 0; iI < iNumEntries; iI++)
-		{
-			int iAreaID;
-			kStream >> iAreaID;
-			m_aUniqueLuxuryAreas.push_back(iAreaID);
-		}
-	}
-	else if (uiVersion >= 9)
-	{
-		kStream >> m_aUniqueLuxuryAreas;
-	}
-	else
-	{
-		m_aUniqueLuxuryAreas.clear();
-	}
 }
 
 /// Serialization write
-void CvPlayerTraits::Write(FDataStream& kStream)
+void CvPlayerTraits::Write(FDataStream& kStream) const
 {
-	// Current version number
-	uint uiVersion = 19;
-	kStream << uiVersion;
-	MOD_SERIALIZE_INIT_WRITE(kStream);
+	CvStreamSaveVisitor serialVisitor(kStream);
+	Serialize(*this, serialVisitor);
+}
 
-	kStream << m_bIsWarmonger;
-	kStream << m_bIsNerd;
-	kStream << m_bIsTourism;
-	kStream << m_bIsDiplomat;
-	kStream << m_bIsExpansionist;
-	kStream << m_bIsSmaller;
-	kStream << m_bIsReligious;
-
-	kStream << m_iGreatPeopleRateModifier;
-	kStream << m_iGreatScientistRateModifier;
-	kStream << m_iGreatGeneralRateModifier;
-	kStream << m_iGreatGeneralExtraBonus;
-	kStream << m_iGreatPersonGiftInfluence;
-	kStream << m_iLevelExperienceModifier;
-	kStream << m_iMaxGlobalBuildingProductionModifier;
-	kStream << m_iMaxTeamBuildingProductionModifier;
-	kStream << m_iMaxPlayerBuildingProductionModifier;
-	kStream << m_iCityUnhappinessModifier;
-	kStream << m_iPopulationUnhappinessModifier;
-	kStream << m_iCityStateBonusModifier;
-	kStream << m_iCityStateFriendshipModifier;
-	kStream << m_iCityStateCombatModifier;
-	kStream << m_iLandBarbarianConversionPercent;
-	kStream << m_iLandBarbarianConversionExtraUnits;
-	kStream << m_iSeaBarbarianConversionPercent;
-	kStream << m_iCapitalBuildingModifier;
-	kStream << m_iPlotBuyCostModifier;
-	kStream << m_iNationalPopReqModifier;
-#if defined(MOD_TRAITS_CITY_WORKING)
-    MOD_SERIALIZE_WRITE(kStream, m_iCityWorkingChange);
-#endif
-#if defined(MOD_TRAITS_CITY_AUTOMATON_WORKERS)
-	kStream << m_iCityAutomatonWorkersChange;
-#endif
-	kStream << m_iPlotCultureCostModifier;
-	kStream << m_iCultureFromKills;
-	kStream << m_iFaithFromKills;
-	kStream << m_iCityCultureBonus;
-	kStream << m_iCapitalThemingBonusModifier;
-	kStream << m_iPolicyCostModifier;
-	kStream << m_iCityConnectionTradeRouteChange;
-	kStream << m_iWonderProductionModifier;
-	kStream << m_iPlunderModifier;
-	kStream << m_iImprovementMaintenanceModifier;
-	kStream << m_iGoldenAgeDurationModifier;
-	kStream << m_iGoldenAgeMoveChange;
-	kStream << m_iGoldenAgeCombatModifier;
-	kStream << m_iGoldenAgeTourismModifier;
-	kStream << m_iGoldenAgeGreatArtistRateModifier;
-	kStream << m_iGoldenAgeGreatMusicianRateModifier;
-	kStream << m_iGoldenAgeGreatWriterRateModifier;
-	kStream << m_iExtraEmbarkMoves;
-	kStream << m_iNaturalWonderFirstFinderGold;
-	kStream << m_iNaturalWonderSubsequentFinderGold;
-	kStream << m_iNaturalWonderYieldModifier;
-	kStream << m_iNaturalWonderHappinessModifier;
-	kStream << m_iNearbyImprovementCombatBonus;
-	kStream << m_iNearbyImprovementBonusRange;
-	kStream << m_iCultureBuildingYieldChange;
-#if defined(MOD_BALANCE_CORE)
-	MOD_SERIALIZE_WRITE(kStream, m_iWarWearinessModifier);
-	MOD_SERIALIZE_WRITE(kStream, m_iEnemyWarWearinessModifier);
-	MOD_SERIALIZE_WRITE(kStream, m_iCombatBonusVsHigherPop);
-	MOD_SERIALIZE_WRITE(kStream, m_bBuyOwnedTiles);
-	MOD_SERIALIZE_WRITE(kStream, m_bReconquista);
-	MOD_SERIALIZE_WRITE(kStream, m_bNoSpread);
-	MOD_SERIALIZE_WRITE(kStream, m_iInspirationalLeader);
-	MOD_SERIALIZE_WRITE(kStream, m_iBullyMilitaryStrengthModifier);
-	MOD_SERIALIZE_WRITE(kStream, m_iBullyValueModifier);
-	MOD_SERIALIZE_WRITE(kStream, m_bIgnoreBullyPenalties);
-	MOD_SERIALIZE_WRITE(kStream, m_bDiplomaticMarriage);
-	MOD_SERIALIZE_WRITE(kStream, m_bAdoptionFreeTech);
-	MOD_SERIALIZE_WRITE(kStream, m_bGPWLTKD);
-	MOD_SERIALIZE_WRITE(kStream, m_bGreatWorkWLTKD);
-	MOD_SERIALIZE_WRITE(kStream, m_bExpansionWLTKD);
-	MOD_SERIALIZE_WRITE(kStream, m_bTradeRouteOnly);
-	MOD_SERIALIZE_WRITE(kStream, m_bKeepConqueredBuildings);
-	MOD_SERIALIZE_WRITE(kStream, m_bMountainPass);
-	MOD_SERIALIZE_WRITE(kStream, m_bUniqueBeliefsOnly);
-	MOD_SERIALIZE_WRITE(kStream, m_bNoNaturalReligionSpread);
-	MOD_SERIALIZE_WRITE(kStream, m_bNoOpenTrade);
-	MOD_SERIALIZE_WRITE(kStream, m_bGoldenAgeOnWar);
-	MOD_SERIALIZE_WRITE(kStream, m_bUnableToCancelRazing);
-	MOD_SERIALIZE_WRITE(kStream, m_iWLTKDGPImprovementModifier);
-	MOD_SERIALIZE_WRITE(kStream, m_iGrowthBoon);
-	MOD_SERIALIZE_WRITE(kStream, m_iAllianceCSDefense);
-	MOD_SERIALIZE_WRITE(kStream, m_iAllianceCSStrength);
-	MOD_SERIALIZE_WRITE(kStream, m_iTourismGABonus);
-	MOD_SERIALIZE_WRITE(kStream, m_iTourismToGAP);
-	MOD_SERIALIZE_WRITE(kStream, m_iGoldToGAP);
-	MOD_SERIALIZE_WRITE(kStream, m_iInfluenceMeetCS);
-	MOD_SERIALIZE_WRITE(kStream, m_iMultipleAttackBonus);
-	MOD_SERIALIZE_WRITE(kStream, m_iCityConquestGWAM);
-	MOD_SERIALIZE_WRITE(kStream, m_iEventTourismBoost);
-	MOD_SERIALIZE_WRITE(kStream, m_iEventGP);
-	MOD_SERIALIZE_WRITE(kStream, m_iWLTKDCulture);
-	MOD_SERIALIZE_WRITE(kStream, m_iWLTKDGATimer);
-	MOD_SERIALIZE_WRITE(kStream, m_iGAUnhappinesNeedMod);
-	MOD_SERIALIZE_WRITE(kStream, m_iStartingSpies);
-	MOD_SERIALIZE_WRITE(kStream, m_iStartingSpyRank);
-	MOD_SERIALIZE_WRITE(kStream, m_iSpyMoveRateBonus);
-	MOD_SERIALIZE_WRITE(kStream, m_iEspionageModifier);
-	MOD_SERIALIZE_WRITE(kStream, m_iSpyExtraRankBonus);
-	MOD_SERIALIZE_WRITE(kStream, m_iQuestYieldModifier);
-	MOD_SERIALIZE_WRITE(kStream, m_iWonderProductionModifierToBuilding);
-	MOD_SERIALIZE_WRITE(kStream, m_iPolicyGEorGM);
-	MOD_SERIALIZE_WRITE(kStream, m_iGAGarrisonCityRangeStrikeModifier);
-	MOD_SERIALIZE_WRITE(kStream, m_bBestUnitSpawnOnImpDOW);
-	MOD_SERIALIZE_WRITE(kStream, m_iBestUnitImprovement);
-	MOD_SERIALIZE_WRITE(kStream, m_iGGGARateFromDenunciationsAndWars);
-	MOD_SERIALIZE_WRITE(kStream, m_bTradeRouteMinorInfluenceAP);
-	MOD_SERIALIZE_WRITE(kStream, m_bProdModFromNumSpecialists);
-	MOD_SERIALIZE_WRITE(kStream, m_iConquestOfTheWorldCityAttack);
-	MOD_SERIALIZE_WRITE(kStream, m_bConquestOfTheWorld);
-	MOD_SERIALIZE_WRITE(kStream, m_bFreeUpgrade);
-	MOD_SERIALIZE_WRITE(kStream, m_bWarsawPact);
-	MOD_SERIALIZE_WRITE(kStream, m_iEnemyWarSawPactPromotion);
-	MOD_SERIALIZE_WRITE(kStream, m_bFreeZuluPikemanToImpi);
-	MOD_SERIALIZE_WRITE(kStream, m_bPermanentYieldsDecreaseEveryEra);
-	MOD_SERIALIZE_WRITE(kStream, m_bImportsCountTowardsMonopolies);
-	MOD_SERIALIZE_WRITE(kStream, m_bCanPurchaseNavalUnitsFaith);
-	MOD_SERIALIZE_WRITE(kStream, m_iPuppetPenaltyReduction);
-	MOD_SERIALIZE_WRITE(kStream, m_iSharedReligionTourismModifier);
-	MOD_SERIALIZE_WRITE(kStream, m_iExtraMissionaryStrength);
-	MOD_SERIALIZE_WRITE(kStream, m_bCanGoldInternalTradeRoutes);
-	MOD_SERIALIZE_WRITE(kStream, m_iExtraTradeRoutesPerXOwnedCities);
-	MOD_SERIALIZE_WRITE(kStream, m_iExtraTradeRoutesPerXOwnedVassals);
-	MOD_SERIALIZE_WRITE(kStream, m_bIsCapitalOnly);
-#endif
-#if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
-	MOD_SERIALIZE_WRITE(kStream, m_iInvestmentModifier);
-#endif
-	kStream << m_iCombatBonusVsHigherTech;
-	kStream << m_iCombatBonusVsLargerCiv;
-	kStream << m_iLandUnitMaintenanceModifier;
-	kStream << m_iNavalUnitMaintenanceModifier;
-	kStream << m_iRazeSpeedModifier;
-	kStream << m_iDOFGreatPersonModifier;
-	kStream << m_iLuxuryHappinessRetention;
-#if defined(MOD_TRAITS_EXTRA_SUPPLY)
-	MOD_SERIALIZE_WRITE(kStream, m_iExtraSupply);
-	MOD_SERIALIZE_WRITE(kStream, m_iExtraSupplyPerCity);
-	MOD_SERIALIZE_WRITE(kStream, m_iExtraSupplyPerPopulation);
-#endif
-	kStream << m_iExtraSpies;
-	kStream << m_iUnresearchedTechBonusFromKills;
-	kStream << m_iExtraFoundedCityTerritoryClaimRange;
-#if defined(MOD_BALANCE_CORE)
-	kStream << m_iExtraConqueredCityTerritoryClaimRange;
-	kStream << m_iExtraTenetsFirstAdoption;
-#endif
-	kStream << m_iFreeSocialPoliciesPerEra;
-	kStream << m_iNumTradeRoutesModifier;
-	kStream << m_iTradeRouteResourceModifier;
-	kStream << m_iUniqueLuxuryCities;
-	kStream << m_iUniqueLuxuryQuantity;
-	kStream << m_iUniqueLuxuryCitiesPlaced;
-	kStream << m_iWorkerSpeedModifier;
-	kStream << m_iAfraidMinorPerTurnInfluence;
-	kStream << m_iLandTradeRouteRangeBonus;
-	kStream << m_iTradeReligionModifier;
-	kStream << m_iTradeBuildingModifier;
-#if defined(MOD_TRAITS_TRADE_ROUTE_BONUSES)
-	MOD_SERIALIZE_WRITE(kStream, m_iSeaTradeRouteRangeBonus);
-#endif
-#if defined(MOD_BALANCE_CORE)
-	MOD_SERIALIZE_WRITE(kStream, m_iNumFreeBuildings);
-#endif
-#if defined(MOD_BALANCE_CORE_AFRAID_ANNEX)
-	MOD_SERIALIZE_WRITE(kStream, m_bBullyAnnex);
-	kStream << m_iBullyYieldMultiplierAnnex;
-#endif
-	kStream << m_bFightWellDamaged;
-	kStream << m_bWoodlandMovementBonus;
-	kStream << m_bRiverMovementBonus;
-	kStream << m_bFasterInHills;
-	kStream << m_bEmbarkedAllWater;
-	kStream << m_bEmbarkedToLandFlatCost;
-	kStream << m_bNoHillsImprovementMaintenance;
-	kStream << m_bTechBoostFromCapitalScienceBuildings;
-	kStream << m_bStaysAliveZeroCities;
-	kStream << m_bFaithFromUnimprovedForest;
-#if defined(MOD_TRAITS_ANY_BELIEF)
-	MOD_SERIALIZE_WRITE(kStream, m_bAnyBelief);
-	MOD_SERIALIZE_WRITE(kStream, m_bAlwaysReligion);
-
-	kStream << m_bIgnoreTradeDistanceScaling;
-	kStream << m_bCanPlunderWithoutWar;
-#endif
-	kStream << m_bBonusReligiousBelief;
-	kStream << m_bAbleToAnnexCityStates;
-	kStream << m_bCrossesMountainsAfterGreatGeneral;
-#if defined(MOD_TRAITS_CROSSES_ICE)
-	MOD_SERIALIZE_WRITE(kStream, m_bCrossesIce);
-#endif
-#if defined(MOD_TRAITS_GG_FROM_BARBARIANS)
-	MOD_SERIALIZE_WRITE(kStream, m_bGGFromBarbarians);
-#endif
-	kStream << m_bMayaCalendarBonuses;
-
-	kStream << m_iBaktunPreviousTurn;
-
-	std::vector<MayaBonusChoice>::const_iterator it;
-	kStream << m_aMayaBonusChoices.size();
-	for(it = m_aMayaBonusChoices.begin(); it != m_aMayaBonusChoices.end(); it++)
-	{
-		kStream << it->m_eUnitType;
-		kStream << it->m_iBaktunJustFinished;
-	}
-
-	kStream << m_bNoAnnexing;
-	kStream << m_bTechFromCityConquer;
-	kStream << m_bUniqueLuxuryRequiresNewArea;
-	kStream << m_bRiverTradeRoad;
-	kStream << m_bAngerFreeIntrusionOfCityStates;
-#if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
-	MOD_SERIALIZE_WRITE(kStream, m_iPovertyHappinessChange);
-	MOD_SERIALIZE_WRITE(kStream, m_iDefenseHappinessChange);
-	MOD_SERIALIZE_WRITE(kStream, m_iUnculturedHappinessChange);
-	MOD_SERIALIZE_WRITE(kStream, m_iIlliteracyHappinessChange);
-	MOD_SERIALIZE_WRITE(kStream, m_iMinorityHappinessChange);
-	MOD_SERIALIZE_WRITE(kStream, m_bNoConnectionUnhappiness);
-	MOD_SERIALIZE_WRITE(kStream, m_bIsNoReligiousStrife);
-	MOD_SERIALIZE_WRITE(kStream, m_bIsOddEraScaler);
-	MOD_SERIALIZE_WRITE(kStream, m_iWonderProductionModGA);
-	MOD_SERIALIZE_WRITE(kStream, m_iCultureBonusModifierConquest);
-	MOD_SERIALIZE_WRITE(kStream, m_iProductionBonusModifierConquest);
-#endif
-
-	kStream << m_eCampGuardType;
-	kStream << m_eCombatBonusImprovement;
-
-	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iExtraYieldThreshold);
-	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iFreeCityYield);
-	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iYieldChangeStrategicResources);
-	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iYieldRateModifier);
-	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iYieldChangeNaturalWonder);
-	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iYieldChangePerTradePartner);
-	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iYieldChangeIncomingTradeRoute);
-	
-	CvInfosSerializationHelper::WriteHashedDataArray<TerrainTypes>(kStream, &m_iStrategicResourceQuantityModifier[0], GC.getNumTerrainInfos());
-	CvInfosSerializationHelper::WriteHashedDataArray<ResourceTypes>(kStream, m_aiResourceQuantityModifier);
-
-	kStream << m_abNoTrain.size();
-	for (uint ui = 0; ui < m_abNoTrain.size(); ui++)
-	{
-		kStream << m_abNoTrain[ui];
-	}
-
-	kStream << m_aFreeTraitUnits.size();
-	for(uint ui = 0; ui < m_aFreeTraitUnits.size(); ui++)
-	{
-		kStream << m_aFreeTraitUnits[ui].m_iFreeUnit;
-		kStream << m_aFreeTraitUnits[ui].m_ePrereqTech;
-	}
-#if defined(MOD_BALANCE_CORE)
-	kStream << m_aiGreatPersonCostReduction;
-	kStream << m_aiPerPuppetGreatPersonRateModifier;
-	kStream << m_aiGreatPersonGWAM;
-	kStream << m_aiGoldenAgeGreatPersonRateModifier;
-	kStream << m_aiGoldenAgeFromGreatPersonBirth;
-	kStream << m_aiGreatPersonProgressFromPolicyUnlock;
-	kStream << m_aiNumPledgesDomainProdMod;
-	kStream << m_aiFreeUnitClassesDOW;
-	kStream << m_aiDomainFreeExperienceModifier;
-	kStream << m_ppiYieldFromTileEarnTerrainType;
-	kStream << m_ppiYieldFromTilePurchaseTerrainType;
-	kStream << m_ppiYieldFromTileConquest;
-	kStream << m_ppiYieldFromTileCultureBomb;
-	kStream << m_ppiYieldFromTileStealCultureBomb;
-	kStream << m_ppiYieldFromTileSettle;
-	kStream << m_ppaaiYieldChangePerImprovementBuilt;
-	kStream << m_pbiYieldFromBarbarianCampClear;
-	kStream << m_aiGoldenAgeYieldModifier;
-	kStream << m_aibUnitCombatProductionCostModifier;
-	kStream << m_iNonSpecialistFoodChange;
-	kStream << m_aiNoBuilds;
-	kStream << m_aiDomainProductionModifiersPerSpecialist;
-
-	kStream << 	m_paiMovesChangeUnitClass.size();
-	for(uint ui = 0; ui < m_paiMovesChangeUnitClass.size(); ui++)
-	{
-		kStream << m_paiMovesChangeUnitClass[ui];
-	}
-	kStream << m_abTerrainClaimBoost.size();
-	for (uint ui = 0; ui < m_abTerrainClaimBoost.size(); ui++)
-	{
-		kStream << m_abTerrainClaimBoost[ui];
-	}
-#endif
-#if defined(MOD_BALANCE_CORE) && defined(MOD_TRAITS_YIELD_FROM_ROUTE_MOVEMENT_IN_FOREIGN_TERRITORY)
-	kStream << m_pbiYieldFromRouteMovementInForeignTerritory;
-#endif
-#if defined(MOD_TRAITS_TRADE_ROUTE_PRODUCTION_SIPHON)
-	kStream << m_aiiTradeRouteProductionSiphon.size();
-	for (std::map<bool, TradeRouteProductionSiphon>::const_iterator it = m_aiiTradeRouteProductionSiphon.begin(); it != m_aiiTradeRouteProductionSiphon.end(); ++it)
-	{
-		kStream << it->first;
-		kStream << it->second.m_iSiphonPercent;
-		kStream << it->second.m_iPercentIncreaseWithOpenBorders;
-	}
-#endif
-	int iNumUnitCombatClassInfos = GC.getNumUnitCombatClassInfos();
-	kStream << 	iNumUnitCombatClassInfos;
-	for(int iI = 0; iI < iNumUnitCombatClassInfos; iI++)
-	{
-		kStream << m_paiMovesChangeUnitCombat[iI];
-	}
-	for(int iI = 0; iI < iNumUnitCombatClassInfos; iI++)
-	{
-		kStream << m_paiMaintenanceModifierUnitCombat[iI];
-	}
-	kStream << m_ppaaiImprovementYieldChange;
-#if defined(MOD_API_UNIFIED_YIELDS)
-	// MOD_SERIALIZE_READ - v57/v58/v59 broke the save format  couldn't be helped, but don't make a habit of it!!!
-	kStream << m_ppiPlotYieldChange;
-#endif
-#if defined(MOD_BALANCE_CORE)
-	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iYieldFromLevelUp);
-	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iYieldFromHistoricEvent);
-	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iYieldFromOwnPantheon);
-	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iTradeRouteStartYield);
-	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iYieldFromRouteMovement);
-	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iYieldFromExport);
-	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iYieldFromImport);
-	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iYieldFromTilePurchase);
-	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iYieldFromTileEarn);
-	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iYieldFromSettle);
-	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iYieldFromConquest);
-	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iYieldFromCSAlly);
-	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iYieldFromCSFriend);
-	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iGAPToYield);
-	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iMountainRangeYield);
-	MOD_SERIALIZE_WRITE(kStream, m_bFreeGreatWorkOnConquest);
-	MOD_SERIALIZE_WRITE(kStream, m_bPopulationBoostReligion);
-	MOD_SERIALIZE_WRITE(kStream, m_bCombatBoostNearNaturalWonder);
-	MOD_SERIALIZE_WRITE(kStream, m_iVotePerXCSAlliance);
-	MOD_SERIALIZE_WRITE(kStream, m_iGoldenAgeFromVictory);
-	MOD_SERIALIZE_WRITE(kStream, m_iFreePolicyPerXTechs);
-	MOD_SERIALIZE_WRITE(kStream, m_eGPFaithPurchaseEra);
-	MOD_SERIALIZE_WRITE(kStream, m_iFaithCostModifier);
-	MOD_SERIALIZE_WRITE(kStream, m_iVotePerXCSFollowingFollowingYourReligion);
-	MOD_SERIALIZE_WRITE(kStream, m_iChanceToConvertReligiousUnits);
-#endif
-#if defined(MOD_API_UNIFIED_YIELDS)
-	// MOD_SERIALIZE_READ - v57/v58/v59 and v61 broke the save format  couldn't be helped, but don't make a habit of it!!!
-	kStream << m_ppiBuildingClassYieldChange;
-	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iCapitalYieldChanges);
-	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iCityYieldChanges);
-	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iPermanentYieldChangeWLTKD);
-	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iCoastalCityYieldChanges);
-	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iGreatWorkYieldChanges);
-	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iArtifactYieldChanges);
-	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iArtYieldChanges);
-	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iLitYieldChanges);
-	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iMusicYieldChanges);
-	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iSeaPlotYieldChanges);
-	kStream << m_ppiFeatureYieldChange;
-	kStream << m_ppiResourceYieldChange;
-	kStream << m_ppiTerrainYieldChange;
-	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iYieldFromKills);
-	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iYieldFromBarbarianKills);
-	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iYieldChangeTradeRoute);
-	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iYieldChangeWorldWonder);
-	kStream << m_ppiTradeRouteYieldChange;
-#endif
-	kStream << m_ppaaiSpecialistYieldChange;
-#if defined(MOD_API_UNIFIED_YIELDS)
-	kStream << m_ppiGreatPersonExpendedYield;
-	kStream << m_ppiGreatPersonBornYield;
-	kStream << m_ppiCityYieldFromUnimprovedFeature;
-#endif
-	kStream << m_ppaaiUnimprovedFeatureYieldChange;
-
-	kStream << (int)m_aUniqueLuxuryAreas.size();
-	for (unsigned int iI = 0; iI < m_aUniqueLuxuryAreas.size(); iI++)
-	{
-		kStream << m_aUniqueLuxuryAreas[iI];
-	}
+FDataStream& operator>>(FDataStream& stream, CvPlayerTraits& playerTraits)
+{
+	playerTraits.Read(stream);
+	return stream;
+}
+FDataStream& operator<<(FDataStream& stream, const CvPlayerTraits& playerTraits)
+{
+	playerTraits.Write(stream);
+	return stream;
 }
 
 // PRIVATE METHODS
@@ -8244,7 +7563,7 @@ bool CvPlayerTraits::ConvertBarbarianCamp(CvPlot* pPlot)
 		CvString strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_BARB_CAMP_CONVERTS");
 		CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_BARB_CAMP_CONVERTS");
 		m_pPlayer->GetNotifications()->Add(NOTIFICATION_GENERIC, strBuffer, strSummary, pPlot->getX(), pPlot->getY(), -1);
-#if !defined(NO_ACHIEVEMENTS)
+#if defined(MOD_API_ACHIEVEMENTS)
 		//Increase Stat
 		if(m_pPlayer->isHuman() &&!GC.getGame().isGameMultiPlayer())
 		{
@@ -8297,7 +7616,7 @@ bool CvPlayerTraits::ConvertBarbarianNavalUnit(CvUnit* pUnit)
 		pGiftUnit->setupGraphical();
 		pGiftUnit->finishMoves(); // No move first turn
 
-#if !defined(NO_ACHIEVEMENTS)
+#if defined(MOD_API_ACHIEVEMENTS)
 		// Validate that the achievement is reached by a live human and active player at the same time
 		if(m_pPlayer->isHuman() && !GC.getGame().isGameMultiPlayer() && m_pPlayer->getLeaderInfo().GetType() && _stricmp(m_pPlayer->getLeaderInfo().GetType(), "LEADER_SULEIMAN") == 0)
 		{

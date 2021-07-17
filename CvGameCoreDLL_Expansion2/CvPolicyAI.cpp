@@ -53,26 +53,36 @@ void CvPolicyAI::Reset()
 	}
 }
 
+///
+template<typename PolicyAI, typename Visitor>
+void CvPolicyAI::Serialize(PolicyAI& policyAI, Visitor& visitor)
+{
+	visitor(policyAI.m_PolicyAIWeights);
+}
+
 /// Serialization read
 void CvPolicyAI::Read(FDataStream& kStream)
 {
-	// Version number to maintain backwards compatibility
-	uint uiVersion;
-	kStream >> uiVersion;
-	MOD_SERIALIZE_INIT_READ(kStream);
-
-	kStream >> m_PolicyAIWeights;
+	CvStreamLoadVisitor serialVisitor(kStream);
+	Serialize(*this, serialVisitor);
 }
 
 /// Serialization write
-void CvPolicyAI::Write(FDataStream& kStream)
+void CvPolicyAI::Write(FDataStream& kStream) const
 {
-	// Current version number
-	uint uiVersion = 1;
-	kStream << uiVersion;
-	MOD_SERIALIZE_INIT_WRITE(kStream);
+	CvStreamSaveVisitor serialVisitor(kStream);
+	Serialize(*this, serialVisitor);
+}
 
-	kStream << m_PolicyAIWeights;
+FDataStream& operator<<(FDataStream& saveTo, const CvPolicyAI& readFrom)
+{
+	readFrom.Write(saveTo);
+	return saveTo;
+}
+FDataStream& operator>>(FDataStream& loadFrom, CvPolicyAI& writeTo)
+{
+	writeTo.Read(loadFrom);
+	return loadFrom;
 }
 
 /// Establish weights for one flavor; can be called multiple times to layer strategies
@@ -151,7 +161,7 @@ int CvPolicyAI::ChooseNextPolicy(CvPlayer* pPlayer)
 		CvPolicyBranchEntry* pkPolicyBranchInfo = GC.getPolicyBranchInfo(ePolicyBranch);
 		if(pkPolicyBranchInfo)
 		{
-			if(pPlayer->GetPlayerPolicies()->IsPolicyBranchUnlocked(ePolicyBranch))
+			if(m_pCurrentPolicies->IsPolicyBranchUnlocked(ePolicyBranch))
 			{
 				if(pkPolicyBranchInfo->IsMutuallyExclusive())
 				{
@@ -166,11 +176,11 @@ int CvPolicyAI::ChooseNextPolicy(CvPlayer* pPlayer)
 	{
 		const PolicyBranchTypes ePolicyBranch2 = static_cast<PolicyBranchTypes>(iBranchLoop2);
 		CvPolicyBranchEntry* pkPolicyBranchInfo2 = GC.getPolicyBranchInfo(ePolicyBranch2);
-		//Do we already have a different policy branch unlocked?
-		if (pkPolicyBranchInfo2 && pPlayer->GetPlayerPolicies()->IsPolicyBranchUnlocked(ePolicyBranch2))
+		// Do we already have a different policy branch unlocked?
+		if (pkPolicyBranchInfo2 && m_pCurrentPolicies->IsPolicyBranchUnlocked(ePolicyBranch2))
 		{
-			//Have we not finished it yet? If so, let's not open a new one.
-			if (!pPlayer->GetPlayerPolicies()->HasPolicy((PolicyTypes)pkPolicyBranchInfo2->GetFreeFinishingPolicy()))
+			// Have we not finished it yet? If we can finish it, let's not open a new one.
+			if (!m_pCurrentPolicies->HasPolicy((PolicyTypes)pkPolicyBranchInfo2->GetFreeFinishingPolicy()) && CanContinuePolicyBranch(ePolicyBranch2))
 			{
 				bNeedToFinish = true;
 				break;
@@ -192,7 +202,7 @@ int CvPolicyAI::ChooseNextPolicy(CvPlayer* pPlayer)
 					continue;
 				}
 
-				if(pPlayer->GetPlayerPolicies()->CanUnlockPolicyBranch(ePolicyBranch) && !pPlayer->GetPlayerPolicies()->IsPolicyBranchUnlocked(ePolicyBranch))
+				if(m_pCurrentPolicies->CanUnlockPolicyBranch(ePolicyBranch) && !m_pCurrentPolicies->IsPolicyBranchUnlocked(ePolicyBranch))
 				{
 					int iBranchWeight = 0;
 
@@ -253,6 +263,25 @@ int CvPolicyAI::ChooseNextPolicy(CvPlayer* pPlayer)
 	}
 
 	return iRtnValue;
+}
+
+bool CvPolicyAI::CanContinuePolicyBranch(PolicyBranchTypes ePolicyBranch)
+{
+	for (int iAdoptableIndex = 0; iAdoptableIndex < m_AdoptablePolicies.size(); ++iAdoptableIndex)
+	{
+		const PolicyTypes ePolicyIndex = PolicyTypes(m_AdoptablePolicies.GetElement(iAdoptableIndex) - GC.getNumPolicyBranchInfos());
+		const CvPolicyEntry* pkPolicyEntry = GC.getPolicyInfo(ePolicyIndex);
+		if (pkPolicyEntry == NULL)
+			continue;
+
+		const PolicyBranchTypes ePolicyBranchIndex = PolicyBranchTypes(pkPolicyEntry->GetPolicyBranchType());
+		if (ePolicyBranchIndex == ePolicyBranch)
+		{
+			return true;
+		}
+	}
+
+	return false;
 }
 
 void CvPolicyAI::DoChooseIdeology(CvPlayer *pPlayer)
@@ -842,7 +871,7 @@ void CvPolicyAI::DoConsiderIdeologySwitch(CvPlayer* pPlayer)
 			}
 #endif
 
-#if !defined(NO_ACHIEVEMENTS)
+#if defined(MOD_API_ACHIEVEMENTS)
 			if (ePreferredIdeology == GC.getPOLICY_BRANCH_FREEDOM() && eCurrentIdeology == GC.getPOLICY_BRANCH_ORDER())
 			{
 				PlayerTypes eMostPressure = pPlayer->GetCulture()->GetPublicOpinionBiggestInfluence();
@@ -856,11 +885,9 @@ void CvPolicyAI::DoConsiderIdeologySwitch(CvPlayer* pPlayer)
 			// Cleared all obstacles -- REVOLUTION!
 			pPlayer->SetAnarchyNumTurns(GC.getSWITCH_POLICY_BRANCHES_ANARCHY_TURNS());
 			pPlayer->GetPlayerPolicies()->DoSwitchIdeologies(ePreferredIdeology);	
-#if defined(MOD_BALANCE_CORE)
 			Localization::String strSummary = Localization::Lookup("TXT_KEY_ANARCHY_BEGINS_SUMMARY");
 			Localization::String strMessage = Localization::Lookup("TXT_KEY_ANARCHY_BEGINS");
 			pPlayer->GetNotifications()->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), pPlayer->GetID(), GC.getSWITCH_POLICY_BRANCHES_ANARCHY_TURNS(), -1);
-#endif
 		}
 	}
 }
@@ -893,30 +920,18 @@ int CvPolicyAI::GetBranchBuildingHappiness(CvPlayer* pPlayer, PolicyBranchTypes 
 					if (pkPolicyInfo->GetBuildingClassHappiness(eBuildingClass) != 0)
 					{
 						BuildingTypes eBuilding = NO_BUILDING;
-#if defined(MOD_BALANCE_CORE)
 						bool bRome = pPlayer->GetPlayerTraits()->IsKeepConqueredBuildings();
+
 						if (!MOD_BUILDINGS_THOROUGH_PREREQUISITES && !bRome)
-#else
-						if (!MOD_BUILDINGS_THOROUGH_PREREQUISITES)
-#endif
 						{
 							eBuilding = (BuildingTypes)pPlayer->getCivilizationInfo().getCivilizationBuildings(eBuildingClass);
 						}
-#if defined(MOD_BALANCE_CORE)
 						if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || bRome || eBuilding != NO_BUILDING)
-#else
-						if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || eBuilding != NO_BUILDING)
-#endif
 						{
-							CvCity *pCity;
 							int iLoop;
-							for (pCity = pPlayer->firstCity(&iLoop); pCity != NULL; pCity = pPlayer->nextCity(&iLoop))
+							for (CvCity* pCity = pPlayer->firstCity(&iLoop); pCity != NULL; pCity = pPlayer->nextCity(&iLoop))
 							{
-#if defined(MOD_BALANCE_CORE)
 								if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || bRome)
-#else
-								if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
-#endif
 								{
 									eBuilding = pCity->GetCityBuildings()->GetBuildingTypeFromClass(eBuildingClass);
 									if (eBuilding == NO_BUILDING)

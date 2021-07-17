@@ -353,6 +353,12 @@ public:
 	int GetRazingSpeedBonus() const;
 	bool IsNoPartisans() const;
 	int GetExtraSupplyPerPopulation() const;
+	int GetYieldForLiberation(int i) const;
+	int GetInfluenceForLiberation() const;
+	int GetExperienceForLiberation() const;
+	BuildingClassTypes GetBuildingClassInLiberatedCities() const;
+	int GetUnitsInLiberatedCities() const;
+	int getFranchisesPerImprovement(int i) const;
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	int GetInvestmentModifier() const;
@@ -805,6 +811,12 @@ private:
 	int m_iHappinessPerXGreatWorks;
 	int m_iExtraMissionaryStrength;
 	int m_iExtraMissionarySpreads;
+	int* m_piYieldForLiberation;
+	int m_iInfluenceForLiberation;
+	int m_iExperienceForLiberation;
+	BuildingClassTypes m_eBuildingClassInLiberatedCities;
+	int m_iUnitsInLiberatedCities;
+	int* m_piFranchisesPerImprovement;
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	int m_iInvestmentModifier;
@@ -1040,6 +1052,8 @@ public:
 	void Init(CvPolicyXMLEntries* pPolicies, CvPlayer* pPlayer, bool bIsCity);
 	void Uninit();
 	void Reset();
+	template<typename PlayerPolicies, typename Visitor>
+	static void Serialize(PlayerPolicies& playerPolicies, Visitor& visitor);
 	void Read(FDataStream& kStream);
 	void Write(FDataStream& kStream) const;
 
@@ -1050,12 +1064,8 @@ public:
 
 	// Accessor functions
 	bool HasPolicy(PolicyTypes eIndex) const;
-#if defined(MOD_API_EXTENSIONS)
 	bool IsFreePolicy(PolicyTypes eIndex) const;
 	void SetPolicy(PolicyTypes eIndex, bool bNewValue, bool bFree);
-#else
-	void SetPolicy(PolicyTypes eIndex, bool bNewValue);
-#endif
 	int GetNumPoliciesOwned(bool bSkipFinisher = false, bool bExcludeFree = false, bool bIncludeOpeners = false) const;
 	int GetNumPoliciesOwnedInBranch(PolicyBranchTypes eBranch) const;
 	int GetNumPoliciesPurchasedInBranch(PolicyBranchTypes eBranch) const;
@@ -1105,10 +1115,8 @@ public:
 	bool IsPolicyBranchBlocked(PolicyBranchTypes eBranchType) const;
 	bool IsPolicyBlocked(PolicyTypes eType) const;
 
-#if defined(MOD_API_EXTENSIONS)
 	bool CanAdoptIdeology(PolicyBranchTypes eIdeology) const;
 	bool HasAdoptedIdeology(PolicyBranchTypes eIdeology) const;
-#endif
 
 	// Ideology change
 	void DoSwitchIdeologies(PolicyBranchTypes eBranchType);
@@ -1168,9 +1176,7 @@ private:
 	// Logging functions
 	void LogFlavors(FlavorTypes eFlavor = NO_FLAVOR);
 
-#if defined(MOD_API_EXTENSIONS)
 	bool* m_pabFreePolicy;
-#endif
 	bool* m_pabHasPolicy;
 	bool* m_pabHasOneShotPolicyFired;
 	bool* m_pabHaveOneShotFreeUnitsFired;
@@ -1199,6 +1205,9 @@ private:
 	pair<int, int> currentHappinessModifier;
 	pair<int, int> currentHappinessModifierPerCity;
 };
+
+FDataStream& operator>>(FDataStream&, CvPlayerPolicies&);
+FDataStream& operator<<(FDataStream&, const CvPlayerPolicies&);
 
 namespace PolicyHelpers
 {

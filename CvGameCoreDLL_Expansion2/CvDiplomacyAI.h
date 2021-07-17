@@ -26,6 +26,9 @@ struct Opinion
 
 struct DiploLogData
 {
+	template<typename DiploLogDataT, typename Visitor>
+	static void Serialize(DiploLogDataT& diploLogData, Visitor& visitor);
+
 	DiploStatementTypes m_eDiploLogStatement;
 	int m_iTurn;
 };
@@ -34,6 +37,9 @@ FDataStream& operator>>(FDataStream&, DiploLogData&);
 
 struct DeclarationLogData
 {
+	template<typename DeclarationLogDataT, typename Visitor>
+	static void Serialize(DeclarationLogDataT& declarationLogData, Visitor& visitor);
+
 	PublicDeclarationTypes m_eDeclaration;
 	int m_iData1;
 	int m_iData2;
@@ -76,8 +82,10 @@ public:
 	void Init(CvPlayer* pPlayer);
 	void Uninit();
 	void Reset();
+	template<typename DiplomacyAI, typename Visitor>
+	static void Serialize(DiplomacyAI& diplomacyAI, Visitor& visitor);
 	void Read(FDataStream& kStream);
-	void Write(FDataStream& kStream);
+	void Write(FDataStream& kStream) const;
 	void update();
 
 	// ************************************
@@ -92,7 +100,7 @@ public:
 	// ************************************
 
 	bool IsPlayerValid(PlayerTypes eOtherPlayer, bool bMyTeamIsValid = false) const;
-	int GetNumValidMajorCivs(bool bHasMet = false) const;
+	int GetNumValidMajorCivs() const;
 	vector<PlayerTypes> GetAllValidMajorCivs() const;
 
 	bool IsAtWar(PlayerTypes eOtherPlayer) const;
@@ -218,6 +226,7 @@ public:
 	void SetCachedSurfaceApproach(PlayerTypes ePlayer, CivApproachTypes eApproach);
 
 	CivApproachTypes GetSurfaceApproach(PlayerTypes ePlayer) const;
+	CivApproachTypes GetVisibleApproachTowardsUs(PlayerTypes ePlayer) const; // Our guess as to another player's approach towards us
 
 	// Approach Values: Cached weight for each approach
 	int GetPlayerApproachValue(PlayerTypes ePlayer, CivApproachTypes eApproach) const;
@@ -320,10 +329,10 @@ public:
 	void SetCantMatchDeal(PlayerTypes ePlayer, bool bValue);
 
 	// Demands
-	int GetNumDemandEverMade(PlayerTypes ePlayer) const;
-	void SetNumDemandEverMade(PlayerTypes ePlayer, int iValue);
-	void ChangeNumDemandEverMade(PlayerTypes ePlayer, int iChange);
-	bool IsDemandEverMade(PlayerTypes ePlayer) const;
+	int GetNumDemandsMade(PlayerTypes ePlayer) const;
+	void SetNumDemandsMade(PlayerTypes ePlayer, int iValue);
+	void ChangeNumDemandsMade(PlayerTypes ePlayer, int iChange);
+	bool IsDemandMade(PlayerTypes ePlayer) const;
 
 	int GetDemandMadeTurn(PlayerTypes ePlayer) const;
 	void SetDemandMadeTurn(PlayerTypes ePlayer, int iTurn);
@@ -705,9 +714,6 @@ public:
 	bool IsPlayerLiberatedHolyCity(PlayerTypes ePlayer) const;
 	void SetPlayerLiberatedHolyCity(PlayerTypes ePlayer, bool bValue);
 
-	bool IsDoFEverAsked(PlayerTypes ePlayer) const;
-	void SetDoFEverAsked(PlayerTypes ePlayer, bool bValue);
-
 	bool IsPlayerCapturedCapital(PlayerTypes ePlayer, bool bEver = false) const;
 	void SetPlayerCapturedCapital(PlayerTypes ePlayer, bool bValue);
 	bool IsCapitalCapturedBy(PlayerTypes ePlayer, bool bCurrently = false, bool bTeammates = true, bool bCheckEver = false) const;
@@ -918,11 +924,8 @@ public:
 	// C4DF Values
 	// ------------------------------------
 
-	bool IsShareOpinionAccepted(PlayerTypes ePlayer) const;
-	void SetShareOpinionAccepted(PlayerTypes ePlayer, bool bValue);
-
-	bool IsShareOpinionRefused(PlayerTypes ePlayer) const;
-	void SetShareOpinionRefused(PlayerTypes ePlayer, bool bValue);
+	ShareOpinionResponseTypes GetShareOpinionResponse(PlayerTypes ePlayer) const;
+	void SetShareOpinionResponse(PlayerTypes ePlayer, ShareOpinionResponseTypes eResponse);
 
 	bool IsPlayerMoveTroopsRequestAccepted(PlayerTypes ePlayer) const;
 	void SetPlayerMoveTroopsRequestAccepted(PlayerTypes ePlayer, bool bValue);
@@ -949,10 +952,6 @@ public:
 
 	bool IsHasPaidTributeTo(PlayerTypes ePlayer) const;
 	void SetHasPaidTributeTo(PlayerTypes ePlayer, bool bValue);
-
-	int GetNumTimesDemandedWhileVassal(PlayerTypes ePlayer) const;
-	void SetNumTimesDemandedWhileVassal(PlayerTypes ePlayer, int iValue);
-	void ChangeNumTimesDemandedWhileVassal(PlayerTypes ePlayer, int iChange);
 
 	int GetVassalProtectValue(PlayerTypes ePlayer) const;
 	void SetVassalProtectValue(PlayerTypes ePlayer, int iValue);
@@ -1164,8 +1163,39 @@ public:
 	int CountUnitsAroundEnemyCities(PlayerTypes ePlayer, int iTurnRange) const;
 
 	// ------------------------------------
-	// Counters
+	// Vassal Taxation
 	// ------------------------------------
+
+	void DetermineVassalTaxRates();
+	void DoVassalTaxChanged(TeamTypes eTeam, bool bTaxesLowered);
+
+	// ------------------------------------
+	// Demands
+	// ------------------------------------
+
+	void DoUpdateDemands();
+	int GetPlayerDemandValueScore(PlayerTypes ePlayer);
+
+	// ------------------------------------
+	// WAR!
+	// ------------------------------------
+
+	void MakeWar();
+	void DoMakeWarOnPlayer(PlayerTypes eTargetPlayer);
+	bool DeclareWar(PlayerTypes ePlayer);
+	bool DeclareWar(TeamTypes eTeam);
+
+	// ************************************
+	// City-State Diplomacy
+	// ************************************
+
+	// ************************************
+	// Diplomatic Interactions
+	// ************************************
+
+	// ************************************
+	// Counters
+	// ************************************
 
 	void DoCounters();
 
@@ -1178,18 +1208,6 @@ public:
 	/////////////////////////////////////////////////////////
 
 	bool IsHasActiveGoldQuest();
-
-	// Our guess as to another player's approach towards us
-	CivApproachTypes GetVisibleApproachTowardsUs(PlayerTypes ePlayer) const;
-
-	void DoUpdateApproachTowardsUsGuesses();
-
-	/////////////////////////////////////////////////////////
-	// Demands
-	/////////////////////////////////////////////////////////
-
-	void DoUpdateDemands();
-	int GetPlayerDemandValueScore(PlayerTypes ePlayer);
 
 	/////////////////////////////////////////////////////////
 	// Requests
@@ -1204,14 +1222,6 @@ public:
 	bool IsWantsOpenBordersWithPlayer(PlayerTypes ePlayer);
 	bool IsWillingToGiveOpenBordersToPlayer(PlayerTypes ePlayer);
 	bool IsOpenBordersExchangeAcceptable(PlayerTypes ePlayer);
-
-	/////////////////////////////////////////////////////////
-	// War & Military Assessment
-	/////////////////////////////////////////////////////////
-
-	void MakeWar();
-	bool DeclareWar(PlayerTypes ePlayer);
-	bool DeclareWar(TeamTypes eTeam);
 
 	/////////////////////////////////////////////////////////
 	// Planning Exchanges
@@ -1485,8 +1495,6 @@ public:
 	void DoHelpRequestMade(PlayerTypes ePlayer, DemandResponseTypes eResponse);
 
 	// Vassals
-	void DoVassalTaxChanged(TeamTypes eTeam, bool bTaxesLowered);
-
 	VassalTreatmentTypes GetVassalTreatmentLevel(PlayerTypes ePlayer) const;
 	CvString GetVassalTreatmentToolTip(PlayerTypes ePlayer) const;
 
@@ -1508,8 +1516,6 @@ public:
 	void DoRevokeVassalageStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal);
 
 	void DoLiberateMyVassalStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement);
-	void DoDetermineTaxRateForVassals();
-	void DoDetermineTaxRateForVassalOnePlayer(PlayerTypes ePlayer);
 
 	void DoVassalTaxesRaisedStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement);
 	void DoVassalTaxesLoweredStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement);
@@ -1588,12 +1594,10 @@ public:
 	// Player has asked us to do things we don't like
 	int GetNoSettleRequestScore(PlayerTypes ePlayer);
 	int GetStopSpyingRequestScore(PlayerTypes ePlayer);
-	int GetDemandEverMadeScore(PlayerTypes ePlayer);
+	int GetDemandMadeScore(PlayerTypes ePlayer);
 
 	// Denouncing
-	int GetMutualDenouncementScore(PlayerTypes ePlayer);
-	int GetDenouncedUsScore(PlayerTypes ePlayer);
-	int GetDenouncedThemScore(PlayerTypes ePlayer);
+	int GetDenouncedScore(PlayerTypes ePlayer);
 	int GetDenouncedFriendScore(PlayerTypes ePlayer);
 	int GetDenouncedEnemyScore(PlayerTypes ePlayer);
 	int GetDenouncedByOurFriendScore(PlayerTypes ePlayer);
@@ -1765,8 +1769,6 @@ private:
 
 	bool IsValidUIDiplomacyTarget(PlayerTypes eTargetPlayer);
 
-	void DoMakeWarOnPlayer(PlayerTypes eTargetPlayer);
-
 	void LogPublicDeclaration(PublicDeclarationTypes eDeclaration, int iData1, PlayerTypes eForSpecificPlayer = NO_PLAYER);
 	void LogWarDeclaration(PlayerTypes ePlayer, int iTotalWarWeight = -1);
 	void LogPeaceMade(PlayerTypes ePlayer);
@@ -1889,7 +1891,7 @@ private:
 	char m_aeDoFType[MAX_MAJOR_CIVS];
 	int m_aiDenouncedPlayerTurn[MAX_MAJOR_CIVS];
 	bool m_abCantMatchDeal[MAX_MAJOR_CIVS];
-	unsigned char m_aiDemandEverMade[MAX_MAJOR_CIVS];
+	unsigned char m_aiNumDemandsMade[MAX_MAJOR_CIVS];
 	int m_aiDemandMadeTurn[MAX_MAJOR_CIVS];
 	char m_aiDemandTooSoonNumTurns[MAX_MAJOR_CIVS];
 	unsigned short m_aiTradeValue[MAX_MAJOR_CIVS];
@@ -2011,7 +2013,6 @@ private:
 	bool m_abReturnedHolyCity[MAX_MAJOR_CIVS];
 	bool m_abLiberatedCapital[MAX_MAJOR_CIVS];
 	bool m_abLiberatedHolyCity[MAX_MAJOR_CIVS];
-	bool m_abDoFEverAsked[MAX_MAJOR_CIVS];
 	bool m_abCapturedCapital[MAX_MAJOR_CIVS];
 	bool m_abCapturedHolyCity[MAX_MAJOR_CIVS];
 	bool m_abResurrectorAttackedUs[MAX_MAJOR_CIVS];
@@ -2077,13 +2078,11 @@ private:
 
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	// C4DF Values
-	bool m_abShareOpinionAccepted[MAX_MAJOR_CIVS];
-	bool m_abShareOpinionRefused[MAX_MAJOR_CIVS];
+	char m_aeShareOpinionResponse[MAX_MAJOR_CIVS];
 	int m_aiHelpRequestAcceptedTurn[MAX_MAJOR_CIVS];
 	char m_aiHelpRequestTooSoonNumTurns[MAX_MAJOR_CIVS];
 	bool m_abOfferingGift[MAX_MAJOR_CIVS];
 	bool m_abOfferedGift[MAX_MAJOR_CIVS];
-	unsigned char m_aiNumTimesDemandedWhenVassal[MAX_MAJOR_CIVS];
 	bool m_abHasPaidTributeTo[MAX_MAJOR_CIVS];
 	int m_aiBrokenVassalAgreementTurn[MAX_MAJOR_CIVS];
 	short m_aiPlayerVassalageFailedProtectValue[MAX_MAJOR_CIVS];
@@ -2115,6 +2114,9 @@ private:
 	DiploStatementTypes m_eTestStatement;
 	int					m_iTestStatementArg1;
 };
+
+FDataStream& operator>>(FDataStream&, CvDiplomacyAI&);
+FDataStream& operator<<(FDataStream&, const CvDiplomacyAI&);
 
 namespace CvDiplomacyAIHelpers
 {

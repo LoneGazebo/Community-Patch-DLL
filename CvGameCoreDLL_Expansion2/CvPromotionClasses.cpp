@@ -94,9 +94,7 @@ CvPromotionEntry::CvPromotionEntry():
 	m_iFriendlyLandsAttackModifier(0),
 	m_iOutsideFriendlyLandsModifier(0),
 	m_iCommandType(NO_COMMAND),
-#if defined(MOD_UNITS_NO_SUPPLY)
 	m_bNoSupply(false),
-#endif
 	m_iMaxHitPointsChange(0),
 	m_iMaxHitPointsModifier(0),
 	m_iUpgradeDiscount(0),
@@ -612,9 +610,7 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 	m_iFriendlyLandsModifier = kResults.GetInt("FriendlyLandsModifier");
 	m_iFriendlyLandsAttackModifier = kResults.GetInt("FriendlyLandsAttackModifier");
 	m_iOutsideFriendlyLandsModifier = kResults.GetInt("OutsideFriendlyLandsModifier");
-#if defined(MOD_UNITS_NO_SUPPLY)
 	m_bNoSupply = kResults.GetBool("NoSupply");
-#endif
 	m_iMaxHitPointsChange = kResults.GetInt("MaxHitPointsChange");
 	m_iMaxHitPointsModifier = kResults.GetInt("MaxHitPointsModifier");
 	m_iUpgradeDiscount = kResults.GetInt("UpgradeDiscount");
@@ -1709,13 +1705,11 @@ void CvPromotionEntry::SetCommandType(int iNewType)
 	m_iCommandType = iNewType;
 }
 
-#if defined(MOD_UNITS_NO_SUPPLY)
 /// Accessor: Unit has no supply cost
 bool CvPromotionEntry::IsNoSupply() const
 {
 	return m_bNoSupply;
 }
-#endif
 
 /// Accessor: Absolute change of max hit points
 int CvPromotionEntry::GetMaxHitPointsChange() const
@@ -3151,42 +3145,41 @@ void CvUnitPromotions::Reset()
 #endif
 }
 
+///
+template<typename UnitPromotions, typename Visitor>
+void CvUnitPromotions::Serialize(UnitPromotions& unitPromotions, Visitor& visitor)
+{
+	CvAssertMsg(unitPromotions.m_pPromotions != NULL && unitPromotions.m_pPromotions->GetNumPromotions() > 0, "Number of promotions to serialize is expected to greater than 0");
+	visitor(unitPromotions.m_kHasPromotion);
+}
+
 /// Serialization read
 void CvUnitPromotions::Read(FDataStream& kStream)
 {
 	Reset();
 
-	// Version number to maintain backwards compatibility
-	uint uiVersion;
-	kStream >> uiVersion;
-	MOD_SERIALIZE_INIT_READ(kStream);
+	CvStreamLoadVisitor serialVisitor(kStream);
+	Serialize(*this, serialVisitor);
 
-	// Read number of promotions
-	int iNumPromotions;
-	kStream >> iNumPromotions;
-	CvAssertMsg(m_pPromotions != NULL && m_pPromotions->GetNumPromotions() > 0, "Number of promotions to serialize is expected to greater than 0");
-
-	PromotionArrayHelpers::Read(kStream, m_kHasPromotion);
-
-#if defined(MOD_BALANCE_CORE)
 	UpdateCache();
-#endif
 }
 
 /// Serialization write
 void CvUnitPromotions::Write(FDataStream& kStream) const
 {
-	// Current version number
-	uint uiVersion = 1;
-	kStream << uiVersion;
-	MOD_SERIALIZE_INIT_WRITE(kStream);
+	CvStreamSaveVisitor serialVisitor(kStream);
+	Serialize(*this, serialVisitor);
+}
 
-	// Write out number of promotions to save
-	int iNumPromotions = m_pPromotions->GetNumPromotions();
-	kStream << iNumPromotions;
-	CvAssertMsg(iNumPromotions > 0, "Number of promotions to serialize is expected to greater than 0");
-
-	PromotionArrayHelpers::Write(kStream, m_kHasPromotion, iNumPromotions);
+FDataStream& operator>>(FDataStream& stream, CvUnitPromotions& unitPromotions)
+{
+	unitPromotions.Read(stream);
+	return stream;
+}
+FDataStream& operator<<(FDataStream& stream, const CvUnitPromotions& unitPromotions)
+{
+	unitPromotions.Write(stream);
+	return stream;
 }
 
 /// Accessor: Unit object

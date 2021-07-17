@@ -42,6 +42,12 @@
 		<Column name="BuildingClassType" type="text" reference="BuildingClasses(Type)"/>
 		<Column name="Count" type="integer" default="0"/>
 	</Table>
+	<!-- The policy will give you a franchise for each of the specified improvement -->
+		<Table name="Policy_FranchisePerImprovement">
+		<Column name="PolicyType" type="text" reference="Policies(Type)"/>
+		<Column name="ImprovementType" type="text" reference="Improvements(Type)"/>
+		<Column name="NumFranchise" type="integer"/>
+	</Table>
 	<!-- Allows you to define an instant yield granted when a building is constructed. -->
 	<Table name="Building_InstantYield">
 		<Column name="BuildingType" type="text" reference="Buildings(Type)"/>
@@ -592,7 +598,14 @@
 		<Column name="YieldType" type="integer" reference="Yields(Type)"/>
 		<Column name="Yield" type="integer" default="0"/>
 	</Table>
-
+	
+	<!-- POLICY: Gain this yield for liberating cities -->
+	<Table name="Policy_YieldForLiberation">
+		<Column name="PolicyType" type="text" reference="Policies(Type)"/>
+		<Column name="YieldType" type="integer" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" default="0"/>
+	</Table>
+	
 	<!-- BUILDING: Allows you to define a building yield earned from a GP being expended -->
 	<Table name="Building_YieldFromGPExpend">
 		<Column name="BuildingType" type="text" reference="Buildings(Type)"/>
@@ -786,6 +799,14 @@
 		<Column name="PolicyType" type="text" reference="Policies(Type)"/>
 		<Column name="ReplacedUnitClassType" type="text" reference="UnitClasses(Type)"/>
 		<Column name="ReplacementUnitClassType" type="text" reference="UnitClasses(Type)"/>
+	</Table>
+	
+	<!-- POLICY: Allows you to define a modifier (+X%) to any type of yield of international trade routes (other than FOOD and PRODUCTION)
+	Interops with UNIFIED_YIELD changes to allow faith, culture, etc. -->
+	<Table name="Policy_InternationalRouteYieldModifiers">
+		<Column name="PolicyType" type="text" reference="Policies(Type)"></Column>
+		<Column name="YieldType" type="text" reference="Yields(Type)"></Column>
+		<Column name="Yield" type="integer" default="0"></Column>
 	</Table>
 
 	<!-- TRAIT: Allows you to define a yield that is gained from mountains based on the number of mountains adjacent to a mountain. 
@@ -1425,6 +1446,16 @@
 		<Column name="Modifier" type="integer" default="0"/>
 	</Table>
 	<!-- End Corporations -->
+	<!-- Start bias -->
+	<Table name="Civilization_Start_Prefer_Mountain">
+		<Column name="CivilizationType" type="text"  />
+		<Column name="StartPreferMountain" type="boolean"  default="0"/>
+	</Table>
+	<Table name="Civilization_Start_Prefer_Snow">
+		<Column name="CivilizationType" type="text"  />
+		<Column name="StartPreferSnow" type="boolean"  default="0"/>
+	</Table>
+	<!-- End of start bias -->
 	<!-- Stuff for CBO Egypt-->
 	<GreatWorkArtifactClasses>
 		<Row Type="ARTIFACT_SARCOPHAGUS" Value="7"/>

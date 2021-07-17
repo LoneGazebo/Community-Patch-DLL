@@ -101,8 +101,10 @@ public:
 	int GetImprovementUpgrade() const;
 	void SetImprovementUpgrade(int i);
 	int GetRequiresXAdjacentLand() const;
-#if defined(MOD_API_EXTENSIONS)
 	int GetRequiresXAdjacentWater() const;
+
+#if defined(MOD_GLOBAL_NO_FOLLOWUP_FROM_CITIES)
+	bool IsNoFollowUp() const;
 #endif
 
 #if defined(MOD_GLOBAL_RELOCATION)
@@ -122,9 +124,7 @@ public:
 	bool IsFreshWaterMakesValid() const;
 	bool IsRiverSideMakesValid() const;
 	bool IsNoFreshWater() const;
-#if defined(MOD_API_EXTENSIONS)
 	bool IsAddsFreshWater() const;
-#endif
 	bool IsRequiresFlatlands() const;
 	bool IsRequiresFlatlandsOrFreshWater() const;
 	bool IsRequiresFeature() const;
@@ -277,8 +277,9 @@ protected:
 	int m_iImprovementPillage;
 	int m_iImprovementUpgrade;
 	int m_iRequiresXAdjacentLand;
-#if defined(MOD_API_EXTENSIONS)
 	int m_iRequiresXAdjacentWater;
+#if defined(MOD_GLOBAL_NO_FOLLOWUP_FROM_CITIES)
+	bool m_bNoFollowUp;
 #endif
 
 #if defined(MOD_GLOBAL_RELOCATION)
@@ -298,9 +299,7 @@ protected:
 	bool m_bFreshWaterMakesValid;
 	bool m_bRiverSideMakesValid;
 	bool m_bNoFreshWater;
-#if defined(MOD_API_EXTENSIONS)
 	bool m_bAddsFreshWater;
-#endif
 	bool m_bRequiresFlatlands;
 	bool m_bRequiresFlatlandsOrFreshWater;
 	bool m_bRequiresFeature;

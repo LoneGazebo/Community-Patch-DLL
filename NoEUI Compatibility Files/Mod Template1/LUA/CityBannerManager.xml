@@ -170,6 +170,7 @@
 				<Label ID="BlockadedIcon" Anchor="C,C" Offset="0,0" String="[ICON_BLOCKADED]" Font="TwCenMT18" FontStyle="Shadow" Hidden="1"/>
 				<Label ID="PuppetIcon" Anchor="C,C" Offset="0,0" String="[ICON_PUPPET]" Font="TwCenMT18" FontStyle="Shadow" Hidden="1"/>
 				<Label ID="OccupiedIcon" Anchor="C,C" Offset="0,0" String="[ICON_OCCUPIED]" Font="TwCenMT18" FontStyle="Shadow" Hidden="1"/>
+				<Label ID="CityIsMined" Anchor="C,C" Offset="0,0" String="[ICON_PLUS]" Font="TwCenMT18" FontStyle="Shadow" Hidden="1"/>
 				<Label ID="UnhappyIcon" Anchor="C,C" Offset="0,0" String="[ICON_HAPPINESS_3]" Font="TwCenMT18" FontStyle="Shadow" Hidden="1"/>
 				<Label ID="SpyIcon" Anchor="C,C" Offset="0,0" String="[ICON_SPY]" Font="TwCenMT18" FontStyle="Shadow" Hidden="0"/>
         <Label ID="DiplomatIcon" Anchor="C,C" Offset="0,0" String="[ICON_DIPLOMAT]" Font="TwCenMT18" FontStyle="Shadow" Hidden="0"/>

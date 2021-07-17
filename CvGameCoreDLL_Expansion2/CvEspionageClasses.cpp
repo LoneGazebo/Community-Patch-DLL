@@ -555,7 +555,7 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 					pCityEspionage->SetSpyResult(ePlayer, SPY_RESULT_KILLED);
 #endif
 
-#if !defined(NO_ACHIEVEMENTS)
+#if defined(MOD_API_ACHIEVEMENTS)
 					CvPlayerAI& kCityOwner = GET_PLAYER(eCityOwner);
 					CvPlayerAI& kSpyOwner = GET_PLAYER(ePlayer);
 
@@ -723,7 +723,7 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 					m_aiNumTechsToStealList[iCityOwner] = 0;
 				}
 
-#if !defined(NO_ACHIEVEMENTS)
+#if defined(MOD_API_ACHIEVEMENTS)
 				//Achievements!
 				if(m_pPlayer->GetID() == GC.getGame().getActivePlayer())
 				{
@@ -842,11 +842,7 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 	// if we just established surveillance in the city, turn the lights on
 	if(HasEstablishedSurveillance(uiSpyIndex) && !bHadSurveillance)
 	{
-#if defined(MOD_API_EXTENSIONS)
 		pCity->plot()->changeAdjacentSight(m_pPlayer->getTeam(), GC.getESPIONAGE_SURVEILLANCE_SIGHT_RANGE(), true, NO_INVISIBLE, NO_DIRECTION);
-#else
-		pCity->plot()->changeAdjacentSight(m_pPlayer->getTeam(), GC.getESPIONAGE_SURVEILLANCE_SIGHT_RANGE(), true, NO_INVISIBLE, NO_DIRECTION, false);
-#endif
 	}
 }
 #if defined(MOD_BALANCE_CORE_SPIES)
@@ -1510,11 +1506,9 @@ CvString CvPlayerEspionage::GetSpyInfo(uint uiSpyIndex, bool bNoBasic, CvCity* p
 			case SPY_STATE_SCHMOOZE:
 				strSpyAtCity += GetLocalizedText("TXT_KEY_EO_SPY_UNASSIGNED_TT", GetSpyRankName(pSpy->m_eRank), pSpy->GetSpyName(m_pPlayer), pCity->getNameKey());
 				break;
-#if defined(MOD_API_LUA_EXTENSIONS)
 			case SPY_STATE_TERMINATED:
 				strSpyAtCity += GetLocalizedText("TXT_KEY_EO_SPY_UNASSIGNED_TT", GetSpyRankName(pSpy->m_eRank), pSpy->GetSpyName(m_pPlayer));
 				return strSpyAtCity;
-#endif
 			}
 			strSpyAtCity += "[NEWLINE][NEWLINE]";
 		}
@@ -2901,11 +2895,7 @@ bool CvPlayerEspionage::ExtractSpyFromCity(uint uiSpyIndex)
 	// turn off visibility of city
 	if(bHadSurveillance)
 	{
-#if defined(MOD_API_EXTENSIONS)
 		pCity->plot()->changeAdjacentSight(m_pPlayer->getTeam(), GC.getESPIONAGE_SURVEILLANCE_SIGHT_RANGE(), false, NO_INVISIBLE, NO_DIRECTION);
-#else
-		pCity->plot()->changeAdjacentSight(m_pPlayer->getTeam(), GC.getESPIONAGE_SURVEILLANCE_SIGHT_RANGE(), false, NO_INVISIBLE, NO_DIRECTION, false);
-#endif
 	}
 
 	pCity->GetCityEspionage()->m_aiSpyAssignment[m_pPlayer->GetID()] = -1;
@@ -3977,7 +3967,7 @@ bool CvPlayerEspionage::AttemptCoup(uint uiSpyIndex)
 		pNotifications->Add(eNotification, strNotification.toUTF8(), strSummary.toUTF8(), pCity->getX(), pCity->getY(), -1);
 	}
 
-#if !defined(NO_ACHIEVEMENTS)
+#if defined(MOD_API_ACHIEVEMENTS)
 	//Achievements!
 	if(bAttemptSuccess && m_pPlayer->GetID() == GC.getGame().getActivePlayer())
 	{
@@ -4208,11 +4198,7 @@ std::vector<int> CvPlayerEspionage::BuildGWList(CvCity* pCity)
 		const CvCivilizationInfo& playerCivilizationInfo = GET_PLAYER(ePlayer).getCivilizationInfo();
 		BuildingTypes eBuilding = NO_BUILDING;
 		// If Rome, or if the option to check for all buildings in a class is enabled, we loop through all buildings in the city
-#if defined(MOD_BALANCE_CORE)
 		if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || GET_PLAYER(ePlayer).GetPlayerTraits()->IsKeepConqueredBuildings())
-#else
-		if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
-#endif
 		{
 			eBuilding = pCity->GetCityBuildings()->GetBuildingTypeFromClass((BuildingClassTypes)iBuildingClassLoop);
 		}
@@ -4550,7 +4536,7 @@ void CvPlayerEspionage::ProcessSpyMessages()
 
 					pNotifications->Add(NOTIFICATION_SPY_KILLED_A_SPY, strNotification.toUTF8(), strSummary.toUTF8(), -1, -1, m_aSpyNotificationMessages[ui].m_eAttackingPlayer);
 				
-#if !defined(NO_ACHIEVEMENTS)
+#if defined(MOD_API_ACHIEVEMENTS)
 					//Achievements
 					if(m_pPlayer->GetID() == GC.getGame().getActivePlayer())
 					{
@@ -6861,7 +6847,7 @@ std::vector<ScoreCityEntry> CvEspionageAI::BuildDefenseCityList()
 	CvCity* pLoopCity = NULL;
 	int iLoop = 0;
 
-	if (m_pPlayer->GetDiplomacyAI()->GetNumValidMajorCivs(true) <= 0)
+	if (m_pPlayer->GetDiplomacyAI()->GetNumValidMajorCivs() <= 0)
 		return aCityScores;
 	
 	for(pLoopCity = GET_PLAYER(ePlayer).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iLoop))
