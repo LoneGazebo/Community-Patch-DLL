@@ -416,7 +416,7 @@ void CvPlot::doImprovement()
 				CvResourceInfo* thisResourceInfo = GC.getResourceInfo((ResourceTypes) iI);
 				if (thisResourceInfo)
 				{
-					if(thisTeam.GetTeamTechs()->HasTech((TechTypes)(thisResourceInfo->getTechReveal())))
+					if(thisTeam.IsResourceRevealed((ResourceTypes)iI))
 					{
 						if(thisImprovementInfo->GetImprovementResourceDiscoverRand(iI) > 0)
 						{
@@ -5844,7 +5844,7 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 				// Remove Resource Quantity from total
 				if(getResourceType() != NO_RESOURCE)
 				{
-					if(GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes) GC.getResourceInfo(getResourceType())->getTechReveal()))
+					if(GET_TEAM(getTeam()).IsResourceRevealed(getResourceType()))
 					{
 #if defined(MOD_BALANCE_CORE)
 						if(getImprovementType() != NO_IMPROVEMENT)
@@ -6060,7 +6060,7 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 				if(getResourceType() != NO_RESOURCE)
 				{
 					// Add Resource Quantity to total
-					if(GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes) GC.getResourceInfo(getResourceType())->getTechCityTrade()))
+					if(GET_TEAM(getTeam()).IsResourceCityTradeable(getResourceType()))
 					{
 						if(getImprovementType() != NO_IMPROVEMENT && GC.getImprovementInfo(getImprovementType())->IsExpandedImprovementResourceTrade(getResourceType()))
 						{
@@ -6778,18 +6778,7 @@ ResourceTypes CvPlot::getResourceType(TeamTypes eTeam) const
 			CvGame& Game = GC.getGame();
 			bool bDebug = Game.isDebugMode() || GET_TEAM(eTeam).isObserver();
 
-			int iPolicyReveal = GC.getResourceInfo((ResourceTypes)m_eResourceType)->getPolicyReveal();
-			if (!bDebug && iPolicyReveal != NO_POLICY)
-			{
-				if (!GET_TEAM(eTeam).HavePolicyInTeam((PolicyTypes)iPolicyReveal))
-				{
-					return NO_RESOURCE;
-				}
-			}
-
-			if(!bDebug && !GET_TEAM(eTeam).GetTeamTechs()->HasTech((TechTypes)(GC.getResourceInfo((ResourceTypes)m_eResourceType)->getTechReveal())) &&
-			        !GET_TEAM(eTeam).isForceRevealedResource((ResourceTypes)m_eResourceType) &&
-			        !IsResourceForceReveal(eTeam))
+			if(!bDebug && !GET_TEAM(eTeam).IsResourceRevealed((ResourceTypes)m_eResourceType) && !GET_TEAM(eTeam).isForceRevealedResource((ResourceTypes)m_eResourceType) && !IsResourceForceReveal(eTeam))
 			{
 				return NO_RESOURCE;
 			}
@@ -6920,8 +6909,7 @@ int CvPlot::getNumResourceForPlayer(PlayerTypes ePlayer) const
 		CvResourceInfo *pkResource = GC.getResourceInfo(eResource);
 		if (pkResource)
 		{
-			if (GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes) pkResource->getTechReveal()) && 
-				(pkResource->getPolicyReveal() == NO_POLICY || GET_PLAYER(ePlayer).GetPlayerPolicies()->HasPolicy((PolicyTypes)pkResource->getPolicyReveal())))
+			if (GET_PLAYER(ePlayer).IsResourceRevealed(eResource))
 			{
 				if(pkResource->getResourceUsage() == RESOURCEUSAGE_STRATEGIC)
 				{
@@ -7556,7 +7544,7 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 
 								if (eResource != NO_RESOURCE && pResourceInfo)
 								{
-									if (canHaveResource(eResource, false, true) && GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes)(pResourceInfo->getTechReveal())))
+									if (canHaveResource(eResource, false, true) && GET_TEAM(getTeam()).IsResourceRevealed(eResource))
 									{
 										vPossibleResources.push_back(eResource);
 									}
@@ -7693,7 +7681,7 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 				// Add Resource Quantity to total
 				if(getResourceType() != NO_RESOURCE)
 				{
-					if(bIgnoreResourceTechPrereq || GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes) GC.getResourceInfo(getResourceType())->getTechCityTrade()))
+					if(bIgnoreResourceTechPrereq || GET_TEAM(getTeam()).IsResourceCityTradeable(getResourceType()))
 					{
 						if (newImprovementEntry.IsExpandedImprovementResourceTrade(getResourceType()))
 						{
@@ -7810,7 +7798,7 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 				if(getResourceType() != NO_RESOURCE)
 				{
 					if(IsImprovedByGiftFromMajor() || // If old improvement was a gift, it ignored our tech limits, so be sure to remove resources properly
-						GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes) GC.getResourceInfo(getResourceType())->getTechCityTrade()))
+						GET_TEAM(getTeam()).IsResourceCityTradeable(getResourceType()))
 					{
 						if (GC.getImprovementInfo(eOldImprovement)->IsExpandedImprovementResourceTrade(getResourceType()))
 						{
@@ -8195,7 +8183,7 @@ void CvPlot::SetImprovementPillaged(bool bPillaged)
 		{
 			if(getTeam() != NO_TEAM)
 			{
-				if(GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes) GC.getResourceInfo(getResourceType())->getTechCityTrade()))
+				if(GET_TEAM(getTeam()).IsResourceCityTradeable(getResourceType()))
 				{
 					if(GC.getImprovementInfo(getImprovementType())->IsExpandedImprovementResourceTrade(getResourceType()))
 					{
@@ -10132,18 +10120,15 @@ int CvPlot::calculatePlayerYield(YieldTypes eYield, int iCurrentYield, PlayerTyp
 			const CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
 			if (pkResourceInfo)
 			{
-				if (kTeam.GetTeamTechs()->HasTech((TechTypes)pkResourceInfo->getTechReveal()))
+				if (kTeam.IsResourceRevealed(eResource))
 				{
-					if (pkResourceInfo->getPolicyReveal() == NO_POLICY || kPlayer.GetPlayerPolicies()->HasPolicy((PolicyTypes)pkResourceInfo->getPolicyReveal()))
-					{
-						// Extra yield from resources
-						iYield += pOwningCity->GetResourceExtraYield(eResource, eYield);
+					// Extra yield from resources
+					iYield += pOwningCity->GetResourceExtraYield(eResource, eYield);
 
-						// Extra yield from Trait
-						if (pkResourceInfo->getResourceUsage() == RESOURCEUSAGE_STRATEGIC)
-						{
-							iYield += pTraits->GetYieldChangeStrategicResources(eYield);
-						}
+					// Extra yield from Trait
+					if (pkResourceInfo->getResourceUsage() == RESOURCEUSAGE_STRATEGIC)
+					{
+						iYield += pTraits->GetYieldChangeStrategicResources(eYield);
 					}
 				}
 

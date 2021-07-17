@@ -930,7 +930,7 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 	// Add Resource Quantity to total
 	if (plot()->getResourceType(getTeam()) != NO_RESOURCE)
 	{
-		if (GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes)GC.getResourceInfo(plot()->getResourceType())->getTechCityTrade()))
+		if (GET_TEAM(getTeam()).IsResourceCityTradeable(plot()->getResourceType()))
 		{
 			owningPlayer.changeNumResourceTotal(plot()->getResourceType(), plot()->getNumResourceForPlayer(getOwner()));
 		}
@@ -9925,10 +9925,8 @@ ResourceTypes CvCity::GetResourceDemanded(bool bHideUnknown) const
 		CvResourceInfo* pInfo = GC.getResourceInfo(eResourceDemanded);
 		if (pInfo)
 		{
-			TechTypes eRevealTech = (TechTypes)pInfo->getTechReveal();
-
 			// Is there no Reveal Tech or do we have it?
-			if (eRevealTech == NO_TECH || GET_TEAM(getTeam()).GetTeamTechs()->HasTech(eRevealTech))
+			if (GET_TEAM(getTeam()).IsResourceRevealed(eResourceDemanded))
 			{
 				return eResourceDemanded;
 			}
@@ -15404,7 +15402,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 					ResourceTypes eLoopResource = pLoopPlot->getResourceType();
 					if (eLoopResource != NO_RESOURCE && GC.getResourceInfo(eLoopResource)->getResourceUsage() == RESOURCEUSAGE_LUXURY)
 					{
-						if (owningTeam.GetTeamTechs()->HasTech((TechTypes)GC.getResourceInfo(eLoopResource)->getTechCityTrade()))
+						if (owningTeam.IsResourceCityTradeable(eLoopResource))
 						{
 #if defined(MOD_BALANCE_CORE)
 							if (pLoopPlot == plot() || (pLoopPlot->getImprovementType() != NO_IMPROVEMENT && GC.getImprovementInfo(pLoopPlot->getImprovementType())->IsExpandedImprovementResourceTrade(eLoopResource)))
@@ -15435,7 +15433,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 					ResourceTypes eLoopResource = pLoopPlot->getResourceType();
 					if (eLoopResource != NO_RESOURCE && GC.getResourceInfo(eLoopResource)->getResourceUsage() == RESOURCEUSAGE_LUXURY)
 					{
-						if (owningTeam.GetTeamTechs()->HasTech((TechTypes)GC.getResourceInfo(eLoopResource)->getTechCityTrade()))
+						if (owningTeam.IsResourceCityTradeable(eLoopResource))
 						{
 #if defined(MOD_BALANCE_CORE)
 							if (pLoopPlot == plot() || (pLoopPlot->getImprovementType() != NO_IMPROVEMENT && GC.getImprovementInfo(pLoopPlot->getImprovementType())->IsExpandedImprovementResourceTrade(eLoopResource)))
@@ -29534,28 +29532,24 @@ int CvCity::GetIndividualPlotScore(const CvPlot* pPlot) const
 		CvResourceInfo* pkResource = GC.getResourceInfo(eResource);
 		if (pkResource)
 		{
-			if (GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes)pkResource->getTechReveal()))
+			if (GET_PLAYER(getOwner()).IsResourceRevealed(eResource))
 			{
-				int iRevealPolicy = pkResource->getPolicyReveal();
-				if (iRevealPolicy == NO_POLICY || GET_PLAYER(getOwner()).GetPlayerPolicies()->HasPolicy((PolicyTypes)iRevealPolicy))
+				ResourceUsageTypes eResourceUsage = GC.getResourceInfo(eResource)->getResourceUsage();
+				if (eResourceUsage == RESOURCEUSAGE_STRATEGIC)
 				{
-					ResourceUsageTypes eResourceUsage = GC.getResourceInfo(eResource)->getResourceUsage();
-					if (eResourceUsage == RESOURCEUSAGE_STRATEGIC)
-					{
-						iRtnValue += /* 50 */ GC.getAI_PLOT_VALUE_STRATEGIC_RESOURCE() * 3;
-					}
+					iRtnValue += /* 50 */ GC.getAI_PLOT_VALUE_STRATEGIC_RESOURCE() * 3;
+				}
 
-					// Luxury resource?
-					else if (eResourceUsage == RESOURCEUSAGE_LUXURY)
-					{
-						int iLuxuryValue = /* 40 */ GC.getAI_PLOT_VALUE_LUXURY_RESOURCE() * 3;
+				// Luxury resource?
+				else if (eResourceUsage == RESOURCEUSAGE_LUXURY)
+				{
+					int iLuxuryValue = /* 40 */ GC.getAI_PLOT_VALUE_LUXURY_RESOURCE() * 3;
 
-						// Luxury we don't have yet?
-						if (GET_PLAYER(getOwner()).getNumResourceTotal(eResource) == 0)
-							iLuxuryValue *= 2;
+					// Luxury we don't have yet?
+					if (GET_PLAYER(getOwner()).getNumResourceTotal(eResource) == 0)
+						iLuxuryValue *= 2;
 
-						iRtnValue += iLuxuryValue;
-					}
+					iRtnValue += iLuxuryValue;
 				}
 			}
 		}

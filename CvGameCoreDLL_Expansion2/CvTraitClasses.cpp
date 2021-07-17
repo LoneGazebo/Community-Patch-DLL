@@ -2147,6 +2147,24 @@ TradeRouteProductionSiphon CvTraitEntry::GetTradeRouteProductionSiphon(bool bInt
 }
 #endif
 
+#if defined(MOD_BALANCE_CORE)
+/// Accessor:: Does this trait change the reveal and/or the city trade techs for resources?
+AlternateResourceTechs CvTraitEntry::GetAlternateResourceTechs(ResourceTypes eResource) const
+{
+	std::map<int, AlternateResourceTechs>::const_iterator it = m_piiAlternateResourceTechs.find((int)eResource);
+	if (it != m_piiAlternateResourceTechs.end()) // find returns the iterator to map::end if the key eResource is not present
+	{
+		return it->second;
+	}
+
+	AlternateResourceTechs sDefault;
+	sDefault.m_eTechCityTrade = NO_TECH;
+	sDefault.m_eTechReveal = NO_TECH;
+
+	return sDefault;
+}
+#endif
+
 /// Has this trait become obsolete?
 bool CvTraitEntry::IsObsoleteByTech(TeamTypes eTeam)
 {
@@ -3590,6 +3608,37 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 		}
 	}
 
+#if defined(MOD_BALANCE_CORE)
+	//Populate m_piiAlternateResourceTechs
+	{
+		std::string sqlKey = "Trait_AlternateResourceTechs";
+		Database::Results* pResults = kUtility.GetResults(sqlKey);
+		if (pResults == NULL)
+		{
+			const char* szSQL = "select Resources.ID as ResourceID, A.TechReveal, A.TechCityTrade from Trait_AlternateResourceTechs A inner join Resources on Resources.Type = ResourceType where TraitType = ?";
+			pResults = kUtility.PrepareResults(sqlKey, szSQL);
+		}
+
+		pResults->Bind(1, szTraitType);
+
+		while (pResults->Step())
+		{
+			const int iResource = pResults->GetInt(0);
+			AlternateResourceTechs pTechs;
+			pTechs.m_eTechReveal = (TechTypes)GC.getInfoTypeForString(pResults->GetText("TechReveal"), true);
+			pTechs.m_eTechCityTrade = (TechTypes)GC.getInfoTypeForString(pResults->GetText("TechCityTrade"), true);
+
+			m_piiAlternateResourceTechs[iResource] = pTechs;
+		}
+
+		pResults->Reset();
+
+		//Trim extra memory off container since this is mostly read-only.
+		std::map<int, AlternateResourceTechs>(m_piiAlternateResourceTechs).swap(m_piiAlternateResourceTechs);
+	}
+#endif
+
+
 	return true;
 }
 
@@ -4829,6 +4878,12 @@ void CvPlayerTraits::InitPlayerTraits()
 			for(int iResource = 0; iResource < GC.getNumResourceInfos(); iResource++)
 			{
 				m_aiResourceQuantityModifier[iResource] = trait->GetResourceQuantityModifier(iResource);
+#if defined(MOD_BALANCE_CORE)
+				if (trait->GetAlternateResourceTechs((ResourceTypes)iResource).IsAlternateResourceTechs())
+				{
+					m_aiiAlternateResourceTechs[iResource] = trait->GetAlternateResourceTechs((ResourceTypes)iResource);
+				}
+#endif
 			}
 
 #if defined(MOD_BALANCE_CORE)
@@ -5483,6 +5538,9 @@ void CvPlayerTraits::Reset()
 #if defined(MOD_TRAITS_TRADE_ROUTE_PRODUCTION_SIPHON)
 	m_aiiTradeRouteProductionSiphon.clear();
 #endif
+#if defined(MOD_BALANCE_CORE)
+	m_aiiAlternateResourceTechs.clear();
+#endif
 	int iResourceLoop;
 	for(iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
 	{
@@ -6084,6 +6142,30 @@ TradeRouteProductionSiphon CvPlayerTraits::GetTradeRouteProductionSiphon(bool bI
 bool CvPlayerTraits::IsTradeRouteProductionSiphon() const
 {
 	return !m_aiiTradeRouteProductionSiphon.empty();
+}
+#endif
+
+#if defined(MOD_BALANCE_CORE)
+/// What are the alternate technologies for revealing resources
+AlternateResourceTechs CvPlayerTraits::GetAlternateResourceTechs(ResourceTypes eResource) const
+{
+	std::map<int, AlternateResourceTechs>::const_iterator it = m_aiiAlternateResourceTechs.find((int)eResource);
+	if (it != m_aiiAlternateResourceTechs.end()) // find returns the iterator to map::end if the key is not present
+	{
+		return it->second;
+	}
+
+	AlternateResourceTechs sBlank;
+	sBlank.m_eTechCityTrade = NO_TECH;
+	sBlank.m_eTechReveal = NO_TECH;
+
+	return sBlank;
+}
+
+/// Does the player's traits cause any resource to have a different reveal or city trade tech?
+bool CvPlayerTraits::IsAlternateResourceTechs() const
+{
+	return !m_aiiAlternateResourceTechs.empty();
 }
 #endif
 
@@ -7159,6 +7241,26 @@ FDataStream& operator>>(FDataStream& loadFrom, TradeRouteProductionSiphon& write
 	return loadFrom;
 }
 
+// AlternateResourceTechs
+template<typename AlternateResourceTechsT, typename Visitor>
+void AlternateResourceTechs::Serialize(AlternateResourceTechsT& alternateResourceTechs, Visitor& visitor)
+{
+	visitor(alternateResourceTechs.m_eTechReveal);
+	visitor(alternateResourceTechs.m_eTechCityTrade);
+}
+FDataStream& operator<<(FDataStream& saveTo, const AlternateResourceTechs& readFrom)
+{
+	CvStreamSaveVisitor serialVisitor(saveTo);
+	AlternateResourceTechs::Serialize(readFrom, serialVisitor);
+	return saveTo;
+}
+FDataStream& operator>>(FDataStream& loadFrom, AlternateResourceTechs& writeTo)
+{
+	CvStreamLoadVisitor serialVisitor(loadFrom);
+	AlternateResourceTechs::Serialize(writeTo, serialVisitor);
+	return loadFrom;
+}
+
 // --
 
 template<typename PlayerTraits, typename Visitor>
@@ -7394,6 +7496,7 @@ void CvPlayerTraits::Serialize(PlayerTraits& playerTraits, Visitor& visitor)
 	visitor(playerTraits.m_abTerrainClaimBoost);
 	visitor(playerTraits.m_pbiYieldFromRouteMovementInForeignTerritory);
 	visitor(playerTraits.m_aiiTradeRouteProductionSiphon);
+	visitor(playerTraits.m_aiiAlternateResourceTechs);
 	visitor(playerTraits.m_paiMovesChangeUnitCombat);
 	visitor(playerTraits.m_paiMaintenanceModifierUnitCombat);
 	visitor(playerTraits.m_ppaaiImprovementYieldChange);

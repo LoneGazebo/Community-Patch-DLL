@@ -2152,6 +2152,9 @@ public:
 
 #endif
 
+	bool IsResourceCityTradeable(ResourceTypes eResource, bool bCheckTeam = true) const;
+	bool IsResourceRevealed(ResourceTypes eResource, bool bCheckTeam = true) const;
+
 	int getSiphonLuxuryCount(PlayerTypes eFromPlayer) const;
 	void changeSiphonLuxuryCount(PlayerTypes eFromPlayer, int iChange);
 	

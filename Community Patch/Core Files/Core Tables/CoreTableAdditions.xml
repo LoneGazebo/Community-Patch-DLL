@@ -1070,6 +1070,14 @@
 		<Column name="Yield" type="integer" notnull="true"/>
 		<Column name="IsGrantedToTradePartner" type="boolean" default="true"/>
 	</Table>
+
+	<!-- TRAIT: Reveals a resource at a different tech. Tech can be earlier or later than normal. If no tech is defined in either tech row, the game will use the value defined in the Resources table. -->
+	<Table name="Trait_AlternateResourceTechs">
+		<Column name="TraitType" type="text" reference="Traits(Type)" notnull="true"/>
+		<Column name="ResourceType" type="text" reference="Resources(Type)" notnull="true"/>
+		<Column name="TechReveal" type="text" reference="Technologies(Type)"/>
+		<Column name="TechCityTrade" type="text" reference="Technologies(Type)"/>
+	</Table>
 	
 	<!-- RESOURCES: Allows Resources to grant bonuses if you control a monopoly of the resource. Must have DEALS functions enabled to use. -->
 	<Table name="Resource_YieldChangeFromMonopoly">

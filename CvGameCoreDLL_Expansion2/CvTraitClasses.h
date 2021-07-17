@@ -72,6 +72,32 @@ struct TradeRouteProductionSiphon
 FDataStream& operator<<(FDataStream&, const TradeRouteProductionSiphon&);
 FDataStream& operator>>(FDataStream&, TradeRouteProductionSiphon&);
 
+struct AlternateResourceTechs
+{
+	AlternateResourceTechs() :
+		m_eTechReveal(NO_TECH),
+		m_eTechCityTrade(NO_TECH)
+	{};
+
+	bool IsAlternateResourceTechs()
+	{
+		if (m_eTechReveal != NO_TECH || m_eTechCityTrade != NO_TECH)
+		{
+			return true;
+		}
+		return false;
+	}
+
+	template<typename AlternateResourceTechsT, typename Visitor>
+	static void Serialize(AlternateResourceTechsT& alternateResourceTechs, Visitor& visitor);
+
+	TechTypes m_eTechReveal;
+	TechTypes m_eTechCityTrade;
+};
+
+FDataStream& operator<<(FDataStream&, const AlternateResourceTechs&);
+FDataStream& operator>>(FDataStream&, AlternateResourceTechs&);
+
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //  CLASS:      CvTraitEntry
 //!  \brief		A single entry in the trait XML file
@@ -441,6 +467,9 @@ public:
 #if defined(MOD_TRAITS_TRADE_ROUTE_PRODUCTION_SIPHON)
 	TradeRouteProductionSiphon GetTradeRouteProductionSiphon(const bool bInternationalOnly) const;
 #endif
+#if defined(MOD_BALANCE_CORE)
+	AlternateResourceTechs GetAlternateResourceTechs(const ResourceTypes eResource) const;
+#endif
 	bool IsObsoleteByTech(TeamTypes eTeam);
 	bool IsEnabledByTech(TeamTypes eTeam);
 #if defined(MOD_TRAITS_OTHER_PREREQS)
@@ -802,6 +831,9 @@ protected:
 #endif
 #if defined(MOD_TRAITS_TRADE_ROUTE_PRODUCTION_SIPHON)
 	std::map<bool, TradeRouteProductionSiphon> m_biiTradeRouteProductionSiphon;
+#endif
+#if defined(MOD_BALANCE_CORE)
+	std::map<int, AlternateResourceTechs> m_piiAlternateResourceTechs;
 #endif
 	std::vector<FreeResourceXCities> m_aFreeResourceXCities;
 	std::vector<bool> m_abNoTrainUnitClass;
@@ -1968,6 +2000,11 @@ public:
 	bool IsTradeRouteProductionSiphon() const;
 #endif
 
+#if defined(MOD_BALANCE_CORE)
+	AlternateResourceTechs GetAlternateResourceTechs(ResourceTypes eResource) const;
+	bool IsAlternateResourceTechs() const;
+#endif
+
 	// Public functions to make trait-based game state changes
 	void AddUniqueLuxuries(CvCity *pCity);
 #if defined(MOD_BALANCE_CORE)
@@ -2364,6 +2401,9 @@ private:
 #endif
 #if defined(MOD_TRAITS_TRADE_ROUTE_PRODUCTION_SIPHON)
 	std::map<bool, TradeRouteProductionSiphon> m_aiiTradeRouteProductionSiphon;
+#endif
+#if defined(MOD_BALANCE_CORE)
+	std::map<int, AlternateResourceTechs> m_aiiAlternateResourceTechs;
 #endif
 #if defined(MOD_API_UNIFIED_YIELDS)
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiBuildingClassYieldChange;

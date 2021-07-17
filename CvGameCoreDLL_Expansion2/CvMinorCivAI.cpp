@@ -9264,20 +9264,13 @@ ResourceTypes CvMinorCivAI::GetNearbyResourceForQuest(PlayerTypes ePlayer)
 			}
 
 			// Player has to be able to see it
-			eRevealTech = (TechTypes) pkResourceInfo->getTechReveal();
-			if(!GET_TEAM(eTeam).GetTeamTechs()->HasTech(eRevealTech))
-			{
-				continue;
-			}
-			int iRevealPolicy = pkResourceInfo->getPolicyReveal();
-			if (iRevealPolicy != NO_POLICY && !(GET_PLAYER(ePlayer).GetPlayerPolicies()->HasPolicy((PolicyTypes)iRevealPolicy)))
+			if(!GET_TEAM(eTeam).IsResourceRevealed(eResource))
 			{
 				continue;
 			}
 
 			// Player has to be able to use it
-			eConnectTech = (TechTypes) pkResourceInfo->getTechCityTrade();
-			if(!GET_TEAM(eTeam).GetTeamTechs()->HasTech(eConnectTech))
+			if(!GET_TEAM(eTeam).IsResourceCityTradeable(eResource))
 			{
 				continue;
 			}
@@ -11066,8 +11059,8 @@ void CvMinorCivAI::DoUpdateAlliesResourceBonus(PlayerTypes eNewAlly, PlayerTypes
 		const CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
 		if (pkResourceInfo == NULL)
 			continue;
-
-		if (TechTestPlayer != NO_PLAYER && (TechTypes)pkResourceInfo->getTechReveal() != NO_TECH && !GET_TEAM(GET_PLAYER(TechTestPlayer).getTeam()).GetTeamTechs()->HasTech((TechTypes)pkResourceInfo->getTechReveal()))
+		const CvPlayer * pPlayer = &GET_PLAYER(TechTestPlayer);
+		if (TechTestPlayer != NO_PLAYER && pPlayer && !pPlayer->IsResourceRevealed(eResource))
 			continue;
 
 		eUsage = pkResourceInfo->getResourceUsage();

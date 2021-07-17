@@ -3999,7 +3999,7 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 				continue;
 		}
 		
-		if (!GET_TEAM(kPlayer.getTeam()).GetTeamTechs()->HasTech((TechTypes)pkResourceInfo->getTechReveal()))
+		if (!kPlayer.IsResourceRevealed(eResource))
 			continue;
 
 		//expensive

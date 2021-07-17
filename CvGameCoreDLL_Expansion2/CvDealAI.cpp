@@ -7031,7 +7031,16 @@ int CvDealAI::GetTechValue(TechTypes eTech, bool bFromMe, PlayerTypes eOtherPlay
 		CvResourceInfo* pResourceInfo = GC.getResourceInfo((ResourceTypes) iI);
 		if(pResourceInfo)
 		{
-			if(pResourceInfo->getTechReveal() == eTech)
+			TechTypes eRevealTech = (TechTypes)pResourceInfo->getTechReveal();
+			if (GetPlayer()->GetPlayerTraits()->IsAlternateResourceTechs())
+			{
+				TechTypes eAltRevealTech = GetPlayer()->GetPlayerTraits()->GetAlternateResourceTechs((ResourceTypes)iI).m_eTechReveal;
+				if (eAltRevealTech != NO_TECH)
+				{
+					eRevealTech = eAltRevealTech;
+				}
+			}
+			if(eRevealTech == eTech)
 			{
 				iTechMod += 2;
 			}
