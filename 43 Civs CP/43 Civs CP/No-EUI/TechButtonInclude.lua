@@ -84,6 +84,21 @@ end
 
 function AddSmallButtonsToTechButton( thisTechButtonInstance, tech, maxSmallButtons, textureSize )
 	-- This has a few assumptions, the main one being that the small buttons are named "B1", "B2", "B3"... and that GatherInfoAboutUniqueStuff() has been called before this
+	
+	-- get some info we need
+	local thisPlayer = nil;
+	local leaderID = -1;
+	local traitType = "";
+	if(Game ~= nil) then
+		thisPlayer = Players[Game.GetActivePlayer()];
+		if thisPlayer ~= nil then
+			leaderID = thisPlayer:GetLeaderType();
+			for leaderTraits in DB.Query( "SELECT TraitType FROM Leader_Traits INNER JOIN Leaders on Leaders.Type = LeaderType WHERE Leaders.ID = " .. leaderID ) do
+				traitType = leaderTraits.TraitType;
+				break;
+			end
+		end
+	end
 
 	-- first, hide the ones we aren't using
 	for buttonNum = 1, maxSmallButtons, 1 do
@@ -129,14 +144,35 @@ function AddSmallButtonsToTechButton( thisTechButtonInstance, tech, maxSmallButt
  	end
 
  	for thisResourceInfo in GameInfo.Resources(string.format("TechReveal = '%s'", techType)) do
+		-- check if the current player has an alternate unlock instead (we shall not check the team, because 1: niche case, 2: its complicated)
+		local isAltTech = false;
+		if thisPlayer ~= nil then
+			for altUnlock in DB.Query( "SELECT * FROM Trait_AlternateResourceTechs WHERE TraitType = '" .. traitType .. "' AND ResourceType = '" .. thisResourceInfo.Type .. "'" ) do
+				isAltTech = true;
+				break;
+			end
+		end
  		-- if this tech grants this player the ability to reveal this resource
-		local buttonName = "B"..tostring(buttonNum);
-		local thisButton = thisTechButtonInstance[buttonName];
-		if thisButton then
-			AdjustArtOnGrantedResourceButton( thisButton, thisResourceInfo, textureSize );
-			buttonNum = buttonNum + 1;
+		if isAltTech == false then
+			local buttonName = "B"..tostring(buttonNum);
+			local thisButton = thisTechButtonInstance[buttonName];
+			if thisButton then
+				AdjustArtOnGrantedResourceButton( thisButton, thisResourceInfo, textureSize );
+				buttonNum = buttonNum + 1;
+			end
 		end
  	end
+	-- alternate reveal tech specific to this leader
+	for thisAltTech in DB.Query( "SELECT ResourceType FROM Trait_AlternateResourceTechs WHERE TraitType = '" .. traitType .. "' AND TechReveal = '" .. techType .. "'" ) do
+		for thisResourceInfo in GameInfo.Resources(string.format("Type = '%s'", thisAltTech.ResourceType)) do
+			local buttonName = "B"..tostring(buttonNum);
+			local thisButton = thisTechButtonInstance[buttonName];
+			if thisButton then
+				AdjustArtOnGrantedResourceButton( thisButton, thisResourceInfo, textureSize );
+				buttonNum = buttonNum + 1;
+			end
+		end
+	end
  
  	for thisProjectInfo in GameInfo.Projects(string.format("TechPrereq = '%s'", techType)) do
  		-- if this tech grants this player the ability to build this project

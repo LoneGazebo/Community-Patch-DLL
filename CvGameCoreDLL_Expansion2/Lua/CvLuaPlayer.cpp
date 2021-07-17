@@ -64,6 +64,8 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetResourcesMisc);
 	Method(IsShowImports);
 #endif
+	Method(IsResourceCityTradeable);
+	Method(IsResourceRevealed);
 	Method(DisbandUnit);
 	Method(AddFreeUnit);
 
@@ -1646,6 +1648,32 @@ int CvLuaPlayer::lIsShowImports(lua_State* L)
 	return 1;
 }
 #endif
+//------------------------------------------------------------------------------
+//bool IsResourceCityTradeable(ResourceTypes eResource, bool bCheckTeam = true) const;
+int CvLuaPlayer::lIsResourceCityTradeable(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const ResourceTypes eResource = (ResourceTypes)lua_tointeger(L, 2);
+	const bool bCheckTeam = luaL_optbool(L, 3, true);
+
+	const bool bResult = pkPlayer->IsResourceCityTradeable(eResource, bCheckTeam);
+	lua_pushboolean(L, bResult);
+
+	return 1;
+}
+//------------------------------------------------------------------------------
+//bool IsResourceRevealed(ResourceTypes eResource, bool bCheckTeam = true) const;
+int CvLuaPlayer::lIsResourceRevealed(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const ResourceTypes eResource = (ResourceTypes)lua_tointeger(L, 2);
+	const bool bCheckTeam = luaL_optbool(L, 3, true);
+
+	const bool bResult = pkPlayer->IsResourceRevealed(eResource, bCheckTeam);
+	lua_pushboolean(L, bResult);
+
+	return 1;
+}
 //------------------------------------------------------------------------------
 //void disbandUnit(bool bAnnounce);
 int CvLuaPlayer::lDisbandUnit(lua_State* L)

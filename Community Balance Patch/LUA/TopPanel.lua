@@ -203,8 +203,8 @@ function UpdateData()
 					
 					bShowResource = false;
 					
-					if (pTeam:GetTeamTechs():HasTech(GameInfoTypes[pResource.TechReveal])) then
-						if (pTeam:GetTeamTechs():HasTech(GameInfoTypes[pResource.TechCityTrade])) then
+					if (pPlayer:IsResourceRevealed(iResourceLoop)) then
+						if (pPlayer:IsResourceCityTradeable(iResourceLoop)) then
 							bShowResource = true;
 						end
 					end
@@ -1368,8 +1368,8 @@ function ResourcesTipHandler( control )
 			
 			bShowResource = false;
 			
-			if (pTeam:GetTeamTechs():HasTech(GameInfoTypes[pResource.TechReveal])) then
-				if (pTeam:GetTeamTechs():HasTech(GameInfoTypes[pResource.TechCityTrade])) then
+			if (pPlayer:IsResourceRevealed(iResourceLoop)) then
+				if (pPlayer:IsResourceCityTradeable(iResourceLoop)) then
 					bShowResource = true;
 				end
 			end
