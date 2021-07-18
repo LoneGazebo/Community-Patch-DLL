@@ -19513,11 +19513,12 @@ void CvPlayer::DoYieldsFromKill(CvUnit* pAttackingUnit, CvUnit* pDefendingUnit, 
 	if (MOD_BALANCE_CORE && pDefendingUnit != NULL && pDefendingUnit->IsCombatUnit())
 	{
 		CvCity* pOriginCity = pCity;
+		CvCity* pCapitalCity = getCapitalCity();
 		if (pAttackingUnit != NULL)
 		{
 			pOriginCity = pAttackingUnit->getOriginCity();
 			if (pOriginCity == NULL)
-				pOriginCity = getCapitalCity();
+				pOriginCity = pCapitalCity;
 		}
 		else if (pDefendingUnit->plot()->getOwner() == GetID())
 		{
@@ -19527,7 +19528,18 @@ void CvPlayer::DoYieldsFromKill(CvUnit* pAttackingUnit, CvUnit* pDefendingUnit, 
 		doInstantYield(INSTANT_YIELD_TYPE_VICTORY, false, NO_GREATPERSON, NO_BUILDING, 0, true, NO_PLAYER, NULL, false, pOriginCity, pDefendingUnit->getDomainType() == DOMAIN_SEA, true, false, NO_YIELD, pDefendingUnit, NO_TERRAIN, NULL, NULL, pAttackingUnit);
 		doInstantYield(INSTANT_YIELD_TYPE_VICTORY_GLOBAL, false, NO_GREATPERSON, NO_BUILDING, 0, true, NO_PLAYER, NULL, false, NULL, pDefendingUnit->getDomainType() == DOMAIN_SEA, true, false, NO_YIELD, pDefendingUnit, NO_TERRAIN, NULL, NULL, pAttackingUnit);
 
-		doInstantGreatPersonProgress(INSTANT_YIELD_TYPE_VICTORY, false, pOriginCity);
+		if (pCapitalCity)
+		{
+			doInstantGreatPersonProgress(INSTANT_YIELD_TYPE_VICTORY, false, pCapitalCity);
+			if (GetPlayerTraits()->IsRandomGreatPersonProgressFromKills())
+			{
+				std::pair <GreatPersonTypes, int> aResults = GetPlayerTraits()->GetRandomGreatPersonProgressFromKills(pAttackingUnit->GetID() + pAttackingUnit->getMoves() + pDefendingUnit->GetID() + pDefendingUnit->getMoves());
+				if (aResults.first != NO_GREATPERSON && aResults.second > 0)
+				{
+					doInstantGreatPersonProgress(INSTANT_YIELD_TYPE_VICTORY, false, pCapitalCity, NO_BUILDING, aResults.second, aResults.first);
+				}
+			}
+		}
 	}
 #endif
 }
@@ -28459,7 +28471,7 @@ void CvPlayer::doPolicyGEorGM(int iPolicyGEorGM)
 }
 
 //	--------------------------------------------------------------------------------
-void CvPlayer::doInstantGreatPersonProgress(InstantYieldType iType, bool bSuppress, CvCity* pCity, BuildingTypes eBuilding)
+void CvPlayer::doInstantGreatPersonProgress(InstantYieldType iType, bool bSuppress, CvCity* pCity, BuildingTypes eBuilding, int iPassValue, GreatPersonTypes ePassGreatPerson)
 {
 	CvCity* pLoopCity;
 	CvCity* pCapital = getCapitalCity();
@@ -28489,6 +28501,9 @@ void CvPlayer::doInstantGreatPersonProgress(InstantYieldType iType, bool bSuppre
 		{
 			GreatPersonTypes eGreatPerson = (GreatPersonTypes)iGreatPersonTypes;
 			if (eGreatPerson == NULL || pCapital == NULL)
+				continue;
+
+			if (ePassGreatPerson != NO_GREATPERSON && ePassGreatPerson != eGreatPerson)
 				continue;
 
 			eSpecialist = (SpecialistTypes)GC.getGreatPersonInfo(eGreatPerson)->GetSpecialistType();
@@ -28530,7 +28545,16 @@ void CvPlayer::doInstantGreatPersonProgress(InstantYieldType iType, bool bSuppre
 				}
 				case INSTANT_YIELD_TYPE_VICTORY:
 				{
-					iValue += GetPlayerTraits()->GetGreatPersonProgressFromKills(eGreatPerson);
+					// if nothing was passed in, we just take from the Trait_GreatPersonProgressFromKills table
+					if (iPassValue == 0 && ePassGreatPerson == NO_GREATPERSON)
+					{
+						iValue += GetPlayerTraits()->GetGreatPersonProgressFromKills(eGreatPerson);
+					}
+					// if there is a great person passed in, we use the Trait_RandomGreatPersonProgressFromKills table (called by the caller already)
+					else if (ePassGreatPerson == eGreatPerson)
+					{
+						iValue += iPassValue;
+					}
 				}
 			}
 

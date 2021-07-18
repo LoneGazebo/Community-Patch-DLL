@@ -373,6 +373,7 @@ public:
 	int GetDomainFreeExperienceModifier(DomainTypes eDomain) const;
 	int GetGreatPersonProgressFromPolicyUnlock(GreatPersonTypes eIndex) const;
 	int GetGreatPersonProgressFromKills(GreatPersonTypes eIndex) const;
+	int GetRandomGreatPersonProgressFromKills(GreatPersonTypes eIndex) const;
 	int GetFreeUnitClassesDOW(UnitClassTypes eUnitClass) const;
 	int GetYieldFromTileEarnTerrainType(TerrainTypes eIndex1, YieldTypes eIndex2) const;
 	int GetYieldFromTilePurchaseTerrainType(TerrainTypes eIndex1, YieldTypes eIndex2) const;
@@ -778,6 +779,7 @@ protected:
 	int* m_piDomainFreeExperienceModifier;
 	int* m_piGreatPersonProgressFromPolicyUnlock;
 	std::map<int, int> m_piGreatPersonProgressFromKills;
+	std::map<int, int> m_piRandomGreatPersonProgressFromKills;
 	int* m_piFreeUnitClassesDOW;
 #endif
 #if defined(MOD_BALANCE_CORE) && defined(MOD_TRAITS_YIELD_FROM_ROUTE_MOVEMENT_IN_FOREIGN_TERRITORY)
@@ -1787,6 +1789,8 @@ public:
 		return ((uint)eIndex < m_aiGreatPersonProgressFromPolicyUnlock.size()) ? m_aiGreatPersonProgressFromPolicyUnlock[(int)eIndex] : 0;
 	};
 	int GetGreatPersonProgressFromKills(GreatPersonTypes eIndex) const;
+	bool IsRandomGreatPersonProgressFromKills() const;
+	std::pair<GreatPersonTypes, int> GetRandomGreatPersonProgressFromKills(int iAdditionalSeed = 0) const;
 	int GetFreeUnitClassesDOW(UnitClassTypes eUnitClass) const
 	{
 		return ((uint)eUnitClass < m_aiFreeUnitClassesDOW.size()) ? m_aiFreeUnitClassesDOW[(int)eUnitClass] : 0;
@@ -2438,6 +2442,7 @@ private:
 	std::vector<int> m_aiDomainFreeExperienceModifier;
 	std::vector<int> m_aiGreatPersonProgressFromPolicyUnlock;
 	std::map<int, int> m_aiGreatPersonProgressFromKills;
+	std::map<int, int> m_aiRandomGreatPersonProgressFromKills;
 #endif
 #if defined(MOD_API_UNIFIED_YIELDS)
 	std::vector<int> m_aiGreatPersonCostReduction;

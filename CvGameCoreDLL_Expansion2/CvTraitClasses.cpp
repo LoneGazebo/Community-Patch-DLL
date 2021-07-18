@@ -323,6 +323,7 @@ CvTraitEntry::CvTraitEntry() :
 	m_piGoldenAgeFromGreatPersonBirth(NULL),
 	m_piGreatPersonProgressFromPolicyUnlock(NULL),
 	m_piGreatPersonProgressFromKills(),
+	m_piRandomGreatPersonProgressFromKills(),
 #endif
 #endif
 	m_ppiUnimprovedFeatureYieldChanges(NULL)
@@ -1886,6 +1887,20 @@ int CvTraitEntry::GetGreatPersonProgressFromKills(GreatPersonTypes eIndex) const
 
 	std::map<int, int>::const_iterator it = m_piGreatPersonProgressFromKills.find((int)eIndex);
 	if (it != m_piGreatPersonProgressFromKills.end()) // find returns the iterator to map::end if the key eIndex is not present in the map
+	{
+		return it->second;
+	}
+
+	return 0;
+}
+
+int CvTraitEntry::GetRandomGreatPersonProgressFromKills(GreatPersonTypes eIndex) const
+{
+	CvAssertMsg((int)eIndex < GC.getNumGreatPersonInfos(), "Yield type out of bounds");
+	CvAssertMsg((int)eIndex > -1, "Index out of bounds");
+
+	std::map<int, int>::const_iterator it = m_piRandomGreatPersonProgressFromKills.find((int)eIndex);
+	if (it != m_piRandomGreatPersonProgressFromKills.end()) // find returns the iterator to map::end if the key eIndex is not present in the map
 	{
 		return it->second;
 	}
@@ -3568,6 +3583,31 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 		//Trim extra memory off container since this is mostly read-only.
 		std::map<int, int>(m_piGreatPersonProgressFromKills).swap(m_piGreatPersonProgressFromKills);
 	}
+
+	//RandomGreatPersonProgressFromKills
+	{
+		std::string strKey("Trait_RandomGreatPersonProgressFromKills");
+		Database::Results* pResults = kUtility.GetResults(strKey);
+		if (pResults == NULL)
+		{
+			pResults = kUtility.PrepareResults(strKey, "select GreatPersons.ID as GreatPersonID, Value from Trait_RandomGreatPersonProgressFromKills inner join GreatPersons on GreatPersons.Type = GreatPersonType where TraitType = ?");
+		}
+
+		pResults->Bind(1, szTraitType);
+
+		while (pResults->Step())
+		{
+			const int iGreatPerson = pResults->GetInt(0);
+			const int iValue = pResults->GetInt(1);
+
+			m_piRandomGreatPersonProgressFromKills[iGreatPerson] += iValue;
+		}
+
+		pResults->Reset();
+
+		//Trim extra memory off container since this is mostly read-only.
+		std::map<int, int>(m_piRandomGreatPersonProgressFromKills).swap(m_piRandomGreatPersonProgressFromKills);
+	}
 #endif
 
 	//UnimprovedFeatureYieldChanges
@@ -3869,6 +3909,16 @@ void CvPlayerTraits::SetIsWarmonger()
 			return;
 		}
 	}
+
+	for (int iGreatPerson = 0; iGreatPerson < GC.getNumGreatPersonInfos(); iGreatPerson++)
+	{
+		GreatPersonTypes eGreatPerson = (GreatPersonTypes)iGreatPerson;
+		if (GetGreatPersonProgressFromKills(eGreatPerson) > 0)
+		{
+			m_bIsWarmonger = true;
+			return;
+		}
+	}
 #endif
 
 	if (IsReconquista() ||
@@ -3879,7 +3929,8 @@ void CvPlayerTraits::SetIsWarmonger()
 		GetBullyYieldMultiplierAnnex() != 0 ||
 		(GetPuppetPenaltyReduction() != 0 && !IsNoAnnexing()) || // puppet & annexing - Warmonger, puppet & no annexing - Smaller
 		IsFightWellDamaged() ||
-		IsEmbarkedToLandFlatCost())
+		IsEmbarkedToLandFlatCost() ||
+		IsRandomGreatPersonProgressFromKills())
 	{
 		m_bIsWarmonger = true;
 		return;
@@ -4060,11 +4111,22 @@ void CvPlayerTraits::SetIsSmaller()
 		}
 	}
 
+	for (int iGreatPerson = 0; iGreatPerson < GC.getNumGreatPersonInfos(); iGreatPerson++)
+	{
+		GreatPersonTypes eGreatPerson = (GreatPersonTypes)iGreatPerson;
+		if (GetGreatPersonProgressFromKills(eGreatPerson) > 0)
+		{
+			m_bIsSmaller = true;
+			return;
+		}
+	}
+
 	if (IsImportsCountTowardsMonopolies() ||
 		IsAdoptionFreeTech() ||
 		IsPopulationBoostReligion() ||
 		IsNoAnnexing() ||
-		IsTechBoostFromCapitalScienceBuildings())
+		IsTechBoostFromCapitalScienceBuildings() ||
+		IsRandomGreatPersonProgressFromKills())
 	{
 		m_bIsSmaller = true;
 		return;
@@ -4935,7 +4997,14 @@ void CvPlayerTraits::InitPlayerTraits()
 				m_aiGoldenAgeGreatPersonRateModifier[iGreatPersonTypes] = trait->GetGoldenAgeGreatPersonRateModifier((GreatPersonTypes)iGreatPersonTypes);
 				m_aiGoldenAgeFromGreatPersonBirth[iGreatPersonTypes] = trait->GetGoldenAgeFromGreatPersonBirth((GreatPersonTypes)iGreatPersonTypes);
 				m_aiGreatPersonProgressFromPolicyUnlock[iGreatPersonTypes] = trait->GetGreatPersonProgressFromPolicyUnlock((GreatPersonTypes)iGreatPersonTypes);
-				m_aiGreatPersonProgressFromKills[iGreatPersonTypes] = trait->GetGreatPersonProgressFromKills((GreatPersonTypes)iGreatPersonTypes);
+				if (trait->GetGreatPersonProgressFromKills((GreatPersonTypes)iGreatPersonTypes) > 0)
+				{
+					m_aiGreatPersonProgressFromKills[iGreatPersonTypes] = trait->GetGreatPersonProgressFromKills((GreatPersonTypes)iGreatPersonTypes);
+				}
+				if (trait->GetRandomGreatPersonProgressFromKills((GreatPersonTypes)iGreatPersonTypes) > 0)
+				{
+					m_aiRandomGreatPersonProgressFromKills[iGreatPersonTypes] = trait->GetRandomGreatPersonProgressFromKills((GreatPersonTypes)iGreatPersonTypes);
+				}
 			}
 
 			for (int iDomain = 0; iDomain < NUM_DOMAIN_TYPES; iDomain++)
@@ -5062,6 +5131,7 @@ void CvPlayerTraits::Uninit()
 	m_aiGoldenAgeFromGreatPersonBirth.clear();
 	m_aiGreatPersonProgressFromPolicyUnlock.clear();
 	m_aiGreatPersonProgressFromKills.clear();
+	m_aiRandomGreatPersonProgressFromKills.clear();
 #endif
 	m_aiNumPledgesDomainProdMod.clear();
 	m_aiFreeUnitClassesDOW.clear();
@@ -5537,6 +5607,7 @@ void CvPlayerTraits::Reset()
 	m_aiGoldenAgeFromGreatPersonBirth.clear();
 	m_aiGreatPersonProgressFromPolicyUnlock.clear();
 	m_aiGreatPersonProgressFromKills.clear();
+	m_aiRandomGreatPersonProgressFromKills.clear();
 
 	m_aiGreatPersonCostReduction.resize(GC.getNumGreatPersonInfos());
 	m_aiPerPuppetGreatPersonRateModifier.resize(GC.getNumGreatPersonInfos());
@@ -5688,6 +5759,38 @@ int CvPlayerTraits::GetGreatPersonProgressFromKills(GreatPersonTypes eIndex) con
 	}
 
 	return 0;
+}
+
+/// Does this civilization get random great person progress when killing enemy units?
+bool CvPlayerTraits::IsRandomGreatPersonProgressFromKills() const
+{
+	return !m_aiRandomGreatPersonProgressFromKills.empty();
+}
+
+/// Instant random great person progress when killing enemy units
+std::pair<GreatPersonTypes, int> CvPlayerTraits::GetRandomGreatPersonProgressFromKills(int iAdditionalSeed) const
+{
+	// how many options we have
+	int iSize = m_aiRandomGreatPersonProgressFromKills.size();
+	int iChoice = -1;
+
+	if (iSize > 0)
+	{
+		// get our pseudo RNG seed
+		iChoice = GC.getGame().getSmallFakeRandNum(m_aiRandomGreatPersonProgressFromKills.size(), m_pPlayer->GetPseudoRandomSeed() + GC.getGame().getNumCities() + iAdditionalSeed);
+
+		// access the element at the position of our RNG seed
+		for (std::map<int, int>::const_iterator it = m_aiRandomGreatPersonProgressFromKills.begin(); it != m_aiRandomGreatPersonProgressFromKills.end(); it++) // find returns the iterator to map::end if the key eIndex is not present in the map
+		{
+			if (iChoice == 0)
+			{
+				return std::make_pair((GreatPersonTypes)it->first, it->second);
+			}
+			iChoice--;
+		}
+	}
+
+	return std::make_pair(NO_GREATPERSON, 0);
 }
 #endif
 
@@ -7537,6 +7640,7 @@ void CvPlayerTraits::Serialize(PlayerTraits& playerTraits, Visitor& visitor)
 	visitor(playerTraits.m_aiGoldenAgeFromGreatPersonBirth);
 	visitor(playerTraits.m_aiGreatPersonProgressFromPolicyUnlock);
 	visitor(playerTraits.m_aiGreatPersonProgressFromKills);
+	visitor(playerTraits.m_aiRandomGreatPersonProgressFromKills);
 	visitor(playerTraits.m_aiNumPledgesDomainProdMod);
 	visitor(playerTraits.m_aiFreeUnitClassesDOW);
 	visitor(playerTraits.m_aiDomainFreeExperienceModifier);

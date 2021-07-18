@@ -465,6 +465,12 @@
 		<Column name="GreatPersonType" type="text" reference="GreatPersons(Type)"/>
 		<Column name="Value" type="integer" default="0"/>
 	</Table>
+	<Table name="Trait_RandomGreatPersonProgressFromKills">
+		<!-- TRAIT: Random Great Person progress in the capital when killing an enemy unit. Game will pick one great person type out of multiple defined in this table. -->
+		<Column name="TraitType" type="text" reference="Traits(Type)"/>
+		<Column name="GreatPersonType" type="text" reference="GreatPersons(Type)"/>
+		<Column name="Value" type="integer" default="0"/>
+	</Table>
 	<Table name="Building_GreatPersonProgressFromConstruction">
 		<!-- BUILDING: Great Person progress in the city when a building is contructed. Bonus only granted if the constructed building at least the same era as the stated era. -->
 		<Column name="BuildingType" type="text" reference="Buildings(Type)"/>
