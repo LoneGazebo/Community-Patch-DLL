@@ -19526,6 +19526,8 @@ void CvPlayer::DoYieldsFromKill(CvUnit* pAttackingUnit, CvUnit* pDefendingUnit, 
 
 		doInstantYield(INSTANT_YIELD_TYPE_VICTORY, false, NO_GREATPERSON, NO_BUILDING, 0, true, NO_PLAYER, NULL, false, pOriginCity, pDefendingUnit->getDomainType() == DOMAIN_SEA, true, false, NO_YIELD, pDefendingUnit, NO_TERRAIN, NULL, NULL, pAttackingUnit);
 		doInstantYield(INSTANT_YIELD_TYPE_VICTORY_GLOBAL, false, NO_GREATPERSON, NO_BUILDING, 0, true, NO_PLAYER, NULL, false, NULL, pDefendingUnit->getDomainType() == DOMAIN_SEA, true, false, NO_YIELD, pDefendingUnit, NO_TERRAIN, NULL, NULL, pAttackingUnit);
+
+		doInstantGreatPersonProgress(INSTANT_YIELD_TYPE_VICTORY, false, pOriginCity);
 	}
 #endif
 }
@@ -28526,6 +28528,10 @@ void CvPlayer::doInstantGreatPersonProgress(InstantYieldType iType, bool bSuppre
 					}
 					break;
 				}
+				case INSTANT_YIELD_TYPE_VICTORY:
+				{
+					iValue += GetPlayerTraits()->GetGreatPersonProgressFromKills(eGreatPerson);
+				}
 			}
 
 			// 2nd step: Apply the desired amount of GP points to the loop city
@@ -28583,6 +28589,7 @@ void CvPlayer::doInstantGreatPersonProgress(InstantYieldType iType, bool bSuppre
 			strSummary << pCity->getNameKey();
 		}
 		Localization::String localizedText;
+		bool bImmediate = false;
 		switch (iType)
 		{
 			case INSTANT_YIELD_TYPE_POLICY_UNLOCK:
@@ -28601,9 +28608,10 @@ void CvPlayer::doInstantGreatPersonProgress(InstantYieldType iType, bool bSuppre
 					//We do this at the player level once per turn.
 					addInstantGreatPersonProgressText(iType, localizedText.toUTF8());
 				}
-				return;
+				break;
 			}
 			case INSTANT_YIELD_TYPE_CONSTRUCTION:
+			{
 				if (eBuilding != NO_BUILDING)
 				{
 					CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
@@ -28625,18 +28633,30 @@ void CvPlayer::doInstantGreatPersonProgress(InstantYieldType iType, bool bSuppre
 						}
 					}
 				}
-				return;
-		}
-		if (pCity == NULL)
-		{
-			if (pCapital != NULL)
-			{
-				pNotifications->Add((NotificationTypes)FString::Hash("NOTIFICATION_INSTANT_YIELD"), localizedText.toUTF8(), strSummary.toUTF8(), pCapital->getX(), pCapital->getY(), pCapital->GetID());
+				break;
 			}
+			case INSTANT_YIELD_TYPE_VICTORY:
+			{
+				localizedText = Localization::Lookup("TXT_KEY_INSTANT_YIELD_VICTORY");
+				localizedText << totalgpString;
+				bImmediate = true;
+				break;
+			}
+
 		}
-		else
+		if (bImmediate)
 		{
-			pNotifications->Add((NotificationTypes)FString::Hash("NOTIFICATION_INSTANT_YIELD"), localizedText.toUTF8(), strSummary.toUTF8(), pCity->getX(), pCity->getY(), pCity->GetID());
+			if (pCity == NULL)
+			{
+				if (pCapital != NULL)
+				{
+					pNotifications->Add((NotificationTypes)FString::Hash("NOTIFICATION_INSTANT_YIELD"), localizedText.toUTF8(), strSummary.toUTF8(), pCapital->getX(), pCapital->getY(), pCapital->GetID());
+				}
+			}
+			else
+			{
+				pNotifications->Add((NotificationTypes)FString::Hash("NOTIFICATION_INSTANT_YIELD"), localizedText.toUTF8(), strSummary.toUTF8(), pCity->getX(), pCity->getY(), pCity->GetID());
+			}
 		}
 	}
 	// 4th step: Loop through all cities again to check for GP spawns

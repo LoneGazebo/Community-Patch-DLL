@@ -322,6 +322,7 @@ CvTraitEntry::CvTraitEntry() :
 #if defined(MOD_BALANCE_CORE)
 	m_piGoldenAgeFromGreatPersonBirth(NULL),
 	m_piGreatPersonProgressFromPolicyUnlock(NULL),
+	m_piGreatPersonProgressFromKills(),
 #endif
 #endif
 	m_ppiUnimprovedFeatureYieldChanges(NULL)
@@ -1876,6 +1877,20 @@ int CvTraitEntry::GetGreatPersonProgressFromPolicyUnlock(GreatPersonTypes eIndex
 	CvAssertMsg((int)eIndex < GC.getNumGreatPersonInfos(), "Yield type out of bounds");
 	CvAssertMsg((int)eIndex > -1, "Index out of bounds");
 	return m_piGreatPersonProgressFromPolicyUnlock ? m_piGreatPersonProgressFromPolicyUnlock[(int)eIndex] : 0;
+}
+
+int CvTraitEntry::GetGreatPersonProgressFromKills(GreatPersonTypes eIndex) const
+{
+	CvAssertMsg((int)eIndex < GC.getNumGreatPersonInfos(), "Yield type out of bounds");
+	CvAssertMsg((int)eIndex > -1, "Index out of bounds");
+
+	std::map<int, int>::const_iterator it = m_piGreatPersonProgressFromKills.find((int)eIndex);
+	if (it != m_piGreatPersonProgressFromKills.end()) // find returns the iterator to map::end if the key eIndex is not present in the map
+	{
+		return it->second;
+	}
+
+	return 0;
 }
 #endif
 
@@ -3528,6 +3543,31 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 #if defined(MOD_BALANCE_CORE)
 	kUtility.PopulateArrayByValue(m_piGoldenAgeFromGreatPersonBirth, "GreatPersons", "Trait_GoldenAgeFromGreatPersonBirth", "GreatPersonType", "TraitType", szTraitType, "GoldenAgeTurns");
 	kUtility.PopulateArrayByValue(m_piGreatPersonProgressFromPolicyUnlock, "GreatPersons", "Trait_GreatPersonProgressFromPolicyUnlock", "GreatPersonType", "TraitType", szTraitType, "Value");
+
+	//GreatPersonProgressFromKills
+	{
+		std::string strKey("Trait_GreatPersonProgressFromKills");
+		Database::Results* pResults = kUtility.GetResults(strKey);
+		if (pResults == NULL)
+		{
+			pResults = kUtility.PrepareResults(strKey, "select GreatPersons.ID as GreatPersonID, Value from Trait_GreatPersonProgressFromKills inner join GreatPersons on GreatPersons.Type = GreatPersonType where TraitType = ?");
+		}
+
+		pResults->Bind(1, szTraitType);
+
+		while (pResults->Step())
+		{
+			const int iGreatPerson = pResults->GetInt(0);
+			const int iValue = pResults->GetInt(1);
+
+			m_piGreatPersonProgressFromKills[iGreatPerson] += iValue;
+		}
+
+		pResults->Reset();
+
+		//Trim extra memory off container since this is mostly read-only.
+		std::map<int, int>(m_piGreatPersonProgressFromKills).swap(m_piGreatPersonProgressFromKills);
+	}
 #endif
 
 	//UnimprovedFeatureYieldChanges
@@ -4895,6 +4935,7 @@ void CvPlayerTraits::InitPlayerTraits()
 				m_aiGoldenAgeGreatPersonRateModifier[iGreatPersonTypes] = trait->GetGoldenAgeGreatPersonRateModifier((GreatPersonTypes)iGreatPersonTypes);
 				m_aiGoldenAgeFromGreatPersonBirth[iGreatPersonTypes] = trait->GetGoldenAgeFromGreatPersonBirth((GreatPersonTypes)iGreatPersonTypes);
 				m_aiGreatPersonProgressFromPolicyUnlock[iGreatPersonTypes] = trait->GetGreatPersonProgressFromPolicyUnlock((GreatPersonTypes)iGreatPersonTypes);
+				m_aiGreatPersonProgressFromKills[iGreatPersonTypes] = trait->GetGreatPersonProgressFromKills((GreatPersonTypes)iGreatPersonTypes);
 			}
 
 			for (int iDomain = 0; iDomain < NUM_DOMAIN_TYPES; iDomain++)
@@ -5020,6 +5061,7 @@ void CvPlayerTraits::Uninit()
 #if defined(MOD_BALANCE_CORE)
 	m_aiGoldenAgeFromGreatPersonBirth.clear();
 	m_aiGreatPersonProgressFromPolicyUnlock.clear();
+	m_aiGreatPersonProgressFromKills.clear();
 #endif
 	m_aiNumPledgesDomainProdMod.clear();
 	m_aiFreeUnitClassesDOW.clear();
@@ -5494,6 +5536,7 @@ void CvPlayerTraits::Reset()
 	m_aiGoldenAgeGreatPersonRateModifier.clear();
 	m_aiGoldenAgeFromGreatPersonBirth.clear();
 	m_aiGreatPersonProgressFromPolicyUnlock.clear();
+	m_aiGreatPersonProgressFromKills.clear();
 
 	m_aiGreatPersonCostReduction.resize(GC.getNumGreatPersonInfos());
 	m_aiPerPuppetGreatPersonRateModifier.resize(GC.getNumGreatPersonInfos());
@@ -5630,6 +5673,23 @@ bool CvPlayerTraits::WillGetUniqueLuxury(CvArea *pArea) const
 
 	return false;
 }
+
+#if defined(MOD_BALANCE_CORE)
+/// Instant great person progress when killing enemy units
+int CvPlayerTraits::GetGreatPersonProgressFromKills(GreatPersonTypes eIndex) const
+{
+	CvAssertMsg((int)eIndex < GC.getNumGreatPersonInfos(), "Yield type out of bounds");
+	CvAssertMsg((int)eIndex > -1, "Index out of bounds");
+
+	std::map<int, int>::const_iterator it = m_aiGreatPersonProgressFromKills.find((int)eIndex);
+	if (it != m_aiGreatPersonProgressFromKills.end()) // find returns the iterator to map::end if the key eIndex is not present in the map
+	{
+		return it->second;
+	}
+
+	return 0;
+}
+#endif
 
 /// Bonus movement for this combat class
 int CvPlayerTraits::GetMovesChangeUnitCombat(const int unitCombatID) const
@@ -7476,6 +7536,7 @@ void CvPlayerTraits::Serialize(PlayerTraits& playerTraits, Visitor& visitor)
 	visitor(playerTraits.m_aiGoldenAgeGreatPersonRateModifier);
 	visitor(playerTraits.m_aiGoldenAgeFromGreatPersonBirth);
 	visitor(playerTraits.m_aiGreatPersonProgressFromPolicyUnlock);
+	visitor(playerTraits.m_aiGreatPersonProgressFromKills);
 	visitor(playerTraits.m_aiNumPledgesDomainProdMod);
 	visitor(playerTraits.m_aiFreeUnitClassesDOW);
 	visitor(playerTraits.m_aiDomainFreeExperienceModifier);
