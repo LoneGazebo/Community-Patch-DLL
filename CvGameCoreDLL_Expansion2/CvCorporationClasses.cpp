@@ -836,56 +836,45 @@ void CvPlayerCorporations::RecalculateNumFranchises()
 	if (eCorporation == NO_CORPORATION)
 		return;
 
-	if (GetCorporationOfficesAsFranchises() > 0)
-	{
-		m_iNumFranchises = GetNumOffices() * GetCorporationOfficesAsFranchises();
-		int iLoop;
-		CvCity* pLoopCity;
-		for (pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
-		{
-			YieldTypes eYield;
-
-			for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
-			{
-				eYield = (YieldTypes)iI;
-				pLoopCity->UpdateYieldFromCorporationFranchises(eYield);
-			}
-		}
-		return;
-	}
-
 	// TODO: figure out a better way to get this
 	int iFranchises = 0;
 	int iFreeFranchises = 0; // From Infiltration
 
-	// Search all players for Franchises
-	for (int iLoopPlayer = 0; iLoopPlayer < MAX_CIV_PLAYERS; iLoopPlayer++)
+	if (GetCorporationOfficesAsFranchises() > 0)
 	{
-		PlayerTypes ePlayer = (PlayerTypes)iLoopPlayer;
-		if (ePlayer != NO_PLAYER && GET_PLAYER(ePlayer).isAlive() && !GET_PLAYER(ePlayer).isBarbarian())
+		iFranchises = GetNumOffices() * GetCorporationOfficesAsFranchises();
+	}
+	else
+	{
+		// Search all players for Franchises (if no Nationalization Tenet)
+		for (int iLoopPlayer = 0; iLoopPlayer < MAX_CIV_PLAYERS; iLoopPlayer++)
 		{
-			CvCity* pLoopCity;
-			int iLoop;
-			for (pLoopCity = GET_PLAYER(ePlayer).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iLoop))
+			PlayerTypes ePlayer = (PlayerTypes)iLoopPlayer;
+			if (ePlayer != NO_PLAYER && GET_PLAYER(ePlayer).isAlive() && !GET_PLAYER(ePlayer).isBarbarian())
 			{
-				if (pLoopCity != NULL)
+				CvCity* pLoopCity;
+				int iLoop;
+				for (pLoopCity = GET_PLAYER(ePlayer).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iLoop))
 				{
-					if (pLoopCity->IsHasFranchise(eCorporation))
+					if (pLoopCity != NULL)
 					{
-						iFranchises++;
-
-						// Free franchise above Popular?
-						if (GetCorporationFreeFranchiseAbovePopular() != 0 && m_pPlayer->GetCulture()->GetInfluenceLevel(ePlayer) >= INFLUENCE_LEVEL_POPULAR)
+						if (pLoopCity->IsHasFranchise(eCorporation))
 						{
-							iFreeFranchises += GetCorporationFreeFranchiseAbovePopular();
+							iFranchises++;
+
+							// Free franchise above Popular?
+							if (GetCorporationFreeFranchiseAbovePopular() != 0 && m_pPlayer->GetCulture()->GetInfluenceLevel(ePlayer) >= INFLUENCE_LEVEL_POPULAR)
+							{
+								iFreeFranchises += GetCorporationFreeFranchiseAbovePopular();
+							}
 						}
 					}
 				}
 			}
 		}
-	}
 
-	iFranchises += iFreeFranchises;
+		iFranchises += iFreeFranchises;
+	}
 
 	for (int iI = 0; iI < GC.getNumImprovementInfos(); iI++)
 	{
