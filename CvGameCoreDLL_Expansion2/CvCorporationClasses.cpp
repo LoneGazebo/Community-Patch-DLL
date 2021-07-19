@@ -1310,40 +1310,54 @@ int CvPlayerCorporations::GetMaxNumFranchises() const
 	if (pkCorporationInfo == NULL)
 		return 0;
 
-	if (GetCorporationOfficesAsFranchises() > 0)
-		return GetNumOffices() * GetCorporationOfficesAsFranchises();
+	int iReturnValue = 0;
 
-	int iReturnValue = pkCorporationInfo->GetBaseFranchises();
-	iReturnValue += (int)(m_pPlayer->GetTrade()->GetNumTradeRoutesPossible() * GC.getMOD_BALANCE_CORE_CORP_OFFICE_TR_CONVERSION());
-	iReturnValue += (int)(GetNumOffices() * GC.getMOD_BALANCE_CORE_CORP_OFFICE_FRANCHISE_CONVERSION());
-
-	// Add in any "bonus" franchises from policies
-	iReturnValue += GetAdditionalNumFranchises();
-
-	// Search all players for Franchises (Autocracy)
-	if(GetCorporationFreeFranchiseAbovePopular() > 0)
+	if (GetCorporationOfficesAsFranchises() > 0) 
 	{
-		for (int iLoopPlayer = 0; iLoopPlayer < MAX_CIV_PLAYERS; iLoopPlayer++)
-		{
-			PlayerTypes ePlayer = (PlayerTypes)iLoopPlayer;
-			if (ePlayer != NO_PLAYER && GET_PLAYER(ePlayer).isAlive() && !GET_PLAYER(ePlayer).isBarbarian())
-			{
-				if(m_pPlayer->GetCulture()->GetInfluenceLevel(ePlayer) < INFLUENCE_LEVEL_POPULAR)
-					continue;
+		iReturnValue += GetNumOffices() * GetCorporationOfficesAsFranchises();
+	}
+	else
+	{
+		iReturnValue += pkCorporationInfo->GetBaseFranchises();
+		iReturnValue += (int)(m_pPlayer->GetTrade()->GetNumTradeRoutesPossible() * GC.getMOD_BALANCE_CORE_CORP_OFFICE_TR_CONVERSION());
+		iReturnValue += (int)(GetNumOffices() * GC.getMOD_BALANCE_CORE_CORP_OFFICE_FRANCHISE_CONVERSION());
 
-				CvCity* pLoopCity;
-				int iLoop;
-				for (pLoopCity = GET_PLAYER(ePlayer).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iLoop))
+		// Add in any "bonus" franchises from policies
+		iReturnValue += GetAdditionalNumFranchises();
+
+		// Search all players for Franchises (Autocracy)
+		if (GetCorporationFreeFranchiseAbovePopular() > 0)
+		{
+			for (int iLoopPlayer = 0; iLoopPlayer < MAX_CIV_PLAYERS; iLoopPlayer++)
+			{
+				PlayerTypes ePlayer = (PlayerTypes)iLoopPlayer;
+				if (ePlayer != NO_PLAYER && GET_PLAYER(ePlayer).isAlive() && !GET_PLAYER(ePlayer).isBarbarian())
 				{
-					if (pLoopCity != NULL)
+					if (m_pPlayer->GetCulture()->GetInfluenceLevel(ePlayer) < INFLUENCE_LEVEL_POPULAR)
+						continue;
+
+					CvCity* pLoopCity;
+					int iLoop;
+					for (pLoopCity = GET_PLAYER(ePlayer).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iLoop))
 					{
-						if (pLoopCity->IsHasFranchise(GetFoundedCorporation()))
+						if (pLoopCity != NULL)
 						{
-							iReturnValue += GetCorporationFreeFranchiseAbovePopular();
+							if (pLoopCity->IsHasFranchise(GetFoundedCorporation()))
+							{
+								iReturnValue += GetCorporationFreeFranchiseAbovePopular();
+							}
 						}
 					}
 				}
 			}
+		}
+	}
+
+	for (int iI = 0; iI < GC.getNumImprovementInfos(); iI++)
+	{
+		if (GetFranchisesPerImprovement((ImprovementTypes)iI) > 0)
+		{
+			iReturnValue += (m_pPlayer->CountAllImprovement((ImprovementTypes)iI, false) * GetFranchisesPerImprovement((ImprovementTypes)iI));
 		}
 	}
 
