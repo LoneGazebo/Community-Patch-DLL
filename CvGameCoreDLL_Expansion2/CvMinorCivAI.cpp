@@ -12410,41 +12410,38 @@ void CvMinorCivAI::TestChangeProtectionFromMajor(PlayerTypes eMajor)
 		{
 			int iStrength = GET_PLAYER(ePlayer).GetMilitaryMight();
 
-			if (!GET_PLAYER(ePlayer).IsVassalOfSomeone() && !GET_PLAYER(ePlayer).IsNoNewWars())
+			if (GET_PLAYER(ePlayer).isHuman() && !GET_PLAYER(ePlayer).IsVassalOfSomeone() && !GET_PLAYER(ePlayer).IsNoNewWars())
 			{
-				if (GET_PLAYER(ePlayer).isHuman())
+				int iHumanStrengthMod = max(0, GET_PLAYER(ePlayer).getHandicapInfo().getAIHumanStrengthMod());
+				int iSkillRatingMod = ComputeRatingStrengthAdjustment(ePlayer) - 100;
+				int iBufferValue = range(-50, 0, /*-20*/ GC.getMILITARY_RATING_HUMAN_BUFFER_VALUE());
+
+				// Only apply the human strength mod in full if their performance is at least average
+				if (iSkillRatingMod >= 0)
 				{
-					int iHumanStrengthMod = max(0, GET_PLAYER(ePlayer).getHandicapInfo().getAIHumanStrengthMod());
-					int iSkillRatingMod = ComputeRatingStrengthAdjustment(ePlayer) - 100;
-					int iBufferValue = range(-50, 0, /*-20*/ GC.getMILITARY_RATING_HUMAN_BUFFER_VALUE());
+					iStrength *= 100 + max(iHumanStrengthMod, iSkillRatingMod);
+					iStrength /= 100;
+				}
+				// Buffer zone to prevent abrupt shifts in strength perception
+				else if (iSkillRatingMod > iBufferValue)
+				{
+					int iDifference = (100 + iHumanStrengthMod) - (100 + iBufferValue);
+					int iBufferPercentMod = iSkillRatingMod * 100 / iBufferValue;
+					int iBufferMod = iBufferPercentMod * iDifference / 100;
 
-					// Only apply the human strength mod in full if their performance is at least average
-					if (iSkillRatingMod >= 0)
-					{
-						iStrength *= 100 + max(iHumanStrengthMod, iSkillRatingMod);
-						iStrength /= 100;
-					}
-					// Buffer zone to prevent abrupt shifts in strength perception
-					else if (iSkillRatingMod > iBufferValue)
-					{
-						int iDifference = (100 + iHumanStrengthMod) - (100 + iBufferValue);
-						int iBufferPercentMod = iSkillRatingMod * 100 / iBufferValue;
-						int iBufferMod = iBufferPercentMod * iDifference / 100;
-
-						iStrength *= 100 + iHumanStrengthMod - iBufferMod;
-						iStrength /= 100;
-					}
-					else
-					{
-						iStrength *= 100 + iSkillRatingMod;
-						iStrength /= 100;
-					}
+					iStrength *= 100 + iHumanStrengthMod - iBufferMod;
+					iStrength /= 100;
 				}
 				else
 				{
-					iStrength *= ComputeRatingStrengthAdjustment(ePlayer);
+					iStrength *= 100 + iSkillRatingMod;
 					iStrength /= 100;
 				}
+			}
+			else
+			{
+				iStrength *= ComputeRatingStrengthAdjustment(ePlayer);
+				iStrength /= 100;
 			}
 
 			if (ePlayer == eMajor)
@@ -12598,41 +12595,38 @@ CvString CvMinorCivAI::GetPledgeProtectionInvalidReason(PlayerTypes eMajor)
 		{
 			int iStrength = GET_PLAYER(ePlayer).GetMilitaryMight();
 
-			if (!GET_PLAYER(ePlayer).IsVassalOfSomeone() && !GET_PLAYER(ePlayer).IsNoNewWars())
+			if (GET_PLAYER(ePlayer).isHuman() && !GET_PLAYER(ePlayer).IsVassalOfSomeone() && !GET_PLAYER(ePlayer).IsNoNewWars())
 			{
-				if (GET_PLAYER(ePlayer).isHuman())
+				int iHumanStrengthMod = max(0, GET_PLAYER(ePlayer).getHandicapInfo().getAIHumanStrengthMod());
+				int iSkillRatingMod = ComputeRatingStrengthAdjustment(ePlayer) - 100;
+				int iBufferValue = range(-50, 0, /*-20*/ GC.getMILITARY_RATING_HUMAN_BUFFER_VALUE());
+
+				// Only apply the human strength mod in full if their performance is at least average
+				if (iSkillRatingMod >= 0)
 				{
-					int iHumanStrengthMod = max(0, GET_PLAYER(ePlayer).getHandicapInfo().getAIHumanStrengthMod());
-					int iSkillRatingMod = ComputeRatingStrengthAdjustment(ePlayer) - 100;
-					int iBufferValue = range(-50, 0, /*-20*/ GC.getMILITARY_RATING_HUMAN_BUFFER_VALUE());
+					iStrength *= 100 + max(iHumanStrengthMod, iSkillRatingMod);
+					iStrength /= 100;
+				}
+				// Buffer zone to prevent abrupt shifts in strength perception
+				else if (iSkillRatingMod > iBufferValue)
+				{
+					int iDifference = (100 + iHumanStrengthMod) - (100 + iBufferValue);
+					int iBufferPercentMod = iSkillRatingMod * 100 / iBufferValue;
+					int iBufferMod = iBufferPercentMod * iDifference / 100;
 
-					// Only apply the human strength mod in full if their performance is at least average
-					if (iSkillRatingMod >= 0)
-					{
-						iStrength *= 100 + max(iHumanStrengthMod, iSkillRatingMod);
-						iStrength /= 100;
-					}
-					// Buffer zone to prevent abrupt shifts in strength perception
-					else if (iSkillRatingMod > iBufferValue)
-					{
-						int iDifference = (100 + iHumanStrengthMod) - (100 + iBufferValue);
-						int iBufferPercentMod = iSkillRatingMod * 100 / iBufferValue;
-						int iBufferMod = iBufferPercentMod * iDifference / 100;
-
-						iStrength *= 100 + iHumanStrengthMod - iBufferMod;
-						iStrength /= 100;
-					}
-					else
-					{
-						iStrength *= 100 + iSkillRatingMod;
-						iStrength /= 100;
-					}
+					iStrength *= 100 + iHumanStrengthMod - iBufferMod;
+					iStrength /= 100;
 				}
 				else
 				{
-					iStrength *= ComputeRatingStrengthAdjustment(ePlayer);
+					iStrength *= 100 + iSkillRatingMod;
 					iStrength /= 100;
 				}
+			}
+			else
+			{
+				iStrength *= ComputeRatingStrengthAdjustment(ePlayer);
+				iStrength /= 100;
 			}
 
 			if (ePlayer == eMajor)
@@ -12790,41 +12784,38 @@ bool CvMinorCivAI::CanMajorProtect(PlayerTypes eMajor)
 			{
 				int iStrength = GET_PLAYER(ePlayer).GetMilitaryMight();
 
-				if (!GET_PLAYER(ePlayer).IsVassalOfSomeone() && !GET_PLAYER(ePlayer).IsNoNewWars())
+				if (GET_PLAYER(ePlayer).isHuman() && !GET_PLAYER(ePlayer).IsVassalOfSomeone() && !GET_PLAYER(ePlayer).IsNoNewWars())
 				{
-					if (GET_PLAYER(ePlayer).isHuman())
+					int iHumanStrengthMod = max(0, GET_PLAYER(ePlayer).getHandicapInfo().getAIHumanStrengthMod());
+					int iSkillRatingMod = ComputeRatingStrengthAdjustment(ePlayer) - 100;
+					int iBufferValue = range(-50, 0, /*-20*/ GC.getMILITARY_RATING_HUMAN_BUFFER_VALUE());
+
+					// Only apply the human strength mod in full if their performance is at least average
+					if (iSkillRatingMod >= 0)
 					{
-						int iHumanStrengthMod = max(0, GET_PLAYER(ePlayer).getHandicapInfo().getAIHumanStrengthMod());
-						int iSkillRatingMod = ComputeRatingStrengthAdjustment(ePlayer) - 100;
-						int iBufferValue = range(-50, 0, /*-20*/ GC.getMILITARY_RATING_HUMAN_BUFFER_VALUE());
+						iStrength *= 100 + max(iHumanStrengthMod, iSkillRatingMod);
+						iStrength /= 100;
+					}
+					// Buffer zone to prevent abrupt shifts in strength perception
+					else if (iSkillRatingMod > iBufferValue)
+					{
+						int iDifference = (100 + iHumanStrengthMod) - (100 + iBufferValue);
+						int iBufferPercentMod = iSkillRatingMod * 100 / iBufferValue;
+						int iBufferMod = iBufferPercentMod * iDifference / 100;
 
-						// Only apply the human strength mod in full if their performance is at least average
-						if (iSkillRatingMod >= 0)
-						{
-							iStrength *= 100 + max(iHumanStrengthMod, iSkillRatingMod);
-							iStrength /= 100;
-						}
-						// Buffer zone to prevent abrupt shifts in strength perception
-						else if (iSkillRatingMod > iBufferValue)
-						{
-							int iDifference = (100 + iHumanStrengthMod) - (100 + iBufferValue);
-							int iBufferPercentMod = iSkillRatingMod * 100 / iBufferValue;
-							int iBufferMod = iBufferPercentMod * iDifference / 100;
-
-							iStrength *= 100 + iHumanStrengthMod - iBufferMod;
-							iStrength /= 100;
-						}
-						else
-						{
-							iStrength *= 100 + iSkillRatingMod;
-							iStrength /= 100;
-						}
+						iStrength *= 100 + iHumanStrengthMod - iBufferMod;
+						iStrength /= 100;
 					}
 					else
 					{
-						iStrength *= ComputeRatingStrengthAdjustment(ePlayer);
+						iStrength *= 100 + iSkillRatingMod;
 						iStrength /= 100;
 					}
+				}
+				else
+				{
+					iStrength *= ComputeRatingStrengthAdjustment(ePlayer);
+					iStrength /= 100;
 				}
 
 				if (ePlayer == eMajor)
