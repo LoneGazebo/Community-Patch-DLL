@@ -494,7 +494,7 @@ function AddSmallButtonsToTechButton( thisTechButtonInstance, tech, maxSmallButt
 
 	-- buildings and wonders unlocked by this tech
 	for row in GameInfo.Buildings( thisPrereqTech ) do
-		if validBuildingBuilds[row.BuildingClass] == row.Type and not addSmallArtButton( AdjustArtOnGrantedBuildingButton, row ) then
+		if row.ShowInPedia == 1 and validBuildingBuilds[row.BuildingClass] == row.Type and not addSmallArtButton( AdjustArtOnGrantedBuildingButton, row ) then
 			break
 		end
 	end
@@ -816,7 +816,7 @@ function AddSmallButtonsToTechButtonRadial( thisTechButtonInstance, tech, maxSma
 	local buttonNum = AddSmallButtonsToTechButton( thisTechButtonInstance, tech, maxSmallButtons, textureSize )
 
 	-- Push the start back based on # of icons
-	local phiDegrees = 90 - ((buttonNum-1) * 24 ) -- 90° is facing down (0° is far right), +values are clockwise, 24° is 1/2 angle per icon
+	local phiDegrees = 90 - ((buttonNum-1) * 24 ) -- 90Â° is facing down (0Â° is far right), +values are clockwise, 24Â° is 1/2 angle per icon
 	for i = 1, buttonNum do
 		thisTechButtonInstance["B"..i]:SetOffsetVal( PolarToCartesian( 46, 24 * i + phiDegrees ) ) -- 46 is radius
 	end

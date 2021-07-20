@@ -2494,26 +2494,28 @@ CivilopediaCategory[CategoryTech].SelectArticle = function( techID, shouldAddToL
 		g_UnlockedBuildingsManager:ResetInstances();
 		buttonAdded = 0;
 		for thisBuildingInfo in GameInfo.Buildings( prereqCondition ) do
-			local thisBuildingInstance = g_UnlockedBuildingsManager:GetInstance();
-			if thisBuildingInstance then
+			if thisBuildingInfo.ShowInPedia == 1 then
+				local thisBuildingInstance = g_UnlockedBuildingsManager:GetInstance();
+				if thisBuildingInstance then
 
-				if not IconHookup( thisBuildingInfo.PortraitIndex, buttonSize, thisBuildingInfo.IconAtlas, thisBuildingInstance.UnlockedBuildingImage ) then
-					thisBuildingInstance.UnlockedBuildingImage:SetTexture( defaultErrorTextureSheet );
-					thisBuildingInstance.UnlockedBuildingImage:SetTextureOffset( nullOffset );
-				end
+					if not IconHookup( thisBuildingInfo.PortraitIndex, buttonSize, thisBuildingInfo.IconAtlas, thisBuildingInstance.UnlockedBuildingImage ) then
+						thisBuildingInstance.UnlockedBuildingImage:SetTexture( defaultErrorTextureSheet );
+						thisBuildingInstance.UnlockedBuildingImage:SetTextureOffset( nullOffset );
+					end
 
-				--move this button
-				thisBuildingInstance.UnlockedBuildingButton:SetOffsetVal( (buttonAdded % numberOfButtonsPerRow) * buttonSize + buttonPadding, math.floor(buttonAdded / numberOfButtonsPerRow) * buttonSize + buttonPadding );
-				
-				thisBuildingInstance.UnlockedBuildingButton:SetToolTipString( Locale.ConvertTextKey( thisBuildingInfo.Description ) );
-				thisBuildingInstance.UnlockedBuildingButton:SetVoids( thisBuildingInfo.ID, addToList );
-				local thisBuildingClass = GameInfo.BuildingClasses[thisBuildingInfo.BuildingClass];
-				if thisBuildingClass.MaxGlobalInstances > 0 or (thisBuildingClass.MaxPlayerInstances == 1 and thisBuildingInfo.SpecialistCount == 0) or thisBuildingClass.MaxTeamInstances > 0 then
-					thisBuildingInstance.UnlockedBuildingButton:RegisterCallback( Mouse.eLClick, CivilopediaCategory[CategoryWonders].SelectArticle );
-				else
-					thisBuildingInstance.UnlockedBuildingButton:RegisterCallback( Mouse.eLClick, CivilopediaCategory[CategoryBuildings].SelectArticle );
+					--move this button
+					thisBuildingInstance.UnlockedBuildingButton:SetOffsetVal( (buttonAdded % numberOfButtonsPerRow) * buttonSize + buttonPadding, math.floor(buttonAdded / numberOfButtonsPerRow) * buttonSize + buttonPadding );
+					
+					thisBuildingInstance.UnlockedBuildingButton:SetToolTipString( Locale.ConvertTextKey( thisBuildingInfo.Description ) );
+					thisBuildingInstance.UnlockedBuildingButton:SetVoids( thisBuildingInfo.ID, addToList );
+					local thisBuildingClass = GameInfo.BuildingClasses[thisBuildingInfo.BuildingClass];
+					if thisBuildingClass.MaxGlobalInstances > 0 or (thisBuildingClass.MaxPlayerInstances == 1 and thisBuildingInfo.SpecialistCount == 0) or thisBuildingClass.MaxTeamInstances > 0 then
+						thisBuildingInstance.UnlockedBuildingButton:RegisterCallback( Mouse.eLClick, CivilopediaCategory[CategoryWonders].SelectArticle );
+					else
+						thisBuildingInstance.UnlockedBuildingButton:RegisterCallback( Mouse.eLClick, CivilopediaCategory[CategoryBuildings].SelectArticle );
+					end
+					buttonAdded = buttonAdded + 1;
 				end
-				buttonAdded = buttonAdded + 1;
 			end
 		end
 		UpdateButtonFrame( buttonAdded, Controls.UnlockedBuildingsInnerFrame, Controls.UnlockedBuildingsFrame );
@@ -4125,25 +4127,27 @@ function SelectBuildingOrWonderArticle( buildingID )
 		for row in GameInfo.Building_ClassesNeededInCity( condition ) do
 			local thisBuildingInfo = GameInfo.Buildings[row.BuildingType];
 			if(thisBuildingInfo) then
-				local thisBuildingInstance = g_LeadsToBuildingsManager:GetInstance();
-				if thisBuildingInstance then
-					if not IconHookup( thisBuildingInfo.PortraitIndex, buttonSize, thisBuildingInfo.IconAtlas, thisBuildingInstance.LeadsToBuildingImage ) then
-						thisBuildingInstance.LeadsToBuildingImage:SetTexture( defaultErrorTextureSheet );
-						thisBuildingInstance.LeadsToBuildingImage:SetTextureOffset( nullOffset );
+				if thisBuildingInfo.ShowInPedia == 1 then
+					local thisBuildingInstance = g_LeadsToBuildingsManager:GetInstance();
+					if thisBuildingInstance then
+						if not IconHookup( thisBuildingInfo.PortraitIndex, buttonSize, thisBuildingInfo.IconAtlas, thisBuildingInstance.LeadsToBuildingImage ) then
+							thisBuildingInstance.LeadsToBuildingImage:SetTexture( defaultErrorTextureSheet );
+							thisBuildingInstance.LeadsToBuildingImage:SetTextureOffset( nullOffset );
+						end
+						
+						--move this button
+						thisBuildingInstance.LeadsToBuildingButton:SetOffsetVal( (buttonAdded % numberOfButtonsPerRow) * buttonSize + buttonPadding, math.floor(buttonAdded / numberOfButtonsPerRow) * buttonSize + buttonPadding );
+						
+						thisBuildingInstance.LeadsToBuildingButton:SetToolTipString( Locale.ConvertTextKey( thisBuildingInfo.Description ) );
+						thisBuildingInstance.LeadsToBuildingButton:SetVoids( thisBuildingInfo.ID, addToList );
+						local thisBuildingClass = GameInfo.BuildingClasses[thisBuildingInfo.BuildingClass];
+						if thisBuildingClass.MaxGlobalInstances > 0 or (thisBuildingClass.MaxPlayerInstances == 1 and thisBuildingInfo.SpecialistCount == 0) or thisBuildingClass.MaxTeamInstances > 0 then
+							thisBuildingInstance.LeadsToBuildingButton:RegisterCallback( Mouse.eLClick, CivilopediaCategory[CategoryWonders].SelectArticle );
+						else
+							thisBuildingInstance.LeadsToBuildingButton:RegisterCallback( Mouse.eLClick, CivilopediaCategory[CategoryBuildings].SelectArticle );
+						end
+						buttonAdded = buttonAdded + 1;
 					end
-					
-					--move this button
-					thisBuildingInstance.LeadsToBuildingButton:SetOffsetVal( (buttonAdded % numberOfButtonsPerRow) * buttonSize + buttonPadding, math.floor(buttonAdded / numberOfButtonsPerRow) * buttonSize + buttonPadding );
-					
-					thisBuildingInstance.LeadsToBuildingButton:SetToolTipString( Locale.ConvertTextKey( thisBuildingInfo.Description ) );
-					thisBuildingInstance.LeadsToBuildingButton:SetVoids( thisBuildingInfo.ID, addToList );
-					local thisBuildingClass = GameInfo.BuildingClasses[thisBuildingInfo.BuildingClass];
-					if thisBuildingClass.MaxGlobalInstances > 0 or (thisBuildingClass.MaxPlayerInstances == 1 and thisBuildingInfo.SpecialistCount == 0) or thisBuildingClass.MaxTeamInstances > 0 then
-						thisBuildingInstance.LeadsToBuildingButton:RegisterCallback( Mouse.eLClick, CivilopediaCategory[CategoryWonders].SelectArticle );
-					else
-						thisBuildingInstance.LeadsToBuildingButton:RegisterCallback( Mouse.eLClick, CivilopediaCategory[CategoryBuildings].SelectArticle );
-					end
-					buttonAdded = buttonAdded + 1;
 				end
 			end
 		end

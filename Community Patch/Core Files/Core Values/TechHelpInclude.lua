@@ -100,13 +100,15 @@ function GetHelpTextForTech( iTechID )
 	-- update the buildings unlocked
 	for thisBuildingInfo in GameInfo.Buildings( prereqCondition ) do
 		if thisBuildingInfo then
-			local thisBuildingClass = GameInfo.BuildingClasses[thisBuildingInfo.BuildingClass];
-			if thisBuildingClass.MaxGlobalInstances <= 0  then
-				if numBuildings > 0 then
-					BuildingString = BuildingString .. "[NEWLINE]"
+			if thisBuildingInfo.ShowInPedia == 1 then
+				local thisBuildingClass = GameInfo.BuildingClasses[thisBuildingInfo.BuildingClass];
+				if thisBuildingClass.MaxGlobalInstances <= 0  then
+					if numBuildings > 0 then
+						BuildingString = BuildingString .. "[NEWLINE]"
+					end
+					BuildingString = BuildingString .. " [ICON_BULLET] " .. Locale.ConvertTextKey(thisBuildingInfo.Description);
+					numBuildings = numBuildings + 1;
 				end
-				BuildingString = BuildingString .. " [ICON_BULLET] " .. Locale.ConvertTextKey(thisBuildingInfo.Description);
-				numBuildings = numBuildings + 1;
 			end
 		end
 	end
@@ -538,13 +540,15 @@ function GetShortHelpTextForTech( iTechID )
 	-- update the buildings unlocked
 	for thisBuildingInfo in GameInfo.Buildings( prereqCondition ) do
 		if thisBuildingInfo then
-			local thisBuildingClass = GameInfo.BuildingClasses[thisBuildingInfo.BuildingClass];
-			if thisBuildingClass.MaxGlobalInstances <= 0  then
-				if numBuildings > 0 then
-					BuildingString = BuildingString .. "[NEWLINE]"
+			if thisBuildingInfo.ShowInPedia == 1 then
+				local thisBuildingClass = GameInfo.BuildingClasses[thisBuildingInfo.BuildingClass];
+				if thisBuildingClass.MaxGlobalInstances <= 0  then
+					if numBuildings > 0 then
+						BuildingString = BuildingString .. "[NEWLINE]"
+					end
+					BuildingString = BuildingString .. " [ICON_BULLET] " .. Locale.ConvertTextKey(thisBuildingInfo.Description);
+					numBuildings = numBuildings + 1;
 				end
-				BuildingString = BuildingString .. " [ICON_BULLET] " .. Locale.ConvertTextKey(thisBuildingInfo.Description);
-				numBuildings = numBuildings + 1;
 			end
 		end
 	end

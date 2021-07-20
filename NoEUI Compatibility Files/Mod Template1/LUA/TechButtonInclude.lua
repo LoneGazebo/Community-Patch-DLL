@@ -133,7 +133,7 @@ function AddSmallButtonsToTechButton( thisTechButtonInstance, tech, maxSmallButt
  	
  	for thisBuildingInfo in GameInfo.Buildings(string.format("PreReqTech = '%s'", techType)) do
  		-- if this tech grants this player the ability to construct this building
-		if validBuildingBuilds[thisBuildingInfo.BuildingClass] == thisBuildingInfo.Type then
+		if thisBuildingInfo.ShowInPedia == 1 and validBuildingBuilds[thisBuildingInfo.BuildingClass] == thisBuildingInfo.Type then
 			local buttonName = "B"..tostring(buttonNum);
 			local thisButton = thisTechButtonInstance[buttonName];
 			if thisButton then
