@@ -368,7 +368,7 @@
 			<ResistanceCap>45</ResistanceCap>
 
 			<!-- City-State Bonuses -->
-			<StartingMinorDefenseUnits>1</StartingMinorDefenseUnits>
+			<StartingMinorDefenseUnits>2</StartingMinorDefenseUnits>
 
 			<!-- AI Behavior Modifiers -->
 			<AIDeclareWarProb>180</AIDeclareWarProb>
@@ -534,7 +534,7 @@
 			<ResistanceCap>65</ResistanceCap>
 
 			<!-- City-State Bonuses -->
-			<StartingMinorDefenseUnits>2</StartingMinorDefenseUnits>
+			<StartingMinorDefenseUnits>3</StartingMinorDefenseUnits>
 
 			<!-- AI Behavior Modifiers -->
 			<AIDeclareWarProb>225</AIDeclareWarProb>
