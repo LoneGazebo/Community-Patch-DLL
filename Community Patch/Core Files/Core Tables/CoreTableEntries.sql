@@ -435,9 +435,6 @@ ALTER TABLE Policies ADD COLUMN 'InfluenceAllCSFromLiberation' INTEGER DEFAULT 0
 -- Liberating a city gives that city some units 
 ALTER TABLE Policies ADD COLUMN 'NumUnitsInLiberatedCities' INTEGER DEFAULT 0;
 
--- Liberating a city gives that city 1 buildingclass
-ALTER TABLE Policies ADD COLUMN 'BuildingClassInLiberatedCities' INTEGER DEFAULT 0;
-
 -- Liberating a city gives XP to all units
 ALTER TABLE Policies ADD COLUMN 'ExperienceAllUnitsFromLiberation' INTEGER DEFAULT 0;
 

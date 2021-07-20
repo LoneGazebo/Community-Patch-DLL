@@ -8,6 +8,11 @@ INSERT INTO Policies
 VALUES
 	('POLICY_GLOBALIZATION', 'TXT_KEY_POLICY_GLOBALIZATION', 'TXT_KEY_POLICY_GLOBALIZATION_TEXT', 'TXT_KEY_POLICY_GLOBALIZATION_HELP', 'POLICY_BRANCH_FREEDOM', 10, 1, 2, 25, 'POLICY_ATLAS', 'POLICY_A_ATLAS');
 
+INSERT INTO Policy_FranchisePerImprovement
+	(PolicyType, ImprovementType, NumFranchise)
+VALUES
+	('POLICY_GLOBALIZATION', 'IMPROVEMENT_CUSTOMS_HOUSE', 1);
+
 INSERT INTO Policies
 	(Type, Description, Civilopedia, Help, PolicyBranchType, CultureCost, AutocracyCorporation, Level, PortraitIndex, IconAtlas, IconAtlasAchieved)
 VALUES

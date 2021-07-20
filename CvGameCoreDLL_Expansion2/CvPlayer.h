@@ -1894,8 +1894,8 @@ public:
 	int getExperienceForLiberation()	const;
 	void changeExperienceForLiberation(int iChange);
 
-	BuildingClassTypes getBuildingClassInLiberatedCities()	const;
-	void setBuildingClassInLiberatedCities(BuildingClassTypes eIndex);
+	int getNumBuildingClassInLiberatedCities(BuildingClassTypes eIndex)	const;
+	void changeNumBuildingClassInLiberatedCities(BuildingClassTypes eIndex, int iChange);
 
 	int getUnitsInLiberatedCities()	const;
 	void changeUnitsInLiberatedCities(int iChange);
@@ -3181,7 +3181,6 @@ protected:
 	int m_iCityStateCombatModifier;
 	int m_iInfluenceForLiberation;
 	int m_iExperienceForLiberation;
-	BuildingClassTypes  m_eBuildingClassInLiberatedCities;
 	int m_iUnitsInLiberatedCities;
 #endif
 #if defined(MOD_BALANCE_CORE_SPIES)
@@ -3479,6 +3478,7 @@ protected:
 	std::vector<int> m_aiYieldModifierFromActiveSpies;
 	std::vector<int> m_aiYieldFromDelegateCount;
 	std::vector<int> m_aiYieldForLiberation;
+	std::vector<int> m_aiBuildingClassInLiberatedCities;
 	std::vector<int> m_paiBuildingClassCulture;
 	std::vector<int> m_aiDomainFreeExperiencePerGreatWorkGlobal;
 	std::vector<int> m_aiCityYieldModFromMonopoly;

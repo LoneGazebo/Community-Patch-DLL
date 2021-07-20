@@ -681,7 +681,7 @@ CvPlayer::CvPlayer() :
 	, m_aiYieldForLiberation()
 	, m_iInfluenceForLiberation()
 	, m_iExperienceForLiberation()
-	, m_eBuildingClassInLiberatedCities()
+	, m_aiBuildingClassInLiberatedCities()
 	, m_iUnitsInLiberatedCities()
 	, m_paiBuildingClassCulture()
 	, m_aiDomainFreeExperiencePerGreatWorkGlobal()
@@ -1574,7 +1574,6 @@ void CvPlayer::uninit()
 	m_iCityStateCombatModifier = 0;
 	m_iInfluenceForLiberation = 0;
 	m_iExperienceForLiberation = 0;
-	m_eBuildingClassInLiberatedCities = NO_BUILDINGCLASS;
 	m_iUnitsInLiberatedCities = 0;
 #endif
 #if defined(MOD_BALANCE_CORE_SPIES)
@@ -1846,6 +1845,9 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 
 	m_aiYieldForLiberation.clear();
 	m_aiYieldForLiberation.resize(NUM_YIELD_TYPES, 0);
+
+	m_aiBuildingClassInLiberatedCities.clear();
+	m_aiBuildingClassInLiberatedCities.resize(GC.getNumBuildingClassInfos(), 0);
 
 	m_aiDomainFreeExperiencePerGreatWorkGlobal.clear();
 	m_aiDomainFreeExperiencePerGreatWorkGlobal.resize(NUM_DOMAIN_TYPES, 0);
@@ -10052,19 +10054,17 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 		}
 
 		//liberated city gets a building?
-		const BuildingClassTypes eBuildingClass = getBuildingClassInLiberatedCities();
-		if (eBuildingClass && eBuildingClass != NO_BUILDINGCLASS) 
+		for (int iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
 		{
-			CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo(eBuildingClass);
-			if (pkBuildingClassInfo)
+			if ((BuildingClassTypes)iI != NO_BUILDINGCLASS && getNumBuildingClassInLiberatedCities((BuildingClassTypes)iI) > 0)
 			{
-				const BuildingTypes eBuilding = ((BuildingTypes)(getCivilizationInfo().getCivilizationBuildings(pkBuildingClassInfo->GetID())));
-				if (NO_BUILDING != eBuilding)
+				CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo((BuildingClassTypes)iI);
+				if (pkBuildingClassInfo)
 				{
-					CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
-					if (pkBuildingInfo)
+					BuildingTypes eBuilding = ((BuildingTypes)(getCivilizationInfo().getCivilizationBuildings(pkBuildingClassInfo->GetID())));
+					if (eBuilding != NO_BUILDING)
 					{
-						pNewCity->GetCityBuildings()->SetNumRealBuilding(eBuilding, 1);
+						pNewCity->GetCityBuildings()->SetNumRealBuilding(eBuilding, getNumBuildingClassInLiberatedCities((BuildingClassTypes)iI));
 					}
 				}
 			}
@@ -35647,16 +35647,17 @@ void CvPlayer::changeExperienceForLiberation(int iChange)
 }
 
 //	--------------------------------------------------------------------------------
-BuildingClassTypes CvPlayer::getBuildingClassInLiberatedCities()	const
+int CvPlayer::getNumBuildingClassInLiberatedCities(BuildingClassTypes eIndex)	const
 {
-	return m_eBuildingClassInLiberatedCities;
+	return m_aiBuildingClassInLiberatedCities[eIndex];
 }
 //	--------------------------------------------------------------------------------
-void CvPlayer::setBuildingClassInLiberatedCities(BuildingClassTypes eIndex)
+void CvPlayer::changeNumBuildingClassInLiberatedCities(BuildingClassTypes eIndex, int iChange)
 {
 	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
 	CvAssertMsg(eIndex < GC.getNumBuildingClassInfos(), "eIndex expected to be < GC.getNumBuildingClassInfos()");
-	m_eBuildingClassInLiberatedCities = eIndex;
+	if (iChange != 0)
+		m_aiBuildingClassInLiberatedCities[eIndex] = m_aiBuildingClassInLiberatedCities[eIndex] + iChange;
 }
 
 //	--------------------------------------------------------------------------------
@@ -43873,8 +43874,8 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 	ChangeBullyGlobalCSReduction(pPolicy->GetBullyGlobalCSReduction() * iChange);
 	changeInfluenceForLiberation(pPolicy->GetInfluenceForLiberation() * iChange);
 	changeExperienceForLiberation(pPolicy->GetExperienceForLiberation() * iChange);
-	setBuildingClassInLiberatedCities((iChange > 0) ? pPolicy->GetBuildingClassInLiberatedCities() : NO_BUILDINGCLASS);
 	changeUnitsInLiberatedCities(pPolicy->GetUnitsInLiberatedCities() * iChange);
+	changeMaxAirUnits(pPolicy->GetMaxAirUnitsChange() * iChange);
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	ChangeIsVassalsNoRebel(pPolicy->IsVassalsNoRebel() * iChange);
 	ChangeVassalCSBonusModifier(pPolicy->GetVassalCSBonusModifier() * iChange);
@@ -44465,6 +44466,14 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 		{
 			GetCorporations()->ChangeFranchisesPerImprovement((ImprovementTypes)iI, pPolicy->getFranchisesPerImprovement(iI) * iChange);
 			GetCorporations()->RecalculateNumFranchises();
+		}
+	}
+
+	for (iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
+	{
+		if (pPolicy->GetBuildingClassInLiberatedCities(iI) > 0)
+		{
+			changeNumBuildingClassInLiberatedCities((BuildingClassTypes)iI, pPolicy->GetBuildingClassInLiberatedCities(iI) * iChange);
 		}
 	}
 
@@ -46546,7 +46555,7 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 	visitor(player.m_aiYieldForLiberation);
 	visitor(player.m_iInfluenceForLiberation);
 	visitor(player.m_iExperienceForLiberation);
-	visitor(player.m_eBuildingClassInLiberatedCities);
+	visitor(player.m_aiBuildingClassInLiberatedCities);
 	visitor(player.m_iUnitsInLiberatedCities);
 	visitor(player.m_paiBuildingClassCulture);
 	visitor(player.m_aiDomainFreeExperiencePerGreatWorkGlobal);

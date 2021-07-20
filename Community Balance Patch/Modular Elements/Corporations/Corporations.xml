@@ -823,10 +823,6 @@
 			<YieldChange>2</YieldChange>
 		</Row>
 	</Policy_BuildingClassYieldChanges>
-	INSERT="" INTO Policy_BuildingClassYieldChanges
-	(PolicyType, BuildingClassType, YieldType, YieldChange)
-	VALUES
-	('POLICY_MANDATE_OF_HEAVEN', 'BUILDINGCLASS_CASTLE', 'YIELD_FOOD', 2),
 	<Policy_Flavors>
 		<Row>
 			<PolicyType>POLICY_NATIONALIZATION</PolicyType>
@@ -1532,4 +1528,11 @@
 			<NumFranchises>3</NumFranchises>
 		</Row>
 	</Building_ResourceQuantityPerXFranchises>
+	<Policy_FranchisePerImprovement>
+		<Row>
+			<PolicyType>POLICY_GLOBALIZATION</PolicyType>
+			<ImprovementType>IMPROVEMENT_CUSTOMS_HOUSE</ImprovementType>
+			<NumFranchise>1</NumFranchise>
+		</Row>
+	</Policy_FranchisePerImprovement>
 </GameData>

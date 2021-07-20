@@ -556,7 +556,7 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_POLICY_GLOBALIZATION_HELP">
-			<Text>[COLOR_POSITIVE_TEXT]Transnationalism[ENDCOLOR]: Each turn, increases the chance that a Corporate Franchise will appear in a foreign City to 15% (normally 5%). Global Franchise maximum increased by 25%. +2 [ICON_CULTURE] Culture from all Corporation Offices.</Text>
+			<Text>[COLOR_POSITIVE_TEXT]Transnationalism[ENDCOLOR]: Each turn, increases the chance that a Corporate Franchise will appear in a foreign City to 15% (normally 5%). Global Franchise maximum increased by 25%, and every Town counts as a Franchise. +2 [ICON_CULTURE] Culture from all Corporation Offices.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_POLICY_GLOBALIZATION">
 			<Text>Transnationalism</Text>
