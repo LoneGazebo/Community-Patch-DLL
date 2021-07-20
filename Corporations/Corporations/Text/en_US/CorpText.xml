@@ -409,12 +409,12 @@
 		<Row Tag="TXT_KEY_WONDER_CORPORATION_QUOTE">
 			<Text>[NEWLINE][TAB][TAB]"I don't build in order to have clients. I have clients in order to build."[NEWLINE][TAB][TAB]  - Howard Roark[NEWLINE][TAB]</Text>
 		</Row>
+		<Row Tag="TXT_KEY_CIV5_BUILDINGS_CORP_TEXT">
+			<Text>A corporation is a company or group of people authorized to act as a single entity (legally a person) and recognized as such in law. Early incorporated entities were established by charter (i.e. by an ad hoc act granted by a monarch or passed by a parliament or legislature). Most jurisdictions now allow the creation of new corporations through registration. Corporations come in many different types but are usually divided by the law of the jurisdiction where they are chartered into two kinds: by whether or not they can issue stock, or by whether or not they are for profit.</Text>
+		</Row>
 
 		<Row Tag="TXT_KEY_BUILDING_TRADER_SIDS_HQ">
 			<Text>Trader Sid's, Inc.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_CIV5_BUILDINGS_TRADER_SIDS_HQ_TEXT">
-			<Text>A corporation is a company or group of people authorized to act as a single entity (legally a person) and recognized as such in law. Early incorporated entities were established by charter (i.e. by an ad hoc act granted by a monarch or passed by a parliament or legislature). Most jurisdictions now allow the creation of new corporations through registration. Corporations come in many different types but are usually divided by the law of the jurisdiction where they are chartered into two kinds: by whether or not they can issue stock, or by whether or not they are for profit.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_TRADER_SIDS_HQ_STRATEGY">
 			<Text>Receive two [ICON_INTERNATIONAL_TRADE] Trade Routes, and Land Trade Routes have 100% increased range.[NEWLINE][NEWLINE]+2 [ICON_GOLD] Gold to all Monopoly Resources worked by this City that are associated with Trader Sid's. All Caravansaries produce +2 [ICON_GOLD] Gold and +2 [ICON_FOOD] Food.[NEWLINE][NEWLINE]Remember that each Civilization may only found [COLOR_POSITIVE_TEXT]one[ENDCOLOR] Corporation, so make sure the benefits are applicable to your Victory Strategy!</Text>
@@ -429,9 +429,6 @@
 		<Row Tag="TXT_KEY_BUILDING_TRADER_SIDS_FRANCHISE">
 			<Text>Trader Sid's</Text>
 		</Row>
-		<Row Tag="TXT_KEY_CIV5_BUILDING_TRADER_SIDS_FRANCHISE_TEXT">
-			<Text>A corporation is a company or group of people authorized to act as a single entity (legally a person) and recognized as such in law. Early incorporated entities were established by charter (i.e. by an ad hoc act granted by a monarch or passed by a parliament or legislature). Most jurisdictions now allow the creation of new corporations through registration. Corporations come in many different types but are usually divided by the law of the jurisdiction where they are chartered into two kinds: by whether or not they can issue stock, or by whether or not they are for profit.</Text>
-		</Row>
 		<Row Tag="TXT_KEY_BUILDING_TRADER_SIDS_FRANCHISE_STRATEGY">
 			<Text>This building can only be constructed in Foreign Cities if you were the founder of Trader Sid's. To construct this building in a foreign City, send a Trade Route from an owned City with a Trader Sid's Office in it to a foreign City. When the Trade Route is complete, the building will automatically be constructed.</Text>
 		</Row>
@@ -442,9 +439,6 @@
 		<Row Tag="TXT_KEY_BUILDING_TRADER_SIDS">
 			<Text>Trader Sid's Office</Text>
 		</Row>
-		<Row Tag="TXT_KEY_CIV5_BUILDING_TRADER_SIDS_TEXT">
-			<Text>A corporation is a company or group of people authorized to act as a single entity (legally a person) and recognized as such in law. Early incorporated entities were established by charter (i.e. by an ad hoc act granted by a monarch or passed by a parliament or legislature). Most jurisdictions now allow the creation of new corporations through registration. Corporations come in many different types but are usually divided by the law of the jurisdiction where they are chartered into two kinds: by whether or not they can issue stock, or by whether or not they are for profit.</Text>
-		</Row>
 		<Row Tag="TXT_KEY_BUILDING_TRADER_SIDS_STRATEGY">
 			<Text>When a [ICON_INTERNATIONAL_TRADE] Trade Route between a foreign City and this City completes, a Trader Sid's Franchise is constructed in the foreign City.[NEWLINE][NEWLINE]Trader Sid's cannot be sold or destroyed by the player, and increases the [ICON_GOLD] Gold output of all Trader Sid's Offices by +3.[NEWLINE][NEWLINE]You cannot have more Franchises than the maximum of possible [ICON_INTERNATIONAL_TRADE] Trade Routes supported by your empire.</Text>
 		</Row>
@@ -454,9 +448,6 @@
 
 		<Row Tag="TXT_KEY_BUILDING_LANDSEA_EXTRACTORS_HQ">
 			<Text>LandSea Extractors, Inc.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_CIV5_BUILDINGS_LANDSEA_EXTRACTORS_HQ_TEXT">
-			<Text>A corporation is a company or group of people authorized to act as a single entity (legally a person) and recognized as such in law. Early incorporated entities were established by charter (i.e. by an ad hoc act granted by a monarch or passed by a parliament or legislature). Most jurisdictions now allow the creation of new corporations through registration. Corporations come in many different types but are usually divided by the law of the jurisdiction where they are chartered into two kinds: by whether or not they can issue stock, or by whether or not they are for profit.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_LANDSEA_EXTRACTORS_HQ_STRATEGY">
 			<Text>Receive two [ICON_INTERNATIONAL_TRADE] Trade Routes. +2 [ICON_PRODUCTION] Production on all Monopoly Resources associated with LandSea Extractors. All Harbors and Seaports produce +2 [ICON_FOOD] Food and +2 [ICON_RESEARCH] Science.[NEWLINE][NEWLINE]Remember that each Civilization may only found [COLOR_POSITIVE_TEXT]one[ENDCOLOR] Corporation, so make sure the benefits are applicable to your Victory Strategy!</Text>
@@ -471,9 +462,6 @@
 		<Row Tag="TXT_KEY_BUILDING_LANDSEA_EXTRACTORS_FRANCHISE">
 			<Text>LandSea Extractors</Text>
 		</Row>
-		<Row Tag="TXT_KEY_CIV5_BUILDING_LANDSEA_EXTRACTORS_FRANCHISE_TEXT">
-			<Text>A corporation is a company or group of people authorized to act as a single entity (legally a person) and recognized as such in law. Early incorporated entities were established by charter (i.e. by an ad hoc act granted by a monarch or passed by a parliament or legislature). Most jurisdictions now allow the creation of new corporations through registration. Corporations come in many different types but are usually divided by the law of the jurisdiction where they are chartered into two kinds: by whether or not they can issue stock, or by whether or not they are for profit.</Text>
-		</Row>
 		<Row Tag="TXT_KEY_BUILDING_LANDSEA_EXTRACTORS_FRANCHISE_STRATEGY">
 			<Text>This building can only be constructed in Foreign Cities if you were the founder of LandSea Extractors. To construct this building in a foreign City, send a Trade Route from an owned City with a LandSea Extractors Office in it to a foreign City. When the Trade Route is complete, the building will automatically be constructed.</Text>
 		</Row>
@@ -484,9 +472,6 @@
 		<Row Tag="TXT_KEY_BUILDING_LANDSEA_EXTRACTORS">
 			<Text>LandSea Extractors Office</Text>
 		</Row>
-		<Row Tag="TXT_KEY_CIV5_BUILDING_LANDSEA_EXTRACTORS_TEXT">
-			<Text>A corporation is a company or group of people authorized to act as a single entity (legally a person) and recognized as such in law. Early incorporated entities were established by charter (i.e. by an ad hoc act granted by a monarch or passed by a parliament or legislature). Most jurisdictions now allow the creation of new corporations through registration. Corporations come in many different types but are usually divided by the law of the jurisdiction where they are chartered into two kinds: by whether or not they can issue stock, or by whether or not they are for profit.</Text>
-		</Row>
 		<Row Tag="TXT_KEY_BUILDING_LANDSEA_EXTRACTORS_STRATEGY">
 			<Text>When a [ICON_INTERNATIONAL_TRADE] Trade Route between a foreign City and this City completes, a LandSea Extractors Franchise is constructed in the foreign City.[NEWLINE][NEWLINE]LandSea Extractors cannot be sold or destroyed by the player, and increases the [ICON_PRODUCTION] Production output of all LandSea Extractors Offices by +2.[NEWLINE][NEWLINE]You cannot have more Franchises than the maximum of possible [ICON_INTERNATIONAL_TRADE] Trade Routes supported by your empire.</Text>
 		</Row>
@@ -496,9 +481,6 @@
 
 		<Row Tag="TXT_KEY_BUILDING_HEXXON_REFINERY_HQ">
 			<Text>Hexxon Refineries, Inc.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_CIV5_BUILDINGS_HEXXON_REFINERY_HQ_TEXT">
-			<Text>A corporation is a company or group of people authorized to act as a single entity (legally a person) and recognized as such in law. Early incorporated entities were established by charter (i.e. by an ad hoc act granted by a monarch or passed by a parliament or legislature). Most jurisdictions now allow the creation of new corporations through registration. Corporations come in many different types but are usually divided by the law of the jurisdiction where they are chartered into two kinds: by whether or not they can issue stock, or by whether or not they are for profit.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_HEXXON_REFINERY_HQ_STRATEGY">
 			<Text>Receive one [ICON_INTERNATIONAL_TRADE] Trade Route. Owned Trade Routes have double [ICON_MOVES] Movement speed. Receive +3 [ICON_RES_COAL] Coal, [ICON_RES_OIL] Oil, and [ICON_RES_URANIUM] Uranium in this City.[NEWLINE][NEWLINE]Remember that each Civilization may only found [COLOR_POSITIVE_TEXT]one[ENDCOLOR] Corporation, so make sure the benefits are applicable to your Victory Strategy!</Text>
@@ -513,9 +495,6 @@
 		<Row Tag="TXT_KEY_BUILDING_HEXXON_REFINERY_FRANCHISE">
 			<Text>Hexxon Refineries</Text>
 		</Row>
-		<Row Tag="TXT_KEY_CIV5_BUILDING_HEXXON_REFINERY_FRANCHISE_TEXT">
-			<Text>A corporation is a company or group of people authorized to act as a single entity (legally a person) and recognized as such in law. Early incorporated entities were established by charter (i.e. by an ad hoc act granted by a monarch or passed by a parliament or legislature). Most jurisdictions now allow the creation of new corporations through registration. Corporations come in many different types but are usually divided by the law of the jurisdiction where they are chartered into two kinds: by whether or not they can issue stock, or by whether or not they are for profit.</Text>
-		</Row>
 		<Row Tag="TXT_KEY_BUILDING_HEXXON_REFINERY_FRANCHISE_STRATEGY">
 			<Text>This building can only be constructed in Foreign Cities if you were the founder of Hexxon Refineries. To construct this building in a foreign City, send a Trade Route from an owned City with a Hexxon Refineries Office in it to a foreign City. When the Trade Route is complete, the building will automatically be constructed.</Text>
 		</Row>
@@ -526,9 +505,6 @@
 		<Row Tag="TXT_KEY_BUILDING_HEXXON_REFINERY">
 			<Text>Hexxon Refineries Office</Text>
 		</Row>
-		<Row Tag="TXT_KEY_CIV5_BUILDING_HEXXON_REFINERY_TEXT">
-			<Text>A corporation is a company or group of people authorized to act as a single entity (legally a person) and recognized as such in law. Early incorporated entities were established by charter (i.e. by an ad hoc act granted by a monarch or passed by a parliament or legislature). Most jurisdictions now allow the creation of new corporations through registration. Corporations come in many different types but are usually divided by the law of the jurisdiction where they are chartered into two kinds: by whether or not they can issue stock, or by whether or not they are for profit.</Text>
-		</Row>
 		<Row Tag="TXT_KEY_BUILDING_HEXXON_REFINERY_STRATEGY">
 			<Text>When a [ICON_INTERNATIONAL_TRADE] Trade Route between a foreign City and this City completes, a Hexxon Refineries Franchise is constructed in the foreign City.[NEWLINE][NEWLINE]Hexxon Refineries cannot be sold or destroyed by the player, and grants +1 [ICON_RES_OIL] Oil and +1 [ICON_RES_COAL] Coal for every [COLOR_POSITIVE_TEXT]3[ENDCOLOR] Hexxon Refineries Franchises.[NEWLINE][NEWLINE]You cannot have more Franchises than the maximum of possible [ICON_INTERNATIONAL_TRADE] Trade Routes supported by your empire.</Text>
 		</Row>
@@ -537,9 +513,6 @@
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_GIORIO_ARMEIER_HQ">
 			<Text>Giorgio Armeier, Inc.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_CIV5_BUILDINGS_GIORIO_ARMEIER_HQ_TEXT">
-			<Text>A corporation is a company or group of people authorized to act as a single entity (legally a person) and recognized as such in law. Early incorporated entities were established by charter (i.e. by an ad hoc act granted by a monarch or passed by a parliament or legislature). Most jurisdictions now allow the creation of new corporations through registration. Corporations come in many different types but are usually divided by the law of the jurisdiction where they are chartered into two kinds: by whether or not they can issue stock, or by whether or not they are for profit.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_GIORIO_ARMEIER_HQ_STRATEGY">
 			<Text>Receive two [ICON_INTERNATIONAL_TRADE] Trade Routes. +1 [ICON_CULTURE] Culture on all Monopoly Resources associated with Giorgio Armeier. +1 [ICON_CULTURE] Culture from all Specialists. [NEWLINE][NEWLINE]Remember that each Civilization may only found [COLOR_POSITIVE_TEXT]one[ENDCOLOR] Corporation, so make sure the benefits are applicable to your Victory Strategy!</Text>
@@ -554,9 +527,6 @@
 		<Row Tag="TXT_KEY_BUILDING_GIORIO_ARMEIER_FRANCHISE">
 			<Text>Giorgio Armeier</Text>
 		</Row>
-		<Row Tag="TXT_KEY_CIV5_BUILDING_GIORIO_ARMEIER_FRANCHISE_TEXT">
-			<Text>A corporation is a company or group of people authorized to act as a single entity (legally a person) and recognized as such in law. Early incorporated entities were established by charter (i.e. by an ad hoc act granted by a monarch or passed by a parliament or legislature). Most jurisdictions now allow the creation of new corporations through registration. Corporations come in many different types but are usually divided by the law of the jurisdiction where they are chartered into two kinds: by whether or not they can issue stock, or by whether or not they are for profit.</Text>
-		</Row>
 		<Row Tag="TXT_KEY_BUILDING_GIORIO_ARMEIER_FRANCHISE_STRATEGY">
 			<Text>This building can only be constructed in Foreign Cities if you were the founder of Giorgio Armeier . To construct this building in a foreign City, send a Trade Route from an owned City with a Giorgio Armeier Office in it to a foreign City. When the Trade Route is complete, the building will automatically be constructed.</Text>
 		</Row>
@@ -567,9 +537,6 @@
 		<Row Tag="TXT_KEY_BUILDING_GIORIO_ARMEIER">
 			<Text>Giorgio Armeier Office</Text>
 		</Row>
-		<Row Tag="TXT_KEY_CIV5_BUILDING_GIORIO_ARMEIER_TEXT">
-			<Text>A corporation is a company or group of people authorized to act as a single entity (legally a person) and recognized as such in law. Early incorporated entities were established by charter (i.e. by an ad hoc act granted by a monarch or passed by a parliament or legislature). Most jurisdictions now allow the creation of new corporations through registration. Corporations come in many different types but are usually divided by the law of the jurisdiction where they are chartered into two kinds: by whether or not they can issue stock, or by whether or not they are for profit.</Text>
-		</Row>
 		<Row Tag="TXT_KEY_BUILDING_GIORIO_ARMEIER_STRATEGY">
 			<Text>When a [ICON_INTERNATIONAL_TRADE] Trade Route between a foreign City and this City completes, a Giorgio Armeier Franchise is constructed in the foreign City.[NEWLINE][NEWLINE]Giorgio Armeier cannot be sold or destroyed by the player, and increases the [ICON_CULTURE] Culture output of all Giorgio Armeier Offices by +2.[NEWLINE][NEWLINE]You cannot have more Franchises than the maximum of possible [ICON_INTERNATIONAL_TRADE] Trade Routes supported by your empire.</Text>
 		</Row>
@@ -578,9 +545,6 @@
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_FIRAXITE_MATERIALS_HQ">
 			<Text>Firaxite Materials, Inc.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_CIV5_BUILDINGS_FIRAXITE_MATERIALS_HQ_TEXT">
-			<Text>A corporation is a company or group of people authorized to act as a single entity (legally a person) and recognized as such in law. Early incorporated entities were established by charter (i.e. by an ad hoc act granted by a monarch or passed by a parliament or legislature). Most jurisdictions now allow the creation of new corporations through registration. Corporations come in many different types but are usually divided by the law of the jurisdiction where they are chartered into two kinds: by whether or not they can issue stock, or by whether or not they are for profit.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_FIRAXITE_MATERIALS_HQ_STRATEGY">
 			<Text>Receive one [ICON_INTERNATIONAL_TRADE] Trade Route. Owned Trade Routes cannot be pillaged, except as a result of a Declaration of War. +3 [ICON_RESEARCH] Science on all Monopoly Resources associated with Firaxite Materials. All Factories produce +2 [ICON_PRODUCTION] Production and +2 [ICON_RESEARCH] Science.[NEWLINE][NEWLINE]Remember that each Civilization may only found [COLOR_POSITIVE_TEXT]one[ENDCOLOR] Corporation, so make sure the benefits are applicable to your Victory Strategy!</Text>
@@ -595,9 +559,6 @@
 		<Row Tag="TXT_KEY_BUILDING_FIRAXITE_MATERIALS_FRANCHISE">
 			<Text>Firaxite Materials</Text>
 		</Row>
-		<Row Tag="TXT_KEY_CIV5_BUILDING_FIRAXITE_MATERIALS_FRANCHISE_TEXT">
-			<Text>A corporation is a company or group of people authorized to act as a single entity (legally a person) and recognized as such in law. Early incorporated entities were established by charter (i.e. by an ad hoc act granted by a monarch or passed by a parliament or legislature). Most jurisdictions now allow the creation of new corporations through registration. Corporations come in many different types but are usually divided by the law of the jurisdiction where they are chartered into two kinds: by whether or not they can issue stock, or by whether or not they are for profit.</Text>
-		</Row>
 		<Row Tag="TXT_KEY_BUILDING_FIRAXITE_MATERIALS_FRANCHISE_STRATEGY">
 			<Text>This building can only be constructed in Foreign Cities if you were the founder of Firaxite Materials. To construct this building in a foreign City, send a Trade Route from an owned City with a Firaxite Materials Office in it to a foreign City. When the Trade Route is complete, the building will automatically be constructed.</Text>
 		</Row>
@@ -608,9 +569,6 @@
 		<Row Tag="TXT_KEY_BUILDING_FIRAXITE_MATERIALS">
 			<Text>Firaxite Materials Office</Text>
 		</Row>
-		<Row Tag="TXT_KEY_CIV5_BUILDING_FIRAXITE_MATERIALS_TEXT">
-			<Text>A corporation is a company or group of people authorized to act as a single entity (legally a person) and recognized as such in law. Early incorporated entities were established by charter (i.e. by an ad hoc act granted by a monarch or passed by a parliament or legislature). Most jurisdictions now allow the creation of new corporations through registration. Corporations come in many different types but are usually divided by the law of the jurisdiction where they are chartered into two kinds: by whether or not they can issue stock, or by whether or not they are for profit.</Text>
-		</Row>
 		<Row Tag="TXT_KEY_BUILDING_FIRAXITE_MATERIALS_STRATEGY">
 			<Text>When a [ICON_INTERNATIONAL_TRADE] Trade Route between a foreign City and this City completes, a Firaxite Materials Franchise is constructed in the foreign City.[NEWLINE][NEWLINE]Firaxite Materials cannot be sold or destroyed by the player, and increases the [ICON_RESEARCH] Science output of all Firaxite Materials Offices by +2.[NEWLINE][NEWLINE]You cannot have more Franchises than the maximum of possible [ICON_INTERNATIONAL_TRADE] Trade Routes supported by your empire.</Text>
 		</Row>
@@ -619,9 +577,6 @@
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_TWOKAY_FOODS_HQ">
 			<Text>TwoKay Foods, Inc.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_CIV5_BUILDINGS_TWOKAY_FOODS_HQ_TEXT">
-			<Text>A corporation is a company or group of people authorized to act as a single entity (legally a person) and recognized as such in law. Early incorporated entities were established by charter (i.e. by an ad hoc act granted by a monarch or passed by a parliament or legislature). Most jurisdictions now allow the creation of new corporations through registration. Corporations come in many different types but are usually divided by the law of the jurisdiction where they are chartered into two kinds: by whether or not they can issue stock, or by whether or not they are for profit.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_TWOKAY_FOODS_HQ_STRATEGY">
 			<Text>Receive one [ICON_INTERNATIONAL_TRADE] Trade Route. All Trade Routes have +1 Sight and reveal the Fog of War. +2 [ICON_FOOD] Food on all Monopoly Resources associated with TwoKay Foods. All Windmills produce +2 [ICON_FOOD] Food and +2 [ICON_GOLD] Gold. [NEWLINE][NEWLINE]Remember that each Civilization may only found [COLOR_POSITIVE_TEXT]one[ENDCOLOR] Corporation, so make sure the benefits are applicable to your Victory Strategy!</Text>
@@ -636,9 +591,6 @@
 		<Row Tag="TXT_KEY_BUILDING_TWOKAY_FOODS_FRANCHISE">
 			<Text>TwoKay Foods</Text>
 		</Row>
-		<Row Tag="TXT_KEY_CIV5_BUILDING_TWOKAY_FOODS_FRANCHISE_TEXT">
-			<Text>A corporation is a company or group of people authorized to act as a single entity (legally a person) and recognized as such in law. Early incorporated entities were established by charter (i.e. by an ad hoc act granted by a monarch or passed by a parliament or legislature). Most jurisdictions now allow the creation of new corporations through registration. Corporations come in many different types but are usually divided by the law of the jurisdiction where they are chartered into two kinds: by whether or not they can issue stock, or by whether or not they are for profit.</Text>
-		</Row>
 		<Row Tag="TXT_KEY_BUILDING_TWOKAY_FOODS_FRANCHISE_STRATEGY">
 			<Text>This building can only be constructed in Foreign Cities if you were the founder of TwoKay Foods. To construct this building in a foreign City, send a Trade Route from an owned City with a TwoKay Foods Office in it to a foreign City. When the Trade Route is complete, the building will automatically be constructed.</Text>
 		</Row>
@@ -649,9 +601,6 @@
 		<Row Tag="TXT_KEY_BUILDING_TWOKAY_FOODS">
 			<Text>TwoKay Foods Office</Text>
 		</Row>
-		<Row Tag="TXT_KEY_CIV5_BUILDING_TWOKAY_FOODS_TEXT">
-			<Text>A corporation is a company or group of people authorized to act as a single entity (legally a person) and recognized as such in law. Early incorporated entities were established by charter (i.e. by an ad hoc act granted by a monarch or passed by a parliament or legislature). Most jurisdictions now allow the creation of new corporations through registration. Corporations come in many different types but are usually divided by the law of the jurisdiction where they are chartered into two kinds: by whether or not they can issue stock, or by whether or not they are for profit.</Text>
-		</Row>
 		<Row Tag="TXT_KEY_BUILDING_TWOKAY_FOODS_STRATEGY">
 			<Text>When a [ICON_INTERNATIONAL_TRADE] Trade Route between a foreign City and this City completes, a TwoKay Foods Franchise is constructed in the foreign City.[NEWLINE][NEWLINE]TwoKay Foods cannot be sold or destroyed by the player, and increases the [ICON_FOOD] Food output of all TwoKay Foods Offices by +2.[NEWLINE][NEWLINE]You cannot have more Franchises than the maximum of possible [ICON_INTERNATIONAL_TRADE] Trade Routes supported by your empire.</Text>
 		</Row>
@@ -660,9 +609,6 @@
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_CIVILIZED_JEWELERS_HQ">
 			<Text>Civilized Jewelers, Inc.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_CIV5_BUILDINGS_CIVILIZED_JEWELERS_HQ_TEXT">
-			<Text>A corporation is a company or group of people authorized to act as a single entity (legally a person) and recognized as such in law. Early incorporated entities were established by charter (i.e. by an ad hoc act granted by a monarch or passed by a parliament or legislature). Most jurisdictions now allow the creation of new corporations through registration. Corporations come in many different types but are usually divided by the law of the jurisdiction where they are chartered into two kinds: by whether or not they can issue stock, or by whether or not they are for profit.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_CIVILIZED_JEWELERS_HQ_STRATEGY">
 			<Text>Receive one [ICON_INTERNATIONAL_TRADE] Trade Route. [ICON_GOLD] Gold from incoming Trade Routes increased by 5, and [ICON_GOLD] Gold from outgoing Trade Routes increased by 5. [NEWLINE][NEWLINE]All Markets, Banks, Mints, and Stock Exchanges produce +1 [ICON_GOLD] Gold.[NEWLINE][NEWLINE]Remember that each Civilization may only found [COLOR_POSITIVE_TEXT]one[ENDCOLOR] Corporation, so make sure the benefits are applicable to your Victory Strategy!</Text>
@@ -677,9 +623,6 @@
 		<Row Tag="TXT_KEY_BUILDING_CIVILIZED_JEWELERS_FRANCHISE">
 			<Text>Civilized Jewelers</Text>
 		</Row>
-		<Row Tag="TXT_KEY_CIV5_BUILDING_CIVILIZED_JEWELERS_FRANCHISE_TEXT">
-			<Text>A corporation is a company or group of people authorized to act as a single entity (legally a person) and recognized as such in law. Early incorporated entities were established by charter (i.e. by an ad hoc act granted by a monarch or passed by a parliament or legislature). Most jurisdictions now allow the creation of new corporations through registration. Corporations come in many different types but are usually divided by the law of the jurisdiction where they are chartered into two kinds: by whether or not they can issue stock, or by whether or not they are for profit.</Text>
-		</Row>
 		<Row Tag="TXT_KEY_BUILDING_CIVILIZED_JEWELERS_FRANCHISE_STRATEGY">
 			<Text>This building can only be constructed in Foreign Cities if you were the founder of Civilized Jewelers. To construct this building in a foreign City, send a Trade Route from an owned City with a Civilized Jewelers Office in it to a foreign City. When the Trade Route is complete, the building will automatically be constructed.</Text>
 		</Row>
@@ -689,9 +632,6 @@
 
 		<Row Tag="TXT_KEY_BUILDING_CIVILIZED_JEWELERS">
 			<Text>Civilized Jewelers's Office</Text>
-		</Row>
-		<Row Tag="TXT_KEY_CIV5_BUILDING_CIVILIZED_JEWELERS_TEXT">
-			<Text>A corporation is a company or group of people authorized to act as a single entity (legally a person) and recognized as such in law. Early incorporated entities were established by charter (i.e. by an ad hoc act granted by a monarch or passed by a parliament or legislature). Most jurisdictions now allow the creation of new corporations through registration. Corporations come in many different types but are usually divided by the law of the jurisdiction where they are chartered into two kinds: by whether or not they can issue stock, or by whether or not they are for profit.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_CIVILIZED_JEWELERS_STRATEGY">
 			<Text>When a [ICON_INTERNATIONAL_TRADE] Trade Route between a foreign City and this City completes, a Civilized Jewelers Franchise is constructed in the foreign City.[NEWLINE][NEWLINE]Civilized Jewelers cannot be sold or destroyed by the player, and increases the [ICON_GREAT_PEOPLE] Great Person rate of all Civilized Jewelers's Offices by +5%.[NEWLINE][NEWLINE]You cannot have more Franchises than the maximum of possible [ICON_INTERNATIONAL_TRADE] Trade Routes supported by your empire.</Text>

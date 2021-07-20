@@ -1526,7 +1526,7 @@ CvGameReligions::FOUNDING_RESULT CvGameReligions::CanFoundReligion(PlayerTypes e
 }
 
 /// Add new beliefs to an existing religion
-void CvGameReligions::EnhanceReligion(PlayerTypes ePlayer, ReligionTypes eReligion, BeliefTypes eBelief1, BeliefTypes eBelief2, bool bNotify)
+void CvGameReligions::EnhanceReligion(PlayerTypes ePlayer, ReligionTypes eReligion, BeliefTypes eBelief1, BeliefTypes eBelief2, bool bNotify, bool bSetAsEnhanced)
 {
 	bool bFoundIt = false;
 	CvPlayer& kPlayer = GET_PLAYER(ePlayer);
@@ -1577,7 +1577,7 @@ void CvGameReligions::EnhanceReligion(PlayerTypes ePlayer, ReligionTypes eReligi
 	if (eBelief2 != NO_BELIEF)
 		it->m_Beliefs.AddBelief(eBelief2);
 
-	if (eReligion != RELIGION_PANTHEON)
+	if (eReligion != RELIGION_PANTHEON && bSetAsEnhanced)
 		it->m_bEnhanced = true;
 
 	if (MOD_TRAITS_OTHER_PREREQS)
