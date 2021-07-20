@@ -350,6 +350,7 @@ CvPlayer::CvPlayer() :
 	, m_bHasUUPeriod()
 	, m_bHasBetrayedMinorCiv()
 	, m_bNoNewWars()
+	, m_bTerribleShapeForWar()
 	, m_bAlive()
 	, m_bEverAlive()
 	, m_bPotentiallyAlive()
@@ -1677,6 +1678,7 @@ void CvPlayer::uninit()
 
 	m_bHasBetrayedMinorCiv = false;
 	m_bNoNewWars = false;
+	m_bTerribleShapeForWar = false;
 	m_bAlive = false;
 	m_bEverAlive = false;
 	m_bPotentiallyAlive = false;
@@ -20752,6 +20754,7 @@ void CvPlayer::DoTestEmpireInBadShapeForWar()
 	// Losing all our wars?
 	if (GetDiplomacyAI()->GetStateAllWars() == STATE_ALL_WARS_LOSING)
 	{
+		SetInTerribleShapeForWar(true);
 		SetNoNewWars(true);
 		return;
 	}
@@ -20759,6 +20762,7 @@ void CvPlayer::DoTestEmpireInBadShapeForWar()
 	// Bankrupt?
 	if (GetTreasury()->GetGold() <= 0 && getAvgGoldRate() <= 0)
 	{
+		SetInTerribleShapeForWar(true);
 		SetNoNewWars(true);
 		return;
 	}
@@ -20766,6 +20770,7 @@ void CvPlayer::DoTestEmpireInBadShapeForWar()
 	// Lost our capital?
 	if (IsHasLostCapital())
 	{
+		SetInTerribleShapeForWar(true);
 		SetNoNewWars(true);
 		return;
 	}
@@ -20773,19 +20778,32 @@ void CvPlayer::DoTestEmpireInBadShapeForWar()
 	// Very unhappy?
 	if (IsEmpireVeryUnhappy())
 	{
+		SetInTerribleShapeForWar(true);
 		SetNoNewWars(true);
 		return;
 	}
 
+	bool bNoNewWarsSet = false;
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
 		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
 
-		if (GET_PLAYER(eLoopPlayer).isAlive() && IsAtWarWith(eLoopPlayer))
+		if (GET_PLAYER(eLoopPlayer).isAlive() && GET_PLAYER(eLoopPlayer).isMajorCiv() && IsAtWarWith(eLoopPlayer))
 		{
 			WarStateTypes eWarState = GetDiplomacyAI()->GetWarState(eLoopPlayer);
-			if (eWarState == WAR_STATE_DEFENSIVE || eWarState == WAR_STATE_NEARLY_DEFEATED)
+			if (eWarState == WAR_STATE_NEARLY_DEFEATED)
 			{
+				SetInTerribleShapeForWar(true);
+				SetNoNewWars(true);
+				return;
+			}
+			else if (eWarState == WAR_STATE_DEFENSIVE)
+			{
+				if (GetDiplomacyAI()->GetPlayerMilitaryStrengthComparedToUs(eLoopPlayer) >= STRENGTH_POWERFUL || GetProximityToPlayer(eLoopPlayer) == PLAYER_PROXIMITY_NEIGHBORS)
+				{
+					SetInTerribleShapeForWar(true);
+				}
+
 				SetNoNewWars(true);
 				return;
 			}
@@ -20798,15 +20816,18 @@ void CvPlayer::DoTestEmpireInBadShapeForWar()
 				{
 					if (!GetDiplomacyAI()->IsEasyTarget(eLoopPlayer) && GetProximityToPlayer(eLoopPlayer) >= PLAYER_PROXIMITY_CLOSE)
 					{
+						bNoNewWarsSet = true;
 						SetNoNewWars(true);
-						return;
 					}
 				}
 			}
 		}
 	}
 
-	SetNoNewWars(false);
+	SetInTerribleShapeForWar(false);
+
+	if (!bNoNewWarsSet)
+		SetNoNewWars(false);
 }
 
 bool CvPlayer::IsNoNewWars() const
@@ -20817,6 +20838,16 @@ bool CvPlayer::IsNoNewWars() const
 void CvPlayer::SetNoNewWars(bool bValue)
 {
 	m_bNoNewWars = bValue;
+}
+
+bool CvPlayer::IsInTerribleShapeForWar() const
+{
+	return m_bTerribleShapeForWar;
+}
+
+void CvPlayer::SetInTerribleShapeForWar(bool bValue)
+{
+	m_bTerribleShapeForWar = bValue;
 }
 
 // Prevent infinite warmongering exploit
@@ -46487,6 +46518,7 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 	visitor(player.m_uiStartTime);
 	visitor(player.m_bHasUUPeriod);
 	visitor(player.m_bNoNewWars);
+	visitor(player.m_bTerribleShapeForWar);
 	visitor(player.m_bHasBetrayedMinorCiv);
 	visitor(player.m_bAlive);
 	visitor(player.m_bEverAlive);
