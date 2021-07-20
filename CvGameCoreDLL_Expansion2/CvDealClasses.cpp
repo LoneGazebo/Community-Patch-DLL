@@ -599,13 +599,9 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 			}
 
 			// Can't trade resource if the seller does not have the city trade tech
-			TechTypes eCityTradeTech = (TechTypes)GC.getResourceInfo(eResource)->getTechCityTrade();
-			if (eCityTradeTech != NO_TECH)
+			if (!pFromPlayer->IsResourceCityTradeable(eResource))
 			{
-				if (!pFromPlayer->HasTech(eCityTradeTech))
-				{
-					return false;
-				}
+				return false;
 			}
 		}
 	}

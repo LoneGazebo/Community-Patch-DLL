@@ -260,6 +260,20 @@ function GetResourceString(plot, bLongForm)
 	local iActiveTeam = Game.GetActiveTeam();
 	local pTeam = Teams[iActiveTeam];
 	
+	local iActivePlayer = Game.GetActivePlayer();
+	local pPlayer = Players[iActivePlayer];
+
+	local iLeader = -1;
+	local eTrait = "";
+
+	if pPlayer ~= nil then
+		iLeader = pPlayer:GetLeaderType();
+		for pLeaderTraits in DB.Query( "SELECT TraitType FROM Leader_Traits INNER JOIN Leaders on Leaders.Type = LeaderType WHERE Leaders.ID = " .. iLeader ) do
+			eTrait = pLeaderTraits.TraitType;
+			break;
+		end
+	end
+	
 	if (plot:GetResourceType(iActiveTeam) >= 0) then
 		local resourceType = plot:GetResourceType(iActiveTeam);
 		local pResource = GameInfo.Resources[resourceType];
@@ -272,16 +286,21 @@ function GetResourceString(plot, bLongForm)
 		improvementStr = improvementStr .. pResource.IconString .. " " .. convertedKey;
 		
 		-- Resource Hookup info
-		local iTechCityTrade = GameInfoTypes[pResource.TechCityTrade];
-		if (iTechCityTrade ~= nil) then
-			if (iTechCityTrade ~= -1 and not pTeam:GetTeamTechs():HasTech(iTechCityTrade)) then
-
-				local techName = GameInfo.Technologies[iTechCityTrade].Description;
-				if (bLongForm) then
-					improvementStr = improvementStr .. " " .. Locale.ConvertTextKey( "TXT_KEY_PLOTROLL_REQUIRES_TECH_TO_USE", techName );
-				else
-					improvementStr = improvementStr .. " " .. Locale.ConvertTextKey( "TXT_KEY_PLOTROLL_REQUIRES_TECH", techName );
+		if not pPlayer:IsResourceCityTradeable(resourceType) then
+			-- Default unlock tech
+			local iTechCityTrade = GameInfoTypes[pResource.TechCityTrade];
+			-- Check if the current player has an alternate unlock instead (we shall not check the team, because 1: niche case, 2: its complicated)
+			for pAltUnlock in DB.Query( "SELECT * FROM Trait_AlternateResourceTechs WHERE TraitType = '" .. eTrait .. "' AND ResourceType = '" .. pResource.Type .. "'" ) do
+				if pAltUnlock.TechCityTrade then
+					iTechCityTrade = GameInfoTypes[pAltUnlock.TechCityTrade];
 				end
+				break;
+			end
+			local techName = GameInfo.Technologies[iTechCityTrade].Description;
+			if (bLongForm) then
+				improvementStr = improvementStr .. " " .. Locale.ConvertTextKey( "TXT_KEY_PLOTROLL_REQUIRES_TECH_TO_USE", techName );
+			else
+				improvementStr = improvementStr .. " " .. Locale.ConvertTextKey( "TXT_KEY_PLOTROLL_REQUIRES_TECH", techName );
 			end
 		end
 	end

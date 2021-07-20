@@ -2530,17 +2530,57 @@ CivilopediaCategory[CategoryTech].SelectArticle = function( techID, shouldAddToL
 		-- update the resources revealed
 		g_RevealedResourcesManager:ResetInstances();
 		buttonAdded = 0;
+		local thisPlayer = nil;
+		local leaderID = -1;
+		local traitType = "";
+		if(Game ~= nil) then
+			thisPlayer = Players[Game.GetActivePlayer()];
+			if thisPlayer ~= nil then
+				leaderID = thisPlayer:GetLeaderType();
+				for leaderTraits in DB.Query( "SELECT TraitType FROM Leader_Traits INNER JOIN Leaders on Leaders.Type = LeaderType WHERE Leaders.ID = " .. leaderID ) do
+					traitType = leaderTraits.TraitType;
+					break;
+				end
+			end
+		end
+		-- default reveal tech for resources
 		for revealedResource in GameInfo.Resources( revealCondition ) do
 			local thisRevealedResourceInstance = g_RevealedResourcesManager:GetInstance();
 			if thisRevealedResourceInstance then
-				local textureOffset, textureSheet = IconLookup( revealedResource.PortraitIndex, buttonSize, revealedResource.IconAtlas );				
-				if textureOffset == nil then
-					textureSheet = defaultErrorTextureSheet;
-					textureOffset = nullOffset;
-				end				
-				UpdateSmallButton( buttonAdded, thisRevealedResourceInstance.RevealedResourceImage, thisRevealedResourceInstance.RevealedResourceButton, textureSheet, textureOffset, CategoryResources, Locale.ConvertTextKey( revealedResource.Description ), revealedResource.ID );
-				buttonAdded = buttonAdded + 1;
+				-- check if the current player has an alternate unlock instead (we shall not check the team, because 1: niche case, 2: its complicated)
+				local isAltTech = false;
+				if thisPlayer ~= nil then
+					for altUnlock in GameInfo.Trait_AlternateResourceTechs( "TraitType = '" .. traitType .. "'AND ResourceType = '" .. revealedResource.Type .. "'" ) do
+						isAltTech = true;
+						break;
+					end
+				end
+				
+				if isAltTech == false then
+					local textureOffset, textureSheet = IconLookup( revealedResource.PortraitIndex, buttonSize, revealedResource.IconAtlas );				
+					if textureOffset == nil then
+						textureSheet = defaultErrorTextureSheet;
+						textureOffset = nullOffset;
+					end				
+					UpdateSmallButton( buttonAdded, thisRevealedResourceInstance.RevealedResourceImage, thisRevealedResourceInstance.RevealedResourceButton, textureSheet, textureOffset, CategoryResources, Locale.ConvertTextKey( revealedResource.Description ), revealedResource.ID );
+					buttonAdded = buttonAdded + 1;
+				end
 			end			
+		end
+		-- alternate reveal tech specific to this leader
+		for altRevealedResource in GameInfo.Trait_AlternateResourceTechs( "TraitType = '" .. traitType .. "'AND " .. revealCondition ) do
+			for resource in GameInfo.Resources( "Type = '" .. altRevealedResource.ResourceType .. "'" ) do
+				local thisRevealedResourceInstance = g_RevealedResourcesManager:GetInstance();
+				if thisRevealedResourceInstance then
+					local textureOffset, textureSheet = IconLookup( resource.PortraitIndex, buttonSize, resource.IconAtlas );				
+					if textureOffset == nil then
+						textureSheet = defaultErrorTextureSheet;
+						textureOffset = nullOffset;
+					end				
+					UpdateSmallButton( buttonAdded, thisRevealedResourceInstance.RevealedResourceImage, thisRevealedResourceInstance.RevealedResourceButton, textureSheet, textureOffset, CategoryResources, Locale.ConvertTextKey( resource.Description ), resource.ID );
+					buttonAdded = buttonAdded + 1;
+				end
+			end
 		end
 		UpdateButtonFrame( buttonAdded, Controls.RevealedResourcesInnerFrame, Controls.RevealedResourcesFrame );
 
@@ -5687,6 +5727,20 @@ CivilopediaCategory[CategoryResources].SelectArticle = function( resourceID, sho
 		endTopic = currentTopic;
 	end
 
+	local thisPlayer = nil;
+	local leaderID = -1;
+	local traitType = "";
+	if(Game ~= nil) then
+		thisPlayer = Players[Game.GetActivePlayer()];
+		if thisPlayer ~= nil then
+			leaderID = thisPlayer:GetLeaderType();
+			for leaderTraits in DB.Query( "SELECT TraitType FROM Leader_Traits INNER JOIN Leaders on Leaders.Type = LeaderType WHERE Leaders.ID = " .. leaderID ) do
+				traitType = leaderTraits.TraitType;
+				break;
+			end
+		end
+	end
+
 	if resourceID ~= -1 then
 	
 		local thisResource = GameInfo.Resources[resourceID];
@@ -5709,9 +5763,24 @@ CivilopediaCategory[CategoryResources].SelectArticle = function( resourceID, sho
 			-- tech visibility
 			g_RevealTechsManager:ResetInstances();
 			buttonAdded = 0;
-			if thisResource.TechReveal then
-				local prereq = GameInfo.Technologies[thisResource.TechReveal];
+
+			-- default tech unlock
+			local techReveal = thisResource.TechReveal;
+
+			-- check if the current player has an alternate unlock instead (we shall not check the team, because 1: niche case, 2: its complicated)
+			if thisPlayer ~= nil then
+				for altUnlock in GameInfo.Trait_AlternateResourceTechs( "TraitType = '" .. traitType .. "'AND ResourceType = '" .. thisResource.Type .. "'" ) do
+					if altUnlock.TechReveal then
+						techReveal = altUnlock.TechReveal;
+					end
+					break;
+				end
+			end
+
+			if techReveal then
+				local prereq = GameInfo.Technologies[techReveal];
 				local thisPrereqInstance = g_RevealTechsManager:GetInstance();
+				
 				if thisPrereqInstance then
 					local textureOffset, textureSheet = IconLookup( prereq.PortraitIndex, buttonSize, prereq.IconAtlas );				
 					if textureOffset == nil then
@@ -5817,7 +5886,7 @@ CivilopediaCategory[CategoryResources].SelectArticle = function( resourceID, sho
 					end
 				end
 			end
-			UpdateButtonFrame( buttonAdded, Controls.ImprovementsInnerFrame, Controls.ImprovementsFrame );	 		  
+			UpdateButtonFrame( buttonAdded, Controls.ImprovementsInnerFrame, Controls.ImprovementsFrame );	 	  
 			
 			--CBP
 			numYields = 0;

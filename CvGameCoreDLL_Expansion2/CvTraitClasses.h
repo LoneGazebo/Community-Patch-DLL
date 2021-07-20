@@ -72,6 +72,32 @@ struct TradeRouteProductionSiphon
 FDataStream& operator<<(FDataStream&, const TradeRouteProductionSiphon&);
 FDataStream& operator>>(FDataStream&, TradeRouteProductionSiphon&);
 
+struct AlternateResourceTechs
+{
+	AlternateResourceTechs() :
+		m_eTechReveal(NO_TECH),
+		m_eTechCityTrade(NO_TECH)
+	{};
+
+	bool IsAlternateResourceTechs()
+	{
+		if (m_eTechReveal != NO_TECH || m_eTechCityTrade != NO_TECH)
+		{
+			return true;
+		}
+		return false;
+	}
+
+	template<typename AlternateResourceTechsT, typename Visitor>
+	static void Serialize(AlternateResourceTechsT& alternateResourceTechs, Visitor& visitor);
+
+	TechTypes m_eTechReveal;
+	TechTypes m_eTechCityTrade;
+};
+
+FDataStream& operator<<(FDataStream&, const AlternateResourceTechs&);
+FDataStream& operator>>(FDataStream&, AlternateResourceTechs&);
+
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //  CLASS:      CvTraitEntry
 //!  \brief		A single entry in the trait XML file
@@ -346,6 +372,8 @@ public:
 	int GetNumPledgeDomainProductionModifier(DomainTypes eDomain) const;
 	int GetDomainFreeExperienceModifier(DomainTypes eDomain) const;
 	int GetGreatPersonProgressFromPolicyUnlock(GreatPersonTypes eIndex) const;
+	int GetGreatPersonProgressFromKills(GreatPersonTypes eIndex) const;
+	int GetRandomGreatPersonProgressFromKills(GreatPersonTypes eIndex) const;
 	int GetFreeUnitClassesDOW(UnitClassTypes eUnitClass) const;
 	int GetYieldFromTileEarnTerrainType(TerrainTypes eIndex1, YieldTypes eIndex2) const;
 	int GetYieldFromTilePurchaseTerrainType(TerrainTypes eIndex1, YieldTypes eIndex2) const;
@@ -440,6 +468,9 @@ public:
 #endif
 #if defined(MOD_TRAITS_TRADE_ROUTE_PRODUCTION_SIPHON)
 	TradeRouteProductionSiphon GetTradeRouteProductionSiphon(const bool bInternationalOnly) const;
+#endif
+#if defined(MOD_BALANCE_CORE)
+	AlternateResourceTechs GetAlternateResourceTechs(const ResourceTypes eResource) const;
 #endif
 	bool IsObsoleteByTech(TeamTypes eTeam);
 	bool IsEnabledByTech(TeamTypes eTeam);
@@ -747,6 +778,8 @@ protected:
 	int* m_piNumPledgesDomainProdMod;
 	int* m_piDomainFreeExperienceModifier;
 	int* m_piGreatPersonProgressFromPolicyUnlock;
+	std::map<int, int> m_piGreatPersonProgressFromKills;
+	std::map<int, int> m_piRandomGreatPersonProgressFromKills;
 	int* m_piFreeUnitClassesDOW;
 #endif
 #if defined(MOD_BALANCE_CORE) && defined(MOD_TRAITS_YIELD_FROM_ROUTE_MOVEMENT_IN_FOREIGN_TERRITORY)
@@ -802,6 +835,9 @@ protected:
 #endif
 #if defined(MOD_TRAITS_TRADE_ROUTE_PRODUCTION_SIPHON)
 	std::map<bool, TradeRouteProductionSiphon> m_biiTradeRouteProductionSiphon;
+#endif
+#if defined(MOD_BALANCE_CORE)
+	std::map<int, AlternateResourceTechs> m_piiAlternateResourceTechs;
 #endif
 	std::vector<FreeResourceXCities> m_aFreeResourceXCities;
 	std::vector<bool> m_abNoTrainUnitClass;
@@ -1752,6 +1788,9 @@ public:
 	{
 		return ((uint)eIndex < m_aiGreatPersonProgressFromPolicyUnlock.size()) ? m_aiGreatPersonProgressFromPolicyUnlock[(int)eIndex] : 0;
 	};
+	int GetGreatPersonProgressFromKills(GreatPersonTypes eIndex) const;
+	bool IsRandomGreatPersonProgressFromKills() const;
+	std::pair<GreatPersonTypes, int> GetRandomGreatPersonProgressFromKills(int iAdditionalSeed = 0) const;
 	int GetFreeUnitClassesDOW(UnitClassTypes eUnitClass) const
 	{
 		return ((uint)eUnitClass < m_aiFreeUnitClassesDOW.size()) ? m_aiFreeUnitClassesDOW[(int)eUnitClass] : 0;
@@ -1966,6 +2005,11 @@ public:
 #if defined(MOD_TRAITS_TRADE_ROUTE_PRODUCTION_SIPHON)
 	TradeRouteProductionSiphon GetTradeRouteProductionSiphon(bool bInternationalOnly) const;
 	bool IsTradeRouteProductionSiphon() const;
+#endif
+
+#if defined(MOD_BALANCE_CORE)
+	AlternateResourceTechs GetAlternateResourceTechs(ResourceTypes eResource) const;
+	bool IsAlternateResourceTechs() const;
 #endif
 
 	// Public functions to make trait-based game state changes
@@ -2365,6 +2409,9 @@ private:
 #if defined(MOD_TRAITS_TRADE_ROUTE_PRODUCTION_SIPHON)
 	std::map<bool, TradeRouteProductionSiphon> m_aiiTradeRouteProductionSiphon;
 #endif
+#if defined(MOD_BALANCE_CORE)
+	std::map<int, AlternateResourceTechs> m_aiiAlternateResourceTechs;
+#endif
 #if defined(MOD_API_UNIFIED_YIELDS)
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiBuildingClassYieldChange;
 	int m_iCityYieldChanges[NUM_YIELD_TYPES];
@@ -2394,6 +2441,8 @@ private:
 #if defined(MOD_BALANCE_CORE)
 	std::vector<int> m_aiDomainFreeExperienceModifier;
 	std::vector<int> m_aiGreatPersonProgressFromPolicyUnlock;
+	std::map<int, int> m_aiGreatPersonProgressFromKills;
+	std::map<int, int> m_aiRandomGreatPersonProgressFromKills;
 #endif
 #if defined(MOD_API_UNIFIED_YIELDS)
 	std::vector<int> m_aiGreatPersonCostReduction;

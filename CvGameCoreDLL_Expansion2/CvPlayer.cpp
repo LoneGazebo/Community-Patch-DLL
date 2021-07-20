@@ -13295,7 +13295,7 @@ bool CvPlayer::canReceiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit) 
 			// No "Bonus" Resources (that only give Yield), because those are lame to get from a Hut
 			if(pResource != NULL && pResource->getResourceClassType() != eResourceClassBonus)
 			{
-				if(!GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes) pResource->getTechReveal()))
+				if(!GET_TEAM(getTeam()).IsResourceRevealed((ResourceTypes)iResourceLoop))
 				{
 					bPlayerDoesntKnowOfResource = true;
 				}
@@ -13993,8 +13993,7 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 						if(!pResourcePlot->IsResourceForceReveal(getTeam()))
 						{
 							// Must be a Resource we don't already see
-							eRevealTech = (TechTypes) pResource.getTechReveal();
-							if(!GET_TEAM(getTeam()).GetTeamTechs()->HasTech(eRevealTech))
+							if(!GET_TEAM(getTeam()).IsResourceRevealed(eResource))
 							{
 								iResourceDistance = plotDistance(pResourcePlot->getX(), pResourcePlot->getY(), pCapital->getX(), pCapital->getY());
 
@@ -19514,11 +19513,12 @@ void CvPlayer::DoYieldsFromKill(CvUnit* pAttackingUnit, CvUnit* pDefendingUnit, 
 	if (MOD_BALANCE_CORE && pDefendingUnit != NULL && pDefendingUnit->IsCombatUnit())
 	{
 		CvCity* pOriginCity = pCity;
+		CvCity* pCapitalCity = getCapitalCity();
 		if (pAttackingUnit != NULL)
 		{
 			pOriginCity = pAttackingUnit->getOriginCity();
 			if (pOriginCity == NULL)
-				pOriginCity = getCapitalCity();
+				pOriginCity = pCapitalCity;
 		}
 		else if (pDefendingUnit->plot()->getOwner() == GetID())
 		{
@@ -19527,6 +19527,19 @@ void CvPlayer::DoYieldsFromKill(CvUnit* pAttackingUnit, CvUnit* pDefendingUnit, 
 
 		doInstantYield(INSTANT_YIELD_TYPE_VICTORY, false, NO_GREATPERSON, NO_BUILDING, 0, true, NO_PLAYER, NULL, false, pOriginCity, pDefendingUnit->getDomainType() == DOMAIN_SEA, true, false, NO_YIELD, pDefendingUnit, NO_TERRAIN, NULL, NULL, pAttackingUnit);
 		doInstantYield(INSTANT_YIELD_TYPE_VICTORY_GLOBAL, false, NO_GREATPERSON, NO_BUILDING, 0, true, NO_PLAYER, NULL, false, NULL, pDefendingUnit->getDomainType() == DOMAIN_SEA, true, false, NO_YIELD, pDefendingUnit, NO_TERRAIN, NULL, NULL, pAttackingUnit);
+
+		if (pCapitalCity)
+		{
+			doInstantGreatPersonProgress(INSTANT_YIELD_TYPE_VICTORY, false, pCapitalCity);
+			if (GetPlayerTraits()->IsRandomGreatPersonProgressFromKills())
+			{
+				std::pair <GreatPersonTypes, int> aResults = GetPlayerTraits()->GetRandomGreatPersonProgressFromKills(pAttackingUnit->GetID() + pAttackingUnit->getMoves() + pDefendingUnit->GetID() + pDefendingUnit->getMoves());
+				if (aResults.first != NO_GREATPERSON && aResults.second > 0)
+				{
+					doInstantGreatPersonProgress(INSTANT_YIELD_TYPE_VICTORY, false, pCapitalCity, NO_BUILDING, aResults.second, aResults.first);
+				}
+			}
+		}
 	}
 #endif
 }
@@ -28458,7 +28471,7 @@ void CvPlayer::doPolicyGEorGM(int iPolicyGEorGM)
 }
 
 //	--------------------------------------------------------------------------------
-void CvPlayer::doInstantGreatPersonProgress(InstantYieldType iType, bool bSuppress, CvCity* pCity, BuildingTypes eBuilding)
+void CvPlayer::doInstantGreatPersonProgress(InstantYieldType iType, bool bSuppress, CvCity* pCity, BuildingTypes eBuilding, int iPassValue, GreatPersonTypes ePassGreatPerson)
 {
 	CvCity* pLoopCity;
 	CvCity* pCapital = getCapitalCity();
@@ -28488,6 +28501,9 @@ void CvPlayer::doInstantGreatPersonProgress(InstantYieldType iType, bool bSuppre
 		{
 			GreatPersonTypes eGreatPerson = (GreatPersonTypes)iGreatPersonTypes;
 			if (eGreatPerson == NULL || pCapital == NULL)
+				continue;
+
+			if (ePassGreatPerson != NO_GREATPERSON && ePassGreatPerson != eGreatPerson)
 				continue;
 
 			eSpecialist = (SpecialistTypes)GC.getGreatPersonInfo(eGreatPerson)->GetSpecialistType();
@@ -28526,6 +28542,19 @@ void CvPlayer::doInstantGreatPersonProgress(InstantYieldType iType, bool bSuppre
 						}
 					}
 					break;
+				}
+				case INSTANT_YIELD_TYPE_VICTORY:
+				{
+					// if nothing was passed in, we just take from the Trait_GreatPersonProgressFromKills table
+					if (iPassValue == 0 && ePassGreatPerson == NO_GREATPERSON)
+					{
+						iValue += GetPlayerTraits()->GetGreatPersonProgressFromKills(eGreatPerson);
+					}
+					// if there is a great person passed in, we use the Trait_RandomGreatPersonProgressFromKills table (called by the caller already)
+					else if (ePassGreatPerson == eGreatPerson)
+					{
+						iValue += iPassValue;
+					}
 				}
 			}
 
@@ -28584,6 +28613,7 @@ void CvPlayer::doInstantGreatPersonProgress(InstantYieldType iType, bool bSuppre
 			strSummary << pCity->getNameKey();
 		}
 		Localization::String localizedText;
+		bool bImmediate = false;
 		switch (iType)
 		{
 			case INSTANT_YIELD_TYPE_POLICY_UNLOCK:
@@ -28602,9 +28632,10 @@ void CvPlayer::doInstantGreatPersonProgress(InstantYieldType iType, bool bSuppre
 					//We do this at the player level once per turn.
 					addInstantGreatPersonProgressText(iType, localizedText.toUTF8());
 				}
-				return;
+				break;
 			}
 			case INSTANT_YIELD_TYPE_CONSTRUCTION:
+			{
 				if (eBuilding != NO_BUILDING)
 				{
 					CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
@@ -28626,18 +28657,30 @@ void CvPlayer::doInstantGreatPersonProgress(InstantYieldType iType, bool bSuppre
 						}
 					}
 				}
-				return;
-		}
-		if (pCity == NULL)
-		{
-			if (pCapital != NULL)
-			{
-				pNotifications->Add((NotificationTypes)FString::Hash("NOTIFICATION_INSTANT_YIELD"), localizedText.toUTF8(), strSummary.toUTF8(), pCapital->getX(), pCapital->getY(), pCapital->GetID());
+				break;
 			}
+			case INSTANT_YIELD_TYPE_VICTORY:
+			{
+				localizedText = Localization::Lookup("TXT_KEY_INSTANT_YIELD_VICTORY");
+				localizedText << totalgpString;
+				bImmediate = true;
+				break;
+			}
+
 		}
-		else
+		if (bImmediate)
 		{
-			pNotifications->Add((NotificationTypes)FString::Hash("NOTIFICATION_INSTANT_YIELD"), localizedText.toUTF8(), strSummary.toUTF8(), pCity->getX(), pCity->getY(), pCity->GetID());
+			if (pCity == NULL)
+			{
+				if (pCapital != NULL)
+				{
+					pNotifications->Add((NotificationTypes)FString::Hash("NOTIFICATION_INSTANT_YIELD"), localizedText.toUTF8(), strSummary.toUTF8(), pCapital->getX(), pCapital->getY(), pCapital->GetID());
+				}
+			}
+			else
+			{
+				pNotifications->Add((NotificationTypes)FString::Hash("NOTIFICATION_INSTANT_YIELD"), localizedText.toUTF8(), strSummary.toUTF8(), pCity->getX(), pCity->getY(), pCity->GetID());
+			}
 		}
 	}
 	// 4th step: Loop through all cities again to check for GP spawns
@@ -37946,25 +37989,11 @@ int CvPlayer::getNumResourcesFromOther(ResourceTypes eIndex) const
 	int iCSResource = getResourceFromCSAlliances(eIndex);
 	if (iCSResource != 0)
 	{
-		TechTypes eRevealTech = (TechTypes)pkResource->getTechReveal();
-
-		if (eRevealTech == NO_TECH || GET_TEAM(getTeam()).GetTeamTechs()->HasTech(eRevealTech))
+		if (IsResourceRevealed(eIndex))
 		{
 			iCSResource *= GetNumCSAllies();
 			iCSResource /= 100;
 			iTotalNumResource += iCSResource;
-		}
-		else
-		{
-			PolicyTypes eRevealPolicy = (PolicyTypes)pkResource->getPolicyReveal();
-
-			// Is there no Reveal Tech or do we have it?
-			if (eRevealPolicy != NO_POLICY && GetPlayerPolicies()->HasPolicy(eRevealPolicy))
-			{
-				iCSResource *= GetNumCSAllies();
-				iCSResource /= 100;
-				iTotalNumResource += iCSResource;
-			}
 		}
 	}
 #endif
@@ -38060,25 +38089,11 @@ int CvPlayer::getNumResourceTotal(ResourceTypes eIndex, bool bIncludeImport) con
 	int iCSResource = getResourceFromCSAlliances(eIndex);
 	if (iCSResource != 0)
 	{
-		TechTypes eRevealTech = (TechTypes)pkResource->getTechReveal();
-
-		if (eRevealTech == NO_TECH || GET_TEAM(getTeam()).GetTeamTechs()->HasTech(eRevealTech))
+		if (IsResourceRevealed(eIndex))
 		{
 			iCSResource *= GetNumCSAllies();
 			iCSResource /= 100;
 			iTotalNumResource += iCSResource;
-		}
-		else
-		{
-			PolicyTypes eRevealPolicy = (PolicyTypes)pkResource->getPolicyReveal();
-
-			// Is there no Reveal Tech or do we have it?
-			if (eRevealPolicy != NO_POLICY && GetPlayerPolicies()->HasPolicy(eRevealPolicy))
-			{
-				iCSResource *= GetNumCSAllies();
-				iCSResource /= 100;
-				iTotalNumResource += iCSResource;
-			}
 		}
 	}
 #endif
@@ -38179,43 +38194,47 @@ void CvPlayer::changeNumResourceTotal(ResourceTypes eIndex, int iChange, bool /*
 					changeResourceExport(eIndex, iChange);
 
 					// Someone new is getting the bonus - but do they have the tech to see it?
-					if (GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes)GC.getResourceInfo(eIndex)->getTechReveal()))
+					CvResourceInfo* pResource = GC.getResourceInfo(eIndex);
+					if (pResource)
 					{
-						CvNotifications* pNotifications = GET_PLAYER(eBestRelationsPlayer).GetNotifications();
-						if(pNotifications && !GetMinorCivAI()->IsDisableNotifications())
+						if (IsResourceRevealed(eIndex))
 						{
-							Localization::String strMessage;
-							Localization::String strSummary;
-
-							// Adding Resources
-							if(iChange > 0)
+							CvNotifications* pNotifications = GET_PLAYER(eBestRelationsPlayer).GetNotifications();
+							if (pNotifications && !GetMinorCivAI()->IsDisableNotifications())
 							{
-								strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_MINOR_BFF_NEW_RESOURCE");
-								strMessage << getNameKey() << GC.getResourceInfo(eIndex)->GetDescriptionKey();
-								strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_MINOR_BFF_NEW_RESOURCE");
-								strSummary << getNameKey() << GC.getResourceInfo(eIndex)->GetDescriptionKey();
+								Localization::String strMessage;
+								Localization::String strSummary;
+
+								// Adding Resources
+								if (iChange > 0)
+								{
+									strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_MINOR_BFF_NEW_RESOURCE");
+									strMessage << getNameKey() << GC.getResourceInfo(eIndex)->GetDescriptionKey();
+									strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_MINOR_BFF_NEW_RESOURCE");
+									strSummary << getNameKey() << GC.getResourceInfo(eIndex)->GetDescriptionKey();
+								}
+								// Lost Resources
+								else
+								{
+									strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_MINOR_BFF_LOST_RESOURCE");
+									strMessage << getNameKey() << GC.getResourceInfo(eIndex)->GetDescriptionKey();
+									strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_MINOR_BFF_LOST_RESOURCE");
+									strSummary << getNameKey() << GC.getResourceInfo(eIndex)->GetDescriptionKey();
+								}
+
+								int iX = -1;
+								int iY = -1;
+
+								CvCity* capCity = getCapitalCity();
+
+								if (capCity != NULL)
+								{
+									iX = capCity->getX();
+									iY = capCity->getY();
+								}
+
+								pNotifications->Add(NOTIFICATION_MINOR, strMessage.toUTF8(), strSummary.toUTF8(), iX, iY, -1);
 							}
-							// Lost Resources
-							else
-							{
-								strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_MINOR_BFF_LOST_RESOURCE");
-								strMessage << getNameKey() << GC.getResourceInfo(eIndex)->GetDescriptionKey();
-								strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_MINOR_BFF_LOST_RESOURCE");
-								strSummary << getNameKey() << GC.getResourceInfo(eIndex)->GetDescriptionKey();
-							}
-
-							int iX = -1;
-							int iY = -1;
-
-							CvCity* capCity = getCapitalCity();
-
-							if(capCity != NULL)
-							{
-								iX = capCity->getX();
-								iY = capCity->getY();
-							}
-
-							pNotifications->Add(NOTIFICATION_MINOR, strMessage.toUTF8(), strSummary.toUTF8(), iX, iY, -1);
 						}
 					}
 				}
@@ -38519,7 +38538,7 @@ void CvPlayer::CheckForMonopoly(ResourceTypes eResource)
 	const CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
 	if(pkResourceInfo != NULL)
 	{
-		if (pkResourceInfo->isMonopoly() && (pkResourceInfo->getTechReveal() == NO_TECH || HasTech((TechTypes)pkResourceInfo->getTechReveal())))
+		if (pkResourceInfo->isMonopoly() && (IsResourceRevealed(eResource)))
 		{
 			bool bGainingBonus = false;
 			bool bGainingStrategicBonus = false;
@@ -38805,6 +38824,88 @@ void CvPlayer::changeCityYieldModFromMonopoly(YieldTypes eIndex, int iChange)
 	{
 		m_aiCityYieldModFromMonopoly[eIndex] = m_aiCityYieldModFromMonopoly[eIndex] + iChange;
 	}
+}
+
+//	--------------------------------------------------------------------------------
+//	--------------------------------------------------------------------------------
+/// Does this player, or his/her team, have the city trade tech for eResource?
+bool CvPlayer::IsResourceCityTradeable(ResourceTypes eResource, bool bCheckTeam) const
+{
+	CvResourceInfo* pResource = GC.getResourceInfo(eResource);
+
+	if (pResource)
+	{
+		// First, check for the player
+		TechTypes eDefaultTech = (TechTypes)pResource->getTechCityTrade();
+		TechTypes eTech = eDefaultTech;
+
+#if defined(MOD_BALANCE_CORE)
+		if (GetPlayerTraits()->IsAlternateResourceTechs())
+		{
+			TechTypes eAltTech = GetPlayerTraits()->GetAlternateResourceTechs(eResource).m_eTechCityTrade;
+			if (eAltTech != NO_TECH)
+			{
+				eTech = eAltTech;
+			}
+		}
+#endif
+
+		if (eTech == NO_TECH || HasTech(eTech))
+		{
+			return true;
+		}
+
+		// Lastly, check for the team
+		CvTeam* pTeam = &GET_TEAM(getTeam());
+		if (bCheckTeam && pTeam && pTeam->getNumMembers() > 1)
+		{
+			return pTeam->IsResourceCityTradeable(eResource);
+		}
+	}
+
+	return false;
+}
+
+//	--------------------------------------------------------------------------------
+//	--------------------------------------------------------------------------------
+/// Does this player, or his/her team, have the reveal tech or policy for eResource?
+bool CvPlayer::IsResourceRevealed(ResourceTypes eResource, bool bCheckTeam) const
+{
+	CvResourceInfo* pResource = GC.getResourceInfo(eResource);
+
+	if (pResource)
+	{
+		// First, check for the player's tech
+		TechTypes eDefaultTech = (TechTypes)pResource->getTechReveal();
+		TechTypes eTech = eDefaultTech;
+
+#if defined(MOD_BALANCE_CORE)
+		if (GetPlayerTraits()->IsAlternateResourceTechs())
+		{
+			TechTypes eAltTech = GetPlayerTraits()->GetAlternateResourceTechs(eResource).m_eTechReveal;
+			if (eAltTech != NO_TECH)
+			{
+				eTech = eAltTech;
+			}
+		}
+#endif
+		// Then, check for the player's policy
+		PolicyTypes ePolicy = (PolicyTypes)pResource->getPolicyReveal();
+
+		if ((eTech == NO_TECH || HasTech(eTech)) && (ePolicy == NO_POLICY || HasPolicy(ePolicy)))
+		{
+			return true;
+		}
+
+		// Lastly, check for the team
+		CvTeam* pTeam = &GET_TEAM(getTeam());
+		if (bCheckTeam && pTeam && pTeam->getNumMembers() > 1)
+		{
+			return pTeam->IsResourceRevealed(eResource);
+		}
+	}
+
+	return false;
 }
 
 //	--------------------------------------------------------------------------------

@@ -1923,10 +1923,9 @@ int CvBuilderTaskingAI::GetResourceWeight(ResourceTypes eResource, ImprovementTy
 
 		iWeight *= iModifier;
 	}
-	else if(pkResource->getResourceUsage() == RESOURCEUSAGE_STRATEGIC && pkResource->getTechCityTrade())
+	else if(pkResource->getResourceUsage() == RESOURCEUSAGE_STRATEGIC)
 	{
-		bool bHasTech = GET_TEAM(m_pPlayer->getTeam()).GetTeamTechs()->HasTech((TechTypes) pkResource->getTechCityTrade());
-		if(bHasTech)
+		if(m_pPlayer->IsResourceCityTradeable(eResource))
 		{
 			// measure quantity
 			int iMultiplyingAmount = iQuantity * 200;

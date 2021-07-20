@@ -358,6 +358,20 @@ function AddSmallButtonsToTechButton( thisTechButtonInstance, tech, maxSmallButt
 	local thisTechPrereq = { TechPrereq = techType }
 	local thisTechType = { TechType = techType }
 
+	local thisPlayer = nil;
+	local leaderID = -1;
+	local traitType = "";
+	if(Game ~= nil) then
+		thisPlayer = Players[Game.GetActivePlayer()];
+		if thisPlayer ~= nil then
+			leaderID = thisPlayer:GetLeaderType();
+			for leaderTraits in DB.Query( "SELECT TraitType FROM Leader_Traits INNER JOIN Leaders on Leaders.Type = LeaderType WHERE Leaders.ID = " .. leaderID ) do
+				traitType = leaderTraits.TraitType;
+				break;
+			end
+		end
+	end
+
 	local function addSmallButtonAndPedia( pedia, index, atlas, ... )
 		local button = thisTechButtonInstance["B"..buttonNum]
 		if button then
@@ -480,15 +494,33 @@ function AddSmallButtonsToTechButton( thisTechButtonInstance, tech, maxSmallButt
 
 	-- buildings and wonders unlocked by this tech
 	for row in GameInfo.Buildings( thisPrereqTech ) do
-		if validBuildingBuilds[row.BuildingClass] == row.Type and not addSmallArtButton( AdjustArtOnGrantedBuildingButton, row ) then
+		if row.ShowInPedia == 1 and validBuildingBuilds[row.BuildingClass] == row.Type and not addSmallArtButton( AdjustArtOnGrantedBuildingButton, row ) then
 			break
 		end
 	end
 
 	-- resources revealed by this tech
 	for row in GameInfo.Resources{ TechReveal = techType } do
-		if not addSmallArtButton( AdjustArtOnGrantedResourceButton, row ) then
-			break
+		-- check if the current player has an alternate unlock instead (we shall not check the team, because 1: niche case, 2: its complicated)
+		local isAltTech = false;
+		if thisPlayer ~= nil then
+			for altUnlock in DB.Query( "SELECT * FROM Trait_AlternateResourceTechs WHERE TraitType = '" .. traitType .. "' AND ResourceType = '" .. row.Type .. "'" ) do
+				isAltTech = true;
+				break;
+			end
+		end
+		if isAltTech == false then
+			if not addSmallArtButton( AdjustArtOnGrantedResourceButton, row ) then
+				break
+			end
+		end
+	end
+	-- alternate reveal tech specific to this leader
+	for row in DB.Query( "SELECT ResourceType FROM Trait_AlternateResourceTechs WHERE TraitType = '" .. traitType .. "' AND TechReveal = '" .. techType .. "'" ) do
+		for resource in GameInfo.Resources{ Type = row.ResourceType } do
+			if not addSmallArtButton( AdjustArtOnGrantedResourceButton, resource ) then
+				break
+			end
 		end
 	end
 
@@ -784,7 +816,7 @@ function AddSmallButtonsToTechButtonRadial( thisTechButtonInstance, tech, maxSma
 	local buttonNum = AddSmallButtonsToTechButton( thisTechButtonInstance, tech, maxSmallButtons, textureSize )
 
 	-- Push the start back based on # of icons
-	local phiDegrees = 90 - ((buttonNum-1) * 24 ) -- 90° is facing down (0° is far right), +values are clockwise, 24° is 1/2 angle per icon
+	local phiDegrees = 90 - ((buttonNum-1) * 24 ) -- 90Â° is facing down (0Â° is far right), +values are clockwise, 24Â° is 1/2 angle per icon
 	for i = 1, buttonNum do
 		thisTechButtonInstance["B"..i]:SetOffsetVal( PolarToCartesian( 46, 24 * i + phiDegrees ) ) -- 46 is radius
 	end

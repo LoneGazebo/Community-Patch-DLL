@@ -1136,7 +1136,7 @@ public:
 	CvString getInstantYieldText(InstantYieldType iType)  const;
 	void doInstantGWAM(GreatPersonTypes eGreatPerson, CvString strUnitName, bool bConquest = false);
 	void doPolicyGEorGM(int iPolicyGEorGM);
-	void doInstantGreatPersonProgress(InstantYieldType iType, bool bSuppress = false, CvCity* pCity = NULL, BuildingTypes eBuilding = NO_BUILDING);
+	void doInstantGreatPersonProgress(InstantYieldType iType, bool bSuppress = false, CvCity* pCity = NULL, BuildingTypes eBuilding = NO_BUILDING, int iPassValue = 0, GreatPersonTypes ePassGreatPerson = NO_GREATPERSON);
 	void addInstantGreatPersonProgressText(InstantYieldType iType, CvString strInstantYield);
 	void setInstantGreatPersonProgressText(InstantYieldType iType, CvString strInstantYield);
 	CvString getInstantGreatPersonProgressText(InstantYieldType iType)  const;
@@ -2151,6 +2151,9 @@ public:
 	void setResourceFromCSAlliances(ResourceTypes eIndex, int iChange);
 
 #endif
+
+	bool IsResourceCityTradeable(ResourceTypes eResource, bool bCheckTeam = true) const;
+	bool IsResourceRevealed(ResourceTypes eResource, bool bCheckTeam = true) const;
 
 	int getSiphonLuxuryCount(PlayerTypes eFromPlayer) const;
 	void changeSiphonLuxuryCount(PlayerTypes eFromPlayer, int iChange);
