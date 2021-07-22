@@ -880,7 +880,7 @@ void CvPlayerCorporations::RecalculateNumFranchises()
 	{
 		if (GetFranchisesPerImprovement((ImprovementTypes)iI) > 0)
 		{
-			iFranchises += (m_pPlayer->CountAllImprovement((ImprovementTypes)iI, false) * GetFranchisesPerImprovement((ImprovementTypes)iI));
+			iFranchises += (m_pPlayer->CountAllImprovement((ImprovementTypes)iI, true) * GetFranchisesPerImprovement((ImprovementTypes)iI));
 		}
 	}
 
@@ -1357,7 +1357,7 @@ int CvPlayerCorporations::GetMaxNumFranchises() const
 	{
 		if (GetFranchisesPerImprovement((ImprovementTypes)iI) > 0)
 		{
-			iReturnValue += (m_pPlayer->CountAllImprovement((ImprovementTypes)iI, false) * GetFranchisesPerImprovement((ImprovementTypes)iI));
+			iReturnValue += (m_pPlayer->CountAllImprovement((ImprovementTypes)iI, true) * GetFranchisesPerImprovement((ImprovementTypes)iI));
 		}
 	}
 
