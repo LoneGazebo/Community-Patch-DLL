@@ -7391,6 +7391,117 @@ void CvDiplomacyAI::DoUpdateWarDamage()
 	}
 }
 
+/// How many players have other major civilizations conquered?
+void CvDiplomacyAI::DoUpdateConquestStats()
+{
+	// What players do we know exist?
+	vector<PlayerTypes> vKnownPlayers;
+	int iLoop;
+	for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+	{
+		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+
+		if (IsHasMet(eLoopPlayer, true))
+		{
+			if (std::find(vKnownPlayers.begin(), vKnownPlayers.end(), eLoopPlayer) == vKnownPlayers.end())
+			{
+				vKnownPlayers.push_back(eLoopPlayer);
+			}
+		}
+
+		for (CvCity* pLoopCity = GET_PLAYER(eLoopPlayer).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(eLoopPlayer).nextCity(&iLoop))
+		{
+			CvPlot* pCityPlot = pLoopCity->plot();
+			if (pCityPlot == NULL)
+				continue;
+
+			if (!pCityPlot->isRevealed(GetTeam()))
+				continue;
+
+			PlayerTypes eCityOwner = pCityPlot->getOwner();
+
+			if (eCityOwner == NO_PLAYER || eCityOwner == BARBARIAN_PLAYER || eCityOwner == GetID())
+				continue;
+
+			if (std::find(vKnownPlayers.begin(), vKnownPlayers.end(), eCityOwner) == vKnownPlayers.end())
+			{
+				vKnownPlayers.push_back(eCityOwner);
+			}
+
+			PlayerTypes eOriginalOwner = pLoopCity->getOriginalOwner();
+			if (eOriginalOwner == eCityOwner || eOriginalOwner == NO_PLAYER || eOriginalOwner == BARBARIAN_PLAYER || eOriginalOwner == GetID())
+				continue;
+
+			if (std::find(vKnownPlayers.begin(), vKnownPlayers.end(), eOriginalOwner) == vKnownPlayers.end())
+			{
+				vKnownPlayers.push_back(eOriginalOwner);
+			}
+		}
+	}
+
+	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+	{
+		PlayerTypes ePlayer = (PlayerTypes) iPlayerLoop;
+		TeamTypes eTeam = GET_PLAYER(ePlayer).getTeam();
+
+		if (IsPlayerValid(ePlayer, true))
+		{
+			int iNumMajorsConquered = 0;
+			int iNumMinorsConquered = 0;
+
+			for (std::vector<PlayerTypes>::iterator it = vKnownPlayers.begin(); it != vKnownPlayers.end(); it++)
+			{
+				TeamTypes eLoopTeam = GET_PLAYER(*it).getTeam();
+
+				if (eLoopTeam == eTeam)
+					continue;
+
+				if (!GET_PLAYER(*it).isAlive() && GET_TEAM(eLoopTeam).GetKilledByTeam() == eTeam)
+				{
+					if (GET_PLAYER(*it).isMajorCiv())
+					{
+						iNumMajorsConquered++;
+					}
+					else if (GET_PLAYER(*it).isMinorCiv())
+					{
+						iNumMinorsConquered++;
+					}
+				}
+				else if (GET_PLAYER(*it).isMajorCiv() && GET_TEAM(eLoopTeam).IsVassal(eTeam))
+				{
+					iNumMajorsConquered++;
+				}
+				else if (GET_PLAYER(*it).IsHasLostCapital())
+				{
+					CvPlot *pOriginalCapitalPlot = GC.getMap().plot(GET_PLAYER(*it).GetOriginalCapitalX(), GET_PLAYER(*it).GetOriginalCapitalY());
+					if (pOriginalCapitalPlot != NULL && pOriginalCapitalPlot->isCity())
+					{
+						if (GET_PLAYER(pOriginalCapitalPlot->getOwner()).getTeam() == eTeam)
+						{
+							if (GET_PLAYER(*it).isMajorCiv())
+							{
+								iNumMajorsConquered++;
+							}
+							else if (GET_PLAYER(*it).isMinorCiv())
+							{
+								iNumMinorsConquered++;
+							}
+						}
+					}
+				}
+			}
+
+			SetPlayerNumMajorsConquered(ePlayer, iNumMajorsConquered);
+			SetPlayerNumMinorsConquered(ePlayer, iNumMinorsConquered);
+		}
+		else
+		{
+			SetPlayerNumMajorsConquered(ePlayer, 0);
+			SetPlayerNumMinorsConquered(ePlayer, 0);
+		}
+	}
+}
+
 //	-----------------------------------------------------------------------------------------------
 
 // ////////////////////////////////////
@@ -30238,117 +30349,6 @@ void CvDiplomacyAI::DoUpdateMinorCivProtection(PlayerTypes eMinor, CivApproachTy
 				GC.getGame().DoMinorPledgeProtection(GetID(), eMinor, false);
 				DoMakePublicDeclaration(PUBLIC_DECLARATION_ABANDON_MINOR, eMinor, -1, eMinor);
 			}
-		}
-	}
-}
-
-/// How many players have other major civilizations conquered?
-void CvDiplomacyAI::DoUpdateConquestStats()
-{
-	// What players do we know exist?
-	vector<PlayerTypes> vKnownPlayers;
-	int iLoop;
-	for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
-	{
-		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
-
-		if (IsHasMet(eLoopPlayer, true))
-		{
-			if (std::find(vKnownPlayers.begin(), vKnownPlayers.end(), eLoopPlayer) == vKnownPlayers.end())
-			{
-				vKnownPlayers.push_back(eLoopPlayer);
-			}
-		}
-
-		for (CvCity* pLoopCity = GET_PLAYER(eLoopPlayer).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(eLoopPlayer).nextCity(&iLoop))
-		{
-			CvPlot* pCityPlot = pLoopCity->plot();
-			if (pCityPlot == NULL)
-				continue;
-
-			if (!pCityPlot->isRevealed(GetTeam()))
-				continue;
-
-			PlayerTypes eCityOwner = pCityPlot->getOwner();
-
-			if (eCityOwner == NO_PLAYER || eCityOwner == BARBARIAN_PLAYER || eCityOwner == GetID())
-				continue;
-
-			if (std::find(vKnownPlayers.begin(), vKnownPlayers.end(), eCityOwner) == vKnownPlayers.end())
-			{
-				vKnownPlayers.push_back(eCityOwner);
-			}
-
-			PlayerTypes eOriginalOwner = pLoopCity->getOriginalOwner();
-			if (eOriginalOwner == eCityOwner || eOriginalOwner == NO_PLAYER || eOriginalOwner == BARBARIAN_PLAYER || eOriginalOwner == GetID())
-				continue;
-
-			if (std::find(vKnownPlayers.begin(), vKnownPlayers.end(), eOriginalOwner) == vKnownPlayers.end())
-			{
-				vKnownPlayers.push_back(eOriginalOwner);
-			}
-		}
-	}
-
-	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
-	{
-		PlayerTypes ePlayer = (PlayerTypes) iPlayerLoop;
-		TeamTypes eTeam = GET_PLAYER(ePlayer).getTeam();
-
-		if (IsPlayerValid(ePlayer, true))
-		{
-			int iNumMajorsConquered = 0;
-			int iNumMinorsConquered = 0;
-
-			for (std::vector<PlayerTypes>::iterator it = vKnownPlayers.begin(); it != vKnownPlayers.end(); it++)
-			{
-				TeamTypes eLoopTeam = GET_PLAYER(*it).getTeam();
-
-				if (eLoopTeam == eTeam)
-					continue;
-
-				if (!GET_PLAYER(*it).isAlive() && GET_TEAM(eLoopTeam).GetKilledByTeam() == eTeam)
-				{
-					if (GET_PLAYER(*it).isMajorCiv())
-					{
-						iNumMajorsConquered++;
-					}
-					else if (GET_PLAYER(*it).isMinorCiv())
-					{
-						iNumMinorsConquered++;
-					}
-				}
-				else if (GET_PLAYER(*it).isMajorCiv() && GET_TEAM(eLoopTeam).IsVassal(eTeam))
-				{
-					iNumMajorsConquered++;
-				}
-				else if (GET_PLAYER(*it).IsHasLostCapital())
-				{
-					CvPlot *pOriginalCapitalPlot = GC.getMap().plot(GET_PLAYER(*it).GetOriginalCapitalX(), GET_PLAYER(*it).GetOriginalCapitalY());
-					if (pOriginalCapitalPlot != NULL && pOriginalCapitalPlot->isCity())
-					{
-						if (GET_PLAYER(pOriginalCapitalPlot->getOwner()).getTeam() == eTeam)
-						{
-							if (GET_PLAYER(*it).isMajorCiv())
-							{
-								iNumMajorsConquered++;
-							}
-							else if (GET_PLAYER(*it).isMinorCiv())
-							{
-								iNumMinorsConquered++;
-							}
-						}
-					}
-				}
-			}
-
-			SetPlayerNumMajorsConquered(ePlayer, iNumMajorsConquered);
-			SetPlayerNumMinorsConquered(ePlayer, iNumMinorsConquered);
-		}
-		else
-		{
-			SetPlayerNumMajorsConquered(ePlayer, 0);
-			SetPlayerNumMinorsConquered(ePlayer, 0);
 		}
 	}
 }
