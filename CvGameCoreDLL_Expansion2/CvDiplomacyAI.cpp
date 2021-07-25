@@ -15,6 +15,7 @@
 #include "CvMilitaryAI.h"
 #include "CvMinorCivAI.h"
 #include "CvCitySpecializationAI.h"
+#include "CvDealClasses.h"
 #include "CvDealAI.h"
 #include "CvGameCoreUtils.h"
 #include "CvNotifications.h"
