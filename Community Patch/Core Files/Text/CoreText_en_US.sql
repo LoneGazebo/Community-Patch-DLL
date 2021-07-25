@@ -842,11 +842,11 @@ WHERE Tag = 'TXT_KEY_DIPLO_COOP_WAR_PROMISE';
 
 -- Religion / Ideology
 UPDATE Language_en_US
-SET Text = 'They have happily adopted your religion in the majority of their cities.'
+SET Text = 'They have happily adopted your religion in the majority of their cities.' -- note for translators: swapped HIS and MY text keys from vanilla
 WHERE Tag = 'TXT_KEY_DIPLO_ADOPTING_HIS_RELIGION';
 
 UPDATE Language_en_US
-SET Text = 'You have adopted their religion in the majority of your cities.'
+SET Text = 'You have adopted their religion in the majority of your cities.'  -- note for translators: swapped HIS and MY text keys from vanilla
 WHERE Tag = 'TXT_KEY_DIPLO_ADOPTING_MY_RELIGION';
 
 UPDATE Language_en_US

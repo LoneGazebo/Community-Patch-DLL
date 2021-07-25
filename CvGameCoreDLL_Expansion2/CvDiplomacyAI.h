@@ -11,18 +11,24 @@
 #define CIV5_AI_DIPLOMACY_H
 
 #include "CvDiplomacyAIEnums.h"
-#include "CvDealClasses.h"
+#include "CvGameCoreDLLPCH.h"
+#include "ICvDLLUserInterface.h"
+#include "CvGameCoreUtils.h"
+#include "CvGrandStrategyAI.h"
+#include "CvEconomicAI.h"
+#include "CvMilitaryAI.h"
 #include "CvMinorCivAI.h"
+#include "CvCitySpecializationAI.h"
+#include "CvDealClasses.h"
+#include "CvDealAI.h"
+#include "CvNotifications.h"
+#include "CvDiplomacyRequests.h"
 
-#define BULLY_DEBUGGING false
-
-#if defined(MOD_EVENTS_DIPLO_MODIFIERS)
 struct Opinion
 {
 	Localization::String m_str;
 	int m_iValue;
 };
-#endif
 
 struct DiploLogData
 {
@@ -53,15 +59,10 @@ FDataStream& operator>>(FDataStream&, DeclarationLogData&);
 #define MAX_DIPLO_LOG_STATEMENTS 60
 #define MAX_TURNS_SAFE_ESTIMATE 9999
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//  CLASS:      CvDiplomacyAI
-//!  \brief		Drives the diplomatic interaction of a player
-//
-//!  Author:	Jon Shafer
-//
-//!  Key Attributes:
-//!  - Object created by CvPlayer
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//=====================================
+// CvDiplomacyAI
+//=====================================
+
 class CvDiplomacyAI
 {
 public:

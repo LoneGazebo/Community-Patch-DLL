@@ -1,5 +1,5 @@
 -- Diplomacy AI Options
--- All of these options are savegame compatible (enabling/disabling them and then loading a saved game will activate/deactivate them with no issues).
+-- All of these options (except Disable Flavor Randomization) are savegame compatible. Enabling/disabling them and then loading a saved game will activate/deactivate them with no issues.
 
 -- [DISABLE VICTORY COMPETITION]
 -- If set to 1, AI civilizations will not receive any aggression boosts or reductions towards other players based on their victory progress.
@@ -116,9 +116,11 @@ INSERT INTO Defines (Name, Value)
 SELECT 'DIPLOAI_DISABLE_HELP_REQUESTS', '0';
 
 -- [DISABLE TRADE OFFERS]
--- If set to 1, AI civilizations will not send trade offers to human players (except peace offers).
+-- If set to 1, AI civilizations will not send trade offers to human players, except peace offers and offers to renew an existing deal.
+-- If set to 2, AI civilizations will only send peace offers, NOT offers to renew an existing deal.
 -- Humans can still trade with AI players on their own turn.
 -- Does not prevent the AI from making demands.
+-- NOTE: To disable peace offers, see the setting directly below.
 INSERT INTO Defines (Name, Value)
 SELECT 'DIPLOAI_DISABLE_TRADE_OFFERS', '0';
 

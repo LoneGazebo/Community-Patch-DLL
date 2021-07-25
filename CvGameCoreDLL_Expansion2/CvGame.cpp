@@ -6435,11 +6435,20 @@ bool CvGame::IsHelpRequestsDisabled() const
 
 /// Disable Trade Offers
 /// Only affects human players, and only affects trade offers sent by the AI on their turn. Does not affect peace offers.
-bool CvGame::IsTradeOffersDisabled() const
+bool CvGame::IsTradeOffersDisabled(bool bIncludeRenewals) const
 {
-	if (GC.getDIPLOAI_DISABLE_TRADE_OFFERS() > 0)
+	if (bIncludeRenewals)
 	{
-		return true;
+		if (GC.getDIPLOAI_DISABLE_TRADE_OFFERS() > 1)
+		{
+			return true;
+		}
+	else
+	{
+		if (GC.getDIPLOAI_DISABLE_TRADE_OFFERS() > 0)
+		{
+			return true;
+		}
 	}
 
 	return false;

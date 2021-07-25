@@ -1583,4 +1583,3 @@ ALTER TABLE Traits
   ADD ExtraSupplyPerPopulation INTEGER DEFAULT 0;
 
 INSERT INTO CustomModDbUpdates(Name, Value) VALUES('TRAITS_EXTRA_SUPPLY', 1);
-

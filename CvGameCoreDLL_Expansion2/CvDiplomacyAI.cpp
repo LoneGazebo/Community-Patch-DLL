@@ -6,17 +6,7 @@
 	All rights reserved. 
 	------------------------------------------------------------------------------------------------------- */
 
-#include "CvGameCoreDLLPCH.h"
-#include "ICvDLLUserInterface.h"
 #include "CvDiplomacyAI.h"
-#include "CvGrandStrategyAI.h"
-#include "CvEconomicAI.h"
-#include "CvMilitaryAI.h"
-#include "CvCitySpecializationAI.h"
-#include "CvDealAI.h"
-#include "CvGameCoreUtils.h"
-#include "CvNotifications.h"
-#include "CvDiplomacyRequests.h"
 
 // must be included after all other headers
 #include "LintFree.h"
@@ -25,9 +15,15 @@
 #	pragma warning ( disable : 4351 ) // default initialization of arrays
 #endif
 
-//=====================================
-// CvDiplomacyAI
-//=====================================
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//  CLASS:      CvDiplomacyAI
+//!  \brief		Drives the diplomatic interaction of a player
+//
+//!  Author:	Jon Shafer
+//
+//!  Key Attributes:
+//!  - Object created by CvPlayer
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 /// Constructor
 CvDiplomacyAI::CvDiplomacyAI()
@@ -29346,13 +29342,6 @@ void CvDiplomacyAI::DoContactMinorCivs()
 			bWantsToBullyGold = true;
 	}
 
-	if(BULLY_DEBUGGING)
-	{
-		//bWantsToMakeGoldGift = false;
-		//bWantsToBullyGold = true;
-		//bWantsToBullyUnit = true;
-	}
-
 	CvWeightedVector<PlayerTypes> veMinorsToBuyout; // Austria UA
 	CvWeightedVector<MinorGoldGiftInfo> veMinorsToGiveGold;
 	CvWeightedVector<PlayerTypes> veMinorsToBullyGold;
@@ -31711,15 +31700,15 @@ std::vector<CvDeal*> CvDiplomacyAI::DoRenewExpiredDeal(PlayerTypes ePlayer, Dipl
 		return renewDeals;
 	}
 
-	if (GET_PLAYER(ePlayer).isHuman() && GC.getGame().IsTradeOffersDisabled())
-	{
-		CancelRenewDeal(ePlayer, REASON_NO_DEAL);
-		return renewDeals;
-	}
-
 	if (IsAvoidDeals())
 	{
 		CancelRenewDeal(ePlayer, REASON_CANNOT_COMPROMISE);
+		return renewDeals;
+	}
+
+	if (GET_PLAYER(ePlayer).isHuman() && GC.getGame().IsTradeOffersDisabled(true))
+	{
+		CancelRenewDeal(ePlayer, REASON_HUMAN_REJECTION);
 		return renewDeals;
 	}
 
