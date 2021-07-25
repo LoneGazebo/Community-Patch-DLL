@@ -50950,12 +50950,7 @@ int CvPlayer::CountNumDangerousMajorsAtWarWith(bool bExcludePhonyWars, bool bExc
 	{
 		if (GET_PLAYER(*it).isMajorCiv() && GET_PLAYER(*it).isAlive() && GET_PLAYER(*it).getNumCities() > 0)
 		{
-			if (isMinorCiv())
-			{
-				if (GET_PLAYER(*it).GetProximityToPlayer(GetID()) < PLAYER_PROXIMITY_NEIGHBORS)
-					continue;
-			}
-			else if (bExcludePhonyWars && GetDiplomacyAI()->IsPhonyWar(*it))
+			if (bExcludePhonyWars && GetDiplomacyAI()->IsPhonyWar(*it))
 				continue;
 			else if (bExcludeIfNoTarget && !GetMilitaryAI()->IsExposedToEnemy(NULL, *it) && GetDiplomacyAI()->GetNumberOfThreatenedCities(*it) <= 0)
 				continue;
