@@ -44516,7 +44516,7 @@ int CvDiplomacyAI::GetWeDenouncedFriendScore(PlayerTypes ePlayer)
 	if (!IsUntrustworthy(ePlayer))
 		return 0;
 	
-	int iWeight = /*30*/ GC.getOPINION_WEIGHT_DENOUNCED_FRIEND_EACH();
+	int iWeight = /*40*/ GC.getOPINION_WEIGHT_DENOUNCED_FRIEND_EACH();
 	
 	// How many of their friends have they denounced?
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
@@ -44550,7 +44550,7 @@ int CvDiplomacyAI::GetFriendDenouncedUsScore(PlayerTypes ePlayer)
 
 	if (IsFriendDenouncedUs(ePlayer))
 	{
-		iTraitorOpinion = /*45*/ GC.getOPINION_WEIGHT_DENOUNCED_ME_FRIENDS();
+		iTraitorOpinion = /*80*/ GC.getOPINION_WEIGHT_DENOUNCED_ME_FRIENDS();
 	}
 
 	return iTraitorOpinion;
@@ -44564,7 +44564,7 @@ int CvDiplomacyAI::GetWeDeclaredWarOnFriendScore(PlayerTypes ePlayer)
 	if (!IsUntrustworthy(ePlayer))
 		return 0;
 	
-	int iWeight = /*50*/ GC.getOPINION_WEIGHT_WAR_FRIEND_EACH();
+	int iWeight = /*75*/ GC.getOPINION_WEIGHT_WAR_FRIEND_EACH();
 	
 	// How many of their friends have they declared war on?
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
@@ -44598,7 +44598,7 @@ int CvDiplomacyAI::GetFriendDeclaredWarOnUsScore(PlayerTypes ePlayer)
 
 	if (IsFriendDeclaredWarOnUs(ePlayer))
 	{
-		iTraitorOpinion = /*100*/ GC.getOPINION_WEIGHT_WAR_ME_FRIENDS();
+		iTraitorOpinion = /*150*/ GC.getOPINION_WEIGHT_WAR_ME_FRIENDS();
 	}
 
 	return iTraitorOpinion;

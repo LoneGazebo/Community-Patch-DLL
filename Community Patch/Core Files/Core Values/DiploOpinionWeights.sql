@@ -428,16 +428,16 @@ UPDATE Defines SET Value = '20' WHERE Name = 'OPINION_WEIGHT_DENOUNCED_BY_FRIEND
 UPDATE Defines SET Value = '10' WHERE Name = 'OPINION_WEIGHT_DENOUNCED_BY_FRIEND_DONT_LIKE'; -- if they like you more than the denouncer
 
 -- You have Denounced leaders you've made Declarations of Friendship with!
-UPDATE Defines SET Value = '30' WHERE Name = 'OPINION_WEIGHT_DENOUNCED_FRIEND_EACH';
+UPDATE Defines SET Value = '40' WHERE Name = 'OPINION_WEIGHT_DENOUNCED_FRIEND_EACH';
 
 -- We made a Declaration of Friendship and then denounced them!
-UPDATE Defines SET Value = '60' WHERE Name = 'OPINION_WEIGHT_DENOUNCED_ME_FRIENDS';
+UPDATE Defines SET Value = '80' WHERE Name = 'OPINION_WEIGHT_DENOUNCED_ME_FRIENDS';
 
 -- You have Declared War on leaders you've made Declarations of Friendship with!
-UPDATE Defines SET Value = '50' WHERE Name = 'OPINION_WEIGHT_WAR_FRIEND_EACH';
+UPDATE Defines SET Value = '75' WHERE Name = 'OPINION_WEIGHT_WAR_FRIEND_EACH';
 
 -- We made a Declaration of Friendship and then declared war on them!
-UPDATE Defines SET Value = '100' WHERE Name = 'OPINION_WEIGHT_WAR_ME_FRIENDS';
+UPDATE Defines SET Value = '150' WHERE Name = 'OPINION_WEIGHT_WAR_ME_FRIENDS';
 
 -- You restored their civilization and then attacked them!
 -- This (permanent!) penalty is applied separately from normal backstabbing penalties.
