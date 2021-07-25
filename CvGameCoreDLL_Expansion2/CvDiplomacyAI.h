@@ -933,9 +933,6 @@ public:
 	void SetHelpRequestTooSoonNumTurns(PlayerTypes ePlayer, int iValue);
 	bool IsHelpRequestTooSoon(PlayerTypes ePlayer) const;
 
-	bool IsTargetingVassal(PlayerTypes ePlayer) const;
-	void SetTargetingVassal(PlayerTypes ePlayer, bool bValue);
-
 	bool IsHasPaidTributeTo(PlayerTypes ePlayer) const;
 	void SetHasPaidTributeTo(PlayerTypes ePlayer, bool bValue);
 
@@ -1104,7 +1101,7 @@ public:
 	// ------------------------------------
 
 	void DoUpdateGlobalPolitics();
-	void DoReevaluatePlayers(vector<PlayerTypes>& vTargetPlayers, bool bFromWar = false, bool bCancelExchanges = true);
+	void DoReevaluatePlayers(vector<PlayerTypes>& vTargetPlayers, bool bFromWar = false, bool bCancelExchanges = true, bool bFromResurrection = false);
 	void DoUpdateMajorCompetitors();
 	void DoUpdateMajorCivApproaches(vector<PlayerTypes>& vPlayersToReevaluate, bool bStrategic);
 
@@ -1271,7 +1268,7 @@ public:
 
 	void DoUpdateMinorCivProtection(PlayerTypes eMinor, CivApproachTypes eApproach);
 
-	void DoCoopWarTimeStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement, int& iData1);
+	//void DoCoopWarTimeStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement, int& iData1);
 	void DoCoopWarStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement, int& iData1);
 
 	void DoMakeDemand(PlayerTypes ePlayer);
@@ -2072,7 +2069,6 @@ private:
 	bool m_abHasPaidTributeTo[MAX_MAJOR_CIVS];
 	int m_aiBrokenVassalAgreementTurn[MAX_MAJOR_CIVS];
 	short m_aiPlayerVassalageFailedProtectValue[MAX_MAJOR_CIVS];
-	bool m_abTargetingVassal[MAX_MAJOR_CIVS];
 	short m_aiPlayerVassalageProtectValue[MAX_MAJOR_CIVS];
 	int m_aiPlayerVassalagePeacefullyRevokedTurn[MAX_MAJOR_CIVS];
 	int m_aiPlayerVassalageForcefullyRevokedTurn[MAX_MAJOR_CIVS];

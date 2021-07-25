@@ -10005,8 +10005,8 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 			// Reduce liberator's war weariness by 25%
 			GetCulture()->SetWarWeariness(GetCulture()->GetWarWeariness() - (GetCulture()->GetWarWeariness() / 4));
 		}
-#if defined(MOD_BALANCE_CORE_POLICIES)
 
+#if defined(MOD_BALANCE_CORE_POLICIES)
 		//gain yields for liberation
 		int iPop = pNewCity->getPopulation();
 		for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
@@ -10117,15 +10117,8 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 	}
 	else
 	{
-		pDiploAI->DoUpdateCompetingForVictory();
-		pDiploAI->DoUpdateRecklessExpanders();
-		pDiploAI->DoUpdateWonderSpammers();
-		pDiploAI->DoUpdateTechBlockLevels();
-		pDiploAI->DoUpdatePolicyBlockLevels();
-		pDiploAI->DoUpdateVictoryDisputeLevels();
-		pDiploAI->DoUpdateVictoryBlockLevels();
 		vector<PlayerTypes> v = GET_PLAYER(ePlayer).GetDiplomacyAI()->GetAllValidMajorCivs();
-		pDiploAI->DoReevaluatePlayers(v);
+		pDiploAI->DoReevaluatePlayers(v, false, false, true);
 	}
 
 	vector<PlayerTypes> v = GET_TEAM(GET_PLAYER(ePlayer).getTeam()).getPlayers();
@@ -34710,6 +34703,16 @@ void CvPlayer::CheckForMurder(PlayerTypes ePossibleVictimPlayer)
 
 			// Apply a backstabbing mark to the players on the team that killed us
 			kPossibleVictimPlayer.GetDiplomacyAI()->SetBackstabbedBy(GetID(), true, true);
+
+			// If the entire team was killed, reset locked war turns
+			if (!GET_TEAM(kPossibleVictimPlayer.getTeam()).isAlive())
+			{
+				for (uint ui = 0; ui < MAX_CIV_TEAMS; ui++)
+				{
+					GET_TEAM((TeamTypes)ui).SetNumTurnsLockedIntoWar(kPossibleVictimPlayer.getTeam(), 0);
+					GET_TEAM(kPossibleVictimPlayer.getTeam()).SetNumTurnsLockedIntoWar((TeamTypes)ui, 0);
+				}
+			}
 		}
 
 		DoWarVictoryBonuses();

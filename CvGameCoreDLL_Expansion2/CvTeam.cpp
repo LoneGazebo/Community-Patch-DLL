@@ -9611,7 +9611,7 @@ void CvTeam::DoEndVassal(TeamTypes eTeam, bool bPeaceful, bool bSuppressNotifica
 	//Break open borders
 	SetAllowsOpenBordersToTeam(eTeam, false);
 	GET_TEAM(eTeam).SetAllowsOpenBordersToTeam(GetID(), false);
-		
+
 	setVassal(eTeam, false);
 
 	// reset counters
@@ -9649,17 +9649,14 @@ void CvTeam::DoEndVassal(TeamTypes eTeam, bool bPeaceful, bool bSuppressNotifica
 		}
 	}
 
-	if (bPeaceful)
+	vector<PlayerTypes> vOurTeam = getPlayers();
+	for(size_t i=0; i<vOurTeam.size(); i++)
 	{
-		vector<PlayerTypes> vOurTeam = getPlayers();
-		for(size_t i=0; i<vOurTeam.size(); i++)
+		CvPlayerAI& kPlayer = GET_PLAYER(vOurTeam[i]);
+		if (kPlayer.isAlive())
 		{
-			CvPlayerAI& kPlayer = GET_PLAYER(vOurTeam[i]);
-			if (kPlayer.isAlive())
-			{
-				vector<PlayerTypes> v = kPlayer.GetDiplomacyAI()->GetAllValidMajorCivs();
-				kPlayer.GetDiplomacyAI()->DoReevaluatePlayers(v);
-			}
+			vector<PlayerTypes> v = kPlayer.GetDiplomacyAI()->GetAllValidMajorCivs();
+			kPlayer.GetDiplomacyAI()->DoReevaluatePlayers(v, false, true, true);
 		}
 	}
 

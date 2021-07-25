@@ -244,8 +244,8 @@ INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_DENOUNCED_BY_THEIR_KEY_
 
 -- AI asked player not to declare war on them
 UPDATE Defines SET Value = '80' WHERE Name = 'OPINION_WEIGHT_BROKEN_MILITARY_PROMISE';
-UPDATE Defines SET Value = '40' WHERE Name = 'OPINION_WEIGHT_BROKEN_MILITARY_PROMISE_WORLD'; -- global penalty; applied if no personal penalty
-UPDATE Defines SET Value = '0' WHERE Name = 'OPINION_WEIGHT_IGNORED_MILITARY_PROMISE'; -- applied if no global or personal penalty
+UPDATE Defines SET Value = '40' WHERE Name = 'OPINION_WEIGHT_BROKEN_MILITARY_PROMISE_WORLD'; -- global penalty; applied if no personal penalty for breaking the promise
+UPDATE Defines SET Value = '0' WHERE Name = 'OPINION_WEIGHT_IGNORED_MILITARY_PROMISE';
 
 -- AI asked player to stop settling near them
 UPDATE Defines SET Value = '40' WHERE Name = 'OPINION_WEIGHT_EXPANSION_PROMISE_BROKE_MAX';
@@ -257,8 +257,8 @@ UPDATE Defines SET Value = '30' WHERE Name = 'OPINION_WEIGHT_BORDER_PROMISE_IGNO
 
 -- AI asked player not to conquer their protected City-States
 UPDATE Defines SET Value = '80' WHERE Name = 'OPINION_WEIGHT_BROKEN_CITY_STATE_PROMISE';
-UPDATE Defines SET Value = '40' WHERE Name = 'OPINION_WEIGHT_BROKEN_CITY_STATE_PROMISE_WORLD'; -- global penalty; applied if no personal penalty
-UPDATE Defines SET Value = '30' WHERE Name = 'OPINION_WEIGHT_IGNORED_CITY_STATE_PROMISE'; -- applied if no global or personal penalty
+UPDATE Defines SET Value = '40' WHERE Name = 'OPINION_WEIGHT_BROKEN_CITY_STATE_PROMISE_WORLD'; -- global penalty; applied if no personal penalty for breaking the promise
+UPDATE Defines SET Value = '30' WHERE Name = 'OPINION_WEIGHT_IGNORED_CITY_STATE_PROMISE';
 
 -- AI asked player not to bully their protected City-States
 INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_BROKEN_BULLY_CITY_STATE_PROMISE', '40';
@@ -266,8 +266,8 @@ INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_IGNORED_BULLY_CITY_STAT
 
 -- AI asked player to stop converting their cities to another religion
 -- These values are multiplied by the current game era's Diplo Emphasis for Religion.
-UPDATE Defines SET Value = '8' WHERE Name = 'OPINION_WEIGHT_BROKEN_NO_CONVERT_PROMISE';
-UPDATE Defines SET Value = '4' WHERE Name = 'OPINION_WEIGHT_IGNORED_NO_CONVERT_PROMISE';
+UPDATE Defines SET Value = '16' WHERE Name = 'OPINION_WEIGHT_BROKEN_NO_CONVERT_PROMISE';
+UPDATE Defines SET Value = '8' WHERE Name = 'OPINION_WEIGHT_IGNORED_NO_CONVERT_PROMISE';
 
 -- AI asked player to stop digging up their artifacts
 UPDATE Defines SET Value = '60' WHERE Name = 'OPINION_WEIGHT_BROKEN_NO_DIG_PROMISE';
@@ -424,20 +424,20 @@ INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_RA_SCIENTIFIC_MOD', '-1
 INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_BETRAYED_OUR_FRIEND_MULTIPLIER', '200'; -- multiplier to all traitor opinion penalties wherein the player betrayed or was betrayed by AI's friend
 
 -- Your friends found reason to Denounce you!
-UPDATE Defines SET Value = '30' WHERE Name = 'OPINION_WEIGHT_DENOUNCED_BY_FRIEND_EACH'; -- if they like the denouncer more than you
+UPDATE Defines SET Value = '20' WHERE Name = 'OPINION_WEIGHT_DENOUNCED_BY_FRIEND_EACH'; -- if they like the denouncer more than you
 UPDATE Defines SET Value = '10' WHERE Name = 'OPINION_WEIGHT_DENOUNCED_BY_FRIEND_DONT_LIKE'; -- if they like you more than the denouncer
 
 -- You have Denounced leaders you've made Declarations of Friendship with!
-UPDATE Defines SET Value = '60' WHERE Name = 'OPINION_WEIGHT_DENOUNCED_FRIEND_EACH';
+UPDATE Defines SET Value = '30' WHERE Name = 'OPINION_WEIGHT_DENOUNCED_FRIEND_EACH';
 
 -- We made a Declaration of Friendship and then denounced them!
-UPDATE Defines SET Value = '90' WHERE Name = 'OPINION_WEIGHT_DENOUNCED_ME_FRIENDS';
+UPDATE Defines SET Value = '60' WHERE Name = 'OPINION_WEIGHT_DENOUNCED_ME_FRIENDS';
 
 -- You have Declared War on leaders you've made Declarations of Friendship with!
-UPDATE Defines SET Value = '100' WHERE Name = 'OPINION_WEIGHT_WAR_FRIEND_EACH';
+UPDATE Defines SET Value = '50' WHERE Name = 'OPINION_WEIGHT_WAR_FRIEND_EACH';
 
 -- We made a Declaration of Friendship and then declared war on them!
-UPDATE Defines SET Value = '200' WHERE Name = 'OPINION_WEIGHT_WAR_ME_FRIENDS';
+UPDATE Defines SET Value = '100' WHERE Name = 'OPINION_WEIGHT_WAR_ME_FRIENDS';
 
 -- You restored their civilization and then attacked them!
 -- This (permanent!) penalty is applied separately from normal backstabbing penalties.
