@@ -6443,6 +6443,7 @@ bool CvGame::IsTradeOffersDisabled(bool bIncludeRenewals) const
 		{
 			return true;
 		}
+	}
 	else
 	{
 		if (GC.getDIPLOAI_DISABLE_TRADE_OFFERS() > 0)

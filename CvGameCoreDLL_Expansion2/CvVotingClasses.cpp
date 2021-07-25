@@ -12789,15 +12789,15 @@ int CvLeagueAI::ScoreVoteChoicePlayer(CvProposal* pProposal, int iChoice, bool b
 	{
 		switch (eAlignment)
 		{
-		case ALIGNMENT_SELF:
-			iScore += 1000 + 30 * iOurPercent;
-			break;
 		case ALIGNMENT_LEADER:
 			iScore += 100000;
 			break;
+		case ALIGNMENT_SELF:
+			iScore += /*1000*/ GC.getAI_WORLD_LEADER_BASE_WEIGHT_SELF() + 30 * iOurPercent;
+			break;
 		case ALIGNMENT_TEAMMATE:
 		case ALIGNMENT_LIBERATOR:
-			iScore += 1000 + 30 * iTheirPercent;
+			iScore += /*1000*/ GC.getAI_WORLD_LEADER_BASE_WEIGHT_SELF() + 30 * iTheirPercent;
 			break;
 		case ALIGNMENT_ALLY:
 			if (bIsLiked)
@@ -12838,11 +12838,11 @@ int CvLeagueAI::ScoreVoteChoicePlayer(CvProposal* pProposal, int iChoice, bool b
 	{
 		switch (eAlignment)
 		{
-		case ALIGNMENT_SELF:
-			iScore += 200 * (iOurVotes + 1);
-			break;
 		case ALIGNMENT_LEADER:
 			iScore += 100000;
+			break;
+		case ALIGNMENT_SELF:
+			iScore += 200 * (iOurVotes + 1);
 			break;
 		case ALIGNMENT_TEAMMATE:
 		case ALIGNMENT_LIBERATOR:

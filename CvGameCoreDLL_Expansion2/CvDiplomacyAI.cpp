@@ -6,7 +6,19 @@
 	All rights reserved. 
 	------------------------------------------------------------------------------------------------------- */
 
+#include "CvGameCoreDLLPCH.h"
+#include "ICvDLLUserInterface.h"
+#include "CvDiplomacyAIEnums.h"
 #include "CvDiplomacyAI.h"
+#include "CvGrandStrategyAI.h"
+#include "CvEconomicAI.h"
+#include "CvMilitaryAI.h"
+#include "CvMinorCivAI.h"
+#include "CvCitySpecializationAI.h"
+#include "CvDealAI.h"
+#include "CvGameCoreUtils.h"
+#include "CvNotifications.h"
+#include "CvDiplomacyRequests.h"
 
 // must be included after all other headers
 #include "LintFree.h"

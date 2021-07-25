@@ -10,20 +10,6 @@
 #ifndef CIV5_AI_DIPLOMACY_H
 #define CIV5_AI_DIPLOMACY_H
 
-#include "CvDiplomacyAIEnums.h"
-#include "CvGameCoreDLLPCH.h"
-#include "ICvDLLUserInterface.h"
-#include "CvGameCoreUtils.h"
-#include "CvGrandStrategyAI.h"
-#include "CvEconomicAI.h"
-#include "CvMilitaryAI.h"
-#include "CvMinorCivAI.h"
-#include "CvCitySpecializationAI.h"
-#include "CvDealClasses.h"
-#include "CvDealAI.h"
-#include "CvNotifications.h"
-#include "CvDiplomacyRequests.h"
-
 struct Opinion
 {
 	Localization::String m_str;
