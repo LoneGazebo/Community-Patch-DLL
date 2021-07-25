@@ -115,7 +115,6 @@ public:
 	bool IsMaster(PlayerTypes eOtherPlayer) const;
 	bool IsVoluntaryVassalage(PlayerTypes eOtherPlayer) const;
 	vector<PlayerTypes> GetLinkedWarPlayers(PlayerTypes eOtherPlayer, bool bIgnoreDefensivePacts, bool bIncludeMinors, bool bIncludeUnmet) const;
-	vector<PlayerTypes> GetWarAllies(PlayerTypes ePlayer) const;
 
 	// ************************************
 	// Personality Values

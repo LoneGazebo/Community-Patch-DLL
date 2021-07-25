@@ -13274,36 +13274,52 @@ bool CvPlayer::canReceiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit) 
 	}
 
 	// Reveal Unknown Resource
-	if(kGoodyInfo.isRevealUnknownResource())
+	if (kGoodyInfo.isRevealUnknownResource())
 	{
+		CvCity* pCapital = getCapitalCity();
+
 		// Can't get this if you have no Capital City
-		if(getCapitalCity() == NULL)
-		{
+		if (!pCapital)
 			return false;
-		}
 
-		CvResourceInfo* pResource;
 		ResourceClassTypes eResourceClassBonus = (ResourceClassTypes) GC.getInfoTypeForString("RESOURCECLASS_BONUS");
-
 		bool bPlayerDoesntKnowOfResource = false;
 
-		int iNumResourceInfos = GC.getNumResourceInfos();
-		for(int iResourceLoop = 0; iResourceLoop < iNumResourceInfos; iResourceLoop++)
+		// Look at Resources on all Plots
+		for (int iPlotLoop = 0; iPlotLoop < GC.getMap().numPlots(); iPlotLoop++)
 		{
-			pResource = GC.getResourceInfo((ResourceTypes) iResourceLoop);
+			CvPlot* pResourcePlot = GC.getMap().plotByIndexUnchecked(iPlotLoop);
+			ResourceTypes eResource = pResourcePlot->getResourceType();
 
-			// No "Bonus" Resources (that only give Yield), because those are lame to get from a Hut
-			if(pResource != NULL && pResource->getResourceClassType() != eResourceClassBonus)
+			if (eResource != NO_RESOURCE)
 			{
-				if(!GET_TEAM(getTeam()).IsResourceRevealed((ResourceTypes)iResourceLoop))
+				CvResourceInfo& pResource = *GC.getResourceInfo(eResource);
+
+				// No "Bonus" Resources (that only give Yields), because those are lame to get from a Hut
+				if (pResource.getResourceClassType() != eResourceClassBonus)
 				{
-					bPlayerDoesntKnowOfResource = true;
+					// Can't be on a Plot that we've already force-revealed!
+					if (!pResourcePlot->IsResourceForceReveal(getTeam()))
+					{
+						// Must be a Resource we don't already see
+						if (!GET_TEAM(getTeam()).IsResourceRevealed(eResource))
+						{
+							int iResourceDistance = plotDistance(pResourcePlot->getX(), pResourcePlot->getY(), pCapital->getX(), pCapital->getY());
+
+							// Must be within 10 plots of our Capital
+							if (iResourceDistance <= 10)
+							{
+								bPlayerDoesntKnowOfResource = true;
+								break;
+							}
+						}
+					}
 				}
 			}
 		}
 
 		// If the player already knows where all the Resources are then there's no point in this Goody
-		if(!bPlayerDoesntKnowOfResource)
+		if (!bPlayerDoesntKnowOfResource)
 		{
 			return false;
 		}
@@ -13958,57 +13974,43 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 	}
 
 	// Reveal Unknown Resource
-	if(kGoodyInfo.isRevealUnknownResource())
+	if (kGoodyInfo.isRevealUnknownResource())
 	{
-		if(getCapitalCity() != NULL)
+		if (getCapitalCity() != NULL)
 		{
 			CvCity* pCapital = getCapitalCity();
-
-			CvPlot* pResourcePlot;
-			int iResourceDistance;
-			TechTypes eRevealTech;
-			int iResourceCost;
-			int iBestResourceCost = -1;
-			ResourceTypes eResource;
+			int iShortestResourceDistance = INT_MAX;
 			ResourceTypes eBestResource = NO_RESOURCE;
 			CvPlot* pBestResourcePlot = NULL;
-
-			ResourceClassTypes eResourceClassBonus;
+			ResourceClassTypes eResourceClassBonus = (ResourceClassTypes) GC.getInfoTypeForString("RESOURCECLASS_BONUS");
 
 			// Look at Resources on all Plots
-			for(int iPlotLoop = 0; iPlotLoop < GC.getMap().numPlots(); iPlotLoop++)
+			for (int iPlotLoop = 0; iPlotLoop < GC.getMap().numPlots(); iPlotLoop++)
 			{
-				pResourcePlot = GC.getMap().plotByIndexUnchecked(iPlotLoop);
-				eResource = pResourcePlot->getResourceType();
+				CvPlot* pResourcePlot = GC.getMap().plotByIndexUnchecked(iPlotLoop);
+				ResourceTypes eResource = pResourcePlot->getResourceType();
 
-				if(eResource != NO_RESOURCE)
+				if (eResource != NO_RESOURCE)
 				{
 					CvResourceInfo& pResource = *GC.getResourceInfo(eResource);
-					eResourceClassBonus = (ResourceClassTypes) GC.getInfoTypeForString("RESOURCECLASS_BONUS");
 
-					// No "Bonus" Resources (that only give Yield), because those are lame to get from a Hut
-					if(pResource.getResourceClassType() != eResourceClassBonus)
+					// No "Bonus" Resources (that only give Yields), because those are lame to get from a Hut
+					if (pResource.getResourceClassType() != eResourceClassBonus)
 					{
 						// Can't be on a Plot that we've already force-revealed!
-						if(!pResourcePlot->IsResourceForceReveal(getTeam()))
+						if (!pResourcePlot->IsResourceForceReveal(getTeam()))
 						{
 							// Must be a Resource we don't already see
-							if(!GET_TEAM(getTeam()).IsResourceRevealed(eResource))
+							if (!GET_TEAM(getTeam()).IsResourceRevealed(eResource))
 							{
-								iResourceDistance = plotDistance(pResourcePlot->getX(), pResourcePlot->getY(), pCapital->getX(), pCapital->getY());
+								int iResourceDistance = plotDistance(pResourcePlot->getX(), pResourcePlot->getY(), pCapital->getX(), pCapital->getY());
 
-								// Must be within 10 plots of our Capital
-								if(iResourceDistance <= 10)
+								// Must be within 10 plots of our Capital (prefer shorter)
+								if (iResourceDistance <= 10 && iResourceDistance < iShortestResourceDistance)
 								{
-									iResourceCost = GC.getTechInfo(eRevealTech)->GetResearchCost();
-
-									// Find the one with the cheapest Tech (or pick one if we haven't identified one yet)
-									if(iBestResourceCost == -1 || iResourceCost < iBestResourceCost)
-									{
-										iBestResourceCost = iResourceCost;
-										eBestResource = eResource;
-										pBestResourcePlot = pResourcePlot;
-									}
+									iShortestResourceDistance = iResourceDistance;
+									eBestResource = eResource;
+									pBestResourcePlot = pResourcePlot;
 								}
 							}
 						}
@@ -14016,30 +14018,24 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 				}
 			}
 
-			CvAssert(pBestResourcePlot);
-
 			// Did we find something to show?
-			if(pBestResourcePlot != NULL)
+			if (pBestResourcePlot != NULL)
 			{
 				pBestResourcePlot->setRevealed(getTeam(), true);
 				pBestResourcePlot->SetResourceForceReveal(getTeam(), true);
-				//pBestPlot->updateFog();
 
-				if(getTeam() == GC.getGame().getActiveTeam())
+				if (getTeam() == GC.getGame().getActiveTeam())
 				{
 					pBestResourcePlot->setLayoutDirty(true);
 				}
 
 				// Also reveal adjacent Plots
-				CvPlot* pAdjacentPlot;
-				for(int iDirectionLoop = 0; iDirectionLoop < NUM_DIRECTION_TYPES; iDirectionLoop++)
+				for (int iDirectionLoop = 0; iDirectionLoop < NUM_DIRECTION_TYPES; iDirectionLoop++)
 				{
-					pAdjacentPlot = plotDirection(pBestResourcePlot->getX(), pBestResourcePlot->getY(), ((DirectionTypes) iDirectionLoop));
+					CvPlot* pAdjacentPlot = plotDirection(pBestResourcePlot->getX(), pBestResourcePlot->getY(), ((DirectionTypes) iDirectionLoop));
 
-					if(pAdjacentPlot != NULL)
-					{
+					if (pAdjacentPlot)
 						pAdjacentPlot->setRevealed(getTeam(), true);
-					}
 				}
 
 				CvString strTempString;
@@ -50853,9 +50849,102 @@ bool CvPlayer::IsAtWarWith(PlayerTypes iPlayer) const
 	return GET_TEAM(getTeam()).isAtWar(GET_PLAYER(iPlayer).getTeam());
 }
 
-int CvPlayer::GetNumDangerousMajorsAtWarWith(bool bExcludePhonyWars, bool bExcludeIfNoTarget) const
+/// Returns a vector containing pointers to all civs helping us in war against a major civ AND ourselves (used for city danger/peace evaluations)
+vector<PlayerTypes> CvPlayer::GetWarAllies(PlayerTypes ePlayer) const
+{
+	vector<PlayerTypes> result;
+	if (!IsAtWarWith(ePlayer))
+		return result;
+
+	vector<PlayerTypes> vMinorsToCheck;
+	PlayerTypes eAlly = isMinorCiv() ? GetMinorCivAI()->GetAlly() : NO_PLAYER;
+	result.push_back(GetID());
+
+	for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+	{
+		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+
+		if (GET_PLAYER(eLoopPlayer).GetID() == GetID())
+			continue;
+
+		if (!GET_PLAYER(eLoopPlayer).IsAtWarWith(ePlayer))
+			continue;
+
+		if (getTeam() == GET_PLAYER(eLoopPlayer).getTeam())
+		{
+			result.push_back(eLoopPlayer);
+			continue;
+		}
+
+		if (!GET_TEAM(getTeam()).isHasMet(GET_PLAYER(eLoopPlayer).getTeam()))
+			continue;
+
+		if (isMinorCiv())
+		{
+			if (eAlly != NO_PLAYER && GET_PLAYER(eLoopPlayer).getTeam() == GET_PLAYER(eAlly).getTeam())
+			{
+				result.push_back(eLoopPlayer);
+			}
+		}
+		else if (isMajorCiv())
+		{
+			if (GET_PLAYER(eLoopPlayer).isMinorCiv())
+			{
+				if (GET_PLAYER(eLoopPlayer).GetMinorCivAI()->GetAlly() != NO_PLAYER)
+					vMinorsToCheck.push_back(eLoopPlayer);
+			}
+			else if (GET_PLAYER(eLoopPlayer).isMajorCiv())
+			{
+				if (GetDiplomacyAI()->GetCoopWarState(eLoopPlayer, ePlayer) >= COOP_WAR_STATE_PREPARING)
+				{
+					result.push_back(eLoopPlayer);
+				}
+				else if (!GetDiplomacyAI()->IsDenouncedPlayer(eLoopPlayer) && !GetDiplomacyAI()->IsDenouncedByPlayer(eLoopPlayer) && !GetDiplomacyAI()->IsUntrustworthy(eLoopPlayer))
+				{
+					if (GetDiplomacyAI()->IsHasDefensivePact(eLoopPlayer) && (GetDiplomacyAI()->IsDoFAccepted(eLoopPlayer) || GetDiplomacyAI()->GetDoFType(eLoopPlayer) >= DOF_TYPE_ALLIES || GetDiplomacyAI()->GetCivOpinion(eLoopPlayer) >= CIV_OPINION_FRIEND))
+					{
+						result.push_back(eLoopPlayer);
+					}
+					else if (GetDiplomacyAI()->GetNumCitiesLiberatedBy(eLoopPlayer) > 0 && GetDiplomacyAI()->GetNumCitiesLiberatedBy(eLoopPlayer) > GetDiplomacyAI()->GetNumCitiesCapturedBy(eLoopPlayer))
+					{
+						result.push_back(eLoopPlayer);
+					}
+					else if (GetDiplomacyAI()->GetNumCitiesCapturedBy(eLoopPlayer) <= 0 && GET_PLAYER(ePlayer).GetDiplomacyAI()->GetNumCitiesCapturedBy(eLoopPlayer) > 0)
+					{
+						if (GetDiplomacyAI()->IsDoFAccepted(eLoopPlayer) || GetDiplomacyAI()->GetDoFType(eLoopPlayer) >= DOF_TYPE_ALLIES || GetDiplomacyAI()->GetCivOpinion(eLoopPlayer) == CIV_OPINION_ALLY)
+							result.push_back(eLoopPlayer);
+					}
+				}
+			}
+		}
+	}
+	if (isMajorCiv())
+	{
+		for (std::vector<PlayerTypes>::iterator it = vMinorsToCheck.begin(); it != vMinorsToCheck.end(); it++)
+		{
+			eAlly = GET_PLAYER(*it).GetMinorCivAI()->GetAlly();
+
+			if (std::find(result.begin(), result.end(), eAlly) != result.end())
+				result.push_back(*it);
+		}
+	}
+
+	return result;
+}
+
+int CvPlayer::CountNumDangerousMajorsAtWarWith(bool bExcludePhonyWars, bool bExcludeIfNoTarget) const
 {
 	int iCount = 0;
+
+	if (isMinorCiv())
+	{
+		for (std::vector<PlayerTypes>::const_iterator it = m_playersWeAreAtWarWith.begin(); it != m_playersWeAreAtWarWith.end(); ++it)
+		{
+			if (GET_PLAYER(*it).isMajorCiv())
+				iCount++;
+		}
+		return iCount;
+	}
 
 	for (std::vector<PlayerTypes>::const_iterator it = m_playersWeAreAtWarWith.begin(); it != m_playersWeAreAtWarWith.end(); ++it)
 	{
@@ -50863,12 +50952,12 @@ int CvPlayer::GetNumDangerousMajorsAtWarWith(bool bExcludePhonyWars, bool bExclu
 		{
 			if (isMinorCiv())
 			{
-				if (GET_PLAYER(*it).GetProximityToPlayer(GetID()) < PLAYER_PROXIMITY_CLOSE)
+				if (GET_PLAYER(*it).GetProximityToPlayer(GetID()) < PLAYER_PROXIMITY_NEIGHBORS)
 					continue;
 			}
 			else if (bExcludePhonyWars && GetDiplomacyAI()->IsPhonyWar(*it))
 				continue;
-			else if (bExcludeIfNoTarget && !GetMilitaryAI()->IsExposedToEnemy(NULL, *it))
+			else if (bExcludeIfNoTarget && !GetMilitaryAI()->IsExposedToEnemy(NULL, *it) && GetDiplomacyAI()->GetNumberOfThreatenedCities(*it) <= 0)
 				continue;
 
 			iCount++;

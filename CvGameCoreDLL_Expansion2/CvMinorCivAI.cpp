@@ -9227,15 +9227,12 @@ ResourceTypes CvMinorCivAI::GetNearbyResourceForQuest(PlayerTypes ePlayer)
 	{
 		CvArea* pPlayerArea = GC.getMap().getArea(GET_PLAYER(ePlayer).getStartingPlot()->getArea());
 
-		vector<ResourceTypes> veValidResources; // 64 resources should be way more than enough
-		TechTypes eRevealTech;
-		TechTypes eConnectTech;
+		vector<ResourceTypes> veValidResources;
 
 		// Loop through all Resources and see if they're useful
-		ResourceTypes eResource;
 		for(int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
 		{
-			eResource = (ResourceTypes) iResourceLoop;
+			ResourceTypes eResource = (ResourceTypes) iResourceLoop;
 
 			const CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
 			// Must not be a plain ol' bonus resource

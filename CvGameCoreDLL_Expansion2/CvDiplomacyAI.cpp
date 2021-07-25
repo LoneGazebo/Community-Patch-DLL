@@ -1102,75 +1102,6 @@ vector<PlayerTypes> CvDiplomacyAI::GetLinkedWarPlayers(PlayerTypes eOtherPlayer,
 	return result;
 }
 
-/// Returns a vector containing pointers to all civs helping us in war against a major civ AND ourselves (used for city danger/peace evaluations)
-vector<PlayerTypes> CvDiplomacyAI::GetWarAllies(PlayerTypes ePlayer) const
-{
-	vector<PlayerTypes> result;
-	vector<PlayerTypes> vMinorsToCheck;
-
-	if (!IsAtWar(ePlayer) || !GET_PLAYER(ePlayer).isMajorCiv())
-		return result;
-
-	result.push_back(GetID());
-
-	for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
-	{
-		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
-
-		if (GET_PLAYER(eLoopPlayer).GetID() == GetID())
-			continue;
-
-		if (!GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsAtWar(ePlayer))
-			continue;
-
-		if (!IsPlayerValid(eLoopPlayer, true))
-			continue;
-
-		if (GET_PLAYER(eLoopPlayer).isMinorCiv() && GET_PLAYER(eLoopPlayer).GetMinorCivAI()->GetAlly() != NO_PLAYER)
-		{
-			vMinorsToCheck.push_back(eLoopPlayer);
-			continue;
-		}
-
-		if (GET_PLAYER(eLoopPlayer).isMajorCiv())
-		{
-			if (IsTeammate(eLoopPlayer))
-			{
-				result.push_back(eLoopPlayer);
-			}
-			else if (GetCoopWarState(eLoopPlayer, ePlayer) >= COOP_WAR_STATE_PREPARING)
-			{
-				result.push_back(eLoopPlayer);
-			}
-			else if (!IsDenouncedPlayer(eLoopPlayer) && !IsDenouncedByPlayer(eLoopPlayer) && !IsUntrustworthy(eLoopPlayer))
-			{
-				if (IsHasDefensivePact(eLoopPlayer) && (IsDoFAccepted(eLoopPlayer) || GetDoFType(eLoopPlayer) >= DOF_TYPE_ALLIES || GetCivOpinion(eLoopPlayer) >= CIV_OPINION_FRIEND))
-				{
-					result.push_back(eLoopPlayer);
-				}
-				else if (GetNumCitiesLiberatedBy(eLoopPlayer) > 0 && GetNumCitiesLiberatedBy(eLoopPlayer) > GetNumCitiesCapturedBy(eLoopPlayer))
-				{
-					result.push_back(eLoopPlayer);
-				}
-				else if (GetNumCitiesCapturedBy(eLoopPlayer) <= 0 && GET_PLAYER(ePlayer).GetDiplomacyAI()->GetNumCitiesCapturedBy(eLoopPlayer) > 0)
-				{
-					if (IsDoFAccepted(eLoopPlayer) || GetDoFType(eLoopPlayer) >= DOF_TYPE_FRIENDS || GetCivOpinion(eLoopPlayer) >= CIV_OPINION_FRIEND)
-						result.push_back(eLoopPlayer);
-				}
-			}
-		}
-	}
-	for (std::vector<PlayerTypes>::iterator it = vMinorsToCheck.begin(); it != vMinorsToCheck.end(); it++)
-	{
-		PlayerTypes eAlly = GET_PLAYER(*it).GetMinorCivAI()->GetAlly();
-
-		if (std::find(result.begin(), result.end(), eAlly) != result.end())
-			result.push_back(*it);
-	}
-
-	return result;
-}
-
 
 // ************************************
 // Personality Values
@@ -1192,7 +1123,7 @@ int CvDiplomacyAI::GetRandomPersonalityWeight(int iOriginalValue, int& iSeed)
 	if (iSeed < 0)
 		iSeed = 0;
 
-	iSeed += (iOriginalValue + iPlusMinus + ID) * 200;
+	iSeed += (iOriginalValue + ID) * 200;
 
 	// Randomize!
 	int iAdjust = GC.getGame().getSmallFakeRandNum((iPlusMinus * 2 + 1), (iOriginalValue * iSeed * ID));
@@ -8550,7 +8481,7 @@ void CvDiplomacyAI::DoUpdateWarStates()
 		if (IsPlayerValid(eLoopPlayer) && IsAtWar(eLoopPlayer))
 		{
 			WarStateTypes eWarState = NO_WAR_STATE_TYPE;
-			ReligionTypes eTheirReligion = GET_PLAYER(eLoopPlayer).GetReligions()->GetCurrentReligion(false);
+			ReligionTypes eTheirReligion = GET_PLAYER(eLoopPlayer).isMinorCiv() ? NO_RELIGION : GET_PLAYER(eLoopPlayer).GetReligions()->GetCurrentReligion(false);
 
 			// Evaluate our danger and their danger from this war
 			int iNumOurCities = 0;
@@ -8559,8 +8490,8 @@ void CvDiplomacyAI::DoUpdateWarStates()
 			int iTheirDanger = 0;
 			bool bSeriousDangerUs = false;
 			bool bSeriousDangerThem = false;
-			vector<PlayerTypes> vOurWarAllies = GetWarAllies(eLoopPlayer);
-			vector<PlayerTypes> vTheirWarAllies = GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->GetWarAllies(GetID());
+			vector<PlayerTypes> vOurWarAllies = GetPlayer()->GetWarAllies(eLoopPlayer);
+			vector<PlayerTypes> vTheirWarAllies = GET_PLAYER(eLoopPlayer).GetWarAllies(GetID());
 
 			for (CvCity* pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
 			{
@@ -9633,7 +9564,7 @@ int CvDiplomacyAI::GetPlayerOverallStrengthEstimate(PlayerTypes ePlayer, PlayerT
 	}
 
 	// Decrease target value if the player is already at war with other players
-	int iWarCount = (bSelfEvaluation && !GetPlayer()->isHuman()) ? GET_PLAYER(ePlayer).GetNumDangerousMajorsAtWarWith(true, true) : GET_PLAYER(ePlayer).GetNumDangerousMajorsAtWarWith(false, true);
+	int iWarCount = (bSelfEvaluation && !GetPlayer()->isHuman()) ? GET_PLAYER(ePlayer).CountNumDangerousMajorsAtWarWith(true, true) : GET_PLAYER(ePlayer).CountNumDangerousMajorsAtWarWith(false, true);
 
 	// Reduce by 1 if WE'RE already at war with him or he with us
 	if (GET_PLAYER(ePlayer).IsAtWarWith(eComparedToPlayer))
@@ -9836,7 +9767,7 @@ int CvDiplomacyAI::GetPlayerOverallStrengthEstimate(PlayerTypes ePlayer, PlayerT
 				}
 
 				// Reduce if the third party is already at war with other players
-				int iThirdPartyWarCount = (bSelfEvaluation && !GET_PLAYER(*it).isHuman()) ? GET_PLAYER(*it).GetNumDangerousMajorsAtWarWith(true, true) : GET_PLAYER(*it).GetNumDangerousMajorsAtWarWith(false, true);
+				int iThirdPartyWarCount = (bSelfEvaluation && !GET_PLAYER(*it).isHuman()) ? GET_PLAYER(*it).CountNumDangerousMajorsAtWarWith(true, true) : GET_PLAYER(*it).CountNumDangerousMajorsAtWarWith(false, true);
 
 				if (GET_PLAYER(eComparedToPlayer).IsAtWarWith(*it))
 					iThirdPartyWarCount--;
@@ -9854,7 +9785,7 @@ int CvDiplomacyAI::GetPlayerOverallStrengthEstimate(PlayerTypes ePlayer, PlayerT
 			else
 			{
 				// Ignore if they're already at war with somebody else
-				int iThirdPartyWarCount = GET_PLAYER(*it).GetNumDangerousMajorsAtWarWith(false, false) > 0;
+				int iThirdPartyWarCount = GET_PLAYER(*it).CountNumDangerousMajorsAtWarWith(false, false) > 0;
 
 				if (GET_PLAYER(eComparedToPlayer).IsAtWarWith(*it))
 					iThirdPartyWarCount--;
@@ -10039,7 +9970,7 @@ int CvDiplomacyAI::GetNumberOfThreatenedCities(PlayerTypes ePlayer)
 	int iCountCitiesInDanger = 0;
 
 	int iCityLoop;
-	vector<PlayerTypes> vTheirWarAllies = GET_PLAYER(ePlayer).GetDiplomacyAI()->GetWarAllies(GetID());
+	vector<PlayerTypes> vTheirWarAllies = GET_PLAYER(ePlayer).GetWarAllies(GetID());
 	for (const CvCity* pFriendlyCity = GetPlayer()->firstCity(&iCityLoop); pFriendlyCity != NULL; pFriendlyCity = GetPlayer()->nextCity(&iCityLoop))
 	{
 		if (pFriendlyCity->IsInDangerFromPlayers(vTheirWarAllies))
@@ -10052,7 +9983,7 @@ int CvDiplomacyAI::GetNumberOfThreatenedCities(PlayerTypes ePlayer)
 /// Updates whether all players are easy attack targets
 void CvDiplomacyAI::DoUpdateEasyTargets()
 {
-	int iCurrentWars = GetPlayer()->GetNumDangerousMajorsAtWarWith(true, true);
+	int iCurrentWars = GetPlayer()->CountNumDangerousMajorsAtWarWith(true, true);
 
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 	{
@@ -22767,8 +22698,8 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 		bool bSeriousDangerThem = false;
 		ReligionTypes eMyReligion = GetPlayer()->GetReligions()->GetCurrentReligion(false);	
 		ReligionTypes eTheirReligion = GET_PLAYER(*it).GetReligions()->GetCurrentReligion(false);
-		vector<PlayerTypes> vOurWarAllies = GetWarAllies(*it);
-		vector<PlayerTypes> vTheirWarAllies = GET_PLAYER(*it).GetDiplomacyAI()->GetWarAllies(GetID());
+		vector<PlayerTypes> vOurWarAllies = GetPlayer()->GetWarAllies(*it);
+		vector<PlayerTypes> vTheirWarAllies = GET_PLAYER(*it).GetWarAllies(GetID());
 
 		for (CvCity* pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
 		{
@@ -23422,7 +23353,7 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 		}
 
 		// Must be high enough to return a true desire for peace
-		int iWarCount = GetPlayer()->GetNumDangerousMajorsAtWarWith(true, false) - 1;
+		int iWarCount = GetPlayer()->CountNumDangerousMajorsAtWarWith(true, false) - 1;
 		if (iWarCount <= 0)
 			iWarCount = 0;
 
@@ -23978,7 +23909,7 @@ void CvDiplomacyAI::DoUpdateDemands()
 
 	CvWeightedVector<PlayerTypes> vePotentialDemandTargets;
 	bool bExistingValidTarget = false;
-	int iWarCount = GetPlayer()->GetNumDangerousMajorsAtWarWith(true, false);
+	int iWarCount = GetPlayer()->CountNumDangerousMajorsAtWarWith(true, false);
 	CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
 
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
@@ -24425,7 +24356,7 @@ void CvDiplomacyAI::DoMakeWarOnPlayer(PlayerTypes eTargetPlayer)
 			// Attack on minor
 			if (GET_PLAYER(eTargetPlayer).isMinorCiv())
 			{
-				bool bCareful = GetPlayer()->GetNumDangerousMajorsAtWarWith(true, false) > 0;
+				bool bCareful = GetPlayer()->CountNumDangerousMajorsAtWarWith(true, false) > 0;
 
 				if (!GetPlayer()->HasAnyOffensiveOperationsAgainstPlayer(eTargetPlayer))
 				{
@@ -24436,7 +24367,7 @@ void CvDiplomacyAI::DoMakeWarOnPlayer(PlayerTypes eTargetPlayer)
 			else
 			{
 				SetWantsSneakAttack(eTargetPlayer, true);
-				bool bCareful = (GetPlayer()->IsNoNewWars() || GetPlayer()->GetNumDangerousMajorsAtWarWith(true, true) > 0) && GetGlobalCoopWarAgainstState(eTargetPlayer) < COOP_WAR_STATE_PREPARING;
+				bool bCareful = (GetPlayer()->IsNoNewWars() || GetPlayer()->CountNumDangerousMajorsAtWarWith(true, true) > 0) && GetGlobalCoopWarAgainstState(eTargetPlayer) < COOP_WAR_STATE_PREPARING;
 
 				if (!GetPlayer()->HasAnyOffensiveOperationsAgainstPlayer(eTargetPlayer))
 				{
@@ -26739,7 +26670,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 						if (m_pPlayer->GetDiplomacyAI()->DeclareWar(ePlayer))
 						{
 							pDeal->ClearItems();
-							bool bCareful = GetPlayer()->GetNumDangerousMajorsAtWarWith(true, true) > 0 && GetGlobalCoopWarAgainstState(ePlayer) < COOP_WAR_STATE_PREPARING;
+							bool bCareful = GetPlayer()->CountNumDangerousMajorsAtWarWith(true, true) > 0 && GetGlobalCoopWarAgainstState(ePlayer) < COOP_WAR_STATE_PREPARING;
 
 							if (!GetPlayer()->HasAnyOffensiveOperationsAgainstPlayer(ePlayer))
 							{
@@ -26766,7 +26697,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 						if (m_pPlayer->GetDiplomacyAI()->DeclareWar(ePlayer))
 						{
 							pDeal->ClearItems();
-							bool bCareful = GetPlayer()->GetNumDangerousMajorsAtWarWith(true, true) > 0 && GetGlobalCoopWarAgainstState(ePlayer) < COOP_WAR_STATE_PREPARING;
+							bool bCareful = GetPlayer()->CountNumDangerousMajorsAtWarWith(true, true) > 0 && GetGlobalCoopWarAgainstState(ePlayer) < COOP_WAR_STATE_PREPARING;
 
 							if (!GetPlayer()->HasAnyOffensiveOperationsAgainstPlayer(ePlayer))
 							{
@@ -27499,7 +27430,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 				if (m_pPlayer->GetDiplomacyAI()->DeclareWar(ePlayer))
 				{
 					pDeal->ClearItems();
-					bool bCareful = GetPlayer()->GetNumDangerousMajorsAtWarWith(true, true) > 0 && GetGlobalCoopWarAgainstState(ePlayer) < COOP_WAR_STATE_PREPARING;
+					bool bCareful = GetPlayer()->CountNumDangerousMajorsAtWarWith(true, true) > 0 && GetGlobalCoopWarAgainstState(ePlayer) < COOP_WAR_STATE_PREPARING;
 
 					if (!GetPlayer()->HasAnyOffensiveOperationsAgainstPlayer(ePlayer))
 					{
@@ -35722,7 +35653,7 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 		{
 			if (DeclareWar(eFromPlayer))
 			{
-				bool bCareful = GetPlayer()->GetNumDangerousMajorsAtWarWith(true, true) > 0 && GetGlobalCoopWarAgainstState(eFromPlayer) < COOP_WAR_STATE_PREPARING;
+				bool bCareful = GetPlayer()->CountNumDangerousMajorsAtWarWith(true, true) > 0 && GetGlobalCoopWarAgainstState(eFromPlayer) < COOP_WAR_STATE_PREPARING;
 
 				if (!GetPlayer()->HasAnyOffensiveOperationsAgainstPlayer(eFromPlayer))
 				{
@@ -52383,7 +52314,7 @@ bool CvDiplomacyAI::IsCapitulationAcceptable(PlayerTypes ePlayer)
 	// Are any of our cities about to be lost? Try to maintain as many of our cities as we can if we're going to lose anyway.
 	int iCityLoop;
 	int iNumCitiesInDanger = 0;
-	vector<PlayerTypes> vTheirWarAllies = GET_PLAYER(ePlayer).GetDiplomacyAI()->GetWarAllies(GetID());
+	vector<PlayerTypes> vTheirWarAllies = GET_PLAYER(ePlayer).GetWarAllies(GetID());
 	for (CvCity* pLoopCity = GetPlayer()->firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GetPlayer()->nextCity(&iCityLoop))
 	{
 		if (!pLoopCity->IsInDangerFromPlayers(vTheirWarAllies))
@@ -52407,7 +52338,7 @@ bool CvDiplomacyAI::IsCapitulationAcceptable(PlayerTypes ePlayer)
 
 	// Are any of THEIR cities in danger? Try to grab any cities we can from them.
 	int iNumTheirCitiesInDanger = 0;
-	vector<PlayerTypes> vOurWarAllies = GetWarAllies(ePlayer);
+	vector<PlayerTypes> vOurWarAllies = GetPlayer()->GetWarAllies(ePlayer);
 	for (CvCity* pLoopCity = GET_PLAYER(ePlayer).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iCityLoop))
 	{
 		if (!pLoopCity->IsInDangerFromPlayers(vOurWarAllies))
