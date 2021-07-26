@@ -348,7 +348,7 @@ public:
 	bool IsGiftOffersDisabled() const; // Only affects humans
 	bool IsCoopWarRequestsDisabled() const; // Only affects humans
 	bool IsHelpRequestsDisabled() const; // Only affects humans
-	bool IsTradeOffersDisabled() const; // Only affects humans
+	bool IsTradeOffersDisabled(bool bIncludeRenewals = false) const; // Only affects humans
 	bool IsPeaceOffersDisabled() const; // Only affects humans
 	bool IsAllDiploStatementsDisabled() const; // Only affects humans
 	bool IsAIPassiveMode() const;

@@ -13777,7 +13777,7 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 		if (iValue != 0)
 		{
 			Opinion kOpinion;
-			kOpinion.m_iValue = pDiplo->GetPolicyScore(ePlayer);
+			kOpinion.m_iValue = (bHideNegatives && iValue < 0) ? 0 : pDiplo->GetPolicyScore(ePlayer);
 			kOpinion.m_str = (iValue > 0) ? Localization::Lookup("TXT_KEY_DIPLO_SAME_POLICIES") : Localization::Lookup("TXT_KEY_DIPLO_DIFFERENT_POLICIES");
 			aOpinions.push_back(kOpinion);
 		}
@@ -13812,11 +13812,8 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 		}
 		else if (pDiplo->IsPlayerOpposingReligion(ePlayer))
 		{
-			if (bHideNegatives)
-				iValue = 0;
-
 			Opinion kOpinion;
-			kOpinion.m_iValue = iValue;
+			kOpinion.m_iValue = bHideNegatives ? 0 : iValue;
 			kOpinion.m_str = (iValue > 0) ? Localization::Lookup("TXT_KEY_DIPLO_RELIGIOUS_DIFFERENCES") : Localization::Lookup("TXT_KEY_DIPLO_RELIGIOUS_DIFFERENCES_NEUTRAL");
 			aOpinions.push_back(kOpinion);
 		}
@@ -13977,16 +13974,13 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 			}
 
 			// Vassal protect VS. failed protect
-			if (pDiplo->GetVassalProtectScore(ePlayer) != pDiplo->GetVassalFailedProtectScore(ePlayer))
+			iValue = pDiplo->GetVassalProtectScore(ePlayer) + pDiplo->GetVassalFailedProtectScore(ePlayer);
+			if (iValue != 0)
 			{
-				iValue = pDiplo->GetVassalProtectScore(ePlayer) + pDiplo->GetVassalFailedProtectScore(ePlayer);
-				if (iValue != 0)
-				{
-					Opinion kOpinion;
-					kOpinion.m_iValue = iValue;
-					kOpinion.m_str = (iValue > 0) ? Localization::Lookup("TXT_KEY_DIPLO_VASSAL_FAILED_PROTECT") : Localization::Lookup("TXT_KEY_DIPLO_VASSAL_PROTECT");
-					aOpinions.push_back(kOpinion);
-				}
+				Opinion kOpinion;
+				kOpinion.m_iValue = iValue;
+				kOpinion.m_str = (iValue > 0) ? Localization::Lookup("TXT_KEY_DIPLO_VASSAL_FAILED_PROTECT") : Localization::Lookup("TXT_KEY_DIPLO_VASSAL_PROTECT");
+				aOpinions.push_back(kOpinion);
 			}
 
 			iValue = pDiplo->GetBrokenVassalAgreementScore(ePlayer);

@@ -10,19 +10,11 @@
 #ifndef CIV5_AI_DIPLOMACY_H
 #define CIV5_AI_DIPLOMACY_H
 
-#include "CvDiplomacyAIEnums.h"
-#include "CvDealClasses.h"
-#include "CvMinorCivAI.h"
-
-#define BULLY_DEBUGGING false
-
-#if defined(MOD_EVENTS_DIPLO_MODIFIERS)
 struct Opinion
 {
 	Localization::String m_str;
 	int m_iValue;
 };
-#endif
 
 struct DiploLogData
 {
@@ -53,15 +45,10 @@ FDataStream& operator>>(FDataStream&, DeclarationLogData&);
 #define MAX_DIPLO_LOG_STATEMENTS 60
 #define MAX_TURNS_SAFE_ESTIMATE 9999
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//  CLASS:      CvDiplomacyAI
-//!  \brief		Drives the diplomatic interaction of a player
-//
-//!  Author:	Jon Shafer
-//
-//!  Key Attributes:
-//!  - Object created by CvPlayer
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//=====================================
+// CvDiplomacyAI
+//=====================================
+
 class CvDiplomacyAI
 {
 public:
@@ -115,7 +102,6 @@ public:
 	bool IsMaster(PlayerTypes eOtherPlayer) const;
 	bool IsVoluntaryVassalage(PlayerTypes eOtherPlayer) const;
 	vector<PlayerTypes> GetLinkedWarPlayers(PlayerTypes eOtherPlayer, bool bIgnoreDefensivePacts, bool bIncludeMinors, bool bIncludeUnmet) const;
-	vector<PlayerTypes> GetWarAllies(PlayerTypes ePlayer) const;
 
 	// ************************************
 	// Personality Values
@@ -947,9 +933,6 @@ public:
 	void SetHelpRequestTooSoonNumTurns(PlayerTypes ePlayer, int iValue);
 	bool IsHelpRequestTooSoon(PlayerTypes ePlayer) const;
 
-	bool IsTargetingVassal(PlayerTypes ePlayer) const;
-	void SetTargetingVassal(PlayerTypes ePlayer, bool bValue);
-
 	bool IsHasPaidTributeTo(PlayerTypes ePlayer) const;
 	void SetHasPaidTributeTo(PlayerTypes ePlayer, bool bValue);
 
@@ -1118,7 +1101,7 @@ public:
 	// ------------------------------------
 
 	void DoUpdateGlobalPolitics();
-	void DoReevaluatePlayers(vector<PlayerTypes>& vTargetPlayers, bool bFromWar = false, bool bCancelExchanges = true);
+	void DoReevaluatePlayers(vector<PlayerTypes>& vTargetPlayers, bool bFromWar = false, bool bCancelExchanges = true, bool bFromResurrection = false);
 	void DoUpdateMajorCompetitors();
 	void DoUpdateMajorCivApproaches(vector<PlayerTypes>& vPlayersToReevaluate, bool bStrategic);
 
@@ -1285,7 +1268,7 @@ public:
 
 	void DoUpdateMinorCivProtection(PlayerTypes eMinor, CivApproachTypes eApproach);
 
-	void DoCoopWarTimeStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement, int& iData1);
+	//void DoCoopWarTimeStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement, int& iData1);
 	void DoCoopWarStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement, int& iData1);
 
 	void DoMakeDemand(PlayerTypes ePlayer);
@@ -2086,7 +2069,6 @@ private:
 	bool m_abHasPaidTributeTo[MAX_MAJOR_CIVS];
 	int m_aiBrokenVassalAgreementTurn[MAX_MAJOR_CIVS];
 	short m_aiPlayerVassalageFailedProtectValue[MAX_MAJOR_CIVS];
-	bool m_abTargetingVassal[MAX_MAJOR_CIVS];
 	short m_aiPlayerVassalageProtectValue[MAX_MAJOR_CIVS];
 	int m_aiPlayerVassalagePeacefullyRevokedTurn[MAX_MAJOR_CIVS];
 	int m_aiPlayerVassalageForcefullyRevokedTurn[MAX_MAJOR_CIVS];

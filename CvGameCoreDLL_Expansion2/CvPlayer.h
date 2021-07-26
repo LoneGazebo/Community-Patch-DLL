@@ -622,6 +622,8 @@ public:
 	void DoTestEmpireInBadShapeForWar();
 	bool IsNoNewWars() const;
 	void SetNoNewWars(bool bValue);
+	bool IsInTerribleShapeForWar() const;
+	void SetInTerribleShapeForWar(bool bValue);
 
 	int GetTurnsSinceLastAttackedMinorCiv() const;
 	void SetTurnLastAttackedMinorCiv(int iTurn);
@@ -2752,7 +2754,8 @@ public:
 	bool IsAtWarAnyMajor() const;
 	bool IsAtWarAnyMinor() const;
 	bool IsAtWarWith(PlayerTypes iPlayer) const;
-	int GetNumDangerousMajorsAtWarWith(bool bExcludePhonyWars, bool bExcludeIfNoTarget) const;
+	vector<PlayerTypes> GetWarAllies(PlayerTypes ePlayer) const;
+	int CountNumDangerousMajorsAtWarWith(bool bExcludePhonyWars, bool bExcludeIfNoTarget) const;
 	bool HasPantheon() const;
 	bool HasAnyReligion() const;
 	bool HasReligion(ReligionTypes iReligionType) const;
@@ -3421,6 +3424,7 @@ protected:
 
 	bool m_bHasUUPeriod;
 	bool m_bNoNewWars;
+	bool m_bTerribleShapeForWar;
 	bool m_bHasBetrayedMinorCiv;
 	bool m_bAlive;
 	bool m_bEverAlive;
@@ -4201,6 +4205,7 @@ SYNC_ARCHIVE_VAR(int, m_iLastSliceMoved)
 SYNC_ARCHIVE_VAR(uint, m_uiStartTime)
 SYNC_ARCHIVE_VAR(bool, m_bHasUUPeriod)
 SYNC_ARCHIVE_VAR(bool, m_bNoNewWars)
+SYNC_ARCHIVE_VAR(bool, m_bTerribleShapeForWar)
 SYNC_ARCHIVE_VAR(bool, m_bHasBetrayedMinorCiv)
 SYNC_ARCHIVE_VAR(bool, m_bAlive)
 SYNC_ARCHIVE_VAR(bool, m_bEverAlive)

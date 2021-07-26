@@ -3024,7 +3024,7 @@ void CvGameDeals::FinalizeDealValidAndAccepted(PlayerTypes eFromPlayer, PlayerTy
 								//AI go to war now.
 								if (!GET_PLAYER(eAcceptedFromPlayer).isHuman())
 								{
-									bool bCareful = GET_PLAYER(eAcceptedFromPlayer).GetNumDangerousMajorsAtWarWith(true, false) > 0 && GET_PLAYER(eAcceptedFromPlayer).GetDiplomacyAI()->GetGlobalCoopWarAgainstState(eLoopPlayer) < COOP_WAR_STATE_PREPARING;
+									bool bCareful = GET_PLAYER(eAcceptedFromPlayer).CountNumDangerousMajorsAtWarWith(true, false) > 0 && GET_PLAYER(eAcceptedFromPlayer).GetDiplomacyAI()->GetGlobalCoopWarAgainstState(eLoopPlayer) < COOP_WAR_STATE_PREPARING;
 
 									if (!GET_PLAYER(eAcceptedFromPlayer).HasAnyOffensiveOperationsAgainstPlayer(eLoopPlayer))
 									{
@@ -3698,7 +3698,7 @@ bool CvGameDeals::FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, b
 								//AI go to war now.
 								if (!GET_PLAYER(eAcceptedFromPlayer).isHuman())
 								{
-									bool bCareful = GET_PLAYER(eAcceptedFromPlayer).GetNumDangerousMajorsAtWarWith(true, false) > 0 && GET_PLAYER(eAcceptedFromPlayer).GetDiplomacyAI()->GetGlobalCoopWarAgainstState(eLoopPlayer) < COOP_WAR_STATE_PREPARING;
+									bool bCareful = GET_PLAYER(eAcceptedFromPlayer).CountNumDangerousMajorsAtWarWith(true, false) > 0 && GET_PLAYER(eAcceptedFromPlayer).GetDiplomacyAI()->GetGlobalCoopWarAgainstState(eLoopPlayer) < COOP_WAR_STATE_PREPARING;
 
 									if (!GET_PLAYER(eAcceptedFromPlayer).HasAnyOffensiveOperationsAgainstPlayer(eLoopPlayer))
 									{
