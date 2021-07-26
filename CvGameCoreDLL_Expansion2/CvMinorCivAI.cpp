@@ -12631,7 +12631,7 @@ CvString CvMinorCivAI::GetPledgeProtectionInvalidReason(PlayerTypes eMajor)
 		}
 	}
 
-	int iPercent = iMajorStrength / max(iHighestStrength, 1);
+	int iPercent = iMajorStrength * 100 / max(iHighestStrength, 1);
 
 	if (iPercent < /*60*/ GC.getMOD_BALANCE_CORE_MINIMUM_RANKING_PTP())
 	{
@@ -12820,7 +12820,7 @@ bool CvMinorCivAI::CanMajorProtect(PlayerTypes eMajor)
 			}
 		}
 
-		int iPercent = iMajorStrength / max(iHighestStrength, 1);
+		int iPercent = iMajorStrength * 100 / max(iHighestStrength, 1);
 
 		if (iPercent < /*60*/ GC.getMOD_BALANCE_CORE_MINIMUM_RANKING_PTP())
 		{
