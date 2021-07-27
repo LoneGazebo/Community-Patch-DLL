@@ -569,6 +569,7 @@ public:
 
 	int GetYieldFromYield(int i, int j) const;
 
+	int GetInstantReligionPressure() const;
 #endif
 
 	int GetResourceYieldChange(int i, int j) const;
@@ -1027,6 +1028,7 @@ private:
 	int* m_paiBuildingClassHappiness;
 #if defined(MOD_BALANCE_CORE_BUILDING_INSTANT_YIELD)
 	int* m_piInstantYield;
+	int m_iInstantReligionPressure;
 #endif
 #if defined(MOD_BALANCE_CORE) && defined(MOD_API_UNIFIED_YIELDS)
 	std::multimap<int, std::pair<int, int>> m_piiGreatPersonProgressFromConstruction;

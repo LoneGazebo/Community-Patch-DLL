@@ -964,7 +964,7 @@
 			<GoldMaintenance>4</GoldMaintenance>
 			<IsCorporation>true</IsCorporation>
 			<Description>TXT_KEY_BUILDING_TRADER_SIDS_HQ</Description>
-			<Civilopedia>TXT_KEY_CIV5_BUILDINGS_TRADER_SIDS_HQ_TEXT</Civilopedia>
+			<Civilopedia>TXT_KEY_CIV5_BUILDINGS_CORP_TEXT</Civilopedia>
 			<Strategy>TXT_KEY_BUILDING_TRADER_SIDS_HQ_STRATEGY</Strategy>
 			<Help>TXT_KEY_BUILDING_TRADER_SIDS_HQ_HELP</Help>
 			<ArtDefineTag>ART_DEF_BUILDING_GARDEN</ArtDefineTag>
@@ -985,7 +985,7 @@
 			<GoldMaintenance>6</GoldMaintenance>
 			<IsCorporation>true</IsCorporation>
 			<Description>TXT_KEY_BUILDING_TRADER_SIDS</Description>
-			<Civilopedia>TXT_KEY_CIV5_BUILDING_TRADER_SIDS_TEXT</Civilopedia>
+			<Civilopedia>TXT_KEY_CIV5_BUILDINGS_CORP_TEXT</Civilopedia>
 			<Strategy>TXT_KEY_BUILDING_TRADER_SIDS_STRATEGY</Strategy>
 			<Help>TXT_KEY_BUILDING_TRADER_SIDS_HELP</Help>
 			<ArtDefineTag>ART_DEF_BUILDING_GARDEN</ArtDefineTag>
@@ -1005,7 +1005,7 @@
 			<GoldMaintenance>1</GoldMaintenance>
 			<IsCorporation>true</IsCorporation>
 			<Description>TXT_KEY_BUILDING_TRADER_SIDS_FRANCHISE</Description>
-			<Civilopedia>TXT_KEY_CIV5_BUILDING_TRADER_SIDS_FRANCHISE_TEXT</Civilopedia>
+			<Civilopedia>TXT_KEY_CIV5_BUILDINGS_CORP_TEXT</Civilopedia>
 			<Strategy>TXT_KEY_BUILDING_TRADER_SIDS_FRANCHISE_STRATEGY</Strategy>
 			<Help>TXT_KEY_BUILDING_TRADER_SIDS_FRANCHISE_HELP</Help>
 			<ArtDefineTag>ART_DEF_BUILDING_GARDEN</ArtDefineTag>
@@ -1022,7 +1022,7 @@
 			<GoldMaintenance>4</GoldMaintenance>
 			<IsCorporation>true</IsCorporation>
 			<Description>TXT_KEY_BUILDING_LANDSEA_EXTRACTORS_HQ</Description>
-			<Civilopedia>TXT_KEY_CIV5_BUILDINGS_LANDSEA_EXTRACTORS_HQ_TEXT</Civilopedia>
+			<Civilopedia>TXT_KEY_CIV5_BUILDINGS_CORP_TEXT</Civilopedia>
 			<Strategy>TXT_KEY_BUILDING_LANDSEA_EXTRACTORS_HQ_STRATEGY</Strategy>
 			<Help>TXT_KEY_BUILDING_LANDSEA_EXTRACTORS_HQ_HELP</Help>
 			<ArtDefineTag>ART_DEF_BUILDING_GARDEN</ArtDefineTag>
@@ -1043,7 +1043,7 @@
 			<GoldMaintenance>6</GoldMaintenance>
 			<IsCorporation>true</IsCorporation>
 			<Description>TXT_KEY_BUILDING_LANDSEA_EXTRACTORS</Description>
-			<Civilopedia>TXT_KEY_CIV5_BUILDING_LANDSEA_EXTRACTORS_TEXT</Civilopedia>
+			<Civilopedia>TXT_KEY_CIV5_BUILDINGS_CORP_TEXT</Civilopedia>
 			<Strategy>TXT_KEY_BUILDING_LANDSEA_EXTRACTORS_STRATEGY</Strategy>
 			<Help>TXT_KEY_BUILDING_LANDSEA_EXTRACTORS_HELP</Help>
 			<ArtDefineTag>ART_DEF_BUILDING_GARDEN</ArtDefineTag>
@@ -1061,7 +1061,7 @@
 			<GoldMaintenance>1</GoldMaintenance>
 			<IsCorporation>true</IsCorporation>
 			<Description>TXT_KEY_BUILDING_LANDSEA_EXTRACTORS_FRANCHISE</Description>
-			<Civilopedia>TXT_KEY_CIV5_BUILDING_LANDSEA_EXTRACTORS_FRANCHISE_TEXT</Civilopedia>
+			<Civilopedia>TXT_KEY_CIV5_BUILDINGS_CORP_TEXT</Civilopedia>
 			<Strategy>TXT_KEY_BUILDING_LANDSEA_EXTRACTORS_FRANCHISE_STRATEGY</Strategy>
 			<Help>TXT_KEY_BUILDING_LANDSEA_EXTRACTORS_FRANCHISE_HELP</Help>
 			<ArtDefineTag>ART_DEF_BUILDING_GARDEN</ArtDefineTag>
@@ -1079,7 +1079,7 @@
 			<GoldMaintenance>4</GoldMaintenance>
 			<IsCorporation>true</IsCorporation>
 			<Description>TXT_KEY_BUILDING_HEXXON_REFINERY_HQ</Description>
-			<Civilopedia>TXT_KEY_CIV5_BUILDINGS_HEXXON_REFINERY_HQ_TEXT</Civilopedia>
+			<Civilopedia>TXT_KEY_CIV5_BUILDINGS_CORP_TEXT</Civilopedia>
 			<Strategy>TXT_KEY_BUILDING_HEXXON_REFINERY_HQ_STRATEGY</Strategy>
 			<Help>TXT_KEY_BUILDING_HEXXON_REFINERY_HQ_HELP</Help>
 			<ArtDefineTag>ART_DEF_BUILDING_GARDEN</ArtDefineTag>
@@ -1100,7 +1100,7 @@
 			<GoldMaintenance>6</GoldMaintenance>
 			<IsCorporation>true</IsCorporation>
 			<Description>TXT_KEY_BUILDING_HEXXON_REFINERY</Description>
-			<Civilopedia>TXT_KEY_CIV5_BUILDING_HEXXON_REFINERY_TEXT</Civilopedia>
+			<Civilopedia>TXT_KEY_CIV5_BUILDINGS_CORP_TEXT</Civilopedia>
 			<Strategy>TXT_KEY_BUILDING_HEXXON_REFINERY_STRATEGY</Strategy>
 			<Help>TXT_KEY_BUILDING_HEXXON_REFINERY_HELP</Help>
 			<ArtDefineTag>ART_DEF_BUILDING_GARDEN</ArtDefineTag>
@@ -1118,7 +1118,7 @@
 			<GoldMaintenance>1</GoldMaintenance>
 			<IsCorporation>true</IsCorporation>
 			<Description>TXT_KEY_BUILDING_HEXXON_REFINERY_FRANCHISE</Description>
-			<Civilopedia>TXT_KEY_CIV5_BUILDING_HEXXON_REFINERY_FRANCHISE_TEXT</Civilopedia>
+			<Civilopedia>TXT_KEY_CIV5_BUILDINGS_CORP_TEXT</Civilopedia>
 			<Strategy>TXT_KEY_BUILDING_HEXXON_REFINERY_FRANCHISE_STRATEGY</Strategy>
 			<Help>TXT_KEY_BUILDING_HEXXON_REFINERY_FRANCHISE_HELP</Help>
 			<ArtDefineTag>ART_DEF_BUILDING_GARDEN</ArtDefineTag>
@@ -1192,7 +1192,7 @@
 			<GoldMaintenance>4</GoldMaintenance>
 			<IsCorporation>true</IsCorporation>
 			<Description>TXT_KEY_BUILDING_FIRAXITE_MATERIALS_HQ</Description>
-			<Civilopedia>TXT_KEY_CIV5_BUILDINGS_FIRAXITE_MATERIALS_HQ_TEXT</Civilopedia>
+			<Civilopedia>TXT_KEY_CIV5_BUILDINGS_CORP_TEXT</Civilopedia>
 			<Strategy>TXT_KEY_BUILDING_FIRAXITE_MATERIALS_HQ_STRATEGY</Strategy>
 			<Help>TXT_KEY_BUILDING_FIRAXITE_MATERIALS_HQ_HELP</Help>
 			<ArtDefineTag>ART_DEF_BUILDING_GARDEN</ArtDefineTag>
@@ -1213,7 +1213,7 @@
 			<GoldMaintenance>6</GoldMaintenance>
 			<IsCorporation>true</IsCorporation>
 			<Description>TXT_KEY_BUILDING_FIRAXITE_MATERIALS</Description>
-			<Civilopedia>TXT_KEY_CIV5_BUILDING_FIRAXITE_MATERIALS_TEXT</Civilopedia>
+			<Civilopedia>TXT_KEY_CIV5_BUILDINGS_CORP_TEXT</Civilopedia>
 			<Strategy>TXT_KEY_BUILDING_FIRAXITE_MATERIALS_STRATEGY</Strategy>
 			<Help>TXT_KEY_BUILDING_FIRAXITE_MATERIALS_HELP</Help>
 			<ArtDefineTag>ART_DEF_BUILDING_GARDEN</ArtDefineTag>
@@ -1232,7 +1232,7 @@
 			<GoldMaintenance>1</GoldMaintenance>
 			<IsCorporation>true</IsCorporation>
 			<Description>TXT_KEY_BUILDING_FIRAXITE_MATERIALS_FRANCHISE</Description>
-			<Civilopedia>TXT_KEY_CIV5_BUILDING_FIRAXITE_MATERIALS_FRANCHISE_TEXT</Civilopedia>
+			<Civilopedia>TXT_KEY_CIV5_BUILDINGS_CORP_TEXT</Civilopedia>
 			<Strategy>TXT_KEY_BUILDING_FIRAXITE_MATERIALS_FRANCHISE_STRATEGY</Strategy>
 			<Help>TXT_KEY_BUILDING_FIRAXITE_MATERIALS_FRANCHISE_HELP</Help>
 			<ArtDefineTag>ART_DEF_BUILDING_GARDEN</ArtDefineTag>
@@ -1250,7 +1250,7 @@
 			<GoldMaintenance>4</GoldMaintenance>
 			<IsCorporation>true</IsCorporation>
 			<Description>TXT_KEY_BUILDING_TWOKAY_FOODS_HQ</Description>
-			<Civilopedia>TXT_KEY_CIV5_BUILDINGS_TWOKAY_FOODS_HQ_TEXT</Civilopedia>
+			<Civilopedia>TXT_KEY_CIV5_BUILDINGS_CORP_TEXT</Civilopedia>
 			<Strategy>TXT_KEY_BUILDING_TWOKAY_FOODS_HQ_STRATEGY</Strategy>
 			<Help>TXT_KEY_BUILDING_TWOKAY_FOODS_HQ_HELP</Help>
 			<ArtDefineTag>ART_DEF_BUILDING_GARDEN</ArtDefineTag>
@@ -1271,7 +1271,7 @@
 			<GoldMaintenance>6</GoldMaintenance>
 			<IsCorporation>true</IsCorporation>
 			<Description>TXT_KEY_BUILDING_TWOKAY_FOODS</Description>
-			<Civilopedia>TXT_KEY_CIV5_BUILDING_TWOKAY_FOODS_TEXT</Civilopedia>
+			<Civilopedia>TXT_KEY_CIV5_BUILDINGS_CORP_TEXT</Civilopedia>
 			<Strategy>TXT_KEY_BUILDING_TWOKAY_FOODS_STRATEGY</Strategy>
 			<Help>TXT_KEY_BUILDING_TWOKAY_FOODS_HELP</Help>
 			<ArtDefineTag>ART_DEF_BUILDING_GARDEN</ArtDefineTag>
@@ -1295,7 +1295,7 @@
 			<GoldMaintenance>1</GoldMaintenance>
 			<IsCorporation>true</IsCorporation>
 			<Description>TXT_KEY_BUILDING_TWOKAY_FOODS_FRANCHISE</Description>
-			<Civilopedia>TXT_KEY_CIV5_BUILDING_TWOKAY_FOODS_FRANCHISE_TEXT</Civilopedia>
+			<Civilopedia>TXT_KEY_CIV5_BUILDINGS_CORP_TEXT</Civilopedia>
 			<Strategy>TXT_KEY_BUILDING_TWOKAY_FOODS_FRANCHISE_STRATEGY</Strategy>
 			<Help>TXT_KEY_BUILDING_TWOKAY_FOODS_FRANCHISE_HELP</Help>
 			<ArtDefineTag>ART_DEF_BUILDING_GARDEN</ArtDefineTag>
@@ -1313,7 +1313,7 @@
 			<GoldMaintenance>6</GoldMaintenance>
 			<IsCorporation>true</IsCorporation>
 			<Description>TXT_KEY_BUILDING_CIVILIZED_JEWELERS_HQ</Description>
-			<Civilopedia>TXT_KEY_CIV5_BUILDINGS_CIVILIZED_JEWELERS_HQ_TEXT</Civilopedia>
+			<Civilopedia>TXT_KEY_CIV5_BUILDINGS_CORP_TEXT</Civilopedia>
 			<Strategy>TXT_KEY_BUILDING_CIVILIZED_JEWELERS_HQ_STRATEGY</Strategy>
 			<Help>TXT_KEY_BUILDING_CIVILIZED_JEWELERS_HQ_HELP</Help>
 			<ArtDefineTag>ART_DEF_BUILDING_GARDEN</ArtDefineTag>
@@ -1334,7 +1334,7 @@
 			<GoldMaintenance>6</GoldMaintenance>
 			<IsCorporation>true</IsCorporation>
 			<Description>TXT_KEY_BUILDING_CIVILIZED_JEWELERS</Description>
-			<Civilopedia>TXT_KEY_CIV5_BUILDING_CIVILIZED_JEWELERS_TEXT</Civilopedia>
+			<Civilopedia>TXT_KEY_CIV5_BUILDINGS_CORP_TEXT</Civilopedia>
 			<Strategy>TXT_KEY_BUILDING_CIVILIZED_JEWELERS_STRATEGY</Strategy>
 			<Help>TXT_KEY_BUILDING_CIVILIZED_JEWELERS_HELP</Help>
 			<ArtDefineTag>ART_DEF_BUILDING_GARDEN</ArtDefineTag>
@@ -1355,7 +1355,7 @@
 			<GoldMaintenance>1</GoldMaintenance>
 			<IsCorporation>true</IsCorporation>
 			<Description>TXT_KEY_BUILDING_CIVILIZED_JEWELERS_FRANCHISE</Description>
-			<Civilopedia>TXT_KEY_CIV5_BUILDING_CIVILIZED_JEWELERS_FRANCHISE_TEXT</Civilopedia>
+			<Civilopedia>TXT_KEY_CIV5_BUILDINGS_CORP_TEXT</Civilopedia>
 			<Strategy>TXT_KEY_BUILDING_CIVILIZED_JEWELERS_FRANCHISE_STRATEGY</Strategy>
 			<Help>TXT_KEY_BUILDING_CIVILIZED_JEWELERS_FRANCHISE_HELP</Help>
 			<ArtDefineTag>ART_DEF_BUILDING_GARDEN</ArtDefineTag>
