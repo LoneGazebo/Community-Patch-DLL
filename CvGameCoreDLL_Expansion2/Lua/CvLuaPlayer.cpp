@@ -13134,22 +13134,19 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 			
 			if (eAIStateReligion != NO_RELIGION && eAIStateReligion == eHumanMajorityReligion)
 			{
-				iValue = pDiplo->GetReligionScore(ePlayer);
 				str = Localization::Lookup("TXT_KEY_DIPLO_ADOPTING_MY_RELIGION").toUTF8();
 			}
 			else if (eHumanStateReligion != NO_RELIGION && eHumanStateReligion == eAIMajorityReligion)
 			{
-				iValue = pDiplo->GetReligionScore(ePlayer);
 				str = Localization::Lookup("TXT_KEY_DIPLO_ADOPTING_HIS_RELIGION").toUTF8();
 			}
 			else
 			{
-				iValue = pDiplo->GetReligionScore(ePlayer);
 				str = Localization::Lookup("TXT_KEY_DIPLO_SAME_MAJORITY_RELIGIONS").toUTF8();
 			}
 
 			Opinion kOpinion;
-			kOpinion.m_iValue = iValue;
+			kOpinion.m_iValue = pDiplo->GetReligionScore(ePlayer);
 			kOpinion.m_str = str;
 			aOpinions.push_back(kOpinion);
 		}
@@ -14593,11 +14590,11 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 			}
 			else if (pDiplo->IsDenouncedPlayer(ePlayer))
 			{
-				str = Localization::Lookup("TXT_KEY_DIPLO_DENOUNCED_BY_US").toUTF8();
+				str = Localization::Lookup("TXT_KEY_DIPLO_DENOUNCED_BY_THEM").toUTF8();
 			}
 			else
 			{
-				str = Localization::Lookup("TXT_KEY_DIPLO_DENOUNCED_BY_THEM").toUTF8();
+				str = Localization::Lookup("TXT_KEY_DIPLO_DENOUNCED_BY_US").toUTF8();
 			}
 
 			kOpinion.m_str = str;
