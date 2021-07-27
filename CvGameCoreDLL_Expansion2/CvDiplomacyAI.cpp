@@ -8892,6 +8892,7 @@ bool CvDiplomacyAI::CanSeeEnemyCity(CvCity* pCity) const
 		return true;
 
 	// Nearby units?
+	bool bCityIsCoastal = pCity->isCoastal();
 	int iVisionBonus = !GetPlayer()->isHuman() ? GC.getGame().getHandicapInfo().getAIVisionBonus() : 0;
 	int iUnitLoop;
 	for (CvUnit* pLoopUnit = m_pPlayer->firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iUnitLoop))
@@ -8904,7 +8905,7 @@ bool CvDiplomacyAI::CanSeeEnemyCity(CvCity* pCity) const
 		int iRadius = iVisionBonus + 6;
 
 		// VP Special: Coastal units have a harder time seeing what's going on in non-coastal cities
-		if (MOD_BALANCE_CORE && pLoopUnit->getDomainType() == DOMAIN_SEA && !pCity->isCoastal())
+		if (MOD_BALANCE_CORE && pLoopUnit->getDomainType() == DOMAIN_SEA && !bCityIsCoastal)
 		{
 			iRadius = 3;
 		}
