@@ -79,7 +79,14 @@
 		<Column name="YieldIn" type="integer" reference="Yields(Type)"/>
 		<Column name="Value" type="integer" default="0"/>
 	</Table>
-
+	<!-- Allows you to define a yield that generates another yield for every x% you produce in that city, in every city. -->
+	<Table name="Building_YieldFromYieldPercentGlobal">
+		<Column name="BuildingType" type="text" reference="Buildings(Type)"/>
+		<Column name="YieldOut" type="integer" reference="Yields(Type)"/>
+		<Column name="YieldIn" type="integer" reference="Yields(Type)"/>
+		<Column name="Value" type="integer" default="0"/>
+	</Table>
+	
 	<!-- Allows you to define an instant yield granted when a tech is unlocked. -->
 	<Table name="Building_YieldFromTech">
 		<Column name="BuildingType" type="text" reference="Buildings(Type)"/>

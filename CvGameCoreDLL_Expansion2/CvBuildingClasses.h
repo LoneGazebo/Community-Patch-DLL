@@ -569,6 +569,8 @@ public:
 
 	int GetYieldFromYield(int i, int j) const;
 
+	int GetYieldFromYieldGlobal(int i, int j) const;
+
 	int GetInstantReligionPressure() const;
 #endif
 
@@ -1005,6 +1007,7 @@ private:
 #if defined(MOD_BALANCE_CORE)
 	std::map<int, std::map<int, int>> m_ppiResourceYieldChangeGlobal;
 	CvDoubleYieldInfo* m_paYieldFromYield;
+	CvDoubleYieldInfo* m_paYieldFromYieldGlobal;
 	int** m_ppaiImprovementYieldChange;
 	int** m_ppaiImprovementYieldChangeGlobal;
 	int** m_ppaiSpecialistYieldChangeLocal;

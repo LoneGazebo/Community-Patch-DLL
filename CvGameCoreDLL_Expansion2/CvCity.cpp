@@ -1232,6 +1232,20 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 
 		UpdateSpecialReligionYields(eYield);
 		UpdateCityYields(eYield);
+
+		for (int iK = 0; iK < NUM_YIELD_TYPES; iK++)
+		{
+			YieldTypes eYield2 = (YieldTypes)iK;
+
+			if (eYield == eYield2)
+				continue;
+
+			int iGlobalConversionYield = owningPlayer.getYieldFromYieldGlobal(eYield, eYield2);
+			if (iGlobalConversionYield > 0)
+			{
+				ChangeBuildingYieldFromYield(eYield, eYield2, iGlobalConversionYield);
+			}
+		}
 	}
 	if (bInitialFounding && owningPlayer.GetPlayerTraits()->GetStartingSpies() > 0 && owningPlayer.getNumCities() == 1)
 	{
@@ -15556,6 +15570,17 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 				{
 					ChangeBuildingYieldFromYield(eYield, eYield2, (iBuildingVal * iChange));
 				}
+
+				int iGlobalConversionYield = pBuildingInfo->GetYieldFromYieldGlobal(eYield, eYield2);
+				if (iGlobalConversionYield > 0)
+				{
+					GET_PLAYER(getOwner()).changeYieldFromYieldGlobal(eYield, eYield2, iGlobalConversionYield);
+					int iLoop = 0;
+					for (CvCity* pLoopCity = GET_PLAYER(getOwner()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(getOwner()).nextCity(&iLoop))
+					{
+						pLoopCity->ChangeBuildingYieldFromYield(eYield, eYield2, (iGlobalConversionYield * iChange));
+					}
+				}
 			}
 
 			if ((pBuildingInfo->GetYieldFromInternalTREnd(eYield) > 0))
@@ -26086,7 +26111,7 @@ void CvCity::ChangeBuildingYieldFromYield(YieldTypes eIndex1, YieldTypes eIndex2
 	CvAssertMsg(eIndex2 >= 0, "eIndex2 is expected to be non-negative (invalid Index)");
 	CvAssertMsg(eIndex2 < NUM_YIELD_TYPES, "eIndex2 is expected to be within maximum bounds (invalid Index)");
 
-	ModifierUpdateInsertRemove(m_yieldChanges[eIndex2].forYield, eIndex1, iValue, false);
+	ModifierUpdateInsertRemove(m_yieldChanges[eIndex2].forYield, eIndex1, iValue, true);
 }
 
 //	--------------------------------------------------------------------------------
