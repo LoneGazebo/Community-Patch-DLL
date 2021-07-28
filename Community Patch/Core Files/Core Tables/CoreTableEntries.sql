@@ -801,6 +801,12 @@ ALTER TABLE Buildings ADD COLUMN 'RequiresRail' BOOLEAN DEFAULT 0;
 -- Civ-specific building (but not necessarily a UB!)
 ALTER TABLE Buildings ADD COLUMN 'CivilizationRequired' TEXT DEFAULT NULL;
 
+-- reduces purchase cooldown on units
+ALTER TABLE Buildings ADD COLUMN 'PurchaseCooldownReduction' INTEGER DEFAULT 0;
+
+-- reduces purchase cooldown on civilian units
+ALTER TABLE Buildings ADD COLUMN 'PurchaseCooldownReductionCivilian' INTEGER DEFAULT 0;
+
 -- Allows you to define a an amount of Tourism gained from GP birth, WW creation, and CS quest completion. Scales with gamespeed. -- 
 ALTER TABLE Policies ADD COLUMN 'EventTourismCS' INTEGER DEFAULT 0;
 

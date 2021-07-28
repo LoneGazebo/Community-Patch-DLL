@@ -226,6 +226,8 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_iResourceDiversityModifier(0),
 	m_iNoUnhappfromXSpecialists(0),
 	m_iNoUnhappfromXSpecialistsGlobal(0),
+	m_iPurchaseCooldownReduction(0),
+	m_iPurchaseCooldownReductionCivilian(0),
 	m_bEnablesTechSteal(false),
 	m_bEnablesGWSteal(false),
 #endif
@@ -578,6 +580,8 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	m_iResourceDiversityModifier = kResults.GetInt("ResourceDiversityModifier");
 	m_iNoUnhappfromXSpecialists = kResults.GetInt("NoUnhappfromXSpecialists");
 	m_iNoUnhappfromXSpecialistsGlobal = kResults.GetInt("NoUnhappfromXSpecialistsGlobal");
+	m_iPurchaseCooldownReduction = kResults.GetInt("PurchaseCooldownReduction");
+	m_iPurchaseCooldownReductionCivilian = kResults.GetInt("PurchaseCooldownReductionCivilian");
 	m_bEnablesTechSteal = kResults.GetBool("EnablesTechSteal");
 	m_bEnablesGWSteal = kResults.GetBool("EnablesGWSteal");
 #endif
@@ -4162,6 +4166,14 @@ int CvBuildingEntry::GetNoUnhappfromXSpecialists() const
 int CvBuildingEntry::GetNoUnhappfromXSpecialistsGlobal() const
 {
 	return m_iNoUnhappfromXSpecialistsGlobal;
+}
+
+int CvBuildingEntry::GetPurchaseCooldownReduction(bool bCivilian) const
+{
+	if (bCivilian)
+		return m_iPurchaseCooldownReductionCivilian;
+
+	return m_iPurchaseCooldownReduction;
 }
 
 bool CvBuildingEntry::IsEnablesTechSteal() const
