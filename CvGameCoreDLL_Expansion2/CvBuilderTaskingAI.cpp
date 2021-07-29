@@ -658,27 +658,14 @@ void CvBuilderTaskingAI::UpdateRoutePlots(void)
 		return;
 	}
 
-	// find a builder, if I don't have a builder, bail!
-	int iBuilderCount = 0;
-	int iLoopUnit;
-	for(CvUnit* pLoopUnit = m_pPlayer->firstUnit(&iLoopUnit); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iLoopUnit))
-	{
-		if(pLoopUnit->AI_getUnitAIType() == UNITAI_WORKER)
-		{
-			iBuilderCount++;
-
-			//mark the plot if one of our builders is already active there
-			const MissionData* pMission = pLoopUnit->GetHeadMissionData();
-			if (pMission && pMission->eMissionType==CvTypes::getMISSION_BUILD() && pMission->iData2==BuilderDirective::BUILD_ROUTE)
-				AddRoutePlot(pLoopUnit->plot(), eBestRoute, 200);
-		}
-	}
-
 	// If there's no builder, bail!
-	if(iBuilderCount==0)
+	if(m_pPlayer->GetNumUnitsWithUnitAI(UNITAI_WORKER)<1)
 	{
 		return;
 	}
+
+	m_routeNeededPlots.clear();
+	m_routeWantedPlots.clear();
 
 	for(int i = 0; i < GC.getNumBuildInfos(); i++)
 	{

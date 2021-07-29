@@ -133,8 +133,8 @@ protected:
 
 	//plotindex,type,value
 	typedef std::tr1::unordered_map<int, pair<RouteTypes, int>> RoutePlotContainer;
-	RoutePlotContainer m_routeWantedPlots; //serialized
-	RoutePlotContainer m_routeNeededPlots; //serialized
+	RoutePlotContainer m_routeWantedPlots; //create route here. serialized
+	RoutePlotContainer m_routeNeededPlots; //do not remove route here. serialized
 	set<int> m_canalWantedPlots; //serialized
 
 	int m_aiCurrentPlotYields[NUM_YIELD_TYPES];

@@ -10441,11 +10441,6 @@ int CvReligionAI::ScoreCityForMissionary(CvCity* pCity, CvUnit* pUnit, ReligionT
 	int iDistToUnit = pUnit ? plotDistance(*pCity->plot(), *pUnit->plot()) : 0;
 	int iScore = max(10, 50 - iDistToHolyCity - iDistToUnit);
 
-	// Better score if city owner isn't starting a religion and can easily be converted to our side
-	CvPlayer& kCityPlayer = GET_PLAYER(pCity->getOwner());
-	if(!kCityPlayer.GetReligions()->HasCreatedReligion() && kCityPlayer.GetReligions()->GetReligionInMostCities() != eMyReligion)
-		iScore += 7;
-
 	UnitTypes eMissionary = m_pPlayer->GetSpecificUnitType("UNITCLASS_MISSIONARY");
 	CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eMissionary);
 	//assume we spread multiple times with same strength for simplicity
@@ -10484,6 +10479,13 @@ int CvReligionAI::ScoreCityForMissionary(CvCity* pCity, CvUnit* pUnit, ReligionT
 	}
 #endif
 
+	if (pCity->GetCityReligions()->GetReligiousMajority() <= RELIGION_PANTHEON)
+	{
+		//fifty percent bonus if not religion at the moment
+		iScore *= 3;
+		iScore /= 2;
+	}
+
 	//prefer to convert our own cities ...
 	if (pCity->getOwner() == m_pPlayer->GetID())
 	{
@@ -10491,6 +10493,14 @@ int CvReligionAI::ScoreCityForMissionary(CvCity* pCity, CvUnit* pUnit, ReligionT
 	}
 	else
 	{
+		// Better score if city owner isn't starting a religion and can easily be converted to our side
+		CvPlayer& kCityPlayer = GET_PLAYER(pCity->getOwner());
+		if (kCityPlayer.isMajorCiv() && !kCityPlayer.GetReligions()->HasCreatedReligion() && kCityPlayer.GetReligions()->GetReligionInMostCities() != eMyReligion)
+		{
+			iScore *= 3;
+			iScore /= 2;
+		}
+
 		// Holy city will anger folks, let's not do that one right away
 		ReligionTypes eCityOwnersReligion = kCityPlayer.GetReligions()->GetReligionCreatedByPlayer();
 		if (eCityOwnersReligion > RELIGION_PANTHEON && pCity->GetCityReligions()->IsHolyCityForReligion(eCityOwnersReligion))
