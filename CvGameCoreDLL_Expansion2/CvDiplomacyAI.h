@@ -1023,9 +1023,6 @@ public:
 	PlayerTypes GetHighestWarscorePlayer();
 
 	void DoUpdatePlayerMilitaryStrengths();
-	int ComputeRatingStrengthAdjustment(PlayerTypes ePlayer);
-	int ComputeAverageMajorMilitaryRating(PlayerTypes eExcludedPlayer = NO_PLAYER);
-
 	void DoUpdatePlayerEconomicStrengths();
 
 	void DoUpdateWarmongerThreats(bool bUpdateOnly = false);

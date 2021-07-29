@@ -325,6 +325,9 @@ public:
 
 	int GetDefaultFlavorValue() const;
 
+	int ComputeRatingStrengthAdjustment(PlayerTypes ePlayer, PlayerTypes ePerceivingPlayer);
+	int ComputeAverageMajorMilitaryRating(PlayerTypes ePerceivingPlayer, PlayerTypes eExcludedPlayer = NO_PLAYER);
+
 	// Diplomacy AI Options (configurable in DiploAIOptions.sql)
 	// Also consolidates some checks from various game options, for simplicity.
 	bool IsVictoryCompetitionEnabled() const;
