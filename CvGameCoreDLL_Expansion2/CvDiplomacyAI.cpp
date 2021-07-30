@@ -33024,20 +33024,37 @@ void CvDiplomacyAI::DoIdeologicalStatement(PlayerTypes ePlayer, DiploStatementTy
 			int iIdeologySwitchTurn = kTheirPlayer.GetCulture()->GetTurnIdeologySwitch();
 			if (iIdeologySwitchTurn > 0 && iIdeologySwitchTurn + 10 > GC.getGame().getGameTurn())
 			{
-				kTheirPlayer.GetCulture()->SetTurnIdeologySwitch(-1);  // Reset so they only get 1 popup
+				DiploStatementTypes eSwitchStatement = NO_DIPLO_STATEMENT_TYPE;
 				if (eTheirBranch == eFreedom)
 				{
-					eStatement = DIPLO_STATEMENT_SWITCH_OUR_IDEOLOGY_FREEDOM;
+					eSwitchStatement = DIPLO_STATEMENT_SWITCH_OUR_IDEOLOGY_FREEDOM;
 				}
 				else if (eTheirBranch == eOrder)
 				{
-					eStatement = DIPLO_STATEMENT_SWITCH_OUR_IDEOLOGY_ORDER;
+					eSwitchStatement = DIPLO_STATEMENT_SWITCH_OUR_IDEOLOGY_ORDER;
 				}
 				else
 				{
-					eStatement = DIPLO_STATEMENT_SWITCH_OUR_IDEOLOGY_AUTOCRACY;
+					eSwitchStatement = DIPLO_STATEMENT_SWITCH_OUR_IDEOLOGY_AUTOCRACY;
 				}
-				return;
+				//don't spam the message
+				bool bNotRecentlySent = true;
+				for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+				{
+					PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
+
+					if (eLoopPlayer != NULL && GET_PLAYER(eLoopPlayer).isAlive() && GET_PLAYER(eLoopPlayer).isMajorCiv() && eLoopPlayer != ePlayer)
+					{
+						if (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->GetNumTurnsSinceStatementSent(ePlayer, eSwitchStatement) < iTurnsBetweenStatements)
+							bNotRecentlySent = false;
+					}
+				}
+
+				if (bNotRecentlySent)
+				{
+					eStatement = eSwitchStatement;
+					return;
+				}
 			}
 
 			if (eOpinionInMyCiv >= PUBLIC_OPINION_CIVIL_RESISTANCE && eMyGreatestInfluence == ePlayer)

@@ -105,6 +105,9 @@ ALTER TABLE Policies ADD COLUMN 'StealGWFasterModifier' INTEGER DEFAULT 0;
 -- Policy Branch - number of unlocked policies (finishers excluded) before branch is unlocked.
 ALTER TABLE PolicyBranchTypes ADD COLUMN 'NumPolicyRequirement' INTEGER DEFAULT 100;
 
+-- A font icon for an ideology
+ALTER TABLE PolicyBranchTypes ADD COLUMN 'FontIcon' TEXT DEFAULT NULL;
+
 -- Belief - increases pressure from trade routes
 
 ALTER TABLE Beliefs ADD COLUMN 'PressureChangeTradeRoute' INTEGER DEFAULT 0;

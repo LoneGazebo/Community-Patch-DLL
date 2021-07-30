@@ -3725,6 +3725,7 @@ bool CvPolicyBranchEntry::CacheResults(Database::Results& kResults, CvDatabaseUt
 #if defined(MOD_BALANCE_CORE)
 	m_iNumPolicyRequirement = kResults.GetInt("NumPolicyRequirement");
 #endif
+	m_wstrIdeologyIcon = kResults.GetText("FontIcon");
 
 	//PolicyBranch_Disables
 	{
@@ -3837,6 +3838,11 @@ int CvPolicyBranchEntry::GetNumPolicyRequirement() const
 	return m_iNumPolicyRequirement;
 }
 #endif
+/// Returns the font icon for an ideology
+CvString CvPolicyBranchEntry::GetIconString()
+{
+	return m_wstrIdeologyIcon.c_str();
+}
 //=====================================
 // CvPolicyXMLEntries
 //=====================================
