@@ -8906,7 +8906,7 @@ bool CvDiplomacyAI::CanSeeEnemyCity(CvCity* pCity) const
 		int iRadius = iVisionBonus + 6;
 
 		// VP Special: Coastal units have a harder time seeing what's going on in non-coastal cities
-		if (MOD_BALANCE_CORE && !bCityIsCoastal && pLoopUnit->getDomainType() == DOMAIN_SEA)
+		if (MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED && !bCityIsCoastal && pLoopUnit->getDomainType() == DOMAIN_SEA)
 		{
 			iRadius = 3;
 		}
@@ -9032,11 +9032,14 @@ PlayerTypes CvDiplomacyAI::GetHighestWarscorePlayer()
 						eBestPlayer = eLoopPlayer;
 						continue;
 					}
-					else if (IsEndgameAggressiveTo(eLoopPlayer) && !IsEndgameAggressiveTo(eBestPlayer))
+					else if (IsEndgameAggressiveTo(eLoopPlayer) && !IsEndgameAggressiveTo(eBestPlayer) && !IsCapitalCapturedBy(eBestPlayer, true, false) && !IsHolyCityCapturedBy(eBestPlayer, true, false))
 					{
 						eBestPlayer = eLoopPlayer;
 						continue;
 					}
+
+					if (IsCapitalCapturedBy(eBestPlayer, true, false) || IsHolyCityCapturedBy(eBestPlayer, true, false) || (IsEndgameAggressiveTo(eBestPlayer) && !IsEndgameAggressiveTo(eLoopPlayer)))
+						continue;
 
 					// The weakest civ is the one we are most willing to stay at war with.
 					if (GetPlayerTargetValue(eLoopPlayer) > GetPlayerTargetValue(eBestPlayer))
