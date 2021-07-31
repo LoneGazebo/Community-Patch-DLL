@@ -14334,6 +14334,15 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 			aOpinions.push_back(kOpinion);
 		}
 
+		iValue = pDiplo->GetTimesCultureBombedScore(ePlayer);
+		if (iValue != 0)
+		{
+			Opinion kOpinion;
+			kOpinion.m_iValue = iValue;
+			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_CULTURE_BOMB");
+			aOpinions.push_back(kOpinion);
+		}
+
 		iValue = pDiplo->GetTimesRobbedScore(ePlayer);
 		if (iValue != 0)
 		{
