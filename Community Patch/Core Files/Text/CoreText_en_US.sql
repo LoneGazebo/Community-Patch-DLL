@@ -613,6 +613,11 @@ UPDATE Language_en_US
 SET Text = '[NEWLINE][NEWLINE]Civilizations that would be negatively affected by this:'
 WHERE Tag = 'TXT_KEY_LEAGUE_OVERVIEW_PROPOSAL_OPINIONS_NEGATIVE';
 
+-- Discuss Text
+UPDATE Language_en_US
+SET Text = 'Don''t settle or conquer new Cities near us.'
+WHERE Tag = 'TXT_KEY_DIPLO_DISCUSS_MESSAGE_DONT_SETTLE';
+
 -- Diplo Opinion Table Modifiers
 
 -- Neutral Indicators
