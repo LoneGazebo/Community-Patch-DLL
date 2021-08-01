@@ -618,6 +618,14 @@ UPDATE Language_en_US
 SET Text = 'Don''t settle or conquer new Cities near us.'
 WHERE Tag = 'TXT_KEY_DIPLO_DISCUSS_MESSAGE_DONT_SETTLE';
 
+UPDATE Language_en_US
+SET Text = 'Our apologies, we''ll refrain from expanding near you in the future.'
+WHERE Tag = 'TXT_KEY_DIPLO_DISCUSS_SORRY_FOR_SETTLING';
+
+UPDATE Language_en_US
+SET Text = 'We''ll expand into any lands we please.'
+WHERE Tag = 'TXT_KEY_DIPLO_DISCUSS_SETTLE_WHAT_WE_PLEASE';
+
 -- Diplo Opinion Table Modifiers
 
 -- Neutral Indicators
