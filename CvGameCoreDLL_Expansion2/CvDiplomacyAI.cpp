@@ -8906,7 +8906,7 @@ bool CvDiplomacyAI::CanSeeEnemyCity(CvCity* pCity) const
 		int iRadius = iVisionBonus + 6;
 
 		// VP Special: Coastal units have a harder time seeing what's going on in non-coastal cities
-		if (MOD_BALANCE_CORE && !bCityIsCoastal && pLoopUnit->getDomainType() == DOMAIN_SEA)
+		if (MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED && !bCityIsCoastal && pLoopUnit->getDomainType() == DOMAIN_SEA)
 		{
 			iRadius = 3;
 		}
@@ -9032,11 +9032,14 @@ PlayerTypes CvDiplomacyAI::GetHighestWarscorePlayer()
 						eBestPlayer = eLoopPlayer;
 						continue;
 					}
-					else if (IsEndgameAggressiveTo(eLoopPlayer) && !IsEndgameAggressiveTo(eBestPlayer))
+					else if (IsEndgameAggressiveTo(eLoopPlayer) && !IsEndgameAggressiveTo(eBestPlayer) && !IsCapitalCapturedBy(eBestPlayer, true, false) && !IsHolyCityCapturedBy(eBestPlayer, true, false))
 					{
 						eBestPlayer = eLoopPlayer;
 						continue;
 					}
+
+					if (IsCapitalCapturedBy(eBestPlayer, true, false) || IsHolyCityCapturedBy(eBestPlayer, true, false) || (IsEndgameAggressiveTo(eBestPlayer) && !IsEndgameAggressiveTo(eLoopPlayer)))
+						continue;
 
 					// The weakest civ is the one we are most willing to stay at war with.
 					if (GetPlayerTargetValue(eLoopPlayer) > GetPlayerTargetValue(eBestPlayer))
@@ -9070,7 +9073,7 @@ void CvDiplomacyAI::DoUpdatePlayerMilitaryStrengths()
 	int iMilitaryStrength = iBase + GetPlayer()->GetMilitaryMight();
 
 	// Modify our strength based on military rating (combat skill)
-	iMilitaryStrength *= ComputeRatingStrengthAdjustment(GetID());
+	iMilitaryStrength *= GC.getGame().ComputeRatingStrengthAdjustment(GetID(), GetID());
 	iMilitaryStrength /= 100;
 
 	// Loop through all (known) Players
@@ -9086,7 +9089,7 @@ void CvDiplomacyAI::DoUpdatePlayerMilitaryStrengths()
 			if (!GetPlayer()->isHuman() && GET_PLAYER(ePlayer).isHuman() && !GET_PLAYER(ePlayer).IsVassalOfSomeone() && !GET_PLAYER(ePlayer).IsInTerribleShapeForWar() && GetWarState(ePlayer) < WAR_STATE_OFFENSIVE)
 			{
 				int iHumanStrengthMod = max(0, GET_PLAYER(ePlayer).getHandicapInfo().getAIHumanStrengthMod());
-				int iSkillRatingMod = ComputeRatingStrengthAdjustment(ePlayer) - 100;
+				int iSkillRatingMod = GC.getGame().ComputeRatingStrengthAdjustment(ePlayer, GetID()) - 100;
 				int iBufferValue = range(/*-20*/ GC.getMILITARY_RATING_HUMAN_BUFFER_VALUE(), -50, 0);
 
 				// Only apply the human strength mod in full if their performance is at least average
@@ -9114,7 +9117,7 @@ void CvDiplomacyAI::DoUpdatePlayerMilitaryStrengths()
 			else
 			{
 				// Modify their strength based on military rating (combat skill)
-				iOtherPlayerMilitaryStrength *= ComputeRatingStrengthAdjustment(ePlayer);
+				iOtherPlayerMilitaryStrength *= GC.getGame().ComputeRatingStrengthAdjustment(ePlayer, GetID());
 				iOtherPlayerMilitaryStrength /= 100;
 			}
 
@@ -9143,7 +9146,7 @@ void CvDiplomacyAI::DoUpdatePlayerMilitaryStrengths()
 							if (!GetPlayer()->isHuman() && GET_PLAYER(eLoopPlayer).isHuman() && !GET_PLAYER(eLoopPlayer).IsVassalOfSomeone() && !GET_PLAYER(eLoopPlayer).IsInTerribleShapeForWar() && GetWarState(eLoopPlayer) < WAR_STATE_OFFENSIVE)
 							{
 								int iHumanStrengthMod = max(0, GET_PLAYER(eLoopPlayer).getHandicapInfo().getAIHumanStrengthMod());
-								int iSkillRatingMod = ComputeRatingStrengthAdjustment(eLoopPlayer) - 100;
+								int iSkillRatingMod = GC.getGame().ComputeRatingStrengthAdjustment(eLoopPlayer, GetID()) - 100;
 								int iBufferValue = range(/*-20*/ GC.getMILITARY_RATING_HUMAN_BUFFER_VALUE(), -50, 0);
 
 								// Only apply the human strength mod in full if their performance is at least average
@@ -9171,7 +9174,7 @@ void CvDiplomacyAI::DoUpdatePlayerMilitaryStrengths()
 							else
 							{
 								// Modify their strength based on military rating (combat skill)
-								iLoopPlayerStrength *= ComputeRatingStrengthAdjustment(eLoopPlayer);
+								iLoopPlayerStrength *= GC.getGame().ComputeRatingStrengthAdjustment(eLoopPlayer, GetID());
 								iLoopPlayerStrength /= 100;
 							}
 
@@ -9195,7 +9198,7 @@ void CvDiplomacyAI::DoUpdatePlayerMilitaryStrengths()
 						if (!GetPlayer()->isHuman() && GET_PLAYER(eLoopPlayer).isHuman() && !GET_PLAYER(eLoopPlayer).IsVassalOfSomeone() && !GET_PLAYER(eLoopPlayer).IsInTerribleShapeForWar() && GET_PLAYER(ePlayer).GetDiplomacyAI()->GetWarState(eLoopPlayer) < WAR_STATE_OFFENSIVE)
 						{
 							int iHumanStrengthMod = max(0, GET_PLAYER(eLoopPlayer).getHandicapInfo().getAIHumanStrengthMod());
-							int iSkillRatingMod = ComputeRatingStrengthAdjustment(eLoopPlayer) - 100;
+							int iSkillRatingMod = GC.getGame().ComputeRatingStrengthAdjustment(eLoopPlayer, GetID()) - 100;
 							int iBufferValue = range(/*-20*/ GC.getMILITARY_RATING_HUMAN_BUFFER_VALUE(), -50, 0);
 
 							// Only apply the human strength mod in full if their performance is at least average
@@ -9223,7 +9226,7 @@ void CvDiplomacyAI::DoUpdatePlayerMilitaryStrengths()
 						else
 						{
 							// Modify their strength based on military rating (combat skill)
-							iLoopPlayerStrength *= ComputeRatingStrengthAdjustment(eLoopPlayer);
+							iLoopPlayerStrength *= GC.getGame().ComputeRatingStrengthAdjustment(eLoopPlayer, GetID());
 							iLoopPlayerStrength /= 100;
 						}
 
@@ -9247,7 +9250,7 @@ void CvDiplomacyAI::DoUpdatePlayerMilitaryStrengths()
 								if (!GetPlayer()->isHuman() && GET_PLAYER(eLoopPlayer).isHuman() && !GET_PLAYER(eLoopPlayer).IsVassalOfSomeone() && !GET_PLAYER(eLoopPlayer).IsInTerribleShapeForWar() && GetWarState(eLoopPlayer) < WAR_STATE_OFFENSIVE)
 								{
 									int iHumanStrengthMod = max(0, GET_PLAYER(eLoopPlayer).getHandicapInfo().getAIHumanStrengthMod());
-									int iSkillRatingMod = ComputeRatingStrengthAdjustment(eLoopPlayer) - 100;
+									int iSkillRatingMod = GC.getGame().ComputeRatingStrengthAdjustment(eLoopPlayer, GetID()) - 100;
 									int iBufferValue = range(/*-20*/ GC.getMILITARY_RATING_HUMAN_BUFFER_VALUE(), -50, 0);
 
 									// Only apply the human strength mod in full if their performance is at least average
@@ -9275,7 +9278,7 @@ void CvDiplomacyAI::DoUpdatePlayerMilitaryStrengths()
 								else
 								{
 									// Modify their strength based on military rating (combat skill)
-									iLoopPlayerStrength *= ComputeRatingStrengthAdjustment(eLoopPlayer);
+									iLoopPlayerStrength *= GC.getGame().ComputeRatingStrengthAdjustment(eLoopPlayer, GetID());
 									iLoopPlayerStrength /= 100;
 								}
 
@@ -9290,7 +9293,7 @@ void CvDiplomacyAI::DoUpdatePlayerMilitaryStrengths()
 							if (!GetPlayer()->isHuman() && GET_PLAYER(eLoopPlayer).isHuman() && !GET_PLAYER(eLoopPlayer).IsVassalOfSomeone() && !GET_PLAYER(eLoopPlayer).IsInTerribleShapeForWar() && GET_PLAYER(ePlayer).GetDiplomacyAI()->GetWarState(eLoopPlayer) < WAR_STATE_OFFENSIVE)
 							{
 								int iHumanStrengthMod = max(0, GET_PLAYER(eLoopPlayer).getHandicapInfo().getAIHumanStrengthMod());
-								int iSkillRatingMod = ComputeRatingStrengthAdjustment(eLoopPlayer) - 100;
+								int iSkillRatingMod = GC.getGame().ComputeRatingStrengthAdjustment(eLoopPlayer, GetID()) - 100;
 								int iBufferValue = range(/*-20*/ GC.getMILITARY_RATING_HUMAN_BUFFER_VALUE(), -50, 0);
 
 								// Only apply the human strength mod in full if their performance is at least average
@@ -9318,7 +9321,7 @@ void CvDiplomacyAI::DoUpdatePlayerMilitaryStrengths()
 							else
 							{
 								// Modify their strength based on military rating (combat skill)
-								iLoopPlayerStrength *= ComputeRatingStrengthAdjustment(eLoopPlayer);
+								iLoopPlayerStrength *= GC.getGame().ComputeRatingStrengthAdjustment(eLoopPlayer, GetID());
 								iLoopPlayerStrength /= 100;
 							}
 
@@ -9358,66 +9361,6 @@ void CvDiplomacyAI::DoUpdatePlayerMilitaryStrengths()
 			SetPlayerMilitaryStrengthComparedToUs(ePlayer, eMilitaryStrength);
 		}
 	}
-}
-
-/// Modify military strength based on skill rating
-int CvDiplomacyAI::ComputeRatingStrengthAdjustment(PlayerTypes ePlayer)
-{
-	if (!GET_PLAYER(ePlayer).isMajorCiv())
-		return 100;
-	
-	int iCivRating = GET_PLAYER(ePlayer).GetMilitaryRating();
-	int iAverageRating = ComputeAverageMajorMilitaryRating(/*eExcludedPlayer*/ ePlayer);
-
-	// There are no other major civs - don't adjust
-	if (iAverageRating == -1)
-		return 100;
-
-	// Calculate the percentage difference from the average
-	int iPercentageDifference = ((iCivRating * 100) - (iAverageRating * 100)) / max(iAverageRating, 1);
-	if (iPercentageDifference < 0)
-		iPercentageDifference *= -1; // need the absolute value
-
-	int iRtnValue = 100;
-
-	// If above average, apply the % difference as a positive modifier to strength, cap above at +100%
-	if (iCivRating > iAverageRating)
-	{
-		iRtnValue = min((100 + iPercentageDifference), 200);
-	}
-	// If below average, apply the % difference as a negative modifier to strength, cap below at -50%
-	else if (iCivRating < iAverageRating)
-	{
-		iRtnValue = max((100 - iPercentageDifference), 50);
-	}
-
-	return iRtnValue;
-}
-
-/// What is the average (living) major civ's military rating (only counting players that we know)?
-int CvDiplomacyAI::ComputeAverageMajorMilitaryRating(PlayerTypes eExcludedPlayer /* = NO_PLAYER */)
-{
-	int iTotalRating = 0;
-	int iNumCivs = 0;
-	
-	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
-	{
-		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
-		
-		if (eLoopPlayer == eExcludedPlayer)
-			continue;
-		
-		if (GET_PLAYER(eLoopPlayer).isAlive() && GET_PLAYER(eLoopPlayer).isMajorCiv() && GET_PLAYER(eLoopPlayer).getNumCities() > 0 && IsHasMet(eLoopPlayer, true))
-		{
-			iTotalRating += GET_PLAYER(eLoopPlayer).GetMilitaryRating();
-			iNumCivs++;
-		}
-	}
-
-	if (iNumCivs == 0)
-		return -1;
-	
-	return (iTotalRating / iNumCivs);
 }
 
 /// Updates what our assessment is of all players' overall Economic Strength
@@ -9653,7 +9596,7 @@ int CvDiplomacyAI::GetPlayerOverallStrengthEstimate(PlayerTypes ePlayer, PlayerT
 		if (!GET_PLAYER(ePlayer).IsAtWarWith(eComparedToPlayer) || GET_PLAYER(eComparedToPlayer).GetDiplomacyAI()->GetWarState(ePlayer) < WAR_STATE_OFFENSIVE)
 		{
 			int iHumanStrengthMod = max(0, GET_PLAYER(ePlayer).getHandicapInfo().getAIHumanStrengthMod());
-			int iSkillRatingMod = ComputeRatingStrengthAdjustment(ePlayer) - 100;
+			int iSkillRatingMod = GC.getGame().ComputeRatingStrengthAdjustment(ePlayer, GetID()) - 100;
 			int iBufferValue = range(/*-20*/ GC.getMILITARY_RATING_HUMAN_BUFFER_VALUE(), -50, 0);
 
 			// Only apply the human strength mod in full if their performance is at least average
@@ -9682,7 +9625,7 @@ int CvDiplomacyAI::GetPlayerOverallStrengthEstimate(PlayerTypes ePlayer, PlayerT
 	// Major Civ? Modify their strength estimate based on military rating (combat skill)
 	else if (GET_PLAYER(ePlayer).isMajorCiv())
 	{
-		iStrengthEstimate *= ComputeRatingStrengthAdjustment(ePlayer);
+		iStrengthEstimate *= GC.getGame().ComputeRatingStrengthAdjustment(ePlayer, GetID());
 		iStrengthEstimate /= 100;
 	}
 
@@ -9868,7 +9811,7 @@ int CvDiplomacyAI::GetPlayerOverallStrengthEstimate(PlayerTypes ePlayer, PlayerT
 						if (!GET_PLAYER(*it).IsAtWarWith(eComparedToPlayer) || GET_PLAYER(eComparedToPlayer).GetDiplomacyAI()->GetWarState(*it) < WAR_STATE_OFFENSIVE)
 						{
 							int iHumanStrengthMod = max(0, GET_PLAYER(*it).getHandicapInfo().getAIHumanStrengthMod());
-							int iSkillRatingMod = ComputeRatingStrengthAdjustment(*it) - 100;
+							int iSkillRatingMod = GC.getGame().ComputeRatingStrengthAdjustment(*it, GetID()); - 100;
 							int iBufferValue = range(/*-20*/ GC.getMILITARY_RATING_HUMAN_BUFFER_VALUE(), -50, 0);
 
 							// Only apply the human strength mod in full if their performance is at least average
@@ -9897,7 +9840,7 @@ int CvDiplomacyAI::GetPlayerOverallStrengthEstimate(PlayerTypes ePlayer, PlayerT
 				}
 				else
 				{
-					iMight *= ComputeRatingStrengthAdjustment(*it);
+					iMight *= GC.getGame().ComputeRatingStrengthAdjustment(*it, GetID());
 					iMight /= 100;
 				}
 
@@ -10058,7 +10001,7 @@ int CvDiplomacyAI::GetPlayerOverallStrengthEstimate(PlayerTypes ePlayer, PlayerT
 					if (!kPlayer.IsAtWarWith(eComparedToPlayer) || GET_PLAYER(eComparedToPlayer).GetDiplomacyAI()->GetWarState(eAllyPlayer) < WAR_STATE_OFFENSIVE)
 					{
 						int iHumanStrengthMod = max(0, GET_PLAYER(eAllyPlayer).getHandicapInfo().getAIHumanStrengthMod());
-						int iSkillRatingMod = ComputeRatingStrengthAdjustment(eAllyPlayer);
+						int iSkillRatingMod = GC.getGame().ComputeRatingStrengthAdjustment(eAllyPlayer, GetID()) - 100;
 						int iBufferValue = range(/*-20*/ GC.getMILITARY_RATING_HUMAN_BUFFER_VALUE(), -50, 0);
 
 						// Only apply the human strength mod in full if their performance is at least average
@@ -10087,7 +10030,7 @@ int CvDiplomacyAI::GetPlayerOverallStrengthEstimate(PlayerTypes ePlayer, PlayerT
 				else
 				{
 					// Modify based on military rating (combat skill)
-					iMight *= ComputeRatingStrengthAdjustment(eAllyPlayer);
+					iMight *= GC.getGame().ComputeRatingStrengthAdjustment(eAllyPlayer, GetID());
 					iMight /= 100;
 				}
 

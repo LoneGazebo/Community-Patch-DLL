@@ -12403,7 +12403,7 @@ void CvMinorCivAI::TestChangeProtectionFromMajor(PlayerTypes eMajor)
 			if (GET_PLAYER(ePlayer).isHuman() && !GET_PLAYER(ePlayer).IsVassalOfSomeone() && !GET_PLAYER(ePlayer).IsInTerribleShapeForWar())
 			{
 				int iHumanStrengthMod = max(0, GET_PLAYER(ePlayer).getHandicapInfo().getAIHumanStrengthMod());
-				int iSkillRatingMod = GET_PLAYER(ePlayer).GetDiplomacyAI()->ComputeRatingStrengthAdjustment(ePlayer) - 100;
+				int iSkillRatingMod = GC.getGame().ComputeRatingStrengthAdjustment(ePlayer, m_pPlayer->GetID()) - 100;
 				int iBufferValue = range(/*-20*/ GC.getMILITARY_RATING_HUMAN_BUFFER_VALUE(), -50, 0);
 
 				// Only apply the human strength mod in full if their performance is at least average
@@ -12430,7 +12430,7 @@ void CvMinorCivAI::TestChangeProtectionFromMajor(PlayerTypes eMajor)
 			}
 			else
 			{
-				iStrength *= GET_PLAYER(ePlayer).GetDiplomacyAI()->ComputeRatingStrengthAdjustment(ePlayer);
+				iStrength *= GC.getGame().ComputeRatingStrengthAdjustment(ePlayer, m_pPlayer->GetID());
 				iStrength /= 100;
 			}
 
@@ -12588,7 +12588,7 @@ CvString CvMinorCivAI::GetPledgeProtectionInvalidReason(PlayerTypes eMajor)
 			if (GET_PLAYER(ePlayer).isHuman() && !GET_PLAYER(ePlayer).IsVassalOfSomeone() && !GET_PLAYER(ePlayer).IsInTerribleShapeForWar())
 			{
 				int iHumanStrengthMod = max(0, GET_PLAYER(ePlayer).getHandicapInfo().getAIHumanStrengthMod());
-				int iSkillRatingMod = GET_PLAYER(ePlayer).GetDiplomacyAI()->ComputeRatingStrengthAdjustment(ePlayer) - 100;
+				int iSkillRatingMod = GC.getGame().ComputeRatingStrengthAdjustment(ePlayer, m_pPlayer->GetID()) - 100;
 				int iBufferValue = range(/*-20*/ GC.getMILITARY_RATING_HUMAN_BUFFER_VALUE(), -50, 0);
 
 				// Only apply the human strength mod in full if their performance is at least average
@@ -12615,7 +12615,7 @@ CvString CvMinorCivAI::GetPledgeProtectionInvalidReason(PlayerTypes eMajor)
 			}
 			else
 			{
-				iStrength *= GET_PLAYER(ePlayer).GetDiplomacyAI()->ComputeRatingStrengthAdjustment(ePlayer);
+				iStrength *= GC.getGame().ComputeRatingStrengthAdjustment(ePlayer, m_pPlayer->GetID());
 				iStrength /= 100;
 			}
 
@@ -12777,7 +12777,7 @@ bool CvMinorCivAI::CanMajorProtect(PlayerTypes eMajor)
 				if (GET_PLAYER(ePlayer).isHuman() && !GET_PLAYER(ePlayer).IsVassalOfSomeone() && !GET_PLAYER(ePlayer).IsInTerribleShapeForWar())
 				{
 					int iHumanStrengthMod = max(0, GET_PLAYER(ePlayer).getHandicapInfo().getAIHumanStrengthMod());
-					int iSkillRatingMod = GET_PLAYER(ePlayer).GetDiplomacyAI()->ComputeRatingStrengthAdjustment(ePlayer) - 100;
+					int iSkillRatingMod = GC.getGame().ComputeRatingStrengthAdjustment(ePlayer, m_pPlayer->GetID()) - 100;
 					int iBufferValue = range(/*-20*/ GC.getMILITARY_RATING_HUMAN_BUFFER_VALUE(), -50, 0);
 
 					// Only apply the human strength mod in full if their performance is at least average
@@ -12804,7 +12804,7 @@ bool CvMinorCivAI::CanMajorProtect(PlayerTypes eMajor)
 				}
 				else
 				{
-					iStrength *= GET_PLAYER(ePlayer).GetDiplomacyAI()->ComputeRatingStrengthAdjustment(ePlayer);
+					iStrength *= GC.getGame().ComputeRatingStrengthAdjustment(ePlayer, m_pPlayer->GetID());
 					iStrength /= 100;
 				}
 
