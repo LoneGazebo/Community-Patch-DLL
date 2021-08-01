@@ -906,6 +906,8 @@ public:
 	int GetNumPolicyRequirement() const;
 #endif
 
+	CvString GetIconString();
+
 	// Accessor Functions (Arrays)
 	int GetPolicyBranchDisables(int i) const;
 
@@ -925,7 +927,7 @@ private:
 #if defined(MOD_BALANCE_CORE)
 	int m_iNumPolicyRequirement;
 #endif
-
+	CvString m_wstrIdeologyIcon;
 	// Arrays
 	int* m_piPolicyBranchDisables;
 };

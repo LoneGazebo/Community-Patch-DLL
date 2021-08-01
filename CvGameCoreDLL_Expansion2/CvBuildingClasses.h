@@ -232,6 +232,8 @@ public:
 
 	bool IsEnablesTechSteal() const;
 	bool IsEnablesGWSteal() const;
+
+	int GetPurchaseCooldownReduction(bool bCivilian = false) const;
 #endif
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	bool IsVassalLevyEra() const;
@@ -569,6 +571,8 @@ public:
 
 	int GetYieldFromYield(int i, int j) const;
 
+	int GetYieldFromYieldGlobal(int i, int j) const;
+
 	int GetInstantReligionPressure() const;
 #endif
 
@@ -836,6 +840,8 @@ private:
 	bool m_bAnyWater;
 	int m_iNoUnhappfromXSpecialists;
 	int m_iNoUnhappfromXSpecialistsGlobal;
+	int m_iPurchaseCooldownReduction;
+	int m_iPurchaseCooldownReductionCivilian;
 	bool m_bEnablesTechSteal;
 	bool m_bEnablesGWSteal;
 #endif
@@ -1005,6 +1011,7 @@ private:
 #if defined(MOD_BALANCE_CORE)
 	std::map<int, std::map<int, int>> m_ppiResourceYieldChangeGlobal;
 	CvDoubleYieldInfo* m_paYieldFromYield;
+	CvDoubleYieldInfo* m_paYieldFromYieldGlobal;
 	int** m_ppaiImprovementYieldChange;
 	int** m_ppaiImprovementYieldChangeGlobal;
 	int** m_ppaiSpecialistYieldChangeLocal;

@@ -387,6 +387,8 @@ CvCity::CvCity() :
 	, m_iTradePrioritySea()
 	, m_iUnitPurchaseCooldown()
 	, m_iUnitPurchaseCooldownCivilian()
+	, m_iUnitPurchaseCooldownMod()
+	, m_iUnitPurchaseCooldownCivilianMod()
 	, m_iUnitFaithPurchaseCooldown()
 	, m_iUnitFaithPurchaseCooldownCivilian()
 	, m_iBuildingPurchaseCooldown()
@@ -1232,6 +1234,20 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 
 		UpdateSpecialReligionYields(eYield);
 		UpdateCityYields(eYield);
+
+		for (int iK = 0; iK < NUM_YIELD_TYPES; iK++)
+		{
+			YieldTypes eYield2 = (YieldTypes)iK;
+
+			if (eYield == eYield2)
+				continue;
+
+			int iGlobalConversionYield = owningPlayer.getYieldFromYieldGlobal(eYield, eYield2);
+			if (iGlobalConversionYield > 0)
+			{
+				ChangeBuildingYieldFromYield(eYield, eYield2, iGlobalConversionYield);
+			}
+		}
 	}
 	if (bInitialFounding && owningPlayer.GetPlayerTraits()->GetStartingSpies() > 0 && owningPlayer.getNumCities() == 1)
 	{
@@ -1467,6 +1483,8 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_iTradePrioritySea = 0;
 	m_iUnitPurchaseCooldown = 0;
 	m_iUnitPurchaseCooldownCivilian = 0;
+	m_iUnitPurchaseCooldownMod = 0;
+	m_iUnitPurchaseCooldownCivilianMod = 0;
 	m_iUnitFaithPurchaseCooldown = 0;
 	m_iUnitFaithPurchaseCooldownCivilian = 0;
 	m_iBuildingPurchaseCooldown = 0;
@@ -15197,6 +15215,9 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 		{
 			ChangeTradeRouteSeaDistanceModifier(pBuildingInfo->GetTradeRouteSeaDistanceModifier() * iChange);
 		}
+
+		ChangeUnitPurchaseCooldownMod(true, pBuildingInfo->GetPurchaseCooldownReduction(true) * iChange);
+		ChangeUnitPurchaseCooldownMod(false, pBuildingInfo->GetPurchaseCooldownReduction(false) * iChange);
 #endif
 #if defined(MOD_BALANCE_CORE)
 		if (pBuildingInfo->GetBuildingClassInfo().IsOffice() || pBuildingInfo->GetBuildingClassInfo().IsHeadquarters() || pBuildingInfo->GetBuildingClassInfo().IsFranchise())
@@ -15555,6 +15576,17 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 				if (iBuildingVal > 0)
 				{
 					ChangeBuildingYieldFromYield(eYield, eYield2, (iBuildingVal * iChange));
+				}
+
+				int iGlobalConversionYield = pBuildingInfo->GetYieldFromYieldGlobal(eYield, eYield2);
+				if (iGlobalConversionYield > 0)
+				{
+					GET_PLAYER(getOwner()).changeYieldFromYieldGlobal(eYield, eYield2, iGlobalConversionYield);
+					int iLoop = 0;
+					for (CvCity* pLoopCity = GET_PLAYER(getOwner()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(getOwner()).nextCity(&iLoop))
+					{
+						pLoopCity->ChangeBuildingYieldFromYield(eYield, eYield2, (iGlobalConversionYield * iChange));
+					}
 				}
 			}
 
@@ -16606,6 +16638,24 @@ void CvCity::ChangeUnitPurchaseCooldown(bool bCivilian, int iValue)
 
 		m_iUnitPurchaseCooldown += iValue;
 	}
+}
+//	--------------------------------------------------------------------------------
+int CvCity::GetUnitPurchaseCooldownMod(bool bCivilian) const
+{
+	VALIDATE_OBJECT
+		if (bCivilian)
+			return m_iUnitPurchaseCooldownCivilianMod;
+
+	return m_iUnitPurchaseCooldownMod;
+}
+//	--------------------------------------------------------------------------------
+void CvCity::ChangeUnitPurchaseCooldownMod(bool bCivilian, int iValue)
+{
+	VALIDATE_OBJECT
+		if (bCivilian)
+			m_iUnitPurchaseCooldownCivilianMod += iValue;
+
+	m_iUnitPurchaseCooldownMod += iValue;
 }
 //	--------------------------------------------------------------------------------
 int CvCity::GetUnitFaithPurchaseCooldown(bool bCivilian) const
@@ -26086,7 +26136,7 @@ void CvCity::ChangeBuildingYieldFromYield(YieldTypes eIndex1, YieldTypes eIndex2
 	CvAssertMsg(eIndex2 >= 0, "eIndex2 is expected to be non-negative (invalid Index)");
 	CvAssertMsg(eIndex2 < NUM_YIELD_TYPES, "eIndex2 is expected to be within maximum bounds (invalid Index)");
 
-	ModifierUpdateInsertRemove(m_yieldChanges[eIndex2].forYield, eIndex1, iValue, false);
+	ModifierUpdateInsertRemove(m_yieldChanges[eIndex2].forYield, eIndex1, iValue, true);
 }
 
 //	--------------------------------------------------------------------------------
@@ -31377,11 +31427,11 @@ bool CvCity::IsCanPurchase(const std::vector<int>& vPreExistingBuildings, bool b
 				if (iGoldCost > GET_PLAYER(getOwner()).GetTreasury()->GetGold())
 					return false;
 #if defined(MOD_BALANCE_CORE)
-				if (eUnitType != NO_UNIT && (GC.getUnitInfo(eUnitType)->GetCombat() <= 0 && GC.getUnitInfo(eUnitType)->GetRangedCombat() <= 0) && MOD_BALANCE_CORE && GetUnitPurchaseCooldown(true) > 0)
+				if (eUnitType != NO_UNIT && (GC.getUnitInfo(eUnitType)->GetCombat() <= 0 && GC.getUnitInfo(eUnitType)->GetRangedCombat() <= 0) && MOD_BALANCE_CORE && (GetUnitPurchaseCooldown(true) - GetUnitPurchaseCooldownMod(true)) > 0)
 				{
 					return false;
 				}
-				else if (eUnitType != NO_UNIT && (GC.getUnitInfo(eUnitType)->GetCombat() > 0 || GC.getUnitInfo(eUnitType)->GetRangedCombat() > 0) && MOD_BALANCE_CORE && GetUnitPurchaseCooldown() > 0)
+				else if (eUnitType != NO_UNIT && (GC.getUnitInfo(eUnitType)->GetCombat() > 0 || GC.getUnitInfo(eUnitType)->GetRangedCombat() > 0) && MOD_BALANCE_CORE && (GetUnitPurchaseCooldown() - GetUnitPurchaseCooldownMod(false)) > 0)
 				{
 					return false;
 				}
@@ -31690,7 +31740,7 @@ void CvCity::Purchase(UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectT
 			}
 #if defined(MOD_BALANCE_CORE)
 			bool bCivilian = (pGameUnit->GetCombat() <= 0 && pGameUnit->GetRangedCombat() <= 0);
-			SetUnitPurchaseCooldown(bCivilian, pGameUnit->GetCooldown());
+			SetUnitPurchaseCooldown(bCivilian, pGameUnit->GetCooldown() - GetUnitPurchaseCooldownMod(bCivilian));
 #endif
 			// Building
 		}
@@ -33017,6 +33067,8 @@ void CvCity::Serialize(City& city, Visitor& visitor)
 	visitor(city.m_iTradePrioritySea);
 	visitor(city.m_iUnitPurchaseCooldown);
 	visitor(city.m_iUnitPurchaseCooldownCivilian);
+	visitor(city.m_iUnitPurchaseCooldownMod);
+	visitor(city.m_iUnitPurchaseCooldownCivilianMod);
 	visitor(city.m_iUnitFaithPurchaseCooldown);
 	visitor(city.m_iUnitFaithPurchaseCooldownCivilian);
 	visitor(city.m_iBuildingPurchaseCooldown);

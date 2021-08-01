@@ -422,6 +422,7 @@ CvPlayer::CvPlayer() :
 	, m_pabLoyalMember()
 	, m_pabGetsScienceFromPlayer()
 	, m_ppaaiSpecialistExtraYield()
+	, m_ppiYieldFromYieldGlobal()
 	, m_ppaaiImprovementYieldChange()
 	, m_bEverPoppedGoody()
 	, m_bEverTrainedBuilder()
@@ -1184,6 +1185,7 @@ void CvPlayer::uninit()
 	}
 
 	m_ppaaiSpecialistExtraYield.clear();
+	m_ppiYieldFromYieldGlobal.clear();
 #if defined(MOD_API_UNIFIED_YIELDS)
 	m_ppiPlotYieldChange.clear();
 #endif
@@ -2161,6 +2163,12 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 			m_ppaaiSpecialistExtraYield[i] = yield;
 		}
 
+		m_ppiYieldFromYieldGlobal.clear();
+		m_ppiYieldFromYieldGlobal.resize(NUM_YIELD_TYPES);
+		for (unsigned int i = 0; i < m_ppiYieldFromYieldGlobal.size(); ++i)
+		{
+			m_ppiYieldFromYieldGlobal[i] = yield;
+		}
 #if defined(MOD_API_UNIFIED_YIELDS)
 		m_ppiPlotYieldChange.clear();
 		m_ppiPlotYieldChange.resize(GC.getNumPlotInfos());
@@ -40047,6 +40055,34 @@ void CvPlayer::changeSpecialistExtraYield(SpecialistTypes eIndex1, YieldTypes eI
 }
 
 
+//	--------------------------------------------------------------------------------
+int CvPlayer::getYieldFromYieldGlobal(YieldTypes eIndex1, YieldTypes eIndex2) const
+{
+	CvAssertMsg(eIndex1 >= 0, "eIndex1 expected to be >= 0");
+	CvAssertMsg(eIndex1 < NUM_YIELD_TYPES, "eIndex1 expected to be < NUM_YIELD_TYPES");
+	CvAssertMsg(eIndex2 >= 0, "eIndex2 expected to be >= 0");
+	CvAssertMsg(eIndex2 < NUM_YIELD_TYPES, "eIndex2 expected to be < NUM_YIELD_TYPES");
+	return m_ppiYieldFromYieldGlobal[eIndex1][eIndex2];
+}
+
+
+//	--------------------------------------------------------------------------------
+void CvPlayer::changeYieldFromYieldGlobal(YieldTypes eIndex1, YieldTypes eIndex2, int iChange)
+{
+	CvAssertMsg(eIndex1 >= 0, "eIndex1 expected to be >= 0");
+	CvAssertMsg(eIndex1 < NUM_YIELD_TYPES, "eIndex1 expected to be < NUM_YIELD_TYPES");
+	CvAssertMsg(eIndex2 >= 0, "eIndex2 expected to be >= 0");
+	CvAssertMsg(eIndex2 < NUM_YIELD_TYPES, "eIndex2 expected to be < NUM_YIELD_TYPES");
+
+	if (iChange != 0)
+	{
+		Firaxis::Array<int, NUM_YIELD_TYPES> yields = m_ppiYieldFromYieldGlobal[eIndex1];
+		yields[eIndex2] = (m_ppiYieldFromYieldGlobal[eIndex1][eIndex2] + iChange);
+		m_ppiYieldFromYieldGlobal[eIndex1] = yields;
+		CvAssert(getYieldFromYieldGlobal(eIndex1, eIndex2) >= 0);
+	}
+}
+
 #if defined(MOD_API_UNIFIED_YIELDS)
 //	--------------------------------------------------------------------------------
 int CvPlayer::getPlotYieldChange(PlotTypes eIndex1, YieldTypes eIndex2) const
@@ -46740,6 +46776,7 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 	visitor(player.m_pabHasStrategicMonopoly);
 	visitor(player.m_pabGetsScienceFromPlayer);
 	visitor(player.m_ppaaiSpecialistExtraYield);
+	visitor(player.m_ppiYieldFromYieldGlobal);
 	visitor(player.m_ppiBuildingClassYieldChange);
 	visitor(player.m_ppaaiImprovementYieldChange);
 	visitor(player.m_bEverPoppedGoody);

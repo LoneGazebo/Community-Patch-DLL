@@ -226,6 +226,8 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_iResourceDiversityModifier(0),
 	m_iNoUnhappfromXSpecialists(0),
 	m_iNoUnhappfromXSpecialistsGlobal(0),
+	m_iPurchaseCooldownReduction(0),
+	m_iPurchaseCooldownReductionCivilian(0),
 	m_bEnablesTechSteal(false),
 	m_bEnablesGWSteal(false),
 #endif
@@ -402,6 +404,7 @@ CvBuildingEntry::CvBuildingEntry(void):
 #endif
 	m_paiBuildingClassHappiness(NULL),
 	m_paYieldFromYield(NULL),
+	m_paYieldFromYieldGlobal(NULL),
 	m_paThemingBonusInfo(NULL),
 #if defined(MOD_BALANCE_CORE_BUILDING_INSTANT_YIELD)
 	m_piInstantYield(NULL),
@@ -513,6 +516,7 @@ CvBuildingEntry::~CvBuildingEntry(void)
 	SAFE_DELETE_ARRAY(m_paiBuildingClassHappiness);
 	SAFE_DELETE_ARRAY(m_paThemingBonusInfo);
 	SAFE_DELETE_ARRAY(m_paYieldFromYield);
+	SAFE_DELETE_ARRAY(m_paYieldFromYieldGlobal);
 #if defined(MOD_BALANCE_CORE_BUILDING_INSTANT_YIELD)
 	SAFE_DELETE_ARRAY(m_piInstantYield);
 
@@ -576,6 +580,8 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	m_iResourceDiversityModifier = kResults.GetInt("ResourceDiversityModifier");
 	m_iNoUnhappfromXSpecialists = kResults.GetInt("NoUnhappfromXSpecialists");
 	m_iNoUnhappfromXSpecialistsGlobal = kResults.GetInt("NoUnhappfromXSpecialistsGlobal");
+	m_iPurchaseCooldownReduction = kResults.GetInt("PurchaseCooldownReduction");
+	m_iPurchaseCooldownReductionCivilian = kResults.GetInt("PurchaseCooldownReductionCivilian");
 	m_bEnablesTechSteal = kResults.GetBool("EnablesTechSteal");
 	m_bEnablesGWSteal = kResults.GetBool("EnablesGWSteal");
 #endif
@@ -1038,6 +1044,38 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 		pResourceTypes->Reset();
 	}
 
+	//YieldFromYieldYieldChangesGlobal
+	{
+		m_paYieldFromYieldGlobal = FNEW(CvDoubleYieldInfo[NUM_YIELD_TYPES], c_eCiv5GameplayDLL, 0);
+		int idx = 0;
+
+		std::string strResourceTypesKey = "Building_YieldFromYieldPercentGlobal";
+		Database::Results* pResourceTypes = kUtility.GetResults(strResourceTypesKey);
+		if (pResourceTypes == NULL)
+		{
+			pResourceTypes = kUtility.PrepareResults(strResourceTypesKey, "select YieldIn, YieldOut, Value from Building_YieldFromYieldPercentGlobal where BuildingType = ?");
+		}
+
+		const size_t lenBuildingType = strlen(szBuildingType);
+		pResourceTypes->Bind(1, szBuildingType, lenBuildingType, false);
+
+		while (pResourceTypes->Step())
+		{
+			CvDoubleYieldInfo& pDoubleYieldInfo = m_paYieldFromYieldGlobal[idx];
+
+			const char* szYield = pResourceTypes->GetText("YieldIn");
+			pDoubleYieldInfo.m_iYieldIn = (YieldTypes)GC.getInfoTypeForString(szYield, true);
+
+			szYield = pResourceTypes->GetText("YieldOut");
+			pDoubleYieldInfo.m_iYieldOut = (YieldTypes)GC.getInfoTypeForString(szYield, true);
+
+			pDoubleYieldInfo.m_iValue = pResourceTypes->GetInt("Value");
+
+			idx++;
+		}
+
+		pResourceTypes->Reset();
+	}
 
 	//ResourceYieldChanges
 	{
@@ -3750,6 +3788,37 @@ int CvBuildingEntry::GetYieldFromYield(int i, int j) const
 	return 0;
 }
 
+/// Does this building generate yields from other yields globally?
+int CvBuildingEntry::GetYieldFromYieldGlobal(int i, int j) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	CvAssertMsg(j < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(j > -1, "Index out of bounds");
+
+	if (m_paYieldFromYieldGlobal == NULL || m_paYieldFromYieldGlobal[0].GetValue() == 0)
+	{
+		return 0;
+	}
+	else
+	{
+		for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+		{
+			for (int iK = 0; iK < NUM_YIELD_TYPES; iK++)
+			{
+				if (m_paYieldFromYieldGlobal[iI].GetYieldIn() != i)
+					continue;
+				if (m_paYieldFromYieldGlobal[iI].GetYieldOut() != j)
+					continue;
+
+				return m_paYieldFromYieldGlobal[iI].GetValue();
+			}
+		}
+	}
+
+	return 0;
+}
+
 /// Change to Resource yield by type
 int CvBuildingEntry::GetResourceYieldChange(int i, int j) const
 {
@@ -4097,6 +4166,14 @@ int CvBuildingEntry::GetNoUnhappfromXSpecialists() const
 int CvBuildingEntry::GetNoUnhappfromXSpecialistsGlobal() const
 {
 	return m_iNoUnhappfromXSpecialistsGlobal;
+}
+
+int CvBuildingEntry::GetPurchaseCooldownReduction(bool bCivilian) const
+{
+	if (bCivilian)
+		return m_iPurchaseCooldownReductionCivilian;
+
+	return m_iPurchaseCooldownReduction;
 }
 
 bool CvBuildingEntry::IsEnablesTechSteal() const

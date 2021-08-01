@@ -500,6 +500,8 @@ public:
 	int GetUnitPurchaseCooldown(bool bCivilian = false) const;
 	void SetUnitPurchaseCooldown(bool bCivilian = false, int iValue = 0);
 	void ChangeUnitPurchaseCooldown(bool bCivilian = false, int iValue = 0);
+	int GetUnitPurchaseCooldownMod(bool bCivilian = false) const;
+	void ChangeUnitPurchaseCooldownMod(bool bCivilian = false, int iValue = 0);
 	int GetUnitFaithPurchaseCooldown(bool bCivilian = false) const;
 	void SetUnitFaithPurchaseCooldown(bool bCivilian = false, int iValue = 0);
 	void ChangeUnitFaithPurchaseCooldown(bool bCivilian = false, int iValue = 0);
@@ -1922,6 +1924,8 @@ protected:
 	int m_iTradePrioritySea;
 	int m_iUnitPurchaseCooldown;
 	int m_iUnitPurchaseCooldownCivilian;
+	int m_iUnitPurchaseCooldownMod;
+	int m_iUnitPurchaseCooldownCivilianMod;
 	int m_iUnitFaithPurchaseCooldown;
 	int m_iUnitFaithPurchaseCooldownCivilian;
 	int m_iBuildingPurchaseCooldown;
@@ -2307,6 +2311,8 @@ SYNC_ARCHIVE_VAR(int, m_iTradePriorityLand)
 SYNC_ARCHIVE_VAR(int, m_iTradePrioritySea)
 SYNC_ARCHIVE_VAR(int, m_iUnitPurchaseCooldown)
 SYNC_ARCHIVE_VAR(int, m_iUnitPurchaseCooldownCivilian)
+SYNC_ARCHIVE_VAR(int, m_iUnitPurchaseCooldownMod)
+SYNC_ARCHIVE_VAR(int, m_iUnitPurchaseCooldownCivilianMod)
 SYNC_ARCHIVE_VAR(int, m_iUnitFaithPurchaseCooldown)
 SYNC_ARCHIVE_VAR(int, m_iUnitFaithPurchaseCooldownCivilian)
 SYNC_ARCHIVE_VAR(int, m_iBuildingPurchaseCooldown)
