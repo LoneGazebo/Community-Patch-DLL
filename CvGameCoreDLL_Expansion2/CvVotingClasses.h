@@ -559,6 +559,8 @@ public:
 	// Sessions
 	int GetSessionTurnInterval();
 	bool IsInSession();
+	bool IsHostProposing();
+	void SetHostProposing(bool b);
 	bool IsInSpecialSession();
 	void SetInSession(bool bInSession);
 	void SetInSession(LeagueSpecialSessionTypes eSpecialSession);
@@ -708,6 +710,7 @@ public:
 	LeagueTypes m_eID;
 	bool m_bUnitedNations;
 	bool m_bInSession;
+	bool m_bHostProposing;
 	int m_iTurnsUntilSession;
 	int m_iNumResolutionsEverEnacted;
 	EnactProposalList m_vEnactProposals;

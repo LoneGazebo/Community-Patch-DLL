@@ -2128,6 +2128,7 @@ CvLeague::CvLeague(void)
 	m_eID = NO_LEAGUE;
 	m_bUnitedNations = false;
 	m_bInSession = false;
+	m_bHostProposing = false;
 	m_iTurnsUntilSession = MAX_INT;
 	m_iNumResolutionsEverEnacted = 0;
 	m_vLastTurnEnactProposals.clear();
@@ -2152,6 +2153,7 @@ CvLeague::CvLeague(LeagueTypes eID)
 	m_eID = eID;
 	m_bUnitedNations = false;
 	m_bInSession = false;
+	m_bHostProposing = false;
 	m_iTurnsUntilSession = MAX_INT;
 	m_iNumResolutionsEverEnacted = 0;
 	m_vEnactProposals.clear();
@@ -2358,6 +2360,16 @@ int CvLeague::GetSessionTurnInterval()
 bool CvLeague::IsInSession()
 {
 	return m_bInSession;
+}
+
+bool CvLeague::IsHostProposing()
+{
+	return m_bHostProposing;
+}
+
+void CvLeague::SetHostProposing(bool b)
+{
+	m_bHostProposing = b;
 }
 
 bool CvLeague::IsInSpecialSession()
@@ -2623,6 +2635,10 @@ void CvLeague::DoProposeEnact(ResolutionTypes eResolution, PlayerTypes eProposer
 		{
 			GetMember(eProposer)->iProposals = GetMember(eProposer)->iProposals - 1;
 			CvAssertMsg(GetMember(eProposer)->iProposals >= 0, "Attempt to propose enact resolution when not allowed to. Please send Anton your save file and version.");
+			if (eProposer == m_eHost && GetMember(eProposer)->iProposals <= 0)
+			{
+				SetHostProposing(false);
+			}
 		}
 		else
 		{
@@ -2660,6 +2676,10 @@ void CvLeague::DoProposeRepeal(int iResolutionID, PlayerTypes eProposer)
 				{
 					GetMember(eProposer)->iProposals = GetMember(eProposer)->iProposals - 1;
 					CvAssertMsg(GetMember(eProposer)->iProposals >= 0, "Attempt to propose enact resolution when not allowed to. Please send Anton your save file and version.");
+					if (eProposer == m_eHost && GetMember(eProposer)->iProposals <= 0)
+					{
+						SetHostProposing(false);
+					}
 				}
 				else
 				{
@@ -4502,7 +4522,11 @@ bool CvLeague::CanPropose(PlayerTypes ePlayer)
 	{
 		if (GetMember(ePlayer)->bMayPropose)
 		{
-			return (GetRemainingProposalsForMember(ePlayer) > 0);
+			if ((ePlayer == m_eHost) == IsHostProposing())
+			{
+
+				return (GetRemainingProposalsForMember(ePlayer) > 0);
+			}
 		}
 	}
 	return false;
@@ -7425,6 +7449,7 @@ void CvLeague::FinishSession()
 
 	// Clear existing proposal privileges
 	ClearProposalPrivileges();
+	SetHostProposing(false);
 
 	bool bRegularSession = (GetCurrentSpecialSession() == NO_LEAGUE_SPECIAL_SESSION);
 	if (bRegularSession)
@@ -7496,6 +7521,7 @@ void CvLeague::AssignProposalPrivileges()
 	{
 		GetMember(eHost)->bMayPropose = true;
 		GetMember(eHost)->iProposals = GC.getLEAGUE_MEMBER_PROPOSALS_BASE();
+		SetHostProposing(true);
 		iPrivileges--;
 	}
 
@@ -8438,6 +8464,7 @@ void CvLeague::Serialize(League& league, Visitor& visitor)
 	visitor(league.m_eID);
 	visitor(league.m_bUnitedNations);
 	visitor(league.m_bInSession);
+	visitor(league.m_bHostProposing);
 	visitor(league.m_iTurnsUntilSession);
 	visitor(league.m_iNumResolutionsEverEnacted);
 	visitor(league.m_vEnactProposals);
