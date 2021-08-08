@@ -44415,7 +44415,7 @@ int CvDiplomacyAI::GetResearchAgreementScore(PlayerTypes ePlayer)
 	{
 		iOpinionWeight += /*-10*/ GC.getOPINION_WEIGHT_RA();
 
-		if (IsScientist())
+		if (IsScientist() || GetPlayer()->GetPlayerTraits()->IsNerd())
 		{
 			iOpinionWeight += /*-10*/ GC.getOPINION_WEIGHT_RA_SCIENTIFIC_MOD();
 		}
