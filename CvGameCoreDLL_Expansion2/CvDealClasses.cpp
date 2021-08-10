@@ -3187,6 +3187,21 @@ void CvGameDeals::FinalizeDealValidAndAccepted(PlayerTypes eFromPlayer, PlayerTy
 #endif
 			GET_TEAM(eFromTeam).makePeace(eToTeam, true, false, eFromPlayer);
 			GET_TEAM(eFromTeam).setForcePeace(eToTeam, true);
+
+			// Update diplo stuff.
+			for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+			{
+				PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+				
+				if (GET_PLAYER(eLoopPlayer).isAlive())
+				{
+					if (GET_PLAYER(eLoopPlayer).getTeam() == eFromTeam || GET_PLAYER(eLoopPlayer).getTeam() == eToTeam)
+					{
+						vector<PlayerTypes> v = GET_PLAYER(eLoopPlayer).getTeam() == eFromTeam ? GET_TEAM(eToTeam).getPlayers() : GET_TEAM(eFromTeam).getPlayers();
+						GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->DoReevaluatePlayers(v);
+					}
+				}
+			}
 		}
 		//////////////////////////////////////////////////////////////////////
 		// **** DO NOT PUT ANYTHING AFTER THIS LINE ****
