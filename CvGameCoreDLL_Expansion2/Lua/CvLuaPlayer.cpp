@@ -13005,7 +13005,7 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 			CvString str;
 
 			CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
-			if (pLeague != NULL && pLeague->GetConsecutiveHostedSessions() > 1)
+			if (pLeague != NULL && pLeague->GetConsecutiveHostedSessions() > 0)
 			{
 				str = bUNActive ? Localization::Lookup("TXT_KEY_DIPLO_MAINTAINED_THEIR_HOSTING_UN").toUTF8() : Localization::Lookup("TXT_KEY_DIPLO_MAINTAINED_THEIR_HOSTING").toUTF8();
 			}
@@ -13301,7 +13301,7 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 			CvString str;
 
 			CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
-			if (pLeague != NULL && pLeague->GetConsecutiveHostedSessions() > 1)
+			if (pLeague != NULL && pLeague->GetConsecutiveHostedSessions() > 0)
 			{
 				str = bUNActive ? Localization::Lookup("TXT_KEY_DIPLO_MAINTAINED_THEIR_HOSTING_UN").toUTF8() : Localization::Lookup("TXT_KEY_DIPLO_MAINTAINED_THEIR_HOSTING").toUTF8();
 			}
@@ -13811,7 +13811,7 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 		{
 			Opinion kOpinion;
 			kOpinion.m_iValue = bHideNegatives ? 0 : iValue;
-			kOpinion.m_str = (iValue > 0) ? Localization::Lookup("TXT_KEY_DIPLO_RELIGIOUS_DIFFERENCES") : Localization::Lookup("TXT_KEY_DIPLO_RELIGIOUS_DIFFERENCES_NEUTRAL");
+			kOpinion.m_str = (!bHideNegatives && iValue > 0) ? Localization::Lookup("TXT_KEY_DIPLO_RELIGIOUS_DIFFERENCES") : Localization::Lookup("TXT_KEY_DIPLO_RELIGIOUS_DIFFERENCES_NEUTRAL");
 			aOpinions.push_back(kOpinion);
 		}
 
@@ -14269,7 +14269,7 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 			CvString str;
 
 			CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
-			if (pLeague->GetConsecutiveHostedSessions() > 1)
+			if (pLeague->GetConsecutiveHostedSessions() > 0)
 			{
 				str = bUNActive ? Localization::Lookup("TXT_KEY_DIPLO_MAINTAINED_THEIR_HOSTING_UN").toUTF8() : Localization::Lookup("TXT_KEY_DIPLO_MAINTAINED_THEIR_HOSTING").toUTF8();
 			}

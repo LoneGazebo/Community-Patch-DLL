@@ -293,7 +293,7 @@ void CvPlayerAI::AI_conquerCity(CvCity* pCity, PlayerTypes eOldOwner, bool bGift
 		return;
 
 	// Burn them all to the ground!
-	if (canRaze(pCity) && MOD_BALANCE_CORE && GetPlayerTraits()->GetRazeSpeedModifier() > 0)
+	if (canRaze(pCity) && MOD_BALANCE_CORE_SETTLER_ADVANCED && GetPlayerTraits()->GetRazeSpeedModifier() > 0)
 	{
 		pCity->doTask(TASK_RAZE);
 		return;
