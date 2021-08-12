@@ -16624,8 +16624,8 @@ void CvCity::SetUnitPurchaseCooldown(bool bCivilian, int iValue)
 	VALIDATE_OBJECT
 	if (bCivilian)
 		m_iUnitPurchaseCooldownCivilian = iValue;
-
-	m_iUnitPurchaseCooldown = iValue;
+	else
+		m_iUnitPurchaseCooldown = iValue;
 }
 //	--------------------------------------------------------------------------------
 void CvCity::ChangeUnitPurchaseCooldown(bool bCivilian, int iValue)
@@ -16635,8 +16635,8 @@ void CvCity::ChangeUnitPurchaseCooldown(bool bCivilian, int iValue)
 	{
 		if (bCivilian)
 			m_iUnitPurchaseCooldownCivilian += iValue;
-
-		m_iUnitPurchaseCooldown += iValue;
+		else
+			m_iUnitPurchaseCooldown += iValue;
 	}
 }
 //	--------------------------------------------------------------------------------
@@ -16652,10 +16652,10 @@ int CvCity::GetUnitPurchaseCooldownMod(bool bCivilian) const
 void CvCity::ChangeUnitPurchaseCooldownMod(bool bCivilian, int iValue)
 {
 	VALIDATE_OBJECT
-		if (bCivilian)
-			m_iUnitPurchaseCooldownCivilianMod += iValue;
-
-	m_iUnitPurchaseCooldownMod += iValue;
+	if (bCivilian)
+		m_iUnitPurchaseCooldownCivilianMod += iValue;
+	else
+		m_iUnitPurchaseCooldownMod += iValue;
 }
 //	--------------------------------------------------------------------------------
 int CvCity::GetUnitFaithPurchaseCooldown(bool bCivilian) const
@@ -16672,8 +16672,8 @@ void CvCity::SetUnitFaithPurchaseCooldown(bool bCivilian, int iValue)
 	VALIDATE_OBJECT
 	if (bCivilian)
 		m_iUnitFaithPurchaseCooldownCivilian = iValue;
-
-	m_iUnitFaithPurchaseCooldown = iValue;
+	else
+		m_iUnitFaithPurchaseCooldown = iValue;
 }
 //	--------------------------------------------------------------------------------
 void CvCity::ChangeUnitFaithPurchaseCooldown(bool bCivilian, int iValue)
@@ -16683,8 +16683,8 @@ void CvCity::ChangeUnitFaithPurchaseCooldown(bool bCivilian, int iValue)
 	{
 		if (bCivilian)
 			m_iUnitFaithPurchaseCooldownCivilian += iValue;
-
-		m_iUnitFaithPurchaseCooldown += iValue;
+		else
+			m_iUnitFaithPurchaseCooldown += iValue;
 	}
 }
 //	--------------------------------------------------------------------------------
