@@ -93,6 +93,8 @@ ALTER TABLE Policies ADD COLUMN 'TechCostXCitiesMod' INTEGER DEFAULT 0;
 -- And reduce tourism cost from cities
 ALTER TABLE Policies ADD COLUMN 'TourismCostXCitiesMod' INTEGER DEFAULT 0;
 
+-- MaxAirUnitsChangeGlobal - every city gets that many air unit slots
+ALTER TABLE Policies ADD COLUMN 'MaxAirUnitsChangeGlobal' INTEGER DEFAULT 0;
 
 -- Policy - reduces policy cost of Wonders by 1 for every x CS allies
 ALTER TABLE Policies ADD COLUMN 'XCSAlliesLowersPolicyNeedWonders' INTEGER DEFAULT 0;
