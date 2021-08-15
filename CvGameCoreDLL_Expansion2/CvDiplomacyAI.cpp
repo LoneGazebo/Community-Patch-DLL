@@ -10316,7 +10316,7 @@ void CvDiplomacyAI::DoUpdateMilitaryAggressivePostures()
 				}
 
 				// They resurrected us, so don't worry about it
-				if (WasResurrectedBy(ePlayer) && !IsAtWar(ePlayer))
+				if ((WasResurrectedBy(ePlayer) || IsMasterLiberatedMeFromVassalage(ePlayer)) && !IsAtWar(ePlayer))
 				{
 					SetMilitaryAggressivePosture(ePlayer, AGGRESSIVE_POSTURE_NONE);
 					return;
@@ -30469,18 +30469,6 @@ void CvDiplomacyAI::DoAggressiveMilitaryStatement(PlayerTypes ePlayer, DiploStat
 
 		// Don't bother if they've already made or broken a military promise to us
 		if (GetPlayerMilitaryPromiseState(ePlayer) > NO_PROMISE_STATE)
-			return;
-
-		// Don't threaten if this person resurrected us
-		if (WasResurrectedBy(ePlayer))
-			return;
-
-		// We're working together, so don't worry about it
-		if (IsDoFAccepted(ePlayer) || IsHasDefensivePact(ePlayer))
-			return;
-
-		//We're allowing them Open Borders? We shouldn't care.
-		if (GET_TEAM(GetTeam()).IsAllowsOpenBordersToTeam(GET_PLAYER(ePlayer).getTeam()))
 			return;
 
 		// They must be able to declare war on us
@@ -54226,12 +54214,7 @@ void CvDiplomacyAI::DoWeEndedVassalageWithSomeone(TeamTypes eTeam)
 /// We are liberated by a master
 void CvDiplomacyAI::DoLiberatedFromVassalage(TeamTypes eTeam)
 {
-	CvAssertMsg(eTeam >= 0, "DIPLOMACY AI: Invalid Team Index. Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-	CvAssertMsg(eTeam < MAX_CIV_TEAMS, "DIPLOMACY_AI: Invalid Team Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-
-	// Only do this if we are a vassal
-	if (!GET_TEAM(GetTeam()).IsVassal(eTeam))
-		return;
+	if (eTeam < 0 || eTeam >= MAX_CIV_TEAMS) return;
 
 	// Get players from Master's team
 	for (int iMasterPlayer = 0; iMasterPlayer < MAX_MAJOR_CIVS; iMasterPlayer++)
@@ -54244,15 +54227,13 @@ void CvDiplomacyAI::DoLiberatedFromVassalage(TeamTypes eTeam)
 			
 			// Remove any previous penalty for refusing to give independence
 			SetVassalageForcefullyRevokedTurn(eMasterPlayer, -1);
-
-			PlayerTypes eThirdParty;
 			
 			// Friends of the vassal - bonus to recent assistance!
 			for (int iThirdPartyLoop = 0; iThirdPartyLoop < MAX_MAJOR_CIVS; iThirdPartyLoop++)
 			{
-				eThirdParty = (PlayerTypes) iThirdPartyLoop;
+				PlayerTypes eThirdParty = (PlayerTypes) iThirdPartyLoop;
 				
-				if (eThirdParty == GetID() || eThirdParty == eMasterPlayer || GET_PLAYER(eThirdParty).getTeam() == GET_PLAYER(eMasterPlayer).getTeam())
+				if (GET_PLAYER(eThirdParty).getTeam() == GET_PLAYER(eMasterPlayer).getTeam())
 					continue;
 				
 				if (IsPlayerValid(eThirdParty) && GET_PLAYER(eMasterPlayer).GetDiplomacyAI()->IsPlayerValid(eThirdParty) && IsDoFAccepted(eThirdParty))

@@ -12471,7 +12471,8 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 	if (!bObserver)
 	{
 		// Gone to war in the past?
-		if (!pDiplo->IsAtWar(ePlayer) && pDiplo->GetNumWarsFought(ePlayer) > 0)
+		// Do not display this if AI is passive or a vassal/master of the player
+		if (!pDiplo->IsAtWar(ePlayer) && pDiplo->GetNumWarsFought(ePlayer) > 0 && (bHuman || (!pDiplo->IsVassal(ePlayer) && !pDiplo->IsMaster(ePlayer) && !GC.getGame().IsAIPassiveTowardsHumans())))
 		{
 			Opinion kOpinion;
 			kOpinion.m_iValue = 0;
@@ -12481,8 +12482,7 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 			{
 				str = Localization::Lookup("TXT_KEY_DIPLO_PAST_WAR_BAD").toUTF8();
 			}
-			// Do not display this if AI is passive or a vassal/master of the player
-			else if (!pDiplo->IsVassal(ePlayer) && !pDiplo->IsMaster(ePlayer) && !GC.getGame().IsAIPassiveTowardsHumans())
+			else
 			{
 				if (pDiplo->IsActHostileTowardsHuman(ePlayer))
 				{
