@@ -8261,7 +8261,7 @@ void CvTeam::processTech(TechTypes eTech, int iChange)
 						}
 					}
 #endif
-					if (pPlayer->HasPolicy(eRevealPolicy) || (eRevealTech != eTech && GetTeamTechs()->HasTech(eRevealTech)))
+					if ((eRevealPolicy == NO_POLICY || (eRevealPolicy != NO_POLICY && pPlayer->HasPolicy(eRevealPolicy))) && (eRevealTech == NO_TECH || (eRevealTech != eTech && GetTeamTechs()->HasTech(eRevealTech))))
 					{
 						bRevealed = true;
 						break;
