@@ -30471,12 +30471,16 @@ void CvDiplomacyAI::DoAggressiveMilitaryStatement(PlayerTypes ePlayer, DiploStat
 		if (GetPlayerMilitaryPromiseState(ePlayer) > NO_PROMISE_STATE)
 			return;
 
-		// They must be able to declare war on us
-		if (!GET_TEAM(GET_PLAYER(ePlayer).getTeam()).canDeclareWar(GetTeam(), ePlayer))
+		// If they're our master, don't threaten
+		if (IsVassal(ePlayer))
 			return;
 
 		// If we're a vassal and the other player is an AI, don't send the statement
 		if (!GET_PLAYER(ePlayer).isHuman() && GET_TEAM(GetTeam()).IsVassalOfSomeone())
+			return;
+
+		// They must be able to declare war on us
+		if (!GET_TEAM(GET_PLAYER(ePlayer).getTeam()).canDeclareWar(GetTeam(), ePlayer))
 			return;
 
 		// They're HIGH or INCREDIBLE this turn
