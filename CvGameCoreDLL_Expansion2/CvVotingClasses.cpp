@@ -4593,13 +4593,13 @@ LeagueHelpers::PlayerList CvLeague::GetMembersThatLikeProposal(ResolutionTypes e
 					switch (eDesire)
 					{
 					case CvLeagueAI::DESIRE_ALWAYS:
-						GET_PLAYER(it->ePlayer).GetDiplomacyAI()->SetLikedTheirProposalValue(eObserver, /*-45*/ GC.getOPINION_WEIGHT_WE_LIKED_THEIR_PROPOSAL_OVERWHELMING());
+						GET_PLAYER(it->ePlayer).GetDiplomacyAI()->SetLikedTheirProposalValue(eObserver, /*-60*/ GC.getOPINION_WEIGHT_WE_LIKED_THEIR_PROPOSAL_OVERWHELMING());
 						break;
 					case CvLeagueAI::DESIRE_STRONG_LIKE:
-						GET_PLAYER(it->ePlayer).GetDiplomacyAI()->SetLikedTheirProposalValue(eObserver, /*-30*/ GC.getOPINION_WEIGHT_WE_LIKED_THEIR_PROPOSAL_STRONG());
+						GET_PLAYER(it->ePlayer).GetDiplomacyAI()->SetLikedTheirProposalValue(eObserver, /*-45*/ GC.getOPINION_WEIGHT_WE_LIKED_THEIR_PROPOSAL_STRONG());
 						break;
 					case CvLeagueAI::DESIRE_LIKE:
-						GET_PLAYER(it->ePlayer).GetDiplomacyAI()->SetLikedTheirProposalValue(eObserver, /*-15*/ GC.getOPINION_WEIGHT_WE_LIKED_THEIR_PROPOSAL());
+						GET_PLAYER(it->ePlayer).GetDiplomacyAI()->SetLikedTheirProposalValue(eObserver, /*-30*/ GC.getOPINION_WEIGHT_WE_LIKED_THEIR_PROPOSAL());
 						break;
 					}
 				}
@@ -4630,13 +4630,13 @@ LeagueHelpers::PlayerList CvLeague::GetMembersThatLikeProposal(int iTargetResolu
 					switch (eDesire)
 					{
 					case CvLeagueAI::DESIRE_ALWAYS:
-						GET_PLAYER(it->ePlayer).GetDiplomacyAI()->SetLikedTheirProposalValue(eObserver, /*-45*/ GC.getOPINION_WEIGHT_WE_LIKED_THEIR_PROPOSAL_OVERWHELMING());
+						GET_PLAYER(it->ePlayer).GetDiplomacyAI()->SetLikedTheirProposalValue(eObserver, /*-60*/ GC.getOPINION_WEIGHT_WE_LIKED_THEIR_PROPOSAL_OVERWHELMING());
 						break;
 					case CvLeagueAI::DESIRE_STRONG_LIKE:
-						GET_PLAYER(it->ePlayer).GetDiplomacyAI()->SetLikedTheirProposalValue(eObserver, /*-30*/ GC.getOPINION_WEIGHT_WE_LIKED_THEIR_PROPOSAL_STRONG());
+						GET_PLAYER(it->ePlayer).GetDiplomacyAI()->SetLikedTheirProposalValue(eObserver, /*-45*/ GC.getOPINION_WEIGHT_WE_LIKED_THEIR_PROPOSAL_STRONG());
 						break;
 					case CvLeagueAI::DESIRE_LIKE:
-						GET_PLAYER(it->ePlayer).GetDiplomacyAI()->SetLikedTheirProposalValue(eObserver, /*-15*/ GC.getOPINION_WEIGHT_WE_LIKED_THEIR_PROPOSAL());
+						GET_PLAYER(it->ePlayer).GetDiplomacyAI()->SetLikedTheirProposalValue(eObserver, /*-30*/ GC.getOPINION_WEIGHT_WE_LIKED_THEIR_PROPOSAL());
 						break;
 					}
 				}
@@ -4667,13 +4667,13 @@ LeagueHelpers::PlayerList CvLeague::GetMembersThatDislikeProposal(ResolutionType
 					switch (eDesire)
 					{
 					case CvLeagueAI::DESIRE_NEVER:
-						GET_PLAYER(it->ePlayer).GetDiplomacyAI()->SetLikedTheirProposalValue(eObserver, /*45*/ GC.getOPINION_WEIGHT_WE_DISLIKED_THEIR_PROPOSAL_OVERWHELMING());
+						GET_PLAYER(it->ePlayer).GetDiplomacyAI()->SetLikedTheirProposalValue(eObserver, /*60*/ GC.getOPINION_WEIGHT_WE_DISLIKED_THEIR_PROPOSAL_OVERWHELMING());
 						break;
 					case CvLeagueAI::DESIRE_STRONG_DISLIKE:
-						GET_PLAYER(it->ePlayer).GetDiplomacyAI()->SetLikedTheirProposalValue(eObserver, /*30*/ GC.getOPINION_WEIGHT_WE_DISLIKED_THEIR_PROPOSAL_STRONG());
+						GET_PLAYER(it->ePlayer).GetDiplomacyAI()->SetLikedTheirProposalValue(eObserver, /*45*/ GC.getOPINION_WEIGHT_WE_DISLIKED_THEIR_PROPOSAL_STRONG());
 						break;
 					case CvLeagueAI::DESIRE_DISLIKE:
-						GET_PLAYER(it->ePlayer).GetDiplomacyAI()->SetLikedTheirProposalValue(eObserver, /*15*/ GC.getOPINION_WEIGHT_WE_DISLIKED_THEIR_PROPOSAL());
+						GET_PLAYER(it->ePlayer).GetDiplomacyAI()->SetLikedTheirProposalValue(eObserver, /*30*/ GC.getOPINION_WEIGHT_WE_DISLIKED_THEIR_PROPOSAL());
 						break;
 					}
 				}
@@ -4704,13 +4704,13 @@ LeagueHelpers::PlayerList CvLeague::GetMembersThatDislikeProposal(int iTargetRes
 					switch (eDesire)
 					{
 					case CvLeagueAI::DESIRE_NEVER:
-						GET_PLAYER(it->ePlayer).GetDiplomacyAI()->SetLikedTheirProposalValue(eObserver, /*45*/ GC.getOPINION_WEIGHT_WE_DISLIKED_THEIR_PROPOSAL_OVERWHELMING());
+						GET_PLAYER(it->ePlayer).GetDiplomacyAI()->SetLikedTheirProposalValue(eObserver, /*60*/ GC.getOPINION_WEIGHT_WE_DISLIKED_THEIR_PROPOSAL_OVERWHELMING());
 						break;
 					case CvLeagueAI::DESIRE_STRONG_DISLIKE:
-						GET_PLAYER(it->ePlayer).GetDiplomacyAI()->SetLikedTheirProposalValue(eObserver, /*30*/ GC.getOPINION_WEIGHT_WE_DISLIKED_THEIR_PROPOSAL_STRONG());
+						GET_PLAYER(it->ePlayer).GetDiplomacyAI()->SetLikedTheirProposalValue(eObserver, /*45*/ GC.getOPINION_WEIGHT_WE_DISLIKED_THEIR_PROPOSAL_STRONG());
 						break;
 					case CvLeagueAI::DESIRE_DISLIKE:
-						GET_PLAYER(it->ePlayer).GetDiplomacyAI()->SetLikedTheirProposalValue(eObserver, /*15*/ GC.getOPINION_WEIGHT_WE_DISLIKED_THEIR_PROPOSAL());
+						GET_PLAYER(it->ePlayer).GetDiplomacyAI()->SetLikedTheirProposalValue(eObserver, /*30*/ GC.getOPINION_WEIGHT_WE_DISLIKED_THEIR_PROPOSAL());
 						break;
 					}
 				}
@@ -10806,7 +10806,7 @@ CvLeagueAI::DesireLevels CvLeagueAI::EvaluateDesire(int iRawScore)
 void CvLeagueAI::AllocateVotes(CvLeague* pLeague)
 {
 	CvAssert(pLeague != NULL);
-	if (!(pLeague != NULL)) 
+	if (pLeague == NULL)
 		return;
 
 	int iVotes = pLeague->GetRemainingVotesForMember(GetPlayer()->GetID());
@@ -10971,10 +10971,10 @@ void CvLeagueAI::FindBestVoteChoices(CvEnactProposal* pProposal, VoteConsiderati
 	int iMaxChoicesToConsider = 1;
 
 	CvAssert(GC.getGame().GetGameLeagues()->GetNumActiveLeagues() > 0);
-	if (!(GC.getGame().GetGameLeagues()->GetNumActiveLeagues() > 0)) return;
+	if (GC.getGame().GetGameLeagues()->GetNumActiveLeagues() <= 0) return;
 	CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
 	CvAssert(pLeague != NULL);
-	if (!(pLeague != NULL)) return;
+	if (pLeague == NULL) return;
 
 	switch (pProposal->GetVoterDecision()->GetType())
 	{

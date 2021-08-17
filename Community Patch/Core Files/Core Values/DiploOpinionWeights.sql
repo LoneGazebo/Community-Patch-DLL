@@ -66,7 +66,6 @@ INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_POLICY_WEAK', '10';
 INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_POLICY_NONE', '-5'; -- increases based on Neediness flavor
 
 -- NOTE: This modifier scales based on the AI's VictoryCompetitiveness flavor and the player's difficulty level.
--- NOTE: If endgame aggression is enabled, victory dispute/block weights are multiplied by AIDeclareWarProb (DifficultyMod.xml) and then divided by 100 against players who are close to achieving any victory condition.
 -- They fear/suspect you are competing with them. / They know you are competing with them, and they hate it!
 UPDATE Defines SET Value = '40' WHERE Name = 'OPINION_WEIGHT_VICTORY_FIERCE';
 UPDATE Defines SET Value = '30' WHERE Name = 'OPINION_WEIGHT_VICTORY_STRONG';
@@ -81,6 +80,34 @@ INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_VICTORY_BLOCK_STRONG', 
 INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_VICTORY_BLOCK_WEAK', '20';
 INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_VICTORY_BLOCK_NONE', '0';
 INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_VICTORY_BLOCK_PER_ERA', '4'; -- increase per era if > 0
+
+
+-- Reckless Expander: Too many cities/land without enough military to back it up
+-- AI only applies this if nearby, competing for victory, and you have more land/cities than they do
+-- NOTE: This penalty scales based on the AI's Boldness flavor and the player's difficulty level.
+
+INSERT INTO Defines (Name, Value) SELECT 'RECKLESS_EXPANDER_CITIES_THRESHOLD', '200'; -- must have at least this % city count compared to the median
+INSERT INTO Defines (Name, Value) SELECT 'RECKLESS_EXPANDER_LAND_THRESHOLD', '250'; -- OR must have at least this % tile count compared to the median
+
+UPDATE Defines SET Value = '20' WHERE Name = 'OPINION_WEIGHT_RECKLESS_EXPANDER'; -- base opinion penalty; the highest of the two penalties below is added to it
+INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_RECKLESS_EXPANDER_PER_CITY', '10'; -- penalty for each city above the median city count (unless your cities - their cities = a smaller value, in which case that one is used)
+INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_RECKLESS_EXPANDER_PER_TILE', '1'; -- penalty for each tile above the median tile count (unless your tiles - their tiles = a smaller value, in which case that one is used)
+
+INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_RECKLESS_EXPANDER_STRATEGIC_MOD', '20'; -- extra penalty for Conqueror AIs
+
+
+-- Wonder Spammer: Too many World Wonders compared to other civs
+-- AI only applies this if nearby or Cultural, they're competing for victory, and you have more Wonders than they do
+-- Captured Wonders, Corporations and World Congress Wonders do not count for this penalty!
+-- NOTE: This penalty scales based on the AI's WonderCompetitiveness flavor and the player's difficulty level. At lower difficulties the AI is also slightly more tolerant of Wonder spamming.
+
+INSERT INTO Defines (Name, Value) SELECT 'WONDER_SPAMMER_THRESHOLD', '3'; -- must have constructed this many more Wonders than the median (only counting Wonder-building civs); must also have at least 50% more than the global average
+
+INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_WONDER_SPAMMER', '20'; -- base opinion penalty
+INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_WONDER_SPAMMER_PER_WONDER', '5'; -- penalty for each wonder above WONDER_SPAMMER_THRESHOLD (unless your Wonders - their Wonders = a smaller value, in which case that one is used)
+INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_WONDER_SPAMMER_CAP', '60'; -- max. opinion penalty from Wonders constructed count
+
+INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_WONDER_SPAMMER_STRATEGIC_MOD', '20'; -- extra penalty for Conqueror AIs
 
 
 --	//////////////////////////////////////
@@ -105,6 +132,12 @@ UPDATE Defines SET Value = '160' WHERE Name = 'OPINION_WEIGHT_CAPTURED_CAPITAL';
 INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_CAPTURED_HOLY_CITY', '80';
 INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_CAPTURED_KEY_CITY_RETURNED_DIVISOR', '200'; -- penalty reduction for returning the captured city to the AI
 INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_CAPTURED_KEY_CITY_CAPITULATION_DIVISOR', '200'; -- penalty reduction for capitulated vassals; x100 then divided by this; only applies if not treating them badly
+
+-- Your military deployment is (extremely) threatening.
+INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_MILITARY_AGGRESSIVE_POSTURE_LOW', '10';
+INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_MILITARY_AGGRESSIVE_POSTURE_MEDIUM', '20';
+INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_MILITARY_AGGRESSIVE_POSTURE_HIGH', '40';
+INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_MILITARY_AGGRESSIVE_POSTURE_INCREDIBLE', '60';
 
 
 --	//////////////////////////////////////
@@ -266,16 +299,16 @@ INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_IGNORED_BULLY_CITY_STAT
 
 -- AI asked player to stop converting their cities to another religion
 -- These values are multiplied by the current game era's Diplo Emphasis for Religion.
-UPDATE Defines SET Value = '16' WHERE Name = 'OPINION_WEIGHT_BROKEN_NO_CONVERT_PROMISE';
-UPDATE Defines SET Value = '8' WHERE Name = 'OPINION_WEIGHT_IGNORED_NO_CONVERT_PROMISE';
+UPDATE Defines SET Value = '10' WHERE Name = 'OPINION_WEIGHT_BROKEN_NO_CONVERT_PROMISE';
+UPDATE Defines SET Value = '5' WHERE Name = 'OPINION_WEIGHT_IGNORED_NO_CONVERT_PROMISE';
 
 -- AI asked player to stop digging up their artifacts
-UPDATE Defines SET Value = '60' WHERE Name = 'OPINION_WEIGHT_BROKEN_NO_DIG_PROMISE';
-UPDATE Defines SET Value = '40' WHERE Name = 'OPINION_WEIGHT_IGNORED_NO_DIG_PROMISE';
+UPDATE Defines SET Value = '40' WHERE Name = 'OPINION_WEIGHT_BROKEN_NO_DIG_PROMISE';
+UPDATE Defines SET Value = '30' WHERE Name = 'OPINION_WEIGHT_IGNORED_NO_DIG_PROMISE';
 
 -- AI asked player to stop spying on them
 UPDATE Defines SET Value = '40' WHERE Name = 'OPINION_WEIGHT_BROKEN_SPY_PROMISE';
-UPDATE Defines SET Value = '20' WHERE Name = 'OPINION_WEIGHT_IGNORED_SPY_PROMISE';
+UPDATE Defines SET Value = '30' WHERE Name = 'OPINION_WEIGHT_IGNORED_SPY_PROMISE';
 
 -- Player and AI made a coop war agreement against another civ
 UPDATE Defines SET Value = '40' WHERE Name = 'OPINION_WEIGHT_BROKEN_COOP_WAR_PROMISE'; -- player broke the agreement somehow (befriended the target, ended DoF early, etc.)
@@ -315,7 +348,7 @@ INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_DIFFERENT_MAJORITY_RELI
 INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_WORLD_RELIGION_MODIFIER', '150';
 
 -- They are spreading their own religion, but you converted some of their cities to your religion.
-UPDATE Defines SET Value = '2' WHERE Name = 'OPINION_WEIGHT_PER_NEGATIVE_CONVERSION'; -- also multiplied by # of religious conversion points; see below
+UPDATE Defines SET Value = '1' WHERE Name = 'OPINION_WEIGHT_PER_NEGATIVE_CONVERSION'; -- also multiplied by # of religious conversion points; see below
 UPDATE Defines SET Value = '1' WHERE Name = 'RELIGION_DIPLO_HIT_INITIAL_CONVERT_FRIENDLY_CITY'; -- # of points added for converting a city not following their state religion
 UPDATE Defines SET Value = '3' WHERE Name = 'RELIGION_DIPLO_HIT_RELIGIOUS_FLIP_FRIENDLY_CITY'; -- # of points added for converting a city following their state religion
 UPDATE Defines SET Value = '25' WHERE Name = 'RELIGION_DIPLO_HIT_CONVERT_HOLY_CITY'; -- # of points added for converting the Holy City
@@ -445,38 +478,6 @@ INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_RESURRECTOR_ATTACKED_US
 
 
 --	//////////////////////////////////////
---	// RECKLESS EXPANDER / WONDER SPAMMER
---	//////////////////////////////////////
-
--- Reckless Expander: Too many cities/land without enough military to back it up
--- AI only applies this if nearby, competing for victory, and you have more land/cities than they do
--- NOTE: This penalty scales based on the AI's Boldness flavor and the player's difficulty level.
-
-INSERT INTO Defines (Name, Value) SELECT 'RECKLESS_EXPANDER_CITIES_THRESHOLD', '200'; -- must have at least this % city count compared to the median
-INSERT INTO Defines (Name, Value) SELECT 'RECKLESS_EXPANDER_LAND_THRESHOLD', '250'; -- OR must have at least this % tile count compared to the median
-
-UPDATE Defines SET Value = '20' WHERE Name = 'OPINION_WEIGHT_RECKLESS_EXPANDER'; -- base opinion penalty; the highest of the two penalties below is added to it
-INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_RECKLESS_EXPANDER_PER_CITY', '10'; -- penalty for each city above the median city count (unless your cities - their cities = a smaller value, in which case that one is used)
-INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_RECKLESS_EXPANDER_PER_TILE', '1'; -- penalty for each tile above the median tile count (unless your tiles - their tiles = a smaller value, in which case that one is used)
-
-INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_RECKLESS_EXPANDER_STRATEGIC_MOD', '20'; -- extra penalty for Conqueror AIs
-
-
--- Wonder Spammer: Too many World Wonders compared to other civs
--- AI only applies this if nearby or Cultural, they're competing for victory, and you have more Wonders than they do
--- Captured Wonders, Corporations and World Congress Wonders do not count for this penalty!
--- NOTE: This penalty scales based on the AI's WonderCompetitiveness flavor and the player's difficulty level. At lower difficulties the AI is also slightly more tolerant of Wonder spamming.
-
-INSERT INTO Defines (Name, Value) SELECT 'WONDER_SPAMMER_THRESHOLD', '3'; -- must have constructed this many more Wonders than the median (only counting Wonder-building civs); must also have at least 50% more than the global average
-
-INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_WONDER_SPAMMER', '20'; -- base opinion penalty
-INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_WONDER_SPAMMER_PER_WONDER', '5'; -- penalty for each wonder above WONDER_SPAMMER_THRESHOLD (unless your Wonders - their Wonders = a smaller value, in which case that one is used)
-INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_WONDER_SPAMMER_CAP', '60'; -- max. opinion penalty from Wonders constructed count
-
-INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_WONDER_SPAMMER_STRATEGIC_MOD', '20'; -- extra penalty for Conqueror AIs
-
-
---	//////////////////////////////////////
 --	// WORLD CONGRESS
 --	//////////////////////////////////////
 
@@ -508,15 +509,15 @@ INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_PRIME_LEAGUE_COMPETITOR
 
 
 -- They liked our proposal to the World Congress.
-UPDATE Defines SET Value = '-15' WHERE Name = 'OPINION_WEIGHT_WE_LIKED_THEIR_PROPOSAL';
-INSERT INTO Defines(Name, Value) SELECT 'OPINION_WEIGHT_WE_LIKED_THEIR_PROPOSAL_STRONG', '-30';
-INSERT INTO Defines(Name, Value) SELECT 'OPINION_WEIGHT_WE_LIKED_THEIR_PROPOSAL_OVERWHELMING', '-45';
+UPDATE Defines SET Value = '-30' WHERE Name = 'OPINION_WEIGHT_WE_LIKED_THEIR_PROPOSAL';
+INSERT INTO Defines(Name, Value) SELECT 'OPINION_WEIGHT_WE_LIKED_THEIR_PROPOSAL_STRONG', '-45';
+INSERT INTO Defines(Name, Value) SELECT 'OPINION_WEIGHT_WE_LIKED_THEIR_PROPOSAL_OVERWHELMING', '-60';
 INSERT INTO Defines(Name, Value) SELECT 'OPINION_WEIGHT_WE_LIKED_THEIR_PROPOSAL_DIPLOMAT_MULTIPLIER', '134'; -- increase for Diplomat AIs
 
 -- They disliked our proposal to the World Congress.
-UPDATE Defines SET Value = '15' WHERE Name = 'OPINION_WEIGHT_WE_DISLIKED_THEIR_PROPOSAL';
-INSERT INTO Defines(Name, Value) SELECT 'OPINION_WEIGHT_WE_DISLIKED_THEIR_PROPOSAL_STRONG', '30';
-INSERT INTO Defines(Name, Value) SELECT 'OPINION_WEIGHT_WE_DISLIKED_THEIR_PROPOSAL_OVERWHELMING', '45';
+UPDATE Defines SET Value = '30' WHERE Name = 'OPINION_WEIGHT_WE_DISLIKED_THEIR_PROPOSAL';
+INSERT INTO Defines(Name, Value) SELECT 'OPINION_WEIGHT_WE_DISLIKED_THEIR_PROPOSAL_STRONG', '45';
+INSERT INTO Defines(Name, Value) SELECT 'OPINION_WEIGHT_WE_DISLIKED_THEIR_PROPOSAL_OVERWHELMING', '60';
 INSERT INTO Defines(Name, Value) SELECT 'OPINION_WEIGHT_WE_DISLIKED_THEIR_PROPOSAL_DIPLOMAT_MULTIPLIER', '134'; -- increase for Diplomat AIs
 
 -- We passed their proposal in the World Congress.
@@ -576,8 +577,8 @@ INSERT INTO Defines (Name, Value) SELECT 'CONVERT_PROMISE_IGNORED_TURNS_UNTIL_FO
 INSERT INTO Defines (Name, Value) SELECT 'CONVERT_PROMISE_BROKEN_TURNS_UNTIL_FORGIVEN', '60';
 
 -- Stop Digging Up Our Artifacts
-INSERT INTO Defines (Name, Value) SELECT 'DIGGING_PROMISE_IGNORED_TURNS_UNTIL_FORGIVEN', '40';
-INSERT INTO Defines (Name, Value) SELECT 'DIGGING_PROMISE_BROKEN_TURNS_UNTIL_FORGIVEN', '60';
+INSERT INTO Defines (Name, Value) SELECT 'DIGGING_PROMISE_IGNORED_TURNS_UNTIL_FORGIVEN', '30';
+INSERT INTO Defines (Name, Value) SELECT 'DIGGING_PROMISE_BROKEN_TURNS_UNTIL_FORGIVEN', '50';
 
 -- Broken Coop War Promise
 -- This promise does NOT scale with game speed!
@@ -621,7 +622,7 @@ INSERT INTO Defines (Name, Value) SELECT 'LOWERED_OUR_INFLUENCE_TURNS_UNTIL_FORG
 INSERT INTO Defines (Name, Value) SELECT 'PERFORMED_COUP_TURNS_UNTIL_FORGIVEN', '50';
 INSERT INTO Defines (Name, Value) SELECT 'EXCAVATED_ARTIFACT_TURNS_UNTIL_FORGIVEN', '50';
 INSERT INTO Defines (Name, Value) SELECT 'MADE_DEMAND_TURNS_UNTIL_FORGIVEN', '50';
-INSERT INTO Defines (Name, Value) SELECT 'RELIGIOUS_CONVERSION_TURNS_UNTIL_FORGIVEN', '50';
+INSERT INTO Defines (Name, Value) SELECT 'RELIGIOUS_CONVERSION_TURNS_UNTIL_FORGIVEN', '25';
 UPDATE Defines SET Value = '50' WHERE Name = 'OPINION_WEIGHT_KILLED_PROTECTED_MINOR_NUM_TURNS_UNTIL_FORGIVEN';
 UPDATE Defines SET Value = '30' WHERE Name = 'OPINION_WEIGHT_ATTACKED_PROTECTED_MINOR_NUM_TURNS_UNTIL_FORGIVEN';
 UPDATE Defines SET Value = '30' WHERE Name = 'OPINION_WEIGHT_BULLIED_PROTECTED_MINOR_NUM_TURNS_UNTIL_FORGIVEN';

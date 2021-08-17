@@ -12810,7 +12810,7 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 			{
 				Opinion kOpinion;
 				kOpinion.m_iValue = 50;
-				kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_CULTURE_BOMB");
+				kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_CULTURE_BOMB_HUMAN");
 				aOpinions.push_back(kOpinion);
 			}
 			// Stole artifacts from us?
@@ -13567,28 +13567,14 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 				aOpinions.push_back(kOpinion);
 			}
 
-			// Aggressive Posture
-			if (!pDiplo->IsAtWar(ePlayer) && !GET_PLAYER(ePlayer).GetDiplomacyAI()->IsHasOpenBorders(pkPlayer->GetID()))
+			// Military Deployment
+			iValue = pDiplo->GetMilitaryAggressivePostureScore(ePlayer);
+			if (iValue != 0 || (pDiplo->IsVassal(ePlayer) && pDiplo->GetMilitaryAggressivePosture(ePlayer) > AGGRESSIVE_POSTURE_NONE))
 			{
-				iValue = pDiplo->GetMilitaryAggressivePosture(ePlayer) * 5;
-				if (iValue != 0)
-				{
-					Opinion kOpinion;
-					kOpinion.m_iValue = iValue;
-					CvString str;
-
-					if (pDiplo->GetMilitaryAggressivePosture(ePlayer) >= AGGRESSIVE_POSTURE_HIGH)
-					{
-						str = Localization::Lookup("TXT_KEY_DIPLO_AGGRESSIVE_POSTURE_HIGH").toUTF8();
-					}
-					else
-					{
-						str = Localization::Lookup("TXT_KEY_DIPLO_AGGRESSIVE_POSTURE_MEDIUM").toUTF8();
-					}
-
-					kOpinion.m_str = str;
-					aOpinions.push_back(kOpinion);
-				}
+				Opinion kOpinion;
+				kOpinion.m_iValue = iValue;
+				kOpinion.m_str = (pDiplo->GetMilitaryAggressivePosture(ePlayer) >= AGGRESSIVE_POSTURE_HIGH) ? Localization::Lookup("TXT_KEY_DIPLO_AGGRESSIVE_POSTURE_HIGH").toUTF8() : Localization::Lookup("TXT_KEY_DIPLO_AGGRESSIVE_POSTURE_MEDIUM").toUTF8();
+				aOpinions.push_back(kOpinion);
 			}
 		}
 
@@ -14646,14 +14632,74 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 			aOpinions.push_back(kOpinion);
 		}
 
-		iValue = pDiplo->GetResurrectorAttackedUsScore(ePlayer);
+		// TRAITOR OPINION START
+		iValue = 0;
+		CvString str;
+
+		iTempValue = pDiplo->GetFriendDenouncementScore(ePlayer);
+		if (iTempValue > iValue && !bJustMet)
+		{
+			iValue = iTempValue;
+			str = Localization::Lookup("TXT_KEY_DIPLO_HUMAN_DENOUNCED_BY_FRIENDS").toUTF8();
+		}
+
+		iTempValue = pDiplo->GetWeDenouncedFriendScore(ePlayer);
+		if (iTempValue > iValue && !bJustMet)
+		{
+			iValue = iTempValue;
+			str = Localization::Lookup("TXT_KEY_DIPLO_HUMAN_DENOUNCED_FRIENDS").toUTF8();
+		}
+
+		int iFriendDenouncedUsScore = pDiplo->GetFriendDenouncedUsScore(ePlayer);
+		if (iFriendDenouncedUsScore > iValue)
+		{
+			iValue = iFriendDenouncedUsScore;
+			str = Localization::Lookup("TXT_KEY_DIPLO_HUMAN_FRIEND_DENOUNCED").toUTF8();
+		}
+
+		int iDOWFriendScore = pDiplo->GetWeDeclaredWarOnFriendScore(ePlayer);
+		if (iDOWFriendScore > iValue && !bJustMet)
+		{
+			iValue = iDOWFriendScore;
+			str = Localization::Lookup("TXT_KEY_DIPLO_HUMAN_DECLARED_WAR_ON_FRIENDS").toUTF8();
+		}
+
+		int iFriendDeclaredWarOnUsScore = pDiplo->GetFriendDeclaredWarOnUsScore(ePlayer);
+		if (iFriendDeclaredWarOnUsScore > iValue)
+		{
+			iValue = iFriendDeclaredWarOnUsScore;
+			str = Localization::Lookup("TXT_KEY_DIPLO_HUMAN_FRIEND_DECLARED_WAR").toUTF8();
+		}
+
+		int iResurrectorAttackedUsScore = pDiplo->GetResurrectorAttackedUsScore(ePlayer);
+		if (iResurrectorAttackedUsScore > iValue)
+		{
+			iValue = iResurrectorAttackedUsScore;
+			str = Localization::Lookup("TXT_KEY_DIPLO_RESURRECTOR_ATTACKED_US").toUTF8();
+		}
+
+		// If there was a personal betrayal, that matters more to the AI
+		if (iResurrectorAttackedUsScore != 0)
+		{
+			str = Localization::Lookup("TXT_KEY_DIPLO_RESURRECTOR_ATTACKED_US").toUTF8();
+		}
+		else if (iFriendDeclaredWarOnUsScore != 0)
+		{
+			str = Localization::Lookup("TXT_KEY_DIPLO_HUMAN_FRIEND_DECLARED_WAR").toUTF8();
+		}
+		else if (iFriendDenouncedUsScore != 0 && iDOWFriendScore <= 0)
+		{
+			str = Localization::Lookup("TXT_KEY_DIPLO_HUMAN_FRIEND_DENOUNCED").toUTF8();
+		}
+
 		if (iValue != 0)
 		{
 			Opinion kOpinion;
 			kOpinion.m_iValue = iValue;
-			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_RESURRECTOR_ATTACKED_US");
+			kOpinion.m_str = str;
 			aOpinions.push_back(kOpinion);
 		}
+		// TRAITOR OPINION END
 
 		iValue = pDiplo->GetDislikedTheirProposalScore(ePlayer);
 		if (iValue != 0)
@@ -14726,64 +14772,6 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 				kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_SIDED_WITH_MINOR");
 				aOpinions.push_back(kOpinion);
 			}
-
-			// TRAITOR OPINION START
-			iValue = 0;
-			CvString str;
-
-			iTempValue = pDiplo->GetFriendDenouncementScore(ePlayer);
-			if (iTempValue > iValue)
-			{
-				iValue = iTempValue;
-				str = Localization::Lookup("TXT_KEY_DIPLO_HUMAN_DENOUNCED_BY_FRIENDS").toUTF8();
-			}
-
-			iTempValue = pDiplo->GetWeDenouncedFriendScore(ePlayer);
-			if (iTempValue > iValue)
-			{
-				iValue = iTempValue;
-				str = Localization::Lookup("TXT_KEY_DIPLO_HUMAN_DENOUNCED_FRIENDS").toUTF8();
-			}
-
-			int iFriendDenouncedUsScore = pDiplo->GetFriendDenouncedUsScore(ePlayer);
-			if (iFriendDenouncedUsScore > iValue)
-			{
-				iValue = iFriendDenouncedUsScore;
-				str = Localization::Lookup("TXT_KEY_DIPLO_HUMAN_FRIEND_DENOUNCED").toUTF8();
-			}
-
-			int iDOWFriendScore = pDiplo->GetWeDeclaredWarOnFriendScore(ePlayer);
-			if (iDOWFriendScore > iValue)
-			{
-				iValue = iDOWFriendScore;
-				str = Localization::Lookup("TXT_KEY_DIPLO_HUMAN_DECLARED_WAR_ON_FRIENDS").toUTF8();
-			}
-
-			int iFriendDeclaredWarOnUsScore = pDiplo->GetFriendDeclaredWarOnUsScore(ePlayer);
-			if (iFriendDeclaredWarOnUsScore > iValue)
-			{
-				iValue = iFriendDeclaredWarOnUsScore;
-				str = Localization::Lookup("TXT_KEY_DIPLO_HUMAN_FRIEND_DECLARED_WAR").toUTF8();
-			}
-
-			// If there was a personal betrayal, that matters more to the AI
-			if (iFriendDeclaredWarOnUsScore != 0)
-			{
-				str = Localization::Lookup("TXT_KEY_DIPLO_HUMAN_FRIEND_DECLARED_WAR").toUTF8();
-			}
-			else if (iFriendDenouncedUsScore != 0 && iDOWFriendScore <= 0)
-			{
-				str = Localization::Lookup("TXT_KEY_DIPLO_HUMAN_FRIEND_DENOUNCED").toUTF8();
-			}
-
-			if (iValue != 0)
-			{
-				Opinion kOpinion;
-				kOpinion.m_iValue = iValue;
-				kOpinion.m_str = str;
-				aOpinions.push_back(kOpinion);
-			}
-			// TRAITOR OPINION END
 
 			iValue = pDiplo->GetRecklessExpanderScore(ePlayer);
 			if (iValue != 0)

@@ -2538,7 +2538,7 @@ TeamTypes CvTeam::GetTeamVotingForInDiplo() const
 					int kiBase = 10000;
 					
 					// What is our leader's opinion of the other team's leader? Remember, bad opinion is positive, good opinion is negative.
-					int iOpinion = GET_PLAYER(getLeaderID()).GetDiplomacyAI()->GetCivOpinionWeight(eLeaderLoop);
+					int iOpinion = GET_PLAYER(getLeaderID()).GetDiplomacyAI()->CalculateCivOpinionWeight(eLeaderLoop);
 					if (isAtWar(eTeamLoop))
 						iOpinion = kiBase; // Don't vote for someone we are at war with, if we can help it
 

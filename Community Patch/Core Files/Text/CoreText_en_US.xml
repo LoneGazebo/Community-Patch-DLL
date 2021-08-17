@@ -3008,6 +3008,11 @@
 		<Row Tag="TXT_KEY_DIPLO_MUTUAL_DENOUNCEMENT">
 			<Text>We have denounced each other!</Text>
 		</Row>
+
+		<!-- Steal Territory Diplo Mod (human version) -->
+		<Row Tag="TXT_KEY_DIPLO_CULTURE_BOMB_HUMAN">
+			<Text>You stole their territory!</Text>
+		</Row>
 		
 		<!-- Tech Dispute Mod (for scientific civs) -->
 		<Row Tag="TXT_KEY_DIPLO_TECH_BLOCK">

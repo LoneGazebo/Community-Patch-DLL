@@ -38,6 +38,13 @@ Check out the forum at https://forums.civfanatics.com/forums/community-patch-pro
 * If prompted on loading the solution file whether you want to retarget projects, select "No Upgrade" for both options and continue
 * If you encounter an "unexpected precompiler header error", install [this hotfix](http://thehotfixshare.net/board/index.php?autocom=downloads&showfile=11640)
 * A tutorial with visual aids has been posted [here](https://forums.civfanatics.com/threads/how-to-compile-the-vox-populi-dll.665916/), courtesy of ASCII Guy
+* To build the 43 Civ version of the DLL:
+  * Open the file Community-Patch-DLL\CvGameCoreDLLUtil\include\CustomModsGlobal.h
+  * Remove everything before the # in this line: // #define MOD_GLOBAL_MAX_MAJOR_CIVS (43)
+  * Save the file.
+* If building the Release version, Whole Program Optimization is enabled, which will cause a several minute delay at the end of pass 1, but the compiler is still functioning!
+  * You can disable Whole Program Optimization locally under Project > VoxPopuli Properties > C/C++ > Optimization > Whole Program Optimization (set it to No)
+* If the compiler stops responding at the end of pass 2, try deleting the hidden .vs folder as well as the BuildOutput/BuildTemp folders in the project directory, then reopening the solution file.
 
 ## How do I debug this
 

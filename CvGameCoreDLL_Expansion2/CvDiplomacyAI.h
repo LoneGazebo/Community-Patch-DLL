@@ -1085,7 +1085,7 @@ public:
 
 	void DoUpdateOpinions();
 	void DoUpdateOnePlayerOpinion(PlayerTypes ePlayer);
-	int GetCivOpinionWeight(PlayerTypes ePlayer);
+	int CalculateCivOpinionWeight(PlayerTypes ePlayer);
 #if defined(MOD_ACTIVE_DIPLOMACY)
 	void DoUpdateHumanTradePriority(PlayerTypes ePlayer, int iOpinionWeight); // <= JdH
 #endif
@@ -1537,8 +1537,11 @@ public:
 	int GetPolicyBlockLevelScore(PlayerTypes ePlayer);
 	int GetVictoryDisputeLevelScore(PlayerTypes ePlayer);
 	int GetVictoryBlockLevelScore(PlayerTypes ePlayer);
+	int GetRecklessExpanderScore(PlayerTypes ePlayer);
+	int GetWonderSpammerScore(PlayerTypes ePlayer);
 
 	// War Stuff
+	int GetMilitaryAggressivePostureScore(PlayerTypes ePlayer);
 	int GetWarmongerThreatScore(PlayerTypes ePlayer);
 	int GetTradeRoutesPlunderedScore(PlayerTypes ePlayer);
 	int GetCivilianKillerScore(PlayerTypes ePlayer);
@@ -1635,10 +1638,6 @@ public:
 	int GetWeDeclaredWarOnFriendScore(PlayerTypes ePlayer);
 	int GetFriendDeclaredWarOnUsScore(PlayerTypes ePlayer);
 	int GetResurrectorAttackedUsScore(PlayerTypes ePlayer);
-
-	// Reckless Expander / Wonder Spammer
-	int GetRecklessExpanderScore(PlayerTypes ePlayer);
-	int GetWonderSpammerScore(PlayerTypes ePlayer);
 
 	// World Congress
 	int GetLeagueAlignmentScore(PlayerTypes ePlayer);
