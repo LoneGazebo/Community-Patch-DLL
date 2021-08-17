@@ -3009,7 +3009,7 @@
 			<Text>We have denounced each other!</Text>
 		</Row>
 
-		<!-- Steal Territory Diplo Mod (human version) -->
+		<!-- Stolen Territory Diplo Mod (human version) -->
 		<Row Tag="TXT_KEY_DIPLO_CULTURE_BOMB_HUMAN">
 			<Text>You stole their territory!</Text>
 		</Row>
@@ -3067,6 +3067,17 @@
 			<Text>We are vassals of the same master!</Text>
 		</Row>
 
+		<!-- New Traitor Opinion Diplo Mods -->
+		<Row Tag="TXT_KEY_DIPLO_ATTACKED_OWN_VASSAL">
+			<Text>You declared war on your own vassal!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_ATTACKED_RESURRECTED_CIV">
+			<Text>You have declared war on civilizations that you've resurrected!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_RESURRECTOR_ATTACKED_US">
+			<Text>You restored their civilization and then declared war on them!</Text>
+		</Row>
+
 		<!-- Civilian Killer Diplo Mods -->
 		<Row Tag="TXT_KEY_DIPLO_RAZED">
 			<Text>You killed or captured their civilians!</Text>
@@ -3096,11 +3107,6 @@
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_AGGRESSIVE_POSTURE_HIGH">
 			<Text>Your military deployment is extremely threatening.</Text>
-		</Row>
-
-		<!-- Attacked Resurrected Civ Diplo Mod -->
-		<Row Tag="TXT_KEY_DIPLO_RESURRECTOR_ATTACKED_US">
-			<Text>You restored their civilization and then declared war on them!</Text>
 		</Row>
 
 		<!-- Religion Diplo Mods -->

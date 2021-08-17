@@ -13965,15 +13965,6 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 				kOpinion.m_str = (iValue > 0) ? Localization::Lookup("TXT_KEY_DIPLO_VASSAL_FAILED_PROTECT") : Localization::Lookup("TXT_KEY_DIPLO_VASSAL_PROTECT");
 				aOpinions.push_back(kOpinion);
 			}
-
-			iValue = pDiplo->GetBrokenVassalAgreementScore(ePlayer);
-			if (iValue != 0)
-			{
-				Opinion kOpinion;
-				kOpinion.m_iValue = iValue;
-				kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_ATTACKED_VASSAL_ME");
-				aOpinions.push_back(kOpinion);
-			}
 		}
 
 		iValue = pDiplo->GetRecentAssistScore(ePlayer);
@@ -14636,63 +14627,103 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 		iValue = 0;
 		CvString str;
 
-		iTempValue = pDiplo->GetFriendDenouncementScore(ePlayer);
-		if (iTempValue > iValue && !bJustMet)
+		int iFriendDenouncementScore = bJustMet ? 0 : pDiplo->GetFriendDenouncementScore(ePlayer);
+		if (iFriendDenouncementScore > iValue)
 		{
-			iValue = iTempValue;
-			str = Localization::Lookup("TXT_KEY_DIPLO_HUMAN_DENOUNCED_BY_FRIENDS").toUTF8();
+			iValue = iFriendDenouncementScore;
 		}
 
-		iTempValue = pDiplo->GetWeDenouncedFriendScore(ePlayer);
-		if (iTempValue > iValue && !bJustMet)
+		int iDenouncedFriendScore = bJustMet ? 0 : pDiplo->GetPlayerDenouncedFriendScore(ePlayer);
+		if (iDenouncedFriendScore > iValue)
 		{
-			iValue = iTempValue;
-			str = Localization::Lookup("TXT_KEY_DIPLO_HUMAN_DENOUNCED_FRIENDS").toUTF8();
+			iValue = iDenouncedFriendScore;
 		}
 
 		int iFriendDenouncedUsScore = pDiplo->GetFriendDenouncedUsScore(ePlayer);
 		if (iFriendDenouncedUsScore > iValue)
 		{
 			iValue = iFriendDenouncedUsScore;
-			str = Localization::Lookup("TXT_KEY_DIPLO_HUMAN_FRIEND_DENOUNCED").toUTF8();
 		}
 
-		int iDOWFriendScore = pDiplo->GetWeDeclaredWarOnFriendScore(ePlayer);
-		if (iDOWFriendScore > iValue && !bJustMet)
+		int iAttackedVassalScore = bJustMet ? 0 : pDiplo->GetPlayerAttackedVassalScore(ePlayer);
+		if (iAttackedVassalScore > iValue)
 		{
-			iValue = iDOWFriendScore;
-			str = Localization::Lookup("TXT_KEY_DIPLO_HUMAN_DECLARED_WAR_ON_FRIENDS").toUTF8();
+			iValue = iAttackedVassalScore;
 		}
 
-		int iFriendDeclaredWarOnUsScore = pDiplo->GetFriendDeclaredWarOnUsScore(ePlayer);
-		if (iFriendDeclaredWarOnUsScore > iValue)
+		int iMasterAttackedUsScore = pDiplo->GetMasterAttackedUsScore(ePlayer);
+		if (iMasterAttackedUsScore > iValue)
 		{
-			iValue = iFriendDeclaredWarOnUsScore;
-			str = Localization::Lookup("TXT_KEY_DIPLO_HUMAN_FRIEND_DECLARED_WAR").toUTF8();
+			iValue = iMasterAttackedUsScore;
+		}
+
+		int iAttackedFriendScore = bJustMet ? 0 : pDiplo->GetPlayerAttackedFriendScore(ePlayer);
+		if (iAttackedFriendScore > iValue)
+		{
+			iValue = iAttackedFriendScore;
+		}
+
+		int iFriendAttackedUsScore = pDiplo->GetFriendAttackedUsScore(ePlayer);
+		if (iFriendAttackedUsScore > iValue)
+		{
+			iValue = iFriendAttackedUsScore;
+		}
+
+		int iAttackedResurrectedCivScore = bJustMet ? 0 : pDiplo->GetPlayerAttackedResurrectedCivScore(ePlayer);
+		if (iAttackedResurrectedCivScore > iValue)
+		{
+			iValue = iAttackedResurrectedCivScore;
 		}
 
 		int iResurrectorAttackedUsScore = pDiplo->GetResurrectorAttackedUsScore(ePlayer);
 		if (iResurrectorAttackedUsScore > iValue)
 		{
 			iValue = iResurrectorAttackedUsScore;
-			str = Localization::Lookup("TXT_KEY_DIPLO_RESURRECTOR_ATTACKED_US").toUTF8();
 		}
 
-		// If there was a personal betrayal, that matters more to the AI
-		if (iResurrectorAttackedUsScore != 0)
+		// An applicable message is chosen in order of priority
+		if (iResurrectorAttackedUsScore > 0)
 		{
 			str = Localization::Lookup("TXT_KEY_DIPLO_RESURRECTOR_ATTACKED_US").toUTF8();
 		}
-		else if (iFriendDeclaredWarOnUsScore != 0)
+		else if (iFriendAttackedUsScore > 0)
 		{
 			str = Localization::Lookup("TXT_KEY_DIPLO_HUMAN_FRIEND_DECLARED_WAR").toUTF8();
 		}
-		else if (iFriendDenouncedUsScore != 0 && iDOWFriendScore <= 0)
+		else if (iAttackedResurrectedCivScore > 0)
+		{
+			str = Localization::Lookup("TXT_KEY_DIPLO_ATTACKED_RESURRECTED_CIV").toUTF8();
+		}
+		else if (iAttackedFriendScore > 0)
+		{
+			str = Localization::Lookup("TXT_KEY_DIPLO_HUMAN_DECLARED_WAR_ON_FRIENDS").toUTF8();
+		}
+		else if (iMasterAttackedUsScore > 0)
+		{
+			str = Localization::Lookup("TXT_KEY_DIPLO_ATTACKED_VASSAL_ME").toUTF8();
+		}
+		else if (pDiplo->IsVassal(ePlayer) && iAttackedVassalScore > 0)
+		{
+			str = Localization::Lookup("TXT_KEY_DIPLO_ATTACKED_OWN_VASSAL").toUTF8();
+		}
+		else if ((!pDiplo->IsVassal(ePlayer) || iAttackedVassalScore <= 0) && iFriendDenouncedUsScore > 0)
 		{
 			str = Localization::Lookup("TXT_KEY_DIPLO_HUMAN_FRIEND_DENOUNCED").toUTF8();
 		}
+		else if (iAttackedVassalScore > 0)
+		{
+			str = Localization::Lookup("TXT_KEY_DIPLO_ATTACKED_OWN_VASSAL").toUTF8();
+		}
+		else if (iDenouncedFriendScore > 0)
+		{
+			str = Localization::Lookup("TXT_KEY_DIPLO_HUMAN_DENOUNCED_FRIENDS").toUTF8();
+		}
+		else
+		{
+			str = Localization::Lookup("TXT_KEY_DIPLO_HUMAN_DENOUNCED_BY_FRIENDS").toUTF8();
+		}
 
-		if (iValue != 0)
+		if (iValue > 0)
 		{
 			Opinion kOpinion;
 			kOpinion.m_iValue = iValue;

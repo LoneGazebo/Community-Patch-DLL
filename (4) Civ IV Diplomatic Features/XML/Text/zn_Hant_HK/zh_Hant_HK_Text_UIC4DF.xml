@@ -109,14 +109,14 @@
 		<Row Tag="TXT_KEY_DIPLO_VASSAL_FAILED_PROTECT">
 			<Text>當他們時你的附庸時你沒能保護他們的城市！</Text>
 		</Row>
+		<Row Tag="TXT_KEY_DIPLO_MASTER_LIBERATED_ME_FROM_VASSALAGE">
+			<Text>你主動解放了他們。</Text>
+		</Row>
 		<Row Tag="TXT_KEY_DIPLO_VASSAL_PEACEFULLY_REVOKED">
 			<Text>你准予他們民族獨立。</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_VASSAL_FORCEFULLY_REVOKED">
 			<Text>你拒絕准予他們索求的獨立！</Text>
-		</Row>
-		<Row Tag="TXT_KEY_DIPLO_ATTACKED_MY_VASSAL">
-			<Text>你向他們的附庸宣戰！</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_ATTACKED_VASSAL_ME">
 			<Text>當他們是你的附庸時你向他們宣戰！</Text>
@@ -126,9 +126,6 @@
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_TOO_MANY_VASSALS">
 			<Text>他們懼怕你獲得多名附庸！</Text>
-		</Row>
-		<Row Tag="TXT_KEY_DIPLO_MASTER_LIBERATED_ME_FROM_VASSALAGE">
-			<Text>你主動解放了他們。</Text>
 		</Row>
 		<!-- Diplomacy Screen -->
 		<Row Tag="TXT_KEY_YOUR_CIV">

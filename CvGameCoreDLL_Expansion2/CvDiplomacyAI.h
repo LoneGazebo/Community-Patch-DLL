@@ -1124,6 +1124,7 @@ public:
 	bool IsGoodChoiceForResearchAgreement(PlayerTypes ePlayer);
 	bool IsCanMakeResearchAgreementRightNow(PlayerTypes ePlayer);
 	PlayerTypes GetHighestScoringDefensivePact(vector<PlayerTypes>& vAcceptableChoices, vector<PlayerTypes>& vPlayersToExclude);
+	int ScoreDefensivePactChoice(PlayerTypes eChoice, bool bCoastal);
 
 	// War!
 	void DoUpdateWarTargets();
@@ -1633,10 +1634,13 @@ public:
 
 	// Traitor Opinion
 	int GetFriendDenouncementScore(PlayerTypes ePlayer);
-	int GetWeDenouncedFriendScore(PlayerTypes ePlayer);
+	int GetPlayerDenouncedFriendScore(PlayerTypes ePlayer);
 	int GetFriendDenouncedUsScore(PlayerTypes ePlayer);
-	int GetWeDeclaredWarOnFriendScore(PlayerTypes ePlayer);
-	int GetFriendDeclaredWarOnUsScore(PlayerTypes ePlayer);
+	int GetPlayerAttackedVassalScore(PlayerTypes ePlayer);
+	int GetMasterAttackedUsScore(PlayerTypes ePlayer);
+	int GetPlayerAttackedFriendScore(PlayerTypes ePlayer);
+	int GetFriendAttackedUsScore(PlayerTypes ePlayer);
+	int GetPlayerAttackedResurrectedCivScore(PlayerTypes ePlayer);
 	int GetResurrectorAttackedUsScore(PlayerTypes ePlayer);
 
 	// World Congress
@@ -1660,7 +1664,6 @@ public:
 	int GetSameMasterScore(PlayerTypes ePlayer) const;
 	int GetHappyAboutVassalagePeacefullyRevokedScore(PlayerTypes ePlayer);
 	int GetAngryAboutVassalageForcefullyRevokedScore(PlayerTypes ePlayer);
-	int GetBrokenVassalAgreementScore(PlayerTypes ePlayer) const;
 
 	// Scenario-Specific
 #if defined(MOD_EVENTS_DIPLO_MODIFIERS)

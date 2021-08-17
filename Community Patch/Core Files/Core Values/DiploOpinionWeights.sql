@@ -152,7 +152,7 @@ INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_STRATEGIC_TRADE_PARTNER
 
 -- Your recent diplomatic actions please/disappoint them. (n.b. maximum recent assist value = OPINION_WEIGHT_ASSIST_MAX * ASSIST_VALUE_PER_OPINION_WEIGHT; scales with game speed)
 UPDATE Defines SET Value = '30' WHERE Name = 'OPINION_WEIGHT_ASSIST_MAX'; -- maximum opinion bonus/penalty from recent assist value
-INSERT INTO Defines (Name, Value) SELECT 'ASSIST_VALUE_PER_OPINION_WEIGHT', '5'; -- how much recent assist value equals 1/-1 opinion weight
+INSERT INTO Defines (Name, Value) SELECT 'ASSIST_VALUE_PER_OPINION_WEIGHT', '5'; -- how much recent assist value equals +/- 1 opinion weight
 INSERT INTO Defines (Name, Value) SELECT 'ASSIST_VALUE_PER_TURN_DECAY', '3'; -- how fast recent assist value decays
 
 -- We fought together against a common foe. (n.b. maximum common foe value = OPINION_WEIGHT_COMMON_FOE_MAX * COMMON_FOE_VALUE_PER_OPINION_WEIGHT * -1; scales with game speed)
@@ -456,24 +456,32 @@ INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_RA_SCIENTIFIC_MOD', '-1
 
 INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_BETRAYED_OUR_FRIEND_MULTIPLIER', '200'; -- multiplier to all traitor opinion penalties wherein the player betrayed or was betrayed by AI's friend
 
--- Your friends found reason to Denounce you!
+-- Your friends found reason to denounce you!
 UPDATE Defines SET Value = '20' WHERE Name = 'OPINION_WEIGHT_DENOUNCED_BY_FRIEND_EACH'; -- if they like the denouncer more than you
 UPDATE Defines SET Value = '10' WHERE Name = 'OPINION_WEIGHT_DENOUNCED_BY_FRIEND_DONT_LIKE'; -- if they like you more than the denouncer
 
--- You have Denounced leaders you've made Declarations of Friendship with!
+-- You have denounced leaders you've made Declarations of Friendship with!
 UPDATE Defines SET Value = '40' WHERE Name = 'OPINION_WEIGHT_DENOUNCED_FRIEND_EACH';
 
 -- We made a Declaration of Friendship and then denounced them!
 UPDATE Defines SET Value = '80' WHERE Name = 'OPINION_WEIGHT_DENOUNCED_ME_FRIENDS';
 
--- You have Declared War on leaders you've made Declarations of Friendship with!
+-- You declared war on your own vassal!
+INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_ATTACKED_OWN_VASSAL', '50';
+
+-- You declared war on them while they were your vassal!
+INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_VASSALAGE_BROKEN_VASSAL_AGREEMENT_OPINION_WEIGHT', '100';
+
+-- You have declared war on leaders you've made Declarations of Friendship with!
 UPDATE Defines SET Value = '75' WHERE Name = 'OPINION_WEIGHT_WAR_FRIEND_EACH';
 
 -- We made a Declaration of Friendship and then declared war on them!
 UPDATE Defines SET Value = '150' WHERE Name = 'OPINION_WEIGHT_WAR_ME_FRIENDS';
 
--- You restored their civilization and then attacked them!
--- This (permanent!) penalty is applied separately from normal backstabbing penalties.
+-- You have declared war on civilizations that you've resurrected!
+INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_ATTACKED_RESURRECTED_PLAYER', '75';
+
+-- You restored their civilization and then declared war on them!
 INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_RESURRECTOR_ATTACKED_US', '200';
 
 
@@ -539,7 +547,68 @@ INSERT INTO Defines(Name, Value) SELECT 'OPINION_WEIGHT_THEY_SUPPORTED_OUR_HOSTI
 INSERT INTO Defines(Name, Value) SELECT 'OPINION_WEIGHT_PER_VOTE_PERCENT', '2';
 
 
--- Promise Duration (affects all players)
+--	//////////////////////////////////////
+--	// CIV IV DIPLOMATIC FEATURES
+--	//////////////////////////////////////
+
+-- Opinion Weight for AI being Master
+INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_VASSALAGE_WE_ARE_MASTER', '-40';
+
+-- Opinion Weights for AI being Vassal
+INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_VASSALAGE_WE_ARE_VOLUNTARY_VASSAL', '-20';
+INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_VASSALAGE_WE_ARE_VASSAL', '0';
+
+
+-- Vassalage Treatment Thresholds
+-- Determines vassal treatment "level", based on the Opinion Score from Vassal Treatment
+INSERT INTO Defines (Name, Value) SELECT 'VASSALAGE_TREATMENT_THRESHOLD_DISAGREE', '10';
+INSERT INTO Defines (Name, Value) SELECT 'VASSALAGE_TREATMENT_THRESHOLD_MISTREATED', '30';
+INSERT INTO Defines (Name, Value) SELECT 'VASSALAGE_TREATMENT_THRESHOLD_UNHAPPY', '60';
+INSERT INTO Defines (Name, Value) SELECT 'VASSALAGE_TREATMENT_THRESHOLD_ENSLAVED', '100';
+
+-- Vassal Treatment Score Factors
+-- Making Demands
+INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_DEMANDED_WHILE_VASSAL', '20';
+
+-- Taxation Policies
+-- Penalty = (((Gold Taxed By Masters Since Vassalage Started * 100 / Gross Gold Collected Since Vassalage Started)^OPINION_WEIGHT_VASSAL_TAX_EXPONENT) / OPINION_WEIGHT_VASSAL_TAX_DIVISOR) + (Current Tax Rate / OPINION_WEIGHT_VASSAL_CURRENT_TAX_MODIFIER)
+INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_VASSAL_TAX_EXPONENT', '1.5';
+INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_VASSAL_TAX_DIVISOR', '4';
+INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_VASSAL_CURRENT_TAX_MODIFIER', '50';
+
+-- You protected their territory as their master! (n.b. maximum vassal protect value = OPINION_WEIGHT_VASSALAGE_PROTECT_MAX * VASSALAGE_PROTECT_VALUE_PER_OPINION_WEIGHT * -1; scales with game speed)
+INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_VASSALAGE_PROTECT_MAX', '-50';
+INSERT INTO Defines (Name, Value) SELECT 'VASSALAGE_PROTECT_VALUE_PER_OPINION_WEIGHT', '50'; -- how much vassal protection value equals -1 opinion weight
+INSERT INTO Defines (Name, Value) SELECT 'VASSALAGE_PROTECTED_PER_TURN_DECAY', '25'; -- how fast vassal protection value decays
+
+-- You failed to protect their territory as their master! (n.b. maximum vassal failed protect value = OPINION_WEIGHT_VASSALAGE_FAILED_PROTECT_MAX * VASSALAGE_FAILED_PROTECT_VALUE_PER_OPINION_WEIGHT; scales with game speed)
+INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_VASSALAGE_FAILED_PROTECT_MAX', '50';
+INSERT INTO Defines (Name, Value) SELECT 'VASSALAGE_FAILED_PROTECT_VALUE_PER_OPINION_WEIGHT', '50'; -- how much vassal failed protection value equals +1 opinion weight
+INSERT INTO Defines (Name, Value) SELECT 'VASSALAGE_FAILED_PROTECT_PER_TURN_DECAY', '25'; -- how fast vassal failed protection value decays
+
+-- Multiplier to negative factors in Vassal Treatment Opinion Score when AI is a Voluntary Vassal
+INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_VASSALAGE_VOLUNTARY_VASSAL_MOD', '120';
+
+
+-- Master liberated Vassal without being asked
+INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_MASTER_LIBERATED_ME_FROM_VASSALAGE', '-50';
+
+-- Master liberated Vassal when the Vassal requested
+INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_VASSALAGE_THEY_PEACEFULLY_REVOKED', '-25';
+
+-- Master refused to liberate Vassal when the Vassal requested (declared war!)
+INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_VASSALAGE_THEY_FORCIBLY_REVOKED', '50';
+
+
+-- Opinion Weight Change from Having 2+ Vassals
+-- Each player on a team counts as one vassal. Your own vassals and players you have a DoF with don't apply this penalty.
+INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_VASSALAGE_TOO_MANY_VASSALS', '20';
+
+
+--	//////////////////////////////////////
+--	// PROMISE DURATIONS
+--	//////////////////////////////////////
+
 -- Defines how many turns a specific promise lasts for (for making the promise).
 -- Defines how many turns until the AI forgets that you ignored/broke a specific promise (for other values). Once the AI forgets that you ignored/broke a promise, they become able to ask you to make it again.
 -- Most promise lengths scale with game speed: Quick 0.67x, Standard 1x, Epic 1.5x, Marathon 3x
@@ -585,7 +654,10 @@ INSERT INTO Defines (Name, Value) SELECT 'DIGGING_PROMISE_BROKEN_TURNS_UNTIL_FOR
 INSERT INTO Defines (Name, Value) SELECT 'COOP_WAR_PROMISE_BROKEN_TURNS_UNTIL_FORGIVEN', '60';
 
 
--- Backstabbing Penalties Duration (affects all players)
+--	//////////////////////////////////////
+--	// BACKSTABBING PENALTY DURATIONS
+--	//////////////////////////////////////
+
 -- Defines how many turns until the AI forgets that you backstabbed them.
 -- The amount of turns scales with game speed: Quick 0.67x, Standard 1x, Epic 1.5x, Marathon 3x
 -- NOTE: Broken military / CS conquest promises count as backstabbing penalties as well, but they are handled in the Promises section just above.
@@ -602,7 +674,10 @@ INSERT INTO Defines (Name, Value) SELECT 'MASTER_DECLARED_WAR_ON_US_TURNS_UNTIL_
 INSERT INTO Defines (Name, Value) SELECT 'DOF_BROKEN_BACKSTAB_TIMER', '10';
 
 
--- Other Opinion Modifiers Duration (affects all players)
+--	//////////////////////////////////////
+--	// OTHER OPINION MODIFIER DURATIONS
+--	//////////////////////////////////////
+
 -- Defines the base number of turns until the AI forgets about an opinion modifier.
 -- When there are multiple "stacks" of a modifier, this instead is the time before the # of stacks is halved (rounded down).
 -- The amount of turns scales with game speed: Quick 0.67x, Standard 1x, Epic 1.5x, Marathon 3x
@@ -632,3 +707,5 @@ UPDATE Defines SET Value = '50' WHERE Name = 'OPINION_WEIGHT_WE_DISLIKED_THEIR_P
 UPDATE Defines SET Value = '50' WHERE Name = 'OPINION_WEIGHT_THEY_SUPPORTED_OUR_PROPOSAL_NUM_TURNS';
 UPDATE Defines SET Value = '50' WHERE Name = 'OPINION_WEIGHT_THEY_FOILED_OUR_PROPOSAL_NUM_TURNS';
 UPDATE Defines SET Value = '50' WHERE Name = 'OPINION_WEIGHT_THEY_SUPPORTED_OUR_HOSTING_NUM_TURNS';
+INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_VASSALAGE_PEACEFULLY_REVOKED_NUM_TURNS_UNTIL_FORGOTTEN', '100'; -- How many turns the "gave independence when asked" bonus remains for
+INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_VASSALAGE_FORCIBLY_REVOKED_NUM_TURNS_UNTIL_FORGIVEN', '100'; -- How many turns the "refused to give independence" when asked penalty remains for

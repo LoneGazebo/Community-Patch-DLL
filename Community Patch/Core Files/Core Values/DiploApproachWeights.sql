@@ -90,3 +90,20 @@ UPDATE Defines SET Value = '75' WHERE Name = 'APPROACH_WAR_PROXIMITY_DISTANT';
 -- Dissuades the AI from declaring war for a certain amount of time after a peace treaty has been signed.
 -- NOTE: For MAJOR CIVS, this amount is reduced on higher difficulties.
 UPDATE Defines SET Value = '20' WHERE Name = 'TURNS_SINCE_PEACE_WEIGHT_DAMPENER';
+
+
+-- C4DF Approach Values
+
+-- Approach multipliers for having 2+ vassals
+INSERT INTO Defines (Name, Value) SELECT 'APPROACH_WAR_TOO_MANY_VASSALS', '20'; -- % increase to WAR and HOSTILE approaches per vassal
+INSERT INTO Defines (Name, Value) SELECT 'APPROACH_GUARDED_TOO_MANY_VASSALS', '20'; -- % increase to GUARDED and AFRAID approaches per vassal
+
+-- Modifiers for refusing to give a former vassal independence
+INSERT INTO Defines (Name, Value) SELECT 'APPROACH_WAR_VASSAL_FORCEFULLY_REVOKED', '4'; -- Adds x times the AI's War Bias to the War Approach
+INSERT INTO Defines (Name, Value) SELECT 'APPROACH_FRIENDLY_VASSAL_FORCEFULLY_REVOKED', '-10'; -- Adds x times the AI's Friendly Bias to the Friendly Approach
+INSERT INTO Defines (Name, Value) SELECT 'APPROACH_DECEPTIVE_VASSAL_FORCEFULLY_REVOKED', '-10'; -- Adds x times the AI's Deceptive Bias to the Deceptive Approach
+
+-- Modifiers for agreeing to give a former vassal independence
+INSERT INTO Defines (Name, Value) SELECT 'APPROACH_WAR_VASSAL_PEACEFULLY_REVOKED', '-4'; -- Adds x times the AI's War Bias to the War Approach
+INSERT INTO Defines (Name, Value) SELECT 'APPROACH_FRIENDLY_VASSAL_PEACEFULLY_REVOKED', '5'; -- Adds x times the AI's Friendly Bias to the Friendly Approach
+INSERT INTO Defines (Name, Value) SELECT 'APPROACH_DECEPTIVE_VASSAL_PEACEFULLY_REVOKED', '2'; -- Adds x times the AI's Deceptive Bias to the Deceptive Approach (not applied if master liberates vassal)

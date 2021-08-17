@@ -598,34 +598,35 @@ bool CvGameTrade::CreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, Domai
 		}
 
 	}
+	// Apply a diplomacy bonus for recent trade in both directions
 	if (eConnectionType == TRADE_CONNECTION_INTERNATIONAL)
 	{
 		if (!GET_PLAYER(eDestPlayer).isHuman() && GET_PLAYER(eDestPlayer).isMajorCiv())
 		{
-			int iFlavorGoldDest = GET_PLAYER(eDestPlayer).GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GOLD"));
-			int iFlavorScienceDest = GET_PLAYER(eDestPlayer).GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_SCIENCE"));
-			int iFlavorDiplomacyDest = GET_PLAYER(eDestPlayer).GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_DIPLOMACY"));
-			int iFlavorCultureDest = GET_PLAYER(eDestPlayer).GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_CULTURE"));
+			int iFlavorGoldDest = GET_PLAYER(eDestPlayer).GetFlavorManager()->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GOLD"));
+			int iFlavorScienceDest = GET_PLAYER(eDestPlayer).GetFlavorManager()->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_SCIENCE"));
+			int iFlavorDiplomacyDest = GET_PLAYER(eDestPlayer).GetFlavorManager()->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_DIPLOMACY"));
+			int iFlavorCultureDest = GET_PLAYER(eDestPlayer).GetFlavorManager()->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_CULTURE"));
 			int iGoldDest = (m_aTradeConnections[iNewTradeRouteIndex].m_aiDestYields[YIELD_GOLD] / 10);
 			int iScienceDest = (m_aTradeConnections[iNewTradeRouteIndex].m_aiDestYields[YIELD_SCIENCE] / 10);
 			int iCultureDest = (m_aTradeConnections[iNewTradeRouteIndex].m_aiDestYields[YIELD_CULTURE] / 10);
 			int iTradeValueDest = ((iScienceDest + iCultureDest + iGoldDest + iFlavorCultureDest + iFlavorGoldDest + iFlavorScienceDest + iFlavorDiplomacyDest) / 4);
-			if(iTradeValueDest > 0)
+			if (iTradeValueDest > 0)
 			{
 				GET_PLAYER(eDestPlayer).GetDiplomacyAI()->ChangeRecentTradeValue(eOriginPlayer, iTradeValueDest);
 			}
 		}
 		if (!GET_PLAYER(eOriginPlayer).isHuman() && GET_PLAYER(eOriginPlayer).isMajorCiv())
 		{
-			int iFlavorGoldOrigin = GET_PLAYER(eOriginPlayer).GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GOLD"));
-			int iFlavorScienceOrigin = GET_PLAYER(eOriginPlayer).GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_SCIENCE"));
-			int iFlavorDiplomacyOrigin = GET_PLAYER(eOriginPlayer).GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_DIPLOMACY"));
-			int iFlavorCultureOrigin = GET_PLAYER(eOriginPlayer).GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_CULTURE"));
+			int iFlavorGoldOrigin = GET_PLAYER(eOriginPlayer).GetFlavorManager()->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GOLD"));
+			int iFlavorScienceOrigin = GET_PLAYER(eOriginPlayer).GetFlavorManager()->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_SCIENCE"));
+			int iFlavorDiplomacyOrigin = GET_PLAYER(eOriginPlayer).GetFlavorManager()->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_DIPLOMACY"));
+			int iFlavorCultureOrigin = GET_PLAYER(eOriginPlayer).GetFlavorManager()->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_CULTURE"));
 			int iGoldOrigin = (m_aTradeConnections[iNewTradeRouteIndex].m_aiOriginYields[YIELD_GOLD] / 10);
 			int iScienceOrigin = (m_aTradeConnections[iNewTradeRouteIndex].m_aiOriginYields[YIELD_SCIENCE] / 10);
 			int iCultureOrigin = (m_aTradeConnections[iNewTradeRouteIndex].m_aiOriginYields[YIELD_CULTURE] / 10);
 			int iTradeValueOrigin = ((iScienceOrigin + iCultureOrigin + iFlavorCultureOrigin + iGoldOrigin + iFlavorGoldOrigin + iFlavorScienceOrigin + iFlavorDiplomacyOrigin) / 4);
-			if(iTradeValueOrigin > 0)
+			if (iTradeValueOrigin > 0)
 			{
 				GET_PLAYER(eOriginPlayer).GetDiplomacyAI()->ChangeRecentTradeValue(eDestPlayer, iTradeValueOrigin);
 			}

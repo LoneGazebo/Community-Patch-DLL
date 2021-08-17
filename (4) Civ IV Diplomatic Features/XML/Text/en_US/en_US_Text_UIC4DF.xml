@@ -109,14 +109,14 @@
 		<Row Tag="TXT_KEY_DIPLO_VASSAL_FAILED_PROTECT">
 			<Text>You failed to protect their territory as their master!</Text>
 		</Row>
+		<Row Tag="TXT_KEY_DIPLO_MASTER_LIBERATED_ME_FROM_VASSALAGE">
+			<Text>You liberated them without being asked to.</Text>
+		</Row>
 		<Row Tag="TXT_KEY_DIPLO_VASSAL_PEACEFULLY_REVOKED">
 			<Text>You granted their nation independence!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_VASSAL_FORCEFULLY_REVOKED">
 			<Text>You refused to grant them independence when they asked!</Text>
-		</Row>
-		<Row Tag="TXT_KEY_DIPLO_ATTACKED_MY_VASSAL">
-			<Text>You declared war on their vassal!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_ATTACKED_VASSAL_ME">
 			<Text>You declared war on them while they were your vassal!</Text>
@@ -126,9 +126,6 @@
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_TOO_MANY_VASSALS">
 			<Text>They fear your acquisition of multiple vassals!</Text>
-		</Row>
-		<Row Tag="TXT_KEY_DIPLO_MASTER_LIBERATED_ME_FROM_VASSALAGE">
-			<Text>You liberated them without being asked to.</Text>
 		</Row>
 		<!-- Diplomacy Screen -->
 		<Row Tag="TXT_KEY_YOUR_CIV">
