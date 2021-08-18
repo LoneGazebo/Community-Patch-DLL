@@ -10883,7 +10883,7 @@ void CvLeagueAI::AllocateVotes(CvLeague* pLeague)
 		}
 
 		CvWeightedVector<VoteConsideration> vVotesAllocated;
-		for (int i = 0; i < iVotes; i++)
+		for (int iV = 0; iV < iVotes; iV++)
 		{
 			vConsiderations.SortItems();
 			VoteConsideration chosen = vConsiderations.GetElement(0);
@@ -10907,8 +10907,9 @@ void CvLeagueAI::AllocateVotes(CvLeague* pLeague)
 					vConsiderations.SetElement(i, chosen);
 
 					int iWeight = vConsiderations.GetWeight(i);
-					iWeight *= 85;
-					iWeight /= 100;
+					int iReduction = iVotes - iV;
+					iReduction = iWeight / (max(1, iReduction));
+					iWeight = max(0, iWeight - iReduction);
 					vConsiderations.SetWeight(i, iWeight);
 					break;
 				}
