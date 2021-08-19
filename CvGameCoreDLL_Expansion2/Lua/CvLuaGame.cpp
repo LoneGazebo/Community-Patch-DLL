@@ -321,6 +321,8 @@ void CvLuaGame::RegisterMembers(lua_State* L)
 
 	Method(GetCustomOption);
 
+	Method(IsHideOpinionTable);
+
 	Method(GetNumCitiesPolicyCostMod);
 	Method(GetNumCitiesTechCostMod);
 	Method(GetNumCitiesTourismCostMod);
@@ -2236,6 +2238,13 @@ int CvLuaGame::lGetCustomOption(lua_State* L)
 	}
 
 	return 0;
+}
+//------------------------------------------------------------------------------
+int CvLuaGame::lIsHideOpinionTable(lua_State* L)
+{
+	bool bResult = GC.getGame().IsHideOpinionTable();
+	lua_pushboolean(L, bResult);
+	return 1;
 }
 //------------------------------------------------------------------------------
 int CvLuaGame::lGetNumCitiesPolicyCostMod(lua_State* L)

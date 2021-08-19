@@ -3005,9 +3005,16 @@ local function GetMoodInfo( playerID )
 			elseif visibleApproachID == MajorCivApproachTypes.MAJOR_CIV_APPROACH_HOSTILE then
 				opinions = { L"TXT_KEY_DIPLO_HOSTILE" }
 			-- Appears Afraid
-			elseif visibleApproachID == MajorCivApproachTypes.MAJOR_CIV_APPROACH_AFRAID  then
+			elseif visibleApproachID == MajorCivApproachTypes.MAJOR_CIV_APPROACH_AFRAID then
 				opinions = { L"TXT_KEY_DIPLO_AFRAID" }
-			-- Neutral - default string
+			-- Appears Neutral, opinions deliberately hidden
+			elseif (Game.IsHideOpinionTable() and (team:GetTurnsSinceMeetingTeam(activeTeamID) ~= 0 or player:IsActHostileTowardsHuman(activePlayerID))) then
+				if player:IsActHostileTowardsHuman(activePlayerID) then
+					opinions = { L"TXT_KEY_DIPLO_NEUTRAL_HOSTILE" }
+				else
+					opinions = { L"TXT_KEY_DIPLO_NEUTRAL_FRIENDLY" }
+				end
+			-- Appears Neutral, no opinions
 			else
 				opinions = { L"TXT_KEY_DIPLO_DEFAULT_STATUS" }
 			end
@@ -3034,9 +3041,16 @@ local function GetMoodInfo( playerID )
 			elseif visibleApproachID == MajorCivApproachTypes.MAJOR_CIV_APPROACH_HOSTILE then
 				opinions = { L"TXT_KEY_DIPLO_HOSTILE" }
 			-- Appears Afraid
-			elseif visibleApproachID == MajorCivApproachTypes.MAJOR_CIV_APPROACH_AFRAID  then
+			elseif visibleApproachID == MajorCivApproachTypes.MAJOR_CIV_APPROACH_AFRAID then
 				opinions = { L"TXT_KEY_DIPLO_AFRAID" }
-			-- Neutral - default string
+			-- Appears Neutral, opinions deliberately hidden
+			elseif (Game.IsHideOpinionTable() and team:GetTurnsSinceMeetingTeam(activeTeamID) ~= 0) then
+				if player:IsActHostileTowardsHuman(activePlayerID) then
+					opinions = { L"TXT_KEY_DIPLO_NEUTRAL_HOSTILE" }
+				else
+					opinions = { L"TXT_KEY_DIPLO_NEUTRAL_FRIENDLY" }
+				end
+			-- Appears Neutral, no opinions
 			else
 				opinions = { L"TXT_KEY_DIPLO_DEFAULT_STATUS" }
 			end

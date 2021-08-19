@@ -170,6 +170,7 @@ protected:
 	static int lCanDefensiveEmbark(lua_State* L);
 
 	static int lIsHasMet(lua_State* L);
+	static int lGetTurnsSinceMeetingTeam(lua_State* L);
 	static int lIsAtWar(lua_State* L);
 	static int lIsPermanentWarPeace(lua_State* L);
 	static int lSetPermanentWarPeace(lua_State* L);

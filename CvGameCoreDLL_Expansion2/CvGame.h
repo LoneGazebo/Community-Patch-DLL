@@ -345,6 +345,7 @@ public:
 	bool IsShowBaseHumanOpinion() const;
 
 	// Advanced Options
+	bool IsHideOpinionTable() const;
 	bool IsLumpGoldTradingHumanOnly() const;
 	bool IsLumpGoldTradingEnabled() const;
 	bool IsFriendshipRequestsDisabled() const; // Only affects humans
