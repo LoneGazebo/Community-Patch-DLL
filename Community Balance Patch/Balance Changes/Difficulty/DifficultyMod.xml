@@ -38,15 +38,18 @@
 			<!-- City-State Bonuses -->
 			<StartingMinorDefenseUnits>0</StartingMinorDefenseUnits>
 
-			<!-- AI Bonuses -->
+			<!-- AI Behavior Modifiers -->
+			<AIDeclareWarProb>100</AIDeclareWarProb>
 			<CityProductionNumOptionsConsidered>3</CityProductionNumOptionsConsidered>
 			<TechNumOptionsConsidered>3</TechNumOptionsConsidered>
 			<PolicyNumOptionsConsidered>3</PolicyNumOptionsConsidered>
-			<AttitudeChange>-15</AttitudeChange>
-			<AIDeclareWarProb>100</AIDeclareWarProb>
+			<!-- The settings below only affect behavior towards humans! -->
 			<AIHumanStrengthMod>10</AIHumanStrengthMod>
+			<AttitudeChange>-15</AttitudeChange>
 			<TechTradeKnownModifier>0</TechTradeKnownModifier>
 			<NoTechTradeModifier>0</NoTechTradeModifier>
+
+			<!-- AI Bonuses -->
 			<AIStartingDefenseUnits>1</AIStartingDefenseUnits>
 			<AIStartingExploreUnits>0</AIStartingExploreUnits>
 			<AIStartingWorkerUnits>0</AIStartingWorkerUnits>
@@ -118,15 +121,18 @@
 			<!-- City-State Bonuses -->
 			<StartingMinorDefenseUnits>0</StartingMinorDefenseUnits>
 
-			<!-- AI Bonuses -->
+			<!-- AI Behavior Modifiers -->
+			<AIDeclareWarProb>120</AIDeclareWarProb>
 			<CityProductionNumOptionsConsidered>3</CityProductionNumOptionsConsidered>
 			<TechNumOptionsConsidered>3</TechNumOptionsConsidered>
 			<PolicyNumOptionsConsidered>3</PolicyNumOptionsConsidered>
-			<AttitudeChange>-10</AttitudeChange>
-			<AIDeclareWarProb>120</AIDeclareWarProb>
+			<!-- The settings below only affect behavior towards humans! -->
 			<AIHumanStrengthMod>15</AIHumanStrengthMod>
+			<AttitudeChange>-10</AttitudeChange>
 			<TechTradeKnownModifier>0</TechTradeKnownModifier>
 			<NoTechTradeModifier>0</NoTechTradeModifier>
+
+			<!-- AI Bonuses -->
 			<AIStartingDefenseUnits>1</AIStartingDefenseUnits>
 			<AIStartingExploreUnits>0</AIStartingExploreUnits>
 			<AIStartingWorkerUnits>0</AIStartingWorkerUnits>
@@ -198,15 +204,18 @@
 			<!-- City-State Bonuses -->
 			<StartingMinorDefenseUnits>1</StartingMinorDefenseUnits>
 
-			<!-- AI Bonuses -->
+			<!-- AI Behavior Modifiers -->
+			<AIDeclareWarProb>140</AIDeclareWarProb>
 			<CityProductionNumOptionsConsidered>3</CityProductionNumOptionsConsidered>
 			<TechNumOptionsConsidered>3</TechNumOptionsConsidered>
 			<PolicyNumOptionsConsidered>3</PolicyNumOptionsConsidered>
-			<AttitudeChange>-5</AttitudeChange>
-			<AIDeclareWarProb>140</AIDeclareWarProb>
+			<!-- The settings below only affect behavior towards humans! -->
 			<AIHumanStrengthMod>20</AIHumanStrengthMod>
+			<AttitudeChange>-5</AttitudeChange>
 			<TechTradeKnownModifier>0</TechTradeKnownModifier>
 			<NoTechTradeModifier>0</NoTechTradeModifier>
+
+			<!-- AI Bonuses -->
 			<AIStartingDefenseUnits>1</AIStartingDefenseUnits>
 			<AIStartingExploreUnits>0</AIStartingExploreUnits>
 			<AIStartingWorkerUnits>0</AIStartingWorkerUnits>
@@ -278,15 +287,18 @@
 			<!-- City-State Bonuses -->
 			<StartingMinorDefenseUnits>1</StartingMinorDefenseUnits>
 
-			<!-- AI Bonuses -->
+			<!-- AI Behavior Modifiers -->
+			<AIDeclareWarProb>160</AIDeclareWarProb>
 			<CityProductionNumOptionsConsidered>2</CityProductionNumOptionsConsidered>
 			<TechNumOptionsConsidered>2</TechNumOptionsConsidered>
 			<PolicyNumOptionsConsidered>2</PolicyNumOptionsConsidered>
-			<AttitudeChange>0</AttitudeChange>
-			<AIDeclareWarProb>160</AIDeclareWarProb>
+			<!-- The settings below only affect behavior towards humans! -->
 			<AIHumanStrengthMod>25</AIHumanStrengthMod>
+			<AttitudeChange>0</AttitudeChange>
 			<TechTradeKnownModifier>0</TechTradeKnownModifier>
 			<NoTechTradeModifier>0</NoTechTradeModifier>
+
+			<!-- AI Bonuses -->
 			<AIStartingDefenseUnits>1</AIStartingDefenseUnits>
 			<AIStartingExploreUnits>0</AIStartingExploreUnits>
 			<AIStartingWorkerUnits>0</AIStartingWorkerUnits>
@@ -356,17 +368,20 @@
 			<ResistanceCap>45</ResistanceCap>
 
 			<!-- City-State Bonuses -->
-			<StartingMinorDefenseUnits>1</StartingMinorDefenseUnits>
+			<StartingMinorDefenseUnits>2</StartingMinorDefenseUnits>
 
-			<!-- AI Bonuses -->
+			<!-- AI Behavior Modifiers -->
+			<AIDeclareWarProb>180</AIDeclareWarProb>
 			<CityProductionNumOptionsConsidered>2</CityProductionNumOptionsConsidered>
 			<TechNumOptionsConsidered>2</TechNumOptionsConsidered>
 			<PolicyNumOptionsConsidered>2</PolicyNumOptionsConsidered>
-			<AttitudeChange>0</AttitudeChange>
-			<AIDeclareWarProb>180</AIDeclareWarProb>
+			<!-- The settings below only affect behavior towards humans! -->
 			<AIHumanStrengthMod>30</AIHumanStrengthMod>
+			<AttitudeChange>0</AttitudeChange>
 			<TechTradeKnownModifier>0</TechTradeKnownModifier>
 			<NoTechTradeModifier>0</NoTechTradeModifier>
+
+			<!-- AI Bonuses -->
 			<AIStartingDefenseUnits>1</AIStartingDefenseUnits>
 			<AIStartingExploreUnits>0</AIStartingExploreUnits>
 			<AIStartingWorkerUnits>0</AIStartingWorkerUnits>
@@ -438,15 +453,18 @@
 			<!-- City-State Bonuses -->
 			<StartingMinorDefenseUnits>2</StartingMinorDefenseUnits>
 
-			<!-- AI Bonuses -->
+			<!-- AI Behavior Modifiers -->
+			<AIDeclareWarProb>200</AIDeclareWarProb>
 			<CityProductionNumOptionsConsidered>2</CityProductionNumOptionsConsidered>
 			<TechNumOptionsConsidered>2</TechNumOptionsConsidered>
 			<PolicyNumOptionsConsidered>2</PolicyNumOptionsConsidered>
-			<AttitudeChange>0</AttitudeChange>
-			<AIDeclareWarProb>200</AIDeclareWarProb>
+			<!-- The settings below only affect behavior towards humans! -->
 			<AIHumanStrengthMod>35</AIHumanStrengthMod>
+			<AttitudeChange>0</AttitudeChange>
 			<TechTradeKnownModifier>0</TechTradeKnownModifier>
 			<NoTechTradeModifier>0</NoTechTradeModifier>
+
+			<!-- AI Bonuses -->
 			<AIStartingDefenseUnits>1</AIStartingDefenseUnits>
 			<AIStartingExploreUnits>0</AIStartingExploreUnits>
 			<AIStartingWorkerUnits>0</AIStartingWorkerUnits>
@@ -516,17 +534,20 @@
 			<ResistanceCap>65</ResistanceCap>
 
 			<!-- City-State Bonuses -->
-			<StartingMinorDefenseUnits>2</StartingMinorDefenseUnits>
+			<StartingMinorDefenseUnits>3</StartingMinorDefenseUnits>
 
-			<!-- AI Bonuses -->
+			<!-- AI Behavior Modifiers -->
+			<AIDeclareWarProb>225</AIDeclareWarProb>
 			<CityProductionNumOptionsConsidered>1</CityProductionNumOptionsConsidered>
 			<TechNumOptionsConsidered>1</TechNumOptionsConsidered>
 			<PolicyNumOptionsConsidered>1</PolicyNumOptionsConsidered>
-			<AttitudeChange>0</AttitudeChange>
-			<AIDeclareWarProb>225</AIDeclareWarProb>
+			<!-- The settings below only affect behavior towards humans! -->
 			<AIHumanStrengthMod>42</AIHumanStrengthMod>
+			<AttitudeChange>0</AttitudeChange>
 			<TechTradeKnownModifier>0</TechTradeKnownModifier>
 			<NoTechTradeModifier>0</NoTechTradeModifier>
+
+			<!-- AI Bonuses -->
 			<AIStartingDefenseUnits>1</AIStartingDefenseUnits>
 			<AIStartingExploreUnits>0</AIStartingExploreUnits>
 			<AIStartingWorkerUnits>0</AIStartingWorkerUnits>
@@ -598,15 +619,18 @@
 			<!-- City-State Bonuses -->
 			<StartingMinorDefenseUnits>3</StartingMinorDefenseUnits>
 
-			<!-- AI Bonuses -->
+			<!-- AI Behavior Modifiers -->
+			<AIDeclareWarProb>250</AIDeclareWarProb>
 			<CityProductionNumOptionsConsidered>1</CityProductionNumOptionsConsidered>
 			<TechNumOptionsConsidered>1</TechNumOptionsConsidered>
 			<PolicyNumOptionsConsidered>1</PolicyNumOptionsConsidered>
-			<AttitudeChange>0</AttitudeChange>
-			<AIDeclareWarProb>250</AIDeclareWarProb>
+			<!-- The settings below only affect behavior towards humans! -->
 			<AIHumanStrengthMod>50</AIHumanStrengthMod>
+			<AttitudeChange>0</AttitudeChange>
 			<TechTradeKnownModifier>0</TechTradeKnownModifier>
 			<NoTechTradeModifier>0</NoTechTradeModifier>
+
+			<!-- AI Bonuses -->
 			<AIStartingDefenseUnits>1</AIStartingDefenseUnits>
 			<AIStartingExploreUnits>0</AIStartingExploreUnits>
 			<AIStartingWorkerUnits>0</AIStartingWorkerUnits>
@@ -650,6 +674,7 @@
 			<Help>TXT_KEY_HANDICAP_AI_DEFAULT_HELP</Help>
 			<IconAtlas>DIFFICULTY_ATLAS</IconAtlas>
 			<!-- Player Bonuses -->
+			<!-- These bonuses are applied in addition to any bonuses the AI gets above. -->
 			<StartingLocPercent>50</StartingLocPercent>
 			<HappinessDefault>10</HappinessDefault>
 			<HappinessDefaultCapital>2</HappinessDefaultCapital>

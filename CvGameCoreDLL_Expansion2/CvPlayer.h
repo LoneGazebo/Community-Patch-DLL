@@ -622,6 +622,8 @@ public:
 	void DoTestEmpireInBadShapeForWar();
 	bool IsNoNewWars() const;
 	void SetNoNewWars(bool bValue);
+	bool IsInTerribleShapeForWar() const;
+	void SetInTerribleShapeForWar(bool bValue);
 
 	int GetTurnsSinceLastAttackedMinorCiv() const;
 	void SetTurnLastAttackedMinorCiv(int iTurn);
@@ -1136,7 +1138,7 @@ public:
 	CvString getInstantYieldText(InstantYieldType iType)  const;
 	void doInstantGWAM(GreatPersonTypes eGreatPerson, CvString strUnitName, bool bConquest = false);
 	void doPolicyGEorGM(int iPolicyGEorGM);
-	void doInstantGreatPersonProgress(InstantYieldType iType, bool bSuppress = false, CvCity* pCity = NULL, BuildingTypes eBuilding = NO_BUILDING);
+	void doInstantGreatPersonProgress(InstantYieldType iType, bool bSuppress = false, CvCity* pCity = NULL, BuildingTypes eBuilding = NO_BUILDING, int iPassValue = 0, GreatPersonTypes ePassGreatPerson = NO_GREATPERSON);
 	void addInstantGreatPersonProgressText(InstantYieldType iType, CvString strInstantYield);
 	void setInstantGreatPersonProgressText(InstantYieldType iType, CvString strInstantYield);
 	CvString getInstantGreatPersonProgressText(InstantYieldType iType)  const;
@@ -1894,8 +1896,8 @@ public:
 	int getExperienceForLiberation()	const;
 	void changeExperienceForLiberation(int iChange);
 
-	BuildingClassTypes getBuildingClassInLiberatedCities()	const;
-	void setBuildingClassInLiberatedCities(BuildingClassTypes eIndex);
+	int getNumBuildingClassInLiberatedCities(BuildingClassTypes eIndex)	const;
+	void changeNumBuildingClassInLiberatedCities(BuildingClassTypes eIndex, int iChange);
 
 	int getUnitsInLiberatedCities()	const;
 	void changeUnitsInLiberatedCities(int iChange);
@@ -2152,6 +2154,9 @@ public:
 
 #endif
 
+	bool IsResourceCityTradeable(ResourceTypes eResource, bool bCheckTeam = true) const;
+	bool IsResourceRevealed(ResourceTypes eResource, bool bCheckTeam = true) const;
+
 	int getSiphonLuxuryCount(PlayerTypes eFromPlayer) const;
 	void changeSiphonLuxuryCount(PlayerTypes eFromPlayer, int iChange);
 	
@@ -2247,6 +2252,9 @@ public:
 
 	int getSpecialistExtraYield(SpecialistTypes eIndex1, YieldTypes eIndex2) const;
 	void changeSpecialistExtraYield(SpecialistTypes eIndex1, YieldTypes eIndex2, int iChange);
+
+	int getYieldFromYieldGlobal(YieldTypes eIndex1, YieldTypes eIndex2) const;
+	void changeYieldFromYieldGlobal(YieldTypes eIndex1, YieldTypes eIndex2, int iChange);
 
 #if defined(MOD_API_UNIFIED_YIELDS)
 	int getPlotYieldChange(PlotTypes eIndex1, YieldTypes eIndex2) const;
@@ -2749,7 +2757,8 @@ public:
 	bool IsAtWarAnyMajor() const;
 	bool IsAtWarAnyMinor() const;
 	bool IsAtWarWith(PlayerTypes iPlayer) const;
-	int GetNumDangerousMajorsAtWarWith(bool bExcludePhonyWars, bool bExcludeIfNoTarget) const;
+	vector<PlayerTypes> GetWarAllies(PlayerTypes ePlayer) const;
+	int CountNumDangerousMajorsAtWarWith(bool bExcludePhonyWars, bool bExcludeIfNoTarget) const;
 	bool HasPantheon() const;
 	bool HasAnyReligion() const;
 	bool HasReligion(ReligionTypes iReligionType) const;
@@ -3181,7 +3190,6 @@ protected:
 	int m_iCityStateCombatModifier;
 	int m_iInfluenceForLiberation;
 	int m_iExperienceForLiberation;
-	BuildingClassTypes  m_eBuildingClassInLiberatedCities;
 	int m_iUnitsInLiberatedCities;
 #endif
 #if defined(MOD_BALANCE_CORE_SPIES)
@@ -3419,6 +3427,7 @@ protected:
 
 	bool m_bHasUUPeriod;
 	bool m_bNoNewWars;
+	bool m_bTerribleShapeForWar;
 	bool m_bHasBetrayedMinorCiv;
 	bool m_bAlive;
 	bool m_bEverAlive;
@@ -3479,6 +3488,7 @@ protected:
 	std::vector<int> m_aiYieldModifierFromActiveSpies;
 	std::vector<int> m_aiYieldFromDelegateCount;
 	std::vector<int> m_aiYieldForLiberation;
+	std::vector<int> m_aiBuildingClassInLiberatedCities;
 	std::vector<int> m_paiBuildingClassCulture;
 	std::vector<int> m_aiDomainFreeExperiencePerGreatWorkGlobal;
 	std::vector<int> m_aiCityYieldModFromMonopoly;
@@ -3570,6 +3580,7 @@ protected:
 	std::vector<bool> m_pabGetsScienceFromPlayer;
 
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppaaiSpecialistExtraYield;
+	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiYieldFromYieldGlobal;
 #if defined(MOD_API_UNIFIED_YIELDS)
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiPlotYieldChange;
 #endif
@@ -4198,6 +4209,7 @@ SYNC_ARCHIVE_VAR(int, m_iLastSliceMoved)
 SYNC_ARCHIVE_VAR(uint, m_uiStartTime)
 SYNC_ARCHIVE_VAR(bool, m_bHasUUPeriod)
 SYNC_ARCHIVE_VAR(bool, m_bNoNewWars)
+SYNC_ARCHIVE_VAR(bool, m_bTerribleShapeForWar)
 SYNC_ARCHIVE_VAR(bool, m_bHasBetrayedMinorCiv)
 SYNC_ARCHIVE_VAR(bool, m_bAlive)
 SYNC_ARCHIVE_VAR(bool, m_bEverAlive)

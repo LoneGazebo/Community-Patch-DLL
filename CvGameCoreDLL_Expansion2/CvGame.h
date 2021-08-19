@@ -325,6 +325,9 @@ public:
 
 	int GetDefaultFlavorValue() const;
 
+	int ComputeRatingStrengthAdjustment(PlayerTypes ePlayer, PlayerTypes ePerceivingPlayer);
+	int ComputeAverageMajorMilitaryRating(PlayerTypes ePerceivingPlayer, PlayerTypes eExcludedPlayer = NO_PLAYER);
+
 	// Diplomacy AI Options (configurable in DiploAIOptions.sql)
 	// Also consolidates some checks from various game options, for simplicity.
 	bool IsVictoryCompetitionEnabled() const;
@@ -342,13 +345,14 @@ public:
 	bool IsShowBaseHumanOpinion() const;
 
 	// Advanced Options
+	bool IsHideOpinionTable() const;
 	bool IsLumpGoldTradingHumanOnly() const;
 	bool IsLumpGoldTradingEnabled() const;
 	bool IsFriendshipRequestsDisabled() const; // Only affects humans
 	bool IsGiftOffersDisabled() const; // Only affects humans
 	bool IsCoopWarRequestsDisabled() const; // Only affects humans
 	bool IsHelpRequestsDisabled() const; // Only affects humans
-	bool IsTradeOffersDisabled() const; // Only affects humans
+	bool IsTradeOffersDisabled(bool bIncludeRenewals = false) const; // Only affects humans
 	bool IsPeaceOffersDisabled() const; // Only affects humans
 	bool IsAllDiploStatementsDisabled() const; // Only affects humans
 	bool IsAIPassiveMode() const;

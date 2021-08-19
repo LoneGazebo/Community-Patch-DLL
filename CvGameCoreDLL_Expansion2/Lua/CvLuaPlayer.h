@@ -59,6 +59,8 @@ protected:
 	static int lGetResourcesMisc(lua_State* L);
 	static int lIsShowImports(lua_State* L);
 #endif
+	static int lIsResourceCityTradeable(lua_State* L);
+	static int lIsResourceRevealed(lua_State* L);
 	static int lDisbandUnit(lua_State* L);
 	static int lAddFreeUnit(lua_State* L);
 
@@ -1013,6 +1015,7 @@ protected:
 	static int lDoTradeScreenClosed(lua_State* L);
 	static int lGetMajorCivApproach(lua_State* L);
 	static int lGetApproachTowardsUsGuess(lua_State* L);
+	static int lIsActHostileTowardsHuman(lua_State* L);
 	static int lIsWillAcceptPeaceWithPlayer(lua_State* L);
 	static int lIsProtectingMinor(lua_State* L);
 	static int lIsDontSettleMessageTooSoon(lua_State* L);

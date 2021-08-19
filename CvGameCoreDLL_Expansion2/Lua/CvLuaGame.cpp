@@ -321,6 +321,8 @@ void CvLuaGame::RegisterMembers(lua_State* L)
 
 	Method(GetCustomOption);
 
+	Method(IsHideOpinionTable);
+
 	Method(GetNumCitiesPolicyCostMod);
 	Method(GetNumCitiesTechCostMod);
 	Method(GetNumCitiesTourismCostMod);
@@ -2238,6 +2240,13 @@ int CvLuaGame::lGetCustomOption(lua_State* L)
 	return 0;
 }
 //------------------------------------------------------------------------------
+int CvLuaGame::lIsHideOpinionTable(lua_State* L)
+{
+	bool bResult = GC.getGame().IsHideOpinionTable();
+	lua_pushboolean(L, bResult);
+	return 1;
+}
+//------------------------------------------------------------------------------
 int CvLuaGame::lGetNumCitiesPolicyCostMod(lua_State* L)
 {
 	lua_pushinteger(L, GC.getMap().getWorldInfo().GetNumCitiesPolicyCostMod());
@@ -2940,12 +2949,13 @@ int CvLuaGame::lEnhancePantheon(lua_State* L)
 	const PlayerTypes ePlayer = static_cast<PlayerTypes>(luaL_checkint(L, 1));
 	const BeliefTypes eBelief = static_cast<BeliefTypes>(luaL_checkint(L, 2));
 	const bool bNotify = luaL_optbool(L, 3, true);
+	const bool bSetAsEnhanced = luaL_optbool(L, 4, true);
 	
 	// If this player has created a (local) religion, we need to enhance that instead!
 	ReligionTypes eReligion = GC.getGame().GetGameReligions()->GetReligionCreatedByPlayer(ePlayer);
 	if (eReligion == NO_RELIGION) eReligion = RELIGION_PANTHEON;
 
-	GC.getGame().GetGameReligions()->EnhanceReligion(ePlayer, eReligion, eBelief, NO_BELIEF, bNotify);
+	GC.getGame().GetGameReligions()->EnhanceReligion(ePlayer, eReligion, eBelief, NO_BELIEF, bNotify, bSetAsEnhanced);
 
 	return 0;
 }

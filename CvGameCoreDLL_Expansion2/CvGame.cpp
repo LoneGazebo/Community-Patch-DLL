@@ -6161,6 +6161,70 @@ int CvGame::GetDefaultFlavorValue() const
 	return iDefaultFlavorValue;
 }
 
+//	-----------------------------------------------------------------------------------------------
+/// Modify military strength perception based on skill rating
+int CvGame::ComputeRatingStrengthAdjustment(PlayerTypes ePlayer, PlayerTypes ePerceivingPlayer)
+{
+	if (!GET_PLAYER(ePlayer).isMajorCiv())
+		return 100;
+	
+	int iCivRating = GET_PLAYER(ePlayer).GetMilitaryRating();
+	int iAverageRating = ComputeAverageMajorMilitaryRating(ePerceivingPlayer, /*eExcludedPlayer*/ ePlayer);
+
+	// There are no other major civs - don't adjust
+	if (iAverageRating == -1)
+		return 100;
+
+	// Calculate the percentage difference from the average
+	int iPercentageDifference = ((iCivRating * 100) - (iAverageRating * 100)) / max(iAverageRating, 1);
+	if (iPercentageDifference < 0)
+		iPercentageDifference *= -1; // need the absolute value
+
+	int iRtnValue = 100;
+
+	// If above average, apply the % difference as a positive modifier to strength, cap above at +100%
+	if (iCivRating > iAverageRating)
+	{
+		iRtnValue = min((100 + iPercentageDifference), 200);
+	}
+	// If below average, apply the % difference as a negative modifier to strength, cap below at -50%
+	else if (iCivRating < iAverageRating)
+	{
+		iRtnValue = max((100 - iPercentageDifference), 50);
+	}
+
+	return iRtnValue;
+}
+
+/// What is the average (living) major civ's military rating (only counting players that we know)?
+int CvGame::ComputeAverageMajorMilitaryRating(PlayerTypes ePerceivingPlayer, PlayerTypes eExcludedPlayer /* = NO_PLAYER */)
+{
+	int iTotalRating = 0;
+	int iNumCivs = 0;
+	
+	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+	{
+		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+		
+		if (eLoopPlayer == eExcludedPlayer)
+			continue;
+
+		if (GET_PLAYER(ePerceivingPlayer).isMajorCiv() && !GET_PLAYER(ePerceivingPlayer).GetDiplomacyAI()->IsHasMet(eLoopPlayer, true))
+			continue;
+		
+		if (GET_PLAYER(eLoopPlayer).isAlive() && GET_PLAYER(eLoopPlayer).isMajorCiv() && GET_PLAYER(eLoopPlayer).getNumCities() > 0)
+		{
+			iTotalRating += GET_PLAYER(eLoopPlayer).GetMilitaryRating();
+			iNumCivs++;
+		}
+	}
+
+	if (iNumCivs == 0)
+		return -1;
+	
+	return (iTotalRating / iNumCivs);
+}
+
 ///	-----------------------------------------------------------------------------------------------
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 /// Diplomacy AI Options - Configurable in DiploAIOptions.sql
@@ -6364,6 +6428,23 @@ bool CvGame::IsShowBaseHumanOpinion() const
 	return false;
 }
 
+/// Hide Opinion Table
+/// Overrides Transparent Diplomacy, Show All Opinion Modifiers, and Show All Opinion Values.
+bool CvGame::IsHideOpinionTable() const
+{
+	if (IsDiploDebugModeEnabled())
+	{
+		return false;
+	}
+
+	if (GC.getDIPLOAI_HIDE_OPINION_TABLE() > 0)
+	{
+		return true;
+	}
+
+	return false;
+}
+
 /// Enable Lump Sum Gold Trading
 bool CvGame::IsLumpGoldTradingHumanOnly() const
 {
@@ -6435,11 +6516,21 @@ bool CvGame::IsHelpRequestsDisabled() const
 
 /// Disable Trade Offers
 /// Only affects human players, and only affects trade offers sent by the AI on their turn. Does not affect peace offers.
-bool CvGame::IsTradeOffersDisabled() const
+bool CvGame::IsTradeOffersDisabled(bool bIncludeRenewals) const
 {
-	if (GC.getDIPLOAI_DISABLE_TRADE_OFFERS() > 0)
+	if (bIncludeRenewals)
 	{
-		return true;
+		if (GC.getDIPLOAI_DISABLE_TRADE_OFFERS() > 1)
+		{
+			return true;
+		}
+	}
+	else
+	{
+		if (GC.getDIPLOAI_DISABLE_TRADE_OFFERS() > 0)
+		{
+			return true;
+		}
 	}
 
 	return false;

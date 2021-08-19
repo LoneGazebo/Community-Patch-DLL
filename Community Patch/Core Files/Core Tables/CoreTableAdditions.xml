@@ -79,7 +79,14 @@
 		<Column name="YieldIn" type="integer" reference="Yields(Type)"/>
 		<Column name="Value" type="integer" default="0"/>
 	</Table>
-
+	<!-- Allows you to define a yield that generates another yield for every x% you produce in that city, in every city. -->
+	<Table name="Building_YieldFromYieldPercentGlobal">
+		<Column name="BuildingType" type="text" reference="Buildings(Type)"/>
+		<Column name="YieldOut" type="integer" reference="Yields(Type)"/>
+		<Column name="YieldIn" type="integer" reference="Yields(Type)"/>
+		<Column name="Value" type="integer" default="0"/>
+	</Table>
+	
 	<!-- Allows you to define an instant yield granted when a tech is unlocked. -->
 	<Table name="Building_YieldFromTech">
 		<Column name="BuildingType" type="text" reference="Buildings(Type)"/>
@@ -606,6 +613,13 @@
 		<Column name="Yield" type="integer" default="0"/>
 	</Table>
 	
+	<!-- POLICY: Liberating a city gives that city this buildingclass -->
+	<Table name="Policy_BuildingClassInLiberatedCities">
+		<Column name="PolicyType" type="text" reference="Policies(Type)"/>
+		<Column name="BuildingClassType" type="text" reference="BuildingClasses(Type)"/>
+		<Column name="Count" type="integer" default="0"/>
+	</Table>
+	
 	<!-- BUILDING: Allows you to define a building yield earned from a GP being expended -->
 	<Table name="Building_YieldFromGPExpend">
 		<Column name="BuildingType" type="text" reference="Buildings(Type)"/>
@@ -1069,6 +1083,14 @@
 		<Column name="YieldType" type="text" reference="Yields(Type)"/>
 		<Column name="Yield" type="integer" notnull="true"/>
 		<Column name="IsGrantedToTradePartner" type="boolean" default="true"/>
+	</Table>
+
+	<!-- TRAIT: Reveals a resource at a different tech. Tech can be earlier or later than normal. If no tech is defined in either tech row, the game will use the value defined in the Resources table. -->
+	<Table name="Trait_AlternateResourceTechs">
+		<Column name="TraitType" type="text" reference="Traits(Type)" notnull="true"/>
+		<Column name="ResourceType" type="text" reference="Resources(Type)" notnull="true"/>
+		<Column name="TechReveal" type="text" reference="Technologies(Type)"/>
+		<Column name="TechCityTrade" type="text" reference="Technologies(Type)"/>
 	</Table>
 	
 	<!-- RESOURCES: Allows Resources to grant bonuses if you control a monopoly of the resource. Must have DEALS functions enabled to use. -->

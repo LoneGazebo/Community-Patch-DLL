@@ -1980,14 +1980,14 @@ local function GetReligionTooltip(city)
 				local religionName = L( Game.GetReligionName(religionID) )
 				local religionIcon = tostring(religion.IconString)
 
-				if pressureLevel > 0 or numFollowers > 0 then
+				if math_floor(pressureLevel/pressureMultiplier) > 0 or numFollowers > 0 then
 
 					local religionTip = ""
 					if pressureLevel > 0 then
 						religionTip = L( "TXT_KEY_RELIGIOUS_PRESSURE_STRING", math_floor(pressureLevel/pressureMultiplier))
 					end
 
-					if numTradeRoutesAddingPressure and numTradeRoutesAddingPressure > 0 then
+					if numTradeRoutesAddingPressure > 0 then
 						religionTip = L( "TXT_KEY_RELIGION_TOOLTIP_LINE_WITH_TRADE", religionIcon, numFollowers, religionTip, numTradeRoutesAddingPressure)
 					else
 						religionTip = L( "TXT_KEY_RELIGION_TOOLTIP_LINE", religionIcon, numFollowers, religionTip)

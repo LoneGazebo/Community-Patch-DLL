@@ -10,19 +10,11 @@
 #ifndef CIV5_AI_DIPLOMACY_H
 #define CIV5_AI_DIPLOMACY_H
 
-#include "CvDiplomacyAIEnums.h"
-#include "CvDealClasses.h"
-#include "CvMinorCivAI.h"
-
-#define BULLY_DEBUGGING false
-
-#if defined(MOD_EVENTS_DIPLO_MODIFIERS)
 struct Opinion
 {
 	Localization::String m_str;
 	int m_iValue;
 };
-#endif
 
 struct DiploLogData
 {
@@ -53,15 +45,10 @@ FDataStream& operator>>(FDataStream&, DeclarationLogData&);
 #define MAX_DIPLO_LOG_STATEMENTS 60
 #define MAX_TURNS_SAFE_ESTIMATE 9999
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//  CLASS:      CvDiplomacyAI
-//!  \brief		Drives the diplomatic interaction of a player
-//
-//!  Author:	Jon Shafer
-//
-//!  Key Attributes:
-//!  - Object created by CvPlayer
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//=====================================
+// CvDiplomacyAI
+//=====================================
+
 class CvDiplomacyAI
 {
 public:
@@ -115,7 +102,6 @@ public:
 	bool IsMaster(PlayerTypes eOtherPlayer) const;
 	bool IsVoluntaryVassalage(PlayerTypes eOtherPlayer) const;
 	vector<PlayerTypes> GetLinkedWarPlayers(PlayerTypes eOtherPlayer, bool bIgnoreDefensivePacts, bool bIncludeMinors, bool bIncludeUnmet) const;
-	vector<PlayerTypes> GetWarAllies(PlayerTypes ePlayer) const;
 
 	// ************************************
 	// Personality Values
@@ -947,9 +933,6 @@ public:
 	void SetHelpRequestTooSoonNumTurns(PlayerTypes ePlayer, int iValue);
 	bool IsHelpRequestTooSoon(PlayerTypes ePlayer) const;
 
-	bool IsTargetingVassal(PlayerTypes ePlayer) const;
-	void SetTargetingVassal(PlayerTypes ePlayer, bool bValue);
-
 	bool IsHasPaidTributeTo(PlayerTypes ePlayer) const;
 	void SetHasPaidTributeTo(PlayerTypes ePlayer, bool bValue);
 
@@ -1040,9 +1023,6 @@ public:
 	PlayerTypes GetHighestWarscorePlayer();
 
 	void DoUpdatePlayerMilitaryStrengths();
-	int ComputeRatingStrengthAdjustment(PlayerTypes ePlayer);
-	int ComputeAverageMajorMilitaryRating(PlayerTypes eExcludedPlayer = NO_PLAYER);
-
 	void DoUpdatePlayerEconomicStrengths();
 
 	void DoUpdateWarmongerThreats(bool bUpdateOnly = false);
@@ -1105,7 +1085,7 @@ public:
 
 	void DoUpdateOpinions();
 	void DoUpdateOnePlayerOpinion(PlayerTypes ePlayer);
-	int GetCivOpinionWeight(PlayerTypes ePlayer);
+	int CalculateCivOpinionWeight(PlayerTypes ePlayer);
 #if defined(MOD_ACTIVE_DIPLOMACY)
 	void DoUpdateHumanTradePriority(PlayerTypes ePlayer, int iOpinionWeight); // <= JdH
 #endif
@@ -1118,7 +1098,7 @@ public:
 	// ------------------------------------
 
 	void DoUpdateGlobalPolitics();
-	void DoReevaluatePlayers(vector<PlayerTypes>& vTargetPlayers, bool bFromWar = false, bool bCancelExchanges = true);
+	void DoReevaluatePlayers(vector<PlayerTypes>& vTargetPlayers, bool bFromWar = false, bool bCancelExchanges = true, bool bFromResurrection = false);
 	void DoUpdateMajorCompetitors();
 	void DoUpdateMajorCivApproaches(vector<PlayerTypes>& vPlayersToReevaluate, bool bStrategic);
 
@@ -1144,6 +1124,7 @@ public:
 	bool IsGoodChoiceForResearchAgreement(PlayerTypes ePlayer);
 	bool IsCanMakeResearchAgreementRightNow(PlayerTypes ePlayer);
 	PlayerTypes GetHighestScoringDefensivePact(vector<PlayerTypes>& vAcceptableChoices, vector<PlayerTypes>& vPlayersToExclude);
+	int ScoreDefensivePactChoice(PlayerTypes eChoice, bool bCoastal);
 
 	// War!
 	void DoUpdateWarTargets();
@@ -1285,7 +1266,7 @@ public:
 
 	void DoUpdateMinorCivProtection(PlayerTypes eMinor, CivApproachTypes eApproach);
 
-	void DoCoopWarTimeStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement, int& iData1);
+	//void DoCoopWarTimeStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement, int& iData1);
 	void DoCoopWarStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement, int& iData1);
 
 	void DoMakeDemand(PlayerTypes ePlayer);
@@ -1557,8 +1538,11 @@ public:
 	int GetPolicyBlockLevelScore(PlayerTypes ePlayer);
 	int GetVictoryDisputeLevelScore(PlayerTypes ePlayer);
 	int GetVictoryBlockLevelScore(PlayerTypes ePlayer);
+	int GetRecklessExpanderScore(PlayerTypes ePlayer);
+	int GetWonderSpammerScore(PlayerTypes ePlayer);
 
 	// War Stuff
+	int GetMilitaryAggressivePostureScore(PlayerTypes ePlayer);
 	int GetWarmongerThreatScore(PlayerTypes ePlayer);
 	int GetTradeRoutesPlunderedScore(PlayerTypes ePlayer);
 	int GetCivilianKillerScore(PlayerTypes ePlayer);
@@ -1650,15 +1634,14 @@ public:
 
 	// Traitor Opinion
 	int GetFriendDenouncementScore(PlayerTypes ePlayer);
-	int GetWeDenouncedFriendScore(PlayerTypes ePlayer);
+	int GetPlayerDenouncedFriendScore(PlayerTypes ePlayer);
 	int GetFriendDenouncedUsScore(PlayerTypes ePlayer);
-	int GetWeDeclaredWarOnFriendScore(PlayerTypes ePlayer);
-	int GetFriendDeclaredWarOnUsScore(PlayerTypes ePlayer);
+	int GetPlayerAttackedVassalScore(PlayerTypes ePlayer);
+	int GetMasterAttackedUsScore(PlayerTypes ePlayer);
+	int GetPlayerAttackedFriendScore(PlayerTypes ePlayer);
+	int GetFriendAttackedUsScore(PlayerTypes ePlayer);
+	int GetPlayerAttackedResurrectedCivScore(PlayerTypes ePlayer);
 	int GetResurrectorAttackedUsScore(PlayerTypes ePlayer);
-
-	// Reckless Expander / Wonder Spammer
-	int GetRecklessExpanderScore(PlayerTypes ePlayer);
-	int GetWonderSpammerScore(PlayerTypes ePlayer);
 
 	// World Congress
 	int GetLeagueAlignmentScore(PlayerTypes ePlayer);
@@ -1681,7 +1664,6 @@ public:
 	int GetSameMasterScore(PlayerTypes ePlayer) const;
 	int GetHappyAboutVassalagePeacefullyRevokedScore(PlayerTypes ePlayer);
 	int GetAngryAboutVassalageForcefullyRevokedScore(PlayerTypes ePlayer);
-	int GetBrokenVassalAgreementScore(PlayerTypes ePlayer) const;
 
 	// Scenario-Specific
 #if defined(MOD_EVENTS_DIPLO_MODIFIERS)
@@ -2086,7 +2068,6 @@ private:
 	bool m_abHasPaidTributeTo[MAX_MAJOR_CIVS];
 	int m_aiBrokenVassalAgreementTurn[MAX_MAJOR_CIVS];
 	short m_aiPlayerVassalageFailedProtectValue[MAX_MAJOR_CIVS];
-	bool m_abTargetingVassal[MAX_MAJOR_CIVS];
 	short m_aiPlayerVassalageProtectValue[MAX_MAJOR_CIVS];
 	int m_aiPlayerVassalagePeacefullyRevokedTurn[MAX_MAJOR_CIVS];
 	int m_aiPlayerVassalageForcefullyRevokedTurn[MAX_MAJOR_CIVS];

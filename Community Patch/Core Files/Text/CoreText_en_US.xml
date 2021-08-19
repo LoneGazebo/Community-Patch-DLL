@@ -2694,7 +2694,7 @@
 			<Text>You promised not to declare war on them for {1_Num} more turn(s).</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_EXPANSION_PROMISE_TURNS">
-			<Text>You promised not to settle near them for {1_Num} more turn(s).</Text>
+			<Text>You promised not to expand near them for {1_Num} more turn(s).</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_BORDER_PROMISE_TURNS">
 			<Text>You promised not to buy land near them for {1_Num} more turn(s).</Text>
@@ -2703,7 +2703,7 @@
 			<Text>They promised not to declare war on you for {1_Num} more turn(s).</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_AI_EXPANSION_PROMISE_TURNS">
-			<Text>They promised not to settle near you for {1_Num} more turn(s).</Text>
+			<Text>They promised not to expand near you for {1_Num} more turn(s).</Text>
 		</Row>
 		<!-- Tourism Lua -->
 		<Row Tag="TXT_KEY_CO_CITY_TOURISM_GENERAL">
@@ -3008,6 +3008,11 @@
 		<Row Tag="TXT_KEY_DIPLO_MUTUAL_DENOUNCEMENT">
 			<Text>We have denounced each other!</Text>
 		</Row>
+
+		<!-- Stolen Territory Diplo Mod (human version) -->
+		<Row Tag="TXT_KEY_DIPLO_CULTURE_BOMB_HUMAN">
+			<Text>You stole their territory!</Text>
+		</Row>
 		
 		<!-- Tech Dispute Mod (for scientific civs) -->
 		<Row Tag="TXT_KEY_DIPLO_TECH_BLOCK">
@@ -3062,6 +3067,17 @@
 			<Text>We are vassals of the same master!</Text>
 		</Row>
 
+		<!-- New Traitor Opinion Diplo Mods -->
+		<Row Tag="TXT_KEY_DIPLO_ATTACKED_OWN_VASSAL">
+			<Text>You declared war on your own vassal!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_ATTACKED_RESURRECTED_CIV">
+			<Text>You have declared war on civilizations that you've resurrected!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_RESURRECTOR_ATTACKED_US">
+			<Text>You restored their civilization and then declared war on them!</Text>
+		</Row>
+
 		<!-- Civilian Killer Diplo Mods -->
 		<Row Tag="TXT_KEY_DIPLO_RAZED">
 			<Text>You killed or captured their civilians!</Text>
@@ -3091,11 +3107,6 @@
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_AGGRESSIVE_POSTURE_HIGH">
 			<Text>Your military deployment is extremely threatening.</Text>
-		</Row>
-
-		<!-- Attacked Resurrected Civ Diplo Mod -->
-		<Row Tag="TXT_KEY_DIPLO_RESURRECTOR_ATTACKED_US">
-			<Text>You restored their civilization and then declared war on them!</Text>
 		</Row>
 
 		<!-- Religion Diplo Mods -->

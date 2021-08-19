@@ -93,6 +93,8 @@ ALTER TABLE Policies ADD COLUMN 'TechCostXCitiesMod' INTEGER DEFAULT 0;
 -- And reduce tourism cost from cities
 ALTER TABLE Policies ADD COLUMN 'TourismCostXCitiesMod' INTEGER DEFAULT 0;
 
+-- MaxAirUnitsChangeGlobal - every city gets that many air unit slots
+ALTER TABLE Policies ADD COLUMN 'MaxAirUnitsChangeGlobal' INTEGER DEFAULT 0;
 
 -- Policy - reduces policy cost of Wonders by 1 for every x CS allies
 ALTER TABLE Policies ADD COLUMN 'XCSAlliesLowersPolicyNeedWonders' INTEGER DEFAULT 0;
@@ -104,6 +106,9 @@ ALTER TABLE Policies ADD COLUMN 'StealGWFasterModifier' INTEGER DEFAULT 0;
 
 -- Policy Branch - number of unlocked policies (finishers excluded) before branch is unlocked.
 ALTER TABLE PolicyBranchTypes ADD COLUMN 'NumPolicyRequirement' INTEGER DEFAULT 100;
+
+-- A font icon for an ideology
+ALTER TABLE PolicyBranchTypes ADD COLUMN 'FontIcon' TEXT DEFAULT NULL;
 
 -- Belief - increases pressure from trade routes
 
@@ -434,9 +439,6 @@ ALTER TABLE Policies ADD COLUMN 'InfluenceAllCSFromLiberation' INTEGER DEFAULT 0
 
 -- Liberating a city gives that city some units 
 ALTER TABLE Policies ADD COLUMN 'NumUnitsInLiberatedCities' INTEGER DEFAULT 0;
-
--- Liberating a city gives that city 1 buildingclass
-ALTER TABLE Policies ADD COLUMN 'BuildingClassInLiberatedCities' INTEGER DEFAULT 0;
 
 -- Liberating a city gives XP to all units
 ALTER TABLE Policies ADD COLUMN 'ExperienceAllUnitsFromLiberation' INTEGER DEFAULT 0;
@@ -803,6 +805,12 @@ ALTER TABLE Buildings ADD COLUMN 'RequiresRail' BOOLEAN DEFAULT 0;
 
 -- Civ-specific building (but not necessarily a UB!)
 ALTER TABLE Buildings ADD COLUMN 'CivilizationRequired' TEXT DEFAULT NULL;
+
+-- reduces purchase cooldown on units
+ALTER TABLE Buildings ADD COLUMN 'PurchaseCooldownReduction' INTEGER DEFAULT 0;
+
+-- reduces purchase cooldown on civilian units
+ALTER TABLE Buildings ADD COLUMN 'PurchaseCooldownReductionCivilian' INTEGER DEFAULT 0;
 
 -- Allows you to define a an amount of Tourism gained from GP birth, WW creation, and CS quest completion. Scales with gamespeed. -- 
 ALTER TABLE Policies ADD COLUMN 'EventTourismCS' INTEGER DEFAULT 0;
@@ -1424,6 +1432,9 @@ ALTER TABLE Buildings ADD 'NukeInterceptionChance' INTEGER DEFAULT 0;
 -- Table for Lua elements that we don't want shown in Civ selection screen or in Civilopedia
 ALTER TABLE Buildings ADD 'ShowInPedia' BOOLEAN DEFAULT 1;
 
+-- Gives a boost of pressure in the city when built (based on what the religion is in your capital)
+ALTER TABLE Buildings ADD 'InstantReligiousPressure' INTEGER DEFAULT 0;
+
 -- Promotion grants additional religious pressure when this unit is garrisoned in the city (if the player has a religion).
 ALTER TABLE UnitPromotions ADD COLUMN 'ReligiousPressureModifier' INTEGER DEFAULT 0;
 
@@ -1586,4 +1597,3 @@ ALTER TABLE Traits
   ADD ExtraSupplyPerPopulation INTEGER DEFAULT 0;
 
 INSERT INTO CustomModDbUpdates(Name, Value) VALUES('TRAITS_EXTRA_SUPPLY', 1);
-

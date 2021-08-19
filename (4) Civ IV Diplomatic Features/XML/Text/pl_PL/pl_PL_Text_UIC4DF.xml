@@ -120,14 +120,14 @@
 		<Row Tag="TXT_KEY_DIPLO_VASSAL_FAILED_PROTECT">
 			<Text>Nie chroniłeś ich miast kiedy byli twoim wasalem!</Text>
 		</Row>
+		<Row Tag="TXT_KEY_DIPLO_MASTER_LIBERATED_ME_FROM_VASSALAGE">
+			<Text>Wyzwoliłeś ich, nie będąc o to proszonym.</Text>
+		</Row>
 		<Row Tag="TXT_KEY_DIPLO_VASSAL_PEACEFULLY_REVOKED">
 			<Text>Przyznałeś im niepodległość!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_VASSAL_FORCEFULLY_REVOKED">
 			<Text>Odmówiłeś przyznania im niepodległości kiedy prosili!</Text>
-		</Row>
-		<Row Tag="TXT_KEY_DIPLO_ATTACKED_MY_VASSAL">
-			<Text>Wypowiedziałeś wojnę ich wasalowi!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_ATTACKED_VASSAL_ME">
 			<Text>Wypowiedziałeś im wojnę kiedy byli twoim wasalem!</Text>
@@ -137,9 +137,6 @@
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_TOO_MANY_VASSALS">
 			<Text>Obawiają się posiadania przez ciebie wielu wasali!</Text>
-		</Row>
-		<Row Tag="TXT_KEY_DIPLO_MASTER_LIBERATED_ME_FROM_VASSALAGE">
-			<Text>Wyzwoliłeś ich, nie będąc o to proszonym.</Text>
 		</Row>
 		<!-- Diplomacy Screen -->
 		<Row Tag="TXT_KEY_YOUR_CIV">

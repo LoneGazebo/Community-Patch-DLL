@@ -416,6 +416,9 @@ public:
 
 	bool IsResourceObsolete(ResourceTypes eResource);
 
+	bool IsResourceCityTradeable(ResourceTypes eResource) const;
+	bool IsResourceRevealed(ResourceTypes eResource) const;
+
 	bool HasTechForWorldCongress() const;
 	void SetHasTechForWorldCongress(bool bValue);
 

@@ -1063,7 +1063,14 @@ function GetMoodInfo(iOtherPlayer)
 		-- Appears Hostile
 		elseif (iVisibleApproach == MajorCivApproachTypes.MAJOR_CIV_APPROACH_HOSTILE) then
 			return "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_DIPLO_HOSTILE");
-		-- Neutral - default string
+		-- Appears Neutral, opinions deliberately hidden
+		elseif (Game.IsHideOpinionTable() and (pOtherTeam:GetTurnsSinceMeetingTeam(pActivePlayer:GetTeam()) ~= 0 or pOtherPlayer:IsActHostileTowardsHuman(iActivePlayer))) then
+			if (pOtherPlayer:IsActHostileTowardsHuman(iActivePlayer)) then
+				return "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_DIPLO_NEUTRAL_HOSTILE");
+			else
+				return "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_DIPLO_NEUTRAL_FRIENDLY");
+			end
+		-- Appears Neutral, no opinions
 		else
 			return "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_DIPLO_DEFAULT_STATUS");
 		end

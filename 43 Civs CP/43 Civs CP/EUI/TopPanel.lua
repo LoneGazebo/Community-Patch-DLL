@@ -378,6 +378,16 @@ local function UpdateTopPanelNow()
 	-----------------------------
 	-- Update Resources
 	-----------------------------
+	
+	local leaderID = -1;
+	local traitType = "";
+	if g_activePlayer ~= nil then
+		leaderID = g_activePlayer:GetLeaderType();
+		for leaderTraits in DB.Query( "SELECT TraitType FROM Leader_Traits INNER JOIN Leaders on Leaders.Type = LeaderType WHERE Leaders.ID = " .. leaderID ) do
+			traitType = leaderTraits.TraitType;
+			break;
+		end
+	end
 
 	for resourceID, resourceInstance in pairs( g_resourceString ) do
 		local resource = GameInfo.Resources[ resourceID ]
@@ -385,8 +395,8 @@ local function UpdateTopPanelNow()
 		local numResourceUsed = g_activePlayer:GetNumResourceUsed( resourceID )
 
 		if numResourceUsed > 0
-			or ( g_activeTeamTechs:HasTech(GameInfoTypes[resource.TechReveal])
-			and ( civBE_mode or g_activeTeamTechs:HasTech(GameInfoTypes[resource.TechCityTrade]) ) )
+			or ( g_activePlayer:IsResourceRevealed(resourceID)
+			and ( civBE_mode or g_activePlayer:IsResourceCityTradeable(resourceID) ) )
 		then
 			resourceInstance:SetText( Colorize( g_activePlayer:GetNumResourceAvailable(resourceID, true) ) .. resource.IconString )
 		else
@@ -2085,8 +2095,8 @@ local function ResourcesToolTip( control )
 		local numResourceUsed = g_activePlayer:GetNumResourceUsed( resourceID )
 
 		if numResourceUsed > 0 or
-			( g_activeTeamTechs:HasTech( GameInfoTypes[ resource.TechReveal ] ) and
-			g_activeTeamTechs:HasTech( GameInfoTypes[ resource.TechCityTrade ] ) )
+			( g_activePlayer:IsResourceRevealed(resourceID) and
+			g_activePlayer:IsResourceCityTradeable(resourceID) )
 		then
 --			local numResourceTotal = g_activePlayer:GetNumResourceTotal( resourceID, true )	-- true means includes both imports & minors - but exports are deducted regardless
 			local numResourceAvailable = g_activePlayer:GetNumResourceAvailable( resourceID, true )	-- same as (total - used)

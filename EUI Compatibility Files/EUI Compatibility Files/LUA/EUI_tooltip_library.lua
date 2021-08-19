@@ -2435,14 +2435,14 @@ local function GetReligionTooltip(city)
 				local religionName = L( Game.GetReligionName(religionID) )
 				local religionIcon = tostring(religion.IconString)
 
-				if pressureLevel > 0 or numFollowers > 0 then
+				if math_floor(pressureLevel/pressureMultiplier) > 0 or numFollowers > 0 then
 
 					local religionTip = ""
 					if pressureLevel > 0 then
 						religionTip = L( "TXT_KEY_RELIGIOUS_PRESSURE_STRING", math_floor(pressureLevel/pressureMultiplier))
 					end
 
-					if numTradeRoutesAddingPressure and numTradeRoutesAddingPressure > 0 then
+					if numTradeRoutesAddingPressure > 0 then
 						religionTip = L( "TXT_KEY_RELIGION_TOOLTIP_LINE_WITH_TRADE", religionIcon, numFollowers, religionTip, numTradeRoutesAddingPressure)
 					else
 						religionTip = L( "TXT_KEY_RELIGION_TOOLTIP_LINE", religionIcon, numFollowers, religionTip)
@@ -3005,9 +3005,16 @@ local function GetMoodInfo( playerID )
 			elseif visibleApproachID == MajorCivApproachTypes.MAJOR_CIV_APPROACH_HOSTILE then
 				opinions = { L"TXT_KEY_DIPLO_HOSTILE" }
 			-- Appears Afraid
-			elseif visibleApproachID == MajorCivApproachTypes.MAJOR_CIV_APPROACH_AFRAID  then
+			elseif visibleApproachID == MajorCivApproachTypes.MAJOR_CIV_APPROACH_AFRAID then
 				opinions = { L"TXT_KEY_DIPLO_AFRAID" }
-			-- Neutral - default string
+			-- Appears Neutral, opinions deliberately hidden
+			elseif (Game.IsHideOpinionTable() and (team:GetTurnsSinceMeetingTeam(activeTeamID) ~= 0 or player:IsActHostileTowardsHuman(activePlayerID))) then
+				if player:IsActHostileTowardsHuman(activePlayerID) then
+					opinions = { L"TXT_KEY_DIPLO_NEUTRAL_HOSTILE" }
+				else
+					opinions = { L"TXT_KEY_DIPLO_NEUTRAL_FRIENDLY" }
+				end
+			-- Appears Neutral, no opinions
 			else
 				opinions = { L"TXT_KEY_DIPLO_DEFAULT_STATUS" }
 			end
@@ -3034,9 +3041,16 @@ local function GetMoodInfo( playerID )
 			elseif visibleApproachID == MajorCivApproachTypes.MAJOR_CIV_APPROACH_HOSTILE then
 				opinions = { L"TXT_KEY_DIPLO_HOSTILE" }
 			-- Appears Afraid
-			elseif visibleApproachID == MajorCivApproachTypes.MAJOR_CIV_APPROACH_AFRAID  then
+			elseif visibleApproachID == MajorCivApproachTypes.MAJOR_CIV_APPROACH_AFRAID then
 				opinions = { L"TXT_KEY_DIPLO_AFRAID" }
-			-- Neutral - default string
+			-- Appears Neutral, opinions deliberately hidden
+			elseif (Game.IsHideOpinionTable() and team:GetTurnsSinceMeetingTeam(activeTeamID) ~= 0) then
+				if player:IsActHostileTowardsHuman(activePlayerID) then
+					opinions = { L"TXT_KEY_DIPLO_NEUTRAL_HOSTILE" }
+				else
+					opinions = { L"TXT_KEY_DIPLO_NEUTRAL_FRIENDLY" }
+				end
+			-- Appears Neutral, no opinions
 			else
 				opinions = { L"TXT_KEY_DIPLO_DEFAULT_STATUS" }
 			end

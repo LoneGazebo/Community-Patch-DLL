@@ -64,6 +64,8 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetResourcesMisc);
 	Method(IsShowImports);
 #endif
+	Method(IsResourceCityTradeable);
+	Method(IsResourceRevealed);
 	Method(DisbandUnit);
 	Method(AddFreeUnit);
 
@@ -931,6 +933,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(DoTradeScreenClosed);
 	Method(GetMajorCivApproach);
 	Method(GetApproachTowardsUsGuess);
+	Method(IsActHostileTowardsHuman);
 	Method(IsWillAcceptPeaceWithPlayer);
 	Method(IsProtectingMinor);
 	Method(IsDontSettleMessageTooSoon);
@@ -1646,6 +1649,32 @@ int CvLuaPlayer::lIsShowImports(lua_State* L)
 	return 1;
 }
 #endif
+//------------------------------------------------------------------------------
+//bool IsResourceCityTradeable(ResourceTypes eResource, bool bCheckTeam = true) const;
+int CvLuaPlayer::lIsResourceCityTradeable(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const ResourceTypes eResource = (ResourceTypes)lua_tointeger(L, 2);
+	const bool bCheckTeam = luaL_optbool(L, 3, true);
+
+	const bool bResult = pkPlayer->IsResourceCityTradeable(eResource, bCheckTeam);
+	lua_pushboolean(L, bResult);
+
+	return 1;
+}
+//------------------------------------------------------------------------------
+//bool IsResourceRevealed(ResourceTypes eResource, bool bCheckTeam = true) const;
+int CvLuaPlayer::lIsResourceRevealed(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const ResourceTypes eResource = (ResourceTypes)lua_tointeger(L, 2);
+	const bool bCheckTeam = luaL_optbool(L, 3, true);
+
+	const bool bResult = pkPlayer->IsResourceRevealed(eResource, bCheckTeam);
+	lua_pushboolean(L, bResult);
+
+	return 1;
+}
 //------------------------------------------------------------------------------
 //void disbandUnit(bool bAnnounce);
 int CvLuaPlayer::lDisbandUnit(lua_State* L)
@@ -10126,6 +10155,17 @@ int CvLuaPlayer::lGetApproachTowardsUsGuess(lua_State* L)
 	return 1;
 }
 //------------------------------------------------------------------------------
+//bool IsActHostileTowardsHuman(PlayerTypes eHuman);
+int CvLuaPlayer::lIsActHostileTowardsHuman(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	PlayerTypes ePlayer = (PlayerTypes) lua_tointeger(L, 2);
+
+	lua_pushboolean(L, pkPlayer->GetDiplomacyAI()->IsActHostileTowardsHuman(ePlayer, false));
+	return 1;
+}
+
+//------------------------------------------------------------------------------
 int CvLuaPlayer::lGetMajorCivApproach(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
@@ -12429,7 +12469,7 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 	bool bHideDisputes = bShowAllModifiers ? false : pDiplo->ShouldHideDisputeMods(ePlayer);
 	bool bHideNegatives = bShowAllModifiers ? false : pDiplo->ShouldHideNegativeMods(ePlayer);
 	bool bPretendNoDisputes = bHideDisputes && bHideNegatives;
-	bool bObserver = GET_PLAYER(ePlayer).isObserver() || !pkPlayer->isMajorCiv() || !GET_PLAYER(ePlayer).isMajorCiv() || !pkPlayer->isAlive() || !GET_PLAYER(ePlayer).isAlive();
+	bool bObserver = GET_PLAYER(ePlayer).isObserver() || !pkPlayer->isMajorCiv() || !GET_PLAYER(ePlayer).isMajorCiv() || !pkPlayer->isAlive() || !GET_PLAYER(ePlayer).isAlive() || GC.getGame().IsHideOpinionTable();
 	bool bUNActive = GC.getGame().IsUnitedNationsActive();
 	bool bJustMet = GC.getGame().IsDiploDebugModeEnabled() ? false : (GET_TEAM(pkPlayer->getTeam()).GetTurnsSinceMeetingTeam(GET_PLAYER(ePlayer).getTeam()) == 0); // Don't display certain modifiers if we just met them
 
@@ -12443,7 +12483,8 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 	if (!bObserver)
 	{
 		// Gone to war in the past?
-		if (!pDiplo->IsAtWar(ePlayer) && pDiplo->GetNumWarsFought(ePlayer) > 0)
+		// Do not display this if AI is passive or a vassal/master of the player
+		if (!pDiplo->IsAtWar(ePlayer) && pDiplo->GetNumWarsFought(ePlayer) > 0 && (bHuman || (!pDiplo->IsVassal(ePlayer) && !pDiplo->IsMaster(ePlayer) && !GC.getGame().IsAIPassiveTowardsHumans())))
 		{
 			Opinion kOpinion;
 			kOpinion.m_iValue = 0;
@@ -12453,8 +12494,7 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 			{
 				str = Localization::Lookup("TXT_KEY_DIPLO_PAST_WAR_BAD").toUTF8();
 			}
-			// Do not display this if AI is passive or a vassal/master of the player
-			else if (!pDiplo->IsVassal(ePlayer) && !pDiplo->IsMaster(ePlayer) && !GC.getGame().IsAIPassiveTowardsHumans())
+			else
 			{
 				if (pDiplo->IsActHostileTowardsHuman(ePlayer))
 				{
@@ -12782,7 +12822,7 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 			{
 				Opinion kOpinion;
 				kOpinion.m_iValue = 50;
-				kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_CULTURE_BOMB");
+				kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_CULTURE_BOMB_HUMAN");
 				aOpinions.push_back(kOpinion);
 			}
 			// Stole artifacts from us?
@@ -12977,7 +13017,7 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 			CvString str;
 
 			CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
-			if (pLeague != NULL && pLeague->GetConsecutiveHostedSessions() > 1)
+			if (pLeague != NULL && pLeague->GetConsecutiveHostedSessions() > 0)
 			{
 				str = bUNActive ? Localization::Lookup("TXT_KEY_DIPLO_MAINTAINED_THEIR_HOSTING_UN").toUTF8() : Localization::Lookup("TXT_KEY_DIPLO_MAINTAINED_THEIR_HOSTING").toUTF8();
 			}
@@ -13106,22 +13146,19 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 			
 			if (eAIStateReligion != NO_RELIGION && eAIStateReligion == eHumanMajorityReligion)
 			{
-				iValue = pDiplo->GetReligionScore(ePlayer);
 				str = Localization::Lookup("TXT_KEY_DIPLO_ADOPTING_MY_RELIGION").toUTF8();
 			}
 			else if (eHumanStateReligion != NO_RELIGION && eHumanStateReligion == eAIMajorityReligion)
 			{
-				iValue = pDiplo->GetReligionScore(ePlayer);
 				str = Localization::Lookup("TXT_KEY_DIPLO_ADOPTING_HIS_RELIGION").toUTF8();
 			}
 			else
 			{
-				iValue = pDiplo->GetReligionScore(ePlayer);
 				str = Localization::Lookup("TXT_KEY_DIPLO_SAME_MAJORITY_RELIGIONS").toUTF8();
 			}
 
 			Opinion kOpinion;
-			kOpinion.m_iValue = iValue;
+			kOpinion.m_iValue = pDiplo->GetReligionScore(ePlayer);
 			kOpinion.m_str = str;
 			aOpinions.push_back(kOpinion);
 		}
@@ -13276,7 +13313,7 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 			CvString str;
 
 			CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
-			if (pLeague != NULL && pLeague->GetConsecutiveHostedSessions() > 1)
+			if (pLeague != NULL && pLeague->GetConsecutiveHostedSessions() > 0)
 			{
 				str = bUNActive ? Localization::Lookup("TXT_KEY_DIPLO_MAINTAINED_THEIR_HOSTING_UN").toUTF8() : Localization::Lookup("TXT_KEY_DIPLO_MAINTAINED_THEIR_HOSTING").toUTF8();
 			}
@@ -13542,28 +13579,14 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 				aOpinions.push_back(kOpinion);
 			}
 
-			// Aggressive Posture
-			if (!pDiplo->IsAtWar(ePlayer) && !GET_PLAYER(ePlayer).GetDiplomacyAI()->IsHasOpenBorders(pkPlayer->GetID()))
+			// Military Deployment
+			iValue = pDiplo->GetMilitaryAggressivePostureScore(ePlayer);
+			if (iValue != 0 || (pDiplo->IsVassal(ePlayer) && pDiplo->GetMilitaryAggressivePosture(ePlayer) > AGGRESSIVE_POSTURE_NONE))
 			{
-				iValue = pDiplo->GetMilitaryAggressivePosture(ePlayer) * 5;
-				if (iValue != 0)
-				{
-					Opinion kOpinion;
-					kOpinion.m_iValue = iValue;
-					CvString str;
-
-					if (pDiplo->GetMilitaryAggressivePosture(ePlayer) >= AGGRESSIVE_POSTURE_HIGH)
-					{
-						str = Localization::Lookup("TXT_KEY_DIPLO_AGGRESSIVE_POSTURE_HIGH").toUTF8();
-					}
-					else
-					{
-						str = Localization::Lookup("TXT_KEY_DIPLO_AGGRESSIVE_POSTURE_MEDIUM").toUTF8();
-					}
-
-					kOpinion.m_str = str;
-					aOpinions.push_back(kOpinion);
-				}
+				Opinion kOpinion;
+				kOpinion.m_iValue = iValue;
+				kOpinion.m_str = (pDiplo->GetMilitaryAggressivePosture(ePlayer) >= AGGRESSIVE_POSTURE_HIGH) ? Localization::Lookup("TXT_KEY_DIPLO_AGGRESSIVE_POSTURE_HIGH").toUTF8() : Localization::Lookup("TXT_KEY_DIPLO_AGGRESSIVE_POSTURE_MEDIUM").toUTF8();
+				aOpinions.push_back(kOpinion);
 			}
 		}
 
@@ -13749,7 +13772,7 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 		if (iValue != 0)
 		{
 			Opinion kOpinion;
-			kOpinion.m_iValue = pDiplo->GetPolicyScore(ePlayer);
+			kOpinion.m_iValue = (bHideNegatives && iValue < 0) ? 0 : pDiplo->GetPolicyScore(ePlayer);
 			kOpinion.m_str = (iValue > 0) ? Localization::Lookup("TXT_KEY_DIPLO_SAME_POLICIES") : Localization::Lookup("TXT_KEY_DIPLO_DIFFERENT_POLICIES");
 			aOpinions.push_back(kOpinion);
 		}
@@ -13784,12 +13807,9 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 		}
 		else if (pDiplo->IsPlayerOpposingReligion(ePlayer))
 		{
-			if (bHideNegatives)
-				iValue = 0;
-
 			Opinion kOpinion;
-			kOpinion.m_iValue = iValue;
-			kOpinion.m_str = (iValue > 0) ? Localization::Lookup("TXT_KEY_DIPLO_RELIGIOUS_DIFFERENCES") : Localization::Lookup("TXT_KEY_DIPLO_RELIGIOUS_DIFFERENCES_NEUTRAL");
+			kOpinion.m_iValue = bHideNegatives ? 0 : iValue;
+			kOpinion.m_str = (!bHideNegatives && iValue > 0) ? Localization::Lookup("TXT_KEY_DIPLO_RELIGIOUS_DIFFERENCES") : Localization::Lookup("TXT_KEY_DIPLO_RELIGIOUS_DIFFERENCES_NEUTRAL");
 			aOpinions.push_back(kOpinion);
 		}
 
@@ -13949,24 +13969,12 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 			}
 
 			// Vassal protect VS. failed protect
-			if (pDiplo->GetVassalProtectScore(ePlayer) != pDiplo->GetVassalFailedProtectScore(ePlayer))
-			{
-				iValue = pDiplo->GetVassalProtectScore(ePlayer) + pDiplo->GetVassalFailedProtectScore(ePlayer);
-				if (iValue != 0)
-				{
-					Opinion kOpinion;
-					kOpinion.m_iValue = iValue;
-					kOpinion.m_str = (iValue > 0) ? Localization::Lookup("TXT_KEY_DIPLO_VASSAL_FAILED_PROTECT") : Localization::Lookup("TXT_KEY_DIPLO_VASSAL_PROTECT");
-					aOpinions.push_back(kOpinion);
-				}
-			}
-
-			iValue = pDiplo->GetBrokenVassalAgreementScore(ePlayer);
+			iValue = pDiplo->GetVassalProtectScore(ePlayer) + pDiplo->GetVassalFailedProtectScore(ePlayer);
 			if (iValue != 0)
 			{
 				Opinion kOpinion;
 				kOpinion.m_iValue = iValue;
-				kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_ATTACKED_VASSAL_ME");
+				kOpinion.m_str = (iValue > 0) ? Localization::Lookup("TXT_KEY_DIPLO_VASSAL_FAILED_PROTECT") : Localization::Lookup("TXT_KEY_DIPLO_VASSAL_PROTECT");
 				aOpinions.push_back(kOpinion);
 			}
 		}
@@ -14250,7 +14258,7 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 			CvString str;
 
 			CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
-			if (pLeague->GetConsecutiveHostedSessions() > 1)
+			if (pLeague->GetConsecutiveHostedSessions() > 0)
 			{
 				str = bUNActive ? Localization::Lookup("TXT_KEY_DIPLO_MAINTAINED_THEIR_HOSTING_UN").toUTF8() : Localization::Lookup("TXT_KEY_DIPLO_MAINTAINED_THEIR_HOSTING").toUTF8();
 			}
@@ -14312,6 +14320,15 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 			Opinion kOpinion;
 			kOpinion.m_iValue = iValue;
 			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_DP_WITH_ENEMY");
+			aOpinions.push_back(kOpinion);
+		}
+
+		iValue = pDiplo->GetTimesCultureBombedScore(ePlayer);
+		if (iValue != 0)
+		{
+			Opinion kOpinion;
+			kOpinion.m_iValue = iValue;
+			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_CULTURE_BOMB");
 			aOpinions.push_back(kOpinion);
 		}
 
@@ -14571,11 +14588,11 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 			}
 			else if (pDiplo->IsDenouncedPlayer(ePlayer))
 			{
-				str = Localization::Lookup("TXT_KEY_DIPLO_DENOUNCED_BY_US").toUTF8();
+				str = Localization::Lookup("TXT_KEY_DIPLO_DENOUNCED_BY_THEM").toUTF8();
 			}
 			else
 			{
-				str = Localization::Lookup("TXT_KEY_DIPLO_DENOUNCED_BY_THEM").toUTF8();
+				str = Localization::Lookup("TXT_KEY_DIPLO_DENOUNCED_BY_US").toUTF8();
 			}
 
 			kOpinion.m_str = str;
@@ -14618,14 +14635,114 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 			aOpinions.push_back(kOpinion);
 		}
 
-		iValue = pDiplo->GetResurrectorAttackedUsScore(ePlayer);
-		if (iValue != 0)
+		// TRAITOR OPINION START
+		iValue = 0;
+		CvString str;
+
+		int iFriendDenouncementScore = bJustMet ? 0 : pDiplo->GetFriendDenouncementScore(ePlayer);
+		if (iFriendDenouncementScore > iValue)
+		{
+			iValue = iFriendDenouncementScore;
+		}
+
+		int iDenouncedFriendScore = bJustMet ? 0 : pDiplo->GetPlayerDenouncedFriendScore(ePlayer);
+		if (iDenouncedFriendScore > iValue)
+		{
+			iValue = iDenouncedFriendScore;
+		}
+
+		int iFriendDenouncedUsScore = pDiplo->GetFriendDenouncedUsScore(ePlayer);
+		if (iFriendDenouncedUsScore > iValue)
+		{
+			iValue = iFriendDenouncedUsScore;
+		}
+
+		int iAttackedVassalScore = bJustMet ? 0 : pDiplo->GetPlayerAttackedVassalScore(ePlayer);
+		if (iAttackedVassalScore > iValue)
+		{
+			iValue = iAttackedVassalScore;
+		}
+
+		int iMasterAttackedUsScore = pDiplo->GetMasterAttackedUsScore(ePlayer);
+		if (iMasterAttackedUsScore > iValue)
+		{
+			iValue = iMasterAttackedUsScore;
+		}
+
+		int iAttackedFriendScore = bJustMet ? 0 : pDiplo->GetPlayerAttackedFriendScore(ePlayer);
+		if (iAttackedFriendScore > iValue)
+		{
+			iValue = iAttackedFriendScore;
+		}
+
+		int iFriendAttackedUsScore = pDiplo->GetFriendAttackedUsScore(ePlayer);
+		if (iFriendAttackedUsScore > iValue)
+		{
+			iValue = iFriendAttackedUsScore;
+		}
+
+		int iAttackedResurrectedCivScore = bJustMet ? 0 : pDiplo->GetPlayerAttackedResurrectedCivScore(ePlayer);
+		if (iAttackedResurrectedCivScore > iValue)
+		{
+			iValue = iAttackedResurrectedCivScore;
+		}
+
+		int iResurrectorAttackedUsScore = pDiplo->GetResurrectorAttackedUsScore(ePlayer);
+		if (iResurrectorAttackedUsScore > iValue)
+		{
+			iValue = iResurrectorAttackedUsScore;
+		}
+
+		// An applicable message is chosen in order of priority
+		if (iResurrectorAttackedUsScore > 0)
+		{
+			str = Localization::Lookup("TXT_KEY_DIPLO_RESURRECTOR_ATTACKED_US").toUTF8();
+		}
+		else if (iFriendAttackedUsScore > 0)
+		{
+			str = Localization::Lookup("TXT_KEY_DIPLO_HUMAN_FRIEND_DECLARED_WAR").toUTF8();
+		}
+		else if (iAttackedResurrectedCivScore > 0)
+		{
+			str = Localization::Lookup("TXT_KEY_DIPLO_ATTACKED_RESURRECTED_CIV").toUTF8();
+		}
+		else if (iAttackedFriendScore > 0)
+		{
+			str = Localization::Lookup("TXT_KEY_DIPLO_HUMAN_DECLARED_WAR_ON_FRIENDS").toUTF8();
+		}
+		else if (iMasterAttackedUsScore > 0)
+		{
+			str = Localization::Lookup("TXT_KEY_DIPLO_ATTACKED_VASSAL_ME").toUTF8();
+		}
+		else if (pDiplo->IsVassal(ePlayer) && iAttackedVassalScore > 0)
+		{
+			str = Localization::Lookup("TXT_KEY_DIPLO_ATTACKED_OWN_VASSAL").toUTF8();
+		}
+		else if ((!pDiplo->IsVassal(ePlayer) || iAttackedVassalScore <= 0) && iFriendDenouncedUsScore > 0)
+		{
+			str = Localization::Lookup("TXT_KEY_DIPLO_HUMAN_FRIEND_DENOUNCED").toUTF8();
+		}
+		else if (iAttackedVassalScore > 0)
+		{
+			str = Localization::Lookup("TXT_KEY_DIPLO_ATTACKED_OWN_VASSAL").toUTF8();
+		}
+		else if (iDenouncedFriendScore > 0)
+		{
+			str = Localization::Lookup("TXT_KEY_DIPLO_HUMAN_DENOUNCED_FRIENDS").toUTF8();
+		}
+		else
+		{
+			str = Localization::Lookup("TXT_KEY_DIPLO_HUMAN_DENOUNCED_BY_FRIENDS").toUTF8();
+		}
+
+		if (iValue > 0)
 		{
 			Opinion kOpinion;
 			kOpinion.m_iValue = iValue;
-			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_RESURRECTOR_ATTACKED_US");
+			kOpinion.m_str = str;
 			aOpinions.push_back(kOpinion);
 		}
+		// TRAITOR OPINION END
 
 		iValue = pDiplo->GetDislikedTheirProposalScore(ePlayer);
 		if (iValue != 0)
@@ -14698,64 +14815,6 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 				kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_SIDED_WITH_MINOR");
 				aOpinions.push_back(kOpinion);
 			}
-
-			// TRAITOR OPINION START
-			iValue = 0;
-			CvString str;
-
-			iTempValue = pDiplo->GetFriendDenouncementScore(ePlayer);
-			if (iTempValue > iValue)
-			{
-				iValue = iTempValue;
-				str = Localization::Lookup("TXT_KEY_DIPLO_HUMAN_DENOUNCED_BY_FRIENDS").toUTF8();
-			}
-
-			iTempValue = pDiplo->GetWeDenouncedFriendScore(ePlayer);
-			if (iTempValue > iValue)
-			{
-				iValue = iTempValue;
-				str = Localization::Lookup("TXT_KEY_DIPLO_HUMAN_DENOUNCED_FRIENDS").toUTF8();
-			}
-
-			int iFriendDenouncedUsScore = pDiplo->GetFriendDenouncedUsScore(ePlayer);
-			if (iFriendDenouncedUsScore > iValue)
-			{
-				iValue = iFriendDenouncedUsScore;
-				str = Localization::Lookup("TXT_KEY_DIPLO_HUMAN_FRIEND_DENOUNCED").toUTF8();
-			}
-
-			int iDOWFriendScore = pDiplo->GetWeDeclaredWarOnFriendScore(ePlayer);
-			if (iDOWFriendScore > iValue)
-			{
-				iValue = iDOWFriendScore;
-				str = Localization::Lookup("TXT_KEY_DIPLO_HUMAN_DECLARED_WAR_ON_FRIENDS").toUTF8();
-			}
-
-			int iFriendDeclaredWarOnUsScore = pDiplo->GetFriendDeclaredWarOnUsScore(ePlayer);
-			if (iFriendDeclaredWarOnUsScore > iValue)
-			{
-				iValue = iFriendDeclaredWarOnUsScore;
-				str = Localization::Lookup("TXT_KEY_DIPLO_HUMAN_FRIEND_DECLARED_WAR").toUTF8();
-			}
-
-			// If there was a personal betrayal, that matters more to the AI
-			if (iFriendDeclaredWarOnUsScore != 0)
-			{
-				str = Localization::Lookup("TXT_KEY_DIPLO_HUMAN_FRIEND_DECLARED_WAR").toUTF8();
-			}
-			else if (iFriendDenouncedUsScore != 0 && iDOWFriendScore <= 0)
-			{
-				str = Localization::Lookup("TXT_KEY_DIPLO_HUMAN_FRIEND_DENOUNCED").toUTF8();
-			}
-
-			if (iValue != 0)
-			{
-				Opinion kOpinion;
-				kOpinion.m_iValue = iValue;
-				kOpinion.m_str = str;
-				aOpinions.push_back(kOpinion);
-			}
-			// TRAITOR OPINION END
 
 			iValue = pDiplo->GetRecklessExpanderScore(ePlayer);
 			if (iValue != 0)

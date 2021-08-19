@@ -2538,7 +2538,7 @@ TeamTypes CvTeam::GetTeamVotingForInDiplo() const
 					int kiBase = 10000;
 					
 					// What is our leader's opinion of the other team's leader? Remember, bad opinion is positive, good opinion is negative.
-					int iOpinion = GET_PLAYER(getLeaderID()).GetDiplomacyAI()->GetCivOpinionWeight(eLeaderLoop);
+					int iOpinion = GET_PLAYER(getLeaderID()).GetDiplomacyAI()->CalculateCivOpinionWeight(eLeaderLoop);
 					if (isAtWar(eTeamLoop))
 						iOpinion = kiBase; // Don't vote for someone we are at war with, if we can help it
 
@@ -6320,9 +6320,43 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 
 					if(bNewValue)
 					{
-						const TechTypes eTechReveal = static_cast<TechTypes>(pResourceInfo->getTechReveal());
+						TechTypes eDefaultTech = (TechTypes)pResourceInfo->getTechReveal();
+						PolicyTypes ePolicyReveal = (PolicyTypes)pResourceInfo->getPolicyReveal();
+						bool bRevealTech = false;
+						bool bRevealed = false;
+
+						for (std::vector<PlayerTypes>::const_iterator iI = m_members.begin(); iI != m_members.end(); ++iI)
+						{
+							const PlayerTypes ePlayer = (PlayerTypes)*iI;
+							CvPlayer* pPlayer = &GET_PLAYER(ePlayer);
+
+							if (pPlayer && pPlayer->isAlive())
+							{
+								TechTypes eTechReveal = eDefaultTech;
+
+#if defined(MOD_BALANCE_CORE)
+								if (pPlayer->GetPlayerTraits()->IsAlternateResourceTechs())
+								{
+									TechTypes eAltTech = pPlayer->GetPlayerTraits()->GetAlternateResourceTechs(eResource).m_eTechReveal;
+									if (eAltTech != NO_TECH)
+									{
+										eTechReveal = eAltTech;
+									}
+								}
+#endif
+								if (pPlayer->HasPolicy(ePolicyReveal) || (eTechReveal != eIndex && GetTeamTechs()->HasTech(eTechReveal)))
+								{
+									bRevealed = true;
+									break;
+								}
+								else if (!bRevealTech && eTechReveal == eIndex)
+								{
+									bRevealTech = true;
+								}
+							}
+						}
 						// Resource Reveal
-						if(eTechReveal == eIndex)
+						if(bRevealTech && !bRevealed)
 						{
 							// update the resources
 							if(pLoopPlot->isRevealed(m_eID))
@@ -6375,7 +6409,43 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 					// Resource Connection
 					if(pLoopPlot->getTeam() == GetID())
 					{
-						if(pResourceInfo->getTechCityTrade() == eIndex)
+						// Check if this tech unlocks city trade for any of a team's players, and check if the resource has already been unlocked
+						bool bUnlocksResource = false;
+						bool bResourceUnlocked = false;
+						TechTypes eDefaultTech = (TechTypes)pResourceInfo->getTechCityTrade();
+						for (std::vector<PlayerTypes>::const_iterator iI = m_members.begin(); iI != m_members.end(); ++iI)
+						{
+							const PlayerTypes ePlayer = (PlayerTypes)*iI;
+							CvPlayer* pPlayer = &GET_PLAYER(ePlayer);
+
+							if (pPlayer && pPlayer->isAlive())
+							{
+								TechTypes eTech = eDefaultTech;
+#if defined(MOD_BALANCE_CORE)
+								if (pPlayer->GetPlayerTraits()->IsAlternateResourceTechs())
+								{
+									TechTypes eAltTech = pPlayer->GetPlayerTraits()->GetAlternateResourceTechs(eResource).m_eTechCityTrade;
+									if (eAltTech != NO_TECH)
+									{
+										eTech = eAltTech;
+									}
+								}
+#endif
+								// Has this resource been unlocked by another tech?
+								if (eTech != eIndex && GetTeamTechs()->HasTech(eTech))
+								{
+									bResourceUnlocked = true;
+									break; // Resource already unlocked, so we're stopping the loop
+								}
+								// If the resource is still locked, will eIndex unlock our resource?
+								else if (!bUnlocksResource && eTech == eIndex)
+								{
+									bUnlocksResource = true;
+								}
+							}
+						}
+
+						if(!bResourceUnlocked && bUnlocksResource)
 						{
 							// Appropriate Improvement on this Plot?
 							if (pLoopPlot->isCity() || (pLoopPlot->getImprovementType() != NO_IMPROVEMENT && GC.getImprovementInfo(pLoopPlot->getImprovementType())->IsExpandedImprovementResourceTrade(eResource)))
@@ -6430,13 +6500,47 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 		{
 			bool bTechRevealsArtifacts = false;
 			bool bTechRevealsHiddenArtifacts = false;
+			bool bArtifactRevealed = false;
+			bool bHiddenArtifactRevealed = false;
 
 			ResourceTypes eArtifactResource = (ResourceTypes)GC.getInfoTypeForString("RESOURCE_ARTIFACTS", true);
 			CvResourceInfo* pArtifactResource = NULL;
 			if(eArtifactResource != NO_RESOURCE)
 			{
 				pArtifactResource = GC.getResourceInfo(eArtifactResource);
-				bTechRevealsArtifacts = pArtifactResource->getTechReveal() == eIndex;			
+				TechTypes eDefaultTech = (TechTypes)pArtifactResource->getTechReveal();
+				PolicyTypes eRevealPolicy = (PolicyTypes)pArtifactResource->getPolicyReveal();
+
+				for (std::vector<PlayerTypes>::const_iterator iI = m_members.begin(); iI != m_members.end(); ++iI)
+				{
+					const PlayerTypes ePlayer = (PlayerTypes)*iI;
+					CvPlayer* pPlayer = &GET_PLAYER(ePlayer);
+
+					if (pPlayer && pPlayer->isAlive())
+					{
+						TechTypes eTechReveal = eDefaultTech;
+
+#if defined(MOD_BALANCE_CORE)
+						if (pPlayer->GetPlayerTraits()->IsAlternateResourceTechs())
+						{
+							TechTypes eAltTech = pPlayer->GetPlayerTraits()->GetAlternateResourceTechs(eArtifactResource).m_eTechReveal;
+							if (eAltTech != NO_TECH)
+							{
+								eTechReveal = eAltTech;
+							}
+						}
+#endif
+						if (pPlayer->HasPolicy(eRevealPolicy) || (eTechReveal != eIndex && GetTeamTechs()->HasTech(eTechReveal)))
+						{
+							bArtifactRevealed = true;
+							break;
+						}
+						else if (!bTechRevealsArtifacts && eTechReveal == eIndex)
+						{
+							bTechRevealsArtifacts = true;
+						}
+					}
+				}
 			}
 
 			ResourceTypes eHiddenArtifactResource = (ResourceTypes)GC.getInfoTypeForString("RESOURCE_HIDDEN_ARTIFACTS", true);
@@ -6444,10 +6548,42 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 			if(eHiddenArtifactResource != NO_RESOURCE)
 			{
 				pHiddenArtifactResource = GC.getResourceInfo(eHiddenArtifactResource);
-				bTechRevealsHiddenArtifacts = pHiddenArtifactResource->getTechReveal() == eIndex;
+				TechTypes eDefaultTech = (TechTypes)pHiddenArtifactResource->getTechReveal();
+				PolicyTypes eRevealPolicy = (PolicyTypes)pHiddenArtifactResource->getPolicyReveal();
+
+				for (std::vector<PlayerTypes>::const_iterator iI = m_members.begin(); iI != m_members.end(); ++iI)
+				{
+					const PlayerTypes ePlayer = (PlayerTypes)*iI;
+					CvPlayer* pPlayer = &GET_PLAYER(ePlayer);
+
+					if (pPlayer && pPlayer->isAlive())
+					{
+						TechTypes eTechReveal = eDefaultTech;
+
+#if defined(MOD_BALANCE_CORE)
+						if (pPlayer->GetPlayerTraits()->IsAlternateResourceTechs())
+						{
+							TechTypes eAltTech = pPlayer->GetPlayerTraits()->GetAlternateResourceTechs(eHiddenArtifactResource).m_eTechReveal;
+							if (eAltTech != NO_TECH)
+							{
+								eTechReveal = eAltTech;
+							}
+						}
+#endif
+						if (pPlayer->HasPolicy(eRevealPolicy) || (eTechReveal != eIndex && GetTeamTechs()->HasTech(eTechReveal)))
+						{
+							bHiddenArtifactRevealed = true;
+							break;
+						}
+						else if (!bTechRevealsHiddenArtifacts && eTechReveal == eIndex)
+						{
+							bTechRevealsHiddenArtifacts = true;
+						}
+					}
+				}
 			}
 
-			if(bTechRevealsArtifacts || bTechRevealsHiddenArtifacts)
+			if((bTechRevealsArtifacts && !bArtifactRevealed) || (bTechRevealsHiddenArtifacts && !bHiddenArtifactRevealed))
 			{
 				const PlayerTypes eActivePlayer = GC.getGame().getActivePlayer();
 				const int iNumPlots = GC.getMap().numPlots();
@@ -6951,7 +7087,43 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 
 							if(eResource != NO_RESOURCE)
 							{
-								if(GC.getResourceInfo(eResource)->getTechReveal() == eIndex && !isForceRevealedResource(eResource))
+								TechTypes eDefaultTech = (TechTypes)GC.getResourceInfo(eResource)->getTechReveal();
+								PolicyTypes eRevealPolicy = (PolicyTypes)GC.getResourceInfo(eResource)->getPolicyReveal();
+								bool bRevealed = false;
+								bool bReveals = false;
+
+								for (std::vector<PlayerTypes>::const_iterator iI = m_members.begin(); iI != m_members.end(); ++iI)
+								{
+									const PlayerTypes ePlayer = (PlayerTypes)*iI;
+									CvPlayer* pPlayer = &GET_PLAYER(ePlayer);
+
+									if (pPlayer && pPlayer->isAlive())
+									{
+										TechTypes eTechReveal = eDefaultTech;
+
+#if defined(MOD_BALANCE_CORE)
+										if (pPlayer->GetPlayerTraits()->IsAlternateResourceTechs())
+										{
+											TechTypes eAltTech = pPlayer->GetPlayerTraits()->GetAlternateResourceTechs(eResource).m_eTechReveal;
+											if (eAltTech != NO_TECH)
+											{
+												eTechReveal = eAltTech;
+											}
+										}
+#endif
+										if (pPlayer->HasPolicy(eRevealPolicy) || (eTechReveal != eIndex && GetTeamTechs()->HasTech(eTechReveal)))
+										{
+											bRevealed = true;
+											break;
+										}
+										else if (!bReveals && eTechReveal == eIndex)
+										{
+											bReveals = true;
+										}
+									}
+								}
+
+								if(bReveals && !bRevealed && !isForceRevealedResource(eResource))
 								{
 									pCity = GC.getMap().findCity(pLoopPlot->getX(), pLoopPlot->getY(), NO_PLAYER, GetID(), false);
 
@@ -6982,29 +7154,60 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 					// Cities demand a Resource that's been newly revealed
 					CvCity* pLoopCity;
 					int iLoop;
-					PlayerTypes eLoopPlayer;
+					PlayerTypes eLoopPlayer = GC.getGame().getActivePlayer();
 					ResourceTypes eResourceDemanded;
 
 					// Check all players on this team
-					for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+					if(GET_PLAYER(eLoopPlayer).getTeam() == GetID())
 					{
-						eLoopPlayer = (PlayerTypes) iPlayerLoop;
-
-						if(GET_PLAYER(eLoopPlayer).getTeam() == GetID() && eLoopPlayer == GC.getGame().getActivePlayer())
+						// Look at all Cities
+						for(pLoopCity = GET_PLAYER(eLoopPlayer).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(eLoopPlayer).nextCity(&iLoop))
 						{
-							// Look at all Cities
-							for(pLoopCity = GET_PLAYER(eLoopPlayer).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(eLoopPlayer).nextCity(&iLoop))
-							{
-								eResourceDemanded = pLoopCity->GetResourceDemanded();
+							eResourceDemanded = pLoopCity->GetResourceDemanded();
 
-								if(eResourceDemanded != NO_RESOURCE)
+							if(eResourceDemanded != NO_RESOURCE)
+							{
+								// Resource being demanded is revealed by this Tech
+								TechTypes eDefaultTech = (TechTypes)GC.getResourceInfo(eResourceDemanded)->getTechReveal();
+								PolicyTypes eRevealPolicy = (PolicyTypes)GC.getResourceInfo(eResourceDemanded)->getPolicyReveal();
+								bool bRevealed = false;
+								bool bReveals = false;
+
+								for (std::vector<PlayerTypes>::const_iterator iI = m_members.begin(); iI != m_members.end(); ++iI)
 								{
-									// Resource being demanded is revealed by this Tech
-									if(GC.getResourceInfo(eResourceDemanded)->getTechReveal() == eIndex)
+									const PlayerTypes ePlayer = (PlayerTypes)*iI;
+									CvPlayer* pPlayer = &GET_PLAYER(ePlayer);
+
+									if (pPlayer && pPlayer->isAlive())
 									{
-										strBuffer = GetLocalizedText("TXT_KEY_MISC_RESOURCE_DISCOVERED_CITY_DEMANDS", GC.getResourceInfo(eResourceDemanded)->GetTextKey(), pLoopCity->getNameKey());
-										DLLUI->AddCityMessage(0, pLoopCity->GetIDInfo(), eLoopPlayer, false, GC.getEVENT_MESSAGE_TIME(), strBuffer/*, "AS2D_DISCOVERRESOURCE", MESSAGE_TYPE_INFO, GC.getResourceInfo(eResourceDemanded)->GetButton(), (ColorTypes)GC.getInfoTypeForString("COLOR_WHITE"), pLoopCity->getX(), pLoopCity->getY(), true, true*/);
+										TechTypes eTechReveal = eDefaultTech;
+
+#if defined(MOD_BALANCE_CORE)
+										if (pPlayer->GetPlayerTraits()->IsAlternateResourceTechs())
+										{
+											TechTypes eAltTech = pPlayer->GetPlayerTraits()->GetAlternateResourceTechs(eResourceDemanded).m_eTechReveal;
+											if (eAltTech != NO_TECH)
+											{
+												eTechReveal = eAltTech;
+											}
+										}
+#endif
+										if (pPlayer->HasPolicy(eRevealPolicy) || (eTechReveal != eIndex && GetTeamTechs()->HasTech(eTechReveal)))
+										{
+											bRevealed = true;
+											break;
+										}
+										else if (!bReveals && eTechReveal == eIndex)
+										{
+											bReveals = true;
+										}
 									}
+								}
+
+								if (bReveals && !bRevealed)
+								{
+									strBuffer = GetLocalizedText("TXT_KEY_MISC_RESOURCE_DISCOVERED_CITY_DEMANDS", GC.getResourceInfo(eResourceDemanded)->GetTextKey(), pLoopCity->getNameKey());
+									DLLUI->AddCityMessage(0, pLoopCity->GetIDInfo(), eLoopPlayer, false, GC.getEVENT_MESSAGE_TIME(), strBuffer/*, "AS2D_DISCOVERRESOURCE", MESSAGE_TYPE_INFO, GC.getResourceInfo(eResourceDemanded)->GetButton(), (ColorTypes)GC.getInfoTypeForString("COLOR_WHITE"), pLoopCity->getX(), pLoopCity->getY(), true, true*/);
 								}
 							}
 						}
@@ -8034,7 +8237,43 @@ void CvTeam::processTech(TechTypes eTech, int iChange)
 
 		if(eResource != NO_RESOURCE)
 		{
-			if(GC.getResourceInfo(eResource)->getTechReveal() == eTech)
+			TechTypes eDefaultTech = (TechTypes)GC.getResourceInfo(eResource)->getTechReveal();
+			PolicyTypes eRevealPolicy = (PolicyTypes)GC.getResourceInfo(eResource)->getPolicyReveal();
+			bool bRevealTech = false;
+			bool bRevealed = false;
+
+			for (std::vector<PlayerTypes>::const_iterator iI = m_members.begin(); iI != m_members.end(); ++iI)
+			{
+				const PlayerTypes ePlayer = (PlayerTypes)*iI;
+				CvPlayer* pPlayer = &GET_PLAYER(ePlayer);
+
+				if (pPlayer && pPlayer->isAlive())
+				{
+					TechTypes eRevealTech = eDefaultTech;
+					
+#if defined(MOD_BALANCE_CORE)
+					if (pPlayer->GetPlayerTraits()->IsAlternateResourceTechs())
+					{
+						TechTypes eAltTech = pPlayer->GetPlayerTraits()->GetAlternateResourceTechs(eResource).m_eTechReveal;
+						if (eAltTech != NO_TECH)
+						{
+							eRevealTech = eAltTech;
+						}
+					}
+#endif
+					if ((eRevealPolicy == NO_POLICY || (eRevealPolicy != NO_POLICY && pPlayer->HasPolicy(eRevealPolicy))) && (eRevealTech == NO_TECH || (eRevealTech != eTech && GetTeamTechs()->HasTech(eRevealTech))))
+					{
+						bRevealed = true;
+						break;
+					}
+					else if (!bRevealTech && eRevealTech == eTech)
+					{
+						bRevealTech = true;
+					}
+				}
+			}
+
+			if(bRevealTech && !bRevealed)
 			{
 				pLoopPlot->updateYield();
 				if(pLoopPlot->isRevealed(m_eID))
@@ -8228,6 +8467,83 @@ bool CvTeam::IsResourceObsolete(ResourceTypes eResource)
 		return false;
 
 	return true;
+}
+
+//	--------------------------------------------------------------------------------
+/// Is this resource city tradeable for us?
+bool CvTeam::IsResourceCityTradeable(ResourceTypes eResource) const
+{
+	CvResourceInfo* pResource = GC.getResourceInfo(eResource);
+	if (pResource)
+	{
+		TechTypes eDefaultTech = (TechTypes)pResource->getTechCityTrade();
+		for (std::vector<PlayerTypes>::const_iterator iI = m_members.begin(); iI != m_members.end(); ++iI)
+		{
+			const PlayerTypes ePlayer = (PlayerTypes)*iI;
+			CvPlayer* pPlayer = &GET_PLAYER(ePlayer);
+
+			if (pPlayer && pPlayer->isAlive())
+			{
+				TechTypes eTech = eDefaultTech;
+#if defined(MOD_BALANCE_CORE)
+				if (pPlayer->GetPlayerTraits()->IsAlternateResourceTechs())
+				{
+					TechTypes eAltTech = pPlayer->GetPlayerTraits()->GetAlternateResourceTechs(eResource).m_eTechCityTrade;
+					if (eAltTech != NO_TECH)
+					{
+						eTech = eAltTech;
+					}
+				}
+#endif
+
+				if (eTech == NO_TECH || GetTeamTechs()->HasTech(eTech))
+				{
+					return true;
+				}
+			}
+		}
+	}
+
+	return false;
+}
+
+//	--------------------------------------------------------------------------------
+/// Is this resource revealed for us?
+bool CvTeam::IsResourceRevealed(ResourceTypes eResource) const
+{
+	CvResourceInfo* pResource = GC.getResourceInfo(eResource);
+	if (pResource)
+	{
+		TechTypes eDefaultTech = (TechTypes)pResource->getTechReveal();
+		PolicyTypes ePolicy = (PolicyTypes)pResource->getPolicyReveal();
+		for (std::vector<PlayerTypes>::const_iterator iI = m_members.begin(); iI != m_members.end(); ++iI)
+		{
+			const PlayerTypes ePlayer = (PlayerTypes)*iI;
+			CvPlayer* pPlayer = &GET_PLAYER(ePlayer);
+
+			if (pPlayer && pPlayer->isAlive())
+			{
+				TechTypes eTech = eDefaultTech;
+#if defined(MOD_BALANCE_CORE)
+				if (pPlayer->GetPlayerTraits()->IsAlternateResourceTechs())
+				{
+					TechTypes eAltTech = pPlayer->GetPlayerTraits()->GetAlternateResourceTechs(eResource).m_eTechReveal;
+					if (eAltTech != NO_TECH)
+					{
+						eTech = eAltTech;
+					}
+				}
+#endif
+
+				if ((eTech == NO_TECH || GetTeamTechs()->HasTech(eTech)) && (ePolicy == NO_POLICY || pPlayer->HasPolicy(ePolicy)))
+				{
+					return true;
+				}
+			}
+		}
+	}
+
+	return false;
 }
 
 //	--------------------------------------------------------------------------------
@@ -9295,7 +9611,7 @@ void CvTeam::DoEndVassal(TeamTypes eTeam, bool bPeaceful, bool bSuppressNotifica
 	//Break open borders
 	SetAllowsOpenBordersToTeam(eTeam, false);
 	GET_TEAM(eTeam).SetAllowsOpenBordersToTeam(GetID(), false);
-		
+
 	setVassal(eTeam, false);
 
 	// reset counters
@@ -9333,17 +9649,14 @@ void CvTeam::DoEndVassal(TeamTypes eTeam, bool bPeaceful, bool bSuppressNotifica
 		}
 	}
 
-	if (bPeaceful)
+	vector<PlayerTypes> vOurTeam = getPlayers();
+	for(size_t i=0; i<vOurTeam.size(); i++)
 	{
-		vector<PlayerTypes> vOurTeam = getPlayers();
-		for(size_t i=0; i<vOurTeam.size(); i++)
+		CvPlayerAI& kPlayer = GET_PLAYER(vOurTeam[i]);
+		if (kPlayer.isAlive())
 		{
-			CvPlayerAI& kPlayer = GET_PLAYER(vOurTeam[i]);
-			if (kPlayer.isAlive())
-			{
-				vector<PlayerTypes> v = kPlayer.GetDiplomacyAI()->GetAllValidMajorCivs();
-				kPlayer.GetDiplomacyAI()->DoReevaluatePlayers(v);
-			}
+			vector<PlayerTypes> v = kPlayer.GetDiplomacyAI()->GetAllValidMajorCivs();
+			kPlayer.GetDiplomacyAI()->DoReevaluatePlayers(v, false, true, true);
 		}
 	}
 

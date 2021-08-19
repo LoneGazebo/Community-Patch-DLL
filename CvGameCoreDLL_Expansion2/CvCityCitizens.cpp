@@ -1197,7 +1197,7 @@ bool CvCityCitizens::DoAddBestCitizenFromUnassigned(CvCity::eUpdateMode updateMo
 
 		return true;
 	}
-	else if (iSpecialistValue > iBestPlotValue)
+	else if (iSpecialistValue >= iBestPlotValue && iSpecialistValue > 0)
 	{
 		// Specialist is best (can also be a default specialist aka laborer)
 		DoAddSpecialistToBuilding(eBestSpecialistBuilding, /*bForced*/ false, updateMode);

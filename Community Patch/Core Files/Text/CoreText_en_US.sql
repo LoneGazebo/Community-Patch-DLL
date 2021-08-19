@@ -613,6 +613,19 @@ UPDATE Language_en_US
 SET Text = '[NEWLINE][NEWLINE]Civilizations that would be negatively affected by this:'
 WHERE Tag = 'TXT_KEY_LEAGUE_OVERVIEW_PROPOSAL_OPINIONS_NEGATIVE';
 
+-- Discuss Text
+UPDATE Language_en_US
+SET Text = 'Don''t settle or conquer new Cities near us.'
+WHERE Tag = 'TXT_KEY_DIPLO_DISCUSS_MESSAGE_DONT_SETTLE';
+
+UPDATE Language_en_US
+SET Text = 'Our apologies, we''ll refrain from expanding near you in the future.'
+WHERE Tag = 'TXT_KEY_DIPLO_DISCUSS_SORRY_FOR_SETTLING';
+
+UPDATE Language_en_US
+SET Text = 'We''ll expand into any lands we please.'
+WHERE Tag = 'TXT_KEY_DIPLO_DISCUSS_SETTLE_WHAT_WE_PLEASE';
+
 -- Diplo Opinion Table Modifiers
 
 -- Neutral Indicators
@@ -718,7 +731,7 @@ WHERE Tag = 'TXT_KEY_DIPLO_SHARED_INTRIGUE';
 
 -- Player has done mean stuff
 UPDATE Language_en_US
-SET Text = 'You stole their territory!'
+SET Text = 'You stole their territory while at peace!'
 WHERE Tag = 'TXT_KEY_DIPLO_CULTURE_BOMB';
 
 UPDATE Language_en_US
@@ -727,7 +740,7 @@ WHERE Tag = 'TXT_KEY_DIPLO_CAUGHT_STEALING';
 
 -- Player has asked us to do things we don't like
 UPDATE Language_en_US
-SET Text = 'You demanded they not settle near your lands!'
+SET Text = 'You demanded they not expand near your lands!'
 WHERE Tag = 'TXT_KEY_DIPLO_NO_SETTLE_ASKED';
 
 UPDATE Language_en_US
@@ -842,11 +855,11 @@ WHERE Tag = 'TXT_KEY_DIPLO_COOP_WAR_PROMISE';
 
 -- Religion / Ideology
 UPDATE Language_en_US
-SET Text = 'They have happily adopted your religion in the majority of their cities.'
+SET Text = 'They have happily adopted your religion in the majority of their cities.' -- note for translators: swapped HIS and MY text keys from vanilla
 WHERE Tag = 'TXT_KEY_DIPLO_ADOPTING_HIS_RELIGION';
 
 UPDATE Language_en_US
-SET Text = 'You have adopted their religion in the majority of your cities.'
+SET Text = 'You have adopted their religion in the majority of your cities.'  -- note for translators: swapped HIS and MY text keys from vanilla
 WHERE Tag = 'TXT_KEY_DIPLO_ADOPTING_MY_RELIGION';
 
 UPDATE Language_en_US
@@ -1515,6 +1528,18 @@ UPDATE Language_en_US
 SET Text = 'Oh well. I presume you know what you''re doing.'
 WHERE Tag = 'TXT_KEY_LEADER_NEBUCHADNEZZAR_ATTACKED_3';
 
+UPDATE Language_en_US
+SET Text = 'What cursed treachery is this? Have you no honor, no shame?'
+WHERE Tag = 'TXT_KEY_LEADER_SEJONG_ATTACKED_1';
+
+UPDATE Language_en_US
+SET Text = 'You sad little person. Soon you shall feel the full weight of our mighty science bearing down upon you.'
+WHERE Tag = 'TXT_KEY_LEADER_SEJONG_ATTACKED_2';
+
+UPDATE Language_en_US
+SET Text = 'Excellent, excellent! I have been looking for a reason to try out my newly outfitted army, and you have provided me with just the occasion.'
+WHERE Tag = 'TXT_KEY_LEADER_SEJONG_ATTACKED_3';
+
 
 -- AI War Bluff
 UPDATE Language_en_US
@@ -1570,6 +1595,18 @@ WHERE Tag = 'TXT_KEY_LEADER_GENGHIS_DECLAREWAR_1';
 UPDATE Language_en_US
 SET Text = 'Your people remain backwards and primitive. Clearly a change of regime is in order. Prepare for war!'
 WHERE Tag = 'TXT_KEY_LEADER_PACHACUTI_DECLAREWAR_1';
+
+UPDATE Language_en_US
+SET Text = 'The Hall grows weary of your tiresome antics. We shall forcefully liberate your downtrodden, and lead them to enlightenment.'
+WHERE Tag = 'TXT_KEY_LEADER_SEJONG_DECLAREWAR_1';
+
+UPDATE Language_en_US
+SET Text = 'Time waits for no man, and I feel its changeless march growing ever more urgent. You stand in our way, and I have not the resources left for more diplomatic means.'
+WHERE Tag = 'TXT_KEY_LEADER_SEJONG_DECLAREWAR_2';
+
+UPDATE Language_en_US
+SET Text = 'I''ve experiments to run, research to be done, and here you stand like an aging wall to block my path. I shall remove you.'
+WHERE Tag = 'TXT_KEY_LEADER_SEJONG_DECLAREWAR_3';
 
 
 -- Responses to human saying "No"

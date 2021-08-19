@@ -322,6 +322,8 @@ CvTraitEntry::CvTraitEntry() :
 #if defined(MOD_BALANCE_CORE)
 	m_piGoldenAgeFromGreatPersonBirth(NULL),
 	m_piGreatPersonProgressFromPolicyUnlock(NULL),
+	m_piGreatPersonProgressFromKills(),
+	m_piRandomGreatPersonProgressFromKills(),
 #endif
 #endif
 	m_ppiUnimprovedFeatureYieldChanges(NULL)
@@ -1877,6 +1879,34 @@ int CvTraitEntry::GetGreatPersonProgressFromPolicyUnlock(GreatPersonTypes eIndex
 	CvAssertMsg((int)eIndex > -1, "Index out of bounds");
 	return m_piGreatPersonProgressFromPolicyUnlock ? m_piGreatPersonProgressFromPolicyUnlock[(int)eIndex] : 0;
 }
+
+int CvTraitEntry::GetGreatPersonProgressFromKills(GreatPersonTypes eIndex) const
+{
+	CvAssertMsg((int)eIndex < GC.getNumGreatPersonInfos(), "Yield type out of bounds");
+	CvAssertMsg((int)eIndex > -1, "Index out of bounds");
+
+	std::map<int, int>::const_iterator it = m_piGreatPersonProgressFromKills.find((int)eIndex);
+	if (it != m_piGreatPersonProgressFromKills.end()) // find returns the iterator to map::end if the key eIndex is not present in the map
+	{
+		return it->second;
+	}
+
+	return 0;
+}
+
+int CvTraitEntry::GetRandomGreatPersonProgressFromKills(GreatPersonTypes eIndex) const
+{
+	CvAssertMsg((int)eIndex < GC.getNumGreatPersonInfos(), "Yield type out of bounds");
+	CvAssertMsg((int)eIndex > -1, "Index out of bounds");
+
+	std::map<int, int>::const_iterator it = m_piRandomGreatPersonProgressFromKills.find((int)eIndex);
+	if (it != m_piRandomGreatPersonProgressFromKills.end()) // find returns the iterator to map::end if the key eIndex is not present in the map
+	{
+		return it->second;
+	}
+
+	return 0;
+}
 #endif
 
 int CvTraitEntry::GetCityYieldFromUnimprovedFeature(FeatureTypes eIndex1, YieldTypes eIndex2) const
@@ -2142,6 +2172,24 @@ TradeRouteProductionSiphon CvTraitEntry::GetTradeRouteProductionSiphon(bool bInt
 	}
 
 	TradeRouteProductionSiphon sDefault;
+
+	return sDefault;
+}
+#endif
+
+#if defined(MOD_BALANCE_CORE)
+/// Accessor:: Does this trait change the reveal and/or the city trade techs for resources?
+AlternateResourceTechs CvTraitEntry::GetAlternateResourceTechs(ResourceTypes eResource) const
+{
+	std::map<int, AlternateResourceTechs>::const_iterator it = m_piiAlternateResourceTechs.find((int)eResource);
+	if (it != m_piiAlternateResourceTechs.end()) // find returns the iterator to map::end if the key eResource is not present
+	{
+		return it->second;
+	}
+
+	AlternateResourceTechs sDefault;
+	sDefault.m_eTechCityTrade = NO_TECH;
+	sDefault.m_eTechReveal = NO_TECH;
 
 	return sDefault;
 }
@@ -3510,6 +3558,56 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 #if defined(MOD_BALANCE_CORE)
 	kUtility.PopulateArrayByValue(m_piGoldenAgeFromGreatPersonBirth, "GreatPersons", "Trait_GoldenAgeFromGreatPersonBirth", "GreatPersonType", "TraitType", szTraitType, "GoldenAgeTurns");
 	kUtility.PopulateArrayByValue(m_piGreatPersonProgressFromPolicyUnlock, "GreatPersons", "Trait_GreatPersonProgressFromPolicyUnlock", "GreatPersonType", "TraitType", szTraitType, "Value");
+
+	//GreatPersonProgressFromKills
+	{
+		std::string strKey("Trait_GreatPersonProgressFromKills");
+		Database::Results* pResults = kUtility.GetResults(strKey);
+		if (pResults == NULL)
+		{
+			pResults = kUtility.PrepareResults(strKey, "select GreatPersons.ID as GreatPersonID, Value from Trait_GreatPersonProgressFromKills inner join GreatPersons on GreatPersons.Type = GreatPersonType where TraitType = ?");
+		}
+
+		pResults->Bind(1, szTraitType);
+
+		while (pResults->Step())
+		{
+			const int iGreatPerson = pResults->GetInt(0);
+			const int iValue = pResults->GetInt(1);
+
+			m_piGreatPersonProgressFromKills[iGreatPerson] += iValue;
+		}
+
+		pResults->Reset();
+
+		//Trim extra memory off container since this is mostly read-only.
+		std::map<int, int>(m_piGreatPersonProgressFromKills).swap(m_piGreatPersonProgressFromKills);
+	}
+
+	//RandomGreatPersonProgressFromKills
+	{
+		std::string strKey("Trait_RandomGreatPersonProgressFromKills");
+		Database::Results* pResults = kUtility.GetResults(strKey);
+		if (pResults == NULL)
+		{
+			pResults = kUtility.PrepareResults(strKey, "select GreatPersons.ID as GreatPersonID, Value from Trait_RandomGreatPersonProgressFromKills inner join GreatPersons on GreatPersons.Type = GreatPersonType where TraitType = ?");
+		}
+
+		pResults->Bind(1, szTraitType);
+
+		while (pResults->Step())
+		{
+			const int iGreatPerson = pResults->GetInt(0);
+			const int iValue = pResults->GetInt(1);
+
+			m_piRandomGreatPersonProgressFromKills[iGreatPerson] += iValue;
+		}
+
+		pResults->Reset();
+
+		//Trim extra memory off container since this is mostly read-only.
+		std::map<int, int>(m_piRandomGreatPersonProgressFromKills).swap(m_piRandomGreatPersonProgressFromKills);
+	}
 #endif
 
 	//UnimprovedFeatureYieldChanges
@@ -3589,6 +3687,37 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 			m_aFreeResourceXCities[iResource] = temp;
 		}
 	}
+
+#if defined(MOD_BALANCE_CORE)
+	//Populate m_piiAlternateResourceTechs
+	{
+		std::string sqlKey = "Trait_AlternateResourceTechs";
+		Database::Results* pResults = kUtility.GetResults(sqlKey);
+		if (pResults == NULL)
+		{
+			const char* szSQL = "select Resources.ID as ResourceID, A.TechReveal, A.TechCityTrade from Trait_AlternateResourceTechs A inner join Resources on Resources.Type = ResourceType where TraitType = ?";
+			pResults = kUtility.PrepareResults(sqlKey, szSQL);
+		}
+
+		pResults->Bind(1, szTraitType);
+
+		while (pResults->Step())
+		{
+			const int iResource = pResults->GetInt(0);
+			AlternateResourceTechs pTechs;
+			pTechs.m_eTechReveal = (TechTypes)GC.getInfoTypeForString(pResults->GetText("TechReveal"), true);
+			pTechs.m_eTechCityTrade = (TechTypes)GC.getInfoTypeForString(pResults->GetText("TechCityTrade"), true);
+
+			m_piiAlternateResourceTechs[iResource] = pTechs;
+		}
+
+		pResults->Reset();
+
+		//Trim extra memory off container since this is mostly read-only.
+		std::map<int, AlternateResourceTechs>(m_piiAlternateResourceTechs).swap(m_piiAlternateResourceTechs);
+	}
+#endif
+
 
 	return true;
 }
@@ -3780,6 +3909,16 @@ void CvPlayerTraits::SetIsWarmonger()
 			return;
 		}
 	}
+
+	for (int iGreatPerson = 0; iGreatPerson < GC.getNumGreatPersonInfos(); iGreatPerson++)
+	{
+		GreatPersonTypes eGreatPerson = (GreatPersonTypes)iGreatPerson;
+		if (GetGreatPersonProgressFromKills(eGreatPerson) > 0)
+		{
+			m_bIsWarmonger = true;
+			return;
+		}
+	}
 #endif
 
 	if (IsReconquista() ||
@@ -3790,7 +3929,8 @@ void CvPlayerTraits::SetIsWarmonger()
 		GetBullyYieldMultiplierAnnex() != 0 ||
 		(GetPuppetPenaltyReduction() != 0 && !IsNoAnnexing()) || // puppet & annexing - Warmonger, puppet & no annexing - Smaller
 		IsFightWellDamaged() ||
-		IsEmbarkedToLandFlatCost())
+		IsEmbarkedToLandFlatCost() ||
+		IsRandomGreatPersonProgressFromKills())
 	{
 		m_bIsWarmonger = true;
 		return;
@@ -3971,11 +4111,22 @@ void CvPlayerTraits::SetIsSmaller()
 		}
 	}
 
+	for (int iGreatPerson = 0; iGreatPerson < GC.getNumGreatPersonInfos(); iGreatPerson++)
+	{
+		GreatPersonTypes eGreatPerson = (GreatPersonTypes)iGreatPerson;
+		if (GetGreatPersonProgressFromKills(eGreatPerson) > 0)
+		{
+			m_bIsSmaller = true;
+			return;
+		}
+	}
+
 	if (IsImportsCountTowardsMonopolies() ||
 		IsAdoptionFreeTech() ||
 		IsPopulationBoostReligion() ||
 		IsNoAnnexing() ||
-		IsTechBoostFromCapitalScienceBuildings())
+		IsTechBoostFromCapitalScienceBuildings() ||
+		IsRandomGreatPersonProgressFromKills())
 	{
 		m_bIsSmaller = true;
 		return;
@@ -4829,6 +4980,12 @@ void CvPlayerTraits::InitPlayerTraits()
 			for(int iResource = 0; iResource < GC.getNumResourceInfos(); iResource++)
 			{
 				m_aiResourceQuantityModifier[iResource] = trait->GetResourceQuantityModifier(iResource);
+#if defined(MOD_BALANCE_CORE)
+				if (trait->GetAlternateResourceTechs((ResourceTypes)iResource).IsAlternateResourceTechs())
+				{
+					m_aiiAlternateResourceTechs[iResource] = trait->GetAlternateResourceTechs((ResourceTypes)iResource);
+				}
+#endif
 			}
 
 #if defined(MOD_BALANCE_CORE)
@@ -4840,6 +4997,14 @@ void CvPlayerTraits::InitPlayerTraits()
 				m_aiGoldenAgeGreatPersonRateModifier[iGreatPersonTypes] = trait->GetGoldenAgeGreatPersonRateModifier((GreatPersonTypes)iGreatPersonTypes);
 				m_aiGoldenAgeFromGreatPersonBirth[iGreatPersonTypes] = trait->GetGoldenAgeFromGreatPersonBirth((GreatPersonTypes)iGreatPersonTypes);
 				m_aiGreatPersonProgressFromPolicyUnlock[iGreatPersonTypes] = trait->GetGreatPersonProgressFromPolicyUnlock((GreatPersonTypes)iGreatPersonTypes);
+				if (trait->GetGreatPersonProgressFromKills((GreatPersonTypes)iGreatPersonTypes) > 0)
+				{
+					m_aiGreatPersonProgressFromKills[iGreatPersonTypes] = trait->GetGreatPersonProgressFromKills((GreatPersonTypes)iGreatPersonTypes);
+				}
+				if (trait->GetRandomGreatPersonProgressFromKills((GreatPersonTypes)iGreatPersonTypes) > 0)
+				{
+					m_aiRandomGreatPersonProgressFromKills[iGreatPersonTypes] = trait->GetRandomGreatPersonProgressFromKills((GreatPersonTypes)iGreatPersonTypes);
+				}
 			}
 
 			for (int iDomain = 0; iDomain < NUM_DOMAIN_TYPES; iDomain++)
@@ -4965,6 +5130,8 @@ void CvPlayerTraits::Uninit()
 #if defined(MOD_BALANCE_CORE)
 	m_aiGoldenAgeFromGreatPersonBirth.clear();
 	m_aiGreatPersonProgressFromPolicyUnlock.clear();
+	m_aiGreatPersonProgressFromKills.clear();
+	m_aiRandomGreatPersonProgressFromKills.clear();
 #endif
 	m_aiNumPledgesDomainProdMod.clear();
 	m_aiFreeUnitClassesDOW.clear();
@@ -5439,6 +5606,8 @@ void CvPlayerTraits::Reset()
 	m_aiGoldenAgeGreatPersonRateModifier.clear();
 	m_aiGoldenAgeFromGreatPersonBirth.clear();
 	m_aiGreatPersonProgressFromPolicyUnlock.clear();
+	m_aiGreatPersonProgressFromKills.clear();
+	m_aiRandomGreatPersonProgressFromKills.clear();
 
 	m_aiGreatPersonCostReduction.resize(GC.getNumGreatPersonInfos());
 	m_aiPerPuppetGreatPersonRateModifier.resize(GC.getNumGreatPersonInfos());
@@ -5482,6 +5651,9 @@ void CvPlayerTraits::Reset()
 #endif
 #if defined(MOD_TRAITS_TRADE_ROUTE_PRODUCTION_SIPHON)
 	m_aiiTradeRouteProductionSiphon.clear();
+#endif
+#if defined(MOD_BALANCE_CORE)
+	m_aiiAlternateResourceTechs.clear();
 #endif
 	int iResourceLoop;
 	for(iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
@@ -5572,6 +5744,55 @@ bool CvPlayerTraits::WillGetUniqueLuxury(CvArea *pArea) const
 
 	return false;
 }
+
+#if defined(MOD_BALANCE_CORE)
+/// Instant great person progress when killing enemy units
+int CvPlayerTraits::GetGreatPersonProgressFromKills(GreatPersonTypes eIndex) const
+{
+	CvAssertMsg((int)eIndex < GC.getNumGreatPersonInfos(), "Yield type out of bounds");
+	CvAssertMsg((int)eIndex > -1, "Index out of bounds");
+
+	std::map<int, int>::const_iterator it = m_aiGreatPersonProgressFromKills.find((int)eIndex);
+	if (it != m_aiGreatPersonProgressFromKills.end()) // find returns the iterator to map::end if the key eIndex is not present in the map
+	{
+		return it->second;
+	}
+
+	return 0;
+}
+
+/// Does this civilization get random great person progress when killing enemy units?
+bool CvPlayerTraits::IsRandomGreatPersonProgressFromKills() const
+{
+	return !m_aiRandomGreatPersonProgressFromKills.empty();
+}
+
+/// Instant random great person progress when killing enemy units
+std::pair<GreatPersonTypes, int> CvPlayerTraits::GetRandomGreatPersonProgressFromKills(int iAdditionalSeed) const
+{
+	// how many options we have
+	int iSize = m_aiRandomGreatPersonProgressFromKills.size();
+	int iChoice = -1;
+
+	if (iSize > 0)
+	{
+		// get our pseudo RNG seed
+		iChoice = GC.getGame().getSmallFakeRandNum(m_aiRandomGreatPersonProgressFromKills.size(), m_pPlayer->GetPseudoRandomSeed() + GC.getGame().getNumCities() + iAdditionalSeed);
+
+		// access the element at the position of our RNG seed
+		for (std::map<int, int>::const_iterator it = m_aiRandomGreatPersonProgressFromKills.begin(); it != m_aiRandomGreatPersonProgressFromKills.end(); it++) // find returns the iterator to map::end if the key eIndex is not present in the map
+		{
+			if (iChoice == 0)
+			{
+				return std::make_pair((GreatPersonTypes)it->first, it->second);
+			}
+			iChoice--;
+		}
+	}
+
+	return std::make_pair(NO_GREATPERSON, 0);
+}
+#endif
 
 /// Bonus movement for this combat class
 int CvPlayerTraits::GetMovesChangeUnitCombat(const int unitCombatID) const
@@ -6084,6 +6305,30 @@ TradeRouteProductionSiphon CvPlayerTraits::GetTradeRouteProductionSiphon(bool bI
 bool CvPlayerTraits::IsTradeRouteProductionSiphon() const
 {
 	return !m_aiiTradeRouteProductionSiphon.empty();
+}
+#endif
+
+#if defined(MOD_BALANCE_CORE)
+/// What are the alternate technologies for revealing resources
+AlternateResourceTechs CvPlayerTraits::GetAlternateResourceTechs(ResourceTypes eResource) const
+{
+	std::map<int, AlternateResourceTechs>::const_iterator it = m_aiiAlternateResourceTechs.find((int)eResource);
+	if (it != m_aiiAlternateResourceTechs.end()) // find returns the iterator to map::end if the key is not present
+	{
+		return it->second;
+	}
+
+	AlternateResourceTechs sBlank;
+	sBlank.m_eTechCityTrade = NO_TECH;
+	sBlank.m_eTechReveal = NO_TECH;
+
+	return sBlank;
+}
+
+/// Does the player's traits cause any resource to have a different reveal or city trade tech?
+bool CvPlayerTraits::IsAlternateResourceTechs() const
+{
+	return !m_aiiAlternateResourceTechs.empty();
 }
 #endif
 
@@ -7159,6 +7404,26 @@ FDataStream& operator>>(FDataStream& loadFrom, TradeRouteProductionSiphon& write
 	return loadFrom;
 }
 
+// AlternateResourceTechs
+template<typename AlternateResourceTechsT, typename Visitor>
+void AlternateResourceTechs::Serialize(AlternateResourceTechsT& alternateResourceTechs, Visitor& visitor)
+{
+	visitor(alternateResourceTechs.m_eTechReveal);
+	visitor(alternateResourceTechs.m_eTechCityTrade);
+}
+FDataStream& operator<<(FDataStream& saveTo, const AlternateResourceTechs& readFrom)
+{
+	CvStreamSaveVisitor serialVisitor(saveTo);
+	AlternateResourceTechs::Serialize(readFrom, serialVisitor);
+	return saveTo;
+}
+FDataStream& operator>>(FDataStream& loadFrom, AlternateResourceTechs& writeTo)
+{
+	CvStreamLoadVisitor serialVisitor(loadFrom);
+	AlternateResourceTechs::Serialize(writeTo, serialVisitor);
+	return loadFrom;
+}
+
 // --
 
 template<typename PlayerTraits, typename Visitor>
@@ -7374,6 +7639,8 @@ void CvPlayerTraits::Serialize(PlayerTraits& playerTraits, Visitor& visitor)
 	visitor(playerTraits.m_aiGoldenAgeGreatPersonRateModifier);
 	visitor(playerTraits.m_aiGoldenAgeFromGreatPersonBirth);
 	visitor(playerTraits.m_aiGreatPersonProgressFromPolicyUnlock);
+	visitor(playerTraits.m_aiGreatPersonProgressFromKills);
+	visitor(playerTraits.m_aiRandomGreatPersonProgressFromKills);
 	visitor(playerTraits.m_aiNumPledgesDomainProdMod);
 	visitor(playerTraits.m_aiFreeUnitClassesDOW);
 	visitor(playerTraits.m_aiDomainFreeExperienceModifier);
@@ -7394,6 +7661,7 @@ void CvPlayerTraits::Serialize(PlayerTraits& playerTraits, Visitor& visitor)
 	visitor(playerTraits.m_abTerrainClaimBoost);
 	visitor(playerTraits.m_pbiYieldFromRouteMovementInForeignTerritory);
 	visitor(playerTraits.m_aiiTradeRouteProductionSiphon);
+	visitor(playerTraits.m_aiiAlternateResourceTechs);
 	visitor(playerTraits.m_paiMovesChangeUnitCombat);
 	visitor(playerTraits.m_paiMaintenanceModifierUnitCombat);
 	visitor(playerTraits.m_ppaaiImprovementYieldChange);
