@@ -167,6 +167,7 @@ void CvLuaTeam::PushMethods(lua_State* L, int t)
 	Method(CanDefensiveEmbark);
 
 	Method(IsHasMet);
+	Method(GetTurnsSinceMeetingTeam);
 	Method(IsAtWar);
 	Method(IsPermanentWarPeace);
 	Method(SetPermanentWarPeace);
@@ -1056,6 +1057,13 @@ int CvLuaTeam::lCanDefensiveEmbark(lua_State* L)
 int CvLuaTeam::lIsHasMet(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvTeam::isHasMet);
+}
+
+//------------------------------------------------------------------------------
+//bool GetTurnsSinceMeetingTeam(TeamTypes eIndex);
+int CvLuaTeam::lGetTurnsSinceMeetingTeam(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvTeam::GetTurnsSinceMeetingTeam);
 }
 
 //------------------------------------------------------------------------------

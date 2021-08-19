@@ -6428,6 +6428,23 @@ bool CvGame::IsShowBaseHumanOpinion() const
 	return false;
 }
 
+/// Hide Opinion Table
+/// Overrides Transparent Diplomacy, Show All Opinion Modifiers, and Show All Opinion Values.
+bool CvGame::IsHideOpinionTable() const
+{
+	if (IsDiploDebugModeEnabled())
+	{
+		return false;
+	}
+
+	if (GC.getDIPLOAI_HIDE_OPINION_TABLE() > 0)
+	{
+		return true;
+	}
+
+	return false;
+}
+
 /// Enable Lump Sum Gold Trading
 bool CvGame::IsLumpGoldTradingHumanOnly() const
 {

@@ -933,6 +933,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(DoTradeScreenClosed);
 	Method(GetMajorCivApproach);
 	Method(GetApproachTowardsUsGuess);
+	Method(IsActHostileTowardsHuman);
 	Method(IsWillAcceptPeaceWithPlayer);
 	Method(IsProtectingMinor);
 	Method(IsDontSettleMessageTooSoon);
@@ -10154,6 +10155,17 @@ int CvLuaPlayer::lGetApproachTowardsUsGuess(lua_State* L)
 	return 1;
 }
 //------------------------------------------------------------------------------
+//bool IsActHostileTowardsHuman(PlayerTypes eHuman);
+int CvLuaPlayer::lIsActHostileTowardsHuman(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	PlayerTypes ePlayer = (PlayerTypes) lua_tointeger(L, 2);
+
+	lua_pushboolean(L, pkPlayer->GetDiplomacyAI()->IsActHostileTowardsHuman(ePlayer, false));
+	return 1;
+}
+
+//------------------------------------------------------------------------------
 int CvLuaPlayer::lGetMajorCivApproach(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
@@ -12457,7 +12469,7 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 	bool bHideDisputes = bShowAllModifiers ? false : pDiplo->ShouldHideDisputeMods(ePlayer);
 	bool bHideNegatives = bShowAllModifiers ? false : pDiplo->ShouldHideNegativeMods(ePlayer);
 	bool bPretendNoDisputes = bHideDisputes && bHideNegatives;
-	bool bObserver = GET_PLAYER(ePlayer).isObserver() || !pkPlayer->isMajorCiv() || !GET_PLAYER(ePlayer).isMajorCiv() || !pkPlayer->isAlive() || !GET_PLAYER(ePlayer).isAlive();
+	bool bObserver = GET_PLAYER(ePlayer).isObserver() || !pkPlayer->isMajorCiv() || !GET_PLAYER(ePlayer).isMajorCiv() || !pkPlayer->isAlive() || !GET_PLAYER(ePlayer).isAlive() || GC.getGame().IsHideOpinionTable();
 	bool bUNActive = GC.getGame().IsUnitedNationsActive();
 	bool bJustMet = GC.getGame().IsDiploDebugModeEnabled() ? false : (GET_TEAM(pkPlayer->getTeam()).GetTurnsSinceMeetingTeam(GET_PLAYER(ePlayer).getTeam()) == 0); // Don't display certain modifiers if we just met them
 

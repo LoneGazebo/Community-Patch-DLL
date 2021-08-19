@@ -76,6 +76,13 @@ SELECT 'DIPLOAI_SHOW_BASE_HUMAN_OPINION', '0';
 
 -- Advanced Options
 
+-- [HIDE OPINION TABLE]
+-- If set to 1, no AI opinion modifiers or values will appear in the table (except a short message explaining their visible approach).
+-- For those who want extra challenge/immersion.
+-- NOTE: Overrides Transparent Diplomacy, Show All Opinion Modifiers, and Show All Opinion Values. Does NOT override Debug Mode.
+INSERT INTO Defines (Name, Value)
+SELECT 'DIPLOAI_HIDE_OPINION_TABLE', '0';
+
 -- [DISABLE FLAVOR RANDOMIZATION]
 -- If set to 1, diplomacy flavors for AI players will not be randomized by +/- 2. They will instead always be set to their base XML value.
 -- NOTE: This only affects AI flavors related to diplomacy, not other flavors. Also, changing this setting will have no effect if you load a saved game; you must start a new game!

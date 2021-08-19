@@ -309,6 +309,8 @@ protected:
 	//! Gets a custom game option of specified name.
 	static int lGetCustomOption(lua_State* L);
 
+	static int lIsHideOpinionTable(lua_State* L);
+
 	static int lGetNumCitiesPolicyCostMod(lua_State* L);
 	static int lGetNumCitiesTechCostMod(lua_State* L);
 

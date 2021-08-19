@@ -1015,6 +1015,7 @@ protected:
 	static int lDoTradeScreenClosed(lua_State* L);
 	static int lGetMajorCivApproach(lua_State* L);
 	static int lGetApproachTowardsUsGuess(lua_State* L);
+	static int lIsActHostileTowardsHuman(lua_State* L);
 	static int lIsWillAcceptPeaceWithPlayer(lua_State* L);
 	static int lIsProtectingMinor(lua_State* L);
 	static int lIsDontSettleMessageTooSoon(lua_State* L);

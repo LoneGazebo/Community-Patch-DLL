@@ -20130,6 +20130,11 @@ void CvDiplomacyAI::DoUpdatePlanningExchanges()
 
 				if (GET_PLAYER(eLoopPlayer).getTeam() != eLiberatedByTeam)
 				{
+					if (IsHasDefensivePact(eLoopPlayer))
+						SetWantsToEndDefensivePactWithPlayer(eLoopPlayer, true);
+					else
+						SetWantsToEndDefensivePactWithPlayer(eLoopPlayer, false);
+
 					SetWantsDefensivePactWithPlayer(eLoopPlayer, false);
 				}
 			}
