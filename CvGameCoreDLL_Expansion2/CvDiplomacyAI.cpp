@@ -20123,6 +20123,17 @@ void CvDiplomacyAI::DoUpdatePlanningExchanges()
 		TeamTypes eLiberatedByTeam = GET_TEAM(GetTeam()).GetLiberatedByTeam();
 		if (eLiberatedByTeam != NO_TEAM && GET_TEAM(eLiberatedByTeam).isAlive() && GET_TEAM(eLiberatedByTeam).getNumCities() > 0)
 		{
+			// Edge case fix for the liberator dying and then being resurrected
+			for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+			{
+				PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+
+				if (GET_PLAYER(eLoopPlayer).getTeam() != eLiberatedByTeam)
+				{
+					SetWantsDefensivePactWithPlayer(eLoopPlayer, false);
+				}
+			}
+
 			vector<PlayerTypes> vLiberatedTeamPlayers = GET_TEAM(eLiberatedByTeam).getPlayers();
 			for (size_t i=0; i<vLiberatedTeamPlayers.size(); i++)
 			{
