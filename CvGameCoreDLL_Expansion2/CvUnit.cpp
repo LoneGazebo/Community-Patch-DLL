@@ -16643,10 +16643,10 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 		if (bAttacking)
 		{
 			// Open Ground
-			if (pMyPlot->isOpenGround())
+			if (pTargetPlot->isOpenGround())
 				iModifier += openRangedAttackModifier();
 			// Rough Ground
-			else if (pMyPlot->isRoughGround())
+			else if (pTargetPlot->isRoughGround())
 				iModifier += roughRangedAttackModifier();
 		}
 
