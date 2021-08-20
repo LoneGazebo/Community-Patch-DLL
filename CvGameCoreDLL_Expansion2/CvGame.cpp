@@ -6363,11 +6363,24 @@ bool CvGame::IsComplimentMessagesDisabled() const
 	return false;
 }
 
+/// No Fake Modifiers
+/// This controls whether the AI is able to fake having no disputes (no contested borders, etc.) in the opinion table.
+/// Does not prevent displaying a false Approach or Approach hint (i.e. "They desire friendly relations with our empire.")
+bool CvGame::IsNoFakeOpinionModifiers() const
+{
+	if (GC.getDIPLOAI_NO_FAKE_OPINION_MODIFIERS() > 0)
+	{
+		return true;
+	}
+
+	return false;
+}
+
 /// Show All Opinion Modifiers
 /// This controls whether the AI should always display its full list of Opinion modifiers, even when it is FRIENDLY or otherwise might want to hide something.
-bool CvGame::IsShowAllOpinionModifiers() const
+bool CvGame::IsShowHiddenOpinionModifiers() const
 {
-	if (GC.getDIPLOAI_SHOW_ALL_OPINION_MODIFIERS() > 0)
+	if (GC.getDIPLOAI_SHOW_HIDDEN_OPINION_MODIFIERS() > 0)
 	{
 		return true;
 	}
@@ -6420,7 +6433,7 @@ bool CvGame::IsShowBaseHumanOpinion() const
 		return true;
 	}
 
-	if (IsShowAllOpinionModifiers())
+	if (IsDiploDebugModeEnabled())
 	{
 		return true;
 	}
@@ -6541,6 +6554,30 @@ bool CvGame::IsTradeOffersDisabled(bool bIncludeRenewals) const
 bool CvGame::IsPeaceOffersDisabled() const
 {
 	if (GC.getDIPLOAI_DISABLE_PEACE_OFFERS() > 0)
+	{
+		return true;
+	}
+
+	return false;
+}
+
+/// Disable Demands
+/// Only affects human players, and only affects demands sent by the AI on their turn.
+bool CvGame::IsDemandsDisabled() const
+{
+	if (GC.getDIPLOAI_DISABLE_DEMANDS() > 0)
+	{
+		return true;
+	}
+
+	return false;
+}
+
+/// Disable Independence Requests
+/// Only affects human players, and only affects independence requests sent by the AI on their turn.
+bool CvGame::IsIndependenceRequestsDisabled() const
+{
+	if (GC.getDIPLOAI_DISABLE_INDEPENDENCE_REQUESTS() > 0)
 	{
 		return true;
 	}
@@ -12740,40 +12777,69 @@ void CvGame::DoMinorMarriage(PlayerTypes eMajor, PlayerTypes eMinor)
 }
 #endif
 
+//	--------------------------------------------------------------------------------
+/// Notification letting all non-party players know that two players made a Defensive Pact.
+void CvGame::DoDefensivePactNotification(PlayerTypes eFirstPlayer, PlayerTypes eSecondPlayer)
+{
+	for (int iPlayerLoop = 0; iPlayerLoop < MAX_PLAYERS; iPlayerLoop++)
+	{
+		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+		if (eLoopPlayer == eFirstPlayer || eLoopPlayer == eSecondPlayer)
+			continue;
 
+		if (GET_PLAYER(eLoopPlayer).isObserver() || (GET_PLAYER(eLoopPlayer).isHuman() && GET_PLAYER(eLoopPlayer).isAlive()))
+		{
+			if (!GET_PLAYER(eLoopPlayer).isObserver())
+			{
+				if (!GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).isHasMet(GET_PLAYER(eFirstPlayer).getTeam()))
+					continue;
+
+				if (!GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).isHasMet(GET_PLAYER(eSecondPlayer).getTeam()))
+					continue;
+			}
+
+			CvNotifications* pNotify = GET_PLAYER(eLoopPlayer).GetNotifications();
+			if (pNotify)
+			{
+				Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_DEFENSIVE_PACT");
+				Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_DEFENSIVE_PACT_S");
+				strText << GET_PLAYER(eFirstPlayer).getCivilizationShortDescriptionKey();
+				strText << GET_PLAYER(eSecondPlayer).getCivilizationShortDescriptionKey();
+				pNotify->Add(NOTIFICATION_DIPLOMACY_DECLARATION, strText.toUTF8(), strSummary.toUTF8(), -1, -1, -1);
+			}
+		}
+	}
+}
 
 //	--------------------------------------------------------------------------------
-/// Notification letting all non-party players know that two teams made a Research Agreement.  This is in CvGame because we only want it called once, and if it were in CvDealClasses it would be called twice, or have to be special-cased, so we'll special-case it here instead
-void CvGame::DoResearchAgreementNotification(TeamTypes eTeam1, TeamTypes eTeam2)
+/// Notification letting all non-party players know that two players made a Research Agreement.
+void CvGame::DoResearchAgreementNotification(PlayerTypes eFirstPlayer, PlayerTypes eSecondPlayer)
 {
-	// Notify all non-parties that these civs made a research agreement.
-	for(int iNotifyLoop = 0; iNotifyLoop < MAX_MAJOR_CIVS; ++iNotifyLoop){
-		PlayerTypes eNotifyPlayer = (PlayerTypes) iNotifyLoop;
-		CvPlayerAI& kCurNotifyPlayer = GET_PLAYER(eNotifyPlayer);
-		TeamTypes eCurNotifyTeam = kCurNotifyPlayer.getTeam();
+	for (int iPlayerLoop = 0; iPlayerLoop < MAX_PLAYERS; iPlayerLoop++)
+	{
+		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+		if (eLoopPlayer == eFirstPlayer || eLoopPlayer == eSecondPlayer)
+			continue;
 
-		// Don't show notification if WE'RE the ones in the deal
-		if(eCurNotifyTeam != eTeam1 && eCurNotifyTeam != eTeam2)
+		if (GET_PLAYER(eLoopPlayer).isObserver() || (GET_PLAYER(eLoopPlayer).isHuman() && GET_PLAYER(eLoopPlayer).isAlive()))
 		{
-			CvTeam* pCurTeam = &GET_TEAM(eCurNotifyTeam);
-
-			if(pCurTeam->isHasMet(eTeam1) && pCurTeam->isHasMet(eTeam2))
+			if (!GET_PLAYER(eLoopPlayer).isObserver())
 			{
-				CvNotifications* pNotifications = kCurNotifyPlayer.GetNotifications();
-				if(pNotifications)
-				{
-					const char* strLeaderName = GET_PLAYER(GET_TEAM(eTeam1).getLeaderID()).getCivilizationShortDescriptionKey();
-					const char* strOtherLeaderName = GET_PLAYER(GET_TEAM(eTeam2).getLeaderID()).getCivilizationShortDescriptionKey();
+				if (!GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).isHasMet(GET_PLAYER(eFirstPlayer).getTeam()))
+					continue;
 
-					Localization::String strText;
-					strText = Localization::Lookup("TXT_KEY_NOTIFICATION_RESEARCH_AGREEMENT");
-					strText << strLeaderName << strOtherLeaderName;
+				if (!GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).isHasMet(GET_PLAYER(eSecondPlayer).getTeam()))
+					continue;
+			}
 
-					Localization::String strSummary;
-					strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_RESEARCH_AGREEMENT");
-
-					pNotifications->Add(NOTIFICATION_DIPLOMACY_DECLARATION, strText.toUTF8(), strSummary.toUTF8(), -1, -1, -1);
-				}
+			CvNotifications* pNotify = GET_PLAYER(eLoopPlayer).GetNotifications();
+			if (pNotify)
+			{
+				Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_RESEARCH_AGREEMENT");
+				Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_RESEARCH_AGREEMENT");
+				strText << GET_PLAYER(eFirstPlayer).getCivilizationShortDescriptionKey();
+				strText << GET_PLAYER(eSecondPlayer).getCivilizationShortDescriptionKey();
+				pNotify->Add(NOTIFICATION_DIPLOMACY_DECLARATION, strText.toUTF8(), strSummary.toUTF8(), -1, -1, -1);
 			}
 		}
 	}

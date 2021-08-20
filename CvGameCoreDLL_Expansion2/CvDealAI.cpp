@@ -322,7 +322,7 @@ DealOfferResponseTypes CvDealAI::DoHumanOfferDealToThisAI(CvDeal* pDeal)
 void CvDealAI::DoAcceptedDeal(PlayerTypes eFromPlayer, CvDeal kDeal, int iDealValueToMe, int iValueImOffering, int iValueTheyreOffering)
 {
 #if defined(MOD_ACTIVE_DIPLOMACY)
-	if(GC.getGame().isReallyNetworkMultiPlayer() && MOD_ACTIVE_DIPLOMACY)
+	if (GC.getGame().isReallyNetworkMultiPlayer() && MOD_ACTIVE_DIPLOMACY)
 	{
 		GC.getGame().GetGameDeals().FinalizeMPDeal(kDeal, true);
 	}
@@ -334,110 +334,99 @@ void CvDealAI::DoAcceptedDeal(PlayerTypes eFromPlayer, CvDeal kDeal, int iDealVa
 #else
 	GC.getGame().GetGameDeals().AddProposedDeal(kDeal);
 	GC.getGame().GetGameDeals().FinalizeDeal(eFromPlayer, GetPlayer()->GetID(), true);
-#endif	
-	if(GET_PLAYER(eFromPlayer).isHuman())
-	{
-		iDealValueToMe -= GetCachedValueOfPeaceWithHuman();
-
-		// Reset cached values
-		SetCachedValueOfPeaceWithHuman(0);	
-
-		m_pPlayer->SetCachedValueOfPeaceWithHuman(0);
-		LeaderheadAnimationTypes eAnimation = LEADERHEAD_ANIM_POSITIVE;
-
-
-		// This signals Lua to do some interface cleanup, we only want to do this on the local machine.
-		if(GC.getGame().getActivePlayer() == eFromPlayer)
-			gDLL->DoClearDiplomacyTradeTable();
-
-		DiploUIStateTypes eUIState = NO_DIPLO_UI_STATE;
-
-		const char* szText = GetPlayer()->GetDiplomacyAI()->GetDiploStringForMessage(DIPLO_MESSAGE_TRADE_ACCEPT_ACCEPTABLE);
-
-
-		// We made a demand and they gave in
-		if(kDeal.GetDemandingPlayer() == GetPlayer()->GetID())
-		{
-			if(GC.getGame().getActivePlayer() == eFromPlayer)
-			{
-				szText = GetPlayer()->GetDiplomacyAI()->GetDiploStringForMessage(DIPLO_MESSAGE_TRADE_ACCEPT_AI_DEMAND);
-				gDLL->GameplayDiplomacyAILeaderMessage(GetPlayer()->GetID(), DIPLO_UI_STATE_BLANK_DISCUSSION, szText, LEADERHEAD_ANIM_POSITIVE);
-			}
-
-			return;
-		}
-
-		// We made a request and they agreed
-		if(kDeal.GetRequestingPlayer() == GetPlayer()->GetID())
-		{
-			if(GC.getGame().getActivePlayer() == eFromPlayer)
-			{
-				szText = GetPlayer()->GetDiplomacyAI()->GetDiploStringForMessage(DIPLO_MESSAGE_THANKFUL);
-				gDLL->GameplayDiplomacyAILeaderMessage(GetPlayer()->GetID(), DIPLO_UI_STATE_BLANK_DISCUSSION, szText, LEADERHEAD_ANIM_POSITIVE);
-			}
-			GetPlayer()->GetDiplomacyAI()->ChangeRecentAssistValue(eFromPlayer, -iDealValueToMe);
-			return;
-		}
-
-		eUIState = DIPLO_UI_STATE_BLANK_DISCUSSION;
-
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-		// We're offering help to a player
-		if (MOD_DIPLOMACY_CIV4_FEATURES && (GetPlayer()->GetDiplomacyAI()->IsOfferingGift(eFromPlayer) || GetPlayer()->GetDiplomacyAI()->IsOfferedGift(eFromPlayer)))
-		{
-			//End the gift exchange after this.
-			GetPlayer()->GetDiplomacyAI()->SetOfferingGift(eFromPlayer, false);
-			GetPlayer()->GetDiplomacyAI()->SetOfferedGift(eFromPlayer, true);
-			szText = GetPlayer()->GetDiplomacyAI()->GetDiploStringForMessage(DIPLO_MESSAGE_PLEASED);
-			eAnimation = LEADERHEAD_ANIM_POSITIVE;
-		}
-		else
-#else
-		// Good deal for us
 #endif
 
-		if (kDeal.GetPeaceTreatyType() == NO_PEACE_TREATY_TYPE)
+	if (GET_PLAYER(eFromPlayer).isHuman())
+	{
+		// If this was a peace deal, apply a recent assist bonus for demanding less than the maximum value.
+		int iCachedPeaceValue = GetCachedValueOfPeaceWithHuman();
+		bool bGenerousPeaceTreaty = false;
+		if (iCachedPeaceValue != 0)
 		{
+			iCachedPeaceValue *= -1;
+			if (iDealValueToMe < 0)
+				iDealValueToMe = 0;
 
-			if(iDealValueToMe >= 100 ||
-					iValueTheyreOffering > (iValueImOffering * 5))	// A deal can be generous if we're getting a lot overall, OR a lot more than we're giving up
+			if (iCachedPeaceValue > 0 && iDealValueToMe < iCachedPeaceValue)
 			{
-				szText = GetPlayer()->GetDiplomacyAI()->GetDiploStringForMessage(DIPLO_MESSAGE_TRADE_ACCEPT_GENEROUS);
-				eAnimation = LEADERHEAD_ANIM_YES;
-				if (kDeal.GetDemandingPlayer() != eFromPlayer)
-					GetPlayer()->GetDiplomacyAI()->ChangeRecentTradeValue(eFromPlayer, (iDealValueToMe / 5));
-			}
-			// Acceptable deal for us
-			else
-			{
-				szText = GetPlayer()->GetDiplomacyAI()->GetDiploStringForMessage(DIPLO_MESSAGE_TRADE_ACCEPT_ACCEPTABLE);
-				eAnimation = LEADERHEAD_ANIM_YES;
-				if (kDeal.GetDemandingPlayer() != eFromPlayer && iDealValueToMe > 0)
-					GetPlayer()->GetDiplomacyAI()->ChangeRecentTradeValue(eFromPlayer, (iDealValueToMe / 10));
+				int iDifference = iCachedPeaceValue - iDealValueToMe;
+				int iPercentage = (iDifference * 100) / iCachedPeaceValue;
+				int iRecentAssistBonus = (m_pPlayer->GetDiplomacyAI()->GetMaxRecentAssistValue() * 2 * iPercentage) / 100;
+				m_pPlayer->GetDiplomacyAI()->ChangeRecentAssistValue(eFromPlayer, -iRecentAssistBonus);
+
+				// If half or less of max value, mark it as generous for the text selection below
+				if (iPercentage >= 50)
+				{
+					bGenerousPeaceTreaty = true;
+				}
 			}
 
+			// Reset cached values
+			SetCachedValueOfPeaceWithHuman(0);
+			m_pPlayer->SetCachedValueOfPeaceWithHuman(0);
+			iDealValueToMe = 0;
+			iValueImOffering = 0;
+			iValueTheyreOffering = 0;
 		}
 
-
-		if(GC.getGame().getActivePlayer() == eFromPlayer)
+		if (GC.getGame().getActivePlayer() == eFromPlayer)
+		{
+			// This signals Lua to do some interface cleanup, we only want to do this on the local machine.
+			gDLL->DoClearDiplomacyTradeTable();
 			GC.GetEngineUserInterface()->SetOfferTradeRepeatCount(0);
 
-		// If this was a peace deal then use that animation instead
-		if(kDeal.GetPeaceTreatyType() != NO_PEACE_TREATY_TYPE)
-		{
-			eAnimation = LEADERHEAD_ANIM_PEACEFUL;
+			// We made a demand and they gave in
+			if (kDeal.GetDemandingPlayer() == GetPlayer()->GetID())
+			{
+				const char* szText = GetPlayer()->GetDiplomacyAI()->GetDiploStringForMessage(DIPLO_MESSAGE_TRADE_ACCEPT_AI_DEMAND);
+				gDLL->GameplayDiplomacyAILeaderMessage(GetPlayer()->GetID(), DIPLO_UI_STATE_BLANK_DISCUSSION, szText, LEADERHEAD_ANIM_POSITIVE);
+				return;
+			}
+			// We made a request and they agreed
+			if (kDeal.GetRequestingPlayer() == GetPlayer()->GetID())
+			{
+				const char* szText = GetPlayer()->GetDiplomacyAI()->GetDiploStringForMessage(DIPLO_MESSAGE_THANKFUL);
+				gDLL->GameplayDiplomacyAILeaderMessage(GetPlayer()->GetID(), DIPLO_UI_STATE_BLANK_DISCUSSION, szText, LEADERHEAD_ANIM_POSITIVE);
+				if (iDealValueToMe > 0)
+					GetPlayer()->GetDiplomacyAI()->ChangeRecentAssistValue(eFromPlayer, iDealValueToMe / -2);
 
-			szText = GetPlayer()->GetDiplomacyAI()->GetDiploStringForMessage(DIPLO_MESSAGE_TRADE_ACCEPT_ACCEPTABLE);
+				return;
+			}
+			// We're offering help to a player
+			if (MOD_DIPLOMACY_CIV4_FEATURES && (GetPlayer()->GetDiplomacyAI()->IsOfferingGift(eFromPlayer) || GetPlayer()->GetDiplomacyAI()->IsOfferedGift(eFromPlayer)))
+			{
+				//End the gift exchange after this.
+				GetPlayer()->GetDiplomacyAI()->SetOfferingGift(eFromPlayer, false);
+				GetPlayer()->GetDiplomacyAI()->SetOfferedGift(eFromPlayer, true);
+				const char* szText = GetPlayer()->GetDiplomacyAI()->GetDiploStringForMessage(DIPLO_MESSAGE_PLEASED);
+				gDLL->GameplayDiplomacyAILeaderMessage(GetPlayer()->GetID(), DIPLO_UI_STATE_BLANK_DISCUSSION, szText, LEADERHEAD_ANIM_POSITIVE);
+			}
+			else
+			{
+				// If this was a peace deal then use that animation instead
+				LeaderheadAnimationTypes eAnimation = kDeal.GetPeaceTreatyType() != NO_PEACE_TREATY_TYPE ? LEADERHEAD_ANIM_PEACEFUL : LEADERHEAD_ANIM_YES;
 
+				// A deal is generous if we're getting a lot overall, OR a lot more than we're giving up
+				if (bGenerousPeaceTreaty || iDealValueToMe >= 100 || iValueTheyreOffering > (iValueImOffering * 5))
+				{
+					const char* szText = GetPlayer()->GetDiplomacyAI()->GetDiploStringForMessage(DIPLO_MESSAGE_TRADE_ACCEPT_GENEROUS);
+					gDLL->GameplayDiplomacyAILeaderMessage(GetPlayer()->GetID(), DIPLO_UI_STATE_BLANK_DISCUSSION, szText, eAnimation);
+					GetPlayer()->GetDiplomacyAI()->ChangeRecentTradeValue(eFromPlayer, iDealValueToMe / 5);
+				}
+				// Acceptable deal for us
+				else
+				{
+					const char* szText = GetPlayer()->GetDiplomacyAI()->GetDiploStringForMessage(DIPLO_MESSAGE_TRADE_ACCEPT_ACCEPTABLE);
+					gDLL->GameplayDiplomacyAILeaderMessage(GetPlayer()->GetID(), DIPLO_UI_STATE_BLANK_DISCUSSION, szText, eAnimation);
+					if (iDealValueToMe > 0)
+						GetPlayer()->GetDiplomacyAI()->ChangeRecentTradeValue(eFromPlayer, iDealValueToMe / 10);
+				}
+			}
 		}
-
-		// Send message back to diplo UI
-		if(GC.getGame().getActivePlayer() == eFromPlayer)
-			gDLL->GameplayDiplomacyAILeaderMessage(GetPlayer()->GetID(), eUIState, szText, eAnimation);
-	}
-	if(GC.getGame().getActivePlayer() == eFromPlayer || GC.getGame().getActivePlayer() == GetPlayer()->GetID())
-	{
-		GC.GetEngineUserInterface()->makeInterfaceDirty();
+		if (GC.getGame().getActivePlayer() == eFromPlayer || GC.getGame().getActivePlayer() == GetPlayer()->GetID())
+		{
+			GC.GetEngineUserInterface()->makeInterfaceDirty();
+		}
 	}
 }
 

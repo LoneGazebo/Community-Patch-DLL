@@ -12464,11 +12464,11 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 
 	bool bHuman = pkPlayer->isHuman();
 	bool bTeammate = pDiplo->IsTeammate(ePlayer);
-	bool bShowAllModifiers = GC.getGame().IsShowAllOpinionModifiers();
+	bool bShowHiddenModifiers = GC.getGame().IsShowHiddenOpinionModifiers();
 	bool bShowAllValues = bHuman ? false : GC.getGame().IsShowAllOpinionValues();
-	bool bHideDisputes = bShowAllModifiers ? false : pDiplo->ShouldHideDisputeMods(ePlayer);
-	bool bHideNegatives = bShowAllModifiers ? false : pDiplo->ShouldHideNegativeMods(ePlayer);
-	bool bPretendNoDisputes = bHideDisputes && bHideNegatives;
+	bool bHideDisputes = bShowHiddenModifiers ? false : pDiplo->ShouldHideDisputeMods(ePlayer);
+	bool bHideNegatives = bShowHiddenModifiers ? false : pDiplo->ShouldHideNegativeMods(ePlayer);
+	bool bPretendNoDisputes = bHideDisputes && bHideNegatives && !GC.getGame().IsNoFakeOpinionModifiers();
 	bool bObserver = GET_PLAYER(ePlayer).isObserver() || !pkPlayer->isMajorCiv() || !GET_PLAYER(ePlayer).isMajorCiv() || !pkPlayer->isAlive() || !GET_PLAYER(ePlayer).isAlive() || GC.getGame().IsHideOpinionTable();
 	bool bUNActive = GC.getGame().IsUnitedNationsActive();
 	bool bJustMet = GC.getGame().IsDiploDebugModeEnabled() ? false : (GET_TEAM(pkPlayer->getTeam()).GetTurnsSinceMeetingTeam(GET_PLAYER(ePlayer).getTeam()) == 0); // Don't display certain modifiers if we just met them
@@ -12480,6 +12480,89 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 	// [PART 1: SPECIAL INDICATORS]	  //
 	//--------------------------------//
 
+	// For observers or humans in Debug Mode, display the AI's "most important other players"
+	if (!bHuman && (GET_PLAYER(ePlayer).isObserver() || GC.getGame().IsDiploDebugModeEnabled()) && pkPlayer->isAlive() && pkPlayer->isMajorCiv())
+	{
+		PlayerTypes eTopFriend = pDiplo->GetMostValuableFriend();
+		PlayerTypes eTopDP = pDiplo->GetMostValuableAlly();
+		PlayerTypes eTopCompetitor = pDiplo->GetBiggestCompetitor();
+		PlayerTypes eTopLeagueRival = pDiplo->GetPrimeLeagueCompetitor();
+		CvString FriendStr;
+		CvString EnemyStr;
+
+		FriendStr = Localization::Lookup("TXT_KEY_DIPLO_DEBUG_TOP_FRIEND").toUTF8();
+		if (eTopFriend == NO_PLAYER || !GET_PLAYER(eTopFriend).isAlive())
+		{
+			FriendStr += Localization::Lookup("TXT_KEY_DIPLO_DEBUG_TOP_CHOICE_NONE").toUTF8();
+		}
+		else if (eTopFriend == ePlayer)
+		{
+			FriendStr += Localization::Lookup("TXT_KEY_DIPLO_DEBUG_TOP_CHOICE_YOU").toUTF8();
+		}
+		else
+		{
+			FriendStr += GET_PLAYER(eTopFriend).getCivilizationShortDescriptionKey();
+		}
+
+		if (GET_TEAM(pkPlayer->getTeam()).isDefensivePactTradingAllowed())
+		{
+			FriendStr += ", ";
+			FriendStr += Localization::Lookup("TXT_KEY_DIPLO_DEBUG_TOP_ALLY").toUTF8();
+			if (eTopDP == NO_PLAYER || !GET_PLAYER(eTopDP).isAlive())
+			{
+				FriendStr += Localization::Lookup("TXT_KEY_DIPLO_DEBUG_TOP_CHOICE_NONE").toUTF8();
+			}
+			else if (eTopDP == ePlayer)
+			{
+				FriendStr += Localization::Lookup("TXT_KEY_DIPLO_DEBUG_TOP_CHOICE_YOU").toUTF8();
+			}
+			else
+			{
+				FriendStr += GET_PLAYER(eTopDP).getCivilizationShortDescriptionKey();
+			}
+		}
+
+		EnemyStr = Localization::Lookup("TXT_KEY_DIPLO_DEBUG_TOP_COMPETITOR").toUTF8();
+		if (eTopCompetitor == NO_PLAYER || !GET_PLAYER(eTopCompetitor).isAlive())
+		{
+			EnemyStr += Localization::Lookup("TXT_KEY_DIPLO_DEBUG_TOP_CHOICE_NONE").toUTF8();
+		}
+		else if (eTopCompetitor == ePlayer)
+		{
+			EnemyStr += Localization::Lookup("TXT_KEY_DIPLO_DEBUG_TOP_CHOICE_YOU").toUTF8();
+		}
+		else
+		{
+			EnemyStr += GET_PLAYER(eTopCompetitor).getCivilizationShortDescriptionKey();
+		}
+
+		CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
+		if (pLeague != NULL)
+		{
+			EnemyStr += ", ";
+			EnemyStr += Localization::Lookup("TXT_KEY_DIPLO_DEBUG_TOP_LEAGUE_COMPETITOR").toUTF8();
+			if (eTopLeagueRival == NO_PLAYER || !GET_PLAYER(eTopLeagueRival).isAlive())
+			{
+				EnemyStr += Localization::Lookup("TXT_KEY_DIPLO_DEBUG_TOP_CHOICE_NONE").toUTF8();
+			}
+			else if (eTopLeagueRival == ePlayer)
+			{
+				EnemyStr += Localization::Lookup("TXT_KEY_DIPLO_DEBUG_TOP_CHOICE_YOU").toUTF8();
+			}
+			else
+			{
+				EnemyStr += GET_PLAYER(eTopLeagueRival).getCivilizationShortDescriptionKey();
+			}
+		}
+
+		Opinion kOpinion;
+		kOpinion.m_iValue = 0;
+		kOpinion.m_str = FriendStr;
+		aOpinions.push_back(kOpinion);
+		kOpinion.m_str = EnemyStr;
+		aOpinions.push_back(kOpinion);
+	}
+
 	if (!bObserver)
 	{
 		// Gone to war in the past?
@@ -12490,7 +12573,7 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 			kOpinion.m_iValue = 0;
 			CvString str;
 
-			if (bHuman)
+			if (bHuman || GC.getGame().IsDiploDebugModeEnabled())
 			{
 				str = Localization::Lookup("TXT_KEY_DIPLO_PAST_WAR_BAD").toUTF8();
 			}
@@ -13591,8 +13674,9 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 		}
 
 		// Warmongering! (Always visible if at war.)
-		iValue = (bHideNegatives && !pDiplo->IsAtWar(ePlayer)) ? 0 : pDiplo->GetWarmongerThreatScore(ePlayer);
-		if (iValue != 0)
+		bool bHideWarmonger = bHideNegatives && !pDiplo->IsAtWar(ePlayer);
+		iValue = bHideWarmonger ? 0 : pDiplo->GetWarmongerThreatScore(ePlayer);
+		if (!bHideWarmonger && (iValue > 0 || pDiplo->GetWarmongerThreat(ePlayer) > THREAT_NONE))
 		{
 			Opinion kOpinion;
 			kOpinion.m_iValue = iValue;
@@ -13635,7 +13719,7 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 				}
 				else if (pDiplo->GetWarmongerHate() >= 7)
 				{
-					str += Localization::Lookup("TXT_KEY_WARMONGER_HATE_HIGH_CBP").toUTF8();
+					str += Localization::Lookup("TXT_KEY_WARMONGER_HATE_HIGH").toUTF8();
 				}
 				else if (pDiplo->GetWarmongerHate() >= 5)
 				{

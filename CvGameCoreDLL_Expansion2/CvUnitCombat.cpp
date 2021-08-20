@@ -2598,23 +2598,55 @@ void CvUnitCombat::GenerateNuclearCombatInfo(CvUnit& kAttacker, CvPlot& plot, Cv
 	{
 		if (pInterceptionCity != NULL)
 		{
-			CvNotifications* pNotifications = GET_PLAYER(pInterceptionCity->getOwner()).GetNotifications();
-			if (pNotifications)
-			{
-				Localization::String strSummary = Localization::Lookup("TXT_KEY_NUKE_INTERCEPTED_S");
-				Localization::String strBuffer = Localization::Lookup("TXT_KEY_NUKE_INTERCEPTED");
-				strBuffer << GET_PLAYER(kAttacker.getOwner()).getCivilizationShortDescription();
-				strBuffer << pInterceptionCity->getNameKey();
-				pNotifications->Add(NOTIFICATION_UNIT_DIED, strBuffer.toUTF8(), strSummary.toUTF8(), pInterceptionCity->getX(), pInterceptionCity->getY(), (int)kAttacker.getUnitType(), pInterceptionCity->getOwner());
-			}
+			if (GET_PLAYER(pInterceptionCity->getOwner()).isMajorCiv() && GET_PLAYER(kAttacker.getOwner()).isMajorCiv())
+				GET_PLAYER(pInterceptionCity->getOwner()).GetDiplomacyAI()->ChangeNumTimesNuked(kAttacker.getOwner(), 1);
 
-			CvNotifications* pOtherNotifications = GET_PLAYER(kAttacker.getOwner()).GetNotifications();
-			if (pOtherNotifications)
+			CvPlot* pInterceptionCityPlot = pInterceptionCity->plot();
+
+			// Send out notifications to the world
+			for (int iPlayerLoop = 0; iPlayerLoop < MAX_PLAYERS; iPlayerLoop++)
 			{
-				Localization::String strSummary = Localization::Lookup("TXT_KEY_NUKE_INTERCEPTED_US_S");
-				Localization::String strBuffer = Localization::Lookup("TXT_KEY_NUKE_INTERCEPTED_US");
-				strBuffer << pInterceptionCity->getNameKey();
-				pOtherNotifications->Add(NOTIFICATION_UNIT_DIED, strBuffer.toUTF8(), strSummary.toUTF8(), pInterceptionCity->getX(), pInterceptionCity->getY(), (int)kAttacker.getUnitType(), pInterceptionCity->getOwner());
+				PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+
+				if (GET_PLAYER(eLoopPlayer).isObserver() || (GET_PLAYER(eLoopPlayer).isHuman() && GET_PLAYER(eLoopPlayer).isAlive()))
+				{
+					if (!GET_PLAYER(eLoopPlayer).isObserver())
+					{
+						if (!GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).isHasMet(GET_PLAYER(pInterceptionCity->getOwner()).getTeam()))
+							continue;
+
+						if (!GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).isHasMet(GET_PLAYER(kAttacker.getOwner()).getTeam()))
+							continue;
+					}
+
+					CvNotifications* pNotifications = GET_PLAYER(eLoopPlayer).GetNotifications();
+					if (pNotifications)
+					{
+						if (eLoopPlayer == kAttacker.getOwner())
+						{
+							Localization::String strSummary = Localization::Lookup("TXT_KEY_NUKE_INTERCEPTED_US_S");
+							Localization::String strBuffer = Localization::Lookup("TXT_KEY_NUKE_INTERCEPTED_US");
+							strBuffer << pInterceptionCity->getNameKey();
+							pNotifications->Add(NOTIFICATION_UNIT_DIED, strBuffer.toUTF8(), strSummary.toUTF8(), pInterceptionCity->getX(), pInterceptionCity->getY(), (int)kAttacker.getUnitType(), pInterceptionCity->getOwner());
+						}
+						else if (GET_PLAYER(eLoopPlayer).isObserver() || pInterceptionCityPlot->isRevealed(GET_PLAYER(eLoopPlayer).getTeam()))
+						{
+							Localization::String strSummary = Localization::Lookup("TXT_KEY_NUKE_INTERCEPTED_S");
+							Localization::String strBuffer = Localization::Lookup("TXT_KEY_NUKE_INTERCEPTED");
+							strBuffer << GET_PLAYER(kAttacker.getOwner()).getCivilizationShortDescription();
+							strBuffer << pInterceptionCity->getNameKey();
+							pNotifications->Add(NOTIFICATION_UNIT_DIED, strBuffer.toUTF8(), strSummary.toUTF8(), pInterceptionCity->getX(), pInterceptionCity->getY(), (int)kAttacker.getUnitType(), pInterceptionCity->getOwner());
+						}
+						else
+						{
+							Localization::String strSummary = Localization::Lookup("TXT_KEY_NUKE_INTERCEPTED_S");
+							Localization::String strBuffer = Localization::Lookup("TXT_KEY_NUKE_INTERCEPTED");
+							strBuffer << GET_PLAYER(kAttacker.getOwner()).getCivilizationShortDescription();
+							strBuffer << pInterceptionCity->getNameKey();
+							pNotifications->Add(NOTIFICATION_UNIT_DIED, strBuffer.toUTF8(), strSummary.toUTF8(), -1, -1, (int)kAttacker.getUnitType(), pInterceptionCity->getOwner());							
+						}
+					}
+				}
 			}
 		}
 		return;
@@ -2646,8 +2678,7 @@ uint CvUnitCombat::ApplyNuclearExplosionDamage(const CvCombatMemberEntry* pkDama
 {
 	uint uiOpposingDamageCount = 0;
 	PlayerTypes eAttackerOwner = pkAttacker?pkAttacker->getOwner():NO_PLAYER;
-
-	std::vector<int> affectedPlayers;
+	std::vector<PlayerTypes> vAffectedPlayers;
 
 	// Do all the units first
 	for(int i = 0; i < iDamageMembers; ++i)
@@ -2675,12 +2706,10 @@ uint CvUnitCombat::ApplyNuclearExplosionDamage(const CvCombatMemberEntry* pkDama
 					pkUnit->kill(false, eAttackerOwner);
 				}
 
-				for (uint j = 0; j < affectedPlayers.size(); j++)
+				if (GET_PLAYER((PlayerTypes)kEntry.GetPlayer()).isMajorCiv() && GET_PLAYER((PlayerTypes)kEntry.GetPlayer()).isAlive())
 				{
-					if (affectedPlayers[j] == kEntry.GetPlayer())
-						continue;
-
-					affectedPlayers.push_back(kEntry.GetPlayer());
+					if (std::find(vAffectedPlayers.begin(), vAffectedPlayers.end(), (PlayerTypes)kEntry.GetPlayer()) == vAffectedPlayers.end())
+						vAffectedPlayers.push_back(kEntry.GetPlayer());
 				}
 			}
 		}
@@ -2756,6 +2785,12 @@ uint CvUnitCombat::ApplyNuclearExplosionDamage(const CvCombatMemberEntry* pkDama
 				if(eAttackerOwner == NO_PLAYER || pkCity->getOwner() != eAttackerOwner)
 					uiOpposingDamageCount++;
 
+				if (GET_PLAYER(pkCity->getOwner()).isMajorCiv() && GET_PLAYER(pkCity->getOwner()).isAlive())
+				{
+					if (std::find(vAffectedPlayers.begin(), vAffectedPlayers.end(), pkCity->getOwner()) == vAffectedPlayers.end())
+						vAffectedPlayers.push_back(pkCity->getOwner());
+				}
+
 				if(kEntry.GetFinalDamage() >= pkCity->GetMaxHitPoints() && !pkCity->IsOriginalCapital())
 				{
 					auto_ptr<ICvCity1> pkDllCity(new CvDllCity(pkCity));
@@ -2797,25 +2832,88 @@ uint CvUnitCombat::ApplyNuclearExplosionDamage(const CvCombatMemberEntry* pkDama
 
 					// Add damage to the city
 					pkCity->setDamage(kEntry.GetFinalDamage());
-
-					for (uint j = 0; j < affectedPlayers.size(); j++)
-					{
-						if (affectedPlayers[j] == pkCity->getOwner())
-							continue;
-
-						affectedPlayers.push_back(pkCity->getOwner());
-					}
 				}
 			}
 		}
 	}
 
-	for (uint j = 0; j < affectedPlayers.size(); j++)
+	// Send out notifications to the world
+	for (std::vector<PlayerTypes>::iterator iter = vAffectedPlayers.begin(); iter != vAffectedPlayers.end(); iter++)
 	{
-		if ((PlayerTypes)affectedPlayers[j] == NO_PLAYER)
+		if (GET_PLAYER(*iter).GetID() == pkAttacker->getOwner())
 			continue;
 
-		GET_PLAYER((PlayerTypes)affectedPlayers[j]).GetDiplomacyAI()->ChangeNumTimesNuked(pkAttacker->getOwner(), 1);
+		if (GET_PLAYER(pkAttacker->getOwner()).isMajorCiv() && GET_PLAYER(pkAttacker->getOwner()).getTeam() != GET_PLAYER(*iter).getTeam())
+		{
+			GET_PLAYER(*iter).GetDiplomacyAI()->ChangeNumTimesNuked(pkAttacker->getOwner(), 1);
+		}
+
+		if (GET_PLAYER(*iter).isHuman() && GET_PLAYER(*iter).isAlive())
+		{
+			CvNotifications* pNotifications = GET_PLAYER(*iter).GetNotifications();
+			if (pNotifications)
+			{
+				Localization::String strSummary = Localization::Lookup("TXT_KEY_NUKE_STRIKE_AFFECTED_S");
+				Localization::String strBuffer = Localization::Lookup("TXT_KEY_NUKE_STRIKE_AFFECTED");
+				strBuffer << GET_PLAYER(pkAttacker->getOwner()).getCivilizationShortDescription();
+				pNotifications->Add(NOTIFICATION_UNIT_DIED, strBuffer.toUTF8(), strSummary.toUTF8(), pkTargetPlot->getX(), pkTargetPlot->getY(), (int)pkAttacker->getUnitType(), pkAttacker->getOwner());
+			}
+		}
+	}
+	for (int iPlayerLoop = 0; iPlayerLoop < MAX_PLAYERS; iPlayerLoop++)
+	{
+		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+
+		if (GET_PLAYER(eLoopPlayer).isObserver() || (GET_PLAYER(eLoopPlayer).isHuman() && GET_PLAYER(eLoopPlayer).isAlive()))
+		{
+			if (!GET_PLAYER(eLoopPlayer).isObserver())
+			{
+				if (eLoopPlayer == pkAttacker->getOwner())
+					continue;
+
+				if (pkTargetPlot->isOwned() && !pkTargetPlot->isRevealed(GET_PLAYER(eLoopPlayer).getTeam()) && !GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).isHasMet(GET_PLAYER(pkTargetPlot->getOwner()).getTeam()))
+					continue;
+
+				if (std::find(vAffectedPlayers.begin(), vAffectedPlayers.end(), eLoopPlayer) != vAffectedPlayers.end())
+					continue;
+			}
+
+			CvNotifications* pNotifications = GET_PLAYER(eLoopPlayer).GetNotifications();
+			if (pNotifications)
+			{
+				Localization::String strSummary = Localization::Lookup("TXT_KEY_NUKE_STRIKE_S");
+
+				if (pkTargetPlot->isOwned())
+				{
+					Localization::String strBuffer = Localization::Lookup("TXT_KEY_NUKE_STRIKE_OWNED_TERRITORY");
+					strBuffer << GET_PLAYER(pkAttacker->getOwner()).getCivilizationShortDescription();
+					strBuffer << GET_PLAYER(pkTargetPlot->getOwner()).getCivilizationShortDescription();
+
+					if (pkTargetPlot->isRevealed(GET_PLAYER(eLoopPlayer).getTeam()))
+					{
+						pNotifications->Add(NOTIFICATION_UNIT_DIED, strBuffer.toUTF8(), strSummary.toUTF8(), pkTargetPlot->getX(), pkTargetPlot->getY(), (int)pkAttacker->getUnitType(), pkAttacker->getOwner());
+					}
+					else
+					{
+						pNotifications->Add(NOTIFICATION_UNIT_DIED, strBuffer.toUTF8(), strSummary.toUTF8(), -1, -1, (int)pkAttacker->getUnitType(), pkAttacker->getOwner());
+					}
+				}
+				else
+				{
+					Localization::String strBuffer = Localization::Lookup("TXT_KEY_NUKE_STRIKE_UNOWNED_TERRITORY");
+					strBuffer << GET_PLAYER(pkAttacker->getOwner()).getCivilizationShortDescription();
+
+					if (pkTargetPlot->isRevealed(GET_PLAYER(eLoopPlayer).getTeam()))
+					{
+						pNotifications->Add(NOTIFICATION_UNIT_DIED, strBuffer.toUTF8(), strSummary.toUTF8(), pkTargetPlot->getX(), pkTargetPlot->getY(), (int)pkAttacker->getUnitType(), pkAttacker->getOwner());
+					}
+					else
+					{
+						pNotifications->Add(NOTIFICATION_UNIT_DIED, strBuffer.toUTF8(), strSummary.toUTF8(), -1, -1, (int)pkAttacker->getUnitType(), pkAttacker->getOwner());
+					}
+				}
+			}
+		}
 	}
 
 	return uiOpposingDamageCount;

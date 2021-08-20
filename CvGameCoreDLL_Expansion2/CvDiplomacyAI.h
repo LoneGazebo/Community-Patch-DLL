@@ -328,15 +328,18 @@ public:
 	bool IsDemandTooSoon(PlayerTypes ePlayer) const;
 
 	// Assistance Values
-	int GetRecentTradeValue(PlayerTypes ePlayer);
+	int GetMaxRecentTradeValue() const;
+	int GetRecentTradeValue(PlayerTypes ePlayer) const;
 	void SetRecentTradeValue(PlayerTypes ePlayer, int iValue);
 	void ChangeRecentTradeValue(PlayerTypes ePlayer, int iChange);
-	
-	int GetCommonFoeValue(PlayerTypes ePlayer);
+
+	int GetMaxCommonFoeValue() const;
+	int GetCommonFoeValue(PlayerTypes ePlayer) const;
 	void SetCommonFoeValue(PlayerTypes ePlayer, int iValue);
 	void ChangeCommonFoeValue(PlayerTypes ePlayer, int iChange);
-	
-	int GetRecentAssistValue(PlayerTypes ePlayer);
+
+	int GetMaxRecentAssistValue() const;
+	int GetRecentAssistValue(PlayerTypes ePlayer) const;
 	void SetRecentAssistValue(PlayerTypes ePlayer, int iValue);
 	void ChangeRecentAssistValue(PlayerTypes ePlayer, int iChange, bool bDecay = false);
 
@@ -396,6 +399,7 @@ public:
 	void ChangeNumWarsDeclaredOnUs(PlayerTypes ePlayer, int iChange);
 
 	// How much do we hate them for killing or capturing our civilians?
+	int GetMaxCivilianKillerValue() const;
 	int GetCivilianKillerValue(PlayerTypes ePlayer) const;
 	void SetCivilianKillerValue(PlayerTypes ePlayer, int iValue);
 	void ChangeCivilianKillerValue(PlayerTypes ePlayer, int iChange);
@@ -936,10 +940,12 @@ public:
 	bool IsHasPaidTributeTo(PlayerTypes ePlayer) const;
 	void SetHasPaidTributeTo(PlayerTypes ePlayer, bool bValue);
 
+	int GetMaxVassalProtectValue() const;
 	int GetVassalProtectValue(PlayerTypes ePlayer) const;
 	void SetVassalProtectValue(PlayerTypes ePlayer, int iValue);
 	void ChangeVassalProtectValue(PlayerTypes ePlayer, int iChange);
 
+	int GetMaxVassalFailedProtectValue() const;
 	int GetVassalFailedProtectValue(PlayerTypes ePlayer) const;
 	void SetVassalFailedProtectValue(PlayerTypes ePlayer, int iValue);
 	void ChangeVassalFailedProtectValue(PlayerTypes ePlayer, int iChange);
@@ -2067,8 +2073,8 @@ private:
 	bool m_abOfferedGift[MAX_MAJOR_CIVS];
 	bool m_abHasPaidTributeTo[MAX_MAJOR_CIVS];
 	int m_aiBrokenVassalAgreementTurn[MAX_MAJOR_CIVS];
-	short m_aiPlayerVassalageFailedProtectValue[MAX_MAJOR_CIVS];
-	short m_aiPlayerVassalageProtectValue[MAX_MAJOR_CIVS];
+	unsigned short m_aiPlayerVassalageFailedProtectValue[MAX_MAJOR_CIVS];
+	unsigned short m_aiPlayerVassalageProtectValue[MAX_MAJOR_CIVS];
 	int m_aiPlayerVassalagePeacefullyRevokedTurn[MAX_MAJOR_CIVS];
 	int m_aiPlayerVassalageForcefullyRevokedTurn[MAX_MAJOR_CIVS];
 	int m_aiMoveTroopsRequestAcceptedTurn[MAX_MAJOR_CIVS];

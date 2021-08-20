@@ -20807,6 +20807,8 @@ void CvPlayer::DoTestEmpireInBadShapeForWar()
 				if (GetDiplomacyAI()->GetPlayerMilitaryStrengthComparedToUs(eLoopPlayer) >= STRENGTH_POWERFUL || GetProximityToPlayer(eLoopPlayer) == PLAYER_PROXIMITY_NEIGHBORS)
 				{
 					SetInTerribleShapeForWar(true);
+					SetNoNewWars(true);
+					return;
 				}
 
 				bNoNewWarsSet = true;

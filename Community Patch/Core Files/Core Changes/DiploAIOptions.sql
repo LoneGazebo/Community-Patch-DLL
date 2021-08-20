@@ -4,7 +4,7 @@
 -- [DISABLE VICTORY COMPETITION]
 -- If set to 1, AI civilizations will not receive any aggression boosts or reductions towards other players based on their victory progress.
 -- Also, you will not receive any diplomacy penalties for victory competition with the AI.
--- This ONLY affects aggression changes that are caused by victory competition.
+-- This ONLY affects aggression changes that are caused by the AI being mad at the other player for being too successful.
 -- Conquering the world or gaining cultural Influence over the AI, for example, can still result in aggression because you pose a threat to them OR because you're simply in their way.
 INSERT INTO Defines (Name, Value)
 SELECT 'DIPLOAI_DISABLE_VICTORY_COMPETITION', '0';
@@ -53,11 +53,19 @@ SELECT 'DIPLOAI_DISABLE_INSULT_MESSAGES', '0';
 INSERT INTO Defines (Name, Value)
 SELECT 'DIPLOAI_DISABLE_COMPLIMENT_MESSAGES', '0';
 
--- [SHOW ALL OPINION MODIFIERS]
+-- [NO FAKE OPINION MODIFIERS]
+-- If set to 1, AI civilizations are unable to fake having no disputes by displaying false modifiers in the opinion table (i.e. no contested borders, no competition with City-States, etc.).
+-- Does not prevent the AI from concealing their true Approach (i.e. pretending to be FRIENDLY or displaying "They desire friendly relations with our empire").
+-- NOTE: If Show Hidden Opinion Modifiers, Transparent Diplomacy, or Debug Mode are enabled, this option does nothing.
+INSERT INTO Defines (Name, Value)
+SELECT 'DIPLOAI_NO_FAKE_OPINION_MODIFIERS', '1';
+
+-- [SHOW HIDDEN OPINION MODIFIERS]
 -- If set to 1, AI civilizations will never hide Opinion modifiers. They often hide modifiers when they are FRIENDLY (or pretending to be).
 -- Unlike Transparent Diplomacy, the number value of Opinion modifiers will not be displayed to the player.
+-- NOTE: This will not reveal the base human opinion bonus on lower difficulties; Show Base Human Opinion or Debug Mode must be enabled to view that.
 INSERT INTO Defines (Name, Value)
-SELECT 'DIPLOAI_SHOW_ALL_OPINION_MODIFIERS', '0';
+SELECT 'DIPLOAI_SHOW_HIDDEN_OPINION_MODIFIERS', '0';
 
 -- [SHOW ALL OPINION VALUES]
 -- If set to 1, AI opinion modifiers will have their number values displayed, so you can see how much a factor is affecting your relationship.
@@ -67,7 +75,7 @@ SELECT 'DIPLOAI_SHOW_ALL_OPINION_VALUES', '0';
 
 -- [SHOW BASE HUMAN OPINION]
 -- If set to 1, a modifier explaining the AI's instinctive like/dislike of human players will be displayed in their table of opinion modifiers.
--- This value is otherwise hidden unless Show All Opinion Modifiers, Transparent Diplomacy or Debug Mode are enabled.
+-- This value is otherwise hidden unless Debug Mode is enabled due to being immersion-breaking.
 -- Only does anything if AI Opinion score towards humans has been modified via OPINION_WEIGHT_BASE_HUMAN in DiploOpinionWeights.sql or AttitudeChange in DifficultyMod.xml.
 INSERT INTO Defines (Name, Value)
 SELECT 'DIPLOAI_SHOW_BASE_HUMAN_OPINION', '0';
@@ -79,7 +87,7 @@ SELECT 'DIPLOAI_SHOW_BASE_HUMAN_OPINION', '0';
 -- [HIDE OPINION TABLE]
 -- If set to 1, no AI opinion modifiers or values will appear in the table (except a short message explaining their visible approach).
 -- For those who want extra challenge/immersion.
--- NOTE: Overrides Transparent Diplomacy, Show All Opinion Modifiers, and Show All Opinion Values. Does NOT override Debug Mode.
+-- NOTE: Overrides Transparent Diplomacy, Show Hidden Opinion Modifiers, and Show All Opinion Values. Does NOT override Debug Mode.
 INSERT INTO Defines (Name, Value)
 SELECT 'DIPLOAI_HIDE_OPINION_TABLE', '0';
 
@@ -138,6 +146,18 @@ SELECT 'DIPLOAI_DISABLE_TRADE_OFFERS', '0';
 INSERT INTO Defines (Name, Value)
 SELECT 'DIPLOAI_DISABLE_PEACE_OFFERS', '0';
 
+-- [DISABLE DEMANDS]
+-- If set to 1, AI civilizations are unable to make demands of human players.
+-- Humans can still make demands of AI players.
+INSERT INTO Defines (Name, Value)
+SELECT 'DIPLOAI_DISABLE_DEMANDS', '0';
+
+-- [DISABLE INDEPENDENCE REQUESTS]
+-- If set to 1, AI vassals cannot request independence from human players.
+-- Humans can still request independence from the AI.
+INSERT INTO Defines (Name, Value)
+SELECT 'DIPLOAI_DISABLE_INDEPENDENCE_REQUESTS', '0';
+
 -- [DISABLE ALL STATEMENTS]
 -- If set to 1, AI civilizations will never send ANY messages to human players on their turn.
 -- This also disables popup messages, e.g. from returning civilians or stealing territory.
@@ -170,10 +190,14 @@ SELECT 'DIPLOAI_DISABLE_DOMINATION_ONLY_AGGRESSION', '0';
 
 -- [ENABLE DEBUG MODE]
 -- If set to 1, enables the Diplomacy AI Debug Mode.
--- If set to 2, enables the Diplomacy AI Debug Mode and forces the AI to accept all Discuss requests you make of them.
--- Transparent Diplomacy is activated (even if C4DF is not enabled).
--- AI civilizations will display their true approach towards you in their table of opinion modifiers.
--- AI will always agree to share their Approach towards other players, and will always share their true Approach.
--- You also have full knowledge of all AI civs' World Congress desires while this option is enabled, regardless of ideology/diplomats.
+-- If set to 2, enables the Diplomacy AI Debug Mode and forces the AI to accept all requests you make of them in the Discuss menu.
 INSERT INTO Defines (Name, Value)
 SELECT 'DIPLOAI_ENABLE_DEBUG_MODE', '0';
+
+-- EFFECTS:
+-- Activates Show Hidden Opinion Modifiers, Show All Opinion Values, and Show Base Human Opinion options. Deactivates Hide Opinion Table option.
+-- AI civilizations will display their true approach towards you in their table of opinion modifiers.
+-- AI civilizations will display their top friend choice, top DP choice, top competitor, and top World Congress competitor in their table of opinion modifiers.
+-- AI will always agree to share their Approach towards other players, and will always share their true Approach.
+-- Notifications will be displayed when any AI civ agrees to a bribed war or peace deal.
+-- You also have full knowledge of all AI civs' World Congress desires while this option is enabled, regardless of ideology/diplomats.

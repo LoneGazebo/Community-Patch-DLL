@@ -7823,16 +7823,17 @@ void CvLeague::NotifyProposalResult(CvEnactProposal* pProposal)
 	}
 #endif
 
-	for (MemberList::iterator it = m_vMembers.begin(); it != m_vMembers.end(); it++)
+	for (int iPlayerLoop = 0; iPlayerLoop < MAX_PLAYERS; iPlayerLoop++)
 	{
-		PlayerTypes eMember = it->ePlayer;
-		if (GET_PLAYER(eMember).isHuman())
+		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+
+		if (GET_PLAYER(eLoopPlayer).isObserver() || (GET_PLAYER(eLoopPlayer).isHuman() && GET_PLAYER(eLoopPlayer).isAlive()))
 		{
-			CvNotifications* pNotifications = GET_PLAYER(eMember).GetNotifications();
+			CvNotifications* pNotifications = GET_PLAYER(eLoopPlayer).GetNotifications();
 			if (pNotifications)
 			{
 				pNotifications->Add(NOTIFICATION_LEAGUE_VOTING_DONE, sMessage, sSummary, -1, -1, GetID());
-			}				
+			}
 		}
 	}
 }
@@ -7863,16 +7864,17 @@ void CvLeague::NotifyProposalResult(CvRepealProposal* pProposal)
 	}
 #endif
 
-	for (MemberList::iterator it = m_vMembers.begin(); it != m_vMembers.end(); it++)
+	for (int iPlayerLoop = 0; iPlayerLoop < MAX_PLAYERS; iPlayerLoop++)
 	{
-		PlayerTypes eMember = it->ePlayer;
-		if (GET_PLAYER(eMember).isHuman())
+		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+
+		if (GET_PLAYER(eLoopPlayer).isObserver() || (GET_PLAYER(eLoopPlayer).isHuman() && GET_PLAYER(eLoopPlayer).isAlive()))
 		{
-			CvNotifications* pNotifications = GET_PLAYER(eMember).GetNotifications();
+			CvNotifications* pNotifications = GET_PLAYER(eLoopPlayer).GetNotifications();
 			if (pNotifications)
 			{
 				pNotifications->Add(NOTIFICATION_LEAGUE_VOTING_DONE, sMessage, sSummary, -1, -1, GetID());
-			}				
+			}
 		}
 	}
 }
@@ -7916,25 +7918,22 @@ void CvLeague::NotifyProjectComplete(LeagueProjectTypes eProject)
 	CvAssertMsg(pInfo, "Could not find League Project info when sending out a progress update. Please send Anton your save file and version.");
 	if (pInfo)
 	{
-		for (MemberList::iterator it = m_vMembers.begin(); it != m_vMembers.end(); ++it)
+		for (int iPlayerLoop = 0; iPlayerLoop < MAX_PLAYERS; iPlayerLoop++)
 		{
-			PlayerTypes eMember = it->ePlayer;
-			CvPlayer& kPlayer = GET_PLAYER(eMember);
-			if (kPlayer.isHuman())
+			PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+
+			if (GET_PLAYER(eLoopPlayer).isObserver() || (GET_PLAYER(eLoopPlayer).isHuman() && GET_PLAYER(eLoopPlayer).isAlive()))
 			{
-				if (kPlayer.isLocalPlayer() && !kPlayer.isObserver())
+				CvNotifications* pNotifications = GET_PLAYER(eLoopPlayer).GetNotifications();
+				if (pNotifications)
 				{
-					CvNotifications* pNotifications = kPlayer.GetNotifications();
-					if (pNotifications)
-					{
-						Localization::String sSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_LEAGUE_PROJECT_COMPLETE");
-						sSummary << pInfo->GetDescriptionKey();
+					Localization::String sSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_LEAGUE_PROJECT_COMPLETE");
+					sSummary << pInfo->GetDescriptionKey();
 
-						Localization::String sMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_LEAGUE_PROJECT_COMPLETE_TT");
-						sMessage << pInfo->GetDescriptionKey();
+					Localization::String sMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_LEAGUE_PROJECT_COMPLETE_TT");
+					sMessage << pInfo->GetDescriptionKey();
 
-						pNotifications->Add((NotificationTypes)FString::Hash("NOTIFICATION_LEAGUE_PROJECT_COMPLETE"), sMessage.toUTF8(), sSummary.toUTF8(), -1, -1, GetID(), eProject);
-					}
+					pNotifications->Add((NotificationTypes)FString::Hash("NOTIFICATION_LEAGUE_PROJECT_COMPLETE"), sMessage.toUTF8(), sSummary.toUTF8(), -1, -1, GetID(), eProject);
 				}
 			}
 		}

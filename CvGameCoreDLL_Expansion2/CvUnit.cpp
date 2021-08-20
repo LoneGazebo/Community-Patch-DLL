@@ -2465,7 +2465,7 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 			if (MOD_DIPLOMACY_CIV4_FEATURES && pPlot && (iUnitValue > 0 || iCivValue > 0)) 
 			{
-				iCivValue *= 20;
+				iCivValue /= 5;
 
 				// Unit belongs to us - did our Master fail to protect one of our units?
 				if (GET_PLAYER(getOwner()).isMajorCiv() && GET_PLAYER(getOwner()).IsVassalOfSomeone())

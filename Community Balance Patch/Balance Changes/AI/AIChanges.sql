@@ -8,6 +8,9 @@ UPDATE AICityStrategy_Flavors SET Flavor = '100' WHERE AICityStrategyType = 'AIC
 
 UPDATE AICityStrategies SET TechPrereq = 'TECH_AGRICULTURE' WHERE Type = 'AICITYSTRATEGY_FIRST_FAITH_BUILDING';
 
+-- Mobile SAM -- reduce interest
+UPDATE Unit_Flavors SET Flavor = '15' WHERE UnitType = 'UNIT_MOBILE_SAM' AND FlavorType = 'FLAVOR_ANTIAIR' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type = 'COMMUNITY_CORE_BALANCE_UNITS' AND Value = 1);
+
 -- Era Diplo Values
 UPDATE Eras SET DiploEmphasisReligion = '2' WHERE Type = 'ERA_ANCIENT';
 UPDATE Eras SET DiploEmphasisReligion = '4' WHERE Type = 'ERA_CLASSICAL';

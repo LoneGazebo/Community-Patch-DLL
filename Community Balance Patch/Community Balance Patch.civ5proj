@@ -266,6 +266,11 @@
         <Type>UpdateDatabase</Type>
         <FileName>Balance Changes/Terrain/ImprovementChanges.sql</FileName>
       </Action>
+	  <Action>
+		<Set>OnModActivated</Set>
+		<Type>UpdateDatabase</Type>
+		<FileName>Balance Changes/Leaders/LeaderStartBiases.sql</FileName>
+      </Action>
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
@@ -289,27 +294,17 @@
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
-        <FileName>Balance Changes/AI/Diplomacy/AIChanges.sql</FileName>
+        <FileName>Balance Changes/AI/AIChanges.sql</FileName>
       </Action>
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
-        <FileName>Balance Changes/AI/Diplomacy/LeaderPersonalities.sql</FileName>
+        <FileName>Balance Changes/AI/LeaderPersonalities.sql</FileName>
       </Action>
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
-        <FileName>Balance Changes/AI/Flavors/LeaderFlavors.sql</FileName>
-      </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
-        <FileName>Balance Changes/AI/Flavors/UnitFlavors.sql</FileName>
-      </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
-        <FileName>Balance Changes/AI/Diplomacy/LeaderCompatibility.sql</FileName>
+        <FileName>Balance Changes/AI/LeaderFlavors.sql</FileName>
       </Action>
       <Action>
         <Set>OnModActivated</Set>
@@ -728,8 +723,7 @@
     <Folder Include="Art\Units\ArmoredCar" />
     <Folder Include="Art\Units\FieldGun" />
     <Folder Include="Art\Units\Corvette" />
-    <Folder Include="Balance Changes\AI\Diplomacy\" />
-    <Folder Include="Balance Changes\AI\Flavors" />
+	<Folder Include="Balance Changes\AI" />
     <Folder Include="Balance Changes\Barbarians" />
     <Folder Include="Balance Changes\Beliefs\ReligiousBuildings" />
     <Folder Include="Balance Changes\Beliefs\ReligiousNW" />
@@ -745,7 +739,6 @@
     <Folder Include="Balance Changes\Beliefs" />
     <Folder Include="Balance Changes\Leaders" />
     <Folder Include="Balance Changes\Buildings" />
-    <Folder Include="Balance Changes\AI" />
     <Folder Include="Balance Changes\Ideologies" />
     <Folder Include="Balance Changes\Espionage" />
     <Folder Include="Balance Changes\Worlds" />
@@ -1855,23 +1848,15 @@
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Balance Changes\AI\Diplomacy\LeaderCompatibility.sql">
+    <Content Include="Balance Changes\AI\AIChanges.sql">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
-    <Content Include="Balance Changes\AI\Diplomacy\LeaderPersonalities.sql">
+    <Content Include="Balance Changes\AI\LeaderPersonalities.sql">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
-    <Content Include="Balance Changes\AI\Diplomacy\AIChanges.sql">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
-    <Content Include="Balance Changes\AI\Flavors\LeaderFlavors.sql">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
-    <Content Include="Balance Changes\AI\Flavors\UnitFlavors.sql">
+    <Content Include="Balance Changes\AI\LeaderFlavors.sql">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
@@ -1960,6 +1945,10 @@
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
     <Content Include="Balance Changes\Ideologies\TourismChanges.sql">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="Balance Changes\Leaders\LeaderStartBiases.sql">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>

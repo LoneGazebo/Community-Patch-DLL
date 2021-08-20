@@ -1,3 +1,89 @@
+-- Recreate Leader Tables
+-- Default diplomacy flavors now 5, adds Personality column, drops unused WorkWith/WorkAgainst Willingness columns
+CREATE TABLE IF NOT EXISTS Leaders_NEW(
+	ID INTEGER PRIMARY KEY AUTOINCREMENT,
+	Type text NOT NULL UNIQUE,
+	Description text,
+	Civilopedia text,
+	CivilopediaTag text,
+	ArtDefineTag text,
+	Personality text DEFAULT NULL,
+	VictoryCompetitiveness INTEGER DEFAULT 5,
+	WonderCompetitiveness INTEGER DEFAULT 5,
+	MinorCivCompetitiveness INTEGER DEFAULT 5,
+	Boldness INTEGER DEFAULT 5,
+	DiploBalance INTEGER DEFAULT 5,
+	WarmongerHate INTEGER DEFAULT 5,
+	DoFWillingness INTEGER DEFAULT 5,
+	DenounceWillingness INTEGER DEFAULT 5,
+	Loyalty INTEGER DEFAULT 5,
+	Forgiveness INTEGER DEFAULT 5,
+	Neediness INTEGER DEFAULT 5,
+	Meanness INTEGER DEFAULT 5,
+	Chattiness INTEGER DEFAULT 5,
+	PortraitIndex INTEGER DEFAULT -1,
+	IconAtlas text DEFAULT NULL REFERENCES IconTextureAtlases(Atlas),
+	PackageID text DEFAULT NULL
+);
+
+INSERT INTO Leaders_NEW(Type, Description, Civilopedia, CivilopediaTag, ArtDefineTag, VictoryCompetitiveness, WonderCompetitiveness, MinorCivCompetitiveness, Boldness, DiploBalance, WarmongerHate, DoFWillingness, DenounceWillingness, Loyalty, Forgiveness, Neediness, Meanness, Chattiness, PortraitIndex, IconAtlas, PackageID)
+SELECT Type, Description, Civilopedia, CivilopediaTag, ArtDefineTag, VictoryCompetitiveness, WonderCompetitiveness, MinorCivCompetitiveness, Boldness, DiploBalance, WarmongerHate, DoFWillingness, DenounceWillingness, Loyalty, Forgiveness, Neediness, Meanness, Chattiness, PortraitIndex, IconAtlas, PackageID
+FROM Leaders;
+
+DROP TABLE Leaders;
+ALTER TABLE Leaders_NEW RENAME TO Leaders;
+
+CREATE TABLE IF NOT EXISTS Leader_MajorCivApproachBiases_NEW(
+	LeaderType text REFERENCES Leaders(Type),
+	MajorCivApproachType text REFERENCES MajorCivApproachTypes(Type),
+	Bias INTEGER DEFAULT 5
+);
+
+INSERT INTO Leader_MajorCivApproachBiases_NEW(LeaderType, MajorCivApproachType) SELECT LeaderType, MajorCivApproachType FROM Leader_MajorCivApproachBiases;
+DROP TABLE Leader_MajorCivApproachBiases;
+ALTER TABLE Leader_MajorCivApproachBiases_NEW RENAME TO Leader_MajorCivApproachBiases;
+
+-- A default of -1 (which will always return 1) is intentionally used here because the Firaxis Friendly/Protective approaches are merged into a single approach in the modded DLL, using the highest value of the two
+-- This prevents situations where one approach is set below 5 and the other is not set, but the default of 5 overrides the modder's flavor because it's greater in value
+CREATE TABLE IF NOT EXISTS Leader_MinorCivApproachBiases_NEW(
+	LeaderType text REFERENCES Leaders(Type),
+	MinorCivApproachType text REFERENCES MinorCivApproachTypes(Type),
+	Bias INTEGER DEFAULT -1
+);
+
+INSERT INTO Leader_MinorCivApproachBiases_NEW(LeaderType, MinorCivApproachType) SELECT LeaderType, MinorCivApproachType FROM Leader_MinorCivApproachBiases;
+DROP TABLE Leader_MinorCivApproachBiases;
+ALTER TABLE Leader_MinorCivApproachBiases_NEW RENAME TO Leader_MinorCivApproachBiases;
+
+-- Default handling of leader personality
+UPDATE Leaders SET Personality = 'PERSONALITY_CONQUEROR'; 		-- basic default
+UPDATE Leaders SET Personality = 'PERSONALITY_COALITION'		WHERE DoFWillingness >= 7;
+UPDATE Leaders SET Personality = 'PERSONALITY_COALITION'		WHERE Loyalty >= 7;
+UPDATE Leaders SET Personality = 'PERSONALITY_DIPLOMAT'			WHERE DiploBalance >= 7;
+UPDATE Leaders SET Personality = 'PERSONALITY_DIPLOMAT'			WHERE MinorCivCompetitiveness >= 7;
+UPDATE Leaders SET Personality = 'PERSONALITY_EXPANSIONIST'		WHERE Loyalty <= 3;
+UPDATE Leaders SET Personality = 'PERSONALITY_EXPANSIONIST'		WHERE WonderCompetitiveness <= 3;
+
+-- IF the Community Balance Patch/Overhaul is enabled, this code will override all custom civs' non-diplomacy flavors (if they're loaded afterwards)!
+-- To use the non-diplomacy flavors (Expansion, Offense, Religion, etc.) specified by the custom civ's XML instead, comment it out.
+CREATE TRIGGER Leaders_Personality
+AFTER INSERT ON Leaders
+WHEN EXISTS ( SELECT Type FROM Leaders WHERE Type = NEW.Type )
+BEGIN
+
+UPDATE Leaders SET Personality = 'PERSONALITY_CONQUEROR' WHERE Type = NEW.Type;
+
+UPDATE Leaders SET Personality=CASE
+WHEN (DoFWillingness >= 7 OR Loyalty >= 7) THEN 'PERSONALITY_COALITION'
+WHEN (DiploBalance >= 7 OR MinorCivCompetitiveness >= 7) THEN 'PERSONALITY_DIPLOMAT'
+WHEN (Loyalty <= 3 OR WonderCompetitiveness <= 3) THEN 'PERSONALITY_EXPANSIONIST'
+ELSE Personality END
+WHERE Type = NEW.Type;
+
+END;
+-- End override section
+
+
 -- Table for Growth Extra Yield Buildings
 CREATE TABLE IF NOT EXISTS Building_GrowthExtraYield (
 BuildingType TEXT, YieldType TEXT, Yield INTEGER

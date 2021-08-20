@@ -3044,7 +3044,7 @@ local function GetMoodInfo( playerID )
 			elseif visibleApproachID == MajorCivApproachTypes.MAJOR_CIV_APPROACH_AFRAID then
 				opinions = { L"TXT_KEY_DIPLO_AFRAID" }
 			-- Appears Neutral, opinions deliberately hidden
-			elseif (Game.IsHideOpinionTable() and team:GetTurnsSinceMeetingTeam(activeTeamID) ~= 0) then
+			elseif (Game.IsHideOpinionTable() and (team:GetTurnsSinceMeetingTeam(activeTeamID) ~= 0 or player:IsActHostileTowardsHuman(activePlayerID))) then
 				if player:IsActHostileTowardsHuman(activePlayerID) then
 					opinions = { L"TXT_KEY_DIPLO_NEUTRAL_HOSTILE" }
 				else

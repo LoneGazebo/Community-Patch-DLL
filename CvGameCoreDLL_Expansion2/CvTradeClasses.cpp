@@ -5081,13 +5081,13 @@ bool CvPlayerTrade::PlunderTradeRoute(int iTradeConnectionID, CvUnit* pUnit)
 			}
 		}
 	}
-#if defined(MOD_BALANCE_CORE)
+
 	if (eOwningPlayer != NO_PLAYER && m_pPlayer->isMajorCiv() && GET_PLAYER(eOwningPlayer).isMajorCiv())
 	{
 		// Notify Diplo AI that damage has been done
 		if (GET_TEAM(m_pPlayer->getTeam()).isAtWar(eOwningTeam))
 		{
-			int iValue = (iPlunderGoldValue/2);
+			int iValue = iPlunderGoldValue;
 			if (iValue > 0)
 			{
 				// Do we have a bonus to war score accumulation?
@@ -5117,7 +5117,7 @@ bool CvPlayerTrade::PlunderTradeRoute(int iTradeConnectionID, CvUnit* pUnit)
 			}
 		}
 	}
-#endif
+
 	// do the notification stuff
 	if (pOriginCity && pDestCity)
 	{
