@@ -252,7 +252,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 						}
 					}
 				}
-				if (!bCanFoundReligion || !bSpawnsProphet)
+				if (!bSpawnsProphet)
 				{
 					// None of this is useful if we don't have a religion.
 					if (pkBuildingInfo->GetExtraMissionaryStrength() > 0 || pkBuildingInfo->GetExtraMissionarySpreads() > 0 || pkBuildingInfo->GetExtraMissionarySpreadsGlobal() > 0 || pkBuildingInfo->IsReformation())
