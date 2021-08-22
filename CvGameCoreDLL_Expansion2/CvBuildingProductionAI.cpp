@@ -221,6 +221,48 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 
 	if (isNationalWonderClass(kBuildingClassInfo) || isWorldWonderClass(kBuildingClassInfo))
 	{
+		if (isWorldWonderClass(kBuildingClassInfo))
+		{
+			// Specific check to block non-founder AIs from building Hagia Sophia, Borobudur, Cathedral of St. Basil
+			ReligionTypes eOurReligion = kPlayer.GetReligions()->GetCurrentReligion(false);
+			if (eOurReligion == NO_RELIGION)
+			{
+				bool bCanFoundReligion = GC.getGame().GetGameReligions()->GetNumReligionsStillToFound() > 0 || kPlayer.GetPlayerTraits()->IsAlwaysReligion();
+				bool bSpawnsProphet = false;
+
+				for (int iUnitLoop = 0; iUnitLoop < GC.getNumUnitInfos(); iUnitLoop++)
+				{
+					const UnitTypes eUnit = static_cast<UnitTypes>(iUnitLoop);
+					CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUnit);
+					if (pkUnitInfo && pkBuildingInfo->GetNumFreeUnits(iUnitLoop) > 0)
+					{
+						// Don't need Great Prophets if we can't found a religion
+						if (pkUnitInfo->IsFoundReligion())
+						{
+							if (!bCanFoundReligion)
+								return 0;
+
+							bSpawnsProphet = true;
+							break;
+						}
+						// Don't need Missionaries or Inquisitors if we aren't a founder
+						else if (pkUnitInfo->IsSpreadReligion() || pkUnitInfo->IsRemoveHeresy())
+						{
+							return 0;
+						}
+					}
+				}
+				if (!bSpawnsProphet)
+				{
+					// None of this is useful if we don't have a religion.
+					if (pkBuildingInfo->GetExtraMissionaryStrength() > 0 || pkBuildingInfo->GetExtraMissionarySpreads() > 0 || pkBuildingInfo->GetExtraMissionarySpreadsGlobal() > 0 || pkBuildingInfo->IsReformation())
+					{
+						return 0;
+					}
+				}
+			}
+		}
+
 		if (!bNationalWonderCheck)
 		{
 			if (!m_pCity->IsBestForWonder(pkBuildingInfo->GetBuildingClassType()))
