@@ -30,7 +30,7 @@
 
  -- added Great General Combat Bonus
 	UPDATE Language_en_US
-	SET Text = '15% [ICON_STRENGTH] Combat Strength with Great General in same tile.'
+	SET Text = '25% [ICON_STRENGTH] Combat Strength with Great General in same tile.'
 	WHERE Tag = 'TXT_KEY_PROMOTION_GENERAL_STACKING_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
  -- added Statue Of Zeus Promotion
