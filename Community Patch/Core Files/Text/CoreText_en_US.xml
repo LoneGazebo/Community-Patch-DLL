@@ -55,6 +55,14 @@
 		<Row Tag="TXT_KEY_MISC_WORK_HAS_BEGUN_IN_CITY_LIMITED">
 			<Text>[SPACE]Work has now begun on {@1_ProdName} in {@2_CityName}.</Text>
 		</Row>
+
+		<!-- Add Defensive Pact Notification -->
+		<Row Tag="TXT_KEY_NOTIFICATION_DEFENSIVE_PACT">
+			<Text>{1_CivName} and {2_CivName} have signed a Defensive Pact!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_DEFENSIVE_PACT_S">
+			<Text>New Defensive Pact</Text>
+		</Row>
 		
 		<!-- America - Flavoured -->
 		<Row Tag="TXT_KEY_SPY_NAME_AMERICA_10">
@@ -2922,7 +2930,7 @@
 			<Text>Diplomacy is much more difficult on your difficulty level.</Text>
 		</Row>
 		
-		<!-- Show Real Approach Debug Text -->
+		<!-- Diplo Debug Mode Text -->
 		<Row Tag="TXT_KEY_DIPLO_REAL_APPROACH_WAR">
 			<Text>Real Approach is War.</Text>
 		</Row>
@@ -2946,6 +2954,24 @@
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_REAL_APPROACH_NEUTRAL">
 			<Text>Real Approach is Neutral.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_DEBUG_TOP_FRIEND">
+			<Text>Top Friend Choice: </Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_DEBUG_TOP_ALLY">
+			<Text>Top DP Choice: </Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_DEBUG_TOP_COMPETITOR">
+			<Text>Top Competitor: </Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_DEBUG_TOP_LEAGUE_COMPETITOR">
+			<Text>Top Congress Rival: </Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_DEBUG_TOP_CHOICE_NONE">
+			<Text>None</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_DEBUG_TOP_CHOICE_YOU">
+			<Text>You</Text>
 		</Row>
 
 		<!-- Previous Friendship Diplo Mod -->
@@ -3203,9 +3229,6 @@
 		</Row>
 		<Row Tag="TXT_KEY_WARMONGER_HATE_EXTREME">
 			<Text> (They hate warmongers!)</Text>
-		</Row>
-		<Row Tag="TXT_KEY_WARMONGER_HATE_HIGH_CBP">
-			<Text> (They strongly dislike warmongers.)</Text>
 		</Row>
 		<Row Tag="TXT_KEY_WARMONGER_HATE_MINIMAL">
 			<Text> (They ignore most warmongering.)</Text>
@@ -6350,17 +6373,39 @@
 		</Row>
 
 		<!-- Text for 3rd Party Brokering -->
-		<Row Tag="TXT_KEY_NOTIFICATION_DIPLOMACY_THIRD_PARTY_BROKER_NAME">
-			<Text>Your intelligence service reports that {1_CivName:textkey} bribed {2_CivName:textkey} to go to war with you!</Text>
+		<Row Tag="TXT_KEY_NOTIFICATION_DIPLOMACY_THIRD_PARTY_BROKER_WAR">
+			<Text>Your intelligence service reports that {1_PlayerName} bribed {2_CivName} to go to war with you! This information has been shared with your allies.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_NOTIFICATION_DIPLOMACY_THIRD_PARTY_BROKER_NAME_S">
-			<Text>{1_CivName:textkey} brokered war against you!</Text>
+		<Row Tag="TXT_KEY_NOTIFICATION_DIPLOMACY_THIRD_PARTY_BROKER_WAR_INFORMED">
+			<Text>{1_CivName}'s intelligence service informs you that {2_PlayerName} bribed {3_CivName} to go to war with you!</Text>
 		</Row>
-		<Row Tag="TXT_KEY_NOTIFICATION_DIPLOMACY_THIRD_PARTY_BROKER_PEACE_NAME">
-			<Text>Your diplomats have learned that {1_CivName:textkey} paid {2_CivName:textkey} to make peace with you!</Text>
+		<Row Tag="TXT_KEY_NOTIFICATION_DIPLOMACY_THIRD_PARTY_BROKER_WAR_S">
+			<Text>{1_CivName} brokers war against you!</Text>
 		</Row>
-		<Row Tag="TXT_KEY_NOTIFICATION_DIPLOMACY_THIRD_PARTY_BROKER_PEACE_NAME_S">
-			<Text>{1_CivName:textkey} brokered peace on your behalf!</Text>
+		<Row Tag="TXT_KEY_NOTIFICATION_DIPLOMACY_THIRD_PARTY_BROKER_WAR_OTHER">
+			<Text>Your intelligence service reports that {1_PlayerName} bribed {2_CivName} to go to war with {3_CivName}! This information has been shared with your allies.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_DIPLOMACY_THIRD_PARTY_BROKER_WAR_OTHER_INFORMED">
+			<Text>{1_CivName}'s intelligence service informs you that {2_PlayerName} bribed {3_CivName} to go to war with {4_CivName}!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_DIPLOMACY_THIRD_PARTY_BROKER_WAR_OTHER_NOT_INFORMED">
+			<Text>Your intelligence service reports that {1_PlayerName} bribed {2_CivName} to go to war with {3_CivName}!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_DIPLOMACY_THIRD_PARTY_BROKER_WAR_OTHER_S">
+			<Text>{1_CivName} brokers war against {2_CivName}!</Text>
+		</Row>
+		
+		<Row Tag="TXT_KEY_NOTIFICATION_DIPLOMACY_THIRD_PARTY_BROKER_PEACE">
+			<Text>Your diplomats have learned that {1_PlayerName} paid {2_CivName} to make peace with you!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_DIPLOMACY_THIRD_PARTY_BROKER_PEACE_S">
+			<Text>{1_CivName} brokers peace on your behalf!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_DIPLOMACY_THIRD_PARTY_BROKER_PEACE_OTHER">
+			<Text>Your diplomats have learned that {1_PlayerName} paid {2_CivName} to make peace with {3_CivName}!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_DIPLOMACY_THIRD_PARTY_BROKER_PEACE_OTHER_S">
+			<Text>{1_CivName} brokers peace between {2_CivName} and {3_CivName}!</Text>
 		</Row>
 
 		<!-- CS -->
@@ -7494,8 +7539,25 @@
 			<Text>{1_Num} {2_ResourceIcon} {3_ResourceName:textkey} is required to construct {TXT_KEY_GRAMMAR_A_AN &lt;&lt; {@4_ImprovementName:textkey}}.</Text>
 		</Row>
 
+		<Row Tag="TXT_KEY_NUKE_STRIKE_AFFECTED">
+			<Text>We were struck by a {1_CIV} Nuke!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NUKE_STRIKE_AFFECTED_S">
+			<Text>Nuclear Strike!</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_NUKE_STRIKE_OWNED_TERRITORY">
+			<Text>A Nuke has been detonated by {1_CivName} in {2_CIV} territory!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NUKE_STRIKE_UNOWNED_TERRITORY">
+			<Text>A Nuke has been detonated by {1_CivName} in neutral territory!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NUKE_STRIKE_S">
+			<Text>Nuclear Strike!</Text>
+		</Row>
+
 		<Row Tag="TXT_KEY_NUKE_INTERCEPTED">
-			<Text>A {1_CIV} Nuclear Missile was intercepted by {2_City}!</Text>
+			<Text>A {1_CIV} Nuke was intercepted by {2_City}!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NUKE_INTERCEPTED_S">
 			<Text>Nuclear Interception!</Text>

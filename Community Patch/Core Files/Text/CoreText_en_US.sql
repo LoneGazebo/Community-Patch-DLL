@@ -668,6 +668,18 @@ SET Text = 'They fear your warmongering will end this world in fire!'
 WHERE Tag = 'TXT_KEY_DIPLO_WARMONGER_THREAT_CRITICAL';
 
 UPDATE Language_en_US
+SET Text = ' (They strongly dislike warmongers.)'
+WHERE Tag = 'TXT_KEY_WARMONGER_HATE_HIGH';
+
+UPDATE Language_en_US
+SET Text = ' (They dislike warmongers.)'
+WHERE Tag = 'TXT_KEY_WARMONGER_HATE_MID';
+
+UPDATE Language_en_US
+SET Text = ' (They overlook modest warmongering.)'
+WHERE Tag = 'TXT_KEY_WARMONGER_HATE_LOW';
+
+UPDATE Language_en_US
 SET Text = 'You plundered their trade routes!'
 WHERE Tag = 'TXT_KEY_DIPLO_PLUNDERING_OUR_TRADE_ROUTES';
 

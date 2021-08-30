@@ -338,9 +338,10 @@ public:
 	bool IsAICityTradingHumanOnly() const;
 	bool IsAICityTradingDisabled() const;
 	bool IsAllCityTradingDisabled() const;
-	bool IsInsultMessagesDisabled() const; // Only affects humans
-	bool IsComplimentMessagesDisabled() const; // Only affects humans
-	bool IsShowAllOpinionModifiers() const;
+	bool IsInsultMessagesDisabled() const; // Only affects AI messages sent to humans
+	bool IsComplimentMessagesDisabled() const; // Only affects AI messages sent to humans
+	bool IsNoFakeOpinionModifiers() const;
+	bool IsShowHiddenOpinionModifiers() const;
 	bool IsShowAllOpinionValues() const;
 	bool IsShowBaseHumanOpinion() const;
 
@@ -348,13 +349,15 @@ public:
 	bool IsHideOpinionTable() const;
 	bool IsLumpGoldTradingHumanOnly() const;
 	bool IsLumpGoldTradingEnabled() const;
-	bool IsFriendshipRequestsDisabled() const; // Only affects humans
-	bool IsGiftOffersDisabled() const; // Only affects humans
-	bool IsCoopWarRequestsDisabled() const; // Only affects humans
-	bool IsHelpRequestsDisabled() const; // Only affects humans
-	bool IsTradeOffersDisabled(bool bIncludeRenewals = false) const; // Only affects humans
-	bool IsPeaceOffersDisabled() const; // Only affects humans
-	bool IsAllDiploStatementsDisabled() const; // Only affects humans
+	bool IsFriendshipRequestsDisabled() const; // Only affects AI messages sent to humans
+	bool IsGiftOffersDisabled() const; // Only affects AI messages sent to humans
+	bool IsCoopWarRequestsDisabled() const; // Only affects AI messages sent to humans
+	bool IsHelpRequestsDisabled() const; // Only affects AI messages sent to humans
+	bool IsTradeOffersDisabled(bool bIncludeRenewals = false) const; // Only affects AI messages sent to humans
+	bool IsPeaceOffersDisabled() const; // Only affects AI messages sent to humans
+	bool IsDemandsDisabled() const; // Only affects AI messages sent to humans
+	bool IsIndependenceRequestsDisabled() const; // Only affects AI messages sent to humans
+	bool IsAllDiploStatementsDisabled() const; // Only affects AI messages sent to humans
 	bool IsAIPassiveMode() const;
 	bool IsAIPassiveTowardsHumans() const;
 	bool CanPlayerAttemptDominationVictory(PlayerTypes ePlayer, PlayerTypes eMakePeacePlayer = NO_PLAYER) const;
@@ -617,7 +620,8 @@ public:
 	void DoMinorMarriage(PlayerTypes eMajor, PlayerTypes eMinor);
 #endif
 
-	void DoResearchAgreementNotification(TeamTypes eTeam1, TeamTypes eTeam2);
+	void DoDefensivePactNotification(PlayerTypes eFirstPlayer, PlayerTypes eSecondPlayer);
+	void DoResearchAgreementNotification(PlayerTypes eFirstPlayer, PlayerTypes eSecondPlayer);
 
 	int GetResearchAgreementCost(PlayerTypes ePlayer1, PlayerTypes ePlayer2);
 

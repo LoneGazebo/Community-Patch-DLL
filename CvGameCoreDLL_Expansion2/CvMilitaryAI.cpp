@@ -2111,10 +2111,10 @@ void CvMilitaryAI::DoNuke(PlayerTypes ePlayer)
 				}
 				if (bRollForNuke)
 				{
-					int iFlavorNuke = m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_USE_NUKE"));
+					int iFlavorNuke = m_pPlayer->GetFlavorManager()->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_USE_NUKE"));
 					int iRoll = GC.getGame().getSmallFakeRandNum(10, GET_PLAYER(ePlayer).GetPseudoRandomSeed());
 					int iRoll2 = GC.getGame().getSmallFakeRandNum(10, m_pPlayer->GetPseudoRandomSeed());
-					if (iRoll < iFlavorNuke && iRoll2 < iFlavorNuke)
+					if (iRoll <= iFlavorNuke && iRoll2 <= iFlavorNuke)
 					{
 						bLaunchNuke = true;
 					}
