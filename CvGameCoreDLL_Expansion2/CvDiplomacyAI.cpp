@@ -41051,9 +41051,16 @@ bool CvDiplomacyAI::IsDenounceAcceptable(PlayerTypes ePlayer, bool bBias)
 	if (IsAlwaysAtWar(ePlayer))
 		return false;
 
-	// Don't denounce if we're at war and want peace
-	if (IsAtWar(ePlayer) && IsWantsPeaceWithPlayer(ePlayer))
-		return false;
+	if (IsAtWar(ePlayer))
+	{
+		// Don't denounce if we're at war and want peace
+		if (IsWantsPeaceWithPlayer(ePlayer))
+			return false;
+
+		// To circumvent a bug, don't declare war and denounce on the same turn
+		if (GetPlayer()->GetPlayerNumTurnsAtWar(ePlayer) <= 0)
+			return false;
+	}
 
 	// If we've already denounced, it's no good
 	if (IsDenouncedPlayer(ePlayer))
