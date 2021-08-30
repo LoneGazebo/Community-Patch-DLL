@@ -5218,9 +5218,9 @@ int CvGameDeals::GetDealValueWithPlayer(PlayerTypes ePlayer, PlayerTypes eOtherP
 				}
 			}
 
-			iVal += iter->IsOpenBordersTrade(eOtherPlayer) ? 10000 : 0;
-			iVal += iter->IsOpenBordersTrade(ePlayer) ? 5000 : 0;
-			iVal += iter->IsDefensivePactTrade(eOtherPlayer) ? 5000 : 0;
+			iVal += iter->IsOpenBordersTrade(eOtherPlayer) ? 10 * iAvgDealDuration : 0;
+			iVal += iter->IsOpenBordersTrade(ePlayer) ? 5 * iAvgDealDuration : 0;
+			iVal += iter->IsDefensivePactTrade(eOtherPlayer) ? 50 * iAvgDealDuration : 0;
 		}
 	}
 
