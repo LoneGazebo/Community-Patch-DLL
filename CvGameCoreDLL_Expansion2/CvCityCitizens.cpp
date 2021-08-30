@@ -1504,8 +1504,16 @@ void CvCityCitizens::OptimizeWorkedPlots(bool bLogging)
 			{
 				int iExcessFoodTimes100 = m_pCity->getYieldRateTimes100(YIELD_FOOD, false) - (m_pCity->foodConsumptionTimes100());
 				CvString strOutBuf;
-				strOutBuf.Format("switched plot %d:%d (score %d) to plot %d:%d (score %d), current net food %d", 
-					pWorstWorkedPlot->getX(), pWorstWorkedPlot->getY(), iWorstWorkedPlotValue, pBestFreePlot->getX(), pBestFreePlot->getY(), iBestFreePlotValue, iExcessFoodTimes100);
+				if (pWorstWorkedPlot)
+				{
+					strOutBuf.Format("switched plot %d:%d (score %d) to plot %d:%d (score %d), current net food %d",
+						pWorstWorkedPlot->getX(), pWorstWorkedPlot->getY(), iWorstWorkedPlotValue, pBestFreePlot->getX(), pBestFreePlot->getY(), iBestFreePlotValue, iExcessFoodTimes100);
+				}
+				else
+				{
+					strOutBuf.Format("assigned citizen to plot %d:%d (score %d), current net food %d",
+						pBestFreePlot->getX(), pBestFreePlot->getY(), iBestFreePlotValue, iExcessFoodTimes100);
+				}
 				pLog->Msg(strOutBuf);
 			}
 		}
@@ -1521,8 +1529,16 @@ void CvCityCitizens::OptimizeWorkedPlots(bool bLogging)
 					CvBuildingEntry* pBuilding = GC.getBuildingInfo(eBestSpecialistBuilding);
 					int iExcessFoodTimes100 = m_pCity->getYieldRateTimes100(YIELD_FOOD, false) - (m_pCity->foodConsumptionTimes100());
 					CvString strOutBuf;
-					strOutBuf.Format("switched plot %d:%d (score %d) to specialist (%s, score %d), current net food %d", 
-						pWorstWorkedPlot->getX(), pWorstWorkedPlot->getY(), iWorstWorkedPlotValue, pBuilding ? pBuilding->GetType() : "default", iBestSpecialistValue, iExcessFoodTimes100);
+					if (pWorstWorkedPlot)
+					{
+						strOutBuf.Format("switched plot %d:%d (score %d) to specialist (%s, score %d), current net food %d",
+							pWorstWorkedPlot->getX(), pWorstWorkedPlot->getY(), iWorstWorkedPlotValue, pBuilding ? pBuilding->GetType() : "default", iBestSpecialistValue, iExcessFoodTimes100);
+					}
+					else
+					{
+						strOutBuf.Format("assigned citizen to specialist (%s, score %d), current net food %d",
+							pBuilding ? pBuilding->GetType() : "default", iBestSpecialistValue, iExcessFoodTimes100);
+					}
 					pLog->Msg(strOutBuf);
 				}
 			}
