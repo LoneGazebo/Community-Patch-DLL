@@ -1999,6 +1999,7 @@
 			<Help>TXT_KEY_PROMOTION_RANGED_SUPPORT_FIRE_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<RangedSupportFire>true</RangedSupportFire>
+			<LostWithUpgrade>true</LostWithUpgrade>
 			<PortraitIndex>59</PortraitIndex>
 			<IconAtlas>ABILITY_ATLAS</IconAtlas>
 			<PediaType>PEDIA_RANGED</PediaType>
@@ -2713,7 +2714,7 @@
 			<Help>TXT_KEY_PROMOTION_GENERAL_STACKING_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<CannotBeChosen>true</CannotBeChosen>
-			<GreatGeneralCombatModifier>15</GreatGeneralCombatModifier>
+			<GreatGeneralCombatModifier>25</GreatGeneralCombatModifier>
 			<PortraitIndex>59</PortraitIndex>
 			<IconAtlas>ABILITY_ATLAS</IconAtlas>
 			<PediaType>PEDIA_ATTRIBUTES</PediaType>
@@ -2952,7 +2953,7 @@
 			<Description>TXT_KEY_PROMOTION_ATLATL_ATTACK</Description>
 			<Help>TXT_KEY_PROMOTION_ATLATL_ATTACK_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
-			<AttackWoundedMod>50</AttackWoundedMod>
+			<AttackWoundedMod>33</AttackWoundedMod>
 			<PortraitIndex>59</PortraitIndex>
 			<IconAtlas>ABILITY_ATLAS</IconAtlas>
 			<PediaType>PEDIA_RANGED</PediaType>
@@ -3456,7 +3457,7 @@
 			<Help>TXT_KEY_PROMOTION_AOE_STRIKE_ON_KILL_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<CannotBeChosen>true</CannotBeChosen>
-			<AOEDamageOnKill>10</AOEDamageOnKill>
+			<AOEDamageOnKill>15</AOEDamageOnKill>
 			<PortraitIndex>26</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_SHARED</PediaType>
@@ -4168,7 +4169,7 @@
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<CannotBeChosen>true</CannotBeChosen>
 			<OrderPriority>1</OrderPriority>
-			<LostWithUpgrade>true</LostWithUpgrade>
+			<LostWithUpgrade>false</LostWithUpgrade>
 			<AttackMod>25</AttackMod>
 			<CityAttack>25</CityAttack>
 			<PortraitIndex>20</PortraitIndex>
@@ -4317,7 +4318,6 @@
 			<CannotBeChosen>true</CannotBeChosen>
 			<OrderPriority>6</OrderPriority>
 			<AttackMod>10</AttackMod>
-			<GainsXPFromSpotting>true</GainsXPFromSpotting>
 			<PortraitIndex>24</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_MELEE</PediaType>

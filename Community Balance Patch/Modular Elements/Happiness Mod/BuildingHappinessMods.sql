@@ -280,10 +280,6 @@ UPDATE Buildings
 SET DefenseHappinessChangeGlobal = '-10'
 WHERE Type = 'BUILDING_INTELLIGENCE_AGENCY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
-UPDATE Buildings
-SET DefenseHappinessChangeGlobal = '-10'
-WHERE Type = 'BUILDING_WHITE_TOWER' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
-
 -- Boredom
 INSERT INTO Building_UnhappinessNeedsFlatReduction
 	(BuildingType, YieldType, Yield)

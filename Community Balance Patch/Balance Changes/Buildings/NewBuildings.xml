@@ -416,9 +416,9 @@
 		</Row>
 		<Row>
 			<Type>BUILDING_WHITE_TOWER</Type>
-			<BuildingClass>BUILDINGCLASS_INTELLIGENCE_AGENCY</BuildingClass>
+			<BuildingClass>BUILDINGCLASS_IRONWORKS</BuildingClass>
 			<Cost>125</Cost>
-			<PrereqTech>TECH_CHIVALRY</PrereqTech>
+			<PrereqTech>TECH_MACHINERY</PrereqTech>
 			<Help>TXT_KEY_BUILDING_WHITE_TOWER_HELP</Help>
 			<Description>TXT_KEY_BUILDING_WHITE_TOWER</Description>
 			<Civilopedia>TXT_KEY_CIV5_BUILDINGS_WHITE_TOWER_TEXT</Civilopedia>
@@ -430,11 +430,6 @@
 			<GreatWorkSlotType>GREAT_WORK_SLOT_ART_ARTIFACT</GreatWorkSlotType>
 			<NumCityCostMod>10</NumCityCostMod>
 			<NationalPopRequired>30</NationalPopRequired>
-			<GlobalEspionageModifier>-10</GlobalEspionageModifier>
-			<ExtraSpies>1</ExtraSpies>
-			<Espionage>true</Espionage>
-			<SpyRankChange>1</SpyRankChange>
-			<InstantSpyRankChange>1</InstantSpyRankChange>
 			<HurryCostModifier>-1</HurryCostModifier>
 			<MinAreaSize>-1</MinAreaSize>
 			<NeverCapture>true</NeverCapture>

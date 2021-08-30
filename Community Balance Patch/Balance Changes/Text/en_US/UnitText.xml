@@ -128,7 +128,7 @@
 			<Text>Grenadiers</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_AOE_STRIKE_ON_KILL_HELP">
-			<Text>When you advance after destroying an Enemy Unit, all newly-adjacent Enemy Units take [COLOR_POSITIVE_TEXT]10 Damage[ENDCOLOR].</Text>
+			<Text>When you advance after destroying an Enemy Unit, all newly-adjacent Enemy Units take [COLOR_POSITIVE_TEXT]15 Damage[ENDCOLOR].</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_AOE_STRIKE_FORTIFY">
@@ -232,7 +232,7 @@
 			<Text>Atlatl Strike</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_ATLATL_ATTACK_HELP">
-			<Text>+50% [ICON_RANGE_STRENGTH] Ranged Combat Strength when attacking [COLOR_POSITIVE_TEXT]Wounded Units[ENDCOLOR].</Text>
+			<Text>+33% [ICON_RANGE_STRENGTH] Ranged Combat Strength when attacking [COLOR_POSITIVE_TEXT]Wounded Units[ENDCOLOR].</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_NAVAL_MISFIRE">
 			<Text>Naval Target Penalty</Text>
@@ -991,7 +991,7 @@
 		</Row>
 		
 		<Row Tag="TXT_KEY_PROMOTION_IKLWA_HELP">
-			<Text>+10% [ICON_STRENGTH] Combat Strength when [COLOR_POSITIVE_TEXT]Attacking[ENDCOLOR].[NEWLINE]+2 XP for every turn spent unembarked in the [COLOR_POSITIVE_TEXT]Enemy Territory[ENDCOLOR] of a Major Civ.</Text>
+			<Text>+10% [ICON_STRENGTH] Combat Strength when [COLOR_POSITIVE_TEXT]Attacking[ENDCOLOR].</Text>
 		</Row>
 
 		<!-- New unit combats -->
