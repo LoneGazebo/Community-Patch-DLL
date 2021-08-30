@@ -169,6 +169,11 @@ WHERE Tag = 'TXT_KEY_UNIT_ROCKET_ARTILLERY_STRATEGY';
 
 -- Buildings
 
+-- "Votes from World Wonders" -> "Votes from Wonders"
+UPDATE Language_en_US
+SET Text = '[NEWLINE][ICON_BULLET]{1_NumVotes} from Wonders'
+WHERE Tag = 'TXT_KEY_LEAGUE_OVERVIEW_MEMBER_DETAILS_WONDER_VOTES';
+
 -- National Wonders
 UPDATE Language_en_US
 SET Text = 'Provides additional spies based on a fraction of the number of City-States, and levels up all your existing spies. Also provides a 15% reduction in enemy spy effectiveness. Must have a Police Station in all cities.'

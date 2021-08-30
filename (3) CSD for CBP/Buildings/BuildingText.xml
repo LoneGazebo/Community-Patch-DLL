@@ -103,7 +103,7 @@
 			<Text>May only be built collaboratively through the World Congress. Receive +2 [ICON_PRODUCTION] Production and +2 [ICON_RESEARCH] Science for all Factories in owned Cities. The Empire enters a [ICON_GOLDEN_AGE] Golden Age.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CONSULATE_HELP">
-			<Text>Receive 1 [COLOR_POSITIVE_TEXT]Additional[ENDCOLOR] [ICON_DIPLOMAT] Delegate in the World Congress.</Text>
+			<Text>Receive 1 [COLOR_POSITIVE_TEXT]Additional[ENDCOLOR] [ICON_DIPLOMAT] Delegate in the World Congress for every 8 [ICON_CITY_STATE] City-States in the game.</Text>
 		</Row>
 		<!--
 		<Row Tag="TXT_KEY_SECURITY_COUNCIL_HELP">
@@ -111,7 +111,7 @@
 		</Row>
 		-->
 		<Row Tag="TXT_KEY_UN_HELP">
-			<Text>May only be built collaboratively through the World Congress. Receive 1 [COLOR_POSITIVE_TEXT]Additional[ENDCOLOR] [ICON_DIPLOMAT] Delegate in the World Congress. Also, when you expend a [ICON_GREAT_PEOPLE] Great Person, earn 25 [ICON_INFLUENCE] Influence with all [ICON_CITY_STATE] City-States you have met. Triggers a [ICON_GOLDEN_AGE] Golden Age, as well as the [COLOR_POSITIVE_TEXT]United Nations[ENDCOLOR] Special Session of the World Congress.</Text>
+			<Text>May only be built collaboratively through the World Congress. Receive 1 [COLOR_POSITIVE_TEXT]Additional[ENDCOLOR] [ICON_DIPLOMAT] Delegate in the World Congress for every 8 [ICON_CITY_STATE] City-States in the game. Also, when you expend a [ICON_GREAT_PEOPLE] Great Person, earn 25 [ICON_INFLUENCE] Influence with all [ICON_CITY_STATE] City-States you have met. Triggers a [ICON_GOLDEN_AGE] Golden Age, as well as the [COLOR_POSITIVE_TEXT]United Nations[ENDCOLOR] Special Session of the World Congress.</Text>
 		</Row>
 		
 		<!--Diplo Building Strategy
