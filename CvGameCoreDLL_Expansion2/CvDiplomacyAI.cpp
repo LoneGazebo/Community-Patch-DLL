@@ -1126,11 +1126,8 @@ int CvDiplomacyAI::GetRandomPersonalityWeight(int iOriginalValue, int& iSeed)
 	if (iPlusMinus == 0 || GC.getDIPLOAI_NO_FLAVOR_RANDOMIZATION() > 0)
 		return range(iOriginalValue, iMin, iMax);
 
-	// Increment the random seed (and make sure it's > 0)
-	if (iSeed < 0)
-		iSeed = 0;
-
-	iSeed += (iOriginalValue + ID) * 200;
+	// Increment the random seed
+	iSeed += (iOriginalValue * ID) * 256;
 
 	// Randomize!
 	int iAdjust = GC.getGame().getSmallFakeRandNum((iPlusMinus * 2 + 1), (iOriginalValue * iSeed * ID));
@@ -1148,7 +1145,8 @@ void CvDiplomacyAI::DoInitializePersonality()
 	if (!GetPlayer()->isHuman())
 	{
 		const CvLeaderHeadInfo& playerLeaderInfo = GetPlayer()->getLeaderInfo();
-		int iSeed = 0;
+		int ID = (int) GetID();
+		int iSeed = ID * ID * ID;
 
 		m_iVictoryCompetitiveness = GetRandomPersonalityWeight(playerLeaderInfo.GetVictoryCompetitiveness(), iSeed);
 		m_iWonderCompetitiveness = GetRandomPersonalityWeight(playerLeaderInfo.GetWonderCompetitiveness(), iSeed);
@@ -1268,7 +1266,7 @@ void CvDiplomacyAI::SelectDefaultVictoryFocus()
 	int iRandom = GC.getGame().isOption(GAMEOPTION_RANDOM_PERSONALITIES) ? 20 : 10;
 
 	// Random seed to ensure the fake RNG doesn't return the same value repeatedly
-	int iSeed = 1;
+	int iSeed = (ID * ID * ID) + (GetBoldness() * GetMeanness() * GetMajorCivApproachBias(CIV_APPROACH_WAR) * ID);
 
 	CvFlavorManager* pFlavorMgr = GetPlayer()->GetFlavorManager();
 
@@ -1277,18 +1275,16 @@ void CvDiplomacyAI::SelectDefaultVictoryFocus()
 	iConquerorWeight += GetMeanness();
 	iConquerorWeight += pFlavorMgr->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_OFFENSE"));
 	iConquerorWeight += pFlavorMgr->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_EXPANSION"));
-	iConquerorWeight += GC.getGame().getSmallFakeRandNum(iRandom, ((GetBoldness() * GetMeanness() * GetMajorCivApproachBias(CIV_APPROACH_WAR) * ID) + iSeed));
-	iSeed += (iConquerorWeight * iRandom * ID);
-	iSeed *= 2;
+	iConquerorWeight += GC.getGame().getSmallFakeRandNum(iRandom, iSeed);
+	iSeed += (iConquerorWeight * iRandom * ID * 256) + (GetDiploBalance() * GetMinorCivCompetitiveness() * GetMajorCivApproachBias(CIV_APPROACH_DECEPTIVE) * ID);
 
 	// Weight for diplomacy
 	iDiplomatWeight += GetDiploBalance();
 	iDiplomatWeight += GetMinorCivCompetitiveness();
 	iDiplomatWeight += pFlavorMgr->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_DIPLOMACY"));
 	iDiplomatWeight += pFlavorMgr->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GOLD"));
-	iDiplomatWeight += GC.getGame().getSmallFakeRandNum(iRandom, ((GetDiploBalance() * GetMinorCivCompetitiveness() * GetMajorCivApproachBias(CIV_APPROACH_DECEPTIVE) * ID) + iSeed));
-	iSeed += (iDiplomatWeight * iRandom * ID) + iConquerorWeight;
-	iSeed *= 2;
+	iDiplomatWeight += GC.getGame().getSmallFakeRandNum(iRandom, iSeed);
+	iSeed += (iDiplomatWeight * iRandom * ID * 256) + iConquerorWeight + (GetDoFWillingness() * GetWonderCompetitiveness() * GetMajorCivApproachBias(CIV_APPROACH_FRIENDLY) * ID);
 
 	// Weight for culture
 	if (bCanUnlockPolicies)
@@ -1297,9 +1293,8 @@ void CvDiplomacyAI::SelectDefaultVictoryFocus()
 		iCulturalWeight += GetWonderCompetitiveness();
 		iCulturalWeight += pFlavorMgr->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_WONDER"));
 		iCulturalWeight += pFlavorMgr->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_CULTURE"));
-		iCulturalWeight += GC.getGame().getSmallFakeRandNum(iRandom, ((GetDoFWillingness() * GetWonderCompetitiveness() * GetMajorCivApproachBias(CIV_APPROACH_FRIENDLY) * ID) + iSeed));
-		iSeed += (iCulturalWeight * iRandom * ID) + iConquerorWeight + iDiplomatWeight;
-		iSeed *= 2;
+		iCulturalWeight += GC.getGame().getSmallFakeRandNum(iRandom, iSeed);
+		iSeed += (iCulturalWeight * iRandom * ID * 256) + iConquerorWeight + iDiplomatWeight + (GetLoyalty() * GetWarmongerHate() * GetMajorCivApproachBias(CIV_APPROACH_NEUTRAL) * ID);
 	}
 	else
 	{
@@ -1313,7 +1308,7 @@ void CvDiplomacyAI::SelectDefaultVictoryFocus()
 		iScientistWeight += GetWarmongerHate();
 		iScientistWeight += pFlavorMgr->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_SCIENCE"));
 		iScientistWeight += pFlavorMgr->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GROWTH"));
-		iScientistWeight += GC.getGame().getSmallFakeRandNum(iRandom, ((GetLoyalty() * GetWarmongerHate() * GetMajorCivApproachBias(CIV_APPROACH_NEUTRAL) * ID) + iSeed));
+		iScientistWeight += GC.getGame().getSmallFakeRandNum(iRandom, iSeed);
 	}
 	else
 	{
