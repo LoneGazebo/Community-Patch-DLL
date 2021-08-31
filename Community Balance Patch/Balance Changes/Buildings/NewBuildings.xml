@@ -367,7 +367,7 @@
 			<PortraitIndex>9</PortraitIndex>
 			<Cost>-1</Cost>
 		</Row>
-		<Row>
+<!--		<Row>
 			<Type>BUILDING_MOMA</Type>
 			<BuildingClass>BUILDINGCLASS_HERMITAGE</BuildingClass>
 			<Cost>125</Cost>
@@ -391,7 +391,7 @@
 			<GreatWorksTourismModifier>50</GreatWorksTourismModifier>
 			<IconAtlas>COMMUNITY_2_ATLAS</IconAtlas>
 			<PortraitIndex>10</PortraitIndex>
-		</Row>
+		</Row>	-->
 		<Row>
 			<Type>BUILDING_SIEGE_WORKSHOP</Type>
 			<BuildingClass>BUILDINGCLASS_FORGE</BuildingClass>
