@@ -1437,6 +1437,10 @@ void CvCityCitizens::OptimizeWorkedPlots(bool bLogging)
 	while (GetNumUnassignedCitizens() > 0)
 		DoAddBestCitizenFromUnassigned(CvCity::YIELD_UPDATE_LOCAL);
 
+	//do not forget default specialists aka laborers
+	gCachedNumbers.update(m_pCity);
+	int iLaborerValue = GetSpecialistValue((SpecialistTypes)GC.getDEFAULT_SPECIALIST(), gCachedNumbers);
+
 	//failsafe against switching back and forth, don't try this too often
 	while (iCount < m_pCity->getPopulation()/2)
 	{
@@ -1450,6 +1454,10 @@ void CvCityCitizens::OptimizeWorkedPlots(bool bLogging)
 		CvPlot* pWorstWorkedPlot = GetBestCityPlotWithValue(iWorstWorkedPlotValue, eWORST_WORKED_UNFORCED);
 		BuildingTypes eWorstSpecialistBuilding = GetAIBestSpecialistCurrentlyInBuilding(iWorstSpecialistValue, false);
 
+		bool bReleaseLaborer = (GetNumDefaultSpecialists() > GetNumForcedDefaultSpecialists()) && (iWorstSpecialistValue > iLaborerValue);
+		if (bReleaseLaborer)
+			eWorstSpecialistBuilding = NO_BUILDING;
+
 		//both options are valid
 		if (pWorstWorkedPlot && eWorstSpecialistBuilding != NO_BUILDING)
 		{
@@ -1460,10 +1468,16 @@ void CvCityCitizens::OptimizeWorkedPlots(bool bLogging)
 				DoRemoveSpecialistFromBuilding(eWorstSpecialistBuilding, false, CvCity::YIELD_UPDATE_LOCAL);
 		}
 		else if (pWorstWorkedPlot)
-			//only plot can be freed
-			SetWorkingPlot(pWorstWorkedPlot, false, CvCity::YIELD_UPDATE_LOCAL);
+		{
+			if (bReleaseLaborer && iWorstWorkedPlotValue < iLaborerValue)
+				//plot should be released
+				SetWorkingPlot(pWorstWorkedPlot, false, CvCity::YIELD_UPDATE_LOCAL);
+			else
+				//laborer should be released
+				ChangeNumDefaultSpecialists(-1, CvCity::YIELD_UPDATE_LOCAL);
+		}
 		else if (eWorstSpecialistBuilding != NO_BUILDING)
-			//only specialist can be freed
+			//only specialist can be released
 			DoRemoveSpecialistFromBuilding(eWorstSpecialistBuilding, false, CvCity::YIELD_UPDATE_LOCAL);
 		else
 			//cannot change anything
@@ -1477,6 +1491,13 @@ void CvCityCitizens::OptimizeWorkedPlots(bool bLogging)
 		bool bCanAffordSpecialist = (iNetFood100 >= m_pCity->foodConsumptionSpecialistTimes100()+GetExcessFoodThreshold100());
 		if (bCanAffordSpecialist && !bSpecialistForbidden) 
 			eBestSpecialistBuilding = GetAIBestSpecialistBuilding(iBestSpecialistValue);
+
+		//can a laborer be better than a specialist?
+		if (iBestSpecialistValue < iLaborerValue)
+		{
+			eBestSpecialistBuilding = NO_BUILDING;
+			iBestSpecialistValue = iLaborerValue;
+		}
 
 		//better work a plot or a specialist?
 		if (iBestFreePlotValue > iBestSpecialistValue)
@@ -1522,6 +1543,7 @@ void CvCityCitizens::OptimizeWorkedPlots(bool bLogging)
 			//is a specialist better?
 			if (iBestSpecialistValue > iWorstWorkedPlotValue)
 			{
+				//this method also handles laborers
 				DoAddSpecialistToBuilding(eBestSpecialistBuilding, /*bForced*/ false, CvCity::YIELD_UPDATE_GLOBAL);
 
 				if (pLog)
@@ -1589,6 +1611,7 @@ bool CvCityCitizens::NeedReworkCitizens()
 		return true;
 	}
 
+	//for simplicity we do not check for laborers here
 	int iSpecialistInCityValue = 0;
 	BuildingTypes eBestSpecialistInCityBuilding = NO_BUILDING;
 	if (!GET_PLAYER(GetOwner()).isHuman() || !IsNoAutoAssignSpecialists())

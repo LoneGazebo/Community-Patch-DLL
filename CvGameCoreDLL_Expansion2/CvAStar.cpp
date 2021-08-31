@@ -3132,6 +3132,12 @@ int TradeRouteLandValid(const CvAStarNode* parent, const CvAStarNode* node, cons
 		return FALSE;
 	}
 
+	//do not allow paths through enemy cities (but we do allow paths *into* enemy cities for military targeting)
+	CvMap& kMap = GC.getMap();
+	CvPlot* pPrevPlot = kMap.plotUnchecked(parent->m_iX, parent->m_iY);
+	if (pPrevPlot->isOwned() && pPrevPlot->isCity() && GET_TEAM(pCacheData->GetTeam()).isAtWar(pPrevPlot->getTeam()))
+		return FALSE;
+
 	return TRUE;
 }
 
@@ -3182,22 +3188,32 @@ int TradeRouteWaterValid(const CvAStarNode* parent, const CvAStarNode* node, con
 
 	//ocean needs trait or tech
 	if (pNewPlot->isDeepWater())
+	{
 		return pCacheData->CanCrossOcean();
+	}
+	//coast is almost always ok
+	else if (pNewPlot->isShallowWater())
+	{
+		//since we use the trade paths also for military targeting, we have to allow paths into enemy cities (see below)
+		//however, we do not want to allow paths *through* enemy cities!
+		CvPlot* pPrevPlot = kMap.plotUnchecked(parent->m_iX, parent->m_iY);
+		if (pPrevPlot->isOwned())
+		{
+			if (GET_TEAM(pCacheData->GetTeam()).isAtWar(pPrevPlot->getTeam()) && pPrevPlot->isCoastalCityOrPassableImprovement(pCacheData->GetPlayer(), false, false))
+				return FALSE;
+		}
 
-	//coast is always ok
-	if (pNewPlot->isShallowWater())
 		return TRUE;
-
-	//check passable improvements
-	if (pNewPlot->isCoastalCityOrPassableImprovement(pCacheData->GetPlayer(), false, false))
+	}
+	//land plots only allowed if there is a passable improvements
+	else if (pNewPlot->isCoastalCityOrPassableImprovement(pCacheData->GetPlayer(), false, false))
 	{
 		//most of the time we check for reachable plots so we can't decide if a city is the target city or not
 		//so we have to allow all cities and forts
 		return TRUE;
 	}
-
 	//check for shortcuts ...
-	if (finder->HaveFlag(CvUnit::MOVEFLAG_PRETEND_CANALS))
+	else if (finder->HaveFlag(CvUnit::MOVEFLAG_PRETEND_CANALS))
 	{
 		CvPlot* pPrevPlot = kMap.plotUnchecked(parent->m_iX, parent->m_iY);
 		//only single plot canals on plots without resource

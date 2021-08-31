@@ -212,7 +212,7 @@ int CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlot
 		return INT_MAX;
 	}
 	//case with route is already handled above
-	else if (pToPlot->isCity() && (!bRiverCrossing || kUnitTeam.isBridgeBuilding())) 
+	else if (pToPlot->isCity() && !kUnitTeam.isAtWar(pToPlot->getTeam()) && (!bRiverCrossing || kUnitTeam.isBridgeBuilding())) 
 	{
 		return iMoveDenominator;
 	}
