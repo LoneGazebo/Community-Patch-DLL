@@ -7685,7 +7685,10 @@ CvString CvPlayer::GetScaledHelpText(EventChoiceTypes eEventChoice, bool bYields
 	const char* const finallocalized = localizedCoreText.toUTF8();
 	if(finallocalized)
 	{
-		CoreYieldTip = finallocalized;
+		CoreYieldTip += "[NEWLINE]";
+		CoreYieldTip += pkEventChoiceInfo->GetDescription();
+		CoreYieldTip += "[NEWLINE]";
+		CoreYieldTip += finallocalized;
 	}
 	return CoreYieldTip.c_str();
 }

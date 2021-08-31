@@ -1,0 +1,11 @@
+<Asset>
+  <Mesh file="Embassy.gr2" source="Max" />
+  <Texture file="FX_Blk_Blk4x4.dds" source="Max" />
+  <Texture file="EmbassyGround_H.dds" source="Max" />
+  <Texture file="EmbassyBuilding.dds" source="Max" />
+  <Texture file="EmbassyGround.dds" source="Max" />
+  <Texture file="EmbassyBuilding_SREF.dds" source="Max" />
+  <Texture file="Unit_Environment_Dull.dds" source="Max" />
+  <Texture file="Unit_Environment_Sharp.dds" source="Max" />
+  <Texture file="Unit_Irradiance.dds" source="Max" />
+</Asset>

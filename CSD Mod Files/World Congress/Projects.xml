@@ -1,0 +1,349 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Created by ModBuddy on 4/2/2014 10:59:14 PM -->
+<GameData>
+	<LeagueProjectRewards>
+		<!-- Renaissance Project -->
+		<Row>
+			<Type>LEAGUE_PROJECT_REWARD_TREASURE_FLEET_1</Type>
+			<Description>TXT_KEY_LEAGUE_PROJECT_REWARD_TREASURE_FLEET_1</Description>
+			<Help>TXT_KEY_LEAGUE_PROJECT_REWARD_TREASURE_FLEET_1_HELP</Help>
+			<FreeUnitClass>UNITCLASS_FRIGATE</FreeUnitClass>
+			<GoldenAgePoints>300</GoldenAgePoints>
+		</Row>
+		<Row>
+			<Type>LEAGUE_PROJECT_REWARD_TREASURE_FLEET_2</Type>
+			<Description>TXT_KEY_LEAGUE_PROJECT_REWARD_TREASURE_FLEET_2</Description>
+			<Help>TXT_KEY_LEAGUE_PROJECT_REWARD_TREASURE_FLEET_2_HELP</Help>
+			<FreeUnitClass>UNITCLASS_GREAT_ADMIRAL</FreeUnitClass>
+			<BaseFreeUnits>3</BaseFreeUnits>
+		</Row>
+		<Row>
+			<Type>LEAGUE_PROJECT_REWARD_TREASURE_FLEET_3</Type>
+			<Description>TXT_KEY_LEAGUE_PROJECT_REWARD_TREASURE_FLEET_3</Description>
+			<Help>TXT_KEY_LEAGUE_PROJECT_REWARD_TREASURE_FLEET_3_HELP</Help>
+			<Building>BUILDING_GRAND_CANAL</Building>
+		</Row>
+		<!-- Modern Project -->
+		<Row>
+			<Type>LEAGUE_PROJECT_REWARD_WARGAMES_1</Type>
+			<Description>TXT_KEY_LEAGUE_PROJECT_REWARD_WARGAMES_1</Description>
+			<Help>TXT_KEY_LEAGUE_PROJECT_REWARD_WARGAMES_1_HELP</Help>
+			<FreeUnitClass>UNITCLASS_INFANTRY</FreeUnitClass>
+			<BaseFreeUnits>4</BaseFreeUnits>
+		</Row>
+		<Row>
+			<Type>LEAGUE_PROJECT_REWARD_WARGAMES_2</Type>
+			<Description>TXT_KEY_LEAGUE_PROJECT_REWARD_WARGAMES_2</Description>
+			<Help>TXT_KEY_LEAGUE_PROJECT_REWARD_WARGAMES_2_HELP</Help>
+			<FreeUnitClass>UNITCLASS_GREAT_GENERAL</FreeUnitClass>
+			<Happiness>4</Happiness>
+		</Row>
+		<Row>
+			<Type>LEAGUE_PROJECT_REWARD_WARGAMES_3</Type>
+			<Description>TXT_KEY_LEAGUE_PROJECT_REWARD_WARGAMES_3</Description>
+			<Help>TXT_KEY_LEAGUE_PROJECT_REWARD_WARGAMES_3_HELP</Help>
+			<AttackBonusTurns>30</AttackBonusTurns>
+		</Row>
+		<!-- UN Project -->
+		<Row>
+			<Type>LEAGUE_PROJECT_REWARD_UNITED_NATIONS_1</Type>
+			<Description>TXT_KEY_LEAGUE_PROJECT_REWARD_UNITED_NATIONS_1</Description>
+			<Help>TXT_KEY_LEAGUE_PROJECT_REWARD_UNITED_NATIONS_1_HELP</Help>
+			<FreeUnitClass>UNITCLASS_GREAT_DIPLOMAT</FreeUnitClass>
+		</Row>
+		<Row>
+			<Type>LEAGUE_PROJECT_REWARD_UNITED_NATIONS_2</Type>
+			<Description>TXT_KEY_LEAGUE_PROJECT_REWARD_UNITED_NATIONS_2</Description>
+			<Help>TXT_KEY_LEAGUE_PROJECT_REWARD_UNITED_NATIONS_2_HELP</Help>
+			<Building>BUILDING_CONSULATE</Building>
+			<CityStateInfluenceBoost>25</CityStateInfluenceBoost>
+		</Row>
+		<Row>
+			<Type>LEAGUE_PROJECT_REWARD_UNITED_NATIONS_3</Type>
+			<Description>TXT_KEY_LEAGUE_PROJECT_REWARD_UNITED_NATIONS_3</Description>
+			<Help>TXT_KEY_LEAGUE_PROJECT_REWARD_UNITED_NATIONS_3_HELP</Help>
+			<Building>BUILDING_UN</Building>
+		</Row>
+	</LeagueProjectRewards>
+	<LeagueProjects>
+		<Row>
+			<Type>LEAGUE_PROJECT_TREASURE_FLEET</Type>
+			<Description>TXT_KEY_LEAGUE_PROJECT_TREASURE_FLEET</Description>
+			<Help>TXT_KEY_LEAGUE_PROJECT_TREASURE_FLEET_SPLASH</Help>
+			<ProjectSplashImage>ProjectTreasureFleet.dds</ProjectSplashImage>
+			<Process>PROCESS_TREASURE_FLEET</Process>
+			<CostPerPlayer>500</CostPerPlayer>
+			<RewardTier1>LEAGUE_PROJECT_REWARD_TREASURE_FLEET_1</RewardTier1>
+			<RewardTier2>LEAGUE_PROJECT_REWARD_TREASURE_FLEET_2</RewardTier2>
+			<RewardTier3>LEAGUE_PROJECT_REWARD_TREASURE_FLEET_3</RewardTier3>
+			<PortraitIndex>0</PortraitIndex>
+			<IconAtlas>INTL_PROJECT_ATLAS_EXP2</IconAtlas>
+		</Row>
+		<Row>
+			<Type>LEAGUE_PROJECT_WARGAMES</Type>
+			<Description>TXT_KEY_LEAGUE_PROJECT_WARGAMES</Description>
+			<Help>TXT_KEY_LEAGUE_PROJECT_WARGAMES_SPLASH</Help>
+			<ProjectSplashImage>ProjectWargames.dds</ProjectSplashImage>
+			<Process>PROCESS_WARGAMES</Process>
+			<CostPerPlayer>1100</CostPerPlayer>
+			<RewardTier1>LEAGUE_PROJECT_REWARD_WARGAMES_1</RewardTier1>
+			<RewardTier2>LEAGUE_PROJECT_REWARD_WARGAMES_2</RewardTier2>
+			<RewardTier3>LEAGUE_PROJECT_REWARD_WARGAMES_3</RewardTier3>
+			<PortraitIndex>0</PortraitIndex>
+			<IconAtlas>INTL_PROJECT_ATLAS_EXP2</IconAtlas>
+		</Row>
+		<Row>
+			<Type>LEAGUE_PROJECT_UNITED_NATIONS</Type>
+			<Description>TXT_KEY_LEAGUE_PROJECT_UNITED_NATIONS</Description>
+			<Help>TXT_KEY_LEAGUE_PROJECT_UNITED_NATIONS_SPLASH</Help>
+			<ProjectSplashImage>ProjectUN.dds</ProjectSplashImage>
+			<Process>PROCESS_UNITED_NATIONS</Process>
+			<CostPerPlayer>1700</CostPerPlayer>
+			<RewardTier1>LEAGUE_PROJECT_REWARD_UNITED_NATIONS_1</RewardTier1>
+			<RewardTier2>LEAGUE_PROJECT_REWARD_UNITED_NATIONS_2</RewardTier2>
+			<RewardTier3>LEAGUE_PROJECT_REWARD_UNITED_NATIONS_3</RewardTier3>
+			<PortraitIndex>0</PortraitIndex>
+			<IconAtlas>INTL_PROJECT_ATLAS_EXP2</IconAtlas>
+		</Row>
+	</LeagueProjects>
+	<Resolutions>
+		<Row>
+			<Type>RESOLUTION_TREASURE_FLEET</Type>
+			<Description>TXT_KEY_RESOLUTION_TREASURE_FLEET</Description>
+			<Help>TXT_KEY_RESOLUTION_TREASURE_FLEET_HELP</Help>
+			<VoterDecision>RESOLUTION_DECISION_YES_OR_NO</VoterDecision>
+			<ProposerDecision>RESOLUTION_DECISION_NONE</ProposerDecision>
+			<LeagueProjectEnabled>LEAGUE_PROJECT_TREASURE_FLEET</LeagueProjectEnabled>
+		</Row>
+		<Row>
+			<Type>RESOLUTION_WARGAMES</Type>
+			<Description>TXT_KEY_RESOLUTION_WARGAMES</Description>
+			<Help>TXT_KEY_RESOLUTION_WARGAMES_HELP</Help>
+			<TechPrereqAnyMember>TECH_REPLACEABLE_PARTS</TechPrereqAnyMember>
+			<VoterDecision>RESOLUTION_DECISION_YES_OR_NO</VoterDecision>
+			<ProposerDecision>RESOLUTION_DECISION_NONE</ProposerDecision>
+			<LeagueProjectEnabled>LEAGUE_PROJECT_WARGAMES</LeagueProjectEnabled>
+		</Row>
+		<Row>
+			<Type>RESOLUTION_UNITED_NATIONS</Type>
+			<Description>TXT_KEY_RESOLUTION_UNITED_NATIONS</Description>
+			<Help>TXT_KEY_RESOLUTION_UNITED_NATIONS_HELP</Help>
+			<TechPrereqAnyMember>TECH_ATOMIC_THEORY</TechPrereqAnyMember>
+			<VoterDecision>RESOLUTION_DECISION_YES_OR_NO</VoterDecision>
+			<ProposerDecision>RESOLUTION_DECISION_NONE</ProposerDecision>
+			<LeagueProjectEnabled>LEAGUE_PROJECT_UNITED_NATIONS</LeagueProjectEnabled>
+		</Row>
+	</Resolutions>
+	<Processes>
+		<Row>
+			<Type>PROCESS_TREASURE_FLEET</Type>
+			<Description>TXT_KEY_PROCESS_TREASURE_FLEET</Description>
+			<Help>TXT_KEY_PROCESS_TREASURE_FLEET_HELP</Help>
+			<Strategy>TXT_KEY_PROCESS_TREASURE_FLEET_HELP</Strategy>
+			<IconAtlas>INTL_PROJECT_ATLAS_EXP2</IconAtlas>
+			<PortraitIndex>0</PortraitIndex>
+		</Row>
+		<Row>
+			<Type>PROCESS_WARGAMES</Type>
+			<Description>TXT_KEY_PROCESS_WARGAMES</Description>
+			<Help>TXT_KEY_PROCESS_WARGAMES_HELP</Help>
+			<Strategy>TXT_KEY_PROCESS_WARGAMES_HELP</Strategy>
+			<IconAtlas>INTL_PROJECT_ATLAS_EXP2</IconAtlas>
+			<PortraitIndex>0</PortraitIndex>
+		</Row>
+		<Row>
+			<Type>PROCESS_UNITED_NATIONS</Type>
+			<Description>TXT_KEY_PROCESS_UNITED_NATIONS</Description>
+			<Help>TXT_KEY_PROCESS_UNITED_NATIONS_HELP</Help>
+			<Strategy>TXT_KEY_PROCESS_UNITED_NATIONS_HELP</Strategy>
+			<IconAtlas>INTL_PROJECT_ATLAS_EXP2</IconAtlas>
+			<PortraitIndex>0</PortraitIndex>
+		</Row>
+	</Processes>
+	<Process_Flavors>
+		<Row>
+			<ProcessType>PROCESS_TREASURE_FLEET</ProcessType>
+			<FlavorType>FLAVOR_NAVAL</FlavorType>
+			<Flavor>40</Flavor>
+		</Row>
+		<Row>
+			<ProcessType>PROCESS_TREASURE_FLEET</ProcessType>
+			<FlavorType>FLAVOR_OFFENSE</FlavorType>
+			<Flavor>40</Flavor>
+		</Row>
+		<Row>
+			<ProcessType>PROCESS_TREASURE_FLEET</ProcessType>
+			<FlavorType>FLAVOR_GOLD</FlavorType>
+			<Flavor>25</Flavor>
+		</Row>
+		<Row>
+			<ProcessType>PROCESS_WARGAMES</ProcessType>
+			<FlavorType>FLAVOR_NAVAL</FlavorType>
+			<Flavor>40</Flavor>
+		</Row>
+		<Row>
+			<ProcessType>PROCESS_WARGAMES</ProcessType>
+			<FlavorType>FLAVOR_OFFENSE</FlavorType>
+			<Flavor>40</Flavor>
+		</Row>
+		<Row>
+			<ProcessType>PROCESS_WARGAMES</ProcessType>
+			<FlavorType>FLAVOR_GOLD</FlavorType>
+			<Flavor>25</Flavor>
+		</Row>
+		<Row>
+			<ProcessType>PROCESS_UNITED_NATIONS</ProcessType>
+			<FlavorType>FLAVOR_DIPLOMACY</FlavorType>
+			<Flavor>100</Flavor>
+		</Row>
+		<Row>
+			<ProcessType>PROCESS_UNITED_NATIONS</ProcessType>
+			<FlavorType>FLAVOR_GOLD</FlavorType>
+			<Flavor>30</Flavor>
+		</Row>
+		<Row>
+			<ProcessType>PROCESS_UNITED_NATIONS</ProcessType>
+			<FlavorType>FLAVOR_HAPPINESS</FlavorType>
+			<Flavor>50</Flavor>
+		</Row>
+		<Row>
+			<ProcessType>PROCESS_UNITED_NATIONS</ProcessType>
+			<FlavorType>FLAVOR_CULTURE</FlavorType>
+			<Flavor>40</Flavor>
+		</Row>
+		<Row>
+			<ProcessType>PROCESS_WORLD_FAIR</ProcessType>
+			<FlavorType>FLAVOR_PRODUCTION</FlavorType>
+			<Flavor>60</Flavor>
+		</Row>
+	</Process_Flavors>
+	<Language_en_US>
+		<Row Tag="TXT_KEY_PROCESS_TREASURE_FLEET">
+			<Text>Treasure Fleet</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROCESS_TREASURE_FLEET_HELP">
+			<Text>Contribute this city's [ICON_PRODUCTION] Production towards the Treasure Fleet project. Cost goes up based on the number of players in the game, and the current Era.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_RESOLUTION_TREASURE_FLEET">
+			<Text>Treasure Fleet</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESOLUTION_TREASURE_FLEET_HELP">
+			<Text>Begins the Treasure Fleet project. Once underway, Civilizations can contribute [ICON_PRODUCTION] Production towards its completion by selecting it in the city production list.  When complete, Civilizations receive bonuses based on how much they contributed.[NEWLINE][NEWLINE][ICON_TROPHY_GOLD]: {TXT_KEY_LEAGUE_PROJECT_REWARD_TREASURE_FLEET_3_HELP}[NEWLINE][ICON_TROPHY_SILVER]: {TXT_KEY_LEAGUE_PROJECT_REWARD_TREASURE_FLEET_2_HELP}[NEWLINE][ICON_TROPHY_BRONZE]: {TXT_KEY_LEAGUE_PROJECT_REWARD_TREASURE_FLEET_1_HELP}</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_LEAGUE_PROJECT_TREASURE_FLEET">
+			<Text>Treasure Fleet</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEAGUE_PROJECT_TREASURE_FLEET_SPLASH">
+			<Text>Admirals, navigators, sailors, and shipbuilders from around the world are gathering resources to create a Treasure Fleet, the largest and most prestigious fleet of ships ever made.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_LEAGUE_PROJECT_REWARD_TREASURE_FLEET_1">
+			<Text>Prize Shipbuilder</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEAGUE_PROJECT_REWARD_TREASURE_FLEET_1_HELP">
+			<Text>Receive one Frigate. 300 points towards next [ICON_GOLDEN_AGE] Golden Age.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_LEAGUE_PROJECT_REWARD_TREASURE_FLEET_2">
+			<Text>Skilled Navigator</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEAGUE_PROJECT_REWARD_TREASURE_FLEET_2_HELP">
+			<Text>Receive a free Great Admiral and 3 of your military units will be maintenance-free.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_LEAGUE_PROJECT_REWARD_TREASURE_FLEET_3">
+			<Text>Master of the Fleet</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEAGUE_PROJECT_REWARD_TREASURE_FLEET_3_HELP">
+			<Text>Grand Canal wonder appears in [ICON_CAPITAL] Capital. ({TXT_KEY_BUILDING_GRAND_CANAL_HELP})</Text>
+		</Row>
+		<!-- Wargames -->
+		<Row Tag="TXT_KEY_PROCESS_WARGAMES">
+			<Text>Global Wargames</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROCESS_WARGAMES_HELP">
+			<Text>Contribute this city's [ICON_PRODUCTION] Production towards the Global Wargames project. Cost goes up based on the number of players in the game, and the current Era.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_RESOLUTION_WARGAMES">
+			<Text>Global Wargames</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESOLUTION_WARGAMES_HELP">
+			<Text>Begins the Global Wargames project. Once underway, Civilizations can contribute [ICON_PRODUCTION] Production towards its completion by selecting it in the city production list.  When complete, Civilizations receive bonuses based on how much they contributed.[NEWLINE][NEWLINE][ICON_TROPHY_GOLD]: {TXT_KEY_LEAGUE_PROJECT_REWARD_WARGAMES_3_HELP}[NEWLINE][ICON_TROPHY_SILVER]: {TXT_KEY_LEAGUE_PROJECT_REWARD_WARGAMES_2_HELP}[NEWLINE][ICON_TROPHY_BRONZE]: {TXT_KEY_LEAGUE_PROJECT_REWARD_WARGAMES_1_HELP} [NEWLINE][NEWLINE]Available once any Civilization discovers Replaceable Parts.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_LEAGUE_PROJECT_WARGAMES">
+			<Text>Global Wargames</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEAGUE_PROJECT_WARGAMES_SPLASH">
+			<Text>The militaries and military officers of the world's empires have assembled to highlight their fighting prowess and to make a claim to global preeminence.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_LEAGUE_PROJECT_REWARD_WARGAMES_1">
+			<Text>Colonel</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEAGUE_PROJECT_REWARD_WARGAMES_1_HELP">
+			<Text>Receive one Infantry and 4 of your military units will be maintenance-free.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_LEAGUE_PROJECT_REWARD_WARGAMES_2">
+			<Text>Major General</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEAGUE_PROJECT_REWARD_WARGAMES_2_HELP">
+			<Text>Receive a free Great General and +4 [ICON_HAPPINESS_1] Happiness.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_LEAGUE_PROJECT_REWARD_WARGAMES_3">
+			<Text>Field Marshal</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEAGUE_PROJECT_REWARD_WARGAMES_3_HELP">
+			<Text>Receive a +25% attack bonus to all Military Units for the next 30 turns.</Text>
+		</Row>
+		<!-- UNITED_NATIONS -->
+		
+		<Row Tag="TXT_KEY_PROCESS_UNITED_NATIONS">
+			<Text>United Nations</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROCESS_UNITED_NATIONS_HELP">
+			<Text>Contribute this city's [ICON_PRODUCTION] Production towards the United Nations project. Cost goes up based on the number of players in the game, and the current Era.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_RESOLUTION_UNITED_NATIONS">
+			<Text>United Nations</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESOLUTION_UNITED_NATIONS_HELP">
+			<Text>Begins the United Nations project. Once underway, Civilizations can contribute [ICON_PRODUCTION] Production towards its completion by selecting it in the city production list.  When complete, Civilizations receive bonuses based on how much they contributed.[NEWLINE][NEWLINE][ICON_TROPHY_GOLD]: {TXT_KEY_LEAGUE_PROJECT_REWARD_UNITED_NATIONS_3_HELP}[NEWLINE][ICON_TROPHY_SILVER]: {TXT_KEY_LEAGUE_PROJECT_REWARD_UNITED_NATIONS_2_HELP}[NEWLINE][ICON_TROPHY_BRONZE]: {TXT_KEY_LEAGUE_PROJECT_REWARD_UNITED_NATIONS_1_HELP} [NEWLINE][NEWLINE]Available once any Civilization discovers Atomic Theory.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_LEAGUE_PROJECT_UNITED_NATIONS">
+			<Text>United Nations</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEAGUE_PROJECT_UNITED_NATIONS_SPLASH">
+			<Text>A new era in global diplomacy and international relations has dawned. Delegates, officials and dignitaries from around the world have gathered to celebrate the construction of the United Nations, and with it the future of the human race.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_LEAGUE_PROJECT_REWARD_UNITED_NATIONS_1">
+			<Text>High Commissioner</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEAGUE_PROJECT_REWARD_UNITED_NATIONS_1_HELP">
+			<Text>Receive a free Great Diplomat.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_LEAGUE_PROJECT_REWARD_UNITED_NATIONS_2">
+			<Text>Permanent Member</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEAGUE_PROJECT_REWARD_UNITED_NATIONS_2_HELP">
+			<Text>Receive an immediate boost of 25 [ICON_INFLUENCE] Influence with all City-States. The Consulate National Wonder appears in [ICON_CAPITAL] Capital. ({TXT_KEY_CONSULATE_HELP})</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_LEAGUE_PROJECT_REWARD_UNITED_NATIONS_3">
+			<Text>Secretary-General</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEAGUE_PROJECT_REWARD_UNITED_NATIONS_3_HELP">
+			<Text>United Nations wonder appears in [ICON_CAPITAL] Capital. ({TXT_KEY_UN_HELP})</Text>
+		</Row>
+		
+	</Language_en_US>  
+</GameData>

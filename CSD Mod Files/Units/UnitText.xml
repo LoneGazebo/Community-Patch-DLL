@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Created by ModBuddy on 10/7/2010 4:48:53 PM -->
+<GameData>
+	<Language_en_US>
+		<!-- EMISSARY -->
+		<Row Tag="TXT_KEY_UNIT_EMISSARY">
+			<Text>Emissary</Text>
+			<Gender>neuter:an</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_UNIT_EMISSARY_STRATEGY">
+			<Text>The Emissary is the first diplomatic unit available to a player, and represents the early attempts at peaceful cooperation between civilizations. As the culture of diplomacy is, in the Ancient Era, still quite crude, the Emissary is not terribly effective. Earning only around 20 Influence from a Diplomatic Mission, the Emissary has not yet mastered the art of statecraft, nor, unsurprisingly, the foreign languages of neighbouring city-states.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CIV5_ANTIQUITY_EMISSARY_TEXT">
+			<Text>Though the cheapest and earliest-available diplomatic unit, Emissaries are not terribly reliable as a source of steady Influence. Players should only use Emissaries to secure or maintain relations with a city-state you are already friendly or allied with. As such, it is best to use these units simply to augment your efforts to fulfill city-state quests.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_UNIT_HELP_EMISSARY">
+			<Text>Receives [COLOR_POSITIVE_TEXT]Initiate[ENDCOLOR] Promotion for free, which grants 40 [ICON_INFLUENCE] Influence from Diplomatic Missions.[ICON_MOVES] Move this unit to a City-State you are not at war with and conduct a Diplomatic Mission to receive [ICON_INFLUENCE] Influence.</Text>
+		</Row>
+		
+		<!-- Envoy -->
+		<Row Tag="TXT_KEY_UNIT_ENVOY">
+			<Text>Envoy</Text>
+			<Gender>neuter:an</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_CIV5_MEDIEVAL_ENVOY_TEXT">
+			<Text>During the Medieval period, the art of diplomacy finally came of age. New theories on foreign affairs emerged during this time that were no longer based on 'might is right,' but rather the arts of flattery, sophistication and, if necessary, intimidation. The Envoy represents this leap in diplomatic power and, as such, is both more effective than Emissaries and also more expensive.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_UNIT_ENVOY_STRATEGY">
+			<Text>Envoys are much more useful as sources of diplomatic influence with city-states. This utility, however, comes with increased cost. Players will need ample Paper, either through trade or the building of Chanceries, to supply the demand of their burgeoning diplomatic service. City-state quests are still very important for maintaining friendly or allied relations, however their importance is waning.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_UNIT_HELP_ENVOY">
+			<Text>Receives [COLOR_POSITIVE_TEXT]Adept[ENDCOLOR] Promotion for free, which grants 50 [ICON_INFLUENCE] Influence from Diplomatic Missions.[ICON_MOVES] Move this unit to a City-State you are not at war with and conduct a Diplomatic Mission to receive [ICON_INFLUENCE] Influence.</Text>
+		</Row>
+		
+		<!-- Diplomat -->
+		<Row Tag="TXT_KEY_UNIT_DIPLOMAT">
+			<Text>Diplomat</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CIV5_INDUSTRIAL_DIPLOMAT_TEXT">
+			<Text>With the philosophies of the Enlightenment and the might of modern industry in tow, diplomats during the Industrial Age are powerhouses of diplomacy and influence. Though increasingly expensive, Diplomats enable a player to greatly expand the scope of their influence on city-states around the world.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_UNIT_DIPLOMAT_STRATEGY">
+			<Text>Diplomats are very expensive relative to Emissaries and Envoys. Players that have not continually increased their supply of Paper will have a difficult time continuing to have influence on city-states around the world. If, however, you have the resources, and the production, to build diplomats in great numbers, the world will bow before your empire of soft power and persuasive influence.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_UNIT_HELP_DIPLOMAT">
+			<Text>Receives [COLOR_POSITIVE_TEXT]Professional[ENDCOLOR] Promotion for free, which grants 60 [ICON_INFLUENCE] Influence from Diplomatic Missions.[ICON_MOVES] Move this unit to a City-State you are not at war with and conduct a Diplomatic Mission to receive [ICON_INFLUENCE] Influence.</Text>
+		</Row>
+		
+		<!-- Ambassador -->
+		<Row Tag="TXT_KEY_UNIT_AMBASSADOR">
+			<Text>Ambassador</Text>
+			<Gender>neuter:an</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_CIV5_MODERN_AMBASSADOR_TEXT">
+			<Text>The modern Ambassador, born out of the tensions created by the rise of atomic warfare, represents the pinnacle of diplomatic power. Years of formal training in linguistics, politics, culture and economics enable Ambassadors to control whatever city-state they choose. These talents, however, make Ambassadors the most costly diplomatic unit in the game - each Ambassador costs almost as much as a Tank! This investment may seem high, however, if a player chooses to abstain from city-state diplomacy, they will quickly see their influence on the global stage decline, as other players will undoubtedly come to dominate the World Congress.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_UNIT_AMBASSADOR_STRATEGY">
+			<Text>Ambassadors, though expensive, are essential to winning a Diplomatic Victory. Use them to wrest control of city-states from other players, maintain your own alliances, and, generally, keep the power of the World Congress in your hands. This power will enable you to enact any resolutions you choose, thus placing global supremacy within your grasp.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_UNIT_HELP_AMBASSADOR">
+			<Text>Receives [COLOR_POSITIVE_TEXT]Plenipotentiary[ENDCOLOR] Promotion for free, which grants 70 [ICON_INFLUENCE] Influence from Diplomatic Missions.[ICON_MOVES] Move this unit to a City-State you are not at war with and conduct a Diplomatic Mission to receive [ICON_INFLUENCE] Influence.</Text>
+		</Row>
+		
+		<!-- Great Diplomat-->
+		<Row Tag="TXT_KEY_UNIT_GREAT_DIPLOMAT">
+			<Text>Great Diplomat</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CIV5_GREAT_DIPLOMAT_TEXT">
+			<Text>Throughout every civilization's history, great mediators, counsellors, and dignitaries have emerged during times of strife or times of great power. Great Diplomats represent these important historical figures and, as such, have the ability to greatly increase a player's diplomatic power. Players may use them to immediately gain a large amount of influence with a city-state, or, if they are looking towards the future, they may be used to build an Embassy in a city-state's land, thus granting the player an additional vote in the World Congress when it is founded.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_UNIT_GREAT_DIPLOMAT_STRATEGY">
+			<Text>Receives [COLOR_POSITIVE_TEXT]Master Diplomat[ENDCOLOR] Promotion for free, which grants 70 [ICON_INFLUENCE] Influence from Diplomatic Missions, plus additional [ICON_INFLUENCE] Influence for each completed era.[NEWLINE][NEWLINE]You may [ICON_MOVES] move this unit to a City-State you are not at war with and choose one of two options. First, you may conduct a [COLOR_POSITIVE_TEXT]Diplomatic Mission[ENDCOLOR] to receive [ICON_INFLUENCE] Influence and reduce the [ICON_INFLUENCE]Influence of other Civilizations by the same amount. Second, you can construct an [COLOR_POSITIVE_TEXT]Embassy[ENDCOLOR], which grants an additional vote in the World Congress. For more on the Embassy, see its civilopedia page in the 'Improvements' section. The Great Diplomat is expended when used in either of these ways.</Text>
+		</Row>
+	</Language_en_US>
+</GameData>

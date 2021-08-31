@@ -71,7 +71,7 @@ function OnPopup( popupInfo )
 			local mainGridSizeY = 400
 			local sizeYDiff = math.max((Controls.DescriptionLabel:GetSizeY()-Controls.EventBox:GetSizeY()),1)
 			Controls.MainGrid:SetSizeY(mainGridSizeY + sizeYDiff)
-			SpyOwner:AddNotification(NotificationTypes.NOTIFICATION_GENERIC, szHelpString, Locale.ConvertTextKey("TXT_KEY_CITY_EVENT_NOTIFICATION") .. szTitleString, city:Plot():GetX(), city:Plot():GetY())
+			--	SpyOwner:AddNotification(NotificationTypes.NOTIFICATION_GENERIC, szHelpString, Locale.ConvertTextKey("TXT_KEY_CITY_EVENT_NOTIFICATION") .. szTitleString, city:Plot():GetX(), city:Plot():GetY())
 			UIManager:QueuePopup( ContextPtr, PopupPriority.CityStateGreeting );
 		end
 	else

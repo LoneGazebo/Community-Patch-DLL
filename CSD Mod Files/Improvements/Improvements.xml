@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Created by ModBuddy on 1/21/2014 12:11:05 PM -->
+<GameData>
+	<Improvements>
+		<Row>
+			<Type>IMPROVEMENT_EMBASSY</Type>
+			<Description>TXT_KEY_IMPROVEMENT_EMBASSY</Description>
+			<Civilopedia>TXT_KEY_CIV5_IMPROVEMENTS_EMBASSY_TEXT</Civilopedia>
+			<ArtDefineTag>ART_DEF_IMPROVEMENT_EMBASSY</ArtDefineTag>
+			<OnlyCityStateTerritory>true</OnlyCityStateTerritory>
+			<IsEmbassy>true</IsEmbassy>
+			<Permanent>true</Permanent>
+			<ImprovementLeagueVotes>1</ImprovementLeagueVotes>
+			<PortraitIndex>0</PortraitIndex>
+			<CreatedByGreatPerson>true</CreatedByGreatPerson>
+			<IconAtlas>TERRAIN_IMPROVEMENT_EMBASSY</IconAtlas>
+		</Row>
+	</Improvements>
+	<Improvement_ValidTerrains>
+		<Row>
+			<ImprovementType>IMPROVEMENT_EMBASSY</ImprovementType>
+			<TerrainType>TERRAIN_GRASS</TerrainType>
+		</Row>
+		<Row>
+			<ImprovementType>IMPROVEMENT_EMBASSY</ImprovementType>
+			<TerrainType>TERRAIN_PLAINS</TerrainType>
+		</Row>
+		<Row>
+			<ImprovementType>IMPROVEMENT_EMBASSY</ImprovementType>
+			<TerrainType>TERRAIN_DESERT</TerrainType>
+		</Row>
+		<Row>
+			<ImprovementType>IMPROVEMENT_EMBASSY</ImprovementType>
+			<TerrainType>TERRAIN_TUNDRA</TerrainType>
+		</Row>
+		<Row>
+			<ImprovementType>IMPROVEMENT_EMBASSY</ImprovementType>
+			<TerrainType>TERRAIN_SNOW</TerrainType>
+		</Row>
+	</Improvement_ValidTerrains>
+	<PostDefines>
+		<Row Name="EMBASSY_IMPROVEMENT">
+			<Key>IMPROVEMENT_EMBASSY</Key>
+			<Table>Improvements</Table>
+		</Row>
+	</PostDefines>
+</GameData>

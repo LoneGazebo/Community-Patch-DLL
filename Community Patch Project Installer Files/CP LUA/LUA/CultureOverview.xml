@@ -1,0 +1,1990 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by Scott Lewis (Firaxis Games) -->
+<Context ColorSet="Beige_Black_Alpha" Font="TwCenMT16" FontStyle="Shadow">
+  <Instance Name="CityInstance">
+    <Box ID="Root" Offset="0,0" Anchor="L,T" Size="1000,38" Color="255,255,255,0">
+      <Stack Anchor="L,C" StackGrowth="Right" Padding="1">
+        <Box Size="220,34" Color="0,0,0,0">
+          <!-- HealthBar -->
+          <Box Anchor="C,B" Offset="0,2" Size="140,5" Color="Black,256" Hidden="0" ID="HealthBarBox">
+            <Bar Anchor="C,C" Size="138,3" Direction="Right" FGColor="Green,255" Hidden="0" ID="HealthBar"/>
+          </Box>
+          <Label Anchor="L,C" Offset="10,-4" String="City Name" ColorSet="Beige_Black_Alpha" Font="TwCenMT20" FontStyle="Shadow" ID="CityName"/>
+        </Box>
+        <Box Size="60,34" Color="0,0,0,0">
+          <Label Anchor="C,C" String="+2" Color0="Culture.255" Color1="Black.255" Font="TwCenMT20" FontStyle="Stroke" ID="Culture"/>
+        </Box>
+        <Box Size="50,34" Color="0,0,0,0">
+          <Label Anchor="C,C" String="+2" Color0="Beige.255" Color1="Black.255" Font="TwCenMT20" FontStyle="Stroke" ID="Tourism"/>
+        </Box>
+        <Box Size="40,34" Color="0,0,0,0">
+          <Label Anchor="C,C" String="+22" Color0="Beige.255" Color1="Black.255" Font="TwCenMT20" FontStyle="Stroke" ID="GreatWorks"/>
+        </Box>
+        <Box Size="48,34" Color="0,0,0,0" ID="SingleColumn1Container" Hidden="1">
+          <Button Anchor="C,C" Size="32,32" Offset="0,0" Texture="assets\UI\Art\Icons\GreatWorks.dds" ID="SingleColumn1GreatWork"/>
+          <Image Anchor="C,C" Size="34,34" Offset="0,0" Texture="GreatWorks_Book_HL_34.dds" ID="SingleColumn1GreatWorkHL" Hidden="1"/>
+          <Image Anchor="C,C" Size="32,32" Texture="GreatWorks_DottedFrame_32.dds" ID="SingleColumn1GreatWorkGhost" Hidden="1"/>
+        </Box>
+        <Box Size="102,34" Color="0,0,0,0" ID="DoubleColumn1Container" Hidden="1">
+          <Stack Anchor="C,C" StackGrowth="Right" Padding="3">
+            <Box Size="32,32" Anchor="L,C" Color="0,0,0,0">
+              <Button Anchor="L,C" Size="32,32" Offset="0,0" Texture="assets\UI\Art\Icons\GreatWorks.dds" ID="DoubleColumn1GreatWork1"/>
+              <Image Anchor="C,C" Size="34,34" Offset="0,0" Texture="GreatWorks_Book_HL_34.dds" ID="DoubleColumn1GreatWork1HL" Hidden="1"/>
+              <Image Anchor="C,C" Size="32,32" Texture="GreatWorks_DottedFrame_32.dds" ID="DoubleColumn1GreatWork1Ghost" Hidden="1"/>
+            </Box>
+            <Box Size="32,32" Anchor="L,C" Color="0,0,0,0">
+              <Button Anchor="L,C" Size="32,32" Offset="0,0" Texture="assets\UI\Art\Icons\GreatWorks.dds" ID="DoubleColumn1GreatWork2"/>
+              <Image Anchor="C,C" Size="34,34" Offset="0,0" Texture="GreatWorks_Book_HL_34.dds" ID="DoubleColumn1GreatWork2HL" Hidden="1"/>
+              <Image Anchor="C,C" Size="32,32" Texture="GreatWorks_DottedFrame_32.dds" ID="DoubleColumn1GreatWork2Ghost" Hidden="1"/>
+            </Box>
+            <Label Anchor="L,C" Offset="0,0" String="+0" Color0="Beige.255" Color1="Black.255" Font="TwCenMT20" FontStyle="Stroke" ID="DoubleColumn1ThemeBonus" ToolTip="No Theming bonus"/>
+          </Stack>
+        </Box>
+        <Box Size="140,34" Color="0,0,0,0" ID="TripleColumn1Container" Hidden="1">
+          <Stack Anchor="C,C" StackGrowth="Right" Padding="3">
+            <Box Size="32,32" Anchor="L,C" Color="0,0,0,0">
+              <Button Anchor="L,C" Size="32,32" Offset="0,0" Texture="assets\UI\Art\Icons\GreatWorks.dds" ID="TripleColumn1GreatWork1"/>
+              <Image Anchor="C,C" Size="34,34" Offset="0,0" Texture="GreatWorks_Book_HL_34.dds" ID="TripleColumn1GreatWork1HL" Hidden="1"/>
+              <Image Anchor="C,C" Size="32,32" Texture="GreatWorks_DottedFrame_32.dds" ID="TripleColumn1GreatWork1Ghost" Hidden="1"/>
+            </Box>
+            <Box Size="32,32" Anchor="L,C" Color="0,0,0,0">
+              <Button Anchor="L,C" Size="32,32" Offset="0,0" Texture="assets\UI\Art\Icons\GreatWorks.dds" ID="TripleColumn1GreatWork2"/>
+              <Image Anchor="C,C" Size="34,34" Offset="0,0" Texture="GreatWorks_Book_HL_34.dds" ID="TripleColumn1GreatWork2HL" Hidden="1"/>
+              <Image Anchor="C,C" Size="32,32" Texture="GreatWorks_DottedFrame_32.dds" ID="TripleColumn1GreatWork2Ghost" Hidden="1"/>
+            </Box>
+            <Box Size="32,32" Anchor="L,C" Color="0,0,0,0">
+              <Button Anchor="L,C" Size="32,32" Offset="0,0" Texture="assets\UI\Art\Icons\GreatWorks.dds" ID="TripleColumn1GreatWork3"/>
+              <Image Anchor="C,C" Size="34,34" Offset="0,0" Texture="GreatWorks_Book_HL_34.dds" ID="TripleColumn1GreatWork3HL" Hidden="1"/>
+              <Image Anchor="C,C" Size="32,32" Texture="GreatWorks_DottedFrame_32.dds" ID="TripleColumn1GreatWork3Ghost" Hidden="1"/>
+            </Box>
+            <Label Anchor="L,C" Offset="0,0" String="+0" Color0="Beige.255" Color1="Black.255" Font="TwCenMT20" FontStyle="Stroke" ID="TripleColumn1ThemeBonus" ToolTip="No Theming bonus"/>
+          </Stack>
+        </Box>
+        <Box Size="48,34" Color="0,0,0,0" ID="SingleColumn2Container" Hidden="1">
+          <Button Anchor="C,C" Size="32,32" Offset="0,0" Texture="assets\UI\Art\Icons\GreatWorks.dds" ID="SingleColumn2GreatWork"/>
+          <Image Anchor="C,C" Size="34,34" Offset="0,0" Texture="GreatWorks_Book_HL_34.dds" ID="SingleColumn2GreatWorkHL" Hidden="1"/>
+          <Image Anchor="C,C" Size="32,32" Texture="GreatWorks_DottedFrame_32.dds" ID="SingleColumn2GreatWorkGhost" Hidden="1"/>
+        </Box>
+        <Box Size="102,34" Color="0,0,0,0" ID="DoubleColumn2Container" Hidden="1">
+          <Stack Anchor="C,C" StackGrowth="Right" Padding="3">
+            <Box Size="32,32" Anchor="L,C" Color="0,0,0,0">
+              <Button Anchor="L,C" Size="32,32" Offset="0,0" Texture="assets\UI\Art\Icons\GreatWorks.dds" ID="DoubleColumn2GreatWork1"/>
+              <Image Anchor="C,C" Size="34,34" Offset="0,0" Texture="GreatWorks_Book_HL_34.dds" ID="DoubleColumn2GreatWork1HL" Hidden="1"/>
+              <Image Anchor="C,C" Size="32,32" Texture="GreatWorks_DottedFrame_32.dds" ID="DoubleColumn2GreatWork1Ghost" Hidden="1"/>
+            </Box>
+            <Box Size="32,32" Anchor="L,C" Color="0,0,0,0">
+              <Button Anchor="L,C" Size="32,32" Offset="0,0" Texture="assets\UI\Art\Icons\GreatWorks.dds" ID="DoubleColumn2GreatWork2"/>
+              <Image Anchor="C,C" Size="34,34" Offset="0,0" Texture="GreatWorks_Book_HL_34.dds" ID="DoubleColumn2GreatWork2HL" Hidden="1"/>
+              <Image Anchor="C,C" Size="32,32" Texture="GreatWorks_DottedFrame_32.dds" ID="DoubleColumn2GreatWork2Ghost" Hidden="1"/>
+            </Box>
+            <Label Anchor="L,C" Offset="0,0" String="+0" Color0="Beige.255" Color1="Black.255" Font="TwCenMT20" FontStyle="Stroke" ID="DoubleColumn2ThemeBonus" ToolTip="No Theming bonus"/>
+          </Stack>
+        </Box>
+        <Box Size="140,34" Color="0,0,0,0" ID="TripleColumn2Container" Hidden="1">
+          <Stack Anchor="C,C" StackGrowth="Right" Padding="3">
+            <Box Size="32,32" Anchor="L,C" Color="0,0,0,0">
+              <Button Anchor="L,C" Size="32,32" Offset="0,0" Texture="assets\UI\Art\Icons\GreatWorks.dds" ID="TripleColumn2GreatWork1"/>
+              <Image Anchor="C,C" Size="34,34" Offset="0,0" Texture="GreatWorks_Book_HL_34.dds" ID="TripleColumn2GreatWork1HL" Hidden="1"/>
+              <Image Anchor="C,C" Size="32,32" Texture="GreatWorks_DottedFrame_32.dds" ID="TripleColumn2GreatWork1Ghost" Hidden="1"/>
+            </Box>
+            <Box Size="32,32" Anchor="L,C" Color="0,0,0,0">
+              <Button Anchor="L,C" Size="32,32" Offset="0,0" Texture="assets\UI\Art\Icons\GreatWorks.dds" ID="TripleColumn2GreatWork2"/>
+              <Image Anchor="C,C" Size="34,34" Offset="0,0" Texture="GreatWorks_Book_HL_34.dds" ID="TripleColumn2GreatWork2HL" Hidden="1"/>
+              <Image Anchor="C,C" Size="32,32" Texture="GreatWorks_DottedFrame_32.dds" ID="TripleColumn2GreatWork2Ghost" Hidden="1"/>
+            </Box>
+            <Box Size="32,32" Anchor="L,C" Color="0,0,0,0">
+              <Button Anchor="L,C" Size="32,32" Offset="0,0" Texture="assets\UI\Art\Icons\GreatWorks.dds" ID="TripleColumn2GreatWork3"/>
+              <Image Anchor="C,C" Size="34,34" Offset="0,0" Texture="GreatWorks_Book_HL_34.dds" ID="TripleColumn2GreatWork3HL" Hidden="1"/>
+              <Image Anchor="C,C" Size="32,32" Texture="GreatWorks_DottedFrame_32.dds" ID="TripleColumn2GreatWork3Ghost" Hidden="1"/>
+            </Box>
+            <Label Anchor="L,C" Offset="0,0" String="+0" Color0="Beige.255" Color1="Black.255" Font="TwCenMT20" FontStyle="Stroke" ID="TripleColumn2ThemeBonus" ToolTip="No Theming bonus"/>
+          </Stack>
+        </Box>
+        <Box Size="48,34" Color="0,0,0,0" ID="SingleColumn3Container" Hidden="1">
+          <Button Anchor="C,C" Size="32,32" Offset="0,0" Texture="assets\UI\Art\Icons\GreatWorks.dds" ID="SingleColumn3GreatWork"/>
+          <Image Anchor="C,C" Size="34,34" Offset="0,0" Texture="GreatWorks_Book_HL_34.dds" ID="SingleColumn3GreatWorkHL" Hidden="1"/>
+          <Image Anchor="C,C" Size="32,32" Texture="GreatWorks_DottedFrame_32.dds" ID="SingleColumn3GreatWorkGhost" Hidden="1"/>
+        </Box>
+        <Box Size="102,34" Color="0,0,0,0" ID="DoubleColumn3Container" Hidden="1">
+          <Stack Anchor="C,C" StackGrowth="Right" Padding="3">
+            <Box Size="32,32" Anchor="L,C" Color="0,0,0,0">
+              <Button Anchor="L,C" Size="32,32" Offset="0,0" Texture="assets\UI\Art\Icons\GreatWorks.dds" ID="DoubleColumn3GreatWork1"/>
+              <Image Anchor="C,C" Size="34,34" Offset="0,0" Texture="GreatWorks_Book_HL_34.dds" ID="DoubleColumn3GreatWork1HL" Hidden="1"/>
+              <Image Anchor="C,C" Size="32,32" Texture="GreatWorks_DottedFrame_32.dds" ID="DoubleColumn3GreatWork1Ghost" Hidden="1"/>
+            </Box>
+            <Box Size="32,32" Anchor="L,C" Color="0,0,0,0">
+              <Button Anchor="L,C" Size="32,32" Offset="0,0" Texture="assets\UI\Art\Icons\GreatWorks.dds" ID="DoubleColumn3GreatWork2"/>
+              <Image Anchor="C,C" Size="34,34" Offset="0,0" Texture="GreatWorks_Book_HL_34.dds" ID="DoubleColumn3GreatWork2HL" Hidden="1"/>
+              <Image Anchor="C,C" Size="32,32" Texture="GreatWorks_DottedFrame_32.dds" ID="DoubleColumn3GreatWork2Ghost" Hidden="1"/>
+            </Box>
+            <Label Anchor="L,C" Offset="0,0" String="+0" Color0="Beige.255" Color1="Black.255" Font="TwCenMT20" FontStyle="Stroke" ID="DoubleColumn3ThemeBonus" ToolTip="No Theming bonus"/>
+          </Stack>
+        </Box>
+        <Box Size="140,34" Color="0,0,0,0" ID="TripleColumn3Container" Hidden="1">
+          <Stack Anchor="C,C" StackGrowth="Right" Padding="3">
+            <Box Size="32,32" Anchor="L,C" Color="0,0,0,0">
+              <Button Anchor="L,C" Size="32,32" Offset="0,0" Texture="assets\UI\Art\Icons\GreatWorks.dds" ID="TripleColumn3GreatWork1"/>
+              <Image Anchor="C,C" Size="34,34" Offset="0,0" Texture="GreatWorks_Book_HL_34.dds" ID="TripleColumn3GreatWork1HL" Hidden="1"/>
+              <Image Anchor="C,C" Size="32,32" Texture="GreatWorks_DottedFrame_32.dds" ID="TripleColumn3GreatWork1Ghost" Hidden="1"/>
+            </Box>
+            <Box Size="32,32" Anchor="L,C" Color="0,0,0,0">
+              <Button Anchor="L,C" Size="32,32" Offset="0,0" Texture="assets\UI\Art\Icons\GreatWorks.dds" ID="TripleColumn3GreatWork2"/>
+              <Image Anchor="C,C" Size="34,34" Offset="0,0" Texture="GreatWorks_Book_HL_34.dds" ID="TripleColumn3GreatWork2HL" Hidden="1"/>
+              <Image Anchor="C,C" Size="32,32" Texture="GreatWorks_DottedFrame_32.dds" ID="TripleColumn3GreatWork2Ghost" Hidden="1"/>
+            </Box>
+            <Box Size="32,32" Anchor="L,C" Color="0,0,0,0">
+              <Button Anchor="L,C" Size="32,32" Offset="0,0" Texture="assets\UI\Art\Icons\GreatWorks.dds" ID="TripleColumn3GreatWork3"/>
+              <Image Anchor="C,C" Size="34,34" Offset="0,0" Texture="GreatWorks_Book_HL_34.dds" ID="TripleColumn3GreatWork3HL" Hidden="1"/>
+              <Image Anchor="C,C" Size="32,32" Texture="GreatWorks_DottedFrame_32.dds" ID="TripleColumn3GreatWork3Ghost" Hidden="1"/>
+            </Box>
+            <Label Anchor="L,C" Offset="0,0" String="+0" Color0="Beige.255" Color1="Black.255" Font="TwCenMT20" FontStyle="Stroke" ID="TripleColumn3ThemeBonus" ToolTip="No Theming bonus"/>
+          </Stack>
+        </Box>
+        <Box Size="48,34" Color="0,0,0,0" ID="SingleColumn4Container" Hidden="1">
+          <Button Anchor="C,C" Size="32,32" Offset="0,0" Texture="assets\UI\Art\Icons\GreatWorks.dds" ID="SingleColumn4GreatWork"/>
+          <Image Anchor="C,C" Size="34,34" Offset="0,0" Texture="GreatWorks_Book_HL_34.dds" ID="SingleColumn4GreatWorkHL" Hidden="1"/>
+          <Image Anchor="C,C" Size="32,32" Texture="GreatWorks_DottedFrame_32.dds" ID="SingleColumn4GreatWorkGhost" Hidden="1"/>
+        </Box>
+        <Box Size="102,34" Color="0,0,0,0" ID="DoubleColumn4Container" Hidden="1">
+          <Stack Anchor="C,C" StackGrowth="Right" Padding="3">
+            <Box Size="32,32" Anchor="L,C" Color="0,0,0,0">
+              <Button Anchor="L,C" Size="32,32" Offset="0,0" Texture="assets\UI\Art\Icons\GreatWorks.dds" ID="DoubleColumn4GreatWork1"/>
+              <Image Anchor="C,C" Size="34,34" Offset="0,0" Texture="GreatWorks_Book_HL_34.dds" ID="DoubleColumn4GreatWork1HL" Hidden="1"/>
+              <Image Anchor="C,C" Size="32,32" Texture="GreatWorks_DottedFrame_32.dds" ID="DoubleColumn4GreatWork1Ghost" Hidden="1"/>
+            </Box>
+            <Box Size="32,32" Anchor="L,C" Color="0,0,0,0">
+              <Button Anchor="L,C" Size="32,32" Offset="0,0" Texture="assets\UI\Art\Icons\GreatWorks.dds" ID="DoubleColumn4GreatWork2"/>
+              <Image Anchor="C,C" Size="34,34" Offset="0,0" Texture="GreatWorks_Book_HL_34.dds" ID="DoubleColumn4GreatWork2HL" Hidden="1"/>
+              <Image Anchor="C,C" Size="32,32" Texture="GreatWorks_DottedFrame_32.dds" ID="DoubleColumn4GreatWork2Ghost" Hidden="1"/>
+            </Box>
+            <Label Anchor="L,C" Offset="0,0" String="+0" Color0="Beige.255" Color1="Black.255" Font="TwCenMT20" FontStyle="Stroke" ID="DoubleColumn4ThemeBonus" ToolTip="No Theming bonus"/>
+          </Stack>
+        </Box>
+        <Box Size="140,34" Color="0,0,0,0" ID="TripleColumn4Container" Hidden="1">
+          <Stack Anchor="C,C" StackGrowth="Right" Padding="3">
+            <Box Size="32,32" Anchor="L,C" Color="0,0,0,0">
+              <Button Anchor="L,C" Size="32,32" Offset="0,0" Texture="assets\UI\Art\Icons\GreatWorks.dds" ID="TripleColumn4GreatWork1"/>
+              <Image Anchor="C,C" Size="34,34" Offset="0,0" Texture="GreatWorks_Book_HL_34.dds" ID="TripleColumn4GreatWork1HL" Hidden="1"/>
+              <Image Anchor="C,C" Size="32,32" Texture="GreatWorks_DottedFrame_32.dds" ID="TripleColumn4GreatWork1Ghost" Hidden="1"/>
+            </Box>
+            <Box Size="32,32" Anchor="L,C" Color="0,0,0,0">
+              <Button Anchor="L,C" Size="32,32" Offset="0,0" Texture="assets\UI\Art\Icons\GreatWorks.dds" ID="TripleColumn4GreatWork2"/>
+              <Image Anchor="C,C" Size="34,34" Offset="0,0" Texture="GreatWorks_Book_HL_34.dds" ID="TripleColumn4GreatWork2HL" Hidden="1"/>
+              <Image Anchor="C,C" Size="32,32" Texture="GreatWorks_DottedFrame_32.dds" ID="TripleColumn4GreatWork2Ghost" Hidden="1"/>
+            </Box>
+            <Box Size="32,32" Anchor="L,C" Color="0,0,0,0">
+              <Button Anchor="L,C" Size="32,32" Offset="0,0" Texture="assets\UI\Art\Icons\GreatWorks.dds" ID="TripleColumn4GreatWork3"/>
+              <Image Anchor="C,C" Size="34,34" Offset="0,0" Texture="GreatWorks_Book_HL_34.dds" ID="TripleColumn4GreatWork3HL" Hidden="1"/>
+              <Image Anchor="C,C" Size="32,32" Texture="GreatWorks_DottedFrame_32.dds" ID="TripleColumn4GreatWork3Ghost" Hidden="1"/>
+            </Box>
+            <Label Anchor="L,C" Offset="0,0" String="+0" Color0="Beige.255" Color1="Black.255" Font="TwCenMT20" FontStyle="Stroke" ID="TripleColumn4ThemeBonus" ToolTip="No Theming bonus"/>
+          </Stack>
+        </Box>
+        <Box Size="48,34" Color="0,0,0,0" ID="SingleColumn5Container" Hidden="1">
+          <Button Anchor="C,C" Size="32,32" Offset="0,0" Texture="assets\UI\Art\Icons\GreatWorks.dds" ID="SingleColumn5GreatWork"/>
+          <Image Anchor="C,C" Size="34,34" Offset="0,0" Texture="GreatWorks_Book_HL_34.dds" ID="SingleColumn5GreatWorkHL" Hidden="1"/>
+          <Image Anchor="C,C" Size="32,32" Texture="GreatWorks_DottedFrame_32.dds" ID="SingleColumn5GreatWorkGhost" Hidden="1"/>
+        </Box>
+        <Box Size="102,34" Color="0,0,0,0" ID="DoubleColumn5Container" Hidden="1">
+          <Stack Anchor="C,C" StackGrowth="Right" Padding="3">
+            <Box Size="32,32" Anchor="L,C" Color="0,0,0,0">
+              <Button Anchor="L,C" Size="32,32" Offset="0,0" Texture="assets\UI\Art\Icons\GreatWorks.dds" ID="DoubleColumn5GreatWork1"/>
+              <Image Anchor="C,C" Size="34,34" Offset="0,0" Texture="GreatWorks_Book_HL_34.dds" ID="DoubleColumn5GreatWork1HL" Hidden="1"/>
+              <Image Anchor="C,C" Size="32,32" Texture="GreatWorks_DottedFrame_32.dds" ID="DoubleColumn5GreatWork1Ghost" Hidden="1"/>
+            </Box>
+            <Box Size="32,32" Anchor="L,C" Color="0,0,0,0">
+              <Button Anchor="L,C" Size="32,32" Offset="0,0" Texture="assets\UI\Art\Icons\GreatWorks.dds" ID="DoubleColumn5GreatWork2"/>
+              <Image Anchor="C,C" Size="34,34" Offset="0,0" Texture="GreatWorks_Book_HL_34.dds" ID="DoubleColumn5GreatWork2HL" Hidden="1"/>
+              <Image Anchor="C,C" Size="32,32" Texture="GreatWorks_DottedFrame_32.dds" ID="DoubleColumn5GreatWork2Ghost" Hidden="1"/>
+            </Box>
+            <Label Anchor="L,C" Offset="0,0" String="+0" Color0="Beige.255" Color1="Black.255" Font="TwCenMT20" FontStyle="Stroke" ID="DoubleColumn5ThemeBonus" ToolTip="No Theming bonus"/>
+          </Stack>
+        </Box>
+        <Box Size="140,34" Color="0,0,0,0" ID="TripleColumn5Container" Hidden="1">
+          <Stack Anchor="C,C" StackGrowth="Right" Padding="3">
+            <Box Size="32,32" Anchor="L,C" Color="0,0,0,0">
+              <Button Anchor="L,C" Size="32,32" Offset="0,0" Texture="assets\UI\Art\Icons\GreatWorks.dds" ID="TripleColumn5GreatWork1"/>
+              <Image Anchor="C,C" Size="34,34" Offset="0,0" Texture="GreatWorks_Book_HL_34.dds" ID="TripleColumn5GreatWork1HL" Hidden="1"/>
+              <Image Anchor="C,C" Size="32,32" Texture="GreatWorks_DottedFrame_32.dds" ID="TripleColumn5GreatWork1Ghost" Hidden="1"/>
+            </Box>
+            <Box Size="32,32" Anchor="L,C" Color="0,0,0,0">
+              <Button Anchor="L,C" Size="32,32" Offset="0,0" Texture="assets\UI\Art\Icons\GreatWorks.dds" ID="TripleColumn5GreatWork2"/>
+              <Image Anchor="C,C" Size="34,34" Offset="0,0" Texture="GreatWorks_Book_HL_34.dds" ID="TripleColumn5GreatWork2HL" Hidden="1"/>
+              <Image Anchor="C,C" Size="32,32" Texture="GreatWorks_DottedFrame_32.dds" ID="TripleColumn5GreatWork2Ghost" Hidden="1"/>
+            </Box>
+            <Box Size="32,32" Anchor="L,C" Color="0,0,0,0">
+              <Button Anchor="L,C" Size="32,32" Offset="0,0" Texture="assets\UI\Art\Icons\GreatWorks.dds" ID="TripleColumn5GreatWork3"/>
+              <Image Anchor="C,C" Size="34,34" Offset="0,0" Texture="GreatWorks_Book_HL_34.dds" ID="TripleColumn5GreatWork3HL" Hidden="1"/>
+              <Image Anchor="C,C" Size="32,32" Texture="GreatWorks_DottedFrame_32.dds" ID="TripleColumn5GreatWork3Ghost" Hidden="1"/>
+            </Box>
+            <Label Anchor="L,C" Offset="0,0" String="+0" Color0="Beige.255" Color1="Black.255" Font="TwCenMT20" FontStyle="Stroke" ID="TripleColumn5ThemeBonus" ToolTip="No Theming bonus"/>
+          </Stack>
+        </Box>
+        <Box Size="48,34" Color="0,0,0,0" ID="SingleColumn6Container" Hidden="1">
+          <Button Anchor="C,C" Size="32,32" Offset="0,0" Texture="assets\UI\Art\Icons\GreatWorks.dds" ID="SingleColumn6GreatWork"/>
+          <Image Anchor="C,C" Size="34,34" Offset="0,0" Texture="GreatWorks_Book_HL_34.dds" ID="SingleColumn6GreatWorkHL" Hidden="1"/>
+          <Image Anchor="C,C" Size="32,32" Texture="GreatWorks_DottedFrame_32.dds" ID="SingleColumn6GreatWorkGhost" Hidden="1"/>
+        </Box>
+        <Box Size="102,34" Color="0,0,0,0" ID="DoubleColumn6Container" Hidden="1">
+          <Stack Anchor="C,C" StackGrowth="Right" Padding="3">
+            <Box Size="32,32" Anchor="L,C" Color="0,0,0,0">
+              <Button Anchor="L,C" Size="32,32" Offset="0,0" Texture="assets\UI\Art\Icons\GreatWorks.dds" ID="DoubleColumn6GreatWork1"/>
+              <Image Anchor="C,C" Size="34,34" Offset="0,0" Texture="GreatWorks_Book_HL_34.dds" ID="DoubleColumn6GreatWork1HL" Hidden="1"/>
+              <Image Anchor="C,C" Size="32,32" Texture="GreatWorks_DottedFrame_32.dds" ID="DoubleColumn6GreatWork1Ghost" Hidden="1"/>
+            </Box>
+            <Box Size="32,32" Anchor="L,C" Color="0,0,0,0">
+              <Button Anchor="L,C" Size="32,32" Offset="0,0" Texture="assets\UI\Art\Icons\GreatWorks.dds" ID="DoubleColumn6GreatWork2"/>
+              <Image Anchor="C,C" Size="34,34" Offset="0,0" Texture="GreatWorks_Book_HL_34.dds" ID="DoubleColumn6GreatWork2HL" Hidden="1"/>
+              <Image Anchor="C,C" Size="32,32" Texture="GreatWorks_DottedFrame_32.dds" ID="DoubleColumn6GreatWork2Ghost" Hidden="1"/>
+            </Box>
+            <Label Anchor="L,C" Offset="0,0" String="+0" Color0="Beige.255" Color1="Black.255" Font="TwCenMT20" FontStyle="Stroke" ID="DoubleColumn6ThemeBonus" ToolTip="No Theming bonus"/>
+          </Stack>
+        </Box>
+        <Box Size="140,34" Color="0,0,0,0" ID="TripleColumn6Container" Hidden="1">
+          <Stack Anchor="C,C" StackGrowth="Right" Padding="3">
+            <Box Size="32,32" Anchor="L,C" Color="0,0,0,0">
+              <Button Anchor="L,C" Size="32,32" Offset="0,0" Texture="assets\UI\Art\Icons\GreatWorks.dds" ID="TripleColumn6GreatWork1"/>
+              <Image Anchor="C,C" Size="34,34" Offset="0,0" Texture="GreatWorks_Book_HL_34.dds" ID="TripleColumn6GreatWork1HL" Hidden="1"/>
+              <Image Anchor="C,C" Size="32,32" Texture="GreatWorks_DottedFrame_32.dds" ID="TripleColumn6GreatWork1Ghost" Hidden="1"/>
+            </Box>
+            <Box Size="32,32" Anchor="L,C" Color="0,0,0,0">
+              <Button Anchor="L,C" Size="32,32" Offset="0,0" Texture="assets\UI\Art\Icons\GreatWorks.dds" ID="TripleColumn6GreatWork2"/>
+              <Image Anchor="C,C" Size="34,34" Offset="0,0" Texture="GreatWorks_Book_HL_34.dds" ID="TripleColumn6GreatWork2HL" Hidden="1"/>
+              <Image Anchor="C,C" Size="32,32" Texture="GreatWorks_DottedFrame_32.dds" ID="TripleColumn6GreatWork2Ghost" Hidden="1"/>
+            </Box>
+            <Box Size="32,32" Anchor="L,C" Color="0,0,0,0">
+              <Button Anchor="L,C" Size="32,32" Offset="0,0" Texture="assets\UI\Art\Icons\GreatWorks.dds" ID="TripleColumn6GreatWork3"/>
+              <Image Anchor="C,C" Size="34,34" Offset="0,0" Texture="GreatWorks_Book_HL_34.dds" ID="TripleColumn6GreatWork3HL" Hidden="1"/>
+              <Image Anchor="C,C" Size="32,32" Texture="GreatWorks_DottedFrame_32.dds" ID="TripleColumn6GreatWork3Ghost" Hidden="1"/>
+            </Box>
+            <Label Anchor="L,C" Offset="0,0" String="+0" Color0="Beige.255" Color1="Black.255" Font="TwCenMT20" FontStyle="Stroke" ID="TripleColumn6ThemeBonus" ToolTip="No Theming bonus"/>
+          </Stack>
+        </Box>
+        <Box Size="48,34" Color="0,0,0,0" ID="SingleColumn7Container" Hidden="1">
+          <Button Anchor="C,C" Size="32,32" Offset="0,0" Texture="assets\UI\Art\Icons\GreatWorks.dds" ID="SingleColumn7GreatWork"/>
+          <Image Anchor="C,C" Size="34,34" Offset="0,0" Texture="GreatWorks_Book_HL_34.dds" ID="SingleColumn7GreatWorkHL" Hidden="1"/>
+          <Image Anchor="C,C" Size="32,32" Texture="GreatWorks_DottedFrame_32.dds" ID="SingleColumn7GreatWorkGhost" Hidden="1"/>
+        </Box>
+        <Box Size="102,34" Color="0,0,0,0" ID="DoubleColumn7Container" Hidden="1">
+          <Stack Anchor="C,C" StackGrowth="Right" Padding="3">
+            <Box Size="32,32" Anchor="L,C" Color="0,0,0,0">
+              <Button Anchor="L,C" Size="32,32" Offset="0,0" Texture="assets\UI\Art\Icons\GreatWorks.dds" ID="DoubleColumn7GreatWork1"/>
+              <Image Anchor="C,C" Size="34,34" Offset="0,0" Texture="GreatWorks_Book_HL_34.dds" ID="DoubleColumn7GreatWork1HL" Hidden="1"/>
+              <Image Anchor="C,C" Size="32,32" Texture="GreatWorks_DottedFrame_32.dds" ID="DoubleColumn7GreatWork1Ghost" Hidden="1"/>
+            </Box>
+            <Box Size="32,32" Anchor="L,C" Color="0,0,0,0">
+              <Button Anchor="L,C" Size="32,32" Offset="0,0" Texture="assets\UI\Art\Icons\GreatWorks.dds" ID="DoubleColumn7GreatWork2"/>
+              <Image Anchor="C,C" Size="34,34" Offset="0,0" Texture="GreatWorks_Book_HL_34.dds" ID="DoubleColumn7GreatWork2HL" Hidden="1"/>
+              <Image Anchor="C,C" Size="32,32" Texture="GreatWorks_DottedFrame_32.dds" ID="DoubleColumn7GreatWork2Ghost" Hidden="1"/>
+            </Box>
+            <Label Anchor="L,C" Offset="0,0" String="+0" Color0="Beige.255" Color1="Black.255" Font="TwCenMT20" FontStyle="Stroke" ID="DoubleColumn7ThemeBonus" ToolTip="No Theming bonus"/>
+          </Stack>
+        </Box>
+        <Box Size="140,34" Color="0,0,0,0" ID="TripleColumn7Container" Hidden="1">
+          <Stack Anchor="C,C" StackGrowth="Right" Padding="3">
+            <Box Size="32,32" Anchor="L,C" Color="0,0,0,0">
+              <Button Anchor="L,C" Size="32,32" Offset="0,0" Texture="assets\UI\Art\Icons\GreatWorks.dds" ID="TripleColumn7GreatWork1"/>
+              <Image Anchor="C,C" Size="34,34" Offset="0,0" Texture="GreatWorks_Book_HL_34.dds" ID="TripleColumn7GreatWork1HL" Hidden="1"/>
+              <Image Anchor="C,C" Size="32,32" Texture="GreatWorks_DottedFrame_32.dds" ID="TripleColumn7GreatWork1Ghost" Hidden="1"/>
+            </Box>
+            <Box Size="32,32" Anchor="L,C" Color="0,0,0,0">
+              <Button Anchor="L,C" Size="32,32" Offset="0,0" Texture="assets\UI\Art\Icons\GreatWorks.dds" ID="TripleColumn7GreatWork2"/>
+              <Image Anchor="C,C" Size="34,34" Offset="0,0" Texture="GreatWorks_Book_HL_34.dds" ID="TripleColumn7GreatWork2HL" Hidden="1"/>
+              <Image Anchor="C,C" Size="32,32" Texture="GreatWorks_DottedFrame_32.dds" ID="TripleColumn7GreatWork2Ghost" Hidden="1"/>
+            </Box>
+            <Box Size="32,32" Anchor="L,C" Color="0,0,0,0">
+              <Button Anchor="L,C" Size="32,32" Offset="0,0" Texture="assets\UI\Art\Icons\GreatWorks.dds" ID="TripleColumn7GreatWork3"/>
+              <Image Anchor="C,C" Size="34,34" Offset="0,0" Texture="GreatWorks_Book_HL_34.dds" ID="TripleColumn7GreatWork3HL" Hidden="1"/>
+              <Image Anchor="C,C" Size="32,32" Texture="GreatWorks_DottedFrame_32.dds" ID="TripleColumn7GreatWork3Ghost" Hidden="1"/>
+            </Box>
+            <Label Anchor="L,C" Offset="0,0" String="+0" Color0="Beige.255" Color1="Black.255" Font="TwCenMT20" FontStyle="Stroke" ID="TripleColumn7ThemeBonus" ToolTip="No Theming bonus"/>
+          </Stack>
+        </Box>
+        <Box Size="48,34" Color="0,0,0,0" ID="SingleColumn8Container" Hidden="1">
+          <Button Anchor="C,C" Size="32,32" Offset="0,0" Texture="assets\UI\Art\Icons\GreatWorks.dds" ID="SingleColumn8GreatWork"/>
+          <Image Anchor="C,C" Size="34,34" Offset="0,0" Texture="GreatWorks_Book_HL_34.dds" ID="SingleColumn8GreatWorkHL" Hidden="1"/>
+          <Image Anchor="C,C" Size="32,32" Texture="GreatWorks_DottedFrame_32.dds" ID="SingleColumn8GreatWorkGhost" Hidden="1"/>
+        </Box>
+        <Box Size="102,34" Color="0,0,0,0" ID="DoubleColumn8Container" Hidden="1">
+          <Stack Anchor="C,C" StackGrowth="Right" Padding="3">
+            <Box Size="32,32" Anchor="L,C" Color="0,0,0,0">
+              <Button Anchor="L,C" Size="32,32" Offset="0,0" Texture="assets\UI\Art\Icons\GreatWorks.dds" ID="DoubleColumn8GreatWork1"/>
+              <Image Anchor="C,C" Size="34,34" Offset="0,0" Texture="GreatWorks_Book_HL_34.dds" ID="DoubleColumn8GreatWork1HL" Hidden="1"/>
+              <Image Anchor="C,C" Size="32,32" Texture="GreatWorks_DottedFrame_32.dds" ID="DoubleColumn8GreatWork1Ghost" Hidden="1"/>
+            </Box>
+            <Box Size="32,32" Anchor="L,C" Color="0,0,0,0">
+              <Button Anchor="L,C" Size="32,32" Offset="0,0" Texture="assets\UI\Art\Icons\GreatWorks.dds" ID="DoubleColumn8GreatWork2"/>
+              <Image Anchor="C,C" Size="34,34" Offset="0,0" Texture="GreatWorks_Book_HL_34.dds" ID="DoubleColumn8GreatWork2HL" Hidden="1"/>
+              <Image Anchor="C,C" Size="32,32" Texture="GreatWorks_DottedFrame_32.dds" ID="DoubleColumn8GreatWork2Ghost" Hidden="1"/>
+            </Box>
+            <Label Anchor="L,C" Offset="0,0" String="+0" Color0="Beige.255" Color1="Black.255" Font="TwCenMT20" FontStyle="Stroke" ID="DoubleColumn8ThemeBonus" ToolTip="No Theming bonus"/>
+          </Stack>
+        </Box>
+        <Box Size="140,34" Color="0,0,0,0" ID="TripleColumn8Container" Hidden="1">
+          <Stack Anchor="C,C" StackGrowth="Right" Padding="3">
+            <Box Size="32,32" Anchor="L,C" Color="0,0,0,0">
+              <Button Anchor="L,C" Size="32,32" Offset="0,0" Texture="assets\UI\Art\Icons\GreatWorks.dds" ID="TripleColumn8GreatWork1"/>
+              <Image Anchor="C,C" Size="34,34" Offset="0,0" Texture="GreatWorks_Book_HL_34.dds" ID="TripleColumn8GreatWork1HL" Hidden="1"/>
+              <Image Anchor="C,C" Size="32,32" Texture="GreatWorks_DottedFrame_32.dds" ID="TripleColumn8GreatWork1Ghost" Hidden="1"/>
+            </Box>
+            <Box Size="32,32" Anchor="L,C" Color="0,0,0,0">
+              <Button Anchor="L,C" Size="32,32" Offset="0,0" Texture="assets\UI\Art\Icons\GreatWorks.dds" ID="TripleColumn8GreatWork2"/>
+              <Image Anchor="C,C" Size="34,34" Offset="0,0" Texture="GreatWorks_Book_HL_34.dds" ID="TripleColumn8GreatWork2HL" Hidden="1"/>
+              <Image Anchor="C,C" Size="32,32" Texture="GreatWorks_DottedFrame_32.dds" ID="TripleColumn8GreatWork2Ghost" Hidden="1"/>
+            </Box>
+            <Box Size="32,32" Anchor="L,C" Color="0,0,0,0">
+              <Button Anchor="L,C" Size="32,32" Offset="0,0" Texture="assets\UI\Art\Icons\GreatWorks.dds" ID="TripleColumn8GreatWork3"/>
+              <Image Anchor="C,C" Size="34,34" Offset="0,0" Texture="GreatWorks_Book_HL_34.dds" ID="TripleColumn8GreatWork3HL" Hidden="1"/>
+              <Image Anchor="C,C" Size="32,32" Texture="GreatWorks_DottedFrame_32.dds" ID="TripleColumn8GreatWork3Ghost" Hidden="1"/>
+            </Box>
+            <Label Anchor="L,C" Offset="0,0" String="+0" Color0="Beige.255" Color1="Black.255" Font="TwCenMT20" FontStyle="Stroke" ID="TripleColumn8ThemeBonus" ToolTip="No Theming bonus"/>
+          </Stack>
+        </Box>
+        <Box Size="48,34" Color="0,0,0,0" ID="SingleColumn9Container" Hidden="1">
+          <Button Anchor="C,C" Size="32,32" Offset="0,0" Texture="assets\UI\Art\Icons\GreatWorks.dds" ID="SingleColumn9GreatWork"/>
+          <Image Anchor="C,C" Size="34,34" Offset="0,0" Texture="GreatWorks_Book_HL_34.dds" ID="SingleColumn9GreatWorkHL" Hidden="1"/>
+          <Image Anchor="C,C" Size="32,32" Texture="GreatWorks_DottedFrame_32.dds" ID="SingleColumn9GreatWorkGhost" Hidden="1"/>
+        </Box>
+        <Box Size="102,34" Color="0,0,0,0" ID="DoubleColumn9Container" Hidden="1">
+          <Stack Anchor="C,C" StackGrowth="Right" Padding="3">
+            <Box Size="32,32" Anchor="L,C" Color="0,0,0,0">
+              <Button Anchor="L,C" Size="32,32" Offset="0,0" Texture="assets\UI\Art\Icons\GreatWorks.dds" ID="DoubleColumn9GreatWork1"/>
+              <Image Anchor="C,C" Size="34,34" Offset="0,0" Texture="GreatWorks_Book_HL_34.dds" ID="DoubleColumn9GreatWork1HL" Hidden="1"/>
+              <Image Anchor="C,C" Size="32,32" Texture="GreatWorks_DottedFrame_32.dds" ID="DoubleColumn9GreatWork1Ghost" Hidden="1"/>
+            </Box>
+            <Box Size="32,32" Anchor="L,C" Color="0,0,0,0">
+              <Button Anchor="L,C" Size="32,32" Offset="0,0" Texture="assets\UI\Art\Icons\GreatWorks.dds" ID="DoubleColumn9GreatWork2"/>
+              <Image Anchor="C,C" Size="34,34" Offset="0,0" Texture="GreatWorks_Book_HL_34.dds" ID="DoubleColumn9GreatWork2HL" Hidden="1"/>
+              <Image Anchor="C,C" Size="32,32" Texture="GreatWorks_DottedFrame_32.dds" ID="DoubleColumn9GreatWork2Ghost" Hidden="1"/>
+            </Box>
+            <Label Anchor="L,C" Offset="0,0" String="+0" Color0="Beige.255" Color1="Black.255" Font="TwCenMT20" FontStyle="Stroke" ID="DoubleColumn9ThemeBonus" ToolTip="No Theming bonus"/>
+          </Stack>
+        </Box>
+        <Box Size="140,34" Color="0,0,0,0" ID="TripleColumn9Container" Hidden="1">
+          <Stack Anchor="C,C" StackGrowth="Right" Padding="3">
+            <Box Size="32,32" Anchor="L,C" Color="0,0,0,0">
+              <Button Anchor="L,C" Size="32,32" Offset="0,0" Texture="assets\UI\Art\Icons\GreatWorks.dds" ID="TripleColumn9GreatWork1"/>
+              <Image Anchor="C,C" Size="34,34" Offset="0,0" Texture="GreatWorks_Book_HL_34.dds" ID="TripleColumn9GreatWork1HL" Hidden="1"/>
+              <Image Anchor="C,C" Size="32,32" Texture="GreatWorks_DottedFrame_32.dds" ID="TripleColumn9GreatWork1Ghost" Hidden="1"/>
+            </Box>
+            <Box Size="32,32" Anchor="L,C" Color="0,0,0,0">
+              <Button Anchor="L,C" Size="32,32" Offset="0,0" Texture="assets\UI\Art\Icons\GreatWorks.dds" ID="TripleColumn9GreatWork2"/>
+              <Image Anchor="C,C" Size="34,34" Offset="0,0" Texture="GreatWorks_Book_HL_34.dds" ID="TripleColumn9GreatWork2HL" Hidden="1"/>
+              <Image Anchor="C,C" Size="32,32" Texture="GreatWorks_DottedFrame_32.dds" ID="TripleColumn9GreatWork2Ghost" Hidden="1"/>
+            </Box>
+            <Box Size="32,32" Anchor="L,C" Color="0,0,0,0">
+              <Button Anchor="L,C" Size="32,32" Offset="0,0" Texture="assets\UI\Art\Icons\GreatWorks.dds" ID="TripleColumn9GreatWork3"/>
+              <Image Anchor="C,C" Size="34,34" Offset="0,0" Texture="GreatWorks_Book_HL_34.dds" ID="TripleColumn9GreatWork3HL" Hidden="1"/>
+              <Image Anchor="C,C" Size="32,32" Texture="GreatWorks_DottedFrame_32.dds" ID="TripleColumn9GreatWork3Ghost" Hidden="1"/>
+            </Box>
+            <Label Anchor="L,C" Offset="0,0" String="+0" Color0="Beige.255" Color1="Black.255" Font="TwCenMT20" FontStyle="Stroke" ID="TripleColumn9ThemeBonus" ToolTip="No Theming bonus"/>
+          </Stack>
+        </Box>
+        <Box Size="48,34" Color="0,0,0,0" ID="SingleColumn10Container" Hidden="1">
+          <Button Anchor="C,C" Size="32,32" Offset="0,0" Texture="assets\UI\Art\Icons\GreatWorks.dds" ID="SingleColumn10GreatWork"/>
+          <Image Anchor="C,C" Size="34,34" Offset="0,0" Texture="GreatWorks_Book_HL_34.dds" ID="SingleColumn10GreatWorkHL" Hidden="1"/>
+          <Image Anchor="C,C" Size="32,32" Texture="GreatWorks_DottedFrame_32.dds" ID="SingleColumn10GreatWorkGhost" Hidden="1"/>
+        </Box>
+        <Box Size="102,34" Color="0,0,0,0" ID="DoubleColumn10Container" Hidden="1">
+          <Stack Anchor="C,C" StackGrowth="Right" Padding="3">
+            <Box Size="32,32" Anchor="L,C" Color="0,0,0,0">
+              <Button Anchor="L,C" Size="32,32" Offset="0,0" Texture="assets\UI\Art\Icons\GreatWorks.dds" ID="DoubleColumn10GreatWork1"/>
+              <Image Anchor="C,C" Size="34,34" Offset="0,0" Texture="GreatWorks_Book_HL_34.dds" ID="DoubleColumn10GreatWork1HL" Hidden="1"/>
+              <Image Anchor="C,C" Size="32,32" Texture="GreatWorks_DottedFrame_32.dds" ID="DoubleColumn10GreatWork1Ghost" Hidden="1"/>
+            </Box>
+            <Box Size="32,32" Anchor="L,C" Color="0,0,0,0">
+              <Button Anchor="L,C" Size="32,32" Offset="0,0" Texture="assets\UI\Art\Icons\GreatWorks.dds" ID="DoubleColumn10GreatWork2"/>
+              <Image Anchor="C,C" Size="34,34" Offset="0,0" Texture="GreatWorks_Book_HL_34.dds" ID="DoubleColumn10GreatWork2HL" Hidden="1"/>
+              <Image Anchor="C,C" Size="32,32" Texture="GreatWorks_DottedFrame_32.dds" ID="DoubleColumn10GreatWork2Ghost" Hidden="1"/>
+            </Box>
+            <Label Anchor="L,C" Offset="0,0" String="+0" Color0="Beige.255" Color1="Black.255" Font="TwCenMT20" FontStyle="Stroke" ID="DoubleColumn10ThemeBonus" ToolTip="No Theming bonus"/>
+          </Stack>
+        </Box>
+        <Box Size="140,34" Color="0,0,0,0" ID="TripleColumn10Container" Hidden="1">
+          <Stack Anchor="C,C" StackGrowth="Right" Padding="3">
+            <Box Size="32,32" Anchor="L,C" Color="0,0,0,0">
+              <Button Anchor="L,C" Size="32,32" Offset="0,0" Texture="assets\UI\Art\Icons\GreatWorks.dds" ID="TripleColumn10GreatWork1"/>
+              <Image Anchor="C,C" Size="34,34" Offset="0,0" Texture="GreatWorks_Book_HL_34.dds" ID="TripleColumn10GreatWork1HL" Hidden="1"/>
+              <Image Anchor="C,C" Size="32,32" Texture="GreatWorks_DottedFrame_32.dds" ID="TripleColumn10GreatWork1Ghost" Hidden="1"/>
+            </Box>
+            <Box Size="32,32" Anchor="L,C" Color="0,0,0,0">
+              <Button Anchor="L,C" Size="32,32" Offset="0,0" Texture="assets\UI\Art\Icons\GreatWorks.dds" ID="TripleColumn10GreatWork2"/>
+              <Image Anchor="C,C" Size="34,34" Offset="0,0" Texture="GreatWorks_Book_HL_34.dds" ID="TripleColumn10GreatWork2HL" Hidden="1"/>
+              <Image Anchor="C,C" Size="32,32" Texture="GreatWorks_DottedFrame_32.dds" ID="TripleColumn10GreatWork2Ghost" Hidden="1"/>
+            </Box>
+            <Box Size="32,32" Anchor="L,C" Color="0,0,0,0">
+              <Button Anchor="L,C" Size="32,32" Offset="0,0" Texture="assets\UI\Art\Icons\GreatWorks.dds" ID="TripleColumn10GreatWork3"/>
+              <Image Anchor="C,C" Size="34,34" Offset="0,0" Texture="GreatWorks_Book_HL_34.dds" ID="TripleColumn10GreatWork3HL" Hidden="1"/>
+              <Image Anchor="C,C" Size="32,32" Texture="GreatWorks_DottedFrame_32.dds" ID="TripleColumn10GreatWork3Ghost" Hidden="1"/>
+            </Box>
+            <Label Anchor="L,C" Offset="0,0" String="+0" Color0="Beige.255" Color1="Black.255" Font="TwCenMT20" FontStyle="Stroke" ID="TripleColumn10ThemeBonus" ToolTip="No Theming bonus"/>
+          </Stack>
+        </Box>
+        <Box Size="48,34" Color="0,0,0,0" ID="SingleColumn11Container" Hidden="1">
+          <Button Anchor="C,C" Size="32,32" Offset="0,0" Texture="assets\UI\Art\Icons\GreatWorks.dds" ID="SingleColumn11GreatWork"/>
+          <Image Anchor="C,C" Size="34,34" Offset="0,0" Texture="GreatWorks_Book_HL_34.dds" ID="SingleColumn11GreatWorkHL" Hidden="1"/>
+          <Image Anchor="C,C" Size="32,32" Texture="GreatWorks_DottedFrame_32.dds" ID="SingleColumn11GreatWorkGhost" Hidden="1"/>
+        </Box>
+        <Box Size="102,34" Color="0,0,0,0" ID="DoubleColumn11Container" Hidden="1">
+          <Stack Anchor="C,C" StackGrowth="Right" Padding="3">
+            <Box Size="32,32" Anchor="L,C" Color="0,0,0,0">
+              <Button Anchor="L,C" Size="32,32" Offset="0,0" Texture="assets\UI\Art\Icons\GreatWorks.dds" ID="DoubleColumn11GreatWork1"/>
+              <Image Anchor="C,C" Size="34,34" Offset="0,0" Texture="GreatWorks_Book_HL_34.dds" ID="DoubleColumn11GreatWork1HL" Hidden="1"/>
+              <Image Anchor="C,C" Size="32,32" Texture="GreatWorks_DottedFrame_32.dds" ID="DoubleColumn11GreatWork1Ghost" Hidden="1"/>
+            </Box>
+            <Box Size="32,32" Anchor="L,C" Color="0,0,0,0">
+              <Button Anchor="L,C" Size="32,32" Offset="0,0" Texture="assets\UI\Art\Icons\GreatWorks.dds" ID="DoubleColumn11GreatWork2"/>
+              <Image Anchor="C,C" Size="34,34" Offset="0,0" Texture="GreatWorks_Book_HL_34.dds" ID="DoubleColumn11GreatWork2HL" Hidden="1"/>
+              <Image Anchor="C,C" Size="32,32" Texture="GreatWorks_DottedFrame_32.dds" ID="DoubleColumn11GreatWork2Ghost" Hidden="1"/>
+            </Box>
+            <Label Anchor="L,C" Offset="0,0" String="+0" Color0="Beige.255" Color1="Black.255" Font="TwCenMT20" FontStyle="Stroke" ID="DoubleColumn11ThemeBonus" ToolTip="No Theming bonus"/>
+          </Stack>
+        </Box>
+        <Box Size="140,34" Color="0,0,0,0" ID="TripleColumn11Container" Hidden="1">
+          <Stack Anchor="C,C" StackGrowth="Right" Padding="3">
+            <Box Size="32,32" Anchor="L,C" Color="0,0,0,0">
+              <Button Anchor="L,C" Size="32,32" Offset="0,0" Texture="assets\UI\Art\Icons\GreatWorks.dds" ID="TripleColumn11GreatWork1"/>
+              <Image Anchor="C,C" Size="34,34" Offset="0,0" Texture="GreatWorks_Book_HL_34.dds" ID="TripleColumn11GreatWork1HL" Hidden="1"/>
+              <Image Anchor="C,C" Size="32,32" Texture="GreatWorks_DottedFrame_32.dds" ID="TripleColumn11GreatWork1Ghost" Hidden="1"/>
+            </Box>
+            <Box Size="32,32" Anchor="L,C" Color="0,0,0,0">
+              <Button Anchor="L,C" Size="32,32" Offset="0,0" Texture="assets\UI\Art\Icons\GreatWorks.dds" ID="TripleColumn11GreatWork2"/>
+              <Image Anchor="C,C" Size="34,34" Offset="0,0" Texture="GreatWorks_Book_HL_34.dds" ID="TripleColumn11GreatWork2HL" Hidden="1"/>
+              <Image Anchor="C,C" Size="32,32" Texture="GreatWorks_DottedFrame_32.dds" ID="TripleColumn11GreatWork2Ghost" Hidden="1"/>
+            </Box>
+            <Box Size="32,32" Anchor="L,C" Color="0,0,0,0">
+              <Button Anchor="L,C" Size="32,32" Offset="0,0" Texture="assets\UI\Art\Icons\GreatWorks.dds" ID="TripleColumn11GreatWork3"/>
+              <Image Anchor="C,C" Size="34,34" Offset="0,0" Texture="GreatWorks_Book_HL_34.dds" ID="TripleColumn11GreatWork3HL" Hidden="1"/>
+              <Image Anchor="C,C" Size="32,32" Texture="GreatWorks_DottedFrame_32.dds" ID="TripleColumn11GreatWork3Ghost" Hidden="1"/>
+            </Box>
+            <Label Anchor="L,C" Offset="0,0" String="+0" Color0="Beige.255" Color1="Black.255" Font="TwCenMT20" FontStyle="Stroke" ID="TripleColumn11ThemeBonus" ToolTip="No Theming bonus"/>
+          </Stack>
+        </Box>
+        <Box Size="48,34" Color="0,0,0,0" ID="SingleColumn12Container" Hidden="1">
+          <Button Anchor="C,C" Size="32,32" Offset="0,0" Texture="assets\UI\Art\Icons\GreatWorks.dds" ID="SingleColumn12GreatWork"/>
+          <Image Anchor="C,C" Size="34,34" Offset="0,0" Texture="GreatWorks_Book_HL_34.dds" ID="SingleColumn12GreatWorkHL" Hidden="1"/>
+          <Image Anchor="C,C" Size="32,32" Texture="GreatWorks_DottedFrame_32.dds" ID="SingleColumn12GreatWorkGhost" Hidden="1"/>
+        </Box>
+        <Box Size="102,34" Color="0,0,0,0" ID="DoubleColumn12Container" Hidden="1">
+          <Stack Anchor="C,C" StackGrowth="Right" Padding="3">
+            <Box Size="32,32" Anchor="L,C" Color="0,0,0,0">
+              <Button Anchor="L,C" Size="32,32" Offset="0,0" Texture="assets\UI\Art\Icons\GreatWorks.dds" ID="DoubleColumn12GreatWork1"/>
+              <Image Anchor="C,C" Size="34,34" Offset="0,0" Texture="GreatWorks_Book_HL_34.dds" ID="DoubleColumn12GreatWork1HL" Hidden="1"/>
+              <Image Anchor="C,C" Size="32,32" Texture="GreatWorks_DottedFrame_32.dds" ID="DoubleColumn12GreatWork1Ghost" Hidden="1"/>
+            </Box>
+            <Box Size="32,32" Anchor="L,C" Color="0,0,0,0">
+              <Button Anchor="L,C" Size="32,32" Offset="0,0" Texture="assets\UI\Art\Icons\GreatWorks.dds" ID="DoubleColumn12GreatWork2"/>
+              <Image Anchor="C,C" Size="34,34" Offset="0,0" Texture="GreatWorks_Book_HL_34.dds" ID="DoubleColumn12GreatWork2HL" Hidden="1"/>
+              <Image Anchor="C,C" Size="32,32" Texture="GreatWorks_DottedFrame_32.dds" ID="DoubleColumn12GreatWork2Ghost" Hidden="1"/>
+            </Box>
+            <Label Anchor="L,C" Offset="0,0" String="+0" Color0="Beige.255" Color1="Black.255" Font="TwCenMT20" FontStyle="Stroke" ID="DoubleColumn12ThemeBonus" ToolTip="No Theming bonus"/>
+          </Stack>
+        </Box>
+        <Box Size="140,34" Color="0,0,0,0" ID="TripleColumn12Container" Hidden="1">
+          <Stack Anchor="C,C" StackGrowth="Right" Padding="3">
+            <Box Size="32,32" Anchor="L,C" Color="0,0,0,0">
+              <Button Anchor="L,C" Size="32,32" Offset="0,0" Texture="assets\UI\Art\Icons\GreatWorks.dds" ID="TripleColumn12GreatWork1"/>
+              <Image Anchor="C,C" Size="34,34" Offset="0,0" Texture="GreatWorks_Book_HL_34.dds" ID="TripleColumn12GreatWork1HL" Hidden="1"/>
+              <Image Anchor="C,C" Size="32,32" Texture="GreatWorks_DottedFrame_32.dds" ID="TripleColumn12GreatWork1Ghost" Hidden="1"/>
+            </Box>
+            <Box Size="32,32" Anchor="L,C" Color="0,0,0,0">
+              <Button Anchor="L,C" Size="32,32" Offset="0,0" Texture="assets\UI\Art\Icons\GreatWorks.dds" ID="TripleColumn12GreatWork2"/>
+              <Image Anchor="C,C" Size="34,34" Offset="0,0" Texture="GreatWorks_Book_HL_34.dds" ID="TripleColumn12GreatWork2HL" Hidden="1"/>
+              <Image Anchor="C,C" Size="32,32" Texture="GreatWorks_DottedFrame_32.dds" ID="TripleColumn12GreatWork2Ghost" Hidden="1"/>
+            </Box>
+            <Box Size="32,32" Anchor="L,C" Color="0,0,0,0">
+              <Button Anchor="L,C" Size="32,32" Offset="0,0" Texture="assets\UI\Art\Icons\GreatWorks.dds" ID="TripleColumn12GreatWork3"/>
+              <Image Anchor="C,C" Size="34,34" Offset="0,0" Texture="GreatWorks_Book_HL_34.dds" ID="TripleColumn12GreatWork3HL" Hidden="1"/>
+              <Image Anchor="C,C" Size="32,32" Texture="GreatWorks_DottedFrame_32.dds" ID="TripleColumn12GreatWork3Ghost" Hidden="1"/>
+            </Box>
+            <Label Anchor="L,C" Offset="0,0" String="+0" Color0="Beige.255" Color1="Black.255" Font="TwCenMT20" FontStyle="Stroke" ID="TripleColumn12ThemeBonus" ToolTip="No Theming bonus"/>
+          </Stack>
+        </Box>
+        <Box Size="48,34" Color="0,0,0,0" ID="SingleColumn13Container" Hidden="1">
+          <Button Anchor="C,C" Size="32,32" Offset="0,0" Texture="assets\UI\Art\Icons\GreatWorks.dds" ID="SingleColumn13GreatWork"/>
+          <Image Anchor="C,C" Size="34,34" Offset="0,0" Texture="GreatWorks_Book_HL_34.dds" ID="SingleColumn13GreatWorkHL" Hidden="1"/>
+          <Image Anchor="C,C" Size="32,32" Texture="GreatWorks_DottedFrame_32.dds" ID="SingleColumn13GreatWorkGhost" Hidden="1"/>
+        </Box>
+        <Box Size="102,34" Color="0,0,0,0" ID="DoubleColumn13Container" Hidden="1">
+          <Stack Anchor="C,C" StackGrowth="Right" Padding="3">
+            <Box Size="32,32" Anchor="L,C" Color="0,0,0,0">
+              <Button Anchor="L,C" Size="32,32" Offset="0,0" Texture="assets\UI\Art\Icons\GreatWorks.dds" ID="DoubleColumn13GreatWork1"/>
+              <Image Anchor="C,C" Size="34,34" Offset="0,0" Texture="GreatWorks_Book_HL_34.dds" ID="DoubleColumn13GreatWork1HL" Hidden="1"/>
+              <Image Anchor="C,C" Size="32,32" Texture="GreatWorks_DottedFrame_32.dds" ID="DoubleColumn13GreatWork1Ghost" Hidden="1"/>
+            </Box>
+            <Box Size="32,32" Anchor="L,C" Color="0,0,0,0">
+              <Button Anchor="L,C" Size="32,32" Offset="0,0" Texture="assets\UI\Art\Icons\GreatWorks.dds" ID="DoubleColumn13GreatWork2"/>
+              <Image Anchor="C,C" Size="34,34" Offset="0,0" Texture="GreatWorks_Book_HL_34.dds" ID="DoubleColumn13GreatWork2HL" Hidden="1"/>
+              <Image Anchor="C,C" Size="32,32" Texture="GreatWorks_DottedFrame_32.dds" ID="DoubleColumn13GreatWork2Ghost" Hidden="1"/>
+            </Box>
+            <Label Anchor="L,C" Offset="0,0" String="+0" Color0="Beige.255" Color1="Black.255" Font="TwCenMT20" FontStyle="Stroke" ID="DoubleColumn13ThemeBonus" ToolTip="No Theming bonus"/>
+          </Stack>
+        </Box>
+        <Box Size="140,34" Color="0,0,0,0" ID="TripleColumn13Container" Hidden="1">
+          <Stack Anchor="C,C" StackGrowth="Right" Padding="3">
+            <Box Size="32,32" Anchor="L,C" Color="0,0,0,0">
+              <Button Anchor="L,C" Size="32,32" Offset="0,0" Texture="assets\UI\Art\Icons\GreatWorks.dds" ID="TripleColumn13GreatWork1"/>
+              <Image Anchor="C,C" Size="34,34" Offset="0,0" Texture="GreatWorks_Book_HL_34.dds" ID="TripleColumn13GreatWork1HL" Hidden="1"/>
+              <Image Anchor="C,C" Size="32,32" Texture="GreatWorks_DottedFrame_32.dds" ID="TripleColumn13GreatWork1Ghost" Hidden="1"/>
+            </Box>
+            <Box Size="32,32" Anchor="L,C" Color="0,0,0,0">
+              <Button Anchor="L,C" Size="32,32" Offset="0,0" Texture="assets\UI\Art\Icons\GreatWorks.dds" ID="TripleColumn13GreatWork2"/>
+              <Image Anchor="C,C" Size="34,34" Offset="0,0" Texture="GreatWorks_Book_HL_34.dds" ID="TripleColumn13GreatWork2HL" Hidden="1"/>
+              <Image Anchor="C,C" Size="32,32" Texture="GreatWorks_DottedFrame_32.dds" ID="TripleColumn13GreatWork2Ghost" Hidden="1"/>
+            </Box>
+            <Box Size="32,32" Anchor="L,C" Color="0,0,0,0">
+              <Button Anchor="L,C" Size="32,32" Offset="0,0" Texture="assets\UI\Art\Icons\GreatWorks.dds" ID="TripleColumn13GreatWork3"/>
+              <Image Anchor="C,C" Size="34,34" Offset="0,0" Texture="GreatWorks_Book_HL_34.dds" ID="TripleColumn13GreatWork3HL" Hidden="1"/>
+              <Image Anchor="C,C" Size="32,32" Texture="GreatWorks_DottedFrame_32.dds" ID="TripleColumn13GreatWork3Ghost" Hidden="1"/>
+            </Box>
+            <Label Anchor="L,C" Offset="0,0" String="+0" Color0="Beige.255" Color1="Black.255" Font="TwCenMT20" FontStyle="Stroke" ID="TripleColumn13ThemeBonus" ToolTip="No Theming bonus"/>
+          </Stack>
+        </Box>
+        <!-- END OF COLUMN CONTENTS -->
+      </Stack>
+      <Image ID="Divider" Anchor="L,B" Offset="0,0" Texture="bar900x2.dds" Size="900.1"/>
+    </Box>
+  </Instance>
+  <Instance Name="WonderInstance">
+    <Box ID="Root" Offset="0,0" Anchor="L,T" Size="212,48" Color="0,0,0,0">
+      <Grid Anchor="L,T" Size="210,40" Offset="2,0" Style="Grid9Frame27" Hidden="0" ID="WonderBox">
+        <Stack Anchor="L,C" StackGrowth="Right" Offset="0,0" Padding="1" ID="GreatWorkStack">
+          <Button ID="WonderButton" Anchor="L,C" Size="45,45">
+            <Image Anchor="C,C" Size="45.45" Texture="WonderAtlas360.dds" Hidden="0" ID="WonderImage"/>
+          </Button>
+          <Box Anchor="L,C" Size="32,32" Color="0,0,0,0" ID="WonderGreatWork1Box">
+            <Button Anchor="L,T" Size="32,32" Offset="0,0" Texture="assets\UI\Art\Icons\GreatWorks.dds" ID="WonderGreatWork1"/>
+            <Image Anchor="L,T" Size="34,34" Offset="0,0" Texture="GreatWorks_Yellow_HL_34.dds" ID="WonderGreatWork1HL"/>
+          </Box>
+          <Box Anchor="L,C" Size="32,32" Color="0,0,0,0" ID="WonderGreatWork2Box">
+            <Button Anchor="L,T" Size="32,32" Offset="0,0" Texture="assets\UI\Art\Icons\GreatWorks.dds" ID="WonderGreatWork2"/>
+            <Image Anchor="L,T" Size="34,34" Offset="0,0" Texture="GreatWorks_Yellow_HL_34.dds" ID="WonderGreatWork2HL"/>
+          </Box>
+          <Box Anchor="L,C" Size="32,32" Color="0,0,0,0" ID="WonderGreatWork3Box">
+            <Button Anchor="L,T" Size="32,32" Offset="0,0" Texture="assets\UI\Art\Icons\GreatWorks.dds" ID="WonderGreatWork3"/>
+            <Image Anchor="L,T" Size="34,34" Offset="0,0" Texture="GreatWorks_Yellow_HL_34.dds" ID="WonderGreatWork3HL"/>
+          </Box>
+          <Box Anchor="L,C" Size="32,32" Color="0,0,0,0" ID="WonderGreatWork4Box">
+            <Button Anchor="L,T" Size="32,32" Offset="0,0" Texture="assets\UI\Art\Icons\GreatWorks.dds" ID="WonderGreatWork4"/>
+            <Image Anchor="L,T" Size="34,34" Offset="0,0" Texture="GreatWorks_Yellow_HL_34.dds" ID="WonderGreatWork4HL"/>
+          </Box>
+          <Box Anchor="L,C" Color="255.255.255.0" Offset="0,0" Size="30,34" ID="WonderThemeBox" Hidden="0">
+            <Label Anchor="C,C" Offset="0,0" String="+0" Color0="Beige.255" Color1="Black.255" Font="TwCenMT20" FontStyle="Stroke" ID="WonderThemeBonus"/>
+          </Box>
+        </Stack>
+      </Grid>
+      <Image Anchor="L,B" Offset="0,0" Texture="bar900x2.dds" ID="Divider" Size="900.1"/>
+    </Box>
+  </Instance>
+  <Instance Name="PlayerVictoryInstance">
+    <Box ID="Root" Offset="0,0" Anchor="L,T" Size="690,34" Color="255,255,255,0">
+      <Stack Anchor="L,C" StackGrowth="Right" Offset="0,0" Padding="0">
+        <Box Anchor="L,C" Offset="0,0" Color="Black.0" Size="208,34">
+          <Grid Anchor="C,C" Size="54,28" Offset="0,0" Padding="0,0" Style="Grid9Frame27" Hidden="1"/>
+          <Label Anchor="C,C" Offset="0,0" String="+2" Color0="Beige.255" Color1="Black.255" Font="TwCenMT20" FontStyle="Stroke" ID="PlayerName"/>
+        </Box>
+        <Box Anchor="L,C" Color="255.255.255.0" Offset="0,0" Size="80,34">
+          <Grid Anchor="C,C" Size="54,28" Offset="0,0" Padding="0,0" Style="Grid9Frame27" Hidden="1"/>
+          <Label Anchor="C,C" Offset="0,0" String="+2" Font="TwCenMT20" FontStyle="Stroke" ID="InfluentialNum"/>
+        </Box>
+        <Box Anchor="L,C" Color="255.255.255.0" Offset="0,0" Size="80,34">
+          <Grid Anchor="C,C" Size="54,28" Offset="0,0" Padding="0,0" Style="Grid9Frame27" Hidden="1"/>
+          <Label Anchor="C,C" Offset="0,0" String="+2" Font="TwCenMT20" FontStyle="Stroke" ID="Tourism"/>
+        </Box>
+        <Box Anchor="L,C" Color="255.255.255.0" Offset="0,0" Size="120,34">
+          <Grid Anchor="C,C" Size="54,28" Offset="0,0" Padding="0,0" Style="Grid9Frame27" Hidden="1"/>
+          <Label Anchor="C,C" Offset="0,0" String="" Font="TwCenMT20" FontStyle="Stroke" ID="Ideology"/>
+        </Box>
+        <Box Anchor="L,C" Color="255.255.255.0" Offset="0,0" Size="150,34">
+          <Grid Anchor="C,C" Size="54,28" Offset="0,0" Padding="0,0" Style="Grid9Frame27" Hidden="1"/>
+          <Label Anchor="C,C" Offset="0,0" String="" Font="TwCenMT20" FontStyle="Stroke" ID="PublicOpinion"/>
+        </Box>
+        <Box Anchor="L,C" Color="255.255.255.0" Offset="0,0" Size="80,34">
+          <Grid Anchor="C,C" Size="54,28" Offset="0,0" Padding="0,0" Style="Grid9Frame27" Hidden="1"/>
+          <Label Anchor="C,C" Offset="0,0" String="" Font="TwCenMT20" FontStyle="Stroke" ID="PublicOpinionUnhappiness"/>
+        </Box>
+        <Box Anchor="L,C" Color="255.255.255.0" Offset="0,0" Size="100,34">
+          <Grid Anchor="C,C" Size="54,28" Offset="0,0" Padding="0,0" Style="Grid9Frame27" Hidden="1"/>
+          <Label Anchor="C,C" Offset="0,0" String="" Font="TwCenMT20" FontStyle="Stroke" ID="ExcessHappiness"/>
+        </Box>
+      </Stack>
+      <Image Anchor="C,B" Offset="150,0" TextureOffset="0.0" Texture="bar900x2.dds" Size="1000.1"/>
+    </Box>
+  </Instance>
+  <Instance Name="PlayerInfluenceInstance">
+    <Box ID="Root" Offset="0,0" Anchor="L,T" Size="690,64" Color="255,255,255,0">
+      <Stack Anchor="L,C" StackGrowth="Right" Offset="0,0" Padding="0">
+        <Box Anchor="L,C" Offset="0,0" Color="0,0,0,0" Size="261,34">
+          <Image ID="IconFrame" Anchor="L,C" Size="64,64" Offset="0,0" Texture="assets\UI\Art\Notification\NotificationIconsInfoFrame.dds">
+            <Image ID="IconBG" Size="64,64" Anchor="C,C" Offset="-1,-1" Texture="CivIconBGSizes.dds"/>
+            <Image ID="IconShadow" Size="48.48" Anchor="C,C" Offset="1,1" Texture="CivSymbolAtlas48.dds" Color="Black.128"/>
+            <Image ID="Icon" Size="48,48" Offset="0,0" Anchor="C,C" Texture="CivSymbolsColor512.dds"/>
+            <Image ID="IconHL" Size="64,64" Anchor="C,C" Offset="0,0" TextureOffset="77,0" Texture="CivIconBGSizes_Highlight.dds"/>
+            <AlphaAnim ID="IconFrameGlow" Anchor="C,C" AnchorSide="O.O" Offset="0,0" Size="64,64" Texture="NotificationShineGlow.dds" MaskTexture="NotificationShineMask.dds" Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".5" AlphaEnd="0" Hidden="1"/>
+            <Image ID="IconDark" Anchor="L,T" Color="0,0,0,200" Size="64,32" Offset="-1,-1" TextureOffset="77,0" Texture="CivIconBGSizes.dds" Hidden="0"/>
+          </Image>
+          <Label Anchor="L,C" Offset="70,0" Color0="Beige.255" Color1="Black.255" Font="TwCenMT20" FontStyle="Stroke" ID="PlayerName"/>
+        </Box>
+        <Box Anchor="C,C" Color="0,0,0,0" Offset="0,0" Size="118,34">
+          <Label Anchor="C,C" Offset="0,0" Color0="Beige.255" Color1="Black.255" Font="TwCenMT20" FontStyle="Stroke" ID="InfluenceLevel"/>
+        </Box>
+        <Box Anchor="C,C" Color="0,0,0,0" Offset="0,0" Size="280,64">
+          <Grid Size="230,8" Offset="28,20" ID="MyTourism" Texture="BarTourism128.dds" Padding="0,0" ULSize="2,2" ULTexStart="0,0" UCSize="123,2" UCTexStart="3,0" URSize="2,2" URTexStart="126,0" LSize="2,12" LTexStart="0,2" CSize="123,12" CTexStart="3,2" RSize="2,12" RTexStart="126,2" LLSize="2,2" LLTexStart="0,14" LCSize="123,2" LCTexStart="3,14" LRSize="2,2" LRTexStart="126,14"/>
+          <Grid Size="230,8" Offset="28,44" ID="TheirCulture" Texture="BarCulture128.dds" Padding="0,0" ULSize="2,2" ULTexStart="0,0" UCSize="123,2" UCTexStart="3,0" URSize="2,2" URTexStart="126,0" LSize="2,12" LTexStart="0,2" CSize="123,12" CTexStart="3,2" RSize="2,12" RTexStart="126,2" LLSize="2,2" LLTexStart="0,14" LCSize="123,2" LCTexStart="3,14" LRSize="2,2" LRTexStart="126,14"/>
+          <Box Color="0,0,0,0" Size="32,32" Anchor="L,T" Offset="0,8">
+            <Image ID="MyIconBG" Size="32,32" Anchor="C,C" Offset="-1,-1" Texture="CivIconBGSizes.dds"/>
+            <Image ID="MyIconShadow" Size="24,24" Anchor="C,C" Offset="0,1" Texture="CivSymbolAtlas48.dds" Color="Black.128"/>
+            <Image ID="MyIcon" Size="24,24" Offset="-1,0" Anchor="C,C" Texture="CivSymbolsColor256.dds"/>
+            <Image ID="MyIconHL" Size="32,32" Anchor="C,C" Offset="0,0" TextureOffset="0,0" Texture="CivIconBGSizes_Highlight.dds"/>
+          </Box>
+          <Box Color="0,0,0,0" Size="32,32" Offset="0,33">
+            <Image ID="TheirIconBG" Size="32,32" Anchor="C,C" Offset="-1,-1" Texture="CivIconBGSizes.dds"/>
+            <Image ID="TheirIconShadow" Size="24,24" Anchor="C,C" Offset="0,1" Texture="CivSymbolAtlas48.dds" Color="Black.128"/>
+            <Image ID="TheirIcon" Size="24,24" Offset="-1,0" Anchor="C,C" Texture="CivSymbolsColor256.dds"/>
+            <Image ID="TheirIconHL" Size="32,32" Anchor="C,C" Offset="0,0" TextureOffset="0,0" Texture="CivIconBGSizes_Highlight.dds"/>
+          </Box>
+          <Box Anchor="L,T" Size="2,40" Color="0,0,0,255" Offset="110,18" ID="TourismBar"/>
+          <Label Anchor="L,T" Offset="100,2" Color0="Beige.255" Color1="Black.255" Font="TwCenMT20" FontStyle="Stroke" String="[ICON_TOURISM]" ID="TourismIcon"/>
+          <Label Anchor="R,T" Offset="0,40" Color0="Beige.255" Color1="Black.255" Font="TwCenMT20" FontStyle="Stroke" String="[ICON_CULTURE]"/>
+        </Box>
+        <Box Anchor="C,C" Color="0,0,0,0" Offset="0,0" Size="68,34">
+          <Label Anchor="C,C" Offset="0,0" Color0="Beige.255" Color1="Black.255" Font="TwCenMT20" FontStyle="Stroke" ID="InfluenceModifiers"/>
+        </Box>
+        <Box Anchor="C,C" Color="0,0,0,0" Offset="0,0" Size="76,34">
+          <Label Anchor="C,C" Offset="0,0" Color0="Beige.255" Color1="Black.255" Font="TwCenMT20" FontStyle="Stroke" ID="InfluenceTourism"/>
+        </Box>
+        <Box Anchor="C,C" Color="0,0,0,0" Offset="0,0" Size="126,34">
+          <Image Anchor="C,C" Texture="Arrows_Trend_UpDown36.dds" Size="36,36" Color="0,255,0,255" ID="InfluenceTrendIcon"/>
+          <Label Anchor="C,C" Offset="0,0" Color0="Beige.255" Color1="Black.255" Font="TwCenMT20" FontStyle="Stroke" ID="InfluenceTrend"/>
+        </Box>
+      </Stack>
+      <Image Anchor="L,B" Offset="0,0" Texture="bar900x2.dds" Size="900.1"/>
+    </Box>
+  </Instance>
+
+  <Instance Name="SwapWorkItemLineInstance">
+    <Box Size="938,64" Color="0,0,0,0" ID="Root">
+      <Stack ID="WorkItem" Anchor="L,C" StackGrowth="Right" Offset="0,0" Padding="1">
+        <Box Size="82,64" Color="0,0,0,0">
+          <Image ID="IconFrame" Anchor="C,C" Size="64,64" Offset="0,0" Texture="IconFrame64.dds">
+            <Image ID="Icon" Size="64,64" Offset="0,0" Anchor="C,C" Texture="LeaderPortraits512.dds"/>
+            <Image ID="SubIconFrame" Anchor="R,B" Offset="-5,6" Size="32,32" Texture="IconFrame_32.dds">
+              <Image ID="SubIconBG" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes.dds"/>
+              <Image ID="SubIconShadow" Size="24.24" Anchor="C,C" Offset="1,1" Texture="CivSymbolAtlas16.dds" Color="Black.128"/>
+              <Image ID="SubIcon" Size="24.24" Offset="0,0" Anchor="C,C" Texture="CivSymbolsColor256.dds"/>
+              <Image ID="SubIconHighlight" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="0,0" Texture="CivIconBGSizes_Highlight.dds"/>
+            </Image>
+          </Image>
+        </Box>
+        <!-- 4 column configuration -->
+        <!--<Button Size="213,64" ID="WritingWorkButton">
+          <Stack Anchor="L,C" StackGrowth="Right" Offset="2,0" Padding="0">
+            <Image Anchor="L,C" Size="32,32" Offset="0,0" Texture="assets\UI\Art\Icons\GreatWorks.dds" ID="WonderGreatWritingWork"/>
+            <Box Size="32,32" Anchor="L,C" Offset="0,-3" Color="0,0,0,0">
+              <Image ID="WritingCivIconBG" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes.dds"/>
+              <Image ID="WritingCivIconShadow" Size="24.24" Anchor="C,C" Offset="1,1" Texture="CivSymbolAtlas16.dds" Color="Black.128"/>
+              <Image ID="WritingCivIcon" Size="24.24" Anchor="C,C" Offset="0,0" Texture="CivSymbolsColor256.dds"/>
+              <Image ID="WritingCivIconHighlight" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes_Highlight.dds"/>
+            </Box>
+            <Label ID="WritingEra" Size="32,32" Anchor="L,C" Offset="0,0"/>
+          </Stack>
+        </Button>
+        <Button Size="213,64" ID="ArtWorkButton">
+          <Stack Anchor="L,C" StackGrowth="Right" Offset="2,0" Padding="0">
+            <Image Anchor="L,C" Size="32,32" Offset="0,0" Texture="assets\UI\Art\Icons\GreatWorks.dds" ID="WonderGreatArtWork"/>
+            <Box Size="32,32" Anchor="L,C" Offset="0,-3" Color="0,0,0,0">
+              <Image ID="ArtCivIconBG" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes.dds"/>
+              <Image ID="ArtCivIconShadow" Size="24.24" Anchor="C,C" Offset="1,1" Texture="CivSymbolAtlas16.dds" Color="Black.128"/>
+              <Image ID="ArtCivIcon" Size="24.24" Anchor="C,C" Offset="0,0" Texture="CivSymbolsColor256.dds"/>
+              <Image ID="ArtCivIconHighlight" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes_Highlight.dds"/>
+            </Box>
+            <Label ID="ArtEra" Size="32,32" Anchor="L,C" Offset="0,0"/>
+          </Stack>
+        </Button>
+        <Button Size="213,64" ID="ArtifactWorkButton">
+          <Stack Anchor="L,C" StackGrowth="Right" Offset="2,0" Padding="0">
+            <Image Anchor="L,C" Size="32,32" Offset="0,0" Texture="assets\UI\Art\Icons\GreatWorks.dds" ID="WonderGreatArtifactWork"/>
+            <Box Size="32,32" Anchor="L,C" Offset="0,-3" Color="0,0,0,0">
+              <Image ID="ArtifactCivIconBG" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes.dds"/>
+              <Image ID="ArtifactCivIconShadow" Size="24.24" Anchor="C,C" Offset="1,1" Texture="CivSymbolAtlas16.dds" Color="Black.128"/>
+              <Image ID="ArtifactCivIcon" Size="24.24" Anchor="C,C" Offset="0,0" Texture="CivSymbolsColor256.dds"/>
+              <Image ID="ArtifactCivIconHighlight" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes_Highlight.dds"/>
+            </Box>
+            <Label ID="ArtifactEra" Size="32,32" Anchor="L,C" Offset="0,0"/>
+          </Stack>
+        </Button>
+       <Button Size="213,64" ID="MusicWorkButton">
+          <Stack Anchor="L,C" StackGrowth="Right" Offset="2,0" Padding="0">
+            <Image Anchor="L,C" Size="32,32" Offset="0,0" Texture="assets\UI\Art\Icons\GreatWorks.dds" ID="WonderGreatMusicWork"/>
+            <Box Size="32,32" Anchor="L,C" Offset="0,-3" Color="0,0,0,0">
+              <Image ID="MusicCivIconBG" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes.dds"/>
+              <Image ID="MusicCivIconShadow" Size="24.24" Anchor="C,C" Offset="1,1" Texture="CivSymbolAtlas16.dds" Color="Black.128"/>
+              <Image ID="MusicCivIcon" Size="24.24" Anchor="C,C" Offset="0,0" Texture="CivSymbolsColor256.dds"/>
+              <Image ID="MusicCivIconHighlight" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes_Highlight.dds"/>
+            </Box>
+            <Label ID="MusicEra" Size="32,32" Anchor="L,C" Offset="0,0"/>
+          </Stack>
+        </Button>-->
+
+        <!-- 3 column configuration -->
+        <Button Size="284,64" ID="WritingWorkButton">
+          <Stack Anchor="L,C" StackGrowth="Right" Offset="2,0" Padding="0">
+            <Image Anchor="L,C" Size="32,32" Offset="0,0" Texture="assets\UI\Art\Icons\GreatWorks.dds" ID="WonderGreatWritingWork"/>
+            <Box Size="32,32" Anchor="L,C" Offset="0,-3" Color="0,0,0,0">
+              <Image ID="WritingCivIconBG" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes.dds"/>
+              <Image ID="WritingCivIconShadow" Size="24.24" Anchor="C,C" Offset="1,1" Texture="CivSymbolAtlas16.dds" Color="Black.128"/>
+              <Image ID="WritingCivIcon" Size="24.24" Anchor="C,C" Offset="0,0" Texture="CivSymbolsColor256.dds"/>
+              <Image ID="WritingCivIconHighlight" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes_Highlight.dds"/>
+            </Box>
+            <Label ID="WritingEra" Size="32,32" Anchor="L,C" Offset="0,0"/>
+          </Stack>
+        </Button>
+        <Button Size="284,64" ID="ArtWorkButton">
+          <Stack Anchor="L,C" StackGrowth="Right" Offset="2,0" Padding="0">
+            <Image Anchor="L,C" Size="32,32" Offset="0,0" Texture="assets\UI\Art\Icons\GreatWorks.dds" ID="WonderGreatArtWork"/>
+            <Box Size="32,32" Anchor="L,C" Offset="0,-3" Color="0,0,0,0">
+              <Image ID="ArtCivIconBG" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes.dds"/>
+              <Image ID="ArtCivIconShadow" Size="24.24" Anchor="C,C" Offset="1,1" Texture="CivSymbolAtlas16.dds" Color="Black.128"/>
+              <Image ID="ArtCivIcon" Size="24.24" Anchor="C,C" Offset="0,0" Texture="CivSymbolsColor256.dds"/>
+              <Image ID="ArtCivIconHighlight" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes_Highlight.dds"/>
+            </Box>
+            <Label ID="ArtEra" Size="32,32" Anchor="L,C" Offset="0,0"/>
+          </Stack>
+        </Button>
+        <Button Size="284,64" ID="ArtifactWorkButton">
+          <Stack Anchor="L,C" StackGrowth="Right" Offset="2,0" Padding="0">
+            <Image Anchor="L,C" Size="32,32" Offset="0,0" Texture="assets\UI\Art\Icons\GreatWorks.dds" ID="WonderGreatArtifactWork"/>
+            <Box Size="32,32" Anchor="L,C" Offset="0,-3" Color="0,0,0,0">
+              <Image ID="ArtifactCivIconBG" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes.dds"/>
+              <Image ID="ArtifactCivIconShadow" Size="24.24" Anchor="C,C" Offset="1,1" Texture="CivSymbolAtlas16.dds" Color="Black.128"/>
+              <Image ID="ArtifactCivIcon" Size="24.24" Anchor="C,C" Offset="0,0" Texture="CivSymbolsColor256.dds"/>
+              <Image ID="ArtifactCivIconHighlight" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes_Highlight.dds"/>
+            </Box>
+            <Label ID="ArtifactEra" Size="32,32" Anchor="L,C" Offset="0,0"/>
+          </Stack>
+        </Button>
+      </Stack>
+      <Image ID="Divider" Anchor="C,B" Offset="0,0" Texture="bar900x2.dds" Size="900.1"/>
+    </Box>
+  </Instance>
+  <Box Style="BGBlock_ClearTopBar"/>
+  <Grid Size="990,653" Anchor="C,C" Offset="0,6" Padding="0,0" Style="Grid9DetailFive140">
+    <!-- Decoration -->
+    <!-- Top -->
+    <Image Anchor="C,T" AnchorSide="I.O" Size="256,64" Offset="0,-14" Texture="assets\UI\Art\Icons\Top512IconTrim.dds">
+      <Image ID="CivIconBG" Size="64.64" Anchor="C,C" Offset="-1,-1" TextureOffset="77,0" Texture="CivIconBGSizes.dds"/>
+      <Image ID="CivIconShadow" Size="48.48" Anchor="C,C" Offset="0,0" Texture="CivSymbolAtlas48.dds" Color="Black.128"/>
+      <Image ID="CivIcon" Size="48,48" Offset="-1,-1" Anchor="C,C" Texture="CivSymbolsColor512.dds"/>
+    </Image>
+    <!-- Side treatments -->
+    <Box Style="MenuLeftSideTreatment"/>
+    <Box Style="MenuRightSideTreatment"/>
+    <Label Style="MenuTitleCaption" String="TXT_KEY_CULTURE_OVERVIEW"/>
+    <!-- Top Panel  -->
+    <Box Anchor="C,T" Size="955,32" Offset="0,44" Color="0.0.0.128">
+      <Stack Anchor="C,T" Size="971,32" Offset="0,0" Padding="0" StackGrowth="Right">
+        <Button Anchor="L,T" Size="238,24" Offset="0,0" String="TXT_KEY_CO_TAB_YOUR_CULTURE" ID="TabButtonYourCulture">
+          <ShowOnMouseOver>
+            <AlphaAnim Anchor="L,C" Size="238,27" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
+              <Grid Size="238,27" Offset="0,2" Padding="0,0" Style="Grid9FrameTurnsHL"/>
+            </AlphaAnim>
+          </ShowOnMouseOver>
+          <!-- Selected State  -->
+          <Grid Anchor="C,C" Offset="0,1" Size="238,26" Style="Grid9FrameTurns" Hidden="0" ID="YourCultureSelectHighlight"/>
+        </Button>
+        <Button Anchor="L,T" Size="239,24" Offset="0,0" String="TXT_KEY_CO_TAB_SWAP_GREAT_WORKS" ID="TabButtonSwapGreatWorks">
+          <ShowOnMouseOver>
+            <AlphaAnim Anchor="L,C" Size="239,27" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
+              <Grid Size="239,27" Offset="0,2" Padding="0,0" Style="Grid9FrameTurnsHL"/>
+            </AlphaAnim>
+          </ShowOnMouseOver>
+          <!-- Selected State  -->
+          <Grid Anchor="C,C" Offset="0,1" Size="239,26" Style="Grid9FrameTurns" Hidden="1" ID="SwapGreatWorksSelectHighlight"/>
+        </Button>
+        <Button Anchor="L,T" Size="239,24" Offset="0,0" String="TXT_KEY_CO_TAB_CULTURE_VICTORY" ID="TabButtonCultureVictory">
+          <ShowOnMouseOver>
+            <AlphaAnim Anchor="L,C" Size="239,27" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
+              <Grid Size="239,27" Offset="0,2" Padding="0,0" Style="Grid9FrameTurnsHL"/>
+            </AlphaAnim>
+          </ShowOnMouseOver>
+          <!-- Selected State  -->
+          <Grid Anchor="C,C" Offset="0,1" Size="239,26" Style="Grid9FrameTurns" Hidden="1" ID="CultureVictorySelectHighlight"/>
+        </Button>
+        <Button Anchor="L,T" Size="239,24" Offset="0,0" String="TXT_KEY_CO_TAB_PLAYER_INFLUENCE" ID="TabButtonPlayerInfluence">
+          <ShowOnMouseOver>
+            <AlphaAnim Anchor="L,C" Size="239,27" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
+              <Grid Size="239,27" Offset="0,2" Padding="0,0" Style="Grid9FrameTurnsHL"/>
+            </AlphaAnim>
+          </ShowOnMouseOver>
+          <!-- Selected State  -->
+          <Grid Anchor="C,C" Offset="0,1" Size="239,26" Style="Grid9FrameTurns" Hidden="1" ID="PlayerInfluenceSelectHighlight"/>
+        </Button>
+      </Stack>
+      <Image Anchor="C,B" Offset="0,0" Texture="HorizontalTrim.dds" Size="971,5"/>
+    </Box>
+    <!-- Content Panel -->
+    <Box Size="956,459" Color="0,0,0,0" Offset="17,77">
+      <!-- Your Culture Tab Content-->
+      <Box Size="956,459" Color="0,0,0,0" ID="YourCulturePanel" Hidden="1">
+        <!-- Column Backgrounds-->
+        <Stack Anchor="L,T" StackGrowth="Right" Offset="0,0" Padding="0">
+          <!-- City Name -->
+          <Box Anchor="L,T" Size="220,459" Color="0,0,0,0"/>
+          <Box Anchor="L,T" Size="1,459" Color="18,108,98,255"/>
+          <!-- Culture -->
+          <Box Anchor="L,T" Size="60,459" Color="1,26,23,255"/>
+          <Box Anchor="L,T" Size="1,459" Color="18,108,98,255"/>
+          <!-- Tourism -->
+          <Box Anchor="L,T" Size="50,459" Color="0,0,0,0"/>
+          <Box Anchor="L,T" Size="1,459" Color="18,108,98,255"/>
+          <!-- Great Works -->
+          <Box Anchor="L,T" Size="40,459" Color="1,26,23,255"/>
+          <Box Anchor="L,T" Size="1,459" Color="18,108,98,255"/>
+          <!-- Building Columns -->
+          <Box Anchor="L,T" Size="48,459" Color="1,26,23,255" ID="SingleColumn1Background" Hidden="1"/>
+          <Box Anchor="L,T" Size="102,459" Color="1,26,23,255" ID="DoubleColumn1Background" Hidden="1"/>
+          <Box Anchor="L,T" Size="140,459" Color="1,26,23,255" ID="TripleColumn1Background" Hidden="1"/>
+          <Box Anchor="L,T" Size="1,459" Color="18,108,98,255" ID="Column1Div" Hidden="1"/>
+          <Box Anchor="L,T" Size="48,459" Color="1,26,23,255" ID="SingleColumn2Background" Hidden="1"/>
+          <Box Anchor="L,T" Size="102,459" Color="1,26,23,255" ID="DoubleColumn2Background" Hidden="1"/>
+          <Box Anchor="L,T" Size="140,459" Color="1,26,23,255" ID="TripleColumn2Background" Hidden="1"/>
+          <Box Anchor="L,T" Size="1,459" Color="18,108,98,255" ID="Column2Div" Hidden="1"/>
+          <Box Anchor="L,T" Size="48,459" Color="1,26,23,255" ID="SingleColumn3Background" Hidden="1"/>
+          <Box Anchor="L,T" Size="102,459" Color="1,26,23,255" ID="DoubleColumn3Background" Hidden="1"/>
+          <Box Anchor="L,T" Size="140,459" Color="1,26,23,255" ID="TripleColumn3Background" Hidden="1"/>
+          <Box Anchor="L,T" Size="1,459" Color="18,108,98,255" ID="Column3Div" Hidden="1"/>
+          <Box Anchor="L,T" Size="48,459" Color="1,26,23,255" ID="SingleColumn4Background" Hidden="1"/>
+          <Box Anchor="L,T" Size="102,459" Color="1,26,23,255" ID="DoubleColumn4Background" Hidden="1"/>
+          <Box Anchor="L,T" Size="140,459" Color="1,26,23,255" ID="TripleColumn4Background" Hidden="1"/>
+          <Box Anchor="L,T" Size="1,459" Color="18,108,98,255" ID="Column4Div" Hidden="1"/>
+          <Box Anchor="L,T" Size="48,459" Color="1,26,23,255" ID="SingleColumn5Background" Hidden="1"/>
+          <Box Anchor="L,T" Size="102,459" Color="1,26,23,255" ID="DoubleColumn5Background" Hidden="1"/>
+          <Box Anchor="L,T" Size="140,459" Color="1,26,23,255" ID="TripleColumn5Background" Hidden="1"/>
+          <Box Anchor="L,T" Size="1,459" Color="18,108,98,255" ID="Column5Div" Hidden="1"/>
+          <Box Anchor="L,T" Size="48,459" Color="1,26,23,255" ID="SingleColumn6Background" Hidden="1"/>
+          <Box Anchor="L,T" Size="102,459" Color="1,26,23,255" ID="DoubleColumn6Background" Hidden="1"/>
+          <Box Anchor="L,T" Size="140,459" Color="1,26,23,255" ID="TripleColumn6Background" Hidden="1"/>
+          <Box Anchor="L,T" Size="1,459" Color="18,108,98,255" ID="Column6Div" Hidden="1"/>
+          <Box Anchor="L,T" Size="48,459" Color="1,26,23,255" ID="SingleColumn7Background" Hidden="1"/>
+          <Box Anchor="L,T" Size="102,459" Color="1,26,23,255" ID="DoubleColumn7Background" Hidden="1"/>
+          <Box Anchor="L,T" Size="140,459" Color="1,26,23,255" ID="TripleColumn7Background" Hidden="1"/>
+          <Box Anchor="L,T" Size="1,459" Color="18,108,98,255" ID="Column7Div" Hidden="1"/>
+          <Box Anchor="L,T" Size="48,459" Color="1,26,23,255" ID="SingleColumn8Background" Hidden="1"/>
+          <Box Anchor="L,T" Size="102,459" Color="1,26,23,255" ID="DoubleColumn8Background" Hidden="1"/>
+          <Box Anchor="L,T" Size="140,459" Color="1,26,23,255" ID="TripleColumn8Background" Hidden="1"/>
+          <Box Anchor="L,T" Size="1,459" Color="18,108,98,255" ID="Column8Div" Hidden="1"/>
+          <Box Anchor="L,T" Size="48,459" Color="1,26,23,255" ID="SingleColumn9Background" Hidden="1"/>
+          <Box Anchor="L,T" Size="102,459" Color="1,26,23,255" ID="DoubleColumn9Background" Hidden="1"/>
+          <Box Anchor="L,T" Size="140,459" Color="1,26,23,255" ID="TripleColumn9Background" Hidden="1"/>
+          <Box Anchor="L,T" Size="1,459" Color="18,108,98,255" ID="Column9Div" Hidden="1"/>
+          <Box Anchor="L,T" Size="48,459" Color="1,26,23,255" ID="SingleColumn10Background" Hidden="1"/>
+          <Box Anchor="L,T" Size="102,459" Color="1,26,23,255" ID="DoubleColumn10Background" Hidden="1"/>
+          <Box Anchor="L,T" Size="140,459" Color="1,26,23,255" ID="TripleColumn10Background" Hidden="1"/>
+          <Box Anchor="L,T" Size="1,459" Color="18,108,98,255" ID="Column10Div" Hidden="1"/>
+          <Box Anchor="L,T" Size="48,459" Color="1,26,23,255" ID="SingleColumn11Background" Hidden="1"/>
+          <Box Anchor="L,T" Size="102,459" Color="1,26,23,255" ID="DoubleColumn11Background" Hidden="1"/>
+          <Box Anchor="L,T" Size="140,459" Color="1,26,23,255" ID="TripleColumn11Background" Hidden="1"/>
+          <Box Anchor="L,T" Size="1,459" Color="18,108,98,255" ID="Column11Div" Hidden="1"/>
+          <Box Anchor="L,T" Size="48,459" Color="1,26,23,255" ID="SingleColumn12Background" Hidden="1"/>
+          <Box Anchor="L,T" Size="102,459" Color="1,26,23,255" ID="DoubleColumn12Background" Hidden="1"/>
+          <Box Anchor="L,T" Size="140,459" Color="1,26,23,255" ID="TripleColumn12Background" Hidden="1"/>
+          <Box Anchor="L,T" Size="1,459" Color="18,108,98,255" ID="Column12Div" Hidden="1"/>
+          <Box Anchor="L,T" Size="48,459" Color="1,26,23,255" ID="SingleColumn13Background" Hidden="1"/>
+          <Box Anchor="L,T" Size="102,459" Color="1,26,23,255" ID="DoubleColumn13Background" Hidden="1"/>
+          <Box Anchor="L,T" Size="140,459" Color="1,26,23,255" ID="TripleColumn13Background" Hidden="1"/>
+          <Box Anchor="L,T" Size="1,459" Color="18,108,98,255" ID="Column13Div" Hidden="1"/>
+          <!-- END OF COLUMN BACKGROUNDS -->
+        </Stack>
+        <!-- Column Headers -->
+        <Stack Anchor="L,T" StackGrowth="Right" Offset="0,0" Padding="1">
+          <Button ID="CityNameHeader" Anchor="L,C" Size="220,45" Style="BoxButton">
+            <ShowOnMouseOver>
+              <AlphaAnim Anchor="C,C" Offset="0,0" Size="220,30" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
+                <Grid Size="220,45" Anchor="C,C" Offset="0,0" Padding="0,0" Style="Grid9FrameTurnsHL"/>
+              </AlphaAnim>
+            </ShowOnMouseOver>
+            <Label Anchor="C,C" Offset="0.-1" Font="TwCenMT18" String="TXT_KEY_PRODPANEL_CITY_NAME"/>
+          </Button>
+          <Button ID="CultureHeader" Anchor="L,C" Size="60,45" Style="BoxButton" ToolTip="TXT_KEY_CO_CULTURE_HEADER_TT">
+            <ShowOnMouseOver>
+              <AlphaAnim Anchor="C,C" Offset="0,0" Size="68,30" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
+                <Grid Size="68,45" Anchor="C,C" Offset="0,0" Padding="0,0" Style="Grid9FrameTurnsHL"/>
+              </AlphaAnim>
+            </ShowOnMouseOver>
+            <Label Anchor="C,C" Offset="0,-1" String="[ICON_CULTURE]"/>
+          </Button>
+          <Button ID="TourismHeader" Anchor="L,C" Size="50,45" Style="BoxButton" ToolTip="TXT_KEY_CO_TOURISM_HEADER_TT">
+            <ShowOnMouseOver>
+              <AlphaAnim Anchor="C,C" Offset="0,0" Size="68,30" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
+                <Grid Size="68,45" Anchor="C,C" Offset="0,0" Padding="0,0" Style="Grid9FrameTurnsHL"/>
+              </AlphaAnim>
+            </ShowOnMouseOver>
+            <Label Anchor="C,C" Offset="0,-1" Color0="Beige.255" String="[ICON_TOURISM]"/>
+          </Button>
+          <Button ID="GreatWorksHeader" Anchor="L,C" Size="40,45" Style="BoxButton" ToolTip="TXT_KEY_CO_GREAT_WORK_HEADER_TT">
+            <ShowOnMouseOver>
+              <AlphaAnim Anchor="C,C" Offset="0,0" Size="68,30" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
+                <Grid Size="68,45" Anchor="C,C" Offset="0,0" Padding="0,0" Style="Grid9FrameTurnsHL"/>
+              </AlphaAnim>
+            </ShowOnMouseOver>
+            <Label Anchor="C,C" Offset="0,-1" Color0="Beige.255" String="TXT_KEY_CO_GREAT_WORK_HEADER"/>
+          </Button>
+          <Button ID="SingleColumn1Button" Anchor="L,C" Size="48,45" Hidden="1">
+            <ShowOnMouseOver>
+              <AlphaAnim Anchor="C,C" Offset="0,0" Size="68,30" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
+                <Grid Size="68,45" Anchor="C,C" Offset="0,0" Padding="0,0" Style="Grid9FrameTurnsHL"/>
+              </AlphaAnim>
+            </ShowOnMouseOver>
+            <Image Anchor="C,C" Size="45.45" Texture="WonderAtlas360.dds" Hidden="0" ID="SingleColumn1Image"/>
+          </Button>
+          <Button ID="DoubleColumn1Button" Anchor="L,C" Size="102,45" Hidden="1">
+            <ShowOnMouseOver>
+              <AlphaAnim Anchor="C,C" Offset="0,0" Size="68,30" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
+                <Grid Size="68,45" Anchor="C,C" Offset="0,0" Padding="0,0" Style="Grid9FrameTurnsHL"/>
+              </AlphaAnim>
+            </ShowOnMouseOver>
+            <Image Anchor="C,C" Size="45.45" Texture="WonderAtlas360.dds" Hidden="0" ID="DoubleColumn1Image"/>
+          </Button>
+          <Button ID="TripleColumn1Button" Anchor="L,C" Size="140,45" Hidden="1">
+            <ShowOnMouseOver>
+              <AlphaAnim Anchor="C,C" Offset="0,0" Size="68,30" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
+                <Grid Size="68,45" Anchor="C,C" Offset="0,0" Padding="0,0" Style="Grid9FrameTurnsHL"/>
+              </AlphaAnim>
+            </ShowOnMouseOver>
+            <Image Anchor="C,C" Size="45.45" Texture="WonderAtlas360.dds" Hidden="0" ID="TripleColumn1Image"/>
+          </Button>
+          <Button ID="SingleColumn2Button" Anchor="L,C" Size="48,45" Hidden="1">
+            <ShowOnMouseOver>
+              <AlphaAnim Anchor="C,C" Offset="0,0" Size="68,30" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
+                <Grid Size="68,45" Anchor="C,C" Offset="0,0" Padding="0,0" Style="Grid9FrameTurnsHL"/>
+              </AlphaAnim>
+            </ShowOnMouseOver>
+            <Image Anchor="C,C" Size="45.45" Texture="WonderAtlas360.dds" Hidden="0" ID="SingleColumn2Image"/>
+          </Button>
+          <Button ID="DoubleColumn2Button" Anchor="L,C" Size="102,45" Hidden="1">
+            <ShowOnMouseOver>
+              <AlphaAnim Anchor="C,C" Offset="0,0" Size="68,30" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
+                <Grid Size="68,45" Anchor="C,C" Offset="0,0" Padding="0,0" Style="Grid9FrameTurnsHL"/>
+              </AlphaAnim>
+            </ShowOnMouseOver>
+            <Image Anchor="C,C" Size="45.45" Texture="WonderAtlas360.dds" Hidden="0" ID="DoubleColumn2Image"/>
+          </Button>
+          <Button ID="TripleColumn2Button" Anchor="L,C" Size="140,45" Hidden="1">
+            <ShowOnMouseOver>
+              <AlphaAnim Anchor="C,C" Offset="0,0" Size="68,30" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
+                <Grid Size="68,45" Anchor="C,C" Offset="0,0" Padding="0,0" Style="Grid9FrameTurnsHL"/>
+              </AlphaAnim>
+            </ShowOnMouseOver>
+            <Image Anchor="C,C" Size="45.45" Texture="WonderAtlas360.dds" Hidden="0" ID="TripleColumn2Image"/>
+          </Button>
+          <Button ID="SingleColumn3Button" Anchor="L,C" Size="48,45" Hidden="1">
+            <ShowOnMouseOver>
+              <AlphaAnim Anchor="C,C" Offset="0,0" Size="68,30" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
+                <Grid Size="68,45" Anchor="C,C" Offset="0,0" Padding="0,0" Style="Grid9FrameTurnsHL"/>
+              </AlphaAnim>
+            </ShowOnMouseOver>
+            <Image Anchor="C,C" Size="45.45" Texture="WonderAtlas360.dds" Hidden="0" ID="SingleColumn3Image"/>
+          </Button>
+          <Button ID="DoubleColumn3Button" Anchor="L,C" Size="102,45" Hidden="1">
+            <ShowOnMouseOver>
+              <AlphaAnim Anchor="C,C" Offset="0,0" Size="68,30" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
+                <Grid Size="68,45" Anchor="C,C" Offset="0,0" Padding="0,0" Style="Grid9FrameTurnsHL"/>
+              </AlphaAnim>
+            </ShowOnMouseOver>
+            <Image Anchor="C,C" Size="45.45" Texture="WonderAtlas360.dds" Hidden="0" ID="DoubleColumn3Image"/>
+          </Button>
+          <Button ID="TripleColumn3Button" Anchor="L,C" Size="140,45" Hidden="1">
+            <ShowOnMouseOver>
+              <AlphaAnim Anchor="C,C" Offset="0,0" Size="68,30" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
+                <Grid Size="68,45" Anchor="C,C" Offset="0,0" Padding="0,0" Style="Grid9FrameTurnsHL"/>
+              </AlphaAnim>
+            </ShowOnMouseOver>
+            <Image Anchor="C,C" Size="45.45" Texture="WonderAtlas360.dds" Hidden="0" ID="TripleColumn3Image"/>
+          </Button>
+          <Button ID="SingleColumn4Button" Anchor="L,C" Size="48,45" Hidden="1">
+            <ShowOnMouseOver>
+              <AlphaAnim Anchor="C,C" Offset="0,0" Size="68,30" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
+                <Grid Size="68,45" Anchor="C,C" Offset="0,0" Padding="0,0" Style="Grid9FrameTurnsHL"/>
+              </AlphaAnim>
+            </ShowOnMouseOver>
+            <Image Anchor="C,C" Size="45.45" Texture="WonderAtlas360.dds" Hidden="0" ID="SingleColumn4Image"/>
+          </Button>
+          <Button ID="DoubleColumn4Button" Anchor="L,C" Size="102,45" Hidden="1">
+            <ShowOnMouseOver>
+              <AlphaAnim Anchor="C,C" Offset="0,0" Size="68,30" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
+                <Grid Size="68,45" Anchor="C,C" Offset="0,0" Padding="0,0" Style="Grid9FrameTurnsHL"/>
+              </AlphaAnim>
+            </ShowOnMouseOver>
+            <Image Anchor="C,C" Size="45.45" Texture="WonderAtlas360.dds" Hidden="0" ID="DoubleColumn4Image"/>
+          </Button>
+          <Button ID="TripleColumn4Button" Anchor="L,C" Size="140,45" Hidden="1">
+            <ShowOnMouseOver>
+              <AlphaAnim Anchor="C,C" Offset="0,0" Size="68,30" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
+                <Grid Size="68,45" Anchor="C,C" Offset="0,0" Padding="0,0" Style="Grid9FrameTurnsHL"/>
+              </AlphaAnim>
+            </ShowOnMouseOver>
+            <Image Anchor="C,C" Size="45.45" Texture="WonderAtlas360.dds" Hidden="0" ID="TripleColumn4Image"/>
+          </Button>
+          <Button ID="SingleColumn5Button" Anchor="L,C" Size="48,45" Hidden="1">
+            <ShowOnMouseOver>
+              <AlphaAnim Anchor="C,C" Offset="0,0" Size="68,30" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
+                <Grid Size="68,45" Anchor="C,C" Offset="0,0" Padding="0,0" Style="Grid9FrameTurnsHL"/>
+              </AlphaAnim>
+            </ShowOnMouseOver>
+            <Image Anchor="C,C" Size="45.45" Texture="WonderAtlas360.dds" Hidden="0" ID="SingleColumn5Image"/>
+          </Button>
+          <Button ID="DoubleColumn5Button" Anchor="L,C" Size="102,45" Hidden="1">
+            <ShowOnMouseOver>
+              <AlphaAnim Anchor="C,C" Offset="0,0" Size="68,30" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
+                <Grid Size="68,45" Anchor="C,C" Offset="0,0" Padding="0,0" Style="Grid9FrameTurnsHL"/>
+              </AlphaAnim>
+            </ShowOnMouseOver>
+            <Image Anchor="C,C" Size="45.45" Texture="WonderAtlas360.dds" Hidden="0" ID="DoubleColumn5Image"/>
+          </Button>
+          <Button ID="TripleColumn5Button" Anchor="L,C" Size="140,45" Hidden="1">
+            <ShowOnMouseOver>
+              <AlphaAnim Anchor="C,C" Offset="0,0" Size="68,30" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
+                <Grid Size="68,45" Anchor="C,C" Offset="0,0" Padding="0,0" Style="Grid9FrameTurnsHL"/>
+              </AlphaAnim>
+            </ShowOnMouseOver>
+            <Image Anchor="C,C" Size="45.45" Texture="WonderAtlas360.dds" Hidden="0" ID="TripleColumn5Image"/>
+          </Button>
+          <Button ID="SingleColumn6Button" Anchor="L,C" Size="48,45" Hidden="1">
+            <ShowOnMouseOver>
+              <AlphaAnim Anchor="C,C" Offset="0,0" Size="68,30" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
+                <Grid Size="68,45" Anchor="C,C" Offset="0,0" Padding="0,0" Style="Grid9FrameTurnsHL"/>
+              </AlphaAnim>
+            </ShowOnMouseOver>
+            <Image Anchor="C,C" Size="45.45" Texture="WonderAtlas360.dds" Hidden="0" ID="SingleColumn6Image"/>
+          </Button>
+          <Button ID="DoubleColumn6Button" Anchor="L,C" Size="102,45" Hidden="1">
+            <ShowOnMouseOver>
+              <AlphaAnim Anchor="C,C" Offset="0,0" Size="68,30" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
+                <Grid Size="68,45" Anchor="C,C" Offset="0,0" Padding="0,0" Style="Grid9FrameTurnsHL"/>
+              </AlphaAnim>
+            </ShowOnMouseOver>
+            <Image Anchor="C,C" Size="45.45" Texture="WonderAtlas360.dds" Hidden="0" ID="DoubleColumn6Image"/>
+          </Button>
+          <Button ID="TripleColumn6Button" Anchor="L,C" Size="140,45" Hidden="1">
+            <ShowOnMouseOver>
+              <AlphaAnim Anchor="C,C" Offset="0,0" Size="68,30" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
+                <Grid Size="68,45" Anchor="C,C" Offset="0,0" Padding="0,0" Style="Grid9FrameTurnsHL"/>
+              </AlphaAnim>
+            </ShowOnMouseOver>
+            <Image Anchor="C,C" Size="45.45" Texture="WonderAtlas360.dds" Hidden="0" ID="TripleColumn6Image"/>
+          </Button>
+          <Button ID="SingleColumn7Button" Anchor="L,C" Size="48,45" Hidden="1">
+            <ShowOnMouseOver>
+              <AlphaAnim Anchor="C,C" Offset="0,0" Size="68,30" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
+                <Grid Size="68,45" Anchor="C,C" Offset="0,0" Padding="0,0" Style="Grid9FrameTurnsHL"/>
+              </AlphaAnim>
+            </ShowOnMouseOver>
+            <Image Anchor="C,C" Size="45.45" Texture="WonderAtlas360.dds" Hidden="0" ID="SingleColumn7Image"/>
+          </Button>
+          <Button ID="DoubleColumn7Button" Anchor="L,C" Size="102,45" Hidden="1">
+            <ShowOnMouseOver>
+              <AlphaAnim Anchor="C,C" Offset="0,0" Size="68,30" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
+                <Grid Size="68,45" Anchor="C,C" Offset="0,0" Padding="0,0" Style="Grid9FrameTurnsHL"/>
+              </AlphaAnim>
+            </ShowOnMouseOver>
+            <Image Anchor="C,C" Size="45.45" Texture="WonderAtlas360.dds" Hidden="0" ID="DoubleColumn7Image"/>
+          </Button>
+          <Button ID="TripleColumn7Button" Anchor="L,C" Size="140,45" Hidden="1">
+            <ShowOnMouseOver>
+              <AlphaAnim Anchor="C,C" Offset="0,0" Size="68,30" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
+                <Grid Size="68,45" Anchor="C,C" Offset="0,0" Padding="0,0" Style="Grid9FrameTurnsHL"/>
+              </AlphaAnim>
+            </ShowOnMouseOver>
+            <Image Anchor="C,C" Size="45.45" Texture="WonderAtlas360.dds" Hidden="0" ID="TripleColumn7Image"/>
+          </Button>
+          <Button ID="SingleColumn8Button" Anchor="L,C" Size="48,45" Hidden="1">
+            <ShowOnMouseOver>
+              <AlphaAnim Anchor="C,C" Offset="0,0" Size="68,30" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
+                <Grid Size="68,45" Anchor="C,C" Offset="0,0" Padding="0,0" Style="Grid9FrameTurnsHL"/>
+              </AlphaAnim>
+            </ShowOnMouseOver>
+            <Image Anchor="C,C" Size="45.45" Texture="WonderAtlas360.dds" Hidden="0" ID="SingleColumn8Image"/>
+          </Button>
+          <Button ID="DoubleColumn8Button" Anchor="L,C" Size="102,45" Hidden="1">
+            <ShowOnMouseOver>
+              <AlphaAnim Anchor="C,C" Offset="0,0" Size="68,30" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
+                <Grid Size="68,45" Anchor="C,C" Offset="0,0" Padding="0,0" Style="Grid9FrameTurnsHL"/>
+              </AlphaAnim>
+            </ShowOnMouseOver>
+            <Image Anchor="C,C" Size="45.45" Texture="WonderAtlas360.dds" Hidden="0" ID="DoubleColumn8Image"/>
+          </Button>
+          <Button ID="TripleColumn8Button" Anchor="L,C" Size="140,45" Hidden="1">
+            <ShowOnMouseOver>
+              <AlphaAnim Anchor="C,C" Offset="0,0" Size="68,30" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
+                <Grid Size="68,45" Anchor="C,C" Offset="0,0" Padding="0,0" Style="Grid9FrameTurnsHL"/>
+              </AlphaAnim>
+            </ShowOnMouseOver>
+            <Image Anchor="C,C" Size="45.45" Texture="WonderAtlas360.dds" Hidden="0" ID="TripleColumn8Image"/>
+          </Button>
+          <Button ID="SingleColumn9Button" Anchor="L,C" Size="48,45" Hidden="1">
+            <ShowOnMouseOver>
+              <AlphaAnim Anchor="C,C" Offset="0,0" Size="68,30" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
+                <Grid Size="68,45" Anchor="C,C" Offset="0,0" Padding="0,0" Style="Grid9FrameTurnsHL"/>
+              </AlphaAnim>
+            </ShowOnMouseOver>
+            <Image Anchor="C,C" Size="45.45" Texture="WonderAtlas360.dds" Hidden="0" ID="SingleColumn9Image"/>
+          </Button>
+          <Button ID="DoubleColumn9Button" Anchor="L,C" Size="102,45" Hidden="1">
+            <ShowOnMouseOver>
+              <AlphaAnim Anchor="C,C" Offset="0,0" Size="68,30" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
+                <Grid Size="68,45" Anchor="C,C" Offset="0,0" Padding="0,0" Style="Grid9FrameTurnsHL"/>
+              </AlphaAnim>
+            </ShowOnMouseOver>
+            <Image Anchor="C,C" Size="45.45" Texture="WonderAtlas360.dds" Hidden="0" ID="DoubleColumn9Image"/>
+          </Button>
+          <Button ID="TripleColumn9Button" Anchor="L,C" Size="140,45" Hidden="1">
+            <ShowOnMouseOver>
+              <AlphaAnim Anchor="C,C" Offset="0,0" Size="68,30" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
+                <Grid Size="68,45" Anchor="C,C" Offset="0,0" Padding="0,0" Style="Grid9FrameTurnsHL"/>
+              </AlphaAnim>
+            </ShowOnMouseOver>
+            <Image Anchor="C,C" Size="45.45" Texture="WonderAtlas360.dds" Hidden="0" ID="TripleColumn9Image"/>
+          </Button>
+          <Button ID="SingleColumn10Button" Anchor="L,C" Size="48,45" Hidden="1">
+            <ShowOnMouseOver>
+              <AlphaAnim Anchor="C,C" Offset="0,0" Size="68,30" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
+                <Grid Size="68,45" Anchor="C,C" Offset="0,0" Padding="0,0" Style="Grid9FrameTurnsHL"/>
+              </AlphaAnim>
+            </ShowOnMouseOver>
+            <Image Anchor="C,C" Size="45.45" Texture="WonderAtlas360.dds" Hidden="0" ID="SingleColumn10Image"/>
+          </Button>
+          <Button ID="DoubleColumn10Button" Anchor="L,C" Size="102,45" Hidden="1">
+            <ShowOnMouseOver>
+              <AlphaAnim Anchor="C,C" Offset="0,0" Size="68,30" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
+                <Grid Size="68,45" Anchor="C,C" Offset="0,0" Padding="0,0" Style="Grid9FrameTurnsHL"/>
+              </AlphaAnim>
+            </ShowOnMouseOver>
+            <Image Anchor="C,C" Size="45.45" Texture="WonderAtlas360.dds" Hidden="0" ID="DoubleColumn10Image"/>
+          </Button>
+          <Button ID="TripleColumn10Button" Anchor="L,C" Size="140,45" Hidden="1">
+            <ShowOnMouseOver>
+              <AlphaAnim Anchor="C,C" Offset="0,0" Size="68,30" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
+                <Grid Size="68,45" Anchor="C,C" Offset="0,0" Padding="0,0" Style="Grid9FrameTurnsHL"/>
+              </AlphaAnim>
+            </ShowOnMouseOver>
+            <Image Anchor="C,C" Size="45.45" Texture="WonderAtlas360.dds" Hidden="0" ID="TripleColumn10Image"/>
+          </Button>
+          <Button ID="SingleColumn11Button" Anchor="L,C" Size="48,45" Hidden="1">
+            <ShowOnMouseOver>
+              <AlphaAnim Anchor="C,C" Offset="0,0" Size="68,30" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
+                <Grid Size="68,45" Anchor="C,C" Offset="0,0" Padding="0,0" Style="Grid9FrameTurnsHL"/>
+              </AlphaAnim>
+            </ShowOnMouseOver>
+            <Image Anchor="C,C" Size="45.45" Texture="WonderAtlas360.dds" Hidden="0" ID="SingleColumn11Image"/>
+          </Button>
+          <Button ID="DoubleColumn11Button" Anchor="L,C" Size="102,45" Hidden="1">
+            <ShowOnMouseOver>
+              <AlphaAnim Anchor="C,C" Offset="0,0" Size="68,30" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
+                <Grid Size="68,45" Anchor="C,C" Offset="0,0" Padding="0,0" Style="Grid9FrameTurnsHL"/>
+              </AlphaAnim>
+            </ShowOnMouseOver>
+            <Image Anchor="C,C" Size="45.45" Texture="WonderAtlas360.dds" Hidden="0" ID="DoubleColumn11Image"/>
+          </Button>
+          <Button ID="TripleColumn11Button" Anchor="L,C" Size="140,45" Hidden="1">
+            <ShowOnMouseOver>
+              <AlphaAnim Anchor="C,C" Offset="0,0" Size="68,30" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
+                <Grid Size="68,45" Anchor="C,C" Offset="0,0" Padding="0,0" Style="Grid9FrameTurnsHL"/>
+              </AlphaAnim>
+            </ShowOnMouseOver>
+            <Image Anchor="C,C" Size="45.45" Texture="WonderAtlas360.dds" Hidden="0" ID="TripleColumn11Image"/>
+          </Button>
+          <Button ID="SingleColumn12Button" Anchor="L,C" Size="48,45" Hidden="1">
+            <ShowOnMouseOver>
+              <AlphaAnim Anchor="C,C" Offset="0,0" Size="68,30" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
+                <Grid Size="68,45" Anchor="C,C" Offset="0,0" Padding="0,0" Style="Grid9FrameTurnsHL"/>
+              </AlphaAnim>
+            </ShowOnMouseOver>
+            <Image Anchor="C,C" Size="45.45" Texture="WonderAtlas360.dds" Hidden="0" ID="SingleColumn12Image"/>
+          </Button>
+          <Button ID="DoubleColumn12Button" Anchor="L,C" Size="102,45" Hidden="1">
+            <ShowOnMouseOver>
+              <AlphaAnim Anchor="C,C" Offset="0,0" Size="68,30" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
+                <Grid Size="68,45" Anchor="C,C" Offset="0,0" Padding="0,0" Style="Grid9FrameTurnsHL"/>
+              </AlphaAnim>
+            </ShowOnMouseOver>
+            <Image Anchor="C,C" Size="45.45" Texture="WonderAtlas360.dds" Hidden="0" ID="DoubleColumn12Image"/>
+          </Button>
+          <Button ID="TripleColumn12Button" Anchor="L,C" Size="140,45" Hidden="1">
+            <ShowOnMouseOver>
+              <AlphaAnim Anchor="C,C" Offset="0,0" Size="68,30" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
+                <Grid Size="68,45" Anchor="C,C" Offset="0,0" Padding="0,0" Style="Grid9FrameTurnsHL"/>
+              </AlphaAnim>
+            </ShowOnMouseOver>
+            <Image Anchor="C,C" Size="45.45" Texture="WonderAtlas360.dds" Hidden="0" ID="TripleColumn12Image"/>
+          </Button>
+          <Button ID="SingleColumn13Button" Anchor="L,C" Size="48,45" Hidden="1">
+            <ShowOnMouseOver>
+              <AlphaAnim Anchor="C,C" Offset="0,0" Size="68,30" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
+                <Grid Size="68,45" Anchor="C,C" Offset="0,0" Padding="0,0" Style="Grid9FrameTurnsHL"/>
+              </AlphaAnim>
+            </ShowOnMouseOver>
+            <Image Anchor="C,C" Size="45.45" Texture="WonderAtlas360.dds" Hidden="0" ID="SingleColumn13Image"/>
+          </Button>
+          <Button ID="DoubleColumn13Button" Anchor="L,C" Size="102,45" Hidden="1">
+            <ShowOnMouseOver>
+              <AlphaAnim Anchor="C,C" Offset="0,0" Size="68,30" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
+                <Grid Size="68,45" Anchor="C,C" Offset="0,0" Padding="0,0" Style="Grid9FrameTurnsHL"/>
+              </AlphaAnim>
+            </ShowOnMouseOver>
+            <Image Anchor="C,C" Size="45.45" Texture="WonderAtlas360.dds" Hidden="0" ID="DoubleColumn13Image"/>
+          </Button>
+          <Button ID="TripleColumn13Button" Anchor="L,C" Size="140,45" Hidden="1">
+            <ShowOnMouseOver>
+              <AlphaAnim Anchor="C,C" Offset="0,0" Size="68,30" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
+                <Grid Size="68,45" Anchor="C,C" Offset="0,0" Padding="0,0" Style="Grid9FrameTurnsHL"/>
+              </AlphaAnim>
+            </ShowOnMouseOver>
+            <Image Anchor="C,C" Size="45.45" Texture="WonderAtlas360.dds" Hidden="0" ID="TripleColumn13Image"/>
+          </Button>
+          <!-- END OF COLUMN HEADERS -->
+        </Stack>
+
+        <!-- City List -->
+        <ScrollPanel Anchor="L,T" Offset="0,45" Size="956,420" Vertical="1" AutoScrollBar="0" ID="MainScroll">
+          <!--<ScrollBar Offset="0,18" Style="VertSlider" Anchor="R,T" Length="357" ID="MainScrollBar"/>-->
+          <ScrollBar Offset="0,18" Style="VertSlider" Anchor="R,T" Length="377" ID="MainScrollBar"/>
+          
+          <UpButton Offset="0,0" Style="ScrollBarUp" Anchor="R,T" ID="MainUpButton"/>
+
+          <!--<DownButton Offset="0,375" Style="ScrollBarDown" Anchor="R,T" ID="MainDownButton"/>-->
+          <DownButton Offset="0,395" Style="ScrollBarDown" Anchor="R,T" ID="MainDownButton"/>
+          
+          <Stack Anchor="L,T" Size="937,420" StackGrowth="Bottom" Padding="0" ID="MainStack"/>
+        </ScrollPanel>
+        
+        <Stack Anchor="R,T" Offset="250,469" Size="64,64" StackGrowth="Bottom" Padding="0" Hidden="0">
+          <RadioButton ID="radClickToMove" String="TXT_KEY_CO_CLICK_TO_MOVE" ButtonTexture="Assets/UI/Art/Controls/CheckBox.dds" Font="TwCenMT16" FontStyle="Shadow" ColorLayer0="Beige" ColorLayer1="Black" TextAnchor="R,C" TextAnchorSide="O,O" IsChecked="1" RadioGroup="ClickToGroup" ToolTip="TXT_KEY_CO_CLICK_TO_MOVE_TT"/>
+          <RadioButton ID="radClickToView" String="TXT_KEY_CO_CLICK_TO_VIEW" ButtonTexture="Assets/UI/Art/Controls/CheckBox.dds" Font="TwCenMT16" FontStyle="Shadow" ColorLayer0="Beige" ColorLayer1="Black" TextAnchor="R,C" TextAnchorSide="O,O" IsChecked="0" RadioGroup="ClickToGroup" ToolTip="TXT_KEY_CO_CLICK_TO_VIEW_TT"/>
+        </Stack>
+      </Box>
+      <!--Swap Great Works Content-->
+      <Box Size="956,459" Color="0,0,0,0" ID="SwapGreatWorksPanel" Hidden="1">
+
+        <!-- 4 column configuration -->
+        <!-- Column Backgrounds--><!--
+        <Stack Anchor="L,T" StackGrowth="Right" Offset="0,0" Padding="0">
+          <Box Anchor="L,T" Offset="0,64" Size="83,291" Color="0,0,0,0"/>
+          <Box Anchor="L,T" Size="1,360" Color="18,108,98,255"/>
+          <Box Anchor="L,T" Offset="0,64" Size="213,291" Color="1,26,23,255"/>
+          <Box Anchor="L,T" Size="1,360" Color="18,108,98,255"/>
+          <Box Anchor="L,T" Offset="0,64" Size="213,291" Color="0,0,0,0"/>
+          <Box Anchor="L,T" Size="1,360" Color="18,108,98,255"/>
+          <Box Anchor="L,T" Offset="0,64" Size="213,291" Color="1,26,23,255"/>
+          <Box Anchor="L,T" Size="1,360" Color="18,108,98,255"/>
+          <Box Anchor="L,T" Offset="0,64" Size="213,291" Color="0,0,0,0"/>
+        </Stack>
+
+        <Stack Anchor="L,T" StackGrowth="Right" Offset="83,0" Padding="0">
+          <Box Color="0,0,0,0" Size="213, 20">
+            <Label Anchor="C,C" Offset="0,0" String="TXT_KEY_SWAP_WRITING_HEADER"/>
+          </Box>
+          <Box Color="0,0,0,0" Size="213, 20">
+            <Label Anchor="C,C" Offset="0,0" String="TXT_KEY_SWAP_ART_HEADER"/>
+          </Box>
+          <Box Color="0,0,0,0" Size="213, 20">
+            <Label Anchor="C,C" Offset="0,0" String="TXT_KEY_SWAP_ARTIFACT_HEADER"/>
+          </Box>
+          <Box Color="0,0,0,0" Size="213, 20">
+            <Label Anchor="C,C" Offset="0,0" String="TXT_KEY_SWAP_MUSIC_HEADER"/>
+          </Box>
+        </Stack>
+
+        <Stack Anchor="L,T" StackGrowth="Right" Offset="0,22" Padding="1">
+          <Box Color="0,0,0,0" Size="83,64" Offset="0,-22">
+            <Image ID="YourWorksIconFrame" Anchor="C,C" Size="64,64" Offset="0,0" Texture="IconFrame64.dds">
+              <Image ID="YourWorksIcon" Size="64,64" Offset="0,0" Anchor="C,C" Texture="LeaderPortraits512.dds"/>
+              <Image ID="YourWorksSubIconFrame" Anchor="R,B" Offset="-5,6" Size="32,32" Texture="IconFrame_32.dds">
+                <Image ID="YourWorksSubIconBG" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes.dds"/>
+                <Image ID="YourWorksSubIconShadow" Size="24.24" Anchor="C,C" Offset="1,1" Texture="CivSymbolAtlas16.dds" Color="Black.128"/>
+                <Image ID="YourWorksSubIcon" Size="24.24" Offset="0,0" Anchor="C,C" Texture="CivSymbolsColor256.dds"/>
+                <Image ID="YourWorksSubIconHighlight" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="0,0" Texture="CivIconBGSizes_Highlight.dds"/>
+              </Image>
+            </Image>
+          </Box>
+
+          <Box Color="0,0,0,0" Size="213,34">
+            <PullDown  Anchor="L,T" ScrollThreshold="110" Size="211,34" Offset="1,0" AutoSizePopup="0" ID="YourWritingPullDown">
+              <ButtonData>
+                <GridButton Style="SquareButton" Anchor="L,C" >
+                  <Stack Anchor="L,T" StackGrowth="Right" Offset="0,0" Padding="0">
+                    <Image Anchor="L,T" Size="32,32" Offset="0,0" Texture="GreatWorks_DottedFrame_32.dds" ID="YourSwapWritingIcon"/>
+                    <Box Size="32,32" Anchor="L,T" Offset="0,0" Color="0,0,0,0">
+                      <Image ID="YourSwapWritingCivIconBG" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes.dds"/>
+                      <Image ID="YourSwapWritingCivIconShadow" Size="24.24" Anchor="C,C" Offset="1,1" Texture="CivSymbolAtlas16.dds" Color="Black.128"/>
+                      <Image ID="YourSwapWritingCivIcon" Size="24.24" Anchor="C,C" Offset="0,0" Texture="CivSymbolsColor256.dds"/>
+                      <Image ID="YourSwapWritingCivIconHilite" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes_Highlight.dds"/>
+                    </Box>
+                    <Label ID="YourSwapWritingEra" Size="32,32" Anchor="L,C" Offset="0,0"/>
+                  </Stack>
+                  <Image Texture="Assets/UI/Art/Controls/9 Grids/Corner16.dds" TextureOffset="0.0" Offset="3.3"  Size="16,16" Anchor="R,B"  />
+
+                  <ShowOnMouseOver>
+                    <Image Texture="Assets/UI/Art/Controls/9 Grids/Corner16.dds" TextureOffset="0.16" Offset="3.3"  Size="16,16" Anchor="R,B"  />
+                  </ShowOnMouseOver>
+                </GridButton>
+              </ButtonData>
+
+              <GridData Anchor="L,B" Offset="0.-2" AnchorSide="I,O" Style="Grid9Frame27SquareBlack" Padding="5,5" />
+              <ScrollPanelData Anchor="C,C"  Vertical="1" Size="18,18"  AutoScrollBar="1" >
+                --><!-- Scroll Controls --><!--
+                <ScrollBar  Style="VertSlider"      Anchor="R,C" AnchorSide="O,I"   />
+                <UpButton   Style="ScrollBarUp"     Anchor="R,T" AnchorSide="O,I"   />
+                <DownButton Style="ScrollBarDown"   Anchor="R,B" AnchorSide="O,I"   />
+              </ScrollPanelData>
+
+              <StackData StackGrowth="Bottom" Padding="0" Anchor="C,T" />
+
+              <InstanceData Name="SwapWorkPulldownInstance">
+                <Button Size="466,32" ID="Button">
+                  <ShowOnMouseOver>
+                    <AlphaAnim Anchor="L,T" Offset="0,0" Size="486,28" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
+                      <Grid Size="486,28" Offset="0,0" Padding="0,0" Style="Grid9FrameTurnsHL"/>
+                    </AlphaAnim>
+                  </ShowOnMouseOver>
+                  <Stack Anchor="L,C" StackGrowth="Right" Offset="0,0" Padding="0">
+                    <Box Size="32,32" Anchor="L,T" Offset="0,-3" Color="0,0,0,0">
+                      <Image ID="CivIconBG" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes.dds"/>
+                      <Image ID="CivIconShadow" Size="24.24" Anchor="C,C" Offset="1,1" Texture="CivSymbolAtlas16.dds" Color="Black.128"/>
+                      <Image ID="CivIcon" Size="24.24" Anchor="C,C" Offset="0,0" Texture="CivSymbolsColor256.dds"/>
+                      <Image ID="CivIconHighlight" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes_Highlight.dds"/>
+                    </Box>
+                    <Label ID="Name" TruncateWidth="280" Anchor="L,T" Offset="0,7"/>
+                    <Label ID="Era" Anchor="L,T" Offset="10,7"/>
+                    <Label ID="Theming" Anchor="L,T" Offset="10,7"/>
+                  </Stack>
+                </Button>
+              </InstanceData>
+            </PullDown>
+          </Box>
+
+          <Box Color="0,0,0,0" Size="213,34">
+            <PullDown  Anchor="L,T" ScrollThreshold="110" Size="211,34" Offset="1,0" AutoSizePopup="0" ID="YourArtPullDown">
+              <ButtonData>
+                <GridButton Style="SquareButton" Anchor="L,C" >
+                  <Stack Anchor="L,T" StackGrowth="Right" Offset="0,0" Padding="0">
+                    <Image Anchor="L,T" Size="32,32" Offset="0,0" Texture="GreatWorks_DottedFrame_32.dds" ID="YourSwapArtIcon"/>
+                    <Box Size="32,32" Anchor="L,T" Offset="0,0" Color="0,0,0,0">
+                      <Image ID="YourSwapArtCivIconBG" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes.dds"/>
+                      <Image ID="YourSwapArtCivIconShadow" Size="24.24" Anchor="C,C" Offset="1,1" Texture="CivSymbolAtlas16.dds" Color="Black.128"/>
+                      <Image ID="YourSwapArtCivIcon" Size="24.24" Anchor="C,C" Offset="0,0" Texture="CivSymbolsColor256.dds"/>
+                      <Image ID="YourSwapArtCivIconHilite" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes_Highlight.dds"/>
+                    </Box>
+                    <Label ID="YourSwapArtEra" Size="32,32" Anchor="L,C" Offset="0,0"/>
+                  </Stack>
+                  <Image Texture="Assets/UI/Art/Controls/9 Grids/Corner16.dds" TextureOffset="0.0" Offset="3.3"  Size="16,16" Anchor="R,B"  />
+
+                  <ShowOnMouseOver>
+                    <Image Texture="Assets/UI/Art/Controls/9 Grids/Corner16.dds" TextureOffset="0.16" Offset="3.3"  Size="16,16" Anchor="R,B"  />
+                  </ShowOnMouseOver>
+                </GridButton>
+              </ButtonData>
+
+              <GridData Anchor="L,B" Offset="0.-2" AnchorSide="I,O" Style="Grid9Frame27SquareBlack" Padding="5,5" />
+              <ScrollPanelData Anchor="C,C"  Vertical="1" Size="18,18"  AutoScrollBar="1" >
+                --><!-- Scroll Controls --><!--
+                <ScrollBar  Style="VertSlider"      Anchor="R,C" AnchorSide="O,I"   />
+                <UpButton   Style="ScrollBarUp"     Anchor="R,T" AnchorSide="O,I"   />
+                <DownButton Style="ScrollBarDown"   Anchor="R,B" AnchorSide="O,I"   />
+              </ScrollPanelData>
+
+              <StackData StackGrowth="Bottom" Padding="0" Anchor="C,T" />
+
+              <InstanceData Name="SwapWorkPulldownInstance">
+                <Button Size="466,32" ID="Button">
+                  <ShowOnMouseOver>
+                    <AlphaAnim Anchor="L,T" Offset="0,0" Size="486,28" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
+                      <Grid Size="486,28" Offset="0,0" Padding="0,0" Style="Grid9FrameTurnsHL"/>
+                    </AlphaAnim>
+                  </ShowOnMouseOver>
+                  <Stack Anchor="L,C" StackGrowth="Right" Offset="0,0" Padding="0">
+                    <Box Size="32,32" Anchor="L,T" Offset="0,-3" Color="0,0,0,0">
+                      <Image ID="CivIconBG" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes.dds"/>
+                      <Image ID="CivIconShadow" Size="24.24" Anchor="C,C" Offset="1,1" Texture="CivSymbolAtlas16.dds" Color="Black.128"/>
+                      <Image ID="CivIcon" Size="24.24" Anchor="C,C" Offset="0,0" Texture="CivSymbolsColor256.dds"/>
+                      <Image ID="CivIconHighlight" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes_Highlight.dds"/>
+                    </Box>
+                    <Label ID="Name" Anchor="L,T" TruncateWidth="280" Offset="0,7"/>
+                    <Label ID="Era" Anchor="L,T" Offset="10,7"/>
+                    <Label ID="Theming" Anchor="L,T" Offset="10,7"/>
+                  </Stack>
+                </Button>
+              </InstanceData>
+            </PullDown>
+          </Box>
+
+          <Box Color="0,0,0,0" Size="213,34">
+            <PullDown  Anchor="L,T" ScrollThreshold="110" Size="211,34" Offset="1,0" AutoSizePopup="0" ID="YourArtifactPullDown">
+              <ButtonData>
+                <GridButton Style="SquareButton" Anchor="L,C" >
+                  <Stack Anchor="L,T" StackGrowth="Right" Offset="0,0" Padding="0">
+                    <Image Anchor="L,T" Size="32,32" Offset="0,0" Texture="GreatWorks_DottedFrame_32.dds" ID="YourSwapArtifactIcon"/>
+                    <Box Size="32,32" Anchor="L,T" Offset="0,0" Color="0,0,0,0">
+                      <Image ID="YourSwapArtifactCivIconBG" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes.dds"/>
+                      <Image ID="YourSwapArtifactCivIconShadow" Size="24.24" Anchor="C,C" Offset="1,1" Texture="CivSymbolAtlas16.dds" Color="Black.128"/>
+                      <Image ID="YourSwapArtifactCivIcon" Size="24.24" Anchor="C,C" Offset="0,0" Texture="CivSymbolsColor256.dds"/>
+                      <Image ID="YourSwapArtifactCivIconHilite" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes_Highlight.dds"/>
+                    </Box>
+                    <Label ID="YourSwapArtifactEra" Size="32,32" Anchor="L,C" Offset="0,0"/>
+                  </Stack>
+                  <Image Texture="Assets/UI/Art/Controls/9 Grids/Corner16.dds" TextureOffset="0.0" Offset="3.3"  Size="16,16" Anchor="R,B"  />
+
+                  <ShowOnMouseOver>
+                    <Image Texture="Assets/UI/Art/Controls/9 Grids/Corner16.dds" TextureOffset="0.16" Offset="3.3"  Size="16,16" Anchor="R,B"  />
+                  </ShowOnMouseOver>
+                </GridButton>
+              </ButtonData>
+
+              <GridData Anchor="R,B" Offset="0.-2" AnchorSide="I,O" Style="Grid9Frame27SquareBlack" Padding="5,5" />
+              <ScrollPanelData Anchor="C,C"  Vertical="1" Size="18,18"  AutoScrollBar="1" >
+                --><!-- Scroll Controls --><!--
+                <ScrollBar  Style="VertSlider"      Anchor="R,C" AnchorSide="O,I"   />
+                <UpButton   Style="ScrollBarUp"     Anchor="R,T" AnchorSide="O,I"   />
+                <DownButton Style="ScrollBarDown"   Anchor="R,B" AnchorSide="O,I"   />
+              </ScrollPanelData>
+
+              <StackData StackGrowth="Bottom" Padding="0" Anchor="C,T" />
+
+              <InstanceData Name="SwapWorkPulldownInstance">
+                <Button Size="466,32" ID="Button">
+                  <ShowOnMouseOver>
+                    <AlphaAnim Anchor="L,T" Offset="0,0" Size="486,28" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
+                      <Grid Size="486,28" Offset="0,0" Padding="0,0" Style="Grid9FrameTurnsHL"/>
+                    </AlphaAnim>
+                  </ShowOnMouseOver>
+                  <Stack Anchor="L,C" StackGrowth="Right" Offset="0,0" Padding="0">
+                    <Box Size="32,32" Anchor="L,T" Offset="0,-3" Color="0,0,0,0">
+                      <Image ID="CivIconBG" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes.dds"/>
+                      <Image ID="CivIconShadow" Size="24.24" Anchor="C,C" Offset="1,1" Texture="CivSymbolAtlas16.dds" Color="Black.128"/>
+                      <Image ID="CivIcon" Size="24.24" Anchor="C,C" Offset="0,0" Texture="CivSymbolsColor256.dds"/>
+                      <Image ID="CivIconHighlight" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes_Highlight.dds"/>
+                    </Box>
+                    <Label ID="Name" TruncateWidth="280" Anchor="L,T" Offset="0,7"/>
+                    <Label ID="Era" Anchor="L,T" Offset="10,7"/>
+                    <Label ID="Theming" Anchor="L,T" Offset="10,7"/>
+                  </Stack>
+                </Button>
+              </InstanceData>
+            </PullDown>
+          </Box>
+
+          <Box Color="0,0,0,0" Size="213,34">
+            <PullDown  Anchor="L,T" ScrollThreshold="110" Size="211,34" Offset="1,0" AutoSizePopup="0" ID="YourMusicPullDown">
+              <ButtonData>
+                <GridButton Style="SquareButton" Anchor="L,C" >
+                  <Stack Anchor="L,T" StackGrowth="Right" Offset="0,0" Padding="0">
+                    <Image Anchor="L,T" Size="32,32" Offset="0,0" Texture="GreatWorks_DottedFrame_32.dds" ID="YourSwapMusicIcon"/>
+                    <Box Size="32,32" Anchor="L,T" Offset="0,0" Color="0,0,0,0">
+                      <Image ID="YourSwapMusicCivIconBG" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes.dds"/>
+                      <Image ID="YourSwapMusicCivIconShadow" Size="24.24" Anchor="C,C" Offset="1,1" Texture="CivSymbolAtlas16.dds" Color="Black.128"/>
+                      <Image ID="YourSwapMusicCivIcon" Size="24.24" Anchor="C,C" Offset="0,0" Texture="CivSymbolsColor256.dds"/>
+                      <Image ID="YourSwapMusicCivIconHilite" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes_Highlight.dds"/>
+                    </Box>
+                    <Label ID="YourSwapMusicEra" Size="32,32" Anchor="L,C" Offset="0,0"/>
+                  </Stack>
+                  <Image Texture="Assets/UI/Art/Controls/9 Grids/Corner16.dds" TextureOffset="0.0" Offset="3.3"  Size="16,16" Anchor="R,B"  />
+
+                  <ShowOnMouseOver>
+                    <Image Texture="Assets/UI/Art/Controls/9 Grids/Corner16.dds" TextureOffset="0.16" Offset="3.3"  Size="16,16" Anchor="R,B"  />
+                  </ShowOnMouseOver>
+                </GridButton>
+              </ButtonData>
+
+              <GridData Anchor="R,B" Offset="0.-2" AnchorSide="I,O" Style="Grid9Frame27SquareBlack" Padding="5,5" />
+              <ScrollPanelData Anchor="C,C"  Vertical="1" Size="18,18"  AutoScrollBar="1" >
+                --><!-- Scroll Controls --><!--
+                <ScrollBar  Style="VertSlider"      Anchor="R,C" AnchorSide="O,I"   />
+                <UpButton   Style="ScrollBarUp"     Anchor="R,T" AnchorSide="O,I"   />
+                <DownButton Style="ScrollBarDown"   Anchor="R,B" AnchorSide="O,I"   />
+              </ScrollPanelData>
+
+              <StackData StackGrowth="Bottom" Padding="0" Anchor="C,T" />
+
+              <InstanceData Name="SwapWorkPulldownInstance">
+                <Button Size="466,32" ID="Button">
+                  <ShowOnMouseOver>
+                    <AlphaAnim Anchor="L,T" Offset="0,0" Size="486,28" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
+                      <Grid Size="486,28" Offset="0,0" Padding="0,0" Style="Grid9FrameTurnsHL"/>
+                    </AlphaAnim>
+                  </ShowOnMouseOver>
+                  <Stack Anchor="L,C" StackGrowth="Right" Offset="0,0" Padding="0">
+                    <Box Size="32,32" Anchor="L,T" Offset="0,-3" Color="0,0,0,0">
+                      <Image ID="CivIconBG" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes.dds"/>
+                      <Image ID="CivIconShadow" Size="24.24" Anchor="C,C" Offset="1,1" Texture="CivSymbolAtlas16.dds" Color="Black.128"/>
+                      <Image ID="CivIcon" Size="24.24" Anchor="C,C" Offset="0,0" Texture="CivSymbolsColor256.dds"/>
+                      <Image ID="CivIconHighlight" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes_Highlight.dds"/>
+                    </Box>
+                    <Label ID="Name" TruncateWidth="280"  Anchor="L,T" Offset="0,7"/>
+                    <Label ID="Era" Anchor="L,T" Offset="10,7"/>
+                    <Label ID="Theming" Anchor="L,T" Offset="10,7"/>
+                  </Stack>
+                </Button>
+              </InstanceData>
+            </PullDown>
+          </Box>
+        </Stack>-->
+
+        <!-- 3 column configuration -->
+        <!-- Column Backgrounds-->
+        <Stack Anchor="L,T" StackGrowth="Right" Offset="0,0" Padding="0">
+          <Box Anchor="L,T" Offset="0,64" Size="83,291" Color="0,0,0,0"/>
+          <Box Anchor="L,T" Size="1,360" Color="18,108,98,255"/>
+          <Box Anchor="L,T" Offset="0,64" Size="284,291" Color="1,26,23,255"/>
+          <Box Anchor="L,T" Size="1,360" Color="18,108,98,255"/>
+          <Box Anchor="L,T" Offset="0,64" Size="284,291" Color="0,0,0,0"/>
+          <Box Anchor="L,T" Size="1,360" Color="18,108,98,255"/>
+          <Box Anchor="L,T" Offset="0,64" Size="284,291" Color="1,26,23,255"/>
+        </Stack>
+
+        <Stack Anchor="L,T" StackGrowth="Right" Offset="83,0" Padding="0">
+          <Box Color="0,0,0,0" Size="284, 20">
+            <Label Anchor="C,C" Offset="0,0" String="TXT_KEY_SWAP_WRITING_HEADER"/>
+          </Box>
+          <Box Color="0,0,0,0" Size="284, 20">
+            <Label Anchor="C,C" Offset="0,0" String="TXT_KEY_SWAP_ART_HEADER"/>
+          </Box>
+          <Box Color="0,0,0,0" Size="284, 20">
+            <Label Anchor="C,C" Offset="0,0" String="TXT_KEY_SWAP_ARTIFACT_HEADER"/>
+          </Box>
+        </Stack>
+
+        <Stack Anchor="L,T" StackGrowth="Right" Offset="0,22" Padding="1">
+          <Box Color="0,0,0,0" Size="83,64" Offset="0,-22">
+            <Image ID="YourWorksIconFrame" Anchor="C,C" Size="64,64" Offset="0,0" Texture="IconFrame64.dds">
+              <Image ID="YourWorksIcon" Size="64,64" Offset="0,0" Anchor="C,C" Texture="LeaderPortraits512.dds"/>
+              <Image ID="YourWorksSubIconFrame" Anchor="R,B" Offset="-5,6" Size="32,32" Texture="IconFrame_32.dds">
+                <Image ID="YourWorksSubIconBG" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes.dds"/>
+                <Image ID="YourWorksSubIconShadow" Size="24.24" Anchor="C,C" Offset="1,1" Texture="CivSymbolAtlas16.dds" Color="Black.128"/>
+                <Image ID="YourWorksSubIcon" Size="24.24" Offset="0,0" Anchor="C,C" Texture="CivSymbolsColor256.dds"/>
+                <Image ID="YourWorksSubIconHighlight" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="0,0" Texture="CivIconBGSizes_Highlight.dds"/>
+              </Image>
+            </Image>
+          </Box>
+
+          <Box Color="0,0,0,0" Size="284,34">
+            <PullDown  Anchor="L,T" ScrollThreshold="110" Size="282,34" Offset="1,0" AutoSizePopup="0" ID="YourWritingPullDown">
+              <ButtonData>
+                <GridButton Style="SquareButton" Anchor="L,C" >
+                  <Stack Anchor="L,T" StackGrowth="Right" Offset="0,0" Padding="0">
+                    <Image Anchor="L,T" Size="32,32" Offset="0,0" Texture="GreatWorks_DottedFrame_32.dds" ID="YourSwapWritingIcon"/>
+                    <Box Size="32,32" Anchor="L,T" Offset="0,0" Color="0,0,0,0">
+                      <Image ID="YourSwapWritingCivIconBG" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes.dds"/>
+                      <Image ID="YourSwapWritingCivIconShadow" Size="24.24" Anchor="C,C" Offset="1,1" Texture="CivSymbolAtlas16.dds" Color="Black.128"/>
+                      <Image ID="YourSwapWritingCivIcon" Size="24.24" Anchor="C,C" Offset="0,0" Texture="CivSymbolsColor256.dds"/>
+                      <Image ID="YourSwapWritingCivIconHilite" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes_Highlight.dds"/>
+                    </Box>
+                    <Label ID="YourSwapWritingEra" Size="32,32" Anchor="L,C" Offset="0,0"/>
+                  </Stack>
+                  <Image Texture="Assets/UI/Art/Controls/9 Grids/Corner16.dds" TextureOffset="0.0" Offset="3.3"  Size="16,16" Anchor="R,B"  />
+
+                  <ShowOnMouseOver>
+                    <Image Texture="Assets/UI/Art/Controls/9 Grids/Corner16.dds" TextureOffset="0.16" Offset="3.3"  Size="16,16" Anchor="R,B"  />
+                  </ShowOnMouseOver>
+                </GridButton>
+              </ButtonData>
+
+              <GridData Anchor="L,B" Offset="0.-2" AnchorSide="I,O" Style="Grid9Frame27SquareBlack" Padding="5,5" />
+              <ScrollPanelData Anchor="C,C"  Vertical="1" Size="18,18"  AutoScrollBar="1" >
+                <!-- Scroll Controls -->
+                <ScrollBar  Style="VertSlider"      Anchor="R,C" AnchorSide="O,I"   />
+                <UpButton   Style="ScrollBarUp"     Anchor="R,T" AnchorSide="O,I"   />
+                <DownButton Style="ScrollBarDown"   Anchor="R,B" AnchorSide="O,I"   />
+              </ScrollPanelData>
+
+              <StackData StackGrowth="Bottom" Padding="0" Anchor="C,T" />
+
+              <InstanceData Name="SwapWorkPulldownInstance">
+                <Button Size="466,32" ID="Button">
+                  <ShowOnMouseOver>
+                    <AlphaAnim Anchor="L,T" Offset="0,0" Size="486,28" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
+                      <Grid Size="486,28" Offset="0,0" Padding="0,0" Style="Grid9FrameTurnsHL"/>
+                    </AlphaAnim>
+                  </ShowOnMouseOver>
+                  <Stack Anchor="L,C" StackGrowth="Right" Offset="0,0" Padding="0">
+                    <Box Size="32,32" Anchor="L,T" Offset="0,-3" Color="0,0,0,0">
+                      <Image ID="CivIconBG" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes.dds"/>
+                      <Image ID="CivIconShadow" Size="24.24" Anchor="C,C" Offset="1,1" Texture="CivSymbolAtlas16.dds" Color="Black.128"/>
+                      <Image ID="CivIcon" Size="24.24" Anchor="C,C" Offset="0,0" Texture="CivSymbolsColor256.dds"/>
+                      <Image ID="CivIconHighlight" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes_Highlight.dds"/>
+                    </Box>
+                    <Label ID="Name" TruncateWidth="280" Anchor="L,T" Offset="0,7"/>
+                    <Label ID="Era" Anchor="L,T" Offset="10,7"/>
+                    <Label ID="Theming" Anchor="L,T" Offset="10,7"/>
+                  </Stack>
+                </Button>
+              </InstanceData>
+            </PullDown>
+          </Box>
+
+          <Box Color="0,0,0,0" Size="284,34">
+            <PullDown  Anchor="L,T" ScrollThreshold="110" Size="282,34" Offset="1,0" AutoSizePopup="0" ID="YourArtPullDown">
+              <ButtonData>
+                <GridButton Style="SquareButton" Anchor="L,C" >
+                  <Stack Anchor="L,T" StackGrowth="Right" Offset="0,0" Padding="0">
+                    <Image Anchor="L,T" Size="32,32" Offset="0,0" Texture="GreatWorks_DottedFrame_32.dds" ID="YourSwapArtIcon"/>
+                    <Box Size="32,32" Anchor="L,T" Offset="0,0" Color="0,0,0,0">
+                      <Image ID="YourSwapArtCivIconBG" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes.dds"/>
+                      <Image ID="YourSwapArtCivIconShadow" Size="24.24" Anchor="C,C" Offset="1,1" Texture="CivSymbolAtlas16.dds" Color="Black.128"/>
+                      <Image ID="YourSwapArtCivIcon" Size="24.24" Anchor="C,C" Offset="0,0" Texture="CivSymbolsColor256.dds"/>
+                      <Image ID="YourSwapArtCivIconHilite" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes_Highlight.dds"/>
+                    </Box>
+                    <Label ID="YourSwapArtEra" Size="32,32" Anchor="L,C" Offset="0,0"/>
+                  </Stack>
+                  <Image Texture="Assets/UI/Art/Controls/9 Grids/Corner16.dds" TextureOffset="0.0" Offset="3.3"  Size="16,16" Anchor="R,B"  />
+
+                  <ShowOnMouseOver>
+                    <Image Texture="Assets/UI/Art/Controls/9 Grids/Corner16.dds" TextureOffset="0.16" Offset="3.3"  Size="16,16" Anchor="R,B"  />
+                  </ShowOnMouseOver>
+                </GridButton>
+              </ButtonData>
+
+              <GridData Anchor="L,B" Offset="0.-2" AnchorSide="I,O" Style="Grid9Frame27SquareBlack" Padding="5,5" />
+              <ScrollPanelData Anchor="C,C"  Vertical="1" Size="18,18"  AutoScrollBar="1" >
+                <!-- Scroll Controls -->
+                <ScrollBar  Style="VertSlider"      Anchor="R,C" AnchorSide="O,I"   />
+                <UpButton   Style="ScrollBarUp"     Anchor="R,T" AnchorSide="O,I"   />
+                <DownButton Style="ScrollBarDown"   Anchor="R,B" AnchorSide="O,I"   />
+              </ScrollPanelData>
+
+              <StackData StackGrowth="Bottom" Padding="0" Anchor="C,T" />
+
+              <InstanceData Name="SwapWorkPulldownInstance">
+                <Button Size="466,32" ID="Button">
+                  <ShowOnMouseOver>
+                    <AlphaAnim Anchor="L,T" Offset="0,0" Size="486,28" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
+                      <Grid Size="486,28" Offset="0,0" Padding="0,0" Style="Grid9FrameTurnsHL"/>
+                    </AlphaAnim>
+                  </ShowOnMouseOver>
+                  <Stack Anchor="L,C" StackGrowth="Right" Offset="0,0" Padding="0">
+                    <Box Size="32,32" Anchor="L,T" Offset="0,-3" Color="0,0,0,0">
+                      <Image ID="CivIconBG" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes.dds"/>
+                      <Image ID="CivIconShadow" Size="24.24" Anchor="C,C" Offset="1,1" Texture="CivSymbolAtlas16.dds" Color="Black.128"/>
+                      <Image ID="CivIcon" Size="24.24" Anchor="C,C" Offset="0,0" Texture="CivSymbolsColor256.dds"/>
+                      <Image ID="CivIconHighlight" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes_Highlight.dds"/>
+                    </Box>
+                    <Label ID="Name" Anchor="L,T" TruncateWidth="280" Offset="0,7"/>
+                    <Label ID="Era" Anchor="L,T" Offset="10,7"/>
+                    <Label ID="Theming" Anchor="L,T" Offset="10,7"/>
+                  </Stack>
+                </Button>
+              </InstanceData>
+            </PullDown>
+          </Box>
+
+          <Box Color="0,0,0,0" Size="284,34">
+            <PullDown  Anchor="L,T" ScrollThreshold="110" Size="282,34" Offset="1,0" AutoSizePopup="0" ID="YourArtifactPullDown">
+              <ButtonData>
+                <GridButton Style="SquareButton" Anchor="L,C" >
+                  <Stack Anchor="L,T" StackGrowth="Right" Offset="0,0" Padding="0">
+                    <Image Anchor="L,T" Size="32,32" Offset="0,0" Texture="GreatWorks_DottedFrame_32.dds" ID="YourSwapArtifactIcon"/>
+                    <Box Size="32,32" Anchor="L,T" Offset="0,0" Color="0,0,0,0">
+                      <Image ID="YourSwapArtifactCivIconBG" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes.dds"/>
+                      <Image ID="YourSwapArtifactCivIconShadow" Size="24.24" Anchor="C,C" Offset="1,1" Texture="CivSymbolAtlas16.dds" Color="Black.128"/>
+                      <Image ID="YourSwapArtifactCivIcon" Size="24.24" Anchor="C,C" Offset="0,0" Texture="CivSymbolsColor256.dds"/>
+                      <Image ID="YourSwapArtifactCivIconHilite" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes_Highlight.dds"/>
+                    </Box>
+                    <Label ID="YourSwapArtifactEra" Size="32,32" Anchor="L,C" Offset="0,0"/>
+                  </Stack>
+                  <Image Texture="Assets/UI/Art/Controls/9 Grids/Corner16.dds" TextureOffset="0.0" Offset="3.3"  Size="16,16" Anchor="R,B"  />
+
+                  <ShowOnMouseOver>
+                    <Image Texture="Assets/UI/Art/Controls/9 Grids/Corner16.dds" TextureOffset="0.16" Offset="3.3"  Size="16,16" Anchor="R,B"  />
+                  </ShowOnMouseOver>
+                </GridButton>
+              </ButtonData>
+
+              <GridData Anchor="R,B" Offset="0.-2" AnchorSide="I,O" Style="Grid9Frame27SquareBlack" Padding="5,5" />
+              <ScrollPanelData Anchor="C,C"  Vertical="1" Size="18,18"  AutoScrollBar="1" >
+                <!-- Scroll Controls -->
+                <ScrollBar  Style="VertSlider"      Anchor="R,C" AnchorSide="O,I"   />
+                <UpButton   Style="ScrollBarUp"     Anchor="R,T" AnchorSide="O,I"   />
+                <DownButton Style="ScrollBarDown"   Anchor="R,B" AnchorSide="O,I"   />
+              </ScrollPanelData>
+
+              <StackData StackGrowth="Bottom" Padding="0" Anchor="C,T" />
+
+              <InstanceData Name="SwapWorkPulldownInstance">
+                <Button Size="466,32" ID="Button">
+                  <ShowOnMouseOver>
+                    <AlphaAnim Anchor="L,T" Offset="0,0" Size="486,28" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
+                      <Grid Size="486,28" Offset="0,0" Padding="0,0" Style="Grid9FrameTurnsHL"/>
+                    </AlphaAnim>
+                  </ShowOnMouseOver>
+                  <Stack Anchor="L,C" StackGrowth="Right" Offset="0,0" Padding="0">
+                    <Box Size="32,32" Anchor="L,T" Offset="0,-3" Color="0,0,0,0">
+                      <Image ID="CivIconBG" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes.dds"/>
+                      <Image ID="CivIconShadow" Size="24.24" Anchor="C,C" Offset="1,1" Texture="CivSymbolAtlas16.dds" Color="Black.128"/>
+                      <Image ID="CivIcon" Size="24.24" Anchor="C,C" Offset="0,0" Texture="CivSymbolsColor256.dds"/>
+                      <Image ID="CivIconHighlight" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes_Highlight.dds"/>
+                    </Box>
+                    <Label ID="Name" TruncateWidth="280" Anchor="L,T" Offset="0,7"/>
+                    <Label ID="Era" Anchor="L,T" Offset="10,7"/>
+                    <Label ID="Theming" Anchor="L,T" Offset="10,7"/>
+                  </Stack>
+                </Button>
+              </InstanceData>
+            </PullDown>
+          </Box>
+        </Stack>
+
+        <Image Anchor="C,T" Offset="0,59" Texture="HorizontalTrim.dds" Size="971,5"/>
+
+        <!-- Their Works Picker -->
+        <Box Color="0,0,0,0" Size="956,425" Hidden="1" ID="SwapGreatWorksOthersDisplay" Offset="0,40">
+          
+          <ScrollPanel Anchor="L,T" Offset="0,24" Size="956,291" Vertical="1" AutoScrollBar="0" ID="OthersGreatWorksScroll">
+            <ScrollBar Offset="0,18" Style="VertSlider" Anchor="R,T" Length="255" ID="OthersGreatWorksScrollBar"/>
+            <UpButton Offset="0,0" Style="ScrollBarUp" Anchor="R,T" ID="OthersGreatWorksUpButton"/>
+            <DownButton Offset="0,273" Style="ScrollBarDown" Anchor="R,T" ID="OthersGreatWorksDownButton"/>
+            <Stack Anchor="L,T" Size="937,291" StackGrowth="Bottom" Padding="2" ID="OthersGreatWorksStack"/>
+          </ScrollPanel>
+  
+          <!-- "Do The Swap" Box -->
+          <Box Anchor="C,B" Offset="0,0" Size="956,100" Color="0,0,0,0">
+            <Image Anchor="C,T" Offset="0,-5" Texture="HorizontalTrim.dds" Size="971,5"/>
+
+            <Stack Anchor="C,T" StackGrowth="Right" Offset="0,0" Padding="0">
+              <!--Left Panel -->
+              <Box Color="0,0,0,0" Size="180, 100">
+
+                <Grid Size="180,80" Anchor="L,B" Offset="0,5" Style="Grid9Frame27_EmptyFrame">
+                  <Stack Anchor="L,C" AnchorSide="O,I" Offset="5,0" StackGrowth="Bottom" Padding="0" ID="SwapTheirIconStack">
+                    <Image ID="SwapTheirWorksIconFrame" Anchor="C,T" Size="64,64" Texture="IconFrame64.dds">
+                      <Image ID="SwapTheirWorksIcon" Size="64,64" Offset="0,0" Anchor="C,C" Texture="LeaderPortraits512.dds"/>
+                      <Image ID="SwapTheirWorksSubIconFrame" Anchor="R,B" Offset="-5,6" Size="32,32" Texture="IconFrame_32.dds">
+                        <Image ID="SwapTheirWorksSubIconBG" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes.dds"/>
+                        <Image ID="SwapTheirWorksSubIconShadow" Size="24.24" Anchor="C,C" Offset="1,1" Texture="CivSymbolAtlas16.dds" Color="Black.128"/>
+                        <Image ID="SwapTheirWorksSubIcon" Size="24.24" Offset="0,0" Anchor="C,C" Texture="CivSymbolsColor256.dds"/>
+                        <Image ID="SwapTheirWorksSubIconHighlight" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="0,0" Texture="CivIconBGSizes_Highlight.dds"/>
+                      </Image>
+                    </Image>
+                    <Label Anchor="C,T" Offset="0,0" ID="SwapTheirsOwnerName" String="TXT_KEY_SWAP_THEIRS_OWNER"/>
+                  </Stack>
+                  <Label Anchor="C,T" Offset="0,5" String="TXT_KEY_SWAP_THEIRS"/>
+                  <Stack Anchor="L,T" StackGrowth="Right" Offset="10,30" Padding="0">
+                    <Image Anchor="L,T" Size="32,32" Offset="0,0" Texture="GreatWorks_DottedFrame_32.dds" ID="SwapTheirsIcon"/>
+                    <Box Size="32,32" Anchor="L,T" Offset="0,-3" Color="0,0,0,0">
+                      <Image ID="SwapTheirsCivIconBG" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes.dds"/>
+                      <Image ID="SwapTheirsCivIconShadow" Size="24.24" Anchor="C,C" Offset="1,1" Texture="CivSymbolAtlas16.dds" Color="Black.128"/>
+                      <Image ID="SwapTheirsCivIcon" Size="24.24" Anchor="C,C" Offset="0,0" Texture="CivSymbolsColor256.dds"/>
+                      <Image ID="SwapTheirsCivIconHighlight" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes_Highlight.dds"/>
+                    </Box>
+                    <Label ID="SwapTheirsEra" Size="32,32" Anchor="L,T" Color="255,255,255,0" Offset="0,7" TruncateWidth="100"/>
+                  </Stack>
+                </Grid>
+              </Box>
+              <!-- Center Panel -->
+              <Box Color="0,0,0,0" Size="300,100" Offset="0,0">
+                <Image Size="64,64" Texture="Swap_Arrows_64.dds" Anchor="C,T" Offset="0,0" />
+                <GridButton Anchor="C,B" Style="SmallButton" Size="150,32" Offset="-75,5" StateOffsetIncrement="0,0" ToolTip="TXT_KEY_CLEAR_BUTTON_TT" ID="ClearSwapButton">
+                  <Label Anchor="C,C" Offset="0,0" String="TXT_KEY_CLEAR_BUTTON" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow"/>
+                </GridButton>
+                <GridButton Anchor="C,B" Style="SmallButton" Size="150,32" Offset="75,5" StateOffsetIncrement="0,0" ToolTip="TXT_KEY_SWAP_BUTTON_DISABLED_TT" ID="SwapButton">
+                  <Label Anchor="C,C" Offset="0,0" String="TXT_KEY_SWAP_BUTTON" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow"/>
+                </GridButton>
+              </Box>
+              <!-- Right Panel -->
+              <Box Color="0,0,0,0" Size="180,100">
+
+                <Grid Size="180,80" Anchor="L,B" Offset="0,5" Style="Grid9Frame27_EmptyFrame">
+                  <Label Anchor="C,T" Offset="0,5" String="TXT_KEY_SWAP_YOURS"/>
+                  <Stack Anchor="L,T" StackGrowth="Right" Offset="10,30" Padding="0">
+                    <Image Anchor="L,T" Size="32,32" Offset="0,0" Texture="GreatWorks_DottedFrame_32.dds" ID="SwapOursIcon"/>
+                    <Box Size="32,32" Anchor="L,T" Offset="0,-3" Color="0,0,0,0">
+                      <Image ID="SwapOursCivIconBG" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes.dds"/>
+                      <Image ID="SwapOursCivIconShadow" Size="24.24" Anchor="C,C" Offset="1,1" Texture="CivSymbolAtlas16.dds" Color="Black.128"/>
+                      <Image ID="SwapOursCivIcon" Size="24.24" Anchor="C,C" Offset="0,0" Texture="CivSymbolsColor256.dds"/>
+                      <Image ID="SwapOursCivIconHighlight" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes_Highlight.dds"/>
+                    </Box>
+                    <Label ID="SwapOursEra" Size="32,32" Anchor="L,T" Color="255,255,255,0" Offset="0,7" TruncateWidth="100"/>
+                  </Stack>
+                  <Stack Anchor="R,C" AnchorSide="O,I" Offset="5,0" StackGrowth="Bottom" Padding="0" ID="SwapYourIconStack">
+                    <Image ID="SwapYourWorksIconFrame" Anchor="C,T" Size="64,64" Texture="IconFrame64.dds">
+                      <Image ID="SwapYourWorksIcon" Size="64,64" Offset="0,0" Anchor="C,C" Texture="LeaderPortraits512.dds"/>
+                      <Image ID="SwapYourWorksSubIconFrame" Anchor="R,B" Offset="-5,6" Size="32,32" Texture="IconFrame_32.dds">
+                        <Image ID="SwapYourWorksSubIconBG" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes.dds"/>
+                        <Image ID="SwapYourWorksSubIconShadow" Size="24.24" Anchor="C,C" Offset="1,1" Texture="CivSymbolAtlas16.dds" Color="Black.128"/>
+                        <Image ID="SwapYourWorksSubIcon" Size="24.24" Offset="0,0" Anchor="C,C" Texture="CivSymbolsColor256.dds"/>
+                        <Image ID="SwapYourWorksSubIconHighlight" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="0,0" Texture="CivIconBGSizes_Highlight.dds"/>
+                      </Image>
+                    </Image>
+                    <Label Anchor="C,T" ID="SwapYourOwnerName" String="TXT_KEY_SWAP_YOURS"/>
+                  </Stack>
+                </Grid> 
+              </Box>
+            </Stack>
+          </Box>
+        </Box>
+      </Box>
+      <!-- Culture Victory Tab Content-->
+      <Box Size="953,459" Color="0,0,0,0" ID="CultureVictoryPanel" Hidden="1">
+        <!-- Column Headers -->
+        <Stack Anchor="L,T" StackGrowth="Right" Offset="28,20" Padding="0">
+          <Button ID="VictoryPlayerNameHeader" Anchor="C,C" Size="200,24" Style="BoxButton">
+            <ShowOnMouseOver>
+              <AlphaAnim Anchor="C,C" Offset="0,0" Size="260,30" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
+                <Grid Size="260,30" Anchor="C,C" Offset="0,0" Padding="0,0" Style="Grid9FrameTurnsHL"/>
+              </AlphaAnim>
+            </ShowOnMouseOver>
+            <Label Anchor="C,C" Offset="0.-1" Font="TwCenMT18" String="TXT_KEY_CO_CIVILIZATION_HEADER"/>
+          </Button>
+          <Button ID="NumInfluentialHeader" Anchor="C,C" Size="80,24" Style="BoxButton" ToolTip="TXT_KEY_CO_INFLUENTIAL_HEADER_TT">
+            <ShowOnMouseOver>
+              <AlphaAnim Anchor="C,C" Offset="0,0" Size="180,30" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
+                <Grid Size="180,30" Anchor="C,C" Offset="0,0" Padding="0,0" Style="Grid9FrameTurnsHL"/>
+              </AlphaAnim>
+            </ShowOnMouseOver>
+            <Label Anchor="C,C" Offset="0,-1" String="TXT_KEY_CO_INFLUENTIAL_HEADER"/>
+          </Button>
+          <Button ID="VictoryTourismHeader" Anchor="C,C" Size="80,24" Style="BoxButton" ToolTip="TXT_KEY_CO_VICTORY_TOURISM_HEADER_TT">
+            <ShowOnMouseOver>
+              <AlphaAnim Anchor="C,C" Offset="0,0" Size="68,30" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
+                <Grid Size="68,30" Anchor="C,C" Offset="0,0" Padding="0,0" Style="Grid9FrameTurnsHL"/>
+              </AlphaAnim>
+            </ShowOnMouseOver>
+            <Label Anchor="C,C" Offset="0,-1" String="[ICON_TOURISM]"/>
+          </Button>
+          <Button ID="IdeologyHeader" Anchor="C,C" Size="120,24" Style="BoxButton" ToolTip="TXT_KEY_CO_VICTORY_IDEOLOGY_HEADER_TT">
+            <ShowOnMouseOver>
+              <AlphaAnim Anchor="C,C" Offset="0,0" Size="180,30" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
+                <Grid Size="180,30" Anchor="C,C" Offset="0,0" Padding="0,0" Style="Grid9FrameTurnsHL"/>
+              </AlphaAnim>
+            </ShowOnMouseOver>
+            <Label Anchor="C,C" Offset="0,-1" String="TXT_KEY_CO_VICTORY_IDEOLOGY_HEADER"/>
+          </Button>
+          <Button ID="PublicOpinionHeader" Anchor="C,C" Size="150,24" Style="BoxButton" ToolTip="TXT_KEY_CO_VICTORY_PUBLIC_OPINION_HEADER_TT">
+            <ShowOnMouseOver>
+              <AlphaAnim Anchor="C,C" Offset="0,0" Size="220,30" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
+                <Grid Size="220,30" Anchor="C,C" Offset="0,0" Padding="0,0" Style="Grid9FrameTurnsHL"/>
+              </AlphaAnim>
+            </ShowOnMouseOver>
+            <Label Anchor="C,C" Offset="0,-1" String="TXT_KEY_CO_VICTORY_PUBLIC_OPINION_HEADER"/>
+          </Button>
+          <Button ID="PublicOpinionUnhappinessHeader" Anchor="C,C" Size="80,24" Style="BoxButton" ToolTip="TXT_KEY_CO_VICTORY_PUBLIC_OPINION_UNHAPPINESS_HEADER_TT">
+            <ShowOnMouseOver>
+              <AlphaAnim Anchor="C,C" Offset="0,0" Size="68,30" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
+                <Grid Size="68,30" Anchor="C,C" Offset="0,0" Padding="0,0" Style="Grid9FrameTurnsHL"/>
+              </AlphaAnim>
+            </ShowOnMouseOver>
+            <Label Anchor="C,C" Offset="0,-1" String="TXT_KEY_CO_VICTORY_PUBLIC_OPINION_UNHAPPINESS_HEADER"/>
+          </Button>
+          <Button ID="ExcessHappinessHeader" Anchor="C,C" Size="100,24" Style="BoxButton" ToolTip="TXT_KEY_CO_VICTORY_EXCESS_HAPPINESS_HEADER_TT">
+            <ShowOnMouseOver>
+              <AlphaAnim Anchor="C,C" Offset="0,0" Size="150,30" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
+                <Grid Size="150,30" Anchor="C,C" Offset="0,0" Padding="0,0" Style="Grid9FrameTurnsHL"/>
+              </AlphaAnim>
+            </ShowOnMouseOver>
+            <Label Anchor="C,C" Offset="0,-1" String="TXT_KEY_CO_VICTORY_EXCESS_HAPPINESS_HEADER"/>
+          </Button>
+        </Stack>
+        <!-- Player List -->
+        <ScrollPanel Anchor="L,T" Offset="0,45" Size="956,410" Vertical="1" AutoScrollBar="1" ID="VictoryScroll">
+          <ScrollBar Offset="0,18" Style="VertSlider" Anchor="R,T" Length="374" />
+          <UpButton Offset="0,0" Style="ScrollBarUp" Anchor="R,T" />
+          <DownButton Offset="0,0" Style="ScrollBarDown" Anchor="R,B" />
+          <Stack Anchor="L,T" Size="937,410" StackGrowth="Bottom" Padding="0" ID="VictoryStack"/>
+        </ScrollPanel>
+       
+      </Box>
+      <!-- Player Influence Tab Content-->
+      <Box Size="953,459" Color="0,0,0,0" ID="PlayerInfluencePanel" Hidden="1">
+        <Box Size="953,100" Color="0,0,0,0">
+          <Stack Size="953,32" Offset="20,10" StackGrowth="Right" Padding="25">
+            <Label Anchor="L,C" String="TXT_KEY_CO_PLAYER_PULLDOWN" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow"/>
+            <PullDown Anchor="L,C" Style="GenericPullDown" ScrollThreshold="275" Size="300,27" AutoSizePopUp="1" SpaceForScroll="1" ID="PlayerPD"/>
+            <Label Anchor="L,C" String="TXT_KEY_CO_TOURISM_OUTPUT" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow"/>
+            <Label Anchor="L,C" ID="CurrentTourismOutput" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow"/>
+          </Stack>
+        </Box>
+        <!-- Column Backgrounds-->
+        <Stack Anchor="L,T" StackGrowth="Right" Offset="0,64" Padding="0">
+          <Box Anchor="L,T" Offset="0,26" Size="261,370" Color="0,0,0,0"/>
+          <Box Anchor="L,T" Offset="0,0" Size="1,396" Color="18,108,98,255"/>
+          <Box Anchor="L,T" Offset="0,26" Size="118,370" Color="1,26,23,255"/>
+          <Box Anchor="L,T" Offset="0,0" Size="1,396" Color="18,108,98,255"/>
+          <Box Anchor="L,T" Offset="0,26" Size="280,370" Color="0,0,0,0"/>
+          <Box Anchor="L,T" Offset="0,0" Size="1,396" Color="18,108,98,255"/>
+          <Box Anchor="L,T" Offset="0,26" Size="68,370" Color="1,26,23,255"/>
+          <Box Anchor="L,T" Offset="0,0" Size="1,396" Color="18,108,98,255"/>
+          <Box Anchor="L,T" Offset="0,26" Size="76,370" Color="0,0,0,0"/>
+          <Box Anchor="L,T" Offset="0,0" Size="1,396" Color="18,108,98,255"/>
+          <Box Anchor="L,T" Offset="0,26" Size="126,370" Color="1,26,23,255"/>
+          <Box Anchor="L,T" Offset="0,0" Size="1,396" Color="18,108,98,255"/>
+        </Stack>
+        <!-- Column Headers -->
+        <Stack Anchor="L,T" StackGrowth="Right" Offset="0,64" Padding="0">
+          <Button ID="PlayerNameHeader" Anchor="C,C" Size="261,24" Style="BoxButton">
+            <ShowOnMouseOver>
+              <AlphaAnim Anchor="C,C" Offset="0,0" Size="261,30" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
+                <Grid Size="261,30" Anchor="C,C" Offset="0,0" Padding="0,0" Style="Grid9FrameTurnsHL"/>
+              </AlphaAnim>
+            </ShowOnMouseOver>
+            <Label Anchor="C,C" Offset="0.-1" Font="TwCenMT18" String="TXT_KEY_CO_CIVILIZATION_HEADER"/>
+          </Button>
+          <Button ID="InfluenceLevelHeader" Anchor="C,C" Size="118,24" Style="BoxButton" ToolTip="TXT_KEY_CO_INFLUENCE_LEVEL_HEADER_TT">
+            <ShowOnMouseOver>
+              <AlphaAnim Anchor="C,C" Offset="0,0" Size="118,30" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
+                <Grid Size="118,30" Anchor="C,C" Offset="0,0" Padding="0,0" Style="Grid9FrameTurnsHL"/>
+              </AlphaAnim>
+            </ShowOnMouseOver>
+            <Label Anchor="C,C" Offset="0,-1" String="TXT_KEY_CO_LEVEL_HEADER"/>
+          </Button>
+          <Button ID="InfluencePercentHeader" Anchor="C,C" Size="280,24" Style="BoxButton" ToolTip="TXT_KEY_CO_INFLUENCE_PERCENT_HEADER_TT">
+            <ShowOnMouseOver>
+              <AlphaAnim Anchor="C,C" Offset="0,0" Size="280,30" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
+                <Grid Size="280,30" Anchor="C,C" Offset="0,0" Padding="0,0" Style="Grid9FrameTurnsHL"/>
+              </AlphaAnim>
+            </ShowOnMouseOver>
+            <Label Anchor="C,C" Offset="0,-1" String="TXT_KEY_CO_PERCENT_HEADER"/>
+          </Button>
+          <Button ID="InfluenceModifiersHeader" Anchor="C,C" Size="68,24" Style="BoxButton" ToolTip="TXT_KEY_CO_INFLUENCE_MODIFIERS_HEADER_TT">
+            <ShowOnMouseOver>
+              <AlphaAnim Anchor="C,C" Offset="0,0" Size="88,30" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
+                <Grid Size="88,30" Anchor="C,C" Offset="0,0" Padding="0,0" Style="Grid9FrameTurnsHL"/>
+              </AlphaAnim>
+            </ShowOnMouseOver>
+            <Label Anchor="C,C" Offset="0,-1" String="TXT_KEY_CO_MODIFIERS_HEADER"/>
+          </Button>
+          <Button ID="InfluenceTourismHeader" Anchor="C,C" Size="76,24" Style="BoxButton" ToolTip="TXT_KEY_CO_INFLUENCE_TOURISM_HEADER_TT">
+            <ShowOnMouseOver>
+              <AlphaAnim Anchor="C,C" Offset="0,0" Size="56,30" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
+                <Grid Size="56,30" Anchor="C,C" Offset="0,0" Padding="0,0" Style="Grid9FrameTurnsHL"/>
+              </AlphaAnim>
+            </ShowOnMouseOver>
+            <Label Anchor="C,C" Offset="0,-1" String="TXT_KEY_CO_TOURISM_HEADER"/>
+          </Button>
+          <Button ID="InfluenceTrendHeader" Anchor="C,C" Size="126,24" Style="BoxButton" ToolTip="TXT_KEY_CO_INFLUENCE_TREND_HEADER_TT">
+            <ShowOnMouseOver>
+              <AlphaAnim Anchor="C,C" Offset="0,0" Size="126,30" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
+                <Grid Size="126,30" Anchor="C,C" Offset="0,0" Padding="0,0" Style="Grid9FrameTurnsHL"/>
+              </AlphaAnim>
+            </ShowOnMouseOver>
+            <Label Anchor="C,C" Offset="0,-1" String="TXT_KEY_CO_TREND_HEADER"/>
+          </Button>
+        </Stack>
+        <Image Anchor="L,T" Offset="0,89" Texture="bar900x2.dds" Size="900.1"/>
+        <!-- Player List -->
+        <ScrollPanel Anchor="L,T" Offset="0,90" Size="939,370" Vertical="1" AutoScrollBar="0" ID="InfluenceScroll">
+          <ScrollBar Style="VertSlider" Length="334" Anchor="R,C" AnchorSide="O,I"/>
+          <UpButton Style="ScrollBarUp" Anchor="R,T" AnchorSide="O,I"/>
+          <DownButton Style="ScrollBarDown" Anchor="R,B" AnchorSide="O,I"/>
+          <Stack Anchor="L,T" Size="784,380" StackGrowth="Bottom" Padding="0" ID="InfluenceStack"/>
+        </ScrollPanel>
+      </Box>
+    </Box>
+    <!-- Bottom Panel -->
+    <Image Anchor="C,B" Offset="0,110" Texture="HorizontalTrim.dds" Size="971,5"/>
+    <Box Anchor="C,B" AnchorSide="I.I" Offset="0,54" Size="927,56" Color="255,255,255,0">
+      <!-- Close Button  -->
+      <GridButton Anchor="L,B" Style="SmallButton" Size="150,32" Offset="14,0" StateOffsetIncrement="0,0" ID="CloseButton">
+        <Label Anchor="C,C" Offset="0,0" String="TXT_KEY_CLOSE" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow"/>
+      </GridButton>
+      <Label Anchor="L,C" Offset="300,-10" Font="TwCenMT18" ID="AntiquitySites" FontStyle="Shadow" Color0="Beige.255" Color1="Black.128"/>
+      <Label Anchor="L,C" Offset="300,20" Font="TwCenMT18" ID="HiddenSites" FontStyle="Shadow" Color0="Beige.255" Color1="Black.128"/>
+    </Box>
+  </Grid>
+</Context>

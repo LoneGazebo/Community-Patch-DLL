@@ -331,6 +331,7 @@ public:
 #else
 	void SetSpyResult(PlayerTypes ePlayer, int iResult);
 #endif
+	int GetSpyResult(PlayerTypes ePlayer);
 
 	bool HasPendingEvents(PlayerTypes ePlayer) const;
 

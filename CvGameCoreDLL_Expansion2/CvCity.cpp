@@ -5051,8 +5051,14 @@ CvString CvCity::GetScaledHelpText(CityEventChoiceTypes eEventChoice, bool bYiel
 		CvEspionageSpy* pSpy = (GET_PLAYER(eSpyOwner).GetEspionage()->GetSpyByID(iSpyIndex));
 		if (pSpy)
 		{
+			iEra = GET_PLAYER(eSpyOwner).GetCurrentEra();
+			if (iEra <= 0)
+			{
+				iEra = 1;
+			}
+
 			if (pSpy->m_iPotentialAtStart != -1)
-				iPotential = pSpy->m_iPotentialAtStart;
+			iPotential = pSpy->m_iPotentialAtStart;
 			else
 			{
 				iPotential = GetEspionageRanking();
@@ -5082,30 +5088,66 @@ CvString CvCity::GetScaledHelpText(CityEventChoiceTypes eEventChoice, bool bYiel
 		CvEspionageSpy* pSpy = (GET_PLAYER(eSpyOwner).GetEspionage()->GetSpyByID(iSpyIndex));
 		if (pSpy)
 		{
-			int iSpyRate = GET_PLAYER(eSpyOwner).GetEspionage()->CalcPerTurn(SPY_STATE_GATHERING_INTEL, this, iSpyIndex);
-			if (iSpyRate > 0)
+			if (GetCityEspionage()->GetSpyResult(eSpyOwner) == SPY_RESULT_DETECTED)
 			{
-				int iSpyTurns = GetEspionageRankingForEspionage(eSpyOwner, eEventChoice);
-
-				int iTurnsLeft = iSpyTurns / iSpyRate;
-				if (iSpyTurns % iSpyRate > 0)
-				{
-					iTurnsLeft++;
-				}
-
-				int iKillChance = GET_PLAYER(eSpyOwner).GetEspionage()->GetDefenseChance(ESPIONAGE_TYPE_KILL, this, eEventChoice, true);
-				int iIdentifyChance = GET_PLAYER(eSpyOwner).GetEspionage()->GetDefenseChance(ESPIONAGE_TYPE_IDENTIFY, this, eEventChoice, true);
-
 				Localization::String localizedDurationText;
-				localizedDurationText = Localization::Lookup("TXT_KEY_EVENT_SPY_DURATION_SCALED");
-				localizedDurationText << iTurnsLeft;
-				localizedDurationText << iKillChance;
-				localizedDurationText << iIdentifyChance;
+				localizedDurationText = Localization::Lookup("TXT_KEY_EVENT_SPY_DETECTED");
 
 				const char* const localized = localizedDurationText.toUTF8();
 				if (localized)
 				{
 					spyTip += localized;
+				}
+			}
+			else if (GetCityEspionage()->GetSpyResult(eSpyOwner) == SPY_RESULT_IDENTIFIED)
+			{
+				Localization::String localizedDurationText;
+				localizedDurationText = Localization::Lookup("TXT_KEY_EVENT_SPY_IDENTIFIED");
+
+				const char* const localized = localizedDurationText.toUTF8();
+				if (localized)
+				{
+					spyTip += localized;
+				}
+			}
+			else if (GetCityEspionage()->GetSpyResult(eSpyOwner) == SPY_RESULT_KILLED)
+			{
+				Localization::String localizedDurationText;
+				localizedDurationText = Localization::Lookup("TXT_KEY_EVENT_SPY_KILLED");
+
+				const char* const localized = localizedDurationText.toUTF8();
+				if (localized)
+				{
+					spyTip += localized;
+				}
+			}
+			else
+			{
+				int iSpyRate = GET_PLAYER(eSpyOwner).GetEspionage()->CalcPerTurn(SPY_STATE_GATHERING_INTEL, this, iSpyIndex);
+				if (iSpyRate > 0)
+				{
+					int iSpyTurns = GetEspionageRankingForEspionage(eSpyOwner, eEventChoice);
+
+					int iTurnsLeft = iSpyTurns / iSpyRate;
+					if (iSpyTurns % iSpyRate > 0)
+					{
+						iTurnsLeft++;
+					}
+
+					int iKillChance = GET_PLAYER(eSpyOwner).GetEspionage()->GetDefenseChance(ESPIONAGE_TYPE_KILL, this, eEventChoice, true);
+					int iIdentifyChance = GET_PLAYER(eSpyOwner).GetEspionage()->GetDefenseChance(ESPIONAGE_TYPE_IDENTIFY, this, eEventChoice, true);
+
+					Localization::String localizedDurationText;
+					localizedDurationText = Localization::Lookup("TXT_KEY_EVENT_SPY_DURATION_SCALED");
+					localizedDurationText << iTurnsLeft;
+					localizedDurationText << iKillChance;
+					localizedDurationText << iIdentifyChance;
+
+					const char* const localized = localizedDurationText.toUTF8();
+					if (localized)
+					{
+						spyTip += localized;
+					}
 				}
 			}
 		}
@@ -5172,39 +5214,43 @@ CvString CvCity::GetScaledHelpText(CityEventChoiceTypes eEventChoice, bool bYiel
 				}
 			}
 			int iYieldValue = pkEventChoiceInfo->getEventYield(eIndex);
-			if (pkEventChoiceInfo->IsEraScaling())
-			{
-				iYieldValue *= iEra;
-			}
-			if (pkEventChoiceInfo->IsPotentialScaling() && iPotential > 0)
-			{
-				iYieldValue *= iPotential;
-			}
-			iYieldValue *= GC.getGame().getGameSpeedInfo().getInstantYieldPercent();
-			iYieldValue /= 100;
 			if (iYieldValue != 0)
 			{
-				if (yieldInstantTip != "")
-				{
-					yieldInstantTip += ", ";
-				}
-				Localization::String localizedEventText;
-				if (bYieldsOnly)
-				{
-					localizedEventText = Localization::Lookup("TXT_KEY_EVENT_YIELD_SCALED_NOTIFICATION_INSTANT");
-				}
-				else
-				{
-					localizedEventText = Localization::Lookup("TXT_KEY_EVENT_YIELD_SCALED");
-				}
-				localizedEventText << pYield->GetDescription();
-				localizedEventText << pYield->getIconString();
-				localizedEventText << iYieldValue;
 
-				const char* const localized = localizedEventText.toUTF8();
-				if (localized)
+				if (pkEventChoiceInfo->IsEraScaling())
 				{
-					yieldInstantTip += localized;
+					iYieldValue *= iEra;
+				}
+				if (pkEventChoiceInfo->IsPotentialScaling() && iPotential > 0)
+				{
+					iYieldValue *= iPotential;
+				}
+				iYieldValue *= GC.getGame().getGameSpeedInfo().getInstantYieldPercent();
+				iYieldValue /= 100;
+				if (iYieldValue != 0)
+				{
+					if (yieldInstantTip != "")
+					{
+						yieldInstantTip += ", ";
+					}
+					Localization::String localizedEventText;
+					if (bYieldsOnly)
+					{
+						localizedEventText = Localization::Lookup("TXT_KEY_EVENT_YIELD_SCALED_NOTIFICATION_INSTANT");
+					}
+					else
+					{
+						localizedEventText = Localization::Lookup("TXT_KEY_EVENT_YIELD_SCALED");
+					}
+					localizedEventText << pYield->GetDescription();
+					localizedEventText << pYield->getIconString();
+					localizedEventText << iYieldValue;
+
+					const char* const localized = localizedEventText.toUTF8();
+					if (localized)
+					{
+						yieldInstantTip += localized;
+					}
 				}
 			}
 			int iCityValue = pkEventChoiceInfo->getCityYield(eIndex);
@@ -5365,7 +5411,7 @@ CvString CvCity::GetDisabledTooltip(CityEventChoiceTypes eChosenEventChoice, int
 				localizedDurationText = Localization::Lookup("TXT_KEY_EVENT_SPY_RANK");
 				DisabledTT += localizedDurationText.toUTF8();
 
-				return DisabledTT.c_str();
+				//return DisabledTT.c_str();
 			}
 		}
 
@@ -6148,7 +6194,7 @@ CvString CvCity::GetDisabledTooltip(CityEventChoiceTypes eChosenEventChoice, int
 	return DisabledTT.c_str();
 
 }
-void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCityEvent, bool bSendMsg, int iEspionageValue, PlayerTypes eSpyOwner, CvCity* pOriginalCity)
+void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCityEvent, bool bSendMsg, int iEspionageValue, PlayerTypes eSpyOwner, CvCity* pOriginalCity, int iPassPotential)
 {
 	if (GC.getGame().isNetworkMultiPlayer() && bSendMsg && GET_PLAYER(getOwner()).isHuman()) {
 		NetMessageExt::Send::DoCityEventChoice(getOwner(), GetID(), eEventChoice, eCityEvent);
@@ -6257,7 +6303,7 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 				}
 			}
 
-			int iPotential = 0;
+			int iPotential = iPassPotential;
 			CvSpyResult eResult = NUM_SPY_RESULTS;
 			if (eSpyOwner != NO_PLAYER && iEspionageValue != -1)
 			{
@@ -6280,7 +6326,7 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 						if (pkEventChoiceInfo->IsApplyEffectToSpyOwner())
 						{
 							if (GET_PLAYER(eSpyOwner).getCapitalCity() != NULL)
-								GET_PLAYER(eSpyOwner).getCapitalCity()->DoEventChoice(eEventChoice, NO_EVENT_CITY, true, -1, getOwner(), this);
+								GET_PLAYER(eSpyOwner).getCapitalCity()->DoEventChoice(eEventChoice, NO_EVENT_CITY, true, -1, getOwner(), this, iPotential);
 
 							return;
 						}
@@ -35867,6 +35913,10 @@ int CvCity::CountAllOwnedTerrain(TerrainTypes iTerrainType) const
 		if (pLoopPlot == NULL || pLoopPlot->getOwner() != iOwner) {
 			continue;
 		}
+
+		if (pLoopPlot->getOwningCity() != this)
+			continue;
+
 
 		if (pLoopPlot->HasTerrain(iTerrainType)) {
 			++iCount;

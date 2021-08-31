@@ -1117,7 +1117,8 @@ void CvPlot::updateWaterFlags() const
 	//------ finally freshwater
 	
 	m_bIsFreshwater = isRiver();
-	if(isWater() || isImpassable() || m_bIsFreshwater)
+	//isImpassable() removed this check, Gazebo
+	if(isWater() || m_bIsFreshwater)
 		return;
 
 	//now the more complex checks

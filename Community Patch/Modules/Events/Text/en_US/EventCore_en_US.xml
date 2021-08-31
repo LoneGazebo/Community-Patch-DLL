@@ -60,7 +60,7 @@
 			<Text>Instant Event</Text>
 		</Row>
 		<Row Tag="TXT_KEY_TP_ESPIONAGE_EVENT">
-			<Text>[ICON_SPY] [COLOR_NEGATIVE_TEXT]ESPIONAGE ACTION[ENDCOLOR] Against City</Text>
+			<Text>[ICON_SPY] [COLOR_NEGATIVE_TEXT]ESPIONAGE ACTION[ENDCOLOR] Against City[NEWLINE][NEWLINE]Enemy Benefit:</Text>
 		</Row>
 		<Row Tag="TXT_KEY_EVENT_CHOICE_SORT_NAME">
 			<Text>Sort by Event Name</Text>

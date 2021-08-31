@@ -952,7 +952,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 		int iYieldTrait = CityStrategyAIHelpers::GetBuildingTraitValue(m_pCity, eYield, eBuilding, iYieldValue);
 		int iHappinessReduction = pkBuildingInfo->GetUnhappinessNeedsFlatReduction(eYield);
 
-		if ((iYieldValue > 0) || (iYieldTrait > 0))
+		if ((iYieldValue > 0) || (iYieldTrait > 0) || (iHappinessReduction > 0))
 		{
 			switch (eYield)
 			{
@@ -964,22 +964,17 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 					bGoodforHappiness = true;
 					bGoodforGPT = true;
 				}
-				if (iPoverty > 0)
+				if (iHappinessReduction > 0)
 				{
-					iYieldValue += iHappinessReduction * 50;
-					iYieldValue += (iPoverty * 10);
-					iYieldTrait += (iPoverty * 10);
+					iYieldValue += iHappinessReduction * 100;
 					bGoodforHappiness = true;
 					bGoodforGPT = true;
 				}
 				break;
 			case YIELD_SCIENCE:
-				if (iIlliteracy > 0)
+				if (iHappinessReduction > 0)
 				{
-					iYieldValue += iHappinessReduction * 50;
-
-					iYieldValue += (iIlliteracy * 10);
-					iYieldTrait += (iIlliteracy * 10);
+					iYieldValue += iHappinessReduction * 100;
 					bGoodforHappiness = true;
 				}
 				break;
@@ -991,12 +986,9 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 					iYieldValue /= 10;
 					break;
 				}
-				if (iReligion > 0)
+				if (iHappinessReduction > 0)
 				{
-					iYieldValue += iHappinessReduction * 50;
-
-					iYieldValue += (iReligion * 10);
-					iYieldTrait += (iReligion * 10);
+					iYieldValue += iHappinessReduction * 100;
 
 					bGoodforHappiness = true;
 				}
@@ -1007,12 +999,9 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 
 				break;
 			case YIELD_CULTURE:
-				if (iBoredom > 0)
+				if (iHappinessReduction > 0)
 				{
-					iYieldValue += iHappinessReduction * 50;
-
-					iYieldValue += (iBoredom * 10);
-					iYieldTrait += (iBoredom * 10);
+					iYieldValue += iHappinessReduction * 100;
 					bGoodforHappiness = true;
 				}
 				break;
@@ -1022,12 +1011,9 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 					iYieldValue *= 4;
 					iYieldTrait *= 4;
 				}
-				if (iCrime > 0)
+				if (iHappinessReduction > 0)
 				{
-					iYieldValue += iHappinessReduction * 50;
-
-					iYieldValue += (iCrime * 10);
-					iYieldTrait += (iCrime * 10);
+					iYieldValue += iHappinessReduction * 100;
 					bGoodforHappiness = true;
 				}
 				break;
@@ -1040,12 +1026,9 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 				else if (bSmall)
 					iYieldValue *= 10;
 
-				if (iCrime > 0)
+				if (iHappinessReduction > 0)
 				{
-					iYieldValue += iHappinessReduction * 50;
-
-					iYieldValue += (iCrime * 10);
-					iYieldTrait += (iCrime * 10);
+					iYieldValue += iHappinessReduction * 100;
 					bGoodforHappiness = true;
 				}
 				break;
@@ -1171,12 +1154,12 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 		}
 	}
 	int iEraValue =  max(1, kPlayer.GetCurrentEra() - iEra);
-	iBonus += (150 * iEraValue);
+	iBonus += (200 * iEraValue);
 
 	//Unlocks another building?
 	int iPrereqChain = kPlayer.GetChainLength(eBuilding);
 	if (iPrereqChain > 0)
-		iBonus += iPrereqChain * 50 * iEraValue;
+		iBonus += iPrereqChain * 100 * iEraValue;
 
 	//UB?
 	if (kPlayer.getCivilizationInfo().isCivilizationBuildingOverridden(pkBuildingInfo->GetBuildingClassType()))

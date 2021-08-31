@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Created by ModBuddy on 1/21/2014 12:19:12 PM -->
+<GameData>
+	<Builds>
+		<Row>
+			<Type>BUILD_EMBASSY</Type>
+			<ImprovementType>IMPROVEMENT_EMBASSY</ImprovementType>
+			<Description>TXT_KEY_BUILD_EMBASSY</Description>
+			<Help>TXT_KEY_BUILD_CONSUMED_HELP_EMBASSY</Help>
+			<EntityEvent>ENTITY_EVENT_MINE</EntityEvent>
+			<HotKey>KB_Z</HotKey>
+			<Kill>1</Kill>
+			<OrderPriority>98</OrderPriority>
+			<IconIndex>0</IconIndex>
+			<IconAtlas>UNIT_ACTION_EMBASSY</IconAtlas>
+		</Row>
+	</Builds>
+	<BuildFeatures>
+		<Row>
+			<BuildType>BUILD_EMBASSY</BuildType>
+			<FeatureType>FEATURE_JUNGLE</FeatureType>
+			<PrereqTech>TECH_BRONZE_WORKING</PrereqTech>
+			<Remove>true</Remove>
+		</Row>
+		<Row>
+			<BuildType>BUILD_EMBASSY</BuildType>
+			<FeatureType>FEATURE_FOREST</FeatureType>
+			<PrereqTech>TECH_MINING</PrereqTech>
+			<Remove>true</Remove>
+		</Row>
+		<Row>
+			<BuildType>BUILD_EMBASSY</BuildType>
+			<FeatureType>FEATURE_MARSH</FeatureType>
+			<PrereqTech>TECH_MASONRY</PrereqTech>
+			<Remove>true</Remove>
+		</Row>
+	</BuildFeatures>
+	<Language_en_US>
+		<Row Tag="TXT_KEY_BUILD_EMBASSY">
+			<Text>Construct an [LINK=IMPROVEMENT_EMBASSY]Embassy[\LINK]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILD_CONSUMED_HELP_EMBASSY">
+			<Text>Unit will be consumed.[NEWLINE][NEWLINE]This Great Tile Improvement cannot be built on top of Strategic or Luxury Resources. Grants [COLOR_POSITIVE_TEXT]1 World Congress Vote[ENDCOLOR] when constructed.</Text>
+		</Row>
+	</Language_en_US>
+</GameData>

@@ -139,7 +139,9 @@ function DisplayData()
 		itemInstance.CityRecentEventChoiceHelpText:SetText(Locale.ConvertTextKey("TXT_KEY_EVENT_CHOICE_RESULT_UI") .. " " .. eventChoice.EventChoiceDescription);
 		if(eventChoice.Duration > 0) then
 			itemInstance.CityRecentEventChoiceDuration:SetText(Locale.ConvertTextKey("TXT_KEY_TP_TURNS_REMAINING", eventChoice.Duration));
-		elseif(eventChoice.Espionage)then
+		end
+
+		if(eventChoice.Espionage)then
 			itemInstance.CityRecentEventChoiceDuration:SetText(Locale.ConvertTextKey("TXT_KEY_TP_ESPIONAGE_EVENT"));
 		else
 			itemInstance.CityRecentEventChoiceDuration:SetText(Locale.ConvertTextKey("TXT_KEY_TP_BONUS"));

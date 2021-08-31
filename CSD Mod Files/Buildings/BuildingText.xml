@@ -1,0 +1,245 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Created by ModBuddy on 4/2/2011 2:22:56 PM -->
+<GameData>
+	<Language_en_US>
+		<!--Diplo Building Names-->
+		<Row Tag="TXT_KEY_BUILDING_CHANCERY">
+			<Text>Chancery</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_WIRE_SERVICE">
+			<Text>Wire Service</Text>
+		</Row>
+		<!--National Wonder Names-->
+		<Row Tag="TXT_KEY_BUILDING_PRINTING_PRESS">
+			<Text>Printing Press</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_FOREIGN_OFFICE">
+			<Text>Foreign Bureau</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_COURT_SCRIBE">
+			<Text>Scrivener's Office</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_PALACE_SCIENCE_CULTURE">
+			<Text>Palace of Culture and Science</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_EHRENHALLE">
+			<Text>Hall of Honor</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_FINANCE_CENTER">
+			<Text>International Finance Center</Text>
+		</Row>
+		<!-- World Wonder Names -->
+		<Row Tag="TXT_KEY_BUILDING_FORUM">
+			<Text>Roman Forum</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_SUMMER_PALACE">
+			<Text>Summer Palace</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_GRAND_CANAL">
+			<Text>Grand Canal</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_OLYMPIC_VILLAGE">
+			<Text>Olympic Village</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_CRYSTAL_PALACE">
+			<Text>Crystal Palace</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_SECURITY_COUNCIL">
+			<Text>Security Council Chambers</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_CONSULATE">
+			<Text>Consulate</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_UN">
+			<Text>United Nations</Text>
+		</Row>
+		<!--Diplo Building Help
+		<Row Tag="TXT_KEY_BUILDING_CHANCERY_HELP">
+			<Text>+1 [ICON_RES_PAPER] Paper. +10% [ICON_PRODUCTION] Production of Diplomatic Units. Grants Promotion [COLOR_POSITIVE_TEXT]Royal Signet[ENDCOLOR] for Diplomatic Units in the city in which it is built. [NEWLINE][NEWLINE]+5% of the City's [ICON_PRODUCTION] Production is added to the current [ICON_PRODUCTION] Production amount every time the city gains a [ICON_CITIZEN] Citizen.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_WIRE_SERVICE_HELP">
+			<Text>+1 [ICON_RES_PAPER] Paper. +10% [ICON_PRODUCTION] Production of Diplomatic Units. Grants Promotion [COLOR_POSITIVE_TEXT]Wire Service[ENDCOLOR] for Diplomatic Units in the city in which it is built. [NEWLINE][NEWLINE]+5% of the City's [ICON_PRODUCTION] Production is added to the current [ICON_PRODUCTION] Production amount every time the city gains a [ICON_CITIZEN] Citizen.</Text>
+		</Row>-->
+		<!--Diplo National Wonder Help-->
+		<Row Tag="TXT_KEY_BUILDING_PRINTING_PRESS_HELP">
+			<Text>+2 [ICON_RES_PAPER] Paper. +20% [ICON_PRODUCTION] Production of Diplomatic Units. All Diplomatic Units receive the [COLOR_POSITIVE_TEXT]Literacy[ENDCOLOR] Promotion.[NEWLINE][NEWLINE]Must have built a Chancery in all cities. The cost goes up the more cities there are in the empire.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_FOREIGN_OFFICE_HELP">
+			<Text>+2 [ICON_RES_PAPER] Paper. +20% [ICON_PRODUCTION] Production of Diplomatic Units. All Diplomatic Units receive the [COLOR_POSITIVE_TEXT]Diplomatic Immunity[ENDCOLOR] Promotion.[NEWLINE][NEWLINE]Must have built a Wire Service in all cities. The cost goes up the more cities there are in the empire.</Text>
+		</Row>
+		<!--
+		<Row Tag="TXT_KEY_BUILDING_COURT_SCRIBE_HELP">
+			<Text>+1 [ICON_RES_PAPER] Paper. +10% [ICON_PRODUCTION] Production of Diplomatic Units. Can only be constructed in a player's Capital. [NEWLINE][NEWLINE] +5% of the City's [ICON_PRODUCTION] Production is added to the current [ICON_PRODUCTION] Production amount every time the city gains a [ICON_CITIZEN] Citizen.</Text>
+		</Row>-->
+		<!--Diplo World Wonder Help-->
+		<Row Tag="TXT_KEY_BUILDING_FORUM_HELP">
+			<Text>Receive 1 free Great Diplomat when completed. +1 [ICON_RES_PAPER] Paper. +20% [ICON_PRODUCTION] Production of Diplomatic Units. All Diplomatic Units receive the [COLOR_POSITIVE_TEXT]Imperial Seal[ENDCOLOR] Promotion.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_SUMMER_PALACE_HELP">
+			<Text>+1 [ICON_RES_PAPER] Paper. +20% [ICON_PRODUCTION] Production of Diplomatic Units. All Diplomatic Units receive the [COLOR_POSITIVE_TEXT]Nobility[ENDCOLOR] Promotion. Provides a free Chancery in the city in which it is built.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_PALACE_SCIENCE_CULTURE_HELP">
+			<Text>Requires Order. +15% [ICON_CULTURE] Culture and [ICON_RESEARCH] Science in the city where it is built. +1 [ICON_RES_PAPER] Paper. Receive one vote for every [COLOR_POSITIVE_TEXT]Research Agreement[ENDCOLOR] you currently have with other players. [NEWLINE][NEWLINE]Must have built a Public School in all cities. The cost goes up the more cities there are in the empire.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_EHRENHALLE_HELP">
+			<Text>Requires Autocracy. +15 [ICON_TOURISM] Tourism and +15 [ICON_PEACE] Faith in the city where it is built. +1 [ICON_RES_PAPER] Paper. Receive one vote for every [COLOR_POSITIVE_TEXT]enemy Capital[ENDCOLOR] you control. [NEWLINE][NEWLINE]Must have built a Military Academy in all cities. The cost goes up the more cities there are in the empire.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_FINANCE_CENTER_HELP">
+			<Text>Requires Freedom. +15% [ICON_FOOD] Food and [ICON_GOLD] Gold in the city where it is built. +1 [ICON_RES_PAPER] Paper. Receive one vote for every [COLOR_POSITIVE_TEXT]Declaration of Friendship[ENDCOLOR] you currently have with other players. [NEWLINE][NEWLINE]Must have built a Stock Exchange in all cities. The cost goes up the more cities there are in the empire.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_GRAND_CANAL_HELP">
+			<Text>Receive an additional Trade Route. Grants all naval units except Submarines and Carriers the [COLOR_POSITIVE_TEXT]Treasure Fleet[ENDCOLOR] Promotion, which grants +10% Combat Strength when attacking, +1 [ICON_MOVES] Movement, +1 Sight, and the ability to heal outside of friendly territory.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_OLYMPIC_VILLAGE_HELP">
+			<Text>25% of the [ICON_CULTURE] Culture from World Wonders, Natural Wonders, and Improvements (Landmarks, Moai, Chateau) is added to the [ICON_TOURISM] Tourism output of the city. Receive +3 [ICON_HAPPINESS_1] Happiness and +3 [ICON_CULTURE] Culture in the city where it is built.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_CRYSTAL_PALACE_HELP">
+			<Text>The empire enters a [ICON_GOLDEN_AGE] Golden Age. +2 [ICON_PRODUCTION] Production and +2 [ICON_RESEARCH] Science for all Factories in owned cities.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CONSULATE_HELP">
+			<Text>Receive an additional Delegate in the World Congress.</Text>
+		</Row>
+		<!--
+		<Row Tag="TXT_KEY_SECURITY_COUNCIL_HELP">
+			<Text>+1 [ICON_RES_PAPER] Paper. +10% [ICON_PRODUCTION] Production of Diplomatic Units. Receive additional [ICON_SPY] Spies.</Text>
+		</Row>
+		-->
+		<Row Tag="TXT_KEY_UN_HELP">
+			<Text>Earn 10 [ICON_INFLUENCE] Influence with all City-States you have met when you expend a Great Person. Receive an additional Delegate in the World Congress. Triggers a [ICON_GOLDEN_AGE] Golden Age, as well as the [COLOR_POSITIVE_TEXT]United Nations[ENDCOLOR] Special Session of the World Congress.</Text>
+		</Row>
+		
+		<!--Diplo Building Strategy
+		<Row Tag="TXT_KEY_BUILDING_CHANCERY_STRATEGY">
+			<Text>Increases Diplomatic Unit production speed and increases the amount of Influence received for Diplomatic Units built in the city. The Civil Servant specialist of this building offers a little [ICON_CULTURE] Culture, [ICON_RESEARCH] Science and [ICON_GOLD] Gold, in exchange for [ICON_FOOD] Food and [ICON_PRODUCTION] Production. The additional [ICON_PRODUCTION] Production granted upon City growth makes it important to build this building early on to maximize the boost..</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_WIRE_SERVICE_STRATEGY">
+			<Text>Increases Diplomatic Unit production speed and increases the amount of Influence received for Diplomatic Units built in the city.  The Civil Servant specialist of this building offers a little [ICON_CULTURE] Culture, [ICON_RESEARCH] Science and [ICON_GOLD] Gold, in exchange for [ICON_FOOD] Food and [ICON_PRODUCTION] Production. The additional [ICON_PRODUCTION] Production granted upon City growth makes it important to build this building early on to maximize the boost.</Text>
+		</Row>-->
+		<!--Diplo National Wonder Strategy-->
+		<Row Tag="TXT_KEY_BUILDING_PRINTING_PRESS_STRATEGY">
+			<Text>This National Wonder cannot be built unless the civilization has a Chancery built in all of its cities. Build it to receive a production speed increase for Diplomatic Units in the city where it is built, increased movement and influence for all your Diplomatic Units and the ability to allow your Diplomatic Units to ignore terrain penalties.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_FOREIGN_OFFICE_STRATEGY">
+			<Text>This National Wonder cannot be built unless the civilization has a Wire Service built in all of its cities. Build it to receive a production speed increase for Diplomatic Units in the city where it is built, increased movement and influence for all your Diplomatic Units and the ability to send your Diplomatic Units through rival territory without an [COLOR_POSITIVE_TEXT]Open Borders[ENDCOLOR] agreement.</Text>
+		</Row>
+		<!--
+		<Row Tag="TXT_KEY_BUILDING_COURT_SCRIBE_STRATEGY">
+			<Text>This National Wonder is unique, in that players may build it in their Capital without any other prerequisites. The Scrivener's Office gives a small production boost when building diplomatic units in the capital, and one [ICON_RES_PAPER] Paper resource. Build this building if you want to secure a city-state ally or two during the first few eras of the game.</Text>
+		</Row>-->
+		<!-- Diplo World Wonder Strategy-->
+		<Row Tag="TXT_KEY_BUILDING_FORUM_STRATEGY">
+			<Text>Build this world wonder to receive a permanent boost to your relations with city-states through better-trained Diplomatic Units. Provides a free Great Diplomat to send to nearby city-states.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_SUMMER_PALACE_STRATEGY">
+			<Text>Build this wonder for your Diplomatic Units to be able to enter a rival's territory without an Open Borders agreement centuries before anyone else. Provides a free Chancery in the city in which it is built. </Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_PALACE_SCIENCE_CULTURE_STRATEGY">
+			<Text>This National Wonder cannot be built unless the civilization has a Public School built in all of its cities. Build this national wonder to receive additional votes in the World Congress based on the number of Research Agreements you currently have with other players. You will also receive a large boost to the Culture and Science output of the city where it is built.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_EHRENHALLE_STRATEGY">
+			<Text>This National Wonder cannot be built unless the civilization has a Military Academy built in all of its cities. Build this national wonder to receive additional votes in the World Congress based on the number of enemy Capitals you have conquered. You will also receive a large boost to the Tourism and Faith output of the city where it is built.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_FINANCE_CENTER_STRATEGY">
+			<Text>This National Wonder cannot be built unless the civilization has a Stock Exchange built in all of its cities. Build this national wonder to receive additional votes in the World Congress based on the number of Declaration of Friendships you currently have with other players. You will also receive a large boost to the Food and Gold output of the city where it is built.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_GRAND_CANAL_STRATEGY">
+			<Text>Build this wonder to boost the strength and durability of your navy via the [COLOR_POSITIVE_TEXT]Treasure Fleet[ENDCOLOR] promotion, and to receive an additional trade route. May only be built collaboratively through the World Congress.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_OLYMPIC_VILLAGE_STRATEGY">
+			<Text>Combining the strengths of the Hotel, Stadium and Hermitage in one, the Olympic Village is a powerhouse of late-game culture. May only be built collaboratively through the World Congress.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_CRYSTAL_PALACE_STRATEGY">
+			<Text>Like its real-world counterpart, the Crystal Palace dabbles in a wide varitey of bonuses. Players with a large number of cities, and Factories, will benefit most from the Crystal Palace, however the additional Culture and Great Work slot are useful for any Civilization. May only be built collaboratively through the World Congress.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_CONSULATE_STRATEGY">
+			<Text>The Consulate gives its owner a slight edge in the World Congress by granting an additional Delegate. May only be built collaboratively through the World Congress.</Text>
+		</Row>
+		<!--
+		<Row Tag="TXT_KEY_BUILDING_SECURITY_COUNCIL_STRATEGY">
+			<Text>The Security Council Office grants its owner an additional Spy, and improves the rate of Diplomatic Unit production. May only be built collaboratively through the World Congress.</Text>
+		</Row>
+		-->
+		<Row Tag="TXT_KEY_BUILDING_UN_STRATEGY">
+			<Text>When paired with a high rate of Great Person production, the United Nations grants a significant boost to diplomatic power in the World Congress for its owner. It also provides an additional Delegate, and triggers a Golden Age. [NEWLINE][NEWLINE]In addition to these immediate benefits, the construction of the United Nations triggers the start of the United Nations Special Session of the World Congress, which enables the Diplomatic Victory. May only be built collaboratively through the World Congress.</Text>
+		</Row>
+		<!--Diplo Building Civilopedia Entries-->
+		<Row Tag="TXT_KEY_CIV5_BUILDINGS_CHANCERY_TEXT">
+			<Text>During the early medieval period, Chanceries emerged in Europe as a branch of many royal households. Tasked with issuing court documents, managing royal decrees, administering justice, and assessing a monarch's revenue, Chanceries dabbled in every element of statecraft, including diplomacy. As kingdoms and states grew in size and scope throughout the early modern period, the power of Chanceries continually expanded until, in the 17th and 18th centuries, most western countries legally separated Chanceries into multiple, more specific bureaus. Thus, the Chancery is the ancestor of the modern civil service.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CIV5_BUILDINGS_WIRE_SERVICE_TEXT">
+			<Text>Though taken for granted today, the establishment of regional, national and eventually international news agencies (or wire services) was a major boon to the economic, political and cultural interconnectivity of the world. By standardizing the speed, quality and stability of communication on a global scale, modern news agencies are not only useful for spreading popular and intellectual knowledge, but also the acceleration of discourse between governments. Eventually, most countries would create national wire services that focused on foreign affairs and diplomacy. Many of these organizations were under the control of a nation's foreign bureau.</Text>
+		</Row>
+		<!--Diplo National Wonder Entries-->
+		<Row Tag="TXT_KEY_CIV5_BUILDINGS_PRINTING_PRESS_TEXT">
+			<Text>From a single print shop in Mainz, Germany, printing had spread to no less than around 270 cities in Central, Western and Eastern Europe by the end of the 15th century. As early as 1480, it is assumed that "the printed book was in universal use in Europe". By 1500, the printing presses in operation throughout Western Europe had already produced more than twenty million copies. European printing presses of around 1600 were capable of producing 3,600 impressions per workday. By comparison, movable type printing in the Far East, which did not know presses and was solely done by manually rubbing the back of the paper to the page, did not exceed an output of forty pages per day. The rapidity of typographical text production, as well as the sharp fall in unit costs, led to the issuing of the first newspapers which opened up an entirely new field for conveying up-to-date information to the public.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CIV5_BUILDINGS_FOREIGN_OFFICE_TEXT">
+			<Text>The foreign office sits at the heart of the modern empire. Teeming with vast, unending legions of civil servants, diplomats and assistants, all news both critical and mundane passes through the halls of the Foreign Bureau.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CIV5_BUILDINGS_COURT_SCRIBE_TEXT">
+			<Text>The position of royal scrivener, and the office therein, is one of the oldest and most important positions within a civil service. Though the modern state has hundreds of civil servants that write, edit and issue government documentation, in the ancient world these tasks were usually given to one individual, the scrivener. Scrivener's wielded immense power, as they had control over the wording, translations and interpretations of the laws of the land. Because of this great power, a good, loyal scrivener was an invaluable resource.</Text>
+		</Row>
+		
+		<!-- Diplo Project UN Wonders 
+		-->
+		<!--
+		<Row Tag="TXT_KEY_SECURITY_COUNCIL_DESC">
+			<Text>The United Nations Security Council (UNSC) is one of the six principal organs of the United Nations and is charged with the maintenance of international peace and security. Its powers include the establishment of peacekeeping operations, the establishment of international sanctions, and the authorization of military action through Security Council resolutions; it is the only UN body with the authority to issue binding resolutions to member states. The Security Council held its first session on 17 January 1946. Like the UN as a whole, the Security Council was created following World War II to address the failings of another international organization, the League of Nations, in maintaining world peace.</Text>
+		</Row>
+		-->
+		<Row Tag="TXT_KEY_CONSULATE_DESC">
+			<Text>The office of a Consul is termed a Consulate, and is usually subordinate to the state's main representation in that foreign country, usually an Embassy, or High Commission between Commonwealth countries, in the capital city of the host state. Like the term embassy, the word consulate may refer not only to the office of consul, but also to the building occupied by the consul and his or her staff. The consulate may share premises with the embassy itself. In the modern age, many Consulates are affiliated with the United Nations and/or other international organizations.</Text>
+		</Row>
+		
+		<!--Diplo World Wonder Entries-->
+		<Row Tag="TXT_KEY_CIV5_BUILDINGS_FORUM_TEXT">
+			<Text>The Roman Forum (Latin: Forum Romanum) is a rectangular forum (plaza) surrounded by the ruins of several important ancient government buildings at the center of the city of Rome. It was for centuries the center of Roman public life: the site of triumphal processions and elections, venue for public speeches, criminal trials, gladiatorial matches, and commercial affairs. The teeming heart of ancient Rome, it has been called the most celebrated meeting place in the world, and in all history.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WONDER_FORUM_QUOTE">
+			<Text>[NEWLINE][TAB][TAB]"I found Rome a city of bricks and left it a city of marble."[NEWLINE]- Augustus Caesar[NEWLINE][TAB]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CIV5_BUILDINGS_SUMMER_PALACE_TEXT">
+			<Text>Built in stages during the late-Medieval and Early Modern periods, the Summer Palace was a large, splendid edifice to the power and might of the early Qing Dynasty and a counterpart to the Emperor's main palace in Beijing. Famous for its exquisite landscaping, lush gardens and spectacular vista, the Summer Palace remains an important symbol of the power of Early Modern China and a popular tourist destination.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WONDER_SUMMER_PALACE_QUOTE">
+			<Text>[NEWLINE][TAB][TAB]"A monarchy is the most expensive of all forms of government...he who depends on his own power to rule, must strengthen that power by bribing the active and enterprising whom he cannot intimidate."[NEWLINE]- James F. Cooper[NEWLINE][TAB]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CIV5_BUILDINGS_PALACE_SCIENCE_CULTURE_TEXT">
+			<Text>The Palace of Culture and Science in Warsaw is the tallest building in Poland, the eighth tallest building in the European Union. The building was originally known as the Joseph Stalin Palace of Culture and Science, but in the wake of destalinization the dedication to Stalin was revoked; Stalin's name was removed from the interior lobby and one of the building's sculptures. Currently it is the 187th tallest building in the world.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CIV5_BUILDINGS_EHRENHALLE_TEXT">
+			<Text>The "Ehrenhalle" (Hall of Honor) was built by the city of Nuremberg according to a plan of German architect Fritz Mayer. It was inaugurated in 1930, before the Hitler era during the Weimar Republic. It is an arcaded hall with an adjacent cobbled stone terrace with two rows of pedestals for fire bowls. All fourteen pylons remain virtually intact and have not been ignited since the final Nazi party rally in September, 1938. Originally, the hall was to be a memorial site for the 9,855 soldiers from Nuremberg who were fallen in World War I. During the Party Congress of 1929 the then unfinished "Hall of Honour" was used for the enactment of a cult of the dead by the National Socialists for the first time. During the Third Reich, the Nazis used the site primarily as a commemoration for the fallen soldiers of World War I and a commemoration of the 16 dead of the "Hitlerputsch" (the so-called "Martyrs of the NS Movement") (Beer Hall Putsch) on 9 November, 1923, in Munich. Hitler, accompanied by SS-leader Heinrich Himmler and SA-leader Viktor Lutze, strode through the arena over the 240 meters long granite path from the main grandstand to the terrace of the Ehrenhalle and showed the Nazi salute there. The ritual was the climax of the celebration.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CIV5_BUILDINGS_FINANCE_CENTER_TEXT">
+			<Text>A Financial Center is a global city that is home to a large number of internationally significant banks, businesses, and stock exchanges. An International Financial Center, sometimes abbreviated to IFC, is a non-specific term usually used to describe an important participant in international financial market trading, usually having at least one major stock market. During much of the 20th century, the United States and its financial capital, New York City, were the leaders. But since the 1990s, with the rise of a multipolar world with new regional powers and global capitalism, numerous financial centres have challenged the predominance of Wall Street, particularly from Asia, which some analysts believe will be the focus of new worldwide growth.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CIV5_BUILDINGS_GRAND_CANAL_TEXT">
+			<Text>
+				The Grand Canal is the largest canal in Venice, Italy, and remains one of the most important trade and traffic corridors in the city. As a city of small islands, Venice was enhanced during the Middle Ages by the dredging of soils to raise the marshy ground above the tides, the results of which were a series of flooded channels. These channels, or canals, encouraged the flourishing of a nautical culture which proved central to the economy of the city from the Middle Ages well into the present day. Today those canals still provide the means for transport of goods and people within the city. The maze of canals threaded through the city requires the use of more than 400 bridges to permit the flow of foot traffic. In 2011, the city opened Ponte della Costituzione, the fourth bridge across the Grand Canal, connecting the Piazzale Roma bus terminal area with the Stazione Ferroviaria (train station), the others being the original Ponte di Rialto, the Ponte dell'Accademia, and the Ponte degli Scalzi.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WONDER_GRAND_CANAL_QUOTE">
+			<Text>
+				[NEWLINE][TAB][TAB]"To build a city where it is impossible to build a city is madness in itself, but to build there one of the most elegant and grandest of cities is the madness of genius.”[NEWLINE]- Alexander Herzen[NEWLINE][TAB]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CIV5_BUILDINGS_OLYMPIC_VILLAGE_TEXT">
+			<Text>
+				An Olympic Village is an accommodation center built for the Olympic Games, usually within an Olympic Park or elsewhere in a host city. Olympic Villages are built to house all participating athletes, as well as officials and athletic trainers. The idea of the Olympic Village comes from Pierre de Coubertin. Up until the 1924 Summer Olympic Games, National Olympic Committees rented locations around the host city to house participants, which was expensive. For the 1924 Summer Olympics, the organizers built cabins near the Stade Olympique de Colombes to allow the athletes to easily access the Games' venues. The Olympic Village of the 1932 Summer Olympics served as the model of today's Olympic Villages; it consisted of a group of buildings with rooms to lodge athletes, and buildings with other accommodations.
+			</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WONDER_OLYMPIC_VILLAGE_QUOTE">
+			<Text>
+				[NEWLINE][TAB][TAB]"The most important thing in the Olympic Games is not winning but taking part; the essential thing in life is not conquering but fighting well." [NEWLINE]- Pierre de Coubertin[NEWLINE][TAB]
+			</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CIV5_BUILDINGS_CRYSTAL_PALACE_TEXT">
+			<Text>
+				The Crystal Palace was a cast-iron and plate-glass building originally erected in Hyde Park, London, England, to house the Great Exhibition of 1851. More than 14,000 exhibitors from around the world gathered in the Palace's 990,000 square feet of exhibition space to display examples of the latest technology developed in the Industrial Revolution. Designed by Sir Joseph Paxton, the Great Exhibition building was 1,851 feet long, with an interior height of 128 feet. Because of the recent invention of the cast plate glass method in 1848, which allowed for large sheets of cheap but strong glass, it was at the time the largest amount of glass ever seen in a building and astonished visitors with its clear walls and ceilings that did not require interior lights, thus a "Crystal Palace."
+			</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WONDER_CRYSTAL_PALACE_QUOTE">
+			<Text>
+				[NEWLINE][TAB][TAB]"I dreamt that the Exhibition...was, as it ought to be, a palace of very crystal, the sky looking through every bit of the roof upon all nations under it." [NEWLINE]- Douglas Jerrold[NEWLINE][TAB]
+			</Text>
+		</Row>
+	</Language_en_US>
+</GameData>

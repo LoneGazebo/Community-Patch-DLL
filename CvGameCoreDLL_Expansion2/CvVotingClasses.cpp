@@ -12225,6 +12225,11 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 		}
 
 		PolicyBranchTypes eOurIdeology = GetPlayer()->GetPlayerPolicies()->GetLateGamePolicyTree();
+		if (eOurIdeology != eTargetIdeology)
+		{
+			iExtra *= -1;
+		}
+
 		if (eOurIdeology != NO_POLICY_BRANCH_TYPE)
 		{
 			int iInfluenceDifference = 0;

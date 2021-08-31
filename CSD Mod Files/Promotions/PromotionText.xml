@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Created by ModBuddy on 4/2/2011 12:46:11 PM -->
+<GameData>
+	<Language_en_US>
+		<!--Unit Combat Type- Diplo Units-->
+		<Row Tag="TXT_KEY_UNITCOMBAT_DIPLOMACY">
+			<Text>Diplomacy Units</Text>
+		</Row>
+		<!--Diplo Promotion Titles-->
+		<Row Tag="TXT_KEY_PROMOTION_EMISSARY">
+			<Text>Initiate</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_ENVOY">
+			<Text>Adept</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_DIPLOMAT">
+			<Text>Professional</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_AMBASSADOR">
+			<Text>Plenipotentiary</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_GREAT_DIPLOMAT">
+			<Text>Master Diplomat</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_GREAT_MERCHANT">
+			<Text>Market Control</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_NOBEL_LAUREATE">
+			<Text>Nobel Laureate</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_SIGNET">
+			<Text>Royal Signet</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_EXPRESS">
+			<Text>Wire Service</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_LITERACY">
+			<Text>Literacy</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_IMMUNITY">
+			<Text>Diplomatic Immunity</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_PAX">
+			<Text>Imperial Seal</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_NOBILITY">
+			<Text>Noble</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_TREASURE_FLEET">
+			<Text>Treasure Fleet</Text>
+		</Row>
+		<!--Diplo Promotion Help-->
+		<Row Tag="TXT_KEY_PROMOTION_EMISSARY_HELP">
+			<Text>Earn 40 [ICON_INFLUENCE] Influence when you conduct a Diplomatic Mission.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_ENVOY_HELP">
+			<Text>Earn 45 [ICON_INFLUENCE] Influence when you conduct a Diplomatic Mission.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_DIPLOMAT_HELP">
+			<Text>Earn 50 [ICON_INFLUENCE] Influence when you conduct a Diplomatic Mission.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_AMBASSADOR_HELP">
+			<Text>Earn 55 [ICON_INFLUENCE] Influence when you conduct a Diplomatic Mission.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_GREAT_DIPLOMAT_HELP">
+			<Text>Earn 70 [ICON_INFLUENCE] Influence when you conduct a Diplomatic Mission, and reduce the [ICON_INFLUENCE] Influence of other Civilizations with this City-State by the same amount. Earn additional [ICON_INFLUENCE] Influence for each completed era. Has the ability to enter a rival player's territory without an Open Borders agreement.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_GREAT_MERCHANT_HELP">
+			<Text>Earn tons of [ICON_GOLD], but no [ICON_INFLUENCE] Influence when you conduct a Diplomatic Mission with this unit.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_NOBEL_LAUREATE_HELP">
+			<Text>Grants Diplomatic Units +10 [ICON_INFLUENCE] Influence when you conduct a Diplomatic Mission. Bonus is exclusive to the Swedish Civilization (if using CSD's custom Trait for Sweden).</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_SIGNET_HELP">
+			<Text>Grants +5 [ICON_INFLUENCE] Influence when you conduct a Diplomatic Mission.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_EXPRESS_HELP">
+			<Text>Grants +5 [ICON_INFLUENCE] Influence when you conduct a Diplomatic Mission and +1 [ICON_MOVES] movement.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_LITERACY_HELP">
+			<Text>Grants +5 [ICON_INFLUENCE] Influence when you conduct a Diplomatic Mission, +1 [ICON_MOVES] movement for Diplomatic Units, and the ability to ignore terrain costs.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_IMMUNITY_HELP">
+			<Text>Grants +5 [ICON_INFLUENCE] Influence when you conduct a Diplomatic Mission and the ability to enter a rival player's territory without an Open Borders agreement.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_PAX_HELP">
+			<Text>+5 [ICON_INFLUENCE] Influence when you conduct a Diplomatic Mission with a City-State.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_NOBILITY_HELP">
+			<Text>+5 [ICON_INFLUENCE] Influence when you conduct a Diplomatic Mission with a City-State, and the ability to enter a rival player's territory without an Open Borders agreement.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_TREASURE_FLEET_HELP">
+			<Text>Grants +1 [ICON_MOVES] movement, +1 Sight, +10% Combat Bonus when attacking, and the ability to heal in non-friendly waters.</Text>
+		</Row>
+	</Language_en_US>
+</GameData>

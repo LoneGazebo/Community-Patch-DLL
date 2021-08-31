@@ -53831,8 +53831,8 @@ bool CvDiplomacyAI::IsMakeGenerousOffer(PlayerTypes ePlayer, CvDeal* pDeal, bool
 		if(!bWantsToOfferSomething)
 			bWantsToOfferSomething = IsLuxuryGenerousOffer(ePlayer, pDeal);
 		// Tech Request
-		if(!bWantsToOfferSomething)
-			bWantsToOfferSomething = IsTechGenerousOffer(ePlayer, pDeal);
+		//if(!bWantsToOfferSomething)
+		//	bWantsToOfferSomething = IsTechGenerousOffer(ePlayer, pDeal);
 
 		if(bWantsToOfferSomething)
 		{
@@ -54008,7 +54008,7 @@ bool CvDiplomacyAI::IsTechGenerousOffer(PlayerTypes ePlayer, CvDeal* pDeal)
 
 	// See if the other player is lagging in science
 	int iOurScience = GetPlayer()->GetScience();
-	int iTheirScience = GetPlayer()->GetScience();
+	int iTheirScience = GET_PLAYER(ePlayer).GetScience();
 
 	if (iOurScience < iTheirScience)
 		return false;

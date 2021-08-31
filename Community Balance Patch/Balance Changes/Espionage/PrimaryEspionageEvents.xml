@@ -46,9 +46,9 @@
 			<PotentialScaling>true</PotentialScaling>
 			<EraScaling>true</EraScaling>
 			<WonderConstructionSpeedMod>-50</WonderConstructionSpeedMod>
-			<IDModifier>35</IDModifier>
-			<DeathModifier>15</DeathModifier>
-			<EspionageDifficultyMod>200</EspionageDifficultyMod>
+			<IDModifier>20</IDModifier>
+			<DeathModifier>10</DeathModifier>
+			<EspionageDifficultyMod>50</EspionageDifficultyMod>
 			<SpyLevelRequired>0</SpyLevelRequired>
 		</Row>
 		<!-- SCIENCE -->
@@ -64,8 +64,8 @@
 			<ScienceScaling>25</ScienceScaling>
 			<EspionageDifficultyMod>250</EspionageDifficultyMod>
 			<EraScaling>true</EraScaling>
-			<IDModifier>25</IDModifier>
-			<DeathModifier>15</DeathModifier>
+			<IDModifier>15</IDModifier>
+			<DeathModifier>10</DeathModifier>
 			<SpyLevelRequired>1</SpyLevelRequired>
 		</Row>
 		<!-- GREAT PEOPLE -->
@@ -75,11 +75,12 @@
 			<Help>TXT_KEY_ESPIONAGE_EVENT_CHOICE_SCIENTIFIC_GREATPEOPLE_HELP</Help>
 			<IsEspionageEffect>true</IsEspionageEffect>
 			<Expires>true</Expires>
+			<EventDuration>15</EventDuration>
 			<MissionSetup>true</MissionSetup>
 			<TriggerPlayerEventChoice>ESPIONAGE_EVENT_PLAYER_YIELD_BASIC</TriggerPlayerEventChoice>
-			<IDModifier>15</IDModifier>
-			<EspionageDifficultyMod>450</EspionageDifficultyMod>
-			<DeathModifier>15</DeathModifier>
+			<IDModifier>10</IDModifier>
+			<EspionageDifficultyMod>350</EspionageDifficultyMod>
+			<DeathModifier>10</DeathModifier>
 			<SpyLevelRequired>1</SpyLevelRequired>
 			<IsSpyBenefit>true</IsSpyBenefit>
 		</Row>
@@ -90,10 +91,10 @@
 			<Help>TXT_KEY_ESPIONAGE_EVENT_CHOICE_MILITARY_GARRISON_HELP</Help>
 			<IsEspionageEffect>true</IsEspionageEffect>
 			<MissionSetup>true</MissionSetup>
-			<IDModifier>75</IDModifier>
-			<DeathModifier>75</DeathModifier>
+			<IDModifier>40</IDModifier>
+			<DeathModifier>40</DeathModifier>
 			<DamageCity>100</DamageCity>
-			<EspionageDifficultyMod>175</EspionageDifficultyMod>
+			<EspionageDifficultyMod>75</EspionageDifficultyMod>
 			<DamageGarrison>25</DamageGarrison>
 			<SapCityTurns>5</SapCityTurns>
 			<SpyLevelRequired>2</SpyLevelRequired>
@@ -105,12 +106,12 @@
 			<Help>TXT_KEY_ESPIONAGE_EVENT_CHOICE_URBAN_UNREST_HELP</Help>
 			<IsEspionageEffect>true</IsEspionageEffect>
 			<MissionSetup>true</MissionSetup>
-			<IDModifier>80</IDModifier>
+			<IDModifier>45</IDModifier>
 			<IsUnhappy>true</IsUnhappy>
-			<EspionageDifficultyMod>600</EspionageDifficultyMod>
+			<EspionageDifficultyMod>450</EspionageDifficultyMod>
 			<ResistanceTurns>2</ResistanceTurns>
 			<RandomBarbarianSpawn>5</RandomBarbarianSpawn>
-			<DeathModifier>80</DeathModifier>
+			<DeathModifier>40</DeathModifier>
 			<SpyLevelRequired>2</SpyLevelRequired>
 		</Row>
 		<!-- TILES -->
@@ -120,8 +121,8 @@
 			<Help>TXT_KEY_ESPIONAGE_EVENT_CHOICE_ECONOMIC_TILES_HELP</Help>
 			<IsEspionageEffect>true</IsEspionageEffect>
 			<MissionSetup>true</MissionSetup>
-			<IDModifier>50</IDModifier>
-			<DeathModifier>20</DeathModifier>
+			<IDModifier>30</IDModifier>
+			<DeathModifier>10</DeathModifier>
 			<EventDuration>20</EventDuration>
 			<GrowthMod>-25</GrowthMod>
 			<Expires>true</Expires>
@@ -136,13 +137,13 @@
 			<Help>TXT_KEY_ESPIONAGE_EVENT_CHOICE_STEAL_TECH_HELP</Help>
 			<IsEspionageEffect>true</IsEspionageEffect>
 			<MissionSetup>true</MissionSetup>
-			<IDModifier>60</IDModifier>
+			<IDModifier>40</IDModifier>
 			<RequiredEra>ERA_MODERN</RequiredEra>
 			<PotentialScaling>true</PotentialScaling>
 			<EraScaling>true</EraScaling>
-			<DeathModifier>40</DeathModifier>
+			<DeathModifier>20</DeathModifier>
 			<StealNumTechs>1</StealNumTechs>
-			<EspionageDifficultyMod>600</EspionageDifficultyMod>
+			<EspionageDifficultyMod>300</EspionageDifficultyMod>
 			<SpyLevelRequired>2</SpyLevelRequired>
 		</Row>
 		<!-- STEAL GW -->
@@ -152,13 +153,13 @@
 			<Help>TXT_KEY_ESPIONAGE_EVENT_CHOICE_STEAL_GW_HELP</Help>
 			<IsEspionageEffect>true</IsEspionageEffect>
 			<MissionSetup>true</MissionSetup>
-			<IDModifier>60</IDModifier>
+			<IDModifier>30</IDModifier>
 			<RequiredEra>ERA_MODERN</RequiredEra>
 			<PotentialScaling>true</PotentialScaling>
 			<EraScaling>true</EraScaling>
-			<DeathModifier>40</DeathModifier>
+			<DeathModifier>15</DeathModifier>
 			<ForgeNumGW>1</ForgeNumGW>
-			<EspionageDifficultyMod>600</EspionageDifficultyMod>
+			<EspionageDifficultyMod>300</EspionageDifficultyMod>
 			<SpyLevelRequired>2</SpyLevelRequired>
 		</Row>
 		<!--- CounterSpy -->
@@ -216,12 +217,12 @@
 		<Row>
 			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_ECONOMIC_GOLD</CityEventChoiceType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Yield>40</Yield>
+			<Yield>80</Yield>
 		</Row>
 		<Row>
 			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_SCIENTIFIC_SCIENCE</CityEventChoiceType>
 			<YieldType>YIELD_SCIENCE</YieldType>
-			<Yield>60</Yield>
+			<Yield>120</Yield>
 		</Row>
 	</CityEventChoice_InstantYield>
 	<CityEventChoice_CityUnhappinessNeedMod>
@@ -482,6 +483,14 @@
 			<Flavor>25</Flavor>
 		</Row>
 	</CityEventChoiceFlavors>
+	<Events>
+		<Row>
+			<Type>ESPIONAGE_EVENT_PLAYER_YIELD_BASIC_PARENT</Type>
+			<Description>TXT_KEY_ESPIONAGE_EVENT_PLAYER_YIELD_BASIC_PARENT</Description>
+			<Help>TXT_KEY_ESPIONAGE_EVENT_PLAYER_YIELD_BASIC_PARENT_HELP</Help>
+			<NumChoices>1</NumChoices>
+		</Row>
+	</Events>
 	<EventChoices>
 		<Row>
 			<Type>ESPIONAGE_EVENT_PLAYER_YIELD_BASIC</Type>
@@ -492,6 +501,12 @@
 			<Expires>true</Expires>
 		</Row>
 	</EventChoices>
+	<Event_ParentEvents>
+		<Row>
+			<EventChoiceType>ESPIONAGE_EVENT_PLAYER_YIELD_BASIC</EventChoiceType>
+			<EventType>ESPIONAGE_EVENT_PLAYER_YIELD_BASIC_PARENT</EventType>
+		</Row>
+	</Event_ParentEvents>
 	<EventChoice_SpecialistYieldChange>
 		<Row>
 			<EventChoiceType>ESPIONAGE_EVENT_PLAYER_YIELD_BASIC</EventChoiceType>
@@ -546,7 +561,7 @@
 			<NotificationType>NOTIFICATION_GENERIC</NotificationType>
 			<Description>TXT_KEY_ESPIONAGE_EVENT_CHOICE_SUCCESS</Description>
 			<ShortDescription>TXT_KEY_ESPIONAGE_EVENT_CHOICE_SUCCESS_S</ShortDescription>
-			<EspionageEvent>false</EspionageEvent>
+			<EspionageEvent>true</EspionageEvent>
 			<NeedCityCoordinates>true</NeedCityCoordinates>
 			<NeedPlayerID>false</NeedPlayerID>
 			<ExtraVariable>-1</ExtraVariable>
@@ -566,7 +581,7 @@
 			<NotificationType>NOTIFICATION_GENERIC</NotificationType>
 			<Description>TXT_KEY_ESPIONAGE_EVENT_CHOICE_SUCCESS</Description>
 			<ShortDescription>TXT_KEY_ESPIONAGE_EVENT_CHOICE_SUCCESS_S</ShortDescription>
-			<EspionageEvent>false</EspionageEvent>
+			<EspionageEvent>true</EspionageEvent>
 			<NeedCityCoordinates>true</NeedCityCoordinates>
 			<NeedPlayerID>false</NeedPlayerID>
 			<ExtraVariable>-1</ExtraVariable>
@@ -586,7 +601,7 @@
 			<NotificationType>NOTIFICATION_GENERIC</NotificationType>
 			<Description>TXT_KEY_ESPIONAGE_EVENT_CHOICE_SUCCESS</Description>
 			<ShortDescription>TXT_KEY_ESPIONAGE_EVENT_CHOICE_SUCCESS_S</ShortDescription>
-			<EspionageEvent>false</EspionageEvent>
+			<EspionageEvent>true</EspionageEvent>
 			<NeedCityCoordinates>true</NeedCityCoordinates>
 			<NeedPlayerID>false</NeedPlayerID>
 			<ExtraVariable>-1</ExtraVariable>

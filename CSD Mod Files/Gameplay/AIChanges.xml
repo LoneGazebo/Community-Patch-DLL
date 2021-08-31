@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Created by ModBuddy on 4/2/2011 12:54:44 PM -->
+<GameData>
+	<Defines>
+		<!--Merchant AI Tweaks-->
+		<Row Name="AI_HOMELAND_MOVE_PRIORITY_MERCHANT_TRADE">
+			<Value>100</Value>
+		</Row>
+		<Row Name="AI_HOMELAND_MOVE_PRIORITY_MERCHANT_MISSION_TRADE">
+			<Value>100</Value>
+		</Row>
+		<Row Name="AI_HOMELAND_MOVE_PRIORITY_TRADE">
+			<Value>100</Value>
+		</Row>
+		<Row Name="AI_HOMELAND_MOVE_PRIORITY_MERCHANT">
+			<Value>100</Value>
+		</Row>
+		<Row Name="AI_HOMELAND_MOVE_PRIORITY_MISSION_TRADE">
+			<Value>100</Value>
+		</Row>
+		<Update>
+			<Set Value="-40"/>
+			<Where Tag="MINOR_APPROACH_IGNORE_DIPLO_GRAND_STRATEGY"/>
+		</Update>
+		<Update>
+			<Set Value="-40"/>
+			<Where Tag="MINOR_APPROACH_WAR_DIPLO_GRAND_STRATEGY"/>
+		</Update>
+		<Update>
+			<Set Value="-10"/>
+			<Where Tag="MINOR_APPROACH_IGNORE_CULTURE_GRAND_STRATEGY"/>
+		</Update>
+		<Update>
+			<Set Value="20"/>
+			<Where Tag="MINOR_APPROACH_PROTECTIVE_DIPLO_GRAND_STRATEGY_NEIGHBORS"/>
+		</Update>
+		<Update>
+			<Set Value="10"/>
+			<Where Tag="MINOR_APPROACH_FRIENDLY_RESOURCES"/>
+		</Update>
+		<Update>
+			<Set Value="10"/>
+			<Where Tag="MINOR_APPROACH_PROTECTIVE_RESOURCES"/>
+		</Update>
+		<Update>
+			<Set Value="20"/>
+			<Where Tag="MINOR_APPROACH_FRIENDLY_FRIENDS"/>
+		</Update>
+		<Update>
+			<Set Value="25"/>
+			<Where Tag="MINOR_APPROACH_PROTECTIVE_FRIENDS"/>
+		</Update>
+		<Update>
+			<Set Value="-10"/>
+			<Where Tag="MINOR_APPROACH_IGNORE_PROXIMITY_NEIGHBORS"/>
+		</Update>
+		<Update>
+			<Set Value="3"/>
+			<Where Tag="MINOR_APPROACH_FRIENDLY_PROXIMITY_NEIGHBORS"/>
+		</Update>
+		<Update>
+			<Set Value="7"/>
+			<Where Tag="MINOR_APPROACH_PROTECTIVE_PROXIMITY_NEIGHBORS"/>
+		</Update>
+		<Update>
+			<Set Value="-3"/>
+			<Where Tag="MINOR_APPROACH_CONQUEST_PROXIMITY_NEIGHBORS"/>
+		</Update>
+		<Update>
+			<Set Value="-7"/>
+			<Where Tag="MINOR_APPROACH_PROTECTIVE_PROXIMITY_CLOSE"/>
+		</Update>
+		<Update>
+			<Set Value="-5"/>
+			<Where Tag="MINOR_APPROACH_IGNORE_PROXIMITY_CLOSE"/>
+		</Update>
+		<Update>
+			<Set Value="4"/>
+			<Where Tag="MINOR_APPROACH_FRIENDLY_PROXIMITY_FAR"/>
+		</Update>
+		<Update>
+			<Set Value="8"/>
+			<Where Tag="MINOR_APPROACH_FRIENDLY_PROXIMITY_DISTANT"/>
+		</Update>
+		<Update>
+			<Set Value="100"/>
+			<Where Tag="MINOR_CIV_PRODUCTION_PERCENT"/>
+		</Update>
+		<Update>
+			<Set Value="100"/>
+			<Where Tag="MINOR_CIV_GROWTH_PERCENT"/>
+		</Update>
+		<Update>
+			<Set Value="100"/>
+			<Where Tag="MINOR_CIV_GOLD_PERCENT"/>
+		</Update>
+	</Defines>
+	<Language_en_US>
+		<Update>
+			<Set Text="Diplomatic Missions"/>
+			<Where Tag="TXT_KEY_POP_CSTATE_GIFT_GOLD"/>
+		</Update>
+	</Language_en_US>
+	<CitySpecialization_Flavors>
+		<Row>
+			<CitySpecializationType>CITYSPECIALIZATION_GENERAL_ECONOMIC</CitySpecializationType>
+			<FlavorType>FLAVOR_DIPLOMACY</FlavorType>
+			<Flavor>10</Flavor>
+		</Row>
+		<Row>
+			<CitySpecializationType>CITYSPECIALIZATION_COMMERCE</CitySpecializationType>
+			<FlavorType>FLAVOR_DIPLOMACY</FlavorType>
+			<Flavor>10</Flavor>
+		</Row>
+	</CitySpecialization_Flavors>
+	<AICityStrategy_Flavors>
+		<Row>
+			<AICityStrategyType>AICITYSTRATEGY_LARGE_CITY</AICityStrategyType>
+			<FlavorType>FLAVOR_DIPLOMACY</FlavorType>
+			<Flavor>15</Flavor>
+		</Row>
+		<Row>
+			<AICityStrategyType>AICITYSTRATEGY_CAPITAL_UNDER_THREAT</AICityStrategyType>
+			<FlavorType>FLAVOR_DIPLOMACY</FlavorType>
+			<Flavor>-50</Flavor>
+		</Row>
+		<Row>
+			<AICityStrategyType>AICITYSTRATEGY_CAPITAL_NEED_SETTLER</AICityStrategyType>
+			<FlavorType>FLAVOR_DIPLOMACY</FlavorType>
+			<Flavor>-50</Flavor>
+		</Row>
+		<Update>
+			<Set Flavor="-35" />
+			<Where FlavorType="FLAVOR_DIPLOMACY" AICityStrategyType="AICITYSTRATEGY_MEDIUM_CITY" />
+		</Update>
+		<Update>
+			<Set Flavor="-70" />
+			<Where FlavorType="FLAVOR_DIPLOMACY" AICityStrategyType="AICITYSTRATEGY_SMALL_CITY" />
+		</Update>
+	</AICityStrategy_Flavors>
+	<AIEconomicStrategy_Player_Flavors>
+		<Row>
+			<AIEconomicStrategyType>ECONOMICAISTRATEGY_NEED_HAPPINESS</AIEconomicStrategyType>
+			<FlavorType>FLAVOR_DIPLOMACY</FlavorType>
+			<Flavor>30</Flavor>
+		</Row>
+		<Row>
+			<AIEconomicStrategyType>ECONOMICAISTRATEGY_EXPAND_TO_OTHER_CONTINENTS</AIEconomicStrategyType>
+			<FlavorType>FLAVOR_DIPLOMACY</FlavorType>
+			<Flavor>10</Flavor>
+		</Row>
+		<Row>
+			<AIEconomicStrategyType>ECONOMICAISTRATEGY_EXPAND_LIKE_CRAZY</AIEconomicStrategyType>
+			<FlavorType>FLAVOR_DIPLOMACY</FlavorType>
+			<Flavor>5</Flavor>
+		</Row>
+		<Update>
+			<Set Flavor="20" />
+			<Where FlavorType="FLAVOR_DIPLOMACY" AIEconomicStrategyType="ECONOMICAISTRATEGY_GS_CULTURE" />
+		</Update>
+		<Update>
+			<Set Flavor="-50" />
+			<Where FlavorType="FLAVOR_DIPLOMACY" AIEconomicStrategyType="ECONOMICAISTRATEGY_GS_CONQUEST" />
+		</Update>
+		<Row>
+			<AIEconomicStrategyType>ECONOMICAISTRATEGY_GS_SPACESHIP</AIEconomicStrategyType>
+			<FlavorType>FLAVOR_DIPLOMACY</FlavorType>
+			<Flavor>12</Flavor>
+		</Row>
+		<Row>
+			<AIEconomicStrategyType>ECONOMICAISTRATEGY_GS_SPACESHIP_HOMESTRETCH</AIEconomicStrategyType>
+			<FlavorType>FLAVOR_DIPLOMACY</FlavorType>
+			<Flavor>-75</Flavor>
+		</Row>
+	</AIEconomicStrategy_Player_Flavors>
+	<AIMilitaryStrategy_Player_Flavors>
+		<Row>
+			<AIMilitaryStrategyType>MILITARYAISTRATEGY_EMPIRE_DEFENSE</AIMilitaryStrategyType>
+			<FlavorType>FLAVOR_DIPLOMACY</FlavorType>
+			<Flavor>-20</Flavor>
+		</Row>
+		<Row>
+			<AIMilitaryStrategyType>MILITARYAISTRATEGY_EMPIRE_DEFENSE_CRITICAL</AIMilitaryStrategyType>
+			<FlavorType>FLAVOR_DIPLOMACY</FlavorType>
+			<Flavor>-60</Flavor>
+		</Row>
+		<Row>
+			<AIMilitaryStrategyType>MILITARYAISTRATEGY_AT_WAR</AIMilitaryStrategyType>
+			<FlavorType>FLAVOR_DIPLOMACY</FlavorType>
+			<Flavor>-80</Flavor>
+		</Row>
+	</AIMilitaryStrategy_Player_Flavors>
+	<AIMilitaryStrategy_City_Flavors>
+		<Row>
+			<AIMilitaryStrategyType>MILITARYAISTRATEGY_EMPIRE_DEFENSE</AIMilitaryStrategyType>
+			<FlavorType>FLAVOR_DIPLOMACY</FlavorType>
+			<Flavor>-20</Flavor>
+		</Row>
+		<Row>
+			<AIMilitaryStrategyType>MILITARYAISTRATEGY_EMPIRE_DEFENSE_CRITICAL</AIMilitaryStrategyType>
+			<FlavorType>FLAVOR_DIPLOMACY</FlavorType>
+			<Flavor>-60</Flavor>
+		</Row>
+		<Row>
+			<AIMilitaryStrategyType>MILITARYAISTRATEGY_AT_WAR</AIMilitaryStrategyType>
+			<FlavorType>FLAVOR_DIPLOMACY</FlavorType>
+			<Flavor>-80</Flavor>
+		</Row>
+	</AIMilitaryStrategy_City_Flavors>
+</GameData>

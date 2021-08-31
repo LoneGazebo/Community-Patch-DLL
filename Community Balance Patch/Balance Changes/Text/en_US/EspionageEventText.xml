@@ -74,12 +74,17 @@
 			<Text>{6_Spy}Target City: Copy one [ICON_GREAT_WORK] Great Work. Target City: {3_CityYield}[NEWLINE][NEWLINE]If no Great Works are available to steal at completion, a [ICON_GOLDEN_AGE] Golden Age Begins.</Text>
 		</Row>
 
-		
-
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_PLAYER_YIELD_BASIC">
-			<Text>Repatriated Specialists</Text>
+			<Text>Repatriated Specialists (Spy Event)</Text>
 		</Row>
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_PLAYER_YIELD_BASIC_HELP">
+			<Text>+2 [ICON_RESEARCH] Science from Scientists; +2 [ICON_GOLD] Gold from Merchants; +2 [ICON_PRODUCTION] Production from Engineers; +2 [ICON_CULTURE] Culture from Musicians, Artists, and Writers in [ICON_CAPITAL] Capital. Duration: {4_Turns}</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_PLAYER_YIELD_BASIC_PARENT">
+			<Text>Repatriated Specialists (Spy Event)</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_PLAYER_YIELD_BASIC_PARENT_HELP">
 			<Text>+2 [ICON_RESEARCH] Science from Scientists; +2 [ICON_GOLD] Gold from Merchants; +2 [ICON_PRODUCTION] Production from Engineers; +2 [ICON_CULTURE] Culture from Musicians, Artists, and Writers in [ICON_CAPITAL] Capital. Duration: {4_Turns}</Text>
 		</Row>
 		
@@ -122,5 +127,17 @@
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_SUCCESS_S">
 			<Text>{1_SpyRank} {2_SpyName} succeeded in {3_CityName}!</Text>
 		</Row>
+
+		<Row Tag="TXT_KEY_EVENT_SPY_DETECTED">
+			<Text>[COLOR_POSITIVE_TEXT]MISSION OUTCOME:[ENDCOLOR] SUCCESS![NEWLINE][NEWLINE]Message: "Operatives detected, but they don't know who we work for. We will continue working here until you reassign us elsewhere."[NEWLINE][NEWLINE]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EVENT_SPY_IDENTIFIED">
+			<Text>[COLOR_POSITIVE_TEXT]MISSION OUTCOME:[ENDCOLOR] SUCCESS, BUT IDENTIFIED![NEWLINE][NEWLINE]Message: "Our cover is blown, we're returning to HQ for reassignment."[NEWLINE][NEWLINE]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EVENT_SPY_KILLED">
+			<Text>[COLOR_NEGATIVE_TEXT]MISSION OUTCOME:[ENDCOLOR] FAILURE[NEWLINE][NEWLINE] Communications have gone dark. Your operative is KIA.[NEWLINE][NEWLINE]</Text>
+		</Row>
+		
+		
 	</Language_en_US>
 </GameData>

@@ -762,7 +762,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 
 					//no fighters for city defense versus their bombers? eek?
 					if (iTheirAir > 0 && iOurAir <= kPlayer.getNumCities() && !bBomber)
-						iNeedAir += 5;
+						iNeedAir += 15;
 
 					if (iTheirAir >= iOurAir)
 						iNeedAir++;
@@ -1267,7 +1267,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			iFlavorExpansion += GC.getGame().getHandicapInfo().getAIDifficultyBonusBase() * 10;
 		}
 
-		iBonus += iFlavorExpansion * (bRunningEarlyExpand ? 5 : 1);
+		iBonus += iFlavorExpansion * (bRunningEarlyExpand ? 2 : 1);
 	}
 
 	if(!kPlayer.isMinorCiv())

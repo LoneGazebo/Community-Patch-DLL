@@ -409,8 +409,8 @@ VALUES
 INSERT INTO Trait_GAPToYield
 	(TraitType, YieldType, Yield)
 VALUES
-	('TRAIT_CARNIVAL', 'YIELD_TOURISM', 40),
-	('TRAIT_CARNIVAL', 'YIELD_GOLD', 40);
+	('TRAIT_CARNIVAL', 'YIELD_TOURISM', 30),
+	('TRAIT_CARNIVAL', 'YIELD_GOLD', 30);
 
 INSERT INTO Building_YieldChanges
 	(BuildingType, YieldType, Yield)

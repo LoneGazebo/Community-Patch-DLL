@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GameData>
+	<Resources>
+		<Row>
+			<Type>RESOURCE_PAPER</Type>
+			<TechCityTrade>TECH_WRITING</TechCityTrade>
+			<Description>TXT_KEY_RESOURCE_PAPER</Description>
+			<Civilopedia>TXT_KEY_CIV5_RESOURCE_PAPER_TEXT</Civilopedia>
+			<Help>TXT_KEY_RESOURCE_PAPER_HELP</Help>
+			<ResourceClassType>RESOURCECLASS_RUSH</ResourceClassType>
+			<AIObjective>1</AIObjective>
+			<AITradeModifier>30</AITradeModifier>
+			<IconString>[ICON_RES_PAPER]</IconString>
+			<PortraitIndex>1</PortraitIndex>
+			<IconAtlas>CSD_RESOURCE_ATLAS</IconAtlas>
+			<TechReveal>TECH_WRITING</TechReveal>
+			<ArtDefineTag>ART_DEF_RESOURCE_FUR</ArtDefineTag>
+		</Row>
+	</Resources>
+	<Resource_Flavors>
+		<Row>
+			<ResourceType>RESOURCE_PAPER</ResourceType>
+			<FlavorType>FLAVOR_DIPLOMACY</FlavorType>
+			<Flavor>20</Flavor>
+		</Row>
+	</Resource_Flavors>
+	<Language_en_US>
+		<Row Tag="TXT_KEY_RESOURCE_PAPER">
+			<Text>Paper</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESOURCE_PAPER_HELP">
+			<Text>Required to produce [ICON_INFLUENCE] Diplomatic Units. More advanced Diplomatic Units require more than one unit of Paper to be produced.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CIV5_RESOURCE_PAPER">
+			<Text>Paper</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CIV5_RESOURCE_PAPER_TEXT">
+			<Text>
+				Paper is a thin material produced by pressing together moist fibers, typically cellulose pulp derived from wood, rags or grasses, and drying them into flexible sheets. Paper is a versatile material with many uses. Whilst the most common is for writing and printing upon, it is also widely used as a packaging material, in many cleaning products, in a number of industrial and construction processes, and even as a food ingredient, particularly in Asian cultures. Paper, and the pulp papermaking process, was said to be developed in China during the early 2nd century AD, possibly as early as the year 105 A.D.,[1] by the Han court eunuch Cai Lun, although the earliest archaeological fragments of paper derive from the 2nd century BC in China.[NEWLINE][NEWLINE]In Civ V, 'Paper' is used for diplomatic purposes. As such, it is a metaphor for governance, political documentation, and legal authority.
+			</Text>
+		</Row>
+	</Language_en_US>
+</GameData>

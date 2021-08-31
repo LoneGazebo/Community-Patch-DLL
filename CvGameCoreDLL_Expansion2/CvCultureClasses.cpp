@@ -5036,7 +5036,7 @@ int CvPlayerCulture::GetTourismModifierWith(PlayerTypes ePlayer) const
 
 		iMod *= iNumCities;
 
-		iMultiplier -= iMod;
+		iMultiplier -= min(90, iMod);
 	}
 
 	CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
@@ -5268,6 +5268,8 @@ CvString CvPlayerCulture::GetTourismModifierWithTooltip(PlayerTypes ePlayer) con
 		iMod -= m_pPlayer->GetTourismCostXCitiesMod();
 
 		iMod *= iNumCities;
+
+		iMod = min(90, iMod);
 
 		if (iMod != 0)
 			szRtnValue += "[COLOR_NEGATIVE_TEXT]" + GetLocalizedText("TXT_KEY_CO_CITY_TOURISM_CAPITAL_PENALTY", iMod) + "[ENDCOLOR]";
@@ -7161,7 +7163,8 @@ int CvCityCulture::GetTourismMultiplier(PlayerTypes ePlayer, bool bIgnoreReligio
 
 		iMod *= iNumCities;
 
-		iMultiplier -= iMod;
+
+		iMultiplier -= min(90, iMod);
 	}
 #endif
 	// LATER add top science city and research agreement with this player???

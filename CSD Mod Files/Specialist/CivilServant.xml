@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Created by ModBuddy on 1/6/2014 9:56:48 PM -->
+<GameData>
+	<Specialists>
+		<Row>
+			<Type>SPECIALIST_CIVIL_SERVANT</Type>
+			<Description>TXT_KEY_SPECIALIST_CIVIL_SERVANT</Description>
+			<Strategy>TXT_KEY_SPECIALIST_CIVIL_SERVANT_STRATEGY</Strategy>
+			<GreatPeopleTitle>TXT_KEY_SPECIALIST_CIVIL_SERVANT_TITLE</GreatPeopleTitle>
+			<Visible>true</Visible>
+			<Cost>0</Cost>
+			<CulturePerTurn>1</CulturePerTurn>
+			<IconAtlas>CSDSPECIALIST_ATLAS</IconAtlas>
+			<PortraitIndex>0</PortraitIndex>
+			<GreatPeopleUnitClass>UNITCLASS_GREAT_DIPLOMAT</GreatPeopleUnitClass>
+			<GreatPeopleRateChange>3</GreatPeopleRateChange>
+		</Row>
+	</Specialists>
+	<SpecialistYields>
+		<Row>
+			<SpecialistType>SPECIALIST_CIVIL_SERVANT</SpecialistType>
+			<YieldType>YIELD_SCIENCE</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<SpecialistType>SPECIALIST_CIVIL_SERVANT</SpecialistType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>1</Yield>
+		</Row>
+	</SpecialistYields>
+	<SpecialistFlavors>
+		<Row>
+			<SpecialistType>SPECIALIST_CIVIL_SERVANT</SpecialistType>
+			<FlavorType>FLAVOR_DIPLOMACY</FlavorType>
+			<Flavor>30</Flavor>
+		</Row>
+		<Row>
+			<SpecialistType>SPECIALIST_CIVIL_SERVANT</SpecialistType>
+			<FlavorType>FLAVOR_GOLD</FlavorType>
+			<Flavor>5</Flavor>
+		</Row>
+		<Row>
+			<SpecialistType>SPECIALIST_CIVIL_SERVANT</SpecialistType>
+			<FlavorType>FLAVOR_SCIENCE</FlavorType>
+			<Flavor>5</Flavor>
+		</Row>
+		<Row>
+			<SpecialistType>SPECIALIST_CIVIL_SERVANT</SpecialistType>
+			<FlavorType>FLAVOR_CULTURE</FlavorType>
+			<Flavor>5</Flavor>
+		</Row>
+	</SpecialistFlavors>
+	<Language_en_US>
+		<Row Tag="TXT_KEY_SPECIALIST_CIVIL_SERVANT">
+			<Text>Civil Servant|Civil Servants</Text>
+			<Plurality>1|2</Plurality>
+		</Row>
+		<Row Tag="TXT_KEY_SPECIALIST_CIVIL_SERVANT_STRATEGY">
+			<Text>Civil Servants produce 1 [ICON_RESEARCH] Science, 1 [ICON_CULTURE] Culture, 1 [ICON_GOLD] Gold, and speed the creation of Great Diplomats. In addition to consuming [ICON_FOOD] Food, however, Civil Servants also consume 1 [ICON_PRODUCTION] Production.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPECIALIST_CIVIL_SERVANT_SLOTS">
+			<Text>Civil Servant Slots:</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPECIALIST_CIVIL_SERVANT_TITLE">
+			<Text>Great Diplomat Points:</Text>
+		</Row>
+	</Language_en_US>
+</GameData>

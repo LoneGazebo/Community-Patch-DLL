@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Created by ModBuddy on 10/7/2010 4:48:53 PM -->
+<GameData>
+	<Language_en_US>
+		<Update>
+			<Set Text="You have done something to anger {1_CityStateName:textkey}. Perhaps walking through their borders, or going to war recently.[NEWLINE][NEWLINE]Your [ICON_INFLUENCE] Influence with them recovers {2_Num} per turn. You should send a Diplomatic Unit to hasten the recovery of your [ICON_INFLUENCE] Influence."/>
+			<Where Tag="TXT_KEY_ANGRY_CSTATE_TT"/>
+		</Update>
+		<Update>
+			<Set Text="{1_CityStateName:textkey} neither likes nor dislikes you. You should send a Diplomatic Unit to increase your [ICON_INFLUENCE] Influence."/>
+			<Where Tag="TXT_KEY_NEUTRAL_CSTATE_TT"/>
+		</Update>
+		<Update>
+			<Set Text="Conduct Diplomatic Mission"/>
+			<Where Tag="TXT_KEY_MISSION_CONDUCT_TRADE_MISSION"/>
+		</Update>
+		<Update>
+			<Set Text="If the unit is inside a City-State's territory that you're not at war with, this order will have the unit conduct a Diplomatic Mission, giving you a large amount of [ICON_INFLUENCE] Influence with the City-State. If you use a Great Merchant in this way, you will also receive a large amount of [ICON_GOLD] Gold. This action will consume the unit."/>
+			<Where Tag="TXT_KEY_MISSION_CONDUCT_TRADE_MISSION_HELP"/>
+		</Update>
+		<Update>
+			<Set Text="You have gained {1_Num} [ICON_GOLD] Gold and {2_Num} [ICON_INFLUENCE] Influence from the Diplomatic Mission!"/>
+			<Where Tag="TXT_KEY_MERCHANT_RESULT"/>
+		</Update>
+		<Update>
+			<Set Text="You may initiate one of the following Diplomatic Missions."/>
+			<Where Tag="TXT_KEY_POPUP_MINOR_GOLD_GIFT"/>
+		</Update>
+		<Update>
+			<Set Text="You need at least {1_NumGold} Gold to initiate a Diplomatic Mission."/>
+			<Where Tag="TXT_KEY_POPUP_MINOR_GOLD_GIFT_CANT"/>
+		</Update>
+		<Update>
+			<Set Text="You may initiate a Diplomatic Mission that can improve your [ICON_INFLUENCE] Influence with this City-State."/>
+			<Where Tag="TXT_KEY_POP_CSTATE_GIFT_GOLD_TT"/>
+		</Update>
+	</Language_en_US>
+</GameData>

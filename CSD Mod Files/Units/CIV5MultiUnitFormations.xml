@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Created by ModBuddy on 10/26/2010 11:07:59 AM -->
+<GameData>
+	<MultiUnitFormation_SlotEntries>
+		<Delete MultiUnitPositionType="MUPOSITION_FRONT_LINE" MultiUnitFormationType="MUFORMATION_MERCHANT_ESCORT"/>
+		<Delete PrimaryUnitType="UNITAI_DEFENSE" MultiUnitFormationType="MUFORMATION_MERCHANT_ESCORT"/>
+		<Delete SecondaryUnitType="UNITAI_COUNTER" MultiUnitFormationType="MUFORMATION_MERCHANT_ESCORT"/>
+	</MultiUnitFormation_SlotEntries>
+</GameData>

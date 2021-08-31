@@ -5373,7 +5373,7 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_NOTIFICATION_SPY_WAS_KILLED_ADVANCED">
-			<Text>Your spy {1_SpyRank} {2_SpyName} was killed by {TXT_KEY_GRAMMAR_A_AN &lt;&lt; {3_CivAdj}} counterspy while operating out of {4_CityName}!</Text>
+			<Text>Your spy {1_SpyRank} {2_SpyName} was killed by {TXT_KEY_GRAMMAR_A_AN &lt;&lt; {3_CivAdj}} counterspy after completing their mission in {4_CityName}![NEWLINE][NEWLINE]Mission Details: {5_Mission}</Text>
 		</Row>
 
 		<!-- Killed a Spy -->
@@ -7199,7 +7199,7 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_EVENT_SPY_DURATION_SCALED">
-			<Text>Spy Mission Duration: [COLOR_POSITIVE_TEXT]{1_Time}[ENDCOLOR].[NEWLINE]Identification Chance: [COLOR_NEGATIVE_TEXT]{2_ID}%[ENDCOLOR].[NEWLINE]Chance to be killed: [COLOR_NEGATIVE_TEXT]{3_Death}%[ENDCOLOR][NEWLINE][NEWLINE]</Text>
+			<Text>Spy Mission Duration: [COLOR_POSITIVE_TEXT]{1_Time}[ENDCOLOR].[NEWLINE]Identification Chance: [COLOR_NEGATIVE_TEXT]{2_ID}%[ENDCOLOR][NEWLINE]Chance to be killed: [COLOR_NEGATIVE_TEXT]{3_Death}%[ENDCOLOR][NEWLINE][NEWLINE]</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_EO_OWN_CITY_POTENTIAL_SHORT_TT">
@@ -7217,7 +7217,7 @@
 			<Text>[COLOR_NEGATIVE_TEXT]Negative Modifiers[ENDCOLOR][NEWLINE]  [ICON_BULLET] [ICON_GOLD] Economic Value (-{1_Num})[NEWLINE]  [ICON_BULLET] [ICON_CITIZEN] Population (-{2_Num})[NEWLINE]  [ICON_BULLET] [ICON_HAPPINESS_3] Unhappiness (-{3_Num})</Text>
 		</Row>
 		<Row Tag="TXT_KEY_POTENTIAL_BREAKDOWN_POSITIVE">
-			<Text>[COLOR_POSITIVE_TEXT]Positive Modifiers[ENDCOLOR][NEWLINE]  [ICON_BULLET] [ICON_SPY] Policies and Wonders (+{1_Num})[NEWLINE]  [ICON_BULLET] [ICON_SPY] Local Modifiers (+{2_Num})[NEWLINE]  [ICON_BULLET] [ICON_SPY] Counter-Espionage (+{3_Num})</Text>
+			<Text>[COLOR_POSITIVE_TEXT]Positive Modifiers[ENDCOLOR][NEWLINE]  [ICON_BULLET] [ICON_CULTURE] Policies and Wonders (+{1_Num})[NEWLINE]  [ICON_BULLET] [ICON_CITIZEN] Local Modifiers (+{2_Num})[NEWLINE]  [ICON_BULLET] [ICON_SPY] Counter-Espionage (+{3_Num})[NEWLINE]  [ICON_BULLET] [ICON_STRENGTH] City Defense (+{4_Num})</Text>
 		</Row>
 		
 		<Row Tag="TXT_KEY_CITY_DEFENSIVE_BONUSES_AGAINST">

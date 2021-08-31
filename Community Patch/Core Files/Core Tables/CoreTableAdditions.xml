@@ -1713,5 +1713,8 @@
 		<Row>
 			<NotificationType>NOTIFICATION_ESPIONAGE_AA</NotificationType>
 		</Row>
+		<Row>
+			<NotificationType>NOTIFICATION_CITY_CHOOSE_FATE</NotificationType>
+		</Row>
 	</Notifications>
 </GameData>
