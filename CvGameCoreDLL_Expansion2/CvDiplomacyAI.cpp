@@ -46777,60 +46777,6 @@ std::vector<CvDeal*> CvDiplomacyAI::GetDealsToRenew(PlayerTypes eOtherPlayer)
 	return kGameDeals.GetRenewableDealsWithPlayer(eOtherPlayer, GetID(), 50);
 }
 
-void CvDiplomacyAI::CleanupRenewDeals(PlayerTypes eOtherPlayer)
-{
-	if (GetPlayer()->isHuman())
-		return;
-
-	CvGameDeals& kGameDeals = GC.getGame().GetGameDeals();
-
-	std::vector<CvDeal*> renewDeals = kGameDeals.GetRenewableDealsWithPlayer(GetID(), eOtherPlayer, 10);
-
-	CvDeal* pBestDeal = NULL;
-	int iBestValue = 0;
-	for (uint iDeal = 0; iDeal < renewDeals.size(); iDeal++)
-	{
-		CvDeal* pCurrentDeal = renewDeals[iDeal];
-
-		if (!pCurrentDeal->m_bConsideringForRenewal)
-			continue;
-
-		int iDealValue = kGameDeals.GetDealValueWithPlayer(GetID(), eOtherPlayer, false);
-		if (iDealValue > iBestValue)
-		{
-			iBestValue = iDealValue;
-			pBestDeal = pCurrentDeal;
-		}
-	}
-	std::vector<CvDeal*>dealsToCancel;
-	for (uint iDeal = 0; iDeal < renewDeals.size(); iDeal++)
-	{
-		CvDeal* pCurrentDeal = renewDeals[iDeal];
-		if (pBestDeal == pCurrentDeal)
-			continue;
-		if (pCurrentDeal == NULL)
-			continue;
-
-		dealsToCancel.push_back(pCurrentDeal);
-	}
-	if (dealsToCancel.size() > 0)
-	{
-		for (uint i = 0; i < dealsToCancel.size(); i++)
-		{
-			if (GET_PLAYER(eOtherPlayer).isHuman())
-			{
-				CvString szText = GetDiploStringForMessage(DIPLO_MESSAGE_RENEW_DEAL);
-				CvDiplomacyRequests::SendDealRequest(GetID(), eOtherPlayer, dealsToCancel[i], DIPLO_UI_STATE_TRADE_AI_MAKES_OFFER, szText, LEADERHEAD_ANIM_REQUEST);
-			}
-			else
-			{
-				dealsToCancel[i]->m_bConsideringForRenewal = false;
-				CancelRenewDeal(eOtherPlayer, REASON_BETTER_RENEWAL_CHOICE, false, dealsToCancel[i]);
-			}
-		}
-	}
-}
-
 /// Deal to renew
 void CvDiplomacyAI::CancelRenewDeal(PlayerTypes eOtherPlayer, RenewalReason eReason, bool bJustLogging, CvDeal* pPassDeal)
 {
@@ -46935,7 +46881,7 @@ void CvDiplomacyAI::CancelRenewDeal(PlayerTypes eOtherPlayer, RenewalReason eRea
 			}
 			pLog->Msg(strOutBuf);
 		}
-		pRenewalDeal->ClearItems();
+		//pRenewalDeal->ClearItems();
 	}
 }
 

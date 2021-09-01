@@ -8729,6 +8729,8 @@ void CvGame::doTurn()
 		}
 	}
 
+	m_kGameDeals.DoTurnPost();
+
 #if defined(MOD_BALANCE_CORE_GLOBAL_IDS)
 	RollOverAssetCounter();
 #endif

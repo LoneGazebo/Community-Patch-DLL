@@ -1713,7 +1713,6 @@ public:
 	void LogMinorCivBuyout(PlayerTypes eMinor, int iGoldPaid, bool bSaving);
 
 	std::vector<CvDeal*> GetDealsToRenew(PlayerTypes eOtherPlayer = NO_PLAYER);
-	void CleanupRenewDeals(PlayerTypes eOtherPlayer);
 	void CancelRenewDeal(PlayerTypes eOtherPlayer = NO_PLAYER, RenewalReason eReason = NO_REASON, bool bJustLogging = false, CvDeal* pPassDeal = NULL);
 
 	void KilledPlayerCleanup (PlayerTypes eKilledPlayer);

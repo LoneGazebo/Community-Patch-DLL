@@ -39142,6 +39142,10 @@ void CvPlayer::changeResourceExport(ResourceTypes eIndex, int iChange)
 	if(iChange != 0)
 	{
 		m_paiResourceExport[eIndex] = m_paiResourceExport[eIndex] + iChange;
+
+		if (m_paiResourceExport[eIndex] <= 0)
+			m_paiResourceExport[eIndex] = 0;
+
 		CvAssert(getResourceExport(eIndex) >= 0);
 
 		CalculateNetHappiness();
@@ -39165,6 +39169,10 @@ void CvPlayer::changeResourceImportFromMajor(ResourceTypes eIndex, int iChange)
 	if(iChange != 0)
 	{
 		m_paiResourceImportFromMajor[eIndex] = m_paiResourceImportFromMajor[eIndex] + iChange;
+
+		if (m_paiResourceImportFromMajor[eIndex] <= 0)
+			m_paiResourceImportFromMajor[eIndex] = 0;
+
 		CvAssert(getResourceImportFromMajor(eIndex) >= 0);
 
 		CalculateNetHappiness();

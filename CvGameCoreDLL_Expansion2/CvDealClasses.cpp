@@ -3821,29 +3821,7 @@ void CvGameDeals::DoTurn()
 /// Update deals for after DiploAI
 void CvGameDeals::DoTurnPost()
 {
-	
-	int iPlayerLoop;
-	// Loop through first set of players
-	for (iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
-	{
-		PlayerTypes ePlayer = (PlayerTypes)iPlayerLoop;
-		if (!GET_PLAYER(ePlayer).isAlive())
-			continue;
-
-		// Loop through first set of players
-		int iPlayerLoop2;
-		for (iPlayerLoop2 = 0; iPlayerLoop2 < MAX_MAJOR_CIVS; iPlayerLoop2++)
-		{
-			PlayerTypes ePlayer2 = (PlayerTypes)iPlayerLoop2;
-			if (!GET_PLAYER(ePlayer2).isAlive())
-				continue;
-
-			if (ePlayer2 == ePlayer)
-				continue;
-
-			GET_PLAYER(ePlayer).GetDiplomacyAI()->CleanupRenewDeals(ePlayer2);
-		}
-	}
+	DoUpdateCurrentDealsList();
 }
 
 
