@@ -249,6 +249,47 @@ INSERT INTO Unit_FreePromotions (UnitType, PromotionType)
 	SELECT 'UNIT_FIELD_GUN', 'PROMOTION_COVER_1'
 	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
+-- Free Company
+
+INSERT INTO UnitClasses
+	(Type, Description, DefaultUnit)
+VALUES
+	('UNITCLASS_FCOMPANY', 'TXT_KEY_UNIT_FCOMPANY', 'UNIT_FCOMPANY');
+
+INSERT INTO Units
+		(Class, 				Type, 				PrereqTech,   Combat, Cost, FaithCost, PurchaseOnly, RequiresFaithPurchaseEnabled,	Moves, 	CombatClass, 		Domain, 	 	MoveAfterPurchase, 	DefaultUnitAI, 		  Description, 				Civilopedia, 				 	Strategy, 							Help, 							MilitarySupport, 	MilitaryProduction, Pillage, 	PolicyType, 			   	IgnoreBuildingDefense, 	AdvancedStartCost, 	XPValueAttack, 	XPValueDefense, Conscription, UnitArtInfo, 			   UnitFlagAtlas, 		  UnitFlagIconOffset, IconAtlas, 		 	PortraitIndex)
+VALUES	('UNITCLASS_FCOMPANY', 	'UNIT_FCOMPANY', 	'TECH_STEEL', 19, 	  125,  0, 		   1, 			 0, 					 		2, 	  	'UNITCOMBAT_MELEE',	'DOMAIN_LAND', 	1, 					'UNITAI_FAST_ATTACK', 'TXT_KEY_UNIT_FCOMPANY', 	'TXT_KEY_CIV5_FCOMPANY_TEXT', 	'TXT_KEY_UNIT_FCOMPANY_STRATEGY', 	'TXT_KEY_UNIT_HELP_FCOMPANY', 	1, 			 		1, 				 	1, 	  		'POLICY_HONOR_FINISHER', 	1, 					  	40, 				5, 				5, 				3, 			  'ART_DEF_UNIT_FCOMPANY', 'FCOMPANY_FLAG_ATLAS', 0, 				  'FCOMPANY_ATLAS', 	0);
+
+INSERT INTO Unit_ClassUpgrades
+	(UnitType, UnitClassType)
+VALUES
+	('UNIT_FCOMPANY', 'UNITCLASS_TERCIO');
+	
+INSERT INTO UnitGameplay2DScripts 	
+			(UnitType, 			SelectionSound, FirstSelectionSound)
+SELECT		'UNIT_FCOMPANY',	SelectionSound, FirstSelectionSound
+FROM UnitGameplay2DScripts WHERE UnitType = 'UNIT_PIKEMAN';	
+	
+INSERT INTO Unit_AITypes
+	(UnitType, UnitAIType)
+VALUES
+	('UNIT_FCOMPANY', 'UNITAI_ATTACK'),
+	('UNIT_FCOMPANY', 'UNITAI_DEFENSE'),
+	('UNIT_FCOMPANY', 'UNITAI_FAST_ATTACK');
+
+INSERT INTO Unit_Flavors
+	(UnitType, FlavorType, Flavor)
+VALUES
+	('UNIT_FCOMPANY', 'FLAVOR_OFFENSE', 20),
+	('UNIT_FCOMPANY', 'FLAVOR_DEFENSE', 15);
+
+INSERT INTO Unit_FreePromotions
+	(UnitType, PromotionType)
+VALUES
+	('UNIT_FCOMPANY', 'PROMOTION_FORMATION_1'),
+	('UNIT_FCOMPANY', 'PROMOTION_DOUBLE_PLUNDER'),
+	('UNIT_FCOMPANY', 'PROMOTION_FREE_PILLAGE_MOVES');	
+
 -- Mercenaries
 
 INSERT INTO UnitClasses
