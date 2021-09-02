@@ -3521,10 +3521,6 @@ CvCity* CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 	}
 #endif
 
-	//make sure we do this AFTER proccing on-conquest stuff!
-	pOldCity->ChangeNumTimesOwned(GetID(), 1);
-
-
 	// slewis - warmonger calculations
 	if (bConquest && isMajorCiv())
 	{
@@ -3578,6 +3574,9 @@ CvCity* CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 			CvDiplomacyAIHelpers::ApplyWarmongerPenalties(pOldCity, GetID(), pOldCity->getOwner());
 		}
 	}
+
+	//make sure we do this AFTER proccing on-conquest stuff!
+	pOldCity->ChangeNumTimesOwned(GetID(), 1);
 
 #if defined(MOD_BALANCE_CORE)
 	//Let's not slaughter citizens in a city we've owned before.
