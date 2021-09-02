@@ -2,6 +2,25 @@
 <!-- Created by ModBuddy on 3/2/2016 4:34:53 PM -->
 <GameData>
 	<Language_en_US>
+		<Row Tag="TXT_KEY_IMPROVEMENT_MONGOLIA_ORDO">
+			<Text>Ordo</Text>
+			<Gender>neuter:an</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_IMPROVEMENT_MONGOLIA_ORDO_TEXT">
+			<Text>Simply translated, “ordo” means “palace tent.” However, an ordo was something much more than just a simple tent —- it was the center of the tribe for the nomadic Mongolians.[NEWLINE][NEWLINE]An ordo served as the headquarters and main encampment for the Khan and his warriors. Though built for travel, it had style, from simple decorations to carefully sewn patterns. The ordo moved with the Khan and his warriors as they went on campaign, ensuring they always felt at home no matter where they traveled.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_IMPROVEMENT_MONGOLIA_ORDO_HELP">
+			<Text>Unique Mongolian Great Person Tile Improvement, replacing the Citadel. Provides [ICON_FOOD] Food, [ICON_GOLD] Gold, [ICON_PRODUCTION] Production and [ICON_CULTURE] Culture.[NEWLINE][NEWLINE]Building an Ordo claims adjacent tiles.[NEWLINE][NEWLINE]Units standing on an Ordo receive +50% [ICON_STRENGTH] Tile Defense and +1 [ICON_MOVES] Movement for that turn.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILD_MONGOLIA_ORDO">
+			<Text>Construct an [LINK=IMPROVEMENT_MONGOLIA_ORDO]Ordo[\LINK]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILD_MONGOLIA_ORDO_HELP">
+			<Text>It will increase [ICON_FOOD] Food, [ICON_GOLD] Gold, [ICON_PRODUCTION] Production and [ICON_CULTURE] Culture. Gives [ICON_STRENGTH] Defense Bonus and additional [ICON_MOVES] Movement to units stationed on it. Claims adjacent tiles.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILD_MONGOLIA_ORDO_REC">
+			<Text>Unit will be consumed.[NEWLINE]Unique Mongolian Tile Improvement. Provides [ICON_FOOD] Food, [ICON_GOLD] Gold, [ICON_PRODUCTION] Production and [ICON_CULTURE] Culture. Gives a [ICON_STRENGTH] Defense Bonus and [ICON_MOVES] Movement to units stationed on it.</Text>
+		</Row>
 		<Row Tag="TXT_KEY_IMPROVEMENT_EKI">
 			<Text>Eki</Text>
 			<Gender>neuter:an</Gender>
