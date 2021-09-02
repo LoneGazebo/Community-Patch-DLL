@@ -42,6 +42,85 @@ WHERE Type = 'TRAIT_TERROR' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMM
 DELETE FROM Trait_MovesChangeUnitCombats
 WHERE TraitType = 'TRAIT_TERROR';
 
+INSERT INTO ArtDefine_LandmarkTypes
+			(Type, 									LandmarkType, 	FriendlyName)
+VALUES 		('ART_DEF_IMPROVEMENT_MONGOLIA_ORDO', 	'Improvement', 	'MONGOLIAN_ORDO');
+
+INSERT INTO ArtDefine_Landmarks
+		(Era, 	State, 					Scale, ImprovementType, 					LayoutHandler, 	ResourceType, 			Model, 					TerrainContour)
+VALUES 	('Any', 'UnderConstruction', 	0.57,  'ART_DEF_IMPROVEMENT_MONGOLIA_ORDO', 	'SNAPSHOT', 	'ART_DEF_RESOURCE_ALL', 'YurtCamp.fxsxml', 	1),
+		('Any', 'Constructed', 			0.57,  'ART_DEF_IMPROVEMENT_MONGOLIA_ORDO', 	'SNAPSHOT', 	'ART_DEF_RESOURCE_ALL', 'YurtCamp.fxsxml', 	1),
+		('Any', 'Pillaged', 			0.57,  'ART_DEF_IMPROVEMENT_MONGOLIA_ORDO', 	'SNAPSHOT', 	'ART_DEF_RESOURCE_ALL', 'YurtCamp_PL.fxsxml', 	1);
+
+INSERT INTO ArtDefine_StrategicView
+			(StrategicViewType, 					TileType, 		Asset)
+VALUES 		('ART_DEF_IMPROVEMENT_MONGOLIA_ORDO', 	'Improvement', 	'Yurt_SV.dds');
+
+INSERT INTO IconTextureAtlases 
+			(Atlas, 					IconSize, 	Filename, 				IconsPerRow, 	IconsPerColumn)
+VALUES		('MONGOLIA_ORDO_ATLAS', 	256, 		'YurtIcons256.dds',		2, 				1),
+			('MONGOLIA_ORDO_ATLAS', 	64, 		'YurtIcons064.dds',		2, 				1),
+			('MONGOLIA_ORDO_ATLAS', 	45, 		'YurtIcons045.dds',		2, 				1);
+
+INSERT INTO Improvements
+			(Type, 							Description, 							Civilopedia, 								ArtDefineTag, 							Help, 										CultureBombRadius, 	MovesChange, 	MakesPassable, 	InAdjacentFriendly, PillageGold,	CreatedByGreatPerson,	BuildableOnResources,	SpecificCivRequired,	Permanent,	DestroyedWhenPillaged, 	PortraitIndex, 	IconAtlas, 				NoTwoAdjacent,	DefenseModifier, NoFollowUp)
+VALUES		('IMPROVEMENT_MONGOLIA_ORDO',	'TXT_KEY_IMPROVEMENT_MONGOLIA_ORDO',	'TXT_KEY_IMPROVEMENT_MONGOLIA_ORDO_TEXT',	'ART_DEF_IMPROVEMENT_MONGOLIA_ORDO',	'TXT_KEY_IMPROVEMENT_MONGOLIA_ORDO_HELP',	1, 					1, 				1, 				1, 					17,				1,						1,						0, 						0,			0,						0,				'MONGOLIA_ORDO_ATLAS',	1,				50, 			1);
+
+INSERT INTO Improvement_Flavors	
+			(ImprovementType, 				FlavorType,				Flavor)
+VALUES		('IMPROVEMENT_MONGOLIA_ORDO',	'FLAVOR_CULTURE',		60),
+			('IMPROVEMENT_MONGOLIA_ORDO',	'FLAVOR_PRODUCTION',	60),
+			('IMPROVEMENT_MONGOLIA_ORDO',	'FLAVOR_CITY_DEFENSE',	20),
+			('IMPROVEMENT_MONGOLIA_ORDO',	'FLAVOR_DEFENSE',		50);
+
+INSERT INTO Improvement_Yields 	
+			(ImprovementType, 				YieldType,				Yield)
+VALUES		('IMPROVEMENT_MONGOLIA_ORDO',	'YIELD_FOOD',			1),
+			('IMPROVEMENT_MONGOLIA_ORDO',	'YIELD_GOLD',			1),
+			('IMPROVEMENT_MONGOLIA_ORDO',	'YIELD_CULTURE',		1),
+			('IMPROVEMENT_MONGOLIA_ORDO',	'YIELD_PRODUCTION',		1);
+
+INSERT INTO Improvement_ResourceTypes	
+			(ImprovementType, 				ResourceType,			ResourceMakesValid)
+VALUES		('IMPROVEMENT_MONGOLIA_ORDO',	'RESOURCE_HORSE',		1),
+			('IMPROVEMENT_MONGOLIA_ORDO',	'RESOURCE_IRON',		1),
+			('IMPROVEMENT_MONGOLIA_ORDO',	'RESOURCE_COAL',		1),
+			('IMPROVEMENT_MONGOLIA_ORDO',	'RESOURCE_OIL',			1),
+			('IMPROVEMENT_MONGOLIA_ORDO',	'RESOURCE_ALUMINUM',	1),
+			('IMPROVEMENT_MONGOLIA_ORDO',	'RESOURCE_URANIUM',		1);
+
+INSERT INTO Improvement_TechYieldChanges
+			(ImprovementType,				TechType,					YieldType,			Yield)
+VALUES		('IMPROVEMENT_MONGOLIA_ORDO', 	'TECH_CHEMISTRY', 			'YIELD_CULTURE', 	2),
+			('IMPROVEMENT_MONGOLIA_ORDO', 	'TECH_MILITARY_SCIENCE', 	'YIELD_PRODUCTION', 2),
+			('IMPROVEMENT_MONGOLIA_ORDO', 	'TECH_STEALTH', 			'YIELD_CULTURE', 	4),
+			('IMPROVEMENT_MONGOLIA_ORDO', 	'TECH_ELECTRONICS', 		'YIELD_PRODUCTION', 4);
+
+INSERT INTO Improvement_ValidTerrains 	
+			(ImprovementType, 				TerrainType)
+VALUES		('IMPROVEMENT_MONGOLIA_ORDO',	'TERRAIN_PLAINS'),
+			('IMPROVEMENT_MONGOLIA_ORDO',	'TERRAIN_GRASS'),
+			('IMPROVEMENT_MONGOLIA_ORDO',	'TERRAIN_TUNDRA'),
+			('IMPROVEMENT_MONGOLIA_ORDO',	'TERRAIN_DESERT'),			
+			('IMPROVEMENT_MONGOLIA_ORDO',	'TERRAIN_SNOW');			
+
+INSERT INTO Builds		
+			(Type,					PrereqTech,		ImprovementType, 				Description, 					Help, 								Recommendation, 					EntityEvent, 			OrderPriority, 	Kill, 	IconIndex, 	IconAtlas)
+VALUES		('BUILD_MONGOLIA_ORDO',	null,			'IMPROVEMENT_MONGOLIA_ORDO',	'TXT_KEY_BUILD_MONGOLIA_ORDO',	'TXT_KEY_BUILD_MONGOLIA_ORDO_HELP',	'TXT_KEY_BUILD_MONGOLIA_ORDO_REC',	'ENTITY_EVENT_MINE',	95,				1,		1,			'MONGOLIA_ORDO_ATLAS');
+
+DELETE FROM Unit_Builds WHERE UnitType = 'UNIT_MONGOLIAN_KHAN' AND BuildType = 'BUILD_CITADEL';
+UPDATE UnitPromotions SET NearbyEnemyDamage = 10 WHERE Type = 'PROMOTION_MEDIC_GENERAL';
+			
+INSERT INTO Unit_Builds	
+			(UnitType, 				BuildType)
+VALUES		('UNIT_MONGOLIAN_KHAN',	'BUILD_MONGOLIA_ORDO');
+
+INSERT INTO BuildFeatures	
+			(BuildType, 			FeatureType, PrereqTech, Production, Remove)
+VALUES		('UNIT_MONGOLIAN_KHAN',	'FEATURE_JUNGLE', 'TECH_CALENDAR', 40, 1),
+			('UNIT_MONGOLIAN_KHAN',	'FEATURE_FOREST', 'TECH_MINING', 40, 1),
+			('UNIT_MONGOLIAN_KHAN',	'FEATURE_MARSH', 'TECH_IRON_WORKING', 40, 1);
+
 -- Polynesia -- Boost Range of Moai
 UPDATE Traits
 Set NearbyImprovementBonusRange = '3'

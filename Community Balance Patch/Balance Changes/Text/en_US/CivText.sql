@@ -771,8 +771,16 @@ SET Text = 'Skirmishers are fast ranged units, deadly on open terrain. Unlike th
  WHERE Tag = 'TXT_KEY_CIV5_MONGOLIA_KESHIK_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'The Khan is a Mongolian Unique Great Person, replacing the standard Great General.  The same combat bonuses apply, but the Khan moves 5 points per turn and heals stacked and adjacent units for additional HP per turn. This beefed up General ensures that his cavalry units will always be in a battle ready state.'
-WHERE Tag = 'TXT_KEY_CIV5_MONGOLIA_KHAN_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CIVS' AND Value= 1 );
+SET Text = 'Friendly Units in this tile and in adjacent tiles [COLOR_POSITIVE_TEXT]Heal 10 Additional HP[ENDCOLOR] per turn.[NEWLINE]Adjacent Enemy Units take 10 Damage Each Turn.'
+WHERE Tag = 'TXT_KEY_PROMOTION_MEDIC_GENERAL_HELP';
+
+UPDATE Language_en_US
+SET Text = 'The Khan is a Mongolian Unique Great Person, replacing the standard Great General.  The same combat bonuses apply, but the Khan moves 5 points per turn, heals stacked and adjacent units for additional HP per turn, and damages adjacent enemies each turn. This beefed up General ensures that his cavalry units will always be in a battle ready state.'
+WHERE Tag = 'TXT_KEY_CIV5_MONGOLIA_KHAN_STRATEGY';
+
+UPDATE Language_en_US
+SET Text = 'This Mongolian Unique Great Person replaces the Great General. While providing the same combat bonuses as a normal Great General, the Khan moves at an increased rate, can heal adjacent friendly units, and damage adjacent enemy units.[NEWLINE][NEWLINE]Can be expended to construct an Ordo.'
+WHERE Tag = 'TXT_KEY_CIV5_MONGOLIA_KHAN_HELP';
 
 INSERT INTO Language_en_US (
 Tag, Text)
