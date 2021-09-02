@@ -461,7 +461,7 @@ SET Text = 'Late Medieval replacement for the Tercio. Only Germany may build it.
 WHERE Tag = 'TXT_KEY_UNIT_HELP_LANDSKNECHT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Enter the era of pike and shot before anybody else with this early gunpowder unit. In addition to being unlocked a lot sooner and being a little cheaper than normal Tercios, the Landsknecht gain full XP and can move immedialty when bought, which allows them to be quickly amassed when needed. Stay aware of their increased maintenance cost however, for their availability has a price.[NEWLINE][NEWLINE]Use their early unlocking and their bonus against full health units to surprise your opponents in the first turns of your wars and break their lines quickly.'
+SET Text = 'Enter the era of pike and shot before anybody else with this early gunpowder unit. In addition to being unlocked a lot sooner and being a little cheaper than normal Tercios, the Landsknecht gain full XP and can move immediately when bought, which allows them to be quickly amassed when needed. However, stay aware of their increased maintenance cost, for their availability has a price.[NEWLINE][NEWLINE]Use their early unlocking and their bonus against full health units to surprise your opponents in the first turns of your wars and break their lines quickly.'
 WHERE Tag = 'TXT_KEY_UNIT_GERMAN_LANDSKNECHT_STRATEGY';
 
 UPDATE Language_en_US
