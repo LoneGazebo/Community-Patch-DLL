@@ -1367,7 +1367,7 @@ public:
 	
 	void DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEventTypes eEvent, int iArg1, int iArg2);
 
-	bool IsActHostileTowardsHuman(PlayerTypes eHuman, bool bIgnoreCurrentWar = false) const;
+	bool IsActHostileTowardsHuman(PlayerTypes eHuman) const;
 
 	const char* GetGreetHumanMessage(LeaderheadAnimationTypes& eAnimation);
 	const char* GetInsultHumanMessage();
