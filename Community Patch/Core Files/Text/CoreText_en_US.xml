@@ -2956,16 +2956,16 @@
 			<Text>Real Approach is Neutral.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_DEBUG_TOP_FRIEND">
-			<Text>Top Friend Choice: </Text>
+			<Text>Top Friend:</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_DEBUG_TOP_ALLY">
-			<Text>Top DP Choice: </Text>
+			<Text>Top DP:</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_DEBUG_TOP_COMPETITOR">
-			<Text>Top Competitor: </Text>
+			<Text>Top Competitor:</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_DEBUG_TOP_LEAGUE_COMPETITOR">
-			<Text>Top Congress Rival: </Text>
+			<Text>Top WC Rival:</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_DEBUG_TOP_CHOICE_NONE">
 			<Text>None</Text>

@@ -19878,6 +19878,7 @@ void CvDiplomacyAI::DoUpdatePlanningExchanges()
 		return;
 
 	vector<PlayerTypes> vValidPlayers;
+	bool bCancelDPs = GetPlayer()->IsAITeammateOfHuman() || GC.getGame().countMajorCivsAlive() <= 2;
 
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
@@ -19892,6 +19893,20 @@ void CvDiplomacyAI::DoUpdatePlanningExchanges()
 		if (bValid)
 		{
 			vValidPlayers.push_back(eLoopPlayer);
+
+			if (bCancelDPs)
+			{
+				SetWantsDefensivePactWithPlayer(eLoopPlayer, false);
+
+				if (IsHasDefensivePact(eLoopPlayer) && GET_PLAYER(eLoopPlayer).isAlive())
+				{
+					SetWantsToEndDefensivePactWithPlayer(eLoopPlayer, true);
+				}
+				else
+				{
+					SetWantsToEndDefensivePactWithPlayer(eLoopPlayer, false);
+				}
+			}
 		}
 		else
 		{
@@ -20174,15 +20189,16 @@ void CvDiplomacyAI::DoUpdatePlanningExchanges()
 	SetMostValuableFriend(eMostValuableFriend);
 
 	// Now let's examine who we want to form Defensive Pacts with!
-	if (GET_TEAM(GetTeam()).isDefensivePactTradingAllowed())
+	if (GET_TEAM(GetTeam()).isDefensivePactTradingAllowed() && !bCancelDPs)
 	{
 		vector<PlayerTypes> vAcceptableDefensePacts;
+		bool bCoastal = GetPlayer()->GetNumEffectiveCoastalCities() > 1;
 
-		// If someone on our team was resurrected, must agree to Defensive Pact with them & not allowed to make Defensive Pacts with others
+		// If someone on our team was resurrected, must agree to a Defensive Pact with them & not allowed to make Defensive Pacts with others
 		TeamTypes eLiberatedByTeam = GET_TEAM(GetTeam()).GetLiberatedByTeam();
-		if (eLiberatedByTeam != NO_TEAM && GET_TEAM(eLiberatedByTeam).isAlive() && GET_TEAM(eLiberatedByTeam).getNumCities() > 0)
+		if (eLiberatedByTeam != NO_TEAM && GET_TEAM(eLiberatedByTeam).isAlive() && GET_TEAM(eLiberatedByTeam).getNumCities() > 0 && GET_TEAM(eLiberatedByTeam).isDefensivePactTradingAllowed())
 		{
-			// Edge case fix for the liberator dying and then being resurrected
+			// Edge case fix for the liberator dying and then being resurrected, being vassalized, etc.
 			for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 			{
 				PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
@@ -20209,7 +20225,6 @@ void CvDiplomacyAI::DoUpdatePlanningExchanges()
 
 			PlayerTypes eMostValuableAlly = NO_PLAYER;
 			int iHighestScore = 0;
-			bool bCoastal = GetPlayer()->GetNumEffectiveCoastalCities() > 1;
 
 			for (std::vector<PlayerTypes>::iterator it = vAcceptableDefensePacts.begin(); it != vAcceptableDefensePacts.end(); it++)
 			{
@@ -20298,17 +20313,21 @@ void CvDiplomacyAI::DoUpdatePlanningExchanges()
 				iDefensePactLimit = MAX_MAJOR_CIVS;
 			}
 
+			int iBestFriendScore = 0; // because the most valuable friend gets a special exemption to scoring, we need this value to track their score and determine if they're also the best ally
+			PlayerTypes eMostValuableAlly = NO_PLAYER;
+
 			// If we can make a Defensive Pact with our most valuable friend and they're a good choice, always do so.
 			if (eMostValuableFriend != NO_PLAYER && IsDoFAccepted(eMostValuableFriend))
 			{
 				if (std::find(vAcceptableDefensePacts.begin(), vAcceptableDefensePacts.end(), eMostValuableFriend) != vAcceptableDefensePacts.end())
 				{
+					vector<PlayerTypes> vTheirTeam = GET_TEAM(GET_PLAYER(eMostValuableFriend).getTeam()).getPlayers();
+
+					// Let's make a Defensive Pact!
 					if (!IsHasDefensivePact(eMostValuableFriend))
 					{
 						if (iNumDefensePacts < iDefensePactLimit)
 						{
-							vector<PlayerTypes> vTheirTeam = GET_TEAM(GET_PLAYER(eMostValuableFriend).getTeam()).getPlayers();
-
 							for (size_t i=0; i<vTheirTeam.size(); i++)
 							{
 								if (!IsPlayerValid(vTheirTeam[i]) || !GET_PLAYER(vTheirTeam[i]).isMajorCiv())
@@ -20316,6 +20335,28 @@ void CvDiplomacyAI::DoUpdatePlanningExchanges()
 
 								SetWantsDefensivePactWithPlayer(vTheirTeam[i], true);
 								iNumDefensePacts++;
+								int iScore = ScoreDefensivePactChoice(vTheirTeam[i], bCoastal);
+								if (iScore > iBestFriendScore)
+								{
+									iBestFriendScore = iScore;
+									eMostValuableAlly = (PlayerTypes)vTheirTeam[i];
+								}
+							}
+						}
+					}
+					// Still need to score them...
+					else
+					{
+						for (size_t i=0; i<vTheirTeam.size(); i++)
+						{
+							if (!IsPlayerValid(vTheirTeam[i]) || !GET_PLAYER(vTheirTeam[i]).isMajorCiv())
+								continue;
+
+							int iScore = ScoreDefensivePactChoice(vTheirTeam[i], bCoastal);
+							if (iScore > iBestFriendScore)
+							{
+								iBestFriendScore = iScore;
+								eMostValuableAlly = (PlayerTypes)vTheirTeam[i];
 							}
 						}
 					}
@@ -20323,15 +20364,25 @@ void CvDiplomacyAI::DoUpdatePlanningExchanges()
 			}
 
 			// Okay, now let's choose the most valuable DPs
-			PlayerTypes eMostValuableAlly = NO_PLAYER;
 			vector<PlayerTypes> vDPExclusions;
-
 			PlayerTypes eDPCandidate = GetHighestScoringDefensivePact(vAcceptableDefensePacts, vDPExclusions);
 			while (eDPCandidate != NO_PLAYER)
 			{
-				if (eMostValuableAlly == NO_PLAYER && bBestFriendPossible && std::find(vAcceptableFriends.begin(), vAcceptableFriends.end(), eDPCandidate) != vAcceptableFriends.end())
+				if ((eMostValuableAlly == NO_PLAYER || iBestFriendScore > 0) && bBestFriendPossible && std::find(vAcceptableFriends.begin(), vAcceptableFriends.end(), eDPCandidate) != vAcceptableFriends.end())
 				{
-					eMostValuableAlly = eDPCandidate;
+					if (eMostValuableAlly != NO_PLAYER)
+					{
+						// Found a better scoring ally who isn't our most valued friend, so reset this.
+						if (ScoreDefensivePactChoice(eDPCandidate, bCoastal) > iBestFriendScore)
+						{
+							iBestFriendScore = 0;
+							eMostValuableAlly = eDPCandidate;
+						}
+					}
+					else
+					{
+						eMostValuableAlly = eDPCandidate;
+					}
 				}
 				if (!IsHasDefensivePact(eDPCandidate) && !IsWantsDefensivePactWithPlayer(eDPCandidate))
 				{
@@ -20348,7 +20399,7 @@ void CvDiplomacyAI::DoUpdatePlanningExchanges()
 							iNumDefensePacts++;
 						}
 
-						if (iNumDefensePacts >= iDefensePactLimit && (eMostValuableAlly != NO_PLAYER || !bBestFriendPossible))
+						if (iNumDefensePacts >= iDefensePactLimit && iBestFriendScore == 0 && (eMostValuableAlly != NO_PLAYER || !bBestFriendPossible))
 						{
 							break;
 						}
@@ -20526,8 +20577,7 @@ bool CvDiplomacyAI::IsGoodChoiceForDefensivePact(PlayerTypes ePlayer)
 		return false;
 
 	//No DPs if last two!
-	int iNumMajorsLeft = GC.getGame().countMajorCivsAlive();
-	if (iNumMajorsLeft <= 2)
+	if (GC.getGame().countMajorCivsAlive() <= 2)
 		return false;
 
 	// Untrustworthy?
@@ -25932,6 +25982,10 @@ bool CvDiplomacyAI::ShouldHideNegativeMods(PlayerTypes ePlayer) const
 	if (GC.getGame().IsShowHiddenOpinionModifiers())
 		return false;
 
+	// If we're at war, don't bother.
+	if (IsAtWar(ePlayer))
+		return false;
+
 	// If we're their vassal, don't bother.
 	if (IsVassal(ePlayer))
 		return false;
@@ -25948,14 +26002,10 @@ bool CvDiplomacyAI::ShouldHideNegativeMods(PlayerTypes ePlayer) const
 	if (IsUntrustworthy(ePlayer))
 		return false;
 
-	// If we're in a war that we wanted to declare, let's show our true colors.
-	if (IsAtWar(ePlayer) && IsAggressor(ePlayer))
-		return false;
-
 	CivApproachTypes eSurfaceApproach = GetSurfaceApproach(ePlayer);
 
-	// Always hide if our surface approach is FRIENDLY (and not at war) or AFRAID
-	if ((eSurfaceApproach == CIV_APPROACH_FRIENDLY && !IsAtWar(ePlayer)) || eSurfaceApproach == CIV_APPROACH_AFRAID)
+	// Always hide if our surface approach is FRIENDLY or AFRAID
+	if (eSurfaceApproach == CIV_APPROACH_FRIENDLY || eSurfaceApproach == CIV_APPROACH_AFRAID)
 		return true;
 
 	// Never hide if our surface approach is HOSTILE
@@ -25963,7 +26013,7 @@ bool CvDiplomacyAI::ShouldHideNegativeMods(PlayerTypes ePlayer) const
 		return false;
 
 	// If we're acting hostile, don't hide anything.
-	if (IsActHostileTowardsHuman(ePlayer, true))
+	if (IsActHostileTowardsHuman(ePlayer))
 		return false;
 
 	// If they're a favorable target, let's not bother hiding things.
@@ -37538,15 +37588,15 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 }
 
 /// Is the AI acting mean to the active human player?
-bool CvDiplomacyAI::IsActHostileTowardsHuman(PlayerTypes eHuman, bool bIgnoreCurrentWar) const
+bool CvDiplomacyAI::IsActHostileTowardsHuman(PlayerTypes eHuman) const
 {
 	if (IsTeammate(eHuman) || IsDoFAccepted(eHuman) || GET_PLAYER(eHuman).isObserver())
 		return false;
 
 	bool bAtWar = IsAtWar(eHuman);
-	bool bAtWarButWantsPeace = bAtWar && GetTreatyWillingToOffer(eHuman) >= PEACE_TREATY_WHITE_PEACE && GetTreatyWillingToAccept(eHuman) >= PEACE_TREATY_WHITE_PEACE; // Have to be at war, high level AI has to want peace
+	bool bAtWarButWantsPeace = bAtWar && (GetTreatyWillingToOffer(eHuman) >= PEACE_TREATY_WHITE_PEACE || GetTreatyWillingToAccept(eHuman) >= PEACE_TREATY_WHITE_PEACE); // Have to be at war, high level AI has to want peace
 
-	if (bAtWar && !bIgnoreCurrentWar)
+	if (bAtWar)
 	{
 		if (bAtWarButWantsPeace)
 			return false;
