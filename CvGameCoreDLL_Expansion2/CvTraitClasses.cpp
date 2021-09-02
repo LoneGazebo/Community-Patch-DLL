@@ -5255,6 +5255,7 @@ void CvPlayerTraits::Reset()
 	m_bNoNaturalReligionSpread = false;
 	m_bNoOpenTrade = false;
 	m_bGoldenAgeOnWar = false;
+	m_bUnableToCancelRazing = false;
 	m_iTourismToGAP = 0;
 	m_iGoldToGAP = 0;
 	m_iInfluenceMeetCS = 0;

@@ -3521,6 +3521,10 @@ CvCity* CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 	}
 #endif
 
+	//make sure we do this AFTER proccing on-conquest stuff!
+	pOldCity->ChangeNumTimesOwned(GetID(), 1);
+
+
 	// slewis - warmonger calculations
 	if (bConquest && isMajorCiv())
 	{

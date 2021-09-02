@@ -582,10 +582,6 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 	{
 		SetNumTimesOwned(eOwner, 1);
 	}
-	else
-	{
-		ChangeNumTimesOwned(eOwner, 1);
-	}
 
 	// Plot Ownership
 	pPlot->setOwner(getOwner(), m_iID, bBumpUnits);
@@ -1683,7 +1679,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	{
 		m_abEverLiberated[iI] = false;
 		m_abTraded[iI] = false;
-		m_aiNumTimesOwned[iI] = false;
+		m_aiNumTimesOwned[iI] = 0;
 	}
 #if defined(MOD_BALANCE_CORE)
 	m_abPaidAdoptionBonus.resize(GC.getNumReligionInfos());
