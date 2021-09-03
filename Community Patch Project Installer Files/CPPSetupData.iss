@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "Vox Populi"
-#define MyAppVersion "6.8.19"
+#define MyAppVersion "1.0"
 #define MyAppPublisher "Community Patch Project Team"
 #define MyAppURL "http://forums.civfanatics.com/showthread.php?t=528034"
 
@@ -20,22 +20,22 @@ AppSupportURL={#MyAppURL}
 AppUpdatesURL={#MyAppURL}
 DefaultGroupName={#MyAppName}
 AllowNoIcons=yes
-LicenseFile={userdocs}\Community Patch Project Installer Files\License.rtf
-InfoBeforeFile={userdocs}\Community Patch Project Installer Files\Opener.rtf
+LicenseFile=Community Patch Project Installer Files\License.rtf
+InfoBeforeFile=Community Patch Project Installer Files\Opener.rtf
 OutputBaseFilename=Vox Populi
 Compression=lzma
 SolidCompression=yes
 Uninstallable=no
 DefaultDirName={userdocs}\My Games\Sid Meier's Civilization 5\MODS\
-SetupIconFile={userdocs}\Community Patch Project Installer Files\installer.ico
+SetupIconFile=Community Patch Project Installer Files\installer.ico
 WizardImageBackColor=cl3DLight
 ShowComponentSizes=False
-VersionInfoVersion=6.8.19
+VersionInfoVersion=1.0
 VersionInfoCompany=Community Patch Project Team
 VersionInfoDescription=Vox Populi
-VersionInfoCopyright=2020
+VersionInfoCopyright=2021
 VersionInfoProductName=Vox Populi
-VersionInfoProductVersion=6.8.19
+VersionInfoProductVersion=1.0
 WizardImageStretch=False
 
 [Languages]
