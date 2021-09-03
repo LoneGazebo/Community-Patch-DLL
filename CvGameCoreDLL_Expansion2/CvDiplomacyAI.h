@@ -352,7 +352,7 @@ public:
 	bool IsLockedIntoCoopWar(PlayerTypes ePlayer) const;
 
 	CoopWarStates GetGlobalCoopWarAgainstState(PlayerTypes ePlayer) const;
-	CoopWarStates GetGlobalCoopWarWithState(PlayerTypes ePlayer) const;
+	CoopWarStates GetGlobalCoopWarWithState(PlayerTypes ePlayer, bool bExcludeOngoing = false) const;
 	int GetNumCoopWarTargets();
 
 	int GetCoopWarStateChangeTurn(PlayerTypes eAllyPlayer, PlayerTypes eTargetPlayer) const;
