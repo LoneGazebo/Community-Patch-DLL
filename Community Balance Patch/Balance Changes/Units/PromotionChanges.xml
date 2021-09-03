@@ -2482,8 +2482,7 @@
 			<PediaType>PEDIA_MELEE</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_INVULNERABIILITY</PediaEntry>
 			<CannotBeChosen>true</CannotBeChosen>
-			<OpenDefense>30</OpenDefense>
-			<RoughDefense>30</RoughDefense>
+			<ChangeDamageValue>-2</ChangeDamageValue>
 			<EnemyHealChange>20</EnemyHealChange>
 			<NeutralHealChange>20</NeutralHealChange>
 			<FriendlyHealChange>20</FriendlyHealChange>
@@ -2499,6 +2498,8 @@
 			<PediaEntry>TXT_KEY_PROMOTION_SNEAK_ATTACK</PediaEntry>
 			<CannotBeChosen>true</CannotBeChosen>
 			<FlankAttackModifier>20</FlankAttackModifier>
+			<IgnoreZOC>1</IgnoreZOC>
+			<IgnoreTerrainCost>1</IgnoreTerrainCost>
 		</Replace>
 		<Replace>
 			<Type>PROMOTION_HEROISM</Type>
@@ -2564,9 +2565,10 @@
 			<PediaType>PEDIA_MELEE</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_ENEMY_BLADE</PediaEntry>
 			<CannotBeChosen>true</CannotBeChosen>
-			<EnemyDamageChance>50</EnemyDamageChance>
-			<EnemyRoute>true</EnemyRoute>
+			<EnemyDamageChance>100</EnemyDamageChance>
+			<EnemyRoute>0</EnemyRoute>
 			<EnemyDamage>-10</EnemyDamage>
+			<NearbyEnemyDamage>10</NearbyEnemyDamage>
 		</Replace>
 		<Replace>
 			<Type>PROMOTION_EVIL_SPIRITS</Type>

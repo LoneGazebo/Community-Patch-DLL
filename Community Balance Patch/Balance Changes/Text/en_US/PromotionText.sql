@@ -68,28 +68,6 @@
 	SET Text = '+33% [ICON_STRENGTH] Combat Strength when fighting in Forest/Jungle.'
 	WHERE Tag = 'TXT_KEY_PROMOTION_JAGUAR_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
- -- added Sneak Attack
-	UPDATE Language_en_US
-	SET Text = '[COLOR_POSITIVE_TEXT]Flanking bonus[ENDCOLOR] increased by 20%.'
-	WHERE Tag = 'TXT_KEY_PROMOTION_SNEAK_ATTACK_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
- 
- -- added Recruitment
-	UPDATE Language_en_US
-	SET Text = 'Heals all damage if the Unit kills a [COLOR_POSITIVE_TEXT]non-Barbarian Unit[ENDCOLOR].'
-	WHERE Tag = 'TXT_KEY_PROMOTION_RECRUITMENT_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
- 
- -- added Invulnerability
-
-	UPDATE Language_en_US
-	SET Text = '+30% [ICON_STRENGTH] Combat Bonus when defending.[NEWLINE]+20 HP when healing.'
-	WHERE Tag = 'TXT_KEY_PROMOTION_INVULNERABIILITY_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
- 
- -- added Heroism
-
-	UPDATE Language_en_US
-	SET Text = 'Unit awards combat bonus to nearby Units as if it is a Great General. Damage from all sources reduced by 10.'
-	WHERE Tag = 'TXT_KEY_PROMOTION_HEROISM_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
-
 	-- added Bonuses in Snow, Tundra, and Hills
 	UPDATE Language_en_US
 	SET Text = 'In Snow, Tundra, Hills: +25% [ICON_STRENGTH] Combat Strength (if Forest or Jungle is not present) and Double Movement.'

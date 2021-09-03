@@ -270,16 +270,6 @@
 		<Row Tag="TXT_KEY_RESOURCE_MONOPOLY_MOD_FAITH">
 			<Text>[COLOR_POSITIVE_TEXT]Monopoly Bonus:[ENDCOLOR] +20% [ICON_PEACE] Faith in all owned Cities.</Text>
 		</Row>
-
-		<Row Tag="TXT_KEY_RESOURCE_MONOPOLY_MOD_PRODUCTION_INDO">
-			<Text>[COLOR_POSITIVE_TEXT]Monopoly Bonus:[ENDCOLOR] +10% [ICON_PRODUCTION] Production in all owned Cities, +3 Empire-Wide [ICON_HAPPINESS_1] Happiness</Text>
-		</Row>
-		<Row Tag="TXT_KEY_RESOURCE_MONOPOLY_MOD_CULTURE_INDO">
-			<Text>[COLOR_POSITIVE_TEXT]Monopoly Bonus:[ENDCOLOR] +10% [ICON_CULTURE] Culture in all owned Cities, +3 Empire-Wide [ICON_HAPPINESS_1] Happiness</Text>
-		</Row>
-		<Row Tag="TXT_KEY_RESOURCE_MONOPOLY_MOD_FAITH_INDO">
-			<Text>[COLOR_POSITIVE_TEXT]Monopoly Bonus:[ENDCOLOR] +20% [ICON_PEACE] Faith in all owned Cities, +3 Empire-Wide [ICON_HAPPINESS_1] Happiness</Text>
-		</Row>
 		
 		<!-- Strategic Help-->
 		<Row Tag="TXT_KEY_RESOURCE_MONOPOLY_YIELD_PRODUCTION_ALUMINUM">
