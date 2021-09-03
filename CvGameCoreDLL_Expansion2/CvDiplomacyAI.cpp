@@ -52832,7 +52832,7 @@ bool CvDiplomacyAI::IsVoluntaryVassalageAcceptable(PlayerTypes ePlayer)
 		break;
 	}
 
-	int iTechPercent = GET_TEAM(GetTeam()).GetTeamTechs()->GetNumTechsKnown() / max(1, GET_TEAM(GET_PLAYER(ePlayer).getTeam()).GetTeamTechs()->GetNumTechsKnown());
+	int iTechPercent = (GET_TEAM(GetTeam()).GetTeamTechs()->GetNumTechsKnown() * 100) / max(1, GET_TEAM(GET_PLAYER(ePlayer).getTeam()).GetTeamTechs()->GetNumTechsKnown());
 
 	if (iTechPercent > 100) // We are ahead of them in technology!
 		iWantVassalageScore -= 50;
