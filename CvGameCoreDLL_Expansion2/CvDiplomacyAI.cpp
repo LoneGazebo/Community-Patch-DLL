@@ -2038,9 +2038,9 @@ CivApproachTypes CvDiplomacyAI::GetSurfaceApproach(PlayerTypes ePlayer) const
 				}
 			}
 
-			if (eSurfaceApproach == CIV_APPROACH_HOSTILE && !IsUntrustworthy(ePlayer))
+			if (eSurfaceApproach == CIV_APPROACH_HOSTILE)
 			{
-				if (IsPlayerLiberatedCapital(ePlayer) || IsPlayerLiberatedHolyCity(ePlayer))
+				if (IsLiberator(ePlayer, false, true) || (IsCityRecentlyLiberatedBy(ePlayer) && !IsEndgameAggressiveTo(ePlayer) && GetPlayer()->getCitiesLost() > 0))
 				{
 					eSurfaceApproach = CIV_APPROACH_GUARDED;
 				}
@@ -2186,20 +2186,13 @@ CivApproachTypes CvDiplomacyAI::GetHighestValueApproach(PlayerTypes ePlayer, boo
 	{
 		if (eBestApproach == CIV_APPROACH_WAR || eBestApproach == CIV_APPROACH_HOSTILE)
 		{
-			if (!IsUntrustworthy(ePlayer))
+			if (WasResurrectedBy(ePlayer) || (IsCityRecentlyLiberatedBy(ePlayer) && !IsEndgameAggressiveTo(ePlayer) && GetPlayer()->getCitiesLost() > 0))
 			{
-				if (WasResurrectedBy(ePlayer))
-				{
-					eBestApproach = CIV_APPROACH_GUARDED;
-				}
-				else if (IsCityRecentlyLiberatedBy(ePlayer) && !IsEndgameAggressiveTo(ePlayer) && GetPlayer()->getCitiesLost() > 0)
-				{
-					eBestApproach = CIV_APPROACH_GUARDED;
-				}
-				else if ((IsPlayerLiberatedCapital(ePlayer) || IsPlayerLiberatedHolyCity(ePlayer)) && eBestApproach == CIV_APPROACH_HOSTILE)
-				{
-					eBestApproach = CIV_APPROACH_GUARDED;
-				}
+				eBestApproach = CIV_APPROACH_GUARDED;
+			}
+			else if (eBestApproach == CIV_APPROACH_HOSTILE && IsLiberator(ePlayer, false, true))
+			{
+				eBestApproach = CIV_APPROACH_GUARDED;
 			}
 		}
 		if (eBestApproach == CIV_APPROACH_FRIENDLY || eBestApproach == CIV_APPROACH_DECEPTIVE)
@@ -5527,6 +5520,39 @@ bool CvDiplomacyAI::IsHolyCityCapturedBy(PlayerTypes ePlayer, bool bCurrently, b
 	return false;
 }
 
+/// Is this player a liberator? Used for certain diplomacy checks.
+bool CvDiplomacyAI::IsLiberator(PlayerTypes ePlayer, bool bIgnoreReturns, bool bOnlyMajorCities) const
+{
+	// Not if they've previously captured our key cities!
+	if (IsCapitalCapturedBy(ePlayer, false, true) || IsHolyCityCapturedBy(ePlayer, false, true))
+		return false;
+
+	// Not if they've captured more cities than they've liberated.
+	if (GetNumCitiesCapturedBy(ePlayer) > GetNumCitiesLiberatedBy(ePlayer))
+		return false;
+
+	// Not if currently at war or untrustworthy.
+	if (IsAtWar(ePlayer) || IsUntrustworthy(ePlayer))
+		return false;
+
+	if (WasResurrectedBy(ePlayer) || IsPlayerLiberatedCapital(ePlayer) || IsPlayerLiberatedHolyCity(ePlayer))
+		return true;
+
+	if (!bIgnoreReturns)
+	{
+		if (IsPlayerReturnedCapital(ePlayer) || IsPlayerReturnedHolyCity(ePlayer))
+			return true;
+	}
+
+	if (!bOnlyMajorCities)
+	{
+		if (GetNumCitiesLiberatedBy(ePlayer) > 0 && GetNumCitiesLiberatedBy(ePlayer) > GetNumCitiesCapturedBy(ePlayer))
+			return true;
+	}
+
+	return false;
+}
+
 /// Did this player resurrect us and then attack us?
 bool CvDiplomacyAI::IsResurrectorAttackedUs(PlayerTypes ePlayer) const
 {
@@ -6346,17 +6372,8 @@ bool CvDiplomacyAI::IsCityRecentlyLiberatedBy(PlayerTypes ePlayer) const
 	if (iTurn <= -1)
 		return false;
 
-	// Anti-exploit - no bonuses under these conditions!
-	if (IsUntrustworthy(ePlayer))
-		return false;
-
-	if (IsCapitalCapturedBy(ePlayer))
-		return false;
-
-	if (IsHolyCityCapturedBy(ePlayer))
-		return false;
-
-	if (GetNumCitiesCapturedBy(ePlayer) >= GetNumCitiesLiberatedBy(ePlayer))
+	// Anti-exploit - no bonuses under certain conditions!
+	if (!IsLiberator(ePlayer, false, false))
 		return false;
 
 	int iTurnDifference = GC.getGame().getGameTurn() - iTurn;
@@ -11902,7 +11919,7 @@ bool CvDiplomacyAI::DoTestOnePlayerUntrustworthyFriend(PlayerTypes ePlayer)
 	}
 
 	// Be more tolerant if they've liberated one of our key cities.
-	if (IsPlayerLiberatedCapital(ePlayer) || IsPlayerLiberatedHolyCity(ePlayer))
+	if (IsLiberator(ePlayer, true, true))
 	{
 		iBrokenAgreementTolerance *= 2;
 		iFriendDenounceTolerance++;
@@ -12193,7 +12210,7 @@ bool CvDiplomacyAI::CanBackstab(PlayerTypes ePlayer) const
 	if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsPlayerMadeMilitaryPromise(GetID()))
 		return true;
 
-	if (IsPlayerLiberatedCapital(ePlayer))
+	if (IsLiberator(ePlayer, false, true))
 		return true;
 
 	if (IsCityRecentlyLiberatedBy(ePlayer))
@@ -12247,7 +12264,7 @@ bool CvDiplomacyAI::IsWillingToAttackFriend(PlayerTypes ePlayer, bool bDirect, b
 	if (!bImpulse && !bEndgameAggressive && !bUntrustworthy)
 	{
 		// Liberating our cities?
-		if (IsPlayerLiberatedCapital(ePlayer) && bDirect)
+		if (IsLiberator(ePlayer, false, true) && bDirect)
 			return false;
 
 		if (IsCityRecentlyLiberatedBy(ePlayer) && GetPlayer()->getCitiesLost() > 0)
@@ -14123,17 +14140,30 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 
 	bool bLiberatedCapital = false;
 
-	if (GetNumCitiesLiberatedBy(ePlayer) > 0 && !bEverCapturedKeyCity && !bUntrustworthy)
+	if (IsLiberator(ePlayer, false, false))
 	{
 		int iLiberationMod = GetNumCitiesLiberatedBy(ePlayer) - GetNumCitiesCapturedBy(ePlayer);
 		if (iLiberationMod > 0)
 		{
 			vApproachScores[CIV_APPROACH_FRIENDLY] += vApproachBias[CIV_APPROACH_FRIENDLY] * iLiberationMod;
-			vApproachScores[CIV_APPROACH_WAR] = 0;
-			vApproachScores[CIV_APPROACH_HOSTILE] = 0;
-			vApproachScores[CIV_APPROACH_DECEPTIVE] = 0;
-			vApproachScores[CIV_APPROACH_GUARDED] = 0;
-			vApproachScores[CIV_APPROACH_AFRAID] = 0;
+
+			if (vApproachScores[CIV_APPROACH_WAR] > 0)
+				vApproachScores[CIV_APPROACH_WAR] = 0;
+
+			if (vApproachScores[CIV_APPROACH_HOSTILE] > 0)
+				vApproachScores[CIV_APPROACH_HOSTILE] = 0;
+
+			if (vApproachScores[CIV_APPROACH_DECEPTIVE] > 0)
+				vApproachScores[CIV_APPROACH_DECEPTIVE] = 0;
+
+			if (vApproachScores[CIV_APPROACH_GUARDED] > 0)
+				vApproachScores[CIV_APPROACH_GUARDED] = 0;
+
+			if (vApproachScores[CIV_APPROACH_AFRAID] > 0)
+				vApproachScores[CIV_APPROACH_AFRAID] = 0;
+
+			if (vApproachScores[CIV_APPROACH_NEUTRAL] > 0)
+				vApproachScores[CIV_APPROACH_NEUTRAL] = 0;
 		}
 
 		// Liberated the capital?
@@ -14161,6 +14191,42 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 				vApproachScores[CIV_APPROACH_AFRAID] = -vApproachBias[CIV_APPROACH_AFRAID];
 				vApproachScores[CIV_APPROACH_NEUTRAL] = -vApproachBias[CIV_APPROACH_NEUTRAL];
 			}
+		}
+		// Returned the capital?
+		else if (IsPlayerReturnedCapital(ePlayer))
+		{
+			vApproachScores[CIV_APPROACH_FRIENDLY] += vApproachBias[CIV_APPROACH_FRIENDLY] * 5;
+		}
+
+		// Liberated the Holy City?
+		if (IsPlayerLiberatedHolyCity(ePlayer))
+		{
+			vApproachScores[CIV_APPROACH_FRIENDLY] += vApproachBias[CIV_APPROACH_FRIENDLY] * 5;
+
+			// If there's a resurrection bonus above, subtract instead of setting
+			if (bResurrectedUs || bResurrectedThem || bLiberatedCapital)
+			{
+				vApproachScores[CIV_APPROACH_WAR] -= vApproachBias[CIV_APPROACH_WAR];
+				vApproachScores[CIV_APPROACH_HOSTILE] -= vApproachBias[CIV_APPROACH_HOSTILE];
+				vApproachScores[CIV_APPROACH_DECEPTIVE] -= vApproachBias[CIV_APPROACH_DECEPTIVE];
+				vApproachScores[CIV_APPROACH_GUARDED] -= vApproachBias[CIV_APPROACH_GUARDED];
+				vApproachScores[CIV_APPROACH_AFRAID] -= vApproachBias[CIV_APPROACH_AFRAID];
+				vApproachScores[CIV_APPROACH_NEUTRAL] -= vApproachBias[CIV_APPROACH_NEUTRAL];
+			}
+			else
+			{
+				vApproachScores[CIV_APPROACH_WAR] = -vApproachBias[CIV_APPROACH_WAR];
+				vApproachScores[CIV_APPROACH_HOSTILE] = -vApproachBias[CIV_APPROACH_HOSTILE];
+				vApproachScores[CIV_APPROACH_DECEPTIVE] = -vApproachBias[CIV_APPROACH_DECEPTIVE];
+				vApproachScores[CIV_APPROACH_GUARDED] = -vApproachBias[CIV_APPROACH_GUARDED];
+				vApproachScores[CIV_APPROACH_AFRAID] = -vApproachBias[CIV_APPROACH_AFRAID];
+				vApproachScores[CIV_APPROACH_NEUTRAL] = -vApproachBias[CIV_APPROACH_NEUTRAL];
+			}
+		}
+		// Returned the Holy City?
+		else if (IsPlayerReturnedHolyCity(ePlayer))
+		{
+			vApproachScores[CIV_APPROACH_FRIENDLY] += vApproachBias[CIV_APPROACH_FRIENDLY] * 5;
 		}
 	}
 
@@ -16688,7 +16754,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 					else if (!bFirstPass && !IsEndgameAggressiveTo(ePlayer) && GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->GetWarDamageValue(ePlayer) >= 20 && GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->GetWarDamageValue(ePlayer) > pTheirDiplo->GetWarDamageValue(eLoopPlayer))
 					{
 						// Do we like them? Then we should defend our ally, if we can!
-						if ((IsFriendOrAlly(eLoopPlayer) || GetMostValuableFriend() == eLoopPlayer || GetMostValuableAlly() == eLoopPlayer || GetNumCitiesLiberatedBy(eLoopPlayer) > 0 || IsMaster(eLoopPlayer) || (IsVassal(eLoopPlayer) && GetVassalTreatmentLevel(eLoopPlayer) <= VASSAL_TREATMENT_DISAGREE)) && !IsUntrustworthy(eLoopPlayer) && GetCivApproach(eLoopPlayer) > CIV_APPROACH_GUARDED)
+						if ((IsFriendOrAlly(eLoopPlayer) || GetMostValuableFriend() == eLoopPlayer || GetMostValuableAlly() == eLoopPlayer || IsLiberator(eLoopPlayer, false, false) || IsMaster(eLoopPlayer) || (IsVassal(eLoopPlayer) && GetVassalTreatmentLevel(eLoopPlayer) <= VASSAL_TREATMENT_DISAGREE)) && !IsUntrustworthy(eLoopPlayer) && GetCivApproach(eLoopPlayer) > CIV_APPROACH_GUARDED)
 						{
 							bFriendUnderAttack = true;
 
@@ -18452,7 +18518,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 
 	if (pLeague != NULL && pLeague->IsTradeEmbargoed(eMyPlayer, ePlayer))
 	{
-		if (!bResurrectedUs && (GetNumCitiesLiberatedBy(ePlayer) <= 0 || GetNumCitiesLiberatedBy(ePlayer) <= GetNumCitiesCapturedBy(ePlayer)))
+		if (!IsLiberator(ePlayer, false, false))
 		{
 			// Let's not totally turn our backs on them if we have a good opinion.
 			switch (GetCivOpinion(ePlayer))
@@ -18788,20 +18854,17 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	// LIBERATOR - Don't be HOSTILE to a player who's liberating us!
 	////////////////////////////////////
 
-	if (!bUntrustworthy)
+	bool bRecentLiberation = IsCityRecentlyLiberatedBy(ePlayer) && GetPlayer()->getCitiesLost() > 0 && !IsEndgameAggressiveTo(ePlayer);
+
+	if (IsLiberator(ePlayer, false, true) || bRecentLiberation)
 	{
-		bool bRecentLiberation = IsCityRecentlyLiberatedBy(ePlayer) && GetPlayer()->getCitiesLost() > 0 && !IsEndgameAggressiveTo(ePlayer);
+		vApproachScores[CIV_APPROACH_HOSTILE] = 0;
+		vScratchValueOverrides[CIV_APPROACH_HOSTILE] = 0;
 
-		if (bResurrectedUs || bLiberatedCapital || IsPlayerLiberatedHolyCity(ePlayer) || bRecentLiberation)
+		if (bResurrectedUs || bRecentLiberation)
 		{
-			vApproachScores[CIV_APPROACH_HOSTILE] = 0;
-			vScratchValueOverrides[CIV_APPROACH_HOSTILE] = 0;
-
-			if (bResurrectedUs || bRecentLiberation)
-			{
-				vApproachScores[CIV_APPROACH_WAR] = 0;
-				vScratchValueOverrides[CIV_APPROACH_WAR] = 0;
-			}
+			vApproachScores[CIV_APPROACH_WAR] = 0;
+			vScratchValueOverrides[CIV_APPROACH_WAR] = 0;
 		}
 	}
 
@@ -18918,12 +18981,6 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	if (bFirstUpdate && eApproach != CIV_APPROACH_NEUTRAL && eApproach != CIV_APPROACH_FRIENDLY)
 	{
 		eApproach = CIV_APPROACH_NEUTRAL;
-	}
-
-	// Don't be hostile to players who are liberating our cities (if we care).
-	if (IsCityRecentlyLiberatedBy(ePlayer) && eApproach == CIV_APPROACH_HOSTILE)
-	{
-		eApproach = CIV_APPROACH_GUARDED;
 	}
 
 	if (bNoFriendly && (eApproach == CIV_APPROACH_FRIENDLY || eApproach == CIV_APPROACH_DECEPTIVE))
@@ -19833,7 +19890,7 @@ void CvDiplomacyAI::DoRelationshipPairing()
 		}
 
 		// Liberator?
-		if (IsPlayerLiberatedCapital(eLoopPlayer) || IsPlayerLiberatedHolyCity(eLoopPlayer))
+		if (IsLiberator(eLoopPlayer, false, false))
 		{
 			SetStrategicTradePartner(eLoopPlayer, true);
 			continue;
@@ -19948,7 +20005,7 @@ void CvDiplomacyAI::DoUpdatePlanningExchanges()
 		CivOpinionTypes eOpinion = GetCivOpinion(*it);
 		CivApproachTypes eApproach = GetCivApproach(*it);
 		DoFLevelTypes eDoFLevel = GetDoFType(*it);
-		bool bLiberator = (WasResurrectedBy(*it) || IsPlayerLiberatedCapital(*it) || IsPlayerLiberatedHolyCity(*it)) && !IsUntrustworthy(*it) && eOpinion > CIV_OPINION_ENEMY;
+		bool bLiberator = IsLiberator(*it, false, false) && eOpinion > CIV_OPINION_ENEMY;
 
 		// Don't befriend our biggest competitor!
 		if (GetBiggestCompetitor() == GET_PLAYER(*it).GetID() || GetPrimeLeagueCompetitor() == GET_PLAYER(*it).GetID())
@@ -20859,7 +20916,7 @@ int CvDiplomacyAI::ScoreDefensivePactChoice(PlayerTypes eChoice, bool bCoastal)
 	}
 	else if (GetNumCitiesLiberatedBy(eChoice) > 0)
 	{
-		iDPValue += GetNumCitiesLiberatedBy(eChoice) * 5;
+		iDPValue += GetNumCitiesLiberatedBy(eChoice) * 15;
 	}
 
 	return iDPValue;
@@ -21430,8 +21487,8 @@ void CvDiplomacyAI::DoUpdateWarTargets()
 					continue;
 				}
 
-				// Liberator?
-				if (IsPlayerLiberatedCapital(ePlayer) || IsCityRecentlyLiberatedBy(ePlayer))
+				// Major liberator, or recent liberation while we still have missing cities?
+				if (IsLiberator(ePlayer, false, true) || (IsCityRecentlyLiberatedBy(ePlayer) && !IsEndgameAggressiveTo(ePlayer) && GetPlayer()->getCitiesLost() > 0))
 				{
 					SetPotentialWarTarget(ePlayer, false);
 					continue;
@@ -25958,7 +26015,7 @@ bool CvDiplomacyAI::ShouldHideDisputeMods(PlayerTypes ePlayer) const
 		return false;
 
 	// If they've liberated us, let's be honest.
-	if (WasResurrectedBy(ePlayer) || IsPlayerLiberatedCapital(ePlayer) || IsPlayerLiberatedHolyCity(ePlayer) || IsPlayerReturnedCapital(ePlayer) || IsPlayerReturnedHolyCity(ePlayer))
+	if (IsLiberator(ePlayer, false, false))
 		return false;
 
 	// If they're untrustworthy, don't bother hiding anything.
@@ -25995,7 +26052,7 @@ bool CvDiplomacyAI::ShouldHideNegativeMods(PlayerTypes ePlayer) const
 		return false;
 
 	// If they've liberated us, let's be honest.
-	if (WasResurrectedBy(ePlayer) || IsPlayerLiberatedCapital(ePlayer) || IsPlayerLiberatedHolyCity(ePlayer) || IsPlayerReturnedCapital(ePlayer) || IsPlayerReturnedHolyCity(ePlayer))
+	if (IsLiberator(ePlayer, false, false))
 		return false;
 
 	// If they're untrustworthy, don't bother hiding anything.
@@ -37627,7 +37684,7 @@ bool CvDiplomacyAI::IsActHostileTowardsHuman(PlayerTypes eHuman) const
 		return true;
 
 	// Liberator
-	if (WasResurrectedBy(eHuman) || IsPlayerLiberatedCapital(eHuman))
+	if (IsLiberator(eHuman, false, false))
 		return false;
 
 	// Defensive Pact
@@ -37639,7 +37696,7 @@ bool CvDiplomacyAI::IsActHostileTowardsHuman(PlayerTypes eHuman) const
 		return false;
 
 	// Are we in bad shape for war? Don't act hostile.
-	if (GetPlayer()->IsNoNewWars())
+	if (GetPlayer()->IsInTerribleShapeForWar())
 		return false;
 
 	// Different ideology
@@ -39008,8 +39065,8 @@ int CvDiplomacyAI::GetCoopWarDesireScore(PlayerTypes eAllyPlayer, PlayerTypes eT
 		break;
 	}
 
-	// Resurrected by target?
-	if (WasResurrectedBy(eTargetPlayer) || IsPlayerLiberatedCapital(eTargetPlayer))
+	// Liberated by target?
+	if (IsLiberator(eTargetPlayer, false, true) || (IsCityRecentlyLiberatedBy(eTargetPlayer) && !IsEndgameAggressiveTo(eTargetPlayer) && GetPlayer()->getCitiesLost() > 0))
 		bBadness = true;
 
 	// Coop war score with target?
@@ -39851,7 +39908,7 @@ bool CvDiplomacyAI::IsDontSettleAcceptable(PlayerTypes ePlayer) const
 		return true;
 	
 	// Always acceptable if they resurrected or liberated us
-	if (WasResurrectedBy(ePlayer) || IsPlayerLiberatedCapital(ePlayer) || IsPlayerLiberatedHolyCity(ePlayer))
+	if (IsLiberator(ePlayer, true, true))
 		return true;
 	
 	// If we control 33%+ of other players' original capitals, don't make a promise unless we like them
@@ -40012,7 +40069,7 @@ bool CvDiplomacyAI::IsStopSpyingAcceptable(PlayerTypes ePlayer) const
 		return true;
 	
 	// Always acceptable if they resurrected or liberated us
-	if (WasResurrectedBy(ePlayer) || IsPlayerLiberatedCapital(ePlayer) || IsPlayerLiberatedHolyCity(ePlayer))
+	if (IsLiberator(ePlayer, true, true))
 		return true;
 	
 	// If we control 33%+ of other players' original capitals, don't make a promise unless we like them
@@ -41320,8 +41377,8 @@ int CvDiplomacyAI::GetDenounceWeight(PlayerTypes ePlayer, bool bBias)
 	{
 		iWeight -= 10;
 	}
-	// Liberated our capital: Big penalty
-	if (IsPlayerLiberatedCapital(ePlayer))
+	// Liberated or returned our key cities: Big penalty
+	if (IsLiberator(ePlayer, false, true))
 	{
 		iWeight -= 10;
 	}
@@ -41330,10 +41387,10 @@ int CvDiplomacyAI::GetDenounceWeight(PlayerTypes ePlayer, bool bBias)
 	{
 		iWeight -= 5;
 	}
-	// Resurrected them: Penalty
+	// Resurrected them: Big penalty
 	if (GET_PLAYER(ePlayer).GetDiplomacyAI()->WasResurrectedBy(GetID()))
 	{
-		iWeight -= 5;
+		iWeight -= 15;
 	}
 
 	// Look for other players we like or are strong, and modify our willingness to denounce based on this
@@ -41626,7 +41683,7 @@ bool CvDiplomacyAI::IsStopSpreadingReligionAcceptable(PlayerTypes ePlayer)
 		return true;
 	
 	// Always acceptable if they resurrected or liberated us
-	if (WasResurrectedBy(ePlayer) || IsPlayerLiberatedCapital(ePlayer) || IsPlayerLiberatedHolyCity(ePlayer))
+	if (IsLiberator(ePlayer, true, true))
 		return true;
 
 	// Must accept if they're our master
@@ -41714,7 +41771,7 @@ bool CvDiplomacyAI::IsStopDiggingAcceptable(PlayerTypes ePlayer) const
 		return true;
 	
 	// Always acceptable if they resurrected or liberated us
-	if (WasResurrectedBy(ePlayer) || IsPlayerLiberatedCapital(ePlayer) || IsPlayerLiberatedHolyCity(ePlayer))
+	if (IsLiberator(ePlayer, true, true))
 		return true;
 	
 	// If we control 33%+ of other players' original capitals, don't make a promise unless we like them
@@ -43683,7 +43740,7 @@ int CvDiplomacyAI::GetDenouncedByOurFriendScore(PlayerTypes ePlayer)
 		return 0;
 
 	// Ignore for liberators.
-	if (WasResurrectedBy(ePlayer) || IsPlayerReturnedCapital(ePlayer) || IsPlayerReturnedHolyCity(ePlayer) || GetNumCitiesLiberatedBy(ePlayer) > 0)
+	if (IsLiberator(ePlayer, false, false))
 		return 0;
 
 	int iOpinionWeight = 0;
@@ -45738,13 +45795,13 @@ bool CvDiplomacyAI::DoPossibleMajorLiberation(PlayerTypes eMajor, PlayerTypes eO
 			{
 				bLiberate = true;
 			}
-			// They liberated us previously?
-			else if (WasResurrectedBy(eMajor) || IsPlayerLiberatedCapital(eMajor) || IsPlayerLiberatedHolyCity(eMajor))
+			// They majorly liberated us previously?
+			else if (IsLiberator(eMajor, false, true))
 			{
 				bLiberate = true;
 			}
-			// We liberated them previously?
-			else if (GET_PLAYER(eMajor).GetDiplomacyAI()->WasResurrectedBy(GetID()) || GET_PLAYER(eMajor).GetDiplomacyAI()->IsPlayerLiberatedCapital(GetID()) || GET_PLAYER(eMajor).GetDiplomacyAI()->IsPlayerLiberatedHolyCity(GetID()))
+			// We majorly liberated them previously?
+			else if (GET_PLAYER(eMajor).GetDiplomacyAI()->IsLiberator(GetID(), true, true))
 			{
 				bLiberate = true;
 			}
@@ -45805,13 +45862,13 @@ bool CvDiplomacyAI::DoPossibleMajorLiberation(PlayerTypes eMajor, PlayerTypes eO
 			{
 				bLiberate = true;
 			}
-			// They liberated us previously?
-			else if (WasResurrectedBy(eMajor) || IsPlayerLiberatedCapital(eMajor) || IsPlayerLiberatedHolyCity(eMajor))
+			// They majorly liberated us previously?
+			else if (IsLiberator(eMajor, false, true))
 			{
 				bLiberate = true;
 			}
-			// We liberated them previously?
-			else if (GET_PLAYER(eMajor).GetDiplomacyAI()->WasResurrectedBy(GetID()) || GET_PLAYER(eMajor).GetDiplomacyAI()->IsPlayerLiberatedCapital(GetID()) || GET_PLAYER(eMajor).GetDiplomacyAI()->IsPlayerLiberatedHolyCity(GetID()))
+			// We majorly liberated them previously?
+			else if (GET_PLAYER(eMajor).GetDiplomacyAI()->IsLiberator(GetID(), true, true))
 			{
 				bLiberate = true;
 			}
@@ -45915,7 +45972,7 @@ bool CvDiplomacyAI::IsPlayerBadTheftTarget(PlayerTypes ePlayer, TheftTypes eThef
 	if (IsDoFAccepted(ePlayer))
 		return true;
 
-	if (GetNumCitiesLiberatedBy(ePlayer) > 0)
+	if (IsLiberator(ePlayer, false, false))
 		return true;
 
 	if (IsHasDefensivePact(ePlayer))
@@ -52986,8 +53043,8 @@ bool CvDiplomacyAI::IsVoluntaryVassalageAcceptable(PlayerTypes ePlayer)
 	else if (IsPlayerReturnedHolyCity(ePlayer))
 		iWantVassalageScore += 10;
 
-	if (GetNumCitiesLiberatedBy(ePlayer) > GetNumCitiesCapturedBy(ePlayer))
-		iWantVassalageScore += (GetNumCitiesLiberatedBy(ePlayer) - GetNumCitiesCapturedBy(ePlayer)) * 10;
+	if (GetNumCitiesLiberatedBy(ePlayer) > 0 && GetNumCitiesLiberatedBy(ePlayer) > GetNumCitiesCapturedBy(ePlayer))
+		iWantVassalageScore += 10 * (GetNumCitiesLiberatedBy(ePlayer) - GetNumCitiesCapturedBy(ePlayer));
 
 	// Reduce score based on past aggression towards us
 	iWantVassalageScore -= GetNumWarsDeclaredOnUs(ePlayer) * 10;
@@ -53554,8 +53611,8 @@ bool CvDiplomacyAI::IsEndVassalageRequestAcceptable(PlayerTypes ePlayer)
 	else if (IsPlayerReturnedCapital(ePlayer) || IsPlayerReturnedHolyCity(ePlayer))
 		iChanceToGiveIn += 25;
 
-	if (GetNumCitiesLiberatedBy(ePlayer) > GetNumCitiesCapturedBy(ePlayer))
-		iChanceToGiveIn += 10 * GetNumCitiesLiberatedBy(ePlayer);
+	if (GetNumCitiesLiberatedBy(ePlayer) > 0 && GetNumCitiesLiberatedBy(ePlayer) > GetNumCitiesCapturedBy(ePlayer))
+		iChanceToGiveIn += 10 * (GetNumCitiesLiberatedBy(ePlayer) - GetNumCitiesCapturedBy(ePlayer));
 
 	// We're close to or going for Diplomatic Victory - we want their league votes
 	if (IsGoingForDiploVictory() || IsCloseToDiploVictory())

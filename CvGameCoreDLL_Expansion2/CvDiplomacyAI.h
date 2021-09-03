@@ -712,6 +712,8 @@ public:
 	void SetPlayerCapturedHolyCity(PlayerTypes ePlayer, bool bValue);
 	bool IsHolyCityCapturedBy(PlayerTypes ePlayer, bool bCurrently = false, bool bTeammates = true, bool bCheckEver = false) const;
 
+	bool IsLiberator(PlayerTypes ePlayer, bool bIgnoreReturns = false, bool bOnlyMajorCities = false) const;
+
 	bool IsResurrectorAttackedUs(PlayerTypes ePlayer) const;
 	void SetResurrectorAttackedUs(PlayerTypes ePlayer, bool bValue);
 
