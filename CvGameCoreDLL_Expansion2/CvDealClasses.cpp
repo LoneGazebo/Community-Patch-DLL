@@ -3610,7 +3610,7 @@ void CvGameDeals::ActivateDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, C
 			}
 
 			// Notified players reevaluate the broker!
-			for (std::vector<PlayerTypes>::iterator iter = vNotifiedPlayers.begin(); iter != vNotifiedPlayers.end(); it++)
+			for (std::vector<PlayerTypes>::iterator iter = vNotifiedPlayers.begin(); iter != vNotifiedPlayers.end(); iter++)
 			{
 				if (!GET_PLAYER(*iter).isHuman())
 				{
