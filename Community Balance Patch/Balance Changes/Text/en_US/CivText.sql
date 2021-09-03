@@ -624,7 +624,7 @@ WHERE Type = 'TRAIT_POPULATION_GROWTH' AND EXISTS (SELECT * FROM COMMUNITY WHERE
 -- Indonesia
 --------------------
 UPDATE Language_en_US
-SET Text = 'Unique Indonesian Garden replacement. A [ICON_RES_CLOVES] Clove, [ICON_RES_PEPPER] Pepper, or [ICON_RES_NUTMEG] Nutmeg Resource will appear near or under this City when built.[NEWLINE][NEWLINE]+25% [ICON_GREAT_PEOPLE] Great People generation in this City. +25% to [ICON_PEACE] Faith and [ICON_CULTURE] Culture in the City during "We Love the King Day."[NEWLINE][NEWLINE]2 Specialists in this City no longer produce [ICON_HAPPINESS_3] Unhappiness from Urbanization.[NEWLINE][NEWLINE]Nearby Oases: +3 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_CITRUS] Citrus: +1 [ICON_FOOD] Food, +2 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_COCOA] Cocoa: +2 [ICON_FOOD] Food, +2 [ICON_GOLD] Gold.'
+SET Text = 'Unique Indonesian Garden replacement. A [ICON_RES_CLOVES] Cloves, [ICON_RES_PEPPER] Pepper, or [ICON_RES_NUTMEG] Nutmeg Resource will appear near or under this City when built.[NEWLINE][NEWLINE]+25% [ICON_GREAT_PEOPLE] Great People generation in this City. Musician, Writer, and Artist Specialists produce +1 [ICON_TOURISM] Tourism in the City.[NEWLINE][NEWLINE]+15% to [ICON_PEACE] Faith and [ICON_CULTURE] Culture in the City during "We Love the King Day."[NEWLINE][NEWLINE]1 Specialist in this City no longer produces [ICON_HAPPINESS_3] Unhappiness from Urbanization.[NEWLINE][NEWLINE]Nearby Oases: +2 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_CITRUS] Citrus: +1 [ICON_FOOD] Food, +1 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_COCOA] Cocoa: +1 [ICON_FOOD] Food, +1 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_CLOVES] Cloves: +1 [ICON_PEACE] Faith, +1 [ICON_CULTURE] Culture.[NEWLINE]Nearby [ICON_RES_PEPPER] Pepper: +1 [ICON_PEACE] Faith, +1 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_NUTMEG] Nutmeg: +1 [ICON_CULTURE] Culture, +1 [ICON_PRODUCTION] Production.'
 WHERE Tag = 'TXT_KEY_BUILDING_CANDI_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -632,7 +632,7 @@ SET Text = 'In addition to the regular abilities of the Garden, the Candi provid
 WHERE Tag = 'TXT_KEY_BUILDING_CANDI_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'When you found or conquer a City, one of 3 unique Luxuries will appear next to or under the City.'
+SET Text = 'When you gain a City, one of 3 unique Luxuries will appear nearby. +5% to Yield and [ICON_GOLDEN_AGE] Golden Age duration modifiers from Global Monopolies; +2 to Yields and [ICON_HAPPINESS_1] Happiness from Global Monopolies.'
 WHERE Tag = 'TXT_KEY_TRAIT_SPICE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -640,11 +640,11 @@ SET Text = 'Classical Era Melee unit that has a mystical weapon whose abilities 
 WHERE Tag = 'TXT_KEY_UNIT_HELP_INDONESIAN_KRIS_SWORDSMAN' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = '50% chance of Healing 10 HP if the unit ends its turn in [COLOR_POSITIVE_TEXT]Enemy Territory[ENDCOLOR]. Treats Roads in [COLOR_POSITIVE_TEXT]Enemy Territory[ENDCOLOR] as friendly.'
+SET Text = 'Heals 10 HP if the unit ends its turn in [COLOR_POSITIVE_TEXT]Enemy Territory[ENDCOLOR].[NEWLINE]10 Damage to all adjacent enemy Units [COLOR_POSITIVE_TEXT]each Turn[ENDCOLOR].'
  WHERE Tag = 'TXT_KEY_PROMOTION_ENEMY_BLADE_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Enemy Defection'
+SET Text = 'Recruitment'
  WHERE Tag = 'TXT_KEY_PROMOTION_ENEMY_BLADE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -658,6 +658,22 @@ WHERE Tag = 'TXT_KEY_PROMOTION_EVIL_SPIRITS' AND EXISTS (SELECT * FROM COMMUNITY
 UPDATE Language_en_US
 SET Text = '+30% [ICON_STRENGTH] Combat Strength when attacking.[NEWLINE]+5% [ICON_STRENGTH] Combat Strength when defending.'
 WHERE Tag = 'TXT_KEY_PROMOTION_AMBITION_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
+
+UPDATE Language_en_US
+SET Text = '[COLOR_POSITIVE_TEXT]Flanking bonus[ENDCOLOR] increased by 20%.[NEWLINE]Ignores [COLOR_POSITIVE_TEXT]Terrain Costs[ENDCOLOR] and [COLOR_POSITIVE_TEXT]Zone of Control[ENDCOLOR].'
+WHERE Tag = 'TXT_KEY_PROMOTION_SNEAK_ATTACK_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+ 
+UPDATE Language_en_US
+SET Text = 'Heals all damage if the Unit kills a [COLOR_POSITIVE_TEXT]non-Barbarian Unit[ENDCOLOR].'
+WHERE Tag = 'TXT_KEY_PROMOTION_RECRUITMENT_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
+UPDATE Language_en_US
+SET Text = 'Damage from all sources reduced by 2.[NEWLINE]+20 HP when healing.'
+WHERE Tag = 'TXT_KEY_PROMOTION_INVULNERABIILITY_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+ 
+UPDATE Language_en_US
+SET Text = 'Unit awards combat bonus to nearby Units as if it is a Great General. Damage from all sources reduced by 10.'
+WHERE Tag = 'TXT_KEY_PROMOTION_HEROISM_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 UPDATE Language_en_US
 SET Text = 'Sumpah Palapa'
