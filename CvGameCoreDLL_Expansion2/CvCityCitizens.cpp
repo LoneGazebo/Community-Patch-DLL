@@ -1467,9 +1467,9 @@ void CvCityCitizens::OptimizeWorkedPlots(bool bLogging)
 			else
 				DoRemoveSpecialistFromBuilding(eWorstSpecialistBuilding, false, CvCity::YIELD_UPDATE_LOCAL);
 		}
-		else if (pWorstWorkedPlot)
+		else if (bReleaseLaborer)
 		{
-			if (bReleaseLaborer && iWorstWorkedPlotValue < iLaborerValue)
+			if (iWorstWorkedPlotValue < iLaborerValue)
 				//plot should be released
 				SetWorkingPlot(pWorstWorkedPlot, false, CvCity::YIELD_UPDATE_LOCAL);
 			else
