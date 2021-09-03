@@ -6,8 +6,8 @@
     <Name>(2) Community Balance Overhaul</Name>
     <Guid>8411a7a8-dad3-4622-a18e-fcc18324c799</Guid>
     <ModVersion>13</ModVersion>
-    <Stability>Beta</Stability>
-    <Teaser>(8-19) Unofficial Expansion and Rebalancing Project for Civilization V: Brave New World</Teaser>
+    <Stability>Stable</Stability>
+    <Teaser>(1.0) Unofficial Expansion and Rebalancing Project for Civilization V: Brave New World</Teaser>
     <Description>Contains balance changes, gameplay improvements, and entirely new game systems  to make Civ V a more enjoyable and exciting game.</Description>
     <Authors>Civfanatics Community Patch Project Team</Authors>
     <SpecialThanks>
@@ -266,10 +266,10 @@
         <Type>UpdateDatabase</Type>
         <FileName>Balance Changes/Terrain/ImprovementChanges.sql</FileName>
       </Action>
-	  <Action>
-		<Set>OnModActivated</Set>
-		<Type>UpdateDatabase</Type>
-		<FileName>Balance Changes/Leaders/LeaderStartBiases.sql</FileName>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <FileName>Balance Changes/Leaders/LeaderStartBiases.sql</FileName>
       </Action>
       <Action>
         <Set>OnModActivated</Set>
@@ -708,12 +708,21 @@
     <Folder Include="Art\Improvements\Kuna" />
     <Folder Include="Art\Icons" />
     <Folder Include="Art\Improvements\Inca" />
+    <Folder Include="Art\Improvements\Ordo\" />
     <Folder Include="Art\Improvements\Spices" />
     <Folder Include="Art\Resources" />
     <Folder Include="Art\Splash" />
     <Folder Include="Art\Units" />
     <Folder Include="Art\Units\Commando\" />
     <Folder Include="Art\Units\Icons\" />
+    <Folder Include="Art\Units\LandsknechtFreeCompany\" />
+    <Folder Include="Art\Units\LandsknechtFreeCompany\Free_Company\" />
+    <Folder Include="Art\Units\LandsknechtFreeCompany\Free_Company\free_company\" />
+    <Folder Include="Art\Units\LandsknechtFreeCompany\Free_Company\Graphics_Maceman_modified\" />
+    <Folder Include="Art\Units\LandsknechtFreeCompany\Free_Company\RER_PIKE\" />
+    <Folder Include="Art\Units\LandsknechtFreeCompany\Landsknecht\" />
+    <Folder Include="Art\Units\LandsknechtFreeCompany\Landsknecht\Doppelsoldner\" />
+    <Folder Include="Art\Units\LandsknechtFreeCompany\Landsknecht\Musket_Landsknecht\" />
     <Folder Include="Art\Units\Model\" />
     <Folder Include="Art\Units\MountedXbow" />
     <Folder Include="Art\Units\HeavySkirmish" />
@@ -723,7 +732,7 @@
     <Folder Include="Art\Units\ArmoredCar" />
     <Folder Include="Art\Units\FieldGun" />
     <Folder Include="Art\Units\Corvette" />
-	<Folder Include="Balance Changes\AI" />
+    <Folder Include="Balance Changes\AI" />
     <Folder Include="Balance Changes\Barbarians" />
     <Folder Include="Balance Changes\Beliefs\ReligiousBuildings" />
     <Folder Include="Balance Changes\Beliefs\ReligiousNW" />
@@ -1077,6 +1086,50 @@
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
     <Content Include="Art\Improvements\Kuna\SV_Kuna.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Art\Improvements\Ordo\no_gloss.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Art\Improvements\Ordo\YurtCamp.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Art\Improvements\Ordo\YurtCamp.fxsxml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Art\Improvements\Ordo\YurtCamp.gr2">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Art\Improvements\Ordo\YurtCamp_PL.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Art\Improvements\Ordo\YurtCamp_PL.fxsxml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Art\Improvements\Ordo\YurtCamp_PL.gr2">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Art\Improvements\Ordo\YurtIcons045.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Art\Improvements\Ordo\YurtIcons064.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Art\Improvements\Ordo\YurtIcons256.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Art\Improvements\Ordo\Yurt_SV.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
@@ -1741,6 +1794,178 @@
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
     <Content Include="Art\Units\Icons\volleyflag.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Art\Units\LandsknechtFreeCompany\FCOMPANY_ATLAS_045.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Art\Units\LandsknechtFreeCompany\FCOMPANY_ATLAS_064.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Art\Units\LandsknechtFreeCompany\FCOMPANY_ATLAS_080.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Art\Units\LandsknechtFreeCompany\FCOMPANY_ATLAS_128.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Art\Units\LandsknechtFreeCompany\FCOMPANY_ATLAS_256.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Art\Units\LandsknechtFreeCompany\FCompany_Flag_Atlas_032.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Art\Units\LandsknechtFreeCompany\Free_Company\free_company\eng_kn.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Art\Units\LandsknechtFreeCompany\Free_Company\free_company\eng_kn_gloss.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Art\Units\LandsknechtFreeCompany\Free_Company\free_company\free_company.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Art\Units\LandsknechtFreeCompany\Free_Company\free_company\free_company.fxsxml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Art\Units\LandsknechtFreeCompany\Free_Company\free_company\free_company.gr2">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Art\Units\LandsknechtFreeCompany\Free_Company\free_company\free_company_gloss.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Art\Units\LandsknechtFreeCompany\Free_Company\free_company\free_company_poleaxe.fxsxml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Art\Units\LandsknechtFreeCompany\Free_Company\free_company\free_company_poleaxe.gr2">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Art\Units\LandsknechtFreeCompany\Free_Company\Graphics_Maceman_modified\Maceman.fxsxml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Art\Units\LandsknechtFreeCompany\Free_Company\Graphics_Maceman_modified\Maceman.gr2">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Art\Units\LandsknechtFreeCompany\Free_Company\Graphics_Maceman_modified\Maceman_diff512.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Art\Units\LandsknechtFreeCompany\Free_Company\Graphics_Maceman_modified\Maceman_sref512.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Art\Units\LandsknechtFreeCompany\Free_Company\RER_PIKE\pike_helm_diff.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Art\Units\LandsknechtFreeCompany\Free_Company\RER_PIKE\pike_helm_sref.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Art\Units\LandsknechtFreeCompany\Free_Company\RER_PIKE\RER_PIKE.fxsxml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Art\Units\LandsknechtFreeCompany\Free_Company\RER_PIKE\RER_PIKE.gr2">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Art\Units\LandsknechtFreeCompany\Free_Company\RER_PIKE\RER_PIKE_diff.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Art\Units\LandsknechtFreeCompany\Free_Company\RER_PIKE\RER_PIKE_sref.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Art\Units\LandsknechtFreeCompany\Landsknecht\Doppelsoldner\DBaro2nClay_gloss.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Art\Units\LandsknechtFreeCompany\Landsknecht\Doppelsoldner\DBaronClay.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Art\Units\LandsknechtFreeCompany\Landsknecht\Doppelsoldner\DBaronClay_2.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Art\Units\LandsknechtFreeCompany\Landsknecht\Doppelsoldner\dopp-pik_diff.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Art\Units\LandsknechtFreeCompany\Landsknecht\Doppelsoldner\dopp-pik_sref.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Art\Units\LandsknechtFreeCompany\Landsknecht\Doppelsoldner\dopp_a.fxsxml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Art\Units\LandsknechtFreeCompany\Landsknecht\Doppelsoldner\dopp_a.gr2">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Art\Units\LandsknechtFreeCompany\Landsknecht\Doppelsoldner\dopp_b.fxsxml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Art\Units\LandsknechtFreeCompany\Landsknecht\Doppelsoldner\dopp_b.gr2">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Art\Units\LandsknechtFreeCompany\Landsknecht\Doppelsoldner\hat_a_diff.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Art\Units\LandsknechtFreeCompany\Landsknecht\Doppelsoldner\hat_a_sref.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Art\Units\LandsknechtFreeCompany\Landsknecht\Doppelsoldner\hat_b_diff.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Art\Units\LandsknechtFreeCompany\Landsknecht\Doppelsoldner\hat_b_sref.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Art\Units\LandsknechtFreeCompany\Landsknecht\Doppelsoldner\sv_Doppelsoldner.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Art\Units\LandsknechtFreeCompany\Landsknecht\Musket_Landsknecht\landsknecht_musket_a.fxsxml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Art\Units\LandsknechtFreeCompany\Landsknecht\Musket_Landsknecht\landsknecht_musket_a.gr2">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Art\Units\LandsknechtFreeCompany\Landsknecht\Musket_Landsknecht\landsknecht_musket_b.fxsxml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Art\Units\LandsknechtFreeCompany\Landsknecht\Musket_Landsknecht\landsknecht_musket_b.gr2">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Art\Units\LandsknechtFreeCompany\sv_b_FCompany.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
