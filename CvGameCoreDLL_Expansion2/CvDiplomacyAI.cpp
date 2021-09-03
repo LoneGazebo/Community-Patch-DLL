@@ -3135,7 +3135,7 @@ bool CvDiplomacyAI::IsLockedIntoCoopWar(PlayerTypes ePlayer) const
 }
 
 /// What is our highest coop war state WITH this player against another player?
-CoopWarStates CvDiplomacyAI::GetGlobalCoopWarWithState(PlayerTypes ePlayer) const
+CoopWarStates CvDiplomacyAI::GetGlobalCoopWarWithState(PlayerTypes ePlayer, bool bExcludeOngoing) const
 {
 	CoopWarStates eBestState = NO_COOP_WAR_STATE;
 
@@ -3146,6 +3146,9 @@ CoopWarStates CvDiplomacyAI::GetGlobalCoopWarWithState(PlayerTypes ePlayer) cons
 		if (IsPlayerValid(eLoopPlayer))
 		{
 			CoopWarStates eCoopWarState = GetCoopWarState(ePlayer, eLoopPlayer);
+			if (bExcludeOngoing && eCoopWarState == COOP_WAR_STATE_ONGOING)
+				continue;
+
 			if (eCoopWarState >= COOP_WAR_STATE_PREPARING && eCoopWarState > eBestState)
 			{
 				eBestState = eCoopWarState;
@@ -36875,12 +36878,16 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 			{
 				SetCoopWarState(eFromPlayer, eTargetPlayer, COOP_WAR_STATE_PREPARING);
 				GET_PLAYER(eFromPlayer).GetDiplomacyAI()->SetCoopWarState(GetID(), eTargetPlayer, COOP_WAR_STATE_PREPARING);
+				ChangeRecentAssistValue(eFromPlayer, -300);
+				GET_PLAYER(eFromPlayer).GetDiplomacyAI()->ChangeRecentAssistValue(GetID(), -300);
 			}
 			// Human agrees to war immediately
 			else
 			{
 				SetCoopWarState(eFromPlayer, eTargetPlayer, COOP_WAR_STATE_READY);
 				GET_PLAYER(eFromPlayer).GetDiplomacyAI()->SetCoopWarState(GetID(), eTargetPlayer, COOP_WAR_STATE_READY);
+				ChangeRecentAssistValue(eFromPlayer, -300);
+				GET_PLAYER(eFromPlayer).GetDiplomacyAI()->ChangeRecentAssistValue(GetID(), -300);
 				DoStartCoopWar(eFromPlayer, eTargetPlayer);
 			}
 
@@ -39561,12 +39568,16 @@ CoopWarStates CvDiplomacyAI::RespondToCoopWarRequest(PlayerTypes eAskingPlayer, 
 	case COOP_WAR_STATE_READY:
 		SetCoopWarState(eAskingPlayer, eTargetPlayer, eResponse);
 		GET_PLAYER(eAskingPlayer).GetDiplomacyAI()->SetCoopWarState(GetID(), eTargetPlayer, eResponse);
+		ChangeRecentAssistValue(eAskingPlayer, -300);
+		GET_PLAYER(eAskingPlayer).GetDiplomacyAI()->ChangeRecentAssistValue(GetID(), -300);
 		DoStartCoopWar(eAskingPlayer, eTargetPlayer);
 		eResponse = COOP_WAR_STATE_ONGOING;
 		break;
 	case COOP_WAR_STATE_PREPARING:
 		SetCoopWarState(eAskingPlayer, eTargetPlayer, eResponse);
 		GET_PLAYER(eAskingPlayer).GetDiplomacyAI()->SetCoopWarState(GetID(), eTargetPlayer, eResponse);
+		ChangeRecentAssistValue(eAskingPlayer, -300);
+		GET_PLAYER(eAskingPlayer).GetDiplomacyAI()->ChangeRecentAssistValue(GetID(), -300);
 		break;
 	case COOP_WAR_STATE_WARNED_TARGET:
 		SetCoopWarState(eAskingPlayer, eTargetPlayer, eResponse);
@@ -42055,7 +42066,12 @@ void CvDiplomacyAI::DoTestOpinionModifiers()
 		}
 		else if (GetRecentAssistValue(ePlayer) < 0)
 		{
-			ChangeRecentAssistValue(ePlayer, /*3*/ GC.getASSIST_VALUE_PER_TURN_DECAY(), true);
+			// Bonus does not decay when a coop war is "soon".
+			CoopWarStates eCoopWarState = GetGlobalCoopWarWithState(ePlayer, /*bExcludeOngoing*/ true);
+			if (eCoopWarState != COOP_WAR_STATE_PREPARING && eCoopWarState != COOP_WAR_STATE_READY)
+			{
+				ChangeRecentAssistValue(ePlayer, /*3*/ GC.getASSIST_VALUE_PER_TURN_DECAY(), true);
+			}
 		}
 
 		// Civilians returned?
