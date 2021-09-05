@@ -781,15 +781,6 @@
 		<Row Tag="TXT_KEY_BUILDING_AMERICA_HOOVERDAM_STRATEGY">
 			<Text>The Hoover Dam is one of three mutually exclusive wonders that America can build after it has completed Independence Hall. It gives major bonuses towards a production and Cultural Victory, increasing the tourism of Wonders and Culture from tiles. The Hoover Dam also halves the time for Trade Routes to complete, greatly increasing your tourism and franchise production towards civilizations you trade with.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_BUILDING_AMERICA_SMITHSONIAN_DUMMY">
-			<Text>Museum in all Cities[NEWLINE]10% [ICON_GOLD] to [ICON_CULTURE] in all Cities</Text>
-		</Row>
-		<Row Tag="TXT_KEY_BUILDING_AMERICA_HOOVERDAM_DUMMY">
-			<Text>10% [ICON_GOLD] to [ICON_PRODUCTION] in all Cities</Text>
-		</Row>
-		<Row Tag="TXT_KEY_BUILDING_AMERICA_WESTPOINT_DUMMY">
-			<Text>10% [ICON_GOLD] to [ICON_RESEARCH] in all Cities</Text>
-		</Row>
 		<Row Tag="TXT_KEY_THEMING_BONUS_INDEPENDENCEHALL">
 			<Text>National Treasures</Text>
 		</Row>
