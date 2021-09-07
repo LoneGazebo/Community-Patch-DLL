@@ -257,8 +257,8 @@ VALUES
 	('UNITCLASS_FCOMPANY', 'TXT_KEY_UNIT_FCOMPANY', 'UNIT_FCOMPANY');
 
 INSERT INTO Units
-		(Class, 				Type, 				PrereqTech,   Combat, Cost, FaithCost, PurchaseOnly, RequiresFaithPurchaseEnabled,	Moves, 	CombatClass, 		Domain, 	 	MoveAfterPurchase, 	DefaultUnitAI, 		  Description, 				Civilopedia, 				 	Strategy, 							Help, 							MilitarySupport, 	MilitaryProduction, Pillage, 	PolicyType, 			   	IgnoreBuildingDefense, 	AdvancedStartCost, 	XPValueAttack, 	XPValueDefense, Conscription, UnitArtInfo, 			   UnitFlagAtlas, 		  UnitFlagIconOffset, IconAtlas, 		 	PortraitIndex)
-VALUES	('UNITCLASS_FCOMPANY', 	'UNIT_FCOMPANY', 	'TECH_STEEL', 19, 	  125,  0, 		   1, 			 0, 					 		2, 	  	'UNITCOMBAT_MELEE',	'DOMAIN_LAND', 	1, 					'UNITAI_FAST_ATTACK', 'TXT_KEY_UNIT_FCOMPANY', 	'TXT_KEY_CIV5_FCOMPANY_TEXT', 	'TXT_KEY_UNIT_FCOMPANY_STRATEGY', 	'TXT_KEY_UNIT_HELP_FCOMPANY', 	1, 			 		1, 				 	1, 	  		'POLICY_HONOR_FINISHER', 	1, 					  	40, 				5, 				5, 				3, 			  'ART_DEF_UNIT_FCOMPANY', 'FCOMPANY_FLAG_ATLAS', 0, 				  'FCOMPANY_ATLAS', 	0);
+		(Class, 				Type, 				PrereqTech,   ObsoleteTech, 			Combat, Cost, FaithCost, PurchaseOnly, 	RequiresFaithPurchaseEnabled,	Moves, 	CombatClass, 		Domain, 	 	MoveAfterPurchase, 	DefaultUnitAI, 		  Description, 				Civilopedia, 				 	Strategy, 							Help, 							MilitarySupport, 	MilitaryProduction, Pillage, 	PolicyType, 			   	IgnoreBuildingDefense, 	AdvancedStartCost, 	XPValueAttack, 	XPValueDefense, Conscription, UnitArtInfo, 			   UnitFlagAtlas, 		  UnitFlagIconOffset, IconAtlas, 		 	PortraitIndex)
+VALUES	('UNITCLASS_FCOMPANY', 	'UNIT_FCOMPANY', 	'TECH_STEEL', 'TECH_REPLACEABLE_PARTS', 19, 	125,  0, 		 1, 		 	0, 					 			2, 	  	'UNITCOMBAT_MELEE',	'DOMAIN_LAND', 	1, 					'UNITAI_FAST_ATTACK', 'TXT_KEY_UNIT_FCOMPANY', 	'TXT_KEY_CIV5_FCOMPANY_TEXT', 	'TXT_KEY_UNIT_FCOMPANY_STRATEGY', 	'TXT_KEY_UNIT_HELP_FCOMPANY', 	1, 			 		1, 				 	1, 	  		'POLICY_HONOR_FINISHER', 	1, 					  	40, 				5, 				5, 				3, 			  'ART_DEF_UNIT_FCOMPANY', 'FCOMPANY_FLAG_ATLAS', 0, 				  'FCOMPANY_ATLAS', 	0);
 
 INSERT INTO Unit_ClassUpgrades
 	(UnitType, UnitClassType)
