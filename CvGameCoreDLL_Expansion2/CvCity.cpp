@@ -35901,7 +35901,8 @@ int CvCity::CountAllOwnedTerrain(TerrainTypes iTerrainType) const
 	int iCount = 0;
 	int iOwner = getOwner();
 
-	for (int iPlotLoop = 0; iPlotLoop < GC.getMap().numPlots(); iPlotLoop++) // Loop through all plots in a map, rather than count x number of rings around the city (to cover niche cases such as someone making a citadel snake)
+	// Loop through all plots in a map, rather than count x number of rings around the city (to cover niche cases such as someone making a citadel snake)
+	for (int iPlotLoop = 0; iPlotLoop < GC.getMap().numPlots(); iPlotLoop++) 
 	{
 		CvPlot* pLoopPlot = GC.getMap().plotByIndexUnchecked(iPlotLoop);
 
@@ -35910,7 +35911,8 @@ int CvCity::CountAllOwnedTerrain(TerrainTypes iTerrainType) const
 			continue;
 		}
 
-		if (pLoopPlot->getOwningCity() != this)
+		//should we check owner or effective owner?
+		if (pLoopPlot->getOwningCityID() != GetID())
 			continue;
 
 

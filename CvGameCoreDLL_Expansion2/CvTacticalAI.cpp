@@ -3562,7 +3562,7 @@ bool CvTacticalAI::PositionUnitsAroundTarget(const vector<CvUnit*>& vUnits, CvPl
 	//try to improve visibility. however, if the target is too far away this may fail ... in that case we chance it
 	ExecuteSpotterMove(vUnits, pCloseRangeTarget);
 
-	//first round: if there are enemies around, do a combat simulation
+	//first round: in case there are enemies around, do a combat simulation
 	int iCount = 0;
 	bool bSuccess = false;
 	do
@@ -3580,8 +3580,9 @@ bool CvTacticalAI::PositionUnitsAroundTarget(const vector<CvUnit*>& vUnits, CvPl
 	//second round: move in as long as there is no danger and we're still far away
 	for (vector<CvUnit*>::const_iterator it = vUnits.begin(); it != vUnits.end(); ++it)
 	{
-		CvUnit* pUnit = *it;
-		if (pUnit->TurnProcessed() || plotDistance(*pLongRangeTarget,*pUnit->plot())<4)
+		CvUnit* pUnit = *it; 
+		//don't move in further if we're already close
+		if (pUnit->TurnProcessed() || plotDistance(*pLongRangeTarget,*pUnit->plot())<=TACTICAL_COMBAT_MAX_TARGET_DISTANCE)
 			continue;
 
 		//since we know the unit was far out originally, this is guaranteed to be actual movement
@@ -9677,11 +9678,8 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestDefensiveAssignment(const
 	initialPosition->addInitialAssignments();
 
 	//this determines our max active units
+	//note that for defensive positioning we do not require any enemies to be nearby
 	initialPosition->countEnemies();
-
-	//doesn't make sense if there are no enemies around
-	if (initialPosition->getNumEnemies() == 0)
-		return result;
 
 	//if we have a lot of units, ignore the unimportant ones
 	int iMaxActiveUnits = initialPosition->getNumEnemies() < 2 ? 7 : 11;
