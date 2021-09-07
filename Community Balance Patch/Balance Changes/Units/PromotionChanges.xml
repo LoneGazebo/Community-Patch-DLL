@@ -2501,7 +2501,7 @@
 			<IgnoreZOC>1</IgnoreZOC>
 			<IgnoreTerrainCost>1</IgnoreTerrainCost>
 		</Replace>
-		<Replace>
+<!--		<Replace>
 			<Type>PROMOTION_HEROISM</Type>
 			<Description>TXT_KEY_PROMOTION_HEROISM</Description>
 			<Help>TXT_KEY_PROMOTION_HEROISM_HELP</Help>
@@ -2513,7 +2513,7 @@
 			<CannotBeChosen>true</CannotBeChosen>
 			<GreatGeneral>true</GreatGeneral>
 			<ChangeDamageValue>-10</ChangeDamageValue>
-		</Replace>
+		</Replace> -->
 		<Replace>
 			<Type>PROMOTION_AMBITION</Type>
 			<Description>TXT_KEY_PROMOTION_AMBITION</Description>
@@ -2542,7 +2542,7 @@
 			<MovesChange>1</MovesChange>
 			<ExtraAttacks>1</ExtraAttacks>
 		</Replace>
-		<Replace>
+<!--		<Replace>
 			<Type>PROMOTION_RECRUITMENT</Type>
 			<Description>TXT_KEY_PROMOTION_RECRUITMENT</Description>
 			<Help>TXT_KEY_PROMOTION_RECRUITMENT_HELP</Help>
@@ -2554,7 +2554,7 @@
 			<CannotBeChosen>true</CannotBeChosen>
 			<HPHealedIfDestroyEnemy>100</HPHealedIfDestroyEnemy>
 			<HealIfDestroyExcludesBarbarians>true</HealIfDestroyExcludesBarbarians>
-		</Replace>
+		</Replace> -->
 		<Replace>
 			<Type>PROMOTION_ENEMY_BLADE</Type>
 			<Description>TXT_KEY_PROMOTION_ENEMY_BLADE</Description>
