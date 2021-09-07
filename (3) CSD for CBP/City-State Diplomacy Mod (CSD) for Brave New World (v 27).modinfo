@@ -131,6 +131,7 @@ Securing allies is more important than ever, as the World Congress has been grea
     <File md5="EF86DDE4C37B329640A7B42C814045E1" import="0">World Congress/CongressTurns.sql</File>
     <File md5="0BF251ABE534FE22A4EECAEBD63DAEE8" import="0">World Congress/IdeologyChanges.sql</File>
     <File md5="EFC05108E83F347A0391D9DB8A68DF10" import="0">World Congress/Projects.xml</File>
+	<File md5="A560A9475C14975AFEAEA17EC16F20B0" import="0">Units/MoreGreatDiplomats.sql</File>
   </Files>
   <Actions>
     <OnModActivated>
@@ -173,6 +174,7 @@ Securing allies is more important than ever, as the World Congress has been grea
       <UpdateDatabase>World Congress/Projects.xml</UpdateDatabase>
       <UpdateDatabase>Languages/German/GermanText.sql</UpdateDatabase>
       <UpdateDatabase>Languages/German/GermanText.xml</UpdateDatabase>
+	  <UpdateDatabase>Units/MoreGreatDiplomats.sql</UpdateDatabase>
     </OnModActivated>
   </Actions>
 </Mod>

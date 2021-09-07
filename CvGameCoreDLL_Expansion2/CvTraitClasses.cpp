@@ -7568,6 +7568,8 @@ void CvPlayerTraits::Serialize(PlayerTraits& playerTraits, Visitor& visitor)
 	visitor(playerTraits.m_iExtraFoundedCityTerritoryClaimRange);
 	visitor(playerTraits.m_iExtraConqueredCityTerritoryClaimRange);
 	visitor(playerTraits.m_iExtraTenetsFirstAdoption);
+	visitor(playerTraits.m_iMonopolyModFlat);
+	visitor(playerTraits.m_iMonopolyModPercent);
 	visitor(playerTraits.m_iFreeSocialPoliciesPerEra);
 	visitor(playerTraits.m_iNumTradeRoutesModifier);
 	visitor(playerTraits.m_iTradeRouteResourceModifier);
