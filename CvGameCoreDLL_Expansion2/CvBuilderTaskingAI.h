@@ -151,7 +151,7 @@ protected:
 	bool m_bKeepMarshes;
 	bool m_bKeepJungle;
 	bool m_bEvaluateAdjacent;
-	bool m_bNoPermanentsAdjacentCity;
+	bool m_bMayPutGPTINextToCity;
 };
 
 FDataStream& operator>>(FDataStream&, CvBuilderTaskingAI&);
