@@ -6,14 +6,14 @@ namespace NetMessageExt
 	// All return true if the message was detected and the calling function should return immediately if that is the case.
 	namespace Process
 	{
-		bool FromDiplomacyFromUI(PlayerTypes ePlayer, PlayerTypes eOtherPlayer, FromUIDiploEventTypes eEvent, int iArg1, int iArg2);
+		bool FromDiplomacyFromUI(PlayerTypes ePlayer, PlayerTypes eOtherPlayer, FromUIDiploEventTypes eEvent, int iArg1, int iArg2, int iArg3, int iArg4);
 	}
 
 	// Used to send messages by encoding values so that they can safely be transmitted via DLL calls that were designed for a different purpose
 	namespace Send
 	{
 		void DoEventChoice(PlayerTypes ePlayer, EventChoiceTypes eEventChoice, EventTypes eEvent);
-		void DoCityEventChoice(PlayerTypes ePlayer, int iCityID, CityEventChoiceTypes eEventChoice, CityEventTypes eCityEvent);
+		void DoCityEventChoice(PlayerTypes ePlayer, int iCityID, CityEventChoiceTypes eEventChoice, CityEventTypes eCityEvent, int iSpyID, PlayerTypes eSpyOwner);
 		void RefreshTradeRouteCache(PlayerTypes ePlayer);
 	}
 
@@ -21,7 +21,7 @@ namespace NetMessageExt
 	namespace Response
 	{
 		void DoEventChoice(PlayerTypes ePlayer, EventChoiceTypes eEventChoice, EventTypes eEvent);
-		void DoCityEventChoice(PlayerTypes ePlayer, int iCityID, CityEventChoiceTypes eEventChoice, CityEventTypes eCityEvent);
+		void DoCityEventChoice(PlayerTypes ePlayer, int iCityID, CityEventChoiceTypes eEventChoice, CityEventTypes eCityEvent, int iSpyID, PlayerTypes eSpyOwner);
 		void RefreshTradeRouteCache(PlayerTypes ePlayer);
 	}
 }

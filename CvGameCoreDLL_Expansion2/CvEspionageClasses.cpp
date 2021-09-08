@@ -1255,14 +1255,19 @@ CvSpyResult CvPlayerEspionage::ProcessSpyFocusResult(PlayerTypes ePlayer, CvCity
 		}
 
 		ExtractSpyFromCity(uiSpyIndex);
-		int iChance = range(pSpy->m_iPotentialAtStart * 10, 10, 90);
-		DoSpyFocusLevelUp(uiSpyIndex, iChance);
+		if (!pkEventChoiceInfo->isNoLevelUp())
+		{
+			int iChance = range(pSpy->m_iPotentialAtStart * 10, 10, 90);
+			DoSpyFocusLevelUp(uiSpyIndex, iChance);
+		}
 	}
 	else
 	{
-
-		int iChance = range(pSpy->m_iPotentialAtStart * 10, 10, 90);
-		DoSpyFocusLevelUp(uiSpyIndex, iChance);
+		if (!pkEventChoiceInfo->isNoLevelUp())
+		{
+			int iChance = range(pSpy->m_iPotentialAtStart * 10, 10, 90);
+			DoSpyFocusLevelUp(uiSpyIndex, iChance);
+		}
 	}
 	m_pPlayer->doInstantYield(INSTANT_YIELD_TYPE_SPY_ATTACK, false, NO_GREATPERSON, NO_BUILDING, 1);
 
@@ -2917,7 +2922,11 @@ bool CvPlayerEspionage::ExtractSpyFromCity(uint uiSpyIndex)
 	// turn off visibility of city
 	if(bHadSurveillance)
 	{
-		pCity->plot()->changeAdjacentSight(m_pPlayer->getTeam(), GC.getESPIONAGE_SURVEILLANCE_SIGHT_RANGE(), false, NO_INVISIBLE, NO_DIRECTION);
+		int iAmount = pCity->plot()->getVisiblityCount(m_pPlayer->getTeam());
+		if (iAmount != 0)
+		{
+			pCity->plot()->changeAdjacentSight(m_pPlayer->getTeam(), iAmount, false, NO_INVISIBLE, NO_DIRECTION);
+		}
 	}
 
 	pCity->GetCityEspionage()->m_aiSpyAssignment[m_pPlayer->GetID()] = -1;

@@ -285,14 +285,14 @@ void CvDllNetMessageHandler::ResponseDestroyUnit(PlayerTypes ePlayer, int iUnitI
 	}
 }
 //------------------------------------------------------------------------------
-void CvDllNetMessageHandler::ResponseDiplomacyFromUI(PlayerTypes ePlayer, PlayerTypes eOtherPlayer, FromUIDiploEventTypes eEvent, int iArg1, int iArg2)
+void CvDllNetMessageHandler::ResponseDiplomacyFromUI(PlayerTypes ePlayer, PlayerTypes eOtherPlayer, FromUIDiploEventTypes eEvent, int iArg1, int iArg2, int iArg3, int iArg4)
 {
 	//safeguard
 	if (!GC.getGame().isFinalInitialized() || PlayerInvalid(ePlayer))
 		return;
 
 	// hijacks message for MP events since it has a few args and is sent to everyone
-	if (NetMessageExt::Process::FromDiplomacyFromUI(ePlayer, eOtherPlayer, eEvent, iArg1, iArg2))
+	if (NetMessageExt::Process::FromDiplomacyFromUI(ePlayer, eOtherPlayer, eEvent, iArg1, iArg2, iArg3, iArg4))
 		return;
 	GET_PLAYER(eOtherPlayer).GetDiplomacyAI()->DoFromUIDiploEvent(ePlayer, eEvent, iArg1, iArg2);
 }

@@ -56,6 +56,9 @@ protected:
 	static int BasicLuaMethod(lua_State* L, void (InstanceType::*func)(arg1, arg2, arg3));
 	template<typename arg1, typename arg2, typename arg3, typename arg4>
 	static int BasicLuaMethod(lua_State* L, void (InstanceType::*func)(arg1, arg2, arg3, arg4));
+	template<typename arg1, typename arg2, typename arg3, typename arg4, typename arg5, typename arg6>
+	static int BasicLuaMethod(lua_State* L, void (InstanceType::* func)(arg1, arg2, arg3, arg4, arg5, arg6));
+
 };
 
 //------------------------------------------------------------------------------
@@ -260,5 +263,15 @@ int CvLuaMethodWrapper<Derived, InstanceType>::BasicLuaMethod(lua_State* L, void
 	const int idx = Derived::GetStartingArgIndex();
 	InstanceType* pkType = Derived::GetInstance(L);
 	(pkType->*func)(CvLuaArgs::toValue<arg1>(L, idx), CvLuaArgs::toValue<arg2>(L, idx + 1), CvLuaArgs::toValue<arg3>(L, idx + 2), CvLuaArgs::toValue<arg4>(L, idx + 3));
+	return 0;
+}
+
+//------------------------------------------------------------------------------
+template<class Derived, class InstanceType> template<typename arg1, typename arg2, typename arg3, typename arg4, typename arg5, typename arg6>
+int CvLuaMethodWrapper<Derived, InstanceType>::BasicLuaMethod(lua_State* L, void (InstanceType::* func)(arg1, arg2, arg3, arg4, arg5, arg6))
+{
+	const int idx = Derived::GetStartingArgIndex();
+	InstanceType* pkType = Derived::GetInstance(L);
+	(pkType->*func)(CvLuaArgs::toValue<arg1>(L, idx), CvLuaArgs::toValue<arg2>(L, idx + 1), CvLuaArgs::toValue<arg3>(L, idx + 2), CvLuaArgs::toValue<arg4>(L, idx + 3), CvLuaArgs::toValue<arg5>(L, idx + 4), CvLuaArgs::toValue<arg6>(L, idx + 4));
 	return 0;
 }

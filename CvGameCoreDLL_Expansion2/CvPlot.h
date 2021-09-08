@@ -631,6 +631,7 @@ public:
 	}
 
 	void flipVisibility(TeamTypes eTeam);
+	int getVisiblityCount(TeamTypes eTeam);
 	PlotVisibilityChangeResult changeVisibilityCount(TeamTypes eTeam, int iChange, InvisibleTypes eSeeInvisible, bool bInformExplorationTracking, bool bAlwaysSeeInvisible, CvUnit* pUnit = NULL);
 
 	PlayerTypes getRevealedOwner(TeamTypes eTeam, bool bDebug) const;

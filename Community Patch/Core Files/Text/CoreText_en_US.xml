@@ -7188,14 +7188,14 @@
 			<Text>[NEWLINE] [ICON_BULLET] Foreign Spies are already performing this action here! Shh!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_EVENT_NO_TECH_STEAL">
-			<Text>[NEWLINE] [ICON_BULLET] No Technologies to Steal. Requires [COLOR_POSITIVE_TEXT]Bletchley Park[ENDCOLOR] World Wonder.</Text>
+			<Text>[NEWLINE] [ICON_BULLET] No Technologies to Steal.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_EVENT_NO_GW_FORGE">
-			<Text>[NEWLINE] [ICON_BULLET] No Great Works in City to copy. Requires [COLOR_POSITIVE_TEXT]Avant Garde[ENDCOLOR] Policy.</Text>
+			<Text>[NEWLINE] [ICON_BULLET] No Great Works in City to copy.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_EVENT_NO_COUNTERSPY">
-			<Text>Requires a Counterspy in the city.</Text>
+			<Text>[NEWLINE] [ICON_BULLET] Requires a Counterspy in the city.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_EVENT_SPY_DURATION_SCALED">

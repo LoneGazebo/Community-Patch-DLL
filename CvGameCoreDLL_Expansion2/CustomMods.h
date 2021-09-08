@@ -487,7 +487,7 @@
 #define MOD_EVENTS_NW_DISCOVERY                     gCustomMods.isEVENTS_NW_DISCOVERY()
 
 // Event sent during Game.DoFromUIDiploEvent, see also DiscussionDialog.lua
-//   GameEvents.UiDiploEvent.Add(function(iEvent, iAIPlayer, iArg1, iArg2) end)
+//   GameEvents.UiDiploEvent.Add(function(iEvent, iAIPlayer, iArg1, iArg2, int iArg3, int iArg4) end)
 #define MOD_EVENTS_DIPLO_EVENTS                     gCustomMods.isEVENTS_DIPLO_EVENTS()
 
 // Enhanced Diplomacy Modifiers events (v53)

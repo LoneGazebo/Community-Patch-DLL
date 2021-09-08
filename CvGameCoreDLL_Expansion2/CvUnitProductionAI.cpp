@@ -1267,7 +1267,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			iFlavorExpansion += GC.getGame().getHandicapInfo().getAIDifficultyBonusBase() * 10;
 		}
 
-		iBonus += iFlavorExpansion * (bRunningEarlyExpand ? 2 : 1);
+		iBonus += iFlavorExpansion * (bRunningEarlyExpand ? 4 : 1);
 	}
 
 	if(!kPlayer.isMinorCiv())

@@ -148,7 +148,7 @@ public:
 	virtual void sendCitySyncCheck(PlayerTypes playerId, int cityId, FMemoryStream & syncArchiveData, const std::vector<std::pair<std::string, std::string> > &) const = 0;
 	virtual void sendRandomNumberGeneratorSyncCheck(PlayerTypes playerId, ICvRandom1* pRandomNumberGenerator) const = 0;
 	virtual void sendPlayerSyncCheck(PlayerTypes playerId, FMemoryStream & syncData, const std::vector<std::pair<std::string, std::string> > &) const = 0;
-	virtual void sendFromUIDiploEvent(PlayerTypes eOtherPlayer, FromUIDiploEventTypes eEvent, int iArg1, int iArg2) = 0;
+	virtual void sendFromUIDiploEvent(PlayerTypes eOtherPlayer, FromUIDiploEventTypes eEvent, int iArg1, int iArg2, int iArg3, int iArg4) = 0;
 	virtual void sendNetDealAccepted(PlayerTypes fromPlayer, PlayerTypes toPlayer, ICvDeal1* pDeal, int iDealValueToMe, int iValueImOffering, int iValueTheyreOffering) const = 0;
 	virtual void sendNetDemandAccepted(PlayerTypes fromPlayer, PlayerTypes toPlayer, ICvDeal1* pDeal) const = 0;
 	virtual void sendTurnReminder(PlayerTypes toPlayer) = 0;

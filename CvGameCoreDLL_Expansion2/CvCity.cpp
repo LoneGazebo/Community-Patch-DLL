@@ -4260,34 +4260,37 @@ bool CvCity::IsCityEventChoiceValid(CityEventChoiceTypes eChosenEventChoice, Cit
 	//check to see if another spy is already doing this here. We can only have one spy operation of the same type going on in a city at one time.
 	if (bEspionage)
 	{
-		for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+		if (!pkEventInfo->IsIgnoreLocalSpies())
 		{
-			PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
-			if (eLoopPlayer == NO_PLAYER)
-				continue;
+			for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+			{
+				PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
+				if (eLoopPlayer == NO_PLAYER)
+					continue;
 
-			CvPlayer& kPlayer = GET_PLAYER(eLoopPlayer);
+				CvPlayer& kPlayer = GET_PLAYER(eLoopPlayer);
 
-			if (!kPlayer.isAlive())
-				continue;
-			if (eLoopPlayer == getOwner())
-				continue;
-			if (kPlayer.isBarbarian())
-				continue;
-			if (kPlayer.isMinorCiv())
-				continue;
-			if (!kPlayer.GetEspionage())
-				continue;
-			if (kPlayer.GetEspionage()->GetNumSpies() <= 0)
-				continue;
+				if (!kPlayer.isAlive())
+					continue;
+				if (eLoopPlayer == getOwner())
+					continue;
+				if (kPlayer.isBarbarian())
+					continue;
+				if (kPlayer.isMinorCiv())
+					continue;
+				if (!kPlayer.GetEspionage())
+					continue;
+				if (kPlayer.GetEspionage()->GetNumSpies() <= 0)
+					continue;
 
-			int iSpyID = kPlayer.GetEspionage()->GetSpyIndexInCity(this);
-			if (iSpyID == -1)
-				continue;
+				int iSpyID = kPlayer.GetEspionage()->GetSpyIndexInCity(this);
+				if (iSpyID == -1)
+					continue;
 
-			CvEspionageSpy* pSpy = kPlayer.GetEspionage()->GetSpyByID(iSpyID);
-			if (pSpy && pSpy->m_eSpyFocus == eChosenEventChoice)
-				return false;
+				CvEspionageSpy* pSpy = kPlayer.GetEspionage()->GetSpyByID(iSpyID);
+				if (pSpy && pSpy->m_eSpyFocus == eChosenEventChoice)
+					return false;
+			}
 		}
 	}
 
@@ -4475,7 +4478,7 @@ bool CvCity::IsCityEventChoiceValid(CityEventChoiceTypes eChosenEventChoice, Cit
 	if (pkEventInfo->hasPantheon() && GetCityReligions()->GetReligiousMajority() != RELIGION_PANTHEON)
 		return false;
 
-	if (pkEventInfo->isUnhappy() && getHappinessDelta() > 0)
+	if (pkEventInfo->isUnhappy() && !kPlayer.IsEmpireUnhappy())
 		return false;
 
 	if (pkEventInfo->isSuperUnhappy() && !kPlayer.IsEmpireSuperUnhappy())
@@ -5082,7 +5085,8 @@ CvString CvCity::GetScaledHelpText(CityEventChoiceTypes eEventChoice, bool bYiel
 	if (iSpyIndex != -1)
 	{
 		CvEspionageSpy* pSpy = (GET_PLAYER(eSpyOwner).GetEspionage()->GetSpyByID(iSpyIndex));
-		if (pSpy)
+		//only show these messages if the spy owner is a human
+		if (pSpy && GET_PLAYER(eSpyOwner).isHuman())
 		{
 			if (GetCityEspionage()->GetSpyResult(eSpyOwner) == SPY_RESULT_DETECTED)
 			{
@@ -5406,44 +5410,45 @@ CvString CvCity::GetDisabledTooltip(CityEventChoiceTypes eChosenEventChoice, int
 			{
 				localizedDurationText = Localization::Lookup("TXT_KEY_EVENT_SPY_RANK");
 				DisabledTT += localizedDurationText.toUTF8();
-
-				//return DisabledTT.c_str();
 			}
 		}
 
-		//check to see if another spy is already doing this here. We can only have one spy operation of the same type going on in a city at one time.
-		for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+		if (!pkEventInfo->IsIgnoreLocalSpies())
 		{
-			PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
-			if (eLoopPlayer == NO_PLAYER)
-				continue;
-
-			CvPlayer& kPlayer = GET_PLAYER(eLoopPlayer);
-
-			if (!kPlayer.isAlive())
-				continue;
-			if (eLoopPlayer == getOwner())
-				continue;
-			if (eLoopPlayer == eSpyOwner)
-				continue;
-			if (kPlayer.isBarbarian())
-				continue;
-			if (kPlayer.isMinorCiv())
-				continue;
-			if (!kPlayer.GetEspionage())
-				continue;
-			if (kPlayer.GetEspionage()->GetNumSpies() <= 0)
-				continue;
-
-			int iSpyID = kPlayer.GetEspionage()->GetSpyIndexInCity(this);
-			if (iSpyID == -1)
-				continue;
-
-			CvEspionageSpy* pSpy = kPlayer.GetEspionage()->GetSpyByID(iSpyID);
-			if (pSpy && pSpy->m_eSpyFocus == eChosenEventChoice)
+			//check to see if another spy is already doing this here. We can only have one spy operation of the same type going on in a city at one time.
+			for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 			{
-				localizedDurationText = Localization::Lookup("TXT_KEY_EVENT_SPY_ALREADY_HERE");
-				return DisabledTT.c_str();
+				PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
+				if (eLoopPlayer == NO_PLAYER)
+					continue;
+
+				CvPlayer& kPlayer = GET_PLAYER(eLoopPlayer);
+
+				if (!kPlayer.isAlive())
+					continue;
+				if (eLoopPlayer == getOwner())
+					continue;
+				if (eLoopPlayer == eSpyOwner)
+					continue;
+				if (kPlayer.isBarbarian())
+					continue;
+				if (kPlayer.isMinorCiv())
+					continue;
+				if (!kPlayer.GetEspionage())
+					continue;
+				if (kPlayer.GetEspionage()->GetNumSpies() <= 0)
+					continue;
+
+				int iSpyID = kPlayer.GetEspionage()->GetSpyIndexInCity(this);
+				if (iSpyID == -1)
+					continue;
+
+				CvEspionageSpy* pSpy = kPlayer.GetEspionage()->GetSpyByID(iSpyID);
+				if (pSpy && pSpy->m_eSpyFocus == eChosenEventChoice)
+				{
+					localizedDurationText = Localization::Lookup("TXT_KEY_EVENT_SPY_ALREADY_HERE");
+					DisabledTT += localizedDurationText.toUTF8();
+				}
 			}
 		}
 
@@ -5455,8 +5460,6 @@ CvString CvCity::GetDisabledTooltip(CityEventChoiceTypes eChosenEventChoice, int
 			{
 				localizedDurationText = Localization::Lookup("TXT_KEY_EVENT_NO_TECH_STEAL");
 				DisabledTT += localizedDurationText.toUTF8();
-
-				return DisabledTT.c_str();
 			}
 		}
 
@@ -5467,8 +5470,6 @@ CvString CvCity::GetDisabledTooltip(CityEventChoiceTypes eChosenEventChoice, int
 			{
 				localizedDurationText = Localization::Lookup("TXT_KEY_EVENT_NO_GW_FORGE");
 				DisabledTT += localizedDurationText.toUTF8();
-
-				return DisabledTT.c_str();
 			}
 		}
 	}
@@ -5906,7 +5907,7 @@ CvString CvCity::GetDisabledTooltip(CityEventChoiceTypes eChosenEventChoice, int
 		DisabledTT += localizedDurationText.toUTF8();
 	}
 
-	if (pkEventInfo->isUnhappy() && getHappinessDelta() > 0)
+	if (pkEventInfo->isUnhappy() && !kPlayer.IsEmpireUnhappy())
 	{
 		localizedDurationText = Localization::Lookup("TXT_KEY_NEED_UNHAPPY");
 		DisabledTT += localizedDurationText.toUTF8();
@@ -6193,7 +6194,7 @@ CvString CvCity::GetDisabledTooltip(CityEventChoiceTypes eChosenEventChoice, int
 void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCityEvent, bool bSendMsg, int iEspionageValue, PlayerTypes eSpyOwner, CvCity* pOriginalCity, int iPassPotential)
 {
 	if (GC.getGame().isNetworkMultiPlayer() && bSendMsg && GET_PLAYER(getOwner()).isHuman()) {
-		NetMessageExt::Send::DoCityEventChoice(getOwner(), GetID(), eEventChoice, eCityEvent);
+		NetMessageExt::Send::DoCityEventChoice(getOwner(), GetID(), eEventChoice, eCityEvent, iEspionageValue, eSpyOwner);
 		return;
 	}
 	if (eEventChoice != NO_EVENT_CHOICE)
@@ -6541,6 +6542,11 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 			if (pkEventChoiceInfo->getGrowthMod() != 0)
 			{
 				ChangeGrowthFromEvent(pkEventChoiceInfo->getGrowthMod());
+			}
+
+			if (pkEventChoiceInfo->getSpyVisionRange() != 0 && eSpyOwner != NO_PLAYER)
+			{
+				plot()->changeAdjacentSight(GET_PLAYER(eSpyOwner).getTeam(), pkEventChoiceInfo->getSpyVisionRange(), true, NO_INVISIBLE, NO_DIRECTION);
 			}
 
 			if (pkEventChoiceInfo->getEventPromotion() != -1)

@@ -246,7 +246,7 @@ public:
 	void makeCircumnavigated();
 	bool circumnavigationAvailable() const;
 
-	void DoFromUIDiploEvent(FromUIDiploEventTypes eEvent, PlayerTypes eAIPlayer, int iArg1, int iArg2);
+	void DoFromUIDiploEvent(FromUIDiploEventTypes eEvent, PlayerTypes eAIPlayer, int iArg1, int iArg2, int iArg3, int iArg4);
 
 	// Diplomacy Victory
 	void DoInitDiploVictory();

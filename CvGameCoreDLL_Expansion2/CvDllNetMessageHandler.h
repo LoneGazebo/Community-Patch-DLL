@@ -34,7 +34,7 @@ public:
 	void DLLCALL ResponseCitySwapOrder(PlayerTypes ePlayer, int iCityID, int iNum);
 	void DLLCALL ResponseChooseElection(PlayerTypes ePlayer, int iSelection, int iVoteId);
 	void DLLCALL ResponseDestroyUnit(PlayerTypes ePlayer, int iUnitID);
-	void DLLCALL ResponseDiplomacyFromUI(PlayerTypes ePlayer, PlayerTypes eOtherPlayer, FromUIDiploEventTypes eEvent, int iArg1, int iArg2);
+	void DLLCALL ResponseDiplomacyFromUI(PlayerTypes ePlayer, PlayerTypes eOtherPlayer, FromUIDiploEventTypes eEvent, int iArg1, int iArg2, int iArg3, int iArg4);
 	void DLLCALL ResponseDiploVote(PlayerTypes ePlayer, PlayerTypes eVotePlayer);
 	void DLLCALL ResponseDoCommand(PlayerTypes ePlayer, int iUnitID, CommandTypes eCommand, int iData1, int iData2, bool bAlt);
 	void DLLCALL ResponseExtendedGame(PlayerTypes ePlayer);

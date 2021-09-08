@@ -74,6 +74,13 @@
 			<Text>{6_Spy}Target City: Copy one [ICON_GREAT_WORK] Great Work. Target City: {3_CityYield}[NEWLINE][NEWLINE]If no Great Works are available to steal at completion, a [ICON_GOLDEN_AGE] Golden Age Begins.</Text>
 		</Row>
 
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_REVEAL_AREA">
+			<Text>Broaden [ICON_SPY] Surveillance in City</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_REVEAL_AREA_HELP">
+			<Text>{6_Spy}Target City: Expand number of tiles visible around City while Spy is present.</Text>
+		</Row>
+
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_PLAYER_YIELD_BASIC">
 			<Text>Repatriated Specialists (Spy Event)</Text>
 		</Row>

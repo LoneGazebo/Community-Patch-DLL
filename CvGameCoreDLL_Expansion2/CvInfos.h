@@ -3419,6 +3419,8 @@ public:
 	int ConvertsCityToPlayerReligion() const;
 	int ConvertsCityToPlayerMajorityReligion() const;
 	int getCityDefenseModifier() const;
+	int getSpyVisionRange() const;
+	bool isNoLevelUp() const;
 
 	
 	//espionage
@@ -3437,6 +3439,7 @@ public:
 	bool isExpiresOnCounterSpyExit() const;
 	bool isSpyMissionSetup() const;
 	bool IsPotentialScaling() const;
+	bool IsIgnoreLocalSpies() const;
 	int GetScienceScaling() const;
 	EventChoiceTypes GetTriggerPlayerEventChoice() const;
 
@@ -3545,11 +3548,14 @@ protected:
 	int m_iConvertsCityToPlayerMajorityReligion;
 	int m_iCityDefenseModifier;
 	int m_iTriggerPlayerEventChoice;
+	int m_iSpyVisionRange;
+	bool m_iIsNoLevelUp;
 
 	//espionage
 	bool m_bEspionageEffect;
 	bool m_bApplyEffectToSpyOwner;
 	bool m_bPotentialScaling;
+	bool m_bIgnoreLocalSpies;
 	int m_iScienceScaling;
 	int m_iIdentificationModifier;
 	int m_iDeathModifier;
