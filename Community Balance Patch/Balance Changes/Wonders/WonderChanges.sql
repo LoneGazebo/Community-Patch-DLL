@@ -1181,3 +1181,12 @@ VALUES
 	('CIVILIZATION_BARBARIAN', 'BUILDINGCLASS_SLATER_MILL', NULL),
 	('CIVILIZATION_BARBARIAN', 'BUILDINGCLASS_MOTHERLAND_STATUE', NULL),
 	('CIVILIZATION_BARBARIAN', 'BUILDINGCLASS_BLETCHLEY_PARK', NULL);
+
+--Motherland Calls Speech
+INSERT INTO Audio_Sounds 
+			(SoundID, 										Filename, 							LoadType)
+VALUES		('SND_WONDER_SPEECH_MOTHERLAND_STATUE', 		'MotherlandStatue', 				'DynamicResident');
+
+INSERT INTO Audio_2DSounds 
+			(ScriptID, 										SoundID, 									SoundType, 		MinVolume, 	MaxVolume,	IsMusic,	Looping)
+VALUES		('AS2D_WONDER_SPEECH_MOTHERLAND_STATUE', 		'SND_WONDER_SPEECH_MOTHERLAND_STATUE', 		'GAME_SPEECH', 	80, 		170, 		0, 			0);

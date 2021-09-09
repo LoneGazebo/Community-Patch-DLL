@@ -143,6 +143,7 @@
 			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
 			<PortraitIndex>46</PortraitIndex>
 			<WonderSplashImage>motherlandsplash.dds</WonderSplashImage>
+			<WonderSplashAudio>AS2D_WONDER_SPEECH_MOTHERLAND_STATUE</WonderSplashAudio>
 		</Row>
 		<Row>
 			<Type>BUILDING_BLETCHLEY_PARK</Type>
