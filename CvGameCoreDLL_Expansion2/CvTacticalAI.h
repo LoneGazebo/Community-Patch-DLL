@@ -870,6 +870,7 @@ public:
 	bool isComplete() const;
 	bool addFinishMovesIfAcceptable();
 	bool hasOffensiveAssignments() const;
+	bool hasDefensiveAssignments() const;
 	void countEnemies();
 	void refreshVolatilePlotProperties();
 	void dropSuperfluousUnits(int iMaxUnitsToKeep);
