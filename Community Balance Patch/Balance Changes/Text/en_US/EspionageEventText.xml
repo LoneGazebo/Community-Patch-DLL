@@ -10,6 +10,13 @@
 		<Row Tag="TXT_KEY_CHOOSE_EVENT_AA_TT">
 			<Text>An encrypted message from {1_Rank} {2_Spy} in {3_City} has arrived.</Text>
 		</Row>
+
+		<Row Tag="TXT_KEY_AA_EVENT_INVALID">
+			<Text>{1_Rank} {2_Spy}: Mission Aborted!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_AA_EVENT_INVALID_TT">
+			<Text>{1_Rank} {2_Spy} in {3_City} has been forced to abort their mission due to recent changes in the City. Please choose a new focus for your Spy.</Text>
+		</Row>
 		
 		<!-- FOCUS OPTIONS -->
 

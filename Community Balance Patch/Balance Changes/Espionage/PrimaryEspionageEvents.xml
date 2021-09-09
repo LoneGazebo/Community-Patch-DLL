@@ -27,6 +27,7 @@
 			<Help>TXT_KEY_ESPIONAGE_EVENT_CHOICE_REVEAL_AREA_HELP</Help>
 			<IsEspionageEffect>true</IsEspionageEffect>
 			<MissionSetup>true</MissionSetup>
+			<EventDuration>-1</EventDuration>
 			<IDModifier>0</IDModifier>
 			<DeathModifier>0</DeathModifier>
 			<EspionageDifficultyMod>75</EspionageDifficultyMod>
@@ -58,6 +59,7 @@
 			<Help>TXT_KEY_ESPIONAGE_EVENT_CHOICE_ECONOMIC_PRODUCTION_HELP</Help>
 			<IsEspionageEffect>true</IsEspionageEffect>
 			<MissionSetup>true</MissionSetup>
+			<EventDuration>-1</EventDuration>
 			<PotentialScaling>true</PotentialScaling>
 			<EraScaling>true</EraScaling>
 			<WonderConstructionSpeedMod>-50</WonderConstructionSpeedMod>
@@ -73,7 +75,6 @@
 			<Help>TXT_KEY_ESPIONAGE_EVENT_CHOICE_SCIENTIFIC_SCIENCE_HELP</Help>
 			<IsEspionageEffect>true</IsEspionageEffect>
 			<IsSpyBenefit>true</IsSpyBenefit>
-			<RequiredEra>ERA_MEDIEVAL</RequiredEra>
 			<EventDuration>-1</EventDuration>
 			<MissionSetup>true</MissionSetup>
 			<PotentialScaling>true</PotentialScaling>
@@ -93,8 +94,9 @@
 			<Expires>true</Expires>
 			<EventDuration>15</EventDuration>
 			<MissionSetup>true</MissionSetup>
+			<RequiredEra>ERA_RENAISSANCE</RequiredEra>
 			<TriggerPlayerEventChoice>ESPIONAGE_EVENT_PLAYER_YIELD_BASIC</TriggerPlayerEventChoice>
-			<IDModifier>10</IDModifier>
+			<IDModifier>60</IDModifier>
 			<EspionageDifficultyMod>350</EspionageDifficultyMod>
 			<DeathModifier>10</DeathModifier>
 			<SpyLevelRequired>1</SpyLevelRequired>
@@ -107,6 +109,7 @@
 			<Help>TXT_KEY_ESPIONAGE_EVENT_CHOICE_MILITARY_GARRISON_HELP</Help>
 			<IsEspionageEffect>true</IsEspionageEffect>
 			<MissionSetup>true</MissionSetup>
+			<EventDuration>-1</EventDuration>
 			<IDModifier>40</IDModifier>
 			<DeathModifier>40</DeathModifier>
 			<DamageCity>100</DamageCity>
@@ -123,6 +126,7 @@
 			<IsEspionageEffect>true</IsEspionageEffect>
 			<MissionSetup>true</MissionSetup>
 			<IDModifier>45</IDModifier>
+			<EventDuration>-1</EventDuration>
 			<IsUnhappy>true</IsUnhappy>
 			<EspionageDifficultyMod>450</EspionageDifficultyMod>
 			<ResistanceTurns>2</ResistanceTurns>
@@ -140,6 +144,7 @@
 			<IDModifier>50</IDModifier>
 			<DeathModifier>10</DeathModifier>
 			<EventDuration>20</EventDuration>
+			<RequiredEra>ERA_MEDIEVAL</RequiredEra>
 			<GrowthMod>-25</GrowthMod>
 			<Expires>true</Expires>
 			<PillageCityStrategicNum>2</PillageCityStrategicNum>
@@ -233,12 +238,12 @@
 		<Row>
 			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_ECONOMIC_GOLD</CityEventChoiceType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Yield>80</Yield>
+			<Yield>100</Yield>
 		</Row>
 		<Row>
 			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_SCIENTIFIC_SCIENCE</CityEventChoiceType>
 			<YieldType>YIELD_SCIENCE</YieldType>
-			<Yield>120</Yield>
+			<Yield>100</Yield>
 		</Row>
 	</CityEventChoice_InstantYield>
 	<CityEventChoice_CityUnhappinessNeedMod>
@@ -477,11 +482,15 @@
 			<Flavor>50</Flavor>
 		</Row>
 		<Row>
-			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_STEAL_GW</CityEventChoiceType>
-			<FlavorType>FLAVOR_CULTURE</FlavorType>
-			<Flavor>50</Flavor>
+			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_REVEAL_AREA</CityEventChoiceType>
+			<FlavorType>FLAVOR_ESPIONAGE</FlavorType>
+			<Flavor>5</Flavor>
 		</Row>
-		
+		<Row>
+			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_ECONOMIC_PRODUCTION</CityEventChoiceType>
+			<FlavorType>FLAVOR_PRODUCTION</FlavorType>
+			<Flavor>10</Flavor>
+		</Row>
 		<Row>
 			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_COUNTERSPY_BASIC</CityEventChoiceType>
 			<FlavorType>FLAVOR_ESPIONAGE</FlavorType>

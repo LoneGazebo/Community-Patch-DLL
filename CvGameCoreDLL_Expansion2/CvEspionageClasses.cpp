@@ -870,8 +870,50 @@ void CvPlayerEspionage::ProcessSpyFocus()
 				eCityOwner = pCity->getOwner();
 				if (!GET_PLAYER(eCityOwner).isMinorCiv())
 				{
-					if (pCity->GetCityEspionage()->HasReachedGoal(m_pPlayer->GetID()))
-						DoSpyFocusEvent(uiSpy);
+					CityEventChoiceTypes eEventChoice = pSpy->m_eSpyFocus;
+					if (eEventChoice != NO_EVENT_CHOICE_CITY)
+					{
+						if (!pCity->IsCityEventChoiceValidEspionage(eEventChoice, NO_EVENT_CITY, uiSpy, m_pPlayer->GetID()))
+						{
+							pSpy->m_iPotentialAtStart = -1;
+
+							pSpy->SetSpyFocus(eEventChoice);
+							pSpy->SetSpyState(m_pPlayer->GetID(), uiSpy, SPY_STATE_GATHERING_INTEL);
+							pCity->GetCityEspionage()->ResetProgress(m_pPlayer->GetID());
+							int iPotentialRate = CalcPerTurn(SPY_STATE_GATHERING_INTEL, pCity, uiSpy);
+							int iGoal = CalcRequired(SPY_STATE_GATHERING_INTEL, pCity, uiSpy);
+							pCity->GetCityEspionage()->SetActivity(m_pPlayer->GetID(), 0, iPotentialRate, iGoal);
+							pCity->GetCityEspionage()->SetLastProgress(m_pPlayer->GetID(), iPotentialRate);
+							pCity->GetCityEspionage()->SetLastPotential(m_pPlayer->GetID(), iPotentialRate);
+							pSpy->m_bEvaluateReassignment = true;
+
+							TriggerSpyFocusSetup(pCity, uiSpy);
+
+							CvNotifications* pNotifications = m_pPlayer->GetNotifications();
+							if (pNotifications && pSpy)
+							{
+								Localization::String strBuffer = Localization::Lookup("TXT_KEY_AA_EVENT_INVALID");
+								strBuffer << GetSpyRankName(pSpy->m_eRank);
+								strBuffer << pSpy->GetSpyName(m_pPlayer);
+
+								Localization::String strSummary = Localization::Lookup("TXT_KEY_AA_EVENT_INVALID_TT");
+								strSummary << GetSpyRankName(pSpy->m_eRank);
+								strSummary << pSpy->GetSpyName(m_pPlayer);
+								strSummary << pCity->getNameKey();
+
+								pNotifications->Add(NOTIFICATION_GENERIC, strBuffer.toUTF8(), strSummary.toUTF8(), pCity->getX(), pCity->getY(), m_pPlayer->GetID(), pCity->GetID());
+							}
+
+							if (GC.getLogging())
+							{
+								CvString strMsg;
+								strMsg.Format("Spy AA Event No Longer Valid %d! Event: %d,", uiSpy, (int)eEventChoice);
+								LogEspionageMsg(strMsg);
+							}
+						}
+						else if (pCity->GetCityEspionage()->HasReachedGoal(m_pPlayer->GetID()))
+							DoSpyFocusEvent(uiSpy);
+					}
 				}
 			}
 		}	
@@ -1415,12 +1457,16 @@ CvSpyResult CvPlayerEspionage::ProcessSpyFocusResult(PlayerTypes ePlayer, CvCity
 	//reset ranking to 10.
 	pCity->ResetEspionageRanking();
 
-	//AI should reeval to see if they want to stay.
-	if(!m_pPlayer->isHuman())
-		pSpy->m_bEvaluateReassignment = true;
-
 	if (eResult == SPY_RESULT_IDENTIFIED)
 	{
+		if (GC.getLogging())
+		{
+			CvString strMsg;
+			strMsg.Format("Identified, returning Spy home after AA, %d,", uiSpyIndex);
+			strMsg += GetLocalizedText(m_aSpyList[uiSpyIndex].GetSpyName(m_pPlayer));
+			LogEspionageMsg(strMsg);
+		}
+
 		//time to reset the spy
 		pSpy->SetSpyFocus(NO_EVENT_CHOICE_CITY);
 		pSpy->m_iPotentialAtStart = -1;
@@ -1429,8 +1475,20 @@ CvSpyResult CvPlayerEspionage::ProcessSpyFocusResult(PlayerTypes ePlayer, CvCity
 	//if we were detected, we don't leave anymore. We stay and do it again!
 	else if (eResult == SPY_RESULT_DETECTED)
 	{
+		if (GC.getLogging())
+		{
+			CvString strMsg;
+			strMsg.Format("Detected, sticking around to do this again, , %d,", uiSpyIndex);
+			strMsg += GetLocalizedText(m_aSpyList[uiSpyIndex].GetSpyName(m_pPlayer));
+			LogEspionageMsg(strMsg);
+		}
+
 		ProcessSpyFocusResult(m_pPlayer->GetID(), pCity, uiSpyIndex, eEventChoice, true);
 	}
+
+	//AI should reeval to see if they want to stay.
+	if (!m_pPlayer->isHuman())
+		pSpy->m_bEvaluateReassignment = true;
 
 	return eResult;
 }
@@ -1972,8 +2030,8 @@ CvString CvPlayerEspionage::GetCityPotentialInfo(CvCity* pCity, bool bNoBasic)
 int CvPlayerEspionage::GetDefenseChance(CvEspionageType eEspionage, CvCity* pCity, CityEventChoiceTypes eEventChoice, bool bPreview)
 {
 	//Defense is based on the defensive capabilities of the city and its risk, then reduced by potency of spy there.
-	int iBaseDefense = 5;
-	int iChancetoIdentify = 50;
+	int iBaseDefense = 0;
+	int iChancetoIdentify = 20;
 	int iChancetoKill = 0;
 
 	if (eEventChoice != NO_EVENT_CHOICE_CITY)
@@ -2028,18 +2086,25 @@ int CvPlayerEspionage::GetDefenseChance(CvEspionageType eEspionage, CvCity* pCit
 		{
 			iDefensePower *= iChancetoIdentify;
 			iDefensePower /= 100;
+
+			//ID Defense can never be greater than 100% or less than 10%
+			iDefensePower = range(iDefensePower, 10, 100);
+
 			break;
 		}
 		case ESPIONAGE_TYPE_KILL:
 		{
 			iDefensePower *= iChancetoKill;
 			iDefensePower /= 100;
+
+			//ID KILL can never be greater than 75% or less than 0%
+			iDefensePower = range(iDefensePower, 0, 75);
 			break;
 		}
 	}
 
 	//Defense can never be greater than 90% or less than 10%
-	return range(iDefensePower, 10, 90);
+	return iDefensePower;
 }
 
 CvSpyResult CvPlayerEspionage::GetSpyRollResult(CvCity* pCity, CityEventChoiceTypes eEventChoice)
@@ -6866,6 +6931,9 @@ std::vector<ScoreCityEntry> CvEspionageAI::BuildOffenseCityList()
 				iDiploModifier += pMyReligion->m_Beliefs.GetHappinessFromForeignSpies(m_pPlayer->GetID(), pHolyCity, true) * 25;
 			}
 
+			//spam is boring
+			iDiploModifier -= pLoopCity->GetCityEspionage()->m_aiNumTimesCityRobbed[eTargetPlayer] * 2;
+
 			ScoreCityEntry kEntry;
 			kEntry.m_pCity = pLoopCity;
 
@@ -6893,6 +6961,33 @@ std::vector<ScoreCityEntry> CvEspionageAI::BuildDefenseCityList()
 	int iLoop = 0;
 
 	if (m_pPlayer->GetDiplomacyAI()->GetNumValidMajorCivs() <= 0)
+		return aCityScores;
+
+	bool bNoForeignSpies = true;
+	for (int i = 0; i < MAX_MAJOR_CIVS; i++)
+	{
+		PlayerTypes eTargetPlayer = (PlayerTypes)i;
+
+		// don't count the player's own cities
+		if (eTargetPlayer == ePlayer)
+		{
+			continue;
+		}
+
+		if (GET_PLAYER(eTargetPlayer).isMinorCiv())
+			continue;
+
+		if (!m_pPlayer->GetDiplomacyAI()->IsHasMet(eTargetPlayer))
+			continue;
+
+		if (GET_PLAYER(eTargetPlayer).GetEspionage()->GetNumSpies() > 0)
+		{
+			bNoForeignSpies = false;
+			break;
+		}
+	}
+
+	if(bNoForeignSpies)
 		return aCityScores;
 	
 	for(pLoopCity = GET_PLAYER(ePlayer).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iLoop))

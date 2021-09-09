@@ -4209,7 +4209,7 @@ bool CvCity::IsCityEventValid(CityEventTypes eEvent, bool bEspionage)
 
 	return true;
 }
-bool CvCity::IsCityEventChoiceValid(CityEventChoiceTypes eChosenEventChoice, CityEventTypes eParentEvent, bool bEspionage)
+bool CvCity::IsCityEventChoiceValid(CityEventChoiceTypes eChosenEventChoice, CityEventTypes eParentEvent, bool bIgnoreActive)
 {
 	if (eChosenEventChoice == NO_EVENT_CHOICE)
 		return false;
@@ -4225,7 +4225,7 @@ bool CvCity::IsCityEventChoiceValid(CityEventChoiceTypes eChosenEventChoice, Cit
 
 	CvPlayer& kPlayer = GET_PLAYER(m_eOwner);
 
-	if (!IsEventActive(eParentEvent))
+	if (!bIgnoreActive && !IsEventActive(eParentEvent))
 		return false;
 
 	//Lua Hook
@@ -4255,43 +4255,6 @@ bool CvCity::IsCityEventChoiceValid(CityEventChoiceTypes eChosenEventChoice, Cit
 			pLog->Msg(strBaseString);
 		}
 		return false;
-	}
-
-	//check to see if another spy is already doing this here. We can only have one spy operation of the same type going on in a city at one time.
-	if (bEspionage)
-	{
-		if (!pkEventInfo->IsIgnoreLocalSpies())
-		{
-			for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
-			{
-				PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
-				if (eLoopPlayer == NO_PLAYER)
-					continue;
-
-				CvPlayer& kPlayer = GET_PLAYER(eLoopPlayer);
-
-				if (!kPlayer.isAlive())
-					continue;
-				if (eLoopPlayer == getOwner())
-					continue;
-				if (kPlayer.isBarbarian())
-					continue;
-				if (kPlayer.isMinorCiv())
-					continue;
-				if (!kPlayer.GetEspionage())
-					continue;
-				if (kPlayer.GetEspionage()->GetNumSpies() <= 0)
-					continue;
-
-				int iSpyID = kPlayer.GetEspionage()->GetSpyIndexInCity(this);
-				if (iSpyID == -1)
-					continue;
-
-				CvEspionageSpy* pSpy = kPlayer.GetEspionage()->GetSpyByID(iSpyID);
-				if (pSpy && pSpy->m_eSpyFocus == eChosenEventChoice)
-					return false;
-			}
-		}
 	}
 
 	//Let's do our linker checks here.
@@ -4699,16 +4662,69 @@ bool CvCity::IsCityEventChoiceValidEspionage(CityEventChoiceTypes eEventChoice, 
 		return false;
 
 	CvModEventCityChoiceInfo* pkEventInfo = GC.getCityEventChoiceInfo(eEventChoice);
-	if (pkEventInfo == NULL || eEvent == NO_EVENT)
-	{
+	if (pkEventInfo == NULL)
 		return false;
+
+	if (eEvent == NO_EVENT_CITY)
+	{
+		for (int iLoop = 0; iLoop < GC.getNumCityEventInfos(); iLoop++)
+		{
+			CityEventTypes eParentEvent = (CityEventTypes)iLoop;
+			if (eParentEvent != NO_EVENT_CITY)
+			{
+				if (pkEventInfo->isParentEvent(eParentEvent))
+				{
+					eEvent = eParentEvent;
+					break;
+				}
+			}
+		}
 	}
+
+	if (eEvent == NO_EVENT_CITY)
+		return false;
 
 	if (pkEventInfo->GetSpyLevelRequired() > pSpy->GetSpyRank(eSpyOwner))
 		return false;
 
 	if (pkEventInfo->isRequiresCounterSpy() && !GetCityEspionage()->HasCounterSpy())
 		return false;
+
+	//check to see if another spy is already doing this here. We can only have one spy operation of the same type going on in a city at one time.
+	if (!pkEventInfo->IsIgnoreLocalSpies())
+	{
+		for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+		{
+			PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
+			if (eLoopPlayer == NO_PLAYER)
+				continue;
+
+			CvPlayer& kPlayer = GET_PLAYER(eLoopPlayer);
+
+			if (!kPlayer.isAlive())
+				continue;
+			if (eLoopPlayer == getOwner())
+				continue;
+			if (eLoopPlayer == eSpyOwner)
+				continue;
+			if (kPlayer.isBarbarian())
+				continue;
+			if (kPlayer.isMinorCiv())
+				continue;
+			if (!kPlayer.GetEspionage())
+				continue;
+			if (kPlayer.GetEspionage()->GetNumSpies() <= 0)
+				continue;
+
+			int iSpyID = kPlayer.GetEspionage()->GetSpyIndexInCity(this);
+			if (iSpyID == -1)
+				continue;
+
+			CvEspionageSpy* pSpy = kPlayer.GetEspionage()->GetSpyByID(iSpyID);
+			if (pSpy && pSpy->m_eSpyFocus == eEventChoice)
+				return false;
+		}
+	}
 
 	if (pkEventInfo->getStealTech() > 0)
 	{
@@ -5057,7 +5073,9 @@ CvString CvCity::GetScaledHelpText(CityEventChoiceTypes eEventChoice, bool bYiel
 			}
 
 			if (pSpy->m_iPotentialAtStart != -1)
-			iPotential = pSpy->m_iPotentialAtStart;
+			{
+				iPotential = pSpy->m_iPotentialAtStart;
+			}
 			else
 			{
 				iPotential = GetEspionageRanking();
@@ -5071,6 +5089,9 @@ CvString CvCity::GetScaledHelpText(CityEventChoiceTypes eEventChoice, bool bYiel
 					iPotential /= 100;
 				}
 			}
+
+			if (GET_PLAYER(getOwner()).GetEspionage()->GetNumSpies() <= 0)
+				iPotential = max(1, (int)GET_PLAYER(getOwner()).GetCurrentEra()+1);
 		}
 	}
 
@@ -5140,8 +5161,8 @@ CvString CvCity::GetScaledHelpText(CityEventChoiceTypes eEventChoice, bool bYiel
 					Localization::String localizedDurationText;
 					localizedDurationText = Localization::Lookup("TXT_KEY_EVENT_SPY_DURATION_SCALED");
 					localizedDurationText << iTurnsLeft;
-					localizedDurationText << iKillChance;
 					localizedDurationText << iIdentifyChance;
+					localizedDurationText << iKillChance;
 
 					const char* const localized = localizedDurationText.toUTF8();
 					if (localized)
@@ -5183,6 +5204,9 @@ CvString CvCity::GetScaledHelpText(CityEventChoiceTypes eEventChoice, bool bYiel
 			}
 			if (pkEventChoiceInfo->IsPotentialScaling() && iPotential > 0)
 			{
+				if (GET_PLAYER(getOwner()).GetEspionage()->GetNumSpies() <= 0)
+					iPotential = max(1, (int)GET_PLAYER(getOwner()).GetCurrentEra()+1);
+
 				iPreValue *= iPotential;
 			}
 			iPreValue *= GC.getGame().getGameSpeedInfo().getInstantYieldPercent();
@@ -5223,6 +5247,9 @@ CvString CvCity::GetScaledHelpText(CityEventChoiceTypes eEventChoice, bool bYiel
 				}
 				if (pkEventChoiceInfo->IsPotentialScaling() && iPotential > 0)
 				{
+					if (GET_PLAYER(getOwner()).GetEspionage()->GetNumSpies() <= 0)
+						iPotential = max(1, (int)GET_PLAYER(getOwner()).GetCurrentEra()+1);
+
 					iYieldValue *= iPotential;
 				}
 				iYieldValue *= GC.getGame().getGameSpeedInfo().getInstantYieldPercent();
@@ -5297,6 +5324,9 @@ CvString CvCity::GetScaledHelpText(CityEventChoiceTypes eEventChoice, bool bYiel
 			}
 			if (pkEventChoiceInfo->IsPotentialScaling() && iPotential > 0)
 			{
+				if (GET_PLAYER(getOwner()).GetEspionage()->GetNumSpies() <= 0)
+					iPotential = max(1, (int)GET_PLAYER(getOwner()).GetCurrentEra()+1);
+
 				iValue *= iPotential;
 				iValue *= GC.getGame().getGameSpeedInfo().getGreatPeoplePercent();
 				iValue /= 100;
@@ -6301,6 +6331,8 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 			}
 
 			int iPotential = iPassPotential;
+			if (iPotential > 0 && GET_PLAYER(getOwner()).GetEspionage()->GetNumSpies() <= 0)
+				iPotential = max(1, (int)GET_PLAYER(getOwner()).GetCurrentEra()+1);
 			CvSpyResult eResult = NUM_SPY_RESULTS;
 			if (eSpyOwner != NO_PLAYER && iEspionageValue != -1)
 			{
@@ -6308,6 +6340,9 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 				if (pSpy)
 				{
 					iPotential = pSpy->m_iPotentialAtStart;
+					if (iPotential > 0 && GET_PLAYER(getOwner()).GetEspionage()->GetNumSpies() <= 0)
+						iPotential = max(1, (int)GET_PLAYER(getOwner()).GetCurrentEra()+1);
+
 					bool bDefer = false;
 					if (pSpy->m_eSpyFocus == NO_EVENT_CHOICE_CITY)
 						bDefer = true;
@@ -6343,6 +6378,9 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 
 				if (pkEventChoiceInfo->IsPotentialScaling() && iPotential > 0)
 				{
+					if (GET_PLAYER(getOwner()).GetEspionage()->GetNumSpies() <= 0)
+						iPotential = max(1, (int)GET_PLAYER(getOwner()).GetCurrentEra()+1);
+
 					iPassYield *= iPotential;
 				}
 				if (iPassYield != 0)
@@ -6546,7 +6584,10 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 
 			if (pkEventChoiceInfo->getSpyVisionRange() != 0 && eSpyOwner != NO_PLAYER)
 			{
-				plot()->changeAdjacentSight(GET_PLAYER(eSpyOwner).getTeam(), pkEventChoiceInfo->getSpyVisionRange(), true, NO_INVISIBLE, NO_DIRECTION);
+				int iDelta = pkEventChoiceInfo->getSpyVisionRange() - plot()->getVisiblityCount(GET_PLAYER(eSpyOwner).getTeam());
+
+				if(iDelta != 0)
+					plot()->changeAdjacentSight(GET_PLAYER(eSpyOwner).getTeam(), pkEventChoiceInfo->getSpyVisionRange(), true, NO_INVISIBLE, NO_DIRECTION);
 			}
 
 			if (pkEventChoiceInfo->getEventPromotion() != -1)
@@ -6793,6 +6834,9 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 				int iPassYield = pkEventChoiceInfo->getEventYield(eYield);
 				if (pkEventChoiceInfo->IsPotentialScaling() && iPotential > 0)
 				{
+					if (GET_PLAYER(getOwner()).GetEspionage()->GetNumSpies() <= 0)
+						iPotential = max(1, (int)GET_PLAYER(getOwner()).GetCurrentEra()+1);
+
 					iPassYield *= iPotential;
 				}
 				if (iPassYield != 0)
@@ -6864,6 +6908,9 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 					}
 					if (pkEventChoiceInfo->IsPotentialScaling() && iPotential > 0)
 					{
+						if (GET_PLAYER(getOwner()).GetEspionage()->GetNumSpies() <= 0)
+							iPotential = max(1, (int)GET_PLAYER(getOwner()).GetCurrentEra()+1);
+
 						iBonus *= iPotential;
 						iBonus *= GC.getGame().getGameSpeedInfo().getGreatPeoplePercent();
 						iBonus /= 100;
