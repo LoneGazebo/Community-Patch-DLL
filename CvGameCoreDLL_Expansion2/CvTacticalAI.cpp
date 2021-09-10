@@ -379,14 +379,14 @@ void CvTacticalAI::FindTacticalTargets()
 		bool bValidPlot = pLoopPlot->isRevealed(m_pPlayer->getTeam());
 
 		// Make sure I am not a barbarian who can not move into owned territory this early in the game
-		if (m_pPlayer->isBarbarian())
-		{
-			if (bNoBarbsAllowedYet && pLoopPlot->isOwned())
-				bValidPlot = false;
-		}
+		if (m_pPlayer->isBarbarian() && bNoBarbsAllowedYet && pLoopPlot->isOwned())
+			continue;
 
 		if (bValidPlot)
 		{
+			//camps are typically revealed but not visible; also the camp might since have been cleared but we don't know yet - so check if it is owned now
+			bool bIsBarbCamp = pLoopPlot->getRevealedImprovementType(m_pPlayer->getTeam()) == GC.getBARBARIAN_CAMP_IMPROVEMENT() && !pLoopPlot->isOwned();
+
 			CvTacticalTarget newTarget;
 			newTarget.SetTargetX(pLoopPlot->getX());
 			newTarget.SetTargetY(pLoopPlot->getY());
@@ -441,6 +441,7 @@ void CvTacticalAI::FindTacticalTargets()
 					for (int iUnitLoop = 0; iUnitLoop < pLoopPlot->getNumUnits(); iUnitLoop++)
 					{
 						CvUnit* pUnit = pLoopPlot->getUnitByIndex(iUnitLoop);
+
 						//barbarians do not attack civilians before the first city was founded.
 						if (!m_pPlayer->isBarbarian() || GET_PLAYER(pUnit->getOwner()).GetNumCitiesFounded() > 0)
 						{
@@ -465,11 +466,9 @@ void CvTacticalAI::FindTacticalTargets()
 					}
 				}
 
-				// ... barbarian camp? typically revealed but not visible, so don't even check for defenders
-				// (also the camp might since have been cleared but we don't know yet - so check if it is owned now)
-				// minors ignore barb camps, cannot clear them anyway
-				if (pLoopPlot->getRevealedImprovementType(m_pPlayer->getTeam()) == GC.getBARBARIAN_CAMP_IMPROVEMENT() && 
-					!pLoopPlot->isOwned() && (m_pPlayer->isMajorCiv() || m_pPlayer->isBarbarian()))
+				// ... barbarian camp? doesn't matter if it has a unit inside
+				// note that minors ignore barb camps, cannot clear them anyway
+				if (bIsBarbCamp && (m_pPlayer->isMajorCiv() || m_pPlayer->isBarbarian()))
 				{
 					int iBaseScore = pLoopPlot->isVisible(m_pPlayer->getTeam()) ? 100 : 50;
 					newTarget.SetTargetType(AI_TACTICAL_TARGET_BARBARIAN_CAMP);
@@ -3582,7 +3581,7 @@ bool CvTacticalAI::PositionUnitsAroundTarget(const vector<CvUnit*>& vUnits, CvPl
 	{
 		CvUnit* pUnit = *it; 
 		//don't move in further if we're already close
-		if (pUnit->TurnProcessed() || plotDistance(*pLongRangeTarget,*pUnit->plot())<=TACTICAL_COMBAT_MAX_TARGET_DISTANCE)
+		if (pUnit->TurnProcessed() || (bSuccess && plotDistance(*pLongRangeTarget,*pUnit->plot())<=TACTICAL_COMBAT_MAX_TARGET_DISTANCE))
 			continue;
 
 		//since we know the unit was far out originally, this is guaranteed to be actual movement
@@ -3601,6 +3600,17 @@ bool CvTacticalAI::PositionUnitsAroundTarget(const vector<CvUnit*>& vUnits, CvPl
 			iFlags |= CvUnit::MOVEFLAG_NO_EMBARK;
 
 		ExecuteMoveToPlot(pUnit, pLongRangeTarget, true, iFlags);
+	}
+
+	//third round: if the unit is in an army (no tactical moves) and did not move yet, move it to safety now
+	for (vector<CvUnit*>::const_iterator it = vUnits.begin(); it != vUnits.end(); ++it)
+	{
+		CvUnit* pUnit = *it;
+		//don't move in further if we're already close
+		if (pUnit->TurnProcessed() || pUnit->getArmyID() == -1)
+			continue;
+
+		ExecuteMovesToSafestPlot(pUnit);
 	}
 
 	return bSuccess;
@@ -4431,14 +4441,19 @@ bool CvTacticalAI::ExecuteAttritionAttacks(CvTacticalTarget& kTarget)
 /// Take a multi-hex attack on an enemy unit this turn
 bool CvTacticalAI::ExecuteFlankAttack(CvTacticalTarget& kTarget)
 {
+	CvPlot* pTargetPlot = GC.getMap().plot(kTarget.GetTargetX(), kTarget.GetTargetY());
+
+	bool bLoneBarbInCamp = (pTargetPlot->getRevealedImprovementType(m_pPlayer->getTeam()) == GC.getBARBARIAN_CAMP_IMPROVEMENT()) &&
+		(pTargetPlot->GetNumEnemyUnitsAdjacent(m_pPlayer->getTeam(), NO_DOMAIN) == 0);
+	eAggressionLevel aggLevel = bLoneBarbInCamp ? AL_HIGH : AL_MEDIUM;
+
 	//mark the target no matter if the attack succeeds
-	kTarget.SetLastAggLvl(AL_MEDIUM);
+	kTarget.SetLastAggLvl(aggLevel);
 
 	// Make attacks
-	CvPlot* pTargetPlot = GC.getMap().plot(kTarget.GetTargetX(), kTarget.GetTargetY());
 	CvUnit* pDefender = pTargetPlot->getVisibleEnemyDefender(m_pPlayer->GetID());
 	if (pDefender && FindUnitsWithinStrikingDistance(pTargetPlot))
-		return ExecuteAttackWithUnits(pTargetPlot, AL_MEDIUM);
+		return ExecuteAttackWithUnits(pTargetPlot, aggLevel);
 
 	return false;
 }
@@ -7667,13 +7682,16 @@ STacticalAssignment ScorePlotForMeleeAttack(const SUnitStats& unit, const CvTact
 	return result;
 }
 
-CvTacticalPlot::CvTacticalPlot(const CvPlot* plot, PlayerTypes ePlayer, const set<CvUnit*>& allOurUnits)
+CvTacticalPlot::CvTacticalPlot(const CvPlot* plot, PlayerTypes ePlayer, const set<CvUnit*>& allOurUnits) : 
+	pPlot(NULL) //important, invalid by default
 {
 	if (!plot || ePlayer == NO_PLAYER)
-	{
-		pPlot = NULL;
 		return;
-	}
+
+	//minor players ignore barb camps and the units inside
+	CvPlayer& kPlayer = GET_PLAYER(ePlayer);
+	if (plot->getRevealedImprovementType(kPlayer.getTeam()) == GC.getBARBARIAN_CAMP_IMPROVEMENT() && kPlayer.isMinorCiv() && !kPlayer.isBarbarian())
+		return;
 
 	//the most important thing
 	pPlot = plot;
@@ -7709,9 +7727,6 @@ CvTacticalPlot::CvTacticalPlot(const CvPlot* plot, PlayerTypes ePlayer, const se
 	aiEnemyCombatUnitsAdjacent[TD_BOTH] = 0;
 	aiEnemyCombatUnitsAdjacent[TD_LAND] = 0;
 	aiEnemyCombatUnitsAdjacent[TD_SEA] = 0;
-
-	//these are all recomputed from scratch when necessary
-	resetVolatileProperties();
 
 	//concerning embarkation. this is complex because it allows combat units to stack, violating the 1UPT rule.
 	//note that there are other exceptions as well, eg a fort can hold a naval unit and a land unit.
@@ -7987,6 +8002,11 @@ bool CvTacticalPlot::checkEdgePlotsForSurprises(const CvTacticalPosition& curren
 		if (iNeighborDistance < iRefDistance)
 			continue;
 
+		//minor players ignore barb camps and the units inside
+		CvPlayer& kPlayer = GET_PLAYER(currentPosition.getPlayer());
+		if (pNeighbor->getRevealedImprovementType(kPlayer.getTeam()) == GC.getBARBARIAN_CAMP_IMPROVEMENT() && kPlayer.isMinorCiv() && !kPlayer.isBarbarian())
+			continue;
+
 		const CvTacticalPlot& tactPlot = currentPosition.getTactPlot(pNeighbor->GetPlotIndex());
 		//if the tactical plot is invalid, it's out of range or invisible on the main map.
 		//these are the ones we need to check here
@@ -7995,7 +8015,9 @@ bool CvTacticalPlot::checkEdgePlotsForSurprises(const CvTacticalPosition& curren
 			//don't ignore enemy cities, we know they exist even if invisible
 			if (pNeighbor->isCity() && GET_PLAYER(currentPosition.getPlayer()).IsAtWarWith(pNeighbor->getOwner()))
 			{
-				landEnemies.push_back(pNeighbor->GetPlotIndex());
+				//poor man's deduplication
+				if (landEnemies.empty() || landEnemies.back()!=pNeighbor->GetPlotIndex())
+					landEnemies.push_back(pNeighbor->GetPlotIndex());
 			}
 			else if (pNeighbor->isVisible(GET_PLAYER(currentPosition.getPlayer()).getTeam()))
 			{
@@ -8003,9 +8025,13 @@ bool CvTacticalPlot::checkEdgePlotsForSurprises(const CvTacticalPosition& curren
 				if (pEnemy)
 				{
 					if (pEnemy->getDomainType() == DOMAIN_LAND)
-						landEnemies.push_back(pNeighbor->GetPlotIndex());
+						//poor man's deduplication
+						if (landEnemies.empty() || landEnemies.back()!=pNeighbor->GetPlotIndex())
+							landEnemies.push_back(pNeighbor->GetPlotIndex());
 					else if (pEnemy->getDomainType() == DOMAIN_SEA)
-						seaEnemies.push_back(pNeighbor->GetPlotIndex());
+						//poor man's deduplication
+						if (seaEnemies.empty() || seaEnemies.back()!=pNeighbor->GetPlotIndex())
+							seaEnemies.push_back(pNeighbor->GetPlotIndex());
 				}
 			}
 			else
@@ -8614,6 +8640,20 @@ bool CvTacticalPosition::hasOffensiveAssignments() const
 {
 	for (size_t i = 0; i < assignedMoves.size(); i++)
 		if (assignedMoves[i].isOffensive(*this))
+			return true;
+
+	return false;
+}
+
+bool CvTacticalPosition::hasDefensiveAssignments() const
+{
+	//same as offensive but allow movement / fortification
+	for (size_t i = 0; i < assignedMoves.size(); i++)
+		if (assignedMoves[i].isOffensive(*this) || 
+			assignedMoves[i].eAssignmentType == A_MOVE || 
+			assignedMoves[i].eAssignmentType == A_MOVE_FORCED ||
+			assignedMoves[i].eAssignmentType == A_MOVE_SWAP ||
+			assignedMoves[i].eAssignmentType == A_FINISH_TEMP)
 			return true;
 
 	return false;
@@ -9717,7 +9757,7 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestDefensiveAssignment(const
 				CvTacticalPosition* newPos = *it;
 				if (newPos->isComplete())
 				{
-					if (newPos->addFinishMovesIfAcceptable())
+					if (newPos->hasDefensiveAssignments() && newPos->addFinishMovesIfAcceptable())
 					{
 						completedPositions.push_back(newPos);
 						iTopScore = max(iTopScore, newPos->getScore());

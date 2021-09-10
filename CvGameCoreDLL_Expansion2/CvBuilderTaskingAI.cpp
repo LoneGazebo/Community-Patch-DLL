@@ -50,11 +50,11 @@ void CvBuilderTaskingAI::Init(CvPlayer* pPlayer)
 	m_bKeepMarshes = false;
 	// special case code so Brazil doesn't remove jungle
 	m_bKeepJungle = false;
-#if defined(MOD_BALANCE_CORE)
+
 	// special case to evaluate plots adjacent to friendly
 	m_bEvaluateAdjacent = false;
-	m_bNoPermanentsAdjacentCity = false;
-#endif
+	m_bMayPutGPTINextToCity = true;
+
 	for(int i = 0; i < GC.getNumBuildInfos(); i++)
 	{
 		BuildTypes eBuild = (BuildTypes)i;
@@ -91,7 +91,7 @@ void CvBuilderTaskingAI::Init(CvPlayer* pPlayer)
 				}
 				if (pkImprovementInfo->IsAdjacentCity())
 				{
-					m_bNoPermanentsAdjacentCity = true;
+					m_bMayPutGPTINextToCity = false; //keep those plots available
 				}
 			}
 		}
@@ -158,7 +158,7 @@ void CvBuilderTaskingAI::Uninit(void)
 	m_bKeepMarshes = false;
 	m_bKeepJungle = false;
 	m_bEvaluateAdjacent = false;
-	m_bNoPermanentsAdjacentCity = false;
+	m_bMayPutGPTINextToCity = true;
 }
 
 template<typename BuilderTaskingAI, typename Visitor>
@@ -962,10 +962,11 @@ void CvBuilderTaskingAI::AddImprovingResourcesDirectives(CvUnit* pUnit, CvPlot* 
 				iWeight *= 2;
 				iWeight /= 3;
 			}
-
-			//if we're building a great person improvement, putting it on a resource is the last resort ...
-			if (pkImprovementInfo->IsCreatedByGreatPerson())
+			else if (pkImprovementInfo->IsCreatedByGreatPerson())
+			{
+				//if we're building a great person improvement, putting it on a lux/strat resource is the last resort ...
 				iWeight = GC.getBUILDER_TASKING_BASELINE_BUILD_IMPROVEMENTS();
+			}
 
 			iWeight = GetBuildCostWeight(iWeight, pPlot, eBuild);
 
@@ -2058,6 +2059,7 @@ int CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes eImprovem
 				}
 			}
 		}
+		//Improvement? Let's not default to great person improvements here.
 		if(pPlot->getImprovementType() != NO_IMPROVEMENT)
 		{
 			CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(pPlot->getImprovementType());
@@ -2066,14 +2068,14 @@ int CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes eImprovem
 				iSecondaryScore -= iBigBuff;
 			}
 		}
-		//Improvement? Let's not default to great person improvements here.
 		else
 		{
 			if (pImprovement->IsCreatedByGreatPerson())
 			{
+				//good plot doesn't have a resource and is not adjacent to another team
 				if (pPlot->getResourceType(pCity->getTeam()) == NO_RESOURCE)
 				{
-					if (!m_bNoPermanentsAdjacentCity || pPlot->IsAdjacentCity())
+					if ((m_bMayPutGPTINextToCity || !pPlot->IsAdjacentCity()) && !pPlot->IsAdjacentOwnedByTeamOtherThan(pCity->getTeam()))
 						iSecondaryScore += iBigBuff;
 					else
 						iSecondaryScore -= iSmallBuff;

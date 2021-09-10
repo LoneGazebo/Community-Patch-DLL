@@ -1186,7 +1186,7 @@ public:
 	virtual void DLLCALL ResponseCitySwapOrder(PlayerTypes ePlayer, int iCityID, int iNum) = 0;
 	virtual void DLLCALL ResponseChooseElection(PlayerTypes ePlayer, int iSelection, int iVoteId) = 0;
 	virtual void DLLCALL ResponseDestroyUnit(PlayerTypes ePlayer, int iUnitID) = 0;
-	virtual void DLLCALL ResponseDiplomacyFromUI(PlayerTypes ePlayer, PlayerTypes eOtherPlayer, FromUIDiploEventTypes eEvent, int iArg1, int iArg2) = 0;
+	virtual void DLLCALL ResponseDiplomacyFromUI(PlayerTypes ePlayer, PlayerTypes eOtherPlayer, FromUIDiploEventTypes eEvent, int iArg1, int iArg2, int iArg3, int iArg4) = 0;
 	virtual void DLLCALL ResponseDiploVote(PlayerTypes ePlayer, PlayerTypes eVotePlayer) = 0;
 	virtual void DLLCALL ResponseDoCommand(PlayerTypes ePlayer, int iUnitID, CommandTypes eCommand, int iData1, int iData2, bool bAlt) = 0;
 	virtual void DLLCALL ResponseExtendedGame(PlayerTypes ePlayer) = 0;

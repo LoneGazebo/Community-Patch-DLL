@@ -1246,7 +1246,7 @@ int CvLuaGame::lMakeCircumnavigated(lua_State* L)
 	return BasicLuaMethod(L, &CvGame::makeCircumnavigated);
 }
 //------------------------------------------------------------------------------
-//void DoFromUIDiploEvent(FromUIDiploEventTypes eEvent, PlayerTypes eAIPlayer, int iArg1, int iArg2, int iArg3);
+//void DoFromUIDiploEvent(FromUIDiploEventTypes eEvent, PlayerTypes eAIPlayer, int iArg1, int iArg2, int iArg3, int iArg4);
 int CvLuaGame::lDoFromUIDiploEvent(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvGame::DoFromUIDiploEvent);

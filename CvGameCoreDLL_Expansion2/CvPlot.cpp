@@ -10545,6 +10545,10 @@ void CvPlot::flipVisibility(TeamTypes eTeam)
 	}
 }
 
+int CvPlot::getVisiblityCount(TeamTypes eTeam)
+{
+	return m_aiVisibilityCount[eTeam];
+}
 //	--------------------------------------------------------------------------------
 PlotVisibilityChangeResult CvPlot::changeVisibilityCount(TeamTypes eTeam, int iChange, InvisibleTypes eSeeInvisible, bool bInformExplorationTracking, bool bAlwaysSeeInvisible, CvUnit* pUnit)
 {

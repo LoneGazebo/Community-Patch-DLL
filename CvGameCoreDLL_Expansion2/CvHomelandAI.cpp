@@ -3927,13 +3927,20 @@ void CvHomelandAI::ExecuteMissionaryMoves()
 			if(pUnit->isHuman())
 			{
 				pUnit->SetAutomateType(NO_AUTOMATE);
+				UnitProcessed(pUnit->GetID());
 			}
 			else
 			{
 				MoveCivilianToGarrison(pUnit);
 				pUnit->PushMission(CvTypes::getMISSION_SKIP());
+
+				//disband (captured) missionaries with the wrong religion
+				if (pUnit->plot()->getOwner()==pUnit->getOwner() && pUnit->canScrap() && pUnit->GetReligionData()->GetReligion() != m_pPlayer->GetReligionAI()->GetReligionToSpread())
+					pUnit->scrap();
+				else
+					UnitProcessed(pUnit->GetID());
 			}
-			UnitProcessed(pUnit->GetID());
+
 		}
 #endif
 	}

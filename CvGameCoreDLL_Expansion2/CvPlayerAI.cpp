@@ -945,7 +945,6 @@ void CvPlayerAI::AI_DoEspionageEventChoice(CityEventTypes eEvent, int uiSpyIndex
 					}
 				}
 
-				//If didn't find something (probably because a modder forgot to set flavors...), do a random selection.
 				if (eBestEventChoice != NO_EVENT_CHOICE_CITY)
 				{
 					pCity->DoEventChoice(eBestEventChoice, NO_EVENT_CITY, true, uiSpyIndex, GetID());

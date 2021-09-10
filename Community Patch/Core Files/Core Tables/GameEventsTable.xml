@@ -837,6 +837,12 @@
 		<Column name="WonderConstructionSpeedMod" type="integer" default="0"/>
 		<!-- Counterspy can affect city ranged strength %-->
 		<Column name="CityDefenseModifier" type="integer" default="0"/>
+		<!-- Increases spy city vision -->
+		<Column name="SpyVisionRange" type="integer" default="0"/>
+		<!-- Spies won't level up from this mission. -->
+		<Column name="NoLevelUp" type="boolean" default="false"/>
+		<!-- Mission ignores other local spies. -->
+		<Column name="IgnoreLocalForeignSpies" type="boolean" default="false"/>
 
 		<!-- Spy copies num techs; if it fails at end, it converts amount to GA turns -->
 		<Column name="StealNumTechs" type="integer" default="0"/>
