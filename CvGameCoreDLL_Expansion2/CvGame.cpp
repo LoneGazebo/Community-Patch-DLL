@@ -5331,7 +5331,7 @@ bool CvGame::circumnavigationAvailable() const
 
 //	---------------------------------------------------------------------------
 /// Message from UI to gameplay about something that should happen with regards to diplomacy
-void CvGame::DoFromUIDiploEvent(FromUIDiploEventTypes eEvent, PlayerTypes eAIPlayer, int iArg1, int iArg2, int iArg3, int iArg4)
+void CvGame::DoFromUIDiploEvent(FromUIDiploEventTypes eEvent, PlayerTypes eAIPlayer, int iArg1, int iArg2)
 {
 #if defined(MOD_EVENTS_DIPLO_EVENTS)
 	if (MOD_EVENTS_DIPLO_EVENTS) {
@@ -5346,8 +5346,6 @@ void CvGame::DoFromUIDiploEvent(FromUIDiploEventTypes eEvent, PlayerTypes eAIPla
 		args->Push(eAIPlayer);
 		args->Push(iArg1);
 		args->Push(iArg2);
-		args->Push(iArg3);
-		args->Push(iArg4);
 
 		bool bResult;
 		LuaSupport::CallHook(pkScriptSystem, "UiDiploEvent", args.get(), bResult);
@@ -5356,7 +5354,7 @@ void CvGame::DoFromUIDiploEvent(FromUIDiploEventTypes eEvent, PlayerTypes eAIPla
 	}
 #endif
 
-	gDLL->sendFromUIDiploEvent(eAIPlayer, eEvent, iArg1, iArg2, iArg3, iArg4);
+	gDLL->sendFromUIDiploEvent(eAIPlayer, eEvent, iArg1, iArg2);
 }
 
 

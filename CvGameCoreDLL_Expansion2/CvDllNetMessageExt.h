@@ -6,7 +6,7 @@ namespace NetMessageExt
 	// All return true if the message was detected and the calling function should return immediately if that is the case.
 	namespace Process
 	{
-		bool FromDiplomacyFromUI(PlayerTypes ePlayer, PlayerTypes eOtherPlayer, FromUIDiploEventTypes eEvent, int iArg1, int iArg2, int iArg3, int iArg4);
+		bool ResponseMoveGreatWorks(PlayerTypes ePlayer, int iArg1, int iArg2, int iArg3, int iArg4, int iArg5, int iArg6);
 	}
 
 	// Used to send messages by encoding values so that they can safely be transmitted via DLL calls that were designed for a different purpose

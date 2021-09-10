@@ -17,8 +17,8 @@ namespace NetMessageExt
 
 	namespace Process
 	{
-		bool FromDiplomacyFromUI(PlayerTypes ePlayer, PlayerTypes eOtherPlayer, FromUIDiploEventTypes eEvent, int iArg1, int iArg2, int iArg3, int iArg4) {
-			Flags::FromDiplomacyFromUI flag = Flags::FromDiplomacyFromUI(static_cast<unsigned int>(eOtherPlayer) >> 24);
+		bool ResponseMoveGreatWorks(PlayerTypes ePlayer, int iArg1, int iArg2, int iArg3, int iArg4, int iArg5, int iArg6) {
+			Flags::FromDiplomacyFromUI flag = Flags::FromDiplomacyFromUI(static_cast<unsigned int>(iArg1) >> 24);
 			switch (flag)
 			{
 				case Flags::None:
@@ -26,20 +26,20 @@ namespace NetMessageExt
 
 				case Flags::DoEventChoice:				
 				{
-					PlayerTypes eActualPlayer = static_cast<PlayerTypes>(eOtherPlayer & 0xFF);
-					EventTypes ePlayerEvent = static_cast<EventTypes>(eEvent);
+					PlayerTypes eActualPlayer = static_cast<PlayerTypes>(ePlayer & 0xFF);
+					EventTypes ePlayerEvent = static_cast<EventTypes>(iArg1);
 					EventChoiceTypes eEventChoice = static_cast<EventChoiceTypes>(iArg2);
 					Response::DoEventChoice(eActualPlayer, eEventChoice, ePlayerEvent);					
 					break;
 				}
 				case Flags::DoCityEventChoice:
 				{
-					PlayerTypes eActualPlayer = static_cast<PlayerTypes>(eOtherPlayer & 0xFF);
+					PlayerTypes eActualPlayer = static_cast<PlayerTypes>(ePlayer & 0xFF);
 					int iCityID = iArg1;
-					CityEventTypes eCityEvent = static_cast<CityEventTypes>(eEvent);
-					CityEventChoiceTypes eEventChoice = static_cast<CityEventChoiceTypes>(iArg2);
-					int iSpyID = iArg3;
-					PlayerTypes eSpyOwner = static_cast<PlayerTypes>(iArg4);
+					CityEventTypes eCityEvent = static_cast<CityEventTypes>(iArg2);
+					CityEventChoiceTypes eEventChoice = static_cast<CityEventChoiceTypes>(iArg3);
+					int iSpyID = iArg4;
+					PlayerTypes eSpyOwner = static_cast<PlayerTypes>(iArg5);
 					Response::DoCityEventChoice(eActualPlayer, iCityID, eEventChoice, eCityEvent, iSpyID, eSpyOwner);
 					break;
 				}
@@ -56,7 +56,7 @@ namespace NetMessageExt
 			CvAssertMsg((ePlayer & 0xFFFFFF00) == 0, "ePlayer representation outside of expected range");
 
 			unsigned int uiMsgFlagAndPlayer = static_cast<unsigned int>(Flags::DoEventChoice << 24 | ePlayer);			
-			gDLL->sendFromUIDiploEvent(static_cast<PlayerTypes>(uiMsgFlagAndPlayer), static_cast<FromUIDiploEventTypes>(eEvent), -1, static_cast<int>(eEventChoice), -1, -1);
+			gDLL->sendMoveGreatWorks(static_cast<PlayerTypes>(uiMsgFlagAndPlayer), static_cast<FromUIDiploEventTypes>(eEvent), -1, static_cast<int>(eEventChoice), -1, -1, -1);
 		}
 		void DoCityEventChoice(PlayerTypes ePlayer, int iCityID, CityEventChoiceTypes eEventChoice, CityEventTypes eCityEvent, int iSpyID, PlayerTypes eSpyOwner)
 		{
@@ -64,7 +64,7 @@ namespace NetMessageExt
 			CvAssertMsg(iCityID >= 0, "iCityID outside of expected range");
 			
 			unsigned int uiMsgFlagAndPlayer = static_cast<unsigned int>(Flags::DoCityEventChoice << 24 | ePlayer);
-			gDLL->sendFromUIDiploEvent(static_cast<PlayerTypes>(uiMsgFlagAndPlayer), static_cast<FromUIDiploEventTypes>(eCityEvent), iCityID, static_cast<int>(eEventChoice), iSpyID, static_cast<PlayerTypes>(eSpyOwner));
+			gDLL->sendMoveGreatWorks(static_cast<PlayerTypes>(uiMsgFlagAndPlayer), static_cast<FromUIDiploEventTypes>(eCityEvent), iCityID, static_cast<int>(eEventChoice), iSpyID, static_cast<PlayerTypes>(eSpyOwner), -1);
 		}
 	}
 
