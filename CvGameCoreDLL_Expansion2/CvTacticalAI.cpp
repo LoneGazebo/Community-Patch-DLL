@@ -1906,7 +1906,7 @@ void CvTacticalAI::PlotNavalEscortMoves()
 // PLOT MOVES FOR ZONE TACTICAL POSTURES
 
 /// Win an attrition campaign with bombardments
-void CvTacticalAI::PlotAttritionAttacks(CvTacticalDominanceZone* pZone)
+void CvTacticalAI::PlotAttritionAttacks(CvTacticalDominanceZone* /*pZone*/)
 {
 	ClearCurrentMoveUnits(AI_TACTICAL_ATTRITION);
 
@@ -1922,13 +1922,10 @@ void CvTacticalAI::PlotAttritionAttacks(CvTacticalDominanceZone* pZone)
 	//if there is a city, don' t forget to bombard it as well
 	for (CvTacticalTarget* pTarget = GetFirstZoneTarget(AI_TACTICAL_TARGET_CITY); pTarget!=NULL && pTarget->IsTargetStillAlive(m_pPlayer->GetID()); pTarget = GetNextZoneTarget())
 		ExecuteAttritionAttacks(*pTarget);
-
-	// Then go on the defense
-	PlotReinforcementMoves(pZone);
 }
 
 /// Defeat enemy units by using our advantage in numbers
-void CvTacticalAI::PlotExploitFlanksMoves(CvTacticalDominanceZone* pZone)
+void CvTacticalAI::PlotExploitFlanksMoves(CvTacticalDominanceZone* /*pZone*/)
 {
 	ClearCurrentMoveUnits(AI_TACTICAL_FLANKATTACK);
 
@@ -1944,9 +1941,6 @@ void CvTacticalAI::PlotExploitFlanksMoves(CvTacticalDominanceZone* pZone)
 	//if there is a city, don' t forget to bombard it as well
 	for (CvTacticalTarget* pTarget = GetFirstZoneTarget(AI_TACTICAL_TARGET_CITY); pTarget!=NULL && pTarget->IsTargetStillAlive(m_pPlayer->GetID()); pTarget = GetNextZoneTarget())
 		ExecuteFlankAttack(*pTarget);
-
-	// Then go on the defense
-	PlotReinforcementMoves(pZone);
 }
 
 /// We have more overall strength than enemy, defeat his army first
@@ -1992,12 +1986,12 @@ void CvTacticalAI::PlotHedgehogMoves(CvTacticalDominanceZone* pZone)
 	ExecuteDestroyUnitMoves(AI_TACTICAL_TARGET_MEDIUM_PRIORITY_UNIT, true);
 	ExecuteDestroyUnitMoves(AI_TACTICAL_TARGET_LOW_PRIORITY_UNIT, true);
 
-	// Then go on the defense
+	// exception : early reinforcement before attacks in other zones are considered
 	PlotReinforcementMoves(pZone);
 }
 
 /// Try to push back the invader
-void CvTacticalAI::PlotCounterattackMoves(CvTacticalDominanceZone* pZone)
+void CvTacticalAI::PlotCounterattackMoves(CvTacticalDominanceZone* /*pZone*/)
 {
 	ClearCurrentMoveUnits(AI_TACTICAL_COUNTERATTACK);
 
@@ -2010,9 +2004,6 @@ void CvTacticalAI::PlotCounterattackMoves(CvTacticalDominanceZone* pZone)
 	ExecuteDestroyUnitMoves(AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT, false);
 	ExecuteDestroyUnitMoves(AI_TACTICAL_TARGET_MEDIUM_PRIORITY_UNIT, false);
 	ExecuteDestroyUnitMoves(AI_TACTICAL_TARGET_LOW_PRIORITY_UNIT, false);
-
-	// Then go on the defense
-	PlotReinforcementMoves(pZone);
 }
 
 /// Withdraw out of current dominance zone
@@ -3075,19 +3066,26 @@ void CvTacticalAI::ExtractTargetsForZone(CvTacticalDominanceZone* pZone /* Pass 
 				continue;
 		}
 
-		//zone check
+		//zone match
 		if(pZone == NULL || it->GetDominanceZone() == pZone->GetZoneID())
 		{
 			m_ZoneTargets.push_back(*it);
 			continue;
 		}
 
-		// Not obviously in this zone, but if within 2 of city we want them anyway
-		CvCity* pCity = pZone->GetZoneCity();
-		if(pCity && plotDistance(pCity->getX(), pCity->getY(), it->GetTargetX(), it->GetTargetY()) <= 2)
+		//zone boundaries are arbitrary sometimes so include neighboring tiles as well for small zones
+		if (pZone && plotDistance(pZone->GetCenterX(), pZone->GetCenterY(), it->GetTargetX(), it->GetTargetY()) <= 5)
 		{
-			m_ZoneTargets.push_back(*it);
-			continue;
+			CvPlot* pTargetPlot = GC.getMap().plot(it->GetTargetX(), it->GetTargetY());
+			for (size_t i = 0; i < RING1_PLOTS; i++)
+			{
+				CvPlot* pNeighbor = iterateRingPlots(pTargetPlot, i);
+				if (pNeighbor && GetTacticalAnalysisMap()->GetZoneByPlot(pNeighbor) == pZone)
+				{
+					m_ZoneTargets.push_back(*it);
+					continue;
+				}
+			}
 		}
 	}
 }
