@@ -5084,7 +5084,6 @@ bool CvPlayerTrade::PlunderTradeRoute(int iTradeConnectionID, CvUnit* pUnit)
 
 	if (eOwningPlayer != NO_PLAYER && m_pPlayer->isMajorCiv() && GET_PLAYER(eOwningPlayer).isMajorCiv())
 	{
-		// Notify Diplo AI that damage has been done
 		if (GET_TEAM(m_pPlayer->getTeam()).isAtWar(eOwningTeam))
 		{
 			int iValue = iPlunderGoldValue;
@@ -5094,7 +5093,7 @@ bool CvPlayerTrade::PlunderTradeRoute(int iTradeConnectionID, CvUnit* pUnit)
 				iValue *= (100 + m_pPlayer->GetWarScoreModifier());
 				iValue /= 100;
 
-				GET_PLAYER(eOwningPlayer).GetDiplomacyAI()->ChangeWarValueLost(m_pPlayer->GetID(), iValue);
+				GET_PLAYER(eOwningPlayer).ChangeWarValueLost(m_pPlayer->GetID(), iValue);
 			}
 
 			// Diplo penalty with destination civ if not at war

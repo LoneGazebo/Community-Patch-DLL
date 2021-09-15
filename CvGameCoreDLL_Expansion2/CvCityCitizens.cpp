@@ -1020,7 +1020,7 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist, const SPreco
 		}
 	}
 
-	if (GetCity()->isCapital() && GetPlayer()->IsDiplomaticMarriage())
+	if (GetCity()->isCapital() && GetPlayer()->GetPlayerTraits()->IsDiplomaticMarriage())
 	{
 		int iNumMarried = 0;
 		// Loop through all minors and get the total number we've met.
@@ -2352,7 +2352,7 @@ int CvCityCitizens::GetSpecialistRate(SpecialistTypes eSpecialist)
 				}
 #endif
 #if defined(MOD_BALANCE_CORE)
-				if (GetCity()->isCapital() && GetPlayer()->IsDiplomaticMarriage())
+				if (GetCity()->isCapital() && GetPlayer()->GetPlayerTraits()->IsDiplomaticMarriage())
 				{
 					int iNumMarried = 0;
 					// Loop through all minors and get the total number we've met.

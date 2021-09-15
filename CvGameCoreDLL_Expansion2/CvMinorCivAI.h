@@ -301,7 +301,6 @@ public:
 
 	void AddNotification(CvString sString, CvString sSummaryString, PlayerTypes ePlayer, int iX = -1, int iY = -1);
 	void AddQuestNotification(CvString sString, CvString sSummaryString, PlayerTypes ePlayer, int iX = -1, int iY = -1, bool bNewQuest = false);
-	void AddBuyoutNotification(CvString sString, CvString sSummaryString, PlayerTypes ePlayer, int iX = -1, int iY = -1);
 
 	// ******************************
 	// Threatened by Barbarians event
@@ -638,22 +637,21 @@ public:
 	int GetSpawnBaseTurns(PlayerTypes ePlayer);
 	int GetCurrentSpawnEstimate(PlayerTypes ePlayer);
 
-#if defined(MOD_BALANCE_CORE)
+	// Austria UA Stuff
 	bool IsMarried(PlayerTypes eMajor) const;
 	void SetMajorMarried(PlayerTypes eMajor, bool bValue);
-	bool CanMajorDiploMarriage(PlayerTypes eMajor);
-	void DoMarriage(PlayerTypes eMajor);
-	int GetMarriageCost(PlayerTypes eMajor);
-#endif
-	// Buyout by major civ (Austria UA)
-	bool IsBoughtOut() const;
 	PlayerTypes GetMajorBoughtOutBy() const;
 	void SetMajorBoughtOutBy(PlayerTypes eMajor);
-	bool CanMajorBuyout(PlayerTypes eMajor);
-	int GetBuyoutCost(PlayerTypes eMajor);
-	void DoBuyout(PlayerTypes eMajor);
+	bool IsBoughtOut() const;
 
-	void DoPassCitiesToMajor(PlayerTypes eMajor, int& iNumUnits, int& iCapitalX, int& iCapitalY);
+	bool CanMajorDiploMarriage(PlayerTypes eMajor);
+	bool CanMajorBuyout(PlayerTypes eMajor);
+
+	int GetMarriageCost(PlayerTypes eMajor);
+	int GetBuyoutCost(PlayerTypes eMajor);
+
+	void DoBuyout(PlayerTypes eMajor);
+	int TransferUnitsAndCitiesToMajor(PlayerTypes eMajor); // also used by Merchant of Venice
 
 	// ************************************
 	// ***** Bullying *****

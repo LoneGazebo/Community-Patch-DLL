@@ -96,7 +96,7 @@ public:
 	CvCity* initCity(int iX, int iY, bool bBumpUnits = true, bool bInitialFounding = true, ReligionTypes eInitialReligion = NO_RELIGION, const char* szName = NULL, CvUnitEntry* pkSettlerUnitEntry = NULL);
 
 	CvCity* acquireCity(CvCity* pCity, bool bConquest, bool bGift);
-	bool IsValidBuildingForPlayer(CvCity* pCity, BuildingTypes eBuilding, bool bGift, bool bCapture);
+	bool IsValidBuildingForPlayer(CvCity* pCity, BuildingTypes eBuilding, bool bConquest);
 	void killCities();
 	CvString getNewCityName() const;
 	CvString GetBorrowedCityName(CivilizationTypes eCivToBorrowFrom) const;
@@ -1511,10 +1511,6 @@ public:
 	void SetSpawnCooldown(int iChange);
 	int GetSpawnCooldown() const;
 
-	bool IsDiplomaticMarriage() const;
-	int GetAbleToMarryCityStatesCount() const;
-	void ChangeAbleToMarryCityStatesCount(int iChange);
-
 	void ChangeTRSpeedBoost(int iValue);
 	int GetTRSpeedBoost() const;
 	void SetTRSpeedBoost(int iValue);
@@ -2077,6 +2073,15 @@ public:
 	int GetPlayerNumTurnsSinceCityCapture(PlayerTypes ePlayer) const;
 	void SetPlayerNumTurnsSinceCityCapture(PlayerTypes ePlayer, int iValue);
 	void ChangePlayerNumTurnsSinceCityCapture(PlayerTypes ePlayer, int iChange);
+
+	int GetWarValueLost(PlayerTypes ePlayer) const;
+	void SetWarValueLost(PlayerTypes ePlayer, int iValue);
+	void ChangeWarValueLost(PlayerTypes ePlayer, int iChange);
+	void DoWarValueLostDecay();
+	void DoUpdateWarDamage();
+
+	int GetWarDamageValue(PlayerTypes ePlayer) const;
+	void SetWarDamageValue(PlayerTypes ePlayer, int iValue);
 
 	void changeUnitsBuiltCount(UnitTypes eUnitType, int iValue);
 	int getUnitsBuiltCount(UnitTypes eUnitType) const;
@@ -2809,7 +2814,7 @@ public:
 	virtual void AI_doTurnUnitsPre() = 0;
 	virtual void AI_doTurnUnitsPost() = 0;
 	virtual void AI_unitUpdate() = 0;
-	virtual void AI_conquerCity(CvCity* pCity, PlayerTypes eOldOwner, bool bGift, bool bAllowRaze) = 0;
+	virtual void AI_conquerCity(CvCity* pCity, PlayerTypes ePlayerToLiberate, bool bGift) = 0;
 	bool HasSameIdeology(PlayerTypes ePlayer) const;
 
 #if defined(MOD_BALANCE_CORE_EVENTS)
@@ -3311,7 +3316,6 @@ protected:
 	int m_iRazingSpeedBonus;
 	int m_iNoPartisans;
 	int m_iSpawnCooldown;
-	int m_iAbleToMarryCityStatesCount;
 	bool m_bTradeRoutesInvulnerable;
 	int m_iTRSpeedBoost;
 	int m_iVotesPerGPT;
@@ -3507,6 +3511,8 @@ protected:
 	std::vector<int> m_aiPlayerNumTurnsAtPeace;
 	std::vector<int> m_aiPlayerNumTurnsAtWar;
 	std::vector<int> m_aiPlayerNumTurnsSinceCityCapture;
+	std::vector<int> m_aiWarValueLost;
+	std::vector<int> m_aiWarDamageValue;
 	std::vector<int> m_aiNumUnitsBuilt;
 	std::vector<int> m_aiProximityToPlayer;
 	std::vector<int> m_aiResearchAgreementCounter;
@@ -4108,7 +4114,6 @@ SYNC_ARCHIVE_VAR(int, m_iUpgradeCSVassalTerritory)
 SYNC_ARCHIVE_VAR(int, m_iRazingSpeedBonus)
 SYNC_ARCHIVE_VAR(int, m_iNoPartisans)
 SYNC_ARCHIVE_VAR(int, m_iSpawnCooldown)
-SYNC_ARCHIVE_VAR(int, m_iAbleToMarryCityStatesCount)
 SYNC_ARCHIVE_VAR(bool, m_bTradeRoutesInvulnerable)
 SYNC_ARCHIVE_VAR(int, m_iTRSpeedBoost)
 SYNC_ARCHIVE_VAR(int, m_iVotesPerGPT)
@@ -4278,6 +4283,8 @@ SYNC_ARCHIVE_VAR(std::vector<int>, m_aiSpecialistExtraYield)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiPlayerNumTurnsAtPeace)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiPlayerNumTurnsAtWar)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiPlayerNumTurnsSinceCityCapture)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiWarValueLost)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiWarDamageValue)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiNumUnitsBuilt)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiProximityToPlayer)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiResearchAgreementCounter)

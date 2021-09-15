@@ -409,15 +409,6 @@ public:
 	void SetNumCitiesCapturedBy(PlayerTypes ePlayer, int iValue);
 	void ChangeNumCitiesCapturedBy(PlayerTypes ePlayer, int iChange);
 
-	// War Value Lost: the int value of damage ePlayer has inflicted on us in war
-	int GetWarValueLost(PlayerTypes ePlayer) const;
-	void SetWarValueLost(PlayerTypes ePlayer, int iValue);
-	void ChangeWarValueLost(PlayerTypes ePlayer, int iChange);
-
-	// War Damage Level: how much damage have we taken in a war against ePlayer? Looks at WarValueLost
-	int GetWarDamageValue(PlayerTypes ePlayer) const;
-	void SetWarDamageValue(PlayerTypes ePlayer, int iValue);
-
 	// War State: How's the war with ePlayer going? (NO_WAR_STATE_TYPE if at peace)
 	WarStateTypes GetWarState(PlayerTypes ePlayer) const;
 	void SetWarState(PlayerTypes ePlayer, WarStateTypes eWarState);
@@ -990,11 +981,9 @@ public:
 	void DoTurn(DiplomacyMode eDiploMode, PlayerTypes ePlayer=NO_PLAYER);
 
 	// ------------------------------------
-	// War Damage
+	// Conquest Stats
 	// ------------------------------------
 
-	void DoWarValueLostDecay();
-	void DoUpdateWarDamage();
 	void DoUpdateConquestStats();
 
 	// ------------------------------------
@@ -1685,8 +1674,8 @@ public:
 	// Miscellaneous
 	/////////////////////////////////////////////////////////
 
-	bool DoPossibleMinorLiberation(PlayerTypes eMinor, CvCity* pCity, bool bHypothetical = false);
-	bool DoPossibleMajorLiberation(PlayerTypes eMajor, PlayerTypes eOldOwner, CvCity* pCity, bool bHypothetical = false);
+	bool IsTryingToLiberate(CvCity* pCity, PlayerTypes ePlayerToLiberate);
+	bool DoPossibleMajorLiberation(CvCity* pCity, PlayerTypes ePlayerToLiberate);
 
 	bool IsPlayerBadTheftTarget(PlayerTypes ePlayer, TheftTypes eTheftType, const CvPlot* pPlot = NULL);
 
@@ -1902,8 +1891,6 @@ private:
 	unsigned char m_aiNumWarsDeclaredOnUs[MAX_MAJOR_CIVS];
 	unsigned short m_aiCivilianKillerValue[MAX_MAJOR_CIVS];
 	unsigned char m_aiNumCitiesCaptured[MAX_CIV_PLAYERS];
-	int m_aiWarValueLost[MAX_CIV_PLAYERS];
-	unsigned short m_aiWarDamageValue[MAX_CIV_PLAYERS];
 	char m_aeWarState[MAX_CIV_PLAYERS];
 
 	// Peace

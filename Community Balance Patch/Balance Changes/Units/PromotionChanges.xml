@@ -2501,19 +2501,6 @@
 			<IgnoreZOC>1</IgnoreZOC>
 			<IgnoreTerrainCost>1</IgnoreTerrainCost>
 		</Replace>
-<!--		<Replace>
-			<Type>PROMOTION_HEROISM</Type>
-			<Description>TXT_KEY_PROMOTION_HEROISM</Description>
-			<Help>TXT_KEY_PROMOTION_HEROISM_HELP</Help>
-			<Sound>AS2D_IF_LEVELUP</Sound>
-			<PortraitIndex>3</PortraitIndex>
-			<IconAtlas>KRIS_SWORDSMAN_PROMOTION_ATLAS</IconAtlas>
-			<PediaType>PEDIA_MELEE</PediaType>
-			<PediaEntry>TXT_KEY_PROMOTION_HEROISM</PediaEntry>
-			<CannotBeChosen>true</CannotBeChosen>
-			<GreatGeneral>true</GreatGeneral>
-			<ChangeDamageValue>-10</ChangeDamageValue>
-		</Replace> -->
 		<Replace>
 			<Type>PROMOTION_AMBITION</Type>
 			<Description>TXT_KEY_PROMOTION_AMBITION</Description>
@@ -2542,19 +2529,6 @@
 			<MovesChange>1</MovesChange>
 			<ExtraAttacks>1</ExtraAttacks>
 		</Replace>
-<!--		<Replace>
-			<Type>PROMOTION_RECRUITMENT</Type>
-			<Description>TXT_KEY_PROMOTION_RECRUITMENT</Description>
-			<Help>TXT_KEY_PROMOTION_RECRUITMENT_HELP</Help>
-			<Sound>AS2D_IF_LEVELUP</Sound>
-			<PortraitIndex>6</PortraitIndex>
-			<IconAtlas>KRIS_SWORDSMAN_PROMOTION_ATLAS</IconAtlas>
-			<PediaType>PEDIA_MELEE</PediaType>
-			<PediaEntry>TXT_KEY_PROMOTION_RECRUITMENT</PediaEntry>
-			<CannotBeChosen>true</CannotBeChosen>
-			<HPHealedIfDestroyEnemy>100</HPHealedIfDestroyEnemy>
-			<HealIfDestroyExcludesBarbarians>true</HealIfDestroyExcludesBarbarians>
-		</Replace> -->
 		<Replace>
 			<Type>PROMOTION_ENEMY_BLADE</Type>
 			<Description>TXT_KEY_PROMOTION_ENEMY_BLADE</Description>
@@ -2566,7 +2540,6 @@
 			<PediaEntry>TXT_KEY_PROMOTION_ENEMY_BLADE</PediaEntry>
 			<CannotBeChosen>true</CannotBeChosen>
 			<EnemyDamageChance>100</EnemyDamageChance>
-			<EnemyRoute>0</EnemyRoute>
 			<EnemyDamage>-10</EnemyDamage>
 			<NearbyEnemyDamage>10</NearbyEnemyDamage>
 		</Replace>

@@ -1491,9 +1491,9 @@ int CvLuaPlayer::lAcquireCity(lua_State* L)
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	CvCity* pkCity = CvLuaCity::GetInstance(L, 2);
 	const bool bConquest = lua_toboolean(L, 3);
-	const bool bTrade = lua_toboolean(L, 4);
+	const bool bGift = lua_toboolean(L, 4);
 
-	pkPlayer->acquireCity(pkCity, bConquest, bTrade);
+	pkPlayer->acquireCity(pkCity, bConquest, bGift);
 	return 0;
 }
 //------------------------------------------------------------------------------
@@ -6370,7 +6370,7 @@ int CvLuaPlayer::lGetWarDamageValue(lua_State* L)
 {
 	CvPlayer* pkPlayer = GetInstance(L);
 	const PlayerTypes ePlayer = (PlayerTypes) lua_tointeger(L, 2);
-	int iOurWarDamage = pkPlayer->GetDiplomacyAI()->GetWarDamageValue(ePlayer);
+	int iOurWarDamage = pkPlayer->GetWarDamageValue(ePlayer);
 	lua_pushinteger(L, iOurWarDamage);
 	return 1;
 }
@@ -6391,12 +6391,12 @@ int CvLuaPlayer::lGetTreatyWillingToOffer(lua_State* L)
 	return 1;
 }
 
-// void DoUpdateWarDamageLevel();
+// void DoUpdateWarDamage();
 int CvLuaPlayer::lDoUpdateWarDamage(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	
-	pkPlayer->GetDiplomacyAI()->DoUpdateWarDamage();
+	pkPlayer->DoUpdateWarDamage();
 	return 0;
 }
 
@@ -8874,7 +8874,7 @@ int CvLuaPlayer::lDoMarriage(lua_State* L)
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	PlayerTypes eMajor = (PlayerTypes) lua_tointeger(L, 2);
 
-	pkPlayer->GetMinorCivAI()->DoMarriage(eMajor);
+	pkPlayer->GetMinorCivAI()->DoBuyout(eMajor);
 	return 0;
 }
 //------------------------------------------------------------------------------
@@ -11998,7 +11998,7 @@ int CvLuaPlayer::lIsDiplomaticMarriage(lua_State* L)
 	CvPlayer* pkPlayer = GetInstance(L);
 	if(pkPlayer)
 	{
-		lua_pushboolean(L, pkPlayer->IsDiplomaticMarriage());
+		lua_pushboolean(L, pkPlayer->GetPlayerTraits()->IsDiplomaticMarriage());
 	}
 	return 1;
 }

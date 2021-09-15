@@ -18720,7 +18720,7 @@ int CvCity::getGreatPeopleRateModifier() const
 {
 	VALIDATE_OBJECT
 	int iNewValue = 0;
-	if (isCapital() && GET_PLAYER(getOwner()).IsDiplomaticMarriage())
+	if (isCapital() && GET_PLAYER(getOwner()).GetPlayerTraits()->IsDiplomaticMarriage())
 	{
 		int iNumMarried = 0;
 		// Loop through all minors and get the total number we've met.
@@ -21495,9 +21495,7 @@ bool CvCity::DoRazingTurn()
 
 		if (bAllowRazingEvents)
 		{
-			// Notify Diplo AI that damage has been done
 			int iRazeValue = /*175*/ GC.getWAR_DAMAGE_LEVEL_CITY_WEIGHT();
-
 			iRazeValue += (getPopulation() * /*150*/ GC.getWAR_DAMAGE_LEVEL_INVOLVED_CITY_POP_MULTIPLIER());
 			iRazeValue += (getNumWorldWonders() * /*200*/ GC.getWAR_DAMAGE_LEVEL_WORLD_WONDER_MULTIPLIER());
 			iRazeValue /= max(1, (GetRazingTurns() / 2)); // Divide by half the number of turns left until the city is destroyed
@@ -21506,7 +21504,7 @@ bool CvCity::DoRazingTurn()
 			iRazeValue *= (100 + GET_PLAYER(getOwner()).GetWarScoreModifier());
 			iRazeValue /= 100;
 
-			GET_PLAYER(eFormerOwner).GetDiplomacyAI()->ChangeWarValueLost(getOwner(), iRazeValue);
+			GET_PLAYER(eFormerOwner).ChangeWarValueLost(getOwner(), iRazeValue);
 
 			// Diplomacy penalty for razing cities
 			if (GET_PLAYER(getOwner()).isMajorCiv() && GET_PLAYER(eFormerOwner).isMajorCiv())
@@ -29403,7 +29401,7 @@ void CvCity::BuyPlot(int iPlotX, int iPlotY)
 			iTileValue *= (100 + GET_PLAYER(getOwner()).GetWarScoreModifier());
 			iTileValue /= 100;
 
-			GET_PLAYER(ePlotOwner).GetDiplomacyAI()->ChangeWarValueLost(getOwner(), iTileValue);
+			GET_PLAYER(ePlotOwner).ChangeWarValueLost(getOwner(), iTileValue);
 		}
 
 		// Diplomacy penalty for stealing territory!

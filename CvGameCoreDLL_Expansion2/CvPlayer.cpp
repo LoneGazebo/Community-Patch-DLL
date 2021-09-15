@@ -589,7 +589,6 @@ CvPlayer::CvPlayer() :
 	, m_iRazingSpeedBonus()
 	, m_iNoPartisans()
 	, m_iSpawnCooldown()
-	, m_iAbleToMarryCityStatesCount()
 	, m_bTradeRoutesInvulnerable()
 	, m_iTRSpeedBoost()
 	, m_iVotesPerGPT()
@@ -1512,7 +1511,6 @@ void CvPlayer::uninit()
 	m_iRazingSpeedBonus = 0;
 	m_iNoPartisans = 0;
 	m_iSpawnCooldown = 0;
-	m_iAbleToMarryCityStatesCount = 0;
 	m_bTradeRoutesInvulnerable = false;
 	m_iTRSpeedBoost = 0;
 	m_iVotesPerGPT = 0;
@@ -2907,43 +2905,72 @@ CvCity* CvPlayer::initCity(int iX, int iY, bool bBumpUnits, bool bInitialFoundin
 	return pNewCity;
 }
 
-//	--------------------------------------------------------------------------------
-// NOTE: bGift set to true if the city is given as a gift, as in the case for trades and Austria UA of annexing city-states
-CvCity* CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
+/// This player acquires a city. 
+/// bConquest is true if the city was directly captured by this player's units, and false otherwise.
+/// bGift is true if the city was gifted to the player (can be from a trade or from the Austria/Venice UAs; liberation does NOT count in this)
+CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 {
-	if(pOldCity == NULL)
+	if (!pCity)
 		return NULL;
 
-	IDInfo* pUnitNode;
-	CvCity* pNewCity;
-	CvUnit* pLoopUnit;
+	CvPlot* pCityPlot = pCity->plot();
+	if (!pCityPlot)
+		return NULL;
 
-	CvString strBuffer;
-	CvString strName;
-	bool abEverLiberated[MAX_PLAYERS];
-	PlayerTypes eOldOwner;
-	PlayerTypes eOriginalOwner;
-	BuildingTypes eBuilding;
-	bool bRecapture;
-	int iCaptureGold = 0;
-	int iCaptureCulture = 0;
-	int iCaptureGreatWorks = 0;
-	int iGameTurnFounded;
-	int iPopulation;
-	int iHighestPopulation;
-	int iOldPopulation;
-	int iBattleDamage;
-	int iI;
+	PlayerTypes eOldOwner = pCity->getOwner(), ePreviousOwner = pCity->getPreviousOwner(), eOriginalOwner = pCity->getOriginalOwner();
+	int iCityX = pCity->getX(), iCityY = pCity->getY(), iPopulation = pCity->getPopulation(), iNumCities = getNumCities();
+	const CvCivilizationInfo& playerCivilizationInfo = getCivilizationInfo();
 
+	// Can't acquire a city from yourself
+	if (eOldOwner == GetID())
+		return pCity;
+
+	// Is this the capital?
+	bool bCapital = pCity->isCapital();
+	bool bOriginalCapital = pCity->IsOriginalCapitalForPlayer(eOldOwner);
+
+	// Is this a Holy City?
+	bool bHolyCity = pCity->GetCityReligions()->IsHolyCityAnyReligion();
+	CvString szReligionName = "";
+	if (bHolyCity)
+	{
+		const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(pCity->GetCityReligions()->GetReligionForHolyCity(), NO_PLAYER);
+		if (pReligion)
+			szReligionName = pReligion->GetName();
+		else
+			bHolyCity = false;
+	}
+	
+	PlayerTypes ePlayerToLiberate = NO_PLAYER;
+
+	// Can this city be liberated?
+	if (eOriginalOwner != eOldOwner && eOriginalOwner != GetID())
+	{
+		ePlayerToLiberate = eOriginalOwner;
+
+		// If we're at war with the original owner and the last owner was a City-State, liberate them instead
+		if (IsAtWarWith(ePlayerToLiberate))
+		{
+			if (ePreviousOwner != NO_PLAYER && eOriginalOwner != ePreviousOwner && GET_PLAYER(ePreviousOwner).isMinorCiv())
+			{
+				ePlayerToLiberate = ePreviousOwner;
+			}
+			else
+			{
+				ePlayerToLiberate = NO_PLAYER;
+			}
+		}
+
+		if (ePlayerToLiberate != NO_PLAYER && !CanLiberatePlayerCity(ePlayerToLiberate))
+		{
+			ePlayerToLiberate = NO_PLAYER;
+		}
+	}
+
+	// Kill all immobile units on the city plot that don't belong to the acquirer's team
 	FFastSmallFixedList<IDInfo, 25, true, c_eCiv5GameplayDLL > oldUnits;
-	CvCityReligions tempReligions;
-	bool bIsMinorCivBuyout = (pOldCity->GetPlayer()->isMinorCiv() && bGift && (IsAbleToAnnexCityStates() || GetPlayerTraits()->IsNoAnnexing())); // Austria and Venice UA
-
-	CvPlot* pCityPlot = pOldCity->plot();
-
-	pUnitNode = pCityPlot->headUnitNode();
-
-	while(pUnitNode != NULL)
+	IDInfo* pUnitNode = pCityPlot->headUnitNode();
+	while (pUnitNode != NULL)
 	{
 		oldUnits.insertAtEnd(pUnitNode);
 		pUnitNode = pCityPlot->nextUnitNode((IDInfo*)pUnitNode);
@@ -2951,14 +2978,14 @@ CvCity* CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 
 	pUnitNode = oldUnits.head();
 
-	while(pUnitNode != NULL)
+	while (pUnitNode != NULL)
 	{
-		pLoopUnit = ::GetPlayerUnit(*pUnitNode);
+		CvUnit* pLoopUnit = ::GetPlayerUnit(*pUnitNode);
 		pUnitNode = oldUnits.next(pUnitNode);
 
-		if(pLoopUnit && pLoopUnit->getTeam() != getTeam())
+		if (pLoopUnit && pLoopUnit->getTeam() != getTeam())
 		{
-			if(pLoopUnit->IsImmobile() && !pLoopUnit->isCargo())
+			if (pLoopUnit->IsImmobile() && !pLoopUnit->isCargo())
 			{
 				pLoopUnit->kill(false, GetID());
 				DoUnitKilledCombat(NULL, pLoopUnit->getOwner(), pLoopUnit->getUnitType());
@@ -2966,82 +2993,191 @@ CvCity* CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 		}
 	}
 
-	if (bConquest || isBarbarian())
+	// Change cities lost stat
+	if (eOriginalOwner != NO_PLAYER && eOriginalOwner != BARBARIAN_PLAYER)
 	{
-		SetPlayerNumTurnsSinceCityCapture(pOldCity->getOwner(), 0);
+		if (eOriginalOwner == eOldOwner)
+		{
+			GET_PLAYER(eOldOwner).changeCitiesLost(1);
+		}
+		else if (eOriginalOwner == GetID())
+		{
+			changeCitiesLost(-1);
+		}
 	}
 
-	if(bConquest)
+	// Did this player trade us back our capital/Holy City? Diplo bonus!
+	if (bGift)
 	{
-#if defined(MOD_BALANCE_CORE)
-		if (pOldCity->GetCityReligions()->IsHolyCityAnyReligion())
+		// I've traded for this city? I don't want to trade it again.
+		pCity->SetTraded(GetID(), true);
+
+		if (pCity->IsOriginalCapitalForPlayer(GetID()))
 		{
-			UpdateReligion();
+			GetDiplomacyAI()->SetPlayerReturnedCapital(eOldOwner, true);
+		}
+		else if (bHolyCity && IsHasLostHolyCity() && iCityX == GetLostHolyCityX() && iCityY == GetLostHolyCityY())
+		{
+			const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(pCity->GetCityReligions()->GetReligionForHolyCity(), NO_PLAYER);
+			if (pReligion && pReligion->m_eFounder == GetID())
+			{
+				GetDiplomacyAI()->SetPlayerReturnedHolyCity(eOldOwner, true);
+			}
+		}
+	}
+
+	int iCaptureGold = 0, iCaptureCulture = 0;
+	bool bSlaughter = bConquest && !bGift;
+	bool bFirstConquest = false;
+
+	// This city was conquered! We have much to do!
+	if (bConquest)
+	{
+		// First things first, notify the world!
+		GetMilitaryAI()->LogCityCaptured(pCity, eOldOwner);
+
+		// First, the standard global notification
+		PlayerTypes eActivePlayer = GC.getGame().getActivePlayer();
+		CvPlayer& activePlayer = GET_PLAYER(eActivePlayer);
+		CvString strName;
+		strName.Format("%s (%s)", pCity->getName().GetCString(), GET_PLAYER(eOldOwner).getName());
+
+		if (GetID() == eActivePlayer)
+		{
+			if (activePlayer.GetNotifications())
+			{
+				CvString strBuffer = GetLocalizedText("TXT_KEY_MISC_CAPTURED_CITY", pCity->getNameKey()).GetCString();
+				GC.GetEngineUserInterface()->AddCityMessage(0, pCity->GetIDInfo(), GetID(), true, GC.getEVENT_MESSAGE_TIME(), strBuffer);
+			}
+		}
+		else
+		{
+			if ((activePlayer.isAlive() || activePlayer.isObserver()) && activePlayer.GetNotifications() && pCity->isRevealed(activePlayer.getTeam(), false))
+			{
+				CvString strBuffer = GetLocalizedText("TXT_KEY_MISC_CITY_CAPTURED_BY", strName.GetCString(), getCivilizationShortDescriptionKey());
+				GC.GetEngineUserInterface()->AddCityMessage(0, pCity->GetIDInfo(), activePlayer.GetID(), false, GC.getEVENT_MESSAGE_TIME(), strBuffer);
+			}
 		}
 
-#endif
-		CvNotifications* pNotifications = GET_PLAYER(pOldCity->getOwner()).GetNotifications();
-		if(pNotifications)
-		{
-			Localization::String locString = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_LOST");
-			locString << pOldCity->getNameKey() << getNameKey();
-			Localization::String locSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_CITY_LOST");
-			locSummary << pOldCity->getNameKey();
+		CvString strBuffer = GetLocalizedText("TXT_KEY_MISC_CITY_WAS_CAPTURED_BY", strName.GetCString(), getCivilizationShortDescriptionKey());
+		GC.getGame().addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT, GetID(), strBuffer, iCityX, iCityY);
+		GC.getGame().addReplayMessage(REPLAY_MESSAGE_CITY_CAPTURED, GetID(), "", iCityX, iCityY);
 
-#if defined(MOD_BALANCE_CORE)
-			if(pOldCity->GetCityReligions()->IsHolyCityAnyReligion())
+		// Holy Cities have a second global notification.
+		if (bHolyCity)
+		{
+			// Notification for conqueror
+			CvNotifications* pNotify = GetNotifications();
+			if (pNotify)
 			{
-				ReligionTypes eReligion = pOldCity->GetCityReligions()->GetReligionForHolyCity();
-				const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, NO_PLAYER);
-				if(pReligion)
-				{
-					CvString szReligionName = pReligion->GetName();
-					locString = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_LOST_HOLY");
-					locString << pOldCity->getNameKey() << getNameKey() << szReligionName;
-					locSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_CITY_LOST_HOLY");
-					locSummary << pOldCity->getNameKey();
-				}
+				Localization::String locString = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_GAINED_HOLY");
+				Localization::String locSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_CITY_GAINED_HOLY");
+				locString << pCity->getNameKey() << szReligionName;
+				locSummary << pCity->getNameKey();
+				pNotify->Add(NOTIFICATION_CAPITAL_RECOVERED, locString.toUTF8(), locSummary.toUTF8(), iCityX, iCityY, -1);
 			}
 
-#endif
-			pNotifications->Add(NOTIFICATION_CITY_LOST, locString.toUTF8(), locSummary.toUTF8(), pOldCity->getX(), pOldCity->getY(), -1);
-		}
-#if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
-		if(MOD_DIPLOMACY_CITYSTATES_QUESTS && pOldCity->isBarbarian())
-		{
-			CvBarbarians::DoBarbCityCleared(pOldCity->plot());
-		}
-#endif
+			// Notification for everyone else
+			Localization::String locString = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_LOST_HOLY");
+			Localization::String locSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_CITY_LOST_HOLY");
+			locString << pCity->getNameKey() << getNameKey() << szReligionName;
+			locSummary << pCity->getNameKey();
+			for (int iPlayerLoop = 0; iPlayerLoop < MAX_PLAYERS; iPlayerLoop++)
+			{
+				PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+				if (eLoopPlayer == GetID())
+					continue;
 
-		if (!isBarbarian() && !pOldCity->isBarbarian())
+				if (GET_PLAYER(eLoopPlayer).isObserver())
+				{
+					pNotify = GET_PLAYER(eLoopPlayer).GetNotifications();
+					if (pNotify)
+						pNotify->Add(NOTIFICATION_CITY_LOST, locString.toUTF8(), locSummary.toUTF8(), iCityX, iCityY, -1);
+
+					continue;
+				}
+				else if (!GET_PLAYER(eLoopPlayer).isAlive() || !GET_PLAYER(eLoopPlayer).isMajorCiv() || !GET_PLAYER(eLoopPlayer).isHuman())
+					continue;
+
+				pNotify = GET_PLAYER(eLoopPlayer).GetNotifications();
+				if (pNotify)
+					pNotify->Add(NOTIFICATION_CITY_LOST, locString.toUTF8(), locSummary.toUTF8(), iCityX, iCityY, -1);
+			}
+		}
+		// Normal city - only notify the conquered player
+		else
 		{
-			// Notify Diplo AI that damage has been done
+			CvNotifications* pNotify = GET_PLAYER(eOldOwner).GetNotifications();
+			if (pNotify)
+			{
+				Localization::String locString = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_LOST");
+				Localization::String locSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_CITY_LOST");
+				locString << pCity->getNameKey() << getNameKey();
+				locSummary << pCity->getNameKey();
+				pNotify->Add(NOTIFICATION_CITY_LOST, locString.toUTF8(), locSummary.toUTF8(), iCityX, iCityY, -1);
+			}
+		}
+
+		// War damage calculations
+		if (!pCity->isBarbarian())
+		{
 			int iCityValue = /*175*/ GC.getWAR_DAMAGE_LEVEL_CITY_WEIGHT();
-			iCityValue += (pOldCity->getPopulation() * /*150*/ GC.getWAR_DAMAGE_LEVEL_INVOLVED_CITY_POP_MULTIPLIER());
-			iCityValue += (pOldCity->getNumWorldWonders() * /*200*/ GC.getWAR_DAMAGE_LEVEL_WORLD_WONDER_MULTIPLIER());
+			iCityValue += (iPopulation * /*150*/ GC.getWAR_DAMAGE_LEVEL_INVOLVED_CITY_POP_MULTIPLIER());
+			iCityValue += (pCity->getNumWorldWonders() * /*200*/ GC.getWAR_DAMAGE_LEVEL_WORLD_WONDER_MULTIPLIER());
 
 			// Multipliers
 			// Their original capital!
-			if (pOldCity->IsOriginalCapitalForPlayer(pOldCity->getOwner()))
+			if (bOriginalCapital)
 			{
 				iCityValue *= 200;
 				iCityValue /= 100;
+
+				if (GET_PLAYER(eOldOwner).isMajorCiv())
+				{
+					GET_PLAYER(eOldOwner).SetHasLostCapital(true, GetID());
+
+					if (isMajorCiv())
+					{
+						GET_PLAYER(eOldOwner).GetDiplomacyAI()->SetPlayerCapturedCapital(GetID(), true);
+						GET_PLAYER(eOldOwner).GetDiplomacyAI()->SetBackstabbedBy(GetID(), true, true);
+					}
+				}
 			}
-			// Another major's original capital, or their Holy City
-			else if (pOldCity->IsOriginalMajorCapital() || pOldCity->GetCityReligions()->IsHolyCityForReligion(GET_PLAYER(pOldCity->getOwner()).GetReligions()->GetCurrentReligion(false)))
+			// Their Holy City!
+			else if (GET_PLAYER(eOldOwner).isMajorCiv() && pCity->GetCityReligions()->IsHolyCityForReligion(GET_PLAYER(eOldOwner).GetReligions()->GetCurrentReligion(false)))
+			{
+				iCityValue *= 150;
+				iCityValue /= 100;
+
+				ReligionTypes eReligion = pCity->GetCityReligions()->GetReligionForHolyCity();
+				const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, NO_PLAYER);
+				if (pReligion && pReligion->m_eFounder == eOldOwner)
+				{
+					GET_PLAYER(eOldOwner).SetHasLostHolyCity(true, GetID());
+					GET_PLAYER(eOldOwner).SetLostHolyCityXY(iCityX, iCityY);
+
+					if (isMajorCiv())
+					{
+						GET_PLAYER(eOldOwner).GetDiplomacyAI()->SetPlayerCapturedHolyCity(GetID(), true);
+						GET_PLAYER(eOldOwner).GetDiplomacyAI()->SetBackstabbedBy(GetID(), true, true);
+					}
+				}
+			}
+			// Another major's original capital
+			else if (pCity->IsOriginalMajorCapital())
 			{
 				iCityValue *= 150;
 				iCityValue /= 100;
 			}
 			// A City-State's capital
-			else if (pOldCity->IsOriginalMinorCapital())
+			else if (pCity->IsOriginalMinorCapital())
 			{
 				iCityValue *= 115;
 				iCityValue /= 100;
 			}
 
 			// Dramatically reduce the value if conqueror has owned the city before
-			int iNumTimesOwned(pOldCity->GetNumTimesOwned(GetID()));
+			int iNumTimesOwned = pCity->GetNumTimesOwned(GetID());
 			if (iNumTimesOwned > 1)
 			{
 				iCityValue /= (iNumTimesOwned * 3);
@@ -3051,564 +3187,659 @@ CvCity* CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 			if (isMajorCiv())
 			{
 				ChangeMilitaryRating(iCityValue); // rating up for winner (us)
-			}
-			if (GET_PLAYER(pOldCity->getOwner()).isMajorCiv())
-			{
-				GET_PLAYER(pOldCity->getOwner()).ChangeMilitaryRating(-iCityValue); // rating down for loser (them)
-			}
 
-			CvDiplomacyAI* pOldOwnerDiploAI = GET_PLAYER(pOldCity->getOwner()).GetDiplomacyAI();
-
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-			if (MOD_DIPLOMACY_CIV4_FEATURES)
-			{
-				// If the city belonged to a vassal, penalize the masters
-				if (GET_PLAYER(pOldCity->getOwner()).isMajorCiv() && GET_PLAYER(pOldCity->getOwner()).IsVassalOfSomeone())
-				{
-					for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
-					{
-						PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
-						if (pOldOwnerDiploAI->IsPlayerValid(eLoopPlayer) && pOldOwnerDiploAI->IsVassal(eLoopPlayer))
-						{
-							pOldOwnerDiploAI->ChangeVassalFailedProtectValue(eLoopPlayer, iCityValue);
-						}
-					}
-				}
 				// If the conqueror has any vassals, see if any nearby vassals are grateful for the protection
-				if (isMajorCiv() && GetNumVassals() > 0)
+				if (MOD_DIPLOMACY_CIV4_FEATURES && GetNumVassals() > 0)
 				{
 					for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 					{
 						PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
-						if (GetDiplomacyAI()->IsPlayerValid(eLoopPlayer) && GetDiplomacyAI()->IsMaster(eLoopPlayer) && GET_PLAYER(eLoopPlayer).GetProximityToPlayer(pOldCity->getOwner()) >= PLAYER_PROXIMITY_CLOSE)
+						if (GetDiplomacyAI()->IsPlayerValid(eLoopPlayer) && GetDiplomacyAI()->IsMaster(eLoopPlayer) && GET_PLAYER(eLoopPlayer).GetProximityToPlayer(eOldOwner) >= PLAYER_PROXIMITY_CLOSE)
 						{
 							GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->ChangeVassalProtectValue(GetID(), iCityValue);
 						}
 					}
 				}
 			}
-#endif
+			if (GET_PLAYER(eOldOwner).isMajorCiv())
+			{
+				GET_PLAYER(eOldOwner).ChangeMilitaryRating(-iCityValue); // rating down for loser (them)
+
+				// If the city belonged to a vassal, penalize the masters
+				if (MOD_DIPLOMACY_CIV4_FEATURES && GET_PLAYER(eOldOwner).IsVassalOfSomeone())
+				{
+					for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+					{
+						PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+						if (GET_PLAYER(eOldOwner).GetDiplomacyAI()->IsPlayerValid(eLoopPlayer) && GET_PLAYER(eOldOwner).GetDiplomacyAI()->IsVassal(eLoopPlayer))
+						{
+							GET_PLAYER(eOldOwner).GetDiplomacyAI()->ChangeVassalFailedProtectValue(eLoopPlayer, iCityValue);
+						}
+					}
+				}
+			}
+
 			// Do we have a bonus to war score accumulation?
 			iCityValue *= (100 + GetWarScoreModifier());
 			iCityValue /= 100;
 
-			pOldOwnerDiploAI->ChangeWarValueLost(GetID(), iCityValue);
+			GET_PLAYER(eOldOwner).ChangeWarValueLost(GetID(), iCityValue);
+			SetPlayerNumTurnsSinceCityCapture(eOldOwner, 0);
+		}
 
-			// zero out any liberation credit since we just captured a city from them
-			if (pOldOwnerDiploAI->WasResurrectedBy(GetID()))
+		// Notify diplomacy AI that the damage was done
+		if (isMajorCiv())
+		{
+			if (GET_PLAYER(eOldOwner).isMajorCiv())
 			{
+				CvDiplomacyAI* pOldOwnerDiploAI = GET_PLAYER(eOldOwner).GetDiplomacyAI();
+				pOldOwnerDiploAI->ChangeNumCitiesCapturedBy(GetID(), 1);
+
+				// Zero out any liberation credit since we just captured a city from them
 				pOldOwnerDiploAI->SetResurrectedBy(GetID(), false);
 
-				if (GET_TEAM(GET_PLAYER(pOldCity->getOwner()).getTeam()).GetLiberatedByTeam() == getTeam())
-				{
-					GET_TEAM(GET_PLAYER(pOldCity->getOwner()).getTeam()).SetLiberatedByTeam(NO_TEAM);
-				}
+				if (GET_TEAM(GET_PLAYER(eOldOwner).getTeam()).GetLiberatedByTeam() == getTeam())
+					GET_TEAM(GET_PLAYER(eOldOwner).getTeam()).SetLiberatedByTeam(NO_TEAM);
+
+				pOldOwnerDiploAI->SetPlayerLiberatedCapital(GetID(), false);
+				pOldOwnerDiploAI->SetPlayerLiberatedHolyCity(GetID(), false);
+				pOldOwnerDiploAI->SetNumCitiesLiberatedBy(GetID(), 0);
+				pOldOwnerDiploAI->SetPlayerReturnedCapital(GetID(), false);
+				pOldOwnerDiploAI->SetPlayerReturnedHolyCity(GetID(), false);
+				pOldOwnerDiploAI->SetMasterLiberatedMeFromVassalage(GetID(), false);
+				pOldOwnerDiploAI->SetVassalagePeacefullyRevokedTurn(GetID(), -1);
+				
+				// Clear positive diplomatic values
+				pOldOwnerDiploAI->SetNumCiviliansReturnedToMe(GetID(), 0);
+				pOldOwnerDiploAI->SetNumLandmarksBuiltForMe(GetID(), 0);
+				pOldOwnerDiploAI->SetNumTimesIntrigueSharedBy(GetID(), 0);
+				pOldOwnerDiploAI->SetCommonFoeValue(GetID(), 0);
+				pOldOwnerDiploAI->SetVassalProtectValue(GetID(), 0);
+				if (pOldOwnerDiploAI->GetRecentAssistValue(GetID()) < 0)
+					pOldOwnerDiploAI->SetRecentAssistValue(GetID(), 0);
 			}
-			pOldOwnerDiploAI->SetPlayerLiberatedCapital(GetID(), false);
-			pOldOwnerDiploAI->SetPlayerLiberatedHolyCity(GetID(), false);
-			pOldOwnerDiploAI->SetNumCitiesLiberatedBy(GetID(), 0);
-			pOldOwnerDiploAI->SetPlayerReturnedCapital(GetID(), false);
-			pOldOwnerDiploAI->SetPlayerReturnedHolyCity(GetID(), false);
-			pOldOwnerDiploAI->SetMasterLiberatedMeFromVassalage(GetID(), false);
-			pOldOwnerDiploAI->SetVassalagePeacefullyRevokedTurn(GetID(), -1);
-			
-			// clear positive diplomatic values
-			pOldOwnerDiploAI->SetNumCiviliansReturnedToMe(GetID(), 0);
-			pOldOwnerDiploAI->SetNumLandmarksBuiltForMe(GetID(), 0);
-			pOldOwnerDiploAI->SetNumTimesIntrigueSharedBy(GetID(), 0);
-			pOldOwnerDiploAI->SetCommonFoeValue(GetID(), 0);
-			pOldOwnerDiploAI->SetVassalProtectValue(GetID(), 0);
-			if (pOldOwnerDiploAI->GetRecentAssistValue(GetID()) < 0)
-				pOldOwnerDiploAI->SetRecentAssistValue(GetID(), 0);
-			
-			// increment captured city counter
-			if (pOldCity->GetNumTimesOwned(GetID()) < 1)
-				pOldOwnerDiploAI->ChangeNumCitiesCapturedBy(GetID(), 1);
-		}
 
-		GetMilitaryAI()->LogCityCaptured(pOldCity, pOldCity->getOwner());
-	}
+			// Warmonger calculations
+			bool bDoWarmonger = true;
+			pCity->SetNoWarmonger(false); // Reset this value!
 
-	// Did they give us back our capital/Holy City? NOTE: This will only give a diplo bonus if this player's team didn't originally capture it!
-	if (bGift)
-	{
-		if (pOldCity->IsOriginalCapitalForPlayer(GetID()))
-		{
-			GetDiplomacyAI()->SetPlayerReturnedCapital(pOldCity->getOwner(), true);
-		}
-		else if (IsHasLostHolyCity() && pOldCity->getX() == GetLostHolyCityX() && pOldCity->getY() == GetLostHolyCityY())
-		{
-			ReligionTypes eReligion = GC.getGame().GetGameReligions()->GetOriginalReligionCreatedByPlayer(m_eID);
+			// Don't award warmongering if you're conquering a city you owned back
+			if (eOriginalOwner == GetID())
+				bDoWarmonger = false;
 
-			if (eReligion != NO_RELIGION && pOldCity->GetCityReligions()->IsHolyCityForReligion(eReligion))
+			// Don't award warmongering if you're conquering a city that you were the last to own.
+			if (ePreviousOwner == GetID())
+				bDoWarmonger = false;
+
+			//Captured a city from barbs? Everyone likes that!
+			if (GET_PLAYER(eOldOwner).isBarbarian())
+				bDoWarmonger = false;
+
+			if (bDoWarmonger && ePlayerToLiberate != NO_PLAYER)
 			{
-				GetDiplomacyAI()->SetPlayerReturnedHolyCity(pOldCity->getOwner(), true);
+				bDoWarmonger = false;
+				pCity->SetNoWarmonger(true); // Recursive to-do: cache warmonger values
 			}
-		}
-	}
 
-#if defined(MOD_BALANCE_CORE)
-	// Check if we want to keep this city - compare yields with our capital
-	bool bAllowRaze = true;
-	CvCity* pCapital = getCapitalCity();
-	if (pCapital)
-	{
-		int iGoodCategories = 0;
-		for (int i = 0; i < 6; i++)
-			if (pOldCity->getYieldRateTimes100((YieldTypes)i, true) * 2 > pCapital->getYieldRateTimes100((YieldTypes)i, true))
-				iGoodCategories++;
-
-		bAllowRaze = (iGoodCategories < 3);
-	}
-
-	// Remove Corporation from this city if acquired to another player by any means
-	if (pOldCity->getOwner() != NO_PLAYER && pOldCity->getOwner() != GetID())
-	{
-		GET_PLAYER(pOldCity->getOwner()).GetCorporations()->ClearAllCorporationsFromCity(pOldCity);
-	}
-	if (GET_PLAYER(pOldCity->getOwner()).isMinorCiv())
-	{
-		GET_PLAYER(pOldCity->getOwner()).GetMinorCivAI()->DoUpdateAlliesResourceBonus(GET_PLAYER(pOldCity->getOwner()).GetMinorCivAI()->GetAlly(), GET_PLAYER(pOldCity->getOwner()).GetMinorCivAI()->GetAlly());
-	}
-#endif
-
-	if(pOldCity->getOriginalOwner() == pOldCity->getOwner())
-	{
-		GET_PLAYER(pOldCity->getOriginalOwner()).changeCitiesLost(1);
-	}
-	else if(pOldCity->getOriginalOwner() == GetID())
-	{
-		GET_PLAYER(pOldCity->getOriginalOwner()).changeCitiesLost(-1);
-	}
-
-	if(bConquest)
-	{
-		if(GetID() == GC.getGame().getActivePlayer())
-		{
-			strBuffer = GetLocalizedText("TXT_KEY_MISC_CAPTURED_CITY", pOldCity->getNameKey()).GetCString();
-			GC.GetEngineUserInterface()->AddCityMessage(0, pOldCity->GetIDInfo(), GetID(), true, GC.getEVENT_MESSAGE_TIME(), strBuffer/*, "AS2D_CITYCAPTURE", MESSAGE_TYPE_MAJOR_EVENT, NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_GREEN"), pOldCity->getX(), pOldCity->getY(), true, true*/);
-		}
-
-		strName.Format("%s (%s)", pOldCity->getName().GetCString(), GET_PLAYER(pOldCity->getOwner()).getName());
-
-		if(GetID() != GC.getGame().getActivePlayer())
-		{
-			CvPlayer& activePlayer = GET_PLAYER(GC.getGame().getActivePlayer());
-			if((activePlayer.isAlive() || activePlayer.isObserver()) && activePlayer.GetNotifications())
+			if (bDoWarmonger)
 			{
-				if(pOldCity->isRevealed(activePlayer.getTeam(), false))
-				{
-					strBuffer = GetLocalizedText("TXT_KEY_MISC_CITY_CAPTURED_BY", strName.GetCString(), getCivilizationShortDescriptionKey());
-					GC.GetEngineUserInterface()->AddCityMessage(0, pOldCity->GetIDInfo(), activePlayer.GetID(), false, GC.getEVENT_MESSAGE_TIME(), strBuffer/*, "AS2D_CITYCAPTURED", MESSAGE_TYPE_MAJOR_EVENT, NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_RED"), pOldCity->getX(), pOldCity->getY(), true, true*/);
-				}
+				CvDiplomacyAIHelpers::ApplyWarmongerPenalties(pCity, GetID(), eOldOwner);
 			}
 		}
 
-		strBuffer = GetLocalizedText("TXT_KEY_MISC_CITY_WAS_CAPTURED_BY", strName.GetCString(), getCivilizationShortDescriptionKey());
-		GC.getGame().addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT, GetID(), strBuffer, pOldCity->getX(), pOldCity->getY());
-
-#ifndef FINAL_RELEASE
-		OutputDebugString("\n"); OutputDebugString(strBuffer); OutputDebugString("\n\n");
-#endif
-#if defined(MOD_BALANCE_CORE)
-		CvNotifications* pNotifications2 = GetNotifications();
-		if(pNotifications2)
+		// Process plunder rewards
+		if (isMajorCiv())
 		{
-			if(pOldCity->GetCityReligions()->IsHolyCityAnyReligion())
-			{
-				ReligionTypes eReligion = pOldCity->GetCityReligions()->GetReligionForHolyCity();
-				const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, NO_PLAYER);
-				if(pReligion)
-				{
-					CvString szReligionName = pReligion->GetName();
-					Localization::String locString = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_GAINED_HOLY");
-					locString << pOldCity->getNameKey() << szReligionName;
-					Localization::String locSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_CITY_GAINED_HOLY");
-					locSummary << pOldCity->getNameKey();
+			iCaptureGold = /*20*/ GC.getBASE_CAPTURE_GOLD() + (iPopulation * /*10*/ GC.getCAPTURE_GOLD_PER_POPULATION());
+			iCaptureGold += /*2 to 40*/ GC.getGame().getSmallFakeRandNum(GC.getCAPTURE_GOLD_RAND1(), pCity->plot()->GetPlotIndex()) * 2;
+			iCaptureGold += /*2 to 40*/ GC.getGame().getSmallFakeRandNum(GC.getCAPTURE_GOLD_RAND2(), GET_PLAYER(eOldOwner).GetPseudoRandomSeed()) * 2;
 
-					pNotifications2->Add(NOTIFICATION_CAPITAL_RECOVERED, locString.toUTF8(), locSummary.toUTF8(), pOldCity->getX(), pOldCity->getY(), -1);
-				}
+			// Reduce reward if acquired recently by the previous owner
+			if (/*50*/ GC.getCAPTURE_GOLD_MAX_TURNS() > 0)
+			{
+				iCaptureGold *= range((GC.getGame().getGameTurn() - pCity->getGameTurnAcquired()), 0, GC.getCAPTURE_GOLD_MAX_TURNS());
+				iCaptureGold /= GC.getCAPTURE_GOLD_MAX_TURNS();
 			}
-		}
-#endif
-	}
 
-	if(bConquest)
-	{
-		iCaptureGold = GC.getBASE_CAPTURE_GOLD();
-		iCaptureGold += (pOldCity->getPopulation() * GC.getCAPTURE_GOLD_PER_POPULATION());
-		iCaptureGold += GC.getGame().getSmallFakeRandNum(GC.getCAPTURE_GOLD_RAND1(), pOldCity->plot()->GetPlotIndex()) * 2;
-		iCaptureGold += GC.getGame().getSmallFakeRandNum(GC.getCAPTURE_GOLD_RAND2(), GET_PLAYER(pOldCity->getOwner()).GetPseudoRandomSeed()) * 2;
+			// City increases plunder gold? (Burial Tomb)
+			iCaptureGold *= 100 + pCity->getCapturePlunderModifier();
+			iCaptureGold /= 100;
 
-		if(GC.getCAPTURE_GOLD_MAX_TURNS() > 0)
-		{
-			iCaptureGold *= range((GC.getGame().getGameTurn() - pOldCity->getGameTurnAcquired()), 0, GC.getCAPTURE_GOLD_MAX_TURNS());
-			iCaptureGold /= GC.getCAPTURE_GOLD_MAX_TURNS();
-		}
+			// UA increases plunder gold? (Songhai)
+			iCaptureGold *= 100 + GetPlayerTraits()->GetPlunderModifier();
+			iCaptureGold /= 100;
 
-		iCaptureGold *= (100 + pOldCity->getCapturePlunderModifier()) / 100;
-		iCaptureGold *= (100 + GetPlayerTraits()->GetPlunderModifier()) / 100;
+			if (iCaptureGold <= 0)
+				iCaptureGold = 0;
+			else
+				GetTreasury()->ChangeGold(iCaptureGold);
 
-		GetTreasury()->ChangeGold(iCaptureGold);
+			// Culture from plundering?
+			iCaptureCulture = pCity->getJONSCulturePerTurn();
+			iCaptureCulture *= GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CULTURAL_PLUNDER_MULTIPLIER);
 
-		iCaptureCulture = pOldCity->getJONSCulturePerTurn();
-		iCaptureCulture *= GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CULTURAL_PLUNDER_MULTIPLIER);
-
-		if(iCaptureCulture > 0)
-		{
-			changeJONSCulture(iCaptureCulture);
-		}
-
-		if (GetPlayerTraits()->IsTechFromCityConquer())
-		{
-			// Will this be the first time we have owned this city?
-			if (!pOldCity->isEverOwned(GetID()))
+			// Reduce reward if acquired recently by the previous owner
+			if (/*50*/ GC.getCAPTURE_GOLD_MAX_TURNS() > 0)
 			{
-#if defined(MOD_ALTERNATE_ASSYRIA_TRAIT)
-				if(MOD_ALTERNATE_ASSYRIA_TRAIT)
+				iCaptureCulture *= range((GC.getGame().getGameTurn() - pCity->getGameTurnAcquired()), 0, GC.getCAPTURE_GOLD_MAX_TURNS());
+				iCaptureCulture /= GC.getCAPTURE_GOLD_MAX_TURNS();
+			}
+
+			if (iCaptureCulture <= 0)
+				iCaptureCulture = 0;
+			else
+				changeJONSCulture(iCaptureCulture);
+		}
+
+		// Should the conqueror slaughter some of the city's population?
+		// Our city originally? Don't slaughter.
+		if (eOriginalOwner == GetID())
+		{
+			bSlaughter = false;
+		}
+		// We are liberators, so don't slaughter.
+		if (pCity->isBarbarian())
+		{
+			bSlaughter = false;
+		}
+		// Recently captured and still in resistance? Don't slaughter.
+		if (pCity->IsResistance())
+		{
+			bSlaughter = false;
+		}
+
+		// Trigger most "first conquest" bonuses now.
+		if (!pCity->isEverOwned(GetID()))
+		{
+			bFirstConquest = true; // remember this for later checks
+
+			// Free technology from conquering a city?
+			if (GetPlayerTraits()->IsTechFromCityConquer())
+			{
+				if (MOD_ALTERNATE_ASSYRIA_TRAIT)
 				{
-					if(!isHuman())
+					if (!isHuman())
 					{
 						AI_chooseFreeTech();
 					}
 					else
 					{
-						const char* strTargetNameKey = pOldCity->getNameKey();
 						Localization::String localizedText = Localization::Lookup("TXT_KEY_SCIENCE_BOOST_CONQUEST_ASSYRIA");
-						localizedText << strTargetNameKey;
-						chooseTech(1, localizedText.toUTF8());
+						localizedText << pCity->getNameKey();
+						chooseTech(1, localizedText.toUTF8());						
 					}
 				}
 				else
-					DoTechFromCityConquer(pOldCity);
-#else
-				DoTechFromCityConquer(pOldCity);
-#endif
+					DoTechFromCityConquer(pCity);
 			}
-		}
-#if defined(MOD_BALANCE_CORE)
-		if(GetPlayerTraits()->IsConquestOfTheWorld())
-		{
-			if (!pOldCity->isEverOwned(GetID()))
-			{
-				int iValue = GetGoldenAgeProgressMeter();
-				if(isGoldenAge())
-				{
-					changeGoldenAgeTurns(3, iValue);
-				}
-				else
-				{
-					changeGoldenAgeTurns(5, iValue);
-				}
-			}
-		}
-#endif
-	}
-#if defined(MOD_BALANCE_CORE)
-	if (!pOldCity->isEverOwned(GetID()))
-	{
-		int iExtraTerritoryClaim = GetPlayerTraits()->GetExtraConqueredCityTerritoryClaimRange();
-		for (int i = 0; i < iExtraTerritoryClaim; i++)
-		{
-			CvPlot* pPlotToAcquire = pOldCity->GetNextBuyablePlot(false);
 
-			// maybe the player owns ALL of the plots or there are none available?
-			if(pPlotToAcquire)
+			// Golden Age turns from conquering a city?
+			if (GetPlayerTraits()->IsConquestOfTheWorld())
 			{
-				pOldCity->DoAcquirePlot(pPlotToAcquire->getX(), pPlotToAcquire->getY());
+				if (isGoldenAge())
+					changeGoldenAgeTurns(3, GetGoldenAgeProgressMeter());
+				else
+					changeGoldenAgeTurns(5, GetGoldenAgeProgressMeter());
 			}
-		}
-	}
-#endif
-#if defined(MOD_BALANCE_CORE)
-	if(bConquest && MOD_BALANCE_CORE)
-	{
-		// Will this be the first time we have owned this city?
-		if (!pOldCity->isEverOwned(GetID()))
-		{
+
+			// Culture bonus turns from conquering a city?
 			if (GetPlayerTraits()->GetCultureBonusModifierConquest() > 0)
 			{
-				int iValue = (pOldCity->getPopulation() / 2);
-				iValue *= GC.getGame().getGameSpeedInfo().getInstantYieldPercent();
-				iValue /= 100;
-				if (iValue > 0)
+				int iTurns = ((iPopulation / 2) * GC.getGame().getGameSpeedInfo().getInstantYieldPercent()) / 100;
+				if (iTurns > 0)
 				{
-					ChangeCultureBonusTurnsConquest(iValue);
+					ChangeCultureBonusTurnsConquest(iTurns);
+
 					if (GetID() == GC.getGame().getActivePlayer())
 					{
-						Localization::String strMessage;
-						Localization::String strSummary;
-						strMessage = Localization::Lookup("TXT_KEY_CULTURE_BOOST_ART");
-						strMessage << iValue;
-						strMessage << pOldCity->getNameKey();
+						Localization::String strMessage = Localization::Lookup("TXT_KEY_CULTURE_BOOST_ART");
+						strMessage << iTurns;
+						strMessage << pCity->getNameKey();
 						strMessage << GetPlayerTraits()->GetCultureBonusModifierConquest();
-						strSummary = Localization::Lookup("TXT_KEY_CULTURE_BOOST_ART_SUMMARY");
+						Localization::String strSummary = Localization::Lookup("TXT_KEY_CULTURE_BOOST_ART_SUMMARY");
 
-						CvNotifications* pNotification = GetNotifications();
-						if (pNotification)
+						CvNotifications* pNotify = GetNotifications();
+						if (pNotify)
 						{
-							pNotification->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), pOldCity->getX(), pOldCity->getY(), (int)pOldCity->GetID(), GetID());
+							pNotify->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), iCityX, iCityY, (int)pCity->GetID(), GetID());
 						}
 					}
-					if ((GC.getLogging() && GC.getAILogging()))
+					if (GC.getLogging() && GC.getAILogging())
 					{
 						CvGameCulture *pCulture = GC.getGame().GetGameCulture();
 						if (pCulture)
 						{
 							CvString strLogString;
-							strLogString.Format("Conquest culture boost: %d", (pOldCity->getPopulation() / 2));
+							strLogString.Format("Conquest culture boost: %d", iTurns);
 							GetHomelandAI()->LogHomelandMessage(strLogString);
 						}
 					}
 				}
 			}
+
+			// Production bonus turns from conquering a city?
 			if (GetPlayerTraits()->GetProductionBonusModifierConquest() > 0)
 			{
-				int iValue = (pOldCity->getPopulation() / 2);
-				iValue *= GC.getGame().getGameSpeedInfo().getInstantYieldPercent();
-				iValue /= 100;
-				if (iValue > 0)
+				int iTurns = ((iPopulation / 2) * GC.getGame().getGameSpeedInfo().getInstantYieldPercent()) / 100;
+				if (iTurns > 0)
 				{
-					ChangeProductionBonusTurnsConquest(iValue);
+					ChangeProductionBonusTurnsConquest(iTurns);
+
 					if (GetID() == GC.getGame().getActivePlayer())
 					{
-						Localization::String strMessage;
-						Localization::String strSummary;
-						strMessage = Localization::Lookup("TXT_KEY_PRODUCTION_BOOST_ART");
-						strMessage << (pOldCity->getPopulation() / 2);
-						strMessage << pOldCity->getNameKey();
+						Localization::String strMessage = Localization::Lookup("TXT_KEY_PRODUCTION_BOOST_ART");
+						strMessage << iTurns;
+						strMessage << pCity->getNameKey();
 						strMessage << GetPlayerTraits()->GetProductionBonusModifierConquest();
-						strSummary = Localization::Lookup("TXT_KEY_PRODUCTION_BOOST_ART_SUMMARY");
+						Localization::String strSummary = Localization::Lookup("TXT_KEY_PRODUCTION_BOOST_ART_SUMMARY");
 
-						CvNotifications* pNotification = GetNotifications();
-						if (pNotification)
+						CvNotifications* pNotify = GetNotifications();
+						if (pNotify)
 						{
-							pNotification->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), pOldCity->getX(), pOldCity->getY(), (int)pOldCity->GetID(), GetID());
+							pNotify->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), iCityX, iCityY, (int)pCity->GetID(), GetID());
 						}
 					}
-					if ((GC.getLogging() && GC.getAILogging()))
+					if (GC.getLogging() && GC.getAILogging())
 					{
 						CvGameCulture *pCulture = GC.getGame().GetGameCulture();
 						if (pCulture)
 						{
 							CvString strLogString;
-							strLogString.Format("Conquest production boost: %d", (pOldCity->getPopulation() / 2));
+							strLogString.Format("Conquest production boost: %d", iTurns);
 							GetHomelandAI()->LogHomelandMessage(strLogString);
 						}
 					}
 				}
 			}
+
+			// Free Great Work from conquering a city?
 			if (GetPlayerTraits()->IsFreeGreatWorkOnConquest())
 			{
-				DoFreeGreatWorkOnConquest(pOldCity->getOwner(), pOldCity);
+				DoFreeGreatWorkOnConquest(eOldOwner, pCity);
 			}
+
+			// Great Writer, Artist and Musician points from conquering a city?
 			if (GetPlayerTraits()->GetCityConquestGWAM() > 0)
 			{
-				doInstantGWAM(NO_GREATPERSON, pOldCity->getName(), true);
+				doInstantGWAM(NO_GREATPERSON, pCity->getName(), true);
 			}
-#if defined(MOD_BALANCE_CORE)
+
+			// We Love the King Day in all cities from conquering a city?
 			if (GetPlayerTraits()->IsExpansionWLTKD())
 			{
 				int iWLTKD = (GC.getCITY_RESOURCE_WLTKD_TURNS() / 3);
-
 				iWLTKD *= GC.getGame().getGameSpeedInfo().getTrainPercent();
 				iWLTKD /= 100;
 
 				if (iWLTKD > 0)
 				{
-					int iCityLoop;
-
 					// Loop through owner's cities.
+					int iCityLoop;
 					for (CvCity* pLoopCity = firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = nextCity(&iCityLoop))
 					{
-						if (pLoopCity != NULL)
-						{
-							pLoopCity->ChangeWeLoveTheKingDayCounter(iWLTKD, true);
-						}
+						pLoopCity->ChangeWeLoveTheKingDayCounter(iWLTKD, true);
 					}
-					CvNotifications* pNotifications = GetNotifications();
-					if (pNotifications)
+
+					CvNotifications* pNotify = GetNotifications();
+					if (pNotify)
 					{
 						Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_WLTKD_UA_CITY_CONQUEST");
 						strText << iWLTKD << GetPlayerTraits()->GetGrowthBoon();
 						Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_CITY_WLTKD_UA_CITY_CONQUEST");
-						pNotifications->Add(NOTIFICATION_GENERIC, strText.toUTF8(), strSummary.toUTF8(), pOldCity->getX(), pOldCity->getY(), -1);
+						pNotify->Add(NOTIFICATION_GENERIC, strText.toUTF8(), strSummary.toUTF8(), iCityX, iCityY, -1);
 					}
 				}
 			}
-#endif
-		}
-	}
-#endif
-#if defined(MOD_BALANCE_CORE_BELIEFS)
-	if(bConquest)
-	{
-		if (!pOldCity->isEverOwned(GetID()))
-		{
-			int iScaler = pOldCity->getPopulation() / 2;
-			iScaler -= GetCurrentEra();
-			if(iScaler <= 0)
-			{
-				iScaler = 1;
-			}
-			doInstantYield(INSTANT_YIELD_TYPE_F_CONQUEST, false, NO_GREATPERSON, NO_BUILDING, iScaler, true, NO_PLAYER, NULL, false, NULL, pOldCity->isCoastal(), true, false, NO_YIELD, NULL, NO_TERRAIN, NULL, pOldCity);
 
-			if(MOD_BALANCE_CORE_LUXURIES_TRAIT && !isMinorCiv() && !isBarbarian() && (GetPlayerTraits()->GetUniqueLuxuryQuantity() > 0))
+			// Additional territory from conquering a city?
+			int iExtraTerritoryClaim = GetPlayerTraits()->GetExtraConqueredCityTerritoryClaimRange();
+			for (int i = 0; i < iExtraTerritoryClaim; i++)
 			{
-				GetPlayerTraits()->AddUniqueLuxuriesAround(pOldCity, GetPlayerTraits()->GetUniqueLuxuryQuantity());
-			}
-		}
-		if(MOD_BALANCE_CORE_AFRAID_ANNEX)
-		{
-			if(GetPlayerTraits()->IsBullyAnnex() && !bGift)
-			{
-				if(pOldCity->GetPlayer()->isMinorCiv() && !pOldCity->isEverOwned(GetID()))
+				CvPlot* pPlotToAcquire = pCity->GetNextBuyablePlot(false);
+
+				if (pPlotToAcquire)
 				{
-					//int iGoldenAge = pOldCity->getPopulation() * 20;
-					//ChangeGoldenAgeProgressMeter(iGoldenAge);
-					//do we get a lump some of yields from this?
-					if (GetPlayerTraits()->GetBullyYieldMultiplierAnnex() != 0)
-					{
-						MinorCivTraitTypes eTrait = pOldCity->GetPlayer()->GetMinorCivAI()->GetTrait();
-
-						switch (eTrait)
-						{
-						case(MINOR_CIV_TRAIT_CULTURED) :
-						{
-							int iYield = pOldCity->GetPlayer()->GetMinorCivAI()->GetYieldTheftAmount(GetID(), YIELD_CULTURE);
-							iYield *= GetPlayerTraits()->GetBullyYieldMultiplierAnnex();
-							iYield /= 100;
-							doInstantYield(INSTANT_YIELD_TYPE_BULLY, true, NO_GREATPERSON, NO_BUILDING, iYield, true, NO_PLAYER, NULL, false, getCapitalCity(), false, true, false, YIELD_CULTURE);
-							break;
-						}
-						case(MINOR_CIV_TRAIT_MARITIME) :
-						{
-							int iYield = pOldCity->GetPlayer()->GetMinorCivAI()->GetYieldTheftAmount(GetID(), YIELD_FOOD);
-							iYield *= GetPlayerTraits()->GetBullyYieldMultiplierAnnex();
-							iYield /= 100;
-							doInstantYield(INSTANT_YIELD_TYPE_BULLY, true, NO_GREATPERSON, NO_BUILDING, iYield, true, NO_PLAYER, NULL, false, getCapitalCity(), false, true, false, YIELD_FOOD);
-							break;
-						}
-						case(MINOR_CIV_TRAIT_MERCANTILE) :
-						{
-							int iYield = pOldCity->GetPlayer()->GetMinorCivAI()->GetYieldTheftAmount(GetID(), YIELD_GOLD);
-							iYield *= GetPlayerTraits()->GetBullyYieldMultiplierAnnex();
-							iYield /= 100;
-							doInstantYield(INSTANT_YIELD_TYPE_BULLY, true, NO_GREATPERSON, NO_BUILDING, iYield, true, NO_PLAYER, NULL, false, getCapitalCity(), false, true, false, YIELD_GOLD);
-							break;
-						}
-						case(MINOR_CIV_TRAIT_MILITARISTIC) :
-						{
-							int iYield = pOldCity->GetPlayer()->GetMinorCivAI()->GetYieldTheftAmount(GetID(), YIELD_SCIENCE);
-							iYield *= GetPlayerTraits()->GetBullyYieldMultiplierAnnex();
-							iYield /= 100;
-							doInstantYield(INSTANT_YIELD_TYPE_BULLY, true, NO_GREATPERSON, NO_BUILDING, iYield, true, NO_PLAYER, NULL, false, getCapitalCity(), false, true, false, YIELD_SCIENCE);
-							break;
-						}
-						case(MINOR_CIV_TRAIT_RELIGIOUS) :
-						{
-							int iYield = pOldCity->GetPlayer()->GetMinorCivAI()->GetYieldTheftAmount(GetID(), YIELD_FAITH);
-							iYield *= GetPlayerTraits()->GetBullyYieldMultiplierAnnex();
-							iYield /= 100;
-							doInstantYield(INSTANT_YIELD_TYPE_BULLY, true, NO_GREATPERSON, NO_BUILDING, iYield, true, NO_PLAYER, NULL, false, getCapitalCity(), false, true, false, YIELD_FAITH);
-							break;
-						}
-						}
-					}
+					pCity->DoAcquirePlot(pPlotToAcquire->getX(), pPlotToAcquire->getY());
 				}
 			}
-		}
-	}
-#endif
 
-	// slewis - warmonger calculations
-	if (bConquest && isMajorCiv())
-	{
-		bool bDoWarmonger = true;
-		pOldCity->SetNoWarmonger(false); // Reset this value!
-
-		// Don't award warmongering if you're conquering a city you owned back
-		if (pOldCity->getOriginalOwner() == GetID())
-			bDoWarmonger = false;
-
-		// Don't award warmongering if you're conquering a city that you were the last to own.
-		if (pOldCity->getPreviousOwner() == GetID())
-			bDoWarmonger = false;
-
-		//Captured a city from barbs? Everyone likes that!
-		if (GET_PLAYER(pOldCity->getOwner()).isBarbarian())
-			bDoWarmonger = false;
-
-		if (bDoWarmonger)
-		{
-			PlayerTypes eLiberatedPlayer = NO_PLAYER;
-
-			// Captured someone's city that didn't originally belong to us - Liberate a player?
-			eOldOwner = pOldCity->getOwner();
-			if (pOldCity->getOriginalOwner() != eOldOwner && pOldCity->getOriginalOwner() != GetID())
+			// Unique luxuries from conquering a city?
+			if (MOD_BALANCE_CORE_LUXURIES_TRAIT && isMajorCiv() && GetPlayerTraits()->GetUniqueLuxuryQuantity() > 0)
 			{
-				eLiberatedPlayer = pOldCity->getOriginalOwner();
+				GetPlayerTraits()->AddUniqueLuxuriesAround(pCity, GetPlayerTraits()->GetUniqueLuxuryQuantity());
+			}
 
-				// If we're at war with the original owner and the last owner was a City-State, liberate them instead
-				if (IsAtWarWith(eLiberatedPlayer) && pOldCity->getOriginalOwner() != pOldCity->getPreviousOwner() && pOldCity->getPreviousOwner() != NO_PLAYER)
+			// Lump sum of yields from conquering a City-State?
+			if (MOD_BALANCE_CORE_AFRAID_ANNEX && GET_PLAYER(eOldOwner).isMinorCiv() && GetPlayerTraits()->IsBullyAnnex() && GetPlayerTraits()->GetBullyYieldMultiplierAnnex() != 0)
+			{
+				CvMinorCivAI* pMinorAI = GET_PLAYER(eOldOwner).GetMinorCivAI();
+				MinorCivTraitTypes eTrait = pMinorAI->GetTrait();
+				int iYield = GetPlayerTraits()->GetBullyYieldMultiplierAnnex();
+
+				switch (eTrait)
 				{
-					if (GET_PLAYER(pOldCity->getPreviousOwner()).isMinorCiv())
+				case MINOR_CIV_TRAIT_CULTURED:
+					iYield *= pMinorAI->GetYieldTheftAmount(GetID(), YIELD_CULTURE);
+					iYield /= 100;
+					doInstantYield(INSTANT_YIELD_TYPE_BULLY, true, NO_GREATPERSON, NO_BUILDING, iYield, true, NO_PLAYER, NULL, false, getCapitalCity(), false, true, false, YIELD_CULTURE);
+					break;
+				case MINOR_CIV_TRAIT_MARITIME:
+					iYield *= pMinorAI->GetYieldTheftAmount(GetID(), YIELD_FOOD);
+					iYield /= 100;
+					doInstantYield(INSTANT_YIELD_TYPE_BULLY, true, NO_GREATPERSON, NO_BUILDING, iYield, true, NO_PLAYER, NULL, false, getCapitalCity(), false, true, false, YIELD_FOOD);
+					break;
+				case MINOR_CIV_TRAIT_MERCANTILE:
+					iYield *= pMinorAI->GetYieldTheftAmount(GetID(), YIELD_GOLD);
+					iYield /= 100;
+					doInstantYield(INSTANT_YIELD_TYPE_BULLY, true, NO_GREATPERSON, NO_BUILDING, iYield, true, NO_PLAYER, NULL, false, getCapitalCity(), false, true, false, YIELD_GOLD);
+					break;
+				case MINOR_CIV_TRAIT_MILITARISTIC:
+					iYield *= pMinorAI->GetYieldTheftAmount(GetID(), YIELD_SCIENCE);
+					iYield /= 100;
+					doInstantYield(INSTANT_YIELD_TYPE_BULLY, true, NO_GREATPERSON, NO_BUILDING, iYield, true, NO_PLAYER, NULL, false, getCapitalCity(), false, true, false, YIELD_SCIENCE);
+					break;
+				case MINOR_CIV_TRAIT_RELIGIOUS:
+					iYield *= pMinorAI->GetYieldTheftAmount(GetID(), YIELD_FAITH);
+					iYield /= 100;
+					doInstantYield(INSTANT_YIELD_TYPE_BULLY, true, NO_GREATPERSON, NO_BUILDING, iYield, true, NO_PLAYER, NULL, false, getCapitalCity(), false, true, false, YIELD_FAITH);
+					break;
+				}
+			}
+
+			// Other instant yields from conquering a city?
+			int iScaler = max(1, (iPopulation / 2) - GetCurrentEra());
+			doInstantYield(INSTANT_YIELD_TYPE_F_CONQUEST, false, NO_GREATPERSON, NO_BUILDING, iScaler, true, NO_PLAYER, NULL, false, NULL, pCity->isCoastal(), true, false, NO_YIELD, NULL, NO_TERRAIN, NULL, pCity);
+		}
+
+#if defined(MOD_API_ACHIEVEMENTS)
+		// Lastly, run the achievement code...
+		if (!GC.getGame().isGameMultiPlayer() && isHuman())
+		{
+			const char* szLeaderKey = getLeaderTypeKey();
+			const char* szCivKey = getCivilizationTypeKey();
+			const char* szNameKey = pCity->getNameKey();
+
+			// Check for Kris Swordsman achievement
+			if (strcmp(szCivKey, "CIVILIZATION_INDONESIA") == 0)
+			{
+				CvUnit *pConqueringUnit = pCityPlot->getUnitByIndex(0);
+				if (pConqueringUnit->getUnitType() == (UnitTypes)GC.getInfoTypeForString("UNIT_KRIS_SWORDSMAN", true))
+				{
+					PromotionTypes ePromotion = (PromotionTypes)GC.getInfoTypeForString("PROMOTION_ENEMY_BLADE", true);
+					if (pConqueringUnit->isHasPromotion(ePromotion))
 					{
-						eLiberatedPlayer = pOldCity->getPreviousOwner();
+						gDLL->UnlockAchievement(ACHIEVEMENT_XP2_21);
+					}
+				}
+			}
+
+			// Check for Askia Achievement
+			if (strcmp(szLeaderKey, "LEADER_ASKIA") == 0)
+			{
+				CvCity* pCapital = getCapitalCity();
+				if (pCapital)
+				{
+					CvPlot* pCapitalPlot = pCapital->plot();
+					if (pCapitalPlot)
+					{
+						CvArea* pkCapitalArea = pCapitalPlot->area();
+						CvArea* pkNewCityArea = pCityPlot->area();
+
+						// The area the new city is located on has to be of a certain size to qualify so that tiny islands are not included
+						if (pkCapitalArea && pkNewCityArea && pkCapitalArea->GetID() != pkNewCityArea->GetID() && pkNewCityArea->getNumTiles() >= 8)
+						{
+							gDLL->UnlockAchievement(ACHIEVEMENT_SPECIAL_WARCANOE);
+						}
+					}
+				}
+			}
+
+			bool bUsingXP2Scenario1 = gDLL->IsModActivated(CIV5_XP2_SCENARIO1_MODID);
+			bool bUsingXP1Scenario1 = gDLL->IsModActivated(CIV5_XP1_SCENARIO1_MODID);
+			bool bUsingXP1Scenario2 = gDLL->IsModActivated(CIV5_XP1_SCENARIO2_MODID);
+
+			if (bUsingXP2Scenario1 && strcmp(szCivKey, "CIVILIZATION_ENGLAND") == 0 && strcmp(szNameKey, "TXT_KEY_CIVIL_WAR_SCENARIO_CITY_NAME_GETTYSBURG") == 0)
+			{
+				CvUnit *pConqueringUnit = pCityPlot->getUnitByIndex(0);
+				PromotionTypes ePromotion = (PromotionTypes)GC.getInfoTypeForString("PROMOTION_PICKETT", true);
+				if (pConqueringUnit->isHasPromotion(ePromotion))
+				{
+					gDLL->UnlockAchievement(ACHIEVEMENT_XP2_59);
+				}
+			}
+
+			if (bUsingXP1Scenario1)
+			{
+				const HandicapTypes eCurrentHandicap = GC.getGame().getHandicapType();
+				HandicapTypes eEmperorHandicap = NO_HANDICAP;
+				HandicapTypes eDeityHandicap = NO_HANDICAP;
+
+				const int numHandicapInfos = GC.getNumHandicapInfos();
+				for (int i = 0; i < numHandicapInfos; ++i)
+				{
+					const HandicapTypes eHandicap = static_cast<HandicapTypes>(i);
+					CvHandicapInfo* pkInfo = GC.getHandicapInfo(eHandicap);
+					if (pkInfo != NULL)
+					{
+						if (strcmp(pkInfo->GetType(), "HANDICAP_EMPEROR") == 0)
+						{
+							eEmperorHandicap = eHandicap;
+						}
+						else if (strcmp(pkInfo->GetType(), "HANDICAP_DEITY") == 0)
+						{
+							eDeityHandicap = eHandicap;
+						}
 					}
 				}
 
-				if (eLiberatedPlayer != NO_PLAYER)
+				if (strcmp(szCivKey, "CIVILIZATION_ENGLAND") == 0 && strcmp(szNameKey, "TXT_KEY_CITYSTATE_JERUSALEM") == 0)
 				{
-					if (CanLiberatePlayerCity(eLiberatedPlayer))
+					if (eCurrentHandicap >= eEmperorHandicap)
 					{
-						bDoWarmonger = false;
-						pOldCity->SetNoWarmonger(true);
+						gDLL->UnlockAchievement(ACHIEVEMENT_XP1_39);
+					}
+				}
+				else if (strcmp(szCivKey, "CIVILIZATION_OTTOMAN") == 0 && strcmp(szNameKey, "TXT_KEY_CITY_NAME_CONSTANTINOPLE") == 0)
+				{
+					if (eCurrentHandicap >= eDeityHandicap)
+					{
+						gDLL->UnlockAchievement(ACHIEVEMENT_XP1_40);
+					}
+				}
+			}
+
+			if (bUsingXP1Scenario2)
+			{
+				bool bHasConstantinople = strcmp(szNameKey, "TXT_KEY_CITY_NAME_CONSTANTINOPLE") == 0;
+				bool bHasRome = strcmp(szNameKey, "TXT_KEY_CITY_NAME_ROME") == 0;
+
+				if (bHasConstantinople && eOriginalOwner != GetID())
+				{
+					gDLL->UnlockAchievement(ACHIEVEMENT_XP1_47);
+				}
+
+				if (bHasConstantinople || bHasRome)
+				{
+					int iLoop = 0;
+					for (CvCity* pCity = firstCity(&iLoop); pCity != NULL; pCity = nextCity(&iLoop))
+					{
+						const char* szOtherNameKey = pCity->getNameKey();
+						bHasConstantinople |= strcmp(szOtherNameKey, "TXT_KEY_CITY_NAME_CONSTANTINOPLE") == 0;
+						bHasRome |= strcmp(szOtherNameKey, "TXT_KEY_CITY_NAME_ROME") == 0;
+					}
+				}
+
+				if (bHasConstantinople && bHasRome)
+				{
+					gDLL->UnlockAchievement(ACHIEVEMENT_XP1_48);
+				}
+
+				if (strcmp(szCivKey, "CIVILIZATION_CELTS") == 0)
+				{
+					//Did we cap what was originally a sassinid city?
+					typedef std::pair<int,int> Location;
+					typedef std::tr1::array<Location, 7> SassanidCityArray;
+					SassanidCityArray SassanidCities = 
+					{
+						Location(87,17), //Ctesiphon
+						Location(85,20), //Singara
+						Location(81,21), //Nisibis
+						Location(79,24), //Amida
+						Location(82,28), //Thospia
+						Location(81,33), //Anium
+						Location(87,33), //Artaxata
+					};
+
+					//Test if we still own each city.
+					for (SassanidCityArray::iterator it = SassanidCities.begin(); it != SassanidCities.end(); ++it)
+					{
+						if (it->first == iCityX && it->second == iCityY)
+						{
+							gDLL->UnlockAchievement(ACHIEVEMENT_XP1_51);
+						}
 					}
 				}
 			}
 		}
-
-		if (bDoWarmonger)
-		{
-			CvDiplomacyAIHelpers::ApplyWarmongerPenalties(pOldCity, GetID(), pOldCity->getOwner());
-		}
-	}
-
-	//make sure we do this AFTER proccing on-conquest stuff!
-	pOldCity->ChangeNumTimesOwned(GetID(), 1);
-
-#if defined(MOD_BALANCE_CORE)
-	//Let's not slaughter citizens in a city we've owned before.
-	bool bSlaughter = true;
-	if(bConquest)
-	{
-		//Our city originally? Don't slaughter.
-		if(pOldCity->getOriginalOwner() == GetID())
-		{
-			bSlaughter = false;
-		}
-		//We are liberators, so don't slaughter.
-		if(pOldCity->isBarbarian())
-		{
-			bSlaughter = false;
-		}
-		//Recently captured and still in resistance? Don't slaughter.
-		if(pOldCity->IsResistance() || pOldCity->IsRazing())
-		{
-			bSlaughter = false;
-		}
-	}
 #endif
+	}
+
+	// Make sure we do this AFTER proccing on-conquest stuff!
+	pCity->ChangeNumTimesOwned(GetID(), 1);
+
+	// Spies in the city? YOU'RE OUTTA HERE!~
+	CvCityEspionage* pCityEspionage = pCity->GetCityEspionage();
+	if (pCityEspionage)
+	{
+		for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+		{
+			PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
+
+			if (!GET_PLAYER(eLoopPlayer).isAlive())
+				continue;
+
+			CvPlayerEspionage* pEspionage = GET_PLAYER(eLoopPlayer).GetEspionage();
+			if (!pEspionage)
+				continue;
+
+			int iAssignedSpy = pCityEspionage->m_aiSpyAssignment[iPlayerLoop];
+			if (iAssignedSpy == -1)
+				continue;
+
+			// There's a spy! Remove it!
+			GET_PLAYER(eLoopPlayer).GetEspionage()->ExtractSpyFromCity(iAssignedSpy);
+
+			// Notify the spy's owner
+			CvNotifications* pNotify = GET_PLAYER(eLoopPlayer).GetNotifications();
+			if (!pNotify)
+				continue;
+
+			CvEspionageSpy* pSpy = pEspionage->GetSpyByID(iAssignedSpy);
+			Localization::String strSummary = bConquest ? GetLocalizedText("TXT_KEY_NOTIFICATION_SPY_EVICTED_CONQUEST_S") : GetLocalizedText("TXT_KEY_NOTIFICATION_SPY_EVICTED_TRADE_S");
+
+			// City acquirer gets a different notification
+			if (eLoopPlayer == GetID())
+			{
+				Localization::String strNotification = bConquest ? Localization::Lookup("TXT_KEY_NOTIFICATION_SPY_EVICTED_CONQUEST_YOU") : Localization::Lookup("TXT_KEY_NOTIFICATION_SPY_EVICTED_TRADE_YOU");
+				strNotification << pEspionage->GetSpyRankName(pSpy->m_eRank);
+				strNotification << pSpy->GetSpyName(&GET_PLAYER(eLoopPlayer));
+				strNotification << pCity->getNameKey();
+				pNotify->Add(NOTIFICATION_SPY_EVICTED, strNotification.toUTF8(), strSummary.toUTF8(), -1, -1, eOldOwner);
+			}
+			else
+			{
+				Localization::String strNotification = bConquest ? Localization::Lookup("TXT_KEY_NOTIFICATION_SPY_EVICTED_CONQUEST") : Localization::Lookup("TXT_KEY_NOTIFICATION_SPY_EVICTED_TRADE");
+				strNotification << pEspionage->GetSpyRankName(pSpy->m_eRank);
+				strNotification << pSpy->GetSpyName(&GET_PLAYER(eLoopPlayer));
+				strNotification << pCity->getNameKey();
+				strNotification << getCivilizationInfo().getShortDescriptionKey();
+				pNotify->Add(NOTIFICATION_SPY_EVICTED, strNotification.toUTF8(), strSummary.toUTF8(), -1, -1, eOldOwner);
+			}
+		}
+	}
+
+	// Disassemble spaceship if the civ lost the capital
+	if (bCapital && MOD_GLOBAL_NO_CONQUERED_SPACESHIPS)
+		GET_PLAYER(eOldOwner).disassembleSpaceship(pCityPlot);
+
+	// If Holy City, update religion status
+	if (bHolyCity)
+		UpdateReligion();
+
+	// Remove any Corporations from this city if it is acquired by another player
+	GetCorporations()->ClearAllCorporationsFromCity(pCity);
+	if (eOldOwner != NO_PLAYER)
+		GET_PLAYER(eOldOwner).GetCorporations()->ClearAllCorporationsFromCity(pCity);
+
+	// If city was Barbarian-owned, turn off the spawn counter
+	if (MOD_DIPLOMACY_CITYSTATES_QUESTS && pCity->isBarbarian())
+		CvBarbarians::DoBarbCityCleared(pCityPlot);
+
+	// If city was City-State-owned, update resource bonuses for allies
+	if (GET_PLAYER(eOldOwner).isMinorCiv())
+		GET_PLAYER(eOldOwner).GetMinorCivAI()->DoUpdateAlliesResourceBonus(GET_PLAYER(eOldOwner).GetMinorCivAI()->GetAlly(), GET_PLAYER(eOldOwner).GetMinorCivAI()->GetAlly());
+
+	// Cancel trade routes to/from this city
+	GC.getGame().GetGameTrade()->ClearAllCityTradeRoutes(pCityPlot);
+
+	// Now the complicated part: we need to copy all relevant data from the city
+	// Start with miscellaneous things
+	CvString strName = pCity->getNameKey();
+	int iGameTurnFounded = pCity->getGameTurnFounded();
+	int iHighestPopulation = pCity->getHighestPopulation();
+	int iCultureLevel = pCity->GetJONSCultureLevel();
+	int iBattleDamage = pCity->getDamage();
+	bool bHasMadeAttack = pCity->isMadeAttack();
+	bool bNoWarmongerYet = pCity->IsNoWarmongerYet();
+
+	std::vector<bool> vbTraded(MAX_PLAYERS, false);
+	std::vector<bool> vbEverLiberated(MAX_PLAYERS, false);
+	std::vector<int> viNumTimesOwned(MAX_PLAYERS, false);
+	for (int iPlayerLoop = 0; iPlayerLoop < MAX_PLAYERS; iPlayerLoop++)
+	{
+		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+		vbTraded[iPlayerLoop] = pCity->IsTraded(eLoopPlayer);
+		vbEverLiberated[iPlayerLoop] = pCity->isEverLiberated(eLoopPlayer);
+		viNumTimesOwned[iPlayerLoop] = pCity->GetNumTimesOwned(eLoopPlayer);
+	}
+
+	// Remember the plots so we can re-assign them later
+	int iCityRings = pCity->getWorkPlotDistance();
+	std::vector<CvPlot*> ownedPlots;
+	for (int iPlotLoop = 0; iPlotLoop < GC.getMap().numPlots(); iPlotLoop++)
+	{
+		CvPlot* pLoopPlot = GC.getMap().plotByIndexUnchecked(iPlotLoop);
+		if (pLoopPlot && pLoopPlot->getOwningCityID() == pCity->GetID())
+			ownedPlots.push_back(pLoopPlot);
+	}
+
+	// Next, handle religion data
+	CvCityReligions tempReligions;
+	int iNumReligionInfos = GC.getNumReligionInfos();
+	tempReligions.Init(pCity);
+	tempReligions.Copy(pCity->GetCityReligions());
+	std::vector<bool> vbAdoptionBonus(iNumReligionInfos, false);
+
+	for (int iI = 0; iI < iNumReligionInfos; iI++)
+	{
+		ReligionTypes eReligion = (ReligionTypes)iI;
+		CvReligionEntry* pEntry = GC.getReligionInfo(eReligion);
+		if (!pEntry)
+			continue;
+		if (eReligion == RELIGION_PANTHEON)
+			continue;
+
+		vbAdoptionBonus[iI] = pCity->HasPaidAdoptionBonus(eReligion);
+	}
+
+	// And finally, store buildings and Great Works
 	int iNumBuildingInfos = GC.getNumBuildingInfos();
-	std::vector<int> paiNumRealBuilding(iNumBuildingInfos, 0);
-	std::vector<int> paiNumFreeBuilding(iNumBuildingInfos, 0);
-	std::vector<int> paiBuildingOriginalOwner(iNumBuildingInfos, 0);
-	std::vector<int> paiBuildingOriginalTime(iNumBuildingInfos, 0);
-#if defined(MOD_BALANCE_CORE)
-	int iNumReligions = GC.getNumReligionInfos();
-	std::vector<bool> pabAdoptionBonus(iNumReligions, false);
-#endif
+	int iNumBuildingClassInfos = GC.getNumBuildingClassInfos();
+	std::vector<int> viNumRealBuilding(iNumBuildingInfos, 0);
+	std::vector<int> viNumFreeBuilding(iNumBuildingInfos, 0);
+	std::vector<int> viBuildingOriginalOwner(iNumBuildingInfos, 0);
+	std::vector<int> viBuildingOriginalTime(iNumBuildingInfos, 0);
+	std::vector<BuildingYieldChange> vcBuildingYieldChange;
 	struct CopyGreatWorkData
 	{
 		int m_iGreatWork;
@@ -3616,1263 +3847,940 @@ CvCity* CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 		int m_iSlot;
 		bool m_bTransferred;
 	};
-	std::vector<CopyGreatWorkData> paGreatWorkData;
-	int iOldCityX = pOldCity->getX();
-	int iOldCityY = pOldCity->getY();
-	eOldOwner = pOldCity->getOwner();
-	eOriginalOwner = pOldCity->getOriginalOwner();
-	iGameTurnFounded = pOldCity->getGameTurnFounded();
-	iPopulation = pOldCity->getPopulation();
-	iOldPopulation = iPopulation;
-	iHighestPopulation = pOldCity->getHighestPopulation();
-	strName = pOldCity->getNameKey();
-	int iOldCultureLevel = pOldCity->GetJONSCultureLevel();
-	bool bHasMadeAttack = pOldCity->isMadeAttack();
-#if defined(MOD_BALANCE_CORE)
-	bool bNeedsWarmonger = pOldCity->IsNoWarmongerYet();
-#endif
+	std::vector<CopyGreatWorkData> vcGreatWorkData;
 
-	tempReligions.Init(pOldCity);
-	tempReligions.Copy(pOldCity->GetCityReligions());
-
-	iBattleDamage = pOldCity->getDamage();
-
-	bool bReduce = true;
-	// Traded cities between teammates don't heal (an exploit would be to trade a city back and forth between teammates to get an instant heal.)
-	if (bGift || GET_PLAYER(pOldCity->getOwner()).getTeam() != getTeam())
-		bReduce = false;
-
-	int iBattleDamageThreshold = GC.getMAX_CITY_HIT_POINTS() * /*50*/ (bReduce ? GC.getCITY_CAPTURE_DAMAGE_PERCENT() : 90);
-	iBattleDamageThreshold /= 100;
-
-	if(iBattleDamage > iBattleDamageThreshold)
+	for (int iI = 0; iI < GC.getNumBuildingInfos(); iI++)
 	{
-		iBattleDamage = iBattleDamageThreshold;
-	}
+		BuildingTypes eBuilding = (BuildingTypes)iI;
+		viNumRealBuilding[iI] = pCity->GetCityBuildings()->GetNumRealBuilding(eBuilding);
+		viNumFreeBuilding[iI] = pCity->GetCityBuildings()->GetNumFreeBuilding(eBuilding);
+		viBuildingOriginalOwner[iI] = pCity->GetCityBuildings()->GetBuildingOriginalOwner(eBuilding);
+		viBuildingOriginalTime[iI] = pCity->GetCityBuildings()->GetBuildingOriginalTime(eBuilding);
 
-	for(iI = 0; iI < MAX_PLAYERS; iI++)
-	{
-		abEverLiberated[iI] = pOldCity->isEverLiberated((PlayerTypes)iI);
-	}
-
-	bool abTraded[MAX_PLAYERS];
-	int aiNumTimesOwned[MAX_PLAYERS];
-	for(iI = 0; iI < MAX_PLAYERS; iI++)
-	{
-		abTraded[iI] = pOldCity->IsTraded((PlayerTypes)iI);
-		aiNumTimesOwned[iI] = pOldCity->GetNumTimesOwned((PlayerTypes)iI);
-	}
-	for(iI = 0; iI < GC.getNumReligionInfos(); iI++)
-	{
-		ReligionTypes eReligion = (ReligionTypes)iI;
-		CvReligionEntry* pEntry = GC.getReligionInfo(eReligion);
-		if(!pEntry)
+		if (pCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
 		{
-			continue;
-		}
-		if(eReligion == RELIGION_PANTHEON)
-			continue;
-
-		pabAdoptionBonus[eReligion] = pOldCity->HasPaidAdoptionBonus(eReligion);
-	}
-
-	for(iI = 0; iI < GC.getNumBuildingInfos(); iI++)
-	{
-		paiNumRealBuilding[iI] = pOldCity->GetCityBuildings()->GetNumRealBuilding((BuildingTypes)iI);
-		paiNumFreeBuilding[iI] = pOldCity->GetCityBuildings()->GetNumFreeBuilding((BuildingTypes)iI);
-		paiBuildingOriginalOwner[iI] = pOldCity->GetCityBuildings()->GetBuildingOriginalOwner((BuildingTypes)iI);
-		paiBuildingOriginalTime[iI] = pOldCity->GetCityBuildings()->GetBuildingOriginalTime((BuildingTypes)iI);
-
-		if (pOldCity->GetCityBuildings()->GetNumBuilding((BuildingTypes)iI) > 0)
-		{
-			CvBuildingEntry *pkBuilding = GC.getBuildingInfo((BuildingTypes)iI);
+			CvBuildingEntry *pkBuilding = GC.getBuildingInfo(eBuilding);
 			if (pkBuilding)
 			{
-				for (int jJ = 0; jJ < pkBuilding->GetGreatWorkCount(); jJ++)
+				for (int iJ = 0; iJ < pkBuilding->GetGreatWorkCount(); iJ++)
 				{
-					int iGreatWork = pOldCity->GetCityBuildings()->GetBuildingGreatWork(pkBuilding->GetBuildingClassType(), jJ);
+					int iGreatWork = pCity->GetCityBuildings()->GetBuildingGreatWork(pkBuilding->GetBuildingClassType(), iJ);
 					if (iGreatWork != NO_GREAT_WORK)
 					{
 						CopyGreatWorkData kData;
 						kData.m_iGreatWork = iGreatWork;
-						kData.m_eBuildingType = (BuildingTypes)iI;
-						kData.m_iSlot = jJ;
+						kData.m_eBuildingType = eBuilding;
+						kData.m_iSlot = iJ;
 						kData.m_bTransferred = false;
-						paGreatWorkData.push_back(kData);
+						vcGreatWorkData.push_back(kData);
 
-						CvPlayer &kOldCityPlayer = GET_PLAYER(pOldCity->getOriginalOwner());
-						if (kOldCityPlayer.GetCulture()->GetSwappableWritingIndex() == iGreatWork)
-						{
-							kOldCityPlayer.GetCulture()->SetSwappableWritingIndex(-1);
-						}
-						if (kOldCityPlayer.GetCulture()->GetSwappableArtifactIndex() == iGreatWork)
-						{
-							kOldCityPlayer.GetCulture()->SetSwappableArtifactIndex(-1);
-						}
-						if (kOldCityPlayer.GetCulture()->GetSwappableArtIndex() == iGreatWork)
-						{
-							kOldCityPlayer.GetCulture()->SetSwappableArtIndex(-1);
-						}
-						if (kOldCityPlayer.GetCulture()->GetSwappableMusicIndex() == iGreatWork)
-						{
-							kOldCityPlayer.GetCulture()->SetSwappableMusicIndex(-1);
-						}
+						CvPlayer &kOldOwner = GET_PLAYER(eOriginalOwner); // Recursive: shouldn't this be eOldOwner?
+						if (kOldOwner.GetCulture()->GetSwappableWritingIndex() == iGreatWork)
+							kOldOwner.GetCulture()->SetSwappableWritingIndex(-1);
+
+						if (kOldOwner.GetCulture()->GetSwappableArtifactIndex() == iGreatWork)
+							kOldOwner.GetCulture()->SetSwappableArtifactIndex(-1);
+
+						if (kOldOwner.GetCulture()->GetSwappableArtIndex() == iGreatWork)
+							kOldOwner.GetCulture()->SetSwappableArtIndex(-1);
+
+						if (kOldOwner.GetCulture()->GetSwappableMusicIndex() == iGreatWork)
+							kOldOwner.GetCulture()->SetSwappableMusicIndex(-1);
 					}
 				}
 			}
 		}
 	}
-
-	std::vector<BuildingYieldChange> aBuildingYieldChange;
-	for(iI = 0; iI < GC.getNumBuildingClassInfos(); ++iI)
+	for (int iI = 0; iI < iNumBuildingClassInfos; iI++)
 	{
-		CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo((BuildingClassTypes)iI);
-		if(!pkBuildingClassInfo)
-		{
+		BuildingClassTypes eBuildingClass = (BuildingClassTypes)iI;
+		CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo(eBuildingClass);
+		if (!pkBuildingClassInfo)
 			continue;
-		}
 
-		for(int iYield = 0; iYield < NUM_YIELD_TYPES; ++iYield)
+		for (int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
 		{
+			YieldTypes Yield = (YieldTypes)iYield;
 			BuildingYieldChange kChange;
-			kChange.eBuildingClass = (BuildingClassTypes)iI;
-			kChange.eYield = (YieldTypes)iYield;
-			kChange.iChange = pOldCity->GetCityBuildings()->GetBuildingYieldChange((BuildingClassTypes)iI, (YieldTypes)iYield);
-			if(0 != kChange.iChange)
-			{
-				aBuildingYieldChange.push_back(kChange);
-			}
+
+			kChange.eBuildingClass = eBuildingClass;
+			kChange.eYield = Yield;
+			kChange.iChange = pCity->GetCityBuildings()->GetBuildingYieldChange(eBuildingClass, Yield);
+			if (kChange.iChange != 0)
+				vcBuildingYieldChange.push_back(kChange);
 		}
 	}
 
-	bRecapture = false; //((eHighestCulturePlayer != NO_PLAYER) ? (GET_PLAYER(eHighestCulturePlayer).getTeam() == getTeam()) : false);
+	// Prepare the city to be destroyed
+	pCity->PreKill();
+	auto_ptr<ICvCity1> pkDllOldCity(new CvDllCity(pCity));
+	gDLL->GameplayCityCaptured(pkDllOldCity.get(), GetID());
 
-	// Returning spies back to pool
-	CvCityEspionage* pOldCityEspionage = pOldCity->GetCityEspionage();
-	if(pOldCityEspionage)
+	// Get rid of the old city!
+	GET_PLAYER(eOldOwner).deleteCity(pCity->GetID());
+	pCity = NULL; // Do not use this pointer anymore!
+
+	// Trigger a few things if the capital was captured
+	if (bCapital)
 	{
-		for(int i = 0; i < MAX_MAJOR_CIVS; i++)
-		{
-			int iAssignedSpy = pOldCityEspionage->m_aiSpyAssignment[i];
-			// if there is a spy in the city
-			if(iAssignedSpy != -1)
-			{
-				CvNotifications* pNotifications = GET_PLAYER((PlayerTypes)i).GetNotifications();
-				if(pNotifications)
-				{
-					CvPlayerEspionage* pEspionage = GET_PLAYER((PlayerTypes)i).GetEspionage();
-					CvEspionageSpy* pSpy = pEspionage->GetSpyByID(iAssignedSpy);
+		GET_PLAYER(eOldOwner).findNewCapital();
 
-					Localization::String strSummary;
-					Localization::String strNotification;
-					if(bConquest)
-					{
-						strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SPY_EVICTED_CONQUEST_S");
-						if(((PlayerTypes)i) == GetID())
-						{
-							strNotification = Localization::Lookup("TXT_KEY_NOTIFICATION_SPY_EVICTED_CONQUEST_YOU");
-							strNotification << pEspionage->GetSpyRankName(pSpy->m_eRank);
-							strNotification << pSpy->GetSpyName(&GET_PLAYER((PlayerTypes)i));
-							strNotification << pOldCity->getNameKey();
-						}
-						else
-						{
-							strNotification = Localization::Lookup("TXT_KEY_NOTIFICATION_SPY_EVICTED_CONQUEST");
-							strNotification << pEspionage->GetSpyRankName(pSpy->m_eRank);
-							strNotification << pSpy->GetSpyName(&GET_PLAYER((PlayerTypes)i));
-							strNotification << pOldCity->getNameKey();
-							strNotification << getCivilizationInfo().getShortDescriptionKey();
-						}
-					}
-					else
-					{
-						strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SPY_EVICTED_TRADE_S");
-						if(((PlayerTypes)i) == GetID())
-						{
-							strNotification = Localization::Lookup("TXT_KEY_NOTIFICATION_SPY_EVICTED_TRADE_YOU");
-							strNotification << pEspionage->GetSpyRankName(pSpy->m_eRank);
-							strNotification << pSpy->GetSpyName(&GET_PLAYER((PlayerTypes)i));
-							strNotification << pOldCity->getNameKey();
-						}
-						else
-						{
-							strNotification = Localization::Lookup("TXT_KEY_NOTIFICATION_SPY_EVICTED_TRADE");
-							strNotification << pEspionage->GetSpyRankName(pSpy->m_eRank);
-							strNotification << pSpy->GetSpyName(&GET_PLAYER((PlayerTypes)i));
-							strNotification << pOldCity->getNameKey();
-							strNotification << getCivilizationInfo().getShortDescriptionKey();
-						}
-					}
-
-					pNotifications->Add(NOTIFICATION_SPY_EVICTED, strNotification.toUTF8(), strSummary.toUTF8(), -1, -1, pOldCity->getOwner());
-				}
-
-				GET_PLAYER((PlayerTypes)i).GetEspionage()->ExtractSpyFromCity(iAssignedSpy);
-				// create notifications indicating what has happened with the spy
-			}
-		}
+		if (bOriginalCapital)
+			GET_TEAM(getTeam()).resetVictoryProgress();
 	}
 
-	GC.getGame().GetGameTrade()->ClearAllCityTradeRoutes(pCityPlot);
-
-	bool bCapital = pOldCity->isCapital();
-	int iOldCityRings = pOldCity->getWorkPlotDistance();
-
-	//remember the plots so we can re-assign them later
-	vector<CvPlot*> ownedPlots;
-	for(int iPlotLoop = 0; iPlotLoop < GC.getMap().numPlots(); iPlotLoop++)
-	{
-		CvPlot* pLoopPlot = GC.getMap().plotByIndexUnchecked(iPlotLoop);
-		if (pLoopPlot && pLoopPlot->getOwningCityID() == pOldCity->GetID())
-			ownedPlots.push_back(pLoopPlot);
-	}
-
-	pOldCity->PreKill();
-
-	{
-		auto_ptr<ICvCity1> pkDllOldCity(new CvDllCity(pOldCity));
-		gDLL->GameplayCityCaptured(pkDllOldCity.get(), GetID());
-	}
-
-	GET_PLAYER(eOldOwner).deleteCity(pOldCity->GetID());
-	// adapted from PostKill()
-
-	GC.getGame().addReplayMessage(REPLAY_MESSAGE_CITY_CAPTURED, m_eID, "", pCityPlot->getX(), pCityPlot->getY());
+	// Update who owns all nearby plots
+	GC.getMap().updateOwningCityForPlots(pCityPlot,iCityRings*2);
+	GC.GetEngineUserInterface()->setDirty(NationalBorders_DIRTY_BIT, true);
 
 	// Update Proximity between this Player and all others
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 	{
-		PlayerTypes ePlayer = (PlayerTypes) iPlayerLoop;
+		PlayerTypes ePlayer = (PlayerTypes)iPlayerLoop;
 
-		if (ePlayer != m_eID)
+		if (ePlayer == m_eID)
+			continue;
+
+		if (!GET_PLAYER(ePlayer).isAlive())
+			continue;
+
+		GET_PLAYER(m_eID).DoUpdateProximityToPlayer(ePlayer);
+		GET_PLAYER(ePlayer).DoUpdateProximityToPlayer(m_eID);
+
+		if (ePlayer != eOldOwner)
 		{
-			if (GET_PLAYER(ePlayer).isAlive())
-			{
-				GET_PLAYER(m_eID).DoUpdateProximityToPlayer(ePlayer);
-				GET_PLAYER(ePlayer).DoUpdateProximityToPlayer(m_eID);
-			}
+			GET_PLAYER(eOldOwner).DoUpdateProximityToPlayer(ePlayer);
+			GET_PLAYER(ePlayer).DoUpdateProximityToPlayer(eOldOwner);
 		}
 	}
 
-	GC.getMap().updateOwningCityForPlots(pCityPlot,iOldCityRings*2);
-	// Lost the capital!
-	if(bCapital)
+	// Now create a new city!
+	CvCity* pNewCity = initCity(iCityX, iCityY, !bConquest, false, NO_RELIGION, strName.c_str());
+	if (!pNewCity)
+		return NULL;
+
+	iNumCities++;
+	bool bMinorCivBuyout = bGift && GET_PLAYER(eOldOwner).isMinorCiv();
+
+	// Copy over data from the previous city
+	pNewCity->setName(strName);
+
+	if (bMinorCivBuyout && !MOD_GLOBAL_CS_LIBERATE_AFTER_BUYOUT)
 	{
-#if defined(MOD_GLOBAL_NO_CONQUERED_SPACESHIPS)
-		GET_PLAYER(eOldOwner).disassembleSpaceship(pCityPlot);
-#endif
-		GET_PLAYER(eOldOwner).findNewCapital();
-		GET_TEAM(getTeam()).resetVictoryProgress();
+		// Prevent liberation later on.
+		pNewCity->setPreviousOwner(NO_PLAYER);
+		pNewCity->setOriginalOwner(GetID());
+		pNewCity->setGameTurnFounded(GC.getGame().getGameTurn());
+		pNewCity->setNeverLost(true);
 	}
-
-	GC.GetEngineUserInterface()->setDirty(NationalBorders_DIRTY_BIT, true);
-	// end adapted from PostKill()
-
-	pNewCity = initCity(pCityPlot->getX(), pCityPlot->getY(), !bConquest, (!bConquest && !bGift), NO_RELIGION, strName.c_str());
-
-	CvAssertMsg(pNewCity != NULL, "NewCity is not assigned a valid value");
-
-	// For buyouts, set it up like a new city founded by this player, to avoid liberation later on etc.
-	if(bIsMinorCivBuyout)
-	{
-#if defined(MOD_GLOBAL_CS_LIBERATE_AFTER_BUYOUT)
-		if (MOD_GLOBAL_CS_LIBERATE_AFTER_BUYOUT)
-		{
-			pNewCity->setPreviousOwner(eOldOwner);
-			pNewCity->setOriginalOwner(eOriginalOwner);
-			pNewCity->setGameTurnFounded(iGameTurnFounded);
-		}
-		else
-		{
-#endif
-			pNewCity->setPreviousOwner(NO_PLAYER);
-			pNewCity->setOriginalOwner(m_eID);
-			pNewCity->setGameTurnFounded(GC.getGame().getGameTurn());
-#if defined(MOD_GLOBAL_CS_LIBERATE_AFTER_BUYOUT)
-		}
-#endif
-
-		AwardFreeBuildings(pNewCity);
-	}
-	// Otherwise, set it up using the data from the old city
 	else
 	{
 		pNewCity->setPreviousOwner(eOldOwner);
 		pNewCity->setOriginalOwner(eOriginalOwner);
 		pNewCity->setGameTurnFounded(iGameTurnFounded);
+		pNewCity->setNeverLost(false);
 	}
 
-	// Population change for capturing a city
-#if defined(MOD_BALANCE_CORE)
-	if(!bRecapture && bConquest && bSlaughter)	
-#else
-	if(!bRecapture && bConquest)	// Don't drop it if we're recapturing our own City
-#endif
+	// Slaughtering time!
+	int iPercentPopulationRetained = 100;
+	if (bSlaughter)
 	{
-		int iPercentPopulationRetained = /*50*/ GC.getCITY_CAPTURE_POPULATION_PERCENT();
-		int iInfluenceReduction = GetCulture()->GetInfluenceCityConquestReduction(eOldOwner);
-		iPercentPopulationRetained += (iInfluenceReduction * (100 - iPercentPopulationRetained) / 100);
-
-		iPopulation = max(1, iPopulation * iPercentPopulationRetained / 100);
+		iPercentPopulationRetained = min(/*50*/ GC.getCITY_CAPTURE_POPULATION_PERCENT(), 100);
+		int iRetentionFromTourism = GetCulture()->GetInfluenceCityConquestReduction(eOldOwner) * (100 - iPercentPopulationRetained) / 100;
+		iPercentPopulationRetained += iRetentionFromTourism;
 	}
-#if defined(MOD_BALANCE_CORE)
-	pNewCity->setPopulation(iPopulation, true, true);
-#else
-	pNewCity->setPopulation(iPopulation);
-#endif
+
+	int iNewPopulation = max(1, (iPopulation * iPercentPopulationRetained) / 100);
+	pNewCity->setPopulation(iNewPopulation, true, true);
+	pNewCity->setLowestRazingPop(iNewPopulation);
 	pNewCity->setHighestPopulation(iHighestPopulation);
-	pNewCity->setLowestRazingPop(iPopulation);
-	pNewCity->setName(strName);
-	pNewCity->setNeverLost(false);
-	pNewCity->setDamage(iBattleDamage,true);
+	pNewCity->SetJONSCultureLevel(iCultureLevel);
 	pNewCity->setMadeAttack(bHasMadeAttack);
-#if defined(MOD_BALANCE_CORE)
-	pNewCity->SetNoWarmonger(bNeedsWarmonger);
-#endif
-	GetCorporations()->ClearAllCorporationsFromCity(pNewCity);
-	for(iI = 0; iI < MAX_PLAYERS; iI++)
+	pNewCity->SetNoWarmonger(bNoWarmongerYet);
+
+	for (int iPlayerLoop = 0; iPlayerLoop < MAX_PLAYERS; iPlayerLoop++)
 	{
-		pNewCity->setEverLiberated(((PlayerTypes)iI), abEverLiberated[iI]);
-		pNewCity->SetTraded(((PlayerTypes)iI), abTraded[iI]);
-		pNewCity->SetNumTimesOwned(((PlayerTypes)iI), aiNumTimesOwned[iI]);
+		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+		pNewCity->SetTraded(eLoopPlayer, vbTraded[iPlayerLoop]);
+		pNewCity->setEverLiberated(eLoopPlayer, vbEverLiberated[iPlayerLoop]);
+		pNewCity->SetNumTimesOwned(eLoopPlayer, viNumTimesOwned[iPlayerLoop]);
 	}
-#if defined(MOD_BALANCE_CORE)
-	for (iI = 0; iI < GC.getNumReligionInfos(); iI++)
+
+	// Copy over religion data
+	for (int iI = 0; iI < GC.getNumReligionInfos(); iI++)
 	{
 		ReligionTypes eReligion = (ReligionTypes)iI;
 		CvReligionEntry* pEntry = GC.getReligionInfo(eReligion);
 		if (!pEntry)
-		{
 			continue;
-		}
 		if (eReligion == RELIGION_PANTHEON)
 			continue;
 
-		pNewCity->SetPaidAdoptionBonus(eReligion, pabAdoptionBonus[eReligion]);
+		pNewCity->SetPaidAdoptionBonus(eReligion, vbAdoptionBonus[iI]);
 	}
-#endif
-	//I've traded for this? I don't want to give away again
-	if (bGift)
-		pNewCity->SetTraded( GetID(), true);
 
-	pNewCity->SetJONSCultureLevel(iOldCultureLevel);
 	pNewCity->GetCityReligions()->Copy(&tempReligions);
 	pNewCity->GetCityReligions()->RemoveFormerPantheon();
 
-	if(bCapital)
-	{
-		GET_PLAYER(eOldOwner).SetHasLostCapital(true, m_eID);
-		
-		if (isMajorCiv() && bConquest)
-		{
-			GET_PLAYER(eOldOwner).GetDiplomacyAI()->SetPlayerCapturedCapital(m_eID, true);
-			GET_PLAYER(eOldOwner).GetDiplomacyAI()->SetBackstabbedBy(m_eID, true, true);
-		}
-	}
-
-
-	if (pNewCity->GetCityReligions()->IsHolyCityAnyReligion())
-	{
-		ReligionTypes eReligion = pNewCity->GetCityReligions()->GetReligionForHolyCity();
-		const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, NO_PLAYER);
-		if (pReligion && pReligion->m_eFounder == eOldOwner)
-		{
-			GET_PLAYER(eOldOwner).SetHasLostHolyCity(true, m_eID);
-			GET_PLAYER(eOldOwner).SetLostHolyCityXY(pNewCity->getX(), pNewCity->getY());
-			
-			if (isMajorCiv() && bConquest)
-			{
-				GET_PLAYER(eOldOwner).GetDiplomacyAI()->SetPlayerCapturedHolyCity(m_eID, true);
-				GET_PLAYER(eOldOwner).GetDiplomacyAI()->SetBackstabbedBy(m_eID, true);
-			}
-		}
-	}
-
-	const CvCivilizationInfo& playerCivilizationInfo = getCivilizationInfo();
-#if defined(MOD_BALANCE_CORE)
-	if(GetPlayerTraits()->IsReconquista())
+	// "Instant conversion" UA? Trigger it now.
+	if (GetPlayerTraits()->IsReconquista())
 	{
 		ReligionTypes eReligion = GetReligions()->GetReligionCreatedByPlayer(false);
-		if(eReligion != NO_RELIGION)
+		if (eReligion != NO_RELIGION)
 		{
 			pNewCity->GetCityReligions()->AdoptReligionFully(eReligion);
 		}
 		else
 		{
-			eReligion = GetReligions()->GetReligionInMostCities();
-			if(eReligion != NO_RELIGION)
+			eReligion = GetReligions()->GetCurrentReligion(false);
+			if (eReligion != NO_RELIGION)
 			{
 				pNewCity->GetCityReligions()->AdoptReligionFully(eReligion);
 			}
-		}
-	}
-#endif
-#if defined(MOD_API_ACHIEVEMENTS)
-	if(bConquest && !GC.getGame().isGameMultiPlayer() && isHuman())
-	{
-		const char* szCivKey = getCivilizationTypeKey();
-
-		// Check for Kris Swordsman achievement
-		if(strcmp(szCivKey, "CIVILIZATION_INDONESIA") == 0)
-		{
-			CvUnit *pConqueringUnit = pCityPlot->getUnitByIndex(0);
-			if (pConqueringUnit->getUnitType() == (UnitTypes)GC.getInfoTypeForString("UNIT_KRIS_SWORDSMAN", true))
+			else
 			{
-				PromotionTypes ePromotion = (PromotionTypes)GC.getInfoTypeForString("PROMOTION_ENEMY_BLADE", true);
-				if (pConqueringUnit->isHasPromotion(ePromotion))
+				eReligion = GetReligions()->GetReligionInMostCities();
+				if (eReligion != NO_RELIGION)
 				{
-					gDLL->UnlockAchievement(ACHIEVEMENT_XP2_21);
-				}
-			}
-		}
-
-		// Check for Rome conquering Statue of Zeus Achievement
-		bool bUsingXP1Scenario1 = gDLL->IsModActivated(CIV5_XP1_SCENARIO1_MODID);
-		bool bUsingXP1Scenario2 = gDLL->IsModActivated(CIV5_XP1_SCENARIO2_MODID);
-		bool bUsingXP2Scenario1 = gDLL->IsModActivated(CIV5_XP2_SCENARIO1_MODID);
-
-		const char* szNameKey = pNewCity->getNameKey();
-		if(bUsingXP2Scenario1)
-		{
-			if(strcmp(szCivKey, "CIVILIZATION_ENGLAND") == 0)
-			{
-				if(strcmp(szNameKey, "TXT_KEY_CIVIL_WAR_SCENARIO_CITY_NAME_GETTYSBURG") == 0)
-				{
-					CvUnit *pConqueringUnit = pCityPlot->getUnitByIndex(0);
-					PromotionTypes ePromotion = (PromotionTypes)GC.getInfoTypeForString("PROMOTION_PICKETT", true);
-					if (pConqueringUnit->isHasPromotion(ePromotion))
-					{
-						gDLL->UnlockAchievement(ACHIEVEMENT_XP2_59);
-					}
-				}
-			}
-		}
-
-		if(bUsingXP1Scenario1)
-		{
-			const HandicapTypes eCurrentHandicap = GC.getGame().getHandicapType();
-			HandicapTypes eEmporerHandicap = NO_HANDICAP;
-			HandicapTypes eDeityHandicap = NO_HANDICAP;
-
-			const int numHandicapInfos = GC.getNumHandicapInfos();
-			for(int i = 0; i < numHandicapInfos; ++i)
-			{
-				const HandicapTypes eHandicap = static_cast<HandicapTypes>(i);
-				CvHandicapInfo* pkInfo = GC.getHandicapInfo(eHandicap);
-				if(pkInfo != NULL)
-				{
-					if(strcmp(pkInfo->GetType(), "HANDICAP_EMPEROR") == 0)
-					{
-						eEmporerHandicap = eHandicap;
-					}
-					else if(strcmp(pkInfo->GetType(), "HANDICAP_DEITY") == 0)
-					{
-						eDeityHandicap = eHandicap;
-					}
-				}
-			}
-
-			if(szCivKey && szNameKey)
-			{
-				if(strcmp(szCivKey, "CIVILIZATION_ENGLAND") == 0)
-				{
-					if(strcmp(szNameKey, "TXT_KEY_CITYSTATE_JERUSALEM") == 0)
-					{
-						if(eCurrentHandicap >= eEmporerHandicap)
-						{
-							gDLL->UnlockAchievement(ACHIEVEMENT_XP1_39);
-						}
-					}
-				}
-				else if(strcmp(szCivKey, "CIVILIZATION_OTTOMAN") == 0)
-				{
-					if(strcmp(szNameKey, "TXT_KEY_CITY_NAME_CONSTANTINOPLE") == 0)
-					{
-						if(eCurrentHandicap >= eDeityHandicap)
-						{
-							gDLL->UnlockAchievement(ACHIEVEMENT_XP1_40);
-						}
-					}
-				}
-			}	
-		}
-
-		if(bUsingXP1Scenario2)
-		{
-			bool bHasConstantinople = false;
-			bool bHasRome = false;
-
-			if(strcmp(szNameKey, "TXT_KEY_CITY_NAME_CONSTANTINOPLE") == 0)
-			{
-				bHasConstantinople = true;
-
-				if(pNewCity->getOriginalOwner() != GetID())
-				{
-					gDLL->UnlockAchievement(ACHIEVEMENT_XP1_47);
-				}
-			}
-			else if(strcmp(szNameKey, "TXT_KEY_CITY_NAME_ROME") == 0)
-			{
-				bHasRome = true;
-			}
-
-			if(bHasConstantinople || bHasRome)
-			{
-				int iLoop = 0;
-				for(CvCity* pCity = firstCity(&iLoop); pCity != NULL; pCity = nextCity(&iLoop))
-				{
-					const char* szOtherNameKey = pCity->getNameKey();
-					if(strcmp(szOtherNameKey, "TXT_KEY_CITY_NAME_CONSTANTINOPLE") == 0)
-					{
-						bHasConstantinople = true;
-					}
-					else if(strcmp(szOtherNameKey, "TXT_KEY_CITY_NAME_ROME") == 0)
-					{
-						bHasRome = true;
-					}
-				}
-			}
-
-			if(bHasRome && bHasConstantinople)
-			{
-				gDLL->UnlockAchievement(ACHIEVEMENT_XP1_48);
-			}
-
-			if(strcmp(getCivilizationTypeKey(), "CIVILIZATION_CELTS") == 0)
-			{
-				//Did we cap what was originally a sassinid city?
-				typedef std::pair<int,int> Location;
-				typedef std::tr1::array<Location, 7> SassanidCityArray;
-				SassanidCityArray SassanidCities = {
-					Location(87,17), //Ctesiphon
-					Location(85,20), //Singara
-					Location(81,21), //Nisibis
-					Location(79,24), //Amida
-					Location(82,28), //Thospia
-					Location(81,33), //Anium
-					Location(87,33), //Artaxata
-				};
-				
-				int iNewPlotX = pNewCity->getX();
-				int iNewPlotY = pNewCity->getY();
-
-				//Test if we still own each city.
-				for(SassanidCityArray::iterator it = SassanidCities.begin(); it != SassanidCities.end(); ++it)
-				{
-					if(it->first == iNewPlotX && it->second == iNewPlotY)
-					{
-						gDLL->UnlockAchievement(ACHIEVEMENT_XP1_51);
-
-					}
-				}
-			}
-
-		}
-	}
-#endif
-#if defined(MOD_BALANCE_CORE)
-	if(bConquest && !bGift)
-	{
-#endif
-	std::vector<BuildingTypes> freeConquestBuildings = m_pPlayerPolicies->GetFreeBuildingsOnConquest();
-	for(iI = 0; iI < (int)freeConquestBuildings.size(); iI++)
-	{
-		const BuildingTypes eLoopBuilding = freeConquestBuildings[iI];
-		if (eLoopBuilding != NO_BUILDING)
-		{
-			CvBuildingEntry* pkLoopBuildingInfo = GC.getBuildingInfo(eLoopBuilding);
-			if(pkLoopBuildingInfo)
-			{
-				if (eLoopBuilding == pkLoopBuildingInfo->GetID())
-				{
-					BuildingTypes eFreeBuilding = (BuildingTypes)getCivilizationInfo().getCivilizationBuildings(pkLoopBuildingInfo->GetBuildingClassType());
-					if (pNewCity->GetCityBuildings()->GetNumRealBuilding(eFreeBuilding) > 0)
-					{
-						pNewCity->GetCityBuildings()->SetNumRealBuilding(eFreeBuilding, 0);
-					}
-					
-					pNewCity->GetCityBuildings()->SetNumFreeBuilding(eFreeBuilding, 1);
+					pNewCity->GetCityReligions()->AdoptReligionFully(eReligion);
 				}
 			}
 		}
 	}
-#if defined(MOD_BALANCE_CORE)
-	}
-	// Free Buildings from Policies
-	if(MOD_BALANCE_CORE)
+
+	// Reacquired our Holy City?
+	if (bHolyCity && IsHasLostHolyCity() && iCityX == GetLostHolyCityX() && iCityY == GetLostHolyCityY())
 	{
-		for(iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
+		const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(pNewCity->GetCityReligions()->GetReligionForHolyCity(), NO_PLAYER);
+		if (pReligion && pReligion->m_eFounder == GetID())
 		{
-			const BuildingClassTypes eBuildingClass = static_cast<BuildingClassTypes>(iI);
-			CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo(eBuildingClass);
-			if(pkBuildingClassInfo)
-			{
-				int iNumFreeBuildings = GetNumCitiesFreeChosenBuilding(eBuildingClass);
-				if (iNumFreeBuildings > 0 || IsFreeChosenBuildingNewCity(eBuildingClass) || IsFreeBuildingAllCity(eBuildingClass))
-				{
-					const BuildingTypes eBuilding = ((BuildingTypes)(getCivilizationInfo().getCivilizationBuildings(pkBuildingClassInfo->GetID())));
-					if(NO_BUILDING != eBuilding)
-					{
-						CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
-						if(pkBuildingInfo)
-						{
-							if(pNewCity->isValidBuildingLocation(eBuilding))
-							{
-								if(pNewCity->GetCityBuildings()->GetNumRealBuilding(eBuilding) > 0)
-								{
-									pNewCity->GetCityBuildings()->SetNumRealBuilding(eBuilding, 0);
-									int iProductionValue = pNewCity->getProductionNeeded(eBuilding);
-									doInstantYield(INSTANT_YIELD_TYPE_REFUND, false, NO_GREATPERSON, NO_BUILDING, iProductionValue, false, NO_PLAYER, NULL, false, pNewCity);
-								}
-
-								pNewCity->GetCityBuildings()->SetNumFreeBuilding(eBuilding, 1);
-
-								if(pNewCity->GetCityBuildings()->GetNumFreeBuilding(eBuilding) > 0)
-								{
-									ChangeNumCitiesFreeChosenBuilding(eBuildingClass, -1);
-								}
-							}
-						}
-					}
-				}
-			}
+			// Notify, etc.
+			SetHasLostHolyCity(false, NO_PLAYER);
 		}
 	}
-#endif
 
-	bool bKeepBuildings = GetPlayerTraits()->IsKeepConqueredBuildings() || !bConquest;
-	BuildingTypes eTraitFreeBuilding = GetPlayerTraits()->GetFreeBuildingOnConquest();
-	for(iI = 0; iI < GC.getNumBuildingInfos(); iI++)
+	// Reacquired our original capital?
+	bool bRegainedCapital = false;
+	if (pNewCity->IsOriginalCapitalForPlayer(m_eID))
 	{
-		const BuildingTypes eLoopBuilding = static_cast<BuildingTypes>(iI);
-		CvBuildingEntry* pkLoopBuildingInfo = GC.getBuildingInfo(eLoopBuilding);
-		if(pkLoopBuildingInfo)
+		// Notify, etc.
+		SetHasLostCapital(false, NO_PLAYER);
+		bRegainedCapital = true;
+
+		BuildingTypes ePalace = (BuildingTypes)getCivilizationInfo().getCivilizationBuildings(GC.getCAPITAL_BUILDINGCLASS());
+		CvCity* pCurrentCapital = getCapitalCity();
+		bool bRome = GetPlayerTraits()->IsKeepConqueredBuildings();
+
+		if (ePalace != NO_BUILDING)
 		{
-			const CvBuildingClassInfo& kLoopBuildingClassInfo = pkLoopBuildingInfo->GetBuildingClassInfo();
-
-			int iNum = 0;
-
-			if(eTraitFreeBuilding == pkLoopBuildingInfo->GetID())
+			// Remove the Palace from the current capital, if any
+			if (pCurrentCapital)
 			{
+				if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || bRome)
+				{
+					pCurrentCapital->GetCityBuildings()->RemoveAllRealBuildingsOfClass((BuildingClassTypes)GC.getCAPITAL_BUILDINGCLASS());
+				}
+				else
+				{
+					pCurrentCapital->GetCityBuildings()->SetNumRealBuilding(ePalace, 0);
+				}
+
+				// If Venice reacquires its original capital, its old capital becomes puppeted
+				if (GetPlayerTraits()->IsNoAnnexing())
+				{
+					pCurrentCapital->DoCreatePuppet();
+				}
+			}
+
+			// Add the Palace to the reacquired capital
+			pNewCity->GetCityBuildings()->SetNumRealBuilding(ePalace, 1);
+		}
+
+		// Check for policies that add capital buildings and transfer them.
+		for (int iI = 0; iI < iNumBuildingClassInfos; iI++)
+		{
+			BuildingClassTypes eBuildingClass = static_cast<BuildingClassTypes>(iI);
+			CvBuildingClassInfo* pkBuildingClass = GC.getBuildingClassInfo(eBuildingClass);
+			if (!pkBuildingClass)
+				continue;
+
+			if (GetNumCitiesFreeChosenBuilding(eBuildingClass) > 0 || IsFreeChosenBuildingNewCity(eBuildingClass) || IsFreeBuildingAllCity(eBuildingClass))
+			{
+				BuildingTypes eBuilding = (BuildingTypes)getCivilizationInfo().getCivilizationBuildings(pkBuildingClass->GetID());
+				if (eBuilding == NO_BUILDING || eBuilding == ePalace)
+					continue;
+
+				CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
+				if (!pkBuildingInfo)
+					continue;
+
+				if (!pkBuildingInfo->IsCapitalOnly())
+					continue;
+
+				// Delete from current capital
+				if (pCurrentCapital)
+				{
+					if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || bRome)
+					{
+						pCurrentCapital->GetCityBuildings()->RemoveAllRealBuildingsOfClass(eBuildingClass);
+					}
+					else
+					{
+						pCurrentCapital->GetCityBuildings()->SetNumRealBuilding(eBuilding, 0);
+					}
+				}
+
+				// Add to reacquired capital
+				pNewCity->GetCityBuildings()->SetNumRealBuilding(eBuilding, 1);
+			}
+		}
+
+		if (MOD_EVENTS_CITY_CAPITAL)
+			GAMEEVENTINVOKE_HOOK(GAMEEVENT_CapitalChanged, GetID(), pNewCity->GetID(), (pCurrentCapital ? pCurrentCapital->GetID() : -1));
+	}
+
+	// Austria & Venice UA: Award free buildings
+	if (bMinorCivBuyout)
+		AwardFreeBuildings(pNewCity);
+
+	// Award free conquest buildings
+	if (bConquest)
+	{
+		BuildingTypes eTraitFreeBuilding = GetPlayerTraits()->GetFreeBuildingOnConquest();
+		if (eTraitFreeBuilding != NO_BUILDING)
+		{
+			CvBuildingEntry* pkLoopBuilding = GC.getBuildingInfo(eTraitFreeBuilding);
+			if (pkLoopBuilding && pNewCity->isValidBuildingLocation(eTraitFreeBuilding))
+			{
+				// If a non-free building of this type exists in the city, remove it!
+				if (pNewCity->GetCityBuildings()->GetNumRealBuilding(eTraitFreeBuilding) > 0)
+				{
+					pNewCity->GetCityBuildings()->SetNumRealBuilding(eTraitFreeBuilding, 0);
+					int iProductionValue = pNewCity->getProductionNeeded(eTraitFreeBuilding);
+					doInstantYield(INSTANT_YIELD_TYPE_REFUND, false, NO_GREATPERSON, NO_BUILDING, iProductionValue, false, NO_PLAYER, NULL, false, pNewCity);
+				}
+
 				pNewCity->GetCityBuildings()->SetNumFreeBuilding(eTraitFreeBuilding, 1);
 			}
+		}
 
-			if (bKeepBuildings && paiNumFreeBuilding[iI] > 0)
+		std::vector<BuildingTypes> freeConquestBuildings = m_pPlayerPolicies->GetFreeBuildingsOnConquest();
+		for (int iI = 0; iI < (int)freeConquestBuildings.size(); iI++)
+		{
+			const BuildingTypes eLoopBuilding = freeConquestBuildings[iI];
+			if (eLoopBuilding == NO_BUILDING)
+				continue;
+
+			CvBuildingEntry* pkLoopBuilding = GC.getBuildingInfo(eLoopBuilding);
+			if (!pkLoopBuilding)
+				continue;
+
+			BuildingTypes eFreeBuilding = (BuildingTypes)getCivilizationInfo().getCivilizationBuildings(pkLoopBuilding->GetBuildingClassType());
+
+			if (!pNewCity->isValidBuildingLocation(eFreeBuilding))
+				continue;
+
+			// If a non-free building of this type exists in the city, remove it!
+			if (pNewCity->GetCityBuildings()->GetNumRealBuilding(eFreeBuilding) > 0)
 			{
-				const BuildingClassTypes eBuildingClass = pkLoopBuildingInfo->GetBuildingClassType();
-				if (::isWorldWonderClass(kLoopBuildingClassInfo))
-				{
-					eBuilding = eLoopBuilding;
-				}
-#if defined(MOD_BALANCE_CORE)
-				else if (bKeepBuildings)
-				{
-					//If we keep buildings, but we have a replacement, grab the replacement instead.
-					if (playerCivilizationInfo.isCivilizationBuildingOverridden(eBuildingClass))
-					{
-						eBuilding = (BuildingTypes)playerCivilizationInfo.getCivilizationBuildings(eBuildingClass);
-					}
-					else
-					{
-						eBuilding = eLoopBuilding;
-					}
-				}
-#endif
-				else
-				{
-					eBuilding = (BuildingTypes)playerCivilizationInfo.getCivilizationBuildings(eBuildingClass);
-				}
-
-				if (eBuilding != NO_BUILDING)
-				{
-					if (!IsValidBuildingForPlayer(pNewCity, eBuilding, bGift, bRecapture))
-						continue;
-
-					CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
-					if (pkBuildingInfo)
-					{
-						iNum += paiNumFreeBuilding[iI];
-
-						pNewCity->GetCityBuildings()->SetNumFreeBuilding(eBuilding, iNum);
-
-						if (pkBuildingInfo->GetGreatWorkCount() > 0)
-						{
-							for (unsigned int jJ = 0; jJ < paGreatWorkData.size(); jJ++)
-							{
-								if (paGreatWorkData[jJ].m_eBuildingType == iI)
-								{
-									pNewCity->GetCityBuildings()->SetBuildingGreatWork(eBuildingClass, paGreatWorkData[jJ].m_iSlot, paGreatWorkData[jJ].m_iGreatWork);
-									paGreatWorkData[jJ].m_bTransferred = true;
-									iCaptureGreatWorks++;
-								}
-							}
-						}
-					}
-				}
+				pNewCity->GetCityBuildings()->SetNumRealBuilding(eFreeBuilding, 0);
+				int iProductionValue = pNewCity->getProductionNeeded(eFreeBuilding);
+				doInstantYield(INSTANT_YIELD_TYPE_REFUND, false, NO_GREATPERSON, NO_BUILDING, iProductionValue, false, NO_PLAYER, NULL, false, pNewCity);
 			}
 
-			else if(paiNumRealBuilding[iI] > 0)
-			{
-				const BuildingClassTypes eBuildingClass = pkLoopBuildingInfo->GetBuildingClassType();
-				if(::isWorldWonderClass(kLoopBuildingClassInfo))
-				{
-					eBuilding = eLoopBuilding;
-				}
-#if defined(MOD_BALANCE_CORE)
-				else if(bKeepBuildings)
-				{
-					//If we keep buildings, but we have a replacement, grab the replacement instead.
-					if (playerCivilizationInfo.isCivilizationBuildingOverridden(eBuildingClass))
-					{
-						eBuilding = (BuildingTypes)playerCivilizationInfo.getCivilizationBuildings(eBuildingClass);
-					}
-					else
-					{
-						eBuilding = eLoopBuilding;
-					}
-				}
-#endif
-				else
-				{
-					eBuilding = (BuildingTypes)playerCivilizationInfo.getCivilizationBuildings(eBuildingClass);
-				}
-
-				if(eBuilding != NO_BUILDING)
-				{
-					if (!IsValidBuildingForPlayer(pNewCity, eBuilding, bGift, bRecapture))
-						continue;
-
-					CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
-					if(pkBuildingInfo)
-					{
-						iNum += paiNumRealBuilding[iI];
-
-#if defined(MOD_API_ACHIEVEMENTS)
-						// Check for Tomb Raider Achievement
-						if(bConquest && !GC.getGame().isGameMultiPlayer() && pkLoopBuildingInfo->GetType() && _stricmp(pkLoopBuildingInfo->GetType(), "BUILDING_BURIAL_TOMB") == 0 && isHuman())
-						{
-							if(iCaptureGold > 0)  //Need to actually pillage something from the 'tomb'
-							{
-								gDLL->UnlockAchievement(ACHIEVEMENT_SPECIAL_TOMBRAIDER);
-							}
-						}
-#endif
-
-#if defined(MOD_API_ACHIEVEMENTS)
-						// Check for Rome conquering Statue of Zeus Achievement
-						if(bConquest && !GC.getGame().isGameMultiPlayer() && pkLoopBuildingInfo->GetType() && _stricmp(pkLoopBuildingInfo->GetType(), "BUILDING_STATUE_ZEUS") == 0 && isHuman())
-						{
-							const char* pkCivKey = getCivilizationTypeKey();
-							if(pkCivKey && strcmp(pkCivKey, "CIVILIZATION_ROME") == 0)
-							{
-								gDLL->UnlockAchievement(ACHIEVEMENT_SPECIAL_ROME_GETS_ZEUS);
-							}
-						}
-#endif
-
-						pNewCity->GetCityBuildings()->SetNumRealBuildingTimed(eBuilding, iNum, false, ((PlayerTypes)(paiBuildingOriginalOwner[iI])), paiBuildingOriginalTime[iI]);
-
-						if (iNum > 0)
-						{
-							if (pkBuildingInfo->GetGreatWorkCount() > 0)
-							{
-								for (unsigned int jJ=0; jJ < paGreatWorkData.size(); jJ++)
-								{
-									if (paGreatWorkData[jJ].m_eBuildingType == iI)
-									{
-										pNewCity->GetCityBuildings()->SetBuildingGreatWork(eBuildingClass, paGreatWorkData[jJ].m_iSlot, paGreatWorkData[jJ].m_iGreatWork);
-										paGreatWorkData[jJ].m_bTransferred = true;
-										iCaptureGreatWorks++;
-									}
-								}
-							}
-						}
-					}
-				}
-			}
+			pNewCity->GetCityBuildings()->SetNumFreeBuilding(eFreeBuilding, 1);
 		}
 	}
-	for(std::vector<BuildingYieldChange>::iterator it = aBuildingYieldChange.begin(); it != aBuildingYieldChange.end(); ++it)
+
+	// Award free buildings from policies, etc.
+	for (int iI = 0; iI < iNumBuildingClassInfos; iI++)
+	{
+		const BuildingClassTypes eBuildingClass = static_cast<BuildingClassTypes>(iI);
+		CvBuildingClassInfo* pkBuildingClass = GC.getBuildingClassInfo(eBuildingClass);
+		if (!pkBuildingClass)
+			continue;
+
+		int iNumFreeBuildings = GetNumCitiesFreeChosenBuilding(eBuildingClass);
+		if (iNumFreeBuildings > 0 || IsFreeChosenBuildingNewCity(eBuildingClass) || IsFreeBuildingAllCity(eBuildingClass))
+		{
+			BuildingTypes eBuilding = (BuildingTypes)getCivilizationInfo().getCivilizationBuildings(pkBuildingClass->GetID());
+			if (eBuilding == NO_BUILDING)
+				continue;
+
+			CvBuildingEntry* pkBuilding = GC.getBuildingInfo(eBuilding);
+			if (!pkBuilding)
+				continue;
+
+			if (!pNewCity->isValidBuildingLocation(eBuilding))
+				continue;
+
+			// If a non-free building of this type exists in the city, remove it!
+			if (pNewCity->GetCityBuildings()->GetNumRealBuilding(eBuilding) > 0)
+			{
+				pNewCity->GetCityBuildings()->SetNumRealBuilding(eBuilding, 0);
+				int iProductionValue = pNewCity->getProductionNeeded(eBuilding);
+				doInstantYield(INSTANT_YIELD_TYPE_REFUND, false, NO_GREATPERSON, NO_BUILDING, iProductionValue, false, NO_PLAYER, NULL, false, pNewCity);
+			}
+
+			// Award the building!
+			pNewCity->GetCityBuildings()->SetNumFreeBuilding(eBuilding, 1);
+
+			if (pNewCity->GetCityBuildings()->GetNumFreeBuilding(eBuilding) > 0)
+				ChangeNumCitiesFreeChosenBuilding(eBuildingClass, -1);
+		}
+	}
+
+	// Gifted/liberated/revolting cities and Rome always keep valid buildings
+	bool bKeepAllValidBuildings = GetPlayerTraits()->IsKeepConqueredBuildings() || !bConquest || bGift;
+	bool bOneCityChallenge = isHuman() && GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE);
+	int iCaptureGreatWorks = 0;
+
+	// Now transfer buildings from the old city
+	for (int iI = 0; iI < iNumBuildingInfos; iI++)
+	{
+		BuildingTypes eLoopBuilding = static_cast<BuildingTypes>(iI);
+		if (eLoopBuilding == NO_BUILDING)
+			continue;
+
+		CvBuildingEntry* pkBuilding = GC.getBuildingInfo(eLoopBuilding);
+		if (!pkBuilding)
+			continue;
+
+		BuildingClassTypes eBuildingClass = pkBuilding->GetBuildingClassType();
+		const CvBuildingClassInfo& pkBuildingClass = pkBuilding->GetBuildingClassInfo();
+
+		BuildingTypes eBuilding = NO_BUILDING;
+		int iBuildingCount = 0;
+
+		// Free buildings are destroyed automatically unless all valid buildings are being kept
+		bool bFree = bKeepAllValidBuildings && viNumFreeBuilding[iI] > 0;
+
+		if (bFree || viNumRealBuilding[iI] > 0)
+		{
+			if (::isWorldWonderClass(pkBuildingClass))
+			{
+				eBuilding = eLoopBuilding;
+			}
+			else if (bKeepAllValidBuildings)
+			{
+				// If we have a replacement building, grab the replacement instead.
+				if (playerCivilizationInfo.isCivilizationBuildingOverridden(eBuildingClass))
+				{
+					eBuilding = (BuildingTypes)playerCivilizationInfo.getCivilizationBuildings(eBuildingClass);
+				}
+				else
+				{
+					eBuilding = eLoopBuilding;
+				}
+			}
+			else
+			{
+				eBuilding = (BuildingTypes)playerCivilizationInfo.getCivilizationBuildings(eBuildingClass);
+			}
+
+			if (eBuilding == NO_BUILDING)
+				continue;
+
+			pkBuilding = GC.getBuildingInfo(eBuilding);
+			if (!pkBuilding)
+				continue;
+
+			// This tests for conquest probability and building validity.
+			if (!IsValidBuildingForPlayer(pNewCity, eBuilding, (bConquest && !bGift)))
+				continue;
+
+			if (bFree)
+			{
+				iBuildingCount += viNumFreeBuilding[iI];
+				pNewCity->GetCityBuildings()->SetNumFreeBuilding(eBuilding, iBuildingCount);
+			}
+			else
+			{
+				iBuildingCount += viNumRealBuilding[iI];
+				pNewCity->GetCityBuildings()->SetNumRealBuildingTimed(eBuilding, iBuildingCount, false, (PlayerTypes)viBuildingOriginalOwner[iI], viBuildingOriginalTime[iI]);
+			}
+		}
+		if (iBuildingCount > 0)
+		{
+			// Transfer Great Works to the building
+			int iGreatWorksCount = pkBuilding->GetGreatWorkCount();
+			int iGreatWorksAdded = 0;
+			if (iGreatWorksCount > 0)
+			{
+				for (int iJ = 0; iJ < (int)vcGreatWorkData.size(); iJ++)
+				{
+					if (vcGreatWorkData[iJ].m_bTransferred)
+						continue;
+
+					if (vcGreatWorkData[iJ].m_eBuildingType == (BuildingTypes)iI)
+					{
+						// Try to add the Great Work to the same slot number. If this fails, the transfer will be done after all buildings are added.
+						if (vcGreatWorkData[iJ].m_iSlot < iGreatWorksCount)
+						{
+							pNewCity->GetCityBuildings()->SetBuildingGreatWork(eBuildingClass, vcGreatWorkData[iJ].m_iSlot, vcGreatWorkData[iJ].m_iGreatWork);
+							vcGreatWorkData[iJ].m_bTransferred = true;
+							iGreatWorksAdded++;
+							iCaptureGreatWorks++;
+						}
+					}
+
+					if (iGreatWorksAdded >= iGreatWorksCount)
+						break;
+				}
+			}
+#if defined(MOD_API_ACHIEVEMENTS)
+			if (bConquest && !GC.getGame().isGameMultiPlayer() && isHuman())
+			{
+				// Check for Tomb Raider achievement
+				if (_stricmp(pkBuilding->GetType(), "BUILDING_BURIAL_TOMB") == 0 && iCaptureGold > 0) // Need to actually pillage something from the 'tomb'
+				{
+					gDLL->UnlockAchievement(ACHIEVEMENT_SPECIAL_TOMBRAIDER);
+				}
+				// Check for Rome conquering Statue of Zeus achievement
+				else if (_stricmp(pkBuilding->GetType(), "BUILDING_STATUE_ZEUS") == 0 && strcmp(getCivilizationTypeKey(), "CIVILIZATION_ROME") == 0)
+				{
+					gDLL->UnlockAchievement(ACHIEVEMENT_SPECIAL_ROME_GETS_ZEUS);
+				}
+			}
+#endif
+		}
+	}
+	// Recursive: why is this cached? Shouldn't this be recomputed? Some buildings may have been destroyed!
+	for (std::vector<BuildingYieldChange>::iterator it = vcBuildingYieldChange.begin(); it != vcBuildingYieldChange.end(); it++)
 	{
 		pNewCity->GetCityBuildings()->SetBuildingYieldChange((*it).eBuildingClass, (*it).eYield, (*it).iChange);
 	}
 
 	// Distribute any remaining Great Works to other buildings
-	for (unsigned int jJ=0; jJ < paGreatWorkData.size(); jJ++)
+	for (int iI = 0; iI < (int)vcGreatWorkData.size(); iI++)
 	{
-		if (!paGreatWorkData[jJ].m_bTransferred)
+		if (vcGreatWorkData[iI].m_bTransferred)
+			continue;
+
+		BuildingClassTypes eBuildingClass = NO_BUILDINGCLASS; // Passed by reference below
+		int iSlot = -1; // Passed by reference below
+
+		GreatWorkType eType = GC.getGame().GetGameCulture()->m_CurrentGreatWorks[vcGreatWorkData[iI].m_iGreatWork].m_eType;
+		GreatWorkSlotType eGreatWorkSlot = CultureHelpers::GetGreatWorkSlot(eType);
+
+		// Attempt to keep the Great Work in the current city, if possible
+		if (pNewCity->GetCityBuildings()->GetNextAvailableGreatWorkSlot(eGreatWorkSlot, &eBuildingClass, &iSlot))
 		{
-			BuildingClassTypes eBuildingClass = NO_BUILDINGCLASS; // Passed by reference below
-			int iSlot = -1; // Passed by reference below
-			GreatWorkType eType = GC.getGame().GetGameCulture()->m_CurrentGreatWorks[paGreatWorkData[jJ].m_iGreatWork].m_eType;
-			GreatWorkSlotType eGreatWorkSlot = CultureHelpers::GetGreatWorkSlot(eType);
-			if (pNewCity->GetCityBuildings()->GetNextAvailableGreatWorkSlot(eGreatWorkSlot, &eBuildingClass, &iSlot))
+			pNewCity->GetCityBuildings()->SetBuildingGreatWork(eBuildingClass, iSlot, vcGreatWorkData[iI].m_iGreatWork);
+			vcGreatWorkData[iI].m_bTransferred = true;
+			iCaptureGreatWorks++;
+		}
+		// Not possible? Look for the closest available Great Work slot.
+		else
+		{
+			BuildingClassTypes eGWBuildingClass; // Passed by reference below
+			int iGWSlot; // Passed by reference below
+			CvCity* pClosestValidCity = GetCulture()->GetClosestAvailableGreatWorkSlot(iCityX, iCityY, eGreatWorkSlot, &eGWBuildingClass, &iGWSlot);
+			if (pClosestValidCity)
 			{
-				pNewCity->GetCityBuildings()->SetBuildingGreatWork(eBuildingClass, iSlot, paGreatWorkData[jJ].m_iGreatWork);
-				paGreatWorkData[jJ].m_bTransferred = true;
+				pClosestValidCity->GetCityBuildings()->SetBuildingGreatWork(eGWBuildingClass, iGWSlot, vcGreatWorkData[iI].m_iGreatWork);
+				vcGreatWorkData[iI].m_bTransferred = true;
 				iCaptureGreatWorks++;
+			}
+		}
+	}
+
+	// Update events
+	if (MOD_BALANCE_CORE_EVENTS)
+		CheckActivePlayerEvents(pNewCity);
+
+	// Test to see if the city acquirer has won a Domination Victory
+	GC.getGame().DoTestConquestVictory();
+
+	// Update ownership of nearby plots
+	// Recursive: Still needed?
+	GC.getMap().updateOwningCityForPlots(pCityPlot, pNewCity->getWorkPlotDistance()*2);
+	if (bConquest)
+	{
+		const int iMaxRange = /*5*/ GC.getMAXIMUM_ACQUIRE_PLOT_DISTANCE();
+		for (int iDX = -iMaxRange; iDX <= iMaxRange; iDX++)
+		{
+			for (int iDY = -iMaxRange; iDY <= iMaxRange; iDY++)
+			{
+				CvPlot* pLoopPlot = plotXYWithRangeCheck(iCityX, iCityY, iDX, iDY, iMaxRange);
+				if (pLoopPlot)
+					pLoopPlot->verifyUnitValidPlot();
+			}
+		}
+	}
+
+	// Set the plots to the new owner.
+	bool bBumpUnits = isMajorCiv();
+	
+	for (size_t i = 0; i < ownedPlots.size(); i++)
+	{
+		ownedPlots[i]->setOwner(GetID(), pNewCity->GetID(), (bBumpUnits || ownedPlots[i]->isCity()), true);
+	}
+
+	// Free unit on city conquest?
+	if (bFirstConquest)
+	{
+		UnitTypes eFreeUnitConquest = GetPlayerTraits()->GetFreeUnitOnConquest();
+		if (eFreeUnitConquest != NO_UNIT && canTrainUnit(eFreeUnitConquest, false, false, true, true))
+		{
+			CvUnit* pkUnit = initUnit(eFreeUnitConquest, iCityX, iCityY);
+			CvCity* pCapital = getCapitalCity();
+			bool bShouldSpawn = true;
+
+			// Give religious units the player's religion
+			if (pkUnit->isReligiousUnit())
+			{
+				pkUnit->GetReligionData()->SetReligion(GetReligions()->GetCurrentReligion(false));
+
+				// Unless it's a prophet we shouldn't give a free religious unit without a religion
+				if (pkUnit->GetReligionData()->GetReligion() == NO_RELIGION && !pkUnit->IsGreatPerson())
+				{
+					bShouldSpawn = false;
+				}
+			}
+
+			bool bJumpSuccess = bShouldSpawn ? pkUnit->jumpToNearestValidPlot() : false;
+
+			if (bJumpSuccess)
+			{
+				if (pCapital)
+					pCapital->addProductionExperience(pkUnit);
 			}
 			else
 			{
-				BuildingClassTypes eGWBuildingClass;
-				int iGWSlot;
-				CvCity *pGWCity = GetCulture()->GetClosestAvailableGreatWorkSlot(pCityPlot->getX(), pCityPlot->getY(), eGreatWorkSlot, &eGWBuildingClass, &iGWSlot);
-				if (pGWCity)
-				{
-					pGWCity->GetCityBuildings()->SetBuildingGreatWork(eGWBuildingClass, iGWSlot, paGreatWorkData[jJ].m_iGreatWork);
-					paGreatWorkData[jJ].m_bTransferred = true;
-					iCaptureGreatWorks++;
-				}
+				pkUnit->kill(false);
 			}
 		}
 	}
 
-	// Did we re-acquire our Capital?
-	if(pCityPlot->getX() == GetOriginalCapitalX() && pCityPlot->getY() == GetOriginalCapitalY())
-	{
-		SetHasLostCapital(false, NO_PLAYER);
+	// Set city damage (only do this after having added all buildings, some of which might have increased city HP)
+	int iMaximumBattleDamage = bConquest ? (pNewCity->GetMaxHitPoints() * /*50*/ GC.getCITY_CAPTURE_DAMAGE_PERCENT()) / 100 : pNewCity->GetMaxHitPoints();
+	if (iMaximumBattleDamage >= pNewCity->GetMaxHitPoints())
+		iMaximumBattleDamage = max(0, pNewCity->GetMaxHitPoints() - 1);
+	if (iBattleDamage > iMaximumBattleDamage)
+		iBattleDamage = iMaximumBattleDamage;
 
-		const BuildingTypes eCapitalBuilding = (BuildingTypes)(getCivilizationInfo().getCivilizationBuildings(GC.getCAPITAL_BUILDINGCLASS()));
-		if(eCapitalBuilding != NO_BUILDING)
+	pNewCity->setDamage(iBattleDamage, true);
+
+	if (!bMinorCivBuyout)
+	{
+		// Test if the old owner is dead
+		CheckForMurder(eOldOwner);
+
+		// Dead? This might have ramifications...
+		if (!GET_PLAYER(eOldOwner).isAlive())
 		{
-#if defined(MOD_EVENTS_CITY_CAPITAL)
-			CvCity* pOldCapital = getCapitalCity();
-			bool bRome = GetPlayerTraits()->IsKeepConqueredBuildings();
-			if (pOldCapital != NULL)
-#else
-			if (getCapitalCity() != NULL)
-#endif
+			if (isMajorCiv())
 			{
-				if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || bRome)
+				// Diplo ramifications...
+				for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 				{
-					pOldCapital->GetCityBuildings()->RemoveAllRealBuildingsOfClass((BuildingClassTypes)GC.getCAPITAL_BUILDINGCLASS());
+					PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+					if (eLoopPlayer == GetID() || !GET_PLAYER(eLoopPlayer).isAlive() || !GetDiplomacyAI()->IsHasMet(eLoopPlayer))
+						continue;
+
+					GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->DoPlayerKilledSomeone(GetID(), eOldOwner);
 				}
+				// Let's give the Embassy votes of the defeated player to the new player
+				if (MOD_DIPLOMACY_CITYSTATES && GET_PLAYER(eOldOwner).GetImprovementLeagueVotes() > 0)
+				{
+					ChangeImprovementLeagueVotes(GET_PLAYER(eOldOwner).GetImprovementLeagueVotes());
+				}
+			}
+		}
+		// If not dead, old owner should update city specializations
+		else
+		{
+			GET_PLAYER(eOldOwner).GetCitySpecializationAI()->SetSpecializationsDirty(SPECIALIZATION_UPDATE_MY_CITY_CAPTURED);
+		}
+	}
+
+	// City-State now has zero cities? Return any incoming units to their owners.
+	if (GET_PLAYER(eOldOwner).isMinorCiv() && GET_PLAYER(eOldOwner).getNumCities() == 0)
+	{
+		for (int iMajorLoop = 0; iMajorLoop < MAX_MAJOR_CIVS; iMajorLoop++)
+		{
+			PlayerTypes eMajor = (PlayerTypes) iMajorLoop;
+			if (GET_PLAYER(eMajor).isMajorCiv() && GET_PLAYER(eOldOwner).GetIncomingUnitCountdown(eMajor) > 0)
+			{
+				UnitTypes eUnitType = GET_PLAYER(eOldOwner).GetIncomingUnitType(eMajor);
+				if (eUnitType == NO_UNIT)
+					continue;
+
+				CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUnitType);
+				if (!pkUnitInfo)
+					continue;
+
+				CvCity* pClosestCity = NULL;
+				if (pkUnitInfo->GetDomainType() == DOMAIN_SEA)
+					pClosestCity = OperationalAIHelpers::GetClosestFriendlyCoastalCity(eMajor, pCityPlot);
 				else
-				{
-					pOldCapital->GetCityBuildings()->SetNumRealBuilding(eCapitalBuilding, 0);
-				}
-				if (GetPlayerTraits()->IsNoAnnexing())
-				{
-					pOldCapital->SetPuppet(true);
-				}
-			}
-			CvAssertMsg(!(pNewCity->GetCityBuildings()->GetNumRealBuilding(eCapitalBuilding)), "(pBestCity->getNumRealBuilding(eCapitalBuilding)) did not return false as expected");
-			pNewCity->GetCityBuildings()->SetNumRealBuilding(eCapitalBuilding, 1);
+					pClosestCity = GET_PLAYER(eMajor).GetClosestCityByPlots(pCityPlot);
 
-			//Check for policies that add capital buildings and move them over.
-			for (int iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
-			{
-				const BuildingClassTypes eBuildingClass = static_cast<BuildingClassTypes>(iI);
-				CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo(eBuildingClass);
-				if (pkBuildingClassInfo)
+				if (!pClosestCity)
+					continue;
+
+				CvUnit* pNewUnit = GET_PLAYER(eMajor).initUnit(eUnitType, pClosestCity->getX(), pClosestCity->getY());
+				if (!pNewUnit)
+					continue;
+
+				if (pNewUnit->getDomainType() != DOMAIN_AIR && !pNewUnit->jumpToNearestValidPlot())
+					pNewUnit->kill(false);
+
+				CvNotifications* pNotify = GET_PLAYER(eMajor).GetNotifications();
+				if (pNotify)
 				{
-					int iNumFreeBuildings = GetNumCitiesFreeChosenBuilding(eBuildingClass);
-					if (iNumFreeBuildings > 0 || IsFreeChosenBuildingNewCity(eBuildingClass) || IsFreeBuildingAllCity(eBuildingClass))
-					{
-						const BuildingTypes eBuilding = ((BuildingTypes)(getCivilizationInfo().getCivilizationBuildings(pkBuildingClassInfo->GetID())));
-						if (NO_BUILDING != eBuilding)
-						{
-							CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
-							if (pkBuildingInfo && pkBuildingInfo->IsCapitalOnly())
-							{
-								pNewCity->GetCityBuildings()->SetNumRealBuilding(eBuilding, 1);
-								if (pOldCapital != NULL)
-								{
-									if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || bRome)
-									{
-										pOldCapital->GetCityBuildings()->RemoveAllRealBuildingsOfClass(eBuildingClass);
-									}
-									else
-									{
-										pOldCapital->GetCityBuildings()->SetNumRealBuilding(eBuilding, 0);
-									}
-								}
-							}
-						}
-					}
-				}
-			}
-
-#if defined(MOD_EVENTS_CITY_CAPITAL)
-			if (MOD_EVENTS_CITY_CAPITAL) {
-				GAMEEVENTINVOKE_HOOK(GAMEEVENT_CapitalChanged, GetID(), pNewCity->GetID(), (pOldCapital ? pOldCapital->GetID() : -1));
-			}
-#endif
-		}
-	}
-#if defined(MOD_BALANCE_CORE_EVENTS)
-	if (MOD_BALANCE_CORE_EVENTS)
-	{
-		CheckActivePlayerEvents(pNewCity);
-	}
-#endif
-	if (pNewCity->getX() == GET_PLAYER(eOldOwner).GetLostHolyCityX() && pNewCity->getY() == GET_PLAYER(eOldOwner).GetLostHolyCityY())
-	{
-		GET_PLAYER(eOldOwner).SetHasLostHolyCity(false, NO_PLAYER);
-		GET_PLAYER(eOldOwner).SetLostHolyCityXY(-1, -1);
-	}
-
-	// slewis - moved this here so that conquest victory is tested with each city capture
-	GC.getGame().DoTestConquestVictory();
-
-	GC.getMap().updateOwningCityForPlots(pCityPlot,pNewCity->getWorkPlotDistance()*2);
-	if(bConquest)
-	{
-		const int iMaxRange = /*5*/ GC.getMAXIMUM_ACQUIRE_PLOT_DISTANCE();
-		for(int iDX = -iMaxRange; iDX <= iMaxRange; iDX++)
-		{
-			for(int iDY = -iMaxRange; iDY <= iMaxRange; iDY++)
-			{
-				CvPlot* pLoopPlot = plotXYWithRangeCheck(iOldCityX, iOldCityY, iDX, iDY, iMaxRange);
-				if(pLoopPlot)
-				{
-					pLoopPlot->verifyUnitValidPlot();
+					Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_CS_GIFT_RETURNED_SUMMARY");
+					strSummary << GET_PLAYER(eOldOwner).getCivilizationShortDescriptionKey();
+					Localization::String strNotification = Localization::Lookup("TXT_KEY_NOTIFICATION_CS_GIFT_RETURNED");
+					strNotification << GET_PLAYER(eOldOwner).getNameKey();
+					strNotification << pNewUnit->getNameKey();
+					pNotify->Add(NOTIFICATION_GENERIC, strNotification.toUTF8(), strSummary.toUTF8(), iCityX, iCityY, -1);
 				}
 			}
 		}
-
-#if defined(MOD_API_ACHIEVEMENTS)
-		// Check for Askia Achievement
-		if(isHuman() && !CvPreGame::isNetworkMultiplayerGame())
-		{
-			const char* pkLeaderKey = getLeaderTypeKey();
-			if(pkLeaderKey && strcmp(pkLeaderKey, "LEADER_ASKIA") == 0)
-			{
-				CvCity* pkCaptialCity = getCapitalCity();
-				if(pkCaptialCity != NULL)	// Shouldn't be NULL, but...
-				{
-					CvPlot* pkCapitalPlot = pkCaptialCity->plot();
-					CvPlot* pkNewCityPlot = pNewCity->plot();
-					if(pkCapitalPlot && pkNewCityPlot)
-					{
-						// Get the area each plot is located in.
-						CvArea* pkCapitalArea = pkCapitalPlot->area();
-						CvArea* pkNewCityArea = pkNewCityPlot->area();
-
-						if(pkCapitalArea && pkNewCityArea)
-						{
-							// The area the new city is locate on has to be of a certain size to qualify so that tiny islands are not included
-#define ACHIEVEMENT_MIN_CONTINENT_SIZE	8
-							if(pkNewCityArea->GetID() != pkCapitalArea->GetID() && pkNewCityArea->getNumTiles() >= ACHIEVEMENT_MIN_CONTINENT_SIZE)
-							{
-								gDLL->UnlockAchievement(ACHIEVEMENT_SPECIAL_WARCANOE);
-							}
-						}
-					}
-				}
-			}
-		}
-#endif
 	}
 
-	pCityPlot->setRevealed(GET_PLAYER(eOldOwner).getTeam(), true);
-
-	// If the old owner is "killed," then notify everyone's Grand Strategy AI
-	if(GET_PLAYER(eOldOwner).getNumCities() == 0 && !GET_PLAYER(eOldOwner).GetPlayerTraits()->IsStaysAliveZeroCities() && !bIsMinorCivBuyout)
-	{
-		if(!isMinorCiv() && !isBarbarian())
-		{
-			for(int iMajorLoop = 0; iMajorLoop < MAX_MAJOR_CIVS; iMajorLoop++)
-			{
-				if(GetID() != iMajorLoop && GET_PLAYER((PlayerTypes) iMajorLoop).isAlive())
-				{
-					// Have I met the player who killed the guy?
-					if(GET_TEAM(GET_PLAYER((PlayerTypes) iMajorLoop).getTeam()).isHasMet(getTeam()))
-					{
-						GET_PLAYER((PlayerTypes) iMajorLoop).GetDiplomacyAI()->DoPlayerKilledSomeone(GetID(), eOldOwner);
-					}
-				}
-			}
-
-#if defined(MOD_DIPLOMACY_CITYSTATES)
-			//Let's give the Embassies of the defeated player to the new player
-			if(MOD_DIPLOMACY_CITYSTATES && GET_PLAYER(eOldOwner).GetImprovementLeagueVotes() > 0)
-			{
-				int iEmbassyVotes = GET_PLAYER(eOldOwner).GetImprovementLeagueVotes();
-				ChangeImprovementLeagueVotes(iEmbassyVotes);
-			}
-#endif
-		}
-	}
-#if defined(MOD_DIPLOMACY_CITYSTATES)
-	if(GET_PLAYER(eOldOwner).isMinorCiv() && GET_PLAYER(eOldOwner).getNumCities() == 0)
-	{
-		for(int iMajorLoop = 0; iMajorLoop < MAX_MAJOR_CIVS; iMajorLoop++)
-		{
-			PlayerTypes ePlayer = (PlayerTypes)iMajorLoop;
-			if(!GET_PLAYER(ePlayer).isMinorCiv())
-			{
-				if(GET_PLAYER(eOldOwner).GetIncomingUnitCountdown(ePlayer) > 0)
-				{
-					UnitTypes eUnitType = GET_PLAYER(eOldOwner).GetIncomingUnitType(ePlayer);
-					if(eUnitType != NO_UNIT)
-					{
-						CvCity* pClosestCity = NULL; 
-						CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUnitType);
-						if (pkUnitInfo)
-						{
-							if (pkUnitInfo->GetDomainType() == DOMAIN_SEA)
-								pClosestCity = OperationalAIHelpers::GetClosestFriendlyCoastalCity(ePlayer, pCityPlot);
-							else
-								pClosestCity = GET_PLAYER(ePlayer).GetClosestCityByPlots(pCityPlot);
-						}
-
-						if (pClosestCity)
-						{
-							CvUnit* pNewUnit = GET_PLAYER(ePlayer).initUnit(eUnitType, pClosestCity->getX(), pClosestCity->getY());
-							CvAssert(pNewUnit);
-							if (pNewUnit)
-							{
-								if(pNewUnit->getDomainType() != DOMAIN_AIR)
-								{
-									if (!pNewUnit->jumpToNearestValidPlot())
-									{
-										pNewUnit->kill(false);
-									}
-								}
-								CvNotifications* pNotifications = GET_PLAYER(ePlayer).GetNotifications();
-								if(pNotifications && ePlayer == GC.getGame().getActivePlayer())
-								{
-									Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_CS_GIFT_RETURNED_SUMMARY");
-									strSummary <<  GET_PLAYER(eOldOwner).getCivilizationShortDescriptionKey();
-									Localization::String strNotification = Localization::Lookup("TXT_KEY_NOTIFICATION_CS_GIFT_RETURNED");
-									strNotification <<  GET_PLAYER(eOldOwner).getNameKey();
-									strNotification <<  pNewUnit->getNameKey();
-									pNotifications->Add(NOTIFICATION_GENERIC, strNotification.toUTF8(), strSummary.toUTF8(), pCapital->getX(), pCapital->getY(), -1);
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-	}			
-#endif
-	// If not, old owner should look at city specializations
-	else
-	{
-		GET_PLAYER(eOldOwner).GetCitySpecializationAI()->SetSpecializationsDirty(SPECIALIZATION_UPDATE_MY_CITY_CAPTURED);
-	}
-
-	// Do the same for the new owner
+	// New owner should update city specializations
 	GetCitySpecializationAI()->SetSpecializationsDirty(SPECIALIZATION_UPDATE_ENEMY_CITY_CAPTURED);
 
-	bool bDisbanded = false;
-
-	// In OCC games, all captured cities are toast
-	if (isHuman() && GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE))
+	// Display the notification for the spoils of plundering
+	if (GC.getGame().getActivePlayer() == GetID())
 	{
-		bDisbanded = true;
+		if (iCaptureGold > 0 || iCaptureCulture > 0 || iCaptureGreatWorks > 0)
+		{
+			CvString strBuffer;
+			if (iCaptureCulture == 0 && iCaptureGreatWorks == 0)
+			{
+				strBuffer = GetLocalizedText("TXT_KEY_POPUP_GOLD_CITY_CAPTURE", iCaptureGold, pNewCity->getNameKey());
+			}
+			else
+			{
+				strBuffer = GetLocalizedText("TXT_KEY_POPUP_GOLD_AND_CULTURE_CITY_CAPTURE", iCaptureGold, iCaptureCulture, iCaptureGreatWorks, pNewCity->getNameKey());
+			}
+			GC.GetEngineUserInterface()->AddCityMessage(0, pNewCity->GetIDInfo(), GetID(), true, GC.getEVENT_MESSAGE_TIME(), strBuffer);
+		}
+	}
+
+	// In One City Challenge games, all captured cities are toast
+	if (bOneCityChallenge)
+	{
+		// Delete the city
 		disband(pNewCity);
-		// disband will delete the city
 		pNewCity = NULL;
 	}
-	else //if (bConquest)
-	{
-		// Set the plots to the new owner, now, we may be flipping it to a liberated player and we need to pass on the information.
-		bool bBumpUnits = GET_PLAYER(pNewCity->getOwner()).isMajorCiv();
-		
-		for(size_t i=0; i<ownedPlots.size(); i++)
-		{
-			ownedPlots[i]->setOwner(pNewCity->getOwner(), /*iAcquireCityID*/ pNewCity->GetID(), /*bCheckUnits*/ bBumpUnits|ownedPlots[i]->isCity(), /*bUpdateResources*/ true);
-		}
 
-		// Is this City being Occupied?
-		if(pNewCity->getOriginalOwner() != GetID())
+	if (pNewCity)
+	{
+		// Is this City being occupied?
+		if (GET_PLAYER(pNewCity->getOriginalOwner()).getTeam() != getTeam() || isBarbarian())
 		{
 			pNewCity->SetOccupied(true);
 
-			if (!bGift)
+			// Determine resistance turns.
+			if (bConquest && !bGift)
 			{
-				int iInfluenceReduction = GetCulture()->GetInfluenceCityConquestReduction(eOldOwner);
-#if defined(MOD_BALANCE_CORE)
-				int iResistanceTurns = (((pNewCity->getPopulation() * 2) / 3) * (100 - iInfluenceReduction)) / 100;
-				if (iResistanceTurns <= 0)
-				{
-					iResistanceTurns = 1;
-				}
-#else
-				int iResistanceTurns = pNewCity->getPopulation() * (100 - iInfluenceReduction) / 100;
-#endif
-
-				if (iResistanceTurns > 0)
-				{
-					pNewCity->ChangeResistanceTurns(iResistanceTurns);
-				}
+				int iReductionFromTourism = (isMajorCiv() && GET_PLAYER(eOldOwner).isMajorCiv()) ? GetCulture()->GetInfluenceCityConquestReduction(eOldOwner) : 0;
+				int iResistanceTurns = (((pNewCity->getPopulation() * 2) / 3) * (100 - iReductionFromTourism)) / 100;
+				pNewCity->ChangeResistanceTurns(max(iResistanceTurns, 1));
 			}
 		}
-
-		PlayerTypes eLiberatedPlayer = NO_PLAYER;
-
-		// Captured someone's city that didn't originally belong to us - Liberate a player?
-		if (pNewCity->getOriginalOwner() != eOldOwner && pNewCity->getOriginalOwner() != GetID())
+		// Our team's city?
+		else if (GET_PLAYER(pNewCity->getOriginalOwner()).getTeam() == getTeam())
 		{
-			eLiberatedPlayer = pNewCity->getOriginalOwner();
-			if (!CanLiberatePlayerCity(eLiberatedPlayer))
+			// A teammate's city? Automatically liberated!
+			if (ePlayerToLiberate != NO_PLAYER)
 			{
-				eLiberatedPlayer = NO_PLAYER;
+				DoLiberatePlayer(ePlayerToLiberate, pNewCity->GetID());
+				pNewCity = NULL; // delete the pointer
+			}
+			else if (iNumCities > 1)
+			{
+				if (GetPlayerTraits()->IsNoAnnexing())
+				{
+					pNewCity->DoCreatePuppet();
+				}
+			}
+			// Is this our only city? It's now the capital!
+			else if (iNumCities == 1 && !bRegainedCapital)
+			{
+				BuildingTypes ePalace = (BuildingTypes)getCivilizationInfo().getCivilizationBuildings(GC.getCAPITAL_BUILDINGCLASS());
+				if (ePalace != NO_BUILDING)
+				{
+					// Add the Palace to the new capital
+					pNewCity->GetCityBuildings()->SetNumRealBuilding(ePalace, 1);
+				}
+
+				// Check for policies that add capital buildings and transfer them.
+				for (int iI = 0; iI < iNumBuildingClassInfos; iI++)
+				{
+					BuildingClassTypes eBuildingClass = static_cast<BuildingClassTypes>(iI);
+					CvBuildingClassInfo* pkBuildingClass = GC.getBuildingClassInfo(eBuildingClass);
+					if (!pkBuildingClass)
+						continue;
+
+					if (GetNumCitiesFreeChosenBuilding(eBuildingClass) > 0 || IsFreeChosenBuildingNewCity(eBuildingClass) || IsFreeBuildingAllCity(eBuildingClass))
+					{
+						BuildingTypes eBuilding = (BuildingTypes)getCivilizationInfo().getCivilizationBuildings(pkBuildingClass->GetID());
+						if (eBuilding == NO_BUILDING || eBuilding == ePalace)
+							continue;
+
+						CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
+						if (!pkBuildingInfo)
+							continue;
+
+						if (!pkBuildingInfo->IsCapitalOnly())
+							continue;
+
+						// Add to reacquired capital
+						pNewCity->GetCityBuildings()->SetNumRealBuilding(eBuilding, 1);
+					}
+				}
+
+				if (MOD_EVENTS_CITY_CAPITAL)
+					GAMEEVENTINVOKE_HOOK(GAMEEVENT_CapitalChanged, GetID(), pNewCity->GetID(), -1);
 			}
 		}
+	}
 
-		// Venice MUST liberate their own capital
-		if (GetPlayerTraits()->IsNoAnnexing() && pNewCity->getX() == GetOriginalCapitalX() && pNewCity->getY() == GetOriginalCapitalY())
+	if (pNewCity && !isBarbarian())
+	{
+		// If we don't have ANY cities, we must annex & make a capital.
+		if (iNumCities == 1)
 		{
-			if (iCaptureGold > 0 || iCaptureCulture > 0 || iCaptureGreatWorks > 0)
+			if (!bRegainedCapital)
 			{
-				if (iCaptureCulture == 0 && iCaptureGreatWorks == 0)
+				BuildingTypes ePalace = (BuildingTypes)getCivilizationInfo().getCivilizationBuildings(GC.getCAPITAL_BUILDINGCLASS());
+				if (ePalace != NO_BUILDING)
 				{
-					strBuffer = GetLocalizedText("TXT_KEY_POPUP_GOLD_CITY_CAPTURE", iCaptureGold, pNewCity->getNameKey());
+					// Add the Palace to the new capital
+					pNewCity->GetCityBuildings()->SetNumRealBuilding(ePalace, 1);
 				}
-				else
+
+				// Check for policies that add capital buildings and transfer them.
+				for (int iI = 0; iI < iNumBuildingClassInfos; iI++)
 				{
-					strBuffer = GetLocalizedText("TXT_KEY_POPUP_GOLD_AND_CULTURE_CITY_CAPTURE", iCaptureGold, iCaptureCulture, iCaptureGreatWorks, pNewCity->getNameKey());
+					BuildingClassTypes eBuildingClass = static_cast<BuildingClassTypes>(iI);
+					CvBuildingClassInfo* pkBuildingClass = GC.getBuildingClassInfo(eBuildingClass);
+					if (!pkBuildingClass)
+						continue;
+
+					if (GetNumCitiesFreeChosenBuilding(eBuildingClass) > 0 || IsFreeChosenBuildingNewCity(eBuildingClass) || IsFreeBuildingAllCity(eBuildingClass))
+					{
+						BuildingTypes eBuilding = (BuildingTypes)getCivilizationInfo().getCivilizationBuildings(pkBuildingClass->GetID());
+						if (eBuilding == NO_BUILDING || eBuilding == ePalace)
+							continue;
+
+						CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
+						if (!pkBuildingInfo)
+							continue;
+
+						if (!pkBuildingInfo->IsCapitalOnly())
+							continue;
+
+						// Add to reacquired capital
+						pNewCity->GetCityBuildings()->SetNumRealBuilding(eBuilding, 1);
+					}
 				}
-				GC.GetEngineUserInterface()->AddCityMessage(0, pNewCity->GetIDInfo(), GetID(), true, GC.getEVENT_MESSAGE_TIME(), strBuffer);
+
+				if (MOD_EVENTS_CITY_CAPITAL)
+					GAMEEVENTINVOKE_HOOK(GAMEEVENT_CapitalChanged, GetID(), pNewCity->GetID(), -1);
 			}
 		}
 		// AI decides what to do with a City
 		else if (!isHuman())
 		{
-			AI_conquerCity(pNewCity, eOldOwner, bGift, bAllowRaze); // could delete the pointer...
+			AI_conquerCity(pNewCity, ePlayerToLiberate, bGift); // Calling this could delete the pointer...
+
 			// So we will check to see if the plot still contains the city.
 			CvCity* pkCurrentCity = pCityPlot->getPlotCity();
 			if (pkCurrentCity == NULL || pNewCity != pkCurrentCity || pkCurrentCity->getOwner() != GetID())
 			{
-				// The city is gone or is not ours anymore (we gave it away)
-				pNewCity = NULL;
+				pNewCity = NULL; // The city is gone or is not ours anymore (we gave it away)
 			}
 		}
-
 		// Human decides what to do with a City
-		else if (!GC.getGame().isOption(GAMEOPTION_NO_HAPPINESS) || MOD_BALANCE_CORE)
+		else
 		{
-			// Used to display info for annex/puppet/raze popup - turned off in DoPuppet and DoAnnex
-			pNewCity->SetIgnoreCityForHappiness(true);
-			if (GetPlayerTraits()->IsNoAnnexing() && bIsMinorCivBuyout)
+			pNewCity->SetIgnoreCityForHappiness(true); // Used to display info for annex/puppet/raze popup - turned off in DoPuppet and DoAnnex
+			CvNotifications* pNotify = GetNotifications();
+
+			if (GetPlayerTraits()->IsNoAnnexing() && bMinorCivBuyout)
 			{
 				pNewCity->DoCreatePuppet();
 			}
-			else if (pNewCity->getOriginalOwner() != GetID() || GetPlayerTraits()->IsNoAnnexing() || bIsMinorCivBuyout)
+			else if (GC.getGame().getActivePlayer() == GetID() && pNotify && (pNewCity->getOriginalOwner() != GetID() || GetPlayerTraits()->IsNoAnnexing() || bMinorCivBuyout))
 			{
-				if (GC.getGame().getActivePlayer() == GetID())
-				{
-					int iTemp[5] = { pNewCity->GetID(), iCaptureGold, iCaptureCulture, iCaptureGreatWorks, eLiberatedPlayer };
-					bool bTemp[2] = { bIsMinorCivBuyout, bConquest };
-					pNewCity->setCaptureData(iTemp, bTemp);
+				int iTemp[5] = { pNewCity->GetID(), iCaptureGold, iCaptureCulture, iCaptureGreatWorks, ePlayerToLiberate };
+				bool bTemp[2] = { bMinorCivBuyout, bConquest };
+				pNewCity->setCaptureData(iTemp, bTemp);
 
-					CvNotifications* pNotifications = GetNotifications();
-					if (pNotifications)
-					{
-						CvString strBuffer = GetLocalizedText("TXT_KEY_CHOOSE_CITY_CAPTURE", pNewCity->getNameKey());
-						CvString strSummary = GetLocalizedText("TXT_KEY_CHOOSE_CITY_CAPTURE_TT", pNewCity->getNameKey());
-						pNotifications->Add((NotificationTypes)FString::Hash("NOTIFICATION_CITY_CAPTURE"), strSummary.c_str(), strBuffer.c_str(), pNewCity->getX(), pNewCity->getY(), -1);
-					}
-				}
+				CvString strBuffer = GetLocalizedText("TXT_KEY_CHOOSE_CITY_CAPTURE", pNewCity->getNameKey());
+				CvString strSummary = GetLocalizedText("TXT_KEY_CHOOSE_CITY_CAPTURE_TT", pNewCity->getNameKey());
+				pNotify->Add((NotificationTypes)FString::Hash("NOTIFICATION_CITY_CAPTURE"), strSummary.c_str(), strBuffer.c_str(), pNewCity->getX(), pNewCity->getY(), -1);
 			}
 			else
 			{
 				pNewCity->SetIgnoreCityForHappiness(false);
 			}
 		}
+	}
 
-		// No choice but to capture it, tell about pillage gold (if any)
-		else if (iCaptureGold > 0 || iCaptureCulture > 0 || iCaptureGreatWorks > 0)
+	if (GC.getGame().getActiveTeam() == GET_PLAYER(eOldOwner).getTeam())
+		GC.getMap().updateDeferredFog();
+
+	if (pNewCity)
+	{
+		// City acquired by Barbarians? Start the spawn counter.
+		if (MOD_DIPLOMACY_CITYSTATES_QUESTS && isBarbarian())
 		{
-			if (iCaptureCulture == 0 && iCaptureGreatWorks == 0)
-			{
-				strBuffer = GetLocalizedText("TXT_KEY_POPUP_GOLD_CITY_CAPTURE", iCaptureGold, pNewCity->getNameKey());
-				GC.GetEngineUserInterface()->AddCityMessage(0, pNewCity->GetIDInfo(), GetID(), true, GC.getEVENT_MESSAGE_TIME(), strBuffer);
-			}
-			else
-			{
-				strBuffer = GetLocalizedText("TXT_KEY_POPUP_GOLD_AND_CULTURE_CITY_CAPTURE", iCaptureGold, iCaptureCulture, iCaptureGreatWorks, pNewCity->getNameKey());
-				GC.GetEngineUserInterface()->AddCityMessage(0, pNewCity->GetIDInfo(), GetID(), true, GC.getEVENT_MESSAGE_TIME(), strBuffer);
+			CvBarbarians::DoCityActivationNotice(pCityPlot);
+		}
 
+		// Update Proximity between this Player and all others (again!)
+		for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+		{
+			PlayerTypes ePlayer = (PlayerTypes)iPlayerLoop;
+
+			if (ePlayer == m_eID)
+				continue;
+
+			if (!GET_PLAYER(ePlayer).isAlive())
+				continue;
+
+			GET_PLAYER(m_eID).DoUpdateProximityToPlayer(ePlayer);
+			GET_PLAYER(ePlayer).DoUpdateProximityToPlayer(m_eID);
+
+			if (ePlayer != eOldOwner)
+			{
+				GET_PLAYER(eOldOwner).DoUpdateProximityToPlayer(ePlayer);
+				GET_PLAYER(ePlayer).DoUpdateProximityToPlayer(eOldOwner);
 			}
 		}
-	}
-	// Be careful below here, pNewCity can be NULL.
-	CheckForMurder(eOldOwner);
 
-	if(GC.getGame().getActiveTeam() == GET_PLAYER(eOldOwner).getTeam())
-	{
-		CvMap& theMap = GC.getMap();
-		theMap.updateDeferredFog();
-	}
-#if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
-	if(pNewCity != NULL && pNewCity->getOwner() == BARBARIAN_PLAYER)
-	{
-		CvBarbarians::DoCityActivationNotice(pNewCity->plot());
-	}
-#endif
-#if defined(MOD_BALANCE_CORE)
-	UnitTypes eFreeUnitConquest = GetPlayerTraits()->GetFreeUnitOnConquest();
-	if(eFreeUnitConquest != NO_UNIT)
-	{
-		if(pNewCity != NULL)
+		ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+		if (pkScriptSystem && pNewCity)
 		{
-			if(pNewCity->GetNumTimesOwned(GetID()) <= 1 && canTrainUnit(eFreeUnitConquest, false, false, true, true))
-			{
-				CvUnit* pkUnit = initUnit(eFreeUnitConquest, pNewCity->getX(), pNewCity->getY());
-				CvCity* pCapital = getCapitalCity();
-				bool bShouldSpawn = true;
+			CvLuaArgsHandle args;
+			args->Push(eOldOwner);
+			args->Push(bCapital);
+			args->Push(iCityX);
+			args->Push(iCityY);
+			args->Push(GetID());
+			args->Push(iPopulation);
+			args->Push(bConquest);
+			args->Push((int)vcGreatWorkData.size());
+			args->Push(iCaptureGreatWorks);
 
-				// Give religious units the player's religion
-				if (pkUnit->isReligiousUnit())
-				{
-					pkUnit->GetReligionData()->SetReligion(GetReligions()->GetCurrentReligion(false));
-
-					// Unless it's a prophet we shouldn't give a free religious unit without a religion
-					if (pkUnit->GetReligionData()->GetReligion() == NO_RELIGION && !pkUnit->IsGreatPerson())
-					{
-						bShouldSpawn = false;
-					}
-				}
-
-				bool bJumpSuccess;
-				if (bShouldSpawn)
-				{
-					bJumpSuccess = pkUnit->jumpToNearestValidPlot();
-				}
-				else
-				{
-					bJumpSuccess = false;
-				}
-
-				if (bJumpSuccess && pCapital != NULL)
-				{
-					pCapital->addProductionExperience(pkUnit);
-				}
-				else
-				{
-					pkUnit->kill(false);
-				}
-			}
+			bool bResult;
+			LuaSupport::CallHook(pkScriptSystem, "CityCaptureComplete", args.get(), bResult);
 		}
-	}
-#endif
-	ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
-	if(pkScriptSystem && pNewCity != NULL)
-	{
-		CvLuaArgsHandle args;
-		args->Push(eOldOwner);
-		args->Push(bCapital);
-		args->Push(pNewCity->getX());
-		args->Push(pNewCity->getY());
-		args->Push(GetID());
-		args->Push(iOldPopulation);
-		args->Push(bConquest);
-		args->Push((int)paGreatWorkData.size());
-		args->Push(iCaptureGreatWorks);
-
-		bool bResult;
-		LuaSupport::CallHook(pkScriptSystem, "CityCaptureComplete", args.get(), bResult);
 	}
 
 	return pNewCity;
 }
 
-bool CvPlayer::IsValidBuildingForPlayer(CvCity* pCity, BuildingTypes eBuilding, bool bGift, bool bRecapture)
+bool CvPlayer::IsValidBuildingForPlayer(CvCity* pCity, BuildingTypes eBuilding, bool bConquest)
 {
 	CvBuildingEntry* pkLoopBuildingInfo = GC.getBuildingInfo(eBuilding);
 	if (!pkLoopBuildingInfo)
@@ -4881,9 +4789,8 @@ bool CvPlayer::IsValidBuildingForPlayer(CvCity* pCity, BuildingTypes eBuilding, 
 	if (pkLoopBuildingInfo->IsDummy())
 		return false;
 
-	if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_ConquerorValidBuilding, pCity->getOwner(), pCity->GetID(), GetID(), eBuilding) == GAMEEVENTRETURN_FALSE) {
+	if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_ConquerorValidBuilding, pCity->getOwner(), pCity->GetID(), GetID(), eBuilding) == GAMEEVENTRETURN_FALSE)
 		return false;
-	}
 
 	const CvBuildingClassInfo& pkClassInfo = pkLoopBuildingInfo->GetBuildingClassInfo();
 
@@ -4911,7 +4818,7 @@ bool CvPlayer::IsValidBuildingForPlayer(CvCity* pCity, BuildingTypes eBuilding, 
 		if (pkLoopBuildingInfo->IsNeverCapture() || bProductionMaxed || bIsNationalWonder)
 			return false;
 
-		if (bGift || bRecapture)
+		if (!bConquest)
 			return true;
 
 		int iConquestChance = GC.getGame().getSmallFakeRandNum(34, *pCity->plot()) + GC.getGame().getSmallFakeRandNum(34, pkLoopBuildingInfo->GetID()) + GC.getGame().getSmallFakeRandNum(32, GC.getGame().GetCultureAverage());
@@ -9739,8 +9646,8 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 	}
 
 	// Give the city back to the liberated player
-	CvCity* pNewCity = GET_PLAYER(ePlayer).acquireCity(pCity, false, true);
-	if (pNewCity == NULL)
+	CvCity* pNewCity = GET_PLAYER(ePlayer).acquireCity(pCity, false, false);
+	if (!pNewCity)
 		return;
 
 	//do not use this anymore!
@@ -11224,6 +11131,13 @@ void CvPlayer::doTurn()
 	{
 		ChangeFaithPurchaseCooldown(-1);
 	}
+
+	if (!isBarbarian())
+	{
+		DoWarValueLostDecay();
+		DoUpdateWarDamage();
+	}
+
 	if(MOD_BALANCE_CORE && !isMinorCiv() && !isBarbarian())
 	{
 		RefreshCSAlliesFriends();
@@ -21594,7 +21508,7 @@ void CvPlayer::DoCityRevolt()
 
 			// get the plot before transferring ownership
 			CvPlot *pPlot = pMostUnhappyCity->plot();
-			kRecipient.acquireCity(pMostUnhappyCity, false/*bConquest*/, true/*bGift*/);
+			kRecipient.acquireCity(pMostUnhappyCity, false, false);
 			pMostUnhappyCity = NULL; //no longer valid
 
 			 // Move Units from player that don't belong here
@@ -25459,12 +25373,11 @@ void CvPlayer::changeGoldenAgeTurns(int iChange)
 					}
 				}
 			}
-#if defined(MOD_BALANCE_CORE_DIFFICULTY)
 			else if (MOD_BALANCE_CORE_DIFFICULTY && !isHuman() && isMajorCiv() && getNumCities() > 0)
 			{
 				DoDifficultyBonus(HISTORIC_EVENT_GA);
 			}
-#endif
+
 			if (GetPlayerTraits()->GetWLTKDGATimer() > 0)
 			{
 				int iValue2 = GetPlayerTraits()->GetWLTKDGATimer();
@@ -31605,27 +31518,6 @@ void CvPlayer::ChangeSpawnCooldown(int iChange)
 }
 
 //	--------------------------------------------------------------------------------
-bool CvPlayer::IsDiplomaticMarriage() const
-{
-	if (GetAbleToMarryCityStatesCount() > 0)
-		return true;
-
-	if (GetPlayerTraits()->IsDiplomaticMarriage())
-		return true;
-
-	return false;
-}
-//	--------------------------------------------------------------------------------
-int CvPlayer::GetAbleToMarryCityStatesCount() const
-{
-	return m_iAbleToMarryCityStatesCount;
-}
-//	--------------------------------------------------------------------------------
-void CvPlayer::ChangeAbleToMarryCityStatesCount(int iChange)
-{
-	m_iAbleToMarryCityStatesCount += iChange;
-}
-//	--------------------------------------------------------------------------------
 void CvPlayer::ChangeTRSpeedBoost(int iChange)
 {
 	m_iTRSpeedBoost += iChange;
@@ -32511,16 +32403,14 @@ int CvPlayer::getCapitalCityID() const
 //	--------------------------------------------------------------------------------
 void CvPlayer::setCapitalCity(CvCity* pNewCapitalCity)
 {
-	CvCity* pOldCapitalCity;
+	CvCity* pOldCapitalCity = getCapitalCity();
 
-	pOldCapitalCity = getCapitalCity();
-
-	if(pOldCapitalCity != pNewCapitalCity)
+	if (pOldCapitalCity != pNewCapitalCity)
 	{
-		if(pNewCapitalCity != NULL)
+		if (pNewCapitalCity != NULL)
 		{
 			// Need to set our original capital x,y?
-			if(GetOriginalCapitalX() == -1 || GetOriginalCapitalY() == -1)
+			if (GetOriginalCapitalX() == -1 || GetOriginalCapitalY() == -1)
 			{
 				m_iOriginalCapitalX = pNewCapitalCity->getX();
 				m_iOriginalCapitalY = pNewCapitalCity->getY();
@@ -32542,23 +32432,19 @@ int CvPlayer::GetOriginalCapitalX() const
 	return m_iOriginalCapitalX;
 }
 
-//	--------------------------------------------------------------------------------
-/// Where was our original capital located?
 int CvPlayer::GetOriginalCapitalY() const
 {
 	return m_iOriginalCapitalY;
 }
-#if defined(MOD_BALANCE_CORE)
 //	--------------------------------------------------------------------------------
 void CvPlayer::setOriginalCapitalXY(CvCity* pCapitalCity)
 {
-	if(pCapitalCity != NULL)
+	if (pCapitalCity != NULL)
 	{
 		m_iOriginalCapitalX = pCapitalCity->getX();
 		m_iOriginalCapitalY = pCapitalCity->getY();
 	}
 }
-#endif
 
 //	--------------------------------------------------------------------------------
 /// Have we lost our holy city in war?
@@ -32567,19 +32453,15 @@ bool CvPlayer::IsHasLostHolyCity() const
 	return m_bLostHolyCity;
 }
 
-//	--------------------------------------------------------------------------------
-/// Sets us to having lost our capital in war
 void CvPlayer::SetHasLostHolyCity(bool bValue, PlayerTypes eConqueror)
 {
-	if (bValue != m_bLostCapital)
+	if (bValue != m_bLostHolyCity)
 	{
 		m_bLostHolyCity = bValue;
 		m_eHolyCityConqueror = eConqueror;
 	}
 }
 
-//	--------------------------------------------------------------------------------
-/// Sets us to having lost our capital in war
 void CvPlayer::SetLostHolyCityXY(int iX, int iY)
 {
 	m_iHolyCityX = iX;
@@ -34092,11 +33974,9 @@ void CvPlayer::setBeingResurrected(bool bValue)
 //	--------------------------------------------------------------------------------
 void CvPlayer::verifyAlive()
 {
-	bool bKill;
-
 	if(isAlive())
 	{
-		bKill = false;
+		bool bKill = false;
 
 		if(!bKill)
 		{
@@ -34754,6 +34634,16 @@ void CvPlayer::CheckForMurder(PlayerTypes ePossibleVictimPlayer)
 					GET_TEAM(kPossibleVictimPlayer.getTeam()).SetNumTurnsLockedIntoWar((TeamTypes)ui, 0);
 				}
 			}
+		}
+
+		// Reset war damage stats
+		for (uint ui = 0; ui < MAX_MAJOR_CIVS; ui++)
+		{
+			PlayerTypes eCleanupPlayer = (PlayerTypes)ui;
+			GET_PLAYER(kPossibleVictimPlayer.GetID()).SetWarValueLost(eCleanupPlayer, 0);
+			GET_PLAYER(kPossibleVictimPlayer.GetID()).SetWarDamageValue(eCleanupPlayer, 0);
+			GET_PLAYER(eCleanupPlayer).SetWarValueLost(kPossibleVictimPlayer.GetID(), 0);
+			GET_PLAYER(eCleanupPlayer).SetWarDamageValue(kPossibleVictimPlayer.GetID(), 0);
 		}
 
 		DoWarVictoryBonuses();
@@ -36918,6 +36808,249 @@ void CvPlayer::ResetWarPeaceTurnCounters() // called when a player is killed
 		GET_PLAYER(ePlayer).SetPlayerNumTurnsAtWar(ePlayer, 0);
 		GET_PLAYER(ePlayer).SetPlayerNumTurnsSinceCityCapture(ePlayer, 0);
 	}
+}
+
+//	--------------------------------------------------------------------------------
+
+/// What is the value of stuff (Units & Cities) lost in a war against a particular player?
+int CvPlayer::GetWarValueLost(PlayerTypes ePlayer) const
+{
+	if (isBarbarian()) return 0;
+	if (ePlayer < 0 || ePlayer >= MAX_CIV_PLAYERS) return 0;
+	return m_aiWarValueLost[ePlayer];
+}
+
+void CvPlayer::SetWarValueLost(PlayerTypes ePlayer, int iValue)
+{
+	if (isBarbarian()) return;
+	if (ePlayer < 0 || ePlayer >= MAX_CIV_PLAYERS) return;
+	m_aiWarValueLost[ePlayer] = max(iValue, 0);
+}
+
+void CvPlayer::ChangeWarValueLost(PlayerTypes ePlayer, int iChange)
+{
+	SetWarValueLost(ePlayer, GetWarValueLost(ePlayer) + iChange);
+
+	if (iChange > 0 && isMajorCiv() && GET_PLAYER(ePlayer).isMajorCiv())
+	{
+		// Loop through all the other major civs that we've met
+		for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+		{
+			PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+
+			if (GetDiplomacyAI()->IsPlayerValid(eLoopPlayer) && GET_PLAYER(eLoopPlayer).isMajorCiv())
+			{
+				// Are they at war with me too? Then they're happy that this player damaged us!
+				if (IsAtWarWith(eLoopPlayer))
+				{
+					// How much they're happy about it depends on how strong we are compared to them.
+					switch (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->GetPlayerMilitaryStrengthComparedToUs(GetID()))
+					{
+					case STRENGTH_IMMENSE:
+						iChange *= 300;
+						break;
+					case STRENGTH_POWERFUL:
+						iChange *= 200;
+						break;
+					case STRENGTH_STRONG:
+						iChange *= 150;
+						break;
+					case STRENGTH_AVERAGE:
+						iChange *= 100;
+						break;
+					case STRENGTH_POOR:
+						iChange *= 75;
+						break;
+					case STRENGTH_WEAK:
+						iChange *= 50;
+						break;
+					case STRENGTH_PATHETIC:
+						iChange *= 25;
+						break;
+					default:
+						iChange *= 100;
+						break;
+					}
+
+					GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->ChangeCommonFoeValue(ePlayer, iChange/100);
+				}
+			}
+		}
+	}
+}
+
+/// Every turn we're at peace war damage goes down a bit
+void CvPlayer::DoWarValueLostDecay()
+{
+	for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+	{
+		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+
+		if (!GET_PLAYER(eLoopPlayer).isAlive())
+			continue;
+
+		int iValue = GetWarValueLost(eLoopPlayer);
+
+		// War damage we've suffered goes down by 1/50th every turn while at war (slower, but necessary to bring chance of white peace)
+		if (IsAtWarWith(eLoopPlayer))
+		{
+			if (iValue > 0)
+			{
+				int iChange = max((iValue/50), 1); // Must go down by at least 1
+				ChangeWarValueLost(eLoopPlayer, -iChange);
+			}
+		}
+		// Goes down by 1/10th every turn while at peace
+		else
+		{
+			if (iValue > 0)
+			{
+				int iChange = max((iValue/10), 1); // Must go down by at least 1
+				ChangeWarValueLost(eLoopPlayer, -iChange);
+			}
+		}
+	}
+}
+
+/// Updates how much damage we have taken in wars against all players
+void CvPlayer::DoUpdateWarDamage()
+{
+	// Calculate the value of what we have currently - this is invariant so we will just do it once
+	int iCurrentValue = 0;
+	int iTypicalLandPower = GetMilitaryAI()->GetPowerOfStrongestBuildableUnit(DOMAIN_LAND);
+	int iTypicalNavalPower = GetMilitaryAI()->GetPowerOfStrongestBuildableUnit(DOMAIN_SEA);
+	int iTypicalAirPower = GetMilitaryAI()->GetPowerOfStrongestBuildableUnit(DOMAIN_AIR);
+	int iValueLoop;
+
+	// City value
+	for (CvCity* pLoopCity = firstCity(&iValueLoop); pLoopCity != NULL; pLoopCity = nextCity(&iValueLoop))
+	{
+		int iCityValue = /*175*/ GC.getWAR_DAMAGE_LEVEL_CITY_WEIGHT();
+		iCityValue += (pLoopCity->getPopulation() * /*150*/ GC.getWAR_DAMAGE_LEVEL_INVOLVED_CITY_POP_MULTIPLIER());
+		iCityValue += (pLoopCity->getNumWorldWonders() * /*200*/ GC.getWAR_DAMAGE_LEVEL_WORLD_WONDER_MULTIPLIER());
+
+		// Multipliers
+		// Our original capital!
+		if (pLoopCity->IsOriginalCapitalForPlayer(GetID()))
+		{
+			iCityValue *= 200;
+			iCityValue /= 100;
+		}
+		// Another major's original capital, or our Holy City
+		else if (pLoopCity->IsOriginalMajorCapital() || (isMajorCiv() && pLoopCity->GetCityReligions()->IsHolyCityForReligion(GetReligions()->GetCurrentReligion(false))))
+		{
+			iCityValue *= 150;
+			iCityValue /= 100;
+		}
+		// A City-State's capital
+		else if (pLoopCity->IsOriginalMinorCapital())
+		{
+			iCityValue *= 115;
+			iCityValue /= 100;
+		}
+
+		iCurrentValue += iCityValue;
+	}
+
+	// Unit value
+	for (CvUnit* pLoopUnit = firstUnit(&iValueLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iValueLoop))
+	{
+		CvUnitEntry* pkUnitInfo = GC.getUnitInfo(pLoopUnit->getUnitType());
+		if (pkUnitInfo)
+		{
+			int iUnitValue = pkUnitInfo->GetPower() * 100;
+
+			if (iUnitValue > 0)
+			{
+				// Compare to strongest unit we can build in that domain, for an apples to apples comparison
+				// Best unit that can be currently built in a domain is given a value of 100
+				DomainTypes eDomain = (DomainTypes) pkUnitInfo->GetDomainType();
+
+				if (eDomain == DOMAIN_AIR)
+				{
+					if (iTypicalAirPower > 0)
+					{
+						iUnitValue /= iTypicalAirPower;
+					}
+					else
+					{
+						iUnitValue = /*100*/ GC.getDEFAULT_WAR_VALUE_FOR_UNIT();
+					}
+				}
+				else if (eDomain == DOMAIN_SEA)
+				{
+					if (iTypicalNavalPower > 0)
+					{
+						iUnitValue /= iTypicalNavalPower;
+					}
+					else
+					{
+						iUnitValue = /*100*/ GC.getDEFAULT_WAR_VALUE_FOR_UNIT();
+					}
+				}
+				else
+				{
+					if (iTypicalLandPower > 0)
+					{
+						iUnitValue /= iTypicalLandPower;
+					}
+					else
+					{
+						iUnitValue = /*100*/ GC.getDEFAULT_WAR_VALUE_FOR_UNIT();
+					}
+				}
+
+				iCurrentValue += iUnitValue;
+			}
+		}
+	}
+
+	// Loop through all (known) Players
+	for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+	{
+		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+		TeamTypes eLoopTeam = GET_PLAYER(eLoopPlayer).getTeam();
+
+		if (!GET_PLAYER(eLoopPlayer).isAlive())
+			continue;
+
+		if (eLoopTeam == getTeam() || !GET_TEAM(getTeam()).isHasMet(eLoopTeam))
+			continue;
+
+		int iWarValueLost = GetWarValueLost(eLoopPlayer);
+		int iValueLostRatio = 0;
+
+		if (iWarValueLost > 0)
+		{
+			if (iCurrentValue > 0)
+			{
+				iValueLostRatio = (iWarValueLost * 100) / (iCurrentValue + iWarValueLost);
+			}
+			else
+			{
+				iValueLostRatio = iWarValueLost;
+			}
+		}
+
+		SetWarDamageValue(eLoopPlayer, iValueLostRatio);
+	}
+}
+
+//	--------------------------------------------------------------------------------
+
+/// How much damage have we taken in a war against a particular player?
+int CvPlayer::GetWarDamageValue(PlayerTypes ePlayer) const
+{
+	if (isBarbarian()) return 0;
+	if (ePlayer < 0 || ePlayer >= MAX_CIV_PLAYERS) return 0;
+	return m_aiWarDamageValue[ePlayer];
+}
+
+void CvPlayer::SetWarDamageValue(PlayerTypes ePlayer, int iValue)
+{
+	if (isBarbarian()) return;
+	if (ePlayer < 0 || ePlayer >= MAX_CIV_PLAYERS) return;
+	m_aiWarDamageValue[ePlayer] = max(iValue, 0);
 }
 
 //	--------------------------------------------------------------------------------
@@ -46572,7 +46705,6 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 	visitor(player.m_iRazingSpeedBonus);
 	visitor(player.m_iNoPartisans);
 	visitor(player.m_iSpawnCooldown);
-	visitor(player.m_iAbleToMarryCityStatesCount);
 	visitor(player.m_bTradeRoutesInvulnerable);
 	visitor(player.m_iTRSpeedBoost);
 	visitor(player.m_iVotesPerGPT);

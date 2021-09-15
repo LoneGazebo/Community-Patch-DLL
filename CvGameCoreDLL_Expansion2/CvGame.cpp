@@ -12756,26 +12756,20 @@ void CvGame::DoMinorBullyUnit(PlayerTypes eBully, PlayerTypes eMinor)
 /// Do the action of a major buying out a minor and acquiring it
 void CvGame::DoMinorBuyout(PlayerTypes eMajor, PlayerTypes eMinor)
 {
-	CvAssertMsg(eMajor >= 0, "eMajor is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eMajor < MAX_MAJOR_CIVS, "eMajor is expected to be within maximum bounds (invalid Index)");
-	CvAssertMsg(eMinor >= MAX_MAJOR_CIVS, "eMinor is not in expected range (invalid Index)");
-	CvAssertMsg(eMinor < MAX_CIV_PLAYERS, "eMinor is not in expected range (invalid Index)");
+	if (eMajor < 0 || eMajor >= MAX_MAJOR_CIVS) return;
+	if (eMinor < MAX_MAJOR_CIVS || eMinor >= MAX_CIV_PLAYERS) return;
 
 	gDLL->sendMinorBuyout(eMajor, eMinor);
 }
-#if defined(MOD_BALANCE_CORE)
 //	--------------------------------------------------------------------------------
 /// Do the action of a major buying out a minor and marrying it
 void CvGame::DoMinorMarriage(PlayerTypes eMajor, PlayerTypes eMinor)
 {
-	CvAssertMsg(eMajor >= 0, "eMajor is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eMajor < MAX_MAJOR_CIVS, "eMajor is expected to be within maximum bounds (invalid Index)");
-	CvAssertMsg(eMinor >= MAX_MAJOR_CIVS, "eMinor is not in expected range (invalid Index)");
-	CvAssertMsg(eMinor < MAX_CIV_PLAYERS, "eMinor is not in expected range (invalid Index)");
+	if (eMajor < 0 || eMajor >= MAX_MAJOR_CIVS) return;
+	if (eMinor < MAX_MAJOR_CIVS || eMinor >= MAX_CIV_PLAYERS) return;
 
-	GET_PLAYER(eMinor).GetMinorCivAI()->DoMarriage(eMajor);
+	GET_PLAYER(eMinor).GetMinorCivAI()->DoBuyout(eMajor);
 }
-#endif
 
 //	--------------------------------------------------------------------------------
 /// Notification letting all non-party players know that two players made a Defensive Pact.
@@ -14897,7 +14891,7 @@ bool CvGame::CreateFreeCityPlayer(CvCity* pStartingCity, bool bJustChecking)
 	kPlayer.setStartingPlot(pPlot);
 	kPlayer.GetMinorCivAI()->DoPickInitialItems();
 	
-	CvCity* pNewCity = kPlayer.acquireCity(pStartingCity, false/*bConquest*/, true/*bGift*/);
+	CvCity* pNewCity = kPlayer.acquireCity(pStartingCity, false, false);
 	kPlayer.setFoundedFirstCity(true);
 	kPlayer.setCapitalCity(pNewCity);
 	pStartingCity = NULL; //no longer valid

@@ -5588,15 +5588,15 @@ int CvPlayerCulture::ComputeWarWeariness()
 			iLongestWarTurns = iWarLength;
 
 		// 100% of our war value lost applies.
-		int iWarDamage = m_pPlayer->GetDiplomacyAI()->GetWarValueLost(ePlayer);
+		int iWarDamage = m_pPlayer->GetWarValueLost(ePlayer);
 
 		// If AI unwilling to make peace, don't penalize. Otherwise, apply 50% of their losses.
 		if (!m_pPlayer->isHuman() || kPlayer.isHuman() || kPlayer.GetDiplomacyAI()->IsWantsPeaceWithPlayer(m_pPlayer->GetID()))
 		{
-			iWarDamage += (kPlayer.GetDiplomacyAI()->GetWarValueLost(m_pPlayer->GetID()) / 2);
+			iWarDamage += (kPlayer.GetWarValueLost(m_pPlayer->GetID()) / 2);
 		}
 
-		// Does enemy UA increase our war weariness? (Huns UA)
+		// Does enemy UA increase our war weariness? (Huns)
 		if (kPlayer.GetPlayerTraits()->GetEnemyWarWearinessModifier() != 0)
 		{
 			iWarDamage *= (100 + kPlayer.GetPlayerTraits()->GetEnemyWarWearinessModifier());
@@ -5681,7 +5681,7 @@ int CvPlayerCulture::ComputeWarWeariness()
 	// Finally set and log the value
 	SetWarWeariness(iNewWarWeariness);
 
-	if (GC.getLogging() && GC.getAILogging() && iNewWarWeariness > 0)
+	if (GC.getLogging() && iNewWarWeariness > 0)
 	{
 		CvString strTemp;
 

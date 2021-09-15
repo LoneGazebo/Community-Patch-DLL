@@ -3074,11 +3074,7 @@ void CvGameDeals::ActivateDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, C
 		case TRADE_ITEM_CITIES:
 		{
 			CvCity* pCity = GC.getMap().plot(it->m_iData1, it->m_iData2)->getPlotCity();
-			if (pCity)
-			{
-				pCity->SetTraded(eReceivingPlayer, true); // I've traded for this city? I don't want to trade it to someone else.
-				GET_PLAYER(eReceivingPlayer).acquireCity(pCity, bIsPeaceDeal, !bIsPeaceDeal);
-			}
+			GET_PLAYER(eReceivingPlayer).acquireCity(pCity, bIsPeaceDeal, !bIsPeaceDeal);
 			break;
 		}
 
