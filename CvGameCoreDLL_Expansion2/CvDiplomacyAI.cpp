@@ -383,8 +383,6 @@ void CvDiplomacyAI::Reset()
 		m_abAggressor[iI] = false;
 		m_aiNumWarsFought[iI] = 0;
 		m_aiNumCitiesCaptured[iI] = 0;
-		m_aiWarValueLost[iI] = 0;
-		m_aiWarDamageValue[iI] = 0;
 		m_aeWarState[iI] = NO_WAR_STATE_TYPE;
 
 		// Aggressive Postures
@@ -502,8 +500,6 @@ void CvDiplomacyAI::Serialize(DiplomacyAI& diplomacyAI, Visitor& visitor)
 	visitor(diplomacyAI.m_aiNumWarsDeclaredOnUs);
 	visitor(diplomacyAI.m_aiCivilianKillerValue);
 	visitor(diplomacyAI.m_aiNumCitiesCaptured);
-	visitor(diplomacyAI.m_aiWarValueLost);
-	visitor(diplomacyAI.m_aiWarDamageValue);
 	visitor(diplomacyAI.m_aeWarState);
 
 	// Peace
@@ -3428,84 +3424,6 @@ void CvDiplomacyAI::SetNumCitiesCapturedBy(PlayerTypes ePlayer, int iValue)
 void CvDiplomacyAI::ChangeNumCitiesCapturedBy(PlayerTypes ePlayer, int iChange)
 {
 	SetNumCitiesCapturedBy(ePlayer, GetNumCitiesCapturedBy(ePlayer) + iChange);
-}
-
-/// What is the value of stuff (Units & Cities) lost in a war against a particular player?
-int CvDiplomacyAI::GetWarValueLost(PlayerTypes ePlayer) const
-{
-	if (ePlayer < 0 || ePlayer >= MAX_CIV_PLAYERS) return 0;
-	return m_aiWarValueLost[ePlayer];
-}
-
-void CvDiplomacyAI::SetWarValueLost(PlayerTypes ePlayer, int iValue)
-{
-	if (ePlayer < 0 || ePlayer >= MAX_CIV_PLAYERS) return;
-	m_aiWarValueLost[ePlayer] = max(iValue, 0);
-}
-
-void CvDiplomacyAI::ChangeWarValueLost(PlayerTypes ePlayer, int iChange)
-{
-	SetWarValueLost(ePlayer, GetWarValueLost(ePlayer) + iChange);
-
-	if (iChange > 0 && GET_PLAYER(ePlayer).isMajorCiv())
-	{
-		// Loop through all the other major civs that we've met
-		for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
-		{
-			PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
-
-			if (IsPlayerValid(eLoopPlayer) && GET_PLAYER(eLoopPlayer).isMajorCiv())
-			{
-				// Are they at war with me too? Then they're happy that this player damaged us!
-				if (IsAtWar(eLoopPlayer))
-				{
-					// How much they're happy about it depends on how strong we are compared to them.
-					switch (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->GetPlayerMilitaryStrengthComparedToUs(GetID()))
-					{
-					case STRENGTH_IMMENSE:
-						iChange *= 300;
-						break;
-					case STRENGTH_POWERFUL:
-						iChange *= 200;
-						break;
-					case STRENGTH_STRONG:
-						iChange *= 150;
-						break;
-					case STRENGTH_AVERAGE:
-						iChange *= 100;
-						break;
-					case STRENGTH_POOR:
-						iChange *= 75;
-						break;
-					case STRENGTH_WEAK:
-						iChange *= 50;
-						break;
-					case STRENGTH_PATHETIC:
-						iChange *= 25;
-						break;
-					default:
-						iChange *= 100;
-						break;
-					}
-
-					GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->ChangeCommonFoeValue(ePlayer, iChange/100);
-				}
-			}
-		}
-	}
-}
-
-/// How much damage have we taken in a war against a particular player?
-int CvDiplomacyAI::GetWarDamageValue(PlayerTypes ePlayer) const
-{
-	if (ePlayer < 0 || ePlayer >= MAX_CIV_PLAYERS) return 0;
-	return m_aiWarDamageValue[ePlayer];
-}
-
-void CvDiplomacyAI::SetWarDamageValue(PlayerTypes ePlayer, int iValue)
-{
-	if (ePlayer < 0 || ePlayer >= MAX_CIV_PLAYERS) return;
-	m_aiWarDamageValue[ePlayer] = range(iValue, 0, USHRT_MAX);
 }
 
 /// What is the state of war with this player?
@@ -7216,9 +7134,7 @@ void CvDiplomacyAI::DoTurn(DiplomacyMode eDiploMode, PlayerTypes ePlayer)
 
 	SetEndedFriendshipThisTurn(false);
 
-	// War Damage
-	DoWarValueLostDecay();
-	DoUpdateWarDamage();
+	// Conquest Stats
 	DoUpdateConquestStats();
 
 	// Coop Wars
@@ -7311,169 +7227,8 @@ void CvDiplomacyAI::DoTurn(DiplomacyMode eDiploMode, PlayerTypes ePlayer)
 //	-----------------------------------------------------------------------------------------------
 
 // ////////////////////////////////////
-// WAR DAMAGE DECAY
+// CONQUEST STATS
 // ////////////////////////////////////
-
-/// Every turn we're at peace war damage goes down a bit
-void CvDiplomacyAI::DoWarValueLostDecay()
-{
-	//we want to do this only once per turn
-	if (m_eDiploMode == DIPLO_SPECIFIC_PLAYER)
-		return;
-
-	for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
-	{
-		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
-
-		if (!IsPlayerValid(eLoopPlayer, true))
-			continue;
-
-		int iValue = GetWarValueLost(eLoopPlayer);
-
-		// War damage we've suffered goes down by 1/50th every turn while at war (slower, but necessary to bring chance of white peace)
-		if (IsAtWar(eLoopPlayer))
-		{
-			if (iValue > 0)
-			{
-				int iChange = max((iValue/50), 1); // Must go down by at least 1
-				ChangeWarValueLost(eLoopPlayer, -iChange);
-			}
-		}
-		// Goes down by 1/10th every turn while at peace
-		else
-		{
-			if (iValue > 0)
-			{
-				int iChange = max((iValue/10), 1); // Must go down by at least 1
-				ChangeWarValueLost(eLoopPlayer, -iChange);
-			}
-		}
-	}
-}
-
-/// Updates how much damage we have taken in wars against all players
-void CvDiplomacyAI::DoUpdateWarDamage()
-{
-	// Calculate the value of what we have currently - this is invariant so we will just do it once
-	int iCurrentValue = 0;
-	int iTypicalLandPower = GetPlayer()->GetMilitaryAI()->GetPowerOfStrongestBuildableUnit(DOMAIN_LAND);
-	int iTypicalNavalPower = GetPlayer()->GetMilitaryAI()->GetPowerOfStrongestBuildableUnit(DOMAIN_SEA);
-	int iTypicalAirPower = GetPlayer()->GetMilitaryAI()->GetPowerOfStrongestBuildableUnit(DOMAIN_AIR);
-	int iValueLoop;
-
-	// City value
-	for (CvCity* pLoopCity = GetPlayer()->firstCity(&iValueLoop); pLoopCity != NULL; pLoopCity = GetPlayer()->nextCity(&iValueLoop))
-	{
-		int iCityValue = /*175*/ GC.getWAR_DAMAGE_LEVEL_CITY_WEIGHT();
-		iCityValue += (pLoopCity->getPopulation() * /*150*/ GC.getWAR_DAMAGE_LEVEL_INVOLVED_CITY_POP_MULTIPLIER());
-		iCityValue += (pLoopCity->getNumWorldWonders() * /*200*/ GC.getWAR_DAMAGE_LEVEL_WORLD_WONDER_MULTIPLIER());
-
-		// Multipliers
-		// Our original capital!
-		if (pLoopCity->IsOriginalCapitalForPlayer(GetID()))
-		{
-			iCityValue *= 200;
-			iCityValue /= 100;
-		}
-		// Another major's original capital, or our Holy City
-		else if (pLoopCity->IsOriginalMajorCapital() || pLoopCity->GetCityReligions()->IsHolyCityForReligion(GetPlayer()->GetReligions()->GetCurrentReligion(false)))
-		{
-			iCityValue *= 150;
-			iCityValue /= 100;
-		}
-		// A City-State's capital
-		else if (pLoopCity->IsOriginalMinorCapital())
-		{
-			iCityValue *= 115;
-			iCityValue /= 100;
-		}
-
-		iCurrentValue += iCityValue;
-	}
-
-	// Unit value
-	for (CvUnit* pLoopUnit = GetPlayer()->firstUnit(&iValueLoop); pLoopUnit != NULL; pLoopUnit = GetPlayer()->nextUnit(&iValueLoop))
-	{
-		CvUnitEntry* pkUnitInfo = GC.getUnitInfo(pLoopUnit->getUnitType());
-		if (pkUnitInfo)
-		{
-			int iUnitValue = pkUnitInfo->GetPower() * 100;
-
-			if (iUnitValue > 0)
-			{
-				// Compare to strongest unit we can build in that domain, for an apples to apples comparison
-				// Best unit that can be currently built in a domain is given a value of 100
-				DomainTypes eDomain = (DomainTypes) pkUnitInfo->GetDomainType();
-
-				if (eDomain == DOMAIN_AIR)
-				{
-					if (iTypicalAirPower > 0)
-					{
-						iUnitValue /= iTypicalAirPower;
-					}
-					else
-					{
-						iUnitValue = /*100*/ GC.getDEFAULT_WAR_VALUE_FOR_UNIT();
-					}
-				}
-				else if (eDomain == DOMAIN_SEA)
-				{
-					if (iTypicalNavalPower > 0)
-					{
-						iUnitValue /= iTypicalNavalPower;
-					}
-					else
-					{
-						iUnitValue = /*100*/ GC.getDEFAULT_WAR_VALUE_FOR_UNIT();
-					}
-				}
-				else
-				{
-					if (iTypicalLandPower > 0)
-					{
-						iUnitValue /= iTypicalLandPower;
-					}
-					else
-					{
-						iUnitValue = /*100*/ GC.getDEFAULT_WAR_VALUE_FOR_UNIT();
-					}
-				}
-
-				iCurrentValue += iUnitValue;
-			}
-		}
-	}
-
-	// Loop through all (known) Players
-	for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
-	{
-		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
-
-		if (IsHasMet(eLoopPlayer) && GET_PLAYER(eLoopPlayer).isAlive())
-		{
-			int iWarValueLost = GetWarValueLost(eLoopPlayer);
-			int iValueLostRatio = 0;
-
-			if (iWarValueLost > 0)
-			{
-				if (iCurrentValue > 0)
-				{
-					iValueLostRatio = (iWarValueLost * 100) / (iCurrentValue + iWarValueLost);
-				}
-				else
-				{
-					iValueLostRatio = iWarValueLost;
-				}
-			}
-
-			SetWarDamageValue(eLoopPlayer, iValueLostRatio);
-		}
-		else
-		{
-			SetWarDamageValue(eLoopPlayer, 0);
-		}
-	}
-}
 
 /// How many players have other major civilizations conquered?
 void CvDiplomacyAI::DoUpdateConquestStats()
@@ -9042,8 +8797,8 @@ int CvDiplomacyAI::GetWarScore(PlayerTypes ePlayer, bool bDebug /* = false */)
 	if (!IsAtWar(ePlayer))
 		return 0;
 
-	int iWarScore = GET_PLAYER(ePlayer).GetDiplomacyAI()->GetWarDamageValue(GetID());
-	int iTheirWarScore = GetWarDamageValue(ePlayer);
+	int iWarScore = GET_PLAYER(ePlayer).GetWarDamageValue(GetID());
+	int iTheirWarScore = GetPlayer()->GetWarDamageValue(ePlayer);
 	int iAverageScore = 0;
 
 	if (iWarScore == iTheirWarScore)
@@ -12811,7 +12566,7 @@ void CvDiplomacyAI::DoReevaluatePlayers(vector<PlayerTypes>& vTargetPlayers, boo
 		DoResetPotentialWarTargets();
 
 		if (!bFromResurrection)
-			DoUpdateWarDamage();
+			GetPlayer()->DoUpdateWarDamage();
 
 		DoUpdateWarStates();
 		DoUpdatePlayerMilitaryStrengths();
@@ -16735,7 +16490,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 						bThinkingAboutDogpiling = true;
 					}
 
-					if (pTheirDiplo->GetWarDamageValue(eLoopPlayer) >= 40 && pTheirDiplo->GetWarDamageValue(eLoopPlayer) > GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->GetWarDamageValue(ePlayer))
+					if (GET_PLAYER(ePlayer).GetWarDamageValue(eLoopPlayer) >= 40 && GET_PLAYER(ePlayer).GetWarDamageValue(eLoopPlayer) > GET_PLAYER(eLoopPlayer).GetWarDamageValue(ePlayer))
 					{
 						bThinkingAboutDogpiling = true;
 						vApproachScores[CIV_APPROACH_AFRAID] -= vApproachBias[CIV_APPROACH_AFRAID] * 5;
@@ -16754,7 +16509,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 						vApproachScores[CIV_APPROACH_GUARDED] -= vApproachBias[CIV_APPROACH_GUARDED] * 2;
 					}
 					// On the flipside, is this guy suffering from being at war with this player?
-					else if (!bFirstPass && !IsEndgameAggressiveTo(ePlayer) && GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->GetWarDamageValue(ePlayer) >= 20 && GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->GetWarDamageValue(ePlayer) > pTheirDiplo->GetWarDamageValue(eLoopPlayer))
+					else if (!bFirstPass && !IsEndgameAggressiveTo(ePlayer) && GET_PLAYER(eLoopPlayer).GetWarDamageValue(ePlayer) >= 20 && GET_PLAYER(eLoopPlayer).GetWarDamageValue(ePlayer) > GET_PLAYER(ePlayer).GetWarDamageValue(eLoopPlayer))
 					{
 						// Do we like them? Then we should defend our ally, if we can!
 						if ((IsFriendOrAlly(eLoopPlayer) || GetMostValuableFriend() == eLoopPlayer || GetMostValuableAlly() == eLoopPlayer || IsLiberator(eLoopPlayer, false, false) || IsMaster(eLoopPlayer) || (IsVassal(eLoopPlayer) && GetVassalTreatmentLevel(eLoopPlayer) <= VASSAL_TREATMENT_DISAGREE)) && !IsUntrustworthy(eLoopPlayer) && GetCivApproach(eLoopPlayer) > CIV_APPROACH_GUARDED)
@@ -23283,12 +23038,38 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 						bCapturedAnyCityFromUs = true;
 						break;
 					}
-					// A city that we want to liberate?
-					else if ((GET_PLAYER(eOriginalOwner).isMinorCiv() && DoPossibleMinorLiberation(eOriginalOwner, pLoopCity, /*bHypothetical*/ true)) || (GET_PLAYER(eOriginalOwner).isMajorCiv() && DoPossibleMajorLiberation(eOriginalOwner, *it, pLoopCity, /*bHypothetical*/ true)))
+					else
 					{
-						bReadyForVassalage = false;
-						bCapturedAnyCityWeWantToLiberate = true;
-						break;
+						// Can we liberate this city?
+						PlayerTypes ePlayerToLiberate = eOriginalOwner;
+
+						// If we're at war with the original owner and the last owner was a City-State, liberate them instead
+						if (IsAtWar(ePlayerToLiberate))
+						{
+							PlayerTypes ePreviousOwner = pLoopCity->getPreviousOwner();
+
+							if (ePreviousOwner != NO_PLAYER && eOriginalOwner != ePreviousOwner && GET_PLAYER(ePreviousOwner).isMinorCiv())
+							{
+								ePlayerToLiberate = ePreviousOwner;
+							}
+							else
+							{
+								ePlayerToLiberate = NO_PLAYER;
+							}
+						}
+
+						if (ePlayerToLiberate != NO_PLAYER && !GetPlayer()->CanLiberatePlayerCity(ePlayerToLiberate))
+						{
+							ePlayerToLiberate = NO_PLAYER;
+						}
+
+						// Is this a city that we want to liberate?
+						if (IsTryingToLiberate(pLoopCity, ePlayerToLiberate))
+						{
+							bReadyForVassalage = false;
+							bCapturedAnyCityWeWantToLiberate = true;
+							break;
+						}
 					}
 				}
 			}
@@ -23334,11 +23115,11 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 				if (!GET_TEAM(GET_PLAYER(*it).getTeam()).canBecomeVassal(GetTeam()))
 					strNoVassalReason.Format("we're not able to make them a vassal!");
 				else if (bCapturedAnyCityFromUs)
-					strNoVassalReason.Format("they have one of our cities!");
+					strNoVassalReason.Format("they have a nearby city they captured from us!");
 				else if (IsEndgameAggressiveTo(*it))
 					strNoVassalReason.Format("they're in danger of winning the game!");
 				else if (bCapturedAnyCityWeWantToLiberate)
-					strNoVassalReason.Format("they have a city we want to liberate!");
+					strNoVassalReason.Format("they have a nearby city we want to liberate!");
 				else if (iWarScore < 75)
 					strNoVassalReason.Format("war score is less than 75!");
 				else if (IsUntrustworthy(*it))
@@ -29557,7 +29338,7 @@ void CvDiplomacyAI::DoContactMinorCivs()
 	// Would we like to buyout a minor this turn?  (Venice / Austria UA)
 	// **************************
 
-	bool bWantsToBuyout = GetPlayer()->IsDiplomaticMarriage() || GetPlayer()->IsAbleToAnnexCityStates();
+	bool bWantsToBuyout = GetPlayer()->GetPlayerTraits()->IsNoAnnexing() || GetPlayer()->GetPlayerTraits()->IsDiplomaticMarriage() || GetPlayer()->IsAbleToAnnexCityStates();
 
 	// **************************
 	// Would we like to give a gold gift this turn?
@@ -29893,7 +29674,7 @@ void CvDiplomacyAI::DoContactMinorCivs()
 				}
 #if defined(MOD_BALANCE_CORE)
 				// Only bother if we actually can buyout
-				if(GetPlayer()->IsDiplomaticMarriage() && pMinorCivAI->CanMajorDiploMarriage(eID))
+				if(GetPlayer()->GetPlayerTraits()->IsDiplomaticMarriage() && pMinorCivAI->CanMajorDiploMarriage(eID))
 				{
 					veMinorsToBuyout.push_back(eMinor, 1000);
 						bWantsToBuyoutThisMinor = true;
@@ -30357,7 +30138,7 @@ void CvDiplomacyAI::DoContactMinorCivs()
 			{
 				if(GET_PLAYER(eLoopMinor).GetMinorCivAI()->CanMajorDiploMarriage(eID))
 				{
-					GET_PLAYER(eLoopMinor).GetMinorCivAI()->DoMarriage(eID);
+					GET_PLAYER(eLoopMinor).GetMinorCivAI()->DoBuyout(eID);
 					iBuyoutCost = GET_PLAYER(eLoopMinor).GetMinorCivAI()->GetMarriageCost(eID);
 					iGoldLeft -= iBuyoutCost;
 				}
@@ -33742,7 +33523,7 @@ void CvDiplomacyAI::DoBeginDiploWithHuman()
 		PlayerTypes ePlayer = GC.getGame().getActivePlayer();
 		if(ePlayer != NO_PLAYER && GET_PLAYER(ePlayer).isHuman() && IsAtWar(ePlayer))
 		{
-			DoUpdateWarDamage();
+			GetPlayer()->DoUpdateWarDamage();
 			DoUpdatePeaceTreatyWillingness();
 		}
 #endif
@@ -37774,7 +37555,7 @@ const char* CvDiplomacyAI::GetGreetHumanMessage(LeaderheadAnimationTypes& eAnima
 	TeamTypes eHumanTeam = pHuman->getTeam();
 	CvTeam* pHumanTeam = &GET_TEAM(eHumanTeam);
 
-	DoUpdateWarDamage();
+	GetPlayer()->DoUpdateWarDamage();
 
 	CivApproachTypes eVisibleApproach = GetSurfaceApproach(eHuman);
 	WarStateTypes eWarState = GetWarState(eHuman);
@@ -45678,76 +45459,131 @@ int CvDiplomacyAI::GetScenarioModifier3(PlayerTypes ePlayer)
 // Miscellaneous
 /////////////////////////////////////////////////////////
 
-/// Will this player liberate a Minor's City that it now owns?
-bool CvDiplomacyAI::DoPossibleMinorLiberation(PlayerTypes eMinor, CvCity* pCity, bool bHypothetical)
+/// Are we *actively* trying and wanting to liberate a city?
+bool CvDiplomacyAI::IsTryingToLiberate(CvCity* pCity, PlayerTypes ePlayerToLiberate)
 {
-	if (pCity == NULL)
+	if (!pCity)
 		return false;
 
-	// Going for Diplo victory?
-	if (IsDiplomat() || GetPlayer()->GetPlayerTraits()->IsDiplomat() || IsGoingForDiploVictory() || IsCloseToDiploVictory())
-	{
-		if (!bHypothetical)
-			GetPlayer()->DoLiberatePlayer(eMinor, pCity->GetID());
-
-		return true;
-	}
-
-	// Do we have a trait that makes us unwilling to liberate City-States?
-	if (GetPlayer()->GetPlayerTraits()->IsBullyAnnex() || GetPlayer()->GetPlayerTraits()->IgnoreBullyPenalties()
-		|| GetPlayer()->GetPlayerTraits()->GetCityStateCombatModifier() != 0 || GetPlayer()->GetPlayerTraits()->GetBullyValueModifier() != 0
-		|| GetPlayer()->GetPlayerTraits()->GetBullyMilitaryStrengthModifier() != 0)
-	{
-		return false;
-	}
-
-	bool bLiberate = false;
-
-	// Going for Culture victory?
-	if (IsCultural() || GetPlayer()->GetPlayerTraits()->IsTourism() || IsGoingForCultureVictory() || IsCloseToCultureVictory())
-	{
-		bLiberate = true;
-	}
-
-	if (GetPlayer()->IsEmpireVeryUnhappy())
-	{
-		bLiberate = true;
-	}
-
-	if (GetLoyalty() >= 7 && !IsBackstabber() && !IsConqueror() && !GetPlayer()->GetPlayerTraits()->IsWarmonger())
-	{
-		bLiberate = true;
-	}
-
-	if (bLiberate && !bHypothetical)
-	{
-		GetPlayer()->DoLiberatePlayer(eMinor, pCity->GetID());
-	}
-
-	return bLiberate;
-}
-
-/// Will this player liberate a Major's City that it now owns?
-bool CvDiplomacyAI::DoPossibleMajorLiberation(PlayerTypes eMajor, PlayerTypes eOldOwner, CvCity* pCity, bool bHypothetical)
-{
-	if (pCity == NULL)
+	if (ePlayerToLiberate == NO_PLAYER)
 		return false;
 
-	// Received from a teammate?
-	if (IsTeammate(eOldOwner))
-		return false;
-
-	// Originally owned by a teammate?
-	if (IsTeammate(eMajor))
+	// Always try to liberate a city originally owned by a teammate
+	if (IsTeammate(ePlayerToLiberate))
 		return true;
 
-	// We're a backstabber?
+	// Backstabbers won't go out of their way to liberate cities
 	if (IsBackstabber())
 		return false;
 
+	// If we're going for world conquest, never liberate an original major capital!
+	if (IsGoingForWorldConquest() || IsCloseToDominationVictory())
+	{
+		if (pCity->IsOriginalMajorCapital())
+			return false;
+	}
+
+	// Never liberate a rival Holy City...
+	if (GetPlayer()->GetReligions()->GetCurrentReligion(false) != NO_RELIGION)
+	{
+		if (pCity->GetCityReligions()->IsHolyCityAnyReligion() && !pCity->GetCityReligions()->IsHolyCityForReligion(GetPlayer()->GetReligions()->GetCurrentReligion(false)))
+			return false;
+	}
+
+	bool bIsDiplo = IsGoingForDiploVictory() || GetPlayer()->GetPlayerTraits()->IsDiplomat();
+	CivOpinionTypes eOpinion = GetCivOpinion(ePlayerToLiberate);
+	CivApproachTypes eApproach = GetCivApproach(ePlayerToLiberate);
+
+	if (GET_PLAYER(ePlayerToLiberate).isMajorCiv())
+	{
+		// If we're planning to attack them, liberating their cities would be foolish!
+		if (IsWantsSneakAttack(ePlayerToLiberate) || IsArmyInPlaceForAttack(ePlayerToLiberate) || GetGlobalCoopWarAgainstState(ePlayerToLiberate) >= COOP_WAR_STATE_PREPARING)
+			return false;
+
+		// Hate them? Don't consider liberating!
+		if (eOpinion <= CIV_OPINION_ENEMY || eApproach <= CIV_APPROACH_GUARDED || IsUntrustworthy(ePlayerToLiberate))
+			return false;
+
+		//diplo civs will try to liberate friendly capitals/holy cities and dead players to get a big bonus
+		if (bIsDiplo)
+		{
+			if (!GET_PLAYER(ePlayerToLiberate).isAlive())
+			{
+				return true;
+			}
+			else if (eOpinion >= CIV_OPINION_FRIEND && (pCity->GetCityReligions()->IsHolyCityAnyReligion() || pCity->IsOriginalMajorCapital()))
+			{
+				return true;
+			}
+		}
+	}
+	else if (GET_PLAYER(ePlayerToLiberate).isMinorCiv())
+	{
+		bool bHasLiberateQuest = false;
+		bool bWantsLiberateQuest = false;
+
+		// Are there any liberation quests
+		for (int iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
+		{
+			PlayerTypes eMinor = (PlayerTypes)iMinorLoop;
+			if (IsPlayerValid(eMinor) && GET_PLAYER(eMinor).isMinorCiv() && !IsAtWar(eMinor) && GetCivApproach(eMinor) > CIV_APPROACH_HOSTILE)
+			{
+				CvPlayer* pMinor = &GET_PLAYER(eMinor);
+				CvMinorCivAI* pMinorCivAI = pMinor->GetMinorCivAI();
+				if (pMinor && pMinorCivAI)
+				{
+					if (pMinorCivAI->IsActiveQuestForPlayer(GetID(), MINOR_CIV_QUEST_LIBERATION))
+					{
+						PlayerTypes eMinorToLiberate = (PlayerTypes)pMinorCivAI->GetQuestData1(GetID(), MINOR_CIV_QUEST_LIBERATION);
+						int iX = GET_PLAYER(eMinorToLiberate).GetOriginalCapitalX();
+						int iY = GET_PLAYER(eMinorToLiberate).GetOriginalCapitalY();
+
+						if (pCity->getX() == iX && pCity->getY() == iY)
+						{
+							bHasLiberateQuest = true;
+							if (eApproach == CIV_APPROACH_FRIENDLY || pMinorCivAI->GetAlly() == GetID())
+								bWantsLiberateQuest = true;
+
+							break;
+						}
+					}
+				}
+			}
+		}
+
+		//if there is a quest to liberate, then diplo civs or civs that care about the CS with the quest will liberate
+		if (bHasLiberateQuest && (bIsDiplo || bWantsLiberateQuest))
+		{
+			return true;
+		}
+	}
+
+	//policy boosts liberation? Will try to go after cities to liberate, if friendly/diplomatic
+	if (GetPlayer()->GetPlayerPolicies()->GetNumericModifier(POLICYMOD_LIBERATION_BONUS) > 0)
+	{
+		if ((bIsDiplo &&  eOpinion > CIV_OPINION_NEUTRAL) || eOpinion >= CIV_OPINION_FRIEND)
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
+
+/// Will this player liberate a Major's City that it now owns?
+/// Only used for CvPlayerAI::AI_conquerCity()
+bool CvDiplomacyAI::DoPossibleMajorLiberation(CvCity* pCity, PlayerTypes ePlayerToLiberate)
+{
+	if (!pCity)
+		return false;
+
+	if (ePlayerToLiberate == NO_PLAYER)
+		return false;
+
 	bool bLiberate = false;
-	CivOpinionTypes eOpinion = GetCivOpinion(eMajor);
-	CivApproachTypes eApproach = GetCivApproach(eMajor);
+	CivOpinionTypes eOpinion = GetCivOpinion(ePlayerToLiberate);
+	CivApproachTypes eApproach = GetCivApproach(ePlayerToLiberate);
+	PlayerTypes eOldOwner = pCity->getPreviousOwner();
 
 	// If we're going for world conquest, never liberate an original major capital!
 	if (IsGoingForWorldConquest() || IsCloseToDominationVictory())
@@ -45764,17 +45600,15 @@ bool CvDiplomacyAI::DoPossibleMajorLiberation(PlayerTypes eMajor, PlayerTypes eO
 	}
 
 	// If we're planning to attack them, liberating their cities would be foolish!
-	if (IsWantsSneakAttack(eMajor) || IsArmyInPlaceForAttack(eMajor) || GetGlobalCoopWarAgainstState(eMajor) >= COOP_WAR_STATE_PREPARING)
+	if (IsWantsSneakAttack(ePlayerToLiberate) || IsArmyInPlaceForAttack(ePlayerToLiberate) || GetGlobalCoopWarAgainstState(ePlayerToLiberate) >= COOP_WAR_STATE_PREPARING)
 		return false;
 
 	// Hate them? Don't consider liberating!
-	if (eOpinion <= CIV_OPINION_ENEMY || IsUntrustworthy(eMajor))
-		return false;
-	if (eApproach == CIV_APPROACH_WAR || eApproach == CIV_APPROACH_HOSTILE || eApproach == CIV_APPROACH_GUARDED)
+	if (eOpinion <= CIV_OPINION_ENEMY || eApproach <= CIV_APPROACH_GUARDED || IsUntrustworthy(ePlayerToLiberate))
 		return false;
 
 	// Empire unhappy?
-	if (GetPlayer()->IsEmpireUnhappy() && !IsAtWar(eMajor) && !IsAtWar(eOldOwner))
+	if (GetPlayer()->IsEmpireUnhappy())
 	{
 		if (eOpinion >= CIV_OPINION_FRIEND)
 		{
@@ -45782,12 +45616,8 @@ bool CvDiplomacyAI::DoPossibleMajorLiberation(PlayerTypes eMajor, PlayerTypes eO
 		}
 		else if (eOpinion >= CIV_OPINION_NEUTRAL)
 		{
-			if (GetCivOpinion(eOldOwner) <= CIV_OPINION_ENEMY)
-			{
-				bLiberate = true;
-			}
 			// Very unhappy and war weary? Liberating a city will help.
-			else if (GetPlayer()->IsEmpireVeryUnhappy() && GetPlayer()->GetCulture()->GetWarWeariness() > 0)
+			if (GetPlayer()->IsEmpireVeryUnhappy() && GetPlayer()->GetCulture()->GetWarWeariness() > 0)
 			{
 				bLiberate = true;
 			}
@@ -45796,38 +45626,43 @@ bool CvDiplomacyAI::DoPossibleMajorLiberation(PlayerTypes eMajor, PlayerTypes eO
 
 	if (!bLiberate)
 	{
-		bool bBadWarDecision = GetWarState(eOldOwner) <= WAR_STATE_DEFENSIVE && (!GET_PLAYER(eMajor).isAlive() || GET_PLAYER(eMajor).IsAtWarWith(eOldOwner));
+		bool bBadWarDecision = eOldOwner != NO_PLAYER && GetWarState(eOldOwner) <= WAR_STATE_DEFENSIVE && (!GET_PLAYER(ePlayerToLiberate).isAlive() || GET_PLAYER(ePlayerToLiberate).IsAtWarWith(eOldOwner));
 
 		// Player we'd be liberating is alive
-		if (GET_PLAYER(eMajor).isAlive())
+		if (GET_PLAYER(ePlayerToLiberate).isAlive())
 		{
 			// DP, and we're both at war with the old owner?
-			if (IsHasDefensivePact(eMajor) && IsAtWar(eOldOwner) && GET_PLAYER(eMajor).IsAtWarWith(eOldOwner))
+			if (IsHasDefensivePact(ePlayerToLiberate) && IsAtWar(eOldOwner) && GET_PLAYER(ePlayerToLiberate).IsAtWarWith(eOldOwner))
 			{
 				bLiberate = true;
 			}
 			// Coop war against the old owner?
-			else if (GetCoopWarState(eMajor, eOldOwner) >= COOP_WAR_STATE_PREPARING)
+			else if (GetCoopWarState(ePlayerToLiberate, eOldOwner) >= COOP_WAR_STATE_PREPARING)
 			{
 				bLiberate = true;
 			}
 			// They majorly liberated us previously?
-			else if (IsLiberator(eMajor, false, true))
+			else if (IsLiberator(ePlayerToLiberate, false, true))
 			{
 				bLiberate = true;
 			}
 			// We majorly liberated them previously?
-			else if (GET_PLAYER(eMajor).GetDiplomacyAI()->IsLiberator(GetID(), true, true))
+			else if (GET_PLAYER(ePlayerToLiberate).GetDiplomacyAI()->IsLiberator(GetID(), true, true))
 			{
 				bLiberate = true;
 			}
 			// Do we really like them?
-			else if (eOpinion == CIV_OPINION_ALLY || GetDoFType(eMajor) >= DOF_TYPE_ALLIES || GetCoopWarScore(eMajor) > 1)
+			else if (eOpinion == CIV_OPINION_ALLY || GetDoFType(ePlayerToLiberate) >= DOF_TYPE_ALLIES || GetCoopWarScore(ePlayerToLiberate) > 1)
 			{
 				bLiberate = true;
 			}
 			// They liberated some of our cities before or vice versa, and at least Favorable?
-			else if ((GetNumCitiesLiberatedBy(eMajor) > 0 || GET_PLAYER(eMajor).GetDiplomacyAI()->GetNumCitiesLiberatedBy(GetID()) > 0) && eOpinion >= CIV_OPINION_FAVORABLE)
+			else if ((GetNumCitiesLiberatedBy(ePlayerToLiberate) > 0 || GET_PLAYER(ePlayerToLiberate).GetDiplomacyAI()->GetNumCitiesLiberatedBy(GetID()) > 0) && eOpinion >= CIV_OPINION_FAVORABLE)
+			{
+				bLiberate = !bBadWarDecision;
+			}
+			// Have policies that boost liberation?
+			else if (GetPlayer()->GetPlayerPolicies()->GetNumericModifier(POLICYMOD_LIBERATION_BONUS) > 0)
 			{
 				bLiberate = !bBadWarDecision;
 			}
@@ -45835,7 +45670,7 @@ bool CvDiplomacyAI::DoPossibleMajorLiberation(PlayerTypes eMajor, PlayerTypes eO
 			if (!bLiberate)
 			{
 				// Friends?
-				if ((IsDoFAccepted(eMajor) && !IsWantsToEndDoFWithPlayer(eMajor)) || IsWantsDoFWithPlayer(eMajor) || IsHasDefensivePact(eMajor) || eOpinion >= CIV_OPINION_FRIEND || eApproach == CIV_APPROACH_FRIENDLY)
+				if ((IsDoFAccepted(ePlayerToLiberate) && !IsWantsToEndDoFWithPlayer(ePlayerToLiberate)) || IsWantsDoFWithPlayer(ePlayerToLiberate) || IsHasDefensivePact(ePlayerToLiberate) || eOpinion >= CIV_OPINION_FRIEND || eApproach == CIV_APPROACH_FRIENDLY)
 				{
 					// Going for diplo victory?
 					if (IsGoingForDiploVictory() || IsCloseToDiploVictory())
@@ -45850,17 +45685,17 @@ bool CvDiplomacyAI::DoPossibleMajorLiberation(PlayerTypes eMajor, PlayerTypes eO
 					// Going for culture victory, and we're okay for influence/victory against this guy?
 					else if (IsGoingForCultureVictory())
 					{
-						bLiberate = !bBadWarDecision && GetVictoryDisputeLevel(eMajor) < DISPUTE_LEVEL_STRONG && GetVictoryBlockLevel(eMajor) < BLOCK_LEVEL_FIERCE && !IsEndgameAggressiveTo(eMajor);
+						bLiberate = !bBadWarDecision && GetVictoryDisputeLevel(ePlayerToLiberate) < DISPUTE_LEVEL_STRONG && GetVictoryBlockLevel(ePlayerToLiberate) < BLOCK_LEVEL_FIERCE && !IsEndgameAggressiveTo(ePlayerToLiberate);
 
 						if (bLiberate && IsCloseToCultureVictory())
 						{
-							if (GetPlayer()->GetCulture()->GetInfluenceLevel(eMajor) < INFLUENCE_LEVEL_INFLUENTIAL)
+							if (GetPlayer()->GetCulture()->GetInfluenceLevel(ePlayerToLiberate) < INFLUENCE_LEVEL_INFLUENTIAL)
 							{
-								if (GetPlayer()->GetCulture()->GetInfluenceLevel(eMajor) < INFLUENCE_LEVEL_POPULAR)
+								if (GetPlayer()->GetCulture()->GetInfluenceLevel(ePlayerToLiberate) < INFLUENCE_LEVEL_POPULAR)
 								{
 									bLiberate = false;
 								}
-								else if (GetPlayer()->GetCulture()->GetInfluenceTrend(eMajor) != INFLUENCE_TREND_RISING)
+								else if (GetPlayer()->GetCulture()->GetInfluenceTrend(ePlayerToLiberate) != INFLUENCE_TREND_RISING)
 								{
 									bLiberate = false;
 								}
@@ -45871,7 +45706,7 @@ bool CvDiplomacyAI::DoPossibleMajorLiberation(PlayerTypes eMajor, PlayerTypes eO
 			}
 		}
 		// Player we'd be liberating is dead (resurrection!)
-		else if (!GET_PLAYER(eMajor).isHuman())
+		else if (!GET_PLAYER(ePlayerToLiberate).isHuman())
 		{
 			// Going for diplo victory? Resurrect for super diplo bonuses!
 			if (IsGoingForDiploVictory() || IsCloseToDiploVictory())
@@ -45879,52 +45714,30 @@ bool CvDiplomacyAI::DoPossibleMajorLiberation(PlayerTypes eMajor, PlayerTypes eO
 				bLiberate = true;
 			}
 			// They majorly liberated us previously?
-			else if (IsLiberator(eMajor, false, true))
+			else if (IsLiberator(ePlayerToLiberate, false, true))
 			{
 				bLiberate = true;
 			}
 			// We majorly liberated them previously?
-			else if (GET_PLAYER(eMajor).GetDiplomacyAI()->IsLiberator(GetID(), true, true))
+			else if (GET_PLAYER(ePlayerToLiberate).GetDiplomacyAI()->IsLiberator(GetID(), true, true))
 			{
 				bLiberate = true;
 			}
 			// We had good relations?
-			else if (GetDoFType(eMajor) >= DOF_TYPE_ALLIES || GetCoopWarScore(eMajor) > 0)
+			else if (GetDoFType(ePlayerToLiberate) >= DOF_TYPE_ALLIES || GetCoopWarScore(ePlayerToLiberate) > 0)
 			{
 				bLiberate = true;
 			}
 			else
 			{
-				// Going for culture victory?
-				if (IsGoingForCultureVictory())
-				{
-					bLiberate = !bBadWarDecision;
-				}
-				// Previous liberation?
-				else if (GetNumCitiesLiberatedBy(eMajor) > 0 || GET_PLAYER(eMajor).GetDiplomacyAI()->GetNumCitiesLiberatedBy(GetID()) > 0)
-				{
-					bLiberate = !bBadWarDecision;
-				}
-				// Are we really willing to make friends?
-				else if (GetDoFWillingness() >= 8 || GetLoyalty() >= 8)
-				{
-					bLiberate = !bBadWarDecision;
-				}
-
-				if (bLiberate && IsCloseToCultureVictory())
-				{
-					if (GetPlayer()->GetCulture()->GetInfluenceLevel(eMajor) < INFLUENCE_LEVEL_INFLUENTIAL)
-					{
-						bLiberate = false;
-					}
-				}
+				bLiberate = !bBadWarDecision;
 			}
 		}
 	}
 
-	if (bLiberate && !bHypothetical)
+	if (bLiberate)
 	{
-		GetPlayer()->DoLiberatePlayer(eMajor, pCity->GetID());
+		GetPlayer()->DoLiberatePlayer(ePlayerToLiberate, pCity->GetID());
 	}
 
 	return bLiberate;
@@ -47046,12 +46859,6 @@ void CvDiplomacyAI::KilledPlayerCleanup (PlayerTypes eKilledPlayer)
 	SetVassalFailedProtectValue(eKilledPlayer, 0);
 	GET_PLAYER(eKilledPlayer).GetDiplomacyAI()->SetVassalProtectValue(GetID(), 0);
 	GET_PLAYER(eKilledPlayer).GetDiplomacyAI()->SetVassalFailedProtectValue(GetID(), 0);
-
-	// Reset war damage stats
-	SetWarValueLost(eKilledPlayer, 0);
-	SetWarDamageValue(eKilledPlayer, 0);
-	GET_PLAYER(eKilledPlayer).GetDiplomacyAI()->SetWarValueLost(GetID(), 0);
-	GET_PLAYER(eKilledPlayer).GetDiplomacyAI()->SetWarDamageValue(GetID(), 0);
 
 	// Reset warmongering penalty for the killed player
 	SetWarmongerThreat(eKilledPlayer, THREAT_NONE);

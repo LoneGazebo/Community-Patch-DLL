@@ -42,7 +42,7 @@ public:
 	void AI_doTurnUnitsPost();
 
 	void AI_unitUpdate();
-	void AI_conquerCity(CvCity* pCity, PlayerTypes eOldOwner, bool bGift, bool bAllowRaze);
+	void AI_conquerCity(CvCity* pCity, PlayerTypes ePlayerToLiberate, bool bGift);
 
 	void AI_chooseFreeGreatPerson();
 	void AI_chooseFreeTech();

@@ -6114,7 +6114,7 @@
 
 		<!-- Holy City Lost/Gained-->
 		<Row Tag="TXT_KEY_NOTIFICATION_CITY_LOST_HOLY">
-			<Text>The Holy City of {1_CityName:textkey} was captured by {@2_CivName}! If {@2_CivName} is eliigble, {3_Religion} may become their primary Religion, thus giving them access to its Founder and Enhancer Bonuses. If {3_Religion} was your primary Religion, you will lose access to its Beliefs until you retake it.</Text>
+			<Text>The Holy City of {1_CityName:textkey} was captured by {@2_CivName}! If {@2_CivName} is eligible, {3_Religion} may become their primary Religion, thus giving them access to its Founder and Enhancer Bonuses. If {3_Religion} was your primary Religion, you will lose access to its Beliefs until you retake it.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_CITY_LOST_HOLY">
 			<Text>Holy City of {1_CityName:textkey} captured!</Text>

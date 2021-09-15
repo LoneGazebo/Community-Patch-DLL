@@ -2585,8 +2585,7 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 				}
 			}
 #endif
-			// Notify Diplo AI that damage has been done
-			if (!isBarbarian() && iCivValue == 0)
+			if (iCivValue == 0)
 			{
 				// Update military rating for both players
 				if (GET_PLAYER(ePlayer).isMajorCiv())
@@ -2602,7 +2601,7 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 				iUnitValue *= (100 + GET_PLAYER(ePlayer).GetWarScoreModifier());
 				iUnitValue /= 100;
 
-				GET_PLAYER(getOwner()).GetDiplomacyAI()->ChangeWarValueLost(ePlayer, iUnitValue);
+				GET_PLAYER(getOwner()).ChangeWarValueLost(ePlayer, iUnitValue);
 			}
 		}
 
@@ -10354,7 +10353,6 @@ bool CvUnit::pillage()
 					iTileValue *= (100 + iValueMultiplier);
 					iTileValue /= 100;
 
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 					// Did the plot owner's master fail to protect their territory?
 					if (MOD_DIPLOMACY_CIV4_FEATURES && !isBarbarian() && GET_PLAYER(pPlot->getOwner()).isMajorCiv() && GET_PLAYER(pPlot->getOwner()).IsVassalOfSomeone())
 					{
@@ -10367,7 +10365,7 @@ bool CvUnit::pillage()
 							}
 						}
 					}
-#endif
+
 					// Update military rating for both players
 					if (GET_PLAYER(getOwner()).isMajorCiv())
 					{
@@ -10382,7 +10380,7 @@ bool CvUnit::pillage()
 					iTileValue *= (100 + GET_PLAYER(getOwner()).GetWarScoreModifier());
 					iTileValue /= 100;
 
-					GET_PLAYER(pPlot->getOwner()).GetDiplomacyAI()->ChangeWarValueLost(getOwner(), iTileValue);
+					GET_PLAYER(pPlot->getOwner()).ChangeWarValueLost(getOwner(), iTileValue);
 				}
 #endif
 				int iPillageGold = 0;
@@ -12326,76 +12324,57 @@ bool CvUnit::trade()
 bool CvUnit::canBuyCityState(const CvPlot* pPlot, bool bTestVisible) const
 {
 	VALIDATE_OBJECT
-	if(isDelayedDeath())
-	{
+
+	if (isDelayedDeath())
 		return false;
-	}
 
 	if (!m_pUnitInfo->IsCanBuyCityState())
-	{
 		return false;
-	}
 
+	// Not allowed for humans in OCC games
 	if (GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE) && GET_PLAYER(getOwner()).isHuman())
-	{
 		return false;
-	}
 
 	// Things that block usage but not visibility
-	if(!bTestVisible)
+	if (!bTestVisible)
 	{
-		// Not owned
-		if(pPlot->getOwner() == NO_PLAYER)
+		// If we don't have a capital, we can't purchase a city-state.
+		if (GET_PLAYER(m_eOwner).getCapitalCity() == NULL)
 			return false;
 
-		// if we don't have a starting city, we can't purchase a city-state.
-		if (GET_PLAYER(m_eOwner).getNumCities() <= 0)
+		// Not City-State territory
+		if (pPlot->getOwner() == NO_PLAYER || !GET_PLAYER(pPlot->getOwner()).isMinorCiv())
+			return false;
+
+		// At war
+		if (GET_TEAM(pPlot->getTeam()).isAtWar(getTeam()))
+			return false;
+
+		if (MOD_EVENTS_MINORS_INTERACTION) 
 		{
-			return false;
-		}
-
-		// Owned by a non-minor civ
-		if(!GET_PLAYER(pPlot->getOwner()).isMinorCiv())
-			return false;
-
-		if(GET_TEAM(pPlot->getTeam()).isAtWar(getTeam()))
-		{
-			return false;
-		}
-
-#if defined(MOD_EVENTS_MINORS_INTERACTION)
-		if (MOD_EVENTS_MINORS_INTERACTION) {
-			if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_PlayerCanBuyOut, m_eOwner, pPlot->getOwner()) == GAMEEVENTRETURN_FALSE) {
+			if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_PlayerCanBuyOut, m_eOwner, pPlot->getOwner()) == GAMEEVENTRETURN_FALSE)
 				return false;
-			}
 		}
-#endif
 	}
 
 	return true;
 }
 
 //	--------------------------------------------------------------------------------
+// A Merchant of Venice buys a City-State
+// CvUnit::buyCityState() is only ever called via CvTypes::getMISSION_BUY_CITY_STATE(), so this MUST be a "Merchant of Venice" type unit
 bool CvUnit::buyCityState()
 {
 	VALIDATE_OBJECT
 	CvPlot* pPlot = plot();
 
 	if (!canBuyCityState(pPlot))
-	{
 		return false;
-	}
 
-	// Improve relations with the Minor
 	PlayerTypes eMinor = pPlot->getOwner();
-	CvAssertMsg(eMinor != NO_PLAYER, "Trying to buy a city state and not in city state territory. This is bad. Please send slewis this with your last 5 autosaves and what changelist # you're playing.");
 
-	if (eMinor != NO_PLAYER)
-	{
-		int iNumUnits, iCapitalX, iCapitalY;
-		// CvUnit::buyCityState() is only ever called via CvTypes::getMISSION_BUY_CITY_STATE(), so this MUST be a "Merchant of Venice" type unit
-		GET_PLAYER(eMinor).GetMinorCivAI()->DoPassCitiesToMajor(getOwner(), iNumUnits, iCapitalX, iCapitalY);
-	}
+	// Perform the transfer
+	GET_PLAYER(eMinor).GetMinorCivAI()->TransferUnitsAndCitiesToMajor(getOwner());
 
 	if (getOwner() == GC.getGame().getActivePlayer())
 	{
@@ -12883,7 +12862,7 @@ void CvUnit::PerformCultureBomb(int iRadius)
 					iTileValue *= (100 + GET_PLAYER(getOwner()).GetWarScoreModifier());
 					iTileValue /= 100;
 
-					GET_PLAYER(ePlotOwner).GetDiplomacyAI()->ChangeWarValueLost(getOwner(), iTileValue);
+					GET_PLAYER(ePlotOwner).ChangeWarValueLost(getOwner(), iTileValue);
 				}
 			}
 #if defined(MOD_BALANCE_CORE)

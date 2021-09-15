@@ -287,114 +287,172 @@ void CvPlayerAI::AI_unitUpdate()
 	}
 }
 
-void CvPlayerAI::AI_conquerCity(CvCity* pCity, PlayerTypes eOldOwner, bool bGift, bool bAllowRaze)
+void CvPlayerAI::AI_conquerCity(CvCity* pCity, PlayerTypes ePlayerToLiberate, bool bGift)
 {
 	if (isHuman())
 		return;
 
-	// Burn them all to the ground!
-	if (canRaze(pCity) && MOD_BALANCE_CORE_SETTLER_ADVANCED && GetPlayerTraits()->GetRazeSpeedModifier() > 0)
+	// What are our options for this city?
+	bool bCanLiberate = ePlayerToLiberate != NO_PLAYER;
+	bool bCanRaze = (canRaze(pCity) && !bGift); //shouldn't raze cities you bought
+	bool bCanAnnex = (isMinorCiv() || !GetPlayerTraits()->IsNoAnnexing());
+
+	// City-States
+	if (isMinorCiv())
+	{
+		PlayerTypes eAlly = GetMinorCivAI()->GetAlly();
+
+		// They will liberate their ally's team and no one else
+		if (bCanLiberate && eAlly != NO_PLAYER && GET_PLAYER(eAlly).getTeam() == GET_PLAYER(ePlayerToLiberate).getTeam())
+		{
+			DoLiberatePlayer(ePlayerToLiberate, pCity->GetID());
+			return;
+		}
+		else if (bCanAnnex)
+		{
+			pCity->DoAnnex();
+			return;
+		}
+
+		pCity->DoCreatePuppet();
+		return;
+	}
+
+	// If we have been actively trying to liberate this city, liberate it! (note - some more liberation checks are later in this method)
+	if (bCanLiberate && GetDiplomacyAI()->IsTryingToLiberate(pCity, ePlayerToLiberate))
+	{
+		DoLiberatePlayer(ePlayerToLiberate, pCity->GetID());
+		return;
+	}
+
+	// Burn them all to the ground! (Timurids modmod)
+	if (MOD_BALANCE_CORE_SETTLER_ADVANCED && GetPlayerTraits()->GetRazeSpeedModifier() > 0 && canRaze(pCity))
 	{
 		pCity->doTask(TASK_RAZE);
 		return;
 	}
 
-	PlayerTypes eOriginalOwner = pCity->getOriginalOwner();
-	TeamTypes eOldOwnerTeam = GET_PLAYER(eOldOwner).getTeam();
-
-	//Don't burn down gifts, that makes you look ungrateful.
-	if (bGift && eOriginalOwner != GetID())
+	// City has a courthouse (possible with Rome). Should annex.
+	BuildingClassTypes iCourthouse = (BuildingClassTypes)GC.getInfoTypeForString("BUILDINGCLASS_COURTHOUSE");
+	if (iCourthouse != -1 && pCity->HasBuildingClass(iCourthouse))
 	{
-		pCity->DoCreatePuppet();
+		pCity->DoAnnex();
 		return;
 	}
 
-	// Liberate a city?
-	if (eOriginalOwner != eOldOwner && eOriginalOwner != GetID() && CanLiberatePlayerCity(eOriginalOwner) && getNumCities() > 1)
+
+	// Now that the preliminary checks are out of the way, a choice:
+	// Should we keep the city (puppet/annex) or do we not want it (liberate/raze)?
+	bool bKeepCity = false;
+
+	// Cities are rated on a 0-100 scale, where 0 = worthless, and 100 = most valuable in the world.
+	int iHighestEconomicPower = GC.getGame().getHighestEconomicValue();
+	int iLocalEconomicPower = pCity->getEconomicValue(GetID());
+	int iCityValue = (iLocalEconomicPower * 100) / max(1, iHighestEconomicPower);
+
+	// Original major capitals are worth more.
+	if (pCity->IsOriginalMajorCapital())
 	{
-		// minor civ
-		if (GET_PLAYER(eOriginalOwner).isMinorCiv())
+		iCityValue *= 150;
+		iCityValue /= 100;
+	}
+
+	if (iCityValue >= 60 && !IsEmpireVeryUnhappy())
+	{
+		bKeepCity = true;
+	}
+	else
+	{
+		//if it has wonders or is a holy city, try to keep it
+		if (pCity->HasAnyWonder() || pCity->GetCityReligions()->IsHolyCityAnyReligion())
 		{
-			// If we're a major civ, decision is made by diplo AI (minors don't liberate other minors)
-			if (isMajorCiv())
-			{
-				if (GetDiplomacyAI()->DoPossibleMinorLiberation(eOriginalOwner, pCity))
-					return;
-			}
+			bKeepCity = true;
 		}
-		// Original owner is a major civ
-		else
+		//only city in the area? may be strategically important
+		CvArea* pArea = GC.getMap().getArea(pCity->getArea());
+		if (pArea != NULL && pArea->getCitiesPerPlayer(GetID()) < 1)
 		{
-			// If we're a minor civ, only liberate if they're our ally
-			if (isMinorCiv())
-			{
-				if (GetMinorCivAI()->GetAlly() == eOriginalOwner)
-				{
-					DoLiberatePlayer(eOriginalOwner, pCity->GetID());
-					return;
-				}
-			}
-			// If we're a major civ, decision is made by diplo AI
-			else if (isMajorCiv())
-			{
-				if (GetDiplomacyAI()->DoPossibleMajorLiberation(eOriginalOwner, eOldOwner, pCity))
-					return;
-			}
+			bKeepCity = true;
 		}
 	}
 
-	// Do we want to burn this city down?
-	if (canRaze(pCity) && bAllowRaze)
+	// If we're going for world conquest, have to keep any capitals we get
+	if (!bKeepCity && pCity->IsOriginalMajorCapital() && (GetDiplomacyAI()->IsGoingForWorldConquest() || GetDiplomacyAI()->IsCloseToDominationVictory()))
 	{
-		// Huns will burn down everything possible once they have a core of a few cities (was 3, but this put Attila out of the running long term as a conqueror)
-		CUSTOMLOG("AI_conquerCity: City=%s, Player=%d, ExcessHappiness=%d", pCity->getName().GetCString(), GetID(), GetExcessHappiness());
-		if ((GC.getMap().GetAIMapHint() & ciMapHint_Raze) || (GetPlayerTraits()->GetRazeSpeedModifier() > 0 && getNumCities() >= (GetDiplomacyAI()->GetBoldness() + GetDiplomacyAI()->GetMeanness() + (GC.getGame().getGameTurn() / 100))) )
+		bKeepCity = true;
+	}
+
+	//Want to keep city - will puppet/annex
+	if (bKeepCity || (!bCanLiberate && !bCanRaze))
+	{
+		// Can't annex? Have to puppet.
+		if (!bCanAnnex)
+		{
+			pCity->DoCreatePuppet();
+			return;
+		}
+
+		if (GetExcessHappiness() < 40) // 40 as a buffer, if a little unhappy it's fine to take a city
+		{
+			pCity->DoCreatePuppet();
+			return;
+		}
+
+		if (bCanAnnex)
+		{
+			//if you have a unique courthouse, use it!
+			if (iCourthouse != -1 && getCivilizationInfo().isCivilizationBuildingOverridden(iCourthouse))
+			{
+				pCity->DoAnnex();
+				return;
+			}
+
+			if (iCityValue >= 60)
+			{
+				pCity->DoAnnex();
+				return;
+			}
+
+			if (!IsEmpireUnhappy())
+			{
+				pCity->DoAnnex();
+				return;
+			}
+		}
+
+		pCity->DoCreatePuppet();
+		return;
+	}
+	//Doesn't want the city - will raze/liberate (with one exception below)
+	else
+	{
+		if (bCanLiberate)
+		{
+			if (GET_PLAYER(ePlayerToLiberate).isMinorCiv())
+			{
+				DoLiberatePlayer(ePlayerToLiberate, pCity->GetID());
+				return;
+			}
+
+			if (GetDiplomacyAI()->DoPossibleMajorLiberation(pCity, ePlayerToLiberate))
+				return;
+		}
+
+		// ONE EXCEPTION, civs with bonuses for puppeting will consider puppeting cities they otherwise would have razed
+		// if the city is ok-ish value and they aren't in revolt
+		if ((GetPlayerPolicies()->GetNumericModifier(POLICYMOD_PUPPET_BONUS) > 0 || GET_PLAYER(m_eID).GetPlayerTraits()->IsNoAnnexing()) && iCityValue >= 30 && !IsEmpireVeryUnhappy())
+		{
+			pCity->DoCreatePuppet();
+			return;
+		}
+		else if (bCanRaze)
 		{
 			pCity->doTask(TASK_RAZE);
 			return;
 		}
-
-		//don't burn cities with wonders, they tend to be good
-		if(IsEmpireVeryUnhappy() && !pCity->HasAnyWonder())
-		{
-			//Only raze if this isn't a beachhead city.
-			CvArea* pArea = GC.getMap().getArea(pCity->getArea());
-			if (pArea != NULL && pArea->getCitiesPerPlayer(GetID()) > 1)
-			{
-				CivOpinionTypes eOpinion = GetDiplomacyAI()->GetCivOpinion(eOldOwner);
-				if (eOpinion == CIV_OPINION_UNFORGIVABLE)
-				{
-					pCity->doTask(TASK_RAZE);
-					return;
-				}
-				else if (eOpinion == CIV_OPINION_ENEMY)
-				{
-					if (GET_TEAM(getTeam()).isAtWar(eOldOwnerTeam))
-					{
-						pCity->doTask(TASK_RAZE);
-						return;
-					}
-				}
-			}
-		}
 	}
 
-	// Let's make sure we annex.
-	if (pCity->getOriginalOwner() == GetID() && !GET_PLAYER(m_eID).GetPlayerTraits()->IsNoAnnexing())
-	{
-		pCity->DoAnnex();
-		pCity->ChangeNoOccupiedUnhappinessCount(1);
-	}
-	// If this is our only city, always annex if we can
-	else if (getNumCities() == 1 && !GET_PLAYER(m_eID).GetPlayerTraits()->IsNoAnnexing())
-	{
-		pCity->DoAnnex();
-	}
-	// Puppet the city
-	else if (pCity->getOriginalOwner() != GetID() || GET_PLAYER(m_eID).GetPlayerTraits()->IsNoAnnexing())
-	{
-		pCity->DoCreatePuppet();
-	}
+	pCity->DoCreatePuppet();
 }
 
 void CvPlayerAI::AI_chooseFreeGreatPerson()

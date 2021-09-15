@@ -63,6 +63,10 @@ UPDATE Beliefs
 SET CityStateMinimumInfluence = '35'
 WHERE Type = 'BELIEF_JUST_WAR' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
+UPDATE Beliefs
+SET CityStateInfluenceModifier = '20'
+WHERE Type = 'BELIEF_JUST_WAR' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
+
 -- Heathen Conversion (Now Holy Warriors)
 UPDATE Beliefs
 SET Enhancer = '1'

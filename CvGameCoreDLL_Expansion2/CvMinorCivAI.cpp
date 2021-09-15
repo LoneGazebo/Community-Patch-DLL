@@ -5570,27 +5570,6 @@ void CvMinorCivAI::AddQuestNotification(CvString sString, CvString sSummaryStrin
 	}
 }
 
-/// Buyout notifications
-void CvMinorCivAI::AddBuyoutNotification(CvString sString, CvString sSummaryString, PlayerTypes ePlayer, int iX, int iY)
-{
-	if(iX == -1 && iY == -1)
-	{
-		CvCity* capCity = GetPlayer()->getCapitalCity();
-
-		if(capCity != NULL)
-		{
-			iX = capCity->getX();
-			iY = capCity->getY();
-		}
-	}
-
-	CvNotifications* pNotifications = GET_PLAYER(ePlayer).GetNotifications();
-	if(pNotifications)
-	{
-		pNotifications->Add(NOTIFICATION_MINOR_BUYOUT, sString, sSummaryString, iX, iY, GetPlayer()->GetID());
-	}
-}
-
 // ******************************
 // Threatened by Barbarians event
 // ******************************
@@ -10813,7 +10792,7 @@ int CvMinorCivAI::GetFriendshipChangePerTurnTimes100(PlayerTypes ePlayer)
 #if defined(MOD_BALANCE_CORE)
 	if (iBaseFriendship > iFriendshipAnchor && !GET_PLAYER(ePlayer).IsAtWarWith(GetPlayer()->GetID()))
 	{
-		if(GET_PLAYER(ePlayer).IsDiplomaticMarriage() && IsMarried(ePlayer))
+		if(GET_PLAYER(ePlayer).GetPlayerTraits()->IsDiplomaticMarriage() && IsMarried(ePlayer))
 		{
 			iChangeThisTurn = 0;
 		}
@@ -14594,141 +14573,18 @@ int CvMinorCivAI::GetCurrentSpawnEstimate(PlayerTypes ePlayer)
 	return iNumTurns / 100;
 }
 
-#if defined(MOD_BALANCE_CORE)
-/// Has this minor been married by us already?
+
+/// Has this minor been married by us?
 bool CvMinorCivAI::IsMarried(PlayerTypes eMajor) const
 {
-	CvAssertMsg(eMajor >= 0, "ePlayer is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eMajor < REALLY_MAX_PLAYERS, "ePlayer is expected to be within maximum bounds (invalid Index)");
-	if(eMajor < 0 || eMajor >= REALLY_MAX_PLAYERS) return 0;  // as defined in Reset()
+	if (eMajor < 0 || eMajor >= MAX_MAJOR_CIVS) return false;
 	return m_abIsMarried[eMajor];
 }
-/// This minor has been bought out by a major civ
+
 void CvMinorCivAI::SetMajorMarried(PlayerTypes eMajor, bool bValue)
 {
-	CvAssertMsg(eMajor >= 0, "ePlayer is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eMajor < REALLY_MAX_PLAYERS, "ePlayer is expected to be within maximum bounds (invalid Index)");
-	if(m_abIsMarried[eMajor] != bValue)
-	{
-		m_abIsMarried[eMajor] = bValue;
-	}
-}
-/// Can this minor be bought out by this major?  (Austria UA)
-bool CvMinorCivAI::CanMajorDiploMarriage(PlayerTypes eMajor)
-{
-	CvAssertMsg(eMajor >= 0, "eMajor is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eMajor < MAX_MAJOR_CIVS, "eMajor is expected to be within maximum bounds (invalid Index)");
-	if(eMajor < 0 || eMajor >= MAX_MAJOR_CIVS) return false;
-
-	// Is alive?
-	if (!GET_PLAYER(eMajor).isAlive() || !GetPlayer()->isAlive())
-		return false;
-
-	// Has the trait or the policy?
-	if(!GET_PLAYER(eMajor).IsDiplomaticMarriage())
-		return false;
-	
-	//Already married?
-	if(IsMarried(eMajor))
-		return false;
-	
-	// Not at war?
-	if(GET_TEAM(GetPlayer()->getTeam()).isAtWar(GET_PLAYER(eMajor).getTeam()))
-		return false;
-
-	// Allies?
-	if(!IsAllies(eMajor))
-		return false;
-
-	// Allied long enough?
-	if (GetAlliedTurns() < GC.getMINOR_CIV_BUYOUT_TURNS())
-	{
-		return false;
-	}
-
-	// Has enough gold?
-	const int iBuyoutCost = GetMarriageCost(eMajor);
-	if(GET_PLAYER(eMajor).GetTreasury()->GetGold() < iBuyoutCost)
-		return false;
-
-	return true;
-}
-void CvMinorCivAI::DoMarriage(PlayerTypes eMajor)
-{
-	CvAssertMsg(eMajor >= 0, "eMajor is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eMajor < MAX_MAJOR_CIVS, "eMajor is expected to be within maximum bounds (invalid Index)");
-	if(eMajor < 0 || eMajor >= MAX_MAJOR_CIVS) return;
-
-	if(!CanMajorDiploMarriage(eMajor))
-		return;
-
-	// Pay the cost
-	const int iBuyoutCost = GetMarriageCost(eMajor);
-	GET_PLAYER(eMajor).GetTreasury()->LogExpenditure(GetPlayer()->GetMinorCivAI()->GetNamesListAsString( CivsList(1,GetPlayer()->GetID()) ), iBuyoutCost, 6);
-	GET_PLAYER(eMajor).GetTreasury()->ChangeGold(-iBuyoutCost);
-
-	SetMajorMarried(eMajor, true);
-
-	GET_PLAYER(eMajor).GetDiplomacyAI()->LogMinorCivBuyout(GetPlayer()->GetID(), iBuyoutCost, /*bSaving*/ false);
-
-	// Show special notifications
-	int iCoinToss = GC.getGame().getSmallFakeRandNum(2, m_pPlayer->GetPseudoRandomSeed());
-	Localization::String strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_MINOR_MARRIAGE_TT_1");
-	if (iCoinToss == 0) // Is it a boy or a girl?
-		strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_MINOR_MARRIAGE_TT_2");
-	strMessage << GET_PLAYER(eMajor).getCivilizationShortDescriptionKey();
-	strMessage << GetPlayer()->getCivilizationShortDescriptionKey();
-
-	Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_MINOR_MARRIAGE");
-	strSummary << GET_PLAYER(eMajor).getCivilizationShortDescriptionKey();
-	strSummary << GetPlayer()->getCivilizationShortDescriptionKey();
-
-	for (int iMajorLoop = 0; iMajorLoop < MAX_MAJOR_CIVS; iMajorLoop++)
-	{
-		PlayerTypes eMajorLoop = (PlayerTypes) iMajorLoop;
-		if (IsHasMetPlayer(eMajorLoop))
-		{
-			AddBuyoutNotification(strMessage.toUTF8(), strSummary.toUTF8(), eMajorLoop);
-		}
-	}
-}
-int CvMinorCivAI::GetMarriageCost(PlayerTypes eMajor)
-{
-	CvAssertMsg(eMajor >= 0, "eMajor is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eMajor < MAX_MAJOR_CIVS, "eMajor is expected to be within maximum bounds (invalid Index)");
-	if(eMajor < 0 || eMajor >= MAX_MAJOR_CIVS) return -1;
-
-	int iGold = GC.getMINOR_CIV_BUYOUT_COST();
-
-	// Game Speed Mod
-	iGold *= GC.getGame().getGameSpeedInfo().getGoldPercent();
-	iGold /= 100;
-
-	// Add in the number of marriages we've already got.
-	int iCost = 0;
-	for (int iMinorLoop = 0; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
-	{
-		PlayerTypes eMinorLoop = (PlayerTypes) iMinorLoop;
-		if(eMinorLoop != NO_PLAYER && GET_PLAYER(eMinorLoop).isMinorCiv() && GET_PLAYER(eMinorLoop).GetMinorCivAI()->IsMarried(eMajor))
-		{
-			iCost++;
-		}
-	}
-	iGold += (iCost * 100);
-
-	// Rounding
-	int iVisibleDivisor = /*5*/ GC.getMINOR_CIV_GOLD_GIFT_VISIBLE_DIVISOR();
-	iGold /= iVisibleDivisor;
-	iGold *= iVisibleDivisor;
-
-	return iGold;
-}
-#endif
-/// Has this minor been bought out by someone?
-bool CvMinorCivAI::IsBoughtOut() const
-{
-	PlayerTypes eBuyoutPlayer = GetMajorBoughtOutBy();
-	return (eBuyoutPlayer != NO_PLAYER);
+	if (eMajor < 0 || eMajor >= MAX_MAJOR_CIVS) return;
+	m_abIsMarried[eMajor] = bValue;
 }
 
 /// What player has bought out this minor?
@@ -14737,81 +14593,114 @@ PlayerTypes CvMinorCivAI::GetMajorBoughtOutBy() const
 	return m_eMajorBoughtOutBy;
 }
 
-/// This minor has been bought out by a major civ
 void CvMinorCivAI::SetMajorBoughtOutBy(PlayerTypes eMajor)
 {
-	CvAssertMsg(eMajor >= 0, "eMajor is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eMajor < MAX_MAJOR_CIVS, "eMajor is expected to be within maximum bounds (invalid Index)");
-
+	if (eMajor < 0 || eMajor >= MAX_MAJOR_CIVS) return;
 	m_eMajorBoughtOutBy = eMajor;
 }
 
-/// Can this minor be bought out by this major?  (Austria UA)
-bool CvMinorCivAI::CanMajorBuyout(PlayerTypes eMajor)
+/// Has this minor been bought out by someone?
+bool CvMinorCivAI::IsBoughtOut() const
 {
-	CvAssertMsg(eMajor >= 0, "eMajor is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eMajor < MAX_MAJOR_CIVS, "eMajor is expected to be within maximum bounds (invalid Index)");
-	if(eMajor < 0 || eMajor >= MAX_MAJOR_CIVS) return false;
+	return GetMajorBoughtOutBy() != NO_PLAYER;
+}
 
-	// Is alive?
-	if (!GET_PLAYER(eMajor).isAlive() || !GetPlayer()->isAlive())
+
+/// Can this minor be bought out by this major? (Austria VP UA)
+bool CvMinorCivAI::CanMajorDiploMarriage(PlayerTypes eMajor)
+{
+	if (eMajor < 0 || eMajor >= MAX_MAJOR_CIVS) return false;
+
+	// We must both be alive and they must have a capital
+	if (!GET_PLAYER(eMajor).isAlive() || !GetPlayer()->isAlive() || GET_PLAYER(eMajor).getCapitalCity() == NULL)
 		return false;
 	
-	// Has the trait or the policy?
-	if(!GET_PLAYER(eMajor).IsAbleToAnnexCityStates())
+	// They must have the ability to marry City-States
+	if (!GET_PLAYER(eMajor).GetPlayerTraits()->IsDiplomaticMarriage())
 		return false;
 
-	// Not at war?
-	if(GET_TEAM(GetPlayer()->getTeam()).isAtWar(GET_PLAYER(eMajor).getTeam()))
+	// Can't be at war
+	if (GET_TEAM(GetPlayer()->getTeam()).isAtWar(GET_PLAYER(eMajor).getTeam()))
 		return false;
 
-	// Allies?
-	if(!IsAllies(eMajor))
+	// Must be allies
+	if (!IsAllies(eMajor))
 		return false;
 
-	// Allied long enough?
-	if (GetAlliedTurns() < GC.getMINOR_CIV_BUYOUT_TURNS())
+	// ...for a while
+	if (GetAlliedTurns() < /*10*/ GC.getMINOR_CIV_BUYOUT_TURNS())
+		return false;
+
+	// They must have enough Gold
+	if (GET_PLAYER(eMajor).GetTreasury()->GetGold() < GetMarriageCost(eMajor))
+		return false;
+
+	return true;
+}
+
+/// Can this minor be bought out by this major? (Austria BNW UA)
+bool CvMinorCivAI::CanMajorBuyout(PlayerTypes eMajor)
+{
+	if (eMajor < 0 || eMajor >= MAX_MAJOR_CIVS) return false;
+
+	// We must both be alive and they must have a capital
+	if (!GET_PLAYER(eMajor).isAlive() || !GetPlayer()->isAlive() || GET_PLAYER(eMajor).getCapitalCity() == NULL)
+		return false;
+	
+	// They must have the ability to purchase City-States
+	if (!GET_PLAYER(eMajor).IsAbleToAnnexCityStates())
+		return false;
+
+	// Can't be at war
+	if (GET_TEAM(GetPlayer()->getTeam()).isAtWar(GET_PLAYER(eMajor).getTeam()))
+		return false;
+
+	// Not allowed in OCC games
+	if (GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE) && GET_PLAYER(eMajor).isHuman())
+		return false;
+
+	// Must be allies
+	if (!IsAllies(eMajor))
+		return false;
+
+	// ...for a while
+	if (GetAlliedTurns() < /*10*/ GC.getMINOR_CIV_BUYOUT_TURNS())
+		return false;
+
+	// They must have enough Gold
+	if (GET_PLAYER(eMajor).GetTreasury()->GetGold() < GetBuyoutCost(eMajor))
+		return false;
+
+	if (MOD_EVENTS_MINORS_INTERACTION) 
 	{
-		return false;
-	}
-
-	// Has enough gold?
-	const int iBuyoutCost = GetBuyoutCost(eMajor);
-	if(GET_PLAYER(eMajor).GetTreasury()->GetGold() < iBuyoutCost)
-		return false;
-
-#if defined(MOD_EVENTS_MINORS_INTERACTION)
-	if (MOD_EVENTS_MINORS_INTERACTION) {
-		if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_PlayerCanBuyOut, eMajor, GetPlayer()->GetID()) == GAMEEVENTRETURN_FALSE) {
+		if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_PlayerCanBuyOut, eMajor, GetPlayer()->GetID()) == GAMEEVENTRETURN_FALSE)
 			return false;
-		}
 	}
-#endif				
 	
 	return true;
 }
 
-int CvMinorCivAI::GetBuyoutCost(PlayerTypes eMajor)
-{
-	CvAssertMsg(eMajor >= 0, "eMajor is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eMajor < MAX_MAJOR_CIVS, "eMajor is expected to be within maximum bounds (invalid Index)");
-	if(eMajor < 0 || eMajor >= MAX_MAJOR_CIVS) return -1;
 
-	int iGold = GC.getMINOR_CIV_BUYOUT_COST();
+/// What is the cost for eMajor to marry this City-State? (Austria VP UA)
+int CvMinorCivAI::GetMarriageCost(PlayerTypes eMajor)
+{
+	if (eMajor < 0 || eMajor >= MAX_MAJOR_CIVS) return -1;
+
+	int iGold = /*500*/ GC.getMINOR_CIV_BUYOUT_COST();
+
+	// Add in the number of marriages we've already got.
+	for (int iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
+	{
+		PlayerTypes eMinorLoop = (PlayerTypes) iMinorLoop;
+		if (GET_PLAYER(eMinorLoop).isMinorCiv() && GET_PLAYER(eMinorLoop).GetMinorCivAI()->IsMarried(eMajor))
+		{
+			iGold += 100;
+		}
+	}
 
 	// Game Speed Mod
 	iGold *= GC.getGame().getGameSpeedInfo().getGoldPercent();
 	iGold /= 100;
-
-	// Add in the scrap cost of all this minor's units
-	int iScrapCost = 0;
-	int iUnitLoop;
-	CvUnit *pLoopUnit;
-	for (pLoopUnit = m_pPlayer->firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iUnitLoop))
-	{
-		iScrapCost += pLoopUnit->GetScrapGold();
-	}
-	iGold += iScrapCost;
 
 	// Rounding
 	int iVisibleDivisor = /*5*/ GC.getMINOR_CIV_GOLD_GIFT_VISIBLE_DIVISOR();
@@ -14821,124 +14710,184 @@ int CvMinorCivAI::GetBuyoutCost(PlayerTypes eMajor)
 	return iGold;
 }
 
+/// What is the cost for eMajor to buy out this City-State? (Austria BNW UA)
+int CvMinorCivAI::GetBuyoutCost(PlayerTypes eMajor)
+{
+	if (eMajor < 0 || eMajor >= MAX_MAJOR_CIVS) return -1;
+
+	int iGold = /*500*/ GC.getMINOR_CIV_BUYOUT_COST();
+
+	// Game Speed Mod
+	iGold *= GC.getGame().getGameSpeedInfo().getGoldPercent();
+	iGold /= 100;
+
+	// Add in the scrap cost of all this minor's units
+	int iUnitLoop;
+	for (CvUnit* pLoopUnit = m_pPlayer->firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iUnitLoop))
+	{
+		iGold += pLoopUnit->GetScrapGold();
+	}
+
+	// Rounding
+	int iVisibleDivisor = /*5*/ GC.getMINOR_CIV_GOLD_GIFT_VISIBLE_DIVISOR();
+	iGold /= iVisibleDivisor;
+	iGold *= iVisibleDivisor;
+
+	return iGold;
+}
+
+
+/// Do a City-State buyout (handles both of Austria's VP marriage and BNW buyout abilities)
 void CvMinorCivAI::DoBuyout(PlayerTypes eMajor)
 {
-	CvAssertMsg(eMajor >= 0, "eMajor is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eMajor < MAX_MAJOR_CIVS, "eMajor is expected to be within maximum bounds (invalid Index)");
-	if(eMajor < 0 || eMajor >= MAX_MAJOR_CIVS) return;
+	if (eMajor < 0 || eMajor >= MAX_MAJOR_CIVS) return;
 
-#if defined(MOD_BALANCE_CORE)
-	if (eMajor != NO_PLAYER && GET_PLAYER(eMajor).GetPlayerTraits()->IsDiplomaticMarriage())
-	{
-		DoMarriage(eMajor);
+	// Marriage overrides buyout!
+	bool bMarriage = GET_PLAYER(eMajor).GetPlayerTraits()->IsDiplomaticMarriage();
+
+	if (bMarriage && !CanMajorDiploMarriage(eMajor))
 		return;
-	}
-#endif
 
-	if(!CanMajorBuyout(eMajor))
+	if (!bMarriage && !CanMajorBuyout(eMajor))
 		return;
-	
 
-#if defined(MOD_API_ACHIEVEMENTS)
-	//Nigerian Prince Achievement
-	MinorCivTypes eBornu =(MinorCivTypes) GC.getInfoTypeForString("MINOR_CIV_BORNU", /*bHideAssert*/ true);
-	MinorCivTypes  eSokoto =(MinorCivTypes) GC.getInfoTypeForString("MINOR_CIV_SOKOTO", /*bHideAssert*/ true);
-	bool bUsingXP2Scenario2 = gDLL->IsModActivated(CIV5_XP2_SCENARIO2_MODID);
-
-	if (GET_PLAYER(eMajor).isHuman() && bUsingXP2Scenario2 && (GetPlayer()->GetMinorCivAI()->GetMinorCivType() == eBornu || GetPlayer()->GetMinorCivAI()->GetMinorCivType() == eSokoto ))
-		gDLL->UnlockAchievement(ACHIEVEMENT_XP2_54);
-#endif
-
-
-	// Pay the cost
-	const int iBuyoutCost = GetBuyoutCost(eMajor);
-	GET_PLAYER(eMajor).GetTreasury()->LogExpenditure(GetPlayer()->GetMinorCivAI()->GetNamesListAsString( CivsList(1,GetPlayer()->GetID()) ), iBuyoutCost,6);
-	GET_PLAYER(eMajor).GetTreasury()->ChangeGold(-iBuyoutCost);
-
+	// Locate our current capital (for the notification)
+	int iLoop;
+	int iCapitalX = -1;
+	int iCapitalY = -1;
 	int iNumUnits = 0;
-	int iCapitalX = 0;
-	int iCapitalY = 0;
-	DoPassCitiesToMajor(eMajor, iNumUnits, iCapitalX, iCapitalY);
-
-	GET_PLAYER(eMajor).GetDiplomacyAI()->LogMinorCivBuyout(GetPlayer()->GetID(), iBuyoutCost, /*bSaving*/ false);
-
-	// Show special notifications
-	int iCoinToss = GC.getGame().getSmallFakeRandNum(2, m_pPlayer->GetPseudoRandomSeed());
-	Localization::String strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_MINOR_BUYOUT_TT_1");
-	if (iCoinToss == 0) // Is it a boy or a girl?
-		strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_MINOR_BUYOUT_TT_2");
-	strMessage << GET_PLAYER(eMajor).getCivilizationShortDescriptionKey();
-	strMessage << GetPlayer()->getCivilizationShortDescriptionKey();
-
-	Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_MINOR_BUYOUT");
-	strSummary << GET_PLAYER(eMajor).getCivilizationShortDescriptionKey();
-	strSummary << GetPlayer()->getCivilizationShortDescriptionKey();
-
-	for (int iMajorLoop = 0; iMajorLoop < MAX_MAJOR_CIVS; iMajorLoop++)
+	for (CvCity* pLoopCity = GetPlayer()->firstCity(&iLoop, true); pLoopCity != NULL; pLoopCity = GetPlayer()->nextCity(&iLoop, true))
 	{
-		PlayerTypes eMajorLoop = (PlayerTypes) iMajorLoop;
-		if (IsHasMetPlayer(eMajorLoop))
+		if (pLoopCity->isCapital())
 		{
-			AddBuyoutNotification(strMessage.toUTF8(), strSummary.toUTF8(), eMajorLoop, iCapitalX, iCapitalY);
+			iCapitalX = pLoopCity->getX();
+			iCapitalY = pLoopCity->getY();
+			break;
 		}
 	}
 
-#if defined(MOD_EVENTS_MINORS_INTERACTION)
-	if (MOD_EVENTS_MINORS_INTERACTION) {
-		GAMEEVENTINVOKE_HOOK(GAMEEVENT_PlayerBoughtOut, eMajor, GetPlayer()->GetID());
+	// Pay the cost
+	const int iBuyoutCost = bMarriage ? GetMarriageCost(eMajor) : GetBuyoutCost(eMajor);
+	GET_PLAYER(eMajor).GetTreasury()->LogExpenditure(GetPlayer()->GetMinorCivAI()->GetNamesListAsString( CivsList(1,GetPlayer()->GetID()) ), iBuyoutCost,6);
+	GET_PLAYER(eMajor).GetTreasury()->ChangeGold(-iBuyoutCost);
+	GET_PLAYER(eMajor).GetDiplomacyAI()->LogMinorCivBuyout(GetPlayer()->GetID(), iBuyoutCost, /*bSaving*/ false);
+
+	if (!bMarriage)
+	{
+		// Perform the transfer
+		iNumUnits = TransferUnitsAndCitiesToMajor(eMajor);
 	}
-#endif
+
+	// Send out notifications to everyone
+	TeamTypes eBuyerTeam = GET_PLAYER(eMajor).getTeam();
+	int iCoinToss = GC.getGame().getSmallFakeRandNum(1, m_pPlayer->GetPseudoRandomSeed()); // Is it a boy or a girl?
+
+	Localization::String strMessage;
+	Localization::String strSummary;
+	if (bMarriage)
+	{
+		strMessage = iCoinToss == 0 ? Localization::Lookup("TXT_KEY_NOTIFICATION_MINOR_MARRIAGE_TT_1") : Localization::Lookup("TXT_KEY_NOTIFICATION_MINOR_MARRIAGE_TT_2");
+		strMessage << GET_PLAYER(eMajor).getCivilizationShortDescriptionKey();
+		strMessage << GetPlayer()->getCivilizationShortDescriptionKey();
+
+		strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_MINOR_MARRIAGE");
+		strSummary << GET_PLAYER(eMajor).getCivilizationShortDescriptionKey();
+		strSummary << GetPlayer()->getCivilizationShortDescriptionKey();
+	}
+	else
+	{
+		strMessage = iCoinToss == 0 ? Localization::Lookup("TXT_KEY_NOTIFICATION_MINOR_BUYOUT_TT_1") : Localization::Lookup("TXT_KEY_NOTIFICATION_MINOR_BUYOUT_TT_2");
+		strMessage << GET_PLAYER(eMajor).getCivilizationShortDescriptionKey();
+		strMessage << GetPlayer()->getCivilizationShortDescriptionKey();
+
+		strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_MINOR_BUYOUT");
+		strSummary << GET_PLAYER(eMajor).getCivilizationShortDescriptionKey();
+		strSummary << GetPlayer()->getCivilizationShortDescriptionKey();
+	}
+
+	for (int iMajorLoop = 0; iMajorLoop < MAX_PLAYERS; iMajorLoop++)
+	{
+		PlayerTypes eMajorLoop = (PlayerTypes) iMajorLoop;
+
+		CvNotifications* pNotifications = GET_PLAYER(eMajorLoop).GetNotifications();
+		if (!pNotifications)
+			continue;
+
+		if (GET_PLAYER(eMajorLoop).isObserver())
+		{
+			pNotifications->Add(NOTIFICATION_MINOR_BUYOUT, strMessage.toUTF8(), strSummary.toUTF8(), iCapitalX, iCapitalY, GetPlayer()->GetID());
+			continue;
+		}
+
+		if (!GET_PLAYER(eMajorLoop).isAlive() || !GET_PLAYER(eMajorLoop).isMajorCiv())
+			continue;
+
+		TeamTypes eLoopTeam = GET_PLAYER(eMajorLoop).getTeam();
+
+		if (IsHasMetPlayer(eMajorLoop) && (eLoopTeam == eBuyerTeam || GET_TEAM(eLoopTeam).isHasMet(eBuyerTeam)))
+		{
+			pNotifications->Add(NOTIFICATION_MINOR_BUYOUT, strMessage.toUTF8(), strSummary.toUTF8(), iCapitalX, iCapitalY, GetPlayer()->GetID());
+		}
+	}
+
+	if (!bMarriage)
+	{
+		if (MOD_EVENTS_MINORS_INTERACTION) 
+		{
+			GAMEEVENTINVOKE_HOOK(GAMEEVENT_PlayerBoughtOut, eMajor, GetPlayer()->GetID());
+		}
 	
 #if defined(MOD_API_ACHIEVEMENTS)
-	CvPlayerAI& kMajorPlayer = GET_PLAYER(eMajor);
-	kMajorPlayer.GetPlayerAchievements().BoughtCityState(iNumUnits);
+		CvPlayerAI& kMajorPlayer = GET_PLAYER(eMajor);
+		kMajorPlayer.GetPlayerAchievements().BoughtCityState(iNumUnits);
+
+		//Nigerian Prince Achievement
+		MinorCivTypes eBornu =(MinorCivTypes) GC.getInfoTypeForString("MINOR_CIV_BORNU", /*bHideAssert*/ true);
+		MinorCivTypes  eSokoto =(MinorCivTypes) GC.getInfoTypeForString("MINOR_CIV_SOKOTO", /*bHideAssert*/ true);
+		bool bUsingXP2Scenario2 = gDLL->IsModActivated(CIV5_XP2_SCENARIO2_MODID);
+
+		if (kMajorPlayer.isHuman() && bUsingXP2Scenario2 && (GetPlayer()->GetMinorCivAI()->GetMinorCivType() == eBornu || GetPlayer()->GetMinorCivAI()->GetMinorCivType() == eSokoto ))
+			gDLL->UnlockAchievement(ACHIEVEMENT_XP2_54);
 #endif
+	}
 }
 
-void CvMinorCivAI::DoPassCitiesToMajor(PlayerTypes eMajor, int &iNumUnits, int& iCapitalX, int& iCapitalY)
+/// Transfers all of this City-State's units and cities to eMajor. Called by an Austrian buyout (see above) as well as by the Merchant of Venice's buyout mission.
+int CvMinorCivAI::TransferUnitsAndCitiesToMajor(PlayerTypes eMajor)
 {
-	// Take their units
-	CvUnit* pLoopUnit = NULL;
-	int iLoopUnit;
-	iNumUnits = 0;
-	for(pLoopUnit = GetPlayer()->firstUnit(&iLoopUnit); pLoopUnit != NULL; pLoopUnit = GetPlayer()->nextUnit(&iLoopUnit))
+	SetMajorBoughtOutBy(eMajor);
+
+	// Transfer all units
+	int iLoop;
+	int iNumUnits = 0;
+	for (CvUnit* pLoopUnit = GetPlayer()->firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = GetPlayer()->nextUnit(&iLoop))
 	{
 		GET_PLAYER(eMajor).DoDistanceGift(GetPlayer()->GetID(), pLoopUnit);
 		iNumUnits++;
 	}
 
-	// Take all their cities, don't show notifications
+	// Transfer all cities (turn off notifications during the transfer)
 	SetDisableNotifications(true);
-	iCapitalX = -1;
-	iCapitalY = -1;
 	vector<CvCity*> vpCitiesToAcquire;
-	int iLoopCity;
-	for (CvCity* pLoopCity = GetPlayer()->firstCity(&iLoopCity, true); pLoopCity != NULL; pLoopCity = GetPlayer()->nextCity(&iLoopCity, true))
+	for (CvCity* pLoopCity = GetPlayer()->firstCity(&iLoop, true); pLoopCity != NULL; pLoopCity = GetPlayer()->nextCity(&iLoop, true))
 	{
 		vpCitiesToAcquire.push_back(pLoopCity);
-		if (pLoopCity->isCapital())
-		{
-			iCapitalX = pLoopCity->getX();
-			iCapitalY = pLoopCity->getY();
-		}
 	}
 
-	//do this in two steps, don't invalidate the iterator
 	for (uint iI = 0; iI < vpCitiesToAcquire.size(); iI++)
 	{
-		CvCity* pNewCity = GET_PLAYER(eMajor).acquireCity(vpCitiesToAcquire[iI], false, true); 
+		CvCity* pNewCity = GET_PLAYER(eMajor).acquireCity(vpCitiesToAcquire[iI], false, true);
+
+		// Reduce the resistance to 0 turns because we bought it fairly
 		if (pNewCity)
-			// reduce the resistence to 0 turns because we bought it fairly
 			pNewCity->ChangeResistanceTurns(-pNewCity->GetResistanceTurns());
 	}
 
 	SetDisableNotifications(false);
-
-	SetMajorBoughtOutBy(eMajor);
-
 	GC.getGame().DoUpdateDiploVictory();
-
 	GC.GetEngineUserInterface()->setDirty(GameData_DIRTY_BIT, true);
+
+	return iNumUnits;
 }
 
 // ******************************

@@ -4112,6 +4112,9 @@ ReligionTypes CvPlayerReligions::GetOriginalReligionCreatedByPlayer() const
 
 ReligionTypes CvPlayerReligions::GetCurrentReligion(bool bIncludePantheon) const
 {
+	if (m_pPlayer->isBarbarian())
+		return NO_RELIGION;
+
 	if(m_ePlayerCurrentReligion == RELIGION_PANTHEON && bIncludePantheon)
 	{
 		return m_ePlayerCurrentReligion;

@@ -4352,7 +4352,7 @@ int CvLeague::CalculateStartingVotesForMember(PlayerTypes ePlayer, bool bForceUp
 
 #if defined(MOD_BALANCE_CORE)
 		int iNumMarried = 0;
-		if (GET_PLAYER(ePlayer).IsDiplomaticMarriage())
+		if (GET_PLAYER(ePlayer).GetPlayerTraits()->IsDiplomaticMarriage())
 		{
 			
 			// Loop through all minors and get the total number we've met.

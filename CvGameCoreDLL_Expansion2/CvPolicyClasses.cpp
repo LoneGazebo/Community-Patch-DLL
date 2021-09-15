@@ -4638,6 +4638,19 @@ int CvPlayerPolicies::GetNumericModifier(PolicyModifierType eType)
 			case POLICYMOD_TRADE_MODIFIER:
 				rtnValue += m_pPolicies->GetPolicyEntry(i)->GetTradeRouteYieldModifier();
 				break;
+			case POLICYMOD_LIBERATION_BONUS:
+				for (int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
+				{
+					rtnValue += m_pPolicies->GetPolicyEntry(i)->GetYieldForLiberation(iYield);
+				}
+				rtnValue += m_pPolicies->GetPolicyEntry(i)->GetInfluenceForLiberation();
+				rtnValue += m_pPolicies->GetPolicyEntry(i)->GetExperienceForLiberation();
+				break;
+			case POLICYMOD_PUPPET_BONUS:
+				rtnValue -= m_pPolicies->GetPolicyEntry(i)->GetPuppetUnhappinessMod();//negative values are better, so -=
+				rtnValue += m_pPolicies->GetPolicyEntry(i)->GetPuppetProdMod();
+				rtnValue += m_pPolicies->GetPolicyEntry(i)->GetPuppetYieldPenaltyMod();
+				break;
 #endif
 			case POLICYMOD_SHARED_RELIGION_TOURISM_MODIFIER:
 				rtnValue += m_pPolicies->GetPolicyEntry(i)->GetSharedReligionTourismModifier();

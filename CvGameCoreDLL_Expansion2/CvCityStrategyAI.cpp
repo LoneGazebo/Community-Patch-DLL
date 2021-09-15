@@ -3403,7 +3403,7 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_GoodGPCity(CvCity* pCity)
 						}
 					}
 #endif
-					if (pCity->isCapital() && GET_PLAYER(pCity->getOwner()).IsDiplomaticMarriage())
+					if (pCity->isCapital() && GET_PLAYER(pCity->getOwner()).GetPlayerTraits()->IsDiplomaticMarriage())
 					{
 						int iNumMarried = 0;
 						// Loop through all minors and get the total number we've met.
