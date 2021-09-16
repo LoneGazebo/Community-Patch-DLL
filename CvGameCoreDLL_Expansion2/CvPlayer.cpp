@@ -4596,7 +4596,7 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 			}
 			else if (iNumCities > 1)
 			{
-				if (GetPlayerTraits()->IsNoAnnexing())
+				if (GetPlayerTraits()->IsNoAnnexing() && !bRegainedCapital)
 				{
 					pNewCity->DoCreatePuppet();
 				}
