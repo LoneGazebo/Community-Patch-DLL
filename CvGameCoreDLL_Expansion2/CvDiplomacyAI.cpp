@@ -29335,10 +29335,10 @@ void CvDiplomacyAI::DoContactMinorCivs()
 	bool bLosingMoney = GetPlayer()->GetEconomicAI()->IsUsingStrategy((EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_LOSING_MONEY"));
 
 	// **************************
-	// Would we like to buyout a minor this turn?  (Venice / Austria UA)
+	// Would we like to buyout a minor this turn?  (Austria UA)
 	// **************************
 
-	bool bWantsToBuyout = GetPlayer()->GetPlayerTraits()->IsNoAnnexing() || GetPlayer()->GetPlayerTraits()->IsDiplomaticMarriage() || GetPlayer()->IsAbleToAnnexCityStates();
+	bool bWantsToBuyout = GetPlayer()->GetPlayerTraits()->IsDiplomaticMarriage() || GetPlayer()->IsAbleToAnnexCityStates();
 
 	// **************************
 	// Would we like to give a gold gift this turn?
