@@ -32368,7 +32368,7 @@ void CvCity::doGrowth()
 	//can't grow while starving
 	if (getFood() >= iFoodReqForGrowth)
 	{
-		if (GetCityCitizens()->IsForcedAvoidGrowth())  // don't grow a city if we are at avoid growth
+		if (GetCityCitizens()->IsForcedAvoidGrowth())  // don't grow a city if we are at *forced* avoid growth
 		{
 			setFood(iFoodReqForGrowth);
 		}

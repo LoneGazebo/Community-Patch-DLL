@@ -498,7 +498,7 @@ int CvCityCitizens::GetPlotValue(CvPlot* pPlot, SPrecomputedExpensiveNumbers& ca
 		bNeedFood = (cache.iExcessFoodTimes100 - pPlot->getYield(YIELD_FOOD)) < iFoodThreshold;
 
 	//we always want to be growing a little bit
-	bool bEmphasizeFood = (bNeedFood || bSmallCity);
+	bool bEmphasizeFood = (bNeedFood || bSmallCity || bCityFoodProduction);
 	bool bEmphasizeProduction = (bCityFoodProduction || bCityWonderProduction);
 
 	for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
@@ -588,6 +588,12 @@ bool CvCityCitizens::IsAvoidGrowth() const
 	//failsafe for AI
 	const CvPlayer& kPlayer = GET_PLAYER(GetOwner());
 	if (!kPlayer.isHuman() && kPlayer.IsEmpireVeryUnhappy())
+	{
+		return true;
+	}
+
+	//comfort function for all
+	if (kPlayer.IsEmpireUnhappy() && m_pCity->getHappinessDelta()<-1)
 	{
 		return true;
 	}
@@ -1408,21 +1414,29 @@ CvPlot* CvCityCitizens::GetBestCityPlotWithValue(int& iChosenValue, ePlotSelecti
 	return pBestPlot;
 }
 
+//how much excess food should a city produce, so that it is growing at an adequate rate
 int CvCityCitizens::GetExcessFoodThreshold100() const
 {
-	bool bAvoidGrowth = IsAvoidGrowth();
-	if (bAvoidGrowth && m_pCity->getFood() == m_pCity->growthThreshold())
-		return 0;
+	if (IsAvoidGrowth())
+	{
+		//slowly approach full stores
+		if (m_pCity->getFood() == m_pCity->growthThreshold())
+			return 0;
+		else
+			return 200;
+	}
+	else
+	{
+		CityAIFocusTypes eFocus = GetFocusType();
+		if (eFocus == NO_CITY_AI_FOCUS_TYPE || eFocus == CITY_AI_FOCUS_TYPE_PROD_GROWTH || eFocus == CITY_AI_FOCUS_TYPE_GOLD_GROWTH)
+			return m_pCity->getPopulation() * 100;
 
-	CityAIFocusTypes eFocus = GetFocusType();
-	if (eFocus == NO_CITY_AI_FOCUS_TYPE)
-		return m_pCity->getPopulation()*100;
-		
-	if (eFocus == CITY_AI_FOCUS_TYPE_FOOD)
-		return m_pCity->getPopulation()*2*100;
+		if (eFocus == CITY_AI_FOCUS_TYPE_FOOD)
+			return m_pCity->getPopulation() * 2 * 100;
 
-	//default
-	return 200;
+		//default (other specializations)
+		return 200;
+	}
 }
 
 //see if we can find a better assignment when we're not assigning plots greedily from scratch but from the final state where all citizens are already fed
@@ -1442,7 +1456,7 @@ void CvCityCitizens::OptimizeWorkedPlots(bool bLogging)
 	int iLaborerValue = GetSpecialistValue((SpecialistTypes)GC.getDEFAULT_SPECIALIST(), gCachedNumbers);
 
 	//failsafe against switching back and forth, don't try this too often
-	while (iCount < m_pCity->getPopulation()/2)
+	while (iCount < m_pCity->getPopulation() / 2)
 	{
 		//now the real check
 		int iWorstWorkedPlotValue = 0;
@@ -1475,6 +1489,11 @@ void CvCityCitizens::OptimizeWorkedPlots(bool bLogging)
 			else
 				//laborer should be released
 				ChangeNumDefaultSpecialists(-1, CvCity::YIELD_UPDATE_LOCAL);
+		}
+		else if (pWorstWorkedPlot)
+		{
+			//no alternative
+			SetWorkingPlot(pWorstWorkedPlot, false, CvCity::YIELD_UPDATE_LOCAL);
 		}
 		else if (eWorstSpecialistBuilding != NO_BUILDING)
 			//only specialist can be released
@@ -1953,8 +1972,8 @@ void CvCityCitizens::DoAlterWorkingPlot(int iIndex)
 			//do not call isCanWorkWithOverride()
 			else if (pPlot->getOwner() == GetOwner() && !pPlot->isBlockaded())
 			{
-				// Can't take away plots from puppet cities by force
-				if (pPlot->getOwningCity()->IsPuppet())
+				// Can't take away plots from puppet cities by force unless venice
+				if (pPlot->getOwningCity()->IsPuppet() && !GET_PLAYER(GetOwner()).GetPlayerTraits()->IsNoAnnexing() )
 					return;
 
 				pPlot->setOwningCityOverride(GetCity());
