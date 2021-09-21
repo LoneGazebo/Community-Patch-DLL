@@ -386,6 +386,8 @@ CvPlayer::CvPlayer() :
 	, m_aiPlayerNumTurnsAtPeace()
 	, m_aiPlayerNumTurnsAtWar()
 	, m_aiPlayerNumTurnsSinceCityCapture()
+	, m_aiWarValueLost()
+	, m_aiWarDamageValue()
 	, m_aiNumUnitsBuilt()
 	, m_aiProximityToPlayer()
 	, m_aiResearchAgreementCounter()
@@ -1936,6 +1938,12 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 
 	m_aiPlayerNumTurnsSinceCityCapture.clear();
 	m_aiPlayerNumTurnsSinceCityCapture.resize(MAX_PLAYERS, 0);
+
+	m_aiWarValueLost.clear();
+	m_aiWarValueLost.resize(MAX_PLAYERS, 0);
+
+	m_aiWarDamageValue.clear();
+	m_aiWarDamageValue.resize(MAX_PLAYERS, 0);
 
 	m_aiNumUnitsBuilt.clear();
 	m_aiNumUnitsBuilt.resize(GC.getNumUnitInfos());
@@ -46879,6 +46887,8 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 	visitor(player.m_aiPlayerNumTurnsAtPeace);
 	visitor(player.m_aiPlayerNumTurnsAtWar);
 	visitor(player.m_aiPlayerNumTurnsSinceCityCapture);
+	visitor(player.m_aiWarValueLost);
+	visitor(player.m_aiWarDamageValue);
 	visitor(player.m_aiNumUnitsBuilt);
 	visitor(player.m_aiProximityToPlayer);
 	visitor(player.m_aiResearchAgreementCounter);
