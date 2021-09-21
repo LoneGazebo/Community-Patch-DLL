@@ -3968,7 +3968,7 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 		return NULL;
 
 	iNumCities++;
-	bool bMinorCivBuyout = bGift && GET_PLAYER(eOldOwner).isMinorCiv();
+	bool bMinorCivBuyout = !bConquest && bGift && GET_PLAYER(eOldOwner).isMinorCiv();
 
 	// Copy over data from the previous city
 	pNewCity->setName(strName);
