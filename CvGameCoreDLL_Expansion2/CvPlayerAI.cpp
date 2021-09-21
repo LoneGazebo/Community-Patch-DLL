@@ -440,7 +440,7 @@ void CvPlayerAI::AI_conquerCity(CvCity* pCity, PlayerTypes ePlayerToLiberate, bo
 
 		// ONE EXCEPTION, civs with bonuses for puppeting will consider puppeting cities they otherwise would have razed
 		// if the city is ok-ish value and they aren't in revolt
-		if ((GetPlayerPolicies()->GetNumericModifier(POLICYMOD_PUPPET_BONUS) > 0 || GET_PLAYER(m_eID).GetPlayerTraits()->IsNoAnnexing()) && iCityValue >= 30 && !IsEmpireVeryUnhappy())
+		if ((GetPlayerPolicies()->GetNumericModifier(POLICYMOD_PUPPET_BONUS) > 0 || GetPlayerTraits()->IsNoAnnexing()) && iCityValue >= 30 && !IsEmpireVeryUnhappy())
 		{
 			pCity->DoCreatePuppet();
 			return;
