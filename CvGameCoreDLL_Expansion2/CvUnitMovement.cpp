@@ -152,19 +152,20 @@ int CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlot
 		return iMoveDenominator;
 
 	//in some cases we ignore terrain / feature cost
-	if (bFasterInHills && pToPlot->isHills())
-		bIgnoreTerrainCost = true;
-
 	if (bHover)
 		bIgnoreTerrainCost = true;
 
-#if defined(MOD_BALANCE_CORE)
 	if (MOD_BALANCE_CORE && bAmphibious && bRiverCrossing)
 		bIgnoreTerrainCost = true;
 
-	if (MOD_BALANCE_CORE && pTraits->IsMountainPass() && pToPlot->isMountain())
-		bIgnoreTerrainCost = true;
-#endif
+	if (!bRiverCrossing || kUnitTeam.isBridgeBuilding() || bAmphibious)
+	{
+		if (bFasterInHills && pToPlot->isHills())
+			bIgnoreTerrainCost = true;
+
+		if (pTraits->IsMountainPass() && pToPlot->isMountain())
+			bIgnoreTerrainCost = true;
+	}
 
 	//check border obstacle - great wall ends the turn
 	TeamTypes eToTeam = pToPlot->getTeam();

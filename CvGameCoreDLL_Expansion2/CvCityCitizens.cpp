@@ -1429,10 +1429,10 @@ int CvCityCitizens::GetExcessFoodThreshold100() const
 	{
 		CityAIFocusTypes eFocus = GetFocusType();
 		if (eFocus == NO_CITY_AI_FOCUS_TYPE || eFocus == CITY_AI_FOCUS_TYPE_PROD_GROWTH || eFocus == CITY_AI_FOCUS_TYPE_GOLD_GROWTH)
-			return m_pCity->getPopulation() * 100;
+			return max(200, m_pCity->getPopulation() * 50);
 
 		if (eFocus == CITY_AI_FOCUS_TYPE_FOOD)
-			return m_pCity->getPopulation() * 2 * 100;
+			return m_pCity->getPopulation() * 150;
 
 		//default (other specializations)
 		return 200;
@@ -1479,7 +1479,10 @@ void CvCityCitizens::OptimizeWorkedPlots(bool bLogging)
 				//remove the citizen from the plot (at least temporarily) so that combo bonuses can be considered correctly
 				SetWorkingPlot(pWorstWorkedPlot, false, CvCity::YIELD_UPDATE_LOCAL);
 			else
+			{
 				DoRemoveSpecialistFromBuilding(eWorstSpecialistBuilding, false, CvCity::YIELD_UPDATE_LOCAL);
+				pWorstWorkedPlot = NULL;
+			}
 		}
 		else if (bReleaseLaborer)
 		{
@@ -1487,8 +1490,11 @@ void CvCityCitizens::OptimizeWorkedPlots(bool bLogging)
 				//plot should be released
 				SetWorkingPlot(pWorstWorkedPlot, false, CvCity::YIELD_UPDATE_LOCAL);
 			else
+			{
 				//laborer should be released
 				ChangeNumDefaultSpecialists(-1, CvCity::YIELD_UPDATE_LOCAL);
+				pWorstWorkedPlot = NULL;
+			}
 		}
 		else if (pWorstWorkedPlot)
 		{
@@ -1518,7 +1524,7 @@ void CvCityCitizens::OptimizeWorkedPlots(bool bLogging)
 			iBestSpecialistValue = iLaborerValue;
 		}
 
-		//better work a plot or a specialist?
+		//better work a plot than a specialist?
 		if (iBestFreePlotValue > iBestSpecialistValue)
 		{
 			//are we taking an (unworked!) plot from another city?
@@ -1559,8 +1565,8 @@ void CvCityCitizens::OptimizeWorkedPlots(bool bLogging)
 		}
 		else
 		{
-			//is a specialist better?
-			if (iBestSpecialistValue > iWorstWorkedPlotValue)
+			//is a specialist better than working a plot?
+			if (iBestSpecialistValue > iWorstWorkedPlotValue && pWorstWorkedPlot)
 			{
 				//this method also handles laborers
 				DoAddSpecialistToBuilding(eBestSpecialistBuilding, /*bForced*/ false, CvCity::YIELD_UPDATE_GLOBAL);
@@ -1583,16 +1589,25 @@ void CvCityCitizens::OptimizeWorkedPlots(bool bLogging)
 					pLog->Msg(strOutBuf);
 				}
 			}
-			else
+			else if (pWorstWorkedPlot)
 			{
 				//add the citizen back to the original plot
 				SetWorkingPlot(pWorstWorkedPlot, true, CvCity::YIELD_UPDATE_GLOBAL);
 				break;
 			}
+			else if (eWorstSpecialistBuilding != NULL)
+			{
+				//add the specialist back
+				DoAddSpecialistToBuilding(eWorstSpecialistBuilding, /*bForced*/ false, CvCity::YIELD_UPDATE_GLOBAL);
+			}
 		}
 
 		iCount++;
 	}
+
+	//failsafe: make sure we don't have anybody stuck in limbo (should not happen!)
+	while (GetNumUnassignedCitizens() > 0)
+		DoAddBestCitizenFromUnassigned(CvCity::YIELD_UPDATE_LOCAL);
 }
 
 bool CvCityCitizens::NeedReworkCitizens()
