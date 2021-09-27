@@ -1660,6 +1660,7 @@ public:
 	void flipDamageReceivedPerTurn();
 	bool isInDangerOfFalling() const;
 	bool isUnderSiege() const;
+	int getDamageTakenLastTurn() const;
 #endif
 
 #if defined(MOD_BALANCE_CORE)

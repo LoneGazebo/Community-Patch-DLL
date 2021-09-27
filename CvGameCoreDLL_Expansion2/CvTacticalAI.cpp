@@ -6835,23 +6835,32 @@ void ScoreAttack(const CvTacticalPlot& tactPlot, const CvUnit* pUnit, const CvTa
 			cache.storeAttack(pUnit->GetID(),pUnitPlot->GetPlotIndex(), pEnemy->GetID(), iPrevDamage, iDamageDealt, iDamageReceived);
 		}
 
-		iExtraScore = pUnit->GetRangeCombatSplashDamage(pTestPlot) + (pUnit->GetCityAttackPlunderModifier() / 50);
-		iPrevHitPoints = pEnemy->GetMaxHitPoints() - pEnemy->getDamage() - iPrevDamage;
-
-		//if we have multiple melee units encircling the city, try to take into account their attacks as well
-		//otherwise nobody will make the first move
-		int iAssumedOtherAttackers = tactPlot.getNumAdjacentFriendlies(CvTacticalPlot::TD_BOTH, assumedPlot.getPlotIndex());
-		int iAssumedDamageFromOtherAttacks = iDamageDealt * iAssumedOtherAttackers;
-
-		int iRemainingTurnsOnCity = (iPrevHitPoints - iAssumedDamageFromOtherAttacks) / (iDamageDealt + 1) + 1;
-		int iRemainingTurnsOnAttacker = pUnit->GetCurrHitPoints() / (iDamageReceived + 1) + 1;
-		bool bAttackerWeak = (pUnit->getDamage() + iDamageReceived) * 2 > pUnit->GetMaxHitPoints();
-
-		//should consider self-damage from previous attacks here ... blitz
-		if (pUnit->GetCurrHitPoints() - iDamageReceived < 0 || (bAttackerWeak && iRemainingTurnsOnAttacker < iRemainingTurnsOnCity && iRemainingTurnsOnCity > 1))
+		//no suicide. note: should consider self-damage from previous attacks here ... blitz
+		if (pUnit->GetCurrHitPoints() - iDamageReceived < 0)
 		{
 			result.iScore = -INT_MAX;
 			return;
+		}
+
+		iExtraScore = pUnit->GetRangeCombatSplashDamage(pTestPlot) + (pUnit->GetCityAttackPlunderModifier() / 50);
+		iPrevHitPoints = pEnemy->GetMaxHitPoints() - pEnemy->getDamage() - iPrevDamage;
+
+		//but we don't want our melee units to die so take into account self damage and counterattacks
+		if (!pUnit->IsCanAttackRanged())
+		{
+			//if we have multiple units encircling the city, try to take into account their attacks as well
+			//easiest way is to consider damage from last turn. so ideally ranged units start attacking and melee joins in later
+			int iRemainingTurnsOnCity = (pEnemy->GetMaxHitPoints() - pEnemy->getDamage()) / (pEnemy->getDamageTakenLastTurn() + 1);
+
+			int iCounterattackDamage = pEnemy->rangeCombatDamage(pUnit, NULL, false, pUnitPlot, true) * (pEnemy->HasGarrison() ? 2 : 1);
+			int iRemainingTurnsOnAttacker = pUnit->GetCurrHitPoints() / (iDamageReceived + iCounterattackDamage + 1);
+
+			//no attack if it's too early yet
+			if (iRemainingTurnsOnAttacker < iRemainingTurnsOnCity)
+			{
+				result.iScore = -INT_MAX;
+				return;
+			}
 		}
 
 		//city blockaded? not 100% accurate, but anyway

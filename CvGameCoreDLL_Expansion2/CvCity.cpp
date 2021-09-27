@@ -32419,7 +32419,7 @@ void CvCity::doGrowth()
 	//can't grow while starving
 	if (getFood() >= iFoodReqForGrowth)
 	{
-		if (GetCityCitizens()->IsForcedAvoidGrowth())  // don't grow a city if we are at avoid growth
+		if (GetCityCitizens()->IsForcedAvoidGrowth())  // don't grow a city if we are at *forced* avoid growth
 		{
 			setFood(iFoodReqForGrowth);
 		}
@@ -35649,6 +35649,12 @@ bool CvCity::isUnderSiege() const
 {
 	return m_iDamageTakenLastTurn > 0 || plot()->GetNumEnemyUnitsAdjacent(getTeam(), NO_DOMAIN) > 0;
 }
+
+int CvCity::getDamageTakenLastTurn() const
+{
+	return m_iDamageTakenLastTurn;
+}
+
 #endif
 
 #if defined(MOD_BALANCE_CORE)
