@@ -48,7 +48,7 @@ SET Text = 'The Tabya is a Songhai unique building, replacing the Stone Works. T
 WHERE Tag = 'TXT_KEY_BUILDING_MUD_PYRAMID_MOSQUE_STRATEGY';
 
 UPDATE Language_en_US
-SET Text = '+1 [ICON_TOURISM] Tourism for every 3 [ICON_CITIZEN] Citizens in the City. Barracks, Forge, and Armory in City: +2 [ICON_PRODUCTION] Production.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_CULTURE] Boredom.[NEWLINE][NEWLINE]Nearby [ICON_RES_PERFUME] Perfume: +1 [ICON_CULTURE] Culture, +1 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_OLIVE] Olives: +1 [ICON_FOOD] Food, +1 [ICON_GOLD] Gold.'
+SET Text = '+1 [ICON_TOURISM] Tourism for every 4 [ICON_CITIZEN] Citizens in the City. Barracks, Forge, and Armory in City: +2 [ICON_PRODUCTION] Production.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_CULTURE] Boredom.[NEWLINE][NEWLINE]Nearby [ICON_RES_PERFUME] Perfume: +1 [ICON_CULTURE] Culture, +1 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_OLIVE] Olives: +1 [ICON_FOOD] Food, +1 [ICON_GOLD] Gold.'
 WHERE Tag = 'TXT_KEY_BUILDING_COLOSSEUM_HELP';
 
 UPDATE Language_en_US
@@ -56,7 +56,7 @@ SET Text = 'The Arena reduces Boredom in a city, grants additional Culture, and 
 WHERE Tag = 'TXT_KEY_BUILDING_COLOSSEUM_STRATEGY';
 
 UPDATE Language_en_US
-SET Text = 'When a Unit defeats an Enemy Unit in battle, receive +5 [ICON_GOLDEN_AGE] Golden Age Points in this City, scaling with Era; if the Unit was [COLOR_POSITIVE_TEXT]created by this City[ENDCOLOR], also receive +10 [ICON_GREAT_GENERAL] Great General points (if Land) or +10 [ICON_GREAT_ADMIRAL] Great Admiral points (if Sea), scaling with Era. [ICON_CITY_CONNECTED] City Connections produce +2% more [ICON_GOLD] Gold.[NEWLINE][NEWLINE]+1 [ICON_TOURISM] Tourism for every 2 [ICON_CITIZEN] Citizens in the City. Barracks, Forge, and Armory in City: +2 [ICON_PRODUCTION] Production.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_CULTURE] Boredom.[NEWLINE][NEWLINE]Nearby [ICON_RES_PERFUME] Perfume: +1 [ICON_CULTURE] Culture, +1 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_OLIVE] Olives: +1 [ICON_FOOD] Food, +1 [ICON_GOLD] Gold.'
+SET Text = 'When a Unit defeats an Enemy Unit in battle, receive +5 [ICON_GOLDEN_AGE] Golden Age Points in this City, scaling with Era; if the Unit was [COLOR_POSITIVE_TEXT]created by this City[ENDCOLOR], also receive +10 [ICON_GREAT_GENERAL] Great General points (if Land) or +10 [ICON_GREAT_ADMIRAL] Great Admiral points (if Sea), scaling with Era. [ICON_CITY_CONNECTED] City Connections produce +2% more [ICON_GOLD] Gold.[NEWLINE][NEWLINE]+1 [ICON_TOURISM] Tourism for every 3 [ICON_CITIZEN] Citizens in the City. Barracks, Forge, and Armory in City: +2 [ICON_PRODUCTION] Production.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_CULTURE] Boredom.[NEWLINE][NEWLINE]Nearby [ICON_RES_PERFUME] Perfume: +1 [ICON_CULTURE] Culture, +1 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_OLIVE] Olives: +1 [ICON_FOOD] Food, +1 [ICON_GOLD] Gold.'
 WHERE Tag = 'TXT_KEY_BUILDING_FLAVIAN_COLOSSEUM_HELP';
 
 UPDATE Language_en_US
