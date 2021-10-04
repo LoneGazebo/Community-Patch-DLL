@@ -35637,9 +35637,7 @@ void CvCity::flipDamageReceivedPerTurn()
 bool CvCity::isInDangerOfFalling() const
 {
 	int iHitpoints = GetMaxHitPoints() - getDamage();
-
-	//be conservative here ...
-	if (m_iDamageTakenLastTurn * 1.5 > iHitpoints)
+	if (m_iDamageTakenLastTurn > iHitpoints)
 		return true;
 
 	return false;
@@ -35647,7 +35645,7 @@ bool CvCity::isInDangerOfFalling() const
 
 bool CvCity::isUnderSiege() const
 {
-	return m_iDamageTakenLastTurn > 0 || plot()->GetNumEnemyUnitsAdjacent(getTeam(), NO_DOMAIN) > 0;
+	return m_iDamageTakenLastTurn > 0 || m_iDamage > 0 || plot()->GetNumEnemyUnitsAdjacent(getTeam(), NO_DOMAIN) > 0;
 }
 
 int CvCity::getDamageTakenLastTurn() const

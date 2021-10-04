@@ -2255,7 +2255,7 @@ bool CvHomelandAI::ExecuteExplorerMoves(CvUnit* pUnit)
 		return true;
 
 	//this is stupid but we need extra code for scout healing 
-	if (pUnit->shouldHeal())
+	if (pUnit->shouldHeal(true))
 	{
 		CvPlot* pPlot = TacticalAIHelpers::FindClosestSafePlotForHealing(pUnit);
 		if (!pPlot)
