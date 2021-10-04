@@ -22442,6 +22442,7 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 	bool bCriticalState = GetPlayer()->IsEmpireSuperUnhappy() || pCapital->isInDangerOfFalling() || pCapital->getDamage() >= (pCapital->GetMaxHitPoints()/2);
 	bool bMakePeaceWithAllMinors = false;
 	bool bWorldConquest = IsGoingForWorldConquest() || IsCloseToDominationVictory();
+	bool bDiplomatic = IsGoingForDiploVictory() || IsDiplomat() || GetPlayer()->GetPlayerTraits()->IsDiplomat();
 	vector<PlayerTypes> vValidPlayers;
 
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
@@ -23132,7 +23133,15 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 			continue;
 		}
 
-		bool bConsiderPeace = bReadyForVassalage || bPhonyWar || bSeriousDangerUs;
+		bool bWarWeary = false;
+		if (MOD_BALANCE_CORE_HAPPINESS)
+		{
+			int iPercentOfPop = GetPlayer()->GetCulture()->GetWarWeariness() * 100 / max(1, GetPlayer()->getTotalPopulation());
+			if (iPercentOfPop >= 20)
+				bWarWeary = true;
+		}
+
+		bool bConsiderPeace = bReadyForVassalage || bPhonyWar || bSeriousDangerUs || bWarWeary;
 
 		if (!bConsiderPeace)
 		{
@@ -23140,7 +23149,6 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 			bConsiderPeace |= GetWarState(*it) <= WAR_STATE_DEFENSIVE;
 			bConsiderPeace |= GetStateAllWars() == STATE_ALL_WARS_LOSING;
 			bConsiderPeace |= GetPlayer()->IsEmpireVeryUnhappy();
-			bConsiderPeace |= GetPlayer()->GetCulture()->GetWarWeariness() > GetPlayer()->GetPlayerNumTurnsAtWar(*it) && GetPlayer()->IsEmpireUnhappy();
 			bConsiderPeace |= iWarDuration >= 30;
 		}
 
@@ -23234,6 +23242,21 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 			}
 		}
 
+		// War weariness
+		if (MOD_BALANCE_CORE_HAPPINESS)
+		{
+			int iWarWeariness = GetPlayer()->GetCulture()->GetWarWeariness();
+			iPeaceScore += iWarWeariness / 4;
+
+			if (iWarWeariness > 0 && (bWarWeary || GetPlayer()->IsEmpireUnhappy()))
+			{
+				if (GetPlayer()->IsEmpireVeryUnhappy() || (GetPlayer()->IsEmpireUnhappy() && bWarWeary))
+					iPeaceScore += iWarWeariness / 2;
+				else
+					iPeaceScore += iWarWeariness / 3;
+			}
+		}
+
 		// Danger considerations
 		int iOurMultiplier = 1;
 		int iTheirMultiplier = 1;
@@ -23322,25 +23345,6 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 			break;
 		}
 
-		if (MOD_BALANCE_CORE_HAPPINESS)
-		{
-			int iWarWeariness = GetPlayer()->GetCulture()->GetWarWeariness();
-			iPeaceScore += iWarWeariness / 4;
-
-			bool bWarWeary = false;
-			int iPercentOfPop = iWarWeariness * 100 / max(1, GetPlayer()->getTotalPopulation());
-			if (iPercentOfPop >= /*17*/ (GC.getBALANCE_WAR_WEARINESS_POPULATION_CAP() / 2))
-				bWarWeary = true;
-
-			if (iWarWeariness > 0 && (bWarWeary || GetPlayer()->IsEmpireUnhappy()))
-			{
-				if (GetPlayer()->IsEmpireVeryUnhappy() || (GetPlayer()->IsEmpireUnhappy() && bWarWeary))
-					iPeaceScore += iWarWeariness / 2;
-				else
-					iPeaceScore += iWarWeariness / 3;
-			}
-		}
-
 		// If we're in a coop war, let's hold out longer.
 		if (GetGlobalCoopWarAgainstState(*it) == COOP_WAR_STATE_ONGOING)
 		{
@@ -23376,30 +23380,34 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 				{
 					if (bCapturedAnyCityFromUs)
 					{
-						iPeaceScore /= 2;
-					}
-					else if (bWorldConquest)
-					{
-						if (bReadyForVassalage || (GET_PLAYER(*it).GetCapitalConqueror() != NO_PLAYER && GET_PLAYER(*it).GetNumCapitalCities() <= 0))
-						{
-							// If they're economically weak or a bad target, boost peace willingness
-							if (GetPlayerEconomicStrengthComparedToUs(*it) <= STRENGTH_WEAK || GetPlayerTargetValue(*it) <= TARGET_VALUE_BAD)
-								iPeaceScore *= 2;
-						}
-						else if (IsWantsToConquer(*it))
-						{
+						if (iWarScore > (iWarDuration / 2))
 							iPeaceScore /= 2;
+						else
+						{
+							iPeaceScore *= 75;
+							iPeaceScore /= 100;
 						}
+					}
+					else if (bWorldConquest && (bReadyForVassalage || (GET_PLAYER(*it).GetCapitalConqueror() != NO_PLAYER && GET_PLAYER(*it).GetNumCapitalCities() <= 0)))
+					{
+						// If they're economically weak or a bad target, boost peace willingness
+						if (GetPlayerEconomicStrengthComparedToUs(*it) <= STRENGTH_WEAK || GetPlayerTargetValue(*it) <= TARGET_VALUE_BAD)
+							iPeaceScore *= 2;
 					}
 					else if (bCapturedAnyCityWeWantToLiberate)
 					{
-						iPeaceScore *= 75;
-						iPeaceScore /= 100;
-					}
-					// If we think they're a backstabber, we're significantly less willing to make peace.
-					if (IsUntrustworthy(*it))
-					{
-						iPeaceScore /= 2;
+						if ((bDiplomatic && iWarScore > 0) || iWarScore > iWarDuration)
+						{
+							if (bDiplomatic && iWarScore > iWarDuration)
+							{
+								iPeaceScore /= 2;
+							}
+							else
+							{
+								iPeaceScore *= 75;
+								iPeaceScore /= 100;
+							}
+						}
 					}
 				}
 			}
@@ -33519,14 +33527,6 @@ void CvDiplomacyAI::DoBeginDiploWithHuman()
 {
 	if(!GC.getGame().isOption(GAMEOPTION_ALWAYS_WAR))
 	{
-#if defined(MOD_BALANCE_CORE)
-		PlayerTypes ePlayer = GC.getGame().getActivePlayer();
-		if(ePlayer != NO_PLAYER && GET_PLAYER(ePlayer).isHuman() && IsAtWar(ePlayer))
-		{
-			GetPlayer()->DoUpdateWarDamage();
-			DoUpdatePeaceTreatyWillingness();
-		}
-#endif
 #if defined(MOD_ACTIVE_DIPLOMACY)
 		if(GC.getGame().isReallyNetworkMultiPlayer() && MOD_ACTIVE_DIPLOMACY)
 		{
@@ -45490,7 +45490,7 @@ bool CvDiplomacyAI::IsTryingToLiberate(CvCity* pCity, PlayerTypes ePlayerToLiber
 			return false;
 	}
 
-	bool bIsDiplo = IsGoingForDiploVictory() || GetPlayer()->GetPlayerTraits()->IsDiplomat();
+	bool bIsDiplo = IsGoingForDiploVictory() || GetPlayer()->GetPlayerTraits()->IsDiplomat() || IsDiplomat();
 	CivOpinionTypes eOpinion = GetCivOpinion(ePlayerToLiberate);
 	CivApproachTypes eApproach = GetCivApproach(ePlayerToLiberate);
 
