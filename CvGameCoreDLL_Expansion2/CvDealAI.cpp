@@ -174,16 +174,8 @@ bool CvDealAI::TooMuchAdded(PlayerTypes ePlayer, int iTotalValue, int iItemValue
 	if (WithinAcceptableRange(ePlayer, iNewValue))
 		return false;
 	
-	//Is the new value taking us too high? Let's bring it back down.
-	if (bFromUs && iNewValue < -200)
-		return true;
-
-	//Is the new value taking us too low? Let's bring it back up.
-	if (!bFromUs && iNewValue > 200)
-		return true;
-
 	//still not good enough, but trending in the right direction? Carry on.
-	return bFromUs ? (iTotalValue <= 0) : (iTotalValue >= 0);
+	return bFromUs ? (iNewValue <= 0) : (iNewValue >= 0);
 }
 
 /// Offer up a deal to this AI, and see if he accepts
@@ -1403,6 +1395,12 @@ int CvDealAI::GetGPTforForValueExchange(int iGPTorValue, bool bNumGPTFromValue, 
 	// We passed in Value, we want to know how much GPT we get for it
 	if(bNumGPTFromValue)
 	{
+		//let's assume an interest rate of 0.5% per turn, no compounding
+		int iInterestPercent = min(50, 100 * (iNumTurns * /*5*/ GC.getEACH_GOLD_PER_TURN_VALUE_PERCENT()) / 1000);
+
+		//add interest. 100 gold now is better than 100 gold in the future
+		iGPTorValue += (iGPTorValue*iInterestPercent) / 100;
+
 		// Sometimes we want to round up. Let's say the AI offers a deal to the human. We have to ensure that the human can also offer that deal back and the AI will accept (and vice versa)
 		if (bRoundUp)
 		{
@@ -4810,7 +4808,7 @@ void CvDealAI::DoAddGPTToThem(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue
 	//if they already have GPT in this trade, remove it so we can refresh the value.
 	if (iNumGPTAlreadyInTrade > 0)
 	{
-		DoRemoveGPTFromThem(pDeal, eThem, iTotalValue);
+		DoRemoveGPTFromThem(pDeal, eThem, iNumGPTAlreadyInTrade);
 		iNumGPTAlreadyInTrade = 0;
 		iTotalValue = GetDealValue(pDeal);
 	}

@@ -1770,34 +1770,34 @@ bool CvBuilderTaskingAI::ShouldBuilderConsiderPlot(CvUnit* pUnit, CvPlot* pPlot)
 		break;
 	}
 
-	int iDanger = pUnit->GetDanger(pPlot);
-	if(iDanger > pUnit->GetCurrHitPoints()/2 && pPlot->getBestDefender(pUnit->getOwner()) == NULL)
+	//check if we could be captured
+	vector<CvUnit*> vAttackers = m_pPlayer->GetPossibleAttackers(*pPlot, pUnit->getTeam());
+	bool bMayStay = vAttackers.empty() || (vAttackers.size() == 1 && pPlot->getBestDefender(pUnit->getOwner()) != NULL);
+	if (!bMayStay)
 	{
-		//if it's fallout, try to scrub it in spite of the danger
-		if(pPlot->getFeatureType() == FEATURE_FALLOUT && !pUnit->ignoreFeatureDamage() && (pUnit->GetCurrHitPoints() < (pUnit->GetMaxHitPoints() / 2)))
+		if(GC.getLogging() && GC.getAILogging() && m_bLogging)
 		{
-			if(GC.getLogging() && GC.getAILogging() && m_bLogging)
-			{
-				CvString strLog;
-				strLog.Format("plotX: %d plotY: %d, danger: %d, bailing due to fallout", pPlot->getX(), pPlot->getY(), m_pPlayer->GetPlotDanger(*pPlot, true));
-				m_pPlayer->GetHomelandAI()->LogHomelandMessage(strLog);
-			}
-			return false;
+			CvString strLog;
+			strLog.Format("plotX: %d plotY: %d, danger: %d, bailing due to potential attackers", pPlot->getX(), pPlot->getY(), m_pPlayer->GetPlotDanger(*pPlot, true));
+			m_pPlayer->GetHomelandAI()->LogHomelandMessage(strLog);
 		}
-		else if(pPlot->getFeatureType() != FEATURE_FALLOUT)
+		return false;
+	}
+
+	//if there is fallout, try to scrub it in spite of the danger
+	if(pPlot->getFeatureType() == FEATURE_FALLOUT && !pUnit->ignoreFeatureDamage() && (pUnit->GetCurrHitPoints() < (pUnit->GetMaxHitPoints() / 2)))
+	{
+		if(GC.getLogging() && GC.getAILogging() && m_bLogging)
 		{
-			if(GC.getLogging() && GC.getAILogging() && m_bLogging)
-			{
-				CvString strLog;
-				strLog.Format("plotX: %d plotY: %d, danger: %d, bailing due to danger", pPlot->getX(), pPlot->getY(), m_pPlayer->GetPlotDanger(*pPlot, false));
-				m_pPlayer->GetHomelandAI()->LogHomelandMessage(strLog);
-			}
-			return false;
+			CvString strLog;
+			strLog.Format("plotX: %d plotY: %d, danger: %d, bailing due to fallout", pPlot->getX(), pPlot->getY(), m_pPlayer->GetPlotDanger(*pPlot, true));
+			m_pPlayer->GetHomelandAI()->LogHomelandMessage(strLog);
 		}
+		return false;
 	}
 
 	//danger check is not enough - we don't want to be adjacent to enemy territory for example
-	if (!m_pPlayer->isHuman() && pPlot->isVisibleToEnemy(pUnit->getOwner()))
+	if (pPlot->isVisibleToEnemy(pUnit->getOwner()))
 		return false;
 
 	if (!pUnit->canEndTurnAtPlot(pPlot))

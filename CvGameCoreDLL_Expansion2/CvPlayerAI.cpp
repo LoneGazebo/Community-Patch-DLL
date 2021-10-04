@@ -2447,8 +2447,8 @@ CvPlot* CvPlayerAI::ChooseDiplomatTargetPlot(CvUnit* pUnit)
 		if(!bRightOwner || !bIsRevealed)
 			continue;
 
-		// Don't be captured
-		if (pUnit->GetDanger(pLoopPlot) > 0)
+		// Don't be captured but allow some fog danger
+		if (pUnit->GetDanger(pLoopPlot) > 10)
 			continue;
 
 		// Anything here that blocks us?

@@ -4052,7 +4052,7 @@ void CvTacticalAI::ExecuteHeals(bool bFirstPass)
 			UnitProcessed(pUnit->GetID());
 		}
 		//no safe plot to heal ...
-		else if (!bFirstPass && pUnit->getDomainType() != DOMAIN_AIR && pUnit->GetDanger() > 0)
+		else if (!bFirstPass && pUnit->getDomainType() != DOMAIN_AIR && pUnit->GetDanger() > GC.getNEUTRAL_HEAL_RATE())
 		{
 			//at least try to flee
 			pBetterPlot = TacticalAIHelpers::FindSafestPlotInReach(pUnit, true);

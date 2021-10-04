@@ -710,8 +710,9 @@ void CvHomelandAI::PlotMovesToSafety()
 		if (!pUnit)
 			continue;
 
+		//allow some danger from fog etc
 		int iDangerLevel = pUnit->GetDanger();
-		if (iDangerLevel == 0)
+		if (iDangerLevel < pUnit->GetCurrHitPoints() / 5)
 			continue;
 
 		// civilian always ready to flee
@@ -730,10 +731,10 @@ void CvHomelandAI::PlotMovesToSafety()
 				continue;
 		}
 
-			CvHomelandUnit unit;
-			unit.SetID(pUnit->GetID());
-			m_CurrentMoveUnits.push_back(unit);
-		}
+		CvHomelandUnit unit;
+		unit.SetID(pUnit->GetID());
+		m_CurrentMoveUnits.push_back(unit);
+	}
 
 	for(unsigned int iI = 0; iI < m_CurrentMoveUnits.size(); iI++)
 	{
