@@ -494,6 +494,7 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 	Method(GetDomainProductionModifier);
 
 	Method(IsEverOwned);
+	Method(GetNumTimesOwned);
 
 	Method(IsRevealed);
 	Method(SetRevealed);
@@ -4690,6 +4691,12 @@ int CvLuaCity::lGetDomainProductionModifier(lua_State* L)
 int CvLuaCity::lIsEverOwned(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvCity::isEverOwned);
+}
+//------------------------------------------------------------------------------
+//bool isEverOwned(PlayerTypes eIndex);
+int CvLuaCity::lGetNumTimesOwned(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvCity::GetNumTimesOwned);
 }
 //------------------------------------------------------------------------------
 //bool isRevealed(TeamTypes eIndex, bool bDebug);

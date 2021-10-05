@@ -487,6 +487,7 @@ protected:
 	static int lGetDomainProductionModifier(lua_State* L);
 
 	static int lIsEverOwned(lua_State* L);
+	static int lGetNumTimesOwned(lua_State* L);
 
 	static int lIsRevealed(lua_State* L);
 	static int lSetRevealed(lua_State* L);
