@@ -258,6 +258,24 @@ void CvDeal::SetToPlayer(PlayerTypes ePlayer)
 	m_eToPlayer = ePlayer;
 }
 
+int CvDeal::GetMaxValue() const
+{
+	//do not look at (m_iFromPlayerValue, m_iToPlayerValue) they are net values
+	int iLeftSideValue = 0; //this is us
+	int iRightSideValue = 0; //this is the other player
+
+	TradedItemList::const_iterator it;
+	for (it = m_TradedItems.begin(); it != m_TradedItems.end(); ++it)
+	{
+		if (it->m_eFromPlayer == m_eFromPlayer)
+			iLeftSideValue += it->m_iValue;
+		else if (it->m_eFromPlayer == m_eToPlayer)
+			iRightSideValue += it->m_iValue;
+	}
+
+	return max(iLeftSideValue, iRightSideValue);
+}
+
 void CvDeal::SetFromPlayerValue(int iValue)
 {
 	m_iFromPlayerValue = iValue;
@@ -2193,7 +2211,30 @@ bool CvDeal::IsPotentiallyRenewable()
 	return false;
 }
 
-/// Delete a trade item that can be identified by type alone
+/// Delete all items from a given player
+void CvDeal::RemoveAllByPlayer(PlayerTypes eOffering)
+{
+	//have to do this in a nested fashion to avoid invalidating the iterator
+	bool bFound = false;
+	do
+	{
+		bFound = false;
+
+		TradedItemList::iterator it;
+		for (it = m_TradedItems.begin(); it != m_TradedItems.end(); ++it)
+		{
+			if (eOffering == it->m_eFromPlayer)
+			{
+				m_TradedItems.erase(it);
+				bFound = true;
+				break;
+			}
+		}
+	}
+	while (bFound);
+}
+
+/// Delete a SINGLE trade item that can be identified by type alone
 void CvDeal::RemoveByType(TradeableItems eItemType, PlayerTypes eFrom)
 {
 	TradedItemList::iterator it;
