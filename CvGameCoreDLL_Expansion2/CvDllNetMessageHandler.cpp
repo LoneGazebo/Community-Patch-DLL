@@ -683,11 +683,14 @@ void CvDllNetMessageHandler::ResponseMoveGreatWorks(PlayerTypes ePlayer, int iCi
 													int iCity2, int iBuildingClass2, int iWorkIndex2)
 {
 	//safeguard
-	if (!GC.getGame().isFinalInitialized() || PlayerInvalid(ePlayer))
+	if (!GC.getGame().isFinalInitialized())
 		return;
 
 	// hijacks message for MP events since it has a few args and is sent to everyone
 	if (NetMessageExt::Process::ResponseMoveGreatWorks(ePlayer, iCity1, iBuildingClass1, iWorkIndex1, iCity2, iBuildingClass2, iWorkIndex2))
+		return;
+
+	if (PlayerInvalid(ePlayer))
 		return;
 
 	GC.getGame().GetGameCulture()->MoveGreatWorks(ePlayer, iCity1, iBuildingClass1, iWorkIndex1, iCity2, iBuildingClass2, iWorkIndex2);
