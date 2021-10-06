@@ -109,7 +109,7 @@ public:
 	// ************************************
 
 	int GetRandomPersonalityWeight(int iOriginalValue, int& iSeed);
-	void DoInitializePersonality();
+	void DoInitializePersonality(bool bFirstInit);
 	void SelectDefaultVictoryFocus();
 
 	int GetVictoryCompetitiveness() const;
