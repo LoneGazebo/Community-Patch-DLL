@@ -1707,7 +1707,7 @@ public:
 	void SetHasBetrayedMinorCiv(bool bValue);
 
 	void setAlive(bool bNewValue, bool bNotify = true);
-	void verifyAlive();
+	void verifyAlive(PlayerTypes eKiller = NO_PLAYER);
 	bool isAlive() const
 	{
 		return m_bAlive;

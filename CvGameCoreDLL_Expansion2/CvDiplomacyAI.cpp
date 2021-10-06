@@ -107,6 +107,7 @@ void CvDiplomacyAI::Reset()
 	m_eCSBullyTarget = NO_PLAYER;
 
 	// Other Global Memory
+	m_bWasHumanLastTurn = false;
 	m_bEndedFriendshipThisTurn = false;
 	m_bBackstabber = false;
 	m_bCompetingForVictory = false;
@@ -305,6 +306,7 @@ void CvDiplomacyAI::Reset()
 		m_aiPerformedCoupAgainstUs[iI] = 0;
 		m_aiLikedTheirProposalValue[iI] = 0;
 		m_aiSupportedOurProposalValue[iI] = 0;
+		m_aiVotingHistoryScore[iI] = 0;
 		m_aiSupportedOurHostingValue[iI] = 0;
 		m_aiNegativeArchaeologyPoints[iI] = 0;
 		m_aiArtifactsEverDugUp[iI] = 0;
@@ -333,6 +335,7 @@ void CvDiplomacyAI::Reset()
 		m_aiWeDislikedTheirProposalTurn[iI] = -1;
 		m_aiTheySupportedOurProposalTurn[iI] = -1;
 		m_aiTheyFoiledOurProposalTurn[iI] = -1;
+		m_aiTheySanctionedUsTurn[iI] = -1;
 		m_aiTheySupportedOurHostingTurn[iI] = -1;
 
 		// Player-Specific Memory Values
@@ -438,6 +441,7 @@ void CvDiplomacyAI::Serialize(DiplomacyAI& diplomacyAI, Visitor& visitor)
 	visitor(diplomacyAI.m_eCSBullyTarget);
 
 	// Other Global Memory
+	visitor(diplomacyAI.m_bWasHumanLastTurn);
 	visitor(diplomacyAI.m_bEndedFriendshipThisTurn);
 	visitor(diplomacyAI.m_bBackstabber);
 	visitor(diplomacyAI.m_bCompetingForVictory);
@@ -620,6 +624,7 @@ void CvDiplomacyAI::Serialize(DiplomacyAI& diplomacyAI, Visitor& visitor)
 	visitor(diplomacyAI.m_aiPerformedCoupAgainstUs);
 	visitor(diplomacyAI.m_aiLikedTheirProposalValue);
 	visitor(diplomacyAI.m_aiSupportedOurProposalValue);
+	visitor(diplomacyAI.m_aiVotingHistoryScore);
 	visitor(diplomacyAI.m_aiSupportedOurHostingValue);
 	visitor(diplomacyAI.m_aiNegativeArchaeologyPoints);
 	visitor(diplomacyAI.m_aiArtifactsEverDugUp);
@@ -648,6 +653,7 @@ void CvDiplomacyAI::Serialize(DiplomacyAI& diplomacyAI, Visitor& visitor)
 	visitor(diplomacyAI.m_aiWeDislikedTheirProposalTurn);
 	visitor(diplomacyAI.m_aiTheySupportedOurProposalTurn);
 	visitor(diplomacyAI.m_aiTheyFoiledOurProposalTurn);
+	visitor(diplomacyAI.m_aiTheySanctionedUsTurn);
 	visitor(diplomacyAI.m_aiTheySupportedOurHostingTurn);
 
 	// Player-Specific Memory
@@ -730,6 +736,175 @@ void CvDiplomacyAI::update()
 		}
 	}
 #endif
+}
+
+//	-----------------------------------------------------------------------------------------------
+/// Player slot state changed (player was killed or switched between AI and human status)
+void CvDiplomacyAI::SlotStateChange()
+{
+	// Player was killed
+	if (!GetPlayer()->isAlive())
+	{
+		CancelAllCoopWars();
+
+		// Reset global memory
+		SetMostValuableFriend(NO_PLAYER);
+		SetMostValuableAlly(NO_PLAYER);
+		SetBiggestCompetitor(NO_PLAYER);
+		SetPrimeLeagueCompetitor(NO_PLAYER);
+		SetDemandTargetPlayer(NO_PLAYER);
+		SetCSWarTargetPlayer(NO_PLAYER);
+		SetCSBullyTargetPlayer(NO_PLAYER);
+		SetEndedFriendshipThisTurn(false);
+		SetBackstabber(false);
+		SetCompetingForVictory(false);
+		SetVictoryFocus(GetDefaultVictoryFocus());
+		SetStateAllWars(STATE_ALL_WARS_NEUTRAL);
+
+		// Reset values for minors
+		for (int iI = 0; iI < MAX_MINOR_CIVS; iI++)
+		{
+			PlayerTypes eMinor = (PlayerTypes)iI;
+			SetWantToRouteConnectToMinor(eMinor, false);
+		}
+
+		// Reset values for majors
+		for (int iI = 0; iI < MAX_MAJOR_CIVS; iI++)
+		{
+			PlayerTypes eMajor = (PlayerTypes)iI;
+			if (eMajor == GetID() || !GET_PLAYER(eMajor).isAlive())
+				continue;
+
+			CvDiplomacyAI* pOther = GET_PLAYER(eMajor).GetDiplomacyAI();
+			PlayerTypes ID = GetID();
+
+			// Cancel coop wars against this player
+			pOther->CancelCoopWarsAgainstPlayer(ID);
+
+			// Reset exchange type values
+			SetRecentTradeValue(eMajor, 0);
+			SetRecentAssistValue(eMajor, 0);
+			SetCommonFoeValue(eMajor, 0);
+			SetCivilianKillerValue(eMajor, 0);
+			SetVassalProtectValue(eMajor, 0);
+			SetVassalFailedProtectValue(eMajor, 0);
+			pOther->SetRecentTradeValue(ID, 0);
+			pOther->SetRecentAssistValue(ID, 0);
+			pOther->SetCommonFoeValue(ID, 0);
+			pOther->SetCivilianKillerValue(ID, 0);
+			pOther->SetVassalProtectValue(ID, 0);
+			pOther->SetVassalFailedProtectValue(ID, 0);
+
+			// Reset diplomatic interactions
+			ResetSentAttackProtectedMinorTaunts(eMajor);
+			SetShareOpinionResponse(eMajor, NO_SHARE_OPINION_RESPONSE);
+			SetCantMatchDeal(eMajor, false);
+			pOther->ResetSentAttackProtectedMinorTaunts(ID);
+			pOther->SetCantMatchDeal(ID, false);
+			pOther->SetShareOpinionResponse(ID, NO_SHARE_OPINION_RESPONSE);
+
+			// Reset approach to NEUTRAL
+			SetCivApproach(eMajor, CIV_APPROACH_NEUTRAL);
+			SetCivStrategicApproach(eMajor, CIV_APPROACH_NEUTRAL);
+			SetCachedSurfaceApproach(eMajor, NO_CIV_APPROACH);
+			pOther->SetCivApproach(ID, CIV_APPROACH_NEUTRAL);
+			pOther->SetCivStrategicApproach(ID, CIV_APPROACH_NEUTRAL);
+			pOther->SetCachedSurfaceApproach(ID, NO_CIV_APPROACH);
+			for (int iJ = 0; iJ < NUM_CIV_APPROACHES; iJ++)
+			{
+				CivApproachTypes eApproach = (CivApproachTypes)iJ;
+				SetPlayerApproachValue(eMajor, eApproach, 0);
+				SetPlayerStrategicApproachValue(eMajor, eApproach, 0);
+				pOther->SetPlayerApproachValue(ID, eApproach, 0);
+				pOther->SetPlayerStrategicApproachValue(ID, eApproach, 0);
+			}
+
+			// Clear war status
+			SetSaneDiplomaticTarget(eMajor, true);
+			SetArmyInPlaceForAttack(eMajor, false);
+			SetWantsSneakAttack(eMajor, false);
+			SetTreatyWillingToOffer(eMajor, NO_PEACE_TREATY_TYPE);
+			SetTreatyWillingToAccept(eMajor, NO_PEACE_TREATY_TYPE);
+			pOther->SetSaneDiplomaticTarget(eMajor, true);
+			pOther->SetArmyInPlaceForAttack(ID, false);
+			pOther->SetWantsSneakAttack(ID, false);
+			pOther->SetTreatyWillingToOffer(ID, NO_PEACE_TREATY_TYPE);
+			pOther->SetTreatyWillingToAccept(ID, NO_PEACE_TREATY_TYPE);
+
+			// Reset planning exchanges
+			SetWantsDoFWithPlayer(eMajor, false);
+			SetWantsToEndDoFWithPlayer(eMajor, false);
+			SetWantsDefensivePactWithPlayer(eMajor, false);
+			SetWantsToEndDefensivePactWithPlayer(eMajor, false);
+			SetWantsResearchAgreementWithPlayer(eMajor, false);
+			SetStrategicTradePartner(eMajor, false);
+			pOther->SetWantsDoFWithPlayer(ID, false);
+			pOther->SetWantsToEndDoFWithPlayer(ID, false);
+			pOther->SetWantsDefensivePactWithPlayer(ID, false);
+			pOther->SetWantsToEndDefensivePactWithPlayer(ID, false);
+			pOther->SetWantsResearchAgreementWithPlayer(ID, false);
+			pOther->SetStrategicTradePartner(ID, false);
+
+			// Reset non-permanent promises
+			SetPlayerExpansionPromiseState(eMajor, NO_PROMISE_STATE);
+			SetPlayerBorderPromiseState(eMajor, NO_PROMISE_STATE);
+			SetPlayerMilitaryPromiseState(eMajor, NO_PROMISE_STATE);
+			SetPlayerMoveTroopsRequestAccepted(eMajor, false);
+			pOther->SetPlayerExpansionPromiseState(ID, NO_PROMISE_STATE);
+			pOther->SetPlayerBorderPromiseState(ID, NO_PROMISE_STATE);
+			pOther->SetPlayerMilitaryPromiseState(ID, NO_PROMISE_STATE);
+			pOther->SetPlayerMoveTroopsRequestAccepted(ID, false);
+
+			// Reset warmonger values
+			pOther->SetOtherPlayerWarmongerAmountTimes100(ID, 0); // only for killed player
+			SetWarmongerThreat(eMajor, THREAT_NONE);
+			pOther->SetWarmongerThreat(ID, THREAT_NONE);
+
+			// Reset aggressive postures
+			SetMilitaryAggressivePosture(eMajor, AGGRESSIVE_POSTURE_NONE);
+			SetLastTurnMilitaryAggressivePosture(eMajor, AGGRESSIVE_POSTURE_NONE);
+			SetExpansionAggressivePosture(eMajor, AGGRESSIVE_POSTURE_NONE);
+			SetPlotBuyingAggressivePosture(eMajor, AGGRESSIVE_POSTURE_NONE);
+			pOther->SetMilitaryAggressivePosture(ID, AGGRESSIVE_POSTURE_NONE);
+			pOther->SetLastTurnMilitaryAggressivePosture(ID, AGGRESSIVE_POSTURE_NONE);
+			pOther->SetExpansionAggressivePosture(ID, AGGRESSIVE_POSTURE_NONE);
+			pOther->SetPlotBuyingAggressivePosture(ID, AGGRESSIVE_POSTURE_NONE);
+
+			// Reset strength evaluations
+			SetPlayerMilitaryStrengthComparedToUs(eMajor, STRENGTH_IMMENSE);
+			SetPlayerEconomicStrengthComparedToUs(eMajor, STRENGTH_IMMENSE);
+			SetPlayerTargetValue(eMajor, TARGET_VALUE_IMPOSSIBLE);
+			pOther->SetPlayerMilitaryStrengthComparedToUs(ID, STRENGTH_PATHETIC);
+			pOther->SetPlayerEconomicStrengthComparedToUs(ID, STRENGTH_PATHETIC);
+			pOther->SetPlayerTargetValue(ID, TARGET_VALUE_SOFT);
+
+			// Reset dispute values
+			SetMajorCompetitor(eMajor, false);
+			SetEndgameAggressiveTo(eMajor, false);
+			SetLandDisputeLevel(eMajor, DISPUTE_LEVEL_NONE);
+			SetWonderDisputeLevel(eMajor, DISPUTE_LEVEL_NONE);
+			SetMinorCivDisputeLevel(eMajor, DISPUTE_LEVEL_NONE);
+			SetVictoryDisputeLevel(eMajor, DISPUTE_LEVEL_NONE);
+			SetVictoryBlockLevel(eMajor, BLOCK_LEVEL_NONE);
+			SetTechBlockLevel(eMajor, BLOCK_LEVEL_NONE);
+			SetPolicyBlockLevel(eMajor, BLOCK_LEVEL_NONE);
+			pOther->SetMajorCompetitor(ID, false);
+			pOther->SetEndgameAggressiveTo(ID, false);
+			pOther->SetLandDisputeLevel(ID, DISPUTE_LEVEL_NONE);
+			pOther->SetWonderDisputeLevel(ID, DISPUTE_LEVEL_NONE);
+			pOther->SetNumWondersBeatenTo(ID, 0); // only for killed player
+			pOther->SetMinorCivDisputeLevel(ID, DISPUTE_LEVEL_NONE);
+			pOther->SetNumTimesTheyLoweredOurInfluence(ID, 0); // only for killed player
+			pOther->SetVictoryDisputeLevel(ID, DISPUTE_LEVEL_NONE);
+			pOther->SetVictoryBlockLevel(ID, BLOCK_LEVEL_NONE);
+			pOther->SetTechBlockLevel(ID, BLOCK_LEVEL_NONE);
+			pOther->SetPolicyBlockLevel(ID, BLOCK_LEVEL_NONE);
+
+			// Reset voting history score
+			SetVotingHistoryScore(eMajor, 0);
+			pOther->SetVotingHistoryScore(ID, 0);
+		}
+	}
 }
 
 //	-----------------------------------------------------------------------------------------------
@@ -2516,28 +2691,6 @@ void CvDiplomacyAI::SetDemandTargetPlayer(PlayerTypes ePlayer)
 {
 	if (ePlayer < NO_PLAYER || ePlayer >= MAX_MAJOR_CIVS) return;
 	m_eDemandTargetPlayer = ePlayer;
-}
-
-/// Did we end a Declaration of Friendship with someone early this turn?
-bool CvDiplomacyAI::HasEndedFriendshipThisTurn() const
-{
-	return m_bEndedFriendshipThisTurn;
-}
-
-void CvDiplomacyAI::SetEndedFriendshipThisTurn(bool bValue)
-{
-	m_bEndedFriendshipThisTurn = bValue;
-}
-
-/// Are we avoiding deals? Temporary non-serialized value, used to avoid constant iterating over players...
-bool CvDiplomacyAI::IsAvoidDeals() const
-{
-	return m_bAvoidDeals;
-}
-
-void CvDiplomacyAI::SetAvoidDeals(bool bValue)
-{
-	m_bAvoidDeals = bValue;
 }
 
 //	-----------------------------------------------------------------------------------------------
@@ -6098,6 +6251,24 @@ bool CvDiplomacyAI::IsFoiledOurProposalAndThenSupportedUs(PlayerTypes ePlayer) c
 	return false;
 }
 
+/// How much do we like or dislike their voting history on proposals in the World Congress?
+int CvDiplomacyAI::GetVotingHistoryScore(PlayerTypes ePlayer) const
+{
+	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return 0;
+	return m_aiVotingHistoryScore[ePlayer];
+}
+
+void CvDiplomacyAI::SetVotingHistoryScore(PlayerTypes ePlayer, int iValue)
+{
+	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return;
+	m_aiVotingHistoryScore[ePlayer] = range(iValue, CHAR_MIN, CHAR_MAX);
+}
+
+void CvDiplomacyAI::ChangeVotingHistoryScore(PlayerTypes ePlayer, int iChange)
+{
+	SetVotingHistoryScore(ePlayer, GetVotingHistoryScore(ePlayer) + iChange);
+}
+
 /// How much support did they give to us when we succeeded in becoming World Congress host?
 int CvDiplomacyAI::GetSupportedOurHostingValue(PlayerTypes ePlayer) const
 {
@@ -6638,6 +6809,19 @@ void CvDiplomacyAI::SetTheyFoiledOurProposalTurn(PlayerTypes ePlayer, int iTurn)
 	m_aiTheyFoiledOurProposalTurn[ePlayer] = max(iTurn, -1);
 }
 
+/// How many turns has it been since they proposed or voted to sanction us?
+int CvDiplomacyAI::GetTheySanctionedUsTurn(PlayerTypes ePlayer) const
+{
+	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return -1;
+	return m_aiTheySanctionedUsTurn[ePlayer];
+}
+
+void CvDiplomacyAI::SetTheySanctionedUsTurn(PlayerTypes ePlayer, int iTurn)
+{
+	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return;
+	m_aiTheySanctionedUsTurn[ePlayer] = max(iTurn, -1);
+}
+
 /// How many turns has it been since they supported relocating the World Congress to our lands?
 int CvDiplomacyAI::GetTheySupportedOurHostingTurn(PlayerTypes ePlayer) const
 {
@@ -6656,6 +6840,34 @@ void CvDiplomacyAI::SetTheySupportedOurHostingTurn(PlayerTypes ePlayer, int iTur
 // ------------------------------------
 // Player-Specific Memory Values
 // ------------------------------------
+
+/// Were we a human player last turn?
+bool CvDiplomacyAI::WasHumanLastTurn() const
+{
+	return m_bWasHumanLastTurn;
+}
+
+/// Did we end a Declaration of Friendship with someone early this turn?
+bool CvDiplomacyAI::HasEndedFriendshipThisTurn() const
+{
+	return m_bEndedFriendshipThisTurn;
+}
+
+void CvDiplomacyAI::SetEndedFriendshipThisTurn(bool bValue)
+{
+	m_bEndedFriendshipThisTurn = bValue;
+}
+
+/// Are we avoiding deals? Temporary non-serialized value, used to avoid constant iterating over players...
+bool CvDiplomacyAI::IsAvoidDeals() const
+{
+	return m_bAvoidDeals;
+}
+
+void CvDiplomacyAI::SetAvoidDeals(bool bValue)
+{
+	m_bAvoidDeals = bValue;
+}
 
 /// Who was the last Minor ePlayer bullied that we were protecting?
 PlayerTypes CvDiplomacyAI::GetOtherPlayerProtectedMinorBullied(PlayerTypes ePlayer) const
@@ -26156,34 +26368,6 @@ void CvDiplomacyAI::DoPlayerDeclaredWarOnSomeone(PlayerTypes ePlayer, TeamTypes 
 	}
 }
 
-/// ePlayer killed eDeadPlayer, so figure out what that means
-void CvDiplomacyAI::DoPlayerKilledSomeone(PlayerTypes ePlayer, PlayerTypes eDeadPlayer)
-{
-	if (ePlayer < 0 || ePlayer >= MAX_CIV_PLAYERS) return;
-	if (eDeadPlayer < 0 || eDeadPlayer >= MAX_CIV_PLAYERS) return;
-
-	if (IsPlayerValid(ePlayer))
-	{
-		// Minor Civ
-		if (GET_PLAYER(eDeadPlayer).isMinorCiv())
-		{
-			// Did they kill a Minor we're protecting?
-			if (GET_PLAYER(eDeadPlayer).GetMinorCivAI()->IsProtectedByMajor(GetID()))
-			{
-				SetOtherPlayerKilledProtectedMinorTurn(ePlayer, GC.getGame().getGameTurn());
-				SetOtherPlayerProtectedMinorKilled(ePlayer, eDeadPlayer);
-				ChangeOtherPlayerNumProtectedMinorsKilled(ePlayer, 1);
-
-				// Player broke a promise that he wasn't going to kill the Minor
-				if (IsPlayerMadeAttackCityStatePromise(ePlayer))
-				{
-					SetPlayerAttackCityStatePromiseState(ePlayer, PROMISE_STATE_BROKEN);
-				}
-			}
-		}
-	}
-}
-
 /// ePlayer bullied eOtherPlayer (minor civ), so figure out what that means
 void CvDiplomacyAI::DoPlayerBulliedSomeone(PlayerTypes ePlayer, PlayerTypes eOtherPlayer)
 {
@@ -42197,6 +42381,7 @@ void CvDiplomacyAI::DoTestOpinionModifiers()
 			if (iTurnDifference >= iDuration)
 			{
 				SetTheySupportedOurHostingTurn(ePlayer, -1);
+				SetSupportedOurHostingValue(ePlayer, 0);
 			}
 		}
 	}
@@ -46820,51 +47005,6 @@ void CvDiplomacyAI::CancelRenewDeal(PlayerTypes eOtherPlayer, RenewalReason eRea
 		//pRenewalDeal->ClearItems();
 	}
 }
-
-// When someone dies, clear out data
-void CvDiplomacyAI::KilledPlayerCleanup (PlayerTypes eKilledPlayer)
-{
-	// clear out coop war agreements
-	CancelCoopWarsAgainstPlayer(eKilledPlayer);
-
-	// clear out planning exchanges, attack operations
-	SetWantsDoFWithPlayer(eKilledPlayer, false);
-	SetWantsDefensivePactWithPlayer(eKilledPlayer, false);
-	SetWantsResearchAgreementWithPlayer(eKilledPlayer, false);
-	SetArmyInPlaceForAttack(eKilledPlayer, false);
-	SetWantsSneakAttack(eKilledPlayer, false);
-	GET_PLAYER(eKilledPlayer).GetDiplomacyAI()->SetWantsDoFWithPlayer(GetID(), false);
-	GET_PLAYER(eKilledPlayer).GetDiplomacyAI()->SetWantsDefensivePactWithPlayer(GetID(), false);
-	GET_PLAYER(eKilledPlayer).GetDiplomacyAI()->SetWantsResearchAgreementWithPlayer(GetID(), false);
-	GET_PLAYER(eKilledPlayer).GetDiplomacyAI()->SetArmyInPlaceForAttack(GetID(), false);
-	GET_PLAYER(eKilledPlayer).GetDiplomacyAI()->SetWantsSneakAttack(GetID(), false);
-	
-	// Clear certain promise values
-	SetPlayerExpansionPromiseState(eKilledPlayer, NO_PROMISE_STATE);
-	SetPlayerBorderPromiseState(eKilledPlayer, NO_PROMISE_STATE);
-	SetPlayerMilitaryPromiseState(eKilledPlayer, NO_PROMISE_STATE);
-	SetPlayerBullyCityStatePromiseState(eKilledPlayer, NO_PROMISE_STATE);
-	SetPlayerAttackCityStatePromiseState(eKilledPlayer, NO_PROMISE_STATE);
-	SetPlayerAskedNotToConvert(eKilledPlayer, false);
-	SetPlayerAskedNotToDig(eKilledPlayer, false);
-	GET_PLAYER(eKilledPlayer).GetDiplomacyAI()->SetPlayerExpansionPromiseState(GetID(), NO_PROMISE_STATE);
-	GET_PLAYER(eKilledPlayer).GetDiplomacyAI()->SetPlayerBorderPromiseState(GetID(), NO_PROMISE_STATE);
-	GET_PLAYER(eKilledPlayer).GetDiplomacyAI()->SetPlayerMilitaryPromiseState(GetID(), NO_PROMISE_STATE);
-	GET_PLAYER(eKilledPlayer).GetDiplomacyAI()->SetPlayerBullyCityStatePromiseState(GetID(), NO_PROMISE_STATE);
-	GET_PLAYER(eKilledPlayer).GetDiplomacyAI()->SetPlayerAttackCityStatePromiseState(GetID(), NO_PROMISE_STATE);
-	GET_PLAYER(eKilledPlayer).GetDiplomacyAI()->SetPlayerAskedNotToConvert(GetID(), false);
-	GET_PLAYER(eKilledPlayer).GetDiplomacyAI()->SetPlayerAskedNotToDig(GetID(), false);
-
-	SetVassalProtectValue(eKilledPlayer, 0);
-	SetVassalFailedProtectValue(eKilledPlayer, 0);
-	GET_PLAYER(eKilledPlayer).GetDiplomacyAI()->SetVassalProtectValue(GetID(), 0);
-	GET_PLAYER(eKilledPlayer).GetDiplomacyAI()->SetVassalFailedProtectValue(GetID(), 0);
-
-	// Reset warmongering penalty for the killed player
-	SetWarmongerThreat(eKilledPlayer, THREAT_NONE);
-	SetOtherPlayerWarmongerAmountTimes100(eKilledPlayer, 0);
-}
-
 
 // ************************************
 // LOGGING (PRIVATE FUNCTIONS)
