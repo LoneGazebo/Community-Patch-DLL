@@ -283,6 +283,13 @@ public:
 	void setFOW(bool bMode);
 	bool getFOW();
 
+#ifdef EA_EVENT_GAME_SAVE
+	void SetGameEventsSaveGame(bool bNewValue)
+	{
+		m_bSavedOnce = bNewValue;
+	};
+#endif
+
 	int getPitbossTurnTime() const;
 	void setPitbossTurnTime(int iHours);
 
@@ -804,6 +811,10 @@ protected:
 	TechTypes m_eTechAstronomy;
 
 	bool m_bFOW;
+
+#ifdef EA_EVENT_GAME_SAVE
+	bool m_bSavedOnce;
+#endif
 
 	// slewis - tutorial values
 	bool m_bStaticTutorialActive;
