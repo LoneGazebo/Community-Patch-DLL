@@ -31,7 +31,7 @@ CvUnitEntry::CvUnitEntry(void) :
 	m_iAdvancedStartCost(0),
 	m_iMinAreaSize(0),
 	m_iMoves(0),
-	m_bMoves(false),
+	m_bImmobile(false),
 	m_iBaseSightRange(0),
 	m_iRange(0),
 	m_iAirInterceptRange(0),
@@ -282,7 +282,7 @@ bool CvUnitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 	m_iAdvancedStartCost = kResults.GetInt("AdvancedStartCost");
 	m_iMinAreaSize = kResults.GetInt("MinAreaSize");
 	m_iMoves = kResults.GetInt("Moves");
-	m_bMoves = kResults.GetInt("Immobile");
+	m_bImmobile = kResults.GetInt("Immobile")>0;
 	m_iBaseSightRange = kResults.GetInt("BaseSightRange");
 	m_iRange = kResults.GetInt("Range");
 	m_iAirInterceptRange = kResults.GetInt("AirInterceptRange");
@@ -296,7 +296,7 @@ bool CvUnitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 	m_iBaseTurnsForGAPToCount = kResults.GetInt("BaseTurnsForGAPToCount");
 	m_iBaseHurry = kResults.GetInt("BaseHurry");
 	m_iHurryMultiplier = kResults.GetInt("HurryMultiplier");
-	m_bRushBuilding= kResults.GetInt("RushBuilding");
+	m_bRushBuilding= kResults.GetInt("RushBuilding")>0;
 	m_iBaseGold = kResults.GetInt("BaseGold");
 	m_iScaleFromNumGWs = kResults.GetInt("ScaleFromNumGWs");
 	m_iScaleFromNumThemes = kResults.GetInt("ScaleFromNumThemes");
@@ -816,7 +816,7 @@ int CvUnitEntry::GetMoves() const
 /// Can this Unit move on its own?
 bool CvUnitEntry::IsImmobile() const
 {
-	return m_bMoves;
+	return m_bImmobile;
 }
 
 /// Sight range on flat terrain

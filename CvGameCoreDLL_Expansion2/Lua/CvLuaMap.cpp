@@ -24,6 +24,8 @@
 #include "..\CvMap.h"
 #include "..\CvGameCoreUtils.h"
 
+#pragma warning(disable:4800 ) //forcing value to bool 'true' or 'false'
+
 #define Method(func) RegisterMethod(L, l##func, #func);
 
 //------------------------------------------------------------------------------

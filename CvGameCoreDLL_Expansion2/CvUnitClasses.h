@@ -282,7 +282,7 @@ private:
 	int m_iAdvancedStartCost;
 	int m_iMinAreaSize;
 	int m_iMoves;
-	bool m_bMoves;
+	bool m_bImmobile; //may still have moves>0 for attacks?
 	int m_iBaseSightRange;
 	int m_iRange;
 	int m_iAirInterceptRange;

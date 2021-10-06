@@ -1507,7 +1507,7 @@ protected:
 	int m_iMovementCost;
 	int m_iFlatMovementCost;
 
-	int m_bIndustrial;
+	bool m_bIndustrial;
 
 	// Arrays
 	int* m_piYieldChange;

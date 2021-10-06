@@ -24,6 +24,8 @@
 #include "CvLuaPlayer.h"
 #include "CvLuaTeam.h"
 
+#pragma warning(disable:4800 ) //forcing value to bool 'true' or 'false'
+
 //------------------------------------------------------------------------------
 // Utility methods
 //------------------------------------------------------------------------------

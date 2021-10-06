@@ -10309,7 +10309,7 @@ void CvCity::ChangeResourceDemandedCountdown(int iChange)
 int CvCity::getFoodTurnsLeft(int iCorpMod) const
 {
 	VALIDATE_OBJECT
-	int iDeltaPerTurn = foodDifferenceTimes100(true, iCorpMod);
+	int iDeltaPerTurn = foodDifferenceTimes100(true, false, iCorpMod);
 	int iFoodStored = getFoodTimes100();
 	int iFoodNeededToGrow = (growthThreshold() * 100 - iFoodStored);
 
@@ -15059,15 +15059,15 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 
 		if (pBuildingInfo->AllowsProductionTradeRoutes())
 		{
-			SetProductionRoutes(pBuildingInfo->AllowsProductionTradeRoutes() * iChange);
+			SetProductionRoutes(pBuildingInfo->AllowsProductionTradeRoutes() * iChange > 0);
 		}
 		if (pBuildingInfo->AllowsFoodTradeRoutes())
 		{
-			SetFoodRoutes(pBuildingInfo->AllowsFoodTradeRoutes() * iChange);
+			SetFoodRoutes(pBuildingInfo->AllowsFoodTradeRoutes() * iChange > 0);
 		}
 		if (pBuildingInfo->IsAllowsPuppetPurchase())
 		{
-			SetAllowPuppetPurchase(pBuildingInfo->IsAllowsPuppetPurchase() * iChange);
+			SetAllowPuppetPurchase(pBuildingInfo->IsAllowsPuppetPurchase() * iChange > 0);
 		}
 #endif
 		changeGreatPeopleRateModifier(pBuildingInfo->GetGreatPeopleRateModifier() * iChange);
@@ -33756,7 +33756,7 @@ int CvCity::getBombardRange(bool& bIndirectFireAllowed) const
 		}
 	}
 
-	bIndirectFireAllowed = GC.getCAN_CITY_USE_INDIRECT_FIRE();
+	bIndirectFireAllowed = GC.getCAN_CITY_USE_INDIRECT_FIRE()>0;
 	return GC.getCITY_ATTACK_RANGE();
 }
 #endif

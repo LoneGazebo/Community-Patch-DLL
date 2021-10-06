@@ -733,7 +733,7 @@ void CvBuilderTaskingAI::UpdateRoutePlots(void)
 				if (!pFirstCity && !pSecondCity)
 					continue;
 
-				bool bConnectOnlyCapitals = (bool)GC.getCITY_CONNECTIONS_CONNECT_TO_CAPITAL();
+				bool bConnectOnlyCapitals = GC.getCITY_CONNECTIONS_CONNECT_TO_CAPITAL()>0;
 				if (bConnectOnlyCapitals)
 				{
 					// only need to build roads to the capital for the money and happiness

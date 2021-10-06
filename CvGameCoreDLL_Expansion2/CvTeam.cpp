@@ -638,7 +638,7 @@ void CvTeam::addTeam(TeamTypes eTeam)
 
 		if(pLoopPlot->isRevealed(eTeam))
 		{
-			pLoopPlot->setRevealed(GetID(), true, false, eTeam);
+			pLoopPlot->setRevealed(GetID(), true, NULL, false, eTeam);
 		}
 	}
 

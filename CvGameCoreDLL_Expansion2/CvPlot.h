@@ -873,7 +873,7 @@ protected:
 		bool GetBit(const uint uiEntry) const
 		{
 			const uint uiOffset = uiEntry/eSize;
-			return m_bits[uiOffset] & 1<<(uiEntry-(eSize*uiOffset));
+			return (m_bits[uiOffset] & 1<<(uiEntry-(eSize*uiOffset))) != 0;
 		}
 		void SetBit(const uint uiEntry)
 		{

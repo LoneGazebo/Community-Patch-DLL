@@ -58,7 +58,7 @@ protected:
 	int m_iTradeRouteSpeedModifier;
 	int m_iNumFreeTradeRoutes;
 	int m_iBaseFranchises;
-	int m_bTradeRoutesInvulnerable;
+	bool m_bTradeRoutesInvulnerable;
 	int m_iTradeRouteVisionBoost;
 	
 	int m_iTradeRouteRecipientBonus;

@@ -30,6 +30,8 @@
 #include "ICvDLLUserInterface.h"
 #include "CvDllInterfaces.h"
 
+#pragma warning(disable:4800 ) //forcing value to bool 'true' or 'false'
+
 // include this last to turn warnings into errors for code analysis
 #include "LintFree.h"
 

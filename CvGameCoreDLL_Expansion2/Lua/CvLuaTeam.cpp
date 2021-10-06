@@ -20,6 +20,8 @@
 #include "CvLuaTeamTech.h"
 #include "CvLuaArea.h"
 
+#pragma warning(disable:4800 ) //forcing value to bool 'true' or 'false'
+
 //Utility macro for registering methods
 #define Method(Name)			\
 	lua_pushcclosure(L, l##Name, 0);	\

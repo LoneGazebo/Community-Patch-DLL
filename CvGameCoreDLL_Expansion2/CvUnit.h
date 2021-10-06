@@ -735,10 +735,8 @@ public:
 	int getIsConvertEnemyUnitToBarbarian() const;
 	bool isConvertEnemyUnitToBarbarian() const;
 	void ChangeIsConvertOnFullHP(int iValue);
-	int getIsConvertOnFullHP() const;
 	bool isConvertOnFullHP() const;
 	void ChangeIsConvertOnDamage(int iValue);
-	int getIsConvertOnDamage() const;
 	bool isConvertOnDamage() const;
 	int getDamageThreshold() const;
 	void ChangeDamageThreshold(int iValue);
@@ -1151,7 +1149,7 @@ public:
 	void changePlagueChance(int iChange);
 
 	int getPlaguePromotionID() const;
-	void setPlagued(int iChange);
+	void setPlagued(bool bValue);
 	bool isPlagued() const;
 
 	int getPlagueID() const;
@@ -1983,7 +1981,7 @@ protected:
 	int m_iExtraWithdrawal;
 #if defined(MOD_BALANCE_CORE_JFD)
 	int m_iPlagueChance;
-	int m_iIsPlagued;
+	bool m_bIsPlagued;
 	int m_iPlagueID;
 	int m_iPlaguePriority;
 	int m_iPlagueIDImmunity;
@@ -2053,14 +2051,14 @@ protected:
 	int m_iNearbyUnitClassBonus;
 	int m_iNearbyUnitClassBonusRange;
 	UnitClassTypes m_iCombatBonusFromNearbyUnitClass;
-	int m_bNearbyPromotion;
+	int m_iNearbyPromotion;
 	int m_iNearbyUnitPromotionRange;
 	int m_iNearbyCityCombatMod;
 	int m_iNearbyFriendlyCityCombatMod;
 	int m_iNearbyEnemyCityCombatMod;
 	int m_iPillageBonusStrengthPercent;
 	int m_iStackedGreatGeneralExperience;
-	int m_bIsHighSeaRaider;
+	int m_iIsHighSeaRaider;
 	int m_iWonderProductionModifier;
 	int m_iUnitProductionModifier;
 	int m_iNearbyEnemyDamage;
@@ -2072,14 +2070,14 @@ protected:
 	int m_eGiveDomain;
 	int m_iGiveExtraAttacks;
 	int m_iGiveDefenseMod;
-	int m_bGiveInvisibility;
-	int m_bGiveOnlyOnStartingTurn;
-	int m_bConvertUnit;
+	int m_iGiveInvisibility;
+	bool m_bGiveOnlyOnStartingTurn;
+	int m_iConvertUnit;
 	int m_eConvertDomain;
 	UnitTypes m_eConvertDomainUnit;
-	int m_bConvertEnemyUnitToBarbarian;
-	int m_bConvertOnFullHP;
-	int m_bConvertOnDamage;
+	int m_iConvertEnemyUnitToBarbarian;
+	bool m_bConvertOnFullHP;
+	bool m_bConvertOnDamage;
 	int m_iDamageThreshold;
 	UnitTypes m_eConvertDamageOrFullHPUnit;
 	int m_iNumberOfCultureBombs;
@@ -2098,7 +2096,7 @@ protected:
 #endif
 #if defined(MOD_BALANCE_CORE)
 	int m_iNumTilesRevealedThisTurn;
-	int m_bSpottedEnemy;
+	bool m_bSpottedEnemy;
 	int m_iGainsXPFromScouting;
 	int m_iGainsXPFromPillaging;
 	int m_iGainsXPFromSpotting;
@@ -2417,7 +2415,7 @@ SYNC_ARCHIVE_VAR(int, m_iExtraFirstStrikes)
 SYNC_ARCHIVE_VAR(int, m_iExtraChanceFirstStrikes)
 SYNC_ARCHIVE_VAR(int, m_iExtraWithdrawal)
 SYNC_ARCHIVE_VAR(int, m_iPlagueChance)
-SYNC_ARCHIVE_VAR(int, m_iIsPlagued)
+SYNC_ARCHIVE_VAR(bool, m_bIsPlagued)
 SYNC_ARCHIVE_VAR(int, m_iPlagueID)
 SYNC_ARCHIVE_VAR(int, m_iPlaguePriority)
 SYNC_ARCHIVE_VAR(int, m_iPlagueIDImmunity)
@@ -2483,14 +2481,14 @@ SYNC_ARCHIVE_VAR(ImprovementTypes, m_eCombatBonusImprovement)
 SYNC_ARCHIVE_VAR(int, m_iNearbyUnitClassBonus)
 SYNC_ARCHIVE_VAR(int, m_iNearbyUnitClassBonusRange)
 SYNC_ARCHIVE_VAR(UnitClassTypes, m_iCombatBonusFromNearbyUnitClass)
-SYNC_ARCHIVE_VAR(int, m_bNearbyPromotion)
+SYNC_ARCHIVE_VAR(int, m_iNearbyPromotion)
 SYNC_ARCHIVE_VAR(int, m_iNearbyUnitPromotionRange)
 SYNC_ARCHIVE_VAR(int, m_iNearbyCityCombatMod)
 SYNC_ARCHIVE_VAR(int, m_iNearbyFriendlyCityCombatMod)
 SYNC_ARCHIVE_VAR(int, m_iNearbyEnemyCityCombatMod)
 SYNC_ARCHIVE_VAR(int, m_iPillageBonusStrengthPercent)
 SYNC_ARCHIVE_VAR(int, m_iStackedGreatGeneralExperience)
-SYNC_ARCHIVE_VAR(int, m_bIsHighSeaRaider)
+SYNC_ARCHIVE_VAR(int, m_iIsHighSeaRaider)
 SYNC_ARCHIVE_VAR(int, m_iWonderProductionModifier)
 SYNC_ARCHIVE_VAR(int, m_iUnitProductionModifier)
 SYNC_ARCHIVE_VAR(int, m_iNearbyEnemyDamage)
@@ -2502,14 +2500,14 @@ SYNC_ARCHIVE_VAR(int, m_iGiveOutsideFriendlyLandsModifier)
 SYNC_ARCHIVE_VAR(int, m_eGiveDomain)
 SYNC_ARCHIVE_VAR(int, m_iGiveExtraAttacks)
 SYNC_ARCHIVE_VAR(int, m_iGiveDefenseMod)
-SYNC_ARCHIVE_VAR(int, m_bGiveInvisibility)
-SYNC_ARCHIVE_VAR(int, m_bGiveOnlyOnStartingTurn)
-SYNC_ARCHIVE_VAR(int, m_bConvertUnit)
+SYNC_ARCHIVE_VAR(int, m_iGiveInvisibility)
+SYNC_ARCHIVE_VAR(bool, m_bGiveOnlyOnStartingTurn)
+SYNC_ARCHIVE_VAR(int, m_iConvertUnit)
 SYNC_ARCHIVE_VAR(int, m_eConvertDomain)
 SYNC_ARCHIVE_VAR(UnitTypes, m_eConvertDomainUnit)
-SYNC_ARCHIVE_VAR(int, m_bConvertEnemyUnitToBarbarian)
-SYNC_ARCHIVE_VAR(int, m_bConvertOnFullHP)
-SYNC_ARCHIVE_VAR(int, m_bConvertOnDamage)
+SYNC_ARCHIVE_VAR(int, m_iConvertEnemyUnitToBarbarian)
+SYNC_ARCHIVE_VAR(bool, m_bConvertOnFullHP)
+SYNC_ARCHIVE_VAR(bool, m_bConvertOnDamage)
 SYNC_ARCHIVE_VAR(int, m_iDamageThreshold)
 SYNC_ARCHIVE_VAR(UnitTypes, m_eConvertDamageOrFullHPUnit)
 SYNC_ARCHIVE_VAR(int, m_iNumberOfCultureBombs)
@@ -2520,7 +2518,7 @@ SYNC_ARCHIVE_VAR(int, m_iCanCrossMountainsCount)
 SYNC_ARCHIVE_VAR(int, m_iCanCrossOceansCount)
 SYNC_ARCHIVE_VAR(int, m_iCanCrossIceCount)
 SYNC_ARCHIVE_VAR(int, m_iNumTilesRevealedThisTurn)
-SYNC_ARCHIVE_VAR(int, m_bSpottedEnemy)
+SYNC_ARCHIVE_VAR(bool, m_bSpottedEnemy)
 SYNC_ARCHIVE_VAR(int, m_iGainsXPFromScouting)
 SYNC_ARCHIVE_VAR(int, m_iGainsXPFromPillaging)
 SYNC_ARCHIVE_VAR(int, m_iGainsXPFromSpotting)

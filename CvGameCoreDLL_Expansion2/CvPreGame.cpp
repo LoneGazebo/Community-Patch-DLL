@@ -917,11 +917,11 @@ void SyncGameOptionsWithEnumList()
 			GetGameOption(str, value);
 		}
 		s_EnumBasedGameOptions[i] = value;
-		bool v = static_cast<bool>(value);
+
 		switch(i)
 		{
 		case GAMEOPTION_QUICK_COMBAT:
-			s_quickCombat = v;	// set directly, to avoid infinite recursion.
+			s_quickCombat = value>0;	// set directly, to avoid infinite recursion.
 			break;
 		default:
 			break;
@@ -3536,9 +3536,7 @@ bool isKnownPlayer(PlayerTypes eA, PlayerTypes eB) {
 	if (eA < 0 || eB < 0) return true; // erring on the side of caution
 	if ((size_t)eA >= s_knownPlayersTable.size() || (size_t)eB >= s_knownPlayersTable.size()) return true; // erring on the side of caution
 
-	bool bKnown = s_knownPlayersTable[eA] & (KnownPlayersBitArray(1) << eB);
-
-	return bKnown;
+	return (s_knownPlayersTable[eA] & (KnownPlayersBitArray(1) << eB)) != 0;
 }
 #endif
 }

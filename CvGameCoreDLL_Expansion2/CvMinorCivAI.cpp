@@ -3282,7 +3282,7 @@ void CvMinorCivQuest::DoStartQuestUsingExistingData(CvMinorCivQuest* pExistingQu
 		m_iData2 = iDigY;
 
 		pPlot->setRevealed(pAssignedPlayer->getTeam(), true);
-		pPlot->SetResourceForceReveal(pAssignedPlayer->getTeam(), pPlot->getResourceType());
+		pPlot->SetResourceForceReveal(pAssignedPlayer->getTeam(), pPlot->getResourceType()!=NO_RESOURCE);
 
 		strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_QUEST_ARCHAEOLOGY");
 		strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_QUEST_ARCHAEOLOGY");

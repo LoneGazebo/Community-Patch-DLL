@@ -713,8 +713,8 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	m_iFreeGreatPeople = kResults.GetInt("FreeGreatPeople");
 	m_iMedianTechPercentChange = kResults.GetInt("MedianTechPercentChange");
 	m_iGold = kResults.GetInt("Gold");
-	m_bNearbyMountainRequired = kResults.GetInt("NearbyMountainRequired");
-	m_bAllowsRangeStrike = kResults.GetInt("AllowsRangeStrike");
+	m_bNearbyMountainRequired = kResults.GetInt("NearbyMountainRequired")>0;
+	m_bAllowsRangeStrike = kResults.GetInt("AllowsRangeStrike")>0;
 	m_iDefenseModifier = kResults.GetInt("Defense");
 	m_iGlobalDefenseModifier = kResults.GetInt("GlobalDefenseMod");
 	m_iExtraCityHitPoints = kResults.GetInt("ExtraCityHitPoints");

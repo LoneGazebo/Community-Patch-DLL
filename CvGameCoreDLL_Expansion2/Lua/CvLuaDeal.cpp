@@ -12,7 +12,9 @@
 #include "CvLuaSupport.h"
 #include "CvLuaDeal.h"
 
-//Utility macro for registering methods
+#pragma warning(disable:4800 ) //forcing value to bool 'true' or 'false'
+
+	//Utility macro for registering methods
 #define Method(Name)			\
 	lua_pushcclosure(L, l##Name, 0);	\
 	lua_setfield(L, t, #Name);
