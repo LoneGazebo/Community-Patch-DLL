@@ -765,6 +765,10 @@ void CvTacticalAI::AssignGlobalMidPrioMoves()
 	PlotGrabGoodyMoves();
 	PlotCivilianAttackMoves();
 
+	//make sure our frontline cities have a garrison
+	//garrisons sometimes make a sortie so we have to get them back
+	PlotGarrisonMoves(4);
+
 	//now all attacks are done, try to move any unprocessed units out of harm's way
 	PlotMovesToSafety(true);
 
@@ -789,7 +793,6 @@ void CvTacticalAI::AssignGlobalLowPrioMoves()
 	ExtractTargetsForZone(NULL);
 
 	//pure defense
-	PlotGarrisonMoves(4);
 	PlotBastionMoves(2);
 	PlotGuardImprovementMoves(1);
 
@@ -1602,6 +1605,15 @@ void CvTacticalAI::PlotGarrisonMoves(int iNumTurnsAway)
 		if(!pCity)
 			continue;
 
+		//first check how many enemies are around
+		int iEnemyCount = 0;
+		for (int i = RING0_PLOTS; i < RING3_PLOTS; i++)
+		{
+			CvPlot* pNeighbor = iterateRingPlots(pPlot, i);
+			if (pNeighbor && pNeighbor->isEnemyUnit(m_pPlayer->GetID(), true, true))
+				iEnemyCount++;
+		}
+
 		//an explorer can be a transient garrison but we don't want to keep it here
 		CvUnit* pGarrison = pCity->GetGarrisonedUnit();
 		if (pGarrison)
@@ -1617,23 +1629,19 @@ void CvTacticalAI::PlotGarrisonMoves(int iNumTurnsAway)
 			if (pGarrison->AI_getUnitAIType() == UNITAI_EXPLORE || pGarrison->isDelayedDeath() || pGarrison->TurnProcessed() || pGarrison->getArmyID()!=-1)
 				continue;
 
-			//first check how many enemies are around
-			int iEnemyCount = 0;
-			for (int i = RING0_PLOTS; i < RING3_PLOTS; i++)
-			{
-				CvPlot* pNeighbor = iterateRingPlots(pPlot, i);
-				if (pNeighbor && pNeighbor->isEnemyUnit(m_pPlayer->GetID(), true, true))
-					iEnemyCount++;
-			}
-
 			//note: ranged garrisons are also used in ExecuteAttritionAttacks if they can hit a target without moving
-			//here we have more advanced logic and allow some movement if it's safe
-			TacticalAIHelpers::PerformOpportunityAttack(pGarrison, iEnemyCount < 2);
+			//here we have more advanced logic and allow some movement if it's safe (and it's not our last stand)
+			TacticalAIHelpers::PerformOpportunityAttack(pGarrison, iEnemyCount < 2 && m_pPlayer->getNumCities() > 1 );
 
 			//do not call finishMoves() else the garrison will not heal!
 			pGarrison->PushMission(CvTypes::getMISSION_SKIP());
 			UnitProcessed(pGarrison->GetID());
 		}
+
+		//frontline check, do we even need a garrison here right now
+		//we might still put one but that will be handled in homeland AI
+		if (iEnemyCount == 0 && pCity->getDamage() == 0)
+			continue;
 
 		//prefer land garrisons ...
 		if ( !pCity->isInDangerOfFalling() && (pGarrison==NULL || pGarrison->getDomainType()!=DOMAIN_LAND) )
@@ -4044,7 +4052,7 @@ void CvTacticalAI::ExecuteHeals(bool bFirstPass)
 			UnitProcessed(pUnit->GetID());
 		}
 		//no safe plot to heal ...
-		else if (!bFirstPass && pUnit->getDomainType() != DOMAIN_AIR && pUnit->GetDanger() > 0)
+		else if (!bFirstPass && pUnit->getDomainType() != DOMAIN_AIR && pUnit->GetDanger() > GC.getNEUTRAL_HEAL_RATE())
 		{
 			//at least try to flee
 			pBetterPlot = TacticalAIHelpers::FindSafestPlotInReach(pUnit, true);

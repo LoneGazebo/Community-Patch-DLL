@@ -2881,7 +2881,8 @@ AIOperationAbortReason CvAIOperationCivilian::VerifyOrAdjustTarget(CvArmyAI* pAr
 	if (!pCivilian)
 		return AI_ABORT_LOST_CIVILIAN;
 
-	if (pCivilian->GetDanger(pTarget) > 0 && !IsEscorted())
+	//allow some fog danger
+	if (pCivilian->GetDanger(pTarget) > 20 && !IsEscorted())
 		return AI_ABORT_TOO_DANGEROUS;
 		
 	if (GET_PLAYER(m_eOwner).IsAtWarWith(pTarget->getOwner()))

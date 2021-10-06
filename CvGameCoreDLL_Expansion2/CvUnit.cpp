@@ -27980,7 +27980,7 @@ bool CvUnit::shouldHeal(bool bBeforeAttacks) const
 	bool bAllowMoreDamage = GET_PLAYER(getOwner()).GetPlayerTraits()->IsFightWellDamaged() || IsStrongerDamaged() || IsFightWellDamaged() || isBarbarian();
 
 	//sometimes we should heal but we have to fight instead
-	int iHpLimit = GetMaxHitPoints() / 10;
+	int iHpLimit = GetMaxHitPoints() / 3;
 	if (bBeforeAttacks && GetCurrHitPoints() > iHpLimit && TacticalAIHelpers::GetFirstTargetInRange(this))
 		return false;
 
