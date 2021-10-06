@@ -74,6 +74,7 @@ public:
 	void Read(FDataStream& kStream);
 	void Write(FDataStream& kStream) const;
 	void update();
+	void SlotStateChange();
 
 	// ************************************
 	// Pointers
@@ -108,7 +109,7 @@ public:
 	// ************************************
 
 	int GetRandomPersonalityWeight(int iOriginalValue, int& iSeed);
-	void DoInitializePersonality();
+	void DoInitializePersonality(bool bFirstInit);
 	void SelectDefaultVictoryFocus();
 
 	int GetVictoryCompetitiveness() const;
@@ -274,10 +275,6 @@ public:
 	void SetPrimeLeagueCompetitor(PlayerTypes ePlayer);
 	PlayerTypes GetDemandTargetPlayer() const;
 	void SetDemandTargetPlayer(PlayerTypes ePlayer);
-	bool HasEndedFriendshipThisTurn() const;
-	void SetEndedFriendshipThisTurn(bool bValue);
-	bool IsAvoidDeals() const;
-	void SetAvoidDeals(bool bValue);
 
 	// ------------------------------------
 	// Exchanges
@@ -415,6 +412,10 @@ public:
 
 	StateAllWars GetStateAllWars() const;
 	void SetStateAllWars(StateAllWars eState);
+
+	int GetWarProgressScore(PlayerTypes ePlayer) const;
+	void SetWarProgressScore(PlayerTypes ePlayer, int iValue);
+	void ChangeWarProgressScore(PlayerTypes ePlayer, int iChange);
 
 	// ------------------------------------
 	// Peace
@@ -780,6 +781,10 @@ public:
 	bool IsSupportedOurProposalAndThenFoiledUs(PlayerTypes ePlayer) const;
 	bool IsFoiledOurProposalAndThenSupportedUs(PlayerTypes ePlayer) const;
 
+	int GetVotingHistoryScore(PlayerTypes ePlayer) const;
+	void SetVotingHistoryScore(PlayerTypes ePlayer, int iValue);
+	void ChangeVotingHistoryScore(PlayerTypes ePlayer, int iChange);
+
 	int GetSupportedOurHostingValue(PlayerTypes ePlayer) const;
 	void SetSupportedOurHostingValue(PlayerTypes ePlayer, int iValue);
 
@@ -874,12 +879,23 @@ public:
 	int GetTheyFoiledOurProposalTurn(PlayerTypes ePlayer) const;
 	void SetTheyFoiledOurProposalTurn(PlayerTypes ePlayer, int iTurn);
 
+	int GetTheySanctionedUsTurn(PlayerTypes ePlayer) const;
+	void SetTheySanctionedUsTurn(PlayerTypes ePlayer, int iTurn);
+
 	int GetTheySupportedOurHostingTurn(PlayerTypes ePlayer) const;
 	void SetTheySupportedOurHostingTurn(PlayerTypes ePlayer, int iTurn);
 
 	// ------------------------------------
 	// Player-Specific Memory Values
 	// ------------------------------------
+
+	bool WasHumanLastTurn() const;
+
+	bool HasEndedFriendshipThisTurn() const;
+	void SetEndedFriendshipThisTurn(bool bValue);
+
+	bool IsAvoidDeals() const;
+	void SetAvoidDeals(bool bValue);
 
 	PlayerTypes GetOtherPlayerProtectedMinorBullied(PlayerTypes eBullyPlayer) const;
 	void SetOtherPlayerProtectedMinorBullied(PlayerTypes ePlayer, PlayerTypes eBulliedPlayer);
@@ -1235,7 +1251,6 @@ public:
 	// Someone had some kind of interaction with another player
 	void DoWeMadePeaceWithSomeone(TeamTypes eOtherTeam);
 	void DoPlayerDeclaredWarOnSomeone(PlayerTypes ePlayer, TeamTypes eOtherTeam, bool bDefensivePact);
-	void DoPlayerKilledSomeone(PlayerTypes ePlayer, PlayerTypes eDeadPlayer);
 	void DoPlayerBulliedSomeone(PlayerTypes ePlayer, PlayerTypes eOtherPlayer);
 	void DoPlayerMetSomeone(PlayerTypes ePlayer, PlayerTypes eOtherPlayer);
 
@@ -1706,8 +1721,6 @@ public:
 	std::vector<CvDeal*> GetDealsToRenew(PlayerTypes eOtherPlayer = NO_PLAYER);
 	void CancelRenewDeal(PlayerTypes eOtherPlayer = NO_PLAYER, RenewalReason eReason = NO_REASON, bool bJustLogging = false, CvDeal* pPassDeal = NULL);
 
-	void KilledPlayerCleanup (PlayerTypes eKilledPlayer);
-
 	// Methods for injecting tests
 	void TestUIDiploStatement(PlayerTypes eToPlayer, DiploStatementTypes eStatement, int iArg1);
 
@@ -1830,6 +1843,7 @@ private:
 
 	// Other Global Memory
 	bool m_bAvoidDeals; // Not serialized!
+	bool m_bWasHumanLastTurn;
 	bool m_bEndedFriendshipThisTurn;
 	bool m_bBackstabber;
 	bool m_bCompetingForVictory;
@@ -1892,6 +1906,7 @@ private:
 	unsigned short m_aiCivilianKillerValue[MAX_MAJOR_CIVS];
 	unsigned char m_aiNumCitiesCaptured[MAX_CIV_PLAYERS];
 	char m_aeWarState[MAX_CIV_PLAYERS];
+	short m_aiWarProgressScore[MAX_CIV_PLAYERS];
 
 	// Peace
 	char m_aePeaceTreatyWillingToOffer[MAX_MAJOR_CIVS];
@@ -2011,6 +2026,7 @@ private:
 	unsigned char m_aiPerformedCoupAgainstUs[MAX_MAJOR_CIVS];
 	char m_aiLikedTheirProposalValue[MAX_MAJOR_CIVS];
 	char m_aiSupportedOurProposalValue[MAX_MAJOR_CIVS];
+	char m_aiVotingHistoryScore[MAX_MAJOR_CIVS];
 	char m_aiSupportedOurHostingValue[MAX_MAJOR_CIVS];
 	unsigned char m_aiNegativeArchaeologyPoints[MAX_MAJOR_CIVS];
 	unsigned char m_aiArtifactsEverDugUp[MAX_MAJOR_CIVS];
@@ -2039,6 +2055,7 @@ private:
 	int m_aiWeDislikedTheirProposalTurn[MAX_MAJOR_CIVS];
 	int m_aiTheySupportedOurProposalTurn[MAX_MAJOR_CIVS];
 	int m_aiTheyFoiledOurProposalTurn[MAX_MAJOR_CIVS];
+	int m_aiTheySanctionedUsTurn[MAX_MAJOR_CIVS];
 	int m_aiTheySupportedOurHostingTurn[MAX_MAJOR_CIVS];
 
 	// Player-Specific Memory

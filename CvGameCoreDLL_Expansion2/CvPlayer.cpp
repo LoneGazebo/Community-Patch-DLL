@@ -4475,25 +4475,13 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 		// Test if the old owner is dead
 		CheckForMurder(eOldOwner);
 
-		// Dead? This might have ramifications...
+		// Dead?
 		if (!GET_PLAYER(eOldOwner).isAlive())
 		{
-			if (isMajorCiv())
+			// Let's give the Embassy votes of the defeated player to the new player
+			if (MOD_DIPLOMACY_CITYSTATES && isMajorCiv() && GET_PLAYER(eOldOwner).GetImprovementLeagueVotes() > 0)
 			{
-				// Diplo ramifications...
-				for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
-				{
-					PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
-					if (eLoopPlayer == GetID() || !GET_PLAYER(eLoopPlayer).isAlive() || !GetDiplomacyAI()->IsHasMet(eLoopPlayer))
-						continue;
-
-					GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->DoPlayerKilledSomeone(GetID(), eOldOwner);
-				}
-				// Let's give the Embassy votes of the defeated player to the new player
-				if (MOD_DIPLOMACY_CITYSTATES && GET_PLAYER(eOldOwner).GetImprovementLeagueVotes() > 0)
-				{
-					ChangeImprovementLeagueVotes(GET_PLAYER(eOldOwner).GetImprovementLeagueVotes());
-				}
+				ChangeImprovementLeagueVotes(GET_PLAYER(eOldOwner).GetImprovementLeagueVotes());
 			}
 		}
 		// If not dead, old owner should update city specializations
@@ -33791,246 +33779,254 @@ void CvPlayer::SetHasBetrayedMinorCiv(bool bValue)
 //	--------------------------------------------------------------------------------
 void CvPlayer::setAlive(bool bNewValue, bool bNotify)
 {
-	CvString strBuffer;
-	int iI;
+	// No state change - ignore
+	if (isAlive() == bNewValue)
+		return;
 
-	if(isAlive() != bNewValue)
+	// Can't kill Barbarians
+	if (!bNewValue && isBarbarian())
+		return;
+
+	// Update memory values
+	m_bAlive = bNewValue;
+	if (bNewValue)
 	{
-		m_bAlive = bNewValue;
+		GET_TEAM(getTeam()).changeAliveCount(1);
 
-		GET_TEAM(getTeam()).changeAliveCount((isAlive()) ? 1 : -1);
-
-		GC.getGame().GetGameLeagues()->DoPlayerAliveStatusChanged(GetID());
-
-		// Tell Minor Civ AI what's up so that it knows when to add/remove bonuses for players it's friends with
-		if(isMinorCiv())
+		if (!isEverAlive() && !isObserver())
 		{
-			GetMinorCivAI()->DoChangeAliveStatus(bNewValue);
+			m_bEverAlive = true;
+			GET_TEAM(getTeam()).changeEverAliveCount(1);
 		}
 
-		if(isAlive())
+		if (getNumCities() == 0)
+			setFoundedFirstCity(false);
+
+		GET_TEAM(getTeam()).SetKilledByTeam(NO_TEAM);
+	}
+	else
+	{
+		GET_TEAM(getTeam()).changeAliveCount(-1);
+	}
+
+	// Update the World Congress
+	GC.getGame().GetGameLeagues()->DoPlayerAliveStatusChanged(GetID());
+
+	// Update Minor Civ AI
+	if (isMinorCiv())
+	{
+		if (!bNewValue)
 		{
-			if(!isEverAlive() && !isObserver())
-			{
-				m_bEverAlive = true;
-
-				GET_TEAM(getTeam()).changeEverAliveCount(1);
-			}
-
-			if(getNumCities() == 0)
-			{
-				setFoundedFirstCity(false);
-			}
-
-			GET_TEAM(getTeam()).SetKilledByTeam(NO_TEAM);
-
-			if(isSimultaneousTurns() || (GC.getGame().getNumGameTurnActive() == 0) || (GC.getGame().isSimultaneousTeamTurns() && GET_TEAM(getTeam()).isTurnActive()))
-			{
-				setTurnActive(true);
-			}
-
-			gDLL->openSlot(GetID());
-		}
-		else
-		{
-			clearResearchQueue();
-			killUnits();
-			killCities();
-			if(CvPreGame::isNetworkMultiplayerGame() && m_eID == GC.getGame().getActivePlayer())
-				gDLL->netDisconnect();
-
-			if (!GET_TEAM(getTeam()).isAlive())
-			{
-				for (int i = 0; i < MAX_TEAMS; i++)
-				{
-					TeamTypes eTheirTeam = (TeamTypes)i;
-					if (getTeam() != eTheirTeam)
-					{
-						// close both embassies
-						GET_TEAM(getTeam()).CloseEmbassyAtTeam(eTheirTeam);
-						GET_TEAM(eTheirTeam).CloseEmbassyAtTeam(getTeam());
-
-						// cancel any research agreements
-						GET_TEAM(getTeam()).CancelResearchAgreement(eTheirTeam);
-						GET_TEAM(eTheirTeam).CancelResearchAgreement(getTeam());
-
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-						if (MOD_DIPLOMACY_CIV4_FEATURES) {
-							GET_TEAM(getTeam()).DoEndVassal(eTheirTeam, true, true);
-							GET_TEAM(eTheirTeam).DoEndVassal(getTeam(), true, true);
-						}
-#endif
-#if defined(MOD_BALANCE_CORE)
-						GET_TEAM(getTeam()).setAtWar(eTheirTeam, false, false);
-						GET_TEAM(eTheirTeam).setAtWar(getTeam(), false, false);
-#endif
-						if (GET_TEAM(getTeam()).isMinorCiv())
-						{
-							// Reset incoming units
-							for (int iLoop = 0; iLoop < MAX_PLAYERS; iLoop++)
-							{
-								PlayerTypes eLoopPlayer = (PlayerTypes)iLoop; 
-								if (eLoopPlayer == NO_PLAYER || !GET_PLAYER(eLoopPlayer).isMinorCiv())
-									continue;
-
-								if (GET_PLAYER(eLoopPlayer).GetMinorCivAI()->GetPermanentAlly() == GetID())
-								{
-									GET_PLAYER(eLoopPlayer).GetMinorCivAI()->SetPermanentAlly(NO_PLAYER);
-								}
-							}
-						}
-					}
-				}
-			}
+			// Negate Sphere of Influence
+			if (GetMinorCivAI()->GetPermanentAlly() != NO_PLAYER)
+				GetMinorCivAI()->SetPermanentAlly(NO_PLAYER);
 
 			// Reset incoming units
-			for(int iLoop = 0; iLoop < MAX_PLAYERS; iLoop++)
+			for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 			{
-				PlayerTypes eLoopPlayer = (PlayerTypes) iLoop;
+				PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
 				SetIncomingUnitCountdown(eLoopPlayer, -1);
 				SetIncomingUnitType(eLoopPlayer, NO_UNIT);
-#if defined(MOD_BALANCE_CORE)
-				GET_PLAYER(eLoopPlayer).recomputeGreatPeopleModifiers(); //if we are getting any modifiers from denouncement
-#endif
 			}
-
-			GC.getGame().GetGameDeals().DoCancelAllDealsWithPlayer(GetID());
-
-			// Reset relationships with minor civs
-			for(int iPlayerLoop = MAX_MAJOR_CIVS; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
-			{
-				PlayerTypes eOtherPlayer = (PlayerTypes) iPlayerLoop;
-				GET_PLAYER(eOtherPlayer).GetMinorCivAI()->ResetFriendshipWithMajor(GetID());
-			}
-
-			if (isMajorCiv())
-			{
-				// Military rating drops to 0
-				SetMilitaryRating(0);
-
-				// Reset war weariness
-				if (MOD_BALANCE_CORE_HAPPINESS)
-					GetCulture()->SetWarWeariness(0);
-
-				// Reset certain diplo modifiers
-				for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
-				{
-					PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
-
-					if (eLoopPlayer != m_eID)
-					{
-						GetDiplomacyAI()->SetRecentTradeValue(eLoopPlayer, 0);
-						GetDiplomacyAI()->SetRecentAssistValue(eLoopPlayer, 0);
-						GetDiplomacyAI()->SetCommonFoeValue(eLoopPlayer, 0);
-						GetDiplomacyAI()->SetCivilianKillerValue(eLoopPlayer, 0);
-						GetDiplomacyAI()->SetVassalProtectValue(eLoopPlayer, 0);
-						GetDiplomacyAI()->SetVassalFailedProtectValue(eLoopPlayer, 0);
-
-						GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->SetRecentTradeValue(m_eID, 0);
-						GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->SetRecentAssistValue(m_eID, 0);
-						GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->SetCommonFoeValue(m_eID, 0);
-						GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->SetCivilianKillerValue(m_eID, 0);
-						GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->SetVassalProtectValue(m_eID, 0);
-						GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->SetVassalFailedProtectValue(m_eID, 0);
-					}
-				}
-			}
-
-			ResetWarPeaceTurnCounters();
-
-			setTurnActive(false);
-
-			gDLL->closeSlot(GetID());
-
-			if(bNotify && !isBarbarian())
-			{
-				Localization::String strMessage = Localization::Lookup("TXT_KEY_MISC_CIV_DESTROYED");
-				strMessage << getCivilizationAdjectiveKey();
-				Localization::String strSummary = Localization::Lookup("TXT_KEY_MISC_CIV_DESTROYED_SHORT");
-				strSummary << getCivilizationShortDescriptionKey();
-
-				for(iI = 0; iI < MAX_PLAYERS; iI++)
-				{
-					const PlayerTypes eOtherPlayer = static_cast<PlayerTypes>(iI);
-					CvPlayerAI& kOtherPlayer = GET_PLAYER(eOtherPlayer);
-
-					if(kOtherPlayer.isAlive() && kOtherPlayer.GetNotifications())
-					{
-						kOtherPlayer.GetNotifications()->Add(NOTIFICATION_PLAYER_KILLED, strMessage.toUTF8(), strSummary.toUTF8(), -1, -1, -1);
-					}
-				}
-
-				GC.getGame().addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT, GetID(), strMessage.toUTF8(), -1, -1);
-			}
-
-			GC.getGame().testVictory();
 		}
 
-		GC.getGame().setScoreDirty(true);
+		GetMinorCivAI()->DoChangeAliveStatus(bNewValue);
 	}
+
+	// Update turns/slot status if the player is now alive
+	if (bNewValue)
+	{
+		if (isSimultaneousTurns() || (GC.getGame().getNumGameTurnActive() == 0) || (GC.getGame().isSimultaneousTeamTurns() && GET_TEAM(getTeam()).isTurnActive()))
+		{
+			setTurnActive(true);
+		}
+
+		gDLL->openSlot(GetID());
+	}
+	// Player is now dead
+	else
+	{
+		// Reset war value lost
+		for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+		{
+			PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+			if (getTeam() == GET_PLAYER(eLoopPlayer).getTeam())
+				continue;
+
+			SetWarValueLost(eLoopPlayer, 0);
+			SetWarDamageValue(eLoopPlayer, 0);
+			GET_PLAYER(eLoopPlayer).SetWarValueLost(GetID(), 0);
+			GET_PLAYER(eLoopPlayer).SetWarDamageValue(GetID(), 0);
+		}
+
+		// Wipe out everything involving this player
+		GC.getGame().GetGameDeals().DoCancelAllDealsWithPlayer(GetID());
+		clearResearchQueue();
+		ResetWarPeaceTurnCounters();
+		killUnits();
+		killCities();
+
+		// Entire team is dead
+		if (!GET_TEAM(getTeam()).isAlive())
+		{
+			for (int i = 0; i < MAX_TEAMS; i++)
+			{
+				TeamTypes eTheirTeam = (TeamTypes)i;
+				if (getTeam() != eTheirTeam)
+				{
+					// close both embassies (also cancels Defensive Pacts / Open Borders)
+					GET_TEAM(getTeam()).CloseEmbassyAtTeam(eTheirTeam);
+					GET_TEAM(eTheirTeam).CloseEmbassyAtTeam(getTeam());
+
+					// cancel any research agreements
+					GET_TEAM(getTeam()).CancelResearchAgreement(eTheirTeam);
+					GET_TEAM(eTheirTeam).CancelResearchAgreement(getTeam());
+
+					// end vassalage
+					GET_TEAM(getTeam()).DoEndVassal(eTheirTeam, true, true);
+					GET_TEAM(eTheirTeam).DoEndVassal(getTeam(), true, true);
+
+					// put both teams at peace
+					GET_TEAM(getTeam()).setAtWar(eTheirTeam, false, false);
+					GET_TEAM(eTheirTeam).setAtWar(getTeam(), false, false);
+
+					// set locked war turns to 0
+					GET_TEAM(getTeam()).SetNumTurnsLockedIntoWar(eTheirTeam, 0);
+					GET_TEAM(eTheirTeam).SetNumTurnsLockedIntoWar(getTeam(), 0);
+				}
+			}
+		}
+
+		if (isMajorCiv())
+		{
+			// Military rating drops to 0
+			SetMilitaryRating(0);
+
+			// Reset war weariness
+			if (MOD_BALANCE_CORE_HAPPINESS)
+				GetCulture()->SetWarWeariness(0);
+
+			// Reset relationships with minor civs
+			for (int iPlayerLoop = MAX_MAJOR_CIVS; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+			{
+				PlayerTypes eLoopMinor = (PlayerTypes) iPlayerLoop;
+				GET_PLAYER(eLoopMinor).GetMinorCivAI()->ResetFriendshipWithMajor(GetID());
+
+				if (GET_PLAYER(eLoopMinor).GetMinorCivAI()->GetPermanentAlly() == GetID())
+					GET_PLAYER(eLoopMinor).GetMinorCivAI()->SetPermanentAlly(NO_PLAYER);
+			}
+
+			// Update Diplomacy AI
+			GetDiplomacyAI()->SlotStateChange();
+		}
+
+		if (bNotify)
+		{
+			Localization::String strMessage = Localization::Lookup("TXT_KEY_MISC_CIV_DESTROYED");
+			strMessage << getCivilizationAdjectiveKey();
+			Localization::String strSummary = Localization::Lookup("TXT_KEY_MISC_CIV_DESTROYED_SHORT");
+			strSummary << getCivilizationShortDescriptionKey();
+
+			for (int iI = 0; iI < MAX_PLAYERS; iI++)
+			{
+				CvPlayerAI& kOtherPlayer = GET_PLAYER((PlayerTypes)iI);
+				if (kOtherPlayer.isAlive() && kOtherPlayer.GetNotifications())
+				{
+					kOtherPlayer.GetNotifications()->Add(NOTIFICATION_PLAYER_KILLED, strMessage.toUTF8(), strSummary.toUTF8(), -1, -1, -1);
+				}
+			}
+
+			GC.getGame().addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT, GetID(), strMessage.toUTF8(), -1, -1);
+		}
+
+		// Disconnect this player from the game
+		if (CvPreGame::isNetworkMultiplayerGame() && m_eID == GC.getGame().getActivePlayer())
+			gDLL->netDisconnect();
+
+		// Close this player's slot
+		setTurnActive(false);
+		gDLL->closeSlot(GetID());
+
+		// Was the game won?
+		GC.getGame().testVictory();
+	}
+
+	GC.getGame().setScoreDirty(true);
 }
 
 //	--------------------------------------------------------------------------------
 void CvPlayer::setBeingResurrected(bool bValue)
 {
-	if (m_bBeingResurrected != bValue)
-	{
-		m_bBeingResurrected = bValue;
-	}
+	m_bBeingResurrected = bValue;
 }
 
 //	--------------------------------------------------------------------------------
-void CvPlayer::verifyAlive()
+void CvPlayer::verifyAlive(PlayerTypes eKiller /* = NO_PLAYER */)
 {
-	if(isAlive())
+	// Player was alive last time we checked
+	if (isAlive())
 	{
-		bool bKill = false;
+		// Barbarians are always alive
+		if (isBarbarian())
+			return;
 
-		if(!bKill)
+		if (getNumCities() == 0 && getAdvancedStartPoints() < 0)
 		{
-			if(!isBarbarian())
+			if ((GC.getGame().getMaxCityElimination() > 0 && getCitiesLost() >= GC.getGame().getMaxCityElimination()) ||
+				(getNumUnits() == 0 || (isFoundedFirstCity() && !GC.getGame().isOption(GAMEOPTION_COMPLETE_KILLS) && !GetPlayerTraits()->IsStaysAliveZeroCities())))
 			{
-				if(getNumCities() == 0 && getAdvancedStartPoints() < 0)
+				if (eKiller != NO_PLAYER)
 				{
-					if((getNumUnits() == 0) || (!(GC.getGame().isOption(GAMEOPTION_COMPLETE_KILLS)) && isFoundedFirstCity()))
+					GET_TEAM(getTeam()).SetKilledByTeam(GET_PLAYER(eKiller).getTeam());
+					SetEverConqueredBy(eKiller, true);
+
+					if (GET_PLAYER(eKiller).isMajorCiv())
 					{
-						if(!GetPlayerTraits()->IsStaysAliveZeroCities())
+						// Apply a backstabbing mark
+						if (isMajorCiv())
+							GetDiplomacyAI()->SetBackstabbedBy(eKiller, true, true);
+
+						// Check for killing protected City-States
+						if (isMinorCiv())
 						{
-							bKill = true;
+							for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+							{
+								PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
+								if (GET_PLAYER(eLoopPlayer).getTeam() == GET_PLAYER(eKiller).getTeam() || !GET_PLAYER(eLoopPlayer).isAlive())
+									continue;
+
+								if (GetMinorCivAI()->IsProtectedByMajor(eLoopPlayer))
+								{
+									GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->SetOtherPlayerKilledProtectedMinorTurn(eKiller, GC.getGame().getGameTurn());
+									GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->SetOtherPlayerProtectedMinorKilled(eKiller, GetID());
+									GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->ChangeOtherPlayerNumProtectedMinorsKilled(eKiller, 1);
+
+									// Player broke a promise that he wasn't going to kill the Minor
+									if (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsPlayerMadeAttackCityStatePromise(eKiller))
+									{
+										GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->SetPlayerAttackCityStatePromiseState(eKiller, PROMISE_STATE_BROKEN);
+									}
+								}
+							}
 						}
 					}
 				}
-			}
-		}
 
-		if(!bKill)
-		{
-			if(!isBarbarian())
-			{
-				if(GC.getGame().getMaxCityElimination() > 0)
-				{
-					if(getCitiesLost() >= GC.getGame().getMaxCityElimination())
-					{
-						bKill = true;
-					}
-				}
+				// Kill the player
+				setAlive(false);
 			}
-		}
-
-		if(bKill)
-		{
-			setAlive(false, false);
 		}
 	}
+	// Player was dead last time we checked
 	else
 	{
-		if((getNumCities() > 0) || (getNumUnits() > 0))
+		// Do they now have units or cities?
+		if (getNumCities() > 0 || getNumUnits() > 0)
 		{
 			setAlive(true);
 		}
 	}
 }
-
 
 //	--------------------------------------------------------------------------------
 bool CvPlayer::isTurnActive() const
@@ -34602,56 +34598,17 @@ void CvPlayer::CheckForMurder(PlayerTypes ePossibleVictimPlayer)
 	// but the slot status is used to determine if the player is human or not, so it looks like it is an AI!
 	// This should be fixed, but might have unforeseen ramifications so...
 	CvPlayer& kPossibleVictimPlayer = GET_PLAYER(ePossibleVictimPlayer);
-	bool bPossibleVictimIsHuman = kPossibleVictimPlayer.isHuman();
 
-	// This may 'kill' the player if it is deemed that he does not have the proper units to stay alive
-	kPossibleVictimPlayer.verifyAlive();
+	// This may 'kill' the player if it is deemed that he does not have the proper cities/units to stay alive
+	kPossibleVictimPlayer.verifyAlive(GetID());
 
 	// You... you killed him!
-	if (!kPossibleVictimPlayer.isAlive())
+	if (!kPossibleVictimPlayer.isAlive() && kPossibleVictimPlayer.isMajorCiv())
 	{
-		GET_TEAM(kPossibleVictimPlayer.getTeam()).SetKilledByTeam(getTeam());
-		kPossibleVictimPlayer.SetEverConqueredBy(m_eID, true);
-
-		if (kPossibleVictimPlayer.isMajorCiv())
+		// Leader pops up and whines
+		if (!CvPreGame::isNetworkMultiplayerGame() && !kPossibleVictimPlayer.isHuman()) // Not humans or in MP
 		{
-			// Leader pops up and whines
-			if (!CvPreGame::isNetworkMultiplayerGame() && !bPossibleVictimIsHuman) // Not humans or in MP
-			{
-				kPossibleVictimPlayer.GetDiplomacyAI()->DoKilledByPlayer(GetID());
-			}
-
-			// Cancel all coop wars this player is involved in
-			kPossibleVictimPlayer.GetDiplomacyAI()->CancelAllCoopWars();
-
-			for (uint ui = 0; ui < MAX_MAJOR_CIVS; ui++)
-			{
-				PlayerTypes eCleanupPlayer = (PlayerTypes)ui;
-				GET_PLAYER(eCleanupPlayer).GetDiplomacyAI()->KilledPlayerCleanup(kPossibleVictimPlayer.GetID());
-			}
-
-			// Apply a backstabbing mark to the players on the team that killed us
-			kPossibleVictimPlayer.GetDiplomacyAI()->SetBackstabbedBy(GetID(), true, true);
-
-			// If the entire team was killed, reset locked war turns
-			if (!GET_TEAM(kPossibleVictimPlayer.getTeam()).isAlive())
-			{
-				for (uint ui = 0; ui < MAX_CIV_TEAMS; ui++)
-				{
-					GET_TEAM((TeamTypes)ui).SetNumTurnsLockedIntoWar(kPossibleVictimPlayer.getTeam(), 0);
-					GET_TEAM(kPossibleVictimPlayer.getTeam()).SetNumTurnsLockedIntoWar((TeamTypes)ui, 0);
-				}
-			}
-		}
-
-		// Reset war damage stats
-		for (uint ui = 0; ui < MAX_MAJOR_CIVS; ui++)
-		{
-			PlayerTypes eCleanupPlayer = (PlayerTypes)ui;
-			GET_PLAYER(kPossibleVictimPlayer.GetID()).SetWarValueLost(eCleanupPlayer, 0);
-			GET_PLAYER(kPossibleVictimPlayer.GetID()).SetWarDamageValue(eCleanupPlayer, 0);
-			GET_PLAYER(eCleanupPlayer).SetWarValueLost(kPossibleVictimPlayer.GetID(), 0);
-			GET_PLAYER(eCleanupPlayer).SetWarDamageValue(kPossibleVictimPlayer.GetID(), 0);
+			kPossibleVictimPlayer.GetDiplomacyAI()->DoKilledByPlayer(GetID());
 		}
 
 		DoWarVictoryBonuses();

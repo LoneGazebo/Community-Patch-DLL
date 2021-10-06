@@ -835,7 +835,7 @@ void CvGame::setInitialItems(CvGameInitialItemsOverrides& kInitialItemOverrides)
 			// Major Civ init
 			if (GET_PLAYER(ePlayer).isMajorCiv())
 			{
-				GET_PLAYER(ePlayer).GetDiplomacyAI()->DoInitializePersonality();
+				GET_PLAYER(ePlayer).GetDiplomacyAI()->DoInitializePersonality(true);
 
 				// Military skill rating
 				int iStartingMilitaryRating = (getStartEra() > 0) ? (1000 * getStartEra()) : 1000;
