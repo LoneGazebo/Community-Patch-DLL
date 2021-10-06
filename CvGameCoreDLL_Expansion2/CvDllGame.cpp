@@ -503,6 +503,9 @@ void CvDllGame::Read(FDataStream& kStream)
 void CvDllGame::Write(FDataStream& kStream) const
 {
 	m_pGame->Write(kStream);
+#ifdef EA_EVENT_GAME_SAVE // Paz - set m_bSavedOnce = true AFTER the first save
+	m_pGame->SetGameEventsSaveGame(true);
+#endif
 }
 //------------------------------------------------------------------------------
 void CvDllGame::ReadSupportingClassData(FDataStream& kStream)
