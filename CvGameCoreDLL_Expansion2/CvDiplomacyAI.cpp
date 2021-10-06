@@ -387,6 +387,7 @@ void CvDiplomacyAI::Reset()
 		m_aiNumWarsFought[iI] = 0;
 		m_aiNumCitiesCaptured[iI] = 0;
 		m_aeWarState[iI] = NO_WAR_STATE_TYPE;
+		m_aiWarProgressScore[iI] = 0;
 
 		// Aggressive Postures
 		m_aeMilitaryAggressivePosture[iI] = NO_AGGRESSIVE_POSTURE_TYPE;
@@ -505,6 +506,7 @@ void CvDiplomacyAI::Serialize(DiplomacyAI& diplomacyAI, Visitor& visitor)
 	visitor(diplomacyAI.m_aiCivilianKillerValue);
 	visitor(diplomacyAI.m_aiNumCitiesCaptured);
 	visitor(diplomacyAI.m_aeWarState);
+	visitor(diplomacyAI.m_aiWarProgressScore);
 
 	// Peace
 	visitor(diplomacyAI.m_aePeaceTreatyWillingToOffer);
@@ -3750,6 +3752,25 @@ void CvDiplomacyAI::SetStateAllWars(StateAllWars eState)
 {
 	if (eState < 0 || eState >= NUM_STATES_ALL_WARS) return;
 	m_eStateAllWars = eState;
+}
+
+/// How much progress (or lack thereof) have we made in this war?
+/// (to be) Used by the AI to determine whether they should continue or stop.
+int CvDiplomacyAI::GetWarProgressScore(PlayerTypes ePlayer) const
+{
+	if (ePlayer < 0 || ePlayer >= MAX_CIV_PLAYERS) return 0;
+	return m_aiWarProgressScore[ePlayer];
+}
+
+void CvDiplomacyAI::SetWarProgressScore(PlayerTypes ePlayer, int iValue)
+{
+	if (ePlayer < 0 || ePlayer >= MAX_CIV_PLAYERS) return;
+	m_aiWarProgressScore[ePlayer] = range(iValue, SHRT_MIN, SHRT_MAX);
+}
+
+void CvDiplomacyAI::ChangeWarProgressScore(PlayerTypes ePlayer, int iChange)
+{
+	SetWarProgressScore(ePlayer, GetWarProgressScore(ePlayer) + iChange);
 }
 
 //	-----------------------------------------------------------------------------------------------

@@ -413,6 +413,10 @@ public:
 	StateAllWars GetStateAllWars() const;
 	void SetStateAllWars(StateAllWars eState);
 
+	int GetWarProgressScore(PlayerTypes ePlayer) const;
+	void SetWarProgressScore(PlayerTypes ePlayer, int iValue);
+	void ChangeWarProgressScore(PlayerTypes ePlayer, int iChange);
+
 	// ------------------------------------
 	// Peace
 	// ------------------------------------
@@ -1902,6 +1906,7 @@ private:
 	unsigned short m_aiCivilianKillerValue[MAX_MAJOR_CIVS];
 	unsigned char m_aiNumCitiesCaptured[MAX_CIV_PLAYERS];
 	char m_aeWarState[MAX_CIV_PLAYERS];
+	short m_aiWarProgressScore[MAX_CIV_PLAYERS];
 
 	// Peace
 	char m_aePeaceTreatyWillingToOffer[MAX_MAJOR_CIVS];
