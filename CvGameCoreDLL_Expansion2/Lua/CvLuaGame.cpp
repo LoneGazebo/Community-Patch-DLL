@@ -30,6 +30,8 @@
 #include "../CvReplayMessage.h"
 #include "../cvStopWatch.h"
 
+#pragma warning(disable:4800 ) //forcing value to bool 'true' or 'false'
+
 #if defined(MOD_BATTLE_ROYALE)
 #include "../CvLoggerCSV.h"
 #endif

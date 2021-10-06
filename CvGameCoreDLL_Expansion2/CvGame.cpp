@@ -810,7 +810,7 @@ void CvGame::setInitialItems(CvGameInitialItemsOverrides& kInitialItemOverrides)
 	// What route type forms an industrial connection
 	DoUpdateIndustrialRoute();
 
-	bool bCanWorkWater = GC.getCAN_WORK_WATER_FROM_GAME_START();
+	bool bCanWorkWater = GC.getCAN_WORK_WATER_FROM_GAME_START()>0;
 
 	// Team Stuff
 	for (int iTeamLoop = 0; iTeamLoop < MAX_CIV_TEAMS; iTeamLoop++)

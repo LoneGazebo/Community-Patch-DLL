@@ -453,7 +453,10 @@ CvPlayer::CvPlayer() :
 	, m_eFaithPurchaseType(NO_AUTOMATIC_FAITH_PURCHASE)
 	, m_iFaithPurchaseIndex()
 	, m_bProcessedAutoMoves(false)
+#pragma warning(push)
+#pragma warning(disable:4355 )
 	, m_kPlayerAchievements(*this)
+#pragma warning(pop)
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 	, m_neededUnitAITypes()
 	, m_aiCityYieldModFromMonopoly()
@@ -10168,7 +10171,7 @@ CvUnit* CvPlayer::initUnitWithNameOffset(UnitTypes eUnit, int nameOffset, int iX
 	CvAssertMsg(pUnit != NULL, "Unit is not assigned a valid value");
 	if(NULL != pUnit)
 	{
-		pUnit->initWithNameOffset(pUnit->GetID(), eUnit, nameOffset, ((eUnitAI == NO_UNITAI) ? pkUnitDef->GetDefaultUnitAIType() : eUnitAI), GetID(), iX, iY, eReason, bNoMove, bSetupGraphical, iMapLayer, iNumGoodyHutsPopped, eContract, bHistoric, pPassUnit);
+		pUnit->initWithNameOffset(pUnit->GetID(), eUnit, nameOffset, ((eUnitAI == NO_UNITAI) ? pkUnitDef->GetDefaultUnitAIType() : eUnitAI), GetID(), iX, iY, eReason, bNoMove, bSetupGraphical, iMapLayer, iNumGoodyHutsPopped, eContract, bHistoric, false, pPassUnit);
 
 #if !defined(NO_TUTORIALS)
 		// slewis - added for the tutorial
@@ -44182,11 +44185,11 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 
 	if (pPolicy->IsNoForeignCorpsInCities())
 	{
-		GetCorporations()->SetNoForeignCorpsInCities(pPolicy->IsNoForeignCorpsInCities() * iChange);
+		GetCorporations()->SetNoForeignCorpsInCities(pPolicy->IsNoForeignCorpsInCities() * iChange > 0);
 	}
 	if (pPolicy->IsNoFranchisesInForeignCities())
 	{
-		GetCorporations()->SetNoFranchisesInForeignCities(pPolicy->IsNoForeignCorpsInCities() * iChange);
+		GetCorporations()->SetNoFranchisesInForeignCities(pPolicy->IsNoForeignCorpsInCities() * iChange > 0);
 	}
 
 	if(pPolicy->IsUpgradeCSVassalTerritory())
@@ -45080,7 +45083,7 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 						if(pkBuildingInfo)
 						{
 							ChangeNumCitiesFreeChosenBuilding(eBuildingClass, iNumFreeBuildings);
-							ChangeAllCityFreeBuilding(eBuildingClass, (pPolicy->GetAllCityFreeBuilding() == eBuildingClass) * iChange);
+							ChangeAllCityFreeBuilding(eBuildingClass, (pPolicy->GetAllCityFreeBuilding() == eBuildingClass) * iChange > 0);
 							int iLoopTwo;
 							for(pLoopCity = firstCity(&iLoopTwo); pLoopCity != NULL; pLoopCity = nextCity(&iLoopTwo))
 							{
@@ -45129,15 +45132,15 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 	}
 	if (pPolicy->GetNewCityFreeBuilding() != NO_BUILDINGCLASS)
 	{
-		ChangeFreeChosenBuildingNewCity(pPolicy->GetNewCityFreeBuilding(), iChange);
+		ChangeFreeChosenBuildingNewCity(pPolicy->GetNewCityFreeBuilding(), iChange > 0);
 	}
 	if (pPolicy->GetNewFoundCityFreeBuilding() != NO_BUILDINGCLASS)
 	{
-		ChangeNewFoundCityFreeBuilding(pPolicy->GetNewFoundCityFreeBuilding(), iChange);
+		ChangeNewFoundCityFreeBuilding(pPolicy->GetNewFoundCityFreeBuilding(), iChange > 0);
 	}
 	if (pPolicy->GetNewFoundCityFreeUnit() != NO_UNITCLASS)
 	{
-		ChangeNewFoundCityFreeUnit(pPolicy->GetNewFoundCityFreeUnit(), iChange);
+		ChangeNewFoundCityFreeUnit(pPolicy->GetNewFoundCityFreeUnit(), iChange > 0);
 	}
 #endif
 

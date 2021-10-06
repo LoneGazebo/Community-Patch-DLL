@@ -189,7 +189,7 @@ CvUnit::CvUnit() :
 	, m_iExtraWithdrawal()
 #if defined(MOD_BALANCE_CORE_JFD)
 	, m_iPlagueChance()
-	, m_iIsPlagued()
+	, m_bIsPlagued()
 	, m_iPlagueID()
 	, m_iPlaguePriority()
 	, m_iPlagueIDImmunity()
@@ -414,14 +414,14 @@ CvUnit::CvUnit() :
 	, m_iCombatBonusFromNearbyUnitClass()
 	, m_iNearbyUnitClassBonusRange()
 	, m_iNearbyUnitClassBonus()
-	, m_bNearbyPromotion()
+	, m_iNearbyPromotion()
 	, m_iNearbyUnitPromotionRange()
 	, m_iNearbyCityCombatMod()
 	, m_iNearbyFriendlyCityCombatMod()
 	, m_iNearbyEnemyCityCombatMod()
 	, m_iPillageBonusStrengthPercent()
 	, m_iStackedGreatGeneralExperience()
-	, m_bIsHighSeaRaider()
+	, m_iIsHighSeaRaider()
 	, m_iWonderProductionModifier()
 	, m_iUnitProductionModifier()
 	, m_iNearbyEnemyDamage()
@@ -433,12 +433,12 @@ CvUnit::CvUnit() :
 	, m_eGiveDomain()
 	, m_iGiveExtraAttacks()
 	, m_iGiveDefenseMod()
-	, m_bGiveInvisibility()
+	, m_iGiveInvisibility()
 	, m_bGiveOnlyOnStartingTurn()
-	, m_bConvertUnit()
+	, m_iConvertUnit()
 	, m_eConvertDomain()
 	, m_eConvertDomainUnit()
-	, m_bConvertEnemyUnitToBarbarian()
+	, m_iConvertEnemyUnitToBarbarian()
 	, m_bConvertOnFullHP()
 	, m_bConvertOnDamage()
 	, m_iDamageThreshold()
@@ -1314,8 +1314,8 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 				iGATurnsfromGPBirth *= GC.getGame().getGameSpeedInfo().getGoldenAgePercent(); // Adjust for game speed
 				iGATurnsfromGPBirth /= 100;
 				int iValue = pPlayer->GetGoldenAgeProgressMeter();
-				int bFree = 1; // Does not increase the cost of the next GA
-				pPlayer->changeGoldenAgeTurns(iGATurnsfromGPBirth, iValue, bFree);
+				// Do not increase the cost of the next GA
+				pPlayer->changeGoldenAgeTurns(iGATurnsfromGPBirth, iValue, true);
 			}
 		}
 #endif
@@ -1473,7 +1473,7 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_iExtraWithdrawal = 0;
 #if defined(MOD_BALANCE_CORE_JFD)
 	m_iPlagueChance = 0;
-	m_iIsPlagued = -1;
+	m_bIsPlagued = false;
 	m_iPlagueID = 0;
 	m_iPlaguePriority = 0;
 	m_iPlagueIDImmunity = -1;
@@ -1543,14 +1543,14 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_iNearbyUnitClassBonus = 0;
 	m_iNearbyUnitClassBonusRange = 0;
 	m_iCombatBonusFromNearbyUnitClass = NO_UNITCLASS;
-	m_bNearbyPromotion = false;
+	m_iNearbyPromotion = false;
 	m_iNearbyUnitPromotionRange = 0;
 	m_iNearbyCityCombatMod = 0;
 	m_iNearbyFriendlyCityCombatMod = 0;
 	m_iNearbyEnemyCityCombatMod = 0;
 	m_iPillageBonusStrengthPercent = 0;
 	m_iStackedGreatGeneralExperience = 0;
-	m_bIsHighSeaRaider = false;
+	m_iIsHighSeaRaider = false;
 	m_iWonderProductionModifier = 0;
 	m_iUnitProductionModifier = 0;
 	m_iNearbyEnemyDamage = 0;
@@ -1562,12 +1562,12 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_iGiveOutsideFriendlyLandsModifier = 0;
 	m_iGiveExtraAttacks = 0;
 	m_iGiveDefenseMod = 0;
-	m_bGiveInvisibility = false;
+	m_iGiveInvisibility = false;
 	m_bGiveOnlyOnStartingTurn = false;
-	m_bConvertUnit = false;
+	m_iConvertUnit = false;
 	m_eConvertDomainUnit = NO_UNIT;
 	m_eConvertDomain = NO_DOMAIN;
-	m_bConvertEnemyUnitToBarbarian = false;
+	m_iConvertEnemyUnitToBarbarian = 0;
 	m_bConvertOnFullHP = false;
 	m_bConvertOnDamage = false;
 	m_iDamageThreshold = 0;
@@ -5297,7 +5297,7 @@ bool CvUnit::canMoveInto(const CvPlot& plot, int iMoveFlags) const
 
 		TeamTypes ePlotTeam = ((isHuman()) ? plot.getRevealedTeam(getTeam()) : plot.getTeam());
 
-		bool bCanEnterTerritory = (iMoveFlags&CvUnit::MOVEFLAG_IGNORE_RIGHT_OF_PASSAGE) || canEnterTerritory(ePlotTeam, iMoveFlags&CvUnit::MOVEFLAG_DESTINATION);
+		bool bCanEnterTerritory = ((iMoveFlags&CvUnit::MOVEFLAG_IGNORE_RIGHT_OF_PASSAGE)>0) || canEnterTerritory(ePlotTeam, (iMoveFlags&CvUnit::MOVEFLAG_DESTINATION)>0);
 		if (!bCanEnterTerritory)
 		{
 			return false;
@@ -14129,12 +14129,12 @@ void CvUnit::promote(PromotionTypes ePromotion, int iLeaderUnitId)
 			CvCity* pCaptial = GET_PLAYER(getOwner()).getCapitalCity();
 			if(pCaptial != NULL)
 			{
-				GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_LEVEL_UP, false, NO_GREATPERSON, NO_BUILDING, (getLevel() - 1), false, NO_PLAYER, NULL, false, pCaptial, getDomainType(), true, false, NO_YIELD, this);
+				GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_LEVEL_UP, false, NO_GREATPERSON, NO_BUILDING, (getLevel() - 1), false, NO_PLAYER, NULL, false, pCaptial, getDomainType()==DOMAIN_SEA, true, false, NO_YIELD, this);
 			}
 		}
 		else if (getOriginCity() != NULL)
 		{
-			GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_LEVEL_UP, false, NO_GREATPERSON, NO_BUILDING, (getLevel() - 1), false, NO_PLAYER, NULL, false, getOriginCity(), getDomainType(), true, false, NO_YIELD, this);
+			GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_LEVEL_UP, false, NO_GREATPERSON, NO_BUILDING, (getLevel() - 1), false, NO_PLAYER, NULL, false, getOriginCity(), getDomainType()==DOMAIN_SEA, true, false, NO_YIELD, this);
 		}
 #endif
 
@@ -17509,12 +17509,12 @@ void CvUnit::SetCombatBonusFromNearbyUnitClass(UnitClassTypes eUnitClass)
 void CvUnit::ChangeNearbyPromotion(int iValue)
 {
 	VALIDATE_OBJECT
-	m_bNearbyPromotion += iValue;
+	m_iNearbyPromotion += iValue;
 }
 int CvUnit::GetNearbyPromotion() const
 {
 	VALIDATE_OBJECT
-	return	m_bNearbyPromotion;
+	return	m_iNearbyPromotion;
 }
 bool CvUnit::isNearbyPromotion() const
 {
@@ -17584,12 +17584,12 @@ void CvUnit::ChangeStackedGreatGeneralExperience(int iExperience)
 void CvUnit::ChangeIsHighSeaRaider(int iValue)
 {
 	VALIDATE_OBJECT
-	m_bIsHighSeaRaider += iValue;
+	m_iIsHighSeaRaider += iValue;
 }
 int CvUnit::GetIsHighSeaRaider() const
 {
 	VALIDATE_OBJECT
-	return	m_bIsHighSeaRaider;
+	return	m_iIsHighSeaRaider;
 }
 bool CvUnit::isHighSeaRaider() const
 {
@@ -17739,12 +17739,12 @@ void CvUnit::ChangeNearbyHealFriendlyTerritory(int iValue)
 void CvUnit::ChangeIsGiveInvisibility(int iValue)
 {
 	VALIDATE_OBJECT
-	m_bGiveInvisibility += iValue;
+	m_iGiveInvisibility += iValue;
 }
 int CvUnit::GetIsGiveInvisibility() const
 {
 	VALIDATE_OBJECT
-	return	m_bGiveInvisibility;
+	return	m_iGiveInvisibility;
 }
 bool CvUnit::isGiveInvisibility() const
 {
@@ -17764,12 +17764,12 @@ void CvUnit::SetIsGiveOnlyOnStartingTurn(bool bNewValue)
 void CvUnit::ChangeIsConvertUnit(int iValue)
 {
 	VALIDATE_OBJECT
-	m_bConvertUnit += iValue;
+	m_iConvertUnit += iValue;
 }
 int CvUnit::getIsConvertUnit() const
 {
 	VALIDATE_OBJECT
-	return	m_bConvertUnit;
+	return	m_iConvertUnit;
 }
 bool CvUnit::isConvertUnit() const
 {
@@ -17799,12 +17799,12 @@ void CvUnit::ChangeConvertDomainUnit(UnitTypes eUnit)
 void CvUnit::ChangeIsConvertEnemyUnitToBarbarian(int iValue)
 {
 	VALIDATE_OBJECT
-	m_bConvertEnemyUnitToBarbarian += iValue;
+	m_iConvertEnemyUnitToBarbarian += iValue;
 }
 int CvUnit::getIsConvertEnemyUnitToBarbarian() const
 {
 	VALIDATE_OBJECT
-	return m_bConvertEnemyUnitToBarbarian;
+	return m_iConvertEnemyUnitToBarbarian;
 }
 bool CvUnit::isConvertEnemyUnitToBarbarian() const
 {
@@ -17814,32 +17814,22 @@ bool CvUnit::isConvertEnemyUnitToBarbarian() const
 void CvUnit::ChangeIsConvertOnFullHP(int iValue)
 {
 	VALIDATE_OBJECT
-	m_bConvertOnFullHP += iValue;
-}
-int CvUnit::getIsConvertOnFullHP() const
-{
-	VALIDATE_OBJECT
-	return m_bConvertOnFullHP;
+	m_bConvertOnFullHP = (iValue>0);
 }
 bool CvUnit::isConvertOnFullHP() const
 {
 	VALIDATE_OBJECT
-	return getIsConvertOnFullHP() > 0;
+	return m_bConvertOnFullHP;
 }
 void CvUnit::ChangeIsConvertOnDamage(int iValue)
 {
 	VALIDATE_OBJECT
-	m_bConvertOnDamage += iValue;
-}
-int CvUnit::getIsConvertOnDamage() const
-{
-	VALIDATE_OBJECT
-	return	m_bConvertOnDamage;
+	m_bConvertOnDamage = (iValue>0);
 }
 bool CvUnit::isConvertOnDamage() const
 {
 	VALIDATE_OBJECT
-	return getIsConvertOnDamage() > 0;
+	return	m_bConvertOnDamage;
 }
 int CvUnit::getDamageThreshold() const
 {
@@ -21879,19 +21869,19 @@ void CvUnit::changePlagueChance(int iChange)
 bool CvUnit::isPlagued() const
 {
 	VALIDATE_OBJECT
-	return getPlaguePromotion() != -1;
+	return m_bIsPlagued;
 }
 //	--------------------------------------------------------------------------------
-void CvUnit::setPlagued(int iChange)
+void CvUnit::setPlagued(bool bValue)
 {
 	VALIDATE_OBJECT
-	m_iIsPlagued = iChange;
+	m_bIsPlagued = bValue;
 }
 //	--------------------------------------------------------------------------------
 int CvUnit::getPlaguePromotionID() const
 {
 	VALIDATE_OBJECT
-	return m_iIsPlagued;
+	return m_iPlaguePromotion;
 }
 
 void CvUnit::setPlagueID(int iValue)
@@ -25595,7 +25585,7 @@ int CvUnit::getFeatureImpassableCount(FeatureTypes eIndex) const
 //	--------------------------------------------------------------------------------
 bool CvUnit::isFeatureImpassable(FeatureTypes eIndex) const
 {
-	return getFeatureImpassableCount(eIndex);
+	return getFeatureImpassableCount(eIndex)>0;
 }
 
 //	--------------------------------------------------------------------------------
@@ -26431,7 +26421,7 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 		ChangeNearbyHealEnemyTerritory(thisPromotion.GetNearbyHealEnemyTerritory() * iChange);
 		ChangeNearbyHealNeutralTerritory(thisPromotion.GetNearbyHealNeutralTerritory() * iChange);
 		ChangeNearbyHealFriendlyTerritory(thisPromotion.GetNearbyHealFriendlyTerritory() * iChange);
-		SetIsGiveOnlyOnStartingTurn(thisPromotion.IsGiveOnlyOnStartingTurn() ? iChange : 0);
+		SetIsGiveOnlyOnStartingTurn(thisPromotion.IsGiveOnlyOnStartingTurn() ? iChange>0 : false);
 		ChangeIsConvertUnit((thisPromotion.IsConvertUnit()) ? iChange : 0);
 		ChangeIsConvertEnemyUnitToBarbarian((thisPromotion.IsConvertEnemyUnitToBarbarian()) ? iChange : 0);
 		ChangeIsConvertOnFullHP((thisPromotion.IsConvertOnFullHP()) ? iChange : 0);
@@ -27043,7 +27033,7 @@ void CvUnit::Serialize(Unit& unit, Visitor& visitor)
 	visitor(unit.m_iExtraChanceFirstStrikes);
 	visitor(unit.m_iExtraWithdrawal);
 	visitor(unit.m_iPlagueChance);
-	visitor(unit.m_iIsPlagued);
+	visitor(unit.m_bIsPlagued);
 	visitor(unit.m_iPlagueID);
 	visitor(unit.m_iPlaguePriority);
 	visitor(unit.m_iPlagueIDImmunity);
@@ -27109,14 +27099,14 @@ void CvUnit::Serialize(Unit& unit, Visitor& visitor)
 	visitor(unit.m_iNearbyUnitClassBonus);
 	visitor(unit.m_iNearbyUnitClassBonusRange);
 	visitor(unit.m_iCombatBonusFromNearbyUnitClass);
-	visitor(unit.m_bNearbyPromotion);
+	visitor(unit.m_iNearbyPromotion);
 	visitor(unit.m_iNearbyUnitPromotionRange);
 	visitor(unit.m_iNearbyCityCombatMod);
 	visitor(unit.m_iNearbyFriendlyCityCombatMod);
 	visitor(unit.m_iNearbyEnemyCityCombatMod);
 	visitor(unit.m_iPillageBonusStrengthPercent);
 	visitor(unit.m_iStackedGreatGeneralExperience);
-	visitor(unit.m_bIsHighSeaRaider);
+	visitor(unit.m_iIsHighSeaRaider);
 	visitor(unit.m_iWonderProductionModifier);
 	visitor(unit.m_iUnitProductionModifier);
 	visitor(unit.m_iNearbyEnemyDamage);
@@ -27128,12 +27118,12 @@ void CvUnit::Serialize(Unit& unit, Visitor& visitor)
 	visitor(unit.m_eGiveDomain);
 	visitor(unit.m_iGiveExtraAttacks);
 	visitor(unit.m_iGiveDefenseMod);
-	visitor(unit.m_bGiveInvisibility);
+	visitor(unit.m_iGiveInvisibility);
 	visitor(unit.m_bGiveOnlyOnStartingTurn);
-	visitor(unit.m_bConvertUnit);
+	visitor(unit.m_iConvertUnit);
 	visitor(unit.m_eConvertDomain);
 	visitor(unit.m_eConvertDomainUnit);
-	visitor(unit.m_bConvertEnemyUnitToBarbarian);
+	visitor(unit.m_iConvertEnemyUnitToBarbarian);
 	visitor(unit.m_bConvertOnFullHP);
 	visitor(unit.m_bConvertOnDamage);
 	visitor(unit.m_iDamageThreshold);
@@ -29200,7 +29190,7 @@ void CvUnit::DumpDangerInNeighborhood()
 		int iDanger = GetDanger(pPlot);
 		bool bVisible = pPlot->isVisible( GET_PLAYER(m_eOwner).getTeam() );
 		bool bHasVisibleEnemyDefender = pPlot->isVisibleEnemyDefender(this);
-		bool bHasEnemyUnit = pPlot->getBestDefender(NO_PLAYER,m_eOwner,this);
+		bool bHasEnemyUnit = pPlot->getBestDefender(NO_PLAYER,m_eOwner,this)!=NULL;
 		bool bHasEnemyCity = pPlot->isEnemyCity(*this);
 
 		int iState = (((int)bHasVisibleEnemyDefender)<<3) + (((int)bHasEnemyCity)<<2) + (((int)bHasEnemyUnit)<<1);
@@ -29843,7 +29833,8 @@ void CvUnit::DoPlagueTransfer(CvUnit& defender)
 		}
 
 
-		defender.setPlagued((int)ePlague);
+		defender.setPlagued(true);
+		defender.setPlaguePromotion(ePlague);
 		defender.setPlagueID(pkPlaguePromotionInfo->GetPlagueID());
 		defender.setPlaguePriority(pkPlaguePromotionInfo->GetPlaguePriority());
 

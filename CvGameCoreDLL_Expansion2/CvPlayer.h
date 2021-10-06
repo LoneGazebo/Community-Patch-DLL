@@ -2907,7 +2907,7 @@ protected:
 		bool GetBit(const uint uiEntry) const
 		{
 			const uint uiOffset = uiEntry/eSize;
-			return m_bits[uiOffset] & 1<<(uiEntry-(eSize*uiOffset));
+			return (m_bits[uiOffset] & 1<<(uiEntry-(eSize*uiOffset))) != 0;
 		}
 		void SetBit(const uint uiEntry)
 		{
@@ -3566,10 +3566,10 @@ protected:
 #endif
 #if defined(MOD_BALANCE_CORE)
 	std::vector<int> m_paiNumCitiesFreeChosenBuilding;
-	std::vector<int> m_pabFreeChosenBuildingNewCity;
-	std::vector<int> m_pabAllCityFreeBuilding;
-	std::vector<int> m_pabNewFoundCityFreeUnit;
-	std::vector<int> m_pabNewFoundCityFreeBuilding;
+	std::vector<bool> m_pabFreeChosenBuildingNewCity;
+	std::vector<bool> m_pabAllCityFreeBuilding;
+	std::vector<bool> m_pabNewFoundCityFreeUnit;
+	std::vector<bool> m_pabNewFoundCityFreeBuilding;
 #endif
 
 	std::vector<bool> m_pabLoyalMember;
@@ -4320,10 +4320,10 @@ SYNC_ARCHIVE_VAR(std::vector<int>, m_paiHurryModifier)
 SYNC_ARCHIVE_VAR(bool, m_bVassalLevy)
 SYNC_ARCHIVE_VAR(int, m_iVassalGoldMaintenanceMod)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_paiNumCitiesFreeChosenBuilding)
-SYNC_ARCHIVE_VAR(std::vector<int>, m_pabFreeChosenBuildingNewCity)
-SYNC_ARCHIVE_VAR(std::vector<int>, m_pabAllCityFreeBuilding)
-SYNC_ARCHIVE_VAR(std::vector<int>, m_pabNewFoundCityFreeUnit)
-SYNC_ARCHIVE_VAR(std::vector<int>, m_pabNewFoundCityFreeBuilding)
+SYNC_ARCHIVE_VAR(std::vector<bool>, m_pabFreeChosenBuildingNewCity)
+SYNC_ARCHIVE_VAR(std::vector<bool>, m_pabAllCityFreeBuilding)
+SYNC_ARCHIVE_VAR(std::vector<bool>, m_pabNewFoundCityFreeUnit)
+SYNC_ARCHIVE_VAR(std::vector<bool>, m_pabNewFoundCityFreeBuilding)
 SYNC_ARCHIVE_VAR(std::vector<bool>, m_pabLoyalMember)
 SYNC_ARCHIVE_VAR(std::vector<bool>, m_pabHasGlobalMonopoly)
 SYNC_ARCHIVE_VAR(std::vector<bool>, m_pabHasStrategicMonopoly)

@@ -16,16 +16,6 @@
 #ifndef CVGAMECOREDLLPCH_H
 #define CVGAMECOREDLLPCH_H
 
-#pragma warning(disable:4800 ) //forcing value to bool 'true' or 'false'
-#pragma warning(disable:4355) //'this' used for base member initialization
-#pragma warning(disable:28251) //inconsistent annotation
-#pragma warning(disable:6387) //specification violated
-#pragma warning(disable:6246) //local declaration hiding outer declaration
-#pragma warning(disable:6001) //using uninitialized memory
-#pragma warning(disable:28199) //using possibly uninitialized memory
-#pragma warning(disable:4091) //typedef ignored
-#pragma warning(disable:4180) //qualifier applied to function type has no meaning
-
 // Take off iterator security checks
 #if (defined(_MSC_VER) && (_MSC_VER >= 1300))
 #  if !defined(_SECURE_SCL)

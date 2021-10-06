@@ -599,7 +599,7 @@ void CvUnitCombat::ResolveMeleeCombat(const CvCombatInfo& kCombatInfo, uint uiPa
 	if(pkAttacker)
 	{
 		pkAttacker->setCombatUnit(NULL);
-		pkAttacker->ClearMissionQueue(GetPostCombatDelay());
+		pkAttacker->ClearMissionQueue(false,GetPostCombatDelay());
 	}
 	if(pkDefender)
 	{
@@ -1227,7 +1227,7 @@ void CvUnitCombat::ResolveRangedUnitVsCombat(const CvCombatInfo& kCombatInfo, ui
 		pkAttacker->testPromotionReady();
 
 		pkAttacker->setCombatUnit(NULL);
-		pkAttacker->ClearMissionQueue(GetPostCombatDelay());
+		pkAttacker->ClearMissionQueue(false,GetPostCombatDelay());
 	}
 	
 	BATTLE_FINISHED();
@@ -1383,7 +1383,7 @@ void CvUnitCombat::ResolveCityMeleeCombat(const CvCombatInfo& kCombatInfo, uint 
 	if(pkAttacker)
 	{
 		pkAttacker->setCombatUnit(NULL);
-		pkAttacker->ClearMissionQueue(GetPostCombatDelay());
+		pkAttacker->ClearMissionQueue(false,GetPostCombatDelay());
 
 		if(pkAttacker->isSuicide())
 		{
@@ -2124,7 +2124,7 @@ void CvUnitCombat::ResolveAirUnitVsCombat(const CvCombatInfo& kCombatInfo, uint 
 
 			// Clean up some stuff
 			pkAttacker->setCombatUnit(NULL);
-			pkAttacker->ClearMissionQueue(GetPostCombatDelay());
+			pkAttacker->ClearMissionQueue(false,GetPostCombatDelay());
 
 			// Spend a move for this attack
 			pkAttacker->changeMoves(-GC.getMOVE_DENOMINATOR());
@@ -2440,7 +2440,7 @@ void CvUnitCombat::ResolveAirSweep(const CvCombatInfo& kCombatInfo, uint uiParen
 	if(pkAttacker)
 	{
 		pkAttacker->setCombatUnit(NULL);
-		pkAttacker->ClearMissionQueue(GetPostCombatDelay());
+		pkAttacker->ClearMissionQueue(false,GetPostCombatDelay());
 
 		// Spend a move for this attack
 		pkAttacker->changeMoves(-GC.getMOVE_DENOMINATOR());
@@ -3145,7 +3145,7 @@ void CvUnitCombat::ResolveNuclearCombat(const CvCombatInfo& kCombatInfo, uint ui
 
 			// Clean up some stuff
 			pkAttacker->setCombatUnit(NULL);
-			pkAttacker->ClearMissionQueue(GetPostCombatDelay());
+			pkAttacker->ClearMissionQueue(false,GetPostCombatDelay());
 			pkAttacker->SetAutomateType(NO_AUTOMATE); // kick unit out of automation
 
 			// Spend a move for this attack

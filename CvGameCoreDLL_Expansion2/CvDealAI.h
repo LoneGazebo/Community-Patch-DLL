@@ -40,11 +40,11 @@ public:
 
 	TeamTypes GetTeam();
 
-	int GetDealPercentLeeway(PlayerTypes eOtherPlayer) const;
+	int GetDealPercentLeeway(PlayerTypes eOtherPlayer, bool bInTheBlack) const;
 
-	bool WithinAcceptableRange(PlayerTypes ePlayer, int iValue);
+	bool WithinAcceptableRange(PlayerTypes ePlayer, int iMaxValue, int iNetValue);
 	bool BothSidesIncluded(CvDeal* pDeal);
-	bool TooMuchAdded(PlayerTypes ePlayer, int iTotalValue, int iItemValue, bool bFromUs = false);
+	bool TooMuchAdded(PlayerTypes ePlayer, int iMaxValue, int iNetValue, int iItemValue, bool bFromUs);
 
 	// Offer deal to this AI player and see what his response is
 
@@ -113,11 +113,11 @@ public:
 	void DoAddGoldToThem(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue);
 	void DoAddGoldToUs(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue);
 
-	void DoAddGPTToThem(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue);
+	void DoAddGPTToThem(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue, bool bRoundUp = false);
 	void DoAddGPTToUs(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue);
 
-	void DoRemoveGPTFromThem(CvDeal* pDeal, PlayerTypes eThem, int& iNumGPTAlreadyInTrade);
-	void DoRemoveGPTFromUs(CvDeal* pDeal, int& iNumGPTAlreadyInTrade);
+	void DoRemoveGPTFromThem(CvDeal* pDeal, PlayerTypes eThem, int iNumToRemove);
+	void DoRemoveGPTFromUs(CvDeal* pDeal, int iNumToRemove);
 
 	void DoRemoveGoldFromThem(CvDeal* pDeal, PlayerTypes eThem, int& iNumGoldAlreadyInTrade);
 	void DoRemoveGoldFromUs(CvDeal* pDeal, int& iNumGoldAlreadyInTrade);

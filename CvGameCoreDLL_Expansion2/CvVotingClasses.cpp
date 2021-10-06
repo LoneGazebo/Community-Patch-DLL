@@ -14064,7 +14064,7 @@ bool CvResolutionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtil
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	if (MOD_DIPLOMACY_CIV4_FEATURES) {
 		m_iVassalMaintenanceGoldPercent		= kResults.GetInt("VassalMaintenanceGoldPercent");
-		m_bEndAllCurrentVassals				= kResults.GetInt("EndAllCurrentVassals");
+		m_bEndAllCurrentVassals				= kResults.GetInt("EndAllCurrentVassals")>0;
 	}
 #endif
 #if defined(MOD_BALANCE_CORE)

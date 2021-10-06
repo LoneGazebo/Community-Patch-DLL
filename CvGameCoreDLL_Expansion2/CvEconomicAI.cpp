@@ -3217,7 +3217,7 @@ bool EconomicAIHelpers::IsTestStrategy_OffshoreExpansionMap(CvPlayer* pPlayer)
 		return false;
 	}
 
-	return (GC.getMap().GetAIMapHint() & ciMapHint_Offshore);
+	return (GC.getMap().GetAIMapHint() & ciMapHint_Offshore) > 0;
 }
 
 /// "Developing Religion" Player Strategy: planning to create and spread religion

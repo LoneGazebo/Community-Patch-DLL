@@ -430,7 +430,7 @@ private:
 	int m_iNumFreeProphetsSpawned;
 #endif
 	int m_iNumProphetsSpawned;
-	int m_bFoundingReligion;
+	bool m_bFoundingReligion;
 #if defined(MOD_RELIGION_RECURRING_PURCHASE_NOTIFIY)
 	int m_iFaithAtLastNotify;
 #endif

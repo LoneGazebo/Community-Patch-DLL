@@ -132,6 +132,7 @@ public:
 	void SetFromPlayer(PlayerTypes ePlayer);
 	void SetToPlayer(PlayerTypes ePlayer);
 
+	int GetMaxValue() const;
 	void SetFromPlayerValue(int iValue);
 	void ChangeFromPlayerValue(int iValue);
 
@@ -265,6 +266,7 @@ public:
 	static DealRenewStatus GetItemTradeableState(TradeableItems eItem);
 	bool IsPotentiallyRenewable();
 
+	void RemoveAllByPlayer(PlayerTypes eFrom);
 	void RemoveByType(TradeableItems eType, PlayerTypes eFrom = NO_PLAYER);
 	void RemoveResourceTrade(ResourceTypes eResource);
 	void RemoveCityTrade(PlayerTypes eFrom, int iCityID);

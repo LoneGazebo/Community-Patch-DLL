@@ -30,6 +30,8 @@
 #include "ICvDLLUserInterface.h"
 #include "CvDllInterfaces.h"
 
+#pragma warning(disable:4800 ) //forcing value to bool 'true' or 'false'
+
 // include this last to turn warnings into errors for code analysis
 #include "LintFree.h"
 
@@ -15166,7 +15168,7 @@ int CvLuaPlayer::lGetTotalValueToMeNormal(lua_State* L)
 		return 1;
 	}
 
-	if (pkThisPlayer->GetDealAI()->WithinAcceptableRange(pkDeal->GetOtherPlayer(pkThisPlayer->GetID()), iResult))
+	if (pkThisPlayer->GetDealAI()->WithinAcceptableRange(pkDeal->GetOtherPlayer(pkThisPlayer->GetID()), pkDeal->GetMaxValue(), iResult))
 		iResult = 0;
  
 	lua_pushinteger(L, iResult);
@@ -15190,7 +15192,7 @@ int CvLuaPlayer::lGetTotalValueToMe(lua_State* L)
 		return 1;
 	}
 
-	if (pkThisPlayer->GetDealAI()->WithinAcceptableRange(pkDeal->GetOtherPlayer(pkThisPlayer->GetID()), iResult))
+	if (pkThisPlayer->GetDealAI()->WithinAcceptableRange(pkDeal->GetOtherPlayer(pkThisPlayer->GetID()), pkDeal->GetMaxValue(), iResult))
 		iResult = 0;
 
 	lua_pushinteger(L, iResult);

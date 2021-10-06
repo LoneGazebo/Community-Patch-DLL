@@ -325,7 +325,7 @@ protected:
 	int m_iGetObsoleteTech;
 	bool m_bAdjacentLake;
 	bool m_bAdjacentCity;
-	bool m_iGrantsVision;
+	int m_iGrantsVision;
 #endif
 	bool m_bNoTwoAdjacent;
     bool m_bAdjacentLuxury;
