@@ -16035,7 +16035,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 #endif
 
 #if defined(MOD_BALANCE_CORE_POLICIES)
-	if (IsPurchased(eBuildingClass))
+	if (IsPurchased(eBuildingClass) || pBuildingInfo->IsDummy())
 	{
 		bNoBonus = true;
 	}
@@ -16045,12 +16045,12 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 		if (GetCityBuildings()->IsFirstTimeBuilding(eBuilding) <= 0)
 		{
 			GetCityBuildings()->SetFirstTimeBuilding(eBuilding, 1);
-			GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_CONSTRUCTION, false, NO_GREATPERSON, eBuilding, 0, true, NO_PLAYER, NULL, false, this);
-			if (::isWorldWonderClass(*GC.getBuildingClassInfo(eBuildingClass)) || ::isNationalWonderClass(*GC.getBuildingClassInfo(eBuildingClass)))
-				GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_CONSTRUCTION_WONDER, false, NO_GREATPERSON, eBuilding, 0, true, NO_PLAYER, NULL, false, this);
+				GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_CONSTRUCTION, false, NO_GREATPERSON, eBuilding, 0, true, NO_PLAYER, NULL, false, this);
+				if (::isWorldWonderClass(*GC.getBuildingClassInfo(eBuildingClass)) || ::isNationalWonderClass(*GC.getBuildingClassInfo(eBuildingClass)))
+					GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_CONSTRUCTION_WONDER, false, NO_GREATPERSON, eBuilding, 0, true, NO_PLAYER, NULL, false, this);
 
 #if defined(MOD_BALANCE_CORE) && defined(MOD_API_UNIFIED_YIELDS)
-			GET_PLAYER(getOwner()).doInstantGreatPersonProgress(INSTANT_YIELD_TYPE_CONSTRUCTION, false, this, eBuilding);
+				GET_PLAYER(getOwner()).doInstantGreatPersonProgress(INSTANT_YIELD_TYPE_CONSTRUCTION, false, this, eBuilding);
 #endif
 		}
 	}
