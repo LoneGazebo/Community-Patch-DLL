@@ -644,8 +644,6 @@ CvPlayer::CvPlayer() :
 	, m_iSpecialistFoodChange()
 	, m_iWarWearinessModifier()
 	, m_iWarScoreModifier()
-	, m_bEnablesTechSteal()
-	, m_bEnablesGWSteal()
 #endif
 #if defined(MOD_TRAITS_CITY_WORKING) || defined(MOD_BUILDINGS_CITY_WORKING) || defined(MOD_POLICIES_CITY_WORKING) || defined(MOD_TECHS_CITY_WORKING)
 	, m_iCityWorkingChange()
@@ -1551,8 +1549,6 @@ void CvPlayer::uninit()
 	m_iSpecialistFoodChange = 0;
 	m_iWarWearinessModifier = 0;
 	m_iWarScoreModifier = 0;
-	m_bEnablesTechSteal = false;
-	m_bEnablesGWSteal = false;
 	m_iPlayerEventCooldown = 0;
 	m_iExtraSupplyPerPopulation = 0;
 	m_iCitySupplyFlatGlobal = 0;
@@ -17075,15 +17071,6 @@ void CvPlayer::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst
 		ChangeNoUnhappfromXSpecialists(pBuildingInfo->GetNoUnhappfromXSpecialistsGlobal() * iChange);
 	}
 
-	if (pBuildingInfo->IsEnablesTechSteal() != 0)
-	{
-		ChangeEnablesTechSteal(pBuildingInfo->IsEnablesTechSteal() * iChange);
-	}
-	if (pBuildingInfo->IsEnablesGWSteal() != 0)
-	{
-		ChangeEnablesGWSteal(pBuildingInfo->IsEnablesGWSteal() * iChange);
-	}
-
 	if(pBuildingInfo->IsSecondaryPantheon())
 	{
 		ChangeSecondReligionPantheonCount((pBuildingInfo->IsSecondaryPantheon()) ? iChange : 0);
@@ -32191,29 +32178,6 @@ void CvPlayer::ChangeNoUnhappfromXSpecialists(int iChange)
 	m_iNoUnhappfromXSpecialists += iChange;
 }
 
-void CvPlayer::ChangeEnablesTechSteal(int iValue)
-{
-	if (iValue > 0)
-		m_bEnablesTechSteal = true;
-	else
-		m_bEnablesTechSteal = false;
-}
-bool CvPlayer::IsTechStealEnabled() const
-{
-	return m_bEnablesTechSteal;
-}
-void CvPlayer::ChangeEnablesGWSteal(int iValue)
-{
-	if (iValue > 0)
-		m_bEnablesGWSteal = true;
-	else
-		m_bEnablesGWSteal = false;
-}
-bool CvPlayer::IsGWStealEnabled() const
-{
-	return m_bEnablesGWSteal;
-}
-
 int CvPlayer::GetTechDeviation() const
 {
 
@@ -44132,8 +44096,6 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 	ChangeHappinessPerXPopulationGlobal(pPolicy->GetHappinessPerXPopulationGlobal() * iChange);
 	ChangeIdeologyPoint(pPolicy->GetIdeologyPoint() * iChange);
 	ChangeNoXPLossUnitPurchase(pPolicy->IsNoXPLossUnitPurchase() * iChange);
-	ChangeEnablesGWSteal(pPolicy->IsEnablesGWSteal() * iChange);
-	ChangeEnablesTechSteal(pPolicy->IsEnablesTechSteal() * iChange);
 	ChangeEventTourism(pPolicy->GetEventTourism() * iChange);
 	ChangeEventTourismCS(pPolicy->GetEventTourismCS() * iChange);
 	ChangeMonopolyModFlat(pPolicy->GetMonopolyModFlat() * iChange);
@@ -46546,8 +46508,6 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 	visitor(player.m_iSpecialistFoodChange);
 	visitor(player.m_iWarWearinessModifier);
 	visitor(player.m_iWarScoreModifier);
-	visitor(player.m_bEnablesTechSteal);
-	visitor(player.m_bEnablesGWSteal);
 	visitor(player.m_iGarrisonsOccupiedUnhapppinessMod);
 	visitor(player.m_iXPopulationConscription);
 	visitor(player.m_iExtraMoves);

@@ -5293,7 +5293,7 @@ int CityStrategyAIHelpers::GetBuildingPolicyValue(CvCity *pCity, BuildingTypes e
 		iValue += 5 * kPlayer.getNumCities();
 	}
 
-	if(pkBuildingInfo->IsEnablesGWSteal() || pkBuildingInfo->IsEnablesTechSteal() || pkBuildingInfo->GetExtraSpies() > 0 || pkBuildingInfo->GetEspionageModifier() < 0 || pkBuildingInfo->GetGlobalEspionageModifier() < 0 || pkBuildingInfo->GetSpyRankChange() > 0 || pkBuildingInfo->GetInstantSpyRankChange() > 0)
+	if(pkBuildingInfo->GetExtraSpies() > 0 || pkBuildingInfo->GetEspionageModifier() < 0 || pkBuildingInfo->GetGlobalEspionageModifier() < 0 || pkBuildingInfo->GetSpyRankChange() > 0 || pkBuildingInfo->GetInstantSpyRankChange() > 0)
 	{
 		iValue += ((kPlayer.GetEspionage()->GetNumSpies() + kPlayer.GetPlayerTraits()->GetExtraSpies() * 10) + (pkBuildingInfo->GetEspionageModifier() * -5) + (pkBuildingInfo->GetGlobalEspionageModifier() * -10) + (pkBuildingInfo->GetSpyRankChange() + pkBuildingInfo->GetInstantSpyRankChange() * 100));
 

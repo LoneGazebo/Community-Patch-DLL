@@ -357,7 +357,7 @@ void CvPlayerAI::AI_conquerCity(CvCity* pCity, PlayerTypes ePlayerToLiberate, bo
 		iCityValue /= 100;
 	}
 
-	if (iCityValue >= 60 && !IsEmpireVeryUnhappy())
+	if (iCityValue >= 15 && !IsEmpireVeryUnhappy())
 	{
 		bKeepCity = true;
 	}

@@ -230,9 +230,6 @@ public:
 	int GetNoUnhappfromXSpecialists() const;
 	int GetNoUnhappfromXSpecialistsGlobal() const;
 
-	bool IsEnablesTechSteal() const;
-	bool IsEnablesGWSteal() const;
-
 	int GetPurchaseCooldownReduction(bool bCivilian = false) const;
 #endif
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
@@ -842,8 +839,6 @@ private:
 	int m_iNoUnhappfromXSpecialistsGlobal;
 	int m_iPurchaseCooldownReduction;
 	int m_iPurchaseCooldownReductionCivilian;
-	bool m_bEnablesTechSteal;
-	bool m_bEnablesGWSteal;
 #endif
 #if defined(MOD_BALANCE_CORE_EVENTS)
 	int m_iEventRequiredActive;

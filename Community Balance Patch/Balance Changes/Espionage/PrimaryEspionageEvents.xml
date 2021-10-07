@@ -159,6 +159,7 @@
 			<IsEspionageEffect>true</IsEspionageEffect>
 			<MissionSetup>true</MissionSetup>
 			<IDModifier>40</IDModifier>
+			<EventDuration>-1</EventDuration>
 			<RequiredEra>ERA_MODERN</RequiredEra>
 			<PotentialScaling>true</PotentialScaling>
 			<EraScaling>true</EraScaling>
@@ -175,6 +176,7 @@
 			<IsEspionageEffect>true</IsEspionageEffect>
 			<MissionSetup>true</MissionSetup>
 			<IDModifier>30</IDModifier>
+			<EventDuration>-1</EventDuration>
 			<RequiredEra>ERA_MODERN</RequiredEra>
 			<PotentialScaling>true</PotentialScaling>
 			<EraScaling>true</EraScaling>

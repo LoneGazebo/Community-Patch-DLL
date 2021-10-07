@@ -228,8 +228,6 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_iNoUnhappfromXSpecialistsGlobal(0),
 	m_iPurchaseCooldownReduction(0),
 	m_iPurchaseCooldownReductionCivilian(0),
-	m_bEnablesTechSteal(false),
-	m_bEnablesGWSteal(false),
 #endif
 
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
@@ -582,8 +580,6 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	m_iNoUnhappfromXSpecialistsGlobal = kResults.GetInt("NoUnhappfromXSpecialistsGlobal");
 	m_iPurchaseCooldownReduction = kResults.GetInt("PurchaseCooldownReduction");
 	m_iPurchaseCooldownReductionCivilian = kResults.GetInt("PurchaseCooldownReductionCivilian");
-	m_bEnablesTechSteal = kResults.GetBool("EnablesTechSteal");
-	m_bEnablesGWSteal = kResults.GetBool("EnablesGWSteal");
 #endif
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	m_bVassalLevyEra = kResults.GetBool("VassalLevyEra");
@@ -4174,16 +4170,6 @@ int CvBuildingEntry::GetPurchaseCooldownReduction(bool bCivilian) const
 		return m_iPurchaseCooldownReductionCivilian;
 
 	return m_iPurchaseCooldownReduction;
-}
-
-bool CvBuildingEntry::IsEnablesTechSteal() const
-{
-	return m_bEnablesTechSteal;
-}
-
-bool CvBuildingEntry::IsEnablesGWSteal() const
-{
-	return m_bEnablesGWSteal;
 }
 #endif
 

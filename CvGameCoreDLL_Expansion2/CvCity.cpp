@@ -4728,9 +4728,6 @@ bool CvCity::IsCityEventChoiceValidEspionage(CityEventChoiceTypes eEventChoice, 
 
 	if (pkEventInfo->getStealTech() > 0)
 	{
-		if (!GET_PLAYER(eSpyOwner).IsTechStealEnabled())
-			return false;
-
 		GET_PLAYER(eSpyOwner).GetEspionage()->BuildStealableTechList(getOwner());
 		int iNumTechsWeDontHave = GET_PLAYER(eSpyOwner).GetEspionage()->GetNumTechsToSteal(getOwner());
 		if (iNumTechsWeDontHave < pkEventInfo->getStealTech())
@@ -4739,9 +4736,6 @@ bool CvCity::IsCityEventChoiceValidEspionage(CityEventChoiceTypes eEventChoice, 
 
 	if (pkEventInfo->getForgeGW() > 0)
 	{
-		if (!GET_PLAYER(eSpyOwner).IsGWStealEnabled())
-			return false;
-
 		int iNumGWInCity = GetCityCulture()->GetNumGreatWorks();
 		if (iNumGWInCity < pkEventInfo->getForgeGW())
 			return false;
@@ -5478,6 +5472,7 @@ CvString CvCity::GetDisabledTooltip(CityEventChoiceTypes eChosenEventChoice, int
 				{
 					localizedDurationText = Localization::Lookup("TXT_KEY_EVENT_SPY_ALREADY_HERE");
 					DisabledTT += localizedDurationText.toUTF8();
+					break;
 				}
 			}
 		}

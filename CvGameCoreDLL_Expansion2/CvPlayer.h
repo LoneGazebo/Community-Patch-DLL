@@ -1592,11 +1592,6 @@ public:
 	int GetNoUnhappfromXSpecialists() const;
 	void ChangeNoUnhappfromXSpecialists(int iChange);
 
-	void ChangeEnablesTechSteal(int iValue);
-	bool IsTechStealEnabled() const;
-	void ChangeEnablesGWSteal(int iValue);
-	bool IsGWStealEnabled() const;
-
 	int GetTechDeviation() const;
 
 	int GetHappfromXSpecialists() const;
@@ -3169,9 +3164,7 @@ protected:
 	int m_iSpecialistFoodChange;
 	int m_iWarWearinessModifier;
 	int m_iWarScoreModifier;
-	bool m_bEnablesTechSteal;
-	bool m_bEnablesGWSteal;
-	
+
 #endif
 #if defined(MOD_BALANCE_CORE_POLICIES)
 	int m_iGarrisonsOccupiedUnhapppinessMod;
@@ -3987,8 +3980,6 @@ SYNC_ARCHIVE_VAR(int, m_iNoUnhappfromXSpecialistsCapital)
 SYNC_ARCHIVE_VAR(int, m_iSpecialistFoodChange)
 SYNC_ARCHIVE_VAR(int, m_iWarWearinessModifier)
 SYNC_ARCHIVE_VAR(int, m_iWarScoreModifier)
-SYNC_ARCHIVE_VAR(bool, m_bEnablesTechSteal)
-SYNC_ARCHIVE_VAR(bool, m_bEnablesGWSteal)
 SYNC_ARCHIVE_VAR(int, m_iGarrisonsOccupiedUnhapppinessMod)
 SYNC_ARCHIVE_VAR(int, m_iXPopulationConscription)
 SYNC_ARCHIVE_VAR(int, m_iExtraMoves)

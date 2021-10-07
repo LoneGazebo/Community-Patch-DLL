@@ -98,8 +98,6 @@ public:
 	EraTypes GetPolicyEraUnlock() const;
 	int GetIdeologyPoint() const;
 	bool IsNoXPLossUnitPurchase() const;
-	bool IsEnablesTechSteal() const;
-	bool IsEnablesGWSteal() const;
 	int GetCorporationOfficesAsFranchises() const;
 	bool IsNoForeignCorpsInCities() const;
 	bool IsNoFranchisesInForeignCities() const;
@@ -544,8 +542,6 @@ private:
 	EraTypes m_ePolicyEraUnlock;
 	int m_iIdeologyPoint;
 	bool m_bNoXPLossUnitPurchase;
-	bool m_bEnablesTechSteal;
-	bool m_bEnablesGWSteal;
 #endif
 	int m_iExtraHappinessPerLuxury;
 	int m_iUnhappinessFromUnitsMod;
