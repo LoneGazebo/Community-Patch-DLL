@@ -35645,7 +35645,7 @@ bool CvCity::isInDangerOfFalling() const
 
 bool CvCity::isUnderSiege() const
 {
-	return m_iDamageTakenLastTurn > 0 || m_iDamage > 0 || plot()->GetNumEnemyUnitsAdjacent(getTeam(), NO_DOMAIN) > 0;
+	return m_iDamageTakenLastTurn > 0 || plot()->GetNumEnemyUnitsAdjacent(getTeam(), NO_DOMAIN) > 0;
 }
 
 int CvCity::getDamageTakenLastTurn() const
