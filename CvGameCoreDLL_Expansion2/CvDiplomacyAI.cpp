@@ -8904,7 +8904,6 @@ void CvDiplomacyAI::DoUpdateWarStates()
 				if (pLoopCity->IsInDangerFromPlayers(vTheirWarAllies))
 				{
 					iDangerMod++;
-					bool bUnderSiege = pLoopCity->getDamageTakenLastTurn() > 0 || pLoopCity->plot()->GetNumEnemyUnitsAdjacent(GetTeam(), NO_DOMAIN) > 0;
 
 					//look at the tactical map (is it up to date?)
 					CvTacticalDominanceZone* pLandZone = m_pPlayer->GetTacticalAI()->GetTacticalAnalysisMap()->GetZoneByCity(pLoopCity,false);
@@ -8914,7 +8913,7 @@ void CvDiplomacyAI::DoUpdateWarStates()
 					if (pWaterZone && pWaterZone->GetOverallDominanceFlag()==TACTICAL_DOMINANCE_ENEMY)
 						iDangerMod++;
 
-					if (pLoopCity->isInDangerOfFalling() || bUnderSiege || (pLoopCity->IsBlockadedWaterAndLand() && pLoopCity->getDamage() >= (pLoopCity->GetMaxHitPoints()/4)))
+					if (pLoopCity->isInDangerOfFalling() || pLoopCity->isUnderSiege() || (pLoopCity->IsBlockadedWaterAndLand() && pLoopCity->getDamage() >= (pLoopCity->GetMaxHitPoints()/4)))
 					{
 						if (pLoopCity->isInDangerOfFalling())
 							iDangerMod += 3;
@@ -8960,7 +8959,6 @@ void CvDiplomacyAI::DoUpdateWarStates()
 					if (pLoopCity->IsInDangerFromPlayers(vOurWarAllies))
 					{
 						iDangerMod++;
-						bool bUnderSiege = pLoopCity->getDamageTakenLastTurn() > 0 || pLoopCity->plot()->GetNumEnemyUnitsAdjacent(GET_PLAYER(eLoopPlayer).getTeam(), NO_DOMAIN) > 0;
 
 						//look at the tactical map (is it up to date?)
 						CvTacticalDominanceZone* pLandZone = GET_PLAYER(eLoopPlayer).GetTacticalAI()->GetTacticalAnalysisMap()->GetZoneByCity(pLoopCity,false);
@@ -8971,7 +8969,7 @@ void CvDiplomacyAI::DoUpdateWarStates()
 						if (pWaterZone && pWaterZone->GetOverallDominanceFlag()==TACTICAL_DOMINANCE_ENEMY)
 							iDangerMod++;
 
-						if (pLoopCity->isInDangerOfFalling() || bUnderSiege || (pLoopCity->IsBlockadedWaterAndLand() && pLoopCity->getDamage() >= (pLoopCity->GetMaxHitPoints()/4)))
+						if (pLoopCity->isInDangerOfFalling() || pLoopCity->isUnderSiege() || (pLoopCity->IsBlockadedWaterAndLand() && pLoopCity->getDamage() >= (pLoopCity->GetMaxHitPoints()/4)))
 						{
 							if (pLoopCity->isInDangerOfFalling())
 								iDangerMod += 3;
@@ -23058,8 +23056,7 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 							{
 								if (pLoopCity->isCapital() || GET_PLAYER(pLoopCity->getOriginalOwner()).getTeam() == GetTeam())
 								{
-									bool bUnderSiege = pLoopCity->getDamageTakenLastTurn() > 0 || pLoopCity->plot()->GetNumEnemyUnitsAdjacent(GET_PLAYER(eMinor).getTeam(), NO_DOMAIN) > 0;
-									if (pLoopCity->IsInDanger(GetID()) && (bUnderSiege || pLoopCity->IsBlockadedWaterAndLand()))
+									if (pLoopCity->IsInDanger(GetID()) && (pLoopCity->isUnderSiege() || pLoopCity->IsBlockadedWaterAndLand()))
 									{
 										continue;
 									}
@@ -23177,7 +23174,6 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 			if (pLoopCity->IsInDangerFromPlayers(vTheirWarAllies)) // Only care if we're in danger from them!
 			{
 				int iDangerMod = 1;
-				bool bUnderSiege = pLoopCity->getDamageTakenLastTurn() > 0 || pLoopCity->plot()->GetNumEnemyUnitsAdjacent(GetTeam(), NO_DOMAIN) > 0;
 
 				//look at the tactical map (is it up to date?)
 				CvTacticalDominanceZone* pLandZone = m_pPlayer->GetTacticalAI()->GetTacticalAnalysisMap()->GetZoneByCity(pLoopCity,false);
@@ -23187,7 +23183,7 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 				if (pWaterZone && pWaterZone->GetOverallDominanceFlag()==TACTICAL_DOMINANCE_ENEMY)
 					iDangerMod++;
 
-				if (pLoopCity->isInDangerOfFalling() || bUnderSiege || (pLoopCity->IsBlockadedWaterAndLand() && pLoopCity->getDamage() >= (pLoopCity->GetMaxHitPoints()/4)))
+				if (pLoopCity->isInDangerOfFalling() || pLoopCity->isUnderSiege() || (pLoopCity->IsBlockadedWaterAndLand() && pLoopCity->getDamage() >= (pLoopCity->GetMaxHitPoints()/4)))
 				{
 					if (pLoopCity->isInDangerOfFalling())
 						iDangerMod += 3;
@@ -23224,7 +23220,6 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 			if (pLoopCity->IsInDangerFromPlayers(vOurWarAllies)) // Only care if they're in danger from us!
 			{
 				int iDangerMod = 1;
-				bool bUnderSiege = pLoopCity->getDamageTakenLastTurn() > 0 || pLoopCity->plot()->GetNumEnemyUnitsAdjacent(GET_PLAYER(*it).getTeam(), NO_DOMAIN) > 0;
 
 				//look at the tactical map (is it up to date?)
 				CvTacticalDominanceZone* pLandZone = GET_PLAYER(*it).GetTacticalAI()->GetTacticalAnalysisMap()->GetZoneByCity(pLoopCity,false);
@@ -23235,7 +23230,7 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 				if (pWaterZone && pWaterZone->GetOverallDominanceFlag()==TACTICAL_DOMINANCE_ENEMY)
 					iDangerMod++;
 
-				if (pLoopCity->isInDangerOfFalling() || bUnderSiege || (pLoopCity->IsBlockadedWaterAndLand() && pLoopCity->getDamage() >= (pLoopCity->GetMaxHitPoints()/4)))
+				if (pLoopCity->isInDangerOfFalling() || pLoopCity->isUnderSiege() || (pLoopCity->IsBlockadedWaterAndLand() && pLoopCity->getDamage() >= (pLoopCity->GetMaxHitPoints()/4)))
 				{
 					if (pLoopCity->isInDangerOfFalling())
 						iDangerMod += 3;
