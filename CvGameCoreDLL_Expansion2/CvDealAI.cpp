@@ -136,7 +136,7 @@ int CvDealAI::GetDealPercentLeeway(PlayerTypes eOtherPlayer, bool bInTheBlack) c
 		}
 	}
 
-	//want better deails if we're having economic problems
+	//want better deals if we're having economic problems
 	if (!bInTheBlack && m_pPlayer->GetEconomicAI()->IsUsingStrategy((EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_LOSING_MONEY")))
 		iPercent /= 2;
 
