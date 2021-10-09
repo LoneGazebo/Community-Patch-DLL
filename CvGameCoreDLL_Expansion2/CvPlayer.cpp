@@ -3285,7 +3285,7 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 			if (bDoWarmonger && ePlayerToLiberate != NO_PLAYER)
 			{
 				bDoWarmonger = false;
-				pCity->SetNoWarmonger(true); // Recursive to-do: cache warmonger values
+				pCity->SetNoWarmonger(true);
 			}
 
 			if (bDoWarmonger)
