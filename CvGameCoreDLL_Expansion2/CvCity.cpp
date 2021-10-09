@@ -1261,7 +1261,14 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 
 	owningPlayer.CalculateNetHappiness();
 
-	updateEconomicValue();
+	//If this is a conquered city, the city value is not updated - it is copied over from the previous city (see in CvPlayer::acquireCity())
+	//This is so that the AI sees the actual value of the city, not the value of the city in resistance, which will be much lower
+	//However updateEconomicValue() is also called in doTurn() so it will only have the old value for 1 turn
+	if (bInitialFounding)
+	{
+		updateEconomicValue();
+	}
+
 	UpdateGlobalStaticYields();
 
 	AI_init();
@@ -7748,6 +7755,14 @@ int CvCity::getEconomicValue(PlayerTypes ePossibleOwner)
 		updateEconomicValue();
 
 	return m_aiEconomicValue[ePossibleOwner];
+}
+
+void CvCity::setEconomicValue(PlayerTypes ePossibleOwner, int iValue)
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(ePossibleOwner >= 0, "ePossibleOwner expected to be >= 0");
+	CvAssertMsg(ePossibleOwner < MAX_CIV_PLAYERS, "ePossibleOwner expected to be < MAX_CIV_PLAYERS");
+	m_aiEconomicValue[ePossibleOwner] = iValue;
 }
 
 int CvCity::GetContestedPlotScore(PlayerTypes eOtherPlayer, bool bJustCount, bool bIncludeConqueredCities) const

@@ -3799,6 +3799,9 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 	bool bHasMadeAttack = pCity->isMadeAttack();
 	bool bNoWarmongerYet = pCity->IsNoWarmongerYet();
 
+	//economic value is copied over to the new city so that the conquering AI sees the actual value of the city, not the value of the city in resistance (much lower)
+	std::vector<int> viEconValue(MAX_PLAYERS, false);
+
 	std::vector<bool> vbTraded(MAX_PLAYERS, false);
 	std::vector<bool> vbEverLiberated(MAX_PLAYERS, false);
 	std::vector<int> viNumTimesOwned(MAX_PLAYERS, false);
@@ -3808,6 +3811,7 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 		vbTraded[iPlayerLoop] = pCity->IsTraded(eLoopPlayer);
 		vbEverLiberated[iPlayerLoop] = pCity->isEverLiberated(eLoopPlayer);
 		viNumTimesOwned[iPlayerLoop] = pCity->GetNumTimesOwned(eLoopPlayer);
+		viEconValue[iPlayerLoop] = pCity->getEconomicValue(eLoopPlayer);
 	}
 
 	// Remember the plots so we can re-assign them later
@@ -4011,6 +4015,8 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 		pNewCity->SetTraded(eLoopPlayer, vbTraded[iPlayerLoop]);
 		pNewCity->setEverLiberated(eLoopPlayer, vbEverLiberated[iPlayerLoop]);
 		pNewCity->SetNumTimesOwned(eLoopPlayer, viNumTimesOwned[iPlayerLoop]);
+
+		pNewCity->setEconomicValue(eLoopPlayer, viEconValue[iPlayerLoop]);
 	}
 
 	// Copy over religion data
