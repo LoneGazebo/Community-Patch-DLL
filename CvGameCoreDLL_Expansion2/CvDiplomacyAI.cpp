@@ -45906,6 +45906,7 @@ bool CvDiplomacyAI::IsTryingToLiberate(CvCity* pCity, PlayerTypes ePlayerToLiber
 			}
 		}
 	}
+#if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
 	else if (GET_PLAYER(ePlayerToLiberate).isMinorCiv())
 	{
 		bool bHasLiberateQuest = false;
@@ -45946,6 +45947,7 @@ bool CvDiplomacyAI::IsTryingToLiberate(CvCity* pCity, PlayerTypes ePlayerToLiber
 			return true;
 		}
 	}
+#endif
 
 	//policy boosts liberation? Will try to go after cities to liberate, if friendly/diplomatic
 	if (GetPlayer()->GetPlayerPolicies()->GetNumericModifier(POLICYMOD_LIBERATION_BONUS) > 0)
