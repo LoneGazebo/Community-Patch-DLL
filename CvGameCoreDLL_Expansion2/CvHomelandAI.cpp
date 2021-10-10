@@ -3555,6 +3555,9 @@ void CvHomelandAI::ExecuteMerchantMoves()
 
 void CvHomelandAI::ExecuteProphetMoves()
 {
+	ReligionTypes eReligion = GC.getGame().GetGameReligions()->GetReligionCreatedByPlayer(m_pPlayer->GetID());
+	CvCity* pTargetCity = NULL;
+
 	CHomelandUnitArray::iterator it;
 	for(it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
 	{
@@ -3591,10 +3594,14 @@ void CvHomelandAI::ExecuteProphetMoves()
 				UnitProcessed(pUnit->GetID());
 				continue;
 			}
-
-			// Can I enhance a religion?
+			else if (eReligion == NO_RELIGION)
+			{
+				// Move to closest city (or maybe better capital?)
+				pTargetCity = m_pPlayer->GetClosestCityByPathLength(pUnit->plot());
+			}
 			else if(pUnit->CanEnhanceReligion(pUnit->plot()))
 			{
+				//seems we have a religion, try to enhance
 				if(GC.getLogging() && GC.getAILogging())
 				{
 					CvString strLogString;
@@ -3606,14 +3613,18 @@ void CvHomelandAI::ExecuteProphetMoves()
 				UnitProcessed(pUnit->GetID());
 				continue;
 			}
-			// Move to closest city
-			else
+			else //hmm, have a religion already but cannot enhance ... move to holy city?
 			{
-				CvCity* pTargetCity = m_pPlayer->GetClosestCityByPathLength(pUnit->plot());
+				const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, m_pPlayer->GetID());
+				pTargetCity = pReligion ? pReligion->GetHolyCity() : NULL;
+			}
+
+			if (pTargetCity)
+			{
 				if(GC.getLogging() && GC.getAILogging())
 				{
 					CvString strLogString;
-					strLogString.Format("Great Prophet moving to nearest city (%s)", pTargetCity ? pTargetCity->getName().c_str() : "NONE");
+					strLogString.Format("Great Prophet moving to city (%s)", pTargetCity ? pTargetCity->getName().c_str() : "NONE");
 					LogHomelandMessage(strLogString);
 				}
 
