@@ -345,10 +345,10 @@ void CvPlayerAI::AI_conquerCity(CvCity* pCity, PlayerTypes ePlayerToLiberate, bo
 	// Should we keep the city (puppet/annex) or do we not want it (liberate/raze)?
 	bool bKeepCity = false;
 
-	// Cities are rated on a 0-100 scale, where 0 = worthless, and 100 = most valuable in the world.
-	int iHighestEconomicPower = GC.getGame().getHighestEconomicValue();
+	// Cities are rated on a percentage scale, where 0 = worthless, and 100 = to median city, 200 = twice the value of the median city.
+	int iMedianEconomicPower = GC.getGame().getMedianEconomicValue();
 	int iLocalEconomicPower = pCity->getEconomicValue(GetID());
-	int iCityValue = (iLocalEconomicPower * 100) / max(1, iHighestEconomicPower);
+	int iCityValue = (iLocalEconomicPower * 100) / max(1, iMedianEconomicPower);
 
 	// Original major capitals are worth more.
 	if (pCity->IsOriginalMajorCapital())

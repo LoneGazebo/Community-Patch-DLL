@@ -217,6 +217,9 @@ public:
 	int getHighestEconomicValue() const;
 	void setHighestEconomicValue(int iValue);
 
+	int getMedianEconomicValue() const;
+	void setMedianEconomicValue(int iValue);
+
 	int getNoNukesCount() const;
 	bool isNoNukes() const;
 	void changeNoNukesCount(int iChange);
@@ -777,6 +780,7 @@ protected:
 	int m_iTotalPopulation;
 	int m_iTotalEconomicValue;
 	int m_iHighestEconomicValue;
+	int m_iMedianEconomicValue;
 	int m_iNoNukesCount;
 	int m_iNukesExploded;
 	int m_iMaxPopulation;
