@@ -291,7 +291,7 @@ UPDATE AICityStrategies SET WeightThreshold = '1' WHERE Type = 'AICITYSTRATEGY_W
 --used when AI conquers a city and is deciding what to do with it
 INSERT INTO Defines(Name, Value) SELECT 'AI_MOSTLY_HAPPY_THRESHOLD', '40';
 INSERT INTO Defines(Name, Value) SELECT 'AI_CITY_SOME_VALUE_THRESHOLD', '40';
-INSERT INTO Defines(Name, Value) SELECT 'AI_CITY_HIGH_VALUE_THRESHOLD', '70';
+INSERT INTO Defines(Name, Value) SELECT 'AI_CITY_HIGH_VALUE_THRESHOLD', '80';
 
 -- AI World Congress logic
 INSERT INTO Defines (Name, Value) SELECT 'AI_WORLD_LEADER_BASE_WEIGHT_SELF', '1000';
