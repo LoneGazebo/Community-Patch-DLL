@@ -23493,15 +23493,15 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 				int iHappiness = GetPlayer()->GetExcessHappiness();
 				if (iHappiness < 50)
 				{
-					iWarProgress -= (50 - iHappiness) * /*2*/ GC.getWAR_PROGRESS_PER_UNHAPPY();
+					iWarProgress += (50 - iHappiness) * /*-2*/ GC.getWAR_PROGRESS_PER_UNHAPPY();
 				}
 			}
 			else if (GetPlayer()->GetExcessHappiness() < 0)
-				iWarProgress += GetPlayer()->GetExcessHappiness() * /*2*/ GC.getWAR_PROGRESS_PER_UNHAPPY();
+				iWarProgress -= GetPlayer()->GetExcessHappiness() * /*-2*/ GC.getWAR_PROGRESS_PER_UNHAPPY();
 
 			// Adjust for strategic resource shortages
 			int iStrategicDeficit = 0;
-			int iMaxStrategicDeficit = 50;
+			int iMaxStrategicDeficit = -50;
 
 			for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
 			{
@@ -23519,11 +23519,11 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 				if (GetPlayer()->getResourceShortageValue(eResource) > 0)
 					iStrategicDeficit += GetPlayer()->getResourceShortageValue(eResource) * /*-5*/ GC.getWAR_PROGRESS_PER_STRATEGIC_DEFICIT();
 
-				if (iStrategicDeficit >= iMaxStrategicDeficit)
+				if (iStrategicDeficit <= iMaxStrategicDeficit)
 					break;
 			}
 
-			iWarProgress -= min(iStrategicDeficit, iMaxStrategicDeficit);
+			iWarProgress += max(iStrategicDeficit, iMaxStrategicDeficit);
 
 			if (iWarProgress <= 0)
 			{
