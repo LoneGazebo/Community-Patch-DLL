@@ -23481,7 +23481,7 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 
 		// Test war progress score: if sufficiently negative, AI will agree to make white peace (at minimum)
 		// But ignore this if opponent's cities are endangered
-		if (!bAnyOpponentCityEndangered)
+		if (!bAnyOpponentCityEndangered || iWarDuration >= 40)
 		{
 			int iWarProgress = GetWarProgressScore(*it);
 
