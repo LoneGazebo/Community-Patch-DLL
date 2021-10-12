@@ -1740,18 +1740,6 @@ void CvActiveResolution::RemoveEffects(PlayerTypes ePlayer)
 		eTargetCityState = (PlayerTypes) GetProposerDecision()->GetDecision();
 	}
 #endif
-	// == Voter Choices ==
-	ResolutionDecisionTypes eVoterDecision = GetVoterDecision()->GetType();
-	PlayerTypes eVotedPlayer = NO_PLAYER;
-	if (eVoterDecision == RESOLUTION_DECISION_ANY_MEMBER ||
-		eVoterDecision == RESOLUTION_DECISION_MAJOR_CIV_MEMBER ||
-#if defined(MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS)
-		eVoterDecision == RESOLUTION_DECISION_CITY_CSD ||
-#endif
-		eVoterDecision == RESOLUTION_DECISION_OTHER_MAJOR_CIV_MEMBER)
-	{
-		eVotedPlayer = (PlayerTypes) GetVoterDecision()->GetDecision();
-	}
 
 	// == One Time Effects are not removed ==
 
@@ -1914,40 +1902,29 @@ void CvActiveResolution::RemoveEffects(PlayerTypes ePlayer)
 #if defined(MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS)
 	if (MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS) 
 	{
-		if (GetEffects()->bOpenDoor)
+		if (GetEffects()->bOpenDoor || GetEffects()->bSphereOfInfluence)
 		{
-			if (ePlayer == eTargetCityState)
+			//the player is the City State with the open door/sphere on it or the player is the major civ with the open door/sphere on eTargetCityState
+			if (ePlayer == eTargetCityState || GetProposerDecision()->GetProposer() == ePlayer)
 			{
 				PlayerTypes eAlly = NO_PLAYER;
-				GET_PLAYER(ePlayer).GetMinorCivAI()->SetNoAlly(false);
-				GET_PLAYER(ePlayer).GetMinorCivAI()->GetMostFriendshipWithAnyMajor(/*Passed by address*/ eAlly);
+
+				if (GetEffects()->bOpenDoor)
+					GET_PLAYER(eTargetCityState).GetMinorCivAI()->SetNoAlly(false);
+				else
+					GET_PLAYER(ePlayer).GetMinorCivAI()->SetPermanentAlly(NO_PLAYER);
+
+				GET_PLAYER(eTargetCityState).GetMinorCivAI()->GetMostFriendshipWithAnyMajor(/*Passed by address*/ eAlly);
 #if defined(MOD_CITY_STATE_SCALE)
-				if (eAlly != NO_PLAYER && GET_PLAYER(ePlayer).GetMinorCivAI()->GetEffectiveFriendshipWithMajor(eAlly) > GET_PLAYER(ePlayer).GetMinorCivAI()->GetAlliesThreshold(eAlly))
+				if (eAlly != NO_PLAYER && GET_PLAYER(eTargetCityState).GetMinorCivAI()->GetEffectiveFriendshipWithMajor(eAlly) > GET_PLAYER(eTargetCityState).GetMinorCivAI()->GetAlliesThreshold(eAlly))
 #else
-				if(eAlly != NO_PLAYER && GET_PLAYER(ePlayer).GetMinorCivAI()->GetEffectiveFriendshipWithMajor(eAlly) > GET_PLAYER(ePlayer).GetMinorCivAI()->GetAlliesThreshold())
+				if(eAlly != NO_PLAYER && GET_PLAYER(eTargetCityState).GetMinorCivAI()->GetEffectiveFriendshipWithMajor(eAlly) > GET_PLAYER(eTargetCityState).GetMinorCivAI()->GetAlliesThreshold())
 #endif
 				{
-					GET_PLAYER(ePlayer).GetMinorCivAI()->SetAlly(eAlly);
-				}
-			}	
-		}
-		if (GetEffects()->bSphereOfInfluence)
-		{
-			if (ePlayer == eTargetCityState)
-			{
-				GET_PLAYER(ePlayer).GetMinorCivAI()->SetPermanentAlly(NO_PLAYER);
-				PlayerTypes eAlly = NO_PLAYER;
-				GET_PLAYER(ePlayer).GetMinorCivAI()->GetMostFriendshipWithAnyMajor(/*Passed by address*/ eAlly);
-#if defined(MOD_CITY_STATE_SCALE)
-				if(eAlly != NO_PLAYER && GET_PLAYER(ePlayer).GetMinorCivAI()->GetEffectiveFriendshipWithMajor(eAlly) > GET_PLAYER(ePlayer).GetMinorCivAI()->GetAlliesThreshold(eAlly))
-#else
-				if(eAlly != NO_PLAYER && GET_PLAYER(ePlayer).GetMinorCivAI()->GetEffectiveFriendshipWithMajor(eAlly) > GET_PLAYER(ePlayer).GetMinorCivAI()->GetAlliesThreshold())
-#endif
-				{
-					GET_PLAYER(ePlayer).GetMinorCivAI()->SetAlly(eAlly);
+					GET_PLAYER(eTargetCityState).GetMinorCivAI()->SetAlly(eAlly);
 				}
 			}
-		}	
+		}
 	}
 #endif
 #if defined(MOD_BALANCE_CORE)
