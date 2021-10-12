@@ -2430,36 +2430,60 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 			}
 
 			int iCivValue = 0;
-			if (IsCivilianUnit() && !IsGreatGeneral() && !IsGreatAdmiral() && !IsCityAttackSupport() && !IsSapper() && (GetOriginalOwner() == getOwner() || isBarbarian()))
+			if (IsCivilianUnit() && (GetOriginalOwner() == getOwner() || isBarbarian()))
 			{
-				// AI cares less about lost workers / etc in lategame
-				int iEraFactor = !isBarbarian() ? max(8 - (int)GET_PLAYER(getOwner()).GetCurrentEra(), 1) : (int)GC.getGame().getCurrentEra();
+				if (!IsGreatGeneral() && !IsGreatAdmiral() && !IsCityAttackSupport() && !IsSapper())
+				{
+					// AI cares less about lost workers / etc in lategame
+					int iEraFactor = !isBarbarian() ? max(8 - (int)GET_PLAYER(getOwner()).GetCurrentEra(), 1) : (int)GC.getGame().getCurrentEra();
 
-				if (IsGreatPerson())
-				{
-					iCivValue = 500 * iEraFactor;
-				}
-				else if (isFound() || IsFoundAbroad())
-				{
-					iCivValue = 300 * iEraFactor;
+					if (IsGreatPerson())
+					{
+						iCivValue = 500 * iEraFactor;
+					}
+					else if (isFound() || IsFoundAbroad())
+					{
+						iCivValue = 300 * iEraFactor;
+					}
+					else
+					{
+						iCivValue = 100 * iEraFactor;
+					}
+
+					if (GC.getGame().getGameTurn() <= 100)
+					{
+						iCivValue *= 2;
+					}
+
+					iCivValue *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+					iCivValue /= 100;
+
+					// Diplo penalty for killing civilians (doesn't apply if stationed in a city, since civilians aren't being targeted in particular)
+					if (pPlot && !pPlot->isCity() && GET_PLAYER(getOwner()).isMajorCiv() && GET_PLAYER(ePlayer).isMajorCiv())
+						GET_PLAYER(getOwner()).GetDiplomacyAI()->ChangeCivilianKillerValue(ePlayer, iCivValue);
+
+					if (GET_PLAYER(getOwner()).isMajorCiv())
+					{
+						if (isFound() || IsFoundAbroad())
+							GET_PLAYER(getOwner()).GetDiplomacyAI()->ChangeWarProgressScore(ePlayer, /*-10*/ GC.getWAR_PROGRESS_LOST_SETTLER());
+						else
+							GET_PLAYER(getOwner()).GetDiplomacyAI()->ChangeWarProgressScore(ePlayer, /*-5*/ GC.getWAR_PROGRESS_LOST_WORKER());
+					}
+					if (GET_PLAYER(ePlayer).isMajorCiv())
+					{
+						if (isFound() || IsFoundAbroad())
+							GET_PLAYER(ePlayer).GetDiplomacyAI()->ChangeWarProgressScore(getOwner(), /*20*/ GC.getWAR_PROGRESS_CAPTURED_SETTLER());
+						else
+							GET_PLAYER(ePlayer).GetDiplomacyAI()->ChangeWarProgressScore(getOwner(), /*10*/ GC.getWAR_PROGRESS_CAPTURED_WORKER());
+					}
 				}
 				else
 				{
-					iCivValue = 100 * iEraFactor;
-				}
+					if (GET_PLAYER(ePlayer).isMajorCiv())
+						GET_PLAYER(ePlayer).GetDiplomacyAI()->ChangeWarProgressScore(getOwner(), /*20*/ GC.getWAR_PROGRESS_KILLED_UNIT());
 
-				if (GC.getGame().getGameTurn() <= 100)
-				{
-					iCivValue *= 2;
-				}
-
-				iCivValue *= GC.getGame().getGameSpeedInfo().getTrainPercent();
-				iCivValue /= 100;
-
-				// Diplo penalty for killing civilians (doesn't apply if stationed in a city, since civilians aren't being targeted in particular)
-				if (pPlot && !pPlot->isCity() && GET_PLAYER(getOwner()).isMajorCiv() && GET_PLAYER(ePlayer).isMajorCiv())
-				{
-					GET_PLAYER(getOwner()).GetDiplomacyAI()->ChangeCivilianKillerValue(ePlayer, iCivValue);
+					if (GET_PLAYER(getOwner()).isMajorCiv())
+						GET_PLAYER(getOwner()).GetDiplomacyAI()->ChangeWarProgressScore(ePlayer, /*-10*/ GC.getWAR_PROGRESS_LOST_UNIT());
 				}
 			}
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
@@ -2591,10 +2615,12 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 				if (GET_PLAYER(ePlayer).isMajorCiv())
 				{
 					GET_PLAYER(ePlayer).ChangeMilitaryRating(iUnitValue); // rating up for winner (them)
+					GET_PLAYER(ePlayer).GetDiplomacyAI()->ChangeWarProgressScore(getOwner(), /*20*/ GC.getWAR_PROGRESS_KILLED_UNIT());
 				}
 				if (GET_PLAYER(getOwner()).isMajorCiv())
 				{
 					GET_PLAYER(getOwner()).ChangeMilitaryRating(-iUnitValue); // rating down for loser (us)
+					GET_PLAYER(getOwner()).GetDiplomacyAI()->ChangeWarProgressScore(ePlayer, /*-10*/ GC.getWAR_PROGRESS_LOST_UNIT());
 				}
 
 				// Does the killer have a bonus to war score accumulation?
@@ -10313,6 +10339,7 @@ bool CvUnit::pillage()
 					// Notify Diplo AI that damage has been done
 					int iTileValue = /*40*/ GC.getPILLAGED_TILE_BASE_WAR_VALUE();
 					int iValueMultiplier = 0;
+					bool bPillagedHighValueTile = false;
 
 					if (pPlot->getResourceType(GET_PLAYER(pPlot->getOwner()).getTeam()) != NO_RESOURCE)
 					{
@@ -10323,9 +10350,11 @@ bool CvUnit::pillage()
 							{
 							case RESOURCEUSAGE_STRATEGIC:
 								iValueMultiplier += 100;
+								bPillagedHighValueTile = true;
 								break;
 							case RESOURCEUSAGE_LUXURY:
 								iValueMultiplier += 50;
+								bPillagedHighValueTile = true;
 								break;
 							case RESOURCEUSAGE_BONUS:
 								iValueMultiplier += 20;
@@ -10339,15 +10368,19 @@ bool CvUnit::pillage()
 					if (eCitadel != NO_IMPROVEMENT && pPlot->getImprovementType() == eCitadel)
 					{
 						iValueMultiplier += 100;
+						bPillagedHighValueTile = true;
 					}
 					else if (eFort != NO_IMPROVEMENT && pPlot->getImprovementType() == eFort)
 					{
 						iValueMultiplier += 50;
+						if (pPlot->IsChokePoint())
+							bPillagedHighValueTile = true;
 					}
 
 					if (pkImprovement->IsCreatedByGreatPerson())
 					{
 						iValueMultiplier += 100;
+						bPillagedHighValueTile = true;
 					}
 
 					iTileValue *= (100 + iValueMultiplier);
@@ -10370,10 +10403,26 @@ bool CvUnit::pillage()
 					if (GET_PLAYER(getOwner()).isMajorCiv())
 					{
 						GET_PLAYER(getOwner()).ChangeMilitaryRating(iTileValue); // rating up for winner (us)
+
+						int iWarProgressValue = /*10*/ GC.getWAR_PROGRESS_PILLAGED_IMPROVEMENT();
+						if (bPillagedHighValueTile)
+						{
+							iWarProgressValue *= /*200*/ GC.getWAR_PROGRESS_HIGH_VALUE_PILLAGE_MULTIPLIER();
+							iWarProgressValue /= 100;
+						}
+						GET_PLAYER(getOwner()).GetDiplomacyAI()->ChangeWarProgressScore(pPlot->getOwner(), iWarProgressValue);
 					}
 					if (GET_PLAYER(pPlot->getOwner()).isMajorCiv())
 					{
 						GET_PLAYER(pPlot->getOwner()).ChangeMilitaryRating(-iTileValue); // rating down for loser (them)
+
+						int iWarProgressValue = /*-5*/ GC.getWAR_PROGRESS_LOST_IMPROVEMENT();
+						if (bPillagedHighValueTile)
+						{
+							iWarProgressValue *= /*200*/ GC.getWAR_PROGRESS_HIGH_VALUE_PILLAGE_MULTIPLIER();
+							iWarProgressValue /= 100;
+						}
+						GET_PLAYER(pPlot->getOwner()).GetDiplomacyAI()->ChangeWarProgressScore(getOwner(), iWarProgressValue);
 					}
 
 					// Do we have a bonus to war score accumulation?
@@ -12852,10 +12901,26 @@ void CvUnit::PerformCultureBomb(int iRadius)
 					if (GET_PLAYER(getOwner()).isMajorCiv())
 					{
 						GET_PLAYER(getOwner()).ChangeMilitaryRating(iTileValue); // rating up for thief (us)
+
+						int iWarProgress = /*20*/ GC.getWAR_PROGRESS_STOLE_TILE();
+						if (vePlayersStoleHighValueTileFrom[ePlotOwner])
+						{
+							iWarProgress *= /*200*/ GC.getWAR_PROGRESS_HIGH_VALUE_PILLAGE_MULTIPLIER();
+							iWarProgress /= 100;
+						}
+						GET_PLAYER(getOwner()).GetDiplomacyAI()->ChangeWarProgressScore(ePlotOwner, iWarProgress);
 					}
 					if (GET_PLAYER(ePlotOwner).isMajorCiv())
 					{
 						GET_PLAYER(ePlotOwner).ChangeMilitaryRating(-iTileValue); // rating down for victim (them)
+
+						int iWarProgress = /*-10*/ GC.getWAR_PROGRESS_LOST_TILE();
+						if (vePlayersStoleHighValueTileFrom[ePlotOwner])
+						{
+							iWarProgress *= /*200*/ GC.getWAR_PROGRESS_HIGH_VALUE_PILLAGE_MULTIPLIER();
+							iWarProgress /= 100;
+						}
+						GET_PLAYER(getOwner()).GetDiplomacyAI()->ChangeWarProgressScore(ePlotOwner, iWarProgress);
 					}
 
 					// Does the city owner have a bonus to war score accumulation?

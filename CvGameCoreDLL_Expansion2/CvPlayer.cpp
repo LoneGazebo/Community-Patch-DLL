@@ -3131,6 +3131,7 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 			int iCityValue = /*175*/ GC.getWAR_DAMAGE_LEVEL_CITY_WEIGHT();
 			iCityValue += (iPopulation * /*150*/ GC.getWAR_DAMAGE_LEVEL_INVOLVED_CITY_POP_MULTIPLIER());
 			iCityValue += (pCity->getNumWorldWonders() * /*200*/ GC.getWAR_DAMAGE_LEVEL_WORLD_WONDER_MULTIPLIER());
+			int iWinnerProgressValue = /*100*/ GC.getWAR_PROGRESS_CAPTURED_CITY(), iLoserProgressValue = /*-50*/ GC.getWAR_PROGRESS_LOST_CITY();
 
 			// Multipliers
 			// Their original capital!
@@ -3138,6 +3139,10 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 			{
 				iCityValue *= 200;
 				iCityValue /= 100;
+				iWinnerProgressValue *= /*200*/ GC.getWAR_PROGRESS_CAPITAL_MULTIPLIER();
+				iWinnerProgressValue /= 100;
+				iLoserProgressValue *= /*200*/ GC.getWAR_PROGRESS_CAPITAL_MULTIPLIER();
+				iLoserProgressValue /= 100;
 
 				if (GET_PLAYER(eOldOwner).isMajorCiv())
 				{
@@ -3155,6 +3160,10 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 			{
 				iCityValue *= 150;
 				iCityValue /= 100;
+				iWinnerProgressValue *= /*150*/ GC.getWAR_PROGRESS_HOLY_CITY_MULTIPLIER();
+				iWinnerProgressValue /= 100;
+				iLoserProgressValue *= /*150*/ GC.getWAR_PROGRESS_HOLY_CITY_MULTIPLIER();
+				iLoserProgressValue /= 100;
 
 				ReligionTypes eReligion = pCity->GetCityReligions()->GetReligionForHolyCity();
 				const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, NO_PLAYER);
@@ -3194,6 +3203,7 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 			if (isMajorCiv())
 			{
 				ChangeMilitaryRating(iCityValue); // rating up for winner (us)
+				GetDiplomacyAI()->ChangeWarProgressScore(eOldOwner, iWinnerProgressValue);
 
 				// If the conqueror has any vassals, see if any nearby vassals are grateful for the protection
 				if (MOD_DIPLOMACY_CIV4_FEATURES && GetNumVassals() > 0)
@@ -3211,6 +3221,7 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 			if (GET_PLAYER(eOldOwner).isMajorCiv())
 			{
 				GET_PLAYER(eOldOwner).ChangeMilitaryRating(-iCityValue); // rating down for loser (them)
+				GET_PLAYER(eOldOwner).GetDiplomacyAI()->ChangeWarProgressScore(GetID(), iLoserProgressValue);
 
 				// If the city belonged to a vassal, penalize the masters
 				if (MOD_DIPLOMACY_CIV4_FEATURES && GET_PLAYER(eOldOwner).IsVassalOfSomeone())
@@ -11131,6 +11142,12 @@ void CvPlayer::doTurn()
 	{
 		DoWarValueLostDecay();
 		DoUpdateWarDamage();
+
+		if (isMajorCiv())
+		{
+			GetDiplomacyAI()->SetEndedFriendshipThisTurn(false);
+			GetDiplomacyAI()->SetUpdatedWarProgressThisTurn(false);
+		}
 	}
 
 	if(MOD_BALANCE_CORE && !isMinorCiv() && !isBarbarian())

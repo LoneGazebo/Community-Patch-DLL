@@ -12574,7 +12574,7 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 		if (!pDiplo->IsAtWar(ePlayer))
 		{
 			// Remind humans if they've agreed to a coop war against this player
-			if (GET_PLAYER(ePlayer).GetDiplomacyAI()->GetGlobalCoopWarAgainstState(pDiplo->GetID()) == COOP_WAR_STATE_PREPARING)
+			if (GET_PLAYER(ePlayer).GetDiplomacyAI()->GetGlobalCoopWarAgainstState(pkPlayer->GetID()) == COOP_WAR_STATE_PREPARING)
 			{
 				Opinion kOpinion;
 				kOpinion.m_iValue = 0;
@@ -12589,16 +12589,16 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 					if (!GET_PLAYER(eThirdParty).isAlive())
 						continue;
 
-					if (GET_PLAYER(eThirdParty).getTeam() == pDiplo->GetTeam())
+					if (GET_PLAYER(eThirdParty).getTeam() == pkPlayer->getTeam())
 						continue;
 
 					if (!GET_PLAYER(ePlayer).GetDiplomacyAI()->IsHasMet(eThirdParty, true))
 						continue;
 
-					if (GET_PLAYER(ePlayer).GetDiplomacyAI()->GetCoopWarState(eThirdParty, pDiplo->GetID()) != COOP_WAR_STATE_PREPARING)
+					if (GET_PLAYER(ePlayer).GetDiplomacyAI()->GetCoopWarState(eThirdParty, pkPlayer->GetID()) != COOP_WAR_STATE_PREPARING)
 						continue;
 
-					int iTurnDifference = iGameTurn - GET_PLAYER(ePlayer).GetDiplomacyAI()->GetCoopWarStateChangeTurn(eThirdParty, pDiplo->GetID());
+					int iTurnDifference = iGameTurn - GET_PLAYER(ePlayer).GetDiplomacyAI()->GetCoopWarStateChangeTurn(eThirdParty, pkPlayer->GetID());
 					if (iTurnDifference > iHighestTurnDifference)
 					{
 						iHighestTurnDifference = iTurnDifference;

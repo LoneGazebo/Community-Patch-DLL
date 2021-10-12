@@ -29386,10 +29386,32 @@ void CvCity::BuyPlot(int iPlotX, int iPlotY)
 			if (GET_PLAYER(getOwner()).isMajorCiv())
 			{
 				GET_PLAYER(getOwner()).ChangeMilitaryRating(iTileValue); // rating up for thief (us)
+
+				int iWarProgress = /*20*/ GC.getWAR_PROGRESS_STOLE_TILE();
+				if (bStoleHighValueTile)
+				{
+					iWarProgress *= /*200*/ GC.getWAR_PROGRESS_HIGH_VALUE_PILLAGE_MULTIPLIER();
+					iWarProgress /= 200;
+				}
+				else
+					iWarProgress /= 4;
+
+				GET_PLAYER(getOwner()).GetDiplomacyAI()->ChangeWarProgressScore(ePlotOwner, iWarProgress);
 			}
 			if (GET_PLAYER(ePlotOwner).isMajorCiv())
 			{
 				GET_PLAYER(ePlotOwner).ChangeMilitaryRating(-iTileValue); // rating down for victim (them)
+
+				int iWarProgress = /*-10*/ GC.getWAR_PROGRESS_LOST_TILE();
+				if (bStoleHighValueTile)
+				{
+					iWarProgress *= /*200*/ GC.getWAR_PROGRESS_HIGH_VALUE_PILLAGE_MULTIPLIER();
+					iWarProgress /= 200;
+				}
+				else
+					iWarProgress /= 4;
+
+				GET_PLAYER(ePlotOwner).GetDiplomacyAI()->ChangeWarProgressScore(getOwner(), iWarProgress);
 			}
 
 			// Does the city owner have a bonus to war score accumulation?
