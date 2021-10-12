@@ -23763,7 +23763,7 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 		}
 		else if (GetPlayer()->GetPositiveWarScoreTourismMod() <= 0 || GET_PLAYER(GetHighestWarscorePlayer()).getTeam() != GET_PLAYER(*it).getTeam())
 		{
-			iPeaceScore += iWarScore / -5;
+			iPeaceScore += iWarScore / 5;
 			bProlong = false;
 		}
 
@@ -23831,17 +23831,13 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 				iOurMultiplier++;
 			}
 		}
-		if (GET_PLAYER(*it).GetDiplomacyAI()->GetStateAllWars() != STATE_ALL_WARS_LOSING || GetWarState(*it) == WAR_STATE_NEARLY_DEFEATED)
+		if (GET_PLAYER(*it).GetDiplomacyAI()->GetStateAllWars() != STATE_ALL_WARS_LOSING)
 		{
 			if (GET_PLAYER(*it).GetDiplomacyAI()->IsEasyTarget(GetID()))
 			{
 				iTheirMultiplier++;
 			}
 			if (GetPlayer()->GetMilitaryAI()->IsExposedToEnemy(NULL, *it))
-			{
-				iTheirMultiplier++;
-			}
-			if (GetWarState(*it) == WAR_STATE_NEARLY_DEFEATED)
 			{
 				iTheirMultiplier++;
 			}
