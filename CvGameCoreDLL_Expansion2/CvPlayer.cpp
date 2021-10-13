@@ -33807,10 +33807,6 @@ void CvPlayer::setAlive(bool bNewValue, bool bNotify)
 	{
 		if (!bNewValue)
 		{
-			// Negate Sphere of Influence
-			if (GetMinorCivAI()->GetPermanentAlly() != NO_PLAYER)
-				GetMinorCivAI()->SetPermanentAlly(NO_PLAYER);
-
 			// Reset incoming units
 			for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 			{
@@ -33901,9 +33897,6 @@ void CvPlayer::setAlive(bool bNewValue, bool bNotify)
 			{
 				PlayerTypes eLoopMinor = (PlayerTypes) iPlayerLoop;
 				GET_PLAYER(eLoopMinor).GetMinorCivAI()->ResetFriendshipWithMajor(GetID());
-
-				if (GET_PLAYER(eLoopMinor).GetMinorCivAI()->GetPermanentAlly() == GetID())
-					GET_PLAYER(eLoopMinor).GetMinorCivAI()->SetPermanentAlly(NO_PLAYER);
 			}
 
 			// Update Diplomacy AI
