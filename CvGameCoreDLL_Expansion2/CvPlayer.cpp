@@ -36973,7 +36973,7 @@ void CvPlayer::DoUpdateWarDamage()
 		{
 			if (iCurrentValue > 0)
 			{
-				iValueLostRatio = (iWarValueLost * 100) / (iCurrentValue + iWarValueLost);
+				iValueLostRatio = (iWarValueLost * 100) / iCurrentValue;
 			}
 			else
 			{
