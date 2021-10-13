@@ -1110,6 +1110,7 @@ void CvGame::uninit()
 	m_iTotalPopulation = 0;
 	m_iTotalEconomicValue = 0;
 	m_iHighestEconomicValue = 0;
+	m_iMedianEconomicValue = 0;
 	m_iNoNukesCount = 0;
 	m_iNukesExploded = 0;
 	m_iMaxPopulation = 0;
@@ -5034,6 +5035,19 @@ void CvGame::setHighestEconomicValue(int iChange)
 {
 	m_iHighestEconomicValue = iChange;
 	CvAssert(getHighestEconomicValue() >= 0);
+}
+
+//	--------------------------------------------------------------------------------
+int CvGame::getMedianEconomicValue() const
+{
+	return m_iMedianEconomicValue;
+}
+
+//	--------------------------------------------------------------------------------
+void CvGame::setMedianEconomicValue(int iChange)
+{
+	m_iMedianEconomicValue = iChange;
+	CvAssert(getMedianEconomicValue() >= 0);
 }
 
 //	--------------------------------------------------------------------------------
@@ -11365,6 +11379,8 @@ void CvGame::updateEconomicTotal()
 	int iCityLoop;
 	PlayerTypes eLoopPlayer;
 
+	std::vector<int> viEconValues;
+
 	int iTotalEconomicValue = 0;
 	int iHighestVal = 0;
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
@@ -11381,12 +11397,17 @@ void CvGame::updateEconomicTotal()
 						iHighestVal = iVal;
 
 					iTotalEconomicValue += iVal;
+					viEconValues.push_back(iVal);
 				}
 			}
 		}
 	}
 	setTotalEconomicValue(iTotalEconomicValue);
 	setHighestEconomicValue(iHighestVal);
+
+	size_t n = viEconValues.size() / 2;
+	std::nth_element(viEconValues.begin(), viEconValues.begin() + n, viEconValues.end());
+	setMedianEconomicValue(viEconValues[n]);
 }
 //	--------------------------------------------------------------------------------
 void CvGame::updateGlobalAverage()
@@ -11760,6 +11781,7 @@ void CvGame::Serialize(Game& game, Visitor& visitor)
 	visitor(game.m_iTotalPopulation);
 	visitor(game.m_iTotalEconomicValue);
 	visitor(game.m_iHighestEconomicValue);
+	visitor(game.m_iMedianEconomicValue);
 	visitor(game.m_iNoNukesCount);
 	visitor(game.m_iNukesExploded);
 	visitor(game.m_iMaxPopulation);

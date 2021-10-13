@@ -1044,6 +1044,7 @@ public:
 #if defined(MOD_BALANCE_CORE)
 	void updateEconomicValue();
 	int getEconomicValue(PlayerTypes ePossibleNewOwner);
+	void setEconomicValue(PlayerTypes ePossibleNewOwner, int iValue);
 #endif
 
 	int GetContestedPlotScore(PlayerTypes eOtherPlayer, bool bJustCount = false, bool bIncludeConqueredCities = false) const;

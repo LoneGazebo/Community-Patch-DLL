@@ -345,10 +345,10 @@ void CvPlayerAI::AI_conquerCity(CvCity* pCity, PlayerTypes ePlayerToLiberate, bo
 	// Should we keep the city (puppet/annex) or do we not want it (liberate/raze)?
 	bool bKeepCity = false;
 
-	// Cities are rated on a 0-100 scale, where 0 = worthless, and 100 = most valuable in the world.
-	int iHighestEconomicPower = GC.getGame().getHighestEconomicValue();
+	// Cities are rated on a percentage scale, where 0 = worthless, and 100 = to median city, 200 = twice the value of the median city.
+	int iMedianEconomicPower = GC.getGame().getMedianEconomicValue();
 	int iLocalEconomicPower = pCity->getEconomicValue(GetID());
-	int iCityValue = (iLocalEconomicPower * 100) / max(1, iHighestEconomicPower);
+	int iCityValue = (iLocalEconomicPower * 100) / max(1, iMedianEconomicPower);
 
 	// Original major capitals are worth more.
 	if (pCity->IsOriginalMajorCapital())
@@ -357,23 +357,21 @@ void CvPlayerAI::AI_conquerCity(CvCity* pCity, PlayerTypes ePlayerToLiberate, bo
 		iCityValue /= 100;
 	}
 
-	if (iCityValue >= 15 && !IsEmpireVeryUnhappy())
+	bool bHighValue = iCityValue >= GC.getAI_CITY_HIGH_VALUE_THRESHOLD();
+
+	bKeepCity = bHighValue && !IsEmpireVeryUnhappy();
+
+	//if it has wonders or is a holy city, try to keep it
+	if (pCity->HasAnyWonder() || pCity->GetCityReligions()->IsHolyCityAnyReligion())
 	{
 		bKeepCity = true;
 	}
-	else
+
+	//only city in the area? may be strategically important
+	CvArea* pArea = GC.getMap().getArea(pCity->getArea());
+	if (pArea != NULL && pArea->getCitiesPerPlayer(GetID()) < 1)
 	{
-		//if it has wonders or is a holy city, try to keep it
-		if (pCity->HasAnyWonder() || pCity->GetCityReligions()->IsHolyCityAnyReligion())
-		{
-			bKeepCity = true;
-		}
-		//only city in the area? may be strategically important
-		CvArea* pArea = GC.getMap().getArea(pCity->getArea());
-		if (pArea != NULL && pArea->getCitiesPerPlayer(GetID()) < 1)
-		{
-			bKeepCity = true;
-		}
+		bKeepCity = true;
 	}
 
 	// If we're going for world conquest, have to keep any capitals we get
@@ -391,12 +389,19 @@ void CvPlayerAI::AI_conquerCity(CvCity* pCity, PlayerTypes ePlayerToLiberate, bo
 			pCity->DoCreatePuppet();
 			return;
 		}
-
-		if (GetExcessHappiness() < 40) // 40 as a buffer, if a little unhappy it's fine to take a city
+#if defined(MOD_BALANCE_CORE_HAPPINESS)
+		if (GetExcessHappiness() < GC.getAI_MOSTLY_HAPPY_THRESHOLD()) // (default) 40 as a buffer, if a little unhappy it's fine to take a city
 		{
 			pCity->DoCreatePuppet();
 			return;
 		}
+#else
+		if (IsEmpireUnhappy())
+		{
+			pCity->DoCreatePuppet();
+			return;
+		}
+#endif
 
 		if (bCanAnnex)
 		{
@@ -407,7 +412,7 @@ void CvPlayerAI::AI_conquerCity(CvCity* pCity, PlayerTypes ePlayerToLiberate, bo
 				return;
 			}
 
-			if (iCityValue >= 60)
+			if (bHighValue)
 			{
 				pCity->DoAnnex();
 				return;
@@ -440,7 +445,7 @@ void CvPlayerAI::AI_conquerCity(CvCity* pCity, PlayerTypes ePlayerToLiberate, bo
 
 		// ONE EXCEPTION, civs with bonuses for puppeting will consider puppeting cities they otherwise would have razed
 		// if the city is ok-ish value and they aren't in revolt
-		if ((GetPlayerPolicies()->GetNumericModifier(POLICYMOD_PUPPET_BONUS) > 0 || GetPlayerTraits()->IsNoAnnexing()) && iCityValue >= 10 && !IsEmpireVeryUnhappy())
+		if ((GetPlayerPolicies()->GetNumericModifier(POLICYMOD_PUPPET_BONUS) > 0 || GetPlayerTraits()->IsNoAnnexing()) && iCityValue >= GC.getAI_CITY_SOME_VALUE_THRESHOLD() && !IsEmpireVeryUnhappy())
 		{
 			pCity->DoCreatePuppet();
 			return;
