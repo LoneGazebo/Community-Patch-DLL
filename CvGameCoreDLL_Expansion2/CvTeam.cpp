@@ -1352,7 +1352,7 @@ void CvTeam::DoDeclareWar(PlayerTypes eOriginatingPlayer, bool bAggressor, TeamT
 		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
 		if (GET_PLAYER(eLoopPlayer).getTeam() == m_eID && GET_PLAYER(eLoopPlayer).isAlive())
 		{
-			for (int iTargetLoop = 0; iTargetLoop < MAX_MAJOR_CIVS; iTargetLoop++)
+			for (int iTargetLoop = 0; iTargetLoop < MAX_CIV_PLAYERS; iTargetLoop++)
 			{
 				PlayerTypes eLoopTarget = (PlayerTypes) iTargetLoop;
 				if (GET_PLAYER(eLoopTarget).getTeam() == eTeam && GET_PLAYER(eLoopTarget).isAlive())
@@ -1360,6 +1360,7 @@ void CvTeam::DoDeclareWar(PlayerTypes eOriginatingPlayer, bool bAggressor, TeamT
 					if (GET_PLAYER(eLoopPlayer).isMajorCiv())
 					{
 						CvDiplomacyAI* pDiplo = GET_PLAYER(eLoopPlayer).GetDiplomacyAI();
+						pDiplo->SetWarProgressScore(eLoopTarget, /*100*/ GC.getWAR_PROGRESS_INITIAL_VALUE());
 
 						if (bAggressor && !bDefensivePact)
 						{
@@ -1393,6 +1394,7 @@ void CvTeam::DoDeclareWar(PlayerTypes eOriginatingPlayer, bool bAggressor, TeamT
 					if (GET_PLAYER(eLoopTarget).isMajorCiv())
 					{
 						CvDiplomacyAI* pDiplo = GET_PLAYER(eLoopTarget).GetDiplomacyAI();
+						pDiplo->SetWarProgressScore(eLoopPlayer, /*100*/ GC.getWAR_PROGRESS_INITIAL_VALUE());
 
 						if (GET_PLAYER(eLoopPlayer).isMajorCiv())
 						{

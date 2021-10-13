@@ -109,6 +109,7 @@ void CvDiplomacyAI::Reset()
 	// Other Global Memory
 	m_bWasHumanLastTurn = false;
 	m_bEndedFriendshipThisTurn = false;
+	m_bUpdatedWarProgressThisTurn = false;
 	m_bBackstabber = false;
 	m_bCompetingForVictory = false;
 	m_eDefaultVictoryFocus = NO_VICTORY_FOCUS_TYPE;
@@ -444,6 +445,7 @@ void CvDiplomacyAI::Serialize(DiplomacyAI& diplomacyAI, Visitor& visitor)
 	// Other Global Memory
 	visitor(diplomacyAI.m_bWasHumanLastTurn);
 	visitor(diplomacyAI.m_bEndedFriendshipThisTurn);
+	visitor(diplomacyAI.m_bUpdatedWarProgressThisTurn);
 	visitor(diplomacyAI.m_bBackstabber);
 	visitor(diplomacyAI.m_bCompetingForVictory);
 	visitor(diplomacyAI.m_eDefaultVictoryFocus);
@@ -7026,6 +7028,16 @@ void CvDiplomacyAI::SetEndedFriendshipThisTurn(bool bValue)
 	m_bEndedFriendshipThisTurn = bValue;
 }
 
+bool CvDiplomacyAI::UpdatedWarProgressThisTurn() const
+{
+	return m_bUpdatedWarProgressThisTurn;
+}
+
+void CvDiplomacyAI::SetUpdatedWarProgressThisTurn(bool bValue)
+{
+	m_bUpdatedWarProgressThisTurn = bValue;
+}
+
 /// Are we avoiding deals? Temporary non-serialized value, used to avoid constant iterating over players...
 bool CvDiplomacyAI::IsAvoidDeals() const
 {
@@ -7512,8 +7524,6 @@ void CvDiplomacyAI::DoTurn(DiplomacyMode eDiploMode, PlayerTypes ePlayer)
 	m_eDiploMode = eDiploMode;
 	m_eTargetPlayer = ePlayer;
 
-	SetEndedFriendshipThisTurn(false);
-
 	// Test if human or AI, reset values accordingly
 	SlotStateChange();
 
@@ -7537,6 +7547,7 @@ void CvDiplomacyAI::DoTurn(DiplomacyMode eDiploMode, PlayerTypes ePlayer)
 	DoUpdateWarStates();
 	DoUpdatePlayerMilitaryStrengths();
 	DoUpdatePlayerEconomicStrengths();
+	DoUpdateWarProgressScores();
 	DoUpdateWarmongerThreats();
 	DoUpdatePlayerTargetValues();
 	GetPlayer()->cacheAvgGoldRate();
@@ -9665,6 +9676,43 @@ void CvDiplomacyAI::DoUpdatePlayerEconomicStrengths()
 
 			// Set the value
 			SetPlayerEconomicStrengthComparedToUs(ePlayer, eEconomicStrength);
+		}
+	}
+}
+
+/// Updates war progress scores (per turn decay)
+void CvDiplomacyAI::DoUpdateWarProgressScores()
+{
+	if (UpdatedWarProgressThisTurn())
+		return;
+
+	for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+	{
+		PlayerTypes ePlayer = (PlayerTypes) iPlayerLoop;
+
+		if (IsPlayerValid(ePlayer))
+		{
+			StrengthTypes eMilitaryStrength = GetPlayerMilitaryStrengthComparedToUs(ePlayer);
+			if (eMilitaryStrength > STRENGTH_AVERAGE)
+			{
+				ChangeWarProgressScore(ePlayer, /*-5*/ GC.getWAR_PROGRESS_DECAY_VS_STRONGER());
+			}
+			else if (eMilitaryStrength < STRENGTH_AVERAGE)
+			{
+				ChangeWarProgressScore(ePlayer, /*-3*/ GC.getWAR_PROGRESS_DECAY_VS_WEAKER());
+			}
+			else
+			{
+				ChangeWarProgressScore(ePlayer, /*-4*/ GC.getWAR_PROGRESS_DECAY_VS_EQUAL());
+			}
+		}
+		else if (GET_PLAYER(ePlayer).isAlive())
+		{
+			SetWarProgressScore(ePlayer, /*100*/ GC.getWAR_PROGRESS_INITIAL_VALUE());
+		}
+		else
+		{
+			SetWarProgressScore(ePlayer, 0);
 		}
 	}
 }
@@ -23164,6 +23212,7 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 		int iTheirDanger = 0;
 		bool bSeriousDangerUs = false;
 		bool bSeriousDangerThem = false;
+		bool bAnyOpponentCityEndangered = false;
 		ReligionTypes eMyReligion = GetPlayer()->GetReligions()->GetCurrentReligion(false);	
 		ReligionTypes eTheirReligion = GET_PLAYER(*it).GetReligions()->GetCurrentReligion(false);
 		vector<PlayerTypes> vOurWarAllies = GetPlayer()->GetWarAllies(*it);
@@ -23242,6 +23291,9 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 						bSeriousDangerThem = true;
 					}
 				}
+
+				if (iDangerMod > 1)
+					bAnyOpponentCityEndangered = true;
 
 				if (pLoopCity->isCapital())
 					iDangerMod *= 3;
@@ -23425,6 +23477,93 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 				pLog->Msg(strBaseString);
 			}
 			continue;
+		}
+
+		// Test war progress score: if sufficiently negative, AI will agree to make white peace (at minimum)
+		// But ignore this if opponent's cities are endangered
+		if (!bAnyOpponentCityEndangered || iWarDuration >= 40)
+		{
+			int iWarProgress = GetWarProgressScore(*it);
+
+			// Adjust for unhappiness/war weariness
+			if (MOD_BALANCE_CORE_HAPPINESS)
+			{
+				iWarProgress -= GetPlayer()->GetCulture()->GetWarWeariness();
+
+				int iHappiness = GetPlayer()->GetExcessHappiness();
+				if (iHappiness < 50)
+				{
+					iWarProgress += (50 - iHappiness) * /*-2*/ GC.getWAR_PROGRESS_PER_UNHAPPY();
+				}
+			}
+			else if (GetPlayer()->GetExcessHappiness() < 0)
+				iWarProgress -= GetPlayer()->GetExcessHappiness() * /*-2*/ GC.getWAR_PROGRESS_PER_UNHAPPY();
+
+			// Adjust for strategic resource shortages
+			int iStrategicDeficit = 0;
+			int iMaxStrategicDeficit = -50;
+
+			for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+			{
+				ResourceTypes eResource = (ResourceTypes) iResourceLoop;
+				if (eResource == NO_RESOURCE)
+					continue;
+
+				const CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
+				if (pkResourceInfo == NULL)
+					continue;
+
+				if (pkResourceInfo->getResourceUsage() != RESOURCEUSAGE_STRATEGIC)
+					continue;
+
+				if (GetPlayer()->getResourceShortageValue(eResource) > 0)
+					iStrategicDeficit += GetPlayer()->getResourceShortageValue(eResource) * /*-5*/ GC.getWAR_PROGRESS_PER_STRATEGIC_DEFICIT();
+
+				if (iStrategicDeficit <= iMaxStrategicDeficit)
+					break;
+			}
+
+			iWarProgress += max(iStrategicDeficit, iMaxStrategicDeficit);
+
+			if (iWarProgress <= 0)
+			{
+				vMakePeacePlayers.push_back(*it);
+				if (bLog)
+				{
+					CvString strOutBuf;
+					CvString strBaseString;
+					CvString playerName;
+					CvString otherPlayerName;
+					CvString strLogName;
+
+					// Find the name of this civ and city
+					playerName = m_pPlayer->getCivilizationShortDescription();
+
+					// Open the log file
+					if (GC.getPlayerAndCityAILogSplit())
+					{
+						strLogName = "DiplomacyAI_Peace_Log" + playerName + ".csv";
+					}
+					else
+					{
+						strLogName = "DiplomacyAI_Peace_Log.csv";
+					}
+
+					FILogFile* pLog;
+					pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
+
+					// Get the leading info for this line
+					strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
+					otherPlayerName = GET_PLAYER(*it).getCivilizationShortDescription();
+					strBaseString += playerName + " VS. " + otherPlayerName;
+
+					strOutBuf.Format("Automatic peace offer: None of their cities are strongly endangered and we're making no progress in this war!");
+
+					strBaseString += strOutBuf;
+					pLog->Msg(strBaseString);
+				}
+				continue;
+			}
 		}
 
 		if (GET_TEAM(GET_PLAYER(*it).getTeam()).canBecomeVassal(GetTeam()))
@@ -23624,7 +23763,7 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 		}
 		else if (GetPlayer()->GetPositiveWarScoreTourismMod() <= 0 || GET_PLAYER(GetHighestWarscorePlayer()).getTeam() != GET_PLAYER(*it).getTeam())
 		{
-			iPeaceScore += iWarScore / -5;
+			iPeaceScore += iWarScore / 5;
 			bProlong = false;
 		}
 
@@ -23692,17 +23831,13 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 				iOurMultiplier++;
 			}
 		}
-		if (GET_PLAYER(*it).GetDiplomacyAI()->GetStateAllWars() != STATE_ALL_WARS_LOSING || GetWarState(*it) == WAR_STATE_NEARLY_DEFEATED)
+		if (GET_PLAYER(*it).GetDiplomacyAI()->GetStateAllWars() != STATE_ALL_WARS_LOSING)
 		{
 			if (GET_PLAYER(*it).GetDiplomacyAI()->IsEasyTarget(GetID()))
 			{
 				iTheirMultiplier++;
 			}
 			if (GetPlayer()->GetMilitaryAI()->IsExposedToEnemy(NULL, *it))
-			{
-				iTheirMultiplier++;
-			}
-			if (GetWarState(*it) == WAR_STATE_NEARLY_DEFEATED)
 			{
 				iTheirMultiplier++;
 			}
@@ -26314,8 +26449,12 @@ void CvDiplomacyAI::DoWeMadePeaceWithSomeone(TeamTypes eOtherTeam)
 			SetArmyInPlaceForAttack(ePeacePlayer, false);
 			SetWantsSneakAttack(ePeacePlayer, false);
 
-			// Reset aggressor status
+			// Reset values specific to this war
 			SetAggressor(ePeacePlayer, false);
+			SetWarProgressScore(ePeacePlayer, 0);
+
+			// Reset number of turns locked into war
+			GET_TEAM(GetTeam()).SetNumTurnsLockedIntoWar(GET_PLAYER(ePeacePlayer).getTeam(), 0);
 
 			if (GET_PLAYER(ePeacePlayer).isMajorCiv())
 			{
@@ -26333,9 +26472,6 @@ void CvDiplomacyAI::DoWeMadePeaceWithSomeone(TeamTypes eOtherTeam)
 				// Reset flags for taunt messages we sent to other civs about attacking this minor
 				ResetSentAttackProtectedMinorTaunts(ePeacePlayer);
 			}
-
-			// Reset number of turns locked into war
-			GET_TEAM(GetTeam()).SetNumTurnsLockedIntoWar(GET_PLAYER(ePeacePlayer).getTeam(), 0);
 		}
 	}
 

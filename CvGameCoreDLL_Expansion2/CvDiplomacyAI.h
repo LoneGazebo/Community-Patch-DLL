@@ -894,6 +894,9 @@ public:
 	bool HasEndedFriendshipThisTurn() const;
 	void SetEndedFriendshipThisTurn(bool bValue);
 
+	bool UpdatedWarProgressThisTurn() const;
+	void SetUpdatedWarProgressThisTurn(bool bValue);
+
 	bool IsAvoidDeals() const;
 	void SetAvoidDeals(bool bValue);
 
@@ -1037,6 +1040,8 @@ public:
 
 	void DoUpdatePlayerMilitaryStrengths();
 	void DoUpdatePlayerEconomicStrengths();
+
+	void DoUpdateWarProgressScores();
 
 	void DoUpdateWarmongerThreats(bool bUpdateOnly = false);
 
@@ -1845,6 +1850,7 @@ private:
 	bool m_bAvoidDeals; // Not serialized!
 	bool m_bWasHumanLastTurn;
 	bool m_bEndedFriendshipThisTurn;
+	bool m_bUpdatedWarProgressThisTurn;
 	bool m_bBackstabber;
 	bool m_bCompetingForVictory;
 	VictoryFocusTypes m_eDefaultVictoryFocus;

@@ -5096,6 +5096,9 @@ bool CvPlayerTrade::PlunderTradeRoute(int iTradeConnectionID, CvUnit* pUnit)
 				GET_PLAYER(eOwningPlayer).ChangeWarValueLost(m_pPlayer->GetID(), iValue);
 			}
 
+			m_pPlayer->GetDiplomacyAI()->ChangeWarProgressScore(eOwningPlayer, /*10*/ GC.getWAR_PROGRESS_PLUNDERED_TRADE_ROUTE());
+			GET_PLAYER(eOwningPlayer).GetDiplomacyAI()->ChangeWarProgressScore(m_pPlayer->GetID(), /*-5*/ GC.getWAR_PROGRESS_LOST_TRADE_ROUTE());
+
 			// Diplo penalty with destination civ if not at war
 			if (eOwningPlayer != eDestPlayer && !GET_TEAM(m_pPlayer->getTeam()).isAtWar(eDestTeam))
 			{

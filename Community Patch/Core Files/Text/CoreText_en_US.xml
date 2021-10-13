@@ -2915,6 +2915,11 @@
 		<Row Tag="TXT_KEY_DIPLO_UNTRUSTWORTHY_FRIEND">
 			<Text>We are completely untrustworthy to them.</Text>
 		</Row>
+
+		<!-- Opinion Indicator If Coop War Agreed To Against Them -->
+		<Row Tag="TXT_KEY_DIPLO_COOP_WAR_AGAINST_TURNS">
+			<Text>We declare war on them in {1_Num} more turn(s).</Text>
+		</Row>
 		
 		<!-- Base Opinion Mod -->
 		<Row Tag="TXT_KEY_DIPLO_VERY_GOOD_BASE_OPINION">

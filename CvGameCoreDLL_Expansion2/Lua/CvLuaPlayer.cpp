@@ -12571,32 +12571,71 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 
 	if (!bObserver)
 	{
-		// Gone to war in the past?
-		// Do not display this if AI is passive or a vassal/master of the player
-		if (!pDiplo->IsAtWar(ePlayer) && pDiplo->GetNumWarsFought(ePlayer) > 0 && (bHuman || (!pDiplo->IsVassal(ePlayer) && !pDiplo->IsMaster(ePlayer) && !GC.getGame().IsAIPassiveTowardsHumans())))
+		if (!pDiplo->IsAtWar(ePlayer))
 		{
-			Opinion kOpinion;
-			kOpinion.m_iValue = 0;
-			CvString str;
+			// Remind humans if they've agreed to a coop war against this player
+			if (GET_PLAYER(ePlayer).GetDiplomacyAI()->GetGlobalCoopWarAgainstState(pkPlayer->GetID()) == COOP_WAR_STATE_PREPARING)
+			{
+				Opinion kOpinion;
+				kOpinion.m_iValue = 0;
 
-			if (bHuman || GC.getGame().IsDiploDebugModeEnabled())
-			{
-				str = Localization::Lookup("TXT_KEY_DIPLO_PAST_WAR_BAD").toUTF8();
+				int iGameTurn = GC.getGame().getGameTurn();
+				int iHighestTurnDifference = 0;
+
+				for (int iThirdPartyLoop = 0; iThirdPartyLoop < MAX_MAJOR_CIVS; iThirdPartyLoop++)
+				{
+					PlayerTypes eThirdParty = (PlayerTypes) iThirdPartyLoop;
+
+					if (!GET_PLAYER(eThirdParty).isAlive())
+						continue;
+
+					if (GET_PLAYER(eThirdParty).getTeam() == pkPlayer->getTeam())
+						continue;
+
+					if (!GET_PLAYER(ePlayer).GetDiplomacyAI()->IsHasMet(eThirdParty, true))
+						continue;
+
+					if (GET_PLAYER(ePlayer).GetDiplomacyAI()->GetCoopWarState(eThirdParty, pkPlayer->GetID()) != COOP_WAR_STATE_PREPARING)
+						continue;
+
+					int iTurnDifference = iGameTurn - GET_PLAYER(ePlayer).GetDiplomacyAI()->GetCoopWarStateChangeTurn(eThirdParty, pkPlayer->GetID());
+					if (iTurnDifference > iHighestTurnDifference)
+					{
+						iHighestTurnDifference = iTurnDifference;
+					}
+				}
+
+				kOpinion.m_str = GetLocalizedText("TXT_KEY_DIPLO_COOP_WAR_AGAINST_TURNS", 10 - iHighestTurnDifference);
+				aOpinions.push_back(kOpinion);
 			}
-			else
+
+			// Gone to war in the past?
+			// Do not display this if AI is passive or a vassal/master of the player
+			if (pDiplo->GetNumWarsFought(ePlayer) > 0 && (bHuman || (!pDiplo->IsVassal(ePlayer) && !pDiplo->IsMaster(ePlayer) && !GC.getGame().IsAIPassiveTowardsHumans())))
 			{
-				if (pDiplo->IsActHostileTowardsHuman(ePlayer))
+				Opinion kOpinion;
+				kOpinion.m_iValue = 0;
+				CvString str;
+
+				if (bHuman || GC.getGame().IsDiploDebugModeEnabled())
 				{
 					str = Localization::Lookup("TXT_KEY_DIPLO_PAST_WAR_BAD").toUTF8();
 				}
 				else
 				{
-					str = Localization::Lookup("TXT_KEY_DIPLO_PAST_WAR_NEUTRAL").toUTF8();
+					if (pDiplo->IsActHostileTowardsHuman(ePlayer))
+					{
+						str = Localization::Lookup("TXT_KEY_DIPLO_PAST_WAR_BAD").toUTF8();
+					}
+					else
+					{
+						str = Localization::Lookup("TXT_KEY_DIPLO_PAST_WAR_NEUTRAL").toUTF8();
+					}
 				}
-			}
 
-			kOpinion.m_str = str;
-			aOpinions.push_back(kOpinion);
+				kOpinion.m_str = str;
+				aOpinions.push_back(kOpinion);
+			}
 		}
 
 		// Special indicators
