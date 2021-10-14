@@ -30,6 +30,7 @@
 !*.modinfo
 !*.civ5sln
 !*.civ5proj
+!*.Civ5Pkg
 
 !*.py
 !*.inl
