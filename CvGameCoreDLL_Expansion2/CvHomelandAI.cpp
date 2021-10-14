@@ -1314,10 +1314,10 @@ void CvHomelandAI::ExecutePatrolMoves()
 void CvHomelandAI::PlotUpgradeMoves()
 {
 	ClearCurrentMoveUnits(AI_HOMELAND_MOVE_UPGRADE);
-	for(list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it)
+	int iLoop;
+	for (CvUnit* pUnit = m_pPlayer->firstUnit(&iLoop); pUnit != NULL; pUnit = m_pPlayer->nextUnit(&iLoop))
 	{
 		// Don't try and upgrade a human player's unit or one already recruited for an operation
-		CvUnit* pUnit = m_pPlayer->getUnit(*it);
 
 		if(pUnit && !pUnit->isHuman() && pUnit->getArmyID() == -1)
 		{
