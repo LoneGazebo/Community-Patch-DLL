@@ -73,6 +73,21 @@ bool CvTradedItem::operator==(const CvTradedItem& rhs) const
 	        m_iFinalTurn == rhs.m_iFinalTurn);
 }
 
+bool CvTradedItem::IsTwoSided() const
+{
+	switch (m_eItemType)
+	{
+	//these only make sense if both sides include them in the deal
+	case TRADE_ITEM_DEFENSIVE_PACT:
+	case TRADE_ITEM_DECLARATION_OF_FRIENDSHIP:
+	case TRADE_ITEM_PEACE_TREATY:
+	case TRADE_ITEM_RESEARCH_AGREEMENT:
+		return true;
+	default:
+		return false;
+	}
+}
+
 template<typename TradedItem, typename Visitor>
 void CvTradedItem::Serialize(TradedItem& tradedItem, Visitor& visitor)
 {
@@ -2212,10 +2227,11 @@ bool CvDeal::IsPotentiallyRenewable()
 }
 
 /// Delete all items from a given player
-void CvDeal::RemoveAllByPlayer(PlayerTypes eOffering)
+bool CvDeal::RemoveAllByPlayer(PlayerTypes eOffering)
 {
 	//have to do this in a nested fashion to avoid invalidating the iterator
 	bool bFound = false;
+	bool bChange = false;
 	do
 	{
 		bFound = false;
@@ -2223,15 +2239,19 @@ void CvDeal::RemoveAllByPlayer(PlayerTypes eOffering)
 		TradedItemList::iterator it;
 		for (it = m_TradedItems.begin(); it != m_TradedItems.end(); ++it)
 		{
-			if (eOffering == it->m_eFromPlayer)
+			//do not remove items which need to be on both sides to make sense
+			if (eOffering == it->m_eFromPlayer && !it->IsTwoSided())
 			{
 				m_TradedItems.erase(it);
 				bFound = true;
+				bChange = true;
 				break;
 			}
 		}
 	}
 	while (bFound);
+
+	return bChange;
 }
 
 /// Delete a SINGLE trade item that can be identified by type alone
