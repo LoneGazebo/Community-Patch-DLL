@@ -57,6 +57,7 @@ struct CvTradedItem
 
 	template<typename TradedItem, typename Visitor>
 	static void Serialize(TradedItem& tradedItem, Visitor& visitor);
+	bool IsTwoSided() const;
 
 	TradeableItems m_eItemType;		// What type of item is this
 	int m_iDuration;
@@ -266,7 +267,8 @@ public:
 	static DealRenewStatus GetItemTradeableState(TradeableItems eItem);
 	bool IsPotentiallyRenewable();
 
-	void RemoveAllByPlayer(PlayerTypes eFrom);
+	//return true if anything was removed
+	bool RemoveAllByPlayer(PlayerTypes eFrom);
 	void RemoveByType(TradeableItems eType, PlayerTypes eFrom = NO_PLAYER);
 	void RemoveResourceTrade(ResourceTypes eResource);
 	void RemoveCityTrade(PlayerTypes eFrom, int iCityID);

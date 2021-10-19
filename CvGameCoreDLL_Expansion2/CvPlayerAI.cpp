@@ -1692,9 +1692,9 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveProphet(CvUnit* pUnit)
 	}
 
 	// CASE 2: I have a religion that hasn't yet been enhanced
-	else if (pMyReligion)
+	else if (pMyReligion && pMyReligion->GetHolyCity()->getOwner() == pUnit->getOwner())
 	{
-		//always enhance
+		//always enhance (if we still own the holy city)
 		eDirective = GREAT_PEOPLE_DIRECTIVE_USE_POWER;
 	}
 

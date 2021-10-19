@@ -10842,17 +10842,9 @@ bool CvUnit::construct(BuildingTypes eBuilding)
 bool CvUnit::CanFoundReligion(const CvPlot* pPlot) const
 {
 	VALIDATE_OBJECT
-	CvCity* pCity;
 	CvGameReligions* pReligions = GC.getGame().GetGameReligions();
 
-	pCity = pPlot->getPlotCity();
-
 	if(!m_pUnitInfo->IsFoundReligion())
-	{
-		return false;
-	}
-
-	if(pCity == NULL)
 	{
 		return false;
 	}
@@ -10862,7 +10854,7 @@ bool CvUnit::CanFoundReligion(const CvPlot* pPlot) const
 		return false;
 	}
 
-	if(getTeam() != pCity->getTeam())
+	if(pPlot==NULL || !pPlot->isCity() || getTeam() != pPlot->getTeam())
 	{
 		return false;
 	}
@@ -10891,6 +10883,7 @@ bool CvUnit::CanFoundReligion(const CvPlot* pPlot) const
 	}
 
 #if defined(MOD_EVENTS_FOUND_RELIGION)
+	CvCity* pCity = pPlot->getPlotCity();
 	if (MOD_EVENTS_FOUND_RELIGION ) {
 		if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_PlayerCanFoundReligion, getOwner(), pCity->GetID()) == GAMEEVENTRETURN_FALSE) {
 			return false;
@@ -11042,10 +11035,7 @@ bool CvUnit::DoFoundReligion()
 bool CvUnit::CanEnhanceReligion(const CvPlot* pPlot) const
 {
 	VALIDATE_OBJECT
-	CvCity* pCity;
 	CvGameReligions* pReligions = GC.getGame().GetGameReligions();
-
-	pCity = pPlot->getPlotCity();
 
 	if(!m_pUnitInfo->IsFoundReligion())
 	{
@@ -11058,12 +11048,7 @@ bool CvUnit::CanEnhanceReligion(const CvPlot* pPlot) const
 		return false;
 	}
 
-	if(pCity == NULL)
-	{
-		return false;
-	}
-
-	if(getTeam() != pCity->getTeam())
+	if(pPlot == NULL || !pPlot->isCity() || getTeam() != pPlot->getTeam())
 	{
 		return false;
 	}

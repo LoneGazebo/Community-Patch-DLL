@@ -1035,9 +1035,8 @@ bool CvDealAI::DoEqualizeDealWithHuman(CvDeal* pDeal, PlayerTypes eOtherPlayer, 
 			}
 
 			// if we still don't have a deal, try to equalize with GPT only (may have been to greedy with other picks)
-			if (!bMakeOffer)
+			if (!bMakeOffer && pCounterDeal->RemoveAllByPlayer(eOtherPlayer))
 			{
-				pCounterDeal->RemoveAllByPlayer(eOtherPlayer);
 				iTotalValue = GetDealValue(pDeal);
 
 				//first try rounding up the GPT amount (better for us)
