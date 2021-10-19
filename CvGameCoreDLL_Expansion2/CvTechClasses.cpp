@@ -1840,7 +1840,7 @@ int CvPlayerTechs::GetResearchCost(TechTypes eTech) const
 		iCityCountMod *= m_pPlayer->GetNumEffectiveCities(/*bIncludePuppets*/ true);
 	}
 #else
-	iMod *= m_pPlayer->GetNumEffectiveCities(/*bIncludePuppets*/ true);
+	iCityCountMod *= m_pPlayer->GetNumEffectiveCities(/*bIncludePuppets*/ true);
 #endif
 
 	//apply the modifiers

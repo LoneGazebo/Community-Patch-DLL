@@ -1019,6 +1019,7 @@ void CvDiplomacyAI::SlotStateChange()
 				SetCivStrategicApproach(eLoopPlayer, CIV_APPROACH_NEUTRAL);
 
 				// Reset AI-only values
+				SetRecentAssistValue(eLoopPlayer, 0);
 				SetWantsDoFWithPlayer(eLoopPlayer, false);
 				SetWantsToEndDoFWithPlayer(eLoopPlayer, false);
 				SetWantsDefensivePactWithPlayer(eLoopPlayer, false);
@@ -2923,8 +2924,7 @@ void CvDiplomacyAI::SetDoFAccepted(PlayerTypes ePlayer, bool bValue)
 
 				if (IsPlayerValid(eThirdParty, true) && eThirdParty != GetID())
 				{
-					CoopWarStates eCoopWarState = GetCoopWarState(eThirdParty, ePlayer);
-					if (eCoopWarState == COOP_WAR_STATE_PREPARING || eCoopWarState == COOP_WAR_STATE_READY)
+					if (GetCoopWarState(eThirdParty, ePlayer) == COOP_WAR_STATE_PREPARING)
 					{
 						GET_PLAYER(eThirdParty).GetDiplomacyAI()->SetPlayerBrokenCoopWarPromise(GetID(), true);
 						GET_PLAYER(eThirdParty).GetDiplomacyAI()->ChangeCoopWarScore(GetID(), -2);
@@ -3327,6 +3327,10 @@ void CvDiplomacyAI::SetRecentAssistValue(PlayerTypes ePlayer, int iValue)
 
 void CvDiplomacyAI::ChangeRecentAssistValue(PlayerTypes ePlayer, int iChange, bool bDecay)
 {
+	// Humans can handle their own diplomacy.
+	if (GetPlayer()->isHuman())
+		return;
+
 	if (!bDecay)
 	{
 		// Don't care if we're at war.
@@ -3369,7 +3373,7 @@ CoopWarStates CvDiplomacyAI::GetCoopWarState(PlayerTypes eAllyPlayer, PlayerType
 	return (CoopWarStates) m_aaeCoopWarState[eAllyPlayer][eTargetPlayer];
 }
 
-void CvDiplomacyAI::SetCoopWarState(PlayerTypes eAllyPlayer, PlayerTypes eTargetPlayer, CoopWarStates eNewState)
+void CvDiplomacyAI::SetCoopWarState(PlayerTypes eAllyPlayer, PlayerTypes eTargetPlayer, CoopWarStates eNewState, bool bSkipLogging)
 {
 	if (eAllyPlayer < 0 || eAllyPlayer >= MAX_MAJOR_CIVS) return;
 	if (eTargetPlayer < 0 || eTargetPlayer >= MAX_MAJOR_CIVS) return;
@@ -3414,21 +3418,18 @@ void CvDiplomacyAI::SetCoopWarState(PlayerTypes eAllyPlayer, PlayerTypes eTarget
 			SetCoopWarStateChangeTurn(eAllyPlayer, eTargetPlayer, -1);
 		}
 
-		LogCoopWar(eAllyPlayer, eTargetPlayer, eNewState);
+		if (!bSkipLogging)
+			LogCoopWar(eAllyPlayer, eTargetPlayer, eNewState);
 	}
 }
 
 /// Are we locked into a war with ePlayer?
 bool CvDiplomacyAI::IsLockedIntoCoopWar(PlayerTypes ePlayer) const
 {
-	if (!IsAtWar(ePlayer))
-		return false;
-
 	if (GET_TEAM(GetTeam()).GetNumTurnsLockedIntoWar(GET_PLAYER(ePlayer).getTeam()) > 0)
 		return true;
 
-	CoopWarStates eCoopWarState = GetGlobalCoopWarAgainstState(ePlayer);
-	if (eCoopWarState == COOP_WAR_STATE_PREPARING || eCoopWarState == COOP_WAR_STATE_READY)
+	if (GetGlobalCoopWarAgainstState(ePlayer) == COOP_WAR_STATE_PREPARING)
 		return true;
 
 	return false;
@@ -4301,11 +4302,8 @@ void CvDiplomacyAI::ChangeOtherPlayerNumMajorsAttacked(PlayerTypes ePlayer, int 
 					return;
 			}
 
-			CoopWarStates eCoopWarState = GetCoopWarState(ePlayer, eAttackedPlayer);
-			if (eCoopWarState >= COOP_WAR_STATE_PREPARING)
-			{
+			if (IsLockedIntoCoopWar(eAttackedPlayer))
 				return;
-			}
 		}
 	}
 
@@ -7774,7 +7772,7 @@ void CvDiplomacyAI::DoUpdateCoopWarStates()
 
 			CoopWarStates eCoopWarState = GetCoopWarState(eLoopPlayer, eThirdParty);
 			int iTurn = GetCoopWarStateChangeTurn(eLoopPlayer, eThirdParty);
-			if (iTurn < 0 || eCoopWarState == NO_COOP_WAR_STATE)
+			if (iTurn < 0 || eCoopWarState == NO_COOP_WAR_STATE || eCoopWarState == COOP_WAR_STATE_ONGOING)
 				continue;
 
 			int iTurnDifference = iGameTurn - iTurn;
@@ -7792,23 +7790,8 @@ void CvDiplomacyAI::DoUpdateCoopWarStates()
 				{
 					if (iTurnDifference >= 10)
 					{
-						SetCoopWarState(eLoopPlayer, eThirdParty, COOP_WAR_STATE_READY);
-						GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->SetCoopWarState(GetID(), eThirdParty, COOP_WAR_STATE_READY);
-						eCoopWarState = COOP_WAR_STATE_READY;
+						DoStartCoopWar(eLoopPlayer, eThirdParty);
 					}
-				}
-				else
-				{
-					SetCoopWarState(eLoopPlayer, eThirdParty, NO_COOP_WAR_STATE);
-					GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->SetCoopWarState(GetID(), eThirdParty, NO_COOP_WAR_STATE);
-				}
-			}
-
-			if (eCoopWarState == COOP_WAR_STATE_READY)
-			{
-				if (CanStartCoopWar(eLoopPlayer, eThirdParty))
-				{
-					DoStartCoopWar(eLoopPlayer, eThirdParty);
 				}
 				else
 				{
@@ -7824,8 +7807,7 @@ void CvDiplomacyAI::DoUpdateCoopWarStates()
 bool CvDiplomacyAI::CanStartCoopWar(PlayerTypes eAllyPlayer, PlayerTypes eTargetPlayer)
 {
 	// Do we even have a coop war plan to begin with?
-	CoopWarStates eCoopWarState = GetCoopWarState(eAllyPlayer, eTargetPlayer);
-	if (eCoopWarState != COOP_WAR_STATE_PREPARING && eCoopWarState != COOP_WAR_STATE_READY)
+	if (GetCoopWarState(eAllyPlayer, eTargetPlayer) != COOP_WAR_STATE_PREPARING)
 		return false;
 
 	// If we somehow got here and we're at war with our ally or our friendship was broken, no dice. (failsafe)
@@ -14300,25 +14282,20 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	}
 
 	// Loop through all (known) Players - did we agree to go to war with this player against someone else?
-	bool bCoopWarSoon = false;
+	bool bCoopWar = false;
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
 		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
 
-		if (IsPlayerValid(eLoopPlayer))
+		if (IsPlayerValid(eLoopPlayer) && GetCoopWarState(ePlayer, eLoopPlayer) >= COOP_WAR_STATE_PREPARING)
 		{
-			CoopWarStates eCoopWarState = GetCoopWarState(ePlayer, eLoopPlayer);
+			bCoopWar = true;
+			int iStrengthMod = (int)GetPlayerMilitaryStrengthComparedToUs(eLoopPlayer) - 2;
 
-			if (eCoopWarState >= COOP_WAR_STATE_PREPARING)
-			{
-				bCoopWarSoon = true;
-				int iStrengthMod = (int)GetPlayerMilitaryStrengthComparedToUs(eLoopPlayer) - 2;
-
-				vApproachScores[CIV_APPROACH_FRIENDLY] += iStrengthMod > 0 ? vApproachBias[CIV_APPROACH_FRIENDLY] * iStrengthMod : vApproachBias[CIV_APPROACH_FRIENDLY];
-			}
+			vApproachScores[CIV_APPROACH_FRIENDLY] += iStrengthMod > 0 ? vApproachBias[CIV_APPROACH_FRIENDLY] * iStrengthMod : vApproachBias[CIV_APPROACH_FRIENDLY];
 		}
 	}
-	if (bCoopWarSoon)
+	if (bCoopWar)
 	{
 		vApproachScores[CIV_APPROACH_WAR] = 0;
 		vApproachScores[CIV_APPROACH_HOSTILE] = 0;
@@ -37178,21 +37155,19 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 		// Human agrees
 		else if (iArg1 == 3 || iArg1 == 4)
 		{
+			ChangeRecentAssistValue(eFromPlayer, -300);
+
 			// Human says he needs to prepare
 			if (iArg1 == 3)
 			{
 				SetCoopWarState(eFromPlayer, eTargetPlayer, COOP_WAR_STATE_PREPARING);
 				GET_PLAYER(eFromPlayer).GetDiplomacyAI()->SetCoopWarState(GetID(), eTargetPlayer, COOP_WAR_STATE_PREPARING);
-				ChangeRecentAssistValue(eFromPlayer, -300);
-				GET_PLAYER(eFromPlayer).GetDiplomacyAI()->ChangeRecentAssistValue(GetID(), -300);
 			}
 			// Human agrees to war immediately
 			else
 			{
-				SetCoopWarState(eFromPlayer, eTargetPlayer, COOP_WAR_STATE_READY);
-				GET_PLAYER(eFromPlayer).GetDiplomacyAI()->SetCoopWarState(GetID(), eTargetPlayer, COOP_WAR_STATE_READY);
-				ChangeRecentAssistValue(eFromPlayer, -300);
-				GET_PLAYER(eFromPlayer).GetDiplomacyAI()->ChangeRecentAssistValue(GetID(), -300);
+				SetCoopWarState(eFromPlayer, eTargetPlayer, COOP_WAR_STATE_PREPARING, true);
+				GET_PLAYER(eFromPlayer).GetDiplomacyAI()->SetCoopWarState(GetID(), eTargetPlayer, COOP_WAR_STATE_PREPARING, true);
 				DoStartCoopWar(eFromPlayer, eTargetPlayer);
 			}
 
@@ -39119,8 +39094,7 @@ bool CvDiplomacyAI::CanRequestCoopWar(PlayerTypes eAllyPlayer, PlayerTypes eTarg
 		return false;
 
 	// Do we already have a coop war planned?
-	CoopWarStates eCoopWarState = GetCoopWarState(eAllyPlayer, eTargetPlayer);
-	if (eCoopWarState >= COOP_WAR_STATE_PREPARING)
+	if (GetCoopWarState(eAllyPlayer, eTargetPlayer) == COOP_WAR_STATE_PREPARING)
 		return false;
 
 	// Do we already have a coop war planned against the guy we're asking?
@@ -39832,11 +39806,11 @@ CoopWarStates CvDiplomacyAI::RespondToCoopWarRequest(PlayerTypes eAskingPlayer, 
 	{
 		if (bBold && bCloseToTarget && GetPlayerTargetValue(eTargetPlayer) >= TARGET_VALUE_FAVORABLE)
 		{
-			eResponse = COOP_WAR_STATE_READY;
+			eResponse = COOP_WAR_STATE_ONGOING;
 		}
 		else if (bCloseToTarget && IsEasyTarget(eTargetPlayer) && GetPlayer()->GetMilitaryAI()->HavePreferredAttackTarget(eTargetPlayer))
 		{
-			eResponse = COOP_WAR_STATE_READY;
+			eResponse = COOP_WAR_STATE_ONGOING;
 		}
 		else
 		{
@@ -39851,11 +39825,11 @@ CoopWarStates CvDiplomacyAI::RespondToCoopWarRequest(PlayerTypes eAskingPlayer, 
 		{
 			if (bBold && bCloseToTarget && GetPlayerTargetValue(eTargetPlayer) >= TARGET_VALUE_FAVORABLE)
 			{
-				eResponse = COOP_WAR_STATE_READY;
+				eResponse = COOP_WAR_STATE_ONGOING;
 			}
 			else if (bCloseToTarget && IsEasyTarget(eTargetPlayer) && GetPlayer()->GetMilitaryAI()->HavePreferredAttackTarget(eTargetPlayer))
 			{
-				eResponse = COOP_WAR_STATE_READY;
+				eResponse = COOP_WAR_STATE_ONGOING;
 			}
 			else
 			{
@@ -39870,19 +39844,18 @@ CoopWarStates CvDiplomacyAI::RespondToCoopWarRequest(PlayerTypes eAskingPlayer, 
 
 	switch (eResponse)
 	{
-	case COOP_WAR_STATE_READY:
-		SetCoopWarState(eAskingPlayer, eTargetPlayer, eResponse);
-		GET_PLAYER(eAskingPlayer).GetDiplomacyAI()->SetCoopWarState(GetID(), eTargetPlayer, eResponse);
+	case COOP_WAR_STATE_ONGOING:
 		ChangeRecentAssistValue(eAskingPlayer, -300);
 		GET_PLAYER(eAskingPlayer).GetDiplomacyAI()->ChangeRecentAssistValue(GetID(), -300);
+		SetCoopWarState(eAskingPlayer, eTargetPlayer, COOP_WAR_STATE_PREPARING, true);
+		GET_PLAYER(eAskingPlayer).GetDiplomacyAI()->SetCoopWarState(GetID(), eTargetPlayer, COOP_WAR_STATE_PREPARING, true);
 		DoStartCoopWar(eAskingPlayer, eTargetPlayer);
-		eResponse = COOP_WAR_STATE_ONGOING;
 		break;
 	case COOP_WAR_STATE_PREPARING:
-		SetCoopWarState(eAskingPlayer, eTargetPlayer, eResponse);
-		GET_PLAYER(eAskingPlayer).GetDiplomacyAI()->SetCoopWarState(GetID(), eTargetPlayer, eResponse);
 		ChangeRecentAssistValue(eAskingPlayer, -300);
 		GET_PLAYER(eAskingPlayer).GetDiplomacyAI()->ChangeRecentAssistValue(GetID(), -300);
+		SetCoopWarState(eAskingPlayer, eTargetPlayer, eResponse);
+		GET_PLAYER(eAskingPlayer).GetDiplomacyAI()->SetCoopWarState(GetID(), eTargetPlayer, eResponse);
 		break;
 	case COOP_WAR_STATE_WARNED_TARGET:
 		SetCoopWarState(eAskingPlayer, eTargetPlayer, eResponse);
@@ -40136,11 +40109,10 @@ void CvDiplomacyAI::CancelCoopWarsWithPlayer(PlayerTypes ePlayer, bool bPenalty)
 	for (int iThirdPartyLoop = 0; iThirdPartyLoop < MAX_MAJOR_CIVS; iThirdPartyLoop++)
 	{
 		PlayerTypes eThirdParty = (PlayerTypes) iThirdPartyLoop;
-		CoopWarStates eCoopWarState = GetCoopWarState(ePlayer, eThirdParty);
 
 		if (IsPlayerValid(eThirdParty) && bPenalty)
 		{
-			if (eCoopWarState == COOP_WAR_STATE_PREPARING || eCoopWarState == COOP_WAR_STATE_READY)
+			if (GetCoopWarState(ePlayer, eThirdParty) == COOP_WAR_STATE_PREPARING)
 			{
 				SetPlayerBrokenCoopWarPromise(ePlayer, true);
 				ChangeCoopWarScore(ePlayer, -2);
@@ -42372,8 +42344,7 @@ void CvDiplomacyAI::DoTestOpinionModifiers()
 		else if (GetRecentAssistValue(ePlayer) < 0)
 		{
 			// Bonus does not decay when a coop war is "soon".
-			CoopWarStates eCoopWarState = GetGlobalCoopWarWithState(ePlayer, /*bExcludeOngoing*/ true);
-			if (eCoopWarState != COOP_WAR_STATE_PREPARING && eCoopWarState != COOP_WAR_STATE_READY)
+			if (GetGlobalCoopWarWithState(ePlayer, /*bExcludeOngoing*/ true) != COOP_WAR_STATE_PREPARING)
 			{
 				ChangeRecentAssistValue(ePlayer, /*3*/ GC.getASSIST_VALUE_PER_TURN_DECAY(), true);
 			}
@@ -48370,9 +48341,6 @@ void CvDiplomacyAI::LogCoopWar(PlayerTypes ePlayer, PlayerTypes eAgainstPlayer, 
 		case COOP_WAR_STATE_PREPARING:
 			strOutBuf = strBaseString + ",***** COOP WAR STATE CHANGE: We are preparing to go to war with " + withPlayerName + " against " + againstPlayerName + " (PREPARING).";
 			break;
-		case COOP_WAR_STATE_READY:
-			strOutBuf = strBaseString + ",***** COOP WAR STATE CHANGE: We are ready to go to war with " + withPlayerName + " against " + againstPlayerName + " (READY).";
-			break;
 		case COOP_WAR_STATE_ONGOING:
 			strOutBuf = strBaseString + ",***** COOP WAR STATE CHANGE: We are now in a coop war with " + withPlayerName + " against " + againstPlayerName + " (ONGOING).";
 			break;
@@ -49147,7 +49115,7 @@ void CvDiplomacyAI::LogStatus()
 
 					if (eCoopWarState == COOP_WAR_STATE_ONGOING)
 						strOutBuf += ", CW";
-					else if (eCoopWarState == COOP_WAR_STATE_PREPARING || eCoopWarState == COOP_WAR_STATE_READY)
+					else if (eCoopWarState == COOP_WAR_STATE_PREPARING)
 						strOutBuf += ", CWS";
 					else
 						strOutBuf += ", ";

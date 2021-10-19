@@ -1568,13 +1568,10 @@ void CvTeam::DoDeclareWar(PlayerTypes eOriginatingPlayer, bool bAggressor, TeamT
 							if (GET_PLAYER(eLoopDefender).IsVassalOfSomeone() || GET_PLAYER(eThirdParty).IsVassalOfSomeone())
 								continue;
 
-							CoopWarStates eCoopWarState = pDiplo->GetCoopWarState(eThirdParty, eLoopDefender);
-							if (eCoopWarState == COOP_WAR_STATE_PREPARING)
+							if (pDiplo->GetCoopWarState(eThirdParty, eLoopDefender) == COOP_WAR_STATE_PREPARING)
 							{
 								if (pDiplo->CanStartCoopWar(eThirdParty, eLoopDefender) || (pDiplo->IsAtWar(eLoopDefender) && GET_PLAYER(eThirdParty).IsAtWarWith(eLoopDefender)))
 								{
-									pDiplo->SetCoopWarState(eThirdParty, eLoopDefender, COOP_WAR_STATE_READY);
-									GET_PLAYER(eThirdParty).GetDiplomacyAI()->SetCoopWarState(eLoopPlayer, eLoopDefender, COOP_WAR_STATE_READY);
 									pDiplo->DoStartCoopWar(eThirdParty, eLoopDefender);
 								}
 								else
@@ -1612,13 +1609,10 @@ void CvTeam::DoDeclareWar(PlayerTypes eOriginatingPlayer, bool bAggressor, TeamT
 							if (GET_PLAYER(eLoopAttacker).IsVassalOfSomeone() || GET_PLAYER(eThirdParty).IsVassalOfSomeone())
 								continue;
 
-							CoopWarStates eCoopWarState = pDiplo->GetCoopWarState(eThirdParty, eLoopAttacker);
-							if (eCoopWarState == COOP_WAR_STATE_PREPARING)
+							if (pDiplo->GetCoopWarState(eThirdParty, eLoopAttacker) == COOP_WAR_STATE_PREPARING)
 							{
 								if (pDiplo->CanStartCoopWar(eThirdParty, eLoopAttacker) || (pDiplo->IsAtWar(eLoopAttacker) && GET_PLAYER(eThirdParty).IsAtWarWith(eLoopAttacker)))
 								{
-									pDiplo->SetCoopWarState(eThirdParty, eLoopAttacker, COOP_WAR_STATE_READY);
-									GET_PLAYER(eThirdParty).GetDiplomacyAI()->SetCoopWarState(eLoopPlayer, eLoopAttacker, COOP_WAR_STATE_READY);
 									pDiplo->DoStartCoopWar(eThirdParty, eLoopAttacker);
 								}
 								else
@@ -4937,8 +4931,7 @@ void CvTeam::SetHasDefensivePact(TeamTypes eIndex, bool bNewValue)
 
 							if (pDiplo->IsPlayerValid(eThirdParty, true))
 							{
-								CoopWarStates eCoopWarState = pDiplo->GetCoopWarState(eThirdParty, eDPLoopPlayer);
-								if (eCoopWarState == COOP_WAR_STATE_PREPARING || eCoopWarState == COOP_WAR_STATE_READY)
+								if (pDiplo->GetCoopWarState(eThirdParty, eDPLoopPlayer) == COOP_WAR_STATE_PREPARING)
 								{
 									GET_PLAYER(eThirdParty).GetDiplomacyAI()->SetPlayerBrokenCoopWarPromise(eLoopPlayer, true);
 									GET_PLAYER(eThirdParty).GetDiplomacyAI()->ChangeCoopWarScore(eLoopPlayer, -2);

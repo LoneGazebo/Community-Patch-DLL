@@ -33913,7 +33913,10 @@ void CvPlayer::setAlive(bool bNewValue, bool bNotify)
 			for (int iI = 0; iI < MAX_PLAYERS; iI++)
 			{
 				CvPlayerAI& kOtherPlayer = GET_PLAYER((PlayerTypes)iI);
-				if (kOtherPlayer.isAlive() && kOtherPlayer.GetNotifications())
+				if (!kOtherPlayer.GetNotifications())
+					continue;
+
+				if ((kOtherPlayer.isAlive() && GET_TEAM(kOtherPlayer.getTeam()).isHasMet(getTeam())) || kOtherPlayer.isObserver())
 				{
 					kOtherPlayer.GetNotifications()->Add(NOTIFICATION_PLAYER_KILLED, strMessage.toUTF8(), strSummary.toUTF8(), -1, -1, -1);
 				}

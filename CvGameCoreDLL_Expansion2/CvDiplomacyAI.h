@@ -345,7 +345,7 @@ public:
 	// ------------------------------------
 
 	CoopWarStates GetCoopWarState(PlayerTypes eAllyPlayer, PlayerTypes eTargetPlayer) const;
-	void SetCoopWarState(PlayerTypes eAllyPlayer, PlayerTypes eTargetPlayer, CoopWarStates eNewState);
+	void SetCoopWarState(PlayerTypes eAllyPlayer, PlayerTypes eTargetPlayer, CoopWarStates eNewState, bool bSkipLogging = false);
 	bool IsLockedIntoCoopWar(PlayerTypes ePlayer) const;
 
 	CoopWarStates GetGlobalCoopWarAgainstState(PlayerTypes ePlayer) const;
