@@ -14772,11 +14772,10 @@ void CvMinorCivAI::DoBuyout(PlayerTypes eMajor)
 	GET_PLAYER(eMajor).GetTreasury()->ChangeGold(-iBuyoutCost);
 	GET_PLAYER(eMajor).GetDiplomacyAI()->LogMinorCivBuyout(GetPlayer()->GetID(), iBuyoutCost, /*bSaving*/ false);
 
-	if (!bMarriage)
-	{
-		// Perform the transfer
+	if (bMarriage)
+		SetMajorMarried(eMajor, true);
+	else
 		iNumUnits = TransferUnitsAndCitiesToMajor(eMajor);
-	}
 
 	// Send out notifications to everyone
 	TeamTypes eBuyerTeam = GET_PLAYER(eMajor).getTeam();
