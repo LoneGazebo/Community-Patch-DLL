@@ -22765,6 +22765,32 @@ void CvDiplomacyAI::SelectBestApproachTowardsMinorCiv(PlayerTypes ePlayer, std::
 	}
 
 	////////////////////////////////////
+	// EMBASSIES
+	// Don't sabotage our own embassies!
+	////////////////////////////////////
+
+	if (vApproachScores[CIV_APPROACH_WAR] > 0)
+	{
+		int iCityLoop;
+		for (CvCity* pLoopCity = GET_PLAYER(ePlayer).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iCityLoop))
+		{
+			for (int iI = 0; iI < pLoopCity->GetNumWorkablePlots(); iI++)
+			{
+				CvPlot* pCityPlot = pLoopCity->GetCityCitizens()->GetCityPlotFromIndex(iI);
+
+				if (pCityPlot && pCityPlot->getOwner() == ePlayer && pCityPlot->IsImprovementEmbassy())
+				{
+					if (GET_PLAYER(pCityPlot->GetPlayerThatBuiltImprovement()).getTeam() == GetTeam())
+					{
+						vApproachScores[CIV_APPROACH_WAR] = 0;
+						break;
+					}
+				}
+			}
+		}
+	}
+
+	////////////////////////////////////
 	// TOO FAR TO BULLY
 	// Don't bully if they're too far away
 	////////////////////////////////////
