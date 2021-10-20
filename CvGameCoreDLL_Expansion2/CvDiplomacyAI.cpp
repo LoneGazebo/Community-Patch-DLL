@@ -9125,9 +9125,9 @@ void CvDiplomacyAI::DoUpdateWarStates()
 				{
 					iStateAllWars -= bSeriousDangerUs ? 2 : 1;
 
-					// If we are defensive in any war and our capital has been damaged to 50% or lower, overall state should be defensive
+					// If we are defensive in any war and our capital has been damaged to 75% or lower, overall state should be defensive
 					CvCity *pCapital = m_pPlayer->getCapitalCity();
-					if (pCapital && pCapital->getDamage() >= (pCapital->GetMaxHitPoints()/2))
+					if (pCapital && pCapital->getDamage() >= (pCapital->GetMaxHitPoints()/4))
 					{
 						SetStateAllWars(STATE_ALL_WARS_LOSING);
 					}
