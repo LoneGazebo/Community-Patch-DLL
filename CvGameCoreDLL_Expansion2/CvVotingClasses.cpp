@@ -1443,15 +1443,35 @@ void CvActiveResolution::DoEffects(PlayerTypes ePlayer)
 	if (MOD_DIPLOMACY_CIV4_FEATURES && GetEffects()->bEndAllCurrentVassals)
 	{
 		TeamTypes eTeam = pPlayer->getTeam();
-		if(eTeam != NO_TEAM && GET_TEAM(eTeam).GetNumVassals() > 0 && !pPlayer->IsVassalsNoRebel())
+		PlayerTypes eOriginalProposer = GetProposerDecision()->GetProposer();
+		TeamTypes eProposerTeam = eOriginalProposer == NO_PLAYER ? NO_TEAM : GET_PLAYER(eOriginalProposer).getTeam();
+
+		if (eTeam != NO_TEAM && GET_TEAM(eTeam).GetNumVassals() > 0 && !pPlayer->IsVassalsNoRebel())
 		{
-			PlayerTypes eLoopPlayer;
-			for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+			for (int iTeamLoop = 0; iTeamLoop < MAX_TEAMS; iTeamLoop++)
 			{
-				eLoopPlayer = (PlayerTypes) iPlayerLoop;
-				if(GET_PLAYER(eLoopPlayer).isAlive() && !GET_PLAYER(eLoopPlayer).isMinorCiv() && GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).IsVassal(eTeam))
+				TeamTypes eLoopTeam = (TeamTypes) iTeamLoop;
+
+				if (GET_TEAM(eLoopTeam).isAlive() && GET_TEAM(eLoopTeam).IsVassal(eTeam))
 				{
-					GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).DoEndVassal(eTeam, true, true);
+					bool bWasVoluntary = GET_TEAM(eLoopTeam).IsVoluntaryVassal(eTeam);
+					GET_TEAM(eLoopTeam).DoEndVassal(eTeam, true, true);
+
+					if (eOriginalProposer != NO_PLAYER && eProposerTeam != NO_TEAM)
+					{
+						for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+						{
+							PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+
+							if (GET_PLAYER(eLoopPlayer).isAlive() && GET_PLAYER(eLoopPlayer).getTeam() == eLoopTeam)
+							{
+								if (!bWasVoluntary)
+									GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->DoLiberatedFromVassalage(eProposerTeam, true);
+								else if (GET_PLAYER(eOriginalProposer).isAlive())
+									GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->ChangeRecentAssistValue(eOriginalProposer, 300);
+							}
+						}
+					}
 				}
 			}
 		}

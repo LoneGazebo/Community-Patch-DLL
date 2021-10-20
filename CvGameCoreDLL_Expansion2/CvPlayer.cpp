@@ -10104,6 +10104,12 @@ bool CvPlayer::CanLiberatePlayer(PlayerTypes ePlayer)
 		return false;
 	}
 
+	// No resurrection in always war games
+	if (GC.getGame().isOption(GAMEOPTION_ALWAYS_WAR) || GC.getGame().isOption(GAMEOPTION_NO_CHANGING_WAR_PEACE))
+	{
+		return false;
+	}
+
 	// Exploit fix - if we attacked a player we resurrected, we can't resurrect them again
 	if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsResurrectorAttackedUs(m_eID))
 	{

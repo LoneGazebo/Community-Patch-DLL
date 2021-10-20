@@ -7855,16 +7855,6 @@ bool CvDiplomacyAI::CanStartCoopWar(PlayerTypes eAllyPlayer, PlayerTypes eTarget
 	if (!GET_PLAYER(eAllyPlayer).GetDiplomacyAI()->IsValidCoopWarTarget(eTargetPlayer, true))
 		return false;
 
-	// Must be able to declare war on the target (or be already at war)
-	if (!IsAtWar(eTargetPlayer) && !GET_TEAM(GetTeam()).canDeclareWar(GET_PLAYER(eTargetPlayer).getTeam(), GetID()))
-	{
-		return false;
-	}
-	if (!GET_PLAYER(eAllyPlayer).GetDiplomacyAI()->IsAtWar(eTargetPlayer) && !GET_TEAM(GET_PLAYER(eAllyPlayer).getTeam()).canDeclareWar(GET_PLAYER(eTargetPlayer).getTeam(), eAllyPlayer))
-	{
-		return false;
-	}
-
 	return true;
 }
 
@@ -39137,13 +39127,13 @@ const char* CvDiplomacyAI::GetDiploTextFromTag(const char* strTag, const Localiz
 // ////////////////////////////////////
 
 /// Are we able to start a coop war against eTargetPlayer?
-bool CvDiplomacyAI::IsValidCoopWarTarget(PlayerTypes eTargetPlayer, bool bIgnoreCanDeclareWar)
+bool CvDiplomacyAI::IsValidCoopWarTarget(PlayerTypes eTargetPlayer, bool bAtWarException)
 {
 	// Exclude vassals and invalid players from consideration
-	if (GetPlayer()->IsVassalOfSomeone() || !GetPlayer()->isMajorCiv() || !GetPlayer()->isAlive() || (GetPlayer()->getNumCities() <= 0))
+	if (GetPlayer()->IsVassalOfSomeone() || !GetPlayer()->isMajorCiv() || !GetPlayer()->isAlive() || GetPlayer()->getNumCities() <= 0)
 		return false;
 
-	if (GET_PLAYER(eTargetPlayer).IsVassalOfSomeone() || !GET_PLAYER(eTargetPlayer).isMajorCiv() || !GET_PLAYER(eTargetPlayer).isAlive() || (GET_PLAYER(eTargetPlayer).getNumCities() <= 0))
+	if (GET_PLAYER(eTargetPlayer).IsVassalOfSomeone() || !GET_PLAYER(eTargetPlayer).isMajorCiv() || !GET_PLAYER(eTargetPlayer).isAlive() || GET_PLAYER(eTargetPlayer).getNumCities() <= 0)
 		return false;
 
 	TeamTypes eMyTeam = GetTeam();
@@ -39170,9 +39160,10 @@ bool CvDiplomacyAI::IsValidCoopWarTarget(PlayerTypes eTargetPlayer, bool bIgnore
 		return false;
 
 	// Must be able to declare war on the target
-	if (!bIgnoreCanDeclareWar && !GET_TEAM(eMyTeam).canDeclareWar(eTargetTeam, GetID()))
+	if (!GET_TEAM(eMyTeam).canDeclareWar(eTargetTeam, GetID()))
 	{
-		return false;
+		if (!bAtWarException || !IsAtWar(eTargetPlayer))
+			return false;
 	}
 
 	return true;
@@ -52864,8 +52855,8 @@ bool CvDiplomacyAI::IsVassalageAcceptable(PlayerTypes ePlayer, bool bMasterEvalu
 	if (!GET_TEAM(GetTeam()).canBecomeVassal(GET_PLAYER(ePlayer).getTeam()))
 		return false;
 
-	// Can't capitulate if we have vassals
-	if (GetPlayer()->GetNumVassals() > 0)
+	// Can't voluntarily capitulate if we have vassals
+	if (!IsAtWar(ePlayer) && GetPlayer()->GetNumVassals() > 0)
 		return false;
 
 	// If a player on this team was resurrected by one team, can't voluntarily capitulate to another team
@@ -54952,7 +54943,7 @@ void CvDiplomacyAI::DoWeEndedVassalageWithSomeone(TeamTypes eTeam)
 }
 
 /// We are liberated by a master
-void CvDiplomacyAI::DoLiberatedFromVassalage(TeamTypes eTeam)
+void CvDiplomacyAI::DoLiberatedFromVassalage(TeamTypes eTeam, bool bSkipPopup)
 {
 	if (eTeam < 0 || eTeam >= MAX_CIV_TEAMS) return;
 
@@ -54963,10 +54954,14 @@ void CvDiplomacyAI::DoLiberatedFromVassalage(TeamTypes eTeam)
 		if (GET_PLAYER(eMasterPlayer).getTeam() == eTeam)
 		{
 			SetMasterLiberatedMeFromVassalage(eMasterPlayer, true);
-			ChangeRecentAssistValue(eMasterPlayer, -300);
 			
 			// Remove any previous penalty for refusing to give independence
 			SetVassalageForcefullyRevokedTurn(eMasterPlayer, -1);
+
+			if (!GET_PLAYER(eMasterPlayer).isAlive())
+				continue;
+
+			ChangeRecentAssistValue(eMasterPlayer, -300);
 			
 			// Friends of the vassal - bonus to recent assistance!
 			for (int iThirdPartyLoop = 0; iThirdPartyLoop < MAX_MAJOR_CIVS; iThirdPartyLoop++)
@@ -54981,6 +54976,9 @@ void CvDiplomacyAI::DoLiberatedFromVassalage(TeamTypes eTeam)
 					GET_PLAYER(eThirdParty).GetDiplomacyAI()->ChangeRecentAssistValue(eMasterPlayer, -300);
 				}
 			}
+
+			if (bSkipPopup)
+				continue;
 
 #if defined(MOD_ACTIVE_DIPLOMACY)
 			if(GC.getGame().isReallyNetworkMultiPlayer() && MOD_ACTIVE_DIPLOMACY)

@@ -9782,19 +9782,19 @@ void CvTeam::DoEndVassal(TeamTypes eTeam, bool bPeaceful, bool bSuppressNotifica
 // We liberate eTeam, if we can
 void CvTeam::DoLiberateVassal(TeamTypes eTeam)
 {
-	if(!CanLiberateVassal(eTeam))
+	if (!CanLiberateVassal(eTeam))
 		return;
 
 	// End our vassalage peacefully
 	GET_TEAM(eTeam).DoEndVassal(GetID(), true, false);
 
 	// Find our vassals
-	for(int iVassalPlayer = 0; iVassalPlayer < MAX_MAJOR_CIVS; iVassalPlayer++)
+	for (int iVassalPlayer = 0; iVassalPlayer < MAX_MAJOR_CIVS; iVassalPlayer++)
 	{
 		PlayerTypes eVassalPlayer = (PlayerTypes) iVassalPlayer;
-		if(GET_PLAYER(eVassalPlayer).getTeam() == eTeam)
+		if (GET_PLAYER(eVassalPlayer).isAlive() && GET_PLAYER(eVassalPlayer).getTeam() == eTeam)
 		{
-			GET_PLAYER(eVassalPlayer).GetDiplomacyAI()->DoLiberatedFromVassalage(GetID());
+			GET_PLAYER(eVassalPlayer).GetDiplomacyAI()->DoLiberatedFromVassalage(GetID(), false);
 		}
 	}
 }
@@ -10031,20 +10031,68 @@ void CvTeam::DoBecomeVassal(TeamTypes eTeam, bool bVoluntary, PlayerTypes eOrigi
 		}
 	}
 
-	// Let's check if we have a vassal already, if so they must become eTeam's vassals as well
+	// Let's check if we have a vassal already, if so they are liberated
 	for (int iOtherTeamLoop = 0; iOtherTeamLoop < MAX_TEAMS; iOtherTeamLoop++)
 	{
 		TeamTypes eOtherTeam = (TeamTypes) iOtherTeamLoop;
 		
-		if (GET_TEAM(eOtherTeam).isAlive())
+		if (GET_TEAM(eOtherTeam).isAlive() && eOtherTeam != eTeam && GET_TEAM(eOtherTeam).IsVassal(GetID()))
 		{
-			if (eOtherTeam != eTeam)
+			bool bWasVoluntary = GET_TEAM(eOtherTeam).IsVoluntaryVassal(GetID());
+			GET_TEAM(eOtherTeam).DoEndVassal(GetID(), true, true); // they are no longer our vassal
+
+			// Put these guys at peace with everyone
+			if (!GC.getGame().isOption(GAMEOPTION_ALWAYS_WAR) && !GC.getGame().isOption(GAMEOPTION_NO_CHANGING_WAR_PEACE))
 			{
-				// eOtherPlayer is our vassal
-				if (GET_TEAM(eOtherTeam).IsVassal(GetID()))
+				for (int iThirdTeamLoop = 0; iThirdTeamLoop < MAX_TEAMS; iThirdTeamLoop++)
 				{
-					GET_TEAM(eOtherTeam).DoEndVassal(GetID(), true, true);	// these guys no longer our vassal, they become vassal of eTeam now
-					GET_TEAM(eOtherTeam).DoBecomeVassal(eTeam, bVoluntary, eOriginatingMaster);
+					TeamTypes eThirdTeam = (TeamTypes) iThirdTeamLoop;
+
+					if (eThirdTeam == m_eID)
+						continue;
+					if (!GET_TEAM(eThirdTeam).isAlive())
+						continue;
+					if (GET_TEAM(eThirdTeam).isBarbarian())
+						continue;
+					if (GET_TEAM(eThirdTeam).isMinorCiv())
+					{
+						if (GET_PLAYER(GET_TEAM(eThirdTeam).getLeaderID()).isMinorCiv() && GET_PLAYER(GET_TEAM(eThirdTeam).getLeaderID()).GetMinorCivAI()->IsPermanentWar(eOtherTeam))
+							continue;
+					}
+
+					if (GET_TEAM(eThirdTeam).isAtWar(eOtherTeam))
+					{
+						GET_TEAM(eOtherTeam).makePeace(eThirdTeam, true, true, GET_TEAM(eOtherTeam).getLeaderID());
+					}
+				}
+			}
+			if (!bWasVoluntary && !GET_TEAM(eOtherTeam).isAtWar(eTeam)) // Diplo bonus for liberating a capitulated vassal
+			{
+				for (int iVassalPlayer = 0; iVassalPlayer < MAX_MAJOR_CIVS; iVassalPlayer++)
+				{
+					PlayerTypes eVassalPlayer = (PlayerTypes) iVassalPlayer;
+					if (GET_PLAYER(eVassalPlayer).isAlive() && GET_PLAYER(eVassalPlayer).getTeam() == eOtherTeam)
+					{
+						GET_PLAYER(eVassalPlayer).GetDiplomacyAI()->DoLiberatedFromVassalage(eTeam, true);
+					}
+				}
+			}
+			else if (bWasVoluntary) // Diplo penalty for forcibly liberating a voluntary vassal
+			{
+				for (int iVassalPlayer = 0; iVassalPlayer < MAX_MAJOR_CIVS; iVassalPlayer++)
+				{
+					PlayerTypes eVassalPlayer = (PlayerTypes) iVassalPlayer;
+					if (GET_PLAYER(eVassalPlayer).isAlive() && GET_PLAYER(eVassalPlayer).getTeam() == eOtherTeam)
+					{
+						for (int iNewMasterPlayer = 0; iNewMasterPlayer < MAX_MAJOR_CIVS; iNewMasterPlayer++)
+						{
+							PlayerTypes eNewMaster = (PlayerTypes) iNewMasterPlayer;
+							if (GET_PLAYER(eNewMaster).isAlive() && GET_PLAYER(eNewMaster).getTeam() == eTeam)
+							{
+								GET_PLAYER(eVassalPlayer).GetDiplomacyAI()->ChangeRecentAssistValue(eNewMaster, 300);
+							}
+						}
+					}
 				}
 			}
 		}
@@ -10062,10 +10110,8 @@ void CvTeam::DoBecomeVassal(TeamTypes eTeam, bool bVoluntary, PlayerTypes eOrigi
 	SetNumTurnsIsVassal(0);
 
 	// If we haven't met the guy, meet him
-	if(!isHasMet(eTeam))
-	{
+	if (!isHasMet(eTeam))
 		meet(eTeam, true);
-	}
 
 	//Set open borders
 	SetAllowsOpenBordersToTeam(eTeam, true);

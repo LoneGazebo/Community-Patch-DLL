@@ -1400,7 +1400,7 @@ public:
 	/////////////////////////////////////////////////////////
 
 	// Coop Wars
-	bool IsValidCoopWarTarget(PlayerTypes eTargetPlayer, bool bIgnoreCanDeclareWar);
+	bool IsValidCoopWarTarget(PlayerTypes eTargetPlayer, bool bAtWarException);
 	bool CanRequestCoopWar(PlayerTypes eAllyPlayer, PlayerTypes eTargetPlayer);
 
 	bool DoTestCoopWarDesire(PlayerTypes ePlayer, PlayerTypes& eChosenTargetPlayer);
@@ -1525,7 +1525,7 @@ public:
 #endif
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	MoveTroopsResponseTypes GetMoveTroopsRequestResponse(PlayerTypes ePlayer, bool bJustChecking = false);
-	void DoLiberatedFromVassalage(TeamTypes eTeam);
+	void DoLiberatedFromVassalage(TeamTypes eTeam, bool bSkipPopup);
 #endif
 
 	// Player asks the AI not to convert

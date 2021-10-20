@@ -1374,10 +1374,6 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 		if(!pFromTeam->canBecomeVassal(eToTeam))
 			return false;
 
-		//Does the offering team have a vassal?
-		if(pFromTeam->GetNumVassals() > 0)
-			return false;
-
 		// Can't have a Defensive Pact in the deal
 		if (IsDefensivePactTrade(eToPlayer))
 			return false;
@@ -1398,11 +1394,11 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 			return false;
 
 		//Can't already be offering this
-		if (!bFinalizing && IsVassalageTrade( ePlayer))
+		if (!bFinalizing && IsVassalageTrade(ePlayer))
 			return false;
 
 		//Can't already be offering this
-		if (!bFinalizing && IsRevokeVassalageTrade( ePlayer))
+		if (!bFinalizing && IsRevokeVassalageTrade(ePlayer))
 			return false;
 
 		if(!bHumanToHuman)
@@ -3119,13 +3115,27 @@ void CvGameDeals::ActivateDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, C
 
 		case TRADE_ITEM_VASSALAGE_REVOKE:
 		{
-			for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+			for (int iTeamLoop = 0; iTeamLoop < MAX_TEAMS; iTeamLoop++)
 			{
-				PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+				TeamTypes eLoopTeam = (TeamTypes) iTeamLoop;
+				bool bWasVoluntary = false;
 
-				if (GET_PLAYER(eLoopPlayer).isAlive() && GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).IsVassal(eGivingTeam))
+				if (GET_TEAM(eLoopTeam).IsVassal(eGivingTeam))
 				{
-					GET_TEAM(eGivingTeam).DoEndVassal(GET_PLAYER(eLoopPlayer).getTeam(), true, true);
+					bWasVoluntary = GET_TEAM(eLoopTeam).IsVoluntaryVassal(eGivingTeam);
+					GET_TEAM(eLoopTeam).DoEndVassal(eGivingTeam, true, true);
+
+					if (!bWasVoluntary)
+					{
+						for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+						{
+							PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+							if (GET_PLAYER(eLoopPlayer).isAlive() && GET_PLAYER(eLoopPlayer).getTeam() == eLoopTeam)
+							{
+								GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->DoLiberatedFromVassalage(eReceivingTeam, true);
+							}
+						}
+					}
 				}
 			}
 			break;
