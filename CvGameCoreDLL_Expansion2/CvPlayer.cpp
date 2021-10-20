@@ -3059,7 +3059,7 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 		}
 		else
 		{
-			if ((activePlayer.isAlive() || activePlayer.isObserver()) && activePlayer.GetNotifications() && pCity->isRevealed(activePlayer.getTeam(), false))
+			if (activePlayer.isObserver() || (activePlayer.isAlive() && activePlayer.GetNotifications() && pCity->isRevealed(activePlayer.getTeam(), false)))
 			{
 				CvString strBuffer = GetLocalizedText("TXT_KEY_MISC_CITY_CAPTURED_BY", strName.GetCString(), getCivilizationShortDescriptionKey());
 				GC.GetEngineUserInterface()->AddCityMessage(0, pCity->GetIDInfo(), activePlayer.GetID(), false, GC.getEVENT_MESSAGE_TIME(), strBuffer);

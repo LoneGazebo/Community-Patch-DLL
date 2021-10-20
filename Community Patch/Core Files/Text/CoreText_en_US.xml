@@ -3353,6 +3353,24 @@
 		<Row Tag="TXT_KEY_NOTIFICATION_DOF_S_BROKEN">
 			<Text>{1_CivName:textkey} and {2_CivName:textkey} are no longer Friends!</Text>
 		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_COOP_WAR_BROKEN_S">
+			<Text>Coop War Cancelled!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_COOP_WAR_BROKEN_DOF">
+			<Text>Due to a new Declaration of Friendship with {1_CivName}, your cooperative war agreement with {2_CivName} has ended.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_COOP_WAR_BROKEN_DP">
+			<Text>Due to a new Defensive Pact with {1_CivName}, your cooperative war agreement with {2_CivName} has ended.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_COOP_WAR_BROKEN_INVALID_TARGET">
+			<Text>Because {1_CivName} is no longer a valid war target, your cooperative war agreement with {2_CivName} has ended.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_COOP_WAR_BROKEN_AGGRESSION">
+			<Text>Because your friendship with {1_CivName} was prematurely terminated, your cooperative war agreement(s) with them have ended.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_COOP_WAR_BROKEN_ELIMINATED">
+			<Text>Because {1_CivName} is no longer able to assist you in war, your cooperative war agreement(s) with them have ended.</Text>
+		</Row>
 		<Row Tag="TXT_KEY_DIPLO_VICTORY_DISPUTE_CBP_WEAK">
 			<Text>They fear you are competing with them.</Text>
 		</Row>

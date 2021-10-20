@@ -1576,6 +1576,25 @@ void CvTeam::DoDeclareWar(PlayerTypes eOriginatingPlayer, bool bAggressor, TeamT
 								}
 								else
 								{
+									CvNotifications* pNotify = GET_PLAYER(eLoopPlayer).GetNotifications();
+									if (pNotify)
+									{
+										Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_COOP_WAR_BROKEN_S");
+										Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_COOP_WAR_BROKEN_INVALID_TARGET");
+										strText << GET_PLAYER(eLoopDefender).getCivilizationShortDescriptionKey();
+										strText << GET_PLAYER(eThirdParty).getCivilizationShortDescriptionKey();
+										pNotify->Add(NOTIFICATION_DIPLOMACY_DECLARATION, strText.toUTF8(), strSummary.toUTF8(), -1, -1, -1);
+									}
+									pNotify = GET_PLAYER(eThirdParty).GetNotifications();
+									if (pNotify)
+									{
+										Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_COOP_WAR_BROKEN_S");
+										Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_COOP_WAR_BROKEN_INVALID_TARGET");
+										strText << GET_PLAYER(eLoopDefender).getCivilizationShortDescriptionKey();
+										strText << GET_PLAYER(eLoopPlayer).getCivilizationShortDescriptionKey();
+										pNotify->Add(NOTIFICATION_DIPLOMACY_DECLARATION, strText.toUTF8(), strSummary.toUTF8(), -1, -1, -1);
+									}
+
 									pDiplo->SetCoopWarState(eThirdParty, eLoopDefender, NO_COOP_WAR_STATE);
 									GET_PLAYER(eThirdParty).GetDiplomacyAI()->SetCoopWarState(eLoopPlayer, eLoopDefender, NO_COOP_WAR_STATE);
 								}
@@ -1617,6 +1636,25 @@ void CvTeam::DoDeclareWar(PlayerTypes eOriginatingPlayer, bool bAggressor, TeamT
 								}
 								else
 								{
+									CvNotifications* pNotify = GET_PLAYER(eLoopPlayer).GetNotifications();
+									if (pNotify)
+									{
+										Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_COOP_WAR_BROKEN_S");
+										Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_COOP_WAR_BROKEN_INVALID_TARGET");
+										strText << GET_PLAYER(eLoopAttacker).getCivilizationShortDescriptionKey();
+										strText << GET_PLAYER(eThirdParty).getCivilizationShortDescriptionKey();
+										pNotify->Add(NOTIFICATION_DIPLOMACY_DECLARATION, strText.toUTF8(), strSummary.toUTF8(), -1, -1, -1);
+									}
+									pNotify = GET_PLAYER(eThirdParty).GetNotifications();
+									if (pNotify)
+									{
+										Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_COOP_WAR_BROKEN_S");
+										Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_COOP_WAR_BROKEN_INVALID_TARGET");
+										strText << GET_PLAYER(eLoopAttacker).getCivilizationShortDescriptionKey();
+										strText << GET_PLAYER(eLoopPlayer).getCivilizationShortDescriptionKey();
+										pNotify->Add(NOTIFICATION_DIPLOMACY_DECLARATION, strText.toUTF8(), strSummary.toUTF8(), -1, -1, -1);
+									}
+
 									pDiplo->SetCoopWarState(eThirdParty, eLoopAttacker, NO_COOP_WAR_STATE);
 									GET_PLAYER(eThirdParty).GetDiplomacyAI()->SetCoopWarState(eLoopPlayer, eLoopAttacker, NO_COOP_WAR_STATE);									
 								}
@@ -4929,14 +4967,31 @@ void CvTeam::SetHasDefensivePact(TeamTypes eIndex, bool bNewValue)
 							if (eThirdParty == eLoopPlayer || GET_PLAYER(eThirdParty).getTeam() == GET_PLAYER(eDPLoopPlayer).getTeam())
 								continue;
 
-							if (pDiplo->IsPlayerValid(eThirdParty, true))
+							if (pDiplo->IsPlayerValid(eThirdParty, true) && pDiplo->GetCoopWarState(eThirdParty, eDPLoopPlayer) == COOP_WAR_STATE_PREPARING)
 							{
-								if (pDiplo->GetCoopWarState(eThirdParty, eDPLoopPlayer) == COOP_WAR_STATE_PREPARING)
+								GET_PLAYER(eThirdParty).GetDiplomacyAI()->SetPlayerBrokenCoopWarPromise(eLoopPlayer, true);
+								GET_PLAYER(eThirdParty).GetDiplomacyAI()->ChangeCoopWarScore(eLoopPlayer, -2);
+								GET_PLAYER(eThirdParty).GetDiplomacyAI()->ChangeRecentAssistValue(eLoopPlayer, 300);
+
+								CvNotifications* pNotify = GET_PLAYER(eLoopPlayer).GetNotifications();
+								if (pNotify)
 								{
-									GET_PLAYER(eThirdParty).GetDiplomacyAI()->SetPlayerBrokenCoopWarPromise(eLoopPlayer, true);
-									GET_PLAYER(eThirdParty).GetDiplomacyAI()->ChangeCoopWarScore(eLoopPlayer, -2);
-									GET_PLAYER(eThirdParty).GetDiplomacyAI()->ChangeRecentAssistValue(eLoopPlayer, 300);
+									Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_COOP_WAR_BROKEN_S");
+									Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_COOP_WAR_BROKEN_DP");
+									strText << GET_PLAYER(eDPLoopPlayer).getCivilizationShortDescriptionKey();
+									strText << GET_PLAYER(eThirdParty).getCivilizationShortDescriptionKey();
+									pNotify->Add(NOTIFICATION_DIPLOMACY_DECLARATION, strText.toUTF8(), strSummary.toUTF8(), -1, -1, -1);
 								}
+								pNotify = GET_PLAYER(eThirdParty).GetNotifications();
+								if (pNotify)
+								{
+									Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_COOP_WAR_BROKEN_S");
+									Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_COOP_WAR_BROKEN_DP");
+									strText << GET_PLAYER(eDPLoopPlayer).getCivilizationShortDescriptionKey();
+									strText << GET_PLAYER(eLoopPlayer).getCivilizationShortDescriptionKey();
+									pNotify->Add(NOTIFICATION_DIPLOMACY_DECLARATION, strText.toUTF8(), strSummary.toUTF8(), -1, -1, -1);
+								}
+
 								GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->SetCoopWarState(eThirdParty, eDPLoopPlayer, NO_COOP_WAR_STATE);
 								GET_PLAYER(eThirdParty).GetDiplomacyAI()->SetCoopWarState(eLoopPlayer, eDPLoopPlayer, NO_COOP_WAR_STATE);
 							}

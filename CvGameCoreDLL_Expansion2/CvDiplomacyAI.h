@@ -1410,7 +1410,7 @@ public:
 	bool IsCoopWarRequestUnacceptable(PlayerTypes eAskingPlayer, PlayerTypes eTargetPlayer);
 	void DoWarnCoopWarTarget(PlayerTypes eAskingPlayer, PlayerTypes eTargetPlayer);
 
-	void CancelCoopWarsAgainstPlayer(PlayerTypes ePlayer);
+	void CancelCoopWarsAgainstPlayer(PlayerTypes ePlayer, bool bNotify);
 	void CancelCoopWarsWithPlayer(PlayerTypes ePlayer, bool bPenalty);
 	void CancelAllCoopWars();
 
