@@ -5400,7 +5400,13 @@ bool CvHomelandAI::IsValidExplorerEndTurnPlot(const CvUnit* pUnit, CvPlot* pPlot
 	}
 
 	//some plot we can enter but we cannot stay there
-	if (!pUnit->canEnterTerritory(pPlot->getTeam()))
+	if (!pUnit->canEnterTerritory(pPlot->getTeam(),true))
+	{
+		return false;
+	}
+
+	//some plots we could enter but we don't want to
+	if (pUnit->isEnemy(pPlot->getTeam()))
 	{
 		return false;
 	}
