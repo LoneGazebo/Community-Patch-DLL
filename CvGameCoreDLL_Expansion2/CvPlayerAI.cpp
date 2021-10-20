@@ -345,19 +345,23 @@ void CvPlayerAI::AI_conquerCity(CvCity* pCity, PlayerTypes ePlayerToLiberate, bo
 	// Should we keep the city (puppet/annex) or do we not want it (liberate/raze)?
 	bool bKeepCity = false;
 
-	// Cities are rated on a percentage scale, where 0 = worthless, and 100 = to median city, 200 = twice the value of the median city.
+	// Cities are rated on a percentage scale, where 0 = worthless, 100 = equal value with median city, 200 = twice the value of the median city.
 	int iMedianEconomicPower = GC.getGame().getMedianEconomicValue();
 	int iLocalEconomicPower = pCity->getEconomicValue(GetID());
 	int iCityValue = (iLocalEconomicPower * 100) / max(1, iMedianEconomicPower);
 
+	// Modders can change this value to apply a multiplier to the worth of all cities
+	iCityValue *= /*100*/ GC.getAI_CITY_VALUE_MULTIPLIER();
+	iCityValue /= 100;
+
 	// Original major capitals are worth more.
 	if (pCity->IsOriginalMajorCapital())
 	{
-		iCityValue *= 150;
+		iCityValue *= /*150*/ GC.getAI_CAPITAL_VALUE_MULTIPLIER();
 		iCityValue /= 100;
 	}
 
-	bool bHighValue = iCityValue >= GC.getAI_CITY_HIGH_VALUE_THRESHOLD();
+	bool bHighValue = iCityValue >= /*80*/ GC.getAI_CITY_HIGH_VALUE_THRESHOLD();
 
 	bKeepCity = bHighValue && !IsEmpireVeryUnhappy();
 
@@ -445,7 +449,7 @@ void CvPlayerAI::AI_conquerCity(CvCity* pCity, PlayerTypes ePlayerToLiberate, bo
 
 		// ONE EXCEPTION, civs with bonuses for puppeting will consider puppeting cities they otherwise would have razed
 		// if the city is ok-ish value and they aren't in revolt
-		if ((GetPlayerPolicies()->GetNumericModifier(POLICYMOD_PUPPET_BONUS) > 0 || GetPlayerTraits()->IsNoAnnexing()) && iCityValue >= GC.getAI_CITY_SOME_VALUE_THRESHOLD() && !IsEmpireVeryUnhappy())
+		if ((GetPlayerPolicies()->GetNumericModifier(POLICYMOD_PUPPET_BONUS) > 0 || GetPlayerTraits()->IsNoAnnexing()) && iCityValue >= /*40*/ GC.getAI_CITY_SOME_VALUE_THRESHOLD() && !IsEmpireVeryUnhappy())
 		{
 			pCity->DoCreatePuppet();
 			return;
