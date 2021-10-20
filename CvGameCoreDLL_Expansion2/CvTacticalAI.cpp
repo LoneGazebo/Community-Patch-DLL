@@ -6858,7 +6858,7 @@ void ScoreAttack(const CvTacticalPlot& tactPlot, const CvUnit* pUnit, const CvTa
 		{
 			//if we have multiple units encircling the city, try to take into account their attacks as well
 			//easiest way is to consider damage from last turn. so ideally ranged units start attacking and melee joins in later
-			int iRemainingTurnsOnCity = (pEnemy->GetMaxHitPoints() - pEnemy->getDamage()) / (pEnemy->getDamageTakenLastTurn() + 1);
+			int iRemainingTurnsOnCity = (pEnemy->GetMaxHitPoints() - pEnemy->getDamage()) / (max(iDamageDealt, pEnemy->getDamageTakenLastTurn()) + 1);
 
 			int iCounterattackDamage = pEnemy->rangeCombatDamage(pUnit, NULL, false, pUnitPlot, true) * (pEnemy->HasGarrison() ? 2 : 1);
 			int iRemainingTurnsOnAttacker = pUnit->GetCurrHitPoints() / (iDamageReceived + iCounterattackDamage + 1);
