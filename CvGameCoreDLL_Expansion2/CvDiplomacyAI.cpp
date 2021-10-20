@@ -8880,27 +8880,24 @@ void CvDiplomacyAI::DoUpdateWarStates()
 			ReligionTypes eTheirReligion = GET_PLAYER(eLoopPlayer).isMinorCiv() ? NO_RELIGION : GET_PLAYER(eLoopPlayer).GetReligions()->GetCurrentReligion(false);
 
 			// Evaluate our danger and their danger from this war
-			int iNumOurCities = 0;
-			int iNumTheirCities = 0;
-			int iOurDanger = 0;
-			int iTheirDanger = 0;
-			bool bSeriousDangerUs = false;
-			bool bSeriousDangerThem = false;
-			vector<PlayerTypes> vOurWarAllies = GetPlayer()->GetWarAllies(eLoopPlayer);
-			vector<PlayerTypes> vTheirWarAllies = GET_PLAYER(eLoopPlayer).GetWarAllies(GetID());
+			int iNumOurCities = 0, iNumOurCitiesInDanger = 0, iNumTheirCities = 0, iNumTheirCitiesInDanger = 0, iOurDanger = 0, iTheirDanger = 0;
+			bool bSeriousDangerUs = false, bSeriousDangerThem = false;
+			vector<PlayerTypes> vOurWarAllies = GetPlayer()->GetWarAllies(eLoopPlayer), vTheirWarAllies = GET_PLAYER(eLoopPlayer).GetWarAllies(GetID());
 
 			for (CvCity* pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
 			{
 				iNumOurCities++;
 				int iDangerMod = 0;
 
+				//look at the tactical map (is it up to date?)
+				CvTacticalDominanceZone* pLandZone = m_pPlayer->GetTacticalAI()->GetTacticalAnalysisMap()->GetZoneByCity(pLoopCity,false);
+				CvTacticalDominanceZone* pWaterZone = m_pPlayer->GetTacticalAI()->GetTacticalAnalysisMap()->GetZoneByCity(pLoopCity,true);
+
 				if (pLoopCity->IsInDangerFromPlayers(vTheirWarAllies))
 				{
+					iNumOurCitiesInDanger++;
 					iDangerMod++;
 
-					//look at the tactical map (is it up to date?)
-					CvTacticalDominanceZone* pLandZone = m_pPlayer->GetTacticalAI()->GetTacticalAnalysisMap()->GetZoneByCity(pLoopCity,false);
-					CvTacticalDominanceZone* pWaterZone = m_pPlayer->GetTacticalAI()->GetTacticalAnalysisMap()->GetZoneByCity(pLoopCity,true);
 					if (pLandZone && pLandZone->GetOverallDominanceFlag()==TACTICAL_DOMINANCE_ENEMY)
 						iDangerMod++;
 					if (pWaterZone && pWaterZone->GetOverallDominanceFlag()==TACTICAL_DOMINANCE_ENEMY)
@@ -8927,6 +8924,21 @@ void CvDiplomacyAI::DoUpdateWarStates()
 						}
 					}
 				}
+				else
+				{
+					if (pLandZone && pLandZone->GetOverallDominanceFlag()==TACTICAL_DOMINANCE_ENEMY)
+					{
+						iNumOurCitiesInDanger++;
+					}
+					else if (pWaterZone && pWaterZone->GetOverallDominanceFlag()==TACTICAL_DOMINANCE_ENEMY)
+					{
+						iNumOurCitiesInDanger++;
+					}
+					else if (pLoopCity->isInDangerOfFalling() || pLoopCity->isUnderSiege() || (pLoopCity->IsBlockadedWaterAndLand() && pLoopCity->getDamage() >= (pLoopCity->GetMaxHitPoints()/4)))
+					{
+						iNumOurCitiesInDanger++;
+					}
+				}
 
 				if (iDangerMod > 0)
 				{
@@ -8943,60 +8955,64 @@ void CvDiplomacyAI::DoUpdateWarStates()
 
 			for (CvCity* pLoopCity = GET_PLAYER(eLoopPlayer).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(eLoopPlayer).nextCity(&iLoop))
 			{
-				// Can we actually see this city's danger status?
-				if (CanSeeEnemyCity(pLoopCity))
-				{
-					iNumTheirCities++;
-					int iDangerMod = 0;
+				iNumTheirCities++;
+				int iDangerMod = 0;
 
-					if (pLoopCity->IsInDangerFromPlayers(vOurWarAllies))
-					{
+				//look at the tactical map (is it up to date?)
+				CvTacticalDominanceZone* pLandZone = GET_PLAYER(eLoopPlayer).GetTacticalAI()->GetTacticalAnalysisMap()->GetZoneByCity(pLoopCity,false);
+				CvTacticalDominanceZone* pWaterZone = GET_PLAYER(eLoopPlayer).GetTacticalAI()->GetTacticalAnalysisMap()->GetZoneByCity(pLoopCity,true);
+
+				if (pLoopCity->IsInDangerFromPlayers(vOurWarAllies))
+				{
+					iNumTheirCitiesInDanger++;
+					iDangerMod++;
+					
+					if (pLandZone && pLandZone->GetOverallDominanceFlag()==TACTICAL_DOMINANCE_ENEMY)
+						iDangerMod++;
+					if (pWaterZone && pWaterZone->GetOverallDominanceFlag()==TACTICAL_DOMINANCE_ENEMY)
 						iDangerMod++;
 
-						//look at the tactical map (is it up to date?)
-						CvTacticalDominanceZone* pLandZone = GET_PLAYER(eLoopPlayer).GetTacticalAI()->GetTacticalAnalysisMap()->GetZoneByCity(pLoopCity,false);
-						CvTacticalDominanceZone* pWaterZone = GET_PLAYER(eLoopPlayer).GetTacticalAI()->GetTacticalAnalysisMap()->GetZoneByCity(pLoopCity,true);
-						
-						if (pLandZone && pLandZone->GetOverallDominanceFlag()==TACTICAL_DOMINANCE_ENEMY)
-							iDangerMod++;
-						if (pWaterZone && pWaterZone->GetOverallDominanceFlag()==TACTICAL_DOMINANCE_ENEMY)
+					if (pLoopCity->isInDangerOfFalling() || pLoopCity->isUnderSiege() || (pLoopCity->IsBlockadedWaterAndLand() && pLoopCity->getDamage() >= (pLoopCity->GetMaxHitPoints()/4)))
+					{
+						if (pLoopCity->isInDangerOfFalling())
+							iDangerMod += 3;
+						else
 							iDangerMod++;
 
-						if (pLoopCity->isInDangerOfFalling() || pLoopCity->isUnderSiege() || (pLoopCity->IsBlockadedWaterAndLand() && pLoopCity->getDamage() >= (pLoopCity->GetMaxHitPoints()/4)))
+						if (pLoopCity->isInDangerOfFalling() || (pLoopCity->IsBlockadedWaterAndLand() && pLoopCity->getDamage() >= (pLoopCity->GetMaxHitPoints()/4)) || pLoopCity->getDamage() >= (pLoopCity->GetMaxHitPoints()/2))
 						{
-							if (pLoopCity->isInDangerOfFalling())
-								iDangerMod += 3;
-							else
-								iDangerMod++;
-
-							if (pLoopCity->isInDangerOfFalling() || (pLoopCity->IsBlockadedWaterAndLand() && pLoopCity->getDamage() >= (pLoopCity->GetMaxHitPoints()/4)) || pLoopCity->getDamage() >= (pLoopCity->GetMaxHitPoints()/2))
-							{
-								bSeriousDangerThem = true;
-							}
+							bSeriousDangerThem = true;
 						}
 					}
-					
-					if (iDangerMod > 0)
-					{
-						if (pLoopCity->isCapital())
-							iDangerMod *= 3;
-						else if (pLoopCity->IsOriginalMajorCapital() || (eMyReligion != NO_RELIGION && pLoopCity->GetCityReligions()->IsHolyCityForReligion(eMyReligion)) || (eTheirReligion != NO_RELIGION && pLoopCity->GetCityReligions()->IsHolyCityForReligion(eTheirReligion)) || pLoopCity->getNumWorldWonders() > 0)
-							iDangerMod *= 2;
-						else if (pLoopCity->GetCityReligions()->IsHolyCityAnyReligion())
-							iDangerMod++;
-					}
-
-					iTheirDanger += iDangerMod;
 				}
+				else if (pLoopCity->isRevealed(GetTeam(), false))
+				{
+					if (pLandZone && pLandZone->GetOverallDominanceFlag()==TACTICAL_DOMINANCE_ENEMY)
+					{
+						iNumTheirCitiesInDanger++;
+					}
+					else if (pWaterZone && pWaterZone->GetOverallDominanceFlag()==TACTICAL_DOMINANCE_ENEMY)
+					{
+						iNumTheirCitiesInDanger++;
+					}
+					else if (pLoopCity->isInDangerOfFalling() || pLoopCity->isUnderSiege() || (pLoopCity->IsBlockadedWaterAndLand() && pLoopCity->getDamage() >= (pLoopCity->GetMaxHitPoints()/4)))
+					{
+						iNumTheirCitiesInDanger++;
+					}
+				}
+				
+				if (iDangerMod > 0)
+				{
+					if (pLoopCity->isCapital())
+						iDangerMod *= 3;
+					else if (pLoopCity->IsOriginalMajorCapital() || (eMyReligion != NO_RELIGION && pLoopCity->GetCityReligions()->IsHolyCityForReligion(eMyReligion)) || (eTheirReligion != NO_RELIGION && pLoopCity->GetCityReligions()->IsHolyCityForReligion(eTheirReligion)) || pLoopCity->getNumWorldWonders() > 0)
+						iDangerMod *= 2;
+					else if (pLoopCity->GetCityReligions()->IsHolyCityAnyReligion())
+						iDangerMod++;
+				}
+
+				iTheirDanger += iDangerMod;
 			}
-
-			iOurDanger *= 100;
-			iOurDanger /= max(1, iNumOurCities);
-			iTheirDanger *= 100;
-			iTheirDanger /= max(1, iNumTheirCities);
-
-			int iDangerPercent = iTheirDanger * 100;
-			iDangerPercent /= max(1, iOurDanger);
 
 			int WarScore = GetWarScore(eLoopPlayer);
 			if (m_pPlayer->GetCulture()->GetWarWeariness() > 0 && m_pPlayer->IsEmpireVeryUnhappy())
@@ -9026,13 +9042,31 @@ void CvDiplomacyAI::DoUpdateWarStates()
 			}
 			else if (bSeriousDangerUs && bSeriousDangerThem)
 			{
-				if (WarScore > -25)
+				if (WarScore > -25 && WarScore < 25)
 					eWarState = WAR_STATE_STALEMATE;
 			}
 
 			// Which of us has more city danger? Also consider the war score!
 			if (eWarState == NO_WAR_STATE_TYPE)
 			{
+				// Adjust danger levels based on # of safe cities compared to the other player.
+				int iNumOurSafeCities = iNumOurCities - iNumOurCitiesInDanger, iNumTheirSafeCities = iNumTheirCities - iNumTheirCitiesInDanger;
+
+				if (iNumOurSafeCities > iNumTheirSafeCities)
+				{
+					int iPercentage = (max(iNumTheirSafeCities, 1) * 100) / iNumOurSafeCities;
+					iOurDanger *= max(iPercentage, 34);
+					iOurDanger /= 100;
+				}
+				else if (iNumTheirSafeCities > iNumOurSafeCities)
+				{
+					int iPercentage = (max(iNumOurSafeCities, 1) * 100) / iNumTheirSafeCities;
+					iTheirDanger *= max(iPercentage, 34);
+					iTheirDanger /= 100;
+				}
+
+				int iDangerPercent = (iTheirDanger * 100) / max(iOurDanger, 1);
+
 				if (iDangerPercent < 100)
 				{
 					if (WarScore >= 25)
@@ -9040,7 +9074,14 @@ void CvDiplomacyAI::DoUpdateWarStates()
 					else
 						eWarState = WAR_STATE_DEFENSIVE;
 				}
-				else if (iDangerPercent == 100)
+				else if (iDangerPercent > 100)
+				{
+					if (WarScore <= -25)
+						eWarState = WAR_STATE_STALEMATE;
+					else
+						eWarState = WAR_STATE_OFFENSIVE;
+				}
+				else
 				{
 					if (WarScore <= -25)
 						eWarState = WAR_STATE_DEFENSIVE;
@@ -9048,13 +9089,6 @@ void CvDiplomacyAI::DoUpdateWarStates()
 						eWarState = WAR_STATE_OFFENSIVE;
 					else
 						eWarState = WAR_STATE_STALEMATE;
-				}
-				else if (iDangerPercent > 100)
-				{
-					if (WarScore <= -25)
-						eWarState = WAR_STATE_STALEMATE;
-					else
-						eWarState = WAR_STATE_OFFENSIVE;
 				}
 			}
 
@@ -9070,9 +9104,9 @@ void CvDiplomacyAI::DoUpdateWarStates()
 			//Exceptions?
 
 			//If low warscore, no serious danger, and it has been a while since either side captured a city, let's bring it down to calm.
-			if (!bSeriousDangerThem && !bSeriousDangerUs && GetPlayer()->GetPlayerNumTurnsSinceCityCapture(eLoopPlayer) > 10 && GET_PLAYER(eLoopPlayer).GetPlayerNumTurnsSinceCityCapture(GetID()) > 10)
+			if (!bSeriousDangerThem && !bSeriousDangerUs && WarScore <= 20 && WarScore >= -20)
 			{
-				if (WarScore <= 20 && WarScore >= -20)
+				if (GetPlayer()->GetPlayerNumTurnsSinceCityCapture(eLoopPlayer) > 10 && GET_PLAYER(eLoopPlayer).GetPlayerNumTurnsSinceCityCapture(GetID()) > 10)
 					eWarState = WAR_STATE_CALM;
 			}
 
@@ -9091,9 +9125,9 @@ void CvDiplomacyAI::DoUpdateWarStates()
 				{
 					iStateAllWars -= bSeriousDangerUs ? 2 : 1;
 
-					// If we are defensive in any war and our capital has been damaged to 75% or lower, overall state should be defensive
+					// If we are defensive in any war and our capital has been damaged to 50% or lower, overall state should be defensive
 					CvCity *pCapital = m_pPlayer->getCapitalCity();
-					if (pCapital && pCapital->getDamage() >= (pCapital->GetMaxHitPoints()/4))
+					if (pCapital && pCapital->getDamage() >= (pCapital->GetMaxHitPoints()/2))
 					{
 						SetStateAllWars(STATE_ALL_WARS_LOSING);
 					}
@@ -9123,64 +9157,6 @@ void CvDiplomacyAI::DoUpdateWarStates()
 	{
 		SetStateAllWars(STATE_ALL_WARS_WINNING);
 	}
-}
-
-bool CvDiplomacyAI::CanSeeEnemyCity(CvCity* pCity) const
-{
-	if (!pCity)
-		return false;
-
-	CvPlot* pCityPlot = pCity->plot();
-	if (!pCityPlot)
-		return false;
-
-	TeamTypes eMyTeam = GetTeam();
-
-	// City plot is visible?
-	if (pCityPlot->isVisible(eMyTeam))
-		return true;
-
-	// Not revealed?
-	if (!pCityPlot->isRevealed(eMyTeam))
-		return false;
-
-	// Adjacent visible?
-	if (pCityPlot->isAdjacentVisible(eMyTeam))
-		return true;
-
-	// Near one of our cities?
-	// Assume that the AI has a good idea of what's going on within 8 tiles if the city plot is revealed
-	// This is "cheating" on a technical level but due to limitations it will have to do ... fairer than letting them see everywhere, and humans can intuit the same knowledge by looking at city HP, etc.
-	if (GetPlayer()->GetCityDistanceInPlots(pCityPlot) <= 8)
-		return true;
-
-	// Nearby units?
-	bool bCityIsCoastal = pCity->isCoastal();
-	int iX = pCityPlot->getX(), iY = pCityPlot->getY();
-	int iVisionBonus = !GetPlayer()->isHuman() ? GC.getGame().getHandicapInfo().getAIVisionBonus() : 0;
-	int iUnitLoop;
-	for (CvUnit* pLoopUnit = m_pPlayer->firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iUnitLoop))
-	{
-		// Disregard trade/blind units
-		if (pLoopUnit->isTrade() || pLoopUnit->visibilityRange() <= 0)
-			continue;
-
-		// Smaller sight radius for units
-		int iRadius = iVisionBonus + 6;
-
-		// VP Special: Coastal units have a harder time seeing what's going on in non-coastal cities
-		if (MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED && !bCityIsCoastal && pLoopUnit->getDomainType() == DOMAIN_SEA)
-		{
-			iRadius = 3;
-		}
-
-		if (plotDistance(pLoopUnit->getX(), pLoopUnit->getY(), iX, iY) <= iRadius)
-		{
-			return true;
-		}
-	}
-
-	return false;
 }
 
 /// What is the integer value of how well we think the war with ePlayer is going?
@@ -22756,6 +22732,32 @@ void CvDiplomacyAI::SelectBestApproachTowardsMinorCiv(PlayerTypes ePlayer, std::
 					else if (GET_PLAYER(ePlayer).GetMinorCivAI()->IsProtectedByMajor(eLoopPlayer))
 					{
 						vApproachScores[CIV_APPROACH_HOSTILE] = 0;
+						vApproachScores[CIV_APPROACH_WAR] = 0;
+						break;
+					}
+				}
+			}
+		}
+	}
+
+	////////////////////////////////////
+	// EMBASSIES
+	// Don't sabotage our own embassies!
+	////////////////////////////////////
+
+	if (vApproachScores[CIV_APPROACH_WAR] > 0)
+	{
+		int iCityLoop;
+		for (CvCity* pLoopCity = GET_PLAYER(ePlayer).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iCityLoop))
+		{
+			for (int iI = 0; iI < pLoopCity->GetNumWorkablePlots(); iI++)
+			{
+				CvPlot* pCityPlot = pLoopCity->GetCityCitizens()->GetCityPlotFromIndex(iI);
+
+				if (pCityPlot && pCityPlot->getOwner() == ePlayer && pCityPlot->IsImprovementEmbassy())
+				{
+					if (GET_PLAYER(pCityPlot->GetPlayerThatBuiltImprovement()).getTeam() == GetTeam())
+					{
 						vApproachScores[CIV_APPROACH_WAR] = 0;
 						break;
 					}
@@ -39743,36 +39745,32 @@ int CvDiplomacyAI::GetCoopWarDesireScore(PlayerTypes eAllyPlayer, PlayerTypes eT
 	CvCity* pClosestCityToUs = GetPlayer()->GetClosestCityToUsByPlots(eTargetPlayer);
 	if (pClosestCityToUs != NULL)
 	{
-		int iHighestEconomicPower = GC.getGame().getHighestEconomicValue();
-		int iLocalEconomicPower = pClosestCityToUs->getEconomicValue(eTargetPlayer);
+		int iMedianEconomicPower = GC.getGame().getMedianEconomicValue();
+		int iLocalEconomicPower = max(pClosestCityToUs->getEconomicValue(eTargetPlayer), pClosestCityToUs->getEconomicValue(GetID()));
 
-		//cities rated on a 0-100 scale, where 0 = worthless, and 100 = most valuable in the world.
-		int iEconomicValue = (iLocalEconomicPower * 100) / max(1, iHighestEconomicPower);
-		if (iEconomicValue <= 0)
-		{
-			iEconomicValue = 1;
-		}
+		// Cities are rated on a percentage scale, where 0 = worthless, 100 = equal value with median city, 200 = twice the value of the median city.
+		int iEconomicValue = range(((iLocalEconomicPower * 100) / max(1, iMedianEconomicPower)), 10, 200);
 
 		if (pClosestCityToUs->IsOriginalMajorCapital())
 		{
 			if (IsCloseToDominationVictory())
 			{
-				iEconomicValue *= 400;
-				iEconomicValue /= 100;
+				iEconomicValue *= 4;
 			}
 			else if (IsGoingForWorldConquest())
 			{
-				iEconomicValue *= 300;
-				iEconomicValue /= 100;
+				iEconomicValue *= 3;
 			}
 			else
 			{
-				iEconomicValue *= 200;
-				iEconomicValue /= 100;
+				iEconomicValue *= 2;
 			}
 		}
 
-		iScore *= (iEconomicValue + 50);
+		if (iEconomicValue > 200)
+			iEconomicValue = 200;
+
+		iScore *= iEconomicValue;
 		iScore /= 10000;
 	}
 	else
@@ -51146,10 +51144,11 @@ int CvDiplomacyAIHelpers::GetCityWarmongerValue(CvCity* pCity, PlayerTypes eConq
 		}
 	}
 
-	// Cities are rated on a 0-100 scale, where 0 = worthless, and 100 = most valuable in the world.
-	int iHighestEconomicPower = GC.getGame().getHighestEconomicValue();
+	// Cities are rated on a percentage scale, where 0 = worthless, 50 = equal value with median city, 100 = twice the value of the median city.
+	// Value is capped between 5 and 100.
+	int iMedianEconomicPower = GC.getGame().getMedianEconomicValue();
 	int iLocalEconomicPower = pCity->getEconomicValue(eCityOwner);
-	int iWarmongerValue = (iLocalEconomicPower * 100) / max(1, iHighestEconomicPower);
+	int iWarmongerValue = range(((iLocalEconomicPower * 100) / max(1, iMedianEconomicPower) / 2), 5, 100);
 
 	// Modders can change this value to apply a multiplier to the worth of all cities
 	iWarmongerValue *= /*100*/ GC.getWARMONGER_THREAT_CITY_VALUE_MULTIPLIER();
@@ -51544,10 +51543,11 @@ int CvDiplomacyAIHelpers::GetCityLiberationValue(CvCity* pCity, PlayerTypes eLib
 		}
 	}
 
-	// Cities are rated on a 0-100 scale, where 0 = worthless, and 100 = most valuable in the world.
-	int iHighestEconomicPower = GC.getGame().getHighestEconomicValue();
+	// Cities are rated on a percentage scale, where 0 = worthless, 50 = equal value with median city, 100 = twice the value of the median city.
+	// Value is capped between 5 and 100.
+	int iMedianEconomicPower = GC.getGame().getMedianEconomicValue();
 	int iLocalEconomicPower = pCity->getEconomicValue(eLiberator); // rationale for using the liberator: how much is the liberator giving up instead of conquering?
-	int iLiberationValue = (iLocalEconomicPower * 100) / max(1, iHighestEconomicPower);
+	int iLiberationValue = range(((iLocalEconomicPower * 100) / max(1, iMedianEconomicPower) / 2), 5, 100);
 
 	// Modders can change this value to apply a multiplier to the worth of all cities
 	iLiberationValue *= /*100*/ GC.getWARMONGER_THREAT_CITY_VALUE_MULTIPLIER();
