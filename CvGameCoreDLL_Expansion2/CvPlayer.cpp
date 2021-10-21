@@ -49037,36 +49037,34 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, CvAIOperation* pOpToIgn
 PlayerTypes CvPlayer::GetPlayerWhoStoleMyFavoriteCitySite()
 {
 	//only check this if we want to found new cities
-	static EconomicAIStrategyTypes eEarlyExpand = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_EARLY_EXPANSION");
-	static EconomicAIStrategyTypes eExpandOther = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_EXPAND_TO_OTHER_CONTINENTS");
-	bool bWantExpansion = GetEconomicAI()->IsUsingStrategy(eEarlyExpand) || GetEconomicAI()->IsUsingStrategy(eExpandOther);
-
-	//looking up the best settle plot is expensive so do this only if we really want to expand
-	if (bWantExpansion)
+	static EconomicAIStrategyTypes eEnoughExpansion = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_ENOUGH_EXPANSION");
+	if (GetEconomicAI()->IsUsingStrategy(eEnoughExpansion))
 	{
-		//maybe our old favorite is no longer available?
-		CvPlot* pPreviousFavorite = GC.getMap().plotByIndex(m_iPreviousBestSettlePlot);
-		CvPlot* pCurrentFavorite = GetBestSettlePlot(NULL);
-
-		//no problem
-		if (pCurrentFavorite == pPreviousFavorite)
-			return NO_PLAYER;
-
-		//update
-		m_iPreviousBestSettlePlot = pCurrentFavorite ? pCurrentFavorite->GetPlotIndex() : -1;
-
-		//did somebody else settle there?
-		if (pPreviousFavorite && GC.getGame().GetClosestCityDistanceInPlots(pPreviousFavorite, true) < 5)
-		{
-			CvCity* pCity = GC.getGame().GetClosestCityByPlots(pPreviousFavorite, true);
-			//get triggered if the settle spot was close to one of our cities
-			int iTriggerDistance = GC.getAI_DIPLO_PLOT_RANGE_FROM_CITY_HOME_FRONT() + GetDiplomacyAI()->GetBoldness();
-			if (pCity->getTeam() != getTeam() && GetCityDistancePathLength(pPreviousFavorite) < iTriggerDistance)
-				return pCity->getOwner();
-		}
-	}
-	else
 		m_iPreviousBestSettlePlot = -1;
+		return NO_PLAYER;
+	}
+
+	//maybe our old favorite is no longer available?
+	CvPlot* pPreviousFavorite = GC.getMap().plotByIndex(m_iPreviousBestSettlePlot);
+	//looking up the best settle plot is expensive so do this only if we really want to expand
+	CvPlot* pCurrentFavorite = GetBestSettlePlot(NULL);
+
+	//no problem, spot is still free
+	if (pCurrentFavorite == pPreviousFavorite)
+		return NO_PLAYER;
+
+	//update
+	m_iPreviousBestSettlePlot = pCurrentFavorite ? pCurrentFavorite->GetPlotIndex() : -1;
+
+	//did somebody else settle there?
+	if (pPreviousFavorite && GC.getGame().GetClosestCityDistanceInPlots(pPreviousFavorite, true) < 5)
+	{
+		CvCity* pCity = GC.getGame().GetClosestCityByPlots(pPreviousFavorite, true);
+		//get triggered if the settle spot was close to one of our cities
+		int iTriggerDistance = GC.getAI_DIPLO_PLOT_RANGE_FROM_CITY_HOME_FRONT() + GetDiplomacyAI()->GetBoldness();
+		if (pCity->getTeam() != getTeam() && GetCityDistancePathLength(pPreviousFavorite) < iTriggerDistance)
+			return pCity->getOwner();
+	}
 
 	return NO_PLAYER;
 }

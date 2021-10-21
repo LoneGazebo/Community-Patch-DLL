@@ -3393,11 +3393,6 @@ bool EconomicAIHelpers::IsTestStrategy_EnoughExpansion(EconomicAIStrategyTypes e
 		return true;
 	}
 
-	if(pPlayer->GetNumUnitsWithUnitAI(UNITAI_SETTLE, true, true) > 1)
-	{
-		return true;
-	}
-
 	MilitaryAIStrategyTypes eBuildCriticalDefenses = (MilitaryAIStrategyTypes) GC.getInfoTypeForString("MILITARYAISTRATEGY_LOSING_WARS");
 	// scale based on flavor and world size
 	if(eBuildCriticalDefenses != NO_MILITARYAISTRATEGY && pPlayer->GetMilitaryAI()->IsUsingStrategy(eBuildCriticalDefenses) && !pPlayer->IsCramped())
