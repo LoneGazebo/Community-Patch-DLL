@@ -295,7 +295,7 @@ void CvPlayerAI::AI_conquerCity(CvCity* pCity, PlayerTypes ePlayerToLiberate, bo
 	// What are our options for this city?
 	bool bCanLiberate = ePlayerToLiberate != NO_PLAYER;
 	bool bCanRaze = (canRaze(pCity) && !bGift); //shouldn't raze cities you bought
-	bool bCanAnnex = (isMinorCiv() || !GetPlayerTraits()->IsNoAnnexing());
+	bool bCanAnnex = !GetPlayerTraits()->IsNoAnnexing();
 
 	// City-States
 	if (isMinorCiv())
@@ -308,13 +308,8 @@ void CvPlayerAI::AI_conquerCity(CvCity* pCity, PlayerTypes ePlayerToLiberate, bo
 			DoLiberatePlayer(ePlayerToLiberate, pCity->GetID());
 			return;
 		}
-		else if (bCanAnnex)
-		{
-			pCity->DoAnnex();
-			return;
-		}
 
-		pCity->DoCreatePuppet();
+		pCity->DoAnnex();
 		return;
 	}
 
@@ -341,11 +336,16 @@ void CvPlayerAI::AI_conquerCity(CvCity* pCity, PlayerTypes ePlayerToLiberate, bo
 	}
 
 
-	// Now that the preliminary checks are out of the way, a choice:
-	// Should we keep the city (puppet/annex) or do we not want it (liberate/raze)?
-	bool bKeepCity = false;
+	// What is our happiness situation?
+	bool bUnhappy = false;
 
-	// Cities are rated on a percentage scale, where 0 = worthless, 100 = equal value with median city, 200 = twice the value of the median city.
+	if (MOD_BALANCE_CORE_HAPPINESS)
+		bUnhappy = GetExcessHappiness() < /*40*/ GC.getAI_MOSTLY_HAPPY_THRESHOLD(); // as a buffer; if a little unhappy it's fine to take a city
+	else
+		bUnhappy = IsEmpireUnhappy();
+
+
+	// City value is rated on a percentage scale, where 0 = worthless, 100 = equal value with median city, 200 = twice the value of the median city.
 	int iMedianEconomicPower = GC.getGame().getMedianEconomicValue();
 	int iLocalEconomicPower = pCity->getEconomicValue(GetID());
 	int iCityValue = (iLocalEconomicPower * 100) / max(1, iMedianEconomicPower);
@@ -363,7 +363,10 @@ void CvPlayerAI::AI_conquerCity(CvCity* pCity, PlayerTypes ePlayerToLiberate, bo
 
 	bool bHighValue = iCityValue >= /*80*/ GC.getAI_CITY_HIGH_VALUE_THRESHOLD();
 
-	bKeepCity = bHighValue && !IsEmpireVeryUnhappy();
+
+	// Now that the preliminary checks are out of the way, a choice:
+	// Should we keep the city (puppet/annex) or do we not want it (liberate/raze)?
+	bool bKeepCity = bHighValue && !IsEmpireVeryUnhappy();
 
 	//if it has wonders or is a holy city, try to keep it
 	if (pCity->HasAnyWonder() || pCity->GetCityReligions()->IsHolyCityAnyReligion())
@@ -384,7 +387,7 @@ void CvPlayerAI::AI_conquerCity(CvCity* pCity, PlayerTypes ePlayerToLiberate, bo
 		bKeepCity = true;
 	}
 
-	//Want to keep city - will puppet/annex
+	// Want to keep city - will puppet/annex
 	if (bKeepCity || (!bCanLiberate && !bCanRaze))
 	{
 		// Can't annex? Have to puppet.
@@ -393,23 +396,17 @@ void CvPlayerAI::AI_conquerCity(CvCity* pCity, PlayerTypes ePlayerToLiberate, bo
 			pCity->DoCreatePuppet();
 			return;
 		}
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
-		if (GetExcessHappiness() < GC.getAI_MOSTLY_HAPPY_THRESHOLD()) // (default) 40 as a buffer, if a little unhappy it's fine to take a city
+
+		// Too unhappy to annex? Let's puppet.
+		if (bUnhappy)
 		{
 			pCity->DoCreatePuppet();
 			return;
 		}
-#else
-		if (IsEmpireUnhappy())
-		{
-			pCity->DoCreatePuppet();
-			return;
-		}
-#endif
 
 		if (bCanAnnex)
 		{
-			//if you have a unique courthouse, use it!
+			// If we have a unique courthouse, use it!
 			if (iCourthouse != -1 && getCivilizationInfo().isCivilizationBuildingOverridden(iCourthouse))
 			{
 				pCity->DoAnnex();
@@ -432,7 +429,7 @@ void CvPlayerAI::AI_conquerCity(CvCity* pCity, PlayerTypes ePlayerToLiberate, bo
 		pCity->DoCreatePuppet();
 		return;
 	}
-	//Doesn't want the city - will raze/liberate (with one exception below)
+	// Doesn't want the city - might liberate, puppet or raze
 	else
 	{
 		if (bCanLiberate)
@@ -447,14 +444,25 @@ void CvPlayerAI::AI_conquerCity(CvCity* pCity, PlayerTypes ePlayerToLiberate, bo
 				return;
 		}
 
-		// ONE EXCEPTION, civs with bonuses for puppeting will consider puppeting cities they otherwise would have razed
-		// if the city is ok-ish value and they aren't in revolt
-		if ((GetPlayerPolicies()->GetNumericModifier(POLICYMOD_PUPPET_BONUS) > 0 || GetPlayerTraits()->IsNoAnnexing()) && iCityValue >= /*40*/ GC.getAI_CITY_SOME_VALUE_THRESHOLD() && !IsEmpireVeryUnhappy())
+		// If the city is of ok-ish value and we're not too unhappy, let's puppet
+		if (!IsEmpireVeryUnhappy())
 		{
-			pCity->DoCreatePuppet();
-			return;
+			bool bPuppetBonuses = GetPlayerTraits()->IsNoAnnexing() || GetPlayerPolicies()->GetNumericModifier(POLICYMOD_PUPPET_BONUS) > 0;
+
+			if (iCityValue >= /*40*/ GC.getAI_CITY_SOME_VALUE_THRESHOLD() && (bPuppetBonuses || !bUnhappy))
+			{
+				pCity->DoCreatePuppet();
+				return;
+			}
+			else if (iCityValue >= /*25*/ GC.getAI_CITY_PUPPET_BONUS_THRESHOLD() && bPuppetBonuses && !bUnhappy)
+			{
+				pCity->DoCreatePuppet();
+				return;
+			}
 		}
-		else if (bCanRaze)
+
+		// Insufficient value or too unhappy? Burn, baby, burn!
+		if (bCanRaze)
 		{
 			pCity->doTask(TASK_RAZE);
 			return;
