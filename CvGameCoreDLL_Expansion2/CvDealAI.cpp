@@ -2888,7 +2888,7 @@ int CvDealAI::GetThirdPartyPeaceValue(bool bFromMe, PlayerTypes eOtherPlayer, Te
 			return INT_MAX;
 		}
 		//Can they make peace?
-		if (!GET_PLAYER(eWithPlayer).isMinorCiv() && !GET_TEAM(eWithTeam).canChangeWarPeace(GET_PLAYER(eOtherPlayer).getTeam()))
+		if (GET_PLAYER(eWithPlayer).isMajorCiv() && !GET_TEAM(eWithTeam).canChangeWarPeace(GET_PLAYER(eOtherPlayer).getTeam()))
 		{
 			return INT_MAX;
 		}
@@ -2900,8 +2900,12 @@ int CvDealAI::GetThirdPartyPeaceValue(bool bFromMe, PlayerTypes eOtherPlayer, Te
 		{
 			return INT_MAX;
 		}
-		//Can they make peace?
-		if (!GET_PLAYER(eWithPlayer).isMinorCiv() && !GET_TEAM(eWithTeam).canChangeWarPeace(GetPlayer()->getTeam()))
+		//Can we make peace?
+		if (GET_PLAYER(eWithPlayer).isMajorCiv() && !GET_TEAM(eWithTeam).canChangeWarPeace(GetPlayer()->getTeam()))
+		{
+			return INT_MAX;
+		}
+		if (pDiploAI->IsPeaceBlocked(eWithPlayer))
 		{
 			return INT_MAX;
 		}

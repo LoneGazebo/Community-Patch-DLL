@@ -1576,6 +1576,25 @@ void CvTeam::DoDeclareWar(PlayerTypes eOriginatingPlayer, bool bAggressor, TeamT
 								}
 								else
 								{
+									CvNotifications* pNotify = GET_PLAYER(eLoopPlayer).GetNotifications();
+									if (pNotify)
+									{
+										Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_COOP_WAR_BROKEN_S");
+										Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_COOP_WAR_BROKEN_INVALID_TARGET");
+										strText << GET_PLAYER(eLoopDefender).getCivilizationShortDescriptionKey();
+										strText << GET_PLAYER(eThirdParty).getCivilizationShortDescriptionKey();
+										pNotify->Add(NOTIFICATION_DIPLOMACY_DECLARATION, strText.toUTF8(), strSummary.toUTF8(), -1, -1, -1);
+									}
+									pNotify = GET_PLAYER(eThirdParty).GetNotifications();
+									if (pNotify)
+									{
+										Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_COOP_WAR_BROKEN_S");
+										Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_COOP_WAR_BROKEN_INVALID_TARGET");
+										strText << GET_PLAYER(eLoopDefender).getCivilizationShortDescriptionKey();
+										strText << GET_PLAYER(eLoopPlayer).getCivilizationShortDescriptionKey();
+										pNotify->Add(NOTIFICATION_DIPLOMACY_DECLARATION, strText.toUTF8(), strSummary.toUTF8(), -1, -1, -1);
+									}
+
 									pDiplo->SetCoopWarState(eThirdParty, eLoopDefender, NO_COOP_WAR_STATE);
 									GET_PLAYER(eThirdParty).GetDiplomacyAI()->SetCoopWarState(eLoopPlayer, eLoopDefender, NO_COOP_WAR_STATE);
 								}
@@ -1617,6 +1636,25 @@ void CvTeam::DoDeclareWar(PlayerTypes eOriginatingPlayer, bool bAggressor, TeamT
 								}
 								else
 								{
+									CvNotifications* pNotify = GET_PLAYER(eLoopPlayer).GetNotifications();
+									if (pNotify)
+									{
+										Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_COOP_WAR_BROKEN_S");
+										Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_COOP_WAR_BROKEN_INVALID_TARGET");
+										strText << GET_PLAYER(eLoopAttacker).getCivilizationShortDescriptionKey();
+										strText << GET_PLAYER(eThirdParty).getCivilizationShortDescriptionKey();
+										pNotify->Add(NOTIFICATION_DIPLOMACY_DECLARATION, strText.toUTF8(), strSummary.toUTF8(), -1, -1, -1);
+									}
+									pNotify = GET_PLAYER(eThirdParty).GetNotifications();
+									if (pNotify)
+									{
+										Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_COOP_WAR_BROKEN_S");
+										Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_COOP_WAR_BROKEN_INVALID_TARGET");
+										strText << GET_PLAYER(eLoopAttacker).getCivilizationShortDescriptionKey();
+										strText << GET_PLAYER(eLoopPlayer).getCivilizationShortDescriptionKey();
+										pNotify->Add(NOTIFICATION_DIPLOMACY_DECLARATION, strText.toUTF8(), strSummary.toUTF8(), -1, -1, -1);
+									}
+
 									pDiplo->SetCoopWarState(eThirdParty, eLoopAttacker, NO_COOP_WAR_STATE);
 									GET_PLAYER(eThirdParty).GetDiplomacyAI()->SetCoopWarState(eLoopPlayer, eLoopAttacker, NO_COOP_WAR_STATE);									
 								}
@@ -4929,14 +4967,31 @@ void CvTeam::SetHasDefensivePact(TeamTypes eIndex, bool bNewValue)
 							if (eThirdParty == eLoopPlayer || GET_PLAYER(eThirdParty).getTeam() == GET_PLAYER(eDPLoopPlayer).getTeam())
 								continue;
 
-							if (pDiplo->IsPlayerValid(eThirdParty, true))
+							if (pDiplo->IsPlayerValid(eThirdParty, true) && pDiplo->GetCoopWarState(eThirdParty, eDPLoopPlayer) == COOP_WAR_STATE_PREPARING)
 							{
-								if (pDiplo->GetCoopWarState(eThirdParty, eDPLoopPlayer) == COOP_WAR_STATE_PREPARING)
+								GET_PLAYER(eThirdParty).GetDiplomacyAI()->SetPlayerBrokenCoopWarPromise(eLoopPlayer, true);
+								GET_PLAYER(eThirdParty).GetDiplomacyAI()->ChangeCoopWarScore(eLoopPlayer, -2);
+								GET_PLAYER(eThirdParty).GetDiplomacyAI()->ChangeRecentAssistValue(eLoopPlayer, 300);
+
+								CvNotifications* pNotify = GET_PLAYER(eLoopPlayer).GetNotifications();
+								if (pNotify)
 								{
-									GET_PLAYER(eThirdParty).GetDiplomacyAI()->SetPlayerBrokenCoopWarPromise(eLoopPlayer, true);
-									GET_PLAYER(eThirdParty).GetDiplomacyAI()->ChangeCoopWarScore(eLoopPlayer, -2);
-									GET_PLAYER(eThirdParty).GetDiplomacyAI()->ChangeRecentAssistValue(eLoopPlayer, 300);
+									Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_COOP_WAR_BROKEN_S");
+									Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_COOP_WAR_BROKEN_DP");
+									strText << GET_PLAYER(eDPLoopPlayer).getCivilizationShortDescriptionKey();
+									strText << GET_PLAYER(eThirdParty).getCivilizationShortDescriptionKey();
+									pNotify->Add(NOTIFICATION_DIPLOMACY_DECLARATION, strText.toUTF8(), strSummary.toUTF8(), -1, -1, -1);
 								}
+								pNotify = GET_PLAYER(eThirdParty).GetNotifications();
+								if (pNotify)
+								{
+									Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_COOP_WAR_BROKEN_S");
+									Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_COOP_WAR_BROKEN_DP");
+									strText << GET_PLAYER(eDPLoopPlayer).getCivilizationShortDescriptionKey();
+									strText << GET_PLAYER(eLoopPlayer).getCivilizationShortDescriptionKey();
+									pNotify->Add(NOTIFICATION_DIPLOMACY_DECLARATION, strText.toUTF8(), strSummary.toUTF8(), -1, -1, -1);
+								}
+
 								GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->SetCoopWarState(eThirdParty, eDPLoopPlayer, NO_COOP_WAR_STATE);
 								GET_PLAYER(eThirdParty).GetDiplomacyAI()->SetCoopWarState(eLoopPlayer, eDPLoopPlayer, NO_COOP_WAR_STATE);
 							}
@@ -9727,19 +9782,19 @@ void CvTeam::DoEndVassal(TeamTypes eTeam, bool bPeaceful, bool bSuppressNotifica
 // We liberate eTeam, if we can
 void CvTeam::DoLiberateVassal(TeamTypes eTeam)
 {
-	if(!CanLiberateVassal(eTeam))
+	if (!CanLiberateVassal(eTeam))
 		return;
 
 	// End our vassalage peacefully
 	GET_TEAM(eTeam).DoEndVassal(GetID(), true, false);
 
 	// Find our vassals
-	for(int iVassalPlayer = 0; iVassalPlayer < MAX_MAJOR_CIVS; iVassalPlayer++)
+	for (int iVassalPlayer = 0; iVassalPlayer < MAX_MAJOR_CIVS; iVassalPlayer++)
 	{
 		PlayerTypes eVassalPlayer = (PlayerTypes) iVassalPlayer;
-		if(GET_PLAYER(eVassalPlayer).getTeam() == eTeam)
+		if (GET_PLAYER(eVassalPlayer).isAlive() && GET_PLAYER(eVassalPlayer).getTeam() == eTeam)
 		{
-			GET_PLAYER(eVassalPlayer).GetDiplomacyAI()->DoLiberatedFromVassalage(GetID());
+			GET_PLAYER(eVassalPlayer).GetDiplomacyAI()->DoLiberatedFromVassalage(GetID(), false);
 		}
 	}
 }
@@ -9976,20 +10031,68 @@ void CvTeam::DoBecomeVassal(TeamTypes eTeam, bool bVoluntary, PlayerTypes eOrigi
 		}
 	}
 
-	// Let's check if we have a vassal already, if so they must become eTeam's vassals as well
+	// Let's check if we have a vassal already, if so they are liberated
 	for (int iOtherTeamLoop = 0; iOtherTeamLoop < MAX_TEAMS; iOtherTeamLoop++)
 	{
 		TeamTypes eOtherTeam = (TeamTypes) iOtherTeamLoop;
 		
-		if (GET_TEAM(eOtherTeam).isAlive())
+		if (GET_TEAM(eOtherTeam).isAlive() && eOtherTeam != eTeam && GET_TEAM(eOtherTeam).IsVassal(GetID()))
 		{
-			if (eOtherTeam != eTeam)
+			bool bWasVoluntary = GET_TEAM(eOtherTeam).IsVoluntaryVassal(GetID());
+			GET_TEAM(eOtherTeam).DoEndVassal(GetID(), true, true); // they are no longer our vassal
+
+			// Put these guys at peace with everyone
+			if (!GC.getGame().isOption(GAMEOPTION_ALWAYS_WAR) && !GC.getGame().isOption(GAMEOPTION_NO_CHANGING_WAR_PEACE))
 			{
-				// eOtherPlayer is our vassal
-				if (GET_TEAM(eOtherTeam).IsVassal(GetID()))
+				for (int iThirdTeamLoop = 0; iThirdTeamLoop < MAX_TEAMS; iThirdTeamLoop++)
 				{
-					GET_TEAM(eOtherTeam).DoEndVassal(GetID(), true, true);	// these guys no longer our vassal, they become vassal of eTeam now
-					GET_TEAM(eOtherTeam).DoBecomeVassal(eTeam, bVoluntary, eOriginatingMaster);
+					TeamTypes eThirdTeam = (TeamTypes) iThirdTeamLoop;
+
+					if (eThirdTeam == m_eID)
+						continue;
+					if (!GET_TEAM(eThirdTeam).isAlive())
+						continue;
+					if (GET_TEAM(eThirdTeam).isBarbarian())
+						continue;
+					if (GET_TEAM(eThirdTeam).isMinorCiv())
+					{
+						if (GET_PLAYER(GET_TEAM(eThirdTeam).getLeaderID()).isMinorCiv() && GET_PLAYER(GET_TEAM(eThirdTeam).getLeaderID()).GetMinorCivAI()->IsPermanentWar(eOtherTeam))
+							continue;
+					}
+
+					if (GET_TEAM(eThirdTeam).isAtWar(eOtherTeam))
+					{
+						GET_TEAM(eOtherTeam).makePeace(eThirdTeam, true, true, GET_TEAM(eOtherTeam).getLeaderID());
+					}
+				}
+			}
+			if (!bWasVoluntary && !GET_TEAM(eOtherTeam).isAtWar(eTeam)) // Diplo bonus for liberating a capitulated vassal
+			{
+				for (int iVassalPlayer = 0; iVassalPlayer < MAX_MAJOR_CIVS; iVassalPlayer++)
+				{
+					PlayerTypes eVassalPlayer = (PlayerTypes) iVassalPlayer;
+					if (GET_PLAYER(eVassalPlayer).isAlive() && GET_PLAYER(eVassalPlayer).getTeam() == eOtherTeam)
+					{
+						GET_PLAYER(eVassalPlayer).GetDiplomacyAI()->DoLiberatedFromVassalage(eTeam, true);
+					}
+				}
+			}
+			else if (bWasVoluntary) // Diplo penalty for forcibly liberating a voluntary vassal
+			{
+				for (int iVassalPlayer = 0; iVassalPlayer < MAX_MAJOR_CIVS; iVassalPlayer++)
+				{
+					PlayerTypes eVassalPlayer = (PlayerTypes) iVassalPlayer;
+					if (GET_PLAYER(eVassalPlayer).isAlive() && GET_PLAYER(eVassalPlayer).getTeam() == eOtherTeam)
+					{
+						for (int iNewMasterPlayer = 0; iNewMasterPlayer < MAX_MAJOR_CIVS; iNewMasterPlayer++)
+						{
+							PlayerTypes eNewMaster = (PlayerTypes) iNewMasterPlayer;
+							if (GET_PLAYER(eNewMaster).isAlive() && GET_PLAYER(eNewMaster).getTeam() == eTeam)
+							{
+								GET_PLAYER(eVassalPlayer).GetDiplomacyAI()->ChangeRecentAssistValue(eNewMaster, 300);
+							}
+						}
+					}
 				}
 			}
 		}
@@ -10007,10 +10110,8 @@ void CvTeam::DoBecomeVassal(TeamTypes eTeam, bool bVoluntary, PlayerTypes eOrigi
 	SetNumTurnsIsVassal(0);
 
 	// If we haven't met the guy, meet him
-	if(!isHasMet(eTeam))
-	{
+	if (!isHasMet(eTeam))
 		meet(eTeam, true);
-	}
 
 	//Set open borders
 	SetAllowsOpenBordersToTeam(eTeam, true);

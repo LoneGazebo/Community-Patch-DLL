@@ -135,7 +135,7 @@
 			<Text>VASSAL STATE</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_VASSALAGE_PEACE_TT">
-			<Text>Voluntarily become the other civilization's vassal. A voluntary vassal may choose to leave their master at any time after {1_Num} turns have passed.[NEWLINE][NEWLINE]WARNING: A master who accepts a voluntary vassal immediately declares war on everyone who is currently at war with that vassal. This may have serious consequences!</Text>
+			<Text>Voluntarily become the other civilization's vassal. A voluntary vassal may choose to leave their master at any time after {1_Num} turns have passed.[NEWLINE][NEWLINE]WARNING: A master who accepts a voluntary vassal immediately declares war on everyone who is currently at war with that vassal. This may have serious consequences![NEWLINE][NEWLINE]If the capitulating civilization has vassals, they will be liberated.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_VASSALAGE">
 			<Text>CAPITULATION</Text>
@@ -147,7 +147,7 @@
 			<Text>This civilization abandons mastery over all vassals. Only valid if the player has vassals, and is willing to abandon them.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_VASSALAGE_TT">
-			<Text>This civilization surrenders to the other player and becomes their Vassal State. A civilization that capitulates cannot leave their master until {1_Num} turns have passed.</Text>
+			<Text>This civilization surrenders to the other player and becomes their Vassal State. A civilization that capitulates cannot leave their master until {1_Num} turns have passed.[NEWLINE][NEWLINE]If the capitulating civilization has vassals, they will be liberated.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_VASSAL_THEY_HAVE">
 			<Text>[NEWLINE][NEWLINE]They already are a Vassal State of {1_PlayerName:textkey} and cannot capitulate.</Text>

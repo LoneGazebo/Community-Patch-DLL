@@ -3059,7 +3059,7 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 		}
 		else
 		{
-			if ((activePlayer.isAlive() || activePlayer.isObserver()) && activePlayer.GetNotifications() && pCity->isRevealed(activePlayer.getTeam(), false))
+			if (activePlayer.isObserver() || (activePlayer.isAlive() && activePlayer.GetNotifications() && pCity->isRevealed(activePlayer.getTeam(), false)))
 			{
 				CvString strBuffer = GetLocalizedText("TXT_KEY_MISC_CITY_CAPTURED_BY", strName.GetCString(), getCivilizationShortDescriptionKey());
 				GC.GetEngineUserInterface()->AddCityMessage(0, pCity->GetIDInfo(), activePlayer.GetID(), false, GC.getEVENT_MESSAGE_TIME(), strBuffer);
@@ -10100,6 +10100,12 @@ bool CvPlayer::CanLiberatePlayer(PlayerTypes ePlayer)
 	}
 
 	if(GET_TEAM(GET_PLAYER(ePlayer).getTeam()).GetKilledByTeam() == getTeam())
+	{
+		return false;
+	}
+
+	// No resurrection in always war games
+	if (GC.getGame().isOption(GAMEOPTION_ALWAYS_WAR) || GC.getGame().isOption(GAMEOPTION_NO_CHANGING_WAR_PEACE))
 	{
 		return false;
 	}

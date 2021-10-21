@@ -783,7 +783,7 @@ void CvDiplomacyAI::SlotStateChange()
 			PlayerTypes ID = GetID();
 
 			// Cancel coop wars against this player
-			pOther->CancelCoopWarsAgainstPlayer(ID);
+			pOther->CancelCoopWarsAgainstPlayer(ID, false);
 
 			// Reset exchange type values
 			SetRecentTradeValue(eMajor, 0);
@@ -2922,14 +2922,31 @@ void CvDiplomacyAI::SetDoFAccepted(PlayerTypes ePlayer, bool bValue)
 			{
 				PlayerTypes eThirdParty = (PlayerTypes) iThirdPartyLoop;
 
-				if (IsPlayerValid(eThirdParty, true) && eThirdParty != GetID())
+				if (IsPlayerValid(eThirdParty, true) && eThirdParty != GetID() && GetCoopWarState(eThirdParty, ePlayer) == COOP_WAR_STATE_PREPARING)
 				{
-					if (GetCoopWarState(eThirdParty, ePlayer) == COOP_WAR_STATE_PREPARING)
+					GET_PLAYER(eThirdParty).GetDiplomacyAI()->SetPlayerBrokenCoopWarPromise(GetID(), true);
+					GET_PLAYER(eThirdParty).GetDiplomacyAI()->ChangeCoopWarScore(GetID(), -2);
+					GET_PLAYER(eThirdParty).GetDiplomacyAI()->ChangeRecentAssistValue(GetID(), 300);
+
+					CvNotifications* pNotify = GetPlayer()->GetNotifications();
+					if (pNotify)
 					{
-						GET_PLAYER(eThirdParty).GetDiplomacyAI()->SetPlayerBrokenCoopWarPromise(GetID(), true);
-						GET_PLAYER(eThirdParty).GetDiplomacyAI()->ChangeCoopWarScore(GetID(), -2);
-						GET_PLAYER(eThirdParty).GetDiplomacyAI()->ChangeRecentAssistValue(GetID(), 300);
+						Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_COOP_WAR_BROKEN_S");
+						Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_COOP_WAR_BROKEN_DOF");
+						strText << GET_PLAYER(ePlayer).getCivilizationShortDescriptionKey();
+						strText << GET_PLAYER(eThirdParty).getCivilizationShortDescriptionKey();
+						pNotify->Add(NOTIFICATION_DIPLOMACY_DECLARATION, strText.toUTF8(), strSummary.toUTF8(), -1, -1, -1);
 					}
+					pNotify = GET_PLAYER(eThirdParty).GetNotifications();
+					if (pNotify)
+					{
+						Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_COOP_WAR_BROKEN_S");
+						Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_COOP_WAR_BROKEN_DOF");
+						strText << GET_PLAYER(ePlayer).getCivilizationShortDescriptionKey();
+						strText << GetPlayer()->getCivilizationShortDescriptionKey();
+						pNotify->Add(NOTIFICATION_DIPLOMACY_DECLARATION, strText.toUTF8(), strSummary.toUTF8(), -1, -1, -1);
+					}
+
 					SetCoopWarState(eThirdParty, ePlayer, NO_COOP_WAR_STATE);
 					GET_PLAYER(eThirdParty).GetDiplomacyAI()->SetCoopWarState(GetID(), ePlayer, NO_COOP_WAR_STATE);
 				}
@@ -7795,6 +7812,24 @@ void CvDiplomacyAI::DoUpdateCoopWarStates()
 				}
 				else
 				{
+					CvNotifications* pNotify = GetPlayer()->GetNotifications();
+					if (pNotify)
+					{
+						Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_COOP_WAR_BROKEN_S");
+						Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_COOP_WAR_BROKEN_INVALID_TARGET");
+						strText << GET_PLAYER(eThirdParty).getCivilizationShortDescriptionKey();
+						strText << GET_PLAYER(eLoopPlayer).getCivilizationShortDescriptionKey();
+						pNotify->Add(NOTIFICATION_DIPLOMACY_DECLARATION, strText.toUTF8(), strSummary.toUTF8(), -1, -1, -1);
+					}
+					pNotify = GET_PLAYER(eLoopPlayer).GetNotifications();
+					if (pNotify)
+					{
+						Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_COOP_WAR_BROKEN_S");
+						Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_COOP_WAR_BROKEN_INVALID_TARGET");
+						strText << GET_PLAYER(eThirdParty).getCivilizationShortDescriptionKey();
+						strText << GetPlayer()->getCivilizationShortDescriptionKey();
+						pNotify->Add(NOTIFICATION_DIPLOMACY_DECLARATION, strText.toUTF8(), strSummary.toUTF8(), -1, -1, -1);
+					}
 					SetCoopWarState(eLoopPlayer, eThirdParty, NO_COOP_WAR_STATE);
 					GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->SetCoopWarState(GetID(), eThirdParty, NO_COOP_WAR_STATE);
 				}
@@ -7819,16 +7854,6 @@ bool CvDiplomacyAI::CanStartCoopWar(PlayerTypes eAllyPlayer, PlayerTypes eTarget
 		return false;
 	if (!GET_PLAYER(eAllyPlayer).GetDiplomacyAI()->IsValidCoopWarTarget(eTargetPlayer, true))
 		return false;
-
-	// Must be able to declare war on the target (or be already at war)
-	if (!IsAtWar(eTargetPlayer) && !GET_TEAM(GetTeam()).canDeclareWar(GET_PLAYER(eTargetPlayer).getTeam(), GetID()))
-	{
-		return false;
-	}
-	if (!GET_PLAYER(eAllyPlayer).GetDiplomacyAI()->IsAtWar(eTargetPlayer) && !GET_TEAM(GET_PLAYER(eAllyPlayer).getTeam()).canDeclareWar(GET_PLAYER(eTargetPlayer).getTeam(), eAllyPlayer))
-	{
-		return false;
-	}
 
 	return true;
 }
@@ -7867,14 +7892,50 @@ void CvDiplomacyAI::DoStartCoopWar(PlayerTypes eAllyPlayer, PlayerTypes eTargetP
 		}
 		else
 		{
-			CvAssertMsg(false, "ERROR: Unable to start coop war!");
+			CvNotifications* pNotify = GetPlayer()->GetNotifications();
+			if (pNotify)
+			{
+				Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_COOP_WAR_BROKEN_S");
+				Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_COOP_WAR_BROKEN_INVALID_TARGET");
+				strText << GET_PLAYER(eTargetPlayer).getCivilizationShortDescriptionKey();
+				strText << GET_PLAYER(eAllyPlayer).getCivilizationShortDescriptionKey();
+				pNotify->Add(NOTIFICATION_DIPLOMACY_DECLARATION, strText.toUTF8(), strSummary.toUTF8(), -1, -1, -1);
+			}
+			pNotify = GET_PLAYER(eAllyPlayer).GetNotifications();
+			if (pNotify)
+			{
+				Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_COOP_WAR_BROKEN_S");
+				Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_COOP_WAR_BROKEN_INVALID_TARGET");
+				strText << GET_PLAYER(eTargetPlayer).getCivilizationShortDescriptionKey();
+				strText << GetPlayer()->getCivilizationShortDescriptionKey();
+				pNotify->Add(NOTIFICATION_DIPLOMACY_DECLARATION, strText.toUTF8(), strSummary.toUTF8(), -1, -1, -1);
+			}
+
 			SetCoopWarState(eAllyPlayer, eTargetPlayer, NO_COOP_WAR_STATE);
 			GET_PLAYER(eAllyPlayer).GetDiplomacyAI()->SetCoopWarState(GetID(), eTargetPlayer, NO_COOP_WAR_STATE);
 		}
 	}
 	else
 	{
-		CvAssertMsg(false, "ERROR: Unable to start coop war!");
+		CvNotifications* pNotify = GetPlayer()->GetNotifications();
+		if (pNotify)
+		{
+			Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_COOP_WAR_BROKEN_S");
+			Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_COOP_WAR_BROKEN_INVALID_TARGET");
+			strText << GET_PLAYER(eTargetPlayer).getCivilizationShortDescriptionKey();
+			strText << GET_PLAYER(eAllyPlayer).getCivilizationShortDescriptionKey();
+			pNotify->Add(NOTIFICATION_DIPLOMACY_DECLARATION, strText.toUTF8(), strSummary.toUTF8(), -1, -1, -1);
+		}
+		pNotify = GET_PLAYER(eAllyPlayer).GetNotifications();
+		if (pNotify)
+		{
+			Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_COOP_WAR_BROKEN_S");
+			Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_COOP_WAR_BROKEN_INVALID_TARGET");
+			strText << GET_PLAYER(eTargetPlayer).getCivilizationShortDescriptionKey();
+			strText << GetPlayer()->getCivilizationShortDescriptionKey();
+			pNotify->Add(NOTIFICATION_DIPLOMACY_DECLARATION, strText.toUTF8(), strSummary.toUTF8(), -1, -1, -1);
+		}
+
 		SetCoopWarState(eAllyPlayer, eTargetPlayer, NO_COOP_WAR_STATE);
 		GET_PLAYER(eAllyPlayer).GetDiplomacyAI()->SetCoopWarState(GetID(), eTargetPlayer, NO_COOP_WAR_STATE);
 	}
@@ -22922,15 +22983,18 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 							strPeaceBlockReason.Format("Too early to make peace!");
 							break;
 						case 4:
-							strPeaceBlockReason.Format("Our city was just captured, and we have units near the enemy's cities!");
+							strPeaceBlockReason.Format("Our city was just captured and we have units near the enemy's cities!");
 							break;
 						case 7:
 							strPeaceBlockReason.Format("Locked into coop/3rd party war for %d more turns!", GET_TEAM(GetTeam()).GetNumTurnsLockedIntoWar(GET_PLAYER(eLoopPlayer).getTeam()));
 							break;
 						case 8:
-							strPeaceBlockReason.Format("Other player has no cities, we lose nothing from maintaining the war!");
+							strPeaceBlockReason.Format("Other player has no cities so we lose nothing from maintaining the war!");
 							break;
 						case 9:
+							strPeaceBlockReason.Format("We're planning a coop war against someone they have a Defensive Pact with! Making peace would cancel the coop war!");
+							break;
+						case 10:
 							strPeaceBlockReason.Format("Cannot change war/peace status!");
 							break;
 						default:
@@ -23025,7 +23089,7 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 							strPeaceBlockReason.Format("Too early to make peace!");
 							break;
 						case 4:
-							strPeaceBlockReason.Format("Our city was just captured, and we have units near the enemy's cities!");
+							strPeaceBlockReason.Format("Our city was just captured and we have units near the enemy's cities!");
 							break;
 						case 5:
 							strPeaceBlockReason.Format("City-State is at permanent war with us!");
@@ -23034,9 +23098,9 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 							strPeaceBlockReason.Format("We're at war with this City-State's ally!");
 							break;
 						case 8:
-							strPeaceBlockReason.Format("Other player has no cities, we lose nothing from maintaining the war!");
+							strPeaceBlockReason.Format("Other player has no cities so we lose nothing from maintaining the war!");
 							break;
-						case 9:
+						case 10:
 							strPeaceBlockReason.Format("Cannot change war/peace status!");
 							break;
 						default:
@@ -24168,9 +24232,25 @@ int CvDiplomacyAI::GetPeaceBlockReason(PlayerTypes ePlayer) const
 	if (GET_PLAYER(ePlayer).getCapitalCity() == NULL)
 		return 8;
 
+	// Planning a coop war against someone this guy has a Defensive Pact with?
+	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+	{
+		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+		TeamTypes eLoopTeam = GET_PLAYER(eLoopPlayer).getTeam();
+
+		if (eLoopTeam == GET_PLAYER(ePlayer).getTeam())
+			continue;
+
+		if (IsPlayerValid(eLoopPlayer) && GET_TEAM(eLoopTeam).IsHasDefensivePact(GET_PLAYER(ePlayer).getTeam()))
+		{
+			if (GetGlobalCoopWarAgainstState(eLoopPlayer) == COOP_WAR_STATE_PREPARING)
+				return 9;
+		}
+	}
+
 	// Some other reason?
 	if (!GET_TEAM(GetTeam()).canChangeWarPeace(GET_PLAYER(ePlayer).getTeam()))
-		return 9;
+		return 10;
 
 	return 0; // No reason we're peace blocked
 }
@@ -26437,7 +26517,7 @@ void CvDiplomacyAI::DoWeMadePeaceWithSomeone(TeamTypes eOtherTeam)
 
 			if (GET_PLAYER(ePeacePlayer).isMajorCiv())
 			{
-				CancelCoopWarsAgainstPlayer(ePeacePlayer);
+				CancelCoopWarsAgainstPlayer(ePeacePlayer, false);
 
 				// Clear penalties for stealing territory now that we made peace
 				if (!GetPlayer()->isHuman())
@@ -39047,13 +39127,13 @@ const char* CvDiplomacyAI::GetDiploTextFromTag(const char* strTag, const Localiz
 // ////////////////////////////////////
 
 /// Are we able to start a coop war against eTargetPlayer?
-bool CvDiplomacyAI::IsValidCoopWarTarget(PlayerTypes eTargetPlayer, bool bIgnoreCanDeclareWar)
+bool CvDiplomacyAI::IsValidCoopWarTarget(PlayerTypes eTargetPlayer, bool bAtWarException)
 {
 	// Exclude vassals and invalid players from consideration
-	if (GetPlayer()->IsVassalOfSomeone() || !GetPlayer()->isMajorCiv() || !GetPlayer()->isAlive() || (GetPlayer()->getNumCities() <= 0))
+	if (GetPlayer()->IsVassalOfSomeone() || !GetPlayer()->isMajorCiv() || !GetPlayer()->isAlive() || GetPlayer()->getNumCities() <= 0)
 		return false;
 
-	if (GET_PLAYER(eTargetPlayer).IsVassalOfSomeone() || !GET_PLAYER(eTargetPlayer).isMajorCiv() || !GET_PLAYER(eTargetPlayer).isAlive() || (GET_PLAYER(eTargetPlayer).getNumCities() <= 0))
+	if (GET_PLAYER(eTargetPlayer).IsVassalOfSomeone() || !GET_PLAYER(eTargetPlayer).isMajorCiv() || !GET_PLAYER(eTargetPlayer).isAlive() || GET_PLAYER(eTargetPlayer).getNumCities() <= 0)
 		return false;
 
 	TeamTypes eMyTeam = GetTeam();
@@ -39080,9 +39160,10 @@ bool CvDiplomacyAI::IsValidCoopWarTarget(PlayerTypes eTargetPlayer, bool bIgnore
 		return false;
 
 	// Must be able to declare war on the target
-	if (!bIgnoreCanDeclareWar && !GET_TEAM(eMyTeam).canDeclareWar(eTargetTeam, GetID()))
+	if (!GET_TEAM(eMyTeam).canDeclareWar(eTargetTeam, GetID()))
 	{
-		return false;
+		if (!bAtWarException || !IsAtWar(eTargetPlayer))
+			return false;
 	}
 
 	return true;
@@ -39699,6 +39780,9 @@ int CvDiplomacyAI::GetCoopWarDesireScore(PlayerTypes eAllyPlayer, PlayerTypes eT
 		}
 	}
 
+	if (iScore <= 0)
+		return 0;
+
 	// Scale weight by target value
 	if (IsMajorCompetitor(eTargetPlayer) || IsEarlyGameCompetitor(eTargetPlayer) || (bWeHaveGoodAttackTarget && IsEasyTarget(eTargetPlayer)))
 	{
@@ -40092,34 +40176,85 @@ void CvDiplomacyAI::DoWarnCoopWarTarget(PlayerTypes eAskingPlayer, PlayerTypes e
 	}
 }
 
-void CvDiplomacyAI::CancelCoopWarsAgainstPlayer(PlayerTypes ePlayer)
+void CvDiplomacyAI::CancelCoopWarsAgainstPlayer(PlayerTypes ePlayer, bool bNotify)
 {
 	for (int iThirdPartyLoop = 0; iThirdPartyLoop < MAX_MAJOR_CIVS; iThirdPartyLoop++)
 	{
 		PlayerTypes eThirdParty = (PlayerTypes) iThirdPartyLoop;
-		SetCoopWarState(eThirdParty, ePlayer, NO_COOP_WAR_STATE);
-		GET_PLAYER(eThirdParty).GetDiplomacyAI()->SetCoopWarState(GetID(), ePlayer, NO_COOP_WAR_STATE);
+
+		if (!GET_PLAYER(ePlayer).isAlive() || GetCoopWarState(eThirdParty, ePlayer) >= COOP_WAR_STATE_PREPARING)
+		{
+			if (bNotify && GetCoopWarState(eThirdParty, ePlayer) == COOP_WAR_STATE_PREPARING)
+			{
+				CvNotifications* pNotify = GetPlayer()->GetNotifications();
+				if (pNotify)
+				{
+					Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_COOP_WAR_BROKEN_S");
+					Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_COOP_WAR_BROKEN_INVALID_TARGET");
+					strText << GET_PLAYER(ePlayer).getCivilizationShortDescriptionKey();
+					strText << GET_PLAYER(eThirdParty).getCivilizationShortDescriptionKey();
+					pNotify->Add(NOTIFICATION_DIPLOMACY_DECLARATION, strText.toUTF8(), strSummary.toUTF8(), -1, -1, -1);
+				}
+				pNotify = GET_PLAYER(eThirdParty).GetNotifications();
+				if (pNotify)
+				{
+					Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_COOP_WAR_BROKEN_S");
+					Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_COOP_WAR_BROKEN_INVALID_TARGET");
+					strText << GET_PLAYER(ePlayer).getCivilizationShortDescriptionKey();
+					strText << GetPlayer()->getCivilizationShortDescriptionKey();
+					pNotify->Add(NOTIFICATION_DIPLOMACY_DECLARATION, strText.toUTF8(), strSummary.toUTF8(), -1, -1, -1);
+				}
+			}
+
+			SetCoopWarState(eThirdParty, ePlayer, NO_COOP_WAR_STATE);
+			GET_PLAYER(eThirdParty).GetDiplomacyAI()->SetCoopWarState(GetID(), ePlayer, NO_COOP_WAR_STATE);
+		}
 	}
 }
 
 void CvDiplomacyAI::CancelCoopWarsWithPlayer(PlayerTypes ePlayer, bool bPenalty)
 {
+	bool bNotified = GetPlayer()->isHuman() && GET_PLAYER(ePlayer).isHuman(); // Don't notify when a coop war is cancelled because a human took the seat of an AI player
+
 	for (int iThirdPartyLoop = 0; iThirdPartyLoop < MAX_MAJOR_CIVS; iThirdPartyLoop++)
 	{
 		PlayerTypes eThirdParty = (PlayerTypes) iThirdPartyLoop;
 
-		if (IsPlayerValid(eThirdParty) && bPenalty)
+		if (IsPlayerValid(eThirdParty) && GetCoopWarState(ePlayer, eThirdParty) >= COOP_WAR_STATE_PREPARING)
 		{
 			if (GetCoopWarState(ePlayer, eThirdParty) == COOP_WAR_STATE_PREPARING)
 			{
-				SetPlayerBrokenCoopWarPromise(ePlayer, true);
-				ChangeCoopWarScore(ePlayer, -2);
-				ChangeRecentAssistValue(ePlayer, 300);
+				if (bPenalty)
+				{
+					SetPlayerBrokenCoopWarPromise(ePlayer, true);
+					ChangeCoopWarScore(ePlayer, -2);
+					ChangeRecentAssistValue(ePlayer, 300);
+				}
+				if (!bNotified)
+				{
+					CvNotifications* pNotify = GetPlayer()->GetNotifications();
+					if (pNotify)
+					{
+						Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_COOP_WAR_BROKEN_S");
+						Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_COOP_WAR_BROKEN_AGGRESSION");
+						strText << GET_PLAYER(ePlayer).getCivilizationShortDescriptionKey();
+						pNotify->Add(NOTIFICATION_DIPLOMACY_DECLARATION, strText.toUTF8(), strSummary.toUTF8(), -1, -1, -1);
+					}
+					pNotify = GET_PLAYER(ePlayer).GetNotifications();
+					if (pNotify)
+					{
+						Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_COOP_WAR_BROKEN_S");
+						Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_COOP_WAR_BROKEN_AGGRESSION");
+						strText << GetPlayer()->getCivilizationShortDescriptionKey();
+						pNotify->Add(NOTIFICATION_DIPLOMACY_DECLARATION, strText.toUTF8(), strSummary.toUTF8(), -1, -1, -1);
+					}
+					bNotified = true;
+				}
 			}
-		}
 
-		SetCoopWarState(ePlayer, eThirdParty, NO_COOP_WAR_STATE);
-		GET_PLAYER(ePlayer).GetDiplomacyAI()->SetCoopWarState(GetID(), eThirdParty, NO_COOP_WAR_STATE);
+			SetCoopWarState(ePlayer, eThirdParty, NO_COOP_WAR_STATE);
+			GET_PLAYER(ePlayer).GetDiplomacyAI()->SetCoopWarState(GetID(), eThirdParty, NO_COOP_WAR_STATE);
+		}
 	}
 }
 
@@ -40128,12 +40263,30 @@ void CvDiplomacyAI::CancelAllCoopWars()
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
 		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+		if (!GET_PLAYER(eLoopPlayer).isAlive())
+			continue;
+
+		CvNotifications* pNotify = GET_PLAYER(eLoopPlayer).GetNotifications();
+		bool bNotified = false;
 
 		for (int iThirdPartyLoop = 0; iThirdPartyLoop < MAX_MAJOR_CIVS; iThirdPartyLoop++)
 		{
 			PlayerTypes eThirdParty = (PlayerTypes) iThirdPartyLoop;
-			SetCoopWarState(eLoopPlayer, eThirdParty, NO_COOP_WAR_STATE);
-			GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->SetCoopWarState(GetID(), eThirdParty, NO_COOP_WAR_STATE);
+
+			if (pNotify && !bNotified && GetCoopWarState(eLoopPlayer, eThirdParty) == COOP_WAR_STATE_PREPARING)
+			{
+				Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_COOP_WAR_BROKEN_S");
+				Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_COOP_WAR_BROKEN_ELIMINATED");
+				strText << GetPlayer()->getCivilizationShortDescriptionKey();
+				pNotify->Add(NOTIFICATION_DIPLOMACY_DECLARATION, strText.toUTF8(), strSummary.toUTF8(), -1, -1, -1);
+				bNotified = true;
+			}
+
+			if (!GetPlayer()->isAlive() || GetCoopWarState(eLoopPlayer, eThirdParty) >= COOP_WAR_STATE_PREPARING)
+			{
+				SetCoopWarState(eLoopPlayer, eThirdParty, NO_COOP_WAR_STATE);
+				GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->SetCoopWarState(GetID(), eThirdParty, NO_COOP_WAR_STATE);
+			}
 		}
 	}
 }
@@ -52702,8 +52855,8 @@ bool CvDiplomacyAI::IsVassalageAcceptable(PlayerTypes ePlayer, bool bMasterEvalu
 	if (!GET_TEAM(GetTeam()).canBecomeVassal(GET_PLAYER(ePlayer).getTeam()))
 		return false;
 
-	// Can't capitulate if we have vassals
-	if (GetPlayer()->GetNumVassals() > 0)
+	// Can't voluntarily capitulate if we have vassals
+	if (!IsAtWar(ePlayer) && GetPlayer()->GetNumVassals() > 0)
 		return false;
 
 	// If a player on this team was resurrected by one team, can't voluntarily capitulate to another team
@@ -54624,6 +54777,9 @@ void CvDiplomacyAI::DoWeMadeVassalageWithSomeone(TeamTypes eMasterTeam, bool bVo
 			GET_TEAM(GetTeam()).SetNumTurnsLockedIntoWar(eLoopTeam, 0);
 			GET_TEAM(eLoopTeam).SetNumTurnsLockedIntoWar(GetTeam(), 0);
 
+			// Cancel coop wars targeting us
+			GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->CancelCoopWarsAgainstPlayer(GetID(), true);
+
 			if (!bVoluntary)
 			{
 				// Clear this player's warmongering penalties
@@ -54787,7 +54943,7 @@ void CvDiplomacyAI::DoWeEndedVassalageWithSomeone(TeamTypes eTeam)
 }
 
 /// We are liberated by a master
-void CvDiplomacyAI::DoLiberatedFromVassalage(TeamTypes eTeam)
+void CvDiplomacyAI::DoLiberatedFromVassalage(TeamTypes eTeam, bool bSkipPopup)
 {
 	if (eTeam < 0 || eTeam >= MAX_CIV_TEAMS) return;
 
@@ -54798,10 +54954,14 @@ void CvDiplomacyAI::DoLiberatedFromVassalage(TeamTypes eTeam)
 		if (GET_PLAYER(eMasterPlayer).getTeam() == eTeam)
 		{
 			SetMasterLiberatedMeFromVassalage(eMasterPlayer, true);
-			ChangeRecentAssistValue(eMasterPlayer, -300);
 			
 			// Remove any previous penalty for refusing to give independence
 			SetVassalageForcefullyRevokedTurn(eMasterPlayer, -1);
+
+			if (!GET_PLAYER(eMasterPlayer).isAlive())
+				continue;
+
+			ChangeRecentAssistValue(eMasterPlayer, -300);
 			
 			// Friends of the vassal - bonus to recent assistance!
 			for (int iThirdPartyLoop = 0; iThirdPartyLoop < MAX_MAJOR_CIVS; iThirdPartyLoop++)
@@ -54816,6 +54976,9 @@ void CvDiplomacyAI::DoLiberatedFromVassalage(TeamTypes eTeam)
 					GET_PLAYER(eThirdParty).GetDiplomacyAI()->ChangeRecentAssistValue(eMasterPlayer, -300);
 				}
 			}
+
+			if (bSkipPopup)
+				continue;
 
 #if defined(MOD_ACTIVE_DIPLOMACY)
 			if(GC.getGame().isReallyNetworkMultiPlayer() && MOD_ACTIVE_DIPLOMACY)
