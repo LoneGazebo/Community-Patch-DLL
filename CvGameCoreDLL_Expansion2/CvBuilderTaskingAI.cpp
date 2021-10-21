@@ -492,11 +492,19 @@ int CvBuilderTaskingAI::GetRouteValue(CvPlot* pPlot)
 	if (!pPlot)
 		return false;
 
-	RoutePlotContainer::const_iterator it = m_routeNeededPlots.find(pPlot->GetPlotIndex());
+	int iCreateValue = 0;
+	int iKeepValue = 0;
+	RoutePlotContainer::const_iterator it;
+
+	it = m_routeNeededPlots.find(pPlot->GetPlotIndex());
 	if (it != m_routeNeededPlots.end())
-		return it->second.second;
-	else
-		return -1;
+		iKeepValue = it->second.second;
+
+	it = m_routeWantedPlots.find(pPlot->GetPlotIndex());
+	if (it != m_routeWantedPlots.end())
+		iCreateValue = it->second.second;
+
+	return max(iKeepValue,iCreateValue);
 }
 
 void CvBuilderTaskingAI::UpdateCanalPlots()
@@ -1438,6 +1446,14 @@ void CvBuilderTaskingAI::AddRouteDirectives(CvUnit* pUnit, CvPlot* pPlot, int iM
 	iWeight += GetBuildTimeWeight(pUnit, pPlot, m_eRouteBuild, false);
 	iWeight += GetRouteValue(pPlot);
 	iWeight = iWeight / (iMoveTurnsAway*iMoveTurnsAway + 1);
+
+	//if the worker just built a road there are unfortunately many plots with the same value of iMoveTurnsAway
+	//so look at plot distance additionally
+	int iPlotDistance = plotDistance(*pUnit->plot(), *pPlot);
+	if (iPlotDistance == 0)
+		iWeight *= 3; //build right where we are
+	else if (iPlotDistance == 1)
+		iWeight *= 2; //extend the road
 
 	BuilderDirective directive;
 	directive.m_eDirective = eDirectiveType;

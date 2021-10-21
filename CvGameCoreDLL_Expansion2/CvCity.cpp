@@ -2251,10 +2251,16 @@ void CvCity::PreKill()
 	for (int iPlotLoop = 0; iPlotLoop < GC.getMap().numPlots(); iPlotLoop++)
 	{
 		CvPlot* pLoopPlot = GC.getMap().plotByIndexUnchecked(iPlotLoop);
-		if (NULL != pLoopPlot && pLoopPlot->getOwningCityID() == GetID())
-		{
+		if (!pLoopPlot)
+			continue;
+		
+		//give up all plots owned by this city
+		if (pLoopPlot->getOwningCityID() == GetID())
 			pLoopPlot->setOwner(NO_PLAYER, NO_PLAYER, /*bCheckUnits*/ false, /*bUpdateResources*/ true);
-		}
+
+		//but also give back any loaned plots to their original city
+		if (pLoopPlot->isEffectiveOwner(this))
+			pLoopPlot->setOwningCityOverride(NULL);
 	}
 
 	pPlot->setIsCity(false, m_iID, getWorkPlotDistance());
