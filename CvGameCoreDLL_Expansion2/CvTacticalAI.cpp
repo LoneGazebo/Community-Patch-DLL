@@ -7325,7 +7325,7 @@ STacticalAssignment ScorePlotForCombatUnitOffensiveMove(const SUnitStats& unit, 
 	const CvUnit* pUnit = unit.pUnit;
 
 	//can we put a combat unit here?
-	if (testPlot.isBlockedByNonSimCombatUnit())
+	if (testPlot.isBlockedByNonSimUnit( pUnit->isNativeDomain(pTestPlot) ))
 		return result;
 
 	//cannot deal with enemies here, only friendly/empty plots
@@ -7422,7 +7422,7 @@ STacticalAssignment ScorePlotForCombatUnitDefensiveMove(const SUnitStats& unit, 
 	const CvUnit* pUnit = unit.pUnit;
 
 	//can we put a combat unit here?
-	if (testPlot.isBlockedByNonSimCombatUnit())
+	if (testPlot.isBlockedByNonSimUnit( pUnit->isNativeDomain(pTestPlot) ))
 		return result;
 
 	//cannot deal with enemies here, only friendly/empty plots
@@ -7570,7 +7570,7 @@ STacticalAssignment ScorePlotForNonFightingUnitMove(const SUnitStats& unit, cons
 	else if (unit.eStrategy == MS_EMBARKED)
 	{
 		//can we put a combat unit here?
-		if (testPlot.isBlockedByNonSimCombatUnit())
+		if (testPlot.isBlockedByNonSimUnit( pUnit->isNativeDomain(pTestPlot) ))
 			return result;
 
 		if (evalMode!=EM_INTERMEDIATE)
@@ -7715,6 +7715,7 @@ CvTacticalPlot::CvTacticalPlot(const CvPlot* plot, PlayerTypes ePlayer, const se
 	bHasAirCover = pPlot->HasAirCover(ePlayer);
 	bIsVisibleToEnemy = pPlot->isVisibleToEnemy(ePlayer);
 	bBlockedByNonSimCombatUnit = false;
+	bBlockedByNonSimEmbarkedUnit = false;
 
 	//updated if necessary
 	bEdgeOfTheKnownWorldUnknown = true;
@@ -7723,7 +7724,7 @@ CvTacticalPlot::CvTacticalPlot(const CvPlot* plot, PlayerTypes ePlayer, const se
 	bAdjacentToEnemyCitadel = false;
 
 	//set only once
-	bFriendlyCombatUnitEndTurn = false;
+	bFriendlyDefenderEndTurn = false;
 
 	iDamageDealt = 0;
 
@@ -7780,16 +7781,32 @@ CvTacticalPlot::CvTacticalPlot(const CvPlot* plot, PlayerTypes ePlayer, const se
 		{
 			//check if we can use the plot for combat units
 			if (pPlotUnit->IsCanDefend())
-				bBlockedByNonSimCombatUnit = true;
+			{
+				if (pPlotUnit->isEmbarked())
+					bBlockedByNonSimEmbarkedUnit = true;
+				else
+					bBlockedByNonSimCombatUnit = true;
+			}
 		}
 		//owned units not included in sim
 		else if (allOurUnits.find(pPlotUnit) == allOurUnits.end())
 		{
-			if (pPlotUnit->IsCanDefend() && !pPlotUnit->isEmbarked())
+			if (pPlotUnit->IsCanDefend())
 			{
-				bBlockedByNonSimCombatUnit = true;
+				if (pPlotUnit->isEmbarked())
+					bBlockedByNonSimEmbarkedUnit = true;
+				else
+					bBlockedByNonSimCombatUnit = true;
+
 				if (pPlotUnit->TurnProcessed())
-					bFriendlyCombatUnitEndTurn = true;
+					bFriendlyDefenderEndTurn = true;
+
+				//rules for cities are complex so just don't try it
+				if (pPlot->isCity())
+				{
+					bBlockedByNonSimCombatUnit = true;
+					bBlockedByNonSimEmbarkedUnit = true;
+				}
 			}
 		}
 	}
@@ -7863,10 +7880,10 @@ bool CvTacticalPlot::hasSupportBonus(int iIgnoreUnitPlot) const
 void CvTacticalPlot::setCombatUnitEndTurn(CvTacticalPosition& currentPosition, eTactPlotDomain unitDomain)
 {
 	//don't do this twice
-	if (!pPlot || bFriendlyCombatUnitEndTurn)
+	if (!pPlot || bFriendlyDefenderEndTurn)
 		return;
 
-	bFriendlyCombatUnitEndTurn = true;
+	bFriendlyDefenderEndTurn = true;
 
 	CvPlot** aNeighbors = GC.getMap().getNeighborsUnchecked(pPlot);
 	for (int i = 0; i < 6; i++)

@@ -713,7 +713,7 @@ public:
 	void setNextToEnemyCitadel(bool bValue) { bAdjacentToEnemyCitadel = bValue; }
 	bool hasAirCover() const { return bHasAirCover; }
 	bool isVisibleToEnemy() const { return bIsVisibleToEnemy; }
-	bool isBlockedByNonSimCombatUnit() const { return bBlockedByNonSimCombatUnit; }
+	bool isBlockedByNonSimUnit(bool bCombat) const { return bCombat ? bBlockedByNonSimCombatUnit : bBlockedByNonSimEmbarkedUnit; }
 
 	bool hasFriendlyCombatUnit() const;
 	bool hasFriendlyEmbarkedUnit() const;
@@ -732,7 +732,7 @@ public:
 	void setEnemyDistance(eTactPlotDomain eDomain, int iDistance);
 	bool checkEdgePlotsForSurprises(const CvTacticalPosition& currentPosition, vector<int>& landEnemies, vector<int>& seaEnemies);
 	bool isValid() const { return pPlot != NULL; }
-	bool isCombatEndTurn() const { return bFriendlyCombatUnitEndTurn; }
+	bool isCombatEndTurn() const { return bFriendlyDefenderEndTurn; }
 	void changeNeighboringUnitCount(CvTacticalPosition& currentPosition, const STacticalAssignment& assignment, int iChange) const;
 	void setCombatUnitEndTurn(CvTacticalPosition& currentPosition, eTactPlotDomain unitDomain);
 
@@ -746,11 +746,13 @@ protected:
 	unsigned char aiFriendlyCombatUnitsAdjacent[3]; //for flanking. set initially and updated every time a unit moves
 	unsigned char aiFriendlyCombatUnitsAdjacentEndTurn[3]; //ranged units need cover. updated every time a unit finishes
 	unsigned char nSupportUnitsAdjacent; //for general bonus (not differentiated by domain)
+	unsigned char iDamageDealt; //damage dealt to this plot in previous simulated attacks
 
 	//set once and not changed afterwards
 	bool bIsVisibleToEnemy:1;
 	bool bHasAirCover:1;
 	bool bBlockedByNonSimCombatUnit:1;
+	bool bBlockedByNonSimEmbarkedUnit:1;
 
 	//this is updated if the civilian is captured
 	bool bEnemyCivilianPresent:1;
@@ -760,9 +762,8 @@ protected:
 	//updated if an enemy is killed, after pillage or after adding a newly visible plot
 	bool bEdgeOfTheKnownWorld:1; //neighboring plot is not part of sim and invisible
 	bool bAdjacentToEnemyCitadel:1;
-	bool bFriendlyCombatUnitEndTurn:1; 
 
-	unsigned char iDamageDealt; //damage dealt to this plot in previous simulated attacks
+	bool bFriendlyDefenderEndTurn:1; 
 };
 
 struct SAttackStats
