@@ -7,8 +7,8 @@
 !*.xml
 !*.lua
 
-!*.Civ5Pkg
 !*.civ5mod
+!*.civ5pkg
 !*.civ5proj
 !*.civ5proj
 !*.civ5sln
@@ -38,7 +38,7 @@
 !*.txt
 !*.vcxproj
 
-#ignore Modbuddy and VS output
+#ignore output from ModBuddy and Visual Studio
 .vs/
 BuildOutput/
 BuildTemp/

@@ -3,11 +3,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Default</Configuration>
     <ProjectGuid>{5ef38aa5-24ef-4f43-aeff-8a98828da7ce}</ProjectGuid>
-    <Name>City-State Diplomacy Mod (CSD) for Brave New World</Name>
+    <Name>(3) CSD for VP</Name>
     <Guid>eead0050-1e3f-4178-a91f-26cf1881ac39</Guid>
-    <ModVersion>28</ModVersion>
+    <ModVersion>29</ModVersion>
     <Stability>Stable</Stability>
-    <Teaser>A mod to improve diplomacy with City-States and the World Congress.</Teaser>
+    <Teaser>(1.2) A mod to improve diplomacy with City-States and the World Congress.</Teaser>
     <Description>- Design Philosophy -
 This mod is a complete overhaul of the city-state diplomacy system as well as the World Congress. It introduces a new, unit-based system of influence, dozens of new city-state quests, and an entirely revamped World Congress.
 
@@ -19,12 +19,13 @@ Securing allies is more important than ever, as the World Congress has been grea
     </SpecialThanks>
     <Categories>$Categories$</Categories>
     <AffectsSavedGames>true</AffectsSavedGames>
-    <MinCompatibleSaveVersion>28</MinCompatibleSaveVersion>
+    <MinCompatibleSaveVersion>29</MinCompatibleSaveVersion>
     <SupportsSinglePlayer>true</SupportsSinglePlayer>
-    <SupportsMultiplayer>false</SupportsMultiplayer>
+    <SupportsMultiplayer>true</SupportsMultiplayer>
     <SupportsMac>true</SupportsMac>
     <AssemblyName>Civ5Mod4</AssemblyName>
     <RootNamespace>Civ5Mod4</RootNamespace>
+    <ReloadAudioSystem>true</ReloadAudioSystem>
     <ReloadUnitSystem>true</ReloadUnitSystem>
     <ReloadLandmarkSystem>true</ReloadLandmarkSystem>
     <ModActions>
@@ -37,16 +38,6 @@ Securing allies is more important than ever, as the World Congress has been grea
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
         <FileName>Options.sql</FileName>
-      </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
-        <FileName>DLL/TableAdditions.sql</FileName>
-      </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
-        <FileName>DLL/AddDefines.sql</FileName>
       </Action>
       <Action>
         <Set>OnModActivated</Set>
@@ -91,21 +82,6 @@ Securing allies is more important than ever, as the World Congress has been grea
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
-        <FileName>Policies/Bonuses.sql</FileName>
-      </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
-        <FileName>Policies/Flavors.sql</FileName>
-      </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
-        <FileName>Policies/Policies.sql</FileName>
-      </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
         <FileName>Units/UnitGoldCost.sql</FileName>
       </Action>
       <Action>
@@ -117,11 +93,6 @@ Securing allies is more important than ever, as the World Congress has been grea
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
         <FileName>World Congress/IdeologyChanges.sql</FileName>
-      </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
-        <FileName>DLL/MinorCivChanges.sql</FileName>
       </Action>
       <Action>
         <Set>OnModActivated</Set>
@@ -219,21 +190,6 @@ Securing allies is more important than ever, as the World Congress has been grea
         <FileName>World Congress/Projects.xml</FileName>
       </Action>
       <Action>
-        <Set>OnGetDLLPath</Set>
-        <Type>SetDllPath</Type>
-        <FileName>CvGameCore_Expansion2.dll</FileName>
-      </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
-        <FileName>Languages/German/GermanText.sql</FileName>
-      </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
-        <FileName>Languages/German/GermanText.xml</FileName>
-      </Action>
-      <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
         <FileName>Compatibility.xml</FileName>
@@ -243,6 +199,22 @@ Securing allies is more important than ever, as the World Congress has been grea
     <SupportsHotSeat>true</SupportsHotSeat>
     <ModReferences />
     <ModProperties />
+    <ModDependencies>
+      <Association>
+        <Type>Mod</Type>
+        <Name>Community Patch</Name>
+        <Id>d1b6328c-ff44-4b0d-aad7-c657f83610cd</Id>
+        <MinVersion>94</MinVersion>
+        <MaxVersion>999</MaxVersion>
+      </Association>
+      <Association>
+        <Type>Mod</Type>
+        <Name>Community Balance Patch</Name>
+        <Id>8411a7a8-dad3-4622-a18e-fcc18324c799</Id>
+        <MinVersion>13</MinVersion>
+        <MaxVersion>999</MaxVersion>
+      </Association>
+    </ModDependencies>
     <ModContent>
     </ModContent>
   </PropertyGroup>
@@ -267,23 +239,13 @@ Securing allies is more important than ever, as the World Congress has been grea
     <Folder Include="Art\Units\Icons" />
     <Folder Include="Art\XML" />
     <Folder Include="Art\Units" />
-    <Folder Include="Assets\UI" />
-    <Folder Include="Assets\UI\InGame" />
-    <Folder Include="Assets\UI\InGame\CityView" />
-    <Folder Include="Assets\UI\InGame\HealthandPlague" />
-    <Folder Include="Assets\UI\InGame\Popups" />
     <Folder Include="Gameplay" />
     <Folder Include="Buildings" />
-    <Folder Include="DLL" />
-    <Folder Include="Assets" />
     <Folder Include="Improvements" />
-    <Folder Include="Languages" />
-    <Folder Include="Languages\German" />
     <Folder Include="World Congress" />
     <Folder Include="Quests" />
     <Folder Include="Specialist" />
     <Folder Include="Resource" />
-    <Folder Include="Policies" />
     <Folder Include="Promotions\" />
     <Folder Include="Units" />
   </ItemGroup>
@@ -496,50 +458,6 @@ Securing allies is more important than ever, as the World Congress has been grea
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
-    <Content Include="Assets\UI\InGame\CityStateStatusHelper.lua">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>True</ImportIntoVFS>
-    </Content>
-    <Content Include="Assets\UI\InGame\CityView\CityView.lua">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>True</ImportIntoVFS>
-    </Content>
-    <Content Include="Assets\UI\InGame\DiploList.lua">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>True</ImportIntoVFS>
-    </Content>
-    <Content Include="Assets\UI\InGame\HealthandPlague\InfoTooltipInclude.lua">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
-    <Content Include="Assets\UI\InGame\HealthandPlague\PlotMouseoverInclude.lua">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
-    <Content Include="Assets\UI\InGame\InfoTooltipInclude.lua">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>True</ImportIntoVFS>
-    </Content>
-    <Content Include="Assets\UI\InGame\PlotMouseoverInclude.lua">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>True</ImportIntoVFS>
-    </Content>
-    <Content Include="Assets\UI\InGame\Popups\CityStateDiploPopup.lua">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>True</ImportIntoVFS>
-    </Content>
-    <Content Include="Assets\UI\InGame\Popups\CityStateDiploPopup.xml">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>True</ImportIntoVFS>
-    </Content>
-    <Content Include="Assets\UI\InGame\Popups\CityStateGreetingPopup.lua">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>True</ImportIntoVFS>
-    </Content>
-    <Content Include="Assets\UI\InGame\TopPanel.lua">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>True</ImportIntoVFS>
-    </Content>
     <Content Include="Buildings\BuildingRules.sql">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
@@ -564,23 +482,11 @@ Securing allies is more important than ever, as the World Congress has been grea
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
-    <Content Include="CvGameCore_Expansion2.dll">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
-    <Content Include="DLL\AddDefines.sql">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
-    <Content Include="DLL\MinorCivChanges.sql">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
-    <Content Include="DLL\TableAdditions.sql">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
     <Content Include="Compatibility.xml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="Gameplay\AddDefines.sql">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
@@ -612,27 +518,7 @@ Securing allies is more important than ever, as the World Congress has been grea
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
-    <Content Include="Languages\German\GermanText.xml">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
-    <Content Include="Languages\German\GermanText.sql">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
     <Content Include="Options.sql">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
-    <Content Include="Policies\Bonuses.sql">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
-    <Content Include="Policies\Flavors.sql">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
-    <Content Include="Policies\Policies.sql">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
@@ -657,6 +543,10 @@ Securing allies is more important than ever, as the World Congress has been grea
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
     <Content Include="Specialist\CivilServant.xml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="Units\MoreGreatDiplomats.sql">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>

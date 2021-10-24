@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "Vox Populi"
-#define MyAppVersion "1.1.4"
+#define MyAppVersion "1.2"
 #define MyAppPublisher "Community Patch Project Team"
 #define MyAppURL "http://forums.civfanatics.com/showthread.php?t=528034"
 
@@ -13,30 +13,30 @@
 AppId={{97D14FF1-16B3-4F26-AD9D-DF845F5B7766}
 AppName={#MyAppName}
 AppVersion={#MyAppVersion}
-;AppVerName={#MyAppName} {#MyAppVersion}
 AppPublisher={#MyAppPublisher}
 AppPublisherURL={#MyAppURL}
 AppSupportURL={#MyAppURL}
 AppUpdatesURL={#MyAppURL}
 DefaultGroupName={#MyAppName}
-AllowNoIcons=yes
-LicenseFile=Community Patch Project Installer Files\License.rtf
-InfoBeforeFile=Community Patch Project Installer Files\Opener.rtf
-OutputBaseFilename=Vox Populi
+VersionInfoVersion={#MyAppVersion}
+VersionInfoCompany={#MyAppPublisher}
+VersionInfoDescription={#MyAppName}
+VersionInfoProductName={#MyAppName}
+VersionInfoProductVersion={#MyAppVersion}
+VersionInfoCopyright=2021
+OutputBaseFilename={#MyAppName} ({#MyAppVersion})
+DefaultDirName={userdocs}\My Games\Sid Meier's Civilization 5\MODS\
+LicenseFile=License.rtf
+InfoBeforeFile=Opener.rtf
+SetupIconFile=installer.ico
+WizardImageStretch=False
 Compression=lzma
 SolidCompression=yes
-Uninstallable=no
-DefaultDirName={userdocs}\My Games\Sid Meier's Civilization 5\MODS\
-SetupIconFile=Community Patch Project Installer Files\installer.ico
-WizardImageBackColor=cl3DLight
 ShowComponentSizes=False
-VersionInfoVersion=1.1.4
-VersionInfoCompany=Community Patch Project Team
-VersionInfoDescription=Vox Populi
-VersionInfoCopyright=2021
-VersionInfoProductName=Vox Populi
-VersionInfoProductVersion=1.1.4
-WizardImageStretch=False
+AllowNoIcons=yes
+Uninstallable=no
+PrivilegesRequired=admin
+UsedUserAreasWarning=no
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
@@ -45,25 +45,25 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 FinishedLabel=Setup has finished installing [name] on your computer. To launch the mod, open Civilization V and enable all installed mods in the MODS menu, and click 'Next.' Have fun!
 
 [Files]
-Source: "..\Documents\Community Patch Project Installer Files\(1) Community Patch\*"; DestDir: "{app}\(1) Community Patch"; Flags: ignoreversion createallsubdirs recursesubdirs
-Source: "..\Documents\Community Patch Project Installer Files\(2) Community Balance Overhaul\*"; DestDir: "{app}\(2) Community Balance Overhaul"; Flags: ignoreversion createallsubdirs recursesubdirs; Components: Basic or FullEUI or FullNoEUI Civ43EUI Civ43NoEUI
-Source: "..\Documents\Community Patch Project Installer Files\(3) CSD for CBP\*"; DestDir: "{app}\(3) CSD for CBP"; Flags: ignoreversion createallsubdirs recursesubdirs; Components: FullEUI or FullNoEUI Civ43EUI Civ43NoEUI
-Source: "..\Documents\Community Patch Project Installer Files\(4) Civ IV Diplomatic Features\*"; DestDir: "{app}\(4) Civ IV Diplomatic Features"; Flags: ignoreversion createallsubdirs recursesubdirs; Components: FullEUI or FullNoEUI Civ43EUI Civ43NoEUI
-Source: "..\Documents\Community Patch Project Installer Files\(5) More Luxuries\*"; DestDir: "{app}\(5) More Luxuries"; Flags: ignoreversion createallsubdirs recursesubdirs; Components: FullEUI or FullNoEUI Civ43EUI Civ43NoEUI
-Source: "..\Documents\Community Patch Project Installer Files\(6a) Community Balance Overhaul - Compatibility Files (EUI)\*"; DestDir: "{app}\(6a) Community Balance Overhaul - Compatibility Files (EUI)"; Flags: ignoreversion createallsubdirs recursesubdirs; Components: FullEUI
-Source: "..\Documents\Community Patch Project Installer Files\(6b) Community Balance Overhaul - Compatibility Files (No-EUI)\*"; DestDir: "{app}\(6b) Community Balance Overhaul - Compatibility Files (No-EUI)"; Flags: ignoreversion createallsubdirs recursesubdirs; Components: FullNoEUI
-Source: "..\Documents\Community Patch Project Installer Files\CP LUA\LUA\*"; DestDir: "{app}\(1) Community Patch\LUA"; Flags: ignoreversion createallsubdirs recursesubdirs; Components: Core
-Source: "..\Documents\Community Patch Project Installer Files\CBO LUA\LUA\*"; DestDir: "{app}\(2) Community Balance Overhaul\LUA"; Flags: ignoreversion createallsubdirs recursesubdirs; Components: Basic
-Source: "..\Documents\Community Patch Project Installer Files\UI_bc1\*"; DestDir: "{reg:HKCU\SOFTWARE\Firaxis\Civilization5,LastKnownPath|{pf}\Steam\steamapps\common\Sid Meier's Civilization V}\Assets\DLC\UI_bc1\"; Flags: ignoreversion createallsubdirs recursesubdirs; Components: FullEUI Civ43EUI
-Source: "..\Documents\Community Patch Project Installer Files\(6c) 43 Civs CP\CP Only\*"; DestDir: "{app}\(6c) 43 Civs CP\CP Only"; Flags: ignoreversion; Components: Civ43CPOnly
-Source: "..\Documents\Community Patch Project Installer Files\(6c) 43 Civs CP\No-EUI\*"; DestDir: "{app}\(6c) 43 Civs CP\No-EUI"; Flags: ignoreversion recursesubdirs; Components: Civ43NoEUI
-Source: "..\Documents\Community Patch Project Installer Files\(6c) 43 Civs CP\EUI\*"; DestDir: "{app}\(6c) 43 Civs CP\EUI"; Flags: ignoreversion recursesubdirs; Components: Civ43EUI
-Source: "..\Documents\Community Patch Project Installer Files\(6c) 43 Civs CP\CvGameCore_Expansion2.dll"; DestDir: "{app}\(1) Community Patch\"; DestName: "CvGameCore_Expansion2.dll"; Flags: ignoreversion; Components: Civ43CPOnly Civ43EUI Civ43NoEUI
-Source: "Community Patch Project Installer Files\(6c) 43 Civs CP\(6c) 43 Civs CP (v 1).modinfo"; DestDir: "{app}\(6c) 43 Civs CP\"; DestName: "(6c) 43 Civs CP (v 1).modinfo"; Flags: ignoreversion; Components: Civ43EUI Civ43NoEUI Civ43CPOnly
-Source: "Community Patch Project Installer Files\(6c) 43 Civs CP\CP Only\AssignStartingPlots.lua"; DestDir: "{app}\(6c) 43 Civs CP\"; DestName: "AssignStartingPlots.lua"; Flags: ignoreversion; Components: Civ43CPOnly
-Source: "Community Patch Project Installer Files\(6c) 43 Civs CP\MoreLux\AssignStartingPlots.lua"; DestDir: "{app}\(6c) 43 Civs CP\"; DestName: "AssignStartingPlots.lua"; Flags: ignoreversion; Components: Civ43EUI Civ43NoEUI
-Source: "..\Documents\Community Patch Project Installer Files\(7a) Promotion Icons for VP\*"; DestDir: "{app}\(7a) Promotion Icons for VP"; Flags: ignoreversion createallsubdirs recursesubdirs; Components: FullNoEUI FullEUI Civ43EUI Civ43NoEUI
-Source: "..\Documents\Community Patch Project Installer Files\(7b) UI - Promotion Tree for VP\*"; DestDir: "{app}\(7b) UI - Promotion Tree for VP"; Flags: ignoreversion createallsubdirs recursesubdirs; Components: FullNoEUI FullEUI Civ43EUI Civ43NoEUI
+Source: "(1) Community Patch\*"; DestDir: "{app}\(1) Community Patch"; Flags: ignoreversion createallsubdirs recursesubdirs
+Source: "(2) Community Balance Overhaul\*"; DestDir: "{app}\(2) Community Balance Overhaul"; Flags: ignoreversion createallsubdirs recursesubdirs; Components: Basic or FullEUI or FullNoEUI Civ43EUI Civ43NoEUI
+Source: "(3) CSD for VP\*"; DestDir: "{app}\(3) CSD for VP"; Flags: ignoreversion createallsubdirs recursesubdirs; Components: FullEUI or FullNoEUI Civ43EUI Civ43NoEUI
+Source: "(4) Civ IV Diplomatic Features\*"; DestDir: "{app}\(4) Civ IV Diplomatic Features"; Flags: ignoreversion createallsubdirs recursesubdirs; Components: FullEUI or FullNoEUI Civ43EUI Civ43NoEUI
+Source: "(5) More Luxuries\*"; DestDir: "{app}\(5) More Luxuries"; Flags: ignoreversion createallsubdirs recursesubdirs; Components: FullEUI or FullNoEUI Civ43EUI Civ43NoEUI
+Source: "(6a) Community Balance Overhaul - Compatibility Files (EUI)\*"; DestDir: "{app}\(6a) Community Balance Overhaul - Compatibility Files (EUI)"; Flags: ignoreversion createallsubdirs recursesubdirs; Components: FullEUI
+Source: "(6b) Community Balance Overhaul - Compatibility Files (No-EUI)\*"; DestDir: "{app}\(6b) Community Balance Overhaul - Compatibility Files (No-EUI)"; Flags: ignoreversion createallsubdirs recursesubdirs; Components: FullNoEUI
+Source: "(6c) 43 Civs CP\CP Only\*"; DestDir: "{app}\(6c) 43 Civs CP\CP Only"; Flags: ignoreversion; Components: Civ43CPOnly
+Source: "(6c) 43 Civs CP\No-EUI\*"; DestDir: "{app}\(6c) 43 Civs CP\No-EUI"; Flags: ignoreversion recursesubdirs; Components: Civ43NoEUI
+Source: "(6c) 43 Civs CP\EUI\*"; DestDir: "{app}\(6c) 43 Civs CP\EUI"; Flags: ignoreversion recursesubdirs; Components: Civ43EUI
+Source: "(6c) 43 Civs CP\CvGameCore_Expansion2.dll"; DestDir: "{app}\(1) Community Patch\"; DestName: "CvGameCore_Expansion2.dll"; Flags: ignoreversion; Components: Civ43CPOnly Civ43EUI Civ43NoEUI
+Source: "(6c) 43 Civs CP\(6c) 43 Civs CP (v 1).modinfo"; DestDir: "{app}\(6c) 43 Civs CP\"; DestName: "(6c) 43 Civs CP (v 1).modinfo"; Flags: ignoreversion; Components: Civ43EUI Civ43NoEUI Civ43CPOnly
+Source: "(6c) 43 Civs CP\CP Only\AssignStartingPlots.lua"; DestDir: "{app}\(6c) 43 Civs CP\"; DestName: "AssignStartingPlots.lua"; Flags: ignoreversion; Components: Civ43CPOnly
+Source: "(6c) 43 Civs CP\MoreLux\AssignStartingPlots.lua"; DestDir: "{app}\(6c) 43 Civs CP\"; DestName: "AssignStartingPlots.lua"; Flags: ignoreversion; Components: Civ43EUI Civ43NoEUI
+Source: "(7a) Promotion Icons for VP\*"; DestDir: "{app}\(7a) Promotion Icons for VP"; Flags: ignoreversion createallsubdirs recursesubdirs; Components: FullNoEUI FullEUI Civ43EUI Civ43NoEUI
+Source: "(7b) UI - Promotion Tree for VP\*"; DestDir: "{app}\(7b) UI - Promotion Tree for VP"; Flags: ignoreversion createallsubdirs recursesubdirs; Components: FullNoEUI FullEUI Civ43EUI Civ43NoEUI
+Source: "CP LUA\LUA\*"; DestDir: "{app}\(1) Community Patch\LUA"; Flags: ignoreversion createallsubdirs recursesubdirs; Components: Core
+Source: "CBO LUA\LUA\*"; DestDir: "{app}\(2) Community Balance Overhaul\LUA"; Flags: ignoreversion createallsubdirs recursesubdirs; Components: Basic
+Source: "UI_bc1\*"; DestDir: "{reg:HKCU\SOFTWARE\Firaxis\Civilization5,LastKnownPath|{commonpf}\Steam\steamapps\common\Sid Meier's Civilization V}\Assets\DLC\UI_bc1\"; Flags: ignoreversion createallsubdirs recursesubdirs; Components: FullEUI Civ43EUI
 
 [Components]
 Name: "FullEUI"; Description: "Full Version (EUI)"; Types: FullEUI; Flags: exclusive disablenouninstallwarning
@@ -84,15 +84,16 @@ Name: "43CivNoEUI"; Description: "43-Civ Vox Populi (no-EUI)"
 Name: "43CivEUI"; Description: "43-Civ Vox Populi (EUI)"
 
 [InstallDelete]
+Type: filesandordirs; Name: "{reg:HKCU\SOFTWARE\Firaxis\Civilization5,LastKnownPath|{commonpf}\Steam\steamapps\common\Sid Meier's Civilization V}\Assets\DLC\UI_bc1"; Components: FullEUI FullNoEUI Basic
+Type: filesandordirs; Name: "{userdocs}\My Games\Sid Meier's Civilization 5\cache"
 Type: filesandordirs; Name: "{userdocs}\My Games\Sid Meier's Civilization 5\MODS\(1) Community Patch"
-Type: filesandordirs; Name: "{userdocs}\My Games\Sid Meier's Civilization 5\MODS\(6c) 43 Civs CP"
 Type: filesandordirs; Name: "{userdocs}\My Games\Sid Meier's Civilization 5\MODS\(2) Community Balance Overhaul"
 Type: filesandordirs; Name: "{userdocs}\My Games\Sid Meier's Civilization 5\MODS\(3) CSD for CBP"
+Type: filesandordirs; Name: "{userdocs}\My Games\Sid Meier's Civilization 5\MODS\(3) CSD for VP"
 Type: filesandordirs; Name: "{userdocs}\My Games\Sid Meier's Civilization 5\MODS\(4) Civ IV Diplomatic Features"
 Type: filesandordirs; Name: "{userdocs}\My Games\Sid Meier's Civilization 5\MODS\(5) More Luxuries"
 Type: filesandordirs; Name: "{userdocs}\My Games\Sid Meier's Civilization 5\MODS\(6a) Community Balance Overhaul - Compatibility Files (EUI)"
 Type: filesandordirs; Name: "{userdocs}\My Games\Sid Meier's Civilization 5\MODS\(6b) Community Balance Overhaul - Compatibility Files (No-EUI)"
-Type: filesandordirs; Name: "{reg:HKCU\SOFTWARE\Firaxis\Civilization5,LastKnownPath|{pf}\Steam\steamapps\common\Sid Meier's Civilization V}\Assets\DLC\UI_bc1"; Components: FullEUI FullNoEUI Basic
-Type: filesandordirs; Name: "{userdocs}\My Games\Sid Meier's Civilization 5\cache"
-Type: filesandordirs; Name: "{userdocs}\My Games\Sid Meier's Civilization 5\MODS\(7b) UI - Promotion Tree for VP"
+Type: filesandordirs; Name: "{userdocs}\My Games\Sid Meier's Civilization 5\MODS\(6c) 43 Civs CP"
 Type: filesandordirs; Name: "{userdocs}\My Games\Sid Meier's Civilization 5\MODS\(7a) Promotion Icons for VP"
+Type: filesandordirs; Name: "{userdocs}\My Games\Sid Meier's Civilization 5\MODS\(7b) UI - Promotion Tree for VP"
