@@ -3819,37 +3819,10 @@ void CvTacticalAI::ExecuteMovesToSafestPlot(CvUnit* pUnit)
 		TacticalAIHelpers::PerformRangedOpportunityAttack(pUnit,true);
 
 	//so easy
-	CvPlot* pBestPlot = TacticalAIHelpers::FindSafestPlotInReach(pUnit,true,true,true);
-
+	CvPlot* pBestPlot = TacticalAIHelpers::FindSafestPlotInReach(pUnit, true, true);
 	if (pBestPlot != NULL)
 	{
-		//check if somebody else can take our place
-		CvUnit* pSwapUnit = pUnit->GetPotentialUnitToSwapWith(*pBestPlot);
-		if (pSwapUnit)
-		{
-			//melee units are there to soak damage ...
-			int iDangerLimit = pSwapUnit->GetCurrHitPoints();
-			if (pSwapUnit->IsCanAttackRanged())
-				iDangerLimit += pSwapUnit->GetCurrHitPoints() / 2;
-
-			if (pSwapUnit->GetDanger(pUnit->plot()) < iDangerLimit)
-			{
-				pSwapUnit->SetActivityType(ACTIVITY_AWAKE);
-				pUnit->PushMission(CvTypes::getMISSION_SWAP_UNITS(), pBestPlot->getX(), pBestPlot->getY());
-				UnitProcessed(pUnit->GetID());
-				return;
-			}
-			else
-			{
-				//cannot swap, get a new plot
-				pBestPlot = TacticalAIHelpers::FindSafestPlotInReach(pUnit,true,false,true);
-			}
-		}
-	}
-
-	if (pBestPlot != NULL)
-	{
-		//check if we can bump somebody else
+		//check if we need to bump somebody else
 		CvUnit* pBumpUnit = pUnit->GetPotentialUnitToPushOut(*pBestPlot);
 		if (pBumpUnit)
 		{
@@ -3858,16 +3831,8 @@ void CvTacticalAI::ExecuteMovesToSafestPlot(CvUnit* pUnit)
 				UnitProcessed(pUnit->GetID());
 				return;
 			}
-			else
-			{
-				//cannot bump, get a new plot
-				pBestPlot = TacticalAIHelpers::FindSafestPlotInReach(pUnit, true, false, false);
-			}
 		}
-	}
 
-	if (pBestPlot != NULL)
-	{
 		//pillage before retreat, if we have movement points to spare
 		if (pUnit->getMoves()>GC.getMOVE_DENOMINATOR() && pBestPlot->isAdjacent(pUnit->plot()) && pUnit->shouldPillage(pUnit->plot()))
 			pUnit->PushMission(CvTypes::getMISSION_PILLAGE());
@@ -4038,13 +4003,9 @@ void CvTacticalAI::ExecuteHeals(bool bFirstPass)
 		{
 			if (pBetterPlot != pUnit->plot())
 			{
-				CvUnit* pSwapUnit = pUnit->GetPotentialUnitToSwapWith(*pBetterPlot);
-				int iDangerLimit = pSwapUnit ? (pSwapUnit->IsCanAttackRanged() ? pSwapUnit->GetCurrHitPoints() : (3 * pSwapUnit->GetCurrHitPoints()) / 2) : 0;
-				if (pSwapUnit && pSwapUnit->GetDanger(pUnit->plot()) < iDangerLimit)
-				{
-					pSwapUnit->SetActivityType(ACTIVITY_AWAKE);
-					pUnit->PushMission(CvTypes::getMISSION_SWAP_UNITS(), pBetterPlot->getX(), pBetterPlot->getY());
-				}
+				CvUnit* pPushUnit = pUnit->GetPotentialUnitToPushOut(*pBetterPlot);
+				if (pPushUnit)
+					pUnit->PushBlockingUnitOutOfPlot(*pBetterPlot);
 				else //plot should be free
 					ExecuteMoveToPlot(pUnit, pBetterPlot);
 			}
@@ -6075,7 +6036,7 @@ bool TacticalAIHelpers::PerformRangedOpportunityAttack(CvUnit* pUnit, bool bAllo
 	}
 }
 
-CvPlot* TacticalAIHelpers::FindSafestPlotInReach(const CvUnit* pUnit, bool bAllowEmbark, bool bConsiderSwap, bool bConsiderPush)
+CvPlot* TacticalAIHelpers::FindSafestPlotInReach(const CvUnit* pUnit, bool bAllowEmbark, bool bConsiderPush)
 {
 	vector<OptionWithScore<CvPlot*>> aCityList;
 	vector<OptionWithScore<CvPlot*>> aZeroDangerList;
@@ -6085,26 +6046,25 @@ CvPlot* TacticalAIHelpers::FindSafestPlotInReach(const CvUnit* pUnit, bool bAllo
 	//for current plot
 	int iCurrentHealRate = pUnit->healRate(pUnit->plot());
 
-	ReachablePlots eligiblePlots = pUnit->GetAllPlotsInReachThisTurn(); //embarkation allowed for now, we sort it out below
+	//embarkation allowed for now, we sort it out below
+	ReachablePlots eligiblePlots = pUnit->GetAllPlotsInReachThisTurn(); 
 	for (ReachablePlots::iterator it=eligiblePlots.begin(); it!=eligiblePlots.end(); ++it)
 	{
 		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(it->iPlotIndex);
 
 		// don't attack though
-		if (pPlot->getNumVisibleEnemyDefenders(pUnit) > 0)
+		if (pPlot->getNumVisibleEnemyDefenders(pUnit) > 0 || pPlot->isEnemyCity(*pUnit))
 			continue;
 
-		// allow capturing civilians!
 		int iFlags = CvUnit::MOVEFLAG_DESTINATION;
+		// allow capturing civilians!
 		if (pPlot->isVisibleEnemyUnit(pUnit))
 			iFlags |= CvUnit::MOVEFLAG_ATTACK;
 
-		if (!pUnit->canMoveInto(*pPlot, iFlags))
+		//if we cannot move in because one of our own units is blocking us
+		if (!pUnit->canMoveInto(*pPlot, iFlags) && pUnit->canMoveInto(*pPlot,iFlags | CvUnit::MOVEFLAG_IGNORE_STACKING))
 		{
-			bool bCanSwap = bConsiderSwap && pUnit->CanSwapWithUnitHere(*pPlot);
-			bool bCanPush = bConsiderPush && pUnit->CanPushOutUnitHere(*pPlot);
-
-			if (!bCanPush && !bCanSwap)
+			if (!bConsiderPush || !pUnit->CanPushOutUnitHere(*pPlot))
 				continue;
 		}
 
@@ -6312,13 +6272,9 @@ CvPlot* TacticalAIHelpers::FindClosestSafePlotForHealing(CvUnit* pUnit)
 		}
 
 		//can we stay there?
-		if (!pUnit->canMoveInto(*pPlot, CvUnit::MOVEFLAG_DESTINATION))
+		if (!pUnit->canMoveInto(*pPlot, CvUnit::MOVEFLAG_DESTINATION) && pUnit->canMoveInto(*pPlot, CvUnit::MOVEFLAG_DESTINATION | CvUnit::MOVEFLAG_IGNORE_STACKING))
 		{
-			//can we swap?
-			CvUnit* pSwapUnit = pUnit->GetPotentialUnitToSwapWith(*pPlot);
-			//melee units are there to soak damage ...
-			int iDangerLimit = pSwapUnit ? (pSwapUnit->IsCanAttackRanged() ? pSwapUnit->GetCurrHitPoints() : (3 * pSwapUnit->GetCurrHitPoints()) / 2) : 0;
-			if (!pSwapUnit || !pSwapUnit->isNativeDomain(pUnit->plot()) || pSwapUnit->GetDanger(pUnit->plot()) > iDangerLimit)
+			if (!pUnit->CanPushOutUnitHere(*pPlot))
 				continue;
 		}
 

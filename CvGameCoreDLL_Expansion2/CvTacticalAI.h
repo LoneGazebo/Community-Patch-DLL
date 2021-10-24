@@ -957,7 +957,7 @@ namespace TacticalAIHelpers
 	bool PerformRangedOpportunityAttack(CvUnit* pUnit, bool bAllowMovement = false);
 	bool PerformOpportunityAttack(CvUnit* pUnit, bool bAllowMovement = false);
 	bool IsAttackNetPositive(CvUnit* pUnit, const CvPlot* pTarget);
-	CvPlot* FindSafestPlotInReach(const CvUnit* pUnit, bool bAllowEmbark, bool bConsiderSwap = false, bool bConsiderPush = false);
+	CvPlot* FindSafestPlotInReach(const CvUnit* pUnit, bool bAllowEmbark, bool bConsiderPush = false);
 	CvPlot* FindClosestSafePlotForHealing(CvUnit* pUnit);
 	bool IsGoodPlotForStaging(CvPlayer* pPlayer, CvPlot* pCandidate, DomainTypes eDomain);
 

@@ -1696,12 +1696,12 @@ public:
 
 	int GetPower() const;
 
-	bool CanSwapWithUnitHere(CvPlot& atPlot) const;
-	CvUnit* GetPotentialUnitToSwapWith(CvPlot& atPlot) const;
+	bool CanSwapWithUnitHere(const CvPlot& atPlot) const;
+	CvUnit* GetPotentialUnitToSwapWith(const CvPlot& atPlot) const;
 
-	bool CanPushOutUnitHere(CvPlot& atPlot) const;
-	CvUnit* GetPotentialUnitToPushOut(CvPlot& atPlot) const;
-	bool PushBlockingUnitOutOfPlot(CvPlot& atPlot);
+	bool CanPushOutUnitHere(const CvPlot& atPlot) const;
+	CvUnit* GetPotentialUnitToPushOut(const CvPlot& atPlot, CvPlot** ppToPlot=NULL) const;
+	bool PushBlockingUnitOutOfPlot(const CvPlot& atPlot);
 
 	bool CanStackUnitAtPlot(const CvPlot* pPlot) const;
 	int CountStackingUnitsAtPlot(const CvPlot* pPlot) const;
