@@ -14611,6 +14611,10 @@ bool CvMinorCivAI::CanMajorDiploMarriage(PlayerTypes eMajor)
 {
 	if (eMajor < 0 || eMajor >= MAX_MAJOR_CIVS) return false;
 
+	// Can't be already married
+	if (IsMarried(eMajor))
+		return false;
+
 	// We must both be alive and they must have a capital
 	if (!GET_PLAYER(eMajor).isAlive() || !GetPlayer()->isAlive() || GET_PLAYER(eMajor).getCapitalCity() == NULL)
 		return false;
