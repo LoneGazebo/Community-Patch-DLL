@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "Vox Populi"
-#define MyAppVersion "1.1.3"
+#define MyAppVersion "1.1.4"
 #define MyAppPublisher "Community Patch Project Team"
 #define MyAppURL "http://forums.civfanatics.com/showthread.php?t=528034"
 
@@ -30,12 +30,12 @@ DefaultDirName={userdocs}\My Games\Sid Meier's Civilization 5\MODS\
 SetupIconFile=Community Patch Project Installer Files\installer.ico
 WizardImageBackColor=cl3DLight
 ShowComponentSizes=False
-VersionInfoVersion=1.1.3
+VersionInfoVersion=1.1.4
 VersionInfoCompany=Community Patch Project Team
 VersionInfoDescription=Vox Populi
 VersionInfoCopyright=2021
 VersionInfoProductName=Vox Populi
-VersionInfoProductVersion=1.1.3
+VersionInfoProductVersion=1.1.4
 WizardImageStretch=False
 
 [Languages]
@@ -64,9 +64,6 @@ Source: "Community Patch Project Installer Files\(6c) 43 Civs CP\CP Only\AssignS
 Source: "Community Patch Project Installer Files\(6c) 43 Civs CP\MoreLux\AssignStartingPlots.lua"; DestDir: "{app}\(6c) 43 Civs CP\"; DestName: "AssignStartingPlots.lua"; Flags: ignoreversion; Components: Civ43EUI Civ43NoEUI
 Source: "..\Documents\Community Patch Project Installer Files\(7a) Promotion Icons for VP\*"; DestDir: "{app}\(7a) Promotion Icons for VP"; Flags: ignoreversion createallsubdirs recursesubdirs; Components: FullNoEUI FullEUI Civ43EUI Civ43NoEUI
 Source: "..\Documents\Community Patch Project Installer Files\(7b) UI - Promotion Tree for VP\*"; DestDir: "{app}\(7b) UI - Promotion Tree for VP"; Flags: ignoreversion createallsubdirs recursesubdirs; Components: FullNoEUI FullEUI Civ43EUI Civ43NoEUI
-
-[Icons]
-Name: "{group}\{cm:UninstallProgram,{#MyAppName}}"; Filename: "{uninstallexe}"
 
 [Components]
 Name: "FullEUI"; Description: "Full Version (EUI)"; Types: FullEUI; Flags: exclusive disablenouninstallwarning

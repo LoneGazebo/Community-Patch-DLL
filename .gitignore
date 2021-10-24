@@ -1,56 +1,54 @@
-#ignore everything except h, cpp, rc and vjproject files
+#ignore everything except files used in the mod
 *
 !*/
-!*.h
 !*.cpp
-!*.hpp
-!*.rc
-!*.vcxproj
-!*.dds
-!*.fxsxml
-!*.ftsxml
-!*.ggxml
-!*.gr2
-!*.filters
-!*.gitattributes
-!*.xml
+!*.h
 !*.sql
+!*.xml
 !*.lua
+
+!*.Civ5Pkg
 !*.civ5mod
 !*.civ5proj
-!*.civ5sln
-!*.natvis
-!*.dll
-!*.sln
-!*.iss
-!*.md
-!*.txt
-!*.rtf
-!*.ico
-!*.modinfo
-!*.civ5sln
 !*.civ5proj
-!*.Civ5Pkg
-
-!*.py
-!*.inl
-!*.def
-!*.lib
-
-!*.txt
+!*.civ5sln
+!*.civ5sln
 !*.dds
+!*.def
+!*.dll
+!*.filters
+!*.ftsxml
+!*.fxsxml
+!*.ggxml
+!*.gitattributes
 !*.gr2
+!*.hpp
+!*.ico
+!*.inl
+!*.iss
+!*.lib
+!*.md
+!*.modinfo
 !*.mp3
+!*.natvis
+!*.py
+!*.rc
+!*.rtf
+!*.sln
+!*.txt
+!*.vcxproj
 
+#ignore Modbuddy and VS output
+.vs/
 BuildOutput/
 BuildTemp/
-Mod/
-/Mod/CvGameCore_Expansion2.lib
-/Mod/CvGameCore_Expansion2.dll
-/Civilization IV Diplomatic Features - CBP/Build
-/Civilization IV Diplomatic Features - CP/Build
-/EUI Compatibility Files/Build
-/NoEUI Compatibility Files/Build
 Build/
-ISSUE_TEMPLATE
-Community Patch/Community Patch.civ5proj
+Packages/
+43 Civs CP/Build/
+43 Civs CP/Packages/
+EUI Compatibility Files/Build/
+EUI Compatibility Files/Packages/
+NoEUI Compatibility Files/Build/
+NoEUI Compatibility Files/Packages/
+Civilization IV Diplomatic Features - CBP/Build/
+Civilization IV Diplomatic Features - CP/Build/
