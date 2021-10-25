@@ -38,7 +38,7 @@
 !*.txt
 !*.vcxproj
 
-#ignore output from ModBuddy and Visual Studio
+#ignore output from ModBuddy, Inno and Visual Studio
 .vs/
 BuildOutput/
 BuildTemp/
@@ -52,3 +52,4 @@ NoEUI Compatibility Files/Build/
 NoEUI Compatibility Files/Packages/
 Civilization IV Diplomatic Features - CBP/Build/
 Civilization IV Diplomatic Features - CP/Build/
+Vox Populi Installer Files/Output/
