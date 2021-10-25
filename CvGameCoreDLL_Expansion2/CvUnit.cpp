@@ -26867,6 +26867,7 @@ bool CvUnit::CanPushOutUnitHere(const CvPlot& pushPlot) const
 	return GetPotentialUnitToPushOut(pushPlot) != NULL;
 }
 
+//this should only be used by AI; includes sanity checks (humans have GetPotentialUnitToSwapWith)
 CvUnit* CvUnit::GetPotentialUnitToPushOut(const CvPlot& pushPlot, CvPlot** ppToPlot) const
 {
 	//sanity
@@ -26922,6 +26923,7 @@ CvUnit* CvUnit::GetPotentialUnitToPushOut(const CvPlot& pushPlot, CvPlot** ppToP
 
 					if (bMayUse)
 					{
+						//go to the lowest danger plot ... todo: should we try to use the other unit as cover?
 						int iUnitDanger = pLoopUnit->GetDanger(pNeighbor);
 						if (iUnitDanger < iDangerLimit && iUnitDanger < iLeastDanger)
 						{
@@ -26973,6 +26975,7 @@ bool CvUnit::CanSwapWithUnitHere(const CvPlot& swapPlot) const
 	return GetPotentialUnitToSwapWith(swapPlot) != NULL;
 }
 
+//method for human players, no sanity checks
 CvUnit* CvUnit::GetPotentialUnitToSwapWith(const CvPlot & swapPlot) const
 {
 	//AI shouldn't swap into a frontline plot
