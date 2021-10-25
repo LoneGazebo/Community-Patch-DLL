@@ -3,22 +3,22 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Default</Configuration>
     <ProjectGuid>{dc470ee5-5c64-4e86-9aee-77f5ff94079f}</ProjectGuid>
-    <Name>(6c) 43 Civs CP</Name>
+    <Name>(6c) 43 Civs Community Patch</Name>
     <Guid>6521c02b-1c78-4826-a5b0-faed86235e98</Guid>
     <ModVersion>1</ModVersion>
     <Stability>Stable</Stability>
     <Teaser>(1.2) Supports up to 43 Major Civilizations</Teaser>
     <Description>[COLOR_POSITIVE_TEXT]MANUAL INSTALL INSTRUCTIONS:[ENDCOLOR]
 
-Delete the DLL in (1) CP.
+Delete the DLL in (1) Community Patch.
 
 Based on your choice of install, delete the other two folders from this mod (CP Only, EUI, or No-EUI).
 
 Open that folder, and delete any/all corresponding lua/xml files from the corresponding mod.
 
-i.e. if using CP Only, Open CP/LUA and delete DiploTrade.xml, etc. from the (1) CP.
+i.e. if using CP Only, Open CP/LUA and delete DiploTrade.xml, etc. from the (1) Community Patch.
 
-Enable and enjoy! The MAXIMUM number of major civilizations is 43, the maximum number of total civs major and minor is 63.</Description>
+Enable and enjoy! The MAXIMUM number of major civilizations is 43, the maximum number of total civs (major and minor) is 63.</Description>
     <Authors>Gazebo, Ilteroi</Authors>
     <SpecialThanks>
     </SpecialThanks>
@@ -167,14 +167,14 @@ Enable and enjoy! The MAXIMUM number of major civilizations is 43, the maximum n
     <ModBlockers>
       <Association>
         <Type>Mod</Type>
-        <Name>CBO Compatibility Files (EUI)</Name>
+        <Name>(6a) Vox Populi - Compatibility Files (EUI)</Name>
         <Id>24923240-e4fb-4bf6-8f0e-6e5b6cf4d3c2</Id>
         <MinVersion>0</MinVersion>
         <MaxVersion>999</MaxVersion>
       </Association>
       <Association>
         <Type>Mod</Type>
-        <Name>CBO Compatibility Files (No EUI)</Name>
+        <Name>(6b) Vox Populi - Compatibility Files (No-EUI)</Name>
         <Id>828b5b4b-7c62-4afb-a43f-034b596ef5e4</Id>
         <MinVersion>0</MinVersion>
         <MaxVersion>999</MaxVersion>

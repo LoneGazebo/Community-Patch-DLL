@@ -26,8 +26,9 @@ Tip: You may wish to create the autoinstaller in a *COPY* of your repository fol
 - (3) CSD for VP
 - (4) Civ IV Diplomatic Features
 - (5) More Luxuries
-- (6a) EUI Compatibility Files
-- (6b) NoEUI Compatibility Files
+- (6a) Vox Populi - Compatibility Files (EUI)
+- (6b) Vox Populi - Compatibility Files (No-EUI)
+- (6c) 43 Civs Community Patch
 
 4b. Copy the compiled mods from your MODS folder and place them in this folder.
 
@@ -40,4 +41,4 @@ Tip: You may wish to create the autoinstaller in a *COPY* of your repository fol
 6. Cut and paste the LUA folder in the (2) Community Balance Overhaul mod into the CBO LUA folder.
 
 
-7. If you've done everything correctly, you can open the CPPSetupData.iss file and hit "Compile". When it finishes, the compiled autoinstaller will be located in an "Output" subfolder.
+7. If you've done everything correctly, you can open the CPPSetupData.iss file and hit "Compile". When it finishes, the compiled autoinstaller will be located in the "Output" subfolder.

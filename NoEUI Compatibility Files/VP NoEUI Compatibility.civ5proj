@@ -2,15 +2,13 @@
 <Project DefaultTargets="Deploy" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Default</Configuration>
-    <ProjectGuid>{d2a2dd30-0868-4951-8c17-87fa0a89aa33}</ProjectGuid>
-    <Name>(6a) Community Balance Overhaul - Compatibility Files (EUI)</Name>
-    <Guid>24923240-e4fb-4bf6-8f0e-6e5b6cf4d3c2</Guid>
+    <ProjectGuid>{63283aea-f6ad-4004-8fbd-639e69d54803}</ProjectGuid>
+    <Name>(6b) Vox Populi - Compatibility Files (No-EUI)</Name>
+    <Guid>828b5b4b-7c62-4afb-a43f-034b596ef5e4</Guid>
     <ModVersion>1</ModVersion>
     <Stability>Stable</Stability>
-    <Teaser>(1.2) CBO Compatibility and LUA (EUI Version)</Teaser>
-    <Description>Contains compatibility files for CBO, CSD, C4DF and EUI - required if you intend to use any mod aside from the CP and CBO by themselves.
-
-NOTE: Make sure to delete the LUA folder in the CBO if you are using this!</Description>
+    <Teaser>(1.2) Community Balance Overhaul - Compatibility Files (No EUI)</Teaser>
+    <Description>LUA and mod compatibility files for CBO if not using EUI. Includes support for More Luxuries, CSD, and C4DF. Must use all three mods in order to use this mod.</Description>
     <Authors>Gazebo</Authors>
     <SpecialThanks>
     </SpecialThanks>
@@ -47,11 +45,6 @@ NOTE: Make sure to delete the LUA folder in the CBO if you are using this!</Desc
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
         <FileName>MoreLuxuries/MoreLuxuries.sql</FileName>
-      </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
-        <FileName>EUI/EUI_text_en_us.xml</FileName>
       </Action>
       <Action>
         <Set>OnModActivated</Set>
@@ -123,31 +116,31 @@ NOTE: Make sure to delete the LUA folder in the CBO if you are using this!</Desc
     <ModContent>
       <Content>
         <Type>InGameUIAddin</Type>
-        <Name>AssignStartingPlot</Name>
-        <Description>AssignStartingPlot</Description>
+        <Name>AssignStartingPlots</Name>
+        <Description>AssignStartingPlots</Description>
         <FileName>LUA/AssignStartingPlots.lua</FileName>
       </Content>
     </ModContent>
     <ModBlockers>
       <Association>
         <Type>Mod</Type>
-        <Name>CBO Compatibility Files (No EUI)</Name>
-        <Id>828b5b4b-7c62-4afb-a43f-034b596ef5e4</Id>
+        <Name>(6a) Vox Populi - Compatibility Files (EUI)</Name>
+        <Id>24923240-e4fb-4bf6-8f0e-6e5b6cf4d3c2</Id>
         <MinVersion>0</MinVersion>
         <MaxVersion>999</MaxVersion>
       </Association>
       <Association>
         <Type>Mod</Type>
-        <Name>(6c) 43 Civs CP</Name>
+        <Name>(6c) 43 Civs Community Patch</Name>
         <Id>6521c02b-1c78-4826-a5b0-faed86235e98</Id>
         <MinVersion>0</MinVersion>
         <MaxVersion>999</MaxVersion>
       </Association>
     </ModBlockers>
-    <ReloadStrategicViewSystem>true</ReloadStrategicViewSystem>
-    <ReloadAudioSystem>true</ReloadAudioSystem>
     <ReloadUnitSystem>true</ReloadUnitSystem>
     <ReloadLandmarkSystem>true</ReloadLandmarkSystem>
+    <ReloadStrategicViewSystem>true</ReloadStrategicViewSystem>
+    <ReloadAudioSystem>true</ReloadAudioSystem>
     <SupportsHotSeat>true</SupportsHotSeat>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Default' ">
@@ -185,26 +178,6 @@ NOTE: Make sure to delete the LUA folder in the CBO if you are using this!</Desc
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
     <Content Include="CSD\CSDCompatibility.sql">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
-    <Content Include="EUI\DC45_EventsOverview.dds">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>True</ImportIntoVFS>
-    </Content>
-    <Content Include="EUI\DC45_UnitPromotions.dds">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>True</ImportIntoVFS>
-    </Content>
-    <Content Include="EUI\DC45_VassalOverview.dds">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>True</ImportIntoVFS>
-    </Content>
-    <Content Include="EUI\EUI_text_en_us.xml">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
-    <Content Include="EUI\NeededText.xml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
@@ -320,6 +293,10 @@ NOTE: Make sure to delete the LUA folder in the CBO if you are using this!</Desc
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
+    <Content Include="LUA\DiploList.lua">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
     <Content Include="LUA\DiploRelationships.lua">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
@@ -348,11 +325,7 @@ NOTE: Make sure to delete the LUA folder in the CBO if you are using this!</Desc
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="LUA\EUI_core_library.lua">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>True</ImportIntoVFS>
-    </Content>
-    <Content Include="LUA\EUI_tooltip_library.lua">
+    <Content Include="LUA\EconomicOverview.xml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
@@ -376,6 +349,10 @@ NOTE: Make sure to delete the LUA folder in the CBO if you are using this!</Desc
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
+    <Content Include="LUA\InfoTooltipInclude.lua">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
     <Content Include="LUA\LeaderHeadRoot.lua">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
@@ -396,14 +373,6 @@ NOTE: Make sure to delete the LUA folder in the CBO if you are using this!</Desc
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="LUA\MonopoliesInfo.lua">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>True</ImportIntoVFS>
-    </Content>
-    <Content Include="LUA\MonopoliesInfo.xml">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>True</ImportIntoVFS>
-    </Content>
     <Content Include="LUA\NaturalWonderPopup.lua">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
@@ -420,11 +389,15 @@ NOTE: Make sure to delete the LUA folder in the CBO if you are using this!</Desc
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="LUA\PlotHelpManager.lua">
+    <Content Include="LUA\PlotMouseoverInclude.lua">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="LUA\PlotMouseoverInclude.lua">
+    <Content Include="LUA\ProductionPopup.lua">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="LUA\ProductionPopup.xml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
@@ -476,14 +449,6 @@ NOTE: Make sure to delete the LUA folder in the CBO if you are using this!</Desc
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="LUA\UnitPanel.xml">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>True</ImportIntoVFS>
-    </Content>
-    <Content Include="LUA\UnitPanel_small.xml">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>True</ImportIntoVFS>
-    </Content>
     <Content Include="LUA\VictoryProgress.lua">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
@@ -518,7 +483,6 @@ NOTE: Make sure to delete the LUA folder in the CBO if you are using this!</Desc
     <Folder Include="CSD" />
     <Folder Include="CSD\CompatibilityText" />
     <Folder Include="LUA" />
-    <Folder Include="EUI" />
     <Folder Include="Corporations" />
     <Folder Include="MoreLuxuries" />
     <Folder Include="C4DFCompatibility" />
