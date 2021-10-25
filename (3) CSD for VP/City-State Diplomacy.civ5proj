@@ -23,6 +23,7 @@ Securing allies is more important than ever, as the World Congress has been grea
     <SupportsSinglePlayer>true</SupportsSinglePlayer>
     <SupportsMultiplayer>true</SupportsMultiplayer>
     <SupportsMac>true</SupportsMac>
+    <Homepage>https://forums.civfanatics.com/forums/community-patch-project.497/</Homepage>
     <AssemblyName>Civ5Mod4</AssemblyName>
     <RootNamespace>Civ5Mod4</RootNamespace>
     <ReloadAudioSystem>true</ReloadAudioSystem>

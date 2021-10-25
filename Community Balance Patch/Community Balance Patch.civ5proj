@@ -18,6 +18,7 @@
     <SupportsSinglePlayer>true</SupportsSinglePlayer>
     <SupportsMultiplayer>true</SupportsMultiplayer>
     <SupportsMac>true</SupportsMac>
+    <Homepage>https://forums.civfanatics.com/forums/community-patch-project.497/</Homepage>
     <AssemblyName>Mod Template</AssemblyName>
     <RootNamespace>Mod Template</RootNamespace>
     <ModActions>
@@ -627,8 +628,6 @@
         <FileName>Balance Changes/Text/en_US/EspionageEventText.xml</FileName>
       </Action>
     </ModActions>
-    <Homepage>
-    </Homepage>
     <ModReferences />
     <ReloadStrategicViewSystem>true</ReloadStrategicViewSystem>
     <ReloadLandmarkSystem>true</ReloadLandmarkSystem>
@@ -643,6 +642,15 @@
         <MaxVersion>999</MaxVersion>
       </Association>
     </ModDependencies>
+    <ModBlockers>
+      <Association>
+        <Type>Mod</Type>
+        <Name>(1a) Civ IV Diplomatic Features - CP</Name>
+        <Id>781d81cf-49e1-4acb-ae5f-b9e3713f98d3</Id>
+        <MinVersion>0</MinVersion>
+        <MaxVersion>999</MaxVersion>
+      </Association>
+    </ModBlockers>
     <SupportsHotSeat>true</SupportsHotSeat>
     <ModContent>
       <Content>

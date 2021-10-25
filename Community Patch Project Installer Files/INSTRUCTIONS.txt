@@ -6,7 +6,6 @@ Tip: You may wish to create the autoinstaller in a *COPY* of your repository fol
 
 
 1. Copy the following folders from the repository and place them in this folder:
-- (4) Civ IV Diplomatic Features
 - (5) More Luxuries
 - (7a) Promotion Icons for VP
 - (7b) UI - Promotion Tree for VP
@@ -26,6 +25,7 @@ Tip: You may wish to create the autoinstaller in a *COPY* of your repository fol
 - (1) Community Patch
 - (2) Community Balance Overhaul
 - (3) CSD for VP
+- (4) Civ IV Diplomatic Features
 - (6a) EUI Compatibility Files
 - (6b) NoEUI Compatibility Files
 

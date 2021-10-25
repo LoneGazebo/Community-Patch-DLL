@@ -1,0 +1,236 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Deploy" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Default</Configuration>
+    <ProjectGuid>{aa05d267-a462-4a0c-9ab1-1c383b83a6f3}</ProjectGuid>
+    <Name>(4) Civ IV Diplomatic Features</Name>
+    <Guid>c7bf7064-d1b1-4708-9e93-7a1560868582</Guid>
+    <ModVersion>12</ModVersion>
+    <Stability>Stable</Stability>
+    <Teaser>(1.2) Civ IV Diplomatic Features for Vox Populi</Teaser>
+    <Description>This mod adds new diplomatic features as they appeared in Civilization IV.[NEWLINE][NEWLINE]
+[ICON_BULLET] Map Trading: Sell World Maps upon the discovery of Military Science. The cost goes up based on the quality and quantity of undiscovered terrain - don't be surprised to cough up a lot of cash/luxuries/your map for a map! Maps that are equal (no unique territory between two civs) are worthless.[NEWLINE]
+[ICON_BULLET] Technology Trading: Upon the discovery of Scientific Theory, allows you to sell technology to other civs. The cost depends on how many turns are left before the technology is researched by the purchasing civ. [COLOR_NEGATIVE_TEXT]THIS OPTION MUST BE ENABLED IN "ADVANCED OPTIONS" IN ORDER TO BE ACTIVE.[ENDCOLOR][NEWLINE]
+[ICON_BULLET] Vassalage: Enslave your defeated foes and create vassals! Vassals are your puppet states. You swear protection to them, and in turn, your Vassals provide you with tribute.[NEWLINE][NEWLINE][NEWLINE]
+Additionally, the following features from this mod have been integrated into the Community Patch:[NEWLINE][NEWLINE]
+[ICON_BULLET] Sharing Opinions: The AI will share their opinions of other leaders with you if they deem you a trustworthy ally.[NEWLINE]
+[ICON_BULLET] Request Help: Replaces "Demand" with Civs whom you've made a Declaration of Friendship with (no diplomatic penalty, AIs may give help if they're in better shape than you)[NEWLINE]
+[ICON_BULLET] Generous Offers: AIs who are friends with you may offer you help if you need it (if you're low on GPT/Gold they will donate some, if you're low on happiness they will donate a luxury)[NEWLINE]
+[ICON_BULLET] Transparent Diplomacy: Adds an advanced game option to view all diplomatic modifiers affecting your relationship with AI civilizations, along with the number value of each modifier.</Description>
+    <Authors>Michael "Putmalk"</Authors>
+    <SpecialThanks>
+    </SpecialThanks>
+    <AffectsSavedGames>true</AffectsSavedGames>
+    <MinCompatibleSaveVersion>12</MinCompatibleSaveVersion>
+    <SupportsSinglePlayer>true</SupportsSinglePlayer>
+    <SupportsMultiplayer>true</SupportsMultiplayer>
+    <SupportsHotSeat>true</SupportsHotSeat>
+    <SupportsMac>true</SupportsMac>
+    <Homepage>https://forums.civfanatics.com/forums/community-patch-project.497/</Homepage>
+    <AssemblyName>Civ IV Diplomatic Features</AssemblyName>
+    <RootNamespace>Civ IV Diplomatic Features</RootNamespace>
+    <ModDependencies>
+      <Association>
+        <Type>Mod</Type>
+        <Name>Community Patch</Name>
+        <Id>d1b6328c-ff44-4b0d-aad7-c657f83610cd</Id>
+        <MinVersion>94</MinVersion>
+        <MaxVersion>999</MaxVersion>
+      </Association>
+      <Association>
+        <Type>Mod</Type>
+        <Name>Community Balance Patch</Name>
+        <Id>8411a7a8-dad3-4622-a18e-fcc18324c799</Id>
+        <MinVersion>13</MinVersion>
+        <MaxVersion>999</MaxVersion>
+      </Association>
+    </ModDependencies>
+    <ModReferences />
+    <ModActions>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <FileName>SQL/Globals.sql</FileName>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <FileName>SQL/NewColumns.sql</FileName>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <FileName>XML/Gameplay/C4DFConcepts.xml</FileName>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <FileName>XML/Gameplay/C4DFDiplomacyResponses.xml</FileName>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <FileName>XML/Gameplay/C4DFGameOptions.xml</FileName>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <FileName>XML/Gameplay/C4DFResolutions.xml</FileName>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <FileName>XML/Text/en_US/en_US_Text_CivilopediaC4DF.xml</FileName>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <FileName>XML/Text/en_US/en_US_Text_Generic_DiplomacyC4DF.xml</FileName>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <FileName>XML/Text/en_US/en_US_Text_UIC4DF.xml</FileName>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <FileName>XML/Text/pl_PL/pl_PL_Text_CivilopediaC4DF.xml</FileName>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <FileName>XML/Text/pl_PL/pl_PL_Text_Generic_DiplomacyC4DF.xml</FileName>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <FileName>XML/Text/pl_PL/pl_PL_Text_UIC4DF.xml</FileName>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <FileName>XML/Text/zn_Hant_HK/zh_Hant_HK_Text_CivilopediaC4DF.xml</FileName>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <FileName>XML/Text/zn_Hant_HK/zh_Hant_HK_Text_Generic_DiplomacyC4DF.xml</FileName>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <FileName>XML/Text/zn_Hant_HK/zh_Hant_HK_Text_UIC4DF.xml</FileName>
+      </Action>
+    </ModActions>
+    <ModContent>
+      <Content>
+        <Type>InGameUIAddin</Type>
+        <Name>Vassalage Overview</Name>
+        <Description>Vassalage Overview</Description>
+        <FileName>LUA/VassalageOverview.lua</FileName>
+      </Content>
+    </ModContent>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Default' ">
+    <OutputPath>.</OutputPath>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Package Only' ">
+    <PackageMod>true</PackageMod>
+    <DeployMod>false</DeployMod>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Deploy Only' ">
+    <PackageMod>false</PackageMod>
+    <DeployMod>true</DeployMod>
+  </PropertyGroup>
+  <ItemGroup>
+    <Folder Include="Images" />
+    <Folder Include="LUA" />
+    <Folder Include="XML" />
+    <Folder Include="SQL" />
+    <Folder Include="XML\Gameplay" />
+    <Folder Include="XML\Text" />
+    <Folder Include="XML\Text\en_US" />
+    <Folder Include="XML\Text\zn_Hant_HK" />
+    <Folder Include="XML\Text\pl_PL" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Images\vassal80.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Images\vassal80hl.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="LUA\VassalageOverview.lua">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="LUA\VassalageOverview.xml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="SQL\Globals.sql">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="SQL\NewColumns.sql">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="XML\Gameplay\C4DFConcepts.xml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="XML\Gameplay\C4DFDiplomacyResponses.xml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="XML\Gameplay\C4DFGameOptions.xml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="XML\Gameplay\C4DFResolutions.xml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="XML\Text\en_US\en_US_Text_CivilopediaC4DF.xml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="XML\Text\en_US\en_US_Text_Generic_DiplomacyC4DF.xml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="XML\Text\en_US\en_US_Text_UIC4DF.xml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="XML\Text\pl_PL\pl_PL_Text_CivilopediaC4DF.xml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="XML\Text\pl_PL\pl_PL_Text_Generic_DiplomacyC4DF.xml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="XML\Text\pl_PL\pl_PL_Text_UIC4DF.xml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="XML\Text\zn_Hant_HK\zh_Hant_HK_Text_CivilopediaC4DF.xml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="XML\Text\zn_Hant_HK\zh_Hant_HK_Text_Generic_DiplomacyC4DF.xml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="XML\Text\zn_Hant_HK\zh_Hant_HK_Text_UIC4DF.xml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+  </ItemGroup>
+  <Import Project="$(MSBuildExtensionsPath)\Firaxis\ModBuddy\Civ5Mod.targets" />
+</Project>

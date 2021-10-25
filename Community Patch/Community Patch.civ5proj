@@ -23,6 +23,7 @@
     <ReloadLandmarkSystem>true</ReloadLandmarkSystem>
     <ReloadStrategicViewSystem>true</ReloadStrategicViewSystem>
     <HideSetupGame>false</HideSetupGame>
+    <Homepage>https://forums.civfanatics.com/forums/community-patch-project.497/</Homepage>
     <AssemblyName>Mod Template</AssemblyName>
     <RootNamespace>Mod Template</RootNamespace>
     <ModDependencies>
@@ -47,6 +48,13 @@
         <Type>Mod</Type>
         <Name>Artificial Unintelligence</Name>
         <Id>a4a8d2bb-cffd-4d8e-8893-d773f25b6fe1</Id>
+        <MinVersion>0</MinVersion>
+        <MaxVersion>999</MaxVersion>
+      </Association>
+      <Association>
+        <Type>Mod</Type>
+        <Name>Civilization IV Diplomatic Features - Standalone</Name>
+        <Id>275db698-0c69-401e-89a8-7eab501b6bcf</Id>
         <MinVersion>0</MinVersion>
         <MaxVersion>999</MaxVersion>
       </Association>
@@ -533,8 +541,6 @@
         <FileName>Modules/MoreGP/ExtraGPs.sql</FileName>
       </Action>
     </ModActions>
-    <Homepage>
-    </Homepage>
     <ModContent>
       <Content>
         <Type>MapScript</Type>
