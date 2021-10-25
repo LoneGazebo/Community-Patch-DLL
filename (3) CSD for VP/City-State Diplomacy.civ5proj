@@ -205,14 +205,14 @@ Securing allies is more important than ever, as the World Congress has been grea
         <Type>Mod</Type>
         <Name>Community Patch</Name>
         <Id>d1b6328c-ff44-4b0d-aad7-c657f83610cd</Id>
-        <MinVersion>94</MinVersion>
+        <MinVersion>100</MinVersion>
         <MaxVersion>999</MaxVersion>
       </Association>
       <Association>
         <Type>Mod</Type>
-        <Name>Community Balance Patch</Name>
+        <Name>Community Balance Overhaul</Name>
         <Id>8411a7a8-dad3-4622-a18e-fcc18324c799</Id>
-        <MinVersion>13</MinVersion>
+        <MinVersion>14</MinVersion>
         <MaxVersion>999</MaxVersion>
       </Association>
     </ModDependencies>

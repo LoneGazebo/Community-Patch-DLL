@@ -66,7 +66,7 @@ VALUES ('CSD_DIFFICULTY', 2);
 
 /*
 National Wonder Tweaks (CSD) - National Wonders now require a certain amount of national population instead of buildings in every city.
-Will not work without enabling COMMUNITY_CORE_BALANCE_NATIONAL_WONDERS (in the Community Balance Patch) as well!
+Will not work without enabling COMMUNITY_CORE_BALANCE_NATIONAL_WONDERS (in the Community Balance Overhaul) as well!
 1 = Enabled (Default)
 0 = Disabled 
 */

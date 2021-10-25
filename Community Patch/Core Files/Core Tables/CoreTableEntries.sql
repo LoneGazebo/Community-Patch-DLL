@@ -64,7 +64,7 @@ UPDATE Leaders SET Personality = 'PERSONALITY_DIPLOMAT'			WHERE MinorCivCompetit
 UPDATE Leaders SET Personality = 'PERSONALITY_EXPANSIONIST'		WHERE Loyalty <= 3;
 UPDATE Leaders SET Personality = 'PERSONALITY_EXPANSIONIST'		WHERE WonderCompetitiveness <= 3;
 
--- IF the Community Balance Patch/Overhaul is enabled, this code will override all custom civs' non-diplomacy flavors (if they're loaded afterwards)!
+-- IF the Community Balance Overhaul is enabled, this code will override all custom civs' non-diplomacy flavors (if they're loaded afterwards)!
 -- To use the non-diplomacy flavors (Expansion, Offense, Religion, etc.) specified by the custom civ's XML instead, comment it out.
 CREATE TRIGGER Leaders_Personality
 AFTER INSERT ON Leaders

@@ -72,7 +72,7 @@
 			<AIConstructPercent>110</AIConstructPercent>
 			<AIUnitSupplyPercent>0</AIUnitSupplyPercent>
 			<AIPerEraModifier>0</AIPerEraModifier>
-			<!-- CBP Difficulty Bonus -->
+			<!-- CBO Difficulty Bonus -->
 			<DifficultyBonusBase>0</DifficultyBonusBase>
 			<DifficultyBonusA>300</DifficultyBonusA>
 			<DifficultyBonusB>170</DifficultyBonusB>
@@ -155,7 +155,7 @@
 			<AIConstructPercent>100</AIConstructPercent>
 			<AIUnitSupplyPercent>5</AIUnitSupplyPercent>
 			<AIPerEraModifier>-2</AIPerEraModifier>
-			<!-- CBP Difficulty Bonus -->
+			<!-- CBO Difficulty Bonus -->
 			<DifficultyBonusBase>2</DifficultyBonusBase>
 			<DifficultyBonusA>310</DifficultyBonusA>
 			<DifficultyBonusB>180</DifficultyBonusB>
@@ -238,7 +238,7 @@
 			<AIConstructPercent>100</AIConstructPercent>
 			<AIUnitSupplyPercent>10</AIUnitSupplyPercent>
 			<AIPerEraModifier>-4</AIPerEraModifier>
-			<!-- CBP Difficulty Bonus -->
+			<!-- CBO Difficulty Bonus -->
 			<DifficultyBonusBase>4</DifficultyBonusBase>
 			<DifficultyBonusA>320</DifficultyBonusA>
 			<DifficultyBonusB>190</DifficultyBonusB>
@@ -321,7 +321,7 @@
 			<AIConstructPercent>90</AIConstructPercent>
 			<AIUnitSupplyPercent>15</AIUnitSupplyPercent>
 			<AIPerEraModifier>-6</AIPerEraModifier>
-			<!-- CBP Difficulty Bonus -->
+			<!-- CBO Difficulty Bonus -->
 			<DifficultyBonusBase>6</DifficultyBonusBase>
 			<DifficultyBonusA>330</DifficultyBonusA>
 			<DifficultyBonusB>200</DifficultyBonusB>
@@ -404,7 +404,7 @@
 			<AIConstructPercent>90</AIConstructPercent>
 			<AIUnitSupplyPercent>20</AIUnitSupplyPercent>
 			<AIPerEraModifier>-7</AIPerEraModifier>
-			<!-- CBP Difficulty Bonus -->
+			<!-- CBO Difficulty Bonus -->
 			<DifficultyBonusBase>8</DifficultyBonusBase>
 			<DifficultyBonusA>340</DifficultyBonusA>
 			<DifficultyBonusB>220</DifficultyBonusB>
@@ -487,7 +487,7 @@
 			<AIConstructPercent>80</AIConstructPercent>
 			<AIUnitSupplyPercent>25</AIUnitSupplyPercent>
 			<AIPerEraModifier>-8</AIPerEraModifier>
-			<!-- CBP Difficulty Bonus -->
+			<!-- CBO Difficulty Bonus -->
 			<DifficultyBonusBase>10</DifficultyBonusBase>
 			<DifficultyBonusA>350</DifficultyBonusA>
 			<DifficultyBonusB>230</DifficultyBonusB>
@@ -570,7 +570,7 @@
 			<AIConstructPercent>80</AIConstructPercent>
 			<AIUnitSupplyPercent>30</AIUnitSupplyPercent>
 			<AIPerEraModifier>-9</AIPerEraModifier>
-			<!-- CBP Difficulty Bonus -->
+			<!-- CBO Difficulty Bonus -->
 			<DifficultyBonusBase>12</DifficultyBonusBase>
 			<DifficultyBonusA>360</DifficultyBonusA>
 			<DifficultyBonusB>240</DifficultyBonusB>
@@ -653,7 +653,7 @@
 			<AIConstructPercent>70</AIConstructPercent>
 			<AIUnitSupplyPercent>35</AIUnitSupplyPercent>
 			<AIPerEraModifier>-10</AIPerEraModifier>
-			<!-- CBP Difficulty Bonus -->
+			<!-- CBO Difficulty Bonus -->
 			<DifficultyBonusBase>14</DifficultyBonusBase>
 			<DifficultyBonusA>375</DifficultyBonusA>
 			<DifficultyBonusB>260</DifficultyBonusB>

@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 11.00
 # ModBuddy Solution File, Format Version 11.00
-Project("{F5FC21B5-7CC2-458A-ABBA-992F515BBA20}") = "No-EUI CBP Compatibility", "Mod Template1\No-EUI CBP Compatibility.civ5proj", "{63283AEA-F6AD-4004-8FBD-639E69D54803}"
+Project("{F5FC21B5-7CC2-458A-ABBA-992F515BBA20}") = "No-EUI CBO Compatibility", "Mod Template1\No-EUI CBO Compatibility.civ5proj", "{63283AEA-F6AD-4004-8FBD-639E69D54803}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

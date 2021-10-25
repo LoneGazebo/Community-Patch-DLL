@@ -1,9 +1,9 @@
 /*
-_______________Community Balance Patch for Brave New World ________________
+_______________Community Balance Overhaul for Brave New World ________________
 
-Thank you for downloading the Community Balance Patch!
+Thank you for downloading the Community Balance Overhaul!
 
-_______________OPTIONS FOR Community Balance Patch____________________
+_______________OPTIONS FOR Community Balance Overhaul____________________
 
 All options below are preset to the default values of this mod.
 
