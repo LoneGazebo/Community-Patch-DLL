@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Civ5Package>
+	<GUID>{570f793e-fc33-417f-ae19-7cecccdd5f85}</GUID>
+	<Version>1</Version>
+	<Priority>250</Priority>
+	<PTags>
+		<Tag>Version</Tag>
+	</PTags>
+	<Name>
+		<Value language="en_US">Enhanced User Interface</Value>
+	</Name>
+	<Description>
+		<Value language="en_US">Enhanced User Interface</Value>
+	</Description>
+
+	<UISkin name="Expansion2Primary" set="Expansion2" platform="Common">
+		<Skin>
+			<Directory>Art</Directory>
+			<Directory>Art2</Directory>
+			<Directory>CityBanners</Directory>
+			<Directory>CityStatePopup</Directory>
+			<Directory>CityView</Directory>
+			<Directory>Core</Directory>
+			<Directory>FrontEnd</Directory>
+			<Directory>GameSetup</Directory>
+			<Directory>Improvements</Directory>
+			<Directory>LeaderHead</Directory>
+			<Directory>MiniMap</Directory>
+			<Directory>NotificationPanel</Directory>
+			<Directory>Options</Directory>
+			<Directory>PlotHelp</Directory>
+			<Directory>TechTree</Directory>
+			<Directory>ToolTips</Directory>
+			<Directory>TopPanel</Directory>
+			<Directory>UnitFlagManager</Directory>
+			<Directory>UnitPanel</Directory>
+		</Skin>
+	</UISkin>
+
+</Civ5Package>

@@ -1,0 +1,1 @@
+Cut and paste the LUA folder from the compiled (1) Community Patch folder here.

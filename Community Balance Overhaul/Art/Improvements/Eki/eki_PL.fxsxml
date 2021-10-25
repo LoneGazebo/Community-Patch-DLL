@@ -1,0 +1,9 @@
+<Asset>
+  <Mesh file="EKI_PL.gr2" source="Max" />
+
+  <DecisionTree file="StaticLandmarkDecisionTree.ddtxml" source="Tool" />
+  <TimedTrigger file="FX_Triggers_PL_Fort_MID.ftsxml" source="Tool" model="blend_root" state="0,1,2,3" />
+  <BoneUsage>
+    <Bone name="FX_PillagedSmoke" />
+  </BoneUsage>
+</Asset>

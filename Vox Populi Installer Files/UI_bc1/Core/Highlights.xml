@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Highlights>
+	<style name="" type="HexContour" width=".2" texture="hex_contour2.dds"/>
+	<style name="SampleFilledHex" type="FilledHex" width="1" color="0,0,0,128"/>
+	<style name="SampleStaticTexture" type="StaticTexture" texture="static_texture_highlight.dds"/>
+	<style name="SampleHexModel" type="HexModel" model="SelectedAniOneTurn.fxsxml"/>
+	<style name="EditorHexStyle1" type="HexContour" width=".15" texture="Solid_Contour.dds"/>
+	<style name="EditorHexStyle2" type="HexContour" width=".08" texture="Solid_Contour.dds"/>
+	<style name="EditorHexStyle3" type="HexContour" width=".03" texture="Solid_Contour.dds"/>
+	<style name="TempBorder" type="HexContour" width=".2" texture="hex_contour2.dds"/>
+	<style name="GroupBorder" type="SplineBorder" width ="6" texture="spline_border_contour2.dds" color="255,128,0,200"/>
+	<style name="ValidFireTargetBorder" type="StaticTexture" texture="static_texture_highlight.dds"/>
+	<style name="FireRangeBorder" type="SplineBorder" width="6" texture="spline_border_contour2.dds" color="255,0,0,200"/>
+	<style name="MovementRangeBorder" type="SplineBorder" width="6" texture="spline_border_contour2.dds" color="100,185,245,200"/>
+	<style name="AMRBorder" type="StaticTexture" texture="static_texture_highlight.dds"/>
+	<style name="TradeRoute" type="HexContour" width=".2" texture="hex_contour2.dds"/>
+	<style name="GUHB" type="HexContour" width=".2" texture="hex_contour2.dds"/>
+
+	<!-- EUI styles -->
+
+	<style name="Culture" type="HexContour" width=".2" texture="hex_contour2.dds" />
+
+	<style name="CityOverlap" type="FilledHex" width ="1" color="255,140,0,64" />
+
+	<style name="OverlapFill" type="FilledHex" width ="1" color="0,0,255,50" />
+	<style name="OverlapOutline" type="SplineBorder" width ="7" color="0,0,255,164" />
+
+	<style name="WorkedFill" type="FilledHex" width ="1" color="0,255,0,50" />
+	<style name="WorkedOutline" type="SplineBorder" width ="7" texture="hex_contour1.dds" color="0,255,0,164" />
+
+	<style name="OwnedFill" type="FilledHex" width ="1" color="255,140,0,64" />
+	<style name="OwnedOutline" type="SplineBorder" width ="7" texture="hex_contour1.dds" color="255,140,0,200" />
+
+	<style name="BuyFill" type="FilledHex" width ="1" color="255,215,0,50" />
+	<style name="BuyOutline" type="SplineBorder" width ="7" texture="hex_contour1.dds" color="255,215,0,192" />
+
+	<style name="VacantFill" type="FilledHex" width ="1" color="0,140,255,50" />
+	<style name="VacantOutline" type="SplineBorder" width ="7" texture="hex_contour1.dds" color="0,140,255,164" />
+
+	<style name="EnemyFill" type="FilledHex" width ="1" color="255,0,0,64" />
+	<style name="EnemyOutline" type="SplineBorder" width ="7" texture="hex_contour1.dds" color="255,0,0,200" />
+
+	<style name="CityLimits" type="SplineBorder" width ="7" texture="hex_contour1.dds" color="0,0,0,164" />
+
+</Highlights>

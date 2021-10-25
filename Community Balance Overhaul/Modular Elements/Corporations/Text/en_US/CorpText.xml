@@ -1,0 +1,939 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Created by ModBuddy on 6/23/2015 12:21:44 AM -->
+<GameData>
+	<Concepts>
+		<Row>
+			<Type>CONCEPT_CORPORATION_INTRODUCTION</Type>
+			<Topic>TXT_KEY_TOPIC_CORPORATION</Topic>
+			<Description>TXT_KEY_CORPORATION_TITLE</Description>
+			<Summary>TXT_KEY_CORPORATION_BODY</Summary>
+			<AdvisorQuestion>TXT_KEY_CORPORATION_QUESTION</AdvisorQuestion>
+			<Advisor>ECONOMIC</Advisor>
+			<CivilopediaHeaderType>HEADER_CORPORATIONS</CivilopediaHeaderType>
+		</Row>
+		<Row>
+			<Type>CONCEPT_MONOPOLY_INTRODUCTION</Type>
+			<Topic>TXT_KEY_TOPIC_MONOPOLY</Topic>
+			<Description>TXT_KEY_MONOPOLY_TITLE</Description>
+			<Summary>TXT_KEY_MONOPOLY_BODY</Summary>
+			<AdvisorQuestion>TXT_KEY_MONOPOLY_QUESTION</AdvisorQuestion>
+			<Advisor>ECONOMIC</Advisor>
+			<CivilopediaHeaderType>HEADER_CORPORATIONS</CivilopediaHeaderType>
+		</Row>
+		<Row>
+			<Type>CONCEPT_CORPORATION_SPREADING</Type>
+			<Topic>TXT_KEY_TOPIC_CORPORATION_SPREADING</Topic>
+			<Description>TXT_KEY_CORPORATION_SPREADING_TITLE</Description>
+			<Summary>TXT_KEY_CORPORATION_SPREADING_BODY</Summary>
+			<AdvisorQuestion>TXT_KEY_CORPORATION_SPREADING_QUESTION</AdvisorQuestion>
+			<Advisor>ECONOMIC</Advisor>
+			<CivilopediaHeaderType>HEADER_CORPORATIONS</CivilopediaHeaderType>
+		</Row>
+		<Row>
+			<Type>CONCEPT_CORPORATION_TYPES</Type>
+			<Topic>TXT_KEY_TOPIC_CORPORATION_TYPES</Topic>
+			<Description>TXT_KEY_CORPORATION_TYPES_TITLE</Description>
+			<Summary>TXT_KEY_HAPPINESS_CORPORATION_TYPES_BODY</Summary>
+			<AdvisorQuestion>TXT_KEY_CORPORATION_TYPES_QUESTION</AdvisorQuestion>
+			<Advisor>ECONOMIC</Advisor>
+			<CivilopediaHeaderType>HEADER_CORPORATIONS</CivilopediaHeaderType>
+		</Row>
+	</Concepts>
+	<Language_en_US>
+		<Row Tag="TXT_KEY_PEDIA_CATEGORY_17_LABEL">
+			<Text>Corporations</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PEDIA_CORPORATIONS_PAGE_LABEL">
+			<Text>Corporations Home Page</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PEDIA_CORPORATIONS_HOMEPAGE_LABEL1">
+			<Text>Corporations</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PEDIA_CORPORATIONS_HOMEPAGE_BLURB">
+			<Text>[NEWLINE]"If you don't drive your business, you will be driven out of business."[NEWLINE]  - B.C. Forbes[NEWLINE]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PEDIA_CORPORATIONS_HOMEPAGE_TEXT1">
+			<Text>Trade and commerce has been a focal point of civilization since ancient times. Corporations are modern entities that authorizes a company or single group to act as a single entity. Corporations have become the largest facilitators of trade and influence in today's society. In Civilization V, Corporations allow you cement your civilization's wealth and deliver powerful trade benefits to your civilization.[NEWLINE][NEWLINE]To establish a Corporation, you must secure a Global Monopoly on any of its required resources, and found its Corporation Headquarters. After your Corporation is established, you may construct Offices in your cities and use them to build Franchises in foreign cities via [ICON_INTERNATIONAL_TRADE] Trade Routes.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_TOPIC_MONOPOLY">
+			<Text>Monopolies</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MONOPOLY_TITLE">
+			<Text>{TXT_KEY_TOPIC_MONOPOLY}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MONOPOLY_BODY">
+			<Text>[COLOR_POSITIVE_TEXT]Monopolies[ENDCOLOR] are one of the new gameplay elements added by the Community Balance Overhaul.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Luxury Global Monopolies[ENDCOLOR]: the essence of the Monopoly system is expansion: as your empire expands throughout the game (either through combat or settlement), be on the lookout for Luxury resources that you already have copies of. AS you collect more and more copies of the same Luxury Resources, the percentage of global resources you control goes up. If this value goes over 50% (i.e. you control more than 50% of the world's supply of any resource), you gain a Global Monopoly over that Resource. Each Global Monopoly has a unique bonus - some grant additional yields to your tiles, whereas others boost City yields by a set percentage (see the Resource section of the Civilopedia for details).[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Strategic Global Monopolies[ENDCOLOR]: Strategic Resources operate the same way as Luxury Resources with regards to Monopolies, with one major exception. Due to the vast abundance of these resources, a true 50% Monopoly can be quite difficult. As a result, Strategic Resources have two tiers: 'Strategic' Monopolies and 'True' Monopolies. Strategic Monopolies occur at 25%, and generate special combat bonuses (such as increased health regeneration or increase defense). True Monopolies occur at 50% and, like Luxury Monopolies, they generate bonuses to City and/or tile yields.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MONOPOLY_QUESTION">
+			<Text>What are Resource Monopolies?</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_WONDER_SECTION_4">
+			<Text>Corporation HQs</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_TOPIC_CORPORATION">
+			<Text>Corporations</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CORPORATION_TITLE">
+			<Text>{TXT_KEY_TOPIC_CORPORATION}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CORPORATION_BODY">
+			<Text>[COLOR_POSITIVE_TEXT]Corporations[ENDCOLOR] are one of the new gameplay elements added by the Community Balance Overhaul. They can have a great impact on your empire's economic development, especially in the later part of a game.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Founding Corporations[ENDCOLOR]: There are seven distinct Corporations in the game, each of which becomes available once you have researched the Corporations Technology during the Modern Age. Each Corporation has a specific set of Resource Monopolies that it relies upon - if you do not have at least one of these Resource Monopolies, you will not be able to found the Corporation. Once these two requirements are met, you need to construct the 'Headquarters' of the Corporation in one of your Cities. These buildings are World Wonders, so only one player in the world may found each Corporation! Furthermore, once you have founded a Corporation, you cannot found another one, so make sure you like the one you pick![NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Building Corporate Offices[ENDCOLOR]: Once you have founded your Corporation, you can begin establishing Corporate Offices in each of your Cities. These buildings come with special bonuses similar to your Corporation's Headquarters, and are thus worthwhile to construct on their own. Most bonuses from Corporations scale with the number of Cities you own, so larger empires benefit greatly from founding a Corporation and building as many Offices as possible!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CORPORATION_QUESTION">
+			<Text>What is a Corporation?</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_TOPIC_CORPORATION_SPREADING">
+			<Text>Spreading Corporations</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CORPORATION_SPREADING_TITLE">
+			<Text>{TXT_KEY_TOPIC_CORPORATION_SPREADING}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CORPORATION_SPREADING_BODY">
+			<Text>[COLOR_POSITIVE_TEXT]Spreading your Corporation[ENDCOLOR]: to foreign cities is an essential element of reaping the most benefit from your Corporation.[NEWLINE][NEWLINE]Active Spread: Corporations actively spread their influence via owned Trade Routes, but only if the origin City (your City) has a Corporate Office in it. If your City has a Corporate Office, and you send a Trade Route from that City to a foreign City, a Corporate 'Franchise' will be built in that foreign City when the Trade Route completes. There is also a random chance (~5%) that a Franchise will be created in a nearby Foreign city each turn, if you are currently trading with that Civilization. You can only spread your Corporation to each foreign City once, and you cannot have more Franchises than the maximum number of Trade Routes you can support.[NEWLINE][NEWLINE]Passive Spread: Corporations passively spread their influence via foreign Trade Routes, but only if the destination City (your City) has a Corporate Office in it. If your City has a Corporate Office, and another player sends a Trade Route to that City from one of their Cities, a Corporate 'Franchise' will be built in the foreign City when their Trade Route completes. Your Corporation can only spread to each foreign City once.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Benefits of Spreading Your Corporation[ENDCOLOR]: As listed in the details of each Corporation, the spread of your Corporation to foreign cities has a direct impact on the productivity of your Corporate Offices. For every 'Franchise' of your Corporation in a foreign City, your Corporate Offices gain unique bonuses, be it additional City yields, free resources, or improved Trade Route yields. Furthermore, many Corporations gain additional bonuses if you send Trade Routes to foreign Cities that already have your Corporation in them. Make sure to study the details of your Corporation once you have founded it so that you can maximize your benefit![NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Managing your Corporation[ENDCOLOR]: As your Corporation grows, it can be hard to keep up with where you have Franchises, and where you have Offices. Never fear! In the Economic Overview panel, you can find detailed information on your Corporation in the bottom-left corner. There, you can see the total number of Offices and Corporations you currently control, as well as drop-down lists of the locations of all Corporate Offices and Franchises, as well as the size of foreign Corporations. In addition to these elements, you can also find information about your Corporation while choosing a destination for your Trade Routes. Each City with a Franchise in it is clearly indicated.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CORPORATION_SPREADING_QUESTION">
+			<Text>How do I spread my Corporation?</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_TOPIC_CORPORATION_TYPES">
+			<Text>Corporation Types</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CORPORATION_TYPES_TITLE">
+			<Text>{TXT_KEY_TOPIC_CORPORATION_TYPES}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_HAPPINESS_CORPORATION_TYPES_BODY">
+			<Text>[COLOR_POSITIVE_TEXT]Corporation Types[ENDCOLOR]: there are seven Corporations available in the Community Balance Overhaul. Each of these can only be constructed once (and only one per player), so choose wisely! For more on this, see the [COLOR_POSITIVE_TEXT]Corporations[ENDCOLOR] Tab of the Civilopedia.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CORPORATION_TYPES_QUESTION">
+			<Text>How do I spread my Corporation?</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PEDIA_CORPORATION_LABEL">
+			<Text>Corporation</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PEDIA_CORP_HEADQUARTERS_LABEL">
+			<Text>Headquarters</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PEDIA_CORP_OFFICE_LABEL">
+			<Text>Office</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PEDIA_CORP_FRANCHISE_LABEL">
+			<Text>Franchise</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PEDIA_FREE_TR_LABEL">
+			<Text>Free Trade Routes</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PEDIA_CORPORATION_RESOURCE_BONUS_LABEL">
+			<Text>Franchise Resource Bonus</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PEDIA_CORPORATION_OFFICE_BONUS_LABEL">
+			<Text>Office Bonus</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PEDIA_CORPORATION_TRADE_ROUTE_BONUS_LABEL">
+			<Text>Trade Route Bonus</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PEDIA_CORPORATIONS_FREE_RESOURCE">
+			<Text>Provides {1_Num} {2_IconString} {3_ResourceName} </Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PRODMOD_UNIT_CORPORATION">
+			<Text>[NEWLINE][ICON_BULLET]Modifier for Corporation: {1_Num}%</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_CORPORATION_GREAT_PERSON_RATE_BENEFIT_DETAILS">
+			<Text>+{1_Num}% [ICON_GREAT_PEOPLE] Great People Rate</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CORPORATION_RESOURCE_BENEFIT_DETAILS">
+			<Text>+{3_Num} {2_Icon} {1_Name}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CORPORATION_YIELD_BENEFIT_DETAILS">
+			<Text>+{3_Num} {2_Icon} {1_Name}</Text>
+		</Row>
+		
+		<!-- Civilopedia-->
+		<Row Tag="TXT_KEY_PEDIA_MONOPOLY_RESRC_LABEL">
+			<Text>Monopoly Required (Any)</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PEDIA_MONOPOLY_RESOURCE_NAME">
+			<Text>Monopoly Resource</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GAME_CONCEPT_SECTION_26">
+			<Text>Corporations &amp; Monopolies</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_TOPIC_CORPORATION_FOUNDING">
+			<Text>Founding Corporations</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CORPORATION_FOUNDING_TITLE">
+			<Text>{TXT_KEY_TOPIC_CORPORATION_FOUNDING}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CORPORATION_FOUNDING_BODY">
+			<Text>In order to establish a Corporation, you need to construct its associated Headquarters in one of your cities, and the Corporation must not be actively founded by another civilization. Headquarters may only be established after you have a Global Monopoly on one of its required Monopoly Resources. Once you've constructed the Headquarters, you will automatically found the Corporation and immediately receive its Corporation benefits. You also receive a free Office in the city that constructed it. You can only establish one Corporation at a time, so choose carefully!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CORPORATION_FOUNDING_QUESTION">
+			<Text>How do I found a Corporation?</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_TOPIC_CORPORATION_DESTROYING">
+			<Text>Destroying Corporations</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CORPORATION_DESTROYING_TITLE">
+			<Text>{TXT_KEY_TOPIC_CORPORATION_DESTROYING}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CORPORATION_DESTROYING_BODY">
+			<Text>When a city that has constructed a Corporation Headquarters is acquired or destroyed through any means by another civilization, that Corporation is immediately destroyed. All Offices and Franchises around the world are immediately closed, and the founding Civilization immediately loses all benefits from that Corporation. It is extremely important to protect your Corporation, as you will lose all of your progress in spreading that Corporation![NEWLINE][NEWLINE]A destroyed Corporation immediately becomes available to be founded again by any civilization in the world. There is no restriction in the number of times a Corporation may be established in a game.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CORPORATION_DESTROYING_QUESTION">
+			<Text>How do I destroy a Corporation?</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_TOPIC_CORPORATION_OFFICES">
+			<Text>Offices</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CORPORATION_OFFICES_TITLE">
+			<Text>{TXT_KEY_TOPIC_CORPORATION_OFFICES}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CORPORATION_OFFICES_BODY">
+			<Text>Offices can be established in any of your empire's cities after you've established a Corporation. Offices allow you to spread your Corporation through [ICON_INTERNATIONAL_TRADE] Trade Routes. Each [ICON_INTERNATIONAL_TRADE] Trade Route you establish from a city with an Office to a foreign city without your Corporation's Franchise will spread your Corporation's Franchise to that city at the completion of the [ICON_INTERNATIONAL_TRADE] Trade Route. In addition to a base effect, each Office has a benefit that stacks based on the number of Franchises you've established in foreign cities. The more Offices you own in the empire, the faster your Corporation can spread. Spread your Corporation to enhance its benefit to your Civilization!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CORPORATION_OFFICES_QUESTION">
+			<Text>What is an office?</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_TOPIC_CORPORATION_FRANCHISES">
+			<Text>Franchises</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CORPORATION_FRANCHISES_TITLE">
+			<Text>{TXT_KEY_TOPIC_CORPORATION_FRANCHISES}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CORPORATION_FRANCHISES_BODY">
+			<Text>Franchises cannot be constructed in any city. Instead they are created after a [ICON_INTERNATIONAL_TRADE] Trade Route from a city you own with an Office to a foreign city that does not already contain your Corporation's Franchise is completed. Franchises increase the Empire's overall Office benefit, so use them to strengthen your Corporation's effect. You can only build a maximum number of Franchises, determined by the size of the map, the number of [ICON_INTERNATIONAL_TRADE] Trade Routes you can establish, and any bonuses from any [ICON_CULTURE] Social Policies you have unlocked.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CORPORATION_FRANCHISES_QUESTION">
+			<Text>What are franchises?</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_TOPIC_CORPORATION_MONOPOLIES">
+			<Text>Monopolies</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CORPORATION_MONOPOLIES_TITLE">
+			<Text>{TXT_KEY_TOPIC_CORPORATION_MONOPOLIES}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CORPORATION_MONOPOLIES_BODY">
+			<Text>Monopolies represent the amount of a particular Luxury or Strategic Resource you own vs. the amount of that resource on the map. As you obtain more copies of a resource, your Monopoly Percentage will increase. If you obtain 50% or more of a Monopoly over a resource, you obtain a [COLOR_POSITIVE_TEXT]Global Monopoly[ENDCOLOR] over that resource. Obtaining a Global Monopoly grants a unique bonus per resource, so you should make it a priority to obtain Monopolies over as many Resources as possible.[NEWLINE][NEWLINE]Due to the vast abundance of Strategic Resources, it can be difficult to obtain a 50% Monopoly over a Strategic Resource. Because of this, you can also obtain a [COLOR_POSITIVE_TEXT] Strategic Monopoly[ENDCOLOR] at 25% Monopoly, which grants a special combat bonus (different for each resource). You can still achieve a Global Monopoly at 50% Monopoly for a Strategic Resource.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CORPORATION_MONOPOLIES_QUESTION">
+			<Text>What are Monopolies?</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_TOPIC_CORPORATION_SPREAD">
+			<Text>Spreading your Corporation</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CORPORATION_SPREAD_TITLE">
+			<Text>{TXT_KEY_TOPIC_CORPORATION_SPREAD}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CORPORATION_SPREAD_BODY">
+			<Text>You can spread your Corporation through [ICON_INTERNATIONAL_TRADE] Trade Routes from a city with your Corporation's Office built to a foreign city without a Corporation Franchise built. At the completion of the [ICON_INTERNATIONAL_TRADE] Trade Route, a Franchise will be constructed. There is also a random chance every turn (around 5%) that a Franchise will be constructed in a nearby foreign City, if you are trading with that Civilization already.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CORPORATION_SPREAD_QUESTION">
+			<Text>How do I spread my Corporation?</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_TOPIC_CORPORATION_RESOURCE_BONUS">
+			<Text>Resource Bonus</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CORPORATION_RESOURCE_BONUS_TITLE">
+			<Text>{TXT_KEY_TOPIC_CORPORATION_RESOURCE_BONUS}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CORPORATION_RESOURCE_BONUS_BODY">
+			<Text>Most Corporations have a resource bonus which applies to all Cities with a Corporation Franchise. Each resource bonus provides a bonus to a specific yield, such as [ICON_CULTURE] Culture, [ICON_GOLD] Gold, [ICON_PRODUCTION] Production, or [ICON_RESEARCH] Science.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CORPORATION_RESOURCE_BONUS_QUESTION">
+			<Text>What is a resource bonus?</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_TOPIC_CORPORATION_OFFICE_BONUS">
+			<Text>Office Bonus</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CORPORATION_OFFICE_BONUS_TITLE">
+			<Text>{TXT_KEY_TOPIC_CORPORATION_OFFICE_BONUS}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CORPORATION_OFFICE_BONUS_BODY">
+			<Text>Your Corporation Offices receive incremental affects the more Franchises you establish in foreign cities, so be sure to keep spreading your Corporation to reap its benefits!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CORPORATION_OFFICE_BONUS_QUESTION">
+			<Text>What is an office bonus?</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_TOPIC_CORPORATION_TRADE_ROUTE_BONUS">
+			<Text>Trade Route Bonus</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CORPORATION_TRADE_ROUTE_BONUS_TITLE">
+			<Text>{TXT_KEY_TOPIC_CORPORATION_TRADE_ROUTE_BONUS}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CORPORATION_TRADE_ROUTE_BONUS_BODY">
+			<Text>All Corporations provide some benefit to your [ICON_INTERNATIONAL_TRADE] Trade Routes. These bonuses generally affect your [ICON_INTERNATIONAL_TRADE] Trade benefits to cities that have your Corporation Franchise already established, but they may also grant some sort of special benefit (like increase trade distance, or invulnerable trade units).</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CORPORATION_TRADE_ROUTE_BONUS_QUESTION">
+			<Text>What is a trade route bonus?</Text>
+		</Row>
+
+		<!-- Notifications-->
+		<Row Tag="TXT_KEY_TECH_CORP_ENABLED">
+			<Text>It is now possible to found a Corporation! Check the [COLOR_POSITIVE_TEXT]Corporations and Monopolies[ENDCOLOR] screen for information on your current Resource Monopolies, all possible Corporations, and the Corporations that you are eligible for.[NEWLINE][NEWLINE]Construct the Corporation's HQ in one of your Cities to found it! Remember that you can only found [COLOR_POSITIVE_TEXT]one[ENDCOLOR] Corporation, so make it count!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TECH_CORP_ENABLED_S">
+			<Text>Corporations Enabled!</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_CORPORATION_FOUNDED">
+			<Text>You have founded [COLOR_POSITIVE_TEXT]{@1_CorporationName}[ENDCOLOR]! To spread your new Corporation far and wide, build Corporate Offices in owned Cities and send [ICON_INTERNATIONAL_TRADE] Trade Routes from these Cities to foreign Cities!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CORPORATION_FOUNDED_SUMMARY">
+			<Text>Corporation Founded!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CORPORATION_FOUNDED_OTHER_PLAYER">
+			<Text>{1_PlayerName} has founded [COLOR_POSITIVE_TEXT]{@2_CorporationName}[ENDCOLOR]! This Corporation can no longer be established unless the other player's Corporation Headquarters is destroyed (on city capture).</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CORPORATION_FOUNDED_OTHER_PLAYER_SUMMARY">
+			<Text>{1_PlayerName} has founded a Corporation!</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_NOTIFICATION_TRADE_UNIT_CORPORATION_BUILDING_SUMMARY">
+			<Text>{@1_BldgName} spreads to {@2_City}!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_TRADE_UNIT_CORPORATION_BUILDING">
+			<Text>{@2_BldgName} has spread to the City of {@1_City} as a result of a Trade Route with {@3_City}. This will increase the value of all of your Corporate Offices!</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_NOTIFICATION_TRADE_UNIT_CORPORATION_BUILDING_FOREIGN_SUMMARY">
+			<Text>{@1_BldgName} spreads to {@2_City}!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_TRADE_UNIT_CORPORATION_BUILDING_FOREIGN">
+			<Text>{@2_BldgName}, a foreign Corporation, has spread to the City of {@1_City} as a result of a Trade Route with {@3_City}. This will increase the value of their Corporation!</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_NOTIFICATION_TRADE_UNIT_CORPORATION_BUILDING_FREEDOM_SUMMARY">
+			<Text>{@1_BldgName} spreads to {@2_City}!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_TRADE_UNIT_CORPORATION_BUILDING_FREEDOM">
+			<Text>{@2_BldgName} has spread to the City of {@1_City}! This will increase the value of all of your Corporate Offices!</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_NOTIFICATION_TRADE_UNIT_CORPORATION_BUILDING_FOREIGN_FREEDOM_SUMMARY">
+			<Text>{@1_BldgName} spreads to {@2_City}!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_TRADE_UNIT_CORPORATION_BUILDING_FOREIGN_FREEDOM">
+			<Text>{@2_BldgName}, a foreign Corporation, has spread to the City of {@1_City}! This will increase the value of their Corporation!</Text>
+		</Row>
+
+		<!-- Moved/Destroyed Notifications -->
+		<Row Tag="TXT_KEY_NOTIFICATION_CORPORATION_MOVED_SUMMARY">
+			<Text>{@1_BldgName} relocates to {@2_City}!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_CORPORATION_MOVED">
+			<Text>{@2_BldgName} has relocated to the City of {@1_City} as a result of the previous HQ being captured! Try not to let this happen again, okay?</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_NOTIFICATION_CORPORATION_DESTROYED_SUMMARY">
+			<Text>{@1_BldgName} closes all offices and franchises!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_CORPORATION_DESTROYED">
+			<Text>{@1_BldgName} has closed all global offices and franchises as a result of their headquarter's untimely destruction.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_NOTIFICATION_CORPORATION_BUILDINGS_REMOVED_CITY_S">
+			<Text>{@1_BldgName} removed from {2_City}!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_CORPORATION_BUILDINGS_REMOVED_CITY">
+			<Text>{@1_BldgName} was forcefully closed by {3_Civ} in {2_City}, due to a Tenet or Resolution!</Text>
+		</Row>
+
+		<!-- LUA -->
+		<Row Tag="TXT_KEY_NO_ACTION_BUILDING_ONE_CORP_ONLY">
+			<Text>[NEWLINE]{1_BuildingName:textkey} cannot be constructed while you are constructing {2_BuildingName:textkey} elsewhere in your Empire.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PEDIA_CORP_GP_CHANGE">
+			<Text>Additional +{1_Num}% [ICON_GREAT_PEOPLE] Great Person Rate from Corporation</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PRODMOD_CORPORATION">
+			<Text>[NEWLINE][ICON_BULLET]City Modifier from your Corporation: {1_Num}%</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_YIELD_FROM_CORPORATIONS">
+			<Text>{1_Num} {2_IconString} from your Corporation</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_FOODMOD_CORPORATION">
+			<Text>[NEWLINE][ICON_BULLET][ICON_INVEST]Corporation Modifier: {1_Num}%</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_HAS_FRANCHISE_TT">
+			<Text>[COLOR_POSITIVE_TEXT]Corporation Franchise Present[ENDCOLOR][NEWLINE][NEWLINE]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CAN_FRANCHISE_TT">
+			<Text>[COLOR_POSITIVE_TEXT]Franchise Available[ENDCOLOR][NEWLINE][NEWLINE]</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_NO_FRANCHISE_HERE_TT">
+			<Text>Cannot construct a Franchise here for one of the following reasons:[NEWLINE]- Reached Franchise maximum[NEWLINE]- You or other player are sanctioned by the World Congress[NEWLINE]- You or other player have adopted Tenets that prevent the creation of Franchises in foreign cities</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_CITYVIEW_CORPORATIONS_TEXT">
+			<Text>Corporations</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_CULTURE_FROM_CORPORATION">
+			<Text>+{1_Num}% [ICON_CULTURE] from Corporation</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CULTURE_FROM_CORPORATIONS">
+			<Text>+{1_Num} [ICON_CULTURE] from Corporation</Text>
+		</Row>
+		<Row Tag="TXT_KEY_FAITH_FROM_CORPORATIONS">
+			<Text>+{1_Num} [ICON_PEACE] from Corporation</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_CO_PLAYER_TOURISM_FRANCHISES">
+			<Text>+{1_Num}% Bonus from your Corporate Franchises in their Empire[NEWLINE]</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_TT_CORPORATION_MODIFIER_SCIENCE">
+			<Text>Corporation [ICON_RESEARCH] Science Bonus: +{1_Num}%</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_TT_CORPORATION_MODIFIER_GOLD">
+			<Text>Corporation [ICON_GOLD] Gold Bonus: +{1_Num}%</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_CORP_MAX_FRANCHISE">
+			<Text>Franchises Established: [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR] out of [COLOR_POSITIVE_TEXT]{2_Num}[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CORP_MAX_FRANCHISE_TT">
+			<Text>[ICON_BULLET] {1_Num} from Corporation Headquarters[NEWLINE][ICON_BULLET] {2_Num} from constructed Offices[NEWLINE][ICON_BULLET] {3_Num} from your maximum number of [ICON_INTERNATIONAL_TRADE] Trade Routes.[NEWLINE][ICON_BULLET] {4_Num} from Policies and Tenets[NEWLINE][NEWLINE]Note that some Policies and Tenets may allow your current Franchise total to exceed your Franchise Maximum.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_CORP_MAX_FRANCHISE_NATIONALIZATION_TT">
+			<Text>[ICON_BULLET] {1_Num} from constructed Offices (Nationalization Tenet)[NEWLINE][NEWLINE]Workers of the World, Unite!</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_CORP_NO_CORP">
+			<Text>No Corporation</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_CORP_EX_NAME">
+			<Text>The name of your Corporation (if you have founded one).</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_CORP_EX_DESC">
+			<Text>Information on Your Corporation's Bonuses and Requirements Will Appear Here (Once Founded)</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_NUM_FRANCHISES_TT">
+			<Text>Total number of foreign Cities with Franchises (i.e. Cities your Corporation has spread to).</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_NUM_OFFICES_TT">
+			<Text>Total number of owned Cities with Offices in them.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_EO_FRANCHISE_DETAILS_COLLAPSE">
+			<Text>[ICON_MINUS] Franchises</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_EO_FRANCHISE_DETAILS">
+			<Text>[ICON_PLUS] Franchises</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_EO_OFFICE_DETAILS_COLLAPSE">
+			<Text>[ICON_MINUS] Offices</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_EO_OFFICE_DETAILS">
+			<Text>[ICON_PLUS] Offices</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_EO_CORPORATION">
+			<Text>Corporations</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_EO_CORPORATION_TT">
+			<Text>Corporations are powerful, late-game entities that are only available to Civilizations with Global Resource Monopolies. For more information, see the Civilopedia Concepts section on Coroporations, and the Wonders tab.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_EO_FRANCHISES">
+			<Text>Total Franchises</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_EO_OFFICES">
+			<Text>Total Offices</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_EO_FRANCHISE_STACK">
+			<Text>Franchises</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_EO_EX_FRANCHISE_STACK">
+			<Text>List of Cities your Corporation has spread to.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_EO_OFFICE_STACK">
+			<Text>Offices</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_EO_EX_OFFICE_STACK">
+			<Text>List of Offices in owned Cities.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_CORP_HERE">
+			<Text>  [ICON_INVEST] [COLOR_MAGENTA](Franchise present)[ENDCOLOR]</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_EO_FOREIGN_CORPS_DETAILS_COLLAPSE">
+			<Text>[ICON_MINUS] Foreign Corporations</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_EO_FOREIGN_CORPS_DETAILS">
+			<Text>[ICON_PLUS] Foreign Corporations</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_EO_EX_FOREIGN_CORPS_STACK">
+			<Text>List of Foreign Corporations and their total worldwide Franchises.</Text>
+		</Row>
+		<!-- Tech -->
+		<Row Tag="TXT_KEY_MONOPOLIES_AND_CORPORATIONS">
+			<Text>Monopolies &amp; Corporations</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_TECH_CORPORATIONS_TITLE">
+			<Text>Corporations</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TECH_CORPORATIONS_DESC">
+			<Text>The word "corporation" derives from corpus, the Latin word for body, or a body of people. By the time of Justinian (reigned 527–565), Roman Law recognized a range of corporate entities under the names universitas, corpus or collegium. These included the state itself (the populus Romanus), municipalities, and such private associations as sponsors of a religious cult, burial clubs, political groups, and guilds of craftsmen or traders. Such bodies commonly had the right to own property and make contracts, to receive gifts and legacies, to sue and be sued, and, in general, to perform legal acts through representatives. Private associations were granted designated privileges and liberties by the emperor.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TECH_CORPORATIONS_HELP">
+			<Text>Allows you to found [COLOR_POSITIVE_TEXT]Corporations[ENDCOLOR], which are powerful late-game institutions that greatly enhance your Trade Routes and global power if you invest in their expansion.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WONDER_CORPORATION_QUOTE">
+			<Text>[NEWLINE][TAB][TAB]"The point is ladies and gentlemen that greed, for lack of a better word, is good."[NEWLINE][TAB][TAB]  - Gordon Gekko[NEWLINE][TAB]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WONDER_CORPORATION_QUOTE_TRADER_SIDS">
+			<Text>[NEWLINE][TAB][TAB]"Merchandising, merchandising, where the real money from the movie is made."[NEWLINE][TAB][TAB]  - Yogurt[NEWLINE][TAB]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WONDER_CORPORATION_QUOTE_LANDSEA">
+			<Text>[NEWLINE][TAB][TAB]"Lesson number one: Don't underestimate the other guy's greed."[NEWLINE][TAB][TAB]  - Frank Lopez[NEWLINE][TAB]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WONDER_CORPORATION_QUOTE_HEXXON">
+			<Text>[NEWLINE][TAB][TAB]"I just want to say one word to you. Just one word: Plastics."[NEWLINE][TAB][TAB]  - Mr. McGuire[NEWLINE][TAB]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WONDER_CORPORATION_QUOTE_GA">
+			<Text>[NEWLINE][TAB][TAB]"Fashion is about dreaming and making other people dream."[NEWLINE][TAB][TAB]  - Donatella Versace[NEWLINE][TAB]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WONDER_CORPORATION_QUOTE_FIRAXITE">
+			<Text>[NEWLINE][TAB][TAB]"Whatever good things we build end up building us."[NEWLINE][TAB][TAB]  - Jim Rohn[NEWLINE][TAB]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WONDER_CORPORATION_QUOTE_TWOKAY">
+			<Text>[NEWLINE][TAB][TAB]"There is no love sincerer than the love of food."[NEWLINE][TAB][TAB]  - George Bernard Shaw[NEWLINE][TAB]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WONDER_CORPORATION_QUOTE_CIVILIZED">
+			<Text>[NEWLINE][TAB][TAB]"Will the people in the cheaper seats clap your hands? And the rest of you, if you'll just rattle your jewelry."[NEWLINE][TAB][TAB]  - John Lennon[NEWLINE][TAB]</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_POLICY_NATIONALIZATION_HELP">
+			<Text>[COLOR_POSITIVE_TEXT]Nationalization[ENDCOLOR]: Each Corporate Office counts as a Franchise. Foreign Franchises no longer benefit your Corporation, you can no longer construct Franchises in foreign Cities (except Vassals), and foreign Corporations can no longer set up Franchises in your Cities. +2 [ICON_RESEARCH] Science from all Corporation Offices.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_POLICY_NATIONALIZATION">
+			<Text>Nationalization</Text>
+		</Row>
+		<Row Tag="TXT_KEY_POLICY_NATIONALIZATION_TEXT">
+			<Text>Nationalization is the process of taking a private industry or private assets into public ownership by a national government or state. Nationalization usually refers to private assets, but may also mean assets owned by lower levels of government, such as municipalities, being transferred to be the state. The opposite of nationalization is usually privatization or de-nationalization, but may also be municipalization. Industries that are usually subject to nationalization include transport, communications, energy, banking and natural resources.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_POLICY_GLOBALIZATION_HELP">
+			<Text>[COLOR_POSITIVE_TEXT]Transnationalism[ENDCOLOR]: Each turn, increases the chance that a Corporate Franchise will appear in a foreign City to 15% (normally 5%). Global Franchise maximum increased by 25%, and every Town counts as a Franchise. +2 [ICON_CULTURE] Culture from all Corporation Offices.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_POLICY_GLOBALIZATION">
+			<Text>Transnationalism</Text>
+		</Row>
+		<Row Tag="TXT_KEY_POLICY_GLOBALIZATION_TEXT">
+			<Text>Transnationalism as an economic process involves the global reorganization of the production process, in which various stages of the production of any product can occur in various countries, typically with the aim of minimizing costs. Economic transnationalism, commonly known as Globalization, was spurred in the latter half of the 20th century by the development of the internet and wireless communication, as well as the reduction in global transportation costs caused by containerization. Multinational corporations could be seen as a form of transnationalism, in that they seek to minimize costs, and hence maximize profits, by organizing their operations in the most efficient means possible irrespective of political boundaries.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_POLICY_INFILTRATION_HELP">
+			<Text>[COLOR_POSITIVE_TEXT]Syndicalism[ENDCOLOR]: Corporate Franchises count double in the Cities of Civilizations you are at least [COLOR_MAGENTA]Popular[ENDCOLOR] with, and this extra Franchise does not count against your Global Franchise maximum. Can establish 5 additional Franchises in foreign Cities. +2 [ICON_PRODUCTION] Production from all Corporation Offices.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_POLICY_INFILTRATION">
+			<Text>Syndicalism</Text>
+		</Row>
+		<Row Tag="TXT_KEY_POLICY_INFILTRATION_TEXT">
+			<Text>National syndicalism is an adaptation of syndicalism to suit the social agenda of integral nationalism. National syndicalism suggests that the people must defend themselves through the development of Syndicalist sections into massive economic worker movements. These should take immediate action to expropriate the capitalists. These should also take direct action to let the workers lead the production and to form peoples communes. National syndicalism seeks out principled reasons for direct economic action and denounces parliamentary action by representatives. The goal is not to make capitalism bearable, but the realisation of a free Nationalist and Socialist nation. National syndicalism aims to move the attention from the political terrain to the economic terrain. It wants the socialisation from the basis: a system of distribution from local units, in consultation with the National federation, on the fundament of a production and consumption statistic. As well as the organisation of the production by national industrial federations.</Text>
+		</Row>
+
+		<!-- Wonder Splash Quote -->
+		<Row Tag="TXT_KEY_WONDER_CORPORATION_QUOTE_SPLASH">
+			<Text>[NEWLINE][TAB][TAB]"I don't build in order to have clients. I have clients in order to build."[NEWLINE][TAB][TAB]  - Howard Roark[NEWLINE][TAB]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CIV5_BUILDINGS_CORP_TEXT">
+			<Text>A corporation is a company or group of people authorized to act as a single entity (legally a person) and recognized as such in law. Early incorporated entities were established by charter (i.e. by an ad hoc act granted by a monarch or passed by a parliament or legislature). Most jurisdictions now allow the creation of new corporations through registration. Corporations come in many different types but are usually divided by the law of the jurisdiction where they are chartered into two kinds: by whether or not they can issue stock, or by whether or not they are for profit.</Text>
+		</Row>
+		
+		<!-- Corporations -->
+		<Row Tag="TXT_KEY_CORPORATION_TRADER_SIDS">
+			<Text>Trader Sid's, Inc.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CORPORATION_TRADER_SIDS_HELP">
+			<Text>Provides benefits geared toward [ICON_GOLD] Gold generation. Increases [ICON_INTERNATIONAL_TRADE] Trade Unit limit by two and doubles Land [ICON_INTERNATIONAL_TRADE] Trade Unit maximum distance.[NEWLINE][NEWLINE]Caravansaries and Markets in all Cities produce +3 [ICON_GOLD] Gold. Every Franchise in a foreign Civilization's Cities increases your [ICON_TOURISM] Tourism with them by 2%.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CORPORATION_RESOURCE_BONUS_TRADER_SIDS">
+			<Text>[ICON_RES_CLOVES] Cloves, [ICON_RES_COCOA] Cocoa, [ICON_RES_NUTMEG] Nutmeg, [ICON_RES_PEPPER] Pepper, [ICON_RES_SALT] Salt, [ICON_RES_SPICES] Cinnamon, [ICON_RES_SUGAR] Sugar provide +1 [ICON_GOLD] Gold in all Cities with a Trader Sid's Franchise.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CORPORATION_OFFICE_BONUS_TRADER_SIDS">
+			<Text>+4 [ICON_GOLD] Gold for every Global Franchise, and [ICON_INTERNATIONAL_TRADE] Trade Routes to this City generate +2 [ICON_GOLD] Gold.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CORPORATION_TRADE_ROUTE_BONUS_TRADER_SIDS">
+			<Text>[ICON_INTERNATIONAL_TRADE] Trade Routes from owned Cities with a Trader Sid's Office to foreign Cities with a Trader Sid's Franchise produce +25% additional [ICON_GOLD] Gold.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CORPORATION_TRADER_SIDS_OFFICE_BENEFIT_HELP">
+			<Text>Current Office Bonus: {1_String}</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_BUILDING_TRADER_SIDS_HQ">
+			<Text>Trader Sid's Headquarters</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_TRADER_SIDS_HQ_STRATEGY">
+			<Text>Construct this building in one of your cities to found the Trader Sid's Corporation. See the [COLOR_POSITIVE_TEXT]Corporations[ENDCOLOR] section of the Civilopedia for more information.[NEWLINE][NEWLINE]Remember that each Civilization may only found [COLOR_POSITIVE_TEXT]one[ENDCOLOR] Corporation, so make sure the benefits are applicable to your Victory Strategy!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_TRADER_SIDS_HQ_HELP">
+			<Text>Founds the Trader Sid's, Inc. Corporation.[NEWLINE][NEWLINE]Receive a free Trader Sid's Office in this City, and unlocks construction of Trader Sid's Offices in owned Cities.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_BUILDING_TRADER_SIDS_FRANCHISE">
+			<Text>Trader Sid's</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_TRADER_SIDS_FRANCHISE_STRATEGY">
+			<Text>This building can only be constructed in Foreign Cities if you were the founder of Trader Sid's. To construct this building in a foreign City, send a Trade Route from an owned City with a Trader Sid's Office in it to a foreign City. When the Trade Route is complete, the building will automatically be constructed.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_TRADER_SIDS_FRANCHISE_HELP">
+			<Text>+1 [ICON_GOLD] Gold on all Trader Sid's Monopoly Resources near the City. Generates revenue for Trader Sid's Offices in the founding Civilization's Cities.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_BUILDING_TRADER_SIDS">
+			<Text>Trader Sid's Office</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_TRADER_SIDS_STRATEGY">
+			<Text>When a [ICON_INTERNATIONAL_TRADE] Trade Route between a foreign City and this City completes, a Trader Sid's Franchise is constructed in the foreign City.[NEWLINE][NEWLINE]Trader Sid's cannot be sold or destroyed by the player, and increases the [ICON_GOLD] Gold output of all Trader Sid's Offices by +4.[NEWLINE][NEWLINE]You cannot have more Franchises than your Franchise Limit (see the Corporation and Monopolies Overview for more on this).</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_TRADER_SIDS_HELP">
+			<Text>Incoming [ICON_INTERNATIONAL_TRADE] Trade Routes generate +2 [ICON_GOLD] Gold for the City, and +2 [ICON_GOLD] Gold for Trade Route owner. +4 [ICON_GOLD] Gold for every Trader Sid's Franchise in foreign Cities (up to your Franchise Limit).[NEWLINE][NEWLINE]Trade Routes from this City to foreign Cities with a Trader Sid's Franchise produce +25% more [ICON_GOLD] Gold.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_CORPORATION_LANDSEA_EXTRACTORS">
+			<Text>Centaurus Extractors, Inc.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CORPORATION_LANDSEA_EXTRACTORS_HELP">
+			<Text>Provides benefits geared toward [ICON_PRODUCTION] Production and coastal Cities. Increases [ICON_INTERNATIONAL_TRADE] Trade Unit limit by two and doubles sea [ICON_INTERNATIONAL_TRADE] Trade Unit maximum range.[NEWLINE][NEWLINE]Harbors and Seaports in all Cities also produce +2 [ICON_PRODUCTION] Production. Every Franchise in a foreign Civilization's Cities increases your [ICON_TOURISM] Tourism with them by 2%.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CORPORATION_RESOURCE_BONUS_LANDSEA_EXTRACTORS">
+			<Text>[ICON_RES_HORSE] Horses, [ICON_RES_WHALE] Whales, [ICON_RES_CRAB] Crab, [ICON_RES_IVORY] Ivory provide +1 [ICON_PRODUCTION] Production in cities with Centaurus Extractors Franchise.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CORPORATION_OFFICE_BONUS_LANDSEA_EXTRACTORS">
+			<Text>+3 [ICON_PRODUCTION] Production for every Global Franchise, and +1 [ICON_PRODUCTION] Production on all Sea Tiles near the City.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CORPORATION_TRADE_ROUTE_BONUS_LANDSEA_EXTRACTORS">
+			<Text>[ICON_INTERNATIONAL_TRADE] Trade Routes to a foreign City with a Centaurus Extractors Franchise grant +10% [ICON_RESEARCH] Science rate in the origin City.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CORPORATION_LANDSEA_EXTRACTORS_OFFICE_BENEFIT_HELP">
+			<Text>Current Office Bonus: {1_String}</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_BUILDING_LANDSEA_EXTRACTORS_HQ">
+			<Text>Centaurus Extractors Headquarters</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_LANDSEA_EXTRACTORS_HQ_STRATEGY">
+			<Text>Construct this building in one of your cities to found the Centaurus Extractor's Corporation. See the [COLOR_POSITIVE_TEXT]Corporations[ENDCOLOR] section of the Civilopedia for more information.[NEWLINE][NEWLINE]Remember that each Civilization may only found [COLOR_POSITIVE_TEXT]one[ENDCOLOR] Corporation, so make sure the benefits are applicable to your Victory Strategy!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_LANDSEA_EXTRACTORS_HQ_HELP">
+			<Text>Founds the Centaurus Extractors Corporation.[NEWLINE][NEWLINE]Grants a free Centaurus Extractors Office in this City, and unlocks construction of Centaurus Extractors Offices in owned Cities.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_BUILDING_LANDSEA_EXTRACTORS_FRANCHISE">
+			<Text>Centaurus Extractors</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_LANDSEA_EXTRACTORS_FRANCHISE_STRATEGY">
+			<Text>This building can only be constructed in Foreign Cities if you were the founder of Centaurus Extractors. To construct this building in a foreign City, send a Trade Route from an owned City with a Centaurus Extractors Office in it to a foreign City. When the Trade Route is complete, the building will automatically be constructed.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_LANDSEA_EXTRACTORS_FRANCHISE_HELP">
+			<Text>+1 [ICON_PRODUCTION] Production on all Monopoly Resources associated with Centaurus Extractors. Generates revenue for Centaurus Extractors Offices in the founding Civilization's Cities.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_BUILDING_LANDSEA_EXTRACTORS">
+			<Text>Centaurus Extractors Office</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_LANDSEA_EXTRACTORS_STRATEGY">
+			<Text>When a [ICON_INTERNATIONAL_TRADE] Trade Route between a foreign City and this City completes, a Centaurus Extractors Franchise is constructed in the foreign City.[NEWLINE][NEWLINE]Centaurus Extractors cannot be sold or destroyed by the player, and increases the [ICON_PRODUCTION] Production output of all Centaurus Extractors Offices by +3.[NEWLINE][NEWLINE]You cannot have more Franchises than your Franchise Limit (see the Corporation and Monopolies Overview for more on this).</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_LANDSEA_EXTRACTORS_HELP">
+			<Text>+1 [ICON_PRODUCTION] Production on all Sea Tiles near this City. +3 [ICON_PRODUCTION] Production for every Centaurus Extractors Franchise (up to your Franchise Limit).[NEWLINE][NEWLINE]Every Trade Route from this City to a foreign City with a Centaurus Extractors Franchise increases this City's [ICON_RESEARCH] Science rate by +10%.</Text>
+		</Row>
+		
+		<Row Tag="TXT_KEY_CORPORATION_HEXXON_REFINERY">
+			<Text>Hexxon Refinery, Inc.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CORPORATION_HEXXON_REFINERY_HELP">
+			<Text>Provides bonuses that enhance your ability to wage late-game warfare and amass Strategic Resources. Increases [ICON_INTERNATIONAL_TRADE] Trade Unit limit by two.[NEWLINE][NEWLINE]+15% [ICON_PRODUCTION] Production for all Units that require [ICON_RES_OIL] Oil, [ICON_RES_URANIUM] Uranium, or [ICON_RES_ALUMINUM] Aluminum to build. +3 [ICON_PRODUCTION] Production on all Hydro, Nuclear, Wind, and Solar Plants. Every Franchise in a foreign Civilization's Cities increases your [ICON_TOURISM] Tourism with them by 2%.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CORPORATION_RESOURCE_BONUS_HEXXON_REFINERY">
+			<Text>[ICON_RES_COAL] Coal, [ICON_RES_OIL] Oil, [ICON_RES_INCENSE] Incense, [ICON_RES_URANIUM] Uranium, and [ICON_RES_BRAZILWOOD] Brazilwood provide +1 [ICON_PRODUCTION] Production in cities with Hexxon Refineries Franchises.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CORPORATION_OFFICE_BONUS_HEXXON_REFINERY">
+			<Text>+1 additional [ICON_RES_OIL] Oil and [ICON_RES_COAL] Coal for every three Global Franchises, and +15% [ICON_PRODUCTION] Production towards Military Units.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CORPORATION_TRADE_ROUTE_BONUS_HEXXON_REFINERY">
+			<Text>[ICON_INTERNATIONAL_TRADE] Trade Routes to a foreign City with a Hexxon Refinery Franchise grant +10% [ICON_PRODUCTION] Production in origin City.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CORPORATION_HEXXON_REFINERY_OFFICE_BENEFIT_HELP">
+			<Text>Current Office Bonus: {1_String}</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_BUILDING_HEXXON_REFINERY_HQ">
+			<Text>Hexxon Refineries Headquarters</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_HEXXON_REFINERY_HQ_STRATEGY">
+			<Text>Construct this building in one of your cities to found the Hexxon Refineries Corporation. See the [COLOR_POSITIVE_TEXT]Corporations[ENDCOLOR] section of the Civilopedia for more information.[NEWLINE][NEWLINE]Remember that each Civilization may only found [COLOR_POSITIVE_TEXT]one[ENDCOLOR] Corporation, so make sure the benefits are applicable to your Victory Strategy!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_HEXXON_REFINERY_HQ_HELP">
+			<Text>Founds the Hexxon Refineries Corporation.[NEWLINE][NEWLINE]Receive a free Hexxon Refineries Office in this City, and unlocks construction of Hexxon Refineries Offices in owned Cities.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_BUILDING_HEXXON_REFINERY_FRANCHISE">
+			<Text>Hexxon Refineries</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_HEXXON_REFINERY_FRANCHISE_STRATEGY">
+			<Text>This building can only be constructed in Foreign Cities if you were the founder of Hexxon Refineries. To construct this building in a foreign City, send a Trade Route from an owned City with a Hexxon Refineries Office in it to a foreign City. When the Trade Route is complete, the building will automatically be constructed.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_HEXXON_REFINERY_FRANCHISE_HELP">
+			<Text>+1 [ICON_PRODUCTION] Production on Hexxon Refineries Monopoly Resources. Generates revenue for Hexxon Refineries Offices in the founding Civilization's Cities.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_BUILDING_HEXXON_REFINERY">
+			<Text>Hexxon Refineries Office</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_HEXXON_REFINERY_STRATEGY">
+			<Text>When a [ICON_INTERNATIONAL_TRADE] Trade Route between a foreign City and this City completes, a Hexxon Refineries Franchise is constructed in the foreign City.[NEWLINE][NEWLINE]Hexxon Refineries cannot be sold or destroyed by the player, and grants +1 [ICON_RES_OIL] Oil and +1 [ICON_RES_COAL] Coal for every[COLOR_POSITIVE_TEXT]three[ENDCOLOR] Hexxon Refineries Franchises.[NEWLINE][NEWLINE]You cannot have more Franchises than your Franchise Limit (see the Corporation and Monopolies Overview for more on this).</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_HEXXON_REFINERY_HELP">
+			<Text>+15% [ICON_PRODUCTION] Production when training Military Units in this City. +1 [ICON_RES_OIL] Oil and +1 [ICON_RES_COAL] Coal for every [COLOR_POSITIVE_TEXT]three[ENDCOLOR] Hexxon Refineries Franchises (up to your Franchise Limit).[NEWLINE][NEWLINE]Every Trade Route from this City to a foreign City with a Hexxon Refineries Franchise increases this City's [ICON_PRODUCTION] Production rate by +10%.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_CORPORATION_GIORGIO_ARMEIER">
+			<Text>Giorgio Armeier, Inc.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CORPORATION_GIORGIO_ARMEIER_HELP">
+			<Text>Provides benefits geared toward [ICON_CULTURE] Culture generation and Specialists. Increases [ICON_INTERNATIONAL_TRADE] Trade Unit limit by two.[NEWLINE][NEWLINE]+2 [ICON_CULTURE] Culture from all Museums and Opera Houses, and +2 [ICON_CULTURE] Culture from Great Writers, Musicians, and Artists in all Cities. Every Franchise in a foreign Civilization's Cities increases your [ICON_TOURISM] Tourism with them by 2%.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CORPORATION_RESOURCE_BONUS_GIORGIO_ARMEIER">
+			<Text>[ICON_RES_SILK] Silk, [ICON_RES_COTTON] Cotton, [ICON_RES_DYE] Dyes, [ICON_RES_FUR] Furs provide +1 [ICON_CULTURE] Culture in all Cities with a Giorgio Armeier Franchise.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CORPORATION_OFFICE_BONUS_GIORGIO_ARMEIER">
+			<Text>+2 [ICON_CULTURE] Culture for every Global Franchise, and -1 [ICON_HAPPINESS_3] Unhappiness from [ICON_RESEARCH] Illiteracy and [ICON_CULTURE] Boredom.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CORPORATION_TRADE_ROUTE_BONUS_GIORGIO_ARMEIER">
+			<Text>[ICON_INTERNATIONAL_TRADE] Trade Routes to a foreign City with a Giorgio Armeier Franchise grant +10% [ICON_CULTURE] Culture to the origin City.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CORPORATION_GIORGIO_ARMEIER_OFFICE_BENEFIT_HELP">
+			<Text>Current Office Bonus: {1_String}</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_BUILDING_GIORGIO_ARMEIER_HQ">
+			<Text>Giorgio Armeier Headquarters</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CIV5_BUILDINGS_GIORGIO_ARMEIER_HQ_TEXT">
+			<Text>A corporation is a company or group of people authorized to act as a single entity (legally a person) and recognized as such in law. Early incorporated entities were established by charter (i.e. by an ad hoc act granted by a monarch or passed by a parliament or legislature). Most jurisdictions now allow the creation of new corporations through registration. Corporations come in many different types but are usually divided by the law of the jurisdiction where they are chartered into two kinds: by whether or not they can issue stock, or by whether or not they are for profit.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_GIORGIO_ARMEIER_HQ_STRATEGY">
+			<Text>Construct this building in one of your cities to found the Giorgio Armeier Corporation. See the [COLOR_POSITIVE_TEXT]Corporations[ENDCOLOR] section of the Civilopedia for more information.[NEWLINE][NEWLINE]Remember that each Civilization may only found [COLOR_POSITIVE_TEXT]one[ENDCOLOR] Corporation, so make sure the benefits are applicable to your Victory Strategy!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_GIORGIO_ARMEIER_HQ_HELP">
+			<Text>Founds the Giorgio Armeier Corporation.[NEWLINE][NEWLINE]Receive a free Giorgio Armeier Office in this City, and unlocks construction of Giorgio Armeier Offices in owned Cities.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_BUILDING_GIORGIO_ARMEIER_FRANCHISE">
+			<Text>Giorgio Armeier</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CIV5_BUILDING_GIORGIO_ARMEIER_FRANCHISE_TEXT">
+			<Text>A corporation is a company or group of people authorized to act as a single entity (legally a person) and recognized as such in law. Early incorporated entities were established by charter (i.e. by an ad hoc act granted by a monarch or passed by a parliament or legislature). Most jurisdictions now allow the creation of new corporations through registration. Corporations come in many different types but are usually divided by the law of the jurisdiction where they are chartered into two kinds: by whether or not they can issue stock, or by whether or not they are for profit.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_GIORGIO_ARMEIER_FRANCHISE_STRATEGY">
+			<Text>This building can only be constructed in Foreign Cities if you were the founder of Giorgio Armeier . To construct this building in a foreign City, send a Trade Route from an owned City with a Giorgio Armeier Office in it to a foreign City. When the Trade Route is complete, the building will automatically be constructed.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_GIORGIO_ARMEIER_FRANCHISE_HELP">
+			<Text>+1 [ICON_CULTURE] Culture on all Monopoly Resources associated with Giorgio Armeier. Generates revenue for Giorgio Armeier Offices in the founding Civilization's Cities.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_BUILDING_GIORGIO_ARMEIER">
+			<Text>Giorgio Armeier Office</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CIV5_BUILDING_GIORGIO_ARMEIER_TEXT">
+			<Text>A corporation is a company or group of people authorized to act as a single entity (legally a person) and recognized as such in law. Early incorporated entities were established by charter (i.e. by an ad hoc act granted by a monarch or passed by a parliament or legislature). Most jurisdictions now allow the creation of new corporations through registration. Corporations come in many different types but are usually divided by the law of the jurisdiction where they are chartered into two kinds: by whether or not they can issue stock, or by whether or not they are for profit.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_GIORGIO_ARMEIER_STRATEGY">
+			<Text>When a [ICON_INTERNATIONAL_TRADE] Trade Route between a foreign City and this City completes, a Giorgio Armeier Franchise is constructed in the foreign City.[NEWLINE][NEWLINE]Giorgio Armeier cannot be sold or destroyed by the player, and increases the [ICON_CULTURE] Culture output of all Giorgio Armeier Offices by +2.[NEWLINE][NEWLINE]You cannot have more Franchises than your Franchise Limit (see the Corporation and Monopolies Overview for more on this).</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_GIORGIO_ARMEIER_HELP">
+			<Text>+2 [ICON_CULTURE] Culture for every Giorgio Armeier Franchise (up to your Franchise Limit). -1 [ICON_HAPPINESS_3] Unhappiness from [ICON_RESEARCH] Illiteracy and [ICON_CULTURE] Boredom[NEWLINE][NEWLINE]Every Trade Route from this City to a foreign City with a Giorgio Armeier Franchise increases this City's [ICON_CULTURE] Culture rate by +10%.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_CORPORATION_FIRAXITE_MATERIALS">
+			<Text>Firaxite Materials, Inc.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CORPORATION_FIRAXITE_MATERIALS_HELP">
+			<Text>Generates large amounts of [ICON_RESEARCH] Science and boosts infrastructural development in your empire. Increases [ICON_INTERNATIONAL_TRADE] Trade Unit limit by two, and Trade Units cannot be plundered.[NEWLINE][NEWLINE]Factories and Universities in all Cities produce +3 [ICON_RESEARCH] Science. Every Franchise in a foreign Civilization's Cities increases your [ICON_TOURISM] Tourism with them by 2%.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CORPORATION_RESOURCE_BONUS_FIRAXITE_MATERIALS">
+			<Text>[ICON_RES_IRON] Iron, [ICON_RES_ALUMINUM] Aluminum, [ICON_RES_MARBLE] Marble, [ICON_RES_COPPER] Copper, [ICON_RES_PORCELAIN] Porcelain provide +1 [ICON_RESEARCH] Science in all Cities with a Firaxite Materials Franchise.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CORPORATION_OFFICE_BONUS_FIRAXITE_MATERIALS">
+			<Text>+2 [ICON_RESEARCH] Science for every Global Franchise, and +20% [ICON_PRODUCTION] Production when constructing Buildings.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CORPORATION_TRADE_ROUTE_BONUS_FIRAXITE_MATERIALS">
+			<Text>[ICON_INTERNATIONAL_TRADE] Trade Routes to foreign Cities with a Firaxite Materials Franchise produce +50% additional [ICON_RESEARCH] Science.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CORPORATION_FIRAXITE_MATERIALS_OFFICE_BENEFIT_HELP">
+			<Text>Current Office Bonus: {1_String}</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_BUILDING_FIRAXITE_MATERIALS_HQ">
+			<Text>Firaxite Materials Headquarters</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_FIRAXITE_MATERIALS_HQ_STRATEGY">
+			<Text>Construct this building in one of your cities to found the Firaxite Materials Corporation. See the [COLOR_POSITIVE_TEXT]Corporations[ENDCOLOR] section of the Civilopedia for more information.[NEWLINE][NEWLINE]Remember that each Civilization may only found [COLOR_POSITIVE_TEXT]one[ENDCOLOR] Corporation, so make sure the benefits are applicable to your Victory Strategy!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_FIRAXITE_MATERIALS_HQ_HELP">
+			<Text>Founds the Firaxite Materials Corporation.[NEWLINE][NEWLINE]Receive a free Firaxite Materials Office in this City, and unlocks construction of Firaxite Materials Offices in owned Cities.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_BUILDING_FIRAXITE_MATERIALS_FRANCHISE">
+			<Text>Firaxite Materials</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_FIRAXITE_MATERIALS_FRANCHISE_STRATEGY">
+			<Text>This building can only be constructed in Foreign Cities if you were the founder of Firaxite Materials. To construct this building in a foreign City, send a Trade Route from an owned City with a Firaxite Materials Office in it to a foreign City. When the Trade Route is complete, the building will automatically be constructed.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_FIRAXITE_MATERIALS_FRANCHISE_HELP">
+			<Text>+1 [ICON_RESEARCH] Science on all Firaxite Materials Monopoly Resources near this City. Generates revenue for Firaxite Materials Offices in the founding Civilization's Cities.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_BUILDING_FIRAXITE_MATERIALS">
+			<Text>Firaxite Materials Office</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_FIRAXITE_MATERIALS_STRATEGY">
+			<Text>When a [ICON_INTERNATIONAL_TRADE] Trade Route between a foreign City and this City completes, a Firaxite Materials Franchise is constructed in the foreign City.[NEWLINE][NEWLINE]Firaxite Materials cannot be sold or destroyed by the player, and increases the [ICON_RESEARCH] Science output of all Firaxite Materials Offices by +2.[NEWLINE][NEWLINE]You cannot have more Franchises than your Franchise Limit (see the Corporation and Monopolies Overview for more on this).</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_FIRAXITE_MATERIALS_HELP">
+			<Text>+20% [ICON_PRODUCTION] Production when constructing Buildings in this City. +2 [ICON_RESEARCH] Science for every Firaxite Materials Franchise (up to your Franchise Limit).[NEWLINE][NEWLINE]Trade Routes to foreign Cities with a Firaxite Materials Franchise produce 50% more [ICON_RESEARCH] Science.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_CORPORATION_TWOKAY_FOODS">
+			<Text>TwoKay Foods, Inc.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CORPORATION_TWOKAY_FOODS_HELP">
+			<Text>Provides benefits geared toward [ICON_FOOD] Food generation and City growth. Increases [ICON_INTERNATIONAL_TRADE] Trade Unit limit by two, and Trade Routes reveal the Fog of War.[NEWLINE][NEWLINE]Grocers, Hospitals, and Agribusiness in all Cities produce +3 [ICON_FOOD] Food. Every Franchise in a foreign Civilization's Cities increases your [ICON_TOURISM] Tourism with them by 2%.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CORPORATION_RESOURCE_BONUS_TWOKAY_FOODS">
+			<Text>[ICON_RES_WINE] Wine, [ICON_RES_TRUFFLES] Truffles, [ICON_RES_CITRUS] Citrus provide +1 [ICON_FOOD] Food in all Cities with a TwoKay Foods Franchise.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CORPORATION_OFFICE_BONUS_TWOKAY_FOODS">
+			<Text>+3 [ICON_FOOD] Food for every Global Franchise, -5% to all Needs Modifiers in the City, and +10% [ICON_FOOD] Food in the City.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CORPORATION_TRADE_ROUTE_BONUS_TWOKAY_FOODS">
+			<Text>[ICON_INTERNATIONAL_TRADE] Trade Routes to foreign Cities with a TwoKay Foods Franchise grant +10% [ICON_FOOD] Food to the origin City.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CORPORATION_TWOKAY_FOODS_OFFICE_BENEFIT_HELP">
+			<Text>Current Office Bonus: {1_String}</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_BUILDING_TWOKAY_FOODS_HQ">
+			<Text>TwoKay Foods Headquarters</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_TWOKAY_FOODS_HQ_STRATEGY">
+			<Text>Construct this building in one of your cities to found the TwoKay Foods Corporation. See the [COLOR_POSITIVE_TEXT]Corporations[ENDCOLOR] section of the Civilopedia for more information.[NEWLINE][NEWLINE]Remember that each Civilization may only found [COLOR_POSITIVE_TEXT]one[ENDCOLOR] Corporation, so make sure the benefits are applicable to your Victory Strategy!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_TWOKAY_FOODS_HQ_HELP">
+			<Text>Founds the TwoKay Foods Corporation.[NEWLINE][NEWLINE]Grants a free TwoKay Foods Office in this City, and unlocks construction of TwoKay Foods Offices in owned Cities.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_BUILDING_TWOKAY_FOODS_FRANCHISE">
+			<Text>TwoKay Foods</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_TWOKAY_FOODS_FRANCHISE_STRATEGY">
+			<Text>This building can only be constructed in Foreign Cities if you were the founder of TwoKay Foods. To construct this building in a foreign City, send a Trade Route from an owned City with a TwoKay Foods Office in it to a foreign City. When the Trade Route is complete, the building will automatically be constructed.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_TWOKAY_FOODS_FRANCHISE_HELP">
+			<Text>+1 [ICON_FOOD] Food on all Monopoly Resources associated with TwoKay Foods. Generates revenue for TwoKay Foods Offices in the founding Civilization's Cities.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_BUILDING_TWOKAY_FOODS">
+			<Text>TwoKay Foods Office</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_TWOKAY_FOODS_STRATEGY">
+			<Text>When a [ICON_INTERNATIONAL_TRADE] Trade Route between a foreign City and this City completes, a TwoKay Foods Franchise is constructed in the foreign City.[NEWLINE][NEWLINE]TwoKay Foods cannot be sold or destroyed by the player, and increases the [ICON_FOOD] Food output of all TwoKay Foods Offices by +3.[NEWLINE][NEWLINE]You cannot have more Franchises than your Franchise Limit (see the Corporation and Monopolies Overview for more on this).</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_TWOKAY_FOODS_HELP">
+			<Text>Reduces [ICON_HAPPINESS_3] Unhappiness Needs Modifier for all Yields and Empire Modifier by 5% in all Cities. +10% [ICON_FOOD] Food in the City. +3 [ICON_FOOD] Food for every TwoKay Foods Franchise (up to your Franchise Limit).[NEWLINE][NEWLINE]Every Trade Route from this City to a foreign City with a TwoKay Foods Franchise increases this City's [ICON_FOOD] Growth rate by +10%.</Text>
+		</Row>
+		
+		<Row Tag="TXT_KEY_CORPORATION_CIVILIZED_JEWELERS">
+			<Text>Civilized Jewelers, Inc.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CORPORATION_CIVILIZED_JEWELERS_HELP">
+			<Text>Provides benefits geared toward [ICON_GREAT_PEOPLE] Great People generation and [ICON_GOLDEN_AGE] Golden Ages. Increases [ICON_INTERNATIONAL_TRADE] Trade Unit limit by two, and all [ICON_INTERNATIONAL_TRADE] Trade Units move twice as fast.[NEWLINE][NEWLINE]Banks and Customs Houses in all Cities produce +4 [ICON_GOLDEN_AGE] Golden Age Points. Every Franchise in a foreign Civilization's Cities increases your [ICON_TOURISM] Tourism with them by 2%.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CORPORATION_RESOURCE_BONUS_CIVILIZED_JEWELERS">
+			<Text>[ICON_RES_GOLD] Gold, [ICON_RES_SILVER] Silver, [ICON_RES_GEMS] Gems, [ICON_RES_PEARLS] Pearls, [ICON_RES_JEWELRY] Jewelry provide +1 [ICON_GOLDEN_AGE] Golden Age Points in all Cities with a Civilized Jewelers Franchise.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CORPORATION_OFFICE_BONUS_CIVILIZED_JEWELERS">
+			<Text>+3% [ICON_GOLDEN_AGE] Golden Age Length Modifier. +15% [ICON_GREAT_PEOPLE] Great Person Rate, and an additional +10% [ICON_GREAT_PEOPLE] Great Person Rate for every Global Franchise.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CORPORATION_TRADE_ROUTE_BONUS_CIVILIZED_JEWELERS">
+			<Text>[ICON_INTERNATIONAL_TRADE] Trade Routes to a foreign City with a Civilized Jewelers Franchise grant +10% [ICON_GOLD] Gold in the origin City.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CORPORATION_CIVILIZED_JEWELERS_OFFICE_BENEFIT_HELP">
+			<Text>Current Office Bonus: {1_String}</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_BUILDING_CIVILIZED_JEWELERS_HQ">
+			<Text>Civilized Jewelers Headquarters</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_CIVILIZED_JEWELERS_HQ_STRATEGY">
+			<Text>Construct this building in one of your cities to found the Civilized Jewelers Corporation. See the [COLOR_POSITIVE_TEXT]Corporations[ENDCOLOR] section of the Civilopedia for more information.[NEWLINE][NEWLINE]Remember that each Civilization may only found [COLOR_POSITIVE_TEXT]one[ENDCOLOR] Corporation, so make sure the benefits are applicable to your Victory Strategy!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_CIVILIZED_JEWELERS_HQ_HELP">
+			<Text>Founds the Civilized Jewelers Corporation.[NEWLINE][NEWLINE]Receive a free Civilized Jewelers Office in this City, and unlocks construction of Civilized Jewelers Offices in owned Cities.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_BUILDING_CIVILIZED_JEWELERS_FRANCHISE">
+			<Text>Civilized Jewelers</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_CIVILIZED_JEWELERS_FRANCHISE_STRATEGY">
+			<Text>This building can only be constructed in Foreign Cities if you were the founder of Civilized Jewelers. To construct this building in a foreign City, send a Trade Route from an owned City with a Civilized Jewelers Office in it to a foreign City. When the Trade Route is complete, the building will automatically be constructed.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_CIVILIZED_JEWELERS_FRANCHISE_HELP">
+			<Text>+1 [ICON_GOLDEN_AGE] Golden Age Points on all Civilized Jewelers Monopoly Resources near this City. Generates revenue for Civilized Jewelers Offices in the founding Civilization's Cities.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_BUILDING_CIVILIZED_JEWELERS">
+			<Text>Civilized Jewelers Office</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_CIVILIZED_JEWELERS_STRATEGY">
+			<Text>When a [ICON_INTERNATIONAL_TRADE] Trade Route between a foreign City and this City completes, a Civilized Jewelers Franchise is constructed in the foreign City.[NEWLINE][NEWLINE]Civilized Jewelers cannot be sold or destroyed by the player, and increases the [ICON_GREAT_PEOPLE] Great Person rate of all Civilized Jewelers's Offices by +5%.[NEWLINE][NEWLINE]You cannot have more Franchises than your Franchise Limit (see the Corporation and Monopolies Overview for more on this).</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_CIVILIZED_JEWELERS_HELP">
+			<Text>+3% [ICON_GOLDEN_AGE] Golden Age Length Modifier. +15% [ICON_GREAT_PEOPLE] Great Person rate in City, and an additional +10% for every Civilized Jeweler's Franchise (up to your Franchise Limit).[NEWLINE][NEWLINE]Every Trade Route from this City to a foreign City with a Civilized Jewelers Franchise increases this City's [ICON_GOLD] Gold rate by +10%.</Text>
+		</Row>
+	</Language_en_US>
+</GameData>

@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by Anton Strenger (Firaxis Games) -->
+<Context ColorSet="Beige_Black_Alpha" FontStyle="Shadow" Font="TwCenMT16">
+	<Stack Offset="0,30" Anchor="R,T" StackGrowth="Bottom">
+		<!-- CHAT PANEL    GridGlass16 Max Size="505,520" -->
+		<Grid Size="523,170" Anchor="R,T" Padding="0,0" Style="GridGlass16" ConsumeMouseButton="1" ConsumeMouseOver="1" ID="ChatPanel" Hidden="1">
+			<!-- Chat ScrollPanel Max Size="464,493"  -->
+			<ScrollPanel Anchor="L,T" Offset="12,2" Size="490,134" Vertical="1" ID="ChatScroll" AutoScrollBar="1">
+				<Stack Anchor="L,T" StackGrowth="Bottom" ID="ChatStack"/>
+				<!-- Chat ScrollBar Max Length="500" -->
+				<ScrollBar Style="VertSlider" Anchor="R,C" AnchorSide="O,I" Length="98"/>
+				<UpButton Style="ScrollBarUp" Anchor="R,T" AnchorSide="O,I"/>
+				<DownButton Style="ScrollBarDown" Anchor="R,B" AnchorSide="O,I"/>
+			</ScrollPanel>
+			<!-- Chat Grid9Detail48 Max Size="523,540"-->
+			<Grid Size="543,190" Anchor="R,T" Offset="-15,-15" Padding="0,0" Style="Grid9Detail48"/>
+			<Box Anchor="L,B" Size="513,30" Offset="10.1" Color="0,0,0,255">
+				<Box Anchor="L,T" Size="513,1" Color="255,255,200,255"/>
+				<PullDown Anchor="L,C" Style="GenericPullDown" ScrollThreshold="200" SpaceForScroll="0" Size="136,26" ID="ChatPull">
+					<Label ID="LengthTest" Anchor="L,C" Font="TwCenMT20" FontStyle="SoftShadow" Hidden="1"/>
+					<Box Anchor="R,C" AnchorSide="O,I" Offset="4,0" Size="366,18" Color="255,255,200,255">
+						<Box Anchor="C,C" Size="364,16" Color="0,0,0,255">
+							<EditBox Offset="1,0" MaxLength="255" Size="364,16" Anchor="C,C" Font="TwCenMT14" ID="ChatEntry"/>
+						</Box>
+					</Box>
+				</PullDown>
+			</Box>
+		</Grid>
+		<Container Size="10,1" Anchor="R,T" Offset="0,-1">
+			<LuaContext FileName="Assets/UI/InGame/DiploList" ID="DiploList" Hidden="1" Anchor="R,T" Offset="-11,-40"/>
+			<!-- Corner Treatment -->
+			<Image Anchor="R,T" Texture="assets\UI\Art\WorldView\TopRight020.dds" Size="512,128" ID="CornerAnchor" Hidden="1"/>
+			<Image Anchor="R,T" Texture="TopRight020_Esp.dds" Size="512,128" ID="CornerAnchor_Espionage"/>
+			<Box Anchor="R,T" Size="512,128" Color="0,0,0,0">
+				<!-- Info Buttons Stack -->
+				<Stack Anchor="R,T" StackGrowth="Left" ID="DiploCornerStack" Padding="0" >
+					<!--=======================================================================================================================-->
+					<!-- Diplo Button -->
+					<!--=======================================================================================================================-->
+					<Button ID="DiploButton" ConsumeMouse="1" Anchor="C,T" Size="45,45" Texture="DC45_DiplomacyOverview.dds" ToolTip="TXT_KEY_EO_DIPLOMACY" >
+						<Label Anchor="C,C" Offset="0,4" Font="TwCenMT20" FontStyle="Stroke" ID="UNTurnsLabel" Hidden="1"/>
+					</Button>
+					<Container Hidden="1">
+						<!--=======================================================================================================================-->
+						<!-- Advisor Button -->
+						<!--=======================================================================================================================-->
+						<Button ID="AdvisorButton" ConsumeMouse="1" Anchor="C,T" Size="45,45" Texture="DC45_AdvisorCounsel.dds" ToolTip="TXT_KEY_DIPLO_OPEN_ADVISORS_TT" />
+
+						<!--=======================================================================================================================-->
+						<!-- Culture Overview Button -->
+						<!--=======================================================================================================================-->
+						<Button ID="CultureOverviewButton" ConsumeMouse="1" Anchor="C,T" Size="45,45" Texture="DC45_Greatworks.dds" ToolTip="TXT_KEY_CULTURE_OVERVIEW_TT" />
+
+						<!--=======================================================================================================================-->
+						<!-- Social Policy Button -->
+						<!--=======================================================================================================================-->
+						<Button ID="SocialPoliciesButton" ConsumeMouse="1" Anchor="C,T" Size="45,45" Texture="DC45_Culture.dds" ToolTip="TXT_KEY_DIPLO_OPEN_SOCIAL_POLICY_TT" />
+					</Container>
+					<!--=======================================================================================================================-->
+					<!-- Espionage Button -->
+					<!--=======================================================================================================================-->
+					<Button ID="EspionageButton" ConsumeMouse="1" Anchor="C,T" Size="45,45" Texture="DC45_EspionageOverview.dds" ToolTip="TXT_KEY_EO_TITLE" Hidden="1" >
+						<Label Anchor="C,C" Offset="0,4" Font="TwCenMT24" FontStyle="Stroke" ID="UnassignedSpiesLabel" Hidden="1"/>
+					</Button>
+					<!--=======================================================================================================================-->
+					<!-- Notification Log DropDownButtons -->
+					<!--=======================================================================================================================-->
+					<PullDown ConsumeMouse="1" Anchor="R,T" Size="45,45" AutoSizePopUp="0" SpaceForScroll="0" ScrollThreshold="999" ID="MultiPull" Hidden="1" >
+						<ButtonData>
+							<Button Anchor="R,T" Size="45.45" Texture="assets\UI\Art\Notification\NotificationNotes.dds" ToolTip="TXT_KEY_DIPLO_ADDITIONAL">
+								<ShowOnMouseOver>
+									<Image Anchor="R,T" Size="45.45" Texture="NotificationNotes.dds"/>
+									<AlphaAnim Anchor="R,T" Size="45.45" TextureOffset="0.0" Texture="NotificationNotesHL.dds" Pause="0" Cycle="Bounce" Speed="2" AlphaStart="0.95" AlphaEnd="0.55"/>
+								</ShowOnMouseOver>
+							</Button>
+						</ButtonData>
+						<GridData Anchor="L,T" Offset="-200,-41" AutoSize="1" Style="Grid9DetailTwo140" Padding="0,0"/>
+						<ScrollPanelData Anchor="L,T" Size="140,200" Vertical="1" HideScrollBar="1" AutoScrollBar="0">
+							<!-- Scroll Controls -->
+							<ScrollBar Style="VertSlider" Anchor="R,C" AnchorSide="O,I"/>
+							<UpButton Style="ScrollBarUp" Anchor="R,T" AnchorSide="O,I"/>
+							<DownButton Style="ScrollBarDown" Anchor="R,B" AnchorSide="O,I"/>
+						</ScrollPanelData>
+						<StackData StackGrowth="Bottom" Size="140,300" Anchor="L,T"/>
+						<InstanceData Name="InstanceOne">
+							<Button Size="210,24" Anchor="C,T" ID="Button">
+								<ShowOnMouseOver>
+									<AlphaAnim Anchor="C,C" Size="180,24" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="1" AlphaEnd="0">
+										<Grid Size="180,26" Padding="0,0" Style="Grid9FrameTurns"/>
+									</AlphaAnim>
+								</ShowOnMouseOver>
+							</Button>
+						</InstanceData>
+					</PullDown>
+					<Button ConsumeMouse="1" ID="ChatToggle" Hidden="1" Anchor="R,T" Size="45.45" Texture="assets\UI\Art\Icons\MainChatOff.dds" ToolTip="TXT_KEY_DIPLO_CLOSE_CHAT_TT">
+						<ShowOnMouseOver>
+							<Image Anchor="R,T" Size="45.45" Texture="assets\UI\Art\Icons\MainChatOn.dds" ID="MOChatToggle"/>
+							<AlphaAnim Anchor="R,T" Size="45.45" TextureOffset="0.0" ID="HLChatToggle" Texture="assets\UI\Art\Icons\MainChatOnHL.dds" Pause="0" Cycle="Bounce" Speed="2" AlphaStart="0.95" AlphaEnd="0.55"/>
+						</ShowOnMouseOver>
+					</Button>
+					<Button ConsumeMouse="1" ID="MPInvite" Hidden="1" Anchor="R,T" Size="45.45" Texture="MultiplayerInvite.dds" ToolTip="TXT_KEY_MULTIPLAYER_INVITE_TT">
+						<ShowOnMouseOver>
+							<Image Anchor="R,T" Size="45.45" Texture="MultiplayerInvite.dds" ID="MOMPInvite"/>
+							<AlphaAnim Anchor="R,T" Size="45.45" TextureOffset="0.0" ID="HLMPInvite" Texture="MultiplayerInviteHL.dds" Pause="0" Cycle="Bounce" Speed="2" AlphaStart="0.95" AlphaEnd="0.55"/>
+						</ShowOnMouseOver>
+					</Button>
+					<Button Anchor="R,T" Size="45.45" Texture="assets\UI\Art\Notification\NotificationNotes.dds" ToolTip="Publish a bogus ShowEndGame for testing" ID="EndGameButton" Hidden="1">
+						<ShowOnMouseOver>
+							<Image Anchor="R,T" Size="45.45" Texture="assets\UI\Art\Notification\NotificationNotes.dds"/>
+							<AlphaAnim Anchor="R,T" Size="45.45" TextureOffset="0.0" Texture="assets\UI\Art\Notification\NotificationNotesHL.dds" Pause="0" Cycle="Bounce" Speed="2" AlphaStart="0.95" AlphaEnd="0.55"/>
+						</ShowOnMouseOver>
+					</Button>
+					<Stack Anchor="R,T" StackGrowth="Left" ID="DiploCornerExtraStack" />
+				</Stack>
+			</Box>
+			<LuaContext FileName="Assets/UI/InGame/WorldView/SimpleDiploTrade" ID="SimpleDiplo" Hidden="1" Anchor="R,T" Offset="125,-5"/>
+		</Container>
+	</Stack>
+	<Instance Name="ChatEntry">
+		<Box Anchor="L,T" Size="490,32" Color="0,0,0,164" ID="Box">
+			<Label Anchor="L,C" Offset="3,0" WrapWidth="465" LeadingOffset="-4" Font="TwCenMT16" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" ID="String"/>
+		</Box>
+	</Instance>
+	<!-- Extra Diplo Corner Buttons -->
+	<Instance Name="DiploCornerButton" >
+		<Button ID="Button" ConsumeMouseOver="1" Anchor="R,T" Size="45.45" Texture="DC45_Generic.dds" />
+	</Instance>
+
+</Context>

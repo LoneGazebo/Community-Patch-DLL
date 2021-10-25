@@ -26862,13 +26862,18 @@ int CvUnit::getSubUnitsAlive(int iDamage) const
 }
 
 //	--------------------------------------------------------------------------------
-bool CvUnit::CanPushOutUnitHere(CvPlot& pushPlot) const
+bool CvUnit::CanPushOutUnitHere(const CvPlot& pushPlot) const
 {
 	return GetPotentialUnitToPushOut(pushPlot) != NULL;
 }
 
-CvUnit* CvUnit::GetPotentialUnitToPushOut(CvPlot & pushPlot) const
+//this should only be used by AI; includes sanity checks (humans have GetPotentialUnitToSwapWith)
+CvUnit* CvUnit::GetPotentialUnitToPushOut(const CvPlot& pushPlot, CvPlot** ppToPlot) const
 {
+	//sanity
+	if (ppToPlot)
+		*ppToPlot = NULL;
+
 	//this is AI only, humans have to do it manually
 	if (isHuman())
 		return NULL;
@@ -26894,14 +26899,43 @@ CvUnit* CvUnit::GetPotentialUnitToPushOut(CvPlot & pushPlot) const
 			//is it idle right now?
 			if (pLoopUnit->canMove() && pLoopUnit->GetNumEnemyUnitsAdjacent()==0)
 			{
+				//make sure we're not getting the pushed unit killed
+				int iDangerLimit = pLoopUnit->IsCanAttackRanged() ? pLoopUnit->GetCurrHitPoints() / 2 : pLoopUnit->GetCurrHitPoints();
+				int iLeastDanger = INT_MAX;
+
 				//does it have a free plot
 				CvPlot** aNeighbors = GC.getMap().getNeighborsUnchecked(&pushPlot);
 				for (int i = 0; i < 6; i++)
 				{
 					CvPlot* pNeighbor = aNeighbors[i];
-					if (pNeighbor && pLoopUnit->isNativeDomain(pNeighbor) && pLoopUnit->canMoveInto(*pNeighbor, CvUnit::MOVEFLAG_DESTINATION))
-						return pLoopUnit;
+					if (!pNeighbor)
+						continue;
+
+					bool bMayUse = false;
+
+					//empty plot
+					if (pLoopUnit->isNativeDomain(pNeighbor) && pLoopUnit->canMoveInto(*pNeighbor, CvUnit::MOVEFLAG_DESTINATION))
+						bMayUse = true;
+
+					//swap needed
+					if (at(pNeighbor->getX(), pNeighbor->getY()) && pNeighbor->GetNumCombatUnits() == 1 && pLoopUnit->canMoveInto(*pNeighbor, CvUnit::MOVEFLAG_DESTINATION | CvUnit::MOVEFLAG_IGNORE_STACKING))
+						bMayUse = true;
+
+					if (bMayUse)
+					{
+						//go to the lowest danger plot ... todo: should we try to use the other unit as cover?
+						int iUnitDanger = pLoopUnit->GetDanger(pNeighbor);
+						if (iUnitDanger < iDangerLimit && iUnitDanger < iLeastDanger)
+						{
+							iLeastDanger = iUnitDanger;
+							if (ppToPlot)
+								*ppToPlot = pNeighbor;
+						}
+					}
 				}
+
+				if (iLeastDanger < INT_MAX)
+					return pLoopUnit;
 			}
 		}
 	}
@@ -26912,36 +26946,37 @@ CvUnit* CvUnit::GetPotentialUnitToPushOut(CvPlot & pushPlot) const
 
 //move into the plot which is assumed to be blocked by another unit
 //push the other unit to a neighboring plot
-bool CvUnit::PushBlockingUnitOutOfPlot(CvPlot & atPlot)
+bool CvUnit::PushBlockingUnitOutOfPlot(const CvPlot & atPlot)
 {
-	CvUnit* pBlock = GetPotentialUnitToPushOut(atPlot);
-	if (!pBlock)
+	CvPlot* pToPlot = NULL;
+	CvUnit* pBlock = GetPotentialUnitToPushOut(atPlot, &pToPlot);
+	if (!pBlock || !pToPlot)
 		return false;
 
-	//does it have a free plot
-	CvPlot** aNeighbors = GC.getMap().getNeighborsShuffled(&atPlot);
-	for (int i = 0; i < 6; i++)
+	//special: swap into our current plot
+	if (at(pToPlot->getX(), pToPlot->getY()))
 	{
-		CvPlot* pNeighbor = aNeighbors[i];
-		if (pNeighbor && pBlock->isNativeDomain(pNeighbor) && pBlock->canMoveInto(*pNeighbor, CvUnit::MOVEFLAG_DESTINATION))
-		{
-			pBlock->SetActivityType(ACTIVITY_AWAKE);
-			pBlock->PushMission(CvTypes::getMISSION_MOVE_TO(),pNeighbor->getX(),pNeighbor->getY());
-			PushMission(CvTypes::getMISSION_MOVE_TO(),atPlot.getX(),atPlot.getY());
-			return true;
-		}
+		pBlock->SetActivityType(ACTIVITY_AWAKE);
+		pBlock->PushMission(CvTypes::getMISSION_SWAP_UNITS(), pToPlot->getX(), pToPlot->getY());
+		return true;
 	}
-
-	return false;
+	else
+	{
+		pBlock->SetActivityType(ACTIVITY_AWAKE);
+		pBlock->PushMission(CvTypes::getMISSION_MOVE_TO(), pToPlot->getX(), pToPlot->getY());
+		PushMission(CvTypes::getMISSION_MOVE_TO(), atPlot.getX(), atPlot.getY());
+		return true;
+	}
 }
 
 //	--------------------------------------------------------------------------------
-bool CvUnit::CanSwapWithUnitHere(CvPlot& swapPlot) const
+bool CvUnit::CanSwapWithUnitHere(const CvPlot& swapPlot) const
 {
 	return GetPotentialUnitToSwapWith(swapPlot) != NULL;
 }
 
-CvUnit* CvUnit::GetPotentialUnitToSwapWith(CvPlot & swapPlot) const
+//method for human players, no sanity checks
+CvUnit* CvUnit::GetPotentialUnitToSwapWith(const CvPlot & swapPlot) const
 {
 	//AI shouldn't swap into a frontline plot
 	if (!isHuman() && swapPlot.GetNumEnemyUnitsAdjacent(getTeam(), getDomainType()) > 0)

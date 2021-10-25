@@ -1,0 +1,23 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# ModBuddy Solution File, Format Version 11.00
+Project("{F5FC21B5-7CC2-458A-ABBA-992F515BBA20}") = "City-State Diplomacy", "City-State Diplomacy.civ5proj", "{5EF38AA5-24EF-4F43-AEFF-8A98828DA7CE}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Default|x86 = Default|x86
+		Deploy Only|x86 = Deploy Only|x86
+		Package Only|x86 = Package Only|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{5EF38AA5-24EF-4F43-AEFF-8A98828DA7CE}.Default|x86.ActiveCfg = Default|x86
+		{5EF38AA5-24EF-4F43-AEFF-8A98828DA7CE}.Default|x86.Build.0 = Default|x86
+		{5EF38AA5-24EF-4F43-AEFF-8A98828DA7CE}.Deploy Only|x86.ActiveCfg = Deploy Only|x86
+		{5EF38AA5-24EF-4F43-AEFF-8A98828DA7CE}.Deploy Only|x86.Build.0 = Deploy Only|x86
+		{5EF38AA5-24EF-4F43-AEFF-8A98828DA7CE}.Package Only|x86.ActiveCfg = Package Only|x86
+		{5EF38AA5-24EF-4F43-AEFF-8A98828DA7CE}.Package Only|x86.Build.0 = Package Only|x86
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<glyphgen>
+    <textures width="256" height="256">
+        <texture name="" src="CSDPaper.dds" allowcolor="1" alloweffects="1" inuse="1" />
+    </textures>
+    <styles count="1">
+        <style name="">
+            <layers count="1">
+                <layer tex="" />
+            </layers>
+        </style>
+    </styles>
+    <glyphs fudgeadv="0" ascadj="-6" spacing="0" count="4" height="0" ascent="0" descent="0">
+        <glyph ch="1" u="0" v="0" width="22" height="22" a="0" b="22" c="0" originx="0" originy="22" />
+	</glyphs>
+    <imports />
+    <toolonly>
+        <metainfo pt="0.000000" width="256" height="256" alphabias="64" maxsize="256" bestfit="0" pow2="1" freetype="2" fontsrc="" />
+        <glyphsets>
+            <set name="GlyphSetAscii" />
+        </glyphsets>
+    </toolonly>
+</glyphgen>

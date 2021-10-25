@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Context  ColorSet="Beige_Black" Font="TwCenMT22" FontStyle="Shadow"  >
+
+	<Grid ID="MainSelection" Size="960,658" Anchor="C,C" Offset="0,36" Padding="0,0" Style="Grid9DetailFive140" >
+
+		<Box Style="MenuLeftSideTreatment"/>
+		<Box Style="MenuRightSideTreatment"/>
+
+		<Box Style="MenuTopTreatment"/>
+		<Box Style="MenuBottomTreatment"/>
+
+		<Image ID="LargeMapImage" Anchor="R,B" Offset="37,102" Size="360,410" >
+			<Grid Anchor="C,C" Size="354,408" Style="Grid9Frame" />
+		</Image>
+
+		<!-- Screen Title -->
+		<Label ID="ScreenTitle" Style="MenuTitleCaption" String="TXT_KEY_GAME_SELECTION_SCREEN" />
+
+		<!--=======================================================================================================================-->
+		<!-- LEADER TypeButton -->
+		<!--=======================================================================================================================-->
+
+		<Button ID="Button" Anchor="L,C" Offset="20,-230" Size="922,100" Color="255,255,255,0" >
+
+			<ShowOnMouseOver>
+				<AlphaAnim Anchor="L,T" Size="922,102" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="1.5" AlphaEnd="1">
+					<Grid ID="Anim" Size="922,104" Offset="0,-2" Padding="0,0" Style="Grid9FrameTurnsHL"/>
+				</AlphaAnim>
+			</ShowOnMouseOver>
+
+			<!-- Leader portrait -->
+			<Image Anchor="L,C" Offset="-12,0" Size="128,128" Texture="Assets/UI/Art/Icons/LeaderPortraits1024Frame.dds" >
+				<Image ID="Portrait" Anchor="C,C" Size="128,128"/>
+			</Image>
+
+			<!-- Civ specific bonuses -->
+			<Stack ID="Icons" Anchor="R,C" Offset="5,0" StackGrowth="Left" WrapGrowth="Down" WrapWidth="225"/>
+
+			<Stack Anchor="L,C" Offset="116,-2" StackGrowth="Bottom" Padding="6" >
+				<Label ID="Title" Anchor="L,T" Font="TwCenMT22" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" />
+				<Label ID="Description" Anchor="L,T" WrapWidth="565" LeadingOffset="-5" Font="TwCenMT18" FontStyle="Base" />
+			</Stack>
+
+		</Button>
+		<TextButton ID="EditButton" Offset="136,-39" Anchor="L,T" AnchorSide="i,o" Style="Font16or20" ColorSet="Beige_Black_Alpha" String="TXT_KEY_EDIT_BUTTON" ToolTip="TXT_KEY_NAME_CIV_TITLE" FontStyle="Shadow" MouseOverStyle="SoftShadow" ConsumeMouse="1" >
+			<TextButton ID="RemoveButton" Offset="20,0" Anchor="R,C" AnchorSide="o,i" Style="Font16or20" ColorSet="Beige_Black_Alpha" String="TXT_KEY_CANCEL_BUTTON" FontStyle="Shadow" MouseOverStyle="SoftShadow" ConsumeMouse="1" >
+				<Box Offset="-10,0" Anchor="L,C" Size="1,16" Color="Beige.128" />
+			</TextButton>
+		</TextButton>
+
+
+		<Stack Anchor="L,T" Offset="20,155" StackGrowth="Bottom" >
+			<Image Anchor="L,T" Offset="100,0" Texture="bar340x2.dds" Size="340.1" />
+
+			<!--=======================================================================================================================-->
+			<!-- MapTypeButton -->
+			<!--=======================================================================================================================-->
+
+			<Button ID="MapTypeButton" Anchor="L,T" Size="544,100" Color="255,255,255,0">
+				<ShowOnMouseOver>
+					<AlphaAnim Anchor="L,T" Size="922,106" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="1.5" AlphaEnd=".5">
+						<Grid Size="544,104" Offset="0,-2" Padding="0,0" Style="Grid9FrameTurnsHL" />
+					</AlphaAnim>
+				</ShowOnMouseOver>
+
+				<Stack Anchor="L,T" Size="565,128" Offset="116,14" StackGrowth="Bottom" Padding="6" >
+					<Label ID="TypeName" Anchor="L,T" Font="TwCenMT22" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" />
+
+					<Label ID="TypeHelp" Anchor="L,T" WrapWidth="410" LeadingOffset="-6" Font="TwCenMT18" />
+				</Stack>
+
+				<Box ID="LoadScenarioBox" Anchor="L,B" Offset="116,0" Color="White.64" Size="430,30" ConsumeMouse="1">
+					<CheckBox ID="ScenarioCheck" Anchor="L,C" TextAnchorSide="Right" TextOffset="40,0" String="TXT_KEY_LOAD_SCENARIO" />
+				</Box>
+
+
+				<Image Anchor="L,C" Size="128,128" Offset="-12,0" Texture="Assets/UI/Art/Icons/LeaderPortraits1024Frame.dds" >
+					<Image ID="TypeIcon" Anchor="C,C" Size="128,128" Texture="Assets/UI/Art/Icons/MapTypeIcons.dds" />
+				</Image>
+
+				<Image Anchor="L,B" Offset="100,0" Texture="bar340x2.dds" Size="340.1" />
+
+			</Button>
+
+			<!--=======================================================================================================================-->
+			<!-- MapSizeButton -->
+			<!--=======================================================================================================================-->
+
+			<Button ID="MapSizeButton" Anchor="L,T" Size="544,100" Color="255,255,255,0" >
+				<ShowOnMouseOver>
+					<AlphaAnim Anchor="L,T" Size="922,106" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="1.5" AlphaEnd=".5">
+						<Grid Size="544,104" Offset="0,-2" Padding="0,0" Style="Grid9FrameTurnsHL" />
+					</AlphaAnim>
+				</ShowOnMouseOver>
+
+				<Stack Anchor="L,T" Size="565,128" Offset="116,14" StackGrowth="Bottom" Padding="6" >
+					<Label ID="SizeName" Anchor="L,T" Font="TwCenMT22" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" />
+					<Label ID="SizeHelp" Anchor="L,T" WrapWidth="410" LeadingOffset="-6" Font="TwCenMT18" />
+				</Stack>
+
+				<Image Anchor="L,C" Size="128,128" Offset="-12,0" Texture="Assets/UI/Art/Icons/LeaderPortraits1024Frame.dds" >
+					<Image ID="SizeIcon" Anchor="C,C" Size="128,128" Texture="Assets/UI/Art/Icons/MapSizeIcons.dds" />
+				</Image>
+
+				<Image Anchor="L,B" Offset="100,0" Texture="bar340x2.dds" Size="340.1" />
+			</Button>
+
+			<!--=======================================================================================================================-->
+			<!-- DifficultyButton -->
+			<!--=======================================================================================================================-->
+
+			<Button ID="DifficultyButton" Anchor="L,T" Size="544,100" Color="255,255,255,0" >
+				<ShowOnMouseOver>
+					<AlphaAnim Anchor="L,T" Size="922,106" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="1.5" AlphaEnd=".5">
+						<Grid Size="544,104" Offset="0,-2" Padding="0,0" Style="Grid9FrameTurnsHL" />
+					</AlphaAnim>
+				</ShowOnMouseOver>
+
+
+				<Stack Anchor="L,T" Size="565,128" Offset="116,14" StackGrowth="Bottom" Padding="6" >
+					<Label ID="DifficultyName" Anchor="L,T" Font="TwCenMT22" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" />
+					<Label ID="DifficultyHelp" Anchor="L,T" WrapWidth="410" LeadingOffset="-6" Font="TwCenMT18" />
+				</Stack>
+
+				<Image Anchor="L,C" Size="128,128" Offset="-12,0" Texture="Assets/UI/Art/Icons/LeaderPortraits1024Frame.dds" >
+					<Image ID="DifficultyIcon" Anchor="C,C" Size="128,128" Texture="Assets/UI/Art/Icons/DifficultyLevelIcons.dds" />
+				</Image>
+
+
+				<Image Anchor="L,B" Offset="100,0" Texture="bar340x2.dds" Size="340.1" />
+			</Button>
+
+			<!--=======================================================================================================================-->
+			<!-- GameSpeedButton -->
+			<!--=======================================================================================================================-->
+
+			<Button ID="GameSpeedButton" Anchor="L,T" Size="544,100" Color="255,255,255,0">
+				<ShowOnMouseOver>
+					<AlphaAnim Anchor="L,T" Size="922,106" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="1.5" AlphaEnd=".5">
+						<Grid Size="544,104" Offset="0,-2" Padding="0,0" Style="Grid9FrameTurnsHL" />
+					</AlphaAnim>
+				</ShowOnMouseOver>
+
+				<Stack Anchor="L,T" Size="565,128" Offset="116,14" StackGrowth="Bottom" Padding="6" >
+					<Label ID="SpeedName" Anchor="L,T" Font="TwCenMT22" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" />
+					<Label ID="SpeedHelp" Anchor="L,T" WrapWidth="410" LeadingOffset="-6" Font="TwCenMT18" />
+				</Stack>
+
+
+				<Image Anchor="L,C" Size="128,128" Offset="-12,0" Texture="Assets/UI/Art/Icons/LeaderPortraits1024Frame.dds" >
+					<Image ID="SpeedIcon" Anchor="C,C" Size="128,128" Texture="Assets/UI/Art/Icons/GameSpeedIcons.dds" />
+				</Image>
+
+				<Image Anchor="L,B" Offset="100,0" Texture="bar340x2.dds" Size="340.1" />
+			</Button>
+
+		</Stack>
+
+		<Stack Anchor="C,B" Offset="0,54" StackGrowth="Right" Padding="8" >
+
+			<!-- Randomize Button -->
+			<GridButton ID="RandomizeButton" Anchor="L,C" Style="SmallButton" Size="150,32" StateOffsetIncrement="0,0" >
+				<Label Anchor="C,C" String="TXT_KEY_GAME_SETUP_RANDOMIZE" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" />
+			</GridButton>
+			<!-- Advanced Button -->
+			<GridButton ID="AdvancedButton" Anchor="L,C" Style="SmallButton" Size="150,32" StateOffsetIncrement="0,0" >
+				<Label Anchor="C,C" String="TXT_KEY_GAME_ADVANCED_SETUP" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" />
+			</GridButton>
+
+		</Stack>
+
+		<!-- Back Button -->
+		<GridButton ID="BackButton" Anchor="L,B" Offset="38,54" Style="SmallButton" Size="150,32" Offset="14,0" StateOffsetIncrement="0,0" >
+			<Label Anchor="C,C" String="TXT_KEY_BACK_BUTTON" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" />
+		</GridButton>
+
+		<!-- Start Game -->
+		<GridButton ID="StartButton" Anchor="R,B" Offset="38,50" Size="260,45" Style="BaseButton" String="TXT_KEY_START_GAME"/>
+
+	</Grid>
+
+	<Instance Name="IconInstance" >
+		<Container Anchor="L,T" Size="56.56" >
+			<Image Anchor="C,C" Texture="IconFrame64.dds" Size="64.64">
+				<Button ID="Portrait" Anchor="C,C" Size="64,64" NoStateChange="1"/>
+			</Image>
+		</Container>
+	</Instance>
+
+	<LuaContext ID="SelectCivilization" FileName="Assets/UI/FrontEnd/GameSetup/SelectCivilization" Hidden="1" />
+	<LuaContext ID="SelectGameSpeed" FileName="Assets/UI/FrontEnd/GameSetup/SelectGameSpeed" Hidden="1" />
+	<LuaContext ID="SelectDifficulty" FileName="Assets/UI/FrontEnd/GameSetup/SelectDifficulty" Hidden="1" />
+	<LuaContext ID="SelectMapType" FileName="Assets/UI/FrontEnd/GameSetup/SelectMapType" Hidden="1" />
+	<LuaContext ID="SelectMapSize" FileName="Assets/UI/FrontEnd/GameSetup/SelectMapSize" Hidden="1" />
+	<LuaContext ID="AdvancedSetup" FileName="Assets/UI/FrontEnd/GameSetup/AdvancedSetup" Hidden="1" DeferLoad="1" />
+	<LuaContext ID="SetCivNames" FileName="Assets/UI/FrontEnd/GameSetup/SetCivNames" Hidden="1" />
+
+</Context>
