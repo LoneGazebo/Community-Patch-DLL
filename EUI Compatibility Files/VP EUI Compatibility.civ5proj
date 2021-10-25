@@ -8,9 +8,7 @@
     <ModVersion>1</ModVersion>
     <Stability>Stable</Stability>
     <Teaser>(1.2) CBO Compatibility and LUA (EUI Version)</Teaser>
-    <Description>Contains compatibility files for CBO, CSD, C4DF and EUI - required if you intend to use any mod aside from the CP and CBO by themselves.
-
-NOTE: Make sure to delete the LUA folder in the CBO if you are using this!</Description>
+    <Description>Contains compatibility files for CBO, CSD, C4DF, More Luxuries and EUI - required if you intend to use any mod aside from the CP and CBO by themselves.</Description>
     <Authors>Gazebo</Authors>
     <SpecialThanks>
     </SpecialThanks>
@@ -84,7 +82,7 @@ NOTE: Make sure to delete the LUA folder in the CBO if you are using this!</Desc
     <ModReferences>
       <Association>
         <Type>Mod</Type>
-        <Name>More Luxuries</Name>
+        <Name>(5) More Luxuries for VP</Name>
         <Id>be2d13ee-d18d-410e-8f04-7cd19cd99a98</Id>
         <MinVersion>156</MinVersion>
         <MaxVersion>999</MaxVersion>
@@ -93,28 +91,28 @@ NOTE: Make sure to delete the LUA folder in the CBO if you are using this!</Desc
     <ModDependencies>
       <Association>
         <Type>Mod</Type>
-        <Name>Community Patch</Name>
+        <Name>(1) Community Patch</Name>
         <Id>d1b6328c-ff44-4b0d-aad7-c657f83610cd</Id>
         <MinVersion>100</MinVersion>
         <MaxVersion>999</MaxVersion>
       </Association>
       <Association>
         <Type>Mod</Type>
-        <Name>Community Balance Overhaul</Name>
+        <Name>(2) Community Balance Overhaul</Name>
         <Id>8411a7a8-dad3-4622-a18e-fcc18324c799</Id>
         <MinVersion>14</MinVersion>
         <MaxVersion>999</MaxVersion>
       </Association>
       <Association>
         <Type>Mod</Type>
-        <Name>City-State Diplomacy for VP</Name>
+        <Name>(3) City-State Diplomacy for VP</Name>
         <Id>eead0050-1e3f-4178-a91f-26cf1881ac39</Id>
         <MinVersion>29</MinVersion>
         <MaxVersion>999</MaxVersion>
       </Association>
       <Association>
         <Type>Mod</Type>
-        <Name>Civ IV Diplomatic Features for VP</Name>
+        <Name>(4) Civ IV Diplomatic Features for VP</Name>
         <Id>c7bf7064-d1b1-4708-9e93-7a1560868582</Id>
         <MinVersion>12</MinVersion>
         <MaxVersion>999</MaxVersion>

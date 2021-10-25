@@ -8,12 +8,9 @@
     <ModVersion>29</ModVersion>
     <Stability>Stable</Stability>
     <Teaser>(1.2) A mod to improve diplomacy with City-States and the World Congress.</Teaser>
-    <Description>- Design Philosophy -
-This mod is a complete overhaul of the city-state diplomacy system as well as the World Congress. It introduces a new, unit-based system of influence, dozens of new city-state quests, and an entirely revamped World Congress.
-
-Players are now encouraged to build and use diplomatic units and/or complete city-state quests if they want to earn influence. Because diplomacy now requires production, time and energy, players must actively and consciously strive to maintain good relations with neighboring city-states. Furthermore, diplomatic units, being defenseless, are liable to capture or destruction if sent too far from safety, thus long-distance diplomacy now utilizes a risk-reward system.
-
-Securing allies is more important than ever, as the World Congress has been greatly expanded and improved to make each resolution more meaningful to most victory conditions.</Description>
+    <Description>- Design Philosophy - This mod is a complete overhaul of the City-State diplomacy system as well as the World Congress. It introduces a new, unit-based system of influence, dozens of new city-state quests, and an entirely revamped World Congress.[NEWLINE][NEWLINE]
+	Players are now encouraged to build and use diplomatic units and/or complete City-State quests if they want to earn influence. Because diplomacy now requires production, time and energy, players must actively and consciously strive to maintain good relations with neighboring City-States. Furthermore, diplomatic units, being defenseless, are liable to capture or destruction if sent too far from safety. Thus, long-distance diplomacy now utilizes a risk-reward system.[NEWLINE][NEWLINE]
+	Securing allies is more important than ever, as the World Congress has been greatly expanded and improved to make each resolution more meaningful to most victory conditions.</Description>
     <Authors>Gazebo</Authors>
     <SpecialThanks>
     </SpecialThanks>
@@ -203,14 +200,14 @@ Securing allies is more important than ever, as the World Congress has been grea
     <ModDependencies>
       <Association>
         <Type>Mod</Type>
-        <Name>Community Patch</Name>
+        <Name>(1) Community Patch</Name>
         <Id>d1b6328c-ff44-4b0d-aad7-c657f83610cd</Id>
         <MinVersion>100</MinVersion>
         <MaxVersion>999</MaxVersion>
       </Association>
       <Association>
         <Type>Mod</Type>
-        <Name>Community Balance Overhaul</Name>
+        <Name>(2) Community Balance Overhaul</Name>
         <Id>8411a7a8-dad3-4622-a18e-fcc18324c799</Id>
         <MinVersion>14</MinVersion>
         <MaxVersion>999</MaxVersion>

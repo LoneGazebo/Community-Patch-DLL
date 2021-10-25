@@ -7,8 +7,8 @@
     <Guid>828b5b4b-7c62-4afb-a43f-034b596ef5e4</Guid>
     <ModVersion>1</ModVersion>
     <Stability>Stable</Stability>
-    <Teaser>(1.2) Community Balance Overhaul - Compatibility Files (No EUI)</Teaser>
-    <Description>LUA and mod compatibility files for CBO if not using EUI. Includes support for More Luxuries, CSD, and C4DF. Must use all three mods in order to use this mod.</Description>
+    <Teaser>(1.2) Vox Populi Compatibility and LUA (No EUI Version)</Teaser>
+    <Description>LUA and mod compatibility files for CBO, CSD, C4DF and More Luxuries if not using EUI. Must use all of these mods in order to use this mod.</Description>
     <Authors>Gazebo</Authors>
     <SpecialThanks>
     </SpecialThanks>
@@ -77,7 +77,7 @@
     <ModReferences>
       <Association>
         <Type>Mod</Type>
-        <Name>More Luxuries</Name>
+        <Name>(5) More Luxuries for VP</Name>
         <Id>be2d13ee-d18d-410e-8f04-7cd19cd99a98</Id>
         <MinVersion>156</MinVersion>
         <MaxVersion>999</MaxVersion>
@@ -86,28 +86,28 @@
     <ModDependencies>
       <Association>
         <Type>Mod</Type>
-        <Name>Community Patch</Name>
+        <Name>(1) Community Patch</Name>
         <Id>d1b6328c-ff44-4b0d-aad7-c657f83610cd</Id>
         <MinVersion>100</MinVersion>
         <MaxVersion>999</MaxVersion>
       </Association>
       <Association>
         <Type>Mod</Type>
-        <Name>Community Balance Overhaul</Name>
+        <Name>(2) Community Balance Overhaul</Name>
         <Id>8411a7a8-dad3-4622-a18e-fcc18324c799</Id>
         <MinVersion>14</MinVersion>
         <MaxVersion>999</MaxVersion>
       </Association>
       <Association>
         <Type>Mod</Type>
-        <Name>City-State Diplomacy for VP</Name>
+        <Name>(3) City-State Diplomacy for VP</Name>
         <Id>eead0050-1e3f-4178-a91f-26cf1881ac39</Id>
         <MinVersion>29</MinVersion>
         <MaxVersion>999</MaxVersion>
       </Association>
       <Association>
         <Type>Mod</Type>
-        <Name>Civ IV Diplomatic Features for VP</Name>
+        <Name>(4) Civ IV Diplomatic Features for VP</Name>
         <Id>c7bf7064-d1b1-4708-9e93-7a1560868582</Id>
         <MinVersion>12</MinVersion>
         <MaxVersion>999</MaxVersion>

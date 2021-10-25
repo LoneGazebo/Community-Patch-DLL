@@ -636,7 +636,7 @@
     <ModDependencies>
       <Association>
         <Type>Mod</Type>
-        <Name>Community Patch</Name>
+        <Name>(1) Community Patch</Name>
         <Id>d1b6328c-ff44-4b0d-aad7-c657f83610cd</Id>
         <MinVersion>100</MinVersion>
         <MaxVersion>999</MaxVersion>

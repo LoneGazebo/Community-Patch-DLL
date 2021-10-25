@@ -27,14 +27,14 @@
     <ModDependencies>
       <Association>
         <Type>Mod</Type>
-        <Name>Community Patch</Name>
+        <Name>(1) Community Patch</Name>
         <Id>d1b6328c-ff44-4b0d-aad7-c657f83610cd</Id>
         <MinVersion>100</MinVersion>
         <MaxVersion>999</MaxVersion>
       </Association>
       <Association>
         <Type>Mod</Type>
-        <Name>Community Balance Overhaul</Name>
+        <Name>(2) Community Balance Overhaul</Name>
         <Id>8411a7a8-dad3-4622-a18e-fcc18324c799</Id>
         <MinVersion>14</MinVersion>
         <MaxVersion>999</MaxVersion>
