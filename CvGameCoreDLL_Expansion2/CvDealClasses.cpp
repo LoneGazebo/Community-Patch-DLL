@@ -894,14 +894,14 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 	// Peace Treaty
 	else if(eItem == TRADE_ITEM_PEACE_TREATY)
 	{
-		if(!pFromTeam->isAtWar(eToTeam))
+		if (!pFromTeam->isAtWar(eToTeam) || !pToTeam->isAtWar(eFromTeam))
 			return false;
 
-		if(!pToTeam->isAtWar(eFromTeam))
+		// Prevent human to human peace treaty exploits
+		if (!pFromTeam->canChangeWarPeace(eToTeam) || !pToTeam->canChangeWarPeace(eFromTeam))
 			return false;
 
-		// Failsafe check: make sure the AI doesn't make peace when they don't want to! (this is now a fairly cheap check)
-		// This should not trigger any errors because peace treaty willingness is updated whenever the human opens the diplo screen with the AI, and no interactions within the screen should change willingness
+		// Failsafe check: make sure the AI doesn't make peace when they don't want to!
 		if (!pFromPlayer->isHuman() && !pFromPlayer->GetDiplomacyAI()->IsWantsPeaceWithPlayer(eToPlayer))
 			return false;
 
