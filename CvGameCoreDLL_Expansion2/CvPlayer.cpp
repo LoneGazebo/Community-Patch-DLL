@@ -4593,7 +4593,9 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 			if (bConquest && !bGift)
 			{
 				int iReductionFromTourism = (isMajorCiv() && GET_PLAYER(eOldOwner).isMajorCiv()) ? GetCulture()->GetInfluenceCityConquestReduction(eOldOwner) : 0;
-				int iResistanceTurns = (((pNewCity->getPopulation() * 2) / 3) * (100 - iReductionFromTourism)) / 100;
+				int iResistanceTurns = MOD_BALANCE_CORE_SETTLER_ADVANCED ? (pNewCity->getPopulation() * 2) / 3 : pNewCity->getPopulation();
+				iResistanceTurns *= 100 - iReductionFromTourism;
+				iResistanceTurns /= 100;
 				pNewCity->ChangeResistanceTurns(max(iResistanceTurns, 1));
 			}
 		}
@@ -10105,9 +10107,12 @@ bool CvPlayer::CanLiberatePlayer(PlayerTypes ePlayer)
 	}
 
 	// No resurrection in always war games
-	if (GC.getGame().isOption(GAMEOPTION_ALWAYS_WAR) || GC.getGame().isOption(GAMEOPTION_NO_CHANGING_WAR_PEACE))
+	if (getTeam() != GET_PLAYER(ePlayer).getTeam())
 	{
-		return false;
+		if (GC.getGame().isOption(GAMEOPTION_ALWAYS_WAR) || GC.getGame().isOption(GAMEOPTION_NO_CHANGING_WAR_PEACE))
+		{
+			return false;
+		}
 	}
 
 	// Exploit fix - if we attacked a player we resurrected, we can't resurrect them again
@@ -12802,14 +12807,17 @@ bool CvPlayer::canRaze(CvCity* pCity, bool bIgnoreCapitals) const
 		return false;
 	}
 
-	// No razing of cities with unique luxuries
-	ResourceTypes eResource = pCity->plot()->getResourceType();
-	if (eResource != NO_RESOURCE)
+	if (!MOD_BALANCE_CORE_SETTLER_ADVANCED)
 	{
-		CvResourceInfo *pkResource = GC.getResourceInfo(eResource);
-		if (pkResource && pkResource->GetRequiredCivilization() != NO_CIVILIZATION)
+		// No razing of cities with unique luxuries
+		ResourceTypes eResource = pCity->plot()->getResourceType();
+		if (eResource != NO_RESOURCE)
 		{
-			return false;
+			CvResourceInfo *pkResource = GC.getResourceInfo(eResource);
+			if (pkResource && pkResource->GetRequiredCivilization() != NO_CIVILIZATION)
+			{
+				return false;
+			}
 		}
 	}
 
@@ -12914,6 +12922,8 @@ void CvPlayer::unraze(CvCity* pCity)
 {
 	if (!GetPlayerTraits()->IsUnableToCancelRazing())
 	{
+		pCity->ChangeRazingTurns(-pCity->GetRazingTurns());
+
 		if (GetPlayerTraits()->IsNoAnnexing())
 		{
 			pCity->DoCreatePuppet();
@@ -12922,8 +12932,6 @@ void CvPlayer::unraze(CvCity* pCity)
 		{
 			pCity->DoAnnex();
 		}
-
-		pCity->ChangeRazingTurns(-pCity->GetRazingTurns());
 
 		DoUpdateNextPolicyCost();
 

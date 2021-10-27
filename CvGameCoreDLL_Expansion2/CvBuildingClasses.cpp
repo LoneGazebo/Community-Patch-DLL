@@ -4612,6 +4612,10 @@ bool CvCityBuildings::IsBuildingSellable(const CvBuildingEntry& kBuilding) const
 	if(IsSoldBuildingThisTurn())
 		return false;
 
+	// Venice can't sell any buildings except in their capital (check is needed because Venice can raze cities)
+	if (!m_pCity->isCapital() && GET_PLAYER(m_pCity->getOwner()).GetPlayerTraits()->IsNoAnnexing())
+		return false;
+
 	// Can't sell a building if it doesn't cost us anything (no exploits)
 	if(kBuilding.GetGoldMaintenance() <= 0)
 		return false;
