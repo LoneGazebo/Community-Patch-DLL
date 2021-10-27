@@ -36,6 +36,7 @@ ShowComponentSizes=False
 AllowNoIcons=yes
 Uninstallable=no
 PrivilegesRequired=admin
+DirExistsWarning=no
 UsedUserAreasWarning=no
 
 [Languages]
@@ -57,8 +58,8 @@ Source: "(6c) 43 Civs Community Patch\No-EUI\*"; DestDir: "{app}\(6c) 43 Civs Co
 Source: "(6c) 43 Civs Community Patch\EUI\*"; DestDir: "{app}\(6c) 43 Civs Community Patch\EUI"; Flags: ignoreversion recursesubdirs; Components: Civ43EUI
 Source: "(6c) 43 Civs Community Patch\CvGameCore_Expansion2.dll"; DestDir: "{app}\(1) Community Patch\"; DestName: "CvGameCore_Expansion2.dll"; Flags: ignoreversion; Components: Civ43CPOnly Civ43EUI Civ43NoEUI
 Source: "(6c) 43 Civs Community Patch\(6c) 43 Civs Community Patch (v 1).modinfo"; DestDir: "{app}\(6c) 43 Civs Community Patch\"; DestName: "(6c) 43 Civs Community Patch (v 1).modinfo"; Flags: ignoreversion; Components: Civ43EUI Civ43NoEUI Civ43CPOnly
+Source: "(6c) 43 Civs Community Patch\AssignStartingPlots.lua"; DestDir: "{app}\(6c) 43 Civs Community Patch\"; DestName: "AssignStartingPlots.lua"; Flags: ignoreversion; Components: Civ43EUI Civ43NoEUI
 Source: "(6c) 43 Civs Community Patch\CP Only\AssignStartingPlots.lua"; DestDir: "{app}\(6c) 43 Civs Community Patch\"; DestName: "AssignStartingPlots.lua"; Flags: ignoreversion; Components: Civ43CPOnly
-Source: "(6c) 43 Civs Community Patch\MoreLux\AssignStartingPlots.lua"; DestDir: "{app}\(6c) 43 Civs Community Patch\"; DestName: "AssignStartingPlots.lua"; Flags: ignoreversion; Components: Civ43EUI Civ43NoEUI
 Source: "(7a) Promotion Icons for VP\*"; DestDir: "{app}\(7a) Promotion Icons for VP"; Flags: ignoreversion createallsubdirs recursesubdirs; Components: FullNoEUI FullEUI Civ43EUI Civ43NoEUI
 Source: "(7b) UI - Promotion Tree for VP\*"; DestDir: "{app}\(7b) UI - Promotion Tree for VP"; Flags: ignoreversion createallsubdirs recursesubdirs; Components: FullNoEUI FullEUI Civ43EUI Civ43NoEUI
 Source: "CP LUA\LUA\*"; DestDir: "{app}\(1) Community Patch\LUA"; Flags: ignoreversion createallsubdirs recursesubdirs; Components: Core

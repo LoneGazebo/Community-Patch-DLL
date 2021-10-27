@@ -710,10 +710,6 @@ If you downloaded this mod manually, see MANUAL INSTALL.txt for installation ins
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="MoreLux\AssignStartingPlots.lua">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
     <Content Include="No-EUI\ActionInfoPanel.lua">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
@@ -1051,7 +1047,6 @@ If you downloaded this mod manually, see MANUAL INSTALL.txt for installation ins
     <Folder Include="EUI\C4DF" />
     <Folder Include="EUI\CSD" />
     <Folder Include="EUI\Corps" />
-    <Folder Include="MoreLux" />
     <Folder Include="No-EUI" />
     <Folder Include="No-EUI\C4DF\" />
     <Folder Include="No-EUI\Corps\" />
