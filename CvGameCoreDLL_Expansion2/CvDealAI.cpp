@@ -2652,30 +2652,14 @@ int CvDealAI::GetDefensivePactValue(bool bFromMe, PlayerTypes eOtherPlayer, bool
 
 	int iItemValue = 500;
 
-	if (!GetPlayer()->GetDiplomacyAI()->IsWantsDefensivePactWithPlayer(eOtherPlayer))
-	{
+	if (GetPlayer()->IsAITeammateOfHuman())
 		return INT_MAX;
-	}
 
-	// Do not exceed Defensive Pact limit!
-	if (!GetPlayer()->GetDiplomacyAI()->IsHasDefensivePact(eOtherPlayer))
-	{
-		int iNumDefensePacts = GetPlayer()->GetDiplomacyAI()->GetNumDefensePacts();
-		int iDefensePactLimit = 2;
+	if (!GetPlayer()->GetDiplomacyAI()->IsWantsDefensivePactWithPlayer(eOtherPlayer))
+		return INT_MAX;
 
-		if (GetPlayer()->GetDefensePactsToVotes() > 0)
-		{
-			iDefensePactLimit = MAX_MAJOR_CIVS;
-		}
-
-		// Scale limit with map size, but sparingly
-		iDefensePactLimit += (int)(GetPlayer()->GetDiplomacyAI()->GetNumValidMajorCivs() / 10);
-
-		if (iNumDefensePacts >= iDefensePactLimit)
-		{
-			return INT_MAX;
-		}
-	}
+	if (!GET_PLAYER(eOtherPlayer).isHuman() && !GET_PLAYER(eOtherPlayer).GetDiplomacyAI()->IsWantsDefensivePactWithPlayer(GetPlayer()->GetID()))
+		return INT_MAX;
 
 	if (!bFromMe)
 	{
@@ -2711,6 +2695,12 @@ int CvDealAI::GetResearchAgreementValue(bool bFromMe, PlayerTypes eOtherPlayer, 
 	int iItemValue = 100;
 
 	if (GetPlayer()->IsAITeammateOfHuman())
+		return INT_MAX;
+
+	if (!GetPlayer()->GetDiplomacyAI()->IsWantsResearchAgreementWithPlayer(eOtherPlayer))
+		return INT_MAX;
+
+	if (!GET_PLAYER(eOtherPlayer).isHuman() && !GET_PLAYER(eOtherPlayer).GetDiplomacyAI()->IsWantsResearchAgreementWithPlayer(GetPlayer()->GetID()))
 		return INT_MAX;
 
 	if (bFromMe)
@@ -5988,6 +5978,15 @@ bool CvDealAI::IsMakeOfferForResearchAgreement(PlayerTypes eOtherPlayer, CvDeal*
 	CvAssert(eOtherPlayer >= 0);
 	CvAssert(eOtherPlayer < MAX_MAJOR_CIVS);
 
+	if (GetPlayer()->IsAITeammateOfHuman())
+		return false;
+
+	if (!GetPlayer()->GetDiplomacyAI()->IsWantsResearchAgreementWithPlayer(eOtherPlayer))
+		return false;
+
+	if (!GET_PLAYER(eOtherPlayer).isHuman() && !GET_PLAYER(eOtherPlayer).GetDiplomacyAI()->IsWantsResearchAgreementWithPlayer(GetPlayer()->GetID()))
+		return false;
+
 	// Logic for when THIS AI wants to make a RA is in the Diplo AI
 
 	// Can we actually complete this deal?
@@ -6031,7 +6030,11 @@ bool CvDealAI::IsMakeOfferForDefensivePact(PlayerTypes eOtherPlayer, CvDeal* pDe
 		return false;
 	}
 
-	if(!GetPlayer()->GetDiplomacyAI()->IsWantsDefensivePactWithPlayer(eOtherPlayer))
+	if (!GetPlayer()->GetDiplomacyAI()->IsWantsDefensivePactWithPlayer(eOtherPlayer))
+	{
+		return false;
+	}
+	if (!GET_PLAYER(eOtherPlayer).isHuman() && !GET_PLAYER(eOtherPlayer).GetDiplomacyAI()->IsWantsDefensivePactWithPlayer(GetPlayer()->GetID()))
 	{
 		return false;
 	}

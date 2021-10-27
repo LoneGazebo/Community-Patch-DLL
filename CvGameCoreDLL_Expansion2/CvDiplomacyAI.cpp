@@ -11999,10 +11999,10 @@ bool CvDiplomacyAI::DoTestOnePlayerUntrustworthyFriend(PlayerTypes ePlayer)
 		if (!IsHasMet(eLoopPlayer, true))
 			continue;
 
-		if (!WasEverBackstabbedBy(eLoopPlayer))
+		if (WasEverBackstabbedBy(eLoopPlayer))
 			continue;
 
-		if (!GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->WasEverBackstabbedBy(GetID()))
+		if (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->WasEverBackstabbedBy(GetID()))
 			continue;
 
 		if (!GET_PLAYER(eLoopPlayer).isAlive())
