@@ -79,7 +79,7 @@ local g_isReligionEnabled = civ5gk_mode and (not Game or not Game.IsOption(GameO
 -------------------------------------------------------------
 -- See if the mod for permanent pantheon bonus is activated
 -------------------------------------------------------------
-local g_isPermanentPantheonMod = Game.IsCustomModOption("RELIGION_PERMANENT_PANTHEON")
+local g_isPermanentPantheonMod = Game and Game.IsCustomModOption("RELIGION_PERMANENT_PANTHEON")
 
 -- Vox Populi granted by building cache data
 local g_grantedByBuilding = {}

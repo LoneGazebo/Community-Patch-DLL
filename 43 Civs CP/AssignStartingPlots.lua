@@ -59,9 +59,8 @@ include("NaturalWondersCustomMethods");
 ------------------------------------------------------------------------------
 ------------------------------------------------------------------------------
 local MAX_RESOURCE_INDEX = 99             -- Who knows where this comes from!
-local MAX_MAJOR_CIVS     = (64 - 1 - 1)   -- The Barbs and a minimum of 1 City State
-local MAX_MINOR_CIVS     = (64 - 1 - 22)  -- The Barbs and the original maximum number of majors
-local UNIVERSAL_LUX      = "RESOURCE_GEMS"
+local MAX_MAJOR_CIVS     = GameDefines.MAX_MAJOR_CIVS
+local MAX_MINOR_CIVS     = GameDefines.MAX_MINOR_CIVS
 
 AssignStartingPlots = {};
 ------------------------------------------------------------------------------
@@ -774,7 +773,7 @@ function AssignStartingPlots:__InitLuxuryWeights()
 		table.insert(self.luxury_region_weights[2], {self.tin_ID,		10});
 	end
 	-- MOD.HungryForFood: End
-	
+
 	self.luxury_region_weights[3] = {			-- Forest
 	{self.truffles_ID,	40},
 	{self.silk_ID,		40},
@@ -794,7 +793,7 @@ function AssignStartingPlots:__InitLuxuryWeights()
 		table.insert(self.luxury_region_weights[3], {self.lavender_ID,	10});
 	end
 	-- MOD.HungryForFood: End
-	
+
 	self.luxury_region_weights[4] = {			-- Desert
 	{self.incense_ID,	40},
 	{self.salt_ID,		40},
@@ -1871,7 +1870,6 @@ function AssignStartingPlots:GenerateRegions(args)
 				print("- Fertility: ", fertCount);
 				print("- Plot Count: ", plotCount); print("-");
 				--]]
-			
 				self:DivideIntoRegions(iNumCivsOnThisLandmass, fert_table, rect_table)
 			else
 				print("Invalid number of civs assigned to a landmass: ", iNumCivsOnThisLandmass);
@@ -4102,7 +4100,7 @@ function AssignStartingPlots:AddStrategicBalanceResources(region_number)
 								end
 							end
 						elseif featureType == FeatureTypes.FEATURE_FLOOD_PLAINS then		
-							table.insert(horse_list, plotIndex)		
+							table.insert(horse_list, plotIndex)
 							table.insert(iron_fallback, plotIndex)
 						elseif featureType == FeatureTypes.FEATURE_FOREST then		
 							if ripple_radius < 5 then
@@ -4143,10 +4141,6 @@ function AssignStartingPlots:AddStrategicBalanceResources(region_number)
 	if placed_horse == false and table.maxn(horse_fallback) > 0 then
 		shuf_list = GetShuffledCopyOfTable(horse_fallback)
 		iNumLeftToPlace = self:PlaceSpecificNumberOfResources(self.horse_ID, horse_amt, 1, 1, -1, 0, 0, shuf_list);
-	end
-	if placed_oil == false and table.maxn(oil_fallback) > 0 then
-		shuf_list = GetShuffledCopyOfTable(oil_fallback)
-		iNumLeftToPlace = self:PlaceSpecificNumberOfResources(self.oil_ID, oil_amt, 1, 1, -1, 0, 0, shuf_list);
 	end
 end
 ------------------------------------------------------------------------------
@@ -4622,7 +4616,7 @@ function AssignStartingPlots:NormalizeStartLocation(region_number)
 	local innerFoodScore = (4 * innerFourFood) + (2 * innerThreeFood) + innerTwoFood;
 	local outerFoodScore = (4 * outerFourFood) + (2 * outerThreeFood) + outerTwoFood;
 	local totalFoodScore = innerFoodScore + outerFoodScore;
-	local nativeTwoFoodTiles = iNumNativeTwoFoodFirstRing + iNumNativeTwoFoodSecondRing;	
+	local nativeTwoFoodTiles = iNumNativeTwoFoodFirstRing + iNumNativeTwoFoodSecondRing;
 	
 	-- Six levels for Bonus Resource support, from zero to five.
 	if totalFoodScore < 4 and innerFoodScore == 0 then
@@ -5057,7 +5051,7 @@ function AssignStartingPlots:BalanceAndAssign()
 	local regions_with_lake_start = {};
 	local regions_with_river_start = {};
 	local regions_with_near_river_start = {};
-	local civ_status = table.fill(false, GameDefines.MAX_MAJOR_CIVS); -- Have to account for possible gaps in player ID numbers, for MP.
+	local civ_status = table.fill(false, MAX_MAJOR_CIVS); -- Have to account for possible gaps in player ID numbers, for MP.
 	local region_status = table.fill(false, self.iNumCivs);
 	local priority_lists = {};
 	local avoid_lists = {};
@@ -5697,7 +5691,7 @@ function AssignStartingPlots:ExaminePlotForNaturalWondersEligibility(x, y)
 	
 	-- Check the location is a decent city site, otherwise the wonderID is pointless
 	local plot = Map.GetPlot(x, y);
-	if self:Plot_GetFertilityInRange(plot, 3) < 16 then
+	if self:Plot_GetFertilityInRange(plot, 3) < 28 then
 		return false
 	end
 	return true
@@ -6385,15 +6379,13 @@ function AssignStartingPlots:GenerateNaturalWondersCandidatePlotLists()
 		end
 	end
 	
-	-- Debug printout of natural wonder candidate plot lists
-	--[[
+	--[[ Debug printout of natural wonder candidate plot lists
 	print("-"); print("-"); print("--- Number of Candidate Plots on the map for Natural Wonders ---"); print("-");
 	for loop = 1, self.iNumNW do
 		print("-", iCanBeWonder[loop], "candidates for", self.wonder_list[loop]);
 	end
-	print("-"); print("--- End of candidates readout for Natural Wonders ---"); print("-");	
-	]]--
-	--
+	print("-"); print("--- End of candidates readout for Natural Wonders ---"); print("-");
+	--]]
 
 	-- Read in from the XML for each eligible wonder, obtaining OccurrenceFrequency data.
 	--
@@ -6507,7 +6499,7 @@ function AssignStartingPlots:AttemptToPlaceNaturalWonder(wonder_number, row_numb
 			self:PlaceResourceImpact(x, y, 1, 1)					-- Strategic layer
 			self:PlaceResourceImpact(x, y, 2, 1)					-- Luxury layer
 			self:PlaceResourceImpact(x, y, 3, 1)					-- Bonus layer
-			self:PlaceResourceImpact(x, y, 5, 1)					-- City State layer
+			self:PlaceResourceImpact(x, y, 5, 3)					-- City State layer
 			self:PlaceResourceImpact(x, y, 7, 1)					-- Marble layer
 			local plotIndex = y * iW + x + 1;
 			self.playerCollisionData[plotIndex] = true				-- Record exact plot of wonder in the collision list.
@@ -6544,12 +6536,13 @@ function AssignStartingPlots:PlaceNaturalWonders()
 		return
 	end
 	
-	--[[ Debug printout
+	--[[Debug printout
 	print("-"); print("--- Readout of NW Assignment Priority ---");
 	for print_loop, order in ipairs(NW_eligibility_order) do
 		print("NW Assignment Priority#", print_loop, "goes to NW#", order);
 	end
-	print("-"); print("-"); ]]--
+	print("-"); print("-");
+	--]]
 	
 	-- Determine how many NWs to attempt to place. Target is regulated per map size.
 	-- The final number cannot exceed the number the map has locations to support.
@@ -6571,7 +6564,6 @@ function AssignStartingPlots:PlaceNaturalWonders()
 			table.insert(fallback_NWs, NW);
 		end
 	end
-	
 	--[[
 	print("-");
 	for loop, NW in ipairs(selected_NWs) do
@@ -6582,7 +6574,6 @@ function AssignStartingPlots:PlaceNaturalWonders()
 		print("Natural Wonder #", NW, "has been selected as fallback.");
 	end
 	print("-");
-	--
 	]]--
 	
 	print("--- Placing Natural Wonders! ---");
@@ -7061,7 +7052,7 @@ function AssignStartingPlots:PlaceCityStateInRegion(city_state_number, region_nu
 	local iAreaID = region_data_table[5];
 	
 	local eligible_coastal, eligible_inland = {}, {};
-	
+
 	-- Main loop, first pass, unforced
 	local x, y;
 	local curWX = iWestX;
@@ -7082,7 +7073,7 @@ function AssignStartingPlots:PlaceCityStateInRegion(city_state_number, region_nu
 		-- Record and enact the placement.
 		self.cityStatePlots[city_state_number] = {x, y, region_number};
 		self.city_state_validity_table[city_state_number] = true; -- This is the line that marks a city state as valid to be processed by the rest of the system.
-		local city_state_ID = city_state_number + GameDefines.MAX_MAJOR_CIVS - 1;
+		local city_state_ID = city_state_number + MAX_MAJOR_CIVS - 1;
 		local cityState = Players[city_state_ID];
 		local cs_start_plot = Map.GetPlot(x, y)
 		cityState:SetStartingPlot(cs_start_plot)
@@ -7142,7 +7133,7 @@ function AssignStartingPlots:PlaceCityStates()
 				if success == true then
 					self.cityStatePlots[cs_number] = {cs_x, cs_y, -1};
 					self.city_state_validity_table[cs_number] = true; -- This is the line that marks a city state as valid to be processed by the rest of the system.
-					local city_state_ID = cs_number + GameDefines.MAX_MAJOR_CIVS - 1;
+					local city_state_ID = cs_number + MAX_MAJOR_CIVS - 1;
 					local cityState = Players[city_state_ID];
 					local cs_start_plot = Map.GetPlot(cs_x, cs_y)
 					cityState:SetStartingPlot(cs_start_plot)
@@ -7202,7 +7193,7 @@ function AssignStartingPlots:PlaceCityStates()
 				if success == true then
 					self.cityStatePlots[cs_number] = {cs_x, cs_y, -1};
 					self.city_state_validity_table[cs_number] = true; -- This is the line that marks a city state as valid to be processed by the rest of the system.
-					local city_state_ID = cs_number + GameDefines.MAX_MAJOR_CIVS - 1;
+					local city_state_ID = cs_number + MAX_MAJOR_CIVS - 1;
 					local cityState = Players[city_state_ID];
 					local cs_start_plot = Map.GetPlot(cs_x, cs_y)
 					cityState:SetStartingPlot(cs_start_plot)
@@ -7598,7 +7589,7 @@ function AssignStartingPlots:GenerateGlobalResourcePlotLists()
 	local temp_hills_list, temp_coast_list, temp_grass_flat_no_feature = {}, {}, {};
 	local temp_tundra_flat_no_feature, temp_snow_flat_list, temp_land_list = {}, {}, {}, {};
 	local temp_marble_list, temp_deer_list, temp_desert_wheat_list, temp_banana_list = {}, {}, {}, {};
-	local temp_coconut_list = {};
+	local temp_coconut_list = {}; -- MOD.HungryForFood: New
 	--
 	for y = 0, iH - 1 do
 		for x = 0, iW - 1 do
@@ -8555,15 +8546,34 @@ end
 function AssignStartingPlots:GetDisabledLuxuriesTargetNumber()
 	-- This data was separated out to allow easy replacement in map scripts.
 	local worldsizes = {
-		[GameInfo.Worlds.WORLDSIZE_DUEL.ID] = 11,
-		[GameInfo.Worlds.WORLDSIZE_TINY.ID] = 8,
-		[GameInfo.Worlds.WORLDSIZE_SMALL.ID] = 6,
-		[GameInfo.Worlds.WORLDSIZE_STANDARD.ID] = 4,
-		[GameInfo.Worlds.WORLDSIZE_LARGE.ID] = 2,
-		[GameInfo.Worlds.WORLDSIZE_HUGE.ID] = 1
+		[GameInfo.Worlds.WORLDSIZE_DUEL.ID] = 10,
+		[GameInfo.Worlds.WORLDSIZE_TINY.ID] = 7,
+		[GameInfo.Worlds.WORLDSIZE_SMALL.ID] = 5,
+		[GameInfo.Worlds.WORLDSIZE_STANDARD.ID] = 3,
+		[GameInfo.Worlds.WORLDSIZE_LARGE.ID] = 1,
+		[GameInfo.Worlds.WORLDSIZE_HUGE.ID] = 0
 		}
 	local maxToDisable = worldsizes[Map.GetWorldSize()];
 	return maxToDisable
+	-- MOD.Barathor: Update: This function is no longer used. Original code restored.
+	--[[ 
+		 MOD.Barathor: 
+		 Updated: original values were 10, 7, 5, 3, 1, 0
+		 The new target numbers keep total luxuries somewhat similar to the original game
+		 default total luxuries: 10, 13, 15, 17, 19, 20
+	         new total luxuries: 10, 13, 15, 17, 19, 22  (Huge really needed more anyway)
+	
+	local worldsizes = {								-- MOD.Barathor: Using the default values and keeping things the same:
+		[GameInfo.Worlds.WORLDSIZE_DUEL.ID] = 18,		-- MOD.Barathor: 28 - ( 2 regional + 1 marble + 3 city-state + 4 random) = 18
+		[GameInfo.Worlds.WORLDSIZE_TINY.ID] = 15,		-- MOD.Barathor: 28 - ( 4 regional + 1 marble + 3 city-state + 5 random) = 15
+		[GameInfo.Worlds.WORLDSIZE_SMALL.ID] = 13,		-- MOD.Barathor: 28 - ( 6 regional + 1 marble + 3 city-state + 5 random) = 13
+		[GameInfo.Worlds.WORLDSIZE_STANDARD.ID] = 11,	-- MOD.Barathor: 28 - ( 8 regional + 1 marble + 3 city-state + 5 random) = 11
+		[GameInfo.Worlds.WORLDSIZE_LARGE.ID] = 9,		-- MOD.Barathor: 28 - (10 regional + 1 marble + 3 city-state + 5 random) =  9
+		[GameInfo.Worlds.WORLDSIZE_HUGE.ID] = 6,		-- MOD.Barathor: 28 - (12 regional + 1 marble + 3 city-state + 6 random) =  6
+		}
+	local maxToDisable = worldsizes[Map.GetWorldSize()];
+	return maxToDisable
+	--]]
 end
 ------------------------------------------------------------------------------
 function AssignStartingPlots:GetRandomLuxuriesTargetNumber()
@@ -8593,13 +8603,6 @@ function AssignStartingPlots:AssignLuxuryRoles()
 	-- Luxury roles must be assigned before City States can be placed.
 	-- This is because civs who are forced to share their luxury type with other 
 	-- civs may get extra city states placed in their region to compensate.
-
-    --	
-	-- There are 19 possible luxuries (excluding Marble, CS or Civ specific ones)
-	-- and we need to allow for a possible 62 majors (64 civs - 1 CS - 1 Barbs)
-	--
-	-- Deducting 3 lux for CS, we need to permit each remaining lux to be shared by 4 civs [(19-3) * 4 = 64]
-	--
 
 	self:SortRegionsByType() -- creates self.regions_sorted_by_type, which will be expanded to store all data regarding regional luxuries.
 
@@ -8642,12 +8645,7 @@ function AssignStartingPlots:AssignLuxuryRoles()
 		print("---------------------------------------------------------------------------------------");
 	end
 	-- Choose luxuries.
--- MOD START
-	self.iNumCityStateLuxuries = math.max(3, math.min(math.floor(self.iNumCityStates/4 + 0.5), math.min(7, iNumAvailableTypes)))
-	print("- iCsLuxLimit:", self.iNumCityStateLuxuries)
-	for cs_lux = 1, self.iNumCityStateLuxuries do
---	for cs_lux = 1, 3 do
--- MOD END
+	for cs_lux = 1, 3 do
 		local totalWeight = 0;
 		local res_threshold = {};
 		for i, this_weight in ipairs(resource_weights) do
@@ -8810,7 +8808,7 @@ function AssignStartingPlots:GetListOfAllowableLuxuriesAtCitySite(x, y, radius)
 	local odd = self.firstRingYIsOdd;
 	local even = self.firstRingYIsEven;
 	local nextX, nextY, plot_adjustments;
-	local allowed_luxuries = table.fill(false, 99);		-- MOD.Barathor: original = 35; updated to hold higher luxury ID's
+	local allowed_luxuries = table.fill(false, MAX_RESOURCE_INDEX);		-- MOD.Barathor: original = 35; updated to hold higher luxury ID's
 	
 	for ripple_radius = 1, radius do
 		local ripple_value = radius - ripple_radius + 1;
@@ -9552,13 +9550,21 @@ function AssignStartingPlots:GetRegionLuxuryTargetNumbers()
 	-- This data was separated out to allow easy replacement in map scripts.
 	--
 	-- This table, indexed by civ-count, provides the target amount of luxuries to place in each region.
-	local duel_values     = table.fill(1, MAX_MAJOR_CIVS); -- Max is one per region for all player counts at this size.
-	local tiny_values     = {0, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}; PadTable(tiny_values, (MAX_MAJOR_CIVS-22), 1);
-	local small_values    = {0, 3, 3, 3, 4, 4, 4, 3, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}; PadTable(small_values, (MAX_MAJOR_CIVS-22), 1);
-	local standard_values = {0, 3, 3, 4, 4, 5, 5, 6, 5, 4, 4, 3, 3, 2, 2, 1, 1, 1, 1, 1, 1, 1}; PadTable(standard_values, (MAX_MAJOR_CIVS-22), 1);
-	local large_values    = {0, 3, 4, 4, 5, 5, 5, 6, 6, 7, 6, 5, 5, 4, 4, 3, 3, 2, 2, 2, 2, 2}; PadTable(large_values, (MAX_MAJOR_CIVS-22), 1);
-	local huge_values     = {0, 4, 5, 5, 6, 6, 6, 6, 7, 7, 7, 8, 7, 6, 6, 5, 5, 4, 4, 3, 3, 2};  PadTable(huge_values, (MAX_MAJOR_CIVS-22), 1);
-
+	-- MOD.Barathor: Updated -- increased inital value when increasing total civ count by 2.  Instead of decreasing by 2, it'll decrease copies of regional luxuries placed by 1.
+	-- MOD.Barathor: Rough Example -- Standard 8 civs x 6 copies of each regional luxury = 48 ... 10 x 4 = 40 ... 10 x 5 = 50 ... 50 is closer to 48 than 40
+	-- MOD.Barathor: This will not hurt the random luxury total to be placed since it always places a minimum number at least.  
+	local duel_values = table.fill(1, MAX_MAJOR_CIVS); -- Max is one per region for all player counts at this size.
+	--
+	local tiny_values = {0, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
+	--
+	local small_values = {0, 3, 3, 3, 4, 4, 4, 3, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
+	--
+	local standard_values = {0, 3, 3, 4, 4, 5, 5, 6, 5, 5, 4, 4, 3, 3, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
+	--
+	local large_values = {0, 3, 4, 4, 5, 5, 5, 6, 6, 7, 6, 6, 5, 5, 4, 4, 3, 3, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
+	--
+	local huge_values = {0, 4, 5, 5, 6, 6, 6, 6, 7, 7, 7, 8, 7, 7, 6, 6, 5, 5, 4, 4, 3, 3, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
+	--
 	local worldsizes = {
 		[GameInfo.Worlds.WORLDSIZE_DUEL.ID] = duel_values,
 		[GameInfo.Worlds.WORLDSIZE_TINY.ID] = tiny_values,
@@ -9569,12 +9575,6 @@ function AssignStartingPlots:GetRegionLuxuryTargetNumbers()
 		}
 	local target_list = worldsizes[Map.GetWorldSize()];
 	return target_list
-end
-------------------------------------------------------------------------------
-function PadTable(t, iCount, iValue)
-  for i=1, iCount, 1 do
-    table.insert(t, iValue)
-  end
 end
 ------------------------------------------------------------------------------
 function AssignStartingPlots:GetWorldLuxuryTargetNumbers()
@@ -9758,13 +9758,9 @@ function AssignStartingPlots:PlaceLuxuries()
 			end
 			local iNumCSAllowed = table.maxn(cs_only_types);
 			if iNumCSAllowed > 0 then
--- MOD START
-				local iWeightLimit = 25 + ((iNumCSAllowed-1) / (self.iNumCityStateLuxuries-1)) * (75-25)
-				local iWeight = iWeightLimit / iNumCSAllowed
 				for loop, res_ID in ipairs(cs_only_types) do
-					lux_possible_for_cs[res_ID] = iWeight;
+					lux_possible_for_cs[res_ID] = 75 / iNumCSAllowed;
 				end
--- MOD END
 			end
 			-- Identify Allowable Random Luxuries and the Regional Luxury if any.
 			-- If any random types are eligible (plus the regional type if in a region) these combined carry a 25% weighting.
@@ -9864,7 +9860,6 @@ function AssignStartingPlots:PlaceLuxuries()
 		-- number of civs in the game is closest to "default" for that map size.
 		local target_list = self:GetRegionLuxuryTargetNumbers()
 		local targetNum = target_list[self.iNumCivs] 		-- MOD.Barathor: Updated -- Keep it simple and consistent.  Plus, fertility compensation above is disabled anyway.
-		-- local targetNum = math.floor((target_list[self.iNumCivs] + (0.5 * self.luxury_low_fert_compensation[res_ID])) / assignment_split);	-- MOD.Barathor: Disabled
 		targetNum = targetNum - self.region_low_fert_compensation[region_number];
 		-- Adjust target number according to Resource Setting.
 		if self.luxuryDensity == 1 then
@@ -9942,7 +9937,6 @@ function AssignStartingPlots:PlaceLuxuries()
 		-- are approximate. An additional random factor is added in based on number of civs.
 		-- Any difference between regional and city state luxuries placed, and the target, is
 		-- made up for with the number of randomly placed luxuries that get distributed.
-	
 		local world_size_data = self:GetWorldLuxuryTargetNumbers()
 		-- This modifies self.luxuryDensity if random, to a value between 1 and 3
 		-- Which is okay, since regional luxuries have been placed
@@ -10035,7 +10029,7 @@ function AssignStartingPlots:PlaceLuxuries()
 			-- Check to see if any Special Case luxuries are eligible.
 			for loop, res_ID in ipairs(self.resourceIDs_assigned_to_special_case) do
 				if allowed_luxuries[res_ID] == true then
-					print("- Found eligible luxury type:", res_ID);
+					--print("- Found eligible luxury type:", res_ID);
 					iNumTypesAllowed = iNumTypesAllowed + 1;
 					table.insert(candidate_types, res_ID);
 				end
@@ -10259,7 +10253,7 @@ function AssignStartingPlots:PlaceSmallQuantitiesOfStrategics(frequency, plot_li
 								end
 							elseif terrainType == TerrainTypes.TERRAIN_GRASS then
 								if res_plot:IsFreshWater() then
-										local diceroll = Map.Rand(10, "Resource selection - Place Small Quantities LUA");
+									local diceroll = Map.Rand(10, "Resource selection - Place Small Quantities LUA");
 									if diceroll < 1 then
 										selected_ID = self.uranium_ID;
 										selected_quantity = uran_amt;
@@ -10794,7 +10788,7 @@ function AssignStartingPlots:AdjustTiles()
 	-- ####Not Communitu_79a's version since that depends on map settings, so here's a generic one
 	
 	-- This function was renamed to AdjustTiles from FixResourceGraphics
-		 
+
 	local iW, iH = Map.GetGridSize()
 	for y = 0, iH - 1 do
 		for x = 0, iW - 1 do
@@ -10830,12 +10824,10 @@ function AssignStartingPlots:AdjustTiles()
 				if (featureType ~= FeatureTypes.FEATURE_FOREST) and (featureType ~= FeatureTypes.FEATURE_JUNGLE) and (featureType ~= FeatureTypes.FEATURE_FLOOD_PLAINS) then
 					plot:SetFeatureType(FeatureTypes.NO_FEATURE, -1)
 				end
-				-- Always want hills.
-				-- plot:SetPlotType(PlotTypes.PLOT_HILLS, false, true)		-- MOD.Barathor: Keep flat mined resources as well.
 				
 			-- Tree Resources
 			elseif res_ID == self.cocoa_ID or 
-			       res_ID == self.citrus_ID or 
+				   res_ID == self.citrus_ID or 
 				   res_ID == self.spices_ID or 
 				   res_ID == self.sugar_ID or 
 				   res_ID == self.truffles_ID or 
@@ -10912,7 +10904,7 @@ function AssignStartingPlots:AdjustTiles()
 				
 			-- Open Land Resources
 			elseif res_ID == self.incense_ID or 
-			       res_ID == self.ivory_ID or 
+				   res_ID == self.ivory_ID or 
 				   res_ID == self.wine_ID or 
 				   res_ID == self.olives_ID or 
 				   res_ID == self.coffee_ID or
@@ -10931,7 +10923,7 @@ function AssignStartingPlots:AdjustTiles()
 				if res_ID == self.ivory_ID then
 					-- Always want it flat.  Other types are fine on hills.
 					plot:SetPlotType(PlotTypes.PLOT_LAND, false, true)
-				end				
+				end
 				
 				-- Don't remove flood plains if present for the few that are placed on it, only remove other features, like marsh or any trees.				
 				if (featureType ~= FeatureTypes.FEATURE_FLOOD_PLAINS) then	
@@ -11104,7 +11096,7 @@ function AssignStartingPlots:PlaceStrategicAndBonusResources()
 	local uran_amt, horse_amt, oil_amt, iron_amt, coal_amt, alum_amt = self:GetMajorStrategicResourceQuantityValues()
 	local resources_to_place = {}
 
-	-- Adjust appearance rate per Resource Setting chosen by user.
+	-- Adjust appearance rate per resource density setting chosen by user.
 	local resMultiplier = 1;
 	if self.resDensity == 1 then -- Sparse, so increase the number of tiles per strategic.
 		resMultiplier = 1.5;
@@ -11207,6 +11199,7 @@ function AssignStartingPlots:PlaceStrategicAndBonusResources()
 		self:ProcessResourceList(99999, 1, self.desert_flat_no_feature, resources_to_place); -- 99999 means one per that many tiles: a single instance.
 		self:ProcessResourceList(99999, 1, self.hills_forest_list, resources_to_place);
 		self:ProcessResourceList(99999, 1, self.hills_open_list, resources_to_place);
+		self:ProcessResourceList(99999, 1, self.forest_flat_that_are_not_tundra, resources_to_place);
 		self:ProcessResourceList(99999, 1, self.tundra_flat_forest, resources_to_place);
 	end
 	while self.amounts_of_resources_placed[self.horse_ID + 1] < 4 * self.iNumCivs do
@@ -11216,11 +11209,6 @@ function AssignStartingPlots:PlaceStrategicAndBonusResources()
 		self:ProcessResourceList(99999, 1, self.plains_flat_no_feature, resources_to_place);
 		self:ProcessResourceList(99999, 1, self.desert_wheat_list, resources_to_place);
 		self:ProcessResourceList(99999, 1, self.tundra_flat_no_feature, resources_to_place);
-	end
-	if self.amounts_of_resources_placed[self.horse_ID + 1] < 4 * self.iNumCivs then
-		print("Map has very low horse, adding another.");
-		local resources_to_place = { {self.horse_ID, horse_amt, 100, 0, 0} };
-		self:ProcessResourceList(99999, 1, self.dry_grass_flat_no_feature, resources_to_place)
 	end
 	while self.amounts_of_resources_placed[self.coal_ID + 1] < 4 * self.iNumCivs do
 		print("Map has very low coal, adding another.");
@@ -11757,7 +11745,6 @@ function AssignStartingPlots:GetRandomMultiplier(variance, rand, higher)
 		return 1 / multiplier
 	end
 end
-------------------------------------------------------------------------------
 ------------------------------------------------------------------------------
 --                             REFERENCE
 ------------------------------------------------------------------------------

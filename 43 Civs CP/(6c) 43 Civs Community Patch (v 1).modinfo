@@ -32,7 +32,7 @@ If you downloaded this mod manually, see MANUAL INSTALL.txt for installation ins
     <Mod id="828b5b4b-7c62-4afb-a43f-034b596ef5e4" minversion="0" maxversion="999" title="(6b) Vox Populi - Compatibility Files (No-EUI)" />
   </Blocks>
   <Files>
-    <File md5="D1CD8E060EFA8629FCCA87575317E25D" import="1">AssignStartingPlots.lua</File>
+    <File md5="6806FFE1DF6F41081DA11FCF5BD77F82" import="1">AssignStartingPlots.lua</File>
     <File md5="A9173FECA4709DD9F0B710A585D037EA" import="1">CP Only/ActionInfoPanel.lua</File>
     <File md5="314F159E85D3C21731FFB7FDBE86433A" import="1">CP Only/AdvancedSetup.lua</File>
     <File md5="69F25DAD4EA8EE636E3F286717D140D4" import="0">CP Only/AssignStartingPlots.lua</File>
@@ -163,7 +163,6 @@ If you downloaded this mod manually, see MANUAL INSTALL.txt for installation ins
     <File md5="2F4E8578875AA96C3D8553D2E7DE0883" import="1">EUI/WhosWinningPopup.lua</File>
     <File md5="02C28E298D776D1804F065751649D91B" import="1">EUI/YieldIconManager.lua</File>
     <File md5="C10F916FF1CD06DB8235408C1AAE097E" import="1">EUI/YieldIconManager.xml</File>
-    <File md5="C901249F814764C8BCFA7A3EFECD4B7E" import="0">MoreLux/AssignStartingPlots.lua</File>
     <File md5="3F4B08D58AE727DF10D8A34BEC5F398E" import="1">No-EUI/ActionInfoPanel.lua</File>
     <File md5="314F159E85D3C21731FFB7FDBE86433A" import="1">No-EUI/AdvancedSetup.lua</File>
     <File md5="39C6A39E21DF6E10B666FA57FA502643" import="1">No-EUI/Bombardment.lua</File>
