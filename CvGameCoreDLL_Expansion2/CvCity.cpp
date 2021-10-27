@@ -28732,6 +28732,9 @@ bool CvCity::CanBuyPlot(int iPlotX, int iPlotY, bool bIgnoreCost)
 	if (GC.getBUY_PLOTS_DISABLED())
 		return false;
 
+	if (IsResistance())
+		return false;
+
 	if (getOwner() == NO_PLAYER)
 		return false;
 
@@ -28835,6 +28838,9 @@ bool CvCity::CanBuyPlot(int iPlotX, int iPlotY, bool bIgnoreCost)
 /// Can this city buy a plot, any plot?
 bool CvCity::CanBuyAnyPlot(void)
 {
+	if (IsResistance())
+		return false;
+
 	VALIDATE_OBJECT
 	ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
 	if (pkScriptSystem)
