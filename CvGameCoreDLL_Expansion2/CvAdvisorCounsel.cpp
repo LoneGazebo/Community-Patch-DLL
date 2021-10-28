@@ -288,17 +288,25 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 			// go through recommended research for resources
 			if(pPlayerTechs->GetLocaleTechPriority(eTech) > 1)
 			{
-				// say we need this for a special resource
-				strLoc = Localization::Lookup("TXT_KEY_TECHSTRATEGY_RESOURCE");
-				strLoc << pPlayerTechs->GetTechs()->GetEntry(eTech)->GetTextKey();
-				strLoc << GC.getResourceInfo(pPlayerTechs->GetLocaleTechResource(eTech))->GetTextKey();
-				bool bSuccess = SetCounselEntry(uiCounselIndex, ADVISOR_SCIENCE, strLoc.toUTF8(), 60);
-				CvAssertMsg(bSuccess, "Unable to add counsel to list. Too many strategies running at once");
-				if(!bSuccess)
+				ResourceTypes eResource = pPlayerTechs->GetLocaleTechResource(eTech);
+				if (eResource != NO_RESOURCE)
 				{
-					break;
+					// say we need this for a special resource
+					// FIXME - This is a guess as to why we recommend this tech at best.
+					// This is because a tech's locale priority can be brought above 1 for reasons beyond just desiring a resource.
+					// See CvPlayerTechs::SetLocalePriorities() for more details.
+					// In order for this advise to really be helpful to the player we need to track why a tech is prioritized.
+					strLoc = Localization::Lookup("TXT_KEY_TECHSTRATEGY_RESOURCE");
+					strLoc << pPlayerTechs->GetTechs()->GetEntry(eTech)->GetTextKey();
+					strLoc << GC.getResourceInfo(eResource)->GetTextKey();
+					bool bSuccess = SetCounselEntry(uiCounselIndex, ADVISOR_SCIENCE, strLoc.toUTF8(), 60);
+					CvAssertMsg(bSuccess, "Unable to add counsel to list. Too many strategies running at once");
+					if (!bSuccess)
+					{
+						break;
+					}
+					uiCounselIndex++;
 				}
-				uiCounselIndex++;
 			}
 
 			// look at available buildings
