@@ -16821,10 +16821,14 @@ void CvCity::ChangeBuildingPurchaseCooldown(int iValue)
 }
 void CvCity::DoSellBuilding()
 {
-	if (!IsRazing() || GetCityBuildings()->IsSoldBuildingThisTurn())
-	{
+	// Only sell buildings if we're razing
+	if (!IsRazing())
 		return;
-	}
+
+	// Can't sell anything?
+	if (IsResistance() || GetCityBuildings()->IsSoldBuildingThisTurn() || GET_PLAYER(getOwner()).GetPlayerTraits()->IsNoAnnexing())
+		return;
+
 	int iBestRefund = 0;
 	BuildingTypes eBestBuilding = NO_BUILDING;
 	for (int iBuildingLoop = 0; iBuildingLoop < GC.getNumBuildingInfos(); iBuildingLoop++)
@@ -21689,6 +21693,8 @@ void CvCity::SetPuppet(bool bValue)
 void CvCity::DoCreatePuppet()
 {
 	VALIDATE_OBJECT
+	if (IsRazing())
+		return;
 
 	// Turn this off - used to display info for annex/puppet/raze popup
 	SetIgnoreCityForHappiness(false);
@@ -21697,15 +21703,11 @@ void CvCity::DoCreatePuppet()
 
 	setProductionAutomated(true, true);
 
-	int iForceWorkingPuppetRange = 2;
-
-	CvPlot* pLoopPlot;
-
 	// Loop through all plots near this City
-
+	int iForceWorkingPuppetRange = 2;
 	for (int iPlotLoop = 0; iPlotLoop < GetNumWorkablePlots(); iPlotLoop++)
 	{
-		pLoopPlot = iterateRingPlots(getX(), getY(), iPlotLoop);
+		CvPlot* pLoopPlot = iterateRingPlots(getX(), getY(), iPlotLoop);
 
 		if (pLoopPlot != NULL)
 		{
@@ -21743,14 +21745,15 @@ void CvCity::DoCreatePuppet()
 
 //	--------------------------------------------------------------------------------
 /// Un-puppet a City and force it into the empire
-void CvCity::DoAnnex()
+void CvCity::DoAnnex(bool bVeniceRaze)
 {
 	VALIDATE_OBJECT
 
-	if (GET_PLAYER(getOwner()).GetPlayerTraits()->IsNoAnnexing())
+	if (!bVeniceRaze && GET_PLAYER(getOwner()).GetPlayerTraits()->IsNoAnnexing())
 	{
 		if (!IsPuppet())
-			SetPuppet(true);
+			DoCreatePuppet();
+
 		return;
 	}
 
@@ -21803,7 +21806,7 @@ void CvCity::DoAnnex()
 	UpdateAllNonPlotYields(true);
 
 #if defined(MOD_API_ACHIEVEMENTS)
-	if (getOriginalOwner() != GetID())
+	if (getOriginalOwner() != GetID() && !bVeniceRaze)
 	{
 		if (GET_PLAYER(getOriginalOwner()).isMinorCiv())
 		{
@@ -28732,10 +28735,10 @@ bool CvCity::CanBuyPlot(int iPlotX, int iPlotY, bool bIgnoreCost)
 	if (GC.getBUY_PLOTS_DISABLED())
 		return false;
 
-	if (IsResistance())
+	if (getOwner() == NO_PLAYER)
 		return false;
 
-	if (getOwner() == NO_PLAYER)
+	if (IsResistance() || IsIgnoreCityForHappiness())
 		return false;
 
 	CvPlot* pTargetPlot = GC.getMap().plot(iPlotX, iPlotY);
@@ -28838,7 +28841,7 @@ bool CvCity::CanBuyPlot(int iPlotX, int iPlotY, bool bIgnoreCost)
 /// Can this city buy a plot, any plot?
 bool CvCity::CanBuyAnyPlot(void)
 {
-	if (IsResistance())
+	if (IsResistance() || IsIgnoreCityForHappiness())
 		return false;
 
 	VALIDATE_OBJECT

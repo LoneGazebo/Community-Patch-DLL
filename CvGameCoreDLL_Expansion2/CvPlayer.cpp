@@ -4593,7 +4593,9 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 			if (bConquest && !bGift)
 			{
 				int iReductionFromTourism = (isMajorCiv() && GET_PLAYER(eOldOwner).isMajorCiv()) ? GetCulture()->GetInfluenceCityConquestReduction(eOldOwner) : 0;
-				int iResistanceTurns = (((pNewCity->getPopulation() * 2) / 3) * (100 - iReductionFromTourism)) / 100;
+				int iResistanceTurns = MOD_BALANCE_CORE_SETTLER_ADVANCED ? (pNewCity->getPopulation() * 2) / 3 : pNewCity->getPopulation();
+				iResistanceTurns *= 100 - iReductionFromTourism;
+				iResistanceTurns /= 100;
 				pNewCity->ChangeResistanceTurns(max(iResistanceTurns, 1));
 			}
 		}
@@ -10105,9 +10107,12 @@ bool CvPlayer::CanLiberatePlayer(PlayerTypes ePlayer)
 	}
 
 	// No resurrection in always war games
-	if (GC.getGame().isOption(GAMEOPTION_ALWAYS_WAR) || GC.getGame().isOption(GAMEOPTION_NO_CHANGING_WAR_PEACE))
+	if (getTeam() != GET_PLAYER(ePlayer).getTeam())
 	{
-		return false;
+		if (GC.getGame().isOption(GAMEOPTION_ALWAYS_WAR) || GC.getGame().isOption(GAMEOPTION_NO_CHANGING_WAR_PEACE))
+		{
+			return false;
+		}
 	}
 
 	// Exploit fix - if we attacked a player we resurrected, we can't resurrect them again
@@ -12802,14 +12807,17 @@ bool CvPlayer::canRaze(CvCity* pCity, bool bIgnoreCapitals) const
 		return false;
 	}
 
-	// No razing of cities with unique luxuries
-	ResourceTypes eResource = pCity->plot()->getResourceType();
-	if (eResource != NO_RESOURCE)
+	if (!MOD_BALANCE_CORE_SETTLER_ADVANCED)
 	{
-		CvResourceInfo *pkResource = GC.getResourceInfo(eResource);
-		if (pkResource && pkResource->GetRequiredCivilization() != NO_CIVILIZATION)
+		// No razing of cities with unique luxuries
+		ResourceTypes eResource = pCity->plot()->getResourceType();
+		if (eResource != NO_RESOURCE)
 		{
-			return false;
+			CvResourceInfo *pkResource = GC.getResourceInfo(eResource);
+			if (pkResource && pkResource->GetRequiredCivilization() != NO_CIVILIZATION)
+			{
+				return false;
+			}
 		}
 	}
 
@@ -12837,35 +12845,35 @@ bool CvPlayer::canRaze(CvCity* pCity, bool bIgnoreCapitals) const
 //	--------------------------------------------------------------------------------
 void CvPlayer::raze(CvCity* pCity)
 {
-	char szBuffer[1024];
-	const size_t lenBuffer = 1024;
-	int iI;
-
-	if(!canRaze(pCity))
-	{
+	if (!pCity || !canRaze(pCity))
 		return;
+
+	// Can't raze a puppet city - must annex first
+	if (pCity->IsPuppet())
+	{
+		if (GetPlayerTraits()->IsNoAnnexing())
+			pCity->DoAnnex(/*bVeniceRaze*/ true);
+		else
+			return;
 	}
 
-	CvAssert(pCity->getOwner() == GetID());
+	char szBuffer[1024];
+	const size_t lenBuffer = 1024;
 
-	if(GetID() == GC.getGame().getActivePlayer())
+	if (GetID() == GC.getGame().getActivePlayer())
 	{
 		sprintf_s(szBuffer, lenBuffer, GetLocalizedText("TXT_KEY_MISC_DESTROYED_CITY", pCity->getNameKey()).GetCString());
 		GC.GetEngineUserInterface()->AddCityMessage(0, pCity->GetIDInfo(), GetID(), true, GC.getEVENT_MESSAGE_TIME(), szBuffer/*, "AS2D_CITYRAZE", MESSAGE_TYPE_MAJOR_EVENT, NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_GREEN"), pCity->getX(), pCity->getY(), true, true*/);
-
 	}
 
-	for(iI = 0; iI < MAX_PLAYERS; iI++)
+	for (int iI = 0; iI < MAX_PLAYERS; iI++)
 	{
-		if(GET_PLAYER((PlayerTypes)iI).isAlive())
+		if (GET_PLAYER((PlayerTypes)iI).isAlive() && iI != GetID() && iI == GC.getGame().getActivePlayer())
 		{
-			if(iI != GetID() && iI == GC.getGame().getActivePlayer())
+			if (pCity->isRevealed(GET_PLAYER((PlayerTypes)iI).getTeam(), false))
 			{
-				if(pCity->isRevealed(GET_PLAYER((PlayerTypes)iI).getTeam(), false))
-				{
-					sprintf_s(szBuffer, lenBuffer, GetLocalizedText("TXT_KEY_MISC_CITY_HAS_BEEN_RAZED_BY", pCity->getNameKey(), getCivilizationDescriptionKey()).GetCString());
-					GC.GetEngineUserInterface()->AddCityMessage(0, pCity->GetIDInfo(), ((PlayerTypes)iI), false, GC.getEVENT_MESSAGE_TIME(), szBuffer/*, "AS2D_CITYRAZED", MESSAGE_TYPE_MAJOR_EVENT, NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_RED"), pCity->getX(), pCity->getY(), true, true*/);
-				}
+				sprintf_s(szBuffer, lenBuffer, GetLocalizedText("TXT_KEY_MISC_CITY_HAS_BEEN_RAZED_BY", pCity->getNameKey(), getCivilizationDescriptionKey()).GetCString());
+				GC.GetEngineUserInterface()->AddCityMessage(0, pCity->GetIDInfo(), ((PlayerTypes)iI), false, GC.getEVENT_MESSAGE_TIME(), szBuffer/*, "AS2D_CITYRAZED", MESSAGE_TYPE_MAJOR_EVENT, NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_RED"), pCity->getX(), pCity->getY(), true, true*/);
 			}
 		}
 	}
@@ -12914,18 +12922,8 @@ void CvPlayer::unraze(CvCity* pCity)
 {
 	if (!GetPlayerTraits()->IsUnableToCancelRazing())
 	{
-		if (GetPlayerTraits()->IsNoAnnexing())
-		{
-			pCity->DoCreatePuppet();
-		}
-		else
-		{
-			pCity->DoAnnex();
-		}
-
 		pCity->ChangeRazingTurns(-pCity->GetRazingTurns());
-
-		DoUpdateNextPolicyCost();
+		pCity->DoAnnex();
 
 		// Update City UI
 		if(GetID() == GC.getGame().getActivePlayer())
@@ -12934,8 +12932,6 @@ void CvPlayer::unraze(CvCity* pCity)
 		}
 	}
 }
-
-
 
 //	--------------------------------------------------------------------------------
 void CvPlayer::disband(CvCity* pCity)

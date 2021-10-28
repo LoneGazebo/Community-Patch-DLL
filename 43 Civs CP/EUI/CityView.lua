@@ -2165,28 +2165,38 @@ local function UpdateCityViewNow()
 
 		local buttonToolTip, buttonLabel, taskID
 		if isActivePlayerCity then
-
+			-- Currently razing? Can unraze!
 			if city:IsRazing() then
-
-				-- We can unraze this city
 				taskID = TaskTypes.TASK_UNRAZE
 				buttonLabel = L"TXT_KEY_CITYVIEW_UNRAZE_BUTTON_TEXT"
 				buttonToolTip = L"TXT_KEY_CITYVIEW_UNRAZE_BUTTON_TT"
+			-- Puppet? Venice can raze, others can annex.
+			elseif city:IsPuppet() then
+				if (bnw_mode and cityOwner:MayNotAnnex()) then
+					if cityOwner:CanRaze(city, true) then
+						buttonLabel = L"TXT_KEY_CITYVIEW_RAZE_BUTTON_TEXT"
 
-			elseif city:IsPuppet() and not(bnw_mode and cityOwner:MayNotAnnex()) then
-
-				-- We can annex this city
-				taskID = TaskTypes.TASK_ANNEX_PUPPET
-				buttonLabel = L"TXT_KEY_POPUP_ANNEX_CITY"
--- todo
-				if civ5_mode then
-					buttonToolTip = L( "TXT_KEY_POPUP_CITY_CAPTURE_INFO_ANNEX", cityOwner:GetUnhappinessForecast(city) - cityOwner:GetUnhappiness() )
+						if cityOwner:CanRaze(city, false) then
+							-- We can actually raze this city
+							taskID = TaskTypes.TASK_RAZE
+							buttonToolTip = L"TXT_KEY_CITYVIEW_RAZE_BUTTON_TT"
+						else
+							-- We COULD raze this city if it weren't a capital
+							buttonToolTip = L"TXT_KEY_CITYVIEW_RAZE_BUTTON_DISABLED_BECAUSE_CAPITAL_TT"
+						end
+					end
+				else
+					-- We can annex this city
+					taskID = TaskTypes.TASK_ANNEX_PUPPET
+					buttonLabel = L"TXT_KEY_POPUP_ANNEX_CITY"
+					if civ5_mode then
+						buttonToolTip = L( "TXT_KEY_POPUP_CITY_CAPTURE_INFO_ANNEX", cityOwner:GetUnhappinessForecast(city) - cityOwner:GetUnhappiness() )
+					end
 				end
-			elseif not g_isViewingMode and cityOwner:CanRaze( city, true ) then
+			elseif cityOwner:CanRaze(city, true) then
 				buttonLabel = L"TXT_KEY_CITYVIEW_RAZE_BUTTON_TEXT"
 
-				if cityOwner:CanRaze( city, false ) then
-
+				if cityOwner:CanRaze(city, false) then
 					-- We can actually raze this city
 					taskID = TaskTypes.TASK_RAZE
 					buttonToolTip = L"TXT_KEY_CITYVIEW_RAZE_BUTTON_TT"
