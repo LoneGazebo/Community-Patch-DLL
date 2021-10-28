@@ -21745,14 +21745,15 @@ void CvCity::DoCreatePuppet()
 
 //	--------------------------------------------------------------------------------
 /// Un-puppet a City and force it into the empire
-void CvCity::DoAnnex()
+void CvCity::DoAnnex(bool bVeniceRaze)
 {
 	VALIDATE_OBJECT
 
-	if (GET_PLAYER(getOwner()).GetPlayerTraits()->IsNoAnnexing())
+	if (!bVeniceRaze && GET_PLAYER(getOwner()).GetPlayerTraits()->IsNoAnnexing())
 	{
 		if (!IsPuppet())
-			SetPuppet(true);
+			DoCreatePuppet();
+
 		return;
 	}
 
@@ -21805,7 +21806,7 @@ void CvCity::DoAnnex()
 	UpdateAllNonPlotYields(true);
 
 #if defined(MOD_API_ACHIEVEMENTS)
-	if (getOriginalOwner() != GetID())
+	if (getOriginalOwner() != GetID() && !bVeniceRaze)
 	{
 		if (GET_PLAYER(getOriginalOwner()).isMinorCiv())
 		{
@@ -28734,10 +28735,10 @@ bool CvCity::CanBuyPlot(int iPlotX, int iPlotY, bool bIgnoreCost)
 	if (GC.getBUY_PLOTS_DISABLED())
 		return false;
 
-	if (IsResistance())
+	if (getOwner() == NO_PLAYER)
 		return false;
 
-	if (getOwner() == NO_PLAYER)
+	if (IsResistance() || IsIgnoreCityForHappiness())
 		return false;
 
 	CvPlot* pTargetPlot = GC.getMap().plot(iPlotX, iPlotY);
@@ -28840,7 +28841,7 @@ bool CvCity::CanBuyPlot(int iPlotX, int iPlotY, bool bIgnoreCost)
 /// Can this city buy a plot, any plot?
 bool CvCity::CanBuyAnyPlot(void)
 {
-	if (IsResistance())
+	if (IsResistance() || IsIgnoreCityForHappiness())
 		return false;
 
 	VALIDATE_OBJECT

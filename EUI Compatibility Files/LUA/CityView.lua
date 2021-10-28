@@ -2173,7 +2173,7 @@ local function UpdateCityViewNow()
 			-- Puppet? Venice can raze, others can annex.
 			elseif city:IsPuppet() then
 				if (bnw_mode and cityOwner:MayNotAnnex()) then
-					if not g_isViewingMode and cityOwner:CanRaze(city, true) then
+					if cityOwner:CanRaze(city, true) then
 						buttonLabel = L"TXT_KEY_CITYVIEW_RAZE_BUTTON_TEXT"
 
 						if cityOwner:CanRaze(city, false) then
@@ -2193,7 +2193,7 @@ local function UpdateCityViewNow()
 						buttonToolTip = L( "TXT_KEY_POPUP_CITY_CAPTURE_INFO_ANNEX", cityOwner:GetUnhappinessForecast(city) - cityOwner:GetUnhappiness() )
 					end
 				end
-			elseif not g_isViewingMode and cityOwner:CanRaze(city, true) then
+			elseif cityOwner:CanRaze(city, true) then
 				buttonLabel = L"TXT_KEY_CITYVIEW_RAZE_BUTTON_TEXT"
 
 				if cityOwner:CanRaze(city, false) then
