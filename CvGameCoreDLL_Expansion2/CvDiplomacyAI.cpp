@@ -38,38 +38,29 @@
 //!  - Object created by CvPlayer
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-/// Constructor
 CvDiplomacyAI::CvDiplomacyAI()
 {
 }
 
-/// Destructor
 CvDiplomacyAI::~CvDiplomacyAI(void)
 {
 	Uninit();
+}
+
+void CvDiplomacyAI::Uninit()
+{
 }
 
 // ************************************
 // Initialization & Serialization
 // ************************************
 
-/// Initialize
+/// Init & reset everything to default state
 void CvDiplomacyAI::Init(CvPlayer* pPlayer)
 {
 	// Store off the pointer to the Player active for this game
 	m_pPlayer = pPlayer;
 
-	Reset();
-}
-
-/// Deallocate memory created in initialize
-void CvDiplomacyAI::Uninit()
-{
-}
-
-/// Reset everything to default state
-void CvDiplomacyAI::Reset()
-{
 	// Personality Values
 	int iDefaultFlavorValue = /*5*/ GC.getGame().GetDefaultFlavorValue();
 	m_iVictoryCompetitiveness = iDefaultFlavorValue;
@@ -13029,6 +13020,7 @@ void CvDiplomacyAI::DoReevaluatePlayers(vector<PlayerTypes>& vTargetPlayers, boo
 	if (GetPlayer()->isHuman() || !GetPlayer()->isAlive())
 		return;
 
+	SlotStateChange();
 	DoTestUntrustworthyFriends();
 
 	if (bFromResurrection)

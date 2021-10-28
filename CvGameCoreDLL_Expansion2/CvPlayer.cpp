@@ -12848,69 +12848,52 @@ void CvPlayer::raze(CvCity* pCity)
 	if (!pCity || !canRaze(pCity))
 		return;
 
-	// Can't raze a puppet city - must annex first
-	if (pCity->IsPuppet())
-	{
-		if (GetPlayerTraits()->IsNoAnnexing())
-			pCity->DoAnnex(/*bVeniceRaze*/ true);
-		else
-			return;
-	}
-
 	char szBuffer[1024];
 	const size_t lenBuffer = 1024;
 
 	if (GetID() == GC.getGame().getActivePlayer())
 	{
 		sprintf_s(szBuffer, lenBuffer, GetLocalizedText("TXT_KEY_MISC_DESTROYED_CITY", pCity->getNameKey()).GetCString());
-		GC.GetEngineUserInterface()->AddCityMessage(0, pCity->GetIDInfo(), GetID(), true, GC.getEVENT_MESSAGE_TIME(), szBuffer/*, "AS2D_CITYRAZE", MESSAGE_TYPE_MAJOR_EVENT, NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_GREEN"), pCity->getX(), pCity->getY(), true, true*/);
+		GC.GetEngineUserInterface()->AddCityMessage(0, pCity->GetIDInfo(), GetID(), true, GC.getEVENT_MESSAGE_TIME(), szBuffer);
 	}
 
 	for (int iI = 0; iI < MAX_PLAYERS; iI++)
 	{
-		if (GET_PLAYER((PlayerTypes)iI).isAlive() && iI != GetID() && iI == GC.getGame().getActivePlayer())
+		PlayerTypes ePlayer = (PlayerTypes) iI;
+		if (ePlayer == GetID())
+			continue;
+		if (ePlayer != GC.getGame().getActivePlayer())
+			continue;
+
+		if (GET_PLAYER(ePlayer).isObserver() || (GET_PLAYER(ePlayer).isAlive() && pCity->isRevealed(GET_PLAYER(ePlayer).getTeam(), false)))
 		{
-			if (pCity->isRevealed(GET_PLAYER((PlayerTypes)iI).getTeam(), false))
-			{
-				sprintf_s(szBuffer, lenBuffer, GetLocalizedText("TXT_KEY_MISC_CITY_HAS_BEEN_RAZED_BY", pCity->getNameKey(), getCivilizationDescriptionKey()).GetCString());
-				GC.GetEngineUserInterface()->AddCityMessage(0, pCity->GetIDInfo(), ((PlayerTypes)iI), false, GC.getEVENT_MESSAGE_TIME(), szBuffer/*, "AS2D_CITYRAZED", MESSAGE_TYPE_MAJOR_EVENT, NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_RED"), pCity->getX(), pCity->getY(), true, true*/);
-			}
+			sprintf_s(szBuffer, lenBuffer, GetLocalizedText("TXT_KEY_MISC_CITY_HAS_BEEN_RAZED_BY", pCity->getNameKey(), getCivilizationDescriptionKey()).GetCString());
+			GC.GetEngineUserInterface()->AddCityMessage(0, pCity->GetIDInfo(), ePlayer, false, GC.getEVENT_MESSAGE_TIME(), szBuffer);
 		}
 	}
 
 	sprintf_s(szBuffer, lenBuffer, GetLocalizedText("TXT_KEY_MISC_CITY_RAZED_BY", pCity->getNameKey(), getCivilizationShortDescriptionKey()).GetCString());
 	GC.getGame().addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT, GetID(), szBuffer, pCity->getX(), pCity->getY());
 
-	pCity->SetIgnoreCityForHappiness(false);
-
-	CalculateNetHappiness();
-
-	if (pCity->IsNoWarmongerYet())
-	{
-		PlayerTypes eFormerOwner = pCity->getPreviousOwner();
-		if (eFormerOwner != NO_PLAYER)
-		{
-			CvDiplomacyAIHelpers::ApplyWarmongerPenalties(pCity, GetID(), eFormerOwner);
-			pCity->SetNoWarmonger(false);
-		}
-	}
+	// Can't raze a puppet or "undetermined fate" city - must annex first
+	if (pCity->IsPuppet() || pCity->IsIgnoreCityForHappiness())
+		pCity->DoAnnex(true);
 
 	int iPopulationDrop = 1;
 	iPopulationDrop *= (100 + GetPlayerTraits()->GetRazeSpeedModifier() + GetRazingSpeedBonus());
 	iPopulationDrop /= 100;
 
 	int iTurnsToRaze = pCity->getPopulation();
-	if(iPopulationDrop > 0)
+	if (iPopulationDrop > 0)
 	{
 		iTurnsToRaze = (iTurnsToRaze + iPopulationDrop - 1) / iPopulationDrop;
 	}
 
 	pCity->ChangeRazingTurns(iTurnsToRaze);
-
-	DoUpdateNextPolicyCost();
+	CalculateNetHappiness();
 
 	// Update City UI
-	if(GetID() == GC.getGame().getActivePlayer())
+	if (GetID() == GC.getGame().getActivePlayer())
 	{
 		GC.GetEngineUserInterface()->setDirty(CityInfo_DIRTY_BIT, true);
 	}
@@ -12920,16 +12903,16 @@ void CvPlayer::raze(CvCity* pCity)
 //	--------------------------------------------------------------------------------
 void CvPlayer::unraze(CvCity* pCity)
 {
-	if (!GetPlayerTraits()->IsUnableToCancelRazing())
-	{
-		pCity->ChangeRazingTurns(-pCity->GetRazingTurns());
-		pCity->DoAnnex();
+	if (GetPlayerTraits()->IsUnableToCancelRazing())
+		return;
 
-		// Update City UI
-		if(GetID() == GC.getGame().getActivePlayer())
-		{
-			GC.GetEngineUserInterface()->setDirty(CityInfo_DIRTY_BIT, true);
-		}
+	pCity->ChangeRazingTurns(-pCity->GetRazingTurns());
+	pCity->DoAnnex();
+
+	// Update City UI
+	if (GetID() == GC.getGame().getActivePlayer())
+	{
+		GC.GetEngineUserInterface()->setDirty(CityInfo_DIRTY_BIT, true);
 	}
 }
 
@@ -20538,11 +20521,8 @@ int CvPlayer::GetHappinessRatioRawPercent()
 
 void CvPlayer::CalculateNetHappiness()
 {
-	//Not active player, or a barb, or a minor? Get out!
-	if(isMinorCiv() || isBarbarian())
-	{
+	if (isMinorCiv() || isBarbarian())
 		return;
-	}
 
 	//reset this as well, when a building is constructed or a policy adopted
 	m_iNumUnitsSuppliedCached = -1;
@@ -20571,7 +20551,6 @@ void CvPlayer::CalculateNetHappiness()
 	}
 	else
 	{
-
 		int iHappiness = GetHappiness();
 		int iUnhappiness = GetUnhappiness();
 
@@ -22338,17 +22317,13 @@ void CvPlayer::ChangeUnhappinessFromUnits(int iChange)
 /// How much of our Happiness is being used up? (Population + Units)
 int CvPlayer::DoUpdateTotalUnhappiness(CvCity* pAssumeCityAnnexed, CvCity* pAssumeCityPuppeted)
 {
-
 	if (isMinorCiv() || isBarbarian())
-	{
 		return 0;
-	}
 
 	int iUnhappiness = 0;
 
 	if (!MOD_BALANCE_CORE_HAPPINESS)
 	{
-
 		// City Count Unhappiness
 		iUnhappiness += GetUnhappinessFromCityCount(pAssumeCityAnnexed, pAssumeCityPuppeted);
 

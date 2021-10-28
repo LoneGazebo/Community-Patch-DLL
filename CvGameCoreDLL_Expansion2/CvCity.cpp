@@ -21745,11 +21745,11 @@ void CvCity::DoCreatePuppet()
 
 //	--------------------------------------------------------------------------------
 /// Un-puppet a City and force it into the empire
-void CvCity::DoAnnex(bool bVeniceRaze)
+void CvCity::DoAnnex(bool bRaze)
 {
 	VALIDATE_OBJECT
 
-	if (!bVeniceRaze && GET_PLAYER(getOwner()).GetPlayerTraits()->IsNoAnnexing())
+	if (!bRaze && GET_PLAYER(getOwner()).GetPlayerTraits()->IsNoAnnexing())
 	{
 		if (!IsPuppet())
 			DoCreatePuppet();
@@ -21761,8 +21761,7 @@ void CvCity::DoAnnex(bool bVeniceRaze)
 	if (!isHuman())
 		clearOrderQueue();
 
-	SetIgnoreCityForHappiness(false);
-
+	// Apply warmongering
 	if (IsNoWarmongerYet())
 	{
 		PlayerTypes eFormerOwner = getPreviousOwner();
@@ -21773,8 +21772,13 @@ void CvCity::DoAnnex(bool bVeniceRaze)
 		}
 	}
 
+	// Update happiness
+	SetIgnoreCityForHappiness(false);
+	if (!bRaze)
+		GET_PLAYER(getOwner()).CalculateNetHappiness();
+
 	//Immediate Annex? Bonus for Courthouse
-	if (MOD_BALANCE_CORE_BUILDING_INVESTMENTS && !IsPuppet())
+	if (MOD_BALANCE_CORE_BUILDING_INVESTMENTS && !IsPuppet() && !GET_PLAYER(getOwner()).GetPlayerTraits()->IsNoAnnexing())
 	{
 		for (int iBuildingLoop = 0; iBuildingLoop < GC.getNumBuildingInfos(); iBuildingLoop++)
 		{
@@ -21800,25 +21804,16 @@ void CvCity::DoAnnex(bool bVeniceRaze)
 
 	SetPuppet(false);
 
-	DoUpdateCheapestPlotInfluenceDistance();  // fix for extremly high cost of the first tile
+	DoUpdateCheapestPlotInfluenceDistance(); // fix for extremely high cost of the first tile
 
 	setProductionAutomated(false, true);
 	UpdateAllNonPlotYields(true);
 
 #if defined(MOD_API_ACHIEVEMENTS)
-	if (getOriginalOwner() != GetID() && !bVeniceRaze)
+	bool bUsingXP1Scenario1 = gDLL->IsModActivated(CIV5_XP1_SCENARIO1_MODID);
+	if (!bRaze && !bUsingXP1Scenario1 && GET_PLAYER(getOwner()).isHuman() && getOriginalOwner() != GetID() && GET_PLAYER(getOriginalOwner()).isMinorCiv() && !GC.getGame().isGameMultiPlayer())
 	{
-		if (GET_PLAYER(getOriginalOwner()).isMinorCiv())
-		{
-			if (!GC.getGame().isGameMultiPlayer() && GET_PLAYER(getOwner()).isHuman())
-			{
-				bool bUsingXP1Scenario1 = gDLL->IsModActivated(CIV5_XP1_SCENARIO1_MODID);
-				if (!bUsingXP1Scenario1)
-				{
-					gDLL->UnlockAchievement(ACHIEVEMENT_CITYSTATE_ANNEX);
-				}
-			}
-		}
+		gDLL->UnlockAchievement(ACHIEVEMENT_CITYSTATE_ANNEX);
 	}
 #endif
 

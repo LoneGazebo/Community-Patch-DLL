@@ -839,7 +839,7 @@ public:
 	bool IsPuppet() const;
 	void SetPuppet(bool bValue);
 	void DoCreatePuppet();
-	void DoAnnex(bool bVeniceRaze = false);
+	void DoAnnex(bool bRaze = false);
 
 	int GetHappinessFromPolicies(int iPopMod = 0) const;
 	int GetHappinessFromReligion() const;

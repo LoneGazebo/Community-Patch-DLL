@@ -68,7 +68,6 @@ public:
 	~CvDiplomacyAI(void);
 	void Init(CvPlayer* pPlayer);
 	void Uninit();
-	void Reset();
 	template<typename DiplomacyAI, typename Visitor>
 	static void Serialize(DiplomacyAI& diplomacyAI, Visitor& visitor);
 	void Read(FDataStream& kStream);
