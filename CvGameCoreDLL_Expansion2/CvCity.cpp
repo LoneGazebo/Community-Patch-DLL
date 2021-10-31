@@ -2931,20 +2931,14 @@ void CvCity::updateYield(bool bRecalcPlotYields)
 		const CvReligion* pReligion = (eMajority != NO_RELIGION) ? GC.getGame().GetGameReligions()->GetReligion(eMajority, getOwner()) : 0;
 		const CvBeliefEntry* pPantheon = (eSecondaryPantheon != NO_BELIEF) ? GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon) : 0;
 
-		//note: since cities' workable areas can overlap, we may process some plots multiple times
+		//we look at all the plots we *could* work
 		for (int iI = 0; iI < GetNumWorkablePlots(); iI++)
 		{
 			CvPlot* pLoopPlot = GetCityCitizens()->GetCityPlotFromIndex(iI);
-			if (!pLoopPlot || pLoopPlot->getOwner() != getOwner())
+			if (!pLoopPlot || !pLoopPlot->isEffectiveOwner(this))
 				continue;
 
-			//we're trying to avoid CvPlot::GetWorkingCity() for each plot as it's rather slow and this gets called a lot
-			bool bWeAreWorkingIt = GetCityCitizens()->IsWorkingPlot(iI);
-			bool bSomeOtherCityIsWorkingIt = !bWeAreWorkingIt && pLoopPlot->isBeingWorked();
-
-			//each city updates the plots it is working plus unworked plots
-			if (!bSomeOtherCityIsWorkingIt)
-				pLoopPlot->updateYieldFast(this, pReligion, pPantheon);
+			pLoopPlot->updateYieldFast(this, pReligion, pPantheon);
 		}
 	}
 

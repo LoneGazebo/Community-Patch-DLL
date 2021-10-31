@@ -3588,7 +3588,7 @@ int CvPlot::countPassableNeighbors(DomainTypes eDomain, CvPlot** aPassableNeighb
 
 bool CvPlot::IsBorderLand(PlayerTypes eDefendingPlayer) const
 {
-	//check distance to all major players
+	//check distance to all major players' cities
 	//if homefront for at least one ...
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
@@ -3609,11 +3609,13 @@ bool CvPlot::IsBorderLand(PlayerTypes eDefendingPlayer) const
 			continue;
 		}
 
-		if (IsCloseToBorder(eLoopPlayer))
+		if (IsCloseToCity(eLoopPlayer))
 			return true;
 	}
 
-	return false;
+	//alternatively see if an adjacent plot is owned by another player
+	//only check adjacent plots, everything else is too expensive
+	return IsAdjacentOwnedByTeamOtherThan(GET_PLAYER(eDefendingPlayer).getTeam(), true);
 }
 
 bool CvPlot::IsChokePoint() const
@@ -6212,7 +6214,7 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 
 //	--------------------------------------------------------------------------------
 /// Is this Plot within a certain range of any of a player's Cities?
-bool CvPlot::IsCloseToBorder(PlayerTypes ePlayer) const
+bool CvPlot::IsCloseToCity(PlayerTypes ePlayer) const
 {
 	if (ePlayer == NO_PLAYER)
 		return false;
@@ -6220,7 +6222,7 @@ bool CvPlot::IsCloseToBorder(PlayerTypes ePlayer) const
 	//do not use estimated turns here, performance is not good
 	int iDistance = GET_PLAYER(ePlayer).GetCityDistanceInPlots(this);
 	int iRange = GC.getAI_DIPLO_PLOT_RANGE_FROM_CITY_HOME_FRONT();
-	return (iDistance < iRange);
+	return (iDistance <= iRange);
 }
 
 //	--------------------------------------------------------------------------------

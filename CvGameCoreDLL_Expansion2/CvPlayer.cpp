@@ -48902,7 +48902,7 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, CvAIOperation* pOpToIgn
 
 		for (std::vector<PlayerTypes>::const_iterator it = m_playersWeAreAtWarWith.begin(); it != m_playersWeAreAtWarWith.end(); ++it)
 		{
-			if(pPlot->IsCloseToBorder(*it))
+			if(pPlot->IsCloseToCity(*it))
 			{
 				//--------------
 				if (bLogging) 

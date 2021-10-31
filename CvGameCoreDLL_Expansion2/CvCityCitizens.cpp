@@ -1911,6 +1911,10 @@ void CvCityCitizens::SetWorkingPlot(CvPlot* pPlot, bool bNewValue, CvCity::eUpda
 /// Tell City to work a Plot, pulling a Citizen from the worst location we can
 void CvCityCitizens::DoAlterWorkingPlot(int iIndex)
 {
+	//cannot change anything if in resistance
+	if (m_pCity->IsResistance())
+		return;
+
 	DoVerifyWorkingPlots();
 
 	// Clicking ON the city "resets" it to default setup
@@ -1989,6 +1993,10 @@ void CvCityCitizens::DoAlterWorkingPlot(int iIndex)
 			{
 				// Can't take away plots from puppet cities by force unless venice
 				if (pPlot->getOwningCity()->IsPuppet() && !GET_PLAYER(GetOwner()).GetPlayerTraits()->IsNoAnnexing() )
+					return;
+
+				// Can't take away plots from cities which were just conquered
+				if (pPlot->getOwningCity()->IsResistance())
 					return;
 
 				pPlot->setOwningCityOverride(GetCity());
