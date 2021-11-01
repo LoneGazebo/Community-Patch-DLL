@@ -807,6 +807,7 @@ void CvGame::setInitialItems(CvGameInitialItemsOverrides& kInitialItemOverrides)
 
 	m_iEarliestBarbarianReleaseTurn = getHandicapInfo().getEarliestBarbarianReleaseTurn() + GC.getGame().getJonRandNum(GC.getAI_TACTICAL_BARBARIAN_RELEASE_VARIATION(), "barb release");
 
+	UpdateGameEra();
 	// What route type forms an industrial connection
 	DoUpdateIndustrialRoute();
 
@@ -1164,6 +1165,7 @@ void CvGame::uninit()
 	m_eBestGreatPeoplePlayer = NO_PLAYER;
 	m_eReligionTech = NO_TECH;
 	m_eIndustrialRoute = NO_ROUTE;
+	m_eGameEra = NO_ERA;
 #if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
 	m_eTeamThatCircumnavigated = NO_TEAM;
 #endif
@@ -4384,25 +4386,31 @@ bool CvGame::canTrainNukes() const
 //	--------------------------------------------------------------------------------
 EraTypes CvGame::getCurrentEra() const
 {
+	{
+		return m_eGameEra;
+	}
+}
+
+void CvGame::UpdateGameEra()
+{
 	float fEra = 0;
 	int iCount = 0;
-
-	for(int iI = 0; iI < MAX_TEAMS; iI++)
+	for (int iI = 0; iI < MAX_TEAMS; iI++)
 	{
 		if (GET_TEAM((TeamTypes)iI).isAlive() && GET_TEAM((TeamTypes)iI).isMajorCiv())
 		{
-			fEra += GET_TEAM((TeamTypes)iI).GetCurrentEra();
 			iCount++;
 		}
 	}
-
-	if(iCount > 0)
+	if (iCount >= 0)
 	{
-		int iRoundedEra = int(fEra / iCount + 0.5f);
-		return ((EraTypes)iRoundedEra);
+		int iRoundedEra = int(fEra / (max(1, iCount)) + 0.5f);
+		m_eGameEra = (EraTypes)iRoundedEra;
 	}
-
-	return NO_ERA;
+	else
+	{
+		m_eGameEra = NO_ERA;
+	}
 }
 
 
@@ -11834,6 +11842,7 @@ void CvGame::Serialize(Game& game, Visitor& visitor)
 	visitor(game.m_eBestGreatPeoplePlayer);
 	visitor(game.m_eReligionTech);
 	visitor(game.m_eIndustrialRoute);
+	visitor(game.m_eGameEra);
 
 	visitor(game.m_eTeamThatCircumnavigated);
 	visitor(game.m_bVictoryRandomization);
