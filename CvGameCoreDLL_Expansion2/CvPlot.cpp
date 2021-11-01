@@ -5924,11 +5924,45 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 
 			pUnitNode = headUnitNode();
 
+			// if the plot is being worked and the city is about to change then put the citizen somewhere else
+			if (!m_owningCityOverride.isInvalid() && iAcquiringCityID!=m_owningCityOverride.iID)
+			{
+				//could be that the plot was loaned to another city
+				CvCity* pOverrideCity = ::GetPlayerCity(m_owningCityOverride);
+				m_owningCityOverride.reset();
+				m_owningCity = IDInfo(eNewValue, iAcquiringCityID);
+
+				//change working plot now after the city cannot add the plot right back!
+				//note that yields will be updated later
+				if (pOverrideCity != NULL && pOverrideCity->GetCityCitizens()->IsWorkingPlot(this))
+				{
+					pOverrideCity->GetCityCitizens()->SetWorkingPlot(this, false, CvCity::YIELD_UPDATE_LOCAL);
+					pOverrideCity->GetCityCitizens()->DoAddBestCitizenFromUnassigned(CvCity::YIELD_UPDATE_GLOBAL);
+				}
+			}
+			else if (!m_owningCity.isInvalid() && iAcquiringCityID!=m_owningCity.iID)
+			{
+				//could be the actual owning city
+				CvCity* pOwningCity = ::GetPlayerCity(m_owningCity);
+				m_owningCityOverride.reset();
+				m_owningCity = IDInfo(eNewValue, iAcquiringCityID);
+
+				//change working plot now after the city cannot add the plot right back!
+				//note that yields will be updated later
+				if (pOwningCity != NULL && pOwningCity->GetCityCitizens()->IsWorkingPlot(this))
+				{
+					pOwningCity->GetCityCitizens()->SetWorkingPlot(this, false, CvCity::YIELD_UPDATE_LOCAL);
+					pOwningCity->GetCityCitizens()->DoAddBestCitizenFromUnassigned(CvCity::YIELD_UPDATE_GLOBAL);
+				}
+			}
+			else
+			{
+				m_owningCityOverride.reset();
+				m_owningCity = IDInfo(eNewValue, iAcquiringCityID);
+			}
+
 			// ACTUALLY CHANGE OWNERSHIP HERE
 			m_eOwner = eNewValue;
-
-			m_owningCityOverride.reset();
-			m_owningCity = IDInfo(eNewValue, iAcquiringCityID);
 
 			// Post ownership switch
 			if(isOwned())
@@ -8934,6 +8968,9 @@ void CvPlot::setOwningCityOverride(const CvCity* pNewValue)
 			pCurrentCity->GetCityCitizens()->DoAddBestCitizenFromUnassigned(CvCity::YIELD_UPDATE_GLOBAL);
 		}
 
+		//if the effective owner changed, maybe the yield changes as well
+		updateYield();
+
 		GC.GetEngineUserInterface()->setDirty(ColoredPlots_DIRTY_BIT, true);
 	}
 }
@@ -10380,9 +10417,9 @@ void CvPlot::updateYield()
 }
 
 #if defined(MOD_RELIGION_PERMANENT_PANTHEON)
-void CvPlot::updateYieldFast(CvCity* pOwningCity, const CvReligion* pMajorityReligion, const CvBeliefEntry* pSecondaryPantheon, const CvReligion* pPlayerPantheon)
+void CvPlot::updateYieldFast(CvCity* pWorkingCity, const CvReligion* pMajorityReligion, const CvBeliefEntry* pSecondaryPantheon, const CvReligion* pPlayerPantheon)
 #else
-void CvPlot::updateYieldFast(CvCity* pOwningCity, const CvReligion* pMajorityReligion, const CvBeliefEntry* pSecondaryPantheon)
+void CvPlot::updateYieldFast(CvCity* pWorkingCity, const CvReligion* pMajorityReligion, const CvBeliefEntry* pSecondaryPantheon)
 #endif
 {
 	bool bChange = false;
@@ -10397,9 +10434,9 @@ void CvPlot::updateYieldFast(CvCity* pOwningCity, const CvReligion* pMajorityRel
 			continue;
 
 #if defined(MOD_RELIGION_PERMANENT_PANTHEON)
-		int iNewYield = calculateYieldFast(eYield,false,pOwningCity,pMajorityReligion,pSecondaryPantheon,pPlayerPantheon);
+		int iNewYield = calculateYieldFast(eYield,false,pWorkingCity,pMajorityReligion,pSecondaryPantheon,pPlayerPantheon);
 #else
-		int iNewYield = calculateYieldFast(eYield,false,pOwningCity,pMajorityReligion,pSecondaryPantheon);
+		int iNewYield = calculateYieldFast(eYield,false,pWorkingCity,pMajorityReligion,pSecondaryPantheon);
 #endif
 
 		if(getYield(eYield) != iNewYield)
@@ -10407,21 +10444,22 @@ void CvPlot::updateYieldFast(CvCity* pOwningCity, const CvReligion* pMajorityRel
 			int iOldYield = getYield(eYield);
 			m_aiYield[iI] = max(0, iNewYield);
 
-			if(pOwningCity != NULL && pOwningCity->GetCityCitizens()->IsWorkingPlot(this))
+			if(pWorkingCity != NULL && pWorkingCity->GetCityCitizens()->IsWorkingPlot(this))
 			{
 				int iDelta = iNewYield - iOldYield;
-				pOwningCity->ChangeBaseYieldRateFromTerrain(eYield, iDelta);
-				pOwningCity->UpdateCityYields(eYield);
+				pWorkingCity->ChangeBaseYieldRateFromTerrain(eYield, iDelta);
+				pWorkingCity->UpdateCityYields(eYield);
 			}
 
 			bChange = true;
 		}
 	}
 
+	if (pWorkingCity)
+		pWorkingCity->GetCityCitizens()->YieldSanityCheck();
+
 	if(bChange)
-	{
 		updateSymbols();
-	}
 }
 
 //	--------------------------------------------------------------------------------

@@ -133,6 +133,7 @@ public:
 	void ClearBlockades();
 
 	void DoVerifyWorkingPlots();
+	bool YieldSanityCheck();
 
 	const std::vector<int>& GetWorkedPlots() const { return m_vWorkedPlots; }
 

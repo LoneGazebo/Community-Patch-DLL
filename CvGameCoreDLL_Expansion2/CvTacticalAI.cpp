@@ -764,8 +764,8 @@ void CvTacticalAI::AssignGlobalMidPrioMoves()
 
 	//make sure our frontline cities and fortresses have a garrison
 	//garrisons sometimes make a sortie so we have to get them back
-	PlotGarrisonMoves(4);
-	PlotBastionMoves(2);
+	PlotGarrisonMoves(0);
+	PlotBastionMoves(0);
 
 	//now all attacks are done, try to move any unprocessed units out of harm's way
 	PlotMovesToSafety(true);
@@ -790,7 +790,9 @@ void CvTacticalAI::AssignGlobalLowPrioMoves()
 {
 	ExtractTargetsForZone(NULL);
 
-	//defend resources
+	//defense preparation for next turn
+	PlotGarrisonMoves(2);
+	PlotBastionMoves(2);
 	PlotGuardImprovementMoves(1);
 
 	//do this last after the units in need have already moved
@@ -7497,7 +7499,7 @@ STacticalAssignment ScorePlotForNonFightingUnitMove(const SUnitStats& unit, cons
 			{
 				//anything else that could protect the unit?
 				CvUnit* pBestDefender = pTestPlot->getBestDefender(assumedPosition.getPlayer());
-				if (!pTestPlot->isFriendlyCity(*pUnit) && (!pBestDefender || !pBestDefender->TurnProcessed()))
+				if (!pTestPlot->isFriendlyCity(*pUnit) && (!pBestDefender || !pBestDefender->TurnProcessed() || pBestDefender->isProjectedToDieNextTurn()))
 					return result; //no can do!
 			}
 

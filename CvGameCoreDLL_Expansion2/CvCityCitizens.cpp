@@ -1664,7 +1664,10 @@ void CvCityCitizens::SetDirty(bool bValue)
 	{
 		m_bIsDirty = bValue;
 	}
+
+	YieldSanityCheck();
 }
+
 bool CvCityCitizens::IsDirty()
 {
 	return m_bIsDirty;
@@ -1826,6 +1829,8 @@ void CvCityCitizens::SetWorkingPlot(CvPlot* pPlot, bool bNewValue, CvCity::eUpda
 				GetCity()->ChangeBaseYieldRateFromTerrain(((YieldTypes)iI), pPlot->getYield((YieldTypes)iI));
 			}
 
+			YieldSanityCheck();
+
 			if (iIndex != CITY_HOME_PLOT)
 			{
 				if (!pPlot->isEffectiveOwner(m_pCity))
@@ -1864,6 +1869,8 @@ void CvCityCitizens::SetWorkingPlot(CvPlot* pPlot, bool bNewValue, CvCity::eUpda
 
 				GetCity()->ChangeBaseYieldRateFromTerrain(((YieldTypes)iI), -pPlot->getYield((YieldTypes)iI));
 			}
+
+			YieldSanityCheck();
 
 			if (iIndex != CITY_HOME_PLOT)
 			{
@@ -2195,13 +2202,48 @@ void CvCityCitizens::ClearBlockades()
 	m_vBlockadedPlots.clear();
 }
 
+bool CvCityCitizens::YieldSanityCheck()
+{
+#ifdef VPDEBUG
+	vector<int> yieldSum(YIELD_TOURISM, 0);
+	for (int iI = 0; iI < GetCity()->GetNumWorkablePlots(); iI++)
+	{
+		if (!IsWorkingPlot(iI))
+			continue;
+
+		CvPlot* pPlot = GetCityPlotFromIndex(iI);
+		if (!pPlot)
+			continue;
+
+		//sanity check
+		for (int iY = 0; iY < YIELD_TOURISM; iY++)
+			yieldSum[iY] += pPlot->getYield((YieldTypes)iY);
+	}
+
+	for (int iY = 0; iY < YIELD_TOURISM; iY++)
+	{
+		if (yieldSum[iY] != m_pCity->GetBaseYieldRateFromTerrain((YieldTypes)iY))
+		{
+			OutputDebugString("tile yields are inconsistent!\n");
+			return false;
+		}
+	}
+#endif
+
+	return GetNumUnassignedCitizens()==0;
+}
+
 /// Check all Plots by this City to see if we can actually be working them (if we are)
 void CvCityCitizens::DoVerifyWorkingPlots()
 {
 	ClearBlockades();
+	YieldSanityCheck();
 
 	for (int iI = 0; iI < GetCity()->GetNumWorkablePlots(); iI++)
 	{
+		if (!IsWorkingPlot(iI))
+			continue;
+
 		CvPlot* pPlot = GetCityPlotFromIndex(iI);
 		if (!pPlot)
 			continue;
@@ -2210,13 +2252,15 @@ void CvCityCitizens::DoVerifyWorkingPlots()
 		if (pPlot->isBlockaded())
 			SetBlockaded(pPlot);
 
-		//worked plot migh be invalid ...
-		if (IsWorkingPlot(iI) && !IsCanWork(pPlot))
+		//worked plot might be invalid now ... so move the citizen somewhere else
+		if (!IsCanWork(pPlot))
 		{
 			SetWorkingPlot(pPlot, false, CvCity::YIELD_UPDATE_LOCAL);
 			DoAddBestCitizenFromUnassigned(CvCity::YIELD_UPDATE_GLOBAL);
 		}
 	}
+
+	YieldSanityCheck();
 }
 
 

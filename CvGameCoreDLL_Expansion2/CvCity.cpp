@@ -21691,28 +21691,6 @@ void CvCity::DoCreatePuppet()
 
 	setProductionAutomated(true, true);
 
-	int iForceWorkingPuppetRange = 2;
-
-	CvPlot* pLoopPlot;
-
-	// Loop through all plots near this City
-
-	for (int iPlotLoop = 0; iPlotLoop < GetNumWorkablePlots(); iPlotLoop++)
-	{
-		pLoopPlot = iterateRingPlots(getX(), getY(), iPlotLoop);
-
-		if (pLoopPlot != NULL)
-		{
-			// Cut off areas around the city we don't care about
-			pLoopPlot = plotXYWithRangeCheck(pLoopPlot->getX(), pLoopPlot->getY(), getX(), getY(), iForceWorkingPuppetRange);
-
-			if (pLoopPlot != NULL)
-			{
-				pLoopPlot->setOwningCityOverride(this);
-			}
-		}
-	}
-
 	// Remove any buildings that are not applicable to puppets (but might have been earned through traits/policies)
 	for (int iI = 0; iI < GC.getNumBuildingInfos(); iI++)
 	{
@@ -25522,7 +25500,7 @@ void CvCity::ChangeBaseYieldRateFromTerrain(YieldTypes eIndex, int iChange)
 			OutputDebugString("houston, we have a problem!\n");
 		}
 
-		m_aiBaseYieldRateFromTerrain[eIndex] = m_aiBaseYieldRateFromTerrain[eIndex] + iChange;
+		m_aiBaseYieldRateFromTerrain[eIndex] += iChange;
 
 		if (getTeam() == GC.getGame().getActiveTeam())
 		{
@@ -29955,14 +29933,12 @@ void CvCity::pushOrder(OrderTypes eOrder, int iData1, int iData2, bool bSave, bo
 {
 	VALIDATE_OBJECT
 	OrderData order;
-	bool bValid;
+	bool bValid = false;
 
 	if (bPop)
 	{
 		clearOrderQueue();
 	}
-
-	bValid = false;
 
 	switch (eOrder)
 	{
@@ -32009,14 +31985,11 @@ void CvCity::Purchase(UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectT
 					if (eBuildingClass != NO_BUILDINGCLASS)
 					{
 						SetBuildingInvestment(eBuildingClass, true);
-						if (getProductionProcess() != NO_PROCESS)
-						{
-							clearOrderQueue();
-						}
 
 						if (!hasOrder(ORDER_CONSTRUCT, eBuildingType, -1))
 						{
-							pushOrder(ORDER_CONSTRUCT, eBuildingType, -1, false, false, true, false);
+							//we purchased it so let's assume it's urgent and put it at the head of the list
+							pushOrder(ORDER_CONSTRUCT, eBuildingType, -1, false, false, false);
 						}
 					}
 				}

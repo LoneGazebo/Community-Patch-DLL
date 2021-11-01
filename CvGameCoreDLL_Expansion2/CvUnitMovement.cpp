@@ -158,7 +158,7 @@ int CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlot
 	if (MOD_BALANCE_CORE && bAmphibious && bRiverCrossing)
 		bIgnoreTerrainCost = true;
 
-	if (!bRiverCrossing || kUnitTeam.isBridgeBuilding() || bAmphibious)
+	if (!bRiverCrossing || bAmphibious)
 	{
 		if (bFasterInHills && pToPlot->isHills())
 			bIgnoreTerrainCost = true;
