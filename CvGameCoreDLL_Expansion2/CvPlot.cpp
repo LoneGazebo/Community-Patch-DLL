@@ -10455,9 +10455,6 @@ void CvPlot::updateYieldFast(CvCity* pWorkingCity, const CvReligion* pMajorityRe
 		}
 	}
 
-	if (pWorkingCity)
-		pWorkingCity->GetCityCitizens()->YieldSanityCheck();
-
 	if(bChange)
 		updateSymbols();
 }
