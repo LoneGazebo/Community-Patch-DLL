@@ -375,6 +375,18 @@
 			<Text>A naval mine is a self-contained explosive device placed in water to damage or destroy surface ships or submarines. Unlike depth charges, mines are deposited and left to wait until they are triggered by the approach of, or contact with, an enemy vessel. Naval mines can be used offensively—to hamper enemy shipping movements or lock vessels into a harbour; or defensively—to protect friendly vessels and create "safe" zones.</Text>
 		</Row>
 
+		<Row Tag="TXT_KEY_BUILDING_KARLSTEJN">
+			<Text>Karlštejn</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_KARLSTEJN_HELP">
+			<Text>Can only be built in a Holy City. Provides a [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] Orders building in the City in which it is built. Enables you to select a [COLOR_POSITIVE_TEXT]Reformation Belief[ENDCOLOR] at 5% below its normal Global [ICON_RELIGION] Follower requirement (20% on Standard).</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CIV5_BUILDINGS_KARLSTEJN_TEXT">
+			<Text>Karlštejn Castle is a picturesque Bohemian fortification a short distance outside Prague in the modern Czech Republic. The castle was completed in 1365, and has housed the Imperial Regalia and Crown Jewels of Bohemia as well as numerous other relics and treasures. The castle was sieged by Hussites during the Hussite Wars, the first major Protestant movement in Europe, which began more than a century before Martin Luther and the Protestant Reformation.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WONDER_KARLSTEJN_QUOTE">
+			<Text>[NEWLINE][TAB][TAB]"Seek the truth, hear the truth, learn the truth, love the truth, speak the truth, hold the truth, and defend the truth unto death."[NEWLINE][TAB][TAB] - Jan Hus[NEWLINE][TAB]</Text>
+		</Row>
 		<Row Tag="TXT_KEY_BUILDING_SLATER_MILL">
 			<Text>Slater Mill</Text>
 		</Row>
@@ -391,13 +403,13 @@
 			<Text>The Motherland Calls</Text>
 		</Row>
 		<Row Tag="TXT_KEY_WONDER_MOTHERLAND_STATUE_HELP">
-			<Text>Requires [COLOR_MAGENTA]Order[ENDCOLOR]. Receive 1 [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] Social Policy and a [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] Police Station in the City in which it is built. -1 [ICON_HAPPINESS_3] Unhappiness from [ICON_FOOD] and [ICON_PRODUCTION] Distress in this City. </Text>
+			<Text>Receive a [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] Police Station in the City in which it is built. Military Units Supplied by this City's population increased by 50%.[NEWLINE][NEWLINE]Building Maintenance reduced by 10% in all Cities. Blocks enemy units from gaining [ICON_GOLD] Gold and Health when pillaging your tiles.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CIV5_BUILDINGS_MOTHERLAND_STATUE_TEXT">
 			<Text>The Motherland Calls, also called Mother Motherland, Mother Motherland Is Calling, simply The Motherland, or The Mamayev Monument, is a statue in Mamayev Kurgan in Volgograd, Russia, commemorating the Battle of Stalingrad. It was designed by sculptor Yevgeny Vuchetich and structural engineer Nikolai Nikitin, and declared the largest statue in the world in 1967. Compared with the later higher statues, The Motherland Calls is significantly more complex from an engineering point of view, due to its characteristic posture with a sword raised high in the right hand and the left hand extended in a calling gesture. The technology behind the statue is based on a combination of prestressed concrete with wire ropes structure, a solution which can be found also in another work of Nikitin's, the super-tall Ostankino Tower in Moscow. It is the tallest statue of a woman in the world.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_MOTHERLAND_STATUE_QUOTE">
-			<Text>[NEWLINE][TAB][TAB]"One of the hallmarks of a great nation is its ability to rise through its feet after a fall."</Text>
+			<Text>[NEWLINE][TAB][TAB]"One of the hallmarks of a great nation is its ability to rise to its feet after a fall."</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_BLETCHLEY_PARK">
 			<Text>Bletchley Park</Text>
@@ -406,7 +418,7 @@
 			<Text>Requires completion of [COLOR_MAGENTA]Rationalism[ENDCOLOR] Branch. Receive a [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] Research Lab in the City in which it is built, and all Scientist Specialists gain +1 [ICON_RESEARCH] Science. Receive 2 or more [COLOR_POSITIVE_TEXT]Additional[ENDCOLOR] [ICON_SPY] Spies (based on number of [ICON_CITY_STATE] City-States in game), levels up all your existing [ICON_SPY] Spies, and improves city Security Level by 15%</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CIV5_BUILDINGS_BLETCHLEY_PARK_TEXT">
-			<Text>Bletchley Park, in Milton Keynes, Buckinghamshire, was the central site of the United Kingdom's Government Code and Cypher School, which during the Second World War regularly penetrated the secret communications of the Axis Power, most importantly the German Enigma and Lorenz ciphers. The official historian of World War II British Intelligence has written that the "Ultra" intelligence produced at Bletchley shortened the war by two to four years, and that without it the outcome of the war would have been uncertain. The site is now an educational and historical attraction memorialising and celebrating those accomplishments.</Text>
+			<Text>Bletchley Park, in Milton Keynes, Buckinghamshire, was the central site of the United Kingdom's Government Code and Cypher School, which during the Second World War regularly penetrated the secret communications of the Axis Powers, most importantly the German Enigma and Lorenz ciphers. The official historian of World War II British Intelligence has written that the "Ultra" intelligence produced at Bletchley shortened the war by two to four years, and that without it the outcome of the war would have been uncertain. The site is now an educational and historical attraction memorialising and celebrating those accomplishments.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_WONDER_BLETCHLEY_PARK_QUOTE">
 			<Text>[NEWLINE][TAB][TAB]"Bletchley Park: the goose that laid the golden eggs and never cackled."[NEWLINE][TAB][TAB] - Winston Churchill[NEWLINE][TAB]</Text>
@@ -761,7 +773,7 @@
 			<Text>West Point</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_AMERICA_WESTPOINT_HELP">
-			<Text>1 of 3 [COLOR_NEGATIVE_TEXT]Mutually Exclusive[ENDCOLOR] Unique American Wonders. Requires Construction of Independence Hall.[NEWLINE][NEWLINE][ICON_GOLD] Gold costs of acquiring new tiles reduced by 25% in every City. +5 [ICON_PRODUCTION] Production and [ICON_RESEARCH] Science to all Military Academies and Military Bases, and +2 [ICON_PRODUCTION] Production and [ICON_RESEARCH] Science to all World Wonders.[NEWLINE][NEWLINE]Receive 3 [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] Artillery and 3 [ICON_RES_IRON] Iron. 10% of [ICON_GOLD] Gold created by all Cities on Empire counts as [ICON_RESEARCH] Science Per Turn.[NEWLINE][NEWLINE]All Land Units on Empire receive the [COLOR_POSITIVE_TEXT]Splash I[ENDCOLOR] Promotion.</Text>
+			<Text>1 of 3 [COLOR_NEGATIVE_TEXT]Mutually Exclusive[ENDCOLOR] Unique American Wonders. Requires Construction of Independence Hall.[NEWLINE][NEWLINE][ICON_GOLD] Gold costs of acquiring new tiles reduced by 25% in every City. +5 [ICON_PRODUCTION] Production and [ICON_RESEARCH] Science to all Military Academies and Military Bases, and +2 [ICON_PRODUCTION] Production and [ICON_RESEARCH] Science to all World Wonders.[NEWLINE][NEWLINE]Receive 3 [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] Artillery and 3 [ICON_RES_IRON] Iron. 10% of [ICON_GOLD] Gold created by all Cities on Empire counts as [ICON_RESEARCH] Science Per Turn.[NEWLINE][NEWLINE]All Siege Units on Empire receive the [COLOR_POSITIVE_TEXT]Splash I[ENDCOLOR] Promotion.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CIVILOPEDIA_BUILDINGS_AMERICA_WESTPOINT_TEXT">
 			<Text>The United States Military Academy, informally known as West Point, is the oldest service academy, educating cadets to become commissioned officers for the United States Army. The academy is notable for producing some of the most renowned generals in modern history in addition to numerous heads of state, both foreign and domestic. The campus is the oldest continuously operating American army post, originally built as a river fort to overlook and control shipping along the Hudson River. As a result, the campus is a national landmark, dotted with numerous monuments and statues representing its long and storied history.</Text>

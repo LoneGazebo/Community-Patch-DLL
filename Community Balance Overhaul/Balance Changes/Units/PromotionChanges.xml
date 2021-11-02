@@ -1263,8 +1263,8 @@
 			<Description>TXT_KEY_PROMOTION_NATIONALISM</Description>
 			<Help>TXT_KEY_PROMOTION_NATIONALISM_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
+			<NearbyCityCombatMod>20</NearbyCityCombatMod>
 			<CannotBeChosen>true</CannotBeChosen>
-			<FriendlyLandsAttackModifier>15</FriendlyLandsAttackModifier>
 			<PortraitIndex>59</PortraitIndex>
 			<IconAtlas>ABILITY_ATLAS</IconAtlas>
 			<PediaType>PEDIA_SHARED</PediaType>
