@@ -130,6 +130,7 @@ public:
 
 	bool canTrainNukes() const;
 	EraTypes getCurrentEra() const;
+	void CvGame::UpdateGameEra();
 
 	TeamTypes getActiveTeam();
 	CivilizationTypes getActiveCivilizationType();
@@ -841,6 +842,7 @@ protected:
 	PlayerTypes m_eBestGreatPeoplePlayer;
 	TechTypes m_eReligionTech;
 	RouteTypes m_eIndustrialRoute;
+	EraTypes m_eGameEra;
 	bool m_bArchaeologyTriggered;
 
 #if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)

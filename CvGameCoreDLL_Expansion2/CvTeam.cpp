@@ -6700,6 +6700,10 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 				EraTypes eNewEra = (EraTypes) pkTechInfo->GetEra();
 
 				SetCurrentEra(eNewEra);
+				if (isMajorCiv())
+				{
+					GC.getGame().UpdateGameEra();
+				}
 #if defined(MOD_BALANCE_CORE)
 				if(!bNoBonus)
 				{
@@ -6854,6 +6858,10 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 						if(pkEraInfo != NULL)
 						{
 							SetCurrentEra(nextEra);
+							if (isMajorCiv())
+							{
+								GC.getGame().UpdateGameEra();
+							}
 #if defined(MOD_BALANCE_CORE)
 							if(!bNoBonus)
 							{
