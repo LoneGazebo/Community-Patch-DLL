@@ -4399,6 +4399,7 @@ void CvGame::UpdateGameEra()
 	{
 		if (GET_TEAM((TeamTypes)iI).isAlive() && GET_TEAM((TeamTypes)iI).isMajorCiv())
 		{
+			fEra += GET_TEAM((TeamTypes)iI).GetCurrentEra();
 			iCount++;
 		}
 	}
