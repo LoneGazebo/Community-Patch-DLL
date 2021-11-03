@@ -1191,11 +1191,7 @@ bool CvCityCitizens::DoAddBestCitizenFromUnassigned(CvCity::eUpdateMode updateMo
 
 		if (pLog)
 		{
-#if defined(MOD_BALANCE_CORE)
 			int iExcessFoodTimes100 = m_pCity->getYieldRateTimes100(YIELD_FOOD, false) - (m_pCity->foodConsumptionTimes100());
-#else
-			int iExcessFoodTimes100 = m_pCity->getYieldRateTimes100(YIELD_FOOD, false) - (m_pCity->foodConsumption() * 100);
-#endif
 			CvString strOutBuf;
 			strOutBuf.Format("now working plot %d:%d, current net food %d", pBestPlot->getX(), pBestPlot->getY(), iExcessFoodTimes100);
 			pLog->Msg(strOutBuf);
@@ -1913,7 +1909,7 @@ void CvCityCitizens::SetWorkingPlot(CvPlot* pPlot, bool bNewValue, CvCity::eUpda
 void CvCityCitizens::DoAlterWorkingPlot(int iIndex)
 {
 	//cannot change anything if in resistance
-	if (m_pCity->IsResistance())
+	if (m_pCity->IsResistance() || m_pCity->IsIgnoreCityForHappiness())
 		return;
 
 	DoVerifyWorkingPlots();
@@ -1997,7 +1993,7 @@ void CvCityCitizens::DoAlterWorkingPlot(int iIndex)
 					return;
 
 				// Can't take away plots from cities which were just conquered
-				if (pPlot->getOwningCity()->IsResistance())
+				if (pPlot->getOwningCity()->IsResistance() || pPlot->getOwningCity()->IsIgnoreCityForHappiness())
 					return;
 
 				pPlot->setOwningCityOverride(GetCity());
