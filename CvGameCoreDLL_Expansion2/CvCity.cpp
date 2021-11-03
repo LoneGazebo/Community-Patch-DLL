@@ -31985,14 +31985,11 @@ void CvCity::Purchase(UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectT
 					if (eBuildingClass != NO_BUILDINGCLASS)
 					{
 						SetBuildingInvestment(eBuildingClass, true);
-						if (getProductionProcess() != NO_PROCESS)
-						{
-							clearOrderQueue();
-						}
 
 						if (!hasOrder(ORDER_CONSTRUCT, eBuildingType, -1))
 						{
-							pushOrder(ORDER_CONSTRUCT, eBuildingType, -1, false, false, true, false);
+							//we purchased it so let's assume it's urgent and put it at the head of the list
+							pushOrder(ORDER_CONSTRUCT, eBuildingType, -1, false, false, false);
 						}
 					}
 				}

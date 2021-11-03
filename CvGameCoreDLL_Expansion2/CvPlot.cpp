@@ -3588,7 +3588,7 @@ int CvPlot::countPassableNeighbors(DomainTypes eDomain, CvPlot** aPassableNeighb
 
 bool CvPlot::IsBorderLand(PlayerTypes eDefendingPlayer) const
 {
-	//check distance to all major players
+	//check distance to all major players' cities
 	//if homefront for at least one ...
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
@@ -3609,11 +3609,13 @@ bool CvPlot::IsBorderLand(PlayerTypes eDefendingPlayer) const
 			continue;
 		}
 
-		if (IsCloseToBorder(eLoopPlayer))
+		if (IsCloseToCity(eLoopPlayer))
 			return true;
 	}
 
-	return false;
+	//alternatively see if an adjacent plot is owned by another player
+	//only check adjacent plots, everything else is too expensive
+	return IsAdjacentOwnedByTeamOtherThan(GET_PLAYER(eDefendingPlayer).getTeam(), true);
 }
 
 bool CvPlot::IsChokePoint() const
@@ -5922,11 +5924,45 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 
 			pUnitNode = headUnitNode();
 
+			// if the plot is being worked and the city is about to change then put the citizen somewhere else
+			if (!m_owningCityOverride.isInvalid() && iAcquiringCityID!=m_owningCityOverride.iID)
+			{
+				//could be that the plot was loaned to another city
+				CvCity* pOverrideCity = ::GetPlayerCity(m_owningCityOverride);
+				m_owningCityOverride.reset();
+				m_owningCity = IDInfo(eNewValue, iAcquiringCityID);
+
+				//change working plot now after the city cannot add the plot right back!
+				//note that yields will be updated later
+				if (pOverrideCity != NULL && pOverrideCity->GetCityCitizens()->IsWorkingPlot(this))
+				{
+					pOverrideCity->GetCityCitizens()->SetWorkingPlot(this, false, CvCity::YIELD_UPDATE_LOCAL);
+					pOverrideCity->GetCityCitizens()->DoAddBestCitizenFromUnassigned(CvCity::YIELD_UPDATE_GLOBAL);
+				}
+			}
+			else if (!m_owningCity.isInvalid() && iAcquiringCityID!=m_owningCity.iID)
+			{
+				//could be the actual owning city
+				CvCity* pOwningCity = ::GetPlayerCity(m_owningCity);
+				m_owningCityOverride.reset();
+				m_owningCity = IDInfo(eNewValue, iAcquiringCityID);
+
+				//change working plot now after the city cannot add the plot right back!
+				//note that yields will be updated later
+				if (pOwningCity != NULL && pOwningCity->GetCityCitizens()->IsWorkingPlot(this))
+				{
+					pOwningCity->GetCityCitizens()->SetWorkingPlot(this, false, CvCity::YIELD_UPDATE_LOCAL);
+					pOwningCity->GetCityCitizens()->DoAddBestCitizenFromUnassigned(CvCity::YIELD_UPDATE_GLOBAL);
+				}
+			}
+			else
+			{
+				m_owningCityOverride.reset();
+				m_owningCity = IDInfo(eNewValue, iAcquiringCityID);
+			}
+
 			// ACTUALLY CHANGE OWNERSHIP HERE
 			m_eOwner = eNewValue;
-
-			m_owningCityOverride.reset();
-			m_owningCity = IDInfo(eNewValue, iAcquiringCityID);
 
 			// Post ownership switch
 			if(isOwned())
@@ -6212,7 +6248,7 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 
 //	--------------------------------------------------------------------------------
 /// Is this Plot within a certain range of any of a player's Cities?
-bool CvPlot::IsCloseToBorder(PlayerTypes ePlayer) const
+bool CvPlot::IsCloseToCity(PlayerTypes ePlayer) const
 {
 	if (ePlayer == NO_PLAYER)
 		return false;
@@ -6220,7 +6256,7 @@ bool CvPlot::IsCloseToBorder(PlayerTypes ePlayer) const
 	//do not use estimated turns here, performance is not good
 	int iDistance = GET_PLAYER(ePlayer).GetCityDistanceInPlots(this);
 	int iRange = GC.getAI_DIPLO_PLOT_RANGE_FROM_CITY_HOME_FRONT();
-	return (iDistance < iRange);
+	return (iDistance <= iRange);
 }
 
 //	--------------------------------------------------------------------------------
@@ -8932,6 +8968,9 @@ void CvPlot::setOwningCityOverride(const CvCity* pNewValue)
 			pCurrentCity->GetCityCitizens()->DoAddBestCitizenFromUnassigned(CvCity::YIELD_UPDATE_GLOBAL);
 		}
 
+		//if the effective owner changed, maybe the yield changes as well
+		updateYield();
+
 		GC.GetEngineUserInterface()->setDirty(ColoredPlots_DIRTY_BIT, true);
 	}
 }
@@ -10378,9 +10417,9 @@ void CvPlot::updateYield()
 }
 
 #if defined(MOD_RELIGION_PERMANENT_PANTHEON)
-void CvPlot::updateYieldFast(CvCity* pOwningCity, const CvReligion* pMajorityReligion, const CvBeliefEntry* pSecondaryPantheon, const CvReligion* pPlayerPantheon)
+void CvPlot::updateYieldFast(CvCity* pWorkingCity, const CvReligion* pMajorityReligion, const CvBeliefEntry* pSecondaryPantheon, const CvReligion* pPlayerPantheon)
 #else
-void CvPlot::updateYieldFast(CvCity* pOwningCity, const CvReligion* pMajorityReligion, const CvBeliefEntry* pSecondaryPantheon)
+void CvPlot::updateYieldFast(CvCity* pWorkingCity, const CvReligion* pMajorityReligion, const CvBeliefEntry* pSecondaryPantheon)
 #endif
 {
 	bool bChange = false;
@@ -10395,9 +10434,9 @@ void CvPlot::updateYieldFast(CvCity* pOwningCity, const CvReligion* pMajorityRel
 			continue;
 
 #if defined(MOD_RELIGION_PERMANENT_PANTHEON)
-		int iNewYield = calculateYieldFast(eYield,false,pOwningCity,pMajorityReligion,pSecondaryPantheon,pPlayerPantheon);
+		int iNewYield = calculateYieldFast(eYield,false,pWorkingCity,pMajorityReligion,pSecondaryPantheon,pPlayerPantheon);
 #else
-		int iNewYield = calculateYieldFast(eYield,false,pOwningCity,pMajorityReligion,pSecondaryPantheon);
+		int iNewYield = calculateYieldFast(eYield,false,pWorkingCity,pMajorityReligion,pSecondaryPantheon);
 #endif
 
 		if(getYield(eYield) != iNewYield)
@@ -10405,11 +10444,11 @@ void CvPlot::updateYieldFast(CvCity* pOwningCity, const CvReligion* pMajorityRel
 			int iOldYield = getYield(eYield);
 			m_aiYield[iI] = max(0, iNewYield);
 
-			if(pOwningCity != NULL && pOwningCity->GetCityCitizens()->IsWorkingPlot(this))
+			if(pWorkingCity != NULL && pWorkingCity->GetCityCitizens()->IsWorkingPlot(this))
 			{
 				int iDelta = iNewYield - iOldYield;
-				pOwningCity->ChangeBaseYieldRateFromTerrain(eYield, iDelta);
-				pOwningCity->UpdateCityYields(eYield);
+				pWorkingCity->ChangeBaseYieldRateFromTerrain(eYield, iDelta);
+				pWorkingCity->UpdateCityYields(eYield);
 			}
 
 			bChange = true;
@@ -10417,9 +10456,7 @@ void CvPlot::updateYieldFast(CvCity* pOwningCity, const CvReligion* pMajorityRel
 	}
 
 	if(bChange)
-	{
 		updateSymbols();
-	}
 }
 
 //	--------------------------------------------------------------------------------

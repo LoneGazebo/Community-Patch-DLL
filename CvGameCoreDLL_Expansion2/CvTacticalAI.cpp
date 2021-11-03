@@ -485,7 +485,7 @@ void CvTacticalAI::FindTacticalTargets()
 					m_AllTargets.push_back(newTarget);
 				}
 
-				// Or citadels!
+				// Or citadels (for pillaging!)
 				if (atWar(m_pPlayer->getTeam(), pLoopPlot->getTeam()) &&
 					pLoopPlot->getRevealedImprovementType(m_pPlayer->getTeam()) != NO_IMPROVEMENT &&
 					GC.getImprovementInfo(pLoopPlot->getRevealedImprovementType(m_pPlayer->getTeam()))->GetNearbyEnemyDamage() > 0 &&
@@ -549,20 +549,17 @@ void CvTacticalAI::FindTacticalTargets()
 
 				// ... defensive bastion?
 				if (m_pPlayer->GetID() == pLoopPlot->getOwner() &&
-					(pLoopPlot->defenseModifier(m_pPlayer->getTeam(), false, false) >= 30 || pLoopPlot->IsChokePoint())
+					(pLoopPlot->defenseModifier(m_pPlayer->getTeam(), false, false) >= 30 || pLoopPlot->IsChokePoint()) &&
+					pLoopPlot->IsBorderLand(m_pPlayer->GetID())
 					)
 				{
-					CvCity* pDefenseCity = pLoopPlot->getOwningCity();
-					if (pDefenseCity && pDefenseCity->isBorderCity())
-					{
-						newTarget.SetTargetType(AI_TACTICAL_TARGET_DEFENSIVE_BASTION);
-						int iValue = pDefenseCity->getThreatValue() + pLoopPlot->defenseModifier(m_pPlayer->getTeam(), false, false);
-						if (pDefenseCity->isUnderSiege() || pLoopPlot->IsChokePoint())
-							iValue *= 5;
+					newTarget.SetTargetType(AI_TACTICAL_TARGET_DEFENSIVE_BASTION);
+					int iValue = pLoopPlot->defenseModifier(m_pPlayer->getTeam(), false, false);
+					if (pLoopPlot->IsChokePoint())
+						iValue *= 3;
 
-						newTarget.SetAuxIntData(iValue);
-						m_AllTargets.push_back(newTarget);
-					}
+					newTarget.SetAuxIntData(iValue);
+					m_AllTargets.push_back(newTarget);
 				}
 
 				// ... friendly improvement?
@@ -765,9 +762,10 @@ void CvTacticalAI::AssignGlobalMidPrioMoves()
 	PlotGrabGoodyMoves();
 	PlotCivilianAttackMoves();
 
-	//make sure our frontline cities have a garrison
+	//make sure our frontline cities and fortresses have a garrison
 	//garrisons sometimes make a sortie so we have to get them back
-	PlotGarrisonMoves(4);
+	PlotGarrisonMoves(0);
+	PlotBastionMoves(0);
 
 	//now all attacks are done, try to move any unprocessed units out of harm's way
 	PlotMovesToSafety(true);
@@ -792,7 +790,8 @@ void CvTacticalAI::AssignGlobalLowPrioMoves()
 {
 	ExtractTargetsForZone(NULL);
 
-	//pure defense
+	//defense preparation for next turn
+	PlotGarrisonMoves(2);
 	PlotBastionMoves(2);
 	PlotGuardImprovementMoves(1);
 
@@ -5910,6 +5909,14 @@ bool TacticalAIHelpers::PerformOpportunityAttack(CvUnit* pUnit, bool bAllowMovem
 			if (iDamageReceived >= pUnit->GetCurrHitPoints())
 				continue;
 
+			//we have just a single attacker, avoid enemy clusters
+			if (pTestPlot->GetNumEnemyUnitsAdjacent(pUnit->getTeam(), NO_DOMAIN) > 0)
+				continue;
+
+			//there might be stacking issues so do another pathfinder check
+			if (pUnit->TurnsToReachTarget(pTestPlot, CvUnit::MOVEFLAG_ATTACK | CvUnit::MOVEFLAG_NO_EMBARK, 1) > 0)
+				continue;
+
 			if (iDamageDealt >= pEnemy->GetCurrHitPoints())
 			{
 				if (iDamageReceived < pUnit->GetCurrHitPoints())
@@ -5917,7 +5924,7 @@ bool TacticalAIHelpers::PerformOpportunityAttack(CvUnit* pUnit, bool bAllowMovem
 				iDamageReceived = max(0, iDamageReceived - pUnit->getHPHealedIfDefeatEnemy());
 			}
 
-			//if the garrison is (almost) unhurt, we can be a bit more aggressive and assume we'll heal up next turn
+			//if the attacker is (almost) unhurt, we can be a bit more aggressive and assume we'll heal up next turn
 			int iHealRate = pUnit->healRate(pUnit->plot());
 			if (pUnit->getDamage() < iHealRate/2 && iDamageReceived < pUnit->GetMaxHitPoints()/2 && bAllowMovement)
 				iDamageReceived = max(0, iDamageReceived - iHealRate);
@@ -7408,9 +7415,9 @@ STacticalAssignment ScorePlotForCombatUnitDefensiveMove(const SUnitStats& unit, 
 	if (targetPlot.isValid() && !targetPlot.isEnemy())
 	{
 		//assume we want to defend the target, ie be ready for an attack from the "outside"
-		//move close to the (friendly) target
+		//move close to the (friendly) target and weigh the target distance to be competitive with the enemy distance
 		int iPlotDistance = plotDistance(*assumedPosition.getTarget(),*pTestPlot);
-		iMiscScore += (3 - iPlotDistance);
+		iMiscScore += 3*(3 - iPlotDistance);
 	}
 	else
 	{
@@ -7492,7 +7499,7 @@ STacticalAssignment ScorePlotForNonFightingUnitMove(const SUnitStats& unit, cons
 			{
 				//anything else that could protect the unit?
 				CvUnit* pBestDefender = pTestPlot->getBestDefender(assumedPosition.getPlayer());
-				if (!pTestPlot->isFriendlyCity(*pUnit) && (!pBestDefender || !pBestDefender->TurnProcessed()))
+				if (!pTestPlot->isFriendlyCity(*pUnit) && (!pBestDefender || !pBestDefender->TurnProcessed() || pBestDefender->isProjectedToDieNextTurn()))
 					return result; //no can do!
 			}
 
@@ -8141,8 +8148,8 @@ vector<STacticalAssignment> CvTacticalPosition::getPreferredAssignmentsForUnit(c
 				//redundant with ScoreTurnEnd but we have to make sure we consider these moves in the first place
 				if (it->iMovesLeft == pUnit->maxMoves())
 				{
-					if (pUnit->getDamage() > GC.getFRIENDLY_HEAL_RATE())
-						iBonus += 23;
+					if (pUnit->getDamage() > GC.getFRIENDLY_HEAL_RATE()/2)
+						iBonus += max(23,pUnit->getDamage());
 					if (pUnit->IsEverFortifyable())
 						iBonus += (pUnit->GetDamageAoEFortified()>0) ? 19 : 5;
 				}
@@ -9626,7 +9633,8 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestDefensiveAssignment(const
 		return result;
 
 	//meta parameters depending on difficulty setting
-	int iMaxCompletedPositions = GC.getGame().getHandicapType() < 2 ? 18 : 23;
+	int iMinCompletedPositions = GC.getGame().getHandicapType() < 2 ? 17 : 23;
+	int iMaxCompletedPositions = GC.getGame().getHandicapType() < 2 ? 23 : 54;
 	int iMaxBranches = GC.getGame().getHandicapType() < 2 ? 3 : 5;
 	int iMaxChoicesPerUnit = GC.getGame().getHandicapType() < 2 ? 3 : 5;
 
@@ -9737,6 +9745,13 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestDefensiveAssignment(const
 			continue;
 		}
 
+		//stop early if the next position is worse than the last completed position
+		if (completedPositions.size() > (size_t)iMinCompletedPositions && current->getScore() < completedPositions.back()->getScore())
+			break;
+		//at some point we have seen enough good positions to pick one
+		if (completedPositions.size() > (size_t)iMaxCompletedPositions)
+			break;
+
 		//here the magic happens
 		if (current->makeNextAssignments(iMaxBranches, iMaxChoicesPerUnit, storage))
 		{
@@ -9771,10 +9786,6 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestDefensiveAssignment(const
 			else
 				iDiscardedPositions++;
 		}
-
-		//at some point we have seen enough good positions to pick one
-		if (completedPositions.size() > (size_t)iMaxCompletedPositions)
-			break;
 
 		//don't waste too much time/memory
 		if (iUsedPositions + openPositionsHeap.size() == storage.getSizeLimit()-1)
@@ -9863,7 +9874,8 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestOffensiveAssignment(
 		return result;
 
 	//meta parameters depending on difficulty setting
-	int iMaxCompletedPositions = GC.getGame().getHandicapType() < 2 ? 18 : 23;
+	int iMinCompletedPositions = GC.getGame().getHandicapType() < 2 ? 17 : 23;
+	int iMaxCompletedPositions = GC.getGame().getHandicapType() < 2 ? 23 : 54;
 	int iMaxBranches = GC.getGame().getHandicapType() < 2 ? 3 : 5;
 	int iMaxChoicesPerUnit = GC.getGame().getHandicapType() < 2 ? 3 : 5;
 
@@ -9977,6 +9989,13 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestOffensiveAssignment(
 			continue;
 		}
 
+		//stop early if the next position is worse than the last completed position
+		if (completedPositions.size() > (size_t)iMinCompletedPositions && current->getScore() < completedPositions.back()->getScore())
+			break;
+		//at some point we have seen enough good positions to pick one
+		if (completedPositions.size() > (size_t)iMaxCompletedPositions)
+			break;
+
 		//here the magic happens
 		if (current->makeNextAssignments(iMaxBranches, iMaxChoicesPerUnit, storage))
 		{
@@ -10013,10 +10032,6 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestOffensiveAssignment(
 			else
 				iDiscardedPositions++;
 		}
-
-		//at some point we have seen enough good positions to pick one
-		if (completedPositions.size() >= (size_t)iMaxCompletedPositions)
-			break;
 
 		//don't waste too much time/memory
 		if (iUsedPositions + openPositionsHeap.size() == storage.getSizeLimit())

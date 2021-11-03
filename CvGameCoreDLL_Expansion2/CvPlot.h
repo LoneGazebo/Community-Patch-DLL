@@ -409,7 +409,7 @@ public:
 
 	void setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUnits = true, bool bUpdateResources = true);
 
-	bool IsCloseToBorder(PlayerTypes ePlayer) const;
+	bool IsCloseToCity(PlayerTypes ePlayer) const;
 
 	PlotTypes getPlotType() const
 	{

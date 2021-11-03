@@ -10682,7 +10682,7 @@ void CvDiplomacyAI::DoUpdateMilitaryAggressivePostures()
 				}
 
 				// Must be close to us
-				if (!pUnitPlot->IsCloseToBorder(eOurPlayerID))
+				if (!pUnitPlot->IsCloseToCity(eOurPlayerID))
 				{
 					continue;
 				}
@@ -10700,7 +10700,7 @@ void CvDiplomacyAI::DoUpdateMilitaryAggressivePostures()
 						if (IsPlayerValid(eLoopOtherPlayer) && eLoopOtherTeam != eTeam && kTeam.isAtWar(eLoopOtherTeam))
 						{
 							// Is the unit close to the other player?
-							if (pUnitPlot->IsCloseToBorder(eLoopOtherPlayer))
+							if (pUnitPlot->IsCloseToCity(eLoopOtherPlayer))
 							{
 								continue;
 							}

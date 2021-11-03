@@ -1665,6 +1665,7 @@ void CvCityCitizens::SetDirty(bool bValue)
 		m_bIsDirty = bValue;
 	}
 }
+
 bool CvCityCitizens::IsDirty()
 {
 	return m_bIsDirty;
@@ -1911,6 +1912,10 @@ void CvCityCitizens::SetWorkingPlot(CvPlot* pPlot, bool bNewValue, CvCity::eUpda
 /// Tell City to work a Plot, pulling a Citizen from the worst location we can
 void CvCityCitizens::DoAlterWorkingPlot(int iIndex)
 {
+	//cannot change anything if in resistance
+	if (m_pCity->IsResistance())
+		return;
+
 	DoVerifyWorkingPlots();
 
 	// Clicking ON the city "resets" it to default setup
@@ -1989,6 +1994,10 @@ void CvCityCitizens::DoAlterWorkingPlot(int iIndex)
 			{
 				// Can't take away plots from puppet cities by force unless venice
 				if (pPlot->getOwningCity()->IsPuppet() && !GET_PLAYER(GetOwner()).GetPlayerTraits()->IsNoAnnexing() )
+					return;
+
+				// Can't take away plots from cities which were just conquered
+				if (pPlot->getOwningCity()->IsResistance())
 					return;
 
 				pPlot->setOwningCityOverride(GetCity());
@@ -2194,6 +2203,9 @@ void CvCityCitizens::DoVerifyWorkingPlots()
 
 	for (int iI = 0; iI < GetCity()->GetNumWorkablePlots(); iI++)
 	{
+		if (!IsWorkingPlot(iI))
+			continue;
+
 		CvPlot* pPlot = GetCityPlotFromIndex(iI);
 		if (!pPlot)
 			continue;
@@ -2202,8 +2214,8 @@ void CvCityCitizens::DoVerifyWorkingPlots()
 		if (pPlot->isBlockaded())
 			SetBlockaded(pPlot);
 
-		//worked plot migh be invalid ...
-		if (IsWorkingPlot(iI) && !IsCanWork(pPlot))
+		//worked plot might be invalid now ... so move the citizen somewhere else
+		if (!IsCanWork(pPlot))
 		{
 			SetWorkingPlot(pPlot, false, CvCity::YIELD_UPDATE_LOCAL);
 			DoAddBestCitizenFromUnassigned(CvCity::YIELD_UPDATE_GLOBAL);

@@ -2547,7 +2547,7 @@ int CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes eImprovem
 	}
 
 	//Fort test.
-	ImprovementTypes eFort = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_FORT");
+	static ImprovementTypes eFort = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_FORT");
 	if (eFort != NO_IMPROVEMENT && eImprovement == eFort && pPlot->canBuild(eBuild, m_pPlayer->GetID()))
 	{
 		//Is this a good spot for a defensive building?
@@ -2569,7 +2569,7 @@ int CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes eImprovem
 		}
 	}
 	//Looking to build something else on top of a fort? It'd better be good.
-	else if(eImprovement != eFort && pPlot->getImprovementType() != eFort)
+	else if(eImprovement != eFort && pPlot->getImprovementType() == eFort)
 	{
 		//looking to replace a fort - score might have changed because the border moved!
 		int iFortScore = pPlot->GetDefenseBuildValue(m_pPlayer->GetID());
