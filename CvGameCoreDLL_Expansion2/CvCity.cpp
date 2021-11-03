@@ -2931,20 +2931,14 @@ void CvCity::updateYield(bool bRecalcPlotYields)
 		const CvReligion* pReligion = (eMajority != NO_RELIGION) ? GC.getGame().GetGameReligions()->GetReligion(eMajority, getOwner()) : 0;
 		const CvBeliefEntry* pPantheon = (eSecondaryPantheon != NO_BELIEF) ? GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon) : 0;
 
-		//note: since cities' workable areas can overlap, we may process some plots multiple times
+		//we look at all the plots we *could* work
 		for (int iI = 0; iI < GetNumWorkablePlots(); iI++)
 		{
 			CvPlot* pLoopPlot = GetCityCitizens()->GetCityPlotFromIndex(iI);
-			if (!pLoopPlot || pLoopPlot->getOwner() != getOwner())
+			if (!pLoopPlot || !pLoopPlot->isEffectiveOwner(this))
 				continue;
 
-			//we're trying to avoid CvPlot::GetWorkingCity() for each plot as it's rather slow and this gets called a lot
-			bool bWeAreWorkingIt = GetCityCitizens()->IsWorkingPlot(iI);
-			bool bSomeOtherCityIsWorkingIt = !bWeAreWorkingIt && pLoopPlot->isBeingWorked();
-
-			//each city updates the plots it is working plus unworked plots
-			if (!bSomeOtherCityIsWorkingIt)
-				pLoopPlot->updateYieldFast(this, pReligion, pPantheon);
+			pLoopPlot->updateYieldFast(this, pReligion, pPantheon);
 		}
 	}
 
@@ -21703,24 +21697,6 @@ void CvCity::DoCreatePuppet()
 
 	setProductionAutomated(true, true);
 
-	// Loop through all plots near this City
-	int iForceWorkingPuppetRange = 2;
-	for (int iPlotLoop = 0; iPlotLoop < GetNumWorkablePlots(); iPlotLoop++)
-	{
-		CvPlot* pLoopPlot = iterateRingPlots(getX(), getY(), iPlotLoop);
-
-		if (pLoopPlot != NULL)
-		{
-			// Cut off areas around the city we don't care about
-			pLoopPlot = plotXYWithRangeCheck(pLoopPlot->getX(), pLoopPlot->getY(), getX(), getY(), iForceWorkingPuppetRange);
-
-			if (pLoopPlot != NULL)
-			{
-				pLoopPlot->setOwningCityOverride(this);
-			}
-		}
-	}
-
 	// Remove any buildings that are not applicable to puppets (but might have been earned through traits/policies)
 	for (int iI = 0; iI < GC.getNumBuildingInfos(); iI++)
 	{
@@ -25526,7 +25502,7 @@ void CvCity::ChangeBaseYieldRateFromTerrain(YieldTypes eIndex, int iChange)
 			OutputDebugString("houston, we have a problem!\n");
 		}
 
-		m_aiBaseYieldRateFromTerrain[eIndex] = m_aiBaseYieldRateFromTerrain[eIndex] + iChange;
+		m_aiBaseYieldRateFromTerrain[eIndex] += iChange;
 
 		if (getTeam() == GC.getGame().getActiveTeam())
 		{
@@ -29959,14 +29935,12 @@ void CvCity::pushOrder(OrderTypes eOrder, int iData1, int iData2, bool bSave, bo
 {
 	VALIDATE_OBJECT
 	OrderData order;
-	bool bValid;
+	bool bValid = false;
 
 	if (bPop)
 	{
 		clearOrderQueue();
 	}
-
-	bValid = false;
 
 	switch (eOrder)
 	{
@@ -30055,7 +30029,6 @@ void CvCity::pushOrder(OrderTypes eOrder, int iData1, int iData2, bool bSave, bo
 		startHeadOrder();
 	}
 
-#if defined(MOD_BALANCE_CORE)
 	if (eOrder == ORDER_MAINTAIN && (ProcessTypes)iData1 != NO_PROCESS)
 	{
 		CvProcessInfo* pkProcessInfo = GC.getProcessInfo((ProcessTypes)iData1);
@@ -30064,7 +30037,6 @@ void CvCity::pushOrder(OrderTypes eOrder, int iData1, int iData2, bool bSave, bo
 			updateStrengthValue();
 		}
 	}
-#endif
 
 	if ((getTeam() == GC.getGame().getActiveTeam()) || GC.getGame().isDebugMode())
 	{
