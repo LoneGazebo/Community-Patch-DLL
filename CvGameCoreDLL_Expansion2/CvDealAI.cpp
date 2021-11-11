@@ -3741,14 +3741,8 @@ void CvDealAI::DoAddVoteCommitmentToUs(CvDeal* pDeal, PlayerTypes eThem, int& iT
 				return;
 			}
 			CvLeagueAI::VoteCommitmentList vDesiredCommitments;
-			if (GET_PLAYER(eThem).isHuman())
-			{
-				vDesiredCommitments = GetPlayer()->GetLeagueAI()->GetDesiredVoteCommitments(eThem, true);
-			}
-			else
-			{
-				vDesiredCommitments = GET_PLAYER(eThem).GetLeagueAI()->GetDesiredVoteCommitments(eMyPlayer);
-			}
+			vDesiredCommitments = GET_PLAYER(eThem).GetLeagueAI()->GetDesiredVoteCommitments(eMyPlayer);
+			
 			CvWeightedVector<int> viTradeValues;
 			for (CvLeagueAI::VoteCommitmentList::iterator it = vDesiredCommitments.begin(); it != vDesiredCommitments.end(); ++it)
 			{
@@ -3776,6 +3770,7 @@ void CvDealAI::DoAddVoteCommitmentToUs(CvDeal* pDeal, PlayerTypes eThem, int& iT
 			{
 				//reverse!
 				for (int iRanking = viTradeValues.size() - 1; iRanking >= 0; iRanking--)
+					////**** I think this is the wrong way around, it currently counts from lowest to highest value
 				{
 					int iWeight = viTradeValues.GetWeight(iRanking);
 					if (iWeight != 0)

@@ -9473,7 +9473,7 @@ void CvLeagueAI::DoProposals(CvLeague* pLeague)
 	}
 }
 
-CvLeagueAI::VoteCommitmentList CvLeagueAI::GetDesiredVoteCommitments(PlayerTypes eFromPlayer, bool bFlippedLogic)
+CvLeagueAI::VoteCommitmentList CvLeagueAI::GetDesiredVoteCommitments(PlayerTypes eFromPlayer)
 {
 	VoteCommitmentList vDesired;
 
@@ -9497,9 +9497,13 @@ CvLeagueAI::VoteCommitmentList CvLeagueAI::GetDesiredVoteCommitments(PlayerTypes
 						{
 							iDesiredChoice = LeagueHelpers::CHOICE_YES;
 						}
-						if (it->GetEffects()->bEmbargoPlayer && it->GetProposerDecision()->GetDecision() == GetPlayer()->GetID())
+						else
 						{
-							iDesiredChoice = LeagueHelpers::CHOICE_NO;
+							DesireLevels eDesire = EvaluateDesire(ScoreVoteChoiceYesNo(&(*it), 1,/*bEnact*/ true,/*bConsiderGlobal*/false));
+							if (eDesire > DESIRE_NEUTRAL)
+								iDesiredChoice = LeagueHelpers::CHOICE_YES;
+							else if (eDesire < DESIRE_NEUTRAL)
+								iDesiredChoice = LeagueHelpers::CHOICE_NO;
 						}
 					}
 					// Proposals voting on a player
@@ -9526,14 +9530,7 @@ CvLeagueAI::VoteCommitmentList CvLeagueAI::GetDesiredVoteCommitments(PlayerTypes
 						VoteCommitment temp;
 						temp.iResolutionID = it->GetID();
 						int iVotes = 0;
-						if (bFlippedLogic)
-						{
-							iVotes =pLeague->GetPotentialVotesForMember(eFromPlayer, GetPlayer()->GetID());
-						}
-						else
-						{
-							iVotes = pLeague->GetPotentialVotesForMember(GetPlayer()->GetID(), eFromPlayer);
-						}	
+						iVotes = pLeague->GetPotentialVotesForMember(GetPlayer()->GetID(), eFromPlayer);
 						temp.iNumVotes = iVotes;
 						temp.iVoteChoice = iDesiredChoice;
 						temp.bEnact = true;
@@ -9553,9 +9550,13 @@ CvLeagueAI::VoteCommitmentList CvLeagueAI::GetDesiredVoteCommitments(PlayerTypes
 						{
 							iDesiredChoice = LeagueHelpers::CHOICE_YES;
 						}
-						if (it->GetEffects()->bEmbargoPlayer && it->GetProposerDecision()->GetDecision() == GetPlayer()->GetID())
+						else
 						{
-							iDesiredChoice = LeagueHelpers::CHOICE_YES;
+							DesireLevels eDesire = EvaluateDesire(ScoreVoteChoiceYesNo(&(*it), 1,/*bEnact*/ false,/*bConsiderGlobal*/false));
+							if (eDesire > DESIRE_NEUTRAL)
+								iDesiredChoice = LeagueHelpers::CHOICE_YES;
+							else if (eDesire < DESIRE_NEUTRAL)
+								iDesiredChoice = LeagueHelpers::CHOICE_NO;
 						}
 					}
 					else
@@ -9568,14 +9569,7 @@ CvLeagueAI::VoteCommitmentList CvLeagueAI::GetDesiredVoteCommitments(PlayerTypes
 						VoteCommitment temp;
 						temp.iResolutionID = it->GetID();
 						int iVotes = 0;
-						if (bFlippedLogic)
-						{
-							iVotes = pLeague->GetPotentialVotesForMember(eFromPlayer, GetPlayer()->GetID());
-						}
-						else
-						{
-							iVotes = pLeague->GetPotentialVotesForMember(GetPlayer()->GetID(), eFromPlayer);
-						}
+						iVotes = pLeague->GetPotentialVotesForMember(GetPlayer()->GetID(), eFromPlayer);
 						temp.iNumVotes = iVotes;
 						temp.iVoteChoice = iDesiredChoice;
 						temp.bEnact = false;
@@ -9596,14 +9590,7 @@ CvLeagueAI::VoteCommitmentList CvLeagueAI::GetDesiredVoteCommitments(PlayerTypes
 					{
 						int iChoice = vChoices[i];
 						int iVotes = 0;
-						if (bFlippedLogic)
-						{
-							iVotes = pLeague->GetPotentialVotesForMember(eFromPlayer, GetPlayer()->GetID());
-						}
-						else
-						{
-							iVotes = pLeague->GetPotentialVotesForMember(GetPlayer()->GetID(), eFromPlayer);
-						}
+						iVotes = pLeague->GetPotentialVotesForMember(GetPlayer()->GetID(), eFromPlayer);
 						DesireLevels eDesire = EvaluateVoteForTrade(it->GetID(), iChoice, iVotes, /*bRepeal*/false);
 
 						if (eDesire > eHighestDesire)
@@ -9618,14 +9605,7 @@ CvLeagueAI::VoteCommitmentList CvLeagueAI::GetDesiredVoteCommitments(PlayerTypes
 						VoteCommitment temp;
 						temp.iResolutionID = it->GetID();
 						int iVotes = 0;
-						if (bFlippedLogic)
-						{
-							iVotes = pLeague->GetPotentialVotesForMember(eFromPlayer, GetPlayer()->GetID());
-						}
-						else
-						{
-							iVotes = pLeague->GetPotentialVotesForMember(GetPlayer()->GetID(), eFromPlayer);
-						}
+						iVotes = pLeague->GetPotentialVotesForMember(GetPlayer()->GetID(), eFromPlayer);
 						temp.iNumVotes = iVotes;
 						temp.iVoteChoice = iDesiredChoice;
 						temp.bEnact = true;
@@ -9643,14 +9623,7 @@ CvLeagueAI::VoteCommitmentList CvLeagueAI::GetDesiredVoteCommitments(PlayerTypes
 					{
 						int iChoice = vChoices[i];
 						int iVotes = 0;
-						if (bFlippedLogic)
-						{
-							iVotes = pLeague->GetPotentialVotesForMember(eFromPlayer, GetPlayer()->GetID());
-						}
-						else
-						{
-							iVotes = pLeague->GetPotentialVotesForMember(GetPlayer()->GetID(), eFromPlayer);
-						}
+						iVotes = pLeague->GetPotentialVotesForMember(GetPlayer()->GetID(), eFromPlayer);
 						DesireLevels eDesire = EvaluateVoteForTrade(it->GetID(), iChoice, iVotes, /*bRepeal*/true);
 
 						if (eDesire > eHighestDesire)
@@ -9666,14 +9639,7 @@ CvLeagueAI::VoteCommitmentList CvLeagueAI::GetDesiredVoteCommitments(PlayerTypes
 						temp.iResolutionID = it->GetID();
 
 						int iVotes = 0;
-						if (bFlippedLogic)
-						{
-							iVotes = pLeague->GetPotentialVotesForMember(eFromPlayer, GetPlayer()->GetID());
-						}
-						else
-						{
-							iVotes = pLeague->GetPotentialVotesForMember(GetPlayer()->GetID(), eFromPlayer);
-						}
+						iVotes = pLeague->GetPotentialVotesForMember(GetPlayer()->GetID(), eFromPlayer);
 						temp.iNumVotes = iVotes;
 						temp.iVoteChoice = iDesiredChoice;
 						temp.bEnact = false;
