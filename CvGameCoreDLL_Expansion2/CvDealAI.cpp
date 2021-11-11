@@ -3770,7 +3770,6 @@ void CvDealAI::DoAddVoteCommitmentToUs(CvDeal* pDeal, PlayerTypes eThem, int& iT
 			{
 				//reverse!
 				for (int iRanking = viTradeValues.size() - 1; iRanking >= 0; iRanking--)
-					////**** I think this is the wrong way around, it currently counts from lowest to highest value
 				{
 					int iWeight = viTradeValues.GetWeight(iRanking);
 					if (iWeight != 0)
