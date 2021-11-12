@@ -685,6 +685,7 @@ CvPlayer::CvPlayer() :
 	, m_aiYieldForLiberation()
 	, m_iInfluenceForLiberation()
 	, m_iExperienceForLiberation()
+	, m_iCityCaptureHealGlobal()
 	, m_aiBuildingClassInLiberatedCities()
 	, m_iUnitsInLiberatedCities()
 	, m_paiBuildingClassCulture()
@@ -1577,6 +1578,7 @@ void CvPlayer::uninit()
 	m_iInfluenceForLiberation = 0;
 	m_iExperienceForLiberation = 0;
 	m_iUnitsInLiberatedCities = 0;
+	m_iCityCaptureHealGlobal = 0;
 #endif
 #if defined(MOD_BALANCE_CORE_SPIES)
 	m_iMaxAirUnits = 0;
@@ -3567,6 +3569,12 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 			// Other instant yields from conquering a city?
 			int iScaler = max(1, (iPopulation / 2) - GetCurrentEra());
 			doInstantYield(INSTANT_YIELD_TYPE_F_CONQUEST, false, NO_GREATPERSON, NO_BUILDING, iScaler, true, NO_PLAYER, NULL, false, NULL, pCity->isCoastal(), true, false, NO_YIELD, NULL, NO_TERRAIN, NULL, pCity);
+
+			// All units heal from conquering a city?
+			if (MOD_BALANCE_CORE_POLICIES && getCityCaptureHealGlobal() > 0)
+			{
+				DoHealGlobal(getCityCaptureHealGlobal());
+			}
 		}
 
 #if defined(MOD_API_ACHIEVEMENTS)
@@ -20027,6 +20035,27 @@ void CvPlayer::DoDifficultyBonus(HistoricEventTypes eHistoricEvent)
 		pLog->Msg(strTemp);
 	}
 }
+void CvPlayer::DoHealGlobal(int iHealPercent)
+{
+	int iLoop;
+	CvUnit* pLoopUnit = NULL;
+	for (pLoopUnit = kPlayer.firstUnit(&iLoop); pLoopUnit; pLoopUnit = kPlayer.nextUnit(&iLoop))
+	{
+		if (!pLoopUnit)
+			continue;
+		if (pLoopUnit->IsCombatUnit())
+		{
+			if (iHealPercent == 100)
+				pLoopUnit->changeDamage(-pLoopUnit->getDamage());
+			else
+			{
+				int iHealHP = pLoopUnit->GetMaxHitPoints() * iHealPercent / 100;
+				pLoopUnit->changeDamage(-iHealHP);
+			}
+			
+		}
+	}
+}
 #endif
 #if defined(MOD_API_UNIFIED_YIELDS)
 //	--------------------------------------------------------------------------------
@@ -35547,6 +35576,16 @@ void CvPlayer::changeExperienceForLiberation(int iChange)
 	m_iExperienceForLiberation += iChange;
 }
 
+int CvPlayer::getCityCaptureHealGlobal() const
+{
+	return m_iCityCaptureHealGlobal;
+}
+
+void CvPlayer::changeCityCaptureHealGlobal(int iChange)
+{
+	m_iCityCaptureHealGlobal += iChange;
+}
+
 //	--------------------------------------------------------------------------------
 int CvPlayer::getNumBuildingClassInLiberatedCities(BuildingClassTypes eIndex)	const
 {
@@ -44112,6 +44151,7 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 	changeExperienceForLiberation(pPolicy->GetExperienceForLiberation() * iChange);
 	changeUnitsInLiberatedCities(pPolicy->GetUnitsInLiberatedCities() * iChange);
 	changeMaxAirUnits(pPolicy->GetMaxAirUnitsChange() * iChange);
+	changeCityCaptureHealGlobal(pPolicy->GetCityCaptureHealGlobal() * iChange);
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	ChangeIsVassalsNoRebel(pPolicy->IsVassalsNoRebel() * iChange);
 	ChangeVassalCSBonusModifier(pPolicy->GetVassalCSBonusModifier() * iChange);
@@ -46789,6 +46829,7 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 	visitor(player.m_aiYieldForLiberation);
 	visitor(player.m_iInfluenceForLiberation);
 	visitor(player.m_iExperienceForLiberation);
+	visitor(player.m_iCityCaptureHealGlobal);
 	visitor(player.m_aiBuildingClassInLiberatedCities);
 	visitor(player.m_iUnitsInLiberatedCities);
 	visitor(player.m_paiBuildingClassCulture);

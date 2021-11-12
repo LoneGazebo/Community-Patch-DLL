@@ -543,6 +543,8 @@ public:
 	void DoYieldsFromKill(CvUnit* pAttackingUnit, CvUnit* pDefendingUnit, CvCity* pCity = NULL);
 
 	void DoTechFromCityConquer(CvCity* pConqueredCity);
+
+	void DoHealGlobal(int iValue);
 #if defined(MOD_BALANCE_CORE)
 	void DoFreeGreatWorkOnConquest(PlayerTypes ePlayer, CvCity* pCity);
 	void DoWarVictoryBonuses();
@@ -1887,6 +1889,9 @@ public:
 	int getExperienceForLiberation()	const;
 	void changeExperienceForLiberation(int iChange);
 
+	int getCityCaptureHealGlobal() const;
+	void changeCityCaptureHealGlobal(int iChange);
+
 	int getNumBuildingClassInLiberatedCities(BuildingClassTypes eIndex)	const;
 	void changeNumBuildingClassInLiberatedCities(BuildingClassTypes eIndex, int iChange);
 
@@ -3189,6 +3194,7 @@ protected:
 	int m_iInfluenceForLiberation;
 	int m_iExperienceForLiberation;
 	int m_iUnitsInLiberatedCities;
+	int m_iCityCaptureHealGlobal;
 #endif
 #if defined(MOD_BALANCE_CORE_SPIES)
 	int m_iMaxAirUnits;
