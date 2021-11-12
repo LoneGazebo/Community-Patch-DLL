@@ -3570,11 +3570,10 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 			int iScaler = max(1, (iPopulation / 2) - GetCurrentEra());
 			doInstantYield(INSTANT_YIELD_TYPE_F_CONQUEST, false, NO_GREATPERSON, NO_BUILDING, iScaler, true, NO_PLAYER, NULL, false, NULL, pCity->isCoastal(), true, false, NO_YIELD, NULL, NO_TERRAIN, NULL, pCity);
 
-			// Units heal from conquering a city?
-			int iHealPercent = getCityCaptureHealGlobal();
-			if (MOD_BALANCE_CORE_POLICIES && isMajorCiv() && iHealPercent > 0)
+			// All units heal from conquering a city?
+			if (MOD_BALANCE_CORE_POLICIES && getCityCaptureHealGlobal() > 0)
 			{
-				DoHealGlobal(iHealPercent);
+				DoHealGlobal(getCityCaptureHealGlobal());
 			}
 		}
 
@@ -20046,17 +20045,12 @@ void CvPlayer::DoHealGlobal(int iHealPercent)
 			continue;
 		if (pLoopUnit->IsCombatUnit())
 		{
-			int iDamage = pLoopUnit->getDamage();
 			if (iHealPercent == 100)
-				pLoopUnit->changeDamage(-iDamage);
+				pLoopUnit->changeDamage(-pLoopUnit->getDamage());
 			else
 			{
-				int iMaxHP = pLoopUnit->GetMaxHitPoints();
-				int iHealHP = iMaxHP * iHealPercent / 100;
-				if iHeal >= iDamage
-					pLoopUnit->changeDamage(-iDamage);
-				else
-					pLoopUnit->changeDamage(-iHealHP);
+				int iHealHP = pLoopUnit->GetMaxHitPoints() * iHealPercent / 100;
+				pLoopUnit->changeDamage(-iHealHP);
 			}
 			
 		}
