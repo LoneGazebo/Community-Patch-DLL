@@ -1429,7 +1429,7 @@ int CvDealAI::GetGPTforForValueExchange(int iGPTorValue, bool bNumGPTFromValue, 
 	if(bNumGPTFromValue)
 	{
 		//let's assume an interest rate of 0.5% per turn, no compounding
-		int iInterestPercent = min(50, 100 * (iNumTurns * /*5*/ GC.getEACH_GOLD_PER_TURN_VALUE_PERCENT()) / 1000);
+		int iInterestPercent = (5 * /*5*/ GC.getEACH_GOLD_PER_TURN_VALUE_PERCENT() * iNumTurns) / max(1, GC.getGame().getGameSpeedInfo().GetDealDuration());
 
 		//add interest. 100 gold now is better than 100 gold in the future
 		iGPTorValue += (iGPTorValue*iInterestPercent) / 100;
@@ -1456,10 +1456,11 @@ int CvDealAI::GetGPTforForValueExchange(int iGPTorValue, bool bNumGPTFromValue, 
 		iValueTimes100 = (iGPTorValue * iNumTurns);
 
 		//let's assume an interest rate of 0.5% per turn, no compounding
-		int iInterestPercent = min(50, 100 * (iNumTurns * /*5*/ GC.getEACH_GOLD_PER_TURN_VALUE_PERCENT()) / 1000);
+		int iInterestPercent = (5 * /*5*/ GC.getEACH_GOLD_PER_TURN_VALUE_PERCENT() * iNumTurns) / max(1,GC.getGame().getGameSpeedInfo().GetDealDuration());
 
 		//subtract interest. 100 gold now is better than 100 gold in the future
-		iValueTimes100 -= (iValueTimes100*iInterestPercent) / 100;
+		iValueTimes100 *= 100;
+		iValueTimes100 /= max(1,100 + iInterestPercent);
 
 		// Sometimes we want to round up. Let's say the AI offers a deal to the human. We have to ensure that the human can also offer that deal back and the AI will accept (and vice versa)
 		if (bRoundUp)
