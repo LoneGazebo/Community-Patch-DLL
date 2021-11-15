@@ -46,8 +46,11 @@ int CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlot
 	//route preparation
 	bool bRouteTo = pToPlot->isValidRoute(pUnit);
 	bool bRouteFrom = pFromPlot->isValidRoute(pUnit);
-	bool bFakeRouteTo = pTraits->IsWoodlandMovementBonus() && (eToFeature == FEATURE_FOREST || eToFeature == FEATURE_JUNGLE);
-	bool bFakeRouteFrom = pTraits->IsWoodlandMovementBonus() && (pFromPlot->getFeatureType() == FEATURE_FOREST || pFromPlot->getFeatureType() == FEATURE_JUNGLE);
+
+	//balance patch does not require plot ownership
+	bool bFakeRouteTo = (pTraits->IsWoodlandMovementBonus() && (eToFeature == FEATURE_FOREST || eToFeature == FEATURE_JUNGLE) && (gCustomMods.isBALANCE_CORE() || pToPlot->getTeam() == eUnitTeam));
+	bool bFakeRouteFrom = (pTraits->IsWoodlandMovementBonus() && (pFromPlot->getFeatureType() == FEATURE_FOREST || pFromPlot->getFeatureType() == FEATURE_JUNGLE) && (gCustomMods.isBALANCE_CORE() || pToPlot->getTeam() == eUnitTeam));
+
 	//ideally there'd be a check of the river direction to make sure it's the same river
 	bool bMovingAlongRiver = pToPlot->isRiver() && pFromPlot->isRiver() && !bRiverCrossing;
 	bFakeRouteTo = bFakeRouteTo || (bFasterAlongRiver && bMovingAlongRiver);
