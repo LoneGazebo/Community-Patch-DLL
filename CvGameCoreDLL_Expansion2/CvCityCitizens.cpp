@@ -481,25 +481,16 @@ int CvCityCitizens::GetPlotValue(CvPlot* pPlot, SPrecomputedExpensiveNumbers& ca
 {
 	int iValue = 0;
 
-	bool bCityFoodProduction = !GET_PLAYER(GetOwner()).isHuman() && m_pCity->getPopulation() > 3 && m_pCity->isFoodProduction(); //settler!
-	bool bCityWonderProduction = !GET_PLAYER(GetOwner()).isHuman() && m_pCity->getPopulation() > 3 && m_pCity->IsBuildingWorldWonder();
-	bool bSmallCity = m_pCity->getPopulation() < GC.getCITY_MIN_SIZE_FOR_SETTLERS();
 	ProcessTypes eProcess = m_pCity->getProductionProcess();
 	const CvProcessInfo* pkProcessInfo = GC.getProcessInfo(eProcess);
 	CityAIFocusTypes eFocus = GetFocusType();
-	bool bIsWorking = IsWorkingPlot(pPlot);
 	bool bAvoidGrowth = IsAvoidGrowth();
-	int iFoodThreshold = GetExcessFoodThreshold100();
-
-	//do we have enough food? always want to grow a little bit a least, so don't use zero as threshold
-	bool bNeedFood = (cache.iExcessFoodTimes100 < iFoodThreshold);
-	if (bIsWorking)
-		//we might fall under the threshold if we no longer work it
-		bNeedFood = (cache.iExcessFoodTimes100 - pPlot->getYield(YIELD_FOOD)) < iFoodThreshold;
+	bool bIsWorking = IsWorkingPlot(pPlot);
 
 	//we always want to be growing a little bit
-	bool bEmphasizeFood = (bNeedFood || bSmallCity || bCityFoodProduction);
-	bool bEmphasizeProduction = (bCityFoodProduction || bCityWonderProduction);
+	//we might fall under the threshold if we stop working a given plot, so take that into account
+	bool bEmphasizeFood = CityShouldEmphasizeFood(bIsWorking ? cache.iExcessFoodTimes100 - pPlot->getYield(YIELD_FOOD)*100 : cache.iExcessFoodTimes100);
+	bool bEmphasizeProduction = CityShouldEmphasizeProduction();
 
 	for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 	{
@@ -530,7 +521,7 @@ int CvCityCitizens::GetPlotValue(CvPlot* pPlot, SPrecomputedExpensiveNumbers& ca
 					iYield100 += min(0, (iYield100*m_pCity->getGrowthMods()) / 100);
 
 				// even if we don't want to grow we care a little, extra food can help against unhappiness from distress!
-				if (!bNeedFood && bAvoidGrowth)
+				if (!bEmphasizeFood && bAvoidGrowth)
 					iYield100 /= 20;
 			}
 
@@ -541,6 +532,25 @@ int CvCityCitizens::GetPlotValue(CvPlot* pPlot, SPrecomputedExpensiveNumbers& ca
 	}
 
 	return iValue;
+}
+
+bool CvCityCitizens::CityShouldEmphasizeFood(int iAssumedExcessFood) const
+{
+	bool bCityFoodProduction = !GET_PLAYER(GetOwner()).isHuman() && m_pCity->getPopulation() > 3 && m_pCity->isFoodProduction(); //settler!
+	bool bSmallCity = m_pCity->getPopulation() < GC.getCITY_MIN_SIZE_FOR_SETTLERS();
+	int iFoodThreshold = GetExcessFoodThreshold100();
+
+	//do we have enough food? always want to grow a little bit a least, so don't use zero as threshold
+	bool bNeedFood = (iAssumedExcessFood < iFoodThreshold);
+
+	return (bNeedFood || bSmallCity || bCityFoodProduction);
+}
+
+bool CvCityCitizens::CityShouldEmphasizeProduction() const
+{
+	bool bCityFoodProduction = !GET_PLAYER(GetOwner()).isHuman() && m_pCity->getPopulation() > 3 && m_pCity->isFoodProduction(); //settler!
+	bool bCityWonderProduction = !GET_PLAYER(GetOwner()).isHuman() && m_pCity->getPopulation() > 3 && m_pCity->IsBuildingWorldWonder();
+	return (bCityFoodProduction || bCityWonderProduction);
 }
 
 /// Are this City's Citizens under automation?
@@ -646,7 +656,8 @@ bool CvCityCitizens::SetFocusType(CityAIFocusTypes eFocus, bool bReallocate)
 
 int CvCityCitizens::GetYieldModForFocus(YieldTypes eYield, CityAIFocusTypes eFocus, bool bEmphasizeFood, bool bEmphasizeProduction, const SPrecomputedExpensiveNumbers& cache)
 {
-	int iYieldMod = 6; //default
+	int iDefaultValue = 6; //not too low to limit influence of moddable values
+	int iYieldMod = iDefaultValue;
 
 	if (eYield == YIELD_FOOD)
 	{
@@ -691,11 +702,12 @@ int CvCityCitizens::GetYieldModForFocus(YieldTypes eYield, CityAIFocusTypes eFoc
 		iYieldMod += cache.iUnhappinessFromReligion;
 	}
 
-	//prevent starvation if we have a focus on a specific yield
+	//sanity check: do not focus too much on anything else while we need food
+	//if we are too greedy initially we fix it in OptimizeWorkedPlots()
 	if (bEmphasizeFood && eYield != YIELD_FOOD)
-		iYieldMod /= 2;
-
-	return iYieldMod;
+		return min(iDefaultValue+GC.getAI_CITIZEN_VALUE_FOOD(), iYieldMod);
+	else
+		return iYieldMod;
 }
 
 /// What is the Building Type the AI likes the Specialist of most right now?
@@ -822,14 +834,15 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist, const SPreco
 	if (pSpecialistInfo == NULL)
 		return 0;
 
-	CvPlayer* pPlayer = m_pCity->GetPlayer();
-	bool bCityWonderProduction = !pPlayer->isHuman() && m_pCity->getPopulation() > 3 && m_pCity->IsBuildingWorldWonder();
+	bool bEmphasizeFood = CityShouldEmphasizeFood(cache.iExcessFoodTimes100);
+	bool bEmphasizeProduction = CityShouldEmphasizeProduction();
 
 	///////
 	// Bonuses
 	//////////
 	ProcessTypes eProcess = m_pCity->getProductionProcess();
 	const CvProcessInfo* pkProcessInfo = GC.getProcessInfo(eProcess);
+	CvPlayer* pPlayer = m_pCity->GetPlayer();
 
 	int iValue = 0;
 
@@ -871,9 +884,10 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist, const SPreco
 				}
 			}
 
-			int iYieldMod = GetYieldModForFocus(eYield, eFocus, false, bCityWonderProduction, cache);
+			//specialists don't produce food so we can ignore any emphasis
+			int iYieldMod = GetYieldModForFocus(eYield, eFocus, bEmphasizeFood, bEmphasizeProduction, cache);
 
-			// prefer to even out yields
+			//prefer to even out yields
 			if (m_pCity->GetCityStrategyAI()->GetMostDeficientYield() == eYield)
 				iYieldMod += 3;
 

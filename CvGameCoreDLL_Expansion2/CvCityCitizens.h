@@ -71,6 +71,8 @@ public:
 
 	int GetBonusPlotValue(CvPlot* pPlot, YieldTypes eYield, SPrecomputedExpensiveNumbers& cache);
 	int GetPlotValue(CvPlot* pPlot, SPrecomputedExpensiveNumbers& cache);
+	bool CityShouldEmphasizeFood(int iAssumedExcessFood) const;
+	bool CityShouldEmphasizeProduction() const;
 
 	// Are this City's Citizens automated? (always true for AI civs)
 	bool IsAutomated() const;
