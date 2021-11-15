@@ -994,7 +994,7 @@ public:
 	void DoProposals(CvLeague* pLeague);
 
 	// Deals for votes
-	VoteCommitmentList GetDesiredVoteCommitments(PlayerTypes eFromPlayer, bool bFlippedLogic = false);
+	VoteCommitmentList GetDesiredVoteCommitments(PlayerTypes eFromPlayer);
 	bool HasVoteCommitment() const;
 	int GetVoteCommitment(PlayerTypes eToPlayer, int iResolutionID, int iVoteChoice, bool bRepeal);
 	bool CanCommitVote(PlayerTypes eToPlayer, CvString* sTooltipSink = NULL);
