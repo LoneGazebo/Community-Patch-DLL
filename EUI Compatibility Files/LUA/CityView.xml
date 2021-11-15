@@ -361,7 +361,7 @@
 			<Label ID="Name" Anchor="L,C" Offset="42,-8" Font="TwCenMT18"/>
 			<Label ID="Turns" Anchor="L,C" Offset="42,8" Font="TwCenMT14"/>
 			<Box ID="Disabled" Color="0,0,0,153" Size="270,31" Anchor="L,B" Hidden="1"/>
-			<Stack Anchor="R,B" StackGrowth="L" >
+			<Stack Anchor="R,B" StackGrowth="R" >
 				<Image ID="ScienceRecommendation" ToolTip="TXT_KEY_CITY_CONSTRUCTION_ADVISOR_RECOMMENDATION_SCIENCE" Anchor="L,C" Size="32,32" Texture="AdvisorSymbolScience.dds" Hidden="1">
 					<ScrollAnim Size="32.32" Speed=".2" Pause=".5" Texture="AdvisorShine.dds" MaskTexture="AdvisorMaskScience.dds"/>
 					<AlphaAnim Anchor="C,C" Offset="4,4" Size="32,32" Texture="AdvisorSpecShine.dds" Pause="5" Cycle="Bounce" Speed="4" AlphaStart="0" AlphaEnd="1"/>
