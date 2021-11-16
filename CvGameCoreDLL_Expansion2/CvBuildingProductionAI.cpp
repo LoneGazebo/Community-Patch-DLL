@@ -108,44 +108,6 @@ int CvBuildingProductionAI::GetWeight(BuildingTypes eBuilding)
 	return m_BuildingAIWeights.GetWeight(eBuilding);
 }
 
-/// Recommend highest-weighted building
-BuildingTypes CvBuildingProductionAI::RecommendBuilding()
-{
-	int iBldgLoop;
-	int iWeight;
-	int iTurnsLeft;
-
-	// Reset list of all the possible buildings
-	m_Buildables.clear();
-
-	// Loop through adding the available buildings
-	for(iBldgLoop = 0; iBldgLoop < GC.GetGameBuildings()->GetNumBuildings(); iBldgLoop++)
-	{
-		// Make sure this building can be built now
-		if(m_pCity->canConstruct((BuildingTypes)iBldgLoop))
-		{
-			// Update weight based on turns to construct
-			iTurnsLeft = m_pCity->getProductionTurnsLeft((BuildingTypes) iBldgLoop, 0);
-			iWeight = CityStrategyAIHelpers::ReweightByTurnsLeft(m_BuildingAIWeights.GetWeight((BuildingTypes)iBldgLoop), iTurnsLeft);
-			m_Buildables.push_back(iBldgLoop, iWeight);
-		}
-	}
-
-	// Sort items and grab the first one
-	if(m_Buildables.size() > 0)
-	{
-		m_Buildables.SortItems();
-		LogPossibleBuilds();
-		return (BuildingTypes)m_Buildables.GetElement(0);
-	}
-
-	// Unless we didn't find any
-	else
-	{
-		return NO_BUILDING;
-	}
-}
-
 /// Log all potential builds
 void CvBuildingProductionAI::LogPossibleBuilds()
 {

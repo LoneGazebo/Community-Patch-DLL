@@ -2065,6 +2065,7 @@ int CityConnectionLandValid(const CvAStarNode* parent, const CvAStarNode* node, 
 		//what else can count as road depends on the player type
 		if(kPlayer.GetPlayerTraits()->IsRiverTradeRoad() && pNewPlot->isRiver())
 				ePlotRoute = ROUTE_ROAD;
+
 		if (kPlayer.GetPlayerTraits()->IsWoodlandMovementBonus() && (pNewPlot->getFeatureType() == FEATURE_FOREST || pNewPlot->getFeatureType() == FEATURE_JUNGLE))
 		{
 			//balance patch does not require plot ownership
@@ -2547,11 +2548,11 @@ bool CvStepFinder::Configure(const SPathFinderUserData& config)
 		m_iBasicPlotCost = PATH_BASE_COST;
 		break;
 	case PT_TRADE_WATER:
-		SetFunctionPointers(NULL, StepHeuristic, TradeRouteWaterPathCost, TradeRouteWaterValid, NULL, TradePathInitialize, TradePathUninitialize);
+		SetFunctionPointers(NULL, StepHeuristic, TradePathWaterCost, TradePathWaterValid, NULL, TradePathInitialize, TradePathUninitialize);
 		m_iBasicPlotCost = PATH_BASE_COST;
 		break;
 	case PT_TRADE_LAND:
-		SetFunctionPointers(NULL, StepHeuristic, TradeRouteLandPathCost, TradeRouteLandValid, NULL, TradePathInitialize, TradePathUninitialize);
+		SetFunctionPointers(NULL, StepHeuristic, TradePathLandCost, TradePathLandValid, NULL, TradePathInitialize, TradePathUninitialize);
 		m_iBasicPlotCost = PATH_BASE_COST;
 		break;
 	case PT_BUILD_ROUTE:
@@ -3052,7 +3053,7 @@ void TradePathUninitialize(const SPathFinderUserData&, CvAStar*)
 }
 
 //	--------------------------------------------------------------------------------
-int TradeRouteLandPathCost(const CvAStarNode* parent, const CvAStarNode* node, const SPathFinderUserData&, CvAStar* finder)
+int TradePathLandCost(const CvAStarNode* parent, const CvAStarNode* node, const SPathFinderUserData&, CvAStar* finder)
 {
 	CvMap& kMap = GC.getMap();
 	CvPlot* pFromPlot = kMap.plotUnchecked(parent->m_iX, parent->m_iY);
@@ -3075,7 +3076,9 @@ int TradeRouteLandPathCost(const CvAStarNode* parent, const CvAStarNode* node, c
 	else if (pFromPlot->isRiver() && pToPlot->isRiver() && (pFromPlot->isCity() || pToPlot->isCity() || !(pFromPlot->isRiverCrossing(directionXY(pFromPlot, pToPlot)))))
 		iRouteFactor = 2;
 	// Iroquois ability
-	else if ((eFeature == FEATURE_FOREST || eFeature == FEATURE_JUNGLE) && pCacheData->IsWoodlandMovementBonus())
+	else if (((eFeature == FEATURE_FOREST || eFeature == FEATURE_JUNGLE) && pCacheData->IsWoodlandMovementBonus()) && 
+				(gCustomMods.isBALANCE_CORE() || pToPlot->getOwner() == finder->GetData().ePlayer) && 
+				!(pFromPlot->isRiverCrossing(directionXY(pFromPlot, pToPlot))))
 		iRouteFactor = 2;
 
 	// apply route discount
@@ -3097,7 +3100,7 @@ int TradeRouteLandPathCost(const CvAStarNode* parent, const CvAStarNode* node, c
 }
 
 //	--------------------------------------------------------------------------------
-int TradeRouteLandValid(const CvAStarNode* parent, const CvAStarNode* node, const SPathFinderUserData&, const CvAStar* finder)
+int TradePathLandValid(const CvAStarNode* parent, const CvAStarNode* node, const SPathFinderUserData&, const CvAStar* finder)
 {
 	if(parent == NULL)
 		return TRUE;
@@ -3143,7 +3146,7 @@ int TradeRouteLandValid(const CvAStarNode* parent, const CvAStarNode* node, cons
 
 //	--------------------------------------------------------------------------------
 
-int TradeRouteWaterPathCost(const CvAStarNode*, const CvAStarNode* node, const SPathFinderUserData&, CvAStar* finder)
+int TradePathWaterCost(const CvAStarNode*, const CvAStarNode* node, const SPathFinderUserData&, CvAStar* finder)
 {
 	CvMap& kMap = GC.getMap();
 	const TradePathCacheData* pCacheData = reinterpret_cast<const TradePathCacheData*>(finder->GetScratchBuffer());
@@ -3169,7 +3172,7 @@ int TradeRouteWaterPathCost(const CvAStarNode*, const CvAStarNode* node, const S
 }
 
 //	--------------------------------------------------------------------------------
-int TradeRouteWaterValid(const CvAStarNode* parent, const CvAStarNode* node, const SPathFinderUserData&, const CvAStar* finder)
+int TradePathWaterValid(const CvAStarNode* parent, const CvAStarNode* node, const SPathFinderUserData&, const CvAStar* finder)
 {
 	if(parent == NULL)
 		return TRUE;

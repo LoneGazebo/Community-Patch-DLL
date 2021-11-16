@@ -610,25 +610,7 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 		{
 			CvPlot* pLoopPlot = plotXYWithRangeCheck(getX(), getY(), iDX, iDY, iRange);
 			if (pLoopPlot != NULL)
-			{
-				if (pLoopPlot->getOwner() == NO_PLAYER)
-				{
-					pLoopPlot->setOwner(getOwner(), m_iID, bBumpUnits);
-				}
-				else if (pLoopPlot->getOwner() != NO_PLAYER)
-				{
-					CvCity* pOwningCity = pLoopPlot->getEffectiveOwningCity();
-					if (pOwningCity != NULL)
-					{
-						//City already working this plot? Adjust features being worked as needed.
-						if (pOwningCity->GetCityCitizens()->IsWorkingPlot(pLoopPlot))
-						{
-							pOwningCity->GetCityCitizens()->SetWorkingPlot(pLoopPlot, false, CvCity::YIELD_UPDATE_GLOBAL);
-						}
-					}
-					pLoopPlot->setOwner(getOwner(), m_iID, bBumpUnits);
-				}
-			}
+				pLoopPlot->setOwner(getOwner(), m_iID, bBumpUnits);
 		}
 	}
 

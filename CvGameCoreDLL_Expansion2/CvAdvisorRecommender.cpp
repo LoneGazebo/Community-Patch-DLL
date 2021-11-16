@@ -55,11 +55,7 @@ void CvAdvisorRecommender::UpdateCityRecommendations(CvCity* pCity)
 	ResetCity();
 
 	CvCityStrategyAI* pCityStrategy = pCity->GetCityStrategyAI();
-	//important: use async generator so a player doesn't taint the gamestate for others
-	RandomNumberDelegate fcn = MakeDelegate(&GC.getGame(), &CvGame::getAsyncRandNum);
-
 	CvCityBuildable buildable;
-	int iWeight;
 
 	// buildings
 	for(int iBuildingLoop = 0; iBuildingLoop < GC.GetGameBuildings()->GetNumBuildings(); iBuildingLoop++)
@@ -74,8 +70,10 @@ void CvAdvisorRecommender::UpdateCityRecommendations(CvCity* pCity)
 		buildable.m_iIndex = iBuildingLoop;
 		buildable.m_iTurnsToConstruct = pCity->getProductionTurnsLeft(eBuilding, 0);
 
-		iWeight = pCityStrategy->GetBuildingProductionAI()->GetWeight(eBuilding);
-		m_aCityBuildables.push_back(buildable, iWeight);
+		int iFlavorWeight = pCityStrategy->GetBuildingProductionAI()->GetWeight(eBuilding);
+		int iSaneWeight = pCityStrategy->GetBuildingProductionAI()->CheckBuildingBuildSanity(eBuilding, iFlavorWeight, 0, 0);
+
+		m_aCityBuildables.push_back(buildable, iSaneWeight);
 	}
 
 	// units
@@ -90,8 +88,11 @@ void CvAdvisorRecommender::UpdateCityRecommendations(CvCity* pCity)
 		buildable.m_eBuildableType = CITY_BUILDABLE_UNIT;
 		buildable.m_iIndex = iUnitLoop;
 		buildable.m_iTurnsToConstruct = pCity->getProductionTurnsLeft(eUnit, 0);
-		iWeight = pCityStrategy->GetUnitProductionAI()->GetWeight(eUnit);
-		m_aCityBuildables.push_back(buildable, iWeight);
+		
+		int iFlavorWeight = pCityStrategy->GetUnitProductionAI()->GetWeight(eUnit);
+		int iSaneWeight = pCityStrategy->GetUnitProductionAI()->CheckUnitBuildSanity(eUnit, false, NULL, iFlavorWeight, 0, 0, false, false);
+
+		m_aCityBuildables.push_back(buildable, iSaneWeight);
 	}
 
 	// projects
@@ -106,8 +107,11 @@ void CvAdvisorRecommender::UpdateCityRecommendations(CvCity* pCity)
 		buildable.m_eBuildableType = CITY_BUILDABLE_PROJECT;
 		buildable.m_iIndex = iProjectLoop;
 		buildable.m_iTurnsToConstruct = pCity->getProductionTurnsLeft(eProject, 0);
-		iWeight = pCityStrategy->GetProjectProductionAI()->GetWeight(eProject);
-		m_aCityBuildables.push_back(buildable, iWeight);
+		
+		int iFlavorWeight = pCityStrategy->GetProjectProductionAI()->GetWeight(eProject);
+		int iSaneWeight = pCityStrategy->GetProjectProductionAI()->CheckProjectBuildSanity(eProject, iFlavorWeight);
+	
+		m_aCityBuildables.push_back(buildable, iSaneWeight);
 	}
 
 	// reweigh by cost
@@ -134,6 +138,7 @@ void CvAdvisorRecommender::UpdateCityRecommendations(CvCity* pCity)
 		m_aFinalRoundBuildables.push_back(m_aCityBuildables.GetElement(i), m_aCityBuildables.GetWeight(i));
 	}
 
+	//todo: find best builable for each advisor, not best advisor for buildable?
 	for(int i = 0; i < m_aFinalRoundBuildables.size(); i++)
 	{
 		m_aFinalRoundBuildables.SortItems();
@@ -203,9 +208,6 @@ void CvAdvisorRecommender::UpdateTechRecommendations(PlayerTypes ePlayer)
 	ResetTechs();
 	CvPlayerTechs* pPlayerTechs = GET_PLAYER(ePlayer).GetPlayerTechs();
 	CvTechAI* pPlayerTechAI = pPlayerTechs->GetTechAI();
-
-	//important: use async generator so a player doesn't taint the gamestate for others
-	RandomNumberDelegate fcn = MakeDelegate(&GC.getGame(), &CvGame::getAsyncRandNum);
 
 	// Loop through adding the researchable techs
 	for(int iTechLoop = 0; iTechLoop < pPlayerTechs->GetTechs()->GetNumTechs(); iTechLoop++)
@@ -288,6 +290,7 @@ int CvAdvisorRecommender::AdvisorInterestInFlavor(AdvisorTypes eAdvisor, FlavorT
 {
 	CvString strFlavorName = GC.getFlavorTypes(eFlavor);
 
+	//todo: normalize weights!
 	switch(eAdvisor)
 	{
 	case ADVISOR_ECONOMIC:
@@ -297,43 +300,43 @@ int CvAdvisorRecommender::AdvisorInterestInFlavor(AdvisorTypes eAdvisor, FlavorT
 		}
 		else if(strFlavorName == "FLAVOR_NAVAL_GROWTH")
 		{
-			return 10;
+			return 7;
 		}
 		else if(strFlavorName == "FLAVOR_NAVAL_TILE_IMPROVEMENT")
 		{
-			return 10;
+			return 7;
 		}
 		else if(strFlavorName == "FLAVOR_EXPANSION")
 		{
-			return 10;
+			return 11;
 		}
 		else if(strFlavorName == "FLAVOR_GROWTH")
 		{
-			return 10;
+			return 15;
 		}
 		else if(strFlavorName == "FLAVOR_TILE_IMPROVEMENT")
 		{
-			return 10;
+			return 13;
 		}
 		else if(strFlavorName == "FLAVOR_INFRASTRUCTURE")
 		{
-			return 5;
+			return 9;
 		}
 		else if(strFlavorName == "FLAVOR_PRODUCTION")
 		{
-			return 10;
+			return 16;
 		}
 		else if(strFlavorName == "FLAVOR_GOLD")
 		{
-			return 10;
+			return 23;
 		}
 		else if(strFlavorName == "FLAVOR_CULTURE")
 		{
-			return 10;
+			return 3;
 		}
 		else if(strFlavorName == "FLAVOR_HAPPINESS")
 		{
-			return 10;
+			return 9;
 		}
 		else if(strFlavorName == "FLAVOR_WONDER")
 		{
@@ -341,22 +344,22 @@ int CvAdvisorRecommender::AdvisorInterestInFlavor(AdvisorTypes eAdvisor, FlavorT
 		}
 		else if(strFlavorName == "FLAVOR_WATER_CONNECTION")
 		{
-			return 5;
+			return 17;
 		}
 
 		break;
 	case ADVISOR_MILITARY:
 		if(strFlavorName == "FLAVOR_OFFENSE")
 		{
-			return 10;
+			return 17;
 		}
 		else if(strFlavorName == "FLAVOR_DEFENSE")
 		{
-			return 10;
+			return 16;
 		}
 		else if(strFlavorName == "FLAVOR_CITY_DEFENSE")
 		{
-			return 5;
+			return 9;
 		}
 		else if(strFlavorName == "FLAVOR_MILITARY_TRAINING")
 		{
@@ -368,7 +371,7 @@ int CvAdvisorRecommender::AdvisorInterestInFlavor(AdvisorTypes eAdvisor, FlavorT
 		}
 		else if(strFlavorName == "FLAVOR_RANGED")
 		{
-			return 10;
+			return 13;
 		}
 		else if(strFlavorName == "FLAVOR_MOBILE")
 		{
@@ -376,7 +379,7 @@ int CvAdvisorRecommender::AdvisorInterestInFlavor(AdvisorTypes eAdvisor, FlavorT
 		}
 		else if(strFlavorName == "FLAVOR_NAVAL")
 		{
-			return 10;
+			return 15;
 		}
 		else if(strFlavorName == "FLAVOR_NAVAL_RECON")
 		{
@@ -384,7 +387,7 @@ int CvAdvisorRecommender::AdvisorInterestInFlavor(AdvisorTypes eAdvisor, FlavorT
 		}
 		else if(strFlavorName == "FLAVOR_AIR")
 		{
-			return 10;
+			return 17;
 		}
 		else if(strFlavorName == "FLAVOR_INFRASTRUCTURE")
 		{
@@ -406,11 +409,11 @@ int CvAdvisorRecommender::AdvisorInterestInFlavor(AdvisorTypes eAdvisor, FlavorT
 		}
 		else if(strFlavorName == "FLAVOR_RECON")
 		{
-			return 10;
+			return 13;
 		}
 		else if(strFlavorName == "FLAVOR_NAVAL_RECON")
 		{
-			return 10;
+			return 11;
 		}
 		else if(strFlavorName == "FLAVOR_GREAT_PEOPLE")
 		{
@@ -422,11 +425,11 @@ int CvAdvisorRecommender::AdvisorInterestInFlavor(AdvisorTypes eAdvisor, FlavorT
 		}
 		else if(strFlavorName == "FLAVOR_RELIGION")
 		{
-			return 10;
+			return 13;
 		}
 		else if(strFlavorName == "FLAVOR_DIPLOMACY")
 		{
-			return 10;
+			return 17;
 		}
 		else if(strFlavorName == "FLAVOR_NUKE")
 		{
@@ -448,23 +451,23 @@ int CvAdvisorRecommender::AdvisorInterestInFlavor(AdvisorTypes eAdvisor, FlavorT
 		}
 		else if(strFlavorName == "FLAVOR_RECON")
 		{
-			return 3;
+			return 11;
 		}
 		else if(strFlavorName == "FLAVOR_NAVAL_RECON")
 		{
-			return 3;
+			return 11;
 		}
 		else if(strFlavorName == "FLAVOR_AIR")
 		{
-			return 5;
+			return 7;
 		}
 		else if(strFlavorName == "FLAVOR_SCIENCE")
 		{
-			return 10;
+			return 13;
 		}
 		else if(strFlavorName == "FLAVOR_SPACESHIP")
 		{
-			return 10;
+			return 17;
 		}
 		else if(strFlavorName == "FLAVOR_NUKE")
 		{
