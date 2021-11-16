@@ -31768,11 +31768,11 @@ void CvDiplomacyAI::DoLuxuryTrade(PlayerTypes ePlayer, DiploStatementTypes& eSta
 
 	if(eStatement == NO_DIPLO_STATEMENT_TYPE)
 	{
-		if(GetPlayer()->GetDealAI()->IsMakeOfferForLuxuryResource(ePlayer, /*pDeal can be modified in this function*/ pDeal))
+		DiploStatementTypes eTempStatement = DIPLO_STATEMENT_LUXURY_TRADE;
+		int iTurnsBetweenStatements = 20;
+		if (GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= iTurnsBetweenStatements)
 		{
-			DiploStatementTypes eTempStatement = DIPLO_STATEMENT_LUXURY_TRADE;
-			int iTurnsBetweenStatements = 20;
-			if(GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= iTurnsBetweenStatements)
+			if (GetPlayer()->GetDealAI()->IsMakeOfferForLuxuryResource(ePlayer, /*pDeal can be modified in this function*/ pDeal))
 			{
 				eStatement = eTempStatement;
 			}
@@ -31780,11 +31780,6 @@ void CvDiplomacyAI::DoLuxuryTrade(PlayerTypes ePlayer, DiploStatementTypes& eSta
 			{
 				pDeal->ClearItems();
 			}
-		}
-		else
-		{
-			// Clear out the deal if we don't want to offer it so that it's not tainted for the next trade possibility we look at
-			pDeal->ClearItems();
 		}
 	}
 }
@@ -32005,24 +32000,20 @@ void CvDiplomacyAI::DoResearchAgreementOffer(PlayerTypes ePlayer, DiploStatement
 	{
 		if (IsCanMakeResearchAgreementRightNow(ePlayer))
 		{
-			if (GetPlayer()->GetDealAI()->IsMakeOfferForResearchAgreement(ePlayer, /*pDeal can be modified in this function*/ pDeal))
-			{
-				DiploStatementTypes eTempStatement = DIPLO_STATEMENT_RESEARCH_AGREEMENT_OFFER;
-				int iTurnsBetweenStatements = 20;
+			DiploStatementTypes eTempStatement = DIPLO_STATEMENT_RESEARCH_AGREEMENT_OFFER;
+			int iTurnsBetweenStatements = 20;
 
-				if(GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= iTurnsBetweenStatements)
+			if (GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= iTurnsBetweenStatements)
+			{
+				if (GetPlayer()->GetDealAI()->IsMakeOfferForResearchAgreement(ePlayer, /*pDeal can be modified in this function*/ pDeal))
 				{
+
 					eStatement = eTempStatement;
 				}
 				else
 				{
 					pDeal->ClearItems();
 				}
-			}
-			else
-			{
-				// Clear out the deal if we don't want to offer it so that it's not tainted for the next trade possibility we look at
-				pDeal->ClearItems();
 			}
 		}
 	}
@@ -32042,23 +32033,19 @@ void CvDiplomacyAI::DoStrategicTrade(PlayerTypes ePlayer, DiploStatementTypes& e
 
 	if(eStatement == NO_DIPLO_STATEMENT_TYPE)
 	{
-		if(GetPlayer()->GetDealAI()->IsMakeOfferForStrategicResource(ePlayer, /*pDeal can be modified in this function*/ pDeal))
+		DiploStatementTypes eTempStatement = DIPLO_STATEMENT_STRATEGIC_TRADE;
+		int iTurnsBetweenStatements = 20;
+		if (GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= iTurnsBetweenStatements)
 		{
-			DiploStatementTypes eTempStatement = DIPLO_STATEMENT_STRATEGIC_TRADE;
-			int iTurnsBetweenStatements = 20;
-			if(GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= iTurnsBetweenStatements)
+			if (GetPlayer()->GetDealAI()->IsMakeOfferForStrategicResource(ePlayer, /*pDeal can be modified in this function*/ pDeal))
 			{
+
 				eStatement = eTempStatement;
 			}
 			else
 			{
 				pDeal->ClearItems();
 			}
-		}
-		else
-		{
-			// Clear out the deal if we don't want to offer it so that it's not tainted for the next trade possibility we look at
-			pDeal->ClearItems();
 		}
 	}
 }
@@ -32082,23 +32069,19 @@ void CvDiplomacyAI::DoDefensivePactOffer(PlayerTypes ePlayer, DiploStatementType
 	{
 		if (IsWantsDefensivePactWithPlayer(ePlayer))
 		{
-			if (GetPlayer()->GetDealAI()->IsMakeOfferForDefensivePact(ePlayer, /*pDeal can be modified in this function*/ pDeal))
+			DiploStatementTypes eTempStatement = DIPLO_STATEMENT_DEFENSIVE_PACT_REQUEST;
+			int iTurnsBetweenStatements = 20;
+			if (GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= iTurnsBetweenStatements)
 			{
-				DiploStatementTypes eTempStatement = DIPLO_STATEMENT_DEFENSIVE_PACT_REQUEST;
-				int iTurnsBetweenStatements = 20;					
-				if (GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= iTurnsBetweenStatements)
+				if (GetPlayer()->GetDealAI()->IsMakeOfferForDefensivePact(ePlayer, /*pDeal can be modified in this function*/ pDeal))
 				{
+
 					eStatement = eTempStatement;
 				}
 				else
 				{
 					pDeal->ClearItems();
 				}
-			}
-			else
-			{
-				// Clear out the deal if we don't want to offer it so that it's not tainted for the next trade possibility we look at
-				pDeal->ClearItems();
 			}
 		}
 	}
@@ -32115,24 +32098,20 @@ void CvDiplomacyAI::DoCityExchange(PlayerTypes ePlayer, DiploStatementTypes& eSt
 
 	if(eStatement == NO_DIPLO_STATEMENT_TYPE)
 	{
-		if(GetPlayer()->GetDealAI()->IsMakeOfferForCityExchange(ePlayer, /*pDeal can be modified in this function*/ pDeal))
-		{
-			DiploStatementTypes eTempStatement = DIPLO_STATEMENT_EXCHANGE_CITIES;
-			int iTurnsBetweenStatements = 30;
+		DiploStatementTypes eTempStatement = DIPLO_STATEMENT_EXCHANGE_CITIES;
+		int iTurnsBetweenStatements = 30;
 
-			if(GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= iTurnsBetweenStatements)
+		if (GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= iTurnsBetweenStatements)
+		{
+			if (GetPlayer()->GetDealAI()->IsMakeOfferForCityExchange(ePlayer, /*pDeal can be modified in this function*/ pDeal))
 			{
+
 				eStatement = eTempStatement;
 			}
 			else
 			{
 				pDeal->ClearItems();
 			}
-		}
-		else
-		{
-			// Clear out the deal if we don't want to offer it so that it's not tainted for the next trade possibility we look at
-			pDeal->ClearItems();
 		}
 	}
 }
@@ -32150,23 +32129,19 @@ void CvDiplomacyAI::DoThirdPartyWarTrade(PlayerTypes ePlayer, DiploStatementType
 
 	if(eStatement == NO_DIPLO_STATEMENT_TYPE)
 	{
-		if(GetPlayer()->GetDealAI()->IsMakeOfferForThirdPartyWar(ePlayer, /*pDeal can be modified in this function*/ pDeal))
+		DiploStatementTypes eTempStatement = DIPLO_STATEMENT_THIRDPARTY_WAR_REQUEST;
+		int iTurnsBetweenStatements = 40;
+		if (GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= iTurnsBetweenStatements)
 		{
-			DiploStatementTypes eTempStatement = DIPLO_STATEMENT_THIRDPARTY_WAR_REQUEST;
-			int iTurnsBetweenStatements = 40;
-			if(GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= iTurnsBetweenStatements)
+			if (GetPlayer()->GetDealAI()->IsMakeOfferForThirdPartyWar(ePlayer, /*pDeal can be modified in this function*/ pDeal))
 			{
+
 				eStatement = eTempStatement;
 			}
 			else
 			{
 				pDeal->ClearItems();
 			}
-		}
-		else
-		{
-			// Clear out the deal if we don't want to offer it so that it's not tainted for the next trade possibility we look at
-			pDeal->ClearItems();
 		}
 	}
 }
@@ -32184,23 +32159,19 @@ void CvDiplomacyAI::DoThirdPartyPeaceTrade(PlayerTypes ePlayer, DiploStatementTy
 
 	if(eStatement == NO_DIPLO_STATEMENT_TYPE)
 	{
-		if(GetPlayer()->GetDealAI()->IsMakeOfferForThirdPartyPeace(ePlayer, /*pDeal can be modified in this function*/ pDeal))
+		DiploStatementTypes eTempStatement = DIPLO_STATEMENT_THIRDPARTY_PEACE_REQUEST;
+		int iTurnsBetweenStatements = 30;
+		if (GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= iTurnsBetweenStatements)
 		{
-			DiploStatementTypes eTempStatement = DIPLO_STATEMENT_THIRDPARTY_PEACE_REQUEST;
-			int iTurnsBetweenStatements = 30;
-			if(GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= iTurnsBetweenStatements)
+			if (GetPlayer()->GetDealAI()->IsMakeOfferForThirdPartyPeace(ePlayer, /*pDeal can be modified in this function*/ pDeal))
 			{
+
 				eStatement = eTempStatement;
 			}
 			else
 			{
 				pDeal->ClearItems();
 			}
-		}
-		else
-		{
-			// Clear out the deal if we don't want to offer it so that it's not tainted for the next trade possibility we look at
-			pDeal->ClearItems();
 		}
 	}
 }
@@ -32218,23 +32189,19 @@ void CvDiplomacyAI::DoVoteTrade(PlayerTypes ePlayer, DiploStatementTypes& eState
 
 	if(eStatement == NO_DIPLO_STATEMENT_TYPE)
 	{
-		if(GetPlayer()->GetDealAI()->IsMakeOfferForVote(ePlayer, /*pDeal can be modified in this function*/ pDeal))
+		DiploStatementTypes eTempStatement = DIPLO_STATEMENT_VOTE_REQUEST;
+		int iTurnsBetweenStatements = 10;
+		if (GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= iTurnsBetweenStatements)
 		{
-			DiploStatementTypes eTempStatement = DIPLO_STATEMENT_VOTE_REQUEST;
-			int iTurnsBetweenStatements = 10;
-			if(GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= iTurnsBetweenStatements)
+			if (GetPlayer()->GetDealAI()->IsMakeOfferForVote(ePlayer, /*pDeal can be modified in this function*/ pDeal))
 			{
+
 				eStatement = eTempStatement;
 			}
 			else
 			{
 				pDeal->ClearItems();
 			}
-		}
-		else
-		{
-			// Clear out the deal if we don't want to offer it so that it's not tainted for the next trade possibility we look at
-			pDeal->ClearItems();
 		}
 	}
 }
@@ -52297,22 +52264,20 @@ void CvDiplomacyAI::DoBecomeVassalageStatement(PlayerTypes ePlayer, DiploStateme
 
 	if (eStatement == NO_DIPLO_STATEMENT_TYPE)
 	{
-		// Can we make an offer for vassalage?
-		if (GetPlayer()->GetDealAI()->IsMakeOfferToBecomeVassal(ePlayer, /*pDeal can be modified in this function*/ pDeal))
-		{
-			DiploStatementTypes eTempStatement = DIPLO_STATEMENT_ACCEPT_VASSALAGE;
-			int iTurnsBetweenStatement = 50;
+		DiploStatementTypes eTempStatement = DIPLO_STATEMENT_ACCEPT_VASSALAGE;
+		int iTurnsBetweenStatement = 50;
 
-			if (GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= iTurnsBetweenStatement)
-			{
-				// Send the statement
-				if (GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= iTurnsBetweenStatement)
-					eStatement = eTempStatement;
-			}
-		}
-		else
+		if (GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= iTurnsBetweenStatement)
 		{
-			pDeal->ClearItems();
+			// Can we make an offer for vassalage?
+			if (GetPlayer()->GetDealAI()->IsMakeOfferToBecomeVassal(ePlayer, /*pDeal can be modified in this function*/ pDeal))
+			{
+				eStatement = eTempStatement;
+			}
+			else
+			{
+				pDeal->ClearItems();
+			}
 		}
 	}
 }
@@ -54119,24 +54084,20 @@ void CvDiplomacyAI::DoMapsOffer(PlayerTypes ePlayer, DiploStatementTypes& eState
 
 	if(eStatement == NO_DIPLO_STATEMENT_TYPE)
 	{
-		if(GetPlayer()->GetDealAI()->IsMakeOfferForMaps(ePlayer, /*pDeal can be modified in this function*/ pDeal))
-		{
-			DiploStatementTypes eTempStatement = DIPLO_STATEMENT_MAPS_OFFER;
-			int iTurnsBetweenStatements = 30;
+		DiploStatementTypes eTempStatement = DIPLO_STATEMENT_MAPS_OFFER;
+		int iTurnsBetweenStatements = 30;
 
-			if(GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= iTurnsBetweenStatements)
+		if (GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= iTurnsBetweenStatements)
+		{
+			if (GetPlayer()->GetDealAI()->IsMakeOfferForMaps(ePlayer, /*pDeal can be modified in this function*/ pDeal))
 			{
+
 				eStatement = eTempStatement;
 			}
 			else
 			{
 				pDeal->ClearItems();
 			}
-		}
-		else
-		{
-			// Clear out the deal if we don't want to offer it so that it's not tainted for the next trade possibility we look at
-			pDeal->ClearItems();
 		}
 	}
 }
@@ -54152,23 +54113,19 @@ void CvDiplomacyAI::DoTechOffer(PlayerTypes ePlayer, DiploStatementTypes& eState
 
 	if(eStatement == NO_DIPLO_STATEMENT_TYPE)
 	{
-		if(GetPlayer()->GetDealAI()->IsMakeOfferForTech(ePlayer, /*pDeal can be modified in this function*/ pDeal))
+		DiploStatementTypes eTempStatement = DIPLO_STATEMENT_TECH_OFFER;
+		int iTurnsBetweenStatements = 30;
+		if (GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= iTurnsBetweenStatements)
 		{
-			DiploStatementTypes eTempStatement = DIPLO_STATEMENT_TECH_OFFER;
-			int iTurnsBetweenStatements = 30;
-			if(GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= iTurnsBetweenStatements)
+			if (GetPlayer()->GetDealAI()->IsMakeOfferForTech(ePlayer, /*pDeal can be modified in this function*/ pDeal))
 			{
+
 				eStatement = eTempStatement;
 			}
 			else
 			{
 				pDeal->ClearItems();
 			}
-		}
-		else
-		{
-			// Clear out the deal if we don't want to offer it so that it's not tainted for the next trade possibility we look at
-			pDeal->ClearItems();
 		}
 	}
 }
