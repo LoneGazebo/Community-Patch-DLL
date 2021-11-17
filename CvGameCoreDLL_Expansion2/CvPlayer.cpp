@@ -20039,7 +20039,7 @@ void CvPlayer::DoHealGlobal(int iHealPercent)
 {
 	int iLoop;
 	CvUnit* pLoopUnit = NULL;
-	for (pLoopUnit = kPlayer.firstUnit(&iLoop); pLoopUnit; pLoopUnit = kPlayer.nextUnit(&iLoop))
+	for (pLoopUnit = firstUnit(&iLoop); pLoopUnit; pLoopUnit = nextUnit(&iLoop))
 	{
 		if (!pLoopUnit)
 			continue;
