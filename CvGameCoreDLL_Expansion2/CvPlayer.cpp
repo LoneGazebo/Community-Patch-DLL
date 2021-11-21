@@ -9343,14 +9343,11 @@ void CvPlayer::DoEventChoice(EventChoiceTypes eEventChoice, EventTypes eEvent, b
 								for(int iJ = 0; iJ < pkEventChoiceInfo->getNumFreeUnits((UnitClassTypes)iI); iJ++)
 								{
 									UnitAITypes eUnitAI = pkUnitEntry->GetDefaultUnitAIType();
-									int iResult = pLoopCity->CreateUnit(eLoopUnit, eUnitAI, REASON_GIFT);
+									CvUnit* pUnit = pLoopCity->CreateUnit(eLoopUnit, eUnitAI, REASON_GIFT);
 
-									CvAssertMsg(iResult != -1, "Unable to create unit");
-
-									if (iResult != -1)
+									if (pUnit)
 									{
-										CvUnit* pUnit = getUnit(iResult);
-										if (!pUnit->IsCivilianUnit() && !pUnit->jumpToNearestValidPlot())
+										if (!pUnit->jumpToNearestValidPlot())
 										{
 											pUnit->kill(false);	// Could not find a valid spot!
 										}
@@ -9392,13 +9389,9 @@ void CvPlayer::DoEventChoice(EventChoiceTypes eEventChoice, EventTypes eEvent, b
 								{
 									continue;
 								}
-								int iResult = pLoopCity->CreateUnit(eUnit, eUnitAI, REASON_GIFT);
-
-								CvAssertMsg(iResult != -1, "Unable to create unit");
-
-								if (iResult != -1)
+								CvUnit* pUnit = pLoopCity->CreateUnit(eUnit, eUnitAI, REASON_GIFT);
+								if (pUnit)
 								{
-									CvUnit* pUnit = getUnit(iResult);
 									if (!pUnit->IsCivilianUnit() && !pUnit->jumpToNearestValidPlot())
 									{
 										pUnit->kill(false);	// Could not find a valid spot!
@@ -35736,12 +35729,9 @@ void CvPlayer::DoXPopulationConscription(CvCity* pCity)
 		if (pkUnitEntry)
 		{
 			UnitAITypes eUnitAI = pkUnitEntry->GetDefaultUnitAIType();
-			int iResult = pCity->CreateUnit(eBestUnit, eUnitAI, REASON_GIFT);
-			CvAssertMsg(iResult != -1, "Unable to create unit");
-
-			if (iResult != -1)
+			CvUnit* pUnit = pCity->CreateUnit(eBestUnit, eUnitAI, REASON_GIFT);
+			if (pUnit)
 			{
-				CvUnit* pUnit = getUnit(iResult);
 				changeNumUnitsSupplyFree(1);
 				pUnit->changeNoSupply(1);
 				PromotionTypes ePromotionConscript = (PromotionTypes)GC.getInfoTypeForString("PROMOTION_CONSCRIPT");
@@ -45597,11 +45587,9 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 							if(pkbUnitEntry)
 							{
 								UnitAITypes eUnitAI = pkbUnitEntry->GetDefaultUnitAIType();
-								int iResult = pCapital->CreateUnit(eBestLandUnit, eUnitAI, REASON_GIFT);
-								CvAssertMsg(iResult != -1, "Unable to create unit");
-								if (iResult != -1)
+								CvUnit* pUnit = pCapital->CreateUnit(eBestLandUnit, eUnitAI, REASON_GIFT);
+								if (pUnit)
 								{
-									CvUnit* pUnit = getUnit(iResult);
 									if (!pUnit->jumpToNearestValidPlot())
 									{
 										pUnit->kill(false);	// Could not find a valid spot!
@@ -45619,11 +45607,9 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 							if(pkbUnitEntry)
 							{
 								UnitAITypes eUnitAI = pkbUnitEntry->GetDefaultUnitAIType();
-								int iResult = pCapital->CreateUnit(eWarrior, eUnitAI, REASON_GIFT);
-								CvAssertMsg(iResult != -1, "Unable to create unit");
-								if (iResult != -1)
+								CvUnit* pUnit = pCapital->CreateUnit(eWarrior, eUnitAI, REASON_GIFT);
+								if (pUnit)
 								{
-									CvUnit* pUnit = getUnit(iResult);
 									if (!pUnit->jumpToNearestValidPlot())
 									{
 										pUnit->kill(false);	// Could not find a valid spot!
@@ -45691,11 +45677,9 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 							if(pkbUnitEntry)
 							{
 								UnitAITypes eUnitAI = pkbUnitEntry->GetDefaultUnitAIType();
-								int iResult = pCapital->CreateUnit(eBestLandRangedUnit, eUnitAI, REASON_GIFT);
-								CvAssertMsg(iResult != -1, "Unable to create unit");
-								if (iResult != -1)
+								CvUnit* pUnit = pCapital->CreateUnit(eBestLandRangedUnit, eUnitAI, REASON_GIFT);
+								if (pUnit)
 								{
-									CvUnit* pUnit = getUnit(iResult);
 									if (!pUnit->jumpToNearestValidPlot())
 									{
 										pUnit->kill(false);	// Could not find a valid spot!
@@ -45713,11 +45697,9 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 							if(pkbUnitEntry)
 							{
 								UnitAITypes eUnitAI = pkbUnitEntry->GetDefaultUnitAIType();
-								int iResult = pCapital->CreateUnit(eArcher, eUnitAI, REASON_GIFT);
-								CvAssertMsg(iResult != -1, "Unable to create unit");
-								if (iResult != -1)
+								CvUnit* pUnit = pCapital->CreateUnit(eArcher, eUnitAI, REASON_GIFT);
+								if (pUnit)
 								{
-									CvUnit* pUnit = getUnit(iResult);
 									if (!pUnit->jumpToNearestValidPlot())
 									{
 										pUnit->kill(false);	// Could not find a valid spot!
@@ -45789,11 +45771,9 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 							if(pkbUnitEntry)
 							{
 								UnitAITypes eUnitAI = pkbUnitEntry->GetDefaultUnitAIType();
-								int iResult = pCapital->CreateUnit(eBestSeaUnit, eUnitAI, REASON_GIFT);
-								CvAssertMsg(iResult != -1, "Unable to create unit");
-								if (iResult != -1)
+								CvUnit* pUnit = pCapital->CreateUnit(eBestSeaUnit, eUnitAI, REASON_GIFT);
+								if (pUnit)
 								{
-									CvUnit* pUnit = getUnit(iResult);
 									if (!pUnit->jumpToNearestValidPlot())
 									{
 										pUnit->kill(false);	// Could not find a valid spot!
@@ -45811,11 +45791,9 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 							if(pkbUnitEntry)
 							{
 								UnitAITypes eUnitAI = pkbUnitEntry->GetDefaultUnitAIType();
-								int iResult = pCapital->CreateUnit(eCaravel, eUnitAI, REASON_GIFT);
-								CvAssertMsg(iResult != -1, "Unable to create unit");
-								if (iResult != -1)
+								CvUnit* pUnit = pCapital->CreateUnit(eCaravel, eUnitAI, REASON_GIFT);
+								if (pUnit)
 								{
-									CvUnit* pUnit = getUnit(iResult);
 									if (!pUnit->jumpToNearestValidPlot())
 									{
 										pUnit->kill(false);	// Could not find a valid spot!
@@ -45883,11 +45861,9 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 							if(pkbUnitEntry)
 							{
 								UnitAITypes eUnitAI = pkbUnitEntry->GetDefaultUnitAIType();
-								int iResult = pCapital->CreateUnit(eBestSeaRangedUnit, eUnitAI, REASON_GIFT);
-								CvAssertMsg(iResult != -1, "Unable to create unit");
-								if (iResult != -1)
+								CvUnit* pUnit = pCapital->CreateUnit(eBestSeaRangedUnit, eUnitAI, REASON_GIFT);
+								if (pUnit)
 								{
-									CvUnit* pUnit = getUnit(iResult);
 									if (!pUnit->jumpToNearestValidPlot())
 									{
 										pUnit->kill(false);	// Could not find a valid spot!
@@ -45905,11 +45881,9 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 							if(pkbUnitEntry)
 							{
 								UnitAITypes eUnitAI = pkbUnitEntry->GetDefaultUnitAIType();
-								int iResult = pCapital->CreateUnit(eGalleass, eUnitAI, REASON_GIFT);
-								CvAssertMsg(iResult != -1, "Unable to create unit");
-								if (iResult != -1)
+								CvUnit* pUnit = pCapital->CreateUnit(eGalleass, eUnitAI, REASON_GIFT);
+								if (pUnit)
 								{
-									CvUnit* pUnit = getUnit(iResult);
 									if (!pUnit->jumpToNearestValidPlot())
 									{
 										pUnit->kill(false);	// Could not find a valid spot!

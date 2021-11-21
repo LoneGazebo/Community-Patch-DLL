@@ -1837,30 +1837,19 @@ void CvEconomicAI::DoHurry()
 					else
 					{
 						UnitAITypes eUnitAI = pkUnitInfo->GetDefaultUnitAIType();
-						int iResult = pSelectedCity->CreateUnit(eUnitType, eUnitAI, REASON_BUY, false);
-						CvAssertMsg(iResult != -1, "Unable to create unit");
-						if (iResult != -1)
+						CvUnit* pUnit = pSelectedCity->CreateUnit(eUnitType, eUnitAI, REASON_BUY, false);
+						if (pUnit)
 						{
-							CvUnit* pUnit = m_pPlayer->getUnit(iResult);
-							if (!pUnit->getUnitInfo().CanMoveAfterPurchase())
-							{
-								pUnit->finishMoves();
-							}
+							m_pPlayer->GetMilitaryAI()->ResetNumberOfTimesSettlerBuildSkippedOver();
+							if (selection.m_eBuildableType == CITY_BUILDABLE_UNIT_FOR_OPERATION)
+								m_pPlayer->GetMilitaryAI()->ResetNumberOfTimesOpsBuildSkippedOver();
+
 							bool bCivilian = (pkUnitInfo->GetCombat() <= 0 && pkUnitInfo->GetRangedCombat() <= 0);
 							pSelectedCity->SetUnitPurchaseCooldown(bCivilian, pkUnitInfo->GetCooldown());
 
 							if (MOD_EVENTS_CITY) {
 								GAMEEVENTINVOKE_HOOK(GAMEEVENT_CityTrained, pSelectedCity->getOwner(), pSelectedCity->GetID(), pUnit->GetID(), true, false);
 							}
-						}
-
-						if (selection.m_eBuildableType == CITY_BUILDABLE_UNIT_FOR_OPERATION)
-							m_pPlayer->GetMilitaryAI()->ResetNumberOfTimesOpsBuildSkippedOver();
-
-						CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUnitType);
-						if (pkUnitInfo)
-						{
-							m_pPlayer->GetMilitaryAI()->ResetNumberOfTimesSettlerBuildSkippedOver();
 						}
 
 						pSelectedCity->CleanUpQueue();
