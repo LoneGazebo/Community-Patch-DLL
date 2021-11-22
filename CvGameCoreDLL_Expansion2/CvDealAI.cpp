@@ -1401,10 +1401,6 @@ int CvDealAI::GetGoldForForValueExchange(int iGoldOrValue, bool bNumGoldFromValu
 	int iReturnValue = iGoldOrValue * iMultiplier;
 
 	// Sometimes we want to round up. Let's say the AI offers a deal to the human. We have to ensure that the human can also offer that deal back and the AI will accept (and vice versa)
-	if(bRoundUp)
-	{
-		iReturnValue += 99;
-	}
 
 	iReturnValue /= iDivisor;
 
