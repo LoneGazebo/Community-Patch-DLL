@@ -1,5 +1,5 @@
 -- Recreate Leader Tables
--- Default diplomacy flavors now 5, adds Personality column, drops unused WorkWith/WorkAgainst Willingness columns
+-- Default diplomacy flavors now 5, adds Personality column
 CREATE TABLE IF NOT EXISTS Leaders_NEW(
 	ID INTEGER PRIMARY KEY AUTOINCREMENT,
 	Type text NOT NULL UNIQUE,
@@ -21,6 +21,10 @@ CREATE TABLE IF NOT EXISTS Leaders_NEW(
 	Neediness INTEGER DEFAULT 5,
 	Meanness INTEGER DEFAULT 5,
 	Chattiness INTEGER DEFAULT 5,
+	-- Unused, but kept for backwards compatibility --
+	WorkWithWillingness INTEGER DEFAULT 0,
+	WorkAgainstWillingness INTEGER DEFAULT 0,
+	-- End Unused --
 	PortraitIndex INTEGER DEFAULT -1,
 	IconAtlas text DEFAULT NULL REFERENCES IconTextureAtlases(Atlas),
 	PackageID text DEFAULT NULL
@@ -1670,9 +1674,6 @@ ALTER TABLE UnitPromotions
   
 ALTER TABLE UnitPromotions
   ADD AuraEffectChange INTEGER DEFAULT 0;
-  
-INSERT OR REPLACE INTO Defines(Name, Value)
-  VALUES('GREAT_GENERAL_MAX_RANGE', 2);
 
 INSERT INTO CustomModDbUpdates(Name, Value) VALUES('PROMOTIONS_AURA_CHANGE', 1);
 

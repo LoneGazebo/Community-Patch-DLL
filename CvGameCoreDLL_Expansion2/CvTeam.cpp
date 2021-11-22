@@ -466,7 +466,7 @@ void CvTeam::addTeam(TeamTypes eTeam)
 					if(iI == GC.getGame().getActivePlayer())
 					{
 						strBuffer = GetLocalizedText("TXT_KEY_MISC_PLAYER_PERMANENT_ALLIANCE", getName().GetCString(), GET_TEAM(eTeam).getName().GetCString());
-						DLLUI->AddMessage(0, ((PlayerTypes)iI), false, GC.getEVENT_MESSAGE_TIME(), strBuffer/*, "AS2D_THEIRALLIANCE", MESSAGE_TYPE_MINOR_EVENT, NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_HIGHLIGHT_TEXT")*/);
+						DLLUI->AddMessage(0, ((PlayerTypes)iI), false, /*10*/ GD_INT_GET(EVENT_MESSAGE_TIME), strBuffer/*, "AS2D_THEIRALLIANCE", MESSAGE_TYPE_MINOR_EVENT, NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_HIGHLIGHT_TEXT")*/);
 					}
 				}
 			}
@@ -975,8 +975,8 @@ void CvTeam::DoBarbarianTech()
 
 	CvAssertMsg(iPossibleCount > 0, "Zero possible players? Uhhh...");
 
-	// 75% of majors (rounded down) need the tech for the Barbs to get it
-	int iTechPercent = /*75*/ GC.getBARBARIAN_TECH_PERCENT();
+	// x% of majors (rounded down) need the tech for the Barbs to get it
+	int iTechPercent = /*75 in CP, 80 in CBO*/ GD_INT_GET(BARBARIAN_TECH_PERCENT);
 	int iTeamsNeeded = max(1, iPossibleCount * iTechPercent / 100);
 
 	for(int iTechLoop = 0; iTechLoop < GC.getNumTechInfos(); iTechLoop++)
@@ -1041,8 +1041,8 @@ void CvTeam::DoMinorCivTech()
 
 	CvAssertMsg(iPossibleCount > 0, "Zero possible players? Uhhh...");
 
-	// 40% of majors (rounded down) need the tech for the Minors to get it
-	int iTechPercent = /*40*/ GC.getMINOR_CIV_TECH_PERCENT();
+	// x% of majors (rounded down) need the tech for the Minors to get it
+	int iTechPercent = /*40 in CP, 60 in CBO*/ GD_INT_GET(MINOR_CIV_TECH_PERCENT);
 	int iTeamsNeeded = max(1, iPossibleCount * iTechPercent / 100);
 
 	for(int iTechLoop = 0; iTechLoop < GC.getNumTechInfos(); iTechLoop++)
@@ -1360,7 +1360,7 @@ void CvTeam::DoDeclareWar(PlayerTypes eOriginatingPlayer, bool bAggressor, TeamT
 					if (GET_PLAYER(eLoopPlayer).isMajorCiv())
 					{
 						CvDiplomacyAI* pDiplo = GET_PLAYER(eLoopPlayer).GetDiplomacyAI();
-						pDiplo->SetWarProgressScore(eLoopTarget, /*100*/ GC.getWAR_PROGRESS_INITIAL_VALUE());
+						pDiplo->SetWarProgressScore(eLoopTarget, /*100*/ GD_INT_GET(WAR_PROGRESS_INITIAL_VALUE));
 
 						if (bAggressor && !bDefensivePact)
 						{
@@ -1394,7 +1394,7 @@ void CvTeam::DoDeclareWar(PlayerTypes eOriginatingPlayer, bool bAggressor, TeamT
 					if (GET_PLAYER(eLoopTarget).isMajorCiv())
 					{
 						CvDiplomacyAI* pDiplo = GET_PLAYER(eLoopTarget).GetDiplomacyAI();
-						pDiplo->SetWarProgressScore(eLoopPlayer, /*100*/ GC.getWAR_PROGRESS_INITIAL_VALUE());
+						pDiplo->SetWarProgressScore(eLoopPlayer, /*100*/ GD_INT_GET(WAR_PROGRESS_INITIAL_VALUE));
 
 						if (GET_PLAYER(eLoopPlayer).isMajorCiv())
 						{
@@ -1874,7 +1874,7 @@ void CvTeam::DoDeclareWar(PlayerTypes eOriginatingPlayer, bool bAggressor, TeamT
 							{
 								locString = Localization::Lookup("TXT_KEY_MISC_YOU_DECLARED_WAR_ON");
 								locString << GET_TEAM(eTeam).getName().GetCString();
-								DLLUI->AddMessage(0, (ePlayer), true, GC.getEVENT_MESSAGE_TIME(), locString.toUTF8()/*, "AS2D_DECLAREWAR", MESSAGE_TYPE_MAJOR_EVENT, NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_WARNING_TEXT")*/);
+								DLLUI->AddMessage(0, (ePlayer), true, /*10*/ GD_INT_GET(EVENT_MESSAGE_TIME), locString.toUTF8()/*, "AS2D_DECLAREWAR", MESSAGE_TYPE_MAJOR_EVENT, NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_WARNING_TEXT")*/);
 							}
 						}
 						// Players on team that got declared on
@@ -2726,7 +2726,7 @@ int CvTeam::GetTotalProjectedVotes() const
 		// UN
 		if (IsHomeOfUnitedNations())
 		{
-			int iVotesFromUN = /*1*/ GC.getOWN_UNITED_NATIONS_VOTE_BONUS();
+			int iVotesFromUN = /*1*/ GD_INT_GET(OWN_UNITED_NATIONS_VOTE_BONUS);
 			iVotes += iVotesFromUN;
 		}
 	}
@@ -3105,7 +3105,7 @@ void CvTeam::ChangeNumMinorCivsAttacked(int iChange)
 bool CvTeam::IsMinorCivAggressor() const
 {
 	// Player has attacked enough Minors that they're getting antsy
-	if (GetNumMinorCivsAttacked() >= /*2*/ GC.getMINOR_CIV_AGGRESSOR_THRESHOLD())
+	if (GetNumMinorCivsAttacked() >= /*2*/ GD_INT_GET(MINOR_CIV_AGGRESSOR_THRESHOLD))
 		return true;
 
 	return false;
@@ -3116,7 +3116,7 @@ bool CvTeam::IsMinorCivAggressor() const
 bool CvTeam::IsMinorCivWarmonger() const
 {
 	// Player has attacked enough Minors that an Alliance has formed
-	if (GetNumMinorCivsAttacked() >= /*4*/ GC.getMINOR_CIV_WARMONGER_THRESHOLD())
+	if (GetNumMinorCivsAttacked() >= /*4*/ GD_INT_GET(MINOR_CIV_WARMONGER_THRESHOLD))
 		return true;
 
 	return false;
@@ -3222,7 +3222,7 @@ HandicapTypes CvTeam::getHandicapType() const
 	}
 	else
 	{
-		return ((HandicapTypes)(GC.getSTANDARD_HANDICAP()));
+		return ((HandicapTypes)(GD_INT_GET(STANDARD_HANDICAP)));
 	}
 }
 
@@ -3797,7 +3797,7 @@ void CvTeam::changeBridgeBuildingCount(int iChange)
 		{
 			if(GC.IsGraphicsInitialized())
 			{
-				if(GetCurrentEra() >= GC.getLAST_BRIDGE_ART_ERA())
+				if(GetCurrentEra() >= GD_INT_GET(LAST_BRIDGE_ART_ERA))
 				{
 					gDLL->GameplayBridgeChanged(true, 1);
 				}
@@ -4065,27 +4065,27 @@ void CvTeam::changeDefensiveEmbarkCount(int iChange)
 						if(pLoopUnit->getDomainType() == DOMAIN_LAND)
 						{
 							// Take away old promotion and give the new one instead
-							if(pLoopUnit->isHasPromotion((PromotionTypes)GC.getPROMOTION_EMBARKATION()))
+							if(pLoopUnit->isHasPromotion((PromotionTypes)GD_INT_GET(PROMOTION_EMBARKATION)))
 							{
-								pLoopUnit->setHasPromotion((PromotionTypes)GC.getPROMOTION_EMBARKATION(), false);
+								pLoopUnit->setHasPromotion((PromotionTypes)GD_INT_GET(PROMOTION_EMBARKATION), false);
 								pLoopUnit->setHasPromotion(ePromotionDefensiveEmbarkation, true);
 							}
 							// Could be cleaner if add "allwater defensive promotion".  Luckily for now the only way you can get
 							// both is in the Polynesia scenario and this works for that
-							if(pLoopUnit->isHasPromotion((PromotionTypes)GC.getPROMOTION_ALLWATER_EMBARKATION()))
+							if(pLoopUnit->isHasPromotion((PromotionTypes)GD_INT_GET(PROMOTION_ALLWATER_EMBARKATION)))
 							{
-								pLoopUnit->setHasPromotion((PromotionTypes)GC.getPROMOTION_ALLWATER_EMBARKATION(), false);
+								pLoopUnit->setHasPromotion((PromotionTypes)GD_INT_GET(PROMOTION_ALLWATER_EMBARKATION), false);
 								pLoopUnit->setHasPromotion(ePromotionDefensiveEmbarkation, true);
 							}
 							
 #if defined(MOD_PROMOTIONS_DEEP_WATER_EMBARKATION)
-							if (MOD_PROMOTIONS_DEEP_WATER_EMBARKATION && GC.getPROMOTION_DEEPWATER_EMBARKATION() != -1) {
+							if (MOD_PROMOTIONS_DEEP_WATER_EMBARKATION && GD_INT_GET(PROMOTION_DEEPWATER_EMBARKATION) != -1) {
 								// If the unit has Deep Water Embarkation, change it to Defensive Deep Water Embarkation
 								// This is very unlikely to happen in reality as it implies the player got the helicopter BEFORE the embarkation tech!!!
-								if(pLoopUnit->isHasPromotion((PromotionTypes)GC.getPROMOTION_DEEPWATER_EMBARKATION()))
+								if(pLoopUnit->isHasPromotion((PromotionTypes)GD_INT_GET(PROMOTION_DEEPWATER_EMBARKATION)))
 								{
-									pLoopUnit->setHasPromotion((PromotionTypes)GC.getPROMOTION_DEEPWATER_EMBARKATION(), false);
-									pLoopUnit->setHasPromotion((PromotionTypes)GC.getPROMOTION_DEFENSIVE_DEEPWATER_EMBARKATION(), true);
+									pLoopUnit->setHasPromotion((PromotionTypes)GD_INT_GET(PROMOTION_DEEPWATER_EMBARKATION), false);
+									pLoopUnit->setHasPromotion((PromotionTypes)GD_INT_GET(PROMOTION_DEFENSIVE_DEEPWATER_EMBARKATION), true);
 								}
 							}
 #endif
@@ -5525,7 +5525,7 @@ void CvTeam::changeProjectCount(ProjectTypes eIndex, int iChange)
 									{
 										if (ePlayer == GC.getGame().getActivePlayer())
 										{
-											DLLUI->AddCityMessage(0, pLeadersCapital->GetIDInfo(), ePlayer, false, GC.getEVENT_MESSAGE_TIME(), strSomeoneCompletedProject);
+											DLLUI->AddCityMessage(0, pLeadersCapital->GetIDInfo(), ePlayer, false, /*10*/ GD_INT_GET(EVENT_MESSAGE_TIME), strSomeoneCompletedProject);
 										}
 										CvNotifications* pNotifications = kPlayer.GetNotifications();
 										pNotifications->Add(NOTIFICATION_PROJECT_COMPLETED, strSomeoneCompletedProject, strSomeoneCompletedProject, pLeadersCapital->getX(), pLeadersCapital->getY(), eIndex, playerWhoLeadsTeam.GetID());
@@ -5534,7 +5534,7 @@ void CvTeam::changeProjectCount(ProjectTypes eIndex, int iChange)
 									{
 										if (ePlayer == GC.getGame().getActivePlayer())
 										{
-											DLLUI->AddCityMessage(0, pLeadersCapital->GetIDInfo(), ePlayer, false, GC.getEVENT_MESSAGE_TIME(), strUnknownCompletesProject);
+											DLLUI->AddCityMessage(0, pLeadersCapital->GetIDInfo(), ePlayer, false, /*10*/ GD_INT_GET(EVENT_MESSAGE_TIME), strUnknownCompletesProject);
 										}
 										CvNotifications* pNotifications = kPlayer.GetNotifications();
 										pNotifications->Add(NOTIFICATION_PROJECT_COMPLETED, strUnknownCompletesProject, strUnknownCompletesProject, -1, -1, eIndex, NO_PLAYER);
@@ -5569,7 +5569,7 @@ void CvTeam::changeProjectCount(ProjectTypes eIndex, int iChange)
 									{
 										if (ePlayer == GC.getGame().getActivePlayer())
 										{
-											DLLUI->AddCityMessage(0, pLeadersCapital->GetIDInfo(), ePlayer, false, GC.getEVENT_MESSAGE_TIME(), strSomeoneCompletedProject);
+											DLLUI->AddCityMessage(0, pLeadersCapital->GetIDInfo(), ePlayer, false, /*10*/ GD_INT_GET(EVENT_MESSAGE_TIME), strSomeoneCompletedProject);
 										}
 										CvNotifications* pNotifications = kPlayer.GetNotifications();
 										pNotifications->Add(NOTIFICATION_PROJECT_COMPLETED, strSomeoneCompletedProject, strSomeoneCompletedProject, pLeadersCapital->getX(), pLeadersCapital->getY(), eIndex, playerWhoLeadsTeam.GetID());
@@ -5578,7 +5578,7 @@ void CvTeam::changeProjectCount(ProjectTypes eIndex, int iChange)
 									{
 										if (ePlayer == GC.getGame().getActivePlayer())
 										{
-											DLLUI->AddCityMessage(0, pLeadersCapital->GetIDInfo(), ePlayer, false, GC.getEVENT_MESSAGE_TIME(), strUnknownCompletesProject);
+											DLLUI->AddCityMessage(0, pLeadersCapital->GetIDInfo(), ePlayer, false, /*10*/ GD_INT_GET(EVENT_MESSAGE_TIME), strUnknownCompletesProject);
 										}
 										CvNotifications* pNotifications = kPlayer.GetNotifications();
 										pNotifications->Add(NOTIFICATION_PROJECT_COMPLETED, strUnknownCompletesProject, strUnknownCompletesProject, -1, -1, eIndex, NO_PLAYER);
@@ -5973,7 +5973,7 @@ void CvTeam::resetVictoryProgress()
 				{
 					if(GET_PLAYER((PlayerTypes)iJ).isAlive())
 					{
-						DLLUI->AddMessage(0, ((PlayerTypes)iJ), false, GC.getEVENT_MESSAGE_TIME(), strBuffer, "AS2D_MELTDOWN", MESSAGE_TYPE_MAJOR_EVENT);
+						DLLUI->AddMessage(0, ((PlayerTypes)iJ), false, /*10*/ GD_INT_GET(EVENT_MESSAGE_TIME), strBuffer, "AS2D_MELTDOWN", MESSAGE_TYPE_MAJOR_EVENT);
 					}
 				}
 
@@ -6201,7 +6201,7 @@ void CvTeam::announceTechToPlayers(TechTypes eIndex, bool bPartial)
 			if(ePlayer == GC.getGame().getActivePlayer())
 			{
 				CvString strBuffer = GetLocalizedText((bPartial ? "TXT_KEY_MISC_PROGRESS_TOWARDS_TECH" : "TXT_KEY_MISC_YOU_DISCOVERED_TECH"), szTechTextKey);
-				DLLUI->AddMessage(0, ePlayer, false, (bSound ? GC.getEVENT_MESSAGE_TIME() : -1), strBuffer/*, (bSound ? GC.getTechInfo(eIndex)->GetSoundMP() : NULL), MESSAGE_TYPE_MAJOR_EVENT, NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_TECH_TEXT")*/);
+				DLLUI->AddMessage(0, ePlayer, false, (bSound ? /*10*/ GD_INT_GET(EVENT_MESSAGE_TIME) : -1), strBuffer/*, (bSound ? GC.getTechInfo(eIndex)->GetSoundMP() : NULL), MESSAGE_TYPE_MAJOR_EVENT, NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_TECH_TEXT")*/);
 			}
 		}
 	}
@@ -6268,7 +6268,7 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 			GetTeamTechs()->SetResearchProgress(eIndex, 0, ePlayer);
 
 			// Repeating techs are good for score!
-			int iScoreChange = /*10*/ GC.getSCORE_FUTURE_TECH_MULTIPLIER();
+			int iScoreChange = /*10*/ GD_INT_GET(SCORE_FUTURE_TECH_MULTIPLIER);
 			for(int iI = 0; iI < MAX_PLAYERS; iI++)
 			{
 				const PlayerTypes eLoopPlayer = static_cast<PlayerTypes>(iI);
@@ -7099,7 +7099,7 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 								{
 									strBuffer = GetLocalizedText("TXT_KEY_MISC_UNKNOWN_FIRST_TO_TECH", GC.getTechInfo(eIndex)->GetTextKey());
 								}
-								DLLUI->AddMessage(0, eLoopPlayer, false, GC.getEVENT_MESSAGE_TIME(), strBuffer/*, "AS2D_FIRSTTOTECH", MESSAGE_TYPE_MAJOR_EVENT, NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_HIGHLIGHT_TEXT")*/);
+								DLLUI->AddMessage(0, eLoopPlayer, false, /*10*/ GD_INT_GET(EVENT_MESSAGE_TIME), strBuffer/*, "AS2D_FIRSTTOTECH", MESSAGE_TYPE_MAJOR_EVENT, NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_HIGHLIGHT_TEXT")*/);
 							}
 						}
 
@@ -7202,7 +7202,7 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 											strBuffer = GetLocalizedText("TXT_KEY_MISC_YOU_DISCOVERED_RESOURCE", pResourceInfo->GetTextKey(), pCity->getNameKey());
 										}
 
-										DLLUI->AddPlotMessage(0, pLoopPlot->GetPlotIndex(), pLoopPlot->getOwner(), false, GC.getEVENT_MESSAGE_TIME(), strBuffer/*, "AS2D_DISCOVERRESOURCE", MESSAGE_TYPE_INFO, GC.getResourceInfo(eResource)->GetButton(), (ColorTypes)GC.getInfoTypeForString("COLOR_WHITE"), pLoopPlot->getX(), pLoopPlot->getY(), true, true*/);
+										DLLUI->AddPlotMessage(0, pLoopPlot->GetPlotIndex(), pLoopPlot->getOwner(), false, /*10*/ GD_INT_GET(EVENT_MESSAGE_TIME), strBuffer/*, "AS2D_DISCOVERRESOURCE", MESSAGE_TYPE_INFO, GC.getResourceInfo(eResource)->GetButton(), (ColorTypes)GC.getInfoTypeForString("COLOR_WHITE"), pLoopPlot->getX(), pLoopPlot->getY(), true, true*/);
 									}
 								}
 							}
@@ -7265,7 +7265,7 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 								if (bReveals && !bRevealed)
 								{
 									strBuffer = GetLocalizedText("TXT_KEY_MISC_RESOURCE_DISCOVERED_CITY_DEMANDS", GC.getResourceInfo(eResourceDemanded)->GetTextKey(), pLoopCity->getNameKey());
-									DLLUI->AddCityMessage(0, pLoopCity->GetIDInfo(), eLoopPlayer, false, GC.getEVENT_MESSAGE_TIME(), strBuffer/*, "AS2D_DISCOVERRESOURCE", MESSAGE_TYPE_INFO, GC.getResourceInfo(eResourceDemanded)->GetButton(), (ColorTypes)GC.getInfoTypeForString("COLOR_WHITE"), pLoopCity->getX(), pLoopCity->getY(), true, true*/);
+									DLLUI->AddCityMessage(0, pLoopCity->GetIDInfo(), eLoopPlayer, false, /*10*/ GD_INT_GET(EVENT_MESSAGE_TIME), strBuffer/*, "AS2D_DISCOVERRESOURCE", MESSAGE_TYPE_INFO, GC.getResourceInfo(eResourceDemanded)->GetButton(), (ColorTypes)GC.getInfoTypeForString("COLOR_WHITE"), pLoopCity->getX(), pLoopCity->getY(), true, true*/);
 								}
 							}
 						}
@@ -7692,9 +7692,9 @@ void CvTeam::testCircumnavigated()
 
 	if(kGame.getElapsedGameTurns() > 0)
 	{
-		int iFreeMoves = GC.getCIRCUMNAVIGATE_FREE_MOVES();
-		if(iFreeMoves != 0)
-			changeExtraMoves(DOMAIN_SEA, GC.getCIRCUMNAVIGATE_FREE_MOVES());
+		int iFreeMoves = /*0*/ GD_INT_GET(CIRCUMNAVIGATE_FREE_MOVES);
+		if (iFreeMoves != 0)
+			changeExtraMoves(DOMAIN_SEA, iFreeMoves);
 
 		for(int iI = 0; iI < MAX_PLAYERS; iI++)
 		{
@@ -7733,7 +7733,7 @@ void CvTeam::testCircumnavigated()
 					{
 						strBuffer = GetLocalizedText("TXT_KEY_MISC_UNKNOWN_CIRC_GLOBE");
 					}
-					DLLUI->AddMessage(0, ((PlayerTypes)iI), false, GC.getEVENT_MESSAGE_TIME(), strBuffer);
+					DLLUI->AddMessage(0, ((PlayerTypes)iI), false, /*10*/ GD_INT_GET(EVENT_MESSAGE_TIME), strBuffer);
 
 #if defined(MOD_EVENTS_CIRCUMNAVIGATION)
 					if (MOD_EVENTS_CIRCUMNAVIGATION) {
@@ -8792,7 +8792,7 @@ void CvTeam::SetCurrentEra(EraTypes eNewValue)
 							if(MOD_BALANCE_CORE_SPIES && iNumTraitSpies > 0)
 							{
 								//Optional: Additional Trait Spies scaled for the number of City-States in the game.
-								int iNumMinor = ((GC.getGame().GetNumMinorCivsEver(true) * /*15*/ GC.getBALANCE_SPY_TO_MINOR_RATIO()) / 100);
+								int iNumMinor = ((GC.getGame().GetNumMinorCivsEver(true) * /*10*/ GD_INT_GET(BALANCE_SPY_TO_MINOR_RATIO)) / 100);
 								if((iNumMinor - 1) > 0)
 								{
 									iNumMinor = iNumMinor - 1;
@@ -8816,7 +8816,7 @@ void CvTeam::SetCurrentEra(EraTypes eNewValue)
 #if defined(MOD_BALANCE_CORE_SPIES)
 						if(MOD_BALANCE_CORE_SPIES){
 							//Optional: Spies scaled for the number of City-States in the game.
-							int iNumMinor = ((GC.getGame().GetNumMinorCivsEver(true) * /*15*/ GC.getBALANCE_SPY_TO_MINOR_RATIO()) / 100);
+							int iNumMinor = ((GC.getGame().GetNumMinorCivsEver(true) * /*10*/ GD_INT_GET(BALANCE_SPY_TO_MINOR_RATIO)) / 100);
 							if((iNumMinor - 1) > 0)
 							{
 								iNumMinor = iNumMinor - 1;
@@ -8888,7 +8888,7 @@ void CvTeam::SetCurrentEra(EraTypes eNewValue)
 							if(MOD_BALANCE_CORE_SPIES)
 							{
 								//Optional: Spies scaled for the number of City-States in the game.
-								int iNumMinor = ((GC.getGame().GetNumMinorCivsEver(true) * /*15*/ GC.getBALANCE_SPY_TO_MINOR_RATIO()) / 100);
+								int iNumMinor = ((GC.getGame().GetNumMinorCivsEver(true) * /*10*/ GD_INT_GET(BALANCE_SPY_TO_MINOR_RATIO)) / 100);
 								if((iNumMinor - 1) > 0)
 								{
 									iNumMinor = iNumMinor - 1;
@@ -9003,7 +9003,7 @@ void CvTeam::SetCurrentEra(EraTypes eNewValue)
 			}
 		}
 
-		if(GC.getGame().getActiveTeam() == GetID() && isBridgeBuilding() && eNewValue >= GC.getLAST_BRIDGE_ART_ERA())
+		if(GC.getGame().getActiveTeam() == GetID() && isBridgeBuilding() && eNewValue >= GD_INT_GET(LAST_BRIDGE_ART_ERA))
 		{
 			gDLL->GameplayBridgeChanged(true, 1);
 		}
@@ -9559,33 +9559,13 @@ bool CvTeam::canEndVassal(TeamTypes eTeam) const
 	// Too soon to end our vassalage with ePlayer
 	int iMinTurns = IsVoluntaryVassal(eTeam) ? /*10*/ GC.getGame().getGameSpeedInfo().getMinimumVoluntaryVassalTurns() : /*50*/ GC.getGame().getGameSpeedInfo().getMinimumVassalTurns();
 
-	if(GetNumTurnsIsVassal() < iMinTurns)
+	if (GetNumTurnsIsVassal() < iMinTurns)
 	{
 		return false;
 	}
-	
-	// After an ideology is unlocked, we don't care about 50% rules anymore.
-	//PlayerTypes ePlayer;
-	//PolicyBranchTypes eBranch;
-	//for(int iI=0; iI < MAX_MAJOR_CIVS; iI++)
-	//{
-	//	ePlayer = (PlayerTypes) iI;
-	//	// Find the ideology
-	//	for(int jJ=0; jJ < GC.getNumPolicyBranchInfos(); jJ++)
-	//	{
-	//		eBranch = (PolicyBranchTypes) jJ;
-	//		if(GC.getPolicyBranchInfo(eBranch)->IsPurchaseByLevel())
-	//		{
-	//			if(GET_PLAYER(ePlayer).GetPlayerPolicies()->GetNumPoliciesOwnedInBranch(eBranch) > 0)
-	//			{
-	//				return true;
-	//			}
-	//		}
-	//	}
-	//}
 
 	// We're the voluntary vassal of eTeam and it's not too early to end vassalage - we're not bound by the 50% rules
-	if(IsVoluntaryVassal(eTeam))
+	if (IsVoluntaryVassal(eTeam))
 	{
 		return true;
 	}
@@ -9615,18 +9595,18 @@ bool CvTeam::canEndVassal(TeamTypes eTeam) const
 		return true;
 
 	// We have lost cities so that we are 75% less than what we started with (Master is not protecting us)
-	if(iCityPercent <= (/*75*/GC.getVASSALAGE_VASSAL_LOST_CITIES_THRESHOLD()))
+	if (iCityPercent <= /*75*/ GD_INT_GET(VASSALAGE_VASSAL_LOST_CITIES_THRESHOLD))
 	{
 		bAbleToEndVassalage = true;
 	}
 	// We have more than 300% of our original population (We don't need his protection anymore)
-	else if(iPopPercent >= (/*300*/GC.getVASSALAGE_VASSAL_POPULATION_THRESHOLD()))
+	else if (iPopPercent >= /*300*/ GD_INT_GET(VASSALAGE_VASSAL_POPULATION_THRESHOLD))
 	{
 		bAbleToEndVassalage = true;
 	}
 	// We have 60% or more of the Master's population OR cities
-	else if(getNumCities() * 100 / iMasterCities >= /*60*/GC.getVASSALAGE_VASSAL_MASTER_CITY_PERCENT_THRESHOLD() &&
-			getTotalPopulation() * 100 / iMasterPopulation >= /*60*/GC.getVASSALAGE_VASSAL_MASTER_POP_PERCENT_THRESHOLD())
+	else if (getNumCities() * 100 / iMasterCities >= /*60*/ GD_INT_GET(VASSALAGE_VASSAL_MASTER_CITY_PERCENT_THRESHOLD) &&
+			getTotalPopulation() * 100 / iMasterPopulation >= /*60*/ GD_INT_GET(VASSALAGE_VASSAL_MASTER_POP_PERCENT_THRESHOLD))
 	{
 		bAbleToEndVassalage = true;
 	}
@@ -10358,8 +10338,8 @@ void CvTeam::DoApplyVassalTax(PlayerTypes ePlayer, int iPercent)
 	if (!CanSetVassalTax(ePlayer))
 		return;
 
-	iPercent = std::max(iPercent, GC.getVASSALAGE_VASSAL_TAX_PERCENT_MINIMUM());
-	iPercent = std::min(iPercent, GC.getVASSALAGE_VASSAL_TAX_PERCENT_MAXIMUM());
+	iPercent = max(iPercent, /*0*/ GD_INT_GET(VASSALAGE_VASSAL_TAX_PERCENT_MINIMUM));
+	iPercent = min(iPercent, /*25*/ GD_INT_GET(VASSALAGE_VASSAL_TAX_PERCENT_MAXIMUM));
 
 	int iCurrentTaxRate = GetVassalTax(ePlayer);
 	
@@ -10497,11 +10477,11 @@ void CvTeam::SetTradeTech(TechTypes eTech, bool bValue)
 
 int CvTeam::GetSSProjectCount()
 {
-	ProjectTypes ApolloProgram = (ProjectTypes)GC.getSPACE_RACE_TRIGGER_PROJECT();
-	ProjectTypes capsuleID = (ProjectTypes)GC.getSPACESHIP_CAPSULE();
-	ProjectTypes boosterID = (ProjectTypes)GC.getSPACESHIP_BOOSTER();
-	ProjectTypes stasisID = (ProjectTypes)GC.getSPACESHIP_STASIS();
-	ProjectTypes engineID = (ProjectTypes)GC.getSPACESHIP_ENGINE();
+	ProjectTypes ApolloProgram = (ProjectTypes)GD_INT_GET(SPACE_RACE_TRIGGER_PROJECT);
+	ProjectTypes capsuleID = (ProjectTypes)GD_INT_GET(SPACESHIP_CAPSULE);
+	ProjectTypes boosterID = (ProjectTypes)GD_INT_GET(SPACESHIP_BOOSTER);
+	ProjectTypes stasisID = (ProjectTypes)GD_INT_GET(SPACESHIP_STASIS);
+	ProjectTypes engineID = (ProjectTypes)GD_INT_GET(SPACESHIP_ENGINE);
 
 	int iTotal = 0;
 	iTotal += getProjectCount((ProjectTypes)ApolloProgram) + getProjectMaking((ProjectTypes)ApolloProgram);

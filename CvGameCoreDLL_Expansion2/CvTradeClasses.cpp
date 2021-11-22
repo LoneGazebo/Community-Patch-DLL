@@ -860,20 +860,10 @@ int CvGameTrade::GetDomainModifierTimes100 (DomainTypes eDomain)
 {
 	if (eDomain == DOMAIN_SEA)
 	{
-#if defined(MOD_TRADE_ROUTE_SCALING)
-		return GD_INT_GET(TRADE_ROUTE_BASE_SEA_MODIFIER);
-#else
-		return 100;
-#endif
+		return /*100 in CP, 25 in CBO*/ GD_INT_GET(TRADE_ROUTE_BASE_SEA_MODIFIER);
 	}
-	else
-	{
-#if defined(MOD_TRADE_ROUTE_SCALING)
-		return GD_INT_GET(TRADE_ROUTE_BASE_LAND_MODIFIER);
-#else
-		return 0;
-#endif
-	}
+
+	return /*0*/ GD_INT_GET(TRADE_ROUTE_BASE_LAND_MODIFIER);
 }
 
 //	--------------------------------------------------------------------------------
@@ -1174,13 +1164,9 @@ int CvGameTrade::GetTradeRouteTurns(CvCity* pOriginCity, CvCity* pDestCity, Doma
 	if (iRouteSpeed != 0)
 		fTurnsPerCircuit = (iDistance * 2.f - 2) / iRouteSpeed;
 
-#if defined(MOD_TRADE_ROUTE_SCALING)
-	int iTargetTurns = GD_INT_GET(TRADE_ROUTE_BASE_TARGET_TURNS); // how many turns do we want the cycle to consume
+	int iTargetTurns = /*30*/ GD_INT_GET(TRADE_ROUTE_BASE_TARGET_TURNS); // how many turns do we want the cycle to consume
 	iTargetTurns = iTargetTurns * GC.getGame().getGameSpeedInfo().getTradeRouteSpeedMod() / 100;
 	iTargetTurns = max(iTargetTurns, 1);
-#else
-	int iTargetTurns = 30; // how many turns do we want the cycle to consume
-#endif
 	iTargetTurns += (int)(iTargetTurns * (GET_PLAYER(pOriginCity->getOwner()).GetTrade()->GetTradeRouteTurnMod(pOriginCity) / 100.0));
 
 	// calculate how many circuits do we want this trade route to run to reach the target turns
@@ -1707,12 +1693,11 @@ int CvGameTrade::GetTechDifference (PlayerTypes ePlayer, PlayerTypes ePlayer2)
 
 	if (GET_PLAYER(ePlayer2).isMinorCiv() || GET_PLAYER(ePlayer2).isBarbarian())
 	{
-#if defined(MOD_BALANCE_CORE)
 		if(GET_PLAYER(ePlayer2).isMinorCiv() && MOD_BALANCE_CORE)
 		{
 			if(GET_PLAYER(ePlayer2).GetMinorCivAI()->GetAlly() == ePlayer)
 			{
-				int iAllyScience = GD_INT_GET(TRADE_ROUTE_CS_ALLY_SCIENCE_DELTA);
+				int iAllyScience = /*1*/ GD_INT_GET(TRADE_ROUTE_CS_ALLY_SCIENCE_DELTA);
 				if(iAllyScience <= 0)
 				{
 					return 0;
@@ -1721,7 +1706,7 @@ int CvGameTrade::GetTechDifference (PlayerTypes ePlayer, PlayerTypes ePlayer2)
 			}
 			else if(GET_PLAYER(ePlayer2).GetMinorCivAI()->IsFriends(ePlayer))
 			{
-				int iFriendScience = GD_INT_GET(TRADE_ROUTE_CS_FRIEND_SCIENCE_DELTA);
+				int iFriendScience = /*0*/ GD_INT_GET(TRADE_ROUTE_CS_FRIEND_SCIENCE_DELTA);
 				if(iFriendScience <= 0)
 				{
 					return 0;
@@ -1729,7 +1714,7 @@ int CvGameTrade::GetTechDifference (PlayerTypes ePlayer, PlayerTypes ePlayer2)
 				return iFriendScience;
 			}
 		}
-#endif
+
 		return 0;
 	}
 
@@ -1806,12 +1791,11 @@ int CvGameTrade::GetPolicyDifference(PlayerTypes ePlayer, PlayerTypes ePlayer2)
 
 	if (GET_PLAYER(ePlayer2).isMinorCiv() || GET_PLAYER(ePlayer2).isBarbarian())
 	{
-#if defined(MOD_BALANCE_CORE)
 		if (GET_PLAYER(ePlayer2).isMinorCiv() && MOD_BALANCE_CORE)
 		{
 			if (GET_PLAYER(ePlayer2).GetMinorCivAI()->GetAlly() == ePlayer)
 			{
-				int iAllyCulture = GD_INT_GET(TRADE_ROUTE_CS_ALLY_CULTURE_DELTA);
+				int iAllyCulture = /*1*/ GD_INT_GET(TRADE_ROUTE_CS_ALLY_CULTURE_DELTA);
 				if (iAllyCulture <= 0)
 				{
 					return 0;
@@ -1820,7 +1804,7 @@ int CvGameTrade::GetPolicyDifference(PlayerTypes ePlayer, PlayerTypes ePlayer2)
 			}
 			else if (GET_PLAYER(ePlayer2).GetMinorCivAI()->IsFriends(ePlayer))
 			{
-				int iFriendCulture = GD_INT_GET(TRADE_ROUTE_CS_FRIEND_CULTURE_DELTA);
+				int iFriendCulture = /*0*/ GD_INT_GET(TRADE_ROUTE_CS_FRIEND_CULTURE_DELTA);
 				if (iFriendCulture <= 0)
 				{
 					return 0;
@@ -1828,7 +1812,7 @@ int CvGameTrade::GetPolicyDifference(PlayerTypes ePlayer, PlayerTypes ePlayer2)
 				return 	iFriendCulture;
 			}
 		}
-#endif
+
 		return 0;
 	}
 
@@ -2606,7 +2590,7 @@ int CvPlayerTrade::GetTradeConnectionBaseValueTimes100(const TradeConnection& kT
 			if (eYield == YIELD_GOLD)
 			{
 				int iResult = 0;
-				int iBase = GC.getINTERNATIONAL_TRADE_BASE() * (m_pPlayer->GetCurrentEra()+2);
+				int iBase = /*100*/ GD_INT_GET(INTERNATIONAL_TRADE_BASE) * (m_pPlayer->GetCurrentEra()+2);
 				iResult = iBase;
 				return iResult;
 			}
@@ -2616,17 +2600,13 @@ int CvPlayerTrade::GetTradeConnectionBaseValueTimes100(const TradeConnection& kT
 #if defined(MOD_BALANCE_CORE_GOLD_INTERNAL_TRADE_ROUTES)
 				if (MOD_BALANCE_CORE_GOLD_INTERNAL_TRADE_ROUTES && kTradeConnection.m_eConnectionType == TRADE_CONNECTION_GOLD_INTERNAL)
 				{
-						iTechDifference = GD_INT_GET(TRADE_ROUTE_CS_ALLY_SCIENCE_DELTA);
+					iTechDifference = /*1*/ GD_INT_GET(TRADE_ROUTE_CS_ALLY_SCIENCE_DELTA);
 				}
 #endif
 				int iAdjustedTechDifference = 0;
 				if (iTechDifference > 0)
 				{
-#if defined(MOD_TRADE_ROUTE_SCALING)
-					int iCeilTechDifference = int( sqrt((float)iTechDifference) * 200.f / GD_INT_GET(TRADE_ROUTE_SCIENCE_DIVISOR_TIMES100));
-#else
-					int iCeilTechDifference = (int)ceil(iTechDifference / 2.0f);
-#endif
+					int iCeilTechDifference = int( sqrt((float)iTechDifference) * 200.f / /*200 in CP, 125 in CBO*/ GD_INT_GET(TRADE_ROUTE_SCIENCE_DIVISOR_TIMES100));
 					iAdjustedTechDifference = max(iCeilTechDifference, 1);
 
 					if(iAdjustedTechDifference > 0 && (GET_PLAYER(kTradeConnection.m_eOriginOwner).GetCurrentEra() > 0))
@@ -2668,17 +2648,13 @@ int CvPlayerTrade::GetTradeConnectionBaseValueTimes100(const TradeConnection& kT
 #if defined(MOD_BALANCE_CORE_GOLD_INTERNAL_TRADE_ROUTES)
 				if (MOD_BALANCE_CORE_GOLD_INTERNAL_TRADE_ROUTES && kTradeConnection.m_eConnectionType == TRADE_CONNECTION_GOLD_INTERNAL)
 				{
-					iCultureDifference = GD_INT_GET(TRADE_ROUTE_CS_ALLY_CULTURE_DELTA);
+					iCultureDifference = /*1*/ GD_INT_GET(TRADE_ROUTE_CS_ALLY_CULTURE_DELTA);
 				}
 #endif
 				int iAdjustedCultureDifference = 0;
 				if (iCultureDifference > 0)
 				{
-#if defined(MOD_TRADE_ROUTE_SCALING)
-					int iCeilCultureDifference = int( sqrt((float)iCultureDifference) * 200.f / GD_INT_GET(TRADE_ROUTE_CULTURE_DIVISOR_TIMES100));
-#else
-					int iCeilTechDifference = (int)ceil(iTechDifference / 2.0f);
-#endif
+					int iCeilCultureDifference = int( sqrt((float)iCultureDifference) * 200.f / /*200 in CP, 125 in CBO*/ GD_INT_GET(TRADE_ROUTE_CULTURE_DIVISOR_TIMES100));
 					iAdjustedCultureDifference = max(iCeilCultureDifference, 1);
 
 					if (iAdjustedCultureDifference > 0 && (GET_PLAYER(kTradeConnection.m_eOriginOwner).GetCurrentEra() > 0))
@@ -2710,11 +2686,7 @@ int CvPlayerTrade::GetTradeConnectionBaseValueTimes100(const TradeConnection& kT
 			int iAdjustedTechDifference = 0;
 			if (iTechDifference > 0)
 			{
-#if defined(MOD_TRADE_ROUTE_SCALING)
-				int iCeilTechDifference = int( sqrt((float)iTechDifference) * 200.f / GD_INT_GET(TRADE_ROUTE_SCIENCE_DIVISOR_TIMES100));
-#else
-				int iCeilTechDifference = (int)ceil(iTechDifference / 2.0f);
-#endif
+				int iCeilTechDifference = int( sqrt((float)iTechDifference) * 200.f / /*200 in CP, 125 in CBO*/ GD_INT_GET(TRADE_ROUTE_SCIENCE_DIVISOR_TIMES100));
 				iAdjustedTechDifference = max(iCeilTechDifference, 1);
 			}
 
@@ -2726,11 +2698,7 @@ int CvPlayerTrade::GetTradeConnectionBaseValueTimes100(const TradeConnection& kT
 			int iAdjustedCultureDifference = 0;
 			if (iCultureDifference > 0)
 			{
-#if defined(MOD_TRADE_ROUTE_SCALING)
-				int iCeilCultureDifference = int( sqrt((float)iCultureDifference) * 200.f / GD_INT_GET(TRADE_ROUTE_CULTURE_DIVISOR_TIMES100));
-#else
-				int iCeilTechDifference = (int)ceil(iTechDifference / 2.0f);
-#endif
+				int iCeilCultureDifference = int( sqrt((float)iCultureDifference) * 200.f / /*200 in CP, 125 in CBO*/ GD_INT_GET(TRADE_ROUTE_CULTURE_DIVISOR_TIMES100));
 				iAdjustedCultureDifference = max(iCeilCultureDifference, 1);
 			}
 
@@ -2785,7 +2753,7 @@ int CvPlayerTrade::GetTradeConnectionGPTValueTimes100(const TradeConnection& kTr
 					return 0;
 				}
 
-				int iDivisor = GC.getINTERNATIONAL_TRADE_CITY_GPT_DIVISOR();
+				int iDivisor = /*20 in CP, 65 in CBO*/ GD_INT_GET(INTERNATIONAL_TRADE_CITY_GPT_DIVISOR);
 				if (iDivisor == 0)
 				{
 					iDivisor = 1;
@@ -2871,7 +2839,7 @@ int CvPlayerTrade::GetTradeConnectionResourceValueTimes100(const TradeConnection
 						}
 					}
 					int iBonus = iOurResources + iTheirResources;
-					iValue = GD_INT_GET(TRADE_ROUTE_DIFFERENT_RESOURCE_VALUE) * iBonus;
+					iValue = iBonus * /*50 in CP, 10 in CBO*/ GD_INT_GET(TRADE_ROUTE_DIFFERENT_RESOURCE_VALUE);
 				}
 				else
 				{
@@ -2886,11 +2854,7 @@ int CvPlayerTrade::GetTradeConnectionResourceValueTimes100(const TradeConnection
 							{
 								if (pOriginCity->IsHasResourceLocal(eResource, true) != pDestCity->IsHasResourceLocal(eResource, true))
 								{
-#if defined(MOD_TRADE_ROUTE_SCALING)
-									iValue += GD_INT_GET(TRADE_ROUTE_DIFFERENT_RESOURCE_VALUE);
-#else
-									iValue += 50;
-#endif
+									iValue += /*50 in CP, 10 in CBO*/ GD_INT_GET(TRADE_ROUTE_DIFFERENT_RESOURCE_VALUE);
 								}
 							}
 						}
@@ -2993,7 +2957,7 @@ int CvPlayerTrade::GetMinorCivGoldBonus(const TradeConnection& kTradeConnection,
 		{
 			if(GET_PLAYER(kTradeConnection.m_eDestOwner).GetMinorCivAI()->IsAllies(kTradeConnection.m_eOriginOwner))
 			{
-				int iAllyGold = (GD_INT_GET(TRADE_ROUTE_CS_ALLY_GOLD) * 100);
+				int iAllyGold = (/*2*/ GD_INT_GET(TRADE_ROUTE_CS_ALLY_GOLD) * 100);
 				if(iAllyGold > 0 && (GET_PLAYER(kTradeConnection.m_eOriginOwner).GetCurrentEra() > 0))
 				{
 					iAllyGold *= GET_PLAYER(kTradeConnection.m_eOriginOwner).GetCurrentEra();
@@ -3002,7 +2966,7 @@ int CvPlayerTrade::GetMinorCivGoldBonus(const TradeConnection& kTradeConnection,
 			}
 			else if(GET_PLAYER(kTradeConnection.m_eDestOwner).GetMinorCivAI()->IsFriends(kTradeConnection.m_eOriginOwner))
 			{
-				int iFriendGold = (GD_INT_GET(TRADE_ROUTE_CS_FRIEND_GOLD) * 100);
+				int iFriendGold = (/*1*/ GD_INT_GET(TRADE_ROUTE_CS_FRIEND_GOLD) * 100);
 				if(iFriendGold > 0 && (GET_PLAYER(kTradeConnection.m_eOriginOwner).GetCurrentEra() > 0))
 				{
 					iFriendGold *= GET_PLAYER(kTradeConnection.m_eOriginOwner).GetCurrentEra();
@@ -3014,7 +2978,7 @@ int CvPlayerTrade::GetMinorCivGoldBonus(const TradeConnection& kTradeConnection,
 		// gold internal trade routes get bonus gold as if trading with an allied city state
 		else if (MOD_BALANCE_CORE_GOLD_INTERNAL_TRADE_ROUTES && MOD_BALANCE_CORE && kTradeConnection.m_eConnectionType == TRADE_CONNECTION_GOLD_INTERNAL)
 		{
-			int iAllyGold = (GD_INT_GET(TRADE_ROUTE_CS_ALLY_GOLD) * 100);
+			int iAllyGold = (/*2*/ GD_INT_GET(TRADE_ROUTE_CS_ALLY_GOLD) * 100);
 			if (iAllyGold > 0 && (GET_PLAYER(kTradeConnection.m_eOriginOwner).GetCurrentEra() > 0))
 			{
 				iAllyGold *= GET_PLAYER(kTradeConnection.m_eOriginOwner).GetCurrentEra();
@@ -3126,7 +3090,7 @@ int CvPlayerTrade::GetTradeConnectionExclusiveValueTimes100(const TradeConnectio
 	CvGameTrade* pTrade = GC.getGame().GetGameTrade();
 	if (pTrade->IsDestinationExclusive(kTradeConnection))
 	{
-		return GC.getINTERNATIONAL_TRADE_EXCLUSIVE_CONNECTION();
+		return /*0*/ GD_INT_GET(INTERNATIONAL_TRADE_EXCLUSIVE_CONNECTION);
 	}
 	else
 	{
@@ -3222,9 +3186,9 @@ int CvPlayerTrade::GetTradeConnectionPolicyValueTimes100(const TradeConnection& 
 		CvPlayerPolicies* pOwnerPlayerPolicies = GET_PLAYER(kTradeConnection.m_eOriginOwner).GetPlayerPolicies();
 		CvPlayerPolicies* pDestPlayerPolicies = GET_PLAYER(kTradeConnection.m_eDestOwner).GetPlayerPolicies();
 
-		PolicyBranchTypes eFreedom = (PolicyBranchTypes)GC.getPOLICY_BRANCH_FREEDOM();
-		PolicyBranchTypes eAutocracy = (PolicyBranchTypes)GC.getPOLICY_BRANCH_AUTOCRACY();
-		PolicyBranchTypes eOrder = (PolicyBranchTypes)GC.getPOLICY_BRANCH_ORDER();
+		PolicyBranchTypes eFreedom = (PolicyBranchTypes)GD_INT_GET(POLICY_BRANCH_FREEDOM);
+		PolicyBranchTypes eAutocracy = (PolicyBranchTypes)GD_INT_GET(POLICY_BRANCH_AUTOCRACY);
+		PolicyBranchTypes eOrder = (PolicyBranchTypes)GD_INT_GET(POLICY_BRANCH_ORDER);
 
 		bool bBothAutocracy = false;
 		bool bBothOrder = false;
@@ -3370,11 +3334,7 @@ int CvPlayerTrade::GetTradeConnectionRiverValueModifierTimes100(const TradeConne
 				CvPlot* pOriginCityPlot = pOriginCity->plot();
 				if (pOriginCityPlot->isRiver())
 				{
-#if defined(MOD_TRADE_ROUTE_SCALING)
-					iModifier = GD_INT_GET(TRADE_ROUTE_RIVER_CITY_MODIFIER);
-#else
-					iModifier = 25;
-#endif
+					iModifier = /*25*/ GD_INT_GET(TRADE_ROUTE_RIVER_CITY_MODIFIER);
 				}
 			}
 		}
@@ -3387,11 +3347,7 @@ int CvPlayerTrade::GetTradeConnectionRiverValueModifierTimes100(const TradeConne
 				CvPlot* pDestCityPlot = pDestCity->plot();
 				if (pDestCityPlot->isRiver())
 				{
-#if defined(MOD_TRADE_ROUTE_SCALING)
-					iModifier = GD_INT_GET(TRADE_ROUTE_RIVER_CITY_MODIFIER);
-#else
-					iModifier = 25;
-#endif
+					iModifier = /*25*/ GD_INT_GET(TRADE_ROUTE_RIVER_CITY_MODIFIER);
 				}
 			}
 		}
@@ -3416,7 +3372,7 @@ int CvPlayerTrade::GetTradeConnectionOpenBordersModifierTimes100(const TradeConn
 	{
 		if (bAsOriginPlayer)
 		{
-			iModifier = /*20*/ GC.getOPEN_BORDERS_MODIFIER_TRADE_GOLD();
+			iModifier = /*20*/ GD_INT_GET(OPEN_BORDERS_MODIFIER_TRADE_GOLD);
 		}
 	}
 #endif
@@ -3437,22 +3393,22 @@ int CvPlayerTrade::GetTradeConnectionOpenBordersModifierTimes100(const TradeConn
 	{
 		if(GET_TEAM(GET_PLAYER(eOriginPlayer).getTeam()).IsAllowsOpenBordersToTeam(GET_PLAYER(eDestPlayer).getTeam()) && GET_TEAM(GET_PLAYER(eDestPlayer).getTeam()).IsAllowsOpenBordersToTeam(GET_PLAYER(eOriginPlayer).getTeam()))
 		{
-			iModifier = /*20*/ GC.getOPEN_BORDERS_MODIFIER_TRADE_GOLD();
+			iModifier = /*20*/ GD_INT_GET(OPEN_BORDERS_MODIFIER_TRADE_GOLD);
 		}
 		else if(GET_TEAM(GET_PLAYER(eOriginPlayer).getTeam()).IsAllowsOpenBordersToTeam(GET_PLAYER(eDestPlayer).getTeam()) || GET_TEAM(GET_PLAYER(eDestPlayer).getTeam()).IsAllowsOpenBordersToTeam(GET_PLAYER(eOriginPlayer).getTeam()))
 		{
-			iModifier = /*20*/ (GC.getOPEN_BORDERS_MODIFIER_TRADE_GOLD() / 2);
+			iModifier = /*10*/ (GD_INT_GET(OPEN_BORDERS_MODIFIER_TRADE_GOLD) / 2);
 		}
 	}
 	else if(!bAsOriginPlayer && eOriginPlayer != NO_PLAYER && eDestPlayer != NO_PLAYER && eYield == YIELD_GOLD)
 	{
 		if(GET_TEAM(GET_PLAYER(eOriginPlayer).getTeam()).IsAllowsOpenBordersToTeam(GET_PLAYER(eDestPlayer).getTeam()) && GET_TEAM(GET_PLAYER(eDestPlayer).getTeam()).IsAllowsOpenBordersToTeam(GET_PLAYER(eOriginPlayer).getTeam()))
 		{
-			iModifier = /*20*/ (GC.getOPEN_BORDERS_MODIFIER_TRADE_GOLD() / 2);
+			iModifier = /*10*/ (GD_INT_GET(OPEN_BORDERS_MODIFIER_TRADE_GOLD) / 2);
 		}
 		else if(GET_TEAM(GET_PLAYER(eOriginPlayer).getTeam()).IsAllowsOpenBordersToTeam(GET_PLAYER(eDestPlayer).getTeam()) || GET_TEAM(GET_PLAYER(eDestPlayer).getTeam()).IsAllowsOpenBordersToTeam(GET_PLAYER(eOriginPlayer).getTeam()))
 		{
-			iModifier = /*20*/ (GC.getOPEN_BORDERS_MODIFIER_TRADE_GOLD() / 4);
+			iModifier = /*5*/ (GD_INT_GET(OPEN_BORDERS_MODIFIER_TRADE_GOLD) / 4);
 		}
 	}
 
@@ -4042,11 +3998,8 @@ int CvPlayerTrade::GetTradeConnectionValueTimes100 (const TradeConnection& kTrad
 			case TRADE_CONNECTION_FOOD:
 				if (eYield == YIELD_FOOD)
 				{
-#if defined(MOD_TRADE_ROUTE_SCALING)
-					iValue = GD_INT_GET(TRADE_ROUTE_BASE_FOOD_VALUE);
-#else
-					iValue = 300;
-#endif
+					iValue = /*300 in CP, 600 in CBO*/ GD_INT_GET(TRADE_ROUTE_BASE_FOOD_VALUE);
+
 #if defined(MOD_API_UNIFIED_YIELDS)
 					iValue += GetTradeConnectionPolicyValueTimes100(kTradeConnection, eYield);
 					iValue += GetTradeConnectionOtherTraitValueTimes100(kTradeConnection, eYield, false);
@@ -4115,11 +4068,8 @@ int CvPlayerTrade::GetTradeConnectionValueTimes100 (const TradeConnection& kTrad
 			case TRADE_CONNECTION_PRODUCTION:
 				if (eYield == YIELD_PRODUCTION)
 				{
-#if defined(MOD_TRADE_ROUTE_SCALING)
-					iValue = GD_INT_GET(TRADE_ROUTE_BASE_PRODUCTION_VALUE);
-#else
-					iValue = 300;
-#endif
+					iValue = /*300 in CP, 600 in CBO*/ GD_INT_GET(TRADE_ROUTE_BASE_PRODUCTION_VALUE);
+
 #if defined(MOD_API_UNIFIED_YIELDS)
 					iValue += GetTradeConnectionPolicyValueTimes100(kTradeConnection, eYield);
 					iValue += GetTradeConnectionOtherTraitValueTimes100(kTradeConnection, eYield, false);
@@ -5022,13 +4972,10 @@ bool CvPlayerTrade::PlunderTradeRoute(int iTradeConnectionID, CvUnit* pUnit)
 	}
 #endif
 
-#if defined(MOD_TRADE_ROUTE_SCALING)
-	int iPlunderGoldValue = GD_INT_GET(TRADE_ROUTE_BASE_PLUNDER_GOLD);
-#else
-	int iPlunderGoldValue = 100;
-#endif
+	int iPlunderGoldValue = /*100*/ GD_INT_GET(TRADE_ROUTE_BASE_PLUNDER_GOLD);
 	iPlunderGoldValue *= 100 + iDomainModifier;
 	iPlunderGoldValue /= 100;
+
 #if defined(MOD_BALANCE_CORE)
 	iPlunderGoldValue *= GC.getGame().getGameSpeedInfo().getInstantYieldPercent();
 	int iEra = m_pPlayer->GetCurrentEra();
@@ -5065,7 +5012,7 @@ bool CvPlayerTrade::PlunderTradeRoute(int iTradeConnectionID, CvUnit* pUnit)
 		CvString strBuffer;
 		strBuffer = GetLocalizedText("TXT_KEY_MISC_PLUNDERED_GOLD_FROM_IMP", iPlunderGoldValue, GC.getUnitInfo(GetTradeUnit(eDomain, m_pPlayer))->GetDescriptionKey());
 		
-		DLLUI->AddMessage(0, m_pPlayer->GetID(), true, GC.getEVENT_MESSAGE_TIME(), strBuffer);
+		DLLUI->AddMessage(0, m_pPlayer->GetID(), true, /*10*/ GD_INT_GET(EVENT_MESSAGE_TIME), strBuffer);
 	}
 
 	// barbarians get a bonus unit out of the deal!
@@ -5096,11 +5043,11 @@ bool CvPlayerTrade::PlunderTradeRoute(int iTradeConnectionID, CvUnit* pUnit)
 				GET_PLAYER(eOwningPlayer).ChangeWarValueLost(m_pPlayer->GetID(), iValue);
 			}
 
-			m_pPlayer->GetDiplomacyAI()->ChangeWarProgressScore(eOwningPlayer, /*10*/ GC.getWAR_PROGRESS_PLUNDERED_TRADE_ROUTE());
-			GET_PLAYER(eOwningPlayer).GetDiplomacyAI()->ChangeWarProgressScore(m_pPlayer->GetID(), /*-5*/ GC.getWAR_PROGRESS_LOST_TRADE_ROUTE());
+			m_pPlayer->GetDiplomacyAI()->ChangeWarProgressScore(eOwningPlayer, /*10*/ GD_INT_GET(WAR_PROGRESS_PLUNDERED_TRADE_ROUTE));
+			GET_PLAYER(eOwningPlayer).GetDiplomacyAI()->ChangeWarProgressScore(m_pPlayer->GetID(), /*-5*/ GD_INT_GET(WAR_PROGRESS_LOST_TRADE_ROUTE));
 
 			// Diplo penalty with destination civ if not at war
-			if (eOwningPlayer != eDestPlayer && !GET_TEAM(m_pPlayer->getTeam()).isAtWar(eDestTeam))
+			if (eOwningPlayer != eDestPlayer && !GET_TEAM(m_pPlayer->getTeam()).isAtWar(eDestTeam) && !GET_TEAM(eDestTeam).IsVassal(m_pPlayer->getTeam()))
 			{
 				GET_PLAYER(eDestPlayer).GetDiplomacyAI()->ChangeNumTradeRoutesPlundered(m_pPlayer->GetID(), 1);
 			}
@@ -5302,18 +5249,10 @@ int CvPlayerTrade::GetTradeRouteRange (DomainTypes eDomain, CvCity* pOriginCity)
 	switch (eDomain)
 	{
 	case DOMAIN_SEA:
-#if defined(MOD_TRADE_ROUTE_SCALING)
-		iBaseRange = GD_INT_GET(TRADE_ROUTE_BASE_SEA_DISTANCE);
-#else
-		iBaseRange = 20;
-#endif
+		iBaseRange = /*20*/ GD_INT_GET(TRADE_ROUTE_BASE_SEA_DISTANCE);
 		break;
 	case DOMAIN_LAND:
-#if defined(MOD_TRADE_ROUTE_SCALING)
-		iBaseRange = GD_INT_GET(TRADE_ROUTE_BASE_LAND_DISTANCE);
-#else
-		iBaseRange = 10;
-#endif
+		iBaseRange = /*10*/ GD_INT_GET(TRADE_ROUTE_BASE_LAND_DISTANCE);
 		break;
 	default:
 		CvAssertMsg(false, "Undefined domain for trade route range");
@@ -5755,12 +5694,9 @@ int CvPlayerTrade::GetNumDifferentMajorCivTradingPartners(void)
 //	--------------------------------------------------------------------------------
 void CvPlayerTrade::UpdateTradeConnectionWasPlundered()
 {
-#if defined(MOD_TRADE_ROUTE_SCALING)
-	int iTurnsUntilForget = GD_INT_GET(TRADE_ROUTE_PLUNDER_TURNS_COUNTER);
+	int iTurnsUntilForget = /*30*/ GD_INT_GET(TRADE_ROUTE_PLUNDER_TURNS_COUNTER);
 	iTurnsUntilForget = iTurnsUntilForget * GC.getGame().getGameSpeedInfo().getTradeRouteSpeedMod() / 100;
-#else
-	int iTurnsUntilForget = 30;
-#endif
+
 	for (uint ui = 0; ui < m_aTradeConnectionWasPlundered.size(); ui++)
 	{
 		if ((m_aTradeConnectionWasPlundered[ui].m_iTurnPlundered + iTurnsUntilForget) <= GC.getGame().getGameTurn())
@@ -6357,11 +6293,8 @@ std::vector<int> CvTradeAI::ScoreInternationalTR(const TradeConnection& kTradeCo
 	int iTechDifferenceP1fromP2 = GC.getGame().GetGameTrade()->GetTechDifference(kTradeConnection.m_eOriginOwner, kTradeConnection.m_eDestOwner);
 	if (iTechDifferenceP1fromP2 > 0)
 	{
-#if defined(MOD_TRADE_ROUTE_SCALING)
-		int iCeilTechDifference = iTechDifferenceP1fromP2 * 100 / GD_INT_GET(TRADE_ROUTE_SCIENCE_DIVISOR_TIMES100);
-#else
-		int iCeilTechDifference = (int)ceil(iTechDifference / 2.0f);
-#endif
+		int iCeilTechDifference = iTechDifferenceP1fromP2 * 100 / /*200 in CP, 125 in CBO*/ GD_INT_GET(TRADE_ROUTE_SCIENCE_DIVISOR_TIMES100);
+
 		iAdjustedTechDifferenceP1fromP2 = max(iCeilTechDifference, 1);
 #if defined(MOD_TRAITS_YIELD_FROM_ROUTE_MOVEMENT_IN_FOREIGN_TERRITORY)
 		//if we get extra yields from sending trade routes to foreign territory, let's consider that
@@ -6402,11 +6335,8 @@ std::vector<int> CvTradeAI::ScoreInternationalTR(const TradeConnection& kTradeCo
 	int iAdjustedTechDifferenceP2fromP1 = 0;
 	if (iTechDifferenceP2fromP1 > 0)
 	{
-#if defined(MOD_TRADE_ROUTE_SCALING)
-		int iCeilTechDifference = iTechDifferenceP2fromP1 * 100 / GD_INT_GET(TRADE_ROUTE_SCIENCE_DIVISOR_TIMES100);
-#else
-		int iCeilTechDifference = (int)ceil(iTechDifference / 2.0f);
-#endif
+		int iCeilTechDifference = iTechDifferenceP2fromP1 * 100 / /*200 in CP, 125 in CBO*/ GD_INT_GET(TRADE_ROUTE_SCIENCE_DIVISOR_TIMES100);
+
 		iAdjustedTechDifferenceP2fromP1 = max(iCeilTechDifference, 1);
 #if defined(MOD_TRAITS_YIELD_FROM_ROUTE_MOVEMENT_IN_FOREIGN_TERRITORY)
 		if (MOD_TRAITS_YIELD_FROM_ROUTE_MOVEMENT_IN_FOREIGN_TERRITORY)
@@ -6450,11 +6380,7 @@ std::vector<int> CvTradeAI::ScoreInternationalTR(const TradeConnection& kTradeCo
 	int iAdjustedCultureDifferenceP1fromP2 = 0;
 	if (iCultureDifferenceP1fromP2 > 0)
 	{
-#if defined(MOD_TRADE_ROUTE_SCALING)
-		int iCeilCultureDifference = iCultureDifferenceP1fromP2 * 100 / GD_INT_GET(TRADE_ROUTE_CULTURE_DIVISOR_TIMES100);
-#else
-		int iCeilTechDifference = (int)ceil(iTechDifference / 2.0f);
-#endif
+		int iCeilCultureDifference = iCultureDifferenceP1fromP2 * 100 / /*200 in CP, 125 in CBO*/ GD_INT_GET(TRADE_ROUTE_CULTURE_DIVISOR_TIMES100);
 		iAdjustedCultureDifferenceP1fromP2 = max(iCeilCultureDifference, 1);
 #if defined(MOD_TRAITS_YIELD_FROM_ROUTE_MOVEMENT_IN_FOREIGN_TERRITORY)
 		//if we get extra yields from sending trade routes to foreign territory, let's consider that
@@ -6496,11 +6422,7 @@ std::vector<int> CvTradeAI::ScoreInternationalTR(const TradeConnection& kTradeCo
 	int iAdjustedCultureDifferenceP2fromP1 = 0;
 	if (iCultureDifferenceP2fromP1 > 0)
 	{
-#if defined(MOD_TRADE_ROUTE_SCALING)
-		int iCeilCultureDifference = iCultureDifferenceP2fromP1 * 100 / GD_INT_GET(TRADE_ROUTE_CULTURE_DIVISOR_TIMES100);
-#else
-		int iCeilTechDifference = (int)ceil(iTechDifference / 2.0f);
-#endif
+		int iCeilCultureDifference = iCultureDifferenceP2fromP1 * 100 / /*200 in CP, 125 in CBO*/ GD_INT_GET(TRADE_ROUTE_CULTURE_DIVISOR_TIMES100);
 		iAdjustedCultureDifferenceP2fromP1 = max(iCeilCultureDifference, 1);
 #if defined(MOD_TRAITS_YIELD_FROM_ROUTE_MOVEMENT_IN_FOREIGN_TERRITORY)
 		if (MOD_TRAITS_YIELD_FROM_ROUTE_MOVEMENT_IN_FOREIGN_TERRITORY)
@@ -6555,8 +6477,8 @@ std::vector<int> CvTradeAI::ScoreInternationalTR(const TradeConnection& kTradeCo
 		bool bAnyToCityPressure = pToCity->GetCityReligions()->WouldExertTradeRoutePressureToward(pFromCity, eFromReligion, iFromPressure);
 
 		// Internally pressure is now 10 times greater than what is shown to user
-		iToPressure /= GC.getRELIGION_MISSIONARY_PRESSURE_MULTIPLIER();
-		iFromPressure /= GC.getRELIGION_MISSIONARY_PRESSURE_MULTIPLIER();
+		iToPressure /= /*10*/ GD_INT_GET(RELIGION_MISSIONARY_PRESSURE_MULTIPLIER);
+		iFromPressure /= /*10*/ GD_INT_GET(RELIGION_MISSIONARY_PRESSURE_MULTIPLIER);
 
 		// if anyone is exerting pressure
 		if (bAnyFromCityPressure || bAnyToCityPressure)
@@ -6573,8 +6495,8 @@ std::vector<int> CvTradeAI::ScoreInternationalTR(const TradeConnection& kTradeCo
 				double dExistingPressureModFrom = sqrt(log((double)MAX(1, iExistingToPressureAtFrom + iFromPressure) / (double)MAX(1, iExistingToPressureAtFrom)) / log(2.));
 				double dExistingPressureModTo = sqrt(log((double)MAX(1, iExistingGoodPressureAtTo + iToPressure) / (double)MAX(1, iExistingGoodPressureAtTo)) / log(2.));
 
-				iReligionDelta += int(iToPressure * dExistingPressureModTo / GC.getRELIGION_MISSIONARY_PRESSURE_MULTIPLIER() + 0.5);
-				iReligionDelta -= int(iFromPressure * dExistingPressureModFrom / GC.getRELIGION_MISSIONARY_PRESSURE_MULTIPLIER() + 0.5);
+				iReligionDelta += int(iToPressure * dExistingPressureModTo / /*10*/ GD_INT_GET(RELIGION_MISSIONARY_PRESSURE_MULTIPLIER) + 0.5);
+				iReligionDelta -= int(iFromPressure * dExistingPressureModFrom / /*10*/ GD_INT_GET(RELIGION_MISSIONARY_PRESSURE_MULTIPLIER) + 0.5);
 			}
 		}
 	}
@@ -7121,18 +7043,15 @@ std::vector<int> CvTradeAI::ScoreGoldInternalTR(const TradeConnection& kTradeCon
 
 	// science
 	int iAdjustedScienceAmount = 0;
-	int iScienceAmount = GD_INT_GET(TRADE_ROUTE_CS_ALLY_SCIENCE_DELTA);
+	int iScienceAmount = /*1*/ GD_INT_GET(TRADE_ROUTE_CS_ALLY_SCIENCE_DELTA);
 	if (iScienceAmount < 0)
 	{
 		iScienceAmount = 0;
 	}
 	else if (iScienceAmount > 0)
 	{
-#if defined(MOD_TRADE_ROUTE_SCALING)
-		int iCeilScience = iScienceAmount * 100 / GD_INT_GET(TRADE_ROUTE_SCIENCE_DIVISOR_TIMES100);
-#else
-		int iCeilScience = (int)ceil(iScienceAmount / 2.0f);
-#endif
+		int iCeilScience = iScienceAmount * 100 / /*200 in CP, 125 in CBO*/ GD_INT_GET(TRADE_ROUTE_SCIENCE_DIVISOR_TIMES100);
+
 		iAdjustedScienceAmount = max(iCeilScience, 1);
 		if (iAdjustedScienceAmount > 0 && (GET_PLAYER(kTradeConnection.m_eOriginOwner).GetCurrentEra() > 0))
 		{
@@ -7152,18 +7071,14 @@ std::vector<int> CvTradeAI::ScoreGoldInternalTR(const TradeConnection& kTradeCon
 
 	// culture
 	int iAdjustedCultureAmount = 0;
-	int iCultureAmount = GD_INT_GET(TRADE_ROUTE_CS_ALLY_CULTURE_DELTA);
+	int iCultureAmount = /*1*/ GD_INT_GET(TRADE_ROUTE_CS_ALLY_CULTURE_DELTA);
 	if (iCultureAmount < 0)
 	{
 		iCultureAmount = 0;
 	}
 	else if (iCultureAmount > 0)
 	{
-#if defined(MOD_TRADE_ROUTE_SCALING)
-		int iCeilCulture = iCultureAmount * 100 / GD_INT_GET(TRADE_ROUTE_CULTURE_DIVISOR_TIMES100);
-#else
-		int iCeilCulture = (int)ceil(iCultureAmount / 2.0f);
-#endif
+		int iCeilCulture = iCultureAmount * 100 / /*200 in CP, 125 in CBO*/ GD_INT_GET(TRADE_ROUTE_CULTURE_DIVISOR_TIMES100);
 		iAdjustedCultureAmount = max(iCeilCulture, 1);
 		if (iAdjustedCultureAmount > 0 && (GET_PLAYER(kTradeConnection.m_eOriginOwner).GetCurrentEra() > 0))
 		{
@@ -7198,8 +7113,8 @@ std::vector<int> CvTradeAI::ScoreGoldInternalTR(const TradeConnection& kTradeCon
 		bool bAnyToCityPressure = pToCity->GetCityReligions()->WouldExertTradeRoutePressureToward(pFromCity, eFromReligion, iFromPressure);
 
 		// Internally pressure is now 10 times greater than what is shown to user
-		iToPressure /= GC.getRELIGION_MISSIONARY_PRESSURE_MULTIPLIER();
-		iFromPressure /= GC.getRELIGION_MISSIONARY_PRESSURE_MULTIPLIER();
+		iToPressure /= /*10*/ GD_INT_GET(RELIGION_MISSIONARY_PRESSURE_MULTIPLIER);
+		iFromPressure /= /*10*/ GD_INT_GET(RELIGION_MISSIONARY_PRESSURE_MULTIPLIER);
 
 		// if anyone is exerting pressure
 		if (bAnyFromCityPressure || bAnyToCityPressure)
@@ -7216,8 +7131,8 @@ std::vector<int> CvTradeAI::ScoreGoldInternalTR(const TradeConnection& kTradeCon
 				double dExistingPressureModFrom = sqrt(log((double)MAX(1, iExistingToPressureAtFrom + iFromPressure) / (double)MAX(1, iExistingToPressureAtFrom)) / log(2.));
 				double dExistingPressureModTo = sqrt(log((double)MAX(1, iExistingGoodPressureAtTo + iToPressure) / (double)MAX(1, iExistingGoodPressureAtTo)) / log(2.));
 
-				iReligionDelta += int(iToPressure * dExistingPressureModTo / GC.getRELIGION_MISSIONARY_PRESSURE_MULTIPLIER() + 0.5);
-				iReligionDelta -= int(iFromPressure * dExistingPressureModFrom / GC.getRELIGION_MISSIONARY_PRESSURE_MULTIPLIER() + 0.5);
+				iReligionDelta += int(iToPressure * dExistingPressureModTo / /*10*/ GD_INT_GET(RELIGION_MISSIONARY_PRESSURE_MULTIPLIER) + 0.5);
+				iReligionDelta -= int(iFromPressure * dExistingPressureModFrom / /*10*/ GD_INT_GET(RELIGION_MISSIONARY_PRESSURE_MULTIPLIER) + 0.5);
 			}
 		}
 	}

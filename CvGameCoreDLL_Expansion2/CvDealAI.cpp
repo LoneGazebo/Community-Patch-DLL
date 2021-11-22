@@ -171,7 +171,6 @@ bool CvDealAI::BothSidesIncluded(CvDeal* pDeal)
 
 bool CvDealAI::TooMuchAdded(PlayerTypes ePlayer, int iMaxValue, int iNetValue, int iItemValue, bool bFromUs)
 {
-
 	//good now? then let's do it! (need to respect the negative if we're adding to a negative deal)
 	int iNewValue = bFromUs ? (iNetValue - iItemValue) : iNetValue + iItemValue;
 	if (WithinAcceptableRange(ePlayer, iMaxValue, iNewValue))
@@ -1039,7 +1038,7 @@ bool CvDealAI::DoEqualizeDealWithHuman(CvDeal* pDeal, PlayerTypes eOtherPlayer, 
 				iTotalValue = GetDealValue(pDeal);
 
 				//first try rounding up the GPT amount (better for us)
-				DoAddGPTToThem(pDeal, eOtherPlayer, iTotalValue, true);
+				DoAddGPTToThem(pDeal, eOtherPlayer, iTotalValue);
 				bMakeOffer = WithinAcceptableRange(eOtherPlayer, pCounterDeal->GetMaxValue(), iTotalValue);
 
 				//alternatively try with one GPT less (worse for us)
@@ -1155,9 +1154,7 @@ bool CvDealAI::DoEqualizeDealWithAI(CvDeal* pDeal, PlayerTypes eOtherPlayer)
 			{
 				DoAddItemsToUs(pCounterDeal, eOtherPlayer, iTotalValue);
 				iOtherTotalValue = GET_PLAYER(eOtherPlayer).GetDealAI()->GetDealValue(pDeal);
-
 			}
-
 			else if (iOtherTotalValue > 0)
 			{
 				GET_PLAYER(eOtherPlayer).GetDealAI()->DoAddItemsToUs(pCounterDeal, eMyPlayer, iOtherTotalValue);
@@ -1322,9 +1319,9 @@ int CvDealAI::GetTradeItemValue(TradeableItems eItem, bool bFromMe, PlayerTypes 
 	int iItemValue = 0;
 
 	if(eItem == TRADE_ITEM_GOLD)
-		iItemValue = GetGoldForForValueExchange(/*Gold Amount*/ iData1, /*bNumGoldFromValue*/ false, bFromMe, eOtherPlayer, /*bRoundUp*/ false);
+		iItemValue = GetGoldForForValueExchange(/*Gold Amount*/ iData1, /*bNumGoldFromValue*/ false, bFromMe, eOtherPlayer, /*bUseEvenValue*/ false);
 	else if(eItem == TRADE_ITEM_GOLD_PER_TURN)
-		iItemValue = GetGPTforForValueExchange(/*Gold Per Turn Amount*/ iData1, /*bNumGPTFromValue*/ false, iDuration, bFromMe, eOtherPlayer, false, /*bRoundUp*/ !GET_PLAYER(eOtherPlayer).isHuman(), bLogging);
+		iItemValue = GetGPTforForValueExchange(/*Gold Per Turn Amount*/ iData1, /*bNumGPTFromValue*/ false, iDuration, bFromMe, eOtherPlayer, false);
 	else if (eItem == TRADE_ITEM_RESOURCES)
 	{
 		// precalculate, it's expensive
@@ -1374,7 +1371,7 @@ int CvDealAI::GetTradeItemValue(TradeableItems eItem, bool bFromMe, PlayerTypes 
 }
 
 /// How much Gold should be provided if we're trying to make it worth iValue?
-int CvDealAI::GetGoldForForValueExchange(int iGoldOrValue, bool bNumGoldFromValue, bool bFromMe, PlayerTypes eOtherPlayer, bool bUseEvenValue, bool bRoundUp)
+int CvDealAI::GetGoldForForValueExchange(int iGoldOrValue, bool bNumGoldFromValue, bool bFromMe, PlayerTypes eOtherPlayer, bool bUseEvenValue)
 {
 	CvAssertMsg(GetPlayer()->GetID() != eOtherPlayer, "DEAL_AI: Trying to check value of Gold with oneself.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 
@@ -1382,10 +1379,10 @@ int CvDealAI::GetGoldForForValueExchange(int iGoldOrValue, bool bNumGoldFromValu
 	int iDivisor;
 
 	// We passed in Value, we want to know how much Gold we get for it
-	if(bNumGoldFromValue)
+	if (bNumGoldFromValue)
 	{
 		iMultiplier = 100;
-		iDivisor = /*100*/ GC.getEACH_GOLD_VALUE_PERCENT();
+		iDivisor = /*100*/ GD_INT_GET(EACH_GOLD_VALUE_PERCENT);
 		// Protect against a modder setting this to 0
 		if(iDivisor == 0)
 			iDivisor = 1;
@@ -1393,22 +1390,18 @@ int CvDealAI::GetGoldForForValueExchange(int iGoldOrValue, bool bNumGoldFromValu
 	// We passed in an amount of Gold, we want to know how much it's worth
 	else
 	{
-		iMultiplier = /*100*/ GC.getEACH_GOLD_VALUE_PERCENT();
+		iMultiplier = /*100*/ GD_INT_GET(EACH_GOLD_VALUE_PERCENT);
 		iDivisor = 100;
 	}
 
 	// Convert based on the rules above
 	int iReturnValue = iGoldOrValue * iMultiplier;
-
-	// Sometimes we want to round up. Let's say the AI offers a deal to the human. We have to ensure that the human can also offer that deal back and the AI will accept (and vice versa)
-
 	iReturnValue /= iDivisor;
 
 	// Are we trying to find the middle point between what we think this item is worth and what another player thinks it's worth?
 	if(bUseEvenValue)
 	{
-		iReturnValue += GET_PLAYER(eOtherPlayer).GetDealAI()->GetGoldForForValueExchange(iGoldOrValue, bNumGoldFromValue, !bFromMe, GetPlayer()->GetID(), /*bUseEvenValue*/ false, bRoundUp);
-
+		iReturnValue += GET_PLAYER(eOtherPlayer).GetDealAI()->GetGoldForForValueExchange(iGoldOrValue, bNumGoldFromValue, !bFromMe, GetPlayer()->GetID(), /*bUseEvenValue*/ false);
 		iReturnValue /= 2;
 	}
 
@@ -1416,7 +1409,7 @@ int CvDealAI::GetGoldForForValueExchange(int iGoldOrValue, bool bNumGoldFromValu
 }
 
 /// How much GPT should be provided if we're trying to make it worth iValue?
-int CvDealAI::GetGPTforForValueExchange(int iGPTorValue, bool bNumGPTFromValue, int iNumTurns, bool bFromMe, PlayerTypes eOtherPlayer, bool bUseEvenValue, bool bRoundUp, bool bLogging)
+int CvDealAI::GetGPTforForValueExchange(int iGPTorValue, bool bNumGPTFromValue, int iNumTurns, bool bFromMe, PlayerTypes eOtherPlayer, bool bUseEvenValue)
 {
 	CvAssertMsg(GetPlayer()->GetID() != eOtherPlayer, "DEAL_AI: Trying to check value of GPT with oneself.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	if (iGPTorValue <= 0)
@@ -1425,10 +1418,10 @@ int CvDealAI::GetGPTforForValueExchange(int iGPTorValue, bool bNumGPTFromValue, 
 	int iValueTimes100 = 0;
 
 	// We passed in Value, we want to know how much GPT we get for it
-	if(bNumGPTFromValue)
+	if (bNumGPTFromValue)
 	{
 		//let's assume an interest rate of 0.5% per turn, no compounding
-		int iInterestPercent = (5 * /*5*/ GC.getEACH_GOLD_PER_TURN_VALUE_PERCENT() * iNumTurns) / max(1, GC.getGame().getGameSpeedInfo().GetDealDuration());
+		int iInterestPercent = (5 * /*5*/ GD_INT_GET(EACH_GOLD_PER_TURN_VALUE_PERCENT) * iNumTurns) / max(1, GC.getGame().getGameSpeedInfo().GetDealDuration());
 
 		//add interest. 100 gold now is better than 100 gold in the future
 		iGPTorValue += (iGPTorValue*iInterestPercent) / 100;
@@ -1441,35 +1434,30 @@ int CvDealAI::GetGPTforForValueExchange(int iGPTorValue, bool bNumGPTFromValue, 
 			iRound++;
 		}
 
-
-
 		iValueTimes100 = iGPTorValue;
 		iValueTimes100 /= iNumTurns;
 	}
 	else
 	{
-		if (!bLogging && bFromMe && iGPTorValue > (GetPlayer()->calculateGoldRate() - 2))
-			return MAX_INT;
+		if (!GetPlayer()->isHuman() && bFromMe && iGPTorValue > (GetPlayer()->calculateGoldRate() - 2))
+			return INT_MAX;
 
 		iValueTimes100 = (iGPTorValue * iNumTurns);
 
 		//let's assume an interest rate of 0.5% per turn, no compounding
-		int iInterestPercent = (5 * /*5*/ GC.getEACH_GOLD_PER_TURN_VALUE_PERCENT() * iNumTurns) / max(1,GC.getGame().getGameSpeedInfo().GetDealDuration());
+		int iInterestPercent = (5 * /*5*/ GD_INT_GET(EACH_GOLD_PER_TURN_VALUE_PERCENT) * iNumTurns) / max(1,GC.getGame().getGameSpeedInfo().GetDealDuration());
 
 		//subtract interest. 100 gold now is better than 100 gold in the future
 		iValueTimes100 *= 100;
 		iValueTimes100 /= max(1,100 + iInterestPercent);
-
-		// Sometimes we want to round up. Let's say the AI offers a deal to the human. We have to ensure that the human can also offer that deal back and the AI will accept (and vice versa)
 	}
 
 	int iReturnValue = iValueTimes100;
 
 	// Are we trying to find the middle point between what we think this item is worth and what another player thinks it's worth?
-	if(bUseEvenValue)
+	if (bUseEvenValue)
 	{
-		iReturnValue += GET_PLAYER(eOtherPlayer).GetDealAI()->GetGPTforForValueExchange(iGPTorValue, bNumGPTFromValue, iNumTurns, !bFromMe, GetPlayer()->GetID(), /*bUseEvenValue*/ false, !GET_PLAYER(eOtherPlayer).isHuman(), bRoundUp);
-
+		iReturnValue += GET_PLAYER(eOtherPlayer).GetDealAI()->GetGPTforForValueExchange(iGPTorValue, bNumGPTFromValue, iNumTurns, !bFromMe, GetPlayer()->GetID(), /*bUseEvenValue*/ false);
 		iReturnValue /= 2;
 	}
 
@@ -2286,7 +2274,7 @@ int CvDealAI::GetEmbassyValue(bool bFromMe, PlayerTypes eOtherPlayer, bool bUseE
 	int iItemValue = 50;
 
 	// Scale up or down by deal duration at this game speed
-	CvGameSpeedInfo *pkStdSpeedInfo = GC.getGameSpeedInfo((GameSpeedTypes)GC.getSTANDARD_GAMESPEED());
+	CvGameSpeedInfo *pkStdSpeedInfo = GC.getGameSpeedInfo((GameSpeedTypes)GD_INT_GET(STANDARD_GAMESPEED));
 	if (pkStdSpeedInfo)
 	{
 		iItemValue *= GC.getGame().getGameSpeedInfo().GetDealDuration();
@@ -4743,7 +4731,7 @@ void CvDealAI::DoAddGoldToThem(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValu
 		// Can't already be Gold from the other player in the Deal
 		if(pDeal->GetGoldTrade(eMyPlayer) == 0)
 		{
-			int iNumGold = GetGoldForForValueExchange(-iTotalValue, /*bNumGoldFromValue*/ true, /*bFromMe*/ false, eThem, /*bRoundUp*/ false);
+			int iNumGold = GetGoldForForValueExchange(-iTotalValue, /*bNumGoldFromValue*/ true, /*bFromMe*/ false, eThem, /*bUseEvenValue*/ false);
 
 			if(iNumGold <= 0)
 			{
@@ -4787,7 +4775,7 @@ void CvDealAI::DoAddGoldToUs(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue)
 		// Can't already be Gold from the other player in the Deal
 		if(pDeal->GetGoldTrade(eThem) == 0)
 		{
-			int iNumGold = GetGoldForForValueExchange(iTotalValue, /*bNumGoldFromValue*/ true, /*bFromMe*/ true, eThem, /*bRoundUp*/ false);
+			int iNumGold = GetGoldForForValueExchange(iTotalValue, /*bNumGoldFromValue*/ true, /*bFromMe*/ true, eThem, /*bUseEvenValue*/ false);
 
 			if(iNumGold < 0)
 			{
@@ -4810,7 +4798,7 @@ void CvDealAI::DoAddGoldToUs(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue)
 }
 
 /// See if adding Gold Per Turn to their side of the deal helps even out pDeal
-void CvDealAI::DoAddGPTToThem(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue, bool bRoundUp)
+void CvDealAI::DoAddGPTToThem(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue)
 {
 	CvAssert(eThem >= 0);
 	CvAssert(eThem < MAX_MAJOR_CIVS);
@@ -4832,27 +4820,24 @@ void CvDealAI::DoAddGPTToThem(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue
 		{
 			iGoldRate -= 2;
 		}
-		if(iGoldRate > 0)
+		if (iGoldRate > 0)
 		{
 			PlayerTypes eMyPlayer = GetPlayer()->GetID();
 
 			// Can't already be GPT from the other player in the Deal
 			if(pDeal->GetGoldPerTurnTrade(eMyPlayer) == 0)
 			{
+				int iNumGPT = GetGPTforForValueExchange(-iTotalValue, /*bNumGPTFromValue*/ true, iDealDuration, /*bFromMe*/ false, eThem, false);
 
-				int iNumGPT = GetGPTforForValueExchange(-iTotalValue, /*bNumGPTFromValue*/ true, iDealDuration, /*bFromMe*/ false, eThem, false, /*bRoundUp*/ bRoundUp || !GET_PLAYER(eThem).isHuman());
-
-				if(iNumGPT < 0)
-				{
+				if (iNumGPT < 0)
 					return;
-				}
 
 				iNumGPT += iNumGPTAlreadyInTrade;
 				iNumGPT = min(iNumGPT, iGoldRate);
 
 				if (iNumGPT <= 0)
 					return;
-				int iInterestPercent = (5 * /*5*/ GC.getEACH_GOLD_PER_TURN_VALUE_PERCENT() * iDealDuration) / max(1, GC.getGame().getGameSpeedInfo().GetDealDuration());
+				int iInterestPercent = (5 * /*5*/ GD_INT_GET(EACH_GOLD_PER_TURN_VALUE_PERCENT) * iDealDuration) / max(1, GC.getGame().getGameSpeedInfo().GetDealDuration());
 				bool bAcceptable = false;
 				int iNetValue = iTotalValue+(iNumGPT * iDealDuration * 100) / (100 + iInterestPercent);
 				int iMaxValue = pDeal->GetMaxValue();
@@ -4871,7 +4856,7 @@ void CvDealAI::DoAddGPTToThem(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue
 				}
 				iNumGPT += 1;
 
-				if(iNumGPT != iNumGPTAlreadyInTrade && !pDeal->ChangeGoldPerTurnTrade(eThem, iNumGPT, iDealDuration)&& bAcceptable)
+				if (iNumGPT != iNumGPTAlreadyInTrade && !pDeal->ChangeGoldPerTurnTrade(eThem, iNumGPT, iDealDuration)&& bAcceptable)
 				{
 					pDeal->AddGoldPerTurnTrade(eThem, iNumGPT, iDealDuration);
 				}
@@ -4908,21 +4893,19 @@ void CvDealAI::DoAddGPTToUs(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue)
 		{
 			iGoldRate -= 2;
 		}
-		if(iGoldRate > 0)
+		if (iGoldRate > 0)
 		{
 			// Can't already be GPT from the other player in the Deal
 			if(pDeal->GetGoldPerTurnTrade(eThem) == 0)
 			{
-				int iNumGPT = GetGPTforForValueExchange(iTotalValue, /*bNumGPTFromValue*/ true, iDealDuration, /*bFromMe*/ true, eThem, false, /*bRoundUp*/ !GET_PLAYER(eThem).isHuman());
+				int iNumGPT = GetGPTforForValueExchange(iTotalValue, /*bNumGPTFromValue*/ true, iDealDuration, /*bFromMe*/ true, eThem, false);
 
-				if(iNumGPT < 0)
-				{
+				if (iNumGPT < 0)
 					return;
-				}
 					
 				iNumGPT += iNumGPTAlreadyInTrade;
 				iNumGPT = min(iNumGPT, iGoldRate);
-				int iInterestPercent = (5 * /*5*/ GC.getEACH_GOLD_PER_TURN_VALUE_PERCENT() * iDealDuration) / max(1, GC.getGame().getGameSpeedInfo().GetDealDuration());
+				int iInterestPercent = (5 * /*5*/ GD_INT_GET(EACH_GOLD_PER_TURN_VALUE_PERCENT) * iDealDuration) / max(1, GC.getGame().getGameSpeedInfo().GetDealDuration());
 				bool bAcceptable = false;
 				int iNetValue = iTotalValue - (iNumGPT * iDealDuration * 100) / (100 + iInterestPercent);
 				int iMaxValue = pDeal->GetMaxValue();
@@ -4941,7 +4924,7 @@ void CvDealAI::DoAddGPTToUs(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue)
 				}
 				iNumGPT -= 1;
 
-				int iItemValue = GetGPTforForValueExchange(iNumGPT, false, iDealDuration, /*bFromMe*/ true, eThem, false, /*bRoundUp*/ !GET_PLAYER(eThem).isHuman());
+				int iItemValue = GetGPTforForValueExchange(iNumGPT, false, iDealDuration, /*bFromMe*/ true, eThem, false);
 				if (iItemValue <= 0)
 					return;
 
@@ -5413,7 +5396,7 @@ void CvDealAI::DoAddItemsToDealForPeaceTreaty(PlayerTypes eOtherPlayer, CvDeal* 
 
 				//Frontline cities count more than they're worth. Ideally they should satisfy the winner?
 				iCityValueToSurrender -= (pLoopCity->getDamage() * 10);
-				if (pLosingPlayer->GetPlotDanger(pLoopCity) > GC.getCITY_HIT_POINTS_HEALED_PER_TURN())
+				if (pLosingPlayer->GetPlotDanger(pLoopCity) > /*20 in CP, 8 in CBO*/ GD_INT_GET(CITY_HIT_POINTS_HEALED_PER_TURN))
 					iCityValueToSurrender -= iCurrentCityValue / 10;
 			}
 		}
@@ -6529,8 +6512,6 @@ void CvDealAI::DoTradeScreenOpened()
 	if(GET_TEAM(GetTeam()).isAtWar(eActiveTeam))
 	{
 		PlayerTypes eMyPlayer = GetPlayer()->GetID();
-
-		GetPlayer()->GetDiplomacyAI()->DoUpdatePeaceTreatyWillingness();
 		m_pPlayer->SetCachedValueOfPeaceWithHuman(0);
 
 		PeaceTreatyTypes ePeaceTreatyImWillingToOffer = GetPlayer()->GetDiplomacyAI()->GetTreatyWillingToOffer(eActivePlayer);
@@ -7147,7 +7128,7 @@ int CvDealAI::GetTechValue(TechTypes eTech, bool bFromMe, PlayerTypes eOtherPlay
 
 	// BASE COST = (TurnsLeft * 30 * (era ^ 0.7))	-- Ancient Era is 1, Classical Era is 2 because I incremented it
 	iItemValue = max(10, iTurnsLeft) * /*30*/ max(100, GC.getGame().getGameSpeedInfo().getTechCostPerTurnMultiplier());
-	float fItemMultiplier = (float)(pow( (double) std::max(1, (iTechEra)), (double) /*0.7*/ GC.getTECH_COST_ERA_EXPONENT() ) );
+	float fItemMultiplier = (float)(pow( (double) std::max(1, (iTechEra)), (double) /*0.7*/ GD_FLOAT_GET(TECH_COST_ERA_EXPONENT) ) );
 	iItemValue = (int)(iItemValue * fItemMultiplier);
 
 	// Apply the Modifier

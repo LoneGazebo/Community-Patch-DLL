@@ -391,7 +391,7 @@ void CvHomelandAI::FindHomelandTargets()
 				}
 			}
 			// ... antiquity site?
-			if((pLoopPlot->getResourceType(eTeam) == GC.getARTIFACT_RESOURCE() || pLoopPlot->getResourceType(eTeam) == GC.getHIDDEN_ARTIFACT_RESOURCE()))
+			if((pLoopPlot->getResourceType(eTeam) == GD_INT_GET(ARTIFACT_RESOURCE) || pLoopPlot->getResourceType(eTeam) == GD_INT_GET(HIDDEN_ARTIFACT_RESOURCE)))
 			{
 				if( pLoopPlot->getOwner() == NO_PLAYER ||
 					pLoopPlot->getOwner() == m_pPlayer->GetID() || 
@@ -629,7 +629,7 @@ void CvHomelandAI::PlotGarrisonMoves()
 	// Grab units that make sense for this move type
 	FindUnitsForThisMove(AI_HOMELAND_MOVE_GARRISON);
 
-	for(unsigned int iI = 0; iI < m_TargetedCities.size(); iI++)
+	for (unsigned int iI = 0; iI < m_TargetedCities.size(); iI++)
 	{
 		CvPlot* pTarget = GC.getMap().plot(m_TargetedCities[iI].GetTargetX(), m_TargetedCities[iI].GetTargetY());
 		CvCity* pCity = pTarget->getPlotCity();
@@ -646,13 +646,13 @@ void CvHomelandAI::PlotGarrisonMoves()
 		else
 		{
 			//try to find a new garrison
-			CvUnit *pGarrison = GetBestUnitToReachTarget(pTarget, GC.getAI_HOMELAND_MAX_DEFENSIVE_MOVE_TURNS());
-			if(pGarrison)
+			CvUnit *pGarrison = GetBestUnitToReachTarget(pTarget, /*4*/ GD_INT_GET(AI_HOMELAND_MAX_DEFENSIVE_MOVE_TURNS));
+			if (pGarrison)
 			{
 				ExecuteMoveToTarget(pGarrison, pTarget, 0);
 				UnitProcessed(pGarrison->GetID());
 
-				if(GC.getLogging() && GC.getAILogging())
+				if (GC.getLogging() && GC.getAILogging())
 				{
 					CvString strLogString;
 					strLogString.Format("Moving %s %d to garrison, X: %d, Y: %d, Priority: %d", pGarrison->getName().c_str(), pGarrison->GetID(), m_TargetedCities[iI].GetTargetX(), m_TargetedCities[iI].GetTargetY(), m_TargetedCities[iI].GetAuxIntData());
@@ -1314,11 +1314,12 @@ void CvHomelandAI::ExecutePatrolMoves()
 void CvHomelandAI::PlotUpgradeMoves()
 {
 	ClearCurrentMoveUnits(AI_HOMELAND_MOVE_UPGRADE);
+
+	// Loop through ALL units, not just homeland units - units need to be upgraded!
 	int iLoop;
 	for (CvUnit* pUnit = m_pPlayer->firstUnit(&iLoop); pUnit != NULL; pUnit = m_pPlayer->nextUnit(&iLoop))
 	{
 		// Don't try and upgrade a human player's unit or one already recruited for an operation
-
 		if(pUnit && !pUnit->isHuman() && pUnit->getArmyID() == -1)
 		{
 			//Let's only worry about units in our land.
@@ -1471,8 +1472,8 @@ void CvHomelandAI::PlotUpgradeMoves()
 				iCurrentFlavorMilitaryTraining *= 50;
 			}
 		}
-		int iGoldPriority = GC.getAI_GOLD_PRIORITY_UPGRADE_BASE();
-		iGoldPriority += GC.getAI_GOLD_PRIORITY_UPGRADE_PER_FLAVOR_POINT() * iCurrentFlavorMilitaryTraining;
+		int iGoldPriority = /*500*/ GD_INT_GET(AI_GOLD_PRIORITY_UPGRADE_BASE);
+		iGoldPriority += iCurrentFlavorMilitaryTraining * /*100*/ GD_INT_GET(AI_GOLD_PRIORITY_UPGRADE_PER_FLAVOR_POINT);
 
 		m_pPlayer->GetEconomicAI()->CancelSaveForPurchase(PURCHASE_TYPE_UNIT_UPGRADE);
 		m_pPlayer->GetEconomicAI()->StartSaveForPurchase(PURCHASE_TYPE_UNIT_UPGRADE, iAmountRequired, iGoldPriority);
@@ -2115,7 +2116,7 @@ void CvHomelandAI::ExecuteFirstTurnSettlerMoves()
 		// Custom scenario flags can prevent moving from the starting position
 		if (pUnit->canFoundCity(pUnit->plot()))
 		{
-			if (m_pPlayer->isMajorCiv() && GC.getMAJORS_CAN_MOVE_STARTING_SETTLER() == 0)
+			if (m_pPlayer->isMajorCiv() && /*1*/ GD_INT_GET(MAJORS_CAN_MOVE_STARTING_SETTLER) == 0)
 			{
 				pUnit->PushMission(CvTypes::getMISSION_FOUND());
 				UnitProcessed(pUnit->GetID());
@@ -2127,7 +2128,7 @@ void CvHomelandAI::ExecuteFirstTurnSettlerMoves()
 				}
 				continue;
 			}
-			if (m_pPlayer->isMinorCiv() && GC.getCS_CAN_MOVE_STARTING_SETTLER() == 0)
+			if (m_pPlayer->isMinorCiv() && /*0*/ GD_INT_GET(CS_CAN_MOVE_STARTING_SETTLER) == 0)
 			{
 				pUnit->PushMission(CvTypes::getMISSION_FOUND());
 				UnitProcessed(pUnit->GetID());
@@ -5471,7 +5472,7 @@ bool CvHomelandAI::FindTestArchaeologistPlotPrimer(CvUnit *pUnit)
 		if(pLoopPlot->isVisible(m_pPlayer->getTeam()))
 		{
 			// ... antiquity site?
-			if((pLoopPlot->getResourceType(eTeam) == GC.getARTIFACT_RESOURCE() || pLoopPlot->getResourceType(eTeam) == GC.getHIDDEN_ARTIFACT_RESOURCE()))
+			if((pLoopPlot->getResourceType(eTeam) == GD_INT_GET(ARTIFACT_RESOURCE) || pLoopPlot->getResourceType(eTeam) == GD_INT_GET(HIDDEN_ARTIFACT_RESOURCE)))
 			{
 				if(pLoopPlot->getOwner() != NO_PLAYER)
 				{

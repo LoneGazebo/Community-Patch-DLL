@@ -303,11 +303,7 @@ WHERE Tag = 'TXT_KEY_POLICY_PARTY_LEADERSHIP_HELP' AND EXISTS (SELECT * FROM COM
 
 -- Patriotic War
 UPDATE Language_en_US
-SET Text = 'Patriotic War'
-WHERE Tag = 'TXT_KEY_POLICY_PATRIOTIC_WAR' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
-
-UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Patriotic War[ENDCOLOR]: Land units gain +20% [ICON_STRENGTH] Strength when in or adjacent to a City. When you Conquer a City, all units are healed. Can build [COLOR_YELLOW]T-34s[ENDCOLOR].'
+SET Text = '[COLOR_POSITIVE_TEXT]Patriotic War[ENDCOLOR]: Land Units gain +20% [ICON_STRENGTH] Strength when in or adjacent to a City. When you conquer a City for the first time, all Combat Units are fully healed. Can build [COLOR_YELLOW]T-34s[ENDCOLOR].'
 WHERE Tag = 'TXT_KEY_POLICY_PATRIOTIC_WAR_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 -- Resettlement

@@ -722,7 +722,7 @@
 			<Text>[ICON_BULLET]開放邊界</Text>
 		</Row>
 		<Row Tag="TXT_KEY_VO_BENEFITS_RELIGION_MOD">
-			<Text>[ICON_BULLET]雙倍[ICON_PEACE]宗教壓力</Text>
+			<Text>[ICON_BULLET]+100%[ICON_PEACE]宗教壓力</Text>
 		</Row>
 		<Row Tag="TXT_KEY_VO_BENEFITS_TOURISM_MOD">
 			<Text>[ICON_BULLET]＋33％[ICON_TOURISM]旅遊傳播</Text>

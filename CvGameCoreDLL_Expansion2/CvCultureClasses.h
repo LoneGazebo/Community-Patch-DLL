@@ -349,11 +349,7 @@ public:
 	int m_iSwappableMusicIndex;
 
 private:
-#if defined(MOD_BALANCE_CORE)
 	int ComputePublicOpinionUnhappiness(int iDissatisfaction);
-#else
-	int ComputePublicOpinionUnhappiness(int iDissatisfaction, int &iPerCityUnhappy, int &iUnhappyPerXPop);
-#endif
 	int ComputeWarWeariness();
 	// Logging functions
 	void LogCultureData();

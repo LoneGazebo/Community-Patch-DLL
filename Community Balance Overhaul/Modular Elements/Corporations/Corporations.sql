@@ -24,14 +24,6 @@ UPDATE Technologies SET GridY = '3' WHERE Type = 'TECH_ELECTRICITY';
 UPDATE Technologies SET GridY = '7' WHERE Type = 'TECH_REPLACEABLE_PARTS';
 UPDATE Technologies SET GridY = '9' WHERE Type = 'TECH_COMBUSTION';
 
-INSERT INTO Defines (
-Name, Value)
-SELECT 'BALANCE_CORE_CORP_OFFICE_FRANCHISE_CONVERSION', '.5';
-
-INSERT INTO Defines (
-Name, Value)
-SELECT 'BALANCE_CORE_CORP_OFFICE_TR_CONVERSION', '1';
-
 INSERT INTO Technologies
 	(Type, Cost, Description, Civilopedia, Help, CorporationsEnabled, Era, Trade, GridX, GridY, Quote, PortraitIndex, IconAtlas)
 VALUES

@@ -108,17 +108,17 @@
     <File md5="36B226EDEDF01B4C70E73AB139D81390" import="0">Core Files/Core Changes/TextChanges.sql</File>
     <File md5="ABFDF9C7834F82EA32884703EC0D5F77" import="0">Core Files/Core Tables/CommunityOptionsTable.sql</File>
     <File md5="DB6861D2BA5292319190BA427CA685B6" import="0">Core Files/Core Tables/CoreTableAdditions.xml</File>
-    <File md5="A19FBF6C8AC9C3AA583D13C52C9E3D41" import="0">Core Files/Core Tables/CoreTableEntries.sql</File>
-    <File md5="D895AD8237FD39BA8AAF87ACADCF6501" import="0">Core Files/Core Tables/CustomModOptions.xml</File>
+    <File md5="9BEB356F76B15BF257B7BE71EC465E54" import="0">Core Files/Core Tables/CoreTableEntries.sql</File>
+    <File md5="B309D1B70F7958D21ACEA1FE0A505F16" import="0">Core Files/Core Tables/CustomModOptions.xml</File>
     <File md5="B30D8A1A7F42B7F9711F05EA64771F59" import="0">Core Files/Core Tables/JFDContracts.xml</File>
     <File md5="429BD12E6BC5CFFFE5CCAD5B994E2948" import="0">Core Files/Core Tables/SampleEvents.xml</File>
     <File md5="64E6A8F5A738D28EAF5A0A60AA1F58CF" import="0">Core Files/Core Tables/GameEventsTable.xml</File>
     <File md5="4FC51835F4E1FACE48D5D92A36189955" import="0">Core Files/Core Values/CargoShipMod.sql</File>
-    <File md5="EE46964B3687DCDD99DDCCD13BE9C659" import="0">Core Files/Core Values/CoreDefines.sql</File>
+    <File md5="C9CEFB3F9BA8440336F22265CB93263A" import="0">Core Files/Core Values/CoreDefines.sql</File>
     <File md5="260E49F1463125721E6A1B96B69D47A1" import="0">Core Files/Core Values/ExtraSpyTable.xml</File>
-    <File md5="856DFEFBA57AF66DE8AB69D3ABC326B4" import="0">Core Files/Core Values/CoreValues.xml</File>
-    <File md5="B377475F867D3E4494310CEB9610F5F8" import="0">Core Files/Core Values/DiploApproachWeights.sql</File>
-    <File md5="47F8CC7DC6B92BD80F38726B8B10620E" import="0">Core Files/Core Values/DiploOpinionWeights.sql</File>
+    <File md5="D7B41E44097D8C93D5B53C024B43E326" import="0">Core Files/Core Values/CoreValues.xml</File>
+    <File md5="B08688F7C3274F297203BE8F43EDAA34" import="0">Core Files/Core Values/DiploApproachWeights.sql</File>
+    <File md5="9ECDC5D8A570E7847258B92965F2C3DB" import="0">Core Files/Core Values/DiploOpinionWeights.sql</File>
     <File md5="4294BB607CA8995F0DC562AA8B1F8C20" import="0">Core Files/Core Values/Automates.xml</File>
     <File md5="6472E73AF0AA0E2FF97AFDE18690F35F" import="0">Core Files/Core Values/DummyTrigger.sql</File>
     <File md5="709ECD2A7C0807C8ED2E945DA5B4718E" import="0">Core Files/Core Values/FasterAircraft.sql</File>
@@ -126,7 +126,6 @@
     <File md5="55680AD4774BC1DC4991E321F40A183E" import="0">Core Files/Core Values/New_CIV5AICityStrategies.xml</File>
     <File md5="22C823A2A9A00B2B73B7983130602DDB" import="0">Core Files/Core Values/New_CIV5AIMilitaryStrategies.xml</File>
     <File md5="66B5D5D740FB51391D2967AA3ED92A70" import="0">Core Files/Core Values/New_CIV5MultiUnitFormations.xml</File>
-    <File md5="C76DF61D8C1395B860095EDCD751BA8F" import="0">Core Files/Core Values/New_GlobalAIDefines.xml</File>
     <File md5="51CBE465E42FA27457401A9EB2A0E0B5" import="1">Core Files/Core Values/TechAwardPopup.lua</File>
     <File md5="3AEA3154A06B8B69762F22A642C8ED1D" import="1">Core Files/Core Values/TechAwardPopup.xml</File>
     <File md5="F7AF3F0C319E6663A6D275D5994062E7" import="1">Core Files/Core Values/TechHelpInclude.lua</File>
@@ -180,7 +179,7 @@
     <File md5="CCB8DDC05E14AC61764628009FD63075" import="0">Core Files/PNM Mods DB/API/Religion.xml</File>
     <File md5="B1C2E8D070A6676AB523D8E7D760B93F" import="0">Core Files/PNM Mods DB/API/UnifiedYields.sql</File>
     <File md5="B0AEB37BCB6CF75E84B8FB656D8D8E5E" import="0">Core Files/PNM Mods DB/API/UnifiedYields.xml</File>
-    <File md5="A38D710EFFE4388E1D8B154FEA115FC9" import="0">Core Files/PNM Mods DB/API/UnifiedYieldsGoldenAge.xml</File>
+    <File md5="BD9325ED47BC00F7193A6254F625FD54" import="0">Core Files/PNM Mods DB/API/UnifiedYieldsGoldenAge.xml</File>
     <File md5="1C2DA7B81D9F6C008BE5A20C419BEF72" import="0">Core Files/PNM Mods DB/API/UnifiedYieldsTourism.xml</File>
     <File md5="9D4C79414FFC68BA541ADF2FA594F54F" import="1">Core Files/PNM Mods DB/ART/yieldatlas_128_admiral.dds</File>
     <File md5="CC425DC496A0BCA377254C03947E97FA" import="1">Core Files/PNM Mods DB/ART/yieldatlas_128_culturelocal.dds</File>
@@ -223,26 +222,26 @@
     <File md5="9CBE98CF52584514D0EDE1F00CC89605" import="0">Core Files/PNM Mods DB/RELIGION/LocalReligions.sql</File>
     <File md5="F038EB14A81A17030FDF6F3D113FC819" import="0">Core Files/PNM Mods DB/RELIGION/PlotYields.xml</File>
     <File md5="CB71D7982DC1E08534E0122DACD3CF8D" import="0">Core Files/PNM Mods DB/RELIGION/PolicyBranchFaithGp.xml</File>
-    <File md5="1CD8C8CFAE446F90A306D0303CC721C0" import="0">Core Files/PNM Mods DB/TRADE/RouteScaling.sql</File>
+    <File md5="B7D15ADC9EF993A68DCF0276EB77FE88" import="0">Core Files/PNM Mods DB/TRADE/RouteScaling.sql</File>
     <File md5="BC01B6EEFC9B32E48AEFA59795EB2084" import="0">Core Files/PNM Mods DB/TRAITS/AnyBelief.sql</File>
     <File md5="7CA1F2B70AA145AF9A0950A31E519A17" import="0">Core Files/PNM Mods DB/TRAITS/CrossesIce.sql</File>
     <File md5="D60500F862DCB87C573F5B6A1388EB76" import="0">Core Files/PNM Mods DB/TRAITS/OtherPrereqs.sql</File>
     <File md5="B3CCB02EC2837C3E5F0ABBE81E8D8CEB" import="0">Core Files/PNM Mods DB/TRAITS/TradeRouteBonuses.sql</File>
     <File md5="F07A00D6875A33DF7C81C895030416CE" import="0">Core Files/PNM Mods DB/UI/CityExpansion.sql</File>
-    <File md5="47F7A1B711F589DD772DFAB65494A40A" import="0">Core Files/Text/CoreText_en_US.xml</File>
-    <File md5="DD22706A999A9E8DDED9CB8C6D008801" import="0">Core Files/Text/CoreText_en_US.sql</File>
-    <File md5="405A60E9AC003492733BA8C2C2630C7E" import="1">CvGameCore_Expansion2.dll</File>
+    <File md5="CD5676EFAC04CB3645702DCCBED8C2C4" import="0">Core Files/Text/CoreText_en_US.xml</File>
+    <File md5="E382F3AE05D1C7348D5495AB2D7ADCA9" import="0">Core Files/Text/CoreText_en_US.sql</File>
+    <File md5="0A26351084A363814CA881154B3C6A40" import="1">CvGameCore_Expansion2.dll</File>
     <File md5="3F4B08D58AE727DF10D8A34BEC5F398E" import="1">LUA/ActionInfoPanel.lua</File>
     <File md5="FE3BE94653FA74D139F8CF57F8E5C6CC" import="1">LUA/AssignStartingPlots.lua</File>
     <File md5="51BF13A2719619942142DF2A947507AA" import="1">LUA/CityBannerManager.lua</File>
     <File md5="3377B347687C3915177BFE3C72B72F99" import="1">LUA/CityBannerManager.xml</File>
     <File md5="ED8CCC7A358D1EDDCFE7444E11D45CAF" import="1">LUA/CityStateDiploPopup.lua</File>
     <File md5="026B0E8A3FD78E58779D26607DB6ACE8" import="1">LUA/CityStateStatusHelper.lua</File>
-    <File md5="9D69D8D78DE0CE7DAF1251D7AA39E023" import="1">LUA/CultureOverview.lua</File>
+    <File md5="0A5F81CD98BFD26E06897E5B19683469" import="1">LUA/CultureOverview.lua</File>
     <File md5="BF85D174CA9D4F2EC2AD7E3FBB6C0D6D" import="1">LUA/CultureOverview.xml</File>
     <File md5="B02EA79C1F74248456A842BD53106153" import="1">LUA/DeclareWarPopup.lua</File>
     <File md5="5D74B47C8B98B0F3D4FBC7242DA26ACD" import="1">LUA/DeclareWarPopup.xml</File>
-    <File md5="11EDE3E24F81C2B9014FBCCE80802B3A" import="1">LUA/Demographics.lua</File>
+    <File md5="4679C1FEE9E5A6BBD7297CB35E69A63B" import="1">LUA/Demographics.lua</File>
     <File md5="5421C9A76F0159265EA6014D176AD067" import="1">LUA/DiploCurrentDeals.xml</File>
     <File md5="7CFCE3F0603744E8C1CB52619E8BA3AC" import="1">LUA/DiploGlobalRelationships.lua</File>
     <File md5="7E63CCE9CF67C5D04DF73CE209CC90BA" import="1">LUA/DiploList.lua</File>
@@ -647,7 +646,6 @@
       <UpdateDatabase>Core Files/Core Values/New_CIV5AICityStrategies.xml</UpdateDatabase>
       <UpdateDatabase>Core Files/Core Values/New_CIV5AIMilitaryStrategies.xml</UpdateDatabase>
       <UpdateDatabase>Core Files/Core Values/New_CIV5MultiUnitFormations.xml</UpdateDatabase>
-      <UpdateDatabase>Core Files/Core Values/New_GlobalAIDefines.xml</UpdateDatabase>
       <UpdateDatabase>Modules/Events/CoreEvents.sql</UpdateDatabase>
       <UpdateDatabase>Core Files/Core Tables/JFDContracts.xml</UpdateDatabase>
       <UpdateDatabase>Core Files/Core Values/CargoShipMod.sql</UpdateDatabase>

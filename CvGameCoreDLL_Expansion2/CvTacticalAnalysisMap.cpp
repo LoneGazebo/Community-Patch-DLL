@@ -749,7 +749,7 @@ void CvTacticalAnalysisMap::CalculateMilitaryStrengths()
 	TeamTypes eTeam = thisPlayer.getTeam();
 
 	//weigh units close to the center of the zone higher - assume unit mobility increases over time
-	int iMaxDistance = (GC.getAI_TACTICAL_RECRUIT_RANGE() + GC.getGame().getCurrentEra()) / 2;	
+	int iMaxDistance = (GC.getGame().getCurrentEra() + /*8*/ GD_INT_GET(AI_TACTICAL_RECRUIT_RANGE)) / 2;	
 	int iBias = 2; // some bias because action may still be spread out over the zone
 	int iUnitStrengthMultiplier = 1; //relative to cities
 
@@ -1066,7 +1066,7 @@ void CvTacticalAnalysisMap::UpdatePostures()
 
 		//todo: should we include the previous posture in the logic?
 		//but we've thrown it away at this point ...
-		pZone->SelectPostureSingleZone(GC.getAI_TACTICAL_MAP_DOMINANCE_PERCENTAGE());
+		pZone->SelectPostureSingleZone(/*40*/ GD_INT_GET(AI_TACTICAL_MAP_DOMINANCE_PERCENTAGE));
 	}
 
 	// second pass, look at neighbors as well

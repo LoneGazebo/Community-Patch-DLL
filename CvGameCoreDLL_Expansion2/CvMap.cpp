@@ -119,7 +119,7 @@ bool CvLandmass::isWater() const
 //	--------------------------------------------------------------------------------
 bool CvLandmass::isLake() const
 {
-	return (m_bWater && (m_iNumTiles <= GC.getLAKE_MAX_AREA_SIZE()));
+	return (m_bWater && (m_iNumTiles <= /*9*/ GD_INT_GET(LAKE_MAX_AREA_SIZE)));
 }
 
 
@@ -1210,7 +1210,7 @@ int CvMap::getRandomResourceQuantity(ResourceTypes eIndex)
 	int iNumRands = 0;
 
 	// Find how many types of resources quantities there can be to pick from
-	for(int iLoop = 0; iLoop < GC.getNUM_RESOURCE_QUANTITY_TYPES(); iLoop++)
+	for(int iLoop = 0; iLoop < /*4*/ GD_INT_GET(NUM_RESOURCE_QUANTITY_TYPES); iLoop++)
 	{
 		if(thisResourceInfo->getResourceQuantityType(iLoop) <= 0)
 		{
@@ -1883,7 +1883,7 @@ void CvMap::DoPlaceNaturalWonders()
 						if(pAdjacentPlot != NULL)
 						{
 							pAdjacentPlot->setPlotType(PLOT_HILLS);
-							pAdjacentPlot->setTerrainType((TerrainTypes)(GC.getLAND_TERRAIN()));
+							pAdjacentPlot->setTerrainType((TerrainTypes)(GD_INT_GET(LAND_TERRAIN)));
 						}
 					}
 					pRandPlot->setPlotType(PLOT_MOUNTAIN);
@@ -1913,7 +1913,7 @@ void CvMap::DoPlaceNaturalWonders()
 						else
 						{
 							pAdjacentPlot->setPlotType(PLOT_HILLS);
-							pAdjacentPlot->setTerrainType((TerrainTypes)(GC.getLAND_TERRAIN()));
+							pAdjacentPlot->setTerrainType((TerrainTypes)(GD_INT_GET(LAND_TERRAIN)));
 						}
 					}
 				}

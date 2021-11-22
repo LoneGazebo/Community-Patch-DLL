@@ -142,7 +142,7 @@ function UpdateMasterList()
 					local controlTable = g_VassalButtonIM:GetInstance();
 
 					if(pOtherPlayer:GetNickName() ~= "" and Game.IsGameMultiPlayer() and pOtherPlayer:IsHuman()) then
-						TruncateString(controlTable.LeaderName, textBoxSize, pOtherPlayer:GetNickName()); 
+						controlTable.LeaderName:SetText( pOtherPlayer:GetNickName() ); 
 					else
 						controlTable.LeaderName:SetText( pOtherPlayer:GetName() );
 					end
@@ -208,7 +208,7 @@ function UpdateVassalList()
 					local controlTable = g_VassalButtonIM:GetInstance();
 
 					if(pOtherPlayer:GetNickName() ~= "" and Game.IsGameMultiPlayer() and pOtherPlayer:IsHuman()) then
-						TruncateString(controlTable.LeaderName, textBoxSize, pOtherPlayer:GetNickName()); 
+						controlTable.LeaderName:SetText( pOtherPlayer:GetNickName() );
 					else
 						controlTable.LeaderName:SetText( pOtherPlayer:GetName() );
 					end
@@ -266,7 +266,7 @@ function MasterSelected( ePlayer )
 	local strCiv = Locale.ConvertTextKey(civInfo.ShortDescription);
 	
 	if(pMasterPlayer:GetNickName() ~= "" and Game.IsGameMultiPlayer() and pMasterPlayer:IsHuman()) then
-		TruncateString(Controls.MasterInfoLeaderName, textBoxSize, pMasterPlayer:GetNickName()); 
+		Controls.MasterInfoLeaderName:SetText( pMasterPlayer:GetNickName() );
 	else
 		Controls.MasterInfoLeaderName:SetText( pMasterPlayer:GetName() );
 	end
@@ -356,7 +356,7 @@ function VassalSelected( ePlayer )
 	local strCiv = Locale.ConvertTextKey(civInfo.ShortDescription);
 	
 	if(pVassalPlayer:GetNickName() ~= "" and Game.IsGameMultiPlayer() and pVassalPlayer:IsHuman()) then
-		TruncateString(Controls.VassalInfoLeaderName, textBoxSize, pVassalPlayer:GetNickName()); 
+		Controls.VassalInfoLeaderName:SetText( pVassalPlayer:GetNickName() );
 	else
 		Controls.VassalInfoLeaderName:SetText( pVassalPlayer:GetName() );
 	end

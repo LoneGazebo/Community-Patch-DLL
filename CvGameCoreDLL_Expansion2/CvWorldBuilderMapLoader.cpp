@@ -1733,7 +1733,7 @@ void CvWorldBuilderMapLoader::ValidateCoast()
 	const int iMapWidth = kMap.getGridWidth();
 	const int iMapHeight = kMap.getGridHeight();
 	const int iNumTerrainTypes = GC.getNumTerrainInfos();
-	const TerrainTypes eCoast = (TerrainTypes)GC.getSHALLOW_WATER_TERRAIN();
+	const TerrainTypes eCoast = (TerrainTypes)GD_INT_GET(SHALLOW_WATER_TERRAIN);
 
 	for(int y = 0; y < iMapHeight; ++y)
 		for(int x = 0; x < iMapWidth; ++x)
@@ -1924,7 +1924,7 @@ int CvWorldBuilderMapLoader::GetMapPreview(lua_State* L)
 		WorldSizeTypes eWorldSize = GetWorldSizeType(sg_kTempMap);
 
 		const char* szDefaultSpeed = sg_kTempMap.GetDefaultGameSpeed();
-		GameSpeedTypes eDefaultSpeed = (GameSpeedTypes)GC.getSTANDARD_GAMESPEED();
+		GameSpeedTypes eDefaultSpeed = (GameSpeedTypes)GD_INT_GET(STANDARD_GAMESPEED);
 		const int iSpeedCount = GC.getNumGameSpeedInfos();
 		for(int i = 0; i < iSpeedCount; ++i)
 		{
@@ -2055,7 +2055,7 @@ int CvWorldBuilderMapLoader::GetMapPlayers(lua_State* L)
 				}
 			}
 
-			HandicapTypes eHandicapType = (HandicapTypes)GC.getSTANDARD_HANDICAP();
+			HandicapTypes eHandicapType = (HandicapTypes)GD_INT_GET(STANDARD_HANDICAP);
 			for(int iHandicap = 0; iHandicap < iHandicapCount; ++iHandicap)
 			{
 				const HandicapTypes eCurrentHandicap = (HandicapTypes)iHandicap;

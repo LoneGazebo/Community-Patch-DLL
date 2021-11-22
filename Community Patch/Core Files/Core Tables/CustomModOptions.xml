@@ -603,6 +603,9 @@
     <!-- See also: "Improvement - Pontoon Bridge" -->
     <Row Class="3" Name="EVENTS_PLOT" Value="0"/>
 
+	<!--   GameEvents.PlayerDoneTurn.Add(function(iPlayer) end) -->
+	<Row Class="3" Name="EVENTS_PLAYER_TURN" Value="0"/>
+
     <!-- Events sent by golden ages (v52) -->
     <!--   GameEvents.PlayerGoldenAge.Add(function(iPlayer, bStart, iTurns) end) -->
     <Row Class="3" Name="EVENTS_GOLDEN_AGE" Value="0"/>

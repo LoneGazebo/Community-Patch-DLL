@@ -79,18 +79,6 @@ namespace LeagueHelpers
 	const int CHOICE_YES = 1;
 
 	const int AI_CHOOSE_PROPOSAL_FROM_TOP = 3;
-
-#if defined(MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS)
-	// Moved to xml, use
-	// GC.getLEAGUE_PROPOSERS_PER_SESSION()
-	// GC.getLEAGUE_NUM_LEADERS_FOR_EXTRA_VOTES()
-	// GC.getLEAGUE_PROJECT_PROGRESS_PERCENT_WARNING()
-#else
-	//antonjs: todo: xml
-	const int PROPOSERS_PER_SESSION = 2;
-	const int NUM_LEADERS_FOR_EXTRA_VOTES = 2;
-	const int PROJECT_PROGRESS_PERCENT_WARNING = 33;
-#endif
 }
 
 

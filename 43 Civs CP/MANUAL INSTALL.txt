@@ -3,7 +3,7 @@
 
 
 2a. If using the Community Patch only version:
-- Delete the EUI, No-EUI and MoreLux folders.
+- Delete the EUI and No-EUI folders.
 - Delete AssignStartingPlots.lua in this folder. Move the AssignStartingPlots.lua file in the CP Only folder to this folder (as its replacement).
 
 

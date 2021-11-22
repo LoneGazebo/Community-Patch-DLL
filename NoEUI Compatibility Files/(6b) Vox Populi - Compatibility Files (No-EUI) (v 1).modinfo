@@ -36,9 +36,9 @@
     <File md5="F2B4529383B3A7F7AEC8F9CA82C9A83C" import="0">Corporations/Text/CorpText_en_US.sql</File>
     <File md5="14396C2266151B073C45C7101AE9DA11" import="0">CSD/CompatibilityText/Compatibility_en_US.sql</File>
     <File md5="F82A83B6017FE4858CF924888EB810AC" import="0">CSD/CompatibilityText/Compatibility_en_US.xml</File>
-    <File md5="C64CFF4E1D535C8AD2168344BDB661F3" import="0">CSD/CSDCompatibility.sql</File>
+    <File md5="6240D1742F14387E5A2E2FC9806CEBC9" import="0">CSD/CSDCompatibility.sql</File>
     <File md5="3F4B08D58AE727DF10D8A34BEC5F398E" import="1">LUA/ActionInfoPanel.lua</File>
-    <File md5="A83A31DD5804344752F4173D24B36CFB" import="1">LUA/AssignStartingPlots.lua</File>
+    <File md5="66436ADE1523753F7F9331739053819D" import="1">LUA/AssignStartingPlots.lua</File>
     <File md5="39C6A39E21DF6E10B666FA57FA502643" import="1">LUA/Bombardment.lua</File>
     <File md5="66D5F875BCC8CEEF7B18F866147D6AF4" import="1">LUA/ChooseMayaBonus.lua</File>
     <File md5="394AE7D858F78BEFD46CD9ACAF91C159" import="1">LUA/CityBannerManager.lua</File>
@@ -55,11 +55,11 @@
     <File md5="2C009EF1C7A9213005C102161D5F6C33" import="1">LUA/CityView_small.xml</File>
     <File md5="DB3D3BBFFC11CAF69A9505E4995F91BE" import="1">LUA/CivilopediaScreen.lua</File>
     <File md5="0F36E9923D32508E9DF09CE94A1B0BC2" import="1">LUA/CivilopediaScreen.xml</File>
-    <File md5="AC693F7C2C1A8D4C4FF41CCE5FEA8A2E" import="1">LUA/CultureOverview.lua</File>
+    <File md5="90E5C23859C1EEF44EE7351827190F9C" import="1">LUA/CultureOverview.lua</File>
     <File md5="5F310B56A85B1E68963A0B8361F3F4BC" import="1">LUA/CultureOverview.xml</File>
     <File md5="36C8BD9AB09E0BC4DCD6ACA0ED7C9722" import="1">LUA/DeclareWarPopup.lua</File>
     <File md5="86D353FD71335DE6C35F3F049187FC36" import="1">LUA/DeclareWarPopup.xml</File>
-    <File md5="C2B72D1ACB19D1D59DD72770D2E7446A" import="1">LUA/Demographics.lua</File>
+    <File md5="39254AD35391E09158C0CA312BCABA11" import="1">LUA/Demographics.lua</File>
     <File md5="8B348B499CC8EC9D7591557F9A1C8A26" import="1">LUA/DiploCorner.lua</File>
     <File md5="B76E140D5AB1EB63E1130B57B34EB4E3" import="1">LUA/DiploCorner.xml</File>
     <File md5="F0A2AD1A37F81EE1C4AA074A7650D5FA" import="1">LUA/DiploCurrentDeals.xml</File>

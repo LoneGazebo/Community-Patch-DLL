@@ -265,7 +265,7 @@ int CvProjectProductionAI::CheckProjectBuildSanity(ProjectTypes eProject, int iT
 
 	if (pkProjectInfo->GetEspionageMod() < 0)
 	{
-		int iEsp = ((GC.getESPIONAGE_GATHERING_INTEL_COST_PERCENT() * 2) - m_pCity->GetEspionageRankingForEspionage());
+		int iEsp = /*2000*/ (GD_INT_GET(ESPIONAGE_GATHERING_INTEL_COST_PERCENT) * 2) - m_pCity->GetEspionageRankingForEspionage();
 		iTempWeight += (iEsp/2);
 	}
 

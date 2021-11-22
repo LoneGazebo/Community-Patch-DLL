@@ -2694,7 +2694,7 @@ bool CvVictoryInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	{
 		const char* szVictoryType = GetType();
 
-		const int iNumVictoryPoints = GC.getNUM_VICTORY_POINT_AWARDS();
+		const int iNumVictoryPoints = /*5*/ GD_INT_GET(NUM_VICTORY_POINT_AWARDS);
 		kUtility.InitializeArray(m_piVictoryPointAwards, iNumVictoryPoints);
 
 		std::string strKey = "CvVictoryInfo_VictoryPointAwards";
@@ -2961,7 +2961,6 @@ bool CvHurryInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 //					CvHandicapInfo
 //======================================================================================================
 CvHandicapInfo::CvHandicapInfo() :
-
 	m_iStartingLocationPercent(0),
 	m_iHappinessDefault(0),
 	m_iHappinessDefaultCapital(0),
@@ -3544,7 +3543,6 @@ bool CvHandicapInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility
 	m_iDifficultyBonusMid = kResults.GetInt("DifficultyBonusB");
 	m_iDifficultyBonusLate = kResults.GetInt("DifficultyBonusC");
 	m_iVisionBonus = kResults.GetInt("VisionBonus");
-
 
 	//Arrays
 	const char* szHandicapType = GetType();
@@ -5540,7 +5538,7 @@ std::vector<ProductionCostModifiers> CvResourceInfo::getBuildingProductionCostMo
 //------------------------------------------------------------------------------
 int CvResourceInfo::getResourceQuantityType(int i) const
 {
-	CvAssertMsg(i < GC.getNUM_RESOURCE_QUANTITY_TYPES(), "Index out of bounds");
+	CvAssertMsg(i < /*4*/ GD_INT_GET(NUM_RESOURCE_QUANTITY_TYPES), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
 	return m_piResourceQuantityTypes ? m_piResourceQuantityTypes[i] : -1;
 }
@@ -5689,7 +5687,7 @@ bool CvResourceInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility
 
 	//Resource_QuantityTypes
 	{
-		const int iNumQuantityTypes = GC.getNUM_RESOURCE_QUANTITY_TYPES();
+		const int iNumQuantityTypes = /*4*/ GD_INT_GET(NUM_RESOURCE_QUANTITY_TYPES);
 		kUtility.InitializeArray(m_piResourceQuantityTypes, iNumQuantityTypes);
 
 		//Default it to 1

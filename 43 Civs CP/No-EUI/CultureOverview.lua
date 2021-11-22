@@ -2009,17 +2009,16 @@ function RefreshCultureVictory()
 				row.iUnhappiness = iUnhappiness;
 				row.strPublicOpinionUnhappiness = strPublicOpinionUnhappiness;
 				row.strPublicOpinionUnhappinessToolTip = pPlayer:GetPublicOpinionUnhappinessTooltip();
-				
-				local iExcessHappiness = pPlayer:GetExcessHappiness();
-				local strExcessHappiness = tostring(0);
-				if (iExcessHappiness < 50) then
-					strExcessHappiness = Locale.ConvertTextKey("TXT_KEY_CO_PUBLIC_OPINION_UNHAPPINESS", iExcessHappiness);
-				elseif (iExcessHappiness >= 50) then
-					strExcessHappiness = Locale.ConvertTextKey("TXT_KEY_CO_PUBLIC_OPINION_HAPPINESS", iExcessHappiness);				
-				end
-				row.iExcessHappiness = iExcessHappiness;
-				row.strExcessHappiness = strExcessHappiness;
 			end
+			local iExcessHappiness = pPlayer:GetExcessHappiness();
+			local strExcessHappiness = tostring(0);
+			if (iExcessHappiness < 50) then
+				strExcessHappiness = Locale.ConvertTextKey("TXT_KEY_CO_PUBLIC_OPINION_UNHAPPINESS", iExcessHappiness);
+			elseif (iExcessHappiness >= 50) then
+				strExcessHappiness = Locale.ConvertTextKey("TXT_KEY_CO_PUBLIC_OPINION_HAPPINESS", iExcessHappiness);				
+			end
+			row.iExcessHappiness = iExcessHappiness;
+			row.strExcessHappiness = strExcessHappiness;
 			
 			table.insert(g_CultureVictory, row);
 		end

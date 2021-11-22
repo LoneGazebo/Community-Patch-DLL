@@ -735,7 +735,7 @@ bool isTechRequiredForUnit(TechTypes eTech, UnitTypes eUnit)
 		return true;
 	}
 
-	for(int iI = 0; iI < GC.getNUM_UNIT_AND_TECH_PREREQS(); iI++)
+	for(int iI = 0; iI < /*3*/ GD_INT_GET(NUM_UNIT_AND_TECH_PREREQS); iI++)
 	{
 		if(info->GetPrereqAndTechs(iI) == eTech)
 		{
@@ -756,7 +756,7 @@ bool isTechRequiredForBuilding(TechTypes eTech, BuildingTypes eBuilding)
 			return true;
 		}
 
-		for(int iI = 0; iI < GC.getNUM_BUILDING_AND_TECH_PREREQS(); iI++)
+		for(int iI = 0; iI < /*3*/ GD_INT_GET(NUM_BUILDING_AND_TECH_PREREQS); iI++)
 		{
 			if(info->GetPrereqAndTechs(iI) == eTech)
 			{
@@ -1132,7 +1132,7 @@ int getTurnMonthForGame(int iGameTurn, int iStartYear, CalendarTypes eCalendar, 
 		break;
 
 	case CALENDAR_WEEKS:
-		iTurnMonth += iGameTurn / GC.getWEEKS_PER_MONTHS();
+		iTurnMonth += iGameTurn / /*4*/ GD_INT_GET(WEEKS_PER_MONTHS);
 		break;
 
 	default:

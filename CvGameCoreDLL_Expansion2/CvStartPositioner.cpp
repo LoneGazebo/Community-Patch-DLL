@@ -61,10 +61,10 @@ void CvStartPositioner::DivideMapIntoRegions(int iNumRegions)
 	ComputeTileFertilityValues();
 
 	// Loop through each continent adding it to our list
-	for(CvArea* pLoopArea = GC.getMap().firstArea(&iLoop); pLoopArea != NULL; pLoopArea = GC.getMap().nextArea(&iLoop))
+	for (CvArea* pLoopArea = GC.getMap().firstArea(&iLoop); pLoopArea != NULL; pLoopArea = GC.getMap().nextArea(&iLoop))
 	{
 		// Throw out oceans and desert islands
-		if(pLoopArea->getNumTiles() >= GC.getMIN_START_AREA_TILES())
+		if (pLoopArea->getNumTiles() >= /*4*/ GD_INT_GET(MIN_START_AREA_TILES))
 		{
 			CvContinent continent;
 			continent.SetFertility(pLoopArea->getTotalFoundValue());
@@ -210,7 +210,7 @@ void CvStartPositioner::AssignStartingLocations()
 
 	// MAJOR CIVS AGAIN (those that couldn't be placed normal start distance apart)
 
-	int iHalfMinimumDist = GC.getMIN_CIV_STARTING_DISTANCE() / 2;
+	int iHalfMinimumDist = /*5*/ GD_INT_GET(MIN_CIV_STARTING_DISTANCE) / 2;
 	while(iPlayersPlaced < iMajorCivs && m_iRequiredSeparation >= 0)
 	{
 		// Resort by fertility (based on the fact that some of these regions are filling up)
@@ -634,11 +634,11 @@ bool CvStartPositioner::AddCivToRegion(int iPlayerIndex, CvStartRegion region, b
 	int uiPlotFoundValue;
 	CvPlot* pBestPlot = NULL;
 	CvPlot* pLoopPlot = NULL;
-	int iMinorFoodReq = GC.getMINOR_CIV_FOOD_REQUIREMENT();
-	int iMajorFoodReq = GC.getMAJOR_CIV_FOOD_REQUIREMENT();
+	int iMinorFoodReq = /*2*/ GD_INT_GET(MINOR_CIV_FOOD_REQUIREMENT);
+	int iMajorFoodReq = /*2*/ GD_INT_GET(MAJOR_CIV_FOOD_REQUIREMENT);
 	bool bIsMinorCiv = GET_PLAYER((PlayerTypes)iPlayerIndex).isMinorCiv();
 	PlayerTypes ePlayer = (PlayerTypes)iPlayerIndex;
-	int iPercentOfBest = GC.getMIN_START_FOUND_VALUE_AS_PERCENT_OF_BEST();
+	int iPercentOfBest = /*50*/ GD_INT_GET(MIN_START_FOUND_VALUE_AS_PERCENT_OF_BEST);
 
 	MinorCivTypes eMinorCivType = NO_MINORCIV;
 	if(bIsMinorCiv)
@@ -681,7 +681,7 @@ bool CvStartPositioner::AddCivToRegion(int iPlayerIndex, CvStartRegion region, b
 						(!bIsMinorCiv && GC.getCivilizationInfo(GET_PLAYER((PlayerTypes)iPlayerIndex).getCivilizationType())->isCoastalCiv()))
 					{
 						{
-							if(!pLoopPlot->isCoastalLand(GC.getLAKE_MAX_AREA_SIZE()))
+							if(!pLoopPlot->isCoastalLand(/*9*/ GD_INT_GET(LAKE_MAX_AREA_SIZE)))
 							{
 								uiPlotFoundValue /= 2;
 							}
@@ -750,7 +750,7 @@ bool PlotTooCloseToAnotherCiv(CvPlot* pPlot, int iRequiredSeparation)
 				// If in another area, use a fraction of full distance
 				else
 				{
-					int iSeparationIfOnAnotherContinent = iRequiredSeparation * GC.getMIN_DISTANCE_OTHER_AREA_PERCENT() / 100;
+					int iSeparationIfOnAnotherContinent = iRequiredSeparation * /*75*/ GD_INT_GET(MIN_DISTANCE_OTHER_AREA_PERCENT) / 100;
 					if(plotDistance(pPlot->getX(), pPlot->getY(),
 					                pStartPlot->getX(), pStartPlot->getY()) < iSeparationIfOnAnotherContinent)
 					{
@@ -801,7 +801,7 @@ int CvStartPositioner::StartingPlotRange() const
 
 	// Start with the range as a percentage of the maximum path length across the map
 	iRange = (GC.getMap().maxPlotDistance() + 10);
-	iRange *= GC.getSTARTING_DISTANCE_PERCENT();
+	iRange *= /*12*/ GD_INT_GET(STARTING_DISTANCE_PERCENT);
 	iRange /= 100;
 
 	// Now compute how many cities we expect on the map (we'll say just 1 for each minor civ)
@@ -819,8 +819,8 @@ int CvStartPositioner::StartingPlotRange() const
 
 	// Used to be a Python hook (minStartingDistanceModifier) here
 
-	CUSTOMLOG("CvStartPositioner::StartingPlotRange() = %i", std::max(iRange, GC.getMIN_CIV_STARTING_DISTANCE()));
-	return std::max(iRange, GC.getMIN_CIV_STARTING_DISTANCE());
+	CUSTOMLOG("CvStartPositioner::StartingPlotRange() = %i", std::max(iRange, /*10*/ GD_INT_GET(MIN_CIV_STARTING_DISTANCE)));
+	return std::max(iRange, /*10*/ GD_INT_GET(MIN_CIV_STARTING_DISTANCE));
 }
 
 /// Log current status of the operation

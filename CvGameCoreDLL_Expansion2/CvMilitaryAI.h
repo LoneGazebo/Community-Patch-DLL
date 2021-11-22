@@ -247,7 +247,6 @@ public:
 
 	// Public logging functions
 	void LogDeclarationOfWar(PlayerTypes eOpponent);
-	void LogCivilizationDestroyed();
 	void LogCityCaptured(CvCity* pCity, PlayerTypes eOldOwner);
 	void LogCityRazed(CvCity* pCity, PlayerTypes eOldOwner);
 	void LogPeace(PlayerTypes eOpponent);

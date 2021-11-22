@@ -138,7 +138,7 @@ void CvAdvisorRecommender::UpdateCityRecommendations(CvCity* pCity)
 		m_aFinalRoundBuildables.push_back(m_aCityBuildables.GetElement(i), m_aCityBuildables.GetWeight(i));
 	}
 
-	//todo: find best builable for each advisor, not best advisor for buildable?
+	//todo: find best buildable for each advisor, not best advisor for buildable?
 	for(int i = 0; i < m_aFinalRoundBuildables.size(); i++)
 	{
 		m_aFinalRoundBuildables.SortItems();
@@ -219,21 +219,14 @@ void CvAdvisorRecommender::UpdateTechRecommendations(PlayerTypes ePlayer)
 		}
 	}
 
-	// weigh by cost
 	for(int iI = 0; iI < m_aResearchableTechs.size(); iI++)
 	{
 		TechTypes eTech = (TechTypes) m_aResearchableTechs.GetElement(iI);
-		int iTurnsLeft = 0;
+		int iTurnsLeft = pPlayerTechs->GetResearchTurnsLeft(eTech, true);
 
-		iTurnsLeft = pPlayerTechs->GetResearchTurnsLeft(eTech, true);
-
-		double fWeightDivisor;
-
-		// 10 turns will add 0.02; 80 turns will add 0.16
-		double fAdditionalTurnCostFactor = GC.getAI_RESEARCH_WEIGHT_MOD_PER_TURN_LEFT() * iTurnsLeft;	// 0.015
-		double fTotalCostFactor = GC.getAI_RESEARCH_WEIGHT_BASE_MOD() + fAdditionalTurnCostFactor;	// 0.15
-
-		fWeightDivisor = pow((double) iTurnsLeft, fTotalCostFactor);
+		// reweight by turns left
+		double fTotalCostFactor = /*0.2f*/ GD_FLOAT_GET(AI_RESEARCH_WEIGHT_BASE_MOD) + (iTurnsLeft * /*0.035f*/ GD_FLOAT_GET(AI_RESEARCH_WEIGHT_MOD_PER_TURN_LEFT));
+		double fWeightDivisor = pow((double)iTurnsLeft, fTotalCostFactor);
 
 		// if the tech is free, then we don't want inverse the weighting. More expensive techs = better.
 		int iNewWeight = 0;

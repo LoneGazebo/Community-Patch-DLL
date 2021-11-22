@@ -92,7 +92,7 @@ int CvAIOperation::GetMaximumRecruitTurns() const
 {
 	//extend the range each turn
 	int iElapsedTurns = GC.getGame().getGameTurn() - GetTurnStarted();
-	return GC.getAI_OPERATIONAL_MAX_RECRUIT_TURNS_DEFAULT() + iElapsedTurns/2;
+	return /*5*/ GD_INT_GET(AI_OPERATIONAL_MAX_RECRUIT_TURNS_DEFAULT) + iElapsedTurns/2;
 }
 
 const char * CvAIOperation::GetOperationName() const
@@ -1405,7 +1405,7 @@ bool CvAIOperation::FindBestFitReserveUnit(OperationSlot thisOperationSlot, vect
 /// How long will we wait for a recruit to show up?
 int CvAIOperationMilitary::GetMaximumRecruitTurns() const
 {
-	return GC.getAI_OPERATIONAL_MAX_RECRUIT_TURNS_ENEMY_TERRITORY();
+	return /*10*/ GD_INT_GET(AI_OPERATIONAL_MAX_RECRUIT_TURNS_ENEMY_TERRITORY);
 }
 
 AIOperationAbortReason CvAIOperationMilitary::VerifyOrAdjustTarget(CvArmyAI*)
@@ -1504,7 +1504,7 @@ void CvAIOperationMilitary::OnSuccess() const
 		}
 	}
 
-	GET_PLAYER(m_eOwner).GetTacticalAI()->AddFocusArea( pPlot, 3, GC.getAI_TACTICAL_MAP_TEMP_ZONE_TURNS() );
+	GET_PLAYER(m_eOwner).GetTacticalAI()->AddFocusArea( pPlot, 3, /*5*/ GD_INT_GET(AI_TACTICAL_MAP_TEMP_ZONE_TURNS));
 }
 
 //default version
@@ -1941,7 +1941,7 @@ bool CvAIOperationCivilianFoundCity::PerformMission(CvUnit* pSettler)
 
 		// Notify tactical AI to focus on this area
 		if (bIsFrontier)
-			GET_PLAYER(m_eOwner).GetTacticalAI()->AddFocusArea( pCityPlot, 2, GC.getAI_TACTICAL_MAP_TEMP_ZONE_TURNS() * 3 );
+			GET_PLAYER(m_eOwner).GetTacticalAI()->AddFocusArea( pCityPlot, 2, /*15*/ GD_INT_GET(AI_TACTICAL_MAP_TEMP_ZONE_TURNS) * 3);
 
 		return true;
 	}
@@ -2629,7 +2629,7 @@ bool CvAIOperationNukeAttack::CheckTransitionToNextStage()
 			if(pNuke && pNuke->canMove() && pNuke->canNukeAt(pNuke->plot(),pTargetPlot->getX(),pTargetPlot->getY()))
 			{
 				//try to save any units we have nearby
-				int iBlastRadius = min(5,max(1,GC.getNUKE_BLAST_RADIUS()));
+				int iBlastRadius = min(5,max(1,/*2*/ GD_INT_GET(NUKE_BLAST_RADIUS)));
 				for (int i=0; i<RING_PLOTS[iBlastRadius]; i++)
 				{
 					CvPlot* pLoopPlot = iterateRingPlots(pTargetPlot,i);
@@ -2716,7 +2716,7 @@ CvPlot* CvAIOperationNukeAttack::FindBestTarget(CvPlot** ppMuster) const
 			int iThisCityValue = 0;
 
 			// check to see if there is anything good or bad in the radius that we should account for
-			int iBlastRadius = min(5,max(1,GC.getNUKE_BLAST_RADIUS()));
+			int iBlastRadius = min(5,max(1,/*2*/ GD_INT_GET(NUKE_BLAST_RADIUS)));
 			for (int i=0; i<RING_PLOTS[iBlastRadius]; i++)
 			{
 				CvPlot* pLoopPlot = iterateRingPlots(pCityPlot,i);
@@ -3094,7 +3094,7 @@ CvPlot* OperationalAIHelpers::FindClosestBarbarianCamp(PlayerTypes ePlayer, CvPl
 	CvPlot* pBestPlot = NULL;
 	CvCity* pClosestCity = NULL;
 	int iBestScore = 0;
-	ImprovementTypes eBarbCamp = (ImprovementTypes) GC.getBARBARIAN_CAMP_IMPROVEMENT();
+	ImprovementTypes eBarbCamp = (ImprovementTypes)GD_INT_GET(BARBARIAN_CAMP_IMPROVEMENT);
 
 	// Look at map for Barbarian camps
 	for (int iPlotLoop = 0; iPlotLoop < GC.getMap().numPlots(); iPlotLoop++)
@@ -3184,7 +3184,7 @@ int OperationalAIHelpers::IsUnitSuitableForRecruitment(CvUnit* pLoopUnit, const 
 		*/
 		return -1;
 	}
-	if (pLoopUnit->GetCurrHitPoints() < ((pLoopUnit->GetMaxHitPoints() * GC.getAI_OPERATIONAL_PERCENT_HEALTH_FOR_OPERATION()) / 100))
+	if (pLoopUnit->GetCurrHitPoints() < ((pLoopUnit->GetMaxHitPoints() * /*70*/ GD_INT_GET(AI_OPERATIONAL_PERCENT_HEALTH_FOR_OPERATION)) / 100))
 	{
 		/*
 		if (GC.getLogging() && GC.getAILogging())

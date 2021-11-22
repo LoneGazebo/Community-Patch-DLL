@@ -33,8 +33,8 @@ CvPolicyAI::~CvPolicyAI(void)
 void CvPolicyAI::Reset()
 {
 	m_PolicyAIWeights.clear();
-	m_iPolicyWeightPropagationLevels = GC.getPOLICY_WEIGHT_PROPAGATION_LEVELS();
-	m_iPolicyWeightPercentDropNewBranch = GC.getPOLICY_WEIGHT_PERCENT_DROP_NEW_BRANCH();
+	m_iPolicyWeightPropagationLevels = /*2*/ GD_INT_GET(POLICY_WEIGHT_PROPAGATION_LEVELS);
+	m_iPolicyWeightPercentDropNewBranch = /*90*/ GD_INT_GET(POLICY_WEIGHT_PERCENT_DROP_NEW_BRANCH);
 
 	CvAssertMsg(m_pCurrentPolicies != NULL, "Policy AI init failure: player policy data is NULL");
 	if(m_pCurrentPolicies != NULL)
@@ -292,11 +292,11 @@ void CvPolicyAI::DoChooseIdeology(CvPlayer *pPlayer)
 	int iFreedomMultiplier = 1;
 	int iAutocracyMultiplier = 1;
 	int iOrderMultiplier = 1;
-	PolicyBranchTypes eFreedomBranch = (PolicyBranchTypes)GC.getPOLICY_BRANCH_FREEDOM();
-	PolicyBranchTypes eAutocracyBranch = (PolicyBranchTypes)GC.getPOLICY_BRANCH_AUTOCRACY();
-	PolicyBranchTypes eOrderBranch = (PolicyBranchTypes)GC.getPOLICY_BRANCH_ORDER();
+	PolicyBranchTypes eFreedomBranch = (PolicyBranchTypes)GD_INT_GET(POLICY_BRANCH_FREEDOM);
+	PolicyBranchTypes eAutocracyBranch = (PolicyBranchTypes)GD_INT_GET(POLICY_BRANCH_AUTOCRACY);
+	PolicyBranchTypes eOrderBranch = (PolicyBranchTypes)GD_INT_GET(POLICY_BRANCH_ORDER);
 #if defined(MOD_ISKA_HERITAGE)
-	PolicyBranchTypes eHeritageBranch = (PolicyBranchTypes)GC.getPOLICY_BRANCH_HERITAGE();
+	PolicyBranchTypes eHeritageBranch = (PolicyBranchTypes)GD_INT_GET(POLICY_BRANCH_HERITAGE);
 #endif
 	if (eFreedomBranch == NO_POLICY_BRANCH_TYPE || eAutocracyBranch == NO_POLICY_BRANCH_TYPE || eOrderBranch == NO_POLICY_BRANCH_TYPE)
 	{
@@ -395,7 +395,7 @@ void CvPolicyAI::DoChooseIdeology(CvPlayer *pPlayer)
 	if (iFreedomMultiplier != 0 && iAutocracyMultiplier != 0 && iOrderMultiplier != 0) {
 #endif
 		// Rule out one ideology if we are clearly (at least 25% more priority) going for the victory this ideology doesn't support
-		int iClearPrefPercent = GC.getIDEOLOGY_PERCENT_CLEAR_VICTORY_PREF();
+		int iClearPrefPercent = /*25*/ GD_INT_GET(IDEOLOGY_PERCENT_CLEAR_VICTORY_PREF);
 		if (iConquestPriority > (iDiploPriority   * (100 + iClearPrefPercent) / 100) &&
 			iConquestPriority > (iTechPriority    * (100 + iClearPrefPercent) / 100) &&
 			iConquestPriority > (iCulturePriority * (100 + iClearPrefPercent) / 100))
@@ -425,7 +425,7 @@ void CvPolicyAI::DoChooseIdeology(CvPlayer *pPlayer)
 
 	if (iGrandTotal > 0)
 	{
-		int iPriorityToDivide = GC.getIDEOLOGY_SCORE_GRAND_STRATS();
+		int iPriorityToDivide = /*1000*/ GD_INT_GET(IDEOLOGY_SCORE_GRAND_STRATS);
 		iFreedomPriority = (iFreedomTotal * iPriorityToDivide) / iGrandTotal;
 		iAutocracyPriority = (iAutocracyTotal * iPriorityToDivide) / iGrandTotal;
 		iOrderPriority = (iOrderTotal * iPriorityToDivide) / iGrandTotal;
@@ -435,9 +435,9 @@ void CvPolicyAI::DoChooseIdeology(CvPlayer *pPlayer)
 	LogIdeologyChoice(stage, iFreedomPriority, iAutocracyPriority, iOrderPriority);
 
 	// Next look at free policies we can get
-	iFreedomPriority += PolicyHelpers::GetNumFreePolicies(eFreedomBranch) * GC.getIDEOLOGY_SCORE_PER_FREE_TENET();
-	iAutocracyPriority += PolicyHelpers::GetNumFreePolicies(eAutocracyBranch) * GC.getIDEOLOGY_SCORE_PER_FREE_TENET();
-	iOrderPriority += PolicyHelpers::GetNumFreePolicies(eOrderBranch) * GC.getIDEOLOGY_SCORE_PER_FREE_TENET();
+	iFreedomPriority += PolicyHelpers::GetNumFreePolicies(eFreedomBranch) * /*45*/ GD_INT_GET(IDEOLOGY_SCORE_PER_FREE_TENET);
+	iAutocracyPriority += PolicyHelpers::GetNumFreePolicies(eAutocracyBranch) * /*45*/ GD_INT_GET(IDEOLOGY_SCORE_PER_FREE_TENET);
+	iOrderPriority += PolicyHelpers::GetNumFreePolicies(eOrderBranch) * /*45*/ GD_INT_GET(IDEOLOGY_SCORE_PER_FREE_TENET);
 
 	stage = "After Free Policies";
 	LogIdeologyChoice(stage, iFreedomPriority, iAutocracyPriority, iOrderPriority);
@@ -456,33 +456,33 @@ void CvPolicyAI::DoChooseIdeology(CvPlayer *pPlayer)
 			{
 				if (eOtherPlayerIdeology == eFreedomBranch)
 				{
-					iAutocracyPriority += GC.getIDEOLOGY_SCORE_HOSTILE();
-					iOrderPriority += GC.getIDEOLOGY_SCORE_HOSTILE();
+					iAutocracyPriority += /*500*/ GD_INT_GET(IDEOLOGY_SCORE_HOSTILE);
+					iOrderPriority += /*500*/ GD_INT_GET(IDEOLOGY_SCORE_HOSTILE);
 				}
 				else if (eOtherPlayerIdeology == eAutocracyBranch)
 				{
-					iFreedomPriority += GC.getIDEOLOGY_SCORE_HOSTILE();
-					iOrderPriority += GC.getIDEOLOGY_SCORE_HOSTILE();
+					iFreedomPriority += /*500*/ GD_INT_GET(IDEOLOGY_SCORE_HOSTILE);
+					iOrderPriority += /*500*/ GD_INT_GET(IDEOLOGY_SCORE_HOSTILE);
 				}
 				else if (eOtherPlayerIdeology == eOrderBranch)
 				{
-					iAutocracyPriority += GC.getIDEOLOGY_SCORE_HOSTILE();
-					iFreedomPriority += GC.getIDEOLOGY_SCORE_HOSTILE();
+					iAutocracyPriority += /*500*/ GD_INT_GET(IDEOLOGY_SCORE_HOSTILE);
+					iFreedomPriority += /*500*/ GD_INT_GET(IDEOLOGY_SCORE_HOSTILE);
 				}
 			}
 			else if (pPlayer->GetDiplomacyAI()->GetMostValuableAlly() == eLoopPlayer || pPlayer->GetDiplomacyAI()->GetMostValuableFriend() == eLoopPlayer)
 			{
 				if (eOtherPlayerIdeology == eFreedomBranch)
 				{
-					iFreedomPriority += GC.getIDEOLOGY_SCORE_FRIENDLY();
+					iFreedomPriority += /*25*/ GD_INT_GET(IDEOLOGY_SCORE_FRIENDLY);
 				}
 				else if (eOtherPlayerIdeology == eAutocracyBranch)
 				{
-					iAutocracyPriority += GC.getIDEOLOGY_SCORE_FRIENDLY();
+					iAutocracyPriority += /*25*/ GD_INT_GET(IDEOLOGY_SCORE_FRIENDLY);
 				}
 				else if (eOtherPlayerIdeology == eOrderBranch)
 				{
-					iOrderPriority += GC.getIDEOLOGY_SCORE_FRIENDLY();
+					iOrderPriority += /*25*/ GD_INT_GET(IDEOLOGY_SCORE_FRIENDLY);
 				}
 			}
 
@@ -491,63 +491,63 @@ void CvPolicyAI::DoChooseIdeology(CvPlayer *pPlayer)
 			case CIV_APPROACH_HOSTILE:
 				if (eOtherPlayerIdeology == eFreedomBranch)
 				{
-					iAutocracyPriority += GC.getIDEOLOGY_SCORE_HOSTILE();
-					iOrderPriority += GC.getIDEOLOGY_SCORE_HOSTILE();
+					iAutocracyPriority += /*500*/ GD_INT_GET(IDEOLOGY_SCORE_HOSTILE);
+					iOrderPriority += /*500*/ GD_INT_GET(IDEOLOGY_SCORE_HOSTILE);
 				}
 				else if (eOtherPlayerIdeology == eAutocracyBranch)
 				{
-					iFreedomPriority += GC.getIDEOLOGY_SCORE_HOSTILE();
-					iOrderPriority += GC.getIDEOLOGY_SCORE_HOSTILE();
+					iFreedomPriority += /*500*/ GD_INT_GET(IDEOLOGY_SCORE_HOSTILE);
+					iOrderPriority += /*500*/ GD_INT_GET(IDEOLOGY_SCORE_HOSTILE);
 				}
 				else if (eOtherPlayerIdeology == eOrderBranch)
 				{
-					iAutocracyPriority += GC.getIDEOLOGY_SCORE_HOSTILE();
-					iFreedomPriority += GC.getIDEOLOGY_SCORE_HOSTILE();
+					iAutocracyPriority += /*500*/ GD_INT_GET(IDEOLOGY_SCORE_HOSTILE);
+					iFreedomPriority += /*500*/ GD_INT_GET(IDEOLOGY_SCORE_HOSTILE);
 				}
 				break;
 			case CIV_APPROACH_GUARDED:
 				if (eOtherPlayerIdeology == eFreedomBranch)
 				{
-					iAutocracyPriority += GC.getIDEOLOGY_SCORE_GUARDED();
-					iOrderPriority += GC.getIDEOLOGY_SCORE_GUARDED();
+					iAutocracyPriority += /*250*/ GD_INT_GET(IDEOLOGY_SCORE_GUARDED);
+					iOrderPriority += /*250*/ GD_INT_GET(IDEOLOGY_SCORE_GUARDED);
 				}
 				else if (eOtherPlayerIdeology == eAutocracyBranch)
 				{
-					iFreedomPriority += GC.getIDEOLOGY_SCORE_GUARDED();
-					iOrderPriority += GC.getIDEOLOGY_SCORE_GUARDED();
+					iFreedomPriority += /*250*/ GD_INT_GET(IDEOLOGY_SCORE_GUARDED);
+					iOrderPriority += /*250*/ GD_INT_GET(IDEOLOGY_SCORE_GUARDED);
 				}
 				else if (eOtherPlayerIdeology == eOrderBranch)
 				{
-					iAutocracyPriority += GC.getIDEOLOGY_SCORE_GUARDED();
-					iFreedomPriority += GC.getIDEOLOGY_SCORE_GUARDED();
+					iAutocracyPriority += /*250*/ GD_INT_GET(IDEOLOGY_SCORE_GUARDED);
+					iFreedomPriority += /*250*/ GD_INT_GET(IDEOLOGY_SCORE_GUARDED);
 				}
 				break;
 			case CIV_APPROACH_AFRAID:
 				if (eOtherPlayerIdeology == eFreedomBranch)
 				{
-					iFreedomPriority += GC.getIDEOLOGY_SCORE_AFRAID();
+					iFreedomPriority += /*150*/ GD_INT_GET(IDEOLOGY_SCORE_AFRAID);
 				}
 				else if (eOtherPlayerIdeology == eAutocracyBranch)
 				{
-					iAutocracyPriority += GC.getIDEOLOGY_SCORE_AFRAID();
+					iAutocracyPriority += /*150*/ GD_INT_GET(IDEOLOGY_SCORE_AFRAID);
 				}
 				else if (eOtherPlayerIdeology == eOrderBranch)
 				{
-					iOrderPriority += GC.getIDEOLOGY_SCORE_AFRAID();
+					iOrderPriority += /*150*/ GD_INT_GET(IDEOLOGY_SCORE_AFRAID);
 				}
 				break;
 			case CIV_APPROACH_FRIENDLY:
 				if (eOtherPlayerIdeology == eFreedomBranch)
 				{
-					iFreedomPriority += GC.getIDEOLOGY_SCORE_FRIENDLY();
+					iFreedomPriority += /*25*/ GD_INT_GET(IDEOLOGY_SCORE_FRIENDLY);
 				}
 				else if (eOtherPlayerIdeology == eAutocracyBranch)
 				{
-					iAutocracyPriority += GC.getIDEOLOGY_SCORE_FRIENDLY();
+					iAutocracyPriority += /*25*/ GD_INT_GET(IDEOLOGY_SCORE_FRIENDLY);
 				}
 				else if (eOtherPlayerIdeology == eOrderBranch)
 				{
-					iOrderPriority += GC.getIDEOLOGY_SCORE_FRIENDLY();
+					iOrderPriority += /*25*/ GD_INT_GET(IDEOLOGY_SCORE_FRIENDLY);
 				}
 				break;
 			default:
@@ -561,7 +561,7 @@ void CvPolicyAI::DoChooseIdeology(CvPlayer *pPlayer)
 	LogIdeologyChoice(stage, iFreedomPriority, iAutocracyPriority, iOrderPriority);
 
 	// Look at Happiness impacts
-	int iHappinessModifier = GC.getIDEOLOGY_SCORE_HAPPINESS();
+	int iHappinessModifier = /*10*/ GD_INT_GET(IDEOLOGY_SCORE_HAPPINESS);
 
 	// -- Happiness we could add through tenets
 	int iHappinessDelta;
@@ -739,11 +739,11 @@ void CvPolicyAI::DoConsiderIdeologySwitch(CvPlayer* pPlayer)
 						if(GET_PLAYER(eMaster).GetPlayerPolicies()->GetLateGamePolicyTree() != NO_POLICY_BRANCH_TYPE && GET_PLAYER(eMaster).GetPlayerPolicies()->GetLateGamePolicyTree() != pPlayer->GetPlayerPolicies()->GetLateGamePolicyTree())
 						{
 							// Cleared all obstacles -- REVOLUTION!
-							pPlayer->SetAnarchyNumTurns(GC.getSWITCH_POLICY_BRANCHES_ANARCHY_TURNS());
+							pPlayer->SetAnarchyNumTurns(/*2 in CP, 3 in CBO*/ GD_INT_GET(SWITCH_POLICY_BRANCHES_ANARCHY_TURNS));
 							pPlayer->GetPlayerPolicies()->DoSwitchIdeologies(GET_PLAYER(eMaster).GetPlayerPolicies()->GetLateGamePolicyTree());	
 							Localization::String strSummary = Localization::Lookup("TXT_KEY_ANARCHY_BEGINS_SUMMARY");
 							Localization::String strMessage = Localization::Lookup("TXT_KEY_ANARCHY_BEGINS");
-							pPlayer->GetNotifications()->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), pPlayer->GetID(), GC.getSWITCH_POLICY_BRANCHES_ANARCHY_TURNS(), -1);
+							pPlayer->GetNotifications()->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), pPlayer->GetID(), /*2 in CP, 3 in CBO*/ GD_INT_GET(SWITCH_POLICY_BRANCHES_ANARCHY_TURNS), -1);
 							return;
 						}
 					}
@@ -754,7 +754,7 @@ void CvPolicyAI::DoConsiderIdeologySwitch(CvPlayer* pPlayer)
 #endif	
 	// Possible enough that we need to look at this in detail?
 #if defined(MOD_BALANCE_CORE)
-	if (bSUnhappy && iPublicOpinionUnhappiness >= (GC.getSUPER_UNHAPPY_THRESHOLD()))
+	if (bSUnhappy && iPublicOpinionUnhappiness >= /*-20 in CP, 20 in CBO*/ GD_INT_GET(SUPER_UNHAPPY_THRESHOLD))
 	{
 		//Sanity check - would a change to this branch simply make us unhappy in another way? If so, don't do it.
 		if(ePreferredIdeology != NO_POLICY_BRANCH_TYPE)
@@ -772,18 +772,18 @@ void CvPolicyAI::DoConsiderIdeologySwitch(CvPlayer* pPlayer)
 			}
 
 			// Cleared all obstacles -- REVOLUTION!
-			pPlayer->SetAnarchyNumTurns(GC.getSWITCH_POLICY_BRANCHES_ANARCHY_TURNS());
+			pPlayer->SetAnarchyNumTurns(/*2 in CP, 3 in CBO*/ GD_INT_GET(SWITCH_POLICY_BRANCHES_ANARCHY_TURNS));
 			pPlayer->GetPlayerPolicies()->DoSwitchIdeologies(ePreferredIdeology);
 			Localization::String strSummary = Localization::Lookup("TXT_KEY_ANARCHY_BEGINS_SUMMARY");
 			Localization::String strMessage = Localization::Lookup("TXT_KEY_ANARCHY_BEGINS");
-			pPlayer->GetNotifications()->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), pPlayer->GetID(), GC.getSWITCH_POLICY_BRANCHES_ANARCHY_TURNS(), -1);
+			pPlayer->GetNotifications()->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), pPlayer->GetID(), /*2 in CP, 3 in CBO*/ GD_INT_GET(SWITCH_POLICY_BRANCHES_ANARCHY_TURNS), -1);
 		}
 	}
 #endif
 #if defined(MOD_BALANCE_CORE)
-	else if (bVUnhappy && iPublicOpinionUnhappiness >= (GC.getVERY_UNHAPPY_THRESHOLD()))
+	else if (bVUnhappy && iPublicOpinionUnhappiness >= /*-10 in CP, 35 in CBO*/ GD_INT_GET(VERY_UNHAPPY_THRESHOLD))
 #else
-	if (iCurrentHappiness <= GC.getSUPER_UNHAPPY_THRESHOLD() && iPublicOpinionUnhappiness >= 10)
+	if (iCurrentHappiness <= /*-20 in CP, 20 in CBO*/ GD_INT_GET(SUPER_UNHAPPY_THRESHOLD) && iPublicOpinionUnhappiness >= 10)
 #endif
 	{
 		// How much Happiness could we gain from a switch?
@@ -799,7 +799,7 @@ void CvPolicyAI::DoConsiderIdeologySwitch(CvPlayer* pPlayer)
 		int iDiploPriority = pPlayer->GetGrandStrategyAI()->GetUnitedNationsPriority();
 		int iTechPriority = pPlayer->GetGrandStrategyAI()->GetSpaceshipPriority();
 		int iCulturePriority = pPlayer->GetGrandStrategyAI()->GetCulturePriority();
-		int iClearPrefPercent = GC.getIDEOLOGY_PERCENT_CLEAR_VICTORY_PREF();
+		int iClearPrefPercent = /*25*/ GD_INT_GET(IDEOLOGY_PERCENT_CLEAR_VICTORY_PREF);
 		if (iConquestPriority > (iDiploPriority   * (100 + iClearPrefPercent) / 100) &&
 			iConquestPriority > (iTechPriority    * (100 + iClearPrefPercent) / 100) &&
 			iConquestPriority > (iCulturePriority * (100 + iClearPrefPercent) / 100))
@@ -851,15 +851,15 @@ void CvPolicyAI::DoConsiderIdeologySwitch(CvPlayer* pPlayer)
 		if (iTotalHappinessImprovement >= 10)
 		{
 #endif
-			if (bDontSwitchFreedom && ePreferredIdeology == GC.getPOLICY_BRANCH_FREEDOM())
+			if (bDontSwitchFreedom && ePreferredIdeology == GD_INT_GET(POLICY_BRANCH_FREEDOM))
 			{
 				return;
 			}
-			if (bDontSwitchAutocracy && ePreferredIdeology == GC.getPOLICY_BRANCH_AUTOCRACY())
+			if (bDontSwitchAutocracy && ePreferredIdeology == GD_INT_GET(POLICY_BRANCH_AUTOCRACY))
 			{
 				return;
 			}
-			if (bDontSwitchOrder && ePreferredIdeology == GC.getPOLICY_BRANCH_ORDER())
+			if (bDontSwitchOrder && ePreferredIdeology == GD_INT_GET(POLICY_BRANCH_ORDER))
 			{
 				return;
 			}
@@ -872,7 +872,7 @@ void CvPolicyAI::DoConsiderIdeologySwitch(CvPlayer* pPlayer)
 #endif
 
 #if defined(MOD_API_ACHIEVEMENTS)
-			if (ePreferredIdeology == GC.getPOLICY_BRANCH_FREEDOM() && eCurrentIdeology == GC.getPOLICY_BRANCH_ORDER())
+			if (ePreferredIdeology == GD_INT_GET(POLICY_BRANCH_FREEDOM) && eCurrentIdeology == GD_INT_GET(POLICY_BRANCH_ORDER))
 			{
 				PlayerTypes eMostPressure = pPlayer->GetCulture()->GetPublicOpinionBiggestInfluence();
 				if (eMostPressure != NO_PLAYER && GET_PLAYER(eMostPressure).GetID() == GC.getGame().getActivePlayer())
@@ -883,11 +883,11 @@ void CvPolicyAI::DoConsiderIdeologySwitch(CvPlayer* pPlayer)
 #endif
 
 			// Cleared all obstacles -- REVOLUTION!
-			pPlayer->SetAnarchyNumTurns(GC.getSWITCH_POLICY_BRANCHES_ANARCHY_TURNS());
+			pPlayer->SetAnarchyNumTurns(/*2 in CP, 3 in CBO*/ GD_INT_GET(SWITCH_POLICY_BRANCHES_ANARCHY_TURNS));
 			pPlayer->GetPlayerPolicies()->DoSwitchIdeologies(ePreferredIdeology);	
 			Localization::String strSummary = Localization::Lookup("TXT_KEY_ANARCHY_BEGINS_SUMMARY");
 			Localization::String strMessage = Localization::Lookup("TXT_KEY_ANARCHY_BEGINS");
-			pPlayer->GetNotifications()->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), pPlayer->GetID(), GC.getSWITCH_POLICY_BRANCHES_ANARCHY_TURNS(), -1);
+			pPlayer->GetNotifications()->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), pPlayer->GetID(), /*2 in CP, 3 in CBO*/ GD_INT_GET(SWITCH_POLICY_BRANCHES_ANARCHY_TURNS), -1);
 		}
 	}
 }
@@ -1025,7 +1025,7 @@ void CvPolicyAI::PropagateWeights(int iPolicy, int iWeight, int iPropagationPerc
 		int iPropagatedWeight = iWeight * iPropagationPercent / 100;
 
 		// Loop through all prerequisites
-		for(int iI = 0; iI < GC.getNUM_OR_TECH_PREREQS(); iI++)
+		for(int iI = 0; iI < /*3*/ GD_INT_GET(NUM_OR_TECH_PREREQS); iI++)
 		{
 			// Did we find a prereq?
 			int iPrereq = m_pCurrentPolicies->GetPolicies()->GetPolicyEntry(iPolicy)->GetPrereqAndPolicies(iI);
@@ -3684,7 +3684,7 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 
 		if (pPlayer->getCapitalCity() != NULL)
 		{
-			if (PolicyInfo->IsFaithPurchaseUnitClass(eUnitClass, GD_INT_GET(RELIGION_GP_FAITH_PURCHASE_ERA)) != 0)
+			if (PolicyInfo->IsFaithPurchaseUnitClass(eUnitClass, /*INDUSTRIAL*/ GD_INT_GET(RELIGION_GP_FAITH_PURCHASE_ERA)) != 0)
 			{
 				CvUnitClassInfo* pkUnitClassInfo = GC.getUnitClassInfo(eUnitClass);
 				if (pkUnitClassInfo)

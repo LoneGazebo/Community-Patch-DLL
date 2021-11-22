@@ -561,7 +561,7 @@ void CvBarbarians::DoCamps()
 	int iNumNotVisiblePlots = 0;
 	int iNumCampsInExistence = 0;
 
-	ImprovementTypes eCamp = (ImprovementTypes)GC.getBARBARIAN_CAMP_IMPROVEMENT();
+	ImprovementTypes eCamp = (ImprovementTypes)GD_INT_GET(BARBARIAN_CAMP_IMPROVEMENT);
 
 	bool bAlwaysRevealedBarbCamp = false;
 
@@ -643,21 +643,21 @@ void CvBarbarians::DoCamps()
 		int iCampTargetNum = (iFogTilesPerBarbarianCamp != 0)? iNumValidCampPlots / iFogTilesPerBarbarianCamp : 0;
 		int iNumCampsToAdd = iCampTargetNum - iNumCampsInExistence;
 
-		if(iNumCampsToAdd > 0 && GC.getBARBARIAN_CAMP_ODDS_OF_NEW_CAMP_SPAWNING() > 0) // slewis - added the barbarian chance for the FoR scenario
+		if (iNumCampsToAdd > 0 && /*2*/ GD_INT_GET(BARBARIAN_CAMP_ODDS_OF_NEW_CAMP_SPAWNING) > 0) // slewis - added the barbarian chance for the FoR scenario
 		{
 			// First turn of the game add 1/3 of the Target number of Camps
 			if(kGame.getElapsedGameTurns() == 0)
 			{
-				iNumCampsToAdd *= /*33*/ GC.getBARBARIAN_CAMP_FIRST_TURN_PERCENT_OF_TARGET_TO_ADD();
+				iNumCampsToAdd *= /*33*/ GD_INT_GET(BARBARIAN_CAMP_FIRST_TURN_PERCENT_OF_TARGET_TO_ADD);
 				iNumCampsToAdd /= 100;
 			}
 			// Every other turn of the game there's a 1 in 2 chance of adding a new camp if we're still below the target
 			else
 			{
 #if defined(MOD_CORE_REDUCE_RANDOMNESS)
-				if (kGame.isReallyNetworkMultiPlayer() ? GC.getGame().getGameTurn() % 2 == 0 : kGame.getSmallFakeRandNum(GC.getBARBARIAN_CAMP_ODDS_OF_NEW_CAMP_SPAWNING(), iNumValidCampPlots) == 0)
+				if (kGame.isReallyNetworkMultiPlayer() ? GC.getGame().getGameTurn() % 2 == 0 : kGame.getSmallFakeRandNum(/*2*/ GD_INT_GET(BARBARIAN_CAMP_ODDS_OF_NEW_CAMP_SPAWNING), iNumValidCampPlots) == 0)
 #else
-				if(kGame.getJonRandNum(/*2*/ GC.getBARBARIAN_CAMP_ODDS_OF_NEW_CAMP_SPAWNING(), "Random roll to see if Barb Camp spawns this turn") > 0)
+				if(kGame.getJonRandNum(/*2*/ GD_INT_GET(BARBARIAN_CAMP_ODDS_OF_NEW_CAMP_SPAWNING), "Random roll to see if Barb Camp spawns this turn") > 0)
 #endif
 				{
 					iNumCampsToAdd = 1;
@@ -675,8 +675,8 @@ void CvBarbarians::DoCamps()
 			UnitTypes eBestUnit;
 
 			int iNumLandPlots = kMap.getLandPlots();
-			int iPlayerCapitalMinDistance = /*4*/ GC.getBARBARIAN_CAMP_MINIMUM_DISTANCE_CAPITAL();
-			int iBarbCampMinDistance = /*7*/ GC.getBARBARIAN_CAMP_MINIMUM_DISTANCE_ANOTHER_CAMP();
+			int iPlayerCapitalMinDistance = /*4*/ GD_INT_GET(BARBARIAN_CAMP_MINIMUM_DISTANCE_CAPITAL);
+			int iBarbCampMinDistance = /*4*/ GD_INT_GET(BARBARIAN_CAMP_MINIMUM_DISTANCE_ANOTHER_CAMP);
 			int iMaxDistanceToLook = iPlayerCapitalMinDistance > iBarbCampMinDistance ? iPlayerCapitalMinDistance : iBarbCampMinDistance;
 			int iPlayerLoop;
 #if defined(MOD_BALANCE_CORE)
@@ -706,7 +706,7 @@ void CvBarbarians::DoCamps()
 
 				int iPlotIndex = kGame.isReallyNetworkMultiPlayer() ? vRelevantPlots.size() / 2 : kGame.getSmallFakeRandNum(vRelevantPlots.size(), vRelevantPlots.size());
 #else
-				bool bWantsCoastal = kGame.getJonRandNum(/*6*/ GC.getBARBARIAN_CAMP_COASTAL_SPAWN_ROLL(), "Barb Camp Plot-Finding Roll - Coastal Bias") == 0 ? true : false;
+				bool bWantsCoastal = kGame.getJonRandNum(/*6*/ GD_INT_GET(BARBARIAN_CAMP_COASTAL_SPAWN_ROLL), "Barb Camp Plot-Finding Roll - Coastal Bias") == 0 ? true : false;
 				int iPlotIndex = kGame.getJonRandNum( bWantsCoastal ? vCoastalPlots.size() : vAllPlots.size(), "Barb Camp Plot-Finding Roll");
 #endif
 
@@ -961,7 +961,7 @@ void CvBarbarians::DoUnits()
 		return;
 	}
 
-	ImprovementTypes eCamp = (ImprovementTypes)GC.getBARBARIAN_CAMP_IMPROVEMENT();
+	ImprovementTypes eCamp = (ImprovementTypes)GD_INT_GET(BARBARIAN_CAMP_IMPROVEMENT);
 
 	CvMap& kMap = GC.getMap();
 	for(int iPlotLoop = 0; iPlotLoop < kMap.numPlots(); iPlotLoop++)
@@ -990,7 +990,7 @@ void CvBarbarians::DoUnits()
 /// Spawn a Barbarian Unit somewhere adjacent to pPlot
 void CvBarbarians::DoSpawnBarbarianUnit(CvPlot* pPlot, bool bIgnoreMaxBarbarians, bool bFinishMoves)
 {
-	int iRange = GC.getMAX_BARBARIANS_FROM_CAMP_NEARBY_RANGE();
+	int iRange = /*4*/ GD_INT_GET(MAX_BARBARIANS_FROM_CAMP_NEARBY_RANGE);
 	CvGame& kGame = GC.getGame();
 
 	if (pPlot == 0)
@@ -1048,10 +1048,10 @@ void CvBarbarians::DoSpawnBarbarianUnit(CvPlot* pPlot, bool bIgnoreMaxBarbarians
 		}
 	}
 
-	if(iNumNearbyUnits <= /*2*/ GC.getMAX_BARBARIANS_FROM_CAMP_NEARBY() || bIgnoreMaxBarbarians)
+	if (iNumNearbyUnits <= /*2*/ GD_INT_GET(MAX_BARBARIANS_FROM_CAMP_NEARBY) || bIgnoreMaxBarbarians)
 	{
 		// Barbs only get boats after some period of time has passed
-		bool bCanSpawnBoats = kGame.getElapsedGameTurns() > /*30*/ GC.getBARBARIAN_NAVAL_UNIT_START_TURN_SPAWN();
+		bool bCanSpawnBoats = kGame.getElapsedGameTurns() > /*30*/ GD_INT_GET(BARBARIAN_NAVAL_UNIT_START_TURN_SPAWN);
 
 		std::vector<CvPlot*> vBalidBarbSpawnPlots;
 

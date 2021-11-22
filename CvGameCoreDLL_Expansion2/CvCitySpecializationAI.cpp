@@ -332,7 +332,7 @@ void CvCitySpecializationAI::DoTurn()
 	}
 
 	// No city specializations early in the game
-	if(GC.getGame().getGameTurn() < GC.getAI_CITY_SPECIALIZATION_EARLIEST_TURN())
+	if(GC.getGame().getGameTurn() < /*25*/ GD_INT_GET(AI_CITY_SPECIALIZATION_EARLIEST_TURN))
 	{
 		return;
 	}
@@ -368,7 +368,7 @@ void CvCitySpecializationAI::DoTurn()
 	}
 
 	// See if need to update assignments
-	if(m_bSpecializationsDirty || ((m_iLastTurnEvaluated + GC.getAI_CITY_SPECIALIZATION_REEVALUATION_INTERVAL()) <= GC.getGame().getGameTurn()))
+	if(m_bSpecializationsDirty || ((m_iLastTurnEvaluated + /*35*/ GD_INT_GET(AI_CITY_SPECIALIZATION_REEVALUATION_INTERVAL)) <= GC.getGame().getGameTurn()))
 	{
 		AssignSpecializations();
 
@@ -574,37 +574,37 @@ CvWeightedVector<ProductionSpecializationSubtypes> CvCitySpecializationAI::Weigh
 	int iUnitsRequested = m_pPlayer->GetNumUnitsNeededToBeBuilt();
 
 	// LONG-TERM MILITARY BUILD-UP
-	iMilitaryTrainingWeight += (iFlavorOffense * GC.getAI_CITY_SPECIALIZATION_PRODUCTION_TRAINING_PER_OFFENSE()) /* 10 */;
-	iMilitaryTrainingWeight += (m_pPlayer->GetDiplomacyAI()->GetMajorCivApproachBias(CIV_APPROACH_WAR) * GC.getAI_CITY_SPECIALIZATION_PRODUCTION_TRAINING_PER_PERSONALITY() /* 10 */);
+	iMilitaryTrainingWeight += iFlavorOffense * /*10*/ GD_INT_GET(AI_CITY_SPECIALIZATION_PRODUCTION_TRAINING_PER_OFFENSE);
+	iMilitaryTrainingWeight += m_pPlayer->GetDiplomacyAI()->GetMajorCivApproachBias(CIV_APPROACH_WAR) * /*10*/ GD_INT_GET(AI_CITY_SPECIALIZATION_PRODUCTION_TRAINING_PER_PERSONALITY);
 
 	// EMERGENCY UNITS
-	iEmergencyUnitWeight += iUnitsRequested * GC.getAI_CITY_SPECIALIZATION_PRODUCTION_WEIGHT_OPERATIONAL_UNITS_REQUESTED() /* 10 */;
-	iEmergencyUnitWeight += m_pPlayer->GetMilitaryAI()->GetNumberCivsAtWarWith(false) * GC.getAI_CITY_SPECIALIZATION_PRODUCTION_WEIGHT_CIVS_AT_WAR_WITH() /* 100 */;
+	iEmergencyUnitWeight += iUnitsRequested * /*20*/ GD_INT_GET(AI_CITY_SPECIALIZATION_PRODUCTION_WEIGHT_OPERATIONAL_UNITS_REQUESTED);
+	iEmergencyUnitWeight += m_pPlayer->GetMilitaryAI()->GetNumberCivsAtWarWith(false) * /*150*/ GD_INT_GET(AI_CITY_SPECIALIZATION_PRODUCTION_WEIGHT_CIVS_AT_WAR_WITH);
 
 	// Is our capital under threat?
 	AICityStrategyTypes eCityStrategy = (AICityStrategyTypes) GC.getInfoTypeForString("AICITYSTRATEGY_CAPITAL_UNDER_THREAT");
 	CvCity* pCapital = m_pPlayer->getCapitalCity();
 	if(pCapital && eCityStrategy != NO_AICITYSTRATEGY && pCapital->GetCityStrategyAI()->IsUsingCityStrategy(eCityStrategy))
 	{
-		iEmergencyUnitWeight += GC.getAI_CITY_SPECIALIZATION_PRODUCTION_WEIGHT_CAPITAL_THREAT() /* 50 */;
+		iEmergencyUnitWeight += /*50*/ GD_INT_GET(AI_CITY_SPECIALIZATION_PRODUCTION_WEIGHT_CAPITAL_THREAT);
 	}
 
 	// Add in weights depending on what the military AI is up to
 	MilitaryAIStrategyTypes eStrategy = (MilitaryAIStrategyTypes) GC.getInfoTypeForString("MILITARYAISTRATEGY_WAR_MOBILIZATION");
 	if(eStrategy != NO_MILITARYAISTRATEGY && m_pPlayer->GetMilitaryAI()->IsUsingStrategy(eStrategy))
 	{
-		iMilitaryTrainingWeight += GC.getAI_CITY_SPECIALIZATION_PRODUCTION_WEIGHT_WAR_MOBILIZATION() /* 150 */;
+		iMilitaryTrainingWeight += /*250*/ GD_INT_GET(AI_CITY_SPECIALIZATION_PRODUCTION_WEIGHT_WAR_MOBILIZATION);
 	}
 	eStrategy = (MilitaryAIStrategyTypes) GC.getInfoTypeForString("MILITARYAISTRATEGY_EMPIRE_DEFENSE");
 	if(eStrategy != NO_MILITARYAISTRATEGY && m_pPlayer->GetMilitaryAI()->IsUsingStrategy(eStrategy))
 	{
-		iEmergencyUnitWeight += GC.getAI_CITY_SPECIALIZATION_PRODUCTION_WEIGHT_EMPIRE_DEFENSE() /* 150 */;
+		iEmergencyUnitWeight += /*250*/ GD_INT_GET(AI_CITY_SPECIALIZATION_PRODUCTION_WEIGHT_EMPIRE_DEFENSE);
 	}
 	eStrategy = (MilitaryAIStrategyTypes) GC.getInfoTypeForString("MILITARYAISTRATEGY_EMPIRE_DEFENSE_CRITICAL");
 	if(eStrategy != NO_MILITARYAISTRATEGY && m_pPlayer->GetMilitaryAI()->IsUsingStrategy(eStrategy))
 	{
 		bCriticalDefenseOn = true;
-		iEmergencyUnitWeight += GC.getAI_CITY_SPECIALIZATION_PRODUCTION_WEIGHT_EMPIRE_DEFENSE_CRITICAL() /* 1000 */;
+		iEmergencyUnitWeight += /*1250*/ GD_INT_GET(AI_CITY_SPECIALIZATION_PRODUCTION_WEIGHT_EMPIRE_DEFENSE_CRITICAL);
 	}
 
 	// Override all this if have too many units!
@@ -618,12 +618,12 @@ CvWeightedVector<ProductionSpecializationSubtypes> CvCitySpecializationAI::Weigh
 	eStrategy = (MilitaryAIStrategyTypes) GC.getInfoTypeForString("MILITARYAISTRATEGY_NEED_NAVAL_UNITS");
 	if(eStrategy != NO_MILITARYAISTRATEGY && m_pPlayer->GetMilitaryAI()->IsUsingStrategy(eStrategy))
 	{
-		iSeaWeight += GC.getAI_CITY_SPECIALIZATION_PRODUCTION_WEIGHT_NEED_NAVAL_UNITS() /* 50 */;
+		iSeaWeight += /*50*/ GD_INT_GET(AI_CITY_SPECIALIZATION_PRODUCTION_WEIGHT_NEED_NAVAL_UNITS);
 	}
 	eStrategy = (MilitaryAIStrategyTypes) GC.getInfoTypeForString("MILITARYAISTRATEGY_NEED_NAVAL_UNITS_CRITICAL");
 	if(eStrategy != NO_MILITARYAISTRATEGY && m_pPlayer->GetMilitaryAI()->IsUsingStrategy(eStrategy))
 	{
-		iSeaWeight += GC.getAI_CITY_SPECIALIZATION_PRODUCTION_WEIGHT_NEED_NAVAL_UNITS_CRITICAL() /* 250 */;
+		iSeaWeight += /*250*/ GD_INT_GET(AI_CITY_SPECIALIZATION_PRODUCTION_WEIGHT_NEED_NAVAL_UNITS_CRITICAL);
 	}
 	eStrategy = (MilitaryAIStrategyTypes) GC.getInfoTypeForString("MILITARYAISTRATEGY_ENOUGH_NAVAL_UNITS");
 	if(eStrategy != NO_MILITARYAISTRATEGY && m_pPlayer->GetMilitaryAI()->IsUsingStrategy(eStrategy))
@@ -632,20 +632,20 @@ CvWeightedVector<ProductionSpecializationSubtypes> CvCitySpecializationAI::Weigh
 	}
 
 	// Wonder is MIN between weight of wonders available to build and value from flavors (but not less than zero)
-	int iWonderFlavorWeight = iFlavorWonder * GC.getAI_CITY_SPECIALIZATION_PRODUCTION_WEIGHT_FLAVOR_WONDER() /* 200 */;
-	int iWeightOfWonders = (int)(m_iNextWonderWeight * GC.getAI_CITY_SPECIALIZATION_PRODUCTION_WEIGHT_NEXT_WONDER()); /* 0.2 */
+	int iWonderFlavorWeight = iFlavorWonder * /*250*/ GD_INT_GET(AI_CITY_SPECIALIZATION_PRODUCTION_WEIGHT_FLAVOR_WONDER);
+	int iWeightOfWonders = (int)(m_iNextWonderWeight * /*0.2f*/ GD_FLOAT_GET(AI_CITY_SPECIALIZATION_PRODUCTION_WEIGHT_NEXT_WONDER));
 	iWonderWeight = min(iWonderFlavorWeight, iWeightOfWonders);
 	iWonderWeight = max(iWonderWeight, 0);
 
 	// One-half of normal weight if critical defense is on
-	if(bCriticalDefenseOn)
+	if (bCriticalDefenseOn)
 	{
 		iWonderWeight /= 2;
 	}
 
-	if(CanBuildSpaceshipParts())
+	if (CanBuildSpaceshipParts())
 	{
-		iSpaceshipWeight += iFlavorSpaceship * GC.getAI_CITY_SPECIALIZATION_PRODUCTION_WEIGHT_FLAVOR_SPACESHIP() /* 5 */;
+		iSpaceshipWeight += iFlavorSpaceship * /*10*/ GD_INT_GET(AI_CITY_SPECIALIZATION_PRODUCTION_WEIGHT_FLAVOR_SPACESHIP);
 	}
 
 	CvAIGrandStrategyXMLEntry* grandStrategy = GC.getAIGrandStrategyInfo(m_pPlayer->GetGrandStrategyAI()->GetActiveGrandStrategy());
@@ -808,7 +808,7 @@ vector<int> CvCitySpecializationAI::CityValueForUnworkedTileYields(CvCity* pCity
 			{
 				int iPotentialYield = pLoopPlot->getYield((YieldTypes)iYield);
 				if (iYield == YIELD_FOOD) //a plot needs to be worked by a citizen who needs food
-					iPotentialYield = max(0, iPotentialYield - GC.getFOOD_CONSUMPTION_PER_POPULATION());
+					iPotentialYield = max(0, iPotentialYield - /*2*/ GD_INT_GET(FOOD_CONSUMPTION_PER_POPULATION));
 
 				result[iYield] += iPotentialYield*100; //to make sure modifiers are not rounded away later on
 			}

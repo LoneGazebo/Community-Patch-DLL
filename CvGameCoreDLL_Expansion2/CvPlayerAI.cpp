@@ -294,7 +294,7 @@ void CvPlayerAI::AI_conquerCity(CvCity* pCity, PlayerTypes ePlayerToLiberate, bo
 
 	// What are our options for this city?
 	bool bCanLiberate = ePlayerToLiberate != NO_PLAYER;
-	bool bCanRaze = (canRaze(pCity) && !bGift); //shouldn't raze cities you bought
+	bool bCanRaze = canRaze(pCity) && !bGift; //shouldn't raze cities you bought
 	bool bCanAnnex = !GetPlayerTraits()->IsNoAnnexing();
 
 	// City-States
@@ -340,7 +340,7 @@ void CvPlayerAI::AI_conquerCity(CvCity* pCity, PlayerTypes ePlayerToLiberate, bo
 	bool bUnhappy = false;
 
 	if (MOD_BALANCE_CORE_HAPPINESS)
-		bUnhappy = GetExcessHappiness() < /*40*/ GC.getAI_MOSTLY_HAPPY_THRESHOLD(); // as a buffer; if a little unhappy it's fine to take a city
+		bUnhappy = GetExcessHappiness() < /*40*/ GD_INT_GET(AI_MOSTLY_HAPPY_THRESHOLD); // as a buffer; if a little unhappy it's fine to take a city
 	else
 		bUnhappy = IsEmpireUnhappy();
 
@@ -351,24 +351,24 @@ void CvPlayerAI::AI_conquerCity(CvCity* pCity, PlayerTypes ePlayerToLiberate, bo
 	int iCityValue = (iLocalEconomicPower * 100) / max(1, iMedianEconomicPower);
 
 	// Modders can change this value to apply a multiplier to the worth of all cities
-	iCityValue *= /*100*/ GC.getAI_CITY_VALUE_MULTIPLIER();
+	iCityValue *= /*100*/ GD_INT_GET(AI_CITY_VALUE_MULTIPLIER);
 	iCityValue /= 100;
 
 	// Original major capitals are worth more.
 	if (pCity->IsOriginalMajorCapital())
 	{
-		iCityValue *= /*150*/ GC.getAI_CAPITAL_VALUE_MULTIPLIER();
+		iCityValue *= /*150*/ GD_INT_GET(AI_CAPITAL_VALUE_MULTIPLIER);
 		iCityValue /= 100;
 	}
 
-	bool bHighValue = iCityValue >= /*80*/ GC.getAI_CITY_HIGH_VALUE_THRESHOLD();
+	bool bHighValue = iCityValue >= /*80*/ GD_INT_GET(AI_CITY_HIGH_VALUE_THRESHOLD);
 
 
 	// Now that the preliminary checks are out of the way, a choice:
-	// Should we keep the city (puppet/annex) or do we not want it (liberate/raze)?
+	// Should we keep the city (annex/puppet) or do we not want it too much (liberate if we want to, raze if low value/unhappy, otherwise puppet)?
 	bool bKeepCity = bHighValue && !IsEmpireVeryUnhappy();
 
-	//if it has wonders or is a holy city, try to keep it
+	//if it has wonders or is a holy city, keep it
 	if (pCity->HasAnyWonder() || pCity->GetCityReligions()->IsHolyCityAnyReligion())
 	{
 		bKeepCity = true;
@@ -449,12 +449,12 @@ void CvPlayerAI::AI_conquerCity(CvCity* pCity, PlayerTypes ePlayerToLiberate, bo
 		{
 			bool bPuppetBonuses = GetPlayerTraits()->IsNoAnnexing() || GetPlayerPolicies()->GetNumericModifier(POLICYMOD_PUPPET_BONUS) > 0;
 
-			if (iCityValue >= /*40*/ GC.getAI_CITY_SOME_VALUE_THRESHOLD() && (bPuppetBonuses || !bUnhappy))
+			if (iCityValue >= /*40*/ GD_INT_GET(AI_CITY_SOME_VALUE_THRESHOLD) && (bPuppetBonuses || !bUnhappy))
 			{
 				pCity->DoCreatePuppet();
 				return;
 			}
-			else if (iCityValue >= /*25*/ GC.getAI_CITY_PUPPET_BONUS_THRESHOLD() && bPuppetBonuses && !bUnhappy)
+			else if (iCityValue >= /*25*/ GD_INT_GET(AI_CITY_PUPPET_BONUS_THRESHOLD) && bPuppetBonuses && !bUnhappy)
 			{
 				pCity->DoCreatePuppet();
 				return;
@@ -1351,7 +1351,7 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveWriter(CvUnit* pGreatWriter)
 		eDirective = GREAT_PEOPLE_DIRECTIVE_CULTURE_BLAST;
 	}
 
-	else if ((GC.getGame().getGameTurn() - pGreatWriter->getGameTurnCreated()) >= (GC.getAI_HOMELAND_GREAT_PERSON_TURNS_TO_WAIT() / 2))
+	else if ((GC.getGame().getGameTurn() - pGreatWriter->getGameTurnCreated()) >= (/*2*/ GD_INT_GET(AI_HOMELAND_GREAT_PERSON_TURNS_TO_WAIT) / 2))
 	{
 		eDirective = GREAT_PEOPLE_DIRECTIVE_CULTURE_BLAST;
 	}
@@ -1382,7 +1382,7 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveArtist(CvUnit* pGreatArtist)
 	{
 		eDirective = GREAT_PEOPLE_DIRECTIVE_GOLDEN_AGE;
 	}
-	if ((GC.getGame().getGameTurn() - pGreatArtist->getGameTurnCreated()) >= (GC.getAI_HOMELAND_GREAT_PERSON_TURNS_TO_WAIT() / 2))
+	if ((GC.getGame().getGameTurn() - pGreatArtist->getGameTurnCreated()) >= (/*2*/ GD_INT_GET(AI_HOMELAND_GREAT_PERSON_TURNS_TO_WAIT) / 2))
 	{
 		eDirective = GREAT_PEOPLE_DIRECTIVE_GOLDEN_AGE;
 	}
@@ -1424,7 +1424,7 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveMusician(CvUnit* pGreatMusicia
 		return GREAT_PEOPLE_DIRECTIVE_USE_POWER;
 	}
 
-	if ((GC.getGame().getGameTurn() - pGreatMusician->getGameTurnCreated()) >= (GC.getAI_HOMELAND_GREAT_PERSON_TURNS_TO_WAIT() / 2))
+	if ((GC.getGame().getGameTurn() - pGreatMusician->getGameTurnCreated()) >= (/*2*/ GD_INT_GET(AI_HOMELAND_GREAT_PERSON_TURNS_TO_WAIT) / 2))
 	{
 		if(pTarget)
 		{
@@ -1495,7 +1495,7 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveEngineer(CvUnit* pGreatEnginee
 	if (bAlmostThere)
 		return NO_GREAT_PEOPLE_DIRECTIVE_TYPE;
 
-	if (eDirective == NO_GREAT_PEOPLE_DIRECTIVE_TYPE && (GC.getGame().getGameTurn() - pGreatEngineer->getGameTurnCreated()) < GC.getAI_HOMELAND_GREAT_PERSON_TURNS_TO_WAIT())
+	if (eDirective == NO_GREAT_PEOPLE_DIRECTIVE_TYPE && (GC.getGame().getGameTurn() - pGreatEngineer->getGameTurnCreated()) < /*5*/ GD_INT_GET(AI_HOMELAND_GREAT_PERSON_TURNS_TO_WAIT))
 		return eDirective;
 
 #if defined(MOD_BALANCE_CORE)
@@ -1520,7 +1520,7 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveEngineer(CvUnit* pGreatEnginee
 			eDirective = GREAT_PEOPLE_DIRECTIVE_CONSTRUCT_IMPROVEMENT;
 		}
 	}
-	if(eDirective == NO_GREAT_PEOPLE_DIRECTIVE_TYPE && (GC.getGame().getGameTurn() - pGreatEngineer->getGameTurnCreated()) >= (GC.getAI_HOMELAND_GREAT_PERSON_TURNS_TO_WAIT() - GetCurrentEra()))
+	if(eDirective == NO_GREAT_PEOPLE_DIRECTIVE_TYPE && (GC.getGame().getGameTurn() - pGreatEngineer->getGameTurnCreated()) >= (/*5*/ GD_INT_GET(AI_HOMELAND_GREAT_PERSON_TURNS_TO_WAIT) - GetCurrentEra()))
 #else
 	if (eDirective == NO_GREAT_PEOPLE_DIRECTIVE_TYPE && GC.getGame().getGameTurn() <= ((GC.getGame().getEstimateEndTurn() * 3) / 4))
 	{
@@ -1529,7 +1529,7 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveEngineer(CvUnit* pGreatEnginee
 			eDirective = GREAT_PEOPLE_DIRECTIVE_CONSTRUCT_IMPROVEMENT;
 		}
 	}
-	if(eDirective == NO_GREAT_PEOPLE_DIRECTIVE_TYPE && (GC.getGame().getGameTurn() - pGreatEngineer->getGameTurnCreated()) >= GC.getAI_HOMELAND_GREAT_PERSON_TURNS_TO_WAIT())
+	if(eDirective == NO_GREAT_PEOPLE_DIRECTIVE_TYPE && (GC.getGame().getGameTurn() - pGreatEngineer->getGameTurnCreated()) >= /*5*/ GD_INT_GET(AI_HOMELAND_GREAT_PERSON_TURNS_TO_WAIT))
 #endif
 	{
 		eDirective = GREAT_PEOPLE_DIRECTIVE_CONSTRUCT_IMPROVEMENT;
@@ -1590,7 +1590,7 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveMerchant(CvUnit* pGreatMerchan
 	}
 
 	//failsafe (wait until embarkation for barbarian-besieged venice)
-	if(GC.getGame().getGameTurn() - pGreatMerchant->getGameTurnCreated() > GC.getAI_HOMELAND_GREAT_PERSON_TURNS_TO_WAIT() && CanEmbark())
+	if(GC.getGame().getGameTurn() - pGreatMerchant->getGameTurnCreated() > /*5*/ GD_INT_GET(AI_HOMELAND_GREAT_PERSON_TURNS_TO_WAIT) && CanEmbark())
 		return GREAT_PEOPLE_DIRECTIVE_CONSTRUCT_IMPROVEMENT;
 
 	return NO_GREAT_PEOPLE_DIRECTIVE_TYPE;
@@ -1926,7 +1926,7 @@ bool WantEmbassyAt(PlayerTypes ePlayer, CvCity* pCity)
 	// Does somebody already have an embassy here?
 	// To iterate all plots owned by a CS, wrap this is a loop that iterates all cities owned by the CS
 	// Iterate all plots owned by a city
-	ImprovementTypes eEmbassy = (ImprovementTypes)GC.getEMBASSY_IMPROVEMENT();
+	ImprovementTypes eEmbassy = (ImprovementTypes)GD_INT_GET(EMBASSY_IMPROVEMENT);
 	for(int iI = 0; iI < pCity->GetNumWorkablePlots(); iI++)
 	{
 		CvPlot* pCityPlot = pCity->GetCityCitizens()->GetCityPlotFromIndex(iI);
@@ -2376,11 +2376,7 @@ int CvPlayerAI::ScoreCityForMessenger(CvCity* pCity, CvUnit* pUnit)
 	else
 	{
 		// Are we close to becoming an normal (60) ally and no one else ? If so, obsess away!
-#if defined(MOD_CITY_STATE_SCALE)
-		if((iFriendshipWithMinor + iFriendshipFromUnit) >= pMinorCivAI->GetAlliesThreshold(GetID()))
-#else
-		if((iFriendshipWithMinor + iFriendshipFromUnit) >= pMinorCivAI->GetAlliesThreshold())
-#endif
+		if ((iFriendshipWithMinor + iFriendshipFromUnit) >= pMinorCivAI->GetAlliesThreshold(GetID()))
 		{
 			iScore *= 10;
 		}
@@ -2407,7 +2403,7 @@ int CvPlayerAI::ScoreCityForMessenger(CvCity* pCity, CvUnit* pUnit)
 	// **************************
 
 	// Subtract distance (XML value important here!)
-	int iDistance = GetCityDistancePathLength(pPlot) * GC.getINFLUENCE_TARGET_DISTANCE_WEIGHT_VALUE();
+	int iDistance = GetCityDistancePathLength(pPlot) * /*3*/ GD_INT_GET(INFLUENCE_TARGET_DISTANCE_WEIGHT_VALUE);
 
 	//Are there barbarians near the city-state? If so, careful!
 	if(kMinor.GetMinorCivAI()->IsThreateningBarbariansEventActiveForPlayer(GetID()))

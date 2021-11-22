@@ -4139,7 +4139,7 @@ FDataStream& operator<<(FDataStream& stream, const CvPlayerPolicies& playerPolic
 /// Respond to a new set of flavor values
 void CvPlayerPolicies::FlavorUpdate()
 {
-	AddFlavorAsStrategies(GC.getPOLICY_WEIGHT_PROPAGATION_PERCENT());
+	AddFlavorAsStrategies(/*25*/ GD_INT_GET(POLICY_WEIGHT_PROPAGATION_PERCENT));
 }
 
 /// Accessor: Player object
@@ -4955,13 +4955,13 @@ int CvPlayerPolicies::GetNextPolicyCost()
 	iNumPolicies -= (m_pPlayer->GetNumFreePoliciesEver() - m_pPlayer->GetNumFreePolicies() - m_pPlayer->GetNumFreeTenets());
 
 	int iCost = 0;
-	iCost += (int)(iNumPolicies* (/*7*/ GC.getPOLICY_COST_INCREASE_TO_BE_EXPONENTED() + GC.getPOLICY_COST_EXTRA_VALUE()));
+	iCost += (int)(iNumPolicies * (/*3 in CP, 4 in CBO*/ GD_INT_GET(POLICY_COST_INCREASE_TO_BE_EXPONENTED) + /*0.0f in CP, 0.2f in CBO*/ GD_FLOAT_GET(POLICY_COST_EXTRA_VALUE)));
 
 	// Exponential cost scaling
-	iCost = (int)pow((double)iCost, (double) /*1.70*/ GC.getPOLICY_COST_EXPONENT());
+	iCost = (int)pow((double)iCost, (double) /*2.01f in CP, 2.22f in CBO*/ GD_FLOAT_GET(POLICY_COST_EXPONENT));
 
 	// Base cost that doesn't get exponent-ed
-	iCost += /*25*/ GC.getBASE_POLICY_COST();
+	iCost += /*25 in CP, 50 in CBO*/ GD_INT_GET(BASE_POLICY_COST);
 
 	// Mod for City Count
 	int iMod = GC.getMap().getWorldInfo().GetNumCitiesPolicyCostMod();	// Default is 40, gets smaller on larger maps
@@ -4990,7 +4990,7 @@ int CvPlayerPolicies::GetNextPolicyCost()
 	iCost *= m_pPlayer->getHandicapInfo().getPolicyPercent();
 	iCost /= 100;
 
-#if defined(MOD_BALANCE_CORE_PURCHASE_COST_INCREASE)
+	// Adopting Ideology tenets increases the cost of future policies/tenets
 	if (MOD_BALANCE_CORE_PURCHASE_COST_INCREASE)
 	{
 		int iTier1 = 0;
@@ -5013,20 +5013,19 @@ int CvPlayerPolicies::GetNextPolicyCost()
 		}
 
 		//% cost increases.
-		iTier1 *= (int)(GC.getPOLICY_COST_EXPONENT());
-		iTier2 *= (int)(GC.getPOLICY_COST_EXPONENT() * 2);
-		iTier3 *= (int)(GC.getPOLICY_COST_EXPONENT() * 3);
-			
+		iTier1 *= /*2*/ (int)(GD_FLOAT_GET(POLICY_COST_EXPONENT));
+		iTier2 *= /*4*/ (int)(GD_FLOAT_GET(POLICY_COST_EXPONENT) * 2);
+		iTier3 *= /*6*/ (int)(GD_FLOAT_GET(POLICY_COST_EXPONENT) * 3);
+
 		iCost *= (100 + iTier1 + iTier2 + iTier3);
 		iCost /= 100;
 	}
-#endif
 
 	// Make the number nice and even
-	int iDivisor = /*5*/ GC.getPOLICY_COST_VISIBLE_DIVISOR();
+	int iDivisor = /*5*/ GD_INT_GET(POLICY_COST_VISIBLE_DIVISOR);
 	iCost /= iDivisor;
 	iCost *= iDivisor;
-	if (!GetPlayer()->isHuman() && MOD_ALTERNATIVE_DIFFICULTY)
+	if (MOD_ALTERNATIVE_DIFFICULTY && !GetPlayer()->isHuman())
 	{
 		iCost *= GC.getGame().getHandicapInfo().getAIPolicyPercent();
 		iCost /= 100;
@@ -5111,7 +5110,7 @@ bool CvPlayerPolicies::CanAdoptPolicy(PolicyTypes eIndex, bool bIgnoreCost) cons
 	bool bFoundPossible = false;
 	bool bFoundValid = false;
 
-	for(int iI = 0; iI < GC.getNUM_OR_TECH_PREREQS(); iI++)
+	for(int iI = 0; iI < /*3*/ GD_INT_GET(NUM_OR_TECH_PREREQS); iI++)
 	{
 		PolicyTypes ePrereq = (PolicyTypes)pkPolicyEntry->GetPrereqOrPolicies(iI);
 		if(ePrereq != NO_POLICY)
@@ -5131,7 +5130,7 @@ bool CvPlayerPolicies::CanAdoptPolicy(PolicyTypes eIndex, bool bIgnoreCost) cons
 		return false;
 	}
 
-	for(int iI = 0; iI < GC.getNUM_AND_TECH_PREREQS(); iI++)
+	for(int iI = 0; iI < /*6*/ GD_INT_GET(NUM_AND_TECH_PREREQS); iI++)
 	{
 		const PolicyTypes ePrereq = static_cast<PolicyTypes>(pkPolicyEntry->GetPrereqAndPolicies(iI));
 
@@ -5158,7 +5157,7 @@ bool CvPlayerPolicies::CanAdoptPolicy(PolicyTypes eIndex, bool bIgnoreCost) cons
 		{
 			if(HasPolicy(eDisablePolicy))
 			{
-				for(int iI = 0; iI < GC.getNUM_AND_TECH_PREREQS(); iI++)
+				for(int iI = 0; iI < /*6*/ GD_INT_GET(NUM_AND_TECH_PREREQS); iI++)
 				{
 					if(pkDisablePolicyInfo->GetPolicyDisables(iI) == eIndex)
 					{
@@ -5476,9 +5475,9 @@ void CvPlayerPolicies::SetPolicyBranchUnlocked(PolicyBranchTypes eBranchType, bo
 	//if it's an ideology, remember the turn we first chose one
 	if (bNewValue && m_pPlayer->GetCulture()->GetTurnIdeologyAdopted()==-1)
 	{
-		PolicyBranchTypes eFreedomBranch = (PolicyBranchTypes)GC.getPOLICY_BRANCH_FREEDOM();
-		PolicyBranchTypes eAutocracyBranch = (PolicyBranchTypes)GC.getPOLICY_BRANCH_AUTOCRACY();
-		PolicyBranchTypes eOrderBranch = (PolicyBranchTypes)GC.getPOLICY_BRANCH_ORDER();
+		PolicyBranchTypes eFreedomBranch = (PolicyBranchTypes)GD_INT_GET(POLICY_BRANCH_FREEDOM);
+		PolicyBranchTypes eAutocracyBranch = (PolicyBranchTypes)GD_INT_GET(POLICY_BRANCH_AUTOCRACY);
+		PolicyBranchTypes eOrderBranch = (PolicyBranchTypes)GD_INT_GET(POLICY_BRANCH_ORDER);
 		if (eFreedomBranch == eBranchType || eAutocracyBranch == eBranchType || eOrderBranch == eBranchType)
 			m_pPlayer->GetCulture()->SetTurnIdeologyAdopted(GC.getGame().getGameTurn());
 	}
@@ -5513,12 +5512,12 @@ void CvPlayerPolicies::DoSwitchToPolicyBranch(PolicyBranchTypes eBranchType)
 	if(IsPolicyBranchBlocked(eBranchType))
 	{
 		// Anarchy time!
-		int iNumTurnsAnarchy = /*1*/ GC.getSWITCH_POLICY_BRANCHES_ANARCHY_TURNS();
+		int iNumTurnsAnarchy = /*2 in CP, 3 in CBO*/ GD_INT_GET(SWITCH_POLICY_BRANCHES_ANARCHY_TURNS);
 		GetPlayer()->ChangeAnarchyNumTurns(iNumTurnsAnarchy);
 #if defined(MOD_BALANCE_CORE)
 		Localization::String strSummary = Localization::Lookup("TXT_KEY_ANARCHY_BEGINS_SUMMARY");
 		Localization::String strMessage = Localization::Lookup("TXT_KEY_ANARCHY_BEGINS");
-		GetPlayer()->GetNotifications()->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), GetPlayer()->GetID(), GC.getSWITCH_POLICY_BRANCHES_ANARCHY_TURNS(), -1);
+		GetPlayer()->GetNotifications()->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), GetPlayer()->GetID(), /*2 in CP, 3 in CBO*/ GD_INT_GET(SWITCH_POLICY_BRANCHES_ANARCHY_TURNS), -1);
 #endif
 
 		// Turn off blocking
@@ -5717,7 +5716,7 @@ void CvPlayerPolicies::DoSwitchIdeologies(PolicyBranchTypes eNewBranchType)
 #endif
 
 	int iOldBranchTenets = GetNumPoliciesOwnedInBranch(eOldBranchType);
-	int iNewBranchTenets = max(0, iOldBranchTenets - GC.getSWITCH_POLICY_BRANCHES_TENETS_LOST());
+	int iNewBranchTenets = max(0, iOldBranchTenets - /*2 in CP, 5 in CBO*/ GD_INT_GET(SWITCH_POLICY_BRANCHES_TENETS_LOST));
 
 	ClearPolicyBranch(eOldBranchType);
 	SetPolicyBranchUnlocked(eOldBranchType, false, false);
@@ -5981,7 +5980,7 @@ void CvPlayerPolicies::SetPolicyBranchChosen(int iID, PolicyBranchTypes eBranchT
 /// How many Branches is the player allowed to pick from right now?
 int CvPlayerPolicies::GetNumPolicyBranchesAllowed() const
 {
-	return /*2*/ GC.getNUM_POLICY_BRANCHES_ALLOWED() + GetNumExtraBranches();
+	return GetNumExtraBranches() + /*2*/ GD_INT_GET(NUM_POLICY_BRANCHES_ALLOWED);
 }
 
 /// Number of extra branches we're allowed to pick from
@@ -6234,9 +6233,9 @@ PolicyBranchTypes CvPlayerPolicies::GetLateGamePolicyTree() const
 /// Is the player far enough into Industrialization that they need to choose an Ideology?
 bool CvPlayerPolicies::IsTimeToChooseIdeology() const
 {
-	PolicyBranchTypes eFreedomBranch = (PolicyBranchTypes)GC.getPOLICY_BRANCH_FREEDOM();
-	PolicyBranchTypes eAutocracyBranch = (PolicyBranchTypes)GC.getPOLICY_BRANCH_AUTOCRACY();
-	PolicyBranchTypes eOrderBranch = (PolicyBranchTypes)GC.getPOLICY_BRANCH_ORDER();
+	PolicyBranchTypes eFreedomBranch = (PolicyBranchTypes)GD_INT_GET(POLICY_BRANCH_FREEDOM);
+	PolicyBranchTypes eAutocracyBranch = (PolicyBranchTypes)GD_INT_GET(POLICY_BRANCH_AUTOCRACY);
+	PolicyBranchTypes eOrderBranch = (PolicyBranchTypes)GD_INT_GET(POLICY_BRANCH_ORDER);
 #if defined(MOD_BALANCE_CORE)
 	if(m_pPlayer->isMinorCiv() || m_pPlayer->isBarbarian())
 	{
@@ -6248,22 +6247,22 @@ bool CvPlayerPolicies::IsTimeToChooseIdeology() const
 		return false;
 	}
 #if defined(MOD_BALANCE_CORE_IDEOLOGY_START)
-	if(MOD_BALANCE_CORE_IDEOLOGY_START && m_pPlayer->GetIdeologyPoint() >= GC.getBALANCE_MOD_POLICY_BRANCHES_NEEDED_IDEOLOGY())
+	if(MOD_BALANCE_CORE_IDEOLOGY_START && m_pPlayer->GetIdeologyPoint() >= /*3*/ GD_INT_GET(BALANCE_MOD_POLICY_BRANCHES_NEEDED_IDEOLOGY))
 	{
-		if (m_pPlayer->GetCurrentEra() >= GD_INT_GET(IDEOLOGY_PREREQ_ERA))
+		if (m_pPlayer->GetCurrentEra() >= /*INDUSTRIAL*/ GD_INT_GET(IDEOLOGY_PREREQ_ERA))
 		{
 			return true;
 		}
 	}
-	if(MOD_BALANCE_CORE_IDEOLOGY_START && m_pPlayer->GetPlayerPolicies()->GetNumPoliciesOwned(true, true) >= GC.getBALANCE_MOD_POLICIES_NEEDED_IDEOLOGY())
+	if(MOD_BALANCE_CORE_IDEOLOGY_START && m_pPlayer->GetPlayerPolicies()->GetNumPoliciesOwned(true, true) >= /*18*/ GD_INT_GET(BALANCE_MOD_POLICIES_NEEDED_IDEOLOGY))
 	{
-		if (m_pPlayer->GetCurrentEra() >= GD_INT_GET(IDEOLOGY_PREREQ_ERA))
+		if (m_pPlayer->GetCurrentEra() >= /*INDUSTRIAL*/ GD_INT_GET(IDEOLOGY_PREREQ_ERA))
 		{
 			return true;
 		}
 	}
 #endif
-	if (m_pPlayer->GetCurrentEra() > GD_INT_GET(IDEOLOGY_START_ERA))
+	if (m_pPlayer->GetCurrentEra() > /*INDUSTRIAL IN CP, MODERN IN CBO*/ GD_INT_GET(IDEOLOGY_START_ERA))
 	{
 		return true;
 	}

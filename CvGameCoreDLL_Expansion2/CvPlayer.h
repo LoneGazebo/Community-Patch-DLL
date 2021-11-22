@@ -196,7 +196,6 @@ public:
 	bool isHuman() const;
 	bool isObserver() const;
 	bool isBarbarian() const;
-	void doBarbarianRansom(int iOption, int iUnitID);
 
 	const char* getName() const;
 	const char* getNameKey() const;
@@ -689,11 +688,9 @@ public:
 #endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS_LUXURY)
 	int GetPlayerHappinessLuxuryPopulationFactor1000() const;
-	int GetPlayerHappinessLuxuryCountFactor1000() const;
 	int GetBonusHappinessFromLuxuries(int iPop = 0) const;
 	int GetBonusHappinessFromLuxuriesFlat() const;
 	int GetBonusHappinessFromLuxuriesFlatForUI() const;
-	int GetBonusHappinessFromLuxuriesGradient() const;
 #endif
 #if defined(MOD_BALANCE_CORE)
 	int GetUnhappinessFromWarWeariness() const;
@@ -2091,6 +2088,8 @@ public:
 
 	PlayerProximityTypes GetProximityToPlayer(PlayerTypes ePlayer) const;
 	void SetProximityToPlayer(PlayerTypes ePlayer, PlayerProximityTypes eProximity);
+
+	pair<int,int> GetClosestCityPair(PlayerTypes ePlayer);
 	void DoUpdateProximityToPlayer(PlayerTypes ePlayer);
 
 	void UpdateResearchAgreements(int iValue);
@@ -2605,8 +2604,6 @@ public:
 	bool IsCityCompetitive(CvCity* pCity, BuildingTypes eBuilding = NO_BUILDING, ProjectTypes eProject = NO_PROJECT);
 #endif
 	void DoAdoptedGreatPersonCityStatePolicy();
-	bool IsAlliesGreatPersonBiasApplied() const;
-	void SetAlliesGreatPersonBiasApplied(bool bValue);
 
 	// New Religion Stuff
 	bool IsHasAdoptedStateReligion() const;
@@ -3452,7 +3449,6 @@ protected:
 	bool m_bLostHolyCity;
 	PlayerTypes m_eHolyCityConqueror;
 	bool m_bHasAdoptedStateReligion;
-	bool m_bAlliesGreatPersonBiasApplied;
 
 	std::vector<int> m_aiCityYieldChange;
 	std::vector<int> m_aiCoastalCityYieldChange;
@@ -4232,7 +4228,6 @@ SYNC_ARCHIVE_VAR(PlayerTypes, m_eConqueror)
 SYNC_ARCHIVE_VAR(bool, m_bLostHolyCity)
 SYNC_ARCHIVE_VAR(PlayerTypes, m_eHolyCityConqueror)
 SYNC_ARCHIVE_VAR(bool, m_bHasAdoptedStateReligion)
-SYNC_ARCHIVE_VAR(bool, m_bAlliesGreatPersonBiasApplied)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiCityYieldChange)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiCoastalCityYieldChange)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiCapitalYieldChange)

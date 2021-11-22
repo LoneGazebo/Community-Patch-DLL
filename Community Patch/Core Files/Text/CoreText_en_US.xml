@@ -2702,7 +2702,7 @@
 			<Text>You promised not to declare war on them for {1_Num} more turn(s).</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_EXPANSION_PROMISE_TURNS">
-			<Text>You promised not to expand near them for {1_Num} more turn(s).</Text>
+			<Text>You promised not to settle near them for {1_Num} more turn(s).</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_BORDER_PROMISE_TURNS">
 			<Text>You promised not to buy land near them for {1_Num} more turn(s).</Text>
@@ -2711,7 +2711,7 @@
 			<Text>They promised not to declare war on you for {1_Num} more turn(s).</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_AI_EXPANSION_PROMISE_TURNS">
-			<Text>They promised not to expand near you for {1_Num} more turn(s).</Text>
+			<Text>They promised not to settle near you for {1_Num} more turn(s).</Text>
 		</Row>
 		<!-- Tourism Lua -->
 		<Row Tag="TXT_KEY_CO_CITY_TOURISM_GENERAL">
@@ -3218,7 +3218,7 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_LEAGUE_OVERVIEW_PROPOSAL_OPINIONS_NEUTRAL">
-			<Text>[NEWLINE][NEWLINE]Civilizations that would be mostly unaffected by this:</Text>
+			<Text>[NEWLINE][NEWLINE]Civilizations mostly unaffected by this:</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_LEAGUE_OVERVIEW_PROPOSAL_OPINIONS_END">

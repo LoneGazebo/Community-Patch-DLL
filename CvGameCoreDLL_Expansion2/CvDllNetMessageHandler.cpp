@@ -88,23 +88,18 @@ void CvDllNetMessageHandler::ResponseBarbarianRansom(PlayerTypes ePlayer, int iO
 	CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
 
 	// Pay ransom
-	if(iOptionChosen == 0)
+	if (iOptionChosen == 0)
 	{
 		CvTreasury* pkTreasury = kPlayer.GetTreasury();
-		int iNumGold = /*100*/ GC.getBARBARIAN_UNIT_GOLD_RANSOM_exp();
-		const int iTreasuryGold = pkTreasury->GetGold();
-		if(iNumGold > iTreasuryGold)
-		{
-			iNumGold = iTreasuryGold;
-		}
-
+		int iTreasuryGold = pkTreasury->GetGold();
+		int iNumGold = min(iTreasuryGold, /*100*/ GD_INT_GET(BARBARIAN_UNIT_GOLD_RANSOM));
 		pkTreasury->ChangeGold(-iNumGold);
 	}
 	// Abandon Unit
-	else if(iOptionChosen == 1)
+	else if (iOptionChosen == 1)
 	{
 		CvUnit* pkUnit = kPlayer.getUnit(iUnitID);
-		if(pkUnit != NULL)
+		if (pkUnit)
 			pkUnit->kill(true, BARBARIAN_PLAYER);
 	}
 }
@@ -709,7 +704,7 @@ void CvDllNetMessageHandler::ResponseChangeIdeology(PlayerTypes ePlayer)
 	if (kPlayer.isAlive())
 	{
 		PolicyBranchTypes ePreferredIdeology = kPlayer.GetCulture()->GetPublicOpinionPreferredIdeology();
-		kPlayer.SetAnarchyNumTurns(GC.getSWITCH_POLICY_BRANCHES_ANARCHY_TURNS());
+		kPlayer.SetAnarchyNumTurns(/*2 in CP, 3 in CBO*/ GD_INT_GET(SWITCH_POLICY_BRANCHES_ANARCHY_TURNS));
 		kPlayer.GetPlayerPolicies()->DoSwitchIdeologies(ePreferredIdeology);
 	}
 }

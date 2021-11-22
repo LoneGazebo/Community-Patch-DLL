@@ -509,7 +509,6 @@ public:
 
 	// Expansion Aggressive Posture: How aggressively has ePlayer settled or conquered in proximity to us?
 	AggressivePostureTypes GetExpansionAggressivePosture(PlayerTypes ePlayer) const;
-	void SetExpansionAggressivePosture(PlayerTypes ePlayer, AggressivePostureTypes ePosture);
 
 	// Plot Buying Aggressive Posture: How aggressively is ePlayer buying land near us?
 	AggressivePostureTypes GetPlotBuyingAggressivePosture(PlayerTypes ePlayer) const;
@@ -522,7 +521,6 @@ public:
 	// Land Dispute
 	DisputeLevelTypes GetLandDisputeLevel(PlayerTypes ePlayer) const;
 	void SetLandDisputeLevel(PlayerTypes ePlayer, DisputeLevelTypes eDisputeLevel);
-	int GetTotalLandDisputeLevel();
 
 	// Victory Dispute
 	DisputeLevelTypes GetVictoryDisputeLevel(PlayerTypes ePlayer) const;
@@ -598,14 +596,10 @@ public:
 	void SetPlayerExpansionPromiseTurn(PlayerTypes ePlayer, int iTurn);
 	int GetPlayerMadeExpansionPromise(PlayerTypes ePlayer) const;
 	bool IsDontSettleMessageTooSoon(PlayerTypes ePlayer) const;
-	AggressivePostureTypes GetPlayerExpansionPromisePosture(PlayerTypes ePlayer) const;
-	void SetPlayerExpansionPromisePosture(PlayerTypes ePlayer, AggressivePostureTypes ePosture);
-	pair<int,int> GetNoExpansionPromiseClosestCities(PlayerTypes eOtherPlayer) const;
-	void SetNoExpansionPromiseClosestCities(PlayerTypes eOtherPlayer, pair<int,int> value);
-	pair<int,int> GetLastTurnClosestCityPair(PlayerTypes eOtherPlayer) const;
-	void SetLastTurnClosestCityPair(PlayerTypes eOtherPlayer, pair<int,int> value);
-	bool EverMadeExpansionPromise(PlayerTypes ePlayer) const;
-	void SetEverMadeExpansionPromise(PlayerTypes ePlayer, bool bValue);
+	bool IsAngryAboutExpansion(PlayerTypes ePlayer) const;
+	void SetAngryAboutExpansion(PlayerTypes ePlayer, bool bValue);
+	bool EverRequestedExpansionPromise(PlayerTypes ePlayer) const;
+	void SetEverRequestedExpansionPromise(PlayerTypes ePlayer, bool bValue);
 
 	// Border Promise
 	PromiseStates GetPlayerBorderPromiseState(PlayerTypes ePlayer) const;
@@ -1032,7 +1026,7 @@ public:
 	// ------------------------------------
 
 	void DoUpdateWarStates();
-	int GetWarScore(PlayerTypes ePlayer, bool bDebug = false);
+	int GetWarScore(PlayerTypes ePlayer);
 	int GetHighestWarscore();
 	PlayerTypes GetHighestWarscorePlayer();
 
@@ -1056,9 +1050,8 @@ public:
 
 	void DoUpdateMilitaryAggressivePostures();
 
-	void DoUpdateExpansionAggressivePostures();
-	pair<int,int> GetClosestCityPair(PlayerTypes ePlayer);
-	CvCity* GetPlotCityAndVerifyOwnership(int iPlotIndex, PlayerTypes eSupposedOwner);
+	void DoExpansionBickering();
+	int GetExpansionBickerRange() const;
 
 	void DoUpdatePlotBuyingAggressivePostures();
 
@@ -1417,10 +1410,10 @@ public:
 	void DoDemandMade(PlayerTypes ePlayer, DemandResponseTypes eResponse);
 
 	// No Settling
-	bool IsDontSettleAcceptable(PlayerTypes ePlayer) const;
+	bool IsDontSettleAcceptable(PlayerTypes ePlayer);
 
 	// Stop Spying
-	bool IsStopSpyingAcceptable(PlayerTypes ePlayer) const;
+	bool IsStopSpyingAcceptable(PlayerTypes ePlayer);
 
 	// Working With Player
 	bool IsDoFAcceptable(PlayerTypes ePlayer);
@@ -1491,11 +1484,10 @@ public:
 	void DoHelpRequestMade(PlayerTypes ePlayer, DemandResponseTypes eResponse);
 
 	// Vassals
-	VassalTreatmentTypes GetVassalTreatmentLevel(PlayerTypes ePlayer) const;
-	CvString GetVassalTreatmentToolTip(PlayerTypes ePlayer) const;
+	VassalTreatmentTypes GetVassalTreatmentLevel(PlayerTypes ePlayer);
+	CvString GetVassalTreatmentToolTip(PlayerTypes ePlayer);
 
 	bool IsWantToLiberateVassal(PlayerTypes ePlayer) const;
-	int GetMasterLiberatedMeFromVassalageScore(PlayerTypes ePlayer) const;
 
 	bool IsVassalageAcceptable(PlayerTypes ePlayer, bool bMasterEvaluation); // can be called in either direction, for the master or the vassal
 	bool IsCapitulationAcceptable(PlayerTypes ePlayer); // vassal only
@@ -1531,7 +1523,7 @@ public:
 	bool IsStopSpreadingReligionAcceptable(PlayerTypes ePlayer);
 
 	// Player asks the AI not to dig
-	bool IsStopDiggingAcceptable(PlayerTypes ePlayer) const;
+	bool IsStopDiggingAcceptable(PlayerTypes ePlayer);
 
 	CivOpinionTypes GetNeighborOpinion(PlayerTypes ePlayer) const;
 	bool MusteringForNeighborAttack(PlayerTypes ePlayer) const;
@@ -1666,17 +1658,21 @@ public:
 	int GetSupportedMyHostingScore(PlayerTypes ePlayer);
 
 	// Vassalage
-	int GetVassalScore(PlayerTypes ePlayer) const;
-	int GetVassalTreatedScore(PlayerTypes ePlayer) const;
-	int GetVassalDemandScore(PlayerTypes ePlayer) const;
-	int GetVassalTaxScore(PlayerTypes ePlayer) const;
-	int GetVassalProtectScore(PlayerTypes ePlayer) const;
-	int GetVassalFailedProtectScore(PlayerTypes ePlayer) const;
-	int GetVassalTradeRouteScore(PlayerTypes ePlayer) const;
-	int GetVassalReligionScore(PlayerTypes ePlayer) const;
-	int GetMasterScore(PlayerTypes ePlayer) const;
-	int GetTooManyVassalsScore(PlayerTypes ePlayer) const;
-	int GetSameMasterScore(PlayerTypes ePlayer) const;
+	int GetVassalScore(PlayerTypes ePlayer);
+	int GetVassalTreatedScore(PlayerTypes ePlayer);
+	int GetVassalDemandScore(PlayerTypes ePlayer);
+	int GetVassalTheftScore(PlayerTypes ePlayer);
+	int GetVassalDenouncementScore(PlayerTypes ePlayer);
+	int GetVassalTaxScore(PlayerTypes ePlayer);
+	int GetVassalProtectScore(PlayerTypes ePlayer);
+	int GetVassalFailedProtectScore(PlayerTypes ePlayer);
+	int GetVassalTradeRouteScore(PlayerTypes ePlayer);
+	int GetVassalOpenBordersScore(PlayerTypes ePlayer);
+	int GetVassalReligionScore(PlayerTypes ePlayer);
+	int GetMasterScore(PlayerTypes ePlayer);
+	int GetTooManyVassalsScore(PlayerTypes ePlayer);
+	int GetSameMasterScore(PlayerTypes ePlayer);
+	int GetMasterLiberatedMeFromVassalageScore(PlayerTypes ePlayer);
 	int GetHappyAboutVassalagePeacefullyRevokedScore(PlayerTypes ePlayer);
 	int GetAngryAboutVassalageForcefullyRevokedScore(PlayerTypes ePlayer);
 
@@ -1798,7 +1794,6 @@ private:
 	void LogWarPeaceWillingToAccept(CvString& strString, PlayerTypes ePlayer);
 	void LogWarState(CvString& strString, PlayerTypes ePlayer);
 	void LogMilitaryAggressivePosture(CvString& strString, PlayerTypes ePlayer);
-	void LogExpansionAggressivePosture(CvString& strString, PlayerTypes ePlayer);
 	void LogPlotBuyingAggressivePosture(CvString& strString, PlayerTypes ePlayer);
 	void LogLandDispute(CvString& strString, PlayerTypes ePlayer);
 	void LogVictoryDispute(CvString& strString, PlayerTypes ePlayer);
@@ -1933,7 +1928,6 @@ private:
 	// Aggressive Postures
 	char m_aeMilitaryAggressivePosture[MAX_CIV_PLAYERS];
 	char m_aeLastTurnMilitaryAggressivePosture[MAX_CIV_PLAYERS];
-	char m_aeExpansionAggressivePosture[MAX_MAJOR_CIVS];
 	char m_aePlotBuyingAggressivePosture[MAX_MAJOR_CIVS];
 
 	// Dispute Levels
@@ -1964,11 +1958,9 @@ private:
 
 	// Expansion Promise
 	char m_aeExpansionPromiseState[MAX_MAJOR_CIVS];
-	char m_aeExpansionPromisePosture[MAX_MAJOR_CIVS];
 	int m_aiExpansionPromiseTurn[MAX_MAJOR_CIVS];
-	pair<int,int> m_aNoExpansionPromise[MAX_MAJOR_CIVS];
-	pair<int,int> m_aLastTurnEmpireDistance[MAX_MAJOR_CIVS];
-	bool m_abEverMadeExpansionPromise[MAX_MAJOR_CIVS];
+	bool m_abAngryAboutExpansion[MAX_MAJOR_CIVS];
+	bool m_abEverRequestedExpansionPromise[MAX_MAJOR_CIVS];
 
 	// Border Promise
 	char m_aeBorderPromiseState[MAX_MAJOR_CIVS];

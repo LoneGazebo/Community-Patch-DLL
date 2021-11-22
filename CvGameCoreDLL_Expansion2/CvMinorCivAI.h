@@ -130,8 +130,7 @@ public:
 	int GetTurnsRemaining(int iCurrentTurn) const;
 	int GetPrimaryData() const;
 	int GetSecondaryData() const;
-	int GetInfluenceReward() const;
-#if defined(MOD_BALANCE_CORE)
+
 	void DoRewards(PlayerTypes ePlayer);
 	CvString GetRewardString(PlayerTypes ePlayer, bool bFinish);
 	void CalculateRewards(PlayerTypes ePlayer, bool bRecalc = false);
@@ -170,7 +169,6 @@ public:
 
 	void SetPartialQuest(bool bValue);
 	bool IsPartialQuest() const;
-#endif
 
 	// Contest helper functions
 	int GetContestValueForPlayer(PlayerTypes ePlayer);
@@ -414,7 +412,7 @@ public:
 	bool IsRouteConnectionEstablished(PlayerTypes eMajor) const;
 	void SetRouteConnectionEstablished(PlayerTypes eMajor, bool bValue);
 	CvPlot* GetBestNearbyCampToKill();
-#if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
+
 	CvPlot* GetBestNearbyDig();
 	//Tests
 	PlayerTypes SpawnHorde();
@@ -437,19 +435,15 @@ public:
 	void ChangeCooldownSpawn(int iChange);
 	int GetCooldownSpawn() const;
 	void SetCooldownSpawn(int iValue);
-#endif
+
 	ResourceTypes GetNearbyResourceForQuest(PlayerTypes ePlayer);
 	BuildingTypes GetBestWonderForQuest(PlayerTypes ePlayer);
-#if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
 	BuildingTypes GetBestNationalWonderForQuest(PlayerTypes ePlayer);
-#endif
 	UnitTypes GetBestGreatPersonForQuest(PlayerTypes ePlayer);
 	PlayerTypes GetBestCityStateTarget(PlayerTypes eForPlayer, bool bNoRandom = false);
-#if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
 	PlayerTypes GetBestCityStateLiberate(PlayerTypes eForPlayer);
 	PlayerTypes GetBestCityStateMeetTarget(PlayerTypes eForPlayer);
-#endif
-#if defined(MOD_BALANCE_CORE)
+
 	CvCity* GetBestCityForQuest(PlayerTypes ePlayer);
 	CvPlot* GetTargetPlot(PlayerTypes ePlayer);
 	int GetExplorePercent(PlayerTypes ePlayer, MinorCivQuestTypes eQuest);
@@ -466,7 +460,7 @@ public:
 	void SetNumTurnsSincePtPWarning(PlayerTypes ePlayer, int iValue);
 	int GetNumTurnsSincePtPWarning(PlayerTypes ePlayer);
 	void ChangeNumTurnsSincePtPWarning(PlayerTypes ePlayer, int iValue);
-#endif
+
 	PlayerTypes GetMostRecentBullyForQuest() const;
 	bool IsWantsMinorDead(PlayerTypes eMinor);
 	PlayerTypes GetBestPlayerToFind(PlayerTypes ePlayer);
@@ -474,9 +468,7 @@ public:
 	bool IsGoodTimeForGiveGoldQuest();
 	bool IsGoodTimeForPledgeToProtectQuest();
 	bool IsGoodTimeForDenounceMajorQuest();
-#if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
 	bool IsGoodTimeForWarMajorQuest();
-#endif
 
 	// ******************************
 	// ***** Friendship *****
@@ -513,9 +505,7 @@ public:
 	bool IsEverFriends(PlayerTypes ePlayer);
 	void SetEverFriends(PlayerTypes ePlayer, bool bValue);
 
-#if defined(MOD_CITY_STATE_SCALE)
 	void SetFriends(PlayerTypes ePlayer, bool bValue);
-#endif
 
 	bool IsCloseToNotBeingAllies(PlayerTypes ePlayer);
 	bool IsCloseToNotBeingFriends(PlayerTypes ePlayer);
@@ -525,25 +515,18 @@ public:
 
 	void DoFriendshipChangeEffects(PlayerTypes ePlayer, int iOldFriendship, int iNewFriendship, bool bFromQuest = false, bool bIgnoreMinorDeath = false);
 
-#if defined(MOD_CITY_STATE_SCALE)
 	bool IsFriendshipAboveFriendsThreshold(PlayerTypes ePlayer, int iFriendship) const;
 	int GetFriendsThreshold(PlayerTypes ePlayer) const;
 	bool IsFriendshipAboveAlliesThreshold(PlayerTypes ePlayer, int iFriendship) const;
 	int GetAlliesThreshold(PlayerTypes ePlayer) const;
-#else
-	bool IsFriendshipAboveFriendsThreshold(int iFriendship) const;
-	int GetFriendsThreshold() const;
-	bool IsFriendshipAboveAlliesThreshold(int iFriendship) const;
-	int GetAlliesThreshold() const;
-#endif
+
 	void DoSetBonus(PlayerTypes ePlayer, bool bAdd, bool bFriends, bool bAllies, bool bSuppressNotifications = false, bool bPassedBySomeone = false, PlayerTypes eNewAlly = NO_PLAYER);
 
 	void DoIntrusion();
-#if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
+
 	void SetReadyForTakeOver();
 	bool IsReadyForTakeOver() const;
 	void DoDefection();
-#endif
 
 	bool IsPlayerHasOpenBorders(PlayerTypes ePlayer);
 	bool IsPlayerHasOpenBordersAutomatically(PlayerTypes ePlayer);
@@ -829,9 +812,7 @@ private:
 	int m_aiTurnLastBrokePledge[MAX_MAJOR_CIVS];
 	bool m_abUnitSpawningDisabled[MAX_MAJOR_CIVS];
 	bool m_abEverFriends[MAX_MAJOR_CIVS];
-#if defined(MOD_CITY_STATE_SCALE)
 	bool m_abFriends[MAX_MAJOR_CIVS];
-#endif
 	bool m_abPledgeToProtect[MAX_MAJOR_CIVS];
 	bool m_abPermanentWar[MAX_CIV_TEAMS];
 	bool m_abWaryOfTeam[MAX_CIV_TEAMS];

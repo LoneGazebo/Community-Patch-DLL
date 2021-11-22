@@ -403,7 +403,7 @@
 			<Text>The Motherland Calls</Text>
 		</Row>
 		<Row Tag="TXT_KEY_WONDER_MOTHERLAND_STATUE_HELP">
-			<Text>Receive a [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] Police Station in the City in which it is built. Military Units Supplied by this City's population increased by 50%.[NEWLINE][NEWLINE]Building Maintenance reduced by 10% in all Cities. Blocks enemy units from gaining [ICON_GOLD] Gold and Health when pillaging your tiles.</Text>
+			<Text>Receive a [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] Police Station in the City in which it is built. Military Units supplied by this City's population increased by 50%.[NEWLINE][NEWLINE]Building Maintenance reduced by 10% in all Cities. Blocks enemy units from gaining [ICON_GOLD] Gold and Health when pillaging your tiles.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CIV5_BUILDINGS_MOTHERLAND_STATUE_TEXT">
 			<Text>The Motherland Calls, also called Mother Motherland, Mother Motherland Is Calling, simply The Motherland, or The Mamayev Monument, is a statue in Mamayev Kurgan in Volgograd, Russia, commemorating the Battle of Stalingrad. It was designed by sculptor Yevgeny Vuchetich and structural engineer Nikolai Nikitin, and declared the largest statue in the world in 1967. Compared with the later higher statues, The Motherland Calls is significantly more complex from an engineering point of view, due to its characteristic posture with a sword raised high in the right hand and the left hand extended in a calling gesture. The technology behind the statue is based on a combination of prestressed concrete with wire ropes structure, a solution which can be found also in another work of Nikitin's, the super-tall Ostankino Tower in Moscow. It is the tallest statue of a woman in the world.</Text>

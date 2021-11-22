@@ -89,7 +89,7 @@ void CvTreasury::DoGold()
 		SetGold(0);
 
 		//forced disbanding
-		if(iGoldAfterThisTurn <= /*-5*/ GC.getDEFICIT_UNIT_DISBANDING_THRESHOLD() * 100)
+		if (iGoldAfterThisTurn <= /*-5*/ GD_INT_GET(DEFICIT_UNIT_DISBANDING_THRESHOLD) * 100)
 			m_pPlayer->DoBankruptcy();
 	}
 	else
@@ -248,20 +248,12 @@ void CvTreasury::ChangeGoldPerTurnFromDiplomacy(int iChange)
 int CvTreasury::GetCityConnectionRouteGoldTimes100(CvCity* pNonCapitalCity) const
 {
 	CvCity* pCapitalCity = m_pPlayer->getCapitalCity();
-	if(!pNonCapitalCity || pNonCapitalCity == pCapitalCity || pCapitalCity == NULL)
-	{
+	if (!pNonCapitalCity || !pCapitalCity || pNonCapitalCity == pCapitalCity)
 		return 0;
-	}
 
-	int iGold = 0;
-
-	int iTradeRouteBaseGold = /*100*/ GC.getTRADE_ROUTE_BASE_GOLD();
-	int iTradeRouteCapitalGoldMultiplier = /*0*/ GC.getTRADE_ROUTE_CAPITAL_POP_GOLD_MULTIPLIER();
-	int iTradeRouteCityGoldMultiplier = /*125*/ GC.getTRADE_ROUTE_CITY_POP_GOLD_MULTIPLIER();
-
-	iGold += iTradeRouteBaseGold;	// Base Gold: 0
-	iGold += (pCapitalCity->getPopulation() * iTradeRouteCapitalGoldMultiplier);	// Capital Multiplier
-	iGold += (pNonCapitalCity->getPopulation() * iTradeRouteCityGoldMultiplier);	// City Multiplier
+	int iGold = /*-100*/ GD_INT_GET(TRADE_ROUTE_BASE_GOLD);
+	iGold += pCapitalCity->getPopulation() * /*15 in CP, 6 in CBO*/ GD_INT_GET(TRADE_ROUTE_CAPITAL_POP_GOLD_MULTIPLIER);	// Capital Multiplier
+	iGold += pNonCapitalCity->getPopulation() * /*110 in CP, 50 in CBO*/ GD_INT_GET(TRADE_ROUTE_CITY_POP_GOLD_MULTIPLIER);	// City Multiplier
 	iGold += GetCityConnectionTradeRouteGoldChange() * 100;
 
 	int iMod = GetCityConnectionTradeRouteGoldModifier() + pNonCapitalCity->GetCityConnectionTradeRouteGoldModifier();
@@ -589,9 +581,9 @@ int CvTreasury::CalculateUnitCost(int& iFreeUnits, int& iPaidUnits, int& iBaseUn
 	double fGameProgressFactor = double(GC.getGame().getElapsedGameTurns()) / GC.getGame().getDefaultEstimateEndTurn();
 
 	// Multiplicative increase - helps scale costs as game goes on - the HIGHER this number the more is paid
-	double fMultiplyFactor = 1.0 + (fGameProgressFactor* /*8*/ GC.getUNIT_MAINTENANCE_GAME_MULTIPLIER());
+	double fMultiplyFactor = 1.0 + (fGameProgressFactor* /*8*/ GD_INT_GET(UNIT_MAINTENANCE_GAME_MULTIPLIER));
 	// Exponential increase - this one really punishes those with a HUGE military - the LOWER this number the more is paid
-	double fExponentialFactor = 1.0 + (fGameProgressFactor / /*7*/ GC.getUNIT_MAINTENANCE_GAME_EXPONENT_DIVISOR());
+	double fExponentialFactor = 1.0 + (fGameProgressFactor / /*7 in CP, 6 in CBO*/ GD_INT_GET(UNIT_MAINTENANCE_GAME_EXPONENT_DIVISOR));
 
 	double fTempCost = fMultiplyFactor * iSupport;
 	fTempCost /= 100;	// Take this out of hundreds now
@@ -618,20 +610,19 @@ int CvTreasury::CalculateUnitCost(int& iFreeUnits, int& iPaidUnits, int& iBaseUn
 		dFinalCost /= 100;
 	}
 
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-	if (MOD_DIPLOMACY_CIV4_FEATURES) {
+	if (MOD_DIPLOMACY_CIV4_FEATURES) 
+	{
 		// Vassal bonus for unit maintenance costs
-		for(int iI = 0; iI < MAX_TEAMS; iI++)
+		for (int iI = 0; iI < MAX_TEAMS; iI++)
 		{
 			// Are we the vassal of team?
-			if(GET_TEAM(m_pPlayer->getTeam()).IsVassal((TeamTypes)iI))
+			if (GET_TEAM(m_pPlayer->getTeam()).IsVassal((TeamTypes)iI))
 			{
-				dFinalCost *= (100 - /*40*/GC.getVASSALAGE_VASSAL_UNIT_MAINT_COST_PERCENT());
+				dFinalCost *= (100 - /*10*/ GD_INT_GET(VASSALAGE_VASSAL_UNIT_MAINT_COST_PERCENT));
 				dFinalCost /= 100;
 			}
 		}
 	}
-#endif
 
 	//iFinalCost /= 100;
 
@@ -643,10 +634,10 @@ int CvTreasury::CalculateUnitSupply(int& iPaidUnits, int& iBaseSupplyCost)
 {
 	int iSupply;
 
-	iPaidUnits = std::max(0, (m_pPlayer->getNumOutsideUnits() - /*3*/ GC.getINITIAL_FREE_OUTSIDE_UNITS()));
+	iPaidUnits = std::max(0, (m_pPlayer->getNumOutsideUnits() - /*3*/ GD_INT_GET(INITIAL_FREE_OUTSIDE_UNITS)));
 
 	// JON: This is set to 0 right now, which pretty much means it's disabled
-	iBaseSupplyCost = iPaidUnits* /*0*/ GC.getINITIAL_OUTSIDE_UNIT_GOLD_PERCENT();
+	iBaseSupplyCost = iPaidUnits * /*0*/ GD_INT_GET(INITIAL_OUTSIDE_UNIT_GOLD_PERCENT);
 	iBaseSupplyCost /= 100;
 
 	iSupply = iBaseSupplyCost;
@@ -668,9 +659,9 @@ int CvTreasury::CalculateUnitSupply(int& iPaidUnits, int& iBaseSupplyCost)
 	double fGameProgressFactor = float(GC.getGame().getElapsedGameTurns()) / GC.getGame().getEstimateEndTurn();
 
 	// Multiplicative increase - helps scale costs as game goes on - the HIGHER this number the more is paid
-	double fMultiplyFactor = 1.0 + (fGameProgressFactor* /*8*/ GC.getUNIT_MAINTENANCE_GAME_MULTIPLIER());
+	double fMultiplyFactor = 1.0 + (fGameProgressFactor* /*8*/ GD_INT_GET(UNIT_MAINTENANCE_GAME_MULTIPLIER));
 	// Exponential increase - this one really punishes those with a HUGE military - the LOWER this number the more is paid
-	double fExponentialFactor = 1.0 + (fGameProgressFactor / /*7*/ GC.getUNIT_MAINTENANCE_GAME_EXPONENT_DIVISOR());
+	double fExponentialFactor = 1.0 + (fGameProgressFactor / /*7 in CP, 6 in CBO*/ GD_INT_GET(UNIT_MAINTENANCE_GAME_EXPONENT_DIVISOR));
 
 	double fTempCost = fMultiplyFactor * iSupply;
 	int iFinalCost = (int) pow(fTempCost, fExponentialFactor);
@@ -1156,10 +1147,10 @@ int CvTreasury::GetVassalGoldMaintenance() const
 				for(CvCity* pLoopCity = GET_PLAYER((PlayerTypes)iI).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER((PlayerTypes)iI).nextCity(&iLoop))
 				{
 					iCityPop = pLoopCity->getPopulation();
-					iRtnValue += std::max(0, (int)(pow((double)iCityPop, (double)/*0.6*/ GC.getVASSALAGE_VASSAL_CITY_POP_EXPONENT())));
+					iRtnValue += std::max(0, (int)(pow((double)iCityPop, (double) /*0.8f*/ GD_FLOAT_GET(VASSALAGE_VASSAL_CITY_POP_EXPONENT))));
 				}
 
-				iRtnValue += std::max(0, (GET_PLAYER((PlayerTypes)iI).GetTreasury()->GetExpensePerTurnUnitMaintenance() * /*10*/GC.getVASSALAGE_VASSAL_UNIT_MAINT_COST_PERCENT() / 100));
+				iRtnValue += std::max(0, (GET_PLAYER((PlayerTypes)iI).GetTreasury()->GetExpensePerTurnUnitMaintenance() * /*10*/ GD_INT_GET(VASSALAGE_VASSAL_UNIT_MAINT_COST_PERCENT) / 100));
 			}
 		}
 	}

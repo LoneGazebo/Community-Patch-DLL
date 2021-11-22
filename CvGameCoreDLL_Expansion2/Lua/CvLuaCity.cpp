@@ -1238,7 +1238,7 @@ int CvLuaCity::lGetPurchaseUnitTooltip(lua_State* L)
 		const UnitClassTypes eUnitClass = (UnitClassTypes)thisUnitInfo->GetUnitClassType();
 		if (pkCity->IsUnitInvestment(eUnitClass))
 		{
-			int iValue = (/*-50*/ GC.getBALANCE_UNIT_INVESTMENT_BASELINE() + GET_PLAYER(pkCity->getOwner()).GetPlayerTraits()->GetInvestmentModifier() + GET_PLAYER(pkCity->getOwner()).GetInvestmentModifier());
+			int iValue = (/*-50*/ GD_INT_GET(BALANCE_UNIT_INVESTMENT_BASELINE) + GET_PLAYER(pkCity->getOwner()).GetPlayerTraits()->GetInvestmentModifier() + GET_PLAYER(pkCity->getOwner()).GetInvestmentModifier());
 			iValue *= -1;
 
 			Localization::String localizedText = Localization::Lookup("TXT_KEY_ALREADY_INVESTED_UNIT");
@@ -1413,7 +1413,7 @@ int CvLuaCity::lGetPurchaseBuildingTooltip(lua_State* L)
 		const BuildingClassTypes eBuildingClass = (BuildingClassTypes)(pGameBuilding->GetBuildingClassType());
 		if(pkCity->IsBuildingInvestment(eBuildingClass))
 		{
-			int iValue = (/*-50*/ GC.getBALANCE_BUILDING_INVESTMENT_BASELINE() + GET_PLAYER(pkCity->getOwner()).GetPlayerTraits()->GetInvestmentModifier() + GET_PLAYER(pkCity->getOwner()).GetInvestmentModifier());
+			int iValue = (/*-50*/ GD_INT_GET(BALANCE_BUILDING_INVESTMENT_BASELINE) + GET_PLAYER(pkCity->getOwner()).GetPlayerTraits()->GetInvestmentModifier() + GET_PLAYER(pkCity->getOwner()).GetInvestmentModifier());
 			iValue *= -1;
 			const CvBuildingClassInfo& kBuildingClassInfo = pGameBuilding->GetBuildingClassInfo();
 			if(::isWorldWonderClass(kBuildingClassInfo))
@@ -1771,7 +1771,7 @@ int CvLuaCity::lGetBuildingInvestment(lua_State* L)
 	if(pkCity->IsBuildingInvestment(eBuildingClass))
 	{
 		iResult = GET_PLAYER(pkCity->getOwner()).getProductionNeeded(eBuildingType);
-		iTotalDiscount = (/*-50*/ GC.getBALANCE_BUILDING_INVESTMENT_BASELINE() + GET_PLAYER(pkCity->getOwner()).GetPlayerTraits()->GetInvestmentModifier() + GET_PLAYER(pkCity->getOwner()).GetInvestmentModifier());
+		iTotalDiscount = (/*-50*/ GD_INT_GET(BALANCE_BUILDING_INVESTMENT_BASELINE) + GET_PLAYER(pkCity->getOwner()).GetPlayerTraits()->GetInvestmentModifier() + GET_PLAYER(pkCity->getOwner()).GetInvestmentModifier());
 		const CvBuildingClassInfo& kBuildingClassInfo = pGameBuilding->GetBuildingClassInfo();
 		if(::isWorldWonderClass(kBuildingClassInfo))
 		{
@@ -1843,13 +1843,13 @@ int CvLuaCity::lGetWorldWonderCost(lua_State* L)
 								switch (iEraDivisor)
 								{
 								case 0:
-									iNumWorldWonderPercent += GC.getBALANCE_CORE_WORLD_WONDER_SAME_ERA_COST_MODIFIER();
+									iNumWorldWonderPercent += /*25*/ GD_INT_GET(BALANCE_CORE_WORLD_WONDER_SAME_ERA_COST_MODIFIER);
 									break;
 								case 1:
-									iNumWorldWonderPercent += GC.getBALANCE_CORE_WORLD_WONDER_PREVIOUS_ERA_COST_MODIFIER();
+									iNumWorldWonderPercent += /*15*/ GD_INT_GET(BALANCE_CORE_WORLD_WONDER_PREVIOUS_ERA_COST_MODIFIER);
 									break;
 								case 2:
-									iNumWorldWonderPercent += GC.getBALANCE_CORE_WORLD_WONDER_EARLIER_ERA_COST_MODIFIER();
+									iNumWorldWonderPercent += /*10*/ GD_INT_GET(BALANCE_CORE_WORLD_WONDER_EARLIER_ERA_COST_MODIFIER);
 									break;
 								}
 							}
@@ -1950,7 +1950,7 @@ int CvLuaCity::lGetUnitInvestment(lua_State* L)
 	if(pkCity->IsUnitInvestment(eUnitClass))
 	{
 		iResult = GET_PLAYER(pkCity->getOwner()).getProductionNeeded(eUnitType);
-		iTotalDiscount = (/*-50*/ GC.getBALANCE_BUILDING_INVESTMENT_BASELINE() + GET_PLAYER(pkCity->getOwner()).GetPlayerTraits()->GetInvestmentModifier() + GET_PLAYER(pkCity->getOwner()).GetInvestmentModifier());
+		iTotalDiscount = (/*-50*/ GD_INT_GET(BALANCE_BUILDING_INVESTMENT_BASELINE) + GET_PLAYER(pkCity->getOwner()).GetPlayerTraits()->GetInvestmentModifier() + GET_PLAYER(pkCity->getOwner()).GetInvestmentModifier());
 		iResult *= (iTotalDiscount + 100);
 		iResult /= 100;
 	}
@@ -4186,7 +4186,7 @@ int CvLuaCity::lCreateApolloProgram(lua_State* L)
 	CvCity* pkCity = GetInstance(L);
 	if(pkCity != NULL)
 	{
-		ProjectTypes eApolloProgram = (ProjectTypes)GC.getSPACE_RACE_TRIGGER_PROJECT();
+		ProjectTypes eApolloProgram = (ProjectTypes)GD_INT_GET(SPACE_RACE_TRIGGER_PROJECT);
 		pkCity->CreateProject(eApolloProgram);
 	}
 

@@ -1497,7 +1497,7 @@ int CvUnitEntry::CargoCombat() const
 /// Prerequisite techs with AND
 int CvUnitEntry::GetPrereqAndTechs(int i) const
 {
-	CvAssertMsg(i < GC.getNUM_UNIT_AND_TECH_PREREQS(), "Index out of bounds");
+	CvAssertMsg(i < /*3*/ GD_INT_GET(NUM_UNIT_AND_TECH_PREREQS), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
 	return m_piPrereqAndTechs ? m_piPrereqAndTechs[i] : -1;
 }

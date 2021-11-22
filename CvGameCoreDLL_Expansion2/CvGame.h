@@ -130,7 +130,7 @@ public:
 
 	bool canTrainNukes() const;
 	EraTypes getCurrentEra() const;
-	void CvGame::UpdateGameEra();
+	void UpdateGameEra();
 
 	TeamTypes getActiveTeam();
 	CivilizationTypes getActiveCivilizationType();
@@ -547,11 +547,12 @@ public:
 #endif
 #if defined(MOD_BALANCE_CORE_SPIES)
 	void SetHighestSpyPotential();
+#endif
 	void DoBarbCountdown();
 
 	void SetLastTurnCSAnnexed(int iValue);
 	int GetLastTurnCSAnnexed();
-#endif
+
 	template<typename Game, typename Visitor>
 	static void Serialize(Game& game, Visitor& visitor);
 	void Read(FDataStream& kStream);

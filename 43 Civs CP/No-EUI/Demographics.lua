@@ -333,7 +333,7 @@ function SetIcon(iPlayerID, control, controlBG, controlShadow)
 	if (pPlayer:GetID() == Game.GetActivePlayer()) then
 		CivIconHookup( iPlayerID, 32, control, controlBG, controlShadow, false, true);  
 	-- Haven't yet met this player
-	elseif (not pTeam:IsHasMet(Game.GetActiveTeam())) then
+	elseif (not pTeam:IsHasMet(Game.GetActiveTeam()) and not Players[Game.GetActivePlayer()]:IsObserver()) then
 		CivIconHookup( -1, 32, control, controlBG, controlShadow, false, true); 
 	-- Met players
 	else

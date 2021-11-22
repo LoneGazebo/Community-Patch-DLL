@@ -4576,7 +4576,7 @@ void CvPlayerTraits::InitPlayerTraits()
 			{
 				m_bFightWellDamaged = true;
 				// JON: Changing the way this works. Above line can/should probably be removed at some point
-				int iWoundedUnitDamageMod = /*-50*/ GC.getTRAIT_WOUNDED_DAMAGE_MOD();
+				int iWoundedUnitDamageMod = /*-33*/ GD_INT_GET(TRAIT_WOUNDED_DAMAGE_MOD);
 				m_pPlayer->ChangeWoundedUnitDamageMod(iWoundedUnitDamageMod);
 			}
 			if(trait->IsWoodlandMovementBonus())
@@ -6730,7 +6730,7 @@ bool CvPlayerTraits::CheckForBarbarianConversion(CvPlot* pPlot)
 		}
 	}
 
-	else if(GetLandBarbarianConversionPercent() > 0 && pPlot->getImprovementType() == GC.getBARBARIAN_CAMP_IMPROVEMENT() &&
+	else if(GetLandBarbarianConversionPercent() > 0 && pPlot->getImprovementType() == GD_INT_GET(BARBARIAN_CAMP_IMPROVEMENT) &&
 	        m_eCampGuardType != NO_UNIT)
 	{
 #if defined(MOD_EVENTS_UNIT_CAPTURE)
@@ -7782,7 +7782,7 @@ bool CvPlayerTraits::ConvertBarbarianCamp(CvPlot* pPlot)
 	{
 		pPlot->setImprovementType(NO_IMPROVEMENT);
 
-		int iNumGold = /*25*/ GC.getGOLD_FROM_BARBARIAN_CONVERSION();
+		int iNumGold = /*25*/ GD_INT_GET(GOLD_FROM_BARBARIAN_CONVERSION);
 		m_pPlayer->GetTreasury()->ChangeGold(iNumGold);
 
 		// Set who last cleared the camp here
@@ -7871,7 +7871,7 @@ bool CvPlayerTraits::ConvertBarbarianNavalUnit(CvUnit* pUnit)
 	// Roll die to see if it converts
 	if(GC.getGame().getSmallFakeRandNum(100, *pUnit->plot()) < m_iSeaBarbarianConversionPercent)
 	{
-		int iNumGold = /*25*/ GC.getGOLD_FROM_BARBARIAN_CONVERSION();
+		int iNumGold = /*25*/ GD_INT_GET(GOLD_FROM_BARBARIAN_CONVERSION);
 		m_pPlayer->GetTreasury()->ChangeGold(iNumGold);
 
 #if defined(MOD_EVENTS_UNIT_CAPTURE)

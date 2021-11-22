@@ -620,25 +620,12 @@ WHERE Tag = 'TXT_KEY_PROGRESS_SCREEN_PRODUCTION_TT';
 
 -- World Congress Proposals, Which Civs benefit
 UPDATE Language_en_US
-SET Text = '[NEWLINE][NEWLINE]Civilizations that would be positively affected by this:'
+SET Text = '[NEWLINE][NEWLINE]Civilizations positively affected by this:'
 WHERE Tag = 'TXT_KEY_LEAGUE_OVERVIEW_PROPOSAL_OPINIONS_POSITIVE';
 
 UPDATE Language_en_US
-SET Text = '[NEWLINE][NEWLINE]Civilizations that would be negatively affected by this:'
+SET Text = '[NEWLINE][NEWLINE]Civilizations negatively affected by this:'
 WHERE Tag = 'TXT_KEY_LEAGUE_OVERVIEW_PROPOSAL_OPINIONS_NEGATIVE';
-
--- Discuss Text
-UPDATE Language_en_US
-SET Text = 'Don''t settle or conquer new Cities near us.'
-WHERE Tag = 'TXT_KEY_DIPLO_DISCUSS_MESSAGE_DONT_SETTLE';
-
-UPDATE Language_en_US
-SET Text = 'Our apologies, we''ll refrain from expanding near you in the future.'
-WHERE Tag = 'TXT_KEY_DIPLO_DISCUSS_SORRY_FOR_SETTLING';
-
-UPDATE Language_en_US
-SET Text = 'We''ll expand into any lands we please.'
-WHERE Tag = 'TXT_KEY_DIPLO_DISCUSS_SETTLE_WHAT_WE_PLEASE';
 
 -- Diplo Opinion Table Modifiers
 
@@ -766,7 +753,7 @@ WHERE Tag = 'TXT_KEY_DIPLO_CAUGHT_STEALING';
 
 -- Player has asked us to do things we don't like
 UPDATE Language_en_US
-SET Text = 'You demanded they not expand near your lands!'
+SET Text = 'You demanded they not settle near your lands!'
 WHERE Tag = 'TXT_KEY_DIPLO_NO_SETTLE_ASKED';
 
 UPDATE Language_en_US
@@ -816,11 +803,11 @@ SET Text = 'You refused to move your troops away from their borders when they as
 WHERE Tag = 'TXT_KEY_DIPLO_MILITARY_PROMISE_IGNORED';
 
 UPDATE Language_en_US
-SET Text = 'You made a promise to stop expanding near them, and then broke it!'
+SET Text = 'You made a promise to stop settling near them, and then broke it!'
 WHERE Tag = 'TXT_KEY_DIPLO_EXPANSION_PROMISE';
 
 UPDATE Language_en_US
-SET Text = 'They asked you to stop expanding near them, and you ignored them!'
+SET Text = 'They asked you to stop settling near them, and you ignored them!'
 WHERE Tag = 'TXT_KEY_DIPLO_EXPANSION_PROMISE_IGNORED';
 
 UPDATE Language_en_US

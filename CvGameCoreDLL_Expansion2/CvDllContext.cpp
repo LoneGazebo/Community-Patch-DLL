@@ -558,112 +558,112 @@ bool CvDllGameContext::GetDefineSTRING(char* szBuffer, size_t lenBuffer, const c
 //------------------------------------------------------------------------------
 int CvDllGameContext::GetMOVE_DENOMINATOR() const
 {
-	return GC.getMOVE_DENOMINATOR();
+	return /*60*/ GD_INT_GET(MOVE_DENOMINATOR);
 }
 //------------------------------------------------------------------------------
 int CvDllGameContext::GetMAX_CITY_HIT_POINTS() const
 {
-	return GC.getMAX_CITY_HIT_POINTS();
+	return /*200 in CP, 300 in CBO*/ GD_INT_GET(MAX_CITY_HIT_POINTS);
 }
 //------------------------------------------------------------------------------
 float CvDllGameContext::GetCITY_ZOOM_OFFSET() const
 {
-	return GC.getCITY_ZOOM_OFFSET();
+	return /*20.0f*/ GD_FLOAT_GET(CITY_ZOOM_OFFSET);
 }
 //------------------------------------------------------------------------------
 float CvDllGameContext::GetCITY_ZOOM_LEVEL_1() const
 {
-	return GC.getCITY_ZOOM_LEVEL_1();
+	return /*500.0f*/ GD_FLOAT_GET(CITY_ZOOM_LEVEL_1);
 }
 //------------------------------------------------------------------------------
 float CvDllGameContext::GetCITY_ZOOM_LEVEL_2() const
 {
-	return GC.getCITY_ZOOM_LEVEL_2();
+	return /*700.0f*/ GD_FLOAT_GET(CITY_ZOOM_LEVEL_2);
 }
 //------------------------------------------------------------------------------
 float CvDllGameContext::GetCITY_ZOOM_LEVEL_3() const
 {
-	return GC.getCITY_ZOOM_LEVEL_3();
+	return /*800.0f*/ GD_FLOAT_GET(CITY_ZOOM_LEVEL_3);
 }
 //------------------------------------------------------------------------------
 int CvDllGameContext::GetRUINS_IMPROVEMENT() const
 {
-	return GC.getRUINS_IMPROVEMENT();
+	return GD_INT_GET(RUINS_IMPROVEMENT);
 }
 //------------------------------------------------------------------------------
 int CvDllGameContext::GetSHALLOW_WATER_TERRAIN() const
 {
-	return GC.getSHALLOW_WATER_TERRAIN();
+	return GD_INT_GET(SHALLOW_WATER_TERRAIN);
 }
 //------------------------------------------------------------------------------
 int CvDllGameContext::GetDEFICIT_UNIT_DISBANDING_THRESHOLD() const
 {
-	return GC.getDEFICIT_UNIT_DISBANDING_THRESHOLD();
+	return /*-5*/ GD_INT_GET(DEFICIT_UNIT_DISBANDING_THRESHOLD);
 }
 //------------------------------------------------------------------------------
 int CvDllGameContext::GetLAST_UNIT_ART_ERA() const
 {
-	return GC.getLAST_UNIT_ART_ERA();
+	return GD_INT_GET(LAST_UNIT_ART_ERA);
 }
 //------------------------------------------------------------------------------
 int CvDllGameContext::GetLAST_EMBARK_ART_ERA() const
 {
-	return GC.getLAST_EMBARK_ART_ERA();
+	return GD_INT_GET(LAST_EMBARK_ART_ERA);
 }
 //------------------------------------------------------------------------------
 int CvDllGameContext::GetHEAVY_RESOURCE_THRESHOLD() const
 {
-	return GC.getHEAVY_RESOURCE_THRESHOLD();
+	return /*3 in CP, 2 in CBO*/ GD_INT_GET(HEAVY_RESOURCE_THRESHOLD);
 }
 //------------------------------------------------------------------------------
 int CvDllGameContext::GetSTANDARD_HANDICAP() const
 {
-	return GC.getSTANDARD_HANDICAP();
+	return GD_INT_GET(STANDARD_HANDICAP);
 }
 //------------------------------------------------------------------------------
 int CvDllGameContext::GetSTANDARD_GAMESPEED() const
 {
-	return GC.getSTANDARD_GAMESPEED();
+	return GD_INT_GET(STANDARD_GAMESPEED);
 }
 //------------------------------------------------------------------------------
 int CvDllGameContext::GetLAST_BRIDGE_ART_ERA() const
 {
-	return GC.getLAST_BRIDGE_ART_ERA();
+	return GD_INT_GET(LAST_BRIDGE_ART_ERA);
 }
 //------------------------------------------------------------------------------
 int CvDllGameContext::GetBARBARIAN_CIVILIZATION() const
 {
-	return GC.getBARBARIAN_CIVILIZATION();
+	return GD_INT_GET(BARBARIAN_CIVILIZATION);
 }
 //------------------------------------------------------------------------------
 int CvDllGameContext::GetMINOR_CIVILIZATION() const
 {
-	return GC.getMINOR_CIVILIZATION();
+	return GD_INT_GET(MINOR_CIVILIZATION);
 }
 //------------------------------------------------------------------------------
 int CvDllGameContext::GetBARBARIAN_HANDICAP() const
 {
-	return GC.getBARBARIAN_HANDICAP();
+	return GD_INT_GET(BARBARIAN_HANDICAP);
 }
 //------------------------------------------------------------------------------
 int CvDllGameContext::GetBARBARIAN_LEADER() const
 {
-	return GC.getBARBARIAN_LEADER();
+	return GD_INT_GET(BARBARIAN_LEADER);
 }
 //------------------------------------------------------------------------------
 int CvDllGameContext::GetMINOR_CIV_HANDICAP() const
 {
-	return GC.getMINOR_CIV_HANDICAP();
+	return GD_INT_GET(MINOR_CIV_HANDICAP);
 }
 //------------------------------------------------------------------------------
 int CvDllGameContext::GetWALLS_BUILDINGCLASS() const
 {
-	return GC.getWALLS_BUILDINGCLASS();
+	return GD_INT_GET(WALLS_BUILDINGCLASS);
 }
 //------------------------------------------------------------------------------
 int CvDllGameContext::GetAI_HANDICAP() const
 {
-	return GC.getAI_HANDICAP();
+	return GD_INT_GET(AI_HANDICAP);
 }
 //------------------------------------------------------------------------------
 int CvDllGameContext::GetNUM_CITY_PLOTS() const
@@ -675,7 +675,7 @@ int CvDllGameContext::GetNUM_CITY_PLOTS() const
 		CvCity* pkCity = GC.UnwrapCityPointer(pCity.get());
 		iNumCityPlots = pkCity->GetNumWorkablePlots();
 	}
-				
+
 	return iNumCityPlots;
 }
 //------------------------------------------------------------------------------

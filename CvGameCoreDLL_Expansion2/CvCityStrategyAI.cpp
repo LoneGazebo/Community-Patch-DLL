@@ -648,21 +648,21 @@ void CvCityStrategyAI::PrecalcYieldStats()
 {
 	vector<float> expectedYieldPerPop;
 	//add the values in the order of the yield enum
-	expectedYieldPerPop.push_back(GC.getAI_CITYSTRATEGY_YIELD_DEFICIENT_FOOD()*100);
-	expectedYieldPerPop.push_back(GC.getAI_CITYSTRATEGY_YIELD_DEFICIENT_PRODUCTION()*100);
-	expectedYieldPerPop.push_back(GC.getAI_CITYSTRATEGY_YIELD_DEFICIENT_GOLD()*100);
-	expectedYieldPerPop.push_back(GC.getAI_CITYSTRATEGY_YIELD_DEFICIENT_SCIENCE()*100);
-	expectedYieldPerPop.push_back(GC.getAI_CITYSTRATEGY_YIELD_DEFICIENT_CULTURE()*100);
-	expectedYieldPerPop.push_back(GC.getAI_CITYSTRATEGY_YIELD_DEFICIENT_CULTURE()*100); //not a typo, there is no define for faith
+	expectedYieldPerPop.push_back(100 * /*0.5*/ GD_FLOAT_GET(AI_CITYSTRATEGY_YIELD_DEFICIENT_FOOD));  // food is different because we include consumption
+	expectedYieldPerPop.push_back(100 * /*1.0*/ GD_FLOAT_GET(AI_CITYSTRATEGY_YIELD_DEFICIENT_PRODUCTION));
+	expectedYieldPerPop.push_back(100 * /*1.5*/ GD_FLOAT_GET(AI_CITYSTRATEGY_YIELD_DEFICIENT_GOLD));
+	expectedYieldPerPop.push_back(100 * /*2.5*/ GD_FLOAT_GET(AI_CITYSTRATEGY_YIELD_DEFICIENT_SCIENCE));
+	expectedYieldPerPop.push_back(100 * /*2.5*/ GD_FLOAT_GET(AI_CITYSTRATEGY_YIELD_DEFICIENT_CULTURE));
+	expectedYieldPerPop.push_back(100 * /*2.5*/ GD_FLOAT_GET(AI_CITYSTRATEGY_YIELD_DEFICIENT_FAITH));
 
 	vector< OptionWithScore<YieldTypes> > deviations;
-	for(int iI = 0; iI <= YIELD_FAITH; iI++)
+	for (int iI = 0; iI <= YIELD_FAITH; iI++)
 	{
 		YieldTypes eYield = (YieldTypes) iI;
 		int iYield = m_pCity->getYieldRateTimes100(eYield, false);
 
 		//consider excess food only
-		if(eYield == YIELD_FOOD)
+		if (eYield == YIELD_FOOD)
 			iYield -= (m_pCity->foodConsumptionTimes100());
 		
 		int iYieldPerPop100 = (iYield*100) / max(1, m_pCity->getPopulation());
@@ -677,6 +677,7 @@ void CvCityStrategyAI::PrecalcYieldStats()
 	m_eMostAbundantYield = deviations.front().score > 0 ? deviations.front().option : NO_YIELD;
 	m_eMostDeficientYield = deviations.back().score < 0 ? deviations.back().option : NO_YIELD;
 }
+
 /// Pick the next build for a city (unit, building or wonder)
 void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg, UnitTypes eIgnoreUnit, bool bInterruptBuildings, bool bInterruptWonders)
 {
@@ -713,9 +714,9 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg, UnitTypes eIg
 		buildable.m_eBuildableType = CITY_BUILDABLE_UNIT_FOR_OPERATION;
 		buildable.m_iIndex = (int)eUnitForOperation;
 		buildable.m_iTurnsToConstruct = GetCity()->getProductionTurnsLeft(eUnitForOperation, 0);
-		int iTempWeight = GC.getAI_CITYSTRATEGY_OPERATION_UNIT_BASE_WEIGHT();
+		int iTempWeight = /*5000*/ GD_INT_GET(AI_CITYSTRATEGY_OPERATION_UNIT_BASE_WEIGHT);
 		int iOffenseFlavor = kPlayer.GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_OFFENSE")) + kPlayer.GetMilitaryAI()->GetNumberOfTimesOpsBuildSkippedOver();
-		iTempWeight += (GC.getAI_CITYSTRATEGY_OPERATION_UNIT_FLAVOR_MULTIPLIER() * iOffenseFlavor);
+		iTempWeight += iOffenseFlavor * /*250*/ GD_INT_GET(AI_CITYSTRATEGY_OPERATION_UNIT_FLAVOR_MULTIPLIER);
 		iTempWeight += m_pUnitProductionAI->GetWeight(eUnitForOperation);
 		if(iTempWeight > 0)
 		{						
@@ -730,9 +731,9 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg, UnitTypes eIg
 		buildable.m_eBuildableType = CITY_BUILDABLE_UNIT_FOR_ARMY;
 		buildable.m_iIndex = (int)eUnitForArmy;
 		buildable.m_iTurnsToConstruct = GetCity()->getProductionTurnsLeft(eUnitForArmy, 0);
-		int iTempWeight = GC.getAI_CITYSTRATEGY_ARMY_UNIT_BASE_WEIGHT();
+		int iTempWeight = /*750*/ GD_INT_GET(AI_CITYSTRATEGY_ARMY_UNIT_BASE_WEIGHT);
 		int iOffenseFlavor = kPlayer.GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_OFFENSE"));
-		iTempWeight += (GC.getAI_CITYSTRATEGY_OPERATION_UNIT_FLAVOR_MULTIPLIER() * iOffenseFlavor);
+		iTempWeight += iOffenseFlavor * /*250*/ GD_INT_GET(AI_CITYSTRATEGY_OPERATION_UNIT_FLAVOR_MULTIPLIER);
 		if(iTempWeight > 0)
 		{
 			buildable.m_iValue = iTempWeight;
@@ -1000,7 +1001,7 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg, UnitTypes eIg
 
 	if(m_Buildables.size() > 0)
 	{
-		int iRushIfMoreThanXTurns = GC.getAI_ATTEMPT_RUSH_OVER_X_TURNS_TO_BUILD();
+		int iRushIfMoreThanXTurns = /*15*/ GD_INT_GET(AI_ATTEMPT_RUSH_OVER_X_TURNS_TO_BUILD);
 		iRushIfMoreThanXTurns *= GC.getGame().getGameSpeedInfo().getTrainPercent();
 		iRushIfMoreThanXTurns /= 100;
 		CvCityBuildable selection;
@@ -1161,9 +1162,9 @@ CvCityBuildable CvCityStrategyAI::ChooseHurry(bool bUnitOnly, bool bFaithPurchas
 					buildable.m_eBuildableType = CITY_BUILDABLE_UNIT_FOR_OPERATION;
 					buildable.m_iIndex = (int)eUnitForOperation;
 					buildable.m_iTurnsToConstruct = GetCity()->getProductionTurnsLeft(eUnitForOperation, 0);
-					iTempWeight = GC.getAI_CITYSTRATEGY_OPERATION_UNIT_BASE_WEIGHT();
+					iTempWeight = /*5000*/ GD_INT_GET(AI_CITYSTRATEGY_OPERATION_UNIT_BASE_WEIGHT);
 					int iOffenseFlavor = kPlayer.GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_OFFENSE")) + kPlayer.GetMilitaryAI()->GetNumberOfTimesOpsBuildSkippedOver();
-					iTempWeight += (GC.getAI_CITYSTRATEGY_OPERATION_UNIT_FLAVOR_MULTIPLIER() * iOffenseFlavor);
+					iTempWeight += iOffenseFlavor * /*250*/ GD_INT_GET(AI_CITYSTRATEGY_OPERATION_UNIT_FLAVOR_MULTIPLIER);
 					iTempWeight += m_pUnitProductionAI->GetWeight(eUnitForOperation);
 					if (iTempWeight > 0)
 					{
@@ -1187,9 +1188,9 @@ CvCityBuildable CvCityStrategyAI::ChooseHurry(bool bUnitOnly, bool bFaithPurchas
 					buildable.m_eBuildableType = CITY_BUILDABLE_UNIT_FOR_ARMY;
 					buildable.m_iIndex = (int)eUnitForArmy;
 					buildable.m_iTurnsToConstruct = GetCity()->getProductionTurnsLeft(eUnitForArmy, 0);
-					iTempWeight = GC.getAI_CITYSTRATEGY_ARMY_UNIT_BASE_WEIGHT();
+					iTempWeight = /*750*/ GD_INT_GET(AI_CITYSTRATEGY_ARMY_UNIT_BASE_WEIGHT);
 					int iOffenseFlavor = kPlayer.GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_OFFENSE"));
-					iTempWeight += (GC.getAI_CITYSTRATEGY_OPERATION_UNIT_FLAVOR_MULTIPLIER() * iOffenseFlavor);
+					iTempWeight += iOffenseFlavor * /*250*/ GD_INT_GET(AI_CITYSTRATEGY_OPERATION_UNIT_FLAVOR_MULTIPLIER);
 					if (iTempWeight > 0)
 					{
 						buildable.m_iValue = iTempWeight;
@@ -1680,8 +1681,8 @@ void CvCityStrategyAI::DoTurn()
 				{
 					SetUsingCityStrategy(eCityStrategy, true);
 
-					const int iFlavorMinValue = /*-1000*/ GC.getFLAVOR_MIN_VALUE();
-					const int iFlavorMaxValue = /*1000*/ GC.getFLAVOR_MAX_VALUE();
+					const int iFlavorMinValue = /*-1000*/ GD_INT_GET(FLAVOR_MIN_VALUE);
+					const int iFlavorMaxValue = /*1000*/ GD_INT_GET(FLAVOR_MAX_VALUE);
 
 					const int iNumFlavors = GC.getNumFlavorTypes();
 					for(iFlavorLoop = 0; iFlavorLoop < iNumFlavors; iFlavorLoop++)
@@ -1710,8 +1711,8 @@ void CvCityStrategyAI::DoTurn()
 				{
 					SetUsingCityStrategy(eCityStrategy, false);
 
-					const int iFlavorMinValue = /*-1000*/ GC.getFLAVOR_MIN_VALUE();
-					const int iFlavorMaxValue = /*1000*/ GC.getFLAVOR_MAX_VALUE();
+					const int iFlavorMinValue = /*-1000*/ GD_INT_GET(FLAVOR_MIN_VALUE);
+					const int iFlavorMaxValue = /*1000*/ GD_INT_GET(FLAVOR_MAX_VALUE);
 
 					const int iNumFlavors = GC.getNumFlavorTypes();
 					for(iFlavorLoop = 0; iFlavorLoop < iNumFlavors; iFlavorLoop++)
@@ -2281,32 +2282,8 @@ void CvCityStrategyAI::LogSpecializationChange(CitySpecializationTypes eSpeciali
 /// Routine to reweight a city buildable based on time to build
 int CityStrategyAIHelpers::ReweightByTurnsLeft(int iOriginalWeight, int iTurnsLeft)
 {
-	// 10 turns will add 0.02; 80 turns will add 0.16
-	double fAdditionalTurnCostFactor = GC.getAI_PRODUCTION_WEIGHT_MOD_PER_TURN_LEFT() * iTurnsLeft;	// 0.004
-	double fTotalCostFactor = GC.getAI_PRODUCTION_WEIGHT_BASE_MOD() + fAdditionalTurnCostFactor;	// 0.15
+	double fTotalCostFactor = /*0.15f*/ GD_FLOAT_GET(AI_PRODUCTION_WEIGHT_BASE_MOD) + (iTurnsLeft * /*0.015f*/ GD_FLOAT_GET(AI_PRODUCTION_WEIGHT_MOD_PER_TURN_LEFT));
 	double fWeightDivisor = pow((double) iTurnsLeft, fTotalCostFactor);
-
-	/* Commented out for now: useful debug code for tweaking the exact effect of this function
-
-	iTurnsLeft = 10;
-	fAdditionalTurnCostFactor = 0.004f * iTurnsLeft;
-	fTotalCostFactor = 0.15f + fAdditionalTurnCostFactor;
-	fWeightDivisor = pow((double) iTurnsLeft, fTotalCostFactor);
-
-	iTurnsLeft = 20;
-	fAdditionalTurnCostFactor = 0.004f * iTurnsLeft;
-	fTotalCostFactor = 0.15f + fAdditionalTurnCostFactor;
-	fWeightDivisor = pow((double) iTurnsLeft, fTotalCostFactor);
-
-	iTurnsLeft = 40;
-	fAdditionalTurnCostFactor = 0.004f * iTurnsLeft;
-	fTotalCostFactor = 0.15f + fAdditionalTurnCostFactor;
-	fWeightDivisor = pow((double) iTurnsLeft, fTotalCostFactor);
-
-	iTurnsLeft = 80;
-	fAdditionalTurnCostFactor = 0.004f * iTurnsLeft;
-	fTotalCostFactor = 0.15f + fAdditionalTurnCostFactor;
-	fWeightDivisor = pow((double) iTurnsLeft, fTotalCostFactor);*/
 
 	return int(double(iOriginalWeight) / fWeightDivisor);
 }
@@ -2329,24 +2306,18 @@ int CityStrategyAIHelpers::GetWeightThresholdModifier(AICityStrategyTypes eStrat
 	return iWeightThresholdModifier;
 }
 
-/// "Tiny City" City Strategy: If a City is under 2 Population tweak a number of different Flavors
+/// "Tiny City" City Strategy: Size 1
 bool CityStrategyAIHelpers::IsTestCityStrategy_TinyCity(CvCity* pCity)
 {
-	// City Population is too low, don't build Settlers yet
-	if(pCity->getPopulation() < GC.getAI_CITYSTRATEGY_SMALL_CITY_POP_THRESHOLD())	// Just size 1
-	{
-		return true;
-	}
-
-	return false;
+	return pCity->getPopulation() < /*2*/ GD_INT_GET(AI_CITYSTRATEGY_SMALL_CITY_POP_THRESHOLD);
 }
 
-/// "Small City" City Strategy: If a City is under 3 Population tweak a number of different Flavors
+/// "Small City" City Strategy: Sizes 2 to 6
 bool CityStrategyAIHelpers::IsTestCityStrategy_SmallCity(CvCity* pCity)
 {
-	// City Population is too low, don't build Settlers yet
-	if(pCity->getPopulation() >= GC.getAI_CITYSTRATEGY_SMALL_CITY_POP_THRESHOLD() &&   // 2 to 4
-	        pCity->getPopulation() < GC.getAI_CITYSTRATEGY_MEDIUM_CITY_POP_THRESHOLD())
+	// Sizes 2 to 6
+	if (pCity->getPopulation() >= /*2*/ GD_INT_GET(AI_CITYSTRATEGY_SMALL_CITY_POP_THRESHOLD) &&
+		pCity->getPopulation() < /*7*/ GD_INT_GET(AI_CITYSTRATEGY_MEDIUM_CITY_POP_THRESHOLD))
 	{
 		return true;
 	}
@@ -2354,7 +2325,7 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_SmallCity(CvCity* pCity)
 	return false;
 }
 
-/// "Medium City" City Strategy: If a City is 8 or above Population boost science
+/// "Medium City" City Strategy: Sizes 7 to 14
 bool CityStrategyAIHelpers::IsTestCityStrategy_MediumCity(CvCity* pCity)
 {
 	// Never consider the capital to be a medium city (so with late game starts at least one city retains high flavors for SPACESHIP, etc.)
@@ -2363,9 +2334,8 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_MediumCity(CvCity* pCity)
 		return false;
 	}
 
-	// City Population is getting larger, increase science
-	if(pCity->getPopulation() >= GC.getAI_CITYSTRATEGY_MEDIUM_CITY_POP_THRESHOLD() &&   // 5 to 11
-	        pCity->getPopulation() < GC.getAI_CITYSTRATEGY_LARGE_CITY_POP_THRESHOLD())
+	if (pCity->getPopulation() >= /*7*/ GD_INT_GET(AI_CITYSTRATEGY_MEDIUM_CITY_POP_THRESHOLD) &&
+		pCity->getPopulation() < /*15*/ GD_INT_GET(AI_CITYSTRATEGY_LARGE_CITY_POP_THRESHOLD))
 	{
 		return true;
 	}
@@ -2373,29 +2343,19 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_MediumCity(CvCity* pCity)
 	return false;
 }
 
-/// "Small City" City Strategy: If a City is 15 or above, boost science a LOT
+/// "Large City" City Strategy: Sizes 15+
 bool CityStrategyAIHelpers::IsTestCityStrategy_LargeCity(CvCity* pCity)
 {
-	// City Population is very large, really boost science
-	if(pCity->getPopulation() >= GC.getAI_CITYSTRATEGY_LARGE_CITY_POP_THRESHOLD())	// 12+
-	{
-		return true;
-	}
-
-	return false;
+	return pCity->getPopulation() >= /*15*/ GD_INT_GET(AI_CITYSTRATEGY_LARGE_CITY_POP_THRESHOLD);
 }
 
 /// "Landlocked" City Strategy: If a City has no access to the Ocean then nullify all water-based Flavors
 bool CityStrategyAIHelpers::IsTestCityStrategy_Landlocked(CvCity* pCity)
 {
 	// If this City isn't adjacent to a body of water big enough to be "Ocean" then we consider it landlocked
-	if(!pCity->isCoastal())
-	{
-		return true;
-	}
-
-	return false;
+	return !pCity->isCoastal();
 }
+
 #if defined(MOD_BALANCE_CORE)
 /// "Lakebound" City Strategy: If a City has no access to actual Ocean, reduce all water-based Flavors
 bool CityStrategyAIHelpers::IsTestCityStrategy_Lakebound(CvCity* pCity)
@@ -2409,7 +2369,7 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_Lakebound(CvCity* pCity)
 		CvArea* pkArea = GC.getMap().getArea(*it);
 		if (pkArea->isWater())
 		{
-			if (pkArea->getNumTiles() <= GC.getLAKE_MAX_AREA_SIZE())
+			if (pkArea->getNumTiles() <= /*9*/ GD_INT_GET(LAKE_MAX_AREA_SIZE))
 				bHaveLake = true;
 			else
 				bHaveOcean = true;
@@ -2478,12 +2438,12 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_NeedTileImprovers(AICityStrategyT
 	if(iModdedNumWorkers <= iCurrentNumCities || iModdedNumWorkers == 0)
 	{
 		// If we don't have any Workers by turn 30 we really need to get moving
-		int iDesperateTurn = /*30*/ GC.getAI_CITYSTRATEGY_NEED_TILE_IMPROVERS_DESPERATE_TURN();
+		int iDesperateTurn = /*30*/ GD_INT_GET(AI_CITYSTRATEGY_NEED_TILE_IMPROVERS_DESPERATE_TURN);
 
 		iDesperateTurn *= GC.getGame().getGameSpeedInfo().getTrainPercent();
 		iDesperateTurn /= 100;
 
-		if(GC.getGame().getElapsedGameTurns() > iDesperateTurn)
+		if (GC.getGame().getElapsedGameTurns() > iDesperateTurn)
 			return true;
 	}
 
@@ -2520,14 +2480,14 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_WantTileImprovers(AICityStrategyT
 	}
 
 	// Don't get desperate for training a Builder here unless the City is at least of a certain size
-	if(pCity->getPopulation() >= /*2*/ GC.getAI_CITYSTRATEGY_WANT_TILE_IMPROVERS_MINIMUM_SIZE())
+	if (pCity->getPopulation() >= /*4*/ GD_INT_GET(AI_CITYSTRATEGY_WANT_TILE_IMPROVERS_MINIMUM_SIZE))
 	{
 		// If we don't even have 1 builder on map or in a queue, turn this on immediately
-		if(iNumBuilders < 1)
+		if (iNumBuilders < 1)
 			return true;
 
 		CvAICityStrategyEntry* pCityStrategy = pCity->GetCityStrategyAI()->GetAICityStrategies()->GetEntry(eStrategy);
-		if(iNumBuilders < iCurrentNumCities * pCityStrategy->GetWeightThreshold()) // limit to x builders per city
+		if (iNumBuilders < iCurrentNumCities * pCityStrategy->GetWeightThreshold()) // limit to x builders per city
 			return true;
 	}
 
@@ -3421,7 +3381,7 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_GoodGPCity(CvCity* pCity)
 						}
 						if(iNumMarried > 0)
 						{
-							iMod += (iNumMarried * GC.getBALANCE_MARRIAGE_GP_RATE());
+							iMod += (iNumMarried * /*15*/ GD_INT_GET(BALANCE_MARRIAGE_GP_RATE));
 						}
 					}
 

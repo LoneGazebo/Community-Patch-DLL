@@ -1194,18 +1194,18 @@ int PathEndTurnCost(CvPlot* pToPlot, const CvPathNodeCacheData& kToNodeCacheData
 	}
 
 	// Damage caused by features (mods)
-	if(0 != GC.getPATH_DAMAGE_WEIGHT())
+	if (/*0*/ GD_INT_GET(PATH_DAMAGE_WEIGHT) != 0)
 	{
 		if(pToPlot->getFeatureType() != NO_FEATURE)
 		{
-			iCost += (GC.getPATH_DAMAGE_WEIGHT() * std::max(0, pToPlot->getTurnDamage(pUnit->ignoreTerrainDamage(), pUnit->ignoreFeatureDamage(), pUnit->extraTerrainDamage(), pUnit->extraFeatureDamage()))) / GC.getMAX_HIT_POINTS();
+			iCost += (GD_INT_GET(PATH_DAMAGE_WEIGHT) * std::max(0, pToPlot->getTurnDamage(pUnit->ignoreTerrainDamage(), pUnit->ignoreFeatureDamage(), pUnit->extraTerrainDamage(), pUnit->extraFeatureDamage()))) / GD_INT_GET(MAX_HIT_POINTS);
 		}
 
 		if(pToPlot->getExtraMovePathCost() > 0)
 			iCost += (PATH_BASE_COST * pToPlot->getExtraMovePathCost());
 	}
 
-	if (pUnit->isHasPromotion((PromotionTypes)GC.getPROMOTION_UNWELCOME_EVANGELIST()))
+	if (pUnit->isHasPromotion((PromotionTypes)GD_INT_GET(PROMOTION_UNWELCOME_EVANGELIST)))
 	{
 		// Avoid being in a territory that we are not welcome in
 		PlayerTypes ePlotOwner = pToPlot->getOwner();
@@ -1332,7 +1332,7 @@ int PathCost(const CvAStarNode* parent, const CvAStarNode* node, const SPathFind
 		iTurns++;
 
 		//hand out new moves
-		iStartMoves = parent->m_iStartMovesForTurn*GC.getMOVE_DENOMINATOR();
+		iStartMoves = parent->m_iStartMovesForTurn*GD_INT_GET(MOVE_DENOMINATOR);
 	}
 
 	//calculate move cost
@@ -1343,7 +1343,7 @@ int PathCost(const CvAStarNode* parent, const CvAStarNode* node, const SPathFind
 	else
 	{
 		//important, use the cached value
-		int iMaxMoves = pUnitDataCache->baseMoves(kToNodeCacheData.bIsNonNativeDomain)*GC.getMOVE_DENOMINATOR(); 
+		int iMaxMoves = pUnitDataCache->baseMoves(kToNodeCacheData.bIsNonNativeDomain)*GD_INT_GET(MOVE_DENOMINATOR); 
 
 		if (bCheckZOC)
 		{
@@ -1405,7 +1405,7 @@ int PathCost(const CvAStarNode* parent, const CvAStarNode* node, const SPathFind
 		else
 		{
 			//apply this part even if it's the explicit target
-			if (pUnitDataCache->isAIControl() && pUnit->isHasPromotion((PromotionTypes)GC.getPROMOTION_UNWELCOME_EVANGELIST()))
+			if (pUnitDataCache->isAIControl() && pUnit->isHasPromotion((PromotionTypes)GD_INT_GET(PROMOTION_UNWELCOME_EVANGELIST)))
 			{
 				// Avoid being in a territory that we are not welcome in
 				PlayerTypes ePlotOwner = pToPlot->getOwner();
@@ -1443,11 +1443,11 @@ int PathCost(const CvAStarNode* parent, const CvAStarNode* node, const SPathFind
 
 			//avoid river attack penalty
 			if(!pUnit->isRiverCrossingNoPenalty() && pFromPlot->isRiverCrossing(directionXY(pFromPlot, pToPlot)))
-				iCost += (PATH_ATTACK_WEIGHT * -(GC.getRIVER_ATTACK_MODIFIER()));
+				iCost += (PATH_ATTACK_WEIGHT * /*20*/ -GD_INT_GET(RIVER_ATTACK_MODIFIER));
 
 			//avoid disembarkation penalty
 			if (bFromPlotIsWater && !bToPlotIsWater && !pUnit->isAmphibious())
-				iCost += (PATH_ATTACK_WEIGHT * -(GC.getAMPHIB_ATTACK_MODIFIER()));
+				iCost += (PATH_ATTACK_WEIGHT * /*50*/ -GD_INT_GET(AMPHIB_ATTACK_MODIFIER));
 		}
 	}
 
@@ -1944,7 +1944,7 @@ int InfluenceCost(const CvAStarNode* parent, const CvAStarNode* node, const SPat
 
 		//rivers are natural borders
 		if(pFromPlot->isRiverCrossing(directionXY(pFromPlot, pToPlot)) && !bIsRoute)
-			iCost += GC.getINFLUENCE_RIVER_COST();
+			iCost += /*1*/ GD_INT_GET(INFLUENCE_RIVER_COST);
 
 		//going through foreign territory is expensive (we already check that we don't own it)
 		if(pToPlot->getOwner() != NO_PLAYER)
@@ -1952,10 +1952,10 @@ int InfluenceCost(const CvAStarNode* parent, const CvAStarNode* node, const SPat
 
 		//plot type dependent cost. should really be handled via terrain, but ok for now
 		if (pToPlot->isHills())
-			iExtraCost = max(iExtraCost,GC.getINFLUENCE_HILL_COST());
+			iExtraCost = max(iExtraCost,/*1*/GD_INT_GET(INFLUENCE_HILL_COST));
 		//inca can cross mountains ...
 		if (pToPlot->isMountain() && !pToPlot->IsNaturalWonder() && !pToPlot->isValidMovePlot(finder->GetData().ePlayer,false))
-			iExtraCost = max(iExtraCost,GC.getINFLUENCE_MOUNTAIN_COST());
+			iExtraCost = max(iExtraCost,/*3*/GD_INT_GET(INFLUENCE_MOUNTAIN_COST));
 
 		//ignore this if there's a resource here
 		if (pToPlot->getResourceType(pSourcePlot->getTeam())==NO_RESOURCE)
@@ -1977,7 +1977,7 @@ int InfluenceCost(const CvAStarNode* parent, const CvAStarNode* node, const SPat
 	{
 		//inside our territory everything costs the same unless it's a mountain
 		if (pToPlot->isImpassable(pSourcePlot->getTeam()))
-			iCost += GC.getINFLUENCE_MOUNTAIN_COST();
+			iCost += /*3*/ GD_INT_GET(INFLUENCE_MOUNTAIN_COST);
 	}
 
 	return max(1,iCost+iExtraCost)*PATH_BASE_COST;
@@ -2065,7 +2065,6 @@ int CityConnectionLandValid(const CvAStarNode* parent, const CvAStarNode* node, 
 		//what else can count as road depends on the player type
 		if(kPlayer.GetPlayerTraits()->IsRiverTradeRoad() && pNewPlot->isRiver())
 				ePlotRoute = ROUTE_ROAD;
-
 		if (kPlayer.GetPlayerTraits()->IsWoodlandMovementBonus() && (pNewPlot->getFeatureType() == FEATURE_FOREST || pNewPlot->getFeatureType() == FEATURE_JUNGLE))
 		{
 			//balance patch does not require plot ownership
@@ -2416,7 +2415,7 @@ bool CvTwoLayerPathFinder::AddStopNodeIfRequired(const CvAStarNode* current, con
 		!next->m_kCostCacheData.bCanEnterTerrainPermanent;
 
 	bool bAttrition = false;
-	if (pUnitDataCache->pUnit && pUnitDataCache->pUnit->isHasPromotion((PromotionTypes)GC.getPROMOTION_UNWELCOME_EVANGELIST()))
+	if (pUnitDataCache->pUnit && pUnitDataCache->pUnit->isHasPromotion((PromotionTypes)GD_INT_GET(PROMOTION_UNWELCOME_EVANGELIST)))
 	{
 		CvPlot* pCurrentPlot = GC.getMap().plotUnchecked(current->m_iX, current->m_iY);
 		CvPlot* pNextPlot = GC.getMap().plotUnchecked(next->m_iX, next->m_iY);
@@ -2445,7 +2444,7 @@ bool CvTwoLayerPathFinder::AddStopNodeIfRequired(const CvAStarNode* current, con
 		//cost is the same plus a little bit to encourage going the full distance when in doubt
 		pStopNode->m_iKnownCost = current->m_iKnownCost + PATH_STEP_WEIGHT;
 		pStopNode->m_iKnownCost += iEndTurnCost;
-		pStopNode->m_iKnownCost += GC.getMOVE_DENOMINATOR() * PATH_BASE_COST; //some fixed cost for the forfeited movement points
+		pStopNode->m_iKnownCost += GD_INT_GET(MOVE_DENOMINATOR) * PATH_BASE_COST; //some fixed cost for the forfeited movement points
 
 		//we sort the nodes by total cost!
 		pStopNode->m_iTotalCost = pStopNode->m_iKnownCost*giKnownCostWeight + pStopNode->m_iHeuristicCost*giHeuristicCostWeight;
@@ -2476,7 +2475,7 @@ bool CvTwoLayerPathFinder::Configure(const SPathFinderUserData& config)
 	{
 	case PT_UNIT_MOVEMENT:
 		SetFunctionPointers(PathDestValid, PathHeuristic, PathCost, PathValid, NULL, UnitPathInitialize, UnitPathUninitialize);
-		m_iBasicPlotCost = PATH_BASE_COST*GC.getMOVE_DENOMINATOR();
+		m_iBasicPlotCost = PATH_BASE_COST*GD_INT_GET(MOVE_DENOMINATOR);
 		break;
 	default:
 		//not implemented here
@@ -3125,7 +3124,7 @@ int TradePathLandValid(const CvAStarNode* parent, const CvAStarNode* node, const
 		return FALSE;
 	}
 
-	if (pToPlot->getRevealedImprovementType(pCacheData->GetTeam())==(ImprovementTypes)GC.getBARBARIAN_CAMP_IMPROVEMENT())
+	if (pToPlot->getRevealedImprovementType(pCacheData->GetTeam())==(ImprovementTypes)GD_INT_GET(BARBARIAN_CAMP_IMPROVEMENT))
 	{
 		return FALSE;
 	}

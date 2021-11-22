@@ -1133,7 +1133,7 @@
 			<Type>BUILDING_GIORGIO_ARMEIER_HQ</Type>
 			<BuildingClass>BUILDINGCLASS_GIORGIO_ARMEIER_HQ</BuildingClass>
 			<Cost>1300</Cost>
-			<GoldMaintenance>3</GoldMaintenance>
+			<GoldMaintenance>4</GoldMaintenance>
 			<IsCorporation>true</IsCorporation>
 			<Description>TXT_KEY_BUILDING_GIORGIO_ARMEIER_HQ</Description>
 			<Civilopedia>TXT_KEY_CIV5_BUILDINGS_GIORGIO_ARMEIER_HQ_TEXT</Civilopedia>
@@ -1310,7 +1310,7 @@
 			<Type>BUILDING_CIVILIZED_JEWELERS_HQ</Type>
 			<BuildingClass>BUILDINGCLASS_CIVILIZED_JEWELERS_HQ</BuildingClass>
 			<Cost>1300</Cost>
-			<GoldMaintenance>6</GoldMaintenance>
+			<GoldMaintenance>4</GoldMaintenance>
 			<IsCorporation>true</IsCorporation>
 			<Description>TXT_KEY_BUILDING_CIVILIZED_JEWELERS_HQ</Description>
 			<Civilopedia>TXT_KEY_CIV5_BUILDINGS_CORP_TEXT</Civilopedia>

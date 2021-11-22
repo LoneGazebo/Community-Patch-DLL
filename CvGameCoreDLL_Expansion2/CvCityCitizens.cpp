@@ -360,10 +360,10 @@ void CvCityCitizens::DoTurn()
 				{
 					if (bWantSettlers)
 						//if we fall below this threshold the early expansion strategy will be disabled and we leave good city sites to our enemies
-						iLockThreshold = GC.getUNHAPPY_THRESHOLD();
+						iLockThreshold = /*50*/ GD_INT_GET(UNHAPPY_THRESHOLD);
 					else
 						//later on tolerate some more unhappiness
-						iLockThreshold = GC.getVERY_UNHAPPY_THRESHOLD();
+						iLockThreshold = /*35*/ GD_INT_GET(VERY_UNHAPPY_THRESHOLD);
 				}
 
 				//lock the city if it's net negative and would take us over the threshold
@@ -537,7 +537,7 @@ int CvCityCitizens::GetPlotValue(CvPlot* pPlot, SPrecomputedExpensiveNumbers& ca
 bool CvCityCitizens::CityShouldEmphasizeFood(int iAssumedExcessFood) const
 {
 	bool bCityFoodProduction = !GET_PLAYER(GetOwner()).isHuman() && m_pCity->getPopulation() > 3 && m_pCity->isFoodProduction(); //settler!
-	bool bSmallCity = m_pCity->getPopulation() < GC.getCITY_MIN_SIZE_FOR_SETTLERS();
+	bool bSmallCity = m_pCity->getPopulation() < /*2 in CP, 4 in CBO*/ GD_INT_GET(CITY_MIN_SIZE_FOR_SETTLERS);
 	int iFoodThreshold = GetExcessFoodThreshold100();
 
 	//do we have enough food? always want to grow a little bit a least, so don't use zero as threshold
@@ -662,42 +662,42 @@ int CvCityCitizens::GetYieldModForFocus(YieldTypes eYield, CityAIFocusTypes eFoc
 	if (eYield == YIELD_FOOD)
 	{
 		if (eFocus == CITY_AI_FOCUS_TYPE_FOOD || bEmphasizeFood)
-			iYieldMod += GC.getAI_CITIZEN_VALUE_FOOD();
+			iYieldMod += /*12*/ GD_INT_GET(AI_CITIZEN_VALUE_FOOD);
 
 		iYieldMod += cache.iUnhappinessFromDistress;
 	}
 	else if (eYield == YIELD_PRODUCTION)
 	{
 		if (eFocus == CITY_AI_FOCUS_TYPE_PRODUCTION || bEmphasizeProduction)
-			iYieldMod += GC.getAI_CITIZEN_VALUE_PRODUCTION();
+			iYieldMod += /*12*/ GD_INT_GET(AI_CITIZEN_VALUE_PRODUCTION);
 
 		iYieldMod += cache.iUnhappinessFromDistress;
 	}
 	else if (eYield == YIELD_GOLD)
 	{
 		if (eFocus == CITY_AI_FOCUS_TYPE_GOLD)
-			iYieldMod += GC.getAI_CITIZEN_VALUE_GOLD();
+			iYieldMod += /*12*/ GD_INT_GET(AI_CITIZEN_VALUE_GOLD);
 
 		iYieldMod += cache.iUnhappinessFromGold;
 	}
 	else if (eYield == YIELD_SCIENCE)
 	{
 		if (eFocus == CITY_AI_FOCUS_TYPE_SCIENCE)
-			iYieldMod += GC.getAI_CITIZEN_VALUE_SCIENCE();
+			iYieldMod += /*16*/ GD_INT_GET(AI_CITIZEN_VALUE_SCIENCE);
 
 		iYieldMod += cache.iUnhappinessFromScience;
 	}
 	else if (eYield == YIELD_CULTURE || eYield == YIELD_TOURISM)
 	{
 		if (eFocus == CITY_AI_FOCUS_TYPE_CULTURE)
-			iYieldMod += GC.getAI_CITIZEN_VALUE_CULTURE();
+			iYieldMod += /*16*/ GD_INT_GET(AI_CITIZEN_VALUE_CULTURE);
 
 		iYieldMod += cache.iUnhappinessFromCulture;
 	}
 	else if (eYield == YIELD_FAITH || eYield == YIELD_GOLDEN_AGE_POINTS)
 	{
 		if (eFocus == CITY_AI_FOCUS_TYPE_FAITH)
-			iYieldMod += GC.getAI_CITIZEN_VALUE_FAITH();
+			iYieldMod += /*12*/ GD_INT_GET(AI_CITIZEN_VALUE_FAITH);
 
 		iYieldMod += cache.iUnhappinessFromReligion;
 	}
@@ -705,7 +705,7 @@ int CvCityCitizens::GetYieldModForFocus(YieldTypes eYield, CityAIFocusTypes eFoc
 	//sanity check: do not focus too much on anything else while we need food
 	//if we are too greedy initially we fix it in OptimizeWorkedPlots()
 	if (bEmphasizeFood && eYield != YIELD_FOOD)
-		return min(iDefaultValue+GC.getAI_CITIZEN_VALUE_FOOD(), iYieldMod);
+		return min(iDefaultValue + /*12*/ GD_INT_GET(AI_CITIZEN_VALUE_FOOD), iYieldMod);
 	else
 		return iYieldMod;
 }
@@ -718,7 +718,7 @@ BuildingTypes CvCityCitizens::GetAIBestSpecialistBuilding(int& iSpecialistValue,
 
 	gCachedNumbers.update(m_pCity);
 
-	int iBestSpecialistValue = GetSpecialistValue((SpecialistTypes)GC.getDEFAULT_SPECIALIST(),gCachedNumbers);
+	int iBestSpecialistValue = GetSpecialistValue((SpecialistTypes)GD_INT_GET(DEFAULT_SPECIALIST),gCachedNumbers);
 	BuildingTypes eBestBuilding = NO_BUILDING;
 	CvBuildingEntry* pBestBuildingInfo = NULL;
 
@@ -896,7 +896,7 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist, const SPreco
 	}
 
 	//nothing else for laborers ...
-	if (eSpecialist == (SpecialistTypes)GC.getDEFAULT_SPECIALIST())
+	if (eSpecialist == (SpecialistTypes)GD_INT_GET(DEFAULT_SPECIALIST))
 		return iValue;
 
 	// GPP modifiers
@@ -1058,7 +1058,7 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist, const SPreco
 		}
 		if (iNumMarried > 0)
 		{
-			iMod += (iNumMarried * GC.getBALANCE_MARRIAGE_GP_RATE());
+			iMod += (iNumMarried * /*15*/ GD_INT_GET(BALANCE_MARRIAGE_GP_RATE));
 		}
 	}
 
@@ -1463,7 +1463,7 @@ void CvCityCitizens::OptimizeWorkedPlots(bool bLogging)
 
 	//do not forget default specialists aka laborers
 	gCachedNumbers.update(m_pCity);
-	int iLaborerValue = GetSpecialistValue((SpecialistTypes)GC.getDEFAULT_SPECIALIST(), gCachedNumbers);
+	int iLaborerValue = GetSpecialistValue((SpecialistTypes)GD_INT_GET(DEFAULT_SPECIALIST), gCachedNumbers);
 
 	//failsafe against switching back and forth, don't try this too often
 	while (iCount < m_pCity->getPopulation() / 2)
@@ -2426,7 +2426,7 @@ int CvCityCitizens::GetSpecialistRate(SpecialistTypes eSpecialist)
 					}
 					if (iNumMarried > 0)
 					{
-						iMod += (iNumMarried * GC.getBALANCE_MARRIAGE_GP_RATE());
+						iMod += (iNumMarried * /*15*/ GD_INT_GET(BALANCE_MARRIAGE_GP_RATE));
 					}
 				}
 #endif
@@ -2515,7 +2515,7 @@ bool CvCityCitizens::IsCanAddSpecialistToBuilding(BuildingTypes eBuilding)
 	if(iNumSpecialistsAssigned < GetCity()->getPopulation() &&	// Limit based on Pop of City
 #endif
 		iNumSpecialistsAssigned < GC.getBuildingInfo(eBuilding)->GetSpecialistCount() &&				// Limit for this particular Building
-		iNumSpecialistsAssigned < GC.getMAX_SPECIALISTS_FROM_BUILDING())	// Overall Limit
+		iNumSpecialistsAssigned < /*4*/ GD_INT_GET(MAX_SPECIALISTS_FROM_BUILDING))	// Overall Limit
 	{
 		return true;
 	}
@@ -2772,7 +2772,7 @@ void CvCityCitizens::ChangeNumDefaultSpecialists(int iChange, CvCity::eUpdateMod
 {
 	m_iNumDefaultSpecialists += iChange;
 
-	SpecialistTypes eSpecialist = (SpecialistTypes)GC.getDEFAULT_SPECIALIST();
+	SpecialistTypes eSpecialist = (SpecialistTypes)GD_INT_GET(DEFAULT_SPECIALIST);
 	m_aiSpecialistCounts[eSpecialist] += iChange;
 
 	if (m_aiSpecialistCounts[eSpecialist] > m_pCity->getPopulation())
@@ -2831,7 +2831,7 @@ int CvCityCitizens::GetSpecialistSlotsTotal() const
 	{
 		eSpecialist = (SpecialistTypes)iSpecialistLoop;
 
-		if (eSpecialist != (SpecialistTypes)GC.getDEFAULT_SPECIALIST())
+		if (eSpecialist != (SpecialistTypes)GD_INT_GET(DEFAULT_SPECIALIST))
 		{
 			iNumSpecialists += GetSpecialistSlots(eSpecialist);
 		}
@@ -2851,7 +2851,7 @@ int CvCityCitizens::GetTotalSpecialistCount() const
 	{
 		eSpecialist = (SpecialistTypes)iSpecialistLoop;
 
-		if (eSpecialist != (SpecialistTypes)GC.getDEFAULT_SPECIALIST())
+		if (eSpecialist != (SpecialistTypes)GD_INT_GET(DEFAULT_SPECIALIST))
 		{
 			iNumSpecialists += GetSpecialistCount(eSpecialist);
 		}
@@ -2992,14 +2992,14 @@ void CvCityCitizens::DoClearForcedSpecialists()
 /// What upgrade progress does a Specialist need to level up?
 int CvCityCitizens::GetSpecialistUpgradeThreshold(UnitClassTypes eUnitClass)
 {
-	int iThreshold = /*100*/ GC.getGREAT_PERSON_THRESHOLD_BASE();
-	int iNumCreated;
+	int iThreshold = /*100 in CP, 150 in CBO*/ GD_INT_GET(GREAT_PERSON_THRESHOLD_BASE);
+	int iNumCreated = 0;
 
 	if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_WRITER", true))
 	{
 #if defined(MOD_GLOBAL_TRULY_FREE_GP)
 		iNumCreated = GET_PLAYER(GetCity()->getOwner()).getGreatWritersCreated(MOD_GLOBAL_TRULY_FREE_GP);
-		iThreshold -= GC.getGWAM_THRESHOLD_DECREASE();
+		iThreshold -= /*0*/ GD_INT_GET(GWAM_THRESHOLD_DECREASE);
 #else
 		iNumCreated = GET_PLAYER(GetCity()->getOwner()).getGreatWritersCreated();
 #endif
@@ -3008,7 +3008,7 @@ int CvCityCitizens::GetSpecialistUpgradeThreshold(UnitClassTypes eUnitClass)
 	{
 #if defined(MOD_GLOBAL_TRULY_FREE_GP)
 		iNumCreated = GET_PLAYER(GetCity()->getOwner()).getGreatArtistsCreated(MOD_GLOBAL_TRULY_FREE_GP);
-		iThreshold -= GC.getGWAM_THRESHOLD_DECREASE();
+		iThreshold -= /*0*/ GD_INT_GET(GWAM_THRESHOLD_DECREASE);
 #else
 		iNumCreated = GET_PLAYER(GetCity()->getOwner()).getGreatArtistsCreated();
 #endif
@@ -3017,7 +3017,7 @@ int CvCityCitizens::GetSpecialistUpgradeThreshold(UnitClassTypes eUnitClass)
 	{
 #if defined(MOD_GLOBAL_TRULY_FREE_GP)
 		iNumCreated = GET_PLAYER(GetCity()->getOwner()).getGreatMusiciansCreated(MOD_GLOBAL_TRULY_FREE_GP);
-		iThreshold -= GC.getGWAM_THRESHOLD_DECREASE();
+		iThreshold -= /*0*/ GD_INT_GET(GWAM_THRESHOLD_DECREASE);
 #else
 		iNumCreated = GET_PLAYER(GetCity()->getOwner()).getGreatMusiciansCreated();
 #endif
@@ -3127,7 +3127,7 @@ int CvCityCitizens::GetSpecialistUpgradeThreshold(UnitClassTypes eUnitClass)
 	}
 #endif
 	// Increase threshold based on how many GP have already been spawned
-	iThreshold += (/*50*/ GC.getGREAT_PERSON_THRESHOLD_INCREASE() * iNumCreated);
+	iThreshold += (/*100 in CP, 250 in CBO*/ GD_INT_GET(GREAT_PERSON_THRESHOLD_INCREASE) * iNumCreated);
 
 	// Game Speed mod
 	iThreshold *= GC.getGame().getGameSpeedInfo().getGreatPeoplePercent();
@@ -3137,7 +3137,7 @@ int CvCityCitizens::GetSpecialistUpgradeThreshold(UnitClassTypes eUnitClass)
 	iThreshold *= GC.getGame().getStartEraInfo().getGreatPeoplePercent();
 	iThreshold /= 100;
 
-	if (!GET_PLAYER(GetCity()->getOwner()).isHuman()&&MOD_ALTERNATIVE_DIFFICULTY)
+	if (MOD_ALTERNATIVE_DIFFICULTY && !GET_PLAYER(GetCity()->getOwner()).isHuman())
 	{
 		iThreshold *= GC.getGame().getHandicapInfo().getAIGreatPersonPercent();
 		iThreshold /= 100;
@@ -3178,8 +3178,7 @@ void CvCityCitizens::DoSpawnGreatPerson(UnitTypes eUnit, bool bIncrementCount, b
 #if defined(MOD_BALANCE_CORE)
 		if (kPlayer.GetPlayerTraits()->IsGPWLTKD())
 		{
-			int iWLTKD = (GC.getCITY_RESOURCE_WLTKD_TURNS() / 3);
-
+			int iWLTKD = /*6*/ GD_INT_GET(CITY_RESOURCE_WLTKD_TURNS) / 3;
 			iWLTKD *= GC.getGame().getGameSpeedInfo().getTrainPercent();
 			iWLTKD /= 100;
 
@@ -3205,8 +3204,7 @@ void CvCityCitizens::DoSpawnGreatPerson(UnitTypes eUnit, bool bIncrementCount, b
 			{
 				if (pLoopCity != NULL)
 				{
-					int iWLTKD = (GC.getCITY_RESOURCE_WLTKD_TURNS() / 3);
-
+					int iWLTKD = /*6*/ GD_INT_GET(CITY_RESOURCE_WLTKD_TURNS) / 3;
 					iWLTKD *= GC.getGame().getGameSpeedInfo().getTrainPercent();
 					iWLTKD /= 100;
 
@@ -3392,8 +3390,7 @@ void CvCityCitizens::DoSpawnGreatPerson(UnitTypes eUnit, bool bIncrementCount, b
 #if defined(MOD_BALANCE_CORE)
 		if (kPlayer.GetPlayerTraits()->IsGPWLTKD())
 		{
-			int iWLTKD = (GC.getCITY_RESOURCE_WLTKD_TURNS() / 3);
-
+			int iWLTKD = /*6*/ GD_INT_GET(CITY_RESOURCE_WLTKD_TURNS) / 3;
 			iWLTKD *= GC.getGame().getGameSpeedInfo().getTrainPercent();
 			iWLTKD /= 100;
 
@@ -3419,8 +3416,7 @@ void CvCityCitizens::DoSpawnGreatPerson(UnitTypes eUnit, bool bIncrementCount, b
 			{
 				if (pLoopCity != NULL)
 				{
-					int iWLTKD = (GC.getCITY_RESOURCE_WLTKD_TURNS() / 3);
-
+					int iWLTKD = /*6*/ GD_INT_GET(CITY_RESOURCE_WLTKD_TURNS) / 3;
 					iWLTKD *= GC.getGame().getGameSpeedInfo().getTrainPercent();
 					iWLTKD /= 100;
 

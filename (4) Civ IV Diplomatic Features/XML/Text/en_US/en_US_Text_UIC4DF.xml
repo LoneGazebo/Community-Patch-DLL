@@ -462,6 +462,12 @@
 		<Row Tag="TXT_KEY_VO_TREATMENT_DEMAND">
 			<Text>Demands made of them: {1_Num}</Text>
 		</Row>
+		<Row Tag="TXT_KEY_VO_TREATMENT_STEALING">
+			<Text>Stealing from them: {1_Num}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_VO_TREATMENT_DENOUNCING">
+			<Text>Denouncing them: {1_Num}</Text>
+		</Row>
 		<Row Tag="TXT_KEY_VO_TREATMENT_TAX">
 			<Text>Current taxation policies: {1_Num}</Text>
 		</Row>
@@ -469,10 +475,13 @@
 			<Text>Protection of their lands: {1_Num}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_VO_TREATMENT_RELIGION">
-			<Text>Shared Religion Interests: {1_Num}</Text>
+			<Text>Shared religion interests: {1_Num}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_VO_TREATMENT_TRADE_ROUTE">
-			<Text>Trade Route with them: {1_Num}</Text>
+			<Text>Trade Routes with them: {1_Num}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_VO_TREATMENT_OPEN_BORDERS">
+			<Text>Opening our borders: {1_Num}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_VO_TREATMENT_TOTAL">
 			<Text>Total: {1_Sum}</Text>
@@ -722,7 +731,7 @@
 			<Text>[ICON_BULLET] Open Borders</Text>
 		</Row>
 		<Row Tag="TXT_KEY_VO_BENEFITS_RELIGION_MOD">
-			<Text>[ICON_BULLET] Double [ICON_PEACE] Religious Pressure</Text>
+			<Text>[ICON_BULLET] +100% [ICON_PEACE] Religious Pressure</Text>
 		</Row>
 		<Row Tag="TXT_KEY_VO_BENEFITS_TOURISM_MOD">
 			<Text>[ICON_BULLET] +33% [ICON_TOURISM] Tourism Spread</Text>

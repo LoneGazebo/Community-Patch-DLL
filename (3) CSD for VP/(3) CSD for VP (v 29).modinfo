@@ -84,13 +84,11 @@
     <File md5="615136114CDF6E15C36DF6082282B5B7" import="0">Buildings/CSDBuildings.xml</File>
     <File md5="FB153D1BEF1DA997567B0DBBF771FE1E" import="0">Buildings/DiploBuildingText.sql</File>
     <File md5="2BACCBDFCF69ADDF1F16006406D0CDBA" import="0">Buildings/BuildingGrowthYield.xml</File>
-    <File md5="AC14FD839DDEEB3C1B0FE1373014A719" import="0">Buildings/VanillaBuildingChanges.sql</File>
-    <File md5="208BAB0B417F7E1D7B119C211571A4AC" import="0">Compatibility.xml</File>
-    <File md5="A5D14D453BBCC58F3B31DB82A18572AB" import="0">Gameplay/AddDefines.sql</File>
+    <File md5="D68EBF039F03A031C146DA5E8DDFD452" import="0">Gameplay/UpdateDefines.sql</File>
     <File md5="EA5860444C5CA063BFEBE27B1AA6457A" import="0">Gameplay/CSDTable.sql</File>
     <File md5="3A8B1EE0BF522FBEE6FC3EAB318E87A4" import="0">Gameplay/GameplayText.sql</File>
     <File md5="CF8BD06200818A9E72B0C33D5203174B" import="0">Gameplay/Gameplay.sql</File>
-    <File md5="C96F6E1582EEDE0E2AFD4817445EDDE1" import="0">Gameplay/GoldGifts.sql</File>
+    <File md5="00C3521183F921A16193D243609A08AE" import="0">Gameplay/GoldGifts.sql</File>
     <File md5="C4565E3416EC26ADAAC66FF1ABE58B2B" import="0">Improvements/Build.xml</File>
     <File md5="3ADD0DF5B4C6640101CC92A6E1960B95" import="0">Improvements/ImprovementText.xml</File>
     <File md5="1E1B61C5D601D62A42BFA54BCAE6BDE3" import="0">Improvements/Improvements.xml</File>
@@ -122,7 +120,6 @@
       <UpdateDatabase>Art/ArtInfo.sql</UpdateDatabase>
       <UpdateDatabase>Buildings/BuildingRules.sql</UpdateDatabase>
       <UpdateDatabase>Buildings/DiploBuildingText.sql</UpdateDatabase>
-      <UpdateDatabase>Buildings/VanillaBuildingChanges.sql</UpdateDatabase>
       <UpdateDatabase>Gameplay/Gameplay.sql</UpdateDatabase>
       <UpdateDatabase>Gameplay/GameplayText.sql</UpdateDatabase>
       <UpdateDatabase>Gameplay/GoldGifts.sql</UpdateDatabase>
@@ -148,7 +145,7 @@
       <UpdateDatabase>Specialist/CivilServant.xml</UpdateDatabase>
       <UpdateDatabase>World Congress/Congress.xml</UpdateDatabase>
       <UpdateDatabase>World Congress/Projects.xml</UpdateDatabase>
-      <UpdateDatabase>Compatibility.xml</UpdateDatabase>
+      <UpdateDatabase>Gameplay/UpdateDefines.sql</UpdateDatabase>
     </OnModActivated>
   </Actions>
 </Mod>

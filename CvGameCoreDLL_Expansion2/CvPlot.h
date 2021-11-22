@@ -188,11 +188,11 @@ public:
 	{
 		if(isWater())
 		{
-			return (GC.getPLOT_UNIT_LIMIT() + getAdditionalUnitsFromImprovement());
+			return (/*1*/ GD_INT_GET(PLOT_UNIT_LIMIT) + getAdditionalUnitsFromImprovement());
 		}
 		else		
 		{
-			return isCity() ? (GC.getCITY_UNIT_LIMIT() + getStackingUnits()) : (GC.getPLOT_UNIT_LIMIT() + getAdditionalUnitsFromImprovement() + getStackingUnits());
+			return isCity() ? (/*1*/ GD_INT_GET(CITY_UNIT_LIMIT) + getStackingUnits()) : (/*1*/ GD_INT_GET(PLOT_UNIT_LIMIT) + getAdditionalUnitsFromImprovement() + getStackingUnits());
 		}
 	}
 #endif

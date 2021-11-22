@@ -342,7 +342,7 @@ void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* 
 	if(!bSamePlayer)
 	{
 		//this is for a quest ... normal considerations don't apply
-		iValue = min(GC.getMINOR_CIV_ROUTE_QUEST_WEIGHT() / max(1, iPlotsNeeded), MAX_SHORT);
+		iValue = min(/*1000*/ GD_INT_GET(MINOR_CIV_ROUTE_QUEST_WEIGHT) / max(1, iPlotsNeeded), MAX_SHORT);
 	}
 	else
 	{
@@ -360,7 +360,7 @@ void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* 
 
 		if(bIndustrialRoute)
 		{
-			iSideBenefits += (pTargetCity->getYieldRate(YIELD_PRODUCTION, false) * GC.getINDUSTRIAL_ROUTE_PRODUCTION_MOD());
+			iSideBenefits += (pTargetCity->getYieldRate(YIELD_PRODUCTION, false) * /*25 in CP, 0 in CBO*/ GD_INT_GET(INDUSTRIAL_ROUTE_PRODUCTION_MOD));
 		}
 
 		int iProfit = iGoldForRoute - (iRoadLength*iMaintenancePerTile);
@@ -741,7 +741,7 @@ void CvBuilderTaskingAI::UpdateRoutePlots(void)
 				if (!pFirstCity && !pSecondCity)
 					continue;
 
-				bool bConnectOnlyCapitals = GC.getCITY_CONNECTIONS_CONNECT_TO_CAPITAL()>0;
+				bool bConnectOnlyCapitals = /*1*/ GD_INT_GET(CITY_CONNECTIONS_CONNECT_TO_CAPITAL) > 0;
 				if (bConnectOnlyCapitals)
 				{
 					// only need to build roads to the capital for the money and happiness
@@ -962,7 +962,7 @@ void CvBuilderTaskingAI::AddImprovingResourcesDirectives(CvUnit* pUnit, CvPlot* 
 			}
 
 			BuilderDirective::BuilderDirectiveType eDirectiveType = BuilderDirective::BUILD_IMPROVEMENT_ON_RESOURCE;
-			int iWeight = GC.getBUILDER_TASKING_BASELINE_BUILD_RESOURCE_IMPROVEMENTS();
+			int iWeight = /*300*/ GD_INT_GET(BUILDER_TASKING_BASELINE_BUILD_RESOURCE_IMPROVEMENTS);
 
 			//slightly downward value for bonus resources relative to lux/strat
 			if (pkResource->getResourceUsage() == RESOURCEUSAGE_BONUS)
@@ -973,7 +973,7 @@ void CvBuilderTaskingAI::AddImprovingResourcesDirectives(CvUnit* pUnit, CvPlot* 
 			else if (pkImprovementInfo->IsCreatedByGreatPerson())
 			{
 				//if we're building a great person improvement, putting it on a lux/strat resource is the last resort ...
-				iWeight = GC.getBUILDER_TASKING_BASELINE_BUILD_IMPROVEMENTS();
+				iWeight = /*100*/ GD_INT_GET(BUILDER_TASKING_BASELINE_BUILD_IMPROVEMENTS);
 			}
 
 			iWeight = GetBuildCostWeight(iWeight, pPlot, eBuild);
@@ -1253,19 +1253,7 @@ void CvBuilderTaskingAI::AddImprovingPlotsDirectives(CvUnit* pUnit, CvPlot* pPlo
 		}
 
 		BuilderDirective::BuilderDirectiveType eDirectiveType = BuilderDirective::BUILD_IMPROVEMENT;
-		int iWeight = GC.getBUILDER_TASKING_BASELINE_BUILD_IMPROVEMENTS();
-#if !defined(MOD_API_UNIFIED_YIELDS)
-		else if(pImprovement->GetYieldChange(YIELD_CULTURE) > 0)
-		{
-			iWeight = GC.getBUILDER_TASKING_BASELINE_ADDS_CULTURE() * GC.getImprovementInfo(eImprovement)->GetYieldChange(YIELD_CULTURE);
-			int iAdjacentCulture = pImprovement->GetCultureAdjacentSameType();
-
-			if(iAdjacentCulture > 0)
-			{
-				iScore *= (1 + pPlot->ComputeCultureFromAdjacentImprovement(*pImprovement, eImprovement));
-			}
-		}
-#endif
+		int iWeight = /*100*/ GD_INT_GET(BUILDER_TASKING_BASELINE_BUILD_IMPROVEMENTS);
 		iWeight = GetBuildCostWeight(iWeight, pPlot, eBuild);
 
 		int iBuildTimeWeight = GetBuildTimeWeight(pUnit, pPlot, eBuild, DoesBuildHelpRush(pUnit, pPlot, eBuild));
@@ -1306,10 +1294,8 @@ void CvBuilderTaskingAI::AddImprovingPlotsDirectives(CvUnit* pUnit, CvPlot* pPlo
 			}
 		}
 
-#if defined(MOD_BALANCE_CORE)
 		iWeight = min(iWeight,0x7FFF);
 		iWeight = iWeight / (iMoveTurnsAway*iMoveTurnsAway + 1);
-#endif
 
 		//overflow danger here
 		iWeight += iScore;
@@ -1374,7 +1360,7 @@ void CvBuilderTaskingAI::AddRemoveRouteDirectives(CvUnit* pUnit, CvPlot* pPlot, 
 			return;
 
 	//we want to be aggressive with this because of the cost.
-	int iWeight = GC.getBUILDER_TASKING_BASELINE_BUILD_ROUTES()/3;
+	int iWeight = /*250*/ GD_INT_GET(BUILDER_TASKING_BASELINE_BUILD_ROUTES)/3;
 
 	//if in debt, bump it up.
 	EconomicAIStrategyTypes eStrategyLosingMoney = (EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_LOSING_MONEY");
@@ -1439,7 +1425,7 @@ void CvBuilderTaskingAI::AddRouteDirectives(CvUnit* pUnit, CvPlot* pPlot, int iM
 		}
 	}
 
-	int iWeight = GC.getBUILDER_TASKING_BASELINE_BUILD_ROUTES();
+	int iWeight = /*750*/ GD_INT_GET(BUILDER_TASKING_BASELINE_BUILD_ROUTES);
 	BuilderDirective::BuilderDirectiveType eDirectiveType = BuilderDirective::BUILD_ROUTE;
 
 	iWeight = GetBuildCostWeight(iWeight, pPlot, m_eRouteBuild);
@@ -1569,7 +1555,7 @@ void CvBuilderTaskingAI::AddChopDirectives(CvUnit* pUnit, CvPlot* pPlot, int iMo
 		return;
 	}
 
-	int iWeight = GetBuildCostWeight(GC.getBUILDER_TASKING_BASELINE_REPAIR(), pPlot, eChopBuild);
+	int iWeight = GetBuildCostWeight(/*1000*/ GD_INT_GET(BUILDER_TASKING_BASELINE_REPAIR), pPlot, eChopBuild);
 	iWeight += GetBuildTimeWeight(pUnit, pPlot, eChopBuild, false);
 	iWeight *= iProduction; // times the amount that the plot produces from the chopping
 
@@ -1598,38 +1584,34 @@ void CvBuilderTaskingAI::AddChopDirectives(CvUnit* pUnit, CvPlot* pPlot, int iMo
 			case YIELD_FOOD:
 				if(GC.getFlavorTypes((FlavorTypes)iFlavorLoop) == "FLAVOR_GROWTH")
 				{
-					iYieldDifferenceWeight += iDeltaYield * pFlavorManager->GetPersonalityIndividualFlavor((FlavorTypes)iFlavorLoop) * GC.getBUILDER_TASKING_PLOT_EVAL_MULTIPLIER_FOOD();
+					iYieldDifferenceWeight += iDeltaYield * pFlavorManager->GetPersonalityIndividualFlavor((FlavorTypes)iFlavorLoop) * /*3*/ GD_INT_GET(BUILDER_TASKING_PLOT_EVAL_MULTIPLIER_FOOD);
 				}
 				break;
 			case YIELD_PRODUCTION:
 				if(GC.getFlavorTypes((FlavorTypes)iFlavorLoop) == "FLAVOR_PRODUCTION")
 				{
-					iYieldDifferenceWeight += iDeltaYield * pFlavorManager->GetPersonalityIndividualFlavor((FlavorTypes)iFlavorLoop) * GC.getBUILDER_TASKING_PLOT_EVAL_MULTIPLIER_PRODUCTION();
+					iYieldDifferenceWeight += iDeltaYield * pFlavorManager->GetPersonalityIndividualFlavor((FlavorTypes)iFlavorLoop) * /*2*/ GD_INT_GET(BUILDER_TASKING_PLOT_EVAL_MULTIPLIER_PRODUCTION);
 				}
 				break;
 			case YIELD_GOLD:
 				if(GC.getFlavorTypes((FlavorTypes)iFlavorLoop) == "FLAVOR_GOLD")
 				{
-					iYieldDifferenceWeight += iDeltaYield * pFlavorManager->GetPersonalityIndividualFlavor((FlavorTypes)iFlavorLoop) * GC.getBUILDER_TASKING_PLOT_EVAL_MULTIPLIER_GOLD();
+					iYieldDifferenceWeight += iDeltaYield * pFlavorManager->GetPersonalityIndividualFlavor((FlavorTypes)iFlavorLoop) * /*2*/ GD_INT_GET(BUILDER_TASKING_PLOT_EVAL_MULTIPLIER_GOLD);
 				}
 				break;
 			case YIELD_SCIENCE:
 				if(GC.getFlavorTypes((FlavorTypes)iFlavorLoop) == "FLAVOR_SCIENCE")
 				{
-					iYieldDifferenceWeight += iDeltaYield * pFlavorManager->GetPersonalityIndividualFlavor((FlavorTypes)iFlavorLoop) * GC.getBUILDER_TASKING_PLOT_EVAL_MULTIPLIER_SCIENCE();
+					iYieldDifferenceWeight += iDeltaYield * pFlavorManager->GetPersonalityIndividualFlavor((FlavorTypes)iFlavorLoop) * /*2*/ GD_INT_GET(BUILDER_TASKING_PLOT_EVAL_MULTIPLIER_SCIENCE);
 				}
 				break;
 			case YIELD_CULTURE:
 				if(GC.getFlavorTypes((FlavorTypes)iFlavorLoop) == "FLAVOR_CULTURE")
 				{
-					iYieldDifferenceWeight += iDeltaYield * pFlavorManager->GetPersonalityIndividualFlavor((FlavorTypes)iFlavorLoop) * GC.getBUILDER_TASKING_PLOT_EVAL_MULTIPLIER_CULTURE();
+					iYieldDifferenceWeight += iDeltaYield * pFlavorManager->GetPersonalityIndividualFlavor((FlavorTypes)iFlavorLoop) * /*3*/ GD_INT_GET(BUILDER_TASKING_PLOT_EVAL_MULTIPLIER_CULTURE);
 				}
 				break;
 			case YIELD_FAITH:
-				//if (GC.getFlavorTypes((FlavorTypes)iFlavorLoop) == "FLAVOR_SCIENCE")
-				//{
-				//	iYieldDifferenceWeight += iDeltaYield * pFlavorManager->GetPersonalityIndividualFlavor((FlavorTypes)iFlavorLoop) * GC.getBUILDER_TASKING_PLOT_EVAL_MULTIPLIER_SCIENCE();
-				//}
 				break;
 #if defined(MOD_API_UNIFIED_YIELDS_TOURISM)
 			case YIELD_TOURISM:
@@ -1694,7 +1676,7 @@ void CvBuilderTaskingAI::AddRepairTilesDirectives(CvUnit* pUnit, CvPlot* pPlot, 
 		return;
 	}
 
-	int iWeight = GetBuildCostWeight(GC.getBUILDER_TASKING_BASELINE_REPAIR() * 100, pPlot, m_eRepairBuild);
+	int iWeight = GetBuildCostWeight(100 * /*1000*/ GD_INT_GET(BUILDER_TASKING_BASELINE_REPAIR), pPlot, m_eRepairBuild);
 	iWeight += GetBuildTimeWeight(pUnit, pPlot, m_eRepairBuild, false);
 	iWeight /= (iMoveTurnsAway*iMoveTurnsAway + 1);
 
@@ -1730,7 +1712,7 @@ void CvBuilderTaskingAI::AddScrubFalloutDirectives(CvUnit* pUnit, CvPlot* pPlot,
 
 	if(pPlot->getFeatureType() == m_eFalloutFeature && pUnit->canBuild(pPlot, m_eFalloutRemove))
 	{
-		int iWeight = GetBuildCostWeight(GC.getBUILDER_TASKING_BASELINE_SCRUB_FALLOUT() * 1000, pPlot, m_eFalloutRemove);
+		int iWeight = GetBuildCostWeight(1000 * /*20000*/ GD_INT_GET(BUILDER_TASKING_BASELINE_SCRUB_FALLOUT), pPlot, m_eFalloutRemove);
 		iWeight += GetBuildTimeWeight(pUnit, pPlot, m_eFalloutRemove, false);
 		iWeight /= (iMoveTurnsAway*iMoveTurnsAway + 1);
 
@@ -1886,56 +1868,55 @@ int CvBuilderTaskingAI::GetBuildTimeWeight(CvUnit* pUnit, CvPlot* pPlot, BuildTy
 /// Return the weight of this resource
 int CvBuilderTaskingAI::GetResourceWeight(ResourceTypes eResource, ImprovementTypes eImprovement, int iQuantity)
 {
-	int iWeight = 0;
 	CvResourceInfo* pkResource = GC.getResourceInfo(eResource);
-	if(pkResource == NULL)
-	{
+	if (!pkResource)
 		return 0;
-	}
 
-	for(int i = 0; i < GC.getNumFlavorTypes(); i++)
+	int iWeight = 0;
+
+	for (int i = 0; i < GC.getNumFlavorTypes(); i++)
 	{
 		int iResourceFlavor = pkResource->getFlavorValue((FlavorTypes)i);
 		int iPersonalityFlavorValue = m_pPlayer->GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)i);
 		int iResult = iResourceFlavor * iPersonalityFlavorValue;
 
-		if(iResult > 0)
+		if (iResult > 0)
 		{
 			iWeight += iResult;
 		}
 
 		int iImprovementFlavor = 1;
-		if(eImprovement != NO_IMPROVEMENT)
+		if (eImprovement != NO_IMPROVEMENT)
 		{
 			iImprovementFlavor = GC.getImprovementInfo(eImprovement)->GetFlavorValue(i);
 		}
 
 		int iUsableByCityWeight = iPersonalityFlavorValue * iImprovementFlavor;
-		if(iUsableByCityWeight > 0)
+		if (iUsableByCityWeight > 0)
 		{
 			iWeight += iUsableByCityWeight;
 		}
 	}
 
 	// if the empire is unhappy (or close to it) and this is a luxury resource the player doesn't have, provide a super bonus to getting it
-	if(pkResource->getResourceUsage() == RESOURCEUSAGE_LUXURY)
+	if (pkResource->getResourceUsage() == RESOURCEUSAGE_LUXURY)
 	{
-		int iModifier = GC.getBUILDER_TASKING_PLOT_EVAL_MULTIPLIER_LUXURY_RESOURCE() * pkResource->getHappiness();
+		int iModifier = pkResource->getHappiness() * /*750*/ GD_INT_GET(BUILDER_TASKING_PLOT_EVAL_MULTIPLIER_LUXURY_RESOURCE);
 
-		if(m_pPlayer->getNumResourceAvailable(eResource) > 0)
+		if (m_pPlayer->getNumResourceAvailable(eResource) > 0)
 			iModifier /= 10; 
 
 		iWeight *= iModifier;
 	}
-	else if(pkResource->getResourceUsage() == RESOURCEUSAGE_STRATEGIC)
+	else if (pkResource->getResourceUsage() == RESOURCEUSAGE_STRATEGIC)
 	{
-		if(m_pPlayer->IsResourceCityTradeable(eResource))
+		if (m_pPlayer->IsResourceCityTradeable(eResource))
 		{
 			// measure quantity
 			int iMultiplyingAmount = iQuantity * 200;
 
 			// if we don't have any currently available
-			if(m_pPlayer->getNumResourceAvailable(eResource) == 0)
+			if (m_pPlayer->getNumResourceAvailable(eResource) == 0)
 				iMultiplyingAmount *= 4;
 
 			iWeight *= iMultiplyingAmount;
@@ -2226,91 +2207,90 @@ int CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes eImprovem
 	}
 #if defined(MOD_API_UNIFIED_YIELDS)
 	int iTempWeight = 0;
-	for(int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+	for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 	{
 		YieldTypes eYield = (YieldTypes) iI;
-		if(pImprovement->GetYieldChange(iI) > 0)
+		if (pImprovement->GetYieldChange(iI) > 0)
 		{
-
-			switch(eYield)
+			switch (eYield)
 			{
 				case YIELD_FOOD:
-					iTempWeight = GC.getBUILDER_TASKING_BASELINE_ADDS_FOOD() * pImprovement->GetYieldChange(iI);
-#if defined(MOD_IMPROVEMENTS_EXTENSIONS)
+					iTempWeight = pImprovement->GetYieldChange(iI) * /*200*/ GD_INT_GET(BUILDER_TASKING_BASELINE_ADDS_FOOD);
+
 					if (MOD_IMPROVEMENTS_EXTENSIONS)
 					{
 						CvFeatureInfo* pFeature = GC.getFeatureInfo(pImprovement->GetCreatedFeature());
 						if (pFeature)
 						{
-							iTempWeight += GC.getBUILDER_TASKING_BASELINE_ADDS_FOOD() * pFeature->getYieldChange(iI);
+							iTempWeight += pFeature->getYieldChange(iI) * /*200*/ GD_INT_GET(BUILDER_TASKING_BASELINE_ADDS_FOOD);
 						}
 					}
-#endif
+
 					break;
 				case YIELD_PRODUCTION:
-					iTempWeight = GC.getBUILDER_TASKING_BASELINE_ADDS_PRODUCTION() * pImprovement->GetYieldChange(iI);
-#if defined(MOD_IMPROVEMENTS_EXTENSIONS)
+					iTempWeight = pImprovement->GetYieldChange(iI) * /*200*/ GD_INT_GET(BUILDER_TASKING_BASELINE_ADDS_PRODUCTION);
+
 					if (MOD_IMPROVEMENTS_EXTENSIONS)
 					{
 						CvFeatureInfo* pFeature = GC.getFeatureInfo(pImprovement->GetCreatedFeature());
 						if (pFeature)
 						{
-							iTempWeight += GC.getBUILDER_TASKING_BASELINE_ADDS_PRODUCTION() * pFeature->getYieldChange(iI);
+							iTempWeight += pFeature->getYieldChange(iI) * /*200*/ GD_INT_GET(BUILDER_TASKING_BASELINE_ADDS_PRODUCTION);
 						}
 					}
-#endif
+
 					break;
 				case YIELD_GOLD:
-					iTempWeight = GC.getBUILDER_TASKING_BASELINE_ADDS_GOLD() * pImprovement->GetYieldChange(iI);
-#if defined(MOD_IMPROVEMENTS_EXTENSIONS)
+					iTempWeight = pImprovement->GetYieldChange(iI) * /*40*/ GD_INT_GET(BUILDER_TASKING_BASELINE_ADDS_GOLD);
+
 					if (MOD_IMPROVEMENTS_EXTENSIONS)
 					{
 						CvFeatureInfo* pFeature = GC.getFeatureInfo(pImprovement->GetCreatedFeature());
 						if (pFeature)
 						{
-							iTempWeight += GC.getBUILDER_TASKING_BASELINE_ADDS_GOLD() * pFeature->getYieldChange(iI);
+							iTempWeight += pFeature->getYieldChange(iI) * /*40*/ GD_INT_GET(BUILDER_TASKING_BASELINE_ADDS_GOLD);
 						}
 					}
-#endif
+
 					break;
 				case YIELD_SCIENCE:
-					iTempWeight = GC.getBUILDER_TASKING_BASELINE_ADDS_SCIENCE() * pImprovement->GetYieldChange(iI);
-#if defined(MOD_IMPROVEMENTS_EXTENSIONS)
+					iTempWeight = pImprovement->GetYieldChange(iI) * /*200*/ GD_INT_GET(BUILDER_TASKING_BASELINE_ADDS_SCIENCE);
+
 					if (MOD_IMPROVEMENTS_EXTENSIONS)
 					{
 						CvFeatureInfo* pFeature = GC.getFeatureInfo(pImprovement->GetCreatedFeature());
 						if (pFeature)
 						{
-							iTempWeight += GC.getBUILDER_TASKING_BASELINE_ADDS_SCIENCE() * pFeature->getYieldChange(iI);
+							iTempWeight += pFeature->getYieldChange(iI) * /*200*/ GD_INT_GET(BUILDER_TASKING_BASELINE_ADDS_SCIENCE);
 						}
 					}
-#endif
+
 					break;
 				case YIELD_CULTURE:
-					iTempWeight = GC.getBUILDER_TASKING_BASELINE_ADDS_CULTURE() * pImprovement->GetYieldChange(iI);
-#if defined(MOD_IMPROVEMENTS_EXTENSIONS)
+					iTempWeight = pImprovement->GetYieldChange(iI) * /*200*/ GD_INT_GET(BUILDER_TASKING_BASELINE_ADDS_CULTURE);
+
 					if (MOD_IMPROVEMENTS_EXTENSIONS)
 					{
 						CvFeatureInfo* pFeature = GC.getFeatureInfo(pImprovement->GetCreatedFeature());
 						if (pFeature)
 						{
-							iTempWeight += GC.getBUILDER_TASKING_BASELINE_ADDS_CULTURE() * pFeature->getYieldChange(iI);
+							iTempWeight += pFeature->getYieldChange(iI) * /*200*/ GD_INT_GET(BUILDER_TASKING_BASELINE_ADDS_CULTURE);
 						}
 					}
-#endif
+
 					break;
 				case YIELD_FAITH:
-					iTempWeight = GC.getBUILDER_TASKING_BASELINE_ADDS_FAITH() * pImprovement->GetYieldChange(iI);
-#if defined(MOD_IMPROVEMENTS_EXTENSIONS)
+					iTempWeight = pImprovement->GetYieldChange(iI) * /*150*/ GD_INT_GET(BUILDER_TASKING_BASELINE_ADDS_FAITH);
+
 					if (MOD_IMPROVEMENTS_EXTENSIONS)
 					{
 						CvFeatureInfo* pFeature = GC.getFeatureInfo(pImprovement->GetCreatedFeature());
 						if (pFeature)
 						{
-							iTempWeight += GC.getBUILDER_TASKING_BASELINE_ADDS_FAITH() * pFeature->getYieldChange(iI);
+							iTempWeight += pFeature->getYieldChange(iI) * /*150*/ GD_INT_GET(BUILDER_TASKING_BASELINE_ADDS_FAITH);
 						}
 					}
-#endif
+
 					break;
 			}
 
@@ -2494,14 +2474,14 @@ int CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes eImprovem
 			{
 				if (pkResource->getResourceUsage() == RESOURCEUSAGE_LUXURY)
 				{
-					if (m_pPlayer->GetMonopolyPercent(eResource) > 0 && m_pPlayer->GetMonopolyPercent(eResource) <= GC.getGLOBAL_RESOURCE_MONOPOLY_THRESHOLD())
+					if (m_pPlayer->GetMonopolyPercent(eResource) > 0 && m_pPlayer->GetMonopolyPercent(eResource) <= /*50*/ GD_INT_GET(GLOBAL_RESOURCE_MONOPOLY_THRESHOLD))
 						iYieldScore += iBigBuff + m_pPlayer->GetMonopolyPercent(eResource);
 				}
 				else
 				{
-					if (m_pPlayer->GetMonopolyPercent(eResource) > 0 && m_pPlayer->GetMonopolyPercent(eResource) <= GC.getSTRATEGIC_RESOURCE_MONOPOLY_THRESHOLD())
+					if (m_pPlayer->GetMonopolyPercent(eResource) > 0 && m_pPlayer->GetMonopolyPercent(eResource) <= /*25*/ GD_INT_GET(STRATEGIC_RESOURCE_MONOPOLY_THRESHOLD))
 						iYieldScore += iBigBuff + m_pPlayer->GetMonopolyPercent(eResource);
-					else if (m_pPlayer->GetMonopolyPercent(eResource) >= GC.getSTRATEGIC_RESOURCE_MONOPOLY_THRESHOLD() && m_pPlayer->GetMonopolyPercent(eResource) <= GC.getGLOBAL_RESOURCE_MONOPOLY_THRESHOLD())
+					else if (m_pPlayer->GetMonopolyPercent(eResource) >= /*25*/ GD_INT_GET(STRATEGIC_RESOURCE_MONOPOLY_THRESHOLD) && m_pPlayer->GetMonopolyPercent(eResource) <= /*50*/ GD_INT_GET(GLOBAL_RESOURCE_MONOPOLY_THRESHOLD))
 						iYieldScore += iBigBuff + m_pPlayer->GetMonopolyPercent(eResource);
 				}
 			}
@@ -2617,7 +2597,7 @@ BuildTypes CvBuilderTaskingAI::GetRepairBuild(void)
 
 FeatureTypes CvBuilderTaskingAI::GetFalloutFeature(void)
 {
-	return static_cast<FeatureTypes>(GC.getNUKE_FEATURE());
+	return static_cast<FeatureTypes>(GD_INT_GET(NUKE_FEATURE));
 }
 
 BuildTypes CvBuilderTaskingAI::GetFalloutRemove(void)

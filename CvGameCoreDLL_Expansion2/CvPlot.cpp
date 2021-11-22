@@ -350,8 +350,8 @@ void CvPlot::doTurn()
 #if defined(MOD_BALANCE_CORE)
 	if (GetArchaeologicalRecord().m_eWork == NO_GREAT_WORK_ARTIFACT_CLASS)
 	{
-		ResourceTypes eArtifactResourceType = static_cast<ResourceTypes>(GC.getARTIFACT_RESOURCE());
-		ResourceTypes eHiddenArtifactResourceType = static_cast<ResourceTypes>(GC.getHIDDEN_ARTIFACT_RESOURCE());
+		ResourceTypes eArtifactResourceType = static_cast<ResourceTypes>(GD_INT_GET(ARTIFACT_RESOURCE));
+		ResourceTypes eHiddenArtifactResourceType = static_cast<ResourceTypes>(GD_INT_GET(HIDDEN_ARTIFACT_RESOURCE));
 
 		if (getResourceType() == eArtifactResourceType || getResourceType() == eHiddenArtifactResourceType)
 		{
@@ -442,7 +442,7 @@ void CvPlot::doImprovement()
 											strBuffer = GetLocalizedText("TXT_KEY_MISC_DISCOVERED_NEW_RESOURCE", thisResourceInfo->GetTextKey(), pCity->getNameKey());
 										}
 
-										GC.GetEngineUserInterface()->AddCityMessage(0, pCity->GetIDInfo(), getOwner(), false, GC.getEVENT_MESSAGE_TIME(), strBuffer/*, "AS2D_DISCOVERRESOURCE", MESSAGE_TYPE_MINOR_EVENT, thisResourceInfo.GetButton(), (ColorTypes)GC.getInfoTypeForString("COLOR_WHITE"), getX(), getY(), true, true*/);
+										GC.GetEngineUserInterface()->AddCityMessage(0, pCity->GetIDInfo(), getOwner(), false, /*10*/ GD_INT_GET(EVENT_MESSAGE_TIME), strBuffer/*, "AS2D_DISCOVERRESOURCE", MESSAGE_TYPE_MINOR_EVENT, thisResourceInfo.GetButton(), (ColorTypes)GC.getInfoTypeForString("COLOR_WHITE"), getX(), getY(), true, true*/);
 									}
 								}
 
@@ -867,7 +867,7 @@ bool CvPlot::isDeepWater() const
 {
 	if(isWater())
 	{
-		TerrainTypes eDeepWater = (TerrainTypes) GC.getDEEP_WATER_TERRAIN();
+		TerrainTypes eDeepWater = (TerrainTypes) GD_INT_GET(DEEP_WATER_TERRAIN);
 		if(getTerrainType() == eDeepWater)
 		{
 			return true;
@@ -881,7 +881,7 @@ bool CvPlot::isShallowWater() const
 {
 	if(isWater())
 	{
-		TerrainTypes eShallowWater = (TerrainTypes) GC.getSHALLOW_WATER_TERRAIN();
+		TerrainTypes eShallowWater = (TerrainTypes) GD_INT_GET(SHALLOW_WATER_TERRAIN);
 		if(getTerrainType() == eShallowWater)
 		{
 			return true;
@@ -895,7 +895,7 @@ bool CvPlot::isAdjacentToShallowWater() const
 {
 	//the result of this check should be cached (see updateWaterFlags)
 	//but right now it is called only rarely, so the inefficiency doesn't matter much
-	TerrainTypes eShallowWater = (TerrainTypes) GC.getSHALLOW_WATER_TERRAIN();
+	TerrainTypes eShallowWater = (TerrainTypes) GD_INT_GET(SHALLOW_WATER_TERRAIN);
 
 #if defined(MOD_BALANCE_CORE)
 	CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(this);
@@ -1341,9 +1341,9 @@ int CvPlot::seeFromLevel(TeamTypes eTeam) const
 	{
 #if defined(MOD_PROMOTIONS_VARIABLE_RECON)
 		// By my reckoning, this just needs to be a big number
-		iLevel = GC.getRECON_VISIBILITY_RANGE() * 4;
+		iLevel = 4 * /*6*/ GD_INT_GET(RECON_VISIBILITY_RANGE);
 #else
-		iLevel = GC.getRECON_VISIBILITY_RANGE() * 2;
+		iLevel = 2 * /*6*/ GD_INT_GET(RECON_VISIBILITY_RANGE);
 #endif
 	}
 	// Normal visibility
@@ -1352,19 +1352,19 @@ int CvPlot::seeFromLevel(TeamTypes eTeam) const
 		iLevel = (getTerrainType()!=NO_TERRAIN) ? GC.getTerrainInfo(getTerrainType())->getSeeFromLevel() : 0;
 	}
 
-	if(isMountain())
+	if (isMountain())
 	{
-		iLevel += GC.getMOUNTAIN_SEE_FROM_CHANGE();
+		iLevel += /*2*/ GD_INT_GET(MOUNTAIN_SEE_FROM_CHANGE);
 	}
 
-	if(isHills())
+	if (isHills())
 	{
-		iLevel += GC.getHILLS_SEE_FROM_CHANGE();
+		iLevel += /*1*/ GD_INT_GET(HILLS_SEE_FROM_CHANGE);
 	}
 
 	if (isWater())
 	{
-		iLevel += GC.getSEAWATER_SEE_FROM_CHANGE();
+		iLevel += /*1*/ GD_INT_GET(SEAWATER_SEE_FROM_CHANGE);
 
 		if (eTeam != NO_TEAM && GET_TEAM(eTeam).isExtraWaterSeeFrom())
 		{
@@ -1385,28 +1385,24 @@ int CvPlot::seeThroughLevel(bool bIncludeShubbery) const
 
 	int iLevel = (getTerrainType()!=NO_TERRAIN) ? GC.getTerrainInfo(getTerrainType())->getSeeThroughLevel() : 0;
 
-	if(bIncludeShubbery && getFeatureType() != NO_FEATURE)
+	if (bIncludeShubbery && getFeatureType() != NO_FEATURE)
 	{
 		iLevel += GC.getFeatureInfo(getFeatureType())->getSeeThroughChange();
 	}
 
-#if defined(MOD_BALANCE_CORE)
-	if (isMountain() && (getFeatureType() == NO_FEATURE)) //natural wonders are features on mountain sometimes
-#else
-	if (isMountain())
-#endif
+	if (isMountain() && getFeatureType() == NO_FEATURE) //natural wonders are features on mountain sometimes
 	{
-		iLevel += GC.getMOUNTAIN_SEE_THROUGH_CHANGE();
+		iLevel += /*2*/ GD_INT_GET(MOUNTAIN_SEE_THROUGH_CHANGE);
 	}
 
-	if(isHills())
+	if (isHills())
 	{
-		iLevel += GC.getHILLS_SEE_THROUGH_CHANGE();
+		iLevel += /*1*/ GD_INT_GET(HILLS_SEE_THROUGH_CHANGE);
 	}
 
-	if(isWater())
+	if (isWater())
 	{
-		iLevel += GC.getSEAWATER_SEE_THROUGH_CHANGE();
+		iLevel += /*1*/ GD_INT_GET(SEAWATER_SEE_THROUGH_CHANGE);
 	}
 	else
 		iLevel++; //land plots are "higher" than water plots, limiting visibility and range attacks from water onto land
@@ -1821,7 +1817,7 @@ void CvPlot::updateSight(bool bIncrement)
 	// Owned
 	if(isOwned())
 	{
-		changeAdjacentSight(getTeam(), GC.getPLOT_VISIBILITY_RANGE(), bIncrement, NO_INVISIBLE, NO_DIRECTION);
+		changeAdjacentSight(getTeam(), /*1*/ GD_INT_GET(PLOT_VISIBILITY_RANGE), bIncrement, NO_INVISIBLE, NO_DIRECTION);
 
 		// if this tile is owned by a minor share the visibility with my ally
 		if(pCity)
@@ -1831,7 +1827,7 @@ void CvPlot::updateSight(bool bIncrement)
 				PlayerTypes ePlayer = (PlayerTypes)ui;
 				if(GET_PLAYER(ePlayer).GetEspionage()->HasEstablishedSurveillanceInCity(pCity))
 				{
-					changeAdjacentSight(GET_PLAYER(ePlayer).getTeam(), GC.getESPIONAGE_SURVEILLANCE_SIGHT_RANGE(), bIncrement, NO_INVISIBLE, NO_DIRECTION);
+					changeAdjacentSight(GET_PLAYER(ePlayer).getTeam(), /*1*/ GD_INT_GET(ESPIONAGE_SURVEILLANCE_SIGHT_RANGE), bIncrement, NO_INVISIBLE, NO_DIRECTION);
 				}
 			}
 		}
@@ -1843,7 +1839,7 @@ void CvPlot::updateSight(bool bIncrement)
 			CvMinorCivAI* pMinorCivAI = thisPlayer.GetMinorCivAI();
 			if(pMinorCivAI && pMinorCivAI->GetAlly() != NO_PLAYER)
 			{
-				changeAdjacentSight(GET_PLAYER(pMinorCivAI->GetAlly()).getTeam(), GC.getPLOT_VISIBILITY_RANGE(), bIncrement, NO_INVISIBLE, NO_DIRECTION);
+				changeAdjacentSight(GET_PLAYER(pMinorCivAI->GetAlly()).getTeam(), /*1*/ GD_INT_GET(PLOT_VISIBILITY_RANGE), bIncrement, NO_INVISIBLE, NO_DIRECTION);
 			}
 		}
 	}
@@ -1866,7 +1862,7 @@ void CvPlot::updateSight(bool bIncrement)
 	if(getReconCount() > 0)
 	{
 #if !defined(MOD_PROMOTIONS_VARIABLE_RECON)
-		int iRange = GC.getRECON_VISIBILITY_RANGE();
+		int iRange = /*6*/ GD_INT_GET(RECON_VISIBILITY_RANGE);
 #endif
 		for(iI = 0; iI < MAX_PLAYERS; ++iI)
 		{
@@ -1892,9 +1888,9 @@ void CvPlot::updateSeeFromSight(bool bIncrement, bool bRecalculate)
 	CvPlot* pLoopPlot;
 	int iDX, iDY;
 
-	int iRange = GC.getUNIT_VISIBILITY_RANGE() + 1;
+	int iRange = 1 + /*1*/ GD_INT_GET(UNIT_VISIBILITY_RANGE);
 #if defined(MOD_PROMOTIONS_VARIABLE_RECON)
-	int iReconRange = GC.getRECON_VISIBILITY_RANGE() + 1;
+	int iReconRange = 1 + /*6*/ GD_INT_GET(RECON_VISIBILITY_RANGE);
 #endif
 	for(int iPromotion = 0; iPromotion < GC.getNumPromotionInfos(); ++iPromotion)
 	{
@@ -1912,7 +1908,7 @@ void CvPlot::updateSeeFromSight(bool bIncrement, bool bRecalculate)
 #if defined(MOD_PROMOTIONS_VARIABLE_RECON)
 	iRange = std::max(iReconRange, iRange);
 #else
-	iRange = std::max(GC.getRECON_VISIBILITY_RANGE() + 1, iRange);
+	iRange = std::max(/*6*/ GD_INT_GET(RECON_VISIBILITY_RANGE) + 1, iRange);
 #endif
 	iRange = std::min(8, iRange); // I don't care, I'm not looking more than 8 out, deal
 
@@ -2037,7 +2033,7 @@ bool CvPlot::canHaveResource(ResourceTypes eResource, bool bIgnoreLatitude, bool
 		return false;
 	}
 
-	TerrainTypes eShallowWater = (TerrainTypes) GC.getSHALLOW_WATER_TERRAIN();
+	TerrainTypes eShallowWater = (TerrainTypes) GD_INT_GET(SHALLOW_WATER_TERRAIN);
 	if(getTerrainType() == eShallowWater)
 	{
 		if(!isAdjacentToLand(false))
@@ -2911,9 +2907,9 @@ int CvPlot::getFeatureProduction(BuildTypes eBuild, PlayerTypes ePlayer, CvCity*
 	iProduction *= GC.getGame().getGameSpeedInfo().getFeatureProductionPercent();
 	iProduction /= 100;
 
-	if(getTeam() != eTeam)
+	if (getTeam() != eTeam)
 	{
-		iProduction *= GC.getDIFFERENT_TEAM_FEATURE_PRODUCTION_PERCENT();
+		iProduction *= /*67*/ GD_INT_GET(DIFFERENT_TEAM_FEATURE_PRODUCTION_PERCENT);
 		iProduction /= 100;
 	}
 
@@ -3190,8 +3186,8 @@ int CvPlot::GetEffectiveFlankingBonus(const CvUnit* pUnit, const CvUnit* pOtherU
 	int iNumUnitsAdjacentToOther = pOtherPlot->GetNumEnemyUnitsAdjacent( pOtherUnit->getTeam(), pOtherUnit->getDomainType(), pUnit);
 	int iNumUnitsAdjacentToHere = GetNumEnemyUnitsAdjacent( pUnit->getTeam(), pUnit->getDomainType(), pOtherUnit);
 
-	if(iNumUnitsAdjacentToOther > iNumUnitsAdjacentToHere)
-		return /*5*/ (GC.getBONUS_PER_ADJACENT_FRIEND() + pUnit->GetFlankAttackModifier()) * (iNumUnitsAdjacentToOther - iNumUnitsAdjacentToHere);
+	if (iNumUnitsAdjacentToOther > iNumUnitsAdjacentToHere)
+		return (pUnit->GetFlankAttackModifier() + /*10*/ GD_INT_GET(BONUS_PER_ADJACENT_FRIEND)) * (iNumUnitsAdjacentToOther - iNumUnitsAdjacentToHere);
 
 	return 0;
 }
@@ -3220,7 +3216,7 @@ int CvPlot::defenseModifier(TeamTypes eDefender, bool bIgnoreImprovement, bool b
 
 	// Plot type
 	if(isHills() || isMountain())
-		iModifier += /*25*/ GC.getHILLS_EXTRA_DEFENSE();
+		iModifier += /*25 in CP, 10 in CBO*/ GD_INT_GET(HILLS_EXTRA_DEFENSE);
 
 	// Feature
 	if(!bIgnoreFeature && getFeatureType() != NO_FEATURE)
@@ -3252,7 +3248,7 @@ int CvPlot::defenseModifier(TeamTypes eDefender, bool bIgnoreImprovement, bool b
 //	---------------------------------------------------------------------------
 int CvPlot::movementCost(const CvUnit* pUnit, const CvPlot* pFromPlot, int iMovesRemaining) const
 {
-	int iMaxMoves = pUnit->baseMoves( needsEmbarkation(pUnit) )*GC.getMOVE_DENOMINATOR();
+	int iMaxMoves = pUnit->baseMoves( needsEmbarkation(pUnit) )*GD_INT_GET(MOVE_DENOMINATOR);
 
 	if (plotDistance(*this,*pFromPlot)>1)
 		return iMaxMoves;
@@ -3263,7 +3259,7 @@ int CvPlot::movementCost(const CvUnit* pUnit, const CvPlot* pFromPlot, int iMove
 //	---------------------------------------------------------------------------
 int CvPlot::MovementCostNoZOC(const CvUnit* pUnit, const CvPlot* pFromPlot, int iMovesRemaining) const
 {
-	int iMaxMoves = pUnit->baseMoves( needsEmbarkation(pUnit) )*GC.getMOVE_DENOMINATOR();
+	int iMaxMoves = pUnit->baseMoves( needsEmbarkation(pUnit) )*GD_INT_GET(MOVE_DENOMINATOR);
 
 	if (plotDistance(*this,*pFromPlot)>1)
 		return iMaxMoves;
@@ -3540,7 +3536,7 @@ int CvPlot::GetNumAdjacentMountains() const
 int CvPlot::GetSeaBlockadeScore(PlayerTypes ePlayer) const
 {
 	int iScore = 0;
-	int iRange = min(5,max(0,GC.getNAVAL_PLOT_BLOCKADE_RANGE()));
+	int iRange = min(5,max(0, /*2 in CP, 1 in CBO*/ GD_INT_GET(NAVAL_PLOT_BLOCKADE_RANGE)));
 
 	for(int iI = 0; iI < RING_PLOTS[iRange]; iI++)
 	{
@@ -3824,14 +3820,14 @@ bool CvPlot::isRevealedBarbarian() const
 //	--------------------------------------------------------------------------------
 bool CvPlot::HasBarbarianCamp()
 {
-	return (getImprovementType() == GC.getBARBARIAN_CAMP_IMPROVEMENT());
+	return (getImprovementType() == GD_INT_GET(BARBARIAN_CAMP_IMPROVEMENT));
 }
 
 #if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
 //	--------------------------------------------------------------------------------
 bool CvPlot::HasDig()
 {
-	return (getResourceType() == GC.getARTIFACT_RESOURCE());
+	return (getResourceType() == GD_INT_GET(ARTIFACT_RESOURCE));
 }
 #endif
 
@@ -4977,7 +4973,7 @@ int CvPlot::getOwnershipDuration() const
 //	--------------------------------------------------------------------------------
 bool CvPlot::isOwnershipScore() const
 {
-	return (getOwnershipDuration() >= GC.getOWNERSHIP_SCORE_DURATION_THRESHOLD());
+	return (getOwnershipDuration() >= /*20*/ GD_INT_GET(OWNERSHIP_SCORE_DURATION_THRESHOLD));
 }
 
 
@@ -5619,19 +5615,15 @@ bool CvPlot::isPotentialCityWork() const
 //	--------------------------------------------------------------------------------
 bool CvPlot::isPotentialCityWorkForArea(CvArea* pArea) const
 {
-	CvPlot* pLoopPlot;
-	int iI;
-
-
-	for(iI = 0; iI < MAX_CITY_PLOTS; ++iI)
+	for (int iI = 0; iI < MAX_CITY_PLOTS; ++iI)
 	{
-		pLoopPlot = iterateRingPlots(getX(), getY(), iI);
+		CvPlot* pLoopPlot = iterateRingPlots(getX(), getY(), iI);
 
-		if(pLoopPlot != NULL)
+		if (pLoopPlot)
 		{
-			if(!(pLoopPlot->isWater()) || GC.getWATER_POTENTIAL_CITY_WORK_FOR_AREA())
+			if (!pLoopPlot->isWater() || /*0*/ GD_INT_GET(WATER_POTENTIAL_CITY_WORK_FOR_AREA)>0)
 			{
-				if(pLoopPlot->area() == pArea)
+				if (pLoopPlot->area() == pArea)
 				{
 					return true;
 				}
@@ -5734,7 +5726,7 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 					}
 				}
 #endif
-				changeAdjacentSight(getTeam(), GC.getPLOT_VISIBILITY_RANGE(), false, NO_INVISIBLE, NO_DIRECTION);
+				changeAdjacentSight(getTeam(), /*1*/ GD_INT_GET(PLOT_VISIBILITY_RANGE), false, NO_INVISIBLE, NO_DIRECTION);
 
 				// if this tile is owned by a minor share the visibility with my ally
 				if(pOldCity)
@@ -5744,7 +5736,7 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 						PlayerTypes ePlayer = (PlayerTypes)ui;
 						if(GET_PLAYER(ePlayer).GetEspionage()->HasEstablishedSurveillanceInCity(pOldCity))
 						{
-							changeAdjacentSight(GET_PLAYER(ePlayer).getTeam(), GC.getESPIONAGE_SURVEILLANCE_SIGHT_RANGE(), false, NO_INVISIBLE, NO_DIRECTION);
+							changeAdjacentSight(GET_PLAYER(ePlayer).getTeam(), /*1*/ GD_INT_GET(ESPIONAGE_SURVEILLANCE_SIGHT_RANGE), false, NO_INVISIBLE, NO_DIRECTION);
 						}
 					}
 				}
@@ -5755,7 +5747,7 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 					CvMinorCivAI* pMinorCivAI = thisPlayer.GetMinorCivAI();
 					if(pMinorCivAI && pMinorCivAI->GetAlly() != NO_PLAYER)
 					{
-						changeAdjacentSight(GET_PLAYER(pMinorCivAI->GetAlly()).getTeam(), GC.getPLOT_VISIBILITY_RANGE(), false, NO_INVISIBLE, NO_DIRECTION);
+						changeAdjacentSight(GET_PLAYER(pMinorCivAI->GetAlly()).getTeam(), /*1*/ GD_INT_GET(PLOT_VISIBILITY_RANGE), false, NO_INVISIBLE, NO_DIRECTION);
 					}
 				}
 
@@ -5883,7 +5875,7 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 				}
 
 				// If there's a camp here, clear it
-				if(getImprovementType() == GC.getBARBARIAN_CAMP_IMPROVEMENT())
+				if(getImprovementType() == GD_INT_GET(BARBARIAN_CAMP_IMPROVEMENT))
 				{
 					setImprovementType(NO_IMPROVEMENT);
 					CvBarbarians::DoBarbCampCleared(this, eNewValue);
@@ -5969,7 +5961,7 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 			{
 				CvPlayerAI& newPlayer = GET_PLAYER(eNewValue);
 
-				changeAdjacentSight(getTeam(), GC.getPLOT_VISIBILITY_RANGE(), true, NO_INVISIBLE, NO_DIRECTION);
+				changeAdjacentSight(getTeam(), /*1*/ GD_INT_GET(PLOT_VISIBILITY_RANGE), true, NO_INVISIBLE, NO_DIRECTION);
 
 				// if this tile is owned by a minor share the visibility with my ally
 				if(pOldCity)
@@ -5979,7 +5971,7 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 						PlayerTypes ePlayer = (PlayerTypes)ui;
 						if(GET_PLAYER(ePlayer).GetEspionage()->HasEstablishedSurveillanceInCity(pOldCity))
 						{
-							changeAdjacentSight(GET_PLAYER(ePlayer).getTeam(), GC.getESPIONAGE_SURVEILLANCE_SIGHT_RANGE(), true, NO_INVISIBLE, NO_DIRECTION);
+							changeAdjacentSight(GET_PLAYER(ePlayer).getTeam(), /*1*/ GD_INT_GET(ESPIONAGE_SURVEILLANCE_SIGHT_RANGE), true, NO_INVISIBLE, NO_DIRECTION);
 						}
 					}
 				}
@@ -5990,7 +5982,7 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 					CvMinorCivAI* pMinorCivAI = thisPlayer.GetMinorCivAI();
 					if(pMinorCivAI && pMinorCivAI->GetAlly() != NO_PLAYER)
 					{
-						changeAdjacentSight(GET_PLAYER(pMinorCivAI->GetAlly()).getTeam(), GC.getPLOT_VISIBILITY_RANGE(), true, NO_INVISIBLE, NO_DIRECTION);
+						changeAdjacentSight(GET_PLAYER(pMinorCivAI->GetAlly()).getTeam(), /*1*/ GD_INT_GET(PLOT_VISIBILITY_RANGE), true, NO_INVISIBLE, NO_DIRECTION);
 					}
 				}
 
@@ -6110,7 +6102,7 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 				}
 
 				// update the high water mark for player (if human)
-				int iMaxCityHighWaterMark = GC.getMAX_CITY_DIST_HIGHWATER_MARK();
+				int iMaxCityHighWaterMark = /*3*/ GD_INT_GET(MAX_CITY_DIST_HIGHWATER_MARK);
 				if(newPlayer.isHuman() && newPlayer.GetCityDistanceHighwaterMark() < iMaxCityHighWaterMark)
 				{
 					int bestHighWaterMark = newPlayer.GetCityDistanceHighwaterMark();
@@ -6255,7 +6247,7 @@ bool CvPlot::IsCloseToCity(PlayerTypes ePlayer) const
 
 	//do not use estimated turns here, performance is not good
 	int iDistance = GET_PLAYER(ePlayer).GetCityDistanceInPlots(this);
-	int iRange = GC.getAI_DIPLO_PLOT_RANGE_FROM_CITY_HOME_FRONT();
+	int iRange = /*5*/ GD_INT_GET(AI_DIPLO_PLOT_RANGE_FROM_CITY_HOME_FRONT);
 	return (iDistance <= iRange);
 }
 
@@ -6274,7 +6266,7 @@ bool CvPlot::isBlockaded()
 	//need to do additional checks in water
 	if (isWater())
 	{
-		int iRange = range(GC.getNAVAL_PLOT_BLOCKADE_RANGE(),0,3);
+		int iRange = range(/*2 in CP, 1 in CBO*/ GD_INT_GET(NAVAL_PLOT_BLOCKADE_RANGE),0,3);
 		for (int i = RING0_PLOTS; i < RING_PLOTS[iRange]; i++)
 		{
 			CvPlot* pNeighbor = iterateRingPlots(this, i);
@@ -6342,18 +6334,18 @@ void CvPlot::setPlotType(PlotTypes eNewValue, bool bRecalculate, bool bRebuildGr
 			{
 				if(isAdjacentToLand(false))
 				{
-					setTerrainType(((TerrainTypes)(GC.getSHALLOW_WATER_TERRAIN())), bRecalculate, bRebuildGraphics);
+					setTerrainType(((TerrainTypes)(GD_INT_GET(SHALLOW_WATER_TERRAIN))), bRecalculate, bRebuildGraphics);
 					m_bIsAdjacentToLand = true;
 				}
 				else
 				{
-					setTerrainType(((TerrainTypes)(GC.getDEEP_WATER_TERRAIN())), bRecalculate, bRebuildGraphics);
+					setTerrainType(((TerrainTypes)(GD_INT_GET(DEEP_WATER_TERRAIN))), bRecalculate, bRebuildGraphics);
 					m_bIsAdjacentToLand = false;
 				}
 			}
 			else
 			{
-				setTerrainType(((TerrainTypes)(GC.getLAND_TERRAIN())), bRecalculate, bRebuildGraphics);
+				setTerrainType(((TerrainTypes)(GD_INT_GET(LAND_TERRAIN))), bRecalculate, bRebuildGraphics);
 			}
 		}
 
@@ -6371,12 +6363,12 @@ void CvPlot::setPlotType(PlotTypes eNewValue, bool bRecalculate, bool bRebuildGr
 						{
 							if(pLoopPlot->isAdjacentToLand(false))
 							{
-								pLoopPlot->setTerrainType(((TerrainTypes)(GC.getSHALLOW_WATER_TERRAIN())), bRecalculate, bRebuildGraphics);
+								pLoopPlot->setTerrainType(((TerrainTypes)(GD_INT_GET(SHALLOW_WATER_TERRAIN))), bRecalculate, bRebuildGraphics);
 								m_bIsAdjacentToLand = true;
 							}
 							else
 							{
-								pLoopPlot->setTerrainType(((TerrainTypes)(GC.getDEEP_WATER_TERRAIN())), bRecalculate, bRebuildGraphics);
+								pLoopPlot->setTerrainType(((TerrainTypes)(GD_INT_GET(DEEP_WATER_TERRAIN))), bRecalculate, bRebuildGraphics);
 								m_bIsAdjacentToLand = false;
 							}
 						}
@@ -6809,7 +6801,7 @@ ResourceTypes CvPlot::getResourceType(TeamTypes eTeam) const
 		if(m_eResourceType != NO_RESOURCE)
 		{
 #if defined(MOD_BALANCE_CORE_BARBARIAN_THEFT)
-			if (MOD_BALANCE_CORE_BARBARIAN_THEFT && (getImprovementType() == GC.getBARBARIAN_CAMP_IMPROVEMENT()))
+			if (MOD_BALANCE_CORE_BARBARIAN_THEFT && (getImprovementType() == GD_INT_GET(BARBARIAN_CAMP_IMPROVEMENT)))
 				return NO_RESOURCE;
 #endif
 			CvGame& Game = GC.getGame();
@@ -6983,11 +6975,7 @@ int CvPlot::getNumResourceForPlayer(PlayerTypes ePlayer) const
 //	--------------------------------------------------------------------------------
 void CvPlot::removeMinorResources()
 {
-	//we keep the resources!
-	if (MOD_BALANCE_CORE)
-		return;
-
-	if (GC.getMINOR_CIV_MERCANTILE_RESOURCES_KEEP_ON_CAPTURE_DISABLED() == 1)
+	if (GD_INT_GET(MINOR_CIV_MERCANTILE_RESOURCES_KEEP_ON_CAPTURE_DISABLED) == 1)
 	{
 		ResourceTypes eOldResource = getResourceType();
 		if (eOldResource != NO_RESOURCE)
@@ -7398,7 +7386,7 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 		}
 
 		// Reset who cleared a Barb camp here last (if we're putting a new one down)
-		if(eNewValue == GC.getBARBARIAN_CAMP_IMPROVEMENT())
+		if(eNewValue == GD_INT_GET(BARBARIAN_CAMP_IMPROVEMENT))
 		{
 			SetPlayerThatClearedBarbCampHere(NO_PLAYER);
 			
@@ -7437,8 +7425,8 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 			CvImprovementEntry& newImprovementEntry = *GC.getImprovementInfo(eNewValue);
 
 #if defined(MOD_BALANCE_CORE)
-			ResourceTypes eArtifactResourceType = static_cast<ResourceTypes>(GC.getARTIFACT_RESOURCE());
-			ResourceTypes eHiddenArtifactResourceType = static_cast<ResourceTypes>(GC.getHIDDEN_ARTIFACT_RESOURCE());
+			ResourceTypes eArtifactResourceType = static_cast<ResourceTypes>(GD_INT_GET(ARTIFACT_RESOURCE));
+			ResourceTypes eHiddenArtifactResourceType = static_cast<ResourceTypes>(GD_INT_GET(HIDDEN_ARTIFACT_RESOURCE));
 			if (newImprovementEntry.IsPermanent() || newImprovementEntry.IsCreatedByGreatPerson())
 			{
 				if (getOwner() != NO_PLAYER && (getResourceType(GET_PLAYER(getOwner()).getTeam()) == eArtifactResourceType || getResourceType(GET_PLAYER(getOwner()).getTeam()) == eHiddenArtifactResourceType))
@@ -8538,7 +8526,7 @@ void CvPlot::updateCityRoute()
 
 		if(eCityRoute == NO_ROUTE)
 		{
-			eCityRoute = ((RouteTypes)(GC.getINITIAL_CITY_ROUTE_TYPE()));
+			eCityRoute = ((RouteTypes)(GD_INT_GET(INITIAL_CITY_ROUTE_TYPE)));
 		}
 
 		setRouteType(eCityRoute, getOwner());
@@ -9057,10 +9045,10 @@ int CvPlot::calculateNatureYield(YieldTypes eYield, PlayerTypes ePlayer, const C
 	else
 	{
 		iYield = GC.getTerrainInfo(getTerrainType())->getYield(eYield);
-		if (eYield == YIELD_PRODUCTION && GC.getMOD_BALANCE_CORE_PRODUCTION_DESERT_IMPROVEMENT() > 0 && getTerrainType() == TERRAIN_DESERT && !isHills() && getFeatureType() == NO_FEATURE)
+		if (eYield == YIELD_PRODUCTION && /*0*/ GD_INT_GET(BALANCE_CORE_PRODUCTION_DESERT_IMPROVEMENT) > 0 && getTerrainType() == TERRAIN_DESERT && !isHills() && getFeatureType() == NO_FEATURE)
 		{
 			if (getResourceType(eTeam) != NO_RESOURCE && getImprovementType() != NO_IMPROVEMENT)
-				iYield += GC.getMOD_BALANCE_CORE_PRODUCTION_DESERT_IMPROVEMENT();
+				iYield += GD_INT_GET(BALANCE_CORE_PRODUCTION_DESERT_IMPROVEMENT);
 		}
 	}
 
@@ -10045,7 +10033,7 @@ int CvPlot::calculatePlayerYield(YieldTypes eYield, int iCurrentYield, PlayerTyp
 	{
 		if (iYield >= kPlayer.getExtraYieldThreshold(eYield))
 		{
-			iYield += GC.getEXTRA_YIELD();
+			iYield += /*1*/ GD_INT_GET(EXTRA_YIELD);
 		}
 	}
 
@@ -11280,29 +11268,27 @@ bool CvPlot::setRevealed(TeamTypes eTeam, bool bNewValue, CvUnit* pUnit, bool bT
 
 		if(bNewValue)
 		{
-#if defined(MOD_BALANCE_CORE)
 			if (pUnit && (pUnit->IsGainsXPFromScouting() || pUnit->IsGainsYieldFromScouting()) && !GET_TEAM(eTeam).isBarbarian() && !GET_TEAM(eTeam).isMinorCiv())
 			{
-				if(IsNaturalWonder())
+				if (IsNaturalWonder())
 				{
-					pUnit->ChangeNumTilesRevealedThisTurn(GC.getBALANCE_SCOUT_XP_RANDOM_VALUE());
+					pUnit->ChangeNumTilesRevealedThisTurn(/*12*/ GD_INT_GET(BALANCE_SCOUT_XP_RANDOM_VALUE));
 				}
-				else if(isGoody())
+				else if (isGoody())
 				{
-					pUnit->ChangeNumTilesRevealedThisTurn(GC.getBALANCE_SCOUT_XP_RANDOM_VALUE() / 3);
+					pUnit->ChangeNumTilesRevealedThisTurn(/*4*/ GD_INT_GET(BALANCE_SCOUT_XP_RANDOM_VALUE) / 3);
 				}
-				else if(getResourceType(pUnit->getTeam()) != NO_RESOURCE)
+				else if (getResourceType(pUnit->getTeam()) != NO_RESOURCE)
 				{
-					pUnit->ChangeNumTilesRevealedThisTurn(GC.getBALANCE_SCOUT_XP_RANDOM_VALUE() / 4);
+					pUnit->ChangeNumTilesRevealedThisTurn(/*3*/ GD_INT_GET(BALANCE_SCOUT_XP_RANDOM_VALUE) / 4);
 				}
 				else
 				{
 					pUnit->ChangeNumTilesRevealedThisTurn(1);
 				}	
 			}
-#endif
 
-			if(pInterface->GetHeadSelectedUnit() != NULL)
+			if (pInterface->GetHeadSelectedUnit() != NULL)
 			{
 				// This is what determines if the camera jumps quickly or slowly - if we're revealing new plots go slower.  The following function sets this flag
 				pInterface->SetSelectedUnitRevealingNewPlots(true);
@@ -11490,7 +11476,7 @@ bool CvPlot::setRevealedImprovementType(TeamTypes eTeam, ImprovementTypes eNewVa
 			setLayoutDirty(true);
 		}
 		// Found a Barbarian Camp
-		if(eNewValue == GC.getBARBARIAN_CAMP_IMPROVEMENT())
+		if(eNewValue == GD_INT_GET(BARBARIAN_CAMP_IMPROVEMENT))
 		{
 			CvString strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_FOUND_BARB_CAMP");
 			CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_FOUND_BARB_CAMP");
@@ -11734,7 +11720,7 @@ bool CvPlot::changeBuildProgress(BuildTypes eBuild, int iChange, PlayerTypes ePl
 						if(pCity->getOwner() == GC.getGame().getActivePlayer())
 						{
 							strBuffer = GetLocalizedText("TXT_KEY_MISC_CLEARING_FEATURE_RESOURCE", GC.getFeatureInfo(getFeatureType())->GetTextKey(), iProduction, pCity->getNameKey());
-							GC.GetEngineUserInterface()->AddCityMessage(0, pCity->GetIDInfo(), pCity->getOwner(), false, GC.getEVENT_MESSAGE_TIME(), strBuffer);
+							GC.GetEngineUserInterface()->AddCityMessage(0, pCity->GetIDInfo(), pCity->getOwner(), false, /*10*/ GD_INT_GET(EVENT_MESSAGE_TIME), strBuffer);
 						}
 					}
 
@@ -12944,7 +12930,7 @@ int CvPlot::getYieldWithBuild(BuildTypes eBuild, YieldTypes eYield, bool bWithUp
 			if(eUpgradeImprovement != NO_IMPROVEMENT)
 			{
 				//unless it's trade on a low food tile, in which case only use 1 level higher
-				if((eYield != YIELD_GOLD) || (getYield(YIELD_FOOD) >= GC.getFOOD_CONSUMPTION_PER_POPULATION()))
+				if((eYield != YIELD_GOLD) || (getYield(YIELD_FOOD) >= /*2*/ GD_INT_GET(FOOD_CONSUMPTION_PER_POPULATION)))
 				{
 					ImprovementTypes eUpgradeImprovement2 = (ImprovementTypes)GC.getImprovementInfo(eUpgradeImprovement)->GetImprovementUpgrade();
 					if(eUpgradeImprovement2 != NO_IMPROVEMENT)
@@ -13459,8 +13445,8 @@ void CvPlot::ClearArchaeologicalRecord()
 	m_kArchaeologyData.m_ePlayer2 = NO_PLAYER;
 	m_kArchaeologyData.m_eEra = NO_ERA;
 #if defined(MOD_BALANCE_CORE)
-	ResourceTypes eArtifactResourceType = static_cast<ResourceTypes>(GC.getARTIFACT_RESOURCE());
-	ResourceTypes eHiddenArtifactResourceType = static_cast<ResourceTypes>(GC.getHIDDEN_ARTIFACT_RESOURCE());
+	ResourceTypes eArtifactResourceType = static_cast<ResourceTypes>(GD_INT_GET(ARTIFACT_RESOURCE));
+	ResourceTypes eHiddenArtifactResourceType = static_cast<ResourceTypes>(GD_INT_GET(HIDDEN_ARTIFACT_RESOURCE));
 	if (getResourceType() == eArtifactResourceType || getResourceType() == eHiddenArtifactResourceType)
 	{
 		setResourceType(NO_RESOURCE, 0);

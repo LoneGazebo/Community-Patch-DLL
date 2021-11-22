@@ -733,7 +733,7 @@
 			<Text>[ICON_BULLET] Otwarte granice</Text>
 		</Row>
 		<Row Tag="TXT_KEY_VO_BENEFITS_RELIGION_MOD">
-			<Text>[ICON_BULLET] Podwojony nacisk [ICON_PEACE] religijny</Text>
+			<Text>[ICON_BULLET] +100% nacisk [ICON_PEACE] religijny</Text>
 		</Row>
 		<Row Tag="TXT_KEY_VO_BENEFITS_TOURISM_MOD">
 			<Text>[ICON_BULLET] +33% do szerzenia się [ICON_TOURISM] turystyki</Text>

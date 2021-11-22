@@ -291,7 +291,7 @@ void CvGrandStrategyAI::DoTurn()
 			// Give a boost to the current strategy so that small fluctuation doesn't cause a big change
 			if (GetActiveGrandStrategy() == eGrandStrategy && GetActiveGrandStrategy() != NO_AIGRANDSTRATEGY)
 			{
-				iPriority += /*50*/ GC.getAI_GRAND_STRATEGY_CURRENT_STRATEGY_WEIGHT();
+				iPriority += /*50*/ GD_INT_GET(AI_GRAND_STRATEGY_CURRENT_STRATEGY_WEIGHT);
 			}
 
 			SetGrandStrategyPriority(eGrandStrategy, max(1, iPriority));
@@ -332,27 +332,20 @@ void CvGrandStrategyAI::DoTurn()
 
 		vector<int> viGrandStrategyChangeForLogging;
 
-		int iChange;
-
 		// Now modify our preferences based on how many people are going for stuff
 		for (iGrandStrategiesLoop = 0; iGrandStrategiesLoop < GetAIGrandStrategies()->GetNumAIGrandStrategies(); iGrandStrategiesLoop++)
 		{
 			eGrandStrategy = (AIGrandStrategyTypes)iGrandStrategiesLoop;
 
-			//Get half.
-			int iFraction = (GetGrandStrategyPriority(eGrandStrategy) * /*50*/ GC.getAI_GRAND_STRATEGY_OTHER_PLAYERS_GS_MULTIPLIER());
-			iFraction /= 100;
+			//Get 1/3.
+			int iFraction = (GetGrandStrategyPriority(eGrandStrategy) * /*33*/ GD_INT_GET(AI_GRAND_STRATEGY_OTHER_PLAYERS_GS_MULTIPLIER)) / 100;
 			int iNumPursuing = viNumGrandStrategiesAdopted[eGrandStrategy];
-			iChange = 0;
+			int iChange = 0;
 			if (iNumPursuing > 0)
 			{
 				//Modified to only reduce based on known and if we're doing better/worse than them.
 				//If 3+ are doing better than us at this GS, we need to move on.
-				iChange = (iFraction * iNumPursuing);
-			}
-			if (iChange > GetGrandStrategyPriority(eGrandStrategy))
-			{
-				iChange = GetGrandStrategyPriority(eGrandStrategy);
+				iChange = min(iFraction * iNumPursuing, GetGrandStrategyPriority(eGrandStrategy));
 			}
 
 			ChangeGrandStrategyPriority(eGrandStrategy, -iChange);
@@ -390,7 +383,7 @@ void CvGrandStrategyAI::DoTurn()
 	else
 	{
 		ChangeNumTurnsSinceActiveSet(1);
-		if (GetNumTurnsSinceActiveSet() >= /*10*/ GC.getAI_GRAND_STRATEGY_NUM_TURNS_STRATEGY_MUST_BE_ACTIVE())
+		if (GetNumTurnsSinceActiveSet() >= /*10*/ GD_INT_GET(AI_GRAND_STRATEGY_NUM_TURNS_STRATEGY_MUST_BE_ACTIVE))
 		{
 			//Reset to zero.
 			SetNumTurnsSinceActiveSet(0);
@@ -453,7 +446,7 @@ int CvGrandStrategyAI::GetConquestPriority()
 	CvTeam& pTeam = GET_TEAM(GetPlayer()->getTeam());
 
 	// How many turns must have passed before we test for having met nobody?
-	if (GC.getGame().getElapsedGameTurns() >= /*20*/ GC.getAI_GS_CONQUEST_NOBODY_MET_FIRST_TURN())
+	if (GC.getGame().getElapsedGameTurns() >= /*20*/ GD_INT_GET(AI_GS_CONQUEST_NOBODY_MET_FIRST_TURN))
 	{
 		// If we haven't met any Major Civs yet, then we probably shouldn't be planning on conquering the world
 		bool bHasMetMajor = false;
@@ -471,7 +464,7 @@ int CvGrandStrategyAI::GetConquestPriority()
 		}
 		if (!bHasMetMajor)
 		{
-			iPriority += /*-50*/ GC.getAI_GRAND_STRATEGY_CONQUEST_NOBODY_MET_WEIGHT();
+			iPriority += /*-100*/ GD_INT_GET(AI_GRAND_STRATEGY_CONQUEST_NOBODY_MET_WEIGHT);
 		}
 	}
 
@@ -486,7 +479,7 @@ int CvGrandStrategyAI::GetConquestPriority()
 	}
 
 	// How many turns must have passed before we test for us having a weak military?
-	if (GC.getGame().getElapsedGameTurns() >= /*60*/ GC.getAI_GS_CONQUEST_MILITARY_STRENGTH_FIRST_TURN())
+	if (GC.getGame().getElapsedGameTurns() >= /*60*/ GD_INT_GET(AI_GS_CONQUEST_MILITARY_STRENGTH_FIRST_TURN))
 	{
 		// Compare our military strength to the rest of the world
 		int iWorldMilitaryStrength = GC.getGame().GetWorldMilitaryStrengthAverage(GetPlayer()->GetID(), true, true);
@@ -500,7 +493,7 @@ int CvGrandStrategyAI::GetConquestPriority()
 
 		if (iWorldMilitaryStrength > 0)
 		{
-			int iMilitaryRatio = (GetPlayer()->GetMilitaryMight() - iWorldMilitaryStrength) * /*100*/ GC.getAI_GRAND_STRATEGY_CONQUEST_POWER_RATIO_MULTIPLIER() / iWorldMilitaryStrength;
+			int iMilitaryRatio = (GetPlayer()->GetMilitaryMight() - iWorldMilitaryStrength) * /*100*/ GD_INT_GET(AI_GRAND_STRATEGY_CONQUEST_POWER_RATIO_MULTIPLIER) / iWorldMilitaryStrength;
 
 			// Make the likelihood of BECOMING a warmonger lower than dropping the bad behavior
 			if (iMilitaryRatio > 0)
@@ -513,7 +506,7 @@ int CvGrandStrategyAI::GetConquestPriority()
 	// If we're at war, then boost the weight a bit
 	if (pTeam.getAtWarCount(/*bIgnoreMinors*/ false) > 0)
 	{
-		iPriority += /*10*/ GC.getAI_GRAND_STRATEGY_CONQUEST_AT_WAR_WEIGHT();
+		iPriority += /*10*/ GD_INT_GET(AI_GRAND_STRATEGY_CONQUEST_AT_WAR_WEIGHT);
 	}
 
 	// If our neighbors are cramping our style, consider less... scrupulous means of obtaining more land
@@ -580,7 +573,7 @@ int CvGrandStrategyAI::GetConquestPriority()
 		{
 			if (iTotalLandPlayersMet / iTotalLandMe > 1)
 			{
-				iPriority += GetPlayer()->IsCramped() ? (/*20*/ GC.getAI_GRAND_STRATEGY_CONQUEST_CRAMPED_WEIGHT() * 5) : GC.getAI_GRAND_STRATEGY_CONQUEST_CRAMPED_WEIGHT();
+				iPriority += GetPlayer()->IsCramped() ? /*100*/ GD_INT_GET(AI_GRAND_STRATEGY_CONQUEST_CRAMPED_WEIGHT) * 5 : /*20*/ GD_INT_GET(AI_GRAND_STRATEGY_CONQUEST_CRAMPED_WEIGHT);
 			}
 		}
 		if (iTotalNumDangerPlayers > 0)
@@ -849,20 +842,20 @@ int CvGrandStrategyAI::GetCulturePriority()
 
 	if (iNumCivsAlive > 0 && iNumCivsAheadCulture > iNumCivsBehindCulture)
 	{
-		iPriority += (GC.getAI_GS_CULTURE_AHEAD_WEIGHT() * (iNumCivsAheadCulture - iNumCivsBehindCulture) / iNumCivsAlive);
+		iPriority += /*50*/ GD_INT_GET(AI_GS_CULTURE_AHEAD_WEIGHT) * (iNumCivsAheadCulture - iNumCivsBehindCulture) / iNumCivsAlive;
 	}
 	if (iNumCivsAlive > 0 && iNumCivsAheadTourism > iNumCivsBehindTourism)
 	{
-		iPriority += (GC.getAI_GS_CULTURE_TOURISM_AHEAD_WEIGHT() * (iNumCivsAheadTourism - iNumCivsBehindTourism) / iNumCivsAlive);
+		iPriority += /*100*/ GD_INT_GET(AI_GS_CULTURE_TOURISM_AHEAD_WEIGHT) * (iNumCivsAheadTourism - iNumCivsBehindTourism) / iNumCivsAlive;
 	}
 	if (iNumCivsAlive > 0 && iNumCivsAheadTourism < iNumCivsBehindTourism)
 	{
-		iPriority -= (GC.getAI_GS_CULTURE_TOURISM_AHEAD_WEIGHT() * (iNumCivsBehindTourism - iNumCivsAheadTourism) / iNumCivsAlive);
+		iPriority -= /*100*/ GD_INT_GET(AI_GS_CULTURE_TOURISM_AHEAD_WEIGHT) * (iNumCivsBehindTourism - iNumCivsAheadTourism) / iNumCivsAlive;
 	}
 
 	// for every civ we are Influential over increase this
 	int iNumInfluential = m_pPlayer->GetCulture()->GetNumCivsInfluentialOn();
-	iPriority += iNumInfluential * GC.getAI_GS_CULTURE_INFLUENTIAL_CIV_MOD();
+	iPriority += iNumInfluential * /*50*/ GD_INT_GET(AI_GS_CULTURE_INFLUENTIAL_CIV_MOD);
 
 	int iPriorityBonus = 0;
 
@@ -1392,13 +1385,13 @@ int CvGrandStrategyAI::GetSpaceshipPriority()
 	}
 	if (iNumCivsAlive > 0 && iNumCivsAheadScience > iNumCivsBehindScience)
 	{
-		iPriority += ((GC.getAI_GS_CULTURE_AHEAD_WEIGHT() * (iNumCivsAheadScience - iNumCivsBehindScience)) / iNumCivsAlive);
+		iPriority += /*50*/ GD_INT_GET(AI_GS_CULTURE_AHEAD_WEIGHT) * (iNumCivsAheadScience - iNumCivsBehindScience) / iNumCivsAlive;
 	}
 
 	//Are we in first overall? Bump it!
 	if (iNumCivsAheadScience == iNumCivsAlive)
 	{
-		iPriority += (GC.getAI_GS_CULTURE_AHEAD_WEIGHT() * iNumCivsAlive);
+		iPriority += /*50*/ GD_INT_GET(AI_GS_CULTURE_AHEAD_WEIGHT) * iNumCivsAlive;
 	}
 	// if I already built the Apollo Program I am very likely to follow through
 	ProjectTypes eApolloProgram = (ProjectTypes) GC.getInfoTypeForString("PROJECT_APOLLO_PROGRAM", true);
@@ -1406,7 +1399,7 @@ int CvGrandStrategyAI::GetSpaceshipPriority()
 	{
 		if(GET_TEAM(m_pPlayer->getTeam()).getProjectCount(eApolloProgram) > 0)
 		{
-			iPriority += /*150*/ GC.getAI_GS_SS_HAS_APOLLO_PROGRAM();
+			iPriority += /*150*/ GD_INT_GET(AI_GS_SS_HAS_APOLLO_PROGRAM);
 		}
 	}
 
@@ -1776,7 +1769,7 @@ void CvGrandStrategyAI::DoGuessOtherPlayersActiveGrandStrategy()
 				if(vGrandStrategyPriorities.size() > 0)
 				{
 					// Add "No Grand Strategy" in case we just don't have enough info to go on
-					iPriority = /*40*/ GC.getAI_GRAND_STRATEGY_GUESS_NO_CLUE_WEIGHT();
+					iPriority = /*40*/ GD_INT_GET(AI_GRAND_STRATEGY_GUESS_NO_CLUE_WEIGHT);
 
 					vGrandStrategyPriorities.push_back(NO_AIGRANDSTRATEGY, iPriority);
 					vGrandStrategyPrioritiesForLogging.push_back(iPriority);
@@ -1790,11 +1783,11 @@ void CvGrandStrategyAI::DoGuessOtherPlayersActiveGrandStrategy()
 					// How confident are we in our Guess?
 					if(eGrandStrategy != NO_AIGRANDSTRATEGY)
 					{
-						if(iPriority >= /*120*/ GC.getAI_GRAND_STRATEGY_GUESS_POSITIVE_THRESHOLD())
+						if(iPriority >= /*150*/ GD_INT_GET(AI_GRAND_STRATEGY_GUESS_POSITIVE_THRESHOLD))
 						{
 							eGuessConfidence = GUESS_CONFIDENCE_POSITIVE;
 						}
-						else if(iPriority >= /*70*/ GC.getAI_GRAND_STRATEGY_GUESS_LIKELY_THRESHOLD())
+						else if(iPriority >= /*80*/ GD_INT_GET(AI_GRAND_STRATEGY_GUESS_LIKELY_THRESHOLD))
 						{
 							eGuessConfidence = GUESS_CONFIDENCE_LIKELY;
 						}
@@ -1940,39 +1933,34 @@ int CvGrandStrategyAI::GetGuessOtherPlayerConquestPriority(PlayerTypes ePlayer, 
 	// Compare their Military to the world average; Possible range is 100 to -100 (but will typically be around -20 to 20)
 	if(iWorldMilitaryAverage > 0)
 	{
-		iConquestPriority += (GET_PLAYER(ePlayer).GetMilitaryMight() - iWorldMilitaryAverage) * /*100*/ GC.getAI_GRAND_STRATEGY_CONQUEST_POWER_RATIO_MULTIPLIER() / iWorldMilitaryAverage;
+		iConquestPriority += (GET_PLAYER(ePlayer).GetMilitaryMight() - iWorldMilitaryAverage) * /*100*/ GD_INT_GET(AI_GRAND_STRATEGY_CONQUEST_POWER_RATIO_MULTIPLIER) / iWorldMilitaryAverage;
 	}
 
 	// Minors attacked
-	iConquestPriority += (GetPlayer()->GetDiplomacyAI()->GetOtherPlayerNumMinorsAttacked(ePlayer) * /*5*/ GC.getAI_GRAND_STRATEGY_CONQUEST_WEIGHT_PER_MINOR_ATTACKED());
+	iConquestPriority += GetPlayer()->GetDiplomacyAI()->GetOtherPlayerNumMinorsAttacked(ePlayer) * /*5*/ GD_INT_GET(AI_GRAND_STRATEGY_CONQUEST_WEIGHT_PER_MINOR_ATTACKED);
 
 	// Minors Conquered
-	iConquestPriority += (GetPlayer()->GetDiplomacyAI()->GetPlayerNumMinorsConquered(ePlayer) * /*10*/ GC.getAI_GRAND_STRATEGY_CONQUEST_WEIGHT_PER_MINOR_CONQUERED());
+	iConquestPriority += GetPlayer()->GetDiplomacyAI()->GetPlayerNumMinorsConquered(ePlayer) * /*10*/ GD_INT_GET(AI_GRAND_STRATEGY_CONQUEST_WEIGHT_PER_MINOR_CONQUERED);
 
 	// Majors attacked
-	iConquestPriority += (GetPlayer()->GetDiplomacyAI()->GetOtherPlayerNumMajorsAttacked(ePlayer) * /*10*/ GC.getAI_GRAND_STRATEGY_CONQUEST_WEIGHT_PER_MAJOR_ATTACKED());
+	iConquestPriority += GetPlayer()->GetDiplomacyAI()->GetOtherPlayerNumMajorsAttacked(ePlayer) * /*10*/ GD_INT_GET(AI_GRAND_STRATEGY_CONQUEST_WEIGHT_PER_MAJOR_ATTACKED);
 
 	// Majors Conquered
-	iConquestPriority += (GetPlayer()->GetDiplomacyAI()->GetPlayerNumMajorsConquered(ePlayer) * /*15*/ GC.getAI_GRAND_STRATEGY_CONQUEST_WEIGHT_PER_MAJOR_CONQUERED());
+	iConquestPriority += GetPlayer()->GetDiplomacyAI()->GetPlayerNumMajorsConquered(ePlayer) * /*15*/ GD_INT_GET(AI_GRAND_STRATEGY_CONQUEST_WEIGHT_PER_MAJOR_CONQUERED);
 
 	//Autocracy is usually a sure bet for conquest strategy.
 	//More than half of all Capitals?
 	if(GET_PLAYER(ePlayer).GetNumCapitalCities() >= 1 && (GET_PLAYER(ePlayer).GetNumCapitalCities() >= (GC.getGame().countMajorCivsEverAlive() / 2)))
 	{
-		iConquestPriority *= (GET_PLAYER(ePlayer).GetNumCapitalCities() * 20);
+		iConquestPriority *= GET_PLAYER(ePlayer).GetNumCapitalCities() * 20;
 	}
 	if(GET_PLAYER(ePlayer).GetDiplomacyAI()->GetWarmongerThreat(ePlayer) >= THREAT_MAJOR)
 	{
-		iConquestPriority *= (GET_PLAYER(ePlayer).GetDiplomacyAI()->GetWarmongerThreat(ePlayer) * 5);
+		iConquestPriority *= GET_PLAYER(ePlayer).GetDiplomacyAI()->GetWarmongerThreat(ePlayer) * 5;
 	}
 	PolicyBranchTypes eCurrentBranchType = GET_PLAYER(ePlayer).GetPlayerPolicies()->GetLateGamePolicyTree();
 
-	if (eCurrentBranchType == (PolicyBranchTypes)GC.getPOLICY_BRANCH_AUTOCRACY())
-	{
-		iConquestPriority *= 3;
-		iConquestPriority /= 2;
-	}
-	if (eCurrentBranchType == (PolicyBranchTypes)GC.getPOLICY_BRANCH_ORDER())
+	if (eCurrentBranchType == (PolicyBranchTypes)GD_INT_GET(POLICY_BRANCH_AUTOCRACY) || eCurrentBranchType == (PolicyBranchTypes)GD_INT_GET(POLICY_BRANCH_ORDER))
 	{
 		iConquestPriority *= 3;
 		iConquestPriority /= 2;
@@ -1998,14 +1986,14 @@ int CvGrandStrategyAI::GetGuessOtherPlayerCulturePriority(PlayerTypes ePlayer, i
 	// Compare their Culture to the world average; Possible range is 75 to -75
 	if(iWorldCultureAverage > 0)
 	{
-		iRatio = (GET_PLAYER(ePlayer).GetJONSCultureEverGenerated() - iWorldCultureAverage) * /*75*/ GC.getAI_GS_CULTURE_RATIO_MULTIPLIER() / iWorldCultureAverage;
-		if (iRatio > GC.getAI_GS_CULTURE_RATIO_MULTIPLIER())
+		iRatio = (GET_PLAYER(ePlayer).GetJONSCultureEverGenerated() - iWorldCultureAverage) * /*60*/ GD_INT_GET(AI_GS_CULTURE_RATIO_MULTIPLIER) / iWorldCultureAverage;
+		if (iRatio > GD_INT_GET(AI_GS_CULTURE_RATIO_MULTIPLIER))
 		{
-			iCulturePriority += GC.getAI_GS_CULTURE_RATIO_MULTIPLIER();
+			iCulturePriority += GD_INT_GET(AI_GS_CULTURE_RATIO_MULTIPLIER);
 		}
-		else if (iRatio < -GC.getAI_GS_CULTURE_RATIO_MULTIPLIER())
+		else if (iRatio < -GD_INT_GET(AI_GS_CULTURE_RATIO_MULTIPLIER))
 		{
-			iCulturePriority += -GC.getAI_GS_CULTURE_RATIO_MULTIPLIER();
+			iCulturePriority += -GD_INT_GET(AI_GS_CULTURE_RATIO_MULTIPLIER);
 		}
 		iCulturePriority += iRatio;
 	}
@@ -2013,14 +2001,14 @@ int CvGrandStrategyAI::GetGuessOtherPlayerCulturePriority(PlayerTypes ePlayer, i
 	// Compare their Tourism to the world average; Possible range is 75 to -75
 	if(iWorldTourismAverage > 0)
 	{
-		iRatio = (GET_PLAYER(ePlayer).GetCulture()->GetTourism() / 100 - iWorldTourismAverage) * /*75*/ GC.getAI_GS_TOURISM_RATIO_MULTIPLIER() / iWorldTourismAverage;
-		if (iRatio > GC.getAI_GS_TOURISM_RATIO_MULTIPLIER())
+		iRatio = (GET_PLAYER(ePlayer).GetCulture()->GetTourism() / 100 - iWorldTourismAverage) * /*80*/ GD_INT_GET(AI_GS_TOURISM_RATIO_MULTIPLIER) / iWorldTourismAverage;
+		if (iRatio > GD_INT_GET(AI_GS_TOURISM_RATIO_MULTIPLIER))
 		{
-			iCulturePriority += GC.getAI_GS_TOURISM_RATIO_MULTIPLIER();
+			iCulturePriority += GD_INT_GET(AI_GS_TOURISM_RATIO_MULTIPLIER);
 		}
-		else if (iRatio < -GC.getAI_GS_TOURISM_RATIO_MULTIPLIER())
+		else if (iRatio < -GD_INT_GET(AI_GS_TOURISM_RATIO_MULTIPLIER))
 		{
-			iCulturePriority += -GC.getAI_GS_TOURISM_RATIO_MULTIPLIER();
+			iCulturePriority += -GD_INT_GET(AI_GS_TOURISM_RATIO_MULTIPLIER);
 		}
 		iCulturePriority += iRatio;	
 	}
@@ -2034,12 +2022,7 @@ int CvGrandStrategyAI::GetGuessOtherPlayerCulturePriority(PlayerTypes ePlayer, i
 	//Freedom is usually a sure bet for culture strategy.
 	PolicyBranchTypes eCurrentBranchType = GET_PLAYER(ePlayer).GetPlayerPolicies()->GetLateGamePolicyTree();
 
-	if (eCurrentBranchType == (PolicyBranchTypes)GC.getPOLICY_BRANCH_FREEDOM())
-	{
-		iCulturePriority *= 3;
-		iCulturePriority /= 2;
-	}
-	if (eCurrentBranchType == (PolicyBranchTypes)GC.getPOLICY_BRANCH_AUTOCRACY())
+	if (eCurrentBranchType == (PolicyBranchTypes)GD_INT_GET(POLICY_BRANCH_FREEDOM) || eCurrentBranchType == (PolicyBranchTypes)GD_INT_GET(POLICY_BRANCH_AUTOCRACY))
 	{
 		iCulturePriority *= 3;
 		iCulturePriority /= 2;
@@ -2081,19 +2064,12 @@ int CvGrandStrategyAI::GetGuessOtherPlayerUnitedNationsPriority(PlayerTypes ePla
 	}
 	iCityStatesAlive = MAX(iCityStatesAlive, 1);
 
-	int iPriority = iTheirCityStateAllies + (iTheirCityStateFriends / 3);
-	iPriority = iPriority * GC.getAI_GS_UN_SECURED_VOTE_MOD();
-	iPriority = iPriority / iCityStatesAlive;
+	int iPriority = (iTheirCityStateAllies + (iTheirCityStateFriends / 3)) * /*300*/ GD_INT_GET(AI_GS_UN_SECURED_VOTE_MOD) / iCityStatesAlive;
 
 	//Freedom is usually a sure bet for diplomatic strategy.
 	PolicyBranchTypes eCurrentBranchType = GET_PLAYER(ePlayer).GetPlayerPolicies()->GetLateGamePolicyTree();
 
-	if (eCurrentBranchType == (PolicyBranchTypes)GC.getPOLICY_BRANCH_FREEDOM())
-	{
-		iPriority *= 3;
-		iPriority /= 2;
-	}
-	if (eCurrentBranchType == (PolicyBranchTypes)GC.getPOLICY_BRANCH_AUTOCRACY())
+	if (eCurrentBranchType == (PolicyBranchTypes)GD_INT_GET(POLICY_BRANCH_FREEDOM) || eCurrentBranchType == (PolicyBranchTypes)GD_INT_GET(POLICY_BRANCH_AUTOCRACY))
 	{
 		iPriority *= 3;
 		iPriority /= 2;
@@ -2130,27 +2106,15 @@ int CvGrandStrategyAI::GetGuessOtherPlayerSpaceshipPriority(PlayerTypes ePlayer,
 	{
 		if(GET_TEAM(eTeam).getProjectCount(eApolloProgram) > 0)
 		{
-			return /*150*/ GC.getAI_GS_SS_HAS_APOLLO_PROGRAM();
+			return /*150*/ GD_INT_GET(AI_GS_SS_HAS_APOLLO_PROGRAM);
 		}
 	}
 
 	int iNumTechs = GET_TEAM(eTeam).GetTeamTechs()->GetNumTechsKnown();
+	int iSSPriority = (iNumTechs - iWorldNumTechsAverage) * /*600*/ GD_INT_GET(AI_GS_SS_TECH_PROGRESS_MOD) / max(iWorldNumTechsAverage, 1);
 
-	// Don't divide by zero, okay?
-	if(iWorldNumTechsAverage == 0)
-		iWorldNumTechsAverage = 1;
-
-	int iSSPriority = (iNumTechs - iWorldNumTechsAverage) * /*300*/ GC.getAI_GS_SS_TECH_PROGRESS_MOD() / iWorldNumTechsAverage;
-
-	//Order is usually a sure bet for science strategy.
 	PolicyBranchTypes eCurrentBranchType = GET_PLAYER(ePlayer).GetPlayerPolicies()->GetLateGamePolicyTree();
-
-	if (eCurrentBranchType == (PolicyBranchTypes)GC.getPOLICY_BRANCH_ORDER())
-	{
-		iSSPriority *= 3;
-		iSSPriority /= 2;
-	}
-	if (eCurrentBranchType == (PolicyBranchTypes)GC.getPOLICY_BRANCH_FREEDOM())
+	if (eCurrentBranchType == (PolicyBranchTypes)GD_INT_GET(POLICY_BRANCH_ORDER) || eCurrentBranchType == (PolicyBranchTypes)GD_INT_GET(POLICY_BRANCH_FREEDOM))
 	{
 		iSSPriority *= 3;
 		iSSPriority /= 2;

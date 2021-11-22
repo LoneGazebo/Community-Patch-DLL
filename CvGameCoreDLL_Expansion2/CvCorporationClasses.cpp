@@ -122,7 +122,7 @@ bool CvCorporationEntry::IsTradeRoutesInvulnerable() const
 
 int CvCorporationEntry::GetResourceMonopolyAnd(int i) const
 {
-	CvAssertMsg(i < GC.getNUM_BUILDING_RESOURCE_PREREQS(), "Index out of bounds");
+	CvAssertMsg(i < /*5*/ GD_INT_GET(NUM_BUILDING_RESOURCE_PREREQS), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
 	return m_piResourceMonopolyAnd ? m_piResourceMonopolyAnd[i] : -1;
 }
@@ -130,21 +130,21 @@ int CvCorporationEntry::GetResourceMonopolyAnd(int i) const
 /// Prerequisite resources with OR
 int CvCorporationEntry::GetResourceMonopolyOr(int i) const
 {
-	CvAssertMsg(i < GC.getNUM_BUILDING_RESOURCE_PREREQS(), "Index out of bounds");
+	CvAssertMsg(i < /*5*/ GD_INT_GET(NUM_BUILDING_RESOURCE_PREREQS), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
 	return m_piResourceMonopolyOrs ? m_piResourceMonopolyOrs[i] : -1;
 }
 
 int CvCorporationEntry::GetNumFreeResource(int i) const
 {
-	CvAssertMsg(i < GC.getNUM_BUILDING_RESOURCE_PREREQS(), "Index out of bounds");
+	CvAssertMsg(i < /*5*/ GD_INT_GET(NUM_BUILDING_RESOURCE_PREREQS), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
 	return m_piNumFreeResource ? m_piNumFreeResource[i] : -1;
 }
 
 int CvCorporationEntry::GetUnitResourceProductionModifier(int i) const
 {
-	CvAssertMsg(i < GC.getNUM_BUILDING_RESOURCE_PREREQS(), "Index out of bounds");
+	CvAssertMsg(i < /*5*/ GD_INT_GET(NUM_BUILDING_RESOURCE_PREREQS), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
 	return m_piUnitResourceProductionModifier ? m_piUnitResourceProductionModifier[i] : -1;
 }
@@ -1319,8 +1319,8 @@ int CvPlayerCorporations::GetMaxNumFranchises() const
 	else
 	{
 		iReturnValue += pkCorporationInfo->GetBaseFranchises();
-		iReturnValue += (int)(m_pPlayer->GetTrade()->GetNumTradeRoutesPossible() * GC.getMOD_BALANCE_CORE_CORP_OFFICE_TR_CONVERSION());
-		iReturnValue += (int)(GetNumOffices() * GC.getMOD_BALANCE_CORE_CORP_OFFICE_FRANCHISE_CONVERSION());
+		iReturnValue += (int)(m_pPlayer->GetTrade()->GetNumTradeRoutesPossible() * /*0.0f*/ GD_FLOAT_GET(MOD_BALANCE_CORE_CORP_OFFICE_TR_CONVERSION));
+		iReturnValue += (int)(GetNumOffices() * /*0.0f*/ GD_FLOAT_GET(MOD_BALANCE_CORE_CORP_OFFICE_FRANCHISE_CONVERSION));
 
 		// Add in any "bonus" franchises from policies
 		iReturnValue += GetAdditionalNumFranchises();
@@ -1383,10 +1383,10 @@ CvString CvPlayerCorporations::GetNumFranchisesTooltip()
 	}
 
 	int iTotal = pkCorporationInfo->GetBaseFranchises();
-	int iNumTrades = (int)(m_pPlayer->GetTrade()->GetNumTradeRoutesPossible() * GC.getMOD_BALANCE_CORE_CORP_OFFICE_TR_CONVERSION());
+	int iNumTrades = (int)(m_pPlayer->GetTrade()->GetNumTradeRoutesPossible() * /*0.0f*/ GD_FLOAT_GET(MOD_BALANCE_CORE_CORP_OFFICE_TR_CONVERSION));
 	iTotal += iNumTrades;
 
-	iTotal += (int)(GetNumOffices() * GC.getMOD_BALANCE_CORE_CORP_OFFICE_FRANCHISE_CONVERSION() /*.5f*/);
+	iTotal += (int)(GetNumOffices() * /*0.0f*/ GD_FLOAT_GET(MOD_BALANCE_CORE_CORP_OFFICE_FRANCHISE_CONVERSION));
 
 	// Add in any "bonus" franchises from policies
 	int iPolicy = GetAdditionalNumFranchises();
@@ -1400,7 +1400,7 @@ CvString CvPlayerCorporations::GetNumFranchisesTooltip()
 		iModTotal = 0;
 
 	
-	strTooltip = GetLocalizedText("TXT_KEY_CORP_MAX_FRANCHISE_TT", pkCorporationInfo->GetBaseFranchises(), (GetNumOffices() * GC.getMOD_BALANCE_CORE_CORP_OFFICE_FRANCHISE_CONVERSION()), iNumTrades, iModTotal);
+	strTooltip = GetLocalizedText("TXT_KEY_CORP_MAX_FRANCHISE_TT", pkCorporationInfo->GetBaseFranchises(), (GetNumOffices() * /*0.0f*/ GD_FLOAT_GET(MOD_BALANCE_CORE_CORP_OFFICE_FRANCHISE_CONVERSION)), iNumTrades, iModTotal);
 
 	return strTooltip;
 }

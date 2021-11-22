@@ -512,6 +512,8 @@ public:
 	void DoSellBuilding();
 	void SetTraded(PlayerTypes ePlayer, bool bValue);
 	bool IsTraded(PlayerTypes ePlayer);
+	void SetIgnoredForExpansionBickering(PlayerTypes ePlayer, bool bValue);
+	bool IsIgnoredForExpansionBickering(PlayerTypes ePlayer) const;
 #endif
 	int foodConsumptionSpecialistTimes100() const;
 	int foodConsumption(bool bNoAngry = false, int iExtra = 0) const;
@@ -1047,7 +1049,7 @@ public:
 	void setEconomicValue(PlayerTypes ePossibleNewOwner, int iValue);
 #endif
 
-	int GetContestedPlotScore(PlayerTypes eOtherPlayer, bool bJustCount = false, bool bIncludeConqueredCities = false) const;
+	int GetContestedPlotScore(PlayerTypes eOtherPlayer) const;
 
 #if defined(MOD_BALANCE_CORE_SPIES)
 	int GetEspionageRanking() const;
@@ -1989,6 +1991,7 @@ protected:
 	std::vector<bool> m_abIsBestForWonder;
 	std::vector<bool> m_abIsPurchased;
 	std::vector<bool> m_abTraded;
+	std::vector<bool> m_abIgnoredForExpansionBickering;
 	std::vector<bool> m_abPaidAdoptionBonus;
 	std::vector<int> m_aiReligiousPressureModifier;
 	int m_iExtraBuildingMaintenance;
@@ -2368,6 +2371,7 @@ SYNC_ARCHIVE_VAR(std::vector<bool>, m_abEverLiberated)
 SYNC_ARCHIVE_VAR(std::vector<bool>, m_abIsBestForWonder)
 SYNC_ARCHIVE_VAR(std::vector<bool>, m_abIsPurchased)
 SYNC_ARCHIVE_VAR(std::vector<bool>, m_abTraded)
+SYNC_ARCHIVE_VAR(std::vector<bool>, m_abIgnoredForExpansionBickering)
 SYNC_ARCHIVE_VAR(std::vector<bool>, m_abPaidAdoptionBonus)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiReligiousPressureModifier)
 SYNC_ARCHIVE_VAR(int, m_iExtraBuildingMaintenance)

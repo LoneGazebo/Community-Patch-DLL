@@ -668,9 +668,6 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 		if(pCity->isCapital())
 			return false;
 
-		if (pCity->getDamage() > 0 && !pFromTeam->isAtWar(pToTeam->GetID()))
-			return false;
-
 		// Can't trade a city to a human in an OCC game
 		if(GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE) && GET_PLAYER(eToPlayer).isHuman())
 			return false;
@@ -698,6 +695,10 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 				}
 			}
 		}
+
+		// Can't trade a city if not at full HP and enemies are nearby (except in a peace deal)
+		if (pCity->getDamage() > 0 && GetPeaceTreatyType() == NO_PEACE_TREATY_TYPE && (pCity->getDamageTakenLastTurn() > 0 || pCity->IsEnemyInRange(AVG_CITY_RADIUS, false)))
+			return false;
 	}
 	// Embassy
 	else if(eItem == TRADE_ITEM_ALLOW_EMBASSY)
@@ -1047,11 +1048,11 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 					//Only matters if not a peace deal (i.e. we're not making negotiations)
 					if (!this->IsPeaceTreatyTrade(eToPlayer) && !this->IsPeaceTreatyTrade(ePlayer) && this->GetPeaceTreatyType() == NO_PEACE_TREATY_TYPE)
 					{
-						if(pFromPlayer->GetPlayerNumTurnsAtWar(eLoopPlayer) < GD_INT_GET(WAR_MAJOR_MINIMUM_TURNS))
+						if(pFromPlayer->GetPlayerNumTurnsAtWar(eLoopPlayer) < /*10*/ GD_INT_GET(WAR_MAJOR_MINIMUM_TURNS))
 						{
 							return false;
 						}
-						if(pOtherPlayer->GetPlayerNumTurnsAtWar(ePlayer) < GD_INT_GET(WAR_MAJOR_MINIMUM_TURNS))
+						if(pOtherPlayer->GetPlayerNumTurnsAtWar(ePlayer) < /*10*/ GD_INT_GET(WAR_MAJOR_MINIMUM_TURNS))
 						{
 							return false;
 						}
@@ -1390,7 +1391,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 		}
 
 		// Voluntary vassalage has been disallowed by game options
-		if (!pFromTeam->isAtWar(eToTeam) && GC.getDIPLOAI_DISABLE_VOLUNTARY_VASSALAGE() > 0)
+		if (!pFromTeam->isAtWar(eToTeam) && GD_INT_GET(DIPLOAI_DISABLE_VOLUNTARY_VASSALAGE) > 0)
 			return false;
 
 		//Can't already be offering this
@@ -3647,13 +3648,11 @@ void CvGameDeals::ActivateDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, C
 			// Declare war!
 			if (GET_PLAYER(eGivingPlayer).GetDiplomacyAI()->DeclareWar(eTargetTeam))
 			{
-				int iLockedTurns = /*15*/ GC.getCOOP_WAR_LOCKED_LENGTH();
+				int iLockedTurns = /*15*/ GD_INT_GET(COOP_WAR_LOCKED_LENGTH);
 				GET_TEAM(eGivingTeam).ChangeNumTurnsLockedIntoWar(eTargetTeam, iLockedTurns);
 			}
 			else
-			{
 				break;
-			}
 
 			// All AI players on the attacking team go to war now.
 			vector<PlayerTypes> vAttackingTeam = GET_TEAM(eGivingTeam).getPlayers();
@@ -4305,7 +4304,7 @@ void CvGameDeals::DoEndTradedItem(CvTradedItem* pItem, PlayerTypes eToPlayer, bo
 			CvTeam& kTeam = GET_TEAM(toPlayer.getTeam());
 			int iToPlayerBeakers = toPlayer.GetResearchAgreementCounter(eFromPlayer);
 			int iFromPlayerBeakers = fromPlayer.GetResearchAgreementCounter(eToPlayer);
-			int iBeakersBonus = min(iToPlayerBeakers, iFromPlayerBeakers) / GC.getRESEARCH_AGREEMENT_BOOST_DIVISOR(); //one (third) of minimum contribution
+			int iBeakersBonus = min(iToPlayerBeakers, iFromPlayerBeakers) / /*3*/ GD_INT_GET(RESEARCH_AGREEMENT_BOOST_DIVISOR); //one (third) of minimum contribution
 			iBeakersBonus = (iBeakersBonus * toPlayer.GetMedianTechPercentage()) / 100;
 
 			TechTypes eCurrentTech = toPlayer.GetPlayerTechs()->GetCurrentResearch();

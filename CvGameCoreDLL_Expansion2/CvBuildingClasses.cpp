@@ -3526,7 +3526,7 @@ int CvBuildingEntry::GetLockedBuildingClasses(int i) const
 /// Prerequisite techs with AND
 int CvBuildingEntry::GetPrereqAndTechs(int i) const
 {
-	CvAssertMsg(i < GC.getNUM_BUILDING_AND_TECH_PREREQS(), "Index out of bounds");
+	CvAssertMsg(i < /*3*/ GD_INT_GET(NUM_BUILDING_AND_TECH_PREREQS), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
 	return m_piPrereqAndTechs ? m_piPrereqAndTechs[i] : -1;
 }
@@ -3590,7 +3590,7 @@ int CvBuildingEntry::GetFlavorValue(int i) const
 /// Prerequisite resources with AND
 int CvBuildingEntry::GetLocalResourceAnd(int i) const
 {
-	CvAssertMsg(i < GC.getNUM_BUILDING_RESOURCE_PREREQS(), "Index out of bounds");
+	CvAssertMsg(i < /*5*/ GD_INT_GET(NUM_BUILDING_RESOURCE_PREREQS), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
 	return m_piLocalResourceAnds ? m_piLocalResourceAnds[i] : -1;
 }
@@ -3598,7 +3598,7 @@ int CvBuildingEntry::GetLocalResourceAnd(int i) const
 /// Prerequisite resources with OR
 int CvBuildingEntry::GetLocalResourceOr(int i) const
 {
-	CvAssertMsg(i < GC.getNUM_BUILDING_RESOURCE_PREREQS(), "Index out of bounds");
+	CvAssertMsg(i < /*5*/ GD_INT_GET(NUM_BUILDING_RESOURCE_PREREQS), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
 	return m_piLocalResourceOrs ? m_piLocalResourceOrs[i] : -1;
 }
@@ -3620,7 +3620,7 @@ int CvBuildingEntry::GetFeatureOr(int i) const
 /// Prerequisite resources with AND
 int CvBuildingEntry::GetResourceMonopolyAnd(int i) const
 {
-	CvAssertMsg(i < GC.getNUM_BUILDING_RESOURCE_PREREQS(), "Index out of bounds");
+	CvAssertMsg(i < /*5*/ GD_INT_GET(NUM_BUILDING_RESOURCE_PREREQS), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
 	return m_piResourceMonopolyAnds ? m_piResourceMonopolyAnds[i] : -1;
 }
@@ -3628,7 +3628,7 @@ int CvBuildingEntry::GetResourceMonopolyAnd(int i) const
 /// Prerequisite resources with OR
 int CvBuildingEntry::GetResourceMonopolyOr(int i) const
 {
-	CvAssertMsg(i < GC.getNUM_BUILDING_RESOURCE_PREREQS(), "Index out of bounds");
+	CvAssertMsg(i < /*5*/ GD_INT_GET(NUM_BUILDING_RESOURCE_PREREQS), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
 	return m_piResourceMonopolyOrs ? m_piResourceMonopolyOrs[i] : -1;
 }
@@ -4506,7 +4506,7 @@ int CvCityBuildings::GetNumBuilding(BuildingTypes eIndex) const
 {
 	CvAssertMsg(eIndex != NO_BUILDING, "BuildingType eIndex is expected to not be NO_BUILDING");
 
-	if(GC.getCITY_MAX_NUM_BUILDINGS() <= 1)
+	if (/*1*/ GD_INT_GET(CITY_MAX_NUM_BUILDINGS) <= 1)
 	{
 		return std::max(GetNumRealBuilding(eIndex), GetNumFreeBuilding(eIndex));
 	}
@@ -4729,7 +4729,7 @@ int CvCityBuildings::GetSellBuildingRefund(BuildingTypes eIndex) const
 	CvAssertMsg(eIndex < GetNumBuildings(), "eIndex expected to be < GetNumBuildings()");
 
 	int iRefund = GET_PLAYER(m_pCity->getOwner()).getProductionNeeded(eIndex);
-	iRefund /= /*10*/ GC.getBUILDING_SALE_DIVISOR();
+	iRefund /= /*4*/ GD_INT_GET(BUILDING_SALE_DIVISOR);
 
 	return iRefund;
 }
@@ -5651,7 +5651,7 @@ int CvCityBuildings::GetYieldFromGreatWorks(YieldTypes eYield) const
 	}
 	
 	//Now grab the base yields.
-	int iBaseYield = GC.getBASE_CULTURE_PER_GREAT_WORK();
+	int iBaseYield = /*2 in CP, 3 in CBO*/ GD_INT_GET(BASE_CULTURE_PER_GREAT_WORK);
 	int iSecondaryYield = GET_PLAYER(m_pCity->getOwner()).GetGreatWorkYieldChange(eYield);
 	iSecondaryYield += GET_PLAYER(m_pCity->getOwner()).GetPlayerTraits()->GetGreatWorkYieldChanges(eYield);
 	iSecondaryYield += m_pCity->GetGreatWorkYieldChange(eYield);
@@ -5726,7 +5726,7 @@ int CvCityBuildings::GetCultureFromGreatWorks() const
 #if defined(MOD_GLOBAL_GREATWORK_YIELDTYPES) || defined(MOD_API_UNIFIED_YIELDS)
 	return GetYieldFromGreatWorks(YIELD_CULTURE);
 #else
-	int iCulturePerWork = GC.getBASE_CULTURE_PER_GREAT_WORK();
+	int iCulturePerWork = /*2 in CP, 3 in CBO*/ GD_INT_GET(BASE_CULTURE_PER_GREAT_WORK);
 	iCulturePerWork += GET_PLAYER(m_pCity->getOwner()).GetGreatWorkYieldChange(YIELD_CULTURE);
 
 	int iRtnValue = iCulturePerWork * m_aBuildingGreatWork.size();

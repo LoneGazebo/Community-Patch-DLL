@@ -245,7 +245,7 @@ void CvDangerPlots::UpdateDangerInternal(bool bKeepKnownUnits, const PlotIndexCo
 			bool bIndirectFireAllowed = false; //this is an OUT parameter ...
 			int iRange = pLoopCity->getBombardRange(bIndirectFireAllowed);
 #else
-			int iRange = GC.getCITY_ATTACK_RANGE();
+			int iRange = /*2*/ GD_INT_GET(CITY_ATTACK_RANGE);
 #endif
 			CvPlot* pCityPlot = pLoopCity->plot();
 			CvPlot* pLoopPlot = NULL;
@@ -343,7 +343,7 @@ void CvDangerPlots::UpdateDangerInternal(bool bKeepKnownUnits, const PlotIndexCo
 				}
 
 				//if we know there's a camp there but we can't see it, assume some danger
-				ImprovementTypes eCamp = (ImprovementTypes)GC.getBARBARIAN_CAMP_IMPROVEMENT();
+				ImprovementTypes eCamp = (ImprovementTypes)GD_INT_GET(BARBARIAN_CAMP_IMPROVEMENT);
 				if (eImprovement == eCamp && !pPlot->isVisible(thisTeam))
 					AddFogDanger(pPlot, BARBARIAN_TEAM, 1, false);
 			}
@@ -488,7 +488,7 @@ bool CvDangerPlots::ShouldIgnoreUnit(const CvUnit* pUnit, bool bIgnoreVisibility
 		return true;
 
 	//invisible but revealed camp. count the unit there anyways (for AI)
-	bIgnoreVisibility |= (pUnit->plot()->getRevealedImprovementType(pUnit->getTeam()) == GC.getBARBARIAN_CAMP_IMPROVEMENT() && !GET_PLAYER(m_ePlayer).isHuman());
+	bIgnoreVisibility |= (pUnit->plot()->getRevealedImprovementType(pUnit->getTeam()) == GD_INT_GET(BARBARIAN_CAMP_IMPROVEMENT) && !GET_PLAYER(m_ePlayer).isHuman());
 
 	if(!pUnit->plot()->isVisible(GET_PLAYER(m_ePlayer).getTeam()) && !bIgnoreVisibility)
 		return true;
@@ -716,7 +716,7 @@ int CvDangerPlotContents::GetAirUnitDamage(const CvUnit* pUnit, AirActionType iA
 			{
 				if (pInterceptor->getDomainType() != DOMAIN_AIR)
 				{
-					return (pInterceptor->GetInterceptionDamage(pUnit, false, m_pPlot) * (100+GC.getAIR_SWEEP_INTERCEPTION_DAMAGE_MOD()))/100;
+					return (pInterceptor->GetInterceptionDamage(pUnit, false, m_pPlot) * (100 + /*-50*/ GD_INT_GET(AIR_SWEEP_INTERCEPTION_DAMAGE_MOD)))/100;
 				}
 				else
 				{

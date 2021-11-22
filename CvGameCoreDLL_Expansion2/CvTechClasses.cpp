@@ -823,7 +823,7 @@ void CvPlayerTechs::Reset()
 						int iTech = pkBuildingInfo->GetPrereqAndTech();
 						if(iTech != NO_TECH)
 						{
-							m_piCivTechPriority[iTech] += GC.getTECH_PRIORITY_UNIQUE_ITEM();
+							m_piCivTechPriority[iTech] += /*25*/ GD_INT_GET(TECH_PRIORITY_UNIQUE_ITEM);
 							m_peCivTechUniqueBuildings[iTech] = eBuilding;
 						}
 					}
@@ -834,7 +834,7 @@ void CvPlayerTechs::Reset()
 						int iTech = pkBuildingInfo->GetPrereqAndTech();
 						if (iTech != NO_TECH)
 						{
-							m_piCivTechPriority[iTech] += GC.getTECH_PRIORITY_UNIQUE_ITEM();
+							m_piCivTechPriority[iTech] += /*25*/ GD_INT_GET(TECH_PRIORITY_UNIQUE_ITEM);
 						}
 					}
 
@@ -849,7 +849,7 @@ void CvPlayerTechs::Reset()
 								int iTech = pkBuildingInfo->GetPrereqAndTech();
 								if (iTech != NO_TECH)
 								{
-									m_piCivTechPriority[iTech] += GC.getTECH_PRIORITY_UNIQUE_ITEM() / 2;
+									m_piCivTechPriority[iTech] += GD_INT_GET(TECH_PRIORITY_UNIQUE_ITEM) / 2;
 								}
 							}
 						}
@@ -861,7 +861,7 @@ void CvPlayerTechs::Reset()
 								int iTech = pkBuildingInfo->GetPrereqAndTech();
 								if (iTech != NO_TECH)
 								{
-									m_piCivTechPriority[iTech] += GC.getTECH_PRIORITY_UNIQUE_ITEM() / 2;
+									m_piCivTechPriority[iTech] += GD_INT_GET(TECH_PRIORITY_UNIQUE_ITEM) / 2;
 								}
 							}
 							else
@@ -874,7 +874,7 @@ void CvPlayerTechs::Reset()
 										int iTech = pkBuildingInfo->GetPrereqAndTech();
 										if (iTech != NO_TECH)
 										{
-											m_piCivTechPriority[iTech] += GC.getTECH_PRIORITY_UNIQUE_ITEM() / 3;
+											m_piCivTechPriority[iTech] += GD_INT_GET(TECH_PRIORITY_UNIQUE_ITEM) / 3;
 										}
 									}
 								}
@@ -900,7 +900,7 @@ void CvPlayerTechs::Reset()
 							int iTech = pkUnitEntry->GetPrereqAndTech();
 							if(iTech != NO_TECH)
 							{
-								m_piCivTechPriority[iTech] += GC.getTECH_PRIORITY_UNIQUE_ITEM();
+								m_piCivTechPriority[iTech] += /*25*/ GD_INT_GET(TECH_PRIORITY_UNIQUE_ITEM);
 								m_peCivTechUniqueUnits[iTech] = (UnitTypes)pkInfo->getCivilizationUnits(iI);
 							}
 						}
@@ -925,7 +925,7 @@ void CvPlayerTechs::Reset()
 								int iTech = pkBuildEntry->getTechPrereq();
 								if(iTech != NO_TECH)
 								{
-									m_piCivTechPriority[iTech] += GC.getTECH_PRIORITY_UNIQUE_ITEM();
+									m_piCivTechPriority[iTech] += /*25*/ GD_INT_GET(TECH_PRIORITY_UNIQUE_ITEM);
 									m_peCivTechUniqueImprovements[iTech] = static_cast<ImprovementTypes>(iI);
 								}
 							}
@@ -956,7 +956,7 @@ void CvPlayerTechs::Reset()
 						int iPrereqTech = pkTraitInfo->GetPrereqTech();
 						if(iPrereqTech != NO_TECH)
 						{
-							m_piCivTechPriority[iPrereqTech] += GC.getTECH_PRIORITY_MAYA_CALENDAR_BONUS();
+							m_piCivTechPriority[iPrereqTech] += /*50*/ GD_INT_GET(TECH_PRIORITY_MAYA_CALENDAR_BONUS);
 						}
 					}
 
@@ -964,20 +964,20 @@ void CvPlayerTechs::Reset()
 					int iPrereqTech = pkTraitInfo->GetFreeUnitPrereqTech();
 					if (iPrereqTech != NO_TECH)
 					{
-						m_piCivTechPriority[iPrereqTech] += GC.getTECH_PRIORITY_MAYA_CALENDAR_BONUS();
+						m_piCivTechPriority[iPrereqTech] += /*50*/ GD_INT_GET(TECH_PRIORITY_MAYA_CALENDAR_BONUS);
 					}
 
 					iPrereqTech = pkTraitInfo->GetCapitalFreeBuildingPrereqTech();
 					if (iPrereqTech != NO_TECH)
 					{
-						m_piCivTechPriority[iPrereqTech] += GC.getTECH_PRIORITY_MAYA_CALENDAR_BONUS();
+						m_piCivTechPriority[iPrereqTech] += /*50*/ GD_INT_GET(TECH_PRIORITY_MAYA_CALENDAR_BONUS);
 					}
 
 
 					iPrereqTech = pkTraitInfo->GetFreeBuildingPrereqTech();
 					if (iPrereqTech != NO_TECH)
 					{
-						m_piCivTechPriority[iPrereqTech] += GC.getTECH_PRIORITY_MAYA_CALENDAR_BONUS();
+						m_piCivTechPriority[iPrereqTech] += /*50*/ GD_INT_GET(TECH_PRIORITY_MAYA_CALENDAR_BONUS);
 					}
 				}
 			}
@@ -1040,15 +1040,13 @@ FDataStream& operator<<(FDataStream& stream, const CvPlayerTechs& playerTechs)
 void CvPlayerTechs::FlavorUpdate()
 {
 	SetLocalePriorities();
-#if defined(MOD_BALANCE_CORE)
 	SetGSPriorities();
-	if(GetPlayer()->HasUUPeriod())
+	if (GetPlayer()->HasUUPeriod())
 	{
 		CheckHasUUTech();
 		CheckWillHaveUUTechSoon();
 	}
-#endif
-	AddFlavorAsStrategies(GC.getTECH_WEIGHT_PROPAGATION_PERCENT());
+	AddFlavorAsStrategies(/*50*/ GD_INT_GET(TECH_WEIGHT_PROPAGATION_PERCENT));
 }
 
 /// Accessor: Player object
@@ -1212,7 +1210,7 @@ void CvPlayerTechs::SetLocalePriorities()
 					if (MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 					{
 						int iMonopolyVal = m_pPlayer->GetMonopolyPercent(eResource);
-						if (iMonopolyVal > GC.getSTRATEGIC_RESOURCE_MONOPOLY_THRESHOLD() && iMonopolyVal <= GC.getGLOBAL_RESOURCE_MONOPOLY_THRESHOLD())
+						if (iMonopolyVal > /*25*/ GD_INT_GET(STRATEGIC_RESOURCE_MONOPOLY_THRESHOLD) && iMonopolyVal <= /*50*/ GD_INT_GET(GLOBAL_RESOURCE_MONOPOLY_THRESHOLD))
 							multiplierValue++;
 					}
 
@@ -1508,7 +1506,7 @@ bool CvPlayerTechs::CanResearch(TechTypes eTech, bool bTrade) const
 	bFoundValid = false;
 
 	// See if it is possible based on OR prereqs
-	for(iI = 0; iI < GC.getNUM_OR_TECH_PREREQS(); iI++)
+	for(iI = 0; iI < /*3*/ GD_INT_GET(NUM_OR_TECH_PREREQS); iI++)
 	{
 		TechTypes ePrereq = (TechTypes)pkTechEntry->GetPrereqOrTechs(iI);
 		if(ePrereq != NO_TECH)
@@ -1532,7 +1530,7 @@ bool CvPlayerTechs::CanResearch(TechTypes eTech, bool bTrade) const
 	}
 
 	// See if it is possible based on AND prereqs
-	for(iI = 0; iI < GC.getNUM_AND_TECH_PREREQS(); iI++)
+	for(iI = 0; iI < /*6*/ GD_INT_GET(NUM_AND_TECH_PREREQS); iI++)
 	{
 		TechTypes ePrereq = (TechTypes)pkTechEntry->GetPrereqAndTechs(iI);
 		if(ePrereq != NO_TECH)
@@ -2001,7 +1999,7 @@ void CvPlayerTechs::CheckWillHaveUUTechSoon()
 								else
 								{
 									// See if it is possible based on AND prereqs
-									for (int iJ = 0; iJ < GC.getNUM_AND_TECH_PREREQS(); iJ++)
+									for (int iJ = 0; iJ < /*6*/ GD_INT_GET(NUM_AND_TECH_PREREQS); iJ++)
 									{
 										TechTypes ePrereq = (TechTypes)pkTechInfo->GetPrereqAndTechs(iJ);
 										if (ePrereq != NO_TECH && IsResearchingTech(ePrereq))
@@ -2485,23 +2483,22 @@ void CvTeamTechs::SetResearchProgressTimes100(TechTypes eIndex, int iNewValue, P
 
 	if(GetResearchProgressTimes100(eIndex) != iNewValue)
 	{
-		m_paiResearchProgress[eIndex] = max(0,iNewValue);
-		CvAssert(GetResearchProgressTimes100(eIndex) >= 0);
+		m_paiResearchProgress[eIndex] = range(iNewValue, 0, INT_MAX);
 
 		if(m_pTeam->GetID() == GC.getGame().getActiveTeam())
 		{
 			GC.GetEngineUserInterface()->setDirty(GameData_DIRTY_BIT, true);
 			GC.GetEngineUserInterface()->setDirty(Score_DIRTY_BIT, true);
 		}
-		int iResearchProgress = GetResearchProgressTimes100(eIndex);
-		int iResearchCost = GetResearchCost(eIndex) * 100;
+		long long iResearchProgress = (long long)GetResearchProgressTimes100(eIndex);
+		long long iResearchCost = (long long)GetResearchCost(eIndex) * 100;
 
 		// Player modifiers to cost
 		int iResearchMod = std::max(1, GET_PLAYER(ePlayer).calculateResearchModifier(eIndex));
 		iResearchCost = (iResearchCost * 100) / iResearchMod;
 		int iNumCitiesMod = GC.getMap().getWorldInfo().GetNumCitiesTechCostMod();	// Default is 40, gets smaller on larger maps
 		iNumCitiesMod += GET_PLAYER(ePlayer).GetTechCostXCitiesModifier();
-#if defined(MOD_BALANCE_CORE_PURCHASE_COST_INCREASE)
+
 		if (MOD_BALANCE_CORE_PURCHASE_COST_INCREASE)
 		{
 			iNumCitiesMod = iNumCitiesMod * GET_PLAYER(ePlayer).GetNumEffectiveCities(/*bIncludePuppets*/ false);
@@ -2510,12 +2507,10 @@ void CvTeamTechs::SetResearchProgressTimes100(TechTypes eIndex, int iNewValue, P
 		{
 			iNumCitiesMod = iNumCitiesMod * GET_PLAYER(ePlayer).GetNumEffectiveCities(/*bIncludePuppets*/ true);
 		}
-#else
-		iNumCitiesMod = iNumCitiesMod * GET_PLAYER(ePlayer).GetNumEffectiveCities(/*bIncludePuppets*/ true);
-#endif
+
 		iResearchCost = iResearchCost * (100 + iNumCitiesMod) / 100;
-		
-		int iOverflow = iResearchProgress - iResearchCost;
+
+		long long iOverflow = iResearchProgress - iResearchCost;
 
 		if (iOverflow >= 0)
 		{
@@ -2530,7 +2525,10 @@ void CvTeamTechs::SetResearchProgressTimes100(TechTypes eIndex, int iNewValue, P
 				iOverflow = iOverflow * 100 / iPlayerOverflowDivisorTimes100;
 			}
 
-			GET_PLAYER(ePlayer).changeOverflowResearchTimes100(iOverflow);
+			if (iOverflow >= INT_MAX)
+				iOverflow = INT_MAX;
+
+			GET_PLAYER(ePlayer).changeOverflowResearchTimes100((int)iOverflow);
 			m_pTeam->setHasTech(eIndex, true, ePlayer, true, true);
 			SetNoTradeTech(eIndex, true);
 
@@ -2604,7 +2602,7 @@ int CvTeamTechs::GetResearchCost(TechTypes eTech) const
 	iModifier /= 100;
 	iModifier *= (GC.getGame().getStartEraInfo().getResearchPercent());
 	iModifier /= 100;
-	iModifier *= (100 + std::max(0, /*100*/ GC.getTECH_COST_EXTRA_TEAM_MEMBER_MODIFIER() * (m_pTeam->getNumMembers() - 1)));
+	iModifier *= (100 + std::max(0, /*50 in CP, 100 in CBO*/ GD_INT_GET(TECH_COST_EXTRA_TEAM_MEMBER_MODIFIER) * (m_pTeam->getNumMembers() - 1)));
 	iModifier /= 100;
 
 #if defined(MOD_CIV6_EUREKA)

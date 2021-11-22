@@ -280,7 +280,7 @@ CvGameReligions::~CvGameReligions(void)
 /// Initialize class data
 void CvGameReligions::Init()
 {
-	m_iMinimumFaithForNextPantheon = GC.getRELIGION_MIN_FAITH_FIRST_PANTHEON();
+	m_iMinimumFaithForNextPantheon = /*10 in CP, 50 in CBO*/ GD_INT_GET(RELIGION_MIN_FAITH_FIRST_PANTHEON);
 	m_iMinimumFaithForNextPantheon *= GC.getGame().getGameSpeedInfo().getTrainPercent();
 	m_iMinimumFaithForNextPantheon /= 100;
 
@@ -593,7 +593,7 @@ bool CvGameReligions::IsCityConnectedToCity(ReligionTypes eReligion, CvCity* pFr
 
 EraTypes CvGameReligions::GetFaithPurchaseGreatPeopleEra(CvPlayer* pPlayer)
 {
-	EraTypes eGPEra = (EraTypes)GD_INT_GET(RELIGION_GP_FAITH_PURCHASE_ERA);
+	EraTypes eGPEra = /*INDUSTRIAL*/ (EraTypes)GD_INT_GET(RELIGION_GP_FAITH_PURCHASE_ERA);
 	EraTypes eSpecialEra = pPlayer ? (EraTypes)pPlayer->GetPlayerTraits()->GetGPFaithPurchaseEra() : NO_ERA;
 	if (eSpecialEra != NO_ERA && eSpecialEra < eGPEra)
 	{
@@ -653,7 +653,7 @@ void CvGameReligions::DoPlayerTurn(CvPlayer& kPlayer)
 	}
 
 	// Check for pantheon or great prophet spawning (now restricted so must occur before Industrial era)
-	if (kPlayer.GetFaith() > 0 && !kPlayer.isMinorCiv() && kPlayer.GetCurrentEra() <= GD_INT_GET(RELIGION_LAST_FOUND_ERA))
+	if (kPlayer.GetFaith() > 0 && !kPlayer.isMinorCiv() && kPlayer.GetCurrentEra() <= /*RENAISSANCE*/ GD_INT_GET(RELIGION_LAST_FOUND_ERA))
 	{
 		if(CanCreatePantheon(kPlayer.GetID(), true) == FOUNDING_OK)
 		{
@@ -1135,7 +1135,7 @@ void CvGameReligions::FoundPantheon(PlayerTypes ePlayer, BeliefTypes eBelief)
 	kPlayer.UpdateReligion();
 	kPlayer.ChangeFaith(-GetMinimumFaithNextPantheon());
 
-	int iIncrement = GC.getRELIGION_GAME_FAITH_DELTA_NEXT_PANTHEON();
+	int iIncrement = /*5 in CP, 0 in CBO*/ GD_INT_GET(RELIGION_GAME_FAITH_DELTA_NEXT_PANTHEON);
 	iIncrement *= GC.getGame().getGameSpeedInfo().getTrainPercent();
 	iIncrement /= 100;
 	SetMinimumFaithNextPantheon(GetMinimumFaithNextPantheon() + iIncrement);
@@ -1183,7 +1183,7 @@ void CvGameReligions::FoundPantheon(PlayerTypes ePlayer, BeliefTypes eBelief)
 	for(pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
 	{
 		// Add enough pressure to make this the likely majority religion
-		pLoopCity->GetCityReligions()->AddReligiousPressure(FOLLOWER_CHANGE_PANTHEON_FOUNDED, newReligion.m_eReligion, GC.getRELIGION_ATHEISM_PRESSURE_PER_POP() * pLoopCity->getPopulation() * 2);
+		pLoopCity->GetCityReligions()->AddReligiousPressure(FOLLOWER_CHANGE_PANTHEON_FOUNDED, newReligion.m_eReligion, /*1000*/ GD_INT_GET(RELIGION_ATHEISM_PRESSURE_PER_POP) * pLoopCity->getPopulation() * 2);
 	}
 
 	UpdateAllCitiesThisReligion(newReligion.m_eReligion);
@@ -3262,12 +3262,11 @@ int CvGameReligions::GetAdjacentCityReligiousPressure(ReligionTypes eReligion, C
 	// Building that boosts pressure from originating city?
 	iPressureMod += pFromCity->GetCityReligions()->GetReligiousPressureModifier(eReligion);
 
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-	if(MOD_DIPLOMACY_CIV4_FEATURES && GET_TEAM(GET_PLAYER(pToCity->getOwner()).getTeam()).IsVassal(GET_PLAYER(pFromCity->getOwner()).getTeam()))
+	// Double pressure to vassals
+	if (MOD_DIPLOMACY_CIV4_FEATURES && GET_TEAM(GET_PLAYER(pToCity->getOwner()).getTeam()).IsVassal(GET_PLAYER(pFromCity->getOwner()).getTeam()))
 	{
-		iPressureMod += 20;
+		iPressureMod += 100;
 	}
-#endif
 
 #if defined(MOD_BALANCE_CORE)
 	if(GET_PLAYER(pFromCity->getOwner()).GetPlayerTraits()->IsPopulationBoostReligion())
@@ -3317,17 +3316,15 @@ int CvGameReligions::GetFaithGreatProphetNumber(int iNum) const
 	{
 		if(iNum == 1)
 		{
-			iRtnValue = GC.getRELIGION_MIN_FAITH_FIRST_PROPHET();
+			iRtnValue = /*200 in CP, 800 in CBO*/ GD_INT_GET(RELIGION_MIN_FAITH_FIRST_PROPHET);
 		}
-#if defined(MOD_BALANCE_CORE)
 		else if(MOD_BALANCE_CORE_NEW_GP_ATTRIBUTES && iNum == 1)
 		{
-			iRtnValue = GC.getRELIGION_MIN_FAITH_SECOND_PROPHET();
+			iRtnValue = /*600 in CP, 1200 in CBO*/ GD_INT_GET(RELIGION_MIN_FAITH_SECOND_PROPHET);
 		}
-#endif
 		else
 		{
-			iRtnValue = (GC.getRELIGION_FAITH_DELTA_NEXT_PROPHET() * (iNum - 1)) + GetFaithGreatProphetNumber(iNum - 1);
+			iRtnValue = (/*100 in CP, 300 in CBO*/ GD_INT_GET(RELIGION_FAITH_DELTA_NEXT_PROPHET) * (iNum - 1)) + GetFaithGreatProphetNumber(iNum - 1);
 		}
 	}
 
@@ -3343,11 +3340,11 @@ int CvGameReligions::GetFaithGreatPersonNumber(int iNum) const
 	{
 		if(iNum == 1)
 		{
-			iRtnValue = GC.getRELIGION_MIN_FAITH_FIRST_GREAT_PERSON();
+			iRtnValue = /*1000*/ GD_INT_GET(RELIGION_MIN_FAITH_FIRST_GREAT_PERSON);
 		}
 		else
 		{
-			iRtnValue = (GC.getRELIGION_FAITH_DELTA_NEXT_GREAT_PERSON() * (iNum - 1)) + GetFaithGreatPersonNumber(iNum - 1);
+			iRtnValue = (/*500 in CP, 1500 in CBO*/ GD_INT_GET(RELIGION_FAITH_DELTA_NEXT_GREAT_PERSON) * (iNum - 1)) + GetFaithGreatPersonNumber(iNum - 1);
 		}
 	}
 
@@ -3531,12 +3528,12 @@ bool CvGameReligions::CheckSpawnGreatProphet(CvPlayer& kPlayer)
 		return false;
 	}
 
+	int iChance = /*5 in CP, 100 in CBO*/ GD_INT_GET(RELIGION_BASE_CHANCE_PROPHET_SPAWN);
+
 #if defined(MOD_RELIGION_KEEP_PROPHET_OVERFLOW)
-	int iBaseChance = GC.getRELIGION_BASE_CHANCE_PROPHET_SPAWN();
-	int iChance = iBaseChance;
-#else
-	int iChance = GC.getRELIGION_BASE_CHANCE_PROPHET_SPAWN();
+	int iBaseChance = iChance;
 #endif
+
 	iChance += (iFaith - iCost);
 
 	int iRand = GC.getGame().getSmallFakeRandNum(100, kPlayer.GetPseudoRandomSeed());
@@ -4025,17 +4022,16 @@ int CvPlayerReligions::GetCostNextProphet(bool bIncludeBeliefDiscounts, bool bAd
 		iCost /= 100;
 
 		// Adjust for difficulty
-		if (!MOD_BALANCE_CORE_BELIEFS && !m_pPlayer->isHuman() && !m_pPlayer->isBarbarian())
+		if (!MOD_BALANCE_CORE_BELIEFS && !m_pPlayer->isHuman() && m_pPlayer->isMajorCiv())
 		{
 			iCost *= GC.getGame().getHandicapInfo().getAITrainPercent();
 			iCost /= 100;
 		}
-		if (MOD_ALTERNATIVE_DIFFICULTY && !m_pPlayer->isHuman() && !m_pPlayer->isBarbarian())
+		if (MOD_ALTERNATIVE_DIFFICULTY && !m_pPlayer->isHuman() && m_pPlayer->isMajorCiv())
 		{
 			iCost *= GC.getGame().getHandicapInfo().getAIProphetPercent();
 			iCost /= 100;
 		}
-
 	}
 
 	return iCost;
@@ -5082,7 +5078,7 @@ int CvCityReligions::GetPressurePerTurn(ReligionTypes eReligion, int* piNumSourc
 	if (IsHolyCityForReligion(eReligion))
 	{
 		int iHolyCityPressure = GC.getGame().getGameSpeedInfo().getReligiousPressureAdjacentCity();
-		iHolyCityPressure *=  GC.getRELIGION_PER_TURN_FOUNDING_CITY_PRESSURE();
+		iHolyCityPressure *=  /*5*/ GD_INT_GET(RELIGION_PER_TURN_FOUNDING_CITY_PRESSURE);
 		iPressure += iHolyCityPressure;
 	}
 	
@@ -5148,7 +5144,7 @@ void CvCityReligions::DoPopulationChange(int iChange)
 	// Only add pressure if the population went up; if starving, leave pressure alone (but recompute followers)
 	if(iChange > 0)
 	{
-		AddReligiousPressure(FOLLOWER_CHANGE_POP_CHANGE, eMajorityReligion, iChange * GC.getRELIGION_ATHEISM_PRESSURE_PER_POP());
+		AddReligiousPressure(FOLLOWER_CHANGE_POP_CHANGE, eMajorityReligion, iChange * /*1000*/ GD_INT_GET(RELIGION_ATHEISM_PRESSURE_PER_POP));
 	}
 	else if (iChange < 0)
 	{
@@ -5165,7 +5161,7 @@ void CvCityReligions::DoReligionFounded(ReligionTypes eReligion)
 	int iInitialPressure;
 	ReligionTypes eOldMajorityReligion = GetReligiousMajority();
 
-	iInitialPressure = GC.getRELIGION_INITIAL_FOUNDING_CITY_PRESSURE() * m_pCity->getPopulation();
+	iInitialPressure = m_pCity->getPopulation() * /*5000*/ GD_INT_GET(RELIGION_INITIAL_FOUNDING_CITY_PRESSURE);
 	CvReligionInCity newReligion(eReligion, true, 0, iInitialPressure);
 	m_ReligionStatus.push_back(newReligion);
 
@@ -5511,7 +5507,7 @@ void CvCityReligions::AddHolyCityPressure()
 		if(it->m_bFoundedHere)
 		{
 			int iPressure = GC.getGame().getGameSpeedInfo().getReligiousPressureAdjacentCity();
-			iPressure *=  GC.getRELIGION_PER_TURN_FOUNDING_CITY_PRESSURE();
+			iPressure *=  /*5*/ GD_INT_GET(RELIGION_PER_TURN_FOUNDING_CITY_PRESSURE);
 			it->m_iPressure += iPressure;
 
 			// Found it, so we're done
@@ -5564,9 +5560,9 @@ void CvCityReligions::AdoptReligionFully(ReligionTypes eReligion)
 	religion.m_iFollowers = 1;
 #if defined(MOD_GLOBAL_RELIGIOUS_SETTLERS) || defined(MOD_RELIGION_LOCAL_RELIGIONS)
 	// This needs to be less than the pressure in a city with a pop of 1
-	religion.m_iPressure = religion.m_iFollowers * GC.getRELIGION_ATHEISM_PRESSURE_PER_POP() - 1;
+	religion.m_iPressure = religion.m_iFollowers * /*1000*/ GD_INT_GET(RELIGION_ATHEISM_PRESSURE_PER_POP) - 1;
 #else
-	religion.m_iPressure = religion.m_iFollowers * GC.getRELIGION_ATHEISM_PRESSURE_PER_POP();
+	religion.m_iPressure = religion.m_iFollowers * /*1000*/ GD_INT_GET(RELIGION_ATHEISM_PRESSURE_PER_POP);
 #endif
 	m_ReligionStatus.clear();
 
@@ -5576,7 +5572,7 @@ void CvCityReligions::AdoptReligionFully(ReligionTypes eReligion)
 	religion.m_bFoundedHere = false;
 	religion.m_eReligion = eReligion;
 	religion.m_iFollowers = m_pCity->getPopulation();
-	religion.m_iPressure = religion.m_iFollowers * GC.getRELIGION_ATHEISM_PRESSURE_PER_POP();
+	religion.m_iPressure = religion.m_iFollowers * /*1000*/ GD_INT_GET(RELIGION_ATHEISM_PRESSURE_PER_POP);
 	m_ReligionStatus.push_back(religion);
 
 #if defined(MOD_GLOBAL_RELIGIOUS_SETTLERS)
@@ -5676,7 +5672,7 @@ void CvCityReligions::UpdateNumTradeRouteConnections(CvCity* pOtherCity)
 	iEraScaler *= GC.getMap().getWorldInfo().getTradeRouteDistanceMod();
 	iEraScaler /= 100;
 	// Are the cities within the minimum distance?
-	int iDistance = GC.getRELIGION_ADJACENT_CITY_DISTANCE() + iEraScaler;
+	int iDistance = /*9*/ GD_INT_GET(RELIGION_ADJACENT_CITY_DISTANCE) + iEraScaler;
 
 	// Boost to distance due to belief?
 	int iDistanceMod = pReligion->m_Beliefs.GetSpreadDistanceModifier(m_pCity->getOwner(), pHolyCity);
@@ -5858,13 +5854,13 @@ void CvCityReligions::RecomputeFollowers(CvReligiousFollowChangeReason eReason, 
 		{
 #endif
 		religion.m_iFollowers = 1;
-		religion.m_iPressure = GC.getRELIGION_ATHEISM_PRESSURE_PER_POP();
+		religion.m_iPressure = /*1000*/ GD_INT_GET(RELIGION_ATHEISM_PRESSURE_PER_POP);
 #if defined(MOD_BALANCE_CORE)
 		}
 #endif
 		m_ReligionStatus.push_back(religion);
 
-		iTotalPressure = GC.getRELIGION_ATHEISM_PRESSURE_PER_POP();
+		iTotalPressure = /*1000*/ GD_INT_GET(RELIGION_ATHEISM_PRESSURE_PER_POP);
 	}
 
 	iPressurePerFollower = iTotalPressure / iUnassignedFollowers;
@@ -6203,21 +6199,21 @@ void CvCityReligions::CityConvertsReligion(ReligionTypes eMajority, ReligionType
 					int iPoints = 0;
 
 					// His religion wasn't present here, minor hit
-					if(eOldMajority != eCityOwnerReligion)
+					if (eOldMajority != eCityOwnerReligion)
 					{
-						iPoints = GC.getRELIGION_DIPLO_HIT_INITIAL_CONVERT_FRIENDLY_CITY(); /*1*/
+						iPoints = /*1*/ GD_INT_GET(RELIGION_DIPLO_HIT_INITIAL_CONVERT_FRIENDLY_CITY);
 					}
 
 					// This was his holy city; huge hit!
-					else if(m_pCity->GetCityReligions()->IsHolyCityForReligion(eCityOwnerReligion))
+					else if (m_pCity->GetCityReligions()->IsHolyCityForReligion(eCityOwnerReligion))
 					{
-						iPoints = GC.getRELIGION_DIPLO_HIT_CONVERT_HOLY_CITY(); /*25*/
+						iPoints = /*25*/ GD_INT_GET(RELIGION_DIPLO_HIT_CONVERT_HOLY_CITY);
 					}
 
 					// He had established his religion here, major hit
 					else
 					{
-						iPoints = GC.getRELIGION_DIPLO_HIT_RELIGIOUS_FLIP_FRIENDLY_CITY(); /*3*/
+						iPoints = /*3*/ GD_INT_GET(RELIGION_DIPLO_HIT_RELIGIOUS_FLIP_FRIENDLY_CITY);
 					}
 
 					kCityOwnerPlayer.GetDiplomacyAI()->ChangeNegativeReligiousConversionPoints(eResponsibleParty, iPoints);
@@ -7500,9 +7496,7 @@ int CvReligionAI::GetSpreadScore() const
 bool CvReligionAI::DoFaithPurchases()
 {
 	ReligionTypes eReligionWeFounded = m_pPlayer->GetReligions()->GetReligionCreatedByPlayer(); //founded or conquered
-	ReligionTypes eReligionToSpread = GetReligionToSpread(); //absolute or relative majority in our cities
-	if (eReligionWeFounded != NO_RELIGION)
-		eReligionToSpread = eReligionWeFounded;
+	ReligionTypes eReligionToSpread = eReligionWeFounded != NO_RELIGION ? eReligionWeFounded : GetReligionToSpread(); //absolute or relative majority in our cities
 
 	CvString strPlayer = m_pPlayer->getCivilizationShortDescription();
 	UnitTypes eProphetType = m_pPlayer->GetSpecificUnitType("UNITCLASS_PROPHET", true);
@@ -7538,7 +7532,7 @@ bool CvReligionAI::DoFaithPurchases()
 
 	//exceptions from the rule
 	UnitClassTypes eUnitClassMissionary = (UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_MISSIONARY");
-	int iMaxMissionaries = GC.getRELIGION_MAX_MISSIONARIES();
+	int iMaxMissionaries = /*2 in CP, 3 in CBO*/ GD_INT_GET(RELIGION_MAX_MISSIONARIES);
 	if(m_pPlayer->GetPlayerTraits()->NoTrain(eUnitClassMissionary)) //india
 	{
 		iMaxMissionaries = 0;
@@ -8035,15 +8029,13 @@ bool CvReligionAI::BuyAnyAvailableFaithBuilding()
 /// AI's perceived worth of a belief
 int CvReligionAI::ScoreBelief(CvBeliefEntry* pEntry, bool bForBonus)
 {
-	int iRtnValue = 0;  // Base value since everything has SOME value
-
+	int iRtnValue = 0;
 	int iScorePlot = 0;
 	int iScoreCity = 0;
 	int iScorePlayer = 0;
 
 	// Loop through each plot on map
-	int iPlotLoop;
-	for(iPlotLoop = 0; iPlotLoop < GC.getMap().numPlots(); iPlotLoop++)
+	for (int iPlotLoop = 0; iPlotLoop < GC.getMap().numPlots(); iPlotLoop++)
 	{
 		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(iPlotLoop);
 
@@ -8060,47 +8052,23 @@ int CvReligionAI::ScoreBelief(CvBeliefEntry* pEntry, bool bForBonus)
 			if (iScoreAtPlot <= 0)
 				continue;
 		
-			// Apply multiplier based on whether or not being worked, within culture borders, or not
-			if(pPlot->isBeingWorked())
-			{
-				if (pPlot->getImprovementType() != NO_IMPROVEMENT)
-				{
-					iScoreAtPlot *= GC.getRELIGION_BELIEF_SCORE_WORKED_PLOT_MULTIPLIER();
-				}
-				else
-				{
-					iScoreAtPlot *= GC.getRELIGION_BELIEF_SCORE_OWNED_PLOT_MULTIPLIER();
-				}
-			}
-			else if (ePlotOwner == m_pPlayer->getTeam())
-			{
-				if (pPlot->getImprovementType() != NO_IMPROVEMENT)
-				{
-					iScoreAtPlot *= GC.getRELIGION_BELIEF_SCORE_WORKED_PLOT_MULTIPLIER();
-				}
-				else
-				{
-					iScoreAtPlot *= GC.getRELIGION_BELIEF_SCORE_OWNED_PLOT_MULTIPLIER();
-				}
-			}
+			// Apply multiplier based on whether or not we currently own the plot
+			if (ePlotOwner == m_pPlayer->getTeam())
+				iScoreAtPlot *= /*8*/ GD_INT_GET(RELIGION_BELIEF_SCORE_OWNED_PLOT_MULTIPLIER);
 			else
-			{
-				iScoreAtPlot *= GC.getRELIGION_BELIEF_SCORE_UNOWNED_PLOT_MULTIPLIER();
-			}
+				iScoreAtPlot *= /*4*/ GD_INT_GET(RELIGION_BELIEF_SCORE_UNOWNED_PLOT_MULTIPLIER);
 
 			iRtnValue += iScoreAtPlot;
-
 			iScorePlot = iRtnValue;
 		}
 	}
 
 	// Add in value at city level
 	int iLoop;
-	CvCity* pLoopCity;
-	for(pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
+	for (CvCity* pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
 	{
 		int iScoreAtCity = ScoreBeliefAtCity(pEntry, pLoopCity);
-		iScoreAtCity *= GC.getRELIGION_BELIEF_SCORE_CITY_MULTIPLIER();
+		iScoreAtCity *= /*6*/ GD_INT_GET(RELIGION_BELIEF_SCORE_CITY_MULTIPLIER);
 		iScoreCity += iScoreAtCity;
 		iRtnValue += iScoreAtCity;
 	}
@@ -10451,7 +10419,7 @@ int CvReligionAI::ScoreCityForMissionary(CvCity* pCity, CvUnit* pUnit, ReligionT
 	int iMissionaryStrength = pkUnitInfo ? pkUnitInfo->GetReligiousStrength()*pkUnitInfo->GetReligionSpreads() : 1;
 
 	// In the early game there is little accumulated pressure and conversion is easy
-	int iPressureFromUnit = iMissionaryStrength * GC.getRELIGION_MISSIONARY_PRESSURE_MULTIPLIER();
+	int iPressureFromUnit = iMissionaryStrength * /*10*/ GD_INT_GET(RELIGION_MISSIONARY_PRESSURE_MULTIPLIER);
 	int iTotalPressure = max(1, pCity->GetCityReligions()->GetTotalPressure());
 	// Freshly founded cities have zero accumulated pressure, so limit the impact to a sane value
 	int iImpactPercent = min(100, (iPressureFromUnit * 100) / iTotalPressure);
@@ -10581,7 +10549,7 @@ int CvReligionAI::ScoreCityForInquisitor(CvCity* pCity, CvUnit* pUnit, ReligionT
 			CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eMissionary);
 			//assume we spread multiple times with same strength for simplicity
 			int iMissionaryStrength = pkUnitInfo ? pkUnitInfo->GetReligiousStrength()*pkUnitInfo->GetReligionSpreads() : 1;
-			int iPressureFromUnit = iMissionaryStrength * GC.getRELIGION_MISSIONARY_PRESSURE_MULTIPLIER();
+			int iPressureFromUnit = iMissionaryStrength * /*10*/ GD_INT_GET(RELIGION_MISSIONARY_PRESSURE_MULTIPLIER);
 			int iTotalPressure = max(1, pCity->GetCityReligions()->GetTotalPressure());
 			int iImpactPercent = min(100,(iPressureFromUnit * 100) / iTotalPressure);
 
@@ -10671,7 +10639,7 @@ bool CvReligionAI::HaveNearbyConversionTarget(ReligionTypes eReligion, bool bCan
 {
 	UnitTypes eMissionary = m_pPlayer->GetSpecificUnitType("UNITCLASS_MISSIONARY");
 	int iMissionaryMoves = GC.getUnitInfo(eMissionary)->GetMoves();
-	int iMaxRange = iMissionaryMoves * GC.getRELIGION_MISSIONARY_RANGE_IN_TURNS();
+	int iMaxRange = iMissionaryMoves * /*20*/ GD_INT_GET(RELIGION_MISSIONARY_RANGE_IN_TURNS);
 
 	for(int iPlayer = 0; iPlayer < MAX_CIV_PLAYERS; iPlayer++)
 	{

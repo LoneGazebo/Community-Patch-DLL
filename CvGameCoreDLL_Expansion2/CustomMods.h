@@ -228,7 +228,6 @@
 // Flips open borders to apply in opposite ways- you have to give open borders to gain the tourism bonus
 #define MOD_BALANCE_FLIPPED_TOURISM_MODIFIER_OPEN_BORDERS
 
-
 //Community Patch Info
 #define MOD_COMMUNITY_PATCH							gCustomMods.isCOMMUNITY_PATCH()
 #if defined(MOD_COMMUNITY_PATCH)
@@ -882,15 +881,17 @@ enum BattleTypeTypes
 
 // GlobalDefines wrappers
 #define GD_INT_DECL(name)         int m_i##name
-#define GD_INT_DEF(name)          inline int get##name() { return m_i##name; }
+#define GD_INT_DEF(name)          inline int get##name() const { return m_i##name; }
+#define GD_INT_MEMBER(name) public: GD_INT_DEF(name) private: GD_INT_DECL(name)
 #define GD_INT_INIT(name, def)    m_i##name(def)
-#define GD_INT_CACHE(name)        getDatabaseValue(#name,m_i##name); CUSTOMLOG("<Defines>: %s = %i", #name, m_i##name)
+#define GD_INT_CACHE(name)        getDatabaseValue(#name,m_i##name)
 #define GD_INT_GET(name)          GC.get##name()
 
 #define GD_FLOAT_DECL(name)       float m_f##name
-#define GD_FLOAT_DEF(name)        inline float get##name() { return m_f##name; }
+#define GD_FLOAT_DEF(name)        inline float get##name() const { return m_f##name; }
+#define GD_FLOAT_MEMBER(name) public: GD_FLOAT_DEF(name) private: GD_FLOAT_DECL(name)
 #define GD_FLOAT_INIT(name, def)  m_f##name(def)
-#define GD_FLOAT_CACHE(name)      getDatabaseValue(#name,m_f##name); CUSTOMLOG("<Defines>: %s = %f", #name, m_f##name)
+#define GD_FLOAT_CACHE(name)      getDatabaseValue(#name,m_f##name)
 #define GD_FLOAT_GET(name)        GC.get##name()
 
 

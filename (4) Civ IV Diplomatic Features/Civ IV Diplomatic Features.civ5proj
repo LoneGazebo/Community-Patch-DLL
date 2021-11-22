@@ -50,11 +50,6 @@ Additionally, the following features from this mod have been integrated into the
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
-        <FileName>SQL/Globals.sql</FileName>
-      </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
         <FileName>SQL/NewColumns.sql</FileName>
       </Action>
       <Action>
@@ -170,10 +165,6 @@ Additionally, the following features from this mod have been integrated into the
     <Content Include="LUA\VassalageOverview.xml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
-    </Content>
-    <Content Include="SQL\Globals.sql">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
     <Content Include="SQL\NewColumns.sql">
       <SubType>Lua</SubType>

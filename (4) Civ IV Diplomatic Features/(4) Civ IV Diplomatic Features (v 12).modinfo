@@ -35,27 +35,25 @@ Additionally, the following features from this mod have been integrated into the
   <Files>
     <File md5="E9029C9E9851D1E0138D792ED5F5A471" import="1">Images/vassal80.dds</File>
     <File md5="8050930951C51832D14A659C7DD22C3F" import="1">Images/vassal80hl.dds</File>
-    <File md5="1CDDF35F0EAF6238C4953AED281F6E19" import="1">LUA/VassalageOverview.lua</File>
+    <File md5="EBFC0930CA7CF1C4F9629A962A7710C8" import="1">LUA/VassalageOverview.lua</File>
     <File md5="30BA62E79F70C9FFDC0236C4ACE9AEC0" import="1">LUA/VassalageOverview.xml</File>
-    <File md5="0D22030BFEAF117EF6E7D35F7CE8FD6E" import="0">SQL/Globals.sql</File>
-    <File md5="25A95D70417C5177C3002E31F3AB00FC" import="0">SQL/NewColumns.sql</File>
+    <File md5="8281DCA0E6639FC6FBBD00D032CAA5D4" import="0">SQL/NewColumns.sql</File>
     <File md5="B150DE1D6850A1BB7F6E4873AE35380E" import="0">XML/Gameplay/C4DFConcepts.xml</File>
     <File md5="384BE74C9B3DC914EE853E98789C83AB" import="0">XML/Gameplay/C4DFDiplomacyResponses.xml</File>
     <File md5="954B0F030CD7C265C861693A8644D795" import="0">XML/Gameplay/C4DFGameOptions.xml</File>
     <File md5="FD36146DAEBC1FB26D9E59C2F22A7D17" import="0">XML/Gameplay/C4DFResolutions.xml</File>
     <File md5="23E9CD90710F33236EA878FADB69239E" import="0">XML/Text/en_US/en_US_Text_CivilopediaC4DF.xml</File>
     <File md5="E0B8562F3ACA8F54292E9EB416FED1C3" import="0">XML/Text/en_US/en_US_Text_Generic_DiplomacyC4DF.xml</File>
-    <File md5="B7CD0AFF44D58DF08AE819D7D7F51EFA" import="0">XML/Text/en_US/en_US_Text_UIC4DF.xml</File>
+    <File md5="B30B8450FB37B8FBEC4D84C527A969EA" import="0">XML/Text/en_US/en_US_Text_UIC4DF.xml</File>
     <File md5="767B2D853F4A3B807B08729506BFF39D" import="0">XML/Text/pl_PL/pl_PL_Text_CivilopediaC4DF.xml</File>
     <File md5="59526757011511DF276CD9CEAEC87ACA" import="0">XML/Text/pl_PL/pl_PL_Text_Generic_DiplomacyC4DF.xml</File>
-    <File md5="7B9DD27706007DD2994DD013FA58002C" import="0">XML/Text/pl_PL/pl_PL_Text_UIC4DF.xml</File>
+    <File md5="75A86A212A102A72897E1556CE9200AB" import="0">XML/Text/pl_PL/pl_PL_Text_UIC4DF.xml</File>
     <File md5="D417A0D338A563DA55E85C46720672FA" import="0">XML/Text/zn_Hant_HK/zh_Hant_HK_Text_CivilopediaC4DF.xml</File>
     <File md5="B2BF34A34A8BD1C83BC1274153308D21" import="0">XML/Text/zn_Hant_HK/zh_Hant_HK_Text_Generic_DiplomacyC4DF.xml</File>
-    <File md5="02996342C138BBB69EBCBFFF3BFA5485" import="0">XML/Text/zn_Hant_HK/zh_Hant_HK_Text_UIC4DF.xml</File>
+    <File md5="555EF4F1FEC97CD9DD65879B8F877643" import="0">XML/Text/zn_Hant_HK/zh_Hant_HK_Text_UIC4DF.xml</File>
   </Files>
   <Actions>
     <OnModActivated>
-      <UpdateDatabase>SQL/Globals.sql</UpdateDatabase>
       <UpdateDatabase>SQL/NewColumns.sql</UpdateDatabase>
       <UpdateDatabase>XML/Gameplay/C4DFConcepts.xml</UpdateDatabase>
       <UpdateDatabase>XML/Gameplay/C4DFDiplomacyResponses.xml</UpdateDatabase>

@@ -1719,7 +1719,7 @@ void CvEconomicAI::DoHurry()
 	int iLoop = 0;
 
 	//Let's give the AI a treasury cushion ...
-	int iTreasuryBuffer = /*500*/ GC.getAI_GOLD_TREASURY_BUFFER();
+	int iTreasuryBuffer = /*150*/ GD_INT_GET(AI_GOLD_TREASURY_BUFFER);
 	// ... modified by gamespeed
 	iTreasuryBuffer *= GC.getGame().getGameSpeedInfo().getGoldPercent();
 	iTreasuryBuffer /= 100;
@@ -1932,9 +1932,9 @@ void CvEconomicAI::DoPlotPurchases()
 	}
 
 	// Set up the parameters
-	int iBestScore = /*150*/ GC.getAI_GOLD_PRIORITY_MINIMUM_PLOT_BUY_VALUE();
+	int iBestScore = /*150*/ GD_INT_GET(AI_GOLD_PRIORITY_MINIMUM_PLOT_BUY_VALUE);
 	int iCurrentCost = m_pPlayer->GetBuyPlotCost();
-	int iGoldForHalfCost = /*1000*/ GC.getAI_GOLD_BALANCE_TO_HALVE_PLOT_BUY_MINIMUM();
+	int iGoldForHalfCost = /*1000*/ GD_INT_GET(AI_GOLD_BALANCE_TO_HALVE_PLOT_BUY_MINIMUM);
 	int iBalance = m_pPlayer->GetTreasury()->GetGold();
 	int iBestCost = 0;
 	int iMultiplier = max(2, (int)GC.getGame().getCurrentEra());
@@ -2049,7 +2049,7 @@ void CvEconomicAI::DoReconState()
 	int iNumPlotsToExplore = (int)GetExplorationPlots(DOMAIN_LAND).size();
 
 	// estimate one explorer per x open plots, depending on personality (these are only the border plots between known and unknown)
-	int iPlotsPerExplorer = /*20*/GC.getMAX_PLOTS_PER_EXPLORER() - m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_RECON"));
+	int iPlotsPerExplorer = /*20 in CP, 27 in CBO*/ GD_INT_GET(MAX_PLOTS_PER_EXPLORER) - m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_RECON"));
 	int iNumExplorersNeededTimes100 = 50 + (iNumPlotsToExplore*100) / iPlotsPerExplorer;
 	if (bWar)
 		iNumExplorersNeededTimes100 /= 2;
@@ -2155,7 +2155,7 @@ void CvEconomicAI::DoReconState()
 			// Send one additional boat out as a scout every round until we don't need recon anymore.
 			vector< pair<int,int> > eligibleExplorersCoast; //distance / id (don't store pointers for stable sorting!)
 			vector< pair<int, int> > eligibleExplorersDeepwater;
-			PromotionTypes ePromotionOceanImpassable = (PromotionTypes)GC.getPROMOTION_OCEAN_IMPASSABLE();
+			PromotionTypes ePromotionOceanImpassable = (PromotionTypes)GD_INT_GET(PROMOTION_OCEAN_IMPASSABLE);
 			for(pLoopUnit = m_pPlayer->firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iUnitLoop))
 			{
 				if( pLoopUnit->AI_getUnitAIType() != UNITAI_EXPLORE_SEA && 
@@ -2240,8 +2240,8 @@ void CvEconomicAI::DoAntiquitySites()
 	int iNumHiddenSitesOwn = 0;
 	int iNumSitesNeutral = 0;
 
-	ResourceTypes eArtifactResourceType = static_cast<ResourceTypes>(GC.getARTIFACT_RESOURCE());
-	ResourceTypes eHiddenArtifactResourceType = static_cast<ResourceTypes>(GC.getHIDDEN_ARTIFACT_RESOURCE());
+	ResourceTypes eArtifactResourceType = static_cast<ResourceTypes>(GD_INT_GET(ARTIFACT_RESOURCE));
+	ResourceTypes eHiddenArtifactResourceType = static_cast<ResourceTypes>(GD_INT_GET(HIDDEN_ARTIFACT_RESOURCE));
 
 	for (int iPlotLoop = 0; iPlotLoop < GC.getMap().numPlots(); iPlotLoop++)
 	{
@@ -3801,7 +3801,7 @@ bool EconomicAIHelpers::IsTestStrategy_NeedImprovement(CvPlayer* pPlayer, YieldT
 		}
 	}
 
-	double fWarningRatio = GC.getAI_STRATEGY_NEED_IMPROVEMENT_CITY_RATIO();
+	double fWarningRatio = /*0.34f*/ GD_FLOAT_GET(AI_STRATEGY_NEED_IMPROVEMENT_CITY_RATIO);
 
 	// if not enough cities are upset
 	if((iNumCitiesConcerned / (double)iNumCities) < fWarningRatio)
@@ -3991,7 +3991,7 @@ bool EconomicAIHelpers::IsTestStrategy_IslandStart(EconomicAIStrategyTypes eStra
 				}
 			}
 
-			if((iRevealedCoastalTiles * 100 / (iCoastalTiles + 1)) > GC.getAI_STRATEGY_ISLAND_START_COAST_REVEAL_PERCENT() &&
+			if((iRevealedCoastalTiles * 100 / (iCoastalTiles + 1)) > /*80*/ GD_INT_GET(AI_STRATEGY_ISLAND_START_COAST_REVEAL_PERCENT) &&
 			        GC.getMap().getArea(iStartArea)->getNumTiles() < pStrategy->GetWeightThreshold())
 			{
 				return true;
@@ -4327,11 +4327,11 @@ int EconomicAIHelpers::IsTestStrategy_ScoreDiplomats(CvPlayer* pPlayer)
 	
 		int iFlavorDiplo =  pPlayer->GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_DIPLOMACY"));
 
-		int iCSDesire = (((iFlavorDiplo + /*1*/ GC.getNEED_DIPLOMAT_DESIRE_MODIFIER()) * iNumCities) / 10); //Baseline Desire. Global modifier increases this.
+		int iCSDesire = (((iFlavorDiplo + /*2*/ GD_INT_GET(NEED_DIPLOMAT_DESIRE_MODIFIER)) * iNumCities) / 10); //Baseline Desire. Global modifier increases this.
 
-		int iCSDistaste = /*7*/ GC.getNEED_DIPLOMAT_DISTASTE_MODIFIER() - iFlavorDiplo; //Lack of desire. Lower is better for diplo. If negative, counts as zero.
+		int iCSDistaste = /*6*/ GD_INT_GET(NEED_DIPLOMAT_DISTASTE_MODIFIER) - iFlavorDiplo; //Lack of desire. Lower is better for diplo. If negative, counts as zero.
 
-		int	iThreshold = iNumCities * /*135*/ GC.getNEED_DIPLOMAT_THRESHOLD_MODIFIER() / 100; //This is the baseline threshold: Number of city-states in-game increases baseline. Changing Global value decreases diplomatic competitiveness.
+		int	iThreshold = iNumCities * /*125*/ GD_INT_GET(NEED_DIPLOMAT_THRESHOLD_MODIFIER) / 100; //This is the baseline threshold: Number of city-states in-game increases baseline. Changing Global value decreases diplomatic competitiveness.
 
 		//The Minor/Major Loop Tests
 		// Loop through all minors and majors to get our relations with them.

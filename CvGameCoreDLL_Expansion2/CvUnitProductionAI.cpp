@@ -409,7 +409,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			}
 		}
 
-		int iFactor = GC.getAI_CONFIG_MILITARY_TILES_PER_SHIP();
+		int iFactor = /*6*/ GD_INT_GET(AI_CONFIG_MILITARY_TILES_PER_SHIP);
 		//Are we mustering a naval attack here?
 		bool bOperationalOverride = (bForOperation && kPlayer.IsMusterCityForOperation(m_pCity, true));
 		bool bTooManyUnits = (iNumUnitsofMine * iFactor > iWaterTiles);

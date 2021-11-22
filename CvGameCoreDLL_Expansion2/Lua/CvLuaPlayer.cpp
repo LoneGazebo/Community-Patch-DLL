@@ -4198,25 +4198,25 @@ int CvLuaPlayer::lGetPuppetYieldPenalty(lua_State* L)
 	switch (eYield)
 	{
 		case(YIELD_FOOD) :
-			iResult += GC.getPUPPET_GROWTH_MODIFIER();
+			iResult += /*0*/ GD_INT_GET(PUPPET_GROWTH_MODIFIER);
 			break;
 		case(YIELD_PRODUCTION) :
-			iResult += GC.getPUPPET_PRODUCTION_MODIFIER();
+			iResult += /*0*/ GD_INT_GET(PUPPET_PRODUCTION_MODIFIER);
 			break;
 		case(YIELD_SCIENCE) :
-			iResult += GC.getPUPPET_SCIENCE_MODIFIER();
+			iResult += /*-25 in CP, -80 in CBO*/ GD_INT_GET(PUPPET_SCIENCE_MODIFIER);
 			break;
 		case(YIELD_GOLD) :
-			iResult += GC.getPUPPET_GOLD_MODIFIER();
+			iResult += /*0 in CP, -80 in CBO*/ GD_INT_GET(PUPPET_GOLD_MODIFIER);
 			break;
 		case(YIELD_FAITH) :
-			iResult += GC.getPUPPET_FAITH_MODIFIER();
+			iResult += /*0 in CP, -80 in CBO*/ GD_INT_GET(PUPPET_FAITH_MODIFIER);
 			break;
 		case(YIELD_TOURISM) :
-			iResult += GC.getPUPPET_TOURISM_MODIFIER();
+			iResult += /*0 in CP, -80 in CBO*/ GD_INT_GET(PUPPET_TOURISM_MODIFIER);
 			break;
 		case(YIELD_CULTURE) :
-			iResult += GC.getPUPPET_CULTURE_MODIFIER();
+			iResult += /*-25 in CP, -80 in CBO*/ GD_INT_GET(PUPPET_CULTURE_MODIFIER);
 			break;
 	}
 	if (iResult > 0)
@@ -4440,8 +4440,8 @@ int CvLuaPlayer::GetPotentialInternationalTradeRouteDestinationsHelper(lua_State
 						}
 
 						// Internally pressure is now 10 times greater than what is shown to user
-						iToPressureAmount /= GC.getRELIGION_MISSIONARY_PRESSURE_MULTIPLIER();
-						iFromPressureAmount /= GC.getRELIGION_MISSIONARY_PRESSURE_MULTIPLIER();
+						iToPressureAmount /= /*10*/ GD_INT_GET(RELIGION_MISSIONARY_PRESSURE_MULTIPLIER);
+						iFromPressureAmount /= /*10*/ GD_INT_GET(RELIGION_MISSIONARY_PRESSURE_MULTIPLIER);
 
 						lua_pushinteger(L, eToReligion);
 						lua_setfield(L, t, "ToReligion");
@@ -5752,8 +5752,8 @@ int CvLuaPlayer::lGetTradeRoutes(lua_State* L)
 		pToCity->GetCityReligions()->WouldExertTradeRoutePressureToward(pFromCity, eFromReligion, iFromPressure);
 		
 		// Internally pressure is now 10 times greater than what is shown to user
-		iToPressure /= GC.getRELIGION_MISSIONARY_PRESSURE_MULTIPLIER();
-		iFromPressure /= GC.getRELIGION_MISSIONARY_PRESSURE_MULTIPLIER();
+		iToPressure /= /*10*/ GD_INT_GET(RELIGION_MISSIONARY_PRESSURE_MULTIPLIER);
+		iFromPressure /= /*10*/ GD_INT_GET(RELIGION_MISSIONARY_PRESSURE_MULTIPLIER);
 
 		lua_pushinteger(L, eToReligion);
 		lua_setfield(L, t, "ToReligion");
@@ -5932,8 +5932,8 @@ int CvLuaPlayer::lGetTradeRoutesAvailable(lua_State* L)
 						}
 
 						// Internally pressure is now 10 times greater than what is shown to user
-						iToPressure /= GC.getRELIGION_MISSIONARY_PRESSURE_MULTIPLIER();
-						iFromPressure /= GC.getRELIGION_MISSIONARY_PRESSURE_MULTIPLIER();
+						iToPressure /= /*10*/ GD_INT_GET(RELIGION_MISSIONARY_PRESSURE_MULTIPLIER);
+						iFromPressure /= /*10*/ GD_INT_GET(RELIGION_MISSIONARY_PRESSURE_MULTIPLIER);
 
 						lua_pushinteger(L, eToReligion);
 						lua_setfield(L, t, "ToReligion");
@@ -6051,8 +6051,8 @@ int CvLuaPlayer::lGetTradeRoutesToYou(lua_State* L)
 		pToCity->GetCityReligions()->WouldExertTradeRoutePressureToward(pFromCity, eFromReligion, iFromPressure);
 
 		// Internally pressure is now 10 times greater than what is shown to user
-		iToPressure /= GC.getRELIGION_MISSIONARY_PRESSURE_MULTIPLIER();
-		iFromPressure /= GC.getRELIGION_MISSIONARY_PRESSURE_MULTIPLIER();
+		iToPressure /= /*10*/ GD_INT_GET(RELIGION_MISSIONARY_PRESSURE_MULTIPLIER);
+		iFromPressure /= /*10*/ GD_INT_GET(RELIGION_MISSIONARY_PRESSURE_MULTIPLIER);
 
 		lua_pushinteger(L, eToReligion);
 		lua_setfield(L, t, "ToReligion");
@@ -9151,7 +9151,7 @@ int CvLuaPlayer::lGetPuppetUnhappinessMod(lua_State* L)
 //int GetCapitalUnhappinessModCBP();
 int CvLuaPlayer::lGetCapitalUnhappinessModCBP(lua_State* L)
 {
-	const int iResult = GC.getBALANCE_HAPPINESS_CAPITAL_MODIFIER();
+	const int iResult = /*25*/ GD_INT_GET(BALANCE_HAPPINESS_CAPITAL_MODIFIER);
 	lua_pushinteger(L, iResult);
 	return 1;
 }
@@ -11336,8 +11336,8 @@ int CvLuaPlayer::lGetRecommendedFoundCityPlots(lua_State* L)
 	iSettlerX = pFoundingUnit->getX();
 	iSettlerY = pFoundingUnit->getY();
 
-	int iEvalDistance = GC.getSETTLER_EVALUATION_DISTANCE();
-	int iDistanceDropoffMod = GC.getSETTLER_DISTANCE_DROPOFF_MODIFIER();
+	int iEvalDistance = /*8*/ GD_INT_GET(SETTLER_EVALUATION_DISTANCE);
+	int iDistanceDropoffMod = /*4*/ GD_INT_GET(SETTLER_DISTANCE_DROPOFF_MODIFIER);
 	int iBeginSearchX = iSettlerX - iEvalDistance;
 	int iBeginSearchY = iSettlerY - iEvalDistance;
 	int iEndSearchX   = iSettlerX + iEvalDistance;
@@ -12228,7 +12228,7 @@ int CvLuaPlayer::lAddTemporaryDominanceZone(lua_State* L)
 	const int iY = lua_tointeger(L, 3);
 
 	// Notify tactical AI to focus on this area
-	pkPlayer->GetTacticalAI()->AddFocusArea( GC.getMap().plot(iX,iY), 2, GC.getAI_TACTICAL_MAP_TEMP_ZONE_TURNS() );
+	pkPlayer->GetTacticalAI()->AddFocusArea( GC.getMap().plot(iX,iY), 2, /*5*/ GD_INT_GET(AI_TACTICAL_MAP_TEMP_ZONE_TURNS));
 	return 1;
 }
 //------------------------------------------------------------------------------
@@ -12605,7 +12605,7 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 					}
 				}
 
-				kOpinion.m_str = GetLocalizedText("TXT_KEY_DIPLO_COOP_WAR_AGAINST_TURNS", 10 - iHighestTurnDifference);
+				kOpinion.m_str = GetLocalizedText("TXT_KEY_DIPLO_COOP_WAR_AGAINST_TURNS", /*10*/ GD_INT_GET(COOP_WAR_SOON_COUNTER) - iHighestTurnDifference);
 				aOpinions.push_back(kOpinion);
 			}
 
@@ -12701,7 +12701,7 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 				kOpinion.m_iValue = iValue;
 				CvString str;
 
-				if (iValue >= /*30*/ GC.getOPINION_THRESHOLD_COMPETITOR())
+				if (iValue >= /*30*/ GD_INT_GET(OPINION_THRESHOLD_COMPETITOR))
 				{
 					str = Localization::Lookup("TXT_KEY_DIPLO_VERY_BAD_BASE_OPINION").toUTF8();
 				}
@@ -12709,7 +12709,7 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 				{
 					str = Localization::Lookup("TXT_KEY_DIPLO_BAD_BASE_OPINION").toUTF8();
 				}
-				else if (iValue <= /*-30*/ GC.getOPINION_THRESHOLD_FAVORABLE())
+				else if (iValue <= /*-30*/ GD_INT_GET(OPINION_THRESHOLD_FAVORABLE))
 				{
 					str = Localization::Lookup("TXT_KEY_DIPLO_VERY_GOOD_BASE_OPINION").toUTF8();
 				}
@@ -13474,11 +13474,11 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 				if (iEra <= 0)
 					iEra = 1;
 
-				iValue = /*-10*/ GC.getOPINION_WEIGHT_LAND_NONE();
+				iValue = /*-10*/ GD_INT_GET(OPINION_WEIGHT_LAND_NONE);
 
 				if (pDiplo->IsConqueror())
 				{
-					iValue += (/*-5*/ GC.getOPINION_WEIGHT_LAND_NONE_WARMONGER() - pDiplo->GetNeediness()) * iEra / 2;
+					iValue += (/*-5*/ GD_INT_GET(OPINION_WEIGHT_LAND_NONE_WARMONGER) - pDiplo->GetNeediness()) * iEra / 2;
 				}
 
 				iValue *= pDiplo->GetBoldness();
@@ -13522,11 +13522,11 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 				if (iEra <= 0)
 					iEra = 1;
 
-				iValue = /*0*/ GC.getOPINION_WEIGHT_WONDER_NONE();
+				iValue = /*0*/ GD_INT_GET(OPINION_WEIGHT_WONDER_NONE);
 
 				if (pDiplo->IsCultural())
 				{
-					iValue += (/*-5*/ GC.getOPINION_WEIGHT_WONDER_NONE_CULTURAL() - pDiplo->GetNeediness()) * iEra / 2;
+					iValue += (/*-5*/ GD_INT_GET(OPINION_WEIGHT_WONDER_NONE_CULTURAL) - pDiplo->GetNeediness()) * iEra / 2;
 				}
 
 				iValue *= pDiplo->GetWonderCompetitiveness();
@@ -13570,11 +13570,11 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 				if (iEra <= 0)
 					iEra = 1;
 
-				iValue = /*0*/ GC.getOPINION_WEIGHT_MINOR_CIV_NONE();
+				iValue = /*0*/ GD_INT_GET(OPINION_WEIGHT_MINOR_CIV_NONE);
 
 				if (pDiplo->IsDiplomat())
 				{
-					iValue += (/*-5*/ GC.getOPINION_WEIGHT_MINOR_CIV_NONE_DIPLOMAT() - pDiplo->GetNeediness()) * iEra / 2;
+					iValue += (/*-5*/ GD_INT_GET(OPINION_WEIGHT_MINOR_CIV_NONE_DIPLOMAT) - pDiplo->GetNeediness()) * iEra / 2;
 				}
 
 				iValue *= pDiplo->GetMinorCivCompetitiveness();
@@ -13859,7 +13859,7 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 			if (!pDiplo->IsFriendDenouncedUs(ePlayer) && !pDiplo->IsFriendDeclaredWarOnUs(ePlayer))
 			{
 				int iTurns = pDiplo->GetTurnsSinceDoFBroken(ePlayer);
-				int iTimer = /*10*/ GC.getDOF_BROKEN_BACKSTAB_TIMER();
+				int iTimer = /*10*/ GD_INT_GET(DOF_BROKEN_BACKSTAB_TIMER);
 
 				if (iTurns < iTimer)
 				{	
@@ -13870,7 +13870,7 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 					
 					if (!pDiplo->IsFriendDeclaredWarOnUs(ePlayer))
 					{
-						if (!pDiplo->IsFriendDenouncedUs(ePlayer))
+						if (!pDiplo->IsFriendDenouncedUs(ePlayer) && !pDiplo->IsDenouncedPlayer(ePlayer))
 						{
 							str = GetLocalizedText("TXT_KEY_DIPLO_BACKSTAB_WARNING_TURNS", iValue);
 						}
@@ -14029,21 +14029,21 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 				VassalTreatmentTypes eTreatmentLevel = pDiplo->GetVassalTreatmentLevel(ePlayer);
 				switch (eTreatmentLevel)
 				{
-					case VASSAL_TREATMENT_CONTENT:
-						str = Localization::Lookup("TXT_KEY_DIPLO_VASSAL_TREATMENT_CONTENT").toUTF8();
-						break;
-					case VASSAL_TREATMENT_DISAGREE:
-						str = Localization::Lookup("TXT_KEY_DIPLO_VASSAL_TREATMENT_DISAGREE").toUTF8();
-						break;
-					case VASSAL_TREATMENT_MISTREATED:
-						str = Localization::Lookup("TXT_KEY_DIPLO_VASSAL_TREATMENT_MISTREATED").toUTF8();
-						break;
-					case VASSAL_TREATMENT_UNHAPPY:
-						str = Localization::Lookup("TXT_KEY_DIPLO_VASSAL_TREATMENT_UNHAPPY").toUTF8();
-						break;
-					case VASSAL_TREATMENT_ENSLAVED:
-						str = Localization::Lookup("TXT_KEY_DIPLO_VASSAL_TREATMENT_ENSLAVED").toUTF8();
-						break;
+				case VASSAL_TREATMENT_CONTENT:
+					str = Localization::Lookup("TXT_KEY_DIPLO_VASSAL_TREATMENT_CONTENT").toUTF8();
+					break;
+				case VASSAL_TREATMENT_DISAGREE:
+					str = Localization::Lookup("TXT_KEY_DIPLO_VASSAL_TREATMENT_DISAGREE").toUTF8();
+					break;
+				case VASSAL_TREATMENT_MISTREATED:
+					str = Localization::Lookup("TXT_KEY_DIPLO_VASSAL_TREATMENT_MISTREATED").toUTF8();
+					break;
+				case VASSAL_TREATMENT_UNHAPPY:
+					str = Localization::Lookup("TXT_KEY_DIPLO_VASSAL_TREATMENT_UNHAPPY").toUTF8();
+					break;
+				case VASSAL_TREATMENT_ENSLAVED:
+					str = Localization::Lookup("TXT_KEY_DIPLO_VASSAL_TREATMENT_ENSLAVED").toUTF8();
+					break;
 				}
 
 				kOpinion.m_str = str;
@@ -15103,7 +15103,7 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 			}
 		}
 
-		if (aOpinions[ui].m_iValue > 10)
+		if (aOpinions[ui].m_iValue > 15)
 		{
 			strOutput.insert(0, strFullNegativeColor);
 		}
@@ -15115,17 +15115,18 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 		{
 			strOutput.insert(0, strNeutralColor);
 		}
-		else if (aOpinions[ui].m_iValue >= -10)
+		else if (aOpinions[ui].m_iValue >= -15)
 		{
 			strOutput.insert(0, strPartialPositiveColor);
 		}
-		else if (aOpinions[ui].m_iValue < -10)
+		else
 		{
 			strOutput.insert(0, strFullPositiveColor);
 		}
 
 		// Should we display the number value of opinion modifiers?
-		if (bShowAllValues)
+		// Only do this if the value is non-zero, otherwise it's annoying.
+		if (bShowAllValues && aOpinions[ui].m_iValue != 0)
 		{
 			CvString strTemp;
 

@@ -287,7 +287,7 @@ void CvTechAI::PropagateWeights(int iTech, int iWeight, int iPropagationPercent,
 	m_TechAIWeights.IncreaseWeight(iTech, iWeight);
 
 	//then see if we have prerequites to take care of
-	if (iPropagationLevel >= GC.getTECH_WEIGHT_PROPAGATION_LEVELS())
+	if (iPropagationLevel >= /*3*/ GD_INT_GET(TECH_WEIGHT_PROPAGATION_LEVELS))
 		return;
 
 	CvTechEntry* pkTechInfo = m_pCurrentTechs->GetTechs()->GetEntry(iTech);
@@ -296,7 +296,7 @@ void CvTechAI::PropagateWeights(int iTech, int iWeight, int iPropagationPercent,
 
 	// Loop through all prerequisites
 	vector<int> prereqTechs;
-	for(int iI = 0; iI < GC.getNUM_AND_TECH_PREREQS(); iI++)
+	for(int iI = 0; iI < /*6*/ GD_INT_GET(NUM_AND_TECH_PREREQS); iI++)
 	{
 		// Did we find a prereq?
 		int iPrereq = pkTechInfo->GetPrereqAndTechs(iI);
@@ -336,19 +336,13 @@ void CvTechAI::ReweightByCost(CvPlayer *pPlayer, bool bWantsExpensive)
 	for (int iI = 0; iI < m_ResearchableTechs.size(); iI++)
 	{
 		eTech = (TechTypes)m_ResearchableTechs.GetElement(iI);
-		int iTurnsLeft = 0;
+		int iTurnsLeft = m_pCurrentTechs->GetResearchTurnsLeft(eTech, true);
 
-		iTurnsLeft = m_pCurrentTechs->GetResearchTurnsLeft(eTech, true);
+		//reweight by turns left
+		double fTotalCostFactor = /*0.2f*/ GD_FLOAT_GET(AI_RESEARCH_WEIGHT_BASE_MOD) + (iTurnsLeft * /*0.035f*/ GD_FLOAT_GET(AI_RESEARCH_WEIGHT_MOD_PER_TURN_LEFT));
+		double fWeightDivisor = pow((double)iTurnsLeft, fTotalCostFactor);
 
-		double fWeightDivisor;
-
-		// 10 turns will add 0.02; 80 turns will add 0.16
-		double fAdditionalTurnCostFactor = GC.getAI_RESEARCH_WEIGHT_MOD_PER_TURN_LEFT() * iTurnsLeft;	// 0.015
-		double fTotalCostFactor = GC.getAI_RESEARCH_WEIGHT_BASE_MOD() + fAdditionalTurnCostFactor;	// 0.15
-
-		fWeightDivisor = pow((double)iTurnsLeft, fTotalCostFactor);
-
-		int iNewWeight;
+		int iNewWeight = 0;
 		if (bNeedExpensiveTechs)
 		{
 			iNewWeight = int(double(m_ResearchableTechs.GetWeight(iI)) * fWeightDivisor);

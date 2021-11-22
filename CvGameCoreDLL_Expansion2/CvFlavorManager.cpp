@@ -76,8 +76,8 @@ void CvFlavorRecipient::ChangeFlavors(const CvEnumMap<FlavorTypes, int>& piDelta
 
 	if(!piDeltaFlavorValues.valid()) return;
 
-	int iFlavorMinValue = /*-1000*/ GC.getFLAVOR_MIN_VALUE();
-	int iFlavorMaxValue = /*1000*/ GC.getFLAVOR_MAX_VALUE();
+	int iFlavorMinValue = /*-1000*/ GD_INT_GET(FLAVOR_MIN_VALUE);
+	int iFlavorMaxValue = /*1000*/ GD_INT_GET(FLAVOR_MAX_VALUE);
 
 	int iNumFlavors = GC.getNumFlavorTypes();
 	for(int iI = 0; iI < iNumFlavors; iI++)
@@ -162,7 +162,7 @@ void CvFlavorManager::Init(CvPlayer* pPlayer)
 					CvLeaderHeadInfo* pkLeaderHeadInfo = GC.getLeaderHeadInfo(leader);
 					if (pkLeaderHeadInfo)
 					{
-						int iDefaultFlavorValue = GC.getDEFAULT_FLAVOR_VALUE();
+						int iDefaultFlavorValue = /*5*/ GC.getGame().GetDefaultFlavorValue();
 						int iNumFlavorTypes = GC.getNumFlavorTypes();
 
 						for (int iI = 0; iI < iNumFlavorTypes; iI++)
@@ -322,8 +322,8 @@ void CvFlavorManager::ChangeFlavors(const CvEnumMap<FlavorTypes, int>& piDeltaFl
 
 	if (bPlayerLevelUpdate)
 	{
-		int iFlavorMinValue = /*-1000*/ GC.getFLAVOR_MIN_VALUE();
-		int iFlavorMaxValue = /*1000*/ GC.getFLAVOR_MAX_VALUE();
+		int iFlavorMinValue = /*-1000*/ GD_INT_GET(FLAVOR_MIN_VALUE);
+		int iFlavorMaxValue = /*1000*/ GD_INT_GET(FLAVOR_MAX_VALUE);
 
 		int iNumFlavors = GC.getNumFlavorTypes();
 		for(int iI = 0; iI < iNumFlavors; iI++)
@@ -378,11 +378,11 @@ void CvFlavorManager::AdjustWeightsForMap()
 		// We want this to be logarithmic, since that is the curve between lots of players on a duel map
 		// and a few player on a huge map.  "FLAVOR_STANDARD_LOG10_TILES_PER_PLAYER" is the typical log10 of
 		// tiles per player.  We go up and down from this point (multiplying by a coefficient) from here
-		float fAdjust = log10(fTilesPerPlayer) - GC.getFLAVOR_STANDARD_LOG10_TILES_PER_PLAYER();
-		int iAdjust = (int)(fAdjust*GC.getFLAVOR_EXPANDGROW_COEFFICIENT());
+		float fAdjust = log10(fTilesPerPlayer) - /*2.1f*/ GD_FLOAT_GET(FLAVOR_STANDARD_LOG10_TILES_PER_PLAYER);
+		int iAdjust = (int)(fAdjust * /*8*/ GD_INT_GET(FLAVOR_EXPANDGROW_COEFFICIENT));
 
-		int iFlavorMaxValue = /*20*/ GC.getPERSONALITY_FLAVOR_MAX_VALUE();
-		int iFlavorMinValue = /*0*/ GC.getPERSONALITY_FLAVOR_MIN_VALUE();
+		int iFlavorMaxValue = /*20*/ GD_INT_GET(PERSONALITY_FLAVOR_MAX_VALUE);
+		int iFlavorMinValue = /*0*/ GD_INT_GET(PERSONALITY_FLAVOR_MIN_VALUE);
 
 		int iExpansionIndex = GC.getInfoTypeForString("FLAVOR_EXPANSION");
 		int iGrowthIndex = GC.getInfoTypeForString("FLAVOR_GROWTH");
@@ -443,8 +443,8 @@ int CvFlavorManager::GetPersonalityFlavorForDiplomacy(FlavorTypes eType)
 	}
 
 	// Must be within upper and lower bounds
-	int iMax = range(/*10*/ GC.getDIPLO_PERSONALITY_FLAVOR_MAX_VALUE(), 1, 20);
-	int iMin = range(/*1*/ GC.getDIPLO_PERSONALITY_FLAVOR_MIN_VALUE(), 1, iMax);
+	int iMax = range(/*10*/ GD_INT_GET(DIPLO_PERSONALITY_FLAVOR_MAX_VALUE), 1, 20);
+	int iMin = range(/*1*/ GD_INT_GET(DIPLO_PERSONALITY_FLAVOR_MIN_VALUE), 1, iMax);
 
 	return range(iValue, iMin, iMax);
 }
@@ -454,9 +454,9 @@ int CvFlavorManager::GetPersonalityFlavorForDiplomacy(FlavorTypes eType)
 /// Make a random adjustment to each flavor value for this leader so they don't play exactly the same
 void CvFlavorManager::RandomizeWeights()
 {
-	int iMax = range(/*20*/ GC.getPERSONALITY_FLAVOR_MAX_VALUE(), 1, 20);
-	int iMin = range(/*0*/ GC.getPERSONALITY_FLAVOR_MIN_VALUE(), 1, iMax);
-	int iPlusMinus = max(/*2*/ GC.getFLAVOR_RANDOMIZATION_RANGE(), 0);
+	int iMax = range(/*20*/ GD_INT_GET(PERSONALITY_FLAVOR_MAX_VALUE), 1, 20);
+	int iMin = range(/*0*/ GD_INT_GET(PERSONALITY_FLAVOR_MIN_VALUE), 1, iMax);
+	int iPlusMinus = max(/*2*/ GD_INT_GET(FLAVOR_RANDOMIZATION_RANGE), 0);
 
 	// Random seed to ensure the fake RNG doesn't return the same value repeatedly
 	int iSeed = 0;

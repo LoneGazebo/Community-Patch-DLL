@@ -4750,7 +4750,7 @@ bool CvBeliefHelpers::ConvertBarbarianUnit(CvPlayer *pPlayer, CvUnit* pUnit)
 	CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_HEATHEN_CONVERTS");
 	pPlayer->GetNotifications()->Add(NOTIFICATION_GENERIC, strBuffer, strSummary, pUnit->getX(), pUnit->getY(), -1);
 
-	if (pPlot->getImprovementType() == GC.getBARBARIAN_CAMP_IMPROVEMENT())
+	if (pPlot->getImprovementType() == GD_INT_GET(BARBARIAN_CAMP_IMPROVEMENT))
 	{
 		pPlot->setImprovementType(NO_IMPROVEMENT);
 

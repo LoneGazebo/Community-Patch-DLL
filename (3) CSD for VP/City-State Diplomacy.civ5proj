@@ -60,11 +60,6 @@
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
-        <FileName>Buildings/VanillaBuildingChanges.sql</FileName>
-      </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
         <FileName>Gameplay/Gameplay.sql</FileName>
       </Action>
       <Action>
@@ -190,7 +185,7 @@
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
-        <FileName>Compatibility.xml</FileName>
+        <FileName>Gameplay/UpdateDefines.sql</FileName>
       </Action>
     </ModActions>
     <ReloadStrategicViewSystem>true</ReloadStrategicViewSystem>
@@ -476,15 +471,7 @@
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
-    <Content Include="Buildings\VanillaBuildingChanges.sql">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
-    <Content Include="Compatibility.xml">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
-    <Content Include="Gameplay\AddDefines.sql">
+    <Content Include="Gameplay\UpdateDefines.sql">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>

@@ -62,7 +62,7 @@ void CvGameTextMgr::setDateStr(CvString& strString, int iGameTurn, bool bSave, C
 	CvString strYearBuffer;
 	CvString strWeekBuffer;
 
-	int iTempGameTurn = iGameTurn + GC.getHIDDEN_START_TURN_OFFSET();
+	int iTempGameTurn = iGameTurn + /*0*/ GD_INT_GET(HIDDEN_START_TURN_OFFSET);
 
 	setYearStr(strYearBuffer, iTempGameTurn, bSave, eCalendar, iStartYear, eSpeed);
 
@@ -153,9 +153,9 @@ void CvGameTextMgr::setDateStr(CvString& strString, int iGameTurn, bool bSave, C
 
 	case CALENDAR_WEEKS:
 	{
-		strWeekBuffer = GetLocalizedText("TXT_KEY_TIME_WEEK", ((iTempGameTurn % GC.getWEEKS_PER_MONTHS()) + 1));
+		strWeekBuffer = GetLocalizedText("TXT_KEY_TIME_WEEK", ((iTempGameTurn % /*4*/ GD_INT_GET(WEEKS_PER_MONTHS)) + 1));
 
-		const int idx = (iTempGameTurn / GC.getWEEKS_PER_MONTHS()) % iNumMonths;
+		const int idx = (iTempGameTurn / /*4*/ GD_INT_GET(WEEKS_PER_MONTHS)) % iNumMonths;
 
 		CvBaseInfo kCalendarInfo;
 		Database::SingleResult kResult;

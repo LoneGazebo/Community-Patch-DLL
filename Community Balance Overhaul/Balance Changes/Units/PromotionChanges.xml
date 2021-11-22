@@ -1215,7 +1215,6 @@
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<CombatPercent>10</CombatPercent>
 			<CannotBeChosen>true</CannotBeChosen>
-			<AdjacentMod>15</AdjacentMod>
 			<PortraitIndex>59</PortraitIndex>
 			<IconAtlas>ABILITY_ATLAS</IconAtlas>
 			<PediaType>PEDIA_SHARED</PediaType>
@@ -1263,8 +1262,8 @@
 			<Description>TXT_KEY_PROMOTION_NATIONALISM</Description>
 			<Help>TXT_KEY_PROMOTION_NATIONALISM_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
-			<NearbyCityCombatMod>20</NearbyCityCombatMod>
 			<CannotBeChosen>true</CannotBeChosen>
+			<NearbyCityCombatMod>20</NearbyCityCombatMod>
 			<PortraitIndex>59</PortraitIndex>
 			<IconAtlas>ABILITY_ATLAS</IconAtlas>
 			<PediaType>PEDIA_SHARED</PediaType>

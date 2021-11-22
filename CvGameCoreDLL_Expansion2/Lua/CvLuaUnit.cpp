@@ -5332,7 +5332,7 @@ int CvLuaUnit::lGetAuraRange(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
 
-	const int iResult = GC.getGREAT_GENERAL_RANGE() + pkUnit->GetAuraRangeChange();
+	const int iResult = pkUnit->GetAuraRangeChange() + /*2*/ GD_INT_GET(GREAT_GENERAL_RANGE);
 	lua_pushinteger(L, iResult);
 	return 1;
 }
@@ -5362,7 +5362,7 @@ int CvLuaUnit::lIsNearSapper(lua_State* L)
 	}
 
 	int iBonus = GET_PLAYER(pkUnit->getOwner()).GetAreaEffectModifier(AE_SAPPER, NO_DOMAIN, pkCity->plot());
-	lua_pushboolean(L, iBonus == GC.getSAPPED_CITY_ATTACK_MODIFIER());
+	lua_pushboolean(L, iBonus ==  /*50 in CP, 40 in CBO*/ GD_INT_GET(SAPPED_CITY_ATTACK_MODIFIER));
 	return 1;
 }
 
@@ -5379,7 +5379,7 @@ int CvLuaUnit::lIsHalfNearSapper(lua_State* L)
 	}
 
 	int iBonus = GET_PLAYER(pkUnit->getOwner()).GetAreaEffectModifier(AE_SAPPER, NO_DOMAIN, pkCity->plot());
-	lua_pushboolean(L, iBonus > 0 && iBonus < GC.getSAPPED_CITY_ATTACK_MODIFIER());
+	lua_pushboolean(L, iBonus > 0 && iBonus <  /*50 in CP, 40 in CBO*/ GD_INT_GET(SAPPED_CITY_ATTACK_MODIFIER));
 	return 1;
 }
 
@@ -6113,16 +6113,16 @@ int CvLuaUnit::lGetAllianceCSStrength(lua_State* L)
 						if (GET_PLAYER(eMinor).GetMinorCivAI()->IsAllies(eAlly))
 						{
 							iNumAllies++;
-							if(iNumAllies >= GC.getBALANCE_MAX_CS_ALLY_STRENGTH())
+							if(iNumAllies >= /*5*/ GD_INT_GET(BALANCE_MAX_CS_ALLY_STRENGTH))
 							{
 								break;
 							}
 						}
 					}
 				}
-				if(iNumAllies > GC.getBALANCE_MAX_CS_ALLY_STRENGTH())
+				if(iNumAllies > /*5*/ GD_INT_GET(BALANCE_MAX_CS_ALLY_STRENGTH))
 				{
-					iNumAllies = GC.getBALANCE_MAX_CS_ALLY_STRENGTH();
+					iNumAllies = /*5*/ GD_INT_GET(BALANCE_MAX_CS_ALLY_STRENGTH);
 				}
 				iStrengthMod = (iCSBonus * iNumAllies);
 			}
@@ -6144,16 +6144,16 @@ int CvLuaUnit::lGetAllianceCSStrength(lua_State* L)
 					if (GET_PLAYER(eMinor).GetMinorCivAI()->IsAllies(pkUnit->getOwner()))
 					{
 						iNumAllies++;
-						if(iNumAllies >= GC.getBALANCE_MAX_CS_ALLY_STRENGTH())
+						if(iNumAllies >= /*5*/ GD_INT_GET(BALANCE_MAX_CS_ALLY_STRENGTH))
 						{
 							break;
 						}
 					}
 				}
 			}
-			if(iNumAllies > GC.getBALANCE_MAX_CS_ALLY_STRENGTH())
+			if(iNumAllies > /*5*/ GD_INT_GET(BALANCE_MAX_CS_ALLY_STRENGTH))
 			{
-				iNumAllies = GC.getBALANCE_MAX_CS_ALLY_STRENGTH();
+				iNumAllies = /*5*/ GD_INT_GET(BALANCE_MAX_CS_ALLY_STRENGTH);
 			}
 			iStrengthMod = (iCSBonus * iNumAllies);
 		}

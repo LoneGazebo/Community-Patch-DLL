@@ -86,14 +86,38 @@ UPDATE Defines SET Value = '100' WHERE Name = 'APPROACH_WAR_PROXIMITY_FAR';
 UPDATE Defines SET Value = '75' WHERE Name = 'APPROACH_WAR_PROXIMITY_DISTANT';
 
 
+-- Neutral Default Weight
+-- Adds x times the AI's Neutral Bias to the Neutral approach
+UPDATE Defines SET Value = '3' WHERE Name = 'APPROACH_NEUTRAL_DEFAULT';
+
+-- Bias for Current Approach
+-- Adds x times the bias for the AI's current approach to that approach's score
+-- Used to make the AI less likely to switch approaches randomly. Not applied during a reevaluation!
+UPDATE Defines SET Value = '2' WHERE Name = 'APPROACH_BIAS_FOR_CURRENT';
+
+-- Current War Bias
+-- Adds x times the AI's War Bias to the War approach if the AI's current approach is War
+-- Added on top of the bias for current approach above. Not applied during a reevaluation!
+UPDATE Defines SET Value = '4' WHERE Name = 'APPROACH_WAR_CURRENTLY_WAR';
+
+-- Ignore City-State Default Weight
+-- Adds x times the AI's Ignore (Neutral) bias to the Ignore (Neutral) approach
+UPDATE Defines SET Value = '2' WHERE Name = 'MINOR_APPROACH_IGNORE_DEFAULT';
+
+
 -- Peace Treaty Dampener Turns
 -- Dissuades the AI from declaring war for a certain amount of time after a peace treaty has been signed.
 -- NOTE: For MAJOR CIVS, this amount is reduced on higher difficulties.
 UPDATE Defines SET Value = '20' WHERE Name = 'TURNS_SINCE_PEACE_WEIGHT_DAMPENER';
 
 
--- C4DF Approach Values
+-- Approach Randomness [NOT YET FUNCTIONAL]
+-- If set to a non-zero value, multiplies the weight for each *major civ* approach by (100 +/- n%), where n is a random number between 0 and APPROACH_RANDOM_PERCENT, then divides by 100.
+-- Valid values are between 0 and 100. Higher values make the AI more erratic.
+UPDATE Defines SET Value = '0' WHERE Name = 'APPROACH_RANDOM_PERCENT';
 
+
+-- C4DF Approach Values
 -- Approach multipliers for having 2+ vassals
 INSERT INTO Defines (Name, Value) SELECT 'APPROACH_WAR_TOO_MANY_VASSALS', '20'; -- % increase to WAR and HOSTILE approaches per vassal
 INSERT INTO Defines (Name, Value) SELECT 'APPROACH_GUARDED_TOO_MANY_VASSALS', '20'; -- % increase to GUARDED and AFRAID approaches per vassal

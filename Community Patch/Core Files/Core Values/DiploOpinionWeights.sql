@@ -281,12 +281,12 @@ UPDATE Defines SET Value = '40' WHERE Name = 'OPINION_WEIGHT_BROKEN_MILITARY_PRO
 UPDATE Defines SET Value = '0' WHERE Name = 'OPINION_WEIGHT_IGNORED_MILITARY_PROMISE';
 
 -- AI asked player to stop settling near them
-UPDATE Defines SET Value = '40' WHERE Name = 'OPINION_WEIGHT_EXPANSION_PROMISE_BROKE_MAX';
-UPDATE Defines SET Value = '30' WHERE Name = 'OPINION_WEIGHT_EXPANSION_PROMISE_IGNORED_MAX';
+UPDATE Defines SET Value = '40' WHERE Name = 'OPINION_WEIGHT_BROKEN_EXPANSION_PROMISE';
+UPDATE Defines SET Value = '30' WHERE Name = 'OPINION_WEIGHT_IGNORED_EXPANSION_PROMISE';
 
 -- AI asked player to stop buying land near them
-UPDATE Defines SET Value = '40' WHERE Name = 'OPINION_WEIGHT_BORDER_PROMISE_BROKE_MAX';
-UPDATE Defines SET Value = '30' WHERE Name = 'OPINION_WEIGHT_BORDER_PROMISE_IGNORED_MAX';
+UPDATE Defines SET Value = '40' WHERE Name = 'OPINION_WEIGHT_BROKEN_BORDER_PROMISE';
+UPDATE Defines SET Value = '30' WHERE Name = 'OPINION_WEIGHT_IGNORED_BORDER_PROMISE';
 
 -- AI asked player not to conquer their protected City-States
 UPDATE Defines SET Value = '80' WHERE Name = 'OPINION_WEIGHT_BROKEN_CITY_STATE_PROMISE';
@@ -470,7 +470,7 @@ UPDATE Defines SET Value = '80' WHERE Name = 'OPINION_WEIGHT_DENOUNCED_ME_FRIEND
 INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_ATTACKED_OWN_VASSAL', '50';
 
 -- You declared war on them while they were your vassal!
-INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_VASSALAGE_BROKEN_VASSAL_AGREEMENT_OPINION_WEIGHT', '100';
+INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_VASSALAGE_BROKEN_VASSAL_AGREEMENT', '100';
 
 -- You have declared war on leaders you've made Declarations of Friendship with!
 UPDATE Defines SET Value = '75' WHERE Name = 'OPINION_WEIGHT_WAR_FRIEND_EACH';
@@ -557,18 +557,27 @@ INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_VASSALAGE_WE_ARE_MASTER
 -- Opinion Weights for AI being Vassal
 INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_VASSALAGE_WE_ARE_VOLUNTARY_VASSAL', '-20';
 INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_VASSALAGE_WE_ARE_VASSAL', '0';
+INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_SAME_MASTER', '-30';
 
 
 -- Vassalage Treatment Thresholds
 -- Determines vassal treatment "level", based on the Opinion Score from Vassal Treatment
-INSERT INTO Defines (Name, Value) SELECT 'VASSALAGE_TREATMENT_THRESHOLD_DISAGREE', '10';
-INSERT INTO Defines (Name, Value) SELECT 'VASSALAGE_TREATMENT_THRESHOLD_MISTREATED', '30';
-INSERT INTO Defines (Name, Value) SELECT 'VASSALAGE_TREATMENT_THRESHOLD_UNHAPPY', '60';
-INSERT INTO Defines (Name, Value) SELECT 'VASSALAGE_TREATMENT_THRESHOLD_ENSLAVED', '100';
+INSERT INTO Defines (Name, Value) SELECT 'VASSALAGE_TREATMENT_THRESHOLD_DISAGREE', '1';
+INSERT INTO Defines (Name, Value) SELECT 'VASSALAGE_TREATMENT_THRESHOLD_MISTREATED', '25';
+INSERT INTO Defines (Name, Value) SELECT 'VASSALAGE_TREATMENT_THRESHOLD_UNHAPPY', '50';
+INSERT INTO Defines (Name, Value) SELECT 'VASSALAGE_TREATMENT_THRESHOLD_ENSLAVED', '80';
 
 -- Vassal Treatment Score Factors
 -- Making Demands
-INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_DEMANDED_WHILE_VASSAL', '20';
+INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_DEMANDED_WHILE_VASSAL', '100'; -- if > 100: reduction to penalty for demanding from vassals
+
+-- Stealing From Them
+INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_CAPITULATED_VASSAL_PLUNDERED_DIVISOR', '100'; -- if > 100: reduction to penalty for plundering TRs from capitulated vassals
+INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_CAPITULATED_VASSAL_SPYING_DIVISOR', '100'; -- if > 100: reduction to penalty for spy actions against capitulated vassals
+INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_CAPITULATED_VASSAL_CULTURE_BOMB_DIVISOR', '100'; -- if > 100: reduction to penalty for stealing territory from capitulated vassals
+
+-- Denouncing Them
+INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_VASSAL_DENOUNCED_BY_MASTER', '25'; -- Master denounced vassal!
 
 -- Taxation Policies
 -- Penalty = (((Gold Taxed By Masters Since Vassalage Started * 100 / Gross Gold Collected Since Vassalage Started)^OPINION_WEIGHT_VASSAL_TAX_EXPONENT) / OPINION_WEIGHT_VASSAL_TAX_DIVISOR) + (Current Tax Rate / OPINION_WEIGHT_VASSAL_CURRENT_TAX_MODIFIER)
@@ -580,11 +589,25 @@ INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_VASSAL_CURRENT_TAX_MODI
 INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_VASSALAGE_PROTECT_MAX', '-50';
 INSERT INTO Defines (Name, Value) SELECT 'VASSALAGE_PROTECT_VALUE_PER_OPINION_WEIGHT', '50'; -- how much vassal protection value equals -1 opinion weight
 INSERT INTO Defines (Name, Value) SELECT 'VASSALAGE_PROTECTED_PER_TURN_DECAY', '25'; -- how fast vassal protection value decays
+INSERT INTO Defines (Name, Value) SELECT 'VASSALAGE_PROTECTED_CITY_DISTANCE', '6'; -- How close to a vassal city must an enemy unit be (in tiles) for it to count for protect value.
 
 -- You failed to protect their territory as their master! (n.b. maximum vassal failed protect value = OPINION_WEIGHT_VASSALAGE_FAILED_PROTECT_MAX * VASSALAGE_FAILED_PROTECT_VALUE_PER_OPINION_WEIGHT; scales with game speed)
 INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_VASSALAGE_FAILED_PROTECT_MAX', '50';
 INSERT INTO Defines (Name, Value) SELECT 'VASSALAGE_FAILED_PROTECT_VALUE_PER_OPINION_WEIGHT', '50'; -- how much vassal failed protection value equals +1 opinion weight
 INSERT INTO Defines (Name, Value) SELECT 'VASSALAGE_FAILED_PROTECT_PER_TURN_DECAY', '25'; -- how fast vassal failed protection value decays
+INSERT INTO Defines (Name, Value) SELECT 'VASSALAGE_FAILED_PROTECT_CITY_DISTANCE', '0'; -- How close to a vassal city must a vassal unit be for it to count for failed protect value (IF NOT IN OWNED TERRITORY). 0 = disabled.
+
+-- Trade Routes With Them
+INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_VASSAL_TRADE_ROUTE', '-15'; -- only applies for trade routes the master sends to the vassal
+INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_VASSAL_TRADE_ROUTE_SUBSEQUENT', '-10'; -- any after the first
+
+-- Opened Our Borders
+INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_VASSAL_OPEN_BORDERS', '-5'; -- for giving them Open Borders
+
+-- Shared Religion Interests
+INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_VASSAL_FOUNDER_MASTER_ADOPTED_RELIGION', '-40'; -- if master has adopted the vassal's religion in a majority of their cities
+INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_VASSAL_HAPPILY_ADOPTED_RELIGION', '-20'; -- if vassal has no state religion and adopted master's religion
+INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_VASSAL_SAME_MAJORITY_RELIGION', '-10'; -- master and vassal have same majority religion (not master's state religion)
 
 -- Multiplier to negative factors in Vassal Treatment Opinion Score when AI is a Voluntary Vassal
 INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_VASSALAGE_VOLUNTARY_VASSAL_MOD', '120';
@@ -642,8 +665,8 @@ INSERT INTO Defines (Name, Value) SELECT 'SPY_PROMISE_IGNORED_TURNS_UNTIL_FORGIV
 INSERT INTO Defines (Name, Value) SELECT 'SPY_PROMISE_BROKEN_TURNS_UNTIL_FORGIVEN', '50';
 
 -- Stop Converting Our Cities
-INSERT INTO Defines (Name, Value) SELECT 'CONVERT_PROMISE_IGNORED_TURNS_UNTIL_FORGIVEN', '40';
-INSERT INTO Defines (Name, Value) SELECT 'CONVERT_PROMISE_BROKEN_TURNS_UNTIL_FORGIVEN', '60';
+INSERT INTO Defines (Name, Value) SELECT 'CONVERT_PROMISE_IGNORED_TURNS_UNTIL_FORGIVEN', '30';
+INSERT INTO Defines (Name, Value) SELECT 'CONVERT_PROMISE_BROKEN_TURNS_UNTIL_FORGIVEN', '50';
 
 -- Stop Digging Up Our Artifacts
 INSERT INTO Defines (Name, Value) SELECT 'DIGGING_PROMISE_IGNORED_TURNS_UNTIL_FORGIVEN', '30';

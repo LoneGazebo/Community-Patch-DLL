@@ -1950,12 +1950,12 @@ void resetGame()
 	s_mapNoPlayers = false;
 
 	// Standard game parameters
-	s_climate = ClimateTypes(0);//GC.getSTANDARD_CLIMATE(); // NO_ option?
-	s_seaLevel = SeaLevelTypes(1);//GC.getSTANDARD_SEALEVEL(); // NO_ option?
-	s_era = EraTypes(GC.getSTANDARD_ERA()); // NO_ option?
-	s_gameSpeed = GameSpeedTypes(GC.getSTANDARD_GAMESPEED()); // NO_ option?
-	s_turnTimerType = TurnTimerTypes(4);//GC.getSTANDARD_TURNTIMER(); // NO_ option?
-	s_calendar = CalendarTypes(0);//GC.getSTANDARD_CALENDAR(); // NO_ option?
+	s_climate = ClimateTypes(0); // NO_ option?
+	s_seaLevel = SeaLevelTypes(1); // NO_ option?
+	s_era = EraTypes(GD_INT_GET(STANDARD_ERA)); // NO_ option?
+	s_gameSpeed = GameSpeedTypes(GD_INT_GET(STANDARD_GAMESPEED)); // NO_ option?
+	s_turnTimerType = TurnTimerTypes(4); // NO_ option?
+	s_calendar = CalendarTypes(0); // NO_ option?
 
 	// Data-defined victory conditions 
 	s_numVictoryInfos = DB.Count("Victories");
@@ -2050,9 +2050,9 @@ void resetPlayer(PlayerTypes p)
 		setTeamType(p, (TeamTypes)p); // JAR : Whisky Tango Foxtrot?
 
 		if(isNetworkMultiplayerGame())
-			setHandicap(p, (HandicapTypes)GC.getMULTIPLAYER_HANDICAP());
+			setHandicap(p, (HandicapTypes)GD_INT_GET(MULTIPLAYER_HANDICAP));
 		else
-			setHandicap(p, (HandicapTypes)GC.getSTANDARD_HANDICAP());
+			setHandicap(p, (HandicapTypes)GD_INT_GET(STANDARD_HANDICAP));
 
 		setLastHumanHandicap(p, NO_HANDICAP);
 		setPlayerColor(p, NO_PLAYERCOLOR);
@@ -2115,16 +2115,11 @@ void resetSlots()
 
 				//S.S:  In single player games, slot 1 *should* be marked as taken but it currently is not.
 				if(slotStatus(p) == SS_COMPUTER && i != 0)
-					setHandicap(p, (HandicapTypes)GC.getAI_HANDICAP());
+					setHandicap(p, (HandicapTypes)GD_INT_GET(AI_HANDICAP));
 				else
 				{
 					if(isHotSeatGame())
-						setHandicap(p, (HandicapTypes)GC.getMULTIPLAYER_HANDICAP());
-					else
-					{
-						//S.S: Commenting this out to prevent handicap from getting reset everytime the map size changes.
-						//setHandicap(p, (HandicapTypes)GC.getSTANDARD_HANDICAP());
-					}
+						setHandicap(p, (HandicapTypes)GD_INT_GET(MULTIPLAYER_HANDICAP));
 				}
 				++slotsAssigned;
 			}
@@ -2162,9 +2157,9 @@ void resetSlots()
 					}
 				}
 				if(slotStatus(p) == SS_COMPUTER)
-					setHandicap(p, (HandicapTypes)GC.getAI_HANDICAP());
+					setHandicap(p, (HandicapTypes)GD_INT_GET(AI_HANDICAP));
 				else
-					setHandicap(p, (HandicapTypes)GC.getMULTIPLAYER_HANDICAP());
+					setHandicap(p, (HandicapTypes)GD_INT_GET(MULTIPLAYER_HANDICAP));
 
 				++slotsAssigned;
 			}
@@ -3037,17 +3032,17 @@ void VerifyHandicap(PlayerTypes p)
 {//Verifies that the current handicap is valid for the current player.
 	//non-ai players can't use the default ai handicap and ai players MUST use it.
 	if(slotStatus(p) == SS_COMPUTER){
-		setHandicap(p, (HandicapTypes)GC.getAI_HANDICAP());
+		setHandicap(p, (HandicapTypes)GD_INT_GET(AI_HANDICAP));
 	}
-	else if(handicap(p) == GC.getAI_HANDICAP()){
+	else if(handicap(p) == GD_INT_GET(AI_HANDICAP)){
 		if(lastHumanHandicap(p) != NO_HANDICAP){
 			setHandicap(p, lastHumanHandicap(p));
 		}
 		else if(GC.getGame().isNetworkMultiPlayer()){
-			setHandicap(p, (HandicapTypes)GC.getMULTIPLAYER_HANDICAP());
+			setHandicap(p, (HandicapTypes)GD_INT_GET(MULTIPLAYER_HANDICAP));
 		}
 		else{
-			setHandicap(p, (HandicapTypes)GC.getSTANDARD_HANDICAP());
+			setHandicap(p, (HandicapTypes)GD_INT_GET(STANDARD_HANDICAP));
 		}
 	}
 }

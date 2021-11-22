@@ -2472,7 +2472,7 @@ int CvLuaGame::lGetBuildingCorporateGPChange(lua_State* L)
 }
 int CvLuaGame::lGetPromiseDuration(lua_State* L)
 {
-	int iTimeOutTurns = (GC.getEXPANSION_PROMISE_TURNS_EFFECTIVE() * GC.getGame().getGameSpeedInfo().getOpinionDurationPercent()) / 100;
+	int iTimeOutTurns = (/*50*/ GD_INT_GET(EXPANSION_PROMISE_TURNS_EFFECTIVE) * GC.getGame().getGameSpeedInfo().getOpinionDurationPercent()) / 100;
 	lua_pushinteger(L, iTimeOutTurns);
 	return 1;
 }
@@ -3468,8 +3468,8 @@ int CvLuaGame::lGetTradeRoute(lua_State* L)
 		pToCity->GetCityReligions()->WouldExertTradeRoutePressureToward(pFromCity, eFromReligion, iFromPressure);
 		
 		// Internally pressure is now 10 times greater than what is shown to user
-		iToPressure /= GC.getRELIGION_MISSIONARY_PRESSURE_MULTIPLIER();
-		iFromPressure /= GC.getRELIGION_MISSIONARY_PRESSURE_MULTIPLIER();
+		iToPressure /= /*10*/ GD_INT_GET(RELIGION_MISSIONARY_PRESSURE_MULTIPLIER);
+		iFromPressure /= /*10*/ GD_INT_GET(RELIGION_MISSIONARY_PRESSURE_MULTIPLIER);
 
 		lua_pushinteger(L, eToReligion);
 		lua_setfield(L, t, "ToReligion");
@@ -3666,13 +3666,13 @@ int CvLuaGame::lGetNumTurnsBetweenVassals(lua_State* L)
 //------------------------------------------------------------------------------
 int CvLuaGame::lGetMinimumVassalTax(lua_State* L)
 {
-	lua_pushinteger(L, GC.getVASSALAGE_VASSAL_TAX_PERCENT_MINIMUM());
+	lua_pushinteger(L, /*0*/ GD_INT_GET(VASSALAGE_VASSAL_TAX_PERCENT_MINIMUM));
 	return 1;
 }
 //------------------------------------------------------------------------------
 int CvLuaGame::lGetMaximumVassalTax(lua_State* L)
 {
-	lua_pushinteger(L, GC.getVASSALAGE_VASSAL_TAX_PERCENT_MAXIMUM());
+	lua_pushinteger(L, /*25*/ GD_INT_GET(VASSALAGE_VASSAL_TAX_PERCENT_MAXIMUM));
 	return 1;
 }
 //------------------------------------------------------------------------------

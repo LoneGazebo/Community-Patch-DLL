@@ -363,7 +363,7 @@ void CvGame::init(HandicapTypes eHandicap)
 		setEstimateEndTurn(getGameTurn() + getMaxTurns());
 	}
 
-	setStartYear(GC.getSTART_YEAR());
+	setStartYear(/*-4000*/ GD_INT_GET(START_YEAR));
 
 	for(iI = 0; iI < GC.getNumSpecialUnitInfos(); iI++)
 	{
@@ -397,12 +397,7 @@ void CvGame::init(HandicapTypes eHandicap)
 #if defined(MOD_BALANCE_CORE_SPIES)
 	SetHighestSpyPotential();
 #endif
-#if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
-	if(MOD_DIPLOMACY_CITYSTATES_QUESTS)
-	{
-		DoBarbCountdown();
-	}
-#endif
+	DoBarbCountdown();
 }
 
 //	--------------------------------------------------------------------------------
@@ -639,8 +634,8 @@ void CvGame::InitPlayers()
 		}
 	}
 
-	CivilizationTypes eBarbCiv = (CivilizationTypes)GC.getBARBARIAN_CIVILIZATION();
-	CivilizationTypes eMinorCiv = (CivilizationTypes)GC.getMINOR_CIVILIZATION();
+	CivilizationTypes eBarbCiv = (CivilizationTypes)GD_INT_GET(BARBARIAN_CIVILIZATION);
+	CivilizationTypes eMinorCiv = (CivilizationTypes)GD_INT_GET(MINOR_CIVILIZATION);
 
 	CvCivilizationInfo* pBarbarianCivilizationInfo = GC.getCivilizationInfo(eBarbCiv);
 	int barbarianPlayerColor = pBarbarianCivilizationInfo->getDefaultPlayerColor();
@@ -702,9 +697,9 @@ void CvGame::InitPlayers()
 			CvPreGame::setTeamType(BARBARIAN_PLAYER, BARBARIAN_TEAM);
 			CvPreGame::setSlotStatus(BARBARIAN_PLAYER, SS_COMPUTER);
 			CvPreGame::setNetID(BARBARIAN_PLAYER, -1);
-			CvPreGame::setHandicap(BARBARIAN_PLAYER, (HandicapTypes)GC.getBARBARIAN_HANDICAP());
+			CvPreGame::setHandicap(BARBARIAN_PLAYER, (HandicapTypes)GD_INT_GET(BARBARIAN_HANDICAP));
 			CvPreGame::setCivilization(BARBARIAN_PLAYER, eBarbCiv);
-			CvPreGame::setLeaderHead(BARBARIAN_PLAYER, (LeaderHeadTypes)GC.getBARBARIAN_LEADER());
+			CvPreGame::setLeaderHead(BARBARIAN_PLAYER, (LeaderHeadTypes)GD_INT_GET(BARBARIAN_LEADER));
 			CvPreGame::setPlayerColor(BARBARIAN_PLAYER, ((PlayerColorTypes)barbarianPlayerColor));
 			CvPreGame::setMinorCiv(BARBARIAN_PLAYER, false);
 		}
@@ -715,7 +710,7 @@ void CvGame::InitPlayers()
 			// Make sure the AI has the proper handicap.
 			if(CvPreGame::slotStatus((PlayerTypes)iI) == SS_COMPUTER)
 			{
-				CvPreGame::setHandicap((PlayerTypes)iI, (HandicapTypes)GC.getAI_HANDICAP());
+				CvPreGame::setHandicap((PlayerTypes)iI, (HandicapTypes)GD_INT_GET(AI_HANDICAP));
 			}
 		}
 		// Minor civs
@@ -734,9 +729,9 @@ void CvGame::InitPlayers()
 				{
 					CvPreGame::setSlotStatus(eMinorPlayer, SS_COMPUTER);
 					CvPreGame::setNetID(eMinorPlayer, -1);
-					CvPreGame::setHandicap(eMinorPlayer, (HandicapTypes)GC.getMINOR_CIV_HANDICAP());
+					CvPreGame::setHandicap(eMinorPlayer, (HandicapTypes)GD_INT_GET(MINOR_CIV_HANDICAP));
 					CvPreGame::setCivilization(eMinorPlayer, eMinorCiv);
-					CvPreGame::setLeaderHead(eMinorPlayer, (LeaderHeadTypes)GC.getBARBARIAN_LEADER());
+					CvPreGame::setLeaderHead(eMinorPlayer, (LeaderHeadTypes)GD_INT_GET(BARBARIAN_LEADER));
 					CvPreGame::setPlayerColor(eMinorPlayer, (PlayerColorTypes)pMinorCivInfo->getDefaultPlayerColor());
 					CvPreGame::setMinorCiv(eMinorPlayer, true);
 					CvPreGame::setMinorCivType(eMinorPlayer, (MinorCivTypes)pMinorCivInfo->GetID());
@@ -756,9 +751,9 @@ void CvGame::InitPlayers()
 				{
 					CvPreGame::setSlotStatus(eMinorPlayer, SS_CLOSED);
 					CvPreGame::setNetID(eMinorPlayer, -1);
-					CvPreGame::setHandicap(eMinorPlayer, (HandicapTypes)GC.getMINOR_CIV_HANDICAP());
+					CvPreGame::setHandicap(eMinorPlayer, (HandicapTypes)GD_INT_GET(MINOR_CIV_HANDICAP));
 					CvPreGame::setCivilization(eMinorPlayer, eMinorCiv);
-					CvPreGame::setLeaderHead(eMinorPlayer, (LeaderHeadTypes)GC.getBARBARIAN_LEADER());
+					CvPreGame::setLeaderHead(eMinorPlayer, (LeaderHeadTypes)GD_INT_GET(BARBARIAN_LEADER));
 					CvPreGame::setPlayerColor(eMinorPlayer, (PlayerColorTypes)pMinorCivInfo->getDefaultPlayerColor());
 					CvPreGame::setMinorCiv(eMinorPlayer, true);
 					CvPreGame::setMinorCivType(eMinorPlayer, (MinorCivTypes)pMinorCivInfo->GetID());
@@ -805,13 +800,13 @@ void CvGame::setInitialItems(CvGameInitialItemsOverrides& kInitialItemOverrides)
 
 	initFreeUnits(kInitialItemOverrides);
 
-	m_iEarliestBarbarianReleaseTurn = getHandicapInfo().getEarliestBarbarianReleaseTurn() + GC.getGame().getJonRandNum(GC.getAI_TACTICAL_BARBARIAN_RELEASE_VARIATION(), "barb release");
+	m_iEarliestBarbarianReleaseTurn = getHandicapInfo().getEarliestBarbarianReleaseTurn() + GC.getGame().getJonRandNum(/*15*/ GD_INT_GET(AI_TACTICAL_BARBARIAN_RELEASE_VARIATION), "barb release");
 
 	UpdateGameEra();
 	// What route type forms an industrial connection
 	DoUpdateIndustrialRoute();
 
-	bool bCanWorkWater = GC.getCAN_WORK_WATER_FROM_GAME_START()>0;
+	bool bCanWorkWater = /*1*/ GD_INT_GET(CAN_WORK_WATER_FROM_GAME_START)>0;
 
 	// Team Stuff
 	for (int iTeamLoop = 0; iTeamLoop < MAX_CIV_TEAMS; iTeamLoop++)
@@ -839,7 +834,7 @@ void CvGame::setInitialItems(CvGameInitialItemsOverrides& kInitialItemOverrides)
 				GET_PLAYER(ePlayer).GetDiplomacyAI()->DoInitializePersonality(true);
 
 				// Military skill rating
-				int iStartingMilitaryRating = (getStartEra() > 0) ? (1000 * getStartEra()) : 1000;
+				int iStartingMilitaryRating = (getStartEra() > 0) ? (/*1000*/ GD_INT_GET(MILITARY_RATING_STARTING_VALUE) * getStartEra()) : /*1000*/ GD_INT_GET(MILITARY_RATING_STARTING_VALUE);
 				GET_PLAYER(ePlayer).SetMilitaryRating(iStartingMilitaryRating);
 			}
 			// Minor Civ init
@@ -1257,8 +1252,8 @@ void CvGame::reset(HandicapTypes eHandicap, bool bConstructorCall)
 		m_ppaaiTeamVictoryRank.init();
 		for(CvEnumMap<VictoryTypes, TeamTypes*>::Iterator it = m_ppaaiTeamVictoryRank.begin(); it != m_ppaaiTeamVictoryRank.end(); ++it)
 		{
-			*it = FNEW(TeamTypes[GC.getNUM_VICTORY_POINT_AWARDS()], c_eCiv5GameplayDLL, 0);
-			for(int i = 0; i < GC.getNUM_VICTORY_POINT_AWARDS(); ++i)
+			*it = FNEW(TeamTypes[/*5*/ GD_INT_GET(NUM_VICTORY_POINT_AWARDS)], c_eCiv5GameplayDLL, 0);
+			for(int i = 0; i < /*5*/ GD_INT_GET(NUM_VICTORY_POINT_AWARDS); ++i)
 			{
 				(*it)[i] = NO_TEAM;
 			}
@@ -2951,11 +2946,7 @@ void CvGame::selectGroup(CvUnit* pUnit, bool bShift, bool bCtrl, bool bAlt)
 				if(pLoopUnit->canMove())
 				{
 					CvPlayerAI* pOwnerPlayer = &(GET_PLAYER(pLoopUnit->getOwner()));
-#if defined(MOD_BALANCE_CORE)
 					if( !pOwnerPlayer->isSimultaneousTurns() || getGameTurn() - pLoopUnit->getLastMoveTurn() >= 1)
-#else
-					if( !pOwnerPlayer->isSimultaneousTurns() || getTurnSlice() - pLoopUnit->getLastMoveTurn() > GC.getMIN_TIMER_UNIT_DOUBLE_MOVES())
-#endif
 					{
 						if(bAlt || (pLoopUnit->getUnitType() == pUnit->getUnitType()))
 						{
@@ -3229,8 +3220,8 @@ void CvGame::handleAction(int iAction)
 					CvPlot* pPlot = pkHeadSelectedUnit->plot();
 					if(pPlot != NULL)
 					{
-						ResourceTypes eArtifactResourceType = static_cast<ResourceTypes>(GC.getARTIFACT_RESOURCE());
-						ResourceTypes eHiddenArtifactResourceType = static_cast<ResourceTypes>(GC.getARTIFACT_RESOURCE());
+						ResourceTypes eArtifactResourceType = static_cast<ResourceTypes>(GD_INT_GET(ARTIFACT_RESOURCE));
+						ResourceTypes eHiddenArtifactResourceType = static_cast<ResourceTypes>(GD_INT_GET(ARTIFACT_RESOURCE));
 						if (pPlot->getResourceType() == eArtifactResourceType || pPlot->getResourceType() == eHiddenArtifactResourceType)
 						{
 							bShowConfirmPopup = true;
@@ -3498,11 +3489,7 @@ void CvGame::doControl(ControlTypes eControl)
 
 				if(pUnit->getOwner() == getActivePlayer())
 				{
-#if defined(MOD_BALANCE_CORE)
 					if(!GET_PLAYER(pUnit->getOwner()).isSimultaneousTurns() || getGameTurn() - pUnit->getLastMoveTurn() >= 1)
-#else
-					if(!GET_PLAYER(pUnit->getOwner()).isSimultaneousTurns() || getTurnSlice() - pUnit->getLastMoveTurn() > GC.getMIN_TIMER_UNIT_DOUBLE_MOVES())
-#endif
 					{
 						if(pUnit->IsHurt())
 						{
@@ -4261,7 +4248,7 @@ int CvGame::goldenAgeLength() const
 {
 	int iLength;
 
-	iLength = /*10*/ GC.getGOLDEN_AGE_LENGTH();
+	iLength = /*10*/ GD_INT_GET(GOLDEN_AGE_LENGTH);
 
 	iLength *= getGameSpeedInfo().getGoldenAgePercent();
 	iLength /= 100;
@@ -4386,9 +4373,7 @@ bool CvGame::canTrainNukes() const
 //	--------------------------------------------------------------------------------
 EraTypes CvGame::getCurrentEra() const
 {
-	{
-		return m_eGameEra;
-	}
+	return m_eGameEra;
 }
 
 void CvGame::UpdateGameEra()
@@ -5142,7 +5127,7 @@ void CvGame::initScoreCalculation()
 			iMaxFood += pPlot->calculateBestNatureYield(YIELD_FOOD, NO_PLAYER);
 		}
 	}
-	m_iMaxPopulation = getPopulationScore(iMaxFood / std::max(1, GC.getFOOD_CONSUMPTION_PER_POPULATION()));
+	m_iMaxPopulation = getPopulationScore(iMaxFood / std::max(1, /*2*/ GD_INT_GET(FOOD_CONSUMPTION_PER_POPULATION)));
 	if(NO_ERA != getStartEra())
 	{
 		const CvEraInfo& kStartEra = getStartEraInfo();
@@ -5501,12 +5486,12 @@ void CvGame::DoUpdateDiploVictory()
 	// Number of delegates needed to win increases the more civs and city-states there are in the game,
 	// but these two scale differently since civs' delegates are harder to secure. These functions 
 	// are based on a logarithmic regression.
-	float fCivVotesPortion = (GC.getDIPLO_VICTORY_CIV_DELEGATES_COEFFICIENT() * (float)log(fCivsToCount)) + GC.getDIPLO_VICTORY_CIV_DELEGATES_CONSTANT();
+	float fCivVotesPortion = (/*1.443f*/ GD_FLOAT_GET(DIPLO_VICTORY_CIV_DELEGATES_COEFFICIENT) * (float)log(fCivsToCount)) + /*7.000f*/ GD_FLOAT_GET(DIPLO_VICTORY_CIV_DELEGATES_CONSTANT);
 	if (fCivVotesPortion < 0.0f)
 	{
 		fCivVotesPortion = 0.0f;
 	}
-	float fCityStateVotesPortion = (GC.getDIPLO_VICTORY_CS_DELEGATES_COEFFICIENT() * (float)log(fCityStatesToCount)) + GC.getDIPLO_VICTORY_CS_DELEGATES_CONSTANT();
+	float fCityStateVotesPortion = (/*16.023f*/ GD_FLOAT_GET(DIPLO_VICTORY_CS_DELEGATES_COEFFICIENT) * (float)log(fCityStatesToCount)) + /*-13.758f*/ GD_FLOAT_GET(DIPLO_VICTORY_CS_DELEGATES_CONSTANT);
 	if (fCityStateVotesPortion < 0.0f)
 	{
 		fCityStateVotesPortion = 0.0f;
@@ -6179,7 +6164,7 @@ void CvGame::setPausePlayer(PlayerTypes eNewValue)
 //	-----------------------------------------------------------------------------------------------
 int CvGame::GetDefaultFlavorValue() const
 {
-	int iDefaultFlavorValue = /*5*/ GC.getDEFAULT_FLAVOR_VALUE();
+	int iDefaultFlavorValue = /*5*/ GD_INT_GET(DEFAULT_FLAVOR_VALUE);
 
 	// Error handling to prevent out of bounds values
 	if (iDefaultFlavorValue < 1 || iDefaultFlavorValue > 20)
@@ -6262,7 +6247,7 @@ int CvGame::ComputeAverageMajorMilitaryRating(PlayerTypes ePerceivingPlayer, Pla
 /// Disable Victory Competition
 bool CvGame::IsVictoryCompetitionEnabled() const
 {
-	if (GC.getDIPLOAI_DISABLE_VICTORY_COMPETITION() > 0)
+	if (GD_INT_GET(DIPLOAI_DISABLE_VICTORY_COMPETITION) > 0)
 	{
 		return false;
 	}
@@ -6279,7 +6264,7 @@ bool CvGame::IsVictoryCompetitionEnabled() const
 /// Disable Endgame Aggression Boost
 bool CvGame::IsEndgameAggressionEnabled() const
 {
-	if (GC.getDIPLOAI_DISABLE_ENDGAME_AGGRESSION() > 0)
+	if (GD_INT_GET(DIPLOAI_DISABLE_ENDGAME_AGGRESSION) > 0)
 	{
 		return false;
 	}
@@ -6307,7 +6292,7 @@ bool CvGame::IsNuclearGandhiEnabled() const
 		return false;
 	}
 
-	if (GC.getDIPLOAI_ENABLE_NUCLEAR_GANDHI() > 0)
+	if (GD_INT_GET(DIPLOAI_ENABLE_NUCLEAR_GANDHI) > 0)
 	{
 		return true;
 	}
@@ -6319,7 +6304,7 @@ bool CvGame::IsNuclearGandhiEnabled() const
 /// NOTE: Does not affect coop war requests.
 bool CvGame::IsAllWarBribesDisabled() const
 {
-	if (GC.getDIPLOAI_DISABLE_WAR_BRIBES() == 2)
+	if (GD_INT_GET(DIPLOAI_DISABLE_WAR_BRIBES) == 2)
 	{
 		return true;
 	}
@@ -6329,7 +6314,7 @@ bool CvGame::IsAllWarBribesDisabled() const
 
 bool CvGame::IsAIWarBribesDisabled() const
 {
-	if (GC.getDIPLOAI_DISABLE_WAR_BRIBES() > 0)
+	if (GD_INT_GET(DIPLOAI_DISABLE_WAR_BRIBES) > 0)
 	{
 		return true;
 	}
@@ -6340,7 +6325,7 @@ bool CvGame::IsAIWarBribesDisabled() const
 /// Disable City Trading
 bool CvGame::IsAICityTradingHumanOnly() const
 {
-	if (GC.getDIPLOAI_DISABLE_CITY_TRADING() == 1)
+	if (GD_INT_GET(DIPLOAI_DISABLE_CITY_TRADING) == 1)
 	{
 		return true;
 	}
@@ -6350,7 +6335,7 @@ bool CvGame::IsAICityTradingHumanOnly() const
 
 bool CvGame::IsAICityTradingDisabled() const
 {
-	if (GC.getDIPLOAI_DISABLE_CITY_TRADING() >= 2)
+	if (GD_INT_GET(DIPLOAI_DISABLE_CITY_TRADING) >= 2)
 	{
 		return true;
 	}
@@ -6360,7 +6345,7 @@ bool CvGame::IsAICityTradingDisabled() const
 
 bool CvGame::IsAllCityTradingDisabled() const
 {
-	if (GC.getDIPLOAI_DISABLE_CITY_TRADING() >= 3)
+	if (GD_INT_GET(DIPLOAI_DISABLE_CITY_TRADING) >= 3)
 	{
 		return true;
 	}
@@ -6372,7 +6357,7 @@ bool CvGame::IsAllCityTradingDisabled() const
 /// Only affects human players, and only applies to insulting messages sent by the AI on their turn.
 bool CvGame::IsInsultMessagesDisabled() const
 {
-	if (GC.getDIPLOAI_DISABLE_INSULT_MESSAGES() > 0)
+	if (GD_INT_GET(DIPLOAI_DISABLE_INSULT_MESSAGES) > 0)
 	{
 		return true;
 	}
@@ -6384,7 +6369,7 @@ bool CvGame::IsInsultMessagesDisabled() const
 /// Only affects human players, and only applies to friendly messages sent by the AI on their turn.
 bool CvGame::IsComplimentMessagesDisabled() const
 {
-	if (GC.getDIPLOAI_DISABLE_COMPLIMENT_MESSAGES() > 0)
+	if (GD_INT_GET(DIPLOAI_DISABLE_COMPLIMENT_MESSAGES) > 0)
 	{
 		return true;
 	}
@@ -6397,7 +6382,7 @@ bool CvGame::IsComplimentMessagesDisabled() const
 /// Does not prevent displaying a false Approach or Approach hint (i.e. "They desire friendly relations with our empire.")
 bool CvGame::IsNoFakeOpinionModifiers() const
 {
-	if (GC.getDIPLOAI_NO_FAKE_OPINION_MODIFIERS() > 0)
+	if (GD_INT_GET(DIPLOAI_NO_FAKE_OPINION_MODIFIERS) > 0)
 	{
 		return true;
 	}
@@ -6409,7 +6394,7 @@ bool CvGame::IsNoFakeOpinionModifiers() const
 /// This controls whether the AI should always display its full list of Opinion modifiers, even when it is FRIENDLY or otherwise might want to hide something.
 bool CvGame::IsShowHiddenOpinionModifiers() const
 {
-	if (GC.getDIPLOAI_SHOW_HIDDEN_OPINION_MODIFIERS() > 0)
+	if (GD_INT_GET(DIPLOAI_SHOW_HIDDEN_OPINION_MODIFIERS) > 0)
 	{
 		return true;
 	}
@@ -6419,12 +6404,10 @@ bool CvGame::IsShowHiddenOpinionModifiers() const
 		return true;
 	}
 
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	if (MOD_DIPLOMACY_CIV4_FEATURES && isOption(GAMEOPTION_ADVANCED_DIPLOMACY))
 	{
 		return true;
 	}
-#endif
 
 	return false;
 }
@@ -6433,7 +6416,7 @@ bool CvGame::IsShowHiddenOpinionModifiers() const
 /// This controls whether the AI should display the number value of each Opinion modifier in its table of modifiers.
 bool CvGame::IsShowAllOpinionValues() const
 {
-	if (GC.getDIPLOAI_SHOW_ALL_OPINION_VALUES() > 0)
+	if (GD_INT_GET(DIPLOAI_SHOW_ALL_OPINION_VALUES) > 0)
 	{
 		return true;
 	}
@@ -6443,12 +6426,10 @@ bool CvGame::IsShowAllOpinionValues() const
 		return true;
 	}
 
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	if (MOD_DIPLOMACY_CIV4_FEATURES && isOption(GAMEOPTION_ADVANCED_DIPLOMACY))
 	{
 		return true;
 	}
-#endif
 
 	return false;
 }
@@ -6457,7 +6438,7 @@ bool CvGame::IsShowAllOpinionValues() const
 /// CvDiplomacyAI::GetBaseOpinionScore()
 bool CvGame::IsShowBaseHumanOpinion() const
 {
-	if (GC.getDIPLOAI_SHOW_BASE_HUMAN_OPINION() > 0)
+	if (GD_INT_GET(DIPLOAI_SHOW_BASE_HUMAN_OPINION) > 0)
 	{
 		return true;
 	}
@@ -6479,7 +6460,7 @@ bool CvGame::IsHideOpinionTable() const
 		return false;
 	}
 
-	if (GC.getDIPLOAI_HIDE_OPINION_TABLE() > 0)
+	if (GD_INT_GET(DIPLOAI_HIDE_OPINION_TABLE) > 0)
 	{
 		return true;
 	}
@@ -6490,7 +6471,7 @@ bool CvGame::IsHideOpinionTable() const
 /// Enable Lump Sum Gold Trading
 bool CvGame::IsLumpGoldTradingHumanOnly() const
 {
-	if (GC.getDIPLOAI_ENABLE_LUMP_GOLD_TRADES() == 1)
+	if (GD_INT_GET(DIPLOAI_ENABLE_LUMP_GOLD_TRADES) == 1)
 	{
 		return true;
 	}
@@ -6500,7 +6481,7 @@ bool CvGame::IsLumpGoldTradingHumanOnly() const
 
 bool CvGame::IsLumpGoldTradingEnabled() const
 {
-	if (GC.getDIPLOAI_ENABLE_LUMP_GOLD_TRADES() > 1)
+	if (GD_INT_GET(DIPLOAI_ENABLE_LUMP_GOLD_TRADES) > 1)
 	{
 		return true;
 	}
@@ -6512,7 +6493,7 @@ bool CvGame::IsLumpGoldTradingEnabled() const
 /// Only affects human players, and only affects requests sent by the AI on their turn.
 bool CvGame::IsFriendshipRequestsDisabled() const
 {
-	if (GC.getDIPLOAI_DISABLE_FRIENDSHIP_REQUESTS() > 0)
+	if (GD_INT_GET(DIPLOAI_DISABLE_FRIENDSHIP_REQUESTS) > 0)
 	{
 		return true;
 	}
@@ -6524,7 +6505,7 @@ bool CvGame::IsFriendshipRequestsDisabled() const
 /// Only affects human players, and only affects gift offers sent by the AI on their turn.
 bool CvGame::IsGiftOffersDisabled() const
 {
-	if (GC.getDIPLOAI_DISABLE_GIFT_OFFERS() > 0)
+	if (GD_INT_GET(DIPLOAI_DISABLE_GIFT_OFFERS) > 0)
 	{
 		return true;
 	}
@@ -6536,7 +6517,7 @@ bool CvGame::IsGiftOffersDisabled() const
 /// Only affects human players, and only affects coop war requests sent by the AI on their turn.
 bool CvGame::IsCoopWarRequestsDisabled() const
 {
-	if (GC.getDIPLOAI_DISABLE_COOP_WAR_REQUESTS() > 0)
+	if (GD_INT_GET(DIPLOAI_DISABLE_COOP_WAR_REQUESTS) > 0)
 	{
 		return true;
 	}
@@ -6548,7 +6529,7 @@ bool CvGame::IsCoopWarRequestsDisabled() const
 /// Only affects human players, and only affects help requests sent by the AI on their own turn.
 bool CvGame::IsHelpRequestsDisabled() const
 {
-	if (GC.getDIPLOAI_DISABLE_HELP_REQUESTS() > 0)
+	if (GD_INT_GET(DIPLOAI_DISABLE_HELP_REQUESTS) > 0)
 	{
 		return true;
 	}
@@ -6562,14 +6543,14 @@ bool CvGame::IsTradeOffersDisabled(bool bIncludeRenewals) const
 {
 	if (bIncludeRenewals)
 	{
-		if (GC.getDIPLOAI_DISABLE_TRADE_OFFERS() > 1)
+		if (GD_INT_GET(DIPLOAI_DISABLE_TRADE_OFFERS) > 1)
 		{
 			return true;
 		}
 	}
 	else
 	{
-		if (GC.getDIPLOAI_DISABLE_TRADE_OFFERS() > 0)
+		if (GD_INT_GET(DIPLOAI_DISABLE_TRADE_OFFERS) > 0)
 		{
 			return true;
 		}
@@ -6582,7 +6563,7 @@ bool CvGame::IsTradeOffersDisabled(bool bIncludeRenewals) const
 /// Only affects human players, and only affects peace offers sent by the AI on their turn.
 bool CvGame::IsPeaceOffersDisabled() const
 {
-	if (GC.getDIPLOAI_DISABLE_PEACE_OFFERS() > 0)
+	if (GD_INT_GET(DIPLOAI_DISABLE_PEACE_OFFERS) > 0)
 	{
 		return true;
 	}
@@ -6594,7 +6575,7 @@ bool CvGame::IsPeaceOffersDisabled() const
 /// Only affects human players, and only affects demands sent by the AI on their turn.
 bool CvGame::IsDemandsDisabled() const
 {
-	if (GC.getDIPLOAI_DISABLE_DEMANDS() > 0)
+	if (GD_INT_GET(DIPLOAI_DISABLE_DEMANDS) > 0)
 	{
 		return true;
 	}
@@ -6606,7 +6587,7 @@ bool CvGame::IsDemandsDisabled() const
 /// Only affects human players, and only affects independence requests sent by the AI on their turn.
 bool CvGame::IsIndependenceRequestsDisabled() const
 {
-	if (GC.getDIPLOAI_DISABLE_INDEPENDENCE_REQUESTS() > 0)
+	if (GD_INT_GET(DIPLOAI_DISABLE_INDEPENDENCE_REQUESTS) > 0)
 	{
 		return true;
 	}
@@ -6618,7 +6599,7 @@ bool CvGame::IsIndependenceRequestsDisabled() const
 /// Only affects human players. Affects statements sent by the AI on their turn as well as popup messages (e.g. from returning civilians or stealing territory).
 bool CvGame::IsAllDiploStatementsDisabled() const
 {
-	if (GC.getDIPLOAI_DISABLE_ALL_STATEMENTS() > 0)
+	if (GD_INT_GET(DIPLOAI_DISABLE_ALL_STATEMENTS) > 0)
 	{
 		return true;
 	}
@@ -6629,7 +6610,7 @@ bool CvGame::IsAllDiploStatementsDisabled() const
 /// Passive Mode (towards all players)
 bool CvGame::IsAIPassiveMode() const
 {
-	if (GC.getDIPLOAI_PASSIVE_MODE() == 2)
+	if (GD_INT_GET(DIPLOAI_PASSIVE_MODE) == 2)
 	{
 		return true;
 	}
@@ -6645,7 +6626,7 @@ bool CvGame::IsAIPassiveMode() const
 /// Passive Mode (towards humans)
 bool CvGame::IsAIPassiveTowardsHumans() const
 {
-	if (GC.getDIPLOAI_PASSIVE_MODE() > 0)
+	if (GD_INT_GET(DIPLOAI_PASSIVE_MODE) > 0)
 	{
 		return true;
 	}
@@ -6699,7 +6680,6 @@ bool CvGame::CanPlayerAttemptDominationVictory(PlayerTypes ePlayer, PlayerTypes 
 					{
 						return false;
 					}
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 					if (MOD_DIPLOMACY_CIV4_FEATURES)
 					{
 						if (GET_TEAM(GET_PLAYER(eCapitalOwner).getTeam()).IsVassal(GET_PLAYER(eMakePeacePlayer).getTeam()))
@@ -6711,7 +6691,6 @@ bool CvGame::CanPlayerAttemptDominationVictory(PlayerTypes ePlayer, PlayerTypes 
 							return false;
 						}
 					}
-#endif
 				}
 			}
 		}
@@ -6753,7 +6732,6 @@ bool CvGame::CanPlayerAttemptDominationVictory(PlayerTypes ePlayer, PlayerTypes 
 					{
 						return false;
 					}
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 					if (MOD_DIPLOMACY_CIV4_FEATURES)
 					{
 						if (GET_TEAM(GET_PLAYER(eCapitalOwner).getTeam()).IsVassal(GET_PLAYER(eMakePeacePlayer).getTeam()))
@@ -6765,7 +6743,6 @@ bool CvGame::CanPlayerAttemptDominationVictory(PlayerTypes ePlayer, PlayerTypes 
 							return false;
 						}
 					}
-#endif
 				}
 			}
 		}
@@ -6791,12 +6768,12 @@ bool CvGame::IsAIAggressiveMode() const
 		return false;
 	}
 
-	if (GC.getDIPLOAI_AGGRESSIVE_MODE() == 2)
+	if (GD_INT_GET(DIPLOAI_AGGRESSIVE_MODE) == 2)
 	{
 		return true;
 	}
 
-	if (GC.getDIPLOAI_DISABLE_DOMINATION_ONLY_AGGRESSION() > 0)
+	if (GD_INT_GET(DIPLOAI_DISABLE_DOMINATION_ONLY_AGGRESSION) > 0)
 	{
 		return false;
 	}
@@ -6826,7 +6803,7 @@ bool CvGame::IsAIAggressiveTowardsHumans() const
 		return true;
 	}
 
-	if (GC.getDIPLOAI_AGGRESSIVE_MODE() > 0)
+	if (GD_INT_GET(DIPLOAI_AGGRESSIVE_MODE) > 0)
 	{
 		return true;
 	}
@@ -6838,7 +6815,7 @@ bool CvGame::IsAIAggressiveTowardsHumans() const
 /// Enables the debug mode
 bool CvGame::IsDiploDebugModeEnabled() const
 {
-	if (GC.getDIPLOAI_ENABLE_DEBUG_MODE() > 0)
+	if (GD_INT_GET(DIPLOAI_ENABLE_DEBUG_MODE) > 0)
 	{
 		return true;
 	}
@@ -6849,7 +6826,7 @@ bool CvGame::IsDiploDebugModeEnabled() const
 /// Forces the AI to accept all Discuss requests from human players
 bool CvGame::IsAIMustAcceptHumanDiscussRequests() const
 {
-	if (GC.getDIPLOAI_ENABLE_DEBUG_MODE() == 2)
+	if (GD_INT_GET(DIPLOAI_ENABLE_DEBUG_MODE) == 2)
 	{
 		return true;
 	}
@@ -7737,7 +7714,7 @@ void CvGame::setWinner(TeamTypes eNewWinner, VictoryTypes eNewVictory)
 // Check last slot to see if there is still a Victory slot open
 bool CvGame::isVictoryAvailable(VictoryTypes eVictory) const
 {
-	if(getTeamVictoryRank(eVictory, GC.getNUM_VICTORY_POINT_AWARDS() - 1) == NO_TEAM)
+	if(getTeamVictoryRank(eVictory, /*5*/ GD_INT_GET(NUM_VICTORY_POINT_AWARDS) - 1) == NO_TEAM)
 	{
 		return true;
 	}
@@ -7749,7 +7726,7 @@ bool CvGame::isVictoryAvailable(VictoryTypes eVictory) const
 /// What's the next victory slot available to be won?
 int CvGame::GetNextAvailableVictoryCompetitionRank(VictoryTypes eVictory) const
 {
-	for(int iRankLoop = 0; iRankLoop < GC.getNUM_VICTORY_POINT_AWARDS(); iRankLoop++)
+	for(int iRankLoop = 0; iRankLoop < /*5*/ GD_INT_GET(NUM_VICTORY_POINT_AWARDS); iRankLoop++)
 	{
 		if(getTeamVictoryRank(eVictory, iRankLoop) == NO_TEAM)
 		{
@@ -7774,7 +7751,7 @@ void CvGame::DoPlaceTeamInVictoryCompetition(VictoryTypes eNewVictory, TeamTypes
 		CvTeam& kTeam = GET_TEAM(eTeam);
 
 		// Loop through and find first available slot
-		for(int iSlotLoop = 0; iSlotLoop < GC.getNUM_VICTORY_POINT_AWARDS(); iSlotLoop++)
+		for(int iSlotLoop = 0; iSlotLoop < /*5*/ GD_INT_GET(NUM_VICTORY_POINT_AWARDS); iSlotLoop++)
 		{
 			if(getTeamVictoryRank(eNewVictory, iSlotLoop) == NO_TEAM)
 			{
@@ -7840,7 +7817,7 @@ void CvGame::DoPlaceTeamInVictoryCompetition(VictoryTypes eNewVictory, TeamTypes
 TeamTypes CvGame::getTeamVictoryRank(VictoryTypes eNewVictory, int iRank) const
 {
 	CvAssert(iRank >= 0);
-	CvAssert(iRank < GC.getNUM_VICTORY_POINT_AWARDS());
+	CvAssert(iRank < /*5*/ GD_INT_GET(NUM_VICTORY_POINT_AWARDS));
 
 	return m_ppaaiTeamVictoryRank[eNewVictory][iRank];
 }
@@ -7850,7 +7827,7 @@ TeamTypes CvGame::getTeamVictoryRank(VictoryTypes eNewVictory, int iRank) const
 void CvGame::setTeamVictoryRank(VictoryTypes eNewVictory, int iRank, TeamTypes eTeam)
 {
 	CvAssert(iRank >= 0);
-	CvAssert(iRank < GC.getNUM_VICTORY_POINT_AWARDS());
+	CvAssert(iRank < /*5*/ GD_INT_GET(NUM_VICTORY_POINT_AWARDS));
 
 	m_ppaaiTeamVictoryRank[eNewVictory][iRank] = eTeam;
 }
@@ -8013,7 +7990,7 @@ int CvGame::GetResearchLeftToTech(TeamTypes eTeam, TechTypes eTech)
 	int iPrereqTechCost = 0;
 	TechTypes ePreReq;
 
-	for(int i = 0; i < GC.getNUM_AND_TECH_PREREQS(); i++)
+	for(int i = 0; i < /*6*/ GD_INT_GET(NUM_AND_TECH_PREREQS); i++)
 	{
 		ePreReq = (TechTypes) pkTechInfo->GetPrereqAndTechs(i);
 
@@ -8739,12 +8716,7 @@ void CvGame::doTurn()
 #if defined(MOD_BALANCE_CORE_SPIES)
 	SetHighestSpyPotential();
 #endif
-#if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
-	if(MOD_DIPLOMACY_CITYSTATES_QUESTS)
-	{
-		DoBarbCountdown();
-	}
-#endif
+	DoBarbCountdown();
 	GC.GetEngineUserInterface()->setCanEndTurn(false);
 	GC.GetEngineUserInterface()->setHasMovedUnit(false);
 
@@ -8874,7 +8846,7 @@ void CvGame::doTurn()
 		// Don't show this stuff in MP
 		if(!isReallyNetworkMultiPlayer() && !isPbem() && !isHotSeat())
 		{
-			int iTurnFrequency = /*25*/ GC.getPROGRESS_POPUP_TURN_FREQUENCY();
+			int iTurnFrequency = /*25*/ GD_INT_GET(PROGRESS_POPUP_TURN_FREQUENCY);
 
 			// This isn't exactly appropriate, but it'll do
 			iTurnFrequency *= getGameSpeedInfo().getTrainPercent();
@@ -8899,7 +8871,7 @@ void CvGame::doTurn()
 //	--------------------------------------------------------------------------------
 ImprovementTypes CvGame::GetBarbarianCampImprovementType()
 {
-	return (ImprovementTypes)GC.getBARBARIAN_CAMP_IMPROVEMENT();
+	return (ImprovementTypes)GD_INT_GET(BARBARIAN_CAMP_IMPROVEMENT);
 }
 
 int CvGame::GetBarbarianReleaseTurn() const
@@ -9211,7 +9183,7 @@ UnitTypes CvGame::GetCompetitiveSpawnUnitType(PlayerTypes ePlayer, bool bInclude
 
 	// Choose from weighted unit types
 	veUnitRankings.SortItems();
-	int iNumChoices = GC.getUNIT_SPAWN_NUM_CHOICES();
+	int iNumChoices = /*5*/ GD_INT_GET(UNIT_SPAWN_NUM_CHOICES);
 	RandomNumberDelegate randFn = MakeDelegate(&GC.getGame(), &CvGame::getJonRandNum);
 	UnitTypes eChosenUnit = veUnitRankings.ChooseFromTopChoices(iNumChoices, &randFn, "Choosing competitive unit from top choices");
 
@@ -9271,7 +9243,7 @@ UnitTypes CvGame::GetCsGiftSpawnUnitType(PlayerTypes ePlayer, bool bIncludeShips
 	}
 
 	// Choose from weighted unit types
-	return PseudoRandomChoiceByWeight(veUnitRankings, NO_UNIT, GC.getUNIT_SPAWN_NUM_CHOICES(), kPlayer.getNumUnits() + kPlayer.GetTreasury()->GetLifetimeGrossGold());
+	return PseudoRandomChoiceByWeight(veUnitRankings, NO_UNIT, /*5*/ GD_INT_GET(UNIT_SPAWN_NUM_CHOICES), kPlayer.getNumUnits() + kPlayer.GetTreasury()->GetLifetimeGrossGold());
 }
 #endif
 #if defined(MOD_BALANCE_CORE)
@@ -9747,7 +9719,7 @@ UnitTypes CvGame::GetRandomUniqueUnitType(bool bIncludeCivsInGame, bool bInclude
 	}
 
 
-	return PseudoRandomChoiceByWeight(veUnitRankings, NO_UNIT, GC.getUNIT_SPAWN_NUM_CHOICES(), iRandomSeed);
+	return PseudoRandomChoiceByWeight(veUnitRankings, NO_UNIT, /*5*/ GD_INT_GET(UNIT_SPAWN_NUM_CHOICES), iRandomSeed);
 }
 
 //	--------------------------------------------------------------------------------
@@ -10176,7 +10148,7 @@ bool CvGame::testVictory(VictoryTypes eVictory, TeamTypes eTeam, bool* pbEndScor
 	}
 
 	// Can't end the game unless a certain number of turns has already passed (ignore this on Debug Micro Map because it's only for testing)
-	if(getElapsedGameTurns() <= /*10*/ GC.getMIN_GAME_TURNS_ELAPSED_TO_TEST_VICTORY() && (GC.getMap().getWorldSize() != WORLDSIZE_DEBUG))
+	if(getElapsedGameTurns() <= /*10*/ GD_INT_GET(MIN_GAME_TURNS_ELAPSED_TO_TEST_VICTORY) && (GC.getMap().getWorldSize() != WORLDSIZE_DEBUG))
 	{
 		return false;
 	}
@@ -11490,9 +11462,9 @@ void CvGame::updateGlobalAverage()
 	}
 	
 	//Select n-th percentile of each category
-	size_t n = (vfCultureYield.size() * GC.getBALANCE_HAPPINESS_THRESHOLD_PERCENTILE()) / 100;
+	size_t n = (vfCultureYield.size() * /*50 in CP, 55 in CBO*/ GD_INT_GET(BALANCE_HAPPINESS_THRESHOLD_PERCENTILE)) / 100;
 	
-	size_t nt = (viTechMedian.size() * GC.getBALANCE_HAPPINESS_THRESHOLD_PERCENTILE()) / 100;
+	size_t nt = (viTechMedian.size() * /*50 in CP, 55 in CBO*/ GD_INT_GET(BALANCE_HAPPINESS_THRESHOLD_PERCENTILE)) / 100;
 
 	//Find it ...
 	std::nth_element(vfCultureYield.begin(), vfCultureYield.begin()+n, vfCultureYield.end());
@@ -11629,8 +11601,8 @@ void CvGame::SetHighestSpyPotential()
 					int iResistance = kLoopPlayer.GetEspionage()->GetSpyResistance(pLoopCity);
 
 					//are we better than 'average?'
-					int iDelta = iResistance - GC.getESPIONAGE_GATHERING_INTEL_COST_PERCENT();
-					iDelta /= GC.getBALANCE_SPY_SABOTAGE_RATE();
+					int iDelta = iResistance - /*1000*/ GD_INT_GET(ESPIONAGE_GATHERING_INTEL_COST_PERCENT);
+					iDelta /= /*30*/ GD_INT_GET(BALANCE_SPY_SABOTAGE_RATE);
 					//is our resistance better than average? Increase spy rank! Otherwise, reduce it.
 					if (iDelta != 0)
 						pLoopCity->ChangeEspionageRanking(iDelta, iNumSpies > 0);
@@ -11688,66 +11660,35 @@ void CvGame::SetHighestSpyPotential()
 		}
 	}
 }
+#endif
 
 void CvGame::DoBarbCountdown()
 {
-	int iOtherMinorLoop;
-	PlayerTypes eOtherMinor;
-	TeamTypes eLoopTeam;
-	for(int iTeamLoop = 0; iTeamLoop < MAX_CIV_TEAMS; iTeamLoop++)
+	if (!MOD_DIPLOMACY_CITYSTATES_QUESTS)
+		return;
+
+	for (int iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
 	{
-		eLoopTeam = (TeamTypes) iTeamLoop;
+		PlayerTypes eMinor = (PlayerTypes) iMinorLoop;
 
-		// Another Minor
-		if(!GET_TEAM(eLoopTeam).isMinorCiv())
+		if (GET_PLAYER(eMinor).isAlive() || !GET_PLAYER(eMinor).isMinorCiv())
 			continue;
 
-		// They not alive!
-		if(!GET_TEAM(eLoopTeam).isAlive())
-			continue;
-
-		for(iOtherMinorLoop = 0; iOtherMinorLoop < MAX_CIV_TEAMS; iOtherMinorLoop++)
+		int iTurnsSinceRebellion = GET_PLAYER(eMinor).GetMinorCivAI()->GetTurnsSinceRebellion();
+		if (iTurnsSinceRebellion > 0)
 		{
-			eOtherMinor = (PlayerTypes) iOtherMinorLoop;
+			GET_PLAYER(eMinor).GetMinorCivAI()->ChangeTurnsSinceRebellion(-1);
+			bool bSpawnRebels = (iTurnsSinceRebellion > 1) && (iTurnsSinceRebellion % 4 == 0); // Spawn rebels once every 4 turns
 
-			if(eOtherMinor == NO_PLAYER)
-				continue;
-
-			// Other minor is on this team
-			if(GET_PLAYER(eOtherMinor).getTeam() == eLoopTeam)
+			if (bSpawnRebels)
 			{
-				if(GET_PLAYER(eOtherMinor).GetMinorCivAI()->GetTurnsSinceRebellion() > 0)
-				{
-					int iRebellionSpawn = GET_PLAYER(eOtherMinor).GetMinorCivAI()->GetTurnsSinceRebellion();
-
-					GET_PLAYER(eOtherMinor).GetMinorCivAI()->ChangeTurnsSinceRebellion(-1);
-
-					//Rebel Spawn - once every 4 turns
-					if (iRebellionSpawn == /*20*/(GC.getMINOR_QUEST_REBELLION_TIMER() * 100) / 100)
-					{
-						GET_PLAYER(eOtherMinor).GetMinorCivAI()->DoRebellion();
-					}
-					else if(iRebellionSpawn == /*16*/(GC.getMINOR_QUEST_REBELLION_TIMER() * 80) / 100)
-					{
-						GET_PLAYER(eOtherMinor).GetMinorCivAI()->DoRebellion();
-					}
-					else if(iRebellionSpawn == /*12*/(GC.getMINOR_QUEST_REBELLION_TIMER() * 60) / 100)
-					{
-						GET_PLAYER(eOtherMinor).GetMinorCivAI()->DoRebellion();
-					}
-					else if(iRebellionSpawn == /*8*/ (GC.getMINOR_QUEST_REBELLION_TIMER() * 40) / 100)
-					{
-						GET_PLAYER(eOtherMinor).GetMinorCivAI()->DoRebellion();
-					}
-					else if(iRebellionSpawn == /*4*/ (GC.getMINOR_QUEST_REBELLION_TIMER() * 20) / 100)
-					{
-						GET_PLAYER(eOtherMinor).GetMinorCivAI()->DoRebellion();
-					}
-				}
+				GET_PLAYER(eMinor).GetMinorCivAI()->DoRebellion();
 			}
 		}
 	}
 }
+
+
 void CvGame::SetLastTurnCSAnnexed(int iValue)
 {
 	m_iLastTurnCSSurrendered = iValue;
@@ -11756,7 +11697,7 @@ int CvGame::GetLastTurnCSAnnexed()
 {
 	return m_iLastTurnCSSurrendered;
 }
-#endif
+
 //	--------------------------------------------------------------------------------
 const CvReplayMessage* CvGame::getReplayMessage(uint i) const
 {
@@ -11881,7 +11822,7 @@ void CvGame::Serialize(Game& game, Visitor& visitor)
 	visitor(game.m_pabSpecialUnitValid);
 	for (std::size_t i = 0; i < game.m_ppaaiTeamVictoryRank.size(); ++i)
 	{
-		for (int j = 0; j < GC.getNUM_VICTORY_POINT_AWARDS(); ++j)
+		for (int j = 0; j < /*5*/ GD_INT_GET(NUM_VICTORY_POINT_AWARDS); ++j)
 		{
 			visitor(game.m_ppaaiTeamVictoryRank[i][j]);
 		}
@@ -12166,7 +12107,7 @@ void CvGame::showEndGameSequence()
 void CvGame::addPlayer(PlayerTypes eNewPlayer, LeaderHeadTypes eLeader, CivilizationTypes eCiv)
 {
 	CvCivilizationInfo* pkCivilizationInfo = GC.getCivilizationInfo(eCiv);
-	CvCivilizationInfo* pkBarbarianCivInfo = GC.getCivilizationInfo(static_cast<CivilizationTypes>(GC.getBARBARIAN_CIVILIZATION()));
+	CvCivilizationInfo* pkBarbarianCivInfo = GC.getCivilizationInfo(static_cast<CivilizationTypes>(GD_INT_GET(BARBARIAN_CIVILIZATION)));
 
 	if(pkCivilizationInfo == NULL || pkBarbarianCivInfo == NULL)
 	{
@@ -12584,7 +12525,7 @@ CvAdvisorRecommender* CvGame::GetAdvisorRecommender()
 //	--------------------------------------------------------------------------------
 int CvGame::GetTurnsBetweenMinorCivElections()
 {
-	int iTurnsBetweenCityStateElections = GC.getESPIONAGE_TURNS_BETWEEN_CITY_STATE_ELECTIONS();
+	int iTurnsBetweenCityStateElections = /*15*/ GD_INT_GET(ESPIONAGE_TURNS_BETWEEN_CITY_STATE_ELECTIONS);
 	iTurnsBetweenCityStateElections *= GC.getGame().getGameSpeedInfo().getMinorCivElectionFreqMod();
 	iTurnsBetweenCityStateElections /= 100;
 	return iTurnsBetweenCityStateElections;
@@ -13037,7 +12978,7 @@ PlayerTypes CvGame::GetBestWondersPlayer()
 /// Set Player leading with Wonders
 void CvGame::SetBestWondersPlayer(PlayerTypes ePlayer, int iWonderCount)
 {
-	int iVictoryPointChange = /*5*/ GC.getZERO_SUM_COMPETITION_WONDERS_VICTORY_POINTS();
+	int iVictoryPointChange = /*5*/ GD_INT_GET(ZERO_SUM_COMPETITION_WONDERS_VICTORY_POINTS);
 
 	// Remove VPs from old player's team
 	if(GetBestWondersPlayer() != NO_PLAYER)
@@ -13099,7 +13040,7 @@ PlayerTypes CvGame::GetBestPoliciesPlayer()
 /// Set Player leading with Policies
 void CvGame::SetBestPoliciesPlayer(PlayerTypes ePlayer, int iPolicyCount)
 {
-	int iVictoryPointChange = /*5*/ GC.getZERO_SUM_COMPETITION_POLICIES_VICTORY_POINTS();
+	int iVictoryPointChange = /*5*/ GD_INT_GET(ZERO_SUM_COMPETITION_POLICIES_VICTORY_POINTS);
 
 	// Remove VPs from old player's team
 	if(GetBestPoliciesPlayer() != NO_PLAYER)
@@ -13161,7 +13102,7 @@ PlayerTypes CvGame::GetBestGreatPeoplePlayer()
 /// Set Player leading with GreatPeople
 void CvGame::SetBestGreatPeoplePlayer(PlayerTypes ePlayer, int iGreatPeopleCount)
 {
-	int iVictoryPointChange = /*5*/ GC.getZERO_SUM_COMPETITION_GREAT_PEOPLE_VICTORY_POINTS();
+	int iVictoryPointChange = /*5*/ GD_INT_GET(ZERO_SUM_COMPETITION_GREAT_PEOPLE_VICTORY_POINTS);
 
 	// Remove VPs from old player's team
 	if(GetBestGreatPeoplePlayer() != NO_PLAYER)
@@ -13805,7 +13746,7 @@ int CvGame::GetNumArchaeologySites() const
 	for (iPlotLoop = 0; iPlotLoop < GC.getMap().numPlots(); iPlotLoop++)
 	{
 		pPlot = GC.getMap().plotByIndexUnchecked(iPlotLoop);
-		if (pPlot->getResourceType() == GC.getARTIFACT_RESOURCE())
+		if (pPlot->getResourceType() == GD_INT_GET(ARTIFACT_RESOURCE))
 		{
 			iRtnValue++;
 		}
@@ -13826,7 +13767,7 @@ int CvGame::GetNumHiddenArchaeologySites() const
 	for (iPlotLoop = 0; iPlotLoop < GC.getMap().numPlots(); iPlotLoop++)
 	{
 		pPlot = GC.getMap().plotByIndexUnchecked(iPlotLoop);
-		if (pPlot->getResourceType() == GC.getHIDDEN_ARTIFACT_RESOURCE())
+		if (pPlot->getResourceType() == GD_INT_GET(HIDDEN_ARTIFACT_RESOURCE))
 		{
 			iRtnValue++;
 		}
@@ -13951,8 +13892,8 @@ void CvGame::SpawnArchaeologySitesHistorically()
 
 	// we should now have a map of the dig sites
 	// turn this map into set of RESOURCE_ARTIFACTS
-	const ResourceTypes eArtifactResourceType = static_cast<ResourceTypes>(GC.getARTIFACT_RESOURCE());
-	const ResourceTypes eHiddenArtifactResourceType = static_cast<ResourceTypes>(GC.getHIDDEN_ARTIFACT_RESOURCE());
+	const ResourceTypes eArtifactResourceType = static_cast<ResourceTypes>(GD_INT_GET(ARTIFACT_RESOURCE));
+	const ResourceTypes eHiddenArtifactResourceType = static_cast<ResourceTypes>(GD_INT_GET(HIDDEN_ARTIFACT_RESOURCE));
 
 	const size_t aRandomArtifactsCount = 7;
 	GreatWorkArtifactClass aRandomArtifacts[aRandomArtifactsCount] = { 
@@ -13967,8 +13908,8 @@ void CvGame::SpawnArchaeologySitesHistorically()
 
 	// find how many dig sites we need to create
 	const int iNumMajorCivs = countMajorCivsEverAlive();
-	const int iMinDigSites = GC.getMIN_DIG_SITES_PER_MAJOR_CIV() * iNumMajorCivs; //todo: parameterize this
-	const int iMaxDigSites = GC.getMAX_DIG_SITES_PER_MAJOR_CIV() * iNumMajorCivs; //todo: parameterize this
+	const int iMinDigSites = iNumMajorCivs * /*5*/ GD_INT_GET(MIN_DIG_SITES_PER_MAJOR_CIV); //todo: parameterize this
+	const int iMaxDigSites = iNumMajorCivs * /*8*/ GD_INT_GET(MAX_DIG_SITES_PER_MAJOR_CIV); //todo: parameterize this
 	const int iIdealNumDigSites = iMinDigSites + getJonRandNum(iMaxDigSites - iMinDigSites, "dig sites");
 
 	// find the highest era any player has gotten to
@@ -14083,8 +14024,8 @@ void CvGame::SpawnArchaeologySitesHistorically()
 		}
 	}
 
-	int iApproxNumHiddenSites = iIdealNumDigSites * GC.getPERCENT_SITES_HIDDEN() / 100;
-	int iNumDesiredWritingSites = iApproxNumHiddenSites * GC.getPERCENT_HIDDEN_SITES_WRITING() / 100;
+	int iApproxNumHiddenSites = iIdealNumDigSites * /*30*/ GD_INT_GET(PERCENT_SITES_HIDDEN) / 100;
+	int iNumDesiredWritingSites = iApproxNumHiddenSites * /*30*/ GD_INT_GET(PERCENT_HIDDEN_SITES_WRITING) / 100;
 	int iNumWritingSites = min((int)aWorksWriting.size(), iNumDesiredWritingSites);
 
 	// while we are not in the proper range of number of dig sites
@@ -14108,7 +14049,7 @@ void CvGame::SpawnArchaeologySitesHistorically()
 		CvPlot* pPlot = theMap.plotByIndexUnchecked(iBestSite);
 
 		// Hidden site?
-		bool bHiddenSite = GC.getGame().getSmallFakeRandNum(100, *pPlot)  < GC.getPERCENT_SITES_HIDDEN();
+		bool bHiddenSite = GC.getGame().getSmallFakeRandNum(100, *pPlot)  < /*30*/ GD_INT_GET(PERCENT_SITES_HIDDEN);
 		if (bHiddenSite)
 		{
 			pPlot->setResourceType(eHiddenArtifactResourceType, 1);

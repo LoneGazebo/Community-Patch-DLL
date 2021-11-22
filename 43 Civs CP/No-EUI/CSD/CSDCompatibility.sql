@@ -244,7 +244,6 @@ UPDATE Buildings SET NumCityCostMod = '10' WHERE Type = 'BUILDING_FINANCE_CENTER
 UPDATE Buildings SET NumCityCostMod = '10' WHERE Type = 'BUILDING_EHRENHALLE';
 
 -- Religious Authority (CSD)
-UPDATE Buildings SET FaithToVotes = '0' WHERE Type = 'BUILDING_GRAND_TEMPLE';
 UPDATE Buildings SET FaithToVotes = '10' WHERE Type = 'BUILDING_MAUSOLEUM';
 UPDATE Buildings SET FaithToVotes = '10' WHERE Type = 'BUILDING_HEAVENLY_THRONE';
 UPDATE Buildings SET FaithToVotes = '10' WHERE Type = 'BUILDING_GREAT_ALTAR';
@@ -254,4 +253,3 @@ UPDATE Buildings SET FaithToVotes = '10' WHERE Type = 'BUILDING_SACRED_GARDEN';
 UPDATE Buildings SET FaithToVotes = '10' WHERE Type = 'BUILDING_HOLY_COUNCIL';
 UPDATE Buildings SET FaithToVotes = '10' WHERE Type = 'BUILDING_GRAND_OSSUARY';
 UPDATE Buildings SET FaithToVotes = '10' WHERE Type = 'BUILDING_APOSTOLIC_PALACE';
-

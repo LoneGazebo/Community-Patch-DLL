@@ -8,7 +8,7 @@
 //	---------------------------------------------------------------------------
 int CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlot, const CvPlot* pToPlot, int iTerrainFeatureCostMultiplierFromPromotions, int iTerrainFeatureCostAdderFromPromotions)
 {
-	int iMoveDenominator = GC.getMOVE_DENOMINATOR();
+	int iMoveDenominator = GD_INT_GET(MOVE_DENOMINATOR);
 	int iRegularCost = iMoveDenominator;
 	int iRouteCost = INT_MAX; //assume no route
 
@@ -240,12 +240,12 @@ int CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlot
 			// Hill cost is hardcoded
 			if (pToPlot->isHills() || pToPlot->isMountain())
 			{
-				iRegularCost += GC.getHILLS_EXTRA_MOVEMENT();
+				iRegularCost += /*1*/ GD_INT_GET(HILLS_EXTRA_MOVEMENT);
 			}
 
 			if (bRiverCrossing && !bAmphibious)
 			{
-				iRegularCost += GC.getRIVER_EXTRA_MOVEMENT();
+				iRegularCost += /*10*/ GD_INT_GET(RIVER_EXTRA_MOVEMENT);
 			}
 		}
 
@@ -332,7 +332,7 @@ bool CvUnitMovement::IsSlowedByZOC(const CvUnit* pUnit, const CvPlot* pFromPlot,
 		return false;
 
 	// Zone of Control
-	if (GC.getZONE_OF_CONTROL_ENABLED() <= 0)
+	if (/*1*/ GD_INT_GET(ZONE_OF_CONTROL_ENABLED) <= 0)
 		return false;
 
 	TeamTypes eUnitTeam = pUnit->getTeam();
@@ -433,7 +433,7 @@ bool CvUnitMovement::IsSlowedByZOC(const CvUnit* pUnit, const CvPlot* pFromPlot,
 		return false;
 
 	// Zone of Control
-	if (GC.getZONE_OF_CONTROL_ENABLED() <= 0)
+	if (/*1*/ GD_INT_GET(ZONE_OF_CONTROL_ENABLED) <= 0)
 		return false;
 
 	TeamTypes eUnitTeam = pUnit->getTeam();
@@ -526,7 +526,7 @@ bool CvUnitMovement::IsSlowedByZOC(const CvUnit* pUnit, const CvPlot* pFromPlot,
 //base value is 60. so < 60 actually means easier movement
 int CvUnitMovement::GetMovementCostMultiplierFromPromotions(const CvUnit* pUnit, const CvPlot* pPlot)
 {
-	int iModifier = GC.getMOVE_DENOMINATOR();
+	int iModifier = GD_INT_GET(MOVE_DENOMINATOR);
 	TerrainTypes eToTerrain = pPlot->getTerrainType();
 	FeatureTypes eToFeature = pPlot->getFeatureType();
 
@@ -564,15 +564,15 @@ int CvUnitMovement::GetMovementCostAdderFromPromotions(const CvUnit* pUnit, cons
 
 	if (pPlot->isHills() && pUnit->isTerrainExtraMove(TERRAIN_HILL))
 	{
-		iModifier += (GC.getMOVE_DENOMINATOR() * pUnit->getTerrainExtraMoveCount(TERRAIN_HILL));
+		iModifier += (GD_INT_GET(MOVE_DENOMINATOR) * pUnit->getTerrainExtraMoveCount(TERRAIN_HILL));
 	}
 	else if (pUnit->isTerrainExtraMove(eToTerrain))
 	{
-		iModifier += (GC.getMOVE_DENOMINATOR() * pUnit->getTerrainExtraMoveCount(eToTerrain));
+		iModifier += (GD_INT_GET(MOVE_DENOMINATOR) * pUnit->getTerrainExtraMoveCount(eToTerrain));
 	}
 	else if (pUnit->isFeatureExtraMove(eToFeature))
 	{
-		iModifier += (GC.getMOVE_DENOMINATOR() * pUnit->getFeatureExtraMoveCount(eToFeature));
+		iModifier += (GD_INT_GET(MOVE_DENOMINATOR) * pUnit->getFeatureExtraMoveCount(eToFeature));
 	}
 
 	return iModifier;
