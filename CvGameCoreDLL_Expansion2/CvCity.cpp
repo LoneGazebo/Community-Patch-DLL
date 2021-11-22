@@ -610,25 +610,7 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 		{
 			CvPlot* pLoopPlot = plotXYWithRangeCheck(getX(), getY(), iDX, iDY, iRange);
 			if (pLoopPlot != NULL)
-			{
-				if (pLoopPlot->getOwner() == NO_PLAYER)
-				{
-					pLoopPlot->setOwner(getOwner(), m_iID, bBumpUnits);
-				}
-				else if (pLoopPlot->getOwner() != NO_PLAYER)
-				{
-					CvCity* pOwningCity = pLoopPlot->getEffectiveOwningCity();
-					if (pOwningCity != NULL)
-					{
-						//City already working this plot? Adjust features being worked as needed.
-						if (pOwningCity->GetCityCitizens()->IsWorkingPlot(pLoopPlot))
-						{
-							pOwningCity->GetCityCitizens()->SetWorkingPlot(pLoopPlot, false, CvCity::YIELD_UPDATE_GLOBAL);
-						}
-					}
-					pLoopPlot->setOwner(getOwner(), m_iID, bBumpUnits);
-				}
-			}
+				pLoopPlot->setOwner(getOwner(), m_iID, bBumpUnits);
 		}
 	}
 
@@ -7084,13 +7066,9 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 							for (int iJ = 0; iJ < pkEventChoiceInfo->getNumFreeUnits((UnitClassTypes)iI); iJ++)
 							{
 								UnitAITypes eUnitAI = pkUnitEntry->GetDefaultUnitAIType();
-								int iResult = CreateUnit(eLoopUnit, eUnitAI, REASON_GIFT);
-
-								CvAssertMsg(iResult != -1, "Unable to create unit");
-
-								if (iResult != -1)
+								CvUnit* pUnit = CreateUnit(eLoopUnit, eUnitAI, REASON_GIFT);
+								if (pUnit)
 								{
-									CvUnit* pUnit = GET_PLAYER(getOwner()).getUnit(iResult);
 									if (!pUnit->IsCivilianUnit() && !pUnit->jumpToNearestValidPlot())
 									{
 										pUnit->kill(false);	// Could not find a valid spot!
@@ -7119,13 +7097,9 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 					for (int iJ = 0; iJ < pkEventChoiceInfo->getNumFreeSpecificUnits((UnitTypes)iI); iJ++)
 					{
 						UnitAITypes eUnitAI = pkUnitEntry->GetDefaultUnitAIType();
-						int iResult = CreateUnit(eUnit, eUnitAI, REASON_GIFT);
-
-						CvAssertMsg(iResult != -1, "Unable to create unit");
-
-						if (iResult != -1)
+						CvUnit* pUnit = CreateUnit(eUnit, eUnitAI, REASON_GIFT);
+						if (pUnit)
 						{
-							CvUnit* pUnit = GET_PLAYER(getOwner()).getUnit(iResult);
 							if (!pUnit->IsCivilianUnit() && !pUnit->jumpToNearestValidPlot())
 							{
 								pUnit->kill(false);	// Could not find a valid spot!
@@ -16982,16 +16956,9 @@ void CvCity::CheckForOperationUnits()
 						{
 							//and train it!
 							UnitAITypes eUnitAI = pkUnitEntry->GetDefaultUnitAIType();
-							int iResult = CreateUnit(eBestUnit, eUnitAI, REASON_BUY, true);
-							CvAssertMsg(iResult != -1, "Unable to create unit");
-							if (iResult != -1)
+							CvUnit* pUnit = CreateUnit(eBestUnit, eUnitAI, REASON_BUY, true);
+							if (pUnit)
 							{
-								CvUnit* pUnit = GET_PLAYER(getOwner()).getUnit(iResult);
-								if (!pUnit->getUnitInfo().CanMoveAfterPurchase())
-								{
-									pUnit->finishMoves();
-								}
-
 								//assume the unit will be recruited automatically?
 								kPlayer.GetMilitaryAI()->ResetNumberOfTimesOpsBuildSkippedOver();
 
@@ -17105,15 +17072,9 @@ void CvCity::CheckForOperationUnits()
 				{
 					//and train it!
 					UnitAITypes eUnitAI = pkUnitEntry->GetDefaultUnitAIType();
-					int iResult = CreateUnit(eBestUnit, eUnitAI, REASON_BUY, false);
-					CvAssertMsg(iResult != -1, "Unable to create unit");
-					if (iResult != -1)
+					CvUnit* pUnit = CreateUnit(eBestUnit, eUnitAI, REASON_BUY, false);
+					if (pUnit)
 					{
-						CvUnit* pUnit = GET_PLAYER(getOwner()).getUnit(iResult);
-						if (!pUnit->getUnitInfo().CanMoveAfterPurchase())
-						{
-							pUnit->finishMoves();
-						}
 						CleanUpQueue();
 
 						kPlayer.GetMilitaryAI()->ResetNumberOfTimesOpsBuildSkippedOver();
@@ -30469,12 +30430,11 @@ void CvCity::produce(UnitTypes eTrainUnit, UnitAITypes eTrainAIUnit, bool bCanOv
 
 	CvPlayerAI& kOwner = GET_PLAYER(getOwner());
 
-	int iResult = CreateUnit(eTrainUnit, eTrainAIUnit, REASON_TRAIN);
-	if (iResult != -1)
+	CvUnit* pUnit = CreateUnit(eTrainUnit, eTrainAIUnit, REASON_TRAIN);
+	if (pUnit)
 	{
 #if defined(MOD_BALANCE_CORE)
-		CvUnit* pUnit = GET_PLAYER(getOwner()).getUnit(iResult);
-		if (pUnit && pUnit->isFreeUpgrade() || GET_PLAYER(getOwner()).GetPlayerTraits()->IsFreeUpgrade())
+		if (pUnit->isFreeUpgrade() || GET_PLAYER(getOwner()).GetPlayerTraits()->IsFreeUpgrade())
 		{
 			UnitTypes eUpgradeUnit = pUnit->GetUpgradeUnitType();
 			if (eUpgradeUnit != NO_UNIT && this->canTrain(eUpgradeUnit, false, false, true))
@@ -30485,7 +30445,7 @@ void CvCity::produce(UnitTypes eTrainUnit, UnitAITypes eTrainAIUnit, bool bCanOv
 		SetUnitInvestment(pUnit->getUnitClassType(), false);
 		if (GET_PLAYER(getOwner()).GetPlayerTraits()->IsConquestOfTheWorld())
 		{
-			if (pUnit && (pUnit->isFound() || pUnit->IsFoundMid()))
+			if (pUnit->isFound() || pUnit->IsFoundMid())
 			{
 				UnitTypes eBestLandUnit = NO_UNIT;
 				int iStrengthBestLandCombat = 0;
@@ -30558,11 +30518,9 @@ void CvCity::produce(UnitTypes eTrainUnit, UnitAITypes eTrainAIUnit, bool bCanOv
 					if (pkbUnitEntry)
 					{
 						UnitAITypes eUnitAI = pkbUnitEntry->GetDefaultUnitAIType();
-						int iResult = CreateUnit(eBestLandUnit, eUnitAI, REASON_TRAIN);
-						CvAssertMsg(iResult != -1, "Unable to create unit");
-						if (iResult != -1)
+						CvUnit* pUnit2 = CreateUnit(eBestLandUnit, eUnitAI, REASON_TRAIN);
+						if (pUnit2)
 						{
-							CvUnit* pUnit2 = GET_PLAYER(getOwner()).getUnit(iResult);
 							if (!pUnit2->jumpToNearestValidPlot())
 							{
 								pUnit2->kill(false);	// Could not find a valid spot!
@@ -30586,11 +30544,9 @@ void CvCity::produce(UnitTypes eTrainUnit, UnitAITypes eTrainAIUnit, bool bCanOv
 					if (pkbUnitEntry)
 					{
 						UnitAITypes eUnitAI = pkbUnitEntry->GetDefaultUnitAIType();
-						int iResult = CreateUnit(eWarrior, eUnitAI, REASON_TRAIN);
-						CvAssertMsg(iResult != -1, "Unable to create unit");
-						if (iResult != -1)
+						CvUnit* pUnit2 = CreateUnit(eWarrior, eUnitAI, REASON_TRAIN);
+						if (pUnit2)
 						{
-							CvUnit* pUnit2 = GET_PLAYER(getOwner()).getUnit(iResult);
 							if (!pUnit2->jumpToNearestValidPlot())
 							{
 								pUnit2->kill(false);	// Could not find a valid spot!
@@ -30628,7 +30584,7 @@ void CvCity::produce(UnitTypes eTrainUnit, UnitAITypes eTrainAIUnit, bool bCanOv
 #if defined(MOD_EVENTS_CITY)
 		if (MOD_EVENTS_CITY)
 		{
-			GAMEEVENTINVOKE_HOOK(GAMEEVENT_CityTrained, getOwner(), GetID(), iResult, false, false);
+			GAMEEVENTINVOKE_HOOK(GAMEEVENT_CityTrained, getOwner(), GetID(), pUnit->GetID(), false, false);
 		}
 		else
 		{
@@ -30639,7 +30595,7 @@ void CvCity::produce(UnitTypes eTrainUnit, UnitAITypes eTrainAIUnit, bool bCanOv
 				CvLuaArgsHandle args;
 				args->Push(getOwner());
 				args->Push(GetID());
-				args->Push(GET_PLAYER(getOwner()).getUnit(iResult)->GetID()); // This is probably just iResult
+				args->Push(pUnit->GetID());
 				args->Push(false); // bGold
 				args->Push(false); // bFaith/bCulture
 
@@ -30652,7 +30608,7 @@ void CvCity::produce(UnitTypes eTrainUnit, UnitAITypes eTrainAIUnit, bool bCanOv
 
 		int iProductionNeeded = getProductionNeeded(eTrainUnit) * 100;
 #if defined(MOD_BALANCE_CORE)
-		if (!GET_PLAYER(getOwner()).getUnit(iResult)->IsCivilianUnit())
+		if (!pUnit->IsCivilianUnit())
 		{
 			GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_U_PROD, true, NO_GREATPERSON, NO_BUILDING, (iProductionNeeded / 100), false, NO_PLAYER, NULL, false, this);
 		}
@@ -30872,7 +30828,7 @@ void CvCity::produce(SpecialistTypes eSpecialist, bool bCanOverflow)
 }
 
 //	--------------------------------------------------------------------------------
-int CvCity::CreateUnit(UnitTypes eUnitType, UnitAITypes eAIType, UnitCreationReason eReason, bool bUseToSatisfyOperation, bool bIsPurchase)
+CvUnit* CvCity::CreateUnit(UnitTypes eUnitType, UnitAITypes eAIType, UnitCreationReason eReason, bool bUseToSatisfyOperation, bool bIsPurchase)
 {
 	VALIDATE_OBJECT
 	CvPlot* pUnitPlot = GetPlotForNewUnit(eUnitType);
@@ -30883,15 +30839,16 @@ int CvCity::CreateUnit(UnitTypes eUnitType, UnitAITypes eAIType, UnitCreationRea
 	CvPlayer& thisPlayer = GET_PLAYER(getOwner());
 	CvUnit* pUnit = thisPlayer.initUnit(eUnitType, pUnitPlot->getX(), pUnitPlot->getY(), eAIType, eReason);
 	if (!pUnit)
-	{
-		CvAssertMsg(false, "CreateUnit failed");
-		return -1;
-	}
+		return NULL;
 
 	addProductionExperience(pUnit, false, bIsPurchase);
 
 #if defined(MOD_BALANCE_CORE)
-	pUnit->restoreFullMoves();
+	if (pUnit->getUnitInfo().CanMoveAfterPurchase())
+		pUnit->restoreFullMoves();
+	else
+		pUnit->finishMoves();
+
 	if (pUnit->isTrade())
 	{
 		if (GC.getLogging() && GC.getAILogging())
@@ -30915,20 +30872,22 @@ int CvCity::CreateUnit(UnitTypes eUnitType, UnitAITypes eAIType, UnitCreationRea
 		pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pRallyPlot->getX(), pRallyPlot->getY());
 	}
 
-	if (bUseToSatisfyOperation && m_unitBeingBuiltForOperation.IsValid())
+	if (bUseToSatisfyOperation)
 	{
-		thisPlayer.CityFinishedBuildingUnitForOperationSlot(m_unitBeingBuiltForOperation, pUnit);
-		m_unitBeingBuiltForOperation.Invalidate();
-	}
-
-	// Check existing armies this unit could fit into if it wasn't automatically added to one.
-	if (pUnit && pUnit->getArmyID() == -1)
-	{
-		for (size_t i = 0; i < GET_PLAYER(m_eOwner).getNumAIOperations(); i++)
+		if (m_unitBeingBuiltForOperation.IsValid())
 		{
-			CvAIOperation* pOp = GET_PLAYER(m_eOwner).getAIOperationByIndex(i);
-			if (pOp->GetOperationState() == AI_OPERATION_STATE_RECRUITING_UNITS && pOp->RecruitUnit(pUnit))
-				break;
+			thisPlayer.CityFinishedBuildingUnitForOperationSlot(m_unitBeingBuiltForOperation, pUnit);
+			m_unitBeingBuiltForOperation.Invalidate();
+		}
+		else
+		{
+			// Check existing armies this unit could fit into if it wasn't automatically added to one.
+			for (size_t i = 0; i < GET_PLAYER(m_eOwner).getNumAIOperations(); i++)
+			{
+				CvAIOperation* pOp = GET_PLAYER(m_eOwner).getAIOperationByIndex(i);
+				if (pOp->GetOperationState() == AI_OPERATION_STATE_RECRUITING_UNITS && pOp->RecruitUnit(pUnit))
+					break;
+			}
 		}
 	}
 
@@ -30987,7 +30946,7 @@ int CvCity::CreateUnit(UnitTypes eUnitType, UnitAITypes eAIType, UnitCreationRea
 	if (eReason == REASON_TRAIN || eReason == REASON_BUY)
 		thisPlayer.changeUnitsBuiltCount(eUnitType, 1);
 
-	return pUnit->GetID();
+	return pUnit;
 }
 
 //	--------------------------------------------------------------------------------
@@ -31902,16 +31861,10 @@ void CvCity::Purchase(UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectT
 				}
 				else
 				{
-					int iResult = CreateUnit(eUnitType, NO_UNITAI, REASON_BUY, false, true);
-					CvAssertMsg(iResult != -1, "Unable to create unit");
-					if (iResult != -1)
+					CvUnit* pUnit = CreateUnit(eUnitType, NO_UNITAI, REASON_BUY, false, true);
+					if (pUnit)
 					{
-						CvUnit* pUnit = kPlayer.getUnit(iResult);
-						if (!pUnit->getUnitInfo().CanMoveAfterPurchase())
-						{
-							pUnit->finishMoves();
-						}
-						if (pUnit && pUnit->isFreeUpgrade() || GET_PLAYER(getOwner()).GetPlayerTraits()->IsFreeUpgrade())
+						if (pUnit->isFreeUpgrade() || GET_PLAYER(getOwner()).GetPlayerTraits()->IsFreeUpgrade())
 						{
 							UnitTypes eUpgradeUnit = pUnit->GetUpgradeUnitType();
 							if (eUpgradeUnit != NO_UNIT && this->canTrain(eUpgradeUnit, false, false, true))
@@ -31934,7 +31887,7 @@ void CvCity::Purchase(UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectT
 								}
 							}
 						}
-						if (pUnit && pUnit->isTrade())
+						if (pUnit->isTrade())
 						{
 							if (GC.getLogging() && GC.getAILogging())
 							{
@@ -32085,21 +32038,18 @@ void CvCity::Purchase(UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectT
 
 		if (eUnitType >= 0)
 		{
-			int iResult = CreateUnit(eUnitType, NO_UNITAI, REASON_TRAIN);
-			CvAssertMsg(iResult != -1, "Unable to create unit");
-			if (iResult == -1)
+			CvUnit* pUnit = CreateUnit(eUnitType, NO_UNITAI, REASON_TRAIN);
+			if (pUnit==NULL)
 				return;	// Can't create the unit, most likely we have no place for it.  We have not deducted the cost yet so just exit.
 
-			CvUnit* pUnit = kPlayer.getUnit(iResult);
-
-			if (pUnit && pUnit->getUnitInfo().GetGlobalFaithCooldown() > 0)
+			if (pUnit->getUnitInfo().GetGlobalFaithCooldown() > 0)
 			{
 				int iCooldown = pUnit->getUnitInfo().GetGlobalFaithCooldown();
 				iCooldown *= GC.getGame().getGameSpeedInfo().getTrainPercent();
 				iCooldown /= 100;
 				kPlayer.ChangeFaithPurchaseCooldown(iCooldown);
 			}
-			if (pUnit && pUnit->getUnitInfo().GetLocalFaithCooldown() > 0)
+			if (pUnit->getUnitInfo().GetLocalFaithCooldown() > 0)
 			{
 				bool bCivilian = (pUnit->getUnitInfo().GetCombat() <= 0 && pUnit->getUnitInfo().GetRangedCombat() <= 0);
 				int iCooldown = pUnit->getUnitInfo().GetLocalFaithCooldown();
@@ -32108,12 +32058,7 @@ void CvCity::Purchase(UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectT
 				ChangeUnitFaithPurchaseCooldown(bCivilian, iCooldown);
 			}
 
-			if (!pUnit->getUnitInfo().CanMoveAfterPurchase())
-			{
-				pUnit->finishMoves();
-			}
-
-			if (pUnit && pUnit->isFreeUpgrade() || GET_PLAYER(getOwner()).GetPlayerTraits()->IsFreeUpgrade())
+			if (pUnit->isFreeUpgrade() || GET_PLAYER(getOwner()).GetPlayerTraits()->IsFreeUpgrade())
 			{
 				UnitTypes eUpgradeUnit = pUnit->GetUpgradeUnitType();
 				if (eUpgradeUnit != NO_UNIT && this->canTrain(eUpgradeUnit, false, false, true))

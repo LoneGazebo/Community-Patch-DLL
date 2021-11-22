@@ -421,10 +421,11 @@ bool CvAIOperation::RecruitUnit(CvUnit* pUnit)
 	if (iIndex>=0)
 	{
 		pThisArmy->AddUnit(pUnit->GetID(), freeSlotInfo[iIndex].first, freeSlotInfo[iIndex].second.m_requiredSlot);
-		//stupid but true
+
+		//stupid but true, missing units are maintained on operation level
 		for (std::deque<OperationSlot>::iterator it = m_viListOfUnitsWeStillNeedToBuild.begin(); it != m_viListOfUnitsWeStillNeedToBuild.end(); ++it)
 		{
-			if (it->m_iSlotID == iIndex)
+			if (it->m_iSlotID == freeSlotInfo[iIndex].first)
 			{
 				m_viListOfUnitsWeStillNeedToBuild.erase(it);
 				break;
@@ -941,10 +942,7 @@ bool CvAIOperation::BuyFinalUnit()
 	else
 		pCity = GET_PLAYER(m_eOwner).GetClosestCityByPathLength(GetMusterPlot());
 
-	if (!pCity)
-		return false;
-
-	if(!m_viListOfUnitsWeStillNeedToBuild.empty() && pCity != NULL && pCity->getOwner() == m_eOwner)
+	if(pCity && pCity->getOwner() == m_eOwner)
 	{
 		OperationSlot thisSlot = m_viListOfUnitsWeStillNeedToBuild.front();
 		CvArmyAI* pArmy = GET_PLAYER(m_eOwner).getArmyAI(thisSlot.m_iArmyID);

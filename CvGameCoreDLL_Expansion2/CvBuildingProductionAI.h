@@ -42,9 +42,6 @@ public:
 	void AddFlavorWeights(FlavorTypes eFlavor, int iWeight);
 	int GetWeight(BuildingTypes eBuilding);
 
-	// Recommend highest-weighted building
-	BuildingTypes RecommendBuilding();
-
 	// Logging
 	void LogPossibleBuilds();
 #if defined(MOD_BALANCE_CORE)

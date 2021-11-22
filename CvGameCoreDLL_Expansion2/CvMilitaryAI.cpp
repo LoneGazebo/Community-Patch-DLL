@@ -545,20 +545,11 @@ CvUnit* CvMilitaryAI::BuyEmergencyUnit(UnitAITypes eUnitType, CvCity* pCity)
 					if(pCity->getOwner() == m_pPlayer->GetID())		// Player must own the city or this will create a unit for another player
 					{
 						// This is an EXTRA build for the operation beyond any that are already assigned to this city, so pass in the right flag to CreateUnit()
-						int iResult = pCity->CreateUnit(eType, NO_UNITAI, REASON_BUY, false /*bUseToSatisfyOperation*/);
-
-						CvAssertMsg(iResult != -1, "Unable to create unit");
-
-						if (iResult != -1)
+						CvUnit* pUnit = pCity->CreateUnit(eType, NO_UNITAI, REASON_BUY, false /*bUseToSatisfyOperation*/);
+						if (pUnit)
 						{
-							CvUnit* pUnit = m_pPlayer->getUnit(iResult);
 							m_pPlayer->GetTreasury()->LogExpenditure((CvString)pUnit->getUnitInfo().GetText(), iGoldCost, 7);
 							m_pPlayer->GetTreasury()->ChangeGold(-iGoldCost);
-
-							if (!pUnit->getUnitInfo().CanMoveAfterPurchase())
-							{
-								pUnit->finishMoves();
-							}
 
 							CvString szMsg;
 							szMsg.Format("Emergency Unit Purchased: %s, ", pUnit->getUnitInfo().GetDescription());
@@ -585,21 +576,14 @@ CvUnit* CvMilitaryAI::BuyEmergencyUnit(UnitAITypes eUnitType, CvCity* pCity)
 					m_pPlayer->ChangeFaith(-iFaithCost);
 
 					// This is an EXTRA build for the operation beyond any that are already assigned to this city, so pass in the right flag to CreateUnit()
-					int iResult = pCity->CreateUnit(eType, NO_UNITAI, REASON_BUY, false /*bUseToSatisfyOperation*/);
-
-					CvAssertMsg(iResult != -1, "Unable to create unit");
-					CvUnit* pUnit = m_pPlayer->getUnit(iResult);
-
-					if (!pUnit->getUnitInfo().CanMoveAfterPurchase())
+					CvUnit* pUnit = pCity->CreateUnit(eType, NO_UNITAI, REASON_BUY, false /*bUseToSatisfyOperation*/);
+					if (pUnit)
 					{
-						pUnit->finishMoves();
+						CvString szMsg;
+						szMsg.Format("Emergency Faith Unit Purchase: %s, ", pUnit->getUnitInfo().GetDescription());
+						szMsg += pCity->getName();
+						m_pPlayer->GetTacticalAI()->LogTacticalMessage(szMsg);
 					}
-
-					CvString szMsg;
-					szMsg.Format("Emergency Faith Unit Purchase: %s, ", pUnit->getUnitInfo().GetDescription());
-					szMsg += pCity->getName();
-					m_pPlayer->GetTacticalAI()->LogTacticalMessage(szMsg);
-
 					return pUnit;
 				}
 			}
