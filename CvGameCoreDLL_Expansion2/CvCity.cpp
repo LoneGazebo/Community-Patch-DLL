@@ -11417,7 +11417,11 @@ int CvCity::getProductionNeeded(ProjectTypes eProject) const
 		iNumProductionNeeded += pProject->CostScalerNumberOfRepeats() * getProjectCount(eProject);
 		iNumProductionNeeded += pProject->CostScalerEra() * GET_PLAYER(getOwner()).GetCurrentEra();
 	}
-
+	if (MOD_ALTERNATIVE_DIFFICULTY && GC.getProjectInfo(eProject)->IsRepeatable() && !GET_PLAYER(getOwner()).isHuman() && !GET_PLAYER(getOwner()).isBarbarian() && !GET_PLAYER(getOwner()).isMinorCiv())
+	{
+		iNumProductionNeeded *= GC.getGame().getHandicapInfo().getAIConstructPercent();
+		iNumProductionNeeded /= 100;
+	}
 	return max(1, iNumProductionNeeded);
 }
 

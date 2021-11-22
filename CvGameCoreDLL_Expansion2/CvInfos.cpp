@@ -2961,6 +2961,7 @@ bool CvHurryInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 //					CvHandicapInfo
 //======================================================================================================
 CvHandicapInfo::CvHandicapInfo() :
+
 	m_iStartingLocationPercent(0),
 	m_iHappinessDefault(0),
 	m_iHappinessDefaultCapital(0),
@@ -3007,6 +3008,13 @@ CvHandicapInfo::CvHandicapInfo() :
 	m_iAIWorkRateModifier(0),
 	m_iAIUnhappinessPercent(0),
 	m_iAIGrowthPercent(0),
+	m_iAITechPercent(0),
+	m_iAITechCatchUpMod(0),
+	m_iAIPolicyPercent(0),
+	m_iAICivilianPercent(0),
+	m_iAIProphetPercent(0),
+	m_iAIGreatPersonPercent(0),
+	m_iAIGoldenAgePercent(0),
 	m_iAITrainPercent(0),
 	m_iAIWorldTrainPercent(0),
 	m_iAIConstructPercent(0),
@@ -3019,6 +3027,10 @@ CvHandicapInfo::CvHandicapInfo() :
 	m_iAIUnitUpgradePercent(0),
 	m_iAIInflationPercent(0),
 	m_iAIPerEraModifier(0),
+	m_iAITechPerEraMod(0),
+	m_iAIPolicyPerEraMod(0),
+	m_iAIGrowthPerEraMod(0),
+	m_iAIConstructPerEraMod(0),
 	m_iAIFreeXP(0),
 	m_iAIFreeXPPercent(0),
 	m_iResistanceCap(0),
@@ -3271,6 +3283,41 @@ int CvHandicapInfo::getAIGrowthPercent() const
 	return m_iAIGrowthPercent;
 }
 //------------------------------------------------------------------------------
+int CvHandicapInfo::getAITechPercent() const
+{
+	return m_iAITechPercent;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getAITechCatchUpMod() const
+{
+	return m_iAITechCatchUpMod;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getAIPolicyPercent() const
+{
+	return m_iAIPolicyPercent;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getAICivilianPercent() const
+{
+	return m_iAICivilianPercent;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getAIProphetPercent() const
+{
+	return m_iAIProphetPercent;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getAIGreatPersonPercent() const
+{
+	return m_iAIGreatPersonPercent;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getAIGoldenAgePercent() const
+{
+	return m_iAIGoldenAgePercent;
+}
+//------------------------------------------------------------------------------
 int CvHandicapInfo::getAITrainPercent() const
 {
 	return m_iAITrainPercent;
@@ -3329,6 +3376,26 @@ int CvHandicapInfo::getAIInflationPercent() const
 int CvHandicapInfo::getAIPerEraModifier() const
 {
 	return m_iAIPerEraModifier;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getAITechPerEraMod() const
+{
+	return m_iAITechPerEraMod;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getAIPolicyPerEraMod() const
+{
+	return m_iAIPolicyPerEraMod;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getAIGrowthPerEraMod() const
+{
+	return m_iAIGrowthPerEraMod;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getAIConstructPerEraMod() const
+{
+	return m_iAIConstructPerEraMod;
 }
 //------------------------------------------------------------------------------
 int CvHandicapInfo::getAIFreeXP() const
@@ -3446,6 +3513,13 @@ bool CvHandicapInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility
 	m_iAIWorkRateModifier = kResults.GetInt("AIWorkRateModifier");
 	m_iAIUnhappinessPercent = kResults.GetInt("AIUnhappinessPercent");
 	m_iAIGrowthPercent = kResults.GetInt("AIGrowthPercent");
+	m_iAITechPercent = kResults.GetInt("AITechPercent");
+	m_iAITechCatchUpMod = kResults.GetInt("AITechCatchUpMod");
+	m_iAIProphetPercent = kResults.GetInt("AIProphetPercent");
+	m_iAIPolicyPercent = kResults.GetInt("AIPolicyPercent");
+	m_iAICivilianPercent = kResults.GetInt("AICivilianPercent");
+	m_iAIGreatPersonPercent = kResults.GetInt("AIGreatPersonPercent");
+	m_iAIGoldenAgePercent = kResults.GetInt("AIGoldenAgePercent");
 	m_iAITrainPercent = kResults.GetInt("AITrainPercent");
 	m_iAIWorldTrainPercent = kResults.GetInt("AIWorldTrainPercent");
 	m_iAIConstructPercent = kResults.GetInt("AIConstructPercent");
@@ -3458,6 +3532,10 @@ bool CvHandicapInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility
 	m_iAIUnitUpgradePercent = kResults.GetInt("AIUnitUpgradePercent");
 	m_iAIInflationPercent = kResults.GetInt("AIInflationPercent");
 	m_iAIPerEraModifier = kResults.GetInt("AIPerEraModifier");
+	m_iAITechPerEraMod = kResults.GetInt("AITechPerEraMod");
+	m_iAIPolicyPerEraMod = kResults.GetInt("AIPolicyPerEraMod");
+	m_iAIGrowthPerEraMod = kResults.GetInt("AIGrowthPerEraMod");
+	m_iAIConstructPerEraMod = kResults.GetInt("AIConstructPerEraMod");
 	m_iAIFreeXP = kResults.GetInt("AIFreeXP");
 	m_iAIFreeXPPercent = kResults.GetInt("AIFreeXPPercent");
 	m_iResistanceCap = kResults.GetInt("ResistanceCap");
@@ -3466,6 +3544,7 @@ bool CvHandicapInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility
 	m_iDifficultyBonusMid = kResults.GetInt("DifficultyBonusB");
 	m_iDifficultyBonusLate = kResults.GetInt("DifficultyBonusC");
 	m_iVisionBonus = kResults.GetInt("VisionBonus");
+
 
 	//Arrays
 	const char* szHandicapType = GetType();

@@ -22,6 +22,12 @@
     <!--   The sql/xml changes for GLOBAL_STACKING_RULES can be found in DB/GLOBAL/SackingRules.sql/xml -->
     <!--   If these file(s) have been deleted, eg for compatibility with other mods, the option will be forced off -->
 
+    <!-- Changes in Milae's Alternative Difficulty Mod -->
+    <!-- Adds more Difficulty Options including extra columns in HandicapInfos -->
+   <Row Class="4" Name="ALTERNATIVE_DIFFICULTY" Value="0" DbUpdates="1"/>
+    <!-- Changes ABC Trigger to only be once every 10 turns -->
+   <Row Class="4" Name="ABC_TRIGGER_CHANGE" Value="0"/>
+
     <!-- Changes the stacking limits based on what the tile is (city, fort, plain, etc) (v19) -->
     <!-- See also: "Global - 2 Units Per Fort" -->
     <!-- See also: "Global - 3 Units Per City" -->

@@ -3137,6 +3137,12 @@ int CvCityCitizens::GetSpecialistUpgradeThreshold(UnitClassTypes eUnitClass)
 	iThreshold *= GC.getGame().getStartEraInfo().getGreatPeoplePercent();
 	iThreshold /= 100;
 
+	if (!GET_PLAYER(GetCity()->getOwner()).isHuman()&&MOD_ALTERNATIVE_DIFFICULTY)
+	{
+		iThreshold *= GC.getGame().getHandicapInfo().getAIGreatPersonPercent();
+		iThreshold /= 100;
+	}
+
 	return iThreshold;
 }
 
