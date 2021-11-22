@@ -272,7 +272,8 @@ int CustomMods::getOption(string sOption, int defValue) {
 			CUSTOMLOG("%s: %s = %d", (bPrefixError ? "PREFIX ERROR" : "Cache"), szName, iValue);
 			m_options[string(szName)] = iValue;
 		}
-
+		MOD_OPT_CACHE(ALTERNATIVE_DIFFICULTY);
+		MOD_OPT_CACHE(ABC_TRIGGER_CHANGE);
 		MOD_OPT_CACHE(GLOBAL_STACKING_RULES);
 		MOD_OPT_CACHE(GLOBAL_LOCAL_GENERALS);
 		MOD_OPT_CACHE(GLOBAL_SEPARATE_GREAT_ADMIRAL);

@@ -5017,6 +5017,13 @@ int CvPlayerPolicies::GetNextPolicyCost()
 	int iDivisor = /*5*/ GC.getPOLICY_COST_VISIBLE_DIVISOR();
 	iCost /= iDivisor;
 	iCost *= iDivisor;
+	if (!GetPlayer()->isHuman() && MOD_ALTERNATIVE_DIFFICULTY)
+	{
+		iCost *= GC.getGame().getHandicapInfo().getAIPolicyPercent();
+		iCost /= 100;
+		iCost *= 100 + (GC.getGame().getHandicapInfo().getAIPolicyPerEraMod() * GC.getGame().getCurrentEra());
+		iCost /= 100;
+	}
 
 	return iCost;
 }

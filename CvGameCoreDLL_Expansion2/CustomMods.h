@@ -111,6 +111,10 @@
 // Enables the Unified Yields (YIELD_GOLDEN_AGE_POINTS) extensions (v57)
 #define MOD_API_UNIFIED_YIELDS_GOLDEN_AGE           (true)
 
+// Changes difficulty settings and adds more difficulty options
+#define MOD_ALTERNATIVE_DIFFICULTY                  gCustomMods.isALTERNATIVE_DIFFICULTY()
+// Changes ABC bonus to only trigger every 10 turns
+#define MOD_ABC_TRIGGER_CHANGE						gCustomMods.isABC_TRIGGER_CHANGE()
 // Changes the stacking limits based on what the tile is (city, fort, plain, etc) - AFFECTS SAVE GAME DATA FORMAT
 #define MOD_GLOBAL_STACKING_RULES                   gCustomMods.isGLOBAL_STACKING_RULES()
 // Great Generals and Admirals gained from combat experience spawn in the war-zone and not in a distant city
@@ -223,6 +227,7 @@
 
 // Flips open borders to apply in opposite ways- you have to give open borders to gain the tourism bonus
 #define MOD_BALANCE_FLIPPED_TOURISM_MODIFIER_OPEN_BORDERS
+
 
 //Community Patch Info
 #define MOD_COMMUNITY_PATCH							gCustomMods.isCOMMUNITY_PATCH()
@@ -1211,6 +1216,8 @@ public:
 	int getCivOption(const char* szCiv, const char* szName, int defValue = 0);
 
 	MOD_OPT_DECL(CORE_DEBUGGING);
+	MOD_OPT_DECL(ALTERNATIVE_DIFFICULTY);
+	MOD_OPT_DECL(ABC_TRIGGER_CHANGE);
 	MOD_OPT_DECL(GLOBAL_STACKING_RULES);
 	MOD_OPT_DECL(GLOBAL_LOCAL_GENERALS);
 	MOD_OPT_DECL(GLOBAL_SEPARATE_GREAT_ADMIRAL);
