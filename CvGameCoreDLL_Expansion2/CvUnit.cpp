@@ -17913,7 +17913,7 @@ bool CvUnit::canIntercept() const
 	if (GetAirInterceptRange() > 0 && GetNumInterceptions() > 0 && getInterceptChance() > 0 && !isEmbarked())
 	{
 		// Must either be a non-air Unit, or an air Unit that hasn't moved this turn and is on intercept duty
-		return getDomainType() != DOMAIN_AIR || (!hasMoved() && GetActivityType() == ACTIVITY_INTERCEPT);
+		return getDomainType() != DOMAIN_AIR || (GetActivityType() == ACTIVITY_INTERCEPT);
 	}
 
 	return false;
