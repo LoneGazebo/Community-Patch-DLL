@@ -342,6 +342,7 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_iUnitsInLiberatedCities(0),
 	m_piFranchisesPerImprovement(NULL),
 	m_iMaxAirUnitsChange(0),
+	m_iCityCaptureHealGlobal(0),
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	m_iInvestmentModifier(0),
@@ -1249,6 +1250,8 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	kUtility.PopulateArrayByValue(m_piBuildingClassInLiberatedCities, "BuildingClasses", "Policy_BuildingClassInLiberatedCities", "BuildingClassType", "PolicyType", szPolicyType, "Count");
 
 	kUtility.PopulateArrayByValue(m_piFranchisesPerImprovement, "Improvements", "Policy_FranchisePerImprovement", "ImprovementType", "PolicyType", szPolicyType, "NumFranchise");
+
+	m_iCityCaptureHealGlobal = kResults.GetInt("CityCaptureHealGlobal");
 
 	m_iMaxAirUnitsChange = kResults.GetInt("MaxAirUnitsChangeGlobal");
 #endif
@@ -3649,6 +3652,12 @@ int CvPolicyEntry::GetMaxAirUnitsChange() const
 {
 	return m_iMaxAirUnitsChange;
 }
+/// All units heal X% whenever you conquer a city
+int CvPolicyEntry::GetCityCaptureHealGlobal() const
+{
+	return m_iCityCaptureHealGlobal;
+}
+
 #endif
 
 /// Free building in each city conquered
