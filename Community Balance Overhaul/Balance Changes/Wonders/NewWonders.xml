@@ -3,6 +3,12 @@
 <GameData>
 	<BuildingClasses>
 		<Row>
+			<Type>BUILDINGCLASS_KARLSTEJN</Type>
+			<DefaultBuilding>BUILDING_KARLSTEJN</DefaultBuilding>
+			<Description>TXT_KEY_BUILDING_KARLSTEJN</Description>
+			<MaxGlobalInstances>1</MaxGlobalInstances>
+		</Row>
+		<Row>
 			<Type>BUILDINGCLASS_SLATER_MILL</Type>
 			<DefaultBuilding>BUILDING_SLATER_MILL</DefaultBuilding>
 			<Description>TXT_KEY_BUILDING_SLATER_MILL</Description>
@@ -97,7 +103,28 @@
 		</Row>
 	</BuildingClasses>
 	<Buildings>
-
+		<Row>
+			<Type>BUILDING_KARLSTEJN</Type>
+			<BuildingClass>BUILDINGCLASS_KARLSTEJN</BuildingClass>
+			<Cost>500</Cost>
+			<PrereqTech>TECH_GUILDS</PrereqTech>
+			<Description>TXT_KEY_BUILDING_KARLSTEJN</Description>
+			<Civilopedia>TXT_KEY_CIV5_BUILDINGS_KARLSTEJN_TEXT</Civilopedia>
+			<Help>TXT_KEY_BUILDING_KARLSTEJN_HELP</Help>
+			<Quote>TXT_KEY_WONDER_KARLSTEJN_QUOTE</Quote>
+			<ArtDefineTag>CASTLE</ArtDefineTag>
+			<NukeImmune>true</NukeImmune>
+			<HolyCity>true</HolyCity>
+			<ReformationFollowerReduction>5</ReformationFollowerReduction>
+			<HurryCostModifier>-1</HurryCostModifier>
+			<MinAreaSize>-1</MinAreaSize>
+			<ConquestProb>100</ConquestProb>
+			<FreeBuildingThisCity>BUILDINGCLASS_ORDER</FreeBuildingThisCity>
+			<DisplayPosition>1</DisplayPosition>
+			<IconAtlas>COMMUNITY_2_ATLAS</IconAtlas>
+			<WonderSplashImage>Karlstejn_WonderSplash.dds</WonderSplashImage>
+			<PortraitIndex>22</PortraitIndex>
+		</Row>
 		<Row>
 			<Type>BUILDING_SLATER_MILL</Type>
 			<BuildingClass>BUILDINGCLASS_SLATER_MILL</BuildingClass>
@@ -125,9 +152,8 @@
 		<Row>
 			<Type>BUILDING_MOTHERLAND_STATUE</Type>
 			<BuildingClass>BUILDINGCLASS_MOTHERLAND_STATUE</BuildingClass>
-			<Cost>1600</Cost>
-			<PrereqTech>TECH_REPLACEABLE_PARTS</PrereqTech>
-			<PolicyBranchType>POLICY_BRANCH_ORDER</PolicyBranchType>
+			<Cost>2150</Cost>
+			<PrereqTech>TECH_ELECTRONICS</PrereqTech>
 			<Description>TXT_KEY_BUILDING_MOTHERLAND_STATUE</Description>
 			<Quote>TXT_KEY_BUILDING_MOTHERLAND_STATUE_QUOTE</Quote>
 			<Civilopedia>TXT_KEY_CIV5_BUILDINGS_MOTHERLAND_STATUE_TEXT</Civilopedia>
@@ -137,8 +163,10 @@
 			<HurryCostModifier>-1</HurryCostModifier>
 			<MinAreaSize>-1</MinAreaSize>
 			<DisplayPosition>1</DisplayPosition>
-			<FreePolicies>1</FreePolicies>
 			<ConquestProb>100</ConquestProb>
+			<CitySupplyModifier>100</CitySupplyModifier>
+			<PlayerBorderGainlessPillage>1</PlayerBorderGainlessPillage>
+			<GlobalBuildingGoldMaintenanceMod>-10</GlobalBuildingGoldMaintenanceMod>
 			<FreeBuildingThisCity>BUILDINGCLASS_POLICE_STATION</FreeBuildingThisCity>
 			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
 			<PortraitIndex>46</PortraitIndex>
