@@ -4395,6 +4395,10 @@ AggressivePostureTypes CvDiplomacyAI::GetExpansionAggressivePosture(PlayerTypes 
 	int iCityLoop2;
 	int iMinDistance = INT_MAX;
 
+	CvCity* pTheirCapital = GET_PLAYER(ePlayer).getCapitalCity();
+	if (!pTheirCapital || !pTheirCapital->plot())
+		return NO_AGGRESSIVE_POSTURE_TYPE;
+
 	for (CvCity* pOtherCity = GET_PLAYER(ePlayer).firstCity(&iCityLoop); pOtherCity != NULL; pOtherCity = GET_PLAYER(ePlayer).nextCity(&iCityLoop))
 	{
 		if (!pOtherCity->plot())
@@ -4409,6 +4413,7 @@ AggressivePostureTypes CvDiplomacyAI::GetExpansionAggressivePosture(PlayerTypes 
 			continue;
 
 		int iTurnFounded = pOtherCity->getGameTurnFounded();
+		int iDistanceFromTheirCapital = plotDistance(*pOtherCity->plot(), *pTheirCapital->plot());
 
 		// Which city of ours (acquired earlier than this one) is closest?
 		for (CvCity* pOurLoopCity = m_pPlayer->firstCity(&iCityLoop2); pOurLoopCity != NULL; pOurLoopCity = m_pPlayer->nextCity(&iCityLoop2))
@@ -4418,6 +4423,10 @@ AggressivePostureTypes CvDiplomacyAI::GetExpansionAggressivePosture(PlayerTypes 
 
 			// If we acquired our city after they founded theirs, they're not being aggressive
 			if (pOurLoopCity->getGameTurnAcquired() > iTurnFounded)
+				continue;
+
+			// Must be closer to this city than to their capital
+			if (plotDistance(*pOtherCity->plot(), *pOurLoopCity->plot()) >= iDistanceFromTheirCapital)
 				continue;
 
 			int iDistance = plotDistance(*pOtherCity->plot(), *pOurLoopCity->plot());
@@ -10840,6 +10849,10 @@ void CvDiplomacyAI::DoExpansionBickering()
 			SetAngryAboutExpansion(ePlayer, false);
 		}
 
+		CvCity* pTheirCapital = GET_PLAYER(ePlayer).getCapitalCity();
+		if (!pTheirCapital || !pTheirCapital->plot())
+			continue;
+
 		bool bFoundOne = false;
 
 		for (CvCity* pLoopCity = GET_PLAYER(ePlayer).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iLoop))
@@ -10866,7 +10879,12 @@ void CvDiplomacyAI::DoExpansionBickering()
 				continue;
 
 			// Must be close to one of our cities
-			if (GetPlayer()->GetCityDistanceInPlots(pCityPlot) > iExpansionBickerRange)
+			int iDistanceFromUs = GetPlayer()->GetCityDistanceInPlots(pCityPlot);
+			if (iDistanceFromUs > iExpansionBickerRange)
+				continue;
+
+			// Must be closer to our closest city than to their capital
+			if (plotDistance(*pLoopCity->plot(), *pTheirCapital->plot()) <= iDistanceFromUs)
 				continue;
 
 			// Check to see if any of our cities within range of them were founded earlier than theirs was
@@ -10916,18 +10934,18 @@ void CvDiplomacyAI::DoExpansionBickering()
 int CvDiplomacyAI::GetExpansionBickerRange() const
 {
 	if (GetPlayer()->GetPlayerTraits()->IsExpansionist())
-		return 8;
+		return 7;
 
 	if (GetPlayer()->isHuman())
-		return 7;
+		return 6;
 
 	if (GetBoldness() >= 8)
-		return 8;
-
-	if (GetBoldness() >= 4)
 		return 7;
 
-	return 6;
+	if (GetBoldness() >= 4)
+		return 6;
+
+	return 5;
 }
 
 /// Updates how aggressively all players have bought land near us

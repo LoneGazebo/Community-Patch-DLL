@@ -2,7 +2,7 @@
 <Mod id="8411a7a8-dad3-4622-a18e-fcc18324c799" version="14">
   <Properties>
     <Name>(2) Community Balance Overhaul</Name>
-    <Teaser>(1.2) Unofficial Expansion and Rebalancing Project for Civilization V: Brave New World</Teaser>
+    <Teaser>(1.2.1) Unofficial Expansion and Rebalancing Project for Civilization V: Brave New World</Teaser>
     <Description>Contains balance changes, gameplay improvements, and entirely new game systems to make Civ V a more enjoyable and exciting game.</Description>
     <Authors>CivFanatics Community Patch Project Team</Authors>
     <HideSetupGame>0</HideSetupGame>
@@ -407,9 +407,9 @@
     <File md5="AF180202A765B3DC375A87EA73EFDEE8" import="0">Balance Changes/Terrain/TerrainChanges.sql</File>
     <File md5="28BCA48F4B5B459928075E7B2411450F" import="0">Balance Changes/Text/en_US/BuildingText.sql</File>
     <File md5="FAC5E7134B0C02B6508C71B51019CA38" import="0">Balance Changes/Text/en_US/CivText.sql</File>
-    <File md5="570472CC2DA1A8464757EB4AD322F72D" import="0">Balance Changes/Text/en_US/BuildingText.xml</File>
+    <File md5="B0EFBA6CD991DB7CD1AE593752B51082" import="0">Balance Changes/Text/en_US/BuildingText.xml</File>
     <File md5="D1DF48B61D7C1899D7103D52EC6CB806" import="0">Balance Changes/Text/en_US/EspionageEventText.xml</File>
-    <File md5="D523C794FC6AB7C4714802784AAE65A2" import="0">Balance Changes/Text/en_US/UnitText.xml</File>
+    <File md5="ABA879ABAAA44E1676330FF99B87487A" import="0">Balance Changes/Text/en_US/UnitText.xml</File>
     <File md5="B2B37CAB44894DF267EAA36B6B16EDB9" import="0">Balance Changes/Text/en_US/UIText.xml</File>
     <File md5="BD8D184BBFF6A5C5E35C571ABBB43E07" import="0">Balance Changes/Text/en_US/TerrainText.xml</File>
     <File md5="7CDB54B54E9B684D133A479CA251786D" import="0">Balance Changes/Text/en_US/PromotionText.sql</File>

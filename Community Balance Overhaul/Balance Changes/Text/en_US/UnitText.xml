@@ -286,7 +286,7 @@
 			<Text>Raider</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_RAIDER_HELP">
-			<Text>Flank attack bonus increased by 150%.[NEWLINE]Steal [ICON_GOLD] Gold equal to 50% of the damage inflicted on a city, capping at City's [ICON_STRENGTH] Combat Strength x 10.[NEWLINE]Is able to use enemy roads.</Text>
+			<Text>Flank attack bonus increased by 20%.[NEWLINE]Steal [ICON_GOLD] Gold equal to 50% of the damage inflicted on a city, capping at City's [ICON_STRENGTH] Combat Strength x 10.[NEWLINE]Is able to use enemy roads.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_ESPRIT_DE_CORPS">
 			<Text>Withering Fire</Text>

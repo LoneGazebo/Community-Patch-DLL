@@ -1388,6 +1388,11 @@ CvSpyResult CvPlayerEspionage::ProcessSpyFocusResult(PlayerTypes ePlayer, CvCity
 							if (bEspionage && eOtherPlayer == pCity->getOwner())
 								continue;
 
+							// Recursive - notification spam is annoying players, so disabling them for all except the player and city owner
+							// G, feel free to revise this when you return :)
+							if (bEspionage && eOtherPlayer != ePlayer)
+								continue;
+
 							//Global? Seed only to known players.
 							if (bGlobal && eOtherPlayer != ePlayer && !GET_TEAM(GET_PLAYER(eOtherPlayer).getTeam()).isHasMet(GET_PLAYER(ePlayer).getTeam()))
 								continue;
