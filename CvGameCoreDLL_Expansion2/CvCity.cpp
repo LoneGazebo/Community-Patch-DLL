@@ -30844,7 +30844,7 @@ CvUnit* CvCity::CreateUnit(UnitTypes eUnitType, UnitAITypes eAIType, UnitCreatio
 	addProductionExperience(pUnit, false, bIsPurchase);
 
 #if defined(MOD_BALANCE_CORE)
-	if (pUnit->getUnitInfo().CanMoveAfterPurchase())
+	if (eReason != REASON_BUY || pUnit->getUnitInfo().CanMoveAfterPurchase())
 		pUnit->restoreFullMoves();
 	else
 		pUnit->finishMoves();
