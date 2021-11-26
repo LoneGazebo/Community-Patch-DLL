@@ -1625,6 +1625,19 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveScientist(CvUnit* /*pGreatScie
 
 GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveGeneral(CvUnit* pGreatGeneral)
 {
+	
+#if defined(MOD_ERA_RESTRICTED_GENERALS)
+	if (MOD_ERA_RESTRICTED_GENERALS && pGreatGeneral->isHasPromotion((PromotionTypes)GC.getInfoTypeForString("PROMOTION_NEGATE_GENERAL", true)))
+	{
+		if (GC.getLogging() && GC.getAILogging())
+		{
+			CvString strLogString;
+			strLogString.Format("%s is obsolete", pGreatGeneral->getName().GetCString());
+			GetHomelandAI()->LogHomelandMessage(strLogString);
+		}
+		return GREAT_PEOPLE_DIRECTIVE_USE_POWER;
+	}
+#endif
 	//this one is sticky
 	if (pGreatGeneral->GetGreatPeopleDirective() == GREAT_PEOPLE_DIRECTIVE_USE_POWER)
 		return GREAT_PEOPLE_DIRECTIVE_USE_POWER;
@@ -1730,6 +1743,19 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveProphet(CvUnit* pUnit)
 
 GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveAdmiral(CvUnit* pGreatAdmiral)
 {
+#if defined(MOD_ERA_RESTRICTED_GENERALS)
+	if (MOD_ERA_RESTRICTED_GENERALS && pGreatAdmiral->isHasPromotion((PromotionTypes)GC.getInfoTypeForString("PROMOTION_NEGATE_ADMIRAL", true)))
+	{
+		if (GC.getLogging() && GC.getAILogging())
+		{
+			CvString strLogString;
+			strLogString.Format("%s is obsolete", pGreatAdmiral->getName().GetCString());
+			GetHomelandAI()->LogHomelandMessage(strLogString);
+		}
+		return GREAT_PEOPLE_DIRECTIVE_USE_POWER;
+	}
+#endif
+
 	if (IsAtWar() || pGreatAdmiral->getArmyID() != -1 || pGreatAdmiral->IsRecentlyDeployedFromOperation())
 		return GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND;
 
