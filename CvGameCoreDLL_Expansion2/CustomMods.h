@@ -366,6 +366,9 @@
 // Restricts a Team from passing into the next era before they have found all techs of their current era
 #define MOD_ERA_RESTRICTION							gCustomMods.isERA_RESTRICTION()
 
+// Era Restricted General Bonuses
+#define MOD_ERA_RESTRICTED_GENERALS                  gCustomMods.isERA_RESTRICTED_GENERALS()
+
 // turn on or off yields for terrains that have a feature with GetPlayerTraits()->IsTradeRouteOnly
 #define MOD_USE_TRADE_FEATURES						gCustomMods.isUSE_TRADE_FEATURES()
 
@@ -1373,6 +1376,7 @@ public:
 	MOD_OPT_DECL(POLICIES_CITY_AUTOMATON_WORKERS);
 	MOD_OPT_DECL(POLICIES_UNIT_CLASS_REPLACEMENTS);
 	MOD_OPT_DECL(ERA_RESTRICTION);
+	MOD_OPT_DECL(ERA_RESTRICTED_GENERALS);
 	MOD_OPT_DECL(USE_TRADE_FEATURES);
 	MOD_OPT_DECL(TECHS_CITY_WORKING);
 	MOD_OPT_DECL(TECHS_CITY_AUTOMATON_WORKERS);
