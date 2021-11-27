@@ -499,6 +499,8 @@
 
 // Enhanced Diplomacy Modifiers events (v53)
 //   GameEvents.GetDiploModifier.Add(function(iEvent, iFromPlayer, iToPlayer) return 0 end)
+//   GameEvents.AiFlatApproachChange.Add(function(iPlayer, iApproachType) return iChange end)
+//   GameEvents.AiPercentApproachMod.Add(function(iPlayer, iApproachType) return iMod end)
 #define MOD_EVENTS_DIPLO_MODIFIERS                  gCustomMods.isEVENTS_DIPLO_MODIFIERS()
 
 // Events sent on status change with City States
@@ -1106,6 +1108,8 @@ enum BattleTypeTypes
 #define GAMEEVENT_CityInvestedUnit			"CityInvestedUnit", "iiii"
 #define GAMEEVENT_ConquerorValidBuilding	"ConquerorValidBuilding", "iiii"
 #define GAMEEVENT_GameSave					"GameSave",					""
+#define GAMEEVENT_AiFlatApproachChange		"AiFlatApproachChange",		"ii"
+#define GAMEEVENT_AiPercentApproachMod		"AiPercentApproachMod",		"ii"
 // City and Player Events
 #define GAMEEVENT_EventActivated			"EventActivated", "ii"
 #define GAMEEVENT_CityEventActivated		"CityEventActivated", "iii"

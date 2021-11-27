@@ -18359,7 +18359,18 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	////////////////////////////////////
 
 	// Modders can add flat weight to approaches based on custom conditions here.
-	// (to-do: add LUA hook)
+
+#if defined(MOD_EVENTS_DIPLO_MODIFIERS)
+	if (MOD_EVENTS_DIPLO_MODIFIERS) {
+		for (int iApproachLoop = 0; iApproachLoop < NUM_CIV_APPROACHES; iApproachLoop++)
+		{
+			int iChange = 0;
+			if (GAMEEVENTINVOKE_VALUE(iChange, GAMEEVENT_AiFlatApproachChange, GetID(), iApproachLoop) == GAMEEVENTRETURN_VALUE) {
+				vApproachScores[iApproachLoop] += iChange;
+			}
+		}
+	}
+#endif
 
 	////////////////////////////////////
 	// SQL BONUS/PENALTY
@@ -18857,7 +18868,19 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	////////////////////////////////////
 
 	// Modders can add % weight to approaches based on custom conditions here.
-	// (to-do: add LUA hook)
+	
+#if defined(MOD_EVENTS_DIPLO_MODIFIERS)
+	if (MOD_EVENTS_DIPLO_MODIFIERS) {
+		for (int iApproachLoop = 0; iApproachLoop < NUM_CIV_APPROACHES; iApproachLoop++)
+		{
+			int iMod = 0;
+			if (GAMEEVENTINVOKE_VALUE(iMod, GAMEEVENT_AiPercentApproachMod, GetID(), iApproachLoop) == GAMEEVENTRETURN_VALUE) {
+				vApproachScores[iApproachLoop] *= (iMod + 100);
+				vApproachScores[iApproachLoop] /= 100;
+			}
+		}
+	}
+#endif
 
 	////////////////////////////////////
 	// SQL BONUS/PENALTY
