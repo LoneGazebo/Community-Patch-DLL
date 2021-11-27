@@ -1,3 +1,6 @@
+-- Merged Protective and Friendly approaches in the DLL (takes highest value)
+UPDATE Leader_MinorCivApproachBiases SET Bias = -1 WHERE MinorCivApproachType = 'MINOR_CIV_APPROACH_FRIENDLY';
+
 -- Ahmad al-Mansur (Morocco)
 UPDATE Leaders SET Personality = 'PERSONALITY_DIPLOMAT' WHERE Type = 'LEADER_AHMAD_ALMANSUR';
 UPDATE Leaders SET VictoryCompetitiveness = 5 		WHERE Type = 'LEADER_AHMAD_ALMANSUR';

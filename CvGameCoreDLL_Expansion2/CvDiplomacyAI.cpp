@@ -12484,17 +12484,20 @@ bool CvDiplomacyAI::IsWillingToAttackFriend(PlayerTypes ePlayer, bool bDirect, b
 					{
 						return false;
 					}
-					else if (IsStrategicTradePartner(eLoopPlayer))
+					else if (!bEndgameAggressive) // Lower bar if endgame aggressive, we may not have time to win otherwise
 					{
-						return false;
-					}
-					else if (!IsEasyTarget(eLoopPlayer))
-					{
-						return false;
-					}
-					else if (!IsBackstabber() && GetCivOpinion(eLoopPlayer) >= CIV_OPINION_FAVORABLE)
-					{
-						return false;
+						if (IsStrategicTradePartner(eLoopPlayer))
+						{
+							return false;
+						}
+						else if (!IsEasyTarget(eLoopPlayer))
+						{
+							return false;
+						}
+						else if (!IsBackstabber() && GetCivOpinion(eLoopPlayer) >= CIV_OPINION_FAVORABLE)
+						{
+							return false;
+						}
 					}
 				}
 			}
@@ -12503,9 +12506,19 @@ bool CvDiplomacyAI::IsWillingToAttackFriend(PlayerTypes ePlayer, bool bDirect, b
 	// Declaration of Friendship or Defensive Pact?
 	else if (IsDoFAccepted(ePlayer) || (IsHasDefensivePact(ePlayer) && !IsWantsToEndDefensivePactWithPlayer(ePlayer)))
 	{
-		// Don't directly backstab if approach is FRIENDLY (unless they provoked us)
-		if (bDirect && !bImpulse && GetCivApproach(ePlayer) == CIV_APPROACH_FRIENDLY)
-			return false;
+		if (bDirect && !bImpulse)
+		{
+			// No direct unprovoked backstabbing if approach is NEUTRAL or FRIENDLY
+			if (GetCivApproach(ePlayer) >= CIV_APPROACH_NEUTRAL)
+				return false;
+
+			// No direct unprovoked backstabbing if opinion is too high
+			if (GetCivOpinion(ePlayer) == CIV_OPINION_FRIEND)
+				return false;
+
+			if (!IsBackstabber() && GetLoyalty() > 3 && GetCivOpinion(ePlayer) == CIV_OPINION_FAVORABLE)
+				return false;
+		}
 
 		// We must be stronger than them
 		bool bEasyTarget = IsEasyTarget(ePlayer);
@@ -12528,7 +12541,7 @@ bool CvDiplomacyAI::IsWillingToAttackFriend(PlayerTypes ePlayer, bool bDirect, b
 		}
 
 		// Don't backstab if we're loyal
-		if (!IsBackstabber() && !bEndgameAggressive && GetLoyalty() > 6)
+		if (!IsBackstabber() && GetLoyalty() > 6)
 			return false;
 
 		// We need a good reason to even consider backstabbing a friend...
@@ -12601,8 +12614,10 @@ bool CvDiplomacyAI::IsWillingToAttackFriend(PlayerTypes ePlayer, bool bDirect, b
 					if (bImpulse && GetCivOpinion(ePlayer) >= CIV_OPINION_FRIEND)
 						return false;
 
-					// Impulse wars against neighbors that aren't easy targets are a bad idea.
-					if (bImpulse && GET_PLAYER(ePlayer).GetProximityToPlayer(GetID()) >= PLAYER_PROXIMITY_CLOSE && !IsEasyTarget(ePlayer))
+					// Wars against neighbors that are too strong are a bad idea.
+					bool bStrengthOK = (GET_PLAYER(ePlayer).GetProximityToPlayer(GetID()) == PLAYER_PROXIMITY_NEIGHBORS && GetPlayerMilitaryStrengthComparedToUs(ePlayer) < STRENGTH_AVERAGE) || (GET_PLAYER(ePlayer).GetProximityToPlayer(GetID()) == PLAYER_PROXIMITY_CLOSE && GetPlayerMilitaryStrengthComparedToUs(ePlayer) < STRENGTH_POWERFUL) || GET_PLAYER(ePlayer).GetProximityToPlayer(GetID()) < PLAYER_PROXIMITY_CLOSE;
+					bool bDefenseOK = bStrengthOK && (!GetPlayer()->GetMilitaryAI()->IsExposedToEnemy(NULL, ePlayer) || IsEasyTarget(ePlayer));
+					if (!bDefenseOK)
 						return false;
 				}
 			}
