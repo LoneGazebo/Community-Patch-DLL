@@ -4226,7 +4226,11 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 		}
 		if (PolicyInfo->GetYieldFromBorderGrowth(eYield) != 0)
 		{
-			if (pPlayerTraits->IsExpansionist())
+			if (pPlayerTraits->IsBuyOwnedTiles() || pPlayerTraits->GetExtraFoundedCityTerritoryClaimRange() != 0) // America/Shoshone UA doesn't synergize with this
+			{
+				yield[eYield] += PolicyInfo->GetYieldFromBorderGrowth(eYield) * iNumCities / 2;
+			}
+			else if (pPlayerTraits->IsExpansionist())
 			{
 				yield[eYield] += PolicyInfo->GetYieldFromBorderGrowth(eYield) * 2 * iNumCities;
 			}

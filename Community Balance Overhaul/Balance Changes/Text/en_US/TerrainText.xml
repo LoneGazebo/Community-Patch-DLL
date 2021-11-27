@@ -51,7 +51,7 @@
 			<Text>Cannot be built next to another Hacienda. Provides [ICON_FOOD] Food, [ICON_PRODUCTION] Production, and [ICON_GOLD] Gold. Grants additional bonuses for every adjacent map component:[NEWLINE]+2 [ICON_FOOD] - Bonus Resource,[NEWLINE]+2 [ICON_PRODUCTION] - Strategic Resource,[NEWLINE]+2 [ICON_GOLD] - Luxury Resource,[NEWLINE]+2 [ICON_CULTURE] - City.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILD_SPAIN_HACIENDA">
-			<Text>Construct a [LINK=IMPROVEMENT_SPAIN_HACIENDA]Hacienda[\LINK]'</Text>
+			<Text>Construct a [LINK=IMPROVEMENT_SPAIN_HACIENDA]Hacienda[\LINK]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILD_SPAIN_HACIENDA_HELP">
 			<Text>Constructs a Hacienda, which yields [ICON_FOOD] Food, [ICON_PRODUCTION] Production, and [ICON_GOLD] Gold.[NEWLINE]Gains [ICON_FOOD] Food for adjacent Bonus Resource, [ICON_PRODUCTION] Production for adjacent Strategic Resources, [ICON_GOLD] Gold for adjacent Luxury Resources, and [ICON_CULTURE] Culture from adjacent Cities.</Text>

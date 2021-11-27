@@ -4437,13 +4437,13 @@ AggressivePostureTypes CvDiplomacyAI::GetExpansionAggressivePosture(PlayerTypes 
 		}
 	}
 
-	if (iMinDistance <= 5)
+	if (iMinDistance <= /*5*/ GD_INT_GET(EXPANSION_BICKER_RANGE_LOW))
 		return AGGRESSIVE_POSTURE_INCREDIBLE;
-	else if (iMinDistance <= 7)
+	else if (iMinDistance <= /*7*/ GD_INT_GET(EXPANSION_BICKER_RANGE_HIGH))
 		return AGGRESSIVE_POSTURE_HIGH;
-	else if (iMinDistance <= 9)
+	else if (iMinDistance <= /*9*/ GD_INT_GET(EXPANSION_BICKER_RANGE_HIGH) + 2)
 		return AGGRESSIVE_POSTURE_MEDIUM;
-	else if (iMinDistance <= 13)
+	else if (iMinDistance <= /*13*/ GD_INT_GET(EXPANSION_BICKER_RANGE_HIGH) + 6)
 		return AGGRESSIVE_POSTURE_LOW;
 
 	return AGGRESSIVE_POSTURE_NONE;
@@ -10834,8 +10834,8 @@ void CvDiplomacyAI::DoExpansionBickering()
 		if (!IsPlayerValid(ePlayer) || !GET_PLAYER(ePlayer).isMajorCiv())
 			continue;
 
-		// Don't bother checking if they ignored/broke a promise.
-		if (GetPlayerExpansionPromiseState(ePlayer) >= PROMISE_STATE_IGNORED)
+		// Don't bother checking if they ignored/broke a promise, or if bicker range is 0.
+		if (GetPlayerExpansionPromiseState(ePlayer) >= PROMISE_STATE_IGNORED || iExpansionBickerRange <= 0)
 		{
 			if (IsAngryAboutExpansion(ePlayer))
 				SetAngryAboutExpansion(ePlayer, false);
@@ -10934,18 +10934,18 @@ void CvDiplomacyAI::DoExpansionBickering()
 int CvDiplomacyAI::GetExpansionBickerRange() const
 {
 	if (GetPlayer()->GetPlayerTraits()->IsExpansionist())
-		return 7;
+		return /*7*/ GD_INT_GET(EXPANSION_BICKER_RANGE_HIGH);
 
 	if (GetPlayer()->isHuman())
-		return 6;
+		return /*6*/ GD_INT_GET(EXPANSION_BICKER_RANGE_MEDIUM);
 
 	if (GetBoldness() >= 8)
-		return 7;
+		return /*7*/ GD_INT_GET(EXPANSION_BICKER_RANGE_HIGH);
 
 	if (GetBoldness() >= 4)
-		return 6;
+		return /*6*/ GD_INT_GET(EXPANSION_BICKER_RANGE_MEDIUM);
 
-	return 5;
+	return /*5*/ GD_INT_GET(EXPANSION_BICKER_RANGE_LOW);
 }
 
 /// Updates how aggressively all players have bought land near us
@@ -27242,9 +27242,9 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 	}
 
 	// Player killed a City-State we were protecting
-	else if(eStatement == DIPLO_STATEMENT_KILLED_PROTECTED_CITY_STATE)
+	else if (eStatement == DIPLO_STATEMENT_KILLED_PROTECTED_CITY_STATE)
 	{
-		if(bHuman)
+		if (bHuman)
 		{
 			PlayerTypes eMinorCiv = (PlayerTypes) iData1;
 			CvAssert(eMinorCiv != NO_PLAYER);
@@ -45472,7 +45472,7 @@ int CvDiplomacyAI::GetPlayerAttackedResurrectedCivScore(PlayerTypes ePlayer)
 	{
 		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
 
-		if (GET_PLAYER(eLoopPlayer).isMajorCiv() && eLoopPlayer != GetID() && eLoopPlayer != ePlayer && IsHasMet(eLoopPlayer, true) && GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsFriendDeclaredWarOnUs(ePlayer))
+		if (GET_PLAYER(eLoopPlayer).isMajorCiv() && eLoopPlayer != GetID() && eLoopPlayer != ePlayer && IsHasMet(eLoopPlayer, true) && GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsResurrectorAttackedUs(ePlayer))
 		{
 			// If this guy is untrustworthy, he doesn't count
 			if (!IsUntrustworthy(eLoopPlayer) && !WasEverBackstabbedBy(eLoopPlayer) && !GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->WasEverBackstabbedBy(GetID()))
