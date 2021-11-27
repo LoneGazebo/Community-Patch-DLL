@@ -444,7 +444,7 @@ public:
 	//can a generic unit move through this plot (disregarding promotions, combat/civilian etc)
 	bool isValidMovePlot(PlayerTypes ePlayer, bool bCheckTerritory=true) const;
 
-	bool isBlockaded();
+	bool isBlockaded(PlayerTypes eForPlayer);
 
 	inline TerrainTypes getTerrainType() const
 	{

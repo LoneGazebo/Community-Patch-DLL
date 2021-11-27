@@ -6252,15 +6252,15 @@ bool CvPlot::IsCloseToCity(PlayerTypes ePlayer) const
 }
 
 //	--------------------------------------------------------------------------------
-bool CvPlot::isBlockaded()
+bool CvPlot::isBlockaded(PlayerTypes eForPlayer)
 {
-	if (isCity() || !isOwned())
+	if (isCity())
 		return false;
 
-	if (isEnemyUnit(getOwner(), true, false))
+	if (isEnemyUnit(eForPlayer, true, false))
 		return true;
 
-	if (isFriendlyUnit(getOwner(), true, false))
+	if (isFriendlyUnit(eForPlayer, true, false))
 		return false;
 
 	//need to do additional checks in water
@@ -6273,7 +6273,7 @@ bool CvPlot::isBlockaded()
 			if (pNeighbor && pNeighbor->getArea() == getArea())
 			{
 				//no halo around embarked units
-				if (pNeighbor->isEnemyUnit(getOwner(), true, false, false, true))
+				if (pNeighbor->isEnemyUnit(eForPlayer, true, false, false, true))
 					return true;
 			}
 		}
