@@ -1624,8 +1624,7 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveScientist(CvUnit* /*pGreatScie
 }
 
 GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveGeneral(CvUnit* pGreatGeneral)
-{	
-#if defined(MOD_ERA_RESTRICTED_GENERALS)
+{
 	if (MOD_ERA_RESTRICTED_GENERALS)
 	{
 		bool bHasGeneralNegation = false;
@@ -1646,7 +1645,6 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveGeneral(CvUnit* pGreatGeneral)
 			return GREAT_PEOPLE_DIRECTIVE_USE_POWER;
 		}
 	}
-#endif
 
 	//this one is sticky
 	if (pGreatGeneral->GetGreatPeopleDirective() == GREAT_PEOPLE_DIRECTIVE_USE_POWER)
@@ -1753,7 +1751,6 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveProphet(CvUnit* pUnit)
 
 GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveAdmiral(CvUnit* pGreatAdmiral)
 {
-#if defined(MOD_ERA_RESTRICTED_GENERALS)
 	if (MOD_ERA_RESTRICTED_GENERALS)
 	{
 		bool bHasAdmiralNegation = false;
@@ -1774,7 +1771,7 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveAdmiral(CvUnit* pGreatAdmiral)
 			return GREAT_PEOPLE_DIRECTIVE_USE_POWER;
 		}
 	}
-#endif
+
 	if (IsAtWar() || pGreatAdmiral->getArmyID() != -1 || pGreatAdmiral->IsRecentlyDeployedFromOperation())
 		return GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND;
 
@@ -1782,7 +1779,7 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveAdmiral(CvUnit* pGreatAdmiral)
 	int iLoop;
 	for (CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit; pLoopUnit = nextUnit(&iLoop))
 	{
-		if(pLoopUnit->IsGreatAdmiral())
+		if (pLoopUnit->IsGreatAdmiral())
 		{
 			iGreatAdmiralCount++;
 		}
@@ -1797,7 +1794,6 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveAdmiral(CvUnit* pGreatAdmiral)
 	return NO_GREAT_PEOPLE_DIRECTIVE_TYPE;
 }
 
-#if defined(MOD_DIPLOMACY_CITYSTATES)
 GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveDiplomat(CvUnit* pGreatDiplomat)
 {
 	bool bTheVeniceException = false;
@@ -1815,7 +1811,7 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveDiplomat(CvUnit* pGreatDiploma
 	int iFlavorDiplo =  GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_DIPLOMACY"));
 	int iDesiredEmb = max(1, ((iFlavorDiplo * 2) - 3));
 	int iNumMinors = GC.getGame().GetNumMinorCivsAlive();
-	if(iDesiredEmb > iNumMinors)
+	if (iDesiredEmb > iNumMinors)
 	{
 		iDesiredEmb = iNumMinors;
 	}
@@ -1825,7 +1821,7 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveDiplomat(CvUnit* pGreatDiploma
 	CvCity* pCity = FindBestDiplomatTargetCity(pGreatDiplomat);
 	if (pCity && !bTheAustriaException && !bTheVeniceException)
 	{
-		if((iEmbassies < iDesiredEmb) || GetDiplomacyAI()->IsGoingForDiploVictory())
+		if ((iEmbassies < iDesiredEmb) || GetDiplomacyAI()->IsGoingForDiploVictory())
 		{
 			return GREAT_PEOPLE_DIRECTIVE_CONSTRUCT_IMPROVEMENT;
 		}
@@ -1833,7 +1829,6 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveDiplomat(CvUnit* pGreatDiploma
 
 	return GREAT_PEOPLE_DIRECTIVE_USE_POWER;
 }
-#endif
 
 bool CvPlayerAI::GreatMerchantWantsCash()
 {

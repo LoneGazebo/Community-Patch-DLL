@@ -18337,7 +18337,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	// CUSTOM DLL MOD BONUS/PENALTY
 	////////////////////////////////////
 
-	// Modders can add flat weight to approaches based on custom conditions (if a certain Custom Mod is #defined) here.
+	// Modders can add flat weight to approaches based on custom conditions (if a certain Custom Mod is active) here.
 
 	////////////////////////////////////
 	// LUA BONUS/PENALTY
@@ -18835,7 +18835,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	// CUSTOM DLL MOD BONUS/PENALTY
 	////////////////////////////////////
 
-	// Modders can add % weight to approaches based on custom conditions (if a certain Custom Mod is #defined) here.
+	// Modders can add % weight to approaches based on custom conditions (if a certain Custom Mod is active) here.
 
 	////////////////////////////////////
 	// LUA BONUS/PENALTY
@@ -20761,7 +20761,7 @@ bool CvDiplomacyAI::IsGoodChoiceForDoF(PlayerTypes ePlayer)
 		if (iPeaceTreatyTurn > -1)
 		{
 			int iTurnsSincePeace = GC.getGame().getGameTurn() - iPeaceTreatyTurn;
-			int iPeaceDampenerTurns = /*20*/ GC.getTURNS_SINCE_PEACE_WEIGHT_DAMPENER();
+			int iPeaceDampenerTurns = /*20*/ GD_INT_GET(TURNS_SINCE_PEACE_WEIGHT_DAMPENER);
 
 			if (iTurnsSincePeace < iPeaceDampenerTurns)
 				return false;
@@ -20830,7 +20830,7 @@ bool CvDiplomacyAI::IsGoodChoiceForDefensivePact(PlayerTypes ePlayer)
 		if (iPeaceTreatyTurn > -1)
 		{
 			int iTurnsSincePeace = GC.getGame().getGameTurn() - iPeaceTreatyTurn;
-			int iPeaceDampenerTurns = /*20*/ GC.getTURNS_SINCE_PEACE_WEIGHT_DAMPENER();
+			int iPeaceDampenerTurns = /*20*/ GD_INT_GET(TURNS_SINCE_PEACE_WEIGHT_DAMPENER);
 
 			if (iTurnsSincePeace < iPeaceDampenerTurns)
 				return false;
@@ -21332,7 +21332,7 @@ void CvDiplomacyAI::DoUpdateWarTargets()
 				if (iPeaceTreatyTurn > -1)
 				{
 					int iTurnsSincePeace = GC.getGame().getGameTurn() - iPeaceTreatyTurn;
-					int iPeaceDampenerTurns = /*20*/ GC.getTURNS_SINCE_PEACE_WEIGHT_DAMPENER();
+					int iPeaceDampenerTurns = /*20*/ GD_INT_GET(TURNS_SINCE_PEACE_WEIGHT_DAMPENER);
 
 					if (iTurnsSincePeace < iPeaceDampenerTurns)
 						continue;
@@ -21603,7 +21603,7 @@ void CvDiplomacyAI::DoUpdateWarTargets()
 				if (iPeaceTreatyTurn > -1)
 				{
 					int iTurnsSincePeace = GC.getGame().getGameTurn() - iPeaceTreatyTurn;
-					int iPeaceDampenerTurns = /*20*/ GC.getTURNS_SINCE_PEACE_WEIGHT_DAMPENER();
+					int iPeaceDampenerTurns = /*20*/ GD_INT_GET(TURNS_SINCE_PEACE_WEIGHT_DAMPENER);
 
 					if (MOD_BALANCE_CORE_DIFFICULTY)
 					{
@@ -22692,7 +22692,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMinorCiv(PlayerTypes ePlayer, std::
 	if (iPeaceTreatyTurn > -1)
 	{
 		int iTurnsSincePeace = GC.getGame().getElapsedGameTurns() - iPeaceTreatyTurn;
-		if (iTurnsSincePeace < /*20*/ GC.getTURNS_SINCE_PEACE_WEIGHT_DAMPENER())
+		if (iTurnsSincePeace < /*20*/ GD_INT_GET(TURNS_SINCE_PEACE_WEIGHT_DAMPENER))
 		{
 			vApproachScores[CIV_APPROACH_HOSTILE] = 0;
 			vApproachScores[CIV_APPROACH_WAR] = 0;
@@ -32614,7 +32614,7 @@ void CvDiplomacyAI::DoHostileStatement(PlayerTypes ePlayer, DiploStatementTypes&
 			if(iPeaceTreatyTurn != -1)
 			{
 				int iTurnsSincePeace = GC.getGame().getElapsedGameTurns() - iPeaceTreatyTurn;
-				if(iTurnsSincePeace < /*25*/ GC.getTURNS_SINCE_PEACE_WEIGHT_DAMPENER())
+				if (iTurnsSincePeace < /*20*/ GD_INT_GET(TURNS_SINCE_PEACE_WEIGHT_DAMPENER))
 					return;
 			}
 
@@ -39330,7 +39330,7 @@ int CvDiplomacyAI::GetCoopWarDesireScore(PlayerTypes eAllyPlayer, PlayerTypes eT
 		if (iPeaceTreatyTurn > -1)
 		{
 			int iTurnsSincePeace = GC.getGame().getGameTurn() - iPeaceTreatyTurn;
-			int iPeaceDampenerTurns = /*20*/ GC.getTURNS_SINCE_PEACE_WEIGHT_DAMPENER();
+			int iPeaceDampenerTurns = /*20*/ GD_INT_GET(TURNS_SINCE_PEACE_WEIGHT_DAMPENER);
 
 			if (iTurnsSincePeace < iPeaceDampenerTurns)
 			{
