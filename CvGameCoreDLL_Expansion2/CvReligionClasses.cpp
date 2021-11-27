@@ -8584,11 +8584,11 @@ int CvReligionAI::ScoreBeliefAtCity(CvBeliefEntry* pEntry, CvCity* pCity)
 		if (pEntry->GetYieldPerBorderGrowth((YieldTypes)iI) > 0)
 		{
 			int iVal = ((pEntry->GetYieldPerBorderGrowth((YieldTypes)iI) * iCulture) / max(4, pCity->GetJONSCultureLevel() * 4));
-			if (m_pPlayer->GetPlayerTraits()->IsBuyOwnedTiles() || m_pPlayer->GetPlayerTraits()->GetExtraFoundedCityTerritoryClaimRange() != 0) // America/Shoshone UA doesn't synergize with this
+			if (m_pPlayer->GetPlayerTraits()->IsBuyOwnedTiles()) // America UA has an anti-synergy with this
 			{
 				iVal /= 2;
 			}
-			else if (m_pPlayer->GetPlayerTraits()->IsExpansionist())
+			else if (m_pPlayer->GetPlayerTraits()->IsExpansionist() && m_pPlayer->GetPlayerTraits()->GetExtraFoundedCityTerritoryClaimRange() == 0)
 			{
 				iVal *= 2;
 			}
