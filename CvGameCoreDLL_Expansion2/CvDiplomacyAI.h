@@ -1676,10 +1676,8 @@ public:
 	int GetHappyAboutVassalagePeacefullyRevokedScore(PlayerTypes ePlayer);
 	int GetAngryAboutVassalageForcefullyRevokedScore(PlayerTypes ePlayer);
 
-	// Scenario-Specific
-#if defined(MOD_EVENTS_DIPLO_MODIFIERS)
+	// Modmod Modifiers
 	int GetDiploModifiers(PlayerTypes ePlayer, std::vector<Opinion>& aOpinions);
-#endif
 	int GetScenarioModifier1(PlayerTypes ePlayer);
 	int GetScenarioModifier2(PlayerTypes ePlayer);
 	int GetScenarioModifier3(PlayerTypes ePlayer);

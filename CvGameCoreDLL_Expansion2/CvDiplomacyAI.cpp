@@ -12909,27 +12909,24 @@ int CvDiplomacyAI::CalculateCivOpinionWeight(PlayerTypes ePlayer)
 	}
 
 	//////////////////////////////////////
-	// SCENARIO-SPECIFIC
+	// MODMOD MODIFIERS
 	//////////////////////////////////////
-#if defined(MOD_EVENTS_DIPLO_MODIFIERS)
+
 	if (MOD_EVENTS_DIPLO_MODIFIERS && !GC.getGame().isReallyNetworkMultiPlayer() && !GC.getGame().isNetworkMultiPlayer())
 	{
 		std::vector<Opinion> aOpinions;
 		iOpinionWeight += GetDiploModifiers(ePlayer, aOpinions);
 	}
-#else
-	iOpinionWeight += GetScenarioModifier1(ePlayer);
-	iOpinionWeight += GetScenarioModifier2(ePlayer);
-	iOpinionWeight += GetScenarioModifier3(ePlayer);
-#endif
 
 	return iOpinionWeight;
 }
 
-#if defined(MOD_ACTIVE_DIPLOMACY)
 // JdH => calculate ai to human trade priority for multiplayer
 void CvDiplomacyAI::DoUpdateHumanTradePriority(PlayerTypes ePlayer, int iOpinionWeight)
 {
+	if (!MOD_ACTIVE_DIPLOMACY)
+		return;
+
 	if (ePlayer >= 0 && ePlayer < MAX_MAJOR_CIVS)
 	{
 		iOpinionWeight = max(iOpinionWeight, GD_INT_GET(OPINION_THRESHOLD_ALLY));
@@ -12947,7 +12944,6 @@ void CvDiplomacyAI::DoUpdateHumanTradePriority(PlayerTypes ePlayer, int iOpinion
 		m_aTradePriority[ePlayer] = 10.0f * opinion + turnsPassed; // factor in turns since last contact and opinion of player
 	}
 }
-#endif
 
 //	-----------------------------------------------------------------------------------------------
 
@@ -18359,18 +18355,17 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	////////////////////////////////////
 
 	// Modders can add flat weight to approaches based on custom conditions here.
-
-#if defined(MOD_EVENTS_DIPLO_MODIFIERS)
-	if (MOD_EVENTS_DIPLO_MODIFIERS) {
+	if (MOD_EVENTS_DIPLO_MODIFIERS) 
+	{
 		for (int iApproachLoop = 0; iApproachLoop < NUM_CIV_APPROACHES; iApproachLoop++)
 		{
 			int iChange = 0;
-			if (GAMEEVENTINVOKE_VALUE(iChange, GAMEEVENT_AiFlatApproachChange, GetID(), iApproachLoop) == GAMEEVENTRETURN_VALUE) {
+			if (GAMEEVENTINVOKE_VALUE(iChange, GAMEEVENT_AiFlatApproachChange, GetID(), iApproachLoop) == GAMEEVENTRETURN_VALUE) 
+			{
 				vApproachScores[iApproachLoop] += iChange;
 			}
 		}
 	}
-#endif
 
 	////////////////////////////////////
 	// SQL BONUS/PENALTY
@@ -18868,19 +18863,18 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	////////////////////////////////////
 
 	// Modders can add % weight to approaches based on custom conditions here.
-	
-#if defined(MOD_EVENTS_DIPLO_MODIFIERS)
-	if (MOD_EVENTS_DIPLO_MODIFIERS) {
+	if (MOD_EVENTS_DIPLO_MODIFIERS) 
+	{
 		for (int iApproachLoop = 0; iApproachLoop < NUM_CIV_APPROACHES; iApproachLoop++)
 		{
 			int iMod = 0;
-			if (GAMEEVENTINVOKE_VALUE(iMod, GAMEEVENT_AiPercentApproachMod, GetID(), iApproachLoop) == GAMEEVENTRETURN_VALUE) {
+			if (GAMEEVENTINVOKE_VALUE(iMod, GAMEEVENT_AiPercentApproachMod, GetID(), iApproachLoop) == GAMEEVENTRETURN_VALUE) 
+			{
 				vApproachScores[iApproachLoop] *= (iMod + 100);
 				vApproachScores[iApproachLoop] /= 100;
 			}
 		}
 	}
-#endif
 
 	////////////////////////////////////
 	// SQL BONUS/PENALTY
@@ -46120,16 +46114,16 @@ int CvDiplomacyAI::GetAngryAboutVassalageForcefullyRevokedScore(PlayerTypes ePla
 // SCENARIO-SPECIFIC
 //////////////////////////////////////
 
-#if defined(MOD_EVENTS_DIPLO_MODIFIERS)
 int CvDiplomacyAI::GetDiploModifiers(PlayerTypes eToPlayer, std::vector<Opinion>& aOpinions)
 {
 	int iValue = 0;
 	int iModifier;
 
 	iModifier = GetScenarioModifier1(eToPlayer);
-	if (iModifier != 0) {
+	if (iModifier != 0) 
+	{
 		iValue += iModifier;
-		
+
 		Opinion kOpinion;
 		kOpinion.m_iValue = iModifier;
 		Localization::String strOpinion = Localization::Lookup("TXT_KEY_SPECIFIC_DIPLO_STRING_1");
@@ -46138,9 +46132,10 @@ int CvDiplomacyAI::GetDiploModifiers(PlayerTypes eToPlayer, std::vector<Opinion>
 	}
 	
 	iModifier = GetScenarioModifier2(eToPlayer);
-	if (iModifier != 0) {
+	if (iModifier != 0) 
+	{
 		iValue += iModifier;
-		
+
 		Opinion kOpinion;
 		kOpinion.m_iValue = iModifier;
 		Localization::String strOpinion = Localization::Lookup("TXT_KEY_SPECIFIC_DIPLO_STRING_2");
@@ -46149,9 +46144,10 @@ int CvDiplomacyAI::GetDiploModifiers(PlayerTypes eToPlayer, std::vector<Opinion>
 	}
 
 	iModifier = GetScenarioModifier3(eToPlayer);
-	if (iModifier != 0) {
+	if (iModifier != 0) 
+	{
 		iValue += iModifier;
-		
+
 		Opinion kOpinion;
 		kOpinion.m_iValue = iModifier;
 		Localization::String strOpinion = Localization::Lookup("TXT_KEY_SPECIFIC_DIPLO_STRING_3");
@@ -46166,16 +46162,19 @@ int CvDiplomacyAI::GetDiploModifiers(PlayerTypes eToPlayer, std::vector<Opinion>
 		
 		CvPlayer* pToPlayer = &GET_PLAYER(eToPlayer);
 		CivilizationTypes eToCiv = pToPlayer->getCivilizationType();
-		
-		
-		for (int iI = 0; iI < GC.getNumDiploModifierInfos(); iI++) {
+
+		for (int iI = 0; iI < GC.getNumDiploModifierInfos(); iI++) 
+		{
 			CvDiploModifierInfo* pDiploModifierInfo = GC.getDiploModifierInfo((DiploModifierTypes) iI);
 			
-			if (pDiploModifierInfo && pDiploModifierInfo->isForFromCiv(eFromCiv) && pDiploModifierInfo->isForToCiv(eToCiv)) {
+			if (pDiploModifierInfo && pDiploModifierInfo->isForFromCiv(eFromCiv) && pDiploModifierInfo->isForToCiv(eToCiv)) 
+			{
 				iModifier = 0;
 				
-				if (GAMEEVENTINVOKE_VALUE(iModifier, GAMEEVENT_GetDiploModifier, pDiploModifierInfo->GetID(), eFromPlayer, eToPlayer) == GAMEEVENTRETURN_VALUE) {
-					if (iModifier != 0) {
+				if (GAMEEVENTINVOKE_VALUE(iModifier, GAMEEVENT_GetDiploModifier, pDiploModifierInfo->GetID(), eFromPlayer, eToPlayer) == GAMEEVENTRETURN_VALUE) 
+				{
+					if (iModifier != 0) 
+					{
 						iValue += iModifier;
 		
 						Opinion kOpinion;
@@ -46197,7 +46196,6 @@ int CvDiplomacyAI::GetDiploModifiers(PlayerTypes eToPlayer, std::vector<Opinion>
 	
 	return iValue;
 }
-#endif
 
 int CvDiplomacyAI::GetScenarioModifier1(PlayerTypes ePlayer)
 {

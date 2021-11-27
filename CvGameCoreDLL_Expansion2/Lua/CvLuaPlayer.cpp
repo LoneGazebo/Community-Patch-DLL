@@ -12437,14 +12437,6 @@ int CvLuaPlayer::lWasResurrectedThisTurnBy(lua_State* L)
 	return 1;
 }
 //------------------------------------------------------------------------------
-#if !defined(MOD_EVENTS_DIPLO_MODIFIERS)
-struct Opinion
-{
-	Localization::String m_str;
-	int m_iValue;
-};
-#endif
-
 struct OpinionEval
 {
 	bool operator()(Opinion const& a, Opinion const& b) const
@@ -14968,36 +14960,7 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 		// MODMOD MODIFIERS
 		////////////////////////////////////
 
-#if defined(MOD_EVENTS_DIPLO_MODIFIERS)
 		iValue = pDiplo->GetDiploModifiers(ePlayer, aOpinions);
-#else
-		iValue = pDiplo->GetScenarioModifier1(ePlayer);
-		if (iValue != 0)
-		{
-			Opinion kOpinion;
-			kOpinion.m_iValue = iValue;
-			kOpinion.m_str = Localization::Lookup("TXT_KEY_SPECIFIC_DIPLO_STRING_1");
-			aOpinions.push_back(kOpinion);
-		}
-
-		iValue = pDiplo->GetScenarioModifier2(ePlayer);
-		if (iValue != 0)
-		{
-			Opinion kOpinion;
-			kOpinion.m_iValue = iValue;
-			kOpinion.m_str = Localization::Lookup("TXT_KEY_SPECIFIC_DIPLO_STRING_2");
-			aOpinions.push_back(kOpinion);
-		}
-
-		iValue = pDiplo->GetScenarioModifier3(ePlayer);
-		if (iValue != 0)
-		{
-			Opinion kOpinion;
-			kOpinion.m_iValue = iValue;
-			kOpinion.m_str = Localization::Lookup("TXT_KEY_SPECIFIC_DIPLO_STRING_3");
-			aOpinions.push_back(kOpinion);
-		}
-#endif
 	}
 
 	//--------------------------------//
