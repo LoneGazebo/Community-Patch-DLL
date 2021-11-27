@@ -1624,7 +1624,30 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveScientist(CvUnit* /*pGreatScie
 }
 
 GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveGeneral(CvUnit* pGreatGeneral)
-{
+{	
+#if defined(MOD_ERA_RESTRICTED_GENERALS)
+	if (MOD_ERA_RESTRICTED_GENERALS)
+	{
+		bool bHasGeneralNegation = false;
+		std::string GGNegationPromotions[4] = { "PROMOTION_NEGATE_GENERAL", "PROMOTION_NEGATE_GENERAL_S", "PROMOTION_NEGATE_GENERAL_P", "PROMOTION_NEGATE_GENERAL_SP" };
+
+		for (int i = 0; i < 4; i++)
+			if (pGreatGeneral->isHasPromotion((PromotionTypes)GC.getInfoTypeForString(GGNegationPromotions[i].c_str(), true)))
+				bHasGeneralNegation = true;
+
+		if (bHasGeneralNegation == true)
+		{
+			if (GC.getLogging() && GC.getAILogging())
+			{
+				CvString strLogString;
+				strLogString.Format("%s is obsolete", pGreatGeneral->getName().GetCString());
+				GetHomelandAI()->LogHomelandMessage(strLogString);
+			}
+			return GREAT_PEOPLE_DIRECTIVE_USE_POWER;
+		}
+	}
+#endif
+
 	//this one is sticky
 	if (pGreatGeneral->GetGreatPeopleDirective() == GREAT_PEOPLE_DIRECTIVE_USE_POWER)
 		return GREAT_PEOPLE_DIRECTIVE_USE_POWER;
@@ -1730,6 +1753,28 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveProphet(CvUnit* pUnit)
 
 GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveAdmiral(CvUnit* pGreatAdmiral)
 {
+#if defined(MOD_ERA_RESTRICTED_GENERALS)
+	if (MOD_ERA_RESTRICTED_GENERALS)
+	{
+		bool bHasAdmiralNegation = false;
+		std::string GANegationPromotions[4] = {"PROMOTION_NEGATE_ADMIRAL", "PROMOTION_NEGATE_ADMIRAL_S", "PROMOTION_NEGATE_ADMIRAL_P", "PROMOTION_NEGATE_ADMIRAL_SP"};
+
+		for (int i = 0; i < 4; i++)
+			if (pGreatAdmiral->isHasPromotion((PromotionTypes)GC.getInfoTypeForString(GANegationPromotions[i].c_str(), true)))
+				bHasAdmiralNegation = true;
+
+		if (bHasAdmiralNegation == true)
+		{
+			if (GC.getLogging() && GC.getAILogging())
+			{
+				CvString strLogString;
+				strLogString.Format("%s is obsolete", pGreatAdmiral->getName().GetCString());
+				GetHomelandAI()->LogHomelandMessage(strLogString);
+			}
+			return GREAT_PEOPLE_DIRECTIVE_USE_POWER;
+		}
+	}
+#endif
 	if (IsAtWar() || pGreatAdmiral->getArmyID() != -1 || pGreatAdmiral->IsRecentlyDeployedFromOperation())
 		return GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND;
 
