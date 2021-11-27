@@ -2000,7 +2000,7 @@ void CvCityCitizens::DoAlterWorkingPlot(int iIndex)
 				}
 			}
 			//do not call isCanWorkWithOverride()
-			else if (pPlot->getOwner() == GetOwner() && !pPlot->isBlockaded())
+			else if (pPlot->getOwner() == GetOwner() && !pPlot->isBlockaded(GetOwner()))
 			{
 				// Can't take away plots from puppet cities by force unless venice
 				if (pPlot->getOwningCity()->IsPuppet() && !GET_PLAYER(GetOwner()).GetPlayerTraits()->IsNoAnnexing() )
@@ -2221,7 +2221,7 @@ void CvCityCitizens::DoVerifyWorkingPlots()
 			continue;
 
 		//cache which plots are blockaded, the check can be expensive
-		if (pPlot->isBlockaded())
+		if (pPlot->isBlockaded(m_pCity->getOwner()))
 			SetBlockaded(pPlot);
 
 		//worked plot might be invalid now ... so move the citizen somewhere else
