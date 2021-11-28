@@ -12427,15 +12427,15 @@ bool CvDiplomacyAI::IsWillingToAttackFriend(PlayerTypes ePlayer, bool bDirect, b
 	if (GET_PLAYER(ePlayer).GetDiplomacyAI()->WasResurrectedBy(GetID()))
 		return false;
 
+	CivApproachTypes eApproach = GetCivApproach(ePlayer);
+	CivOpinionTypes eOpinion = GetCivOpinion(ePlayer);
+
 	// Too scared of them?
-	if (GetCivApproach(ePlayer) == CIV_APPROACH_AFRAID)
+	if (eApproach == CIV_APPROACH_AFRAID)
 		return false;
 
 	// Like them too much?
-	if (GetCivOpinion(ePlayer) == CIV_OPINION_ALLY)
-		return false;
-
-	if (GetDoFType(ePlayer) == DOF_TYPE_BATTLE_BROTHERS)
+	if (eOpinion == CIV_OPINION_ALLY)
 		return false;
 
 	bool bEndgameAggressive = IsEndgameAggressiveTo(ePlayer);
@@ -12448,6 +12448,14 @@ bool CvDiplomacyAI::IsWillingToAttackFriend(PlayerTypes ePlayer, bool bDirect, b
 			return false;
 
 		if (IsCityRecentlyLiberatedBy(ePlayer) && GetPlayer()->getCitiesLost() > 0)
+			return false;
+
+		// Friends for too long?
+		if (GetDoFType(ePlayer) == DOF_TYPE_BATTLE_BROTHERS)
+			return false;
+
+		// Went on multiple coop wars together?
+		if (GetCoopWarScore(ePlayer) >= 2)
 			return false;
 
 		// Don't declare war if we agreed to start a coop war with them, that's dumb.
@@ -12506,43 +12514,67 @@ bool CvDiplomacyAI::IsWillingToAttackFriend(PlayerTypes ePlayer, bool bDirect, b
 	// Declaration of Friendship or Defensive Pact?
 	else if (IsDoFAccepted(ePlayer) || (IsHasDefensivePact(ePlayer) && !IsWantsToEndDefensivePactWithPlayer(ePlayer)))
 	{
+		// Don't backstab if we have 7+ Loyalty
+		if (!IsBackstabber() && GetLoyalty() > 6)
+			return false;
+
 		if (bDirect && !bImpulse)
 		{
 			// No direct unprovoked backstabbing if approach is NEUTRAL or FRIENDLY
-			if (GetCivApproach(ePlayer) >= CIV_APPROACH_NEUTRAL)
+			if (eApproach >= CIV_APPROACH_NEUTRAL)
 				return false;
 
 			// No direct unprovoked backstabbing if opinion is too high
-			if (GetCivOpinion(ePlayer) == CIV_OPINION_FRIEND)
+			if (eOpinion == CIV_OPINION_FRIEND)
 				return false;
 
-			if (!IsBackstabber() && GetLoyalty() > 3 && GetCivOpinion(ePlayer) == CIV_OPINION_FAVORABLE)
-				return false;
+			if (!IsBackstabber())
+			{
+				// Loyalty 5 or 6 and at least Neutral?
+				if (GetLoyalty() > 4 && eOpinion >= CIV_OPINION_NEUTRAL)
+					return false;
+
+				// Loyalty 4 and at least Favorable?
+				if (GetLoyalty() == 4 && eOpinion == CIV_OPINION_FAVORABLE)
+					return false;
+			}
 		}
 
 		// We must be stronger than them
-		bool bEasyTarget = IsEasyTarget(ePlayer);
-
-		if (bEasyTarget)
+		if (bDirect)
 		{
-			if (GetPlayerMilitaryStrengthComparedToUs(ePlayer) > STRENGTH_POWERFUL)
-				return false;
+			bool bOurCitiesOK = !GetPlayer()->GetMilitaryAI()->IsExposedToEnemy(NULL, ePlayer);
+			bool bTheirCitiesVulnerable = GetPlayer()->GetMilitaryAI()->HavePreferredAttackTarget(ePlayer);
+			bool bEasyTarget = IsEasyTarget(ePlayer);
+			bool bAtLeastTwo = (bOurCitiesOK && bTheirCitiesVulnerable) || (bOurCitiesOK && bEasyTarget) || (bTheirCitiesVulnerable && bEasyTarget);
 
-			if (GetPlayerEconomicStrengthComparedToUs(ePlayer) > STRENGTH_POWERFUL)
-				return false;
+			if (bAtLeastTwo)
+			{
+				if (GetPlayerMilitaryStrengthComparedToUs(ePlayer) > STRENGTH_POWERFUL)
+					return false;
+
+				if (GetPlayerEconomicStrengthComparedToUs(ePlayer) > STRENGTH_POWERFUL)
+					return false;
+			}
+			else
+			{
+				if (GetPlayerMilitaryStrengthComparedToUs(ePlayer) > STRENGTH_AVERAGE)
+					return false;
+
+				if (GetPlayerEconomicStrengthComparedToUs(ePlayer) > STRENGTH_AVERAGE)
+					return false;
+			}
 		}
+		// Wars against neighbors that are too strong are a bad idea.
 		else
 		{
-			if (GetPlayerMilitaryStrengthComparedToUs(ePlayer) > STRENGTH_AVERAGE)
-				return false;
-
-			if (GetPlayerEconomicStrengthComparedToUs(ePlayer) > STRENGTH_AVERAGE)
+			PlayerProximityTypes eProximity = GET_PLAYER(ePlayer).GetProximityToPlayer(GetID());
+			StrengthTypes eStrength = GetPlayerMilitaryStrengthComparedToUs(ePlayer);
+			bool bStrengthOK = (eProximity == PLAYER_PROXIMITY_NEIGHBORS && eStrength < STRENGTH_AVERAGE) || (eProximity == PLAYER_PROXIMITY_CLOSE && eStrength < STRENGTH_POWERFUL) || (eProximity < PLAYER_PROXIMITY_CLOSE);
+			bool bDefenseOK = bStrengthOK && (IsEasyTarget(ePlayer) || !GetPlayer()->GetMilitaryAI()->IsExposedToEnemy(NULL, ePlayer));
+			if (!bDefenseOK)
 				return false;
 		}
-
-		// Don't backstab if we're loyal
-		if (!IsBackstabber() && GetLoyalty() > 6)
-			return false;
 
 		// We need a good reason to even consider backstabbing a friend...
 		bool bGoodReason = IsBackstabber(); // if we've already backstabbed one friend, more willing to backstab others
@@ -12584,13 +12616,19 @@ bool CvDiplomacyAI::IsWillingToAttackFriend(PlayerTypes ePlayer, bool bDirect, b
 							{
 								return false;
 							}
-							else if (!(IsEasyTarget(eLoopPlayer) || GetPlayer()->GetMilitaryAI()->HavePreferredAttackTarget(eLoopPlayer)) && GetPlayer()->GetProximityToPlayer(eLoopPlayer) >= PLAYER_PROXIMITY_CLOSE)
-							{
-								return false;
-							}
 							else if (!IsBackstabber() && GetCivOpinion(eLoopPlayer) >= CIV_OPINION_FRIEND)
 							{
 								return false;
+							}
+							else
+							{
+								// Hatred by neighbors that are too strong is a bad idea.
+								PlayerProximityTypes eProximity = GET_PLAYER(eLoopPlayer).GetProximityToPlayer(GetID());
+								StrengthTypes eStrength = GetPlayerMilitaryStrengthComparedToUs(eLoopPlayer);
+								bool bStrengthOK = (eProximity == PLAYER_PROXIMITY_NEIGHBORS && eStrength < STRENGTH_AVERAGE) || (eProximity == PLAYER_PROXIMITY_CLOSE && eStrength < STRENGTH_POWERFUL) || (eProximity < PLAYER_PROXIMITY_CLOSE);
+								bool bDefenseOK = bStrengthOK && (IsEasyTarget(eLoopPlayer) || !GetPlayer()->GetMilitaryAI()->IsExposedToEnemy(NULL, eLoopPlayer));
+								if (!bDefenseOK)
+									return false;
 							}
 						}
 					}
@@ -12611,13 +12649,7 @@ bool CvDiplomacyAI::IsWillingToAttackFriend(PlayerTypes ePlayer, bool bDirect, b
 						return false;
 
 					// Impulse wars against people we like are a bad idea.
-					if (bImpulse && GetCivOpinion(ePlayer) >= CIV_OPINION_FRIEND)
-						return false;
-
-					// Wars against neighbors that are too strong are a bad idea.
-					bool bStrengthOK = (GET_PLAYER(ePlayer).GetProximityToPlayer(GetID()) == PLAYER_PROXIMITY_NEIGHBORS && GetPlayerMilitaryStrengthComparedToUs(ePlayer) < STRENGTH_AVERAGE) || (GET_PLAYER(ePlayer).GetProximityToPlayer(GetID()) == PLAYER_PROXIMITY_CLOSE && GetPlayerMilitaryStrengthComparedToUs(ePlayer) < STRENGTH_POWERFUL) || GET_PLAYER(ePlayer).GetProximityToPlayer(GetID()) < PLAYER_PROXIMITY_CLOSE;
-					bool bDefenseOK = bStrengthOK && (!GetPlayer()->GetMilitaryAI()->IsExposedToEnemy(NULL, ePlayer) || IsEasyTarget(ePlayer));
-					if (!bDefenseOK)
+					if (bImpulse && eOpinion >= CIV_OPINION_FRIEND)
 						return false;
 				}
 			}
