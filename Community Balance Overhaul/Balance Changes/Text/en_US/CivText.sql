@@ -457,7 +457,7 @@ SET Text = 'Enter the era of pike and shot before anybody else with this early g
 WHERE Tag = 'TXT_KEY_UNIT_GERMAN_LANDSKNECHT_STRATEGY';
 
 UPDATE Language_en_US
-SET Text = 'The landsknecht were German mercenary pike & shot of the 16th century. Created in imitation of the legendary Swiss Reisläufer, the landsknecht would eventually supplant them as the best mercenary infantry available in Europe, fighting in almost every major engagement in the 16th century - often on both sides. In battle landsknechts generally carried pikes of up to twenty feet in length. Other weapons included Arquebuses, crossbows, and huge two-handed swords or halberds; these were used to chop the heads off of the pikes of their opponents.'
+SET Text = 'The landsknecht were German mercenary pike & shot of the 16th century. Created in imitation of the legendary Swiss ReislÃ¤ufer, the landsknecht would eventually supplant them as the best mercenary infantry available in Europe, fighting in almost every major engagement in the 16th century - often on both sides. In battle landsknechts generally carried pikes of up to twenty feet in length. Other weapons included Arquebuses, crossbows, and huge two-handed swords or halberds; these were used to chop the heads off of the pikes of their opponents.'
 WHERE Tag = 'TXT_KEY_CIVILOPEDIA_UNITS_MEDIEVAL_LANDSKNECHT_TEXT';
 
 UPDATE Language_en_US
@@ -513,7 +513,7 @@ SET Text = 'Paderborn'
 WHERE Tag = 'TXT_KEY_CITY_NAME_NEUSS';
 
 UPDATE Language_en_US
-SET Text = 'Lübeck'
+SET Text = 'LÃ¼beck'
 WHERE Tag = 'TXT_KEY_CITY_NAME_HAGEN';
 
 UPDATE Language_en_US
@@ -876,7 +876,7 @@ WHERE Tag = 'TXT_KEY_CIV5_IMPROVEMENTS_POLDER_TEXT' AND EXISTS (SELECT * FROM CO
 -- Ottomans
 --------------------
 UPDATE Language_en_US
-SET Text = 'Tanzimat'
+SET Text = 'Kanuni'
 WHERE Tag = 'TXT_KEY_TRAIT_CONVERTS_SEA_BARBARIANS_SHORT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -1118,7 +1118,7 @@ SET Text = 'Tabya'
 WHERE Tag = 'TXT_KEY_BUILDING_MUD_PYRAMID_MOSQUE_DESC' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Adobe, the Spanish word for mud brick, is a natural building material made from sand, clay, water and some kind of fibrous or organic material (sticks, straw or manure) and the bricks made with adobe material using molds and dried in the sun. The Great Mosque of Djenné, in central Mali, is largest mudbrick structure in the world. It, like much Sahelian architecture, is built with a mudbrick called Banco: a recipe of mud and grain husks, fermented, and either formed into bricks or applied on surfaces as a plaster like paste in broad strokes. This plaster must be reapplied annually. The facilities where these material were created were called Tabya (Cobworks), and played an essential role in West African architecture.'
+SET Text = 'Adobe, the Spanish word for mud brick, is a natural building material made from sand, clay, water and some kind of fibrous or organic material (sticks, straw or manure) and the bricks made with adobe material using molds and dried in the sun. The Great Mosque of DjennÃ©, in central Mali, is largest mudbrick structure in the world. It, like much Sahelian architecture, is built with a mudbrick called Banco: a recipe of mud and grain husks, fermented, and either formed into bricks or applied on surfaces as a plaster like paste in broad strokes. This plaster must be reapplied annually. The facilities where these material were created were called Tabya (Cobworks), and played an essential role in West African architecture.'
 WHERE Tag = 'TXT_KEY_CIV5_BUILDING_MUD_PYRAMID_MOSQUE_PEDIA' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Language_en_US
