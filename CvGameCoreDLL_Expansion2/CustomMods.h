@@ -404,6 +404,8 @@
 #define MOD_UI_CITY_PRODUCTION                      gCustomMods.isUI_CITY_PRODUCTION()
 // Permit human players to choose they own city tiles due to cultural expansion
 #define MOD_UI_CITY_EXPANSION                       gCustomMods.isUI_CITY_EXPANSION()
+// Enables WHoward's Military Log
+#define MOD_WH_MILITARY_LOG                         gCustomMods.isWH_MILITARY_LOG()
 
 // National Wonders (NW) requiring a building in every city exclude those being razed (in addition to excluding puppets) (v63)
 #define MOD_BUILDINGS_NW_EXCLUDE_RAZING             gCustomMods.isBUILDINGS_NW_EXCLUDE_RAZING()
@@ -810,6 +812,18 @@ enum TerraformingEventTypes {
 	TERRAFORMINGEVENT_CITY,
 	NUM_TERRAFORMINGEVENT_TYPES
 };
+
+// Player military event loggers
+#if defined(MOD_WH_MILITARY_LOG)
+#define MILITARYLOG(eForPlayer, sMessage, pPlot, eOtherPlayer)                  \
+	if (MOD_WH_MILITARY_LOG) {                                                  \
+		GET_PLAYER(eForPlayer).AddMilitaryEvent(sMessage, pPlot, eOtherPlayer); \
+	}
+#else
+#define MILITARYLOG(eForPlayer, sMessage, pPlot, eOtherPlayer)                          __noop
+#endif
+
+
 
 
 // Battle event macros
@@ -1399,6 +1413,7 @@ public:
 
 	MOD_OPT_DECL(UI_CITY_PRODUCTION);
 	MOD_OPT_DECL(UI_CITY_EXPANSION);
+	MOD_OPT_DECL(WH_MILITARY_LOG);
 
 	MOD_OPT_DECL(BUILDINGS_NW_EXCLUDE_RAZING);
 	MOD_OPT_DECL(BUILDINGS_PRO_RATA_PURCHASE);

@@ -142,6 +142,7 @@ typedef wchar_t          wchar;
 #include "CvAStar.h"
 #include "CvBuilderTaskingAI.h"
 #include "CvNotifications.h"
+#include "CvEventLog.h"
 #include "CvCityConnections.h"
 #include "CvAdvisorCounsel.h"
 #include "CvAdvisorRecommender.h"
