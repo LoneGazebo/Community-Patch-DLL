@@ -110,6 +110,8 @@
 #define MOD_API_UNIFIED_YIELDS_TOURISM              (true)
 // Enables the Unified Yields (YIELD_GOLDEN_AGE_POINTS) extensions (v57)
 #define MOD_API_UNIFIED_YIELDS_GOLDEN_AGE           (true)
+// Enables WHoward's Military Log
+#define MOD_WH_MILITARY_LOG                         gCustomMods.isWH_MILITARY_LOG()
 
 // Changes difficulty settings and adds more difficulty options
 #define MOD_ALTERNATIVE_DIFFICULTY                  gCustomMods.isALTERNATIVE_DIFFICULTY()
@@ -811,6 +813,18 @@ enum TerraformingEventTypes {
 	NUM_TERRAFORMINGEVENT_TYPES
 };
 
+// Player diplomacy and military event loggers
+#if defined(MOD_WH_MILITARY_LOG)
+#define MILITARYLOG(eForPlayer, sMessage, pPlot, eOtherPlayer)                  \
+	if (MOD_WH_MILITARY_LOG) {                                                  \
+		GET_PLAYER(eForPlayer).AddMilitaryEvent(sMessage, pPlot, eOtherPlayer); \
+	}
+#else
+#define MILITARYLOG(eForPlayer, sMessage, pPlot, eOtherPlayer)                          __noop
+#endif
+
+
+
 
 // Battle event macros
 enum BattleTypeTypes
@@ -1224,6 +1238,7 @@ public:
 	int getCivOption(const char* szCiv, const char* szName, int defValue = 0);
 
 	MOD_OPT_DECL(CORE_DEBUGGING);
+	MOD_OPT_DECL(WH_MILITARY_LOG);
 	MOD_OPT_DECL(ALTERNATIVE_DIFFICULTY);
 	MOD_OPT_DECL(ABC_TRIGGER_CHANGE);
 	MOD_OPT_DECL(GLOBAL_STACKING_RULES);
