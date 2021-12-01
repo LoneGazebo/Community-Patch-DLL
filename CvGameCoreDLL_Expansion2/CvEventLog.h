@@ -14,9 +14,6 @@ public:
 	void Init(PlayerTypes ePlayer);
 	void Uninit(void);
 
-	void Read(FDataStream& kStream);
-	void Write(FDataStream& kStream) const;
-
 	bool Add(const char* szMessage, PlayerTypes eOtherPlayerID = NO_PLAYER, int iX = -1, int iY = -1, int iData1 = -1, int iData2 = -1, int iData3 = -1, int iData4 = -1);
 	
 	int GetNumEvents(void) const;
@@ -60,8 +57,5 @@ protected:
 
 	int m_iCurrentLookupIndex;
 };
-
-FDataStream& operator>>(FDataStream&, CvEventLog::EventLogEntry&);
-FDataStream& operator<<(FDataStream&, const CvEventLog::EventLogEntry&);
 
 #endif //CIV5_EVENTLOG_H

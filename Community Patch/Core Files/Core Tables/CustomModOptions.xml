@@ -376,6 +376,9 @@
     <Row Class="6" Name="UI_CITY_EXPANSION" Value="0" DbUpdates="1"/>
     <Row Class="0" Name="UI_CITY_EXPANSION_BUTTONPOPUP_MODDER_OFFSET" Value="0"/>
 
+    <!-- Enables WHoward's Military Logging features, requires UI - Military Log to provide the actual UI " -->
+    <Row Class="5" Name="WH_MILITARY_LOG" Value="0"/>
+
     <!-- National Wonders (NW) requiring a building in every city exclude those being razed (in addition to excluding puppets) (v63) -->
     <Row Class="5" Name="BUILDINGS_NW_EXCLUDE_RAZING" Value="0"/>
 

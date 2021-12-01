@@ -6,41 +6,6 @@
 
 #define MAX_EVENTS 50
 
-FDataStream& operator>>(FDataStream& loadFrom, CvEventLog::EventLogEntry& writeTo)
-{
-	MOD_SERIALIZE_INIT_READ(loadFrom);
-
-	loadFrom >> writeTo.m_iTurn;
-	loadFrom >> writeTo.m_strMessage;
-	loadFrom >> writeTo.m_eOtherPlayer;
-	loadFrom >> writeTo.m_iX;
-	loadFrom >> writeTo.m_iY;
-	loadFrom >> writeTo.m_iData1;
-	loadFrom >> writeTo.m_iData2;
-	loadFrom >> writeTo.m_iData3;
-	loadFrom >> writeTo.m_iData4;
-
-	return loadFrom;
-}
-
-/// Serialization write
-FDataStream& operator<<(FDataStream& saveTo, const CvEventLog::EventLogEntry& readFrom)
-{
-	MOD_SERIALIZE_INIT_WRITE(saveTo);
-
-	saveTo << readFrom.m_iTurn;
-	saveTo << readFrom.m_strMessage;
-	saveTo << readFrom.m_eOtherPlayer;
-	saveTo << readFrom.m_iX;
-	saveTo << readFrom.m_iY;
-	saveTo << readFrom.m_iData1;
-	saveTo << readFrom.m_iData2;
-	saveTo << readFrom.m_iData3;
-	saveTo << readFrom.m_iData4;
-
-	return saveTo;
-}
-
 void CvEventLog::EventLogEntry::Clear()
 {
 	m_iTurn = -1;
@@ -90,40 +55,6 @@ void CvEventLog::Uninit(void)
 
 	m_iEventsBeginIndex = -1;
 	m_iEventsEndIndex = -1;
-}
-
-/// Serialization read
-void CvEventLog::Read(FDataStream& kStream)
-{
-	// Version number to maintain backwards compatibility
-	MOD_SERIALIZE_INIT_READ(kStream);
-
-	kStream >> m_ePlayer;
-	kStream >> m_iCurrentLookupIndex;
-	kStream >> m_iEventsBeginIndex;
-	kStream >> m_iEventsEndIndex;
-
-	for (uint ui = 0; ui < MAX_EVENTS; ui++)
-	{
-		kStream >> m_aEvents[ui];
-	}
-}
-
-/// Serialization write
-void CvEventLog::Write(FDataStream& kStream) const
-{
-	MOD_SERIALIZE_INIT_WRITE(kStream);
-
-	// need to serialize notification list
-	kStream << m_ePlayer;
-	kStream << m_iCurrentLookupIndex;
-	kStream << m_iEventsBeginIndex;
-	kStream << m_iEventsEndIndex;
-
-	for (uint ui = 0; ui < MAX_EVENTS; ui++)
-	{
-		kStream << m_aEvents[ui];
-	}
 }
 
 bool CvEventLog::Add(const char* szMessage, PlayerTypes eOtherPlayerID, int iX, int iY, int iData1, int iData2, int iData3, int iData4)
