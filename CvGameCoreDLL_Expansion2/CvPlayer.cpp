@@ -811,7 +811,7 @@ CvPlayer::CvPlayer() :
 
 	m_pNotifications = NULL;
 #if defined(MOD_WH_MILITARY_LOG)
-	m_pMilitaryLog = NULL;
+	m_pMilitaryLog = NULL; // Not serialized but re-created at every load to keep savegames light
 #endif
 	m_pDiplomacyRequests = NULL;
 
@@ -885,6 +885,7 @@ void CvPlayer::init(PlayerTypes eID)
 		if (!m_pNotifications)
 			m_pNotifications = FNEW(CvNotifications, c_eCiv5GameplayDLL, 0);
 #if defined(MOD_WH_MILITARY_LOG)
+		if (MOD_WH_MILITARY_LOG && !m_pMilitaryLog)
 			m_pMilitaryLog = FNEW(CvEventLog, c_eCiv5GameplayDLL, 0);
 #endif
 		if (!m_pDiplomacyRequests)
@@ -1187,7 +1188,7 @@ void CvPlayer::uninit()
 		m_pNotifications->Uninit();
 	}
 #if defined(MOD_WH_MILITARY_LOG)
-	if(m_pMilitaryLog)
+	if(MOD_WH_MILITARY_LOG && m_pMilitaryLog)
 	{
 		m_pMilitaryLog->Uninit();
 	}
@@ -2144,7 +2145,7 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 			m_pNotifications->Init(eID);
 		}
 #if defined(MOD_WH_MILITARY_LOG)
-		if(m_pMilitaryLog)
+		if(MOD_WH_MILITARY_LOG && m_pMilitaryLog)
 		{
 			m_pMilitaryLog->Init(eID);
 		}
@@ -47093,6 +47094,12 @@ void CvPlayer::Read(FDataStream& kStream)
 	// Perform shared serialize
 	CvStreamLoadVisitor serialVisitor(kStream);
 	Serialize(*this, serialVisitor);
+
+	if (MOD_WH_MILITARY_LOG && isHuman()) //Not serialized so shouldn't have any effect on savegames
+	{
+		m_pMilitaryLog = FNEW(CvEventLog, c_eCiv5GameplayDLL, 0);
+		m_pMilitaryLog->Init(GetID());
+	}
 
 	if(!isBarbarian())
 	{
