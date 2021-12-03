@@ -10337,7 +10337,7 @@ void CvDiplomacyAI::DoUpdateEasyTargets()
 
 	// Personality
 	bool bTheAssyriaException = GetPlayer()->GetPlayerTraits()->IsTechFromCityConquer();
-	bool bBold = GetBoldness () > 7 || IsConqueror() || GetPlayer()->GetPlayerTraits()->IsWarmonger() || GetPlayer()->GetPlayerTraits()->IsExpansionist();
+	bool bBold = GetBoldness () > 6 || IsConqueror() || GetPlayer()->GetPlayerTraits()->IsWarmonger() || GetPlayer()->GetPlayerTraits()->IsExpansionist();
 	bool bNotBold = !bBold && (GetBoldness() < 4 || (IsScientist() && !bTheAssyriaException) || (GetPlayer()->GetPlayerTraits()->IsNerd() && !bTheAssyriaException) || GetPlayer()->GetPlayerTraits()->IsSmaller());
 
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
@@ -10473,10 +10473,17 @@ void CvDiplomacyAI::DoUpdateEasyTargets()
 			}
 
 			// Okay, now let's compare our strengths...
+			TargetValueTypes eTargetValue = GetPlayerTargetValue(ePlayer);
 			StrengthTypes eMilitaryStrength = GetPlayerMilitaryStrengthComparedToUs(ePlayer);
 			StrengthTypes eEconomicStrength = GetPlayerEconomicStrengthComparedToUs(ePlayer);
 
-			if (GetPlayerTargetValue(ePlayer) == TARGET_VALUE_SOFT || eMilitaryStrength == STRENGTH_PATHETIC || eEconomicStrength == STRENGTH_PATHETIC)
+			if (eTargetValue == TARGET_VALUE_IMPOSSIBLE || eMilitaryStrength == STRENGTH_IMMENSE || eEconomicStrength == STRENGTH_IMMENSE)
+			{
+				SetEasyTarget(ePlayer, false);
+				continue;
+			}
+
+			if (eTargetValue == TARGET_VALUE_SOFT || eMilitaryStrength == STRENGTH_PATHETIC || eEconomicStrength == STRENGTH_PATHETIC)
 			{
 				SetEasyTarget(ePlayer, true);
 				continue;
@@ -12541,27 +12548,48 @@ bool CvDiplomacyAI::IsWillingToAttackFriend(PlayerTypes ePlayer, bool bDirect, b
 		}
 
 		// We must be stronger than them
+		bool bBold = GetBoldness () > 6 || IsConqueror() || GetPlayer()->GetPlayerTraits()->IsWarmonger() || GetPlayer()->GetPlayerTraits()->IsExpansionist();
+		bool bOurCitiesOK = !GetPlayer()->GetMilitaryAI()->IsExposedToEnemy(NULL, ePlayer);
+		bool bTheirCitiesVulnerable = GetPlayer()->GetMilitaryAI()->HavePreferredAttackTarget(ePlayer);
+		bool bEasyTarget = IsEasyTarget(ePlayer);
+
 		if (bDirect)
 		{
-			bool bOurCitiesOK = !GetPlayer()->GetMilitaryAI()->IsExposedToEnemy(NULL, ePlayer);
-			bool bTheirCitiesVulnerable = GetPlayer()->GetMilitaryAI()->HavePreferredAttackTarget(ePlayer);
-			bool bEasyTarget = IsEasyTarget(ePlayer);
 			bool bAtLeastTwo = (bOurCitiesOK && bTheirCitiesVulnerable) || (bOurCitiesOK && bEasyTarget) || (bTheirCitiesVulnerable && bEasyTarget);
 
 			if (bAtLeastTwo)
 			{
-				if (GetPlayerMilitaryStrengthComparedToUs(ePlayer) > STRENGTH_POWERFUL)
+				if (bBold)
+				{
+					if (GetPlayerMilitaryStrengthComparedToUs(ePlayer) == STRENGTH_IMMENSE)
+						return false;
+
+					if (GetPlayerEconomicStrengthComparedToUs(ePlayer) == STRENGTH_IMMENSE)
+						return false;
+				}
+				else
+				{
+					if (GetPlayerMilitaryStrengthComparedToUs(ePlayer) >= STRENGTH_POWERFUL)
+						return false;
+
+					if (GetPlayerEconomicStrengthComparedToUs(ePlayer) >= STRENGTH_POWERFUL)
+						return false;
+				}
+			}
+			else if (bBold)
+			{
+				if (GetPlayerMilitaryStrengthComparedToUs(ePlayer) >= STRENGTH_STRONG)
 					return false;
 
-				if (GetPlayerEconomicStrengthComparedToUs(ePlayer) > STRENGTH_POWERFUL)
+				if (GetPlayerEconomicStrengthComparedToUs(ePlayer) >= STRENGTH_STRONG)
 					return false;
 			}
 			else
 			{
-				if (GetPlayerMilitaryStrengthComparedToUs(ePlayer) > STRENGTH_AVERAGE)
+				if (GetPlayerMilitaryStrengthComparedToUs(ePlayer) >= STRENGTH_AVERAGE)
 					return false;
 
-				if (GetPlayerEconomicStrengthComparedToUs(ePlayer) > STRENGTH_AVERAGE)
+				if (GetPlayerEconomicStrengthComparedToUs(ePlayer) >= STRENGTH_AVERAGE)
 					return false;
 			}
 		}
@@ -12570,8 +12598,39 @@ bool CvDiplomacyAI::IsWillingToAttackFriend(PlayerTypes ePlayer, bool bDirect, b
 		{
 			PlayerProximityTypes eProximity = GET_PLAYER(ePlayer).GetProximityToPlayer(GetID());
 			StrengthTypes eStrength = GetPlayerMilitaryStrengthComparedToUs(ePlayer);
-			bool bStrengthOK = (eProximity == PLAYER_PROXIMITY_NEIGHBORS && eStrength < STRENGTH_AVERAGE) || (eProximity == PLAYER_PROXIMITY_CLOSE && eStrength < STRENGTH_POWERFUL) || (eProximity < PLAYER_PROXIMITY_CLOSE);
-			bool bDefenseOK = bStrengthOK && (IsEasyTarget(ePlayer) || !GetPlayer()->GetMilitaryAI()->IsExposedToEnemy(NULL, ePlayer));
+			bool bStrengthOK = false;
+			if (bBold)
+			{
+				if (eProximity == PLAYER_PROXIMITY_NEIGHBORS)
+				{
+					if (eStrength <= STRENGTH_AVERAGE)
+						bStrengthOK = true;
+				}
+				else if (eProximity == PLAYER_PROXIMITY_CLOSE)
+				{
+					if (eStrength <= STRENGTH_STRONG)
+						bStrengthOK = true;
+				}
+				else
+					bStrengthOK = true;
+			}
+			else
+			{
+				if (eProximity == PLAYER_PROXIMITY_NEIGHBORS)
+				{
+					if (eStrength <= STRENGTH_POOR)
+						bStrengthOK = true;
+				}
+				else if (eProximity == PLAYER_PROXIMITY_CLOSE)
+				{
+					if (eStrength <= STRENGTH_AVERAGE)
+						bStrengthOK = true;
+				}
+				else
+					bStrengthOK = true;
+			}
+
+			bool bDefenseOK = bStrengthOK && (bEasyTarget || bOurCitiesOK || bTheirCitiesVulnerable);
 			if (!bDefenseOK)
 				return false;
 		}
@@ -18545,20 +18604,17 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	// TOO MANY VASSALS MULTIPLIER
 	////////////////////////////////////
 
-	if (MOD_DIPLOMACY_CIV4_FEATURES)
+	if (MOD_DIPLOMACY_CIV4_FEATURES && GET_PLAYER(ePlayer).GetNumVassals() > 1)
 	{
-		if (GET_PLAYER(ePlayer).GetNumVassals() > 1)
-		{
-			// Increase bad approach scores for each vassal they own, provided they have more than one
-			vApproachScores[CIV_APPROACH_WAR] *= 100 + (GET_PLAYER(ePlayer).GetNumVassals() * /*20*/ GD_INT_GET(APPROACH_WAR_TOO_MANY_VASSALS));	// 2 vassals = 140%, 3 vassals = 160%
-			vApproachScores[CIV_APPROACH_WAR] /= 100;
-			vApproachScores[CIV_APPROACH_HOSTILE] *= 100 + (GET_PLAYER(ePlayer).GetNumVassals() * /*20*/ GD_INT_GET(APPROACH_WAR_TOO_MANY_VASSALS));
-			vApproachScores[CIV_APPROACH_HOSTILE] /= 100;
-			vApproachScores[CIV_APPROACH_GUARDED] *= 100 + (GET_PLAYER(ePlayer).GetNumVassals() * /*20*/ GD_INT_GET(APPROACH_GUARDED_TOO_MANY_VASSALS));
-			vApproachScores[CIV_APPROACH_GUARDED] /= 100;
-			vApproachScores[CIV_APPROACH_AFRAID] *= 100 + (GET_PLAYER(ePlayer).GetNumVassals() * /*20*/ GD_INT_GET(APPROACH_GUARDED_TOO_MANY_VASSALS));
-			vApproachScores[CIV_APPROACH_AFRAID] /= 100;
-		}
+		// Increase bad approach scores for each vassal they own, provided they have more than one
+		vApproachScores[CIV_APPROACH_WAR] *= 100 + (GET_PLAYER(ePlayer).GetNumVassals() * /*20*/ GD_INT_GET(APPROACH_WAR_TOO_MANY_VASSALS));	// 2 vassals = 140%, 3 vassals = 160%
+		vApproachScores[CIV_APPROACH_WAR] /= 100;
+		vApproachScores[CIV_APPROACH_HOSTILE] *= 100 + (GET_PLAYER(ePlayer).GetNumVassals() * /*20*/ GD_INT_GET(APPROACH_WAR_TOO_MANY_VASSALS));
+		vApproachScores[CIV_APPROACH_HOSTILE] /= 100;
+		vApproachScores[CIV_APPROACH_GUARDED] *= 100 + (GET_PLAYER(ePlayer).GetNumVassals() * /*20*/ GD_INT_GET(APPROACH_GUARDED_TOO_MANY_VASSALS));
+		vApproachScores[CIV_APPROACH_GUARDED] /= 100;
+		vApproachScores[CIV_APPROACH_AFRAID] *= 100 + (GET_PLAYER(ePlayer).GetNumVassals() * /*20*/ GD_INT_GET(APPROACH_GUARDED_TOO_MANY_VASSALS));
+		vApproachScores[CIV_APPROACH_AFRAID] /= 100;
 	}
 
 	////////////////////////////////////
@@ -18902,7 +18958,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 			int iMod = 0;
 			if (GAMEEVENTINVOKE_VALUE(iMod, GAMEEVENT_AiPercentApproachMod, GetID(), iApproachLoop) == GAMEEVENTRETURN_VALUE) 
 			{
-				vApproachScores[iApproachLoop] *= (iMod + 100);
+				vApproachScores[iApproachLoop] *= max(0, (100 + iMod));
 				vApproachScores[iApproachLoop] /= 100;
 			}
 		}
