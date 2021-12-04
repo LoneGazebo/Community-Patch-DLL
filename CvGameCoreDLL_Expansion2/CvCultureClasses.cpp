@@ -5209,6 +5209,7 @@ CvString CvPlayerCulture::GetTourismModifierWithTooltip(PlayerTypes ePlayer) con
 				if (GET_TEAM(m_pPlayer->getTeam()).isAtWar(GET_PLAYER(eLoopPlayer).getTeam()) && GET_TEAM(kPlayer.getTeam()).isAtWar(GET_PLAYER(eLoopPlayer).getTeam()))
 				{
 					iTotal += iCommonFoeMod;
+					break;
 				}
 			}
 		}
@@ -7003,6 +7004,7 @@ int CvCityCulture::GetTourismMultiplier(PlayerTypes ePlayer, bool bIgnoreReligio
 					if (GET_TEAM(kCityPlayer.getTeam()).isAtWar(GET_PLAYER(eLoopPlayer).getTeam()) && GET_TEAM(kPlayer.getTeam()).isAtWar(GET_PLAYER(eLoopPlayer).getTeam()))
 					{
 						iMultiplier += iCommonFoeMod;
+						break;
 					}
 				}
 			}
@@ -7041,7 +7043,7 @@ int CvCityCulture::GetTourismMultiplier(PlayerTypes ePlayer, bool bIgnoreReligio
 	{
 		iMultiplier += /*200 in CP, 100 in CBO*/ GD_INT_GET(TEMPORARY_TOURISM_BOOST_MOD) * 2;
 	}
-	else if (kPlayer.GetTourismBonusTurns() > 0)
+	else if (kCityPlayer.GetTourismBonusTurns() > 0)
 	{
 		iMultiplier += /*100 in CP, 50 in CBO*/ GD_INT_GET(TEMPORARY_TOURISM_BOOST_MOD);
 	}
@@ -7057,16 +7059,19 @@ int CvCityCulture::GetTourismMultiplier(PlayerTypes ePlayer, bool bIgnoreReligio
 	}
 	if (kCityPlayer.GetPositiveWarScoreTourismMod() != 0)
 	{
-		if (kCityPlayer.IsAtWarWith(ePlayer))
+		int iWarScore = kCityPlayer.GetDiplomacyAI()->GetHighestWarscore();
+		if (iWarScore > 0)
 		{
-			int iWarScore = kCityPlayer.GetDiplomacyAI()->GetHighestWarscore();
-
-			if (iWarScore > 0)
-			{
 				iMultiplier += iWarScore;
-			}
-		}
+		}		
 	}
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+	// My vassal
+	if (GET_TEAM(GET_PLAYER(ePlayer).getTeam()).GetMaster() == kCityPlayer.getTeam())
+	{
+		iMultiplier += GC.getVASSAL_TOURISM_MODIFIER();
+	}
+#endif
 
 	//city difference - do we have more than them?
 	int iNumCities = kCityPlayer.GetNumEffectiveCities() - kPlayer.GetNumEffectiveCities();
