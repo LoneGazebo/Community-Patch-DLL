@@ -1779,13 +1779,13 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveAdmiral(CvUnit* pGreatAdmiral)
 	int iLoop;
 	for (CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit; pLoopUnit = nextUnit(&iLoop))
 	{
-		if (pLoopUnit->IsGreatAdmiral())
+		if (pLoopUnit->IsGreatAdmiral() && pLoopUnit->GetGreatPeopleDirective() != GREAT_PEOPLE_DIRECTIVE_USE_POWER) // should not count the admirals set for use_power as it expends all at the same turn
 		{
 			iGreatAdmiralCount++;
 		}
 	}
 
-	int iThreshold = IsEmpireUnhappy() ? 0 : 1;
+	int iThreshold = IsEmpireUnhappy() ? 0 : ((GetNumEffectiveCoastalCities() / 2) + 1); // open to tweaks, but a human player would rarely expend if happy, so should AI
 	if (iGreatAdmiralCount > iThreshold && pGreatAdmiral->canGetFreeLuxury())
 	{
 		return GREAT_PEOPLE_DIRECTIVE_USE_POWER;
