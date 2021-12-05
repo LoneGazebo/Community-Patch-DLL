@@ -49,6 +49,9 @@ class CvPlayerContracts;
 #endif
 class CvCityConnections;
 class CvNotifications;
+#if defined(MOD_WH_MILITARY_LOG)
+class CvEventLog;
+#endif
 class CvTreasury;
 class CvPlayerTraits;
 class CvGameInitialItemsOverrides;
@@ -2717,6 +2720,10 @@ public:
 #endif
 	int AddNotification(NotificationTypes eNotificationType, const char* sMessage, const char* sSummary, CvPlot* pPlot = NULL, int iGameDataIndex = -1, int iExtraGameData = -1);
 	int AddNotification(NotificationTypes eNotificationType, const char* sMessage, const char* sSummary, int iGameDataIndex, int iExtraGameData = -1);
+#if defined(MOD_WH_MILITARY_LOG)
+	CvEventLog* GetMilitaryLog() const;
+	bool AddMilitaryEvent(const char* sMessage, CvPlot* pPlot, PlayerTypes eOtherPlayer, int iData1 = -1, int iData2 = -1, int iData3 = -1, int iData4 = -1);
+#endif
 
 	CvDiplomacyRequests* GetDiplomacyRequests() const;
 	bool HasActiveDiplomacyRequests() const;
@@ -3715,6 +3722,9 @@ protected:
 	CvPlayerCulture* m_pCulture;
 
 	CvNotifications* m_pNotifications;
+#if defined(MOD_WH_MILITARY_LOG)
+	CvEventLog* m_pMilitaryLog;
+#endif
 	CvDiplomacyRequests* m_pDiplomacyRequests;
 
 	PlotIndexContainer m_aiPlots;

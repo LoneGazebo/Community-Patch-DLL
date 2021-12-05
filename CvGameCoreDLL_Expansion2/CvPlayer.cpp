@@ -41,6 +41,9 @@
 #include "CvGoodyHuts.h"
 #include "CvCityConnections.h"
 #include "CvNotifications.h"
+#if defined(MOD_WH_MILITARY_LOG)
+#include "CvEventLog.h"
+#endif
 #include "CvDiplomacyRequests.h"
 #include "cvStopWatch.h"
 #include "CvTypes.h"
@@ -807,6 +810,9 @@ CvPlayer::CvPlayer() :
 	m_pCulture = FNEW(CvPlayerCulture, c_eCiv5GameplayDLL, 0);
 
 	m_pNotifications = NULL;
+#if defined(MOD_WH_MILITARY_LOG)
+	m_pMilitaryLog = NULL; // Not serialized but re-created at every load to keep savegames light
+#endif
 	m_pDiplomacyRequests = NULL;
 
 	m_aiPlots.clear();
@@ -847,6 +853,9 @@ CvPlayer::~CvPlayer()
 	SAFE_DELETE(m_pBuilderTaskingAI);
 	SAFE_DELETE(m_pCityConnections);
 	SAFE_DELETE(m_pNotifications);
+#if defined(MOD_WH_MILITARY_LOG)
+	SAFE_DELETE(m_pMilitaryLog);
+#endif
 	SAFE_DELETE(m_pDiplomacyRequests);
 	SAFE_DELETE(m_pTreasury);
 	SAFE_DELETE(m_pTraits);
@@ -875,6 +884,10 @@ void CvPlayer::init(PlayerTypes eID)
 	{
 		if (!m_pNotifications)
 			m_pNotifications = FNEW(CvNotifications, c_eCiv5GameplayDLL, 0);
+#if defined(MOD_WH_MILITARY_LOG)
+		if (MOD_WH_MILITARY_LOG && !m_pMilitaryLog)
+			m_pMilitaryLog = FNEW(CvEventLog, c_eCiv5GameplayDLL, 0);
+#endif
 		if (!m_pDiplomacyRequests)
 			m_pDiplomacyRequests = FNEW(CvDiplomacyRequests, c_eCiv5GameplayDLL, 0);
 	}
@@ -1174,6 +1187,12 @@ void CvPlayer::uninit()
 	{
 		m_pNotifications->Uninit();
 	}
+#if defined(MOD_WH_MILITARY_LOG)
+	if(MOD_WH_MILITARY_LOG && m_pMilitaryLog)
+	{
+		m_pMilitaryLog->Uninit();
+	}
+#endif
 	if(m_pDiplomacyRequests)
 	{
 		m_pDiplomacyRequests->Uninit();
@@ -2125,6 +2144,12 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 		{
 			m_pNotifications->Init(eID);
 		}
+#if defined(MOD_WH_MILITARY_LOG)
+		if(MOD_WH_MILITARY_LOG && m_pMilitaryLog)
+		{
+			m_pMilitaryLog->Init(eID);
+		}
+#endif
 		if(m_pDiplomacyRequests)
 		{
 			m_pDiplomacyRequests->Init(eID);
@@ -3054,6 +3079,8 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 			{
 				CvString strBuffer = GetLocalizedText("TXT_KEY_MISC_CAPTURED_CITY", pCity->getNameKey()).GetCString();
 				GC.GetEngineUserInterface()->AddCityMessage(0, pCity->GetIDInfo(), GetID(), true, /*10*/ GD_INT_GET(EVENT_MESSAGE_TIME), strBuffer);
+				if (MOD_WH_MILITARY_LOG)
+					MILITARYLOG(GetID(), strBuffer.c_str(), pCity->plot(), pCity->getOwner());
 			}
 		}
 		else
@@ -4587,6 +4614,8 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 				strBuffer = GetLocalizedText("TXT_KEY_POPUP_GOLD_AND_CULTURE_CITY_CAPTURE", iCaptureGold, iCaptureCulture, iCaptureGreatWorks, pNewCity->getNameKey());
 			}
 			GC.GetEngineUserInterface()->AddCityMessage(0, pNewCity->GetIDInfo(), GetID(), true, /*10*/ GD_INT_GET(EVENT_MESSAGE_TIME), strBuffer);
+			if (MOD_WH_MILITARY_LOG)
+				MILITARYLOG(GetID(), strBuffer.c_str(), pNewCity->plot(), eOldOwner);
 		}
 	}
 
@@ -46220,6 +46249,27 @@ int CvPlayer::AddNotification(NotificationTypes eNotificationType, const char* s
   return iNotification;
 }
 
+// ---------------------------------------------------------------------------------
+#if defined(MOD_WH_MILITARY_LOG)
+CvEventLog* CvPlayer::GetMilitaryLog() const
+{
+	return m_pMilitaryLog;
+}
+
+bool CvPlayer::AddMilitaryEvent(const char* sMessage, CvPlot* pPlot, PlayerTypes eOtherPlayer, int iData1 /* = -1 */, int iData2 /* = -1 */, int iData3 /* = -1 */, int iData4 /* = -1 */)
+{
+	if (MOD_WH_MILITARY_LOG)
+	{
+		if (m_pMilitaryLog) {
+			return m_pMilitaryLog->Add(sMessage, eOtherPlayer, pPlot->getX(), pPlot->getY(), iData1, iData2, iData3, iData4);
+		}
+	}
+
+	return false;
+}
+#endif
+
+
 //	--------------------------------------------------------------------------------
 CvTreasury* CvPlayer::GetTreasury() const
 {
@@ -47044,6 +47094,12 @@ void CvPlayer::Read(FDataStream& kStream)
 	// Perform shared serialize
 	CvStreamLoadVisitor serialVisitor(kStream);
 	Serialize(*this, serialVisitor);
+
+	if (MOD_WH_MILITARY_LOG && isHuman()) //Not serialized so shouldn't have any effect on savegames
+	{
+		m_pMilitaryLog = FNEW(CvEventLog, c_eCiv5GameplayDLL, 0);
+		m_pMilitaryLog->Init(GetID());
+	}
 
 	if(!isBarbarian())
 	{

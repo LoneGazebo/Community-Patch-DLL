@@ -1110,6 +1110,9 @@ protected:
 	static int lAddNotification(lua_State* L);
 	static int lAddNotificationName(lua_State* L);
 	LUAAPIEXTN(DismissNotification, void, iIndex, bUserInvoked);
+#if defined(MOD_WH_MILITARY_LOG)
+	LUAAPIEXTN(GetMilitaryLog, table);
+#endif
 
 	static int lGetRecommendedWorkerPlots(lua_State* L);
 	static int lGetRecommendedFoundCityPlots(lua_State* L);
