@@ -4941,173 +4941,10 @@ int CvPlayerCulture::GetTourism()
 int CvPlayerCulture::GetTourismModifierWith(PlayerTypes ePlayer) const
 {
 	int iMultiplier = 0;
-	CvPlayer &kPlayer = GET_PLAYER(ePlayer);
-	CvTeam &kTeam = GET_TEAM(kPlayer.getTeam());
-	PolicyBranchTypes eMyIdeology = m_pPlayer->GetPlayerPolicies()->GetLateGamePolicyTree();
-	PolicyBranchTypes eTheirIdeology = kPlayer.GetPlayerPolicies()->GetLateGamePolicyTree();
-
-	// Open borders with this player
-#if defined(MOD_BALANCE_FLIPPED_TOURISM_MODIFIER_OPEN_BORDERS)
-	if (GET_TEAM(m_pPlayer->getTeam()).IsAllowsOpenBordersToTeam(kTeam.GetID()))
-#else
-	if (kTeam.IsAllowsOpenBordersToTeam(m_pPlayer->getTeam()))
-#endif
+	if (m_pPlayer->getCapitalCity())
 	{
-		iMultiplier += GetTourismModifierOpenBorders();
+		iMultiplier = m_pPlayer->getCapitalCity()->GetCityCulture()->GetTourismMultiplier(ePlayer, false, false, false, false, false);
 	}
-#if defined(MOD_BALANCE_CORE)
-	if(m_pPlayer->getTeam() == kPlayer.getTeam())
-	{
-		iMultiplier += 200;
-	}
-#endif
-
-	// Trade route to one of this player's cities from here
-	if (GC.getGame().GetGameTrade()->IsPlayerConnectedToPlayer(m_pPlayer->GetID(), ePlayer))
-	{
-		iMultiplier += GetTourismModifierTradeRoute();
-	}
-#if defined(MOD_BALANCE_CORE)
-	if (GET_PLAYER(ePlayer).isMajorCiv() && GET_PLAYER(ePlayer).GetPlayerTraits()->IsNoOpenTrade())
-	{
-		if (!GC.getGame().GetGameTrade()->IsPlayerConnectedToPlayer(ePlayer, m_pPlayer->GetID(), true))
-		{
-			iMultiplier += /*-34 in CP, -10 in CBO*/ GD_INT_GET(TOURISM_MODIFIER_DIFFERENT_IDEOLOGIES);
-		}
-	}
-#endif
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-	// My vassal
-	if (GET_TEAM(GET_PLAYER(ePlayer).getTeam()).GetMaster() == m_pPlayer->getTeam())
-	{
-		iMultiplier += GetTourismModifierVassal();
-	}
-#endif
-
-#if defined(MOD_BALANCE_CORE)
-	if(MOD_BALANCE_CORE)
-	{
-		if (m_pPlayer->GetEspionage()->IsMyDiplomatVisitingThem(ePlayer))
-		{
-			iMultiplier += /*25 in CP, 10 in CBO*/ GD_INT_GET(TOURISM_MODIFIER_DIPLOMAT);
-		}
-	}
-	if(MOD_BALANCE_CORE_HAPPINESS)
-	{
-		int iBoredom = kPlayer.GetCulture()->GetBoredomCache();
-		int iDelta = iBoredom - GetBoredomCache();
-		if (iDelta > 0)
-		{
-			iMultiplier += iDelta;
-		}
-	}
-
-	int iFranchiseBonus = m_pPlayer->GetCulture()->GetFranchiseModifier(ePlayer);
-	if (iFranchiseBonus != 0)
-	{
-		iMultiplier += iFranchiseBonus;
-	}
-	if (m_pPlayer->getTourismBonusTurnsPlayer(ePlayer) > 0)
-	{
-		iMultiplier += /*200 in CP, 100 in CBO*/ GD_INT_GET(TEMPORARY_TOURISM_BOOST_MOD) * 2;
-	}
-	else if (m_pPlayer->GetTourismBonusTurns() > 0)
-	{
-		iMultiplier += /*100 in CP, 50 in CBO*/ GD_INT_GET(TEMPORARY_TOURISM_BOOST_MOD);
-	}
-
-	if (m_pPlayer->GetPositiveWarScoreTourismMod() != 0)
-	{
-		int iWarScore = m_pPlayer->GetDiplomacyAI()->GetHighestWarscore();
-
-		if (iWarScore > 0)
-		{
-			iMultiplier += iWarScore;
-		}
-	}
-
-	//city difference - do we have more than them?
-	int iNumCities = m_pPlayer->GetNumEffectiveCities() - kPlayer.GetNumEffectiveCities();
-	if (iNumCities > 0)
-	{
-		// Mod for City Count
-		int iMod = GC.getMap().getWorldInfo().GetNumCitiesTourismCostMod();	// Default is 5, gets smaller on larger maps
-		iMod -= m_pPlayer->GetTourismCostXCitiesMod();
-
-		iMod *= iNumCities;
-
-		iMultiplier -= min(90, iMod);
-	}
-
-	CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
-	if(pLeague != NULL)
-	{
-		if(pLeague->GetTourismMod() != 0)
-		{
-			iMultiplier += (pLeague->GetTourismMod());
-		}
-	}
-#endif
-
-	if (eMyIdeology != NO_POLICY_BRANCH_TYPE && eTheirIdeology != NO_POLICY_BRANCH_TYPE && eMyIdeology != eTheirIdeology)
-	{
-		iMultiplier += /*-34 in CP, -10 in CBO*/ GD_INT_GET(TOURISM_MODIFIER_DIFFERENT_IDEOLOGIES);
-
-		if (!MOD_BALANCE_CORE && m_pPlayer->GetEspionage()->IsMyDiplomatVisitingThem(ePlayer))
-		{
-			iMultiplier += /*25 in CP, 10 in CBO*/ GD_INT_GET(TOURISM_MODIFIER_DIPLOMAT);
-		}
-	}
-
-	int iLessHappyMod = m_pPlayer->GetPlayerPolicies()->GetNumericModifier(POLICYMOD_TOURISM_MOD_LESS_HAPPY);
-	if (iLessHappyMod != 0)
-	{
-		if (m_pPlayer->GetExcessHappiness() > kPlayer.GetExcessHappiness())
-		{
-			iMultiplier += iLessHappyMod;
-		}
-	}
-	int iCommonFoeMod = m_pPlayer->GetPlayerPolicies()->GetNumericModifier(POLICYMOD_TOURISM_MOD_COMMON_FOE);
-	if (iCommonFoeMod != 0)
-	{
-		PlayerTypes eLoopPlayer;
-		for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
-		{
-			eLoopPlayer = (PlayerTypes) iPlayerLoop;
-
-			if (eLoopPlayer != ePlayer && eLoopPlayer != m_pPlayer->GetID() && m_pPlayer->GetDiplomacyAI()->IsPlayerValid(eLoopPlayer))
-			{
-				// Are they at war with me too?
-				if (GET_TEAM(m_pPlayer->getTeam()).isAtWar(GET_PLAYER(eLoopPlayer).getTeam()) && GET_TEAM(kPlayer.getTeam()).isAtWar(GET_PLAYER(eLoopPlayer).getTeam()))
-				{
-					iMultiplier += iCommonFoeMod;
-#if defined(MOD_BALANCE_CORE)
-					break;
-#endif
-				}
-			}
-		}
-	}
-	int iSharedIdeologyMod = m_pPlayer->GetPlayerPolicies()->GetNumericModifier(POLICYMOD_TOURISM_MOD_SHARED_IDEOLOGY);
-	if (iSharedIdeologyMod != 0)
-	{
-		if (eMyIdeology != NO_POLICY_BRANCH_TYPE && eTheirIdeology != NO_POLICY_BRANCH_TYPE && eMyIdeology == eTheirIdeology)
-		{
-			iMultiplier += iSharedIdeologyMod;
-		}
-	}
-
-	if (m_pPlayer->isGoldenAge() && m_pPlayer->GetPlayerTraits()->GetGoldenAgeTourismModifier())
-	{
-		iMultiplier += m_pPlayer->GetPlayerTraits()->GetGoldenAgeTourismModifier();
-	}
-
-	ReligionTypes ePlayerReligion = m_pPlayer->GetReligions()->GetReligionInMostCities();
-	if (ePlayerReligion != NO_RELIGION && kPlayer.GetReligions()->HasReligionInMostCities(ePlayerReligion))
-	{
-		iMultiplier += GetTourismModifierSharedReligion();
-	}
-
 	return iMultiplier;
 }
 
@@ -7069,7 +6906,7 @@ int CvCityCulture::GetTourismMultiplier(PlayerTypes ePlayer, bool bIgnoreReligio
 	// My vassal
 	if (GET_TEAM(GET_PLAYER(ePlayer).getTeam()).GetMaster() == kCityPlayer.getTeam())
 	{
-		iMultiplier += GC.getVASSAL_TOURISM_MODIFIER();
+		iMultiplier += kCityPlayer.GetCulture()->GetTourismModifierVassal();
 	}
 #endif
 
