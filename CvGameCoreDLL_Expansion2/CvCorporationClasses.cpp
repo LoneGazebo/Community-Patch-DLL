@@ -1319,8 +1319,8 @@ int CvPlayerCorporations::GetMaxNumFranchises() const
 	else
 	{
 		iReturnValue += pkCorporationInfo->GetBaseFranchises();
-		iReturnValue += (int)(m_pPlayer->GetTrade()->GetNumTradeRoutesPossible() * /*0.0f*/ GD_FLOAT_GET(MOD_BALANCE_CORE_CORP_OFFICE_TR_CONVERSION));
-		iReturnValue += (int)(GetNumOffices() * /*0.0f*/ GD_FLOAT_GET(MOD_BALANCE_CORE_CORP_OFFICE_FRANCHISE_CONVERSION));
+		iReturnValue += (int)(m_pPlayer->GetTrade()->GetNumTradeRoutesPossible() * /*1.0f*/ GD_FLOAT_GET(BALANCE_CORE_CORP_OFFICE_TR_CONVERSION));
+		iReturnValue += (int)(GetNumOffices() * /*0.5f*/ GD_FLOAT_GET(BALANCE_CORE_CORP_OFFICE_FRANCHISE_CONVERSION));
 
 		// Add in any "bonus" franchises from policies
 		iReturnValue += GetAdditionalNumFranchises();
@@ -1383,10 +1383,10 @@ CvString CvPlayerCorporations::GetNumFranchisesTooltip()
 	}
 
 	int iTotal = pkCorporationInfo->GetBaseFranchises();
-	int iNumTrades = (int)(m_pPlayer->GetTrade()->GetNumTradeRoutesPossible() * /*0.0f*/ GD_FLOAT_GET(MOD_BALANCE_CORE_CORP_OFFICE_TR_CONVERSION));
+	int iNumTrades = (int)(m_pPlayer->GetTrade()->GetNumTradeRoutesPossible() * /*1.0f*/ GD_FLOAT_GET(BALANCE_CORE_CORP_OFFICE_TR_CONVERSION));
 	iTotal += iNumTrades;
 
-	iTotal += (int)(GetNumOffices() * /*0.0f*/ GD_FLOAT_GET(MOD_BALANCE_CORE_CORP_OFFICE_FRANCHISE_CONVERSION));
+	iTotal += (int)(GetNumOffices() * /*0.5f*/ GD_FLOAT_GET(BALANCE_CORE_CORP_OFFICE_FRANCHISE_CONVERSION));
 
 	// Add in any "bonus" franchises from policies
 	int iPolicy = GetAdditionalNumFranchises();
@@ -1400,7 +1400,7 @@ CvString CvPlayerCorporations::GetNumFranchisesTooltip()
 		iModTotal = 0;
 
 	
-	strTooltip = GetLocalizedText("TXT_KEY_CORP_MAX_FRANCHISE_TT", pkCorporationInfo->GetBaseFranchises(), (GetNumOffices() * /*0.0f*/ GD_FLOAT_GET(MOD_BALANCE_CORE_CORP_OFFICE_FRANCHISE_CONVERSION)), iNumTrades, iModTotal);
+	strTooltip = GetLocalizedText("TXT_KEY_CORP_MAX_FRANCHISE_TT", pkCorporationInfo->GetBaseFranchises(), (GetNumOffices() * /*0.5f*/ GD_FLOAT_GET(BALANCE_CORE_CORP_OFFICE_FRANCHISE_CONVERSION)), iNumTrades, iModTotal);
 
 	return strTooltip;
 }
