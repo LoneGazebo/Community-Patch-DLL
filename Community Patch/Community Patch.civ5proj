@@ -652,7 +652,7 @@
     </Content>
     <Content Include="Core Files\Core Changes\CompressedArt\aztec.dds">
       <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
+      <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
     <Content Include="Core Files\Core Changes\CompressedArt\bismark.dds">
       <SubType>Lua</SubType>
