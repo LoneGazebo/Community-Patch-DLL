@@ -237,29 +237,29 @@
 			<Atlas>CBP_RESOURCE_ATLAS</Atlas>
 			<IconSize>256</IconSize>
 			<Filename>Brazilwood256.dds</Filename>
-			<IconsPerRow>8</IconsPerRow>
-			<IconsPerColumn>8</IconsPerColumn>
+			<IconsPerRow>1</IconsPerRow>
+			<IconsPerColumn>1</IconsPerColumn>
 		</Row>
 		<Row>
 			<Atlas>CBP_RESOURCE_ATLAS</Atlas>
 			<IconSize>80</IconSize>
 			<Filename>Brazilwood80.dds</Filename>
-			<IconsPerRow>8</IconsPerRow>
-			<IconsPerColumn>8</IconsPerColumn>
+			<IconsPerRow>1</IconsPerRow>
+			<IconsPerColumn>1</IconsPerColumn>
 		</Row>
 		<Row>
 			<Atlas>CBP_RESOURCE_ATLAS</Atlas>
 			<IconSize>64</IconSize>
 			<Filename>Brazilwood64.dds</Filename>
-			<IconsPerRow>8</IconsPerRow>
-			<IconsPerColumn>8</IconsPerColumn>
+			<IconsPerRow>1</IconsPerRow>
+			<IconsPerColumn>1</IconsPerColumn>
 		</Row>
 		<Row>
 			<Atlas>CBP_RESOURCE_ATLAS</Atlas>
 			<IconSize>45</IconSize>
 			<Filename>Brazilwood45.dds</Filename>
-			<IconsPerRow>8</IconsPerRow>
-			<IconsPerColumn>8</IconsPerColumn>
+			<IconsPerRow>1</IconsPerRow>
+			<IconsPerColumn>1</IconsPerColumn>
 		</Row>
 	</IconTextureAtlases>
 	<IconFontTextures>
