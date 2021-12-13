@@ -6902,13 +6902,11 @@ int CvCityCulture::GetTourismMultiplier(PlayerTypes ePlayer, bool bIgnoreReligio
 				iMultiplier += iWarScore;
 		}		
 	}
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	// My vassal
-	if (GET_TEAM(GET_PLAYER(ePlayer).getTeam()).GetMaster() == kCityPlayer.getTeam())
+	if (MOD_DIPLOMACY_CIV4_FEATURES && GET_TEAM(GET_PLAYER(ePlayer).getTeam()).GetMaster() == kCityPlayer.getTeam())
 	{
 		iMultiplier += kCityPlayer.GetCulture()->GetTourismModifierVassal();
 	}
-#endif
 
 	//city difference - do we have more than them?
 	int iNumCities = kCityPlayer.GetNumEffectiveCities() - kPlayer.GetNumEffectiveCities();
