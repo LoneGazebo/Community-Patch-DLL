@@ -576,7 +576,7 @@ CvUnit* CvMilitaryAI::BuyEmergencyUnit(UnitAITypes eUnitType, CvCity* pCity)
 					m_pPlayer->ChangeFaith(-iFaithCost);
 
 					// This is an EXTRA build for the operation beyond any that are already assigned to this city, so pass in the right flag to CreateUnit()
-					CvUnit* pUnit = pCity->CreateUnit(eType, NO_UNITAI, REASON_BUY, false /*bUseToSatisfyOperation*/);
+					CvUnit* pUnit = pCity->CreateUnit(eType, NO_UNITAI, REASON_FAITH_BUY, false /*bUseToSatisfyOperation*/);
 					if (pUnit)
 					{
 						CvString szMsg;

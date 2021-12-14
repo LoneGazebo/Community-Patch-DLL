@@ -119,6 +119,8 @@
 #define MOD_GLOBAL_STACKING_RULES                   gCustomMods.isGLOBAL_STACKING_RULES()
 // Great Generals and Admirals gained from combat experience spawn in the war-zone and not in a distant city
 #define MOD_GLOBAL_LOCAL_GENERALS                   gCustomMods.isGLOBAL_LOCAL_GENERALS()
+// Modifies Local Generals to spawn the units in the city closest to the warzone
+#define MOD_LOCAL_GENERALS_NEAREST_CITY             gCustomMods.isLOCAL_GENERALS_NEAREST_CITY()
 // Separates out the repair fleet and change port abilities of the Great Admiral (v61)
 #define MOD_GLOBAL_SEPARATE_GREAT_ADMIRAL           gCustomMods.isGLOBAL_SEPARATE_GREAT_ADMIRAL()
 // Permits units to have promotion trees different from their assigned CombatClass
@@ -1242,6 +1244,7 @@ public:
 	MOD_OPT_DECL(ABC_TRIGGER_CHANGE);
 	MOD_OPT_DECL(GLOBAL_STACKING_RULES);
 	MOD_OPT_DECL(GLOBAL_LOCAL_GENERALS);
+	MOD_OPT_DECL(LOCAL_GENERALS_NEAREST_CITY);
 	MOD_OPT_DECL(GLOBAL_SEPARATE_GREAT_ADMIRAL);
 	MOD_OPT_DECL(GLOBAL_PROMOTION_CLASSES);
 	MOD_OPT_DECL(GLOBAL_PASSABLE_FORTS);

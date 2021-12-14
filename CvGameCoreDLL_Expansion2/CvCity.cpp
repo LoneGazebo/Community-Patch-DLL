@@ -30795,8 +30795,7 @@ CvUnit* CvCity::CreateUnit(UnitTypes eUnitType, UnitAITypes eAIType, UnitCreatio
 
 	addProductionExperience(pUnit, false, bIsPurchase);
 
-#if defined(MOD_BALANCE_CORE)
-	if (eReason != REASON_BUY || pUnit->getUnitInfo().CanMoveAfterPurchase())
+	if ((eReason != REASON_BUY && eReason != REASON_FAITH_BUY) || pUnit->getUnitInfo().CanMoveAfterPurchase())
 		pUnit->restoreFullMoves();
 	else
 		pUnit->finishMoves();
@@ -30816,7 +30815,6 @@ CvUnit* CvCity::CreateUnit(UnitTypes eUnitType, UnitAITypes eAIType, UnitCreatio
 		if (pUnit->getUnitInfo().IsFoodProduction() && getPopulation() > 1)
 			changePopulation(-1);
 	}
-#endif
 
 	CvPlot* pRallyPlot = getRallyPlot();
 	if (pRallyPlot != NULL)
@@ -30895,7 +30893,7 @@ CvUnit* CvCity::CreateUnit(UnitTypes eUnitType, UnitAITypes eAIType, UnitCreatio
 		IncrementUnitStatCount(pUnit);
 	}
 
-	if (eReason == REASON_TRAIN || eReason == REASON_BUY)
+	if (eReason == REASON_TRAIN || eReason == REASON_BUY || eReason == REASON_FAITH_BUY)
 		thisPlayer.changeUnitsBuiltCount(eUnitType, 1);
 
 	return pUnit;
@@ -31990,7 +31988,7 @@ void CvCity::Purchase(UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectT
 
 		if (eUnitType >= 0)
 		{
-			CvUnit* pUnit = CreateUnit(eUnitType, NO_UNITAI, REASON_TRAIN);
+			CvUnit* pUnit = CreateUnit(eUnitType, NO_UNITAI, REASON_FAITH_BUY);
 			if (pUnit==NULL)
 				return;	// Can't create the unit, most likely we have no place for it.  We have not deducted the cost yet so just exit.
 
