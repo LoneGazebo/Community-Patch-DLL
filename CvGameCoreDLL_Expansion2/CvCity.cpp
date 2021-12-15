@@ -31455,7 +31455,7 @@ bool CvCity::IsCanPurchase(const std::vector<int>& vPreExistingBuildings, bool b
 				{
 					return false;
 				}
-				if (eUnitType != NO_UNIT && !bVenetianException)
+				if (eUnitType != NO_UNIT)
 				{
 					CvUnitEntry* thisUnitInfo = GC.getUnitInfo(eUnitType);
 					// See if there are any BuildingClass requirements
