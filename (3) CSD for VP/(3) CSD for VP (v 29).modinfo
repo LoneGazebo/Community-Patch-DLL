@@ -27,58 +27,58 @@
   <References />
   <Blocks />
   <Files>
-    <File md5="AB712F21B58EEE7760040D131EE3F170" import="1">Art/Buildings/Icons/CSDBuildings128.dds</File>
-    <File md5="5E1A9E11DA516CC0D1AAD6F1DD5207F1" import="1">Art/Buildings/Icons/CSDBuildings256.dds</File>
-    <File md5="72C5EDB4919E5B5DE297AE1DB5795AEA" import="1">Art/Buildings/Icons/CSDBuildings45.dds</File>
-    <File md5="D6B4A84C40ABF936CC2C775A1BA5C19D" import="1">Art/Buildings/Icons/CSDBuildings64.dds</File>
-    <File md5="877959A403AD036E0B17B1268C7B078B" import="1">Art/Buildings/Icons/CSDBuildings80.dds</File>
+    <File md5="2E33AA1938020ED3CB49B6BBB8317074" import="1">Art/Buildings/Icons/CSDBuildings128.dds</File>
+    <File md5="B158831F0A8E7FB4E79C4A516F8B36CE" import="1">Art/Buildings/Icons/CSDBuildings256.dds</File>
+    <File md5="3631795E2F701A428A2651ACE29A0461" import="1">Art/Buildings/Icons/CSDBuildings45.dds</File>
+    <File md5="FE20E94E099CC069AE1DD5FE155E85AB" import="1">Art/Buildings/Icons/CSDBuildings64.dds</File>
+    <File md5="C05FA318D693E66E8BC1BD7A30DE914D" import="1">Art/Buildings/Icons/CSDBuildings80.dds</File>
     <File md5="519FB2256A964E18CFBDACCBB9BA5888" import="1">Art/Buildings/Icons/MeninGate_045.dds</File>
     <File md5="8C3E7F3B5A0DED841208825FC63D948C" import="1">Art/Buildings/Icons/MeninGate_064.dds</File>
     <File md5="F99E2437B6DFE5FC561EE8DC691AA527" import="1">Art/Buildings/Icons/MeninGate_080.dds</File>
     <File md5="1EA1DEBEB0D4942BC53FEDB706C0B50A" import="1">Art/Buildings/Icons/MeninGate_128.dds</File>
     <File md5="CDFAC8B81919F363D1F6548AE4B82AA4" import="1">Art/Buildings/Icons/MeninGate_256.dds</File>
-    <File md5="8304DAE66FD9C7489552854640582954" import="1">Art/Buildings/Splashes/CrystalPalace.dds</File>
-    <File md5="05D3E58EF45A16024A61512B9D1DBE3B" import="1">Art/Buildings/Splashes/MeninGateSplash.dds</File>
-    <File md5="081309344ED7F57661CAEE549678A988" import="1">Art/Buildings/Splashes/OlympicVillage.dds</File>
-    <File md5="3485185DC73AABA3DE7984F0F571AD43" import="1">Art/Buildings/Splashes/ProjectTreasureFleet.dds</File>
-    <File md5="23245B022AF4D8766991A7C85DD9E8F0" import="1">Art/Buildings/Splashes/ProjectUN.dds</File>
-    <File md5="55CAB77F2B582685DBF7C55A34D1419A" import="1">Art/Buildings/Splashes/ProjectWargames.dds</File>
-    <File md5="D85FF40F1A5DC941B23ABE626D56413E" import="1">Art/Buildings/Splashes/WonderAdmiralty.dds</File>
-    <File md5="8F684BC3E334305412605F12C499B115" import="1">Art/Buildings/Splashes/WonderForum.dds</File>
-    <File md5="D09D9751ECF70A8F6978548EC09CF5BB" import="1">Art/Buildings/Splashes/WonderSummerPalace.dds</File>
+    <File md5="EB9901FF4C451D3B6A4F196394D5B286" import="1">Art/Buildings/Splashes/CrystalPalace.dds</File>
+    <File md5="FE290EC698E068EF4A2B0746902FD454" import="1">Art/Buildings/Splashes/MeninGateSplash.dds</File>
+    <File md5="E66E16AF9904099E3AF7AF1EEDA7E98B" import="1">Art/Buildings/Splashes/OlympicVillage.dds</File>
+    <File md5="3D32F8BB35A07652CE15C197258F2C2F" import="1">Art/Buildings/Splashes/ProjectTreasureFleet.dds</File>
+    <File md5="CC5217FEB19D0A3D7FA3C32048FCA41D" import="1">Art/Buildings/Splashes/ProjectUN.dds</File>
+    <File md5="CF9A9D9A7592BBC9CDC4BCB279600B6D" import="1">Art/Buildings/Splashes/ProjectWargames.dds</File>
+    <File md5="B6934D34549FE3289B7A94C38FD9472F" import="1">Art/Buildings/Splashes/WonderAdmiralty.dds</File>
+    <File md5="3F8BAC99D9F98BC026AF05A7CFF2015C" import="1">Art/Buildings/Splashes/WonderForum.dds</File>
+    <File md5="3CCC66415EC7D1C4700094F1FA90B50B" import="1">Art/Buildings/Splashes/WonderSummerPalace.dds</File>
     <File md5="FF60D0BF33811895340ABBEF2779DE81" import="0">Art/ArtInfo.sql</File>
     <File md5="E68079ECA34AC209094AF7A16C7102E1" import="1">Art/Embassy/Embassy.fxsxml</File>
     <File md5="B92E45EEA3277D6761B941E6C6E84366" import="1">Art/Embassy/Embassy.gr2</File>
-    <File md5="9359FA2E402F55B6611F23699B5F6DF7" import="1">Art/Embassy/EmbassyAtlas256.dds</File>
-    <File md5="D663ABAC419D50B495FEE906438999C2" import="1">Art/Embassy/EmbassyAtlas64.dds</File>
+    <File md5="E629AE7E8A6C1989F6562B96FC7E149F" import="1">Art/Embassy/EmbassyAtlas256.dds</File>
+    <File md5="52772602CE24FEA1F69AEBE65BE996DE" import="1">Art/Embassy/EmbassyAtlas64.dds</File>
     <File md5="D58F4982DDD998AE3FFE2E7A641A509E" import="1">Art/Embassy/EmbassyBuildIcon45.dds</File>
     <File md5="B9ABBBCBEC4F98B6BBF66332938312AE" import="1">Art/Embassy/EmbassyBuildIcon64.dds</File>
     <File md5="AF0387C8B7097F5CBB0BCCEF33777F06" import="1">Art/Embassy/EmbassyBuilding.dds</File>
     <File md5="815A4E178DC11C9AA2EC759398769B8A" import="1">Art/Embassy/EmbassyBuilding_SREF.dds</File>
     <File md5="D71B8475146D7D369BA74FAC43965515" import="1">Art/Embassy/EmbassyGround.dds</File>
     <File md5="A50A60EABA1E23DBCFB0F0AC92F90E67" import="1">Art/Embassy/EmbassyGround_h.dds</File>
-    <File md5="47905DB07E4D3EC8DD69FD90388F1D20" import="1">Art/Embassy/SV_Embassy.dds</File>
-    <File md5="380E2B82F29ADB8F1F3C9EFEA87A0B04" import="1">Art/Resources/Book256.dds</File>
-    <File md5="D6F8D4E33D89ABAFC17EF35AA62EC66C" import="1">Art/Resources/Book45.dds</File>
-    <File md5="A858E522055E1A4188C4F1A806E7EF23" import="1">Art/Resources/Book64.dds</File>
-    <File md5="3322910D84FAB8D476FADB0BC690F114" import="1">Art/Resources/Book80.dds</File>
+    <File md5="519D8304656DA9ECA046403EB914172F" import="1">Art/Embassy/SV_Embassy.dds</File>
+    <File md5="8A49736532BBE103741AA74882E89118" import="1">Art/Resources/Book256.dds</File>
+    <File md5="1F1AC649DD71B19E56CCAAFB0920E801" import="1">Art/Resources/Book45.dds</File>
+    <File md5="92605057B2B32370AB97EA2B4A8E1CCE" import="1">Art/Resources/Book64.dds</File>
+    <File md5="1043C1FFFECD21D428A8AF1098B38575" import="1">Art/Resources/Book80.dds</File>
     <File md5="271D8602DAF934C07A53BE3B32AD2B3B" import="1">Art/Resources/CSDPaper.dds</File>
     <File md5="41F450D710658C652158869BE18FB6D9" import="1">Art/Specialists/citizenCivilServant.dds</File>
-    <File md5="7ACAA3C6DDF4168AC251730F1158E5E9" import="1">Art/Specialists/CSDcs1024.dds</File>
-    <File md5="D2E56502A735986B37C7EEAA564C7C62" import="1">Art/Specialists/CSDcs128.dds</File>
-    <File md5="E850A7D50EB6B16D8DD74CF70131B19C" import="1">Art/Specialists/CSDcs180.dds</File>
-    <File md5="90CB5153EDFC7E162D566707C7C19698" import="1">Art/Specialists/CSDcs256.dds</File>
-    <File md5="183E3195CF313BFD9BED46292A8AD26A" import="1">Art/Specialists/CSDcs512.dds</File>
+    <File md5="70C889297ED76FA88679F62799A1F055" import="1">Art/Specialists/CSDcs128.dds</File>
+    <File md5="6B9B6940C1DECE9C8AB19FEA4E85BBC0" import="1">Art/Specialists/CSDcs180.dds</File>
+    <File md5="6F1A5EA4943BD5EF37901925FB439C37" import="1">Art/Specialists/CSDcs256.dds</File>
+    <File md5="034FC19FCD9688E9900E18949A58B8F8" import="1">Art/Specialists/CSDcs512.dds</File>
+    <File md5="4009AA1AE5299D81DD69A4DB0D0C2029" import="1">Art/Specialists/CSDcs1024.dds</File>
     <File md5="2C580C8630BDC86394D0D4786EA7B6E2" import="1">Art/Units/Flag/CSDSVIcon.dds</File>
     <File md5="75A714B020AD295FC985408B04430156" import="1">Art/Units/Flag/CSDSVIconGD.dds</File>
     <File md5="45CC370400040836CC9B4DEC3FACF8A4" import="1">Art/Units/Flag/CSDunitflagatlaswhite32.dds</File>
-    <File md5="3D33BD6C211F7FE93F04C24082103FEE" import="1">Art/Units/Icons/CSDUnits128.dds</File>
-    <File md5="938D17525A62FD84ABAEA20A4522B93D" import="1">Art/Units/Icons/CSDUnits256.dds</File>
-    <File md5="538781B4660CDDCDA1B752C7F8F8EF61" import="1">Art/Units/Icons/CSDUnits45.dds</File>
-    <File md5="3BEA7186993F12E87F1C328148061C69" import="1">Art/Units/Icons/CSDUnits64.dds</File>
-    <File md5="C0BC744A984C8839B9BB57D88FE403D3" import="1">Art/Units/Icons/CSDUnits80.dds</File>
+    <File md5="A50C93D075CBCBA3CEAD8C6DE12CE636" import="1">Art/Units/Icons/CSDUnits128.dds</File>
+    <File md5="0600D0EFA76E0766D1637B6E7A451F9F" import="1">Art/Units/Icons/CSDUnits256.dds</File>
+    <File md5="4F297405D6217C36EC6BEF7121839D63" import="1">Art/Units/Icons/CSDUnits45.dds</File>
+    <File md5="676007B9B208A6B53129185EEBBADC79" import="1">Art/Units/Icons/CSDUnits64.dds</File>
+    <File md5="BE3B9518A5EEAFD65072A9C7E133D54B" import="1">Art/Units/Icons/CSDUnits80.dds</File>
     <File md5="AA1D9E47207BD116C7E0297BC1063F67" import="1">Art/XML/CSDPaper.ggxml</File>
-    <File md5="4392B462F4EDE100DCA4210FC3FC7BA6" import="0">Art/XML/Icons.xml</File>
+    <File md5="E1ABC014DE1A639EE43EAE7F64922667" import="0">Art/XML/Icons.xml</File>
     <File md5="6FB8410794152AB59488C0DE134550F8" import="0">Buildings/BuildingRules.sql</File>
     <File md5="6C83256BF50BB0ECAE17F491B58ED5C4" import="0">Buildings/BuildingText.xml</File>
     <File md5="615136114CDF6E15C36DF6082282B5B7" import="0">Buildings/CSDBuildings.xml</File>

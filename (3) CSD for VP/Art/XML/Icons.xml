@@ -14,105 +14,105 @@
 			<IconSize>256</IconSize>
 			<Filename>CSDUnits256.dds</Filename>
 			<IconsPerRow>8</IconsPerRow>
-			<IconsPerColumn>8</IconsPerColumn>
+			<IconsPerColumn>3</IconsPerColumn>
 		</Row>
 		<Row>
 			<Atlas>CSD_ATLAS</Atlas>
 			<IconSize>128</IconSize>
 			<Filename>CSDUnits128.dds</Filename>
 			<IconsPerRow>8</IconsPerRow>
-			<IconsPerColumn>8</IconsPerColumn>
+			<IconsPerColumn>3</IconsPerColumn>
 		</Row>
 		<Row>
 			<Atlas>CSD_ATLAS</Atlas>
 			<IconSize>80</IconSize>
 			<Filename>CSDUnits80.dds</Filename>
 			<IconsPerRow>8</IconsPerRow>
-			<IconsPerColumn>8</IconsPerColumn>
+			<IconsPerColumn>3</IconsPerColumn>
 		</Row>
 		<Row>
 			<Atlas>CSD_ATLAS</Atlas>
 			<IconSize>64</IconSize>
 			<Filename>CSDUnits64.dds</Filename>
 			<IconsPerRow>8</IconsPerRow>
-			<IconsPerColumn>8</IconsPerColumn>
+			<IconsPerColumn>3</IconsPerColumn>
 		</Row>
 		<Row>
 			<Atlas>CSD_ATLAS</Atlas>
 			<IconSize>45</IconSize>
 			<Filename>CSDUnits45.dds</Filename>
 			<IconsPerRow>8</IconsPerRow>
-			<IconsPerColumn>8</IconsPerColumn>
+			<IconsPerColumn>3</IconsPerColumn>
 		</Row>
 		<Row>
 			<Atlas>CSDBUILDINGS_ATLAS</Atlas>
 			<IconSize>256</IconSize>
 			<Filename>CSDBuildings256.dds</Filename>
 			<IconsPerRow>8</IconsPerRow>
-			<IconsPerColumn>8</IconsPerColumn>
+			<IconsPerColumn>5</IconsPerColumn>
 		</Row>
 		<Row>
 			<Atlas>CSDBUILDINGS_ATLAS</Atlas>
 			<IconSize>128</IconSize>
 			<Filename>CSDBuildings128.dds</Filename>
 			<IconsPerRow>8</IconsPerRow>
-			<IconsPerColumn>8</IconsPerColumn>
+			<IconsPerColumn>5</IconsPerColumn>
 		</Row>
 		<Row>
 			<Atlas>CSDBUILDINGS_ATLAS</Atlas>
 			<IconSize>80</IconSize>
 			<Filename>CSDBuildings80.dds</Filename>
 			<IconsPerRow>8</IconsPerRow>
-			<IconsPerColumn>8</IconsPerColumn>
+			<IconsPerColumn>5</IconsPerColumn>
 		</Row>
 		<Row>
 			<Atlas>CSDBUILDINGS_ATLAS</Atlas>
 			<IconSize>64</IconSize>
 			<Filename>CSDBuildings64.dds</Filename>
 			<IconsPerRow>8</IconsPerRow>
-			<IconsPerColumn>8</IconsPerColumn>
+			<IconsPerColumn>5</IconsPerColumn>
 		</Row>
 		<Row>
 			<Atlas>CSDBUILDINGS_ATLAS</Atlas>
 			<IconSize>45</IconSize>
 			<Filename>CSDBuildings45.dds</Filename>
 			<IconsPerRow>8</IconsPerRow>
-			<IconsPerColumn>8</IconsPerColumn>
+			<IconsPerColumn>5</IconsPerColumn>
 		</Row>
 		<Row>
 			<Atlas>CSDSPECIALIST_ATLAS</Atlas>
 			<IconSize>256</IconSize>
 			<Filename>CSDcs1024.dds</Filename>
-			<IconsPerRow>4</IconsPerRow>
-			<IconsPerColumn>4</IconsPerColumn>
+			<IconsPerRow>1</IconsPerRow>
+			<IconsPerColumn>1</IconsPerColumn>
 		</Row>
 		<Row>
 			<Atlas>CSDSPECIALIST_ATLAS</Atlas>
 			<IconSize>128</IconSize>
 			<Filename>CSDcs512.dds</Filename>
-			<IconsPerRow>4</IconsPerRow>
-			<IconsPerColumn>4</IconsPerColumn>
+			<IconsPerRow>1</IconsPerRow>
+			<IconsPerColumn>1</IconsPerColumn>
 		</Row>
 		<Row>
 			<Atlas>CSDSPECIALIST_ATLAS</Atlas>
 			<IconSize>64</IconSize>
 			<Filename>CSDcs256.dds</Filename>
-			<IconsPerRow>4</IconsPerRow>
-			<IconsPerColumn>4</IconsPerColumn>
+			<IconsPerRow>1</IconsPerRow>
+			<IconsPerColumn>1</IconsPerColumn>
 		</Row>
 		<Row>
 			<Atlas>CSDSPECIALIST_ATLAS</Atlas>
 			<IconSize>45</IconSize>
 			<Filename>CSDcs180.dds</Filename>
-			<IconsPerRow>4</IconsPerRow>
-			<IconsPerColumn>4</IconsPerColumn>
+			<IconsPerRow>1</IconsPerRow>
+			<IconsPerColumn>1</IconsPerColumn>
 		</Row>
 		<Row>
 			<Atlas>CSDSPECIALIST_ATLAS</Atlas>
 			<IconSize>32</IconSize>
 			<Filename>CSDcs128.dds</Filename>
-			<IconsPerRow>4</IconsPerRow>
-			<IconsPerColumn>4</IconsPerColumn>
+			<IconsPerRow>1</IconsPerRow>
+			<IconsPerColumn>1</IconsPerColumn>
 		</Row>
 		<Row>
 			<Atlas>CSD_RESOURCE_ATLAS</Atlas>
@@ -160,15 +160,15 @@
 			<Atlas>TERRAIN_IMPROVEMENT_EMBASSY</Atlas>
 			<IconSize>256</IconSize>
 			<Filename>EmbassyAtlas256.dds</Filename>
-			<IconsPerRow>3</IconsPerRow>
-			<IconsPerColumn>2</IconsPerColumn>
+			<IconsPerRow>1</IconsPerRow>
+			<IconsPerColumn>1</IconsPerColumn>
 		</Row>
 		<Row>
 			<Atlas>TERRAIN_IMPROVEMENT_EMBASSY</Atlas>
 			<IconSize>64</IconSize>
 			<Filename>EmbassyAtlas64.dds</Filename>
-			<IconsPerRow>3</IconsPerRow>
-			<IconsPerColumn>2</IconsPerColumn>
+			<IconsPerRow>1</IconsPerRow>
+			<IconsPerColumn>1</IconsPerColumn>
 		</Row>
 	</IconTextureAtlases>
 	<ArtDefine_StrategicView>

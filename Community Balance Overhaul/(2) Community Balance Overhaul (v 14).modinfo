@@ -26,11 +26,11 @@
     <Mod id="781d81cf-49e1-4acb-ae5f-b9e3713f98d3" minversion="0" maxversion="999" title="(1a) Civ IV Diplomatic Features - CP" />
   </Blocks>
   <Files>
-    <File md5="9FB2A08B39FAD9ED2C77E95103C80EB9" import="1">Art/Community2Art128.dds</File>
-    <File md5="AB9AFF5A749052A9D7F0D2E14A01F57D" import="1">Art/Community2Art256.dds</File>
-    <File md5="E8D0AF9235B5C9F131FDA63B9C210026" import="1">Art/Community2Art45.dds</File>
-    <File md5="21AD4469587F7242D326BC9263887B69" import="1">Art/Community2Art64.dds</File>
-    <File md5="3A61B9EFC9DF3126F7D25B90855B88AF" import="1">Art/Community2Art80.dds</File>
+    <File md5="64DB71457984DDACA288C7D40607924B" import="1">Art/Community2Art128.dds</File>
+    <File md5="572D0BDFC6D5AA38998C172A40462760" import="1">Art/Community2Art256.dds</File>
+    <File md5="AAD60BC9F1367C34B23BC0A25EA67338" import="1">Art/Community2Art45.dds</File>
+    <File md5="2510DAF45105F9167DD279556BFCB55F" import="1">Art/Community2Art64.dds</File>
+    <File md5="F82109105DF635AD9E58F4E7640F7B09" import="1">Art/Community2Art80.dds</File>
     <File md5="3E67579A8ACABCBF2B4E21CE093A17A8" import="1">Art/CommunityArt128.dds</File>
     <File md5="1D23BC6E0F605A75BABD997E20C72C8C" import="1">Art/CommunityArt214.dds</File>
     <File md5="1651C1DDB2AD66143BE4527785055697" import="1">Art/CommunityArt256.dds</File>
@@ -44,37 +44,37 @@
     <File md5="FD272863A48650EA5C7EDBFC369B401B" import="1">Art/Hacienda/HaciendaIcons_064.dds</File>
     <File md5="CC00E7B3E7C179EA3112755E26A86BDF" import="1">Art/Hacienda/HaciendaIcons_128.dds</File>
     <File md5="FB489FFB27E8A1BEEBD9A9A775B95BEC" import="1">Art/Hacienda/HaciendaIcons_256.dds</File>
-    <File md5="4A13C5A705B8857EE88DB5C84CC10BB0" import="1">Art/Hacienda/hacienda_decal.dds</File>
-    <File md5="F64F610BF673F86AF0553D45A6037DB2" import="1">Art/Hacienda/hacienda_diff.dds</File>
+    <File md5="B053056BAB519693BEBAACAA6BFB8E73" import="1">Art/Hacienda/hacienda_decal.dds</File>
+    <File md5="1131E374F2B7711547A3E95AA83054D4" import="1">Art/Hacienda/hacienda_diff.dds</File>
     <File md5="D6560D0D1B0950A7E0A18EF64DB5AE2D" import="1">Art/Hacienda/hacienda_hb.fxsxml</File>
     <File md5="5CE3AB8C0187307D009F008D1966B68F" import="1">Art/Hacienda/hacienda_hb.gr2</File>
     <File md5="BBEE2C1409E976775A4A10BF199019F6" import="1">Art/Hacienda/hacienda_pl.fxsxml</File>
     <File md5="289BEB45E1C17E01347F9581BCDCC9C2" import="1">Art/Hacienda/hacienda_pl.gr2</File>
-    <File md5="E06CD0B238DF4CD7C1A4315AB02337F3" import="1">Art/Hacienda/hacienda_pl_decal.dds</File>
-    <File md5="4854781DB455ADF4CDB3C2A7F59178A1" import="1">Art/Hacienda/hacienda_pl_diff.dds</File>
-    <File md5="C17A1E51BEB0E6D4A21F4B935A8356B6" import="0">Art/Icons.xml</File>
+    <File md5="EB6480B4DBF20D4609AB3FE3F78379B0" import="1">Art/Hacienda/hacienda_pl_decal.dds</File>
+    <File md5="147D995A7EB4AB12CFBDA892F2ED3D8C" import="1">Art/Hacienda/hacienda_pl_diff.dds</File>
+    <File md5="36257F967AC2DCB511953384FDD92287" import="0">Art/Icons.xml</File>
     <File md5="EE05E9B4141FA7A947BA09B9A369735D" import="1">Art/Icons/airstrike.dds</File>
     <File md5="A584917AB71518B44448C8E194AB12D1" import="1">Art/Icons/airstrike.ggxml</File>
     <File md5="ECE2F4F136C551626052A784B6F8613F" import="1">Art/Icons/Austria.dds</File>
     <File md5="38B8B10B382EEE223A377378E3CBC88E" import="1">Art/Icons/Austria.ggxml</File>
     <File md5="270379289F4A40C3E185D3D6A66263FA" import="1">Art/Icons/citizenmusician.dds</File>
     <File md5="7BF76393D2B1AFF6E33FEFDE7F033039" import="1">Art/Icons/citizenwriter.dds</File>
-    <File md5="E9321330B5130BF41C27955BC7C740EB" import="1">Art/Icons/musicianspecialist1024.dds</File>
-    <File md5="5B4F8B59181D7C790E137FE057A56079" import="1">Art/Icons/musicianspecialist128.dds</File>
-    <File md5="DE978EEFD2EA9FCB1A6CC3D800C7ABC6" import="1">Art/Icons/musicianspecialist180.dds</File>
-    <File md5="8E0088B5102BCE31CFD0D8BBDB3348AD" import="1">Art/Icons/musicianspecialist256.dds</File>
-    <File md5="9B8424FEE841BEB65D09984484F0E8D1" import="1">Art/Icons/musicianspecialist512.dds</File>
-    <File md5="1BBB51791242BB0223E49D4F06166EED" import="1">Art/Icons/writerspecialist1024.dds</File>
-    <File md5="A94B99BDE308F6C95C7E45CAA320CF19" import="1">Art/Icons/writerspecialist128.dds</File>
-    <File md5="D305C366C1D6C2528CFF5099766C8BFF" import="1">Art/Icons/writerspecialist180.dds</File>
-    <File md5="12C33F4F1DAD8A2B6611E888F380154F" import="1">Art/Icons/writerspecialist256.dds</File>
-    <File md5="1EB36A553D4520D9B09A6A58A9740B73" import="1">Art/Icons/writerspecialist512.dds</File>
+    <File md5="84245E4EED2973497B92BF578C08947F" import="1">Art/Icons/musicianspecialist1024.dds</File>
+    <File md5="86C474909205CC804D6F6D41A6FD8A63" import="1">Art/Icons/musicianspecialist128.dds</File>
+    <File md5="95811E665B6E123549B68AED2DB56663" import="1">Art/Icons/musicianspecialist180.dds</File>
+    <File md5="265FE41DC6DE68E914FCDB96989F6EC6" import="1">Art/Icons/musicianspecialist256.dds</File>
+    <File md5="4BBF84C786CFBAD9E1E74B4B9099857A" import="1">Art/Icons/musicianspecialist512.dds</File>
+    <File md5="4128E366F3B47E737F837670C8E0D85E" import="1">Art/Icons/writerspecialist1024.dds</File>
+    <File md5="3988B20BC6D1EDB5E606B92479A69E8D" import="1">Art/Icons/writerspecialist128.dds</File>
+    <File md5="78D91B5A160DC9592B4DE6568BAF0D80" import="1">Art/Icons/writerspecialist180.dds</File>
+    <File md5="100EE546C2EC1685BA346CA578D64074" import="1">Art/Icons/writerspecialist256.dds</File>
+    <File md5="C51B25DB53960794C8BEB3DB6A4E6F93" import="1">Art/Icons/writerspecialist512.dds</File>
     <File md5="CA19F6683F0AC98FDC70C3FEE70E7E1B" import="1">Art/Improvements/Eki/EkiAtlas64.dds</File>
     <File md5="23EFC6142448F267565EA8A08CE85927" import="1">Art/Improvements/Eki/EkiBuildIcon45.dds</File>
     <File md5="1EB5AEEBB11A3A58DEC66E0DDFF892A1" import="1">Art/Improvements/Eki/EkiBuildIcon64.dds</File>
     <File md5="83D8AA0B906178E9831B850AF3114E25" import="1">Art/Improvements/Eki/eki_built.fxsxml</File>
     <File md5="464DABD3C68F6F4E9BD498A797FD2ECD" import="1">Art/Improvements/Eki/eki_built.gr2</File>
-    <File md5="EC635ABACD33E5B29AD1DC9D9808D14F" import="1">Art/Improvements/Eki/EKI_diff.dds</File>
+    <File md5="2D5FE75ED77330BED0659DC730307D01" import="1">Art/Improvements/Eki/EKI_diff.dds</File>
     <File md5="D952D11C14B7DAA83AF5354FFF7F401B" import="1">Art/Improvements/Eki/eki_PL.fxsxml</File>
     <File md5="1EEA0983503AD8CD481E18CBE85BFEBE" import="1">Art/Improvements/Eki/EKI_PL.gr2</File>
     <File md5="BA13918EDDD27DA7B6C7CC349FA04059" import="1">Art/Improvements/Eki/eki_UC.fxsxml</File>
@@ -102,16 +102,16 @@
     <File md5="4B5D7AB09229717BD4558C6728D5FD75" import="1">Art/Improvements/Kuna/pl_kuna.fxsxml</File>
     <File md5="A51DAAC23F2AE707DB1703B5C3BF1B66" import="1">Art/Improvements/Kuna/SV_Kuna.dds</File>
     <File md5="AC41C06BA721315512F26433220FEDF7" import="1">Art/Improvements/Ordo/no_gloss.dds</File>
-    <File md5="C6FD6843D574CEB706EC53986762FB4F" import="1">Art/Improvements/Ordo/YurtCamp.dds</File>
+    <File md5="EADCE73CB913FA10D5D5D38B405E0915" import="1">Art/Improvements/Ordo/YurtCamp.dds</File>
     <File md5="F851407CDC18394040E510EC14B20E9D" import="1">Art/Improvements/Ordo/YurtCamp.fxsxml</File>
     <File md5="2D918C84A191EED3124CA39255391785" import="1">Art/Improvements/Ordo/YurtCamp.gr2</File>
-    <File md5="BB1C130BA85B1D156776619EA213AAD9" import="1">Art/Improvements/Ordo/YurtCamp_PL.dds</File>
+    <File md5="B2A0D9D7D2FF5F6D0D54FB707C624851" import="1">Art/Improvements/Ordo/YurtCamp_PL.dds</File>
     <File md5="A4027465D4AC803CC0A53B9B1381383F" import="1">Art/Improvements/Ordo/YurtCamp_PL.fxsxml</File>
     <File md5="68931DAC437C89CA76F3C70A2DECD9B2" import="1">Art/Improvements/Ordo/YurtCamp_PL.gr2</File>
     <File md5="3D8EA725B0222207C10C3DD2A9EDC1EA" import="1">Art/Improvements/Ordo/YurtIcons045.dds</File>
     <File md5="ED9DC0B5ED1ABA39133733D54283BA81" import="1">Art/Improvements/Ordo/YurtIcons064.dds</File>
     <File md5="93128D9703C09C5F60A7DB49CF2F897E" import="1">Art/Improvements/Ordo/YurtIcons256.dds</File>
-    <File md5="90D430D5E468FEEC9286179BFC711309" import="1">Art/Improvements/Ordo/Yurt_SV.dds</File>
+    <File md5="86CC3610A917733B2289FCBFD297034F" import="1">Art/Improvements/Ordo/Yurt_SV.dds</File>
     <File md5="1C03FD1E9AC702D4CD52B722054F7AD9" import="1">Art/Improvements/Spices/cloves_diff.dds</File>
     <File md5="B27A2B6D05261F9AC58DCB266F5EBBFF" import="1">Art/Improvements/Spices/cloves_sref.dds</File>
     <File md5="577EF72CBF5DE34C59A79AE2805AF0C0" import="1">Art/Improvements/Spices/fx_triggers_pl_plantation_ind_cloves.ftsxml</File>
@@ -171,23 +171,23 @@
     <File md5="65CE14FE1BDAE04FBFB0729C88192C62" import="1">Art/Improvements/SV_Nutmeg.dds</File>
     <File md5="2F76DD685A662918C70E7BD46A1D9169" import="1">Art/Improvements/SV_Pepper.dds</File>
     <File md5="99CC21EE343BAB4C8444E3FBE951375A" import="1">Art/Resources/Brazilwood.dds</File>
-    <File md5="6CF8743D31864C4EE8ADA1D71AA5F88E" import="1">Art/Resources/Brazilwood256.dds</File>
-    <File md5="85949F7090FD9FABBBDD35AD22DCF77C" import="1">Art/Resources/Brazilwood45.dds</File>
-    <File md5="DB8868993D57EAE49578E0FEF32B7074" import="1">Art/Resources/Brazilwood64.dds</File>
-    <File md5="8339045D978B45A7BA1B8BFBC6CB6267" import="1">Art/Resources/Brazilwood80.dds</File>
+    <File md5="A27C07F0617184EC79A85D68365DEC9C" import="1">Art/Resources/Brazilwood256.dds</File>
+    <File md5="AA09D791F4D855BDC0AFDE4018E28F62" import="1">Art/Resources/Brazilwood45.dds</File>
+    <File md5="F29CF22162FC6DCA539C46B57E6261BF" import="1">Art/Resources/Brazilwood64.dds</File>
+    <File md5="E835126B9BCA270CF889634C9506FE54" import="1">Art/Resources/Brazilwood80.dds</File>
     <File md5="5FF5D56691767C136D5068AAB9E7333A" import="1">Art/Resources/Brazilwood.ggxml</File>
     <File md5="56F2A5FB062D020C56DC18039A91C3B9" import="1">Art/Resources/Brazilwood.lua</File>
     <File md5="57A573910C992F08F6F9C13B31BC96E8" import="1">Art/Splash/bletchleysplash.dds</File>
-    <File md5="BE23C560C1A508C746FEA0EC9EBAC65E" import="1">Art/Splash/CernSplash.dds</File>
+    <File md5="E855F14B4AD601BEE30BF7186A31B2FC" import="1">Art/Splash/CernSplash.dds</File>
     <File md5="E2C1B19E7B3634565DF1ACB1CA508BFA" import="1">Art/Splash/empiresplash.dds</File>
-    <File md5="FE1F2483C0B9169B3F65D559BDB78CDF" import="1">Art/Splash/Karlstejn_WonderSplash.dds</File>
+    <File md5="DF444BC0B8CD5C04C08568EF45780F9D" import="1">Art/Splash/Karlstejn_WonderSplash.dds</File>
     <File md5="A1B4D441370E5E3308EF01AEB7B9F1B1" import="1">Art/Splash/motherlandsplash.dds</File>
     <File md5="503E4C958296A2F1D9097970C1971199" import="1">Art/Splash/SlaterSplash.dds</File>
-    <File md5="F3239A6BDD52B4C4B50605086C2A9313" import="1">Art/Splash/TheJewelSplash.dds</File>
-    <File md5="967C9D2A6A6ECC9E4D0EEC61EE180506" import="1">Art/Units/ArmoredCar/FordM1918.dds</File>
+    <File md5="DB93F9A870945A307CF7423643466BE3" import="1">Art/Splash/TheJewelSplash.dds</File>
+    <File md5="27D8F6F68F034BC5BF15DE7698735EA7" import="1">Art/Units/ArmoredCar/FordM1918.dds</File>
     <File md5="BE230C14A4443DC6A4F8AB32F49CE261" import="1">Art/Units/ArmoredCar/FordM1918.fxsxml</File>
     <File md5="DAADB92335DB6FE0FD9EBC1A9F608A3E" import="1">Art/Units/ArmoredCar/FordM1918.gr2</File>
-    <File md5="4B3096C825E4D4A1E152DE39C4BFBE4B" import="1">Art/Units/ArmoredCar/FordM1918SREF.dds</File>
+    <File md5="618082E90C802D30EC4F8ECDD65CF72F" import="1">Art/Units/ArmoredCar/FordM1918SREF.dds</File>
     <File md5="D313713A8544E42BA6125F57F195910C" import="1">Art/Units/Bandeirantes/bandeirante1_rest_diff.dds</File>
     <File md5="37BC48D856C075D221062AE38C05CEE3" import="1">Art/Units/Bandeirantes/bandeirante1_torso_diff.dds</File>
     <File md5="1DEC243F672462AEBDEB3E1871A0829B" import="1">Art/Units/Bandeirantes/bandeirante2_head_diff.dds</File>
@@ -227,8 +227,8 @@
     <File md5="8F41BAF821145D1B45DAA138A90053E3" import="1">Art/Units/Commando/u_boer_commando_v2_sref.dds</File>
     <File md5="B9985906AF255F559D3E090537D2BC8D" import="1">Art/Units/Corvette/carrack.fxsxml</File>
     <File md5="0C88428D303A518CF9686C4849F61401" import="1">Art/Units/Corvette/carrack.gr2</File>
-    <File md5="B04F555DF31229E8C257BC33F6390B39" import="1">Art/Units/Corvette/Carrack_diff.dds</File>
-    <File md5="15B4FC99B1AAB771AEFBDE96BF12B80C" import="1">Art/Units/Corvette/Carrack_sref.dds</File>
+    <File md5="247EE7EB9E4A935605879C72EC0737CD" import="1">Art/Units/Corvette/Carrack_diff.dds</File>
+    <File md5="08EF19A098FA45330472B3B6F762E116" import="1">Art/Units/Corvette/Carrack_sref.dds</File>
     <File md5="38739D5BE05DA28C0BF2BCE663CFF263" import="1">Art/Units/FieldGun/76mmArtillery.fxsxml</File>
     <File md5="AD08B844F97B245A630A3018A9C34139" import="1">Art/Units/FieldGun/76mmArtillery.gr2</File>
     <File md5="3E3833B035D33BD12E922661C893EB0B" import="1">Art/Units/FieldGun/76mmDivGun.dds</File>
@@ -249,33 +249,33 @@
     <File md5="A6DDF301AB9DFC99838E77EC71416A0C" import="1">Art/Units/Guerilla/ModernMarine_Idle.gr2</File>
     <File md5="DCB52786F02DF0FE8C8C64A68733041A" import="1">Art/Units/Guerilla/ModernMarine_Run.gr2</File>
     <File md5="0C759F1CED95795CCFBE40C6BD9A963C" import="1">Art/Units/Guerilla/no_gloss.dds</File>
-    <File md5="3A5F041125226F351F59BDBD7B827808" import="1">Art/Units/HeavySkirmish/Keshik_Mongol.dds</File>
+    <File md5="CC70AA7D396558F49BAEFE901C494D88" import="1">Art/Units/HeavySkirmish/Keshik_Mongol.dds</File>
     <File md5="79036F00C1C2DA30B21349340A50B513" import="1">Art/Units/HeavySkirmish/Keshik_Mongol.fxsxml</File>
     <File md5="C5CE65B417898B6FB60E1C3EEC8B0E6A" import="1">Art/Units/HeavySkirmish/Keshik_Mongol.gr2</File>
-    <File md5="53C4243F9A0E278C5B1DA3A9B460C3D4" import="1">Art/Units/HeavySkirmish/Keshik_Mongol_2.dds</File>
-    <File md5="D33031B2C86C3AEF3533BA81C70069D7" import="1">Art/Units/HeavySkirmish/Keshik_Mongol_gloss.dds</File>
-    <File md5="D38A5C4567F07DEBF74C5A9BB30FE993" import="1">Art/Units/HeavySkirmish/Keshik_Mongol_Horse.dds</File>
+    <File md5="D441BE1A1F035EE89F569C8DFBA959F5" import="1">Art/Units/HeavySkirmish/Keshik_Mongol_2.dds</File>
+    <File md5="B7B83F54CD480D1F24082DCB1C422444" import="1">Art/Units/HeavySkirmish/Keshik_Mongol_gloss.dds</File>
+    <File md5="9FEADEC8700CCCD1BEB98B514525CD9F" import="1">Art/Units/HeavySkirmish/Keshik_Mongol_Horse.dds</File>
     <File md5="895BC286B79489128E42E9C5998E0ED3" import="1">Art/Units/HeavySkirmish/Keshik_Mongol_Horse_gloss.dds</File>
-    <File md5="5F3159457CADD0F93D50D26979A250A1" import="1">Art/Units/Icons/armoredcarflag.dds</File>
+    <File md5="4BE7D6F4BFDB47AC01EEF4E9A16405F9" import="1">Art/Units/Icons/armoredcarflag.dds</File>
     <File md5="85DD7D498E2F1B3DFD8C5152F3362285" import="1">Art/Units/Icons/bandeirantesflag.dds</File>
-    <File md5="D78C4CE4618404199A89529A02AD8CA4" import="1">Art/Units/Icons/corvetteflag.dds</File>
+    <File md5="D329DF376D32444EFF3B8715399A6B66" import="1">Art/Units/Icons/corvetteflag.dds</File>
     <File md5="2A77DD101BBF5EC2484B39B435BEDE54" import="1">Art/Units/Icons/cuirassierflag.dds</File>
-    <File md5="963DF67D3416C3BEC6DDA6D7BA05D805" import="1">Art/Units/Icons/fieldgunflag.dds</File>
-    <File md5="C1AE329D9C9754EB415ED92EFA0F838A" import="1">Art/Units/Icons/kommandoflag.dds</File>
+    <File md5="FCB0E1E7CCCCCA610BEFC1A641E52289" import="1">Art/Units/Icons/fieldgunflag.dds</File>
+    <File md5="160AD576F9BC6A24C161937B804A8A52" import="1">Art/Units/Icons/kommandoflag.dds</File>
     <File md5="7BBC851A821B5B701D7BF787A2A9F160" import="1">Art/Units/Icons/mercflag.dds</File>
     <File md5="3FB307CE0882613579AC34C7A027F0AA" import="1">Art/Units/Icons/mountedxbowflag.dds</File>
     <File md5="A9A2D2943937BB599B96076A8A6A5365" import="1">Art/Units/Icons/sovietflag.dds</File>
-    <File md5="01845980BC7DD45C63D889B6CB2EEC77" import="1">Art/Units/Icons/svarmoredcar.dds</File>
+    <File md5="53835940B4236C311A1A365BBE6DFDFF" import="1">Art/Units/Icons/svarmoredcar.dds</File>
     <File md5="BA5F3645942DD469AEA5DD6A8EFCBAA2" import="1">Art/Units/Icons/svbandeirantes.dds</File>
-    <File md5="B0F52C0D7055DAE67C6357BA3F62635C" import="1">Art/Units/Icons/svcorvette.dds</File>
+    <File md5="44D6BBA6CC6C5AE7C21C2F3742909D2F" import="1">Art/Units/Icons/svcorvette.dds</File>
     <File md5="6BA1EE65BACDD5109B90CC6B5BEE6397" import="1">Art/Units/Icons/svcuirassier.dds</File>
     <File md5="C510946B6AB77C3A04C82AE2D5A986A4" import="1">Art/Units/Icons/svexplorer.dds</File>
-    <File md5="98C9B447017762F86C72E05008076679" import="1">Art/Units/Icons/svfieldgun.dds</File>
+    <File md5="B005C5EF5F24CE572054B5BE439A8762" import="1">Art/Units/Icons/svfieldgun.dds</File>
     <File md5="F9EEA2147EF8D89EAB0D1B43356DC7DD" import="1">Art/Units/Icons/svmerc.dds</File>
     <File md5="ECF0330A1A7E07D92DF38EF02692773B" import="1">Art/Units/Icons/svmountedxbow.dds</File>
     <File md5="23D9ECF4F5234F22D08EE3F04C699FE2" import="1">Art/Units/Icons/svsoviet.dds</File>
     <File md5="CFBC1D121B00495A843C01286EC70DF4" import="1">Art/Units/Icons/svvolley.dds</File>
-    <File md5="028C6CC1CC968FA30BCCF8987F9951DA" import="1">Art/Units/Icons/sv_kommando.dds</File>
+    <File md5="3C6B488E75283AC8ED922337FC08C933" import="1">Art/Units/Icons/sv_kommando.dds</File>
     <File md5="6E4B5815C6633D1A11C2702F47E81557" import="1">Art/Units/Icons/tercio_flag2.dds</File>
     <File md5="227984C090896DF46CBEFCF61AF7C9A3" import="1">Art/Units/Icons/tercio_flag_white.dds</File>
     <File md5="17EB1B72573A3156C1514625DFD051BC" import="1">Art/Units/Icons/volleyflag.dds</File>
@@ -284,7 +284,7 @@
     <File md5="DFB4292E9B62A6D4086285ABCF3147C3" import="1">Art/Units/LandsknechtFreeCompany/FCOMPANY_ATLAS_080.dds</File>
     <File md5="37049E6EA97351D35C01AF44A7B1D82D" import="1">Art/Units/LandsknechtFreeCompany/FCOMPANY_ATLAS_128.dds</File>
     <File md5="AAC74A4ACE7C36E7ACD5E5199E4F7201" import="1">Art/Units/LandsknechtFreeCompany/FCOMPANY_ATLAS_256.dds</File>
-    <File md5="A59AB2A7912E41961EF782F20A067826" import="1">Art/Units/LandsknechtFreeCompany/FCompany_Flag_Atlas_032.dds</File>
+    <File md5="83F9650011E5B2CE961E58A05A6A0F3C" import="1">Art/Units/LandsknechtFreeCompany/FCompany_Flag_Atlas_032.dds</File>
     <File md5="2460FE162A5AF92E06CD03EC4ACF949D" import="1">Art/Units/LandsknechtFreeCompany/Free_Company/free_company/eng_kn.dds</File>
     <File md5="D0CF1C8D5F848CE90C6FFAF8C5F4C681" import="1">Art/Units/LandsknechtFreeCompany/Free_Company/free_company/eng_kn_gloss.dds</File>
     <File md5="514BE5FD691D97CC7AE26C0B08D777B4" import="1">Art/Units/LandsknechtFreeCompany/Free_Company/free_company/free_company.dds</File>
@@ -321,7 +321,7 @@
     <File md5="E35D47160A14C7CB836554C78D7E4C2F" import="1">Art/Units/LandsknechtFreeCompany/Landsknecht/Musket_Landsknecht/landsknecht_musket_a.gr2</File>
     <File md5="A46ECF0ED5D09BF60FB18C2256970125" import="1">Art/Units/LandsknechtFreeCompany/Landsknecht/Musket_Landsknecht/landsknecht_musket_b.fxsxml</File>
     <File md5="913B1B54EDD19872B5300CB364174863" import="1">Art/Units/LandsknechtFreeCompany/Landsknecht/Musket_Landsknecht/landsknecht_musket_b.gr2</File>
-    <File md5="C94BB89041D3E1C3206025526DBC7CB8" import="1">Art/Units/LandsknechtFreeCompany/sv_b_FCompany.dds</File>
+    <File md5="2FBEA2D3754040619FD480FC5D9B96B9" import="1">Art/Units/LandsknechtFreeCompany/sv_b_FCompany.dds</File>
     <File md5="AF0C8E8F8A6780D0E3E98F7E62906597" import="1">Art/Units/Merc/AN-94_diff.dds</File>
     <File md5="0B21E2FE884261F66A2265B7D9A2654D" import="1">Art/Units/Merc/AN-94_sref.dds</File>
     <File md5="33D41B5CD81094144F73E7CF4172E055" import="1">Art/Units/Merc/RussianSF.fxsxml</File>
@@ -333,10 +333,10 @@
     <File md5="8C2B75D07B1F1DFCABCEE0FDC652FB6D" import="1">Art/Units/Model/VolleyGun_diff.dds</File>
     <File md5="1CA6FF6C51F0E018C570B857208859A6" import="1">Art/Units/Model/VolleyGun_sref.dds</File>
     <File md5="0D26193EAE3D81B0A0D56747514E5DBF" import="1">Art/Units/MountedXbow/confederate_cavalry_diff.dds</File>
-    <File md5="F714AD2025A2AC4CB2304FE54AD094A2" import="1">Art/Units/MountedXbow/confederate_cavalry_sref.dds</File>
+    <File md5="A01A1A58045096915F0C3983B4B61088" import="1">Art/Units/MountedXbow/confederate_cavalry_sref.dds</File>
     <File md5="1D56F010221DF548FB1C48064665400A" import="1">Art/Units/MountedXbow/cuirassier.fxsxml</File>
     <File md5="3C1D864B7DF9E7153020F4C193EADB7A" import="1">Art/Units/MountedXbow/cuirassier.gr2</File>
-    <File md5="6ABDA34938AD857A791B9AA28B4FCA57" import="1">Art/Units/MountedXbow/musketman_diff.dds</File>
+    <File md5="843D61F8D7727CBB96D3601E2244CA7C" import="1">Art/Units/MountedXbow/musketman_diff.dds</File>
     <File md5="9A394373B38692C543E8C8D6353A9C52" import="1">Art/Units/MountedXbow/musketman_sref.dds</File>
     <File md5="51D4FAAB21AC4EEC4AAFDCC945A91733" import="1">Art/Units/MountedXbow/u_french_musketeer_diff.dds</File>
     <File md5="5F75B69AFD02477F0057234F5C649F7B" import="1">Art/Units/MountedXbow/u_french_musketeer_sref.dds</File>
@@ -526,7 +526,7 @@
     <File md5="ACA36322712AB93DE9316CEDAB7485DB" import="1">Modular Elements/Corporations/Art/CorpAtlas64.dds</File>
     <File md5="5EA45717C96AAA21A978AD4496E17D4B" import="1">Modular Elements/Corporations/Art/CorpAtlas80.dds</File>
     <File md5="61FF0032A0608AFF400EB012EEE512C4" import="0">Modular Elements/Corporations/Art/CorporationIcons.xml</File>
-    <File md5="643CA5B8730A144A0F852D659FC02B3D" import="1">Modular Elements/Corporations/Art/CorporationSplash.dds</File>
+    <File md5="D4DD03544957C647F33EB997BB74BDAF" import="1">Modular Elements/Corporations/Art/CorporationSplash.dds</File>
     <File md5="F45CD1FACE966E135A3DC22B4894A5D6" import="0">Modular Elements/Corporations/Corporations.xml</File>
     <File md5="E683E2A0566C83B2B719C59EE3BDBA76" import="1">Modular Elements/Corporations/CorporationsOverview.lua</File>
     <File md5="56582B9EFE6B3561D73566F476E886F5" import="1">Modular Elements/Corporations/CorporationsOverview.xml</File>
