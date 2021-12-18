@@ -60,6 +60,9 @@ UPDATE Defines SET Value = '10' WHERE Name = 'REVOLT_COUNTER_MIN';
 -- Religion Spread Rework
 UPDATE Defines SET Value = '9' WHERE Name = 'RELIGION_ADJACENT_CITY_DISTANCE';
 
+-- expect value between 1 and 100. percent of heretics pressure to be removed by inquisitors. does not affect prophets.
+INSERT INTO Defines(Name, Value) SELECT 'INQUISITION_EFFECTIVENESS', '50';
+
 -- Spy Stuff
 UPDATE Defines SET Value = '1000' WHERE Name = 'ESPIONAGE_GATHERING_INTEL_COST_PERCENT';
 UPDATE Defines SET Value = '3' WHERE Name = 'ESPIONAGE_COUP_MULTIPLY_CONSTANT';

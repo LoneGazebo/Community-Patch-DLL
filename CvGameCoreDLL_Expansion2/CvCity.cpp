@@ -1047,7 +1047,9 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 	CvPlayerReligions* pReligions = kPlayer.GetReligions();
 	if (pReligions->HasCreatedPantheon() && !pReligions->HasCreatedReligion())
 	{
-		GetCityReligions()->AddReligiousPressure(FOLLOWER_CHANGE_PANTHEON_FOUNDED, RELIGION_PANTHEON, /*1000*/ GD_INT_GET(RELIGION_ATHEISM_PRESSURE_PER_POP) * getPopulation() * 2);
+		//pantheon strength depends on population?
+		int iInitialPressure = /*1000*/ GD_INT_GET(RELIGION_ATHEISM_PRESSURE_PER_POP) * getPopulation() * 2;
+		GetCityReligions()->AddReligiousPressure(FOLLOWER_CHANGE_PANTHEON_FOUNDED, RELIGION_PANTHEON, iInitialPressure, NO_RELIGION);
 	}
 
 	if (bInitialFounding) {
@@ -14999,7 +15001,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 						ReligionTypes eReligion = GET_PLAYER(getOwner()).getCapitalCity()->GetCityReligions()->GetReligiousMajority();
 						if (eReligion > RELIGION_PANTHEON)
 						{
-							GetCityReligions()->AddReligiousPressure(FOLLOWER_CHANGE_SCRIPTED_CONVERSION, eReligion, pBuildingInfo->GetInstantReligionPressure());
+							GetCityReligions()->AddReligiousPressure(FOLLOWER_CHANGE_INSTANT_YIELD, eReligion, pBuildingInfo->GetInstantReligionPressure(), GetCityReligions()->GetReligiousMajority());
 						}
 					}
 				}

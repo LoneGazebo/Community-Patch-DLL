@@ -2429,24 +2429,16 @@ local function GetReligionTooltip(city)
 			local religionID = religion.ID
 
 			if religionID >= 0 then
-				local pressureLevel, numTradeRoutesAddingPressure = city:GetPressurePerTurn(religionID)
+				local pressurePerTurn, numSourceCities, totalPressure = city:GetPressurePerTurn(religionID)
 				local numFollowers = city:GetNumFollowers(religionID)
 				local religion = GameInfo.Religions[religionID]
 				local religionName = L( Game.GetReligionName(religionID) )
 				local religionIcon = tostring(religion.IconString)
 
-				if math_floor(pressureLevel/pressureMultiplier) > 0 or numFollowers > 0 then
+				if math_floor(pressurePerTurn/pressureMultiplier) > 0 or numFollowers > 0 then
 
-					local religionTip = ""
-					if pressureLevel > 0 then
-						religionTip = L( "TXT_KEY_RELIGIOUS_PRESSURE_STRING", math_floor(pressureLevel/pressureMultiplier))
-					end
-
-					if numTradeRoutesAddingPressure > 0 then
-						religionTip = L( "TXT_KEY_RELIGION_TOOLTIP_LINE_WITH_TRADE", religionIcon, numFollowers, religionTip, numTradeRoutesAddingPressure)
-					else
-						religionTip = L( "TXT_KEY_RELIGION_TOOLTIP_LINE", religionIcon, numFollowers, religionTip)
-					end
+					local religionTip = L( "TXT_KEY_RELIGION_TOOLTIP_EXTENDED", 
+						religionIcon, numFollowers, math_floor(totalPressure/pressureMultiplier), math_floor(pressurePerTurn/pressureMultiplier), numSourceCities)
 
 					if religionID == majorityReligionID then
 						local beliefs

@@ -120,18 +120,17 @@ class CvReligionInCity
 {
 public:
 	CvReligionInCity();
-	CvReligionInCity(ReligionTypes eReligion, bool bFoundedHere, int iFollowers, int iPressure);
+	CvReligionInCity(ReligionTypes eReligion, int iFollowers, int iPressure);
 
 	template<typename ReligionInCity, typename Visitor>
 	static void Serialize(ReligionInCity& religionInCity, Visitor& visitor);
 
 	// Public data
 	ReligionTypes m_eReligion;
-	bool m_bFoundedHere;
+	bool m_bDummy; //no longer needed, kept for save game compatibility
 	int m_iFollowers;
 	int m_iPressure;
 	int m_iNumTradeRoutesApplyingPressure;
-	int m_iTemp;
 };
 
 typedef vector<CvReligion> ReligionList;
@@ -192,8 +191,11 @@ public:
 	void FoundReligion(PlayerTypes ePlayer, ReligionTypes eReligion, const char* szCustomName, BeliefTypes eBelief1, BeliefTypes eBelief2, BeliefTypes eBelief3, BeliefTypes eBelief4, CvCity* pkHolyCity);
 	void EnhanceReligion(PlayerTypes ePlayer, ReligionTypes eReligion, BeliefTypes eBelief1, BeliefTypes eBelief2=NO_BELIEF, bool bNotify=true, bool bSetAsEnhanced = true);
 	void AddReformationBelief(PlayerTypes ePlayer, ReligionTypes eReligion, BeliefTypes eBelief1);
-	void SetHolyCity(ReligionTypes eReligion, CvCity* pkHolyCity);
+
+	ReligionTypes GetHolyCityReligion(const CvCity* pkTestCity) const;
+	void SetHolyCity(ReligionTypes eReligion, const CvCity* pkHolyCity);
 	void SetFounder(ReligionTypes eReligion, PlayerTypes eFounder);
+
 #if defined(MOD_BALANCE_CORE)
 	void SetFoundYear(ReligionTypes eReligion, int iValue);
 	int GetFoundYear(ReligionTypes eReligion);
@@ -330,6 +332,7 @@ enum CvReligiousFollowChangeReason
     FOLLOWER_CHANGE_REMOVE_HERESY,
 	FOLLOWER_CHANGE_SCRIPTED_CONVERSION,
 	FOLLOWER_CHANGE_SPY_PRESSURE,
+	FOLLOWER_CHANGE_INSTANT_YIELD,
 #if defined(MOD_GLOBAL_RELIGIOUS_SETTLERS)
 	FOLLOWER_CHANGE_ADOPT_FULLY,
 #endif
@@ -495,8 +498,11 @@ public:
 	// Routines to update religious status of citizens
 	void DoPopulationChange(int iChange);
 	void DoReligionFounded(ReligionTypes eReligion);
+	void AddMissionarySpread(ReligionTypes eReligion, int iPressure, PlayerTypes eResponsiblePlayer);
 	void AddProphetSpread(ReligionTypes eReligion, int iPressure, PlayerTypes eResponsiblePlayer);
-	void AddReligiousPressure(CvReligiousFollowChangeReason eReason, ReligionTypes eReligion, int iPressure, PlayerTypes eResponsiblePlayer=NO_PLAYER);
+	void AddReligiousPressure(CvReligiousFollowChangeReason eReason, ReligionTypes eReligion, int iPressureChange, ReligionTypes eCurrentMajority, PlayerTypes eResponsiblePlayer=NO_PLAYER);
+	void ErodeOtherReligiousPressure(CvReligiousFollowChangeReason eReason, ReligionTypes eExemptedReligion, int iErosionPercent, bool bAllowRetention, bool bLeaveAtheists, PlayerTypes eResponsiblePlayer=NO_PLAYER);
+
 	void SimulateProphetSpread(ReligionTypes eReligion, int iPressure);
 	void SimulateReligiousPressure(ReligionTypes eReligion, int iPressure);
 	void ConvertPercentFollowers(ReligionTypes eToReligion, ReligionTypes eFromReligion, int iPercent);
@@ -522,8 +528,9 @@ public:
 	void ResetNumTradeRoutePressure();
 
 	bool ComputeReligiousMajority(bool bNotifications = false);
-	const CvReligion* GetMajorityReligion();
+	const CvReligion* GetMajorityReligion(); //performance optimized
 
+	void LogPressureChange(CvReligiousFollowChangeReason eReason, ReligionTypes eReligion, int iPressureChange, int iAccPressure, PlayerTypes eResponsiblePlayer);
 protected:
 	void RecomputeFollowers(CvReligiousFollowChangeReason eReason, ReligionTypes eOldMajorityReligion, PlayerTypes eResponsibleParty=NO_PLAYER);
 	void SimulateFollowers();

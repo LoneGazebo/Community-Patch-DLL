@@ -48490,7 +48490,7 @@ int CvPlayer::GetAreaEffectModifier(AreaEffectType eType, DomainTypes eDomain, c
 			case AE_GREAT_GENERAL:
 			{
 				if ((pUnit->IsGreatGeneral() || pUnit->GetGreatGeneralCount() > 0) || (pUnit->IsGreatAdmiral() || pUnit->GetGreatAdmiralCount() > 0))
-					iResult = GetGreatGeneralCombatBonus() + GetPlayerTraits()->GetGreatGeneralExtraBonus() + pUnit->GetAuraEffectChange();
+					iResult = max(iResult, GetGreatGeneralCombatBonus() + GetPlayerTraits()->GetGreatGeneralExtraBonus() + pUnit->GetAuraEffectChange());
 				break;
 			}
 			case AE_SAPPER:
@@ -48499,11 +48499,11 @@ int CvPlayer::GetAreaEffectModifier(AreaEffectType eType, DomainTypes eDomain, c
 				{
 					if (iDistance < iEffectRange)
 					{
-						iResult = /*50 in CP, 40 in CBO*/ GD_INT_GET(SAPPED_CITY_ATTACK_MODIFIER);
+						iResult = max(iResult, /*50 in CP, 40 in CBO*/ GD_INT_GET(SAPPED_CITY_ATTACK_MODIFIER));
 					}
 					else if (iDistance == iEffectRange)
 					{
-						iResult =  /*25 in CP, 20 in CBO*/ GD_INT_GET(SAPPED_CITY_ATTACK_MODIFIER)/2;
+						iResult = max(iResult, /*25 in CP, 20 in CBO*/ GD_INT_GET(SAPPED_CITY_ATTACK_MODIFIER)/2);
 					}
 				}
 				break;

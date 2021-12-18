@@ -6257,7 +6257,7 @@ bool CvPlot::isBlockaded(PlayerTypes eForPlayer)
 	if (isCity())
 		return false;
 
-	if (isEnemyUnit(eForPlayer, true, false))
+	if (isEnemyUnit(eForPlayer, true, true))
 		return true;
 
 	if (isFriendlyUnit(eForPlayer, true, false))
