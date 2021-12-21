@@ -20,6 +20,7 @@
 #include "cvStopWatch.h"
 #include "CvSpanSerialization.h"
 #include "CvGameCoreEnumSerialization.h"
+#include "CvInternalGameCoreUtils.h"
 
 // must be included after all other headers
 #include "LintFree.h"
@@ -1868,18 +1869,52 @@ void CvEconomicAI::DoHurry()
 				if (pSelectedCity->IsCanPurchase(/*bTestPurchaseCost*/ true, /*bTestTrainable*/ true, NO_UNIT, eBuildingType, NO_PROJECT, YIELD_GOLD))
 				{
 					int iGoldCost = pSelectedCity->GetPurchaseCost(eBuildingType);
-					if (m_pPlayer->GetEconomicAI()->CanWithdrawMoneyForPurchase(PURCHASE_TYPE_BUILDING, iGoldCost))
+					// New investment code, turns left to produce will influence AI decision
+					int iExcessValuation = 0; 
+					int iTurnsLeft = pSelectedCity->getProductionTurnsLeft(eBuildingType, 0);
+
+					if (GC.getLogging() && GC.getAILogging())
+					{
+						CvString strLogString;
+						strLogString.Format("MOD - Considering investing in building: %s in city %s. TurnsLeft: %d, TestValuation: %d",
+						pkBuildingInfo->GetDescription(), pSelectedCity->getName().c_str(), iTurnsLeft, iExcessValuation);
+						m_pPlayer->GetHomelandAI()->LogHomelandMessage(strLogString);
+					}
+
+					if (iTurnsLeft == 1)
+					{
+						if (GC.getLogging() && GC.getAILogging())
+						{
+							CvString strLogString;
+							strLogString.Format("MOD - Can't invest in building: %s in city %s. TurnsLeft: %d",
+							pkBuildingInfo->GetDescription(), pSelectedCity->getName().c_str(), iTurnsLeft);
+							m_pPlayer->GetHomelandAI()->LogHomelandMessage(strLogString);
+						}
+						continue;
+					}
+					else if (iTurnsLeft == 2)
+						iExcessValuation = iGoldCost * 1.0;
+					else if (iTurnsLeft == 3)
+						iExcessValuation = iGoldCost * 0.5;
+					else if (iTurnsLeft == 4)
+						iExcessValuation = iGoldCost * 0.2;
+
+					const CvBuildingClassInfo& kBuildingClassInfo = pkBuildingInfo->GetBuildingClassInfo();
+					if (::isWorldWonderClass(kBuildingClassInfo)) // if wonder, investing late doesn't matter 
+						iExcessValuation = 0;
+
+					if (m_pPlayer->GetEconomicAI()->CanWithdrawMoneyForPurchase(PURCHASE_TYPE_BUILDING, iGoldCost + iExcessValuation)) // ExcessValuation is considered, but not actually deduced from treasury
 					{
 						//Log it
 						if (GC.getLogging() && GC.getAILogging())
 						{
 							CvString strLogString;
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
-							strLogString.Format("MOD - Investing in building: %s in %s. Cost: %d, Balance (before buy): %d",
+							strLogString.Format("MOD - Investing in building: %s in %s. Cost: %d, Balance (before buy): %d, TurnsLeft: %d, ExcessValuation: %d",
 #else
-							strLogString.Format("MOD - Buying building: %s in %s. Cost: %d, Balance (before buy): %d",
+							strLogString.Format("MOD - Buying building: %s in %s. Cost: %d, Balance (before buy): %d, TurnsLeft: %d, ExcessValuation: %d",
 #endif
-								pkBuildingInfo->GetDescription(), pSelectedCity->getName().c_str(), iGoldCost, m_pPlayer->GetTreasury()->GetGold());
+								pkBuildingInfo->GetDescription(), pSelectedCity->getName().c_str(), iGoldCost, m_pPlayer->GetTreasury()->GetGold(), iTurnsLeft, iExcessValuation);
 							m_pPlayer->GetHomelandAI()->LogHomelandMessage(strLogString);
 						}
 
@@ -1891,6 +1926,7 @@ void CvEconomicAI::DoHurry()
 						{
 							const BuildingClassTypes eBuildingClass = (BuildingClassTypes)(pkBuildingInfo->GetBuildingClassType());
 							pSelectedCity->SetBuildingInvestment(eBuildingClass, true);
+
 						}
 						else
 						{
