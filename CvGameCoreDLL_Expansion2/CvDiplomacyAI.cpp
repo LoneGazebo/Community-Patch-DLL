@@ -46677,8 +46677,8 @@ bool CvDiplomacyAI::IsPlayerBadTheftTarget(PlayerTypes ePlayer, TheftTypes eThef
 		return false;
 	}
 
-	// Exception for religious conversion: Never a bad target if they haven't created a religion.
-	if (eTheftType == THEFT_TYPE_CONVERSION && !GET_PLAYER(ePlayer).GetReligions()->HasCreatedReligion())
+	// Exception for religious conversion: Not a bad target if they haven't created a religion and haven't asked us to stop.
+	if (eTheftType == THEFT_TYPE_CONVERSION && !GET_PLAYER(ePlayer).GetReligions()->HasCreatedReligion() && !m_abAskedNotToConvert[ePlayer])
 		return false;
 
 	// If any of the below conditions are true, never steal from this player

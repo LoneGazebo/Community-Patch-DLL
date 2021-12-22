@@ -1893,17 +1893,17 @@ void CvEconomicAI::DoHurry()
 						continue;
 					}
 					else if (iTurnsLeft == 2)
-						iExcessValuation = iGoldCost * 1.0;
+						iExcessValuation = (int)(iGoldCost * 1.0);
 					else if (iTurnsLeft == 3)
-						iExcessValuation = iGoldCost * 0.5;
+						iExcessValuation = (int)(iGoldCost * 0.5);
 					else if (iTurnsLeft == 4)
-						iExcessValuation = iGoldCost * 0.2;
+						iExcessValuation = (int)(iGoldCost * 0.2);
 
 					const CvBuildingClassInfo& kBuildingClassInfo = pkBuildingInfo->GetBuildingClassInfo();
 					if (::isWorldWonderClass(kBuildingClassInfo)) // if wonder, investing late doesn't matter 
 						iExcessValuation = 0;
 
-					if (m_pPlayer->GetEconomicAI()->CanWithdrawMoneyForPurchase(PURCHASE_TYPE_BUILDING, iGoldCost + iExcessValuation)) // ExcessValuation is considered, but not actually deduced from treasury
+					if (m_pPlayer->GetEconomicAI()->CanWithdrawMoneyForPurchase(PURCHASE_TYPE_BUILDING, iGoldCost + iExcessValuation)) // ExcessValuation is considered, but not actually deducted from treasury
 					{
 						//Log it
 						if (GC.getLogging() && GC.getAILogging())
@@ -1914,7 +1914,7 @@ void CvEconomicAI::DoHurry()
 #else
 							strLogString.Format("MOD - Buying building: %s in %s. Cost: %d, Balance (before buy): %d, TurnsLeft: %d, ExcessValuation: %d",
 #endif
-								pkBuildingInfo->GetDescription(), pSelectedCity->getName().c_str(), iGoldCost, m_pPlayer->GetTreasury()->GetGold(), iTurnsLeft, iExcessValuation);
+							pkBuildingInfo->GetDescription(), pSelectedCity->getName().c_str(), iGoldCost, m_pPlayer->GetTreasury()->GetGold(), iTurnsLeft, iExcessValuation);
 							m_pPlayer->GetHomelandAI()->LogHomelandMessage(strLogString);
 						}
 
@@ -1926,7 +1926,6 @@ void CvEconomicAI::DoHurry()
 						{
 							const BuildingClassTypes eBuildingClass = (BuildingClassTypes)(pkBuildingInfo->GetBuildingClassType());
 							pSelectedCity->SetBuildingInvestment(eBuildingClass, true);
-
 						}
 						else
 						{

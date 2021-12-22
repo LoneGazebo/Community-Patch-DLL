@@ -5559,7 +5559,7 @@ void CvCityReligions::RemoveOtherReligions(ReligionTypes eReligion, PlayerTypes 
 {
 	ReligionTypes eOldMajorityReligion = GetReligiousMajority();
 
-	ErodeOtherReligiousPressure(FOLLOWER_CHANGE_REMOVE_HERESY, eReligion, GD_INT_GET(INQUISITION_EFFECTIVENESS), true, true, eResponsiblePlayer);
+	ErodeOtherReligiousPressure(FOLLOWER_CHANGE_REMOVE_HERESY, eReligion, /*100 in CP, 50 in CBO*/ GD_INT_GET(INQUISITION_EFFECTIVENESS), true, true, eResponsiblePlayer);
 
 	//not calling add pressure here, instead recompute directly
 	RecomputeFollowers(FOLLOWER_CHANGE_REMOVE_HERESY, eOldMajorityReligion, eResponsiblePlayer);

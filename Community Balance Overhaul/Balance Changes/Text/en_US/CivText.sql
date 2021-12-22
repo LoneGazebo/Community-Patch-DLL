@@ -1026,7 +1026,7 @@ SET Text = 'Ostrog is a Russian term for a small fort, typically wooden and ofte
 WHERE Tag = 'TXT_KEY_BUILDINGS_KREPOST_PEDIA' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'All Strategic Resources provide double their normal quantity. Receive +20 [ICON_RESEARCH] Science when your borders expand naturally, scaling with Era. Border growth is 25% faster.'
+SET Text = 'All Strategic Resource deposits provide double their normal quantity. Receive +20 [ICON_RESEARCH] Science when your borders expand naturally, scaling with Era. Border growth is 25% faster.'
 WHERE Tag = 'TXT_KEY_TRAIT_STRATEGIC_RICHES' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Language_en_US
