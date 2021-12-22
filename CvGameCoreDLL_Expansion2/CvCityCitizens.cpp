@@ -2213,9 +2213,6 @@ void CvCityCitizens::DoVerifyWorkingPlots()
 
 	for (int iI = 0; iI < GetCity()->GetNumWorkablePlots(); iI++)
 	{
-		if (!IsWorkingPlot(iI))
-			continue;
-
 		CvPlot* pPlot = GetCityPlotFromIndex(iI);
 		if (!pPlot)
 			continue;
@@ -2225,7 +2222,7 @@ void CvCityCitizens::DoVerifyWorkingPlots()
 			SetBlockaded(pPlot);
 
 		//worked plot might be invalid now ... so move the citizen somewhere else
-		if (!IsCanWork(pPlot))
+		if (IsWorkingPlot(iI) && !IsCanWork(pPlot))
 		{
 			SetWorkingPlot(pPlot, false, CvCity::YIELD_UPDATE_LOCAL);
 			DoAddBestCitizenFromUnassigned(CvCity::YIELD_UPDATE_GLOBAL);

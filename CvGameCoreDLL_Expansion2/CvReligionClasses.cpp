@@ -218,21 +218,19 @@ CvCity * CvReligion::GetHolyCity() const
 CvReligionInCity::CvReligionInCity()
 {
 	m_eReligion = NO_RELIGION;
-	m_bFoundedHere = false;
+	m_bDummy = false;
 	m_iFollowers = 0;
 	m_iPressure = 0;
 	m_iNumTradeRoutesApplyingPressure = 0;
-	m_iTemp = 0;
 }
 
 /// Constructor
-CvReligionInCity::CvReligionInCity(ReligionTypes eReligion, bool bFoundedHere, int iFollowers, int iPressure):
+CvReligionInCity::CvReligionInCity(ReligionTypes eReligion, int iFollowers, int iPressure) :
 	m_eReligion(eReligion),
-	m_bFoundedHere(bFoundedHere),
+	m_bDummy(false),
 	m_iFollowers(iFollowers),
 	m_iPressure(iPressure),
-	m_iNumTradeRoutesApplyingPressure(0),
-	m_iTemp(0)
+	m_iNumTradeRoutesApplyingPressure(0)
 {
 }
 
@@ -240,7 +238,7 @@ template<typename ReligionInCity, typename Visitor>
 void CvReligionInCity::Serialize(ReligionInCity& religionInCity, Visitor& visitor)
 {
 	visitor(religionInCity.m_eReligion);
-	visitor(religionInCity.m_bFoundedHere);
+	visitor(religionInCity.m_bDummy);
 	visitor(religionInCity.m_iFollowers);
 	visitor(religionInCity.m_iPressure);
 	visitor(religionInCity.m_iNumTradeRoutesApplyingPressure);
@@ -379,7 +377,7 @@ void CvGameReligions::SpreadReligionToOneCity(CvCity* pCity)
 						int iPressure = GetAdjacentCityReligiousPressure(eReligion, pLoopCity, pCity, iNumTradeRoutes, true, false, bConnectedWithTrade, iRelativeDistancePercent);
 						if (iPressure > 0)
 						{
-							pCity->GetCityReligions()->AddReligiousPressure(FOLLOWER_CHANGE_ADJACENT_PRESSURE, eReligion, iPressure);
+							pCity->GetCityReligions()->AddReligiousPressure(FOLLOWER_CHANGE_ADJACENT_PRESSURE, eReligion, iPressure, pCity->GetCityReligions()->GetReligiousMajority());
 							if (iNumTradeRoutes != 0)
 							{
 								pCity->GetCityReligions()->IncrementNumTradeRouteConnections(eReligion, iNumTradeRoutes);
@@ -1183,7 +1181,8 @@ void CvGameReligions::FoundPantheon(PlayerTypes ePlayer, BeliefTypes eBelief)
 	for(pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
 	{
 		// Add enough pressure to make this the likely majority religion
-		pLoopCity->GetCityReligions()->AddReligiousPressure(FOLLOWER_CHANGE_PANTHEON_FOUNDED, newReligion.m_eReligion, /*1000*/ GD_INT_GET(RELIGION_ATHEISM_PRESSURE_PER_POP) * pLoopCity->getPopulation() * 2);
+		int iInitialPressure = /*1000*/ GD_INT_GET(RELIGION_ATHEISM_PRESSURE_PER_POP) * pLoopCity->getPopulation() * 2;
+		pLoopCity->GetCityReligions()->AddReligiousPressure(FOLLOWER_CHANGE_PANTHEON_FOUNDED, newReligion.m_eReligion, iInitialPressure, pLoopCity->GetCityReligions()->GetReligiousMajority());
 	}
 
 	UpdateAllCitiesThisReligion(newReligion.m_eReligion);
@@ -1840,15 +1839,30 @@ void CvGameReligions::AddReformationBelief(PlayerTypes ePlayer, ReligionTypes eR
 	GC.GetEngineUserInterface()->setDirty(CityInfo_DIRTY_BIT, true);
 }
 
+//returns the religion of the holy city *if* the test city is a holy city
+ReligionTypes CvGameReligions::GetHolyCityReligion(const CvCity* pkTestCity) const
+{
+	//this is called a lot, but there isn't really a way to make it more efficient, a small map is not faster than a small vector
+	ReligionList::const_iterator it;
+	for(it = m_CurrentReligions.begin(); it != m_CurrentReligions.end(); it++)
+	{
+		if (it->m_iHolyCityX == pkTestCity->getX() && it->m_iHolyCityY == pkTestCity->getY())
+			return it->m_eReligion;
+	}
+
+	return NO_RELIGION;
+}
+
+
 /// Move the Holy City for a religion (useful for scenario scripting)
-void CvGameReligions::SetHolyCity(ReligionTypes eReligion, CvCity* pkHolyCity)
+void CvGameReligions::SetHolyCity(ReligionTypes eReligion, const  CvCity* pkHolyCity)
 {
 	ReligionList::iterator it;
 	for(it = m_CurrentReligions.begin(); it != m_CurrentReligions.end(); it++)
 	{
-		// If talking about a pantheon, make sure to match the player
 		if(it->m_eReligion == eReligion)
 		{
+			//need to save coordinates here, the city ID changes on conquest!
 			it->m_iHolyCityX = pkHolyCity->getX();
 			it->m_iHolyCityY = pkHolyCity->getY();
 			break;
@@ -4680,50 +4694,21 @@ bool CvCityReligions::IsHolyCityForReligion(ReligionTypes eReligion)
 	if (eReligion == NO_RELIGION)
 		return false;
 
-	ReligionInCityList::iterator religionIt;
-
-	// Find the religion in the list
-	for(religionIt = m_ReligionStatus.begin(); religionIt != m_ReligionStatus.end(); ++religionIt)
-	{
-		if(religionIt->m_eReligion == eReligion)
-		{
-			return religionIt->m_bFoundedHere;
-		}
-	}
-
-	return false;
+	return eReligion == GC.getGame().GetGameReligions()->GetHolyCityReligion(m_pCity);
 }
 
 /// Is this the holy city for any religion?
 bool CvCityReligions::IsHolyCityAnyReligion()
 {
-	ReligionInCityList::iterator religionIt;
-	for(religionIt = m_ReligionStatus.begin(); religionIt != m_ReligionStatus.end(); ++religionIt)
-	{
-		if(religionIt->m_bFoundedHere)
-		{
-			return true;
-		}
-	}
-
-	return false;
+	return NO_RELIGION != GC.getGame().GetGameReligions()->GetHolyCityReligion(m_pCity);
 }
-#if defined(MOD_BALANCE_CORE)
+
 /// Is this the holy city for any religion?
 ReligionTypes CvCityReligions::GetReligionForHolyCity()
 {
-	ReligionInCityList::iterator religionIt;
-	for(religionIt = m_ReligionStatus.begin(); religionIt != m_ReligionStatus.end(); ++religionIt)
-	{
-		if(religionIt->m_bFoundedHere)
-		{
-			return religionIt->m_eReligion;
-		}
-	}
-
-	return NO_RELIGION;
+	return GC.getGame().GetGameReligions()->GetHolyCityReligion(m_pCity);
 }
-#endif
+
 /// Is there a "heretical" religion here that can be stomped out?
 bool CvCityReligions::IsReligionHereOtherThan(ReligionTypes eReligion, int iMinFollowers)
 {
@@ -5139,172 +5124,201 @@ bool CvCityReligions::WouldExertTradeRoutePressureToward (CvCity* pTargetCity, R
 /// Handle a change in the city population
 void CvCityReligions::DoPopulationChange(int iChange)
 {
-	ReligionTypes eMajorityReligion = GetReligiousMajority();
-
 	// Only add pressure if the population went up; if starving, leave pressure alone (but recompute followers)
 	if(iChange > 0)
 	{
-		AddReligiousPressure(FOLLOWER_CHANGE_POP_CHANGE, eMajorityReligion, iChange * /*1000*/ GD_INT_GET(RELIGION_ATHEISM_PRESSURE_PER_POP));
+		//this calls RecomputeFollowers when done
+		AddReligiousPressure(FOLLOWER_CHANGE_POP_CHANGE, GetReligiousMajority(), iChange * /*1000*/ GD_INT_GET(RELIGION_ATHEISM_PRESSURE_PER_POP), GetReligiousMajority());
 	}
 	else if (iChange < 0)
 	{
-		RecomputeFollowers(FOLLOWER_CHANGE_POP_CHANGE, eMajorityReligion);
+		RecomputeFollowers(FOLLOWER_CHANGE_POP_CHANGE, GetReligiousMajority());
 	}
-#if defined(MOD_BALANCE_CORE)
+
 	m_pCity->GetCityCitizens()->SetDirty(true);
-#endif
 }
 
 /// Note that a religion was founded here
 void CvCityReligions::DoReligionFounded(ReligionTypes eReligion)
 {
-	int iInitialPressure;
-	ReligionTypes eOldMajorityReligion = GetReligiousMajority();
-
-	iInitialPressure = m_pCity->getPopulation() * /*5000*/ GD_INT_GET(RELIGION_INITIAL_FOUNDING_CITY_PRESSURE);
-	CvReligionInCity newReligion(eReligion, true, 0, iInitialPressure);
-	m_ReligionStatus.push_back(newReligion);
-
-	RecomputeFollowers(FOLLOWER_CHANGE_RELIGION_FOUNDED, eOldMajorityReligion);
+	int iInitialPressure = m_pCity->getPopulation() * /*5000*/ GD_INT_GET(RELIGION_INITIAL_FOUNDING_CITY_PRESSURE);
+	AddReligiousPressure(FOLLOWER_CHANGE_RELIGION_FOUNDED, eReligion, iInitialPressure, GetReligiousMajority());
 }
+
+/// Prophet spread is very powerful: eliminates all existing religions and adds to his
+void CvCityReligions::AddMissionarySpread(ReligionTypes eReligion, int iPressure, PlayerTypes eResponsiblePlayer)
+{
+	//save this before any manipulations
+	ReligionTypes eOldMajority = GetReligiousMajority();
+
+	//some missionaries are mini inquisitors 
+	const CvReligion *pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, NO_PLAYER);
+	int iErosion = pReligion ? pReligion->m_Beliefs.GetOtherReligionPressureErosion(eResponsiblePlayer) : 0;
+	ErodeOtherReligiousPressure(FOLLOWER_CHANGE_MISSIONARY, eReligion, iErosion, false, true, eResponsiblePlayer);
+
+	//do this *after* eroding the other religions, it re-allocated followers
+	AddReligiousPressure(FOLLOWER_CHANGE_MISSIONARY, eReligion, iPressure, eOldMajority, eResponsiblePlayer);
+}
+
 
 /// Prophet spread is very powerful: eliminates all existing religions and adds to his
 void CvCityReligions::AddProphetSpread(ReligionTypes eReligion, int iPressure, PlayerTypes eResponsiblePlayer)
 {
-	int iAtheismPressure = 0;
-	int iReligionPressure = 0;
-	int iPressureRetained = 0;
-	ReligionTypes eOldMajorityReligion = GetReligiousMajority();
-	ReligionTypes eHolyCityReligion = NO_RELIGION;
-	ReligionTypes ePressureRetainedReligion = NO_RELIGION;
-	bool bProphetsReligionFoundedHere = false;
+	//save this before any manipulations
+	ReligionTypes eOldMajority = GetReligiousMajority();
 
-	ReligionInCityList::iterator it;
-	for(it = m_ReligionStatus.begin(); it != m_ReligionStatus.end(); it++)
+	ErodeOtherReligiousPressure(FOLLOWER_CHANGE_PROPHET, eReligion, 100, true, true, eResponsiblePlayer);
+
+	//do this *after* reducing the other religions!
+	AddReligiousPressure(FOLLOWER_CHANGE_PROPHET, eReligion, iPressure, eOldMajority, eResponsiblePlayer);
+}
+
+const char* GetFollowerChangeString(CvReligiousFollowChangeReason eReason) 
+{
+	switch (eReason)
 	{
-		if (it->m_eReligion == NO_RELIGION)
-		{
-			iAtheismPressure = it->m_iPressure;
-		}
-		else if (eReligion == it->m_eReligion)
-		{
-			iReligionPressure = it->m_iPressure;
-			if (it->m_bFoundedHere)
-			{
-				bProphetsReligionFoundedHere = true;
-			}
-		}
-		else if (it->m_bFoundedHere)
-		{
-			eHolyCityReligion = it->m_eReligion;
-		}
-
-		if (it->m_eReligion > RELIGION_PANTHEON &&  it->m_eReligion != eReligion)
-		{
-			const CvReligion *pReligion = GC.getGame().GetGameReligions()->GetReligion(it->m_eReligion, NO_PLAYER);
-			if(pReligion)
-			{
-				int iPressureRetention = pReligion->m_Beliefs.GetInquisitorPressureRetention(m_pCity->getOwner());  // Normally 0
-				if (iPressureRetention > 0)
-				{
-					ePressureRetainedReligion = it->m_eReligion;
-					iPressureRetained = it->m_iPressure * iPressureRetention / 100;
-				}
-			}
-		}
+		case FOLLOWER_CHANGE_POP_CHANGE:
+			return "POP_CHANGE";
+		case FOLLOWER_CHANGE_HOLY_CITY:
+			return "HOLY_CITY";
+		case FOLLOWER_CHANGE_ADJACENT_PRESSURE:
+			return "ADJACENT_PRESSURE";
+		case FOLLOWER_CHANGE_RELIGION_FOUNDED:
+			return "RELIGION_FOUNDED";
+		case FOLLOWER_CHANGE_PANTHEON_FOUNDED:
+			return "PANTHEON_FOUNDED";
+		case FOLLOWER_CHANGE_CONQUEST:
+			return "CONQUEST";
+		case FOLLOWER_CHANGE_MISSIONARY:
+			return "MISSIONARY";
+		case FOLLOWER_CHANGE_PROPHET:
+			return "PROPHET";
+		case FOLLOWER_CHANGE_REMOVE_HERESY:
+			return "REMOVE_HERESY";
+		case FOLLOWER_CHANGE_SCRIPTED_CONVERSION:
+			return "SCRIPTED_CONVERSION";
+		case FOLLOWER_CHANGE_SPY_PRESSURE:
+			return "SPY_PRESSURE";
+		case FOLLOWER_CHANGE_INSTANT_YIELD:
+			return "INSTANT_YIELD";
+#if defined(MOD_GLOBAL_RELIGIOUS_SETTLERS)
+		case FOLLOWER_CHANGE_ADOPT_FULLY:
+			return "ADOPT_FULLY";
+#endif
+#if defined(MOD_BALANCE_CORE_PANTHEON_RESET_FOUND)
+		case FOLLOWER_CHANGE_PANTHEON_OBSOLETE:
+			return "PANTHEON_OBSOLETE";
+#endif
+		default:
+			return "unknown_reason";
 	}
+};
 
-	// Clear list
-	m_ReligionStatus.clear();
+void CvCityReligions::LogPressureChange(CvReligiousFollowChangeReason eReason, ReligionTypes eReligion, int iPressureChange, int iAccPressure, PlayerTypes eResponsiblePlayer)
+{
+	//do not log passive effects, it's too much ...
+	if (eReason == FOLLOWER_CHANGE_ADJACENT_PRESSURE || eReason == FOLLOWER_CHANGE_HOLY_CITY)
+		return;
 
-	// Add atheists and this back in
-	CvReligionInCity atheism(NO_RELIGION, false/*bFoundedHere*/, 0, iAtheismPressure);
-	m_ReligionStatus.push_back(atheism);
-	CvReligionInCity prophetReligion(eReligion, bProphetsReligionFoundedHere, 0, iReligionPressure + iPressure);
-	m_ReligionStatus.push_back(prophetReligion);
-
-	// Reestablish Holy City religion
-	if (eHolyCityReligion != NO_RELIGION && !bProphetsReligionFoundedHere)
+	if (GC.getLogging() && GC.getAILogging())
 	{
-		if (eHolyCityReligion == ePressureRetainedReligion)
-		{
-			CvReligionInCity holyCityReligion(eHolyCityReligion, true/*bFoundedHere*/, 0, iPressureRetained);
-			m_ReligionStatus.push_back(holyCityReligion);			
-		}
-		else
-		{
-			CvReligionInCity holyCityReligion(eHolyCityReligion, true/*bFoundedHere*/, 0, 0);
-			m_ReligionStatus.push_back(holyCityReligion);
-		}
-	}
+		FILogFile* pLog = LOGFILEMGR.GetLog("ReligiousPressureLog.csv", FILogFile::kDontTimeStamp | FILogFile::kDontFlushOnWrite);
 
-	// Reestablish pressure-retained religion (if wasn't Holy City religion)
-	if (ePressureRetainedReligion != NO_RELIGION && eHolyCityReligion != ePressureRetainedReligion)
-	{
-		CvReligionInCity pressureRetainedReligion(ePressureRetainedReligion, false/*bFoundedHere*/, 0, iPressureRetained);
-		m_ReligionStatus.push_back(pressureRetainedReligion);
-	}
+		CvString strLog;
+		CvString strCivName = GET_PLAYER(m_pCity->getOwner()).getNameKey();
+		strLog.Format("%03d, %s, ", GC.getGame().getElapsedGameTurns(), strCivName.c_str());
 
-	RecomputeFollowers(FOLLOWER_CHANGE_PROPHET, eOldMajorityReligion, eResponsiblePlayer);
+		CvString strMsg;
+		CvString strCityName = m_pCity->getNameNoSpace();
+
+		const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, m_pCity->getOwner());
+		CvString strRelName = pReligion ? pReligion->GetName() : "NONE";
+
+		strMsg.Format("City, %s, Religion, %s, Acc, %d, Reason, %s, Change, %d, Responsible, %d",
+			strCityName.c_str(), strRelName.c_str(), iAccPressure, GetFollowerChangeString(eReason), iPressureChange, eResponsiblePlayer);
+
+		strLog += strMsg;
+		pLog->Msg(strLog);
+	}
 }
 
 /// Add pressure to recruit followers to a religion
-void CvCityReligions::AddReligiousPressure(CvReligiousFollowChangeReason eReason, ReligionTypes eReligion, int iPressure, PlayerTypes eResponsiblePlayer)
+void CvCityReligions::AddReligiousPressure(CvReligiousFollowChangeReason eReason, ReligionTypes eReligion, int iPressureChange, ReligionTypes eCurrentMajority, PlayerTypes eResponsiblePlayer)
 {
-	bool bFoundIt = false;
-
-	ReligionTypes eOldMajorityReligion = GetReligiousMajority();
+	bool bExisting = false;
 
 	ReligionInCityList::iterator it;
 	for(it = m_ReligionStatus.begin(); it != m_ReligionStatus.end(); it++)
 	{
 		if(it->m_eReligion == eReligion)
 		{
-			it->m_iPressure += iPressure;
-			bFoundIt = true;
+			it->m_iPressure += iPressureChange;
+			bExisting = true;
+
+			LogPressureChange(eReason, eReligion, iPressureChange, it->m_iPressure, eResponsiblePlayer);
 		}
 		// If this is pressure from a real religion, reduce presence of pantheon by the same amount
-		else if(eReligion > RELIGION_PANTHEON && it->m_eReligion == RELIGION_PANTHEON)
+		else if(eReligion > RELIGION_PANTHEON && it->m_eReligion == RELIGION_PANTHEON && it->m_iPressure > 0)
 		{
 #if defined(MOD_CORE_RESILIENT_PANTHEONS)
 			//do it a bit more slowly
-			it->m_iPressure = max(0, (it->m_iPressure - iPressure/2));
+			it->m_iPressure = max(0, (it->m_iPressure - iPressureChange/2));
+			LogPressureChange(eReason, it->m_eReligion, -iPressureChange/2, it->m_iPressure, eResponsiblePlayer);
 #else
-			it->m_iPressure = max(0, (it->m_iPressure - iPressure));
+			it->m_iPressure = max(0, (it->m_iPressure - iPressureChange));
+			LogPressureChange(eReason, it->m_eReligion, iPressureChange, it->m_iPressure, eResponsiblePlayer);
 #endif
-		}
-		else if (it->m_eReligion > RELIGION_PANTHEON && eReason == FOLLOWER_CHANGE_MISSIONARY)
-		{
-			const CvReligion *pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, NO_PLAYER);
-			if(eResponsiblePlayer != NO_PLAYER)
-			{
-				int iPressureErosion = pReligion->m_Beliefs.GetOtherReligionPressureErosion(eResponsiblePlayer);  // Normally 0
-				if (iPressureErosion > 0)
-				{
-					int iErosionAmount = iPressureErosion * iPressure / 100;
-					it->m_iPressure = max(0, (it->m_iPressure - iErosionAmount));
-				}
-			}
-			else
-			{
-				int iPressureErosion = pReligion->m_Beliefs.GetOtherReligionPressureErosion();  // Normally 0
-				if (iPressureErosion > 0)
-				{
-					int iErosionAmount = iPressureErosion * iPressure / 100;
-					it->m_iPressure = max(0, (it->m_iPressure - iErosionAmount));
-				}
-			}
 		}
 	}
 
 	// Didn't find it, add new entry
-	if(!bFoundIt)
+	if(!bExisting)
 	{
-		CvReligionInCity newReligion(eReligion, false, 0, iPressure);
+		CvReligionInCity newReligion(eReligion, 0, iPressureChange);
 		m_ReligionStatus.push_back(newReligion);
+
+		LogPressureChange(eReason, eReligion, iPressureChange, iPressureChange, eResponsiblePlayer);
 	}
 
-	RecomputeFollowers(eReason, eOldMajorityReligion, eResponsiblePlayer);
+	RecomputeFollowers(eReason, eCurrentMajority, eResponsiblePlayer);
+}
+
+void CvCityReligions::ErodeOtherReligiousPressure(CvReligiousFollowChangeReason eReason, ReligionTypes eExemptedReligion, int iErosionPercent, bool bAllowRetention, bool bLeaveAtheists, PlayerTypes eResponsiblePlayer)
+{
+	if (iErosionPercent < 1)
+		return;
+
+	ReligionInCityList::iterator it;
+	for (it = m_ReligionStatus.begin(); it != m_ReligionStatus.end(); it++)
+	{
+		//ignore atheists if desired
+		if (it->m_eReligion == NO_RELIGION && bLeaveAtheists)
+			continue;
+		
+		//do not touch the exempted religion or dead ones
+		if (eExemptedReligion == it->m_eReligion || it->m_iPressure==0)
+			continue;
+
+		//default
+		int iReductionPercent = min(100,iErosionPercent);
+
+		//some beliefs are resistant
+		if (it->m_eReligion > RELIGION_PANTHEON && bAllowRetention)
+		{
+			const CvReligion *pReligion = GC.getGame().GetGameReligions()->GetReligion(it->m_eReligion, m_pCity->getOwner());
+			if(pReligion)
+			{
+				int iRetentionPercent = pReligion->m_Beliefs.GetInquisitorPressureRetention(m_pCity->getOwner());  // Normally 0
+				iReductionPercent = max(0, iReductionPercent - iRetentionPercent);
+			}
+		}
+
+		//make it so!
+		int iReductionAmount = iReductionPercent * it->m_iPressure / 100;
+		it->m_iPressure -= iReductionAmount;
+
+		LogPressureChange(eReason, it->m_eReligion, -iReductionAmount, it->m_iPressure, eResponsiblePlayer);
+	}
 }
 
 /// Simulate prophet spread
@@ -5348,14 +5362,14 @@ void CvCityReligions::SimulateProphetSpread(ReligionTypes eReligion, int iPressu
 	m_SimulatedStatus.clear();
 
 	// Add atheists and this back in
-	CvReligionInCity atheism(NO_RELIGION, false, 0, iAtheismPressure);
+	CvReligionInCity atheism(NO_RELIGION, 0, iAtheismPressure);
 	m_SimulatedStatus.push_back(atheism);
-	CvReligionInCity prophetReligion(eReligion, false, 0, iReligionPressure + iPressure);
+	CvReligionInCity prophetReligion(eReligion, 0, iReligionPressure + iPressure);
 	m_SimulatedStatus.push_back(prophetReligion);
 
 	if (ePressureRetainedReligion != NO_RELIGION)
 	{
-		CvReligionInCity pressureRetainedReligion(ePressureRetainedReligion, false, 0, iPressureRetained);
+		CvReligionInCity pressureRetainedReligion(ePressureRetainedReligion, 0, iPressureRetained);
 		m_SimulatedStatus.push_back(pressureRetainedReligion);
 
 	}
@@ -5366,16 +5380,11 @@ void CvCityReligions::SimulateProphetSpread(ReligionTypes eReligion, int iPressu
 /// Simulate religious pressure addition
 void CvCityReligions::SimulateReligiousPressure(ReligionTypes eReligion, int iPressure)
 {
-	bool bFoundIt = false;
-
-	CopyToSimulatedStatus();
-
-#if defined(MOD_BALANCE_CORE)
 	if(eReligion == NO_RELIGION)
-	{
 		return;
-	}
-#endif
+
+	bool bFoundIt = false;
+	CopyToSimulatedStatus();
 
 	ReligionInCityList::iterator it;
 	for(it = m_SimulatedStatus.begin(); it != m_SimulatedStatus.end(); it++)
@@ -5411,7 +5420,7 @@ void CvCityReligions::SimulateReligiousPressure(ReligionTypes eReligion, int iPr
 	// Didn't find it, add new entry
 	if(!bFoundIt)
 	{
-		CvReligionInCity newReligion(eReligion, false, 0, iPressure);
+		CvReligionInCity newReligion(eReligion, 0, iPressure);
 		m_SimulatedStatus.push_back(newReligion);
 	}
 
@@ -5421,6 +5430,7 @@ void CvCityReligions::SimulateReligiousPressure(ReligionTypes eReligion, int iPr
 /// Convert some percentage of followers from one religion to another
 void CvCityReligions::ConvertPercentFollowers(ReligionTypes eToReligion, ReligionTypes eFromReligion, int iPercent)
 {
+	ReligionTypes eOldMajority = GetReligiousMajority();
 	int iPressureConverting = 0;
 
 	// Find old religion
@@ -5437,12 +5447,14 @@ void CvCityReligions::ConvertPercentFollowers(ReligionTypes eToReligion, Religio
 			}
 		}
 	}
-	AddReligiousPressure(FOLLOWER_CHANGE_SCRIPTED_CONVERSION, eToReligion, iPressureConverting, NO_PLAYER);
+	AddReligiousPressure(FOLLOWER_CHANGE_SCRIPTED_CONVERSION, eToReligion, -iPressureConverting, eOldMajority, NO_PLAYER);
 }
+
 #if defined(MOD_BALANCE_CORE)
 /// Convert some percentage of followers from one religion to another
 void CvCityReligions::ConvertPercentForcedFollowers(ReligionTypes eToReligion, int iPercent)
 {
+	ReligionTypes eOldMajority = GetReligiousMajority();
 	int iPressureConverting = 0;
 
 	// Find religion
@@ -5460,21 +5472,20 @@ void CvCityReligions::ConvertPercentForcedFollowers(ReligionTypes eToReligion, i
 			}
 		}
 	}
-	AddReligiousPressure(FOLLOWER_CHANGE_SCRIPTED_CONVERSION, eToReligion, iPressureConverting, NO_PLAYER);
+	AddReligiousPressure(FOLLOWER_CHANGE_SCRIPTED_CONVERSION, eToReligion, -iPressureConverting, eOldMajority, NO_PLAYER);
 }
+
 /// Convert some number of followers from one religion to another
 void CvCityReligions::ConvertNumberFollowers(ReligionTypes eToReligion, int iPop)
 {
+	ReligionTypes eOldMajority = GetReligiousMajority();
 	int iPressureConverting = 0;
 
-	iPop *= 100;
-	int iTotalPop = m_pCity->getPopulation();
-	iPop /= iTotalPop;
-
+	//convert to percent
+	iPop = (iPop*100)/m_pCity->getPopulation();
+	//sanity
 	if(iPop > 100)
-	{
 		iPop = 100;
-	}
 
 	// Find religion
 	ReligionInCityList::iterator it;
@@ -5491,96 +5502,35 @@ void CvCityReligions::ConvertNumberFollowers(ReligionTypes eToReligion, int iPop
 			}
 		}
 	}
-	AddReligiousPressure(FOLLOWER_CHANGE_SCRIPTED_CONVERSION, eToReligion, iPressureConverting, NO_PLAYER);
+	AddReligiousPressure(FOLLOWER_CHANGE_SCRIPTED_CONVERSION, eToReligion, -iPressureConverting, eOldMajority, NO_PLAYER);
 }
 #endif
 
 /// Add pressure to recruit followers to a religion
 void CvCityReligions::AddHolyCityPressure()
 {
-	bool bRecompute = false;
-	ReligionTypes eOldMajorityReligion = GetReligiousMajority();
-
-	ReligionInCityList::iterator it;
-	for(it = m_ReligionStatus.begin(); it != m_ReligionStatus.end(); it++)
+	ReligionTypes eHolyReligion = GetReligionForHolyCity();
+	if (eHolyReligion != NO_RELIGION)
 	{
-		if(it->m_bFoundedHere)
-		{
-			int iPressure = GC.getGame().getGameSpeedInfo().getReligiousPressureAdjacentCity();
-			iPressure *=  /*5*/ GD_INT_GET(RELIGION_PER_TURN_FOUNDING_CITY_PRESSURE);
-			it->m_iPressure += iPressure;
-
-			// Found it, so we're done
-			bRecompute = true;
-		}
-	}
-
-	// Didn't find it, add new entry
-	if(bRecompute)
-	{
-		RecomputeFollowers(FOLLOWER_CHANGE_HOLY_CITY, eOldMajorityReligion);
+		int iHolyPressure = GC.getGame().getGameSpeedInfo().getReligiousPressureAdjacentCity() *  /*5*/ GD_INT_GET(RELIGION_PER_TURN_FOUNDING_CITY_PRESSURE);
+		AddReligiousPressure(FOLLOWER_CHANGE_HOLY_CITY, eHolyReligion, iHolyPressure, GetReligiousMajority());
 	}
 }
 
 /// Add pressure to recruit followers to a religion
 void CvCityReligions::AddSpyPressure(ReligionTypes eReligion, int iBasePressure)
 {
-	bool bRecompute = false;
-	ReligionTypes eOldMajorityReligion = GetReligiousMajority();
-
-	ReligionInCityList::iterator it;
-	for(it = m_ReligionStatus.begin(); it != m_ReligionStatus.end(); it++)
-	{
-		if(it->m_eReligion == eReligion)
-		{
-			int iPressure = GC.getGame().getGameSpeedInfo().getReligiousPressureAdjacentCity();
-			iPressure *= iBasePressure;
-			it->m_iPressure += iPressure;
-
-			// Found it, so we're done
-			bRecompute = true;
-		}
-	}
-
-	// Didn't find it, add new entry
-	if(bRecompute)
-	{
-		RecomputeFollowers(FOLLOWER_CHANGE_SPY_PRESSURE, eOldMajorityReligion);
-	}
+	AddReligiousPressure(FOLLOWER_CHANGE_SPY_PRESSURE, eReligion, iBasePressure*GC.getGame().getGameSpeedInfo().getReligiousPressureAdjacentCity(), GetReligiousMajority());
 }
 
 /// Set this city to have all citizens following a religion (mainly for scripting)
 void CvCityReligions::AdoptReligionFully(ReligionTypes eReligion)
 {
-	CvReligionInCity religion;
+	ReligionTypes eOldMajority = GetReligiousMajority();
 
-	// Add 1 pop of Atheism (needed in case other religions wiped out by an Inquisitor/Prophet
-	religion.m_bFoundedHere = IsHolyCityAnyReligion();
-	religion.m_eReligion = GetReligionForHolyCity();
-	religion.m_iFollowers = 1;
-#if defined(MOD_GLOBAL_RELIGIOUS_SETTLERS) || defined(MOD_RELIGION_LOCAL_RELIGIONS)
-	// This needs to be less than the pressure in a city with a pop of 1
-	religion.m_iPressure = religion.m_iFollowers * /*1000*/ GD_INT_GET(RELIGION_ATHEISM_PRESSURE_PER_POP) - 1;
-#else
-	religion.m_iPressure = religion.m_iFollowers * /*1000*/ GD_INT_GET(RELIGION_ATHEISM_PRESSURE_PER_POP);
-#endif
-	m_ReligionStatus.clear();
+	ErodeOtherReligiousPressure(FOLLOWER_CHANGE_ADOPT_FULLY, eReligion, 100, false, false);
 
-	m_ReligionStatus.push_back(religion);
-
-	// Now add full pop of this religion
-	religion.m_bFoundedHere = false;
-	religion.m_eReligion = eReligion;
-	religion.m_iFollowers = m_pCity->getPopulation();
-	religion.m_iPressure = religion.m_iFollowers * /*1000*/ GD_INT_GET(RELIGION_ATHEISM_PRESSURE_PER_POP);
-	m_ReligionStatus.push_back(religion);
-
-#if defined(MOD_GLOBAL_RELIGIOUS_SETTLERS)
-	if (MOD_GLOBAL_RELIGIOUS_SETTLERS || GET_PLAYER(m_pCity->getOwner()).GetPlayerTraits()->IsReconquista()) {
-		RecomputeFollowers(FOLLOWER_CHANGE_ADOPT_FULLY, NO_RELIGION);
-	}
-#endif
-	m_pCity->UpdateReligion(eReligion);
+	AddReligiousPressure(FOLLOWER_CHANGE_ADOPT_FULLY, eReligion, m_pCity->getPopulation() * /*1000*/ GD_INT_GET(RELIGION_ATHEISM_PRESSURE_PER_POP), eOldMajority);
 }
 
 /// Remove presence of old owner's pantheon (used when a city is conquered)
@@ -5609,41 +5559,9 @@ void CvCityReligions::RemoveOtherReligions(ReligionTypes eReligion, PlayerTypes 
 {
 	ReligionTypes eOldMajorityReligion = GetReligiousMajority();
 
-	// Copy old list
-	ReligionInCityList tempList(m_ReligionStatus);
+	ErodeOtherReligiousPressure(FOLLOWER_CHANGE_REMOVE_HERESY, eReligion, GD_INT_GET(INQUISITION_EFFECTIVENESS), true, true, eResponsiblePlayer);
 
-	// Erase old list
-	m_ReligionStatus.clear();
-
-	// Copy just what we want to keep
-	for(ReligionInCityList::iterator it = tempList.begin(); it != tempList.end(); it++)
-	{
-		ReligionTypes eLoopReligion = it->m_eReligion;
-
-		//keep the given religion and heathens
-		if (eLoopReligion == NO_RELIGION || eLoopReligion == eReligion)
-		{
-			m_ReligionStatus.push_back(*it);
-			continue;
-		}
-
-		//throw away all others except if it has PressureRetention
-		if (eLoopReligion > RELIGION_PANTHEON && eLoopReligion != eReligion)
-		{
-			const CvReligion *pReligion = GC.getGame().GetGameReligions()->GetReligion(eLoopReligion, m_pCity->getOwner());
-			if (pReligion)
-			{
-				 // Normally 0
-				int iPressureRetained = pReligion->m_Beliefs.GetInquisitorPressureRetention(m_pCity->getOwner()); 
-				if (iPressureRetained > 0)
-				{
-					it->m_iPressure = it->m_iPressure * iPressureRetained / 100;
-					m_ReligionStatus.push_back(*it);
-				}
-			}
-		}
-	}
-
+	//not calling add pressure here, instead recompute directly
 	RecomputeFollowers(FOLLOWER_CHANGE_REMOVE_HERESY, eOldMajorityReligion, eResponsiblePlayer);
 }
 
@@ -5806,7 +5724,6 @@ void CvCityReligions::RecomputeFollowers(CvReligiousFollowChangeReason eReason, 
 {
 	int iOldFollowers = GetNumFollowers(eOldMajorityReligion);
 	int iUnassignedFollowers = m_pCity->getPopulation();
-	int iPressurePerFollower;
 
 	// Safety check to avoid divide by zero
 	if (iUnassignedFollowers < 1)
@@ -5814,6 +5731,7 @@ void CvCityReligions::RecomputeFollowers(CvReligiousFollowChangeReason eReason, 
 		CvAssertMsg (false, "Invalid city population when recomputing followers");
 		return;
 	}
+
 	// Find total pressure
 	int iTotalPressure = 0;
 	ReligionInCityList::iterator it;
@@ -5825,79 +5743,46 @@ void CvCityReligions::RecomputeFollowers(CvReligiousFollowChangeReason eReason, 
 	// safety check - if pressure was wiped out somehow, just rebuild pressure of 1 atheist
 	if (iTotalPressure <= 0)
 	{
-
-		CvReligionInCity religion;
-		
-		religion.m_bFoundedHere = false;
-		religion.m_eReligion = NO_RELIGION;
-
-		ReligionInCityList::iterator it;
-		for (it = m_ReligionStatus.begin(); it != m_ReligionStatus.end(); it++)
-		{
-			if (it->m_bFoundedHere)
-			{
-				religion.m_bFoundedHere = true;
-				religion.m_eReligion = it->m_eReligion;
-				break;
-			}
-		}
+		iTotalPressure = /*1000*/ GD_INT_GET(RELIGION_ATHEISM_PRESSURE_PER_POP);
 
 		m_ReligionStatus.clear();
-
-#if defined(MOD_BALANCE_CORE)
-		if(eReason == FOLLOWER_CHANGE_ADOPT_FULLY)
-		{
-			religion.m_iFollowers = 0;
-			religion.m_iPressure = 0;
-		}
-		else
-		{
-#endif
-		religion.m_iFollowers = 1;
-		religion.m_iPressure = /*1000*/ GD_INT_GET(RELIGION_ATHEISM_PRESSURE_PER_POP);
-#if defined(MOD_BALANCE_CORE)
-		}
-#endif
-		m_ReligionStatus.push_back(religion);
-
-		iTotalPressure = /*1000*/ GD_INT_GET(RELIGION_ATHEISM_PRESSURE_PER_POP);
+		m_ReligionStatus.push_back(CvReligionInCity(NO_RELIGION,1,iTotalPressure));
 	}
 
-	iPressurePerFollower = iTotalPressure / iUnassignedFollowers;
+	int iPressurePerFollower = iTotalPressure / iUnassignedFollowers;
+
+	vector<int> remainders;
 
 	// Loop through each religion
 	for(it = m_ReligionStatus.begin(); it != m_ReligionStatus.end(); it++)
 	{
 		it->m_iFollowers = it->m_iPressure / iPressurePerFollower;
 		iUnassignedFollowers -= it->m_iFollowers;
-		it->m_iTemp = it->m_iPressure - (it->m_iFollowers * iPressurePerFollower);  // Remainder
+
+		//typically there will be a remainder
+		remainders.push_back( it->m_iPressure - (it->m_iFollowers * iPressurePerFollower) );
 	}
 
 	// Assign out the remainder
 	for (int iI = 0; iI < iUnassignedFollowers; iI++)
 	{
-		ReligionInCityList::iterator itLargestRemainder;
+		size_t iNextRecipient = 0;
 		int iLargestRemainder = 0;
 
-		for (it = m_ReligionStatus.begin(); it != m_ReligionStatus.end(); it++)
+		for (size_t i=0; i<remainders.size(); ++i)
 		{
-			if (it->m_iTemp > iLargestRemainder)
+			if (remainders[i] > iLargestRemainder)
 			{
-				iLargestRemainder = it->m_iTemp;
-				itLargestRemainder = it;
+				iLargestRemainder = remainders[i];
+				iNextRecipient = i;
 			}
 		}
 
 		if (iLargestRemainder > 0)
-		{
-			itLargestRemainder->m_iFollowers++;
-			itLargestRemainder->m_iTemp = 0;
-		}
+			m_ReligionStatus[iNextRecipient].m_iFollowers++;
 	}
 
-#if defined(MOD_BALANCE_CORE)
 	ComputeReligiousMajority(true);
-#endif
 
 	ReligionTypes eMajority = GetReligiousMajority();
 	int iFollowers = GetNumFollowers(eMajority);
@@ -5940,34 +5825,35 @@ void CvCityReligions::SimulateFollowers()
 
 	iPressurePerFollower = iTotalPressure / iUnassignedFollowers;
 
+	vector<int> remainders;
+
 	// Loop through each religion
 	for(it = m_SimulatedStatus.begin(); it != m_SimulatedStatus.end(); it++)
 	{
 		it->m_iFollowers = it->m_iPressure / iPressurePerFollower;
 		iUnassignedFollowers -= it->m_iFollowers;
-		it->m_iTemp = it->m_iPressure - (it->m_iFollowers * iPressurePerFollower);  // Remainder
+
+		//typically there will be a remainder
+		remainders.push_back( it->m_iPressure - (it->m_iFollowers * iPressurePerFollower) );
 	}
 
 	// Assign out the remainder
 	for (int iI = 0; iI < iUnassignedFollowers; iI++)
 	{
-		ReligionInCityList::iterator itLargestRemainder;
+		size_t iNextRecipient = 0;
 		int iLargestRemainder = 0;
 
-		for (it = m_SimulatedStatus.begin(); it != m_SimulatedStatus.end(); it++)
+		for (size_t i=0; i<remainders.size(); ++i)
 		{
-			if (it->m_iTemp > iLargestRemainder)
+			if (remainders[i] > iLargestRemainder)
 			{
-				iLargestRemainder = it->m_iTemp;
-				itLargestRemainder = it;
+				iLargestRemainder = remainders[i];
+				iNextRecipient = i;
 			}
 		}
 
 		if (iLargestRemainder > 0)
-		{
-			itLargestRemainder->m_iFollowers++;
-			itLargestRemainder->m_iTemp = 0;
-		}
+			m_SimulatedStatus[iNextRecipient].m_iFollowers++;
 	}
 }
 
@@ -6276,7 +6162,7 @@ void CvCityReligions::LogFollowersChange(CvReligiousFollowChangeReason eReason)
 	if(GC.getLogging() && GC.getAILogging())
 	{
 		CvString strOutBuf;
-		CvString strReasonString;
+		CvString strReasonString = GetFollowerChangeString(eReason);
 		CvString temp;
 		FILogFile* pLog;
 		CvCityReligions* pCityRel = m_pCity->GetCityReligions();
@@ -6289,52 +6175,6 @@ void CvCityReligions::LogFollowersChange(CvReligiousFollowChangeReason eReason)
 		strOutBuf += ", ";
 
 		// Add a reason string
-		switch(eReason)
-		{
-		case FOLLOWER_CHANGE_ADJACENT_PRESSURE:
-			strReasonString = "Adjacent city pressure";
-			break;
-		case FOLLOWER_CHANGE_HOLY_CITY:
-			strReasonString = "Holy city pressure";
-			break;
-		case FOLLOWER_CHANGE_POP_CHANGE:
-			strReasonString = "Population change";
-			break;
-		case FOLLOWER_CHANGE_RELIGION_FOUNDED:
-			strReasonString = "Religion founded";
-			break;
-		case FOLLOWER_CHANGE_PANTHEON_FOUNDED:
-			strReasonString = "Pantheon founded";
-			break;
-		case FOLLOWER_CHANGE_CONQUEST:
-			strReasonString = "City captured";
-			break;
-		case FOLLOWER_CHANGE_MISSIONARY:
-			strReasonString = "Missionary expended";
-			break;
-		case FOLLOWER_CHANGE_PROPHET:
-			strReasonString = "Prophet spreading";
-			break;
-		case FOLLOWER_CHANGE_REMOVE_HERESY:
-			strReasonString = "Remove heresy";
-			break;
-		case FOLLOWER_CHANGE_SCRIPTED_CONVERSION:
-			strReasonString = "Scripted conversion";
-			break;
-		case FOLLOWER_CHANGE_SPY_PRESSURE:
-			strReasonString = "Spy pressure";
-			break;
-#if defined(MOD_GLOBAL_RELIGIOUS_SETTLERS)
-		case FOLLOWER_CHANGE_ADOPT_FULLY:
-			strReasonString = "Adopt fully";
-			break;
-#endif
-#if defined(MOD_BALANCE_CORE_PANTHEON_RESET_FOUND)
-		case FOLLOWER_CHANGE_PANTHEON_OBSOLETE:
-			strReasonString = "Pantheon Obsolete";
-			break;
-#endif
-		}
 		strOutBuf += strReasonString + ", ";
 		temp.Format("Pop: %d", m_pCity->getPopulation());
 		strOutBuf += temp;
@@ -7698,13 +7538,13 @@ bool CvReligionAI::DoFaithPurchases()
 
 	//FOURTH PRIORITY
 	// Might as well convert puppet-cities to build our religious strength
-	if (pMyReligion && m_pPlayer->GetNumPuppetCities() > 0 && !bAllConvertedInclPuppets && !bTooManyMissionaries)
+	if (pMyReligion && !bAllConvertedInclPuppets)
 	{
 		if (BuyMissionaryOrInquisitor(eReligionToSpread))
 		{
 			if (GC.getLogging())
 			{
-				CvString strLogMsg = strPlayer + ", Bought a Missionary/Inquisitor, Need to Convert our Puppet Cities";
+				CvString strLogMsg = strPlayer + ", Bought a Missionary/Inquisitor, Need to Convert our Cities";
 				CvString strFaith;
 				strFaith.Format(", Faith: %d", m_pPlayer->GetFaith());
 				strLogMsg += strFaith;
@@ -7715,7 +7555,7 @@ bool CvReligionAI::DoFaithPurchases()
 		{
 			if (GC.getLogging())
 			{
-				CvString strLogMsg = strPlayer + ", Saving up for a Missionary/Inquisitor, need to convert our Puppet Cities.";
+				CvString strLogMsg = strPlayer + ", Saving up for a Missionary/Inquisitor, need to convert our Cities.";
 				CvString strFaith;
 				strFaith.Format(", Faith: %d", m_pPlayer->GetFaith());
 				strLogMsg += strFaith;

@@ -3456,7 +3456,8 @@ int CvLuaCity::lGetPressurePerTurn(lua_State* L)
 	const int iResult = (int)pkCity->GetCityReligions()->GetPressurePerTurn(eReligion, &iNumSourceCities);
 	lua_pushinteger(L, iResult);
 	lua_pushinteger(L, iNumSourceCities);
-	return 2;
+	lua_pushinteger(L, pkCity->GetCityReligions()->GetPressureAccumulated(eReligion));
+	return 3;
 }
 //------------------------------------------------------------------------------
 //int ConvertPercentFollowers(ReligionTypes eToReligion, ReligionTypes eFromReligion, int iPercent) const;

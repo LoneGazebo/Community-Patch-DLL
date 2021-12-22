@@ -2834,6 +2834,14 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 				GET_PLAYER(getOwner()).DoUpdateTotalUnhappiness();
 			}
 		}
+
+		//check if this removes a blockade immediately (would be lifted anyhow once the enemy turn starts but nice for humans)
+		if (IsCombatUnit())
+		{
+			CvCity* pOwningCity = pPlot->getEffectiveOwningCity();
+			if (pOwningCity && isEnemy(pPlot->getTeam()))
+				pOwningCity->GetCityCitizens()->DoVerifyWorkingPlots();
+		}
 	}
 
 	// Remove Resource Quantity from Used
@@ -11307,7 +11315,7 @@ bool CvUnit::DoSpreadReligion()
 			}
 			else
 			{
-				pCity->GetCityReligions()->AddReligiousPressure(FOLLOWER_CHANGE_MISSIONARY, eReligion, iConversionStrength, getOwner());
+				pCity->GetCityReligions()->AddMissionarySpread(eReligion, iConversionStrength, getOwner());
 			}
 
 			GetReligionData()->IncrementSpreadsUsed();
@@ -20123,7 +20131,6 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 
 	if(pOldPlot != NULL)
 	{
-#if defined(MOD_BALANCE_CORE)
 		for(int iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
 		{
 			CvPlot* pAdjacentOldPlot = plotDirection(pOldPlot->getX(), pOldPlot->getY(), ((DirectionTypes)iI));
@@ -20142,7 +20149,7 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 				}
 			}
 		}
-#endif
+
 		if(hasCargo())
 		{
 			pUnitNode = pOldPlot->headUnitNode();
@@ -20161,7 +20168,7 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 				}
 			}
 		}
-#if defined(MOD_BALANCE_CORE)
+
 		if(IsCombatUnit())
 		{
 			pUnitNode = pOldPlot->headUnitNode();
@@ -20199,7 +20206,6 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 				}
 			}
 		}
-#endif
 	}
 
 	if(pNewPlot != NULL && m_iMapLayer == DEFAULT_UNIT_MAP_LAYER)
