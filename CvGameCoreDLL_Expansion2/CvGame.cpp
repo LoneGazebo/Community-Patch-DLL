@@ -11671,7 +11671,7 @@ void CvGame::DoBarbCountdown()
 	{
 		PlayerTypes eMinor = (PlayerTypes) iMinorLoop;
 
-		if (GET_PLAYER(eMinor).isAlive() || !GET_PLAYER(eMinor).isMinorCiv())
+		if (!GET_PLAYER(eMinor).isAlive() || !GET_PLAYER(eMinor).isMinorCiv())
 			continue;
 
 		int iTurnsSinceRebellion = GET_PLAYER(eMinor).GetMinorCivAI()->GetTurnsSinceRebellion();

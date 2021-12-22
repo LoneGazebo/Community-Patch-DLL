@@ -14656,24 +14656,37 @@ int CvMinorCivAI::CalculateBullyScore(PlayerTypes eBullyPlayer, bool bForUnit, C
 	//
 	// -999 ~ -0
 	// **************************
-	if (!GET_PLAYER(eBullyPlayer).IsCanBullyFriendlyCS())
+
+	if (MOD_BALANCE_CORE_MINORS)
 	{
-		int iFriendshipLimit = /*-30 in CP, 0 in CBO*/ GD_INT_GET(FRIENDSHIP_THRESHOLD_CAN_BULLY);
-		if (GetEffectiveFriendshipWithMajor(eBullyPlayer) > iFriendshipLimit)
+		if (!GET_PLAYER(eBullyPlayer).IsCanBullyFriendlyCS())
 		{
-			iScore -= GetEffectiveFriendshipWithMajor(eBullyPlayer);
-			if (sTooltipSink)
+			if (GetEffectiveFriendshipWithMajor(eBullyPlayer) > /*0*/ GD_INT_GET(FRIENDSHIP_THRESHOLD_CAN_BULLY))
 			{
-				Localization::String strNegativeFactor = Localization::Lookup("TXT_KEY_POP_CSTATE_BULLY_FACTOR_NEGATIVE");
-				strNegativeFactor << GetEffectiveFriendshipWithMajor(eBullyPlayer) * -1;
-				strNegativeFactor << "TXT_KEY_POP_CSTATE_BULLY_FACTOR_LOW_INFLUENCE";
-				sFactors += strNegativeFactor.toUTF8();
+				iScore -= GetEffectiveFriendshipWithMajor(eBullyPlayer);
+				if (sTooltipSink)
+				{
+					Localization::String strNegativeFactor = Localization::Lookup("TXT_KEY_POP_CSTATE_BULLY_FACTOR_NEGATIVE");
+					strNegativeFactor << GetEffectiveFriendshipWithMajor(eBullyPlayer) * -1;
+					strNegativeFactor << "TXT_KEY_POP_CSTATE_BULLY_FACTOR_LOW_INFLUENCE";
+					sFactors += strNegativeFactor.toUTF8();
+				}
 			}
 		}
 	}
+	else if (GetEffectiveFriendshipWithMajor(eBullyPlayer) < /*-30*/ GD_INT_GET(FRIENDSHIP_THRESHOLD_CAN_BULLY))
+	{
+		iScore += -300;
+		if (sTooltipSink)
+		{
+			Localization::String strNegativeFactor = Localization::Lookup("TXT_KEY_POP_CSTATE_BULLY_FACTOR_NEGATIVE");
+			strNegativeFactor << -300;
+			strNegativeFactor << "TXT_KEY_POP_CSTATE_BULLY_FACTOR_LOW_INFLUENCE";
+			sFactors += strNegativeFactor.toUTF8();
+		}
+	}
 
-#if defined(MOD_BALANCE_CORE_MINORS)
-	if (GC.getGame().getGameTurn() > 30 && GetTurnLiberated() != 0)
+	if (MOD_BALANCE_CORE_MINORS && GC.getGame().getGameTurn() > 30 && GetTurnLiberated() != 0)
 	{
 		int iDuration = (GC.getGame().getGameTurn() - GetTurnLiberated());
 		if (iDuration >= 0)
@@ -14692,7 +14705,6 @@ int CvMinorCivAI::CalculateBullyScore(PlayerTypes eBullyPlayer, bool bForUnit, C
 			}
 		}
 	}
-#endif
 
 
 	// **************************

@@ -3944,7 +3944,7 @@ bool CvPlayerEspionage::AttemptCoup(uint uiSpyIndex)
 	{
 		// reduce influence of player
 		// right now move the influence into a negative space
-		aiNewInfluenceValueTimes100[m_pPlayer->GetID()] = (-10 * 100);
+		aiNewInfluenceValueTimes100[m_pPlayer->GetID()] = min(aiNewInfluenceValueTimes100[m_pPlayer->GetID()], -1000);
 		bAttemptSuccess = false;
 
 		// kill the spy
