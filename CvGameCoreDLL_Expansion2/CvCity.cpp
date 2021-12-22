@@ -11381,6 +11381,15 @@ int CvCity::getProductionNeeded(BuildingTypes eBuilding) const
 				}
 				iNumProductionNeeded *= (iTotalDiscount + 100);
 				iNumProductionNeeded /= 100;
+
+				// Investment checks when AmountComplete >= 50 moved here
+				int AmountComplete = GetCityBuildings()->GetBuildingProduction(eBuilding);
+				int AmountNeeded = max(1, iNumProductionNeeded);
+				if (AmountComplete >= AmountNeeded)
+				{
+					int iProductionDifference = getProductionDifference(iNumProductionNeeded, AmountComplete, getProductionModifier(), false, false);
+					return max(1, AmountComplete - iProductionDifference); //allow one turn of overflow
+				}
 			}
 #endif
 		}
@@ -31397,6 +31406,13 @@ bool CvCity::IsCanPurchase(const std::vector<int>& vPreExistingBuildings, bool b
 				{
 					return false;
 				}
+
+				if (getProductionTurnsLeft(eBuildingType, 0) == 1) //Can't invest when only 1 turn left, for parity with AI
+				{
+					return false;
+				}
+
+				/* leaving this for easy retrieval for now, will delete on the new release
 				//Exploit prevention
 				int AmountComplete = GetCityBuildings()->GetBuildingProductionTimes100(eBuildingType);
 				if (AmountComplete > 0)
@@ -31404,7 +31420,7 @@ bool CvCity::IsCanPurchase(const std::vector<int>& vPreExistingBuildings, bool b
 					int AmountNeeded = max(1, getProductionNeeded(eBuildingType));
 					AmountComplete /= AmountNeeded;
 
-					int iTotalDiscount = (/*-50*/ GD_INT_GET(BALANCE_BUILDING_INVESTMENT_BASELINE) + GET_PLAYER(getOwner()).GetPlayerTraits()->GetInvestmentModifier() + GET_PLAYER(getOwner()).GetInvestmentModifier());
+					int iTotalDiscount = (GD_INT_GET(BALANCE_BUILDING_INVESTMENT_BASELINE) + GET_PLAYER(getOwner()).GetPlayerTraits()->GetInvestmentModifier() + GET_PLAYER(getOwner()).GetInvestmentModifier());
 					const CvBuildingClassInfo& kBuildingClassInfo = pGameBuilding->GetBuildingClassInfo();
 					if (::isWorldWonderClass(kBuildingClassInfo))
 					{
@@ -31415,7 +31431,7 @@ bool CvCity::IsCanPurchase(const std::vector<int>& vPreExistingBuildings, bool b
 
 					if (AmountComplete >= (100 - iTotalDiscount))
 						return false;
-				}
+				}*/
 			}
 		}
 #endif	
