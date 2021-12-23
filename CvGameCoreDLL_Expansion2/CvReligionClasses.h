@@ -127,7 +127,6 @@ public:
 
 	// Public data
 	ReligionTypes m_eReligion;
-	bool m_bDummy; //no longer needed, kept for save game compatibility
 	int m_iFollowers;
 	int m_iPressure;
 	int m_iNumTradeRoutesApplyingPressure;

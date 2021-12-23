@@ -14194,14 +14194,14 @@ void CvUnit::promote(PromotionTypes ePromotion, int iLeaderUnitId)
 		}
 		if (getOriginCity() != NULL)
 		{
-			GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_LEVEL_UP, false, NO_GREATPERSON, NO_BUILDING, (getLevel() - 1), false, NO_PLAYER, NULL, false, getOriginCity(), getDomainType(), true, false, NO_YIELD, this);
+			GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_LEVEL_UP, false, NO_GREATPERSON, NO_BUILDING, (getLevel() - 1), false, NO_PLAYER, NULL, false, getOriginCity(), getDomainType()==DOMAIN_SEA, true, false, NO_YIELD, this);
 		}
 		else if (getOriginCity() == NULL)
 		{
 			CvCity* pCapital = GET_PLAYER(getOwner()).getCapitalCity();
 			if (pCapital)
 			{
-				GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_LEVEL_UP, false, NO_GREATPERSON, NO_BUILDING, (getLevel() - 1), false, NO_PLAYER, NULL, false, pCapital, getDomainType(), true, false, NO_YIELD, this);
+				GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_LEVEL_UP, false, NO_GREATPERSON, NO_BUILDING, (getLevel() - 1), false, NO_PLAYER, NULL, false, pCapital, getDomainType()==DOMAIN_SEA, true, false, NO_YIELD, this);
 			}
 		}
 

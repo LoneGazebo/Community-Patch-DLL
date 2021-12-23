@@ -3383,7 +3383,6 @@ void CvPlayerCulture::DoArchaeologyChoice (ArchaeologyChoiceType eChoice)
 	GreatWorkSlotType eWritingSlot = CvTypes::getGREAT_WORK_SLOT_LITERATURE();
 	GreatWorkType eGreatArtifact = CultureHelpers::GetArtifact(pPlot);
 	GreatWorkClass eClass = (GreatWorkClass)GC.getInfoTypeForString("GREAT_WORK_ARTIFACT");
-	PolicyBranchTypes eArtistry = (PolicyBranchTypes)GC.getInfoTypeForString("POLICY_BRANCH_AESTHETICS", true);
 
 	switch (eChoice)
 	{
@@ -3432,6 +3431,7 @@ void CvPlayerCulture::DoArchaeologyChoice (ArchaeologyChoiceType eChoice)
 				else if (kOwner.isMajorCiv())
 				{
 					kOwner.GetDiplomacyAI()->ChangeNumLandmarksBuiltForMe(m_pPlayer->GetID(), 1);
+					kOwner.GetDiplomacyAI()->SetWaitingForDigChoice(false);
 				}
 			}
 		}
@@ -3439,17 +3439,18 @@ void CvPlayerCulture::DoArchaeologyChoice (ArchaeologyChoiceType eChoice)
 	break;
 	case ARCHAEOLOGY_ARTIFACT_PLAYER1:
 	{
-		if (pUnit)
+		if (GET_PLAYER(pPlot->getOwner()).isMajorCiv())
 		{
-			if (pPlot->getOwner() != pUnit->getOwner() && GET_PLAYER(pPlot->getOwner()).isMajorCiv())
+			if (pUnit && pPlot->getOwner() != pUnit->getOwner() && GET_PLAYER(pPlot->getOwner()).GetDiplomacyAI()->IsWaitingForDigChoice())
 			{
-				// Ignore hidden sites unless Artistry is unlocked
-				if (pPlot->getResourceType() != GD_INT_GET(HIDDEN_ARTIFACT_RESOURCE) || GET_PLAYER(pPlot->getOwner()).GetPlayerPolicies()->IsPolicyBranchUnlocked(eArtistry))
-				{
-					GET_PLAYER(pPlot->getOwner()).GetDiplomacyAI()->ChangeNegativeArchaeologyPoints(pUnit->getOwner(), 1);
-				}
+				GET_PLAYER(pPlot->getOwner()).GetDiplomacyAI()->ChangeNegativeArchaeologyPoints(pUnit->getOwner(), 1);
+			}
+			else
+			{
+				GET_PLAYER(pPlot->getOwner()).GetDiplomacyAI()->SetWaitingForDigChoice(false);
 			}
 		}
+
 		pHousingCity = m_pPlayer->GetCulture()->GetClosestAvailableGreatWorkSlot(pPlot->getX(), pPlot->getY(), eArtArtifactSlot, &eBuildingToHouse, &iSlot);
 		int iGWindex = pCulture->CreateGreatWork(eGreatArtifact, eClass, pPlot->GetArchaeologicalRecord().m_ePlayer1, pPlot->GetArchaeologicalRecord().m_eEra, "");
 #if defined(MOD_BALANCE_CORE)
@@ -3497,15 +3498,15 @@ void CvPlayerCulture::DoArchaeologyChoice (ArchaeologyChoiceType eChoice)
 	break;
 	case ARCHAEOLOGY_ARTIFACT_PLAYER2:
 	{
-		if (pUnit)
+		if (GET_PLAYER(pPlot->getOwner()).isMajorCiv())
 		{
-			if (pPlot->getOwner() != pUnit->getOwner() && GET_PLAYER(pPlot->getOwner()).isMajorCiv())
+			if (pUnit && pPlot->getOwner() != pUnit->getOwner() && GET_PLAYER(pPlot->getOwner()).GetDiplomacyAI()->IsWaitingForDigChoice())
 			{
-				// Ignore hidden sites unless Artistry is unlocked
-				if (pPlot->getResourceType() != GD_INT_GET(HIDDEN_ARTIFACT_RESOURCE) || GET_PLAYER(pPlot->getOwner()).GetPlayerPolicies()->IsPolicyBranchUnlocked(eArtistry))
-				{
-					GET_PLAYER(pPlot->getOwner()).GetDiplomacyAI()->ChangeNegativeArchaeologyPoints(pUnit->getOwner(), 1);
-				}
+				GET_PLAYER(pPlot->getOwner()).GetDiplomacyAI()->ChangeNegativeArchaeologyPoints(pUnit->getOwner(), 1);
+			}
+			else
+			{
+				GET_PLAYER(pPlot->getOwner()).GetDiplomacyAI()->SetWaitingForDigChoice(false);
 			}
 		}
 		pHousingCity = m_pPlayer->GetCulture()->GetClosestAvailableGreatWorkSlot(pPlot->getX(), pPlot->getY(), eArtArtifactSlot, &eBuildingToHouse, &iSlot);
@@ -3556,15 +3557,15 @@ void CvPlayerCulture::DoArchaeologyChoice (ArchaeologyChoiceType eChoice)
 
 	case ARCHAEOLOGY_ARTIFACT_WRITING:
 	{
-		if (pUnit)
+		if (GET_PLAYER(pPlot->getOwner()).isMajorCiv())
 		{
-			if (pPlot->getOwner() != pUnit->getOwner() && GET_PLAYER(pPlot->getOwner()).isMajorCiv())
+			if (pUnit && pPlot->getOwner() != pUnit->getOwner() && GET_PLAYER(pPlot->getOwner()).GetDiplomacyAI()->IsWaitingForDigChoice())
 			{
-				// Ignore hidden sites unless Artistry is unlocked
-				if (pPlot->getResourceType() != GD_INT_GET(HIDDEN_ARTIFACT_RESOURCE) || GET_PLAYER(pPlot->getOwner()).GetPlayerPolicies()->IsPolicyBranchUnlocked(eArtistry))
-				{
-					GET_PLAYER(pPlot->getOwner()).GetDiplomacyAI()->ChangeNegativeArchaeologyPoints(pUnit->getOwner(), 1);
-				}
+				GET_PLAYER(pPlot->getOwner()).GetDiplomacyAI()->ChangeNegativeArchaeologyPoints(pUnit->getOwner(), 1);
+			}
+			else
+			{
+				GET_PLAYER(pPlot->getOwner()).GetDiplomacyAI()->SetWaitingForDigChoice(false);
 			}
 		}
 		pHousingCity = m_pPlayer->GetCulture()->GetClosestAvailableGreatWorkSlot(pPlot->getX(), pPlot->getY(), eWritingSlot, &eBuildingToHouse, &iSlot);
@@ -3617,15 +3618,15 @@ void CvPlayerCulture::DoArchaeologyChoice (ArchaeologyChoiceType eChoice)
 
 	case ARCHAEOLOGY_CULTURE_BOOST:
 	{
-		if (pUnit)
+		if (GET_PLAYER(pPlot->getOwner()).isMajorCiv())
 		{
-			if (pPlot->getOwner() != pUnit->getOwner() && GET_PLAYER(pPlot->getOwner()).isMajorCiv())
+			if (pUnit && pPlot->getOwner() != pUnit->getOwner() && GET_PLAYER(pPlot->getOwner()).GetDiplomacyAI()->IsWaitingForDigChoice())
 			{
-				// Ignore hidden sites unless Artistry is unlocked
-				if (pPlot->getResourceType() != GD_INT_GET(HIDDEN_ARTIFACT_RESOURCE) || GET_PLAYER(pPlot->getOwner()).GetPlayerPolicies()->IsPolicyBranchUnlocked(eArtistry))
-				{
-					GET_PLAYER(pPlot->getOwner()).GetDiplomacyAI()->ChangeNegativeArchaeologyPoints(pUnit->getOwner(), 1);
-				}
+				GET_PLAYER(pPlot->getOwner()).GetDiplomacyAI()->ChangeNegativeArchaeologyPoints(pUnit->getOwner(), 1);
+			}
+			else
+			{
+				GET_PLAYER(pPlot->getOwner()).GetDiplomacyAI()->SetWaitingForDigChoice(false);
 			}
 		}
 

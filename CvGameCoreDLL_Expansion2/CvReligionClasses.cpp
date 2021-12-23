@@ -218,7 +218,6 @@ CvCity * CvReligion::GetHolyCity() const
 CvReligionInCity::CvReligionInCity()
 {
 	m_eReligion = NO_RELIGION;
-	m_bDummy = false;
 	m_iFollowers = 0;
 	m_iPressure = 0;
 	m_iNumTradeRoutesApplyingPressure = 0;
@@ -227,7 +226,6 @@ CvReligionInCity::CvReligionInCity()
 /// Constructor
 CvReligionInCity::CvReligionInCity(ReligionTypes eReligion, int iFollowers, int iPressure) :
 	m_eReligion(eReligion),
-	m_bDummy(false),
 	m_iFollowers(iFollowers),
 	m_iPressure(iPressure),
 	m_iNumTradeRoutesApplyingPressure(0)
@@ -238,7 +236,6 @@ template<typename ReligionInCity, typename Visitor>
 void CvReligionInCity::Serialize(ReligionInCity& religionInCity, Visitor& visitor)
 {
 	visitor(religionInCity.m_eReligion);
-	visitor(religionInCity.m_bDummy);
 	visitor(religionInCity.m_iFollowers);
 	visitor(religionInCity.m_iPressure);
 	visitor(religionInCity.m_iNumTradeRoutesApplyingPressure);

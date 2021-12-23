@@ -890,6 +890,9 @@ public:
 	bool UpdatedWarProgressThisTurn() const;
 	void SetUpdatedWarProgressThisTurn(bool bValue);
 
+	bool IsWaitingForDigChoice() const;
+	void SetWaitingForDigChoice(bool bValue);
+
 	bool IsAvoidDeals() const;
 	void SetAvoidDeals(bool bValue);
 
@@ -1842,6 +1845,7 @@ private:
 	bool m_bWasHumanLastTurn;
 	bool m_bEndedFriendshipThisTurn;
 	bool m_bUpdatedWarProgressThisTurn;
+	bool m_bWaitingForDigChoice;
 	bool m_bBackstabber;
 	bool m_bCompetingForVictory;
 	VictoryFocusTypes m_eDefaultVictoryFocus;

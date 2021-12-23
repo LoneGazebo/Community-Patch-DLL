@@ -101,6 +101,7 @@ void CvDiplomacyAI::Init(CvPlayer* pPlayer)
 	m_bWasHumanLastTurn = false;
 	m_bEndedFriendshipThisTurn = false;
 	m_bUpdatedWarProgressThisTurn = false;
+	m_bWaitingForDigChoice = false;
 	m_bBackstabber = false;
 	m_bCompetingForVictory = false;
 	m_eDefaultVictoryFocus = NO_VICTORY_FOCUS_TYPE;
@@ -434,6 +435,7 @@ void CvDiplomacyAI::Serialize(DiplomacyAI& diplomacyAI, Visitor& visitor)
 	visitor(diplomacyAI.m_bWasHumanLastTurn);
 	visitor(diplomacyAI.m_bEndedFriendshipThisTurn);
 	visitor(diplomacyAI.m_bUpdatedWarProgressThisTurn);
+	visitor(diplomacyAI.m_bWaitingForDigChoice);
 	visitor(diplomacyAI.m_bBackstabber);
 	visitor(diplomacyAI.m_bCompetingForVictory);
 	visitor(diplomacyAI.m_eDefaultVictoryFocus);
@@ -7022,6 +7024,16 @@ void CvDiplomacyAI::SetUpdatedWarProgressThisTurn(bool bValue)
 	m_bUpdatedWarProgressThisTurn = bValue;
 }
 
+bool CvDiplomacyAI::IsWaitingForDigChoice() const
+{
+	return m_bWaitingForDigChoice;
+}
+
+void CvDiplomacyAI::SetWaitingForDigChoice(bool bValue)
+{
+	m_bWaitingForDigChoice = bValue;
+}
+
 /// Are we avoiding deals? Temporary non-serialized value, used to avoid constant iterating over players...
 bool CvDiplomacyAI::IsAvoidDeals() const
 {
@@ -7507,6 +7519,9 @@ void CvDiplomacyAI::DoTurn(DiplomacyMode eDiploMode, PlayerTypes ePlayer)
 	//set this for one iteration, reset below
 	m_eDiploMode = eDiploMode;
 	m_eTargetPlayer = ePlayer;
+
+	// If this somehow wasn't cleared, clear it now
+	SetWaitingForDigChoice(false);
 
 	// Test if human or AI, reset values accordingly
 	SlotStateChange();
@@ -44978,7 +44993,7 @@ int CvDiplomacyAI::GetIdeologyScore(PlayerTypes ePlayer)
 		}
 		else if (eMyBranch != eTheirBranch)
 		{
-			iOpinionWeight += iEraMod * /*10*/ GD_INT_GET(OPINION_WEIGHT_DIFFERENT_LATE_POLICIES) * iEraMod;
+			iOpinionWeight += iEraMod * /*10*/ GD_INT_GET(OPINION_WEIGHT_DIFFERENT_LATE_POLICIES);
 
 			// World Ideology modifier?
 			if (pLeague != NULL && (pLeague->GetPressureForIdeology(eMyBranch) > 0 || pLeague->GetPressureForIdeology(eTheirBranch) > 0))
