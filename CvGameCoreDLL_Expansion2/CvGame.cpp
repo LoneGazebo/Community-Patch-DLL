@@ -1481,6 +1481,8 @@ bool ExternalPause()
 		{
 			//we acquired the mutex, that means we can continue
 			ReleaseMutex(hMutex);
+			//also sleep a bit to keep the cpu requirements down if the player is not doing anything
+			Sleep(10);
 		}
 		else
 		{
