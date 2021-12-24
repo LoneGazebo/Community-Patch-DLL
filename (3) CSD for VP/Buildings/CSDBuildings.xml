@@ -937,9 +937,34 @@
 			<Yield>1</Yield>
 		</Row>
 		<Row>
+			<BuildingType>BUILDING_FINANCE_CENTER</BuildingType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>4</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_PALACE_SCIENCE_CULTURE</BuildingType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>4</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_EHRENHALLE</BuildingType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>4</Yield>
+		</Row>
+		<Row>
 			<BuildingType>BUILDING_EHRENHALLE</BuildingType>
 			<YieldType>YIELD_TOURISM</YieldType>
 			<Yield>15</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_CONSULATE</BuildingType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_UN</BuildingType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>1</Yield>
 		</Row>
 	</Building_YieldChanges>
 	<Building_BuildingClassYieldChanges>

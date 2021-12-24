@@ -2,7 +2,7 @@
 <Mod id="eead0050-1e3f-4178-a91f-26cf1881ac39" version="29">
   <Properties>
     <Name>(3) CSD for VP</Name>
-    <Teaser>(1.2.1) A mod to improve diplomacy with City-States and the World Congress.</Teaser>
+    <Teaser>(1.3) A mod to improve diplomacy with City-States and the World Congress.</Teaser>
     <Description>- Design Philosophy - This mod is a complete overhaul of the City-State diplomacy system as well as the World Congress. It introduces a new, unit-based system of influence, dozens of new city-state quests, and an entirely revamped World Congress.[NEWLINE][NEWLINE]
 	Players are now encouraged to build and use diplomatic units and/or complete City-State quests if they want to earn influence. Because diplomacy now requires production, time and energy, players must actively and consciously strive to maintain good relations with neighboring City-States. Furthermore, diplomatic units, being defenseless, are liable to capture or destruction if sent too far from safety. Thus, long-distance diplomacy now utilizes a risk-reward system.[NEWLINE][NEWLINE]
 	Securing allies is more important than ever, as the World Congress has been greatly expanded and improved to make each resolution more meaningful to most victory conditions.</Description>
@@ -21,7 +21,7 @@
     <ReloadUnitSystem>1</ReloadUnitSystem>
   </Properties>
   <Dependencies>
-    <Mod id="d1b6328c-ff44-4b0d-aad7-c657f83610cd" minversion="100" maxversion="999" title="(1) Community Patch" />
+    <Mod id="d1b6328c-ff44-4b0d-aad7-c657f83610cd" minversion="101" maxversion="999" title="(1) Community Patch" />
     <Mod id="8411a7a8-dad3-4622-a18e-fcc18324c799" minversion="14" maxversion="999" title="(2) Community Balance Overhaul" />
   </Dependencies>
   <References />
@@ -64,11 +64,11 @@
     <File md5="1043C1FFFECD21D428A8AF1098B38575" import="1">Art/Resources/Book80.dds</File>
     <File md5="271D8602DAF934C07A53BE3B32AD2B3B" import="1">Art/Resources/CSDPaper.dds</File>
     <File md5="41F450D710658C652158869BE18FB6D9" import="1">Art/Specialists/citizenCivilServant.dds</File>
-    <File md5="70C889297ED76FA88679F62799A1F055" import="1">Art/Specialists/CSDcs128.dds</File>
-    <File md5="6B9B6940C1DECE9C8AB19FEA4E85BBC0" import="1">Art/Specialists/CSDcs180.dds</File>
-    <File md5="6F1A5EA4943BD5EF37901925FB439C37" import="1">Art/Specialists/CSDcs256.dds</File>
-    <File md5="034FC19FCD9688E9900E18949A58B8F8" import="1">Art/Specialists/CSDcs512.dds</File>
     <File md5="4009AA1AE5299D81DD69A4DB0D0C2029" import="1">Art/Specialists/CSDcs1024.dds</File>
+    <File md5="034FC19FCD9688E9900E18949A58B8F8" import="1">Art/Specialists/CSDcs512.dds</File>
+    <File md5="6F1A5EA4943BD5EF37901925FB439C37" import="1">Art/Specialists/CSDcs256.dds</File>
+    <File md5="6B9B6940C1DECE9C8AB19FEA4E85BBC0" import="1">Art/Specialists/CSDcs180.dds</File>
+    <File md5="70C889297ED76FA88679F62799A1F055" import="1">Art/Specialists/CSDcs128.dds</File>
     <File md5="2C580C8630BDC86394D0D4786EA7B6E2" import="1">Art/Units/Flag/CSDSVIcon.dds</File>
     <File md5="75A714B020AD295FC985408B04430156" import="1">Art/Units/Flag/CSDSVIconGD.dds</File>
     <File md5="45CC370400040836CC9B4DEC3FACF8A4" import="1">Art/Units/Flag/CSDunitflagatlaswhite32.dds</File>
@@ -81,7 +81,7 @@
     <File md5="E1ABC014DE1A639EE43EAE7F64922667" import="0">Art/XML/Icons.xml</File>
     <File md5="6FB8410794152AB59488C0DE134550F8" import="0">Buildings/BuildingRules.sql</File>
     <File md5="6C83256BF50BB0ECAE17F491B58ED5C4" import="0">Buildings/BuildingText.xml</File>
-    <File md5="615136114CDF6E15C36DF6082282B5B7" import="0">Buildings/CSDBuildings.xml</File>
+    <File md5="B39B7F09B7BA37F93E40AACF8B4F741B" import="0">Buildings/CSDBuildings.xml</File>
     <File md5="FB153D1BEF1DA997567B0DBBF771FE1E" import="0">Buildings/DiploBuildingText.sql</File>
     <File md5="2BACCBDFCF69ADDF1F16006406D0CDBA" import="0">Buildings/BuildingGrowthYield.xml</File>
     <File md5="D68EBF039F03A031C146DA5E8DDFD452" import="0">Gameplay/UpdateDefines.sql</File>

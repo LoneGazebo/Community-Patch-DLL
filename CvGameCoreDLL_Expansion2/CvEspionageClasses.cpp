@@ -1379,7 +1379,7 @@ CvSpyResult CvPlayerEspionage::ProcessSpyFocusResult(PlayerTypes ePlayer, CvCity
 					for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 					{
 						PlayerTypes eOtherPlayer = (PlayerTypes)iPlayerLoop;
-						if (eOtherPlayer != NO_PLAYER && GET_PLAYER(eOtherPlayer).isMajorCiv())
+						if (eOtherPlayer != NO_PLAYER && eOtherPlayer != m_pPlayer->GetID() && GET_PLAYER(eOtherPlayer).isMajorCiv())
 						{
 							//Not global? Skip all but me.
 							if (!bGlobal && !bEspionage && eOtherPlayer != ePlayer)
@@ -1388,7 +1388,7 @@ CvSpyResult CvPlayerEspionage::ProcessSpyFocusResult(PlayerTypes ePlayer, CvCity
 							if (bEspionage && eOtherPlayer == pCity->getOwner())
 								continue;
 
-							// Recursive - notification spam is annoying players, so disabling them for all except the player and city owner
+							// Recursive - notification spam is annoying players, so disabling these for all except the city owner
 							// G, feel free to revise this when you return :)
 							if (bEspionage && eOtherPlayer != ePlayer)
 								continue;

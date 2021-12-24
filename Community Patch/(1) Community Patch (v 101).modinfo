@@ -1,14 +1,14 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Mod id="d1b6328c-ff44-4b0d-aad7-c657f83610cd" version="100">
+<Mod id="d1b6328c-ff44-4b0d-aad7-c657f83610cd" version="101">
   <Properties>
     <Name>(1) Community Patch</Name>
-    <Teaser>(1.2.1) Bugfixes, AI Improvements, Game Optimizations and API Extensions for Civ V</Teaser>
+    <Teaser>(1.3) Bugfixes, AI Improvements, Game Optimizations and API Extensions for Civ V</Teaser>
     <Description>Contains core AI improvements and bugfixes for the Civ 5 BNW DLL. Also contains support for the Community Balance Overhaul and some of Whoward's PNM Mods.</Description>
     <Authors>CivFanatics Community Patch Project Team</Authors>
     <HideSetupGame>0</HideSetupGame>
     <Homepage>https://forums.civfanatics.com/forums/community-patch-project.497/</Homepage>
     <AffectsSavedGames>1</AffectsSavedGames>
-    <MinCompatibleSaveVersion>100</MinCompatibleSaveVersion>
+    <MinCompatibleSaveVersion>101</MinCompatibleSaveVersion>
     <SupportsSinglePlayer>1</SupportsSinglePlayer>
     <SupportsMultiplayer>1</SupportsMultiplayer>
     <SupportsHotSeat>1</SupportsHotSeat>
@@ -33,7 +33,7 @@
     <File md5="C04545B48484256F56047700756591B5" import="1">Core Files/Core Changes/CompressedArt/alrashid.dds</File>
     <File md5="D66A3598398764263F19A7F67BFA2499" import="1">Core Files/Core Changes/CompressedArt/askia.dds</File>
     <File md5="CC32C01B8BB8F4590C7C1147C24DA0C8" import="1">Core Files/Core Changes/CompressedArt/augustus.dds</File>
-    <File md5="DB3C7566EB344574770FFBD8D6492FD7" import="0">Core Files/Core Changes/CompressedArt/aztec.dds</File>
+    <File md5="DB3C7566EB344574770FFBD8D6492FD7" import="1">Core Files/Core Changes/CompressedArt/aztec.dds</File>
     <File md5="F1F0257DB36B844D1397928AF8A0ED35" import="1">Core Files/Core Changes/CompressedArt/bismark.dds</File>
     <File md5="C308336C6A4C05801434384A69C6F1B7" import="1">Core Files/Core Changes/CompressedArt/casimir.dds</File>
     <File md5="BBD12A78E48CFBCF7DEA8CCC656D8C6B" import="1">Core Files/Core Changes/CompressedArt/catherine.dds</File>
@@ -81,7 +81,7 @@
     <File md5="5CB07B938B92C09DC7BB4A45A1E701A4" import="1">Core Files/Core Changes/GreatArt/artifact.dds</File>
     <File md5="F772E5C5B3C34261AE26BAD47E06B448" import="1">Core Files/Core Changes/GreatArt/esp_thief_framedicon45.dds</File>
     <File md5="2B8CA4D8E32171E47EC5E0266FD7E82A" import="1">Core Files/Core Changes/GreatArt/Sarcophagus.dds</File>
-    <File md5="DFBAED17EC00B1B44741F1B94A32A406" import="0">Core Files/Core Changes/UnitFixes.sql</File>
+    <File md5="E3B7A53E08E0C610F34D74E048E58475" import="0">Core Files/Core Changes/UnitFixes.sql</File>
     <File md5="E2B19CBFFF8F783398DF4BD00E5633D1" import="1">Core Files/Core Changes/GreatArt/esp_spy_rigginelectioncooldown22.dds</File>
     <File md5="B5951BFB8C5655834700B8218EE03B4E" import="0">Core Files/Core Changes/SaneTerrain.sql</File>
     <File md5="78CE113418D7FD0BCE6240A7E58BE60F" import="0">Core Files/Core Changes/WorldChanges.sql</File>
@@ -105,16 +105,16 @@
     <File md5="893B339A2044E714FAD61E981B8B4A35" import="0">Core Files/Core Changes/NewWriters.xml</File>
     <File md5="12A0F1F3F4AC7D09CBD28E06B17F8BF3" import="0">Core Files/Core Changes/NewArtists.xml</File>
     <File md5="4E508F5AA1D796DB0A5E1A4CDACBBD4F" import="0">Core Files/Core Changes/NewText.xml</File>
-    <File md5="36B226EDEDF01B4C70E73AB139D81390" import="0">Core Files/Core Changes/TextChanges.sql</File>
+    <File md5="83D3D397090C4A39209BA2806B313F9B" import="0">Core Files/Core Changes/TextChanges.sql</File>
     <File md5="ABFDF9C7834F82EA32884703EC0D5F77" import="0">Core Files/Core Tables/CommunityOptionsTable.sql</File>
     <File md5="DB6861D2BA5292319190BA427CA685B6" import="0">Core Files/Core Tables/CoreTableAdditions.xml</File>
     <File md5="9BEB356F76B15BF257B7BE71EC465E54" import="0">Core Files/Core Tables/CoreTableEntries.sql</File>
-    <File md5="B309D1B70F7958D21ACEA1FE0A505F16" import="0">Core Files/Core Tables/CustomModOptions.xml</File>
+    <File md5="14135E1D45F41C38F8D72697D364915A" import="0">Core Files/Core Tables/CustomModOptions.xml</File>
     <File md5="B30D8A1A7F42B7F9711F05EA64771F59" import="0">Core Files/Core Tables/JFDContracts.xml</File>
     <File md5="429BD12E6BC5CFFFE5CCAD5B994E2948" import="0">Core Files/Core Tables/SampleEvents.xml</File>
     <File md5="64E6A8F5A738D28EAF5A0A60AA1F58CF" import="0">Core Files/Core Tables/GameEventsTable.xml</File>
     <File md5="4FC51835F4E1FACE48D5D92A36189955" import="0">Core Files/Core Values/CargoShipMod.sql</File>
-    <File md5="221E8AC6306474B64D1C79CCB8269A86" import="0">Core Files/Core Values/CoreDefines.sql</File>
+    <File md5="A9AA312DE00AADF9AC780B68F7B3514E" import="0">Core Files/Core Values/CoreDefines.sql</File>
     <File md5="260E49F1463125721E6A1B96B69D47A1" import="0">Core Files/Core Values/ExtraSpyTable.xml</File>
     <File md5="D7B41E44097D8C93D5B53C024B43E326" import="0">Core Files/Core Values/CoreValues.xml</File>
     <File md5="B08688F7C3274F297203BE8F43EDAA34" import="0">Core Files/Core Values/DiploApproachWeights.sql</File>
@@ -122,7 +122,7 @@
     <File md5="4294BB607CA8995F0DC562AA8B1F8C20" import="0">Core Files/Core Values/Automates.xml</File>
     <File md5="6472E73AF0AA0E2FF97AFDE18690F35F" import="0">Core Files/Core Values/DummyTrigger.sql</File>
     <File md5="709ECD2A7C0807C8ED2E945DA5B4718E" import="0">Core Files/Core Values/FasterAircraft.sql</File>
-    <File md5="E0BA119B2FBE84B2B5BD74E350061109" import="0">Core Files/Core Values/MinorCivQuestRewards.xml</File>
+    <File md5="FB067F75FE21B44CCD2A81AD17530255" import="0">Core Files/Core Values/MinorCivQuestRewards.xml</File>
     <File md5="55680AD4774BC1DC4991E321F40A183E" import="0">Core Files/Core Values/New_CIV5AICityStrategies.xml</File>
     <File md5="22C823A2A9A00B2B73B7983130602DDB" import="0">Core Files/Core Values/New_CIV5AIMilitaryStrategies.xml</File>
     <File md5="66B5D5D740FB51391D2967AA3ED92A70" import="0">Core Files/Core Values/New_CIV5MultiUnitFormations.xml</File>
@@ -229,8 +229,8 @@
     <File md5="B3CCB02EC2837C3E5F0ABBE81E8D8CEB" import="0">Core Files/PNM Mods DB/TRAITS/TradeRouteBonuses.sql</File>
     <File md5="F07A00D6875A33DF7C81C895030416CE" import="0">Core Files/PNM Mods DB/UI/CityExpansion.sql</File>
     <File md5="CD5676EFAC04CB3645702DCCBED8C2C4" import="0">Core Files/Text/CoreText_en_US.xml</File>
-    <File md5="E382F3AE05D1C7348D5495AB2D7ADCA9" import="0">Core Files/Text/CoreText_en_US.sql</File>
-    <File md5="1BB36698244964973B36CD9C3B460DBE" import="1">CvGameCore_Expansion2.dll</File>
+    <File md5="A6024AEBB81DA923AC292C05199CC2DA" import="0">Core Files/Text/CoreText_en_US.sql</File>
+    <File md5="9CE627F9B30AFCE13177AD3D4D6E0A92" import="1">CvGameCore_Expansion2.dll</File>
     <File md5="3F4B08D58AE727DF10D8A34BEC5F398E" import="1">LUA/ActionInfoPanel.lua</File>
     <File md5="FE3BE94653FA74D139F8CF57F8E5C6CC" import="1">LUA/AssignStartingPlots.lua</File>
     <File md5="51BF13A2719619942142DF2A947507AA" import="1">LUA/CityBannerManager.lua</File>
@@ -271,145 +271,145 @@
     <File md5="B072C3751D72B16478E5320E288B3529" import="0">Mapscripts/Communitu_79a.lua</File>
     <File md5="DCFF354F44BB7F74D247AF87BA84DBE5" import="0">Modules/Events/CoreEvents.sql</File>
     <File md5="9BA0E4F8839274D60882EF5854B7E084" import="0">Modules/Events/Text/en_US/City_en_US.xml</File>
-    <File md5="A91CC6BC7FA0A5329CD1D862E1102B2C" import="0">Modules/Events/Text/en_US/EventCore_en_US.xml</File>
+    <File md5="BBCD444060474CFDFBA82250E4A57E04" import="0">Modules/Events/Text/en_US/EventCore_en_US.xml</File>
     <File md5="8A411119F5322EB9B7CA17E03DFA5ECB" import="0">Modules/Events/Text/en_US/Player_en_US.xml</File>
     <File md5="3DDC06B146D1BFD7AD341840B24C2AB0" import="0">Modules/MoreGP/ExtraGPs.sql</File>
-	<File md5="107907C11CF75C7CD8E6A25D625178B7" import="1">Modules/MoreGP/Extra_GPs_items/A__010.dds</File>
-	<File md5="2656B1ABE575B89A2BB7633157D0BDC1" import="1">Modules/MoreGP/Extra_GPs_items/A__020.dds</File>
-	<File md5="D53DBF656D964C3BD845970D5DBE1C4F" import="1">Modules/MoreGP/Extra_GPs_items/A__030.dds</File>
-	<File md5="231E2AFF84544B7D25C58462A442462B" import="1">Modules/MoreGP/Extra_GPs_items/A__040.dds</File>
-	<File md5="B6EAB565F25456EC27BBBEBA624D639E" import="1">Modules/MoreGP/Extra_GPs_items/A__050.dds</File>
-	<File md5="983FD36CC0F08313EA34EB71F5033002" import="1">Modules/MoreGP/Extra_GPs_items/A__060.dds</File>
-	<File md5="54DA7A99F8DEB12C3F5D758FCD4BBEA8" import="1">Modules/MoreGP/Extra_GPs_items/A__070.dds</File>
-	<File md5="BFFC6D929CA1EAF3484E4A4FC2A451C2" import="1">Modules/MoreGP/Extra_GPs_items/A__080.dds</File>
-	<File md5="20A6315260E994C55B3198F09774A17C" import="1">Modules/MoreGP/Extra_GPs_items/A__090.dds</File>
-	<File md5="25F04A59A0D6E5A62DAB32D5B8F5CA6E" import="1">Modules/MoreGP/Extra_GPs_items/A__100.dds</File>
-	<File md5="F2C51D0D21152DEF6A685882165F6F7A" import="1">Modules/MoreGP/Extra_GPs_items/A__110.dds</File>
-	<File md5="F7AF0056A0239BE34B3EBA55A4E4DBB5" import="1">Modules/MoreGP/Extra_GPs_items/A__120.dds</File>
-	<File md5="A39C9E629707D86CFD1C0DF1E33FFC8A" import="1">Modules/MoreGP/Extra_GPs_items/A__130.dds</File>
-	<File md5="91684DFB86C936235F47A5946749EC13" import="1">Modules/MoreGP/Extra_GPs_items/A__140.dds</File>
-	<File md5="0C13CD761CFD01B55C807CEAC085CCC1" import="1">Modules/MoreGP/Extra_GPs_items/A__150.dds</File>
-	<File md5="05ED7D43C01542355E8F88D6C7B1030B" import="1">Modules/MoreGP/Extra_GPs_items/A__160.dds</File>
-	<File md5="405EE977736C8C836860CF4E9162B151" import="1">Modules/MoreGP/Extra_GPs_items/A__170.dds</File>
-	<File md5="1603BFF142AC612229C2E377EF573F29" import="1">Modules/MoreGP/Extra_GPs_items/A__180.dds</File>
-	<File md5="FC520535573C67D5A89C89C0367C0006" import="1">Modules/MoreGP/Extra_GPs_items/A__190.dds</File>
-	<File md5="D4D4888305B45F116D10EEC2C23EE731" import="1">Modules/MoreGP/Extra_GPs_items/A__200.dds</File>
-	<File md5="EC0F799C648025F67B18991149BB2B1F" import="1">Modules/MoreGP/Extra_GPs_items/A__210.dds</File>
-	<File md5="6E82D4F5699BE452DE622004EB12F6EE" import="1">Modules/MoreGP/Extra_GPs_items/A__220.dds</File>
-	<File md5="AD530950E32EA1D1A9C83541DBB0DF96" import="1">Modules/MoreGP/Extra_GPs_items/A__230.dds</File>
-	<File md5="26BABDC738DEFE40F25EF5FAA67146BE" import="1">Modules/MoreGP/Extra_GPs_items/A__240.dds</File>
-	<File md5="8432C7569BF7C073AEA3B7A3F6587D0D" import="1">Modules/MoreGP/Extra_GPs_items/A__250.dds</File>
-	<File md5="6DD03A3A1A3843F80082D2C586BB9EA2" import="1">Modules/MoreGP/Extra_GPs_items/A__260.dds</File>
-	<File md5="84DC0FB019FA0C79BDD5F84A79B62E5A" import="1">Modules/MoreGP/Extra_GPs_items/A__270.dds</File>
-	<File md5="7B294FB71B3B96BC60E7BFB9548C1686" import="1">Modules/MoreGP/Extra_GPs_items/A__280.dds</File>
-	<File md5="02D957A4C5A664C00180B36F034E17C9" import="1">Modules/MoreGP/Extra_GPs_items/A__290.dds</File>
-	<File md5="F18472A3A305AD689A051FCA1BF0FA94" import="1">Modules/MoreGP/Extra_GPs_items/A__300.dds</File>
-	<File md5="1FBE4293E5712A84D28ED44092DABFAD" import="1">Modules/MoreGP/Extra_GPs_items/A__310.dds</File>
-	<File md5="E64C9F9DC84C3E90A02CA37147DFA90F" import="1">Modules/MoreGP/Extra_GPs_items/A__320.dds</File>
-	<File md5="7CA43CC8DF7C92267AFEC4696CF290F0" import="1">Modules/MoreGP/Extra_GPs_items/A__330.dds</File>
-	<File md5="D38B7DDCB036EB764F4E3E3D68801388" import="1">Modules/MoreGP/Extra_GPs_items/A__340.dds</File>
-	<File md5="14B2E6259A282D0021196AAF83463207" import="1">Modules/MoreGP/Extra_GPs_items/A__350.dds</File>
-	<File md5="4DC6F82AE2244950927370C81ED73911" import="1">Modules/MoreGP/Extra_GPs_items/A__360.dds</File>
-	<File md5="32820419E48EFF17877D490791DF0D65" import="1">Modules/MoreGP/Extra_GPs_items/A__370.dds</File>
-	<File md5="790239FBE0CD105A02D8D9EFC3BABD0A" import="1">Modules/MoreGP/Extra_GPs_items/A__380.dds</File>
-	<File md5="9B4F1FC436141E689DB792BCA578F463" import="1">Modules/MoreGP/Extra_GPs_items/A__390.dds</File>
-	<File md5="86827696BB4F80CA9F260350D1B286DA" import="1">Modules/MoreGP/Extra_GPs_items/A__400.dds</File>
-	<File md5="D69FBE06C7CFA2625034FD2A28F1A7B0" import="1">Modules/MoreGP/Extra_GPs_items/A__410.dds</File>
-	<File md5="9CDDC2702E5856B261A4A3209E13F348" import="1">Modules/MoreGP/Extra_GPs_items/A__420.dds</File>
-	<File md5="0FA97D5DB26406BECDCC9DA881524800" import="1">Modules/MoreGP/Extra_GPs_items/A__430.dds</File>
-	<File md5="BF852AAEFCF23A1DE6D1B8A190629051" import="1">Modules/MoreGP/Extra_GPs_items/A__440.dds</File>
-	<File md5="3F9011027C5B4077495BD2B8AADEA0CC" import="1">Modules/MoreGP/Extra_GPs_items/A__450.dds</File>
-	<File md5="0511FA3B042EEDD1E5F953E660B05E65" import="1">Modules/MoreGP/Extra_GPs_items/A__460.dds</File>
-	<File md5="93B1CF4C48DBA9592C53A72CAA1B4E3C" import="1">Modules/MoreGP/Extra_GPs_items/A__470.dds</File>
-	<File md5="168AA973F0CA0A483F98E55BB95360D8" import="1">Modules/MoreGP/Extra_GPs_items/A__480.dds</File>
-	<File md5="363EB935F4DB70A3BBC5BA309C15331D" import="1">Modules/MoreGP/Extra_GPs_items/A__490.dds</File>
-	<File md5="6E9EC15AC7511ED279F462B907A5D95B" import="1">Modules/MoreGP/Extra_GPs_items/A__500.dds</File>
-	<File md5="ACA93833D3AF20805A9EC796D176EF9F" import="1">Modules/MoreGP/Extra_GPs_items/A__510.dds</File>
-	<File md5="09CB7AE651FDC2113980D0FB580CBCC6" import="1">Modules/MoreGP/Extra_GPs_items/A__520.dds</File>
-	<File md5="CEAE5D38CEE1A2C3C8F84369E9CF8CCF" import="1">Modules/MoreGP/Extra_GPs_items/A__530.dds</File>
-	<File md5="7156280A8A395F6904688D34697EB46A" import="1">Modules/MoreGP/Extra_GPs_items/A__540.dds</File>
-	<File md5="3B4C9218D996C263C3D30CD397C544A1" import="1">Modules/MoreGP/Extra_GPs_items/A__550.dds</File>
-	<File md5="7B287583FF0F64558E579C71EB17DB1A" import="1">Modules/MoreGP/Extra_GPs_items/A__560.dds</File>
-	<File md5="6D1D89CF8955072D336B2B188EBCA20E" import="1">Modules/MoreGP/Extra_GPs_items/A__570.dds</File>
-	<File md5="EBD15E220CE7E37C3977EE67648BC5B7" import="1">Modules/MoreGP/Extra_GPs_items/A__580.dds</File>
-	<File md5="AF85246D8072344B19EDE986900B38A0" import="1">Modules/MoreGP/Extra_GPs_items/A__590.dds</File>
-	<File md5="3EF3D738199EB1D91399359F9D0DB0AF" import="1">Modules/MoreGP/Extra_GPs_items/A__600.dds</File>
-	<File md5="1C0211732E0DB402119E3BEB2D9DCFEA" import="1">Modules/MoreGP/Extra_GPs_items/A__610.dds</File>
-	<File md5="C1CC4CD24FC150F7D863E1FC0C1DEA7D" import="1">Modules/MoreGP/Extra_GPs_items/A__620.dds</File>
-	<File md5="9318D9853962F0176FFC847A319922CC" import="1">Modules/MoreGP/Extra_GPs_items/A__630.dds</File>
-	<File md5="93A707EEE84C85872254894A6661B187" import="1">Modules/MoreGP/Extra_GPs_items/A__640.dds</File>
-	<File md5="0DF7A87ECBCCF7FED0AA625522E193B8" import="1">Modules/MoreGP/Extra_GPs_items/A__650.dds</File>
-	<File md5="9790467B7D85CE73370E78C22700DBD0" import="1">Modules/MoreGP/Extra_GPs_items/A__660.dds</File>
-	<File md5="5A51602B6D2E000348FA504BE464CE2C" import="1">Modules/MoreGP/Extra_GPs_items/A__670.dds</File>
-	<File md5="20C10B6478B6F990E3D2C46BF9CBE43C" import="1">Modules/MoreGP/Extra_GPs_items/A__680.dds</File>
-	<File md5="0B81180BC91E393D5AB732B1255067AF" import="1">Modules/MoreGP/Extra_GPs_items/A__690.dds</File>
-	<File md5="7670528506611F27E2309DFE1CB8E2D2" import="1">Modules/MoreGP/Extra_GPs_items/A__700.dds</File>
-	<File md5="FB5AAD8F8B0DD81BDE28D9F15AB31E18" import="1">Modules/MoreGP/Extra_GPs_items/A__710.dds</File>
-	<File md5="2C3BB03AABE105F5AF56E00F36CFA10E" import="1">Modules/MoreGP/Extra_GPs_items/A__720.dds</File>
-	<File md5="D5AA9CC36208EA0812DFA4375C06D27F" import="1">Modules/MoreGP/Extra_GPs_items/A__730.dds</File>
-	<File md5="3F9DD0208E23D21116005CF43C394CD1" import="1">Modules/MoreGP/Extra_GPs_items/A__740.dds</File>
-	<File md5="DD2E4F81EDC5F1A26EBC414335B296A8" import="1">Modules/MoreGP/Extra_GPs_items/A__750.dds</File>
-	<File md5="07079EB4E093679F99AF19E530B190C2" import="1">Modules/MoreGP/Extra_GPs_items/A__760.dds</File>
-	<File md5="F52139A5D6474C8172D13CCCBFACD9B8" import="1">Modules/MoreGP/Extra_GPs_items/A__770.dds</File>
-	<File md5="9E1E8DD9138CCF56965AB58BCB44BB01" import="1">Modules/MoreGP/Extra_GPs_items/A__780.dds</File>
-	<File md5="21D5D35ACFA1DF561C4AF3CC13C177B1" import="1">Modules/MoreGP/Extra_GPs_items/A__790.dds</File>
-	<File md5="2F24C29495B86611A915426F294A2CCE" import="1">Modules/MoreGP/Extra_GPs_items/A__800.dds</File>
-	<File md5="51C05CC8D3804F3D04B43FD2969139DB" import="1">Modules/MoreGP/Extra_GPs_items/A__810.dds</File>
-	<File md5="8ADF07A07B5B7D6B9675FC76F510382A" import="1">Modules/MoreGP/Extra_GPs_items/A__820.dds</File>
-	<File md5="3C1C0F1B81BF4CC44D7B4CFDF6F65D70" import="1">Modules/MoreGP/Extra_GPs_items/A__830.dds</File>
-	<File md5="E6927E3B1E93D315E745A3822E82CC41" import="1">Modules/MoreGP/Extra_GPs_items/A__840.dds</File>
-	<File md5="C5B6F014F90B257E76055285976DE6AC" import="1">Modules/MoreGP/Extra_GPs_items/A__850.dds</File>
-	<File md5="BA83E79470FEFD530CF479B447D0B813" import="1">Modules/MoreGP/Extra_GPs_items/A__860.dds</File>
-	<File md5="B9B0FE69146AF441B6F9AF0D98DC533E" import="1">Modules/MoreGP/Extra_GPs_items/A__870.dds</File>
-	<File md5="7666500F183251C9D2DF85149B074539" import="1">Modules/MoreGP/Extra_GPs_items/A__880.dds</File>
-	<File md5="80B49C944C49959224B667FE9508BF77" import="1">Modules/MoreGP/Extra_GPs_items/A__890.dds</File>
-	<File md5="6C35CABFA1B06A078EDE82600A5CA514" import="1">Modules/MoreGP/Extra_GPs_items/A__900.dds</File>
-	<File md5="C3DB9E38560FB6ECF4C2DA57EDD5B01C" import="1">Modules/MoreGP/Extra_GPs_items/BG_acd_01.dds</File>
-	<File md5="8B4E067D6E7AB8FC4F9C6602FDBC050C" import="1">Modules/MoreGP/Extra_GPs_items/BG_asi_01.dds</File>
-	<File md5="49060FBB898F160CBB6AEAC288515FB4" import="1">Modules/MoreGP/Extra_GPs_items/BG_asi_02.dds</File>
-	<File md5="4FA5FEB15306630A5890B72CD5E9205F" import="1">Modules/MoreGP/Extra_GPs_items/BG_chn_01.dds</File>
-	<File md5="88772C366451534AFA8D3C1D64EEC921" import="1">Modules/MoreGP/Extra_GPs_items/BG_cls_01.dds</File>
-	<File md5="7A5ADDB07EF2EA63923168B6A59569F4" import="1">Modules/MoreGP/Extra_GPs_items/BG_cls_02.dds</File>
-	<File md5="68F4CB122A3DE30A5BF91DC877BDBA2A" import="1">Modules/MoreGP/Extra_GPs_items/BG_cls_03.dds</File>
-	<File md5="6A3CDFDA386610129BF9E232DA0C1F51" import="1">Modules/MoreGP/Extra_GPs_items/BG_cls_04.dds</File>
-	<File md5="667422872888033FD78F53E0C037E221" import="1">Modules/MoreGP/Extra_GPs_items/BG_cls_05.dds</File>
-	<File md5="4530CD2983B59799DB48CAFC0E31DDC1" import="1">Modules/MoreGP/Extra_GPs_items/BG_cls_07.dds</File>
-	<File md5="F5BFEB82941486DC3006796C0D0E6222" import="1">Modules/MoreGP/Extra_GPs_items/BG_cls_10.dds</File>
-	<File md5="045AF805A3789B50E11DF70DF7E80EBC" import="1">Modules/MoreGP/Extra_GPs_items/BG_dig_01.dds</File>
-	<File md5="44038B5E6BF0291AEF2C382BAA980A62" import="1">Modules/MoreGP/Extra_GPs_items/BG_fms_01.dds</File>
-	<File md5="69553CD3E33693335BAFF8D28AAA6FF0" import="1">Modules/MoreGP/Extra_GPs_items/BG_ftv_01.dds</File>
-	<File md5="58D26A822B23393334C43231D149FBF3" import="1">Modules/MoreGP/Extra_GPs_items/BG_grc_01.dds</File>
-	<File md5="71D7F76C0AFB5BEF96DA35C7BC6E6AB8" import="1">Modules/MoreGP/Extra_GPs_items/BG_gtr_01.dds</File>
-	<File md5="B8C294BCFDA7AB13C3EB011358EAFFA8" import="1">Modules/MoreGP/Extra_GPs_items/BG_ind_01.dds</File>
-	<File md5="7BCFE58021A22B96A796EA996CCBDF7F" import="1">Modules/MoreGP/Extra_GPs_items/BG_ind_02.dds</File>
-	<File md5="19D70492B9D864B68ABE52D798E06E98" import="1">Modules/MoreGP/Extra_GPs_items/BG_jaz_01.dds</File>
-	<File md5="CDF8D42FD0572BC7AC9E7B5FAAE01898" import="1">Modules/MoreGP/Extra_GPs_items/BG_jaz_02.dds</File>
-	<File md5="09716B4D9C87EFFE19592C8E02A31C4F" import="1">Modules/MoreGP/Extra_GPs_items/BG_lat_01.dds</File>
-	<File md5="312CC190696518733AFFE096948381F2" import="1">Modules/MoreGP/Extra_GPs_items/BG_lat_02.dds</File>
-	<File md5="0C026F34716DEFC06672CBFF925DE308" import="1">Modules/MoreGP/Extra_GPs_items/BG_med_01.dds</File>
-	<File md5="2F154327BA65A7C9727DB55A8E57ACCF" import="1">Modules/MoreGP/Extra_GPs_items/BG_mic_03.dds</File>
-	<File md5="F2C94DA85F61403B088C893F0BB11F9E" import="1">Modules/MoreGP/Extra_GPs_items/BG_mic_04.dds</File>
-	<File md5="53016E326A8E436E5114E8279B44947F" import="1">Modules/MoreGP/Extra_GPs_items/BG_mic_05.dds</File>
-	<File md5="8E33E7EE73C942BAA4DCE4BF7D666A71" import="1">Modules/MoreGP/Extra_GPs_items/BG_opr_01.dds</File>
-	<File md5="82172628B3017DE546FCF8E66B4707BA" import="1">Modules/MoreGP/Extra_GPs_items/BG_opr_02.dds</File>
-	<File md5="3A40D9EB0BC8C070CC34F54C71657ADA" import="1">Modules/MoreGP/Extra_GPs_items/BG_ori_03.dds</File>
-	<File md5="ED9787067F1ACFE2AF8A6D3E4133BD01" import="1">Modules/MoreGP/Extra_GPs_items/BG_ori_07.dds</File>
-	<File md5="97D1334E60BAFEF1B4AA48E9BD63EF6B" import="1">Modules/MoreGP/Extra_GPs_items/BG_ori_08.dds</File>
-	<File md5="6CF7873A8236CF881E8895C227B5527B" import="1">Modules/MoreGP/Extra_GPs_items/BG_ori_09.dds</File>
-	<File md5="0D2BC6202B0E9BEFCF38664061EB17F1" import="1">Modules/MoreGP/Extra_GPs_items/BG_rap_01.dds</File>
-	<File md5="47EDDE9E904FD8DBE4F1F8A43319BB30" import="1">Modules/MoreGP/Extra_GPs_items/BG_rcp_08.dds</File>
-	<File md5="EE40D92914CE24870FBC8E0C6E7CDADD" import="1">Modules/MoreGP/Extra_GPs_items/BG_scd_02.dds</File>
-	<File md5="7AA14661CD72767F23A15C00DB7E4EF0" import="1">Modules/MoreGP/Extra_GPs_items/BG_scd_03.dds</File>
-	<File md5="BE93EAD23509CB547C59473ECF62487E" import="1">Modules/MoreGP/Extra_GPs_items/BG_scd_05.dds</File>
-	<File md5="7B03333CBF664575C6ED72514B3E5609" import="1">Modules/MoreGP/Extra_GPs_items/BG_scd_08.dds</File>
-	<File md5="6E5BD5F7A9C9EFF998AA9B38AFFBF0A7" import="1">Modules/MoreGP/Extra_GPs_items/BG_scn_01.dds</File>
-	<File md5="739223B2AD5B2539E67261520EB38598" import="1">Modules/MoreGP/Extra_GPs_items/BG_scn_03.dds</File>
-	<File md5="63F8F10A362111E17612398CC414849A" import="1">Modules/MoreGP/Extra_GPs_items/BG_scn_07.dds</File>
-	<File md5="33F08F1ECCBF362475680D279867CE9B" import="1">Modules/MoreGP/Extra_GPs_items/BG_scn_08.dds</File>
-	<File md5="BA960C5E20EC08E5682E806E0264B6B2" import="1">Modules/MoreGP/Extra_GPs_items/BG_scn_09.dds</File>
-	<File md5="708EB02A0963D55B0D4855EA54F2AE83" import="1">Modules/MoreGP/Extra_GPs_items/BG_spl_01.dds</File>
-	<File md5="C028BE8AAA109636C9124AD62F41F48C" import="1">Modules/MoreGP/Extra_GPs_items/BG_sum_01.dds</File>
-	<File md5="9C9D8B8895C2294E5DAFD1A1F1ABEC55" import="1">Modules/MoreGP/Extra_GPs_items/BG_tha_01.dds</File>
+    <File md5="107907C11CF75C7CD8E6A25D625178B7" import="1">Modules/MoreGP/Extra_GPs_items/A__010.dds</File>
+    <File md5="2656B1ABE575B89A2BB7633157D0BDC1" import="1">Modules/MoreGP/Extra_GPs_items/A__020.dds</File>
+    <File md5="D53DBF656D964C3BD845970D5DBE1C4F" import="1">Modules/MoreGP/Extra_GPs_items/A__030.dds</File>
+    <File md5="231E2AFF84544B7D25C58462A442462B" import="1">Modules/MoreGP/Extra_GPs_items/A__040.dds</File>
+    <File md5="B6EAB565F25456EC27BBBEBA624D639E" import="1">Modules/MoreGP/Extra_GPs_items/A__050.dds</File>
+    <File md5="983FD36CC0F08313EA34EB71F5033002" import="1">Modules/MoreGP/Extra_GPs_items/A__060.dds</File>
+    <File md5="54DA7A99F8DEB12C3F5D758FCD4BBEA8" import="1">Modules/MoreGP/Extra_GPs_items/A__070.dds</File>
+    <File md5="BFFC6D929CA1EAF3484E4A4FC2A451C2" import="1">Modules/MoreGP/Extra_GPs_items/A__080.dds</File>
+    <File md5="20A6315260E994C55B3198F09774A17C" import="1">Modules/MoreGP/Extra_GPs_items/A__090.dds</File>
+    <File md5="25F04A59A0D6E5A62DAB32D5B8F5CA6E" import="1">Modules/MoreGP/Extra_GPs_items/A__100.dds</File>
+    <File md5="F2C51D0D21152DEF6A685882165F6F7A" import="1">Modules/MoreGP/Extra_GPs_items/A__110.dds</File>
+    <File md5="F7AF0056A0239BE34B3EBA55A4E4DBB5" import="1">Modules/MoreGP/Extra_GPs_items/A__120.dds</File>
+    <File md5="A39C9E629707D86CFD1C0DF1E33FFC8A" import="1">Modules/MoreGP/Extra_GPs_items/A__130.dds</File>
+    <File md5="91684DFB86C936235F47A5946749EC13" import="1">Modules/MoreGP/Extra_GPs_items/A__140.dds</File>
+    <File md5="0C13CD761CFD01B55C807CEAC085CCC1" import="1">Modules/MoreGP/Extra_GPs_items/A__150.dds</File>
+    <File md5="05ED7D43C01542355E8F88D6C7B1030B" import="1">Modules/MoreGP/Extra_GPs_items/A__160.dds</File>
+    <File md5="405EE977736C8C836860CF4E9162B151" import="1">Modules/MoreGP/Extra_GPs_items/A__170.dds</File>
+    <File md5="1603BFF142AC612229C2E377EF573F29" import="1">Modules/MoreGP/Extra_GPs_items/A__180.dds</File>
+    <File md5="FC520535573C67D5A89C89C0367C0006" import="1">Modules/MoreGP/Extra_GPs_items/A__190.dds</File>
+    <File md5="D4D4888305B45F116D10EEC2C23EE731" import="1">Modules/MoreGP/Extra_GPs_items/A__200.dds</File>
+    <File md5="EC0F799C648025F67B18991149BB2B1F" import="1">Modules/MoreGP/Extra_GPs_items/A__210.dds</File>
+    <File md5="6E82D4F5699BE452DE622004EB12F6EE" import="1">Modules/MoreGP/Extra_GPs_items/A__220.dds</File>
+    <File md5="AD530950E32EA1D1A9C83541DBB0DF96" import="1">Modules/MoreGP/Extra_GPs_items/A__230.dds</File>
+    <File md5="26BABDC738DEFE40F25EF5FAA67146BE" import="1">Modules/MoreGP/Extra_GPs_items/A__240.dds</File>
+    <File md5="8432C7569BF7C073AEA3B7A3F6587D0D" import="1">Modules/MoreGP/Extra_GPs_items/A__250.dds</File>
+    <File md5="6DD03A3A1A3843F80082D2C586BB9EA2" import="1">Modules/MoreGP/Extra_GPs_items/A__260.dds</File>
+    <File md5="84DC0FB019FA0C79BDD5F84A79B62E5A" import="1">Modules/MoreGP/Extra_GPs_items/A__270.dds</File>
+    <File md5="7B294FB71B3B96BC60E7BFB9548C1686" import="1">Modules/MoreGP/Extra_GPs_items/A__280.dds</File>
+    <File md5="02D957A4C5A664C00180B36F034E17C9" import="1">Modules/MoreGP/Extra_GPs_items/A__290.dds</File>
+    <File md5="F18472A3A305AD689A051FCA1BF0FA94" import="1">Modules/MoreGP/Extra_GPs_items/A__300.dds</File>
+    <File md5="1FBE4293E5712A84D28ED44092DABFAD" import="1">Modules/MoreGP/Extra_GPs_items/A__310.dds</File>
+    <File md5="E64C9F9DC84C3E90A02CA37147DFA90F" import="1">Modules/MoreGP/Extra_GPs_items/A__320.dds</File>
+    <File md5="7CA43CC8DF7C92267AFEC4696CF290F0" import="1">Modules/MoreGP/Extra_GPs_items/A__330.dds</File>
+    <File md5="D38B7DDCB036EB764F4E3E3D68801388" import="1">Modules/MoreGP/Extra_GPs_items/A__340.dds</File>
+    <File md5="14B2E6259A282D0021196AAF83463207" import="1">Modules/MoreGP/Extra_GPs_items/A__350.dds</File>
+    <File md5="4DC6F82AE2244950927370C81ED73911" import="1">Modules/MoreGP/Extra_GPs_items/A__360.dds</File>
+    <File md5="32820419E48EFF17877D490791DF0D65" import="1">Modules/MoreGP/Extra_GPs_items/A__370.dds</File>
+    <File md5="790239FBE0CD105A02D8D9EFC3BABD0A" import="1">Modules/MoreGP/Extra_GPs_items/A__380.dds</File>
+    <File md5="9B4F1FC436141E689DB792BCA578F463" import="1">Modules/MoreGP/Extra_GPs_items/A__390.dds</File>
+    <File md5="86827696BB4F80CA9F260350D1B286DA" import="1">Modules/MoreGP/Extra_GPs_items/A__400.dds</File>
+    <File md5="D69FBE06C7CFA2625034FD2A28F1A7B0" import="1">Modules/MoreGP/Extra_GPs_items/A__410.dds</File>
+    <File md5="9CDDC2702E5856B261A4A3209E13F348" import="1">Modules/MoreGP/Extra_GPs_items/A__420.dds</File>
+    <File md5="0FA97D5DB26406BECDCC9DA881524800" import="1">Modules/MoreGP/Extra_GPs_items/A__430.dds</File>
+    <File md5="BF852AAEFCF23A1DE6D1B8A190629051" import="1">Modules/MoreGP/Extra_GPs_items/A__440.dds</File>
+    <File md5="3F9011027C5B4077495BD2B8AADEA0CC" import="1">Modules/MoreGP/Extra_GPs_items/A__450.dds</File>
+    <File md5="0511FA3B042EEDD1E5F953E660B05E65" import="1">Modules/MoreGP/Extra_GPs_items/A__460.dds</File>
+    <File md5="93B1CF4C48DBA9592C53A72CAA1B4E3C" import="1">Modules/MoreGP/Extra_GPs_items/A__470.dds</File>
+    <File md5="168AA973F0CA0A483F98E55BB95360D8" import="1">Modules/MoreGP/Extra_GPs_items/A__480.dds</File>
+    <File md5="363EB935F4DB70A3BBC5BA309C15331D" import="1">Modules/MoreGP/Extra_GPs_items/A__490.dds</File>
+    <File md5="6E9EC15AC7511ED279F462B907A5D95B" import="1">Modules/MoreGP/Extra_GPs_items/A__500.dds</File>
+    <File md5="ACA93833D3AF20805A9EC796D176EF9F" import="1">Modules/MoreGP/Extra_GPs_items/A__510.dds</File>
+    <File md5="09CB7AE651FDC2113980D0FB580CBCC6" import="1">Modules/MoreGP/Extra_GPs_items/A__520.dds</File>
+    <File md5="CEAE5D38CEE1A2C3C8F84369E9CF8CCF" import="1">Modules/MoreGP/Extra_GPs_items/A__530.dds</File>
+    <File md5="7156280A8A395F6904688D34697EB46A" import="1">Modules/MoreGP/Extra_GPs_items/A__540.dds</File>
+    <File md5="3B4C9218D996C263C3D30CD397C544A1" import="1">Modules/MoreGP/Extra_GPs_items/A__550.dds</File>
+    <File md5="7B287583FF0F64558E579C71EB17DB1A" import="1">Modules/MoreGP/Extra_GPs_items/A__560.dds</File>
+    <File md5="6D1D89CF8955072D336B2B188EBCA20E" import="1">Modules/MoreGP/Extra_GPs_items/A__570.dds</File>
+    <File md5="EBD15E220CE7E37C3977EE67648BC5B7" import="1">Modules/MoreGP/Extra_GPs_items/A__580.dds</File>
+    <File md5="AF85246D8072344B19EDE986900B38A0" import="1">Modules/MoreGP/Extra_GPs_items/A__590.dds</File>
+    <File md5="3EF3D738199EB1D91399359F9D0DB0AF" import="1">Modules/MoreGP/Extra_GPs_items/A__600.dds</File>
+    <File md5="1C0211732E0DB402119E3BEB2D9DCFEA" import="1">Modules/MoreGP/Extra_GPs_items/A__610.dds</File>
+    <File md5="C1CC4CD24FC150F7D863E1FC0C1DEA7D" import="1">Modules/MoreGP/Extra_GPs_items/A__620.dds</File>
+    <File md5="9318D9853962F0176FFC847A319922CC" import="1">Modules/MoreGP/Extra_GPs_items/A__630.dds</File>
+    <File md5="93A707EEE84C85872254894A6661B187" import="1">Modules/MoreGP/Extra_GPs_items/A__640.dds</File>
+    <File md5="0DF7A87ECBCCF7FED0AA625522E193B8" import="1">Modules/MoreGP/Extra_GPs_items/A__650.dds</File>
+    <File md5="9790467B7D85CE73370E78C22700DBD0" import="1">Modules/MoreGP/Extra_GPs_items/A__660.dds</File>
+    <File md5="5A51602B6D2E000348FA504BE464CE2C" import="1">Modules/MoreGP/Extra_GPs_items/A__670.dds</File>
+    <File md5="20C10B6478B6F990E3D2C46BF9CBE43C" import="1">Modules/MoreGP/Extra_GPs_items/A__680.dds</File>
+    <File md5="0B81180BC91E393D5AB732B1255067AF" import="1">Modules/MoreGP/Extra_GPs_items/A__690.dds</File>
+    <File md5="7670528506611F27E2309DFE1CB8E2D2" import="1">Modules/MoreGP/Extra_GPs_items/A__700.dds</File>
+    <File md5="FB5AAD8F8B0DD81BDE28D9F15AB31E18" import="1">Modules/MoreGP/Extra_GPs_items/A__710.dds</File>
+    <File md5="2C3BB03AABE105F5AF56E00F36CFA10E" import="1">Modules/MoreGP/Extra_GPs_items/A__720.dds</File>
+    <File md5="D5AA9CC36208EA0812DFA4375C06D27F" import="1">Modules/MoreGP/Extra_GPs_items/A__730.dds</File>
+    <File md5="3F9DD0208E23D21116005CF43C394CD1" import="1">Modules/MoreGP/Extra_GPs_items/A__740.dds</File>
+    <File md5="DD2E4F81EDC5F1A26EBC414335B296A8" import="1">Modules/MoreGP/Extra_GPs_items/A__750.dds</File>
+    <File md5="07079EB4E093679F99AF19E530B190C2" import="1">Modules/MoreGP/Extra_GPs_items/A__760.dds</File>
+    <File md5="F52139A5D6474C8172D13CCCBFACD9B8" import="1">Modules/MoreGP/Extra_GPs_items/A__770.dds</File>
+    <File md5="9E1E8DD9138CCF56965AB58BCB44BB01" import="1">Modules/MoreGP/Extra_GPs_items/A__780.dds</File>
+    <File md5="21D5D35ACFA1DF561C4AF3CC13C177B1" import="1">Modules/MoreGP/Extra_GPs_items/A__790.dds</File>
+    <File md5="2F24C29495B86611A915426F294A2CCE" import="1">Modules/MoreGP/Extra_GPs_items/A__800.dds</File>
+    <File md5="51C05CC8D3804F3D04B43FD2969139DB" import="1">Modules/MoreGP/Extra_GPs_items/A__810.dds</File>
+    <File md5="8ADF07A07B5B7D6B9675FC76F510382A" import="1">Modules/MoreGP/Extra_GPs_items/A__820.dds</File>
+    <File md5="3C1C0F1B81BF4CC44D7B4CFDF6F65D70" import="1">Modules/MoreGP/Extra_GPs_items/A__830.dds</File>
+    <File md5="E6927E3B1E93D315E745A3822E82CC41" import="1">Modules/MoreGP/Extra_GPs_items/A__840.dds</File>
+    <File md5="C5B6F014F90B257E76055285976DE6AC" import="1">Modules/MoreGP/Extra_GPs_items/A__850.dds</File>
+    <File md5="BA83E79470FEFD530CF479B447D0B813" import="1">Modules/MoreGP/Extra_GPs_items/A__860.dds</File>
+    <File md5="B9B0FE69146AF441B6F9AF0D98DC533E" import="1">Modules/MoreGP/Extra_GPs_items/A__870.dds</File>
+    <File md5="7666500F183251C9D2DF85149B074539" import="1">Modules/MoreGP/Extra_GPs_items/A__880.dds</File>
+    <File md5="80B49C944C49959224B667FE9508BF77" import="1">Modules/MoreGP/Extra_GPs_items/A__890.dds</File>
+    <File md5="6C35CABFA1B06A078EDE82600A5CA514" import="1">Modules/MoreGP/Extra_GPs_items/A__900.dds</File>
+    <File md5="C3DB9E38560FB6ECF4C2DA57EDD5B01C" import="1">Modules/MoreGP/Extra_GPs_items/BG_acd_01.dds</File>
+    <File md5="8B4E067D6E7AB8FC4F9C6602FDBC050C" import="1">Modules/MoreGP/Extra_GPs_items/BG_asi_01.dds</File>
+    <File md5="49060FBB898F160CBB6AEAC288515FB4" import="1">Modules/MoreGP/Extra_GPs_items/BG_asi_02.dds</File>
+    <File md5="4FA5FEB15306630A5890B72CD5E9205F" import="1">Modules/MoreGP/Extra_GPs_items/BG_chn_01.dds</File>
+    <File md5="88772C366451534AFA8D3C1D64EEC921" import="1">Modules/MoreGP/Extra_GPs_items/BG_cls_01.dds</File>
+    <File md5="7A5ADDB07EF2EA63923168B6A59569F4" import="1">Modules/MoreGP/Extra_GPs_items/BG_cls_02.dds</File>
+    <File md5="68F4CB122A3DE30A5BF91DC877BDBA2A" import="1">Modules/MoreGP/Extra_GPs_items/BG_cls_03.dds</File>
+    <File md5="6A3CDFDA386610129BF9E232DA0C1F51" import="1">Modules/MoreGP/Extra_GPs_items/BG_cls_04.dds</File>
+    <File md5="667422872888033FD78F53E0C037E221" import="1">Modules/MoreGP/Extra_GPs_items/BG_cls_05.dds</File>
+    <File md5="4530CD2983B59799DB48CAFC0E31DDC1" import="1">Modules/MoreGP/Extra_GPs_items/BG_cls_07.dds</File>
+    <File md5="F5BFEB82941486DC3006796C0D0E6222" import="1">Modules/MoreGP/Extra_GPs_items/BG_cls_10.dds</File>
+    <File md5="045AF805A3789B50E11DF70DF7E80EBC" import="1">Modules/MoreGP/Extra_GPs_items/BG_dig_01.dds</File>
+    <File md5="44038B5E6BF0291AEF2C382BAA980A62" import="1">Modules/MoreGP/Extra_GPs_items/BG_fms_01.dds</File>
+    <File md5="69553CD3E33693335BAFF8D28AAA6FF0" import="1">Modules/MoreGP/Extra_GPs_items/BG_ftv_01.dds</File>
+    <File md5="58D26A822B23393334C43231D149FBF3" import="1">Modules/MoreGP/Extra_GPs_items/BG_grc_01.dds</File>
+    <File md5="71D7F76C0AFB5BEF96DA35C7BC6E6AB8" import="1">Modules/MoreGP/Extra_GPs_items/BG_gtr_01.dds</File>
+    <File md5="B8C294BCFDA7AB13C3EB011358EAFFA8" import="1">Modules/MoreGP/Extra_GPs_items/BG_ind_01.dds</File>
+    <File md5="7BCFE58021A22B96A796EA996CCBDF7F" import="1">Modules/MoreGP/Extra_GPs_items/BG_ind_02.dds</File>
+    <File md5="19D70492B9D864B68ABE52D798E06E98" import="1">Modules/MoreGP/Extra_GPs_items/BG_jaz_01.dds</File>
+    <File md5="CDF8D42FD0572BC7AC9E7B5FAAE01898" import="1">Modules/MoreGP/Extra_GPs_items/BG_jaz_02.dds</File>
+    <File md5="09716B4D9C87EFFE19592C8E02A31C4F" import="1">Modules/MoreGP/Extra_GPs_items/BG_lat_01.dds</File>
+    <File md5="312CC190696518733AFFE096948381F2" import="1">Modules/MoreGP/Extra_GPs_items/BG_lat_02.dds</File>
+    <File md5="0C026F34716DEFC06672CBFF925DE308" import="1">Modules/MoreGP/Extra_GPs_items/BG_med_01.dds</File>
+    <File md5="2F154327BA65A7C9727DB55A8E57ACCF" import="1">Modules/MoreGP/Extra_GPs_items/BG_mic_03.dds</File>
+    <File md5="F2C94DA85F61403B088C893F0BB11F9E" import="1">Modules/MoreGP/Extra_GPs_items/BG_mic_04.dds</File>
+    <File md5="53016E326A8E436E5114E8279B44947F" import="1">Modules/MoreGP/Extra_GPs_items/BG_mic_05.dds</File>
+    <File md5="8E33E7EE73C942BAA4DCE4BF7D666A71" import="1">Modules/MoreGP/Extra_GPs_items/BG_opr_01.dds</File>
+    <File md5="82172628B3017DE546FCF8E66B4707BA" import="1">Modules/MoreGP/Extra_GPs_items/BG_opr_02.dds</File>
+    <File md5="3A40D9EB0BC8C070CC34F54C71657ADA" import="1">Modules/MoreGP/Extra_GPs_items/BG_ori_03.dds</File>
+    <File md5="ED9787067F1ACFE2AF8A6D3E4133BD01" import="1">Modules/MoreGP/Extra_GPs_items/BG_ori_07.dds</File>
+    <File md5="97D1334E60BAFEF1B4AA48E9BD63EF6B" import="1">Modules/MoreGP/Extra_GPs_items/BG_ori_08.dds</File>
+    <File md5="6CF7873A8236CF881E8895C227B5527B" import="1">Modules/MoreGP/Extra_GPs_items/BG_ori_09.dds</File>
+    <File md5="0D2BC6202B0E9BEFCF38664061EB17F1" import="1">Modules/MoreGP/Extra_GPs_items/BG_rap_01.dds</File>
+    <File md5="47EDDE9E904FD8DBE4F1F8A43319BB30" import="1">Modules/MoreGP/Extra_GPs_items/BG_rcp_08.dds</File>
+    <File md5="EE40D92914CE24870FBC8E0C6E7CDADD" import="1">Modules/MoreGP/Extra_GPs_items/BG_scd_02.dds</File>
+    <File md5="7AA14661CD72767F23A15C00DB7E4EF0" import="1">Modules/MoreGP/Extra_GPs_items/BG_scd_03.dds</File>
+    <File md5="BE93EAD23509CB547C59473ECF62487E" import="1">Modules/MoreGP/Extra_GPs_items/BG_scd_05.dds</File>
+    <File md5="7B03333CBF664575C6ED72514B3E5609" import="1">Modules/MoreGP/Extra_GPs_items/BG_scd_08.dds</File>
+    <File md5="6E5BD5F7A9C9EFF998AA9B38AFFBF0A7" import="1">Modules/MoreGP/Extra_GPs_items/BG_scn_01.dds</File>
+    <File md5="739223B2AD5B2539E67261520EB38598" import="1">Modules/MoreGP/Extra_GPs_items/BG_scn_03.dds</File>
+    <File md5="63F8F10A362111E17612398CC414849A" import="1">Modules/MoreGP/Extra_GPs_items/BG_scn_07.dds</File>
+    <File md5="33F08F1ECCBF362475680D279867CE9B" import="1">Modules/MoreGP/Extra_GPs_items/BG_scn_08.dds</File>
+    <File md5="BA960C5E20EC08E5682E806E0264B6B2" import="1">Modules/MoreGP/Extra_GPs_items/BG_scn_09.dds</File>
+    <File md5="708EB02A0963D55B0D4855EA54F2AE83" import="1">Modules/MoreGP/Extra_GPs_items/BG_spl_01.dds</File>
+    <File md5="C028BE8AAA109636C9124AD62F41F48C" import="1">Modules/MoreGP/Extra_GPs_items/BG_sum_01.dds</File>
+    <File md5="9C9D8B8895C2294E5DAFD1A1F1ABEC55" import="1">Modules/MoreGP/Extra_GPs_items/BG_tha_01.dds</File>
     <File md5="9D0BF0BD033C9ADAEC11A020635170F0" import="1">Modules/MoreGP/Extra_GPs_items/M__010.mp3</File>
     <File md5="676CBFB6F323D28A50EEB2BE535BD849" import="1">Modules/MoreGP/Extra_GPs_items/M__020.mp3</File>
     <File md5="4A7211F13EFEFA7CBA9A3B2587CBF8C7" import="1">Modules/MoreGP/Extra_GPs_items/M__030.mp3</File>

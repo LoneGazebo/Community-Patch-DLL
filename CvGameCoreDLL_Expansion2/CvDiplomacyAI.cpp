@@ -13079,6 +13079,9 @@ void CvDiplomacyAI::DoReevaluatePlayers(vector<PlayerTypes>& vTargetPlayers, boo
 	if (vTargetPlayers.empty())
 		return;
 
+	if (!GC.getGame().isFinalInitialized())
+		return;
+
 	DoTestPromises();
 	DoTestBackstabbingPenalties();
 
@@ -27260,11 +27263,14 @@ void CvDiplomacyAI::DoFirstContact(PlayerTypes ePlayer)
 /// Initiate relationship values towards a new player on first contact
 void CvDiplomacyAI::DoFirstContactInitRelationship(PlayerTypes ePlayer)
 {
-	DoUpdateConquestStats();
-	DoUpdatePlayerMilitaryStrengths();
-	DoUpdatePlayerEconomicStrengths();
-	DoUpdatePlayerTargetValues();
-	DoUpdateMilitaryAggressivePostures();
+	if (GC.getGame().isFinalInitialized())
+	{
+		DoUpdateConquestStats();
+		DoUpdatePlayerMilitaryStrengths();
+		DoUpdatePlayerEconomicStrengths();
+		DoUpdatePlayerTargetValues();
+		DoUpdateMilitaryAggressivePostures();
+	}
 
 	// Major Civ
 	if (GET_PLAYER(ePlayer).isMajorCiv())

@@ -2517,6 +2517,10 @@ void CvCity::doTurn()
 		{
 			DoEvents();
 		}
+		else
+		{
+			DoEvents(true);
+		}
 	}
 #endif
 	setDrafted(false);
@@ -3437,7 +3441,7 @@ void CvCity::ChangeEventFeatureYield(FeatureTypes eFeature, YieldTypes eIndex2, 
 	if (ModifierUpdateInsertRemove(y.forFeature, eFeature, iChange, true))
 		updateYield();
 }
-void CvCity::DoEvents(bool bEspionage)
+void CvCity::DoEvents(bool bEspionageOnly)
 {
 	//Minors? Barbs? Get out!
 	if (GET_PLAYER(getOwner()).isMinorCiv() || GET_PLAYER(getOwner()).isBarbarian())
@@ -3445,67 +3449,67 @@ void CvCity::DoEvents(bool bEspionage)
 
 	//Event Choice Duration First - if we're in one, let's do the countdown now.
 	//We need to do this first so we can cancel the event(s).
-	if (!bEspionage)
+	for (int iLoop = 0; iLoop < GC.getNumCityEventChoiceInfos(); iLoop++)
 	{
-		for (int iLoop = 0; iLoop < GC.getNumCityEventChoiceInfos(); iLoop++)
+		CityEventChoiceTypes eEventChoice = (CityEventChoiceTypes)iLoop;
+		if (eEventChoice != NO_EVENT_CHOICE_CITY)
 		{
-			CityEventChoiceTypes eEventChoice = (CityEventChoiceTypes)iLoop;
-			if (eEventChoice != NO_EVENT_CHOICE_CITY)
+			if (GetEventChoiceDuration(eEventChoice) > 0)
 			{
-				if (GetEventChoiceDuration(eEventChoice) > 0)
+				ChangeEventChoiceDuration(eEventChoice, -1);
+				CvModEventCityChoiceInfo* pkEventInfo = GC.getCityEventChoiceInfo(eEventChoice);
+				if (pkEventInfo != NULL)
 				{
-					ChangeEventChoiceDuration(eEventChoice, -1);
-					CvModEventCityChoiceInfo* pkEventInfo = GC.getCityEventChoiceInfo(eEventChoice);
-					if (pkEventInfo != NULL)
-					{
-						//we expire these in a special way.
-						if (pkEventInfo->isExpiresOnCounterSpyExit())
-							continue;
+					//we expire these in a special way.
+					if (pkEventInfo->isExpiresOnCounterSpyExit())
+						continue;
 
-						if (GC.getLogging())
-						{
-
-							CvString playerName;
-							FILogFile* pLog;
-							CvString strBaseString;
-							CvString strOutBuf;
-							CvString strFileName = "EventCityLogging.csv";
-							playerName = getName();
-							pLog = LOGFILEMGR.GetLog(strFileName, FILogFile::kDontTimeStamp);
-							strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
-							strBaseString += playerName + ", ";
-							strOutBuf.Format("Event choice: %s. Cooldown Active. Changing Value by -1. Cooldown Remaining: %d", pkEventInfo->GetDescription(), GetEventChoiceDuration(eEventChoice));
-							strBaseString += strOutBuf;
-							pLog->Msg(strBaseString);
-						}
-					}
-					if (GetEventChoiceDuration(eEventChoice) == 0)
+					if (GC.getLogging())
 					{
-						DoCancelEventChoice(eEventChoice);
+
+						CvString playerName;
+						FILogFile* pLog;
+						CvString strBaseString;
+						CvString strOutBuf;
+						CvString strFileName = "EventCityLogging.csv";
+						playerName = getName();
+						pLog = LOGFILEMGR.GetLog(strFileName, FILogFile::kDontTimeStamp);
+						strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
+						strBaseString += playerName + ", ";
+						strOutBuf.Format("Event choice: %s. Cooldown Active. Changing Value by -1. Cooldown Remaining: %d", pkEventInfo->GetDescription(), GetEventChoiceDuration(eEventChoice));
+						strBaseString += strOutBuf;
+						pLog->Msg(strBaseString);
 					}
+				}
+				if (GetEventChoiceDuration(eEventChoice) == 0)
+				{
+					DoCancelEventChoice(eEventChoice);
 				}
 			}
 		}
+	}
 
-		if (GetCityEventCooldown() > 0)
+	if (bEspionageOnly)
+		return;
+
+	if (GetCityEventCooldown() > 0)
+	{
+		if (GC.getLogging())
 		{
-			if (GC.getLogging())
-			{
-				CvString playerName;
-				FILogFile* pLog;
-				CvString strBaseString;
-				CvString strOutBuf;
-				CvString strFileName = "EventCityLogging.csv";
-				playerName = getName();
-				pLog = LOGFILEMGR.GetLog(strFileName, FILogFile::kDontTimeStamp);
-				strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
-				strBaseString += playerName + ", ";
-				strOutBuf.Format("City Event: Global Cooldown Active. Cooldown: %d", GetCityEventCooldown());
-				strBaseString += strOutBuf;
-				pLog->Msg(strBaseString);
-			}
-			ChangeCityEventCooldown(-1);
+			CvString playerName;
+			FILogFile* pLog;
+			CvString strBaseString;
+			CvString strOutBuf;
+			CvString strFileName = "EventCityLogging.csv";
+			playerName = getName();
+			pLog = LOGFILEMGR.GetLog(strFileName, FILogFile::kDontTimeStamp);
+			strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
+			strBaseString += playerName + ", ";
+			strOutBuf.Format("City Event: Global Cooldown Active. Cooldown: %d", GetCityEventCooldown());
+			strBaseString += strOutBuf;
+			pLog->Msg(strBaseString);
 		}
+		ChangeCityEventCooldown(-1);
 	}
 
 	//Let's loop through all events.
@@ -3567,7 +3571,7 @@ void CvCity::DoEvents(bool bEspionage)
 			}
 
 			//most expensive check last
-			if (IsCityEventValid(eEvent, bEspionage))
+			if (IsCityEventValid(eEvent, false))
 			{
 				veValidEvents.push_back(eEvent, pkEventInfo->getRandomChance() + GetEventIncrement(eEvent));
 			}

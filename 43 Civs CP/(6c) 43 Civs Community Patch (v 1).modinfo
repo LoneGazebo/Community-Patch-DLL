@@ -2,7 +2,7 @@
 <Mod id="6521c02b-1c78-4826-a5b0-faed86235e98" version="1">
   <Properties>
     <Name>(6c) 43 Civs Community Patch</Name>
-    <Teaser>(1.2.1) Supports up to 43 Major Civilizations</Teaser>
+    <Teaser>(1.3) Supports up to 43 Major Civilizations</Teaser>
     <Description>This version of the Community Patch supports up to 43 major civilizations. The maximum number of total players (civilizations and City-States) is 63.[NEWLINE][NEWLINE]
 Depending on which version has been installed, this mod contains one of the following:[NEWLINE]
 [ICON_BULLET]Compatibility Files for using the Community Patch on its own[NEWLINE]
@@ -22,7 +22,7 @@ If you downloaded this mod manually, see MANUAL INSTALL.txt for installation ins
     <ReloadUnitSystem>1</ReloadUnitSystem>
   </Properties>
   <Dependencies>
-    <Mod id="d1b6328c-ff44-4b0d-aad7-c657f83610cd" minversion="100" maxversion="999" title="(1) Community Patch" />
+    <Mod id="d1b6328c-ff44-4b0d-aad7-c657f83610cd" minversion="101" maxversion="999" title="(1) Community Patch" />
   </Dependencies>
   <References>
     <Mod id="be2d13ee-d18d-410e-8f04-7cd19cd99a98" minversion="156" maxversion="999" title="(5) More Luxuries for VP" />
@@ -72,7 +72,7 @@ If you downloaded this mod manually, see MANUAL INSTALL.txt for installation ins
     <File md5="BB747350C836F07517202090558A4CD3" import="1">CP Only/TradeRouteHelpers.lua</File>
     <File md5="5A87219957975A85A1D3CEDA1D98A835" import="1">CP Only/YieldIconManager.lua</File>
     <File md5="8FD4EF5AAB5BD6E16DB8EBE95963FC33" import="1">CP Only/YieldIconManager.xml</File>
-    <File md5="10798A7A2B68DC1BAED1FE1CEB1F8610" import="1">CvGameCore_Expansion2.dll</File>
+    <File md5="52091E3C8B9E64D46A9F63C2A6BB372F" import="1">CvGameCore_Expansion2.dll</File>
     <File md5="3F4B08D58AE727DF10D8A34BEC5F398E" import="1">EUI/ActionInfoPanel.lua</File>
     <File md5="314F159E85D3C21731FFB7FDBE86433A" import="1">EUI/AdvancedSetup.lua</File>
     <File md5="39C6A39E21DF6E10B666FA57FA502643" import="1">EUI/Bombardment.lua</File>
@@ -122,7 +122,7 @@ If you downloaded this mod manually, see MANUAL INSTALL.txt for installation ins
     <File md5="4690E1BC3B289225820668B5A612F53E" import="0">EUI/EUI/EUI_text_en_us.xml</File>
     <File md5="081E0900984F48641FFC1C61253A94A2" import="0">EUI/EUI/NeededText.xml</File>
     <File md5="EFB0435042079A172C7E1B211A204144" import="1">EUI/EUI_core_library.lua</File>
-    <File md5="9EF5D057EB0B6055656B864EBEC48BD6" import="1">EUI/EUI_tooltip_library.lua</File>
+    <File md5="E5AFC3E265FF04F718975E499ED101DB" import="1">EUI/EUI_tooltip_library.lua</File>
     <File md5="B12E739314E3C06185B3872698E62F60" import="1">EUI/GoodyHutPopup.lua</File>
     <File md5="44D613BAA295659174BB1A7A97A050EC" import="1">EUI/GPList.lua</File>
     <File md5="252CF7B30C29EDDB13DE924B209CA71F" import="1">EUI/GPList.xml</File>

@@ -7,7 +7,7 @@
     <Guid>be2d13ee-d18d-410e-8f04-7cd19cd99a98</Guid>
     <ModVersion>156</ModVersion>
     <Stability>Stable</Stability>
-    <Teaser>(1.2.1) More Luxuries for VP: Adds nine more luxuries, one more CS luxury, and the Terra map.</Teaser>
+    <Teaser>(1.3) More Luxuries for VP: Adds nine more luxuries, one more CS luxury, and the Terra map.</Teaser>
     <Description>Please see this mod's Steam Workshop page.[NEWLINE][NEWLINE]NOTE: Optimized map resource placement code has been moved to AssignStartingPlots.lua in the Compatibility Files.</Description>
     <Authors>Barathor</Authors>
     <SpecialThanks>
@@ -29,7 +29,7 @@
         <Type>Mod</Type>
         <Name>(1) Community Patch</Name>
         <Id>d1b6328c-ff44-4b0d-aad7-c657f83610cd</Id>
-        <MinVersion>100</MinVersion>
+        <MinVersion>101</MinVersion>
         <MaxVersion>999</MaxVersion>
       </Association>
       <Association>
