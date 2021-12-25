@@ -2,7 +2,7 @@
 <Mod id="d1b6328c-ff44-4b0d-aad7-c657f83610cd" version="101">
   <Properties>
     <Name>(1) Community Patch</Name>
-    <Teaser>(1.3) Bugfixes, AI Improvements, Game Optimizations and API Extensions for Civ V</Teaser>
+    <Teaser>(1.3.1) Bugfixes, AI Improvements, Game Optimizations and API Extensions for Civ V</Teaser>
     <Description>Contains core AI improvements and bugfixes for the Civ 5 BNW DLL. Also contains support for the Community Balance Overhaul and some of Whoward's PNM Mods.</Description>
     <Authors>CivFanatics Community Patch Project Team</Authors>
     <HideSetupGame>0</HideSetupGame>
@@ -78,9 +78,9 @@
     <File md5="1980EA936BA27E7968A3594D55109B83" import="0">Core Files/Core Changes/EraSpecificArtists.sql</File>
     <File md5="8E0C2EB4CF1322F206BE9B1DE2403C39" import="0">Core Files/Core Changes/EraSpecificMusicians.sql</File>
     <File md5="D0BB26EC36A16927F80C7D2DF98262C8" import="0">Core Files/Core Changes/CoreChanges.xml</File>
-    <File md5="5CB07B938B92C09DC7BB4A45A1E701A4" import="1">Core Files/Core Changes/GreatArt/artifact.dds</File>
+    <File md5="541F264334839B2A7DE0523BCAF5EB80" import="1">Core Files/Core Changes/GreatArt/artifact.dds</File>
     <File md5="F772E5C5B3C34261AE26BAD47E06B448" import="1">Core Files/Core Changes/GreatArt/esp_thief_framedicon45.dds</File>
-    <File md5="2B8CA4D8E32171E47EC5E0266FD7E82A" import="1">Core Files/Core Changes/GreatArt/Sarcophagus.dds</File>
+    <File md5="64D659DFF3F9F5EA96680AB57F279FA9" import="1">Core Files/Core Changes/GreatArt/Sarcophagus.dds</File>
     <File md5="E3B7A53E08E0C610F34D74E048E58475" import="0">Core Files/Core Changes/UnitFixes.sql</File>
     <File md5="E2B19CBFFF8F783398DF4BD00E5633D1" import="1">Core Files/Core Changes/GreatArt/esp_spy_rigginelectioncooldown22.dds</File>
     <File md5="B5951BFB8C5655834700B8218EE03B4E" import="0">Core Files/Core Changes/SaneTerrain.sql</File>
@@ -97,11 +97,11 @@
     <File md5="8054B3C12D2733890EFA5B30D93CE8D6" import="1">Core Files/Core Changes/GreatArt/egyptianmefertem.dds</File>
     <File md5="E0B240F720F8C48DDB34DD694B17BF2C" import="1">Core Files/Core Changes/GreatArt/justinian.dds</File>
     <File md5="F7F260E5C23B39860D5DA040DC085B57" import="1">Core Files/Core Changes/GreatArt/kalamkari.dds</File>
-    <File md5="2DD077C3ECA4ED86D863203FA5A679C3" import="1">Core Files/Core Changes/GreatArt/kells.dds</File>
+    <File md5="95893FDF3FB148A645A344766BA0C766" import="1">Core Files/Core Changes/GreatArt/kells.dds</File>
     <File md5="DF03A0D8C1CD30315757A768B40D198A" import="1">Core Files/Core Changes/GreatArt/lascaux.dds</File>
     <File md5="D0E3C2B347BE4F8AF7425039B2601FAA" import="1">Core Files/Core Changes/GreatArt/medieval.dds</File>
     <File md5="6DE5AC31317313EEF46A7EC98D020D3C" import="1">Core Files/Core Changes/GreatArt/resource_furs.gr2</File>
-    <File md5="BA59CA1FF92D1857BF14F4C48466FA88" import="1">Core Files/Core Changes/GreatArt/suttonhoo.dds</File>
+    <File md5="ECB4EDA86872DE6DFDF20105C2CB95A8" import="1">Core Files/Core Changes/GreatArt/suttonhoo.dds</File>
     <File md5="893B339A2044E714FAD61E981B8B4A35" import="0">Core Files/Core Changes/NewWriters.xml</File>
     <File md5="12A0F1F3F4AC7D09CBD28E06B17F8BF3" import="0">Core Files/Core Changes/NewArtists.xml</File>
     <File md5="4E508F5AA1D796DB0A5E1A4CDACBBD4F" import="0">Core Files/Core Changes/NewText.xml</File>
