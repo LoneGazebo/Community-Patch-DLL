@@ -954,80 +954,127 @@ function MapGlobals:New()
 		end
 		------------------------------------------------------------------------------
 		function AssignStartingPlots:AdjustTiles()
-			local iW, iH = Map.GetGridSize()
+			local iW, iH = Map.GetGridSize();
 			for y = 0, iH - 1 do
 				for x = 0, iW - 1 do
-
-					local plot = Map.GetPlot(x, y)
-					local res_ID = plot:GetResourceType(-1)
-					local featureType = plot:GetFeatureType()
-
+					
+					local plot = Map.GetPlot(x, y);
+					local res_ID = plot:GetResourceType(-1);
+					local plotType = plot:GetPlotType();
+					local terrainType = plot:GetTerrainType();
+					local featureType = plot:GetFeatureType();
+					
 					-- Mined/Quarried Resources
-					if res_ID == self.marble_ID or
-					   res_ID == self.gold_ID or
-					   res_ID == self.silver_ID or
-					   res_ID == self.copper_ID or
-					   res_ID == self.gems_ID or
-					   res_ID == self.salt_ID or
-					   res_ID == self.lapis_ID or
-					   res_ID == self.jade_ID or
-					   res_ID == self.amber_ID then
-
-						-- If a forest, jungle or flood plains is present, keep it.  Remove anything else.
-						if (featureType ~= FeatureTypes.FEATURE_FOREST) and (featureType ~= FeatureTypes.FEATURE_JUNGLE) and (featureType ~= FeatureTypes.FEATURE_FLOOD_PLAINS) then
-							plot:SetFeatureType(FeatureTypes.NO_FEATURE, -1)
+					if res_ID == self.marble_ID or 
+					res_ID == self.gold_ID or 
+					res_ID == self.silver_ID or 
+					res_ID == self.copper_ID or 
+					res_ID == self.gems_ID or 
+					res_ID == self.salt_ID or 
+					res_ID == self.lapis_ID or 
+					res_ID == self.jade_ID or 
+					res_ID == self.amber_ID or
+					-- MOD.HungryForFood: Start
+					self:IsEvenMoreResourcesActive() == true and
+					(
+					res_ID == self.obsidian_ID or
+					res_ID == self.platinum_ID or
+					res_ID == self.tin_ID or
+					res_ID == self.lead_ID or
+					res_ID == self.sulfur_ID or
+					res_ID == self.titanium_ID
+					)
+					-- MOD.HungryForFood: End
+					then 
+					
+						-- Changed by azum4roll: now follows Civilopedia more closely
+						local removeFeature = false;
+						if featureType ~= FeatureTypes.FEATURE_FLOOD_PLAINS then
+							removeFeature = true;
 						end
-
+						-- Gems can be in jungles
+						if featureType == FeatureTypes.FEATURE_JUNGLE and res_ID == self.gems_ID then
+							removeFeature = false;
+						end
+						if removeFeature then
+							plot:SetFeatureType(FeatureTypes.NO_FEATURE, -1);
+						end
+						
 					-- Tree Resources
-					elseif res_ID == self.cocoa_ID or
-						   res_ID == self.citrus_ID or
-						   res_ID == self.spices_ID or
-						   res_ID == self.sugar_ID or
-						   res_ID == self.truffles_ID or
-						   res_ID == self.silk_ID or
-						   res_ID == self.dye_ID or
-						   res_ID == self.fur_ID or
-						   res_ID == self.deer_ID then
-
+					elseif res_ID == self.cocoa_ID or 
+						res_ID == self.citrus_ID or 
+						res_ID == self.spices_ID or 
+						res_ID == self.sugar_ID or 
+						res_ID == self.truffles_ID or 
+						res_ID == self.silk_ID or 
+						res_ID == self.dye_ID or 
+						res_ID == self.fur_ID or 
+						res_ID == self.deer_ID or
+						-- MOD.HungryForFood: Start
+						self:IsEvenMoreResourcesActive() == true and
+						(
+						res_ID == self.hardwood_ID or
+						res_ID == self.rubber_ID
+						)
+						-- MOD.HungryForFood: End
+						then
+						
 						if res_ID == self.fur_ID then
 							-- Always want it flat.  The foxes fall into the hills.
-							plot:SetPlotType(PlotTypes.PLOT_LAND, false, true)
+							-- They need to be on tundra too.
+							plot:SetPlotType(PlotTypes.PLOT_LAND, false, true);
+							plot:SetTerrainType(TerrainTypes.TERRAIN_TUNDRA, false, true);
 						end
 
 						-- Always want it covered for most tree resources.
 						if (featureType == FeatureTypes.FEATURE_MARSH) then
-							if res_ID == self.sugar_ID or res_ID == self.spices_ID or res_ID == self.dye_ID then
+							if res_ID == self.sugar_ID or res_ID == self.truffles_ID then
 								-- Keep it marsh for these resources.
 							else
-								Plot_AddTrees(plot)
+								Plot_AddTrees(plot);
 							end
 						else
-							Plot_AddTrees(plot)
+							-- Sugar can only be on marsh or flood plains
+							if res_ID == self.sugar_ID then
+								if featureType ~= FeatureTypes.FEATURE_FLOOD_PLAINS then
+									plot:SetTerrainType(TerrainTypes.TERRAIN_GRASS, false, true);
+									plot:SetFeatureType(FeatureTypes.FEATURE_MARSH, -1);
+								end
+							else
+								Plot_AddTrees(plot);
+							end
 						end
-
+						
 					-- Open Land Resources
-					elseif res_ID == self.incense_ID or
-						   res_ID == self.ivory_ID or
-						   res_ID == self.wine_ID or
-						   res_ID == self.olives_ID or
-						   res_ID == self.coffee_ID or
-						   res_ID == self.tobacco_ID or
-						   res_ID == self.tea_ID or
-						   res_ID == self.perfume_ID or
-						   res_ID == self.cotton_ID then
-
+					elseif res_ID == self.incense_ID or 
+						res_ID == self.ivory_ID or 
+						res_ID == self.wine_ID or 
+						res_ID == self.olives_ID or 
+						res_ID == self.coffee_ID or
+						res_ID == self.tobacco_ID or 
+						res_ID == self.tea_ID or 
+						res_ID == self.perfume_ID or 
+						res_ID == self.cotton_ID or 
+						-- MOD.HungryForFood: Start
+						self:IsEvenMoreResourcesActive() == true and
+						(
+						res_ID == self.poppy_ID
+						)
+						-- MOD.HungryForFood: End
+						then
+						
 						if res_ID == self.ivory_ID then
 							-- Always want it flat.  Other types are fine on hills.
 							plot:SetPlotType(PlotTypes.PLOT_LAND, false, true)
 						end
-
-						-- Don't remove flood plains if present for the few that are placed on it, only remove other features, like marsh or any trees.
-						if (featureType ~= FeatureTypes.FEATURE_FLOOD_PLAINS) then
+						
+						-- Don't remove flood plains if present for the few that are placed on it, only remove other features, like marsh or any trees.				
+						if (featureType ~= FeatureTypes.FEATURE_FLOOD_PLAINS) then	
 							plot:SetFeatureType(FeatureTypes.NO_FEATURE, -1)
 						end
-
-						if res_ID == self.incense_ID then
-							-- Because incense is very restricted, it was expanded to look for grass tiles as a final fallback.
+						
+						if res_ID == self.incense_ID or res_ID == self.ivory_ID then
+							-- Because incense/ivory are very restricted, it was expanded to look for grass tiles as a final fallback.
 							-- This will help with certain distributions that incense previously didn't work well in, such as assignments to city-states which could be hit or miss.
 							-- Besides jungle placements, this is the only luxury which will change the terrain it's found on.  Plus, plains are mixed in with grass anyway.
 							if terrainType == TerrainTypes.TERRAIN_GRASS then
@@ -1093,9 +1140,9 @@ function MapGlobals:New()
 		------------------------------------------------------------------------------
 		function AssignStartingPlots:ProcessResourceList(frequency, impact_table_number, plot_list, resources_to_place)
 			-- Added a random factor to strategic resources - Thalassicus
-
+		
 			-- This function needs to receive two numbers and two tables.
-			-- Length of the plotlist is divided by frequency to get the number of
+			-- Length of the plotlist is divided by frequency to get the number of 
 			-- resources to place. ... The first table is a list of plot indices.
 			-- The second table contains subtables, one per resource type, detailing the
 			-- resource ID number, quantity, weighting, and impact radius of each applicable
@@ -1110,9 +1157,8 @@ function MapGlobals:New()
 			--
 			-- The plot list will be processed sequentially, so randomize it in advance.
 			-- The default lists are terrain-oriented and are randomized during __Init
-			--print("AssignStartingPlots:ProcessResourceList")
 			if plot_list == nil then
-				--print("Plot list was nil! -ProcessResourceList");
+				print("Plot list was nil! -ProcessResourceList");
 				return
 			end
 			local iW, iH = Map.GetGridSize();
@@ -1135,8 +1181,8 @@ function MapGlobals:New()
 				end
 			end
 			for index = 1, iNumResourcesTypes do
-				-- We'll roll a die and check each resource in turn to see if it is
-				-- the one to get placed in that particular case. The weightings are
+				-- We'll roll a die and check each resource in turn to see if it is 
+				-- the one to get placed in that particular case. The weightings are 
 				-- used to decide how much percentage of the total each represents.
 				-- This chunk sets the threshold for each resource in turn.
 				local threshold = (res_weight[index] + accumulatedWeight) * 10000 / totalWeight;
@@ -1167,73 +1213,37 @@ function MapGlobals:New()
 							current_index = current_index + 1;
 						end
 						local plotIndex = plot_list[index_to_check];
-						if impact_table_number == 1 then
-							if self.strategicData[plotIndex] == 0 then
-								local x = (plotIndex - 1) % iW;
-								local y = (plotIndex - x - 1) / iW;
-								local res_plot = Map.GetPlot(x, y)
-								if res_plot:GetResourceType(-1) == -1 then -- Placing this strategic resource in this plot.
-									local res_addition = 0;
-									if res_range[use_this_res_index] ~= -1 then
-										res_addition = Map.Rand(res_range[use_this_res_index], "Resource Radius - Place Resource LUA");
-									end
-
-									local quantity = res_quantity[use_this_res_index]
-									-- added by azum4roll: give some variance to strategic amounts
-									local rand = PWRand()
+						if self.impactData[impact_table_number][plotIndex] == 0 then
+							local x = (plotIndex - 1) % iW;
+							local y = (plotIndex - x - 1) / iW;
+							local res_plot = Map.GetPlot(x, y);
+							if res_plot:GetResourceType(-1) == -1 then -- Placing this strategic resource in this plot.
+								local res_addition = 0;
+								if res_range[use_this_res_index] ~= -1 then
+									res_addition = Map.Rand(res_range[use_this_res_index], "Resource Radius - Place Resource LUA");
+								end
+								local quantity = res_quantity[use_this_res_index];
+								-- added by azum4roll: give some variance to strategic amounts
+								if self:IsImpactLayerStrategic(impact_table_number) then
+									local rand = Map.Rand(10000, "ProcessResourceList - Lua") / 10000
 									if (rand >= 0.75) then
 										quantity = quantity * 1.2
 									elseif (rand < 0.25) then
 										quantity = quantity * 0.8
 									end
 									quantity = math.floor(quantity + 0.5)
-	
-									res_plot:SetResourceType(res_ID[use_this_res_index], quantity);
-									if (Game.GetResourceUsageType(res_ID[use_this_res_index]) == ResourceUsageTypes.RESOURCEUSAGE_LUXURY) then
-										self.totalLuxPlacedSoFar = self.totalLuxPlacedSoFar + 1;
-									end
-									self:PlaceResourceImpact(x, y, impact_table_number, res_min[use_this_res_index] + res_addition);
-									placed_this_res = true;
-									self.amounts_of_resources_placed[res_ID[use_this_res_index] + 1] = self.amounts_of_resources_placed[res_ID[use_this_res_index] + 1] + quantity;
 								end
-							end
-						elseif impact_table_number == 2 then
-							if self.luxuryData[plotIndex] == 0 then
-								local x = (plotIndex - 1) % iW;
-								local y = (plotIndex - x - 1) / iW;
-								local res_plot = Map.GetPlot(x, y)
-								if res_plot:GetResourceType(-1) == -1 then -- Placing this luxury resource in this plot.
-									local res_addition = 0;
-									if res_range[use_this_res_index] ~= -1 then
-										res_addition = Map.Rand(res_range[use_this_res_index], "Resource Radius - Place Resource LUA");
-									end
-									--print("ProcessResourceList table 2, Resource: " .. res_ID[use_this_res_index] .. ", Quantity: " .. res_quantity[use_this_res_index]);
-									res_plot:SetResourceType(res_ID[use_this_res_index], res_quantity[use_this_res_index]);
-									self:PlaceResourceImpact(x, y, impact_table_number, res_min[use_this_res_index] + res_addition);
-									placed_this_res = true;
-									self.amounts_of_resources_placed[res_ID[use_this_res_index] + 1] = self.amounts_of_resources_placed[res_ID[use_this_res_index] + 1] + 1;
+								res_plot:SetResourceType(res_ID[use_this_res_index], quantity);
+								if (Game.GetResourceUsageType(res_ID[use_this_res_index]) == ResourceUsageTypes.RESOURCEUSAGE_LUXURY) then
+									self.totalLuxPlacedSoFar = self.totalLuxPlacedSoFar + 1;
 								end
-							end
-						elseif impact_table_number == 3 then
-							if self.bonusData[plotIndex] == 0 then
-								local x = (plotIndex - 1) % iW;
-								local y = (plotIndex - x - 1) / iW;
-								local res_plot = Map.GetPlot(x, y)
-								if res_plot:GetResourceType(-1) == -1 then -- Placing this bonus resource in this plot.
-									local res_addition = 0;
-									if res_range[use_this_res_index] ~= -1 then
-										res_addition = Map.Rand(res_range[use_this_res_index], "Resource Radius - Place Resource LUA");
-									end
-									--print("ProcessResourceList table 3, Resource: " .. res_ID[use_this_res_index] .. ", Quantity: " .. res_quantity[use_this_res_index]);
-									res_plot:SetResourceType(res_ID[use_this_res_index], res_quantity[use_this_res_index]);
-									self:PlaceResourceImpact(x, y, impact_table_number, res_min[use_this_res_index] + res_addition);
-									placed_this_res = true;
-									self.amounts_of_resources_placed[res_ID[use_this_res_index] + 1] = self.amounts_of_resources_placed[res_ID[use_this_res_index] + 1] + 1;
-									
-									-- if stone is added, don't buff the island
-									if res_ID[use_this_res_index] == self.stone_ID then
-										self.islandAreaBuffed[res_plot:GetArea()] = true
-									end
+								self:PlaceResourceImpact(x, y, impact_table_number, res_min[use_this_res_index] + res_addition);
+								placed_this_res = true;
+								self.amounts_of_resources_placed[res_ID[use_this_res_index] + 1] = self.amounts_of_resources_placed[res_ID[use_this_res_index] + 1] + quantity;
+
+								-- if stone is added, don't buff the island
+								if res_ID[use_this_res_index] == self.stone_ID then
+									self.islandAreaBuffed[res_plot:GetArea()] = true
 								end
 							end
 						end
@@ -1243,35 +1253,13 @@ function MapGlobals:New()
 					local lowest_impact = 98;
 					local best_plot;
 					for loop, plotIndex in ipairs(plot_list) do
-						if impact_table_number == 1 then
-							if lowest_impact > self.strategicData[plotIndex] then
-								local x = (plotIndex - 1) % iW;
-								local y = (plotIndex - x - 1) / iW;
-								local res_plot = Map.GetPlot(x, y)
-								if res_plot:GetResourceType(-1) == -1 then
-									lowest_impact = self.strategicData[plotIndex];
-									best_plot = plotIndex;
-								end
-							end
-						elseif impact_table_number == 2 then
-							if lowest_impact > self.luxuryData[plotIndex] then
-								local x = (plotIndex - 1) % iW;
-								local y = (plotIndex - x - 1) / iW;
-								local res_plot = Map.GetPlot(x, y)
-								if res_plot:GetResourceType(-1) == -1 then
-									lowest_impact = self.luxuryData[plotIndex];
-									best_plot = plotIndex;
-								end
-							end
-						elseif impact_table_number == 3 then
-							if lowest_impact > self.bonusData[plotIndex] then
-								local x = (plotIndex - 1) % iW;
-								local y = (plotIndex - x - 1) / iW;
-								local res_plot = Map.GetPlot(x, y)
-								if res_plot:GetResourceType(-1) == -1 then
-									lowest_impact = self.bonusData[plotIndex];
-									best_plot = plotIndex;
-								end
+						if lowest_impact > self.impactData[impact_table_number][plotIndex] then
+							local x = (plotIndex - 1) % iW;
+							local y = (plotIndex - x - 1) / iW;
+							local res_plot = Map.GetPlot(x, y)
+							if res_plot:GetResourceType(-1) == -1 then
+								lowest_impact = self.impactData[impact_table_number][plotIndex];
+								best_plot = plotIndex;
 							end
 						end
 					end
@@ -1283,10 +1271,26 @@ function MapGlobals:New()
 						if res_range[use_this_res_index] ~= -1 then
 							res_addition = Map.Rand(res_range[use_this_res_index], "Resource Radius - Place Resource LUA");
 						end
-						--print("ProcessResourceList backup, Resource: " .. res_ID[use_this_res_index] .. ", Quantity: " .. res_quantity[use_this_res_index]);
-						res_plot:SetResourceType(res_ID[use_this_res_index], res_quantity[use_this_res_index]);
+						local quantity = res_quantity[use_this_res_index];
+						-- added by azum4roll: give some variance to strategic amounts
+						if self:IsImpactLayerStrategic(impact_table_number) then
+							local rand = Map.Rand(10000, "ProcessResourceList - Lua") / 10000
+							if (rand >= 0.75) then
+								quantity = quantity * 1.2
+							elseif (rand < 0.25) then
+								quantity = quantity * 0.8
+							end
+							quantity = math.floor(quantity + 0.5)
+						end
+						--print("ProcessResourceList backup, Resource: " .. res_ID[use_this_res_index] .. ", Quantity: " .. quantity);
+						res_plot:SetResourceType(res_ID[use_this_res_index], quantity);
 						self:PlaceResourceImpact(x, y, impact_table_number, res_min[use_this_res_index] + res_addition);
-						self.amounts_of_resources_placed[res_ID[use_this_res_index] + 1] = self.amounts_of_resources_placed[res_ID[use_this_res_index] + 1] + res_quantity[use_this_res_index];
+						self.amounts_of_resources_placed[res_ID[use_this_res_index] + 1] = self.amounts_of_resources_placed[res_ID[use_this_res_index] + 1] + quantity;
+
+						-- if stone is added, don't buff the island
+						if res_ID[use_this_res_index] == self.stone_ID then
+							self.islandAreaBuffed[res_plot:GetArea()] = true
+						end
 					end
 				end
 			end
@@ -1324,81 +1328,68 @@ function MapGlobals:New()
 			resources_to_place = {
 				{self.horse_ID, horse_amt, 100, 1, 2}
 			};
-			self:ProcessResourceList(20 * resMultiplier, 1, self.grass_flat_no_feature, resources_to_place);
-			self:ProcessResourceList(32 * resMultiplier, 1, self.plains_flat_no_feature, resources_to_place);
+			self:ProcessResourceList(20 * resMultiplier, ImpactLayers.LAYER_HORSE, self.grass_flat_no_feature, resources_to_place);
+			self:ProcessResourceList(32 * resMultiplier, ImpactLayers.LAYER_HORSE, self.plains_flat_no_feature, resources_to_place);
 			
 			resources_to_place = {
 				{self.horse_ID, horse_amt * 0.7, 100, 2, 3}
 			};
-			self:ProcessResourceList(35 * resMultiplier, 1, self.desert_wheat_list, resources_to_place);
-			self:ProcessResourceList(60 * resMultiplier, 1, self.tundra_flat_no_feature, resources_to_place);
+			self:ProcessResourceList(35 * resMultiplier, ImpactLayers.LAYER_HORSE, self.desert_wheat_list, resources_to_place);
+			self:ProcessResourceList(60 * resMultiplier, ImpactLayers.LAYER_HORSE, self.tundra_flat_no_feature, resources_to_place);
 			
 			resources_to_place = {
 				{self.iron_ID, iron_amt, 100, 1, 3}
 			};
-			self:ProcessResourceList(80 * resMultiplier, 1, self.hills_open_list, resources_to_place);
-			self:ProcessResourceList(180 * resMultiplier, 1, self.flat_open_no_tundra_no_desert, resources_to_place);
-			self:ProcessResourceList(55 * resMultiplier, 1, self.desert_flat_no_feature, resources_to_place);
-			
-			resources_to_place = {
-				{self.iron_ID, iron_amt, 100, 1, 2}
-			};
-			self:ProcessResourceList(90 * resMultiplier, 1, self.tundra_flat_no_feature, resources_to_place);
+			self:ProcessResourceList(90 * resMultiplier, ImpactLayers.LAYER_IRON, self.hills_open_list, resources_to_place);
+			self:ProcessResourceList(110 * resMultiplier, ImpactLayers.LAYER_IRON, self.flat_open_no_tundra_no_desert, resources_to_place);
+			self:ProcessResourceList(60 * resMultiplier, ImpactLayers.LAYER_IRON, self.desert_flat_no_feature, resources_to_place);
+			self:ProcessResourceList(75 * resMultiplier, ImpactLayers.LAYER_IRON, self.hills_forest_list, resources_to_place);
+			self:ProcessResourceList(80 * resMultiplier, ImpactLayers.LAYER_IRON, self.forest_flat_that_are_not_tundra, resources_to_place);
+			self:ProcessResourceList(85 * resMultiplier, ImpactLayers.LAYER_IRON, self.tundra_flat_forest, resources_to_place);
+			self:ProcessResourceList(90 * resMultiplier, ImpactLayers.LAYER_IRON, self.tundra_flat_no_feature, resources_to_place);
+			self:ProcessResourceList(17 * resMultiplier, ImpactLayers.LAYER_IRON, self.snow_flat_list, resources_to_place);
 			
 			resources_to_place = {
 				{self.coal_ID, coal_amt, 100, 1, 2}
 			};
-			self:ProcessResourceList(60 * resMultiplier, 1, self.hills_open_no_tundra_no_desert, resources_to_place);
-			self:ProcessResourceList(110 * resMultiplier, 1, self.grass_flat_no_feature, resources_to_place);
-			self:ProcessResourceList(90 * resMultiplier, 1, self.plains_flat_no_feature, resources_to_place);
+			self:ProcessResourceList(40 * resMultiplier, ImpactLayers.LAYER_COAL, self.hills_open_no_tundra_no_desert, resources_to_place);
+			self:ProcessResourceList(70 * resMultiplier, ImpactLayers.LAYER_COAL, self.grass_flat_no_feature, resources_to_place);
+			self:ProcessResourceList(55 * resMultiplier, ImpactLayers.LAYER_COAL, self.plains_flat_no_feature, resources_to_place);
 			
 			resources_to_place = {
 				{self.oil_ID, oil_amt, 100, 1, 3}
 			};
-			self:ProcessResourceList(40 * resMultiplier, 1, self.desert_flat_no_feature, resources_to_place);
-			self:ProcessResourceList(75 * resMultiplier, 1, self.tundra_flat_no_feature, resources_to_place);
-			
+			self:ProcessResourceList(40 * resMultiplier, ImpactLayers.LAYER_OIL, self.desert_flat_no_feature, resources_to_place);
+			self:ProcessResourceList(75 * resMultiplier, ImpactLayers.LAYER_OIL, self.tundra_flat_no_feature, resources_to_place);
+			self:ProcessResourceList(25 * resMultiplier, ImpactLayers.LAYER_OIL, self.marsh_list, resources_to_place);
+			self:ProcessResourceList(100 * resMultiplier, ImpactLayers.LAYER_OIL, self.jungle_flat_list, resources_to_place);
+			self:ProcessResourceList(17 * resMultiplier, ImpactLayers.LAYER_OIL, self.snow_flat_list, resources_to_place);
+	
 			resources_to_place = {
 				{self.aluminum_ID, alum_amt, 100, 1, 3}
 			};
-			self:ProcessResourceList(42 * resMultiplier, 1, self.hills_open_no_grass, resources_to_place);
-			self:ProcessResourceList(35 * resMultiplier, 1, self.flat_open_no_grass_no_plains, resources_to_place);
-			self:ProcessResourceList(100 * resMultiplier, 1, self.plains_flat_no_feature, resources_to_place);
+			self:ProcessResourceList(42 * resMultiplier, ImpactLayers.LAYER_ALUMINUM, self.hills_open_no_grass, resources_to_place);
+			self:ProcessResourceList(35 * resMultiplier, ImpactLayers.LAYER_ALUMINUM, self.flat_open_no_grass_no_plains, resources_to_place);
+			self:ProcessResourceList(100 * resMultiplier, ImpactLayers.LAYER_ALUMINUM, self.plains_flat_no_feature, resources_to_place);
 			
 			resources_to_place = {
 				{self.uranium_ID, uran_amt, 100, 2, 4}
 			};
-			self:ProcessResourceList(50 * resMultiplier, 1, self.hills_jungle_list, resources_to_place);
-			self:ProcessResourceList(200 * resMultiplier, 1, self.hills_open_list, resources_to_place);
-			self:ProcessResourceList(90 * resMultiplier, 1, self.tundra_flat_no_feature, resources_to_place);
-			self:ProcessResourceList(150 * resMultiplier, 1, self.desert_flat_no_feature, resources_to_place);
-			self:ProcessResourceList(300 * resMultiplier, 1, self.flat_open_no_tundra_no_desert, resources_to_place);
-			
-			resources_to_place = {
-				{self.iron_ID, iron_amt, 90, 1, 3},
-				{self.uranium_ID, uran_amt, 10, 1, 2}
-			};
-			self:ProcessResourceList(65 * resMultiplier, 1, self.hills_forest_list, resources_to_place);
-			self:ProcessResourceList(70 * resMultiplier, 1, self.forest_flat_that_are_not_tundra, resources_to_place);
-			self:ProcessResourceList(75 * resMultiplier, 1, self.tundra_flat_forest, resources_to_place);
-			
-			resources_to_place = {
-				{self.oil_ID, oil_amt, 60, 1, 3},
-				{self.uranium_ID, uran_amt, 40, 1, 2}
-			};
-			self:ProcessResourceList(15 * resMultiplier, 1, self.marsh_list, resources_to_place);
-			self:ProcessResourceList(60 * resMultiplier, 1, self.jungle_flat_list, resources_to_place);
-			
-			resources_to_place = {
-				{self.oil_ID, oil_amt, 40, 1, 2},
-				{self.uranium_ID, uran_amt, 20, 1, 2},
-				{self.iron_ID, iron_amt, 40, 1, 2}
-			};
-			self:ProcessResourceList(7 * resMultiplier, 1, self.snow_flat_list, resources_to_place);
-			
+			self:ProcessResourceList(50 * resMultiplier, ImpactLayers.LAYER_URANIUM, self.hills_jungle_list, resources_to_place);
+			self:ProcessResourceList(200 * resMultiplier, ImpactLayers.LAYER_URANIUM, self.hills_open_list, resources_to_place);
+			self:ProcessResourceList(90 * resMultiplier, ImpactLayers.LAYER_URANIUM, self.tundra_flat_no_feature, resources_to_place);
+			self:ProcessResourceList(150 * resMultiplier, ImpactLayers.LAYER_URANIUM, self.desert_flat_no_feature, resources_to_place);
+			self:ProcessResourceList(300 * resMultiplier, ImpactLayers.LAYER_URANIUM, self.flat_open_no_tundra_no_desert, resources_to_place);
+			self:ProcessResourceList(300 * resMultiplier, ImpactLayers.LAYER_URANIUM, self.hills_forest_list, resources_to_place);
+			self:ProcessResourceList(325 * resMultiplier, ImpactLayers.LAYER_URANIUM, self.forest_flat_that_are_not_tundra, resources_to_place);
+			self:ProcessResourceList(350 * resMultiplier, ImpactLayers.LAYER_URANIUM, self.tundra_flat_forest, resources_to_place);
+			self:ProcessResourceList(37 * resMultiplier, ImpactLayers.LAYER_URANIUM, self.marsh_list, resources_to_place);
+			self:ProcessResourceList(150 * resMultiplier, ImpactLayers.LAYER_URANIUM, self.jungle_flat_list, resources_to_place);
+			self:ProcessResourceList(35 * resMultiplier, ImpactLayers.LAYER_URANIUM, self.snow_flat_list, resources_to_place);
+
 			self:AddModernMinorStrategicsToCityStates();
 			
-			self:PlaceSmallQuantitiesOfStrategics(26 * resMultiplier, self.land_list);
+			self:PlaceSmallQuantitiesOfStrategics(36 * resMultiplier, self.land_hills_list);
 			
 			self:PlaceOilInTheSea();
 
@@ -1445,7 +1436,7 @@ function MapGlobals:New()
 			while self.amounts_of_resources_placed[self.uranium_ID + 1] < 2 * self.iNumCivs do
 				print("Map has very low uranium, adding another.");
 				local resources_to_place = { {self.uranium_ID, uran_amt, 100, 2, 4} };
-				self:ProcessResourceList(99999, 1, self.land_list, resources_to_place);
+				self:ProcessResourceList(99999, 1, self.land_hills_list, resources_to_place);
 			end
 			
 			self:PlaceBonusResources();
@@ -1525,252 +1516,252 @@ function MapGlobals:New()
 			if IsEvenMoreResourcesActive() == true then
 				resources_to_place = {
 				{self.deer_ID, 1, 100, 0, 2} };
-				self:ProcessResourceList(12 * resMultiplier, 3, self.extra_deer_list, resources_to_place)
+				self:ProcessResourceList(12 * resMultiplier, ImpactLayers.LAYER_BONUS, self.extra_deer_list, resources_to_place)
 				-- 8
 				resources_to_place = {
 				{self.deer_ID, 1, 100, 0, 2} };
-				self:ProcessResourceList(16 * resMultiplier, 3, self.tundra_flat_no_feature, resources_to_place)
+				self:ProcessResourceList(16 * resMultiplier, ImpactLayers.LAYER_BONUS, self.tundra_flat_no_feature, resources_to_place)
 				-- 12
 				
 				resources_to_place = {
 				{self.wheat_ID, 1, 100, 1, 2} };
-				self:ProcessResourceList(20 * resMultiplier, 3, self.desert_wheat_list, resources_to_place)
+				self:ProcessResourceList(20 * resMultiplier, ImpactLayers.LAYER_BONUS, self.desert_wheat_list, resources_to_place)
 				-- 10
 				resources_to_place = {
 				{self.wheat_ID, 1, 100, 2, 3} };
-				self:ProcessResourceList(44 * resMultiplier, 3, self.plains_flat_no_feature, resources_to_place)
+				self:ProcessResourceList(44 * resMultiplier, ImpactLayers.LAYER_BONUS, self.plains_flat_no_feature, resources_to_place)
 				-- 27
 				
 				resources_to_place = {
 				{self.banana_ID, 1, 100, 0, 1} };
-				self:ProcessResourceList(30 * resMultiplier, 3, self.banana_list, resources_to_place)
+				self:ProcessResourceList(30 * resMultiplier, ImpactLayers.LAYER_BONUS, self.banana_list, resources_to_place)
 				-- 14
 				
 				resources_to_place = {
 				{self.banana_ID, 1, 100, 0, 1} };
-				self:ProcessResourceList(40 * resMultiplier, 3, self.marsh_list, resources_to_place)
+				self:ProcessResourceList(40 * resMultiplier, ImpactLayers.LAYER_BONUS, self.marsh_list, resources_to_place)
 				-- none
 				
 				resources_to_place = {
 				{self.cow_ID, 1, 100, 0, 2} };
-				self:ProcessResourceList(30 * resMultiplier, 3, self.grass_flat_no_feature, resources_to_place)
+				self:ProcessResourceList(30 * resMultiplier, ImpactLayers.LAYER_BONUS, self.grass_flat_no_feature, resources_to_place)
 				-- 18
 				
 			-- CBP
 				resources_to_place = {
 				{self.bison_ID, 1, 100, 0, 2} };
-				self:ProcessResourceList(24 * resMultiplier, 3, self.flat_open_no_tundra_no_desert, resources_to_place)
+				self:ProcessResourceList(24 * resMultiplier, ImpactLayers.LAYER_BONUS, self.flat_open_no_tundra_no_desert, resources_to_place)
 			-- END
 
 				resources_to_place = {
 				{self.sheep_ID, 1, 100, 0, 2} };
-				self:ProcessResourceList(44 * resMultiplier, 3, self.hills_open_list, resources_to_place)
+				self:ProcessResourceList(44 * resMultiplier, ImpactLayers.LAYER_BONUS, self.hills_open_list, resources_to_place)
 				-- 13
 
 				resources_to_place = {
 				{self.stone_ID, 1, 100, 1, 1} };
-				self:ProcessResourceList(40 * resMultiplier, 3, self.dry_grass_flat_no_feature, resources_to_place)
+				self:ProcessResourceList(40 * resMultiplier, ImpactLayers.LAYER_BONUS, self.dry_grass_flat_no_feature, resources_to_place)
 				-- 20
 				
 				resources_to_place = {
 				{self.stone_ID, 1, 100, 1, 1} };
-				self:ProcessResourceList(40 * resMultiplier, 3, self.dry_plains_flat_no_feature, resources_to_place)
+				self:ProcessResourceList(40 * resMultiplier, ImpactLayers.LAYER_BONUS, self.dry_plains_flat_no_feature, resources_to_place)
 				-- none
 				
 				resources_to_place = {
 				{self.stone_ID, 1, 100, 1, 2} };
-				self:ProcessResourceList(30 * resMultiplier, 3, self.tundra_flat_no_feature, resources_to_place)
+				self:ProcessResourceList(30 * resMultiplier, ImpactLayers.LAYER_BONUS, self.tundra_flat_no_feature, resources_to_place)
 				-- 15
 				
 				resources_to_place = {
 				{self.stone_ID, 1, 100, 0, 2} };
-				self:ProcessResourceList(16 * resMultiplier, 3, self.desert_flat_no_feature, resources_to_place)
+				self:ProcessResourceList(16 * resMultiplier, ImpactLayers.LAYER_BONUS, self.desert_flat_no_feature, resources_to_place)
 				-- 19
 				
 				resources_to_place = {
 				{self.stone_ID, 1, 100, 1, 2} };
-				self:ProcessResourceList(36 * resMultiplier, 3, self.hills_open_list, resources_to_place)
+				self:ProcessResourceList(36 * resMultiplier, ImpactLayers.LAYER_BONUS, self.hills_open_list, resources_to_place)
 				-- none
 				
 				resources_to_place = {
 				{self.stone_ID, 1, 100, 0, 2} };
-				self:ProcessResourceList(10 * resMultiplier, 3, self.snow_flat_list, resources_to_place)
+				self:ProcessResourceList(10 * resMultiplier, ImpactLayers.LAYER_BONUS, self.snow_flat_list, resources_to_place)
 				-- none
 				
 				resources_to_place = {
 				{self.deer_ID, 1, 100, 3, 4} };
-				self:ProcessResourceList(50 * resMultiplier, 3, self.forest_flat_that_are_not_tundra, resources_to_place)
-				self:ProcessResourceList(50 * resMultiplier, 3, self.hills_forest_list, resources_to_place)
+				self:ProcessResourceList(50 * resMultiplier, ImpactLayers.LAYER_BONUS, self.forest_flat_that_are_not_tundra, resources_to_place)
+				self:ProcessResourceList(50 * resMultiplier, ImpactLayers.LAYER_BONUS, self.hills_forest_list, resources_to_place)
 				-- 25
 
 			-- Even More Resources for VP start
 				resources_to_place = {
 				{self.rice_ID, 1, 100, 0, 2} };
-				self:ProcessResourceList(24 * resMultiplier, 3, self.fresh_water_grass_flat_no_feature, resources_to_place)
+				self:ProcessResourceList(24 * resMultiplier, ImpactLayers.LAYER_BONUS, self.fresh_water_grass_flat_no_feature, resources_to_place)
 
 				resources_to_place = {
 				{self.maize_ID, 1, 100, 1, 2} };
-				self:ProcessResourceList(32 * resMultiplier, 3, self.plains_flat_no_feature, resources_to_place)
+				self:ProcessResourceList(32 * resMultiplier, ImpactLayers.LAYER_BONUS, self.plains_flat_no_feature, resources_to_place)
 
 				resources_to_place = {
 				{self.coconut_ID, 1, 100, 0, 2} };
-				self:ProcessResourceList(12 * resMultiplier, 3, self.coconut_list, resources_to_place)
+				self:ProcessResourceList(12 * resMultiplier, ImpactLayers.LAYER_BONUS, self.coconut_list, resources_to_place)
 
 				resources_to_place = {
 				{self.hardwood_ID, 1, 100, 1, 2} };
-				self:ProcessResourceList(37 * resMultiplier, 3, self.hills_covered_list, resources_to_place)
+				self:ProcessResourceList(37 * resMultiplier, ImpactLayers.LAYER_BONUS, self.hills_covered_list, resources_to_place)
 
 				resources_to_place = {
 				{self.hardwood_ID, 1, 100, 1, 2} };
-				self:ProcessResourceList(37 * resMultiplier, 3, self.flat_covered, resources_to_place)
+				self:ProcessResourceList(37 * resMultiplier, ImpactLayers.LAYER_BONUS, self.flat_covered, resources_to_place)
 
 				resources_to_place = {
 				{self.hardwood_ID, 1, 100, 1, 2} };
-				self:ProcessResourceList(29 * resMultiplier, 3, self.tundra_flat_forest, resources_to_place)
+				self:ProcessResourceList(29 * resMultiplier, ImpactLayers.LAYER_BONUS, self.tundra_flat_forest, resources_to_place)
 
 				resources_to_place = {
 				{self.lead_ID, 1, 100, 1, 3} };
-				self:ProcessResourceList(40 * resMultiplier, 3, self.dry_grass_flat_no_feature, resources_to_place)
+				self:ProcessResourceList(40 * resMultiplier, ImpactLayers.LAYER_BONUS, self.dry_grass_flat_no_feature, resources_to_place)
 
 				resources_to_place = {
 				{self.lead_ID, 1, 100, 2, 3} };
-				self:ProcessResourceList(35 * resMultiplier, 3, self.hills_open_list, resources_to_place)
+				self:ProcessResourceList(35 * resMultiplier, ImpactLayers.LAYER_BONUS, self.hills_open_list, resources_to_place)
 
 				resources_to_place = {
 				{self.lead_ID, 1, 100, 1, 2} };
-				self:ProcessResourceList(35 * resMultiplier, 3, self.desert_flat_no_feature, resources_to_place)
+				self:ProcessResourceList(35 * resMultiplier, ImpactLayers.LAYER_BONUS, self.desert_flat_no_feature, resources_to_place)
 
 				resources_to_place = {
 				{self.pineapple_ID, 1, 100, 0, 3} };
-				self:ProcessResourceList(29 * resMultiplier, 3, self.banana_list, resources_to_place)
+				self:ProcessResourceList(29 * resMultiplier, ImpactLayers.LAYER_BONUS, self.banana_list, resources_to_place)
 
 				resources_to_place = {
 				{self.potato_ID, 1, 100, 2, 3} };
-				self:ProcessResourceList(40 * resMultiplier, 3, self.flat_open_no_tundra_no_desert, resources_to_place)
+				self:ProcessResourceList(40 * resMultiplier, ImpactLayers.LAYER_BONUS, self.flat_open_no_tundra_no_desert, resources_to_place)
 
 				resources_to_place = {
 				{self.potato_ID, 1, 100, 0, 3} };
-				self:ProcessResourceList(29 * resMultiplier, 3, self.hills_open_no_tundra_no_desert, resources_to_place)
+				self:ProcessResourceList(29 * resMultiplier, ImpactLayers.LAYER_BONUS, self.hills_open_no_tundra_no_desert, resources_to_place)
 
 				resources_to_place = {
 				{self.rubber_ID, 1, 100, 0, 2} };
-				self:ProcessResourceList(43 * resMultiplier, 3, self.banana_list, resources_to_place)
+				self:ProcessResourceList(43 * resMultiplier, ImpactLayers.LAYER_BONUS, self.banana_list, resources_to_place)
 
 				resources_to_place = {
 				{self.sulfur_ID, 1, 100, 1, 3} };
-				self:ProcessResourceList(29 * resMultiplier, 3, self.hills_open_list, resources_to_place)
+				self:ProcessResourceList(29 * resMultiplier, ImpactLayers.LAYER_BONUS, self.hills_open_list, resources_to_place)
 
 				resources_to_place = {
 				{self.sulfur_ID, 1, 100, 1, 3} };
-				self:ProcessResourceList(37 * resMultiplier, 3, self.hills_covered_list, resources_to_place)
+				self:ProcessResourceList(37 * resMultiplier, ImpactLayers.LAYER_BONUS, self.hills_covered_list, resources_to_place)
 
 				resources_to_place = {
 				{self.sulfur_ID, 1, 100, 0, 2} };
-				self:ProcessResourceList(21 * resMultiplier, 3, self.snow_flat_list, resources_to_place)
+				self:ProcessResourceList(21 * resMultiplier, ImpactLayers.LAYER_BONUS, self.snow_flat_list, resources_to_place)
 
 				resources_to_place = {
 				{self.sulfur_ID, 1, 100, 1, 3} };
-				self:ProcessResourceList(43 * resMultiplier, 3, self.flat_open, resources_to_place)
+				self:ProcessResourceList(43 * resMultiplier, ImpactLayers.LAYER_BONUS, self.flat_open, resources_to_place)
 
 				resources_to_place = {
 				{self.titanium_ID, 1, 100,0, 2} };
-				self:ProcessResourceList(56 * resMultiplier, 3, self.flat_open, resources_to_place)
+				self:ProcessResourceList(56 * resMultiplier, ImpactLayers.LAYER_BONUS, self.flat_open, resources_to_place)
 
 				resources_to_place = {
 				{self.titanium_ID, 1, 100, 0, 2} };
-				self:ProcessResourceList(51 * resMultiplier, 3, self.hills_open_list, resources_to_place)
+				self:ProcessResourceList(51 * resMultiplier, ImpactLayers.LAYER_BONUS, self.hills_open_list, resources_to_place)
 
 				resources_to_place = {
 				{self.titanium_ID, 1, 100, 0, 2} };
-				self:ProcessResourceList(48 * resMultiplier, 3, self.desert_flat_no_feature, resources_to_place)
+				self:ProcessResourceList(48 * resMultiplier, ImpactLayers.LAYER_BONUS, self.desert_flat_no_feature, resources_to_place)
 
 				resources_to_place = {
 				{self.titanium_ID, 1, 100, 0, 2} };
-				self:ProcessResourceList(40 * resMultiplier, 3, self.tundra_flat_including_forests, resources_to_place)
+				self:ProcessResourceList(40 * resMultiplier, ImpactLayers.LAYER_BONUS, self.tundra_flat_including_forests, resources_to_place)
 
 				resources_to_place = {
 				{self.titanium_ID, 1, 100, 0, 1} };
-				self:ProcessResourceList(24 * resMultiplier, 3, self.snow_flat_list, resources_to_place)
+				self:ProcessResourceList(24 * resMultiplier, ImpactLayers.LAYER_BONUS, self.snow_flat_list, resources_to_place)
 			-- Even More Resources for VP end
 			else
 				resources_to_place = {
 				{self.deer_ID, 1, 100, 0, 2} };
-				self:ProcessResourceList(6 * resMultiplier, 3, self.extra_deer_list, resources_to_place)
+				self:ProcessResourceList(6 * resMultiplier, ImpactLayers.LAYER_BONUS, self.extra_deer_list, resources_to_place)
 				-- 8
 				resources_to_place = {
 				{self.deer_ID, 1, 100, 0, 2} };
-				self:ProcessResourceList(8 * resMultiplier, 3, self.tundra_flat_no_feature, resources_to_place)
+				self:ProcessResourceList(8 * resMultiplier, ImpactLayers.LAYER_BONUS, self.tundra_flat_no_feature, resources_to_place)
 				-- 12
 				
 				resources_to_place = {
 				{self.wheat_ID, 1, 100, 1, 2} };
-				self:ProcessResourceList(10 * resMultiplier, 3, self.desert_wheat_list, resources_to_place)
+				self:ProcessResourceList(10 * resMultiplier, ImpactLayers.LAYER_BONUS, self.desert_wheat_list, resources_to_place)
 				-- 10
 				resources_to_place = {
 				{self.wheat_ID, 1, 100, 2, 3} };
-				self:ProcessResourceList(22 * resMultiplier, 3, self.plains_flat_no_feature, resources_to_place)
+				self:ProcessResourceList(22 * resMultiplier, ImpactLayers.LAYER_BONUS, self.plains_flat_no_feature, resources_to_place)
 				-- 27
 				
 				resources_to_place = {
 				{self.banana_ID, 1, 100, 0, 1} };
-				self:ProcessResourceList(12 * resMultiplier, 3, self.banana_list, resources_to_place)
+				self:ProcessResourceList(12 * resMultiplier, ImpactLayers.LAYER_BONUS, self.banana_list, resources_to_place)
 				-- 14
 				
 				resources_to_place = {
 				{self.banana_ID, 1, 100, 0, 1} };
-				self:ProcessResourceList(16 * resMultiplier, 3, self.marsh_list, resources_to_place)
+				self:ProcessResourceList(16 * resMultiplier, ImpactLayers.LAYER_BONUS, self.marsh_list, resources_to_place)
 				-- none
 				
 				resources_to_place = {
 				{self.cow_ID, 1, 100, 0, 2} };
-				self:ProcessResourceList(14 * resMultiplier, 3, self.grass_flat_no_feature, resources_to_place)
+				self:ProcessResourceList(14 * resMultiplier, ImpactLayers.LAYER_BONUS, self.grass_flat_no_feature, resources_to_place)
 				-- 18
 				
 			-- CBP
 				resources_to_place = {
 				{self.bison_ID, 1, 100, 0, 2} };
-				self:ProcessResourceList(18 * resMultiplier, 3, self.flat_open_no_tundra_no_desert, resources_to_place)
+				self:ProcessResourceList(18 * resMultiplier, ImpactLayers.LAYER_BONUS, self.flat_open_no_tundra_no_desert, resources_to_place)
 			-- END
 
 				resources_to_place = {
 				{self.sheep_ID, 1, 100, 0, 2} };
-				self:ProcessResourceList(18 * resMultiplier, 3, self.hills_open_list, resources_to_place)
+				self:ProcessResourceList(18 * resMultiplier, ImpactLayers.LAYER_BONUS, self.hills_open_list, resources_to_place)
 				-- 13
 
 				resources_to_place = {
 				{self.stone_ID, 1, 100, 1, 1} };
-				self:ProcessResourceList(30 * resMultiplier, 3, self.dry_grass_flat_no_feature, resources_to_place)
+				self:ProcessResourceList(30 * resMultiplier, ImpactLayers.LAYER_BONUS, self.dry_grass_flat_no_feature, resources_to_place)
 				-- 20
 				
 				resources_to_place = {
 				{self.stone_ID, 1, 100, 1, 1} };
-				self:ProcessResourceList(60 * resMultiplier, 3, self.dry_plains_flat_no_feature, resources_to_place)
+				self:ProcessResourceList(60 * resMultiplier, ImpactLayers.LAYER_BONUS, self.dry_plains_flat_no_feature, resources_to_place)
 				-- none
 				
 				resources_to_place = {
 				{self.stone_ID, 1, 100, 1, 2} };
-				self:ProcessResourceList(60 * resMultiplier, 3, self.tundra_flat_no_feature, resources_to_place)
+				self:ProcessResourceList(60 * resMultiplier, ImpactLayers.LAYER_BONUS, self.tundra_flat_no_feature, resources_to_place)
 				-- 15
 				
 				resources_to_place = {
 				{self.stone_ID, 1, 100, 0, 2} };
-				self:ProcessResourceList(14 * resMultiplier, 3, self.desert_flat_no_feature, resources_to_place)
+				self:ProcessResourceList(14 * resMultiplier, ImpactLayers.LAYER_BONUS, self.desert_flat_no_feature, resources_to_place)
 				-- 19
 				
 				resources_to_place = {
 				{self.stone_ID, 1, 100, 1, 2} };
-				self:ProcessResourceList(60 * resMultiplier, 3, self.hills_open_list, resources_to_place)
+				self:ProcessResourceList(60 * resMultiplier, ImpactLayers.LAYER_BONUS, self.hills_open_list, resources_to_place)
 				-- none
 				
 				resources_to_place = {
 				{self.stone_ID, 1, 100, 0, 2} };
-				self:ProcessResourceList(8 * resMultiplier, 3, self.snow_flat_list, resources_to_place)
+				self:ProcessResourceList(8 * resMultiplier, ImpactLayers.LAYER_BONUS, self.snow_flat_list, resources_to_place)
 				-- none
 				
 				resources_to_place = {
 				{self.deer_ID, 1, 100, 3, 4} };
-				self:ProcessResourceList(25 * resMultiplier, 3, self.forest_flat_that_are_not_tundra, resources_to_place)
-				self:ProcessResourceList(25 * resMultiplier, 3, self.hills_forest_list, resources_to_place)
+				self:ProcessResourceList(25 * resMultiplier, ImpactLayers.LAYER_BONUS, self.forest_flat_that_are_not_tundra, resources_to_place)
+				self:ProcessResourceList(25 * resMultiplier, ImpactLayers.LAYER_BONUS, self.hills_forest_list, resources_to_place)
 				-- 25
 			end
 		end
@@ -1858,7 +1849,7 @@ end
 function GetMapScriptInfo()
 	local world_age, temperature, rainfall, sea_level = GetCoreMapOptions()
 	return {
-		Name = "Communitu_79a v2.3.0",
+		Name = "Communitu_79a v2.3.0-exp",
 		Description = "Communitas mapscript for Vox Populi",
 		IsAdvancedMap = false,
 		SupportsMultiplayer = true,
