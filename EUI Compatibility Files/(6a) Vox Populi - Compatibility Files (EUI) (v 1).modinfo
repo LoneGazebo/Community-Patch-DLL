@@ -2,7 +2,7 @@
 <Mod id="24923240-e4fb-4bf6-8f0e-6e5b6cf4d3c2" version="1">
   <Properties>
     <Name>(6a) Vox Populi - Compatibility Files (EUI)</Name>
-    <Teaser>(1.3.1) CBO Compatibility and LUA (EUI Version)</Teaser>
+    <Teaser>(1.3.2) CBO Compatibility and LUA (EUI Version)</Teaser>
     <Description>Contains compatibility files for CBO, CSD, C4DF, More Luxuries and EUI - required if you intend to use any mod aside from the CP and CBO by themselves.</Description>
     <Authors>Gazebo</Authors>
     <HideSetupGame>0</HideSetupGame>
@@ -43,7 +43,7 @@
     <File md5="6F03F714A40A2EF7B35352A15E992ED8" import="0">EUI/EUI_text_en_us.xml</File>
     <File md5="44885B447FA22E72E45286E67E194830" import="0">EUI/NeededText.xml</File>
     <File md5="3F4B08D58AE727DF10D8A34BEC5F398E" import="1">LUA/ActionInfoPanel.lua</File>
-    <File md5="66436ADE1523753F7F9331739053819D" import="1">LUA/AssignStartingPlots.lua</File>
+    <File md5="1E95C0C367049F5AD2458691813445CE" import="1">LUA/AssignStartingPlots.lua</File>
     <File md5="39C6A39E21DF6E10B666FA57FA502643" import="1">LUA/Bombardment.lua</File>
     <File md5="66D5F875BCC8CEEF7B18F866147D6AF4" import="1">LUA/ChooseMayaBonus.lua</File>
     <File md5="B575EDDEDA511FEBEA7F1C68516D14D6" import="1">LUA/CityBannerManager.lua</File>

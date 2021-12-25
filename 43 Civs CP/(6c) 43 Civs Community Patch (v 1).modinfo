@@ -2,7 +2,7 @@
 <Mod id="6521c02b-1c78-4826-a5b0-faed86235e98" version="1">
   <Properties>
     <Name>(6c) 43 Civs Community Patch</Name>
-    <Teaser>(1.3.1) Supports up to 43 Major Civilizations</Teaser>
+    <Teaser>(1.3.2) Supports up to 43 Major Civilizations</Teaser>
     <Description>This version of the Community Patch supports up to 43 major civilizations. The maximum number of total players (civilizations and City-States) is 63.[NEWLINE][NEWLINE]
 Depending on which version has been installed, this mod contains one of the following:[NEWLINE]
 [ICON_BULLET]Compatibility Files for using the Community Patch on its own[NEWLINE]
@@ -32,7 +32,7 @@ If you downloaded this mod manually, see MANUAL INSTALL.txt for installation ins
     <Mod id="828b5b4b-7c62-4afb-a43f-034b596ef5e4" minversion="0" maxversion="999" title="(6b) Vox Populi - Compatibility Files (No-EUI)" />
   </Blocks>
   <Files>
-    <File md5="66436ADE1523753F7F9331739053819D" import="1">AssignStartingPlots.lua</File>
+    <File md5="1E95C0C367049F5AD2458691813445CE" import="1">AssignStartingPlots.lua</File>
     <File md5="A9173FECA4709DD9F0B710A585D037EA" import="1">CP Only/ActionInfoPanel.lua</File>
     <File md5="314F159E85D3C21731FFB7FDBE86433A" import="1">CP Only/AdvancedSetup.lua</File>
     <File md5="69F25DAD4EA8EE636E3F286717D140D4" import="0">CP Only/AssignStartingPlots.lua</File>
