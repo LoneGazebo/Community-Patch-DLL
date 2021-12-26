@@ -5444,7 +5444,7 @@ void CvCityReligions::ConvertPercentFollowers(ReligionTypes eToReligion, Religio
 			}
 		}
 	}
-	AddReligiousPressure(FOLLOWER_CHANGE_SCRIPTED_CONVERSION, eToReligion, -iPressureConverting, eOldMajority, NO_PLAYER);
+	AddReligiousPressure(FOLLOWER_CHANGE_SCRIPTED_CONVERSION, eToReligion, iPressureConverting, eOldMajority, NO_PLAYER);
 }
 
 #if defined(MOD_BALANCE_CORE)
