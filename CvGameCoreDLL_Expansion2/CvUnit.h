@@ -393,7 +393,7 @@ public:
 	bool shouldPillage(const CvPlot* pPlot, bool bConservative = false) const;
 	bool pillage();
 
-	bool canFoundCity(const CvPlot* pPlot, bool bIgnoreDistanceToExistingCities = false, bool bIgnoreHappiness = false) const;
+	bool canFoundCity(const CvPlot* pPlot, bool bIgnoreDistanceToExistingCities = false, bool bIgnoreHappiness = false, bool bForAliveCheck = false) const;
 	bool foundCity();
 
 	bool canJoinCity(const CvPlot* pPlot, SpecialistTypes eSpecialist) const;

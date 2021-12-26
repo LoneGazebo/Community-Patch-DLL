@@ -188,6 +188,8 @@ public:
 	void SetMaxNumBuilders(int iNum);
 	void ChangeMaxNumBuilders(int iChange);
 
+	bool HasActiveSettler();
+
 	int GetNumUnitsWithUnitAI(UnitAITypes eUnitAIType, bool bIncludeBeingTrained = false, bool bIncludeWater = true);
 	int GetNumUnitsWithDomain(DomainTypes eDomain, bool bMilitaryOnly);
 	int GetNumUnitsWithUnitCombat(UnitCombatTypes eDomain);

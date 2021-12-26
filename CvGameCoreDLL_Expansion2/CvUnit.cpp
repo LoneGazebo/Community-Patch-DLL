@@ -2273,12 +2273,13 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 	CvUnit* pLoopUnit;
 	CvPlot* pPlot;
 	CvString strBuffer;
+	PlayerTypes eUnitOwner = getOwner();
 
 	ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
 	if(pkScriptSystem)
 	{
 		CvLuaArgsHandle args;
-		args->Push(getOwner());
+		args->Push(eUnitOwner);
 		args->Push(GetID());  // unit being killed
 
 		bool bResult = false;
@@ -2291,6 +2292,8 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 			}
 		}
 	}
+
+	bool bCheckForMurder = ePlayer != NO_PLAYER && GET_PLAYER(eUnitOwner).getNumCities() <= 0 && (GET_PLAYER(eUnitOwner).getNumUnits() <= 1 || canFoundCity(NULL, true, true, true));
 
 #if defined(MOD_UNIT_KILL_STATS)
 	if (ePlayer != NO_PLAYER && !bDelay)
@@ -2325,7 +2328,7 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 		DLLUI->VisuallyDeselectUnit(pDllThisUnit.get());
 	}
 
-	GET_PLAYER(getOwner()).removeFromArmy(m_iArmyId, GetID());
+	GET_PLAYER(eUnitOwner).removeFromArmy(m_iArmyId, GetID());
 	ClearMissionQueue();
 
 	pPlot = plot();
@@ -2383,7 +2386,7 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 			kPlayer.doInstantYield(INSTANT_YIELD_TYPE_DEATH);
 		}
 #endif
-		if (!GET_PLAYER(ePlayer).isBarbarian() && ePlayer != getOwner())
+		if (!GET_PLAYER(ePlayer).isBarbarian() && ePlayer != eUnitOwner)
 		{
 			int iUnitValue = (getUnitInfo().GetPower() * 100);
 
@@ -2393,7 +2396,7 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 			{
 				if (getDomainType() == DOMAIN_AIR)
 				{
-					int iTypicalAirPower = GET_PLAYER(getOwner()).GetMilitaryAI()->GetPowerOfStrongestBuildableUnit(DOMAIN_AIR);
+					int iTypicalAirPower = GET_PLAYER(eUnitOwner).GetMilitaryAI()->GetPowerOfStrongestBuildableUnit(DOMAIN_AIR);
 					if (iTypicalAirPower > 0)
 					{
 						iUnitValue /= iTypicalAirPower;
@@ -2405,7 +2408,7 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 				}
 				else if (getDomainType() == DOMAIN_SEA)
 				{
-					int iTypicalNavalPower = GET_PLAYER(getOwner()).GetMilitaryAI()->GetPowerOfStrongestBuildableUnit(DOMAIN_SEA);
+					int iTypicalNavalPower = GET_PLAYER(eUnitOwner).GetMilitaryAI()->GetPowerOfStrongestBuildableUnit(DOMAIN_SEA);
 					if (iTypicalNavalPower > 0)
 					{
 						iUnitValue /= iTypicalNavalPower;
@@ -2417,7 +2420,7 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 				}
 				else
 				{
-					int iTypicalLandPower = GET_PLAYER(getOwner()).GetMilitaryAI()->GetPowerOfStrongestBuildableUnit(DOMAIN_LAND);
+					int iTypicalLandPower = GET_PLAYER(eUnitOwner).GetMilitaryAI()->GetPowerOfStrongestBuildableUnit(DOMAIN_LAND);
 					if (iTypicalLandPower > 0)
 					{
 						iUnitValue /= iTypicalLandPower;
@@ -2430,12 +2433,12 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 			}
 
 			int iCivValue = 0;
-			if (IsCivilianUnit() && (GetOriginalOwner() == getOwner() || isBarbarian()))
+			if (IsCivilianUnit() && (GetOriginalOwner() == eUnitOwner || isBarbarian()))
 			{
 				if (!IsGreatGeneral() && !IsGreatAdmiral() && !IsCityAttackSupport() && !IsSapper())
 				{
 					// AI cares less about lost workers / etc in lategame
-					int iEraFactor = !isBarbarian() ? max(8 - (int)GET_PLAYER(getOwner()).GetCurrentEra(), 1) : (int)GC.getGame().getCurrentEra();
+					int iEraFactor = !isBarbarian() ? max(8 - (int)GET_PLAYER(eUnitOwner).GetCurrentEra(), 1) : (int)GC.getGame().getCurrentEra();
 
 					if (IsGreatPerson())
 					{
@@ -2459,31 +2462,31 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 					iCivValue /= 100;
 
 					// Diplo penalty for killing civilians (doesn't apply if stationed in a city, since civilians aren't being targeted in particular)
-					if (pPlot && !pPlot->isCity() && GET_PLAYER(getOwner()).isMajorCiv() && GET_PLAYER(ePlayer).isMajorCiv())
-						GET_PLAYER(getOwner()).GetDiplomacyAI()->ChangeCivilianKillerValue(ePlayer, iCivValue);
+					if (pPlot && !pPlot->isCity() && GET_PLAYER(eUnitOwner).isMajorCiv() && GET_PLAYER(ePlayer).isMajorCiv())
+						GET_PLAYER(eUnitOwner).GetDiplomacyAI()->ChangeCivilianKillerValue(ePlayer, iCivValue);
 
-					if (GET_PLAYER(getOwner()).isMajorCiv())
+					if (GET_PLAYER(eUnitOwner).isMajorCiv())
 					{
 						if (isFound() || IsFoundAbroad())
-							GET_PLAYER(getOwner()).GetDiplomacyAI()->ChangeWarProgressScore(ePlayer, /*-10*/ GD_INT_GET(WAR_PROGRESS_LOST_SETTLER));
+							GET_PLAYER(eUnitOwner).GetDiplomacyAI()->ChangeWarProgressScore(ePlayer, /*-10*/ GD_INT_GET(WAR_PROGRESS_LOST_SETTLER));
 						else
-							GET_PLAYER(getOwner()).GetDiplomacyAI()->ChangeWarProgressScore(ePlayer, /*-5*/ GD_INT_GET(WAR_PROGRESS_LOST_WORKER));
+							GET_PLAYER(eUnitOwner).GetDiplomacyAI()->ChangeWarProgressScore(ePlayer, /*-5*/ GD_INT_GET(WAR_PROGRESS_LOST_WORKER));
 					}
 					if (GET_PLAYER(ePlayer).isMajorCiv())
 					{
 						if (isFound() || IsFoundAbroad())
-							GET_PLAYER(ePlayer).GetDiplomacyAI()->ChangeWarProgressScore(getOwner(), /*20*/ GD_INT_GET(WAR_PROGRESS_CAPTURED_SETTLER));
+							GET_PLAYER(ePlayer).GetDiplomacyAI()->ChangeWarProgressScore(eUnitOwner, /*20*/ GD_INT_GET(WAR_PROGRESS_CAPTURED_SETTLER));
 						else
-							GET_PLAYER(ePlayer).GetDiplomacyAI()->ChangeWarProgressScore(getOwner(), /*10*/ GD_INT_GET(WAR_PROGRESS_CAPTURED_WORKER));
+							GET_PLAYER(ePlayer).GetDiplomacyAI()->ChangeWarProgressScore(eUnitOwner, /*10*/ GD_INT_GET(WAR_PROGRESS_CAPTURED_WORKER));
 					}
 				}
 				else
 				{
 					if (GET_PLAYER(ePlayer).isMajorCiv())
-						GET_PLAYER(ePlayer).GetDiplomacyAI()->ChangeWarProgressScore(getOwner(), /*20*/ GD_INT_GET(WAR_PROGRESS_KILLED_UNIT));
+						GET_PLAYER(ePlayer).GetDiplomacyAI()->ChangeWarProgressScore(eUnitOwner, /*20*/ GD_INT_GET(WAR_PROGRESS_KILLED_UNIT));
 
 					if (GET_PLAYER(getOwner()).isMajorCiv())
-						GET_PLAYER(getOwner()).GetDiplomacyAI()->ChangeWarProgressScore(ePlayer, /*-10*/ GD_INT_GET(WAR_PROGRESS_LOST_UNIT));
+						GET_PLAYER(eUnitOwner).GetDiplomacyAI()->ChangeWarProgressScore(ePlayer, /*-10*/ GD_INT_GET(WAR_PROGRESS_LOST_UNIT));
 				}
 			}
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
@@ -2492,46 +2495,46 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 				iCivValue /= 5;
 
 				// Unit belongs to us - did our Master fail to protect one of our units?
-				if (GET_PLAYER(getOwner()).isMajorCiv() && GET_PLAYER(getOwner()).IsVassalOfSomeone())
+				if (GET_PLAYER(eUnitOwner).isMajorCiv() && GET_PLAYER(getOwner()).IsVassalOfSomeone())
 				{
 					// Unit was killed inside my territory (or my teammate's territory)
-					if (GET_PLAYER(pPlot->getOwner()).getTeam() == GET_PLAYER(getOwner()).getTeam())
+					if (GET_PLAYER(pPlot->getOwner()).getTeam() == GET_PLAYER(eUnitOwner).getTeam())
 					{
 						// Loop through all masters and penalize them
 						for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 						{
 							PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
-							if (GET_PLAYER(getOwner()).GetDiplomacyAI()->IsPlayerValid(eLoopPlayer) && GET_PLAYER(getOwner()).GetDiplomacyAI()->IsVassal(eLoopPlayer))
+							if (GET_PLAYER(eUnitOwner).GetDiplomacyAI()->IsPlayerValid(eLoopPlayer) && GET_PLAYER(eUnitOwner).GetDiplomacyAI()->IsVassal(eLoopPlayer))
 							{
 								if (iCivValue > 0)
-									GET_PLAYER(getOwner()).GetDiplomacyAI()->ChangeVassalFailedProtectValue(eLoopPlayer, iCivValue);
+									GET_PLAYER(eUnitOwner).GetDiplomacyAI()->ChangeVassalFailedProtectValue(eLoopPlayer, iCivValue);
 								else
-									GET_PLAYER(getOwner()).GetDiplomacyAI()->ChangeVassalFailedProtectValue(eLoopPlayer, iUnitValue);
+									GET_PLAYER(eUnitOwner).GetDiplomacyAI()->ChangeVassalFailedProtectValue(eLoopPlayer, iUnitValue);
 							}
 						}
 					}
 					// Unit was killed in our master's territory
-					else if (GET_PLAYER(getOwner()).GetDiplomacyAI()->IsPlayerValid(pPlot->getOwner()) && GET_PLAYER(getOwner()).GetDiplomacyAI()->IsVassal(pPlot->getOwner()))
+					else if (GET_PLAYER(eUnitOwner).GetDiplomacyAI()->IsPlayerValid(pPlot->getOwner()) && GET_PLAYER(eUnitOwner).GetDiplomacyAI()->IsVassal(pPlot->getOwner()))
 					{
 						// Penalize the master whose territory we're in
 						if (iCivValue > 0)
-							GET_PLAYER(getOwner()).GetDiplomacyAI()->ChangeVassalFailedProtectValue(pPlot->getOwner(), iCivValue);
+							GET_PLAYER(eUnitOwner).GetDiplomacyAI()->ChangeVassalFailedProtectValue(pPlot->getOwner(), iCivValue);
 						else
-							GET_PLAYER(getOwner()).GetDiplomacyAI()->ChangeVassalFailedProtectValue(pPlot->getOwner(), iUnitValue);
+							GET_PLAYER(eUnitOwner).GetDiplomacyAI()->ChangeVassalFailedProtectValue(pPlot->getOwner(), iUnitValue);
 					}
 					// Unit killed in neutral territory near one of the vassal's cities (currently disabled)
-					else if (pPlot->getOwner() == NO_PLAYER && GET_PLAYER(getOwner()).GetCityDistanceInPlots(pPlot) <= /*0*/ GD_INT_GET(VASSALAGE_FAILED_PROTECT_CITY_DISTANCE))
+					else if (pPlot->getOwner() == NO_PLAYER && GET_PLAYER(eUnitOwner).GetCityDistanceInPlots(pPlot) <= /*0*/ GD_INT_GET(VASSALAGE_FAILED_PROTECT_CITY_DISTANCE))
 					{
 						// Loop through all masters and penalize them
 						for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 						{
 							PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
-							if (GET_PLAYER(getOwner()).GetDiplomacyAI()->IsPlayerValid(eLoopPlayer) && GET_PLAYER(getOwner()).GetDiplomacyAI()->IsVassal(eLoopPlayer))
+							if (GET_PLAYER(eUnitOwner).GetDiplomacyAI()->IsPlayerValid(eLoopPlayer) && GET_PLAYER(eUnitOwner).GetDiplomacyAI()->IsVassal(eLoopPlayer))
 							{
 								if (iCivValue > 0)
-									GET_PLAYER(getOwner()).GetDiplomacyAI()->ChangeVassalFailedProtectValue(eLoopPlayer, iCivValue);
+									GET_PLAYER(eUnitOwner).GetDiplomacyAI()->ChangeVassalFailedProtectValue(eLoopPlayer, iCivValue);
 								else
-									GET_PLAYER(getOwner()).GetDiplomacyAI()->ChangeVassalFailedProtectValue(eLoopPlayer, iUnitValue);
+									GET_PLAYER(eUnitOwner).GetDiplomacyAI()->ChangeVassalFailedProtectValue(eLoopPlayer, iUnitValue);
 							}
 						}
 					}
@@ -2615,19 +2618,19 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 				if (GET_PLAYER(ePlayer).isMajorCiv())
 				{
 					GET_PLAYER(ePlayer).ChangeMilitaryRating(iUnitValue); // rating up for winner (them)
-					GET_PLAYER(ePlayer).GetDiplomacyAI()->ChangeWarProgressScore(getOwner(), /*20*/ GD_INT_GET(WAR_PROGRESS_KILLED_UNIT));
+					GET_PLAYER(ePlayer).GetDiplomacyAI()->ChangeWarProgressScore(eUnitOwner, /*20*/ GD_INT_GET(WAR_PROGRESS_KILLED_UNIT));
 				}
-				if (GET_PLAYER(getOwner()).isMajorCiv())
+				if (GET_PLAYER(eUnitOwner).isMajorCiv())
 				{
-					GET_PLAYER(getOwner()).ChangeMilitaryRating(-iUnitValue); // rating down for loser (us)
-					GET_PLAYER(getOwner()).GetDiplomacyAI()->ChangeWarProgressScore(ePlayer, /*-10*/ GD_INT_GET(WAR_PROGRESS_LOST_UNIT));
+					GET_PLAYER(eUnitOwner).ChangeMilitaryRating(-iUnitValue); // rating down for loser (us)
+					GET_PLAYER(eUnitOwner).GetDiplomacyAI()->ChangeWarProgressScore(ePlayer, /*-10*/ GD_INT_GET(WAR_PROGRESS_LOST_UNIT));
 				}
 
 				// Does the killer have a bonus to war score accumulation?
 				iUnitValue *= (100 + GET_PLAYER(ePlayer).GetWarScoreModifier());
 				iUnitValue /= 100;
 
-				GET_PLAYER(getOwner()).ChangeWarValueLost(ePlayer, iUnitValue);
+				GET_PLAYER(eUnitOwner).ChangeWarValueLost(ePlayer, iUnitValue);
 			}
 		}
 
@@ -2647,7 +2650,7 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 #if defined(MOD_EVENTS_UNIT_PREKILL)
 	if (MOD_EVENTS_UNIT_PREKILL)
 	{
-		GAMEEVENTINVOKE_HOOK(GAMEEVENT_UnitPrekill, getOwner(), GetID(), getUnitType(), getX(), getY(), bDelay, ePlayer);
+		GAMEEVENTINVOKE_HOOK(GAMEEVENT_UnitPrekill, eUnitOwner, GetID(), getUnitType(), getX(), getY(), bDelay, ePlayer);
 	}
 	else
 	{
@@ -2655,7 +2658,7 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 		if (pkScriptSystem) 
 		{
 			CvLuaArgsHandle args;
-			args->Push(((int)getOwner()));
+			args->Push(((int)eUnitOwner));
 			args->Push(GetID());
 			args->Push(getUnitType());
 			args->Push(getX());
@@ -2680,13 +2683,13 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 				int iExperience = getExperienceTimes100() / 100;
 				if(iExperience > 0)
 				{
-					GET_PLAYER(getOwner()).changeJONSCulture(iExperience);
-					if (getOwner() == GC.getGame().getActivePlayer())
+					GET_PLAYER(eUnitOwner).changeJONSCulture(iExperience);
+					if (eUnitOwner == GC.getGame().getActivePlayer())
 					{
 						char text[256] = { 0 };
 						
 						sprintf_s(text, "[COLOR_MAGENTA]+%d[ENDCOLOR][ICON_CULTURE]", iExperience);
-						SHOW_PLOT_POPUP(plot(),getOwner(), text);
+						SHOW_PLOT_POPUP(plot(),eUnitOwner, text);
 					}
 				}
 			}
@@ -2753,40 +2756,40 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 	CvAssertMsg(getCombatUnit() == NULL, "The current unit instance's combat unit is expected to be NULL");
 
 	GET_TEAM(getTeam()).changeUnitClassCount((UnitClassTypes)getUnitInfo().GetUnitClassType(), -1);
-	GET_PLAYER(getOwner()).changeUnitClassCount((UnitClassTypes)getUnitInfo().GetUnitClassType(), -1);
+	GET_PLAYER(eUnitOwner).changeUnitClassCount((UnitClassTypes)getUnitInfo().GetUnitClassType(), -1);
 
 	// Builder Limit
 	if(getUnitInfo().GetWorkRate() > 0 && getUnitInfo().GetDomainType() == DOMAIN_LAND)
 	{
-		GET_PLAYER(getOwner()).ChangeNumBuilders(-1);
+		GET_PLAYER(eUnitOwner).ChangeNumBuilders(-1);
 	}
 
 	// Some Units count against Happiness
 	if(getUnitInfo().GetUnhappiness() != 0)
 	{
-		GET_PLAYER(getOwner()).ChangeUnhappinessFromUnits(-getUnitInfo().GetUnhappiness());
+		GET_PLAYER(eUnitOwner).ChangeUnhappinessFromUnits(-getUnitInfo().GetUnhappiness());
 	}
 
-	GET_PLAYER(getOwner()).changeExtraUnitCost(-(getUnitInfo().GetExtraMaintenanceCost()));
+	GET_PLAYER(eUnitOwner).changeExtraUnitCost(-(getUnitInfo().GetExtraMaintenanceCost()));
 
 	if(getUnitInfo().GetNukeDamageLevel() != -1)
 	{
-		GET_PLAYER(getOwner()).changeNumNukeUnits(-1);
+		GET_PLAYER(eUnitOwner).changeNumNukeUnits(-1);
 	}
 
 	if(getUnitInfo().IsMilitarySupport())
 	{
 #if defined(MOD_BATTLE_ROYALE)
-		GET_PLAYER(getOwner()).changeNumMilitaryUnits(-1, (DomainTypes)getUnitInfo().GetDomainType());
+		GET_PLAYER(eUnitOwner).changeNumMilitaryUnits(-1, (DomainTypes)getUnitInfo().GetDomainType());
 #else
-		GET_PLAYER(getOwner()).changeNumMilitaryUnits(-1);
+		GET_PLAYER(eUnitOwner).changeNumMilitaryUnits(-1);
 #endif
 	}
 
 #if defined(MOD_BALANCE_CORE)
 	if (getUnitInfo().IsMilitarySupport() && (isNoSupply() || isContractUnit()))
 	{
-		GET_PLAYER(getOwner()).changeNumUnitsSupplyFree(-1);
+		GET_PLAYER(eUnitOwner).changeNumUnitsSupplyFree(-1);
 	}
 #endif
 
@@ -2798,11 +2801,11 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 
 		if(getDomainType() == DOMAIN_SEA)
 		{
-			GET_PLAYER(getOwner()).changeNavalCombatExperienceTimes100(-iGreatGeneralMeterLossTimes100);
+			GET_PLAYER(eUnitOwner).changeNavalCombatExperienceTimes100(-iGreatGeneralMeterLossTimes100);
 		}
 		else
 		{
-			GET_PLAYER(getOwner()).changeCombatExperienceTimes100(-iGreatGeneralMeterLossTimes100);
+			GET_PLAYER(eUnitOwner).changeCombatExperienceTimes100(-iGreatGeneralMeterLossTimes100);
 		}
 	}
 
@@ -2811,7 +2814,7 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 	
 #if defined(MOD_EVENTS_UNIT_CAPTURE)
 	if (MOD_EVENTS_UNIT_CAPTURE && (kCaptureDef.eCapturingPlayer != NO_PLAYER && kCaptureDef.eCaptureUnitType != NO_UNIT)) {
-		GAMEEVENTINVOKE_HOOK(GAMEEVENT_UnitCaptured, kCaptureDef.eCapturingPlayer, kCaptureDef.eCaptureUnitType, getOwner(), GetID(), false, 1);
+		GAMEEVENTINVOKE_HOOK(GAMEEVENT_UnitCaptured, kCaptureDef.eCapturingPlayer, kCaptureDef.eCaptureUnitType, eUnitOwner, GetID(), false, 1);
 	}
 #endif
 
@@ -2824,14 +2827,14 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 		CvCity* pCity = pPlot->getPlotCity();
 		if (pCity != NULL)
 		{
-			if (GET_PLAYER(getOwner()).GetFlatDefenseFromAirUnits() != 0 && getUnitInfo().GetAirUnitCap() != 0)
+			if (GET_PLAYER(eUnitOwner).GetFlatDefenseFromAirUnits() != 0 && getUnitInfo().GetAirUnitCap() != 0)
 			{
 				pCity->updateStrengthValue();
 			}
 			
-			if (GET_PLAYER(getOwner()).GetNeedsModifierFromAirUnits() != 0 && getUnitInfo().GetAirUnitCap() != 0)
+			if (GET_PLAYER(eUnitOwner).GetNeedsModifierFromAirUnits() != 0 && getUnitInfo().GetAirUnitCap() != 0)
 			{
-				GET_PLAYER(getOwner()).DoUpdateTotalUnhappiness();
+				GET_PLAYER(eUnitOwner).DoUpdateTotalUnhappiness();
 			}
 		}
 
@@ -2849,7 +2852,7 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 	{
 		if(getUnitInfo().GetResourceQuantityRequirement(iResourceLoop) > 0)
 		{
-			GET_PLAYER(getOwner()).changeNumResourceUsed((ResourceTypes) iResourceLoop, -getUnitInfo().GetResourceQuantityRequirement(iResourceLoop));
+			GET_PLAYER(eUnitOwner).changeNumResourceUsed((ResourceTypes) iResourceLoop, -getUnitInfo().GetResourceQuantityRequirement(iResourceLoop));
 		}
 	}
 	// Let's force a visibility update to all nearby units (in the domain)--within range--if this general is captured or killed regardless if there is another general around to give the bonus
@@ -2857,7 +2860,7 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 	{
 		int iLoop;
 		int iRange = GetNearbyUnitPromotionsRange();
-		CvPlayerAI& kPlayer = GET_PLAYER(getOwner());
+		CvPlayerAI& kPlayer = GET_PLAYER(eUnitOwner);
 		TeamTypes activeTeam = GC.getGame().getActiveTeam();
 		for (CvUnit* pLoopUnit = kPlayer.firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = kPlayer.nextUnit(&iLoop))
 		{
@@ -2877,10 +2880,11 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 			}
 		}
 	}
+
 	//////////////////////////////////////////////////////////////////////////
 	// WARNING: This next statement will delete 'this'
 	// ANYTHING BELOW HERE MUST NOT REFERENCE THE UNIT!
-	GET_PLAYER(getOwner()).deleteUnit(GetID());
+	GET_PLAYER(eUnitOwner).deleteUnit(GetID());
 
 	// Update Unit Production Maintenance
 	GET_PLAYER(kCaptureDef.eOldPlayer).UpdateUnitProductionMaintenanceMod();
@@ -2893,6 +2897,10 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 		CvMap& theMap = GC.getMap();
 		theMap.updateDeferredFog();
 	}
+
+	/// If checking for murder, do that now
+	if (bCheckForMurder)
+		GET_PLAYER(ePlayer).CheckForMurder(eUnitOwner);
 
 	//////////////////////////////////////////////////////////////////////////
 	// Do not add anything below here in this method
@@ -10613,7 +10621,7 @@ bool CvUnit::pillage()
 
 
 //	--------------------------------------------------------------------------------
-bool CvUnit::canFoundCity(const CvPlot* pPlot, bool bIgnoreDistanceToExistingCities, bool bIgnoreHappiness) const
+bool CvUnit::canFoundCity(const CvPlot* pPlot, bool bIgnoreDistanceToExistingCities, bool bIgnoreHappiness, bool bForAliveCheck) const
 {
 	if (pPlot)
 	{
@@ -10639,7 +10647,7 @@ bool CvUnit::canFoundCity(const CvPlot* pPlot, bool bIgnoreDistanceToExistingCit
 			return true;
 		}
 	}
-	else if (CanFoundColony() && GetGreatPeopleDirective() == GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND)
+	else if (CanFoundColony() && (bForAliveCheck || GetGreatPeopleDirective() == GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND))
 	{
 		return true;
 	}

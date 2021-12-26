@@ -10713,6 +10713,22 @@ void CvPlayer::ChangeMaxNumBuilders(int iChange)
 
 
 //	--------------------------------------------------------------------------------
+/// Does this player have a living Settler unit?
+bool CvPlayer::HasActiveSettler()
+{
+	int iLoop;
+	for (CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iLoop))
+	{
+		if (pLoopUnit->canFoundCity(NULL, true, true, true))
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
+
+//	--------------------------------------------------------------------------------
 /// Returns number of Units a player has with a particular UnitAI.  The second argument allows you to check whether or not to include Units currently being trained in Cities.
 int CvPlayer::GetNumUnitsWithUnitAI(UnitAITypes eUnitAIType, bool bIncludeBeingTrained, bool bIncludeWater)
 {
@@ -34001,7 +34017,7 @@ void CvPlayer::verifyAlive(PlayerTypes eKiller /* = NO_PLAYER */)
 		if (getNumCities() == 0 && getAdvancedStartPoints() < 0)
 		{
 			if ((GC.getGame().getMaxCityElimination() > 0 && getCitiesLost() >= GC.getGame().getMaxCityElimination()) ||
-				(getNumUnits() == 0 || (isFoundedFirstCity() && !GC.getGame().isOption(GAMEOPTION_COMPLETE_KILLS) && !GetPlayerTraits()->IsStaysAliveZeroCities())))
+				(getNumUnits() == 0 || ((isFoundedFirstCity() || !HasActiveSettler()) && !GC.getGame().isOption(GAMEOPTION_COMPLETE_KILLS) && !GetPlayerTraits()->IsStaysAliveZeroCities())))
 			{
 				if (eKiller != NO_PLAYER)
 				{
@@ -34631,7 +34647,7 @@ void CvPlayer::CheckForMurder(PlayerTypes ePossibleVictimPlayer)
 	kPossibleVictimPlayer.verifyAlive(GetID());
 
 	// You... you killed him!
-	if (!kPossibleVictimPlayer.isAlive() && kPossibleVictimPlayer.isMajorCiv())
+	if (!kPossibleVictimPlayer.isAlive() && kPossibleVictimPlayer.isMajorCiv() && isMajorCiv())
 	{
 		// Leader pops up and whines
 		if (!CvPreGame::isNetworkMultiplayerGame() && !kPossibleVictimPlayer.isHuman()) // Not humans or in MP

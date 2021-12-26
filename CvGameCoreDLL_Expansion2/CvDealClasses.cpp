@@ -704,7 +704,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 	else if(eItem == TRADE_ITEM_ALLOW_EMBASSY)
 	{
 		// too few cities
-		if (pToPlayer->getNumCities() < 1)
+		if (pFromPlayer->getNumCities() < 1)
 			return false;
 
 		// Does not have tech for Embassy trading
