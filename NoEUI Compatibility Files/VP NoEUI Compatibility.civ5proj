@@ -7,7 +7,7 @@
     <Guid>828b5b4b-7c62-4afb-a43f-034b596ef5e4</Guid>
     <ModVersion>1</ModVersion>
     <Stability>Stable</Stability>
-    <Teaser>(1.3.2) Vox Populi Compatibility and LUA (No EUI Version)</Teaser>
+    <Teaser>(1.3.3) Vox Populi Compatibility and LUA (No EUI Version)</Teaser>
     <Description>LUA and mod compatibility files for CBO, CSD, C4DF and More Luxuries if not using EUI. Must use all of these mods in order to use this mod.</Description>
     <Authors>Gazebo</Authors>
     <SpecialThanks>
