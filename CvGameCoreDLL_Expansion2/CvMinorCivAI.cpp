@@ -489,7 +489,7 @@ void CvMinorCivQuest::CalculateRewards(PlayerTypes ePlayer, bool bRecalc)
 		//common for all yields
 		int iBaseModifier = 100 +
 			GET_PLAYER(m_eAssignedPlayer).GetIncreasedQuestInfluence() +
-			(pMinor->GetMinorCivAI()->IsProtectedByMajor(m_eAssignedPlayer) ? /*0 in CP, 25 in CBO*/ GD_INT_GET(BALANCE_INFLUENCE_BOOST_PROTECTION_MINOR) : 0) +
+			(pMinor->GetMinorCivAI()->IsProtectedByMajor(m_eAssignedPlayer) ? /*0 in CP, 15 in CBO*/ GD_INT_GET(BALANCE_INFLUENCE_BOOST_PROTECTION_MINOR) : 0) +
 			(ePersonality == MINOR_CIV_PERSONALITY_FRIENDLY && MOD_BALANCE_CORE_MINORS ? 25 : 0) +
 			(ePersonality == MINOR_CIV_PERSONALITY_HOSTILE && MOD_BALANCE_CORE_MINORS ? -25 : 0);
 

@@ -2293,7 +2293,7 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 		}
 	}
 
-	bool bCheckForMurder = ePlayer != NO_PLAYER && GET_PLAYER(eUnitOwner).getNumCities() <= 0 && (GET_PLAYER(eUnitOwner).getNumUnits() <= 1 || canFoundCity(NULL, true, true, true));
+	bool bCheckForMurder = ePlayer != NO_PLAYER && !GET_PLAYER(eUnitOwner).isBarbarian() && GET_PLAYER(eUnitOwner).getNumCities() <= 0 && (GET_PLAYER(eUnitOwner).getNumUnits() <= 1 || canFoundCity(NULL, true, true, true));
 
 #if defined(MOD_UNIT_KILL_STATS)
 	if (ePlayer != NO_PLAYER && !bDelay)
