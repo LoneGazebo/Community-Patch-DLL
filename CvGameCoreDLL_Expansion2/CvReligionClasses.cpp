@@ -5853,7 +5853,10 @@ void CvCityReligions::SimulateFollowers()
 		}
 
 		if (iLargestRemainder > 0)
+		{	
 			m_SimulatedStatus[iNextRecipient].m_iFollowers++;
+			remainders[iNextRecipient] = 0;
+		}
 	}
 }
 
