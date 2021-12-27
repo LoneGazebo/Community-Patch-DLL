@@ -5777,6 +5777,7 @@ void CvCityReligions::RecomputeFollowers(CvReligiousFollowChangeReason eReason, 
 
 		if (iLargestRemainder > 0)
 			m_ReligionStatus[iNextRecipient].m_iFollowers++;
+			remainders[iNextRecipient] = 0;
 	}
 
 	ComputeReligiousMajority(true);
