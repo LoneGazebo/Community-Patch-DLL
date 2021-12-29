@@ -9501,7 +9501,7 @@ void CvPlayer::DoEventChoice(EventChoiceTypes eEventChoice, EventTypes eEvent, b
 						{
 							continue;
 						}
-						pLoopCity->GetCityReligions()->ConvertPercentForcedFollowers(eReligion, iPercent);
+						pLoopCity->GetCityReligions()->ConvertPercentAllOtherFollowers(eReligion, iPercent);
 					}
 				}
 				int iPop = (ReligionTypes)pkEventChoiceInfo->getEventConvertReligion(iI);
@@ -9517,7 +9517,7 @@ void CvPlayer::DoEventChoice(EventChoiceTypes eEventChoice, EventTypes eEvent, b
 						{
 							continue;
 						}
-						pLoopCity->GetCityReligions()->ConvertNumberFollowers(eReligion, iPop);
+						pLoopCity->GetCityReligions()->ConvertNumberAllOtherFollowers(eReligion, iPop);
 					}
 				}
 			}

@@ -3433,7 +3433,7 @@ int CvLuaCity::lGetReligiousMajority(lua_State* L)
 int CvLuaCity::lGetSecondaryReligion(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	const int iResult = (int)pkCity->GetCityReligions()->GetSecondaryReligion();
+	const int iResult = (int)pkCity->GetCityReligions()->GetReligionByAccumulatedPressure(1);
 	lua_pushinteger(L, iResult);
 	return 1;
 }
@@ -3527,7 +3527,7 @@ int CvLuaCity::lGetReligionBuildingClassYieldChange(lua_State* L)
 			eSecondaryPantheon = pkCity->GetCityReligions()->GetSecondaryReligionPantheonBelief();
 			if (eSecondaryPantheon != NO_BELIEF)
 			{
-				iFollowers =  pkCity->GetCityReligions()->GetNumFollowers(pkCity->GetCityReligions()->GetSecondaryReligion());
+				iFollowers =  pkCity->GetCityReligions()->GetNumFollowers(pkCity->GetCityReligions()->GetReligionByAccumulatedPressure(1));
 				if (iFollowers >= GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetMinFollowers())
 				{
 					iYieldFromBuilding += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetBuildingClassYieldChange(eBuildingClass, eYieldType);

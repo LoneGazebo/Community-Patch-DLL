@@ -401,7 +401,7 @@ public:
 #else
 	bool CanAffordFaithPurchase() const;
 #endif
-	bool HasReligiousCity() const;
+	bool HasCityWithMajorityReligion(ReligionTypes eReligionToCheck) const;
 	bool HasOthersReligionInMostCities(PlayerTypes eOtherPlayer) const;
 	bool HasReligionInMostCities(ReligionTypes eReligion) const;
 	ReligionTypes GetReligionInMostCities() const;
@@ -480,9 +480,9 @@ public:
 	bool IsReligionHereOtherThan(ReligionTypes eReligion, int iMinFollowers = 0);
 	bool IsDefendedAgainstSpread(ReligionTypes eReligion, CvUnit* pUnit = NULL);
 	bool IsForeignMissionaryNearby(ReligionTypes eReligion);
-	ReligionTypes GetReligiousMajority();
+	ReligionTypes GetReligiousMajority() const;
 	ReligionTypes GetSimulatedReligiousMajority();
-	ReligionTypes GetSecondaryReligion();
+	ReligionTypes GetReligionByAccumulatedPressure(size_t iIndex) const;
 	BeliefTypes GetSecondaryReligionPantheonBelief();
 	int GetFollowersOtherReligions(ReligionTypes eReligion, bool bIncludePantheons = false);
 	int GetReligiousPressureModifier(ReligionTypes eReligion) const;
@@ -499,15 +499,15 @@ public:
 	void DoReligionFounded(ReligionTypes eReligion);
 	void AddMissionarySpread(ReligionTypes eReligion, int iPressure, PlayerTypes eResponsiblePlayer);
 	void AddProphetSpread(ReligionTypes eReligion, int iPressure, PlayerTypes eResponsiblePlayer);
-	void AddReligiousPressure(CvReligiousFollowChangeReason eReason, ReligionTypes eReligion, int iPressureChange, ReligionTypes eCurrentMajority, PlayerTypes eResponsiblePlayer=NO_PLAYER);
+	void AddReligiousPressure(CvReligiousFollowChangeReason eReason, ReligionTypes eReligion, int iPressureChange, PlayerTypes eResponsiblePlayer=NO_PLAYER);
 	void ErodeOtherReligiousPressure(CvReligiousFollowChangeReason eReason, ReligionTypes eExemptedReligion, int iErosionPercent, bool bAllowRetention, bool bLeaveAtheists, PlayerTypes eResponsiblePlayer=NO_PLAYER);
 
 	void SimulateProphetSpread(ReligionTypes eReligion, int iPressure);
 	void SimulateReligiousPressure(ReligionTypes eReligion, int iPressure);
 	void ConvertPercentFollowers(ReligionTypes eToReligion, ReligionTypes eFromReligion, int iPercent);
 #if defined(MOD_BALANCE_CORE)
-	void ConvertPercentForcedFollowers(ReligionTypes eToReligion, int iPercent);
-	void ConvertNumberFollowers(ReligionTypes eToReligion, int iPop);
+	void ConvertPercentAllOtherFollowers(ReligionTypes eToReligion, int iPercent);
+	void ConvertNumberAllOtherFollowers(ReligionTypes eToReligion, int iPop);
 #endif
 	void AddHolyCityPressure();
 	void AddSpyPressure(ReligionTypes eReligion, int iBasePressure);
@@ -526,14 +526,13 @@ public:
 
 	void ResetNumTradeRoutePressure();
 
-	bool ComputeReligiousMajority(bool bNotifications = false);
+	void RecomputeFollowers(CvReligiousFollowChangeReason eReason, PlayerTypes eResponsibleParty=NO_PLAYER);
 	const CvReligion* GetMajorityReligion(); //performance optimized
 
 	void LogPressureChange(CvReligiousFollowChangeReason eReason, ReligionTypes eReligion, int iPressureChange, int iAccPressure, PlayerTypes eResponsiblePlayer);
 protected:
-	void RecomputeFollowers(CvReligiousFollowChangeReason eReason, ReligionTypes eOldMajorityReligion, PlayerTypes eResponsibleParty=NO_PLAYER);
+	bool ComputeReligiousMajority(bool bNotifications = false);
 	void SimulateFollowers();
-	void CopyToSimulatedStatus();
 	void CityConvertsReligion(ReligionTypes eMajority, ReligionTypes eOldMajority, PlayerTypes eResponsibleParty);
 #if defined(MOD_ISKA_PANTHEONS)
 	void CityConvertsPantheon();
@@ -657,15 +656,16 @@ public:
 	BeliefTypes ChooseReformationBelief();
 #endif
 #if defined(MOD_BALANCE_CORE)
-	int GetNumCitiesWithReligionCalculator(ReligionTypes eReligion = NO_RELIGION, bool bForPantheon = false);
+	int GetNumCitiesWithReligionCalculator(ReligionTypes eReligion = NO_RELIGION, bool bForPantheon = false) const;
 #endif
-	CvCity* ChooseMissionaryTargetCity(CvUnit* pUnit, const vector<pair<int,int>>& vIgnoreTargets, int* piTurns = NULL);
-	CvCity* ChooseInquisitorTargetCity(CvUnit* pUnit, const vector<pair<int,int>>& vIgnoreTargets, int* piTurns = NULL);
+	CvCity* ChooseMissionaryTargetCity(CvUnit* pUnit, const vector<pair<int,int>>& vIgnoreTargets, int* piTurns = NULL) const;
+	CvCity* ChooseInquisitorTargetCity(CvUnit* pUnit, const vector<pair<int,int>>& vIgnoreTargets, int* piTurns = NULL) const;
 	CvCity *ChooseProphetConversionCity(CvUnit* pUnit = NULL, int* piTurns = NULL) const;
 	ReligionTypes GetReligionToSpread() const;
 
 private:
 #if defined(MOD_BALANCE_CORE)
+	ReligionTypes GetFavoriteForeignReligion() const;
 	bool DoFaithPurchasesInCities(CvCity* pCity);
 	bool DoReligionDefenseInCities();
 #endif
@@ -682,14 +682,14 @@ private:
 	bool BuyAnyAvailableNonFaithBuilding();
 	bool BuyAnyAvailableFaithBuilding();
 
-	int ScoreBelief(CvBeliefEntry* pEntry, bool bForBonus = false);
-	int ScoreBeliefAtPlot(CvBeliefEntry* pEntry, CvPlot* pPlot);
-	int ScoreBeliefAtCity(CvBeliefEntry* pEntry, CvCity* pCity);
-	int ScoreBeliefForPlayer(CvBeliefEntry* pEntry, bool bReturnConquest = false, bool bReturnCulture = false, bool bReturnScience = false, bool bReturnDiplo = false);
-	int GetValidPlotYield(CvBeliefEntry* pEntry, CvPlot* pPlot, YieldTypes eYield);
+	int ScoreBelief(CvBeliefEntry* pEntry, bool bForBonus = false) const;
+	int ScoreBeliefAtPlot(CvBeliefEntry* pEntry, CvPlot* pPlot) const;
+	int ScoreBeliefAtCity(CvBeliefEntry* pEntry, CvCity* pCity) const;
+	int ScoreBeliefForPlayer(CvBeliefEntry* pEntry, bool bReturnConquest = false, bool bReturnCulture = false, bool bReturnScience = false, bool bReturnDiplo = false) const;
+	int GetValidPlotYield(CvBeliefEntry* pEntry, CvPlot* pPlot, YieldTypes eYield) const;
 
-	int ScoreCityForMissionary(CvCity* pCity, CvUnit* pUnit, ReligionTypes eReligion);
-	int ScoreCityForInquisitor(CvCity* pCity, CvUnit* pUnit, ReligionTypes eReligion);
+	int ScoreCityForMissionary(CvCity* pCity, CvUnit* pUnit, ReligionTypes eReligion) const;
+	int ScoreCityForInquisitor(CvCity* pCity, CvUnit* pUnit, ReligionTypes eReligion) const;
 
 	bool AreAllOurCitiesConverted(ReligionTypes eReligion, bool bIncludePuppets) const;
 	bool AreAllOurCitiesHaveFaithBuilding(ReligionTypes eReligion, bool bIncludePuppets) const;
@@ -707,6 +707,9 @@ private:
 
 	CvBeliefXMLEntries* m_pBeliefs;
 	CvPlayer* m_pPlayer;
+
+	mutable ReligionTypes m_eReligionToSpread; //not serialized
+	mutable int m_iTurnReligionToSpreadUpdated; //not serialized
 };
 
 FDataStream& operator>>(FDataStream&, CvReligionAI&);
