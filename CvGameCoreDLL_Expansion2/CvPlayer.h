@@ -1074,6 +1074,9 @@ public:
 	void incrementGPExtra4FromFaith();
 	int getGPExtra5FromFaith() const;
 	void incrementGPExtra5FromFaith();
+
+	byte getResourceFromGP(ResourceTypes eResource) const;
+	void changeResourceFromGP(ResourceTypes eResource, byte iChange);
 #endif
 
 	int getGreatPeopleThresholdModifier() const;
@@ -3533,6 +3536,7 @@ protected:
 	std::vector<int> m_paiResourceImportFromMajor;
 	std::vector<int> m_paiResourceFromMinors;
 	std::vector<int> m_paiResourcesSiphoned;
+	std::vector<byte> m_aiNumResourceFromGP;
 	std::vector<int> m_paiImprovementCount;
 #if defined(MOD_BALANCE_CORE)
 	std::vector<int> m_paiTotalImprovementsBuilt;
@@ -4295,6 +4299,7 @@ SYNC_ARCHIVE_VAR(std::vector<int>, m_paiResourceExport)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_paiResourceImportFromMajor)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_paiResourceFromMinors)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_paiResourcesSiphoned)
+SYNC_ARCHIVE_VAR(std::vector<byte>, m_aiNumResourceFromGP)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_paiImprovementCount)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_paiTotalImprovementsBuilt)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_paiBuildingChainSteps)

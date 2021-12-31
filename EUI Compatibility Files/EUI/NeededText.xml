@@ -14,6 +14,9 @@
 		<Row Tag="TXT_KEY_EO_MISC_RESOURCES">
 			<Text>Resources from Policies, Religion, or Corporations</Text>
 		</Row>
+		<Row Tag="TXT_KEY_EO_GP_RESOURCES">
+			<Text>Resources from Great People</Text>
+		</Row>
 		<Row Tag="TXT_KEY_CP_DIPLO_DP">
 			<Text>Defensive Pact</Text>
 		</Row>

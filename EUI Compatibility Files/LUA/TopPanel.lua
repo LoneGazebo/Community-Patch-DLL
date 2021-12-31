@@ -1824,7 +1824,7 @@ if civ5_mode and gk_mode then
 			local tip = ""
 			for _, resource in pairs( g_luxuries) do
 				local resourceID = resource.ID
-				local quantity = g_activePlayer:GetNumResourceTotal( resourceID, false ) + g_activePlayer:GetResourceExport( resourceID )
+				local quantity = g_activePlayer:GetNumResourceTotal( resourceID, false ) + g_activePlayer:GetResourceExport( resourceID ) - g_activePlayer:GetResourcesFromGP(resourceID)
 				if quantity > 0 then
 					tip = tip .. " " .. ColorizeAbs( quantity ) .. resource.IconString
 				end
@@ -1861,6 +1861,20 @@ if civ5_mode and gk_mode then
 				if #tip > 0 then
 					tips:insert( "[ICON_BULLET]" .. city:GetName() .. tip )
 				end
+			end
+
+			----------------------------
+			-- GP Resources
+			----------------------------
+			local GPtip = ""
+			for _, resource in pairs( g_luxuries) do
+				local numResourceGP = g_activePlayer:GetResourcesFromGP(resource.ID)
+				if numResourceGP > 0 then
+					GPtip = GPtip .. "[NEWLINE][ICON_BULLET]" .. ColorizeAbs( numResourceGP ) .. resource.IconString
+				end
+			end
+			if #GPtip > 0 then
+				tips:insert( "[NEWLINE]" .. L"TXT_KEY_EO_GP_RESOURCES" .. GPtip)
 			end
 
 			----------------------------
@@ -1981,12 +1995,11 @@ if civ5_mode and gk_mode then
 
 --			tips:insert( L"TXT_KEY_DIPLO_ITEMS_LUXURY_RESOURCES" )
 --			tips:insert( missingResources )
-			tips:insert( "" )
-			tips:insert( L"TXT_KEY_EO_RESOURCES_AVAILBLE" )
 
 			----------------------------
 			-- Available for Import
 			----------------------------
+			local avalibleTip = ""
 			for _, resource in pairs( g_luxuries) do
 				local resourceID = resource.ID
 				local resources = table()
@@ -2012,8 +2025,13 @@ if civ5_mode and gk_mode then
 					end
 				end
 				if #resources > 0 then
-					tips:insert( "[ICON_BULLET]" .. L(resource.Description) .. ": " .. resources:concat(", ") )
+					avalibleTip = avalibleTip .. "[NEWLINE][ICON_BULLET]" .. L(resource.Description) .. ": " .. resources:concat(", ") 
 				end
+			end
+
+			if #avalibleTip > 0 then
+				tips:insert( "" )
+				tips:insert( L"TXT_KEY_EO_RESOURCES_AVAILBLE" .. avalibleTip)
 			end
 
 	return setTextToolTip( tips:concat( "[NEWLINE]" ) )
@@ -2098,12 +2116,13 @@ local function ResourcesToolTip( control )
 			( g_activePlayer:IsResourceRevealed(resourceID) and
 			g_activePlayer:IsResourceCityTradeable(resourceID) )
 		then
---			local numResourceTotal = g_activePlayer:GetNumResourceTotal( resourceID, true )	-- true means includes both imports & minors - but exports are deducted regardless
+---			local numResourceTotal = g_activePlayer:GetNumResourceTotal( resourceID, true )	-- true means includes both imports & minors - but exports are deducted regardless
 			local numResourceAvailable = g_activePlayer:GetNumResourceAvailable( resourceID, true )	-- same as (total - used)
 			local numResourceExport = g_activePlayer:GetResourceExport( resourceID )
 			local numResourceImport = g_activePlayer:GetResourceImport( resourceID )
 			local numResourceMisc = g_activePlayer:GetResourcesMisc(resourceID)
-			local numResourceLocal = g_activePlayer:GetNumResourceTotal( resourceID, false ) + numResourceExport - numResourceMisc
+			local numResourceGP = g_activePlayer:GetResourcesFromGP(resourceID)
+			local numResourceLocal = g_activePlayer:GetNumResourceTotal( resourceID, false ) + numResourceExport - numResourceMisc - numResourceGP
 
 			tips:insert( ColorizeAbs(numResourceAvailable) .. resource.IconString .. " " .. Locale.ToUpper(resource.Description) )
 			tips:insert( "----------------" )
@@ -2204,6 +2223,18 @@ local function ResourcesToolTip( control )
 				tips:insert( Colorize(numResourceMisc) .. " " .. L"TXT_KEY_EO_MISC_RESOURCES" )
 				tips:insert( "[ICON_BULLET]" .. tip2 )
 			end
+
+			----------------------------
+			-- Resources from GP
+			----------------------------
+
+			if numResourceGP > 0 then
+				local GPtip = " " .. ColorizeAbs( numResourceGP ) .. resource.IconString
+				tips:insert( "" )
+				tips:insert( Colorize(numResourceGP) .. " " .. L"TXT_KEY_EO_GP_RESOURCES" )
+				tips:insert( "[ICON_BULLET]" .. GPtip )
+			end
+
 			----------------------------
 			-- Import & Export Breakdown
 			----------------------------

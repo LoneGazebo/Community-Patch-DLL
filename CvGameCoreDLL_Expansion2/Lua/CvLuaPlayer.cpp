@@ -64,6 +64,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(HasGlobalMonopoly);
 	Method(HasStrategicMonopoly);
 	Method(GetResourcesMisc);
+	Method(GetResourcesFromGP);
 	Method(IsShowImports);
 #endif
 	Method(IsResourceCityTradeable);
@@ -1638,6 +1639,16 @@ int CvLuaPlayer::lGetResourcesMisc(lua_State* L)
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	const ResourceTypes eResource = (ResourceTypes)lua_tointeger(L, 2);
 	const int iResult = pkPlayer->getNumResourcesFromOther(eResource);
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+// -----------------------------------------------------------------------------
+// int CvPlayer::GetResourcesFromGP(ResourceTypes eResource)
+int CvLuaPlayer::lGetResourcesFromGP(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const ResourceTypes eResource = (ResourceTypes)lua_tointeger(L, 2);
+	const int iResult = (int)(pkPlayer->getResourceFromGP(eResource));
 	lua_pushinteger(L, iResult);
 	return 1;
 }
