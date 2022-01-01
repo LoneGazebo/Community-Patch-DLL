@@ -14661,11 +14661,13 @@ void CvPlayer::foundCity(int iX, int iY)
 #endif
 {
 	if(!bForce && !canFoundCity(iX, iY))
-	{
 		return;
-	}
 
 	SetTurnsSinceSettledLastCity(0);
+
+	//if this is our first city, remember how good it is as a reference
+	if (GetNumCitiesFounded() == 0)
+		m_iFoundValueOfCapital = getPlotFoundValue(iX, iY);
 
 #if defined(MOD_GLOBAL_RELIGIOUS_SETTLERS) && defined(MOD_BALANCE_CORE)
 	CvCity* pCity = initCity(iX, iY, true, true, eReligion, NULL, pkSettlerUnitEntry);
@@ -48930,7 +48932,7 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, CvAIOperation* pOpToIgn
 
 		if (bLogging)
 		{
-			iDanger = pUnit->GetDanger(pPlot);
+			iDanger = pUnit ? pUnit->GetDanger(pPlot) : 0;
 			iFertility = GC.getGame().GetSettlerSiteEvaluator()->PlotFertilityValue(pPlot,true);
 		}
 
@@ -49138,6 +49140,20 @@ PlayerTypes CvPlayer::GetPlayerWhoStoleMyFavoriteCitySite()
 	}
 
 	return NO_PLAYER;
+}
+
+// range is -50 to +50
+int CvPlayer::GetSettlePlotQualityMeasure(CvPlot * pPlot)
+{
+	int iReference = (67 * m_iFoundValueOfCapital) / 100;
+
+	if (pPlot && iReference > 0)
+	{
+		int iRawPercent = (100 * getPlotFoundValue(pPlot->getX(), pPlot->getY())) / iReference;
+		return range(iRawPercent, 50, 150) - 100;
+	}
+
+	return 0;
 }
 
 //	--------------------------------------------------------------------------------

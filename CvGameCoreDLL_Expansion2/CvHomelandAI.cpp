@@ -2576,13 +2576,16 @@ void CvHomelandAI::ExecuteWorkerMoves()
 
 	//humans also have non-automated workers. pretend they are automated as well to avoid going where they are
 	//todo: what about great people?
-	int iLoop;
-	for (CvUnit* pLoopUnit = m_pPlayer->firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iLoop))
+	if (m_pPlayer->isHuman())
 	{
-		if (pLoopUnit->AI_getUnitAIType() == UNITAI_WORKER && allWorkersReachablePlots.find(pLoopUnit) == allWorkersReachablePlots.end())
+		int iLoop;
+		for (CvUnit* pLoopUnit = m_pPlayer->firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iLoop))
 		{
-			SPathFinderUserData data(pLoopUnit, 0, 5);
-			allWorkersReachablePlots[pLoopUnit] = GC.GetPathFinder().GetPlotsInReach(pLoopUnit->plot(), data);
+			if (pLoopUnit->AI_getUnitAIType() == UNITAI_WORKER && allWorkersReachablePlots.find(pLoopUnit) == allWorkersReachablePlots.end())
+			{
+				SPathFinderUserData data(pLoopUnit, 0, 5);
+				allWorkersReachablePlots[pLoopUnit] = GC.GetPathFinder().GetPlotsInReach(pLoopUnit->plot(), data);
+			}
 		}
 	}
 
@@ -2644,6 +2647,7 @@ void CvHomelandAI::ExecuteWorkerMoves()
 
 	//may need this later
 	map<CvCity*, int> mapCityNeed;
+	int iLoop = 0;
 	for (CvCity* pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
 		mapCityNeed[pLoopCity] = pLoopCity->GetTerrainImprovementNeed();
 
