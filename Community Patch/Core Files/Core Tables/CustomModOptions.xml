@@ -731,8 +731,9 @@
     <!--   GameEvents.UnitCanHaveGreatWork.Add(function(iPlayer, iUnit, iGreatWork) return true end) -->
     <Row Class="3" Name="EVENTS_UNIT_DATA" Value="0"/>
 
-    <!-- Event sent as ascertain if a trade route can be created (v68) -->
+    <!-- Event sent as ascertain if a trade route can be created (v68) or has been completed -->
     <!--   GameEvents.PlayerCanCreateTradeRoute.Add(function(iFromPlayer, iFromCity, iToPlayer, iToCity, iDomain, iConnectionType) return true end) -->
+    <!--   GameEvents.PlayerTradeRouteCompleted(PlayerID iFromPlayer, CityID iFromCity, PlayerID iToPlayer, CityID iToCity, DomainType iDomain, int iConnectionType) -->
     <Row Class="3" Name="EVENTS_TRADE_ROUTES" Value="0"/>
 
     <!-- Event sent as a trade route is plundered (v52) -->
