@@ -1077,6 +1077,8 @@ public:
 
 	byte getResourceFromGP(ResourceTypes eResource) const;
 	void changeResourceFromGP(ResourceTypes eResource, byte iChange);
+
+	int getResourceModFromReligion(ResourceTypes eIndex) const;
 #endif
 
 	int getGreatPeopleThresholdModifier() const;

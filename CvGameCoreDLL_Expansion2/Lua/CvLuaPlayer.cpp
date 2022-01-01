@@ -65,6 +65,11 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(HasStrategicMonopoly);
 	Method(GetResourcesMisc);
 	Method(GetResourcesFromGP);
+	Method(GetResourcesFromCorporation);
+	Method(GetResourceFromCSAlliances);
+	Method(GetResourcesFromFranchises);
+	Method(GetStrategicResourceMod);
+	Method(GetResourceModFromReligion);
 	Method(IsShowImports);
 #endif
 	Method(IsResourceCityTradeable);
@@ -1651,6 +1656,92 @@ int CvLuaPlayer::lGetResourcesFromGP(lua_State* L)
 	const int iResult = (int)(pkPlayer->getResourceFromGP(eResource));
 	lua_pushinteger(L, iResult);
 	return 1;
+}
+// -----------------------------------------------------------------------------
+// int CvPlayer::GetResourcesFromCorporation(ResourceTypes eResource)
+int CvLuaPlayer::lGetResourcesFromCorporation(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const ResourceTypes eResource = (ResourceTypes)lua_tointeger(L, 2);
+
+	int iResult = 0;
+
+	CorporationTypes eCorporation = pkPlayer->GetCorporations()->GetFoundedCorporation();
+	if (eCorporation != NO_CORPORATION)
+	{
+		CvCorporationEntry* pkCorporationInfo = GC.getCorporationInfo(eCorporation);
+		if (pkCorporationInfo)
+		{
+			int iFreeResource = pkCorporationInfo->GetNumFreeResource(eResource);
+			if (iFreeResource > 0)
+			{
+				iResult += iFreeResource;
+			}
+		}
+	}
+
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+// -----------------------------------------------------------------------------
+// int CvPlayer::GetResourceFromCSAlliances(ResourceTypes eResource)
+int CvLuaPlayer::lGetResourceFromCSAlliances(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const ResourceTypes eResource = (ResourceTypes)lua_tointeger(L, 2);
+	
+	int iCSResource = pkPlayer->getResourceFromCSAlliances(eResource);
+	if (iCSResource != 0)
+	{
+		if (pkPlayer->IsResourceRevealed(eResource))
+		{
+			iCSResource *= pkPlayer->GetNumCSAllies();
+			iCSResource /= 100;
+		}
+	}
+
+	lua_pushinteger(L, iCSResource);
+	return 1;
+}
+// -----------------------------------------------------------------------------
+// int CvPlayer::GetResourcesFromFranchises(ResourceTypes eResource)
+int CvLuaPlayer::lGetResourcesFromFranchises(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const ResourceTypes eResource = (ResourceTypes)lua_tointeger(L, 2);
+
+	int iResult = 0;
+	const CvCity* pLoopCity;
+	int iLoop;
+	for (pLoopCity = pkPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = pkPlayer->nextCity(&iLoop))
+	{
+		if (pLoopCity != NULL)
+		{
+			if (pLoopCity->GetResourceQuantityPerXFranchises(eResource) > 0)
+			{
+				int iFranchises = pkPlayer->GetCorporations()->GetNumFranchises();
+				if (iFranchises > 0)
+				{
+					iResult += (iFranchises / pLoopCity->GetResourceQuantityPerXFranchises(eResource));
+				}
+			}
+		}
+	}
+
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+// -----------------------------------------------------------------------------
+// int CvPlayer::GetStrategicResourceMod()
+int CvLuaPlayer::lGetStrategicResourceMod(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvPlayerAI::GetStrategicResourceMod);
+}
+// -----------------------------------------------------------------------------
+// int CvPlayer::GetResourceModFromReligion(ResourceTypes eResource)
+int CvLuaPlayer::lGetResourceModFromReligion(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvPlayerAI::getResourceModFromReligion);
 }
 
 // -----------------------------------------------------------------------------

@@ -38134,6 +38134,9 @@ int CvPlayer::getNumResourcesFromOther(ResourceTypes eIndex) const
 			iTotalNumResource += iCSResource;
 		}
 	}
+
+	//GP resources? ie. Admiral, Diplomat
+	iTotalNumResource += getResourceFromGP(eIndex);
 #endif
 
 	if (pkResource->getResourceUsage() == RESOURCEUSAGE_STRATEGIC)
@@ -38164,31 +38167,11 @@ int CvPlayer::getNumResourcesFromOther(ResourceTypes eIndex) const
 	}
 
 #if defined(MOD_BALANCE_CORE)
-	ReligionTypes eFounder = GC.getGame().GetGameReligions()->GetReligionCreatedByPlayer(GetID());
-	if (eFounder == NO_RELIGION)
-	{
-		eFounder = GetReligions()->GetReligionInMostCities();
-	}
-	const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eFounder, GetID());
-	if (pReligion)
-	{
-		CvCity* pHolyCity = pReligion->GetHolyCity();
-		if (pHolyCity == NULL)
-		{
-			pHolyCity = GET_PLAYER(GetID()).getCapitalCity();
-		}
-		int iQuantityMod = pReligion->m_Beliefs.GetResourceQuantityModifier(eIndex, GetID(), pHolyCity, true);
-		if (iQuantityMod != 0)
-		{
-			iQuantityMod *= GC.getGame().GetGameReligions()->GetNumCitiesFollowing(eFounder);
-
-			iTotalNumResource *= 100 + std::min(25, iQuantityMod);
-			iTotalNumResource /= 100;
-		}
-	}
+	iTotalNumResource *= 100 + getResourceModFromReligion(eIndex);
+	iTotalNumResource /= 100;
 #endif
 
-	//And remove the starter.
+	//And remove the starter. Added in beginning to factor in multiplicative modifiers.
 	iTotalNumResource -= m_paiNumResourceTotal[eIndex];
 
 	return iTotalNumResource;
@@ -38200,93 +38183,15 @@ int CvPlayer::getNumResourceTotal(ResourceTypes eIndex, bool bIncludeImport) con
 	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
 	CvAssertMsg(eIndex < GC.getNumResourceInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 
-	// exists?
 	CvResourceInfo *pkResource = GC.getResourceInfo(eIndex);
+
+	// exists?
 	if (pkResource == NULL) { return 0;}
 
 	int iTotalNumResource = m_paiNumResourceTotal[eIndex];
 
-#if defined(MOD_BALANCE_CORE)
-	// Additional resources from Corporation
-	CorporationTypes eCorporation = GetCorporations()->GetFoundedCorporation();
-	if (eCorporation != NO_CORPORATION)
-	{
-		CvCorporationEntry* pkCorporationInfo = GC.getCorporationInfo(eCorporation);
-		if (pkCorporationInfo)
-		{
-			int iFreeResource = pkCorporationInfo->GetNumFreeResource(eIndex);
-			if (iFreeResource > 0)
-			{
-				iTotalNumResource += iFreeResource;
-			}
-		}
-	}
-
-	int iCSResource = getResourceFromCSAlliances(eIndex);
-	if (iCSResource != 0)
-	{
-		if (IsResourceRevealed(eIndex))
-		{
-			iCSResource *= GetNumCSAllies();
-			iCSResource /= 100;
-			iTotalNumResource += iCSResource;
-		}
-	}
-#endif
-
-	iTotalNumResource += (int)getResourceFromGP(eIndex);
-
-	if(pkResource->getResourceUsage() == RESOURCEUSAGE_STRATEGIC)
-	{
-#if defined(MOD_BALANCE_CORE)
-		const CvCity* pLoopCity;
-		int iLoop;
-		for(pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
-		{
-			if(pLoopCity != NULL)
-			{
-				if(pLoopCity->GetResourceQuantityPerXFranchises(eIndex) > 0)
-				{
-					int iFranchises = GetCorporations()->GetNumFranchises();
-					if(iFranchises > 0)
-					{
-						iTotalNumResource += (iFranchises / pLoopCity->GetResourceQuantityPerXFranchises(eIndex));
-					}
-				}
-			}
-		}
-#endif
-		if(GetStrategicResourceMod() != 0)
-		{
-			iTotalNumResource *= GetStrategicResourceMod();
-			iTotalNumResource /= 100;
-		}
-	}
-
-#if defined(MOD_BALANCE_CORE)
-	ReligionTypes eFounder = GC.getGame().GetGameReligions()->GetReligionCreatedByPlayer(GetID());
-	if (eFounder == NO_RELIGION)
-	{
-		eFounder = GetReligions()->GetReligionInMostCities();
-	}
-	const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eFounder, GetID());
-	if (pReligion)
-	{
-		CvCity* pHolyCity = pReligion->GetHolyCity();
-		if (pHolyCity == NULL)
-		{
-			pHolyCity = GET_PLAYER(GetID()).getCapitalCity();
-		}
-		int iQuantityMod = pReligion->m_Beliefs.GetResourceQuantityModifier(eIndex, GetID(), pHolyCity, true);
-		if (iQuantityMod != 0)
-		{
-			iQuantityMod *= GC.getGame().GetGameReligions()->GetNumCitiesFollowing(eFounder);
-
-			iTotalNumResource *= 100 + std::min(25, iQuantityMod);
-			iTotalNumResource /= 100;
-		}
-	}
-#endif
+	//add resources from other sources, ex Corporations, Policies, Religion
+	iTotalNumResource += getNumResourcesFromOther(eIndex);
 
 	if(bIncludeImport)
 	{
@@ -38467,6 +38372,39 @@ void CvPlayer::setResourceFromCSAlliances(ResourceTypes eIndex, int iChange)
 
 	CvAssert(m_paiResourceFromCSAlliances[eIndex] >= 0);
 }
+
+//	--------------------------------------------------------------------------------
+int CvPlayer::getResourceModFromReligion(ResourceTypes eIndex) const
+{
+	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eIndex < GC.getNumResourceInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+
+	int iQuantityMod = 0;
+
+	ReligionTypes eFounder = GC.getGame().GetGameReligions()->GetReligionCreatedByPlayer(GetID());
+	if (eFounder == NO_RELIGION)
+	{
+		eFounder = GetReligions()->GetReligionInMostCities();
+	}
+	const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eFounder, GetID());
+	if (pReligion)
+	{
+		CvCity* pHolyCity = pReligion->GetHolyCity();
+		if (pHolyCity == NULL)
+		{
+			pHolyCity = GET_PLAYER(GetID()).getCapitalCity();
+		}
+		iQuantityMod = pReligion->m_Beliefs.GetResourceQuantityModifier(eIndex, GetID(), pHolyCity, true);
+		if (iQuantityMod != 0)
+		{
+			iQuantityMod *= GC.getGame().GetGameReligions()->GetNumCitiesFollowing(eFounder);
+			iQuantityMod = std::min(25, iQuantityMod);
+		}
+	}
+
+	return iQuantityMod;
+}
+
 
 void CvPlayer::UpdateMonopolyCache()
 {

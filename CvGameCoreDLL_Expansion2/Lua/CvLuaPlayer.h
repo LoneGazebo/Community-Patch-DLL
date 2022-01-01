@@ -58,6 +58,11 @@ protected:
 	static int lHasStrategicMonopoly(lua_State* L);
 	static int lGetResourcesMisc(lua_State* L);
 	static int lGetResourcesFromGP(lua_State* L);
+	static int lGetResourcesFromCorporation(lua_State* L);
+	static int lGetResourceFromCSAlliances(lua_State* L);
+	static int lGetResourcesFromFranchises(lua_State* L);
+	static int lGetStrategicResourceMod(lua_State* L);
+	static int lGetResourceModFromReligion(lua_State* L);
 	static int lIsShowImports(lua_State* L);
 #endif
 	static int lIsResourceCityTradeable(lua_State* L);
