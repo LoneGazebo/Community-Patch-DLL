@@ -436,6 +436,7 @@
     <File md5="B4835D43F73DE5197A736980AA5FE2BF" import="0">Balance Changes/Units/PromotionNuke.sql</File>
     <File md5="733040FD1D52EAAF521E4DA59DBD9E47" import="0">Balance Changes/Units/UnitChanges.sql</File>
     <File md5="2D1C5A52C40C28B2D0779173DC4A2090" import="0">Balance Changes/Units/PromotionChanges.sql</File>
+    <File md5="7F5F498E28F24D14E548F668B8D2961E" import="0">Balance Changes/Units/UnitFlavors.sql</File>
     <File md5="C4A762F4436CB7A4829460E26601181B" import="0">Balance Changes/Wonders/NewWonders.xml</File>
     <File md5="EC0A24D405D8890AD857F6288B48BF82" import="0">Balance Changes/Wonders/WonderCultureCosts.sql</File>
     <File md5="2001CAF8A70AB9F08F59B38F6F97119D" import="0">Balance Changes/Wonders/WonderChanges.sql</File>
@@ -660,6 +661,7 @@
       <UpdateDatabase>Balance Changes/Units/MountedUnits.sql</UpdateDatabase>
       <UpdateDatabase>Balance Changes/Units/AirUnits.sql</UpdateDatabase>
       <UpdateDatabase>Balance Changes/Units/UnitCombat.sql</UpdateDatabase>
+      <UpdateDatabase>Balance Changes/Units/UnitFlavors.sql</UpdateDatabase>
       <UpdateDatabase>Modular Elements/Corporations/Text/en_US/CorpText.xml</UpdateDatabase>
       <UpdateDatabase>Balance Changes/Text/en_US/NewText.xml</UpdateDatabase>
       <UpdateDatabase>Balance Changes/Text/en_US/TextChanges.sql</UpdateDatabase>

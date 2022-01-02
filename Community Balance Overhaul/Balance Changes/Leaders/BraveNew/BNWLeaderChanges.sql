@@ -331,8 +331,8 @@ VALUES
 INSERT INTO Unit_Flavors
 	(UnitType, FlavorType, Flavor)
 VALUES
-	('UNIT_BANDEIRANTES', 'FLAVOR_EXPANSION', 35),
-	('UNIT_BANDEIRANTES', 'FLAVOR_OFFENSE', 20);
+	('UNIT_BANDEIRANTES', 'FLAVOR_RECON', 15),
+	('UNIT_BANDEIRANTES', 'FLAVOR_OFFENSE', 10);
 -- Zulu -- Ikanda gives promotions to all melee infantry
 
 UPDATE Buildings

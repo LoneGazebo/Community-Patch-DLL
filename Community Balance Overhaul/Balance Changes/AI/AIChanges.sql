@@ -12,8 +12,11 @@ UPDATE Defines SET Value = '4' WHERE Name = 'AI_CITYSTRATEGY_WANT_TILE_IMPROVERS
 UPDATE AICityStrategies SET TechPrereq = 'TECH_AGRICULTURE' WHERE Type = 'AICITYSTRATEGY_FIRST_FAITH_BUILDING';
 
 
--- Mobile SAM -- reduce interest
+-- Mobile SAM -- reduce interest -- balparmak: also reduce interest in the AAGun
+DELETE FROM Unit_Flavors WHERE UnitType = 'UNIT_MOBILE_SAM' AND FlavorType = 'FLAVOR_DEFENSE';
+DELETE FROM Unit_Flavors WHERE UnitType = 'UNIT_MOBILE_SAM' AND FlavorType = 'FLAVOR_MOBILE';
 UPDATE Unit_Flavors SET Flavor = '15' WHERE UnitType = 'UNIT_MOBILE_SAM' AND FlavorType = 'FLAVOR_ANTIAIR';
+UPDATE Unit_Flavors SET Flavor = 15 WHERE UnitType = 'UNIT_ANTI_AIRCRAFT_GUN' AND FlavorType = 'FLAVOR_ANTIAIR';
 
 
 -- Misc. AI Defines
