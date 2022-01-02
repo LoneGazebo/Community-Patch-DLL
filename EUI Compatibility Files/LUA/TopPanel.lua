@@ -122,29 +122,32 @@ local function GamePopup( popupType, data2 )
 end
 local GamePedia = Events.SearchForPediaEntry
 
-local function Colorize( x )
+local function Colorize( x, str )
+	str = str or ""
 	if x > 0 then
-		return "[COLOR_POSITIVE_TEXT]" .. x .. "[ENDCOLOR]"
+		return "[COLOR_POSITIVE_TEXT]" .. x .. str .. "[ENDCOLOR]"
 	elseif x < 0 then
-		return "[COLOR_WARNING_TEXT]" .. x .. "[ENDCOLOR]"
+		return "[COLOR_WARNING_TEXT]" .. x .. str .. "[ENDCOLOR]"
 	else
 		return "0"
 	end
 end
-local function ColorizeSigned( x )
+local function ColorizeSigned( x , str )
+	str = str or ""
 	if x > 0 then
-		return "[COLOR_POSITIVE_TEXT]+" .. x .. "[ENDCOLOR]"
+		return "[COLOR_POSITIVE_TEXT]+" .. x .. str .. "[ENDCOLOR]"
 	elseif x < 0 then
-		return "[COLOR_WARNING_TEXT]" .. x .. "[ENDCOLOR]"
+		return "[COLOR_WARNING_TEXT]" .. x .. str .. "[ENDCOLOR]"
 	else
 		return "0"
 	end
 end
-local function ColorizeAbs( x )
+local function ColorizeAbs( x, str )
+	str = str or ""
 	if x > 0 then
-		return "[COLOR_POSITIVE_TEXT]" .. x .. "[ENDCOLOR]"
+		return "[COLOR_POSITIVE_TEXT]" .. x .. str .. "[ENDCOLOR]"
 	elseif x < 0 then
-		return "[COLOR_WARNING_TEXT]" .. -x .. "[ENDCOLOR]"
+		return "[COLOR_WARNING_TEXT]" .. -x .. str .. "[ENDCOLOR]"
 	else
 		return "0"
 	end
@@ -1999,7 +2002,7 @@ if civ5_mode and gk_mode then
 			----------------------------
 			-- Available for Import
 			----------------------------
-			local avalibleTip = ""
+			local availableTip = ""
 			for _, resource in pairs( g_luxuries) do
 				local resourceID = resource.ID
 				local resources = table()
@@ -2025,13 +2028,13 @@ if civ5_mode and gk_mode then
 					end
 				end
 				if #resources > 0 then
-					avalibleTip = avalibleTip .. "[NEWLINE][ICON_BULLET]" .. L(resource.Description) .. ": " .. resources:concat(", ") 
+					availibleTip = availibleTip .. "[NEWLINE][ICON_BULLET]" .. L(resource.Description) .. ": " .. resources:concat(", ") 
 				end
 			end
 
-			if #avalibleTip > 0 then
+			if #availibleTip > 0 then
 				tips:insert( "" )
-				tips:insert( L"TXT_KEY_EO_RESOURCES_AVAILBLE" .. avalibleTip)
+				tips:insert( L"TXT_KEY_EO_RESOURCES_AVAILBLE" .. availibleTip)
 			end
 
 	return setTextToolTip( tips:concat( "[NEWLINE]" ) )
@@ -2116,13 +2119,12 @@ local function ResourcesToolTip( control )
 			( g_activePlayer:IsResourceRevealed(resourceID) and
 			g_activePlayer:IsResourceCityTradeable(resourceID) )
 		then
----			local numResourceTotal = g_activePlayer:GetNumResourceTotal( resourceID, true )	-- true means includes both imports & minors - but exports are deducted regardless
+	--		local numResourceTotal = g_activePlayer:GetNumResourceTotal( resourceID, true )	-- true means includes both imports & minors - but exports are deducted regardless
 			local numResourceAvailable = g_activePlayer:GetNumResourceAvailable( resourceID, true )	-- same as (total - used)
 			local numResourceExport = g_activePlayer:GetResourceExport( resourceID )
 			local numResourceImport = g_activePlayer:GetResourceImport( resourceID )
 			local numResourceMisc = g_activePlayer:GetResourcesMisc(resourceID)
-			local numResourceGP = g_activePlayer:GetResourcesFromGP(resourceID)
-			local numResourceLocal = g_activePlayer:GetNumResourceTotal( resourceID, false ) + numResourceExport - numResourceMisc - numResourceGP
+			local numResourceLocal = g_activePlayer:GetNumResourceTotal( resourceID, false ) + numResourceExport - numResourceMisc
 
 			tips:insert( ColorizeAbs(numResourceAvailable) .. resource.IconString .. " " .. Locale.ToUpper(resource.Description) )
 			tips:insert( "----------------" )
@@ -2214,25 +2216,47 @@ local function ResourcesToolTip( control )
 				end
 			end
 
-			local tip2 = ""
+			----------------------------
+			-- Misc Resources
+			----------------------------
+
 			if numResourceMisc > 0 then
-				tip2 = " " .. ColorizeAbs( numResourceMisc ) .. resource.IconString
-			end
-			if #tip2 > 0 then
 				tips:insert( "" )
 				tips:insert( Colorize(numResourceMisc) .. " " .. L"TXT_KEY_EO_MISC_RESOURCES" )
-				tips:insert( "[ICON_BULLET]" .. tip2 )
-			end
 
-			----------------------------
-			-- Resources from GP
-			----------------------------
+				
+				local numResourceGP = g_activePlayer:GetResourcesFromGP(resourceID)
+				local numResourceCorp = g_activePlayer:GetResourcesFromCorporation(resourceID)
+				local numResourceFranchises = g_activePlayer:GetResourcesFromFranchises(resourceID)
+				local numResourceCSAlly = g_activePlayer:GetResourceFromCSAlliances(resourceID)
 
-			if numResourceGP > 0 then
-				local GPtip = " " .. ColorizeAbs( numResourceGP ) .. resource.IconString
-				tips:insert( "" )
-				tips:insert( Colorize(numResourceGP) .. " " .. L"TXT_KEY_EO_GP_RESOURCES" )
-				tips:insert( "[ICON_BULLET]" .. GPtip )
+				--want the total, but before GetStrategicResourceMod and GetResourceModFromReligion are applied, so have to remove Misc then add back in parts of it
+				local totalBeforeMod =  g_activePlayer:GetNumResourceTotal( resourceID, false ) - numResourceMisc + numResourceGP + numResourceCorp + numResourceFranchises + numResourceCSAlly
+
+				local stratResMod = g_activePlayer:GetStrategicResourceMod()
+				local resourceModRel = g_activePlayer:GetResourceModFromReligion(resourceID)
+
+				if numResourceGP > 0 then
+					tips:insert( "[ICON_BULLET]" .. Colorize(numResourceGP) .. resource.IconString .. " " .. L"TXT_KEY_EO_GP_RESOURCES" )
+				end
+				if numResourceCorp > 0 then
+					tips:insert( "[ICON_BULLET]" .. Colorize(numResourceCorp) .. resource.IconString .. " " .. L"TXT_KEY_EO_CORP_RESOURCES" )
+				end
+				if numResourceFranchises > 0 then
+					tips:insert( "[ICON_BULLET]" .. Colorize(numResourceFranchises) .. resource.IconString .. " " .. L"TXT_KEY_EO_FRANCHISE_RESOURCES" )
+				end
+				if numResourceCSAlly > 0 then
+					tips:insert( "[ICON_BULLET]" .. Colorize(numResourceCSAlly) .. resource.IconString .. " " .. L"TXT_KEY_EO_CS_ALLY_RESOURCES" )
+				end
+				if stratResMod > 0 and Game.GetResourceUsageType(resource.ID) == ResourceUsageTypes.RESOURCEUSAGE_STRATEGIC then
+					local change = math_floor(((totalBeforeMod * stratResMod) / 100) - totalBeforeMod)
+					totalBeforeMod = totalBeforeMod + change
+					tips:insert( "[ICON_BULLET]" .. ColorizeSigned(stratResMod, "%") .. " (" .. Colorize(change) .. ") " .. resource.IconString .. " " .. L"TXT_KEY_EO_STRAT_MOD_RESOURCES" )
+				end
+				if resourceModRel > 0 then
+					local change = math_floor(((totalBeforeMod * (100 + resourceModRel)) / 100) - totalBeforeMod)
+					tips:insert( "[ICON_BULLET]" .. ColorizeSigned(resourceModRel, "%") .. " (" .. Colorize(change) .. ") " .. resource.IconString .. " " .. L"TXT_KEY_EO_REL_MOD_RESOURCES" )
+				end
 			end
 
 			----------------------------

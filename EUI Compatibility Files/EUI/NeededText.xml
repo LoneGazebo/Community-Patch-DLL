@@ -12,10 +12,25 @@
 			<Text>Local Resources</Text>
 		</Row>
 		<Row Tag="TXT_KEY_EO_MISC_RESOURCES">
-			<Text>Resources from Policies, Religion, or Corporations</Text>
+			<Text>Miscellaneous Resources</Text>
 		</Row>
 		<Row Tag="TXT_KEY_EO_GP_RESOURCES">
-			<Text>Resources from Great People</Text>
+			<Text>From Great People</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EO_CORP_RESOURCES">
+			<Text>From Corporation</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EO_FRANCHISE_RESOURCES">
+			<Text>From Corporation Franchises</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EO_CS_ALLY_RESOURCES">
+			<Text>From Number of City-State Allies</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EO_STRAT_MOD_RESOURCES">
+			<Text>From Strategic Resource Modifier</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EO_REL_MOD_RESOURCES">
+			<Text>From Religious Resource Modifier</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CP_DIPLO_DP">
 			<Text>Defensive Pact</Text>
