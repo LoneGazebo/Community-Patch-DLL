@@ -120,6 +120,12 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 
 	int iModifier = 0;
 
+	//Tiny army? Eek, better build units
+	if (kPlayer.getNumMilitaryUnits() <= (kPlayer.getNumCities() * 2) || (m_pCity->isBorderCity() && !m_pCity->HasGarrison()))
+	{
+		iModifier -= 100;
+	}
+
 	//////
 	//WAR
 	///////
@@ -131,23 +137,18 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 			int iNumWar = kPlayer.GetMilitaryAI()->GetNumberCivsAtWarWith(false);
 			if (iNumWar > 0)
 			{
-				iModifier += (iNumWar * 5);
-				iModifier += m_pCity->getThreatValue();
+				iModifier -= (iNumWar * 5);
+				iModifier -= m_pCity->getThreatValue();
 
 				if (m_pCity->isBorderCity())
 				{
-					iModifier += 25;
+					iModifier -= 25;
 				}
 				if (m_pCity->isUnderSiege())
 				{
-					iModifier += 25;
+					iModifier -= 25;
 				}
 			}
-		}
-		//Tiny army? Eek!
-		if (kPlayer.getNumMilitaryUnits() <= (kPlayer.getNumCities() * 2))
-		{
-			iModifier -= 100;
 		}
 
 		MilitaryAIStrategyTypes eBuildCriticalDefenses = (MilitaryAIStrategyTypes)GC.getInfoTypeForString("MILITARYAISTRATEGY_LOSING_WARS");
@@ -162,33 +163,20 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 		//Unless it is defense.
 		if (!CityStrategyAIHelpers::IsTestCityStrategy_IsPuppetAndAnnexable(m_pCity))
 		{
-			int iNumWar = kPlayer.GetMilitaryAI()->GetNumberCivsAtWarWith(false);
-			if (iNumWar > 0)
-			{
-				if (m_pCity->isUnderSiege())
-				{
-					iModifier += 500;
-				}
-				else if (m_pCity->getDamage() > 0)
-				{
-					iModifier += m_pCity->getDamage() * 50;
-				}
-				else if (m_pCity->isInDangerOfFalling())
-				{
-					iModifier += 1000;
-				}
-				//None of these things?
-				else
-					return 0;
-			}
-			else
+			//don't need this if no damage
+			if (m_pCity->getDamage() == 0)
 				return 0;
-		}
 
-		//Tiny army? Eek!
-		if (kPlayer.getNumMilitaryUnits() <= (kPlayer.getNumCities() * 2))
-		{
-			iModifier -= 100;
+			if (m_pCity->isInDangerOfFalling())
+			{
+				iModifier += 1000;
+				iModifier += m_pCity->getDamage();
+			}
+			else if (m_pCity->isUnderSiege())
+			{
+				iModifier += 500;
+				iModifier += m_pCity->getDamage();
+			}
 		}
 
 		MilitaryAIStrategyTypes eBuildCriticalDefenses = (MilitaryAIStrategyTypes)GC.getInfoTypeForString("MILITARYAISTRATEGY_LOSING_WARS");
@@ -209,6 +197,7 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 		if (kPlayer.isMinorCiv())
 			iModifier /= 5;
 	}
+
 	EconomicAIStrategyTypes eStrategyLosingMoney = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_LOSING_MONEY");
 	EconomicAIStrategyTypes eStrategyCultureGS = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_GS_CULTURE");
 	AICityStrategyTypes eNeedFood = (AICityStrategyTypes) GC.getInfoTypeForString("AICITYSTRATEGY_NEED_IMPROVEMENT_FOOD");

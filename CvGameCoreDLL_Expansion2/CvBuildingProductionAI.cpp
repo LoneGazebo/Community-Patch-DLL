@@ -599,7 +599,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	}
 	if (pkBuildingInfo->GetDefenseModifier() > 0)
 	{
-		iDefense += (pkBuildingInfo->GetDefenseModifier() / 50);
+		iDefense += (pkBuildingInfo->GetDefenseModifier() / 25);
 	}
 	if (pkBuildingInfo->CityRangedStrikeRange() > 0)
 	{
@@ -619,7 +619,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	}
 	if (pkBuildingInfo->GetExtraCityHitPoints() > 0)
 	{
-		iDefense += (pkBuildingInfo->GetExtraCityHitPoints() / 25);
+		iDefense += (pkBuildingInfo->GetExtraCityHitPoints() / 10);
 	}
 	if (m_pCity->isCoastal())
 	{
@@ -661,6 +661,14 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	bool bDesperate = !bIgnoreSituational && (m_pCity->isInDangerOfFalling() || m_pCity->isUnderSiege());
 	if (bDesperate)
 		iDefenseMod += 1000;
+
+	//do not build any buildings at all when about to be captured
+	if (m_pCity->isInDangerOfFalling())
+		return 0;
+
+	if (iDefense == 0 && m_pCity->isUnderSiege() && !bIgnoreSituational)
+		//do not build any non-defensive buildings when under siege
+		return 0;
 
 	iDefense *= iDefenseMod;
 	iDefense /= 100;
