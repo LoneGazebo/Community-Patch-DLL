@@ -42,3 +42,19 @@ UPDATE ArtDefine_UnitInfoMemberInfos SET UnitInfoType = 'ART_DEF_UNIT_GREAT_ADMI
 
 -- Make Work Boats buildable in all cities adjacent to water
 UPDATE Units SET PrereqResources = 'false' WHERE Type = 'UNIT_WORKBOAT';
+
+-- Remove Duplicates from Unit_AITypes
+DELETE FROM Unit_AITypes WHERE UnitType = 'UNIT_GREAT_ADMIRAL';
+DELETE FROM Unit_AITypes WHERE UnitType = 'UNIT_INQUISITOR';
+
+-- Readd one entry
+INSERT INTO Unit_AITypes (UnitType, UnitAIType) VALUES 
+('UNIT_GREAT_ADMIRAL', 'UNITAI_ADMIRAL'),
+('UNIT_INQUISITOR', 'UNITAI_INQUISITOR');
+
+-- Remove Duplicates from Unit_Flavors
+DELETE FROM Unit_Flavors WHERE UnitType = 'UNIT_WORKBOAT';
+
+-- Readd one entry
+INSERT INTO Unit_Flavors (UnitType, FlavorType, Flavor) VALUES 
+('UNIT_WORKBOAT', 'FLAVOR_NAVAL_TILE_IMPROVEMENT', 20);
