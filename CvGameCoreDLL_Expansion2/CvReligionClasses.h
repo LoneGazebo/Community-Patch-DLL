@@ -254,9 +254,6 @@ public:
 	ReligionTypes GetPantheonCreatedByPlayer(PlayerTypes ePlayer) const;
 	ReligionTypes GetOriginalReligionCreatedByPlayer(PlayerTypes ePlayer) const;
 	ReligionTypes GetFounderBenefitsReligion(PlayerTypes ePlayer) const;
-#if defined(MOD_BALANCE_CORE)
-	void DoUpdateReligion(PlayerTypes ePlayer);
-#endif
 
 #if defined(MOD_RELIGION_LOCAL_RELIGIONS)
 	int GetNumReligionsFounded(bool bIgnoreLocal = false) const;
@@ -390,10 +387,7 @@ public:
 	bool HasAddedReformationBelief() const;
 	ReligionTypes GetReligionCreatedByPlayer(bool bIncludePantheon = false) const;
 	ReligionTypes GetOriginalReligionCreatedByPlayer() const;
-#if defined(MOD_BALANCE_CORE)
-	void SetPlayerReligion(ReligionTypes eReligion);
-	ReligionTypes GetCurrentReligion(bool bIncludePantheon = true) const;
-#endif
+
 #if defined(MOD_RELIGION_RECURRING_PURCHASE_NOTIFIY)
 	bool CanAffordNextPurchase();
 	void SetFaithAtLastNotify(int iFaith);
@@ -405,43 +399,37 @@ public:
 	bool HasOthersReligionInMostCities(PlayerTypes eOtherPlayer) const;
 	bool HasReligionInMostCities(ReligionTypes eReligion) const;
 	ReligionTypes GetReligionInMostCities() const;
-#if defined(MOD_BALANCE_CORE)
-	//JFD
-	void SetStateReligion(ReligionTypes eReligion);
-	ReligionTypes GetStateReligion() const;
+
+	bool UpdateStateReligion();
+	void SetStateReligionOverride(ReligionTypes eReligion);
+	ReligionTypes GetStateReligion(bool bIncludePantheon = true) const;
 	int GetNumCitiesWithStateReligion(ReligionTypes eReligion);
-#endif
+
 	int GetCityStateMinimumInfluence(ReligionTypes eReligion, PlayerTypes ePlayer) const;
 	int GetCityStateInfluenceModifier(PlayerTypes ePlayer) const;
 	int GetCityStateYieldModifier(PlayerTypes ePlayer) const;
 	int GetSpyPressure(PlayerTypes ePlayer) const;
 	int GetNumForeignCitiesFollowing(ReligionTypes eReligion) const;
 	int GetNumForeignFollowers(bool bAtPeace, ReligionTypes eReligion) const;
-#if defined(MOD_BALANCE_CORE)
 	int GetNumDomesticFollowers(ReligionTypes eReligion) const;
-#endif
-
-#if defined(MOD_BALANCE_CORE)
 	bool ComputeMajority(bool bNotifications = false);
-#endif
 
 private:
+	bool SetStateReligion(ReligionTypes eReligion);
 	CvPlayer* m_pPlayer;
 
 #if defined(MOD_GLOBAL_TRULY_FREE_GP)
 	int m_iNumFreeProphetsSpawned;
 #endif
 	int m_iNumProphetsSpawned;
-	bool m_bFoundingReligion;
+	bool m_bFoundingReligion; //seems to be used to suppress further prophet use before the religion has been customized
 #if defined(MOD_RELIGION_RECURRING_PURCHASE_NOTIFIY)
 	int m_iFaithAtLastNotify;
 #endif
 
-#if defined(MOD_BALANCE_CORE)
-	ReligionTypes m_majorityPlayerReligion;
-	ReligionTypes m_ePlayerCurrentReligion;
-	ReligionTypes m_PlayerStateReligion;
-#endif
+	ReligionTypes m_majorityReligion; //according to city majority religions
+	ReligionTypes m_eStateReligion; //depends on holy city ownership, maybe the same as majority religion but can be different
+	ReligionTypes m_eStateReligionOverride; //to be set from lua
 };
 
 FDataStream& operator>>(FDataStream&, CvPlayerReligions&);

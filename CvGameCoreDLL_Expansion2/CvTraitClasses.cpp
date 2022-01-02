@@ -4263,7 +4263,7 @@ void CvPlayerTraits::SetIsReligious()
 	}
 	
 
-	if (m_pPlayer->GetReligions()->GetCurrentReligion() != NO_RELIGION)
+	if (m_pPlayer->GetReligions()->GetStateReligion() != NO_RELIGION)
 	{
 		m_bIsReligious = true;
 		return;
@@ -6963,7 +6963,7 @@ void CvPlayerTraits::ChooseMayaBoost()
 	// Go for a prophet?
 #if defined(MOD_BALANCE_CORE_MAYA_CHANGE)
 	bool bHasReligion = false;
-	if(MOD_BALANCE_CORE_MAYA_CHANGE && m_pPlayer->GetReligions()->GetReligionCreatedByPlayer(false) != NO_RELIGION)
+	if(MOD_BALANCE_CORE_MAYA_CHANGE && m_pPlayer->GetReligions()->GetReligionCreatedByPlayer() != NO_RELIGION)
 	{
 		bHasReligion = true;
 	}
