@@ -11386,6 +11386,9 @@ void CvGame::updateEconomicTotal()
 	setTotalEconomicValue(iTotalEconomicValue);
 	setHighestEconomicValue(iHighestVal);
 
+	if (viEconValues.empty())
+		return;
+
 	size_t n = viEconValues.size() / 2;
 	std::nth_element(viEconValues.begin(), viEconValues.begin() + n, viEconValues.end());
 	setMedianEconomicValue(viEconValues[n]);
