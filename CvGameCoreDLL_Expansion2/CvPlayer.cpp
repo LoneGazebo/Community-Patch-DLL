@@ -408,6 +408,7 @@ CvPlayer::CvPlayer() :
 	, m_paiResourceImportFromMajor()
 	, m_paiResourceFromMinors()
 	, m_paiResourcesSiphoned()
+	, m_aiNumResourceFromGP()
 	, m_paiImprovementCount()
 #if defined(MOD_BALANCE_CORE)
 	, m_paiTotalImprovementsBuilt()
@@ -1117,6 +1118,7 @@ void CvPlayer::uninit()
 	m_paiResourceImportFromMajor.clear();
 	m_paiResourceFromMinors.clear();
 	m_paiResourcesSiphoned.clear();
+	m_aiNumResourceFromGP.clear();
 	m_paiImprovementCount.clear();
 #if defined(MOD_BALANCE_CORE)
 	m_paiTotalImprovementsBuilt.clear();
@@ -2023,6 +2025,9 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 
 		m_paiResourcesSiphoned.clear();
 		m_paiResourcesSiphoned.resize(GC.getNumResourceInfos(), 0);
+
+		m_aiNumResourceFromGP.clear();
+		m_aiNumResourceFromGP.resize(GC.getNumResourceInfos(), 0);
 
 		CvAssertMsg(0 < GC.getNumImprovementInfos(), "GC.getNumImprovementInfos() is not greater than zero but it is used to allocate memory in CvPlayer::reset");
 		m_paiImprovementCount.clear();
@@ -28814,12 +28819,14 @@ void CvPlayer::DoGreatPersonExpended(UnitTypes eGreatPersonUnit)
 
 	if (pGreatPersonUnit)
 	{
-		//admiral grants a resource
+		//great diplomat grants a paper resource - admiral code is handled in CvUnit::createFreeLuxury()
 		for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
 		{
 			int Gained = pGreatPersonUnit->getUnitInfo().GetResourceQuantityExpended((ResourceTypes)iResourceLoop);
 			if (Gained != 0)
-				changeNumResourceTotal((ResourceTypes)iResourceLoop, Gained);
+			{
+				changeResourceFromGP((ResourceTypes)iResourceLoop, Gained);
+			}
 		}
 
 		//general grants supply points
@@ -38148,7 +38155,6 @@ int CvPlayer::getNumResourceUsed(ResourceTypes eIndex) const
 	CvAssertMsg(eIndex < GC.getNumResourceInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 	return m_paiNumResourceUsed[eIndex];
 }
-
 //	--------------------------------------------------------------------------------
 void CvPlayer::changeNumResourceUsed(ResourceTypes eIndex, int iChange)
 {
@@ -38168,18 +38174,18 @@ void CvPlayer::changeNumResourceUsed(ResourceTypes eIndex, int iChange)
 
 	CvAssert(m_paiNumResourceUsed[eIndex] >= 0);
 }
+
 //	--------------------------------------------------------------------------------
 int CvPlayer::getNumResourcesFromOther(ResourceTypes eIndex) const
 {
 	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
 	CvAssertMsg(eIndex < GC.getNumResourceInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 
-	// Mod applied to how much we have?
+	
 	CvResourceInfo *pkResource = GC.getResourceInfo(eIndex);
-	if (pkResource == NULL)
-	{
-		return 0;
-	}
+
+	// exists?
+	if (pkResource == NULL) { return 0;}
 
 	int iTotalNumResource = m_paiNumResourceTotal[eIndex];
 
@@ -38209,6 +38215,9 @@ int CvPlayer::getNumResourcesFromOther(ResourceTypes eIndex) const
 			iTotalNumResource += iCSResource;
 		}
 	}
+
+	//GP resources? ie. Admiral, Diplomat
+	iTotalNumResource += getResourceFromGP(eIndex);
 #endif
 
 	if (pkResource->getResourceUsage() == RESOURCEUSAGE_STRATEGIC)
@@ -38239,129 +38248,31 @@ int CvPlayer::getNumResourcesFromOther(ResourceTypes eIndex) const
 	}
 
 #if defined(MOD_BALANCE_CORE)
-	ReligionTypes eFounder = GC.getGame().GetGameReligions()->GetReligionCreatedByPlayer(GetID());
-	if (eFounder == NO_RELIGION)
-	{
-		eFounder = GetReligions()->GetReligionInMostCities();
-	}
-	const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eFounder, GetID());
-	if (pReligion)
-	{
-		CvCity* pHolyCity = pReligion->GetHolyCity();
-		if (pHolyCity == NULL)
-		{
-			pHolyCity = GET_PLAYER(GetID()).getCapitalCity();
-		}
-		int iQuantityMod = pReligion->m_Beliefs.GetResourceQuantityModifier(eIndex, GetID(), pHolyCity, true);
-		if (iQuantityMod != 0)
-		{
-			iQuantityMod *= GC.getGame().GetGameReligions()->GetNumCitiesFollowing(eFounder);
-
-			iTotalNumResource *= 100 + std::min(25, iQuantityMod);
-			iTotalNumResource /= 100;
-		}
-	}
+	iTotalNumResource *= 100 + getResourceModFromReligion(eIndex);
+	iTotalNumResource /= 100;
 #endif
 
-	//And remove the starter.
+	//And remove the starter. Added in beginning to factor in multiplicative modifiers.
 	iTotalNumResource -= m_paiNumResourceTotal[eIndex];
 
 	return iTotalNumResource;
 }
+
 //	--------------------------------------------------------------------------------
 int CvPlayer::getNumResourceTotal(ResourceTypes eIndex, bool bIncludeImport) const
 {
 	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
 	CvAssertMsg(eIndex < GC.getNumResourceInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 
-	// Mod applied to how much we have?
 	CvResourceInfo *pkResource = GC.getResourceInfo(eIndex);
-	if (pkResource == NULL)
-	{
-		return 0;
-	}
+
+	// exists?
+	if (pkResource == NULL) { return 0;}
 
 	int iTotalNumResource = m_paiNumResourceTotal[eIndex];
 
-#if defined(MOD_BALANCE_CORE)
-	// Additional resources from Corporation
-	CorporationTypes eCorporation = GetCorporations()->GetFoundedCorporation();
-	if (eCorporation != NO_CORPORATION)
-	{
-		CvCorporationEntry* pkCorporationInfo = GC.getCorporationInfo(eCorporation);
-		if (pkCorporationInfo)
-		{
-			int iFreeResource = pkCorporationInfo->GetNumFreeResource(eIndex);
-			if (iFreeResource > 0)
-			{
-				iTotalNumResource += iFreeResource;
-			}
-		}
-	}
-
-	int iCSResource = getResourceFromCSAlliances(eIndex);
-	if (iCSResource != 0)
-	{
-		if (IsResourceRevealed(eIndex))
-		{
-			iCSResource *= GetNumCSAllies();
-			iCSResource /= 100;
-			iTotalNumResource += iCSResource;
-		}
-	}
-#endif
-
-	if(pkResource->getResourceUsage() == RESOURCEUSAGE_STRATEGIC)
-	{
-#if defined(MOD_BALANCE_CORE)
-		const CvCity* pLoopCity;
-		int iLoop;
-		for(pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
-		{
-			if(pLoopCity != NULL)
-			{
-				if(pLoopCity->GetResourceQuantityPerXFranchises(eIndex) > 0)
-				{
-					int iFranchises = GetCorporations()->GetNumFranchises();
-					if(iFranchises > 0)
-					{
-						iTotalNumResource += (iFranchises / pLoopCity->GetResourceQuantityPerXFranchises(eIndex));
-					}
-				}
-			}
-		}
-#endif
-		if(GetStrategicResourceMod() != 0)
-		{
-			iTotalNumResource *= GetStrategicResourceMod();
-			iTotalNumResource /= 100;
-		}
-	}
-
-#if defined(MOD_BALANCE_CORE)
-	ReligionTypes eFounder = GC.getGame().GetGameReligions()->GetReligionCreatedByPlayer(GetID());
-	if (eFounder == NO_RELIGION)
-	{
-		eFounder = GetReligions()->GetReligionInMostCities();
-	}
-	const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eFounder, GetID());
-	if (pReligion)
-	{
-		CvCity* pHolyCity = pReligion->GetHolyCity();
-		if (pHolyCity == NULL)
-		{
-			pHolyCity = GET_PLAYER(GetID()).getCapitalCity();
-		}
-		int iQuantityMod = pReligion->m_Beliefs.GetResourceQuantityModifier(eIndex, GetID(), pHolyCity, true);
-		if (iQuantityMod != 0)
-		{
-			iQuantityMod *= GC.getGame().GetGameReligions()->GetNumCitiesFollowing(eFounder);
-
-			iTotalNumResource *= 100 + std::min(25, iQuantityMod);
-			iTotalNumResource /= 100;
-		}
-	}
-#endif
+	//add resources from other sources, ex Corporations, Policies, Religion
+	iTotalNumResource += getNumResourcesFromOther(eIndex);
 
 	if(bIncludeImport)
 	{
@@ -38374,7 +38285,6 @@ int CvPlayer::getNumResourceTotal(ResourceTypes eIndex, bool bIncludeImport) con
 
 	return iTotalNumResource;
 }
-
 //	--------------------------------------------------------------------------------
 void CvPlayer::changeNumResourceTotal(ResourceTypes eIndex, int iChange, bool /*bIgnoreResourceWarning*/)
 {
@@ -38472,6 +38382,7 @@ void CvPlayer::changeNumResourceTotal(ResourceTypes eIndex, int iChange, bool /*
 
 	CvAssert(m_paiNumResourceTotal[eIndex] >= 0);
 }
+
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 //	--------------------------------------------------------------------------------
 int CvPlayer::getResourceShortageValue(ResourceTypes eIndex) const
@@ -38480,7 +38391,6 @@ int CvPlayer::getResourceShortageValue(ResourceTypes eIndex) const
 	CvAssertMsg(eIndex < GC.getNumResourceInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 	return m_paiResourceShortageValue[eIndex];
 }
-
 //	--------------------------------------------------------------------------------
 void CvPlayer::changeResourceShortageValue(ResourceTypes eIndex, int iChange)
 {
@@ -38509,7 +38419,6 @@ void CvPlayer::setResourceShortageValue(ResourceTypes eIndex, int iChange)
 	CvAssert(m_paiResourceShortageValue[eIndex] >= 0);
 }
 
-
 //	--------------------------------------------------------------------------------
 int CvPlayer::getResourceFromCSAlliances(ResourceTypes eIndex) const
 {
@@ -38517,7 +38426,6 @@ int CvPlayer::getResourceFromCSAlliances(ResourceTypes eIndex) const
 	CvAssertMsg(eIndex < GC.getNumResourceInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 	return m_paiResourceFromCSAlliances[eIndex];
 }
-
 //	--------------------------------------------------------------------------------
 void CvPlayer::changeResourceFromCSAlliances(ResourceTypes eIndex, int iChange)
 {
@@ -38545,6 +38453,39 @@ void CvPlayer::setResourceFromCSAlliances(ResourceTypes eIndex, int iChange)
 
 	CvAssert(m_paiResourceFromCSAlliances[eIndex] >= 0);
 }
+
+//	--------------------------------------------------------------------------------
+int CvPlayer::getResourceModFromReligion(ResourceTypes eIndex) const
+{
+	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eIndex < GC.getNumResourceInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+
+	int iQuantityMod = 0;
+
+	ReligionTypes eFounder = GC.getGame().GetGameReligions()->GetReligionCreatedByPlayer(GetID());
+	if (eFounder == NO_RELIGION)
+	{
+		eFounder = GetReligions()->GetReligionInMostCities();
+	}
+	const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eFounder, GetID());
+	if (pReligion)
+	{
+		CvCity* pHolyCity = pReligion->GetHolyCity();
+		if (pHolyCity == NULL)
+		{
+			pHolyCity = GET_PLAYER(GetID()).getCapitalCity();
+		}
+		iQuantityMod = pReligion->m_Beliefs.GetResourceQuantityModifier(eIndex, GetID(), pHolyCity, true);
+		if (iQuantityMod != 0)
+		{
+			iQuantityMod *= GC.getGame().GetGameReligions()->GetNumCitiesFollowing(eFounder);
+			iQuantityMod = std::min(25, iQuantityMod);
+		}
+	}
+
+	return iQuantityMod;
+}
+
 
 void CvPlayer::UpdateMonopolyCache()
 {
@@ -39419,6 +39360,28 @@ void CvPlayer::changeResourceSiphoned(ResourceTypes eIndex, int iChange)
 		CalculateNetHappiness();
 	}
 }
+
+//	--------------------------------------------------------------------------------
+byte CvPlayer::getResourceFromGP(ResourceTypes eIndex) const
+{
+	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eIndex < GC.getNumResourceInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+
+	return m_aiNumResourceFromGP[eIndex];
+}
+
+//	--------------------------------------------------------------------------------
+void CvPlayer::changeResourceFromGP(ResourceTypes eIndex, byte iChange)
+{
+	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eIndex < GC.getNumResourceInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+
+	if (iChange != 0)
+	{
+		m_aiNumResourceFromGP[eIndex] = m_aiNumResourceFromGP[eIndex] + iChange;
+	}
+}
+
 
 //	--------------------------------------------------------------------------------
 int CvPlayer::getResourceInOwnedPlots(ResourceTypes eIndex)
@@ -46903,6 +46866,7 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 	visitor(player.m_paiResourceImportFromMajor);
 	visitor(player.m_paiResourceFromMinors);
 	visitor(player.m_paiResourcesSiphoned);
+	visitor(player.m_aiNumResourceFromGP);
 	visitor(player.m_paiImprovementCount);
 	visitor(player.m_paiTotalImprovementsBuilt);
 	visitor(player.m_paiBuildingChainSteps);

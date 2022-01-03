@@ -9572,7 +9572,7 @@ bool CvUnit::createFreeLuxury()
 		}
 		if (eResourceToGive != NO_RESOURCE)
 		{
-			GET_PLAYER(getOwner()).changeNumResourceTotal(eResourceToGive, iNumLuxuries);
+			GET_PLAYER(getOwner()).changeResourceFromGP(eResourceToGive, iNumLuxuries);
 			CvPlayerAI& kOwner = GET_PLAYER(getOwner());
 			if(kOwner.isHuman())
 			{
