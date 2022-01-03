@@ -312,6 +312,24 @@ self = {
 	return self
 end
 
+function IsModActive(sModID, iModMinVersion)
+	for _, mod in pairs(Modding.GetActivatedMods()) do
+		if (mod.ID == sModID) then
+			return (mod.Version >= iModMinVersion)
+		end
+	end
+end  
+
+function OnPromotionTreeButton()
+	LuaEvents.PromotionTreeDisplay(UI.GetHeadSelectedUnit():GetID())
+end
+
+if (IsModActive("1f0a153b-26ae-4496-a2c0-a106d9b43c95", 3)) then
+	Controls.PromotionText:RegisterCallback(Mouse.eLClick, OnPromotionTreeButton)
+else
+	Controls.PromotionText:SetToolTipString(nil)
+end
+
 -------------------------------------------------
 -- Item Functions
 -------------------------------------------------
@@ -1279,6 +1297,11 @@ local UpdateUnitPromotions = EUI.UpdateUnitPromotions or function(unit)
 				sDurationTip = " (" .. Locale.ConvertTextKey("TXT_KEY_STR_TURNS", unit:GetPromotionDuration(unitPromotionID) - (Game.GetGameTurn() - unit:GetTurnPromotionGained(unitPromotionID))) .. ")"
 			end
 			controlTable.EarnedPromotion:SetToolTipString( L(unitPromotion.Description) .. sDurationTip .. "[NEWLINE][NEWLINE]" .. L(unitPromotion.Help) )
+			controlTable.UnitPromoButton:RegisterCallback( Mouse.eRClick, 
+			function()
+				Events.SearchForPediaEntry(unitPromotion.Description)
+			end
+			);
 		end
 	end
 	g_EarnedPromotionIM:Commit()
