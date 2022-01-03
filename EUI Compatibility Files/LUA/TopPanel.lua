@@ -2028,13 +2028,13 @@ if civ5_mode and gk_mode then
 					end
 				end
 				if #resources > 0 then
-					availibleTip = availibleTip .. "[NEWLINE][ICON_BULLET]" .. L(resource.Description) .. ": " .. resources:concat(", ") 
+					availableTip = availableTip .. "[NEWLINE][ICON_BULLET]" .. L(resource.Description) .. ": " .. resources:concat(", ") 
 				end
 			end
 
-			if #availibleTip > 0 then
+			if #availableTip > 0 then
 				tips:insert( "" )
-				tips:insert( L"TXT_KEY_EO_RESOURCES_AVAILBLE" .. availibleTip)
+				tips:insert( L"TXT_KEY_EO_RESOURCES_AVAILBLE" .. availableTip)
 			end
 
 	return setTextToolTip( tips:concat( "[NEWLINE]" ) )
