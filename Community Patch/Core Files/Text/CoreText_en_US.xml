@@ -3529,6 +3529,14 @@
 		<Row Tag="TXT_KEY_NOTIFICATION_MINOR_BULLIED_BY_SOMEONE">
 			<Text>Our diplomats report that {2_Civ} recently bullied {1_CS}!</Text>
 		</Row>
+
+		<!-- DENOUNCEMENT: Post-denouncement notes are now separate text keys, for compatibility with the ability to denounce while at war (and to save on memory) -->
+		<Row Tag="TXT_KEY_DENOUNCED_US_NOT_AT_WAR">
+			<Text>[NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us! NOTE: You are not at war.[ENDCOLOR])</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DENOUNCED_US_AT_WAR">
+			<Text>[NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us![ENDCOLOR])</Text>
+		</Row>
 		
 		<!-- ADDITIONS TO EXISTING DIPLOMACY TEXTS -->
 		<Row Tag="TXT_KEY_HOSTILE_WE_ATTACKED_YOUR_MINOR_3">
