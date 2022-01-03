@@ -210,12 +210,10 @@ INSERT INTO UnitGameplay2DScripts (UnitType, SelectionSound, FirstSelectionSound
 	FROM UnitGameplay2DScripts WHERE (UnitType = 'UNIT_ARTILLERY');
 
 INSERT INTO Unit_AITypes (UnitType, UnitAIType)
-	SELECT 'UNIT_FIELD_GUN', 'UNITAI_CITY_BOMBARD'
-	FROM Unit_AITypes WHERE (UnitType = 'UNIT_ARTILLERY');
+	SELECT 'UNIT_FIELD_GUN', 'UNITAI_CITY_BOMBARD' WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 INSERT INTO Unit_AITypes (UnitType, UnitAIType)
-	SELECT 'UNIT_FIELD_GUN', 'UNITAI_RANGED'
-	FROM Unit_AITypes WHERE (UnitType = 'UNIT_ARTILLERY');
+	SELECT 'UNIT_FIELD_GUN', 'UNITAI_RANGED' WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 INSERT INTO Unit_ClassUpgrades (UnitType, UnitClassType)
 	SELECT 'UNIT_FIELD_GUN', 'UNITCLASS_ARTILLERY'
@@ -258,7 +256,7 @@ VALUES
 
 INSERT INTO Units
 		(Class, 				Type, 				PrereqTech,   ObsoleteTech, 			Combat, Cost, FaithCost, PurchaseOnly, 	RequiresFaithPurchaseEnabled,	Moves, 	CombatClass, 		Domain, 	 	MoveAfterPurchase, 	DefaultUnitAI, 		  Description, 				Civilopedia, 				 	Strategy, 							Help, 							MilitarySupport, 	MilitaryProduction, Pillage, 	PolicyType, 			   	IgnoreBuildingDefense, 	AdvancedStartCost, 	XPValueAttack, 	XPValueDefense, Conscription, UnitArtInfo, 			   UnitFlagAtlas, 		  UnitFlagIconOffset, IconAtlas, 		 	PortraitIndex)
-VALUES	('UNITCLASS_FCOMPANY', 	'UNIT_FCOMPANY', 	'TECH_STEEL', 'TECH_REPLACEABLE_PARTS', 19, 	125,  0, 		 1, 		 	0, 					 			2, 	  	'UNITCOMBAT_MELEE',	'DOMAIN_LAND', 	1, 					'UNITAI_FAST_ATTACK', 'TXT_KEY_UNIT_FCOMPANY', 	'TXT_KEY_CIV5_FCOMPANY_TEXT', 	'TXT_KEY_UNIT_FCOMPANY_STRATEGY', 	'TXT_KEY_UNIT_HELP_FCOMPANY', 	1, 			 		1, 				 	1, 	  		'POLICY_HONOR_FINISHER', 	1, 					  	40, 				5, 				5, 				3, 			  'ART_DEF_UNIT_FCOMPANY', 'FCOMPANY_FLAG_ATLAS', 0, 				  'FCOMPANY_ATLAS', 	0);
+VALUES	('UNITCLASS_FCOMPANY', 	'UNIT_FCOMPANY', 	'TECH_STEEL', 'TECH_REPLACEABLE_PARTS', 19, 	125,  0, 		 1, 		 	0, 					 			2, 	  	'UNITCOMBAT_MELEE',	'DOMAIN_LAND', 	1, 					'UNITAI_ATTACK', 'TXT_KEY_UNIT_FCOMPANY', 	'TXT_KEY_CIV5_FCOMPANY_TEXT', 	'TXT_KEY_UNIT_FCOMPANY_STRATEGY', 	'TXT_KEY_UNIT_HELP_FCOMPANY', 	1, 			 		1, 				 	1, 	  		'POLICY_HONOR_FINISHER', 	1, 					  	40, 				5, 				5, 				3, 			  'ART_DEF_UNIT_FCOMPANY', 'FCOMPANY_FLAG_ATLAS', 0, 				  'FCOMPANY_ATLAS', 	0);
 
 INSERT INTO Unit_ClassUpgrades
 	(UnitType, UnitClassType)
@@ -274,8 +272,7 @@ INSERT INTO Unit_AITypes
 	(UnitType, UnitAIType)
 VALUES
 	('UNIT_FCOMPANY', 'UNITAI_ATTACK'),
-	('UNIT_FCOMPANY', 'UNITAI_DEFENSE'),
-	('UNIT_FCOMPANY', 'UNITAI_FAST_ATTACK');
+	('UNIT_FCOMPANY', 'UNITAI_DEFENSE');
 
 INSERT INTO Unit_Flavors
 	(UnitType, FlavorType, Flavor)
@@ -300,7 +297,7 @@ VALUES
 INSERT INTO Units
 	(Class, Type, PrereqTech, Combat, Cost, FaithCost, PurchaseOnly, RequiresFaithPurchaseEnabled, Moves, CombatClass, Domain, MoveAfterPurchase, DefaultUnitAI, Description, Civilopedia, Strategy, Help, MilitarySupport, MilitaryProduction, Pillage, PolicyType, IgnoreBuildingDefense, AdvancedStartCost, XPValueAttack, XPValueDefense, Conscription, UnitArtInfo, UnitFlagAtlas, UnitFlagIconOffset, IconAtlas, PortraitIndex)
 VALUES
-	('UNITCLASS_GUERILLA', 'UNIT_GUERILLA', 'TECH_PENICILIN', 65, 350, 0, 1, 'false', 2, 'UNITCOMBAT_GUN', 'DOMAIN_LAND', 1, 'UNITAI_FAST_ATTACK', 'TXT_KEY_UNIT_GUERILLA', 'TXT_KEY_CIV5_GUERILLA_TEXT', 'TXT_KEY_UNIT_GUERILLA_STRATEGY', 'TXT_KEY_UNIT_HELP_GUERILLA', 1, 1, 1, 'POLICY_HONOR_FINISHER', 1, 40, 3, 3, 3, 'ART_DEF_UNIT_MERC', 'MERC_FLAG_ATLAS', 0, 'COMMUNITY_ATLAS', 52);
+	('UNITCLASS_GUERILLA', 'UNIT_GUERILLA', 'TECH_PENICILIN', 65, 350, 0, 1, 'false', 2, 'UNITCOMBAT_GUN', 'DOMAIN_LAND', 1, 'UNITAI_ATTACK', 'TXT_KEY_UNIT_GUERILLA', 'TXT_KEY_CIV5_GUERILLA_TEXT', 'TXT_KEY_UNIT_GUERILLA_STRATEGY', 'TXT_KEY_UNIT_HELP_GUERILLA', 1, 1, 1, 'POLICY_HONOR_FINISHER', 1, 40, 3, 3, 3, 'ART_DEF_UNIT_MERC', 'MERC_FLAG_ATLAS', 0, 'COMMUNITY_ATLAS', 52);
 
 INSERT INTO Unit_ClassUpgrades
 	(UnitType, UnitClassType)
@@ -318,7 +315,7 @@ INSERT INTO Unit_AITypes
 VALUES
 	('UNIT_GUERILLA', 'UNITAI_ATTACK'),
 	('UNIT_GUERILLA', 'UNITAI_DEFENSE'),
-	('UNIT_GUERILLA', 'UNITAI_FAST_ATTACK');
+	('UNIT_GUERILLA', 'UNITAI_EXPLORE');
 
 INSERT INTO Unit_Flavors
 	(UnitType, FlavorType, Flavor)
