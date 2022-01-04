@@ -32100,7 +32100,7 @@ void CvCity::Purchase(UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectT
 				eReligion = GetCityReligions()->GetReligiousMajority();
 			}
 
-			pUnit->GetReligionData()->SetFullStrength(pUnit->getOwner(), pUnit->getUnitInfo(), eReligion, this);
+			pUnit->GetReligionDataMutable()->SetFullStrength(pUnit->getOwner(), pUnit->getUnitInfo(), eReligion, this);
 
 			if (pUnit->getUnitInfo().GetOneShotTourism() > 0)
 			{

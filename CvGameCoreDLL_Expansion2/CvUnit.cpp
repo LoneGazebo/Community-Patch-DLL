@@ -369,7 +369,6 @@ CvUnit::CvUnit() :
 	, m_eAutomateType()
 	, m_eUnitAIType()
 	, m_bWaitingForMove(false)
-	, m_pReligion(FNEW(CvUnitReligion, c_eCiv5GameplayDLL, 0))
 	, m_iMapLayer()
 	, m_iNumGoodyHutsPopped()
 	, m_eCombatType()
@@ -498,7 +497,6 @@ CvUnit::CvUnit() :
 	, m_eHomelandMove()
 	, m_iHomelandMoveSetTurn()
 {
-	initPromotions();
 	OBJECT_ALLOCATED
 	FSerialization::unitsToCheck.push_back(this);
 	reset(0, NO_UNIT, NO_PLAYER, true);
@@ -561,8 +559,8 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 
 	CvAssert(NO_UNIT != eUnit);
 
-	initPromotions();
-	m_pReligion->Init();
+	m_Promotions.Init(GC.GetGamePromotions(), this);
+	m_Religion.Init();
 
 	//--------------------------------
 	// Init saved data
@@ -1090,7 +1088,7 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 		if (pCity)
 		{
 			ReligionTypes eReligion = pCity->GetCityReligions()->GetReligiousMajority();
-			GetReligionData()->SetFullStrength(pCity->getOwner(),getUnitInfo(),eReligion,pCity);
+			m_Religion.SetFullStrength(pCity->getOwner(),getUnitInfo(),eReligion,pCity);
 		}
 	}
 #if defined(MOD_GLOBAL_RELIGIOUS_SETTLERS) && defined(MOD_BALANCE_CORE_SETTLER_ADVANCED)
@@ -1121,7 +1119,7 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 			}
 		}
 
-		GetReligionData()->SetReligion(eReligion);
+		m_Religion.SetReligion(eReligion);
 	}
 #endif
 #if defined(MOD_GLOBAL_RELIGIOUS_SETTLERS)
@@ -1152,7 +1150,7 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 			}
 		}
 
-		GetReligionData()->SetReligion(eReligion);
+		m_Religion.SetReligion(eReligion);
 #endif
 	}
 	if (getUnitInfo().GetOneShotTourism() > 0)
@@ -1386,9 +1384,6 @@ void CvUnit::uninit()
 
 	m_missionQueue.clear();
 	m_Promotions.Uninit();
-
-	delete m_pReligion;
-	m_pReligion = NULL;
 }
 
 
@@ -1924,14 +1919,6 @@ void CvUnit::setupGraphical()
 			pDLL->GameplayUnitGarrison(pDllUnit.get(), true);
 		}
 	}
-}
-
-//	--------------------------------------------------------------------------------
-void CvUnit::initPromotions()
-{
-	VALIDATE_OBJECT
-
-	m_Promotions.Init(GC.GetGamePromotions(), this);
 }
 
 //	--------------------------------------------------------------------------------
@@ -2991,9 +2978,9 @@ bool CvUnit::getCaptureDefinition(CvUnitCaptureDefinition* pkCaptureDef, PlayerT
 	if (!pkCapturedUnit)
 		return NULL;
 
-	pkCapturedUnit->GetReligionData()->SetReligion(kCaptureDef.eReligion);
-	pkCapturedUnit->GetReligionData()->SetReligiousStrength(kCaptureDef.iReligiousStrength);
-	pkCapturedUnit->GetReligionData()->SetSpreadsUsed(kCaptureDef.iSpreadsUsed);
+	pkCapturedUnit->GetReligionDataMutable()->SetReligion(kCaptureDef.eReligion);
+	pkCapturedUnit->GetReligionDataMutable()->SetReligiousStrength(kCaptureDef.iReligiousStrength);
+	pkCapturedUnit->GetReligionDataMutable()->SetSpreadsUsed(kCaptureDef.iSpreadsUsed);
 
 	pkCapturedUnit->SetOriginalOwner(kCaptureDef.eOriginalOwner);
 
@@ -6177,9 +6164,9 @@ void CvUnit::gift(bool bTestTransport)
 		pGiftUnit->convert(this, false);
 		pGiftUnit->setupGraphical();
 
-		pGiftUnit->GetReligionData()->SetReligion(GetReligionData()->GetReligion());
-		pGiftUnit->GetReligionData()->SetReligiousStrength(GetReligionData()->GetReligiousStrength());
-		pGiftUnit->GetReligionData()->SetSpreadsUsed(GetReligionData()->GetSpreadsUsed());
+		pGiftUnit->GetReligionDataMutable()->SetReligion(GetReligionData()->GetReligion());
+		pGiftUnit->GetReligionDataMutable()->SetReligiousStrength(GetReligionData()->GetReligiousStrength());
+		pGiftUnit->GetReligionDataMutable()->SetSpreadsUsed(GetReligionData()->GetSpreadsUsed());
 
 		if(pGiftUnit->getOwner() == GC.getGame().getActivePlayer())
 		{
@@ -8150,7 +8137,7 @@ void CvUnit::DoAttrition()
 				}
 				else
 				{
-					GetReligionData()->SetReligiousStrength(iStrength - iStrengthLoss);
+					GetReligionDataMutable()->SetReligiousStrength(iStrength - iStrengthLoss);
 					if (pPlot && pPlot->GetActiveFogOfWarMode() == FOGOFWARMODE_OFF)
 					{
 						Localization::String string = GetLocalizedText("TXT_KEY_MISC_YOU_UNIT_WAS_DAMAGED_ATTRITION").c_str();
@@ -11326,7 +11313,7 @@ bool CvUnit::DoSpreadReligion()
 				pCity->GetCityReligions()->AddMissionarySpread(eReligion, iConversionStrength, getOwner());
 			}
 
-			GetReligionData()->IncrementSpreadsUsed();
+			GetReligionDataMutable()->IncrementSpreadsUsed();
 
 			int iPostFollowers = pCity->GetCityReligions()->GetNumFollowers(eReligion);
 			
@@ -27400,7 +27387,7 @@ void CvUnit::Serialize(Unit& unit, Visitor& visitor)
 	//CBP NOTE: Deleted repeat save data here to reduce bloat and manage memory better for MP
 	visitor(unit.m_strGreatName);
 	visitor(unit.m_strName);
-	visitor(*unit.m_pReligion);
+	visitor(unit.m_Religion);
 
 	visitor(unit.m_eGreatWork);
 

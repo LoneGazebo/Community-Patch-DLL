@@ -2889,11 +2889,11 @@ CvPlot* CvPlayer::addFreeUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 				eReligion = GetReligions()->GetReligionInMostCities();
 
 			if (GetHolyCity() && GetHolyCity()->getOwner() == GetID())
-				pNewUnit->GetReligionData()->SetFullStrength(GetID(),pNewUnit->getUnitInfo(),eReligion,GetHolyCity());
+				pNewUnit->GetReligionDataMutable()->SetFullStrength(GetID(),pNewUnit->getUnitInfo(),eReligion,GetHolyCity());
 			else if (getCapitalCity())
-				pNewUnit->GetReligionData()->SetFullStrength(GetID(),pNewUnit->getUnitInfo(),eReligion,getCapitalCity());
+				pNewUnit->GetReligionDataMutable()->SetFullStrength(GetID(),pNewUnit->getUnitInfo(),eReligion,getCapitalCity());
 			else
-				pNewUnit->GetReligionData()->SetFullStrength(GetID(),pNewUnit->getUnitInfo(),eReligion,NULL);
+				pNewUnit->GetReligionDataMutable()->SetFullStrength(GetID(),pNewUnit->getUnitInfo(),eReligion,NULL);
 		}
 
 		// Don't stack any units
@@ -4497,7 +4497,7 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 			// Give religious units the player's religion
 			if (pkUnit->isReligiousUnit())
 			{
-				pkUnit->GetReligionData()->SetReligion(GetReligions()->GetStateReligion(false));
+				pkUnit->GetReligionDataMutable()->SetReligion(GetReligions()->GetStateReligion(false));
 
 				// Unless it's a prophet we shouldn't give a free religious unit without a religion
 				if (pkUnit->GetReligionData()->GetReligion() == NO_RELIGION && !pkUnit->IsGreatPerson())
@@ -45416,11 +45416,11 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 											eReligion = GetReligions()->GetReligionInMostCities();
 
 										if (GetHolyCity() && GetHolyCity()->getOwner() == GetID())
-											pNewUnit->GetReligionData()->SetFullStrength(GetID(),pNewUnit->getUnitInfo(),eReligion,GetHolyCity());
+											pNewUnit->GetReligionDataMutable()->SetFullStrength(GetID(),pNewUnit->getUnitInfo(),eReligion,GetHolyCity());
 										else if (getCapitalCity())
-											pNewUnit->GetReligionData()->SetFullStrength(GetID(),pNewUnit->getUnitInfo(),eReligion,getCapitalCity());
+											pNewUnit->GetReligionDataMutable()->SetFullStrength(GetID(),pNewUnit->getUnitInfo(),eReligion,getCapitalCity());
 										else
-											pNewUnit->GetReligionData()->SetFullStrength(GetID(),pNewUnit->getUnitInfo(),eReligion,NULL);
+											pNewUnit->GetReligionDataMutable()->SetFullStrength(GetID(),pNewUnit->getUnitInfo(),eReligion,NULL);
 									}
 									else if (pNewUnit->getUnitInfo().GetUnitClassType() == GC.getInfoTypeForString("UNITCLASS_WRITER"))
 									{
@@ -47254,7 +47254,7 @@ void CvPlayer::createGreatGeneral(UnitTypes eGreatPersonUnit, int iX, int iY)
 	{
 		ReligionTypes eReligion = GetReligions()->GetReligionCreatedByPlayer();
 		CvCity* pCity = pGreatPeopleUnit->plot()->getOwningCity();
-		pGreatPeopleUnit->GetReligionData()->SetFullStrength(GetID(),pGreatPeopleUnit->getUnitInfo(),eReligion,pCity);
+		pGreatPeopleUnit->GetReligionDataMutable()->SetFullStrength(GetID(),pGreatPeopleUnit->getUnitInfo(),eReligion,pCity);
 	}
 	if(pGreatPeopleUnit->isGoldenAgeOnBirth())
 	{

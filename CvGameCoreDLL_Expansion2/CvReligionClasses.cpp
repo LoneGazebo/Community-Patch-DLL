@@ -1335,7 +1335,7 @@ void CvGameReligions::FoundReligion(PlayerTypes ePlayer, ReligionTypes eReligion
 	for(CvUnit* pLoopUnit = kPlayer.firstUnit(&iLoopUnit); pLoopUnit != NULL; pLoopUnit = kPlayer.nextUnit(&iLoopUnit))
 	{
 		if (pLoopUnit->getUnitInfo().IsFoundReligion())
-			pLoopUnit->GetReligionData()->SetReligion(eReligion);
+			pLoopUnit->GetReligionDataMutable()->SetReligion(eReligion);
 	}
 
 #if defined(MOD_EVENTS_FOUND_RELIGION)
@@ -4801,13 +4801,16 @@ void CvCityReligions::ChangeReligiousPressureModifier(ReligionTypes eReligion, i
 }
 
 /// Total pressure exerted by all religions
-int CvCityReligions::GetTotalPressure()
+int CvCityReligions::GetTotalAccumulatedPressure(bool bIncludePantheon) const
 {
 	int iTotalPressure = 0;
 
-	ReligionInCityList::iterator it;
+	ReligionInCityList::const_iterator it;
 	for(it = m_ReligionStatus.begin(); it != m_ReligionStatus.end(); it++)
 	{
+		if (!bIncludePantheon && it->m_eReligion <= RELIGION_PANTHEON)
+			continue;
+
 		iTotalPressure += it->m_iPressure;
 	}
 
@@ -4815,9 +4818,9 @@ int CvCityReligions::GetTotalPressure()
 }
 
 /// Pressure exerted by one religion
-int CvCityReligions::GetPressureAccumulated(ReligionTypes eReligion)
+int CvCityReligions::GetPressureAccumulated(ReligionTypes eReligion) const
 {
-	ReligionInCityList::iterator it;
+	ReligionInCityList::const_iterator it;
 	for(it = m_ReligionStatus.begin(); it != m_ReligionStatus.end(); it++)
 	{
 		if(it->m_eReligion == eReligion)
@@ -10081,7 +10084,7 @@ int CvReligionAI::ScoreCityForMissionary(CvCity* pCity, CvUnit* pUnit, ReligionT
 	CvCity* pHolyCity = pSpreadReligion->GetHolyCity();
 	int iDistToHolyCity = pHolyCity ? plotDistance(*pCity->plot(), *pHolyCity->plot()) : 0;
 	int iDistToUnit = pUnit ? plotDistance(*pCity->plot(), *pUnit->plot()) : 0;
-	int iScore = max(10, 50 - iDistToHolyCity - iDistToUnit);
+	int iScore = max(0, 50 - iDistToHolyCity - iDistToUnit);
 
 	UnitTypes eMissionary = m_pPlayer->GetSpecificUnitType("UNITCLASS_MISSIONARY");
 	CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eMissionary);
@@ -10090,7 +10093,7 @@ int CvReligionAI::ScoreCityForMissionary(CvCity* pCity, CvUnit* pUnit, ReligionT
 
 	// In the early game there is little accumulated pressure and conversion is easy
 	int iPressureFromUnit = iMissionaryStrength * /*10*/ GD_INT_GET(RELIGION_MISSIONARY_PRESSURE_MULTIPLIER);
-	int iTotalPressure = max(1, pCity->GetCityReligions()->GetTotalPressure());
+	int iTotalPressure = max(1, pCity->GetCityReligions()->GetTotalAccumulatedPressure(false));
 	// Freshly founded cities have zero accumulated pressure, so limit the impact to a sane value
 	int iImpactPercent = min(100, (iPressureFromUnit * 100) / iTotalPressure);
 
@@ -10111,7 +10114,8 @@ int CvReligionAI::ScoreCityForMissionary(CvCity* pCity, CvUnit* pUnit, ReligionT
 		CvCity* pHolyCity = pSpreadReligion->GetHolyCity();
 		if (pSpreadReligion->m_Beliefs.GetMissionaryInfluenceCS(m_pPlayer->GetID(), pHolyCity) > 0)
 		{
-			iScore *= 2;
+			iScore *= 3;
+			iScore /= 2;
 		}
 	}
 #endif
@@ -10220,7 +10224,7 @@ int CvReligionAI::ScoreCityForInquisitor(CvCity* pCity, CvUnit* pUnit, ReligionT
 			//assume we spread multiple times with same strength for simplicity
 			int iMissionaryStrength = pkUnitInfo ? pkUnitInfo->GetReligiousStrength()*pkUnitInfo->GetReligionSpreads() : 1;
 			int iPressureFromUnit = iMissionaryStrength * /*10*/ GD_INT_GET(RELIGION_MISSIONARY_PRESSURE_MULTIPLIER);
-			int iTotalPressure = max(1, pCity->GetCityReligions()->GetTotalPressure());
+			int iTotalPressure = max(1, pCity->GetCityReligions()->GetTotalAccumulatedPressure(false));
 			int iImpactPercent = min(100,(iPressureFromUnit * 100) / iTotalPressure);
 
 			if (iImpactPercent > 10)

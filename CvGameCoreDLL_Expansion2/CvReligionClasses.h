@@ -8,6 +8,7 @@
 #pragma once
 
 #include "CvWeightedVector.h"
+#include "CvBeliefClasses.h"
 
 #ifndef CIV5_RELIGION_CLASSES_H
 #define CIV5_RELIGION_CLASSES_H
@@ -476,8 +477,8 @@ public:
 	int GetReligiousPressureModifier(ReligionTypes eReligion) const;
 	void SetReligiousPressureModifier(ReligionTypes eReligion, int iNewValue);
 	void ChangeReligiousPressureModifier(ReligionTypes eReligion, int iNewValue);
-	int GetTotalPressure();
-	int GetPressureAccumulated(ReligionTypes eReligion);
+	int GetTotalAccumulatedPressure(bool bIncludePantheon) const;
+	int GetPressureAccumulated(ReligionTypes eReligion) const;
 	int GetPressurePerTurn(ReligionTypes eReligion, int* piNumSourceCities = 0);
 	int GetNumTradeRouteConnections (ReligionTypes eReligion);
 	bool WouldExertTradeRoutePressureToward (CvCity* pTargetCity, ReligionTypes& eReligion, int& iAmount);
@@ -538,73 +539,6 @@ protected:
 	friend FDataStream& operator>>(FDataStream&, CvCityReligions&);
 	friend FDataStream& operator<<(FDataStream&, const CvCityReligions&);
 };
-
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//  CLASS:      CvUnitReligion
-//!  \brief		Information about the religious affiliation of a single unit
-//
-//!  Key Attributes:
-//!  - One instance for each unit
-//!  - Accessed by any class that needs to check religious information for this unit
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-class CvUnitReligion
-{
-public:
-	CvUnitReligion(void);
-	void Init();
-
-	template<typename UnitReligion, typename Visitor>
-	static void Serialize(UnitReligion& unitReligion, Visitor& visitor);
-
-	// Accessors
-	ReligionTypes GetReligion() const
-	{
-		return m_eReligion;
-	};
-	void SetReligion(ReligionTypes eReligion)
-	{
-		m_eReligion = eReligion;
-	};
-	int GetReligiousStrength() const
-	{
-		return m_iStrength;
-	};
-	int GetMaxSpreads(const CvUnit* pUnit) const;
-	int GetSpreadsLeft(const CvUnit* pUnit) const
-	{
-		return GetMaxSpreads(pUnit) - m_iSpreadsUsed;
-	};
-	int GetSpreadsUsed() const
-	{
-		return m_iSpreadsUsed;
-	};
-	void IncrementSpreadsUsed()
-	{
-		m_iSpreadsUsed++;
-	};
-	void SetSpreadsUsed(int iValue)
-	{
-		m_iSpreadsUsed = iValue;
-	};
-	void SetReligiousStrength(int iValue)
-	{
-		m_iStrength = iValue;
-	};
-	void SetFullStrength(PlayerTypes eOwner, const CvUnitEntry& kUnitInfo, ReligionTypes eReligion, CvCity* pOriginCity);
-	bool IsFullStrength() const;
-
-private:
-	ReligionTypes m_eReligion;
-	unsigned short m_iStrength;
-	unsigned short m_iSpreadsUsed;
-	unsigned short m_iMaxStrength;
-
-	friend FDataStream& operator>>(FDataStream&, CvUnitReligion&);
-	friend FDataStream& operator<<(FDataStream&, const CvUnitReligion&);
-};
-
-FDataStream& operator>>(FDataStream&, CvUnitReligion&);
-FDataStream& operator<<(FDataStream&, const CvUnitReligion&);
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //  CLASS:		CvReligionAI
