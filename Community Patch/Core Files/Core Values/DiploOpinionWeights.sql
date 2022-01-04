@@ -489,40 +489,27 @@ INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_RESURRECTOR_ATTACKED_US
 --	// WORLD CONGRESS
 --	//////////////////////////////////////
 
--- They consider us an ally in the World Congress.
-INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_LEAGUE_ALIGNMENT_LIBERATOR', '-25';
-INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_LEAGUE_ALIGNMENT_ALLY', '-20';
-INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_LEAGUE_ALIGNMENT_CONFIDANT', '-15';
-INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_LEAGUE_ALIGNMENT_FRIEND', '-10';
-
--- (values for Diplomat AIs)
-INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_LEAGUE_ALIGNMENT_LIBERATOR_DIPLOMAT', '-50';
-INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_LEAGUE_ALIGNMENT_ALLY_DIPLOMAT', '-40';
-INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_LEAGUE_ALIGNMENT_CONFIDANT_DIPLOMAT', '-30';
-INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_LEAGUE_ALIGNMENT_FRIEND_DIPLOMAT', '-20';
-
--- They consider us a rival in the World Congress.
-INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_LEAGUE_ALIGNMENT_RIVAL', '10';
-INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_LEAGUE_ALIGNMENT_HATRED', '15';
-INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_LEAGUE_ALIGNMENT_ENEMY', '20';
-
--- (values for Diplomat AIs)
-INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_LEAGUE_ALIGNMENT_RIVAL_DIPLOMAT', '20';
-INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_LEAGUE_ALIGNMENT_HATRED_DIPLOMAT', '30';
-INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_LEAGUE_ALIGNMENT_ENEMY_DIPLOMAT', '40';
-
--- We are their greatest rival in the World Congress.
-INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_PRIME_LEAGUE_COMPETITOR', '25'; -- if this is true, above modifiers are ignored
-INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_PRIME_LEAGUE_COMPETITOR_DIPLOMAT', '50'; -- value for Diplomat AIs
-
+-- Your past World Congress votes have generally supported/undermined their civ's interests.
+INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_VOTING_HISTORY_MAX', '60';
+INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_VOTING_HISTORY_DIPLOMAT_MULTIPLIER', '200'; -- increase for Diplomat AIs
+INSERT INTO Defines (Name, Value) SELECT 'VOTING_HISTORY_SCORE_MAX', '2400'; -- max. voting history score value (internally)
+INSERT INTO Defines (Name, Value) SELECT 'VOTING_HISTORY_SCORE_PLAYER_VOTE_PERCENT_VALUE', '100'; -- the higher this value, the more score is gained/lost for each % of the player's total votes devoted to the AI's favored outcome
+INSERT INTO Defines (Name, Value) SELECT 'VOTING_HISTORY_SCORE_OUTCOME_VOTE_PERCENT_VALUE', '200'; -- the higher this value, the more score is gained/lost for each % of the total votes for the AI's favored outcome were devoted by this player (compared to the contribution from other players)
+INSERT INTO Defines (Name, Value) SELECT 'VOTING_HISTORY_SCORE_DESIRE_MULTIPLIER_WEAK', '100'; -- if the outcome is WEAKLY (dis)liked by the AI, the score gain is increased by this multiplier.
+INSERT INTO Defines (Name, Value) SELECT 'VOTING_HISTORY_SCORE_DESIRE_MULTIPLIER_STANDARD', '200'; -- if the outcome is NORMALLY (dis)liked by the AI, the score gain is increased by this multiplier.
+INSERT INTO Defines (Name, Value) SELECT 'VOTING_HISTORY_SCORE_DESIRE_MULTIPLIER_STRONG', '300'; -- if the outcome is STRONGLY (dis)liked by the AI, the score gain is increased by this multiplier.
+INSERT INTO Defines (Name, Value) SELECT 'VOTING_HISTORY_SCORE_DESIRE_MULTIPLIER_OVERWHELMING', '400'; -- if the outcome is OVERWHELMINGLY (dis)liked by the AI, the score gain is increased by this multiplier.
+INSERT INTO Defines (Name, Value) SELECT 'VOTING_HISTORY_SCORE_LEAGUE_ALIGNMENT_SCALER', '10'; -- the higher this value, the more the voting history score affects the AI's "League Alignment" for this player, which affects voting decisions and is used to select the "top World Congress rival".
 
 -- They liked our proposal to the World Congress.
+INSERT INTO Defines(Name, Value) SELECT 'OPINION_WEIGHT_WE_LIKED_THEIR_PROPOSAL_WEAK', '-15';
 UPDATE Defines SET Value = '-30' WHERE Name = 'OPINION_WEIGHT_WE_LIKED_THEIR_PROPOSAL';
 INSERT INTO Defines(Name, Value) SELECT 'OPINION_WEIGHT_WE_LIKED_THEIR_PROPOSAL_STRONG', '-45';
 INSERT INTO Defines(Name, Value) SELECT 'OPINION_WEIGHT_WE_LIKED_THEIR_PROPOSAL_OVERWHELMING', '-60';
 INSERT INTO Defines(Name, Value) SELECT 'OPINION_WEIGHT_WE_LIKED_THEIR_PROPOSAL_DIPLOMAT_MULTIPLIER', '134'; -- increase for Diplomat AIs
 
 -- They disliked our proposal to the World Congress.
+INSERT INTO Defines(Name, Value) SELECT 'OPINION_WEIGHT_WE_DISLIKED_THEIR_PROPOSAL_WEAK', '15';
 UPDATE Defines SET Value = '30' WHERE Name = 'OPINION_WEIGHT_WE_DISLIKED_THEIR_PROPOSAL';
 INSERT INTO Defines(Name, Value) SELECT 'OPINION_WEIGHT_WE_DISLIKED_THEIR_PROPOSAL_STRONG', '45';
 INSERT INTO Defines(Name, Value) SELECT 'OPINION_WEIGHT_WE_DISLIKED_THEIR_PROPOSAL_OVERWHELMING', '60';

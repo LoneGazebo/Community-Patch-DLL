@@ -3172,14 +3172,11 @@
 		<Row Tag="TXT_KEY_DIPLO_FOILED_THEIR_PROPOSAL_PREVIOUSLY">
 			<Text>We previously defeated their proposal in the World Congress.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_DIPLO_GOOD_LEAGUE_ALIGNMENT">
-			<Text>They consider us an ally in the World Congress.</Text>
+		<Row Tag="TXT_KEY_DIPLO_GOOD_VOTING_HISTORY">
+			<Text>Your past World Congress votes have supported their civ's interests.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_DIPLO_BAD_LEAGUE_ALIGNMENT">
-			<Text>They consider us a rival in the World Congress.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_DIPLO_PRIME_LEAGUE_COMPETITOR">
-			<Text>We are their greatest rival in the World Congress.</Text>
+		<Row Tag="TXT_KEY_DIPLO_BAD_VOTING_HISTORY">
+			<Text>Your past World Congress votes have undermined their civ's interests.</Text>
 		</Row>
 
 		<!-- World Congress >>> United Nations -->
@@ -3207,14 +3204,11 @@
 		<Row Tag="TXT_KEY_DIPLO_FOILED_THEIR_PROPOSAL_PREVIOUSLY_UN">
 			<Text>We previously defeated their proposal in the United Nations.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_DIPLO_GOOD_LEAGUE_ALIGNMENT_UN">
-			<Text>They consider us an ally in the United Nations.</Text>
+		<Row Tag="TXT_KEY_DIPLO_GOOD_VOTING_HISTORY_UN">
+			<Text>Your past United Nations votes have supported their civ's interests.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_DIPLO_BAD_LEAGUE_ALIGNMENT_UN">
-			<Text>They consider us a rival in the United Nations.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_DIPLO_PRIME_LEAGUE_COMPETITOR_UN">
-			<Text>We are their greatest rival in the United Nations.</Text>
+		<Row Tag="TXT_KEY_DIPLO_BAD_VOTING_HISTORY_UN">
+			<Text>Your past United Nations votes have undermined their civ's interests.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_LEAGUE_OVERVIEW_PROPOSAL_OPINIONS_NEUTRAL">

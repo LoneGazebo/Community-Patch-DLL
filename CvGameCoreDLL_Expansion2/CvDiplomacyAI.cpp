@@ -6417,7 +6417,9 @@ int CvDiplomacyAI::GetVotingHistoryScore(PlayerTypes ePlayer) const
 void CvDiplomacyAI::SetVotingHistoryScore(PlayerTypes ePlayer, int iValue)
 {
 	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return;
-	m_aiVotingHistoryScore[ePlayer] = range(iValue, CHAR_MIN, CHAR_MAX);
+	int iMaxValue = range(/*2400*/ GD_INT_GET(VOTING_HISTORY_SCORE_MAX), 0, SHRT_MAX);
+	int iMinValue = range(/*-2400*/ -GD_INT_GET(VOTING_HISTORY_SCORE_MAX), SHRT_MIN, 0);
+	m_aiVotingHistoryScore[ePlayer] = range(iValue, iMinValue, iMaxValue);
 }
 
 void CvDiplomacyAI::ChangeVotingHistoryScore(PlayerTypes ePlayer, int iChange)
@@ -12990,7 +12992,7 @@ int CvDiplomacyAI::CalculateCivOpinionWeight(PlayerTypes ePlayer)
 	// WORLD CONGRESS
 	//////////////////////////////////////
 
-	iOpinionWeight += GetLeagueAlignmentScore(ePlayer);
+	iOpinionWeight += GetVotingHistoryOpinionScore(ePlayer);
 	iOpinionWeight += GetLikedTheirProposalScore(ePlayer);
 	iOpinionWeight += GetDislikedTheirProposalScore(ePlayer);
 	iOpinionWeight += GetSupportedOurProposalScore(ePlayer);
@@ -45650,45 +45652,30 @@ int CvDiplomacyAI::GetResurrectorAttackedUsScore(PlayerTypes ePlayer)
 // WORLD CONGRESS
 //////////////////////////////////////
 
-int CvDiplomacyAI::GetLeagueAlignmentScore(PlayerTypes ePlayer)
+int CvDiplomacyAI::GetVotingHistoryOpinionScore(PlayerTypes ePlayer)
 {
 	if (!GC.getGame().GetGameLeagues()->GetActiveLeague())
 		return 0;
 
 	int iOpinionWeight = 0;
-	bool bDiplomat = IsDiplomat() || GetPlayer()->GetPlayerTraits()->IsDiplomat();
-
-	if (GetPrimeLeagueCompetitor() == ePlayer)
+	int iVotingScore = GetVotingHistoryScore(ePlayer);
+	if (iVotingScore > 0)
 	{
-		iOpinionWeight = bDiplomat ? /*50*/ GD_INT_GET(OPINION_WEIGHT_PRIME_LEAGUE_COMPETITOR_DIPLOMAT) : /*25*/ GD_INT_GET(OPINION_WEIGHT_PRIME_LEAGUE_COMPETITOR);
+		int iMaxVotingBonus = /*2400*/ GD_INT_GET(VOTING_HISTORY_SCORE_MAX);
+		int iPercentOfMaximum = (iVotingScore * 100) / max(iMaxVotingBonus, 1);
+		iOpinionWeight = (/*-60*/ -GD_INT_GET(OPINION_WEIGHT_VOTING_HISTORY_MAX)) * iPercentOfMaximum / 100;
 	}
-	else
+	else if (iVotingScore < 0)
 	{
-		CvLeagueAI::AlignmentLevels eAlignment = GetPlayer()->GetLeagueAI()->EvaluateAlignment(ePlayer, /*bIgnoreWar*/ true);
-		switch (eAlignment)
-		{
-		case CvLeagueAI::ALIGNMENT_ENEMY:
-			iOpinionWeight = bDiplomat ? /*40*/ GD_INT_GET(OPINION_WEIGHT_LEAGUE_ALIGNMENT_ENEMY_DIPLOMAT) : /*20*/ GD_INT_GET(OPINION_WEIGHT_LEAGUE_ALIGNMENT_ENEMY);
-			break;
-		case CvLeagueAI::ALIGNMENT_HATRED:
-			iOpinionWeight = bDiplomat ? /*30*/ GD_INT_GET(OPINION_WEIGHT_LEAGUE_ALIGNMENT_HATRED_DIPLOMAT) : /*15*/ GD_INT_GET(OPINION_WEIGHT_LEAGUE_ALIGNMENT_HATRED);
-			break;
-		case CvLeagueAI::ALIGNMENT_RIVAL:
-			iOpinionWeight = bDiplomat ? /*20*/ GD_INT_GET(OPINION_WEIGHT_LEAGUE_ALIGNMENT_RIVAL_DIPLOMAT) : /*10*/ GD_INT_GET(OPINION_WEIGHT_LEAGUE_ALIGNMENT_RIVAL);
-			break;
-		case CvLeagueAI::ALIGNMENT_FRIEND:
-			iOpinionWeight = bDiplomat ? /*-20*/ GD_INT_GET(OPINION_WEIGHT_LEAGUE_ALIGNMENT_FRIEND_DIPLOMAT) : /*-10*/ GD_INT_GET(OPINION_WEIGHT_LEAGUE_ALIGNMENT_FRIEND);
-			break;
-		case CvLeagueAI::ALIGNMENT_CONFIDANT:
-			iOpinionWeight = bDiplomat ? /*-30*/ GD_INT_GET(OPINION_WEIGHT_LEAGUE_ALIGNMENT_CONFIDANT_DIPLOMAT) : /*-15*/ GD_INT_GET(OPINION_WEIGHT_LEAGUE_ALIGNMENT_CONFIDANT);
-			break;
-		case CvLeagueAI::ALIGNMENT_ALLY:
-			iOpinionWeight = bDiplomat ? /*-40*/ GD_INT_GET(OPINION_WEIGHT_LEAGUE_ALIGNMENT_ALLY_DIPLOMAT) : /*-20*/ GD_INT_GET(OPINION_WEIGHT_LEAGUE_ALIGNMENT_ALLY);
-			break;
-		case CvLeagueAI::ALIGNMENT_LIBERATOR:
-			iOpinionWeight = bDiplomat ? /*-50*/ GD_INT_GET(OPINION_WEIGHT_LEAGUE_ALIGNMENT_LIBERATOR_DIPLOMAT) : /*-25*/ GD_INT_GET(OPINION_WEIGHT_LEAGUE_ALIGNMENT_LIBERATOR);
-			break;
-		}
+		int iMaxVotingPenalty = /*-2400*/ -GD_INT_GET(VOTING_HISTORY_SCORE_MAX);
+		int iPercentOfMaximum = (iVotingScore * 100) / min(iMaxVotingPenalty, -1);
+		iOpinionWeight = (/*60*/ GD_INT_GET(OPINION_WEIGHT_VOTING_HISTORY_MAX)) * iPercentOfMaximum / 100;
+	}
+
+	if (IsDiplomat() || GetPlayer()->GetPlayerTraits()->IsDiplomat())
+	{
+		iOpinionWeight *= /*200*/ GD_INT_GET(OPINION_WEIGHT_VOTING_HISTORY_DIPLOMAT_MULTIPLIER);
+		iOpinionWeight /= 100;
 	}
 
 	return iOpinionWeight;

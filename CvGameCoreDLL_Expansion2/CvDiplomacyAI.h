@@ -1654,7 +1654,7 @@ public:
 	int GetResurrectorAttackedUsScore(PlayerTypes ePlayer);
 
 	// World Congress
-	int GetLeagueAlignmentScore(PlayerTypes ePlayer);
+	int GetVotingHistoryOpinionScore(PlayerTypes ePlayer);
 	int GetLikedTheirProposalScore(PlayerTypes ePlayer);
 	int GetDislikedTheirProposalScore(PlayerTypes ePlayer);
 	int GetSupportedOurProposalScore(PlayerTypes ePlayer);
@@ -2024,7 +2024,7 @@ private:
 	unsigned char m_aiPerformedCoupAgainstUs[MAX_MAJOR_CIVS];
 	char m_aiLikedTheirProposalValue[MAX_MAJOR_CIVS];
 	char m_aiSupportedOurProposalValue[MAX_MAJOR_CIVS];
-	char m_aiVotingHistoryScore[MAX_MAJOR_CIVS];
+	short m_aiVotingHistoryScore[MAX_MAJOR_CIVS];
 	char m_aiSupportedOurHostingValue[MAX_MAJOR_CIVS];
 	unsigned char m_aiNegativeArchaeologyPoints[MAX_MAJOR_CIVS];
 	unsigned char m_aiArtifactsEverDugUp[MAX_MAJOR_CIVS];
