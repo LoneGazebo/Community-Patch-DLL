@@ -351,9 +351,10 @@ void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* 
 
 		//route has side benefits also (movement, village gold, trade route range, religion spread)
 		int iSideBenefits = iRoadLength * 100;
-		// give an additional bump if we're almost done (don't get distracted)
-		if (iPlotsNeeded<=3)
-			iSideBenefits += 8000;
+
+		// give an additional bump if we're almost done (don't get distracted and leave half-finished roads)
+		if (iPlotsNeeded < 3 && iRoadLength - iPlotsNeeded > 3)
+			iSideBenefits += 20000;
 
 		//assume one unhappiness is worth .5 gold per turn per city
 		iSideBenefits += pTargetCity->getUnhappinessFromConnection() * m_pPlayer->IsEmpireUnhappy() ? 200 : 100;
@@ -472,7 +473,7 @@ void CvBuilderTaskingAI::AddRoutePlot(CvPlot* pPlot, RouteTypes eRoute, int iVal
 		return;
 
 	// if we already know about this plot, continue on
-	if(WantRouteAtPlot(pPlot) || NeedRouteAtPlot(pPlot))
+	if( GetRouteValue(pPlot)>=iValue )
 		return;
 
 	//prefer extending existing routes
@@ -662,12 +663,6 @@ void CvBuilderTaskingAI::UpdateRoutePlots(void)
 
 	RouteTypes eBestRoute = m_pPlayer->getBestRoute();
 	if(eBestRoute == NO_ROUTE)
-	{
-		return;
-	}
-
-	// If there's no builder, bail!
-	if(m_pPlayer->GetNumUnitsWithUnitAI(UNITAI_WORKER)<1)
 	{
 		return;
 	}
