@@ -1702,8 +1702,8 @@ public:
 	bool IsGoingForSpaceshipVictory() const;
 
 	bool IsCloseToAnyVictoryCondition() const;
-	bool IsCloseToSSVictory() const;
-	bool IsCloseToDominationVictory() const;
+	bool IsCloseToSpaceshipVictory() const;
+	bool IsCloseToWorldConquest() const;
 	bool IsCloseToCultureVictory() const;
 	bool IsCloseToDiploVictory() const;
 

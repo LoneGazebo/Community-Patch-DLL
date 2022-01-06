@@ -2924,7 +2924,7 @@ int CvDealAI::GetThirdPartyPeaceValue(bool bFromMe, PlayerTypes eOtherPlayer, Te
 		else
 		{
 			// Captured our capital or Holy City? Close to winning the game? Don't accept peace bribes.
-			if (pDiploAI->IsCapitalCapturedBy(eWithPlayer) || pDiploAI->IsHolyCityCapturedBy(eWithPlayer) || pDiploAI->IsCloseToDominationVictory() || pDiploAI->IsEndgameAggressiveTo(eWithPlayer))
+			if (pDiploAI->IsCapitalCapturedBy(eWithPlayer) || pDiploAI->IsHolyCityCapturedBy(eWithPlayer) || pDiploAI->IsCloseToWorldConquest() || pDiploAI->IsEndgameAggressiveTo(eWithPlayer))
 			{
 				return INT_MAX;
 			}

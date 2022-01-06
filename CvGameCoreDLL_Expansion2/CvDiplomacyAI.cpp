@@ -8017,12 +8017,12 @@ void CvDiplomacyAI::DoUpdateVictoryFocus()
 	}
 
 	// Let's check if we're close to winning.
-	if (IsCloseToDominationVictory())
+	if (IsCloseToWorldConquest())
 	{
 		SetVictoryFocus(VICTORY_FOCUS_DOMINATION);
 		return;
 	}
-	else if (IsCloseToSSVictory())
+	else if (IsCloseToSpaceshipVictory())
 	{
 		SetVictoryFocus(VICTORY_FOCUS_SCIENCE);
 		return;
@@ -8421,7 +8421,7 @@ void CvDiplomacyAI::DoUpdateTechBlockLevels()
 
 		if (bSpaceshipValid && IsEndgameAggressiveTo(ePlayer))
 		{
-			if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToSSVictory())
+			if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToSpaceshipVictory())
 			{
 				SetTechBlockLevel(ePlayer, BLOCK_LEVEL_FIERCE);
 				continue;
@@ -10519,7 +10519,7 @@ void CvDiplomacyAI::DoUpdateEasyTargets()
 			bool bCapturedTheirCities = GET_PLAYER(ePlayer).GetDiplomacyAI()->GetNumCitiesCapturedBy(GetID()) > GetNumCitiesCapturedBy(ePlayer);
 
 			// Do we particularly want to conquer them?
-			bool bWantsConquest = IsGoingForWorldConquest() || IsCloseToDominationVictory();
+			bool bWantsConquest = IsGoingForWorldConquest() || IsCloseToWorldConquest();
 			bWantsConquest |= GetWarState(ePlayer) == WAR_STATE_OFFENSIVE;
 			bWantsConquest |= IsPlayerRecklessExpander(ePlayer);
 			bWantsConquest |= IsPlayerWonderSpammer(ePlayer);
@@ -12656,7 +12656,7 @@ bool CvDiplomacyAI::IsWillingToAttackFriend(PlayerTypes ePlayer, bool bDirect, b
 		bool bGoodReason = IsBackstabber(); // if we've already backstabbed one friend, more willing to backstab others
 		bGoodReason |= bEndgameAggressive;
 		bGoodReason |= bUntrustworthy;
-		bGoodReason |= IsCloseToDominationVictory() && GET_PLAYER(ePlayer).GetCapitalConqueror() == NO_PLAYER;
+		bGoodReason |= IsCloseToWorldConquest() && GET_PLAYER(ePlayer).GetCapitalConqueror() == NO_PLAYER;
 		bGoodReason |= GET_PLAYER(ePlayer).GetDiplomacyAI()->GetWeDeclaredWarOnFriendCount() > 0; // they also backstabbed people
 		bGoodReason |= GetBiggestCompetitor() == ePlayer;
 		bGoodReason |= GetWarmongerThreat(ePlayer) >= THREAT_SEVERE;
@@ -13847,7 +13847,7 @@ void CvDiplomacyAI::SelectApproachTowardsVassal(PlayerTypes ePlayer)
 
 			if (IsCompetingForVictory() && !IsMaster(ePlayer))
 			{
-				if (IsGoingForWorldConquest() || IsCloseToDominationVictory())
+				if (IsGoingForWorldConquest() || IsCloseToWorldConquest())
 				{
 					if (GET_PLAYER(ePlayer).GetCapitalConqueror() != NO_PLAYER)
 					{
@@ -13996,9 +13996,9 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	bool bConquerorTraits = pTraits->IsWarmonger(), bDiplomatTraits = pTraits->IsDiplomat(), bCulturalTraits = pTraits->IsTourism(), bScientistTraits = pTraits->IsNerd();
 
 	// Victory stuff
-	bool bCloseToWorldConquest = IsCloseToDominationVictory(), bCloseToDiploVictory = IsCloseToDiploVictory(), bCloseToScienceVictory = IsCloseToSSVictory(), bCloseToCultureVictory = IsCloseToCultureVictory();
+	bool bCloseToWorldConquest = IsCloseToWorldConquest(), bCloseToDiploVictory = IsCloseToDiploVictory(), bCloseToScienceVictory = IsCloseToSpaceshipVictory(), bCloseToCultureVictory = IsCloseToCultureVictory();
 	bool bCloseToAnyVictory = bCloseToWorldConquest || bCloseToDiploVictory || bCloseToScienceVictory || bCloseToCultureVictory;
-	bool bTheyAreCloseToWorldConquest = pTheirDiplo->IsCloseToDominationVictory(), bTheyAreCloseToDiploVictory = pTheirDiplo->IsCloseToDiploVictory(), bTheyAreCloseToScienceVictory = pTheirDiplo->IsCloseToSSVictory(), bTheyAreCloseToCultureVictory = pTheirDiplo->IsCloseToCultureVictory();
+	bool bTheyAreCloseToWorldConquest = pTheirDiplo->IsCloseToWorldConquest(), bTheyAreCloseToDiploVictory = pTheirDiplo->IsCloseToDiploVictory(), bTheyAreCloseToScienceVictory = pTheirDiplo->IsCloseToSpaceshipVictory(), bTheyAreCloseToCultureVictory = pTheirDiplo->IsCloseToCultureVictory();
 
 	// Possessions
 	int iNumOurTechs = GET_TEAM(GetTeam()).GetTeamTechs()->GetNumTechsKnown(), iNumTheirTechs = GET_TEAM(eTeam).GetTeamTechs()->GetNumTechsKnown();
@@ -19295,10 +19295,10 @@ void CvDiplomacyAI::DoUpdateMajorCompetitors()
 {
 	int iNumMajorsAlive = GC.getGame().countMajorCivsAlive();
 	int iDangerThreshold = GC.getGame().countMajorCivsEverAlive() * 33 / 100;
-	bool bCloseToDominationVictory = IsCloseToDominationVictory();
+	bool bCloseToDominationVictory = IsCloseToWorldConquest();
 	bool bCloseToDiploVictory = IsCloseToDiploVictory();
 	bool bCloseToCultureVictory = IsCloseToCultureVictory();
-	bool bCloseToScienceVictory = IsCloseToSSVictory();
+	bool bCloseToScienceVictory = IsCloseToSpaceshipVictory();
 	int iEra = GetPlayer()->GetCurrentEra();
 	int iOurTechs = GET_TEAM(GetTeam()).GetTeamTechs()->GetNumTechsKnown();
 
@@ -19854,7 +19854,7 @@ void CvDiplomacyAI::DoRelationshipPairing()
 			iCompetitorPriority = 1;
 		}
 		// They're close to conquering the whole planet?
-		else if (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsCloseToDominationVictory())
+		else if (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsCloseToWorldConquest())
 		{
 			iPriority = 2;
 
@@ -20098,7 +20098,7 @@ void CvDiplomacyAI::DoRelationshipPairing()
 
 
 	// STEP 4: Select our strategic trade partners
-	bool bCloseToConquest = IsCloseToDominationVictory();
+	bool bCloseToConquest = IsCloseToWorldConquest();
 	bool bGoingForConquest = IsCompetingForVictory() && IsGoingForWorldConquest();
 	PolicyBranchTypes eIndustry = (PolicyBranchTypes)GC.getInfoTypeForString("POLICY_BRANCH_COMMERCE", true);
 	bool bTradeBonus = GetPlayer()->GetPlayerPolicies()->IsPolicyBranchUnlocked(eIndustry);
@@ -21499,7 +21499,7 @@ void CvDiplomacyAI::DoUpdateWarTargets()
 	}
 
 	bool bBold = GetBoldness() > 6 || GetPlayer()->GetPlayerTraits()->IsWarmonger() || (IsCompetingForVictory() && IsGoingForWorldConquest());
-	bool bCloseToWorldConquest = IsCloseToDominationVictory();
+	bool bCloseToWorldConquest = IsCloseToWorldConquest();
 	bool bGoingForWorldConquest = IsGoingForWorldConquest();
 
 	int iConflictLimit = bBold ? 15 : 10;
@@ -22294,7 +22294,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMinorCiv(PlayerTypes ePlayer, std::
 	// CONQUEST GRAND STRATEGY
 	////////////////////////////////////
 
-	if (IsGoingForWorldConquest() || IsCloseToDominationVictory() || pTraits->IsWarmonger() || pTraits->IsExpansionist())
+	if (IsGoingForWorldConquest() || IsCloseToWorldConquest() || pTraits->IsWarmonger() || pTraits->IsExpansionist())
 	{
 		// Minor is militaristic or mercantile
 		if (GET_PLAYER(ePlayer).GetMinorCivAI()->GetTrait() == MINOR_CIV_TRAIT_MILITARISTIC || GET_PLAYER(ePlayer).GetMinorCivAI()->GetTrait() == MINOR_CIV_TRAIT_MERCANTILE)
@@ -22302,7 +22302,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMinorCiv(PlayerTypes ePlayer, std::
 			vApproachScores[CIV_APPROACH_FRIENDLY] += vApproachBias[CIV_APPROACH_FRIENDLY] * 2;
 			bCheckIfGoodWarTarget = false;
 		}
-		else if (IsCloseToDominationVictory() || (!pTraits->IsSmaller() && !IsGoingForDiploVictory()))
+		else if (IsCloseToWorldConquest() || (!pTraits->IsSmaller() && !IsGoingForDiploVictory()))
 		{
 			bAnyAggressionBonus = true;
 			vApproachScores[CIV_APPROACH_HOSTILE] += vApproachBias[CIV_APPROACH_HOSTILE] * 4;
@@ -22355,7 +22355,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMinorCiv(PlayerTypes ePlayer, std::
 	// SCIENCE GRAND STRATEGY
 	////////////////////////////////////
 
-	if (IsGoingForSpaceshipVictory() || IsCloseToSSVictory() || pTraits->IsNerd() || pTraits->IsSmaller())
+	if (IsGoingForSpaceshipVictory() || IsCloseToSpaceshipVictory() || pTraits->IsNerd() || pTraits->IsSmaller())
 	{
 		// Minor is maritime or militaristic
 		if (GET_PLAYER(ePlayer).GetMinorCivAI()->GetTrait() == MINOR_CIV_TRAIT_MARITIME || GET_PLAYER(ePlayer).GetMinorCivAI()->GetTrait() == MINOR_CIV_TRAIT_MILITARISTIC)
@@ -22716,7 +22716,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMinorCiv(PlayerTypes ePlayer, std::
 		{
 			vApproachScores[CIV_APPROACH_WAR] += vApproachBias[CIV_APPROACH_WAR] * 2;
 		}
-		if (IsGoingForWorldConquest() || IsCloseToDominationVictory())
+		if (IsGoingForWorldConquest() || IsCloseToWorldConquest())
 		{
 			vApproachScores[CIV_APPROACH_WAR] += vApproachBias[CIV_APPROACH_WAR] * 2;
 		}
@@ -23113,7 +23113,7 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 	// STEP 1: See if we're in a critical state and check which players are valid
 	bool bCriticalState = GetPlayer()->IsEmpireSuperUnhappy() || pCapital->isInDangerOfFalling() || pCapital->getDamage() >= (pCapital->GetMaxHitPoints()/2);
 	bool bMakePeaceWithAllMinors = false;
-	bool bWorldConquest = IsGoingForWorldConquest() || IsCloseToDominationVictory();
+	bool bWorldConquest = IsGoingForWorldConquest() || IsCloseToWorldConquest();
 	bool bDiplomatic = IsGoingForDiploVictory() || IsDiplomat() || GetPlayer()->GetPlayerTraits()->IsDiplomat();
 	vector<PlayerTypes> vValidPlayers;
 
@@ -26139,7 +26139,7 @@ bool CvDiplomacyAI::IsWillingToGiveOpenBordersToPlayer(PlayerTypes ePlayer)
 			return false;
 		}
 	}
-	if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToDominationVictory())
+	if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToWorldConquest())
 	{
 		return false;
 	}
@@ -32937,7 +32937,7 @@ void CvDiplomacyAI::DoWarmongerStatement(PlayerTypes ePlayer, DiploStatementType
 			bool bSendStatement = true;
 
 			// Don't send statement if we're going for conquest ourselves
-			if (IsGoingForWorldConquest() || IsCloseToDominationVictory())
+			if (IsGoingForWorldConquest() || IsCloseToWorldConquest())
 				bSendStatement = false;
 
 			// 2 in 3 chance we don't actually send the message (don't want to bombard the player from all sides)
@@ -39830,7 +39830,7 @@ int CvDiplomacyAI::GetCoopWarDesireScore(PlayerTypes eAllyPlayer, PlayerTypes eT
 	}
 
 	// World Conquest?
-	if (IsGoingForWorldConquest() || IsCloseToDominationVictory())
+	if (IsGoingForWorldConquest() || IsCloseToWorldConquest())
 	{
 		iScore += (GetBoldness() * 2);
 	}
@@ -40123,7 +40123,7 @@ int CvDiplomacyAI::GetCoopWarDesireScore(PlayerTypes eAllyPlayer, PlayerTypes eT
 
 		if (pClosestCityToUs->IsOriginalMajorCapital())
 		{
-			if (IsCloseToDominationVictory())
+			if (IsCloseToWorldConquest())
 			{
 				iEconomicValue *= 4;
 			}
@@ -40652,7 +40652,7 @@ bool CvDiplomacyAI::IsDontSettleAcceptable(PlayerTypes ePlayer)
 	}
 	
 	// Refuse all promises if close to world conquest and they still have original capitals
-	if (IsCloseToDominationVictory() && !IsMaster(ePlayer) && (GET_PLAYER(ePlayer).GetCapitalConqueror() != NO_PLAYER || GET_PLAYER(ePlayer).GetNumCapitalCities() > 0))
+	if (IsCloseToWorldConquest() && !IsMaster(ePlayer) && (GET_PLAYER(ePlayer).GetCapitalConqueror() != NO_PLAYER || GET_PLAYER(ePlayer).GetNumCapitalCities() > 0))
 		return false;
 
 	// If player is Hostile or planning War, always say no
@@ -40810,7 +40810,7 @@ bool CvDiplomacyAI::IsStopSpyingAcceptable(PlayerTypes ePlayer)
 	}
 	
 	// Refuse all promises if close to world conquest and they still have original capitals
-	if (IsCloseToDominationVictory() && !IsMaster(ePlayer) && (GET_PLAYER(ePlayer).GetCapitalConqueror() != NO_PLAYER || GET_PLAYER(ePlayer).GetNumCapitalCities() > 0))
+	if (IsCloseToWorldConquest() && !IsMaster(ePlayer) && (GET_PLAYER(ePlayer).GetCapitalConqueror() != NO_PLAYER || GET_PLAYER(ePlayer).GetNumCapitalCities() > 0))
 		return false;
 
 	// If player is Guarded, Hostile or planning War, always say no
@@ -42189,7 +42189,7 @@ int CvDiplomacyAI::GetDenounceWeight(PlayerTypes ePlayer, bool bBias)
 	}
 #if defined(MOD_BALANCE_CORE)
 	// Are there any quests that should influence our decision? Ignore if we're already close to a non-domination victory, we shouldn't be making additional enemies over City-States.
-	if (!IsCloseToSSVictory() && !IsCloseToCultureVictory() && !IsCloseToDiploVictory())
+	if (!IsCloseToSpaceshipVictory() && !IsCloseToCultureVictory() && !IsCloseToDiploVictory())
 	{
 		for (int iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
 		{
@@ -42432,7 +42432,7 @@ bool CvDiplomacyAI::IsStopSpreadingReligionAcceptable(PlayerTypes ePlayer)
 	}
 	
 	// Refuse all promises if close to world conquest and they still have original capitals
-	if (IsCloseToDominationVictory() && !IsMaster(ePlayer) && (GET_PLAYER(ePlayer).GetCapitalConqueror() != NO_PLAYER || GET_PLAYER(ePlayer).GetNumCapitalCities() > 0))
+	if (IsCloseToWorldConquest() && !IsMaster(ePlayer) && (GET_PLAYER(ePlayer).GetCapitalConqueror() != NO_PLAYER || GET_PLAYER(ePlayer).GetNumCapitalCities() > 0))
 		return false;
 
 	// If player is Hostile or planning War, always say no
@@ -42524,7 +42524,7 @@ bool CvDiplomacyAI::IsStopDiggingAcceptable(PlayerTypes ePlayer)
 	}
 	
 	// Refuse all promises if close to world conquest and they still have original capitals
-	if (IsCloseToDominationVictory() && !IsMaster(ePlayer) && (GET_PLAYER(ePlayer).GetCapitalConqueror() != NO_PLAYER || GET_PLAYER(ePlayer).GetNumCapitalCities() > 0))
+	if (IsCloseToWorldConquest() && !IsMaster(ePlayer) && (GET_PLAYER(ePlayer).GetCapitalConqueror() != NO_PLAYER || GET_PLAYER(ePlayer).GetNumCapitalCities() > 0))
 		return false;
 
 	// If player is Hostile or planning War, always say no
@@ -46467,7 +46467,7 @@ bool CvDiplomacyAI::IsTryingToLiberate(CvCity* pCity, PlayerTypes ePlayerToLiber
 		return false;
 
 	// If we're going for world conquest, never liberate an original major capital!
-	if (IsGoingForWorldConquest() || IsCloseToDominationVictory())
+	if (IsGoingForWorldConquest() || IsCloseToWorldConquest())
 	{
 		if (pCity->IsOriginalMajorCapital())
 			return false;
@@ -46578,7 +46578,7 @@ bool CvDiplomacyAI::DoPossibleMajorLiberation(CvCity* pCity, PlayerTypes ePlayer
 	PlayerTypes eOldOwner = pCity->getPreviousOwner();
 
 	// If we're going for world conquest, never liberate an original major capital!
-	if (IsGoingForWorldConquest() || IsCloseToDominationVictory())
+	if (IsGoingForWorldConquest() || IsCloseToWorldConquest())
 	{
 		if (pCity->IsOriginalMajorCapital())
 			return false;
@@ -46964,7 +46964,7 @@ bool CvDiplomacyAI::IsGoingForSpaceshipVictory() const
 /// Is this player close to ANY victory condition?
 bool CvDiplomacyAI::IsCloseToAnyVictoryCondition() const
 {
-	if (IsCloseToDominationVictory() || IsCloseToSSVictory() || IsCloseToCultureVictory() || IsCloseToDiploVictory())
+	if (IsCloseToWorldConquest() || IsCloseToSpaceshipVictory() || IsCloseToCultureVictory() || IsCloseToDiploVictory())
 	{
 		return true;
 	}
@@ -46973,7 +46973,7 @@ bool CvDiplomacyAI::IsCloseToAnyVictoryCondition() const
 }
 
 /// Is this player close to a science victory?
-bool CvDiplomacyAI::IsCloseToSSVictory() const
+bool CvDiplomacyAI::IsCloseToSpaceshipVictory() const
 {
 	VictoryTypes eSpaceshipVictory = (VictoryTypes) GC.getInfoTypeForString("VICTORY_SPACE_RACE", true);
 	
@@ -47034,7 +47034,7 @@ bool CvDiplomacyAI::IsCloseToSSVictory() const
 }
 
 /// Is this player close to a domination victory?
-bool CvDiplomacyAI::IsCloseToDominationVictory() const
+bool CvDiplomacyAI::IsCloseToWorldConquest() const
 {
 	// Not close to victory if player cannot attempt Domination Victory.
 	if (!GC.getGame().CanPlayerAttemptDominationVictory(GetID()))
@@ -53856,7 +53856,7 @@ bool CvDiplomacyAI::IsVoluntaryVassalageRequestAcceptable(PlayerTypes ePlayer)
 
 	// Do not accept voluntary capitulation if we need their capitals to win.
 	/* - commented out due to change with vassal logic
-	if (IsGoingForWorldConquest() || IsCloseToDominationVictory())
+	if (IsGoingForWorldConquest() || IsCloseToWorldConquest())
 	{
 		if (iNumCaps > 0)
 			return false;
@@ -54281,7 +54281,7 @@ bool CvDiplomacyAI::IsEndVassalageRequestAcceptable(PlayerTypes ePlayer)
 		return false;
 
 	// Player has original capitals and we're going for world conquest - not a chance!
-	if (IsGoingForWorldConquest() || IsCloseToDominationVictory())
+	if (IsGoingForWorldConquest() || IsCloseToWorldConquest())
 	{
 		if (!GET_PLAYER(ePlayer).IsHasLostCapital() || GET_PLAYER(ePlayer).GetNumCapitalCities() > 0)
 			return false;
@@ -55361,7 +55361,7 @@ MoveTroopsResponseTypes CvDiplomacyAI::GetMoveTroopsRequestResponse(PlayerTypes 
 		viMoveTroopsWeights[MOVE_TROOPS_RESPONSE_NEUTRAL] += -3;
 		viMoveTroopsWeights[MOVE_TROOPS_RESPONSE_REFUSE] += 5;
 	}
-	if (IsCloseToDominationVictory())
+	if (IsCloseToWorldConquest())
 	{
 		viMoveTroopsWeights[MOVE_TROOPS_RESPONSE_ACCEPT] += -10;
 		viMoveTroopsWeights[MOVE_TROOPS_RESPONSE_NEUTRAL] += -10;

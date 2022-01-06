@@ -382,7 +382,7 @@ void CvPlayerAI::AI_conquerCity(CvCity* pCity, PlayerTypes ePlayerToLiberate, bo
 	}
 
 	// If we're going for world conquest, have to keep any capitals we get
-	if (!bKeepCity && pCity->IsOriginalMajorCapital() && (GetDiplomacyAI()->IsGoingForWorldConquest() || GetDiplomacyAI()->IsCloseToDominationVictory()))
+	if (!bKeepCity && pCity->IsOriginalMajorCapital() && (GetDiplomacyAI()->IsGoingForWorldConquest() || GetDiplomacyAI()->IsCloseToWorldConquest()))
 	{
 		bKeepCity = true;
 	}

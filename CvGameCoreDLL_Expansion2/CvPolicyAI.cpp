@@ -4749,7 +4749,7 @@ int CvPolicyAI::WeighPolicy(CvPlayer* pPlayer, PolicyTypes ePolicy)
 	{
 		iWeight += (iDiploValue / 2);
 	}
-	if (pPlayer->GetDiplomacyAI()->IsGoingForSpaceshipVictory() || pPlayer->GetDiplomacyAI()->IsCloseToSSVictory())
+	if (pPlayer->GetDiplomacyAI()->IsGoingForSpaceshipVictory() || pPlayer->GetDiplomacyAI()->IsCloseToSpaceshipVictory())
 	{
 		iWeight += iScienceValue;
 	}
@@ -4758,7 +4758,7 @@ int CvPolicyAI::WeighPolicy(CvPlayer* pPlayer, PolicyTypes ePolicy)
 		iWeight += (iScienceValue / 2);
 	}
 
-	if (pPlayer->GetDiplomacyAI()->IsGoingForWorldConquest() || pPlayer->GetDiplomacyAI()->IsCloseToDominationVictory())
+	if (pPlayer->GetDiplomacyAI()->IsGoingForWorldConquest() || pPlayer->GetDiplomacyAI()->IsCloseToWorldConquest())
 	{
 		iWeight += iConquestValue;
 	}
