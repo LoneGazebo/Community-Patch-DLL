@@ -3093,7 +3093,7 @@ void CvTacticalAI::ExtractTargetsForZone(CvTacticalDominanceZone* pZone /* Pass 
 				if (pNeighbor && GetTacticalAnalysisMap()->GetZoneByPlot(pNeighbor) == pZone)
 				{
 					m_ZoneTargets.push_back(*it);
-					continue;
+					break;
 				}
 			}
 		}
