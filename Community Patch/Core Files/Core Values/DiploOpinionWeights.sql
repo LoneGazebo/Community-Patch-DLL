@@ -500,6 +500,7 @@ INSERT INTO Defines (Name, Value) SELECT 'VOTING_HISTORY_SCORE_DESIRE_MULTIPLIER
 INSERT INTO Defines (Name, Value) SELECT 'VOTING_HISTORY_SCORE_DESIRE_MULTIPLIER_STRONG', '300'; -- if the outcome is STRONGLY (dis)liked by the AI, the score gain is increased by this multiplier.
 INSERT INTO Defines (Name, Value) SELECT 'VOTING_HISTORY_SCORE_DESIRE_MULTIPLIER_OVERWHELMING', '400'; -- if the outcome is OVERWHELMINGLY (dis)liked by the AI, the score gain is increased by this multiplier.
 INSERT INTO Defines (Name, Value) SELECT 'VOTING_HISTORY_SCORE_LEAGUE_ALIGNMENT_SCALER', '10'; -- the higher this value, the more the voting history score affects the AI's "League Alignment" for this player, which affects voting decisions and is used to select the "top World Congress rival".
+INSERT INTO Defines (Name, Value) SELECT 'VOTING_HISTORY_SCORE_PRIME_COMPETITOR_THRESHOLD', '12'; -- civs that have a voting history score equal to (VOTING_HISTORY_SCORE_MAX) / this value * -1 or worse in order are given greater consideration for "top World Congress rival".
 
 -- They liked our proposal to the World Congress.
 INSERT INTO Defines(Name, Value) SELECT 'OPINION_WEIGHT_WE_LIKED_THEIR_PROPOSAL_WEAK', '-15';
