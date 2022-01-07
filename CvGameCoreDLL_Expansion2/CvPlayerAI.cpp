@@ -680,7 +680,7 @@ void CvPlayerAI::AI_considerAnnex()
 	}
 
 	//Need this later
-	ReligionTypes eOurReligion = GetReligions()->GetCurrentReligion(false);
+	ReligionTypes eOurReligion = GetReligions()->GetStateReligion(false);
 
 	vector<OptionWithScore<CvCity*>> options;
 	for (CvCity* pCity = firstCity(&iLoop); pCity != NULL; pCity = nextCity(&iLoop))
@@ -2208,7 +2208,7 @@ int CvPlayerAI::ScoreCityForMessenger(CvCity* pCity, CvUnit* pUnit)
 		//RELIGIOUS MINORS - Minors can be helpful in starting, enhancing or spreading a religion.
 		if (pMinorCivAI->GetTrait() == MINOR_CIV_TRAIT_RELIGIOUS && !GC.getGame().isOption(GAMEOPTION_NO_RELIGION))
 		{
-			ReligionTypes eReligion = GetReligions()->GetCurrentReligion(false);
+			ReligionTypes eReligion = GetReligions()->GetStateReligion(false);
 
 			// Do we already have a religion?
 			if (eReligion != NO_RELIGION)

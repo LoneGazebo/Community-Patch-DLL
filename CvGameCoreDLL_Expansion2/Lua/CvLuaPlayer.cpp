@@ -13204,9 +13204,9 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 		{
 			CvString str;
 
-			ReligionTypes eOurStateReligion = pkPlayer->GetReligions()->GetCurrentReligion(false);
+			ReligionTypes eOurStateReligion = pkPlayer->GetReligions()->GetStateReligion(false);
 			ReligionTypes eOurMajorityReligion = pkPlayer->GetReligions()->GetReligionInMostCities();
-			ReligionTypes eTheirStateReligion = GET_PLAYER(ePlayer).GetReligions()->GetCurrentReligion(false);
+			ReligionTypes eTheirStateReligion = GET_PLAYER(ePlayer).GetReligions()->GetStateReligion(false);
 			ReligionTypes eTheirMajorityReligion = GET_PLAYER(ePlayer).GetReligions()->GetReligionInMostCities();
 
 			if (eOurStateReligion != NO_RELIGION && eOurStateReligion == eTheirMajorityReligion)
@@ -13404,9 +13404,9 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 		{
 			CvString str;
 
-			ReligionTypes eAIStateReligion = pkPlayer->GetReligions()->GetCurrentReligion(false);
+			ReligionTypes eAIStateReligion = pkPlayer->GetReligions()->GetStateReligion(false);
 			ReligionTypes eAIMajorityReligion = pkPlayer->GetReligions()->GetReligionInMostCities();
-			ReligionTypes eHumanStateReligion = GET_PLAYER(ePlayer).GetReligions()->GetCurrentReligion(false);
+			ReligionTypes eHumanStateReligion = GET_PLAYER(ePlayer).GetReligions()->GetStateReligion(false);
 			ReligionTypes eHumanMajorityReligion = GET_PLAYER(ePlayer).GetReligions()->GetReligionInMostCities();
 			
 			if (eAIStateReligion != NO_RELIGION && eAIStateReligion == eHumanMajorityReligion)
@@ -14048,9 +14048,9 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 		{
 			CvString str;
 
-			ReligionTypes eAIStateReligion = pkPlayer->GetReligions()->GetCurrentReligion(false);
+			ReligionTypes eAIStateReligion = pkPlayer->GetReligions()->GetStateReligion(false);
 			ReligionTypes eAIMajorityReligion = pkPlayer->GetReligions()->GetReligionInMostCities();
-			ReligionTypes eHumanStateReligion = GET_PLAYER(ePlayer).GetReligions()->GetCurrentReligion(false);
+			ReligionTypes eHumanStateReligion = GET_PLAYER(ePlayer).GetReligions()->GetStateReligion(false);
 			ReligionTypes eHumanMajorityReligion = GET_PLAYER(ePlayer).GetReligions()->GetReligionInMostCities();
 			
 			if (eAIStateReligion != NO_RELIGION && eAIStateReligion == eHumanMajorityReligion)
@@ -16471,7 +16471,7 @@ int CvLuaPlayer::lSetStateReligion(lua_State* L)
 {
 	CvPlayer* pkPlayer = GetInstance(L);
 	ReligionTypes eReligion = (ReligionTypes)lua_tointeger(L, 2);
-	pkPlayer->GetReligions()->SetStateReligion(eReligion);
+	pkPlayer->GetReligions()->SetStateReligionOverride(eReligion);
 	return 1;
 }
 int CvLuaPlayer::lGetPiety(lua_State* L)

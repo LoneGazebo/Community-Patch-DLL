@@ -5707,7 +5707,7 @@ bool CvDiplomacyAI::IsHolyCityCapturedBy(PlayerTypes ePlayer, bool bCurrently, b
 	CvPlot *pHolyCityPlot = GC.getMap().plot(m_pPlayer->GetLostHolyCityX(), m_pPlayer->GetLostHolyCityY());
 	if (pHolyCityPlot != NULL && pHolyCityPlot->isCity())
 	{
-		if (pHolyCityPlot->getPlotCity()->GetCityReligions()->IsHolyCityForReligion(GetPlayer()->GetReligions()->GetCurrentReligion(false)))
+		if (pHolyCityPlot->getPlotCity()->GetCityReligions()->IsHolyCityForReligion(GetPlayer()->GetReligions()->GetStateReligion(false)))
 		{
 			if (bCurrently) // Holy City status hasn't been removed yet...
 			{
@@ -8903,7 +8903,7 @@ void CvDiplomacyAI::DoUpdateWarStates()
 	// Reset overall war state
 	int iStateAllWars = 0;   // Used to assess overall war state in this function
 	SetStateAllWars(STATE_ALL_WARS_NEUTRAL);
-	ReligionTypes eMyReligion = GetPlayer()->GetReligions()->GetCurrentReligion(false);
+	ReligionTypes eMyReligion = GetPlayer()->GetReligions()->GetStateReligion(false);
 	int iLoop;
 
 	// Loop through all (known) Players
@@ -8915,7 +8915,7 @@ void CvDiplomacyAI::DoUpdateWarStates()
 		if (IsPlayerValid(eLoopPlayer) && IsAtWar(eLoopPlayer))
 		{
 			WarStateTypes eWarState = NO_WAR_STATE_TYPE;
-			ReligionTypes eTheirReligion = GET_PLAYER(eLoopPlayer).isMinorCiv() ? NO_RELIGION : GET_PLAYER(eLoopPlayer).GetReligions()->GetCurrentReligion(false);
+			ReligionTypes eTheirReligion = GET_PLAYER(eLoopPlayer).isMinorCiv() ? NO_RELIGION : GET_PLAYER(eLoopPlayer).GetReligions()->GetStateReligion(false);
 
 			// Evaluate our danger and their danger from this war
 			int iNumOurCities = 0, iNumOurCitiesInDanger = 0, iNumTheirCities = 0, iNumTheirCitiesInDanger = 0, iOurDanger = 0, iTheirDanger = 0;
@@ -16263,9 +16263,9 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 			vApproachScores[CIV_APPROACH_HOSTILE] += vApproachBias[CIV_APPROACH_HOSTILE] + iReligiosityScore + GetNegativeReligiousConversionPoints(ePlayer);
 		}
 
-		ReligionTypes eOurStateReligion = GetPlayer()->GetReligions()->GetCurrentReligion(false);
+		ReligionTypes eOurStateReligion = GetPlayer()->GetReligions()->GetStateReligion(false);
 		ReligionTypes eOurMajorityReligion = GetPlayer()->GetReligions()->GetReligionInMostCities();
-		ReligionTypes eTheirStateReligion = GET_PLAYER(ePlayer).GetReligions()->GetCurrentReligion(false);
+		ReligionTypes eTheirStateReligion = GET_PLAYER(ePlayer).GetReligions()->GetStateReligion(false);
 		ReligionTypes eTheirMajorityReligion = GET_PLAYER(ePlayer).GetReligions()->GetReligionInMostCities();
 
 		// We didn't found or conquer, but have a majority religion
@@ -22284,7 +22284,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMinorCiv(PlayerTypes ePlayer, std::
 
 	if (GET_PLAYER(ePlayer).GetMinorCivAI()->GetTrait() == MINOR_CIV_TRAIT_RELIGIOUS && !GC.getGame().isOption(GAMEOPTION_NO_RELIGION))
 	{
-		ReligionTypes eReligion = GetPlayer()->GetReligions()->GetCurrentReligion(false);
+		ReligionTypes eReligion = GetPlayer()->GetReligions()->GetStateReligion(false);
 
 		// Do we already have a religion?
 		if (eReligion != NO_RELIGION)
@@ -23342,8 +23342,8 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 		int iTheirDanger = 0;
 		bool bSeriousDangerUs = false;
 		bool bSeriousDangerThem = false;
-		ReligionTypes eMyReligion = GetPlayer()->GetReligions()->GetCurrentReligion(false);	
-		ReligionTypes eTheirReligion = GET_PLAYER(*it).GetReligions()->GetCurrentReligion(false);
+		ReligionTypes eMyReligion = GetPlayer()->GetReligions()->GetStateReligion(false);	
+		ReligionTypes eTheirReligion = GET_PLAYER(*it).GetReligions()->GetStateReligion(false);
 		vector<PlayerTypes> vOurWarAllies = GetPlayer()->GetWarAllies(*it);
 		vector<PlayerTypes> vTheirWarAllies = GET_PLAYER(*it).GetWarAllies(GetID());
 		vector<PlayerTypes> vMyTeam = GET_TEAM(GetTeam()).getPlayers();
@@ -41440,8 +41440,8 @@ int CvDiplomacyAI::GetNumEnemyDefensePacts(PlayerTypes ePlayer) const
 /// Does ePlayer have similar religious beliefs as we do?
 bool CvDiplomacyAI::IsPlayerSameReligion(PlayerTypes ePlayer) const
 {
-	ReligionTypes eOurReligion = GetPlayer()->GetReligions()->GetCurrentReligion(false) != NO_RELIGION ? GetPlayer()->GetReligions()->GetCurrentReligion(false) : GetPlayer()->GetReligions()->GetReligionInMostCities();
-	ReligionTypes eTheirReligion = (GET_PLAYER(ePlayer).GetReligions()->GetCurrentReligion(false) != NO_RELIGION && GC.getGame().GetGameReligions()->HasAnyDomesticCityFollowing(GET_PLAYER(ePlayer).GetReligions()->GetCurrentReligion(false), ePlayer)) ? GET_PLAYER(ePlayer).GetReligions()->GetCurrentReligion(false) : GET_PLAYER(ePlayer).GetReligions()->GetReligionInMostCities();
+	ReligionTypes eOurReligion = GetPlayer()->GetReligions()->GetStateReligion(false) != NO_RELIGION ? GetPlayer()->GetReligions()->GetStateReligion(false) : GetPlayer()->GetReligions()->GetReligionInMostCities();
+	ReligionTypes eTheirReligion = (GET_PLAYER(ePlayer).GetReligions()->GetStateReligion(false) != NO_RELIGION && GC.getGame().GetGameReligions()->HasAnyDomesticCityFollowing(GET_PLAYER(ePlayer).GetReligions()->GetStateReligion(false), ePlayer)) ? GET_PLAYER(ePlayer).GetReligions()->GetStateReligion(false) : GET_PLAYER(ePlayer).GetReligions()->GetReligionInMostCities();
 
 	if (eOurReligion == NO_RELIGION || eTheirReligion == NO_RELIGION)
 		return false;
@@ -41455,8 +41455,8 @@ bool CvDiplomacyAI::IsPlayerSameReligion(PlayerTypes ePlayer) const
 /// Does ePlayer have a religion that opposes ours?
 bool CvDiplomacyAI::IsPlayerOpposingReligion(PlayerTypes ePlayer) const
 {
-	ReligionTypes eOurReligion = GetPlayer()->GetReligions()->GetCurrentReligion(false) != NO_RELIGION ? GetPlayer()->GetReligions()->GetCurrentReligion(false) : GetPlayer()->GetReligions()->GetReligionInMostCities();
-	ReligionTypes eTheirReligion = (GET_PLAYER(ePlayer).GetReligions()->GetCurrentReligion(false) != NO_RELIGION && GC.getGame().GetGameReligions()->HasAnyDomesticCityFollowing(GET_PLAYER(ePlayer).GetReligions()->GetCurrentReligion(false), ePlayer)) ? GET_PLAYER(ePlayer).GetReligions()->GetCurrentReligion(false) : GET_PLAYER(ePlayer).GetReligions()->GetReligionInMostCities();
+	ReligionTypes eOurReligion = GetPlayer()->GetReligions()->GetStateReligion(false) != NO_RELIGION ? GetPlayer()->GetReligions()->GetStateReligion(false) : GetPlayer()->GetReligions()->GetReligionInMostCities();
+	ReligionTypes eTheirReligion = (GET_PLAYER(ePlayer).GetReligions()->GetStateReligion(false) != NO_RELIGION && GC.getGame().GetGameReligions()->HasAnyDomesticCityFollowing(GET_PLAYER(ePlayer).GetReligions()->GetStateReligion(false), ePlayer)) ? GET_PLAYER(ePlayer).GetReligions()->GetStateReligion(false) : GET_PLAYER(ePlayer).GetReligions()->GetReligionInMostCities();
 
 	if (eOurReligion == NO_RELIGION || eTheirReligion == NO_RELIGION)
 		return false;
@@ -44825,9 +44825,9 @@ int CvDiplomacyAI::GetReligionScore(PlayerTypes ePlayer)
 
 	int iOpinionWeight = 0;
 
-	ReligionTypes eOurStateReligion = GetPlayer()->GetReligions()->GetCurrentReligion(false);
+	ReligionTypes eOurStateReligion = GetPlayer()->GetReligions()->GetStateReligion(false);
 	ReligionTypes eOurMajorityReligion = GetPlayer()->GetReligions()->GetReligionInMostCities();
-	ReligionTypes eTheirStateReligion = GET_PLAYER(ePlayer).GetReligions()->GetCurrentReligion(false);
+	ReligionTypes eTheirStateReligion = GET_PLAYER(ePlayer).GetReligions()->GetStateReligion(false);
 	ReligionTypes eTheirMajorityReligion = GET_PLAYER(ePlayer).GetReligions()->GetReligionInMostCities();
 
 	int iFlavorReligion = m_pPlayer->GetFlavorManager()->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_RELIGION"));
@@ -46080,9 +46080,9 @@ int CvDiplomacyAI::GetVassalReligionScore(PlayerTypes ePlayer)
 
 	int iOpinionWeight = 0;
 
-	ReligionTypes eVassalStateReligion = GetPlayer()->GetReligions()->GetCurrentReligion(false);
+	ReligionTypes eVassalStateReligion = GetPlayer()->GetReligions()->GetStateReligion(false);
 	ReligionTypes eVassalMajorityReligion = GetPlayer()->GetReligions()->GetReligionInMostCities();
-	ReligionTypes eMasterStateReligion = GET_PLAYER(ePlayer).GetReligions()->GetCurrentReligion(false);
+	ReligionTypes eMasterStateReligion = GET_PLAYER(ePlayer).GetReligions()->GetStateReligion(false);
 	ReligionTypes eMasterMajorityReligion = GET_PLAYER(ePlayer).GetReligions()->GetReligionInMostCities();
 
 	// No vassal religion - don't care
@@ -46393,9 +46393,9 @@ bool CvDiplomacyAI::IsTryingToLiberate(CvCity* pCity, PlayerTypes ePlayerToLiber
 	}
 
 	// Never liberate a rival Holy City...
-	if (GetPlayer()->GetReligions()->GetCurrentReligion(false) != NO_RELIGION)
+	if (GetPlayer()->GetReligions()->GetStateReligion(false) != NO_RELIGION)
 	{
-		if (pCity->GetCityReligions()->IsHolyCityAnyReligion() && !pCity->GetCityReligions()->IsHolyCityForReligion(GetPlayer()->GetReligions()->GetCurrentReligion(false)))
+		if (pCity->GetCityReligions()->IsHolyCityAnyReligion() && !pCity->GetCityReligions()->IsHolyCityForReligion(GetPlayer()->GetReligions()->GetStateReligion(false)))
 			return false;
 	}
 
@@ -46504,9 +46504,9 @@ bool CvDiplomacyAI::DoPossibleMajorLiberation(CvCity* pCity, PlayerTypes ePlayer
 	}
 
 	// Never liberate a rival Holy City...
-	if (GetPlayer()->GetReligions()->GetCurrentReligion(false) != NO_RELIGION)
+	if (GetPlayer()->GetReligions()->GetStateReligion(false) != NO_RELIGION)
 	{
-		if (pCity->GetCityReligions()->IsHolyCityAnyReligion() && !pCity->GetCityReligions()->IsHolyCityForReligion(GetPlayer()->GetReligions()->GetCurrentReligion(false)))
+		if (pCity->GetCityReligions()->IsHolyCityAnyReligion() && !pCity->GetCityReligions()->IsHolyCityForReligion(GetPlayer()->GetReligions()->GetStateReligion(false)))
 			return false;
 	}
 
@@ -53278,7 +53278,7 @@ bool CvDiplomacyAI::IsCapitulationAcceptable(PlayerTypes ePlayer)
 		else if (pLoopCity->IsBlockadedWaterAndLand() && pLoopCity->getDamage() >= (pLoopCity->GetMaxHitPoints()/4))
 		{
 			// Don't surrender if we could get our capital or Holy City back!
-			if (pLoopCity->IsOriginalCapitalForPlayer(GetID()) || pLoopCity->GetCityReligions()->IsHolyCityForReligion(GetPlayer()->GetReligions()->GetCurrentReligion(false)))
+			if (pLoopCity->IsOriginalCapitalForPlayer(GetID()) || pLoopCity->GetCityReligions()->IsHolyCityForReligion(GetPlayer()->GetReligions()->GetStateReligion(false)))
 				return false;
 
 			iCapitulationScore -= 15;
@@ -53286,7 +53286,7 @@ bool CvDiplomacyAI::IsCapitulationAcceptable(PlayerTypes ePlayer)
 		else if (pLoopCity->isUnderSiege() && pLoopCity->getDamage() >= (pLoopCity->GetMaxHitPoints()/2))
 		{
 			// Don't surrender if we could get our capital or Holy City back!
-			if (pLoopCity->IsOriginalCapitalForPlayer(GetID()) || pLoopCity->GetCityReligions()->IsHolyCityForReligion(GetPlayer()->GetReligions()->GetCurrentReligion(false)))
+			if (pLoopCity->IsOriginalCapitalForPlayer(GetID()) || pLoopCity->GetCityReligions()->IsHolyCityForReligion(GetPlayer()->GetReligions()->GetStateReligion(false)))
 				return false;
 
 			iCapitulationScore -= 10;

@@ -1049,7 +1049,8 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 	{
 		//pantheon strength depends on population?
 		int iInitialPressure = /*1000*/ GD_INT_GET(RELIGION_ATHEISM_PRESSURE_PER_POP) * getPopulation() * 2;
-		GetCityReligions()->AddReligiousPressure(FOLLOWER_CHANGE_PANTHEON_FOUNDED, RELIGION_PANTHEON, iInitialPressure, NO_RELIGION);
+		GetCityReligions()->AddReligiousPressure(FOLLOWER_CHANGE_PANTHEON_FOUNDED, RELIGION_PANTHEON, iInitialPressure);
+		GetCityReligions()->RecomputeFollowers(FOLLOWER_CHANGE_PANTHEON_FOUNDED);
 	}
 
 	if (bInitialFounding) {
@@ -2565,7 +2566,6 @@ void CvCity::doTurn()
 	{
 		ChangeNoOccupiedUnhappinessCount(1);
 	}
-	GetCityReligions()->ComputeReligiousMajority();
 	if (IsRazing())
 	{
 		DoSellBuilding();
@@ -7128,7 +7128,7 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 				ReligionTypes eReligion = GET_PLAYER(getOwner()).GetReligions()->GetReligionCreatedByPlayer();
 				if (eReligion != NO_RELIGION)
 				{
-					GetCityReligions()->ConvertPercentForcedFollowers(eReligion, pkEventChoiceInfo->ConvertsCityToPlayerReligion());
+					GetCityReligions()->ConvertPercentAllOtherFollowers(eReligion, pkEventChoiceInfo->ConvertsCityToPlayerReligion());
 				}
 			}
 			if (pkEventChoiceInfo->ConvertsCityToPlayerMajorityReligion() != 0)
@@ -7136,7 +7136,7 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 				ReligionTypes eReligion = GET_PLAYER(getOwner()).GetReligions()->GetReligionInMostCities();
 				if (eReligion != NO_RELIGION && eReligion > RELIGION_PANTHEON)
 				{
-					GetCityReligions()->ConvertPercentForcedFollowers(eReligion, pkEventChoiceInfo->ConvertsCityToPlayerMajorityReligion());
+					GetCityReligions()->ConvertPercentAllOtherFollowers(eReligion, pkEventChoiceInfo->ConvertsCityToPlayerMajorityReligion());
 				}
 			}
 			if (pkEventChoiceInfo->getResistanceTurns() != 0)
@@ -7166,12 +7166,12 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 				int iPercent = (ReligionTypes)pkEventChoiceInfo->getEventConvertReligionPercent(iI);
 				if (iPercent > 0)
 				{
-					GetCityReligions()->ConvertPercentForcedFollowers(eReligion, iPercent);
+					GetCityReligions()->ConvertPercentAllOtherFollowers(eReligion, iPercent);
 				}
 				int iPop = (ReligionTypes)pkEventChoiceInfo->getEventConvertReligion(iI);
 				if (iPop > 0)
 				{
-					GetCityReligions()->ConvertNumberFollowers(eReligion, iPop);
+					GetCityReligions()->ConvertNumberAllOtherFollowers(eReligion, iPop);
 				}
 			}
 			if (pkEventChoiceInfo->getRandomBarbs() > 0)
@@ -7993,6 +7993,17 @@ int CvCity::GetNumWorkablePlots(int iChange) const
 {
 	int iWorkablePlots = ((6 * (1 + getWorkPlotDistance(iChange)) * getWorkPlotDistance(iChange) / 2) + 1);
 	return iWorkablePlots;
+}
+
+bool CvCity::IsWithinWorkRange(CvPlot * pPlot) const
+{
+	if (pPlot)
+	{
+		int iDistance = plotDistance(pPlot->getX(), pPlot->getY(), getX(), getY());
+		return iDistance <= getWorkPlotDistance();
+	}
+
+	return false;
 }
 
 //	--------------------------------------------------------------------------------
@@ -15014,7 +15025,8 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 						ReligionTypes eReligion = GET_PLAYER(getOwner()).getCapitalCity()->GetCityReligions()->GetReligiousMajority();
 						if (eReligion > RELIGION_PANTHEON)
 						{
-							GetCityReligions()->AddReligiousPressure(FOLLOWER_CHANGE_INSTANT_YIELD, eReligion, pBuildingInfo->GetInstantReligionPressure(), GetCityReligions()->GetReligiousMajority());
+							GetCityReligions()->AddReligiousPressure(FOLLOWER_CHANGE_INSTANT_YIELD, eReligion, pBuildingInfo->GetInstantReligionPressure());
+							GetCityReligions()->RecomputeFollowers(FOLLOWER_CHANGE_INSTANT_YIELD);
 						}
 					}
 				}
@@ -18158,7 +18170,7 @@ void CvCity::SetGarrison(CvUnit* pUnit)
 					if (m_pCityReligions->IsReligionInCity())
 					{
 						ReligionTypes eMajority = m_pCityReligions->GetReligiousMajority();
-						ReligionTypes eSecondary = m_pCityReligions->GetSecondaryReligion();
+						ReligionTypes eSecondary = m_pCityReligions->GetReligionByAccumulatedPressure(1);
 						if (eMajority != NO_RELIGION && eMajority == eReligion)
 						{
 							ChangeReligiousPressureModifier(eReligion, pUnit->GetReligiousPressureModifier());
@@ -18191,7 +18203,7 @@ void CvCity::SetGarrison(CvUnit* pUnit)
 					if (m_pCityReligions->IsReligionInCity())
 					{
 						ReligionTypes eMajority = m_pCityReligions->GetReligiousMajority();
-						ReligionTypes eSecondary = m_pCityReligions->GetSecondaryReligion();
+						ReligionTypes eSecondary = m_pCityReligions->GetReligionByAccumulatedPressure(1);
 						if (eMajority != NO_RELIGION && eMajority == eReligion)
 						{
 							ChangeReligiousPressureModifier(eReligion, -pOldGarrison->GetReligiousPressureModifier());
@@ -32088,7 +32100,7 @@ void CvCity::Purchase(UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectT
 				eReligion = GetCityReligions()->GetReligiousMajority();
 			}
 
-			pUnit->GetReligionData()->SetFullStrength(pUnit->getOwner(), pUnit->getUnitInfo(), eReligion, this);
+			pUnit->GetReligionDataMutable()->SetFullStrength(pUnit->getOwner(), pUnit->getUnitInfo(), eReligion, this);
 
 			if (pUnit->getUnitInfo().GetOneShotTourism() > 0)
 			{

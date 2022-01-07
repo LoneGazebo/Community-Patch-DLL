@@ -2894,11 +2894,11 @@ CvPlot* CvPlayer::addFreeUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 				eReligion = GetReligions()->GetReligionInMostCities();
 
 			if (GetHolyCity() && GetHolyCity()->getOwner() == GetID())
-				pNewUnit->GetReligionData()->SetFullStrength(GetID(),pNewUnit->getUnitInfo(),eReligion,GetHolyCity());
+				pNewUnit->GetReligionDataMutable()->SetFullStrength(GetID(),pNewUnit->getUnitInfo(),eReligion,GetHolyCity());
 			else if (getCapitalCity())
-				pNewUnit->GetReligionData()->SetFullStrength(GetID(),pNewUnit->getUnitInfo(),eReligion,getCapitalCity());
+				pNewUnit->GetReligionDataMutable()->SetFullStrength(GetID(),pNewUnit->getUnitInfo(),eReligion,getCapitalCity());
 			else
-				pNewUnit->GetReligionData()->SetFullStrength(GetID(),pNewUnit->getUnitInfo(),eReligion,NULL);
+				pNewUnit->GetReligionDataMutable()->SetFullStrength(GetID(),pNewUnit->getUnitInfo(),eReligion,NULL);
 		}
 
 		// Don't stack any units
@@ -3187,7 +3187,7 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 				}
 			}
 			// Their Holy City!
-			else if (GET_PLAYER(eOldOwner).isMajorCiv() && pCity->GetCityReligions()->IsHolyCityForReligion(GET_PLAYER(eOldOwner).GetReligions()->GetCurrentReligion(false)))
+			else if (GET_PLAYER(eOldOwner).isMajorCiv() && pCity->GetCityReligions()->IsHolyCityForReligion(GET_PLAYER(eOldOwner).GetReligions()->GetStateReligion(false)))
 			{
 				iCityValue *= 150;
 				iCityValue /= 100;
@@ -4104,7 +4104,7 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 		}
 		else
 		{
-			eReligion = GetReligions()->GetCurrentReligion(false);
+			eReligion = GetReligions()->GetStateReligion(false);
 			if (eReligion != NO_RELIGION)
 			{
 				pNewCity->GetCityReligions()->AdoptReligionFully(eReligion);
@@ -4502,7 +4502,7 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 			// Give religious units the player's religion
 			if (pkUnit->isReligiousUnit())
 			{
-				pkUnit->GetReligionData()->SetReligion(GetReligions()->GetCurrentReligion(false));
+				pkUnit->GetReligionDataMutable()->SetReligion(GetReligions()->GetStateReligion(false));
 
 				// Unless it's a prophet we shouldn't give a free religious unit without a religion
 				if (pkUnit->GetReligionData()->GetReligion() == NO_RELIGION && !pkUnit->IsGreatPerson())
@@ -6130,7 +6130,7 @@ bool CvPlayer::IsEventValid(EventTypes eEvent)
 
 	if(!pkEventInfo->isRequiresHolyCity() && pkEventInfo->getRequiredReligion() != -1)
 	{
-		if((GetReligions()->GetCurrentReligion(false) != (ReligionTypes)pkEventInfo->getRequiredReligion()) && (GetReligions()->GetReligionInMostCities() != (ReligionTypes)pkEventInfo->getRequiredReligion()))
+		if((GetReligions()->GetStateReligion(false) != (ReligionTypes)pkEventInfo->getRequiredReligion()) && (GetReligions()->GetReligionInMostCities() != (ReligionTypes)pkEventInfo->getRequiredReligion()))
 			return false;
 	}
 
@@ -6561,7 +6561,7 @@ bool CvPlayer::IsEventChoiceValid(EventChoiceTypes eChosenEventChoice, EventType
 
 	if(!pkEventInfo->isRequiresHolyCity() && pkEventInfo->getRequiredReligion() != -1)
 	{
-		if((GetReligions()->GetCurrentReligion(false) != (ReligionTypes)pkEventInfo->getRequiredReligion()) && (GetReligions()->GetReligionInMostCities() != (ReligionTypes)pkEventInfo->getRequiredReligion()))
+		if((GetReligions()->GetStateReligion(false) != (ReligionTypes)pkEventInfo->getRequiredReligion()) && (GetReligions()->GetReligionInMostCities() != (ReligionTypes)pkEventInfo->getRequiredReligion()))
 			return false;
 	}
 
@@ -7843,7 +7843,7 @@ CvString CvPlayer::GetDisabledTooltip(EventChoiceTypes eChosenEventChoice)
 
 	if(!pkEventInfo->isRequiresHolyCity() && pkEventInfo->getRequiredReligion() != -1)
 	{
-		if((GetReligions()->GetCurrentReligion(false) != (ReligionTypes)pkEventInfo->getRequiredReligion()) && (GetReligions()->GetReligionInMostCities() != (ReligionTypes)pkEventInfo->getRequiredReligion()))
+		if((GetReligions()->GetStateReligion(false) != (ReligionTypes)pkEventInfo->getRequiredReligion()) && (GetReligions()->GetReligionInMostCities() != (ReligionTypes)pkEventInfo->getRequiredReligion()))
 		{
 			localizedDurationText = Localization::Lookup("TXT_KEY_NEED_SPECIFIC_RELIGION");
 			localizedDurationText << GC.getReligionInfo((ReligionTypes)pkEventInfo->getRequiredReligion())->GetDescription();
@@ -9506,7 +9506,7 @@ void CvPlayer::DoEventChoice(EventChoiceTypes eEventChoice, EventTypes eEvent, b
 						{
 							continue;
 						}
-						pLoopCity->GetCityReligions()->ConvertPercentForcedFollowers(eReligion, iPercent);
+						pLoopCity->GetCityReligions()->ConvertPercentAllOtherFollowers(eReligion, iPercent);
 					}
 				}
 				int iPop = (ReligionTypes)pkEventChoiceInfo->getEventConvertReligion(iI);
@@ -9522,7 +9522,7 @@ void CvPlayer::DoEventChoice(EventChoiceTypes eEventChoice, EventTypes eEvent, b
 						{
 							continue;
 						}
-						pLoopCity->GetCityReligions()->ConvertNumberFollowers(eReligion, iPop);
+						pLoopCity->GetCityReligions()->ConvertNumberAllOtherFollowers(eReligion, iPop);
 					}
 				}
 			}
@@ -11984,7 +11984,6 @@ void CvPlayer::UpdateReligion()
 {
 	CalculateNetHappiness();
 
-#if defined(MOD_BALANCE_CORE)
 	int iLoop;
 	for(CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 	{
@@ -11997,8 +11996,8 @@ void CvPlayer::UpdateReligion()
 			pLoopCity->UpdateSpecialReligionYields(eYield);
 		}
 	}
-	GC.getGame().GetGameReligions()->DoUpdateReligion(GetID());
-#endif
+
+	GetReligions()->UpdateStateReligion();
 }
 
 //	--------------------------------------------------------------------------------
@@ -14666,11 +14665,13 @@ void CvPlayer::foundCity(int iX, int iY)
 #endif
 {
 	if(!bForce && !canFoundCity(iX, iY))
-	{
 		return;
-	}
 
 	SetTurnsSinceSettledLastCity(0);
+
+	//if this is our first city, remember how good it is as a reference
+	if (GetNumCitiesFounded() == 0)
+		m_iFoundValueOfCapital = getPlotFoundValue(iX, iY);
 
 #if defined(MOD_GLOBAL_RELIGIOUS_SETTLERS) && defined(MOD_BALANCE_CORE)
 	CvCity* pCity = initCity(iX, iY, true, true, eReligion, NULL, pkSettlerUnitEntry);
@@ -36960,7 +36961,7 @@ void CvPlayer::DoUpdateWarDamage()
 			iCityValue /= 100;
 		}
 		// Another major's original capital, or our Holy City
-		else if (pLoopCity->IsOriginalMajorCapital() || (isMajorCiv() && pLoopCity->GetCityReligions()->IsHolyCityForReligion(GetReligions()->GetCurrentReligion(false))))
+		else if (pLoopCity->IsOriginalMajorCapital() || (isMajorCiv() && pLoopCity->GetCityReligions()->IsHolyCityForReligion(GetReligions()->GetStateReligion(false))))
 		{
 			iCityValue *= 150;
 			iCityValue /= 100;
@@ -45378,11 +45379,11 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 											eReligion = GetReligions()->GetReligionInMostCities();
 
 										if (GetHolyCity() && GetHolyCity()->getOwner() == GetID())
-											pNewUnit->GetReligionData()->SetFullStrength(GetID(),pNewUnit->getUnitInfo(),eReligion,GetHolyCity());
+											pNewUnit->GetReligionDataMutable()->SetFullStrength(GetID(),pNewUnit->getUnitInfo(),eReligion,GetHolyCity());
 										else if (getCapitalCity())
-											pNewUnit->GetReligionData()->SetFullStrength(GetID(),pNewUnit->getUnitInfo(),eReligion,getCapitalCity());
+											pNewUnit->GetReligionDataMutable()->SetFullStrength(GetID(),pNewUnit->getUnitInfo(),eReligion,getCapitalCity());
 										else
-											pNewUnit->GetReligionData()->SetFullStrength(GetID(),pNewUnit->getUnitInfo(),eReligion,NULL);
+											pNewUnit->GetReligionDataMutable()->SetFullStrength(GetID(),pNewUnit->getUnitInfo(),eReligion,NULL);
 									}
 									else if (pNewUnit->getUnitInfo().GetUnitClassType() == GC.getInfoTypeForString("UNITCLASS_WRITER"))
 									{
@@ -47217,7 +47218,7 @@ void CvPlayer::createGreatGeneral(UnitTypes eGreatPersonUnit, int iX, int iY)
 	{
 		ReligionTypes eReligion = GetReligions()->GetReligionCreatedByPlayer();
 		CvCity* pCity = pGreatPeopleUnit->plot()->getOwningCity();
-		pGreatPeopleUnit->GetReligionData()->SetFullStrength(GetID(),pGreatPeopleUnit->getUnitInfo(),eReligion,pCity);
+		pGreatPeopleUnit->GetReligionDataMutable()->SetFullStrength(GetID(),pGreatPeopleUnit->getUnitInfo(),eReligion,pCity);
 	}
 	if(pGreatPeopleUnit->isGoldenAgeOnBirth())
 	{
@@ -48894,7 +48895,7 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, CvAIOperation* pOpToIgn
 
 		if (bLogging)
 		{
-			iDanger = pUnit->GetDanger(pPlot);
+			iDanger = pUnit ? pUnit->GetDanger(pPlot) : 0;
 			iFertility = GC.getGame().GetSettlerSiteEvaluator()->PlotFertilityValue(pPlot,true);
 		}
 
@@ -49102,6 +49103,20 @@ PlayerTypes CvPlayer::GetPlayerWhoStoleMyFavoriteCitySite()
 	}
 
 	return NO_PLAYER;
+}
+
+// range is -50 to +50
+int CvPlayer::GetSettlePlotQualityMeasure(CvPlot * pPlot)
+{
+	int iReference = (67 * m_iFoundValueOfCapital) / 100;
+
+	if (pPlot && iReference > 0)
+	{
+		int iRawPercent = (100 * getPlotFoundValue(pPlot->getX(), pPlot->getY())) / iReference;
+		return range(iRawPercent, 50, 150) - 100;
+	}
+
+	return 0;
 }
 
 //	--------------------------------------------------------------------------------
