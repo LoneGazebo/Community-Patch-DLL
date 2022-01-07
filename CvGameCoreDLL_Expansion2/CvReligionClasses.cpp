@@ -5975,35 +5975,33 @@ void CvCityReligions::LogFollowersChange(CvReligiousFollowChangeReason eReason)
 		strOutBuf += temp;
 		if(pCityRel->IsReligionInCity())
 		{
-			ReligionTypes eMajority = pCityRel->GetReligiousMajority();
-			if (eMajority != NO_RELIGION)
+			ReligionTypes eFirst = pCityRel->GetReligionByAccumulatedPressure(0);
+			if (eFirst != NO_RELIGION)
 			{
-				CvReligionEntry* pEntry = GC.getReligionInfo(eMajority);
+				CvReligionEntry* pEntry = GC.getReligionInfo(eFirst);
 				if (pEntry)
 				{
-					strOutBuf += ", Majority: ";
+					strOutBuf += ", First: ";
 					strOutBuf += pEntry->GetDescription();
-					temp.Format("(%d)", pCityRel->GetNumFollowers(eMajority));
+					temp.Format("(%d)", pCityRel->GetNumFollowers(eFirst));
 					strOutBuf += temp;
 				}
+			}
 
-				ReligionTypes eSecondary = pCityRel->GetReligionByAccumulatedPressure(1);
-				if (eSecondary != NO_RELIGION)
+			ReligionTypes eSecond = pCityRel->GetReligionByAccumulatedPressure(1);
+			if (eSecond != NO_RELIGION)
+			{
+				CvReligionEntry* pEntry = GC.getReligionInfo(eSecond);
+				if (pEntry)
 				{
-					CvReligionEntry* pEntry = GC.getReligionInfo(eSecondary);
-					if (pEntry)
-					{
-						strOutBuf += ", Secondary: ";
-						strOutBuf += pEntry->GetDescription();
-						temp.Format("(%d)", pCityRel->GetNumFollowers(eSecondary));
-						strOutBuf += temp;
-					}
+					strOutBuf += ", Second: ";
+					strOutBuf += pEntry->GetDescription();
+					temp.Format("(%d)", pCityRel->GetNumFollowers(eSecond));
+					strOutBuf += temp;
 				}
 			}
-			else
-				strOutBuf += ", no majority";
 
-			temp.Format("Atheists: %d", pCityRel->GetNumFollowers(NO_RELIGION));
+			temp.Format("Nonreligious: %d", pCityRel->GetNumFollowers(NO_RELIGION));
 			strOutBuf += ", " + temp;
 		}
 		else
