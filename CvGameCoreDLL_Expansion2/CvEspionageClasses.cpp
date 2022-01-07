@@ -6922,7 +6922,7 @@ std::vector<ScoreCityEntry> CvEspionageAI::BuildOffenseCityList()
 				}
 			}
 
-			ReligionTypes eReligion = m_pPlayer->GetReligions()->GetCurrentReligion();
+			ReligionTypes eReligion = m_pPlayer->GetReligions()->GetStateReligion();
 			if (eReligion != NO_RELIGION)
 			{
 				CvGameReligions* pReligions = GC.getGame().GetGameReligions();

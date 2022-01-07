@@ -10459,8 +10459,8 @@ CvLeagueAI::AlignmentLevels CvLeagueAI::EvaluateAlignment(PlayerTypes ePlayer, b
 	}
 
 	// Religion
-	ReligionTypes eOurReligion = GetPlayer()->GetReligions()->GetCurrentReligion(false) != NO_RELIGION ? GetPlayer()->GetReligions()->GetCurrentReligion(false) : GetPlayer()->GetReligions()->GetReligionInMostCities();
-	ReligionTypes eTheirReligion = (GET_PLAYER(ePlayer).GetReligions()->GetCurrentReligion(false) != NO_RELIGION && GC.getGame().GetGameReligions()->HasAnyDomesticCityFollowing(GET_PLAYER(ePlayer).GetReligions()->GetCurrentReligion(false), ePlayer)) ? GET_PLAYER(ePlayer).GetReligions()->GetCurrentReligion(false) : GET_PLAYER(ePlayer).GetReligions()->GetReligionInMostCities();
+	ReligionTypes eOurReligion = GetPlayer()->GetReligions()->GetStateReligion(false) != NO_RELIGION ? GetPlayer()->GetReligions()->GetStateReligion(false) : GetPlayer()->GetReligions()->GetReligionInMostCities();
+	ReligionTypes eTheirReligion = (GET_PLAYER(ePlayer).GetReligions()->GetStateReligion(false) != NO_RELIGION && GC.getGame().GetGameReligions()->HasAnyDomesticCityFollowing(GET_PLAYER(ePlayer).GetReligions()->GetStateReligion(false), ePlayer)) ? GET_PLAYER(ePlayer).GetReligions()->GetStateReligion(false) : GET_PLAYER(ePlayer).GetReligions()->GetReligionInMostCities();
 	if (eOurReligion != NO_RELIGION && eTheirReligion != NO_RELIGION)
 	{
 		int iReligionMod = 0;

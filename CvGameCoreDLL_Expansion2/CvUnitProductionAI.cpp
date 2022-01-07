@@ -1156,6 +1156,9 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 	
 		int iFlavorExpansion = kPlayer.GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_EXPANSION"));
 
+		//maybe a bit expensive to check? let's see. also only add if positive?
+		iFlavorExpansion += kPlayer.GetSettlePlotQualityMeasure(kPlayer.GetBestSettlePlot(NULL))/2;
+
 		if (kPlayer.CanCrossOcean())
 		{
 			// If we are running "ECONOMICAISTRATEGY_EXPAND_TO_OTHER_CONTINENTS"

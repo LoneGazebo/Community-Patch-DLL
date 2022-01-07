@@ -2202,7 +2202,7 @@ bool CvReligionBeliefs::IsBeliefValid(BeliefTypes eBelief, ReligionTypes eReligi
 						{
 							return false;
 						}
-						ReligionTypes eParentReligion = GET_PLAYER(ePlayer).GetReligions()->GetCurrentReligion(false);
+						ReligionTypes eParentReligion = GET_PLAYER(ePlayer).GetReligions()->GetStateReligion(false);
 						if (eParentReligion != NO_RELIGION && eReligion != eParentReligion)
 						{
 							eReligion = eParentReligion;

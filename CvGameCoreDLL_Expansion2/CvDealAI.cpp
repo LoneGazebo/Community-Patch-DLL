@@ -1561,7 +1561,7 @@ int CvDealAI::GetLuxuryResourceValue(ResourceTypes eResource, int iNumTurns, boo
 		if (iNumAvailable == 1)
 		{
 			int iFactor = GetPlayer()->GetPlayerTraits()->GetLuxuryHappinessRetention() ? 2 : 3;
-			const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(GetPlayer()->GetReligions()->GetCurrentReligion(), GetPlayer()->GetID());
+			const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(GetPlayer()->GetReligions()->GetStateReligion(), GetPlayer()->GetID());
 			if (pReligion)
 			{
 				for (int iJ = 0; iJ < NUM_YIELD_TYPES; iJ++)
@@ -1673,7 +1673,7 @@ int CvDealAI::GetLuxuryResourceValue(ResourceTypes eResource, int iNumTurns, boo
 		}
 		
 		int iFactor = 1;
-		const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(GetPlayer()->GetReligions()->GetCurrentReligion(), GetPlayer()->GetID());
+		const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(GetPlayer()->GetReligions()->GetStateReligion(), GetPlayer()->GetID());
 		if (pReligion)
 		{
 			for (int iJ = 0; iJ < NUM_YIELD_TYPES; iJ++)

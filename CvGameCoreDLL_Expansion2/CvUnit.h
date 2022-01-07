@@ -80,6 +80,73 @@ struct CvUnitCaptureDefinition
 	}
 };
 
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//  CLASS:      CvUnitReligion
+//!  \brief		Information about the religious affiliation of a single unit
+//
+//!  Key Attributes:
+//!  - One instance for each unit
+//!  - Accessed by any class that needs to check religious information for this unit
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+class CvUnitReligion
+{
+public:
+	CvUnitReligion(void);
+	void Init();
+
+	template<typename UnitReligion, typename Visitor>
+	static void Serialize(UnitReligion& unitReligion, Visitor& visitor);
+
+	// Accessors
+	ReligionTypes GetReligion() const
+	{
+		return m_eReligion;
+	};
+	void SetReligion(ReligionTypes eReligion)
+	{
+		m_eReligion = eReligion;
+	};
+	int GetReligiousStrength() const
+	{
+		return m_iStrength;
+	};
+	int GetMaxSpreads(const CvUnit* pUnit) const;
+	int GetSpreadsLeft(const CvUnit* pUnit) const
+	{
+		return GetMaxSpreads(pUnit) - m_iSpreadsUsed;
+	};
+	int GetSpreadsUsed() const
+	{
+		return m_iSpreadsUsed;
+	};
+	void IncrementSpreadsUsed()
+	{
+		m_iSpreadsUsed++;
+	};
+	void SetSpreadsUsed(int iValue)
+	{
+		m_iSpreadsUsed = iValue;
+	};
+	void SetReligiousStrength(int iValue)
+	{
+		m_iStrength = iValue;
+	};
+	void SetFullStrength(PlayerTypes eOwner, const CvUnitEntry& kUnitInfo, ReligionTypes eReligion, CvCity* pOriginCity);
+	bool IsFullStrength() const;
+
+private:
+	ReligionTypes m_eReligion;
+	unsigned short m_iStrength;
+	unsigned short m_iSpreadsUsed;
+	unsigned short m_iMaxStrength;
+
+	friend FDataStream& operator>>(FDataStream&, CvUnitReligion&);
+	friend FDataStream& operator<<(FDataStream&, const CvUnitReligion&);
+};
+
+FDataStream& operator>>(FDataStream&, CvUnitReligion&);
+FDataStream& operator<<(FDataStream&, const CvUnitReligion&);
+
 //we calculate a unit's strength modifier very often, so we cache the most recent results
 struct SStrengthModifierInput
 {
@@ -172,7 +239,6 @@ public:
 	void reset(int iID = 0, UnitTypes eUnit = NO_UNIT, PlayerTypes eOwner = NO_PLAYER, bool bConstructorCall = false);
 	void setupGraphical();
 
-	void initPromotions();
 	void uninitInfos();  // used to uninit arrays that may be reset due to mod changes
 
 #if defined(MOD_BALANCE_CORE)
@@ -1820,10 +1886,8 @@ public:
 	int GetNumGoodyHutsPopped() const;
 	void ChangeNumGoodyHutsPopped(int iValue);
 
-	CvUnitReligion* GetReligionData() const
-	{
-		return m_pReligion;
-	};
+	const CvUnitReligion* GetReligionData() const { return &m_Religion; }
+	CvUnitReligion* GetReligionDataMutable() { return &m_Religion; }
 
 	static void dispatchingNetMessage(bool dispatching);
 	static bool dispatchingNetMessage();
@@ -2210,7 +2274,7 @@ protected:
 	int m_iScenarioData;
 
 	CvUnitPromotions  m_Promotions;
-	CvUnitReligion* m_pReligion;
+	CvUnitReligion m_Religion;
 
 #if defined(MOD_CIV6_WORKER)
 	int m_iBuilderStrength;

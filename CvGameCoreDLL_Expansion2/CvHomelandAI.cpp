@@ -2574,6 +2574,21 @@ void CvHomelandAI::ExecuteWorkerMoves()
 		allWorkersReachablePlots[pUnit] = GC.GetPathFinder().GetPlotsInReach(pUnit->plot(), data);
 	}
 
+	//humans also have non-automated workers. pretend they are automated as well to avoid going where they are
+	//todo: what about great people?
+	if (m_pPlayer->isHuman())
+	{
+		int iLoop;
+		for (CvUnit* pLoopUnit = m_pPlayer->firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iLoop))
+		{
+			if (pLoopUnit->AI_getUnitAIType() == UNITAI_WORKER && allWorkersReachablePlots.find(pLoopUnit) == allWorkersReachablePlots.end())
+			{
+				SPathFinderUserData data(pLoopUnit, 0, 5);
+				allWorkersReachablePlots[pLoopUnit] = GC.GetPathFinder().GetPlotsInReach(pLoopUnit->plot(), data);
+			}
+		}
+	}
+
 	for(CHomelandUnitArray::iterator it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(it->GetID());

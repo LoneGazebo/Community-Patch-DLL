@@ -2002,12 +2002,14 @@ void CvCityCitizens::DoAlterWorkingPlot(int iIndex)
 			//do not call isCanWorkWithOverride()
 			else if (pPlot->getOwner() == GetOwner() && !pPlot->isBlockaded(GetOwner()))
 			{
+				CvCity* pOC = pPlot->getOwningCity();
+
 				// Can't take away plots from puppet cities by force unless venice
-				if (pPlot->getOwningCity()->IsPuppet() && !GET_PLAYER(GetOwner()).GetPlayerTraits()->IsNoAnnexing() )
+				if (pOC->IsPuppet() && pOC->IsWithinWorkRange(pPlot) && !GET_PLAYER(GetOwner()).GetPlayerTraits()->IsNoAnnexing() )
 					return;
 
 				// Can't take away plots from cities which were just conquered
-				if (pPlot->getOwningCity()->IsResistance() || pPlot->getOwningCity()->IsIgnoreCityForHappiness())
+				if (pOC->IsResistance() || pOC->IsIgnoreCityForHappiness())
 					return;
 
 				pPlot->setOwningCityOverride(GetCity());
@@ -2015,8 +2017,6 @@ void CvCityCitizens::DoAlterWorkingPlot(int iIndex)
 		}
 	}
 }
-
-
 
 bool CvCityCitizens::IsForcedWorkingPlot(int iRelativeIndex) const
 {
@@ -3470,7 +3470,7 @@ void CvCityCitizens::DoSpawnGreatPerson(UnitTypes eUnit, bool bIncrementCount, b
 	if (newUnit->getUnitInfo().IsFoundReligion())
 	{
 		ReligionTypes eReligion = kPlayer.GetReligions()->GetReligionCreatedByPlayer();
-		newUnit->GetReligionData()->SetFullStrength(kPlayer.GetID(),newUnit->getUnitInfo(),eReligion,m_pCity);
+		newUnit->GetReligionDataMutable()->SetFullStrength(kPlayer.GetID(),newUnit->getUnitInfo(),eReligion,m_pCity);
 	}
 
 	if (newUnit->getUnitInfo().GetOneShotTourism() > 0)
