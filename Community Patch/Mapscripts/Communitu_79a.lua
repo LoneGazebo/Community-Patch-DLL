@@ -999,6 +999,11 @@ function MapGlobals:New()
 						if removeFeature then
 							plot:SetFeatureType(FeatureTypes.NO_FEATURE, -1);
 						end
+
+						if res_ID == self.silver_ID and terrainType == TerrainTypes.TERRAIN_SNOW then
+							-- Turn snow into tundra
+							plot:SetTerrainType(TerrainTypes.TERRAIN_TUNDRA, false, true);
+						end
 						
 					-- Tree Resources
 					elseif res_ID == self.cocoa_ID or 
