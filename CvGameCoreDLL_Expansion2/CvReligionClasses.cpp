@@ -375,7 +375,6 @@ void CvGameReligions::SpreadReligionToOneCity(CvCity* pCity)
 						if (iPressure > 0)
 						{
 							pCity->GetCityReligions()->AddReligiousPressure(FOLLOWER_CHANGE_ADJACENT_PRESSURE, eReligion, iPressure);
-							pCity->GetCityReligions()->RecomputeFollowers(FOLLOWER_CHANGE_ADJACENT_PRESSURE);
 							if (iNumTradeRoutes != 0)
 							{
 								pCity->GetCityReligions()->IncrementNumTradeRouteConnections(eReligion, iNumTradeRoutes);
@@ -1181,7 +1180,6 @@ void CvGameReligions::FoundPantheon(PlayerTypes ePlayer, BeliefTypes eBelief)
 		// Add enough pressure to make this the likely majority religion
 		int iInitialPressure = /*1000*/ GD_INT_GET(RELIGION_ATHEISM_PRESSURE_PER_POP) * pLoopCity->getPopulation() * 2;
 		pLoopCity->GetCityReligions()->AddReligiousPressure(FOLLOWER_CHANGE_PANTHEON_FOUNDED, newReligion.m_eReligion, iInitialPressure);
-		pLoopCity->GetCityReligions()->RecomputeFollowers(FOLLOWER_CHANGE_PANTHEON_FOUNDED);
 	}
 
 	UpdateAllCitiesThisReligion(newReligion.m_eReligion);
@@ -4960,7 +4958,6 @@ void CvCityReligions::DoPopulationChange(int iChange)
 	if(iChange > 0)
 		AddReligiousPressure(FOLLOWER_CHANGE_POP_CHANGE, GetReligiousMajority(), iChange * /*1000*/ GD_INT_GET(RELIGION_ATHEISM_PRESSURE_PER_POP));
 
-	RecomputeFollowers(FOLLOWER_CHANGE_POP_CHANGE);
 	m_pCity->GetCityCitizens()->SetDirty(true);
 }
 
@@ -4969,7 +4966,6 @@ void CvCityReligions::DoReligionFounded(ReligionTypes eReligion)
 {
 	int iInitialPressure = m_pCity->getPopulation() * /*5000*/ GD_INT_GET(RELIGION_INITIAL_FOUNDING_CITY_PRESSURE);
 	AddReligiousPressure(FOLLOWER_CHANGE_RELIGION_FOUNDED, eReligion, iInitialPressure);
-	RecomputeFollowers(FOLLOWER_CHANGE_RELIGION_FOUNDED);
 }
 
 /// Prophet spread is very powerful: eliminates all existing religions and adds to his
@@ -4980,7 +4976,6 @@ void CvCityReligions::AddMissionarySpread(ReligionTypes eReligion, int iPressure
 	int iErosion = pReligion ? pReligion->m_Beliefs.GetOtherReligionPressureErosion(eResponsiblePlayer) : 0;
 	ErodeOtherReligiousPressure(FOLLOWER_CHANGE_MISSIONARY, eReligion, iErosion, false, true, eResponsiblePlayer);
 	AddReligiousPressure(FOLLOWER_CHANGE_MISSIONARY, eReligion, iPressure, eResponsiblePlayer);
-	RecomputeFollowers(FOLLOWER_CHANGE_MISSIONARY, eResponsiblePlayer);
 }
 
 
@@ -4989,7 +4984,6 @@ void CvCityReligions::AddProphetSpread(ReligionTypes eReligion, int iPressure, P
 {
 	ErodeOtherReligiousPressure(FOLLOWER_CHANGE_PROPHET, eReligion, 100, true, true, eResponsiblePlayer);
 	AddReligiousPressure(FOLLOWER_CHANGE_PROPHET, eReligion, iPressure, eResponsiblePlayer);
-	RecomputeFollowers(FOLLOWER_CHANGE_PROPHET, eResponsiblePlayer);
 }
 
 const char* GetFollowerChangeString(CvReligiousFollowChangeReason eReason) 
@@ -5287,7 +5281,6 @@ void CvCityReligions::ConvertPercentAllOtherFollowers(ReligionTypes eToReligion,
 
 	ErodeOtherReligiousPressure(FOLLOWER_CHANGE_SCRIPTED_CONVERSION, eToReligion, iPercent, false, false);
 	AddReligiousPressure(FOLLOWER_CHANGE_SCRIPTED_CONVERSION, eToReligion, iPressureToAdd, NO_PLAYER);
-	RecomputeFollowers(FOLLOWER_CHANGE_SCRIPTED_CONVERSION);
 }
 
 /// Convert some number of followers from ALL religions to another
@@ -5311,7 +5304,6 @@ void CvCityReligions::AddHolyCityPressure()
 	{
 		int iHolyPressure = GC.getGame().getGameSpeedInfo().getReligiousPressureAdjacentCity() *  /*5*/ GD_INT_GET(RELIGION_PER_TURN_FOUNDING_CITY_PRESSURE);
 		AddReligiousPressure(FOLLOWER_CHANGE_HOLY_CITY, eHolyReligion, iHolyPressure);
-		RecomputeFollowers(FOLLOWER_CHANGE_HOLY_CITY);
 	}
 }
 
@@ -5319,7 +5311,6 @@ void CvCityReligions::AddHolyCityPressure()
 void CvCityReligions::AddSpyPressure(ReligionTypes eReligion, int iBasePressure)
 {
 	AddReligiousPressure(FOLLOWER_CHANGE_SPY_PRESSURE, eReligion, iBasePressure*GC.getGame().getGameSpeedInfo().getReligiousPressureAdjacentCity());
-	RecomputeFollowers(FOLLOWER_CHANGE_SPY_PRESSURE);
 }
 
 /// Set this city to have all citizens following a religion (mainly for scripting)
@@ -5327,7 +5318,6 @@ void CvCityReligions::AdoptReligionFully(ReligionTypes eReligion)
 {
 	ErodeOtherReligiousPressure(FOLLOWER_CHANGE_ADOPT_FULLY, eReligion, 100, false, false);
 	AddReligiousPressure(FOLLOWER_CHANGE_ADOPT_FULLY, eReligion, m_pCity->getPopulation() * /*1000*/ GD_INT_GET(RELIGION_ATHEISM_PRESSURE_PER_POP));
-	RecomputeFollowers(FOLLOWER_CHANGE_ADOPT_FULLY);
 }
 
 /// Remove presence of old owner's pantheon (used when a city is conquered)
