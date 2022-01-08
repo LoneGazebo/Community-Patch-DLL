@@ -5776,33 +5776,24 @@ CvString CvLeague::GetResolutionDetails(ResolutionTypes eResolution, PlayerTypes
 
 CvString CvLeague::GetResolutionVoteOpinionDetails(ResolutionTypes eResolution, PlayerTypes eObserver, int iResolutionID)
 {
+	CvString s = "";
+
 	CvResolutionEntry* pInfo = GC.getResolutionInfo(eResolution);
 	if (!pInfo)
-	{
-		return "";
-	}
-	// Must be proposed as either enact or repeal, but not both
-	if (!IsProposed(iResolutionID, /*bRepeal*/false) && !IsProposed(iResolutionID, /*bRepeal*/true))
-	{
-		CvAssert(false);
-		return "";
-	}
-	if (IsProposed(iResolutionID, /*bRepeal*/false) && IsProposed(iResolutionID, /*bRepeal*/true))
-	{
-		CvAssert(false);
-		return "";
-	}
-	
-	CvString s = "";
-	s += Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_VOTE_OPINIONS").toUTF8();
+		return s;
 
-	bool bEnact = IsProposed(iResolutionID, /*bRepeal*/false);
-	ResolutionDecisionTypes eDecision = pInfo->GetVoterDecision();
-	if (!bEnact)
-	{
-		eDecision = RESOLUTION_DECISION_REPEAL;
-	}
+	// Must be proposed as either enact or repeal, but not both
+	if (!IsProposed(iResolutionID, /*bRepeal*/ false) && !IsProposed(iResolutionID, /*bRepeal*/ true))
+		return s;
+
+	if (IsProposed(iResolutionID, /*bRepeal*/ false) && IsProposed(iResolutionID, /*bRepeal*/ true))
+		return s;
+
+	bool bEnact = IsProposed(iResolutionID, /*bRepeal*/ false);
+	ResolutionDecisionTypes eDecision = bEnact ? pInfo->GetVoterDecision() : RESOLUTION_DECISION_REPEAL;
 	vector<int> vChoices = GetChoicesForDecision(eDecision, NO_PLAYER);
+
+	s = Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_VOTE_OPINIONS").toUTF8();
 
 	// Discover what choices we can of the other players
 	vector<pair<PlayerTypes, int>> vMemberOpinions;
@@ -5824,6 +5815,7 @@ CvString CvLeague::GetResolutionVoteOpinionDetails(ResolutionTypes eResolution, 
 		}
 	}
 
+	bool bYesNo = true;
 	vector<LeagueHelpers::VoteOpinionIntrigueElement> vChoiceCommitments;
 	vector<LeagueHelpers::VoteOpinionIntrigueElement> vChoiceLeanings;
 	for (uint iChoiceIndex = 0; iChoiceIndex < vChoices.size(); iChoiceIndex++)
@@ -5833,6 +5825,9 @@ CvString CvLeague::GetResolutionVoteOpinionDetails(ResolutionTypes eResolution, 
 		int iNumCivsLeaning = 0;
 		int iNumDelegatesCommitted = 0;
 		int iNumDelegatesLeaning = 0;
+
+		if (iChoice != LeagueHelpers::CHOICE_YES && iChoice != LeagueHelpers::CHOICE_NO && iChoice != LeagueHelpers::CHOICE_NONE)
+			bYesNo = false;
 
 		for (uint iMemberIndex = 0; iMemberIndex < vMemberOpinions.size(); iMemberIndex++)
 		{
@@ -5946,7 +5941,7 @@ CvString CvLeague::GetResolutionVoteOpinionDetails(ResolutionTypes eResolution, 
 	}
 	if (iNumCivsUnaccounted > 0)
 	{
-		Localization::String sTemp = Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_VOTE_OPINIONS_UNACCOUNTED");
+		Localization::String sTemp = Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_VOTE_OPINIONS_UNKNOWN"); // shortened this text slightly to make more room
 		sTemp << iNumDelegatesUnaccounted << iNumCivsUnaccounted;
 		s += sTemp.toUTF8();
 	}
@@ -5959,6 +5954,118 @@ CvString CvLeague::GetResolutionVoteOpinionDetails(ResolutionTypes eResolution, 
 		sTemp << iOurDelegates;
 		s += sTemp.toUTF8();
 	}
+
+	// If not in session, don't display how other civs would be affected - that's too much information
+	if (!IsInSession())
+		return s;
+
+	// Only display scores for Yes/No choices
+	if (!bYesNo || IsInSpecialSession())
+		return s;
+
+	// Display the score for each civ (only positive/negative)
+	bool bShowAllValues = GC.getGame().IsShowAllOpinionValues();
+	std::vector<pair<int, PlayerTypes>> vScores;
+	if (bEnact)
+	{
+		for (MemberList::iterator it = m_vMembers.begin(); it != m_vMembers.end(); ++it)
+		{
+			if (CanEverVote(it->ePlayer))
+			{
+				int iScore = GET_PLAYER(it->ePlayer).GetLeagueAI()->ScoreProposal(this, eResolution, LeagueHelpers::CHOICE_YES, eObserver);
+				vScores.push_back(std::make_pair(iScore, it->ePlayer));
+			}
+		}
+	}
+	else
+	{
+		ActiveResolutionList vActiveResolutions = this->GetActiveResolutions();
+		for (ActiveResolutionList::iterator itRes = vActiveResolutions.begin(); itRes != vActiveResolutions.end(); ++itRes)
+		{
+			if (itRes->GetID() == iResolutionID)
+			{
+				for (MemberList::iterator it = m_vMembers.begin(); it != m_vMembers.end(); ++it)
+				{
+					if (CanEverVote(it->ePlayer))
+					{
+						int iScore = GET_PLAYER(it->ePlayer).GetLeagueAI()->ScoreProposal(this, &(*itRes), eObserver);
+						vScores.push_back(std::make_pair(iScore, it->ePlayer));
+					}
+				}
+			}
+		}
+	}
+	std::sort(vScores.begin(), vScores.end());
+	std::reverse(vScores.begin(), vScores.end());
+	bool bPositiveDone = false;
+	bool bNegativeDone = false;
+
+	for (std::vector<pair<int, PlayerTypes>>::iterator it = vScores.begin(); it != vScores.end(); it++)
+	{
+		CvString strOut = "";
+		Localization::String sTemp = Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_PROPOSAL_OPINION");
+		sTemp << GET_PLAYER(it->second).getCivilizationShortDescriptionKey();
+		strOut += sTemp.toUTF8();
+
+		if (bShowAllValues)
+		{
+			CvString strTemp;
+			strTemp.Format(" (%d)", it->first);
+			strOut += strTemp;
+		}
+
+		CvLeagueAI::DesireLevels eDesire = GET_PLAYER(it->second).GetLeagueAI()->EvaluateDesire(it->first);
+		if (eDesire > CvLeagueAI::DESIRE_WEAK_LIKE)
+		{
+			if (!bPositiveDone)
+			{
+				s += Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_PROPOSAL_OPINIONS_POSITIVE").toUTF8();
+				bPositiveDone = true;
+			}
+			strOut.insert(0, "[COLOR_POSITIVE_TEXT]");
+			s += strOut;
+		}
+		else if (eDesire > CvLeagueAI::DESIRE_NEUTRAL)
+		{
+			if (!bPositiveDone)
+			{
+				s += Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_PROPOSAL_OPINIONS_POSITIVE").toUTF8();
+				bPositiveDone = true;
+			}
+			strOut.insert(0, "[COLOR_FADING_POSITIVE_TEXT]");
+			s += strOut;
+		}
+		else if (eDesire != CvLeagueAI::DESIRE_NEUTRAL)
+		{
+			if (eDesire > CvLeagueAI::DESIRE_DISLIKE)
+			{
+				if (!bNegativeDone)
+				{
+					CvString sNeg = Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_PROPOSAL_OPINIONS_NEGATIVE").toUTF8();
+					sNeg.insert(0, "[ENDCOLOR]");
+					s += sNeg;
+					bNegativeDone = true;
+				}
+				strOut.insert(0, "[COLOR_FADING_NEGATIVE_TEXT]");
+				s += strOut;
+			}
+			else
+			{
+				if (!bNegativeDone)
+				{
+					CvString sNeg = Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_PROPOSAL_OPINIONS_NEGATIVE").toUTF8();
+					sNeg.insert(0, "[ENDCOLOR]");
+					s += sNeg;
+					bNegativeDone = true;
+				}
+				strOut.insert(0, "[COLOR_NEGATIVE_TEXT]");
+				s += strOut;
+			}
+		}
+	}
+	CvString sEnd = Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_PROPOSAL_OPINIONS_END").toUTF8();
+	sEnd.insert(0, "[COLOR_WHITE]");
+	s += sEnd;
 
 	return s;
 }

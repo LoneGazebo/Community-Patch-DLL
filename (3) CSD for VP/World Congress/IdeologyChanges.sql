@@ -183,7 +183,7 @@ SET Text = '[ICON_CULTURE] Culture increases by 33% for 20 Turns.'
 WHERE Tag = 'TXT_KEY_LEAGUE_PROJECT_REWARD_WORLD_FAIR_2_HELP' AND EXISTS (SELECT * FROM CSD WHERE Type='IDEOLOGY_CSD' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Crystal Palace wonder appears in [ICON_CAPITAL] Capital. ({TXT_KEY_BUILDING_CRYSTAL_PALACE_HELP})'
+SET Text = 'Crystal Palace wonder appears in [ICON_CAPITAL] Capital. (Receive +2 [ICON_PRODUCTION] Production and +2 [ICON_RESEARCH] Science for all Factories in owned Cities. The Empire enters a [ICON_GOLDEN_AGE] Golden Age.)'
 WHERE Tag = 'TXT_KEY_LEAGUE_PROJECT_REWARD_WORLD_FAIR_3_HELP' AND EXISTS (SELECT * FROM CSD WHERE Type='IDEOLOGY_CSD' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -191,6 +191,10 @@ SET Text = 'Begins the World`s Fair project.  Once underway, Civilizations can c
 WHERE Tag = 'TXT_KEY_RESOLUTION_WORLD_FAIR_HELP' AND EXISTS (SELECT * FROM CSD WHERE Type='IDEOLOGY_CSD' AND Value= 1 );
 
 -- International Space Station
+
+UPDATE Language_en_US
+SET Text = 'International Space Station wonder appears in [ICON_CAPITAL] Capital. (+1 [ICON_PRODUCTION] Production from Scientists, and +1 [ICON_RESEARCH] Science from Engineers. [ICON_GREAT_SCIENTIST] Great Scientists provide 33% more [ICON_RESEARCH] Science when used to discover new Technology. +100 [ICON_PRODUCTION] in City where it is built when you unlock a new Technology, scaling with Era.)'
+WHERE Tag = 'TXT_KEY_LEAGUE_PROJECT_REWARD_ISS_3_HELP';
 
 UPDATE Language_en_US
 SET Text = 'Begins the International Space Station project.  Once underway, Civilizations can contribute [ICON_PRODUCTION] Production towards its completion by selecting it in the city production list.  When complete, Civilizations receive bonuses based on how much they contributed.[NEWLINE][NEWLINE][ICON_TROPHY_GOLD]: {TXT_KEY_LEAGUE_PROJECT_REWARD_ISS_3_HELP}[NEWLINE][ICON_TROPHY_SILVER]: {TXT_KEY_LEAGUE_PROJECT_REWARD_ISS_2_HELP}[NEWLINE][ICON_TROPHY_BRONZE]: {TXT_KEY_LEAGUE_PROJECT_REWARD_ISS_1_HELP}[NEWLINE][NEWLINE]Available once any Civilization discovers Rocketry.'
@@ -239,7 +243,7 @@ SET Text = ' Receive a free Great Person of your choice.'
 WHERE Tag = 'TXT_KEY_LEAGUE_PROJECT_REWARD_WORLD_GAMES_2_HELP' AND EXISTS (SELECT * FROM CSD WHERE Type='IDEOLOGY_CSD' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Olympic Village wonder appears in [ICON_CAPITAL] Capital. ({TXT_KEY_BUILDING_OLYMPIC_VILLAGE_HELP})'
+SET Text = 'Olympic Village wonder appears in [ICON_CAPITAL] Capital. (Receive +3 [ICON_HAPPINESS_1] Happiness and +3 [ICON_CULTURE] Culture in the City in which it is built. 25% of the [ICON_CULTURE] Culture from World Wonders, Natural Wonders, and Improvements (Landmarks, Moai, Chateau) is added to the [ICON_TOURISM] Tourism output of the City. All Stadiums receive +2 [ICON_GOLD] Gold and [ICON_TOURISM] Tourism.)'
 WHERE Tag = 'TXT_KEY_LEAGUE_PROJECT_REWARD_WORLD_GAMES_3_HELP' AND EXISTS (SELECT * FROM CSD WHERE Type='IDEOLOGY_CSD' AND Value= 1 );
 
 -- Arts/Sciences Funding

@@ -257,7 +257,7 @@
 			<Text>Master of the Fleet</Text>
 		</Row>
 		<Row Tag="TXT_KEY_LEAGUE_PROJECT_REWARD_TREASURE_FLEET_3_HELP">
-			<Text>Grand Canal wonder appears in [ICON_CAPITAL] Capital. ({TXT_KEY_BUILDING_GRAND_CANAL_HELP})</Text>
+			<Text>Grand Canal wonder appears in [ICON_CAPITAL] Capital. (Receive 1 [COLOR_POSITIVE_TEXT]Additional[ENDCOLOR] [ICON_INTERNATIONAL_TRADE] Trade Route. Grants all Naval Units except Submarines and Carriers the [COLOR_POSITIVE_TEXT]Treasure Fleet[ENDCOLOR] Promotion, which grants +10% [ICON_STRENGTH] Combat Strength when attacking, +1 Sight, and the ability to heal [COLOR_POSITIVE_TEXT]Outside of Friendly Territory[ENDCOLOR].)</Text>
 		</Row>
 		<!-- Wargames -->
 		<Row Tag="TXT_KEY_PROCESS_WARGAMES">
@@ -299,7 +299,7 @@
 			<Text>Field Marshal</Text>
 		</Row>
 		<Row Tag="TXT_KEY_LEAGUE_PROJECT_REWARD_WARGAMES_3_HELP">
-			<Text>Menin Gate wonder appears in [ICON_CAPITAL] Capital. ({TXT_KEY_BUILDING_MENIN_GATE_HELP})</Text>
+			<Text>Menin Gate wonder appears in [ICON_CAPITAL] Capital. (Receive +2 [ICON_HAPPINESS_1] Happiness in the City in which it is built. Receive 2 [ICON_CULTURE] Culture and [ICON_GOLDEN_AGE] Golden Age Points whenever an owned unit is killed, scaling with Era. Forts, Citadels and Landmarks provide +2 [ICON_CULTURE] Culture and [ICON_GOLDEN_AGE] Golden Age Points when worked.)</Text>
 		</Row>
 		<!-- UNITED_NATIONS -->
 		
@@ -335,15 +335,14 @@
 			<Text>Permanent Member</Text>
 		</Row>
 		<Row Tag="TXT_KEY_LEAGUE_PROJECT_REWARD_UNITED_NATIONS_2_HELP">
-			<Text>Receive an immediate boost of 25 [ICON_INFLUENCE] Influence with all City-States. The Consulate National Wonder appears in [ICON_CAPITAL] Capital. ({TXT_KEY_CONSULATE_HELP})</Text>
+			<Text>Receive an immediate boost of 25 [ICON_INFLUENCE] Influence with all City-States. The Consulate National Wonder appears in [ICON_CAPITAL] Capital. (Receive 1 [COLOR_POSITIVE_TEXT]Additional[ENDCOLOR] [ICON_DIPLOMAT] Delegate in the World Congress for every 8 [ICON_CITY_STATE] City-States in the game.)</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_LEAGUE_PROJECT_REWARD_UNITED_NATIONS_3">
 			<Text>Secretary-General</Text>
 		</Row>
 		<Row Tag="TXT_KEY_LEAGUE_PROJECT_REWARD_UNITED_NATIONS_3_HELP">
-			<Text>United Nations wonder appears in [ICON_CAPITAL] Capital. ({TXT_KEY_UN_HELP})</Text>
+			<Text>United Nations wonder appears in [ICON_CAPITAL] Capital. (Receive 1 [COLOR_POSITIVE_TEXT]Additional[ENDCOLOR] [ICON_DIPLOMAT] Delegate in the World Congress for every 8 [ICON_CITY_STATE] City-States in the game. Also, when you expend a [ICON_GREAT_PEOPLE] Great Person, earn 25 [ICON_INFLUENCE] Influence with all [ICON_CITY_STATE] City-States you have met. Triggers a [ICON_GOLDEN_AGE] Golden Age, as well as the [COLOR_POSITIVE_TEXT]United Nations[ENDCOLOR] Special Session of the World Congress.)</Text>
 		</Row>
-		
 	</Language_en_US>  
 </GameData>

@@ -19777,6 +19777,11 @@ void CvDiplomacyAI::DoRelationshipPairing()
 						iHighestVotes = iVotes;
 						continue;
 					}
+					// If existing prime competitor is below the threshold, this is NOT our guy.
+					else if (GetVotingHistoryScore(ePrimeLeagueCompetitor) <= iWorstVotingHistoryThreshold)
+					{
+						continue;
+					}
 
 					// This guy has not been sabotaging us with his votes enough to be at or below the threshold, so let's sort by league alignment first.
 					CvLeagueAI::AlignmentLevels ePrimeAlignment = GetPlayer()->GetLeagueAI()->EvaluateAlignment(ePrimeLeagueCompetitor, true);
