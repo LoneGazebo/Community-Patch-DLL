@@ -867,9 +867,11 @@ int CvVoterDecision::GetVotesCastByPlayer(PlayerTypes ePlayer)
 	return iCount;
 }
 
-int CvVoterDecision::GetPercentContributionToOutcome(PlayerTypes eVoter, int iChoice, bool bChangeHost)
+int CvVoterDecision::GetPercentContributionToOutcome(PlayerTypes eVoter, int iChoice, bool bChangeHost, int& iPercentOfPlayerVotes)
 {
 	if (eVoter < 0 || eVoter >= MAX_MAJOR_CIVS) return 0;
+	CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
+	if (!pLeague) return 0;
 
 	int iTotalVotes = 0;
 	int iVotes = 0;
@@ -885,7 +887,7 @@ int CvVoterDecision::GetPercentContributionToOutcome(PlayerTypes eVoter, int iCh
 				iVotes += it->iNumVotes;
 			}
 		}
-		else if (!bChangeHost && it->ePlayer == eVoter)
+		else if (!bChangeHost && it->ePlayer == eVoter && it->iChoice != LeagueHelpers::CHOICE_NONE)
 		{
 			iVotes -= it->iNumVotes;
 		}
@@ -894,15 +896,71 @@ int CvVoterDecision::GetPercentContributionToOutcome(PlayerTypes eVoter, int iCh
 	if (iVotes <= 0)
 		return 0;
 
-	return (iVotes * 100) / max(iTotalVotes, 1);
+	// What percentage of their total votes did they dedicate to this outcome? Relevant for voting history score.
+	if (!bChangeHost)
+	{
+		int iPlayerVotes = pLeague->CalculateStartingVotesForMember(eVoter);
+		iPercentOfPlayerVotes = (iVotes * 100) / max(iPlayerVotes, 1);
+	}
+
+	return (iVotes * 100) / iTotalVotes;
 }
 
-LeagueHelpers::PlayerList CvVoterDecision::GetPlayersVotingForChoice(int iChoice)
+int CvVoterDecision::GetPercentContributionAgainstOutcome(PlayerTypes eVoter, int iChoice, int& iPercentOfPlayerVotes)
 {
-	LeagueHelpers::PlayerList v;
+	if (eVoter < 0 || eVoter >= MAX_MAJOR_CIVS) return 0;
+	CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
+	if (!pLeague) return 0;
+
+	int iTotalVotes = 0;
+	int iVotes = 0;
+
+	for (PlayerVoteList::iterator it = m_vVotes.begin(); it != m_vVotes.end(); it++)
+	{
+		if (it->iChoice != iChoice && it->iChoice != LeagueHelpers::CHOICE_NONE)
+		{
+			iTotalVotes += it->iNumVotes;
+
+			if (it->ePlayer == eVoter)
+			{
+				iVotes += it->iNumVotes;
+			}
+		}
+		else if (it->ePlayer == eVoter && it->iChoice == iChoice)
+		{
+			iVotes -= it->iNumVotes;
+		}
+	}
+
+	if (iVotes <= 0)
+		return 0;
+
+	// What percentage of their total votes did they dedicate to this outcome? Relevant for voting history score.
+	int iPlayerVotes = pLeague->CalculateStartingVotesForMember(eVoter);
+	iPercentOfPlayerVotes = (iVotes * 100) / max(iPlayerVotes, 1);
+
+	return (iVotes * 100) / iTotalVotes;
+}
+
+std::vector<PlayerTypes> CvVoterDecision::GetPlayersVotingForChoice(int iChoice)
+{
+	vector<PlayerTypes> v;
 	for (PlayerVoteList::iterator it = m_vVotes.begin(); it != m_vVotes.end(); ++it)
 	{
-		if (it->iChoice == iChoice)
+		if (it->iChoice == iChoice && std::find(v.begin(), v.end(), it->ePlayer) == v.end())
+		{
+			v.push_back(it->ePlayer);
+		}
+	}
+	return v;
+}
+
+std::vector<PlayerTypes> CvVoterDecision::GetPlayersVotingAgainstChoice(int iChoice)
+{
+	vector<PlayerTypes> v;
+	for (PlayerVoteList::iterator it = m_vVotes.begin(); it != m_vVotes.end(); ++it)
+	{
+		if (it->iChoice != iChoice && it->iChoice != LeagueHelpers::CHOICE_NONE && std::find(v.begin(), v.end(), it->ePlayer) == v.end())
 		{
 			v.push_back(it->ePlayer);
 		}
@@ -2634,9 +2692,7 @@ void CvLeague::DoProposeEnact(ResolutionTypes eResolution, PlayerTypes eProposer
 		}
 
 		// Proposals made by players could affect Diplomacy AI
-		// Return values are discarded!
-		LeagueHelpers::PlayerList vLikers = GetMembersThatLikeProposal(eResolution, eProposer, iChoice, true);
-		LeagueHelpers::PlayerList vDislikers = GetMembersThatDislikeProposal(eResolution, eProposer, iChoice, true);
+		DoEnactProposalDiplomacy(eResolution, eProposer, iChoice);
 	}
 	
 	CvEnactProposal proposal(GC.getGame().GetGameLeagues()->GenerateResolutionUniqueID(), eResolution, GetID(), eProposer, iChoice);
@@ -2675,9 +2731,7 @@ void CvLeague::DoProposeRepeal(int iResolutionID, PlayerTypes eProposer)
 				}
 
 				// Proposals made by players could affect Diplomacy AI
-				// Return values are discarded!
-				LeagueHelpers::PlayerList vLikers = GetMembersThatLikeProposal(iResolutionID, eProposer, true);
-				LeagueHelpers::PlayerList vDislikers = GetMembersThatDislikeProposal(iResolutionID, eProposer, true);
+				DoRepealProposalDiplomacy(iResolutionID, eProposer);
 			}
 
 			CvRepealProposal proposal(&(*it), eProposer);
@@ -4579,152 +4633,110 @@ int CvLeague::GetNumProposalsByMember(PlayerTypes ePlayer)
 	return iValue;
 }
 
-LeagueHelpers::PlayerList CvLeague::GetMembersThatLikeProposal(ResolutionTypes eResolution, PlayerTypes eObserver, int iProposerChoice, bool bChosen)
+void CvLeague::DoEnactProposalDiplomacy(ResolutionTypes eResolution, PlayerTypes eProposer, int iProposerChoice)
 {
-	LeagueHelpers::PlayerList vMembersSupporting;
-	for (MemberList::iterator it = m_vMembers.begin(); it != m_vMembers.end(); ++it)
+	for (MemberList::iterator it = m_vMembers.begin(); it != m_vMembers.end(); it++)
 	{
-		if (it->ePlayer != eObserver && CanEverVote(it->ePlayer) && !GET_PLAYER(it->ePlayer).isHuman())
+		if (it->ePlayer != eProposer && CanEverVote(it->ePlayer) && !GET_PLAYER(it->ePlayer).isHuman() && GET_PLAYER(it->ePlayer).isAlive())
 		{
-			CvLeagueAI::DesireLevels eDesire = GET_PLAYER(it->ePlayer).GetLeagueAI()->EvaluateProposalForProposer(this, eObserver, eResolution, iProposerChoice);
-			if (eDesire > CvLeagueAI::DESIRE_WEAK_LIKE)
+			CvLeagueAI::DesireLevels eDesire = GET_PLAYER(it->ePlayer).GetLeagueAI()->EvaluateProposalForProposer(this, eProposer, eResolution, iProposerChoice);
+			if (eDesire > CvLeagueAI::DESIRE_NEUTRAL)
 			{
-				vMembersSupporting.push_back(it->ePlayer);
+				GET_PLAYER(it->ePlayer).GetDiplomacyAI()->SetWeLikedTheirProposalTurn(eProposer, GC.getGame().getGameTurn());
+				GET_PLAYER(it->ePlayer).GetDiplomacyAI()->SetWeDislikedTheirProposalTurn(eProposer, -1);
 
-				// This proposal was chosen - how does this affect Diplomacy AI?
-				if (bChosen)
+				switch (eDesire)
 				{
-					GET_PLAYER(it->ePlayer).GetDiplomacyAI()->SetWeLikedTheirProposalTurn(eObserver, GC.getGame().getGameTurn());
-					GET_PLAYER(it->ePlayer).GetDiplomacyAI()->SetWeDislikedTheirProposalTurn(eObserver, -1);
+				case CvLeagueAI::DESIRE_ALWAYS:
+					GET_PLAYER(it->ePlayer).GetDiplomacyAI()->SetLikedTheirProposalValue(eProposer, /*-60*/ GD_INT_GET(OPINION_WEIGHT_WE_LIKED_THEIR_PROPOSAL_OVERWHELMING));
+					break;
+				case CvLeagueAI::DESIRE_STRONG_LIKE:
+					GET_PLAYER(it->ePlayer).GetDiplomacyAI()->SetLikedTheirProposalValue(eProposer, /*-45*/ GD_INT_GET(OPINION_WEIGHT_WE_LIKED_THEIR_PROPOSAL_STRONG));
+					break;
+				case CvLeagueAI::DESIRE_LIKE:
+					GET_PLAYER(it->ePlayer).GetDiplomacyAI()->SetLikedTheirProposalValue(eProposer, /*-30*/ GD_INT_GET(OPINION_WEIGHT_WE_LIKED_THEIR_PROPOSAL));
+					break;
+				case CvLeagueAI::DESIRE_WEAK_LIKE:
+					GET_PLAYER(it->ePlayer).GetDiplomacyAI()->SetLikedTheirProposalValue(eProposer, /*-15*/ GD_INT_GET(OPINION_WEIGHT_WE_LIKED_THEIR_PROPOSAL_WEAK));
+					break;
+				}
+			}
+			else if (eDesire < CvLeagueAI::DESIRE_NEUTRAL)
+			{
+				GET_PLAYER(it->ePlayer).GetDiplomacyAI()->SetWeDislikedTheirProposalTurn(eProposer, GC.getGame().getGameTurn());
+				GET_PLAYER(it->ePlayer).GetDiplomacyAI()->SetWeLikedTheirProposalTurn(eProposer, -1);
 
-					switch (eDesire)
-					{
-					case CvLeagueAI::DESIRE_ALWAYS:
-						GET_PLAYER(it->ePlayer).GetDiplomacyAI()->SetLikedTheirProposalValue(eObserver, /*-60*/ GD_INT_GET(OPINION_WEIGHT_WE_LIKED_THEIR_PROPOSAL_OVERWHELMING));
-						break;
-					case CvLeagueAI::DESIRE_STRONG_LIKE:
-						GET_PLAYER(it->ePlayer).GetDiplomacyAI()->SetLikedTheirProposalValue(eObserver, /*-45*/ GD_INT_GET(OPINION_WEIGHT_WE_LIKED_THEIR_PROPOSAL_STRONG));
-						break;
-					case CvLeagueAI::DESIRE_LIKE:
-						GET_PLAYER(it->ePlayer).GetDiplomacyAI()->SetLikedTheirProposalValue(eObserver, /*-30*/ GD_INT_GET(OPINION_WEIGHT_WE_LIKED_THEIR_PROPOSAL));
-						break;
-					}
+				switch (eDesire)
+				{
+				case CvLeagueAI::DESIRE_NEVER:
+					GET_PLAYER(it->ePlayer).GetDiplomacyAI()->SetLikedTheirProposalValue(eProposer, /*60*/ GD_INT_GET(OPINION_WEIGHT_WE_DISLIKED_THEIR_PROPOSAL_OVERWHELMING));
+					break;
+				case CvLeagueAI::DESIRE_STRONG_DISLIKE:
+					GET_PLAYER(it->ePlayer).GetDiplomacyAI()->SetLikedTheirProposalValue(eProposer, /*45*/ GD_INT_GET(OPINION_WEIGHT_WE_DISLIKED_THEIR_PROPOSAL_STRONG));
+					break;
+				case CvLeagueAI::DESIRE_DISLIKE:
+					GET_PLAYER(it->ePlayer).GetDiplomacyAI()->SetLikedTheirProposalValue(eProposer, /*30*/ GD_INT_GET(OPINION_WEIGHT_WE_DISLIKED_THEIR_PROPOSAL));
+					break;
+				case CvLeagueAI::DESIRE_WEAK_DISLIKE:
+					GET_PLAYER(it->ePlayer).GetDiplomacyAI()->SetLikedTheirProposalValue(eProposer, /*15*/ GD_INT_GET(OPINION_WEIGHT_WE_DISLIKED_THEIR_PROPOSAL));
+					break;
 				}
 			}
 		}
 	}
-	return vMembersSupporting;
 }
 
-LeagueHelpers::PlayerList CvLeague::GetMembersThatLikeProposal(int iTargetResolutionID, PlayerTypes eObserver, bool bChosen)
+void CvLeague::DoRepealProposalDiplomacy(int iTargetResolutionID, PlayerTypes eProposer)
 {
-	LeagueHelpers::PlayerList vMembersSupporting;
-	for (MemberList::iterator it = m_vMembers.begin(); it != m_vMembers.end(); ++it)
+	for (MemberList::iterator it = m_vMembers.begin(); it != m_vMembers.end(); it++)
 	{
-		if (it->ePlayer != eObserver && CanEverVote(it->ePlayer) && !GET_PLAYER(it->ePlayer).isHuman())
+		if (it->ePlayer != eProposer && CanEverVote(it->ePlayer) && !GET_PLAYER(it->ePlayer).isHuman() && GET_PLAYER(it->ePlayer).isAlive())
 		{
-			CvLeagueAI::DesireLevels eDesire = GET_PLAYER(it->ePlayer).GetLeagueAI()->EvaluateProposalForProposer(this, eObserver, iTargetResolutionID);
-			if (eDesire > CvLeagueAI::DESIRE_WEAK_LIKE)
+			CvLeagueAI::DesireLevels eDesire = GET_PLAYER(it->ePlayer).GetLeagueAI()->EvaluateProposalForProposer(this, eProposer, iTargetResolutionID);
+			if (eDesire > CvLeagueAI::DESIRE_NEUTRAL)
 			{
-				vMembersSupporting.push_back(it->ePlayer);
+				GET_PLAYER(it->ePlayer).GetDiplomacyAI()->SetWeLikedTheirProposalTurn(eProposer, GC.getGame().getGameTurn());
+				GET_PLAYER(it->ePlayer).GetDiplomacyAI()->SetWeDislikedTheirProposalTurn(eProposer, -1);
 
-				// This proposal was chosen - how does this affect Diplomacy AI?
-				if (bChosen)
+				switch (eDesire)
 				{
-					GET_PLAYER(it->ePlayer).GetDiplomacyAI()->SetWeLikedTheirProposalTurn(eObserver, GC.getGame().getGameTurn());
-					GET_PLAYER(it->ePlayer).GetDiplomacyAI()->SetWeDislikedTheirProposalTurn(eObserver, -1);
+				case CvLeagueAI::DESIRE_ALWAYS:
+					GET_PLAYER(it->ePlayer).GetDiplomacyAI()->SetLikedTheirProposalValue(eProposer, /*-60*/ GD_INT_GET(OPINION_WEIGHT_WE_LIKED_THEIR_PROPOSAL_OVERWHELMING));
+					break;
+				case CvLeagueAI::DESIRE_STRONG_LIKE:
+					GET_PLAYER(it->ePlayer).GetDiplomacyAI()->SetLikedTheirProposalValue(eProposer, /*-45*/ GD_INT_GET(OPINION_WEIGHT_WE_LIKED_THEIR_PROPOSAL_STRONG));
+					break;
+				case CvLeagueAI::DESIRE_LIKE:
+					GET_PLAYER(it->ePlayer).GetDiplomacyAI()->SetLikedTheirProposalValue(eProposer, /*-30*/ GD_INT_GET(OPINION_WEIGHT_WE_LIKED_THEIR_PROPOSAL));
+					break;
+				case CvLeagueAI::DESIRE_WEAK_LIKE:
+					GET_PLAYER(it->ePlayer).GetDiplomacyAI()->SetLikedTheirProposalValue(eProposer, /*-15*/ GD_INT_GET(OPINION_WEIGHT_WE_LIKED_THEIR_PROPOSAL_WEAK));
+					break;
+				}
+			}
+			else if (eDesire < CvLeagueAI::DESIRE_NEUTRAL)
+			{
+				GET_PLAYER(it->ePlayer).GetDiplomacyAI()->SetWeDislikedTheirProposalTurn(eProposer, GC.getGame().getGameTurn());
+				GET_PLAYER(it->ePlayer).GetDiplomacyAI()->SetWeLikedTheirProposalTurn(eProposer, -1);
 
-					switch (eDesire)
-					{
-					case CvLeagueAI::DESIRE_ALWAYS:
-						GET_PLAYER(it->ePlayer).GetDiplomacyAI()->SetLikedTheirProposalValue(eObserver, /*-60*/ GD_INT_GET(OPINION_WEIGHT_WE_LIKED_THEIR_PROPOSAL_OVERWHELMING));
-						break;
-					case CvLeagueAI::DESIRE_STRONG_LIKE:
-						GET_PLAYER(it->ePlayer).GetDiplomacyAI()->SetLikedTheirProposalValue(eObserver, /*-45*/ GD_INT_GET(OPINION_WEIGHT_WE_LIKED_THEIR_PROPOSAL_STRONG));
-						break;
-					case CvLeagueAI::DESIRE_LIKE:
-						GET_PLAYER(it->ePlayer).GetDiplomacyAI()->SetLikedTheirProposalValue(eObserver, /*-30*/ GD_INT_GET(OPINION_WEIGHT_WE_LIKED_THEIR_PROPOSAL));
-						break;
-					}
+				switch (eDesire)
+				{
+				case CvLeagueAI::DESIRE_NEVER:
+					GET_PLAYER(it->ePlayer).GetDiplomacyAI()->SetLikedTheirProposalValue(eProposer, /*60*/ GD_INT_GET(OPINION_WEIGHT_WE_DISLIKED_THEIR_PROPOSAL_OVERWHELMING));
+					break;
+				case CvLeagueAI::DESIRE_STRONG_DISLIKE:
+					GET_PLAYER(it->ePlayer).GetDiplomacyAI()->SetLikedTheirProposalValue(eProposer, /*45*/ GD_INT_GET(OPINION_WEIGHT_WE_DISLIKED_THEIR_PROPOSAL_STRONG));
+					break;
+				case CvLeagueAI::DESIRE_DISLIKE:
+					GET_PLAYER(it->ePlayer).GetDiplomacyAI()->SetLikedTheirProposalValue(eProposer, /*30*/ GD_INT_GET(OPINION_WEIGHT_WE_DISLIKED_THEIR_PROPOSAL));
+					break;
+				case CvLeagueAI::DESIRE_WEAK_DISLIKE:
+					GET_PLAYER(it->ePlayer).GetDiplomacyAI()->SetLikedTheirProposalValue(eProposer, /*15*/ GD_INT_GET(OPINION_WEIGHT_WE_DISLIKED_THEIR_PROPOSAL));
+					break;
 				}
 			}
 		}
 	}
-	return vMembersSupporting;
-}
-
-LeagueHelpers::PlayerList CvLeague::GetMembersThatDislikeProposal(ResolutionTypes eResolution, PlayerTypes eObserver, int iProposerChoice, bool bChosen)
-{
-	LeagueHelpers::PlayerList vMembersDissuading;
-	for (MemberList::iterator it = m_vMembers.begin(); it != m_vMembers.end(); ++it)
-	{
-		if (it->ePlayer != eObserver && CanEverVote(it->ePlayer) && !GET_PLAYER(it->ePlayer).isHuman())
-		{
-			CvLeagueAI::DesireLevels eDesire = GET_PLAYER(it->ePlayer).GetLeagueAI()->EvaluateProposalForProposer(this, eObserver, eResolution, iProposerChoice);
-			if (eDesire < CvLeagueAI::DESIRE_WEAK_DISLIKE)
-			{
-				vMembersDissuading.push_back(it->ePlayer);
-
-				// This proposal was chosen - how does this affect Diplomacy AI?
-				if (bChosen)
-				{
-					GET_PLAYER(it->ePlayer).GetDiplomacyAI()->SetWeDislikedTheirProposalTurn(eObserver, GC.getGame().getGameTurn());
-					GET_PLAYER(it->ePlayer).GetDiplomacyAI()->SetWeLikedTheirProposalTurn(eObserver, -1);
-
-					switch (eDesire)
-					{
-					case CvLeagueAI::DESIRE_NEVER:
-						GET_PLAYER(it->ePlayer).GetDiplomacyAI()->SetLikedTheirProposalValue(eObserver, /*60*/ GD_INT_GET(OPINION_WEIGHT_WE_DISLIKED_THEIR_PROPOSAL_OVERWHELMING));
-						break;
-					case CvLeagueAI::DESIRE_STRONG_DISLIKE:
-						GET_PLAYER(it->ePlayer).GetDiplomacyAI()->SetLikedTheirProposalValue(eObserver, /*45*/ GD_INT_GET(OPINION_WEIGHT_WE_DISLIKED_THEIR_PROPOSAL_STRONG));
-						break;
-					case CvLeagueAI::DESIRE_DISLIKE:
-						GET_PLAYER(it->ePlayer).GetDiplomacyAI()->SetLikedTheirProposalValue(eObserver, /*30*/ GD_INT_GET(OPINION_WEIGHT_WE_DISLIKED_THEIR_PROPOSAL));
-						break;
-					}
-				}
-			}
-		}
-	}
-	return vMembersDissuading;
-}
-
-LeagueHelpers::PlayerList CvLeague::GetMembersThatDislikeProposal(int iTargetResolutionID, PlayerTypes eObserver, bool bChosen)
-{
-	LeagueHelpers::PlayerList vMembersDissuading;
-	for (MemberList::iterator it = m_vMembers.begin(); it != m_vMembers.end(); ++it)
-	{
-		if (it->ePlayer != eObserver && CanEverVote(it->ePlayer))
-		{
-			CvLeagueAI::DesireLevels eDesire = GET_PLAYER(it->ePlayer).GetLeagueAI()->EvaluateProposalForProposer(this, eObserver, iTargetResolutionID);
-			if (eDesire < CvLeagueAI::DESIRE_WEAK_DISLIKE)
-			{
-				vMembersDissuading.push_back(it->ePlayer);
-
-				// This proposal was chosen - how does this affect Diplomacy AI?
-				if (bChosen)
-				{
-					GET_PLAYER(it->ePlayer).GetDiplomacyAI()->SetWeDislikedTheirProposalTurn(eObserver, GC.getGame().getGameTurn());
-					GET_PLAYER(it->ePlayer).GetDiplomacyAI()->SetWeLikedTheirProposalTurn(eObserver, -1);
-
-					switch (eDesire)
-					{
-					case CvLeagueAI::DESIRE_NEVER:
-						GET_PLAYER(it->ePlayer).GetDiplomacyAI()->SetLikedTheirProposalValue(eObserver, /*60*/ GD_INT_GET(OPINION_WEIGHT_WE_DISLIKED_THEIR_PROPOSAL_OVERWHELMING));
-						break;
-					case CvLeagueAI::DESIRE_STRONG_DISLIKE:
-						GET_PLAYER(it->ePlayer).GetDiplomacyAI()->SetLikedTheirProposalValue(eObserver, /*45*/ GD_INT_GET(OPINION_WEIGHT_WE_DISLIKED_THEIR_PROPOSAL_STRONG));
-						break;
-					case CvLeagueAI::DESIRE_DISLIKE:
-						GET_PLAYER(it->ePlayer).GetDiplomacyAI()->SetLikedTheirProposalValue(eObserver, /*30*/ GD_INT_GET(OPINION_WEIGHT_WE_DISLIKED_THEIR_PROPOSAL));
-						break;
-					}
-				}
-			}
-		}
-	}
-	return vMembersDissuading;
 }
 
 bool CvLeague::HasHostMember() const
@@ -5764,33 +5776,24 @@ CvString CvLeague::GetResolutionDetails(ResolutionTypes eResolution, PlayerTypes
 
 CvString CvLeague::GetResolutionVoteOpinionDetails(ResolutionTypes eResolution, PlayerTypes eObserver, int iResolutionID)
 {
+	CvString s = "";
+
 	CvResolutionEntry* pInfo = GC.getResolutionInfo(eResolution);
 	if (!pInfo)
-	{
-		return "";
-	}
-	// Must be proposed as either enact or repeal, but not both
-	if (!IsProposed(iResolutionID, /*bRepeal*/false) && !IsProposed(iResolutionID, /*bRepeal*/true))
-	{
-		CvAssert(false);
-		return "";
-	}
-	if (IsProposed(iResolutionID, /*bRepeal*/false) && IsProposed(iResolutionID, /*bRepeal*/true))
-	{
-		CvAssert(false);
-		return "";
-	}
-	
-	CvString s = "";
-	s += Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_VOTE_OPINIONS").toUTF8();
+		return s;
 
-	bool bEnact = IsProposed(iResolutionID, /*bRepeal*/false);
-	ResolutionDecisionTypes eDecision = pInfo->GetVoterDecision();
-	if (!bEnact)
-	{
-		eDecision = RESOLUTION_DECISION_REPEAL;
-	}
+	// Must be proposed as either enact or repeal, but not both
+	if (!IsProposed(iResolutionID, /*bRepeal*/ false) && !IsProposed(iResolutionID, /*bRepeal*/ true))
+		return s;
+
+	if (IsProposed(iResolutionID, /*bRepeal*/ false) && IsProposed(iResolutionID, /*bRepeal*/ true))
+		return s;
+
+	bool bEnact = IsProposed(iResolutionID, /*bRepeal*/ false);
+	ResolutionDecisionTypes eDecision = bEnact ? pInfo->GetVoterDecision() : RESOLUTION_DECISION_REPEAL;
 	vector<int> vChoices = GetChoicesForDecision(eDecision, NO_PLAYER);
+
+	s = Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_VOTE_OPINIONS").toUTF8();
 
 	// Discover what choices we can of the other players
 	vector<pair<PlayerTypes, int>> vMemberOpinions;
@@ -5812,6 +5815,7 @@ CvString CvLeague::GetResolutionVoteOpinionDetails(ResolutionTypes eResolution, 
 		}
 	}
 
+	bool bYesNo = true;
 	vector<LeagueHelpers::VoteOpinionIntrigueElement> vChoiceCommitments;
 	vector<LeagueHelpers::VoteOpinionIntrigueElement> vChoiceLeanings;
 	for (uint iChoiceIndex = 0; iChoiceIndex < vChoices.size(); iChoiceIndex++)
@@ -5821,6 +5825,9 @@ CvString CvLeague::GetResolutionVoteOpinionDetails(ResolutionTypes eResolution, 
 		int iNumCivsLeaning = 0;
 		int iNumDelegatesCommitted = 0;
 		int iNumDelegatesLeaning = 0;
+
+		if (iChoice != LeagueHelpers::CHOICE_YES && iChoice != LeagueHelpers::CHOICE_NO && iChoice != LeagueHelpers::CHOICE_NONE)
+			bYesNo = false;
 
 		for (uint iMemberIndex = 0; iMemberIndex < vMemberOpinions.size(); iMemberIndex++)
 		{
@@ -5934,7 +5941,7 @@ CvString CvLeague::GetResolutionVoteOpinionDetails(ResolutionTypes eResolution, 
 	}
 	if (iNumCivsUnaccounted > 0)
 	{
-		Localization::String sTemp = Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_VOTE_OPINIONS_UNACCOUNTED");
+		Localization::String sTemp = Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_VOTE_OPINIONS_UNKNOWN"); // shortened this text slightly to make more room
 		sTemp << iNumDelegatesUnaccounted << iNumCivsUnaccounted;
 		s += sTemp.toUTF8();
 	}
@@ -5947,6 +5954,118 @@ CvString CvLeague::GetResolutionVoteOpinionDetails(ResolutionTypes eResolution, 
 		sTemp << iOurDelegates;
 		s += sTemp.toUTF8();
 	}
+
+	// If not in session, don't display how other civs would be affected - that's too much information
+	if (!IsInSession())
+		return s;
+
+	// Only display scores for Yes/No choices
+	if (!bYesNo || IsInSpecialSession())
+		return s;
+
+	// Display the score for each civ (only positive/negative)
+	bool bShowAllValues = GC.getGame().IsShowAllOpinionValues();
+	std::vector<pair<int, PlayerTypes>> vScores;
+	if (bEnact)
+	{
+		for (MemberList::iterator it = m_vMembers.begin(); it != m_vMembers.end(); ++it)
+		{
+			if (CanEverVote(it->ePlayer))
+			{
+				int iScore = GET_PLAYER(it->ePlayer).GetLeagueAI()->ScoreProposal(this, eResolution, LeagueHelpers::CHOICE_YES, eObserver);
+				vScores.push_back(std::make_pair(iScore, it->ePlayer));
+			}
+		}
+	}
+	else
+	{
+		ActiveResolutionList vActiveResolutions = this->GetActiveResolutions();
+		for (ActiveResolutionList::iterator itRes = vActiveResolutions.begin(); itRes != vActiveResolutions.end(); ++itRes)
+		{
+			if (itRes->GetID() == iResolutionID)
+			{
+				for (MemberList::iterator it = m_vMembers.begin(); it != m_vMembers.end(); ++it)
+				{
+					if (CanEverVote(it->ePlayer))
+					{
+						int iScore = GET_PLAYER(it->ePlayer).GetLeagueAI()->ScoreProposal(this, &(*itRes), eObserver);
+						vScores.push_back(std::make_pair(iScore, it->ePlayer));
+					}
+				}
+			}
+		}
+	}
+	std::sort(vScores.begin(), vScores.end());
+	std::reverse(vScores.begin(), vScores.end());
+	bool bPositiveDone = false;
+	bool bNegativeDone = false;
+
+	for (std::vector<pair<int, PlayerTypes>>::iterator it = vScores.begin(); it != vScores.end(); it++)
+	{
+		CvString strOut = "";
+		Localization::String sTemp = Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_PROPOSAL_OPINION");
+		sTemp << GET_PLAYER(it->second).getCivilizationShortDescriptionKey();
+		strOut += sTemp.toUTF8();
+
+		if (bShowAllValues)
+		{
+			CvString strTemp;
+			strTemp.Format(" (%d)", it->first);
+			strOut += strTemp;
+		}
+
+		CvLeagueAI::DesireLevels eDesire = GET_PLAYER(it->second).GetLeagueAI()->EvaluateDesire(it->first);
+		if (eDesire > CvLeagueAI::DESIRE_WEAK_LIKE)
+		{
+			if (!bPositiveDone)
+			{
+				s += Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_PROPOSAL_OPINIONS_POSITIVE").toUTF8();
+				bPositiveDone = true;
+			}
+			strOut.insert(0, "[COLOR_POSITIVE_TEXT]");
+			s += strOut;
+		}
+		else if (eDesire > CvLeagueAI::DESIRE_NEUTRAL)
+		{
+			if (!bPositiveDone)
+			{
+				s += Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_PROPOSAL_OPINIONS_POSITIVE").toUTF8();
+				bPositiveDone = true;
+			}
+			strOut.insert(0, "[COLOR_FADING_POSITIVE_TEXT]");
+			s += strOut;
+		}
+		else if (eDesire != CvLeagueAI::DESIRE_NEUTRAL)
+		{
+			if (eDesire > CvLeagueAI::DESIRE_DISLIKE)
+			{
+				if (!bNegativeDone)
+				{
+					CvString sNeg = Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_PROPOSAL_OPINIONS_NEGATIVE").toUTF8();
+					sNeg.insert(0, "[ENDCOLOR]");
+					s += sNeg;
+					bNegativeDone = true;
+				}
+				strOut.insert(0, "[COLOR_FADING_NEGATIVE_TEXT]");
+				s += strOut;
+			}
+			else
+			{
+				if (!bNegativeDone)
+				{
+					CvString sNeg = Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_PROPOSAL_OPINIONS_NEGATIVE").toUTF8();
+					sNeg.insert(0, "[ENDCOLOR]");
+					s += sNeg;
+					bNegativeDone = true;
+				}
+				strOut.insert(0, "[COLOR_NEGATIVE_TEXT]");
+				s += strOut;
+			}
+		}
+	}
+	CvString sEnd = Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_PROPOSAL_OPINIONS_END").toUTF8();
+	sEnd.insert(0, "[COLOR_WHITE]");
+	s += sEnd;
 
 	return s;
 }
@@ -7250,7 +7369,7 @@ void CvLeague::FinishSession()
 	// Notify players of vote results
 	NotifySessionDone();
 
-	// Resolve Proposals on table
+	// Resolve Repeal Proposals on table
 	for (RepealProposalList::iterator it = m_vRepealProposals.begin(); it != m_vRepealProposals.end(); it++)
 	{
 		if (eRecurringProposal != NO_RESOLUTION && eRecurringProposal == it->GetType())
@@ -7259,24 +7378,140 @@ void CvLeague::FinishSession()
 		}
 
 		PlayerTypes eProposer = it->GetProposalPlayer();
-		LeagueHelpers::PlayerList vHelpedOutcome = it->GetRepealDecision()->GetPlayersVotingForChoice(it->GetRepealDecision()->GetDecision());
+		vector<PlayerTypes> vHelpedOutcome = it->GetRepealDecision()->GetPlayersVotingForChoice(it->GetRepealDecision()->GetDecision());
+		vector<PlayerTypes> vHarmedOutcome = it->GetRepealDecision()->GetPlayersVotingAgainstChoice(it->GetRepealDecision()->GetDecision());
+
+		// This Repeal Proposal passed.
 		if (it->IsPassed(iTotalSessionVotes))
 		{
-			// Proposer is grateful to people who helped it pass
 			if (eProposer != NO_PLAYER)
 			{
-				for (LeagueHelpers::PlayerList::iterator playerIt = vHelpedOutcome.begin(); playerIt != vHelpedOutcome.end(); ++playerIt)
+				// First let's go through the players who voted for it to pass
+				for (std::vector<PlayerTypes>::iterator playerIt = vHelpedOutcome.begin(); playerIt != vHelpedOutcome.end(); playerIt++)
 				{
-					if (GET_PLAYER(*playerIt).getTeam() == GET_PLAYER(eProposer).getTeam())
-						continue;
-
-					int iVotePercent = it->GetRepealDecision()->GetPercentContributionToOutcome(*playerIt, it->GetRepealDecision()->GetDecision(), false);
+					int iPercentOfPlayerVotes = 0;
+					int iVotePercent = it->GetRepealDecision()->GetPercentContributionToOutcome(*playerIt, it->GetRepealDecision()->GetDecision(), false, iPercentOfPlayerVotes);
 
 					if (iVotePercent > 0)
 					{
+						// AI players update their voting history scores for each other player
+						for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+						{
+							PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+							if (!GET_PLAYER(eLoopPlayer).isAlive() || GET_PLAYER(eLoopPlayer).isHuman() || !GET_PLAYER(eLoopPlayer).isMajorCiv())
+								continue;
+							if (GET_PLAYER(eLoopPlayer).getTeam() == GET_PLAYER(*playerIt).getTeam())
+								continue;
+
+							int iDesireMultiplier = 0;
+							CvLeagueAI::DesireLevels eDesire = GET_PLAYER(eLoopPlayer).GetLeagueAI()->EvaluateDesireForVoteOutcome(&(*it), LeagueHelpers::CHOICE_YES, /*bEnact*/ false);
+							switch (eDesire)
+							{
+							case CvLeagueAI::DESIRE_NEVER:
+								iDesireMultiplier = /*-400*/ -GD_INT_GET(VOTING_HISTORY_SCORE_DESIRE_MULTIPLIER_OVERWHELMING);
+								break;
+							case CvLeagueAI::DESIRE_STRONG_DISLIKE:
+								iDesireMultiplier = /*-300*/ -GD_INT_GET(VOTING_HISTORY_SCORE_DESIRE_MULTIPLIER_STRONG);
+								break;
+							case CvLeagueAI::DESIRE_DISLIKE:
+								iDesireMultiplier = /*-200*/ -GD_INT_GET(VOTING_HISTORY_SCORE_DESIRE_MULTIPLIER_STANDARD);
+								break;
+							case CvLeagueAI::DESIRE_WEAK_DISLIKE:
+								iDesireMultiplier = /*-100*/ -GD_INT_GET(VOTING_HISTORY_SCORE_DESIRE_MULTIPLIER_WEAK);
+								break;
+							case CvLeagueAI::DESIRE_WEAK_LIKE:
+								iDesireMultiplier = /*100*/ GD_INT_GET(VOTING_HISTORY_SCORE_DESIRE_MULTIPLIER_WEAK);
+								break;
+							case CvLeagueAI::DESIRE_LIKE:
+								iDesireMultiplier = /*200*/ GD_INT_GET(VOTING_HISTORY_SCORE_DESIRE_MULTIPLIER_STANDARD);
+								break;
+							case CvLeagueAI::DESIRE_STRONG_LIKE:
+								iDesireMultiplier = /*300*/ GD_INT_GET(VOTING_HISTORY_SCORE_DESIRE_MULTIPLIER_STRONG);
+								break;
+							case CvLeagueAI::DESIRE_ALWAYS:
+								iDesireMultiplier = /*400*/ GD_INT_GET(VOTING_HISTORY_SCORE_DESIRE_MULTIPLIER_OVERWHELMING);
+								break;
+							}
+
+							// Exception: If desire multiplier is negative and this player is the proposer (AI has changed their mind), do nothing.
+							if (iDesireMultiplier < 0 && eLoopPlayer == eProposer)
+								continue;
+
+							// Score change = (% of player's votes dedicated to this outcome) + (2 * % contribution to outcome) * desire multiplier. Maximum score change is +/- 1200, though lower values are much more likely.
+							// Traded votes against the outcome subtract from the player's votes for the outcome.
+							int iPlayerVoteChange = (iPercentOfPlayerVotes * /*100*/ GD_INT_GET(VOTING_HISTORY_SCORE_PLAYER_VOTE_PERCENT_VALUE)) / 100;
+							int iOutcomeVoteChange = (iVotePercent * /*200*/ GD_INT_GET(VOTING_HISTORY_SCORE_OUTCOME_VOTE_PERCENT_VALUE)) / 100;
+							int iScoreChange = ((iPlayerVoteChange + iOutcomeVoteChange) * iDesireMultiplier) / 100;
+							GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->ChangeVotingHistoryScore(*playerIt, iScoreChange);
+						}
+
+						// Proposer is grateful to other people who helped it pass
+						if (GET_PLAYER(*playerIt).getTeam() == GET_PLAYER(eProposer).getTeam())
+							continue;
+
 						GET_PLAYER(eProposer).GetDiplomacyAI()->SetSupportedOurProposalValue(*playerIt, -iVotePercent);
 						GET_PLAYER(eProposer).GetDiplomacyAI()->SetTheySupportedOurProposalTurn(*playerIt, (GC.getGame().getGameTurn()+1));
 						GET_PLAYER(eProposer).GetDiplomacyAI()->SetTheyFoiledOurProposalTurn(*playerIt, -1);
+					}
+				}
+				// Next let's go through the players who voted for it to fail!
+				for (std::vector<PlayerTypes>::iterator playerIt = vHarmedOutcome.begin(); playerIt != vHarmedOutcome.end(); playerIt++)
+				{
+					int iPercentOfPlayerVotes = 0;
+					int iVotePercent = it->GetRepealDecision()->GetPercentContributionAgainstOutcome(*playerIt, it->GetRepealDecision()->GetDecision(), iPercentOfPlayerVotes);
+
+					if (iVotePercent > 0)
+					{
+						// AI players update their voting history scores for each other player
+						for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+						{
+							PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+							if (!GET_PLAYER(eLoopPlayer).isAlive() || GET_PLAYER(eLoopPlayer).isHuman() || !GET_PLAYER(eLoopPlayer).isMajorCiv())
+								continue;
+							if (GET_PLAYER(eLoopPlayer).getTeam() == GET_PLAYER(*playerIt).getTeam())
+								continue;
+
+							int iDesireMultiplier = 0;
+							CvLeagueAI::DesireLevels eDesire = GET_PLAYER(eLoopPlayer).GetLeagueAI()->EvaluateDesireForVoteOutcome(&(*it), LeagueHelpers::CHOICE_YES, /*bEnact*/ false);
+							switch (eDesire)
+							{
+							case CvLeagueAI::DESIRE_NEVER:
+								iDesireMultiplier = /*-400*/ -GD_INT_GET(VOTING_HISTORY_SCORE_DESIRE_MULTIPLIER_OVERWHELMING);
+								break;
+							case CvLeagueAI::DESIRE_STRONG_DISLIKE:
+								iDesireMultiplier = /*-300*/ -GD_INT_GET(VOTING_HISTORY_SCORE_DESIRE_MULTIPLIER_STRONG);
+								break;
+							case CvLeagueAI::DESIRE_DISLIKE:
+								iDesireMultiplier = /*-200*/ -GD_INT_GET(VOTING_HISTORY_SCORE_DESIRE_MULTIPLIER_STANDARD);
+								break;
+							case CvLeagueAI::DESIRE_WEAK_DISLIKE:
+								iDesireMultiplier = /*-100*/ -GD_INT_GET(VOTING_HISTORY_SCORE_DESIRE_MULTIPLIER_WEAK);
+								break;
+							case CvLeagueAI::DESIRE_WEAK_LIKE:
+								iDesireMultiplier = /*100*/ GD_INT_GET(VOTING_HISTORY_SCORE_DESIRE_MULTIPLIER_WEAK);
+								break;
+							case CvLeagueAI::DESIRE_LIKE:
+								iDesireMultiplier = /*200*/ GD_INT_GET(VOTING_HISTORY_SCORE_DESIRE_MULTIPLIER_STANDARD);
+								break;
+							case CvLeagueAI::DESIRE_STRONG_LIKE:
+								iDesireMultiplier = /*300*/ GD_INT_GET(VOTING_HISTORY_SCORE_DESIRE_MULTIPLIER_STRONG);
+								break;
+							case CvLeagueAI::DESIRE_ALWAYS:
+								iDesireMultiplier = /*400*/ GD_INT_GET(VOTING_HISTORY_SCORE_DESIRE_MULTIPLIER_OVERWHELMING);
+								break;
+							}
+
+							// Exception: If desire multiplier is negative and this player is the proposer (AI has changed their mind), do nothing.
+							if (iDesireMultiplier < 0 && eLoopPlayer == eProposer)
+								continue;
+
+							// Score change = (% of player's votes dedicated to this outcome) + (2 * % contribution to outcome) * desire multiplier * -1. Maximum score change is +/- 1200, though lower values are much more likely.
+							// Traded votes for the outcome subtract from the player's votes against the outcome.
+							int iPlayerVoteChange = (iPercentOfPlayerVotes * /*100*/ GD_INT_GET(VOTING_HISTORY_SCORE_PLAYER_VOTE_PERCENT_VALUE)) / 100;
+							int iOutcomeVoteChange = (iVotePercent * /*200*/ GD_INT_GET(VOTING_HISTORY_SCORE_OUTCOME_VOTE_PERCENT_VALUE)) / 100;
+							int iScoreChange = ((iPlayerVoteChange + iOutcomeVoteChange) * iDesireMultiplier) / 100;
+							GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->ChangeVotingHistoryScore(*playerIt, iScoreChange * -1);
+						}
 					}
 				}
 
@@ -7285,23 +7520,126 @@ void CvLeague::FinishSession()
 
 			DoRepealResolution(&(*it));
 		}
-		else
+		// This Repeal Proposal failed.
+		else if (eProposer != NO_PLAYER)
 		{
-			// Proposer is angry at people who helped it fail
-			if (eProposer != NO_PLAYER)
+			// First let's go through the players who voted for it to fail
+			for (std::vector<PlayerTypes>::iterator playerIt = vHelpedOutcome.begin(); playerIt != vHelpedOutcome.end(); playerIt++)
 			{
-				for (LeagueHelpers::PlayerList::iterator playerIt = vHelpedOutcome.begin(); playerIt != vHelpedOutcome.end(); ++playerIt)
+				int iPercentOfPlayerVotes = 0;
+				int iVotePercent = it->GetRepealDecision()->GetPercentContributionToOutcome(*playerIt, it->GetRepealDecision()->GetDecision(), false, iPercentOfPlayerVotes);
+
+				if (iVotePercent > 0)
 				{
+					// AI players update their voting history scores for each other player
+					for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+					{
+						PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+						if (!GET_PLAYER(eLoopPlayer).isAlive() || GET_PLAYER(eLoopPlayer).isHuman() || !GET_PLAYER(eLoopPlayer).isMajorCiv())
+							continue;
+						if (GET_PLAYER(eLoopPlayer).getTeam() == GET_PLAYER(*playerIt).getTeam())
+							continue;
+
+						int iDesireMultiplier = 0;
+						CvLeagueAI::DesireLevels eDesire = GET_PLAYER(eLoopPlayer).GetLeagueAI()->EvaluateDesireForVoteOutcome(&(*it), LeagueHelpers::CHOICE_NO, /*bEnact*/ false);
+						switch (eDesire)
+						{
+						case CvLeagueAI::DESIRE_NEVER:
+							iDesireMultiplier = /*-400*/ -GD_INT_GET(VOTING_HISTORY_SCORE_DESIRE_MULTIPLIER_OVERWHELMING);
+							break;
+						case CvLeagueAI::DESIRE_STRONG_DISLIKE:
+							iDesireMultiplier = /*-300*/ -GD_INT_GET(VOTING_HISTORY_SCORE_DESIRE_MULTIPLIER_STRONG);
+							break;
+						case CvLeagueAI::DESIRE_DISLIKE:
+							iDesireMultiplier = /*-200*/ -GD_INT_GET(VOTING_HISTORY_SCORE_DESIRE_MULTIPLIER_STANDARD);
+							break;
+						case CvLeagueAI::DESIRE_WEAK_DISLIKE:
+							iDesireMultiplier = /*-100*/ -GD_INT_GET(VOTING_HISTORY_SCORE_DESIRE_MULTIPLIER_WEAK);
+							break;
+						case CvLeagueAI::DESIRE_WEAK_LIKE:
+							iDesireMultiplier = /*100*/ GD_INT_GET(VOTING_HISTORY_SCORE_DESIRE_MULTIPLIER_WEAK);
+							break;
+						case CvLeagueAI::DESIRE_LIKE:
+							iDesireMultiplier = /*200*/ GD_INT_GET(VOTING_HISTORY_SCORE_DESIRE_MULTIPLIER_STANDARD);
+							break;
+						case CvLeagueAI::DESIRE_STRONG_LIKE:
+							iDesireMultiplier = /*300*/ GD_INT_GET(VOTING_HISTORY_SCORE_DESIRE_MULTIPLIER_STRONG);
+							break;
+						case CvLeagueAI::DESIRE_ALWAYS:
+							iDesireMultiplier = /*400*/ GD_INT_GET(VOTING_HISTORY_SCORE_DESIRE_MULTIPLIER_OVERWHELMING);
+							break;
+						}
+
+						// Score change = (% of player's votes dedicated to this outcome) + (2 * % contribution to outcome) * desire multiplier. Maximum score change is +/- 1200, though lower values are much more likely.
+						// Traded votes for the outcome subtract from the player's votes against the outcome.
+						int iPlayerVoteChange = (iPercentOfPlayerVotes * /*100*/ GD_INT_GET(VOTING_HISTORY_SCORE_PLAYER_VOTE_PERCENT_VALUE)) / 100;
+						int iOutcomeVoteChange = (iVotePercent * /*200*/ GD_INT_GET(VOTING_HISTORY_SCORE_OUTCOME_VOTE_PERCENT_VALUE)) / 100;
+						int iScoreChange = ((iPlayerVoteChange + iOutcomeVoteChange) * iDesireMultiplier) / 100;
+						GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->ChangeVotingHistoryScore(*playerIt, iScoreChange);
+					}
+
+					// Proposer is angry at people who helped it fail
 					if (GET_PLAYER(*playerIt).getTeam() == GET_PLAYER(eProposer).getTeam())
 						continue;
 
-					int iVotePercent = it->GetRepealDecision()->GetPercentContributionToOutcome(*playerIt, it->GetRepealDecision()->GetDecision(), false);
+					GET_PLAYER(eProposer).GetDiplomacyAI()->SetSupportedOurProposalValue(*playerIt, iVotePercent);
+					GET_PLAYER(eProposer).GetDiplomacyAI()->SetTheyFoiledOurProposalTurn(*playerIt, (GC.getGame().getGameTurn()+1));
+					GET_PLAYER(eProposer).GetDiplomacyAI()->SetTheySupportedOurProposalTurn(*playerIt, -1);
+				}
+			}
+			// Next let's go through the players who voted for it to pass!
+			for (std::vector<PlayerTypes>::iterator playerIt = vHarmedOutcome.begin(); playerIt != vHarmedOutcome.end(); playerIt++)
+			{
+				int iPercentOfPlayerVotes = 0;
+				int iVotePercent = it->GetRepealDecision()->GetPercentContributionAgainstOutcome(*playerIt, it->GetRepealDecision()->GetDecision(), iPercentOfPlayerVotes);
 
-					if (iVotePercent > 0)
+				if (iVotePercent > 0)
+				{
+					// AI players update their voting history scores for each other player
+					for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 					{
-						GET_PLAYER(eProposer).GetDiplomacyAI()->SetSupportedOurProposalValue(*playerIt, iVotePercent);
-						GET_PLAYER(eProposer).GetDiplomacyAI()->SetTheyFoiledOurProposalTurn(*playerIt, (GC.getGame().getGameTurn()+1));
-						GET_PLAYER(eProposer).GetDiplomacyAI()->SetTheySupportedOurProposalTurn(*playerIt, -1);
+						PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+						if (!GET_PLAYER(eLoopPlayer).isAlive() || GET_PLAYER(eLoopPlayer).isHuman() || !GET_PLAYER(eLoopPlayer).isMajorCiv())
+							continue;
+						if (GET_PLAYER(eLoopPlayer).getTeam() == GET_PLAYER(*playerIt).getTeam())
+							continue;
+
+						int iDesireMultiplier = 0;
+						CvLeagueAI::DesireLevels eDesire = GET_PLAYER(eLoopPlayer).GetLeagueAI()->EvaluateDesireForVoteOutcome(&(*it), LeagueHelpers::CHOICE_NO, /*bEnact*/ false);
+						switch (eDesire)
+						{
+						case CvLeagueAI::DESIRE_NEVER:
+							iDesireMultiplier = /*-400*/ -GD_INT_GET(VOTING_HISTORY_SCORE_DESIRE_MULTIPLIER_OVERWHELMING);
+							break;
+						case CvLeagueAI::DESIRE_STRONG_DISLIKE:
+							iDesireMultiplier = /*-300*/ -GD_INT_GET(VOTING_HISTORY_SCORE_DESIRE_MULTIPLIER_STRONG);
+							break;
+						case CvLeagueAI::DESIRE_DISLIKE:
+							iDesireMultiplier = /*-200*/ -GD_INT_GET(VOTING_HISTORY_SCORE_DESIRE_MULTIPLIER_STANDARD);
+							break;
+						case CvLeagueAI::DESIRE_WEAK_DISLIKE:
+							iDesireMultiplier = /*-100*/ -GD_INT_GET(VOTING_HISTORY_SCORE_DESIRE_MULTIPLIER_WEAK);
+							break;
+						case CvLeagueAI::DESIRE_WEAK_LIKE:
+							iDesireMultiplier = /*100*/ GD_INT_GET(VOTING_HISTORY_SCORE_DESIRE_MULTIPLIER_WEAK);
+							break;
+						case CvLeagueAI::DESIRE_LIKE:
+							iDesireMultiplier = /*200*/ GD_INT_GET(VOTING_HISTORY_SCORE_DESIRE_MULTIPLIER_STANDARD);
+							break;
+						case CvLeagueAI::DESIRE_STRONG_LIKE:
+							iDesireMultiplier = /*300*/ GD_INT_GET(VOTING_HISTORY_SCORE_DESIRE_MULTIPLIER_STRONG);
+							break;
+						case CvLeagueAI::DESIRE_ALWAYS:
+							iDesireMultiplier = /*400*/ GD_INT_GET(VOTING_HISTORY_SCORE_DESIRE_MULTIPLIER_OVERWHELMING);
+							break;
+						}
+
+						// Score change = (% of player's votes dedicated to this outcome) + (2 * % contribution to outcome) * desire multiplier * -1. Maximum score change is +/- 1200, though lower values are much more likely.
+						// Traded votes against the outcome subtract from the player's votes for the outcome.
+						int iPlayerVoteChange = (iPercentOfPlayerVotes * /*100*/ GD_INT_GET(VOTING_HISTORY_SCORE_PLAYER_VOTE_PERCENT_VALUE)) / 100;
+						int iOutcomeVoteChange = (iVotePercent * /*200*/ GD_INT_GET(VOTING_HISTORY_SCORE_OUTCOME_VOTE_PERCENT_VALUE)) / 100;
+						int iScoreChange = ((iPlayerVoteChange + iOutcomeVoteChange) * iDesireMultiplier) / 100;
+						GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->ChangeVotingHistoryScore(*playerIt, iScoreChange * -1);
 					}
 				}
 			}
@@ -7309,6 +7647,8 @@ void CvLeague::FinishSession()
 
 		LogProposalResolved(&(*it));
 	}
+
+	// Resolve Enact Proposals on table
 	for (EnactProposalList::iterator it = m_vEnactProposals.begin(); it != m_vEnactProposals.end(); it++)
 	{
 		if (eRecurringProposal != NO_RESOLUTION && eRecurringProposal == it->GetType())
@@ -7317,24 +7657,140 @@ void CvLeague::FinishSession()
 		}
 
 		PlayerTypes eProposer = it->GetProposalPlayer();
-		LeagueHelpers::PlayerList vHelpedOutcome = it->GetVoterDecision()->GetPlayersVotingForChoice(it->GetVoterDecision()->GetDecision());
+		vector<PlayerTypes> vHelpedOutcome = it->GetVoterDecision()->GetPlayersVotingForChoice(it->GetVoterDecision()->GetDecision());
+		vector<PlayerTypes> vHarmedOutcome = it->GetVoterDecision()->GetPlayersVotingAgainstChoice(it->GetVoterDecision()->GetDecision());
+
+		// This Enact Proposal passed
 		if (it->IsPassed(iTotalSessionVotes))
 		{
-			// Proposer is grateful to people who helped it pass
 			if (eProposer != NO_PLAYER)
 			{
-				for (LeagueHelpers::PlayerList::iterator playerIt = vHelpedOutcome.begin(); playerIt != vHelpedOutcome.end(); ++playerIt)
+				// First let's go through the players who voted for it to pass
+				for (std::vector<PlayerTypes>::iterator playerIt = vHelpedOutcome.begin(); playerIt != vHelpedOutcome.end(); playerIt++)
 				{
-					if (GET_PLAYER(*playerIt).GetID() == GET_PLAYER(eProposer).GetID())
-						continue;
-
-					int iVotePercent = it->GetVoterDecision()->GetPercentContributionToOutcome(*playerIt, it->GetVoterDecision()->GetDecision(), false);
+					int iPercentOfPlayerVotes = 0;
+					int iVotePercent = it->GetVoterDecision()->GetPercentContributionToOutcome(*playerIt, it->GetVoterDecision()->GetDecision(), false, iPercentOfPlayerVotes);
 
 					if (iVotePercent > 0)
 					{
+						// AI players update their voting history scores for each other player
+						for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+						{
+							PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+							if (!GET_PLAYER(eLoopPlayer).isAlive() || GET_PLAYER(eLoopPlayer).isHuman() || !GET_PLAYER(eLoopPlayer).isMajorCiv())
+								continue;
+							if (GET_PLAYER(eLoopPlayer).getTeam() == GET_PLAYER(*playerIt).getTeam())
+								continue;
+
+							int iDesireMultiplier = 0;
+							CvLeagueAI::DesireLevels eDesire = GET_PLAYER(eLoopPlayer).GetLeagueAI()->EvaluateDesireForVoteOutcome(&(*it), LeagueHelpers::CHOICE_YES, /*bEnact*/ true);
+							switch (eDesire)
+							{
+							case CvLeagueAI::DESIRE_NEVER:
+								iDesireMultiplier = /*-400*/ -GD_INT_GET(VOTING_HISTORY_SCORE_DESIRE_MULTIPLIER_OVERWHELMING);
+								break;
+							case CvLeagueAI::DESIRE_STRONG_DISLIKE:
+								iDesireMultiplier = /*-300*/ -GD_INT_GET(VOTING_HISTORY_SCORE_DESIRE_MULTIPLIER_STRONG);
+								break;
+							case CvLeagueAI::DESIRE_DISLIKE:
+								iDesireMultiplier = /*-200*/ -GD_INT_GET(VOTING_HISTORY_SCORE_DESIRE_MULTIPLIER_STANDARD);
+								break;
+							case CvLeagueAI::DESIRE_WEAK_DISLIKE:
+								iDesireMultiplier = /*-100*/ -GD_INT_GET(VOTING_HISTORY_SCORE_DESIRE_MULTIPLIER_WEAK);
+								break;
+							case CvLeagueAI::DESIRE_WEAK_LIKE:
+								iDesireMultiplier = /*100*/ GD_INT_GET(VOTING_HISTORY_SCORE_DESIRE_MULTIPLIER_WEAK);
+								break;
+							case CvLeagueAI::DESIRE_LIKE:
+								iDesireMultiplier = /*200*/ GD_INT_GET(VOTING_HISTORY_SCORE_DESIRE_MULTIPLIER_STANDARD);
+								break;
+							case CvLeagueAI::DESIRE_STRONG_LIKE:
+								iDesireMultiplier = /*300*/ GD_INT_GET(VOTING_HISTORY_SCORE_DESIRE_MULTIPLIER_STRONG);
+								break;
+							case CvLeagueAI::DESIRE_ALWAYS:
+								iDesireMultiplier = /*400*/ GD_INT_GET(VOTING_HISTORY_SCORE_DESIRE_MULTIPLIER_OVERWHELMING);
+								break;
+							}
+
+							// Exception: If desire multiplier is negative and this player is the proposer (AI has changed their mind), do nothing.
+							if (iDesireMultiplier < 0 && eLoopPlayer == eProposer)
+								continue;
+
+							// Score change = (% of player's votes dedicated to this outcome) + (2 * % contribution to outcome) * desire multiplier. Maximum score change is +/- 1200, though lower values are much more likely.
+							// Traded votes against the outcome subtract from the player's votes for the outcome.
+							int iPlayerVoteChange = (iPercentOfPlayerVotes * /*100*/ GD_INT_GET(VOTING_HISTORY_SCORE_PLAYER_VOTE_PERCENT_VALUE)) / 100;
+							int iOutcomeVoteChange = (iVotePercent * /*200*/ GD_INT_GET(VOTING_HISTORY_SCORE_OUTCOME_VOTE_PERCENT_VALUE)) / 100;
+							int iScoreChange = ((iPlayerVoteChange + iOutcomeVoteChange) * iDesireMultiplier) / 100;
+							GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->ChangeVotingHistoryScore(*playerIt, iScoreChange);
+						}
+
+						// Proposer is grateful to other people who helped it pass
+						if (GET_PLAYER(*playerIt).getTeam() == GET_PLAYER(eProposer).getTeam())
+							continue;
+
 						GET_PLAYER(eProposer).GetDiplomacyAI()->SetSupportedOurProposalValue(*playerIt, -iVotePercent);
 						GET_PLAYER(eProposer).GetDiplomacyAI()->SetTheySupportedOurProposalTurn(*playerIt, (GC.getGame().getGameTurn()+1));
 						GET_PLAYER(eProposer).GetDiplomacyAI()->SetTheyFoiledOurProposalTurn(*playerIt, -1);
+					}
+				}
+				// Next let's go through the players who voted for it to fail!
+				for (std::vector<PlayerTypes>::iterator playerIt = vHarmedOutcome.begin(); playerIt != vHarmedOutcome.end(); playerIt++)
+				{
+					int iPercentOfPlayerVotes = 0;
+					int iVotePercent = it->GetVoterDecision()->GetPercentContributionAgainstOutcome(*playerIt, it->GetVoterDecision()->GetDecision(), iPercentOfPlayerVotes);
+
+					if (iVotePercent > 0)
+					{
+						// AI players update their voting history scores for each other player
+						for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+						{
+							PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+							if (!GET_PLAYER(eLoopPlayer).isAlive() || GET_PLAYER(eLoopPlayer).isHuman() || !GET_PLAYER(eLoopPlayer).isMajorCiv())
+								continue;
+							if (GET_PLAYER(eLoopPlayer).getTeam() == GET_PLAYER(*playerIt).getTeam())
+								continue;
+
+							int iDesireMultiplier = 0;
+							CvLeagueAI::DesireLevels eDesire = GET_PLAYER(eLoopPlayer).GetLeagueAI()->EvaluateDesireForVoteOutcome(&(*it), LeagueHelpers::CHOICE_YES, /*bEnact*/ true);
+							switch (eDesire)
+							{
+							case CvLeagueAI::DESIRE_NEVER:
+								iDesireMultiplier = /*-400*/ -GD_INT_GET(VOTING_HISTORY_SCORE_DESIRE_MULTIPLIER_OVERWHELMING);
+								break;
+							case CvLeagueAI::DESIRE_STRONG_DISLIKE:
+								iDesireMultiplier = /*-300*/ -GD_INT_GET(VOTING_HISTORY_SCORE_DESIRE_MULTIPLIER_STRONG);
+								break;
+							case CvLeagueAI::DESIRE_DISLIKE:
+								iDesireMultiplier = /*-200*/ -GD_INT_GET(VOTING_HISTORY_SCORE_DESIRE_MULTIPLIER_STANDARD);
+								break;
+							case CvLeagueAI::DESIRE_WEAK_DISLIKE:
+								iDesireMultiplier = /*-100*/ -GD_INT_GET(VOTING_HISTORY_SCORE_DESIRE_MULTIPLIER_WEAK);
+								break;
+							case CvLeagueAI::DESIRE_WEAK_LIKE:
+								iDesireMultiplier = /*100*/ GD_INT_GET(VOTING_HISTORY_SCORE_DESIRE_MULTIPLIER_WEAK);
+								break;
+							case CvLeagueAI::DESIRE_LIKE:
+								iDesireMultiplier = /*200*/ GD_INT_GET(VOTING_HISTORY_SCORE_DESIRE_MULTIPLIER_STANDARD);
+								break;
+							case CvLeagueAI::DESIRE_STRONG_LIKE:
+								iDesireMultiplier = /*300*/ GD_INT_GET(VOTING_HISTORY_SCORE_DESIRE_MULTIPLIER_STRONG);
+								break;
+							case CvLeagueAI::DESIRE_ALWAYS:
+								iDesireMultiplier = /*400*/ GD_INT_GET(VOTING_HISTORY_SCORE_DESIRE_MULTIPLIER_OVERWHELMING);
+								break;
+							}
+
+							// Exception: If desire multiplier is negative and this player is the proposer (AI has changed their mind), do nothing.
+							if (iDesireMultiplier < 0 && eLoopPlayer == eProposer)
+								continue;
+
+							// Score change = (% of player's votes dedicated to this outcome) + (2 * % contribution to outcome) * desire multiplier * -1. Maximum score change is +/- 1200, though lower values are much more likely.
+							// Traded votes for the outcome subtract from the player's votes against the outcome.
+							int iPlayerVoteChange = (iPercentOfPlayerVotes * /*100*/ GD_INT_GET(VOTING_HISTORY_SCORE_PLAYER_VOTE_PERCENT_VALUE)) / 100;
+							int iOutcomeVoteChange = (iVotePercent * /*200*/ GD_INT_GET(VOTING_HISTORY_SCORE_OUTCOME_VOTE_PERCENT_VALUE)) / 100;
+							int iScoreChange = ((iPlayerVoteChange + iOutcomeVoteChange) * iDesireMultiplier) / 100;
+							GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->ChangeVotingHistoryScore(*playerIt, iScoreChange * -1);
+						}
 					}
 				}
 
@@ -7347,12 +7803,13 @@ void CvLeague::FinishSession()
 			PlayerTypes eNewHost = GetHostMember();
 			if (it->GetEffects()->bChangeLeagueHost && !vHelpedOutcome.empty() && eNewHost != NO_PLAYER)
 			{
-				for (LeagueHelpers::PlayerList::iterator playerIt = vHelpedOutcome.begin(); playerIt != vHelpedOutcome.end(); ++playerIt)
+				for (std::vector<PlayerTypes>::iterator playerIt = vHelpedOutcome.begin(); playerIt != vHelpedOutcome.end(); ++playerIt)
 				{
 					if (GET_PLAYER(*playerIt).GetID() == GET_PLAYER(eNewHost).GetID())
 						continue;
 
-					int iVotePercent = it->GetVoterDecision()->GetPercentContributionToOutcome(*playerIt, it->GetVoterDecision()->GetDecision(), true);
+					int iUselessReferenceVariable = 0;
+					int iVotePercent = it->GetVoterDecision()->GetPercentContributionToOutcome(*playerIt, it->GetVoterDecision()->GetDecision(), true, iUselessReferenceVariable);
 
 					if (iVotePercent > 0)
 					{
@@ -7362,23 +7819,129 @@ void CvLeague::FinishSession()
 				}
 			}
 		}
+		// This Enact Proposal failed.
 		else
 		{
-			// Proposer is angry at people who helped it fail
 			if (eProposer != NO_PLAYER)
 			{
-				for (LeagueHelpers::PlayerList::iterator playerIt = vHelpedOutcome.begin(); playerIt != vHelpedOutcome.end(); ++playerIt)
+				// First let's go through the players who voted for it to fail
+				for (std::vector<PlayerTypes>::iterator playerIt = vHelpedOutcome.begin(); playerIt != vHelpedOutcome.end(); playerIt++)
 				{
-					if (GET_PLAYER(*playerIt).GetID() == GET_PLAYER(eProposer).GetID())
-						continue;
-
-					int iVotePercent = it->GetVoterDecision()->GetPercentContributionToOutcome(*playerIt, it->GetVoterDecision()->GetDecision(), false);
+					int iPercentOfPlayerVotes = 0;
+					int iVotePercent = it->GetVoterDecision()->GetPercentContributionToOutcome(*playerIt, it->GetVoterDecision()->GetDecision(), false, iPercentOfPlayerVotes);
 
 					if (iVotePercent > 0)
 					{
+						// AI players update their voting history scores for each other player
+						for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+						{
+							PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+							if (!GET_PLAYER(eLoopPlayer).isAlive() || GET_PLAYER(eLoopPlayer).isHuman() || !GET_PLAYER(eLoopPlayer).isMajorCiv())
+								continue;
+							if (GET_PLAYER(eLoopPlayer).getTeam() == GET_PLAYER(*playerIt).getTeam())
+								continue;
+
+							int iDesireMultiplier = 0;
+							CvLeagueAI::DesireLevels eDesire = GET_PLAYER(eLoopPlayer).GetLeagueAI()->EvaluateDesireForVoteOutcome(&(*it), LeagueHelpers::CHOICE_NO, /*bEnact*/ true);
+							switch (eDesire)
+							{
+							case CvLeagueAI::DESIRE_NEVER:
+								iDesireMultiplier = /*-400*/ -GD_INT_GET(VOTING_HISTORY_SCORE_DESIRE_MULTIPLIER_OVERWHELMING);
+								break;
+							case CvLeagueAI::DESIRE_STRONG_DISLIKE:
+								iDesireMultiplier = /*-300*/ -GD_INT_GET(VOTING_HISTORY_SCORE_DESIRE_MULTIPLIER_STRONG);
+								break;
+							case CvLeagueAI::DESIRE_DISLIKE:
+								iDesireMultiplier = /*-200*/ -GD_INT_GET(VOTING_HISTORY_SCORE_DESIRE_MULTIPLIER_STANDARD);
+								break;
+							case CvLeagueAI::DESIRE_WEAK_DISLIKE:
+								iDesireMultiplier = /*-100*/ -GD_INT_GET(VOTING_HISTORY_SCORE_DESIRE_MULTIPLIER_WEAK);
+								break;
+							case CvLeagueAI::DESIRE_WEAK_LIKE:
+								iDesireMultiplier = /*100*/ GD_INT_GET(VOTING_HISTORY_SCORE_DESIRE_MULTIPLIER_WEAK);
+								break;
+							case CvLeagueAI::DESIRE_LIKE:
+								iDesireMultiplier = /*200*/ GD_INT_GET(VOTING_HISTORY_SCORE_DESIRE_MULTIPLIER_STANDARD);
+								break;
+							case CvLeagueAI::DESIRE_STRONG_LIKE:
+								iDesireMultiplier = /*300*/ GD_INT_GET(VOTING_HISTORY_SCORE_DESIRE_MULTIPLIER_STRONG);
+								break;
+							case CvLeagueAI::DESIRE_ALWAYS:
+								iDesireMultiplier = /*400*/ GD_INT_GET(VOTING_HISTORY_SCORE_DESIRE_MULTIPLIER_OVERWHELMING);
+								break;
+							}
+
+							// Score change = (% of player's votes dedicated to this outcome) + (2 * % contribution to outcome) * desire multiplier. Maximum score change is +/- 1200, though lower values are much more likely.
+							// Traded votes for the outcome subtract from the player's votes against the outcome.
+							int iPlayerVoteChange = (iPercentOfPlayerVotes * /*100*/ GD_INT_GET(VOTING_HISTORY_SCORE_PLAYER_VOTE_PERCENT_VALUE)) / 100;
+							int iOutcomeVoteChange = (iVotePercent * /*200*/ GD_INT_GET(VOTING_HISTORY_SCORE_OUTCOME_VOTE_PERCENT_VALUE)) / 100;
+							int iScoreChange = ((iPlayerVoteChange + iOutcomeVoteChange) * iDesireMultiplier) / 100;
+							GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->ChangeVotingHistoryScore(*playerIt, iScoreChange);
+						}
+
+						// Proposer is angry at people who helped it fail
+						if (GET_PLAYER(*playerIt).getTeam() == GET_PLAYER(eProposer).getTeam())
+							continue;
+
 						GET_PLAYER(eProposer).GetDiplomacyAI()->SetSupportedOurProposalValue(*playerIt, iVotePercent);
 						GET_PLAYER(eProposer).GetDiplomacyAI()->SetTheyFoiledOurProposalTurn(*playerIt, (GC.getGame().getGameTurn()+1));
 						GET_PLAYER(eProposer).GetDiplomacyAI()->SetTheySupportedOurProposalTurn(*playerIt, -1);
+					}
+				}
+				// Next let's go through the players who voted for it to pass!
+				for (std::vector<PlayerTypes>::iterator playerIt = vHarmedOutcome.begin(); playerIt != vHarmedOutcome.end(); playerIt++)
+				{
+					int iPercentOfPlayerVotes = 0;
+					int iVotePercent = it->GetVoterDecision()->GetPercentContributionAgainstOutcome(*playerIt, it->GetVoterDecision()->GetDecision(), iPercentOfPlayerVotes);
+
+					if (iVotePercent > 0)
+					{
+						// AI players update their voting history scores for each other player
+						for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+						{
+							PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+							if (!GET_PLAYER(eLoopPlayer).isAlive() || GET_PLAYER(eLoopPlayer).isHuman() || !GET_PLAYER(eLoopPlayer).isMajorCiv())
+								continue;
+							if (GET_PLAYER(eLoopPlayer).getTeam() == GET_PLAYER(*playerIt).getTeam())
+								continue;
+
+							int iDesireMultiplier = 0;
+							CvLeagueAI::DesireLevels eDesire = GET_PLAYER(eLoopPlayer).GetLeagueAI()->EvaluateDesireForVoteOutcome(&(*it), LeagueHelpers::CHOICE_NO, /*bEnact*/ true);
+							switch (eDesire)
+							{
+							case CvLeagueAI::DESIRE_NEVER:
+								iDesireMultiplier = /*-400*/ -GD_INT_GET(VOTING_HISTORY_SCORE_DESIRE_MULTIPLIER_OVERWHELMING);
+								break;
+							case CvLeagueAI::DESIRE_STRONG_DISLIKE:
+								iDesireMultiplier = /*-300*/ -GD_INT_GET(VOTING_HISTORY_SCORE_DESIRE_MULTIPLIER_STRONG);
+								break;
+							case CvLeagueAI::DESIRE_DISLIKE:
+								iDesireMultiplier = /*-200*/ -GD_INT_GET(VOTING_HISTORY_SCORE_DESIRE_MULTIPLIER_STANDARD);
+								break;
+							case CvLeagueAI::DESIRE_WEAK_DISLIKE:
+								iDesireMultiplier = /*-100*/ -GD_INT_GET(VOTING_HISTORY_SCORE_DESIRE_MULTIPLIER_WEAK);
+								break;
+							case CvLeagueAI::DESIRE_WEAK_LIKE:
+								iDesireMultiplier = /*100*/ GD_INT_GET(VOTING_HISTORY_SCORE_DESIRE_MULTIPLIER_WEAK);
+								break;
+							case CvLeagueAI::DESIRE_LIKE:
+								iDesireMultiplier = /*200*/ GD_INT_GET(VOTING_HISTORY_SCORE_DESIRE_MULTIPLIER_STANDARD);
+								break;
+							case CvLeagueAI::DESIRE_STRONG_LIKE:
+								iDesireMultiplier = /*300*/ GD_INT_GET(VOTING_HISTORY_SCORE_DESIRE_MULTIPLIER_STRONG);
+								break;
+							case CvLeagueAI::DESIRE_ALWAYS:
+								iDesireMultiplier = /*400*/ GD_INT_GET(VOTING_HISTORY_SCORE_DESIRE_MULTIPLIER_OVERWHELMING);
+								break;
+							}
+
+							// Score change = (% of player's votes dedicated to this outcome) + (2 * % contribution to outcome) * desire multiplier * -1. Maximum score change is +/- 1200, though lower values are much more likely.
+							// Traded votes against the outcome subtract from the player's votes for the outcome.
+							int iPlayerVoteChange = (iPercentOfPlayerVotes * /*100*/ GD_INT_GET(VOTING_HISTORY_SCORE_PLAYER_VOTE_PERCENT_VALUE)) / 100;
+							int iOutcomeVoteChange = (iVotePercent * /*200*/ GD_INT_GET(VOTING_HISTORY_SCORE_OUTCOME_VOTE_PERCENT_VALUE)) / 100;
+							int iScoreChange = ((iPlayerVoteChange + iOutcomeVoteChange) * iDesireMultiplier) / 100;
+							GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->ChangeVotingHistoryScore(*playerIt, iScoreChange * -1);
+						}
 					}
 				}
 			}
@@ -9471,7 +10034,7 @@ CvLeagueAI::VoteCommitmentList CvLeagueAI::GetDesiredVoteCommitments(PlayerTypes
 						}
 						else
 						{
-							DesireLevels eDesire = EvaluateDesire(ScoreVoteChoiceYesNo(&(*it), 1,/*bEnact*/ true,/*bConsiderGlobal*/false));
+							DesireLevels eDesire = EvaluateDesire(ScoreVoteChoiceYesNo(&(*it), LeagueHelpers::CHOICE_YES, /*bEnact*/ true, /*bConsiderGlobal*/ false));
 							if (eDesire > DESIRE_NEUTRAL)
 								iDesiredChoice = LeagueHelpers::CHOICE_YES;
 							else if (eDesire < DESIRE_NEUTRAL)
@@ -9524,7 +10087,7 @@ CvLeagueAI::VoteCommitmentList CvLeagueAI::GetDesiredVoteCommitments(PlayerTypes
 						}
 						else
 						{
-							DesireLevels eDesire = EvaluateDesire(ScoreVoteChoiceYesNo(&(*it), 1,/*bEnact*/ false,/*bConsiderGlobal*/false));
+							DesireLevels eDesire = EvaluateDesire(ScoreVoteChoiceYesNo(&(*it), LeagueHelpers::CHOICE_YES, /*bEnact*/ false, /*bConsiderGlobal*/ false));
 							if (eDesire > DESIRE_NEUTRAL)
 								iDesiredChoice = LeagueHelpers::CHOICE_YES;
 							else if (eDesire < DESIRE_NEUTRAL)
@@ -10256,6 +10819,10 @@ CvLeagueAI::AlignmentLevels CvLeagueAI::EvaluateAlignment(PlayerTypes ePlayer, b
 		iAlignment -= iDisputeLevel;
 	}
 
+	// Finally, consider a potentially decisive factor: voting history!
+	// This is intentionally powerful compared to other factors for three reasons: it grants the player more control over their diplomacy (fun/strategy), it takes a long time/major support to get to +10 (dedication), and it often requires sacrificing the player's preferred vote choices (tradeoff)
+	iAlignment += /*-10 to 10*/ pDiplo->GetVotingHistoryScore(ePlayer) / /*240*/ max((GD_INT_GET(VOTING_HISTORY_SCORE_MAX) / GD_INT_GET(VOTING_HISTORY_SCORE_LEAGUE_ALIGNMENT_SCALER)), 1);
+
 	AlignmentLevels eAlignment = ALIGNMENT_NEUTRAL;
 	if (iAlignment < -8)
 	{
@@ -10761,6 +11328,12 @@ CvLeagueAI::DesireLevels CvLeagueAI::EvaluateDesire(int iRawScore)
 	}
 
 	return eDesire;
+}
+
+/// How much do we like the outcome of the vote on a resolution? Used to update voting history score for Diplo AI.
+CvLeagueAI::DesireLevels CvLeagueAI::EvaluateDesireForVoteOutcome(CvProposal* pProposal, int iChoice, bool bEnact)
+{
+	return EvaluateDesire(ScoreVoteChoiceYesNo(pProposal, iChoice, bEnact, /*bConsiderGlobal*/ false));
 }
 
 // Find the most preferred use of our votes in the session of pLeague, and allocate them with some randomness

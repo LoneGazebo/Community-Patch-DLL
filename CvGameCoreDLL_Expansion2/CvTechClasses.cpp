@@ -1301,9 +1301,9 @@ void CvPlayerTechs::SetGSPriorities()
 
 	// == Grand Strategy ==
 	bool bSeekingDiploVictory = m_pPlayer->GetDiplomacyAI()->IsGoingForDiploVictory() || m_pPlayer->GetDiplomacyAI()->IsCloseToDiploVictory() || m_pPlayer->GetPlayerTraits()->IsDiplomat();
-	bool bSeekingConquestVictory = m_pPlayer->GetDiplomacyAI()->IsGoingForWorldConquest() || m_pPlayer->GetDiplomacyAI()->IsCloseToDominationVictory() || m_pPlayer->GetPlayerTraits()->IsWarmonger();
+	bool bSeekingConquestVictory = m_pPlayer->GetDiplomacyAI()->IsGoingForWorldConquest() || m_pPlayer->GetDiplomacyAI()->IsCloseToWorldConquest() || m_pPlayer->GetPlayerTraits()->IsWarmonger();
 	bool bSeekingCultureVictory = m_pPlayer->GetDiplomacyAI()->IsGoingForCultureVictory() || m_pPlayer->GetDiplomacyAI()->IsCloseToCultureVictory() || m_pPlayer->GetPlayerTraits()->IsTourism();
-	bool bSeekingScienceVictory = m_pPlayer->GetDiplomacyAI()->IsGoingForSpaceshipVictory() || m_pPlayer->GetDiplomacyAI()->IsCloseToSSVictory() || m_pPlayer->GetPlayerTraits()->IsNerd();
+	bool bSeekingScienceVictory = m_pPlayer->GetDiplomacyAI()->IsGoingForSpaceshipVictory() || m_pPlayer->GetDiplomacyAI()->IsCloseToSpaceshipVictory() || m_pPlayer->GetPlayerTraits()->IsNerd();
 	for(int iTechLoop = 0; iTechLoop < GetTechs()->GetNumTechs(); iTechLoop++)
 	{
 		TechTypes eTech = (TechTypes)iTechLoop;

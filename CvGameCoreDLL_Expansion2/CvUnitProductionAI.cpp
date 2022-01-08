@@ -916,7 +916,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			{
 				iBonus += 1000;
 			}
-			if(kPlayer.GetDiplomacyAI()->IsCloseToSSVictory())
+			if(kPlayer.GetDiplomacyAI()->IsCloseToSpaceshipVictory())
 			{
 				iBonus += 10000;
 			}

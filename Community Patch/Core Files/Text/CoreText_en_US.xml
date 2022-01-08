@@ -3172,14 +3172,11 @@
 		<Row Tag="TXT_KEY_DIPLO_FOILED_THEIR_PROPOSAL_PREVIOUSLY">
 			<Text>We previously defeated their proposal in the World Congress.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_DIPLO_GOOD_LEAGUE_ALIGNMENT">
-			<Text>They consider us an ally in the World Congress.</Text>
+		<Row Tag="TXT_KEY_DIPLO_GOOD_VOTING_HISTORY">
+			<Text>Your votes supported their civ's interests in the World Congress.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_DIPLO_BAD_LEAGUE_ALIGNMENT">
-			<Text>They consider us a rival in the World Congress.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_DIPLO_PRIME_LEAGUE_COMPETITOR">
-			<Text>We are their greatest rival in the World Congress.</Text>
+		<Row Tag="TXT_KEY_DIPLO_BAD_VOTING_HISTORY">
+			<Text>Your votes opposed their civ's interests in the World Congress.</Text>
 		</Row>
 
 		<!-- World Congress >>> United Nations -->
@@ -3207,14 +3204,11 @@
 		<Row Tag="TXT_KEY_DIPLO_FOILED_THEIR_PROPOSAL_PREVIOUSLY_UN">
 			<Text>We previously defeated their proposal in the United Nations.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_DIPLO_GOOD_LEAGUE_ALIGNMENT_UN">
-			<Text>They consider us an ally in the United Nations.</Text>
+		<Row Tag="TXT_KEY_DIPLO_GOOD_VOTING_HISTORY_UN">
+			<Text>Your votes supported their civ's interests in the United Nations.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_DIPLO_BAD_LEAGUE_ALIGNMENT_UN">
-			<Text>They consider us a rival in the United Nations.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_DIPLO_PRIME_LEAGUE_COMPETITOR_UN">
-			<Text>We are their greatest rival in the United Nations.</Text>
+		<Row Tag="TXT_KEY_DIPLO_BAD_VOTING_HISTORY_UN">
+			<Text>Your votes opposed their civ's interests in the United Nations.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_LEAGUE_OVERVIEW_PROPOSAL_OPINIONS_NEUTRAL">
@@ -3223,6 +3217,11 @@
 
 		<Row Tag="TXT_KEY_LEAGUE_OVERVIEW_PROPOSAL_OPINIONS_END">
 			<Text>[NEWLINE][NEWLINE]Civilizations will vote to help themselves and friends, and hurt their enemies/competitors.</Text>
+		</Row>
+
+		<!-- Shorten this to make room for opinion display -->
+		<Row Tag="TXT_KEY_LEAGUE_OVERVIEW_VOTE_OPINIONS_UNKNOWN">
+			<Text>[NEWLINE][ICON_BULLET]Unknown: {1_NumDelegates} {1_NumDelegates: plural 1?Delegate; other?Delegates;} ({2_NumCivs} {2_NumCivs: plural 1?Civ; other?Civs;})</Text>
 		</Row>
 
 		<!-- New Warmonger Hate Descriptors -->
@@ -3529,6 +3528,14 @@
 		<Row Tag="TXT_KEY_NOTIFICATION_MINOR_BULLIED_BY_SOMEONE">
 			<Text>Our diplomats report that {2_Civ} recently bullied {1_CS}!</Text>
 		</Row>
+
+		<!-- DENOUNCEMENT: Post-denouncement notes are now separate text keys, for compatibility with the ability to denounce while at war (and to save on memory) -->
+		<!-- Row Tag="TXT_KEY_DENOUNCED_US_NOT_AT_WAR"> -->
+			<!-- <Text>[NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us! NOTE: You are not at war.[ENDCOLOR])</Text> -->
+		<!-- </Row> -->
+		<!-- <Row Tag="TXT_KEY_DENOUNCED_US_AT_WAR"> -->
+			<!-- <Text>[NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us![ENDCOLOR])</Text> -->
+		<!-- </Row> -->
 		
 		<!-- ADDITIONS TO EXISTING DIPLOMACY TEXTS -->
 		<Row Tag="TXT_KEY_HOSTILE_WE_ATTACKED_YOUR_MINOR_3">

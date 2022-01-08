@@ -4474,13 +4474,13 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 			}
 			break;
 		case YIELD_SCIENCE:
-			if (kPlayer.GetDiplomacyAI()->IsCloseToSSVictory())
+			if (kPlayer.GetDiplomacyAI()->IsCloseToSpaceshipVictory())
 			{
 				iYieldValue *= 2;
 			}
 			break;
 		case YIELD_PRODUCTION:
-			if (kPlayer.GetDiplomacyAI()->IsCloseToDominationVictory())
+			if (kPlayer.GetDiplomacyAI()->IsCloseToWorldConquest())
 			{
 				iYieldValue *= 2;
 			}
@@ -4992,7 +4992,7 @@ int CityStrategyAIHelpers::GetBuildingGrandStrategyValue(CvCity *pCity, Building
 	{
 		iValue += (iDiploValue / iEra);
 	}
-	if (kPlayer.GetDiplomacyAI()->IsGoingForSpaceshipVictory() || kPlayer.GetDiplomacyAI()->IsCloseToSSVictory())
+	if (kPlayer.GetDiplomacyAI()->IsGoingForSpaceshipVictory() || kPlayer.GetDiplomacyAI()->IsCloseToSpaceshipVictory())
 	{
 		iValue += iScienceValue;
 	}

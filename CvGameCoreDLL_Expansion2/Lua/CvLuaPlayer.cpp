@@ -14095,18 +14095,13 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 			PolicyBranchTypes eOurBranch = pkPlayer->GetPlayerPolicies()->GetLateGamePolicyTree();
 			PolicyBranchTypes eTheirBranch = GET_PLAYER(ePlayer).GetPlayerPolicies()->GetLateGamePolicyTree();
 			kOpinion.m_iValue = bHideNegatives ? 0 : iValue;
-			kOpinion.m_str = (!GET_PLAYER(ePlayer).IsVassalOfSomeone()) ? Localization::Lookup("TXT_KEY_DIPLO_DIFFERENT_LATE_POLICY_TREES") : Localization::Lookup("TXT_KEY_DIPLO_DIFFERENT_LATE_POLICY_TREES_VASSAL");
+			kOpinion.m_str = !GET_PLAYER(ePlayer).IsVassalOfSomeone() ? Localization::Lookup("TXT_KEY_DIPLO_DIFFERENT_LATE_POLICY_TREES") : Localization::Lookup("TXT_KEY_DIPLO_DIFFERENT_LATE_POLICY_TREES_VASSAL");
 			kOpinion.m_str << GC.getPolicyBranchInfo(eTheirBranch)->GetDescription();
 			kOpinion.m_str << GC.getPolicyBranchInfo(eOurBranch)->GetDescription();
 			aOpinions.push_back(kOpinion);
 		}
 
-		iValue = pDiplo->GetLeagueAlignmentScore(ePlayer);
-		if (iValue > 0 && (bHideDisputes || bHideNegatives))
-		{
-			iValue = 0;
-		}
-
+		iValue = pDiplo->GetVotingHistoryOpinionScore(ePlayer);
 		if (iValue != 0)
 		{
 			Opinion kOpinion;
@@ -14115,18 +14110,11 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 
 			if (iValue > 0)
 			{
-				if (pDiplo->GetPrimeLeagueCompetitor() == ePlayer)
-				{
-					str = bUNActive ? Localization::Lookup("TXT_KEY_DIPLO_PRIME_LEAGUE_COMPETITOR_UN").toUTF8() : Localization::Lookup("TXT_KEY_DIPLO_PRIME_LEAGUE_COMPETITOR").toUTF8();
-				}
-				else
-				{
-					str = bUNActive ? Localization::Lookup("TXT_KEY_DIPLO_BAD_LEAGUE_ALIGNMENT_UN").toUTF8() : Localization::Lookup("TXT_KEY_DIPLO_BAD_LEAGUE_ALIGNMENT").toUTF8();
-				}
+				str = bUNActive ? Localization::Lookup("TXT_KEY_DIPLO_BAD_VOTING_HISTORY_UN").toUTF8() : Localization::Lookup("TXT_KEY_DIPLO_BAD_VOTING_HISTORY").toUTF8();
 			}
 			else
 			{
-				str = bUNActive ? Localization::Lookup("TXT_KEY_DIPLO_GOOD_LEAGUE_ALIGNMENT_UN").toUTF8() : Localization::Lookup("TXT_KEY_DIPLO_GOOD_LEAGUE_ALIGNMENT").toUTF8();
+				str = bUNActive ? Localization::Lookup("TXT_KEY_DIPLO_GOOD_VOTING_HISTORY_UN").toUTF8() : Localization::Lookup("TXT_KEY_DIPLO_GOOD_VOTING_HISTORY").toUTF8();
 			}
 
 			kOpinion.m_str = str;

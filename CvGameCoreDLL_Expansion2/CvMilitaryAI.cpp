@@ -1021,7 +1021,7 @@ int CvMilitaryAI::ScoreAttackTarget(const CvAttackTarget& target)
 
 	//scores for each target are estimated before calling this function
 	float fDesirability = 1.f;
-	if (pTargetCity->IsOriginalCapital() && (m_pPlayer->GetDiplomacyAI()->IsGoingForWorldConquest() || m_pPlayer->GetDiplomacyAI()->IsCloseToDominationVictory()))
+	if (pTargetCity->IsOriginalCapital() && (m_pPlayer->GetDiplomacyAI()->IsGoingForWorldConquest() || m_pPlayer->GetDiplomacyAI()->IsCloseToWorldConquest()))
 	{
 		fDesirability *= /*250*/ GD_INT_GET(AI_MILITARY_CAPTURING_ORIGINAL_CAPITAL);
 		fDesirability /= 100;
@@ -2055,7 +2055,7 @@ void CvMilitaryAI::DoNuke(PlayerTypes ePlayer)
 				{
 					bRollForNuke = true;
 				}
-				else if (m_pPlayer->GetDiplomacyAI()->IsGoingForWorldConquest() || m_pPlayer->GetDiplomacyAI()->IsCloseToDominationVictory())
+				else if (m_pPlayer->GetDiplomacyAI()->IsGoingForWorldConquest() || m_pPlayer->GetDiplomacyAI()->IsCloseToWorldConquest())
 				{
 					bRollForNuke = true;
 				}

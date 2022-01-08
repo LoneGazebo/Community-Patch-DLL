@@ -635,6 +635,12 @@ UPDATE Language_en_US
 SET Text = '[NEWLINE][NEWLINE]Civilizations negatively affected by this:'
 WHERE Tag = 'TXT_KEY_LEAGUE_OVERVIEW_PROPOSAL_OPINIONS_NEGATIVE';
 
+-- Shorten the overview text to make room
+UPDATE Language_en_US
+SET Text = '[NEWLINE][NEWLINE]Our knowledge of other Civs'' desires:'
+WHERE Tag = 'TXT_KEY_LEAGUE_OVERVIEW_VOTE_OPINIONS';
+
+
 -- Diplo Opinion Table Modifiers
 
 -- Neutral Indicators

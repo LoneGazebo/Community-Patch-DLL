@@ -424,7 +424,7 @@ int CvGrandStrategyAI::GetConquestPriority()
 		return -100;
 
 	// If we're close to winning, let's go to the finish line!
-	if (GetPlayer()->GetDiplomacyAI()->IsCloseToDominationVictory())
+	if (GetPlayer()->GetDiplomacyAI()->IsCloseToWorldConquest())
 	{
 		iPriority += 9000;
 	}
@@ -514,7 +514,7 @@ int CvGrandStrategyAI::GetConquestPriority()
 	int iTotalLandMe = 0;
 	int iTotalLandPlayersMet = 0;
 
-	bool bDesperate = GetPlayer()->GetPlayerPolicies()->GetLateGamePolicyTree() != NO_POLICY_BRANCH_TYPE && !GetPlayer()->GetDiplomacyAI()->IsCloseToDominationVictory() && !GetPlayer()->GetDiplomacyAI()->IsCloseToCultureVictory() && !GetPlayer()->GetDiplomacyAI()->IsCloseToDiploVictory() && !GetPlayer()->GetDiplomacyAI()->IsCloseToSSVictory();
+	bool bDesperate = GetPlayer()->GetPlayerPolicies()->GetLateGamePolicyTree() != NO_POLICY_BRANCH_TYPE && !GetPlayer()->GetDiplomacyAI()->IsCloseToWorldConquest() && !GetPlayer()->GetDiplomacyAI()->IsCloseToCultureVictory() && !GetPlayer()->GetDiplomacyAI()->IsCloseToDiploVictory() && !GetPlayer()->GetDiplomacyAI()->IsCloseToSpaceshipVictory();
 	int iTotalNumDangerPlayers = 0;
 
 	// Count the number of Majors we know
@@ -529,7 +529,7 @@ int CvGrandStrategyAI::GetConquestPriority()
 				iNumPlayersMet++;
 				if (GetPlayer()->GetPlayerPolicies()->GetLateGamePolicyTree() != NO_POLICY_BRANCH_TYPE)
 				{
-					if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToCultureVictory() || GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToDiploVictory() || GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToSSVictory())
+					if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToCultureVictory() || GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToDiploVictory() || GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToSpaceshipVictory())
 					{
 						//Close to nothing, and someone else is? Eek!
 						if (bDesperate)
@@ -1351,7 +1351,7 @@ int CvGrandStrategyAI::GetSpaceshipPriority()
 	}
 
 	// If we're close to winning, let's go to the finish line!
-	if (GetPlayer()->GetDiplomacyAI()->IsCloseToSSVictory())
+	if (GetPlayer()->GetDiplomacyAI()->IsCloseToSpaceshipVictory())
 	{
 		iPriority += 10000;
 	}
