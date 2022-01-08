@@ -5098,8 +5098,6 @@ void CvCityReligions::AddReligiousPressure(CvReligiousFollowChangeReason eReason
 
 		LogPressureChange(eReason, eReligion, iPressureChange, iPressureChange, eResponsiblePlayer);
 	}
-
-	RecomputeFollowers(eReason, eResponsiblePlayer);
 }
 
 void CvCityReligions::ErodeOtherReligiousPressure(CvReligiousFollowChangeReason eReason, ReligionTypes eExemptedReligion, int iErosionPercent, bool bAllowRetention, bool bLeaveAtheists, PlayerTypes eResponsiblePlayer)
