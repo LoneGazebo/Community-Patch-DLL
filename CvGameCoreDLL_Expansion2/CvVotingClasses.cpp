@@ -5963,7 +5963,7 @@ CvString CvLeague::GetResolutionVoteOpinionDetails(ResolutionTypes eResolution, 
 	if (!bYesNo || IsInSpecialSession())
 		return s;
 
-	// Display the score for each civ (only positive/negative)
+	// Display the score for each civ
 	bool bShowAllValues = GC.getGame().IsShowAllOpinionValues();
 	std::vector<pair<int, PlayerTypes>> vScores;
 	if (bEnact)
@@ -5999,6 +5999,7 @@ CvString CvLeague::GetResolutionVoteOpinionDetails(ResolutionTypes eResolution, 
 	std::reverse(vScores.begin(), vScores.end());
 	bool bPositiveDone = false;
 	bool bNegativeDone = false;
+	bool bNeutralDone = false;
 
 	for (std::vector<pair<int, PlayerTypes>>::iterator it = vScores.begin(); it != vScores.end(); it++)
 	{
@@ -6035,32 +6036,43 @@ CvString CvLeague::GetResolutionVoteOpinionDetails(ResolutionTypes eResolution, 
 			strOut.insert(0, "[COLOR_FADING_POSITIVE_TEXT]");
 			s += strOut;
 		}
-		else if (eDesire != CvLeagueAI::DESIRE_NEUTRAL)
+		else if (eDesire > CvLeagueAI::DESIRE_WEAK_DISLIKE)
 		{
-			if (eDesire > CvLeagueAI::DESIRE_DISLIKE)
+			if (bShowAllValues)
 			{
-				if (!bNegativeDone)
+				if (!bNeutralDone)
 				{
-					CvString sNeg = Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_PROPOSAL_OPINIONS_NEGATIVE").toUTF8();
+					CvString sNeg = Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_PROPOSAL_OPINIONS_NEUTRAL").toUTF8();
 					sNeg.insert(0, "[ENDCOLOR]");
 					s += sNeg;
-					bNegativeDone = true;
+					bNeutralDone = true;
 				}
-				strOut.insert(0, "[COLOR_FADING_NEGATIVE_TEXT]");
 				s += strOut;
 			}
-			else
+		}
+		else if (eDesire > CvLeagueAI::DESIRE_DISLIKE)
+		{
+			if (!bNegativeDone)
 			{
-				if (!bNegativeDone)
-				{
-					CvString sNeg = Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_PROPOSAL_OPINIONS_NEGATIVE").toUTF8();
-					sNeg.insert(0, "[ENDCOLOR]");
-					s += sNeg;
-					bNegativeDone = true;
-				}
-				strOut.insert(0, "[COLOR_NEGATIVE_TEXT]");
-				s += strOut;
+				CvString sNeg = Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_PROPOSAL_OPINIONS_NEGATIVE").toUTF8();
+				sNeg.insert(0, "[ENDCOLOR]");
+				s += sNeg;
+				bNegativeDone = true;
 			}
+			strOut.insert(0, "[COLOR_FADING_NEGATIVE_TEXT]");
+			s += strOut;
+		}
+		else
+		{
+			if (!bNegativeDone)
+			{
+				CvString sNeg = Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_PROPOSAL_OPINIONS_NEGATIVE").toUTF8();
+				sNeg.insert(0, "[ENDCOLOR]");
+				s += sNeg;
+				bNegativeDone = true;
+			}
+			strOut.insert(0, "[COLOR_NEGATIVE_TEXT]");
+			s += strOut;
 		}
 	}
 	CvString sEnd = Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_PROPOSAL_OPINIONS_END").toUTF8();
