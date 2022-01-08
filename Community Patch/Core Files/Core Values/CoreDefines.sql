@@ -95,7 +95,7 @@ UPDATE Defines SET Value = '6' WHERE Name = 'CITY_RING_1_MULTIPLIER'; -- there a
 UPDATE Defines SET Value = '6' WHERE Name = 'CITY_RING_2_MULTIPLIER'; -- there are 12 ring2 plots, workable soon
 UPDATE Defines SET Value = '3' WHERE Name = 'CITY_RING_3_MULTIPLIER'; -- there are 18 ring3 plots, workable late and often conflicted
 UPDATE Defines SET Value = '12' WHERE Name = 'SETTLER_FOOD_MULTIPLIER';
-UPDATE Defines SET Value = '12' WHERE Name = 'SETTLER_PRODUCTION_MULTIPLIER';
+UPDATE Defines SET Value = '8' WHERE Name = 'SETTLER_PRODUCTION_MULTIPLIER';
 UPDATE Defines SET Value = '8' WHERE Name = 'SETTLER_GOLD_MULTIPLIER';
 UPDATE Defines SET Value = '5' WHERE Name = 'SETTLER_SCIENCE_MULTIPLIER';
 UPDATE Defines SET Value = '4' WHERE Name = 'SETTLER_FAITH_MULTIPLIER';
