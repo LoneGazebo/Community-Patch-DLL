@@ -30027,10 +30027,11 @@ bool CvUnit::CanFallBack(const CvUnit& attacker, bool bCheckChances) const
 	if(bCheckChances)
 	{
 		int iWithdrawChance = getExtraWithdrawal();
-		// Does attacker have a speed greater than 1?
+		// Does attacker have a greater speed than defender? Reduce withdrawal chance for each point the attacker is faster
+		int iDefenderMovementRange = baseMoves(isEmbarked());
 		int iAttackerMovementRange = attacker.baseMoves(attacker.isEmbarked());
-		if(iAttackerMovementRange > 2)
-			iWithdrawChance += (/*-20*/ GD_INT_GET(WITHDRAW_MOD_ENEMY_MOVES) * (iAttackerMovementRange - 2));
+		if(iAttackerMovementRange > iDefenderMovementRange)
+			iWithdrawChance += (/*-20*/ GD_INT_GET(WITHDRAW_MOD_ENEMY_MOVES) * (iAttackerMovementRange - iDefenderMovementRange));
 
 		iWithdrawChance += (/*-20*/ GD_INT_GET(WITHDRAW_MOD_BLOCKED_TILE) * iBlockedHexes);
 
