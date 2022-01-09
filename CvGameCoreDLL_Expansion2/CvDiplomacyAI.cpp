@@ -18298,7 +18298,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 			}
 
 			// Strategic trade partner that we're getting trade value from?
-			if (!bUntrustworthy && IsStrategicTradePartner(ePlayer) && iTradeDelta > 0)
+			if (IsStrategicTradePartner(ePlayer) && iTradeDelta > 0)
 			{
 				vApproachScores[CIV_APPROACH_FRIENDLY] += vApproachBias[CIV_APPROACH_FRIENDLY] * iMultiplier;
 				vApproachScores[CIV_APPROACH_WAR] -= vApproachBias[CIV_APPROACH_WAR] * iMultiplier;
@@ -18561,7 +18561,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 						iFlavorMod = iWarMod - 10;
 						break;
 					case CIV_APPROACH_HOSTILE:
-						iFlavorMod = iHostileMod -= 10;
+						iFlavorMod = iHostileMod - 10;
 						break;
 					case CIV_APPROACH_DECEPTIVE:
 						iFlavorMod = iDeceptiveMod - 10;
