@@ -5126,7 +5126,8 @@ void CvCityReligions::ErodeOtherReligiousPressure(CvReligiousFollowChangeReason 
 			if(pReligion)
 			{
 				int iRetentionPercent = pReligion->m_Beliefs.GetInquisitorPressureRetention(m_pCity->getOwner());  // Normally 0
-				iReductionPercent = max(0, iReductionPercent - iRetentionPercent);
+				iReductionPercent = iReductionPercent * (100 - iRetentionPercent) / 100;
+				iReductionPercent = max(0, iReductionPercent);
 			}
 		}
 
