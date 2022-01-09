@@ -649,7 +649,7 @@ void CvUnitCombat::ResolveMeleeCombat(const CvCombatInfo& kCombatInfo, uint uiPa
 
 					pkAttacker->PublishQueuedVisualizationMoves();
 #if defined(MOD_BALANCE_CORE)
-					if (pkAttacker->getAOEDamageOnKill() != 0)
+					if (pkAttacker->getAOEDamageOnKill() != 0 && bDefenderDead)
 					{
 						CvPlot* pAdjacentPlot = NULL;
 						CvPlot* pPlot = GC.getMap().plot(pkAttacker->getX(), pkAttacker->getY());
@@ -3790,7 +3790,8 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::Attack(CvUnit& kAttacker, CvPlot& targ
 		}
 
 		// Move forward
-		if(targetPlot.getNumVisibleEnemyDefenders(&kAttacker) == 0)
+		bool bCanAdvance = kCombatInfo.getAttackerAdvances() && targetPlot.getNumVisibleEnemyDefenders(&kAttacker) == 0;
+		if(bCanAdvance)
 		{
 			kAttacker.UnitMove(&targetPlot, true, &kAttacker);
 		}
