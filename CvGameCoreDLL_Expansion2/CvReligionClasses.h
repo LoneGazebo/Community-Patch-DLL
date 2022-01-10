@@ -611,7 +611,8 @@ private:
 	int GetValidPlotYield(CvBeliefEntry* pEntry, CvPlot* pPlot, YieldTypes eYield) const;
 
 	int ScoreCityForMissionary(CvCity* pCity, CvUnit* pUnit, ReligionTypes eReligion) const;
-	int ScoreCityForInquisitor(CvCity* pCity, CvUnit* pUnit, ReligionTypes eReligion) const;
+	int ScoreCityForInquisitorOffensive(CvCity* pCity, CvUnit* pUnit, ReligionTypes eReligion) const;
+	int ScoreCityForInquisitorDefensive(CvCity* pCity, CvUnit* pUnit, ReligionTypes eReligion) const;
 
 	bool AreAllOurCitiesConverted(ReligionTypes eReligion, bool bIncludePuppets) const;
 	bool AreAllOurCitiesHaveFaithBuilding(ReligionTypes eReligion, bool bIncludePuppets) const;
@@ -642,6 +643,7 @@ namespace CvReligionAIHelpers
 	CvCity *GetBestCityFaithUnitPurchase(CvPlayer &kPlayer, UnitTypes eUnit, ReligionTypes eReligion);
 	CvCity *GetBestCityFaithBuildingPurchase(CvPlayer &kPlayer, BuildingTypes eBuilding, ReligionTypes eReligion);
 	bool DoesUnitPassFaithPurchaseCheck(CvPlayer &kPlayer, UnitTypes eUnit);
+	bool ShouldRemoveHeresy(CvCity* pCity, ReligionTypes eTrueReligion);
 }
 
 #endif //CIV5_RELIGION_CLASSES_H

@@ -2669,9 +2669,9 @@ void CvHomelandAI::ExecuteWorkerMoves()
 			}
 		}
 
-		if (pBestCity && pUnit->GeneratePath(pBestCity->plot(), CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY, 23))
+		if (pBestCity && pUnit->GeneratePath(pBestCity->plot(), CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY|CvUnit::MOVEFLAG_PRETEND_ALL_REVEALED, 23))
 		{
-			ExecuteMoveToTarget(pUnit, pBestCity->plot(), 0);
+			ExecuteMoveToTarget(pUnit, pBestCity->plot(), CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY|CvUnit::MOVEFLAG_PRETEND_ALL_REVEALED);
 			int iCurrentNeed = mapCityNeed[pBestCity];
 			if (iCurrentNeed > 0)
 				mapCityNeed[pBestCity] = iCurrentNeed / 2; //reduce the score for this city in case we have multiple workers to distribute
@@ -3974,33 +3974,6 @@ void CvHomelandAI::ExecuteMissionaryMoves()
 	}
 }
 
-bool ShouldRemoveHeresy(CvCity* pCity, ReligionTypes eTrueReligion)
-{
-	int iHeretics = pCity->GetCityReligions()->GetFollowersOtherReligions(eTrueReligion);
-	int iBelievers = pCity->GetCityReligions()->GetNumFollowers(eTrueReligion);
-	int iHeathens = pCity->getPopulation() - iBelievers - iHeretics;
-
-	//todo: should we consider pressure per turn here as well?
-	ReligionTypes eMajorityReligion = pCity->GetCityReligions()->GetReligiousMajority();
-	if (eMajorityReligion == NO_RELIGION)
-	{
-		//we know that the believers are in the minority
-		return (iHeretics > iBelievers && iHeathens < iBelievers);
-	}
-	else if (eMajorityReligion == eTrueReligion)
-	{
-		//we have a majority but might be under pressure
-		return (iHeretics * 3 > iBelievers * 2);
-	}
-	else if (eMajorityReligion != eTrueReligion)
-	{
-		//the easy case
-		return true;
-	}
-
-	return false;
-}
-
 // Get a inquisitor to the best city
 void CvHomelandAI::ExecuteInquisitorMoves()
 {
@@ -4021,7 +3994,7 @@ void CvHomelandAI::ExecuteInquisitorMoves()
 		{
 			vBurnedTargets.push_back( make_pair(pUnit->GetID(),pTarget->plot()->GetPlotIndex()));
 
-			if (pUnit->CanRemoveHeresy(pTarget->plot()) && ShouldRemoveHeresy(pTarget,pUnit->GetReligionData()->GetReligion()))
+			if (pUnit->CanRemoveHeresy(pTarget->plot()) && CvReligionAIHelpers::ShouldRemoveHeresy(pTarget,pUnit->GetReligionData()->GetReligion()))
 			{
 				if (iTargetTurns == 0)
 				{
@@ -4053,7 +4026,7 @@ void CvHomelandAI::ExecuteInquisitorMoves()
 					}
 				}
 			}
-			else
+			else //defensive use
 			{
 				pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTarget->getX(), pTarget->getY(), CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY);
 
@@ -4490,7 +4463,7 @@ bool CvHomelandAI::MoveCivilianToGarrison(CvUnit* pUnit)
 				LogHomelandMessage(strLogString);
 			}
 
-			MoveToTargetButDontEndTurn(pUnit, pBestPlot, CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY);
+			MoveToTargetButDontEndTurn(pUnit, pBestPlot, CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY|CvUnit::MOVEFLAG_PRETEND_ALL_REVEALED);
 			return true;
 		}
 	}

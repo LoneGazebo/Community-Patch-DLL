@@ -1792,17 +1792,19 @@ void CvGameReligions::AddReformationBelief(PlayerTypes ePlayer, ReligionTypes eR
 #endif
 
 	//Notify the masses
-	for(int iNotifyLoop = 0; iNotifyLoop < MAX_MAJOR_CIVS; ++iNotifyLoop){
-		PlayerTypes eNotifyPlayer = (PlayerTypes) iNotifyLoop;
+	for (int iNotifyLoop = 0; iNotifyLoop < MAX_MAJOR_CIVS; ++iNotifyLoop)
+	{
+		PlayerTypes eNotifyPlayer = (PlayerTypes)iNotifyLoop;
 		CvPlayerAI& kNotifyPlayer = GET_PLAYER(eNotifyPlayer);
 		CvNotifications* pNotifications = kNotifyPlayer.GetNotifications();
-		if(pNotifications){
+		if (pNotifications)
+		{
 			Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_REFORMATION_BELIEF_ADDED_S");
 			Localization::String notificationText = Localization::Lookup("TXT_KEY_NOTIFICATION_REFORMATION_BELIEF_ADDED");
 			notificationText << kPlayer.getCivilizationShortDescriptionKey() << it->GetName();
 
 			// Message slightly different for reformation player
-			if(ePlayer == eNotifyPlayer)
+			if (ePlayer == eNotifyPlayer)
 			{
 				Localization::String localizedText = Localization::Lookup("TXT_KEY_NOTIFICATION_REFORMATION_BELIEF_ADDED_ACTIVE_PLAYER");
 				localizedText << it->GetName();
@@ -1812,7 +1814,7 @@ void CvGameReligions::AddReformationBelief(PlayerTypes ePlayer, ReligionTypes eR
 			else
 			{
 				CvTeam& kNotifyTeam = GET_TEAM(kNotifyPlayer.getTeam());
-				if(kNotifyTeam.isHasMet(kPlayer.getTeam()))
+				if (kNotifyTeam.isHasMet(kPlayer.getTeam()))
 				{
 					pNotifications->Add(NOTIFICATION_REFORMATION_BELIEF_ADDED, notificationText.toUTF8(), strSummary.toUTF8(), -1, -1, -1);
 				}
@@ -1825,15 +1827,15 @@ void CvGameReligions::AddReformationBelief(PlayerTypes ePlayer, ReligionTypes eR
 				}
 			}
 		}
+	}
 
-		// Logging
-		if(GC.getLogging())
-		{
-			CvString strLogMsg;
-			strLogMsg = kPlayer.getCivilizationShortDescription();
-			strLogMsg += ", REFORMATION BELIEF ADDED";
-			LogReligionMessage(strLogMsg);
-		}
+	// Logging
+	if(GC.getLogging())
+	{
+		CvString strLogMsg;
+		strLogMsg = kPlayer.getCivilizationShortDescription();
+		strLogMsg += ", REFORMATION BELIEF ADDED";
+		LogReligionMessage(strLogMsg);
 	}
 	GC.GetEngineUserInterface()->setDirty(CityInfo_DIRTY_BIT, true);
 }
@@ -5972,35 +5974,33 @@ void CvCityReligions::LogFollowersChange(CvReligiousFollowChangeReason eReason)
 		strOutBuf += temp;
 		if(pCityRel->IsReligionInCity())
 		{
-			ReligionTypes eMajority = pCityRel->GetReligiousMajority();
-			if (eMajority != NO_RELIGION)
+			ReligionTypes eFirst = pCityRel->GetReligionByAccumulatedPressure(0);
+			if (eFirst != NO_RELIGION)
 			{
-				CvReligionEntry* pEntry = GC.getReligionInfo(eMajority);
+				CvReligionEntry* pEntry = GC.getReligionInfo(eFirst);
 				if (pEntry)
 				{
-					strOutBuf += ", Majority: ";
+					strOutBuf += ", First: ";
 					strOutBuf += pEntry->GetDescription();
-					temp.Format("(%d)", pCityRel->GetNumFollowers(eMajority));
+					temp.Format("(%d)", pCityRel->GetNumFollowers(eFirst));
 					strOutBuf += temp;
 				}
+			}
 
-				ReligionTypes eSecondary = pCityRel->GetReligionByAccumulatedPressure(1);
-				if (eSecondary != NO_RELIGION)
+			ReligionTypes eSecond = pCityRel->GetReligionByAccumulatedPressure(1);
+			if (eSecond != NO_RELIGION)
+			{
+				CvReligionEntry* pEntry = GC.getReligionInfo(eSecond);
+				if (pEntry)
 				{
-					CvReligionEntry* pEntry = GC.getReligionInfo(eSecondary);
-					if (pEntry)
-					{
-						strOutBuf += ", Secondary: ";
-						strOutBuf += pEntry->GetDescription();
-						temp.Format("(%d)", pCityRel->GetNumFollowers(eSecondary));
-						strOutBuf += temp;
-					}
+					strOutBuf += ", Second: ";
+					strOutBuf += pEntry->GetDescription();
+					temp.Format("(%d)", pCityRel->GetNumFollowers(eSecond));
+					strOutBuf += temp;
 				}
 			}
-			else
-				strOutBuf += ", no majority";
 
-			temp.Format("Atheists: %d", pCityRel->GetNumFollowers(NO_RELIGION));
+			temp.Format("Nonreligious: %d", pCityRel->GetNumFollowers(NO_RELIGION));
 			strOutBuf += ", " + temp;
 		}
 		else
@@ -6580,7 +6580,7 @@ CvCity* CvReligionAI::ChooseInquisitorTargetCity(CvUnit* pUnit, const vector<pai
 	if(eMyReligion <= RELIGION_PANTHEON)
 		return NULL;
 
-	std::vector<SPlotWithScore> vTargets;
+	std::vector<SPlotWithScore> vTargetsO, vTargetsD;
 
 	// Loop through each of my cities
 	int iLoop;
@@ -6597,17 +6597,30 @@ CvCity* CvReligionAI::ChooseInquisitorTargetCity(CvUnit* pUnit, const vector<pai
 		if (pLoopCity->GetCityReligions()->IsDefendedAgainstSpread(pUnit->GetReligionData()->GetReligion(),pUnit))
 			continue;
 
-		int iScore = ScoreCityForInquisitor(pLoopCity, pUnit, pUnit->GetReligionData()->GetReligion());
-		if (iScore>0)
-			vTargets.push_back(SPlotWithScore(pLoopCity->plot(),iScore));
+		int iScoreO = ScoreCityForInquisitorOffensive(pLoopCity, pUnit, pUnit->GetReligionData()->GetReligion());
+		if (iScoreO>0)
+			vTargetsO.push_back(SPlotWithScore(pLoopCity->plot(),iScoreO));
+		int iScoreD = ScoreCityForInquisitorDefensive(pLoopCity, pUnit, pUnit->GetReligionData()->GetReligion());
+		if (iScoreD>0)
+			vTargetsD.push_back(SPlotWithScore(pLoopCity->plot(),iScoreD));
 	}
 
-	//this sorts ascending
-	std::sort(vTargets.begin(),vTargets.end());
-	//so reverse it
-	std::reverse(vTargets.begin(),vTargets.end());
+	//offensive targets first
+	std::sort(vTargetsO.begin(),vTargetsO.end());
+	std::reverse(vTargetsO.begin(),vTargetsO.end());
 
-	for (std::vector<SPlotWithScore>::iterator it=vTargets.begin(); it!=vTargets.end(); ++it)
+	for (std::vector<SPlotWithScore>::iterator it=vTargetsO.begin(); it!=vTargetsO.end(); ++it)
+	{
+		int iFlags = CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY | CvUnit::MOVEFLAG_APPROX_TARGET_RING1| CvUnit::MOVEFLAG_ABORT_IF_NEW_ENEMY_REVEALED;
+		if (pUnit->GeneratePath(it->pPlot,iFlags,INT_MAX,piTurns) )
+			return it->pPlot->getPlotCity();
+	}
+
+	//defensive targets as fallback
+	std::sort(vTargetsD.begin(),vTargetsD.end());
+	std::reverse(vTargetsD.begin(),vTargetsD.end());
+
+	for (std::vector<SPlotWithScore>::iterator it=vTargetsD.begin(); it!=vTargetsD.end(); ++it)
 	{
 		int iFlags = CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY | CvUnit::MOVEFLAG_APPROX_TARGET_RING1| CvUnit::MOVEFLAG_ABORT_IF_NEW_ENEMY_REVEALED;
 		if (pUnit->GeneratePath(it->pPlot,iFlags,INT_MAX,piTurns) )
@@ -6836,6 +6849,7 @@ ReligionTypes CvReligionAI::GetReligionToSpread() const
 
 	//need to update, start from scratch
 	m_eReligionToSpread = NO_RELIGION;
+	m_iTurnReligionToSpreadUpdated = GC.getGame().getGameTurn();
 
 	ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
 	if(pkScriptSystem)
@@ -6871,6 +6885,10 @@ ReligionTypes CvReligionAI::GetReligionToSpread() const
 //check all existing religions and see which one fits us best
 ReligionTypes CvReligionAI::GetFavoriteForeignReligion() const
 {
+	//hold off while not all religions have been founded
+	if (GC.getGame().GetGameReligions()->GetNumReligionsStillToFound() > 0)
+		return NO_RELIGION;
+
 	//wtf, public members?
 	ReligionList allReligions = GC.getGame().GetGameReligions()->m_CurrentReligions;
 
@@ -6890,15 +6908,15 @@ ReligionTypes CvReligionAI::GetFavoriteForeignReligion() const
 		if (itR->m_eFounder == m_pPlayer->GetID())
 			continue;
 
+		//what's in it for us? problem is, some religions might have more beliefs than others ... bad luck for them.
 		int iScore = 0;
-
 		for (int i = 0; i < itR->m_Beliefs.GetNumBeliefs(); i++)
 		{
 			BeliefTypes b = itR->m_Beliefs.GetBelief(i);
 			CvBeliefEntry* pEntry = m_pBeliefs->GetEntry(b);
 
 			//ignore founder beliefs!
-			if (pEntry && !pEntry->IsFounderBelief())
+			if (pEntry && !pEntry->IsFounderBelief() && !pEntry->IsEnhancerBelief())
 				iScore += ScoreBelief(pEntry);
 		}
 
@@ -6906,13 +6924,13 @@ ReligionTypes CvReligionAI::GetFavoriteForeignReligion() const
 		switch(m_pPlayer->GetDiplomacyAI()->GetCivOpinion(itR->m_eFounder))
 		{
 			case CIV_OPINION_ALLY:
-				iScore *= 200;
-				break;
-			case CIV_OPINION_FRIEND:
 				iScore *= 150;
 				break;
+			case CIV_OPINION_FRIEND:
+				iScore *= 130;
+				break;
 			case CIV_OPINION_FAVORABLE:
-				iScore *= 120;
+				iScore *= 115;
 				break;
 			case CIV_OPINION_NEUTRAL:
 				iScore *= 100;
@@ -10153,7 +10171,7 @@ int CvReligionAI::ScoreCityForMissionary(CvCity* pCity, CvUnit* pUnit, ReligionT
 }
 
 /// AI's evaluation of this city as a target for an inquisitor
-int CvReligionAI::ScoreCityForInquisitor(CvCity* pCity, CvUnit* pUnit, ReligionTypes eMyReligion) const
+int CvReligionAI::ScoreCityForInquisitorOffensive(CvCity* pCity, CvUnit* pUnit, ReligionTypes eMyReligion) const
 {
 	if (pCity == NULL)
 		return 0;
@@ -10184,11 +10202,9 @@ int CvReligionAI::ScoreCityForInquisitor(CvCity* pCity, CvUnit* pUnit, ReligionT
 		return 0;
 
 	//Inquisition causes unrest so don't be overly zeleaous here
-	int iNumOtherFollowers = pCity->GetCityReligions()->GetFollowersOtherReligions(eMyReligion);
-	int iThreshold = max(3,pCity->getPopulation()/3);
 
 	//Looking to remove heresy?
-	if (iNumOtherFollowers>iThreshold)
+	if (CvReligionAIHelpers::ShouldRemoveHeresy(pCity,eMyReligion))
 	{
 		// Base score 100 to make sure heresy removal is preferred over defensive use
 		CvCity* pHolyCity = pMyReligion->GetHolyCity();
@@ -10196,7 +10212,8 @@ int CvReligionAI::ScoreCityForInquisitor(CvCity* pCity, CvUnit* pUnit, ReligionT
 		int iDistToUnit = pUnit ? plotDistance(*pCity->plot(), *pUnit->plot()) : 0;
 		int iScore = max(10, 100 - 2 * iDistToHolyCity - iDistToUnit);
 
-		// How much impact would using the inquistor have?
+		// How much impact would using the inquistor have? let's ignore resilience here ...
+		int iNumOtherFollowers = pCity->GetCityReligions()->GetFollowersOtherReligions(eMyReligion);
 		iScore += 3 * iNumOtherFollowers;
 		
 		// More pressing if majority is another religion
@@ -10205,35 +10222,58 @@ int CvReligionAI::ScoreCityForInquisitor(CvCity* pCity, CvUnit* pUnit, ReligionT
 
 		return iScore;
 	}
-	//Looking to garrison?
-	else
+
+	return 0;
+}
+
+/// AI's evaluation of this city as a target for an inquisitor
+int CvReligionAI::ScoreCityForInquisitorDefensive(CvCity* pCity, CvUnit* pUnit, ReligionTypes eMyReligion) const
+{
+	if (pCity == NULL)
+		return 0;
+
+#if defined(MOD_RELIGION_LOCAL_RELIGIONS)
+	if (MOD_RELIGION_LOCAL_RELIGIONS && GC.getReligionInfo(eMyReligion)->IsLocalReligion())
 	{
-		int iScore = pCity->GetCityReligions()->GetNumFollowers(eMyReligion);
-
-		if (pCity->GetCityReligions()->IsHolyCityForReligion(eMyReligion))
-			iScore += 7;
-
-		if (pCity->isBorderCity() || pCity->isCoastal())
-			iScore += 3;
-
-		if (pCity->GetCityReligions()->IsForeignMissionaryNearby(eMyReligion))
-		{
-			UnitTypes eMissionary = m_pPlayer->GetSpecificUnitType("UNITCLASS_MISSIONARY");
-			CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eMissionary);
-			//assume we spread multiple times with same strength for simplicity
-			int iMissionaryStrength = pkUnitInfo ? pkUnitInfo->GetReligiousStrength()*pkUnitInfo->GetReligionSpreads() : 1;
-			int iPressureFromUnit = iMissionaryStrength * /*10*/ GD_INT_GET(RELIGION_MISSIONARY_PRESSURE_MULTIPLIER);
-			int iTotalPressure = max(1, pCity->GetCityReligions()->GetTotalAccumulatedPressure(false));
-			int iImpactPercent = min(100,(iPressureFromUnit * 100) / iTotalPressure);
-
-			if (iImpactPercent > 10)
-				iScore += 5;
-			else if (iImpactPercent > 4)
-				iScore += 2;
-		}
-
-		return iScore;
+		if (pCity->IsOccupied() || pCity->IsPuppet())
+			return 0;
 	}
+#endif
+
+	//Don't go if there are enemies around
+	if (pCity->isInDangerOfFalling() || pCity->isUnderSiege())
+		return 0;
+
+	//Already targeted by another inquisitor? Ignore.
+	if (pCity->GetCityReligions()->IsDefendedAgainstSpread(eMyReligion))
+		return 0;
+
+	//Can only target owned cities
+	if(pCity->getOwner() != m_pPlayer->GetID())
+		return 0;
+
+	//sometimes we need more active measures
+	if (CvReligionAIHelpers::ShouldRemoveHeresy(pCity,eMyReligion))
+		return 0;
+
+	//see how much we want to defend passively here
+	int iScore = pCity->GetCityReligions()->IsHolyCityForReligion(eMyReligion) ? 7 : 0;
+	if (pCity->isBorderCity())
+		iScore += 11;
+
+	//assume their missionaries are same strength as ours
+	UnitTypes eMissionary = m_pPlayer->GetSpecificUnitType("UNITCLASS_MISSIONARY");
+	CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eMissionary);
+	//assume we spread multiple times with same strength for simplicity
+	int iMissionaryStrength = pkUnitInfo ? pkUnitInfo->GetReligiousStrength()*pkUnitInfo->GetReligionSpreads() : 1;
+	int iPressureFromUnit = iMissionaryStrength * /*10*/ GD_INT_GET(RELIGION_MISSIONARY_PRESSURE_MULTIPLIER);
+	int iTotalPressure = max(1, pCity->GetCityReligions()->GetTotalAccumulatedPressure(false));
+	int iImpactPercent = min(100,(iPressureFromUnit * 100) / iTotalPressure);
+
+	int iDistToUnit = pUnit ? plotDistance(*pCity->plot(), *pUnit->plot()) : 0;
+	int iDistScore = max(0, 5 - iDistToUnit/2);
+
+	return iScore + iImpactPercent + iDistScore;
 }
 
 /// Are all of our own cities our religion?
@@ -10401,12 +10441,16 @@ bool CvReligionAI::HaveEnoughInquisitors(ReligionTypes eReligion) const
 	int iNumNeeded = 0;
 	for(CvCity* pCity = m_pPlayer->firstCity(&iLoop); pCity != NULL; pCity = m_pPlayer->nextCity(&iLoop))
 	{
-		if (m_pPlayer->GetReligionAI()->ScoreCityForInquisitor(pCity, NULL, eReligion) > 0)
+		if (m_pPlayer->GetReligionAI()->ScoreCityForInquisitorOffensive(pCity, NULL, eReligion) > 0)
 			iNumNeeded++;
 	}
 
-	// We want two to spare ... 
-	return iNumInquisitors >= iNumNeeded + 2;
+	// In later phases we may want to have defensive inquisitors ...
+	// This condition is for Spain in particular, they should go for missionaries in the beginning even though they could have inquisitors
+	const CvReligion* pMyReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, m_pPlayer->GetID());
+	int iNumDefensive = (pMyReligion && pMyReligion->m_bEnhanced) ? 2 : 0;
+
+	return iNumInquisitors >= iNumNeeded + iNumDefensive;
 }
 
 /// Do we have a belief that allows a faith generating building to be constructed?
@@ -11017,4 +11061,36 @@ bool CvReligionAIHelpers::DoesUnitPassFaithPurchaseCheck(CvPlayer &kPlayer, Unit
 	}
 
 	return bRtnValue;
+}
+
+bool CvReligionAIHelpers::ShouldRemoveHeresy(CvCity* pCity, ReligionTypes eTrueReligion)
+{
+	ReligionTypes eMajorityReligion = pCity->GetCityReligions()->GetReligiousMajority();
+	if (eMajorityReligion == NO_RELIGION)
+	{
+		ReligionTypes eMostPowerfulReligion = pCity->GetCityReligions()->GetReligionByAccumulatedPressure(0);
+		if (eMostPowerfulReligion <= RELIGION_PANTHEON)
+			return false;
+		if (eMostPowerfulReligion != eTrueReligion)
+			return true;
+
+		ReligionTypes eRunnerUpReligion = pCity->GetCityReligions()->GetReligionByAccumulatedPressure(1);
+		int iPPT1 = pCity->GetCityReligions()->GetPressurePerTurn(eTrueReligion);
+		int iPPT2 = pCity->GetCityReligions()->GetPressurePerTurn(eRunnerUpReligion);
+		//want a missionary if we are losing ground
+		if (iPPT2 > iPPT1)
+			return true;
+	}
+	else if (eMajorityReligion == RELIGION_PANTHEON)
+	{
+		//never waste an inquisitor on a pantheon city, use a missionary instead
+		return false;
+	}
+	else if (eMajorityReligion != eTrueReligion)
+	{
+		//the easy case
+		return true;
+	}
+
+	return false;
 }
