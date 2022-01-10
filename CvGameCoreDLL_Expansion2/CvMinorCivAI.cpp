@@ -1726,12 +1726,18 @@ bool CvMinorCivQuest::IsRevoked(bool bWar)
 bool CvMinorCivQuest::IsExpired()
 {
 	// If this quest type has an end turn, have we passed it?
-	if(GetEndTurn() != NO_TURN && GC.getGame().getGameTurn() > GetEndTurn())
+	if (GetEndTurn() != NO_TURN && GC.getGame().getGameTurn() > GetEndTurn())
 	{
 		return true;
 	}
 
+	// Minor is dead?
 	if (!GET_PLAYER(m_eMinor).isAlive())
+	{
+		return true;
+	}
+	CvCity* pMinorCapital = GET_PLAYER(m_eMinor).getCapitalCity();
+	if (!pMinorCapital)
 	{
 		return true;
 	}
@@ -1739,12 +1745,9 @@ bool CvMinorCivQuest::IsExpired()
 	// Build a Route
 	if(m_eType == MINOR_CIV_QUEST_ROUTE)
 	{
-		CvCity* pMinorsCapital = GET_PLAYER(m_eMinor).getCapitalCity();
-		if (pMinorsCapital == NULL)
-			return true;
 		// Must have a city close to the minor in the same Area
 		const int iMaxRouteDistance = 12; //antonjs: todo: xml
-		CvPlot* pMinorsPlot = pMinorsCapital->plot();
+		CvPlot* pMinorsPlot = pMinorCapital->plot();
 		if (pMinorsPlot == NULL)
 			return true;
 
@@ -1984,6 +1987,10 @@ bool CvMinorCivQuest::IsExpired()
 
 		if(pTargetPlayer)
 		{
+			// We're now Allies with the Major
+			if (GET_PLAYER(m_eMinor).GetMinorCivAI()->GetAlly() == eTargetPlayer)
+				return true;
+
 			// Someone killed the Major
 			if(!pTargetPlayer->isAlive())
 				return true;
