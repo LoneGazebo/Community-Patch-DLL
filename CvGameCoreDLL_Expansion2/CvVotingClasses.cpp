@@ -13620,7 +13620,11 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 						iNumCivs++;
 						iDiploScore += (GetPlayer()->GetDiplomacyAI()->GetCivOpinion(eLoopPlayer) - CIV_OPINION_NEUTRAL) * 8;
 					}
-					if (GetPlayer()->GetDiplomacyAI()->GetMostValuableFriend() == eLoopPlayer)
+					if (GetPlayer()->GetDiplomacyAI()->GetMostValuableFriend() == eLoopPlayer || GetPlayer()->GetDiplomacyAI()->GetMostValuableAlly() == eLoopPlayer)
+					{
+						iDiploScore += 8;
+					}
+					if (GetPlayer()->GetDiplomacyAI()->GetPrimeLeagueAlly() == eLoopPlayer)
 					{
 						iDiploScore += 8;
 					}

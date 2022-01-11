@@ -1143,6 +1143,7 @@ public:
 	// Planning Exchanges
 	void DoRelationshipPairing();
 	void DoUpdatePlanningExchanges();
+	void DoUpdatePrimeLeagueAlly();
 	bool AvoidExchangesWithPlayer(PlayerTypes ePlayer, bool bWarOnly = false) const;
 	bool IsGoodChoiceForDoF(PlayerTypes ePlayer);
 	bool IsGoodChoiceForDefensivePact(PlayerTypes ePlayer);
