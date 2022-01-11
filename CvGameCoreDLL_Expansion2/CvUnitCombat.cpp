@@ -3789,11 +3789,15 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::Attack(CvUnit& kAttacker, CvPlot& targ
 				MILITARYLOG(pDefender->getOwner(), strBuffer.c_str(), pDefender->plot(), kAttacker.getOwner());
 		}
 
-		// Move forward
+		// Move forward if able
+		CvPlot* pFromPlot = kAttacker.plot();
+		kAttacker.UnitMove(&targetPlot, true, &kAttacker);
 		bool bCanAdvance = kCombatInfo.getAttackerAdvances() && targetPlot.getNumVisibleEnemyDefenders(&kAttacker) == 0;
-		if(bCanAdvance)
+		if (!bCanAdvance)
 		{
-			kAttacker.UnitMove(&targetPlot, true, &kAttacker);
+			kAttacker.ClearMissionQueue(false, GetPostCombatDelay());
+			kAttacker.setXY(pFromPlot->getX(), pFromPlot->getY(), true, true, true, true);
+			kAttacker.PublishQueuedVisualizationMoves();
 		}
 
 //		kAttacker.setMadeAttack(true);   /* EFB: Doesn't work, causes tactical AI to not dequeue this attack; but we've decided you don't lose your attack anyway */

@@ -30061,7 +30061,9 @@ bool CvUnit::DoFallBack(const CvUnit& attacker)
 
 		if(pDestPlot && canMoveInto(*pDestPlot, MOVEFLAG_DESTINATION|MOVEFLAG_NO_EMBARK) && isNativeDomain(pDestPlot))
 		{
-			setXY(pDestPlot->getX(), pDestPlot->getY(), false, false, true, false);
+			setXY(pDestPlot->getX(), pDestPlot->getY(), true, true, true, true);
+			PublishQueuedVisualizationMoves();
+
 			return true;
 		}
 	}
