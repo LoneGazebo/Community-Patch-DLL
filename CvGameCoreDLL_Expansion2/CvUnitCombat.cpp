@@ -3790,16 +3790,29 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::Attack(CvUnit& kAttacker, CvPlot& targ
 		}
 
 		// Move forward if able
-		CvPlot* pFromPlot = kAttacker.plot();
-		kAttacker.UnitMove(&targetPlot, true, &kAttacker);
 		bool bCanAdvance = kCombatInfo.getAttackerAdvances() && targetPlot.getNumVisibleEnemyDefenders(&kAttacker) == 0;
-		if (!bCanAdvance)
+		if (bCanAdvance)
+		{
+			kAttacker.UnitMove(&targetPlot, true, &kAttacker);
+		}
+		else
 		{
 			kAttacker.ClearMissionQueue(false, GetPostCombatDelay());
-			kAttacker.setXY(pFromPlot->getX(), pFromPlot->getY(), true, true, true, true);
-			kAttacker.PublishQueuedVisualizationMoves();
+			if (!CvPreGame::quickMovement())
+			{
+				// move into tile then back out (at the movement cost of one tile)
+				CvPlot* pFromPlot = kAttacker.plot();
+				kAttacker.UnitMove(&targetPlot, true, &kAttacker);
+				kAttacker.setXY(pFromPlot->getX(), pFromPlot->getY(), true, true, true, true);
+				kAttacker.PublishQueuedVisualizationMoves();
+			}
+			else
+			{
+				// Reduce moves left without playing animation
+				int iMoveCost = targetPlot.movementCost(&kAttacker, kAttacker.plot(), kAttacker.getMoves());
+				kAttacker.changeMoves(-iMoveCost);
+			}
 		}
-
 //		kAttacker.setMadeAttack(true);   /* EFB: Doesn't work, causes tactical AI to not dequeue this attack; but we've decided you don't lose your attack anyway */
 		eResult = ATTACK_COMPLETED;
 	}
