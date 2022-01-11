@@ -3178,6 +3178,18 @@
 		<Row Tag="TXT_KEY_DIPLO_BAD_VOTING_HISTORY">
 			<Text>Your votes opposed their civ's interests in the World Congress.</Text>
 		</Row>
+		<Row Tag="TXT_KEY_DIPLO_SANCTIONED_THEM_SUCCESSFUL">
+			<Text>We placed sanctions on them in the World Congress.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_SANCTIONED_THEM_UNSUCCESSFUL">
+			<Text>We tried to place sanctions on them in the World Congress.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_UNSANCTIONED_THEM_SUCCESSFUL">
+			<Text>We freed them from sanctions in the World Congress.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_UNSANCTIONED_THEM_UNSUCCESSFUL">
+			<Text>We tried to free them from sanctions in the World Congress.</Text>
+		</Row>
 
 		<!-- World Congress >>> United Nations -->
 		<Row Tag="TXT_KEY_DIPLO_LIKED_OUR_PROPOSAL_UN">
@@ -3209,6 +3221,18 @@
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_BAD_VOTING_HISTORY_UN">
 			<Text>Your votes opposed their civ's interests in the United Nations.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_SANCTIONED_THEM_SUCCESSFUL_UN">
+			<Text>We placed sanctions on them in the United Nations.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_SANCTIONED_THEM_UNSUCCESSFUL_UN">
+			<Text>We tried to place sanctions on them in the United Nations.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_UNSANCTIONED_THEM_SUCCESSFUL_UN">
+			<Text>We freed them from sanctions in the United Nations.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_UNSANCTIONED_THEM_UNSUCCESSFUL_UN">
+			<Text>We tried to free them from sanctions in the United Nations.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_LEAGUE_OVERVIEW_PROPOSAL_OPINIONS_NEUTRAL">

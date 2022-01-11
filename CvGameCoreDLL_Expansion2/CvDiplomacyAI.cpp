@@ -92,6 +92,7 @@ void CvDiplomacyAI::Init(CvPlayer* pPlayer)
 	m_eMostValuableFriend = NO_PLAYER;
 	m_eMostValuableAlly = NO_PLAYER;
 	m_eBiggestCompetitor = NO_PLAYER;
+	m_ePrimeLeagueAlly = NO_PLAYER;
 	m_ePrimeLeagueCompetitor = NO_PLAYER;
 	m_eDemandTargetPlayer = NO_PLAYER;
 	m_eCSWarTarget = NO_PLAYER;
@@ -277,6 +278,8 @@ void CvDiplomacyAI::Init(CvPlayer* pPlayer)
 		m_abCapturedCapital[iI] = false;
 		m_abCapturedHolyCity[iI] = false;
 		m_abResurrectorAttackedUs[iI] = false;
+		m_abEverSanctionedUs[iI] = false;
+		m_abEverUnsanctionedUs[iI] = false;
 
 		// # of times/points counters
 		m_aiNumCitiesLiberated[iI] = 0;
@@ -326,6 +329,7 @@ void CvDiplomacyAI::Init(CvPlayer* pPlayer)
 		m_aiTheySupportedOurProposalTurn[iI] = -1;
 		m_aiTheyFoiledOurProposalTurn[iI] = -1;
 		m_aiTheySanctionedUsTurn[iI] = -1;
+		m_aiTheyUnsanctionedUsTurn[iI] = -1;
 		m_aiTheySupportedOurHostingTurn[iI] = -1;
 
 		// Player-Specific Memory Values
@@ -426,6 +430,7 @@ void CvDiplomacyAI::Serialize(DiplomacyAI& diplomacyAI, Visitor& visitor)
 	visitor(diplomacyAI.m_eMostValuableFriend);
 	visitor(diplomacyAI.m_eMostValuableAlly);
 	visitor(diplomacyAI.m_eBiggestCompetitor);
+	visitor(diplomacyAI.m_ePrimeLeagueAlly);
 	visitor(diplomacyAI.m_ePrimeLeagueCompetitor);
 	visitor(diplomacyAI.m_eDemandTargetPlayer);
 	visitor(diplomacyAI.m_eCSWarTarget);
@@ -596,6 +601,8 @@ void CvDiplomacyAI::Serialize(DiplomacyAI& diplomacyAI, Visitor& visitor)
 	visitor(diplomacyAI.m_abCapturedCapital);
 	visitor(diplomacyAI.m_abCapturedHolyCity);
 	visitor(diplomacyAI.m_abResurrectorAttackedUs);
+	visitor(diplomacyAI.m_abEverSanctionedUs);
+	visitor(diplomacyAI.m_abEverUnsanctionedUs);
 
 	// # of times/points counters
 	visitor(diplomacyAI.m_aiNumCitiesLiberated);
@@ -645,6 +652,7 @@ void CvDiplomacyAI::Serialize(DiplomacyAI& diplomacyAI, Visitor& visitor)
 	visitor(diplomacyAI.m_aiTheySupportedOurProposalTurn);
 	visitor(diplomacyAI.m_aiTheyFoiledOurProposalTurn);
 	visitor(diplomacyAI.m_aiTheySanctionedUsTurn);
+	visitor(diplomacyAI.m_aiTheyUnsanctionedUsTurn);
 	visitor(diplomacyAI.m_aiTheySupportedOurHostingTurn);
 
 	// Player-Specific Memory
@@ -742,6 +750,7 @@ void CvDiplomacyAI::SlotStateChange()
 		SetMostValuableFriend(NO_PLAYER);
 		SetMostValuableAlly(NO_PLAYER);
 		SetBiggestCompetitor(NO_PLAYER);
+		SetPrimeLeagueAlly(NO_PLAYER);
 		SetPrimeLeagueCompetitor(NO_PLAYER);
 		SetDemandTargetPlayer(NO_PLAYER);
 		SetCSWarTargetPlayer(NO_PLAYER);
@@ -952,6 +961,7 @@ void CvDiplomacyAI::SlotStateChange()
 		SetMostValuableFriend(NO_PLAYER);
 		SetMostValuableAlly(NO_PLAYER);
 		SetBiggestCompetitor(NO_PLAYER);
+		SetPrimeLeagueAlly(NO_PLAYER);
 		SetPrimeLeagueCompetitor(NO_PLAYER);
 		SetDemandTargetPlayer(NO_PLAYER);
 		SetCSWarTargetPlayer(NO_PLAYER);
@@ -2803,6 +2813,18 @@ void CvDiplomacyAI::SetBiggestCompetitor(PlayerTypes ePlayer)
 {
 	if (ePlayer < NO_PLAYER || ePlayer >= MAX_MAJOR_CIVS) return;
 	m_eBiggestCompetitor = ePlayer;
+}
+
+/// Who is this AI's biggest World Congress ally?
+PlayerTypes CvDiplomacyAI::GetPrimeLeagueAlly() const
+{
+	return (PlayerTypes) m_ePrimeLeagueAlly;
+}
+
+void CvDiplomacyAI::SetPrimeLeagueAlly(PlayerTypes ePlayer)
+{
+	if (ePlayer < NO_PLAYER || ePlayer >= MAX_MAJOR_CIVS) return;
+	m_ePrimeLeagueAlly = ePlayer;
 }
 
 /// Who is this AI's biggest World Congress rival?
@@ -5796,6 +5818,32 @@ void CvDiplomacyAI::SetResurrectorAttackedUs(PlayerTypes ePlayer, bool bValue)
 	m_abResurrectorAttackedUs[ePlayer] = bValue;
 }
 
+/// Did this player ever successfully pass sanctions against us in the World Congress?
+bool CvDiplomacyAI::HasEverSanctionedUs(PlayerTypes ePlayer) const
+{
+	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return false;
+	return m_abEverSanctionedUs[ePlayer];
+}
+
+void CvDiplomacyAI::SetEverSanctionedUs(PlayerTypes ePlayer, bool bValue)
+{
+	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return;
+	m_abEverSanctionedUs[ePlayer] = bValue;
+}
+
+/// Did this player ever successfully repeal sanctions against us in the World Congress?
+bool CvDiplomacyAI::HasEverUnsanctionedUs(PlayerTypes ePlayer) const
+{
+	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return false;
+	return m_abEverUnsanctionedUs[ePlayer];
+}
+
+void CvDiplomacyAI::SetEverUnsanctionedUs(PlayerTypes ePlayer, bool bValue)
+{
+	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return;
+	m_abEverUnsanctionedUs[ePlayer] = bValue;
+}
+
 //	-----------------------------------------------------------------------------------------------
 
 // ------------------------------------
@@ -6978,6 +7026,29 @@ void CvDiplomacyAI::SetTheySanctionedUsTurn(PlayerTypes ePlayer, int iTurn)
 {
 	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return;
 	m_aiTheySanctionedUsTurn[ePlayer] = max(iTurn, -1);
+}
+
+bool CvDiplomacyAI::HasTriedToSanctionUs(PlayerTypes ePlayer) const
+{
+	return GetTheySanctionedUsTurn(ePlayer) != -1;
+}
+
+/// How many turns has it been since they proposed or voted to remove a sanction against us?
+int CvDiplomacyAI::GetTheyUnsanctionedUsTurn(PlayerTypes ePlayer) const
+{
+	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return -1;
+	return m_aiTheyUnsanctionedUsTurn[ePlayer];
+}
+
+void CvDiplomacyAI::SetTheyUnsanctionedUsTurn(PlayerTypes ePlayer, int iTurn)
+{
+	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return;
+	m_aiTheyUnsanctionedUsTurn[ePlayer] = max(iTurn, -1);
+}
+
+bool CvDiplomacyAI::HasTriedToUnsanctionUs(PlayerTypes ePlayer) const
+{
+	return GetTheyUnsanctionedUsTurn(ePlayer) != -1;
 }
 
 /// How many turns has it been since they supported relocating the World Congress to our lands?
@@ -12997,6 +13068,7 @@ int CvDiplomacyAI::CalculateCivOpinionWeight(PlayerTypes ePlayer)
 	iOpinionWeight += GetDislikedTheirProposalScore(ePlayer);
 	iOpinionWeight += GetSupportedOurProposalScore(ePlayer);
 	iOpinionWeight += GetSupportedMyHostingScore(ePlayer);
+	iOpinionWeight += GetSanctionedUsScore(ePlayer);
 
 	//////////////////////////////////////
 	// VASSALAGE
@@ -15401,7 +15473,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 
 	if (pLeague != NULL)
 	{
-		iDiploMultiplier = IsCompetingForVictory() && IsGoingForDiploVictory() ? 2 : 1;
+		iDiploMultiplier = IsCompetingForVictory() && IsGoingForDiploVictory() ? 3 : 1;
 
 		if (GetDiploBalance() >= 8)
 			iDiploMultiplier += 1;
@@ -15416,7 +15488,10 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 		{
 			if (GetPrimeLeagueCompetitor() == ePlayer)
 			{
-				iDiploMultiplier--;
+				if (IsGoingForDiploVictory())
+					iDiploMultiplier = 0;
+				else
+					iDiploMultiplier--;
 			}
 			if (bTheyAreCloseToDiploVictory)
 			{
@@ -17474,6 +17549,8 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 				// Is this one of our primary League competitors?
 				if (pLeague != NULL)
 				{
+					bool bSanctionAgainstUs = HasEverSanctionedUs(ePlayer) || HasTriedToSanctionUs(ePlayer);
+
 					// Prime competitor?
 					if (GetPrimeLeagueCompetitor() == ePlayer)
 					{
@@ -17495,8 +17572,8 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 							vApproachScores[CIV_APPROACH_HOSTILE] += vApproachBias[CIV_APPROACH_HOSTILE] * 5;
 						}
 					}
-					// More votes than us?
-					else if (pLeague->CalculateStartingVotesForMember(ePlayer) > pLeague->CalculateStartingVotesForMember(eMyPlayer))
+					// More votes than us or tried to sanction us?
+					else if (bSanctionAgainstUs || pLeague->CalculateStartingVotesForMember(ePlayer) > pLeague->CalculateStartingVotesForMember(eMyPlayer))
 					{
 						// Especially so if we're close to winning
 						if (bCloseToDiploVictory)
@@ -17511,7 +17588,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 							vApproachScores[CIV_APPROACH_WAR] += vApproachBias[CIV_APPROACH_WAR] * 3 * iAttackMultiplier;
 							vApproachScores[CIV_APPROACH_HOSTILE] += vApproachBias[CIV_APPROACH_HOSTILE] * 3 * iAttackMultiplier;
 						}
-						else if (bTheyAreCloseToDiploVictory || (GetPlayer()->GetLeagueAI()->EvaluateAlignment(ePlayer) <= CvLeagueAI::ALIGNMENT_NEUTRAL))
+						else if (bTheyAreCloseToDiploVictory || bSanctionAgainstUs || (GetPlayer()->GetLeagueAI()->EvaluateAlignment(ePlayer) <= CvLeagueAI::ALIGNMENT_NEUTRAL))
 						{
 							vApproachScores[CIV_APPROACH_GUARDED] += vApproachBias[CIV_APPROACH_GUARDED] * 3;
 							vApproachScores[CIV_APPROACH_DECEPTIVE] += vApproachBias[CIV_APPROACH_DECEPTIVE] * 3 * iAttackMultiplier;
@@ -17521,11 +17598,26 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 						else
 						{
 							vApproachScores[CIV_APPROACH_FRIENDLY] += (eOpinion > CIV_OPINION_ENEMY && GetWarmongerThreat(ePlayer) < THREAT_SEVERE) ? vApproachBias[CIV_APPROACH_FRIENDLY] * 5 : vApproachBias[CIV_APPROACH_FRIENDLY] * 2;
+							vApproachScores[CIV_APPROACH_DECEPTIVE] += (eOpinion > CIV_OPINION_ENEMY && GetWarmongerThreat(ePlayer) < THREAT_SEVERE) ? vApproachBias[CIV_APPROACH_DECEPTIVE] * 5 : vApproachBias[CIV_APPROACH_DECEPTIVE] * 2;
 							vApproachScores[CIV_APPROACH_WAR] -= (eOpinion > CIV_OPINION_ENEMY && GetWarmongerThreat(ePlayer) < THREAT_SEVERE) ? vApproachBias[CIV_APPROACH_WAR] * 5 : vApproachBias[CIV_APPROACH_WAR] * 2;
 							vApproachScores[CIV_APPROACH_HOSTILE] -= (eOpinion > CIV_OPINION_ENEMY && GetWarmongerThreat(ePlayer) < THREAT_SEVERE) ? vApproachBias[CIV_APPROACH_HOSTILE] * 5 : vApproachBias[CIV_APPROACH_HOSTILE] * 2;
 						}
 					}
-					// No? Well, we should be much more reluctant to go to war then!
+					// Have they tried to unsanction us? HUGE boost to relations even if we don't normally like them.
+					else if (HasEverUnsanctionedUs(ePlayer) || HasTriedToUnsanctionUs(ePlayer))
+					{
+						int iMultiplier = HasEverUnsanctionedUs(ePlayer) ? 200 : 100;
+						if (bUntrustworthy || GetWarmongerThreat(ePlayer) >= THREAT_SEVERE)
+							iMultiplier /= 2;
+
+						vApproachScores[CIV_APPROACH_FRIENDLY] += (vApproachBias[CIV_APPROACH_FRIENDLY] * 10 * iMultiplier) / 100;
+						vApproachScores[CIV_APPROACH_WAR] -= (vApproachBias[CIV_APPROACH_WAR] * 10 * iMultiplier) / 100;
+						vApproachScores[CIV_APPROACH_HOSTILE] -= (vApproachBias[CIV_APPROACH_HOSTILE] * 10 * iMultiplier) / 100;
+						vApproachScores[CIV_APPROACH_DECEPTIVE] -= (vApproachBias[CIV_APPROACH_DECEPTIVE] * 5 * iMultiplier) / 100;
+						vApproachScores[CIV_APPROACH_GUARDED] -= (vApproachBias[CIV_APPROACH_GUARDED] * 5 * iMultiplier) / 100;
+						vApproachScores[CIV_APPROACH_AFRAID] -= (vApproachBias[CIV_APPROACH_AFRAID] * 5 * iMultiplier) / 100;
+					}
+					// No? Well, we should still be much more reluctant to go to war then!
 					else
 					{
 						vApproachScores[CIV_APPROACH_FRIENDLY] += (eOpinion > CIV_OPINION_ENEMY && GetWarmongerThreat(ePlayer) < THREAT_SEVERE) ? vApproachBias[CIV_APPROACH_FRIENDLY] * 10 : vApproachBias[CIV_APPROACH_FRIENDLY] * 5;
@@ -18421,11 +18513,19 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 				}
 			}
 
-			// If either of us is sanctioned, we should be more hostile.
+			// If either of us is sanctioned, we should usually be more hostile.
 			if (pLeague->IsTradeEmbargoed(eMyPlayer, ePlayer))
 			{
-				vApproachScores[CIV_APPROACH_WAR] += vApproachBias[CIV_APPROACH_WAR] * 3;
-				vApproachScores[CIV_APPROACH_HOSTILE] += vApproachBias[CIV_APPROACH_HOSTILE] * 3;
+				bool bIgnore = IsLiberator(ePlayer, false, false) || GetCoopWarScore(ePlayer) > 0 || GetCivOpinion(ePlayer) == CIV_OPINION_ALLY || GetDoFType(ePlayer) == DOF_TYPE_BATTLE_BROTHERS || HasTriedToUnsanctionUs(ePlayer) && HasEverUnsanctionedUs(ePlayer);
+				if (bIgnore)
+					bIgnore = !HasEverSanctionedUs(ePlayer) && !HasTriedToSanctionUs(ePlayer) && !pTheirDiplo->HasEverSanctionedUs(eMyPlayer) && !pTheirDiplo->HasTriedToSanctionUs(eMyPlayer);
+
+				if (!bIgnore)
+				{
+					vApproachScores[CIV_APPROACH_WAR] += vApproachBias[CIV_APPROACH_WAR] * 5;
+					vApproachScores[CIV_APPROACH_HOSTILE] += vApproachBias[CIV_APPROACH_HOSTILE] * 5;
+					vApproachScores[CIV_APPROACH_GUARDED] += vApproachBias[CIV_APPROACH_GUARDED] * 5;
+				}
 			}
 
 			if (MOD_DIPLOMACY_CITYSTATES)
@@ -18437,6 +18537,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 					vApproachScores[CIV_APPROACH_NEUTRAL] -= vApproachBias[CIV_APPROACH_NEUTRAL] * 5;
 					vApproachScores[CIV_APPROACH_WAR] += vApproachBias[CIV_APPROACH_WAR] * 5;
 					vApproachScores[CIV_APPROACH_HOSTILE] += vApproachBias[CIV_APPROACH_HOSTILE] * 5;
+					vApproachScores[CIV_APPROACH_GUARDED] += vApproachBias[CIV_APPROACH_GUARDED] * 3;
 				}
 
 				// Global Peace Accords = less war, more friendly
@@ -18446,6 +18547,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 					vApproachScores[CIV_APPROACH_NEUTRAL] += vApproachBias[CIV_APPROACH_NEUTRAL] * 5;
 					vApproachScores[CIV_APPROACH_WAR] -= vApproachBias[CIV_APPROACH_WAR] * 5;
 					vApproachScores[CIV_APPROACH_HOSTILE] -= vApproachBias[CIV_APPROACH_HOSTILE] * 5;
+					vApproachScores[CIV_APPROACH_GUARDED] -= vApproachBias[CIV_APPROACH_GUARDED] * 3;
 				}
 			}
 		}
@@ -18791,7 +18893,16 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 
 	if (pLeague && pLeague->IsTradeEmbargoed(eMyPlayer, ePlayer))
 	{
-		if (!IsLiberator(ePlayer, false, false))
+		// Did they participate in sanctioning us or vice versa?
+		if (HasEverSanctionedUs(ePlayer) || HasTriedToSanctionUs(ePlayer) || pTheirDiplo->HasEverSanctionedUs(eMyPlayer) || pTheirDiplo->HasTriedToSanctionUs(eMyPlayer))
+		{
+			vApproachScores[CIV_APPROACH_FRIENDLY] /= 2;
+
+			// Clearly deception isn't working...
+			if (HasEverSanctionedUs(ePlayer) || pTheirDiplo->HasEverSanctionedUs(eMyPlayer))
+				vApproachScores[CIV_APPROACH_DECEPTIVE] /= 2;
+		}
+		else if (!IsLiberator(ePlayer, false, false) && GetCoopWarScore(ePlayer) > 0 && !HasTriedToUnsanctionUs(ePlayer) && !HasEverUnsanctionedUs(ePlayer))
 		{
 			// Let's not totally turn our backs on them if we have a good opinion.
 			switch (GetCivOpinion(ePlayer))
@@ -19460,6 +19571,12 @@ void CvDiplomacyAI::DoUpdateMajorCompetitors()
 				}
 				if (pLeague != NULL)
 				{
+					// Sanctioned us?
+					if (HasEverSanctionedUs(ePlayer))
+					{
+						SetMajorCompetitor(ePlayer, true);
+						continue;
+					}
 					// More votes than us and aligned against us?
 					if (pLeague->CalculateStartingVotesForMember(ePlayer) > iMyVotes)
 					{
@@ -19646,9 +19763,9 @@ void CvDiplomacyAI::DoRelationshipPairing()
 					// If they have less than 2/3rds of our votes, we don't hate them and their league alignment or opinion is high enough, let's give them a chance.
 					bGiveAChance = iVotes < ((iMyVotes * 2) / 3);
 					if (bGiveAChance)
-						bGiveAChance = GetCivOpinion(eLoopPlayer) > CIV_OPINION_ENEMY && !IsEndgameAggressiveTo(eLoopPlayer) && !IsUntrustworthy(eLoopPlayer);
+						bGiveAChance = GetCivOpinion(eLoopPlayer) > CIV_OPINION_ENEMY && !HasEverSanctionedUs(eLoopPlayer) && !HasTriedToSanctionUs(eLoopPlayer) && !IsEndgameAggressiveTo(eLoopPlayer) && !IsUntrustworthy(eLoopPlayer);
 					if (bGiveAChance)
-						bGiveAChance = GetCivOpinion(eLoopPlayer) >= CIV_OPINION_FRIEND || IsLiberator(eLoopPlayer, false, true) || GetPlayer()->GetLeagueAI()->EvaluateAlignment(eLoopPlayer) >= CvLeagueAI::ALIGNMENT_CONFIDANT;
+						bGiveAChance = GetCivOpinion(eLoopPlayer) >= CIV_OPINION_FRIEND || HasEverUnsanctionedUs(eLoopPlayer) || HasTriedToUnsanctionUs(eLoopPlayer) || IsLiberator(eLoopPlayer, false, true) || GetPlayer()->GetLeagueAI()->EvaluateAlignment(eLoopPlayer) >= CvLeagueAI::ALIGNMENT_CONFIDANT;
 
 					if (!bGiveAChance)
 					{
@@ -20427,6 +20544,11 @@ void CvDiplomacyAI::DoUpdatePlanningExchanges()
 				continue;
 			}
 			if (GetPlayerAttackCityStatePromiseState(*it) >= PROMISE_STATE_IGNORED || GetPlayerNoConvertPromiseState(*it) >= PROMISE_STATE_IGNORED || GetPlayerNoDiggingPromiseState(*it) >= PROMISE_STATE_IGNORED)
+			{
+				continue;
+			}
+			// Tried to sanction us
+			if (HasEverSanctionedUs(*it) || HasTriedToSanctionUs(*it))
 			{
 				continue;
 			}
@@ -41085,6 +41207,15 @@ bool CvDiplomacyAI::IsEndDoFAcceptable(PlayerTypes ePlayer, bool bIgnoreCurrentD
 		iChance -= GetMinorCivCompetitiveness();
 	}
 
+	if (HasEverSanctionedUs(ePlayer))
+	{
+		iChance -= 20;
+	}
+	else if (HasTriedToSanctionUs(ePlayer))
+	{
+		iChance -= 10;
+	}
+
 	if (WasEverBackstabbedBy(ePlayer))
 	{
 		iChance -= 10;
@@ -41328,6 +41459,15 @@ bool CvDiplomacyAI::IsDenounceFriendAcceptable(PlayerTypes ePlayer)
 				iChance -= GetMeanness();
 			}
 		}
+	}
+
+	if (HasEverSanctionedUs(ePlayer))
+	{
+		iChance -= 10;
+	}
+	else if (HasTriedToSanctionUs(ePlayer))
+	{
+		iChance -= 5;
 	}
 
 	if (WasEverBackstabbedBy(ePlayer))
@@ -43148,6 +43288,30 @@ void CvDiplomacyAI::DoTestOpinionModifiers()
 			{
 				SetTheySupportedOurHostingTurn(ePlayer, -1);
 				SetSupportedOurHostingValue(ePlayer, 0);
+			}
+		}
+
+		// Sanctioned us?
+		if (HasTriedToSanctionUs(ePlayer))
+		{
+			iTurnDifference = iTurn - GetTheySanctionedUsTurn(ePlayer);
+			iDuration = AdjustModifierDuration(false, /*50*/ GD_INT_GET(SANCTIONED_US_TURNS_UNTIL_FORGIVEN), max(GetDiploBalance(), GetNeediness()));
+
+			if (iTurnDifference >= iDuration)
+			{
+				SetTheySanctionedUsTurn(ePlayer, -1);
+			}
+		}
+
+		// Un-sanctioned us?
+		if (HasTriedToUnsanctionUs(ePlayer))
+		{
+			iTurnDifference = iTurn - GetTheyUnsanctionedUsTurn(ePlayer);
+			iDuration = AdjustModifierDuration(false, /*50*/ GD_INT_GET(SANCTIONED_US_TURNS_UNTIL_FORGIVEN), max(GetDiploBalance(), GetNeediness()));
+
+			if (iTurnDifference >= iDuration)
+			{
+				SetTheyUnsanctionedUsTurn(ePlayer, -1);
 			}
 		}
 	}
@@ -45945,6 +46109,55 @@ int CvDiplomacyAI::GetSupportedMyHostingScore(PlayerTypes ePlayer)
 
 		int iDuration = AdjustModifierDuration(true, /*50*/ GD_INT_GET(OPINION_WEIGHT_THEY_SUPPORTED_OUR_HOSTING_NUM_TURNS), GetDiploBalance());
 		return AdjustModifierValue(iOpinionWeight, iDuration, GetTheySupportedOurHostingTurn(ePlayer), MODIFIER_TYPE_NORMAL);
+	}
+
+	return iOpinionWeight;
+}
+
+int CvDiplomacyAI::GetSanctionedUsScore(PlayerTypes ePlayer)
+{
+	if (!GC.getGame().GetGameLeagues()->GetActiveLeague())
+		return 0;
+
+	int iOpinionWeight = 0;
+
+	if (HasTriedToSanctionUs(ePlayer))
+	{
+		iOpinionWeight = /*50*/ GD_INT_GET(OPINION_WEIGHT_THEY_SANCTIONED_US);
+
+		if (IsDiplomat() || GetPlayer()->GetPlayerTraits()->IsDiplomat())
+		{
+			iOpinionWeight *= /*200*/ GD_INT_GET(OPINION_WEIGHT_THEY_SANCTIONED_US_DIPLOMAT_MULTIPLIER);
+			iOpinionWeight /= 100;
+		}
+
+		if (!HasEverSanctionedUs(ePlayer))
+		{
+			iOpinionWeight *= 100;
+			iOpinionWeight /= /*200*/ max(1, GD_INT_GET(OPINION_WEIGHT_THEY_SANCTIONED_US_FAILURE_DIVISOR));
+		}
+
+		int iDuration = AdjustModifierDuration(false, /*50*/ GD_INT_GET(SANCTIONED_US_TURNS_UNTIL_FORGIVEN), max(GetDiploBalance(), GetNeediness()));
+		return AdjustModifierValue(iOpinionWeight, iDuration, GetTheySanctionedUsTurn(ePlayer), MODIFIER_TYPE_NORMAL);
+	}
+	else if (HasTriedToUnsanctionUs(ePlayer))
+	{
+		iOpinionWeight = /*-50*/ GD_INT_GET(OPINION_WEIGHT_THEY_UNSANCTIONED_US);
+
+		if (IsDiplomat() || GetPlayer()->GetPlayerTraits()->IsDiplomat())
+		{
+			iOpinionWeight *= /*200*/ GD_INT_GET(OPINION_WEIGHT_THEY_UNSANCTIONED_US_DIPLOMAT_MULTIPLIER);
+			iOpinionWeight /= 100;
+		}
+
+		if (!HasEverUnsanctionedUs(ePlayer))
+		{
+			iOpinionWeight *= 100;
+			iOpinionWeight /= /*200*/ max(1, GD_INT_GET(OPINION_WEIGHT_THEY_UNSANCTIONED_US_FAILURE_DIVISOR));
+		}
+
+		int iDuration = AdjustModifierDuration(true, /*50*/ GD_INT_GET(UNSANCTIONED_US_TURNS_UNTIL_FORGOTTEN), max(GetDiploBalance(), GetNeediness()));
+		return AdjustModifierValue(iOpinionWeight, iDuration, GetTheyUnsanctionedUsTurn(ePlayer), MODIFIER_TYPE_NORMAL);
 	}
 
 	return iOpinionWeight;

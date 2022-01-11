@@ -534,6 +534,16 @@ INSERT INTO Defines(Name, Value) SELECT 'OPINION_WEIGHT_THEY_SUPPORTED_OUR_HOSTI
 -- This % of the difference between the max and min values is added for each % that you contributed to the triggering vote
 INSERT INTO Defines(Name, Value) SELECT 'OPINION_WEIGHT_PER_VOTE_PERCENT', '2';
 
+-- We [tried to place/placed] sanctions on them in the World Congress.
+INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_THEY_SANCTIONED_US', '50';
+INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_THEY_SANCTIONED_US_DIPLOMAT_MULTIPLIER', '200'; -- increase for Diplomat AIs
+INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_THEY_SANCTIONED_US_FAILURE_DIVISOR', '200'; -- decrease if you don't succeed in placing the sanctions
+
+-- We [tried to free/freed] them from sanctions in the World Congress.
+INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_THEY_UNSANCTIONED_US', '-50';
+INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_THEY_UNSANCTIONED_US_DIPLOMAT_MULTIPLIER', '200'; -- increase for Diplomat AIs
+INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_THEY_UNSANCTIONED_US_FAILURE_DIVISOR', '200'; -- decrease if you don't succeed in removing the sanctions
+
 
 --	//////////////////////////////////////
 --	// CIV IV DIPLOMATIC FEATURES
@@ -718,5 +728,7 @@ UPDATE Defines SET Value = '50' WHERE Name = 'OPINION_WEIGHT_WE_DISLIKED_THEIR_P
 UPDATE Defines SET Value = '50' WHERE Name = 'OPINION_WEIGHT_THEY_SUPPORTED_OUR_PROPOSAL_NUM_TURNS';
 UPDATE Defines SET Value = '50' WHERE Name = 'OPINION_WEIGHT_THEY_FOILED_OUR_PROPOSAL_NUM_TURNS';
 UPDATE Defines SET Value = '50' WHERE Name = 'OPINION_WEIGHT_THEY_SUPPORTED_OUR_HOSTING_NUM_TURNS';
+INSERT INTO Defines (Name, Value) SELECT 'SANCTIONED_US_TURNS_UNTIL_FORGIVEN', '50';
+INSERT INTO Defines (Name, Value) SELECT 'UNSANCTIONED_US_TURNS_UNTIL_FORGOTTEN', '50';
 INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_VASSALAGE_PEACEFULLY_REVOKED_NUM_TURNS_UNTIL_FORGOTTEN', '100'; -- How many turns the "gave independence when asked" bonus remains for
 INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_VASSALAGE_FORCIBLY_REVOKED_NUM_TURNS_UNTIL_FORGIVEN', '100'; -- How many turns the "refused to give independence" when asked penalty remains for

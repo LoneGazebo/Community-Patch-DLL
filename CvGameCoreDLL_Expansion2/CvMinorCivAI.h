@@ -65,7 +65,6 @@ enum MinorCivQuestTypes
     MINOR_CIV_QUEST_DENOUNCE_MAJOR,
     MINOR_CIV_QUEST_SPREAD_RELIGION,
 	MINOR_CIV_QUEST_TRADE_ROUTE,
-#if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
 	MINOR_CIV_QUEST_WAR,
 	MINOR_CIV_QUEST_CONSTRUCT_NATIONAL_WONDER,
 	MINOR_CIV_QUEST_FIND_CITY_STATE,
@@ -76,14 +75,11 @@ enum MinorCivQuestTypes
 	MINOR_CIV_QUEST_LIBERATION,
 	MINOR_CIV_QUEST_HORDE,
 	MINOR_CIV_QUEST_REBELLION,
-#endif
-#if defined(MOD_BALANCE_CORE)
 	MINOR_CIV_QUEST_DISCOVER_PLOT,
 	MINOR_CIV_QUEST_BUILD_X_BUILDINGS,
 	MINOR_CIV_QUEST_UNIT_STEAL_FROM,
 	MINOR_CIV_QUEST_UNIT_COUP_CITY,
 	MINOR_CIV_QUEST_UNIT_GET_CITY,
-#endif
 
     NUM_MINOR_CIV_QUEST_TYPES,
 };
@@ -112,8 +108,7 @@ public:
 	static const int NO_QUEST_DATA = -1;
 	static const int NO_TURN = -1;
 
-	// Functions
-
+	// Quest data
 	CvMinorCivQuest();
 	CvMinorCivQuest(PlayerTypes eMinor, PlayerTypes eAssignedPlayer, MinorCivQuestTypes eType);
 
@@ -130,45 +125,47 @@ public:
 	int GetTurnsRemaining(int iCurrentTurn) const;
 	int GetPrimaryData() const;
 	int GetSecondaryData() const;
-
-	void DoRewards(PlayerTypes ePlayer);
-	CvString GetRewardString(PlayerTypes ePlayer, bool bFinish);
-	void CalculateRewards(PlayerTypes ePlayer, bool bRecalc = false);
-
-	void SetInfluence(int iValue);
-	void SetGPGlobal(int iValue);
-	void SetGP(int iValue);
-	void SetCulture(int iValue);
-	void SetExperience(int iValue);
-	void SetFaith(int iValue);
-	void SetScience(int iValue);
-	void SetFood(int iValue);
-	void SetProduction(int iValue);
-	void SetGold(int iValue);
-	void SetGoldenAgePoints(int iValue);
-	void SetHappiness(int iValue);
-	void SetTourism(int iValue);
-	void SetGeneralPoints(int iValue);
-	void SetAdmiralPoints(int iValue);
+	int GetTertiaryData() const;
 
 	int GetInfluence() const;
-	int GetGPGlobal() const;
-	int GetGP() const;
-	int GetCulture() const;
-	int GetExperience() const;
-	int GetFaith() const;
 	int GetGold() const;
 	int GetScience() const;
+	int GetCulture() const;
+	int GetFaith() const;
+	int GetGoldenAgePoints() const;
 	int GetFood() const;
 	int GetProduction() const;
-	int GetGoldenAgePoints() const;
-	int GetHappiness() const;
 	int GetTourism() const;
+	int GetHappiness() const;
+	int GetGP() const;
+	int GetGPGlobal() const;
 	int GetGeneralPoints() const;
 	int GetAdmiralPoints() const;
+	int GetExperience() const;
 
-	void SetPartialQuest(bool bValue);
+	void SetInfluence(int iValue);
+	void SetGold(int iValue);
+	void SetScience(int iValue);
+	void SetCulture(int iValue);
+	void SetFaith(int iValue);
+	void SetGoldenAgePoints(int iValue);
+	void SetFood(int iValue);
+	void SetProduction(int iValue);
+	void SetTourism(int iValue);
+	void SetHappiness(int iValue);
+	void SetGP(int iValue);
+	void SetGPGlobal(int iValue);
+	void SetGeneralPoints(int iValue);
+	void SetAdmiralPoints(int iValue);
+	void SetExperience(int iValue);
+
 	bool IsPartialQuest() const;
+	void SetPartialQuest(bool bValue);
+
+	// Handle rewards
+	void CalculateRewards(PlayerTypes ePlayer, bool bRecalc = false);
+	void DoRewards(PlayerTypes ePlayer);
+	CvString GetRewardString(PlayerTypes ePlayer, bool bFinish);
 
 	// Contest helper functions
 	int GetContestValueForPlayer(PlayerTypes ePlayer);
@@ -185,11 +182,7 @@ public:
 	void SetHandled(bool bValue);
 
 	// Starting and finishing
-#if defined(MOD_BALANCE_CORE)
-void DoStartQuest(int iStartTurn, PlayerTypes pCallingPlayer = NO_PLAYER);
-#else
-	void DoStartQuest(int iStartTurn);
-#endif
+	void DoStartQuest(int iStartTurn, PlayerTypes pCallingPlayer = NO_PLAYER);
 	void DoStartQuestUsingExistingData(CvMinorCivQuest* pExistingQuest);
 	bool DoFinishQuest();
 	bool DoCancelQuest();
@@ -201,26 +194,24 @@ void DoStartQuest(int iStartTurn, PlayerTypes pCallingPlayer = NO_PLAYER);
 	int m_iStartTurn;
 	int m_iData1;
 	int m_iData2;
-	bool m_bHandled;
-#if defined(MOD_BALANCE_CORE)
 	int m_iData3;
 	int m_iInfluence;
-	int m_iGPGlobal;
-	int m_iGP;
-	int m_iCulture;
-	int m_iExperience;
-	int m_iFaith;
 	int m_iGold;
 	int m_iScience;
+	int m_iCulture;
+	int m_iFaith;
+	int m_iGoldenAgePoints;
 	int m_iFood;
 	int m_iProduction;
-	int m_iGoldenAgePoints;
-	int m_iHappiness;
 	int m_iTourism;
+	int m_iHappiness;
+	int m_iGP;
+	int m_iGPGlobal;
 	int m_iGeneralPoints;
 	int m_iAdmiralPoints;
+	int m_iExperience;
 	bool m_bPartialQuest;
-#endif
+	bool m_bHandled;
 };
 FDataStream& operator>>(FDataStream&, CvMinorCivQuest&);
 FDataStream& operator<<(FDataStream&, const CvMinorCivQuest&);

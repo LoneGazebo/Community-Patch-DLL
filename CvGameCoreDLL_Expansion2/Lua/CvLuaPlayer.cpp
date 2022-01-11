@@ -13590,6 +13590,60 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 			kOpinion.m_str = str;
 			aOpinions.push_back(kOpinion);
 		}
+
+		iValue = pDiplo->GetVotingHistoryOpinionScore(ePlayer);
+		if (iValue != 0)
+		{
+			Opinion kOpinion;
+			kOpinion.m_iValue = (iValue > 0) ? 0 : iValue;
+			CvString str;
+
+			if (iValue > 0)
+			{
+				str = bUNActive ? Localization::Lookup("TXT_KEY_DIPLO_BAD_VOTING_HISTORY_UN").toUTF8() : Localization::Lookup("TXT_KEY_DIPLO_BAD_VOTING_HISTORY").toUTF8();
+			}
+			else
+			{
+				str = bUNActive ? Localization::Lookup("TXT_KEY_DIPLO_GOOD_VOTING_HISTORY_UN").toUTF8() : Localization::Lookup("TXT_KEY_DIPLO_GOOD_VOTING_HISTORY").toUTF8();
+			}
+
+			kOpinion.m_str = str;
+			aOpinions.push_back(kOpinion);
+		}
+
+		iValue = pDiplo->GetSanctionedUsScore(ePlayer);
+		if (iValue != 0)
+		{
+			Opinion kOpinion;
+			kOpinion.m_iValue = (iValue > 0) ? 0 : iValue;
+			CvString str;
+
+			if (iValue > 0)
+			{
+				if (pDiplo->HasEverSanctionedUs(ePlayer))
+				{
+					str = bUNActive ? Localization::Lookup("TXT_KEY_DIPLO_SANCTIONED_THEM_SUCCESSFUL_UN").toUTF8() : Localization::Lookup("TXT_KEY_DIPLO_SANCTIONED_THEM_SUCCESSFUL").toUTF8();
+				}
+				else
+				{
+					str = bUNActive ? Localization::Lookup("TXT_KEY_DIPLO_SANCTIONED_THEM_UNSUCCESSFUL_UN").toUTF8() : Localization::Lookup("TXT_KEY_DIPLO_SANCTIONED_THEM_UNSUCCESSFUL").toUTF8();
+				}
+			}
+			else
+			{
+				if (pDiplo->HasEverUnsanctionedUs(ePlayer))
+				{
+					str = bUNActive ? Localization::Lookup("TXT_KEY_DIPLO_UNSANCTIONED_THEM_SUCCESSFUL_UN").toUTF8() : Localization::Lookup("TXT_KEY_DIPLO_UNSANCTIONED_THEM_SUCCESSFUL").toUTF8();
+				}
+				else
+				{
+					str = bUNActive ? Localization::Lookup("TXT_KEY_DIPLO_UNSANCTIONED_THEM_UNSUCCESSFUL_UN").toUTF8() : Localization::Lookup("TXT_KEY_DIPLO_UNSANCTIONED_THEM_UNSUCCESSFUL").toUTF8();
+				}
+			}
+
+			kOpinion.m_str = str;
+			aOpinions.push_back(kOpinion);
+		}
 	}
 
 	//--------------------------------//
@@ -14519,6 +14573,40 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 			else
 			{
 				str = bUNActive ? Localization::Lookup("TXT_KEY_DIPLO_SUPPORTED_THEIR_HOSTING_UN").toUTF8() : Localization::Lookup("TXT_KEY_DIPLO_SUPPORTED_THEIR_HOSTING").toUTF8();
+			}
+
+			kOpinion.m_str = str;
+			aOpinions.push_back(kOpinion);
+		}
+
+		iValue = pDiplo->GetSanctionedUsScore(ePlayer);
+		if (iValue != 0)
+		{
+			Opinion kOpinion;
+			kOpinion.m_iValue = iValue;
+			CvString str;
+
+			if (iValue > 0)
+			{
+				if (pDiplo->HasEverSanctionedUs(ePlayer))
+				{
+					str = bUNActive ? Localization::Lookup("TXT_KEY_DIPLO_SANCTIONED_THEM_SUCCESSFUL_UN").toUTF8() : Localization::Lookup("TXT_KEY_DIPLO_SANCTIONED_THEM_SUCCESSFUL").toUTF8();
+				}
+				else
+				{
+					str = bUNActive ? Localization::Lookup("TXT_KEY_DIPLO_SANCTIONED_THEM_UNSUCCESSFUL_UN").toUTF8() : Localization::Lookup("TXT_KEY_DIPLO_SANCTIONED_THEM_UNSUCCESSFUL").toUTF8();
+				}
+			}
+			else
+			{
+				if (pDiplo->HasEverUnsanctionedUs(ePlayer))
+				{
+					str = bUNActive ? Localization::Lookup("TXT_KEY_DIPLO_UNSANCTIONED_THEM_SUCCESSFUL_UN").toUTF8() : Localization::Lookup("TXT_KEY_DIPLO_UNSANCTIONED_THEM_SUCCESSFUL").toUTF8();
+				}
+				else
+				{
+					str = bUNActive ? Localization::Lookup("TXT_KEY_DIPLO_UNSANCTIONED_THEM_UNSUCCESSFUL_UN").toUTF8() : Localization::Lookup("TXT_KEY_DIPLO_UNSANCTIONED_THEM_UNSUCCESSFUL").toUTF8();
+				}
 			}
 
 			kOpinion.m_str = str;

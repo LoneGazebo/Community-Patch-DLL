@@ -1025,6 +1025,11 @@ public:
 	int ScoreProposal(CvLeague* pLeague, ResolutionTypes eResolution, int iChoice, PlayerTypes eProposer = NO_PLAYER, bool bConsiderGlobal = false);
 	int ScoreProposal(CvLeague* pLeague, CvActiveResolution* pResolution, PlayerTypes eProposer = NO_PLAYER, bool bConsiderGlobal = false);
 
+	// Is a proposal a direct sanction against us?
+	bool IsSanctionAgainstUs(ResolutionTypes eResolution, PlayerTypes eProposer, int iChoice);
+	bool IsSanctionAgainstUs(CvActiveResolution* pResolution, PlayerTypes eProposer);
+	bool IsSanctionProposal(CvProposal* pProposal, PlayerTypes eRequiredTarget = NO_PLAYER);
+
 private:
 	
 	CvString GetTextForDesire(DesireLevels eDesire);

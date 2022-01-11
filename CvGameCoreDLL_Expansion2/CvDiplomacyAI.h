@@ -270,6 +270,8 @@ public:
 	void SetMostValuableAlly(PlayerTypes ePlayer);
 	PlayerTypes GetBiggestCompetitor() const;
 	void SetBiggestCompetitor(PlayerTypes ePlayer);
+	PlayerTypes GetPrimeLeagueAlly() const;
+	void SetPrimeLeagueAlly(PlayerTypes ePlayer);
 	PlayerTypes GetPrimeLeagueCompetitor() const;
 	void SetPrimeLeagueCompetitor(PlayerTypes ePlayer);
 	PlayerTypes GetDemandTargetPlayer() const;
@@ -702,6 +704,12 @@ public:
 	bool IsResurrectorAttackedUs(PlayerTypes ePlayer) const;
 	void SetResurrectorAttackedUs(PlayerTypes ePlayer, bool bValue);
 
+	bool HasEverSanctionedUs(PlayerTypes ePlayer) const;
+	void SetEverSanctionedUs(PlayerTypes ePlayer, bool bValue);
+
+	bool HasEverUnsanctionedUs(PlayerTypes ePlayer) const;
+	void SetEverUnsanctionedUs(PlayerTypes ePlayer, bool bValue);
+
 	// ------------------------------------
 	// # of times/points counters
 	// ------------------------------------
@@ -874,6 +882,11 @@ public:
 
 	int GetTheySanctionedUsTurn(PlayerTypes ePlayer) const;
 	void SetTheySanctionedUsTurn(PlayerTypes ePlayer, int iTurn);
+	bool HasTriedToSanctionUs(PlayerTypes ePlayer) const;
+
+	int GetTheyUnsanctionedUsTurn(PlayerTypes ePlayer) const;
+	void SetTheyUnsanctionedUsTurn(PlayerTypes ePlayer, int iTurn);
+	bool HasTriedToUnsanctionUs(PlayerTypes ePlayer) const;
 
 	int GetTheySupportedOurHostingTurn(PlayerTypes ePlayer) const;
 	void SetTheySupportedOurHostingTurn(PlayerTypes ePlayer, int iTurn);
@@ -1659,6 +1672,7 @@ public:
 	int GetDislikedTheirProposalScore(PlayerTypes ePlayer);
 	int GetSupportedOurProposalScore(PlayerTypes ePlayer);
 	int GetSupportedMyHostingScore(PlayerTypes ePlayer);
+	int GetSanctionedUsScore(PlayerTypes ePlayer);
 
 	// Vassalage
 	int GetVassalScore(PlayerTypes ePlayer);
@@ -1835,6 +1849,7 @@ private:
 	PlayerTypes m_eMostValuableFriend;
 	PlayerTypes m_eMostValuableAlly;
 	PlayerTypes m_eBiggestCompetitor;
+	PlayerTypes m_ePrimeLeagueAlly;
 	PlayerTypes m_ePrimeLeagueCompetitor;
 	PlayerTypes m_eDemandTargetPlayer;
 	PlayerTypes m_eCSWarTarget;
@@ -2005,6 +2020,8 @@ private:
 	bool m_abCapturedCapital[MAX_MAJOR_CIVS];
 	bool m_abCapturedHolyCity[MAX_MAJOR_CIVS];
 	bool m_abResurrectorAttackedUs[MAX_MAJOR_CIVS];
+	bool m_abEverSanctionedUs[MAX_MAJOR_CIVS];
+	bool m_abEverUnsanctionedUs[MAX_MAJOR_CIVS];
 
 	// # of times/points counters
 	unsigned char m_aiNumCitiesLiberated[MAX_MAJOR_CIVS];
@@ -2054,6 +2071,7 @@ private:
 	int m_aiTheySupportedOurProposalTurn[MAX_MAJOR_CIVS];
 	int m_aiTheyFoiledOurProposalTurn[MAX_MAJOR_CIVS];
 	int m_aiTheySanctionedUsTurn[MAX_MAJOR_CIVS];
+	int m_aiTheyUnsanctionedUsTurn[MAX_MAJOR_CIVS];
 	int m_aiTheySupportedOurHostingTurn[MAX_MAJOR_CIVS];
 
 	// Player-Specific Memory
