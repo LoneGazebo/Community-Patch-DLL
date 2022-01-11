@@ -8106,7 +8106,7 @@ void CvLeague::FinishSession()
 								}
 							}
 
-							// Score change = (% of player's votes dedicated to this outcome) + (2 * % contribution to outcome) * desire multiplier / - 100. Maximum score change is +/- 1200, though lower values are much more likely.
+							// Score change = (% of player's votes dedicated to this outcome) + (2 * % contribution to outcome) * desire multiplier / -100. Maximum score change is +/- 1200, though lower values are much more likely.
 							// Traded votes against the outcome subtract from the player's votes for the outcome.
 							int iPlayerVoteChange = (iPercentOfPlayerVotes * /*100*/ GD_INT_GET(VOTING_HISTORY_SCORE_PLAYER_VOTE_PERCENT_VALUE)) / 100;
 							int iOutcomeVoteChange = (iVotePercent * /*200*/ GD_INT_GET(VOTING_HISTORY_SCORE_OUTCOME_VOTE_PERCENT_VALUE)) / 100;

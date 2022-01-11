@@ -18516,7 +18516,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 			// If either of us is sanctioned, we should usually be more hostile.
 			if (pLeague->IsTradeEmbargoed(eMyPlayer, ePlayer))
 			{
-				bool bIgnore = IsLiberator(ePlayer, false, false) || GetCoopWarScore(ePlayer) > 0 || GetCivOpinion(ePlayer) == CIV_OPINION_ALLY || GetDoFType(ePlayer) == DOF_TYPE_BATTLE_BROTHERS || HasTriedToUnsanctionUs(ePlayer) && HasEverUnsanctionedUs(ePlayer);
+				bool bIgnore = IsLiberator(ePlayer, false, false) || GetCoopWarScore(ePlayer) > 0 || GetCivOpinion(ePlayer) == CIV_OPINION_ALLY || GetDoFType(ePlayer) == DOF_TYPE_BATTLE_BROTHERS || HasTriedToUnsanctionUs(ePlayer) || HasEverUnsanctionedUs(ePlayer);
 				if (bIgnore)
 					bIgnore = !HasEverSanctionedUs(ePlayer) && !HasTriedToSanctionUs(ePlayer) && !pTheirDiplo->HasEverSanctionedUs(eMyPlayer) && !pTheirDiplo->HasTriedToSanctionUs(eMyPlayer);
 
@@ -18902,7 +18902,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 			if (HasEverSanctionedUs(ePlayer) || pTheirDiplo->HasEverSanctionedUs(eMyPlayer))
 				vApproachScores[CIV_APPROACH_DECEPTIVE] /= 2;
 		}
-		else if (!IsLiberator(ePlayer, false, false) && GetCoopWarScore(ePlayer) > 0 && !HasTriedToUnsanctionUs(ePlayer) && !HasEverUnsanctionedUs(ePlayer))
+		else if (!IsLiberator(ePlayer, false, false) && GetCoopWarScore(ePlayer) <= 0 && GetDoFType(ePlayer) != DOF_TYPE_BATTLE_BROTHERS && !HasTriedToUnsanctionUs(ePlayer) && !HasEverUnsanctionedUs(ePlayer))
 		{
 			// Let's not totally turn our backs on them if we have a good opinion.
 			switch (GetCivOpinion(ePlayer))
