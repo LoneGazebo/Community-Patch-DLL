@@ -49096,6 +49096,9 @@ PlayerTypes CvPlayer::GetPlayerWhoStoleMyFavoriteCitySite()
 	if (pPreviousFavorite && GC.getGame().GetClosestCityDistanceInPlots(pPreviousFavorite, true) < 5)
 	{
 		CvCity* pCity = GC.getGame().GetClosestCityByPlots(pPreviousFavorite, true);
+		if (!pCity)
+			return NO_PLAYER;
+
 		//get triggered if the settle spot was close to one of our cities
 		int iTriggerDistance = GetDiplomacyAI()->GetBoldness() + /*5*/ GD_INT_GET(AI_DIPLO_PLOT_RANGE_FROM_CITY_HOME_FRONT);
 		if (pCity->getTeam() != getTeam() && GetCityDistancePathLength(pPreviousFavorite) < iTriggerDistance)
