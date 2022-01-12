@@ -50,8 +50,9 @@ INSERT INTO Defines (Name, Value)
 SELECT 'DIPLOAI_DEFENSIVE_PACT_LIMIT_BASE', '2';
 
 -- [DEFENSIVE PACT SCALER]
--- If the base limit for Defensive Pacts is > 0, AI players can make one extra Defensive Pact above the base limit for every X other major civilizations that are currently alive and that they have met, where X is the value below (default 10).
--- If the base limit for Defensive Pacts is <= 0, this value does nothing.
+-- If the base limit for Defensive Pacts is 1 or higher, AI players can make one extra Defensive Pact above the base limit for every X other major civilizations that are currently alive and that they have met, where X is the value below (default 10).
+-- If the base limit for Defensive Pacts is 0 or lower, this value does nothing.
+-- If this value is set to 0 or lower, no scaling based on the number of other major civilizations occurs.
 INSERT INTO Defines (Name, Value)
 SELECT 'DIPLOAI_DEFENSIVE_PACT_LIMIT_SCALER', '10';
 
