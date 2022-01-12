@@ -2966,11 +2966,20 @@
 		<Row Tag="TXT_KEY_DIPLO_DEBUG_TOP_ALLY">
 			<Text>Top DP:</Text>
 		</Row>
-		<Row Tag="TXT_KEY_DIPLO_DEBUG_TOP_COMPETITOR">
-			<Text>Top Competitor:</Text>
+		<Row Tag="TXT_KEY_DIPLO_DEBUG_TOP_LEAGUE_ALLY">
+			<Text>Top WC Ally:</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_DEBUG_TOP_LEAGUE_COMPETITOR">
 			<Text>Top WC Rival:</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_DEBUG_TOP_LEAGUE_ALLY_UN">
+			<Text>Top UN Ally:</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_DEBUG_TOP_LEAGUE_COMPETITOR_UN">
+			<Text>Top UN Rival:</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_DEBUG_TOP_COMPETITOR">
+			<Text>Top Competitor:</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_DEBUG_TOP_CHOICE_NONE">
 			<Text>None</Text>

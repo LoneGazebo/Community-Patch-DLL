@@ -12625,8 +12625,10 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 		PlayerTypes eTopFriend = pDiplo->GetMostValuableFriend();
 		PlayerTypes eTopDP = pDiplo->GetMostValuableAlly();
 		PlayerTypes eTopCompetitor = pDiplo->GetBiggestCompetitor();
+		PlayerTypes eTopLeagueAlly = pDiplo->GetPrimeLeagueAlly();
 		PlayerTypes eTopLeagueRival = pDiplo->GetPrimeLeagueCompetitor();
 		CvString FriendStr;
+		CvString LeagueStr;
 		CvString EnemyStr;
 
 		FriendStr = Localization::Lookup("TXT_KEY_DIPLO_DEBUG_TOP_FRIEND").toUTF8();
@@ -12663,6 +12665,40 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 			}
 		}
 
+		CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
+		if (pLeague != NULL)
+		{
+			LeagueStr = bUNActive ? Localization::Lookup("TXT_KEY_DIPLO_DEBUG_TOP_LEAGUE_ALLY_UN").toUTF8() : Localization::Lookup("TXT_KEY_DIPLO_DEBUG_TOP_LEAGUE_ALLY").toUTF8();
+			LeagueStr += " ";
+			if (eTopLeagueAlly == NO_PLAYER || !GET_PLAYER(eTopLeagueAlly).isAlive())
+			{
+				LeagueStr += Localization::Lookup("TXT_KEY_DIPLO_DEBUG_TOP_CHOICE_NONE").toUTF8();
+			}
+			else if (eTopLeagueAlly == ePlayer)
+			{
+				LeagueStr += Localization::Lookup("TXT_KEY_DIPLO_DEBUG_TOP_CHOICE_YOU").toUTF8();
+			}
+			else
+			{
+				LeagueStr += GET_PLAYER(eTopLeagueAlly).getCivilizationShortDescription();
+			}
+			LeagueStr += ", ";
+			LeagueStr += bUNActive ? Localization::Lookup("TXT_KEY_DIPLO_DEBUG_TOP_LEAGUE_COMPETITOR_UN").toUTF8() : Localization::Lookup("TXT_KEY_DIPLO_DEBUG_TOP_LEAGUE_COMPETITOR").toUTF8();
+			LeagueStr += " ";
+			if (eTopLeagueRival == NO_PLAYER || !GET_PLAYER(eTopLeagueRival).isAlive())
+			{
+				LeagueStr += Localization::Lookup("TXT_KEY_DIPLO_DEBUG_TOP_CHOICE_NONE").toUTF8();
+			}
+			else if (eTopLeagueRival == ePlayer)
+			{
+				LeagueStr += Localization::Lookup("TXT_KEY_DIPLO_DEBUG_TOP_CHOICE_YOU").toUTF8();
+			}
+			else
+			{
+				LeagueStr += GET_PLAYER(eTopLeagueRival).getCivilizationShortDescription();
+			}
+		}
+
 		EnemyStr = Localization::Lookup("TXT_KEY_DIPLO_DEBUG_TOP_COMPETITOR").toUTF8();
 		EnemyStr += " ";
 		if (eTopCompetitor == NO_PLAYER || !GET_PLAYER(eTopCompetitor).isAlive())
@@ -12678,30 +12714,17 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 			EnemyStr += GET_PLAYER(eTopCompetitor).getCivilizationShortDescription();
 		}
 
-		CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
-		if (pLeague != NULL)
-		{
-			EnemyStr += ", ";
-			EnemyStr += Localization::Lookup("TXT_KEY_DIPLO_DEBUG_TOP_LEAGUE_COMPETITOR").toUTF8();
-			EnemyStr += " ";
-			if (eTopLeagueRival == NO_PLAYER || !GET_PLAYER(eTopLeagueRival).isAlive())
-			{
-				EnemyStr += Localization::Lookup("TXT_KEY_DIPLO_DEBUG_TOP_CHOICE_NONE").toUTF8();
-			}
-			else if (eTopLeagueRival == ePlayer)
-			{
-				EnemyStr += Localization::Lookup("TXT_KEY_DIPLO_DEBUG_TOP_CHOICE_YOU").toUTF8();
-			}
-			else
-			{
-				EnemyStr += GET_PLAYER(eTopLeagueRival).getCivilizationShortDescription();
-			}
-		}
-
 		Opinion kOpinion;
 		kOpinion.m_iValue = 0;
 		kOpinion.m_str = FriendStr;
 		aOpinions.push_back(kOpinion);
+
+		if (pLeague)
+		{
+			kOpinion.m_str = LeagueStr;
+			aOpinions.push_back(kOpinion);
+		}
+
 		kOpinion.m_str = EnemyStr;
 		aOpinions.push_back(kOpinion);
 	}

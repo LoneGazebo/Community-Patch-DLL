@@ -26971,22 +26971,28 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 				}
 				case INSTANT_YIELD_TYPE_CONVERSION:
 				{
-					int iBaseValue = pReligion->m_Beliefs.GetYieldFromConversion(eYield, GetID(), pLoopCity, true);
-					if (iBaseValue != 0)
+					if (pReligion)
 					{
-						int iTempValue = iBaseValue;
-						iTempValue *= (100 + pReligion->m_Beliefs.GetCityScalerLimiter(iNumFollowerCities) * pReligion->m_Beliefs.GetCityScalerLimiter(iNumFollowerCities));
-						iTempValue /= 100;
+						int iBaseValue = pReligion->m_Beliefs.GetYieldFromConversion(eYield, GetID(), pLoopCity, true);
+						if (iBaseValue != 0)
+						{
+							int iTempValue = iBaseValue;
+							iTempValue *= (100 + pReligion->m_Beliefs.GetCityScalerLimiter(iNumFollowerCities) * pReligion->m_Beliefs.GetCityScalerLimiter(iNumFollowerCities));
+							iTempValue /= 100;
 
-						iBaseValue = iTempValue;
+							iBaseValue = iTempValue;
+						}
+
+						iValue += iBaseValue;
 					}
-
-					iValue += iBaseValue;
 					break;
 				}
 				case INSTANT_YIELD_TYPE_CONVERSION_EXPO:
 				{
-					iValue += pReligion->m_Beliefs.GetYieldFromConversionExpo(eYield, GetID(), pLoopCity, true) * iNumFollowerCities;
+					if (pReligion)
+					{
+						iValue += pReligion->m_Beliefs.GetYieldFromConversionExpo(eYield, GetID(), pLoopCity, true) * iNumFollowerCities;
+					}
 					break;
 				}
 				case INSTANT_YIELD_TYPE_DEATH:
