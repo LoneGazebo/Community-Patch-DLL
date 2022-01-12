@@ -8185,6 +8185,18 @@ void CvLeague::FinishSession()
 	}
 
 	SetInSession(false);
+
+	// AI should reevaluate its approaches after a World Congress vote
+	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+	{
+		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+
+		if (!GET_PLAYER(eLoopPlayer).isAlive() || !GET_PLAYER(eLoopPlayer).isMajorCiv())
+			continue;
+
+		vector<PlayerTypes> v = GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->GetAllValidMajorCivs();
+		GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->DoReevaluatePlayers(v);
+	}
 }
 
 void CvLeague::AssignStartingVotes()

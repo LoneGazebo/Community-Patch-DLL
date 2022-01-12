@@ -7026,14 +7026,6 @@ void CvDiplomacyAI::SetTheySanctionedUsTurn(PlayerTypes ePlayer, int iTurn)
 {
 	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return;
 	m_aiTheySanctionedUsTurn[ePlayer] = max(iTurn, -1);
-
-	// AI reevaluate approaches now!
-	if (iTurn > -1 && !GetPlayer()->isHuman() && GetPlayer()->isAlive() && GET_PLAYER(ePlayer).isAlive())
-	{
-		vector<PlayerTypes> v;
-		v.push_back(ePlayer);
-		DoReevaluatePlayers(v);
-	}
 }
 
 bool CvDiplomacyAI::HasTriedToSanctionUs(PlayerTypes ePlayer) const
