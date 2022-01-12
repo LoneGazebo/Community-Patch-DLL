@@ -649,7 +649,7 @@ void CvUnitCombat::ResolveMeleeCombat(const CvCombatInfo& kCombatInfo, uint uiPa
 
 					pkAttacker->PublishQueuedVisualizationMoves();
 #if defined(MOD_BALANCE_CORE)
-					if (pkAttacker->getAOEDamageOnKill() != 0)
+					if (pkAttacker->getAOEDamageOnKill() != 0 && bDefenderDead)
 					{
 						CvPlot* pAdjacentPlot = NULL;
 						CvPlot* pPlot = GC.getMap().plot(pkAttacker->getX(), pkAttacker->getY());
@@ -3789,12 +3789,30 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::Attack(CvUnit& kAttacker, CvPlot& targ
 				MILITARYLOG(pDefender->getOwner(), strBuffer.c_str(), pDefender->plot(), kAttacker.getOwner());
 		}
 
-		// Move forward
-		if(targetPlot.getNumVisibleEnemyDefenders(&kAttacker) == 0)
+		// Move forward if able
+		bool bCanAdvance = kCombatInfo.getAttackerAdvances() && targetPlot.getNumVisibleEnemyDefenders(&kAttacker) == 0;
+		if (bCanAdvance)
 		{
 			kAttacker.UnitMove(&targetPlot, true, &kAttacker);
 		}
-
+		else
+		{
+			kAttacker.ClearMissionQueue(false, GetPostCombatDelay());
+			if (!CvPreGame::quickMovement())
+			{
+				// move into tile then back out (at the movement cost of one tile)
+				CvPlot* pFromPlot = kAttacker.plot();
+				kAttacker.UnitMove(&targetPlot, true, &kAttacker);
+				kAttacker.setXY(pFromPlot->getX(), pFromPlot->getY(), true, true, true, true);
+				kAttacker.PublishQueuedVisualizationMoves();
+			}
+			else
+			{
+				// Reduce moves left without playing animation
+				int iMoveCost = targetPlot.movementCost(&kAttacker, kAttacker.plot(), kAttacker.getMoves());
+				kAttacker.changeMoves(-iMoveCost);
+			}
+		}
 //		kAttacker.setMadeAttack(true);   /* EFB: Doesn't work, causes tactical AI to not dequeue this attack; but we've decided you don't lose your attack anyway */
 		eResult = ATTACK_COMPLETED;
 	}
