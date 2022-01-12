@@ -2561,6 +2561,7 @@ void CvHomelandAI::ExecuteWorkerMoves()
 {
 	// where can our workers go
 	std::map<CvUnit*,ReachablePlots> allWorkersReachablePlots;
+	std::set<int> workersToIgnore;
 
 	//see what each worker can do in its immediate vicinity
 	//if there is no work there, it will move towards the city which needs a worker most
@@ -2585,6 +2586,8 @@ void CvHomelandAI::ExecuteWorkerMoves()
 			{
 				SPathFinderUserData data(pLoopUnit, 0, 5);
 				allWorkersReachablePlots[pLoopUnit] = GC.GetPathFinder().GetPlotsInReach(pLoopUnit->plot(), data);
+
+				workersToIgnore.insert(pLoopUnit->GetID());
 			}
 		}
 	}
@@ -2600,6 +2603,7 @@ void CvHomelandAI::ExecuteWorkerMoves()
 		{
 			if(MoveCivilianToSafety(pUnit))
 			{
+				workersToIgnore.insert(pUnit->GetID());
 				UnitProcessed(pUnit->GetID());
 				continue;
 			}
@@ -2634,6 +2638,11 @@ void CvHomelandAI::ExecuteWorkerMoves()
 	for(std::map<CvUnit*,ReachablePlots>::iterator it = allWorkersReachablePlots.begin(); it != allWorkersReachablePlots.end(); ++it)
 	{
 		CvUnit* pUnit = it->first;
+
+		//cannot use m_CurrentMoveUnits here, need to update the reachable plots ... but not all units in allWorkersReachablePlots are supposed to be used
+		if (workersToIgnore.find(pUnit->GetID()) != workersToIgnore.end())
+			continue;
+
 		//this checks for work in the immediate neighborhood of the workers
 		CvPlot* pTarget = ExecuteWorkerMove(pUnit, allWorkersReachablePlots);
 		if (pTarget)
