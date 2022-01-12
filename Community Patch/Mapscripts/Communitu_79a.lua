@@ -1854,7 +1854,7 @@ end
 function GetMapScriptInfo()
 	local world_age, temperature, rainfall, sea_level = GetCoreMapOptions()
 	return {
-		Name = "Communitu_79a v2.3.0-exp",
+		Name = "Communitu_79a v2.3.1",
 		Description = "Communitas mapscript for Vox Populi",
 		IsAdvancedMap = false,
 		SupportsMultiplayer = true,
@@ -5767,7 +5767,7 @@ end
 
 function oceanButNotIceMatch(x, y)
 	local plot = Map.GetPlot(x, y)
-	return plot:GetFeatureType() ~= FeatureTypes.FEATURE_ICE and plot:GetPlotType() == PlotTypes.PLOT_OCEAN and not Plot_IsLake(plot)
+	return plot:GetFeatureType() ~= FeatureTypes.FEATURE_ICE and plot:GetPlotType() == PlotTypes.PLOT_OCEAN and not plot:IsLake()
 end
 
 function landMatch(x,y)
