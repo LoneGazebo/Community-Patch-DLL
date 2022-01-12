@@ -42,6 +42,19 @@ SELECT 'DIPLOAI_DISABLE_CITY_TRADING', '0';
 INSERT INTO Defines (Name, Value)
 SELECT 'DIPLOAI_DISABLE_VOLUNTARY_VASSALAGE', '0';
 
+-- [DEFENSIVE PACT BASE LIMIT]
+-- If set to -1, Defensive Pacts are disabled for both AI and human players.
+-- If set to 0, the AI will not form Defensive Pacts.
+-- If set to 1 or higher, this value is the base limit for an AI's maximum Defensive Pacts (default 2).
+INSERT INTO Defines (Name, Value)
+SELECT 'DIPLOAI_DEFENSIVE_PACT_LIMIT_BASE', '2';
+
+-- [DEFENSIVE PACT SCALER]
+-- If the base limit for Defensive Pacts is > 0, AI players can make one extra Defensive Pact above the base limit for every X other major civilizations that are currently alive and that they have met, where X is the value below (default 10).
+-- If the base limit for Defensive Pacts is <= 0, this value does nothing.
+INSERT INTO Defines (Name, Value)
+SELECT 'DIPLOAI_DEFENSIVE_PACT_LIMIT_SCALER', '10';
+
 -- [DISABLE INSULT MESSAGES]
 -- If set to 1, AI civilizations will not send threats/insults such as "you're a warmonger" or "you're getting too friendly with our City-State friends" to human players.
 -- Note that these messages provide a chance to provoke the AI into declaring war. Disabling them removes this chance.

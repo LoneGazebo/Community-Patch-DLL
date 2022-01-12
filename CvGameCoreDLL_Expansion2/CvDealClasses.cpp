@@ -787,8 +787,11 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 				bIgnoreExistingDP = true;
 				break;
 			}
-
 		}
+
+		// Defensive Pacts were disabled in DiploAIOptions.sql
+		if (GD_INT_GET(DIPLOAI_DEFENSIVE_PACT_LIMIT_BASE) < 0)
+			return false;
 
 		// Not valid in a demand/request
 		if (this->GetDemandingPlayer() != NO_PLAYER || this->GetRequestingPlayer() != NO_PLAYER)

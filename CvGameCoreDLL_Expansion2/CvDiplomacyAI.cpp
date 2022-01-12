@@ -20472,7 +20472,7 @@ void CvDiplomacyAI::DoUpdatePlanningExchanges()
 		return;
 
 	vector<PlayerTypes> vValidPlayers;
-	bool bCancelDPs = GetPlayer()->IsAITeammateOfHuman() || GC.getGame().countMajorCivsAlive() <= 2;
+	bool bCancelDPs = GetPlayer()->IsAITeammateOfHuman() || GC.getGame().countMajorCivsAlive() <= 2 || GD_INT_GET(DIPLOAI_DEFENSIVE_PACT_LIMIT_BASE) <= 0;
 
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
@@ -20925,10 +20925,11 @@ void CvDiplomacyAI::DoUpdatePlanningExchanges()
 			}
 
 			int iNumDefensePacts = GetNumDefensePacts();
-			int iDefensePactLimit = 2;
+			int iDefensePactLimit = /*2*/ GD_INT_GET(DIPLOAI_DEFENSIVE_PACT_LIMIT_BASE);
 
 			// Scale limit with map size, but sparingly
-			iDefensePactLimit += (int)(vValidPlayers.size() / 10);
+			if (GD_INT_GET(DIPLOAI_DEFENSIVE_PACT_LIMIT_SCALER) > 0)
+				iDefensePactLimit += (int)(vValidPlayers.size() / /*10*/ GD_INT_GET(DIPLOAI_DEFENSIVE_PACT_LIMIT_SCALER));
 
 			if (GetPlayer()->GetDefensePactsToVotes() > 0)
 			{
