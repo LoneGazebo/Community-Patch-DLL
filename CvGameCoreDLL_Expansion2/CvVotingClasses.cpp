@@ -7464,10 +7464,13 @@ void CvLeague::FinishSession()
 								GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->SetTheySanctionedUsTurn(*playerIt, -1);
 								GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->SetEverUnsanctionedUs(*playerIt, true);
 
-								// In case the proposer didn't vote, let's also extend their turn counter
-								GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->SetTheyUnsanctionedUsTurn(eProposer, (GC.getGame().getGameTurn()+1));
-								GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->SetTheySanctionedUsTurn(eProposer, -1);
-								GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->SetEverUnsanctionedUs(eProposer, true);
+								// If the proposer didn't vote, let's also extend their turn counter
+								if (std::find(vHelpedOutcome.begin(), vHelpedOutcome.end(), eProposer) == vHelpedOutcome.end() && std::find(vHarmedOutcome.begin(), vHarmedOutcome.end(), eProposer) == vHarmedOutcome.end())
+								{
+									GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->SetTheyUnsanctionedUsTurn(eProposer, (GC.getGame().getGameTurn()+1));
+									GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->SetTheySanctionedUsTurn(eProposer, -1);
+									GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->SetEverUnsanctionedUs(eProposer, true);
+								}
 							}
 							// Normal proposal
 							else
@@ -7798,10 +7801,13 @@ void CvLeague::FinishSession()
 								GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->SetTheyUnsanctionedUsTurn(*playerIt, -1);
 								GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->SetEverSanctionedUs(*playerIt, true);
 
-								// In case the proposer didn't vote, let's also extend their turn counter
-								GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->SetTheySanctionedUsTurn(eProposer, (GC.getGame().getGameTurn()+1));
-								GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->SetTheyUnsanctionedUsTurn(eProposer, -1);
-								GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->SetEverSanctionedUs(eProposer, true);
+								// If the proposer didn't vote, let's also extend their turn counter
+								if (std::find(vHelpedOutcome.begin(), vHelpedOutcome.end(), eProposer) == vHelpedOutcome.end() && std::find(vHarmedOutcome.begin(), vHarmedOutcome.end(), eProposer) == vHarmedOutcome.end())
+								{
+									GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->SetTheySanctionedUsTurn(eProposer, (GC.getGame().getGameTurn()+1));
+									GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->SetTheyUnsanctionedUsTurn(eProposer, -1);
+									GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->SetEverSanctionedUs(eProposer, true);
+								}
 							}
 							// Normal proposal
 							else
