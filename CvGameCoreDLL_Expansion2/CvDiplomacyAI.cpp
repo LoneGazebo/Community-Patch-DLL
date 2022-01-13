@@ -10929,8 +10929,8 @@ void CvDiplomacyAI::DoExpansionBickering()
 		if (!IsPlayerValid(ePlayer) || !GET_PLAYER(ePlayer).isMajorCiv())
 			continue;
 
-		// Don't bother checking if they ignored/broke a promise, or if bicker range is 0.
-		if (GetPlayerExpansionPromiseState(ePlayer) >= PROMISE_STATE_IGNORED || iExpansionBickerRange <= 0)
+		// Don't bother checking if they ignored/broke a promise, if bicker range is 0, or if they're our master.
+		if (GetPlayerExpansionPromiseState(ePlayer) >= PROMISE_STATE_IGNORED || iExpansionBickerRange <= 0 || IsVassal(ePlayer))
 		{
 			if (IsAngryAboutExpansion(ePlayer))
 				SetAngryAboutExpansion(ePlayer, false);
@@ -11126,6 +11126,13 @@ void CvDiplomacyAI::DoUpdateLandDisputeLevels()
 			// Look at our Proximity to the other Player
 			PlayerProximityTypes eProximity = GetPlayer()->GetProximityToPlayer(ePlayer);
 			if (eProximity < PLAYER_PROXIMITY_CLOSE)
+			{
+				SetLandDisputeLevel(ePlayer, DISPUTE_LEVEL_NONE);
+				continue;
+			}
+
+			// Ignore masters and vassals
+			if (IsVassal(ePlayer) || (IsMaster(ePlayer) && GetNumCitiesCapturedBy(ePlayer) <= GET_PLAYER(ePlayer).GetDiplomacyAI()->GetNumCitiesCapturedBy(GetID())))
 			{
 				SetLandDisputeLevel(ePlayer, DISPUTE_LEVEL_NONE);
 				continue;
@@ -20619,6 +20626,7 @@ void CvDiplomacyAI::DoUpdatePlanningExchanges()
 			if (GetCivStrategicApproach(*it) >= CIV_APPROACH_FRIENDLY)
 			{
 				SetWantsDoFWithPlayer(*it, true);
+				SetWantsToEndDoFWithPlayer(*it, false);
 			}
 			else
 			{
@@ -53814,6 +53822,14 @@ bool CvDiplomacyAI::IsVoluntaryVassalageAcceptable(PlayerTypes ePlayer)
 	if (GetVassalFailedProtectScore(ePlayer) > 0 && GetVassalFailedProtectScore(ePlayer) > (GetVassalProtectScore(ePlayer) * -1))
 		return false;
 
+	// They stole from us recently - no
+	if (GetNumTimesRobbedBy(ePlayer) > 0 || GetNumTimesCultureBombed(ePlayer) > 0 || GetNumTimesPerformedCoupAgainstUs(ePlayer) > 0)
+		return false;
+
+	// Plotting against us? No thanks!
+	if (GetNumTimesTheyPlottedAgainstUs(ePlayer) > 0)
+		return false;
+
 	int iOurCivs = GET_TEAM(GetTeam()).getAliveCount();
 	int iTheirCivs = GET_TEAM(GET_PLAYER(ePlayer).getTeam()).getAliveCount();
 
@@ -55403,7 +55419,7 @@ CvString CvDiplomacyAI::GetVassalTreatmentToolTip(PlayerTypes ePlayer)
 		// Opening our borders
 		iScore = GetVassalOpenBordersScore(ePlayer);
 		szColor = ((iScore == 0) ? "[COLOR_GREY]" : ((iScore < 0) ? "[COLOR_POSITIVE_TEXT]" : "[COLOR_NEGATIVE_TEXT]"));
-		szRtnValue += "[NEWLINE][TAB][ICON_BULLET]" + szColor + GetLocalizedText("TXT_KEY_VO_TREATMENT_TRADE_ROUTE", -iScore) + "[ENDCOLOR]";
+		szRtnValue += "[NEWLINE][TAB][ICON_BULLET]" + szColor + GetLocalizedText("TXT_KEY_VO_TREATMENT_OPEN_BORDERS", -iScore) + "[ENDCOLOR]";
 		
 		// Shared religion interests
 		if (!GC.getGame().isOption(GAMEOPTION_NO_RELIGION))
@@ -55489,6 +55505,12 @@ void CvDiplomacyAI::DoWeMadeVassalageWithSomeone(TeamTypes eMasterTeam, bool bVo
 			// Cancel coop wars targeting us
 			GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->CancelCoopWarsAgainstPlayer(GetID(), true);
 
+			// Vassals don't compete for victory
+			SetVictoryDisputeLevel(eLoopPlayer, DISPUTE_LEVEL_NONE);
+			SetVictoryBlockLevel(eLoopPlayer, BLOCK_LEVEL_NONE);
+			SetTechBlockLevel(eLoopPlayer, BLOCK_LEVEL_NONE);
+			SetPolicyBlockLevel(eLoopPlayer, BLOCK_LEVEL_NONE);
+
 			if (!bVoluntary)
 			{
 				// Clear this player's warmongering penalties
@@ -55526,16 +55548,18 @@ void CvDiplomacyAI::DoWeMadeVassalageWithSomeone(TeamTypes eMasterTeam, bool bVo
 			GET_PLAYER(eOtherTeamPlayer).GetDiplomacyAI()->SetWarmongerThreat(GetID(), THREAT_NONE);
 			GET_PLAYER(eOtherTeamPlayer).GetDiplomacyAI()->SetOtherPlayerWarmongerAmountTimes100(GetID(), 0);
 
-			// Reset memory of demands made
-			SetNumDemandsMade(eOtherTeamPlayer, 0);
-
-			// Vassal thought they were a liberator, but Master had other plans...
-			SetMasterLiberatedMeFromVassalage(eOtherTeamPlayer, false);
-			SetVassalagePeacefullyRevokedTurn(eOtherTeamPlayer, -1);
+			// Reset land dispute penalty
+			SetLandDisputeLevel(eOtherTeamPlayer, DISPUTE_LEVEL_NONE);
+			if (GetNumCitiesCapturedBy(eOtherTeamPlayer) >= GET_PLAYER(eOtherTeamPlayer).GetDiplomacyAI()->GetNumCitiesCapturedBy(GetID()))
+				GET_PLAYER(eOtherTeamPlayer).GetDiplomacyAI()->SetLandDisputeLevel(GetID(), DISPUTE_LEVEL_NONE);
 
 			// Forget any denouncing
 			SetDenouncedPlayer(eOtherTeamPlayer, false);
 			GET_PLAYER(eOtherTeamPlayer).GetDiplomacyAI()->SetDenouncedPlayer(GetID(), false);
+
+			// Vassal thought they were a liberator, but Master had other plans...
+			SetMasterLiberatedMeFromVassalage(eOtherTeamPlayer, false);
+			SetVassalagePeacefullyRevokedTurn(eOtherTeamPlayer, -1);
 
 			// Master forgets any backstabbing
 			GET_PLAYER(eOtherTeamPlayer).GetDiplomacyAI()->SetDoFBroken(GetID(), false, true);
@@ -55543,17 +55567,23 @@ void CvDiplomacyAI::DoWeMadeVassalageWithSomeone(TeamTypes eMasterTeam, bool bVo
 			GET_PLAYER(eOtherTeamPlayer).GetDiplomacyAI()->SetFriendDeclaredWarOnUs(GetID(), false);
 			GET_PLAYER(eOtherTeamPlayer).GetDiplomacyAI()->SetVassalageForcefullyRevokedTurn(GetID(), -1);
 			GET_PLAYER(eOtherTeamPlayer).GetDiplomacyAI()->SetPlayerBrokenVassalAgreement(GetID(), false);
+
+			// Reset memory of demands made and some other "minor" grievances
+			if (!IsPlayerBrokenVassalAgreement(eOtherTeamPlayer) && !IsResurrectorAttackedUs(eOtherTeamPlayer))
+			{
+				SetNumDemandsMade(eOtherTeamPlayer, 0);
+				SetNumTradeRoutesPlundered(eOtherTeamPlayer, 0);
+				SetNegativeReligiousConversionPoints(eOtherTeamPlayer, 0);
+				SetEverConvertedCity(eOtherTeamPlayer, false);
+				SetNumTimesTheyLoweredOurInfluence(eOtherTeamPlayer, 0);
+				SetNumWondersBeatenTo(eOtherTeamPlayer, 0);
+				SetWonderDisputeLevel(eOtherTeamPlayer, DISPUTE_LEVEL_NONE);
+			}
 			
 			// During capitulation, reset almost all (negative) diplomatic scores. Rationale: When capitulating, AI tends to be very hostile.
-			if (!bVoluntary && !IsResurrectorAttackedUs(eOtherTeamPlayer))
+			if (!bVoluntary && !IsPlayerBrokenVassalAgreement(eOtherTeamPlayer) && !IsResurrectorAttackedUs(eOtherTeamPlayer))
 			{
-				SetLandDisputeLevel(eOtherTeamPlayer, DISPUTE_LEVEL_NONE);
-				SetWonderDisputeLevel(eOtherTeamPlayer, DISPUTE_LEVEL_NONE);
 				SetMinorCivDisputeLevel(eOtherTeamPlayer, DISPUTE_LEVEL_NONE);
-				SetVictoryDisputeLevel(eOtherTeamPlayer, DISPUTE_LEVEL_NONE);
-				SetVictoryBlockLevel(eOtherTeamPlayer, BLOCK_LEVEL_NONE);
-				SetTechBlockLevel(eOtherTeamPlayer, BLOCK_LEVEL_NONE);
-				SetPolicyBlockLevel(eOtherTeamPlayer, BLOCK_LEVEL_NONE);
 				
 				if (GetRecentAssistValue(eOtherTeamPlayer) > 0)
 				{
@@ -55561,14 +55591,9 @@ void CvDiplomacyAI::DoWeMadeVassalageWithSomeone(TeamTypes eMasterTeam, bool bVo
 				}
 				
 				SetCivilianKillerValue(eOtherTeamPlayer, 0);
-				SetNumTradeRoutesPlundered(eOtherTeamPlayer, 0);
-				SetEverConvertedCity(eOtherTeamPlayer, false);
-				
 				SetNumTimesTheyPlottedAgainstUs(eOtherTeamPlayer, 0);
-				SetNumTimesTheyLoweredOurInfluence(eOtherTeamPlayer, 0);
 				SetNumTimesPerformedCoupAgainstUs(eOtherTeamPlayer, 0);
 				SetNumTimesCultureBombed(eOtherTeamPlayer, 0);
-				SetNegativeReligiousConversionPoints(eOtherTeamPlayer, 0);
 				SetNegativeArchaeologyPoints(eOtherTeamPlayer, 0);
 				SetNumTimesRobbedBy(eOtherTeamPlayer, 0);
 				
