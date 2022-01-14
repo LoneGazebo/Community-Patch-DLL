@@ -714,7 +714,7 @@ class CvUnitPromotions
 public:
 	CvUnitPromotions(void);
 	~CvUnitPromotions(void);
-	void Init(CvPromotionXMLEntries* pPromotions, CvUnit* pUnit);
+	void Init();
 	void Uninit();
 	void Reset();
 	template<typename UnitPromotions, typename Visitor>
@@ -722,18 +722,16 @@ public:
 	void Read(FDataStream& kStream);
 	void Write(FDataStream& kStream) const;
 
-	CvUnit* GetUnit();
-
 	bool HasPromotion(PromotionTypes eIndex) const;
 	void SetPromotion(PromotionTypes eIndex, bool bValue);
 
-	bool GetAllowFeaturePassable(FeatureTypes eFeatureType) const;
-	bool GetAllowTerrainPassable(TerrainTypes eTerrainType) const;
+	bool GetAllowFeaturePassable(FeatureTypes eFeatureType, TeamTypes eTeam) const;
+	bool GetAllowTerrainPassable(TerrainTypes eTerrainType, TeamTypes eTeam) const;
 
 	int GetUnitClassAttackMod(UnitClassTypes eUnitClass) const;
 	int GetUnitClassDefenseMod(UnitClassTypes eUnitClass) const;
 
-	PromotionTypes ChangePromotionAfterCombat(PromotionTypes eIndex);
+	PromotionTypes ChangePromotionAfterCombat(PromotionTypes eIndex, CvUnit* pThisUnit);
 
 private:
 	bool IsInUseByPlayer(PromotionTypes eIndex, PlayerTypes ePlayer); 
@@ -747,8 +745,6 @@ private:
 #endif
 
 	CvBitfield m_kHasPromotion;
-	CvPromotionXMLEntries* m_pPromotions;
-	CvUnit* m_pUnit;
 };
 
 FDataStream& operator>>(FDataStream&, CvUnitPromotions&);
