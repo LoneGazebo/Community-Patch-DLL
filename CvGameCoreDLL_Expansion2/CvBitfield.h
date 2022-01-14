@@ -15,9 +15,37 @@ class CvBitfield
 {
 public:
 
-	CvBitfield() : m_pBits(NULL), m_uiByteSize(0) {};
-	CvBitfield(uint uiSize) : m_pBits(NULL), m_uiByteSize(0) { SetSize(uiSize); };
-	~CvBitfield() { SetSize(0); }
+	CvBitfield()
+		: m_pBits(NULL)
+		, m_uiByteSize(0)
+	{
+	}
+
+	CvBitfield(uint uiSize)
+		: m_pBits(NULL)
+		, m_uiByteSize(0)
+	{
+		SetSize(uiSize);
+	}
+
+	CvBitfield(const CvBitfield& src)
+		: m_pBits(NULL)
+		, m_uiByteSize(0)
+	{
+		*this = src;
+	}
+
+	~CvBitfield()
+	{
+		SetSize(0);
+	}
+
+	CvBitfield& operator=(const CvBitfield& rhs)
+	{
+		resizeBytes(rhs.m_uiByteSize);
+		memcpy(m_pBits, rhs.m_pBits, m_uiByteSize);
+		return *this;
+	}
 
 	/// Get a bit
 	bool GetBit(uint uiIndex) const
@@ -41,12 +69,11 @@ public:
 			else
 				m_pBits[uiByteIndex] &= ~(1 << (uiIndex&0x7));
 		}
-		else
-			if (bValue)		// Only resize if setting the value
-			{
-				SetSize(uiIndex + 1);
-				m_pBits[uiByteIndex] |= (1 << (uiIndex&0x7));
-			}
+		else if (bValue) // Only resize if setting the value
+		{
+			SetSize(uiIndex + 1);
+			m_pBits[uiByteIndex] |= (1 << (uiIndex & 0x7));
+		}
 	}
 	/// Clear all the bits
 	void Clear()
@@ -75,38 +102,19 @@ private:
 			m_uiByteSize = 0;
 			m_pBits = NULL;
 		}
-		if (uiByteSize == 0)
+		else if (uiByteSize != m_uiByteSize)
 		{
-			delete[]m_pBits;
-			m_uiByteSize = 0;
-			m_pBits = NULL;
-		}
-		else
-			if (uiByteSize > m_uiByteSize)
+			byte* pNewBits = new byte[uiByteSize];
+			memset(pNewBits, 0, uiByteSize);
+			if (m_uiByteSize)
 			{
-				byte* pNewBits = new byte[uiByteSize];
-				memset(pNewBits, 0, uiByteSize);
-				if (m_uiByteSize)
-				{
-					memcpy(pNewBits, m_pBits, m_uiByteSize);
-					delete[]m_pBits;
-				}
-				m_pBits = pNewBits;
-				m_uiByteSize = uiByteSize;
+				const uint retainSize = uiByteSize > m_uiByteSize ? m_uiByteSize : uiByteSize;
+				memcpy(pNewBits, m_pBits, retainSize);
+				delete[]m_pBits;
 			}
-			else
-				if (uiByteSize < m_uiByteSize)
-				{
-					byte* pNewBits = new byte[uiByteSize];
-					memset(pNewBits, 0, uiByteSize);
-					if (m_uiByteSize)
-					{
-						memcpy(pNewBits, m_pBits, uiByteSize);
-						delete[]m_pBits;
-					}
-					m_pBits = pNewBits;
-					m_uiByteSize = uiByteSize;
-				}
+			m_pBits = pNewBits;
+			m_uiByteSize = uiByteSize;
+		}
 	}
 
 	uint m_uiByteSize;

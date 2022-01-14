@@ -6005,8 +6005,18 @@ bool CvUnit::canGift(bool bTestVisible, bool bTestTransport) const
 		return false;
 	}
 
-	if (GET_PLAYER(pPlot->getOwner()).GetIncomingUnitCountdown(m_eOwner) != -1)
-		return false;
+	if (GET_PLAYER(pPlot->getOwner()).isMinorCiv())
+	{
+		CvMinorCivAI* pMinorCivAI = GET_PLAYER(pPlot->getOwner()).GetMinorCivAI();
+		CvAssert(pMinorCivAI);
+		if (pMinorCivAI)
+		{
+			if (pMinorCivAI->getIncomingUnitGift(getOwner()).getArrivalCountdown() != -1)
+			{
+				return false;
+			}
+		}
+	}
 
 	if(pPlot->getOwner() == getOwner())
 	{
@@ -6225,10 +6235,16 @@ bool CvUnit::CanDistanceGift(PlayerTypes eToPlayer) const
 			}
 		}
 
-		// Is there a distance gift from us waiting to be delivered?
-		if (GET_PLAYER(eToPlayer).GetIncomingUnitType(getOwner()) != NO_UNIT)
+		CvMinorCivAI* pMinorCivAI = GET_PLAYER(eToPlayer).GetMinorCivAI();
+		CvAssert(pMinorCivAI);
+
+		if (pMinorCivAI)
 		{
-			return false;
+			// Is there a distance gift from us waiting to be delivered?
+			if (pMinorCivAI->getIncomingUnitGift(getOwner()).getArrivalCountdown() != -1)
+			{
+				return false;
+			}
 		}
 	}
 
@@ -6795,6 +6811,16 @@ int CvUnit::getChangeDamageValue()
 }
 
 //	--------------------------------------------------------------------------------
+void CvUnit::SetPromotionDuration(PromotionTypes eIndex, int iValue)
+{
+	std::map<PromotionTypes, int>& m_map = m_PromotionDuration;
+	if (iValue > 0)
+		m_map[eIndex] = iValue;
+	else
+		m_map.erase(eIndex);
+}
+
+//	--------------------------------------------------------------------------------
 void CvUnit::ChangePromotionDuration(PromotionTypes eIndex, int iChange)
 {
 	std::map<PromotionTypes, int>& m_map = m_PromotionDuration;
@@ -6808,7 +6834,7 @@ void CvUnit::ChangePromotionDuration(PromotionTypes eIndex, int iChange)
 		m_map[eIndex] = iChange;
 }
 //	--------------------------------------------------------------------------------
-int CvUnit::getPromotionDuration(PromotionTypes eIndex)
+int CvUnit::getPromotionDuration(PromotionTypes eIndex) const
 {
 	const std::map<PromotionTypes, int>& m_map = m_PromotionDuration;
 	std::map<PromotionTypes, int>::const_iterator it = m_map.find(eIndex);
@@ -6828,7 +6854,7 @@ void CvUnit::SetTurnPromotionGained(PromotionTypes eIndex, int iValue)
 		m_map.erase(eIndex);
 }
 //	--------------------------------------------------------------------------------
-int CvUnit::getTurnPromotionGained(PromotionTypes eIndex)
+int CvUnit::getTurnPromotionGained(PromotionTypes eIndex) const
 {
 	const std::map<PromotionTypes, int>& m_map = m_TurnPromotionGained;
 	std::map<PromotionTypes, int>::const_iterator it = m_map.find(eIndex);

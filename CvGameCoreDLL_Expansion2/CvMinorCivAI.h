@@ -216,6 +216,51 @@ public:
 FDataStream& operator>>(FDataStream&, CvMinorCivQuest&);
 FDataStream& operator<<(FDataStream&, const CvMinorCivQuest&);
 
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//  CLASS:      CvMinorCivIncomingUnitGift
+//!  \brief		Information about an incoming unit gifted to a minor civ.
+//
+//!  Key Attributes:
+//!  - Lightweight representation of a unit.
+//!  - Held by CvMinorCivAI as only minor civs can receive this kind of gift.
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+class CvMinorCivIncomingUnitGift
+{
+public:
+	CvMinorCivIncomingUnitGift();
+	CvMinorCivIncomingUnitGift(const CvUnit& srcUnit, int iArriveInTurns);
+
+	template<typename MinorCivIncomingUnitGift, typename Visitor>
+	static void Serialize(MinorCivIncomingUnitGift& minorCivIncomingUnitGift, Visitor& visitor);
+
+	void init(const CvUnit& srcUnit, int iArriveInTurns);
+
+	int getArrivalCountdown() const;
+	UnitTypes getUnitType() const;
+	bool isHasPromotion(PromotionTypes ePromotion) const;
+	int getPromotionDuration(PromotionTypes ePromotion) const;
+	int getTurnPromotionGained(PromotionTypes ePromotion) const;
+
+	void setArrivalCountdown(int iNewCountdown);
+	void changeArrivalCountdown(int iChangeCountdown);
+	void setUnitType(UnitTypes eNewUnitType);
+	void setHasPromotion(PromotionTypes ePromotion, bool bNewValue);
+	void setPromotionDuration(PromotionTypes ePromotion, int iNewValue);
+	void setTurnPromotionGained(PromotionTypes ePromotion, int iNewValue);
+
+	void applyToUnit(CvUnit& destUnit) const;
+	void reset();
+
+private:
+	int m_iArrivalCountdown;
+	UnitTypes m_eUnitType;
+	CvBitfield m_HasPromotions;
+	std::map<PromotionTypes, int> m_PromotionDuration;
+	std::map<PromotionTypes, int> m_TurnPromotionGained;
+};
+FDataStream& operator>>(FDataStream&, CvMinorCivIncomingUnitGift&);
+FDataStream& operator<<(FDataStream&, const CvMinorCivIncomingUnitGift&);
+
 
 class CvPlayer;
 
@@ -673,7 +718,7 @@ public:
 	void SetNumUnitsGifted(PlayerTypes ePlayer, int iValue);
 	void ChangeNumUnitsGifted(PlayerTypes ePlayer, int iChange);
 
-	void DoUnitGiftFromMajor(PlayerTypes eFromPlayer, CvUnit* pGiftUnit, bool bDistanceGift);
+	void DoUnitGiftFromMajor(PlayerTypes eFromPlayer, CvUnit*& pGiftUnit, bool bDistanceGift);
 	int GetFriendshipFromUnitGift(PlayerTypes eFromPlayer, bool bGreatPerson, bool bDistanceGift);
 
 	int GetNumGoldGifted(PlayerTypes ePlayer) const;
@@ -723,6 +768,11 @@ public:
 	bool IsSiphoned(PlayerTypes ePlayer) const;
 	void SetSiphoned(PlayerTypes ePlayer, bool bValue);
 #endif
+
+	const CvMinorCivIncomingUnitGift& getIncomingUnitGift(PlayerTypes eMajor) const;
+	CvMinorCivIncomingUnitGift& getIncomingUnitGift(PlayerTypes eMajor);
+
+	void doIncomingUnitGifts();
 
 	// ******************************
 	// ***** Misc Helper Functions *****
@@ -809,6 +859,8 @@ private:
 	bool m_abWaryOfTeam[MAX_CIV_TEAMS];
 
 	bool m_bDisableNotifications;
+
+	CvMinorCivIncomingUnitGift m_IncomingUnitGifts[MAX_MAJOR_CIVS];
 
 	//not serialized, generated and cached on demand
 	int m_iBullyPlotsBuilt;

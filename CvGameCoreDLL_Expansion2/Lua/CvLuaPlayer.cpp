@@ -9509,13 +9509,43 @@ int CvLuaPlayer::lDoUpdateProximityToPlayer(lua_State* L)
 //int GetIncomingUnitType(PlayerTypes eFromPlayer);
 int CvLuaPlayer::lGetIncomingUnitType(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvPlayer::GetIncomingUnitType);
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	if (pkPlayer->isMinorCiv())
+	{
+		const CvMinorCivAI* pMinorCivAI = pkPlayer->GetMinorCivAI();
+		CvAssert(pMinorCivAI);
+		if (pMinorCivAI)
+		{
+			const PlayerTypes eFromPlayer = static_cast<PlayerTypes>(lua_tointeger(L, 2));
+			lua_pushinteger(L, pMinorCivAI->getIncomingUnitGift(eFromPlayer).getUnitType());
+			return 1;
+		}
+	}
+
+	// Calling this on a non-minor civ is not an error for backwards compatability.
+	lua_pushinteger(L, NO_UNIT);
+	return 1;
 }
 //------------------------------------------------------------------------------
 //int GetIncomingUnitCountdown(PlayerTypes eFromPlayer);
 int CvLuaPlayer::lGetIncomingUnitCountdown(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvPlayer::GetIncomingUnitCountdown);
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	if (pkPlayer->isMinorCiv())
+	{
+		const CvMinorCivAI* pMinorCivAI = pkPlayer->GetMinorCivAI();
+		CvAssert(pMinorCivAI);
+		if (pMinorCivAI)
+		{
+			const PlayerTypes eFromPlayer = static_cast<PlayerTypes>(lua_tointeger(L, 2));
+			lua_pushinteger(L, pMinorCivAI->getIncomingUnitGift(eFromPlayer).getArrivalCountdown());
+			return 1;
+		}
+	}
+
+	// Calling this on a non-minor civ is not an error for backwards compatability.
+	lua_pushinteger(L, -1);
+	return 1;
 }
 //------------------------------------------------------------------------------
 //bool isOption(PlayerOptionTypes  eIndex);

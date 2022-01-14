@@ -393,8 +393,6 @@ CvPlayer::CvPlayer() :
 	, m_aiNumUnitsBuilt()
 	, m_aiProximityToPlayer()
 	, m_aiResearchAgreementCounter()
-	, m_aiIncomingUnitTypes()
-	, m_aiIncomingUnitCountdowns()
 	, m_aiSiphonLuxuryCount()
 	, m_aiTourismBonusTurnsPlayer()
 	, m_aiGreatWorkYieldChange()
@@ -1973,12 +1971,6 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 
 	m_aiResearchAgreementCounter.clear();
 	m_aiResearchAgreementCounter.resize(MAX_PLAYERS, 0);
-
-	m_aiIncomingUnitTypes.clear();
-	m_aiIncomingUnitTypes.resize(MAX_PLAYERS, NO_UNIT);
-
-	m_aiIncomingUnitCountdowns.clear();
-	m_aiIncomingUnitCountdowns.resize(MAX_PLAYERS, -1);
 
 	m_aiSiphonLuxuryCount.clear();
 	m_aiSiphonLuxuryCount.resize(MAX_PLAYERS, 0);
@@ -4558,44 +4550,56 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 	// City-State now has zero cities? Return any incoming units to their owners.
 	if (GET_PLAYER(eOldOwner).isMinorCiv() && GET_PLAYER(eOldOwner).getNumCities() == 0)
 	{
-		for (int iMajorLoop = 0; iMajorLoop < MAX_MAJOR_CIVS; iMajorLoop++)
+		CvMinorCivAI* pMinorCivAI = GET_PLAYER(eOldOwner).GetMinorCivAI();
+		CvAssert(pMinorCivAI);
+		if (pMinorCivAI)
 		{
-			PlayerTypes eMajor = (PlayerTypes) iMajorLoop;
-			if (GET_PLAYER(eMajor).isMajorCiv() && GET_PLAYER(eOldOwner).GetIncomingUnitCountdown(eMajor) > 0)
+			for (int iMajorLoop = 0; iMajorLoop < MAX_MAJOR_CIVS; iMajorLoop++)
 			{
-				UnitTypes eUnitType = GET_PLAYER(eOldOwner).GetIncomingUnitType(eMajor);
-				if (eUnitType == NO_UNIT)
-					continue;
+				PlayerTypes eMajor = (PlayerTypes)iMajorLoop;
 
-				CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUnitType);
-				if (!pkUnitInfo)
-					continue;
-
-				CvCity* pClosestCity = NULL;
-				if (pkUnitInfo->GetDomainType() == DOMAIN_SEA)
-					pClosestCity = OperationalAIHelpers::GetClosestFriendlyCoastalCity(eMajor, pCityPlot);
-				else
-					pClosestCity = GET_PLAYER(eMajor).GetClosestCityByPlots(pCityPlot);
-
-				if (!pClosestCity)
-					continue;
-
-				CvUnit* pNewUnit = GET_PLAYER(eMajor).initUnit(eUnitType, pClosestCity->getX(), pClosestCity->getY());
-				if (!pNewUnit)
-					continue;
-
-				if (pNewUnit->getDomainType() != DOMAIN_AIR && !pNewUnit->jumpToNearestValidPlot())
-					pNewUnit->kill(false);
-
-				CvNotifications* pNotify = GET_PLAYER(eMajor).GetNotifications();
-				if (pNotify)
+				CvMinorCivIncomingUnitGift& unitGift = pMinorCivAI->getIncomingUnitGift(eMajor);
+				if (unitGift.getArrivalCountdown() > 0)
 				{
-					Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_CS_GIFT_RETURNED_SUMMARY");
-					strSummary << GET_PLAYER(eOldOwner).getCivilizationShortDescriptionKey();
-					Localization::String strNotification = Localization::Lookup("TXT_KEY_NOTIFICATION_CS_GIFT_RETURNED");
-					strNotification << GET_PLAYER(eOldOwner).getNameKey();
-					strNotification << pNewUnit->getNameKey();
-					pNotify->Add(NOTIFICATION_GENERIC, strNotification.toUTF8(), strSummary.toUTF8(), iCityX, iCityY, -1);
+					UnitTypes eUnitType = unitGift.getUnitType();
+					if (eUnitType == NO_UNIT)
+						continue;
+
+					CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUnitType);
+					if (!pkUnitInfo)
+						continue;
+
+					CvCity* pClosestCity = NULL;
+					if (pkUnitInfo->GetDomainType() == DOMAIN_SEA)
+						pClosestCity = OperationalAIHelpers::GetClosestFriendlyCoastalCity(eMajor, pCityPlot);
+					else
+						pClosestCity = GET_PLAYER(eMajor).GetClosestCityByPlots(pCityPlot);
+
+					if (!pClosestCity)
+						continue;
+
+					CvUnit* pNewUnit = GET_PLAYER(eMajor).initUnit(eUnitType, pClosestCity->getX(), pClosestCity->getY());
+					if (!pNewUnit)
+						continue;
+
+					unitGift.applyToUnit(*pNewUnit);
+
+					if (pNewUnit->getDomainType() != DOMAIN_AIR && !pNewUnit->jumpToNearestValidPlot())
+					{
+						pNewUnit->kill(false);
+						continue;
+					}
+
+					CvNotifications* pNotify = GET_PLAYER(eMajor).GetNotifications();
+					if (pNotify)
+					{
+						Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_CS_GIFT_RETURNED_SUMMARY");
+						strSummary << GET_PLAYER(eOldOwner).getCivilizationShortDescriptionKey();
+						Localization::String strNotification = Localization::Lookup("TXT_KEY_NOTIFICATION_CS_GIFT_RETURNED");
+						strNotification << GET_PLAYER(eOldOwner).getNameKey();
+						strNotification << pNewUnit->getNameKey();
+						pNotify->Add(NOTIFICATION_GENERIC, strNotification.toUTF8(), strSummary.toUTF8(), iCityX, iCityY, -1);
+					}
 				}
 			}
 		}
@@ -11711,7 +11715,6 @@ void CvPlayer::doTurnPostDiplomacy()
 #if defined(MOD_BALANCE_CORE)
 	}
 #endif
-	DoIncomingUnits();
 
 	const int iGameTurn = kGame.getGameTurn();
 
@@ -33877,17 +33880,6 @@ void CvPlayer::setAlive(bool bNewValue, bool bNotify)
 	// Update Minor Civ AI
 	if (isMinorCiv())
 	{
-		if (!bNewValue)
-		{
-			// Reset incoming units
-			for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
-			{
-				PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
-				SetIncomingUnitCountdown(eLoopPlayer, -1);
-				SetIncomingUnitType(eLoopPlayer, NO_UNIT);
-			}
-		}
-
 		GetMinorCivAI()->DoChangeAliveStatus(bNewValue);
 	}
 
@@ -37614,50 +37606,6 @@ void CvPlayer::DoTradeInfluenceAP()
 	}
 }
 #endif
-//	--------------------------------------------------------------------------------
-/// Units in the ether coming towards us?
-void CvPlayer::DoIncomingUnits()
-{
-	for(int iLoop = 0; iLoop < MAX_PLAYERS; iLoop++)
-	{
-		PlayerTypes eLoopPlayer = (PlayerTypes) iLoop;
-		CvAssertMsg(GetIncomingUnitCountdown(eLoopPlayer) >= -1, "Incoming Unit countdown is an invalid value. Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-		if(GetIncomingUnitCountdown(eLoopPlayer) > 0)
-		{
-			ChangeIncomingUnitCountdown(eLoopPlayer, -1);
-
-			// Time to spawn a new unit
-			if(GetIncomingUnitCountdown(eLoopPlayer) == 0)
-			{
-				// Must have capital to actually spawn unit
-				CvCity* pCapital = getCapitalCity();
-				if(pCapital)
-				{
-					CvUnit* pNewUnit = initUnit(GetIncomingUnitType(eLoopPlayer), pCapital->getX(), pCapital->getY());
-					CvAssert(pNewUnit);
-					if (pNewUnit)
-					{
-						if(pNewUnit->getDomainType() != DOMAIN_AIR)
-						{
-							if (!pNewUnit->jumpToNearestValidPlot())
-								pNewUnit->kill(false);
-						}
-
-						// Gift from a major to a city-state
-						if (isMinorCiv() && !GET_PLAYER(eLoopPlayer).isMinorCiv())
-						{
-							GetMinorCivAI()->DoUnitGiftFromMajor(eLoopPlayer, pNewUnit, /*bDistanceGift*/ true);
-						}
-					}
-				}
-
-				// Reset stuff
-				SetIncomingUnitCountdown(eLoopPlayer, -1);
-				SetIncomingUnitType(eLoopPlayer, NO_UNIT);
-			}
-		}
-	}
-}
 
 //	--------------------------------------------------------------------------------
 /// Someone sent us a present!
@@ -37691,9 +37639,14 @@ bool CvPlayer::CanGiftUnit(PlayerTypes eToPlayer)
 {
 	if (GET_PLAYER(eToPlayer).isMinorCiv())
 	{
-		if (GET_PLAYER(eToPlayer).GetIncomingUnitCountdown(GetID()) != -1)
+		CvMinorCivAI* pMinorCivAI = GET_PLAYER(eToPlayer).GetMinorCivAI();
+		CvAssert(pMinorCivAI);
+		if (pMinorCivAI)
 		{
-			return false;
+			if (pMinorCivAI->getIncomingUnitGift(GetID()).getArrivalCountdown() != -1)
+			{
+				return false;
+			}
 		}
 
 		int iNum = GET_PLAYER(eToPlayer).GetNumUnitsToSupply();
@@ -37710,17 +37663,22 @@ bool CvPlayer::CanGiftUnit(PlayerTypes eToPlayer)
 /// Someone sent us a present!
 void CvPlayer::AddIncomingUnit(PlayerTypes eFromPlayer, CvUnit* pUnit)
 {
-	UnitTypes eUnitType = pUnit->getUnitType();
+	CvAssert(pUnit);
+	if (!pUnit) { return; }
 
 	// Gift to a minor civ for friendship
 	if(isMinorCiv() && eFromPlayer < MAX_MAJOR_CIVS)
 	{
-		CvAssertMsg(GetIncomingUnitType(eFromPlayer) == NO_UNIT, "Adding incoming unit when one is already on its way. Please send Anton your save file and version.");
-		CvAssertMsg(GetIncomingUnitCountdown(eFromPlayer) == -1, "Adding incoming unit when one is already on its way. Please send Anton your save file and version.");
-		if(GetIncomingUnitCountdown(eFromPlayer) == -1)
+		CvMinorCivAI* pMinorCivAI = GetMinorCivAI();
+		CvAssert(pMinorCivAI);
+		if (pMinorCivAI)
 		{
-			SetIncomingUnitCountdown(eFromPlayer, /*3*/ GD_INT_GET(MINOR_UNIT_GIFT_TRAVEL_TURNS));
-			SetIncomingUnitType(eFromPlayer, eUnitType);
+			CvMinorCivIncomingUnitGift& unitGift = pMinorCivAI->getIncomingUnitGift(eFromPlayer);
+			CvAssertMsg(unitGift.getArrivalCountdown() == -1, "Adding incoming unit when one is already on its way. Please send Anton your save file and version.");
+			if (unitGift.getArrivalCountdown() == -1)
+			{
+				unitGift.init(*pUnit, /*3*/ GD_INT_GET(MINOR_UNIT_GIFT_TRAVEL_TURNS));
+			}
 		}
 
 		// Get rid of the old unit
@@ -38060,58 +38018,6 @@ PlayerTypes CvPlayer::GetBestGiftTarget(DomainTypes eUnitDomain)
 		}
 	}
 	return eBestMinor;
-}
-//	--------------------------------------------------------------------------------
-/// Units in the ether coming towards us?
-UnitTypes CvPlayer::GetIncomingUnitType(PlayerTypes eFromPlayer) const
-{
-	CvAssertMsg(eFromPlayer >= 0, "eFromPlayer is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eFromPlayer < MAX_PLAYERS, "eFromPlayer is expected to be within maximum bounds (invalid Index)");
-	return (UnitTypes) m_aiIncomingUnitTypes[eFromPlayer];
-}
-
-//	--------------------------------------------------------------------------------
-/// Units in the ether coming towards us?
-void CvPlayer::SetIncomingUnitType(PlayerTypes eFromPlayer, UnitTypes eUnitType)
-{
-	CvAssertMsg(eFromPlayer >= 0, "eFromPlayer is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eFromPlayer < MAX_PLAYERS, "eFromPlayer is expected to be within maximum bounds (invalid Index)");
-
-	CvAssertMsg(eUnitType >= NO_UNIT, "eUnitType is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eUnitType < GC.getNumUnitInfos(), "eUnitType is expected to be within maximum bounds (invalid Index)");
-
-	if(eUnitType != m_aiIncomingUnitTypes[eFromPlayer])
-	{
-		m_aiIncomingUnitTypes[eFromPlayer] = eUnitType;
-	}
-}
-
-//	--------------------------------------------------------------------------------
-/// Units in the ether coming towards us?
-int CvPlayer::GetIncomingUnitCountdown(PlayerTypes eFromPlayer) const
-{
-	CvAssertMsg(eFromPlayer >= 0, "eFromPlayer is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eFromPlayer < MAX_PLAYERS, "eFromPlayer is expected to be within maximum bounds (invalid Index)");
-	return m_aiIncomingUnitCountdowns[eFromPlayer];
-}
-
-//	--------------------------------------------------------------------------------
-/// Units in the ether coming towards us?
-void CvPlayer::SetIncomingUnitCountdown(PlayerTypes eFromPlayer, int iNumTurns)
-{
-	CvAssertMsg(eFromPlayer >= 0, "eFromPlayer is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eFromPlayer < MAX_PLAYERS, "eFromPlayer is expected to be within maximum bounds (invalid Index)");
-
-	if(iNumTurns != m_aiIncomingUnitCountdowns[eFromPlayer])
-		m_aiIncomingUnitCountdowns[eFromPlayer] = iNumTurns;
-}
-
-//	--------------------------------------------------------------------------------
-/// Units in the ether coming towards us?
-void CvPlayer::ChangeIncomingUnitCountdown(PlayerTypes eFromPlayer, int iChange)
-{
-	if(iChange != 0)
-		SetIncomingUnitCountdown(eFromPlayer, GetIncomingUnitCountdown(eFromPlayer) + iChange);
 }
 
 //	--------------------------------------------------------------------------------
@@ -46858,8 +46764,6 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 	visitor(player.m_aiNumUnitsBuilt);
 	visitor(player.m_aiProximityToPlayer);
 	visitor(player.m_aiResearchAgreementCounter);
-	visitor(player.m_aiIncomingUnitTypes);
-	visitor(player.m_aiIncomingUnitCountdowns);
 	visitor(player.m_aiSiphonLuxuryCount);
 	visitor(player.m_aiGreatWorkYieldChange);
 	visitor(player.m_aiTourismBonusTurnsPlayer);

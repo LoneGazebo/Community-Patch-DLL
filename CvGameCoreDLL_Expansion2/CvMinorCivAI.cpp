@@ -3957,6 +3957,188 @@ FDataStream& operator<<(FDataStream& saveTo, const CvMinorCivQuest& readFrom)
 	return saveTo;
 }
 
+//======================================================================================================
+//					CvMinorCivIncomingUnitGift
+//======================================================================================================
+
+///
+CvMinorCivIncomingUnitGift::CvMinorCivIncomingUnitGift()
+	: m_iArrivalCountdown(-1)
+	, m_eUnitType(NO_UNIT)
+{
+}
+
+///
+CvMinorCivIncomingUnitGift::CvMinorCivIncomingUnitGift(const CvUnit& srcUnit, int iArriveInTurns)
+{
+	init(srcUnit, iArriveInTurns);
+}
+
+///
+void CvMinorCivIncomingUnitGift::init(const CvUnit& srcUnit, int iArriveInTurns)
+{
+	reset();
+
+	setArrivalCountdown(iArriveInTurns);
+	setUnitType(srcUnit.getUnitType());
+	for (int i = 0; i < GC.getNumPromotionInfos(); ++i)
+	{
+		const PromotionTypes ePromotion = static_cast<PromotionTypes>(i);
+		if (srcUnit.isHasPromotion(ePromotion))
+		{
+			setHasPromotion(ePromotion, true);
+			setPromotionDuration(ePromotion, srcUnit.getPromotionDuration(ePromotion));
+			setTurnPromotionGained(ePromotion, srcUnit.getTurnPromotionGained(ePromotion));
+		}
+	}
+}
+
+///
+int CvMinorCivIncomingUnitGift::getArrivalCountdown() const
+{
+	return m_iArrivalCountdown;
+}
+
+///
+UnitTypes CvMinorCivIncomingUnitGift::getUnitType() const
+{
+	return m_eUnitType;
+}
+
+///
+bool CvMinorCivIncomingUnitGift::isHasPromotion(PromotionTypes ePromotion) const
+{
+	CvAssertMsg(ePromotion >= 0, "ePromotion is expected to be non-negative (invalid Index)");
+	CvAssertMsg(ePromotion < GC.getNumPromotionInfos(), "ePromotion is expected to be within maximum bounds (invalid Index)");
+
+	return m_HasPromotions.GetBit(static_cast<uint>(ePromotion));
+}
+
+///
+int CvMinorCivIncomingUnitGift::getPromotionDuration(PromotionTypes ePromotion) const
+{
+	const std::map<PromotionTypes, int>& m_map = m_PromotionDuration;
+	std::map<PromotionTypes, int>::const_iterator it = m_map.find(ePromotion);
+	if (it != m_map.end())
+		return it->second;
+	else
+		return 0;
+}
+
+///
+int CvMinorCivIncomingUnitGift::getTurnPromotionGained(PromotionTypes ePromotion) const
+{
+	const std::map<PromotionTypes, int>& m_map = m_TurnPromotionGained;
+	std::map<PromotionTypes, int>::const_iterator it = m_map.find(ePromotion);
+	if (it != m_map.end())
+		return it->second;
+	else
+		return 0;
+}
+
+///
+void CvMinorCivIncomingUnitGift::setArrivalCountdown(int iNewCountdown)
+{
+	m_iArrivalCountdown = iNewCountdown;
+}
+
+///
+void CvMinorCivIncomingUnitGift::changeArrivalCountdown(int iChangeCountdown)
+{
+	m_iArrivalCountdown += iChangeCountdown;
+}
+
+///
+void CvMinorCivIncomingUnitGift::setUnitType(UnitTypes eNewUnitType)
+{
+	m_eUnitType = eNewUnitType;
+}
+
+///
+void CvMinorCivIncomingUnitGift::setHasPromotion(PromotionTypes ePromotion, bool bNewValue)
+{
+	CvAssertMsg(ePromotion >= 0, "ePromotion is expected to be non-negative (invalid Index)");
+	CvAssertMsg(ePromotion < GC.getNumPromotionInfos(), "ePromotion is expected to be within maximum bounds (invalid Index)");
+
+	if (ePromotion >= 0 && ePromotion < GC.getNumPromotionInfos())
+	{
+		m_HasPromotions.SetBit(static_cast<uint>(ePromotion), bNewValue);
+	}
+}
+
+///
+void CvMinorCivIncomingUnitGift::setPromotionDuration(PromotionTypes ePromotion, int iNewValue)
+{
+	std::map<PromotionTypes, int>& m_map = m_PromotionDuration;
+	if (iNewValue > 0)
+		m_map[ePromotion] = iNewValue;
+	else
+		m_map.erase(ePromotion);
+}
+
+///
+void CvMinorCivIncomingUnitGift::setTurnPromotionGained(PromotionTypes ePromotion, int iNewValue)
+{
+	std::map<PromotionTypes, int>& m_map = m_TurnPromotionGained;
+	if (iNewValue > 0)
+		m_map[ePromotion] = iNewValue;
+	else
+		m_map.erase(ePromotion);
+}
+
+///
+void CvMinorCivIncomingUnitGift::applyToUnit(CvUnit& destUnit) const
+{
+	for (int i = 0; i < GC.getNumPromotionInfos(); ++i)
+	{
+		const PromotionTypes ePromotion = static_cast<PromotionTypes>(i);
+		if (isHasPromotion(ePromotion))
+		{
+			destUnit.setHasPromotion(ePromotion, true);
+			destUnit.SetPromotionDuration(ePromotion, getPromotionDuration(ePromotion));
+			destUnit.SetTurnPromotionGained(ePromotion, getTurnPromotionGained(ePromotion));
+		}
+	}
+}
+
+///
+void CvMinorCivIncomingUnitGift::reset()
+{
+	*this = CvMinorCivIncomingUnitGift();
+}
+
+///
+template<typename MinorCivIncomingUnitGift, typename Visitor>
+void CvMinorCivIncomingUnitGift::Serialize(MinorCivIncomingUnitGift& minorCivIncomingUnitGift, Visitor& visitor)
+{
+	visitor(minorCivIncomingUnitGift.m_iArrivalCountdown);
+
+	// All fields are only serialized if the countdown is not -1.
+	// This is safe because the associated data is only meaningful when the countdown is not -1.
+	if (minorCivIncomingUnitGift.m_iArrivalCountdown != -1)
+	{
+		visitor(minorCivIncomingUnitGift.m_eUnitType);
+		visitor(minorCivIncomingUnitGift.m_HasPromotions);
+		visitor(minorCivIncomingUnitGift.m_PromotionDuration);
+		visitor(minorCivIncomingUnitGift.m_TurnPromotionGained);
+	}
+}
+
+/// Serialization read
+FDataStream& operator>>(FDataStream& loadFrom, CvMinorCivIncomingUnitGift& writeTo)
+{
+	CvStreamLoadVisitor serialVisitor(loadFrom);
+	CvMinorCivIncomingUnitGift::Serialize(writeTo, serialVisitor);
+	return loadFrom;
+}
+
+/// Serialization write
+FDataStream& operator<<(FDataStream& saveTo, const CvMinorCivIncomingUnitGift& readFrom)
+{
+	CvStreamSaveVisitor serialVisitor(saveTo);
+	CvMinorCivIncomingUnitGift::Serialize(readFrom, serialVisitor);
+	return saveTo;
+}
 
 //======================================================================================================
 //					CvMinorCivAI
@@ -4045,6 +4227,7 @@ void CvMinorCivAI::Reset()
 		m_aiTargetedCityY[iI] = -1;
 		m_aiTurnsSincePtPWarning[iI] = -1;
 #endif
+		m_IncomingUnitGifts[iI].reset();
 	}
 
 	for (int iI = 0; iI < MAX_CIV_TEAMS; iI++)
@@ -4155,6 +4338,8 @@ void CvMinorCivAI::Serialize(MinorCivAI& minorCivAI, Visitor& visitor)
 	visitor(minorCivAI.m_aiTargetedCityX);
 	visitor(minorCivAI.m_aiTargetedCityY);
 	visitor(minorCivAI.m_aiTurnsSincePtPWarning);
+
+	visitor(minorCivAI.m_IncomingUnitGifts);
 
 	visitor(minorCivAI.m_QuestsGiven);
 	visitor(minorCivAI.m_bDisableNotifications);
@@ -4486,6 +4671,8 @@ void CvMinorCivAI::DoTurn()
 				}
 			}
 		}
+
+		doIncomingUnitGifts();
 	}
 }
 
@@ -4506,6 +4693,9 @@ void CvMinorCivAI::DoChangeAliveStatus(bool bAlive)
 
 			// Cancel quests and PtPs
 			DoChangeProtectionFromMajor(e, false);
+
+			// Cancel all incoming unit gifts.
+			getIncomingUnitGift(e).reset();
 
 			// Calculate new influence levels (don't set here, since that could create a false temporary ally)
 			int iOldInfluence = GetBaseFriendshipWithMajor(e);
@@ -16149,7 +16339,7 @@ void CvMinorCivAI::ChangeNumUnitsGifted(PlayerTypes ePlayer, int iChange)
 	SetNumUnitsGifted(ePlayer, GetNumUnitsGifted(ePlayer) + iChange);
 }
 
-void CvMinorCivAI::DoUnitGiftFromMajor(PlayerTypes eFromPlayer, CvUnit* pGiftUnit, bool bDistanceGift)
+void CvMinorCivAI::DoUnitGiftFromMajor(PlayerTypes eFromPlayer, CvUnit*& pGiftUnit, bool bDistanceGift)
 {
 	CvAssertMsg(eFromPlayer >= 0, "eFromPlayer is expected to be non-negative (invalid Index)");
 	CvAssertMsg(eFromPlayer < MAX_MAJOR_CIVS, "eFromPlayer is expected to be within maximum bounds (invalid Index)");
@@ -16164,17 +16354,18 @@ void CvMinorCivAI::DoUnitGiftFromMajor(PlayerTypes eFromPlayer, CvUnit* pGiftUni
 	int iInfluence = GetFriendshipFromUnitGift(eFromPlayer, pGiftUnit->IsGreatPerson(), bDistanceGift);
 	ChangeFriendshipWithMajor(eFromPlayer, iInfluence);
 
-	// We can't keep Great Person units
-	if(pGiftUnit->IsGreatPerson())
-	{
-		pGiftUnit->kill(false);
-	}
-	
 #if defined(MOD_EVENTS_MINORS_INTERACTION)
 	if (MOD_EVENTS_MINORS_INTERACTION) {
 		GAMEEVENTINVOKE_HOOK(GAMEEVENT_PlayerGifted, eFromPlayer, GetPlayer()->GetID(), -1, pGiftUnit->getUnitType(), -1, -1);
 	}
 #endif
+
+	// We can't keep Great Person units
+	if (pGiftUnit->IsGreatPerson())
+	{
+		pGiftUnit->kill(false);
+		pGiftUnit = NULL; // Important to NULL the unit here so that the caller knows we've done away with it.
+	}
 }
 
 int CvMinorCivAI::GetFriendshipFromUnitGift(PlayerTypes eFromPlayer, bool bGreatPerson, bool /*bDistanceGift*/)
@@ -17043,6 +17234,73 @@ void CvMinorCivAI::SetSiphoned(PlayerTypes ePlayer, bool bValue)
 	}
 }
 #endif
+
+const CvMinorCivIncomingUnitGift& CvMinorCivAI::getIncomingUnitGift(PlayerTypes eMajor) const
+{
+	CvAssert(eMajor >= 0);
+	CvAssert(eMajor < MAX_MAJOR_CIVS);
+	return m_IncomingUnitGifts[eMajor];
+}
+
+CvMinorCivIncomingUnitGift& CvMinorCivAI::getIncomingUnitGift(PlayerTypes eMajor)
+{
+	CvAssert(eMajor >= 0);
+	CvAssert(eMajor < MAX_MAJOR_CIVS);
+	return m_IncomingUnitGifts[eMajor];
+}
+
+void CvMinorCivAI::doIncomingUnitGifts()
+{
+	for (int iLoop = 0; iLoop < MAX_MAJOR_CIVS; iLoop++)
+	{
+		PlayerTypes eLoopPlayer = (PlayerTypes)iLoop;
+		CvMinorCivIncomingUnitGift& unitGift = getIncomingUnitGift(eLoopPlayer);
+
+		if (unitGift.getArrivalCountdown() > 0)
+		{
+			unitGift.changeArrivalCountdown(-1);
+
+			// Time to spawn a new unit
+			if (unitGift.getArrivalCountdown() == 0)
+			{
+				// Must have capital to actually spawn unit
+				CvCity* pCapital = GetPlayer()->getCapitalCity();
+				if (pCapital)
+				{
+					CvUnit* pNewUnit = GetPlayer()->initUnit(unitGift.getUnitType(), pCapital->getX(), pCapital->getY());
+					CvAssert(pNewUnit);
+					if (pNewUnit)
+					{
+						unitGift.applyToUnit(*pNewUnit);
+
+						// Gift from a major to a city-state
+						if (!GET_PLAYER(eLoopPlayer).isMinorCiv())
+						{
+							// Note that pNewUnit may be NULL'd here if DoUnitGiftFromMajor chooses to kill it.
+							DoUnitGiftFromMajor(eLoopPlayer, pNewUnit, /*bDistanceGift*/ true);
+						}
+
+						// Must check if pNewUnit is valid because DoUnitGiftFromMajor may have killed it.
+						if (pNewUnit)
+						{
+							if (pNewUnit->getDomainType() != DOMAIN_AIR)
+							{
+								if (!pNewUnit->jumpToNearestValidPlot())
+								{
+									pNewUnit->kill(false);
+									pNewUnit = NULL;
+								}
+							}
+						}
+					}
+				}
+
+				// Reset stuff
+				unitGift.reset();
+			}
+		}
+	}
+}
 
 // ******************************
 // ***** Misc Helper Functions *****
