@@ -9517,8 +9517,16 @@ int CvLuaPlayer::lGetIncomingUnitType(lua_State* L)
 		if (pMinorCivAI)
 		{
 			const PlayerTypes eFromPlayer = static_cast<PlayerTypes>(lua_tointeger(L, 2));
-			lua_pushinteger(L, pMinorCivAI->getIncomingUnitGift(eFromPlayer).getUnitType());
-			return 1;
+			if (eFromPlayer >= 0 && eFromPlayer < MAX_MAJOR_CIVS)
+			{
+				lua_pushinteger(L, pMinorCivAI->getIncomingUnitGift(eFromPlayer).getUnitType());
+				return 1;
+			}
+			else
+			{
+				luaL_error(L, "Player index %d is not a valid major civilization index.", static_cast<lua_Integer>(eFromPlayer));
+				return 0;
+			}
 		}
 	}
 
@@ -9538,8 +9546,16 @@ int CvLuaPlayer::lGetIncomingUnitCountdown(lua_State* L)
 		if (pMinorCivAI)
 		{
 			const PlayerTypes eFromPlayer = static_cast<PlayerTypes>(lua_tointeger(L, 2));
-			lua_pushinteger(L, pMinorCivAI->getIncomingUnitGift(eFromPlayer).getArrivalCountdown());
-			return 1;
+			if (eFromPlayer >= 0 && eFromPlayer < MAX_MAJOR_CIVS)
+			{
+				lua_pushinteger(L, pMinorCivAI->getIncomingUnitGift(eFromPlayer).getArrivalCountdown());
+				return 1;
+			}
+			else
+			{
+				luaL_error(L, "Player index %d is not a valid major civilization index.", static_cast<lua_Integer>(eFromPlayer));
+				return 0;
+			}
 		}
 	}
 
