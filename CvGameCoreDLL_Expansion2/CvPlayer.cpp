@@ -26252,51 +26252,14 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 	if(isMinorCiv() || isBarbarian())
 		return;
 
-	YieldTypes eYield;
-	TerrainTypes eTerrain;
-
-	ReligionTypes eReligion = NO_RELIGION;
-	ReligionTypes eLocalReligion = NO_RELIGION;
-	eReligion = GC.getGame().GetGameReligions()->GetFounderBenefitsReligion(GetID());
-	if(eReligion == NO_RELIGION)
-	{
-		eReligion = GetReligions()->GetReligionInMostCities();
-	}
-
-	const CvReligion* pReligion = NULL;
-	if(eReligion != NO_RELIGION)
-	{
-		//Let's check for holy city status - if this isn't our holy city, let's send the boosts there instead.
-		pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, GetID());
-	}
-	int iEra = 0;
-	iEra = GetCurrentEra();
-	if(iEra <= 0)
-	{
-		iEra = 1;
-	}
-
-	int iNumFollowerCities = 0;
-	int iNumFollowers = 0;
-	if (eReligion > RELIGION_PANTHEON)
-	{
-		iNumFollowerCities = GC.getGame().GetGameReligions()->GetNumCitiesFollowing(eReligion);
-		iNumFollowers = GC.getGame().GetGameReligions()->GetNumFollowers(eReligion);
-	}
-	else if (eReligion == RELIGION_PANTHEON)
-	{
-		iNumFollowerCities = GC.getGame().GetGameReligions()->GetNumDomesticCitiesFollowing(eReligion, GetID());
-		iNumFollowers = GC.getGame().GetGameReligions()->GetNumFollowers(eReligion, GetID());
-	}
+	ReligionTypes eStateReligion = GetReligions()->GetStateReligion();
+	int iEra = max<int>(1, GetCurrentEra());
 
 	CvString totalyieldString = "";
 	//Let's loop through all cities for this.
 	int iLoop;
 	for(CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 	{
-		if(pLoopCity == NULL)
-			continue;
-
 		//If we passed in a city, only check that city.
 		if (pCity != NULL && pLoopCity != pCity)
 			continue;
@@ -26305,36 +26268,39 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 		CvString cityyieldString = "";
 		CvString citynameString = "";
 
-		//Get local faith if needed.
-		if(bCityFaith)
-		{
-			eLocalReligion = pCity->GetCityReligions()->GetReligiousMajority();
-			//Different faiths at national and local levels? We should check both, because one might be a founder bonus, and the other a follower bonus. Blegh!
-			if(eLocalReligion != eReligion)
-			{
-				pReligion = GC.getGame().GetGameReligions()->GetReligion(eLocalReligion, GetID());
-				eReligion = eLocalReligion;
+		int iNumFollowerCities = 0;
+		int iNumFollowers = 0;
+		ReligionTypes eReligion = NO_RELIGION;
+		const CvReligion* pReligion = NULL;
 
-				if (eReligion > RELIGION_PANTHEON)
-				{
-					iNumFollowerCities = GC.getGame().GetGameReligions()->GetNumCitiesFollowing(eReligion);
-					iNumFollowers = GC.getGame().GetGameReligions()->GetNumFollowers(eReligion);
-				}
-				else if (eReligion == RELIGION_PANTHEON)
-				{
-					iNumFollowerCities = GC.getGame().GetGameReligions()->GetNumDomesticCitiesFollowing(eReligion, GetID());
-					iNumFollowers = GC.getGame().GetGameReligions()->GetNumFollowers(eReligion, GetID());
-				}
-			}
+		//Get local faith if needed.
+		ReligionTypes eLocalReligion = pCity ? pCity->GetCityReligions()->GetReligiousMajority() : NO_RELIGION;
+		//Different faiths at national and local levels? We should check both, because one might be a founder bonus, and the other a follower bonus. Blegh!
+		if(bCityFaith && eLocalReligion != eStateReligion)
+		{
+			pReligion = GC.getGame().GetGameReligions()->GetReligion(eLocalReligion, GetID());
+			eReligion = eLocalReligion;
+		}
+		else
+		{
+			pReligion = GC.getGame().GetGameReligions()->GetReligion(eStateReligion, GetID());
+			eReligion = eStateReligion;
 		}
 
+		if (eReligion > RELIGION_PANTHEON)
+		{
+			iNumFollowerCities = GC.getGame().GetGameReligions()->GetNumCitiesFollowing(eReligion);
+			iNumFollowers = GC.getGame().GetGameReligions()->GetNumFollowers(eReligion);
+		}
+		else if (eReligion == RELIGION_PANTHEON)
+		{
+			iNumFollowerCities = GC.getGame().GetGameReligions()->GetNumDomesticCitiesFollowing(eReligion, GetID());
+			iNumFollowers = GC.getGame().GetGameReligions()->GetNumFollowers(eReligion, GetID());
+		}
 		
 		for(int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 		{
-			eYield = (YieldTypes) iI;
-
-			if(eYield == NO_YIELD)
-				continue;
+			YieldTypes eYield = (YieldTypes) iI;
 
 			if (!MOD_BALANCE_CORE_JFD && eYield >= YIELD_JFD_HEALTH && eYield != ePassYield)
 				continue;
@@ -26418,7 +26384,6 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 				{
 					if(pReligion)
 					{
-						
 						iValue += pReligion->m_Beliefs.GetYieldFromEraUnlock(eYield, GetID(), pLoopCity, true) * pReligion->m_Beliefs.GetCityScalerLimiter(iNumFollowerCities);
 					}
 					break;
@@ -26559,18 +26524,11 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 
 						iValue += pReligion->m_Beliefs.GetYieldPerBorderGrowth(eYield, false, GetID(), pLoopCity);
 					}
-					for(int iI = 0; iI < GC.getNumTerrainInfos(); iI++)
+					if(ePassTerrain != NO_TERRAIN)
 					{
-						eTerrain = (TerrainTypes) iI;
-
-						if(eTerrain == NO_TERRAIN)
-							continue;
-						if(eTerrain == ePassTerrain)
-						{
-							iScaleValue = GetPlayerTraits()->GetYieldChangeFromTileEarnTerrainType(eTerrain, eYield);
-							iScaleValue *= iEra;
-							iValue += iScaleValue;
-						}
+						iScaleValue = GetPlayerTraits()->GetYieldChangeFromTileEarnTerrainType(ePassTerrain, eYield);
+						iScaleValue *= iEra;
+						iValue += iScaleValue;
 					}
 					break;
 				}
@@ -26669,21 +26627,13 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 					{
 						for (int iI = 0; iI < GC.getNumTerrainInfos(); iI++)
 						{
-							eTerrain = (TerrainTypes)iI;
+							TerrainTypes eTerrain = (TerrainTypes)iI;
+							int iTraitValue = GetPlayerTraits()->GetYieldChangeFromTileConquest(eTerrain, eYield);
 
-							if (eTerrain != NO_TERRAIN)
-							{
-								int iTraitValue = GetPlayerTraits()->GetYieldChangeFromTileConquest(eTerrain, eYield);
+							if (iTraitValue <= 0)
+								continue;
 
-								if (iTraitValue <= 0)
-									continue;
-
-								int iNumTiles = pOtherCity->CountAllOwnedTerrain(eTerrain);
-								if (iNumTiles > 0)
-								{
-									iValue += (iTraitValue * iNumTiles);
-								}
-							}
+							iValue += (iTraitValue * pOtherCity->CountAllOwnedTerrain(eTerrain));
 						}
 					}
 					break;
@@ -26903,40 +26853,22 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 				case INSTANT_YIELD_TYPE_TILE_PURCHASE:
 				{
 					iValue += GetPlayerTraits()->GetYieldFromTilePurchase(eYield);
-					for (int iI = 0; iI < GC.getNumTerrainInfos(); iI++)
-					{
-						eTerrain = (TerrainTypes)iI;
-
-						if (eTerrain == NO_TERRAIN)
-							continue;
-						if (eTerrain == ePassTerrain)
-						{
-							iValue += GetPlayerTraits()->GetYieldChangeFromTilePurchaseTerrainType(eTerrain, eYield);
-						}
-					}
+					if (ePassTerrain!=NO_TERRAIN)
+						iValue += GetPlayerTraits()->GetYieldChangeFromTilePurchaseTerrainType(ePassTerrain, eYield);
 					break;
 				}
 				case INSTANT_YIELD_TYPE_FOUND:
 				{
 					iValue += GetPlayerTraits()->GetYieldFromSettle(eYield);
 					iValue += getFounderYield(eYield);
-					for (int iI = 0; iI < GC.getNumTerrainInfos(); iI++)
+					for (int iI = 0; pCity != NULL && iI < GC.getNumTerrainInfos(); iI++)
 					{
-						eTerrain = (TerrainTypes)iI;
+						TerrainTypes eTerrain = (TerrainTypes)iI;
+						int iTraitValue = GetPlayerTraits()->GetYieldChangeFromTileSettle(eTerrain, eYield);
+						if (iTraitValue <= 0)
+							continue;
 
-						if (eTerrain != NO_TERRAIN && pCity != NULL)
-						{
-							int iTraitValue = GetPlayerTraits()->GetYieldChangeFromTileSettle(eTerrain, eYield);
-
-							if (iTraitValue <= 0)
-								continue;
-
-							int iNumTiles = pCity->CountTerrain(eTerrain);
-							if (iNumTiles > 0)
-							{
-								iValue += (iTraitValue * iNumTiles);
-							}
-						}
+						iValue += (iTraitValue * pCity->CountTerrain(eTerrain));
 					}
 					break;
 				}
@@ -26966,22 +26898,26 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 				}
 				case INSTANT_YIELD_TYPE_CONVERSION:
 				{
-					int iBaseValue = pReligion->m_Beliefs.GetYieldFromConversion(eYield, GetID(), pLoopCity, true);
-					if (iBaseValue != 0)
+					if (pReligion)
 					{
-						int iTempValue = iBaseValue;
-						iTempValue *= (100 + pReligion->m_Beliefs.GetCityScalerLimiter(iNumFollowerCities) * pReligion->m_Beliefs.GetCityScalerLimiter(iNumFollowerCities));
-						iTempValue /= 100;
+						int iBaseValue = pReligion->m_Beliefs.GetYieldFromConversion(eYield, GetID(), pLoopCity, true);
+						if (iBaseValue != 0)
+						{
+							int iTempValue = iBaseValue;
+							iTempValue *= (100 + pReligion->m_Beliefs.GetCityScalerLimiter(iNumFollowerCities) * pReligion->m_Beliefs.GetCityScalerLimiter(iNumFollowerCities));
+							iTempValue /= 100;
 
-						iBaseValue = iTempValue;
+							iBaseValue = iTempValue;
+						}
+						iValue += iBaseValue;
 					}
 
-					iValue += iBaseValue;
 					break;
 				}
 				case INSTANT_YIELD_TYPE_CONVERSION_EXPO:
 				{
-					iValue += pReligion->m_Beliefs.GetYieldFromConversionExpo(eYield, GetID(), pLoopCity, true) * iNumFollowerCities;
+					if (pReligion)
+						iValue += pReligion->m_Beliefs.GetYieldFromConversionExpo(eYield, GetID(), pLoopCity, true) * iNumFollowerCities;
 					break;
 				}
 				case INSTANT_YIELD_TYPE_DEATH:
