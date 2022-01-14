@@ -4123,11 +4123,12 @@ int CvLeague::GetCoreVotesForMember(PlayerTypes ePlayer)
 	return iVotes;
 }
 
-int CvLeague::CalculateStartingVotesForMember(PlayerTypes ePlayer, bool bForceUpdateSources)
+int CvLeague::CalculateStartingVotesForMember(PlayerTypes ePlayer, bool bForceUpdateSources, bool bFakeUN)
 {
+
 	//try the cached value first
 	Member* thisMember = GetMember(ePlayer);
-	if (thisMember != NULL && thisMember->ePlayer != NO_PLAYER)
+	if (thisMember != NULL && thisMember->ePlayer != NO_PLAYER && !bFakeUN)
 	{
 		if (GC.getGame().getTurnSlice() == thisMember->m_startingVotesCacheTime)
 			return thisMember->m_startingVotesCached;
@@ -4143,19 +4144,41 @@ int CvLeague::CalculateStartingVotesForMember(PlayerTypes ePlayer, bool bForceUp
 #endif
 	if (CanEverVote(ePlayer))
 	{
-		LeagueSpecialSessionTypes eGoverningSpecialSession = NO_LEAGUE_SPECIAL_SESSION;
-		if (GetCurrentSpecialSession() != NO_LEAGUE_SPECIAL_SESSION)
+
+		bool bFoundUN = false;
+		CvLeagueSpecialSessionEntry* pInfo = NULL;
+		if (bFakeUN)
 		{
-			eGoverningSpecialSession = GetCurrentSpecialSession();
+			for (int i = 0; i < GC.getNumLeagueSpecialSessionInfos(); i++)
+			{
+				LeagueSpecialSessionTypes e = (LeagueSpecialSessionTypes)i;
+				pInfo = GC.getLeagueSpecialSessionInfo(e);
+				CvAssert(pInfo != NULL);
+				if (pInfo != NULL)
+				{
+					if (pInfo->IsUnitedNations())
+					{
+						bFoundUN = true;
+						break;
+					}
+				}
+			}
 		}
-		else if (GetLastSpecialSession() != NO_LEAGUE_SPECIAL_SESSION)
+		if (!bFakeUN||!bFoundUN)
 		{
-			eGoverningSpecialSession = GetLastSpecialSession();
+			LeagueSpecialSessionTypes eGoverningSpecialSession = NO_LEAGUE_SPECIAL_SESSION;
+			if (GetCurrentSpecialSession() != NO_LEAGUE_SPECIAL_SESSION)
+			{
+				eGoverningSpecialSession = GetCurrentSpecialSession();
+			}
+			else if (GetLastSpecialSession() != NO_LEAGUE_SPECIAL_SESSION)
+			{
+				eGoverningSpecialSession = GetLastSpecialSession();
+			}
+			CvAssert(eGoverningSpecialSession != NO_LEAGUE_SPECIAL_SESSION);
+			if (eGoverningSpecialSession == NO_LEAGUE_SPECIAL_SESSION) return /*1*/ GD_INT_GET(LEAGUE_MEMBER_VOTES_BASE);
+			pInfo = GC.getLeagueSpecialSessionInfo(eGoverningSpecialSession);
 		}
-		
-		CvAssert(eGoverningSpecialSession != NO_LEAGUE_SPECIAL_SESSION);
-		if (eGoverningSpecialSession == NO_LEAGUE_SPECIAL_SESSION) return /*1*/ GD_INT_GET(LEAGUE_MEMBER_VOTES_BASE);
-		CvLeagueSpecialSessionEntry* pInfo = GC.getLeagueSpecialSessionInfo(eGoverningSpecialSession);
 		CvAssert(pInfo != NULL);
 		if (pInfo == NULL) return /*1*/ GD_INT_GET(LEAGUE_MEMBER_VOTES_BASE);
 		Member* pMember = GetMember(ePlayer);
@@ -4163,7 +4186,7 @@ int CvLeague::CalculateStartingVotesForMember(PlayerTypes ePlayer, bool bForceUp
 		if (pMember == NULL) return /*1*/ GD_INT_GET(LEAGUE_MEMBER_VOTES_BASE);
 
 		// Base votes
-		int iBaseVotes = GetCoreVotesForMember(ePlayer);
+		int iBaseVotes = pInfo->GetCivDelegates();
 		iVotes += iBaseVotes;
 
 		// Extra votes (ie. leading in previous failed Diplo Victory proposals)
@@ -4413,7 +4436,7 @@ int CvLeague::CalculateStartingVotesForMember(PlayerTypes ePlayer, bool bForceUp
 #endif
 
 		// Vote Sources - Normally this is only updated when we are not in session
-		if (bForceUpdateSources || !IsInSession())
+		if ((bForceUpdateSources || !IsInSession()) && !bFakeUN)
 		{
 			pMember->sVoteSources = "";
 			if (iBaseVotes > 0)
@@ -4544,7 +4567,7 @@ int CvLeague::CalculateStartingVotesForMember(PlayerTypes ePlayer, bool bForceUp
 	}
 
 	//update cache
-	if (thisMember != NULL && thisMember->ePlayer != NO_PLAYER)
+	if (thisMember != NULL && thisMember->ePlayer != NO_PLAYER && !bFakeUN)
 	{
 		thisMember->m_startingVotesCacheTime = GC.getGame().getTurnSlice();
 		thisMember->m_startingVotesCached = iVotes;
@@ -12209,6 +12232,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 		else if (MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS && eUN == eProject)
 		{
 			int iVotes = GC.getGame().GetGameLeagues()->GetActiveLeague()->CalculateStartingVotesForMember(GetPlayer()->GetID());
+			int iTestVotes = GC.getGame().GetGameLeagues()->GetActiveLeague()->CalculateStartingVotesForMember(GetPlayer()->GetID(), false, true);
 			int iNeededVotes = GC.getGame().GetVotesNeededForDiploVictory();
 			int iVoteRatio = 0;
 			if (bDiploVictoryEnabled)
@@ -13254,6 +13278,10 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 					}
 				}
 				iExtra -= 150 * iAllies + 100 * iNearAllies + 50 * iFarAllies;
+				if (bForSelf)
+				{
+					iExtra -= 1000;
+				}
 			}
 			else
 			{
@@ -13291,6 +13319,13 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 					}
 				}
 				iExtra += 100 * iAllies + 150 * iNearAllies + 50 * iFarAllies;
+				if (bForSelf)
+				{
+					if (GetPlayer()->GetDiplomacyAI()->GetCivOpinion(eTargetPlayer) != NO_CIV_OPINION)
+					{
+						iExtra -= (GetPlayer()->GetDiplomacyAI()->GetCivOpinion(eTargetPlayer) - CIV_OPINION_NEUTRAL) * 100;
+					}
+				}
 			}
 
 		}

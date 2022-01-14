@@ -608,7 +608,7 @@ public:
 	int GetSpentVotesForMember(PlayerTypes ePlayer);
 	int GetPotentialVotesForMember(PlayerTypes ePlayer, PlayerTypes eFromPlayer);
 	int GetCoreVotesForMember(PlayerTypes ePlayer);
-	int CalculateStartingVotesForMember(PlayerTypes ePlayer, bool bForceUpdateSources = false);
+	int CalculateStartingVotesForMember(PlayerTypes ePlayer, bool bForceUpdateSources = false, bool bFakeUN = false);
 	bool CanPropose(PlayerTypes ePlayer);
 	bool CanEverPropose(PlayerTypes ePlayer);
 	int GetRemainingProposalsForMember(PlayerTypes ePlayer);
