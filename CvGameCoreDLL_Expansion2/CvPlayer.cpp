@@ -35737,14 +35737,9 @@ void CvPlayer::DoXPopulationConscription(CvCity* pCity)
 				if (pkUnitEntry->GetDefaultUnitAIType() == UNITAI_EXPLORE)
 					continue;
 
-				if (pkUnitEntry->GetDomainType() == DOMAIN_SEA)
-				{
-					int iChance = GC.getGame().getSmallFakeRandNum(10, pCity->plot()->GetPlotIndex() + getTotalPopulation());
-					if (iChance < 5)
-					{
-						continue;
-					}
-				}
+				if (pkUnitEntry->GetDomainType() != DOMAIN_LAND)
+					continue;
+
 				bool bBad = false;
 				ResourceTypes eResource;
 				for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
