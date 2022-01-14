@@ -9509,13 +9509,59 @@ int CvLuaPlayer::lDoUpdateProximityToPlayer(lua_State* L)
 //int GetIncomingUnitType(PlayerTypes eFromPlayer);
 int CvLuaPlayer::lGetIncomingUnitType(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvPlayer::GetIncomingUnitType);
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	if (pkPlayer->isMinorCiv())
+	{
+		const CvMinorCivAI* pMinorCivAI = pkPlayer->GetMinorCivAI();
+		CvAssert(pMinorCivAI);
+		if (pMinorCivAI)
+		{
+			const PlayerTypes eFromPlayer = static_cast<PlayerTypes>(lua_tointeger(L, 2));
+			if (eFromPlayer >= 0 && eFromPlayer < MAX_MAJOR_CIVS)
+			{
+				lua_pushinteger(L, pMinorCivAI->getIncomingUnitGift(eFromPlayer).getUnitType());
+				return 1;
+			}
+			else
+			{
+				luaL_error(L, "Player index %d is not a valid major civilization index.", static_cast<lua_Integer>(eFromPlayer));
+				return 0;
+			}
+		}
+	}
+
+	// Calling this on a non-minor civ is not an error for backwards compatability.
+	lua_pushinteger(L, NO_UNIT);
+	return 1;
 }
 //------------------------------------------------------------------------------
 //int GetIncomingUnitCountdown(PlayerTypes eFromPlayer);
 int CvLuaPlayer::lGetIncomingUnitCountdown(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvPlayer::GetIncomingUnitCountdown);
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	if (pkPlayer->isMinorCiv())
+	{
+		const CvMinorCivAI* pMinorCivAI = pkPlayer->GetMinorCivAI();
+		CvAssert(pMinorCivAI);
+		if (pMinorCivAI)
+		{
+			const PlayerTypes eFromPlayer = static_cast<PlayerTypes>(lua_tointeger(L, 2));
+			if (eFromPlayer >= 0 && eFromPlayer < MAX_MAJOR_CIVS)
+			{
+				lua_pushinteger(L, pMinorCivAI->getIncomingUnitGift(eFromPlayer).getArrivalCountdown());
+				return 1;
+			}
+			else
+			{
+				luaL_error(L, "Player index %d is not a valid major civilization index.", static_cast<lua_Integer>(eFromPlayer));
+				return 0;
+			}
+		}
+	}
+
+	// Calling this on a non-minor civ is not an error for backwards compatability.
+	lua_pushinteger(L, -1);
+	return 1;
 }
 //------------------------------------------------------------------------------
 //bool isOption(PlayerOptionTypes  eIndex);

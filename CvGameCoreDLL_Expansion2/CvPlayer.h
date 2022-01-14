@@ -2109,8 +2109,6 @@ public:
 
 	void DoCivilianReturnLogic(bool bReturn, PlayerTypes eToPlayer, int iUnitID);
 
-	// Incoming Units
-	void DoIncomingUnits();
 #if defined(MOD_BALANCE_CORE)
 	void DoTradeInfluenceAP();
 #endif
@@ -2118,13 +2116,6 @@ public:
 	bool CanGiftUnit(PlayerTypes eToPlayer);
 	void AddIncomingUnit(PlayerTypes eFromPlayer, CvUnit* pUnit);
 	PlayerTypes GetBestGiftTarget(DomainTypes eUnitDomain);
-
-	UnitTypes GetIncomingUnitType(PlayerTypes eFromPlayer) const;
-	void SetIncomingUnitType(PlayerTypes eFromPlayer, UnitTypes eUnitType);
-
-	int GetIncomingUnitCountdown(PlayerTypes eFromPlayer) const;
-	void SetIncomingUnitCountdown(PlayerTypes eFromPlayer, int iNumTurns);
-	void ChangeIncomingUnitCountdown(PlayerTypes eFromPlayer, int iChange);
 
 	bool isOption(PlayerOptionTypes eIndex) const;
 	void setOption(PlayerOptionTypes eIndex, bool bNewValue);
@@ -3526,8 +3517,6 @@ protected:
 	std::vector<int> m_aiNumUnitsBuilt;
 	std::vector<int> m_aiProximityToPlayer;
 	std::vector<int> m_aiResearchAgreementCounter;
-	std::vector<int> m_aiIncomingUnitTypes;
-	std::vector<int> m_aiIncomingUnitCountdowns;
 	std::vector<int> m_aiSiphonLuxuryCount;
 	std::vector<int> m_aiGreatWorkYieldChange;
 	std::vector<int> m_aiTourismBonusTurnsPlayer;
@@ -4299,8 +4288,6 @@ SYNC_ARCHIVE_VAR(std::vector<int>, m_aiWarDamageValue)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiNumUnitsBuilt)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiProximityToPlayer)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiResearchAgreementCounter)
-SYNC_ARCHIVE_VAR(std::vector<int>, m_aiIncomingUnitTypes)
-SYNC_ARCHIVE_VAR(std::vector<int>, m_aiIncomingUnitCountdowns)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiSiphonLuxuryCount)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiGreatWorkYieldChange)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiTourismBonusTurnsPlayer)

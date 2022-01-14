@@ -364,10 +364,11 @@ public:
 	int getChangeDamageValue();
 	void ChangeChangeDamageValue(int iChange);
 
-	int getPromotionDuration(PromotionTypes ePromotion);
+	int getPromotionDuration(PromotionTypes ePromotion) const;
+	void SetPromotionDuration(PromotionTypes ePromotion, int iValue);
 	void ChangePromotionDuration(PromotionTypes ePromotion, int iChange);
 
-	int getTurnPromotionGained(PromotionTypes ePromotion);
+	int getTurnPromotionGained(PromotionTypes ePromotion) const;
 	void SetTurnPromotionGained(PromotionTypes ePromotion, int iValue);
 
 	int getNegatorPromotion();
