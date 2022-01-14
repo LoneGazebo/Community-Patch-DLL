@@ -3076,11 +3076,7 @@ int CvPromotionXMLEntries::GetNumPromotions()
 /// Get a specific entry
 CvPromotionEntry* CvPromotionXMLEntries::GetEntry(int index)
 {
-#if defined(MOD_BALANCE_CORE)
 	return (index!=NO_PROMOTION) ? m_paPromotionEntries[index] : NULL;
-#else
-	return m_paPromotionEntries[index];
-#endif
 }
 
 /// Clear promotion entries
@@ -3098,9 +3094,7 @@ void CvPromotionXMLEntries::DeleteArray()
 // CvUnitPromotions
 //=====================================
 /// Constructor
-CvUnitPromotions::CvUnitPromotions():
-	m_pPromotions(NULL),
-	m_pUnit(NULL)
+CvUnitPromotions::CvUnitPromotions()
 {
 }
 
@@ -3110,19 +3104,8 @@ CvUnitPromotions::~CvUnitPromotions(void)
 }
 
 /// Initialize
-void CvUnitPromotions::Init(CvPromotionXMLEntries* pPromotions, CvUnit* pUnit)
+void CvUnitPromotions::Init()
 {
-	CvAssert(pPromotions);
-	if(!pPromotions)
-		return;
-
-	CvAssert(pUnit);
-	if(!pUnit)
-		return;
-
-	m_pPromotions = pPromotions;
-	m_pUnit = pUnit;
-
 	Reset();
 }
 
@@ -3149,7 +3132,6 @@ void CvUnitPromotions::Reset()
 template<typename UnitPromotions, typename Visitor>
 void CvUnitPromotions::Serialize(UnitPromotions& unitPromotions, Visitor& visitor)
 {
-	CvAssertMsg(unitPromotions.m_pPromotions != NULL && unitPromotions.m_pPromotions->GetNumPromotions() > 0, "Number of promotions to serialize is expected to greater than 0");
 	visitor(unitPromotions.m_kHasPromotion);
 }
 
@@ -3180,12 +3162,6 @@ FDataStream& operator<<(FDataStream& stream, const CvUnitPromotions& unitPromoti
 {
 	unitPromotions.Write(stream);
 	return stream;
-}
-
-/// Accessor: Unit object
-CvUnit* CvUnitPromotions::GetUnit()
-{
-	return m_pUnit;
 }
 
 /// Accessor: Does the unit have a certain promotion
@@ -3219,9 +3195,9 @@ void CvUnitPromotions::SetPromotion(PromotionTypes eIndex, bool bValue)
 }
 
 /// determines if the terrain feature is passable given the unit's current promotions
-bool CvUnitPromotions::GetAllowFeaturePassable(FeatureTypes eFeatureType) const
+bool CvUnitPromotions::GetAllowFeaturePassable(FeatureTypes eFeatureType, TeamTypes eTeam) const
 {
-	CvTeamTechs* teamTechs = GET_TEAM(m_pUnit->getTeam()).GetTeamTechs();
+	CvTeamTechs* teamTechs = eTeam != NO_TEAM ? GET_TEAM(eTeam).GetTeamTechs() : NULL;
 	if(!teamTechs) 
 		return false;
 
@@ -3309,9 +3285,9 @@ void CvUnitPromotions::UpdateCache()
 #endif
 
 
-bool CvUnitPromotions::GetAllowTerrainPassable(TerrainTypes eTerrainType) const
+bool CvUnitPromotions::GetAllowTerrainPassable(TerrainTypes eTerrainType, TeamTypes eTeam) const
 {
-	CvTeamTechs* teamTechs = GET_TEAM(m_pUnit->getTeam()).GetTeamTechs();
+	CvTeamTechs* teamTechs = eTeam != NO_TEAM ? GET_TEAM(eTeam).GetTeamTechs() : NULL;
 	if(!teamTechs) 
 		return false;
 
@@ -3394,24 +3370,26 @@ int CvUnitPromotions::GetUnitClassDefenseMod(UnitClassTypes eUnitClass) const
 }
 
 // Swap to a new promotion after a combat - returns new promotion we switched to
-PromotionTypes CvUnitPromotions::ChangePromotionAfterCombat(PromotionTypes eIndex)
+PromotionTypes CvUnitPromotions::ChangePromotionAfterCombat(PromotionTypes eIndex, CvUnit* pThisUnit)
 {
-	std::vector<int> aPossiblePromotions;
+	CvPromotionEntry *pkEntry = GC.GetGamePromotions()->GetEntry(eIndex);
+	if (!pkEntry || !pThisUnit)
+		return NO_PROMOTION;
 
-	for (int iI = 0; iI < m_pPromotions->GetNumPromotions(); iI++)
+	std::vector<int> aPossiblePromotions;
+	for (int iI = 0; iI < GC.GetGamePromotions()->GetNumPromotions(); iI++)
 	{
-		CvPromotionEntry *pkEntry = m_pPromotions->GetEntry(eIndex);
-		if (pkEntry && pkEntry->IsPostCombatRandomPromotion(iI))
+		if (pkEntry->IsPostCombatRandomPromotion(iI))
 		{
-			if (!pkEntry->ArePostCombatPromotionsExclusive() || !IsInUseByPlayer((PromotionTypes)iI, m_pUnit->getOwner()))
+			if (!pkEntry->ArePostCombatPromotionsExclusive() || !IsInUseByPlayer((PromotionTypes)iI, pThisUnit->getOwner()))
 			{
 #if defined(MOD_EVENTS_UNIT_UPGRADES)
 				if (MOD_EVENTS_UNIT_UPGRADES) {
-					if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_CanHavePromotion, m_pUnit->getOwner(), m_pUnit->GetID(), iI) == GAMEEVENTRETURN_FALSE) {
+					if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_CanHavePromotion, pThisUnit->getOwner(), pThisUnit->GetID(), iI) == GAMEEVENTRETURN_FALSE) {
 						continue;
 					}
 
-					if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_UnitCanHavePromotion, m_pUnit->getOwner(), m_pUnit->GetID(), iI) == GAMEEVENTRETURN_FALSE) {
+					if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_UnitCanHavePromotion, pThisUnit->getOwner(), pThisUnit->GetID(), iI) == GAMEEVENTRETURN_FALSE) {
 						continue;
 					}
 				}
@@ -3424,7 +3402,7 @@ PromotionTypes CvUnitPromotions::ChangePromotionAfterCombat(PromotionTypes eInde
 	int iNumChoices = aPossiblePromotions.size();
 	if (iNumChoices > 0)
 	{
-		int iChoice = GC.getGame().getSmallFakeRandNum(iNumChoices, m_pUnit->plot()->GetPlotIndex() + m_pUnit->getExperienceTimes100());
+		int iChoice = GC.getGame().getSmallFakeRandNum(iNumChoices, pThisUnit->plot()->GetPlotIndex() + pThisUnit->getExperienceTimes100());
 		return (PromotionTypes)aPossiblePromotions[iChoice];
 	}
 
@@ -3436,12 +3414,9 @@ PromotionTypes CvUnitPromotions::ChangePromotionAfterCombat(PromotionTypes eInde
 // Is this (post-combat) promotion already present for some unit of this player?
 bool CvUnitPromotions::IsInUseByPlayer(PromotionTypes eIndex, PlayerTypes ePlayer)
 {
-	bool bRtnValue = false;
 	CvPlayer &kPlayer = GET_PLAYER(ePlayer);
-
-	CvUnit *pLoopUnit;
 	int iValueLoop;
-	for(pLoopUnit = kPlayer.firstUnit(&iValueLoop); pLoopUnit != NULL; pLoopUnit = kPlayer.nextUnit(&iValueLoop))
+	for(CvUnit* pLoopUnit = kPlayer.firstUnit(&iValueLoop); pLoopUnit != NULL; pLoopUnit = kPlayer.nextUnit(&iValueLoop))
 	{
 		if (pLoopUnit->isHasPromotion(eIndex))
 		{
@@ -3449,7 +3424,7 @@ bool CvUnitPromotions::IsInUseByPlayer(PromotionTypes eIndex, PlayerTypes ePlaye
 		}
 	}
 
-	return bRtnValue;
+	return false;
 }
 
 // Read the saved promotions.  Entries are saved as string values, all entries are saved.
