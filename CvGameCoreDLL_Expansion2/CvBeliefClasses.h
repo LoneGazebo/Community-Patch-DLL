@@ -606,7 +606,7 @@ public:
 private:
 	BeliefList m_ReligionBeliefs;
 	ReligionTypes m_eReligion;
-	std::vector<int> m_BeliefLookup;
+	std::vector<int> m_BeliefLookup; //lookup table; set to 1 if we have a certain belief
 };
 
 FDataStream& operator<<(FDataStream&, const CvReligionBeliefs&);

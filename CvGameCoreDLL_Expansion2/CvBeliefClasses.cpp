@@ -1868,8 +1868,8 @@ CvReligionBeliefs::CvReligionBeliefs() :
 #if !defined(MOD_BALANCE_CORE_BELIEFS)
 m_paiBuildingClassEnabled(NULL)
 #else
-m_ReligionBeliefs(NULL),
-m_BeliefLookup(NULL),
+m_ReligionBeliefs(),
+m_BeliefLookup(),
 m_eReligion(NO_RELIGION)
 #endif
 {
@@ -2048,9 +2048,7 @@ void CvReligionBeliefs::AddBelief(BeliefTypes eBelief)
 #endif
 
 	m_ReligionBeliefs.push_back((int)eBelief);
-#if defined(MOD_BALANCE_CORE)
 	m_BeliefLookup[(int)(eBelief)] = 1;
-#endif
 }
 
 /// Does this religion possess a specific belief?
@@ -2069,7 +2067,10 @@ bool CvReligionBeliefs::HasBelief(BeliefTypes eBelief) const
 /// Does this religion possess a specific belief?
 BeliefTypes CvReligionBeliefs::GetBelief(int iIndex) const
 {
-	return (BeliefTypes)m_ReligionBeliefs[iIndex];
+	if (iIndex>=0 && iIndex<(int)m_ReligionBeliefs.size())
+		return (BeliefTypes)m_ReligionBeliefs[iIndex];
+
+	return NO_BELIEF;
 }
 
 /// Does this religion possess a specific belief?
@@ -2077,6 +2078,7 @@ int CvReligionBeliefs::GetNumBeliefs() const
 {
 	return m_ReligionBeliefs.size();
 }
+
 #if defined(MOD_BALANCE_CORE)
 bool CvReligionBeliefs::IsPantheonBeliefInReligion(BeliefTypes eBelief, ReligionTypes eReligion, PlayerTypes ePlayer) const
 {

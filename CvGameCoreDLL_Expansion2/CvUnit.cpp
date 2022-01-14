@@ -559,7 +559,7 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 
 	CvAssert(NO_UNIT != eUnit);
 
-	m_Promotions.Init(GC.GetGamePromotions(), this);
+	m_Promotions.Init();
 	m_Religion.Init();
 
 	//--------------------------------
@@ -4871,11 +4871,11 @@ bool CvUnit::canEnterTerrain(const CvPlot& enterPlot, int iMoveFlags) const
 
 		// general promotions ---------------------------------------------------
 
-		if(enterPlot.getFeatureType() != NO_FEATURE && m_Promotions.GetAllowFeaturePassable(enterPlot.getFeatureType()))
+		if(enterPlot.getFeatureType() != NO_FEATURE && m_Promotions.GetAllowFeaturePassable(enterPlot.getFeatureType(),getTeam()))
 		{
 			return true;
 		}	
-		else if(enterPlot.getTerrainType() != NO_TERRAIN && m_Promotions.GetAllowTerrainPassable(enterPlot.getTerrainType()))
+		else if(enterPlot.getTerrainType() != NO_TERRAIN && m_Promotions.GetAllowTerrainPassable(enterPlot.getTerrainType(),getTeam()))
 		{
 			return true;
 		}	
@@ -21027,7 +21027,7 @@ void CvUnit::changeExperienceTimes100(int iChangeTimes100, int iMax, bool bFromC
 			{
 				if (pkPromotionInfo->HasPostCombatPromotions() && m_Promotions.HasPromotion(eLoopPromotion))
 				{
-					eNewPromotion = m_Promotions.ChangePromotionAfterCombat(eLoopPromotion);
+					eNewPromotion = m_Promotions.ChangePromotionAfterCombat(eLoopPromotion,this);
 					setHasPromotion(eLoopPromotion, false);
 
 					if (eNewPromotion != NO_PROMOTION)
