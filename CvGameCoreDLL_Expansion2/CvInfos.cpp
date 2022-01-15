@@ -3009,6 +3009,7 @@ CvHandicapInfo::CvHandicapInfo() :
 	m_iAIGrowthPercent(0),
 	m_iAITechPercent(0),
 	m_iAITechCatchUpMod(0),
+	m_iAIPolicyCatchUpMod(0),
 	m_iAIPolicyPercent(0),
 	m_iAICivilianPercent(0),
 	m_iAIProphetPercent(0),
@@ -3026,6 +3027,7 @@ CvHandicapInfo::CvHandicapInfo() :
 	m_iAIUnitUpgradePercent(0),
 	m_iAIInflationPercent(0),
 	m_iAIPerEraModifier(0),
+	m_iHumanPerEraMod(0),
 	m_iAITechPerEraMod(0),
 	m_iAIPolicyPerEraMod(0),
 	m_iAIGrowthPerEraMod(0),
@@ -3292,6 +3294,11 @@ int CvHandicapInfo::getAITechCatchUpMod() const
 	return m_iAITechCatchUpMod;
 }
 //------------------------------------------------------------------------------
+int CvHandicapInfo::getAIPolicyCatchUpMod() const
+{
+	return m_iAIPolicyCatchUpMod;
+}
+//------------------------------------------------------------------------------
 int CvHandicapInfo::getAIPolicyPercent() const
 {
 	return m_iAIPolicyPercent;
@@ -3375,6 +3382,11 @@ int CvHandicapInfo::getAIInflationPercent() const
 int CvHandicapInfo::getAIPerEraModifier() const
 {
 	return m_iAIPerEraModifier;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getHumanPerEraMod() const
+{
+	return m_iHumanPerEraMod;
 }
 //------------------------------------------------------------------------------
 int CvHandicapInfo::getAITechPerEraMod() const
@@ -3514,6 +3526,7 @@ bool CvHandicapInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility
 	m_iAIGrowthPercent = kResults.GetInt("AIGrowthPercent");
 	m_iAITechPercent = kResults.GetInt("AITechPercent");
 	m_iAITechCatchUpMod = kResults.GetInt("AITechCatchUpMod");
+	m_iAIPolicyCatchUpMod = kResults.GetInt("AIPolicyCatchUpMod");
 	m_iAIProphetPercent = kResults.GetInt("AIProphetPercent");
 	m_iAIPolicyPercent = kResults.GetInt("AIPolicyPercent");
 	m_iAICivilianPercent = kResults.GetInt("AICivilianPercent");
@@ -3531,6 +3544,7 @@ bool CvHandicapInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility
 	m_iAIUnitUpgradePercent = kResults.GetInt("AIUnitUpgradePercent");
 	m_iAIInflationPercent = kResults.GetInt("AIInflationPercent");
 	m_iAIPerEraModifier = kResults.GetInt("AIPerEraModifier");
+	m_iHumanPerEraMod = kResults.GetInt("HumanPerEraMod");
 	m_iAITechPerEraMod = kResults.GetInt("AITechPerEraMod");
 	m_iAIPolicyPerEraMod = kResults.GetInt("AIPolicyPerEraMod");
 	m_iAIGrowthPerEraMod = kResults.GetInt("AIGrowthPerEraMod");

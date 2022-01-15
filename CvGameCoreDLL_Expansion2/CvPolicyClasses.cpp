@@ -4949,10 +4949,10 @@ int CvPlayerPolicies::GetTourismFromUnitCreation(UnitClassTypes eUnitClass) cons
 /// How much will the next policy cost?
 int CvPlayerPolicies::GetNextPolicyCost()
 {
-	int iNumPolicies = GetNumPoliciesOwned(false, true);
+	int iActualNumPolicies = GetNumPoliciesOwned(false, true);
 
 	// Reduce count by however many free Policies we've had in this game
-	iNumPolicies -= (m_pPlayer->GetNumFreePoliciesEver() - m_pPlayer->GetNumFreePolicies() - m_pPlayer->GetNumFreeTenets());
+	int iNumPolicies = iActualNumPolicies - (m_pPlayer->GetNumFreePoliciesEver() - m_pPlayer->GetNumFreePolicies() - m_pPlayer->GetNumFreeTenets());
 
 	int iCost = 0;
 	iCost += (int)(iNumPolicies * (/*3 in CP, 4 in CBO*/ GD_INT_GET(POLICY_COST_INCREASE_TO_BE_EXPONENTED) + /*0.0f in CP, 0.2f in CBO*/ GD_FLOAT_GET(POLICY_COST_EXTRA_VALUE)));
@@ -5025,12 +5025,38 @@ int CvPlayerPolicies::GetNextPolicyCost()
 	int iDivisor = /*5*/ GD_INT_GET(POLICY_COST_VISIBLE_DIVISOR);
 	iCost /= iDivisor;
 	iCost *= iDivisor;
-	if (MOD_ALTERNATIVE_DIFFICULTY && !GetPlayer()->isHuman())
+	if (MOD_ALTERNATIVE_DIFFICULTY && GetPlayer()->isMajorCiv())
 	{
-		iCost *= GC.getGame().getHandicapInfo().getAIPolicyPercent();
-		iCost /= 100;
-		iCost *= 100 + (GC.getGame().getHandicapInfo().getAIPolicyPerEraMod() * GC.getGame().getCurrentEra());
-		iCost /= 100;
+		if (GetPlayer()->isHuman())
+		{
+			iCost *= 100 + (GC.getGame().getHandicapInfo().getHumanPerEraMod() * GC.getGame().getCurrentEra());
+			iCost /= 100;
+		}
+		else
+		{
+			iCost *= GC.getGame().getHandicapInfo().getAIPolicyPercent();
+			iCost /= 100;
+			iCost *= 100 + (GC.getGame().getHandicapInfo().getAIPolicyPerEraMod() * GC.getGame().getCurrentEra());
+			iCost /= 100;
+			int iHigherPoliciesCount = 0;
+			int iPossibleHigherCount = 0;
+			int iPlayerPolicies = 0;
+			for (int iLoopPlayer = 0; iLoopPlayer < MAX_MAJOR_CIVS; ++iLoopPlayer)
+			{
+				CvPlayer& kPlayer = GET_PLAYER((PlayerTypes)iLoopPlayer);
+				if (kPlayer.isAlive() && kPlayer.isMajorCiv() && kPlayer.GetID() != GetPlayer()->GetID())
+				{
+					iPlayerPolicies = kPlayer.GetPlayerPolicies()->GetNumPoliciesOwned(false, true);
+					iPossibleHigherCount++;
+					if (iPlayerPolicies > iNumPolicies)
+					{
+						iHigherPoliciesCount++;
+					}
+				}
+			}
+			iCost *= 100 - (iHigherPoliciesCount * GC.getGame().getHandicapInfo().getAIPolicyCatchUpMod() * GC.getGame().getCurrentEra()) / max(1, iPossibleHigherCount);
+			iCost /= 100;
+		}
 	}
 
 	return iCost;

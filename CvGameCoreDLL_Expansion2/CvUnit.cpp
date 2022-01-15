@@ -14784,6 +14784,7 @@ int CvUnit::upgradePrice(UnitTypes eUnit) const
 		iPrice /= 100;
 
 		iPrice *= std::max(0, ((GC.getGame().getHandicapInfo().getAIPerEraModifier() * GET_TEAM(getTeam()).GetCurrentEra()) + 100));
+		// This applies the Per Era discount twice since it is already applied once in the getProductionNeeded() call
 		iPrice /= 100;
 	}
 

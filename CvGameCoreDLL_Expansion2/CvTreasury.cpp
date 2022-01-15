@@ -652,6 +652,7 @@ int CvTreasury::CalculateUnitSupply(int& iPaidUnits, int& iBaseSupplyCost)
 		//iSupply /= 100;
 
 		iSupply *= std::max(0, ((GC.getGame().getHandicapInfo().getAIPerEraModifier() * m_pPlayer->GetCurrentEra()) + 100));
+		// This is reducing AI supply Per Era, is that intended?
 		iSupply /= 100;
 	}
 
