@@ -2238,7 +2238,9 @@ int GetCultureVictoryProgress()
 {
 
 }
-int GetScienceVictoryProgress();
+int GetScienceVictoryProgress()
+{
+}
 int GetDiplomaticVictoryProgress(PlayerTypes ePlayer)
 {
 	CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
@@ -2258,7 +2260,9 @@ int GetDiplomaticVictoryProgress(PlayerTypes ePlayer)
 	iProgress /= 100;
 	return iProgress;
 }
-int GetDominationVictoryProgress();
+int GetDominationVictoryProgress()
+{
+}
 // ------------------------------------
 // Opinion & Approach
 // ------------------------------------
