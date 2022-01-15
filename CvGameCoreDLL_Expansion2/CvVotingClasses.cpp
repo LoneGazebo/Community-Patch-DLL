@@ -4123,7 +4123,7 @@ int CvLeague::GetCoreVotesForMember(PlayerTypes ePlayer)
 	return iVotes;
 }
 
-int CvLeague::CalculateStartingVotesForMember(PlayerTypes ePlayer, bool bForceUpdateSources, bool bFakeUN)
+int CvLeague::CalculateStartingVotesForMember(PlayerTypes ePlayer, bool bFakeUN, bool bForceUpdateSources)
 {
 
 	//try the cached value first
@@ -8234,7 +8234,7 @@ void CvLeague::AssignStartingVotes()
 	{
 		if (CanEverVote(it->ePlayer))
 		{
-			it->iVotes = CalculateStartingVotesForMember(it->ePlayer, /*bForceUpdateSources*/ true);
+			it->iVotes = CalculateStartingVotesForMember(it->ePlayer, /*bFakeUN*/ false, /*bForceUpdateSources*/ true);
 			it->iAbstainedVotes = 0;
 		}
 	}
@@ -12231,8 +12231,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 		}
 		else if (MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS && eUN == eProject)
 		{
-			int iVotes = GC.getGame().GetGameLeagues()->GetActiveLeague()->CalculateStartingVotesForMember(GetPlayer()->GetID());
-			int iTestVotes = GC.getGame().GetGameLeagues()->GetActiveLeague()->CalculateStartingVotesForMember(GetPlayer()->GetID(), false, true);
+			int iVotes = GC.getGame().GetGameLeagues()->GetActiveLeague()->CalculateStartingVotesForMember(GetPlayer()->GetID(), true);
 			int iNeededVotes = GC.getGame().GetVotesNeededForDiploVictory();
 			int iVoteRatio = 0;
 			if (bDiploVictoryEnabled)
@@ -12244,15 +12243,15 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 					{
 						iExtra += 10000;
 					}
-					else if (iVoteRatio >= 75)
+					else if (iVoteRatio >= 80)
 					{
 						iExtra += 5000;
 					}
-					else if (iVoteRatio >= 50)
+					else if (iVoteRatio >= 60)
 					{
 						iExtra += 2000;
 					}
-					else if (iVoteRatio >= 25)
+					else if (iVoteRatio >= 40)
 					{
 						iExtra += 750;
 					}
@@ -12934,7 +12933,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 		{
 			if (bDiploVictoryEnabled)
 			{
-				int iVotes = pLeague->CalculateStartingVotesForMember(GetPlayer()->GetID());
+				int iVotes = pLeague->CalculateStartingVotesForMember(GetPlayer()->GetID(),true);
 				int iVotesNeeded = GC.getGame().GetVotesNeededForDiploVictory();
 				int iPercent = iVotes * 100;
 				iPercent /= max(1, iVotesNeeded);
@@ -12942,15 +12941,15 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 				{
 					iExtra += 10000;
 				}
-				if (iPercent >= 75)
+				if (iPercent >= 80)
 				{
 					iExtra += 5000;
 				}
-				else if (iPercent >= 50)
+				else if (iPercent >= 60)
 				{
 					iExtra += 2500;
 				}
-				else if (iPercent >= 25)
+				else if (iPercent >= 40)
 				{
 					iExtra += 600;
 				}
