@@ -12243,23 +12243,26 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 					{
 						iExtra += 10000;
 					}
-					else if (iVoteRatio >= 80)
-					{
-						iExtra += 5000;
-					}
-					else if (iVoteRatio >= 60)
-					{
-						iExtra += 2000;
-					}
-					else if (iVoteRatio >= 40)
-					{
-						iExtra += 750;
-					}
 					else
 					{
-						if (bForSelf)
+						if (iVoteRatio >= 80)
 						{
-							iExtra -= 750;
+							iExtra += 75 * (iVoteRatio - 80);
+						}
+						if (iVoteRatio >= 60)
+						{
+							iExtra += 100 * (iVoteRatio - 60);
+						}
+						if (iVoteRatio >= 40)
+						{
+							iExtra += 75 * (iVoteRatio - 40);
+						}
+						else
+						{
+							if (bForSelf)
+							{
+								iExtra -= 25 * (40 - iVoteRatio);
+							}
 						}
 					}
 				}
@@ -12935,29 +12938,32 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 			{
 				int iVotes = pLeague->CalculateStartingVotesForMember(GetPlayer()->GetID(),true);
 				int iVotesNeeded = GC.getGame().GetVotesNeededForDiploVictory();
-				int iPercent = iVotes * 100;
-				iPercent /= max(1, iVotesNeeded);
-				if (iPercent >= 100)
+				int iVoteRatio = iVotes * 100;
+				iVoteRatio /= max(1, iVotesNeeded);
+				if (iVoteRatio >= 100)
 				{
 					iExtra += 10000;
 				}
-				if (iPercent >= 80)
-				{
-					iExtra += 5000;
-				}
-				else if (iPercent >= 60)
-				{
-					iExtra += 2500;
-				}
-				else if (iPercent >= 40)
-				{
-					iExtra += 600;
-				}
 				else
 				{
-					if (bForSelf)
+					if (iVoteRatio >= 80)
 					{
-						iExtra -= 500;
+						iExtra += 75 * (iVoteRatio - 80);
+					}
+					if (iVoteRatio >= 60)
+					{
+						iExtra += 100 * (iVoteRatio - 60);
+					}
+					if (iVoteRatio >= 40)
+					{
+						iExtra += 75 * (iVoteRatio - 40);
+					}
+					else
+					{
+						if (bForSelf)
+						{
+							iExtra -= 25 * (40 - iVoteRatio);
+						}
 					}
 				}
 			}

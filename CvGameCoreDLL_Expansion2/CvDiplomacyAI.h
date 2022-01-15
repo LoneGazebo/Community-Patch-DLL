@@ -191,6 +191,16 @@ public:
 	void SetPlayerWonderSpammer(PlayerTypes ePlayer, bool bValue);
 
 	// ------------------------------------
+	// Victory Progress
+	// ------------------------------------
+
+	int GetScoreVictoryProgress(PlayerTypes ePlayer);
+	int GetCultureVictoryProgress(PlayerTypes ePlayer);
+	int GetScienceVictoryProgress(PlayerTypes ePlayer);
+	int GetDiplomaticVictoryProgress(PlayerTypes ePlayer);
+	int GetDominationVictoryProgress(PlayerTypes ePlayer);
+
+	// ------------------------------------
 	// Opinion & Approach
 	// ------------------------------------
 
