@@ -404,6 +404,7 @@ public:
 	bool UpdateStateReligion();
 	void SetStateReligionOverride(ReligionTypes eReligion);
 	ReligionTypes GetStateReligion(bool bIncludePantheon = true) const;
+	ReligionTypes GetOwnedReligion() const;
 	int GetNumCitiesWithStateReligion(ReligionTypes eReligion);
 
 	int GetCityStateMinimumInfluence(ReligionTypes eReligion, PlayerTypes ePlayer) const;
@@ -417,6 +418,7 @@ public:
 
 private:
 	bool SetStateReligion(ReligionTypes eReligion);
+	void SetOwnsStateReligion(bool bOwnsReligion);
 	CvPlayer* m_pPlayer;
 
 #if defined(MOD_GLOBAL_TRULY_FREE_GP)
@@ -431,6 +433,7 @@ private:
 	ReligionTypes m_eMajorityReligion; //this is the majority religion in at least half of our cities
 	ReligionTypes m_eStateReligion; //this is our founded religion > the religion whose holy city we control with the most domestic followers > m_eMajorityReligion
 	ReligionTypes m_eStateReligionOverride; //to be set from lua
+	bool m_bOwnsStateReligion; //do we own the holy city of our state religion
 };
 
 FDataStream& operator>>(FDataStream&, CvPlayerReligions&);
