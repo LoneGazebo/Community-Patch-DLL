@@ -2201,11 +2201,10 @@ void CvDiplomacyAI::SetPlayerWonderSpammer(PlayerTypes ePlayer, bool bValue)
 // Victory Progress
 // ------------------------------------
 
-int CvDiplomacyAI::GetScoreVictoryProgress(PlayerTypes ePlayer)
+int CvDiplomacyAI::GetScoreVictoryProgress()
 {
-	CvPlayer& kPlayer = GET_PLAYER(ePlayer);
 	int iProgress = 0;
-	if (kPlayer.isMajorCiv() || !kPlayer.isAlive())
+	if (!m_pPlayer->isMajorCiv() || !m_pPlayer->isAlive())
 	{
 		return 0;
 	}
@@ -2222,7 +2221,7 @@ int CvDiplomacyAI::GetScoreVictoryProgress(PlayerTypes ePlayer)
 			{
 				iHighestScore = iScore;
 			}
-			if (GET_PLAYER(eLoopPlayer).GetID() == ePlayer)
+			if (eLoopPlayer == GetPlayer()->GetID())
 			{
 				iOurScore = iScore;
 			}
@@ -2234,34 +2233,117 @@ int CvDiplomacyAI::GetScoreVictoryProgress(PlayerTypes ePlayer)
 	iProgress /= max(1,GC.getGame().getMaxTurns());
 	return iProgress;
 }
-int GetCultureVictoryProgress()
+int CvDiplomacyAI::GetScienceVictoryProgress()
 {
-
-}
-int GetScienceVictoryProgress()
-{
-}
-int GetDiplomaticVictoryProgress(PlayerTypes ePlayer)
-{
-	CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
-	if (!pLeague)
+	if (!m_pPlayer->isMajorCiv() || !m_pPlayer->isAlive()||!GC.getGame().isVictoryValid((VictoryTypes)GC.getInfoTypeForString("VICTORY_SPACE_RACE", true)))
 	{
 		return 0;
 	}
-	int iOurVotes = pLeague->CalculateStartingVotesForMember(ePlayer,true);
+	int iScienceProgress = (GET_TEAM(m_pPlayer->getTeam()).GetTeamTechs()->GetNumTechsKnown() * 78) / max(1,GC.getNumTechInfos()-1);
+	int iSpaceshipProgress = 0; // finish this
+	
+	return iScienceProgress + iSpaceshipProgress;
+}
+int CvDiplomacyAI::GetDiplomaticVictoryProgress()
+{
+	CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
+	if (!pLeague||!GC.getGame().isVictoryValid((VictoryTypes)GC.getInfoTypeForString("VICTORY_DIPLOMATIC", true)))
+	{
+		return 0;
+	}
+	int iOurVotes = pLeague->CalculateStartingVotesForMember(GetPlayer()->GetID(),true);
 	int iNeededVotes = GC.getGame().GetVotesNeededForDiploVictory();
-	int iProgress = (iOurVotes * 50) / max(1, iNeededVotes);
+	int iProgress = (iOurVotes * 100) / max(1, iNeededVotes);
 	int iExtra = 0;
 	if (pLeague->IsUnitedNations())
 	{
 		iExtra += 1;
 	}
-	iProgress *= 100 + iExtra * 100;
-	iProgress /= 100;
+	if (iExtra = 0)
+	{
+		iProgress = min(iProgress, 60);
+	}
+	else
+	{
+		iProgress = min(iProgress, 99);
+	}
 	return iProgress;
 }
-int GetDominationVictoryProgress()
+int CvDiplomacyAI::GetDominationVictoryProgress()
 {
+	if (!m_pPlayer->isMajorCiv() || !m_pPlayer->isAlive())
+	{
+		return 0;
+	}
+	int iCivsProgress = 0;
+	int iTotalCivs = 0;
+	int iMight = 0;
+	int iOurMight = 0;
+	int iTotalMight = 0;
+	for (int i = 0; i < MAX_MAJOR_CIVS; i++)
+	{
+		PlayerTypes e = (PlayerTypes)i;
+		if (GET_PLAYER(e).isAlive() && !GET_PLAYER(e).isMinorCiv())
+		{
+			iTotalCivs++;
+			iMight = GET_PLAYER(e).GetMilitaryMight();
+			iTotalMight += iMight;
+			if (e == GetPlayer()->GetID() || IsMaster(e))
+			{
+				iOurMight += iMight;
+				iCivsProgress += 1;
+			}
+			else if (IsCapitalCapturedBy(GetPlayer()->GetID(),true))
+			{
+				iCivsProgress += 1;
+			}
+		}
+	}
+	iOurMight = (iOurMight * 100) / max(1, iTotalMight);
+	iCivsProgress = (iCivsProgress * 100) / max(1, iTotalCivs);
+
+	return (max(iOurMight, iCivsProgress));
+}
+int CvDiplomacyAI::GetCultureVictoryProgress()
+{
+	if (!m_pPlayer->isMajorCiv() || !m_pPlayer->isAlive()||!GC.getGame().isVictoryValid((VictoryTypes)GC.getInfoTypeForString("VICTORY_CULTURAL", true)))
+	{
+		return 0;
+	}
+	int iLowestPercent = GetLowestTourismInfluence();
+	int iPolicies = GetPlayer()->GetPlayerPolicies()->GetNumPoliciesOwned(false, true);
+	iPolicies = min(iPolicies, 27);
+	int iProgress = min(iLowestPercent, 18 + iPolicies * 3);
+	return iProgress;
+}
+int CvDiplomacyAI::GetLowestTourismInfluence()
+{
+	int iLowestPercent = /*100*/ GD_INT_GET(CULTURE_LEVEL_INFLUENTIAL);   // Don't want to target civs if already influential
+
+	for (int iLoopPlayer = 0; iLoopPlayer < MAX_MAJOR_CIVS; iLoopPlayer++)
+	{
+		CvPlayer& kPlayer = GET_PLAYER((PlayerTypes)iLoopPlayer);
+		if (iLoopPlayer != m_pPlayer->GetID() && kPlayer.isAlive() && !kPlayer.isMinorCiv())
+		{
+			int iInfluenceOn = GetPlayer()->GetCulture()->GetInfluenceOn((PlayerTypes)iLoopPlayer);
+			int iLifetimeCulture = kPlayer.GetJONSCultureEverGenerated();
+			int iPercent = 0;
+
+			if (iInfluenceOn > 0)
+			{
+				iPercent = (iInfluenceOn * 100) / max(1, iLifetimeCulture);
+			}
+			if (iPercent < 0)
+			{
+				iPercent = 0;
+			}
+			if (iPercent < iLowestPercent)
+			{
+				iLowestPercent = iPercent;
+			}
+		}
+	}
+	return iLowestPercent;
 }
 // ------------------------------------
 // Opinion & Approach

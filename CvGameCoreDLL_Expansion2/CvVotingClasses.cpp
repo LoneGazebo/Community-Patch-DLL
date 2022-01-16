@@ -12027,31 +12027,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 		}
 		else if (eInternationalGames == eProject)
 		{
-			int iLowestPercent = /*100*/ GD_INT_GET(CULTURE_LEVEL_INFLUENTIAL);   // Don't want to target civs if already influential
-
-			for (int iLoopPlayer = 0; iLoopPlayer < MAX_MAJOR_CIVS; iLoopPlayer++)
-			{
-				CvPlayer& kPlayer = GET_PLAYER((PlayerTypes)iLoopPlayer);
-				if (iLoopPlayer != m_pPlayer->GetID() && kPlayer.isAlive() && !kPlayer.isMinorCiv())
-				{
-					int iInfluenceOn = GetPlayer()->GetCulture()->GetInfluenceOn((PlayerTypes)iLoopPlayer);
-					int iLifetimeCulture = kPlayer.GetJONSCultureEverGenerated();
-					int iPercent = 0;
-
-					if (iInfluenceOn > 0)
-					{
-						iPercent = (iInfluenceOn * 100) / max(1, iLifetimeCulture);
-					}
-					if (iPercent < 0)
-					{
-						iPercent = 0;
-					}
-					if (iPercent < iLowestPercent)
-					{
-						iLowestPercent = iPercent;
-					}
-				}
-			}
+			int iLowestPercent = GetPlayer()->GetDiplomacyAI()->GetLowestTourismInfluence();
 			if (bCanGold)
 			{
 				if (bCultureVictoryEnabled)
@@ -13477,31 +13453,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 		if (bCultureVictoryEnabled)
 		{
 			int iTourismChange = pProposal->GetEffects()->iChangeTourism;
-			int iLowestPercent = /*100*/ GD_INT_GET(CULTURE_LEVEL_INFLUENTIAL);   // Don't want to target civs if already influential
-
-			for (int iLoopPlayer = 0; iLoopPlayer < MAX_MAJOR_CIVS; iLoopPlayer++)
-			{
-				CvPlayer& kPlayer = GET_PLAYER((PlayerTypes)iLoopPlayer);
-				if (iLoopPlayer != m_pPlayer->GetID() && kPlayer.isAlive() && !kPlayer.isMinorCiv())
-				{
-					int iInfluenceOn = GetPlayer()->GetCulture()->GetInfluenceOn((PlayerTypes)iLoopPlayer);
-					int iLifetimeCulture = kPlayer.GetJONSCultureEverGenerated();
-					int iPercent = 0;
-
-					if (iInfluenceOn > 0)
-					{
-						iPercent = (iInfluenceOn * 100) / max(1, iLifetimeCulture);
-					}
-					if (iPercent < 0)
-					{
-						iPercent = 0;
-					}
-					if (iPercent < iLowestPercent)
-					{
-						iLowestPercent = iPercent;
-					}
-				}
-			}
+			int iLowestPercent = GetPlayer()->GetDiplomacyAI()->GetLowestTourismInfluence();
 			if (iLowestPercent > 25)
 			{
 				iExtra += 2 * iTourismChange * min(iLowestPercent - 25, 50);

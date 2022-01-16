@@ -194,11 +194,12 @@ public:
 	// Victory Progress
 	// ------------------------------------
 
-	int GetScoreVictoryProgress(PlayerTypes ePlayer);
-	int GetCultureVictoryProgress(PlayerTypes ePlayer);
-	int GetScienceVictoryProgress(PlayerTypes ePlayer);
-	int GetDiplomaticVictoryProgress(PlayerTypes ePlayer);
-	int GetDominationVictoryProgress(PlayerTypes ePlayer);
+	int GetScoreVictoryProgress();
+	int GetScienceVictoryProgress();
+	int GetDiplomaticVictoryProgress();
+	int GetDominationVictoryProgress();
+	int GetCultureVictoryProgress();
+	int GetLowestTourismInfluence();
 
 	// ------------------------------------
 	// Opinion & Approach
