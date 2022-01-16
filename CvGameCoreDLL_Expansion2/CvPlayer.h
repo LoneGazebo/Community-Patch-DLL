@@ -2542,6 +2542,8 @@ public:
 
 #if defined(MOD_BALANCE_CORE_MILITARY)
 	int GetFractionOriginalCapitalsUnderControl() const;
+	bool OwnsOurCity(PlayerTypes ePlayer);
+	int GetNumOurCitiesOwnedBy(PlayerTypes ePlayer);
 	int GetMilitaryRating() const;
 	void SetMilitaryRating(int iValue);
 	void ChangeMilitaryRating(int iChange);

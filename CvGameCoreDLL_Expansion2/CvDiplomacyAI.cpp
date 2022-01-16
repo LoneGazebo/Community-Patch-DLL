@@ -2331,9 +2331,10 @@ CivApproachTypes CvDiplomacyAI::GetSurfaceApproach(PlayerTypes ePlayer) const
 		if ((!IsAtWar(ePlayer) && eRealApproach == CIV_APPROACH_WAR) || eRealApproach == CIV_APPROACH_DECEPTIVE || eRealApproach == CIV_APPROACH_AFRAID)
 		{
 			GetPlayer()->GetDiplomacyAI()->SelectHumanApproach(ePlayer);
+			return GetCivApproach(ePlayer);
 		}
 
-		return GetCivApproach(ePlayer);
+		return eRealApproach;
 	}
 
 	// Pick a surface approach to disguise our war plans (this approach is cached to prevent erratic behavior)
@@ -11132,7 +11133,7 @@ void CvDiplomacyAI::DoUpdateLandDisputeLevels()
 			}
 
 			// Ignore masters and vassals
-			if (IsVassal(ePlayer) || (IsMaster(ePlayer) && GetNumCitiesCapturedBy(ePlayer) <= GET_PLAYER(ePlayer).GetDiplomacyAI()->GetNumCitiesCapturedBy(GetID())))
+			if (IsVassal(ePlayer) || (IsMaster(ePlayer) && !GetPlayer()->OwnsOurCity(ePlayer)))
 			{
 				SetLandDisputeLevel(ePlayer, DISPUTE_LEVEL_NONE);
 				continue;
@@ -13703,7 +13704,7 @@ void CvDiplomacyAI::SelectApproachTowardsMaster(PlayerTypes ePlayer)
 		// If they're strong enough, consider being AFRAID
 		if (GET_TEAM(GET_PLAYER(ePlayer).getTeam()).canDeclareWar(GetTeam(), ePlayer))
 		{
-			int iAfraidScore = GetMajorCivApproachBias(CIV_APPROACH_AFRAID) + (GetNumCitiesCapturedBy(ePlayer)*2) - GetBoldness();
+			int iAfraidScore = GetMajorCivApproachBias(CIV_APPROACH_AFRAID) + (GetPlayer()->GetNumOurCitiesOwnedBy(ePlayer)*2) - GetBoldness();
 
 			// If friendly or hostile, less likely to be afraid
 			if (eApproach == CIV_APPROACH_FRIENDLY || eApproach == CIV_APPROACH_HOSTILE)
@@ -13913,25 +13914,14 @@ void CvDiplomacyAI::SelectApproachTowardsVassal(PlayerTypes ePlayer)
 
 		if (eApproach != CIV_APPROACH_WAR && GET_TEAM(GetTeam()).canDeclareWar(GET_PLAYER(ePlayer).getTeam(), GetID()))
 		{
-			bool bConsiderWar = false;
+			bool bConsiderWar = GetPlayer()->OwnsOurCity(ePlayer); // Consider war if they have one of our cities
 
-			int iCityLoop;
-			for (CvCity* pLoopCity = GET_PLAYER(ePlayer).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iCityLoop))
-			{
-				// They have one of our cities!
-				if (GET_PLAYER(pLoopCity->getOriginalOwner()).getTeam() == GetTeam())
-				{
-					bConsiderWar = true;
-					break;
-				}
-			}
-
-			if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToAnyVictoryCondition())
+			if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToAnyVictoryCondition()) // Consider war if they're close to winning
 			{
 				bConsiderWar = true;
 			}
 
-			if (IsCompetingForVictory() && !IsMaster(ePlayer))
+			if (IsCompetingForVictory() && !IsMaster(ePlayer)) // Consider war if they have original major capitals and we're not their master
 			{
 				if (IsGoingForWorldConquest() || IsCloseToWorldConquest())
 				{
@@ -14092,6 +14082,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	bool bCapturedOurCapital = IsCapitalCapturedBy(ePlayer, true, false), bCapturedOurHolyCity = IsHolyCityCapturedBy(ePlayer, true, false);
 	bool bCapturedTheirCapital = pTheirDiplo->IsCapitalCapturedBy(eMyPlayer, true, false), bCapturedTheirHolyCity = pTheirDiplo->IsHolyCityCapturedBy(eMyPlayer, true, false);
 	bool bEverCapturedKeyCity = IsCapitalCapturedBy(ePlayer) || IsHolyCityCapturedBy(ePlayer); // this also checks teammates
+	int iNumOurCitiesTheyOwn = GetPlayer()->GetNumOurCitiesOwnedBy(ePlayer);
 
 	// Evaluations
 	StrengthTypes eMilitaryStrength = GetPlayerMilitaryStrengthComparedToUs(ePlayer), eEconomicStrength = GetPlayerEconomicStrengthComparedToUs(ePlayer);
@@ -14530,7 +14521,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 
 	if (IsLiberator(ePlayer, false, false))
 	{
-		int iLiberationMod = GetNumCitiesLiberatedBy(ePlayer) - GetNumCitiesCapturedBy(ePlayer);
+		int iLiberationMod = GetNumCitiesLiberatedBy(ePlayer) - max(iNumOurCitiesTheyOwn, GetNumCitiesCapturedBy(ePlayer));
 		if (iLiberationMod > 0)
 		{
 			vApproachScores[CIV_APPROACH_FRIENDLY] += vApproachBias[CIV_APPROACH_FRIENDLY] * iLiberationMod;
@@ -14831,7 +14822,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	// CAPTURED CITIES
 	////////////////////////////////////
 
-	int iCityDifference = (pTheirDiplo->GetNumCitiesCapturedBy(eMyPlayer) - GetNumCitiesCapturedBy(ePlayer)) * 2;
+	int iCityDifference = (GET_PLAYER(ePlayer).GetNumOurCitiesOwnedBy(eMyPlayer) - iNumOurCitiesTheyOwn) * 2;
 
 	// Only apply weight for this if they're nearby (if we conquered a city far away from the rest of their empire, adding weight here is not helpful).
 	if (eProximity >= PLAYER_PROXIMITY_CLOSE)
@@ -54212,7 +54203,7 @@ bool CvDiplomacyAI::IsVoluntaryVassalageAcceptable(PlayerTypes ePlayer)
 bool CvDiplomacyAI::IsVoluntaryVassalageRequestAcceptable(PlayerTypes ePlayer)
 {
 	// We will only accept forced capitulation from backstabbers and people who have stolen cities from us.
-	if (IsUntrustworthy(ePlayer) || GetNumCitiesCapturedBy(ePlayer) > 0)
+	if (IsUntrustworthy(ePlayer) || (GetNumCitiesCapturedBy(ePlayer) > 0 && GetPlayer()->OwnsOurCity(ePlayer)))
 		return false;
 
 	vector<PlayerTypes> vTheirTeam = GET_TEAM(GET_PLAYER(ePlayer).getTeam()).getPlayers();
@@ -55550,7 +55541,7 @@ void CvDiplomacyAI::DoWeMadeVassalageWithSomeone(TeamTypes eMasterTeam, bool bVo
 
 			// Reset land dispute penalty
 			SetLandDisputeLevel(eOtherTeamPlayer, DISPUTE_LEVEL_NONE);
-			if (GetNumCitiesCapturedBy(eOtherTeamPlayer) >= GET_PLAYER(eOtherTeamPlayer).GetDiplomacyAI()->GetNumCitiesCapturedBy(GetID()))
+			if (!GET_PLAYER(eOtherTeamPlayer).OwnsOurCity(GetID()))
 				GET_PLAYER(eOtherTeamPlayer).GetDiplomacyAI()->SetLandDisputeLevel(GetID(), DISPUTE_LEVEL_NONE);
 
 			// Forget any denouncing

@@ -33036,6 +33036,33 @@ void CvPlayer::changeCitiesLost(int iChange)
 }
 
 //	--------------------------------------------------------------------------------
+bool CvPlayer::OwnsOurCity(PlayerTypes ePlayer)
+{
+	int iLoop;
+	for (CvCity* pLoopCity = GET_PLAYER(ePlayer).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iLoop))
+	{
+		if (pLoopCity->getOriginalOwner() == m_eID)
+			return true;
+	}
+
+	return false;
+}
+
+int CvPlayer::GetNumOurCitiesOwnedBy(PlayerTypes ePlayer)
+{
+	int iLoop;
+	int iCount = 0;
+	for (CvCity* pLoopCity = GET_PLAYER(ePlayer).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iLoop))
+	{
+		if (pLoopCity->getOriginalOwner() == m_eID)
+			iCount++;
+	}
+
+	return iCount;
+}
+
+
+//	--------------------------------------------------------------------------------
 
 int CvPlayer::GetMilitaryRating() const
 {
@@ -33060,7 +33087,7 @@ void CvPlayer::ChangeMilitaryRating(int iChange)
 
 void CvPlayer::DoMilitaryRatingDecay()
 {
-	int iStartingRating = (GC.getGame().getStartEra() > 0) ? (1000 * GC.getGame().getStartEra()) : 1000;
+	int iStartingRating = (GC.getGame().getStartEra() > 0) ? (/*1000*/ GD_INT_GET(MILITARY_RATING_STARTING_VALUE) * GC.getGame().getStartEra()) : /*1000*/ GD_INT_GET(MILITARY_RATING_STARTING_VALUE);
 	int iCurrentRating = GetMilitaryRating();
 	float fDecay = 2.000f;
 	fDecay *= 100;
