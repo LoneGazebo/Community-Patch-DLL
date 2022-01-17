@@ -2239,8 +2239,31 @@ int CvDiplomacyAI::GetScienceVictoryProgress()
 	{
 		return 0;
 	}
-	int iScienceProgress = (GET_TEAM(m_pPlayer->getTeam()).GetTeamTechs()->GetNumTechsKnown() * 78) / max(1,GC.getNumTechInfos()-1);
-	int iSpaceshipProgress = 0; // finish this
+	VictoryTypes eSpaceVictory = (VictoryTypes)GC.getInfoTypeForString("VICTORY_SPACE_RACE", true);
+
+	int iProjectsRequired = 0;
+	int iProjectsCompleted = 0;
+	for (int iK = 0; iK < GC.getNumProjectInfos(); iK++)
+	{
+		const ProjectTypes eProject = static_cast<ProjectTypes>(iK);
+		CvProjectEntry* pkProjectInfo = GC.getProjectInfo(eProject);
+		if (pkProjectInfo)
+		{
+			iProjectsRequired += pkProjectInfo->GetVictoryMinThreshold(eSpaceVictory);
+			iProjectsCompleted += GET_TEAM(m_pPlayer->getTeam()).getProjectCount(eProject);
+		}
+	}
+	ProjectTypes eApollo = (ProjectTypes)GC.getInfoTypeForString("PROJECT_APOLLO_PROGRAM", true);
+	if (eApollo != NO_PROJECT)
+	{
+		iProjectsRequired++;
+		if (GET_TEAM(m_pPlayer->getTeam()).getProjectCount(eApollo) > 0)
+		{
+			iProjectsCompleted++;
+		}			
+	}
+	int iScienceProgress = (GET_TEAM(m_pPlayer->getTeam()).GetTeamTechs()->GetNumTechsKnown() * 78) / max(1, GC.getNumTechInfos() - 1);
+	int iSpaceshipProgress = (21 * iProjectsCompleted) / max(1, iProjectsRequired);
 	
 	return iScienceProgress + iSpaceshipProgress;
 }
@@ -2259,13 +2282,29 @@ int CvDiplomacyAI::GetDiplomaticVictoryProgress()
 	{
 		iExtra += 1;
 	}
+	if (MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS)
+	{
+		for (int i = 0; i < GC.getNumLeagueSpecialSessionInfos(); i++)
+		{
+			LeagueSpecialSessionTypes e = (LeagueSpecialSessionTypes)i;
+			CvLeagueSpecialSessionEntry* pSessionInfo = GC.getLeagueSpecialSessionInfo(e);
+			if (pSessionInfo->IsUnitedNations())
+			{
+				ResolutionTypes eResolution = LeagueHelpers::IsResolutionForTriggerActive(pSessionInfo->GetResolutionTrigger());
+				if (eResolution != NO_RESOLUTION)
+				{
+					iExtra += 1;
+				}
+			}
+		}
+	}
 	if (iExtra = 0)
 	{
-		iProgress = min(iProgress, 60);
+		iProgress = min(iProgress, 59);
 	}
 	else
 	{
-		iProgress = min(iProgress, 99);
+		iProgress = min(iProgress, 59 + 20 * iExtra);
 	}
 	return iProgress;
 }
@@ -2288,10 +2327,13 @@ int CvDiplomacyAI::GetDominationVictoryProgress()
 			iTotalCivs++;
 			iMight = GET_PLAYER(e).GetMilitaryMight();
 			iTotalMight += iMight;
-			if (e == GetPlayer()->GetID() || IsMaster(e))
+			if (MOD_DIPLOMACY_CIV4_FEATURES)
 			{
-				iOurMight += iMight;
-				iCivsProgress += 1;
+				if (e == GetPlayer()->GetID() || IsMaster(e))
+				{
+					iOurMight += iMight;
+					iCivsProgress += 1;
+				}
 			}
 			else if (IsCapitalCapturedBy(GetPlayer()->GetID(),true))
 			{
@@ -2311,9 +2353,13 @@ int CvDiplomacyAI::GetCultureVictoryProgress()
 		return 0;
 	}
 	int iLowestPercent = GetLowestTourismInfluence();
-	int iPolicies = GetPlayer()->GetPlayerPolicies()->GetNumPoliciesOwned(false, true);
-	iPolicies = min(iPolicies, 27);
-	int iProgress = min(iLowestPercent, 18 + iPolicies * 3);
+	int iProgress = min(99,iLowestPercent);
+	if (MOD_BALANCE_CORE_VICTORY_GAME_CHANGES)
+	{
+		int iPolicies = GetPlayer()->GetPlayerPolicies()->GetNumPoliciesOwned(false, true);
+		iPolicies = min(iPolicies, 27);
+		int iProgress = min(iLowestPercent, 18 + iPolicies * 3);
+	}
 	return iProgress;
 }
 int CvDiplomacyAI::GetLowestTourismInfluence()
