@@ -2262,10 +2262,11 @@ int CvDiplomacyAI::GetScienceVictoryProgress()
 			iProjectsCompleted++;
 		}			
 	}
-	int iScienceProgress = (GET_TEAM(m_pPlayer->getTeam()).GetTeamTechs()->GetNumTechsKnown() * 78) / max(1, GC.getNumTechInfos() - 1);
+	int iScienceProgress = (GET_TEAM(m_pPlayer->getTeam()).GetTeamTechs()->GetNumTechsKnown() * 100) / max(1, GC.getNumTechInfos() - 1);
 	int iSpaceshipProgress = (21 * iProjectsCompleted) / max(1, iProjectsRequired);
+	int iProgress = min(iScienceProgress, 78 + iSpaceshipProgress);
 	
-	return iScienceProgress + iSpaceshipProgress;
+	return iProgress;
 }
 int CvDiplomacyAI::GetDiplomaticVictoryProgress()
 {
@@ -2358,7 +2359,7 @@ int CvDiplomacyAI::GetCultureVictoryProgress()
 	{
 		int iPolicies = GetPlayer()->GetPlayerPolicies()->GetNumPoliciesOwned(false, true);
 		iPolicies = min(iPolicies, 27);
-		int iProgress = min(iLowestPercent, 18 + iPolicies * 3);
+		iProgress = min(iLowestPercent, 18 + iPolicies * 3);
 	}
 	return iProgress;
 }
