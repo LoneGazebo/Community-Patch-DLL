@@ -13391,10 +13391,10 @@ bool CvUnit::blastTourism()
 		if (pNotifications)
 		{
 			Localization::String localizedText = Localization::Lookup("TXT_KEY_NOTIFICATION_GREAT_MUSICIAN_TOUR_TURNS");
-			localizedText << kUnitOwner.getCivilizationAdjectiveKey();
+			localizedText << GET_PLAYER(eOwner).getCivilizationAdjectiveKey();
 			localizedText << GetTourismBlastLength();
 			Localization::String localizedSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_GREAT_MUSICIAN_TOUR_TURNS_S");
-			localizedSummary << kUnitOwner.getCivilizationAdjectiveKey();
+			localizedSummary << GET_PLAYER(eOwner).getCivilizationAdjectiveKey();
 			pNotifications->Add(NOTIFICATION_GREAT_PERSON_ACTIVE_PLAYER, localizedText.toUTF8(), localizedSummary.toUTF8(), getX(), getY(), getUnitType());
 		}
 		CvNotifications* pNotifications2 = GET_PLAYER(eOwner).GetNotifications();
