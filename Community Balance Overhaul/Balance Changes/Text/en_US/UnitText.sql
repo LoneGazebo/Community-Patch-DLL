@@ -328,35 +328,35 @@
 
 	UPDATE Language_en_US
 	SET Text = 'A corvette is a small warship. It is traditionally the smallest class of vessel considered to be a proper (or "rated") warship. The warship class above is that of frigate. The class below is historically sloop-of-war. The modern types of ship below a corvette are coastal patrol craft and fast attack craft. In modern terms, a corvette is typically between 500 tons and 2,000 tons although recent designs may approach 3,000 tons, which might instead be considered a small frigate.'
-	WHERE Tag = 'TXT_KEY_CIV5_PRIVATEER_TEXT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
+	WHERE Tag = 'TXT_KEY_CIV5_PRIVATEER_TEXT';
 	
 	UPDATE Language_en_US
 	SET Text = 'The Caravel is a significant upgrade to your naval power. A Melee unit, it is stronger and faster than the ageing Trireme, and it can enter Deep Ocean hexes.Use it to explore the world, or to defend your home cities.'
-	WHERE Tag = 'TXT_KEY_UNIT_CARAVEL_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
+	WHERE Tag = 'TXT_KEY_UNIT_CARAVEL_STRATEGY';
 	
 	UPDATE Language_en_US
 	SET Text = 'Late-Medieval exploration Unit that can enter the Ocean. Fights as a naval melee unit.'
-	WHERE Tag = 'TXT_KEY_UNIT_HELP_CARAVEL' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
+	WHERE Tag = 'TXT_KEY_UNIT_HELP_CARAVEL';
 	
 	UPDATE Language_en_US
 	SET Text = 'The Frigate is an upgrade over the Galleass. Its Range, Combat and Ranged Combat strengths are much larger than the older naval unit. The Frigate can clear the seas of any Caravels, Triremes, and Barbarian units still afloat. It cannot, however, fire on non-coastal land tiles.'
-	WHERE Tag = 'TXT_KEY_UNIT_FRIGATE_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
+	WHERE Tag = 'TXT_KEY_UNIT_FRIGATE_STRATEGY';
 
 	UPDATE Language_en_US
 	SET Text = 'Naval Unit that specializes in attacking coastal cities and capturing enemy ships. Available earlier than the Corvette, which it replaces. Only the Dutch can build it.'
-	WHERE Tag = 'TXT_KEY_UNIT_HELP_SEA_BEGGAR' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
+	WHERE Tag = 'TXT_KEY_UNIT_HELP_SEA_BEGGAR';
 
 	UPDATE Language_en_US
 	SET Text = 'Corvette'
-	WHERE Tag = 'TXT_KEY_UNIT_PRIVATEER' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
+	WHERE Tag = 'TXT_KEY_UNIT_PRIVATEER';
 
 	UPDATE Language_en_US
 	SET Text = 'Naval Unit that specializes in melee combat and quick movement.'
-	WHERE Tag = 'TXT_KEY_UNIT_HELP_PRIVATEER' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
+	WHERE Tag = 'TXT_KEY_UNIT_HELP_PRIVATEER';
 
 	UPDATE Language_en_US
 	SET Text = 'Naval Unit that attacks as a melee unit. It is significantly stronger and faster than the Caravel.'
-	WHERE Tag = 'TXT_KEY_UNIT_PRIVATEER_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
+	WHERE Tag = 'TXT_KEY_UNIT_PRIVATEER_STRATEGY';
 
 	UPDATE Language_en_US
 	SET Text = 'A very powerful naval melee unit, the Ironclad dominates the oceans of the Industrial age.'

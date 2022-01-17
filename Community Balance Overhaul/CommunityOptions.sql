@@ -201,15 +201,6 @@ INSERT INTO COMMUNITY (Type, Value)
 VALUES ('COMMUNITY_CORE_BALANCE_WONDER_CONSOLATION_TWEAK_ENABLER', 1);
 
 /*
-Religion Balance
-0 = Disabled
-1 = Enabled (Default)
-*/
-
-INSERT INTO COMMUNITY (Type, Value)
-VALUES ('COMMUNITY_CORE_BALANCE_RELIGION', 1);
-
-/*
 Tourism Changes
 0 = Disabled
 1 = Enabled (Default)

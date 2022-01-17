@@ -1012,6 +1012,7 @@ void CvDiplomacyAI::SlotStateChange()
 				SetCachedOpinionWeight(eLoopPlayer, 0);
 				SetCivApproach(eLoopPlayer, CIV_APPROACH_NEUTRAL);
 				SetCivStrategicApproach(eLoopPlayer, CIV_APPROACH_NEUTRAL);
+				SetCachedSurfaceApproach(eLoopPlayer, NO_CIV_APPROACH);
 
 				// Reset AI-only values
 				SetRecentAssistValue(eLoopPlayer, 0);
@@ -2323,15 +2324,12 @@ CivApproachTypes CvDiplomacyAI::GetSurfaceApproach(PlayerTypes ePlayer) const
 
 	CivApproachTypes eRealApproach = GetCivApproach(ePlayer);
 
-	// Reset human approach if invalid
+	// Display NEUTRAL if human approach is invalid
 	if (GetPlayer()->isHuman())
 	{
-		GetPlayer()->GetDiplomacyAI()->SetCachedSurfaceApproach(ePlayer, NO_CIV_APPROACH);
-
 		if ((!IsAtWar(ePlayer) && eRealApproach == CIV_APPROACH_WAR) || eRealApproach == CIV_APPROACH_DECEPTIVE || eRealApproach == CIV_APPROACH_AFRAID)
 		{
-			GetPlayer()->GetDiplomacyAI()->SelectHumanApproach(ePlayer);
-			return GetCivApproach(ePlayer);
+			return CIV_APPROACH_NEUTRAL;
 		}
 
 		return eRealApproach;

@@ -109,7 +109,7 @@ WHERE Tag = 'TXT_KEY_HANDICAP_DEITY_HELP';
 -- Top Panel Tooltip Adjustment (make generic for more than just founder beliefs)
 UPDATE Language_en_US
 SET Text = '[ICON_BULLET][COLOR_POSITIVE_TEXT]+{1_Num}[ENDCOLOR] from Religion.'
-WHERE Tag = 'TXT_KEY_TP_FAITH_FROM_RELIGION' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
+WHERE Tag = 'TXT_KEY_TP_FAITH_FROM_RELIGION';
 
 UPDATE Language_en_US
 SET Text = 'Allows Research Agreements (if enabled)'
