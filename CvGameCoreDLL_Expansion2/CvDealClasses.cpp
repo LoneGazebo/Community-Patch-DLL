@@ -1270,10 +1270,12 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 				return false;
 		}
 	}
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	// Maps
-	else if(MOD_DIPLOMACY_CIV4_FEATURES && eItem == TRADE_ITEM_MAPS)
+	else if (eItem == TRADE_ITEM_MAPS)
 	{
+		if (!MOD_DIPLOMACY_CIV4_FEATURES)
+			return false;
+
 		// Both need tech for Map trading
 		if (!pToTeam->isMapTrading() || !pFromTeam->isMapTrading())
 			return false;
@@ -1302,8 +1304,11 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 		}
 	}
 	// Techs
-	else if(MOD_DIPLOMACY_CIV4_FEATURES && eItem == TRADE_ITEM_TECHS)
+	else if (eItem == TRADE_ITEM_TECHS)
 	{
+		if (!MOD_DIPLOMACY_CIV4_FEATURES)
+			return false;
+
 		// Do we have no science enabled?
 		if(GC.getGame().isOption(GAMEOPTION_NO_SCIENCE))
 			return false;
@@ -1360,8 +1365,11 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 			}
 		}
 	}
-	else if(MOD_DIPLOMACY_CIV4_FEATURES && eItem == TRADE_ITEM_VASSALAGE)
+	else if (eItem == TRADE_ITEM_VASSALAGE)
 	{
+		if (!MOD_DIPLOMACY_CIV4_FEATURES)
+			return false;
+
 		// Vassalage is disabled...
 		if(GC.getGame().isOption(GAMEOPTION_NO_VASSALAGE))
 			return false;
@@ -1416,8 +1424,11 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 			}
 		}
 	}
-	else if(MOD_DIPLOMACY_CIV4_FEATURES && eItem == TRADE_ITEM_VASSALAGE_REVOKE)
+	else if (eItem == TRADE_ITEM_VASSALAGE_REVOKE)
 	{
+		if (!MOD_DIPLOMACY_CIV4_FEATURES)
+			return false;
+
 		// Vassalage is disabled...
 		if(GC.getGame().isOption(GAMEOPTION_NO_VASSALAGE))
 			return false;
@@ -1469,8 +1480,6 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 			}
 		}
 	}
-	
-#endif
 
 	return true;
 }
