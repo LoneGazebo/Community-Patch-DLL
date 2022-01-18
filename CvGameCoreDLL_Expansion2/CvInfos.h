@@ -998,6 +998,7 @@ public:
 	int getAIGrowthPercent() const;
 	int getAITechPercent() const;
 	int getAITechCatchUpMod() const;
+	int getAIPolicyCatchUpMod() const;
 	int getAIPolicyPercent() const;
 	int getAICivilianPercent() const;
 	int getAIProphetPercent() const;
@@ -1015,6 +1016,7 @@ public:
 	int getAIUnitUpgradePercent() const;
 	int getAIInflationPercent() const;
 	int getAIPerEraModifier() const;
+	int getHumanPerEraMod() const;
 	int getAITechPerEraMod() const;
 	int getAIPolicyPerEraMod() const;
 	int getAIGrowthPerEraMod() const;
@@ -1086,6 +1088,7 @@ protected:
 	int m_iAIGrowthPercent;
 	int m_iAITechPercent;
 	int m_iAITechCatchUpMod;
+	int m_iAIPolicyCatchUpMod;
 	int m_iAIPolicyPercent;
 	int m_iAICivilianPercent;
 	int m_iAIProphetPercent;
@@ -1103,6 +1106,7 @@ protected:
 	int m_iAIUnitUpgradePercent;
 	int m_iAIInflationPercent;
 	int m_iAIPerEraModifier;
+	int m_iHumanPerEraMod;
 	int m_iAITechPerEraMod;
 	int m_iAIPolicyPerEraMod;
 	int m_iAIGrowthPerEraMod;

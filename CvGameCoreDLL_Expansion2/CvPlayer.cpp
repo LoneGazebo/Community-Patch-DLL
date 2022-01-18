@@ -16397,28 +16397,39 @@ int CvPlayer::getProductionNeeded(UnitTypes eUnit) const
 	iProductionNeeded /= 100;
 #endif
 
-	if (!isHuman() && !isBarbarian())
+	if (!isBarbarian())
 	{
-		if (bCombat)
+		if (isHuman())
 		{
-			if (isWorldUnitClass(eUnitClass))
+			if (MOD_ALTERNATIVE_DIFFICULTY)
 			{
-				iProductionNeeded *= GC.getGame().getHandicapInfo().getAIWorldTrainPercent();
+				iProductionNeeded *= std::max(0, GC.getGame().getHandicapInfo().getHumanPerEraMod() * GC.getGame().getCurrentEra() + 100);
 				iProductionNeeded /= 100;
 			}
-			else
-			{
-				iProductionNeeded *= GC.getGame().getHandicapInfo().getAITrainPercent();
-				iProductionNeeded /= 100;
-			}
-
-			iProductionNeeded *= std::max(0, GC.getGame().getHandicapInfo().getAIPerEraModifier() * GC.getGame().getCurrentEra() + 100);
-			iProductionNeeded /= 100;
 		}
-		else if (MOD_ALTERNATIVE_DIFFICULTY)
+		else
 		{
-			iProductionNeeded *= GC.getGame().getHandicapInfo().getAICivilianPercent();
-			iProductionNeeded /= 100;
+			if (bCombat)
+			{
+				if (isWorldUnitClass(eUnitClass))
+				{
+					iProductionNeeded *= GC.getGame().getHandicapInfo().getAIWorldTrainPercent();
+					iProductionNeeded /= 100;
+				}
+				else
+				{
+					iProductionNeeded *= GC.getGame().getHandicapInfo().getAITrainPercent();
+					iProductionNeeded /= 100;
+				}
+
+				iProductionNeeded *= std::max(0, GC.getGame().getHandicapInfo().getAIPerEraModifier() * GC.getGame().getCurrentEra() + 100);
+				iProductionNeeded /= 100;
+			}
+			else if (MOD_ALTERNATIVE_DIFFICULTY)
+			{
+				iProductionNeeded *= GC.getGame().getHandicapInfo().getAICivilianPercent();
+				iProductionNeeded /= 100;
+			}
 		}
 	}
 
@@ -16569,39 +16580,50 @@ int CvPlayer::getProductionNeeded(BuildingTypes eTheBuilding) const
 		iProductionNeeded /= 100;
 	}
 
-	if (!isHuman() && !isBarbarian())
+	if (!isBarbarian())
 	{
-		if (isWorldWonderClass(pkBuildingInfo->GetBuildingClassInfo()))
+		if (isHuman())
 		{
-			iProductionNeeded *= GC.getGame().getHandicapInfo().getAIWorldConstructPercent();
-			iProductionNeeded /= 100;
-		}
-		else
-		{
-			iProductionNeeded *= GC.getGame().getHandicapInfo().getAIConstructPercent();
-			iProductionNeeded /= 100;
-		}
-
-		if (MOD_BALANCE_CORE_DIFFICULTY)
-		{
-			if (!isWorldWonderClass(pkBuildingInfo->GetBuildingClassInfo()))
+			if (MOD_ALTERNATIVE_DIFFICULTY && !isWorldWonderClass(pkBuildingInfo->GetBuildingClassInfo()))
 			{
-				if (MOD_ALTERNATIVE_DIFFICULTY)
-				{
-					iProductionNeeded *= std::max(0, ((GC.getGame().getHandicapInfo().getAIConstructPerEraMod() * GC.getGame().getCurrentEra()) + 100));
-					iProductionNeeded /= 100;
-				}
-				else
-				{
-					iProductionNeeded *= std::max(0, ((GC.getGame().getHandicapInfo().getAIPerEraModifier() * GC.getGame().getCurrentEra()) + 100));
-					iProductionNeeded /= 100;
-				}
+				iProductionNeeded *= std::max(0, ((GC.getGame().getHandicapInfo().getHumanPerEraMod() * GC.getGame().getCurrentEra()) + 100));
+				iProductionNeeded /= 100;
 			}
 		}
 		else
 		{
-			iProductionNeeded *= std::max(0, ((GC.getGame().getHandicapInfo().getAIPerEraModifier() * GetCurrentEra()) + 100));
-			iProductionNeeded /= 100;
+			if (isWorldWonderClass(pkBuildingInfo->GetBuildingClassInfo()))
+			{
+				iProductionNeeded *= GC.getGame().getHandicapInfo().getAIWorldConstructPercent();
+				iProductionNeeded /= 100;
+			}
+			else
+			{
+				iProductionNeeded *= GC.getGame().getHandicapInfo().getAIConstructPercent();
+				iProductionNeeded /= 100;
+			}
+
+			if (MOD_BALANCE_CORE_DIFFICULTY)
+			{
+				if (!isWorldWonderClass(pkBuildingInfo->GetBuildingClassInfo()))
+				{
+					if (MOD_ALTERNATIVE_DIFFICULTY)
+					{
+						iProductionNeeded *= std::max(0, ((GC.getGame().getHandicapInfo().getAIConstructPerEraMod() * GC.getGame().getCurrentEra()) + 100));
+						iProductionNeeded /= 100;
+					}
+					else
+					{
+						iProductionNeeded *= std::max(0, ((GC.getGame().getHandicapInfo().getAIPerEraModifier() * GC.getGame().getCurrentEra()) + 100));
+						iProductionNeeded /= 100;
+					}
+				}
+			}
+			else
+			{
+				iProductionNeeded *= std::max(0, ((GC.getGame().getHandicapInfo().getAIPerEraModifier() * GetCurrentEra()) + 100));
+				iProductionNeeded /= 100;
+			}
 		}
 	}
 
@@ -18308,12 +18330,20 @@ int CvPlayer::calculateResearchModifier(TechTypes eTech)
 		iModifier *= (100 + iLeaguesMod);
 		iModifier /= 100;
 	}
-	if (MOD_ALTERNATIVE_DIFFICULTY && !isHuman() && isMajorCiv())
+	if (MOD_ALTERNATIVE_DIFFICULTY && isMajorCiv())
 	{
-		iModifier *= 100;
-		iModifier /= std::max(1, GC.getGame().getHandicapInfo().getAITechPercent());
-		iModifier *= 100;
-		iModifier /= std::max(1, 100 + (GC.getGame().getHandicapInfo().getAITechPerEraMod() * GC.getGame().getCurrentEra()));
+		if (isHuman())
+		{
+			iModifier *= 100;
+			iModifier /= std::max(1, 100 + (GC.getGame().getHandicapInfo().getHumanPerEraMod() * GC.getGame().getCurrentEra()));
+		}
+		else
+		{
+			iModifier *= 100;
+			iModifier /= std::max(1, GC.getGame().getHandicapInfo().getAITechPercent());
+			iModifier *= 100;
+			iModifier /= std::max(1, 100 + (GC.getGame().getHandicapInfo().getAITechPerEraMod() * GC.getGame().getCurrentEra()));
+		}
 	}
 
 	return iModifier;
@@ -47618,21 +47648,32 @@ int CvPlayer::getGrowthThreshold(int iPopulation) const
 	iThreshold *= GC.getGame().getStartEraInfo().getGrowthPercent();
 	iThreshold /= 100;
 
-	if (!isHuman() && !isBarbarian())
+	if (!isBarbarian())
 	{
-		iThreshold *= GC.getGame().getHandicapInfo().getAIGrowthPercent();
-		iThreshold /= 100;
-
-		if (MOD_ALTERNATIVE_DIFFICULTY)
+		if (isHuman())
 		{
-			iThreshold *= std::max(0, ((GC.getGame().getHandicapInfo().getAIGrowthPerEraMod() * GC.getGame().getCurrentEra()) + 100));
-			iThreshold /= 100;
+			if (MOD_ALTERNATIVE_DIFFICULTY)
+			{
+				iThreshold *= std::max(0, ((GC.getGame().getHandicapInfo().getHumanPerEraMod() * GC.getGame().getCurrentEra()) + 100));
+				iThreshold /= 100;
+			}
 		}
-
-		if (!MOD_BALANCE_CORE_DIFFICULTY)
+		else
 		{
-			iThreshold *= std::max(0, ((GC.getGame().getHandicapInfo().getAIPerEraModifier() * GetCurrentEra()) + 100));
+			iThreshold *= GC.getGame().getHandicapInfo().getAIGrowthPercent();
 			iThreshold /= 100;
+
+			if (MOD_ALTERNATIVE_DIFFICULTY)
+			{
+				iThreshold *= std::max(0, ((GC.getGame().getHandicapInfo().getAIGrowthPerEraMod() * GC.getGame().getCurrentEra()) + 100));
+				iThreshold /= 100;
+			}
+
+			if (!MOD_BALANCE_CORE_DIFFICULTY)
+			{
+				iThreshold *= std::max(0, ((GC.getGame().getHandicapInfo().getAIPerEraModifier() * GetCurrentEra()) + 100));
+				iThreshold /= 100;
+			}
 		}
 	}
 
