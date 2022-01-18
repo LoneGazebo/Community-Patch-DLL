@@ -2199,6 +2199,201 @@ void CvDiplomacyAI::SetPlayerWonderSpammer(PlayerTypes ePlayer, bool bValue)
 //	-----------------------------------------------------------------------------------------------
 
 // ------------------------------------
+// Victory Progress
+// ------------------------------------
+
+int CvDiplomacyAI::GetScoreVictoryProgress()
+{
+	int iProgress = 0;
+	if (!m_pPlayer->isMajorCiv() || !m_pPlayer->isAlive())
+	{
+		return 0;
+	}
+	int iOurScore = 0;
+	int iScore = 0;
+	int iHighestScore = 0;
+	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+	{
+		PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
+		if (GET_PLAYER(eLoopPlayer).isAlive() && GET_PLAYER(eLoopPlayer).isMajorCiv())
+		{
+			iScore = GET_PLAYER(eLoopPlayer).GetScore();
+			if (iScore > iHighestScore)
+			{
+				iHighestScore = iScore;
+			}
+			if (eLoopPlayer == GetPlayer()->GetID())
+			{
+				iOurScore = iScore;
+			}
+		}
+	}
+	iProgress = (iOurScore * 100) / max(1, iHighestScore);
+
+	iProgress *= GC.getGame().getGameTurn();
+	iProgress /= max(1,GC.getGame().getMaxTurns());
+	return iProgress;
+}
+int CvDiplomacyAI::GetScienceVictoryProgress()
+{
+	if (!m_pPlayer->isMajorCiv() || !m_pPlayer->isAlive()||!GC.getGame().isVictoryValid((VictoryTypes)GC.getInfoTypeForString("VICTORY_SPACE_RACE", true)))
+	{
+		return 0;
+	}
+	VictoryTypes eSpaceVictory = (VictoryTypes)GC.getInfoTypeForString("VICTORY_SPACE_RACE", true);
+
+	int iProjectsRequired = 0;
+	int iProjectsCompleted = 0;
+	for (int iK = 0; iK < GC.getNumProjectInfos(); iK++)
+	{
+		const ProjectTypes eProject = static_cast<ProjectTypes>(iK);
+		CvProjectEntry* pkProjectInfo = GC.getProjectInfo(eProject);
+		if (pkProjectInfo)
+		{
+			iProjectsRequired += pkProjectInfo->GetVictoryMinThreshold(eSpaceVictory);
+			iProjectsCompleted += GET_TEAM(m_pPlayer->getTeam()).getProjectCount(eProject);
+		}
+	}
+	ProjectTypes eApollo = (ProjectTypes)GC.getInfoTypeForString("PROJECT_APOLLO_PROGRAM", true);
+	if (eApollo != NO_PROJECT)
+	{
+		iProjectsRequired++;
+		if (GET_TEAM(m_pPlayer->getTeam()).getProjectCount(eApollo) > 0)
+		{
+			iProjectsCompleted++;
+		}			
+	}
+	int iScienceProgress = (GET_TEAM(m_pPlayer->getTeam()).GetTeamTechs()->GetNumTechsKnown() * 100) / max(1, GC.getNumTechInfos() - 1);
+	int iSpaceshipProgress = (21 * iProjectsCompleted) / max(1, iProjectsRequired);
+	int iProgress = min(iScienceProgress, 78 + iSpaceshipProgress);
+	
+	return iProgress;
+}
+int CvDiplomacyAI::GetDiplomaticVictoryProgress()
+{
+	CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
+	if (!pLeague||!GC.getGame().isVictoryValid((VictoryTypes)GC.getInfoTypeForString("VICTORY_DIPLOMATIC", true)))
+	{
+		return 0;
+	}
+	int iOurVotes = pLeague->CalculateStartingVotesForMember(GetPlayer()->GetID(),true);
+	int iNeededVotes = GC.getGame().GetVotesNeededForDiploVictory();
+	int iProgress = (iOurVotes * 100) / max(1, iNeededVotes);
+	int iExtra = 0;
+	if (pLeague->IsUnitedNations())
+	{
+		iExtra += 1;
+	}
+	if (MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS)
+	{
+		for (int i = 0; i < GC.getNumLeagueSpecialSessionInfos(); i++)
+		{
+			LeagueSpecialSessionTypes e = (LeagueSpecialSessionTypes)i;
+			CvLeagueSpecialSessionEntry* pSessionInfo = GC.getLeagueSpecialSessionInfo(e);
+			if (pSessionInfo->IsUnitedNations())
+			{
+				ResolutionTypes eResolution = LeagueHelpers::IsResolutionForTriggerActive(pSessionInfo->GetResolutionTrigger());
+				if (eResolution != NO_RESOLUTION)
+				{
+					iExtra += 1;
+				}
+			}
+		}
+	}
+	if (iExtra = 0)
+	{
+		iProgress = min(iProgress, 59);
+	}
+	else
+	{
+		iProgress = min(iProgress, 59 + 20 * iExtra);
+	}
+	return iProgress;
+}
+int CvDiplomacyAI::GetDominationVictoryProgress()
+{
+	if (!m_pPlayer->isMajorCiv() || !m_pPlayer->isAlive())
+	{
+		return 0;
+	}
+	int iCivsProgress = 0;
+	int iTotalCivs = 0;
+	int iMight = 0;
+	int iOurMight = 0;
+	int iTotalMight = 0;
+	for (int i = 0; i < MAX_MAJOR_CIVS; i++)
+	{
+		PlayerTypes e = (PlayerTypes)i;
+		if (GET_PLAYER(e).isAlive() && !GET_PLAYER(e).isMinorCiv())
+		{
+			iTotalCivs++;
+			iMight = GET_PLAYER(e).GetMilitaryMight();
+			iTotalMight += iMight;
+			if (MOD_DIPLOMACY_CIV4_FEATURES)
+			{
+				if (e == GetPlayer()->GetID() || IsMaster(e))
+				{
+					iOurMight += iMight;
+					iCivsProgress += 1;
+				}
+			}
+			else if (IsCapitalCapturedBy(GetPlayer()->GetID(),true))
+			{
+				iCivsProgress += 1;
+			}
+		}
+	}
+	iOurMight = (iOurMight * 100) / max(1, iTotalMight);
+	iCivsProgress = (iCivsProgress * 100) / max(1, iTotalCivs);
+
+	return (max(iOurMight, iCivsProgress));
+}
+int CvDiplomacyAI::GetCultureVictoryProgress()
+{
+	if (!m_pPlayer->isMajorCiv() || !m_pPlayer->isAlive()||!GC.getGame().isVictoryValid((VictoryTypes)GC.getInfoTypeForString("VICTORY_CULTURAL", true)))
+	{
+		return 0;
+	}
+	int iLowestPercent = GetLowestTourismInfluence();
+	int iProgress = min(99,iLowestPercent);
+	if (MOD_BALANCE_CORE_VICTORY_GAME_CHANGES)
+	{
+		int iPolicies = GetPlayer()->GetPlayerPolicies()->GetNumPoliciesOwned(false, true);
+		iPolicies = min(iPolicies, 27);
+		iProgress = min(iLowestPercent, 18 + iPolicies * 3);
+	}
+	return iProgress;
+}
+int CvDiplomacyAI::GetLowestTourismInfluence()
+{
+	int iLowestPercent = /*100*/ GD_INT_GET(CULTURE_LEVEL_INFLUENTIAL);   // Don't want to target civs if already influential
+
+	for (int iLoopPlayer = 0; iLoopPlayer < MAX_MAJOR_CIVS; iLoopPlayer++)
+	{
+		CvPlayer& kPlayer = GET_PLAYER((PlayerTypes)iLoopPlayer);
+		if (iLoopPlayer != m_pPlayer->GetID() && kPlayer.isAlive() && !kPlayer.isMinorCiv())
+		{
+			int iInfluenceOn = GetPlayer()->GetCulture()->GetInfluenceOn((PlayerTypes)iLoopPlayer);
+			int iLifetimeCulture = kPlayer.GetJONSCultureEverGenerated();
+			int iPercent = 0;
+
+			if (iInfluenceOn > 0)
+			{
+				iPercent = (iInfluenceOn * 100) / max(1, iLifetimeCulture);
+			}
+			if (iPercent < 0)
+			{
+				iPercent = 0;
+			}
+			if (iPercent < iLowestPercent)
+			{
+				iLowestPercent = iPercent;
+			}
+		}
+	}
+	return iLowestPercent;
+}
+// ------------------------------------
 // Opinion & Approach
 // ------------------------------------
 
