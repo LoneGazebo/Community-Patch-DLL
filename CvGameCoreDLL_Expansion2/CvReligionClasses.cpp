@@ -3779,6 +3779,7 @@ void CvPlayerReligions::Serialize(PlayerReligions& playerReligions, Visitor& vis
 	visitor(playerReligions.m_eMajorityReligion);
 	visitor(playerReligions.m_eStateReligionOverride);
 	visitor(playerReligions.m_eStateReligion);
+	visitor(playerReligions.m_bOwnsStateReligion);
 	visitor(playerReligions.m_iFaithAtLastNotify);
 }
 
@@ -4107,9 +4108,9 @@ bool CvPlayerReligions::UpdateStateReligion()
 	if (m_eStateReligionOverride != NO_RELIGION)
 	{
 		CvCity* pHolyCity = GC.getGame().GetGameReligions()->GetReligion(m_eStateReligionOverride, ePlayer)->GetHolyCity();
-		if (pHolyCity)
-			SetOwnsStateReligion(pHolyCity->getOwner() == ePlayer);
-		return SetStateReligion(m_eStateReligionOverride);
+		if (pHolyCity && pHolyCity->getOwner() == ePlayer)
+			bOwnsReligion = true;
+		return SetStateReligion(m_eStateReligionOverride, bOwnsReligion);
 	}
 
 	//by default use the religion we founded (if we still control it)
@@ -4151,12 +4152,13 @@ bool CvPlayerReligions::UpdateStateReligion()
 		// We own the holy city of our state religion based on previous calculations
 		bOwnsReligion = true;
 	}
-	SetOwnsStateReligion(bOwnsReligion);
-	return SetStateReligion(eNewStateReligion);
+	return SetStateReligion(eNewStateReligion, bOwnsReligion);
 }
 
-bool CvPlayerReligions::SetStateReligion(ReligionTypes eNewStateReligion)
+bool CvPlayerReligions::SetStateReligion(ReligionTypes eNewStateReligion, bool bOwnsReligion)
 {
+	//we may own our state religion's holy city now
+	m_bOwnsStateReligion = bOwnsReligion;
 	//no change, nothing to do
 	if (GetStateReligion() == eNewStateReligion)
 		return false;
@@ -4200,12 +4202,7 @@ void CvPlayerReligions::SetStateReligionOverride(ReligionTypes eReligion)
 {
 	m_eStateReligionOverride = eReligion;
 
-	SetStateReligion(m_eStateReligionOverride);
-}
-
-void CvPlayerReligions::SetOwnsStateReligion(bool bOwnsReligion)
-{
-	m_bOwnsStateReligion = bOwnsReligion;
+	UpdateStateReligion();
 }
 
 int CvPlayerReligions::GetNumCitiesWithStateReligion(ReligionTypes eReligion)
