@@ -42,6 +42,16 @@ SELECT 'DIPLOAI_DISABLE_CITY_TRADING', '0';
 INSERT INTO Defines (Name, Value)
 SELECT 'DIPLOAI_DISABLE_VOLUNTARY_VASSALAGE', '0';
 
+-- [DISABLE VOTING FOR OTHER PLAYERS AS WORLD CONGRESS HOST]
+-- If set to 1, the AI will never vote for others (EXCEPT teammates) as host of the World Congress.
+INSERT INTO Defines (Name, Value)
+SELECT 'DIPLOAI_NO_OTHER_HOST_VOTES', '0';
+
+-- [DISABLE VOTING FOR OTHER PLAYERS AS WORLD LEADER]
+-- If set to 1, the AI will never vote for others (EXCEPT teammates) for World Leader / Global Hegemony.
+INSERT INTO Defines (Name, Value)
+SELECT 'DIPLOAI_NO_OTHER_WORLD_LEADER_VOTES', '0';
+
 -- [DEFENSIVE PACT BASE LIMIT]
 -- If set to -1, Defensive Pacts are disabled for both AI and human players.
 -- If set to 0, the AI will not form Defensive Pacts.

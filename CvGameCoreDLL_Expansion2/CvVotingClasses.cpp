@@ -13711,6 +13711,7 @@ int CvLeagueAI::ScoreVoteChoicePlayer(CvProposal* pProposal, int iChoice, bool b
 	if (!(pLeague != NULL)) return 0;
 
 	PlayerTypes ePlayer = GetPlayer()->GetID();
+
 	// How much do we like this choice for this proposal?  Positive is like, negative is dislike
 	int iScore = 0;
 	int iOurVotes = pLeague->CalculateStartingVotesForMember(ePlayer);
@@ -13729,7 +13730,7 @@ int CvLeagueAI::ScoreVoteChoicePlayer(CvProposal* pProposal, int iChoice, bool b
 			iScore += 100000;
 			break;
 		case ALIGNMENT_SELF:
-			iScore += /*1000*/ GD_INT_GET(AI_WORLD_LEADER_BASE_WEIGHT_SELF) + 30 * iOurPercent;
+			iScore += max((/*1000*/ GD_INT_GET(AI_WORLD_LEADER_BASE_WEIGHT_SELF) + 30 * iOurPercent), 1);
 			break;
 		case ALIGNMENT_TEAMMATE:
 		case ALIGNMENT_LIBERATOR:
@@ -13815,6 +13816,16 @@ int CvLeagueAI::ScoreVoteChoicePlayer(CvProposal* pProposal, int iChoice, bool b
 		default:
 			break;
 		}
+	}
+
+	// DiploAIOptions to prevent voting for other teams
+	if (iScore > 0 && GET_PLAYER(ePlayer).getTeam() != GET_PLAYER(eChoicePlayer).getTeam())
+	{
+		if (pProposal->GetEffects()->bChangeLeagueHost && GD_INT_GET(DIPLOAI_NO_OTHER_HOST_VOTES) > 0)
+			return 0;
+
+		if (pProposal->GetEffects()->bDiplomaticVictory && GD_INT_GET(DIPLOAI_NO_OTHER_WORLD_LEADER_VOTES) > 0)
+			return 0;
 	}
 
 	return iScore;

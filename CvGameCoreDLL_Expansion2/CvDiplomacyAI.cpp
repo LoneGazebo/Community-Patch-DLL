@@ -2300,7 +2300,7 @@ int CvDiplomacyAI::GetDiplomaticVictoryProgress()
 			}
 		}
 	}
-	if (iExtra = 0)
+	if (iExtra == 0)
 	{
 		iProgress = min(iProgress, 59);
 	}
@@ -4354,6 +4354,36 @@ void CvDiplomacyAI::SetFriendDeclaredWarOnUs(PlayerTypes ePlayer, bool bValue)
 	else
 	{
 		SetFriendDeclaredWarOnUsTurn(ePlayer, -1);
+
+		if (!GET_PLAYER(ePlayer).isHuman())
+		{
+			// If all backstabbing penalties for this player have expired and Loyalty > 2, reset the backstabber flag.
+			if (GetLoyalty() > 2 && GET_PLAYER(ePlayer).GetDiplomacyAI()->GetWeDeclaredWarOnFriendCount() <= 0)
+			{
+				// Not for Nuclear Gandhi :)
+				if (!GC.getGame().IsNuclearGandhiEnabled() || !GET_PLAYER(ePlayer).GetPlayerTraits()->IsPopulationBoostReligion())
+				{
+					GET_PLAYER(ePlayer).GetDiplomacyAI()->SetBackstabber(false);
+				}
+				else if (GET_PLAYER(ePlayer).getNumNukeUnits() <= 0)
+				{
+					bool bGandhiDidHisThing = false;
+					for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+					{
+						PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+						if (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsNukedBy(ePlayer))
+						{
+							bGandhiDidHisThing = true;
+							break;
+						}
+					}
+					if (!bGandhiDidHisThing)
+					{
+						GET_PLAYER(ePlayer).GetDiplomacyAI()->SetBackstabber(false);
+					}
+				}
+			}
+		}
 	}
 }
 
