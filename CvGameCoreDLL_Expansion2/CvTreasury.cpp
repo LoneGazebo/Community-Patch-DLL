@@ -632,6 +632,9 @@ int CvTreasury::CalculateUnitCost(int& iFreeUnits, int& iPaidUnits, int& iBaseUn
 /// HAS NOTHING TO DO WITH UNIT SUPPLY, this is part of the unit maintenance Gold cost calculation
 int CvTreasury::CalculateUnitSupply()
 {
+	if (GD_INT_GET(INITIAL_OUTSIDE_UNIT_GOLD_PERCENT) <= 0)
+		return 0;
+
 	int iPaidUnits = std::max(0, (m_pPlayer->getNumOutsideUnits() - /*3*/ GD_INT_GET(INITIAL_FREE_OUTSIDE_UNITS)));
 
 	// JON: This is set to 0 right now, which pretty much means it's disabled
