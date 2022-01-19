@@ -4004,8 +4004,8 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::AttackRanged(CvUnit& kAttacker, int iX
 		if (!kAttacker.isRangedSupportFire())
 		{
 			kAttacker.setMadeAttack(true);
+			kAttacker.changeMoves(-GD_INT_GET(MOVE_DENOMINATOR));
 		}
-		kAttacker.changeMoves(-GD_INT_GET(MOVE_DENOMINATOR));
 
 		uint uiParentEventID = 0;
 		if(!bDoImmediate)

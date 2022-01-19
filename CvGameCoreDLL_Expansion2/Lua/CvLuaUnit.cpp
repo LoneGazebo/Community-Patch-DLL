@@ -1,5 +1,5 @@
 /*	-------------------------------------------------------------------------------------------------------
-	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+	ï¿½ 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -2914,7 +2914,8 @@ int CvLuaUnit::lGetDamageCombatModifier(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
 	const bool bRanged = luaL_optbool(L, 2, false);
-	const int iResult = pkUnit->GetDamageCombatModifier(bRanged);
+	const int iDamage = luaL_optint(L, 3, 0);
+	const int iResult = pkUnit->GetDamageCombatModifier(bRanged, iDamage);
 	lua_pushinteger(L, iResult);
 	return 1;
 }

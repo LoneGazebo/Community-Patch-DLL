@@ -347,7 +347,7 @@ function UpdateCombatOddsUnitVsCity(pMyUnit, pCity)
 				if (pPlot ~= nil and pCity ~= nil and pMyUnit ~= nil and pMyUnit:GetDomainType() == DomainTypes.DOMAIN_AIR) then
 					iTheirDamageInflicted = pCity:GetAirStrikeDefenseDamage(pMyUnit, false);	
 					iNumVisibleAAUnits = pMyUnit:GetInterceptorCount(pPlot, nil, true, true);		
-					bInterceptPossible = true;	
+					bInterceptPossible = true;
 				end
 				
 			-- Normal Melee Combat
@@ -915,7 +915,7 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 		local pTheirPlayer = Players[iTheirPlayer];
 		
 		local iMyStrength = 0;
-		local iTheirStrength = 0;
+		local iMyRangedSupportStrength = 0;
 		local bRanged = false;
 		local iNumVisibleAAUnits = 0;
 		local bInterceptPossible = false;
@@ -927,10 +927,16 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 		if (pMyUnit:IsRangedSupportFire() == false and pMyUnit:GetBaseRangedCombatStrength() > 0) then
 			iMyStrength = pMyUnit:GetMaxRangedCombatStrength(pTheirUnit, nil, true);
 			bRanged = true;
-				
-		-- Melee Unit
+print("My Ranged Strength: " .. tostring(iMyStrength)); --DEBUG--
 		else
+		-- Melee Unit
+			if (pMyUnit:IsRangedSupportFire() == true) then
+				-- Ranged Support Fire
+				iMyRangedSupportStrength = pMyUnit:GetMaxRangedCombatStrength(pTheirUnit, nil, true);
+print("My Ranged Support Strength: " .. tostring(iMyRangedSupportStrength)); 
+			end
 			iMyStrength = pMyUnit:GetMaxAttackStrength(pFromPlot, pToPlot, pTheirUnit);
+print("My Melee Strength: " .. tostring(iMyStrength));
 		end
 
 		if not(bRanged) then
@@ -955,22 +961,28 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 			
 			-- Start with logic of combat estimation
 			local iTheirStrength = 0;
+			local iTheirRangedStrength = 0;
 			local iMyDamageInflicted = 0;
+			local iMyRangedSupportDamageInflicted = 0;
 			local iTheirDamageInflicted = 0;
 			local iTheirFireSupportCombatDamage = 0;
+			local maxMyUnitHitPoints = pMyUnit:GetMaxHitPoints();
+			local maxTheirUnitHitPoints = pTheirUnit:GetMaxHitPoints();
 			
+			if (pTheirUnit:IsEmbarked()) then
+				iTheirRangedStrength = pTheirUnit:GetEmbarkedUnitDefense();
+			elseif (pTheirUnit:IsCanAttackRanged()) then
+				iTheirRangedStrength = pTheirUnit:GetMaxRangedCombatStrength(pMyUnit, nil, false);
+			else
+				iTheirRangedStrength = pTheirUnit:GetMaxDefenseStrength(pToPlot, pMyUnit, pFromPlot, true);
+			end
+print("Their Ranged Strength: " .. tostring(iTheirRangedStrength));
 			-- Ranged Strike
 			if (bRanged) then
 				
 				iMyDamageInflicted = pMyUnit:GetRangeCombatDamage(pTheirUnit, nil, false);
-				
-				if (pTheirUnit:IsEmbarked()) then
-					iTheirStrength = pTheirUnit:GetEmbarkedUnitDefense();
-				elseif (pTheirUnit:IsCanAttackRanged()) then
-					iTheirStrength = pTheirUnit:GetMaxRangedCombatStrength(pMyUnit, nil, false);
-				else
-					iTheirStrength = pTheirUnit:GetMaxDefenseStrength(pToPlot, pMyUnit, pFromPlot, true);
-				end
+print("My Ranged Damage Inflicted: " .. tostring(iMyDamageInflicted));
+				iTheirStrength = iTheirRangedStrength;
 				
 				if (pMyUnit:GetDomainType() == DomainTypes.DOMAIN_AIR) then
 					if (pMyUnit:GetUnitAIType() ~= 30) then
@@ -986,9 +998,20 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 				
 			-- Normal Melee Combat
 			else
-				
 				-- checks for embarkation ...
 				iTheirStrength = pTheirUnit:GetMaxDefenseStrength(pToPlot, pMyUnit, pFromPlot);
+print("Their Melee Strength: ", tostring(iTheirStrength));
+				-- deal with extra Ranged Support Fire attack
+				if (iMyRangedSupportStrength > 0) then
+					local iTheirDamage = pTheirUnit:GetDamage();
+					
+					iMyRangedSupportDamageInflicted = pMyUnit:GetRangeCombatDamage(pTheirUnit, nil, false);
+					iTheirDamageModifier = pTheirUnit:GetDamageCombatModifier(true, iTheirDamage + iMyRangedSupportDamageInflicted);
+print("Their New Damaged Modifier: " .. tostring(iTheirDamageModifier));
+					print("My Ranged Support Damage Inflicted: " .. tostring(iMyRangedSupportDamageInflicted));
+					iTheirStrength = iTheirStrength * (100 + iTheirDamageModifier) / 100;
+print("Their New Melee Strength: " .. tostring(iTheirStrength));
+				end
 				
 				local pFireSupportUnit = pMyUnit:GetFireSupportUnit(pTheirUnit:GetOwner(), pToPlot:GetX(), pToPlot:GetY());
 				if (pFireSupportUnit ~= nil) then
@@ -996,19 +1019,19 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 				end
 				
 				iMyDamageInflicted = pMyUnit:GetCombatDamage(iMyStrength, iTheirStrength, pMyUnit:GetDamage() + iTheirFireSupportCombatDamage, false, false, false, NULL);
-
+print("My Melee Damage Inflicted: " .. tostring(iMyDamageInflicted));
+				iMyDamageInflicted = iMyDamageInflicted + iMyRangedSupportDamageInflicted;
+print("My Total Damage Inflicted: " .. tostring(iMyDamageInflicted));
 				if (pTheirUnit:IsEmbarked()) then
 				    iTheirDamageInflicted = 0
 				else
     				iTheirDamageInflicted = pTheirUnit:GetCombatDamage(iTheirStrength, iMyStrength, pTheirUnit:GetDamage(), false, false, false, NULL);
     		    end
 				iTheirDamageInflicted = iTheirDamageInflicted + iTheirFireSupportCombatDamage;
+print("Their Total Damage Inflicted: " .. tostring(iTheirDamageInflicted));
 				
 			end
 			
-			local maxMyUnitHitPoints = pMyUnit:GetMaxHitPoints();
-			local maxTheirUnitHitPoints = pTheirUnit:GetMaxHitPoints();
-
 			-- Don't give numbers greater than a Unit's max HP
 			if (iMyDamageInflicted > maxTheirUnitHitPoints) then
 				iMyDamageInflicted = maxTheirUnitHitPoints;
