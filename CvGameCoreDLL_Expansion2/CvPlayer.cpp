@@ -4582,7 +4582,7 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 					if (!pNewUnit)
 						continue;
 
-					unitGift.applyToUnit(*pNewUnit);
+					unitGift.applyToUnit(eMajor, *pNewUnit);
 
 					if (pNewUnit->getDomainType() != DOMAIN_AIR && !pNewUnit->jumpToNearestValidPlot())
 					{
@@ -14447,7 +14447,7 @@ void CvPlayer::doGoody(CvPlot* pPlot, CvUnit* pUnit)
 #if defined(MOD_API_ACHIEVEMENTS)
 				if (pUnit && isHuman() && !GC.getGame().isGameMultiPlayer())
 				{
-					pUnit->ChangeNumGoodyHutsPopped(pUnit->GetNumGoodyHutsPopped() + 1);
+					pUnit->SetNumGoodyHutsPopped(pUnit->GetNumGoodyHutsPopped() + 1);
 					if (pUnit->isHasPromotion((PromotionTypes)GD_INT_GET(PROMOTION_GOODY_HUT_PICKER)) && pUnit->GetNumGoodyHutsPopped() >= 5)
 					{
 						gDLL->UnlockAchievement(ACHIEVEMENT_XP2_25);

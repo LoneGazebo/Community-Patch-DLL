@@ -3965,6 +3965,14 @@ FDataStream& operator<<(FDataStream& saveTo, const CvMinorCivQuest& readFrom)
 CvMinorCivIncomingUnitGift::CvMinorCivIncomingUnitGift()
 	: m_iArrivalCountdown(-1)
 	, m_eUnitType(NO_UNIT)
+	, m_eOriginalOwner(NO_PLAYER)
+	, m_iGameTurnCreated(0)
+	, m_bPromotedFromGoody(false)
+	, m_iExperienceTimes100(0)
+	, m_iLevel(0)
+	, m_iOriginCity(-1)
+	, m_eLeaderUnitType(NO_UNIT)
+	, m_iNumGoodyHutsPopped(0)
 {
 }
 
@@ -3981,16 +3989,26 @@ void CvMinorCivIncomingUnitGift::init(const CvUnit& srcUnit, int iArriveInTurns)
 
 	setArrivalCountdown(iArriveInTurns);
 	setUnitType(srcUnit.getUnitType());
+	setOriginalOwner(srcUnit.GetOriginalOwner());
+	setGameTurnCreated(srcUnit.getGameTurnCreated());
 	for (int i = 0; i < GC.getNumPromotionInfos(); ++i)
 	{
 		const PromotionTypes ePromotion = static_cast<PromotionTypes>(i);
-		if (srcUnit.isHasPromotion(ePromotion))
+		if (srcUnit.isHasPromotion(ePromotion) && CvUnit::IsRetainablePromotion(ePromotion))
 		{
 			setHasPromotion(ePromotion, true);
 			setPromotionDuration(ePromotion, srcUnit.getPromotionDuration(ePromotion));
 			setTurnPromotionGained(ePromotion, srcUnit.getTurnPromotionGained(ePromotion));
 		}
 	}
+	setHasBeenPromotedFromGoody(srcUnit.IsHasBeenPromotedFromGoody());
+	setExperienceTimes100(srcUnit.getExperienceTimes100());
+	setLevel(srcUnit.getLevel());
+	const CvCity* pOriginCity = srcUnit.getOriginCity();
+	setOriginCity(pOriginCity ? pOriginCity->GetID() : -1);
+	setLeaderUnitType(srcUnit.getLeaderUnitType());
+	setNumGoodyHutsPopped(srcUnit.GetNumGoodyHutsPopped());
+	setName(srcUnit.getNameNoDesc());
 }
 
 ///
@@ -4003,6 +4021,18 @@ int CvMinorCivIncomingUnitGift::getArrivalCountdown() const
 UnitTypes CvMinorCivIncomingUnitGift::getUnitType() const
 {
 	return m_eUnitType;
+}
+
+///
+PlayerTypes CvMinorCivIncomingUnitGift::getOriginalOwner() const
+{
+	return m_eOriginalOwner;
+}
+
+///
+int CvMinorCivIncomingUnitGift::getGameTurnCreated() const
+{
+	return m_iGameTurnCreated;
 }
 
 ///
@@ -4037,6 +4067,48 @@ int CvMinorCivIncomingUnitGift::getTurnPromotionGained(PromotionTypes ePromotion
 }
 
 ///
+bool CvMinorCivIncomingUnitGift::isHasBeenPromotedFromGoody() const
+{
+	return m_bPromotedFromGoody;
+}
+
+///
+int CvMinorCivIncomingUnitGift::getExperienceTimes100() const
+{
+	return m_iExperienceTimes100;
+}
+
+///
+int CvMinorCivIncomingUnitGift::getLevel() const
+{
+	return m_iLevel;
+}
+
+///
+int CvMinorCivIncomingUnitGift::getOriginCity() const
+{
+	return m_iOriginCity;
+}
+
+///
+UnitTypes CvMinorCivIncomingUnitGift::getLeaderUnitType() const
+{
+	return m_eLeaderUnitType;
+}
+
+///
+int CvMinorCivIncomingUnitGift::getNumGoodyHutsPopped() const
+{
+	return m_iNumGoodyHutsPopped;
+}
+
+///
+const CvString& CvMinorCivIncomingUnitGift::getName() const
+{
+	return m_strName;
+}
+
+///
 void CvMinorCivIncomingUnitGift::setArrivalCountdown(int iNewCountdown)
 {
 	m_iArrivalCountdown = iNewCountdown;
@@ -4052,6 +4124,18 @@ void CvMinorCivIncomingUnitGift::changeArrivalCountdown(int iChangeCountdown)
 void CvMinorCivIncomingUnitGift::setUnitType(UnitTypes eNewUnitType)
 {
 	m_eUnitType = eNewUnitType;
+}
+
+///
+void CvMinorCivIncomingUnitGift::setOriginalOwner(PlayerTypes eNewOriginalOwner)
+{
+	m_eOriginalOwner = eNewOriginalOwner;
+}
+
+///
+void CvMinorCivIncomingUnitGift::setGameTurnCreated(int iNewValue)
+{
+	m_iGameTurnCreated = iNewValue;
 }
 
 ///
@@ -4087,18 +4171,70 @@ void CvMinorCivIncomingUnitGift::setTurnPromotionGained(PromotionTypes ePromotio
 }
 
 ///
-void CvMinorCivIncomingUnitGift::applyToUnit(CvUnit& destUnit) const
+void CvMinorCivIncomingUnitGift::setHasBeenPromotedFromGoody(bool bPromotedFromGoody)
 {
+	m_bPromotedFromGoody = bPromotedFromGoody;
+}
+
+///
+void CvMinorCivIncomingUnitGift::setExperienceTimes100(int iNewValueTimes100)
+{
+	m_iExperienceTimes100 = iNewValueTimes100;
+}
+
+///
+void CvMinorCivIncomingUnitGift::setLevel(int iNewLevel)
+{
+	m_iLevel = iNewLevel;
+}
+
+///
+void CvMinorCivIncomingUnitGift::setOriginCity(int iNewOriginCity)
+{
+	m_iOriginCity = iNewOriginCity;
+}
+
+///
+void CvMinorCivIncomingUnitGift::setLeaderUnitType(UnitTypes eNewLeaderUnitType)
+{
+	m_eLeaderUnitType = eNewLeaderUnitType;
+}
+
+///
+void CvMinorCivIncomingUnitGift::setNumGoodyHutsPopped(int iNewNumGoodyHutsPopped)
+{
+	m_iNumGoodyHutsPopped = iNewNumGoodyHutsPopped;
+}
+
+///
+void CvMinorCivIncomingUnitGift::setName(const CvString& newName)
+{
+	m_strName = newName;
+}
+
+///
+void CvMinorCivIncomingUnitGift::applyToUnit(PlayerTypes eFromPlayer, CvUnit& destUnit) const
+{
+	destUnit.SetOriginalOwner(getOriginalOwner());
+	destUnit.setGameTurnCreated(getGameTurnCreated());
 	for (int i = 0; i < GC.getNumPromotionInfos(); ++i)
 	{
 		const PromotionTypes ePromotion = static_cast<PromotionTypes>(i);
 		if (isHasPromotion(ePromotion))
 		{
+			CvAssert(CvUnit::IsRetainablePromotion(ePromotion));
 			destUnit.setHasPromotion(ePromotion, true);
 			destUnit.SetPromotionDuration(ePromotion, getPromotionDuration(ePromotion));
 			destUnit.SetTurnPromotionGained(ePromotion, getTurnPromotionGained(ePromotion));
 		}
 	}
+	destUnit.SetBeenPromotedFromGoody(isHasBeenPromotedFromGoody());
+	destUnit.setExperienceTimes100(CvUnit::CalcExperienceTimes100ForConvert(eFromPlayer, destUnit.getOwner(), getExperienceTimes100()));
+	destUnit.setLevel(getLevel());
+	destUnit.setOriginCity(getOriginCity());
+	destUnit.setLeaderUnitType(getLeaderUnitType());
+	destUnit.SetNumGoodyHutsPopped(getNumGoodyHutsPopped());
+	destUnit.setName(getName());
 }
 
 ///
@@ -4118,9 +4254,18 @@ void CvMinorCivIncomingUnitGift::Serialize(MinorCivIncomingUnitGift& minorCivInc
 	if (minorCivIncomingUnitGift.m_iArrivalCountdown != -1)
 	{
 		visitor(minorCivIncomingUnitGift.m_eUnitType);
+		visitor(minorCivIncomingUnitGift.m_eOriginalOwner);
+		visitor(minorCivIncomingUnitGift.m_iGameTurnCreated);
 		visitor(minorCivIncomingUnitGift.m_HasPromotions);
 		visitor(minorCivIncomingUnitGift.m_PromotionDuration);
 		visitor(minorCivIncomingUnitGift.m_TurnPromotionGained);
+		visitor(minorCivIncomingUnitGift.m_bPromotedFromGoody);
+		visitor(minorCivIncomingUnitGift.m_iExperienceTimes100);
+		visitor(minorCivIncomingUnitGift.m_iLevel);
+		visitor(minorCivIncomingUnitGift.m_iOriginCity);
+		visitor(minorCivIncomingUnitGift.m_eLeaderUnitType);
+		visitor(minorCivIncomingUnitGift.m_iNumGoodyHutsPopped);
+		visitor(minorCivIncomingUnitGift.m_strName);
 	}
 }
 
@@ -17271,7 +17416,7 @@ void CvMinorCivAI::doIncomingUnitGifts()
 					CvAssert(pNewUnit);
 					if (pNewUnit)
 					{
-						unitGift.applyToUnit(*pNewUnit);
+						unitGift.applyToUnit(eLoopPlayer, *pNewUnit);
 
 						// Gift from a major to a city-state
 						if (!GET_PLAYER(eLoopPlayer).isMinorCiv())
