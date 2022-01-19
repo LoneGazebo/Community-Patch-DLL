@@ -3468,6 +3468,10 @@ int CvDealAI::GetVoteCommitmentValue(bool bFromMe, PlayerTypes eOtherPlayer, int
 			// Is this the World Leader vote?
 			if (pProposal->GetEffects()->bDiplomaticVictory)
 			{
+				// Forbidden by game options
+				if (GD_INT_GET(DIPLOAI_NO_OTHER_WORLD_LEADER_VOTES) > 1)
+					return INT_MAX;
+
 				// AI never sells World Leader votes if they're teamed up with a human!
 				if (GetPlayer()->IsAITeammateOfHuman())
 					return INT_MAX;

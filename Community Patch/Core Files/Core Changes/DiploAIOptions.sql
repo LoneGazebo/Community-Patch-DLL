@@ -48,7 +48,8 @@ INSERT INTO Defines (Name, Value)
 SELECT 'DIPLOAI_NO_OTHER_HOST_VOTES', '0';
 
 -- [DISABLE VOTING FOR OTHER PLAYERS AS WORLD LEADER]
--- If set to 1, the AI will never vote for others (EXCEPT teammates) for World Leader / Global Hegemony.
+-- If set to 1, the AI will never freely vote for others (EXCEPT teammates) for World Leader / Global Hegemony.
+-- If set to 2, they will also refuse to sell their World Leader votes to anyone.
 INSERT INTO Defines (Name, Value)
 SELECT 'DIPLOAI_NO_OTHER_WORLD_LEADER_VOTES', '0';
 
