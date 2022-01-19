@@ -386,12 +386,12 @@ public:
 	void UpdateUnitGrowthMaintenanceMod();
 	int calculateUnitGrowthMaintenanceMod() const;
 
-	int GetNumUnitsSupplied() const;
+	int GetNumUnitsSupplied(bool bCheckWarWeariness = true) const;
 	int GetNumUnitsSuppliedByHandicap(bool bIgnoreReduction = false) const;
 	int GetNumUnitsSuppliedByCities(bool bIgnoreReduction = false) const;
 	int GetNumUnitsSuppliedByPopulation(bool bIgnoreReduction = false) const;
 
-	int GetNumUnitsOutOfSupply() const;
+	int GetNumUnitsOutOfSupply(bool bCheckWarWeariness = true) const;
 #if defined(MOD_BALANCE_CORE)
 	int GetNumUnitsToSupply() const;
 	int getNumUnitsSupplyFree() const;
