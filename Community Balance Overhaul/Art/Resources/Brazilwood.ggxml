@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <glyphgen>
-    <textures width="256" height="256">
+    <textures width="24" height="24">
         <texture name="" src="Brazilwood.dds" allowcolor="1" alloweffects="1" inuse="1" />
     </textures>
     <styles count="1">
