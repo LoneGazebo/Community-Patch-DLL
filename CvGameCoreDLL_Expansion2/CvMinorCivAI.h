@@ -237,6 +237,7 @@ public:
 
 	int getArrivalCountdown() const;
 	UnitTypes getUnitType() const;
+	CvPlot* getFromPlot() const;
 	PlayerTypes getOriginalOwner() const;
 	int getGameTurnCreated() const;
 	bool isHasPromotion(PromotionTypes ePromotion) const;
@@ -250,9 +251,13 @@ public:
 	int getNumGoodyHutsPopped() const;
 	const CvString& getName() const;
 
+private:
 	void setArrivalCountdown(int iNewCountdown);
+
+public:
 	void changeArrivalCountdown(int iChangeCountdown);
 	void setUnitType(UnitTypes eNewUnitType);
+	void setFromXY(int iFromX, int iFromY);
 	void setOriginalOwner(PlayerTypes eNewOriginalOwner);
 	void setGameTurnCreated(int iNewValue);
 	void setHasPromotion(PromotionTypes ePromotion, bool bNewValue);
@@ -266,12 +271,16 @@ public:
 	void setNumGoodyHutsPopped(int iNewNumGoodyHutsPopped);
 	void setName(const CvString& strNewName);
 
+	bool hasIncomingUnit() const;
+
 	void applyToUnit(PlayerTypes eFromPlayer, CvUnit& destUnit) const;
 	void reset();
 
 private:
 	int m_iArrivalCountdown;
 	UnitTypes m_eUnitType;
+	int m_iFromX;
+	int m_iFromY;
 	PlayerTypes m_eOriginalOwner;
 	int m_iGameTurnCreated;
 	CvBitfield m_HasPromotions;
@@ -800,6 +809,7 @@ public:
 	CvMinorCivIncomingUnitGift& getIncomingUnitGift(PlayerTypes eMajor);
 
 	void doIncomingUnitGifts();
+	void returnIncomingUnitGift(PlayerTypes eMajor);
 
 	// ******************************
 	// ***** Misc Helper Functions *****

@@ -3965,6 +3965,8 @@ FDataStream& operator<<(FDataStream& saveTo, const CvMinorCivQuest& readFrom)
 CvMinorCivIncomingUnitGift::CvMinorCivIncomingUnitGift()
 	: m_iArrivalCountdown(-1)
 	, m_eUnitType(NO_UNIT)
+	, m_iFromX(0)
+	, m_iFromY(0)
 	, m_eOriginalOwner(NO_PLAYER)
 	, m_iGameTurnCreated(0)
 	, m_bPromotedFromGoody(false)
@@ -3989,6 +3991,7 @@ void CvMinorCivIncomingUnitGift::init(const CvUnit& srcUnit, int iArriveInTurns)
 
 	setArrivalCountdown(iArriveInTurns);
 	setUnitType(srcUnit.getUnitType());
+	setFromXY(srcUnit.getX(), srcUnit.getY());
 	setOriginalOwner(srcUnit.GetOriginalOwner());
 	setGameTurnCreated(srcUnit.getGameTurnCreated());
 	for (int i = 0; i < GC.getNumPromotionInfos(); ++i)
@@ -4021,6 +4024,12 @@ int CvMinorCivIncomingUnitGift::getArrivalCountdown() const
 UnitTypes CvMinorCivIncomingUnitGift::getUnitType() const
 {
 	return m_eUnitType;
+}
+
+///
+CvPlot* CvMinorCivIncomingUnitGift::getFromPlot() const
+{
+	return GC.getMap().plotCheckInvalid(m_iFromX, m_iFromY);
 }
 
 ///
@@ -4117,13 +4126,21 @@ void CvMinorCivIncomingUnitGift::setArrivalCountdown(int iNewCountdown)
 ///
 void CvMinorCivIncomingUnitGift::changeArrivalCountdown(int iChangeCountdown)
 {
-	m_iArrivalCountdown += iChangeCountdown;
+	CvAssert(m_iArrivalCountdown != -1);
+	m_iArrivalCountdown = std::max(0, m_iArrivalCountdown + iChangeCountdown);
 }
 
 ///
 void CvMinorCivIncomingUnitGift::setUnitType(UnitTypes eNewUnitType)
 {
 	m_eUnitType = eNewUnitType;
+}
+
+///
+void CvMinorCivIncomingUnitGift::setFromXY(int iFromX, int iFromY)
+{
+	m_iFromX = iFromX;
+	m_iFromY = iFromY;
 }
 
 ///
@@ -4213,6 +4230,12 @@ void CvMinorCivIncomingUnitGift::setName(const CvString& newName)
 }
 
 ///
+bool CvMinorCivIncomingUnitGift::hasIncomingUnit() const
+{
+	return m_iArrivalCountdown != -1;
+}
+
+///
 void CvMinorCivIncomingUnitGift::applyToUnit(PlayerTypes eFromPlayer, CvUnit& destUnit) const
 {
 	destUnit.SetOriginalOwner(getOriginalOwner());
@@ -4254,6 +4277,8 @@ void CvMinorCivIncomingUnitGift::Serialize(MinorCivIncomingUnitGift& minorCivInc
 	if (minorCivIncomingUnitGift.m_iArrivalCountdown != -1)
 	{
 		visitor(minorCivIncomingUnitGift.m_eUnitType);
+		visitor(minorCivIncomingUnitGift.m_iFromX);
+		visitor(minorCivIncomingUnitGift.m_iFromY);
 		visitor(minorCivIncomingUnitGift.m_eOriginalOwner);
 		visitor(minorCivIncomingUnitGift.m_iGameTurnCreated);
 		visitor(minorCivIncomingUnitGift.m_HasPromotions);
@@ -4721,6 +4746,8 @@ void CvMinorCivAI::DoTurn()
 	{
 		DoTurnStatus();
 
+		doIncomingUnitGifts();
+
 		DoElection();
 		DoFriendship();
 
@@ -4816,8 +4843,6 @@ void CvMinorCivAI::DoTurn()
 				}
 			}
 		}
-
-		doIncomingUnitGifts();
 	}
 }
 
@@ -4839,8 +4864,8 @@ void CvMinorCivAI::DoChangeAliveStatus(bool bAlive)
 			// Cancel quests and PtPs
 			DoChangeProtectionFromMajor(e, false);
 
-			// Cancel all incoming unit gifts.
-			getIncomingUnitGift(e).reset();
+			// Return all incoming unit gifts.
+			returnIncomingUnitGift(e);
 
 			// Calculate new influence levels (don't set here, since that could create a false temporary ally)
 			int iOldInfluence = GetBaseFriendshipWithMajor(e);
@@ -17401,7 +17426,7 @@ void CvMinorCivAI::doIncomingUnitGifts()
 		PlayerTypes eLoopPlayer = (PlayerTypes)iLoop;
 		CvMinorCivIncomingUnitGift& unitGift = getIncomingUnitGift(eLoopPlayer);
 
-		if (unitGift.getArrivalCountdown() > 0)
+		if (unitGift.hasIncomingUnit())
 		{
 			unitGift.changeArrivalCountdown(-1);
 
@@ -17444,6 +17469,93 @@ void CvMinorCivAI::doIncomingUnitGifts()
 				unitGift.reset();
 			}
 		}
+	}
+}
+
+void CvMinorCivAI::returnIncomingUnitGift(PlayerTypes eMajor)
+{
+	CvMinorCivIncomingUnitGift& unitGift = getIncomingUnitGift(eMajor);
+	if (unitGift.hasIncomingUnit())
+	{
+		const UnitTypes eUnitType = unitGift.getUnitType();
+		CvAssert(eUnitType != NO_UNIT);
+		const CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUnitType);
+		CvAssert(pkUnitInfo);
+
+		// Select a default city to return to.
+		// We will return to this city if no better city is found.
+		const CvCity* pMajorDefaultCity = NULL;
+		if (unitGift.getOriginCity() != -1)
+		{
+			pMajorDefaultCity = GET_PLAYER(eMajor).getCity(unitGift.getOriginCity());
+		}
+
+		if (pMajorDefaultCity == NULL)
+		{
+			pMajorDefaultCity = GET_PLAYER(eMajor).getCapitalCity();
+		}
+
+		if (pMajorDefaultCity)
+		{
+			const CvPlot* pReturnToPlot = pMajorDefaultCity->plot();
+			const CvPlot* pFromPlot = unitGift.getFromPlot();
+			if (pFromPlot == NULL)
+			{
+				// Try to guess where this unit is returning from.
+				if (GetPlayer()->getCapitalCity() != NULL)
+				{
+					pFromPlot = GetPlayer()->getCapitalCity()->plot();
+				}
+				else
+				{
+					pFromPlot = GC.getMap().plotCheckInvalid(GetPlayer()->GetOriginalCapitalX(), GetPlayer()->GetOriginalCapitalY());
+				}
+			}
+
+			// If we know where the unit is returning from, pick the city closest as the return to plot.
+			if (pFromPlot)
+			{
+				CvCity* pClosestCity = NULL;
+				if (pkUnitInfo->GetDomainType() == DOMAIN_SEA)
+				{
+					pClosestCity = OperationalAIHelpers::GetClosestFriendlyCoastalCity(eMajor, pFromPlot);
+				}
+				else
+				{
+					pClosestCity = GET_PLAYER(eMajor).GetClosestCityByPlots(pFromPlot);
+				}
+
+				if (pClosestCity)
+				{
+					pReturnToPlot = pClosestCity->plot();
+				}
+			}
+
+			CvUnit* pNewUnit = GET_PLAYER(eMajor).initUnit(eUnitType, pReturnToPlot->getX(), pReturnToPlot->getY());
+			if (pNewUnit)
+			{
+				unitGift.applyToUnit(eMajor, *pNewUnit);
+				if (pNewUnit->getDomainType() != DOMAIN_AIR && !pNewUnit->jumpToNearestValidPlot())
+				{
+					pNewUnit->kill(false);
+				}
+				else
+				{
+					CvNotifications* pNotify = GET_PLAYER(eMajor).GetNotifications();
+					if (pNotify)
+					{
+						Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_CS_GIFT_RETURNED_SUMMARY");
+						strSummary << GetPlayer()->getCivilizationShortDescriptionKey();
+						Localization::String strNotification = Localization::Lookup("TXT_KEY_NOTIFICATION_CS_GIFT_RETURNED");
+						strNotification << GetPlayer()->getNameKey();
+						strNotification << pNewUnit->getNameKey();
+						pNotify->Add(NOTIFICATION_GENERIC, strNotification.toUTF8(), strSummary.toUTF8(), pNewUnit->getX(), pNewUnit->getY(), -1);
+					}
+				}
+			}
+		}
+
+		unitGift.reset();
 	}
 }
 

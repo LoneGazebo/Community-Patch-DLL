@@ -4547,64 +4547,6 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 		}
 	}
 
-	// City-State now has zero cities? Return any incoming units to their owners.
-	if (GET_PLAYER(eOldOwner).isMinorCiv() && GET_PLAYER(eOldOwner).getNumCities() == 0)
-	{
-		CvMinorCivAI* pMinorCivAI = GET_PLAYER(eOldOwner).GetMinorCivAI();
-		CvAssert(pMinorCivAI);
-		if (pMinorCivAI)
-		{
-			for (int iMajorLoop = 0; iMajorLoop < MAX_MAJOR_CIVS; iMajorLoop++)
-			{
-				PlayerTypes eMajor = (PlayerTypes)iMajorLoop;
-
-				CvMinorCivIncomingUnitGift& unitGift = pMinorCivAI->getIncomingUnitGift(eMajor);
-				if (unitGift.getArrivalCountdown() > 0)
-				{
-					UnitTypes eUnitType = unitGift.getUnitType();
-					if (eUnitType == NO_UNIT)
-						continue;
-
-					CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUnitType);
-					if (!pkUnitInfo)
-						continue;
-
-					CvCity* pClosestCity = NULL;
-					if (pkUnitInfo->GetDomainType() == DOMAIN_SEA)
-						pClosestCity = OperationalAIHelpers::GetClosestFriendlyCoastalCity(eMajor, pCityPlot);
-					else
-						pClosestCity = GET_PLAYER(eMajor).GetClosestCityByPlots(pCityPlot);
-
-					if (!pClosestCity)
-						continue;
-
-					CvUnit* pNewUnit = GET_PLAYER(eMajor).initUnit(eUnitType, pClosestCity->getX(), pClosestCity->getY());
-					if (!pNewUnit)
-						continue;
-
-					unitGift.applyToUnit(eMajor, *pNewUnit);
-
-					if (pNewUnit->getDomainType() != DOMAIN_AIR && !pNewUnit->jumpToNearestValidPlot())
-					{
-						pNewUnit->kill(false);
-						continue;
-					}
-
-					CvNotifications* pNotify = GET_PLAYER(eMajor).GetNotifications();
-					if (pNotify)
-					{
-						Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_CS_GIFT_RETURNED_SUMMARY");
-						strSummary << GET_PLAYER(eOldOwner).getCivilizationShortDescriptionKey();
-						Localization::String strNotification = Localization::Lookup("TXT_KEY_NOTIFICATION_CS_GIFT_RETURNED");
-						strNotification << GET_PLAYER(eOldOwner).getNameKey();
-						strNotification << pNewUnit->getNameKey();
-						pNotify->Add(NOTIFICATION_GENERIC, strNotification.toUTF8(), strSummary.toUTF8(), iCityX, iCityY, -1);
-					}
-				}
-			}
-		}
-	}
-
 	// New owner should update city specializations
 	GetCitySpecializationAI()->SetSpecializationsDirty(SPECIALIZATION_UPDATE_ENEMY_CITY_CAPTURED);
 
@@ -37652,8 +37594,8 @@ void CvPlayer::AddIncomingUnit(PlayerTypes eFromPlayer, CvUnit* pUnit)
 		if (pMinorCivAI)
 		{
 			CvMinorCivIncomingUnitGift& unitGift = pMinorCivAI->getIncomingUnitGift(eFromPlayer);
-			CvAssertMsg(unitGift.getArrivalCountdown() == -1, "Adding incoming unit when one is already on its way. Please send Anton your save file and version.");
-			if (unitGift.getArrivalCountdown() == -1)
+			CvAssertMsg(!unitGift.hasIncomingUnit(), "Adding incoming unit when one is already on its way. Please send Anton your save file and version.");
+			if (!unitGift.hasIncomingUnit())
 			{
 				unitGift.init(*pUnit, /*3*/ GD_INT_GET(MINOR_UNIT_GIFT_TRAVEL_TURNS));
 			}
