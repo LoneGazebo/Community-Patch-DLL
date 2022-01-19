@@ -82,7 +82,7 @@ public:
 	int CalculateBaseNetGold();
 	int CalculateBaseNetGoldTimes100();
 	int CalculateUnitCost(int& iFreeUnits, int& iPaidUnits, int& iBaseUnitCost, int& iExtraCost);
-	int CalculateUnitSupply(int& iPaidUnits, int& iBaseSupplyCost);
+	int CalculateUnitSupply();
 	int CalculatePreInflatedCosts();
 	int CalculateInflationRate();
 	int CalculateInflatedCosts();

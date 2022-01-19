@@ -18032,11 +18032,10 @@ int CvPlayer::GetNumUnitsSupplied() const
 {
 	if (m_iNumUnitsSuppliedCached == -1)
 	{
-
 		int iFreeUnits = GetNumUnitsSuppliedByHandicap();
 		iFreeUnits += GetNumUnitsSuppliedByCities();
 		iFreeUnits += GetNumUnitsSuppliedByPopulation();
-#if defined(MOD_BALANCE_DYNAMIC_UNIT_SUPPLY)
+
 		if (MOD_BALANCE_DYNAMIC_UNIT_SUPPLY)
 		{
 			int iWarWeariness = GetCulture()->GetWarWeariness()/2;
@@ -18044,7 +18043,6 @@ int CvPlayer::GetNumUnitsSupplied() const
 			iFreeUnits *= iMod;
 			iFreeUnits /= 100;
 		}
-#endif
 
 		if (!isMinorCiv() && !isHuman())
 		{
@@ -18218,12 +18216,10 @@ int CvPlayer::calculateUnitCost() const
 }
 
 //	--------------------------------------------------------------------------------
+// HAS NOTHING TO DO WITH UNIT SUPPLY, this is part of the unit maintenance Gold cost calculation
 int CvPlayer::calculateUnitSupply() const
 {
-	int iPaidUnits;
-	int iBaseSupplyCost;
-
-	return GetTreasury()->CalculateUnitSupply(iPaidUnits, iBaseSupplyCost);
+	return GetTreasury()->CalculateUnitSupply();
 }
 
 //	--------------------------------------------------------------------------------

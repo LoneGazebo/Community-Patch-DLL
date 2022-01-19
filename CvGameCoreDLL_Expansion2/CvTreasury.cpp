@@ -629,18 +629,16 @@ int CvTreasury::CalculateUnitCost(int& iFreeUnits, int& iPaidUnits, int& iBaseUn
 	return std::max(0, int(dFinalCost));
 }
 
-/// Compute unit supply for the turn (returns component info)
-int CvTreasury::CalculateUnitSupply(int& iPaidUnits, int& iBaseSupplyCost)
+/// HAS NOTHING TO DO WITH UNIT SUPPLY, this is part of the unit maintenance Gold cost calculation
+int CvTreasury::CalculateUnitSupply()
 {
-	int iSupply;
-
-	iPaidUnits = std::max(0, (m_pPlayer->getNumOutsideUnits() - /*3*/ GD_INT_GET(INITIAL_FREE_OUTSIDE_UNITS)));
+	int iPaidUnits = std::max(0, (m_pPlayer->getNumOutsideUnits() - /*3*/ GD_INT_GET(INITIAL_FREE_OUTSIDE_UNITS)));
 
 	// JON: This is set to 0 right now, which pretty much means it's disabled
-	iBaseSupplyCost = iPaidUnits * /*0*/ GD_INT_GET(INITIAL_OUTSIDE_UNIT_GOLD_PERCENT);
+	int iBaseSupplyCost = iPaidUnits * /*0*/ GD_INT_GET(INITIAL_OUTSIDE_UNIT_GOLD_PERCENT);
 	iBaseSupplyCost /= 100;
 
-	iSupply = iBaseSupplyCost;
+	int iSupply = iBaseSupplyCost;
 
 	const CvHandicapInfo& playerHandicap = m_pPlayer->getHandicapInfo();
 	iSupply *= playerHandicap.getUnitCostPercent();
@@ -648,11 +646,7 @@ int CvTreasury::CalculateUnitSupply(int& iPaidUnits, int& iBaseSupplyCost)
 
 	if (!m_pPlayer->isHuman() && !m_pPlayer->isBarbarian())
 	{
-		//iSupply *= gameHandicap->getAIUnitSupplyPercent();	// This is no longer valid
-		//iSupply /= 100;
-
-		iSupply *= std::max(0, ((GC.getGame().getHandicapInfo().getAIPerEraModifier() * m_pPlayer->GetCurrentEra()) + 100));
-		// This is reducing AI supply Per Era, is that intended?
+		iSupply *= std::max(0, GC.getGame().getHandicapInfo().getAIPerEraModifier() * m_pPlayer->GetCurrentEra() + 100);
 		iSupply /= 100;
 	}
 
@@ -668,13 +662,11 @@ int CvTreasury::CalculateUnitSupply(int& iPaidUnits, int& iBaseSupplyCost)
 	int iFinalCost = (int) pow(fTempCost, fExponentialFactor);
 
 	// A mod at the player level? (Policies, etc.)
-	if(m_pPlayer->GetUnitSupplyMod() != 0)
+	if (m_pPlayer->GetUnitSupplyMod() != 0)
 	{
 		iFinalCost *= (100 + m_pPlayer->GetUnitSupplyMod());
 		iFinalCost /= 100;
 	}
-
-	CvAssert(iFinalCost >= 0);
 
 	return iFinalCost;
 }
@@ -686,10 +678,9 @@ int CvTreasury::CalculatePreInflatedCosts()
 	int iPaidUnits;
 	int iBaseUnitCost;
 	int iExtraCost;
-	int iBaseSupplyCost;
 
 	m_iExpensePerTurnUnitMaintenance = CalculateUnitCost(iFreeUnits, iPaidUnits, iBaseUnitCost, iExtraCost);
-	m_iExpensePerTurnUnitSupply = CalculateUnitSupply(iPaidUnits, iBaseSupplyCost);
+	m_iExpensePerTurnUnitSupply = CalculateUnitSupply(); // HAS NOTHING TO DO WITH UNIT SUPPLY, this is part of the unit maintenance Gold cost calculation
 
 	int iTotalCosts = 0;
 
