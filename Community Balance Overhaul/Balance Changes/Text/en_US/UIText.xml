@@ -100,7 +100,7 @@
 		</Row>
 			
 		<Row Tag="TXT_KEY_EUPANEL_WITHDRAW_CHANCE">
-			<Text>[COLOR_CYAN]Withdraw Chance: {1_Num}%[ENDCOLOR]</Text>
+			<Text>[COLOR_CYAN]Withdraw Chance[ENDCOLOR]</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_DUDE_8">

@@ -30027,48 +30027,59 @@ bool CvUnit::CanFallBack(const CvUnit& attacker, bool bCheckChances) const
 {
 	VALIDATE_OBJECT
 
+	int iWithdrawChance = GetWithdrawChance(attacker, bCheckChances);
+
+	if(bCheckChances && iWithdrawChance > 0)
+	{
+		//include damage so the result changes for each attack
+		int iRoll = GC.getGame().getSmallFakeRandNum(10, plot()->GetPlotIndex()+GetID()+getDamage()) * 10;
+		return iRoll < iWithdrawChance;
+	}
+	else
+		return iWithdrawChance > 0;
+}
+
+int CvUnit::GetWithdrawChance(const CvUnit& attacker, const bool bCheckChances) const
+{
+	VALIDATE_OBJECT
+
 	if (isEmbarked() && getDomainType() == DOMAIN_LAND)
-		return false;
+		return 0;
 
 	// Are some of the retreat hexes away from the attacker blocked?
 	int iBlockedHexes = 0;
 	DirectionTypes eAttackDirection = directionXY(attacker.plot(), plot());
-	int iBiases[3] = {0,-1,1};
+	int iBiases[3] = { 0,-1,1 };
 
-	for(int i = 0; i < 3; i++)
+	for (int i = 0; i < 3; i++)
 	{
 		int iMovementDirection = (NUM_DIRECTION_TYPES + eAttackDirection + iBiases[i]) % NUM_DIRECTION_TYPES;
-		CvPlot* pDestPlot = plotDirection(getX(), getY(), (DirectionTypes) iMovementDirection);
+		CvPlot* pDestPlot = plotDirection(getX(), getY(), (DirectionTypes)iMovementDirection);
 
-		if(pDestPlot && !canMoveInto(*pDestPlot, MOVEFLAG_DESTINATION|MOVEFLAG_NO_EMBARK))
+		if (pDestPlot && !canMoveInto(*pDestPlot, MOVEFLAG_DESTINATION | MOVEFLAG_NO_EMBARK))
 		{
 			iBlockedHexes++;
 		}
 	}
 
 	// If all three hexes away from attacker blocked, we can't withdraw
-	if(iBlockedHexes >= 3)
-	{
-		return false;
-	}
-
-	if(bCheckChances)
+	if (iBlockedHexes >= 3)
+		return 0;
+	
+	if (bCheckChances)
 	{
 		int iWithdrawChance = getExtraWithdrawal();
 		// Does attacker have a greater speed than defender? Reduce withdrawal chance for each point the attacker is faster
 		int iDefenderMovementRange = baseMoves(isEmbarked());
 		int iAttackerMovementRange = attacker.baseMoves(attacker.isEmbarked());
-		if(iAttackerMovementRange > iDefenderMovementRange)
+		if (iAttackerMovementRange > iDefenderMovementRange)
 			iWithdrawChance += (/*-20*/ GD_INT_GET(WITHDRAW_MOD_ENEMY_MOVES) * (iAttackerMovementRange - iDefenderMovementRange));
 
 		iWithdrawChance += (/*-20*/ GD_INT_GET(WITHDRAW_MOD_BLOCKED_TILE) * iBlockedHexes);
-
-		//include damage so the result changes for each attack
-		int iRoll = GC.getGame().getSmallFakeRandNum(10, plot()->GetPlotIndex()+GetID()+getDamage()) * 10;
-		return iRoll < iWithdrawChance;
+		return iWithdrawChance;
 	}
 	else
-		return true;
+		return 100;
 }
 
 //	--------------------------------------------------------------------------------

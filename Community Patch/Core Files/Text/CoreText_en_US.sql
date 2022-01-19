@@ -66,7 +66,7 @@ WHERE Tag = 'TXT_KEY_ALLOWS_EMBARKING';
 
 -- Capture Chance
 UPDATE Language_en_US
-SET Text = '[COLOR_CYAN]Capture chance if defeated: {1_Num}%[ENDCOLOR]'
+SET Text = '[COLOR_CYAN]Capture chance if defeated[ENDCOLOR]'
 WHERE Tag = 'TXT_KEY_EUPANEL_CAPTURE_CHANCE';
 
 -- Interception

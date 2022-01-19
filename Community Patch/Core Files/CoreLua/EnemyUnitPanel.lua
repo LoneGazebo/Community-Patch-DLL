@@ -234,34 +234,32 @@ function GetFormattedText(strLocalizedText, iValue, bForMe, bPercent, strOptiona
 	
 	if (bPercent) then
 		strNumberPart = strNumberPart .. "%";
-		
-		if (bForMe) then
+	end
+
+	if (strOptionalColor ~= nil) then
+		strNumberPart = strOptionalColor .. strNumberPart .. "[ENDCOLOR]";
+	elseif (bForMe) then
 			if (iValue > 0) then
 				strNumberPart = "[COLOR_POSITIVE_TEXT]+" .. strNumberPart .. "[ENDCOLOR]";
 			elseif (iValue < 0) then
 				strNumberPart = "[COLOR_NEGATIVE_TEXT]" .. strNumberPart .. "[ENDCOLOR]";
 			end
-		else
-			if (iValue < 0) then
-				strNumberPart = "[COLOR_POSITIVE_TEXT]" .. strNumberPart .. "[ENDCOLOR]";
-			elseif (iValue > 0) then
-				strNumberPart = "[COLOR_NEGATIVE_TEXT]+" .. strNumberPart .. "[ENDCOLOR]";
-			end
-		end
-		
-		-- Bullet for my side
-		if (bForMe) then
-			strNumberPart = strNumberPart .. "[]";
-		-- Bullet for their side
-		else
-			strNumberPart = "[]" .. strNumberPart;
+	else
+		if (iValue < 0) then
+			strNumberPart = "[COLOR_POSITIVE_TEXT]" .. strNumberPart .. "[ENDCOLOR]";
+		elseif (iValue > 0) then
+			strNumberPart = "[COLOR_NEGATIVE_TEXT]+" .. strNumberPart .. "[ENDCOLOR]";
 		end
 	end
-	
-	if (strOptionalColor ~= nil) then
-		strNumberPart = strOptionalColor .. strNumberPart .. "[ENDCOLOR]";
+print(strNumberPart);		
+	-- Bullet for my side
+	if (bForMe) then
+		strNumberPart = strNumberPart .. "[]";
+	-- Bullet for their side
+	else
+		strNumberPart = "[]" .. strNumberPart;
 	end
-	
+print(strNumberPart);
 	-- Formatting for my side
 	if (bForMe) then
 		strTextToReturn = " :  " .. strNumberPart;
@@ -1006,9 +1004,12 @@ print("Their Melee Strength: ", tostring(iTheirStrength));
 					local iTheirDamage = pTheirUnit:GetDamage();
 					
 					iMyRangedSupportDamageInflicted = pMyUnit:GetRangeCombatDamage(pTheirUnit, nil, false);
-					iTheirDamageModifier = pTheirUnit:GetDamageCombatModifier(true, iTheirDamage + iMyRangedSupportDamageInflicted);
+print("My Ranged Support Damage Inflicted: " .. tostring(iMyRangedSupportDamageInflicted));
+print("Their Total Damage taken: " .. tostring(iTheirDamage + iMyRangedSupportDamageInflicted));
+					iTheirDamageModifier = pTheirUnit:GetDamageCombatModifier();
+print("Their Original Damaged Modifier: " .. tostring(iTheirDamageModifier));
+					iTheirDamageModifier = pTheirUnit:GetDamageCombatModifier(false, iTheirDamage + iMyRangedSupportDamageInflicted);
 print("Their New Damaged Modifier: " .. tostring(iTheirDamageModifier));
-					print("My Ranged Support Damage Inflicted: " .. tostring(iMyRangedSupportDamageInflicted));
 					iTheirStrength = iTheirStrength * (100 + iTheirDamageModifier) / 100;
 print("Their New Melee Strength: " .. tostring(iTheirStrength));
 				end
@@ -1152,6 +1153,10 @@ print("Their Total Damage Inflicted: " .. tostring(iTheirDamageInflicted));
 			--Controls.MyStrength:SetText(strText);
 			Controls.MyStrengthValue:SetText( Locale.ToNumber(iMyStrength / 100, "#.#"));
 			
+
+			local movementRules;
+			local iChance;
+			local iModifier;
 			----------------------------------------------------------------------------
 			-- BONUSES MY UNIT GETS
 			----------------------------------------------------------------------------
@@ -1159,11 +1164,15 @@ print("Their Total Damage Inflicted: " .. tostring(iTheirDamageInflicted));
 			-------------------------
 			-- Movement Immunity --
 			-------------------------
-			local movementRules = pMyUnit:GetMovementRules(pTheirUnit);
+			movementRules, iChance = pMyUnit:GetMovementRules(pTheirUnit);
 			if(movementRules ~= "") then
 				controlTable = g_MyCombatDataIM:GetInstance();
 				controlTable.Text:LocalizeAndSetText(movementRules);
-				controlTable.Value:SetText("");
+				if(iChance >= 0) then
+					controlTable.Value:SetText( GetFormattedText(strText, iChance, true, true, "[COLOR_CYAN]") );
+				else
+					controlTable.Value:SetText("");
+				end
 				bonusCount = bonusCount + 2;
 			end
 			movementRules = pMyUnit:GetZOCStatus();
@@ -1173,9 +1182,7 @@ print("Their Total Damage Inflicted: " .. tostring(iTheirDamageInflicted));
 				controlTable.Value:SetText("");
 				bonusCount = bonusCount + 1;
 			end
-
-			local iModifier;
-
+			
 			-- Empire Unhappy
 			iModifier = pMyUnit:GetUnhappinessCombatPenalty();
 			if (iModifier ~= 0) then
@@ -2065,15 +2072,19 @@ print("Their Total Damage Inflicted: " .. tostring(iTheirDamageInflicted));
 				controlTable.Value:SetText("");
 				bonusCount = bonusCount + 1;
 			end
-			
-			-------------------------
+
+			-----------------------
 			-- Movement Immunity --
-			-------------------------
-			local movementRules = pTheirUnit:GetMovementRules(pMyUnit);
+			-----------------------
+			movementRules, iChance = pTheirUnit:GetMovementRules(pMyUnit);
 			if(movementRules ~= "") then
-				controlTable = g_TheirCombatDataIM:GetInstance();
+				controlTable = g_MyCombatDataIM:GetInstance();
 				controlTable.Text:LocalizeAndSetText(movementRules);
-				controlTable.Value:SetText("");
+				if(iChance >= 0) then
+					controlTable.Value:SetText( GetFormattedText(strText, iChance, false, true, "[COLOR_CYAN]") );
+				else
+					controlTable.Value:SetText("");
+				end
 				bonusCount = bonusCount + 2;
 			end
 			movementRules = pTheirUnit:GetZOCStatus();
@@ -2083,27 +2094,27 @@ print("Their Total Damage Inflicted: " .. tostring(iTheirDamageInflicted));
 				controlTable.Value:SetText("");
 				bonusCount = bonusCount + 1;
 			end
-			-------------------------
-			-- PRIZE SHIPS PREVIEW --
-			-------------------------
+			--------------------
+			-- Capture Chance --
+			--------------------
 			if (not bRanged) then
-				local iChance;
 				iChance = pMyUnit:GetCaptureChance(pTheirUnit);
 				if (iChance > 0) then
 						controlTable = g_TheirCombatDataIM:GetInstance();
-						controlTable.Text:LocalizeAndSetText("TXT_KEY_EUPANEL_CAPTURE_CHANCE", iChance);
-						controlTable.Value:SetText("");
+						controlTable.Text:LocalizeAndSetText("TXT_KEY_EUPANEL_CAPTURE_CHANCE");
+						controlTable.Value:SetText( GetFormattedText(strText, iChance, false, true, "[COLOR_CYAN]") );
 						bonusCount = bonusCount + 2;
 				end
 			end
-			
-			-- Withdraw Chance
+			---------------------
+			-- Withdraw Chance --
+			---------------------
 			if (not bRanged) then
-				iModifier = pTheirUnit:GetExtraWithdrawal();
-				if (iModifier ~= 0) then
+				iChance = pTheirUnit:GetWithdrawChance(pMyUnit);
+				if (iChance >= 0) then
 				   controlTable = g_TheirCombatDataIM:GetInstance();
-				   controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_WITHDRAW_CHANCE", iModifier);
-				   controlTable.Value:SetText("");
+				   controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_WITHDRAW_CHANCE");
+				   controlTable.Value:SetText( GetFormattedText(strText, iChance, false, true, "[COLOR_CYAN]") );
 				   bonusCount = bonusCount + 1;
 				end		
 			end			

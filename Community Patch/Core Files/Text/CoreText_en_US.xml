@@ -7536,9 +7536,9 @@
 		<Row Tag="TXT_KEY_MISC_YOU_UNIT_WAS_DAMAGED_AOE_STRIKE_ON_MOVE">
 			<Text>Rend</Text>
 		</Row>
-
+		<!-- These Plague and Ignore_ZOC texts are only used by EUPANEL-->
 		<Row Tag="TXT_KEY_UNIT_PLAGUE_CHANCE">
-			<Text>[COLOR_CYAN]Status Effect Chance ({1_Name}): {2_Num}%[ENDCOLOR]</Text>
+			<Text>[COLOR_CYAN]Status Effect Chance ({1_Name})[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_UNIT_ALREADY_PLAGUED">
 			<Text>[COLOR_CYAN]Has {1_Num} Status Effect[ENDCOLOR]</Text>

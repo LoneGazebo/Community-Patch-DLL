@@ -309,6 +309,7 @@ protected:
 	LUAAPIEXTN(ExtraFeatureDamage, bool);
 	LUAAPIEXTN(GetMovementRules, int);
 	LUAAPIEXTN(GetZOCStatus, int);
+	LUAAPIEXTN(GetWithdrawChance, int);
 #if defined(MOD_PROMOTIONS_IMPROVEMENT_BONUS)
 	LUAAPIEXTN(GetNearbyImprovementCombatBonus, int);
 	LUAAPIEXTN(GetNearbyImprovementBonusRange, int);

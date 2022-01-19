@@ -300,6 +300,7 @@ void CvLuaUnit::PushMethods(lua_State* L, int t)
 	Method(ExtraFeatureDamage);
 	Method(GetMovementRules);
 	Method(GetZOCStatus);
+	Method(GetWithdrawChance);
 #if defined(MOD_PROMOTIONS_IMPROVEMENT_BONUS)
 	Method(GetNearbyImprovementCombatBonus);
 	Method(GetNearbyImprovementBonusRange);
@@ -3361,81 +3362,64 @@ int CvLuaUnit::lGetMovementRules(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
 	CvUnit* pkOtherUnit = CvLuaUnit::GetInstance(L, 2);
+	CvString text = "";
+	int iChance = -1;
 
-	if (pkUnit == NULL || pkOtherUnit == NULL)
+	if (pkUnit == NULL || pkOtherUnit == NULL) ;
+		// use defaults
+	else if (!pkOtherUnit->CanPlague(pkUnit)) ;
+		// use defaults
+	else
 	{
-		lua_pushstring(L, "");
-		return 1;
-	}
-
-	if (!pkOtherUnit->CanPlague(pkUnit))
-	{
-		lua_pushstring(L, "");
-		return 1;
-	}
-
-	PromotionTypes ePlague = (PromotionTypes)pkOtherUnit->getPlaguePromotion();
-	if (ePlague == NO_PROMOTION)
-	{
-		//Next let's grab the promotion.
-		int iI;
-		for (iI = 0; iI < GC.getNumPromotionInfos(); iI++)
+		PromotionTypes ePlague = (PromotionTypes)pkOtherUnit->getPlaguePromotion();
+		if (ePlague == NO_PROMOTION)
 		{
-			const PromotionTypes ePromotion(static_cast<PromotionTypes>(iI));
-			if (ePromotion != NO_PROMOTION && pkOtherUnit->HasPromotion(ePromotion))
+			//Next let's grab the promotion.
+			for (int iI = 0; iI < GC.getNumPromotionInfos(); iI++)
 			{
-				CvPromotionEntry* pkPlaguePromotionInfo = GC.getPromotionInfo(ePromotion);
-				if (pkPlaguePromotionInfo && pkPlaguePromotionInfo->IsPlague())
+				const PromotionTypes ePromotion(static_cast<PromotionTypes>(iI));
+				if (ePromotion != NO_PROMOTION && pkOtherUnit->HasPromotion(ePromotion))
 				{
-					if (!pkUnit->HasPromotion(ePromotion) && (pkUnit->getPlagueIDImmunity() == -1 || pkUnit->getPlagueIDImmunity() != pkPlaguePromotionInfo->GetPlagueID()))
+					CvPromotionEntry* pkPlaguePromotionInfo = GC.getPromotionInfo(ePromotion);
+					if (pkPlaguePromotionInfo && pkPlaguePromotionInfo->IsPlague())
 					{
-						ePlague = ePromotion;
-						break;
+						if (!pkUnit->HasPromotion(ePromotion) && (pkUnit->getPlagueIDImmunity() == -1 || pkUnit->getPlagueIDImmunity() != pkPlaguePromotionInfo->GetPlagueID()))
+						{
+							ePlague = ePromotion;
+							break;
+						}
 					}
 				}
 			}
 		}
-	}
-	if (ePlague != NO_PROMOTION)
-	{
-		CvPromotionEntry* pkPlaguePromotionInfo = GC.getPromotionInfo(ePlague);
-		if (pkPlaguePromotionInfo == NULL)
+		if (ePlague != NO_PROMOTION)
 		{
-			lua_pushstring(L, "");
-			return 1;
-		}
-
-		if (pkUnit->HasPromotion(ePlague))
-		{
-			lua_pushstring(L, GetLocalizedText("TXT_KEY_UNIT_ALREADY_PLAGUED", pkPlaguePromotionInfo->GetText()));
-			return 1;
-		}
-
-		int iPlagueID = pkPlaguePromotionInfo->GetPlagueID();
-
-		//we're immune to this?
-		if (pkUnit->getPlagueIDImmunity() != -1 && pkUnit->getPlagueIDImmunity() == pkPlaguePromotionInfo->GetPlagueID())
-		{
-			lua_pushstring(L, GetLocalizedText("TXT_KEY_UNIT_IMMUNE_PLAGUED", pkPlaguePromotionInfo->GetText()));
-			return 1;
-		}
-
-		//we already have this plague? let's see if we've been hit with a more severe version of the same plague...
-		if (iPlagueID == pkUnit->getPlagueID())
-		{
-			//weaker? ignore.
-			if (pkPlaguePromotionInfo->GetPlaguePriority() <= pkUnit->getPlaguePriority())
+			CvPromotionEntry* pkPlaguePromotionInfo = GC.getPromotionInfo(ePlague);
+			int iPlagueID = pkPlaguePromotionInfo->GetPlagueID();
+			if (pkPlaguePromotionInfo == NULL) ;
+				// use defaults 
+			else if (pkUnit->HasPromotion(ePlague))
+				text = GetLocalizedText("TXT_KEY_UNIT_ALREADY_PLAGUED", pkPlaguePromotionInfo->GetText());
+			//we're immune to this?
+			else if (pkUnit->getPlagueIDImmunity() != -1 && pkUnit->getPlagueIDImmunity() == iPlagueID)
+				text = GetLocalizedText("TXT_KEY_UNIT_IMMUNE_PLAGUED", pkPlaguePromotionInfo->GetText());
+			//we already have this plague? let's see if we've been hit with a more severe version of the same plague...
+			else if (iPlagueID == pkUnit->getPlagueID())
 			{
-				lua_pushstring(L, GetLocalizedText("TXT_KEY_UNIT_ALREADY_PLAGUED", pkPlaguePromotionInfo->GetText()));
-				return 1;
+				//weaker? ignore.
+				if (pkPlaguePromotionInfo->GetPlaguePriority() <= pkUnit->getPlaguePriority())
+					text = GetLocalizedText("TXT_KEY_UNIT_ALREADY_PLAGUED", pkPlaguePromotionInfo->GetText());
+			}
+			else
+			{
+				text = GetLocalizedText("TXT_KEY_UNIT_PLAGUE_CHANCE", pkPlaguePromotionInfo->GetText());
+				iChance = pkOtherUnit->getPlagueChance();
 			}
 		}
-	
-		lua_pushstring(L, GetLocalizedText("TXT_KEY_UNIT_PLAGUE_CHANCE", pkPlaguePromotionInfo->GetText(), pkOtherUnit->getPlagueChance()));
-		return 1;
 	}
 
-	lua_pushstring(L, "");
+	lua_pushstring(L, text);
+	lua_pushinteger(L, iChance);
 	return 1;
 }
 
@@ -3460,7 +3444,20 @@ int CvLuaUnit::lGetZOCStatus(lua_State* L)
 	lua_pushstring(L, "");
 	return 1;
 }
-
+//------------------------------------------------------------------------------
+int CvLuaUnit::lGetWithdrawChance(lua_State* L)
+{
+	CvUnit* pkUnit = GetInstance(L);
+	CvUnit* pkAttacker = CvLuaUnit::GetInstance(L, 2);
+	int iResult;
+	if (pkUnit->getExtraWithdrawal() > 0)
+		iResult = pkUnit->GetWithdrawChance(*pkAttacker, true);
+	else
+		iResult = -1;
+		
+	lua_pushinteger(L, iResult);
+	return 1;
+}
 #if defined(MOD_PROMOTIONS_IMPROVEMENT_BONUS)
 //------------------------------------------------------------------------------
 int CvLuaUnit::lGetNearbyImprovementCombatBonus(lua_State* L)
