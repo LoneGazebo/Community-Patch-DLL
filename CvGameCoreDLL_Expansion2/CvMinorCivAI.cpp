@@ -3965,6 +3965,16 @@ FDataStream& operator<<(FDataStream& saveTo, const CvMinorCivQuest& readFrom)
 CvMinorCivIncomingUnitGift::CvMinorCivIncomingUnitGift()
 	: m_iArrivalCountdown(-1)
 	, m_eUnitType(NO_UNIT)
+	, m_iFromX(0)
+	, m_iFromY(0)
+	, m_eOriginalOwner(NO_PLAYER)
+	, m_iGameTurnCreated(0)
+	, m_bPromotedFromGoody(false)
+	, m_iExperienceTimes100(0)
+	, m_iLevel(0)
+	, m_iOriginCity(-1)
+	, m_eLeaderUnitType(NO_UNIT)
+	, m_iNumGoodyHutsPopped(0)
 {
 }
 
@@ -3981,16 +3991,27 @@ void CvMinorCivIncomingUnitGift::init(const CvUnit& srcUnit, int iArriveInTurns)
 
 	setArrivalCountdown(iArriveInTurns);
 	setUnitType(srcUnit.getUnitType());
+	setFromXY(srcUnit.getX(), srcUnit.getY());
+	setOriginalOwner(srcUnit.GetOriginalOwner());
+	setGameTurnCreated(srcUnit.getGameTurnCreated());
 	for (int i = 0; i < GC.getNumPromotionInfos(); ++i)
 	{
 		const PromotionTypes ePromotion = static_cast<PromotionTypes>(i);
-		if (srcUnit.isHasPromotion(ePromotion))
+		if (srcUnit.isHasPromotion(ePromotion) && CvUnit::IsRetainablePromotion(ePromotion))
 		{
 			setHasPromotion(ePromotion, true);
 			setPromotionDuration(ePromotion, srcUnit.getPromotionDuration(ePromotion));
 			setTurnPromotionGained(ePromotion, srcUnit.getTurnPromotionGained(ePromotion));
 		}
 	}
+	setHasBeenPromotedFromGoody(srcUnit.IsHasBeenPromotedFromGoody());
+	setExperienceTimes100(srcUnit.getExperienceTimes100());
+	setLevel(srcUnit.getLevel());
+	const CvCity* pOriginCity = srcUnit.getOriginCity();
+	setOriginCity(pOriginCity ? pOriginCity->GetID() : -1);
+	setLeaderUnitType(srcUnit.getLeaderUnitType());
+	setNumGoodyHutsPopped(srcUnit.GetNumGoodyHutsPopped());
+	setName(srcUnit.getNameNoDesc());
 }
 
 ///
@@ -4003,6 +4024,24 @@ int CvMinorCivIncomingUnitGift::getArrivalCountdown() const
 UnitTypes CvMinorCivIncomingUnitGift::getUnitType() const
 {
 	return m_eUnitType;
+}
+
+///
+CvPlot* CvMinorCivIncomingUnitGift::getFromPlot() const
+{
+	return GC.getMap().plotCheckInvalid(m_iFromX, m_iFromY);
+}
+
+///
+PlayerTypes CvMinorCivIncomingUnitGift::getOriginalOwner() const
+{
+	return m_eOriginalOwner;
+}
+
+///
+int CvMinorCivIncomingUnitGift::getGameTurnCreated() const
+{
+	return m_iGameTurnCreated;
 }
 
 ///
@@ -4037,6 +4076,48 @@ int CvMinorCivIncomingUnitGift::getTurnPromotionGained(PromotionTypes ePromotion
 }
 
 ///
+bool CvMinorCivIncomingUnitGift::isHasBeenPromotedFromGoody() const
+{
+	return m_bPromotedFromGoody;
+}
+
+///
+int CvMinorCivIncomingUnitGift::getExperienceTimes100() const
+{
+	return m_iExperienceTimes100;
+}
+
+///
+int CvMinorCivIncomingUnitGift::getLevel() const
+{
+	return m_iLevel;
+}
+
+///
+int CvMinorCivIncomingUnitGift::getOriginCity() const
+{
+	return m_iOriginCity;
+}
+
+///
+UnitTypes CvMinorCivIncomingUnitGift::getLeaderUnitType() const
+{
+	return m_eLeaderUnitType;
+}
+
+///
+int CvMinorCivIncomingUnitGift::getNumGoodyHutsPopped() const
+{
+	return m_iNumGoodyHutsPopped;
+}
+
+///
+const CvString& CvMinorCivIncomingUnitGift::getName() const
+{
+	return m_strName;
+}
+
+///
 void CvMinorCivIncomingUnitGift::setArrivalCountdown(int iNewCountdown)
 {
 	m_iArrivalCountdown = iNewCountdown;
@@ -4045,13 +4126,33 @@ void CvMinorCivIncomingUnitGift::setArrivalCountdown(int iNewCountdown)
 ///
 void CvMinorCivIncomingUnitGift::changeArrivalCountdown(int iChangeCountdown)
 {
-	m_iArrivalCountdown += iChangeCountdown;
+	CvAssert(m_iArrivalCountdown != -1);
+	m_iArrivalCountdown = std::max(0, m_iArrivalCountdown + iChangeCountdown);
 }
 
 ///
 void CvMinorCivIncomingUnitGift::setUnitType(UnitTypes eNewUnitType)
 {
 	m_eUnitType = eNewUnitType;
+}
+
+///
+void CvMinorCivIncomingUnitGift::setFromXY(int iFromX, int iFromY)
+{
+	m_iFromX = iFromX;
+	m_iFromY = iFromY;
+}
+
+///
+void CvMinorCivIncomingUnitGift::setOriginalOwner(PlayerTypes eNewOriginalOwner)
+{
+	m_eOriginalOwner = eNewOriginalOwner;
+}
+
+///
+void CvMinorCivIncomingUnitGift::setGameTurnCreated(int iNewValue)
+{
+	m_iGameTurnCreated = iNewValue;
 }
 
 ///
@@ -4087,18 +4188,76 @@ void CvMinorCivIncomingUnitGift::setTurnPromotionGained(PromotionTypes ePromotio
 }
 
 ///
-void CvMinorCivIncomingUnitGift::applyToUnit(CvUnit& destUnit) const
+void CvMinorCivIncomingUnitGift::setHasBeenPromotedFromGoody(bool bPromotedFromGoody)
 {
+	m_bPromotedFromGoody = bPromotedFromGoody;
+}
+
+///
+void CvMinorCivIncomingUnitGift::setExperienceTimes100(int iNewValueTimes100)
+{
+	m_iExperienceTimes100 = iNewValueTimes100;
+}
+
+///
+void CvMinorCivIncomingUnitGift::setLevel(int iNewLevel)
+{
+	m_iLevel = iNewLevel;
+}
+
+///
+void CvMinorCivIncomingUnitGift::setOriginCity(int iNewOriginCity)
+{
+	m_iOriginCity = iNewOriginCity;
+}
+
+///
+void CvMinorCivIncomingUnitGift::setLeaderUnitType(UnitTypes eNewLeaderUnitType)
+{
+	m_eLeaderUnitType = eNewLeaderUnitType;
+}
+
+///
+void CvMinorCivIncomingUnitGift::setNumGoodyHutsPopped(int iNewNumGoodyHutsPopped)
+{
+	m_iNumGoodyHutsPopped = iNewNumGoodyHutsPopped;
+}
+
+///
+void CvMinorCivIncomingUnitGift::setName(const CvString& newName)
+{
+	m_strName = newName;
+}
+
+///
+bool CvMinorCivIncomingUnitGift::hasIncomingUnit() const
+{
+	return m_iArrivalCountdown != -1;
+}
+
+///
+void CvMinorCivIncomingUnitGift::applyToUnit(PlayerTypes eFromPlayer, CvUnit& destUnit) const
+{
+	destUnit.SetOriginalOwner(getOriginalOwner());
+	destUnit.setGameTurnCreated(getGameTurnCreated());
 	for (int i = 0; i < GC.getNumPromotionInfos(); ++i)
 	{
 		const PromotionTypes ePromotion = static_cast<PromotionTypes>(i);
 		if (isHasPromotion(ePromotion))
 		{
+			CvAssert(CvUnit::IsRetainablePromotion(ePromotion));
 			destUnit.setHasPromotion(ePromotion, true);
 			destUnit.SetPromotionDuration(ePromotion, getPromotionDuration(ePromotion));
 			destUnit.SetTurnPromotionGained(ePromotion, getTurnPromotionGained(ePromotion));
 		}
 	}
+	destUnit.SetBeenPromotedFromGoody(isHasBeenPromotedFromGoody());
+	destUnit.setExperienceTimes100(CvUnit::CalcExperienceTimes100ForConvert(eFromPlayer, destUnit.getOwner(), getExperienceTimes100()));
+	destUnit.setLevel(getLevel());
+	destUnit.setOriginCity(getOriginCity());
+	destUnit.setLeaderUnitType(getLeaderUnitType());
+	destUnit.SetNumGoodyHutsPopped(getNumGoodyHutsPopped());
+	destUnit.setName(getName());
 }
 
 ///
@@ -4118,9 +4277,20 @@ void CvMinorCivIncomingUnitGift::Serialize(MinorCivIncomingUnitGift& minorCivInc
 	if (minorCivIncomingUnitGift.m_iArrivalCountdown != -1)
 	{
 		visitor(minorCivIncomingUnitGift.m_eUnitType);
+		visitor(minorCivIncomingUnitGift.m_iFromX);
+		visitor(minorCivIncomingUnitGift.m_iFromY);
+		visitor(minorCivIncomingUnitGift.m_eOriginalOwner);
+		visitor(minorCivIncomingUnitGift.m_iGameTurnCreated);
 		visitor(minorCivIncomingUnitGift.m_HasPromotions);
 		visitor(minorCivIncomingUnitGift.m_PromotionDuration);
 		visitor(minorCivIncomingUnitGift.m_TurnPromotionGained);
+		visitor(minorCivIncomingUnitGift.m_bPromotedFromGoody);
+		visitor(minorCivIncomingUnitGift.m_iExperienceTimes100);
+		visitor(minorCivIncomingUnitGift.m_iLevel);
+		visitor(minorCivIncomingUnitGift.m_iOriginCity);
+		visitor(minorCivIncomingUnitGift.m_eLeaderUnitType);
+		visitor(minorCivIncomingUnitGift.m_iNumGoodyHutsPopped);
+		visitor(minorCivIncomingUnitGift.m_strName);
 	}
 }
 
@@ -4576,6 +4746,8 @@ void CvMinorCivAI::DoTurn()
 	{
 		DoTurnStatus();
 
+		doIncomingUnitGifts();
+
 		DoElection();
 		DoFriendship();
 
@@ -4671,8 +4843,6 @@ void CvMinorCivAI::DoTurn()
 				}
 			}
 		}
-
-		doIncomingUnitGifts();
 	}
 }
 
@@ -4694,8 +4864,8 @@ void CvMinorCivAI::DoChangeAliveStatus(bool bAlive)
 			// Cancel quests and PtPs
 			DoChangeProtectionFromMajor(e, false);
 
-			// Cancel all incoming unit gifts.
-			getIncomingUnitGift(e).reset();
+			// Return all incoming unit gifts.
+			returnIncomingUnitGift(e);
 
 			// Calculate new influence levels (don't set here, since that could create a false temporary ally)
 			int iOldInfluence = GetBaseFriendshipWithMajor(e);
@@ -17258,7 +17428,7 @@ void CvMinorCivAI::doIncomingUnitGifts()
 		PlayerTypes eLoopPlayer = (PlayerTypes)iLoop;
 		CvMinorCivIncomingUnitGift& unitGift = getIncomingUnitGift(eLoopPlayer);
 
-		if (unitGift.getArrivalCountdown() > 0)
+		if (unitGift.hasIncomingUnit())
 		{
 			unitGift.changeArrivalCountdown(-1);
 
@@ -17273,7 +17443,7 @@ void CvMinorCivAI::doIncomingUnitGifts()
 					CvAssert(pNewUnit);
 					if (pNewUnit)
 					{
-						unitGift.applyToUnit(*pNewUnit);
+						unitGift.applyToUnit(eLoopPlayer, *pNewUnit);
 
 						// Gift from a major to a city-state
 						if (!GET_PLAYER(eLoopPlayer).isMinorCiv())
@@ -17301,6 +17471,93 @@ void CvMinorCivAI::doIncomingUnitGifts()
 				unitGift.reset();
 			}
 		}
+	}
+}
+
+void CvMinorCivAI::returnIncomingUnitGift(PlayerTypes eMajor)
+{
+	CvMinorCivIncomingUnitGift& unitGift = getIncomingUnitGift(eMajor);
+	if (unitGift.hasIncomingUnit())
+	{
+		const UnitTypes eUnitType = unitGift.getUnitType();
+		CvAssert(eUnitType != NO_UNIT);
+		const CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUnitType);
+		CvAssert(pkUnitInfo);
+
+		// Select a default city to return to.
+		// We will return to this city if no better city is found.
+		const CvCity* pMajorDefaultCity = NULL;
+		if (unitGift.getOriginCity() != -1)
+		{
+			pMajorDefaultCity = GET_PLAYER(eMajor).getCity(unitGift.getOriginCity());
+		}
+
+		if (pMajorDefaultCity == NULL)
+		{
+			pMajorDefaultCity = GET_PLAYER(eMajor).getCapitalCity();
+		}
+
+		if (pMajorDefaultCity)
+		{
+			const CvPlot* pReturnToPlot = pMajorDefaultCity->plot();
+			const CvPlot* pFromPlot = unitGift.getFromPlot();
+			if (pFromPlot == NULL)
+			{
+				// Try to guess where this unit is returning from.
+				if (GetPlayer()->getCapitalCity() != NULL)
+				{
+					pFromPlot = GetPlayer()->getCapitalCity()->plot();
+				}
+				else
+				{
+					pFromPlot = GC.getMap().plotCheckInvalid(GetPlayer()->GetOriginalCapitalX(), GetPlayer()->GetOriginalCapitalY());
+				}
+			}
+
+			// If we know where the unit is returning from, pick the city closest as the return to plot.
+			if (pFromPlot)
+			{
+				CvCity* pClosestCity = NULL;
+				if (pkUnitInfo->GetDomainType() == DOMAIN_SEA)
+				{
+					pClosestCity = OperationalAIHelpers::GetClosestFriendlyCoastalCity(eMajor, pFromPlot);
+				}
+				else
+				{
+					pClosestCity = GET_PLAYER(eMajor).GetClosestCityByPlots(pFromPlot);
+				}
+
+				if (pClosestCity)
+				{
+					pReturnToPlot = pClosestCity->plot();
+				}
+			}
+
+			CvUnit* pNewUnit = GET_PLAYER(eMajor).initUnit(eUnitType, pReturnToPlot->getX(), pReturnToPlot->getY());
+			if (pNewUnit)
+			{
+				unitGift.applyToUnit(eMajor, *pNewUnit);
+				if (pNewUnit->getDomainType() != DOMAIN_AIR && !pNewUnit->jumpToNearestValidPlot())
+				{
+					pNewUnit->kill(false);
+				}
+				else
+				{
+					CvNotifications* pNotify = GET_PLAYER(eMajor).GetNotifications();
+					if (pNotify)
+					{
+						Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_CS_GIFT_RETURNED_SUMMARY");
+						strSummary << GetPlayer()->getCivilizationShortDescriptionKey();
+						Localization::String strNotification = Localization::Lookup("TXT_KEY_NOTIFICATION_CS_GIFT_RETURNED");
+						strNotification << GetPlayer()->getNameKey();
+						strNotification << pNewUnit->getNameKey();
+						pNotify->Add(NOTIFICATION_GENERIC, strNotification.toUTF8(), strSummary.toUTF8(), pNewUnit->getX(), pNewUnit->getY(), -1);
+					}
+				}
+			}
+		}
+
+		unitGift.reset();
 	}
 }
 

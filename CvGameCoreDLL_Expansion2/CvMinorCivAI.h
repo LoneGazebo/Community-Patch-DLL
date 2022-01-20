@@ -237,26 +237,62 @@ public:
 
 	int getArrivalCountdown() const;
 	UnitTypes getUnitType() const;
+	CvPlot* getFromPlot() const;
+	PlayerTypes getOriginalOwner() const;
+	int getGameTurnCreated() const;
 	bool isHasPromotion(PromotionTypes ePromotion) const;
 	int getPromotionDuration(PromotionTypes ePromotion) const;
 	int getTurnPromotionGained(PromotionTypes ePromotion) const;
+	bool isHasBeenPromotedFromGoody() const;
+	int getExperienceTimes100() const;
+	int getLevel() const;
+	int getOriginCity() const;
+	UnitTypes getLeaderUnitType() const;
+	int getNumGoodyHutsPopped() const;
+	const CvString& getName() const;
 
+private:
 	void setArrivalCountdown(int iNewCountdown);
+
+public:
 	void changeArrivalCountdown(int iChangeCountdown);
 	void setUnitType(UnitTypes eNewUnitType);
+	void setFromXY(int iFromX, int iFromY);
+	void setOriginalOwner(PlayerTypes eNewOriginalOwner);
+	void setGameTurnCreated(int iNewValue);
 	void setHasPromotion(PromotionTypes ePromotion, bool bNewValue);
 	void setPromotionDuration(PromotionTypes ePromotion, int iNewValue);
 	void setTurnPromotionGained(PromotionTypes ePromotion, int iNewValue);
+	void setHasBeenPromotedFromGoody(bool bPromotedFromGoody);
+	void setExperienceTimes100(int iNewValueTimes100);
+	void setLevel(int iNewLevel);
+	void setOriginCity(int iNewOriginCity);
+	void setLeaderUnitType(UnitTypes eNewLeaderUnitType);
+	void setNumGoodyHutsPopped(int iNewNumGoodyHutsPopped);
+	void setName(const CvString& strNewName);
 
-	void applyToUnit(CvUnit& destUnit) const;
+	bool hasIncomingUnit() const;
+
+	void applyToUnit(PlayerTypes eFromPlayer, CvUnit& destUnit) const;
 	void reset();
 
 private:
 	int m_iArrivalCountdown;
 	UnitTypes m_eUnitType;
+	int m_iFromX;
+	int m_iFromY;
+	PlayerTypes m_eOriginalOwner;
+	int m_iGameTurnCreated;
 	CvBitfield m_HasPromotions;
 	std::map<PromotionTypes, int> m_PromotionDuration;
 	std::map<PromotionTypes, int> m_TurnPromotionGained;
+	bool m_bPromotedFromGoody;
+	int m_iExperienceTimes100;
+	int m_iLevel;
+	int m_iOriginCity;
+	UnitTypes m_eLeaderUnitType;
+	int m_iNumGoodyHutsPopped;
+	CvString m_strName;
 };
 FDataStream& operator>>(FDataStream&, CvMinorCivIncomingUnitGift&);
 FDataStream& operator<<(FDataStream&, const CvMinorCivIncomingUnitGift&);
@@ -773,6 +809,7 @@ public:
 	CvMinorCivIncomingUnitGift& getIncomingUnitGift(PlayerTypes eMajor);
 
 	void doIncomingUnitGifts();
+	void returnIncomingUnitGift(PlayerTypes eMajor);
 
 	// ******************************
 	// ***** Misc Helper Functions *****
