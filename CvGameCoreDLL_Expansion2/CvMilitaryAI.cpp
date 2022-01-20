@@ -1561,7 +1561,7 @@ void CvMilitaryAI::UpdateBaseData()
 		if (!MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED)
 		{
 
-			if (pLoopUnit->getDomainType() == DOMAIN_LAND && !pLoopUnit->AI_getUnitAIType() == UNITAI_EXPLORE)
+			if (pLoopUnit->getDomainType() == DOMAIN_LAND && pLoopUnit->AI_getUnitAIType() != UNITAI_EXPLORE)
 			{
 				m_iNumLandUnits++;
 
@@ -1577,7 +1577,7 @@ void CvMilitaryAI::UpdateBaseData()
 				else
 					m_iNumMeleeLandUnits++;
 			}
-			else if (pLoopUnit->getDomainType() == DOMAIN_SEA && !pLoopUnit->AI_getUnitAIType() == UNITAI_EXPLORE_SEA)
+			else if (pLoopUnit->getDomainType() == DOMAIN_SEA && pLoopUnit->AI_getUnitAIType() != UNITAI_EXPLORE_SEA)
 			{
 				if (pLoopUnit->getArmyID() != -1)
 					m_iNumNavalUnitsInArmies++;
