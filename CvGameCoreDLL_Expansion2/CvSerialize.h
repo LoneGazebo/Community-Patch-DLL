@@ -112,7 +112,7 @@ public:
 	template<typename T>
 	inline CvStreamLoadVisitor& operator<<(const T& value)
 	{
-		CvAssertMsg(false, "CvStreamSaveVisitor is not meant for saving");
+		CvAssertMsg(false, "CvStreamLoadVisitor is not meant for saving");
 		return *this;
 	}
 

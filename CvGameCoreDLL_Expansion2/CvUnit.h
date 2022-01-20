@@ -241,6 +241,10 @@ public:
 
 	void uninitInfos();  // used to uninit arrays that may be reset due to mod changes
 
+	static bool IsRetainablePromotion(PromotionTypes ePromotion);
+	static int CalcExperienceTimes100ForConvert(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, int iExperienceTimes100);
+	void grantExperienceFromLostPromotions(int iNumLost);
+
 #if defined(MOD_BALANCE_CORE)
 	void convert(CvUnit* pUnit, bool bIsUpgrade);
 #else
@@ -1885,7 +1889,7 @@ public:
 	bool IsLargerCivThan(const CvUnit* pOtherUnit) const;
 
 	int GetNumGoodyHutsPopped() const;
-	void ChangeNumGoodyHutsPopped(int iValue);
+	void SetNumGoodyHutsPopped(int iValue);
 
 	const CvUnitReligion* GetReligionData() const { return &m_Religion; }
 	CvUnitReligion* GetReligionDataMutable() { return &m_Religion; }
