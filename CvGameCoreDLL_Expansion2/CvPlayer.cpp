@@ -17970,7 +17970,7 @@ int CvPlayer::calculateUnitGrowthMaintenanceMod() const
 
 //	--------------------------------------------------------------------------------
 /// How many Units can we support for free without losing Production and Growth?
-int CvPlayer::GetNumUnitsSupplied() const
+int CvPlayer::GetNumUnitsSupplied(bool bCheckWarWeariness) const
 {
 	if (m_iNumUnitsSuppliedCached == -1)
 	{
@@ -17978,7 +17978,7 @@ int CvPlayer::GetNumUnitsSupplied() const
 		iFreeUnits += GetNumUnitsSuppliedByCities();
 		iFreeUnits += GetNumUnitsSuppliedByPopulation();
 
-		if (MOD_BALANCE_DYNAMIC_UNIT_SUPPLY)
+		if (MOD_BALANCE_DYNAMIC_UNIT_SUPPLY && bCheckWarWeariness)
 		{
 			int iWarWeariness = GetCulture()->GetWarWeariness()/2;
 			int iMod = (100 - min(75, iWarWeariness));
@@ -18120,10 +18120,11 @@ int CvPlayer::GetNumUnitsSuppliedByPopulation(bool bIgnoreReduction) const
 
 //	--------------------------------------------------------------------------------
 /// How much Units are eating Production?
-int CvPlayer::GetNumUnitsOutOfSupply() const
+int CvPlayer::GetNumUnitsOutOfSupply(bool bCheckWarWeariness) const
 {
+	bool bCheckWW = bCheckWarWeariness;
 	int iNumUnitsToSupply = getNumMilitaryUnits() - getNumUnitsSupplyFree();
-	return std::max(0, iNumUnitsToSupply - GetNumUnitsSupplied());
+	return std::max(0, iNumUnitsToSupply - GetNumUnitsSupplied(bCheckWW));
 }
 
 #if defined(MOD_BALANCE_CORE)
@@ -36546,8 +36547,8 @@ void CvPlayer::DoBankruptcy()
 	{
 		int iLandScore = MAX_INT;
 		int iNavalScore = MAX_INT;
-		CvUnit* pLandUnit = GetMilitaryAI()->FindUnitToScrap(DOMAIN_LAND, false, iLandScore);
-		CvUnit* pNavalUnit = GetMilitaryAI()->FindUnitToScrap(DOMAIN_SEA, false, iNavalScore);
+		CvUnit* pLandUnit = GetMilitaryAI()->FindUnitToScrap(DOMAIN_LAND, false, iLandScore, false, true);
+		CvUnit* pNavalUnit = GetMilitaryAI()->FindUnitToScrap(DOMAIN_SEA, false, iNavalScore, false, true);
 
 		//keep the more useful one
 		CvUnit *pScrapUnit = (iLandScore < iNavalScore) ? pLandUnit : pNavalUnit;

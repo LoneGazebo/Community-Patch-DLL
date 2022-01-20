@@ -213,7 +213,7 @@ public:
 		return m_iNumAirUnits > 0;
 	};
 	CvUnit* FindUselessShip();
-	CvUnit* FindUnitToScrap(DomainTypes eDomain, bool bCheckObsolete, int& iScore);
+	CvUnit* FindUnitToScrap(DomainTypes eDomain, bool bCheckObsolete, int& iScore, bool bOverSupplyCap, bool bInDeficit);
 	bool IsBuildingArmy(ArmyType eType) const;
 	UnitTypes GetUnitTypeForArmy(CvCity* pCity) const;
 	int GetNumEnemyAirUnitsInRange(CvPlot* pCenterPlot, int iRange, bool bCountFighters, bool bCountBombers) const;
@@ -262,7 +262,7 @@ public:
 #if defined(MOD_BALANCE_CORE_MILITARY)
 	int GetRecommendLandArmySize() const
 	{
-		return m_iRecOffensiveLandUnits;
+		return m_iRecOffensiveLandUnits + m_iRecDefensiveLandUnits;
 	};
 	int GetRecommendNavySize() const
 	{
@@ -346,6 +346,21 @@ private:
 	int m_iRecOffensiveLandUnits;
 	int m_iRecDefensiveLandUnits;
 	int m_iNumFreeCarriers;
+
+	//new unit counters
+	int m_iNumArcherLandUnits;
+	int m_iNumSiegeLandUnits;
+	int m_iNumSkirmisherLandUnits;
+	int m_iNumReconLandUnits;
+	int m_iNumBomberAirUnits;
+	int m_iNumFighterAirUnits;
+	int m_iNumMeleeNavalUnits;
+	int m_iNumRangedNavalUnits;
+	int m_iNumSubmarineNavalUnits;
+	int m_iNumCarrierNavalUnits;
+//	int m_iNumNukeUnits; CvPlayer has this
+	int m_iNumMissileUnits;
+	int m_iNumActiveUniqueUnits;
 
 	DefenseState m_eLandDefenseState;
 	DefenseState m_eNavalDefenseState;

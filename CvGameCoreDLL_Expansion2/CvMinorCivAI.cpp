@@ -14244,8 +14244,10 @@ CvUnit* CvMinorCivAI::DoSpawnUnit(PlayerTypes eMajor, bool bLocal, bool bExplore
 		return NULL;
 
 	// Unit spawning is not allowed (manually disabled, or major is over supply limit)
-	if (IsUnitSpawningDisabled(eMajor) || GET_PLAYER(eMajor).GetNumUnitsOutOfSupply() > 0)
-		return NULL;
+	bool bCanSupply = ((GET_PLAYER(eMajor).GetNumUnitsToSupply() < GET_PLAYER(eMajor).GetNumUnitsSupplied())) ? true : false; // this works when we're at the limit
+	if (IsUnitSpawningDisabled(eMajor) || !bCanSupply)
+//	if (IsUnitSpawningDisabled(eMajor) || GET_PLAYER(eMajor).GetNumUnitsOutOfSupply() > 0)
+			return NULL;
 
 	// Minor has no capital
 	CvCity* pMinorCapital = GetPlayer()->getCapitalCity();
