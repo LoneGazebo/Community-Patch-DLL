@@ -411,6 +411,12 @@
 			<SecondaryUnitType>UNITAI_RESERVE_SEA</SecondaryUnitType>
 			<MultiUnitPositionType>MUPOSITION_BOMBARD</MultiUnitPositionType>
 		</Row>
+		<Row>
+			<MultiUnitFormationType>MUFORMATION_NAVAL_SQUADRON</MultiUnitFormationType>
+			<PrimaryUnitType>UNITAI_ADMIRAL</PrimaryUnitType>
+			<SecondaryUnitType>UNITAI_ADMIRAL</SecondaryUnitType>
+			<MultiUnitPositionType>MUPOSITION_CIVILIAN_SUPPORT</MultiUnitPositionType>
+		</Row>
 		<!-- Naval Invasion: Larger, more flexibility. -->
 		<Delete MultiUnitFormationType="MUFORMATION_NAVAL_INVASION"/>
 		<Row>
@@ -618,6 +624,12 @@
 			<PrimaryUnitType>UNITAI_ATTACK_SEA</PrimaryUnitType>
 			<SecondaryUnitType>UNITAI_RESERVE_SEA</SecondaryUnitType>
 			<MultiUnitPositionType>MUPOSITION_FRONT_LINE</MultiUnitPositionType>
+		</Row>
+		<Row>
+			<MultiUnitFormationType>MUFORMATION_NAVAL_BOMBARDMENT</MultiUnitFormationType>
+			<PrimaryUnitType>UNITAI_ADMIRAL</PrimaryUnitType>
+			<SecondaryUnitType>UNITAI_ADMIRAL</SecondaryUnitType>
+			<MultiUnitPositionType>MUPOSITION_CIVILIAN_SUPPORT</MultiUnitPositionType>
 		</Row>
 		<!-- Naval City State Attack: more variety, less required slots, less carriers. -->
 		<Delete MultiUnitFormationType="MUFORMATION_PURE_NAVAL_CITY_ATTACK"/>
