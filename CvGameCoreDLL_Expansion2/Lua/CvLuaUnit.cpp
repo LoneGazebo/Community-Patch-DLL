@@ -3365,11 +3365,7 @@ int CvLuaUnit::lGetMovementRules(lua_State* L)
 	CvString text = "";
 	int iChance = -1;
 
-	if (pkUnit == NULL || pkOtherUnit == NULL) ;
-		// use defaults
-	else if (!pkOtherUnit->CanPlague(pkUnit)) ;
-		// use defaults
-	else
+	if ( !(pkUnit == NULL || pkOtherUnit == NULL) && pkOtherUnit->CanPlague(pkUnit) );
 	{
 		PromotionTypes ePlague = (PromotionTypes)pkOtherUnit->getPlaguePromotion();
 		if (ePlague == NO_PROMOTION)
@@ -3420,7 +3416,7 @@ int CvLuaUnit::lGetMovementRules(lua_State* L)
 
 	lua_pushstring(L, text);
 	lua_pushinteger(L, iChance);
-	return 1;
+	return 2;
 }
 
 int CvLuaUnit::lGetZOCStatus(lua_State* L)

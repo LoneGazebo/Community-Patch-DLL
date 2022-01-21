@@ -251,7 +251,6 @@ function GetFormattedText(strLocalizedText, iValue, bForMe, bPercent, strOptiona
 			strNumberPart = "[COLOR_NEGATIVE_TEXT]+" .. strNumberPart .. "[ENDCOLOR]";
 		end
 	end
-print(strNumberPart);		
 	-- Bullet for my side
 	if (bForMe) then
 		strNumberPart = strNumberPart .. "[]";
@@ -259,7 +258,6 @@ print(strNumberPart);
 	else
 		strNumberPart = "[]" .. strNumberPart;
 	end
-print(strNumberPart);
 	-- Formatting for my side
 	if (bForMe) then
 		strTextToReturn = " :  " .. strNumberPart;
@@ -459,6 +457,15 @@ function UpdateCombatOddsUnitVsCity(pMyUnit, pCity)
 			-- Their Strength
 			Controls.TheirStrengthValue:SetText( Locale.ToNumber(iTheirStrength / 100, "#.#") );
 
+			-- Damaged unit (cannot combine with other modifiers as it is multiplicative with them)
+			iModifier = pMyUnit:GetDamageCombatModifier();
+			if (iModifier ~= 0 and bonusCount < maxBonusDisplay) then
+				controlTable = g_MyCombatDataIM:GetInstance();
+				controlTable.Text:LocalizeAndSetText( "TXT_KEY_UNITCOMBAT_DAMAGE_MODIFIER" );
+				controlTable.Value:SetText( GetFormattedText(strText, iModifier, true, true) );
+				bonusCount = bonusCount + 1;
+			end
+
 			-- Empire Unhappy
 			iModifier = pMyUnit:GetUnhappinessCombatPenalty();
 			if (iModifier ~= 0) then				
@@ -474,18 +481,6 @@ function UpdateCombatOddsUnitVsCity(pMyUnit, pCity)
 					bonusSum = bonusSum + iModifier;
 				end
 				
-				bonusCount = bonusCount + 1;
-			end
-
-			-- Damaged unit
-			iModifier = pMyUnit:GetDamageCombatModifier();
-			if (iModifier ~= 0 and bonusCount < maxBonusDisplay) then
-				controlTable = g_MyCombatDataIM:GetInstance();
-				controlTable.Text:LocalizeAndSetText( "TXT_KEY_UNITCOMBAT_DAMAGE_MODIFIER" );
-				controlTable.Value:SetText( GetFormattedText(strText, iModifier, true, true) );
-				bonusCount = bonusCount + 1;
-			elseif (iModifier ~= 0) then
-				bonusSum = bonusSum + iModifier;
 				bonusCount = bonusCount + 1;
 			end
 
@@ -1160,11 +1155,35 @@ print("Their Total Damage Inflicted: " .. tostring(iTheirDamageInflicted));
 			----------------------------------------------------------------------------
 			-- BONUSES MY UNIT GETS
 			----------------------------------------------------------------------------
-
+			
 			-------------------------
-			-- Movement Immunity --
+			-- Ranged Support Fire --
+			-------------------------
+			if(iMyRangedSupportStrength > 0) then
+				controlTable = g_MyCombatDataIM:GetInstance();
+				controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_RANGED_SUPPORT" );
+				controlTable.Value:SetText("");
+				bonusCount = bonusCount + 1;
+			end
+
+			if(iMyRangedSupportStrength > 0) then
+				controlTable = g_MyCombatDataIM:GetInstance();
+				controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_RANGED_SUPPORT_DAMAGE" );
+				controlTable.Value:SetText( GetFormattedText(strText, iMyRangedSupportDamageInflicted, true, false, "[COLOR_CYAN]") );
+				bonusCount = bonusCount + 1;
+			end
+
+			if(iMyRangedSupportStrength > 0) then
+				controlTable = g_MyCombatDataIM:GetInstance();
+				controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_RANGED_SUPPORT_DAMAGE" );
+				controlTable.Value:SetText( GetFormattedText(strText, iMyRangedSupportDamageInflicted, true, false) );
+				bonusCount = bonusCount + 1;
+			end
+			-------------------------
+			-- Movement Immunity ----
 			-------------------------
 			movementRules, iChance = pMyUnit:GetMovementRules(pTheirUnit);
+print("Movement Rules: [" .. movementRules .. "]; Chance to Inflict: [" .. tostring(iChance) .. "]");
 			if(movementRules ~= "") then
 				controlTable = g_MyCombatDataIM:GetInstance();
 				controlTable.Text:LocalizeAndSetText(movementRules);
@@ -1173,7 +1192,7 @@ print("Their Total Damage Inflicted: " .. tostring(iTheirDamageInflicted));
 				else
 					controlTable.Value:SetText("");
 				end
-				bonusCount = bonusCount + 2;
+				bonusCount = bonusCount + 1;
 			end
 			movementRules = pMyUnit:GetZOCStatus();
 			if(movementRules ~= "") then
@@ -1183,6 +1202,15 @@ print("Their Total Damage Inflicted: " .. tostring(iTheirDamageInflicted));
 				bonusCount = bonusCount + 1;
 			end
 			
+			-- Damaged unit (cannot combine with other modifiers as it is multiplicative with them)
+			iModifier = pMyUnit:GetDamageCombatModifier();
+			if (iModifier ~= 0 and bonusCount < maxBonusDisplay) then
+				controlTable = g_MyCombatDataIM:GetInstance();
+				controlTable.Text:LocalizeAndSetText( "TXT_KEY_UNITCOMBAT_DAMAGE_MODIFIER" );
+				controlTable.Value:SetText( GetFormattedText(strText, iModifier, true, true) );
+				bonusCount = bonusCount + 1;
+			end
+
 			-- Empire Unhappy
 			iModifier = pMyUnit:GetUnhappinessCombatPenalty();
 			if (iModifier ~= 0) then
@@ -1198,18 +1226,6 @@ print("Their Total Damage Inflicted: " .. tostring(iTheirDamageInflicted));
 				else
 					bonusSum = bonusSum + iModifier;
 				end
-				bonusCount = bonusCount + 1;
-			end
-
-			-- Damaged unit
-			iModifier = pMyUnit:GetDamageCombatModifier();
-			if (iModifier ~= 0 and bonusCount < maxBonusDisplay) then
-				controlTable = g_MyCombatDataIM:GetInstance();
-				controlTable.Text:LocalizeAndSetText( "TXT_KEY_UNITCOMBAT_DAMAGE_MODIFIER" );
-				controlTable.Value:SetText( GetFormattedText(strText, iModifier, true, true) );
-				bonusCount = bonusCount + 1;
-			elseif (iModifier ~= 0) then
-				bonusSum = bonusSum + iModifier;
 				bonusCount = bonusCount + 1;
 			end
 
@@ -2077,15 +2093,16 @@ print("Their Total Damage Inflicted: " .. tostring(iTheirDamageInflicted));
 			-- Movement Immunity --
 			-----------------------
 			movementRules, iChance = pTheirUnit:GetMovementRules(pMyUnit);
+print("Movement Rules: [" .. movementRules .. "]; Chance to Inflict: [" .. tostring(iChance) .. "]");
 			if(movementRules ~= "") then
-				controlTable = g_MyCombatDataIM:GetInstance();
+				controlTable = g_TheirCombatDataIM:GetInstance();
 				controlTable.Text:LocalizeAndSetText(movementRules);
 				if(iChance >= 0) then
 					controlTable.Value:SetText( GetFormattedText(strText, iChance, false, true, "[COLOR_CYAN]") );
 				else
 					controlTable.Value:SetText("");
 				end
-				bonusCount = bonusCount + 2;
+				bonusCount = bonusCount + 1;
 			end
 			movementRules = pTheirUnit:GetZOCStatus();
 			if(movementRules ~= "") then
@@ -2103,7 +2120,7 @@ print("Their Total Damage Inflicted: " .. tostring(iTheirDamageInflicted));
 						controlTable = g_TheirCombatDataIM:GetInstance();
 						controlTable.Text:LocalizeAndSetText("TXT_KEY_EUPANEL_CAPTURE_CHANCE");
 						controlTable.Value:SetText( GetFormattedText(strText, iChance, false, true, "[COLOR_CYAN]") );
-						bonusCount = bonusCount + 2;
+						bonusCount = bonusCount + 1;
 				end
 			end
 			---------------------
@@ -2121,6 +2138,18 @@ print("Their Total Damage Inflicted: " .. tostring(iTheirDamageInflicted));
 			
 			if (pTheirUnit:IsCombatUnit()) then
 
+				-- Damaged unit (cannot combine with other modifiers as it is multiplicative with them)
+				iModifier = pTheirUnit:GetDamageCombatModifier(bRanged);
+				if (iModifier ~= 0 and bonusCount < maxBonusDisplay) then
+					controlTable = g_TheirCombatDataIM:GetInstance();
+					controlTable.Text:LocalizeAndSetText( "TXT_KEY_UNITCOMBAT_DAMAGE_MODIFIER" );
+					controlTable.Value:SetText( GetFormattedText(strText, iModifier, false, true) );
+					bonusCount = bonusCount + 1;
+				elseif (iModifier ~= 0) then
+					bonusSum = bonusSum + iModifier;
+					bonusCount = bonusCount + 1;
+				end
+
 				-- Empire Unhappy
 				iModifier = pTheirUnit:GetUnhappinessCombatPenalty();
 				if (iModifier ~= 0) then
@@ -2136,18 +2165,6 @@ print("Their Total Damage Inflicted: " .. tostring(iTheirDamageInflicted));
 					else
 						bonusSum = bonusSum + iModifier;
 					end
-					bonusCount = bonusCount + 1;
-				end
-
-				-- Damaged unit
-				iModifier = pTheirUnit:GetDamageCombatModifier(bRanged);
-				if (iModifier ~= 0 and bonusCount < maxBonusDisplay) then
-					controlTable = g_TheirCombatDataIM:GetInstance();
-					controlTable.Text:LocalizeAndSetText( "TXT_KEY_UNITCOMBAT_DAMAGE_MODIFIER" );
-					controlTable.Value:SetText( GetFormattedText(strText, iModifier, false, true) );
-					bonusCount = bonusCount + 1;
-				elseif (iModifier ~= 0) then
-					bonusSum = bonusSum + iModifier;
 					bonusCount = bonusCount + 1;
 				end
 				
@@ -2868,6 +2885,15 @@ function UpdateCombatOddsCityVsUnit(myCity, theirUnit)
 		local myPlot = myCity:Plot();
 		local theirPlot = theirUnit:GetPlot();
 		
+		-- Damaged unit (cannot combine with other modifiers as it is multiplicative with them)
+		iModifier = theirUnit:GetDamageCombatModifier(true);
+		if (iModifier ~= 0 and bonusCount < maxBonusDisplay) then
+			controlTable = g_TheirCombatDataIM:GetInstance();
+			controlTable.Text:LocalizeAndSetText( "TXT_KEY_UNITCOMBAT_DAMAGE_MODIFIER" );
+			controlTable.Value:SetText( GetFormattedText(strText, iModifier, false, true) );
+			bonusCount = bonusCount + 1;
+		end
+
 		-- Empire Unhappy
 		iModifier = theirUnit:GetUnhappinessCombatPenalty();
 		if (iModifier ~= 0) then
@@ -2885,19 +2911,7 @@ function UpdateCombatOddsCityVsUnit(myCity, theirUnit)
 			end
 			bonusCount = bonusCount + 1;
 		end
-		
-		-- Damaged unit
-		iModifier = theirUnit:GetDamageCombatModifier(true);
-		if (iModifier ~= 0 and bonusCount < maxBonusDisplay) then
-			controlTable = g_TheirCombatDataIM:GetInstance();
-			controlTable.Text:LocalizeAndSetText( "TXT_KEY_UNITCOMBAT_DAMAGE_MODIFIER" );
-			controlTable.Value:SetText( GetFormattedText(strText, iModifier, false, true) );
-			bonusCount = bonusCount + 1;
-		elseif (iModifier ~= 0) then
-			bonusSum = bonusSum + iModifier;
-			bonusCount = bonusCount + 1;
-		end
-		
+				
 		-- Lack Strategic Resources
 		iModifier = theirUnit:GetStrategicResourceCombatPenalty();
 		if (iModifier ~= 0 and bonusCount < maxBonusDisplay) then
