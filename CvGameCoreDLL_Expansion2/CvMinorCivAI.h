@@ -67,6 +67,7 @@ enum MinorCivQuestTypes
 	MINOR_CIV_QUEST_TRADE_ROUTE,
 	MINOR_CIV_QUEST_WAR,
 	MINOR_CIV_QUEST_CONSTRUCT_NATIONAL_WONDER,
+	MINOR_CIV_QUEST_GIFT_SPECIFIC_UNIT,
 	MINOR_CIV_QUEST_FIND_CITY_STATE,
 	MINOR_CIV_QUEST_INFLUENCE,
 	MINOR_CIV_QUEST_CONTEST_TOURISM,
@@ -485,6 +486,9 @@ public:
 	int GetExplorePercent(PlayerTypes ePlayer, MinorCivQuestTypes eQuest);
 	BuildingTypes GetBestBuildingForQuest(PlayerTypes ePlayer);
 	CvCity* GetBestSpyTarget(PlayerTypes ePlayer, bool bMinor);
+	UnitTypes GetBestUnitGiftFromPlayer(PlayerTypes ePlayer);
+	bool GetHasSentUnitForQuest(PlayerTypes ePlayer);
+	void SetHasSentUnitForQuest(PlayerTypes ePlayer, bool bValue);
 	void SetCoupAttempted(PlayerTypes ePlayer, bool bValue);
 	bool IsCoupAttempted(PlayerTypes ePlayer);
 	void SetTargetedAreaID(PlayerTypes ePlayer, int iValue);
@@ -831,6 +835,7 @@ private:
 	int m_iCoup;
 	bool m_abSiphoned[MAX_MAJOR_CIVS];
 	bool m_abCoupAttempted[MAX_MAJOR_CIVS];
+	bool m_abSentUnitForQuest[MAX_MAJOR_CIVS];
 	int m_aiAssignedPlotAreaID[MAX_MAJOR_CIVS];
 	int m_aiTurnsSincePtPWarning[MAX_MAJOR_CIVS];
 	int m_aiTargetedCityX[MAX_MAJOR_CIVS];

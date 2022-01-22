@@ -50671,6 +50671,9 @@ void CvDiplomacyAI::LogMinorCivQuestType(CvString& strString, MinorCivQuestTypes
 	case MINOR_CIV_QUEST_CONSTRUCT_NATIONAL_WONDER:
 		strTemp.Format("Construct National Wonder");
 		break;
+	case MINOR_CIV_QUEST_GIFT_SPECIFIC_UNIT:
+		strTemp.Format("Send Unit");
+		break;
 	case MINOR_CIV_QUEST_FIND_CITY_STATE:
 		strTemp.Format("Find City State");
 		break;
