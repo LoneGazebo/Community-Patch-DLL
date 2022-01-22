@@ -1501,6 +1501,9 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		if(kPlayer.getCivilizationInfo().isCivilizationUnitOverridden(pkUnitEntry->GetUnitClassType()))
 		{
 			iBonus += 100;
+
+			if (pkUnitEntry->GetUnitCombatType() == (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_RECON", true)) // reduce the bonus for recons, they aren't that spammable
+				iBonus -= 80;
 		}
 
 		//For an operation? Build it!
