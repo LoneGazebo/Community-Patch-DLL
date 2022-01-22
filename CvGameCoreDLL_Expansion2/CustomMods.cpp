@@ -573,19 +573,18 @@ int CustomMods::getCivOption(const char* szCiv, const char* szName, int defValue
 
 void CheckSentinel(uint value)
 {
-#if defined(STACKWALKER) && defined(MOD_CORE_DEBUGGING)
-	if (MOD_CORE_DEBUGGING)
+	if (value == 0xDEADBEEF)
+		return; //everything ok
+
+	CUSTOMLOG("Deserialization Error, check DeserializationCallstack.log\n");
+
+#if defined(STACKWALKER)
+	FILogFile* pLog=LOGFILEMGR.GetLog( "DeserializationCallstack.log", FILogFile::kDontTimeStamp );
+	if (pLog)
 	{
-		FILogFile* pLog=LOGFILEMGR.GetLog( "Deserialization.txt", FILogFile::kDontTimeStamp );
-		if (pLog)
-		{
-			gStackWalker.SetLog(pLog);
-			gStackWalker.ShowCallstack();
-			pLog->Msg("\r\n");
-		}
+		gStackWalker.SetLog(pLog);
+		gStackWalker.ShowCallstack();
+		pLog->Msg("\r\n");
 	}
 #endif
-
-	if (value!=0xDEADBEEF)
-		OutputDebugString("Serialization Error!\n");
 }
