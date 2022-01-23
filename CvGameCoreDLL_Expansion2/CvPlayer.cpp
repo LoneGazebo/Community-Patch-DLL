@@ -27534,6 +27534,9 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 						case MINOR_CIV_QUEST_CONSTRUCT_NATIONAL_WONDER:
 							MoreData = GetLocalizedText("TXT_KEY_MINOR_CIV_QUEST_CONSTRUCT_NATIONAL_WONDER_NAME", MinorName);
 							break;
+						case MINOR_CIV_QUEST_GIFT_SPECIFIC_UNIT:
+							MoreData = GetLocalizedText("TXT_KEY_MINOR_CIV_QUEST_GIFT_SPECIFIC_UNIT_NAME", MinorName);
+							break;
 						case MINOR_CIV_QUEST_FIND_CITY_STATE:
 							MoreData = GetLocalizedText("TXT_KEY_MINOR_CIV_QUEST_FIND_CITY_STATE_NAME", MinorName);
 							break;

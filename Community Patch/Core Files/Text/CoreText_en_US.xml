@@ -6994,6 +6994,9 @@
 		<Row Tag="TXT_KEY_MINOR_CIV_QUEST_CONSTRUCT_NATIONAL_WONDER_NAME">
 			<Text>Built National Wonder for {1_CSName}</Text>
 		</Row>
+		<Row Tag="TXT_KEY_MINOR_CIV_QUEST_GIFT_SPECIFIC_UNIT_NAME">
+			<Text>Gifted unit to {1_CSName}</Text>
+		</Row>
 		<Row Tag="TXT_KEY_MINOR_CIV_QUEST_FIND_CITY_STATE_NAME">
 			<Text>Found City-State for {1_CSName}</Text>
 		</Row>

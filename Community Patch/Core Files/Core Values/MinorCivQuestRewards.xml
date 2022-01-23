@@ -94,6 +94,10 @@
 			<Influence>30</Influence>
 		</Row>
 		<Row>
+			<Type>MINOR_CIV_QUEST_GIFT_SPECIFIC_UNIT</Type>
+			<Influence>25</Influence>
+		</Row>
+		<Row>
 			<Type>MINOR_CIV_QUEST_FIND_CITY_STATE</Type>
 			<Influence>30</Influence>
 		</Row>
