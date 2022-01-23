@@ -3739,7 +3739,6 @@ void CvTeam::changeCityWorkingChange(int iChange)
 //	--------------------------------------------------------------------------------
 int CvTeam::GetCityAutomatonWorkersChange() const
 {
-	CUSTOMLOG("CvTeam::GetCityAutomatonWorkersChange = %i", m_iCityAutomatonWorkersChange);
 	return m_iCityAutomatonWorkersChange;
 }
  //	--------------------------------------------------------------------------------
@@ -3747,7 +3746,6 @@ bool CvTeam::isCityAutomatonWorkersChange()	const
 {
 	return (GetCityAutomatonWorkersChange() != 0);
 }
-
 
 //	--------------------------------------------------------------------------------
 void CvTeam::changeCityAutomatonWorkersChange(int iChange)

@@ -855,6 +855,7 @@ enum BattleTypeTypes
 	CvString sMsg; CvString::format(sMsg, sFmt, __VA_ARGS__);													\
 	CvString sLine; CvString::format(sLine, "%s[%i]: %s - %s", __FILE__, __LINE__, __FUNCTION__, sMsg.c_str());	\
 	LOGFILEMGR.GetLog(CUSTOMLOGDEBUG, FILogFile::kDontTimeStamp)->Msg(sLine.c_str());							\
+	sLine += '\n'; OutputDebugString(sLine.c_str());																			\
 }
 #endif
 #if defined(CUSTOMLOGFILEINFO) && !defined(CUSTOMLOGFUNCINFO)
@@ -862,6 +863,7 @@ enum BattleTypeTypes
 	CvString sMsg; CvString::format(sMsg, sFmt, __VA_ARGS__);													\
 	CvString sLine; CvString::format(sLine, "%s[%i] - %s", __FILE__, __LINE__, sMsg.c_str());					\
 	LOGFILEMGR.GetLog(CUSTOMLOGDEBUG, FILogFile::kDontTimeStamp)->Msg(sLine.c_str());							\
+	sLine += '\n'; OutputDebugString(sLine.c_str());																			\
 }
 #endif
 #if !defined(CUSTOMLOGFILEINFO) && defined(CUSTOMLOGFUNCINFO)
@@ -869,12 +871,14 @@ enum BattleTypeTypes
 	CvString sMsg; CvString::format(sMsg, sFmt, __VA_ARGS__);													\
 	CvString sLine; CvString::format(sLine, "%s - %s", __FUNCTION__, sMsg.c_str());								\
 	LOGFILEMGR.GetLog(CUSTOMLOGDEBUG, FILogFile::kDontTimeStamp)->Msg(sLine.c_str());							\
+	sLine += '\n'; OutputDebugString(sLine.c_str());																			\
 }
 #endif
 #if !defined(CUSTOMLOGFILEINFO) && !defined(CUSTOMLOGFUNCINFO)
 #define CUSTOMLOG(sFmt, ...) {																					\
 	CvString sMsg; CvString::format(sMsg, sFmt, __VA_ARGS__);													\
 	LOGFILEMGR.GetLog(CUSTOMLOGDEBUG, FILogFile::kDontTimeStamp)->Msg(sMsg.c_str());							\
+	sMsg += '\n'; OutputDebugString(sMsg.c_str());																			\
 }
 #endif
 #else
@@ -887,11 +891,17 @@ enum BattleTypeTypes
 	CvString sMsg; CvString::format(sMsg, sFmt, __VA_ARGS__);										\
 	CvString sLine; CvString::format(sLine, "%s[%i] - %s", __FILE__, __LINE__, sMsg.c_str());	    \
 	LOGFILEMGR.GetLog(UNIFIEDLOGDEBUG, FILogFile::kDontTimeStamp)->Msg(sLine.c_str());			    \
+	sLine += '\n'; OutputDebugString(sLine.c_str());																						\
 }
 #else
 #define UNIFIEDLOG(sFmt, ...) __noop
 #endif
 
+#define LIVELOG(sFmt, ...) {																					\
+	CvString sMsg; CvString::format(sMsg, sFmt, __VA_ARGS__);													\
+	CvString sLine; CvString::format(sLine, "%s[%i]: %s - %s", __FILE__, __LINE__, __FUNCTION__, sMsg.c_str());	\
+	sLine += '\n'; OutputDebugString(sLine.c_str());																			\
+}
 
 // Message wrappers
 #define SHOW_PLAYER_MESSAGE(pPlayer, szMessage)       if (pPlayer) DLLUI->AddMessage(0, pPlayer->GetID(), false, GC.getEVENT_MESSAGE_TIME(), szMessage)
