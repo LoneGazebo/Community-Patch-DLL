@@ -14158,6 +14158,15 @@ CombatPredictionTypes CvGame::GetCombatPrediction(const CvUnit* pAttackingUnit, 
 
 	int iDefenderStrength = pDefendingUnit->GetMaxDefenseStrength(pToPlot, pAttackingUnit, pFromPlot, false, false);
 
+	if (pAttackingUnit->isRangedSupportFire()) 
+	{
+		int iDefenderCurrentDamage = pDefendingUnit->getDamage();
+		int iRangedSupportDamageInflicted = pAttackingUnit->GetRangeCombatDamage(pDefendingUnit, NULL, false);
+		int iDefendingDamageModifier = pDefendingUnit->GetDamageCombatModifier(false, iDefenderCurrentDamage + iRangedSupportDamageInflicted);
+		
+		iDefenderStrength = iDefenderStrength * (100 + iDefendingDamageModifier) / 100;
+	}
+
 	//iMyDamageInflicted = pMyUnit:GetCombatDamage(iMyStrength, iTheirStrength, pMyUnit:GetDamage() + iTheirFireSupportCombatDamage, false, false, false);
 	int iAttackingDamageInflicted = pAttackingUnit->getCombatDamage(iAttackingStrength, iDefenderStrength, false, false, false);
 	int iDefenderDamageInflicted  = pDefendingUnit->getCombatDamage(iDefenderStrength, iAttackingStrength, false, false, false);

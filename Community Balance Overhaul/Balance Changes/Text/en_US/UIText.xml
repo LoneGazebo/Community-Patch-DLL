@@ -105,9 +105,6 @@
 		<Row Tag="TXT_KEY_EUPANEL_RANGED_SUPPORT">
 			<Text>[COLOR_CYAN]Additional Ranged Attack[ENDCOLOR]</Text>
 		</Row>
-		<Row Tag="TXT_KEY_EUPANEL_RANGED_SUPPORT_DAMAGE">
-			<Text>[COLOR_CYAN]Additional Ranged Damage[ENDCOLOR]</Text>
-		</Row>
 
 		<Row Tag="TXT_KEY_DUDE_8">
 			<Text>Herodotus</Text>

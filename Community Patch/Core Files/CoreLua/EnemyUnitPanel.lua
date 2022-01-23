@@ -251,6 +251,12 @@ function GetFormattedText(strLocalizedText, iValue, bForMe, bPercent, strOptiona
 			strNumberPart = "[COLOR_NEGATIVE_TEXT]+" .. strNumberPart .. "[ENDCOLOR]";
 		end
 	end
+	--[=[ Additional code if we want to put text in the numbers section
+	if (strLocalizedText ~= nil) then
+		strNumberPart = Locale.ConvertTextKey(strLocalizedText, strNumberPart);
+	end
+	--]=]
+
 	-- Bullet for my side
 	if (bForMe) then
 		strNumberPart = strNumberPart .. "[]";
@@ -265,7 +271,7 @@ function GetFormattedText(strLocalizedText, iValue, bForMe, bPercent, strOptiona
 	else
 		strTextToReturn = strNumberPart .. "  : ";
 	end
-	
+
 	return strTextToReturn;
 	
 end
@@ -908,7 +914,6 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 		local pTheirPlayer = Players[iTheirPlayer];
 		
 		local iMyStrength = 0;
-		local iMyRangedSupportStrength = 0;
 		local bRanged = false;
 		local iNumVisibleAAUnits = 0;
 		local bInterceptPossible = false;
@@ -920,16 +925,9 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 		if (pMyUnit:IsRangedSupportFire() == false and pMyUnit:GetBaseRangedCombatStrength() > 0) then
 			iMyStrength = pMyUnit:GetMaxRangedCombatStrength(pTheirUnit, nil, true);
 			bRanged = true;
-print("My Ranged Strength: " .. tostring(iMyStrength)); --DEBUG--
 		else
 		-- Melee Unit
-			if (pMyUnit:IsRangedSupportFire() == true) then
-				-- Ranged Support Fire
-				iMyRangedSupportStrength = pMyUnit:GetMaxRangedCombatStrength(pTheirUnit, nil, true);
-print("My Ranged Support Strength: " .. tostring(iMyRangedSupportStrength)); 
-			end
 			iMyStrength = pMyUnit:GetMaxAttackStrength(pFromPlot, pToPlot, pTheirUnit);
-print("My Melee Strength: " .. tostring(iMyStrength));
 		end
 
 		if not(bRanged) then
@@ -969,12 +967,10 @@ print("My Melee Strength: " .. tostring(iMyStrength));
 			else
 				iTheirRangedStrength = pTheirUnit:GetMaxDefenseStrength(pToPlot, pMyUnit, pFromPlot, true);
 			end
-print("Their Ranged Strength: " .. tostring(iTheirRangedStrength));
 			-- Ranged Strike
 			if (bRanged) then
 				
 				iMyDamageInflicted = pMyUnit:GetRangeCombatDamage(pTheirUnit, nil, false);
-print("My Ranged Damage Inflicted: " .. tostring(iMyDamageInflicted));
 				iTheirStrength = iTheirRangedStrength;
 				
 				if (pMyUnit:GetDomainType() == DomainTypes.DOMAIN_AIR) then
@@ -993,20 +989,13 @@ print("My Ranged Damage Inflicted: " .. tostring(iMyDamageInflicted));
 			else
 				-- checks for embarkation ...
 				iTheirStrength = pTheirUnit:GetMaxDefenseStrength(pToPlot, pMyUnit, pFromPlot);
-print("Their Melee Strength: ", tostring(iTheirStrength));
 				-- deal with extra Ranged Support Fire attack
-				if (iMyRangedSupportStrength > 0) then
+				if (pMyUnit:IsRangedSupportFire() == true) then
 					local iTheirDamage = pTheirUnit:GetDamage();
 					
 					iMyRangedSupportDamageInflicted = pMyUnit:GetRangeCombatDamage(pTheirUnit, nil, false);
-print("My Ranged Support Damage Inflicted: " .. tostring(iMyRangedSupportDamageInflicted));
-print("Their Total Damage taken: " .. tostring(iTheirDamage + iMyRangedSupportDamageInflicted));
-					iTheirDamageModifier = pTheirUnit:GetDamageCombatModifier();
-print("Their Original Damaged Modifier: " .. tostring(iTheirDamageModifier));
 					iTheirDamageModifier = pTheirUnit:GetDamageCombatModifier(false, iTheirDamage + iMyRangedSupportDamageInflicted);
-print("Their New Damaged Modifier: " .. tostring(iTheirDamageModifier));
 					iTheirStrength = iTheirStrength * (100 + iTheirDamageModifier) / 100;
-print("Their New Melee Strength: " .. tostring(iTheirStrength));
 				end
 				
 				local pFireSupportUnit = pMyUnit:GetFireSupportUnit(pTheirUnit:GetOwner(), pToPlot:GetX(), pToPlot:GetY());
@@ -1015,16 +1004,13 @@ print("Their New Melee Strength: " .. tostring(iTheirStrength));
 				end
 				
 				iMyDamageInflicted = pMyUnit:GetCombatDamage(iMyStrength, iTheirStrength, pMyUnit:GetDamage() + iTheirFireSupportCombatDamage, false, false, false, NULL);
-print("My Melee Damage Inflicted: " .. tostring(iMyDamageInflicted));
 				iMyDamageInflicted = iMyDamageInflicted + iMyRangedSupportDamageInflicted;
-print("My Total Damage Inflicted: " .. tostring(iMyDamageInflicted));
 				if (pTheirUnit:IsEmbarked()) then
 				    iTheirDamageInflicted = 0
 				else
     				iTheirDamageInflicted = pTheirUnit:GetCombatDamage(iTheirStrength, iMyStrength, pTheirUnit:GetDamage(), false, false, false, NULL);
     		    end
 				iTheirDamageInflicted = iTheirDamageInflicted + iTheirFireSupportCombatDamage;
-print("Their Total Damage Inflicted: " .. tostring(iTheirDamageInflicted));
 				
 			end
 			
@@ -1159,31 +1145,16 @@ print("Their Total Damage Inflicted: " .. tostring(iTheirDamageInflicted));
 			-------------------------
 			-- Ranged Support Fire --
 			-------------------------
-			if(iMyRangedSupportStrength > 0) then
+			if(pMyUnit:IsRangedSupportFire() == true) then
 				controlTable = g_MyCombatDataIM:GetInstance();
 				controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_RANGED_SUPPORT" );
 				controlTable.Value:SetText("");
-				bonusCount = bonusCount + 1;
-			end
-
-			if(iMyRangedSupportStrength > 0) then
-				controlTable = g_MyCombatDataIM:GetInstance();
-				controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_RANGED_SUPPORT_DAMAGE" );
-				controlTable.Value:SetText( GetFormattedText(strText, iMyRangedSupportDamageInflicted, true, false, "[COLOR_CYAN]") );
-				bonusCount = bonusCount + 1;
-			end
-
-			if(iMyRangedSupportStrength > 0) then
-				controlTable = g_MyCombatDataIM:GetInstance();
-				controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_RANGED_SUPPORT_DAMAGE" );
-				controlTable.Value:SetText( GetFormattedText(strText, iMyRangedSupportDamageInflicted, true, false) );
 				bonusCount = bonusCount + 1;
 			end
 			-------------------------
 			-- Movement Immunity ----
 			-------------------------
 			movementRules, iChance = pMyUnit:GetMovementRules(pTheirUnit);
-print("Movement Rules: [" .. movementRules .. "]; Chance to Inflict: [" .. tostring(iChance) .. "]");
 			if(movementRules ~= "") then
 				controlTable = g_MyCombatDataIM:GetInstance();
 				controlTable.Text:LocalizeAndSetText(movementRules);
@@ -2093,7 +2064,6 @@ print("Movement Rules: [" .. movementRules .. "]; Chance to Inflict: [" .. tostr
 			-- Movement Immunity --
 			-----------------------
 			movementRules, iChance = pTheirUnit:GetMovementRules(pMyUnit);
-print("Movement Rules: [" .. movementRules .. "]; Chance to Inflict: [" .. tostring(iChance) .. "]");
 			if(movementRules ~= "") then
 				controlTable = g_TheirCombatDataIM:GetInstance();
 				controlTable.Text:LocalizeAndSetText(movementRules);
