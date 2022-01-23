@@ -642,6 +642,39 @@ int CvGrandStrategyAI::GetConquestPriority()
 					{
 						iPriorityBonus += pkPolicyInfo->GetFlavorValue(iFlavorLoop);
 					}
+					//VP - NEW FLAVORS
+					else if (GC.getFlavorTypes((FlavorTypes)iFlavorLoop) == "FLAVOR_ARCHER")
+					{
+						iPriorityBonus += pkPolicyInfo->GetFlavorValue(iFlavorLoop);
+					}
+					else if (GC.getFlavorTypes((FlavorTypes)iFlavorLoop) == "FLAVOR_SIEGE")
+					{
+						iPriorityBonus += pkPolicyInfo->GetFlavorValue(iFlavorLoop);
+					}
+					else if (GC.getFlavorTypes((FlavorTypes)iFlavorLoop) == "FLAVOR_SKIRMISHER")
+					{
+						iPriorityBonus += pkPolicyInfo->GetFlavorValue(iFlavorLoop);
+					}
+					else if (GC.getFlavorTypes((FlavorTypes)iFlavorLoop) == "FLAVOR_NAVAL_MELEE")
+					{
+						iPriorityBonus += pkPolicyInfo->GetFlavorValue(iFlavorLoop);
+					}
+					else if (GC.getFlavorTypes((FlavorTypes)iFlavorLoop) == "FLAVOR_NAVAL_RANGED")
+					{
+						iPriorityBonus += pkPolicyInfo->GetFlavorValue(iFlavorLoop);
+					}
+					else if (GC.getFlavorTypes((FlavorTypes)iFlavorLoop) == "FLAVOR_SUBMARINE")
+					{
+						iPriorityBonus += pkPolicyInfo->GetFlavorValue(iFlavorLoop);
+					}
+					else if (GC.getFlavorTypes((FlavorTypes)iFlavorLoop) == "FLAVOR_FIGHTER")
+					{
+						iPriorityBonus += pkPolicyInfo->GetFlavorValue(iFlavorLoop);
+					}
+					else if (GC.getFlavorTypes((FlavorTypes)iFlavorLoop) == "FLAVOR_BOMBER")
+					{
+						iPriorityBonus += pkPolicyInfo->GetFlavorValue(iFlavorLoop);
+					}
 				}
 			}
 		}

@@ -2196,7 +2196,8 @@ void CvEconomicAI::DoReconState()
 				if( pLoopUnit->AI_getUnitAIType() != UNITAI_EXPLORE_SEA && 
 					(pLoopUnit->getUnitInfo().GetDefaultUnitAIType() == UNITAI_ATTACK_SEA ||
 					 pLoopUnit->getUnitInfo().GetDefaultUnitAIType() == UNITAI_RESERVE_SEA ||
-					 pLoopUnit->getUnitInfo().GetDefaultUnitAIType() == UNITAI_ASSAULT_SEA))
+					 pLoopUnit->getUnitInfo().GetDefaultUnitAIType() == UNITAI_ASSAULT_SEA ||
+					 pLoopUnit->getUnitInfo().GetDefaultUnitAIType() == UNITAI_SUBMARINE))
 				{
 					if(pLoopUnit->canUseForAIOperation())
 					{

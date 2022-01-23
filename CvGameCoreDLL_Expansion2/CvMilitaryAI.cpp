@@ -1988,10 +1988,10 @@ void CvMilitaryAI::UpdateMilitaryStrategies()
 					bStrategyShouldBeActive = MilitaryAIHelpers::IsTestStrategy_WinningWars(m_pPlayer);
 				else if(strStrategyName == "MILITARYAISTRATEGY_LOSING_WARS")
 					bStrategyShouldBeActive = MilitaryAIHelpers::IsTestStrategy_LosingWars(m_pPlayer);
-				else if(strStrategyName == "MILITARYAISTRATEGY_NEED_RANGED")
+/*				else if (strStrategyName == "MILITARYAISTRATEGY_NEED_RANGED")
 					bStrategyShouldBeActive = MilitaryAIHelpers::IsTestStrategy_NeedRangedUnits(m_pPlayer, m_iNumRangedLandUnits, m_iNumMeleeLandUnits);
 				else if(strStrategyName == "MILITARYAISTRATEGY_ENOUGH_RANGED")
-					bStrategyShouldBeActive = MilitaryAIHelpers::IsTestStrategy_EnoughRangedUnits(m_pPlayer, m_iNumRangedLandUnits, m_iNumMeleeLandUnits);
+					bStrategyShouldBeActive = MilitaryAIHelpers::IsTestStrategy_EnoughRangedUnits(m_pPlayer, m_iNumRangedLandUnits, m_iNumMeleeLandUnits);*/
 				else if(strStrategyName == "MILITARYAISTRATEGY_NEED_RANGED_EARLY")
 					bStrategyShouldBeActive = MilitaryAIHelpers::IsTestStrategy_NeedRangedDueToEarlySneakAttack(m_pPlayer);
 				else if(strStrategyName == "MILITARYAISTRATEGY_NEED_MOBILE")
@@ -2010,7 +2010,39 @@ void CvMilitaryAI::UpdateMilitaryStrategies()
 					bStrategyShouldBeActive = MilitaryAIHelpers::IsTestStrategy_EnoughAntiAirUnits(m_pPlayer, m_iNumAntiAirUnits, m_iNumMeleeLandUnits);
 				else if(strStrategyName == "MILITARYAISTRATEGY_NEED_AIR_CARRIER")
 					bStrategyShouldBeActive = MilitaryAIHelpers::IsTestStrategy_NeedAirCarriers(m_pPlayer);
-
+				// VP - NEW STRATEGIES
+				else if (strStrategyName == "MILITARYAISTRATEGY_NEED_ARCHER")
+					bStrategyShouldBeActive = MilitaryAIHelpers::IsTestStrategy_NeedArcherUnits(m_pPlayer, m_iNumArcherLandUnits, m_iNumMeleeLandUnits);
+				else if (strStrategyName == "MILITARYAISTRATEGY_ENOUGH_ARCHER")
+					bStrategyShouldBeActive = MilitaryAIHelpers::IsTestStrategy_EnoughArcherUnits(m_pPlayer, m_iNumArcherLandUnits, m_iNumMeleeLandUnits);
+				else if (strStrategyName == "MILITARYAISTRATEGY_NEED_SIEGE")
+					bStrategyShouldBeActive = MilitaryAIHelpers::IsTestStrategy_NeedSiegeUnits(m_pPlayer, m_iNumSiegeLandUnits, m_iNumMeleeLandUnits);
+				else if (strStrategyName == "MILITARYAISTRATEGY_ENOUGH_SIEGE")
+					bStrategyShouldBeActive = MilitaryAIHelpers::IsTestStrategy_EnoughSiegeUnits(m_pPlayer, m_iNumSiegeLandUnits, m_iNumMeleeLandUnits);
+				else if (strStrategyName == "MILITARYAISTRATEGY_NEED_SKIRMISHER")
+					bStrategyShouldBeActive = MilitaryAIHelpers::IsTestStrategy_NeedSkirmisherUnits(m_pPlayer, m_iNumSkirmisherLandUnits, m_iNumMeleeLandUnits);
+				else if (strStrategyName == "MILITARYAISTRATEGY_ENOUGH_SKIRMISHER")
+					bStrategyShouldBeActive = MilitaryAIHelpers::IsTestStrategy_EnoughSkirmisherUnits(m_pPlayer, m_iNumSkirmisherLandUnits, m_iNumMeleeLandUnits);
+				else if (strStrategyName == "MILITARYAISTRATEGY_NEED_NAVAL_MELEE")
+					bStrategyShouldBeActive = MilitaryAIHelpers::IsTestStrategy_NeedNavalMeleeUnits(m_pPlayer, m_iNumMeleeNavalUnits, m_iNumNavalUnits);
+				else if (strStrategyName == "MILITARYAISTRATEGY_ENOUGH_NAVAL_MELEE")
+					bStrategyShouldBeActive = MilitaryAIHelpers::IsTestStrategy_EnoughNavalMeleeUnits(m_pPlayer, m_iNumMeleeNavalUnits, m_iNumNavalUnits);
+				else if (strStrategyName == "MILITARYAISTRATEGY_NEED_NAVAL_RANGED")
+					bStrategyShouldBeActive = MilitaryAIHelpers::IsTestStrategy_NeedNavalRangedUnits(m_pPlayer, m_iNumRangedNavalUnits, m_iNumNavalUnits);
+				else if (strStrategyName == "MILITARYAISTRATEGY_ENOUGH_NAVAL_RANGED")
+					bStrategyShouldBeActive = MilitaryAIHelpers::IsTestStrategy_EnoughNavalRangedUnits(m_pPlayer, m_iNumRangedNavalUnits, m_iNumNavalUnits);
+				else if (strStrategyName == "MILITARYAISTRATEGY_NEED_SUBMARINE")
+					bStrategyShouldBeActive = MilitaryAIHelpers::IsTestStrategy_NeedSubmarineUnits(m_pPlayer, m_iNumSubmarineNavalUnits, m_iNumNavalUnits);
+				else if (strStrategyName == "MILITARYAISTRATEGY_ENOUGH_SUBMARINE")
+					bStrategyShouldBeActive = MilitaryAIHelpers::IsTestStrategy_EnoughSubmarineUnits(m_pPlayer, m_iNumSubmarineNavalUnits, m_iNumNavalUnits);
+				else if (strStrategyName == "MILITARYAISTRATEGY_NEED_BOMBER")
+					bStrategyShouldBeActive = MilitaryAIHelpers::IsTestStrategy_NeedBomberUnits(m_pPlayer, m_iNumBomberAirUnits, m_iNumAirUnits);
+				else if (strStrategyName == "MILITARYAISTRATEGY_ENOUGH_BOMBER")
+					bStrategyShouldBeActive = MilitaryAIHelpers::IsTestStrategy_EnoughBomberUnits(m_pPlayer, m_iNumBomberAirUnits, m_iNumAirUnits);
+				else if (strStrategyName == "MILITARYAISTRATEGY_NEED_FIGHTER")
+					bStrategyShouldBeActive = MilitaryAIHelpers::IsTestStrategy_NeedFighterUnits(m_pPlayer, m_iNumFighterAirUnits, m_iNumAirUnits);
+				else if (strStrategyName == "MILITARYAISTRATEGY_ENOUGH_FIGHTER")
+					bStrategyShouldBeActive = MilitaryAIHelpers::IsTestStrategy_EnoughFighterUnits(m_pPlayer, m_iNumFighterAirUnits, m_iNumAirUnits);
 				// Never found it?  Assume it is scenario-specific and should be on unless disabled by Lua hook
 				else
 				{
@@ -3897,16 +3929,16 @@ bool MilitaryAIHelpers::IsTestStrategy_NeedRangedDueToEarlySneakAttack(CvPlayer*
 bool MilitaryAIHelpers::IsTestStrategy_EnoughMobileUnits(CvPlayer* pPlayer, int iNumMobile, int iNumMelee)
 {
 	int iFlavorMobile = pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_MOBILE"));
-	int iRatio = iNumMobile * 10 / max(1,iNumMelee+iNumMobile);
-	return (iRatio >= iFlavorMobile);
+	int iRatio = iNumMobile / max(1,iNumMelee);
+	return (iRatio >= (2/4) * iFlavorMobile / 5);
 }
 
 /// "Need Mobile" Player Strategy: If a player has too many slow units
 bool MilitaryAIHelpers::IsTestStrategy_NeedMobileUnits(CvPlayer* pPlayer, int iNumMobile, int iNumMelee)
 {
 	int iFlavorMobile = pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_MOBILE"));
-	int iRatio = iNumMobile * 10 / max(1,iNumMelee+iNumMobile);
-	return (iRatio <= iFlavorMobile / 2);
+	int iRatio = iNumMobile / max(1,iNumMelee);
+	return (iRatio <= (1/4) * iFlavorMobile / 5);
 }
 
 /// "Enough Air" Player Strategy: If a player has too many air units
@@ -4007,6 +4039,210 @@ bool MilitaryAIHelpers::IsTestStrategy_NeedAirCarriers(CvPlayer* pPlayer)
 {
 	return pPlayer->GetMilitaryAI()->HasAirforce() && pPlayer->GetMilitaryAI()->GetNumFreeCarrier() == 0;
 }
+
+// VP - New Strategies
+/// "Enough Archer" Player Strategy: If a player has too many ranged units
+bool MilitaryAIHelpers::IsTestStrategy_EnoughArcherUnits(CvPlayer* pPlayer, int iNumArcher, int iNumMelee)
+{
+	int iFlavorRange = pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_ARCHER"));
+	int iRatio = iNumArcher / max(1, iNumMelee);
+	return (iRatio >= (2/4) * iFlavorRange / 5);
+}
+
+/// "Need Archer" Player Strategy: If a player has too many melee units
+bool MilitaryAIHelpers::IsTestStrategy_NeedArcherUnits(CvPlayer* pPlayer, int iNumArcher, int iNumMelee)
+{
+/*
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	if (pPlayer->GetMilitaryAI()->IsBuildingArmy(ARMY_TYPE_LAND))
+	{
+		if (pPlayer->IsUnderrepresentedUnitType(UNITAI_RANGED))
+		{
+			return true;
+		}
+	}
+#endif
+*/
+	int iFlavorRange = pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_ARCHER"));
+	int iRatio = iNumArcher / max(1, iNumMelee);
+	return (iRatio <= (1/4) * iFlavorRange / 5);
+}
+
+/// "Enough Siege" Player Strategy: If a player has too many ranged units
+bool MilitaryAIHelpers::IsTestStrategy_EnoughSiegeUnits(CvPlayer* pPlayer, int iNumSiege, int iNumMelee)
+{
+	int iFlavorRange = pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_SIEGE"));
+	int iRatio = iNumSiege / max(1, iNumMelee);
+	return (iRatio >= (2/4) * iFlavorRange / 5);
+}
+
+/// "Need Siege" Player Strategy: If a player has too many melee units
+bool MilitaryAIHelpers::IsTestStrategy_NeedSiegeUnits(CvPlayer* pPlayer, int iNumSiege, int iNumMelee)
+{
+/*#if defined(MOD_BALANCE_CORE_MILITARY)
+	if (pPlayer->GetMilitaryAI()->IsBuildingArmy(ARMY_TYPE_LAND))
+	{
+		if (pPlayer->IsUnderrepresentedUnitType(UNITAI_CITY_BOMBARD))
+		{
+			return true;
+		}
+	}
+#endif*/
+	int iFlavorRange = pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_SIEGE"));
+	int iRatio = iNumSiege / max(1, iNumMelee);
+	return (iRatio <= (1/8) * iFlavorRange / 5);
+}
+
+/// "Enough Skirmisher" Player Strategy: If a player has too many ranged units
+bool MilitaryAIHelpers::IsTestStrategy_EnoughSkirmisherUnits(CvPlayer* pPlayer, int iNumSkirmisher, int iNumMelee)
+{
+	int iFlavorRange = pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_SKIRMISHER"));
+	int iRatio = iNumSkirmisher / max(1, iNumMelee);
+	return (iRatio >= (2/4) * iFlavorRange / 5);
+}
+
+/// "Need Skirmisher" Player Strategy: If a player has too many melee units
+bool MilitaryAIHelpers::IsTestStrategy_NeedSkirmisherUnits(CvPlayer* pPlayer, int iNumSkirmisher, int iNumMelee)
+{
+/*#if defined(MOD_BALANCE_CORE_MILITARY)
+	if (pPlayer->GetMilitaryAI()->IsBuildingArmy(ARMY_TYPE_LAND))
+	{
+		if (pPlayer->IsUnderrepresentedUnitType(UNITAI_SKIRMISHER))
+		{
+			return true;
+		}
+	}
+#endif*/
+	int iFlavorRange = pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_SKIRMISHER"));
+	int iRatio = iNumSkirmisher / max(1, iNumMelee);
+	return (iRatio <= (1/8) * iFlavorRange / 5);
+}
+
+/// "Enough NavalMelee" Player Strategy: If a player has too many ranged units
+bool MilitaryAIHelpers::IsTestStrategy_EnoughNavalMeleeUnits(CvPlayer* pPlayer, int iNumNavalMelee, int iNumNaval)
+{
+	int iFlavorRange = pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_NAVAL_MELEE"));
+	int iRatio = iNumNavalMelee / max(1, iNumNaval);
+	return (iRatio >= (7/10) * iFlavorRange / 5);
+}
+
+/// "Need NavalMelee" Player Strategy: If a player has too many melee units
+bool MilitaryAIHelpers::IsTestStrategy_NeedNavalMeleeUnits(CvPlayer* pPlayer, int iNumNavalMelee, int iNumNaval)
+{/*
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	if (pPlayer->GetMilitaryAI()->IsBuildingArmy(ARMY_TYPE_NAVAL))
+	{
+		if (pPlayer->IsUnderrepresentedUnitType(UNITAI_ATTACK_SEA))
+		{
+			return true;
+		}
+	}
+#endif*/
+	int iFlavorRange = pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_NAVAL_MELEE"));
+	int iRatio = iNumNavalMelee / max(1, iNumNaval);
+	return (iRatio <= (3/10) * iFlavorRange / 5);
+}
+
+/// "Enough NavalRanged" Player Strategy: If a player has too many ranged units
+bool MilitaryAIHelpers::IsTestStrategy_EnoughNavalRangedUnits(CvPlayer* pPlayer, int iNumNavalRanged, int iNumNaval)
+{
+	int iFlavorRange = pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_NAVAL_RANGED"));
+	int iRatio = iNumNavalRanged / max(1, iNumNaval);
+	return (iRatio >= (7/10) * iFlavorRange / 5);
+}
+
+/// "Need NavalRanged" Player Strategy: If a player has too many melee units
+bool MilitaryAIHelpers::IsTestStrategy_NeedNavalRangedUnits(CvPlayer* pPlayer, int iNumNavalRanged, int iNumNaval)
+{/*
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	if (pPlayer->GetMilitaryAI()->IsBuildingArmy(ARMY_TYPE_NAVAL))
+	{
+		if (pPlayer->IsUnderrepresentedUnitType(UNITAI_ASSAULT_SEA))
+		{
+			return true;
+		}
+	}
+#endif*/
+	int iFlavorRange = pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_NAVAL_RANGED"));
+	int iRatio = iNumNavalRanged / max(1, iNumNaval);
+	return (iRatio <= (3/10) * iFlavorRange / 5);
+}
+
+/// "Enough Submarine" Player Strategy: If a player has too many ranged units
+bool MilitaryAIHelpers::IsTestStrategy_EnoughSubmarineUnits(CvPlayer* pPlayer, int iNumSubmarine, int iNumNaval)
+{
+	int iFlavorRange = pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_SUBMARINE"));
+	int iRatio = iNumSubmarine / max(1, iNumNaval);
+	return (iRatio >= (3/10) * iFlavorRange / 5);
+}
+
+/// "Need Submarine" Player Strategy: If a player has too many melee units
+bool MilitaryAIHelpers::IsTestStrategy_NeedSubmarineUnits(CvPlayer* pPlayer, int iNumSubmarine, int iNumNaval)
+{/*
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	if (pPlayer->GetMilitaryAI()->IsBuildingArmy(ARMY_TYPE_NAVAL))
+	{
+		if (pPlayer->IsUnderrepresentedUnitType(UNITAI_SUBMARINE))
+		{
+			return true;
+		}
+	}
+#endif*/
+	int iFlavorRange = pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_SUBMARINE"));
+	int iRatio = iNumSubmarine / max(1, iNumNaval);
+	return (iRatio <= (1/10) * iFlavorRange / 5);
+}
+
+/// "Enough Bomber" Player Strategy: If a player has too many ranged units
+bool MilitaryAIHelpers::IsTestStrategy_EnoughBomberUnits(CvPlayer* pPlayer, int iNumBomber, int iNumAir)
+{
+	int iFlavorRange = pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_BOMBER"));
+	int iRatio = iNumBomber / max(1, iNumAir);
+	return (iRatio >= (7/10) * iFlavorRange / 5);
+}
+
+/// "Need Bomber" Player Strategy: If a player has too many melee units
+bool MilitaryAIHelpers::IsTestStrategy_NeedBomberUnits(CvPlayer* pPlayer, int iNumBomber, int iNumAir)
+{/*
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	if (pPlayer->GetMilitaryAI()->IsBuildingArmy(ARMY_TYPE_AIR))
+	{
+		if (pPlayer->IsUnderrepresentedUnitType(UNITAI_ATTACK_AIR))
+		{
+			return true;
+		}
+	}
+#endif*/
+	int iFlavorRange = pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_BOMBER"));
+	int iRatio = iNumBomber / max(1, iNumAir);
+	return (iRatio <= (3/10) * iFlavorRange / 5);
+}
+
+/// "Enough Fighter" Player Strategy: If a player has too many ranged units
+bool MilitaryAIHelpers::IsTestStrategy_EnoughFighterUnits(CvPlayer* pPlayer, int iNumFighter, int iNumAir)
+{
+	int iFlavorRange = pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_FIGHTER"));
+	int iRatio = iNumFighter / max(1, iNumAir);
+	return (iRatio >= (7/10) * iFlavorRange / 5);
+}
+
+/// "Need Fighter" Player Strategy: If a player has too many melee units
+bool MilitaryAIHelpers::IsTestStrategy_NeedFighterUnits(CvPlayer* pPlayer, int iNumFighter, int iNumAir)
+{/*
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	if (pPlayer->GetMilitaryAI()->IsBuildingArmy(ARMY_TYPE_AIR))
+	{
+		if (pPlayer->IsUnderrepresentedUnitType(UNITAI_DEFENSE_AIR))
+		{
+			return true;
+		}
+	}
+#endif*/
+	int iFlavorRange = pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_FIGHTER"));
+	int iRatio = iNumFighter / max(1, iNumAir);
+	return (iRatio <= (3/10) * iFlavorRange / 5);
+}
+
 
 // MORE NON-MEMBER FUNCTIONS
 
