@@ -244,6 +244,7 @@ private:
 	void PlotUpgradeMoves();
 	void PlotAircraftRebase();
 
+	void ExecuteUnitGift();
 	void ExecuteAircraftMoves();
 	void ExecutePatrolMoves();
 
