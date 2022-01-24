@@ -1,4 +1,4 @@
--- rev.04
+-- rev.05
 
 
 -- Temporary Atlas
@@ -73,9 +73,9 @@ UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_00' WHERE Type = 'PROMOTION
 UPDATE UnitPromotions SET PortraitIndex = '12' WHERE Type = 'PROMOTION_OPEN_TERRAIN';
 UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_00' WHERE Type = 'PROMOTION_ANTI_MOUNTED_I'; --                         ->  Bonus Vs Mounted (50)
 UPDATE UnitPromotions SET PortraitIndex = '13' WHERE Type = 'PROMOTION_ANTI_MOUNTED_I';
-UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_00' WHERE Type = 'PROMOTION_ANTI_MOUNTED_II'; --                        ->  Bonus Vs Mounted (100)
+UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_00' WHERE Type = 'PROMOTION_ANTI_MOUNTED_II'; --                        ->  Bonus Vs Mounted (100) UNUSED
 UPDATE UnitPromotions SET PortraitIndex = '14' WHERE Type = 'PROMOTION_ANTI_MOUNTED_II';
-UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_00' WHERE Type = 'PROMOTION_MOUNTED_PENALTY'; --                        ->  Penalty Vs Mounted (33)
+UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_00' WHERE Type = 'PROMOTION_MOUNTED_PENALTY'; --                        ->  Penalty Vs Mounted (33) UNUSED
 UPDATE UnitPromotions SET PortraitIndex = '15' WHERE Type = 'PROMOTION_MOUNTED_PENALTY';
 
 UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_00' WHERE Type = 'PROMOTION_STATUE_ZEUS'; --                            ->  Statue of Zeus
@@ -344,24 +344,24 @@ UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_02' WHERE Type = 'PROMOTION
 UPDATE UnitPromotions SET PortraitIndex = '2' WHERE Type = 'PROMOTION_AIR_TARGETING_3';
 UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_02' WHERE Type = 'PROMOTION_AIR_RANGE'; --                              ->  Range (Air Units)
 UPDATE UnitPromotions SET PortraitIndex = '3' WHERE Type = 'PROMOTION_AIR_RANGE';
-UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_02' WHERE Type = 'PROMOTION_INTERCEPTION_I'; --                         ->  Interception (20)
+UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_02' WHERE Type = 'PROMOTION_INTERCEPTION_I'; --                         ->  Interception I
 UPDATE UnitPromotions SET PortraitIndex = '4' WHERE Type = 'PROMOTION_INTERCEPTION_I';
-UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_02' WHERE Type = 'PROMOTION_INTERCEPTION_II'; --                        ->  Interception (40)
+UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_02' WHERE Type = 'PROMOTION_INTERCEPTION_II'; --                        ->  Interception II
 UPDATE UnitPromotions SET PortraitIndex = '5' WHERE Type = 'PROMOTION_INTERCEPTION_II';
-UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_02' WHERE Type = 'PROMOTION_INTERCEPTION_III'; --                       ->  Interception (50)
+UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_02' WHERE Type = 'PROMOTION_INTERCEPTION_III'; --                       ->  Interception III
 UPDATE UnitPromotions SET PortraitIndex = '6' WHERE Type = 'PROMOTION_INTERCEPTION_III';
-UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_02' WHERE Type = 'PROMOTION_INTERCEPTION_IV'; --                        ->  Interception (100)
+UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_02' WHERE Type = 'PROMOTION_INTERCEPTION_IV'; --                        ->  Interception IV
 UPDATE UnitPromotions SET PortraitIndex = '7' WHERE Type = 'PROMOTION_INTERCEPTION_IV';
 
-UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_02' WHERE Type = 'PROMOTION_EVASION_I'; --                              ->  Evasion (50)
+UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_02' WHERE Type = 'PROMOTION_EVASION_I'; --                              ->  Air Penetration I
 UPDATE UnitPromotions SET PortraitIndex = '8' WHERE Type = 'PROMOTION_EVASION_I';
-UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_02' WHERE Type = 'PROMOTION_EVASION_II'; --                             ->  Evasion (80)
+UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_02' WHERE Type = 'PROMOTION_EVASION_II'; --                             ->  Air Penetration II
 UPDATE UnitPromotions SET PortraitIndex = '9' WHERE Type = 'PROMOTION_EVASION_II';
 UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_02' WHERE Type = 'PROMOTION_EVASION_III'; --                            ->  Stealth
 UPDATE UnitPromotions SET PortraitIndex = '10' WHERE Type = 'PROMOTION_EVASION_III';
-UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_02' WHERE Type = 'PROMOTION_ANTI_AIR'; --                               ->  Flak Targetting I
+UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_02' WHERE Type = 'PROMOTION_ANTI_AIR'; --                               ->  Air Supremacy I
 UPDATE UnitPromotions SET PortraitIndex = '11' WHERE Type = 'PROMOTION_ANTI_AIR';
-UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_02' WHERE Type = 'PROMOTION_ANTI_AIR_II'; --                            ->  Flak Targetting II
+UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_02' WHERE Type = 'PROMOTION_ANTI_AIR_II'; --                            ->  Air Supremacy II
 UPDATE UnitPromotions SET PortraitIndex = '12' WHERE Type = 'PROMOTION_ANTI_AIR_II';
 UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_02' WHERE Type = 'PROMOTION_AIR_LOGISTICS'; --                          ->  Air Logistics
 UPDATE UnitPromotions SET PortraitIndex = '13' WHERE Type = 'PROMOTION_AIR_LOGISTICS';
@@ -391,7 +391,7 @@ UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_02' WHERE Type = 'PROMOTION
 UPDATE UnitPromotions SET PortraitIndex = '24' WHERE Type = 'PROMOTION_NO_DEFENSIVE_BONUSES';
 UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_02' WHERE Type = 'PROMOTION_CAN_MOVE_IMPASSABLE'; --                  | -> May Enter Ice Tiles
 UPDATE UnitPromotions SET PortraitIndex = '25' WHERE Type = 'PROMOTION_CAN_MOVE_IMPASSABLE';
-UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_02' WHERE Type = 'PROMOTION_ICE_BREAKERS'; --                         | -> Ice Breakers
+UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_02' WHERE Type = 'PROMOTION_ICE_BREAKERS'; --                         | -> Engineering Corp
 UPDATE UnitPromotions SET PortraitIndex = '25' WHERE Type = 'PROMOTION_ICE_BREAKERS';
 UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_02' WHERE Type = 'PROMOTION_WOODLAND_TRAILBLAZER_I'; --                 ->  Trailblazer I
 UPDATE UnitPromotions SET PortraitIndex = '26' WHERE Type = 'PROMOTION_WOODLAND_TRAILBLAZER_I';
@@ -399,8 +399,6 @@ UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_02' WHERE Type = 'PROMOTION
 UPDATE UnitPromotions SET PortraitIndex = '27' WHERE Type = 'PROMOTION_WOODLAND_TRAILBLAZER_II';
 UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_02' WHERE Type = 'PROMOTION_WOODLAND_TRAILBLAZER_III'; --               ->  Trailblazer III
 UPDATE UnitPromotions SET PortraitIndex = '28' WHERE Type = 'PROMOTION_WOODLAND_TRAILBLAZER_III';
-UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_02' WHERE Type = 'PROMOTION_WITHDRAW_BEFORE_MELEE_I'; --                ->  Withdraw Before Melee (60)
-UPDATE UnitPromotions SET PortraitIndex = '28' WHERE Type = 'PROMOTION_WITHDRAW_BEFORE_MELEE_I';
 UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_02' WHERE Type = 'PROMOTION_PARADROP'; --                               ->  May Paradrop
 UPDATE UnitPromotions SET PortraitIndex = '29' WHERE Type = 'PROMOTION_PARADROP';
 UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_02' WHERE Type = 'PROMOTION_PRIZE_SHIPS'; --                            ->  Prize Ships
@@ -429,7 +427,7 @@ UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_02' WHERE Type = 'PROMOTION
 UPDATE UnitPromotions SET PortraitIndex = '40' WHERE Type = 'PROMOTION_LITERACY';
 UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_02' WHERE Type = 'PROMOTION_EXPRESS'; --                                ->  Wire Service
 UPDATE UnitPromotions SET PortraitIndex = '41' WHERE Type = 'PROMOTION_EXPRESS';
-UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_02' WHERE Type = 'PROMOTION_IMMUNITY'; --                               -> Diplomatic Immunity
+UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_02' WHERE Type = 'PROMOTION_IMMUNITY'; --                               ->  Diplomatic Immunity
 UPDATE UnitPromotions SET PortraitIndex = '42' WHERE Type = 'PROMOTION_IMMUNITY';
 UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_02' WHERE Type = 'PROMOTION_UNWELCOME_EVANGELIST'; --                   ->  Unwelcome Evangelist
 UPDATE UnitPromotions SET PortraitIndex = '43' WHERE Type = 'PROMOTION_UNWELCOME_EVANGELIST';
@@ -439,14 +437,14 @@ UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_02' WHERE Type = 'PROMOTION
 UPDATE UnitPromotions SET PortraitIndex = '45' WHERE Type = 'PROMOTION_CARGO_II';
 UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_02' WHERE Type = 'PROMOTION_CARGO_III'; --                              ->  Can Carry 3 Cargo
 UPDATE UnitPromotions SET PortraitIndex = '46' WHERE Type = 'PROMOTION_CARGO_III';
-UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_02' WHERE Type = 'PROMOTION_CARGO_IV'; --                               ->  Can Carry 4 Cargo
+UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_02' WHERE Type = 'PROMOTION_CARGO_IV'; --                               ->  Can Carry 4 Cargo UNUSED
 UPDATE UnitPromotions SET PortraitIndex = '47' WHERE Type = 'PROMOTION_CARGO_IV';
 
 UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_02' WHERE Type = 'PROMOTION_VIKING'; --                                 ->  Viking
 UPDATE UnitPromotions SET PortraitIndex = '48' WHERE Type = 'PROMOTION_VIKING';
 UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_02' WHERE Type = 'PROMOTION_LONGBOAT'; --                               ->  Longboat
 UPDATE UnitPromotions SET PortraitIndex = '49' WHERE Type = 'PROMOTION_LONGBOAT';
-UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_02' WHERE Type = 'PROMOTION_SILENT_HUNTER'; --                          ->  Bonus When Attacking 75 sub
+UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_02' WHERE Type = 'PROMOTION_SILENT_HUNTER'; --                          ->  Bonus When Attacking (75)
 UPDATE UnitPromotions SET PortraitIndex = '50' WHERE Type = 'PROMOTION_SILENT_HUNTER';
 UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_02' WHERE Type = 'PROMOTION_FEARED_ELEPHANT'; --                        ->  Feared Elephant
 UPDATE UnitPromotions SET PortraitIndex = '51' WHERE Type = 'PROMOTION_FEARED_ELEPHANT';
@@ -465,7 +463,7 @@ UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_02' WHERE Type = 'PROMOTION
 UPDATE UnitPromotions SET PortraitIndex = '57' WHERE Type = 'PROMOTION_RECON_LONG_RANGE';
 UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_02' WHERE Type = 'PROMOTION_RECON_SHORT_RANGE'; --                      ->  Short Range Recon
 UPDATE UnitPromotions SET PortraitIndex = '58' WHERE Type = 'PROMOTION_RECON_SHORT_RANGE';
-UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_02' WHERE Type = 'PROMOTION_AIR_MISFIRE'; --                            ->  Air Skirmisher
+UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_02' WHERE Type = 'PROMOTION_AIR_MISFIRE'; --                            ->  Strafing Runs
 UPDATE UnitPromotions SET PortraitIndex = '59' WHERE Type = 'PROMOTION_AIR_MISFIRE';
 UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_02' WHERE Type = 'PROMOTION_NAVAL_SENTRY'; --                           ->  Navigator I
 UPDATE UnitPromotions SET PortraitIndex = '60' WHERE Type = 'PROMOTION_NAVAL_SENTRY';
@@ -586,36 +584,35 @@ UPDATE UnitPromotions SET PortraitIndex = '48' WHERE Type = 'PROMOTION_ROUGH_TER
 --UPDATE UnitPromotions SET PortraitIndex = '49' WHERE Type = '';
 --UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_03' WHERE Type = ''; --                                                  ->  UNUSED (Bonus vs Barbarian)
 --UPDATE UnitPromotions SET PortraitIndex = '50' WHERE Type = '';
-UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_03' WHERE Type = 'PROMOTION_BOARDED_II'; --                             ->  Boarded (II)
+UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_03' WHERE Type = 'PROMOTION_BOARDED_II'; --                              ->  Boarded (II)
 UPDATE UnitPromotions SET PortraitIndex = '51' WHERE Type = 'PROMOTION_BOARDED_II';
 --UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_03' WHERE Type = ''; --                                                  ->  UNUSED (Ignore ZOC)
 --UPDATE UnitPromotions SET PortraitIndex = '52' WHERE Type = '';
-UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_03' WHERE Type = 'PROMOTION_NOBILITY'; --                                ->  Noble
+UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_03' WHERE Type = 'PROMOTION_NOBILITY'; --                               ->  Noble
 UPDATE UnitPromotions SET PortraitIndex = '53' WHERE Type = 'PROMOTION_NOBILITY';
-UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_03' WHERE Type = 'PROMOTION_SLINGER'; --                                 ->  Concussive Hits
+UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_03' WHERE Type = 'PROMOTION_SLINGER'; --                                ->  Concussive Hits
 UPDATE UnitPromotions SET PortraitIndex = '54' WHERE Type = 'PROMOTION_SLINGER';
-UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_03' WHERE Type = 'PROMOTION_DAZED'; --                                   ->  Dazed
+UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_03' WHERE Type = 'PROMOTION_DAZED'; --                                  ->  Dazed
 UPDATE UnitPromotions SET PortraitIndex = '55' WHERE Type = 'PROMOTION_DAZED';
 
-UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_03' WHERE Type = 'PROMOTION_SIEGE'; --                                   ->  City Assault
+UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_03' WHERE Type = 'PROMOTION_SIEGE'; --                                  ->  City Assault (33)
 UPDATE UnitPromotions SET PortraitIndex = '56' WHERE Type = 'PROMOTION_SIEGE';
-UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_03' WHERE Type = 'PROMOTION_ALHAMBRA'; --                                ->  Jinete
+UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_03' WHERE Type = 'PROMOTION_ALHAMBRA'; --                               ->  Jinete
 UPDATE UnitPromotions SET PortraitIndex = '57' WHERE Type = 'PROMOTION_ALHAMBRA';
-UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_03' WHERE Type = 'PROMOTION_REPEATER'; --                                ->  Siege Volleys
+UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_03' WHERE Type = 'PROMOTION_REPEATER'; --                               ->  Siege Volleys
 UPDATE UnitPromotions SET PortraitIndex = '58' WHERE Type = 'PROMOTION_REPEATER';
-UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_03' WHERE Type = 'PROMOTION_MECH'; --                                    ->  Titan
+UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_03' WHERE Type = 'PROMOTION_MECH'; --                                   ->  Titan
 UPDATE UnitPromotions SET PortraitIndex = '59' WHERE Type = 'PROMOTION_MECH';
---UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_03' WHERE Type = ''; --                                                  ->  
---UPDATE UnitPromotions SET PortraitIndex = '60' WHERE Type = '';
---UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_03' WHERE Type = ''; --                                                  ->  
---UPDATE UnitPromotions SET PortraitIndex = '61' WHERE Type = '';
---UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_03' WHERE Type = ''; --                                                  ->  
---UPDATE UnitPromotions SET PortraitIndex = '62' WHERE Type = '';
---UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_03' WHERE Type = ''; --                                                  ->  
+UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_03' WHERE Type = 'PROMOTION_IKLWA'; --                                  ->  Iklwa
+UPDATE UnitPromotions SET PortraitIndex = '60' WHERE Type = 'PROMOTION_IKLWA';
+UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_03' WHERE Type = 'PROMOTION_WITHDRAW_BEFORE_MELEE_I'; --                ->  Commando
+UPDATE UnitPromotions SET PortraitIndex = '61' WHERE Type = 'PROMOTION_WITHDRAW_BEFORE_MELEE_I';
+UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_03' WHERE Type = 'PROMOTION_KNOCKOUT_III'; --                           ->  Attack Bonus (25)
+UPDATE UnitPromotions SET PortraitIndex = '62' WHERE Type = 'PROMOTION_KNOCKOUT_III';
+--UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_03' WHERE Type = ''; --                                               ->  
 --UPDATE UnitPromotions SET PortraitIndex = '63' WHERE Type = '';
 
-UPDATE UnitPromotions SET IconAtlas = 'extraPromo_Atlas' WHERE Type = 'PROMOTION_KNOCKOUT_III'; --                   	 	 ->  Scout Line Attack (25)
-UPDATE UnitPromotions SET PortraitIndex = '17' WHERE Type = 'PROMOTION_KNOCKOUT_III';
+
 
 --
 -- Firaxis Icons reassignment
