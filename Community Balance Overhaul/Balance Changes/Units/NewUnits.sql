@@ -248,7 +248,6 @@ INSERT INTO Unit_FreePromotions (UnitType, PromotionType)
 	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 -- Free Company
-
 INSERT INTO UnitClasses
 	(Type, Description, DefaultUnit)
 VALUES
@@ -256,7 +255,7 @@ VALUES
 
 INSERT INTO Units
 		(Class, 				Type, 				PrereqTech,   ObsoleteTech, 			Combat, Cost, FaithCost, PurchaseOnly, 	RequiresFaithPurchaseEnabled,	Moves, 	CombatClass, 		Domain, 	 	MoveAfterPurchase, 	DefaultUnitAI, 		  Description, 				Civilopedia, 				 	Strategy, 							Help, 							MilitarySupport, 	MilitaryProduction, Pillage, 	PolicyType, 			   	IgnoreBuildingDefense, 	AdvancedStartCost, 	XPValueAttack, 	XPValueDefense, Conscription, UnitArtInfo, 			   UnitFlagAtlas, 		  UnitFlagIconOffset, IconAtlas, 		 	PortraitIndex)
-VALUES	('UNITCLASS_FCOMPANY', 	'UNIT_FCOMPANY', 	'TECH_STEEL', 'TECH_REPLACEABLE_PARTS', 19, 	125,  0, 		 1, 		 	0, 					 			2, 	  	'UNITCOMBAT_MELEE',	'DOMAIN_LAND', 	1, 					'UNITAI_ATTACK', 'TXT_KEY_UNIT_FCOMPANY', 	'TXT_KEY_CIV5_FCOMPANY_TEXT', 	'TXT_KEY_UNIT_FCOMPANY_STRATEGY', 	'TXT_KEY_UNIT_HELP_FCOMPANY', 	1, 			 		1, 				 	1, 	  		'POLICY_HONOR_FINISHER', 	1, 					  	40, 				5, 				5, 				3, 			  'ART_DEF_UNIT_FCOMPANY', 'FCOMPANY_FLAG_ATLAS', 0, 				  'FCOMPANY_ATLAS', 	0);
+VALUES	('UNITCLASS_FCOMPANY', 	'UNIT_FCOMPANY', 	'TECH_STEEL', 'TECH_RIFLING', 19, 	125,  0, 		 1, 		 	0, 					 			2, 	  	'UNITCOMBAT_MELEE',	'DOMAIN_LAND', 	1, 					'UNITAI_ATTACK', 'TXT_KEY_UNIT_FCOMPANY', 	'TXT_KEY_CIV5_FCOMPANY_TEXT', 	'TXT_KEY_UNIT_FCOMPANY_STRATEGY', 	'TXT_KEY_UNIT_HELP_FCOMPANY', 	1, 			 		1, 				 	1, 	  		'POLICY_HONOR_FINISHER', 	1, 					  	40, 				5, 				5, 				3, 			  'ART_DEF_UNIT_FCOMPANY', 'FCOMPANY_FLAG_ATLAS', 0, 				  'FCOMPANY_ATLAS', 	0);
 
 INSERT INTO Unit_ClassUpgrades
 	(UnitType, UnitClassType)
@@ -288,7 +287,6 @@ VALUES
 	('UNIT_FCOMPANY', 'PROMOTION_FREE_PILLAGE_MOVES');	
 
 -- Mercenaries
-
 INSERT INTO UnitClasses
 	(Type, Description, DefaultUnit)
 VALUES
@@ -297,13 +295,12 @@ VALUES
 INSERT INTO Units
 	(Class, Type, PrereqTech, Combat, Cost, FaithCost, PurchaseOnly, RequiresFaithPurchaseEnabled, Moves, CombatClass, Domain, MoveAfterPurchase, DefaultUnitAI, Description, Civilopedia, Strategy, Help, MilitarySupport, MilitaryProduction, Pillage, PolicyType, IgnoreBuildingDefense, AdvancedStartCost, XPValueAttack, XPValueDefense, Conscription, UnitArtInfo, UnitFlagAtlas, UnitFlagIconOffset, IconAtlas, PortraitIndex)
 VALUES
-	('UNITCLASS_GUERILLA', 'UNIT_GUERILLA', 'TECH_PENICILIN', 65, 350, 0, 1, 'false', 2, 'UNITCOMBAT_GUN', 'DOMAIN_LAND', 1, 'UNITAI_ATTACK', 'TXT_KEY_UNIT_GUERILLA', 'TXT_KEY_CIV5_GUERILLA_TEXT', 'TXT_KEY_UNIT_GUERILLA_STRATEGY', 'TXT_KEY_UNIT_HELP_GUERILLA', 1, 1, 1, 'POLICY_HONOR_FINISHER', 1, 40, 3, 3, 3, 'ART_DEF_UNIT_MERC', 'MERC_FLAG_ATLAS', 0, 'COMMUNITY_ATLAS', 52);
+('UNITCLASS_GUERILLA', 		'UNIT_GUERILLA', 'TECH_PENICILIN', 65, 	1300,	0, 			1, 				'false', 						2, 		'UNITCOMBAT_GUN',	'DOMAIN_LAND', 	1, 					'UNITAI_ATTACK', 	'TXT_KEY_UNIT_GUERILLA', 	'TXT_KEY_CIV5_GUERILLA_TEXT',	'TXT_KEY_UNIT_GUERILLA_STRATEGY', 	'TXT_KEY_UNIT_HELP_GUERILLA', 	1, 					1, 					1, 			'POLICY_HONOR_FINISHER',	1,						40, 				3, 				3,				3, 				'ART_DEF_UNIT_MERC',	'MERC_FLAG_ATLAS',	0,					'COMMUNITY_ATLAS',	52);
 
 INSERT INTO Unit_ClassUpgrades
 	(UnitType, UnitClassType)
 VALUES
-	('UNIT_GUERILLA', 'UNITCLASS_MECHANIZED_INFANTRY'),
-	('UNIT_MARINE', 'UNITCLASS_MECHANIZED_INFANTRY');
+	('UNIT_GUERILLA', 'UNITCLASS_MECHANIZED_INFANTRY');
 
 INSERT INTO UnitGameplay2DScripts
 	(UnitType, SelectionSound, FirstSelectionSound)
@@ -329,6 +326,7 @@ VALUES
 	('UNIT_GUERILLA', 'PROMOTION_AMPHIBIOUS'),
 	('UNIT_GUERILLA', 'PROMOTION_DEFENSIVE_EMBARKATION'),
 	('UNIT_GUERILLA', 'PROMOTION_FLANK_ATTACK_BONUS');
+-- PROMOTION_FIELD_WORKS_3 added in MeleeUnits.sql along with all the other infantry-type units
 
 INSERT INTO UnitClasses
 	(Type, Description, DefaultUnit)

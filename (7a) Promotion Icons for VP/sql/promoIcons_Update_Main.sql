@@ -376,7 +376,7 @@ UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_02' WHERE Type = 'PROMOTION
 UPDATE UnitPromotions SET PortraitIndex = '17' WHERE Type = 'PROMOTION_HOMELAND_GUARDIAN_BOOGALOO';
 UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_02' WHERE Type = 'PROMOTION_BARRAGE_4'; --                              ->  Infiltrators
 UPDATE UnitPromotions SET PortraitIndex = '18' WHERE Type = 'PROMOTION_BARRAGE_4';
-UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_02' WHERE Type = 'PROMOTION_FOREIGN_LANDS'; --                          ->  Foreigh Land Bonus
+UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_02' WHERE Type = 'PROMOTION_FOREIGN_LANDS'; --                          ->  Foreign Lands Bonus
 UPDATE UnitPromotions SET PortraitIndex = '19' WHERE Type = 'PROMOTION_FOREIGN_LANDS';
 UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_02' WHERE Type = 'PROMOTION_RIVAL_TERRITORY'; --                        ->  Can Enter Rival Territory
 UPDATE UnitPromotions SET PortraitIndex = '20' WHERE Type = 'PROMOTION_RIVAL_TERRITORY';
