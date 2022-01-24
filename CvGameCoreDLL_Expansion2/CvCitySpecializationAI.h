@@ -138,7 +138,7 @@ public:
 	CvCity* GetWonderBuildCity() const;
 
 	// Public since WonderProductionAI also writes to this file
-	CvString GetLogFileName(CvString& playerName) const;
+	void LogMsg(const CvString& msg);
 
 	CitySpecializationTypes GetWonderSpecialization() const;
 
@@ -159,11 +159,11 @@ private:
 	bool CanBuildSpaceshipParts();
 
 	// Logging functions
+	CvString GetLogFileName(CvString& playerName) const;
 	void LogSpecializationWeights(CvWeightedVector<ProductionSpecializationSubtypes> prodSubtypeWeights, CvWeightedVector<YieldTypes> yieldWeights);
 	void LogSpecializationAssignment(CvCity* pCity, CitySpecializationTypes eType, bool bWonderCity=false);
 	void LogSpecializationUpdate(CitySpecializationUpdateType eUpdate);
 	void LogCity(CvCity* pCity, const vector<int>& data);
-	void LogMsg(const CvString& msg);
 
 	CvPlayer* m_pPlayer;
 	CvCitySpecializationXMLEntries* m_pSpecializations;

@@ -137,7 +137,7 @@ public:
 	bool IsMakeDemand(PlayerTypes eOtherPlayer, CvDeal* pDeal);
 
 	bool IsMakeOfferForLuxuryResource(PlayerTypes eOtherPlayer, CvDeal* pDeal);
-	bool MakeOfferForEmbassy(PlayerTypes eOtherPlayer, CvDeal* pDeal);
+	bool IsMakeOfferForEmbassy(PlayerTypes eOtherPlayer, CvDeal* pDeal);
 	bool IsMakeOfferForOpenBorders(PlayerTypes eOtherPlayer, CvDeal* pDeal);
 	bool IsMakeOfferForResearchAgreement(PlayerTypes eOtherPlayer, CvDeal* pDeal);
 	bool IsMakeOfferForStrategicResource(PlayerTypes eOtherPlayer, CvDeal* pDeal);

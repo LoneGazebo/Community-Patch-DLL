@@ -32097,7 +32097,7 @@ void CvDiplomacyAI::DoEmbassyOffer(PlayerTypes ePlayer, DiploStatementTypes& eSt
 
 	if(eStatement == NO_DIPLO_STATEMENT_TYPE)
 	{
-		if(GetPlayer()->GetDealAI()->MakeOfferForEmbassy(ePlayer, /*pDeal can be modified in this function*/ pDeal))
+		if(GetPlayer()->GetDealAI()->IsMakeOfferForEmbassy(ePlayer, /*pDeal can be modified in this function*/ pDeal))
 		{
 			DiploStatementTypes eTempStatement = DIPLO_STATEMENT_EMBASSY_OFFER;
 			int iTurnsBetweenStatements = 15;
