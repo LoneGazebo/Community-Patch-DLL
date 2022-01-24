@@ -11484,17 +11484,14 @@ void CvPlayer::doTurnPostDiplomacy()
 
 	if(isAlive())
 	{
-		{
-
-			UpdatePlots();
-			UpdateAreaEffectUnits();
-			UpdateAreaEffectPlots();
-			UpdateDangerPlots(false);
-			GetTacticalAI()->GetTacticalAnalysisMap()->Invalidate();
-			UpdateMilitaryStats();
-			GET_TEAM(getTeam()).ClearWarDeclarationCache();
-			UpdateCurrentAndFutureWars();
-		}
+		UpdatePlots();
+		UpdateAreaEffectUnits();
+		UpdateAreaEffectPlots();
+		UpdateDangerPlots(false);
+		GetTacticalAI()->GetTacticalAnalysisMap()->Invalidate();
+		UpdateMilitaryStats();
+		GET_TEAM(getTeam()).ClearWarDeclarationCache();
+		UpdateCurrentAndFutureWars();
 
 		if(!isBarbarian())
 		{
