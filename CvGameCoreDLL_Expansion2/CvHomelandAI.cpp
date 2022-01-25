@@ -1177,7 +1177,6 @@ void CvHomelandAI::ExecuteUnitGift()
 		for (list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it)
 		{
 			CvUnit* pUnit = m_pPlayer->getUnit(*it);
-			UnitTypes eCurrentType = pUnit->getUnitType();
 			if (pUnit && pUnit->getUnitType() == eUnitType && !pUnit->isDelayedDeath())
 			{
 				if (!pUnit->IsGarrisoned())
