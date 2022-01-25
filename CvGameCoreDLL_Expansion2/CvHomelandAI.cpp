@@ -1371,7 +1371,7 @@ void CvHomelandAI::PlotUpgradeMoves()
 	for (CvUnit* pUnit = m_pPlayer->firstUnit(&iLoop); pUnit != NULL; pUnit = m_pPlayer->nextUnit(&iLoop))
 	{
 		// Don't try and upgrade a human player's unit or one already recruited for an operation
-		if(pUnit && !pUnit->isHuman() && pUnit->getArmyID() == -1)
+		if(pUnit && !pUnit->isHuman() && pUnit->getArmyID() == -1 && !pUnit->TurnProcessed()&&!pUnit->isDelayedDeath())
 		{
 			//Let's only worry about units in our land.
 			if(pUnit->plot()->getOwner() != m_pPlayer->GetID())
