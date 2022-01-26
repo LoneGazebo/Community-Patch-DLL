@@ -2219,14 +2219,14 @@ int CvCivilizationInfo::getCivilizationBuildings(int i) const
 {
 	CvAssertMsg(i < GC.getNumBuildingClassInfos(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_piCivilizationBuildings ? m_piCivilizationBuildings[i] : -1;
+	return m_piCivilizationBuildings && i>=0 ? m_piCivilizationBuildings[i] : -1;
 }
 //------------------------------------------------------------------------------
 int CvCivilizationInfo::getCivilizationUnits(int i) const
 {
 	CvAssertMsg(i < GC.getNumUnitClassInfos(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_piCivilizationUnits ? m_piCivilizationUnits[i] : -1;
+	return m_piCivilizationUnits && i>=0 ? m_piCivilizationUnits[i] : -1;
 }
 //------------------------------------------------------------------------------
 bool CvCivilizationInfo::isCivilizationBuildingOverridden(int i) const
@@ -2247,52 +2247,52 @@ int CvCivilizationInfo::getCivilizationFreeUnitsClass(int i) const
 {
 	CvAssertMsg(i < GC.getNumUnitClassInfos(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_piCivilizationFreeUnitsClass ? m_piCivilizationFreeUnitsClass[i] : -1;
+	return m_piCivilizationFreeUnitsClass && i>=0 ? m_piCivilizationFreeUnitsClass[i] : -1;
 }
 //------------------------------------------------------------------------------
 int CvCivilizationInfo::getCivilizationFreeUnitsDefaultUnitAI(int i) const
 {
 	CvAssertMsg(i < GC.getNumUnitClassInfos(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_piCivilizationFreeUnitsDefaultUnitAI ? m_piCivilizationFreeUnitsDefaultUnitAI[i] : -1;
+	return m_piCivilizationFreeUnitsDefaultUnitAI && i>=0 ? m_piCivilizationFreeUnitsDefaultUnitAI[i] : -1;
 }
 //------------------------------------------------------------------------------
 bool CvCivilizationInfo::isLeaders(int i) const
 {
 	CvAssertMsg(i < GC.getNumLeaderHeadInfos(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_pbLeaders ? m_pbLeaders[i] : false;
+	return m_pbLeaders && i>=0 ? m_pbLeaders[i] : false;
 }
 //------------------------------------------------------------------------------
 bool CvCivilizationInfo::isCivilizationFreeBuildingClass(int i) const
 {
 	CvAssertMsg(i < GC.getNumBuildingClassInfos(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_pbCivilizationFreeBuildingClass ? m_pbCivilizationFreeBuildingClass[i] : false;
+	return m_pbCivilizationFreeBuildingClass && i>=0 ? m_pbCivilizationFreeBuildingClass[i] : false;
 }
 //------------------------------------------------------------------------------
 bool CvCivilizationInfo::isCivilizationFreeTechs(int i) const
 {
 	CvAssertMsg(i < GC.getNumTechInfos(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_pbCivilizationFreeTechs ? m_pbCivilizationFreeTechs[i] : false;
+	return m_pbCivilizationFreeTechs && i>=0 ? m_pbCivilizationFreeTechs[i] : false;
 }
 //------------------------------------------------------------------------------
 bool CvCivilizationInfo::isCivilizationDisableTechs(int i) const
 {
 	CvAssertMsg(i < GC.getNumTechInfos(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_pbCivilizationDisableTechs ? m_pbCivilizationDisableTechs[i] : false;
+	return m_pbCivilizationDisableTechs && i>=0 ? m_pbCivilizationDisableTechs[i] : false;
 }
 //------------------------------------------------------------------------------
 const char* CvCivilizationInfo::getCityNames(int i) const
 {
-	return m_vCityNames[i].c_str();
+	return i>=0 ? m_vCityNames[i].c_str() : "vilanova";
 }
 //------------------------------------------------------------------------------
 const char* CvCivilizationInfo::getSpyNames(int i) const
 {
-	return m_vSpyNames[i].c_str();
+	return i>=0 ? m_vSpyNames[i].c_str() : "john doe";
 }
 //------------------------------------------------------------------------------
 bool CvCivilizationInfo::isCoastalCiv() const

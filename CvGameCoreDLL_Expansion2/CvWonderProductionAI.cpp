@@ -232,9 +232,6 @@ void CvWonderProductionAI::LogPossibleWonders()
 		// Find the name of this civ
 		CvString playerName = m_pPlayer->getCivilizationShortDescription();
 
-		// Open the log file
-		FILogFile* pLog = LOGFILEMGR.GetLog(m_pPlayer->GetCitySpecializationAI()->GetLogFileName(playerName), FILogFile::kDontTimeStamp);
-
 		// Get the leading info for this line
 		CvString strBaseString;
 		strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
@@ -255,7 +252,7 @@ void CvWonderProductionAI::LogPossibleWonders()
 
 			}
 
-			pLog->Msg(strOutBuf);
+			m_pPlayer->GetCitySpecializationAI()->LogMsg(strOutBuf);
 		}
 	}
 }

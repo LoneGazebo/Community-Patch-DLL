@@ -11435,17 +11435,14 @@ void CvPlayer::doTurnPostDiplomacy()
 
 	if(isAlive())
 	{
-		{
-
-			UpdatePlots();
-			UpdateAreaEffectUnits();
-			UpdateAreaEffectPlots();
-			UpdateDangerPlots(false);
-			GetTacticalAI()->GetTacticalAnalysisMap()->Invalidate();
-			UpdateMilitaryStats();
-			GET_TEAM(getTeam()).ClearWarDeclarationCache();
-			UpdateCurrentAndFutureWars();
-		}
+		UpdatePlots();
+		UpdateAreaEffectUnits();
+		UpdateAreaEffectPlots();
+		UpdateDangerPlots(false);
+		GetTacticalAI()->GetTacticalAnalysisMap()->Invalidate();
+		UpdateMilitaryStats();
+		GET_TEAM(getTeam()).ClearWarDeclarationCache();
+		UpdateCurrentAndFutureWars();
 
 		if(!isBarbarian())
 		{
@@ -48946,7 +48943,7 @@ PlayerTypes CvPlayer::GetPlayerWhoStoleMyFavoriteCitySite()
 
 		//get triggered if the settle spot was close to one of our cities
 		int iTriggerDistance = GetDiplomacyAI()->GetBoldness() + /*5*/ GD_INT_GET(AI_DIPLO_PLOT_RANGE_FROM_CITY_HOME_FRONT);
-		if (pCity->getTeam() != getTeam() && GetCityDistancePathLength(pPreviousFavorite) < iTriggerDistance)
+		if (pCity && pCity->getTeam() != getTeam() && GetCityDistancePathLength(pPreviousFavorite) < iTriggerDistance)
 			return pCity->getOwner();
 	}
 
@@ -49120,17 +49117,14 @@ void CvPlayer::SetBestWonderCities()
 
 			if ((GC.getLogging() && GC.getAILogging()))
 			{
-				CvString playerName;
-				FILogFile* pLog;
+				CvString playerName = getCivilizationShortDescription();
 				CvString strBaseString;
 				CvString strOutBuf;
-				playerName = getCivilizationShortDescription();
-				pLog = LOGFILEMGR.GetLog(CUSTOMLOGDEBUG, FILogFile::kDontTimeStamp);
 				strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
 				strBaseString += playerName + ", ";
 				strOutBuf.Format("%s is the best city to construct %s", pBestCity->getName().GetCString(), pkeBuildingInfo->GetDescription());
 				strBaseString += strOutBuf;
-				pLog->Msg(strBaseString);
+				GetCitySpecializationAI()->LogMsg(strBaseString);
 			}
 		}
 	}

@@ -18872,18 +18872,15 @@ void CvCity::DoJONSCultureLevelIncrease()
 			if (GC.getLogging() && GC.getAILogging())
 			{
 				CvPlayerAI& kOwner = GET_PLAYER(getOwner());
-				CvString playerName;
-				FILogFile* pLog;
 				CvString strBaseString;
 				CvString strOutBuf;
-				playerName = kOwner.getCivilizationShortDescription();
-				pLog = LOGFILEMGR.GetLog(kOwner.GetCitySpecializationAI()->GetLogFileName(playerName), FILogFile::kDontTimeStamp);
+				CvString playerName = kOwner.getCivilizationShortDescription();
 				strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
 				strBaseString += playerName + ", ";
 				strOutBuf.Format("%s, City Culture Leveled Up. Level: %d Border Expanded, X: %d, Y: %d", getName().GetCString(),
 					GetJONSCultureLevel(), pPlotToAcquire->getX(), pPlotToAcquire->getY());
 				strBaseString += strOutBuf;
-				pLog->Msg(strBaseString);
+				kOwner.GetCitySpecializationAI()->LogMsg(strBaseString);
 			}
 			DoAcquirePlot(pPlotToAcquire->getX(), pPlotToAcquire->getY());
 #if defined(MOD_UI_CITY_EXPANSION)
@@ -28795,10 +28792,9 @@ bool CvCity::CanBuyAnyPlot(void)
 				{
 					const CvPlayerAI& kOwner = GET_PLAYER(getOwner());
 					CvString strPlayerName = kOwner.getCivilizationShortDescription();
-					FILogFile* pLog = LOGFILEMGR.GetLog(kOwner.GetCitySpecializationAI()->GetLogFileName(strPlayerName), FILogFile::kDontTimeStamp);
 					CvString strBaseString = CvString::format("%03d, %s, %s, CanBuyAnyPlot failed in lua hook",
 						GC.getGame().getElapsedGameTurns(), strPlayerName.c_str(), getName().GetCString());
-					pLog->Msg(strBaseString);
+					kOwner.GetCitySpecializationAI()->LogMsg(strBaseString);
 				}
 #endif
 				return false;
@@ -29487,17 +29483,14 @@ void CvCity::BuyPlot(int iPlotX, int iPlotY)
 	if (GC.getLogging() && GC.getAILogging())
 	{
 		CvPlayerAI& kOwner = GET_PLAYER(getOwner());
-		CvString playerName;
-		FILogFile* pLog;
 		CvString strBaseString;
 		CvString strOutBuf;
-		playerName = kOwner.getCivilizationShortDescription();
-		pLog = LOGFILEMGR.GetLog(kOwner.GetCitySpecializationAI()->GetLogFileName(playerName), FILogFile::kDontTimeStamp);
+		CvString playerName = kOwner.getCivilizationShortDescription();
 		strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
 		strBaseString += playerName + ", ";
 		strOutBuf.Format("%s, City Plot Purchased, X: %d, Y: %d", getName().GetCString(), iPlotX, iPlotY);
 		strBaseString += strOutBuf;
-		pLog->Msg(strBaseString);
+		kOwner.GetCitySpecializationAI()->LogMsg(strBaseString);
 	}
 
 	DoAcquirePlot(iPlotX, iPlotY);
@@ -30705,17 +30698,14 @@ void CvCity::produce(BuildingTypes eConstructBuilding, bool bCanOverflow)
 		{
 			if (kOwner.GetWonderProductionAI()->IsWonder(*pkConstructBuildingInfo))
 			{
-				CvString playerName;
-				FILogFile* pLog;
 				CvString strBaseString;
 				CvString strOutBuf;
-				playerName = kOwner.getCivilizationShortDescription();
-				pLog = LOGFILEMGR.GetLog(kOwner.GetCitySpecializationAI()->GetLogFileName(playerName), FILogFile::kDontTimeStamp);
+				CvString playerName = kOwner.getCivilizationShortDescription();
 				strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
 				strBaseString += playerName + ", ";
 				strOutBuf.Format("%s, WONDER - Finished %s", getName().GetCString(), pkConstructBuildingInfo->GetDescription());
 				strBaseString += strOutBuf;
-				pLog->Msg(strBaseString);
+				kOwner.GetCitySpecializationAI()->LogMsg(strBaseString);
 			}
 		}
 

@@ -5921,7 +5921,7 @@ bool CvDealAI::IsMakeOfferForStrategicResource(PlayerTypes eOtherPlayer, CvDeal*
 
 
 /// A good time to make an offer to get an embassy?
-bool CvDealAI::MakeOfferForEmbassy(PlayerTypes eOtherPlayer, CvDeal* pDeal)
+bool CvDealAI::IsMakeOfferForEmbassy(PlayerTypes eOtherPlayer, CvDeal* pDeal)
 {
 	CvAssert(eOtherPlayer >= 0);
 	CvAssert(eOtherPlayer < MAX_MAJOR_CIVS);
@@ -5934,7 +5934,15 @@ bool CvDealAI::MakeOfferForEmbassy(PlayerTypes eOtherPlayer, CvDeal* pDeal)
 	}
 
 	// Can we actually complete this deal?
+	// Note the order of the player ids: This is because the trade item is "accept embassy" not "send embassy"
 	if(!pDeal->IsPossibleToTradeItem(eOtherPlayer, GetPlayer()->GetID(), TRADE_ITEM_ALLOW_EMBASSY))
+	{
+		return false;
+	}
+
+	// AI should not offer embassies for gold - wait until embassy for embassy is possible
+	// Note that humans can still offer and get an embassy for gold trade, it's not illegal
+	if(!pDeal->IsPossibleToTradeItem(GetPlayer()->GetID(), eOtherPlayer, TRADE_ITEM_ALLOW_EMBASSY))
 	{
 		return false;
 	}

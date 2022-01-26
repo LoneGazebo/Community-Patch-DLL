@@ -29326,10 +29326,7 @@ void CvUnit::PushMission(MissionTypes eMission, int iData1, int iData2, int iFla
 {
 	VALIDATE_OBJECT
 
-	//potential deadlock in pathfinder, be careful
-	if (!GET_PLAYER(getOwner()).isTurnActive())
-		return;
-
+	//for debugging
 	if (g_bFreezeUnits)
 	{
 		finishMoves();

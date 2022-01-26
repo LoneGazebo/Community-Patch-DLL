@@ -325,7 +325,7 @@ protected:
 	void EstablishZoneNeighborhood();
 
 	PlayerTypes m_ePlayer;
-	int m_iTurnSliceBuilt;
+	int m_iLastUpdate;
 
 	std::vector<int> m_vPlotZoneID; //zone id for each plot
 	std::map<int, int> m_IdLookup; //id to index
