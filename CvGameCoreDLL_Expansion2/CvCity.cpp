@@ -27685,12 +27685,16 @@ void CvCity::setEverLiberated(PlayerTypes eIndex, bool bNewValue)
 }
 
 //	--------------------------------------------------------------------------------
-bool CvCity::isRevealed(TeamTypes eIndex, bool bDebug) const
+bool CvCity::isRevealed(TeamTypes eIndex, bool bDebug, bool bAdjacentIsGoodEnough) const
 {
 	if (!plot())
 		return false;
 
-	return plot()->isRevealed(eIndex, bDebug);
+	//humans can guess if there is a city so we give the AI some help sometimes
+	if (bAdjacentIsGoodEnough)
+		return plot()->isRevealed(eIndex, bDebug) || plot()->isAdjacentRevealed(eIndex);
+	else
+		return plot()->isRevealed(eIndex, bDebug);
 }
 
 bool CvCity::setRevealed(TeamTypes eIndex, bool bNewValue)

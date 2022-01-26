@@ -508,9 +508,8 @@ bool CvDangerPlots::ShouldIgnoreCity(const CvCity* pCity, bool bIgnoreVisibility
 		return false;
 
 	//ignore if neither the city plot nor an adjacent plot is revealed
-	//maybe a little bit of cheating but a human would do the same
 	TeamTypes eTeam = GET_PLAYER(m_ePlayer).getTeam();
-	return !pCity->isRevealed(eTeam, false) && !pCity->plot()->isAdjacentRevealed(eTeam);
+	return !pCity->isRevealed(eTeam, false, true);
 }
 
 /// Should this city be ignored when creating the danger plots?

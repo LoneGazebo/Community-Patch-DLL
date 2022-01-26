@@ -10035,7 +10035,7 @@ int CvReligionAI::ScoreCityForMissionary(CvCity* pCity, CvUnit* pUnit, ReligionT
 #endif
 
 	// Skip if not revealed
-	if(!pCity->plot()->isRevealed(m_pPlayer->getTeam()))
+	if(!pCity->isRevealed(m_pPlayer->getTeam(),false,true))
 	{
 		return 0;
 	}

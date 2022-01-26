@@ -3085,7 +3085,11 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 		}
 		else
 		{
-			if (activePlayer.isObserver() || (activePlayer.isAlive() && activePlayer.GetNotifications() && pCity->isRevealed(activePlayer.getTeam(), false) && GET_TEAM(activePlayer.getTeam()).isHasMet(GET_PLAYER(eOldOwner).getTeam()) && GET_TEAM(activePlayer.getTeam()).isHasMet(getTeam())))
+			if (activePlayer.isObserver() || 
+				(activePlayer.isAlive() && activePlayer.GetNotifications() && 
+					pCity->isRevealed(activePlayer.getTeam(), false, false) && 
+					GET_TEAM(activePlayer.getTeam()).isHasMet(GET_PLAYER(eOldOwner).getTeam()) && 
+					GET_TEAM(activePlayer.getTeam()).isHasMet(getTeam())))
 			{
 				CvString strBuffer = GetLocalizedText("TXT_KEY_MISC_CITY_CAPTURED_BY", strName.GetCString(), getCivilizationShortDescriptionKey());
 				GC.GetEngineUserInterface()->AddCityMessage(0, pCity->GetIDInfo(), activePlayer.GetID(), false, /*10*/ GD_INT_GET(EVENT_MESSAGE_TIME), strBuffer);
@@ -12911,7 +12915,7 @@ void CvPlayer::raze(CvCity* pCity)
 		if (ePlayer != GC.getGame().getActivePlayer())
 			continue;
 
-		if (GET_PLAYER(ePlayer).isObserver() || (GET_PLAYER(ePlayer).isAlive() && pCity->isRevealed(GET_PLAYER(ePlayer).getTeam(), false)))
+		if (GET_PLAYER(ePlayer).isObserver() || (GET_PLAYER(ePlayer).isAlive() && pCity->isRevealed(GET_PLAYER(ePlayer).getTeam(), false, false)))
 		{
 			sprintf_s(szBuffer, lenBuffer, GetLocalizedText("TXT_KEY_MISC_CITY_HAS_BEEN_RAZED_BY", pCity->getNameKey(), getCivilizationDescriptionKey()).GetCString());
 			GC.GetEngineUserInterface()->AddCityMessage(0, pCity->GetIDInfo(), ePlayer, false, /*10*/ GD_INT_GET(EVENT_MESSAGE_TIME), szBuffer);
@@ -37700,7 +37704,7 @@ PlayerTypes CvPlayer::GetBestGiftTarget(DomainTypes eUnitDomain)
 					continue;
 
 				// Skip if not revealed.
-				if (!pCity->plot()->isRevealed(getTeam()))
+				if (!pCity->isRevealed(getTeam(),false,false))
 					continue;
 
 				CvMinorCivAI* pMinorCivAI = eMinor->GetMinorCivAI();
@@ -49529,7 +49533,7 @@ void CvPlayer::DoAnnounceReligionAdoption()
 				localizedText << GET_PLAYER(pHolyCity->getOwner()).getNameKey() << GetStateReligionKey();
 
 				// We've seen this player's City
-				if(pHolyCity->isRevealed(thisPlayer.getTeam(), false))
+				if(pHolyCity->isRevealed(thisPlayer.getTeam(), false, false))
 				{
 					iX = pHolyCity->getX();
 					iY = pHolyCity->getY();

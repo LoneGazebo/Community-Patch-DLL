@@ -9160,7 +9160,7 @@ int CvPlot::calculateNatureYield(YieldTypes eYield, PlayerTypes ePlayer, const C
 	{
 		iYield = std::max(iYield, kYield.getMinCity());
 
-		if (!bDisplay || pOwningCity->isRevealed(GC.getGame().getActiveTeam(), false))
+		if (!bDisplay || pOwningCity->isRevealed(GC.getGame().getActiveTeam(), false, false))
 		{
 			iYield += kYield.getCityChange();
 
@@ -10078,7 +10078,7 @@ int CvPlot::calculatePlayerYield(YieldTypes eYield, int iCurrentYield, PlayerTyp
 				iYield += kPlayer.getSeaPlotYield(eYield);
 #endif
 
-				if (!bDisplay || pOwningCity->isRevealed(GC.getGame().getActiveTeam(), false))
+				if (!bDisplay || pOwningCity->isRevealed(GC.getGame().getActiveTeam(), false, false))
 				{
 					int iCityYield = 0;
 					if (isLake())
@@ -10097,7 +10097,7 @@ int CvPlot::calculatePlayerYield(YieldTypes eYield, int iCurrentYield, PlayerTyp
 
 				if (getResourceType(kPlayer.getTeam()) != NO_RESOURCE)
 				{
-					if (!bDisplay || pOwningCity->isRevealed(GC.getGame().getActiveTeam(), false))
+					if (!bDisplay || pOwningCity->isRevealed(GC.getGame().getActiveTeam(), false, false))
 					{
 						iYield += pOwningCity->getSeaResourceYield(eYield);
 					}
@@ -10105,7 +10105,7 @@ int CvPlot::calculatePlayerYield(YieldTypes eYield, int iCurrentYield, PlayerTyp
 			}
 			else if (isRiver())
 			{
-				if (!bDisplay || pOwningCity->isRevealed(GC.getGame().getActiveTeam(), false))
+				if (!bDisplay || pOwningCity->isRevealed(GC.getGame().getActiveTeam(), false, false))
 				{
 					iYield += pOwningCity->getRiverPlotYield(eYield);
 				}
