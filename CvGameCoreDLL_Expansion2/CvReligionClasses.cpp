@@ -5686,6 +5686,7 @@ void CvCityReligions::CityConvertsReligion(ReligionTypes eMajority, ReligionType
 		if(pHolyCity != NULL)
 			eReligionController = pHolyCity->getOwner();
 #endif
+		//bonuses might change ...
 		GET_PLAYER(pNewReligion->m_eFounder).UpdateReligion();
 
 		// Pay adoption bonuses (if any)
@@ -5875,7 +5876,8 @@ void CvCityReligions::CityConvertsReligion(ReligionTypes eMajority, ReligionType
 
 				// Did he found another religion?
 				ReligionTypes eCityOwnerReligion = kCityOwnerPlayer.GetReligions()->GetStateReligion(false);
-				if(eCityOwnerReligion >= RELIGION_PANTHEON)
+				ReligionTypes eFavorite = kCityOwnerPlayer.GetReligionAI()->GetFavoriteForeignReligion(false);
+				if(eCityOwnerReligion != eMajority && eFavorite != eMajority)
 				{
 					int iPoints = 0;
 
@@ -6876,7 +6878,7 @@ ReligionTypes CvReligionAI::GetReligionToSpread() const
 		return m_eReligionToSpread;
 
 	//or something imported as fallback
-	m_eReligionToSpread = GetFavoriteForeignReligion();
+	m_eReligionToSpread = GetFavoriteForeignReligion(true);
 	if(m_eReligionToSpread > RELIGION_PANTHEON)
 		return m_eReligionToSpread;
 
@@ -6884,7 +6886,7 @@ ReligionTypes CvReligionAI::GetReligionToSpread() const
 }
 
 //check all existing religions and see which one fits us best
-ReligionTypes CvReligionAI::GetFavoriteForeignReligion() const
+ReligionTypes CvReligionAI::GetFavoriteForeignReligion(bool bForInternalSpread) const
 {
 	//hold off while not all religions have been founded
 	if (GC.getGame().GetGameReligions()->GetNumReligionsStillToFound() > 0)
@@ -6964,7 +6966,7 @@ ReligionTypes CvReligionAI::GetFavoriteForeignReligion() const
 	}
 
 	// if we cannot create missionaries for our favorite we may want to pass ... a bird in the hand is worth two in the bush
-	if ( iBestValidScore*3 < iBestOverallScore*2 )
+	if (bForInternalSpread && iBestValidScore*3 < iBestOverallScore*2 )
 		eBestValid = NO_RELIGION;
 
 	if(GC.getLogging() && eBestValid != NO_RELIGION)
