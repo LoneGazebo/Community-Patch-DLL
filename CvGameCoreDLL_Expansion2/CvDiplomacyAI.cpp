@@ -7941,10 +7941,7 @@ void CvDiplomacyAI::DoUpdateConquestStats()
 		for (CvCity* pLoopCity = GET_PLAYER(eLoopPlayer).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(eLoopPlayer).nextCity(&iLoop))
 		{
 			CvPlot* pCityPlot = pLoopCity->plot();
-			if (pCityPlot == NULL)
-				continue;
-
-			if (!pCityPlot->isRevealed(GetTeam()))
+			if (pCityPlot == NULL || !pLoopCity->isRevealed(GetTeam(),false,true))
 				continue;
 
 			PlayerTypes eCityOwner = pCityPlot->getOwner();
@@ -9320,7 +9317,7 @@ void CvDiplomacyAI::DoUpdateWarStates()
 						}
 					}
 				}
-				else if (pLoopCity->isRevealed(GetTeam(), false))
+				else if (pLoopCity->isRevealed(GetTeam(), false, true))
 				{
 					if (pLandZone && pLandZone->GetOverallDominanceFlag()==TACTICAL_DOMINANCE_ENEMY)
 					{

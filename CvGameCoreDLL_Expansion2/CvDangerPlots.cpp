@@ -499,21 +499,35 @@ bool CvDangerPlots::ShouldIgnoreUnit(const CvUnit* pUnit, bool bIgnoreVisibility
 /// Should this city be ignored when creating the danger plots?
 bool CvDangerPlots::ShouldIgnoreCity(const CvCity* pCity, bool bIgnoreVisibility)
 {
-	// ignore unseen cities
-	if(!pCity || !pCity->isRevealed(GET_PLAYER(m_ePlayer).getTeam(), false)  && !bIgnoreVisibility)
+	//ignore nonexistent cities
+	if(!pCity)
 		return true;
 
-	return false;
+	//never ignore then
+	if (bIgnoreVisibility)
+		return false;
+
+	//ignore if neither the city plot nor an adjacent plot is revealed
+	TeamTypes eTeam = GET_PLAYER(m_ePlayer).getTeam();
+	return !pCity->isRevealed(eTeam, false, true);
 }
 
 /// Should this city be ignored when creating the danger plots?
 bool CvDangerPlots::ShouldIgnoreCitadel(CvPlot* pCitadelPlot, bool bIgnoreVisibility)
 {
-	// ignore unseen cities
-	if(!pCitadelPlot || !pCitadelPlot->isRevealed(GET_PLAYER(m_ePlayer).getTeam())  && !bIgnoreVisibility)
+	//ignore nonexistent citadels
+	if(!pCitadelPlot)
 		return true;
 
-	// cant be pillaged
+	//never ignore then
+	if (bIgnoreVisibility)
+		return false;
+
+	// ignore unseen citadels
+	if(!pCitadelPlot->isRevealed(GET_PLAYER(m_ePlayer).getTeam()))
+		return true;
+
+	// cannot be pillaged
 	if (pCitadelPlot->IsImprovementPillaged())
 		return true;
 
@@ -901,7 +915,12 @@ int CvDangerPlotContents::GetDanger(const CvUnit* pUnit, const UnitIdContainer& 
 		if (!pCity || pCity->getTeam() == pUnit->getTeam())
 			continue;
 
-		iPlotDamage += pCity->rangeCombatDamage(pUnit, NULL, false, m_pPlot, true);
+		int iCityDamage = pCity->rangeCombatDamage(pUnit, NULL, false, m_pPlot, true);
+		//if we cannot see a potential garrison, assume there is one ...
+		if (!pCity->isVisible(pUnit->getTeam(), false))
+			iCityDamage *= 2;
+
+		iPlotDamage += iCityDamage;
 	}
 
 	// Damage from fog (check visibility again, might have changed ...)

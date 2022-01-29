@@ -1358,7 +1358,7 @@ public:
 	bool isEverLiberated(PlayerTypes eIndex) const;
 	void setEverLiberated(PlayerTypes eIndex, bool bNewValue);
 
-	bool isRevealed(TeamTypes eIndex, bool bDebug) const;
+	bool isRevealed(TeamTypes eIndex, bool bDebug, bool bAdjacentIsGoodEnough) const;
 	bool setRevealed(TeamTypes eIndex, bool bNewValue);
 
 	const CvString getName() const;

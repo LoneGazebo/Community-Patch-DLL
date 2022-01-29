@@ -586,10 +586,10 @@ public:
 	CvCity* ChooseInquisitorTargetCity(CvUnit* pUnit, const vector<pair<int,int>>& vIgnoreTargets, int* piTurns = NULL) const;
 	CvCity *ChooseProphetConversionCity(CvUnit* pUnit = NULL, int* piTurns = NULL) const;
 	ReligionTypes GetReligionToSpread() const;
+	ReligionTypes GetFavoriteForeignReligion(bool bForInternalSpread) const;
 
 private:
 #if defined(MOD_BALANCE_CORE)
-	ReligionTypes GetFavoriteForeignReligion() const;
 	bool DoFaithPurchasesInCities(CvCity* pCity);
 	bool DoReligionDefenseInCities();
 #endif

@@ -1964,6 +1964,7 @@ protected:
 	void QueueMoveForVisualization(CvPlot* pkPlot);
 	void PublishQueuedVisualizationMoves();
 
+	bool EmergencyRebase();
 	bool CheckDOWNeededForMove(int iX, int iY);
 	MoveResult UnitAttackWithMove(int iX, int iY, int iFlags);
 	int UnitPathTo(int iX, int iY, int iFlags);

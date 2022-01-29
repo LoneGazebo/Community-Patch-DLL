@@ -1911,7 +1911,7 @@ CvPlot* CvPlayerAI::FindBestMerchantTargetPlotForCash(CvUnit* pMerchant)
 			continue;
 
 		CvCity* pCity = kPlayer.getCapitalCity();
-		if (!pCity || !pCity->plot()->isRevealed(getTeam()))
+		if (!pCity || !pCity->isRevealed(getTeam(),false,true))
 			continue;
 
 		// Is this a minor we are friendly with?
@@ -1941,7 +1941,7 @@ bool WantEmbassyAt(PlayerTypes ePlayer, CvCity* pCity)
 	CvPlayer& kPlayer = GET_PLAYER(ePlayer);
 	CvPlayer& kCityPlayer = GET_PLAYER(pCity->getOwner());
 
-	if(!pCity->plot()->isRevealed(kPlayer.getTeam()))
+	if(!pCity->isRevealed(kPlayer.getTeam(),false,true))
 		return false;
 
 	if (!kPlayer.GetDiplomacyAI()->IsHasMet(pCity->getOwner()))

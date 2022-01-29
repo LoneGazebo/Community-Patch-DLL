@@ -5452,6 +5452,51 @@ void CvUnit::move(CvPlot& targetPlot, bool bShow)
 	changeMoves(-iMoveCost);
 }
 
+bool CvUnit::EmergencyRebase()
+{
+	if (getDomainType() != DOMAIN_AIR)
+		return false;
+
+	if (canRebaseAt(getX(), getY(), true))
+		return true;
+
+	int iLoopCity;
+	for (CvCity* pLoopCity = GET_PLAYER(getOwner()).firstCity(&iLoopCity); pLoopCity != NULL; pLoopCity = GET_PLAYER(getOwner()).nextCity(&iLoopCity))
+	{
+		if (canRebaseAt(pLoopCity->getX(), pLoopCity->getY(), true) && HomelandAIHelpers::ScoreAirBase(pLoopCity->plot(), getOwner(), false, GetRange()) > 0)
+		{
+			rebase(pLoopCity->getX(), pLoopCity->getY(), true);
+			return true;
+		}
+	}
+
+	for (CvCity* pLoopCity = GET_PLAYER(getOwner()).firstCity(&iLoopCity); pLoopCity != NULL; pLoopCity = GET_PLAYER(getOwner()).nextCity(&iLoopCity))
+	{
+		if (canRebaseAt(pLoopCity->getX(), pLoopCity->getY(), true) && HomelandAIHelpers::ScoreAirBase(pLoopCity->plot(), getOwner(), true, GetRange()) > 0)
+		{
+			rebase(pLoopCity->getX(), pLoopCity->getY(), true);
+			return true;
+		}
+	}
+
+	int iLoop;
+	for (CvUnit* pLoopUnit = GET_PLAYER(getOwner()).firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = GET_PLAYER(getOwner()).nextUnit(&iLoop))
+	{
+		if (pLoopUnit->AI_getUnitAIType()!=UNITAI_CARRIER_SEA)
+			continue;
+
+		if (canRebaseAt(pLoopUnit->getX(), pLoopUnit->getY(), true) && HomelandAIHelpers::ScoreAirBase(pLoopUnit->plot(), getOwner(), true, GetRange()) > 0)
+		{
+			rebase(pLoopUnit->getX(), pLoopUnit->getY(), true);
+			return true;
+		}
+	}
+
+	if (GC.getLogging() && GC.getAILogging())
+		GET_PLAYER(m_eOwner).GetHomelandAI()->LogHomelandMessage("failed to find a valid plot for air unit");
+
+	return false;
+}
 
 //	--------------------------------------------------------------------------------
 bool CvUnit::jumpToNearestValidPlot()
@@ -5460,52 +5505,12 @@ bool CvUnit::jumpToNearestValidPlot()
 	CvAssertMsg(!isAttacking(), "isAttacking did not return false as expected");
 	CvAssertMsg(!isFighting(), "isFighting did not return false as expected");
 
+	if (getDomainType() == DOMAIN_AIR)
+		return EmergencyRebase();
+
 	//check for no-op
 	if (plot() && canMoveInto(*plot(), CvUnit::MOVEFLAG_DESTINATION))
 		return true;
-
-	if (getDomainType() == DOMAIN_AIR)
-	{
-		if (canRebaseAt(getX(), getY(), true))
-			return true;
-
-		int iLoopCity;
-		for (CvCity* pLoopCity = GET_PLAYER(getOwner()).firstCity(&iLoopCity); pLoopCity != NULL; pLoopCity = GET_PLAYER(getOwner()).nextCity(&iLoopCity))
-		{
-			if (canRebaseAt(pLoopCity->getX(), pLoopCity->getY(), true) && HomelandAIHelpers::ScoreAirBase(pLoopCity->plot(), getOwner(), false, GetRange()) > 0)
-			{
-				rebase(pLoopCity->getX(), pLoopCity->getY(), true);
-				return true;
-			}
-		}
-
-		for (CvCity* pLoopCity = GET_PLAYER(getOwner()).firstCity(&iLoopCity); pLoopCity != NULL; pLoopCity = GET_PLAYER(getOwner()).nextCity(&iLoopCity))
-		{
-			if (canRebaseAt(pLoopCity->getX(), pLoopCity->getY(), true) && HomelandAIHelpers::ScoreAirBase(pLoopCity->plot(), getOwner(), true, GetRange()) > 0)
-			{
-				rebase(pLoopCity->getX(), pLoopCity->getY(), true);
-				return true;
-			}
-		}
-
-		int iLoop;
-		for (CvUnit* pLoopUnit = GET_PLAYER(getOwner()).firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = GET_PLAYER(getOwner()).nextUnit(&iLoop))
-		{
-			if (pLoopUnit->AI_getUnitAIType()!=UNITAI_CARRIER_SEA)
-				continue;
-
-			if (canRebaseAt(pLoopUnit->getX(), pLoopUnit->getY(), true) && HomelandAIHelpers::ScoreAirBase(pLoopUnit->plot(), getOwner(), true, GetRange()) > 0)
-			{
-				rebase(pLoopUnit->getX(), pLoopUnit->getY(), true);
-				return true;
-			}
-		}
-
-		if (GC.getLogging() && GC.getAILogging())
-			GET_PLAYER(m_eOwner).GetHomelandAI()->LogHomelandMessage("failed to find a valid plot for air unit");
-
-		return false;
-	}
 
 	//ignore all sorts of restrictions
 	SPathFinderUserData data(this, CvUnit::MOVEFLAG_IGNORE_RIGHT_OF_PASSAGE | CvUnit::MOVEFLAG_IGNORE_STACKING | CvUnit::MOVEFLAG_IGNORE_ENEMIES | CvUnit::MOVEFLAG_IGNORE_ZOC, 12);
@@ -5617,6 +5622,9 @@ bool CvUnit::jumpToNearestValidPlotWithinRange(int iRange, CvPlot* pStartPlot)
 
 	if (!pStartPlot)
 		return false;
+
+	if (getDomainType() == DOMAIN_AIR)
+		return EmergencyRebase();
 
 	//nothing to do?
 	if (canMoveInto(*pStartPlot, CvUnit::MOVEFLAG_DESTINATION))
