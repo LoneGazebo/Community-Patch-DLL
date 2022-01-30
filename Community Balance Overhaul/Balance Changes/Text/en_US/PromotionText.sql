@@ -73,6 +73,15 @@
 	SET Text = 'In Snow, Tundra, Hills: +25% [ICON_STRENGTH] Combat Strength (if Forest or Jungle is not present) and Double Movement.'
 	WHERE Tag = 'TXT_KEY_PROMOTION_SKI_INFANTRY_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
+	-- added Expeditionary Warfare (Foreign Lands Bonus)
+	UPDATE Language_en_US
+	SET Text = 'Expeditionary Warfare'
+	WHERE Tag = 'TXT_KEY_PROMOTION_FOREIGN_LANDS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );;
+
+	UPDATE Language_en_US
+	SET Text = '+20% [ICON_STRENGTH] Combat Strength when fighting [COLOR_POSITIVE_TEXT]Outside of Friendly Territory[ENDCOLOR].'
+	WHERE Tag = 'TXT_KEY_PROMOTION_FOREIGN_LANDS_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
 	-- added Homeland Guardian
 	UPDATE Language_en_US
 	SET Text = '+25% [ICON_STRENGTH] Combat Strength when fighting in [COLOR_POSITIVE_TEXT]Friendly Territory[ENDCOLOR].'
