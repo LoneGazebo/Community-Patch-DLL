@@ -25,7 +25,7 @@ UPDATE Units SET RangedCombat = '80' WHERE Type = 'UNIT_STEALTH_BOMBER';
 UPDATE Units SET RangedCombat = '16' WHERE Type = 'UNIT_BYZANTINE_DROMON';	
 -- Medieval
 UPDATE Units SET RangedCombat = '24' WHERE Type = 'UNIT_GALLEASS';	
-UPDATE Units SET RangedCombat = '26' WHERE Type = 'UNIT_VENETIAN_GALLEASS';	
+UPDATE Units SET RangedCombat = '27' WHERE Type = 'UNIT_VENETIAN_GALLEASS';	
 --Renaissance
 UPDATE Units SET RangedCombat = '38' WHERE Type = 'UNIT_ENGLISH_SHIPOFTHELINE';
 UPDATE Units SET RangedCombat = '35' WHERE Type = 'UNIT_FRIGATE';		
@@ -58,10 +58,10 @@ UPDATE Units SET Combat = '7' WHERE Type = 'UNIT_BYZANTINE_DROMON';
 -- Melee
 UPDATE Units SET Combat = '25' WHERE Type = 'UNIT_CARAVEL';
 UPDATE Units SET Combat = '30' WHERE Type = 'UNIT_PORTUGUESE_NAU';
-UPDATE Units SET Combat = '30' WHERE Type = 'UNIT_KOREAN_TURTLE_SHIP';
+UPDATE Units SET Combat = '32' WHERE Type = 'UNIT_KOREAN_TURTLE_SHIP';
 -- Ranged
 UPDATE Units SET Combat = '14' WHERE Type = 'UNIT_GALLEASS';
-UPDATE Units SET Combat = '16' WHERE Type = 'UNIT_VENETIAN_GALLEASS';
+UPDATE Units SET Combat = '20' WHERE Type = 'UNIT_VENETIAN_GALLEASS';
 -- Renaissance
 -- Melee
 UPDATE Units SET Combat = '40' WHERE Type = 'UNIT_PRIVATEER';
