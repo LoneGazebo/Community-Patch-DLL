@@ -104,6 +104,8 @@ void CvUnitCombat::GenerateMeleeCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender
 
 	int iAttackerMaxHP = kAttacker.GetMaxHitPoints();
 
+	bool bIncludeRand = !GC.getGame().isGameMultiPlayer();
+
 	pkCombatInfo->setUnit(BATTLE_UNIT_ATTACKER, &kAttacker);
 	pkCombatInfo->setUnit(BATTLE_UNIT_DEFENDER, pkDefender);
 	pkCombatInfo->setPlot(&plot);
@@ -119,7 +121,6 @@ void CvUnitCombat::GenerateMeleeCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender
 		int iAttackerStrength = kAttacker.GetMaxAttackStrength(kAttacker.plot(), &plot, NULL);
 		int iDefenderStrength = pkCity->getStrengthValue();
 
-		bool bIncludeRand = !GC.getGame().isGameMultiPlayer();
 		int iAttackerDamageInflicted = kAttacker.getCombatDamage(iAttackerStrength, iDefenderStrength, /*bIncludeRand*/ bIncludeRand, /*bAttackerIsCity*/ false, /*bDefenderIsCity*/ true);
 		int iDefenderDamageInflicted = kAttacker.getCombatDamage(iDefenderStrength, iAttackerStrength, /*bIncludeRand*/ bIncludeRand, /*bAttackerIsCity*/ true, /*bDefenderIsCity*/ false);
 
@@ -247,8 +248,6 @@ void CvUnitCombat::GenerateMeleeCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender
 		{
 			iAttackerStrength = kAttacker.GetMaxAttackStrength(kAttacker.plot(), &plot, pkDefender);
 		}
-
-		bool bIncludeRand = !GC.getGame().isGameMultiPlayer();
 
 		int iAttackerDamageInflicted = kAttacker.getCombatDamage(iAttackerStrength, iDefenderStrength, /*bIncludeRand*/ bIncludeRand, /*bAttackerIsCity*/ false, /*bDefenderIsCity*/ false);
 		int iDefenderDamageInflicted = pkDefender->isEmbarked() ? 0 : pkDefender->getCombatDamage(iDefenderStrength, iAttackerStrength, /*bIncludeRand*/ bIncludeRand, /*bAttackerIsCity*/ false, /*bDefenderIsCity*/ false);
@@ -726,6 +725,8 @@ void CvUnitCombat::GenerateRangedCombatInfo(CvUnit& kAttacker, CvUnit* pkDefende
 
 	//////////////////////////////////////////////////////////////////////
 
+	bool bIncludeRand = !GC.getGame().isGameMultiPlayer();
+
 	bool bBarbarian = false;
 	int iExperience = 0;
 	int iMaxXP = 0;
@@ -744,7 +745,6 @@ void CvUnitCombat::GenerateRangedCombatInfo(CvUnit& kAttacker, CvUnit* pkDefende
 		iMaxXP = pkDefender->maxXPValue();
 
 		//CvAssert(pkDefender->IsCanDefend());
-		bool bIncludeRand = !GC.getGame().isGameMultiPlayer();
 		iDamage = kAttacker.GetRangeCombatDamage(pkDefender, /*pCity*/ NULL, /*bIncludeRand*/ bIncludeRand);
 
 #if defined(MOD_BALANCE_CORE)
@@ -788,7 +788,7 @@ void CvUnitCombat::GenerateRangedCombatInfo(CvUnit& kAttacker, CvUnit* pkDefende
 			bBarbarian = true;
 		iMaxXP = pCity->maxXPValue();
 
-		iDamage = kAttacker.GetRangeCombatDamage(/*pDefender*/ NULL, pCity, /*bIncludeRand*/ true);
+		iDamage = kAttacker.GetRangeCombatDamage(/*pDefender*/ NULL, pCity, /*bIncludeRand*/ bIncludeRand);
 
 #if defined(MOD_BALANCE_CORE_MILITARY)
 		//if there is a garrison, the unit absorbs part of the damage!
@@ -922,6 +922,7 @@ void CvUnitCombat::GenerateRangedCombatInfo(CvCity& kAttacker, CvUnit* pkDefende
 	pkCombatInfo->setPlot(&plot);
 
 	//////////////////////////////////////////////////////////////////////
+	bool bIncludeRand = !GC.getGame().isGameMultiPlayer();
 
 	bool bBarbarian = false;
 	int iDamage = 0;
@@ -937,7 +938,6 @@ void CvUnitCombat::GenerateRangedCombatInfo(CvCity& kAttacker, CvUnit* pkDefende
 			bBarbarian = true;
 
 		//CvAssert(pkDefender->IsCanDefend());
-		bool bIncludeRand = !GC.getGame().isGameMultiPlayer();
 		iDamage = kAttacker.rangeCombatDamage(pkDefender,NULL,bIncludeRand);
 
 #if defined(MOD_BALANCE_CORE)
@@ -4004,8 +4004,8 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::AttackRanged(CvUnit& kAttacker, int iX
 		if (!kAttacker.isRangedSupportFire())
 		{
 			kAttacker.setMadeAttack(true);
+			kAttacker.changeMoves(-GD_INT_GET(MOVE_DENOMINATOR));
 		}
-		kAttacker.changeMoves(-GD_INT_GET(MOVE_DENOMINATOR));
 
 		uint uiParentEventID = 0;
 		if(!bDoImmediate)

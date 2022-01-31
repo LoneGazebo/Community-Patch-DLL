@@ -1004,7 +1004,7 @@
 			<Text>Titanic</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_MECH_HELP">
-			<Text>+25% [ICON_STRENGTH] Combat Strength when [COLOR_POSITIVE_TEXT]Attacking[ENDCOLOR].[NEWLINE]+100 Hit Points. Begins combat with a free Ranged attack.</Text>
+			<Text>+25% [ICON_STRENGTH] Combat Strength when [COLOR_POSITIVE_TEXT]Attacking[ENDCOLOR].[NEWLINE]+100 Hit Points. Executes a [COLOR_POSITIVE_TEXT]Ranged Attack[ENDCOLOR] at 50% [ICON_STRENGTH] Combat Strength before attacking [COLOR_POSITIVE_TEXT]Units[ENDCOLOR]. [COLOR_NEGATIVE_TEXT]Cannot Fortify.[ENDCOLOR]</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_IKLWA">

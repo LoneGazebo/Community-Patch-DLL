@@ -2389,6 +2389,7 @@ protected:
 #endif
 
 	bool CanFallBack(const CvUnit& pAttacker, bool bCheckChances) const;
+	int  GetWithdrawChance(const CvUnit& pAttacker, const bool bCheckChances) const;
 	bool DoFallBack(const CvUnit& pAttacker);
 
 private:
