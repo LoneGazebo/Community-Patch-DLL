@@ -73,8 +73,7 @@ INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SE
 INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SELECT 'UNIT_WWI_BOMBER','BUILDINGCLASS_MILITARY_ACADEMY'; 
 INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SELECT 'UNIT_DESTROYER','BUILDINGCLASS_SEAPORT'; 
 INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SELECT 'UNIT_WWI_TANK','BUILDINGCLASS_MILITARY_ACADEMY'; 
-INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SELECT 'UNIT_MACHINE_GUN','BUILDINGCLASS_MILITARY_ACADEMY'; 
-INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SELECT 'UNIT_BRAZILIAN_PRACINHA','BUILDINGCLASS_MILITARY_ACADEMY'; 
+INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SELECT 'UNIT_MACHINE_GUN','BUILDINGCLASS_MILITARY_ACADEMY';
 INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SELECT 'UNIT_GREAT_WAR_INFANTRY','BUILDINGCLASS_MILITARY_ACADEMY'; 
 INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SELECT 'UNIT_TRIPLANE','BUILDINGCLASS_MILITARY_ACADEMY';
 INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SELECT 'UNIT_ANTI_TANK_GUN','BUILDINGCLASS_MILITARY_ACADEMY'; 
@@ -88,7 +87,7 @@ INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SE
 INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SELECT 'UNIT_GUIDED_MISSILE','BUILDINGCLASS_MILITARY_ACADEMY';
 INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SELECT 'UNIT_BOMBER','BUILDINGCLASS_AIRPORT'; 
 INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SELECT 'UNIT_BOMBER','BUILDINGCLASS_MILITARY_ACADEMY';
-INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SELECT 'UNIT_INFANTRY','BUILDINGCLASS_MILITARY_ACADEMY';
+INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SELECT 'UNIT_INFANTRY','BUILDINGCLASS_MILITARY_ACADEMY'; 
 INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SELECT 'UNIT_MARINE','BUILDINGCLASS_MILITARY_ACADEMY';
 INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SELECT 'UNIT_MOBILE_SAM','BUILDINGCLASS_MILITARY_ACADEMY';
 INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SELECT 'UNIT_GERMAN_PANZER','BUILDINGCLASS_MILITARY_ACADEMY';
@@ -97,7 +96,7 @@ INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SE
 INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SELECT 'UNIT_TANK','BUILDINGCLASS_MILITARY_ACADEMY';
 -- Information
 INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SELECT 'UNIT_MECH','BUILDINGCLASS_MILITARY_BASE'; 
-INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SELECT 'UNIT_HELICOPTER_GUNSHIP','BUILDINGCLASS_MILITARY_BASE'; 
+INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SELECT 'UNIT_HELICOPTER_GUNSHIP','BUILDINGCLASS_MILITARY_BASE';
 INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SELECT 'UNIT_HELICOPTER_GUNSHIP','BUILDINGCLASS_MILITARY_BASE';
 INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SELECT 'UNIT_JET_FIGHTER','BUILDINGCLASS_MILITARY_BASE';
 INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SELECT 'UNIT_JET_FIGHTER','BUILDINGCLASS_AIRPORT'; 
