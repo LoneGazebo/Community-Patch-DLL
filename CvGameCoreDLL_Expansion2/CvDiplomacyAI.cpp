@@ -15354,10 +15354,10 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	{
 		if (GetBiggestCompetitor() == ePlayer)
 		{
-			vApproachScores[CIV_APPROACH_WAR] += iMyEra > 1 && !bEarlyGameCompetitor ? vApproachBias[CIV_APPROACH_WAR] * 5 : vApproachBias[CIV_APPROACH_WAR] * 3;
-			vApproachScores[CIV_APPROACH_HOSTILE] += iMyEra > 1 && !bEarlyGameCompetitor ? vApproachBias[CIV_APPROACH_HOSTILE] * 5 : vApproachBias[CIV_APPROACH_HOSTILE] * 3;
-			vApproachScores[CIV_APPROACH_GUARDED] += iMyEra > 1 && !bEarlyGameCompetitor ? vApproachBias[CIV_APPROACH_GUARDED] * 5 : 0;
-			vApproachScores[CIV_APPROACH_DECEPTIVE] += iMyEra > 1 && !bEarlyGameCompetitor ? vApproachBias[CIV_APPROACH_DECEPTIVE] * 5 : 0;
+			vApproachScores[CIV_APPROACH_WAR] += iMyEra > 1 ? vApproachBias[CIV_APPROACH_WAR] * 5 : vApproachBias[CIV_APPROACH_WAR] * 3;
+			vApproachScores[CIV_APPROACH_HOSTILE] += iMyEra > 1 ? vApproachBias[CIV_APPROACH_HOSTILE] * 5 : vApproachBias[CIV_APPROACH_HOSTILE] * 3;
+			vApproachScores[CIV_APPROACH_GUARDED] += iMyEra > 1 ? vApproachBias[CIV_APPROACH_GUARDED] * 5 : 0;
+			vApproachScores[CIV_APPROACH_DECEPTIVE] += iMyEra > 1 ? vApproachBias[CIV_APPROACH_DECEPTIVE] * 5 : 0;
 
 			if (IsGoingForWorldConquest() || eProximity == PLAYER_PROXIMITY_NEIGHBORS || bVictoryConcern || bProvokedUs || bWantsOpportunityAttack)
 			{
@@ -39254,7 +39254,7 @@ int CvDiplomacyAI::GetDenounceMessage(PlayerTypes ePlayer)
 		}
 
 		// Guy is a different ideology
-		if (GetDiploBalance() > 5 && IsPlayerOpposingIdeology(ePlayer))
+		if (GetDiploBalance() > 5 && IsPlayerOpposingIdeology(ePlayer) && !IsVassal(ePlayer) && !IsIgnoreIdeologyDifferences(ePlayer))
 		{
 			if (m_pPlayer->GetCulture()->GetPublicOpinionPreferredIdeology() == GET_PLAYER(ePlayer).GetPlayerPolicies()->GetLateGamePolicyTree())
 			{
@@ -39343,7 +39343,7 @@ int CvDiplomacyAI::GetDenounceMessage(PlayerTypes ePlayer)
 			return 17;
 		}
 		// Guy is a different faith
-		else if(GetMeanness() > 4 && m_pPlayer->GetReligions()->HasCreatedReligion(true) && GET_PLAYER(ePlayer).GetReligions()->HasCreatedReligion(true) && (GET_PLAYER(ePlayer).GetReligions()->GetReligionInMostCities() != GetPlayer()->GetReligions()->GetReligionInMostCities()) && (GetPlayer()->GetReligions()->GetReligionInMostCities() != NO_RELIGION) && (GET_PLAYER(ePlayer).GetReligions()->GetReligionInMostCities() != NO_RELIGION))
+		else if(!IsVassal(ePlayer) && !IsIgnoreReligionDifferences(ePlayer) && GetMeanness() > 4 && m_pPlayer->GetReligions()->HasCreatedReligion(true) && GET_PLAYER(ePlayer).GetReligions()->HasCreatedReligion(true) && (GET_PLAYER(ePlayer).GetReligions()->GetReligionInMostCities() != GetPlayer()->GetReligions()->GetReligionInMostCities()) && (GetPlayer()->GetReligions()->GetReligionInMostCities() != NO_RELIGION) && (GET_PLAYER(ePlayer).GetReligions()->GetReligionInMostCities() != NO_RELIGION))
 		{
 			return 18;
 		}
@@ -39398,7 +39398,7 @@ int CvDiplomacyAI::GetDenounceMessage(PlayerTypes ePlayer)
 		iMessage = 0;
 
 		// Guy is a different ideology
-		if (GetDiploBalance() > 5 && IsPlayerOpposingIdeology(ePlayer))
+		if (GetDiploBalance() > 5 && IsPlayerOpposingIdeology(ePlayer) && !IsVassal(ePlayer) && !IsIgnoreIdeologyDifferences(ePlayer))
 		{
 			if (m_pPlayer->GetCulture()->GetPublicOpinionPreferredIdeology() == GET_PLAYER(ePlayer).GetPlayerPolicies()->GetLateGamePolicyTree())
 			{
@@ -39486,7 +39486,7 @@ int CvDiplomacyAI::GetDenounceMessage(PlayerTypes ePlayer)
 			return 17;
 		}
 		// Guy is a different faith
-		else if(GetMeanness() > 4 && (GET_PLAYER(ePlayer).GetReligions()->GetReligionInMostCities() != GetPlayer()->GetReligions()->GetReligionInMostCities()) && (GetPlayer()->GetReligions()->GetReligionInMostCities() != NO_RELIGION) && (GET_PLAYER(ePlayer).GetReligions()->GetReligionInMostCities() != NO_RELIGION))
+		else if(!IsVassal(ePlayer) && !IsIgnoreReligionDifferences(ePlayer) && GetMeanness() > 4 && (GET_PLAYER(ePlayer).GetReligions()->GetReligionInMostCities() != GetPlayer()->GetReligions()->GetReligionInMostCities()) && (GetPlayer()->GetReligions()->GetReligionInMostCities() != NO_RELIGION) && (GET_PLAYER(ePlayer).GetReligions()->GetReligionInMostCities() != NO_RELIGION))
 		{
 			return 18;
 		}
@@ -39863,10 +39863,10 @@ const char* CvDiplomacyAI::GetEndDoFMessage(PlayerTypes ePlayer)
 	if(GetWarmongerThreat(ePlayer) >= THREAT_MAJOR)
 		strText = GetDiploTextFromTag("RESPONSE_END_WORK_WITH_US_WARMONGER");
 	// Guy is a different ideology
-	else if((GET_PLAYER(ePlayer).GetPlayerPolicies()->GetLateGamePolicyTree() != GetPlayer()->GetPlayerPolicies()->GetLateGamePolicyTree()) && (GetPlayer()->GetPlayerPolicies()->GetLateGamePolicyTree() != NO_POLICY_BRANCH_TYPE) && (GET_PLAYER(ePlayer).GetPlayerPolicies()->GetLateGamePolicyTree() != NO_POLICY_BRANCH_TYPE))
+	else if(!IsVassal(ePlayer) && !IsIgnoreIdeologyDifferences(ePlayer) && (GET_PLAYER(ePlayer).GetPlayerPolicies()->GetLateGamePolicyTree() != GetPlayer()->GetPlayerPolicies()->GetLateGamePolicyTree()) && (GetPlayer()->GetPlayerPolicies()->GetLateGamePolicyTree() != NO_POLICY_BRANCH_TYPE) && (GET_PLAYER(ePlayer).GetPlayerPolicies()->GetLateGamePolicyTree() != NO_POLICY_BRANCH_TYPE))
 		strText = GetDiploTextFromTag("RESPONSE_END_WORK_WITH_US_IDEOLOGY");
 	// Guy is a different faith
-	else if((GET_PLAYER(ePlayer).GetReligions()->GetReligionInMostCities() != GetPlayer()->GetReligions()->GetReligionInMostCities()) && (GetPlayer()->GetReligions()->GetReligionInMostCities() != NO_RELIGION) && (GET_PLAYER(ePlayer).GetReligions()->GetReligionInMostCities() != NO_RELIGION))
+	else if(!IsVassal(ePlayer) && !IsIgnoreReligionDifferences(ePlayer) && (GET_PLAYER(ePlayer).GetReligions()->GetReligionInMostCities() != GetPlayer()->GetReligions()->GetReligionInMostCities()) && (GetPlayer()->GetReligions()->GetReligionInMostCities() != NO_RELIGION) && (GET_PLAYER(ePlayer).GetReligions()->GetReligionInMostCities() != NO_RELIGION))
 		strText = GetDiploTextFromTag("RESPONSE_END_WORK_WITH_US_FAITH");
 	// Guy is getting too friendly with our minors
 	else if(GetMinorCivDisputeLevel(ePlayer) >= DISPUTE_LEVEL_STRONG)
