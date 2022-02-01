@@ -12,7 +12,6 @@ SELECT 'Any', 'Constructed', '1',  'ART_DEF_IMPROVEMENT_JFD_MACHU', 'SNAPSHOT', 
 --------------------------------------------------------------------------------------------------------------------------
 INSERT OR REPLACE INTO Improvements
 		(Type,								ArtDefineTag, 						GraphicalOnly)
-SELECT	'IMPROVEMENT_JFD_MACHU_PICCHU',		'ART_DEF_IMPROVEMENT_JFD_MACHU',	1
-WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type = 'COMMUNITY_CORE_BALANCE_LEADERS' AND Value = 1);
+SELECT	'IMPROVEMENT_JFD_MACHU_PICCHU',		'ART_DEF_IMPROVEMENT_JFD_MACHU',	1;
 --==========================================================================================================================
 --==========================================================================================================================		

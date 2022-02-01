@@ -528,11 +528,11 @@ WHERE Tag = 'TXT_KEY_DIPLO_DEF_PACT_TT';
 -- Lua for Cities
 UPDATE Language_en_US
 SET Text = 'We have no tradeable cities and/or we do not have an Embassy with them.'
-WHERE Tag = 'TXT_KEY_DIPLO_TO_TRADE_CITY_NO_TT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CIVS' AND Value= 1 );
+WHERE Tag = 'TXT_KEY_DIPLO_TO_TRADE_CITY_NO_TT';
 
 UPDATE Language_en_US
 SET Text = 'They have no tradeable cities and/or they do not have an Embassy with us.'
-WHERE Tag = 'TXT_KEY_DIPLO_TO_TRADE_CITY_NO_THEM' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CIVS' AND Value= 1 );
+WHERE Tag = 'TXT_KEY_DIPLO_TO_TRADE_CITY_NO_THEM';
 
 
 -- Civilopedia Refresh

@@ -430,19 +430,6 @@
 		VALUES ('TXT_KEY_CIV5_MOUNTED_BOWMAN_HELP', 'Powerful Medieval-Era mounted ranged unit, useful for harassment and hit-and-run tactics.');
 
 	-- Ranged
-
-	INSERT INTO Language_en_US (Tag, Text)
-		VALUES ('TXT_KEY_DESC_VOLLEY_GUN', 'Volley Gun');
-
-	INSERT INTO Language_en_US (Tag, Text)
-		VALUES ('TXT_KEY_CIV5_VOLLEY_GUN_PEDIA', 'A volley gun is a gun with several barrels for firing a number of shots, either simultaneously or in sequence. They differ from modern machine guns in that they lack automatic loading and automatic fire and are limited by the number of barrels bundled together. ');
-
-	INSERT INTO Language_en_US (Tag, Text)
-		VALUES ('TXT_KEY_CIV5_VOLLEY_GUN_STRATEGY', 'Volley Guns are a powerful Renaissance ranged weapon, though they are quite vulnerable to Melee. Keep them away from your front lines.');
-
-	INSERT INTO Language_en_US (Tag, Text)
-		VALUES ('TXT_KEY_CIV5_VOLLEY_GUN_HELP', 'Renaissance-Era ranged land unit designed to support your Musketmen.');
-
 	UPDATE Language_en_US
 	SET Text = 'Ranged infantry Unit of the mid-game that weakens nearby enemy units.'
 	WHERE Tag = 'TXT_KEY_UNIT_HELP_GATLINGGUN';

@@ -65,16 +65,6 @@ INSERT INTO CSD (Type, Value)
 VALUES ('CSD_DIFFICULTY', 2);
 
 /*
-National Wonder Tweaks (CSD) - National Wonders now require a certain amount of national population instead of buildings in every city.
-Will not work without enabling COMMUNITY_CORE_BALANCE_NATIONAL_WONDERS (in the Community Balance Overhaul) as well!
-1 = Enabled (Default)
-0 = Disabled 
-*/
-
-INSERT INTO CSD (Type, Value)
-VALUES ('COMMUNITY_CORE_BALANCE_NATIONAL_WONDERS_CSD', 1);
-
-/*
 Gold Gifting and Gold-Related Quests with City-States On/Off
 1 = Gold Gifts Enabled
 2 = Gold Gifts Disabled (Default)
