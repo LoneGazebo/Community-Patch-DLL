@@ -11423,9 +11423,10 @@ void CvPlayer::doTurn()
 	}
 
 	// Certain counters update now
+	DoUpdateWarPeaceTurnCounters();
+
 	if (isMajorCiv())
 	{
-		DoUpdateWarPeaceTurnCounters();
 		DoMilitaryRatingDecay();
 	}
 
