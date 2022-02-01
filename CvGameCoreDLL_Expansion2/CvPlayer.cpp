@@ -4826,9 +4826,6 @@ bool CvPlayer::IsValidBuildingForPlayer(CvCity* pCity, BuildingTypes eBuilding, 
 	if (!pkLoopBuildingInfo)
 		return false;
 
-	if (pkLoopBuildingInfo->IsDummy())
-		return false;
-
 	if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_ConquerorValidBuilding, pCity->getOwner(), pCity->GetID(), GetID(), eBuilding) == GAMEEVENTRETURN_FALSE)
 		return false;
 

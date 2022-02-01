@@ -6707,6 +6707,10 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 
 						if (eBuildingType != NO_BUILDING)
 						{
+							CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuildingType);
+							if (!pkBuildingInfo || pkBuildingInfo->IsDummy())
+								continue;
+
 							if (GetCityBuildings()->GetNumFreeBuilding(eBuildingType) > 0)
 								continue;
 
