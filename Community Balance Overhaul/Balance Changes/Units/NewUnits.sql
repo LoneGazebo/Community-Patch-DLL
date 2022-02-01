@@ -1,13 +1,11 @@
 -- Tercio Class, used later
 INSERT INTO UnitClasses (Type, Description, DefaultUnit) 
-SELECT 'UNITCLASS_TERCIO', 'TXT_KEY_UNIT_SPANISH_TERCIO', 'UNIT_SPANISH_TERCIO' 
-WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
+VALUES ('UNITCLASS_TERCIO', 'TXT_KEY_UNIT_SPANISH_TERCIO', 'UNIT_SPANISH_TERCIO');
 
 -- Cruiser 
 
 INSERT INTO UnitClasses (Type, Description, DefaultUnit )
-	SELECT 'UNITCLASS_CRUISER', 'TXT_KEY_DESC_CRUISER', 'UNIT_CRUISER'
-	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+	VALUES ('UNITCLASS_CRUISER', 'TXT_KEY_DESC_CRUISER', 'UNIT_CRUISER');
 
 INSERT INTO Units (Type, Description, Civilopedia, Strategy, Help, Requirements, Combat, RangedCombat, Cost, Moves, Immobile, Range, BaseSightRange, Class, Special, Capture, CombatClass, Domain, CivilianAttackPriority, DefaultUnitAI, Food, NoBadGoodies, RivalTerritory, MilitarySupport, MilitaryProduction, Pillage, Found, FoundAbroad, CultureBombRadius, GoldenAgeTurns, IgnoreBuildingDefense, PrereqResources, Mechanized, Suicide, CaptureWhileEmbarked, PrereqTech, ObsoleteTech, GoodyHutUpgradeUnitClass, HurryCostModifier, AdvancedStartCost, MinAreaSize, AirUnitCap, NukeDamageLevel, WorkRate, NumFreeTechs, RushBuilding, BaseHurry, HurryMultiplier, BaseGold, NumGoldPerEra, SpreadReligion, CombatLimit, RangeAttackOnlyInDomain, RangeAttackIgnoreLOS, RangedCombatLimit, XPValueAttack, XPValueDefense, SpecialCargo, DomainCargo, Conscription, ExtraMaintenanceCost, NoMaintenance, Unhappiness, UnitArtInfo, UnitArtInfoCulturalVariation, UnitArtInfoEraVariation, ProjectPrereq, SpaceshipProject, LeaderPromotion, LeaderExperience, DontShowYields, ShowInPedia, MoveRate, UnitFlagIconOffset, PortraitIndex, IconAtlas, UnitFlagAtlas)
 	SELECT	('UNIT_CRUISER'), ('TXT_KEY_DESC_CRUISER'), ('TXT_KEY_CIV5_CRUISER_PEDIA') , ('TXT_KEY_CIV5_CRUISER_STRATEGY'), ('TXT_KEY_CIV5_CRUISER_HELP'), Requirements, ('35'), ('40'), ('600'), ('4'), Immobile, ('1'), BaseSightRange, ('UNITCLASS_CRUISER'), Special, Capture, CombatClass, Domain, CivilianAttackPriority, ('UNITAI_ASSAULT_SEA'), Food, NoBadGoodies, RivalTerritory, MilitarySupport, MilitaryProduction, Pillage, Found, FoundAbroad, CultureBombRadius, GoldenAgeTurns, IgnoreBuildingDefense, PrereqResources, Mechanized, Suicide, CaptureWhileEmbarked, ('TECH_DYNAMITE'), ('TECH_NUCLEAR_FISSION'), ('UNITCLASS_BATTLESHIP'), HurryCostModifier, AdvancedStartCost, MinAreaSize, AirUnitCap, NukeDamageLevel, WorkRate, NumFreeTechs, RushBuilding, BaseHurry, HurryMultiplier, BaseGold, NumGoldPerEra, SpreadReligion, CombatLimit, RangeAttackOnlyInDomain, RangeAttackIgnoreLOS, RangedCombatLimit, XPValueAttack, XPValueDefense, SpecialCargo, DomainCargo, Conscription, ExtraMaintenanceCost, NoMaintenance, Unhappiness,
@@ -23,20 +21,17 @@ INSERT INTO Unit_AITypes (UnitType, UnitAIType)
 	FROM Unit_AITypes WHERE (UnitType = 'UNIT_BATTLESHIP');
 
 INSERT INTO Unit_ClassUpgrades (UnitType, UnitClassType)
-	SELECT 'UNIT_CRUISER', 'UNITCLASS_BATTLESHIP'
-	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+	VALUES ('UNIT_CRUISER', 'UNITCLASS_BATTLESHIP');
 
 INSERT INTO Unit_Flavors (UnitType, FlavorType, Flavor)
 	SELECT ('UNIT_CRUISER'), FlavorType, Flavor
 	FROM Unit_Flavors WHERE (UnitType = 'UNIT_BATTLESHIP');
 
 INSERT INTO Unit_FreePromotions (UnitType, PromotionType)
-	SELECT 'UNIT_CRUISER', 'PROMOTION_ONLY_DEFENSIVE'
-	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+	VALUES ('UNIT_CRUISER', 'PROMOTION_ONLY_DEFENSIVE');
 
 INSERT INTO Unit_ResourceQuantityRequirements (UnitType, ResourceType, Cost)
-	SELECT 'UNIT_CRUISER', 'RESOURCE_IRON', '1'
-	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+	VALUES ('UNIT_CRUISER', 'RESOURCE_IRON', '1');
 
 -- VOLLEY_GUN 
 
@@ -65,15 +60,9 @@ INSERT INTO Unit_ResourceQuantityRequirements (UnitType, ResourceType, Cost)
 	--SELECT 'UNIT_VOLLEY_GUN', 'PROMOTION_ONLY_DEFENSIVE'
 	--WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
---INSERT INTO Unit_Flavors (UnitType, FlavorType, Flavor)
---	SELECT ('UNIT_VOLLEY_GUN'), FlavorType, Flavor
---	FROM Unit_Flavors WHERE (UnitType = 'UNIT_GATLINGGUN');
-
-
 -- Mounted XBOW
 INSERT INTO UnitClasses (Type, Description, DefaultUnit )
-	SELECT 'UNITCLASS_MOUNTED_BOWMAN', 'TXT_KEY_DESC_MOUNTED_BOWMAN', 'UNIT_MOUNTED_BOWMAN'
-	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+	VALUES ('UNITCLASS_MOUNTED_BOWMAN', 'TXT_KEY_DESC_MOUNTED_BOWMAN', 'UNIT_MOUNTED_BOWMAN');
 
 INSERT INTO Units (Type, Description, Civilopedia, Strategy, Help, Requirements, Combat, RangedCombat, Cost, FaithCost, RequiresFaithPurchaseEnabled, Moves, Immobile, Range, BaseSightRange, Class, Special, Capture, CombatClass, Domain, CivilianAttackPriority, DefaultUnitAI, Food, NoBadGoodies, RivalTerritory, MilitarySupport, MilitaryProduction, Pillage, Found, FoundAbroad, CultureBombRadius, GoldenAgeTurns, IgnoreBuildingDefense, PrereqResources, Mechanized, Suicide, CaptureWhileEmbarked, PrereqTech, ObsoleteTech, GoodyHutUpgradeUnitClass, HurryCostModifier, AdvancedStartCost, MinAreaSize, AirUnitCap, NukeDamageLevel, WorkRate, NumFreeTechs, RushBuilding, BaseHurry, HurryMultiplier, BaseGold, NumGoldPerEra, SpreadReligion, CombatLimit, RangeAttackOnlyInDomain, RangeAttackIgnoreLOS, RangedCombatLimit, XPValueAttack, XPValueDefense, SpecialCargo, DomainCargo, Conscription, ExtraMaintenanceCost, NoMaintenance, Unhappiness, UnitArtInfo, UnitArtInfoCulturalVariation, UnitArtInfoEraVariation, ProjectPrereq, SpaceshipProject, LeaderPromotion, LeaderExperience, DontShowYields, ShowInPedia, MoveRate, UnitFlagIconOffset, PortraitIndex, IconAtlas, UnitFlagAtlas)
 	SELECT	('UNIT_MOUNTED_BOWMAN'), ('TXT_KEY_DESC_MOUNTED_BOWMAN'), ('TXT_KEY_CIV5_MOUNTED_BOWMAN_PEDIA') , ('TXT_KEY_CIV5_MOUNTED_BOWMAN_STRATEGY'), ('TXT_KEY_CIV5_MOUNTED_BOWMAN_HELP'), Requirements, ('8'), ('17'), ('175'), ('200'), ('1'), ('4'), Immobile, ('2'), BaseSightRange, ('UNITCLASS_MOUNTED_BOWMAN'), Special, Capture, CombatClass, Domain, CivilianAttackPriority, ('UNITAI_RANGED'), Food, NoBadGoodies, RivalTerritory, MilitarySupport, MilitaryProduction, Pillage, Found, FoundAbroad, CultureBombRadius, GoldenAgeTurns, ('1'), PrereqResources, Mechanized, Suicide, CaptureWhileEmbarked, ('TECH_PHYSICS'), ('TECH_METALLURGY'), ('UNITCLASS_CUIRASSIER'), HurryCostModifier, AdvancedStartCost, MinAreaSize, AirUnitCap, NukeDamageLevel, WorkRate, NumFreeTechs, RushBuilding, BaseHurry, HurryMultiplier, BaseGold, NumGoldPerEra, SpreadReligion, CombatLimit, RangeAttackOnlyInDomain, RangeAttackIgnoreLOS, RangedCombatLimit, XPValueAttack, XPValueDefense, SpecialCargo, DomainCargo, Conscription, ExtraMaintenanceCost, NoMaintenance, Unhappiness,
@@ -93,40 +82,22 @@ INSERT INTO Unit_AITypes (UnitType, UnitAIType)
 	FROM Unit_AITypes WHERE (UnitType = 'UNIT_HUN_HORSE_ARCHER');
 
 INSERT INTO Unit_ClassUpgrades (UnitType, UnitClassType)
-	SELECT 'UNIT_MOUNTED_BOWMAN', 'UNITCLASS_CUIRASSIER'
-	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+	VALUES ('UNIT_MOUNTED_BOWMAN', 'UNITCLASS_CUIRASSIER');
 
 INSERT INTO Unit_ResourceQuantityRequirements (UnitType, ResourceType, Cost)
-	SELECT 'UNIT_MOUNTED_BOWMAN', 'RESOURCE_HORSE', '1'
-	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+	VALUES ('UNIT_MOUNTED_BOWMAN', 'RESOURCE_HORSE', '1');
 
 INSERT INTO Unit_FreePromotions (UnitType, PromotionType)
-	SELECT 'UNIT_MOUNTED_BOWMAN', 'PROMOTION_NO_DEFENSIVE_BONUSES'
-	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+	VALUES ('UNIT_MOUNTED_BOWMAN', 'PROMOTION_NO_DEFENSIVE_BONUSES');
 
 INSERT INTO Unit_FreePromotions (UnitType, PromotionType)
-	SELECT 'UNIT_MOUNTED_BOWMAN', 'PROMOTION_ONLY_DEFENSIVE'
-	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+	VALUES ('UNIT_MOUNTED_BOWMAN', 'PROMOTION_ONLY_DEFENSIVE');
 
 INSERT INTO Unit_FreePromotions (UnitType, PromotionType)
-	SELECT 'UNIT_MOUNTED_BOWMAN', 'PROMOTION_CAN_MOVE_AFTER_ATTACKING'
-	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
+	VALUES ('UNIT_MOUNTED_BOWMAN', 'PROMOTION_CAN_MOVE_AFTER_ATTACKING');
 
 INSERT INTO Unit_FreePromotions (UnitType, PromotionType)
-	SELECT 'UNIT_MOUNTED_BOWMAN', 'PROMOTION_CITY_PENALTY'
-	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
-
-INSERT INTO Unit_Flavors (UnitType, FlavorType, Flavor)
-	SELECT ('UNIT_MOUNTED_BOWMAN'), 'FLAVOR_OFFENSE', '8'
-		WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
-
-INSERT INTO Unit_Flavors (UnitType, FlavorType, Flavor)
-	SELECT ('UNIT_MOUNTED_BOWMAN'), 'FLAVOR_MOBILE', '8'
-		WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
-
-INSERT INTO Unit_Flavors (UnitType, FlavorType, Flavor)
-	SELECT ('UNIT_MOUNTED_BOWMAN'), 'FLAVOR_RANGED', '5'
-		WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
+	VALUES ('UNIT_MOUNTED_BOWMAN', 'PROMOTION_CITY_PENALTY');
 
 -- Cuirassier
 INSERT INTO UnitClasses (Type, Description, DefaultUnit )
@@ -151,101 +122,67 @@ INSERT INTO Unit_AITypes (UnitType, UnitAIType)
 	FROM Unit_AITypes WHERE (UnitType = 'UNIT_HUN_HORSE_ARCHER');
 
 INSERT INTO Unit_ClassUpgrades (UnitType, UnitClassType)
-	SELECT 'UNIT_CUIRASSIER', 'UNITCLASS_CAVALRY'
-	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+	VALUES ('UNIT_CUIRASSIER', 'UNITCLASS_CAVALRY');
 
 INSERT INTO Unit_ResourceQuantityRequirements (UnitType, ResourceType, Cost)
-	SELECT 'UNIT_CUIRASSIER', 'RESOURCE_HORSE', '1'
-	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+	VALUES ('UNIT_CUIRASSIER', 'RESOURCE_HORSE', '1');
 
 INSERT INTO Unit_FreePromotions (UnitType, PromotionType)
-	SELECT 'UNIT_CUIRASSIER', 'PROMOTION_NO_DEFENSIVE_BONUSES'
-	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+	VALUES ('UNIT_CUIRASSIER', 'PROMOTION_NO_DEFENSIVE_BONUSES');
 
 INSERT INTO Unit_FreePromotions (UnitType, PromotionType)
-	SELECT 'UNIT_CUIRASSIER', 'PROMOTION_ONLY_DEFENSIVE'
-	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+	VALUES ('UNIT_CUIRASSIER', 'PROMOTION_ONLY_DEFENSIVE');
 
 INSERT INTO Unit_FreePromotions (UnitType, PromotionType)
-	SELECT 'UNIT_CUIRASSIER', 'PROMOTION_CAN_MOVE_AFTER_ATTACKING'
-	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
+	VALUES ('UNIT_CUIRASSIER', 'PROMOTION_CAN_MOVE_AFTER_ATTACKING');
 
 INSERT INTO Unit_FreePromotions (UnitType, PromotionType)
-	SELECT 'UNIT_CUIRASSIER', 'PROMOTION_CITY_PENALTY'
-	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
-
-INSERT INTO Unit_Flavors (UnitType, FlavorType, Flavor)
-	SELECT ('UNIT_CUIRASSIER'), 'FLAVOR_OFFENSE', '10'
-		WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
-
-INSERT INTO Unit_Flavors (UnitType, FlavorType, Flavor)
-	SELECT ('UNIT_CUIRASSIER'), 'FLAVOR_MOBILE', '11'
-		WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
-
-INSERT INTO Unit_Flavors (UnitType, FlavorType, Flavor)
-	SELECT ('UNIT_CUIRASSIER'), 'FLAVOR_RANGED', '9'
-		WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
+	VALUES ('UNIT_CUIRASSIER', 'PROMOTION_CITY_PENALTY');
 
 -- Field Gun
 
 -- Cuirassier
 INSERT INTO UnitClasses (Type, Description, DefaultUnit )
-	SELECT 'UNITCLASS_FIELD_GUN', 'TXT_KEY_UNIT_FIELD_GUN', 'UNIT_FIELD_GUN'
-	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+	VALUES ('UNITCLASS_FIELD_GUN', 'TXT_KEY_UNIT_FIELD_GUN', 'UNIT_FIELD_GUN');
 
 INSERT INTO Units (Type, Description, Civilopedia, Strategy, Help, Requirements, Combat, RangedCombat, Cost, FaithCost, RequiresFaithPurchaseEnabled, Moves, Immobile, Range, BaseSightRange, Class, Special, Capture, CombatClass, Domain, CivilianAttackPriority, DefaultUnitAI, Food, NoBadGoodies, RivalTerritory, MilitarySupport, MilitaryProduction, Pillage, Found, FoundAbroad, CultureBombRadius, GoldenAgeTurns, IgnoreBuildingDefense, PrereqResources, Mechanized, Suicide, CaptureWhileEmbarked, PrereqTech, ObsoleteTech, GoodyHutUpgradeUnitClass, HurryCostModifier, AdvancedStartCost, MinAreaSize, AirUnitCap, NukeDamageLevel, WorkRate, NumFreeTechs, RushBuilding, BaseHurry, HurryMultiplier, BaseGold, NumGoldPerEra, SpreadReligion, CombatLimit, RangeAttackOnlyInDomain, RangeAttackIgnoreLOS, RangedCombatLimit, XPValueAttack, XPValueDefense, SpecialCargo, DomainCargo, Conscription, ExtraMaintenanceCost, NoMaintenance, Unhappiness, UnitArtInfo, UnitArtInfoCulturalVariation, UnitArtInfoEraVariation, ProjectPrereq, SpaceshipProject, LeaderPromotion, LeaderExperience, DontShowYields, ShowInPedia, MoveRate, UnitFlagIconOffset, PortraitIndex, IconAtlas, UnitFlagAtlas)
 	SELECT	('UNIT_FIELD_GUN'), ('TXT_KEY_DESC_FIELD_GUN'), ('TXT_KEY_CIV5_FIELD_GUN_PEDIA') , ('TXT_KEY_CIV5_FIELD_GUN_STRATEGY'), ('TXT_KEY_CIV5_FIELD_GUN_HELP'), Requirements, ('16'), ('40'), ('250'), ('250'), ('1'), Moves, Immobile, ('2'), BaseSightRange, ('UNITCLASS_FIELD_GUN'), Special, Capture, CombatClass, Domain, CivilianAttackPriority, DefaultUnitAI, Food, NoBadGoodies, RivalTerritory, MilitarySupport, MilitaryProduction, Pillage, Found, FoundAbroad, CultureBombRadius, GoldenAgeTurns, IgnoreBuildingDefense, PrereqResources, Mechanized, Suicide, CaptureWhileEmbarked, ('TECH_RIFLING'), ('TECH_BALLISTICS'), ('UNITCLASS_ARTILLERY'), HurryCostModifier, AdvancedStartCost, MinAreaSize, AirUnitCap, NukeDamageLevel, WorkRate, NumFreeTechs, RushBuilding, BaseHurry, HurryMultiplier, BaseGold, NumGoldPerEra, SpreadReligion, CombatLimit, RangeAttackOnlyInDomain, RangeAttackIgnoreLOS, RangedCombatLimit, XPValueAttack, XPValueDefense, SpecialCargo, DomainCargo, Conscription, ExtraMaintenanceCost, NoMaintenance, Unhappiness,
 			('ART_DEF_UNIT_FIELD_GUN'), UnitArtInfoCulturalVariation, UnitArtInfoEraVariation, ProjectPrereq, SpaceshipProject, LeaderPromotion, LeaderExperience, DontShowYields, ShowInPedia, MoveRate, ('0'), ('7'), ('COMMUNITY_2_ATLAS'), ('FIELD_GUN_FLAG_ATLAS')
 	FROM Units WHERE (Type = 'UNIT_ARTILLERY');
 
-INSERT INTO Unit_Flavors
-	(UnitType, FlavorType, Flavor)
-VALUES
-	('UNIT_FIELD_GUN', 'FLAVOR_RANGED', 12),
-	('UNIT_FIELD_GUN', 'FLAVOR_OFFENSE', 5),
-	('UNIT_FIELD_GUN', 'FLAVOR_DEFENSE', 5);
-
 INSERT INTO UnitGameplay2DScripts (UnitType, SelectionSound, FirstSelectionSound)
 	SELECT 'UNIT_FIELD_GUN', SelectionSound, FirstSelectionSound
 	FROM UnitGameplay2DScripts WHERE (UnitType = 'UNIT_ARTILLERY');
 
 INSERT INTO Unit_AITypes (UnitType, UnitAIType)
-	SELECT 'UNIT_FIELD_GUN', 'UNITAI_CITY_BOMBARD' WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+	VALUES ('UNIT_FIELD_GUN', 'UNITAI_CITY_BOMBARD');
 
 INSERT INTO Unit_AITypes (UnitType, UnitAIType)
-	SELECT 'UNIT_FIELD_GUN', 'UNITAI_RANGED' WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+	VALUES ('UNIT_FIELD_GUN', 'UNITAI_RANGED');
 
 INSERT INTO Unit_ClassUpgrades (UnitType, UnitClassType)
-	SELECT 'UNIT_FIELD_GUN', 'UNITCLASS_ARTILLERY'
-	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+	VALUES ('UNIT_FIELD_GUN', 'UNITCLASS_ARTILLERY');
 
 INSERT INTO Unit_ResourceQuantityRequirements (UnitType, ResourceType, Cost)
-	SELECT 'UNIT_FIELD_GUN', 'RESOURCE_IRON', '1'
-	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+	VALUES ('UNIT_FIELD_GUN', 'RESOURCE_IRON', '1');
 
 INSERT INTO Unit_FreePromotions (UnitType, PromotionType)
-	SELECT 'UNIT_FIELD_GUN', 'PROMOTION_NO_DEFENSIVE_BONUSES'
-	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+	VALUES ('UNIT_FIELD_GUN', 'PROMOTION_NO_DEFENSIVE_BONUSES');
 
 INSERT INTO Unit_FreePromotions (UnitType, PromotionType)
-	SELECT 'UNIT_FIELD_GUN', 'PROMOTION_ONLY_DEFENSIVE'
-	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+	VALUES ('UNIT_FIELD_GUN', 'PROMOTION_ONLY_DEFENSIVE');
 
 INSERT INTO Unit_FreePromotions (UnitType, PromotionType)
-	SELECT 'UNIT_FIELD_GUN', 'PROMOTION_CITY_SIEGE'
-	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+	VALUES ('UNIT_FIELD_GUN', 'PROMOTION_CITY_SIEGE');
 
 INSERT INTO Unit_FreePromotions (UnitType, PromotionType)
-	SELECT 'UNIT_FIELD_GUN', 'PROMOTION_MUST_SET_UP'
-	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+	VALUES ('UNIT_FIELD_GUN', 'PROMOTION_MUST_SET_UP');
 
 INSERT INTO Unit_FreePromotions (UnitType, PromotionType)
-	SELECT 'UNIT_FIELD_GUN', 'PROMOTION_SIGHT_PENALTY'
-	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+	VALUES ('UNIT_FIELD_GUN', 'PROMOTION_SIGHT_PENALTY');
 
 INSERT INTO Unit_FreePromotions (UnitType, PromotionType)
-	SELECT 'UNIT_FIELD_GUN', 'PROMOTION_COVER_1'
-	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+	VALUES ('UNIT_FIELD_GUN', 'PROMOTION_COVER_1');
 
 -- Free Company
 INSERT INTO UnitClasses
@@ -272,12 +209,6 @@ INSERT INTO Unit_AITypes
 VALUES
 	('UNIT_FCOMPANY', 'UNITAI_ATTACK'),
 	('UNIT_FCOMPANY', 'UNITAI_DEFENSE');
-
-INSERT INTO Unit_Flavors
-	(UnitType, FlavorType, Flavor)
-VALUES
-	('UNIT_FCOMPANY', 'FLAVOR_OFFENSE', 20),
-	('UNIT_FCOMPANY', 'FLAVOR_DEFENSE', 15);
 
 INSERT INTO Unit_FreePromotions
 	(UnitType, PromotionType)
@@ -314,12 +245,6 @@ VALUES
 	('UNIT_GUERILLA', 'UNITAI_DEFENSE'),
 	('UNIT_GUERILLA', 'UNITAI_EXPLORE');
 
-INSERT INTO Unit_Flavors
-	(UnitType, FlavorType, Flavor)
-VALUES
-	('UNIT_GUERILLA', 'FLAVOR_OFFENSE', 20),
-	('UNIT_GUERILLA', 'FLAVOR_DEFENSE', 15);
-
 INSERT INTO Unit_FreePromotions
 	(UnitType, PromotionType)
 VALUES
@@ -332,12 +257,14 @@ INSERT INTO UnitClasses
 	(Type, Description, DefaultUnit)
 VALUES
 	('UNITCLASS_EXPLORER', 'TXT_KEY_UNIT_EXPLORER', 'UNIT_EXPLORER'),
+--	('UNITCLASS_ZEPPELIN', 'TXT_KEY_UNIT_ZEPPELIN_CBP', 'UNIT_ZEPPELIN'),
 	('UNITCLASS_COMMANDO', 	'TXT_KEY_UNIT_COMMANDO', 	'UNIT_COMMANDO');
 
 INSERT INTO Units
 	(Class, 				Type, 			Combat, RangedCombat, 	Range, 	Cost, 	FaithCost, 	RequiresFaithPurchaseEnabled, 	Moves, 	BaseSightRange,	PrereqTech, 		ObsoleteTech, 		CombatClass, 		Domain, 		NoBadGoodies, 	DefaultUnitAI, 			Description, 					Civilopedia, 						Strategy, 								Help, 								Pillage, MilitarySupport, 	GoodyHutUpgradeUnitClass, 	MilitaryProduction, AdvancedStartCost, 	XPValueAttack, 	XPValueDefense, UnitArtInfo, 									UnitFlagAtlas, 						UnitFlagIconOffset, PortraitIndex, 	IconAtlas, 						MoveRate)
 VALUES
 	('UNITCLASS_EXPLORER', 'UNIT_EXPLORER', 16, 	0, 				0, 		180, 	200, 		1, 								3, 		3, 				'TECH_COMPASS', 	'TECH_RAILROAD', 	'UNITCOMBAT_RECON', 'DOMAIN_LAND', 	1, 				'UNITAI_EXPLORE', 		'TXT_KEY_UNIT_EXPLORER_CBP', 	'TXT_KEY_CIV5_EXPLORER_TEXT_CBP', 	'TXT_KEY_UNIT_EXPLORER_STRATEGY_CBP', 	'TXT_KEY_UNIT_HELP_EXPLORER_CBP', 	1, 		1, 					'UNITCLASS_COMMANDO', 		1, 					30, 				3, 				3, 				'ART_DEF_UNIT_EXPLORER_CBP', 					'EXPANSION2_UNIT_FLAG_ATLAS', 		5, 					58, 			'COMMUNITY_ATLAS', 				'BIPED'),
+--	('UNITCLASS_ZEPPELIN', 'UNIT_ZEPPELIN', 18, 	25, 			1, 		300, 	300, 		1, 								3, 		3, 				'TECH_STEAM_POWER', 'TECH_ROCKETRY', 	'UNITCOMBAT_RECON', 'DOMAIN_LAND', 	1, 				'UNITAI_EXPLORE', 		'TXT_KEY_UNIT_ZEPPELIN_CBP', 	'TXT_KEY_CIV5_ZEPPELIN_TEXT_CBP', 	'TXT_KEY_UNIT_ZEPPELIN_STRATEGY_CBP', 	'TXT_KEY_UNIT_HELP_ZEPPELIN_CBP', 	1, 		1, 					'UNITCLASS_PARATROOPER', 	1, 					30, 				3, 				3, 				'ART_DEF_UNIT_SMOKEY_STEAM_AIRSHIP_LEVEL_1', 	'EXPANSION_SCEN_UNIT_FLAG_ATLAS', 	7, 					7, 				'EXPANSION_SCEN_UNIT_ATLAS', 	'WHEELED'),
 	('UNITCLASS_COMMANDO', 'UNIT_COMMANDO', 32, 	0, 				0, 		600, 	600, 		1, 								3, 		3, 				'TECH_RAILROAD', 	'TECH_ROCKETRY', 	'UNITCOMBAT_RECON', 'DOMAIN_LAND', 	1, 				'UNITAI_EXPLORE', 	'TXT_KEY_UNIT_COMMANDO', 		'TXT_KEY_CIV5_COMMANDO_TEXT', 		'TXT_KEY_UNIT_COMMANDO_STRATEGY_CBP', 	'TXT_KEY_UNIT_HELP_COMMANDO_CBP', 	1, 		1, 					'UNITCLASS_PARATROOPER', 	1, 					30, 				3, 				3, 				'ART_DEF_UNIT_COMMANDO', 						'UNIT_COMMANDO_FLAG_ATLAS', 		0, 					16, 			'COMMUNITY_2_ATLAS', 			'BIPED');
 
 INSERT INTO ArtDefine_UnitInfos(Type, DamageStates, Formation)
@@ -373,16 +300,8 @@ INSERT INTO Unit_AITypes
 	(UnitType, UnitAIType)
 VALUES
 	('UNIT_EXPLORER', 'UNITAI_EXPLORE'),
+--	('UNIT_ZEPPELIN', 'UNITAI_EXPLORE'),
 	('UNIT_COMMANDO', 'UNITAI_EXPLORE');
-
-INSERT INTO Unit_Flavors
-	(UnitType, FlavorType, Flavor)
-VALUES
-	('UNIT_EXPLORER', 'FLAVOR_RECON', 	10),
-	('UNIT_COMMANDO', 'FLAVOR_RECON', 	10),
-	('UNIT_COMMANDO', 'FLAVOR_OFFENSE',	10),
-	('UNIT_COMMANDO', 'FLAVOR_DEFENSE',	4),
-	('UNIT_COMMANDO', 'FLAVOR_MOBILE',	8);
 
 INSERT INTO Unit_FreePromotions
 	(UnitType, PromotionType)
@@ -391,6 +310,11 @@ VALUES
 	('UNIT_EXPLORER', 'PROMOTION_EMBARKED_SIGHT'),
 	('UNIT_EXPLORER', 'PROMOTION_IGNORE_TERRAIN_COST'),
 	('UNIT_EXPLORER', 'PROMOTION_RECON_EXPERIENCE'),
+--	('UNIT_ZEPPELIN', 'PROMOTION_HOVERING_UNIT'),
+--	('UNIT_ZEPPELIN', 'PROMOTION_IGNORE_TERRAIN_COST'),
+--	('UNIT_ZEPPELIN', 'PROMOTION_RECON_EXPERIENCE'),
+--	('UNIT_ZEPPELIN', 'PROMOTION_EXTRA_SIGHT_I'),
+--	('UNIT_ZEPPELIN', 'PROMOTION_HOVER_UNIT'),
 	('UNIT_COMMANDO', 'PROMOTION_IGNORE_TERRAIN_COST'),
 	('UNIT_COMMANDO', 'PROMOTION_BARBARIAN_BONUS'),
 	('UNIT_COMMANDO', 'PROMOTION_SCOUT_GOODY_BONUS'),
@@ -404,6 +328,7 @@ INSERT INTO UnitGameplay2DScripts
 	(UnitType, SelectionSound, FirstSelectionSound)
 VALUES
 	('UNIT_EXPLORER', 'AS2D_SELECT_SCOUT', 'AS2D_BIRTH_SCOUT'),
+--	('UNIT_ZEPPELIN', 'AS2D_SELECT_SCOUT', 'AS2D_BIRTH_SCOUT'),
 	('UNIT_COMMANDO', 'AS2D_SELECT_SCOUT', 'AS2D_BIRTH_SCOUT');
 
 INSERT INTO Unit_ClassUpgrades
@@ -412,6 +337,7 @@ VALUES
 	('UNIT_SCOUT', 'UNITCLASS_EXPLORER'),
 	('UNIT_SHOSHONE_PATHFINDER', 'UNITCLASS_SCOUT'),
 	('UNIT_EXPLORER', 'UNITCLASS_COMMANDO'),
+--	('UNIT_ZEPPELIN', 'UNITCLASS_PARATROOPER'),
 	('UNIT_COMMANDO', 'UNITCLASS_PARATROOPER');
 
 
@@ -468,7 +394,7 @@ VALUES
 
 UPDATE Units
 SET ObsoleteTech = 'TECH_BANKING'
-WHERE Class = 'UNITCLASS_SETTLER' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='SETTLER_COMMUNITY' AND Value= 1);
+WHERE Class = 'UNITCLASS_SETTLER';
 
 INSERT INTO Unit_BuildOnFound
 	(UnitType, BuildingClassType)
