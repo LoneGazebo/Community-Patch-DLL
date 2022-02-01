@@ -401,7 +401,7 @@ void CvDealAI::DoAcceptedDeal(PlayerTypes eFromPlayer, CvDeal kDeal, int iDealVa
 				LeaderheadAnimationTypes eAnimation = kDeal.GetPeaceTreatyType() != NO_PEACE_TREATY_TYPE ? LEADERHEAD_ANIM_PEACEFUL : LEADERHEAD_ANIM_YES;
 
 				// A deal is generous if we're getting a lot overall, OR a lot more than we're giving up
-				if (bGenerousPeaceTreaty || iDealValueToMe >= 100 || iValueTheyreOffering > (iValueImOffering * 5))
+				if (bGenerousPeaceTreaty || iDealValueToMe >= 100 || iValueTheyreOffering >= (iValueImOffering * 2))
 				{
 					const char* szText = GetPlayer()->GetDiplomacyAI()->GetDiploStringForMessage(DIPLO_MESSAGE_TRADE_ACCEPT_GENEROUS);
 					gDLL->GameplayDiplomacyAILeaderMessage(GetPlayer()->GetID(), DIPLO_UI_STATE_BLANK_DISCUSSION, szText, eAnimation);

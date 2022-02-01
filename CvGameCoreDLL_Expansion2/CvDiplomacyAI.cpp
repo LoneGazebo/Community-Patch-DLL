@@ -14594,7 +14594,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 
 	if (IsDoFAccepted(ePlayer))
 	{
-		vApproachScores[CIV_APPROACH_FRIENDLY] += vApproachBias[CIV_APPROACH_FRIENDLY] * 5;
+		vApproachScores[CIV_APPROACH_FRIENDLY] += vApproachBias[CIV_APPROACH_FRIENDLY] * max(GetLoyalty(), 5);
 		vApproachScores[CIV_APPROACH_WAR] = 0;
 		vApproachScores[CIV_APPROACH_HOSTILE] = 0;
 		vApproachScores[CIV_APPROACH_DECEPTIVE] = 0;
@@ -14608,7 +14608,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 
 	if (IsHasDefensivePact(ePlayer))
 	{
-		vApproachScores[CIV_APPROACH_FRIENDLY] += vApproachBias[CIV_APPROACH_FRIENDLY] * 5;
+		vApproachScores[CIV_APPROACH_FRIENDLY] += vApproachBias[CIV_APPROACH_FRIENDLY] * max(GetLoyalty(), 5);
 		vApproachScores[CIV_APPROACH_WAR] = 0;
 		vApproachScores[CIV_APPROACH_HOSTILE] = 0;
 		vApproachScores[CIV_APPROACH_DECEPTIVE] = 0;
@@ -14622,7 +14622,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 
 	if (IsHasResearchAgreement(ePlayer))
 	{
-		vApproachScores[CIV_APPROACH_FRIENDLY] += vApproachBias[CIV_APPROACH_FRIENDLY] * 5;
+		vApproachScores[CIV_APPROACH_FRIENDLY] += (IsScientist() || IsGoingForSpaceshipVictory()) ? vApproachBias[CIV_APPROACH_FRIENDLY] * 5 : vApproachBias[CIV_APPROACH_FRIENDLY] * 3;
 		vApproachScores[CIV_APPROACH_WAR] = 0;
 		vApproachScores[CIV_APPROACH_HOSTILE] = 0;
 		vApproachScores[CIV_APPROACH_DECEPTIVE] = 0;
@@ -14673,7 +14673,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	// Coop War Accepted?
 	if (GetCoopWarScore(ePlayer) > 0)
 	{
-		vApproachScores[CIV_APPROACH_FRIENDLY] += vApproachBias[CIV_APPROACH_FRIENDLY] * GetCoopWarScore(ePlayer);
+		vApproachScores[CIV_APPROACH_FRIENDLY] += vApproachBias[CIV_APPROACH_FRIENDLY] * GetCoopWarScore(ePlayer) * 2;
 	}
 	// Coop War Denied?
 	else if (GetCoopWarScore(ePlayer) < 0)
@@ -14723,7 +14723,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 
 	if (bResurrectedUs || bResurrectedThem) // set all non-friendly approaches to -2x their bias value
 	{
-		vApproachScores[CIV_APPROACH_FRIENDLY] += vApproachBias[CIV_APPROACH_FRIENDLY] * 10;
+		vApproachScores[CIV_APPROACH_FRIENDLY] += vApproachBias[CIV_APPROACH_FRIENDLY] * max(10, 5 + GetLoyalty());
 		vApproachScores[CIV_APPROACH_WAR] = -vApproachBias[CIV_APPROACH_WAR] * 2;
 		vApproachScores[CIV_APPROACH_HOSTILE] = -vApproachBias[CIV_APPROACH_HOSTILE] * 2;
 		vApproachScores[CIV_APPROACH_DECEPTIVE] = -vApproachBias[CIV_APPROACH_DECEPTIVE] * 2;
@@ -14734,7 +14734,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 		// Double resurrection? Highly unlikely, but may as well account for it.
 		if (bResurrectedUs && bResurrectedThem)
 		{
-			vApproachScores[CIV_APPROACH_FRIENDLY] += vApproachBias[CIV_APPROACH_FRIENDLY] * 10;
+			vApproachScores[CIV_APPROACH_FRIENDLY] += vApproachBias[CIV_APPROACH_FRIENDLY] * max(10, 5 + GetLoyalty());
 			vApproachScores[CIV_APPROACH_WAR] -= vApproachBias[CIV_APPROACH_WAR] * 2;
 			vApproachScores[CIV_APPROACH_HOSTILE] -= vApproachBias[CIV_APPROACH_HOSTILE] * 2;
 			vApproachScores[CIV_APPROACH_DECEPTIVE] -= vApproachBias[CIV_APPROACH_DECEPTIVE] * 2;
@@ -14755,7 +14755,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 		int iLiberationMod = GetNumCitiesLiberatedBy(ePlayer) - max(iNumOurCitiesTheyOwn, GetNumCitiesCapturedBy(ePlayer));
 		if (iLiberationMod > 0)
 		{
-			vApproachScores[CIV_APPROACH_FRIENDLY] += vApproachBias[CIV_APPROACH_FRIENDLY] * iLiberationMod;
+			vApproachScores[CIV_APPROACH_FRIENDLY] += vApproachBias[CIV_APPROACH_FRIENDLY] * iLiberationMod * 2;
 
 			if (vApproachScores[CIV_APPROACH_WAR] > 0)
 				vApproachScores[CIV_APPROACH_WAR] = 0;
@@ -14780,7 +14780,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 		if (IsPlayerLiberatedCapital(ePlayer))
 		{
 			bLiberatedCapital = true;
-			vApproachScores[CIV_APPROACH_FRIENDLY] += vApproachBias[CIV_APPROACH_FRIENDLY] * 5;
+			vApproachScores[CIV_APPROACH_FRIENDLY] += vApproachBias[CIV_APPROACH_FRIENDLY] * 10;
 
 			// If there's a resurrection bonus above, subtract instead of setting
 			if (bResurrectedUs || bResurrectedThem)
@@ -14836,7 +14836,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 		// Returned the Holy City?
 		else if (IsPlayerReturnedHolyCity(ePlayer))
 		{
-			vApproachScores[CIV_APPROACH_FRIENDLY] += vApproachBias[CIV_APPROACH_FRIENDLY] * 5;
+			vApproachScores[CIV_APPROACH_FRIENDLY] += vApproachBias[CIV_APPROACH_FRIENDLY] * 3;
 		}
 	}
 
@@ -14881,7 +14881,6 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 		vApproachScores[CIV_APPROACH_HOSTILE] += vApproachBias[CIV_APPROACH_HOSTILE] * 2;
 		vApproachScores[CIV_APPROACH_FRIENDLY] = 0;
 		vApproachScores[CIV_APPROACH_DECEPTIVE] = 0;
-		bProvokedUs = true;
 
 		if (bEasyTarget)
 		{
@@ -17091,10 +17090,19 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	int iTradeDealValue = GC.getGame().GetGameDeals().GetDealValueWithPlayer(eMyPlayer, ePlayer);
 
 	// Scale based on personality - how much do we care about trade loyalty? 
-	// Only use 20% of the value for the diplo modifier (/20 followed by /5 = /100).
 	// Netherlands always has maximum trade loyalty!
 	iTradeDealValue *= pTraits->IsImportsCountTowardsMonopolies() ? 20 : GetLoyalty() + GetDiploBalance();
-	iTradeDealValue /= 100;
+	iTradeDealValue /= 20;
+
+	// Trade deal value is more important in earlier eras
+	if (iMyEra <= 2)
+	{
+		iTradeDealValue /= 3;
+	}
+	else
+	{
+		iTradeDealValue /= 5;
+	}
 
 	int iTradeDelta = iGoldDelta + iScienceDelta + iCultureDelta + iTradeDealValue;
 	if (iTradeDelta > 0)
