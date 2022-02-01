@@ -12,10 +12,6 @@ UPDATE Defines SET Value = '4' WHERE Name = 'AI_CITYSTRATEGY_WANT_TILE_IMPROVERS
 UPDATE AICityStrategies SET TechPrereq = 'TECH_AGRICULTURE' WHERE Type = 'AICITYSTRATEGY_FIRST_FAITH_BUILDING';
 
 
--- Mobile SAM -- reduce interest
-UPDATE Unit_Flavors SET Flavor = '15' WHERE UnitType = 'UNIT_MOBILE_SAM' AND FlavorType = 'FLAVOR_ANTIAIR';
-
-
 -- Misc. AI Defines
 UPDATE Defines SET Value = '-2' WHERE Name = 'WAR_PROGRESS_PER_UNHAPPY';
 
