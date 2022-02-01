@@ -8648,7 +8648,7 @@ void CvDiplomacyAI::DoUpdateWonderSpammers()
 				}
 			}
 
-			SetPlayerRecklessExpander(ePlayer, false);
+			SetPlayerWonderSpammer(ePlayer, false);
 		}
 		else
 		{
