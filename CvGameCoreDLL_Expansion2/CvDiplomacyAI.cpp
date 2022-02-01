@@ -21712,30 +21712,30 @@ PlayerTypes CvDiplomacyAI::GetHighestScoringDefensivePact(vector<PlayerTypes>& v
 
 int CvDiplomacyAI::ScoreDefensivePactChoice(PlayerTypes eChoice, bool bCoastal)
 {
-	int iDPValue = (GetLoyalty()/2);
+	int iDPValue = GetLoyalty();
 
 	switch (GetPlayerMilitaryStrengthComparedToUs(eChoice))
 	{
 	case STRENGTH_PATHETIC:
-		iDPValue += -20;
+		iDPValue += -60;
 		break;
 	case STRENGTH_WEAK:
-		iDPValue += -10;
+		iDPValue += -40;
 		break;
 	case STRENGTH_POOR:
-		iDPValue += -5;
+		iDPValue += -20;
 		break;
 	case STRENGTH_AVERAGE:
-		iDPValue += 5;
-		break;
-	case STRENGTH_STRONG:
 		iDPValue += 10;
 		break;
+	case STRENGTH_STRONG:
+		iDPValue += 20;
+		break;
 	case STRENGTH_POWERFUL:
-		iDPValue += 15;
+		iDPValue += 40;
 		break;
 	case STRENGTH_IMMENSE:
-		iDPValue += 20;
+		iDPValue += 60;
 		break;
 	}
 
@@ -21758,14 +21758,16 @@ int CvDiplomacyAI::ScoreDefensivePactChoice(PlayerTypes eChoice, bool bCoastal)
 	switch (GetCivOpinion(eChoice))
 	{
 	case CIV_OPINION_UNFORGIVABLE:
+		iDPValue -= 1000;
+		break;
 	case CIV_OPINION_ENEMY:
 		iDPValue -= 100;
 		break;
 	case CIV_OPINION_COMPETITOR:
-		iDPValue -= 10;
+		iDPValue -= 20;
 		break;
 	case CIV_OPINION_NEUTRAL:
-		iDPValue -= 5;
+		iDPValue -= 10;
 		break;
 	case CIV_OPINION_FAVORABLE:
 		iDPValue += 5;
@@ -21786,7 +21788,7 @@ int CvDiplomacyAI::ScoreDefensivePactChoice(PlayerTypes eChoice, bool bCoastal)
 		{
 			if (GET_PLAYER(eChoice).getCapitalCity()->getArea() == GetPlayer()->getCapitalCity()->getArea())
 			{
-				iDPValue += 10;
+				iDPValue += 5;
 			}
 			else
 			{
@@ -21809,11 +21811,11 @@ int CvDiplomacyAI::ScoreDefensivePactChoice(PlayerTypes eChoice, bool bCoastal)
 	// Have they assisted us in wars?
 	if (GetCoopWarScore(eChoice) > 0)
 	{
-		iDPValue += GetCoopWarScore(eChoice) * 5;
+		iDPValue += GetCoopWarScore(eChoice) * 20;
 	}
 	else if (GetCoopWarScore(eChoice) < 0)
 	{
-		iDPValue += GetCoopWarScore(eChoice) * 3;
+		iDPValue += GetCoopWarScore(eChoice) * 10;
 	}
 
 	iDPValue += GetCommonFoeScore(eChoice) / -2;
@@ -21823,26 +21825,27 @@ int CvDiplomacyAI::ScoreDefensivePactChoice(PlayerTypes eChoice, bool bCoastal)
 	{
 		iDPValue += 50;
 	}
-	if (IsPlayerLiberatedCapital(eChoice))
+	if (IsPlayerLiberatedCapital(eChoice) || IsPlayerLiberatedHolyCity(eChoice))
 	{
-		iDPValue += 15;
+		iDPValue += 25;
 	}
-	else if (IsPlayerLiberatedHolyCity(eChoice) || IsMasterLiberatedMeFromVassalage(eChoice))
+	else if (IsPlayerReturnedCapital(eChoice) || IsPlayerReturnedHolyCity(eChoice))
 	{
 		iDPValue += 10;
 	}
-	else if (IsPlayerReturnedCapital(eChoice) || IsPlayerReturnedHolyCity(eChoice) || IsHappyAboutPlayerVassalagePeacefullyRevoked(eChoice))
+	else if (IsHappyAboutPlayerVassalagePeacefullyRevoked(eChoice) || IsMasterLiberatedMeFromVassalage(eChoice))
 	{
 		iDPValue += 5;
 	}
 
-	if (GetNumCitiesCapturedBy(eChoice) > 0)
+	int iNumOurCitiesTheyOwn = GetPlayer()->GetNumOurCitiesOwnedBy(eChoice);
+	if (iNumOurCitiesTheyOwn > 0)
 	{
-		iDPValue += GetNumCitiesCapturedBy(eChoice) * -15;
+		iDPValue += iNumOurCitiesTheyOwn * -25;
 	}
 	else if (GetNumCitiesLiberatedBy(eChoice) > 0)
 	{
-		iDPValue += GetNumCitiesLiberatedBy(eChoice) * 15;
+		iDPValue += GetNumCitiesLiberatedBy(eChoice) * 25;
 	}
 
 	return iDPValue;

@@ -2628,26 +2628,32 @@ int CvDealAI::GetDefensivePactValue(bool bFromMe, PlayerTypes eOtherPlayer, bool
 {
 	CvAssertMsg(GetPlayer()->GetID() != eOtherPlayer, "DEAL_AI: Trying to check value of a Defensive Pact with oneself.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 
-	int iItemValue = 500;
-
 	if (GetPlayer()->IsAITeammateOfHuman())
 		return INT_MAX;
 
 	if (!GetPlayer()->GetDiplomacyAI()->IsWantsDefensivePactWithPlayer(eOtherPlayer))
 		return INT_MAX;
 
-	if (!GET_PLAYER(eOtherPlayer).isHuman() && !GET_PLAYER(eOtherPlayer).GetDiplomacyAI()->IsWantsDefensivePactWithPlayer(GetPlayer()->GetID()))
-		return INT_MAX;
+	int iDefensivePactValue = GetPlayer()->GetDiplomacyAI()->ScoreDefensivePactChoice(eOtherPlayer, GetPlayer()->GetNumEffectiveCoastalCities() > 1);
+	iDefensivePactValue *= 5;
 
-	if (!bFromMe)
+	if (MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED)
+		iDefensivePactValue *= max(1, (int)GetPlayer()->GetCurrentEra());
+
+	int iItemValue = 0;
+	bool bMostValuableAlly = GetPlayer()->GetDiplomacyAI()->GetMostValuableAlly() == eOtherPlayer;
+
+	if (iDefensivePactValue > 0 && !bFromMe)
 	{
-		int iStrengthMod = (int)GetPlayer()->GetDiplomacyAI()->GetPlayerMilitaryStrengthComparedToUs(eOtherPlayer) - 3;
-		iItemValue += (250 * iStrengthMod);
-
-		if (GetPlayer()->GetDiplomacyAI()->GetMostValuableAlly() == eOtherPlayer)
-		{
-			iItemValue += 500;
-		}
+		iItemValue = iDefensivePactValue;
+		if (bMostValuableAlly)
+			iItemValue *= 2;
+	}
+	else if (iDefensivePactValue < 0 && bFromMe)
+	{
+		iItemValue = iDefensivePactValue;
+		if (!bMostValuableAlly)
+			iItemValue *= 2;
 	}
 
 	// Are we trying to find the middle point between what we think this item is worth and what another player thinks it's worth?
