@@ -226,7 +226,7 @@
 			<Text>+20% [ICON_STRENGTH] Strength when attacking.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_ATTACK_BONUS_SWEDEN">
-			<Text>No Retreat</Text>
+			<Text>Gå-På</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_ATLATL_ATTACK">
 			<Text>Atlatl Strike</Text>
@@ -804,7 +804,7 @@
 			<Text>Viking</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_VIKING_HELP">
-			<Text>+25% [ICON_STRENGTH] Combat Strength on Pillaged Tiles.[NEWLINE]Costs no [ICON_MOVES] Movement points to Pillage.[NEWLINE]+5 HP when healing in Neutral Territory.</Text>
+			<Text>+25% [ICON_STRENGTH] Base Combat Strength on Pillaged Tiles.[NEWLINE]Costs no [ICON_MOVES] Movement points to Pillage.[NEWLINE]+5 HP when healing in Neutral Territory.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_LONGBOAT">
