@@ -30034,7 +30034,7 @@ bool CvUnit::CanFallBack(const CvUnit& attacker, bool bCheckChances) const
 
 	int iWithdrawChance = GetWithdrawChance(attacker, bCheckChances);
 
-	if(bCheckChances && iWithdrawChance > 0)
+	if (bCheckChances && iWithdrawChance > 0)
 	{
 		//include damage so the result changes for each attack
 		int iRoll = GC.getGame().getSmallFakeRandNum(10, plot()->GetPlotIndex()+GetID()+getDamage()) * 10;

@@ -1371,14 +1371,14 @@ void CvHomelandAI::PlotUpgradeMoves()
 	for (CvUnit* pUnit = m_pPlayer->firstUnit(&iLoop); pUnit != NULL; pUnit = m_pPlayer->nextUnit(&iLoop))
 	{
 		// Don't try and upgrade a human player's unit or one already recruited for an operation
-		if(pUnit && !pUnit->isHuman() && pUnit->getArmyID() == -1 && !pUnit->TurnProcessed()&&!pUnit->isDelayedDeath())
+		if (pUnit && !pUnit->isHuman() && pUnit->getArmyID() == -1 && !pUnit->TurnProcessed() && !pUnit->isDelayedDeath())
 		{
 			//Let's only worry about units in our land.
-			if(pUnit->plot()->getOwner() != m_pPlayer->GetID())
+			if (pUnit->plot()->getOwner() != m_pPlayer->GetID())
 				continue;
 
 			//And not embarked.
-			if(!pUnit->isNativeDomain(pUnit->plot()))
+			if (!pUnit->isNativeDomain(pUnit->plot()))
 				continue;
 
 			// Can this unit be upgraded?
@@ -1399,20 +1399,19 @@ void CvHomelandAI::PlotUpgradeMoves()
 							int iNumResource = GC.getUnitInfo(eUpgradeUnitType)->GetResourceQuantityRequirement(eResource);
 							if (iNumResource > 0)
 							{
-#if defined(MOD_BALANCE_CORE)
 								//Don't use all of our Aluminum, keep some for spaceship parts
 								ResourceTypes eAluminumResource = (ResourceTypes)GC.getInfoTypeForString("RESOURCE_ALUMINUM", true);
 								if (eResource == eAluminumResource)
 								{
 									iNumResource += 5;
 								}
-#endif
+
 								int iNumResourceInUnit = pUnit->getUnitInfo().GetResourceQuantityRequirement(eResource);
 								if (m_pPlayer->getNumResourceAvailable(eResource) + iNumResourceInUnit < iNumResource)
 								{
 									bMissingResource = true;
 								}
-#if defined(MOD_UNITS_RESOURCE_QUANTITY_TOTALS)
+
 								if (MOD_UNITS_RESOURCE_QUANTITY_TOTALS)
 								{
 									int iResourceTotal = GC.getUnitInfo(eUpgradeUnitType)->GetResourceQuantityTotal(eResource);
@@ -1421,7 +1420,6 @@ void CvHomelandAI::PlotUpgradeMoves()
 										bMissingResource = true;
 									}
 								}
-#endif
 							}
 						}
 					}

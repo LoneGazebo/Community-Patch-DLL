@@ -342,7 +342,6 @@ void CvDiplomacyAI::Init(CvPlayer* pPlayer)
 		m_aeApproachTowardsUsGuess[iI] = CIV_APPROACH_NEUTRAL;
 		m_aeApproachTowardsUsGuessCounter[iI] = 0;
 
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 		// C4DF Values
 		m_aeShareOpinionResponse[iI] = NO_SHARE_OPINION_RESPONSE;
 		m_aiHelpRequestAcceptedTurn[iI] = -1;
@@ -361,10 +360,8 @@ void CvDiplomacyAI::Init(CvPlayer* pPlayer)
 		m_abVassalTaxLowered[iI] = false;
 		m_aiVassalGoldPerTurnTaxedSinceVassalStarted[iI] = 0;
 		m_aiVassalGoldPerTurnCollectedSinceVassalStarted[iI] = 0;
-#endif
-#if defined(MOD_ACTIVE_DIPLOMACY)
+
 		m_aTradePriority[iI] = 0.0f;
-#endif
 	}
 
 	// All Civs
@@ -714,7 +711,6 @@ FDataStream& operator<<(FDataStream& stream, const CvDiplomacyAI& diplomacyAI)
 //	-----------------------------------------------------------------------------------------------
 void CvDiplomacyAI::update()
 {
-#if defined(MOD_ACTIVE_DIPLOMACY)
 	if (!GC.getGame().isReallyNetworkMultiPlayer() && MOD_ACTIVE_DIPLOMACY)
 	{
 		if (!m_aGreetPlayers.empty())
@@ -734,7 +730,6 @@ void CvDiplomacyAI::update()
 			}
 		}
 	}
-#endif
 }
 
 //	-----------------------------------------------------------------------------------------------
@@ -2204,20 +2199,18 @@ void CvDiplomacyAI::SetPlayerWonderSpammer(PlayerTypes ePlayer, bool bValue)
 
 int CvDiplomacyAI::GetScoreVictoryProgress()
 {
-	int iProgress = 0;
-	if (!m_pPlayer->isMajorCiv() || !m_pPlayer->isAlive())
+	if (!m_pPlayer->isMajorCiv() || !m_pPlayer->isAlive() || GC.getGame().IsGameWon())
 	{
 		return 0;
 	}
-	int iOurScore = 0;
-	int iScore = 0;
-	int iHighestScore = 0;
+
+	int iProgress = 0, iOurScore = 0, iHighestScore = 0;
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
 		PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
 		if (GET_PLAYER(eLoopPlayer).isAlive() && GET_PLAYER(eLoopPlayer).isMajorCiv())
 		{
-			iScore = GET_PLAYER(eLoopPlayer).GetScore();
+			int iScore = GET_PLAYER(eLoopPlayer).GetScore();
 			if (iScore > iHighestScore)
 			{
 				iHighestScore = iScore;
@@ -2228,22 +2221,25 @@ int CvDiplomacyAI::GetScoreVictoryProgress()
 			}
 		}
 	}
+
 	iProgress = (iOurScore * 100) / max(1, iHighestScore);
 
 	iProgress *= GC.getGame().getGameTurn();
 	iProgress /= max(1,GC.getGame().getMaxTurns());
+
 	return iProgress;
 }
+
 int CvDiplomacyAI::GetScienceVictoryProgress()
 {
-	if (!m_pPlayer->isMajorCiv() || !m_pPlayer->isAlive()||!GC.getGame().isVictoryValid((VictoryTypes)GC.getInfoTypeForString("VICTORY_SPACE_RACE", true)))
+	VictoryTypes eSpaceVictory = (VictoryTypes)GC.getInfoTypeForString("VICTORY_SPACE_RACE", true);
+
+	if (!m_pPlayer->isMajorCiv() || !m_pPlayer->isAlive() || !GC.getGame().isVictoryValid(eSpaceVictory) || GC.getGame().IsGameWon())
 	{
 		return 0;
 	}
-	VictoryTypes eSpaceVictory = (VictoryTypes)GC.getInfoTypeForString("VICTORY_SPACE_RACE", true);
 
-	int iProjectsRequired = 0;
-	int iProjectsCompleted = 0;
+	int iProjectsRequired = 0, iProjectsCompleted = 0;
 	for (int iK = 0; iK < GC.getNumProjectInfos(); iK++)
 	{
 		const ProjectTypes eProject = static_cast<ProjectTypes>(iK);
@@ -2263,20 +2259,23 @@ int CvDiplomacyAI::GetScienceVictoryProgress()
 			iProjectsCompleted++;
 		}			
 	}
+
 	int iScienceProgress = (GET_TEAM(m_pPlayer->getTeam()).GetTeamTechs()->GetNumTechsKnown() * 100) / max(1, GC.getNumTechInfos() - 1);
 	int iSpaceshipProgress = (21 * iProjectsCompleted) / max(1, iProjectsRequired);
 	int iProgress = min(iScienceProgress, 78 + iSpaceshipProgress);
 	
 	return iProgress;
 }
+
 int CvDiplomacyAI::GetDiplomaticVictoryProgress()
 {
 	CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
-	if (!pLeague||!GC.getGame().isVictoryValid((VictoryTypes)GC.getInfoTypeForString("VICTORY_DIPLOMATIC", true)))
+	if (!pLeague || !m_pPlayer->isMajorCiv() || !m_pPlayer->isAlive() || !GC.getGame().isVictoryValid((VictoryTypes)GC.getInfoTypeForString("VICTORY_DIPLOMATIC", true)) || GC.getGame().IsGameWon())
 	{
 		return 0;
 	}
-	int iOurVotes = pLeague->CalculateStartingVotesForMember(GetPlayer()->GetID(),true);
+
+	int iOurVotes = pLeague->CalculateStartingVotesForMember(GetPlayer()->GetID(), /*bFakeUN*/ true);
 	int iNeededVotes = GC.getGame().GetVotesNeededForDiploVictory();
 	int iProgress = (iOurVotes * 100) / max(1, iNeededVotes);
 	int iExtra = 0;
@@ -2308,72 +2307,78 @@ int CvDiplomacyAI::GetDiplomaticVictoryProgress()
 	{
 		iProgress = min(iProgress, 59 + 20 * iExtra);
 	}
+
 	return iProgress;
 }
+
 int CvDiplomacyAI::GetDominationVictoryProgress()
 {
 	if (!m_pPlayer->isMajorCiv() || !m_pPlayer->isAlive())
 	{
 		return 0;
 	}
-	int iCivsProgress = 0;
-	int iTotalCivs = 0;
-	int iMight = 0;
-	int iOurMight = 0;
-	int iTotalMight = 0;
-	for (int i = 0; i < MAX_MAJOR_CIVS; i++)
+
+	int iCivsProgress = 0, iTotalCivs = 0, iOurMight = 0, iTotalMight = 0;
+	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
-		PlayerTypes e = (PlayerTypes)i;
-		if (GET_PLAYER(e).isAlive() && !GET_PLAYER(e).isMinorCiv())
+		PlayerTypes ePlayer = (PlayerTypes) iPlayerLoop;
+
+		if (GET_PLAYER(ePlayer).isAlive() && GET_PLAYER(ePlayer).isMajorCiv())
 		{
 			iTotalCivs++;
-			iMight = GET_PLAYER(e).GetMilitaryMight();
+			int iMight = GET_PLAYER(ePlayer).GetMilitaryMight();
 			iTotalMight += iMight;
-			if (MOD_DIPLOMACY_CIV4_FEATURES)
+
+			if (ePlayer == GetID() || IsMaster(ePlayer))
 			{
-				if (e == GetPlayer()->GetID() || IsMaster(e))
-				{
-					iOurMight += iMight;
-					iCivsProgress += 1;
-				}
+				iOurMight += iMight;
+				iCivsProgress += 1;
 			}
-			else if (IsCapitalCapturedBy(GetPlayer()->GetID(),true))
+			else if (IsCapitalCapturedBy(GetID(), true))
 			{
 				iCivsProgress += 1;
 			}
 		}
 	}
+
 	iOurMight = (iOurMight * 100) / max(1, iTotalMight);
 	iCivsProgress = (iCivsProgress * 100) / max(1, iTotalCivs);
 
-	return (max(iOurMight, iCivsProgress));
+	return max(iOurMight, iCivsProgress);
 }
+
 int CvDiplomacyAI::GetCultureVictoryProgress()
 {
-	if (!m_pPlayer->isMajorCiv() || !m_pPlayer->isAlive()||!GC.getGame().isVictoryValid((VictoryTypes)GC.getInfoTypeForString("VICTORY_CULTURAL", true)))
+	if (!m_pPlayer->isMajorCiv() || !m_pPlayer->isAlive() || !GC.getGame().isVictoryValid((VictoryTypes)GC.getInfoTypeForString("VICTORY_CULTURAL", true)) || GC.getGame().IsGameWon())
 	{
 		return 0;
 	}
+
 	int iLowestPercent = GetLowestTourismInfluence();
 	int iProgress = min(99,iLowestPercent);
+
 	if (MOD_BALANCE_CORE_VICTORY_GAME_CHANGES)
 	{
 		int iPolicies = GetPlayer()->GetPlayerPolicies()->GetNumPoliciesOwned(false, true);
 		iPolicies = min(iPolicies, 27);
 		iProgress = min(iLowestPercent, 18 + iPolicies * 3);
 	}
+
 	return iProgress;
 }
+
 int CvDiplomacyAI::GetLowestTourismInfluence()
 {
 	int iLowestPercent = /*100*/ GD_INT_GET(CULTURE_LEVEL_INFLUENTIAL);   // Don't want to target civs if already influential
 
-	for (int iLoopPlayer = 0; iLoopPlayer < MAX_MAJOR_CIVS; iLoopPlayer++)
+	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
-		CvPlayer& kPlayer = GET_PLAYER((PlayerTypes)iLoopPlayer);
-		if (iLoopPlayer != m_pPlayer->GetID() && kPlayer.isAlive() && !kPlayer.isMinorCiv())
+		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+		CvPlayer& kPlayer = GET_PLAYER(eLoopPlayer);
+
+		if (eLoopPlayer != GetID() && kPlayer.isAlive() && kPlayer.isMajorCiv())
 		{
-			int iInfluenceOn = GetPlayer()->GetCulture()->GetInfluenceOn((PlayerTypes)iLoopPlayer);
+			int iInfluenceOn = GetPlayer()->GetCulture()->GetInfluenceOn(eLoopPlayer);
 			int iLifetimeCulture = kPlayer.GetJONSCultureEverGenerated();
 			int iPercent = 0;
 
@@ -2391,8 +2396,10 @@ int CvDiplomacyAI::GetLowestTourismInfluence()
 			}
 		}
 	}
+
 	return iLowestPercent;
 }
+
 // ------------------------------------
 // Opinion & Approach
 // ------------------------------------

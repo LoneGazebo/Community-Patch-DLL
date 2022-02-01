@@ -4426,7 +4426,6 @@ void CvMinorCivAI::Reset()
 	for(int iI = 0; iI < MAX_MAJOR_CIVS; iI++)
 	{
 		m_abRouteConnectionEstablished[iI] = false;
-
 		m_aiFriendshipWithMajorTimes100[iI] = 0;
 		m_aiQuestCountdown[iI] = -1;
 		m_aiUnitSpawnCounter[iI] = -1;
@@ -4439,16 +4438,14 @@ void CvMinorCivAI::Reset()
 		m_abEverFriends[iI] = false;
 		m_abFriends[iI] = false;
 		m_abPledgeToProtect[iI] = false;
-#if defined(MOD_BALANCE_CORE_MINORS)
 		m_abIsMarried[iI] = false;
 		m_abSiphoned[iI] = false;
 		m_abCoupAttempted[iI] = false;
-		m_abSentUnitForQuest[iI]=false;
+		m_abSentUnitForQuest[iI] = false;
 		m_aiAssignedPlotAreaID[iI] = -1;
 		m_aiTargetedCityX[iI] = -1;
 		m_aiTargetedCityY[iI] = -1;
 		m_aiTurnsSincePtPWarning[iI] = -1;
-#endif
 		m_IncomingUnitGifts[iI].reset();
 	}
 
@@ -10216,12 +10213,14 @@ UnitTypes CvMinorCivAI::GetBestUnitGiftFromPlayer(PlayerTypes ePlayer)
 						continue;
 				}
 			}
+
 			int iLoop;
 			for (CvUnit* pLoopUnit = m_pPlayer->firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iLoop))
 			{
 				// Don't count civilians or exploration units
-				if (!pLoopUnit->IsCanAttack() || pLoopUnit->AI_getUnitAIType() == UNITAI_EXPLORE && pLoopUnit->AI_getUnitAIType() == UNITAI_EXPLORE_SEA)
+				if (!pLoopUnit->IsCanAttack() || pLoopUnit->AI_getUnitAIType() == UNITAI_EXPLORE || pLoopUnit->AI_getUnitAIType() == UNITAI_EXPLORE_SEA)
 					continue;
+
 				if (pLoopUnit->getDomainType() == pkUnitInfo->GetDomainType())
 				{
 					iBonusValue -= 10;
@@ -14452,10 +14451,9 @@ CvUnit* CvMinorCivAI::DoSpawnUnit(PlayerTypes eMajor, bool bLocal, bool bExplore
 		return NULL;
 
 	// Unit spawning is not allowed (manually disabled, or major is over supply limit)
-	bool bCanSupply = ((GET_PLAYER(eMajor).GetNumUnitsToSupply() < GET_PLAYER(eMajor).GetNumUnitsSupplied())) ? true : false; // this works when we're at the limit
-	if (IsUnitSpawningDisabled(eMajor) || !bCanSupply)
-//	if (IsUnitSpawningDisabled(eMajor) || GET_PLAYER(eMajor).GetNumUnitsOutOfSupply() > 0)
-			return NULL;
+	bool bCanSupply = GET_PLAYER(eMajor).GetNumUnitsToSupply() < GET_PLAYER(eMajor).GetNumUnitsSupplied(); // this works when we're at the limit
+	if (!bCanSupply || IsUnitSpawningDisabled(eMajor))
+		return NULL;
 
 	// Minor has no capital
 	CvCity* pMinorCapital = GetPlayer()->getCapitalCity();

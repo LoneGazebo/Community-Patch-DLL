@@ -23,7 +23,6 @@
 		</Row>
 
 		<!-- Construct National Wonder -->
-		
 		<Row Tag="TXT_KEY_CITY_STATE_QUEST_CONSTRUCT_NATIONAL_WONDER">
 			<Text>We want you to construct the {@1_NationalWonderName}.</Text>
 		</Row>
@@ -43,8 +42,7 @@
 			<Text>They want you to build the {1_NationalWonderName:textkey}.</Text>
 		</Row>
 		
-				<!-- Gift a Unit -->
-		
+		<!-- Gift a Unit -->
 		<Row Tag="TXT_KEY_CITY_STATE_QUEST_GIFT_SPECIFIC_UNIT">
 			<Text>We want you to send us a {1_UnitName}.</Text>
 		</Row>
@@ -105,7 +103,6 @@
 		</Row>
 		
 		<!-- Tourism Contest -->
-		
 		<Row Tag="TXT_KEY_CITY_STATE_QUEST_TOURISM">
 			<Text>Prepare for a festival of nations.</Text>
 		</Row>
@@ -245,24 +242,20 @@
 		</Row>
 		
 		<!--Rebellion -->
-
 		<Row Tag="TXT_KEY_CITY_STATE_QUEST_REBELLION">
 			<Text>Ideological Rebels</Text>
 		</Row>
 
-			<!-- Start Desc -->		
+		<!-- Start Desc -->		
 		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_REBELLION_GENERAL">
 			<Text>Citizens of {3_MinorCivName:textkey} have started a revolution against {2_TargetName:textkey}! If the rebels maintain a presence for [COLOR_POSITIVE_TEXT]{1_TurnsRemaining}[ENDCOLOR] turns, [COLOR_NEGATIVE_TEXT]the city will fall to the revolution[ENDCOLOR] and its alliances will shift.</Text>
 		</Row>
-
 		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_REBELLION_GENERAL_BLANK">
 			<Text>Citizens of {3_MinorCivName:textkey} have started a revolution against {2_TargetName:textkey}! If the rebels maintain a presence for [COLOR_POSITIVE_TEXT]{1_TurnsRemaining}[ENDCOLOR] turns, [COLOR_NEGATIVE_TEXT]the city will fall to the revolution[ENDCOLOR] and its alliances will shift.</Text>
 		</Row>
-
 		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_REBELLION_GENERAL_BLANK_RANDOM">
 			<Text>Citizens of {2_MinorCivName:textkey} have started a revolution against their current rulers! If the rebels maintain a presence for [COLOR_POSITIVE_TEXT]{1_TurnsRemaining}[ENDCOLOR] turns, [COLOR_NEGATIVE_TEXT]the city will fall to the revolution[ENDCOLOR] and its alliances will shift.</Text>
 		</Row>
-
 		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_REBELLION_FREEDOM">
 			<Text>Freedom fighters from {3_MinorCivName:textkey} are leading a revolution against {2_TargetName:textkey}! If the rebels maintain a presence for [COLOR_POSITIVE_TEXT]{1_TurnsRemaining}[ENDCOLOR] turns, [COLOR_NEGATIVE_TEXT]the city will fall to the revolution[ENDCOLOR] and its alliances will shift.</Text>
 		</Row>
@@ -273,21 +266,18 @@
 			<Text>Guerilla warriors of {3_MinorCivName:textkey} are leading a revolution against {2_TargetName:textkey}! If the rebels maintain a presence for [COLOR_POSITIVE_TEXT]{1_TurnsRemaining}[ENDCOLOR] turns, [COLOR_NEGATIVE_TEXT]the city will fall to the revolution[ENDCOLOR] and its alliances will shift.</Text>
 		</Row>
 
-			<!-- Start Summary -->
+		<!-- Start Summary -->
 		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_QUEST_REBELLION">
 			<Text>Revolution against {1_TargetName:textkey} in {2_MinorCivName:textkey}</Text>
 		</Row>
-
 		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_QUEST_REBELLION_BLANK">
 			<Text>Revolution against {1_TargetName:textkey} in {2_MinorCivName:textkey}</Text>
 		</Row>
-
 		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_QUEST_REBELLION_BLANK_RANDOM">
 			<Text>Revolution in {1_MinorCivName:textkey}</Text>
 		</Row>
 
-			<!-- Complete -->
-		
+		<!-- Complete -->
 		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_COMPLETE_REBELLION">
 			<Text>The revolutionaries of {1_MinorCivName:textkey} failed, and their morale is now broken.</Text>
 		</Row>
@@ -295,13 +285,12 @@
 			<Text>Revolution in {1_MinorCivName:textkey} crushed!</Text>
 		</Row>
 
-			<!-- Formal -->
-		
+		<!-- Formal -->
 		<Row Tag="TXT_KEY_CITY_STATE_QUEST_REBELLION_FORMAL">
 			<Text>A revolution against their ally is occurring!</Text>
 		</Row>
 
-			<!-- Ended -->
+		<!-- Ended -->
 		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_ENDED_REBELLION">
 			<Text>The revolution in {2_CityStateName:textkey} was successful, and their alliance with {1_TargetName:textkey} has ended. {2_CityStateName:textkey} now looks to other empires for friendship and protection.</Text>
 		</Row>
@@ -311,6 +300,5 @@
 		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_ENDED_REBELLION_BLANK">
 			<Text>The revolution in {1_CityStateName:textkey} has ended. {1_CityStateName:textkey} now looks to other empires for friendship and protection.</Text>
 		</Row>
-
 	</Language_en_US>
 </GameData>

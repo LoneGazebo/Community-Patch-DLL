@@ -1,5 +1,5 @@
 /*	-------------------------------------------------------------------------------------------------------
-	� 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -3365,7 +3365,7 @@ int CvLuaUnit::lGetMovementRules(lua_State* L)
 	CvString text = "";
 	int iChance = -1;
 
-	if ( !(pkUnit == NULL || pkOtherUnit == NULL) && pkOtherUnit->CanPlague(pkUnit) );
+	if (pkUnit != NULL && pkOtherUnit != NULL && pkOtherUnit->CanPlague(pkUnit))
 	{
 		PromotionTypes ePlague = (PromotionTypes)pkOtherUnit->getPlaguePromotion();
 		if (ePlague == NO_PROMOTION)
@@ -3392,24 +3392,28 @@ int CvLuaUnit::lGetMovementRules(lua_State* L)
 		{
 			CvPromotionEntry* pkPlaguePromotionInfo = GC.getPromotionInfo(ePlague);
 			int iPlagueID = pkPlaguePromotionInfo->GetPlagueID();
-			if (pkPlaguePromotionInfo == NULL) ;
-				// use defaults 
-			else if (pkUnit->HasPromotion(ePlague))
-				text = GetLocalizedText("TXT_KEY_UNIT_ALREADY_PLAGUED", pkPlaguePromotionInfo->GetText());
-			//we're immune to this?
-			else if (pkUnit->getPlagueIDImmunity() != -1 && pkUnit->getPlagueIDImmunity() == iPlagueID)
-				text = GetLocalizedText("TXT_KEY_UNIT_IMMUNE_PLAGUED", pkPlaguePromotionInfo->GetText());
-			//we already have this plague? let's see if we've been hit with a more severe version of the same plague...
-			else if (iPlagueID == pkUnit->getPlagueID())
+			if (pkPlaguePromotionInfo)
 			{
-				//weaker? ignore.
-				if (pkPlaguePromotionInfo->GetPlaguePriority() <= pkUnit->getPlaguePriority())
+				// Already have this plague?
+				if (pkUnit->HasPromotion(ePlague))
+				{
 					text = GetLocalizedText("TXT_KEY_UNIT_ALREADY_PLAGUED", pkPlaguePromotionInfo->GetText());
-			}
-			else
-			{
-				text = GetLocalizedText("TXT_KEY_UNIT_PLAGUE_CHANCE", pkPlaguePromotionInfo->GetText());
-				iChance = pkOtherUnit->getPlagueChance();
+				}
+				// Already have a stronger version of this plague?
+				else if (iPlagueID == pkUnit->getPlagueID() && pkPlaguePromotionInfo->GetPlaguePriority() <= pkUnit->getPlaguePriority())
+				{
+					text = GetLocalizedText("TXT_KEY_UNIT_ALREADY_PLAGUED", pkPlaguePromotionInfo->GetText());
+				}
+				// Immune to this plague?
+				else if (pkUnit->getPlagueIDImmunity() != -1 && pkUnit->getPlagueIDImmunity() == iPlagueID)
+				{
+					text = GetLocalizedText("TXT_KEY_UNIT_IMMUNE_PLAGUED", pkPlaguePromotionInfo->GetText());
+				}
+				else
+				{
+					text = GetLocalizedText("TXT_KEY_UNIT_PLAGUE_CHANCE", pkPlaguePromotionInfo->GetText());
+					iChance = pkOtherUnit->getPlagueChance();
+				}
 			}
 		}
 	}

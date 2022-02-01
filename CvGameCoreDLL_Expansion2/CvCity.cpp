@@ -8588,21 +8588,16 @@ bool CvCity::canTrain(UnitTypes eUnit, bool bContinue, bool bTestVisible, bool b
 		return false;
 	}
 
-#if defined(MOD_BALANCE_CORE_MILITARY)
 	// check whether we can supply the units. do not check this on player level, all the dynamic checks should happen here
 	if (MOD_BALANCE_CORE_MILITARY && !isHuman() && !pkUnitEntry->IsNoSupply())
 	{
-
-		bool bCanSupply = ((GET_PLAYER(getOwner()).GetNumUnitsToSupply() < GET_PLAYER(getOwner()).GetNumUnitsSupplied())) ? true : false; // this works when we're at the limit
-//		if (((pkUnitEntry->GetCombat() > 0) || (pkUnitEntry->GetRangedCombat() > 0)) && !isBarbarian() && GET_PLAYER(getOwner()).GetNumUnitsOutOfSupply() > 0) // this doesn't
-		if (((pkUnitEntry->GetCombat() > 0) || (pkUnitEntry->GetRangedCombat() > 0)) && !isBarbarian() && !bCanSupply)
+		bool bCanSupply = GET_PLAYER(getOwner()).GetNumUnitsToSupply() < GET_PLAYER(getOwner()).GetNumUnitsSupplied(); // this works when we're at the limit
+		if (!bCanSupply && !isBarbarian() && (pkUnitEntry->GetCombat() > 0 || pkUnitEntry->GetRangedCombat() > 0))
 		{
 			return false;
 		}
 	}
-#endif
 
-#if defined(MOD_BALANCE_CORE)
 	// If Zulu Player has this trait and Pikeman are an immediate upgrade to Impi, let's not let player exploit lower production cost of pikeman->impi. So, let's make it immediately obsolete.
 	CvUnitEntry& pUnitInfo = *pkUnitEntry;
 	const UnitClassTypes eUnitClass = (UnitClassTypes)pUnitInfo.GetUnitClassType();
@@ -8615,7 +8610,6 @@ bool CvCity::canTrain(UnitTypes eUnit, bool bContinue, bool bTestVisible, bool b
 			return false;
 		}
 	}
-#endif
 
 	//this flag seems to be needed to check whether we should show the unit in the build list at all, and if it's greyed out generate a tooltip why
 	if (!bTestVisible)
@@ -8633,19 +8627,16 @@ bool CvCity::canTrain(UnitTypes eUnit, bool bContinue, bool bTestVisible, bool b
 			}
 		}
 
-#if defined(MOD_BALANCE_CORE_MILITARY)
 		if (MOD_BALANCE_CORE_MILITARY && !pUnitInfo.IsNoSupply())
 		{
-			bool bCanSupply = ((GET_PLAYER(getOwner()).GetNumUnitsToSupply() < GET_PLAYER(getOwner()).GetNumUnitsSupplied())) ? true : false; // this works when we're at the limit
-//			if ((pUnitInfo.GetCombat() > 0 || pUnitInfo.GetRangedCombat() > 0) && !isBarbarian() && GET_PLAYER(getOwner()).GetNumUnitsOutOfSupply() > 0) // this doesn't
-			if ((pUnitInfo.GetCombat() > 0 || pUnitInfo.GetRangedCombat() > 0) && !isBarbarian() && !bCanSupply)
+			bool bCanSupply = GET_PLAYER(getOwner()).GetNumUnitsToSupply() < GET_PLAYER(getOwner()).GetNumUnitsSupplied(); // this works when we're at the limit
+			if (!bCanSupply && !isBarbarian() && (pUnitInfo.GetCombat() > 0 || pUnitInfo.GetRangedCombat() > 0))
 			{
 				GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_NO_ACTION_NO_SUPPLY");
 				if (toolTipSink == NULL)
 					return false;
 			}
 		}
-#endif
 
 		// See if there are any BuildingClass requirements
 		const int iNumBuildingClassInfos = GC.getNumBuildingClassInfos();

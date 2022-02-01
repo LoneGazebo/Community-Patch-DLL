@@ -31338,12 +31338,16 @@ void CvPlayer::DoUnitDiversity()
 	for (map<DomainTypes, map<UnitAITypes, int>>::iterator itDomain = countByType.begin(); itDomain != countByType.end(); ++itDomain)
 	{
 		int minCount = INT_MAX;
+		int maxCount = 0;
 		for (map<UnitAITypes, int>::iterator itType = itDomain->second.begin(); itType != itDomain->second.end(); ++itType)
+		{
 			minCount = min(minCount, itType->second);
+			maxCount = max(maxCount, itType->second);
+		}
 
 		for (map<UnitAITypes, int>::iterator itType = itDomain->second.begin(); itType != itDomain->second.end(); ++itType)
 		{
-			if (itType->second == minCount)
+			if (itType->second == minCount && itType->second != maxCount)
 			{
 				m_neededUnitAITypes.push_back(itType->first);
 				CvString strLogString;

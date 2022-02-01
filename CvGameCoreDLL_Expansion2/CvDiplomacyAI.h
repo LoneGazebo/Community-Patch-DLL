@@ -1487,7 +1487,6 @@ public:
 	PlayerTypes GetRequestFriendToDenounce(PlayerTypes ePlayer, bool& bRandFailed);
 	bool IsFriendDenounceRefusalUnacceptable(PlayerTypes ePlayer, PlayerTypes eAgainstPlayer);
 
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	// Contact Statements
 	void DoMapsOffer(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal);
 	void DoTechOffer(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal);
@@ -1541,11 +1540,9 @@ public:
 
 	void DoWeMadeVassalageWithSomeone(TeamTypes eTeam, bool bVoluntary);
 	void DoWeEndedVassalageWithSomeone(TeamTypes eTeam);
-#endif
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+
 	MoveTroopsResponseTypes GetMoveTroopsRequestResponse(PlayerTypes ePlayer, bool bJustChecking = false);
 	void DoLiberatedFromVassalage(TeamTypes eTeam, bool bSkipPopup);
-#endif
 
 	// Player asks the AI not to convert
 	bool IsStopSpreadingReligionAcceptable(PlayerTypes ePlayer);
@@ -2097,7 +2094,6 @@ private:
 	char m_aeApproachTowardsUsGuess[MAX_MAJOR_CIVS];
 	char m_aeApproachTowardsUsGuessCounter[MAX_MAJOR_CIVS];
 
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	// C4DF Values
 	char m_aeShareOpinionResponse[MAX_MAJOR_CIVS];
 	int m_aiHelpRequestAcceptedTurn[MAX_MAJOR_CIVS];
@@ -2116,11 +2112,8 @@ private:
 	bool m_abVassalTaxLowered[MAX_MAJOR_CIVS];
 	int m_aiVassalGoldPerTurnTaxedSinceVassalStarted[MAX_MAJOR_CIVS];
 	int m_aiVassalGoldPerTurnCollectedSinceVassalStarted[MAX_MAJOR_CIVS];
-#endif
 
-#if defined(MOD_ACTIVE_DIPLOMACY)
 	float m_aTradePriority[MAX_MAJOR_CIVS]; // current ai to human trade priority
-#endif
 
 	// Other
 	typedef std::vector<PlayerTypes> PlayerTypesArray;

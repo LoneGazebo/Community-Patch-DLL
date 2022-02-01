@@ -1560,7 +1560,6 @@ void CvMilitaryAI::UpdateBaseData()
 
 		if (!MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED)
 		{
-
 			if (pLoopUnit->getDomainType() == DOMAIN_LAND && pLoopUnit->AI_getUnitAIType() != UNITAI_EXPLORE)
 			{
 				m_iNumLandUnits++;
@@ -2563,7 +2562,7 @@ CvUnit* CvMilitaryAI::FindUnitToScrap(DomainTypes eDomain, bool bCheckObsolete, 
 	CvUnit* pBestUnit = NULL;
 	int iBestScore = MAX_INT;
 
-	for(CvUnit* pLoopUnit = m_pPlayer->firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iUnitLoop))
+	for (CvUnit* pLoopUnit = m_pPlayer->firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iUnitLoop))
 	{
 		//needed later
 		CvUnitEntry& pUnitInfo = pLoopUnit->getUnitInfo();
@@ -2573,11 +2572,17 @@ CvUnit* CvMilitaryAI::FindUnitToScrap(DomainTypes eDomain, bool bCheckObsolete, 
 
 		if (!pLoopUnit->canScrap())
 			continue;
-		//don't delete no maintenance units if we're scrapping due to deficit
-		if (bInDeficit && pLoopUnit->IsNoMaintenance())
+
+		// don't delete no maintenance units if we're scrapping due to deficit
+		// don't delete no supply units if we're scrapping due to oversupply
+		if (bInDeficit && bOverSupplyCap)
+		{
+			if (pLoopUnit->IsNoMaintenance() && pLoopUnit->isNoSupply())
+				continue;
+		}
+		else if (bInDeficit && pLoopUnit->IsNoMaintenance())
 			continue;
-		//don't delete no supply units if we're scrapping due to oversupply
-		if (bOverSupplyCap && pLoopUnit->isNoSupply())
+		else if (bOverSupplyCap && pLoopUnit->isNoSupply())
 			continue;
 
 		//Failsafe to keep AI from deleting advanced start settlers
@@ -2622,13 +2627,11 @@ CvUnit* CvMilitaryAI::FindUnitToScrap(DomainTypes eDomain, bool bCheckObsolete, 
 						if (iNumResourceNeeded - iNumResourceInUse > m_pPlayer->getNumResourceTotal(eResource))
 							bIsObsolete = true;
 
-#if defined(MOD_UNITS_RESOURCE_QUANTITY_TOTALS)
 						if (MOD_UNITS_RESOURCE_QUANTITY_TOTALS)
 						{
 							if (pUpgradeUnitInfo->GetResourceQuantityTotal(eResource) > m_pPlayer->getNumResourceTotal(eResource))
 								bIsObsolete = true;
 						}
-#endif
 					}
 				}
 			}
@@ -2647,13 +2650,13 @@ CvUnit* CvMilitaryAI::FindUnitToScrap(DomainTypes eDomain, bool bCheckObsolete, 
 		}
 
 		// Can I scrap this unit?
-		if( !bCheckObsolete || bIsObsolete || bResourceDeficit)
+		if (!bCheckObsolete || bIsObsolete || bResourceDeficit)
 		{
 			int iScore = pLoopUnit->GetPower()*pLoopUnit->getUnitInfo().GetProductionCost() + pLoopUnit->getLevel(); //tiebreaker
 			if (bResourceDeficit)
 				iScore /= 2;
 
-			if(iScore < iBestScore)
+			if (iScore < iBestScore)
 			{
 				iBestScore = iScore;
 				iReturnedScore = iBestScore;
