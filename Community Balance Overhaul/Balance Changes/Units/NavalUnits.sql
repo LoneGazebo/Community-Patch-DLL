@@ -23,7 +23,6 @@
 
 	DELETE FROM Unit_AITypes WHERE UnitType = 'UNIT_BYZANTINE_DROMON' AND UnitAIType = 'UNITAI_EXPLORE_SEA';
 	UPDATE Units SET Class = 'UNITCLASS_BYZANTINE_DROMON' WHERE Type = 'UNIT_BYZANTINE_DROMON';
-	DELETE FROM Unit_FreePromotions WHERE UnitType = 'UNIT_BYZANTINE_DROMON' AND PromotionType = 'PROMOTION_NAVAL_BONUS';
 	UPDATE Unit_ClassUpgrades SET UnitClassType = 'UNITCLASS_CRUISER' WHERE UnitType = 'UNIT_FRIGATE';
 	
 	-- Tech Stuff Melee
@@ -65,17 +64,6 @@
 		
 	UPDATE Units SET AirInterceptRange = '4' WHERE Type = 'UNIT_CARRIER';
 
-	DELETE FROM Unit_FreePromotions WHERE UnitType = 'UNIT_CARAVEL';
-	DELETE FROM Unit_FreePromotions WHERE UnitType = 'UNIT_PRIVATEER';
-	DELETE FROM Unit_FreePromotions WHERE UnitType = 'UNIT_IRONCLAD' AND PromotionType = 'PROMOTION_STEAM_POWERED';
-
-	INSERT INTO Unit_FreePromotions (UnitType, PromotionType) VALUES ('UNIT_CARRIER' , 'PROMOTION_INTERCEPTION_I');
-
-	-- Dromon and Galleass - 
-	INSERT INTO Unit_FreePromotions (UnitType, PromotionType) VALUES ('UNIT_BYZANTINE_DROMON' , 'PROMOTION_NAVAL_INACCURACY');
-	INSERT INTO Unit_FreePromotions (UnitType, PromotionType) VALUES ('UNIT_GALLEASS' , 'PROMOTION_NAVAL_INACCURACY');
-	INSERT INTO Unit_FreePromotions (UnitType, PromotionType) VALUES ('UNIT_VENETIAN_GALLEASS' , 'PROMOTION_NAVAL_INACCURACY');
-
 
 	UPDATE Unit_ClassUpgrades SET UnitClassType = 'UNITCLASS_PRIVATEER' WHERE UnitType = 'UNIT_CARAVEL';
 	UPDATE Unit_ClassUpgrades SET UnitClassType = 'UNITCLASS_IRONCLAD' WHERE UnitType = 'UNIT_PRIVATEER';
@@ -101,30 +89,7 @@
 	UPDATE Units SET RangedCombat = '0' WHERE Type = 'UNIT_MISSILE_CRUISER';
 	UPDATE Units SET Range = '0' WHERE Type = 'UNIT_MISSILE_CRUISER';
 	UPDATE Units SET CombatClass = 'UNITCOMBAT_NAVALMELEE' WHERE Type = 'UNIT_MISSILE_CRUISER';
-	DELETE FROM Unit_FreePromotions WHERE UnitType = 'UNIT_MISSILE_CRUISER' AND PromotionType = 'PROMOTION_ONLY_DEFENSIVE';
 	UPDATE Unit_AITypes SET UnitAIType = 'UNITAI_ATTACK_SEA' WHERE UnitType = 'UNIT_MISSILE_CRUISER' AND UnitAIType = "UNITAI_ASSAULT_SEA";
-
-	DELETE FROM Unit_FreePromotions WHERE UnitType = 'UNIT_MISSILE_CRUISER' AND PromotionType = 'PROMOTION_INTERCEPTION_IV';
-	INSERT INTO Unit_FreePromotions (UnitType, PromotionType) VALUES ('UNIT_MISSILE_CRUISER' , 'PROMOTION_INTERCEPTION_I');
-
-	INSERT INTO Unit_FreePromotions (UnitType, PromotionType) VALUES ('UNIT_CARRIER' , 'PROMOTION_ANTI_AIR');
-
-	--Naval Ranged can move and shoot
-	--INSERT INTO Unit_FreePromotions (UnitType, PromotionType) VALUES ('UNIT_CARRIER' , 'PROMOTION_CAN_MOVE_AFTER_ATTACKING');
-	INSERT INTO Unit_FreePromotions (UnitType, PromotionType) VALUES ('UNIT_BYZANTINE_DROMON' , 'PROMOTION_CAN_MOVE_AFTER_ATTACKING_NAVAL');
-	INSERT INTO Unit_FreePromotions (UnitType, PromotionType) VALUES ('UNIT_GALLEASS' , 'PROMOTION_CAN_MOVE_AFTER_ATTACKING_NAVAL');
-	INSERT INTO Unit_FreePromotions (UnitType, PromotionType) VALUES ('UNIT_VENETIAN_GALLEASS' , 'PROMOTION_CAN_MOVE_AFTER_ATTACKING_NAVAL');
-	--INSERT INTO Unit_FreePromotions (UnitType, PromotionType) VALUES ('UNIT_FRIGATE' , 'PROMOTION_CAN_MOVE_AFTER_ATTACKING');
-	--INSERT INTO Unit_FreePromotions (UnitType, PromotionType) VALUES ('UNIT_ENGLISH_SHIPOFTHELINE' , 'PROMOTION_CAN_MOVE_AFTER_ATTACKING');
-	INSERT INTO Unit_FreePromotions (UnitType, PromotionType) VALUES ('UNIT_SUBMARINE' , 'PROMOTION_CAN_MOVE_AFTER_ATTACKING');
-	--INSERT INTO Unit_FreePromotions (UnitType, PromotionType) VALUES ('UNIT_CRUISER' , 'PROMOTION_CAN_MOVE_AFTER_ATTACKING');
-	--INSERT INTO Unit_FreePromotions (UnitType, PromotionType) VALUES ('UNIT_BATTLESHIP' , 'PROMOTION_CAN_MOVE_AFTER_ATTACKING');
-	INSERT INTO Unit_FreePromotions (UnitType, PromotionType) VALUES ('UNIT_NUCLEAR_SUBMARINE' , 'PROMOTION_CAN_MOVE_AFTER_ATTACKING');
-
-	--INSERT INTO Unit_FreePromotions (UnitType, PromotionType) VALUES ('UNIT_CARRIER' , 'PROMOTION_SIGHT_PENALTY_NAVAL');
-	--INSERT INTO Unit_FreePromotions (UnitType, PromotionType) VALUES ('UNIT_FRIGATE' , 'PROMOTION_SIGHT_PENALTY_NAVAL');
-	--INSERT INTO Unit_FreePromotions (UnitType, PromotionType) VALUES ('UNIT_ENGLISH_SHIPOFTHELINE' , 'PROMOTION_SIGHT_PENALTY_NAVAL');
-	--INSERT INTO Unit_FreePromotions (UnitType, PromotionType) VALUES ('UNIT_CRUISER' , 'PROMOTION_SIGHT_PENALTY_NAVAL');
 
 	--UPDATE Units SET CoastalFireOnly = '1' WHERE Type = 'UNIT_FRIGATE';
 	--UPDATE Units SET CoastalFireOnly = '1' WHERE Type = 'UNIT_ENGLISH_SHIPOFTHELINE';
@@ -132,24 +97,8 @@
 	--UPDATE Units SET CoastalFireOnly = '1' WHERE Type = 'UNIT_CRUISER';
 		
 
-	-- Destroyer
-	UPDATE Unit_FreePromotions Set PromotionType = 'PROMOTION_ANTI_SUBMARINE_I' WHERE PromotionType = 'PROMOTION_ANTI_SUBMARINE_II' AND UnitType = 'UNIT_DESTROYER';
-	
-	DELETE FROM Unit_FreePromotions WHERE UnitType = 'UNIT_DESTROYER' AND PromotionType = 'PROMOTION_INTERCEPTION_II';
-
-	DELETE FROM Unit_FreePromotions WHERE UnitType = 'UNIT_DESTROYER' AND PromotionType = 'PROMOTION_ANTI_SUBMARINE_I';
-	DELETE FROM Unit_FreePromotions WHERE UnitType = 'UNIT_DESTROYER' AND PromotionType = 'PROMOTION_SEE_INVISIBLE_SUBMARINE';
-
-	DELETE FROM Unit_FreePromotions WHERE UnitType = 'UNIT_MISSILE_CRUISER' AND PromotionType = 'PROMOTION_ANTI_SUBMARINE_II';
-	DELETE FROM Unit_FreePromotions WHERE UnitType = 'UNIT_MISSILE_CRUISER' AND PromotionType = 'PROMOTION_SEE_INVISIBLE_SUBMARINE';
-
-	INSERT INTO Unit_FreePromotions (UnitType, PromotionType) VALUES ('UNIT_DESTROYER' , 'PROMOTION_INTERCEPTION_I');
-	
+	-- Destroyer		
 	UPDATE Units SET Moves = '5' WHERE Type = 'UNIT_DESTROYER';
-
-	-- Better city attack for modern naval units
-	INSERT INTO Unit_FreePromotions (UnitType, PromotionType) VALUES ('UNIT_DESTROYER' , 'PROMOTION_FIRE_SUPPORT');
-	INSERT INTO Unit_FreePromotions (UnitType, PromotionType) VALUES ('UNIT_MISSILE_CRUISER' , 'PROMOTION_FIRE_SUPPORT');
 
 	-- Resource Changes
 	DELETE FROM Unit_ResourceQuantityRequirements WHERE UnitType = 'UNIT_BATTLESHIP';

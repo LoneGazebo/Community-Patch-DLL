@@ -50,10 +50,6 @@
 
 	UPDATE Units SET NumFreeLux = '2' WHERE Type = 'UNIT_GREAT_ADMIRAL';
 
-	--Great General Supply Buff
-	INSERT INTO Unit_FreePromotions (UnitType, PromotionType) VALUES ('UNIT_GREAT_ADMIRAL' , 'PROMOTION_SUPPLY_BOOST');
-	INSERT INTO Unit_FreePromotions (UnitType, PromotionType) VALUES ('UNIT_GREAT_GENERAL' , 'PROMOTION_SUPPLY_BOOST');
-	INSERT INTO Unit_FreePromotions (UnitType, PromotionType) VALUES ('UNIT_MONGOLIAN_KHAN' , 'PROMOTION_SUPPLY_BOOST');
 	-- Merchant gold boosted, CS ability buff
 
 	UPDATE Units SET NumGoldPerEra = '150' WHERE Type = 'UNIT_MERCHANT';
@@ -76,7 +72,6 @@
 	UPDATE Units SET TourismBonusTurns = '10' WHERE Type = 'UNIT_MUSICIAN';
 
 	-- work boat sight penalty
-	INSERT INTO Unit_FreePromotions (UnitType, PromotionType) VALUES ('UNIT_WORKBOAT' , 'PROMOTION_SIGHT_PENALTY');
 	UPDATE Units SET BaseSightRange = '1' WHERE Type = 'UNIT_WORKBOAT';
 	UPDATE Units SET Moves = '2' WHERE Type = 'UNIT_WORKBOAT';
 	UPDATE Units SET MilitarySupport = '0' WHERE Type = 'UNIT_WORKBOAT';
@@ -134,8 +129,6 @@ INSERT INTO Missions
 	(Type, Description, Help, DisabledHelp, EntityEventType, Time, Target, Build, Sound, HotKey, AltDown, ShiftDown, CtrlDown, HotKeyPriority, HotKeyAlt, AltDownAlt, ShiftDownAlt, CtrlDownAlt, HotKeyPriorityAlt, OrderPriority, Visible, IconIndex, IconAtlas)
 VALUES
 	('MISSION_FREE_LUXURY', 'TXT_KEY_MISSION_FREE_LUXURY', 'TXT_KEY_MISSION_FREE_LUXURY_HELP', 'TXT_KEY_MISSION_FREE_LUXURY_HELP_DISABLED', 'ENTITY_EVENT_GREAT_EVENT', 20, 0, 0, 0, NULL, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 199, 1, 16, 'UNIT_ACTION_ATLAS');
-
-INSERT INTO Unit_FreePromotions (UnitType, PromotionType) VALUES ('UNIT_NUCLEAR_MISSILE' , 'PROMOTION_NUCLEAR_SILO');
 
 -- All civs start with a pathfinder
 
