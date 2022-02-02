@@ -1,7 +1,3 @@
--- Great Musician -- Rival Territories
-INSERT INTO Unit_FreePromotions (UnitType, PromotionType)
-VALUES ('UNIT_MUSICIAN' , 'PROMOTION_RIVAL_TERRITORY');
-
 -- NEW
 
 INSERT INTO Improvement_Yields

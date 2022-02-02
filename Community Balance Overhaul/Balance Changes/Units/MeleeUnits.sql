@@ -73,7 +73,6 @@
 	UPDATE Units SET CombatClass = 'UNITCOMBAT_RECON' WHERE Type = 'UNIT_MARINE';
 	INSERT INTO Unit_AITypes (UnitType, UnitAIType) VALUES ('UNIT_PARATROOPER', 'UNITAI_EXPLORE');
 
-	INSERT INTO Unit_FreePromotions (UnitType, PromotionType) VALUES ('UNIT_MARINE', 'PROMOTION_PARADROP');
 	INSERT INTO Unit_ClassUpgrades (UnitType, UnitClassType) VALUES ('UNIT_MARINE', 'UNITCLASS_XCOM_SQUAD');
 	UPDATE Units  SET DefaultUnitAI = 'UNITAI_PARADROP'  WHERE Type = 'UNIT_MARINE';
 
@@ -106,35 +105,6 @@
 	UPDATE Unit_ClassUpgrades SET UnitClassType = 'UNITCLASS_SCOUT' WHERE UnitType = 'UNIT_SHOSHONE_PATHFINDER';
 	UPDATE Unit_ClassUpgrades SET UnitClassType = 'UNITCLASS_EXPLORER' WHERE UnitType = 'UNIT_SCOUT';
 
-	INSERT INTO Unit_FreePromotions (UnitType, PromotionType) VALUES ('UNIT_EXPLORER' , 'PROMOTION_OCEAN_CROSSING');
-
-	INSERT INTO Unit_FreePromotions (UnitType, PromotionType) VALUES ('UNIT_SHOSHONE_PATHFINDER' , 'PROMOTION_BARBARIAN_PENALTY_I');
-	INSERT INTO Unit_FreePromotions (UnitType, PromotionType) VALUES ('UNIT_SCOUT' , 'PROMOTION_BARBARIAN_PENALTY_II');
-	INSERT INTO Unit_FreePromotions (UnitType, PromotionType) VALUES ('UNIT_EXPLORER' , 'PROMOTION_BARBARIAN_BONUS');
-
-	INSERT INTO Unit_FreePromotions (UnitType, PromotionType) VALUES ('UNIT_SCOUT' , 'PROMOTION_SCOUT_GOODY_BONUS');
-	INSERT INTO Unit_FreePromotions (UnitType, PromotionType) VALUES ('UNIT_EXPLORER' , 'PROMOTION_SCOUT_GOODY_BONUS');
---	INSERT INTO Unit_FreePromotions (UnitType, PromotionType) VALUES ('UNIT_ZEPPELIN' , 'PROMOTION_SCOUT_GOODY_BONUS');
---	INSERT INTO Unit_FreePromotions (UnitType, PromotionType) VALUES ('UNIT_ZEPPELIN' , 'PROMOTION_SCOUT_XP_SPOTTING');
---	INSERT INTO Unit_FreePromotions (UnitType, PromotionType) VALUES ('UNIT_ZEPPELIN', 'PROMOTION_CAN_MOVE_AFTER_ATTACKING');
-
-	INSERT INTO Unit_FreePromotions (UnitType, PromotionType) VALUES ('UNIT_PARATROOPER' , 'PROMOTION_IGNORE_TERRAIN_COST');
-	INSERT INTO Unit_FreePromotions (UnitType, PromotionType) VALUES ('UNIT_MARINE' , 'PROMOTION_IGNORE_TERRAIN_COST');
-	INSERT INTO Unit_FreePromotions (UnitType, PromotionType) VALUES ('UNIT_XCOM_SQUAD' , 'PROMOTION_IGNORE_TERRAIN_COST');
-	INSERT INTO Unit_FreePromotions (UnitType, PromotionType) VALUES ('UNIT_PARATROOPER' , 'PROMOTION_SCOUT_GOODY_BONUS');
-	INSERT INTO Unit_FreePromotions (UnitType, PromotionType) VALUES ('UNIT_MARINE' , 'PROMOTION_SCOUT_GOODY_BONUS');
-	INSERT INTO Unit_FreePromotions (UnitType, PromotionType) VALUES ('UNIT_XCOM_SQUAD' , 'PROMOTION_SCOUT_GOODY_BONUS');
-	INSERT INTO Unit_FreePromotions (UnitType, PromotionType) VALUES ('UNIT_PARATROOPER' , 'PROMOTION_SCOUT_XP_PILLAGE');
-	INSERT INTO Unit_FreePromotions (UnitType, PromotionType) VALUES ('UNIT_MARINE' , 'PROMOTION_SCOUT_XP_PILLAGE');
-	INSERT INTO Unit_FreePromotions (UnitType, PromotionType) VALUES ('UNIT_XCOM_SQUAD' , 'PROMOTION_SCOUT_XP_PILLAGE');
-	INSERT INTO Unit_FreePromotions (UnitType, PromotionType) VALUES ('UNIT_PARATROOPER' , 'PROMOTION_KNOCKOUT_III');
-	INSERT INTO Unit_FreePromotions (UnitType, PromotionType) VALUES ('UNIT_MARINE' , 'PROMOTION_KNOCKOUT_III');
-	INSERT INTO Unit_FreePromotions (UnitType, PromotionType) VALUES ('UNIT_XCOM_SQUAD' , 'PROMOTION_KNOCKOUT_III');
-	INSERT INTO Unit_FreePromotions (UnitType, PromotionType) VALUES ('UNIT_XCOM_SQUAD' , 'PROMOTION_AMPHIBIOUS');
-
-	DELETE FROM Unit_FreePromotions WHERE UnitType = 'UNIT_MARINE' AND PromotionType = 'PROMOTION_DEFENSIVE_EMBARKATION';
-	DELETE FROM Unit_FreePromotions WHERE UnitType = 'UNIT_MARINE' AND PromotionType = 'PROMOTION_EMBARKED_SIGHT';
-
 	-- Change Appearance of Marine and Paratrooper 
 	UPDATE Units SET UnitArtInfo = 'ART_DEF_UNIT_PARATROOPER' WHERE Type = 'UNIT_MARINE';
 	UPDATE Units SET UnitFlagIconOffset = '59' WHERE Type = 'UNIT_MARINE';
@@ -158,76 +128,17 @@
 	-- Make Modern Armor cost oil, not aluminum:
 	UPDATE Unit_ResourceQuantityRequirements SET ResourceType = 'RESOURCE_OIL' WHERE UnitType = 'UNIT_MODERN_ARMOR';
 	
-	-- Armor
-	INSERT INTO Unit_FreePromotions (UnitType, PromotionType) VALUES ('UNIT_WWI_TANK' , 'PROMOTION_ARMOR_PLATING_1');
-	INSERT INTO Unit_FreePromotions (UnitType, PromotionType) VALUES ('UNIT_TANK' , 'PROMOTION_ARMOR_PLATING_1');
-	INSERT INTO Unit_FreePromotions (UnitType, PromotionType) VALUES ('UNIT_MODERN_ARMOR' , 'PROMOTION_ARMOR_PLATING_1');
-
-	DELETE FROM Unit_FreePromotions WHERE UnitType = 'UNIT_ANTI_AIRCRAFT_GUN' AND PromotionType = 'PROMOTION_INTERCEPTION_IV';
-	INSERT INTO Unit_FreePromotions (UnitType, PromotionType) VALUES ('UNIT_ANTI_AIRCRAFT_GUN' , 'PROMOTION_INTERCEPTION_I');
-	INSERT INTO Unit_FreePromotions (UnitType, PromotionType) VALUES ('UNIT_ANTI_AIRCRAFT_GUN' , 'PROMOTION_INTERCEPTION_II');
-
-	DELETE FROM Unit_FreePromotions WHERE UnitType = 'UNIT_MOBILE_SAM' AND PromotionType = 'PROMOTION_INTERCEPTION_IV';
-	INSERT INTO Unit_FreePromotions (UnitType, PromotionType) VALUES ('UNIT_MOBILE_SAM' , 'PROMOTION_INTERCEPTION_I');
-	INSERT INTO Unit_FreePromotions (UnitType, PromotionType) VALUES ('UNIT_MOBILE_SAM' , 'PROMOTION_INTERCEPTION_II');
-	INSERT INTO Unit_FreePromotions (UnitType, PromotionType) VALUES ('UNIT_MOBILE_SAM' , 'PROMOTION_INTERCEPTION_III');
-
 	UPDATE Units SET Range = '4' WHERE Type = 'UNIT_MOBILE_SAM';
 	UPDATE Units SET AirInterceptRange = '4' WHERE Type = 'UNIT_MOBILE_SAM';
 	UPDATE Units SET Range = '3' WHERE Type = 'UNIT_ANTI_AIRCRAFT_GUN';
 	UPDATE Units SET AirInterceptRange = '3' WHERE Type = 'UNIT_ANTI_AIRCRAFT_GUN';
-
-	
-	-- Warriors Need Love!
-
-	INSERT INTO Unit_FreePromotions (UnitType, PromotionType) VALUES ('UNIT_WARRIOR' , 'PROMOTION_BARBARIAN_BONUS');
-	INSERT INTO Unit_FreePromotions (UnitType, PromotionType) VALUES ('UNIT_BARBARIAN_WARRIOR' , 'PROMOTION_BARBARIAN_BONUS');
-	
-	-- Spearmen/Pike/Tercio Change
-	DELETE FROM Unit_FreePromotions WHERE PromotionType = 'PROMOTION_ANTI_MOUNTED_I';
-	INSERT INTO Unit_FreePromotions (UnitType, PromotionType) VALUES ('UNIT_SPEARMAN' , 'PROMOTION_FORMATION_1');
-	INSERT INTO Unit_FreePromotions (UnitType, PromotionType) VALUES ('UNIT_PIKEMAN' , 'PROMOTION_FORMATION_1');
-	INSERT INTO Unit_FreePromotions (UnitType, PromotionType) VALUES ('UNIT_BARBARIAN_SPEARMAN' , 'PROMOTION_FORMATION_1');
-	INSERT INTO Unit_FreePromotions (UnitType, PromotionType) VALUES ('UNIT_GREEK_HOPLITE' , 'PROMOTION_FORMATION_1');
-	INSERT INTO Unit_FreePromotions (UnitType, PromotionType) VALUES ('UNIT_PERSIAN_IMMORTAL' , 'PROMOTION_FORMATION_1');
-	INSERT INTO Unit_FreePromotions (UnitType, PromotionType) VALUES ('UNIT_GERMAN_LANDSKNECHT' , 'PROMOTION_FORMATION_1');
-	INSERT INTO Unit_FreePromotions (UnitType, PromotionType) VALUES ('UNIT_SPANISH_TERCIO' , 'PROMOTION_FORMATION_1');
-	INSERT INTO Unit_FreePromotions (UnitType, PromotionType) VALUES ('UNIT_ZULU_IMPI' , 'PROMOTION_FORMATION_1');
-	--INSERT INTO Unit_FreePromotions (UnitType, PromotionType) VALUES ('UNIT_FRENCH_MUSKETEER' , 'PROMOTION_FORMATION_1');
 
 	INSERT INTO Unit_AITypes (UnitType, UnitAIType) VALUES ('UNIT_SPEARMAN' , 'UNITAI_ATTACK');
 	INSERT INTO Unit_AITypes (UnitType, UnitAIType) VALUES ('UNIT_SPANISH_TERCIO' , 'UNITAI_ATTACK');
 	UPDATE Units SET DefaultUnitAI = 'UNITAI_DEFENSE' WHERE Type = 'UNIT_SPANISH_TERCIO';
 	INSERT INTO Unit_AITypes (UnitType, UnitAIType) VALUES ('UNIT_BARBARIAN_SPEARMAN' , 'UNITAI_ATTACK');
 
-	-- Fusiliers need to carry on anti-mounted role
-	INSERT INTO Unit_FreePromotions (UnitType, PromotionType) VALUES ('UNIT_RIFLEMAN' , 'PROMOTION_FORMATION_1');
-	INSERT INTO Unit_FreePromotions (UnitType, PromotionType) VALUES ('UNIT_FRENCH_FOREIGNLEGION', 'PROMOTION_FORMATION_1');
-	INSERT INTO Unit_FreePromotions (UnitType, PromotionType) VALUES ('UNIT_ETHIOPIAN_MEHAL_SEFARI' , 'PROMOTION_FORMATION_1');
-	INSERT INTO Unit_FreePromotions (UnitType, PromotionType) VALUES ('UNIT_SWEDISH_CAROLEAN' , 'PROMOTION_FORMATION_1');
-
-	-- War Elephant
-	INSERT INTO Unit_FreePromotions (UnitType, PromotionType) VALUES ('UNIT_SIAMESE_WARELEPHANT' , 'PROMOTION_ANTI_MOUNTED_I');
-
-	-- Swordsmen/Longswordsmen Buff
-	INSERT INTO Unit_FreePromotions (UnitType, PromotionType) VALUES ('UNIT_SWORDSMAN', 'PROMOTION_COVER_1');
-	INSERT INTO Unit_FreePromotions (UnitType, PromotionType) VALUES ('UNIT_LONGSWORDSMAN', 'PROMOTION_COVER_1');
-
 	--MECH
 	UPDATE Units SET Moves = '8' WHERE Type = 'UNIT_MECH';
-	INSERT INTO Unit_FreePromotions (UnitType, PromotionType) VALUES ('UNIT_MECH', 'PROMOTION_MECH');
-	INSERT INTO Unit_FreePromotions (UnitType, PromotionType) VALUES ('UNIT_MECH', 'PROMOTION_ARMOR_PLATING_1');
 	UPDATE Units SET DefaultUnitAI = 'UNITAI_FAST_ATTACK' WHERE Type = 'UNIT_MECH';
 	
-	-- Gunpowder Melee promotion buffs
-	INSERT INTO Unit_FreePromotions (UnitType, PromotionType) VALUES ('UNIT_RIFLEMAN', 'PROMOTION_FIELD_WORKS_1');
-	INSERT INTO Unit_FreePromotions (UnitType, PromotionType) VALUES ('UNIT_FRENCH_FOREIGNLEGION', 'PROMOTION_FIELD_WORKS_1');
-	INSERT INTO Unit_FreePromotions (UnitType, PromotionType) VALUES ('UNIT_SWEDISH_CAROLEAN', 'PROMOTION_FIELD_WORKS_1');
-	INSERT INTO Unit_FreePromotions (UnitType, PromotionType) VALUES ('UNIT_ETHIOPIAN_MEHAL_SEFARI', 'PROMOTION_FIELD_WORKS_1');
-	INSERT INTO Unit_FreePromotions (UnitType, PromotionType) VALUES ('UNIT_GREAT_WAR_INFANTRY', 'PROMOTION_FIELD_WORKS_2');
-
-	INSERT INTO Unit_FreePromotions (UnitType, PromotionType) VALUES ('UNIT_DANISH_SKI_INFANTRY', 'PROMOTION_FIELD_WORKS_3');
-	INSERT INTO Unit_FreePromotions (UnitType, PromotionType) VALUES ('UNIT_INFANTRY', 'PROMOTION_FIELD_WORKS_3');
-	INSERT INTO Unit_FreePromotions (UnitType, PromotionType) VALUES ('UNIT_BRAZILIAN_PRACINHA', 'PROMOTION_FIELD_WORKS_3');
-	INSERT INTO Unit_FreePromotions (UnitType, PromotionType) VALUES ('UNIT_GUERILLA', 'PROMOTION_FIELD_WORKS_3'); -- Mercenaries, Entry in NewUnits.sql
-	INSERT INTO Unit_FreePromotions (UnitType, PromotionType) VALUES ('UNIT_MECHANIZED_INFANTRY', 'PROMOTION_FIELD_WORKS_3');

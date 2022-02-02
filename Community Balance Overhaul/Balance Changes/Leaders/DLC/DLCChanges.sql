@@ -197,12 +197,6 @@ INSERT INTO Unit_AITypes
 SELECT		'UNIT_SPAIN_INQUISITOR',	UnitAIType
 FROM Unit_AITypes WHERE UnitType = 'UNIT_INQUISITOR';
 
-
-INSERT INTO Unit_FreePromotions 	
-			(UnitType, 					PromotionType)
-SELECT		'UNIT_SPAIN_INQUISITOR',	PromotionType
-FROM Unit_FreePromotions WHERE UnitType = 'UNIT_INQUISITOR';
-
 -- Hacienda
 INSERT INTO ArtDefine_LandmarkTypes
 			(Type, 									LandmarkType, 	FriendlyName)

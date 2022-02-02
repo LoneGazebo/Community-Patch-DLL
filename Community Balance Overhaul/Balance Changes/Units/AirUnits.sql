@@ -100,48 +100,6 @@ UPDATE Units SET PrereqTech = 'TECH_RADAR' WHERE Type = 'UNIT_AMERICAN_B17';
 UPDATE Units SET ObsoleteTech = NULL WHERE Type = 'UNIT_AMERICAN_B17';
 
 
--- Adjustments to starting promotions for air units.
-DELETE FROM Unit_FreePromotions WHERE UnitType = 'UNIT_GUIDED_MISSILE' AND PromotionType = 'PROMOTION_EVASION_II';
-DELETE FROM Unit_FreePromotions WHERE UnitType = 'UNIT_ATOMIC_BOMB' AND PromotionType = 'PROMOTION_EVASION_I';
-DELETE FROM Unit_FreePromotions WHERE UnitType = 'UNIT_NUCLEAR_MISSILE' AND PromotionType = 'PROMOTION_EVASION_I';
-
-DELETE FROM Unit_FreePromotions WHERE UnitType = 'UNIT_TRIPLANE' AND PromotionType = 'PROMOTION_INTERCEPTION_III';
-DELETE FROM Unit_FreePromotions WHERE UnitType = 'UNIT_TRIPLANE' AND PromotionType = 'PROMOTION_ANTI_AIR_II';
-
-DELETE FROM Unit_FreePromotions WHERE UnitType = 'UNIT_FIGHTER' AND PromotionType = 'PROMOTION_INTERCEPTION_IV';
-DELETE FROM Unit_FreePromotions WHERE UnitType = 'UNIT_FIGHTER' AND PromotionType = 'PROMOTION_ANTI_AIR_II';
-
-DELETE FROM Unit_FreePromotions WHERE UnitType = 'UNIT_JAPANESE_ZERO' AND PromotionType = 'PROMOTION_INTERCEPTION_IV';
-DELETE FROM Unit_FreePromotions WHERE UnitType = 'UNIT_JAPANESE_ZERO' AND PromotionType = 'PROMOTION_ANTI_AIR_II';
-
-DELETE FROM Unit_FreePromotions WHERE UnitType = 'UNIT_JET_FIGHTER' AND PromotionType = 'PROMOTION_INTERCEPTION_IV';
-DELETE FROM Unit_FreePromotions WHERE UnitType = 'UNIT_JET_FIGHTER' AND PromotionType = 'PROMOTION_ANTI_AIR_II';
-
-DELETE FROM Unit_FreePromotions WHERE UnitType = 'UNIT_STEALTH_BOMBER' AND PromotionType = 'PROMOTION_EVASION_II';
-
-
-INSERT INTO Unit_FreePromotions (UnitType, PromotionType) VALUES ('UNIT_TRIPLANE' , 'PROMOTION_INTERCEPTION_1');
-INSERT INTO Unit_FreePromotions (UnitType, PromotionType) VALUES ('UNIT_TRIPLANE' , 'PROMOTION_ANTI_AIR');
-
-INSERT INTO Unit_FreePromotions (UnitType, PromotionType) VALUES ('UNIT_FIGHTER' , 'PROMOTION_INTERCEPTION_1');
-INSERT INTO Unit_FreePromotions (UnitType, PromotionType) VALUES ('UNIT_FIGHTER' , 'PROMOTION_ANTI_AIR');
-
-INSERT INTO Unit_FreePromotions (UnitType, PromotionType) VALUES ('UNIT_JAPANESE_ZERO' , 'PROMOTION_INTERCEPTION_1');
-INSERT INTO Unit_FreePromotions (UnitType, PromotionType) VALUES ('UNIT_JAPANESE_ZERO' , 'PROMOTION_INTERCEPTION_2');
-INSERT INTO Unit_FreePromotions (UnitType, PromotionType) VALUES ('UNIT_JAPANESE_ZERO' , 'PROMOTION_ANTI_AIR');
-
-INSERT INTO Unit_FreePromotions (UnitType, PromotionType) VALUES ('UNIT_JET_FIGHTER' , 'PROMOTION_INTERCEPTION_1');
-INSERT INTO Unit_FreePromotions (UnitType, PromotionType) VALUES ('UNIT_JET_FIGHTER' , 'PROMOTION_ANTI_AIR');
-
-INSERT INTO Unit_FreePromotions (UnitType, PromotionType) VALUES ('UNIT_TRIPLANE' , 'PROMOTION_AIR_MISFIRE');
-INSERT INTO Unit_FreePromotions (UnitType, PromotionType) VALUES ('UNIT_FIGHTER' , 'PROMOTION_AIR_MISFIRE');
-INSERT INTO Unit_FreePromotions (UnitType, PromotionType) VALUES ('UNIT_JAPANESE_ZERO' , 'PROMOTION_AIR_MISFIRE');
-INSERT INTO Unit_FreePromotions (UnitType, PromotionType) VALUES ('UNIT_JET_FIGHTER' , 'PROMOTION_AIR_MISFIRE');
-
-INSERT INTO Unit_FreePromotions (UnitType, PromotionType) VALUES ('UNIT_JET_FIGHTER' , 'PROMOTION_ANTI_HELICOPTER');
-
-INSERT INTO Unit_FreePromotions (UnitType, PromotionType) VALUES ('UNIT_STEALTH_BOMBER' , 'PROMOTION_EVASION_III');
-
 UPDATE Units
 SET PrereqTech = 'TECH_LASERS'
 WHERE Type = 'UNIT_NUCLEAR_MISSILE';

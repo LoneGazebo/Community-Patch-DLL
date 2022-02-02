@@ -28,10 +28,6 @@ UPDATE Civilization_UnitClassOverrides Set UnitClassType = 'UNITCLASS_MOUNTED_BO
 
 UPDATE Units SET GoodyHutUpgradeUnitClass = 'UNITCLASS_CUIRASSIER' WHERE Type = 'UNIT_ARABIAN_CAMELARCHER';
 
-INSERT INTO Unit_FreePromotions (UnitType, PromotionType) VALUES ('UNIT_ARABIAN_CAMELARCHER' , 'PROMOTION_WITHDRAW_BEFORE_MELEE');
-
-INSERT INTO Unit_FreePromotions (UnitType, PromotionType) VALUES ('UNIT_ARABIAN_CAMELARCHER' , 'PROMOTION_SPLASH');
-
 UPDATE Unit_ClassUpgrades SET UnitClassType = 'UNITCLASS_CUIRASSIER' WHERE UnitType = 'UNIT_ARABIAN_CAMELARCHER';
 
 DELETE FROM Unit_ResourceQuantityRequirements WHERE UnitType = 'UNIT_ARABIAN_CAMELARCHER';
@@ -59,14 +55,6 @@ UPDATE Units SET Moves = '4' WHERE Type = 'UNIT_ASSYRIAN_SIEGE_TOWER';
 UPDATE Units SET Class = 'UNITCLASS_ASSYRIAN_SIEGE_TOWER' WHERE Type = 'UNIT_ASSYRIAN_SIEGE_TOWER';
 
 DELETE From Unit_AITypes WHERE UnitType = 'UNIT_ASSYRIAN_SIEGE_TOWER';
-
-DELETE From Unit_FreePromotions WHERE UnitType = 'UNIT_ASSYRIAN_SIEGE_TOWER' AND PromotionType = 'PROMOTION_CITY_SIEGE';
-
-DELETE From Unit_FreePromotions WHERE UnitType = 'UNIT_ASSYRIAN_SIEGE_TOWER' AND PromotionType = 'PROMOTION_COVER_1';
-
-DELETE From Unit_FreePromotions WHERE UnitType = 'UNIT_ASSYRIAN_SIEGE_TOWER' AND PromotionType = 'PROMOTION_ONLY_ATTACKS_CITIES';
-
-DELETE From Unit_FreePromotions WHERE UnitType = 'UNIT_ASSYRIAN_SIEGE_TOWER' AND PromotionType = 'PROMOTION_NO_DEFENSIVE_BONUSES';
 
 UPDATE Units SET PrereqTech = 'TECH_ARCHERY' WHERE Type = 'UNIT_ASSYRIAN_SIEGE_TOWER';
 
@@ -96,9 +84,6 @@ VALUES
 ---------------------------
 -- Austria
 ---------------------------
--- Promotion!
-INSERT INTO Unit_FreePromotions (UnitType, PromotionType) VALUES ('UNIT_AUSTRIAN_HUSSAR' , 'PROMOTION_LIGHTNING_WARFARE');
-DELETE FROM Unit_FreePromotions WHERE UnitType = 'UNIT_AUSTRIAN_HUSSAR' AND PromotionType = 'PROMOTION_FLANK_ATTACK_BONUS';
 UPDATE Units SET Moves = '4' WHERE Type = 'UNIT_AUSTRIAN_HUSSAR';
 
 -- Hussar now a Cuirassier unit
@@ -120,9 +105,6 @@ UPDATE Units SET ObsoleteTech = 'TECH_BALLISTICS' WHERE Type = 'UNIT_AUSTRIAN_HU
 -- Update unit
 UPDATE Unit_ClassUpgrades SET UnitClassType = 'UNITCLASS_SPEARMAN' WHERE UnitType = 'UNIT_AZTEC_JAGUAR';
 
--- Promotion!
-INSERT INTO Unit_FreePromotions (UnitType, PromotionType) VALUES ('UNIT_AZTEC_JAGUAR' , 'PROMOTION_BARBARIAN_BONUS');
-
 ---------------------------
 -- Babylon
 ---------------------------
@@ -133,16 +115,12 @@ UPDATE Civilization_UnitClassOverrides Set UnitClassType = 'UNITCLASS_COMPOSITE_
 
 UPDATE Units SET Class = 'UNITCLASS_COMPOSITE_BOWMAN' WHERE Type = 'UNIT_BABYLONIAN_BOWMAN';
 
-UPDATE Unit_FreePromotions SET PromotionType = 'PROMOTION_INDIRECT_FIRE' WHERE UnitType = 'UNIT_BABYLONIAN_BOWMAN';
-
 ---------------------------
 -- Brazil
 ---------------------------
 -- Added Bandeirantes
 INSERT INTO Civilization_UnitClassOverrides (CivilizationType, UnitClassType, UnitType) VALUES 
 ('CIVILIZATION_BRAZIL', 'UNITCLASS_EXPLORER', 'UNIT_BANDEIRANTES');
-
-INSERT INTO Unit_FreePromotions (UnitType, PromotionType) VALUES ('UNIT_BANDEIRANTES' , 'PROMOTION_SCOUT_GOODY_BONUS');
 
 INSERT INTO Unit_ClassUpgrades
 	(UnitType, UnitClassType)
@@ -154,14 +132,6 @@ INSERT INTO Unit_AITypes
 VALUES
 	('UNIT_BANDEIRANTES', 'UNITAI_WORKER'),
 	('UNIT_BANDEIRANTES', 'UNITAI_EXPLORE');
-
-INSERT INTO Unit_FreePromotions (UnitType, PromotionType) VALUES ('UNIT_BANDEIRANTES' , 'PROMOTION_OCEAN_CROSSING');
-INSERT INTO Unit_FreePromotions (UnitType, PromotionType) VALUES ('UNIT_BANDEIRANTES' , 'PROMOTION_RECON_EXPERIENCE');
-INSERT INTO Unit_FreePromotions (UnitType, PromotionType) VALUES ('UNIT_BANDEIRANTES' , 'PROMOTION_RECON_BANDEIRANTES');
-INSERT INTO Unit_FreePromotions (UnitType, PromotionType) VALUES ('UNIT_BANDEIRANTES' , 'PROMOTION_BARBARIAN_BONUS');
-INSERT INTO Unit_FreePromotions (UnitType, PromotionType) VALUES ('UNIT_BANDEIRANTES' , 'PROMOTION_IGNORE_TERRAIN_COST');
-INSERT INTO Unit_FreePromotions (UnitType, PromotionType) VALUES ('UNIT_BANDEIRANTES' , 'PROMOTION_SURVIVALISM_3');
-INSERT INTO Unit_FreePromotions (UnitType, PromotionType) VALUES ('UNIT_BANDEIRANTES' , 'PROMOTION_EMBARKED_SIGHT');
 
 INSERT INTO Unit_Builds (UnitType, BuildType) VALUES ('UNIT_BANDEIRANTES', 'BUILD_FORT');
 INSERT INTO Unit_Builds (UnitType, BuildType) VALUES ('UNIT_BANDEIRANTES', 'BUILD_MINE');
@@ -194,9 +164,6 @@ UPDATE Unit_ClassUpgrades SET UnitClassType = 'UNITCLASS_LANCER' WHERE UnitType 
 
 UPDATE Units SET GoodyHutUpgradeUnitClass = 'UNITCLASS_LANCER' WHERE Type = 'UNIT_BYZANTINE_CATAPHRACT';
 
-INSERT INTO Unit_FreePromotions (UnitType, PromotionType) VALUES ('UNIT_BYZANTINE_CATAPHRACT' , 'PROMOTION_OPEN_TERRAIN');
-INSERT INTO Unit_FreePromotions (UnitType, PromotionType) VALUES ('UNIT_BYZANTINE_CATAPHRACT' , 'PROMOTION_COVER_1');
-
 ---------------------------
 -- Carthage
 ---------------------------
@@ -204,8 +171,6 @@ INSERT INTO Unit_FreePromotions (UnitType, PromotionType) VALUES ('UNIT_BYZANTIN
 DELETE FROM Civilization_UnitClassOverrides WHERE UnitType = 'UNIT_CARTHAGINIAN_FOREST_ELEPHANT';
 
 DELETE FROM Unit_ClassUpgrades WHERE UnitType = 'UNIT_CARTHAGINIAN_FOREST_ELEPHANT';
-
-DELETE FROM Unit_FreePromotions WHERE UnitType = 'UNIT_CARTHAGINIAN_FOREST_ELEPHANT';
 
 INSERT INTO UnitClasses (Type, Description, DefaultUnit) VALUES ('UNITCLASS_ELEPHANT_RIDER', 'TXT_KEY_UNIT_ELEPHANT_RIDER', 'UNIT_CARTHAGINIAN_FOREST_ELEPHANT');
 
@@ -220,12 +185,6 @@ UPDATE Units SET Strategy = 'TXT_KEY_UNIT_ELEPHANT_RIDER_STRATEGY' WHERE Type = 
 UPDATE Units SET Help = 'TXT_KEY_UNIT_ELEPHANT_RIDER_HELP' WHERE Type = 'UNIT_CARTHAGINIAN_FOREST_ELEPHANT';
 
 UPDATE Units SET ResourceType = 'RESOURCE_IVORY' WHERE Type = 'UNIT_CARTHAGINIAN_FOREST_ELEPHANT';
-
-INSERT INTO Unit_FreePromotions
-	(UnitType, PromotionType)
-VALUES
-('UNIT_CARTHAGINIAN_QUINQUEREME', 'PROMOTION_RECON_EXPERIENCE'),
-('UNIT_CARTHAGINIAN_QUINQUEREME', 'PROMOTION_HEAVY_SHIP');
 
 INSERT INTO Unit_ClassUpgrades
 	(UnitType, UnitClassType)
@@ -244,20 +203,16 @@ VALUES
 
 UPDATE Unit_YieldFromKills SET Yield = '200' WHERE UnitType = 'UNIT_CELT_PICTISH_WARRIOR';
 
-UPDATE Unit_FreePromotions SET PromotionType = 'PROMOTION_SKI_INFANTRY' WHERE UnitType = 'UNIT_CELT_PICTISH_WARRIOR' AND PromotionType = 'PROMOTION_FOREIGN_LANDS';
-
 ---------------------------
 -- China
 ---------------------------
 --CKN upgrades into a Musketman
 UPDATE Units SET GoodyHutUpgradeUnitClass = 'UNITCLASS_MUSKETMAN' WHERE Type = 'UNIT_CHINESE_CHUKONU';
 UPDATE Unit_ClassUpgrades SET UnitClassType = 'UNITCLASS_MUSKETMAN' WHERE UnitType = 'UNIT_CHINESE_CHUKONU';
-UPDATE Unit_FreePromotions SET PromotionType = 'PROMOTION_REPEATER' WHERE UnitType = 'UNIT_CHINESE_CHUKONU' AND PromotionType = 'PROMOTION_SECOND_ATTACK';
 ---------------------------
 -- Denmark
 ---------------------------
 -- Removed ski infantry, buffed berserker
-INSERT INTO Unit_FreePromotions (UnitType, PromotionType) VALUES ('UNIT_DANISH_BERSERKER' , 'PROMOTION_CHARGE');
 
 UPDATE Units SET GoodyHutUpgradeUnitClass = 'UNITCLASS_TERCIO' WHERE Type = 'UNIT_DANISH_BERSERKER';
 	
@@ -276,8 +231,6 @@ UPDATE Units SET MinorCivGift = '1' WHERE Type = 'UNIT_DANISH_SKI_INFANTRY';
 UPDATE Units SET GoodyHutUpgradeUnitClass = 'UNITCLASS_MECHANIZED_INFANTRY' WHERE Type = 'UNIT_DANISH_SKI_INFANTRY';
 
 UPDATE Unit_ClassUpgrades SET UnitClassType = 'UNITCLASS_MECHANIZED_INFANTRY' WHERE UnitType = 'UNIT_DANISH_SKI_INFANTRY';
-
-INSERT INTO Unit_FreePromotions (UnitType, PromotionType) VALUES ('UNIT_DANISH_BERSERKER', 'PROMOTION_COVER_1');
 
 DELETE FROM Trait_FreePromotionUnitCombats WHERE TraitType = 'TRAIT_VIKING_FURY';
 
@@ -311,10 +264,6 @@ UPDATE Unit_ClassUpgrades SET UnitClassType = 'UNITCLASS_MUSKETMAN' WHERE UnitTy
 
 UPDATE Unit_ClassUpgrades SET UnitClassType = 'UNITCLASS_CRUISER' WHERE UnitType = 'UNIT_ENGLISH_SHIPOFTHELINE';
 
-DELETE FROM Unit_FreePromotions WHERE UnitType = 'UNIT_ENGLISH_SHIPOFTHELINE'  AND PromotionType = 'PROMOTION_LOGISTICS';
-
-UPDATE Unit_FreePromotions SET PromotionType = 'PROMOTION_BREACHER' WHERE UnitType = 'UNIT_ENGLISH_SHIPOFTHELINE' AND PromotionType = 'PROMOTION_LOGISTICS';
-
 ---------------------------
 -- Egypt
 ---------------------------
@@ -327,16 +276,11 @@ UPDATE Unit_ClassUpgrades SET UnitClassType = 'UNITCLASS_HORSE_ARCHER' WHERE Uni
 -- Ethiopia
 ---------------------------
 -- Buffed Mehal Sefari
-INSERT INTO Unit_FreePromotions (UnitType, PromotionType) VALUES ('UNIT_ETHIOPIAN_MEHAL_SEFARI' , 'PROMOTION_HOMELAND_GUARDIAN');
-
-UPDATE Unit_FreePromotions Set PromotionType = 'PROMOTION_COVER_1' WHERE UnitType = 'UNIT_ETHIOPIAN_MEHAL_SEFARI' AND PromotionType = 'PROMOTION_DRILL_1';
 
 ---------------------------
 -- France
 ---------------------------
 -- Buffed Musketeer
-INSERT INTO Unit_FreePromotions (UnitType, PromotionType) VALUES ('UNIT_FRENCH_MUSKETEER' , 'PROMOTION_LIGHTNING_WARFARE');
-INSERT INTO Unit_FreePromotions (UnitType, PromotionType) VALUES ('UNIT_FRENCH_MUSKETEER' , 'PROMOTION_FORMATION_1');
 
 UPDATE Units SET Class = 'UNITCLASS_TERCIO' WHERE Type = 'UNIT_FRENCH_MUSKETEER';
 
@@ -390,19 +334,10 @@ INSERT INTO UnitPromotions
 		(Type,						AttackFullyHealedMod,	CannotBeChosen, LostWithUpgrade, PortraitIndex,	IconAtlas,			PediaType,		PediaEntry,							Description,						Help,									Sound)
 VALUES	('PROMOTION_DOPPELSOLDNER',	30,						1,				0,				 56,			'extraPromo_Atlas',	'PEDIA_MELEE',	'TXT_KEY_PROMOTION_DOPPELSOLDNER',	'TXT_KEY_PROMOTION_DOPPELSOLDNER',	'TXT_KEY_PROMOTION_DOPPELSOLDNER_HELP',	'AS2D_IF_LEVELUP');
 
-INSERT INTO Unit_FreePromotions
-		(UnitType, 					PromotionType)
-VALUES	('UNIT_GERMAN_LANDSKNECHT', 'PROMOTION_DOPPELSOLDNER'),
-		('UNIT_GERMAN_LANDSKNECHT', 'PROMOTION_FORMATION_2');
-
-DELETE FROM Unit_FreePromotions WHERE UnitType = 'UNIT_GERMAN_LANDSKNECHT' AND PromotionType = 'PROMOTION_DOUBLE_PLUNDER';
-DELETE FROM Unit_FreePromotions WHERE UnitType = 'UNIT_GERMAN_LANDSKNECHT' AND PromotionType = 'PROMOTION_FREE_PILLAGE_MOVES';
 ---------------------------
 -- Greece
 ---------------------------
 -- Removed Companion Cavalry, buffed Hoplite
-INSERT INTO Unit_FreePromotions (UnitType, PromotionType) VALUES ('UNIT_GREEK_HOPLITE' , 'PROMOTION_ADJACENT_BONUS');
-
 DELETE FROM Civilization_UnitClassOverrides WHERE UnitType = 'UNIT_GREEK_COMPANIONCAVALRY';
 
 INSERT INTO UnitClasses (Type, Description, DefaultUnit) VALUES ('UNITCLASS_COMPANIONCAVALRY', 'TXT_KEY_UNIT_GREEK_COMPANIONCAVALRY', 'UNIT_GREEK_COMPANIONCAVALRY');
@@ -417,10 +352,6 @@ UPDATE Units SET Class = 'UNITCLASS_COMPANIONCAVALRY' WHERE Type = 'UNIT_GREEK_C
 -- Huns
 ---------------------------
 -- Removed Battering Ram, tweaked Horse Archer to fit into new mounted ranged line
-INSERT INTO Unit_FreePromotions (UnitType, PromotionType) VALUES ('UNIT_HUN_HORSE_ARCHER', 'PROMOTION_CAN_MOVE_AFTER_ATTACKING');
-
-INSERT INTO Unit_FreePromotions (UnitType, PromotionType) VALUES ('UNIT_HUN_HORSE_ARCHER', 'PROMOTION_CITY_PENALTY');
-
 UPDATE Units SET Class = 'UNITCLASS_HORSE_ARCHER' WHERE Type = 'UNIT_HUN_HORSE_ARCHER';
 
 UPDATE Civilization_UnitClassOverrides SET UnitClassType = 'UNITCLASS_HORSE_ARCHER' WHERE CivilizationType = 'CIVILIZATION_HUNS' AND UnitClassType = 'UNITCLASS_CHARIOT_ARCHER';
@@ -464,9 +395,6 @@ UPDATE Units SET GoodyHutUpgradeUnitClass = 'UNITCLASS_CAVALRY' WHERE Type = 'UN
 
 UPDATE Unit_ClassUpgrades SET UnitClassType = 'UNITCLASS_CAVALRY' WHERE UnitType = 'UNIT_INDIAN_WARELEPHANT';
 
-INSERT INTO Unit_FreePromotions (UnitType, PromotionType) VALUES ('UNIT_INDIAN_WARELEPHANT' , 'PROMOTION_FEARED_ELEPHANT');
-INSERT INTO Unit_FreePromotions (UnitType, PromotionType) VALUES ('UNIT_INDIAN_WARELEPHANT' , 'PROMOTION_BARRAGE_1');
-
 UPDATE Units SET Moves = '3' WHERE Type = 'UNIT_INDIAN_WARELEPHANT';
 
 DELETE FROM Unit_ResourceQuantityRequirements WHERE UnitType = 'UNIT_INDIAN_WARELEPHANT';
@@ -480,7 +408,6 @@ VALUES
 -- Indonesia
 ---------------------------
 -- Buff Kris Swordsman
-INSERT INTO Unit_FreePromotions (UnitType, PromotionType) VALUES ('UNIT_KRIS_SWORDSMAN', 'PROMOTION_COVER_1');
 
 ---------------------------
 -- Iroquois
@@ -496,8 +423,6 @@ VALUES
 	('TRAIT_IGNORE_TERRAIN_IN_FOREST', 'UNITCOMBAT_GUN', 'PROMOTION_WOODSMAN'),
 	('TRAIT_IGNORE_TERRAIN_IN_FOREST', 'UNITCOMBAT_ARMOR', 'PROMOTION_WOODSMAN');
 
-INSERT INTO Unit_FreePromotions (UnitType, PromotionType) VALUES ('UNIT_IROQUOIAN_MOHAWKWARRIOR', 'PROMOTION_COVER_1');
-INSERT INTO Unit_FreePromotions (UnitType, PromotionType) VALUES ('UNIT_IROQUOIAN_MOHAWKWARRIOR', 'PROMOTION_WOODSMAN');
 ---------------------------
 -- Japan
 ---------------------------
@@ -517,8 +442,6 @@ INSERT INTO UnitClasses (Type, Description, DefaultUnit) VALUES ('UNITCLASS_ZERO
 UPDATE Units SET Class = 'UNITCLASS_ZERO' WHERE Type = 'UNIT_JAPANESE_ZERO';
 
 UPDATE Units SET PolicyType = 'POLICY_MILITARISM' WHERE Type = 'UNIT_JAPANESE_ZERO';
-
-INSERT INTO Unit_FreePromotions (UnitType, PromotionType) VALUES ('UNIT_JAPANESE_SAMURAI', 'PROMOTION_COVER_1');
 
 ---------------------------
 -- Korea
@@ -566,12 +489,6 @@ UPDATE Units SET Moves = '4' WHERE Type = 'UNIT_MONGOLIAN_KESHIK';
 
 UPDATE Units SET UnitFlagAtlas = 'MOUNTED_XBOW_FLAG_ATLAS' WHERE Type = 'UNIT_MONGOLIAN_KESHIK';
 
-DELETE FROM Unit_FreePromotions WHERE UnitType = 'UNIT_MONGOLIAN_KESHIK'  AND PromotionType = 'PROMOTION_SPAWN_GENERALS_I';
-
-DELETE FROM Unit_FreePromotions WHERE UnitType = 'UNIT_MONGOLIAN_KESHIK'  AND PromotionType = 'PROMOTION_GAIN_EXPERIENCE';
-
-INSERT INTO Unit_FreePromotions (UnitType, PromotionType) VALUES ('UNIT_MONGOLIAN_KESHIK', 'PROMOTION_CITY_PENALTY');
-
 UPDATE Units SET GoodyHutUpgradeUnitClass = 'UNITCLASS_MOUNTED_BOWMAN' WHERE Type = 'UNIT_MONGOLIAN_KESHIK';
 
 UPDATE Unit_ClassUpgrades SET UnitClassType = 'UNITCLASS_MOUNTED_BOWMAN' WHERE UnitType = 'UNIT_MONGOLIAN_KESHIK';
@@ -599,22 +516,12 @@ DELETE FROM Unit_AITypes WHERE UnitType = 'UNIT_MONGOLIAN_KESHIK' AND UnitAIType
 ---------------------------
 -- Morocco
 ---------------------------
-INSERT INTO Unit_FreePromotions (UnitType, PromotionType) VALUES ('UNIT_BERBER_CAVALRY' , 'PROMOTION_IGNORE_TERRAIN_COST');
-
-DELETE FROM Unit_FreePromotions WHERE UnitType = 'UNIT_BERBER_CAVALRY' AND PromotionType = 'PROMOTION_DESERT_WARRIOR';
-
 
 ---------------------------
 -- Netherlands
 ---------------------------
 -- Adjust Beggar
 UPDATE Unit_ClassUpgrades SET UnitClassType = 'UNITCLASS_IRONCLAD' WHERE UnitType = 'UNIT_DUTCH_SEA_BEGGAR';
-
-DELETE FROM Unit_FreePromotions WHERE UnitType = 'UNIT_DUTCH_SEA_BEGGAR' AND PromotionType = 'PROMOTION_COASTAL_RAIDER_1';
-DELETE FROM Unit_FreePromotions WHERE UnitType = 'UNIT_DUTCH_SEA_BEGGAR' AND PromotionType = 'PROMOTION_COASTAL_RAIDER_2';
-
-INSERT INTO Unit_FreePromotions (UnitType, PromotionType) VALUES ('UNIT_DUTCH_SEA_BEGGAR' , 'PROMOTION_COASTAL_TERROR');
-
 	
 ---------------------------
 -- Ottomans
@@ -643,8 +550,6 @@ UPDATE Units SET Class = 'UNITCLASS_MUSKETMAN' WHERE Type = 'UNIT_OTTOMAN_JANISS
 
 UPDATE Civilization_UnitClassOverrides SET UnitClassType = 'UNITCLASS_MUSKETMAN' WHERE UnitType = 'UNIT_OTTOMAN_JANISSARY';
 
-UPDATE Unit_FreePromotions SET PromotionType = 'PROMOTION_MARCH' WHERE UnitType = 'UNIT_OTTOMAN_JANISSARY' AND PromotionType = 'PROMOTION_HEAL_IF_DESTROY_ENEMY';
-
 UPDATE Unit_ClassUpgrades SET UnitClassType = 'UNITCLASS_GATLINGGUN' WHERE UnitType = 'UNIT_OTTOMAN_JANISSARY';
 	
 UPDATE Units SET GoodyHutUpgradeUnitClass = 'UNITCLASS_GATLINGGUN' WHERE Type = 'UNIT_OTTOMAN_JANISSARY';
@@ -653,7 +558,6 @@ UPDATE Units SET GoodyHutUpgradeUnitClass = 'UNITCLASS_GATLINGGUN' WHERE Type = 
 -- Persia
 ---------------------------
 -- Immortal gains extra defense
-INSERT INTO Unit_FreePromotions (UnitType, PromotionType) VALUES ('UNIT_PERSIAN_IMMORTAL' , 'PROMOTION_ARMOR_PLATING_1');
 
 ---------------------------
 -- Poland
@@ -715,16 +619,9 @@ UPDATE Units SET Cost = '-1' WHERE Type = 'UNIT_ROMAN_BALLISTA';
 
 UPDATE Units SET Class = 'UNITCLASS_BALLISTA' WHERE Type = 'UNIT_ROMAN_BALLISTA';
 
-INSERT INTO Unit_FreePromotions (UnitType, PromotionType) VALUES ('UNIT_ROMAN_BALLISTA' , 'PROMOTION_COVER_1');
-
-INSERT INTO Unit_FreePromotions (UnitType, PromotionType) VALUES ('UNIT_ROMAN_LEGION', 'PROMOTION_COVER_2');
-INSERT INTO Unit_FreePromotions (UnitType, PromotionType) VALUES ('UNIT_ROMAN_LEGION', 'PROMOTION_AOE_STRIKE_FORTIFY');
-
 ---------------------------
 -- Russia
 ---------------------------
--- Promotion!
-INSERT INTO Unit_FreePromotions (UnitType, PromotionType) VALUES ('UNIT_RUSSIAN_COSSACK' , 'PROMOTION_ESPRIT_DE_CORPS');
 
 ---------------------------
 -- Shoshone
@@ -735,17 +632,7 @@ INSERT INTO UnitClasses (Type, Description, DefaultUnit) VALUES ('UNITCLASS_PATH
 
 UPDATE Units SET Class = 'UNITCLASS_PATHFINDER' WHERE Type = 'UNIT_SHOSHONE_PATHFINDER';
 
-INSERT INTO Unit_FreePromotions (UnitType, PromotionType) VALUES ('UNIT_SHOSHONE_COMANCHE_RIDERS' , 'PROMOTION_FREE_PILLAGE_MOVES');
-
-INSERT INTO Unit_FreePromotions (UnitType, PromotionType) VALUES ('UNIT_SHOSHONE_COMANCHE_RIDERS' , 'PROMOTION_WITHDRAW_BEFORE_MELEE');
-
-INSERT INTO Unit_FreePromotions (UnitType, PromotionType) VALUES ('UNIT_SHOSHONE_COMANCHE_RIDERS' , 'PROMOTION_EXTRA_MOVES_I');
-
-DELETE FROM Unit_FreePromotions WHERE UnitType = 'UNIT_SHOSHONE_COMANCHE_RIDERS' AND PromotionType = 'PROMOTION_MOON_STRIKER';
-
 DELETE FROM Civilization_UnitClassOverrides WHERE UnitType = 'UNIT_SHOSHONE_PATHFINDER';
-
-DELETE FROM Unit_FreePromotions WHERE UnitType = 'UNIT_SHOSHONE_PATHFINDER' AND PromotionType = 'PROMOTION_GOODY_HUT_PICKER';
 
 UPDATE Units SET GoodyHutUpgradeUnitClass = 'UNITCLASS_WWI_TANK' WHERE Type = 'UNIT_SHOSHONE_COMANCHE_RIDERS';
 
@@ -762,8 +649,6 @@ VALUES
 UPDATE Unit_ClassUpgrades SET UnitClassType = 'UNITCLASS_LANCER' WHERE UnitType = 'UNIT_SIAMESE_WARELEPHANT';
 
 UPDATE Units SET GoodyHutUpgradeUnitClass = 'UNITCLASS_LANCER' WHERE Type = 'UNIT_SIAMESE_WARELEPHANT';
-
-INSERT INTO Unit_FreePromotions (UnitType, PromotionType) VALUES ('UNIT_SIAMESE_WARELEPHANT' , 'PROMOTION_GENERAL_STACKING');
 
 ---------------------------
 -- Songhai
@@ -869,35 +754,8 @@ UPDATE Unit_ClassUpgrades SET UnitClassType = 'UNITCLASS_RIFLEMAN' WHERE UnitTyp
 
 UPDATE Civilization_UnitClassOverrides Set UnitClassType = 'UNITCLASS_TERCIO' WHERE UnitType = 'UNIT_ZULU_IMPI';
 
-INSERT INTO Unit_FreePromotions (UnitType, PromotionType) VALUES ('UNIT_ZULU_IMPI' , 'PROMOTION_KNOCKOUT_I');
-INSERT INTO Unit_FreePromotions (UnitType, PromotionType) VALUES ('UNIT_ZULU_IMPI' , 'PROMOTION_RANGED_SUPPORT_FIRE');
-
-DELETE FROM Unit_FreePromotions WHERE UnitType = 'UNIT_ZULU_IMPI' AND PromotionType = 'PROMOTION_ANTI_GUNPOWDER';
-
 
 -- NEW DATA
-
-INSERT INTO Unit_FreePromotions
-	(UnitType, PromotionType)
-VALUES
-	('UNIT_ASSYRIAN_SIEGE_TOWER', 'PROMOTION_MEDIC'),
-	('UNIT_ASSYRIAN_SIEGE_TOWER', 'PROMOTION_MEDIC_II'),
-	('UNIT_BRAZILIAN_PRACINHA', 'PROMOTION_SURVIVALISM_1'),
-	('UNIT_CARTHAGINIAN_FOREST_ELEPHANT', 'PROMOTION_NO_DEFENSIVE_BONUSES'),
-	('UNIT_CARTHAGINIAN_FOREST_ELEPHANT', 'PROMOTION_CAN_MOVE_AFTER_ATTACKING'),
-	('UNIT_CARTHAGINIAN_FOREST_ELEPHANT', 'PROMOTION_CITY_PENALTY'),
-	('UNIT_CARTHAGINIAN_FOREST_ELEPHANT', 'PROMOTION_FEARED_ELEPHANT'),
-	('UNIT_INDIAN_WARELEPHANT', 'PROMOTION_CAN_MOVE_AFTER_ATTACKING'),
-	('UNIT_EGYPTIAN_WARCHARIOT', 'PROMOTION_ENSLAVEMENT'),
-	('UNIT_ENGLISH_SHIPOFTHELINE', 'PROMOTION_TARGETING_4'),
-	('UNIT_GERMAN_PANZER', 'PROMOTION_ARMOR_PLATING_1'),
-	('UNIT_GERMAN_PANZER', 'PROMOTION_ARMOR_PLATING_2'),
-	('UNIT_GERMAN_PANZER', 'PROMOTION_MOBILITY'),
-	('UNIT_GREEK_HOPLITE', 'PROMOTION_SPAWN_GENERALS_II'),
-	('UNIT_MAYAN_ATLATLIST', 'PROMOTION_ATLATL_ATTACK'),
-	('UNIT_INCAN_SLINGER', 'PROMOTION_SLINGER'),
-	('UNIT_SONGHAI_MUSLIMCAVALRY', 'PROMOTION_RAIDER'),
-	('UNIT_SWEDISH_CAROLEAN', 'PROMOTION_AOE_STRIKE_ON_KILL');
 
 INSERT INTO UnitClasses
 	(Type, Description, DefaultUnit)
