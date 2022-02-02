@@ -18233,7 +18233,7 @@ bool CvCity::HasGarrison() const
 	{
 		if (m_hGarrison > -1 && GetGarrisonedUnit() == NULL)
 		{
-			OutputDebugString(CvString::format("error! invalid garrison %d is set in %s!\n", m_hGarrison, getName().c_str()).c_str());
+			CUSTOMLOG("Invalid garrison %d is set in %s!\n", m_hGarrison, getName().c_str());
 			(const_cast<CvCity*>(this))->m_hGarrison = -1;
 			return false;
 		}
@@ -18251,7 +18251,7 @@ CvUnit* CvCity::GetGarrisonedUnit() const
 		if (pGarrison)
 			return pGarrison;
 		else
-			OutputDebugString("warning: invalid garrison override!\n");
+			CUSTOMLOG("warning: invalid garrison override!\n");
 	}
 
 	if (m_hGarrison > -1)

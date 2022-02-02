@@ -2773,7 +2773,7 @@ void CvCityCitizens::ChangeNumDefaultSpecialists(int iChange, CvCity::eUpdateMod
 	m_aiSpecialistCounts[eSpecialist] += iChange;
 
 	if (m_aiSpecialistCounts[eSpecialist] > m_pCity->getPopulation())
-		OutputDebugString("warning: implausible number of specialists!\n");
+		CUSTOMLOG("warning: implausible number of specialists in %s!\n",m_pCity->getName().c_str());
 
 	GetCity()->processSpecialist(eSpecialist, iChange, updateMode);
 
@@ -2855,7 +2855,7 @@ int CvCityCitizens::GetTotalSpecialistCount() const
 	}
 
 	if (iNumSpecialists>m_pCity->getPopulation())
-		OutputDebugString("warning: implausible number of specialists!\n");
+		CUSTOMLOG("warning: implausible number of specialists in %s!\n",m_pCity->getName().c_str());
 
 	return iNumSpecialists;
 }
