@@ -1455,7 +1455,7 @@ MultiunitFormationTypes OperationalAIHelpers::GetArmyFormationForOpType(AIOperat
 		return MUFORMATION_CLOSE_CITY_DEFENSE;
 
 	default:
-		OutputDebugString("warning, no formation for unexpected operation type\n");
+		CUSTOMLOG("warning, no formation for unexpected operation type\n");
 		return NO_MUFORMATION;
 	}
 }

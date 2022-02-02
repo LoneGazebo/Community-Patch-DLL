@@ -1672,10 +1672,7 @@ void CvDeal::AddCityTrade(PlayerTypes eFrom, int iCityID)
 
 	CvCity* pCity = GET_PLAYER(eFrom).getCity(iCityID);
 	if (!pCity)
-	{
-		OutputDebugString("invalid city ID!\n");
 		return;
-	}
 
 	int x = pCity->getX();
 	int y = pCity->getY();
@@ -4705,11 +4702,6 @@ void CvGameDeals::LogDealComplete(CvDeal* pDeal)
 #endif
 
 			pLog->Msg(strOutBuf);
-#if !defined(MOD_BALANCE_CORE)
-			OutputDebugString("\n");
-			OutputDebugString(strOutBuf);
-			OutputDebugString("\n");
-#endif
 		}
 
 		strTemp.Format("DEAL COMPLETE: Deal Net Value: %d, From Player Value: %d, To Player Value: %d", iTotalValue, pDeal->GetFromPlayerValue(), pDeal->GetToPlayerValue());
@@ -4948,11 +4940,6 @@ void CvGameDeals::LogDealFailed(CvDeal* pDeal, bool bNoRenew, bool bNotAccepted,
 #endif
 
 			pLog->Msg(strOutBuf);
-#if !defined(MOD_BALANCE_CORE)
-			OutputDebugString("\n");
-			OutputDebugString(strOutBuf);
-			OutputDebugString("\n");
-#endif
 		}
 	}
 }

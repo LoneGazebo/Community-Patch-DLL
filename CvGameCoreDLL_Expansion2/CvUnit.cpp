@@ -820,11 +820,6 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 	}
 #endif
 
-	//---
-	if (getDomainType() == DOMAIN_SEA && plot()->isLake())
-		OutputDebugString("warning, ship spawning on lake\n");
-	//---
-
 	// Units can add Unhappiness
 	if(GC.getUnitInfo(getUnitType())->GetUnhappiness() != 0)
 	{
@@ -1362,7 +1357,7 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 		if (CanEverEmbark())
 			setEmbarked(true);
 		else
-			OutputDebugString("warning: putting un-embarkable unit on water plot!\n");
+			CUSTOMLOG("warning: putting un-embarkable unit on water plot!\n");
 	}
 	
 	if(bSetupGraphical)
@@ -29344,7 +29339,7 @@ void CvUnit::PushMission(MissionTypes eMission, int iData1, int iData2, int iFla
 	//plausi check
 	if (eMission == CvTypes::getMISSION_RANGE_ATTACK() && !canRangeStrikeAt(iData1, iData2))
 	{
-		OutputDebugString("illegal range strike target!\n");
+		CUSTOMLOG("illegal range strike target (%d,%d)!\n",iData1,iData2);
 		return;
 	}
 

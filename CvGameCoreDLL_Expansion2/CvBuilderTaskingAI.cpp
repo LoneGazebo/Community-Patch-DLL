@@ -836,20 +836,23 @@ BuilderDirective CvBuilderTaskingAI::EvaluateBuilder(CvUnit* pUnit, const map<Cv
 			continue;
 		}
 
+		//action may depend on city
+		CvCity* pCity = pPlot->getEffectiveOwningCity();
+
 		//in our own plots we can build anything
 		if (pPlot->getOwner() == pUnit->getOwner())
 		{
 			UpdateCurrentPlotYields(pPlot);
 
-			AddRouteDirectives(pUnit, pPlot, iMoveTurnsAway);
-			AddImprovingResourcesDirectives(pUnit, pPlot, iMoveTurnsAway);
-			AddImprovingPlotsDirectives(pUnit, pPlot, iMoveTurnsAway);
+			AddRouteDirectives(pUnit, pPlot, pCity, iMoveTurnsAway);
+			AddImprovingResourcesDirectives(pUnit, pPlot, pCity, iMoveTurnsAway);
+			AddImprovingPlotsDirectives(pUnit, pPlot, pCity, iMoveTurnsAway);
 			if (pUnit->AI_getUnitAIType() == UNITAI_WORKER)
 			{
-				AddChopDirectives(pUnit, pPlot, iMoveTurnsAway);
-				AddScrubFalloutDirectives(pUnit, pPlot, iMoveTurnsAway);
-				AddRepairTilesDirectives(pUnit, pPlot, iMoveTurnsAway);
-				AddRemoveRouteDirectives(pUnit, pPlot, iMoveTurnsAway);
+				AddChopDirectives(pUnit, pPlot, pCity, iMoveTurnsAway);
+				AddScrubFalloutDirectives(pUnit, pPlot, pCity, iMoveTurnsAway);
+				AddRepairTilesDirectives(pUnit, pPlot, pCity, iMoveTurnsAway);
+				AddRemoveRouteDirectives(pUnit, pPlot, pCity, iMoveTurnsAway);
 			}
 		}
 		else if (m_bEvaluateAdjacent && !pPlot->isOwned() && pPlot->isAdjacentPlayer(pUnit->getOwner()))
@@ -857,13 +860,13 @@ BuilderDirective CvBuilderTaskingAI::EvaluateBuilder(CvUnit* pUnit, const map<Cv
 			UpdateCurrentPlotYields(pPlot);
 
 			//some special improvements and roads
-			AddImprovingPlotsDirectives(pUnit, pPlot, iMoveTurnsAway);
-			AddRouteDirectives(pUnit, pPlot, iMoveTurnsAway);
+			AddImprovingPlotsDirectives(pUnit, pPlot, pCity, iMoveTurnsAway);
+			AddRouteDirectives(pUnit, pPlot, pCity, iMoveTurnsAway);
 		}
 		else
 		{
 			//only roads
-			AddRouteDirectives(pUnit, pPlot, iMoveTurnsAway);
+			AddRouteDirectives(pUnit, pPlot, pCity, iMoveTurnsAway);
 		}
 	}
 
@@ -877,9 +880,8 @@ BuilderDirective CvBuilderTaskingAI::EvaluateBuilder(CvUnit* pUnit, const map<Cv
 	return m_aDirectives.front().option;
 }
 
-
 /// Evaluating a plot to see if we can build resources there
-void CvBuilderTaskingAI::AddImprovingResourcesDirectives(CvUnit* pUnit, CvPlot* pPlot, int iMoveTurnsAway)
+void CvBuilderTaskingAI::AddImprovingResourcesDirectives(CvUnit* pUnit, CvPlot* pPlot, CvCity* pCity, int iMoveTurnsAway)
 {
 	ImprovementTypes eExistingPlotImprovement = pPlot->getImprovementType();
 
@@ -902,17 +904,13 @@ void CvBuilderTaskingAI::AddImprovingResourcesDirectives(CvUnit* pUnit, CvPlot* 
 		return;
 
 	// loop through the build types to find one that we can use
-	BuildTypes eBuild;
-	BuildTypes eOriginalBuild;
-	int iBuildIndex;
-	for(iBuildIndex = 0; iBuildIndex < GC.getNumBuildInfos(); iBuildIndex++)
+	for(int iBuildIndex = 0; iBuildIndex < GC.getNumBuildInfos(); iBuildIndex++)
 	{
-		eBuild = (BuildTypes)iBuildIndex;
+		BuildTypes eBuild = (BuildTypes)iBuildIndex;
 		CvBuildInfo* pkBuild = GC.getBuildInfo(eBuild);
 		if(pkBuild == NULL)
 			continue;
 
-		eOriginalBuild = eBuild;
 		ImprovementTypes eImprovement = (ImprovementTypes)pkBuild->getImprovement();
 		if(eImprovement == NO_IMPROVEMENT)
 		{
@@ -1018,6 +1016,8 @@ void CvBuilderTaskingAI::AddImprovingResourcesDirectives(CvUnit* pUnit, CvPlot* 
 
 			if(iScore > 0)
 			{
+				if (pCity && pCity->GetCityCitizens()->IsWorkingPlot(pPlot))
+					iScore *= 2;
 				iWeight += iScore;
 			}
 
@@ -1062,7 +1062,7 @@ void CvBuilderTaskingAI::AddImprovingResourcesDirectives(CvUnit* pUnit, CvPlot* 
 }
 
 /// Evaluating a plot to determine what improvement could be best there
-void CvBuilderTaskingAI::AddImprovingPlotsDirectives(CvUnit* pUnit, CvPlot* pPlot, int iMoveTurnsAway)
+void CvBuilderTaskingAI::AddImprovingPlotsDirectives(CvUnit* pUnit, CvPlot* pPlot, CvCity* pCity, int iMoveTurnsAway)
 {
 	ImprovementTypes eExistingImprovement = pPlot->getImprovementType();
 
@@ -1234,6 +1234,9 @@ void CvBuilderTaskingAI::AddImprovingPlotsDirectives(CvUnit* pUnit, CvPlot* pPlo
 		}
 
 		int iScore = ScorePlotBuild(pPlot, eImprovement, eBuild);
+		if (pCity && pCity->GetCityCitizens()->IsWorkingPlot(pPlot))
+			iScore *= 2;
+
 		iScore = min(iScore,0x7FFF);
 
 		// if we're going backward, bail out!
@@ -1315,7 +1318,7 @@ void CvBuilderTaskingAI::AddImprovingPlotsDirectives(CvUnit* pUnit, CvPlot* pPlo
 }
 
 /// Adds a directive if the unit can construct a road in the plot
-void CvBuilderTaskingAI::AddRemoveRouteDirectives(CvUnit* pUnit, CvPlot* pPlot, int iMoveTurnsAway)
+void CvBuilderTaskingAI::AddRemoveRouteDirectives(CvUnit* pUnit, CvPlot* pPlot, CvCity* /*pCity*/, int iMoveTurnsAway)
 {
 	//minors stay out
 	if (m_pPlayer->isMinorCiv())
@@ -1387,7 +1390,7 @@ void CvBuilderTaskingAI::AddRemoveRouteDirectives(CvUnit* pUnit, CvPlot* pPlot, 
 }
 
 /// Adds a directive if the unit can construct a road in the plot
-void CvBuilderTaskingAI::AddRouteDirectives(CvUnit* pUnit, CvPlot* pPlot, int iMoveTurnsAway)
+void CvBuilderTaskingAI::AddRouteDirectives(CvUnit* pUnit, CvPlot* pPlot, CvCity* /*pCity*/, int iMoveTurnsAway)
 {
 	// if the player can't build a route, bail out!
 	RouteTypes eBestRouteType = m_pPlayer->getBestRoute();
@@ -1455,7 +1458,7 @@ void CvBuilderTaskingAI::AddRouteDirectives(CvUnit* pUnit, CvPlot* pPlot, int iM
 }
 
 /// Determines if the builder should "chop" the feature in the tile
-void CvBuilderTaskingAI::AddChopDirectives(CvUnit* pUnit, CvPlot* pPlot, int iMoveTurnsAway)
+void CvBuilderTaskingAI::AddChopDirectives(CvUnit* pUnit, CvPlot* pPlot, CvCity* pCity, int iMoveTurnsAway)
 {
 	// if it's not within a city radius
 	if(!pPlot->isWithinTeamCityRadius(pUnit->getTeam()))
@@ -1483,7 +1486,6 @@ void CvBuilderTaskingAI::AddChopDirectives(CvUnit* pUnit, CvPlot* pPlot, int iMo
 		return;
 	}
 
-	CvCity* pCity = pPlot->getEffectiveOwningCity();
 	if(!pCity)
 	{
 		return;
@@ -1657,10 +1659,10 @@ void CvBuilderTaskingAI::AddChopDirectives(CvUnit* pUnit, CvPlot* pPlot, int iMo
 	}
 }
 
-void CvBuilderTaskingAI::AddRepairTilesDirectives(CvUnit* pUnit, CvPlot* pPlot, int iMoveTurnsAway)
+void CvBuilderTaskingAI::AddRepairTilesDirectives(CvUnit* pUnit, CvPlot* pPlot, CvCity* pCity, int iMoveTurnsAway)
 {
 	// if it's not within a city radius
-	if (pPlot->getOwner() != pUnit->getOwner())
+	if (!pPlot || pPlot->getOwner() != pUnit->getOwner())
 	{
 		return;
 	}
@@ -1678,6 +1680,9 @@ void CvBuilderTaskingAI::AddRepairTilesDirectives(CvUnit* pUnit, CvPlot* pPlot, 
 	if (pPlot->isRevealedFortification(m_pPlayer->getTeam()))
 		iWeight *= 10;
 
+	if (pCity && pCity->GetCityCitizens()->IsWorkingPlot(pPlot))
+		iWeight *= 2;
+
 	if (iWeight > 0)
 	{
 		BuilderDirective directive;
@@ -1693,7 +1698,7 @@ void CvBuilderTaskingAI::AddRepairTilesDirectives(CvUnit* pUnit, CvPlot* pPlot, 
 	}
 }
 // Everything means less than zero, hey
-void CvBuilderTaskingAI::AddScrubFalloutDirectives(CvUnit* pUnit, CvPlot* pPlot, int iMoveTurnsAway)
+void CvBuilderTaskingAI::AddScrubFalloutDirectives(CvUnit* pUnit, CvPlot* pPlot, CvCity* /*pCity*/, int iMoveTurnsAway)
 {
 	if(m_eFalloutFeature == NO_FEATURE || m_eFalloutRemove == NO_BUILD)
 	{
