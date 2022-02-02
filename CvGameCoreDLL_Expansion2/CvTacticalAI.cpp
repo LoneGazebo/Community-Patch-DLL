@@ -6093,7 +6093,7 @@ CvPlot* TacticalAIHelpers::FindSafestPlotInReach(const CvUnit* pUnit, bool bAllo
 		bool bIsInTerritory = (pPlot->getTeam() == kPlayer.getTeam());
 		// citadels have low danger but not zero. so we need to make sure we're not abandoning them too easily
 		bool bIsInCityOrCitadel = (pPlot->isFriendlyCity(*pUnit) && !pPlot->getPlotCity()->isInDangerOfFalling()) || 
-										(pUnit->IsCombatUnit() && TacticalAIHelpers::IsPlayerCitadel(pUnit->plot(), pUnit->getOwner()));
+										(pUnit->IsCombatUnit() && TacticalAIHelpers::IsPlayerCitadel(pPlot, pUnit->getOwner()));
 
 		//taking cover only works if the defender will not move away!
 		CvUnit* pDefender = pPlot->getBestDefender(pUnit->getOwner());
