@@ -114,6 +114,7 @@ UPDATE Unit_ClassUpgrades SET UnitClassType = 'UNITCLASS_CROSSBOWMAN' WHERE Unit
 UPDATE Civilization_UnitClassOverrides Set UnitClassType = 'UNITCLASS_COMPOSITE_BOWMAN' WHERE UnitType = 'UNIT_BABYLONIAN_BOWMAN';
 
 UPDATE Units SET Class = 'UNITCLASS_COMPOSITE_BOWMAN' WHERE Type = 'UNIT_BABYLONIAN_BOWMAN';
+UPDATE Units SET GoodyHutUpgradeUnitClass = 'UNITCLASS_CROSSBOWMAN' WHERE Type = 'UNIT_BABYLONIAN_BOWMAN';
 
 ---------------------------
 -- Brazil
@@ -749,6 +750,7 @@ DELETE FROM Unit_AITypes WHERE UnitType = 'UNIT_VENETIAN_GALLEASS' AND UnitAITyp
 ---------------------------
 -- Impi now a musketman UU
 UPDATE Units SET Class = 'UNITCLASS_TERCIO' WHERE Type = 'UNIT_ZULU_IMPI';
+UPDATE Units SET GoodyHutUpgradeUnitClass = 'UNITCLASS_RIFLEMAN' WHERE Type = 'UNIT_ZULU_IMPI';
 
 UPDATE Unit_ClassUpgrades SET UnitClassType = 'UNITCLASS_RIFLEMAN' WHERE UnitType = 'UNIT_ZULU_IMPI';
 

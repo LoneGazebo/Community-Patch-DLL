@@ -320,7 +320,7 @@
 			<River>true</River>
 			<PortraitIndex>5</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
-			<PediaType>PEDIA_SHARED</PediaType>
+			<PediaType>PEDIA_MELEE</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_AMPHIBIOUS</PediaEntry>
 		</Replace>
 		<Replace>
@@ -424,7 +424,7 @@
 			<PortraitIndex>3</PortraitIndex>
 			<RoughAttack>15</RoughAttack>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
-			<PediaType>PEDIA_MOUNTED</PediaType>
+			<PediaType>PEDIA_MELEE</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_AMBUSH_1</PediaEntry>
 		</Replace>
 		<Replace>
@@ -438,7 +438,7 @@
 			<PortraitIndex>4</PortraitIndex>
 			<RoughAttack>15</RoughAttack>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
-			<PediaType>PEDIA_MOUNTED</PediaType>
+			<PediaType>PEDIA_MELEE</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_AMBUSH_2</PediaEntry>
 		</Replace>
 		<Replace>
@@ -2001,7 +2001,7 @@
 			<LostWithUpgrade>true</LostWithUpgrade>
 			<PortraitIndex>59</PortraitIndex>
 			<IconAtlas>ABILITY_ATLAS</IconAtlas>
-			<PediaType>PEDIA_RANGED</PediaType>
+			<PediaType>PEDIA_MELEE</PediaType>
 			<PediaEntry>TXT_KEY_PEDIA_PROMOTION_RANGED_SUPPORT_FIRE</PediaEntry>
 		</Replace>
 		<Replace>
@@ -3198,7 +3198,7 @@
 			<MoraleBreakChance>25</MoraleBreakChance>
 			<PortraitIndex>3</PortraitIndex>
 			<IconAtlas>EXPANSION2_PROMOTION_ATLAS</IconAtlas>
-			<PediaType>PEDIA_MELEE</PediaType>
+			<PediaType>PEDIA_RANGED</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_ESPRIT_DE_CORPS</PediaEntry>
 		</Row>
 		<Row>

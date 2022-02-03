@@ -317,6 +317,7 @@ UPDATE Units SET Combat = '60' WHERE Type = 'UNIT_HELICOPTER_GUNSHIP';
 
 -- Melee
 UPDATE Units SET BaseLandAirDefense = '4' WHERE Type = 'UNIT_RIFLEMAN';
+UPDATE Units SET BaseLandAirDefense = '4' WHERE Type = 'UNIT_UNIT_SWEDISH_CAROLEAN';
 UPDATE Units SET BaseLandAirDefense = '4' WHERE Type = 'UNIT_ETHIOPIAN_MEHAL_SEFARI';
 UPDATE Units SET BaseLandAirDefense = '4' WHERE Type = 'UNIT_FRENCH_FOREIGNLEGION';
 --UPDATE Units SET BaseLandAirDefense = '2' WHERE Type = 'UNIT_ZEPPELIN';

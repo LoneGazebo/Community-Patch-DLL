@@ -10,7 +10,7 @@
 
  -- added Withdraw Before Melee
 	UPDATE Language_en_US
-	SET Text = '80% chance to withdraw from Melee combat. Chance of withdrawal decreased against fast Enemy Units or if there are limited open tiles behind the Unit.'
+	SET Text = '80% chance to withdraw from Melee combat. Chance of withdrawal decreased against faster Enemy Units or if there are limited open tiles behind the Unit.'
 	WHERE Tag = 'TXT_KEY_PROMOTION_WITHDRAW_BEFORE_MELEE_HELP';
 
  -- added Great Himeji Castle
@@ -235,7 +235,7 @@
 
 	UPDATE Language_en_US
 	SET Text = '+50% [ICON_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Armored Units[ENDCOLOR].'
-	WHERE Tag = 'TXT_KEY_PROMOTION_ANTI_TANK';
+	WHERE Tag = 'TXT_KEY_PROMOTION_ANTI_TANK_HELP';
 
 	UPDATE Language_en_US
 	SET Text = 'Anti-Tank Rounds'
