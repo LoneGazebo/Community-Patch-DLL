@@ -34149,6 +34149,10 @@ void CvCity::DoNearbyEnemy()
 
 bool CvCity::IsInDanger(PlayerTypes eEnemy) const
 {
+	//unit strength doesn't matter if the city is low on hitpoints
+	if (isInDangerOfFalling())
+		return true;
+
 	//cannot use the tactical zone here, because it's not specific to a certain enemy
 	//but we can use the danger plots to exclude some cities
 	if (GET_PLAYER(getOwner()).GetPlotDanger(this) == 0)
@@ -34626,7 +34630,7 @@ void CvCity::IncrementUnitStatCount(CvUnit* pUnit)
 	}
 	else
 	{
-		//OutputDebugString("No stat for selected unit type.\n");
+		//OutputDebugString("No stat for unit type %s.", szUnitType.c_str());
 	}
 
 	if (AreAllUnitsBuilt())

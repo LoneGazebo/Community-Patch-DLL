@@ -6231,7 +6231,7 @@ void CvCityBuildings::IncrementWonderStats(BuildingClassTypes eIndex)
 	}
 	else
 	{
-		CUSTOMLOG("No Stat for selected Wonder %s",szWonderType);
+		//CUSTOMLOG("No Stat for selected Wonder %s.",szWonderType.c_str());
 	}
 
 #if defined(MOD_API_ACHIEVEMENTS)
