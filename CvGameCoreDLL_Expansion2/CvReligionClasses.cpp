@@ -8362,9 +8362,30 @@ int CvReligionAI::ScoreBeliefAtCity(CvBeliefEntry* pEntry, CvCity* pCity) const
 			}
 			if (m_pPlayer->GetPlayerTraits()->IsPopulationBoostReligion())
 			{
-				iTempValue -= 50;
+				iTempValue -= 100;
 			}
-			iTempValue += (pEntry->GetYieldPerBirth(iI) * (iFood / max(1, iEvaluator)));	
+			iTempValue += (pEntry->GetYieldPerBirth(iI) * (iFood / max(1, iEvaluator)));
+		}
+		if (bIsHolyCity && pEntry->GetYieldPerHolyCityBirth(iI) > 0)
+		{
+			int iEvaluator = 400;
+			if (pEntry->IsPantheonBelief())
+			{
+				iEvaluator -= 50;
+			}
+			if (m_pPlayer->GetPlayerTraits()->IsSmaller())
+			{
+				iEvaluator -= 50;
+			}
+			if (m_pPlayer->GetPlayerTraits()->IsExpansionist() || m_pPlayer->GetPlayerTraits()->IsWarmonger())
+			{
+				iEvaluator += 50;
+			}
+			if (m_pPlayer->GetPlayerTraits()->IsPopulationBoostReligion())
+			{
+				iTempValue -= 100;
+			}
+			iTempValue += (pEntry->GetYieldPerHolyCityBirth(iI) * (iFood / max(1, iEvaluator)));
 		}
 		if (pEntry->GetYieldFromWLTKD(iI) > 0)
 		{
