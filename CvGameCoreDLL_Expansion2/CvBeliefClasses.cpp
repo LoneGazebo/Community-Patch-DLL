@@ -81,6 +81,7 @@ CvBeliefEntry::CvBeliefEntry() :
 	m_iGetPressureChangeTradeRoute(0),
 	m_piYieldPerActiveTR(NULL),
 	m_piYieldPerConstruction(NULL),
+	m_piYieldPerWorldWonderConstruction(NULL),
 	m_piYieldPerPop(NULL),
 	m_piYieldPerGPT(NULL),
 	m_piYieldPerLux(NULL),
@@ -547,10 +548,13 @@ int CvBeliefEntry::GetYieldPerActiveTR(int i) const
 
 int CvBeliefEntry::GetYieldPerConstruction(int i) const
 {
-	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
-	CvAssertMsg(i > -1, "Index out of bounds");
 	return m_piYieldPerConstruction ? m_piYieldPerConstruction[i] : -1;
 }
+int CvBeliefEntry::GetYieldPerWorldWonderConstruction(int i) const
+{
+	return m_piYieldPerWorldWonderConstruction ? m_piYieldPerWorldWonderConstruction[i] : -1;
+}
+
 int CvBeliefEntry::GetYieldPerPop(int i) const
 {
 	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
@@ -1330,6 +1334,7 @@ bool CvBeliefEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 #if defined(MOD_BALANCE_CORE_BELIEFS)
 	kUtility.SetYields(m_piYieldPerActiveTR, "Belief_YieldPerActiveTR", "BeliefType", szBeliefType);
 	kUtility.SetYields(m_piYieldPerConstruction, "Belief_YieldPerConstruction", "BeliefType", szBeliefType);
+	kUtility.SetYields(m_piYieldPerWorldWonderConstruction, "Belief_YieldPerWorldWonderConstruction", "BeliefType", szBeliefType);
 	kUtility.SetYields(m_piYieldPerPop, "Belief_YieldPerPop", "BeliefType", szBeliefType);
 	kUtility.SetYields(m_piYieldPerGPT, "Belief_YieldPerGPT", "BeliefType", szBeliefType);
 	kUtility.SetYields(m_piYieldPerLux, "Belief_YieldPerLux", "BeliefType", szBeliefType);
@@ -4130,6 +4135,23 @@ int CvReligionBeliefs::GetYieldPerConstruction(YieldTypes eYieldType, PlayerType
 	for (BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
 		int iValue = pBeliefs->GetEntry(*it)->GetYieldPerConstruction(eYieldType);
+		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+		{
+			rtnValue += iValue;
+		}
+	}
+
+	return rtnValue;
+}
+
+int CvReligionBeliefs::GetYieldPerWorldWonderConstruction(YieldTypes eYieldType, PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
+{
+	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
+	int rtnValue = 0;
+
+	for (BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
+	{
+		int iValue = pBeliefs->GetEntry(*it)->GetYieldPerWorldWonderConstruction(eYieldType);
 		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
 		{
 			rtnValue += iValue;

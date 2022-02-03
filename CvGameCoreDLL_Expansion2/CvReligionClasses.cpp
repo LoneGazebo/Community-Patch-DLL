@@ -8680,6 +8680,12 @@ int CvReligionAI::ScoreBeliefAtCity(CvBeliefEntry* pEntry, CvCity* pCity) const
 			iRtnValue += iTempValue;
 		}
 
+		if (pEntry->GetYieldPerWorldWonderConstruction(iI) > 0)
+		{
+			iTempValue = pEntry->GetYieldPerWorldWonderConstruction(iI) * (pCity->getPopulation() * pCity->getYieldRate(YIELD_PRODUCTION, false)) / 10;
+			iRtnValue += iTempValue;
+		}
+
 		iTotalRtnValue += iRtnValue;
 	}
 

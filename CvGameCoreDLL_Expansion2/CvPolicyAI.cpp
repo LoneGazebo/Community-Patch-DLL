@@ -4202,7 +4202,7 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 				yield[eYield] += PolicyInfo->GetYieldFromConstruction(eYield) * 2 * iNumCities;
 			}
 		}
-		if (PolicyInfo->GetYieldFromWonderConstruction(eYield) != 0)
+		if (PolicyInfo->GetYieldFromWorldWonderConstruction(eYield) != 0)
 		{
 			if (pPlayerTraits->IsTourism() || pPlayerTraits->IsSmaller())
 			{

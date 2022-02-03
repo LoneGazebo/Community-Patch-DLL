@@ -26475,6 +26475,10 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 				case INSTANT_YIELD_TYPE_CONSTRUCTION_WONDER:
 				{
 					iValue += GetYieldFromWorldWonderConstruction(eYield);
+					if (pReligion)
+					{
+						iValue += pReligion->m_Beliefs.GetYieldPerWorldWonderConstruction(eYield, GetID(), pLoopCity);
+					}
 					break;
 				}
 				case INSTANT_YIELD_TYPE_BORDERS:

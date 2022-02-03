@@ -16033,7 +16033,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 		bNoBonus = true;
 	}
 	//If a building is being processed, it has been here before. No more bonuses!
-	if (!IsResistance() && !IsRazing() && !bNoBonus && bFirst && (iChange > 0))
+	if (!IsResistance() && !IsRazing() && !bNoBonus && bFirst && iChange > 0)
 	{
 		if (GetCityBuildings()->IsFirstTimeBuilding(eBuilding) <= 0)
 		{

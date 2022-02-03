@@ -90,6 +90,7 @@ public:
 	int GetPressureChangeTradeRoute() const;
 	int GetYieldPerActiveTR(int i) const;
 	int GetYieldPerConstruction(int i) const;
+	int GetYieldPerWorldWonderConstruction(int i) const;
 	int GetYieldPerPop(int i) const;
 	int GetYieldPerGPT(int i) const;
 	int GetYieldPerLux(int i) const;
@@ -335,6 +336,7 @@ protected:
 	int m_iGetPressureChangeTradeRoute;
 	int* m_piYieldPerActiveTR;
 	int* m_piYieldPerConstruction;
+	int* m_piYieldPerWorldWonderConstruction;
 	int* m_piYieldPerPop;
 	int* m_piYieldPerGPT;
 	int* m_piYieldPerLux;
@@ -567,6 +569,7 @@ public:
 	int GetPressureChangeTradeRoute(PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	int GetYieldPerActiveTR(YieldTypes eYieldType, PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	int GetYieldPerConstruction(YieldTypes eYieldType, PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
+	int GetYieldPerWorldWonderConstruction(YieldTypes eYieldType, PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	int GetYieldPerPop(YieldTypes eYieldType, PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	int GetYieldPerGPT(YieldTypes eYieldType , PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	int GetYieldPerLux(YieldTypes eYieldType , PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
