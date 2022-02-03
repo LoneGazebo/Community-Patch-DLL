@@ -3723,9 +3723,10 @@ CvPlayerReligions::CvPlayerReligions(void):
 #if defined(MOD_GLOBAL_TRULY_FREE_GP)
 	m_iNumFreeProphetsSpawned(0),
 #endif
-	m_majorityReligion(NO_RELIGION),
+	m_eMajorityReligion(NO_RELIGION),
 	m_eStateReligionOverride(NO_RELIGION),
 	m_eStateReligion(NO_RELIGION),
+	m_bOwnsStateReligion(false),
 	m_iNumProphetsSpawned(0),
 	m_bFoundingReligion(false)
 {
@@ -3762,9 +3763,10 @@ void CvPlayerReligions::Reset()
 #if defined(MOD_RELIGION_RECURRING_PURCHASE_NOTIFIY)
 	m_iFaithAtLastNotify = 0;
 #endif
-	m_majorityReligion = NO_RELIGION;
+	m_eMajorityReligion = NO_RELIGION;
 	m_eStateReligionOverride = NO_RELIGION;
 	m_eStateReligion = NO_RELIGION;
+	m_bOwnsStateReligion = false;
 }
 
 ///
@@ -3774,9 +3776,10 @@ void CvPlayerReligions::Serialize(PlayerReligions& playerReligions, Visitor& vis
 	visitor(playerReligions.m_iNumFreeProphetsSpawned);
 	visitor(playerReligions.m_iNumProphetsSpawned);
 	visitor(playerReligions.m_bFoundingReligion);
-	visitor(playerReligions.m_majorityReligion);
+	visitor(playerReligions.m_eMajorityReligion);
 	visitor(playerReligions.m_eStateReligionOverride);
 	visitor(playerReligions.m_eStateReligion);
+	visitor(playerReligions.m_bOwnsStateReligion);
 	visitor(playerReligions.m_iFaithAtLastNotify);
 }
 
@@ -4074,7 +4077,7 @@ bool CvPlayerReligions::HasReligionInMostCities(ReligionTypes eReligion) const
 /// What religion is followed in a majority of our cities?
 ReligionTypes CvPlayerReligions::GetReligionInMostCities() const
 {
-	return m_majorityReligion;
+	return m_eMajorityReligion;
 }
 
 /// What is our state religion?
@@ -4086,15 +4089,32 @@ ReligionTypes CvPlayerReligions::GetStateReligion(bool bIncludePantheon) const
 	return m_eStateReligion;
 }
 
+// Do we own the holy city of our state religion?
+ReligionTypes CvPlayerReligions::GetOwnedReligion() const
+{
+	if (!m_bOwnsStateReligion || m_eStateReligion == RELIGION_PANTHEON)
+		return NO_RELIGION;
+
+	return m_eStateReligion;
+}
+
 /// What is our state religion?
 bool CvPlayerReligions::UpdateStateReligion()
 {
+	PlayerTypes ePlayer = m_pPlayer->GetID();
+	bool bOwnsReligion = false;
+
 	//if we have a forced state religion, just use that
 	if (m_eStateReligionOverride != NO_RELIGION)
-		return SetStateReligion(m_eStateReligionOverride);
+	{
+		CvCity* pHolyCity = GC.getGame().GetGameReligions()->GetReligion(m_eStateReligionOverride, ePlayer)->GetHolyCity();
+		if (pHolyCity && pHolyCity->getOwner() == ePlayer)
+			bOwnsReligion = true;
+		return SetStateReligion(m_eStateReligionOverride, bOwnsReligion);
+	}
 
 	//by default use the religion we founded (if we still control it)
-	ReligionTypes eNewStateReligion = GC.getGame().GetGameReligions()->GetReligionCreatedByPlayer(m_pPlayer->GetID());
+	ReligionTypes eNewStateReligion = GC.getGame().GetGameReligions()->GetReligionCreatedByPlayer(ePlayer);
 
 	if (eNewStateReligion == NO_RELIGION)
 	{
@@ -4107,7 +4127,7 @@ bool CvPlayerReligions::UpdateStateReligion()
 			if (it->m_eReligion != RELIGION_PANTHEON)
 			{
 				CvCity* pHolyCity = it->GetHolyCity();
-				if (pHolyCity && pHolyCity->getOwner() == m_pPlayer->GetID())
+				if (pHolyCity && pHolyCity->getOwner() == ePlayer)
 				{
 					int iValue = GetNumDomesticFollowers(it->m_eReligion);
 					vHolyReligions.push_back(OptionWithScore<ReligionTypes>(it->m_eReligion, iValue));
@@ -4127,12 +4147,18 @@ bool CvPlayerReligions::UpdateStateReligion()
 		//No holy cities at all ... use our majority religion
 		eNewStateReligion = GetReligionInMostCities();
 	}
-
-	return SetStateReligion(eNewStateReligion);
+	else
+	{
+		// We own the holy city of our state religion based on previous calculations
+		bOwnsReligion = true;
+	}
+	return SetStateReligion(eNewStateReligion, bOwnsReligion);
 }
 
-bool CvPlayerReligions::SetStateReligion(ReligionTypes eNewStateReligion)
+bool CvPlayerReligions::SetStateReligion(ReligionTypes eNewStateReligion, bool bOwnsReligion)
 {
+	//we may own our state religion's holy city now
+	m_bOwnsStateReligion = bOwnsReligion;
 	//no change, nothing to do
 	if (GetStateReligion() == eNewStateReligion)
 		return false;
@@ -4159,7 +4185,7 @@ bool CvPlayerReligions::SetStateReligion(ReligionTypes eNewStateReligion)
 			localizedText << szReligionName;
 			m_pPlayer->GetNotifications()->Add(NOTIFICATION_RELIGION_FOUNDED_ACTIVE_PLAYER, localizedText.toUTF8(), strSummary.toUTF8(), -1, -1, eNewStateReligion, -1);
 		}
-
+		// Compensate zeroing of faith with golden age points
 		if (m_pPlayer->GetFaith() > 0 && !m_pPlayer->GetPlayerTraits()->IsAlwaysReligion())
 		{
 			m_pPlayer->ChangeGoldenAgeProgressMeter(m_pPlayer->GetFaith());
@@ -4176,7 +4202,7 @@ void CvPlayerReligions::SetStateReligionOverride(ReligionTypes eReligion)
 {
 	m_eStateReligionOverride = eReligion;
 
-	SetStateReligion(m_eStateReligionOverride);
+	UpdateStateReligion();
 }
 
 int CvPlayerReligions::GetNumCitiesWithStateReligion(ReligionTypes eReligion)
@@ -4233,7 +4259,7 @@ bool CvPlayerReligions::ComputeMajority(bool bNotifications)
 		{
 #if defined(MOD_BALANCE_CORE)
 			//New state faith? Let's announce this.
-			if(bNotifications && m_majorityReligion != eReligion && m_majorityReligion != NO_RELIGION)
+			if(bNotifications && m_eMajorityReligion != eReligion && m_eMajorityReligion != NO_RELIGION)
 			{
 				// Message slightly different for founder player
 				if(m_pPlayer->GetNotifications())
@@ -4251,11 +4277,11 @@ bool CvPlayerReligions::ComputeMajority(bool bNotifications)
 				}
 			}
 #endif
-			m_majorityReligion = eReligion;
+			m_eMajorityReligion = eReligion;
 			return true;
 		}
 	}
-	m_majorityReligion = NO_RELIGION;
+	m_eMajorityReligion = NO_RELIGION;
 	return false;
 }
 
@@ -4419,7 +4445,7 @@ int CvPlayerReligions::GetNumDomesticFollowers(ReligionTypes eReligion) const
 /// Constructor
 CvCityReligions::CvCityReligions(void):
 	m_pCity(NULL),
-	m_majorityCityReligion(NO_RELIGION),
+	m_eMajorityCityReligion(NO_RELIGION),
 	m_pMajorityReligionCached(NULL)
 {
 	m_ReligionStatus.clear();
@@ -4437,7 +4463,7 @@ void CvCityReligions::Init(CvCity* pCity)
 	m_pCity = pCity;
 
 	m_ReligionStatus.clear();
-	m_majorityCityReligion = NO_RELIGION;
+	m_eMajorityCityReligion = NO_RELIGION;
 	m_pMajorityReligionCached = NULL;
 }
 
@@ -4634,7 +4660,7 @@ bool CvCityReligions::IsForeignMissionaryNearby(ReligionTypes eReligion)
 
 ReligionTypes CvCityReligions::GetReligiousMajority() const
 {
-	return m_majorityCityReligion;
+	return m_eMajorityCityReligion;
 }
 
 bool CvCityReligions::ComputeReligiousMajority(bool bNotifications)
@@ -4671,24 +4697,24 @@ bool CvCityReligions::ComputeReligiousMajority(bool bNotifications)
 		OutputDebugString("city religion state inconsistent!\n");
 
 	//update local majority
-	ReligionTypes oldMajority = m_majorityCityReligion;
+	ReligionTypes eOldMajority = m_eMajorityCityReligion;
 
-	m_majorityCityReligion = (iMostFollowers*2 >= iTotalFollowers) ? eMostFollowers : NO_RELIGION;
+	m_eMajorityCityReligion = (iMostFollowers*2 >= iTotalFollowers) ? eMostFollowers : NO_RELIGION;
 
 	//update player majority
-	if (m_majorityCityReligion != oldMajority)
+	if (m_eMajorityCityReligion != eOldMajority)
 	{
 		m_pMajorityReligionCached = NULL; //reset this
 		GET_PLAYER(m_pCity->getOwner()).GetReligions()->ComputeMajority(bNotifications);
 	}
 
-	return (m_majorityCityReligion!=NO_RELIGION);
+	return (m_eMajorityCityReligion != NO_RELIGION);
 }
 
 const CvReligion * CvCityReligions::GetMajorityReligion()
 {
-	if (m_majorityCityReligion != NO_RELIGION && m_pMajorityReligionCached == NULL)
-		m_pMajorityReligionCached = GC.getGame().GetGameReligions()->GetReligion(m_majorityCityReligion, m_pCity->getOwner());
+	if (m_eMajorityCityReligion != NO_RELIGION && m_pMajorityReligionCached == NULL)
+		m_pMajorityReligionCached = GC.getGame().GetGameReligions()->GetReligion(m_eMajorityCityReligion, m_pCity->getOwner());
 
 	return m_pMajorityReligionCached;
 }
@@ -5100,8 +5126,6 @@ void CvCityReligions::AddReligiousPressure(CvReligiousFollowChangeReason eReason
 
 		LogPressureChange(eReason, eReligion, iPressureChange, iPressureChange, eResponsiblePlayer);
 	}
-
-	RecomputeFollowers(eReason, eResponsiblePlayer);
 }
 
 void CvCityReligions::ErodeOtherReligiousPressure(CvReligiousFollowChangeReason eReason, ReligionTypes eExemptedReligion, int iErosionPercent, bool bAllowRetention, bool bLeaveAtheists, PlayerTypes eResponsiblePlayer)
@@ -5130,7 +5154,8 @@ void CvCityReligions::ErodeOtherReligiousPressure(CvReligiousFollowChangeReason 
 			if(pReligion)
 			{
 				int iRetentionPercent = pReligion->m_Beliefs.GetInquisitorPressureRetention(m_pCity->getOwner());  // Normally 0
-				iReductionPercent = max(0, iReductionPercent - iRetentionPercent);
+				iReductionPercent = iReductionPercent * (100 - iRetentionPercent) / 100;
+				iReductionPercent = max(0, iReductionPercent);
 			}
 		}
 
@@ -6020,7 +6045,7 @@ template<typename CityReligions, typename Visitor>
 void CvCityReligions::Serialize(CityReligions& cityReligions, Visitor& visitor)
 {
 	visitor(cityReligions.m_ReligionStatus);
-	visitor(cityReligions.m_majorityCityReligion);
+	visitor(cityReligions.m_eMajorityCityReligion);
 }
 
 /// Serialization read
@@ -8337,9 +8362,30 @@ int CvReligionAI::ScoreBeliefAtCity(CvBeliefEntry* pEntry, CvCity* pCity) const
 			}
 			if (m_pPlayer->GetPlayerTraits()->IsPopulationBoostReligion())
 			{
-				iTempValue -= 50;
+				iTempValue -= 100;
 			}
-			iTempValue += (pEntry->GetYieldPerBirth(iI) * (iFood / max(1, iEvaluator)));	
+			iTempValue += (pEntry->GetYieldPerBirth(iI) * (iFood / max(1, iEvaluator)));
+		}
+		if (bIsHolyCity && pEntry->GetYieldPerHolyCityBirth(iI) > 0)
+		{
+			int iEvaluator = 400;
+			if (pEntry->IsPantheonBelief())
+			{
+				iEvaluator -= 50;
+			}
+			if (m_pPlayer->GetPlayerTraits()->IsSmaller())
+			{
+				iEvaluator -= 50;
+			}
+			if (m_pPlayer->GetPlayerTraits()->IsExpansionist() || m_pPlayer->GetPlayerTraits()->IsWarmonger())
+			{
+				iEvaluator += 50;
+			}
+			if (m_pPlayer->GetPlayerTraits()->IsPopulationBoostReligion())
+			{
+				iTempValue -= 100;
+			}
+			iTempValue += (pEntry->GetYieldPerHolyCityBirth(iI) * (iFood / max(1, iEvaluator)));
 		}
 		if (pEntry->GetYieldFromWLTKD(iI) > 0)
 		{
@@ -8652,6 +8698,12 @@ int CvReligionAI::ScoreBeliefAtCity(CvBeliefEntry* pEntry, CvCity* pCity) const
 		if (pEntry->GetYieldPerConstruction(iI) > 0)
 		{
 			iTempValue = pEntry->GetYieldPerConstruction(iI) * (pCity->getPopulation() * pCity->getYieldRate(YIELD_PRODUCTION, false)) / 10;
+			iRtnValue += iTempValue;
+		}
+
+		if (pEntry->GetYieldPerWorldWonderConstruction(iI) > 0)
+		{
+			iTempValue = pEntry->GetYieldPerWorldWonderConstruction(iI) * (pCity->getPopulation() * pCity->getYieldRate(YIELD_PRODUCTION, false)) / 10;
 			iRtnValue += iTempValue;
 		}
 

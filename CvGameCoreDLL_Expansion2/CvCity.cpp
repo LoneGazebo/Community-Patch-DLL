@@ -6707,6 +6707,10 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 
 						if (eBuildingType != NO_BUILDING)
 						{
+							CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuildingType);
+							if (!pkBuildingInfo || pkBuildingInfo->IsDummy())
+								continue;
+
 							if (GetCityBuildings()->GetNumFreeBuilding(eBuildingType) > 0)
 								continue;
 
@@ -8588,18 +8592,16 @@ bool CvCity::canTrain(UnitTypes eUnit, bool bContinue, bool bTestVisible, bool b
 		return false;
 	}
 
-#if defined(MOD_BALANCE_CORE_MILITARY)
 	// check whether we can supply the units. do not check this on player level, all the dynamic checks should happen here
 	if (MOD_BALANCE_CORE_MILITARY && !isHuman() && !pkUnitEntry->IsNoSupply())
 	{
-		if (((pkUnitEntry->GetCombat() > 0) || (pkUnitEntry->GetRangedCombat() > 0)) && !isBarbarian() && GET_PLAYER(getOwner()).GetNumUnitsOutOfSupply() > 15)
+		bool bCanSupply = GET_PLAYER(getOwner()).GetNumUnitsToSupply() < GET_PLAYER(getOwner()).GetNumUnitsSupplied(); // this works when we're at the limit
+		if (!bCanSupply && !isBarbarian() && (pkUnitEntry->GetCombat() > 0 || pkUnitEntry->GetRangedCombat() > 0))
 		{
 			return false;
 		}
 	}
-#endif
 
-#if defined(MOD_BALANCE_CORE)
 	// If Zulu Player has this trait and Pikeman are an immediate upgrade to Impi, let's not let player exploit lower production cost of pikeman->impi. So, let's make it immediately obsolete.
 	CvUnitEntry& pUnitInfo = *pkUnitEntry;
 	const UnitClassTypes eUnitClass = (UnitClassTypes)pUnitInfo.GetUnitClassType();
@@ -8612,7 +8614,6 @@ bool CvCity::canTrain(UnitTypes eUnit, bool bContinue, bool bTestVisible, bool b
 			return false;
 		}
 	}
-#endif
 
 	//this flag seems to be needed to check whether we should show the unit in the build list at all, and if it's greyed out generate a tooltip why
 	if (!bTestVisible)
@@ -8630,17 +8631,16 @@ bool CvCity::canTrain(UnitTypes eUnit, bool bContinue, bool bTestVisible, bool b
 			}
 		}
 
-#if defined(MOD_BALANCE_CORE_MILITARY)
 		if (MOD_BALANCE_CORE_MILITARY && !pUnitInfo.IsNoSupply())
 		{
-			if ((pUnitInfo.GetCombat() > 0 || pUnitInfo.GetRangedCombat() > 0) && !isBarbarian() && GET_PLAYER(getOwner()).GetNumUnitsOutOfSupply() > 15)
+			bool bCanSupply = GET_PLAYER(getOwner()).GetNumUnitsToSupply() < GET_PLAYER(getOwner()).GetNumUnitsSupplied(); // this works when we're at the limit
+			if (!bCanSupply && !isBarbarian() && (pUnitInfo.GetCombat() > 0 || pUnitInfo.GetRangedCombat() > 0))
 			{
 				GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_NO_ACTION_NO_SUPPLY");
 				if (toolTipSink == NULL)
 					return false;
 			}
 		}
-#endif
 
 		// See if there are any BuildingClass requirements
 		const int iNumBuildingClassInfos = GC.getNumBuildingClassInfos();
@@ -16026,31 +16026,31 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 	GET_PLAYER(getOwner()).CalculateNetHappiness();
 	updateNetHappiness();
 
-#if defined(MOD_BALANCE_CORE)
 	GetCityCitizens()->SetDirty(true);
-#endif
 
-#if defined(MOD_BALANCE_CORE_POLICIES)
 	if (IsPurchased(eBuildingClass) || pBuildingInfo->IsDummy())
 	{
 		bNoBonus = true;
 	}
 	//If a building is being processed, it has been here before. No more bonuses!
-	if (MOD_BALANCE_CORE_POLICIES && !IsResistance() && !IsRazing() && !bNoBonus && bFirst && (iChange > 0))
+	if (!IsResistance() && !IsRazing() && !bNoBonus && bFirst && iChange > 0)
 	{
 		if (GetCityBuildings()->IsFirstTimeBuilding(eBuilding) <= 0)
 		{
 			GetCityBuildings()->SetFirstTimeBuilding(eBuilding, 1);
-				GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_CONSTRUCTION, false, NO_GREATPERSON, eBuilding, 0, true, NO_PLAYER, NULL, false, this);
-				if (::isWorldWonderClass(*GC.getBuildingClassInfo(eBuildingClass)) || ::isNationalWonderClass(*GC.getBuildingClassInfo(eBuildingClass)))
-					GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_CONSTRUCTION_WONDER, false, NO_GREATPERSON, eBuilding, 0, true, NO_PLAYER, NULL, false, this);
 
-#if defined(MOD_BALANCE_CORE) && defined(MOD_API_UNIFIED_YIELDS)
+			if (::isWorldWonderClass(*GC.getBuildingClassInfo(eBuildingClass)))
+			{
+				GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_CONSTRUCTION_WONDER, false, NO_GREATPERSON, eBuilding, 0, true, NO_PLAYER, NULL, false, this);
+			}
+			else
+			{
+				GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_CONSTRUCTION, false, NO_GREATPERSON, eBuilding, 0, true, NO_PLAYER, NULL, false, this);
 				GET_PLAYER(getOwner()).doInstantGreatPersonProgress(INSTANT_YIELD_TYPE_CONSTRUCTION, false, this, eBuilding);
-#endif
+			}
 		}
 	}
-#endif
+
 	setLayoutDirty(true);
 }
 
@@ -18433,9 +18433,15 @@ void CvCity::setPopulation(int iNewValue, bool bReassignPop /* = true */, bool b
 			setHighestPopulation(getPopulation());
 #if defined(MOD_BALANCE_CORE_BELIEFS)
 			int iGameTurn = GC.getGame().getGameTurn() - getGameTurnFounded();
-			if (!IsResistance() && (iGameTurn > 0) && !bNoBonus)
+			if (!IsResistance() && iGameTurn > 0 && !bNoBonus)
 			{
 				GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_BIRTH, true, NO_GREATPERSON, NO_BUILDING, iPopChange, true, NO_PLAYER, NULL, false, this);
+
+				ReligionTypes eOwnerReligion = GET_PLAYER(getOwner()).GetReligions()->GetStateReligion();
+				if (eOwnerReligion != NO_RELIGION && GetCityReligions()->IsHolyCityForReligion(eOwnerReligion))
+				{
+					GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_BIRTH_HOLY_CITY, false, NO_GREATPERSON, NO_BUILDING, iPopChange, false, NO_PLAYER, NULL, false, this);
+				}
 			}
 #endif
 #if defined(MOD_BALANCE_CORE_POLICIES)
@@ -21491,7 +21497,7 @@ bool CvCity::DoRazingTurn()
 				GET_PLAYER(eFormerOwner).GetDiplomacyAI()->ChangeCivilianKillerValue(getOwner(), (500 * iEra));
 			}
 
-			if (MOD_BALANCE_CORE && !GET_PLAYER(getOwner()).IsNoPartisans())
+			if (MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED && !GET_PLAYER(getOwner()).IsNoPartisans())
 			{
 				if (GET_PLAYER(getOwner()).GetSpawnCooldown() < 0)
 				{
@@ -24596,9 +24602,8 @@ void CvCity::UpdateSpecialReligionYields(YieldTypes eYield)
 			//Only useable in religions!
 			if (eYield == YIELD_GOLD)
 			{
-				int iGoldPerFollowingCity = pReligion->m_Beliefs.GetGoldPerFollowingCity(getOwner(), this);
-				if (eReligion == RELIGION_PANTHEON)
-					iYieldValue += iGoldPerFollowingCity;
+				if (eReligion != RELIGION_PANTHEON)
+					iYieldValue += pReligion->m_Beliefs.GetGoldPerFollowingCity(getOwner(), this, true);
 
 				int iGoldPerXFollowers = pReligion->m_Beliefs.GetGoldPerXFollowers(getOwner(), this, true);
 				if (iGoldPerXFollowers > 0)
@@ -31906,7 +31911,6 @@ void CvCity::Purchase(UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectT
 		}
 		else if (eBuildingType >= 0)
 		{
-#if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 			if (MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 			{
 				CvBuildingEntry* pGameBuilding = GC.getBuildingInfo(eBuildingType);
@@ -31927,15 +31931,13 @@ void CvCity::Purchase(UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectT
 			}
 			else
 			{
-#endif
 				bResult = CreateBuilding(eBuildingType);
-#if defined(MOD_EVENTS_CITY)
+
 				if (MOD_EVENTS_CITY) {
 					GAMEEVENTINVOKE_HOOK(GAMEEVENT_CityConstructed, getOwner(), GetID(), eBuildingType, true, false);
 				}
 				else {
-#endif
-#if defined(MOD_BALANCE_CORE)
+
 					CvBuildingEntry* pkPurchasedBuildingInfo = GC.getBuildingInfo(eBuildingType);
 					if (pkPurchasedBuildingInfo)
 					{
@@ -31945,7 +31947,7 @@ void CvCity::Purchase(UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectT
 							SetPurchased(ePurchasedClass, true);
 						}
 					}
-#endif
+
 					ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
 					if (pkScriptSystem)
 					{

@@ -258,8 +258,10 @@ public:
 	int GetVotesCastForChoice(int iChoice);
 	int GetVotesMarginOfTopChoice();
 	int GetVotesCastByPlayer(PlayerTypes ePlayer);
-	int GetPercentContributionToOutcome(PlayerTypes eVoter, int iChoice, bool bChangeHost);
-	LeagueHelpers::PlayerList GetPlayersVotingForChoice(int iChoice);
+	int GetPercentContributionToOutcome(PlayerTypes eVoter, int iChoice, bool bChangeHost, int& iPercentOfPlayerVotes);
+	int GetPercentContributionAgainstOutcome(PlayerTypes eVoter, int iChoice, int& iPercentOfPlayerVotes);
+	std::vector<PlayerTypes> GetPlayersVotingForChoice(int iChoice);
+	std::vector<PlayerTypes> GetPlayersVotingAgainstChoice(int iChoice);
 	void ProcessVote(PlayerTypes eVoter, int iNumVotes, int iChoice);
 	CvString GetVotesAsText(CvLeague* pLeague);
 	bool ComparePlayerVote(const PlayerVote& lhs, const PlayerVote& rhs);
@@ -506,6 +508,7 @@ public:
 
 		int m_startingVotesCacheTime; //not serialized
 		int m_startingVotesCached; //not serialized
+		int m_startingVotesCachedIfUN; // not serialized
 	};
 	typedef vector<Member> MemberList;
 
@@ -606,15 +609,15 @@ public:
 	int GetSpentVotesForMember(PlayerTypes ePlayer);
 	int GetPotentialVotesForMember(PlayerTypes ePlayer, PlayerTypes eFromPlayer);
 	int GetCoreVotesForMember(PlayerTypes ePlayer);
-	int CalculateStartingVotesForMember(PlayerTypes ePlayer, bool bForceUpdateSources = false);
+	int CalculateStartingVotesForMember(PlayerTypes ePlayer, bool bFakeUN = false, bool bForceUpdateSources = false);
 	bool CanPropose(PlayerTypes ePlayer);
 	bool CanEverPropose(PlayerTypes ePlayer);
 	int GetRemainingProposalsForMember(PlayerTypes ePlayer);
 	int GetNumProposalsByMember(PlayerTypes ePlayer);
-	LeagueHelpers::PlayerList GetMembersThatLikeProposal(ResolutionTypes eResolution, PlayerTypes eObserver, int iProposerChoice, bool bChosen = false);
-	LeagueHelpers::PlayerList GetMembersThatLikeProposal(int iTargetResolutionID, PlayerTypes eObserver, bool bChosen = false);
-	LeagueHelpers::PlayerList GetMembersThatDislikeProposal(ResolutionTypes eResolution, PlayerTypes eObserver, int iProposerChoice, bool bChosen = false);
-	LeagueHelpers::PlayerList GetMembersThatDislikeProposal(int iTargetResolutionID, PlayerTypes eObserver, bool bChosen = false);
+
+	// Update Diplo AI when a proposal is made
+	void DoEnactProposalDiplomacy(ResolutionTypes eResolution, PlayerTypes eProposer, int iProposerChoice);
+	void DoRepealProposalDiplomacy(int iTargetResolutionID, PlayerTypes eProposer);
 
 	// Host
 	bool HasHostMember() const;
@@ -1016,11 +1019,17 @@ public:
 	CvPlayer* m_pPlayer;
 
 	DesireLevels EvaluateDesire(int iRawEvaluationScore);
+	DesireLevels EvaluateDesireForVoteOutcome(CvProposal* pProposal, int iChoice, bool bEnact);
 
 	VoteCommitmentList m_vVoteCommitmentList;
 
 	int ScoreProposal(CvLeague* pLeague, ResolutionTypes eResolution, int iChoice, PlayerTypes eProposer = NO_PLAYER, bool bConsiderGlobal = false);
 	int ScoreProposal(CvLeague* pLeague, CvActiveResolution* pResolution, PlayerTypes eProposer = NO_PLAYER, bool bConsiderGlobal = false);
+
+	// Is a proposal a direct sanction against us?
+	bool IsSanctionAgainstUs(ResolutionTypes eResolution, PlayerTypes eProposer, int iChoice);
+	bool IsSanctionAgainstUs(CvActiveResolution* pResolution, PlayerTypes eProposer);
+	bool IsSanctionProposal(CvProposal* pProposal, PlayerTypes eRequiredTarget = NO_PLAYER);
 
 private:
 	

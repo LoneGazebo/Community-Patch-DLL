@@ -42,6 +42,31 @@ SELECT 'DIPLOAI_DISABLE_CITY_TRADING', '0';
 INSERT INTO Defines (Name, Value)
 SELECT 'DIPLOAI_DISABLE_VOLUNTARY_VASSALAGE', '0';
 
+-- [DISABLE VOTING FOR OTHER PLAYERS AS WORLD CONGRESS HOST]
+-- If set to 1, the AI will never vote for others (EXCEPT teammates) as host of the World Congress.
+INSERT INTO Defines (Name, Value)
+SELECT 'DIPLOAI_NO_OTHER_HOST_VOTES', '0';
+
+-- [DISABLE VOTING FOR OTHER PLAYERS AS WORLD LEADER]
+-- If set to 1, the AI will never freely vote for others (EXCEPT teammates) for World Leader / Global Hegemony.
+-- If set to 2, they will also refuse to sell their World Leader votes to anyone.
+INSERT INTO Defines (Name, Value)
+SELECT 'DIPLOAI_NO_OTHER_WORLD_LEADER_VOTES', '0';
+
+-- [DEFENSIVE PACT BASE LIMIT]
+-- If set to -1, Defensive Pacts are disabled for both AI and human players.
+-- If set to 0, the AI will not form Defensive Pacts.
+-- If set to 1 or higher, this value is the base limit for an AI's maximum Defensive Pacts (default 2).
+INSERT INTO Defines (Name, Value)
+SELECT 'DIPLOAI_DEFENSIVE_PACT_LIMIT_BASE', '2';
+
+-- [DEFENSIVE PACT SCALER]
+-- If the base limit for Defensive Pacts is 1 or higher, AI players can make one extra Defensive Pact above the base limit for every X other major civilizations that are currently alive and that they have met, where X is the value below (default 10).
+-- If the base limit for Defensive Pacts is 0 or lower, this value does nothing.
+-- If this value is set to 0 or lower, no scaling based on the number of other major civilizations occurs.
+INSERT INTO Defines (Name, Value)
+SELECT 'DIPLOAI_DEFENSIVE_PACT_LIMIT_SCALER', '10';
+
 -- [DISABLE INSULT MESSAGES]
 -- If set to 1, AI civilizations will not send threats/insults such as "you're a warmonger" or "you're getting too friendly with our City-State friends" to human players.
 -- Note that these messages provide a chance to provoke the AI into declaring war. Disabling them removes this chance.

@@ -28,7 +28,7 @@
 //					CvMinorCivQuest
 //======================================================================================================
 
-// Default Constructor
+/// Default Constructor
 CvMinorCivQuest::CvMinorCivQuest()
 {
 	m_eMinor = NO_PLAYER;
@@ -37,29 +37,27 @@ CvMinorCivQuest::CvMinorCivQuest()
 	m_iStartTurn = NO_TURN; /* -1 */
 	m_iData1 = NO_QUEST_DATA; /* -1 */
 	m_iData2 = NO_QUEST_DATA; /* -1 */
-	m_bHandled = false;
-#if defined(MOD_BALANCE_CORE)
-	m_iData3 = NO_QUEST_DATA;
+	m_iData3 = NO_QUEST_DATA; /* -1 */
 	m_iInfluence = 0;
-	m_iGPGlobal = 0;
-	m_iGP = 0;
 	m_iGold = 0;
-	m_iCulture = 0;
-	m_iExperience = 0;
-	m_iFaith = 0;
 	m_iScience = 0;
+	m_iCulture = 0;
+	m_iFaith = 0;
+	m_iGoldenAgePoints = 0;
 	m_iFood = 0;
 	m_iProduction = 0;
-	m_iGoldenAgePoints = 0;
-	m_iHappiness = 0;
 	m_iTourism = 0;
+	m_iHappiness = 0;
+	m_iGP = 0;
+	m_iGPGlobal = 0;
 	m_iGeneralPoints = 0;
 	m_iAdmiralPoints = 0;
+	m_iExperience = 0;
 	m_bPartialQuest = false;
-#endif
+	m_bHandled = false;
 }
 
-// Constructor
+/// Constructor
 CvMinorCivQuest::CvMinorCivQuest(PlayerTypes eMinor, PlayerTypes eAssignedPlayer, MinorCivQuestTypes eType)
 {
 	m_eMinor = eMinor;
@@ -68,57 +66,55 @@ CvMinorCivQuest::CvMinorCivQuest(PlayerTypes eMinor, PlayerTypes eAssignedPlayer
 	m_iStartTurn = NO_TURN; /* -1 */
 	m_iData1 = NO_QUEST_DATA; /* -1 */
 	m_iData2 = NO_QUEST_DATA; /* -1 */
-	m_bHandled = false;
-#if defined(MOD_BALANCE_CORE)
-	m_iData3 = NO_QUEST_DATA;
+	m_iData3 = NO_QUEST_DATA; /* -1 */
 	m_iInfluence = 0;
-	m_iGPGlobal = 0;
-	m_iGP = 0;
 	m_iGold = 0;
-	m_iCulture = 0;
-	m_iExperience = 0;
-	m_iFaith = 0;
 	m_iScience = 0;
+	m_iCulture = 0;
+	m_iFaith = 0;
+	m_iGoldenAgePoints = 0;
 	m_iFood = 0;
 	m_iProduction = 0;
-	m_iGoldenAgePoints = 0;
-	m_iHappiness = 0;
 	m_iTourism = 0;
+	m_iHappiness = 0;
+	m_iGP = 0;
+	m_iGPGlobal = 0;
 	m_iGeneralPoints = 0;
 	m_iAdmiralPoints = 0;
+	m_iExperience = 0;
 	m_bPartialQuest = false;
-#endif
+	m_bHandled = false;
 }
 
 CvMinorCivQuest::~CvMinorCivQuest()
 {
 }
 
-// The minor that gave this quest
+/// The minor that gave this quest
 PlayerTypes CvMinorCivQuest::GetMinor() const
 {
 	return m_eMinor;
 }
 
-// The player the quest was given to
+/// The player the quest was given to
 PlayerTypes CvMinorCivQuest::GetPlayerAssignedTo() const
 {
 	return m_eAssignedPlayer;
 }
 
-// Type of quest
+/// Type of quest
 MinorCivQuestTypes CvMinorCivQuest::GetType() const
 {
 	return m_eType;
 }
 
-// Turn that quest began
+/// Turn that quest began
 int CvMinorCivQuest::GetStartTurn() const
 {
 	return m_iStartTurn;
 }
 
-// Turn that quest ends, based on start turn.  Some quests have no specified end turn.
+/// Turn that quest ends, based on start turn. Some quests have no specified end turn.
 int CvMinorCivQuest::GetEndTurn() const
 {
 	CvSmallAwardInfo* pkSmallAwardInfo = GC.getSmallAwardInfo((SmallAwardTypes)m_eType);
@@ -127,14 +123,17 @@ int CvMinorCivQuest::GetEndTurn() const
 		int iDuration = pkSmallAwardInfo->GetDuration();
 		if (iDuration > 0) // > 0 if the quest is time-sensitive
 		{
-			// Modify for Game Speed
-			if(m_eType == MINOR_CIV_QUEST_HORDE || m_eType == MINOR_CIV_QUEST_REBELLION)
+			// Horde/Rebellion don't scale with game speed
+			if (m_eType == MINOR_CIV_QUEST_HORDE || m_eType == MINOR_CIV_QUEST_REBELLION)
 			{
-				return (m_iStartTurn + iDuration);
+				return m_iStartTurn + iDuration;
 			}
+
+			// Modify for game speed
 			iDuration *= GC.getGame().getGameSpeedInfo().getGreatPeoplePercent();
 			iDuration /= 100;
-			return (m_iStartTurn + iDuration);
+
+			return m_iStartTurn + iDuration;
 		}
 	}
 
@@ -142,7 +141,7 @@ int CvMinorCivQuest::GetEndTurn() const
 	return NO_TURN;
 }
 
-// How many turns left until quest is over?
+/// How many turns left until quest is over?
 int CvMinorCivQuest::GetTurnsRemaining(int iCurrentTurn) const
 {
 	int iStartTurn = GetStartTurn();
@@ -154,33 +153,739 @@ int CvMinorCivQuest::GetTurnsRemaining(int iCurrentTurn) const
 	if (iEndTurn == NO_TURN)
 		return NO_TURN;
 
-	return (iEndTurn - iCurrentTurn);
+	return iEndTurn - iCurrentTurn;
 }
 
-// Quest-specific data 1
+/// Quest-specific data 1
 int CvMinorCivQuest::GetPrimaryData() const
 {
 	return m_iData1;
 }
 
-// Quest-specific data 2
+/// Quest-specific data 2
 int CvMinorCivQuest::GetSecondaryData() const
 {
 	return m_iData2;
 }
 
-void CvMinorCivQuest::DoRewards(PlayerTypes ePlayer)
+/// Quest-specific data 3
+int CvMinorCivQuest::GetTertiaryData() const
 {
-	if(ePlayer == NO_PLAYER || GET_PLAYER(ePlayer).isMinorCiv())
+	return m_iData3;
+}
+
+/// Rewards for quest completion
+int CvMinorCivQuest::GetInfluence() const
+{
+	return m_iInfluence;
+}
+int CvMinorCivQuest::GetGold() const
+{
+	return 	m_iGold;
+}
+int CvMinorCivQuest::GetScience() const
+{
+	return m_iScience;
+}
+int CvMinorCivQuest::GetCulture() const
+{
+	return m_iCulture;
+}
+int CvMinorCivQuest::GetFaith() const
+{
+	return 	m_iFaith;
+}
+int CvMinorCivQuest::GetGoldenAgePoints() const
+{
+	return m_iGoldenAgePoints;
+}
+int CvMinorCivQuest::GetFood() const
+{
+	return m_iFood;
+}
+int CvMinorCivQuest::GetProduction() const
+{
+	return m_iProduction;
+}
+int CvMinorCivQuest::GetTourism() const
+{
+	return m_iTourism;
+}
+int CvMinorCivQuest::GetHappiness() const
+{
+	return m_iHappiness;
+}
+int CvMinorCivQuest::GetGP() const
+{
+	return m_iGP;
+}
+int CvMinorCivQuest::GetGPGlobal() const
+{
+	return m_iGPGlobal;
+}
+int CvMinorCivQuest::GetGeneralPoints() const
+{
+	return m_iGeneralPoints;
+}
+int CvMinorCivQuest::GetAdmiralPoints() const
+{
+	return m_iAdmiralPoints;
+}
+int CvMinorCivQuest::GetExperience() const
+{
+	return m_iExperience;
+}
+
+void CvMinorCivQuest::SetInfluence(int iValue)
+{
+	m_iInfluence = iValue;
+}
+void CvMinorCivQuest::SetGold(int iValue)
+{
+	m_iGold = iValue;
+}
+void CvMinorCivQuest::SetScience(int iValue)
+{
+	m_iScience = iValue;
+}
+void CvMinorCivQuest::SetCulture(int iValue)
+{
+	m_iCulture = iValue;
+}
+void CvMinorCivQuest::SetFaith(int iValue)
+{
+	m_iFaith = iValue;
+}
+void CvMinorCivQuest::SetGoldenAgePoints(int iValue)
+{
+	m_iGoldenAgePoints = iValue;
+}
+void CvMinorCivQuest::SetFood(int iValue)
+{
+	m_iFood = iValue;
+}
+void CvMinorCivQuest::SetProduction(int iValue)
+{
+	m_iProduction = iValue;
+}
+void CvMinorCivQuest::SetTourism(int iValue)
+{
+	m_iTourism = iValue;
+}
+void CvMinorCivQuest::SetHappiness(int iValue)
+{
+	m_iHappiness = iValue;
+}
+void CvMinorCivQuest::SetGP(int iValue)
+{
+	m_iGP = iValue;
+}
+void CvMinorCivQuest::SetGPGlobal(int iValue)
+{
+	m_iGPGlobal = iValue;
+}
+void CvMinorCivQuest::SetGeneralPoints(int iValue)
+{
+	m_iGeneralPoints = iValue;
+}
+void CvMinorCivQuest::SetAdmiralPoints(int iValue)
+{
+	m_iAdmiralPoints = iValue;
+}
+void CvMinorCivQuest::SetExperience(int iValue)
+{
+	m_iExperience = iValue;
+}
+
+// Was this quest partially completed?
+bool CvMinorCivQuest::IsPartialQuest() const
+{
+	return m_bPartialQuest;
+}
+void CvMinorCivQuest::SetPartialQuest(bool bValue)
+{
+	m_bPartialQuest = bValue;
+}
+
+/// Calculate (or recalculate) the rewards this player will receive for completing this City-State quest
+void CvMinorCivQuest::CalculateRewards(PlayerTypes ePlayer, bool bRecalc)
+{
+	if (ePlayer == NO_PLAYER || m_eMinor == NO_PLAYER || !GET_PLAYER(ePlayer).isMajorCiv())
 	{
 		return;
 	}
 	CvPlayer& kPlayer = GET_PLAYER(ePlayer);
-	if(kPlayer.getCapitalCity() == NULL)
+	if (kPlayer.getCapitalCity() == NULL)
 	{
 		return;
 	}
-	if(IsPartialQuest())
+	CvSmallAwardInfo* pkSmallAwardInfo = GC.getSmallAwardInfo((SmallAwardTypes)m_eType);
+	if (!pkSmallAwardInfo)
+	{
+		return;
+	}
+	CvPlayer* pMinor = &GET_PLAYER(m_eMinor);
+	MinorCivPersonalityTypes ePersonality = pMinor->GetMinorCivAI()->GetPersonality();
+	MinorCivTraitTypes eTrait = pMinor->GetMinorCivAI()->GetTrait();
+
+
+	// Era scaling (VP only)
+	int iEraScaler = 100;
+	int iEra = kPlayer.GetCurrentEra();
+	if (MOD_BALANCE_CORE_MINORS && iEra > 1)
+	{
+		iEraScaler += (100 * (iEra-1)) / 2;
+	}
+
+
+	// Random contribution (VP only)
+	int iRandomContribution = 0;
+	if (MOD_BALANCE_CORE_MINORS)
+	{
+		if (ePersonality == MINOR_CIV_PERSONALITY_IRRATIONAL)
+		{
+			iRandomContribution += GC.getGame().getSmallFakeRandNum(pkSmallAwardInfo->GetRandom(), kPlayer.GetPseudoRandomSeed() + m_eType + 1) * 2;
+			iRandomContribution -= GC.getGame().getSmallFakeRandNum(pkSmallAwardInfo->GetRandom(), kPlayer.GetPseudoRandomSeed() + m_eType - 1) * 2;
+		}
+		else
+		{
+			iRandomContribution += GC.getGame().getSmallFakeRandNum(pkSmallAwardInfo->GetRandom(), kPlayer.GetPseudoRandomSeed()+m_eType ) * 2;
+		}
+	}
+
+	// Calculate this player's modifier for the base value
+	int iBaseModifier = 100;
+	iBaseModifier += GET_PLAYER(m_eAssignedPlayer).GetIncreasedQuestInfluence();
+	iBaseModifier += pMinor->GetMinorCivAI()->IsProtectedByMajor(m_eAssignedPlayer) ? /*0 in CP, 15 in CBO*/ GD_INT_GET(BALANCE_INFLUENCE_BOOST_PROTECTION_MINOR) : 0;
+
+	if (ePersonality == MINOR_CIV_PERSONALITY_FRIENDLY)
+		iBaseModifier += /*0 in CP, 25 in CBO*/ GD_INT_GET(MINOR_CIV_QUEST_REWARD_FRIENDLY);
+	else if (ePersonality == MINOR_CIV_PERSONALITY_HOSTILE)
+		iBaseModifier += /*0 in CP, -25 in CBO*/ GD_INT_GET(MINOR_CIV_QUEST_REWARD_HOSTILE);
+
+	if (pMinor->GetMinorCivAI()->IsSameReligionAsMajor(m_eAssignedPlayer))
+	{
+		int iFriendshipMod = GET_PLAYER(m_eAssignedPlayer).GetReligions()->GetCityStateInfluenceModifier(m_eAssignedPlayer);
+		if (iFriendshipMod != 0)
+		{
+			iBaseModifier *= (100 + iFriendshipMod);
+			iBaseModifier /= 100;
+		}
+	}
+	iBaseModifier = max(iBaseModifier, 0);
+
+	// Now determine the rewards!
+
+	// Influence (no gamespeed scaling!)
+	if (pkSmallAwardInfo->GetInfluence() > 0)
+	{
+		int iBaseBonus = (pkSmallAwardInfo->GetInfluence() * iEraScaler)/100 + iRandomContribution;
+		int iBonus = (iBaseBonus * iBaseModifier)/100;
+
+		if (bRecalc)
+		{
+			if (iBonus > GetInfluence())
+			{
+				SetInfluence(iBonus);
+			}
+		}
+		else
+			SetInfluence(iBonus);
+	}
+
+	// Gold
+	if (pkSmallAwardInfo->GetGold() > 0)
+	{
+		int iBaseBonus = (pkSmallAwardInfo->GetGold() * iEraScaler)/100 + iRandomContribution;
+		int iBonus = (iBaseBonus * iBaseModifier)/100;
+
+		iBonus *= GC.getGame().getGameSpeedInfo().getInstantYieldPercent();
+		iBonus /= 100;
+
+		if (eTrait == MINOR_CIV_TRAIT_MERCANTILE)
+		{
+			iBonus *= /*100 in CP, 150 in CBO*/ GD_INT_GET(MINOR_CIV_QUEST_REWARD_GOLD_MERCANTILE);
+			iBonus /= 100;
+		}
+		else if (eTrait == MINOR_CIV_TRAIT_MARITIME)
+		{
+			iBonus *= /*100 in CP, 125 in CBO*/ GD_INT_GET(MINOR_CIV_QUEST_REWARD_GOLD_MARITIME);
+			iBonus /= 100;
+		}
+
+		if (bRecalc)
+		{
+			if (iBonus > GetGold())
+			{
+				SetGold(iBonus);
+			}
+		}
+		else
+			SetGold(iBonus);
+	}
+
+	// Science
+	if (pkSmallAwardInfo->GetScience() > 0)
+	{
+		int iBaseBonus = (pkSmallAwardInfo->GetScience() * iEraScaler)/100 + iRandomContribution;
+		int iBonus = (iBaseBonus * iBaseModifier)/100;
+
+		iBonus *= GC.getGame().getGameSpeedInfo().getInstantYieldPercent();
+		iBonus /= 100;
+
+		if (eTrait == MINOR_CIV_TRAIT_RELIGIOUS)
+		{
+			iBonus *= /*100 in CP, 60 in CBO*/ GD_INT_GET(MINOR_CIV_QUEST_REWARD_SCIENCE_RELIGIOUS);
+			iBonus /= 100;
+		}
+
+		if (bRecalc)
+		{
+			if (iBonus > GetScience())
+			{
+				SetScience(iBonus);
+			}
+		}
+		else
+			SetScience(iBonus);
+	}
+
+	// Culture
+	if (pkSmallAwardInfo->GetCulture() > 0)
+	{
+		int iBaseBonus = (pkSmallAwardInfo->GetCulture() * iEraScaler)/100 + iRandomContribution;
+		int iBonus = (iBaseBonus * iBaseModifier)/100;
+
+		iBonus *= GC.getGame().getGameSpeedInfo().getInstantYieldPercent();
+		iBonus /= 100;
+
+		if (eTrait == MINOR_CIV_TRAIT_CULTURED)
+		{
+			iBonus *= /*100 in CP, 150 in CBO*/ GD_INT_GET(MINOR_CIV_QUEST_REWARD_CULTURE_CULTURED);
+			iBonus /= 100;
+		}
+
+		if (ePersonality == MINOR_CIV_PERSONALITY_NEUTRAL) //boring
+		{
+			iBonus *= /*100 in CP, 80 in CBO*/ GD_INT_GET(MINOR_CIV_QUEST_REWARD_CULTURE_NEUTRAL);
+			iBonus /= 100;
+		}
+		else if (ePersonality == MINOR_CIV_PERSONALITY_IRRATIONAL) //exciting
+		{
+			iBonus *= /*100 in CP, 125 in CBO*/ GD_INT_GET(MINOR_CIV_QUEST_REWARD_CULTURE_IRRATIONAL);
+			iBonus /= 100;
+		}
+
+		if (bRecalc)
+		{
+			if (iBonus > GetCulture())
+			{
+				SetCulture(iBonus);
+			}
+		}
+		else
+			SetCulture(iBonus);
+	}
+
+	// Faith
+	if (pkSmallAwardInfo->GetFaith() > 0)
+	{
+		int iBaseBonus = (pkSmallAwardInfo->GetFaith() * iEraScaler)/100 + iRandomContribution;
+		int iBonus = (iBaseBonus * iBaseModifier)/100;
+
+		iBonus *= GC.getGame().getGameSpeedInfo().getInstantYieldPercent();
+		iBonus /= 100;
+
+		if (eTrait == MINOR_CIV_TRAIT_RELIGIOUS)
+		{
+			iBonus *= /*100 in CP, 150 in CBO*/ GD_INT_GET(MINOR_CIV_QUEST_REWARD_FAITH_RELIGIOUS);
+			iBonus /= 100;
+		}
+
+		if (ePersonality == MINOR_CIV_PERSONALITY_NEUTRAL)
+		{
+			iBonus *= /*100 in CP, 60 in CBO*/ GD_INT_GET(MINOR_CIV_QUEST_REWARD_FAITH_NEUTRAL);
+			iBonus /= 100;
+		}
+
+		if (bRecalc)
+		{
+			if (iBonus > GetFaith())
+			{
+				SetFaith(iBonus);
+			}
+		}
+		else
+			SetFaith(iBonus);
+	}
+
+	// Golden Age Points
+	if (pkSmallAwardInfo->GetGAP() > 0)
+	{
+		int iBaseBonus = (pkSmallAwardInfo->GetGAP() * iEraScaler)/100 + iRandomContribution;
+		int iBonus = (iBaseBonus * iBaseModifier)/100;
+
+		iBonus *= GC.getGame().getGameSpeedInfo().getInstantYieldPercent();
+		iBonus /= 100;
+
+		if (eTrait == MINOR_CIV_TRAIT_CULTURED)
+		{
+			iBonus *= /*100 in CP, 150 in CBO*/ GD_INT_GET(MINOR_CIV_QUEST_REWARD_GAP_CULTURED);
+			iBonus /= 100;
+		}
+		else if (eTrait == MINOR_CIV_TRAIT_RELIGIOUS)
+		{
+			iBonus *= /*100 in CP, 125 in CBO*/ GD_INT_GET(MINOR_CIV_QUEST_REWARD_GAP_RELIGIOUS);
+			iBonus /= 100;
+		}
+
+		if (ePersonality == MINOR_CIV_PERSONALITY_IRRATIONAL)		
+		{
+			iBonus *= /*100 in CP, 60 in CBO*/ GD_INT_GET(MINOR_CIV_QUEST_REWARD_GAP_IRRATIONAL);
+			iBonus /= 100;
+		}
+
+		if (bRecalc)
+		{
+			if (iBonus > GetGoldenAgePoints())
+			{
+				SetGoldenAgePoints(iBonus);
+			}
+		}
+		else
+			SetGoldenAgePoints(iBonus);
+	}
+
+	// Food (in Capital)
+	if (pkSmallAwardInfo->GetFood() > 0)
+	{
+		int iBaseBonus = (pkSmallAwardInfo->GetFood() * iEraScaler)/100 + iRandomContribution;
+		int iBonus = (iBaseBonus * iBaseModifier)/100;
+
+		iBonus *= GC.getGame().getGameSpeedInfo().getInstantYieldPercent();
+		iBonus /= 100;
+
+		if (eTrait == MINOR_CIV_TRAIT_MARITIME)
+		{
+			iBonus *= /*100 in CP, 150 in CBO*/ GD_INT_GET(MINOR_CIV_QUEST_REWARD_FOOD_MARITIME);
+			iBonus /= 100;
+		}
+		else if (eTrait == MINOR_CIV_TRAIT_MERCANTILE)
+		{
+			iBonus *= /*100 in CP, 50 in CBO*/ GD_INT_GET(MINOR_CIV_QUEST_REWARD_FOOD_MERCANTILE);
+			iBonus /= 100;
+		}
+
+		if (ePersonality == MINOR_CIV_PERSONALITY_NEUTRAL)
+		{
+			iBonus *= /*100 in CP, 80 in CBO*/ GD_INT_GET(MINOR_CIV_QUEST_REWARD_FOOD_NEUTRAL);
+			iBonus /= 100;
+		}
+
+		if (bRecalc)
+		{
+			if (iBonus > GetFood())
+			{
+				SetFood(iBonus);
+			}
+		}
+		else
+			SetFood(iBonus);
+	}
+
+	// Production (in Capital)
+	if (pkSmallAwardInfo->GetProduction() > 0)
+	{
+		int iBaseBonus = (pkSmallAwardInfo->GetProduction() * iEraScaler)/100 + iRandomContribution;
+		int iBonus = (iBaseBonus * iBaseModifier)/100;
+
+		iBonus *= GC.getGame().getGameSpeedInfo().getInstantYieldPercent();
+		iBonus /= 100;
+
+		if (eTrait == MINOR_CIV_TRAIT_MILITARISTIC)
+		{
+			iBonus *= /*100 in CP, 125 in CBO*/ GD_INT_GET(MINOR_CIV_QUEST_REWARD_PRODUCTION_MILITARISTIC);
+			iBonus /= 100;
+		}
+
+		if (bRecalc)
+		{
+			if (iBonus > GetProduction())
+			{
+				SetProduction(iBonus);
+			}
+		}
+		else
+			SetProduction(iBonus);
+	}
+
+	// Tourism
+	if (pkSmallAwardInfo->GetTourism() > 0)
+	{
+		int iBaseBonus = (pkSmallAwardInfo->GetTourism() * iEraScaler)/100 + iRandomContribution;
+		int iBonus = (iBaseBonus * iBaseModifier)/100;
+
+		iBonus *= GC.getGame().getGameSpeedInfo().getInstantYieldPercent();
+		iBonus /= 100;
+
+		if (eTrait == MINOR_CIV_TRAIT_MILITARISTIC)
+		{
+			iBonus *= /*100 in CP, 50 in CBO*/ GD_INT_GET(MINOR_CIV_QUEST_REWARD_TOURISM_MILITARISTIC);
+			iBonus /= 100;
+		}
+		else if (eTrait == MINOR_CIV_TRAIT_CULTURED)
+		{
+			iBonus *= /*100 in CP, 125 in CBO*/ GD_INT_GET(MINOR_CIV_QUEST_REWARD_TOURISM_CULTURED);
+			iBonus /= 100;
+		}
+
+		if (ePersonality == MINOR_CIV_PERSONALITY_NEUTRAL)
+		{
+			iBonus *= /*100 in CP, 125 in CBO*/ GD_INT_GET(MINOR_CIV_QUEST_REWARD_TOURISM_NEUTRAL);
+			iBonus /= 100;
+		}
+		else if (ePersonality == MINOR_CIV_PERSONALITY_IRRATIONAL)
+		{
+			iBonus *= /*100 in CP, 75 in CBO*/ GD_INT_GET(MINOR_CIV_QUEST_REWARD_TOURISM_IRRATIONAL);
+			iBonus /= 100;
+		}
+
+		if (bRecalc)
+		{
+			if (iBonus > GetTourism())
+			{
+				SetTourism(iBonus);
+			}
+		}
+		else
+			SetTourism(iBonus);	
+	}
+
+	// Happiness (no gamespeed scaling!)
+	if (pkSmallAwardInfo->GetHappiness() > 0)
+	{
+		int iBonus = pkSmallAwardInfo->GetHappiness();
+		if (MOD_BALANCE_CORE_MINORS)
+			iBonus += iEra / 2;
+
+		if (bRecalc)
+		{
+			if (iBonus > GetHappiness())
+			{
+				SetHappiness(iBonus);
+			}
+		}
+		else
+			SetHappiness(iBonus);
+	}
+
+	// Great Person points (in Capital; no gamespeed scaling!)
+	if (pkSmallAwardInfo->GetGPPoints() > 0)
+	{
+		int iBaseBonus = (pkSmallAwardInfo->GetGPPoints() * iEraScaler)/100 + iRandomContribution;
+		int iBonus = (iBaseBonus * iBaseModifier)/100;
+
+		if (eTrait == MINOR_CIV_TRAIT_CULTURED)
+		{
+			iBonus *= /*100 in CP, 75 in CBO*/ GD_INT_GET(MINOR_CIV_QUEST_REWARD_GPP_CULTURED);
+			iBonus /= 100;
+		}
+
+		if (ePersonality == MINOR_CIV_PERSONALITY_NEUTRAL)		
+		{
+			iBonus *= /*100 in CP, 150 in CBO*/ GD_INT_GET(MINOR_CIV_QUEST_REWARD_GPP_NEUTRAL);
+			iBonus /= 100;
+		}
+		else if (ePersonality == MINOR_CIV_PERSONALITY_IRRATIONAL)	
+		{
+			iBonus *= /*100 in CP, 75 in CBO*/ GD_INT_GET(MINOR_CIV_QUEST_REWARD_GPP_IRRATIONAL);
+			iBonus /= 100;
+		}
+
+		if (bRecalc)
+		{
+			if (iBonus > GetGP())
+			{
+				SetGP(iBonus);
+			}
+		}
+		else
+			SetGP(iBonus);
+	}
+
+	// Great Person points (in all Cities; no gamespeed scaling!)
+	if (pkSmallAwardInfo->GetGPPointsGlobal() > 0)
+	{
+		int iBaseBonus = (pkSmallAwardInfo->GetGPPointsGlobal() * iEraScaler)/100 + iRandomContribution;
+		int iBonus = (iBaseBonus * iBaseModifier)/100;
+
+		if (eTrait == MINOR_CIV_TRAIT_RELIGIOUS)
+		{
+			iBonus *= /*100 in CP, 125 in CBO*/ GD_INT_GET(MINOR_CIV_QUEST_REWARD_GPP_GLOBAL_RELIGIOUS);
+			iBonus /= 100;
+		}
+		else if (eTrait == MINOR_CIV_TRAIT_CULTURED)
+		{
+			iBonus *= /*100 in CP, 75 in CBO*/ GD_INT_GET(MINOR_CIV_QUEST_REWARD_GPP_GLOBAL_CULTURED);
+			iBonus /= 100;
+		}
+
+		if (ePersonality == MINOR_CIV_PERSONALITY_NEUTRAL)
+		{
+			iBonus *= /*100 in CP, 125 in CBO*/ GD_INT_GET(MINOR_CIV_QUEST_REWARD_GPP_GLOBAL_NEUTRAL);
+			iBonus /= 100;
+		}
+
+		if (bRecalc)
+		{
+			if (iBonus > GetGPGlobal())
+			{
+				SetGPGlobal(iBonus);
+			}
+		}
+		else
+			SetGPGlobal(iBonus);
+	}
+
+	// Great General points
+	if (pkSmallAwardInfo->GetGeneralPoints() > 0)
+	{
+		int iBaseBonus = (pkSmallAwardInfo->GetGeneralPoints() * iEraScaler)/100 + iRandomContribution;
+		int iBonus = (iBaseBonus * iBaseModifier)/100;
+
+		iBonus *= GC.getGame().getGameSpeedInfo().getInstantYieldPercent();
+		iBonus /= 100;
+
+		if (eTrait == MINOR_CIV_TRAIT_MILITARISTIC)
+		{
+			iBonus *= /*100 in CP, 150 in CBO*/ GD_INT_GET(MINOR_CIV_QUEST_REWARD_GENERAL_POINTS_MILITARISTIC);
+			iBonus /= 100;
+		}
+		else if (eTrait == MINOR_CIV_TRAIT_CULTURED)
+		{
+			iBonus *= /*100 in CP, 75 in CBO*/ GD_INT_GET(MINOR_CIV_QUEST_REWARD_GENERAL_POINTS_CULTURED);
+			iBonus /= 100;
+		}
+
+		if (bRecalc)
+		{
+			if (iBonus > GetGeneralPoints())
+			{
+				SetGeneralPoints(iBonus);
+			}
+		}
+		else
+			SetGeneralPoints(iBonus);
+	}
+
+	// Great Admiral points
+	if (pkSmallAwardInfo->GetAdmiralPoints() > 0)
+	{
+		int iBaseBonus = (pkSmallAwardInfo->GetAdmiralPoints() * iEraScaler)/100 + iRandomContribution;
+		int iBonus = (iBaseBonus * iBaseModifier)/100;
+
+		iBonus *= GC.getGame().getGameSpeedInfo().getInstantYieldPercent();
+		iBonus /= 100;
+
+		if (eTrait == MINOR_CIV_TRAIT_MARITIME)
+		{
+			iBonus *= /*100 in CP, 150 in CBO*/ GD_INT_GET(MINOR_CIV_QUEST_REWARD_ADMIRAL_POINTS_MARITIME);
+			iBonus /= 100;
+		}
+		else if (eTrait == MINOR_CIV_TRAIT_CULTURED)
+		{
+			iBonus *= /*100 in CP, 75 in CBO*/ GD_INT_GET(MINOR_CIV_QUEST_REWARD_ADMIRAL_POINTS_CULTURED);
+			iBonus /= 100;
+		}
+
+		if (bRecalc)
+		{
+			if (iBonus > GetAdmiralPoints())
+			{
+				SetAdmiralPoints(iBonus);
+			}
+		}
+		else
+			SetAdmiralPoints(iBonus);
+	}
+
+	// XP to all units (no gamespeed scaling!)
+	if (pkSmallAwardInfo->GetExperience() > 0)
+	{
+		int iBaseBonus = pkSmallAwardInfo->GetExperience() + iRandomContribution;
+		int iBonus = (iBaseBonus * iBaseModifier)/100;
+
+		if (eTrait == MINOR_CIV_TRAIT_MILITARISTIC)
+		{
+			iBonus *= /*100 in CP, 125 in CBO*/ GD_INT_GET(MINOR_CIV_QUEST_REWARD_EXPERIENCE_MILITARISTIC);
+			iBonus /= 100;
+		}
+		else if (eTrait == MINOR_CIV_TRAIT_RELIGIOUS)
+		{
+			iBonus *= /*100 in CP, 50 in CBO*/ GD_INT_GET(MINOR_CIV_QUEST_REWARD_EXPERIENCE_RELIGIOUS);
+			iBonus /= 100;
+		}
+
+		if (bRecalc)
+		{
+			if (iBonus > GetExperience())
+			{
+				SetExperience(iBonus);
+			}
+		}
+		else
+			SetExperience(iBonus);
+	}
+
+	// Log the quest rewards
+	if (GC.getLogging() && GC.getAILogging())
+	{
+		CvString strLogName;
+		CvString strTemp;
+		CvString playerName = pMinor->getCivilizationShortDescription();
+
+		// Open the log file
+		if (GC.getPlayerAndCityAILogSplit())
+			strLogName = "DiplomacyAI_MinorCiv_Log_" + playerName + ".csv";
+		else
+			strLogName = "DiplomacyAI_MinorCiv_Log.csv";
+
+		FILogFile* pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
+
+		// Turn number
+		CvString strBaseString;
+		strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
+
+		// Our Name
+		strBaseString += playerName;
+
+		// Their Name
+		CvString otherPlayerName = pMinor->getCivilizationShortDescription();
+		strBaseString += ", " + otherPlayerName;
+		CvString strOutBuf = strBaseString;
+
+		// Quest Info
+		strTemp = "SENT OUT QUEST - ";
+		strOutBuf += ", " + strTemp;
+		strOutBuf += GetRewardString(ePlayer, false);
+
+		pLog->Msg(strOutBuf);
+	}
+}
+
+/// This quest was completed, distribute rewards to the player who completed it
+void CvMinorCivQuest::DoRewards(PlayerTypes ePlayer)
+{
+	if (ePlayer == NO_PLAYER || !GET_PLAYER(ePlayer).isMajorCiv())
+	{
+		return;
+	}
+	CvPlayer& kPlayer = GET_PLAYER(ePlayer);
+	if (kPlayer.getCapitalCity() == NULL)
+	{
+		return;
+	}
+	if (IsPartialQuest())
 	{
 		SetInfluence(GetInfluence() / 2);
 		SetAdmiralPoints(GetAdmiralPoints() / 2);
@@ -302,137 +1007,8 @@ void CvMinorCivQuest::DoRewards(PlayerTypes ePlayer)
 	{
 		kPlayer.doInstantYield(INSTANT_YIELD_TYPE_MINOR_QUEST_REWARD, false, NO_GREATPERSON, NO_BUILDING, GetScience(), false, NO_PLAYER, NULL, false, kPlayer.getCapitalCity(), false, true, false, YIELD_SCIENCE, NULL, NO_TERRAIN, this);
 	}
-
-}
-void CvMinorCivQuest:: SetInfluence(int iValue)
-{
-	m_iInfluence = iValue;
-}
-void CvMinorCivQuest:: SetGPGlobal(int iValue)
-{
-	m_iGPGlobal = iValue;
-}
-void CvMinorCivQuest:: SetGP(int iValue)
-{
-	m_iGP = iValue;
-}
-void CvMinorCivQuest:: SetCulture(int iValue)
-{
-	m_iCulture = iValue;
-}
-void CvMinorCivQuest:: SetExperience(int iValue)
-{
-	m_iExperience = iValue;
-}
-void CvMinorCivQuest:: SetFaith(int iValue)
-{
-	m_iFaith = iValue;
-}
-void CvMinorCivQuest:: SetGold(int iValue)
-{
-	m_iGold = iValue;
-}
-void CvMinorCivQuest:: SetScience(int iValue)
-{
-	m_iScience = iValue;
-}
-void CvMinorCivQuest:: SetFood(int iValue)
-{
-	m_iFood = iValue;
-}
-void CvMinorCivQuest:: SetProduction(int iValue)
-{
-	m_iProduction = iValue;
-}
-void CvMinorCivQuest:: SetGoldenAgePoints(int iValue)
-{
-	m_iGoldenAgePoints = iValue;
-}
-void CvMinorCivQuest:: SetHappiness(int iValue)
-{
-	m_iHappiness = iValue;
-}
-void CvMinorCivQuest:: SetTourism(int iValue)
-{
-	m_iTourism = iValue;
-}
-void CvMinorCivQuest:: SetGeneralPoints(int iValue)
-{
-	m_iGeneralPoints = iValue;
-}
-void CvMinorCivQuest:: SetAdmiralPoints(int iValue)
-{
-	m_iAdmiralPoints = iValue;
 }
 
-int CvMinorCivQuest::GetInfluence() const
-{
-	return m_iInfluence;
-}
-int CvMinorCivQuest::GetGPGlobal() const
-{
-	return m_iGPGlobal;
-}
-int CvMinorCivQuest::GetGP() const
-{
-	return m_iGP;
-}
-int CvMinorCivQuest::GetCulture() const
-{
-	return m_iCulture;
-}
-int CvMinorCivQuest::GetExperience() const
-{
-	return m_iExperience;
-}
-int CvMinorCivQuest::GetFaith() const
-{
-	return 	m_iFaith;
-}
-int CvMinorCivQuest::GetGold() const
-{
-	return 	m_iGold;
-}
-int CvMinorCivQuest::GetScience() const
-{
-	return m_iScience;
-}
-int CvMinorCivQuest::GetFood() const
-{
-	return m_iFood;
-}
-int CvMinorCivQuest::GetProduction() const
-{
-	return m_iProduction;
-}
-int CvMinorCivQuest::GetGoldenAgePoints() const
-{
-	return m_iGoldenAgePoints;
-}
-int CvMinorCivQuest::GetHappiness() const
-{
-	return m_iHappiness;
-}
-int CvMinorCivQuest::GetTourism() const
-{
-	return m_iTourism;
-}
-int CvMinorCivQuest::GetGeneralPoints() const
-{
-	return m_iGeneralPoints;
-}
-int CvMinorCivQuest::GetAdmiralPoints() const
-{
-	return m_iAdmiralPoints;
-}
-void CvMinorCivQuest::SetPartialQuest(bool bValue)
-{
-	m_bPartialQuest = bValue;
-}
-bool CvMinorCivQuest::IsPartialQuest() const
-{
-	return m_bPartialQuest;
-}
 void CvMinorCivAI::RecalculateRewards(PlayerTypes ePlayer)
 {
 	if (!GetPlayer()->isAlive())
@@ -445,531 +1021,6 @@ void CvMinorCivAI::RecalculateRewards(PlayerTypes ePlayer)
 		itr_quest->CalculateRewards(ePlayer, true);
 }
 
-void CvMinorCivQuest::CalculateRewards(PlayerTypes ePlayer, bool bRecalc)
-{
-	if(ePlayer == NO_PLAYER || m_eMinor == NO_PLAYER)
-	{
-		return;
-	}
-	CvPlayer& kPlayer = GET_PLAYER(ePlayer);
-	if(kPlayer.getCapitalCity() == NULL)
-	{
-		return;
-	}
-	CvPlayer* pMinor = &GET_PLAYER(m_eMinor);
-	int iEraScaler = 100;
-	int iEra = kPlayer.GetCurrentEra();
-
-	if (MOD_BALANCE_CORE_MINORS && iEra > 1)
-	{
-		iEraScaler += (100 * (iEra-1)) / 2;
-	}
-
-	MinorCivPersonalityTypes ePersonality = pMinor->GetMinorCivAI()->GetPersonality();
-	MinorCivTraitTypes eTrait = pMinor->GetMinorCivAI()->GetTrait();
-
-	CvSmallAwardInfo* pkSmallAwardInfo = GC.getSmallAwardInfo((SmallAwardTypes)m_eType);
-	if(pkSmallAwardInfo)
-	{
-		//needed later
-		int iRandomContribution = 0;
-		if (MOD_BALANCE_CORE_MINORS)
-		{
-			if (ePersonality == MINOR_CIV_PERSONALITY_IRRATIONAL)
-			{
-				iRandomContribution += GC.getGame().getSmallFakeRandNum(pkSmallAwardInfo->GetRandom(), kPlayer.GetPseudoRandomSeed() + m_eType + 1) * 2;
-				iRandomContribution -= GC.getGame().getSmallFakeRandNum(pkSmallAwardInfo->GetRandom(), kPlayer.GetPseudoRandomSeed() + m_eType - 1) * 2;
-			}
-			else
-			{
-				iRandomContribution += GC.getGame().getSmallFakeRandNum(pkSmallAwardInfo->GetRandom(), kPlayer.GetPseudoRandomSeed()+m_eType ) * 2;
-			}
-		}
-
-		//common for all yields
-		int iBaseModifier = 100 +
-			GET_PLAYER(m_eAssignedPlayer).GetIncreasedQuestInfluence() +
-			(pMinor->GetMinorCivAI()->IsProtectedByMajor(m_eAssignedPlayer) ? /*0 in CP, 15 in CBO*/ GD_INT_GET(BALANCE_INFLUENCE_BOOST_PROTECTION_MINOR) : 0) +
-			(ePersonality == MINOR_CIV_PERSONALITY_FRIENDLY && MOD_BALANCE_CORE_MINORS ? 25 : 0) +
-			(ePersonality == MINOR_CIV_PERSONALITY_HOSTILE && MOD_BALANCE_CORE_MINORS ? -25 : 0);
-
-		if (iBaseModifier < 0)
-			iBaseModifier = 0;
-
-		if (pMinor->GetMinorCivAI()->IsSameReligionAsMajor(m_eAssignedPlayer))
-		{
-			int iFriendshipMod = GET_PLAYER(m_eAssignedPlayer).GetReligions()->GetCityStateInfluenceModifier(m_eAssignedPlayer);
-			if (iFriendshipMod != 0)
-			{
-				iBaseModifier *= (100 + iFriendshipMod);
-				iBaseModifier /= 100;
-			}
-		}
-
-		if(pkSmallAwardInfo->GetInfluence() > 0)
-		{
-			int iBaseBonus = (pkSmallAwardInfo->GetInfluence() * iEraScaler)/100 + iRandomContribution;
-			int iBonus = (iBaseBonus * iBaseModifier)/100;
-
-			if (bRecalc)
-			{
-				if (iBonus > GetInfluence())
-				{
-					SetInfluence(iBonus);
-				}
-			}
-			else
-				SetInfluence(iBonus);
-		}
-		if(pkSmallAwardInfo->GetAdmiralPoints() > 0)
-		{
-			int iBaseBonus = (pkSmallAwardInfo->GetAdmiralPoints() * iEraScaler)/100 + iRandomContribution;
-			int iBonus = (iBaseBonus * iBaseModifier)/100;
-
-			iBonus *= GC.getGame().getGameSpeedInfo().getInstantYieldPercent();
-			iBonus /= 100;
-
-			if(eTrait == MINOR_CIV_TRAIT_MARITIME)
-			{
-				iBonus *= 150;
-				iBonus /= 100;
-			}
-			else if(eTrait == MINOR_CIV_TRAIT_CULTURED)
-			{
-				iBonus *= 75;
-				iBonus /= 100;
-			}
-
-			if (bRecalc)
-			{
-				if (iBonus > GetAdmiralPoints())
-				{
-					SetAdmiralPoints(iBonus);
-				}
-			}
-			else
-				SetAdmiralPoints(iBonus);
-		}
-		if(pkSmallAwardInfo->GetGeneralPoints() > 0)
-		{
-			int iBaseBonus = (pkSmallAwardInfo->GetGeneralPoints() * iEraScaler)/100 + iRandomContribution;
-			int iBonus = (iBaseBonus * iBaseModifier)/100;
-
-			iBonus *= GC.getGame().getGameSpeedInfo().getInstantYieldPercent();
-			iBonus /= 100;
-
-			if(eTrait == MINOR_CIV_TRAIT_MILITARISTIC)
-			{
-				iBonus *= 150;
-				iBonus /= 100;
-			}
-			else if(eTrait == MINOR_CIV_TRAIT_CULTURED)
-			{
-				iBonus *= 75;
-				iBonus /= 100;
-			}
-			if (bRecalc)
-			{
-				if (iBonus > GetGeneralPoints())
-				{
-					SetGeneralPoints(iBonus);
-				}
-			}
-			else
-				SetGeneralPoints(iBonus);
-		}
-		if(pkSmallAwardInfo->GetCulture() > 0)
-		{
-			int iBaseBonus = (pkSmallAwardInfo->GetCulture() * iEraScaler)/100 + iRandomContribution;
-			int iBonus = (iBaseBonus * iBaseModifier)/100;
-
-			iBonus *= GC.getGame().getGameSpeedInfo().getInstantYieldPercent();
-			iBonus /= 100;
-
-			if(eTrait == MINOR_CIV_TRAIT_CULTURED)
-			{
-				iBonus *= 150;
-				iBonus /= 100;
-			}
-			if(ePersonality == MINOR_CIV_PERSONALITY_NEUTRAL) //boring
-			{
-				iBonus *= 80;
-				iBonus /= 100;
-			}
-			else if(ePersonality == MINOR_CIV_PERSONALITY_IRRATIONAL) //exciting
-			{
-				iBonus *= 125;
-				iBonus /= 100;
-			}
-			if (bRecalc)
-			{
-				if (iBonus > GetCulture())
-				{
-					SetCulture(iBonus);
-				}
-			}
-			else
-				SetCulture(iBonus);
-		}
-		if(pkSmallAwardInfo->GetExperience() > 0)
-		{
-			int iBaseBonus = pkSmallAwardInfo->GetExperience() + iRandomContribution;
-			int iBonus = (iBaseBonus * iBaseModifier)/100;
-
-			//no gamespeed scaling for EXP!
-
-			if(eTrait == MINOR_CIV_TRAIT_MILITARISTIC)
-			{
-				iBonus *= 125;
-				iBonus /= 100;
-			}
-			else if(eTrait == MINOR_CIV_TRAIT_RELIGIOUS)
-			{
-				iBonus *= 50;
-				iBonus /= 100;
-			}
-			if (bRecalc)
-			{
-				if (iBonus > GetExperience())
-				{
-					SetExperience(iBonus);
-				}
-			}
-			else
-				SetExperience(iBonus);
-		}
-		if(pkSmallAwardInfo->GetFaith() > 0)
-		{
-			int iBaseBonus = (pkSmallAwardInfo->GetFaith() * iEraScaler)/100 + iRandomContribution;
-			int iBonus = (iBaseBonus * iBaseModifier)/100;
-
-			iBonus *= GC.getGame().getGameSpeedInfo().getInstantYieldPercent();
-			iBonus /= 100;
-
-			if(eTrait == MINOR_CIV_TRAIT_RELIGIOUS)
-			{
-				iBonus *= 150;
-				iBonus /= 100;
-			}
-			if(ePersonality == MINOR_CIV_PERSONALITY_NEUTRAL)
-			{
-				iBonus *= 60;
-				iBonus /= 100;
-			}
-			if (bRecalc)
-			{
-				if (iBonus > GetFaith())
-				{
-					SetFaith(iBonus);
-				}
-			}
-			else
-				SetFaith(iBonus);
-		}
-		if(pkSmallAwardInfo->GetFood() > 0)
-		{
-			int iBaseBonus = (pkSmallAwardInfo->GetFood() * iEraScaler)/100 + iRandomContribution;
-			int iBonus = (iBaseBonus * iBaseModifier)/100;
-
-			iBonus *= GC.getGame().getGameSpeedInfo().getInstantYieldPercent();
-			iBonus /= 100;
-
-			if(eTrait == MINOR_CIV_TRAIT_MARITIME)
-			{
-				iBonus *= 150;
-				iBonus /= 100;
-			}
-			else if(eTrait == MINOR_CIV_TRAIT_MERCANTILE)
-			{
-				iBonus *= 50;
-				iBonus /= 100;
-			}
-			if(ePersonality == MINOR_CIV_PERSONALITY_NEUTRAL)
-			{
-				iBonus *= 60;
-				iBonus /= 100;
-			}
-			if (bRecalc)
-			{
-				if (iBonus > GetFood())
-				{
-					SetFood(iBonus);
-				}
-			}
-			else
-				SetFood(iBonus);
-		}
-		if(pkSmallAwardInfo->GetGAP() > 0)
-		{
-			int iBaseBonus = (pkSmallAwardInfo->GetGAP() * iEraScaler)/100 + iRandomContribution;
-			int iBonus = (iBaseBonus * iBaseModifier)/100;
-
-			iBonus *= GC.getGame().getGameSpeedInfo().getInstantYieldPercent();
-			iBonus /= 100;
-
-			if(eTrait == MINOR_CIV_TRAIT_CULTURED)
-			{
-				iBonus *= 150;
-				iBonus /= 100;
-			}
-			else if(eTrait == MINOR_CIV_TRAIT_RELIGIOUS)
-			{
-				iBonus *= 125;
-				iBonus /= 100;
-			}
-			if(ePersonality == MINOR_CIV_PERSONALITY_IRRATIONAL)		
-			{
-				iBonus *= 60;
-				iBonus /= 100;
-			}
-			if (bRecalc)
-			{
-				if (iBonus > GetGoldenAgePoints())
-				{
-					SetGoldenAgePoints(iBonus);
-				}
-			}
-			else
-				SetGoldenAgePoints(iBonus);
-		}
-		if(pkSmallAwardInfo->GetGold() > 0)
-		{
-			int iBaseBonus = (pkSmallAwardInfo->GetGold() * iEraScaler)/100 + iRandomContribution;
-			int iBonus = (iBaseBonus * iBaseModifier)/100;
-
-			iBonus *= GC.getGame().getGameSpeedInfo().getInstantYieldPercent();
-			iBonus /= 100;
-
-			if(eTrait == MINOR_CIV_TRAIT_MERCANTILE)
-			{
-				iBonus *= 150;
-				iBonus /= 100;
-			}
-			else if(eTrait == MINOR_CIV_TRAIT_MARITIME)
-			{
-				iBonus *= 125;
-				iBonus /= 100;
-			}
-			if (bRecalc)
-			{
-				if (iBonus > GetGold())
-				{
-					SetGold(iBonus);
-				}
-			}
-			else
-				SetGold(iBonus);
-		}
-		if(pkSmallAwardInfo->GetGPPoints() > 0)
-		{
-			int iBaseBonus = (pkSmallAwardInfo->GetGPPoints() * iEraScaler)/100 + iRandomContribution;
-			int iBonus = (iBaseBonus * iBaseModifier)/100;
-
-			//no gamespeed scaling here ...
-
-			if(eTrait == MINOR_CIV_TRAIT_CULTURED)
-			{
-				iBonus *= 75;
-				iBonus /= 100;
-			}
-			if(ePersonality == MINOR_CIV_PERSONALITY_NEUTRAL)		
-			{
-				iBonus *= 150;
-				iBonus /= 100;
-			}
-			else if(ePersonality == MINOR_CIV_PERSONALITY_IRRATIONAL)	
-			{
-				iBonus *= 75;
-				iBonus /= 100;
-			}
-			if (bRecalc)
-			{
-				if (iBonus > GetGP())
-				{
-					SetGP(iBonus);
-				}
-			}
-			else
-				SetGP(iBonus);
-		}
-		if(pkSmallAwardInfo->GetGPPointsGlobal() > 0)
-		{
-			int iBaseBonus = (pkSmallAwardInfo->GetGPPointsGlobal() * iEraScaler)/100 + iRandomContribution;
-			int iBonus = (iBaseBonus * iBaseModifier)/100;
-
-			//no gamespeed scaling here either ...
-
-			if(eTrait == MINOR_CIV_TRAIT_RELIGIOUS)
-			{
-				iBonus *= 125;
-				iBonus /= 100;
-			}
-			if(eTrait == MINOR_CIV_TRAIT_CULTURED)
-			{
-				iBonus *= 75;
-				iBonus /= 100;
-			}
-			if(ePersonality == MINOR_CIV_PERSONALITY_NEUTRAL)
-			{
-				iBonus *= 125;
-				iBonus /= 100;
-			}
-			if (bRecalc)
-			{
-				if (iBonus > GetGPGlobal())
-				{
-					SetGPGlobal(iBonus);
-				}
-			}
-			else
-				SetGPGlobal(iBonus);
-		}
-		if(pkSmallAwardInfo->GetHappiness() > 0)
-		{
-			int iBonus = pkSmallAwardInfo->GetHappiness();
-			if (MOD_BALANCE_CORE_MINORS)
-				iBonus += iEra / 2;
-
-			if (bRecalc)
-			{
-				if (iBonus > GetHappiness())
-				{
-					SetHappiness(iBonus);
-				}
-			}
-			else
-				SetHappiness(iBonus);
-		}
-		if(pkSmallAwardInfo->GetTourism() > 0)
-		{
-			int iBaseBonus = (pkSmallAwardInfo->GetTourism() * iEraScaler)/100 + iRandomContribution;
-			int iBonus = (iBaseBonus * iBaseModifier)/100;
-
-			iBonus *= GC.getGame().getGameSpeedInfo().getInstantYieldPercent();
-			iBonus /= 100;
-
-			if(eTrait == MINOR_CIV_TRAIT_MILITARISTIC)
-			{
-				iBonus *= 50;
-				iBonus /= 100;
-			}
-			if(eTrait == MINOR_CIV_TRAIT_CULTURED)
-			{
-				iBonus *= 125;
-				iBonus /= 100;
-			}
-			if(ePersonality == MINOR_CIV_PERSONALITY_NEUTRAL)
-			{
-				iBonus *= 125;
-				iBonus /= 100;
-			}
-			else if(ePersonality == MINOR_CIV_PERSONALITY_IRRATIONAL)
-			{
-				iBonus *= 75;
-				iBonus /= 100;
-			}
-			if (bRecalc)
-			{
-				if (iBonus > GetTourism())
-				{
-					SetTourism(iBonus);
-				}
-			}
-			else
-				SetTourism(iBonus);	
-		}
-		if(pkSmallAwardInfo->GetProduction() > 0)
-		{
-			int iBaseBonus = (pkSmallAwardInfo->GetProduction() * iEraScaler)/100 + iRandomContribution;
-			int iBonus = (iBaseBonus * iBaseModifier)/100;
-
-			iBonus *= GC.getGame().getGameSpeedInfo().getInstantYieldPercent();
-			iBonus /= 100;
-
-			if(eTrait == MINOR_CIV_TRAIT_MILITARISTIC)
-			{
-				iBonus *= 125;
-				iBonus /= 100;
-			}
-			if (bRecalc)
-			{
-				if (iBonus > GetProduction())
-				{
-					SetProduction(iBonus);
-				}
-			}
-			else
-				SetProduction(iBonus);
-		}
-		if(pkSmallAwardInfo->GetScience() > 0)
-		{
-			int iBaseBonus = (pkSmallAwardInfo->GetScience() * iEraScaler)/100 + iRandomContribution;
-			int iBonus = (iBaseBonus * iBaseModifier)/100;
-
-			iBonus *= GC.getGame().getGameSpeedInfo().getInstantYieldPercent();
-			iBonus /= 100;
-
-			if(eTrait == MINOR_CIV_TRAIT_RELIGIOUS)
-			{
-				iBonus *= 60;
-				iBonus /= 100;
-			}
-			if (bRecalc)
-			{
-				if (iBonus > GetScience())
-				{
-					SetScience(iBonus);
-				}
-			}
-			else
-				SetScience(iBonus);
-		}
-
-		if(GC.getLogging() && GC.getAILogging())
-		{
-			CvString strLogName;
-
-			CvString strOutBuf;
-			CvString strBaseString;
-
-			CvString playerName;
-			CvString otherPlayerName;
-
-			CvString strTemp;
-
-			playerName = pMinor->getCivilizationShortDescription();
-
-			// Open the log file
-			if(GC.getPlayerAndCityAILogSplit())
-				strLogName = "DiplomacyAI_MinorCiv_Log_" + playerName + ".csv";
-			else
-				strLogName = "DiplomacyAI_MinorCiv_Log.csv";
-
-			FILogFile* pLog;
-			pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
-
-			// Turn number
-			strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
-
-			// Our Name
-			strBaseString += playerName;
-
-			// Their Name
-			otherPlayerName = pMinor->getCivilizationShortDescription();
-			strBaseString += ", " + otherPlayerName;
-
-			strOutBuf = strBaseString;
-
-			// Quest Info
-			strTemp = "SENT OUT QUEST - ";
-			strOutBuf += ", " + strTemp;
-
-			strOutBuf += GetRewardString(ePlayer, false);
-
-			pLog->Msg(strOutBuf);
-		}
-	}
-}
 CvString CvMinorCivQuest::GetRewardString(PlayerTypes ePlayer, bool bFinish)
 {
 	CvString szTooltip = "";
@@ -1339,6 +1390,13 @@ bool CvMinorCivQuest::IsComplete()
 			return true;
 		}
 	}
+	else if (m_eType == MINOR_CIV_QUEST_GIFT_SPECIFIC_UNIT)
+	{
+		if (GET_PLAYER(m_eMinor).GetMinorCivAI()->GetHasSentUnitForQuest(m_eAssignedPlayer))
+		{
+			return true;
+		}
+	}
 #endif
 	else if(m_eType == MINOR_CIV_QUEST_GREAT_PERSON)
 	{
@@ -1649,75 +1707,24 @@ bool CvMinorCivQuest::IsComplete()
 	return false;
 }
 
-/// Is this quest now revoked (ie. because the player bullied us)?
+/// Is this quest now revoked (because the player bullied or attacked us)?
 bool CvMinorCivQuest::IsRevoked(bool bWar)
 {
-	if (bWar)
-	{
-		if (m_eType == MINOR_CIV_QUEST_HORDE || m_eType == MINOR_CIV_QUEST_REBELLION)
-			return false;
-		else
-			return true;
-	}
+	// Horde/Rebellion are never revoked
+	if (m_eType == MINOR_CIV_QUEST_HORDE || m_eType == MINOR_CIV_QUEST_REBELLION)
+		return false;
 
+	// All other quests are revoked by war
+	if (bWar)
+		return true;
+
+	// Global quests are not revoked by bullying
 	if (GET_PLAYER(m_eMinor).GetMinorCivAI()->IsGlobalQuest(m_eType))
 		return false;
 
-	if(GET_PLAYER(m_eMinor).GetMinorCivAI()->IsRecentlyBulliedByMajor(m_eAssignedPlayer))
-	{
-		if(m_eType == MINOR_CIV_QUEST_ROUTE)
-			return true;
-		if(m_eType == MINOR_CIV_QUEST_CONNECT_RESOURCE)
-			return true;
-		if(m_eType == MINOR_CIV_QUEST_CONSTRUCT_WONDER)
-			return true;
-		if(m_eType == MINOR_CIV_QUEST_GREAT_PERSON)
-			return true;
-		if(m_eType == MINOR_CIV_QUEST_FIND_PLAYER)
-			return true;
-		if(m_eType == MINOR_CIV_QUEST_FIND_NATURAL_WONDER)
-			return true;
-		if(m_eType == MINOR_CIV_QUEST_GIVE_GOLD)
-			return true;
-		if(m_eType == MINOR_CIV_QUEST_PLEDGE_TO_PROTECT)
-			return true;
-		if(m_eType == MINOR_CIV_QUEST_INVEST)
-			return true;
-		if(m_eType == MINOR_CIV_QUEST_DENOUNCE_MAJOR)
-			return true;
-		if(m_eType == MINOR_CIV_QUEST_SPREAD_RELIGION)
-			return true;
-		if(m_eType == MINOR_CIV_QUEST_TRADE_ROUTE)
-			return true;
-#if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
-		if(m_eType == MINOR_CIV_QUEST_CONSTRUCT_NATIONAL_WONDER)
-			return true;
-		if(m_eType == MINOR_CIV_QUEST_WAR)
-			return true;
-		if(m_eType == MINOR_CIV_QUEST_FIND_CITY_STATE)
-			return true;
-		if(m_eType == MINOR_CIV_QUEST_INFLUENCE)
-			return true;
-		if(m_eType == MINOR_CIV_QUEST_CIRCUMNAVIGATION)
-			return true;
-		if (m_eType == MINOR_CIV_QUEST_ARCHAEOLOGY)
-			return true;
-		if (m_eType == MINOR_CIV_QUEST_LIBERATION)
-			return true;
-#endif
-#if defined(MOD_BALANCE_CORE)
-		if (m_eType == MINOR_CIV_QUEST_BUILD_X_BUILDINGS)
-			return true;
-		if (m_eType == MINOR_CIV_QUEST_DISCOVER_PLOT)
-			return true;
-		if (m_eType == MINOR_CIV_QUEST_UNIT_COUP_CITY)
-			return true;
-		if (m_eType == MINOR_CIV_QUEST_UNIT_GET_CITY)
-			return true;
-		if (m_eType == MINOR_CIV_QUEST_UNIT_STEAL_FROM)
-			return true;
-#endif
-	}
+	// Bullied us recently? No personal quests for you!
+	if (GET_PLAYER(m_eMinor).GetMinorCivAI()->IsRecentlyBulliedByMajor(m_eAssignedPlayer))
+		return true;
 
 	return false;
 }
@@ -1726,12 +1733,18 @@ bool CvMinorCivQuest::IsRevoked(bool bWar)
 bool CvMinorCivQuest::IsExpired()
 {
 	// If this quest type has an end turn, have we passed it?
-	if(GetEndTurn() != NO_TURN && GC.getGame().getGameTurn() > GetEndTurn())
+	if (GetEndTurn() != NO_TURN && GC.getGame().getGameTurn() > GetEndTurn())
 	{
 		return true;
 	}
 
+	// Minor is dead?
 	if (!GET_PLAYER(m_eMinor).isAlive())
+	{
+		return true;
+	}
+	CvCity* pMinorCapital = GET_PLAYER(m_eMinor).getCapitalCity();
+	if (!pMinorCapital)
 	{
 		return true;
 	}
@@ -1739,12 +1752,9 @@ bool CvMinorCivQuest::IsExpired()
 	// Build a Route
 	if(m_eType == MINOR_CIV_QUEST_ROUTE)
 	{
-		CvCity* pMinorsCapital = GET_PLAYER(m_eMinor).getCapitalCity();
-		if (pMinorsCapital == NULL)
-			return true;
 		// Must have a city close to the minor in the same Area
 		const int iMaxRouteDistance = 12; //antonjs: todo: xml
-		CvPlot* pMinorsPlot = pMinorsCapital->plot();
+		CvPlot* pMinorsPlot = pMinorCapital->plot();
 		if (pMinorsPlot == NULL)
 			return true;
 
@@ -1984,6 +1994,10 @@ bool CvMinorCivQuest::IsExpired()
 
 		if(pTargetPlayer)
 		{
+			// We're now Allies with the Major
+			if (GET_PLAYER(m_eMinor).GetMinorCivAI()->GetAlly() == eTargetPlayer)
+				return true;
+
 			// Someone killed the Major
 			if(!pTargetPlayer->isAlive())
 				return true;
@@ -2129,22 +2143,38 @@ bool CvMinorCivQuest::IsExpired()
 			}
 		}
 	}
-	else if(m_eType == MINOR_CIV_QUEST_UNIT_GET_CITY)
+	else if (m_eType == MINOR_CIV_QUEST_UNIT_GET_CITY)
 	{
 		int iX = m_iData1;
 		int iY = m_iData2;
 		CvPlot* pPlot = GC.getMap().plot(iX, iY);
 		//City gone?
-		if(pPlot != NULL)
+		if (pPlot != NULL)
 		{
-			if(!pPlot->isCity())
+			if (!pPlot->isCity())
 			{
 				return true;
 			}
-			if(pPlot->getOwner() == NO_PLAYER)
+			if (pPlot->getOwner() == NO_PLAYER)
 			{
 				return true;
 			}
+		}
+		else
+		{
+			return true;
+		}
+	}
+	else if (m_eType == MINOR_CIV_QUEST_GIFT_SPECIFIC_UNIT)
+	{
+		UnitTypes eUnitType = (UnitTypes)GetPrimaryData();
+		if (eUnitType == NO_UNIT)
+		{
+			return true;
+		}
+		if (GET_PLAYER(m_eAssignedPlayer).canTrainUnit(eUnitType))
+		{
+			return false;
 		}
 		else
 		{
@@ -2267,6 +2297,21 @@ void CvMinorCivQuest::DoStartQuest(int iStartTurn)
 		strMessage << strBuildingName;
 		strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_QUEST_CONSTRUCT_NATIONAL_WONDER");
 		strSummary << strBuildingName;
+	}
+	else if (m_eType == MINOR_CIV_QUEST_GIFT_SPECIFIC_UNIT)
+	{
+		UnitTypes eUnitType = pMinor->GetMinorCivAI()->GetBestUnitGiftFromPlayer(m_eAssignedPlayer);
+
+		FAssertMsg(eUnitType != NO_UNIT, "MINOR CIV AI: For some reason we got NO_BUILDING when starting a quest for a major to find a Wonder.");
+
+		m_iData1 = eUnitType;
+
+		const char* strUnitName = GC.getUnitInfo(eUnitType)->GetDescriptionKey();
+
+		strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_QUEST_GIFT_SPECIFIC_UNIT");
+		strMessage << strUnitName;
+		strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_QUEST_GIFT_SPECIFIC_UNIT");
+		strSummary << strUnitName;
 	}
 #endif
 	// Great Person
@@ -3276,6 +3321,19 @@ bool CvMinorCivQuest::DoFinishQuest()
 		strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_QUEST_COMPLETE_CONSTRUCT_NATIONAL_WONDER");
 		strSummary << strBuildingName;
 	}
+	// GIFT UNIT
+	else if (m_eType == MINOR_CIV_QUEST_GIFT_SPECIFIC_UNIT)
+	{
+		UnitTypes eUnitType = (UnitTypes)GetPrimaryData();
+		const char* strUnitName = GC.getUnitInfo(eUnitType)->GetDescriptionKey();
+
+		pMinor->GetMinorCivAI()->SetHasSentUnitForQuest(m_eAssignedPlayer, false);
+
+		strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_QUEST_COMPLETE_GIFT_SPECIFIC_UNIT");
+		strMessage << strUnitName;
+		strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_QUEST_COMPLETE_GIFT_SPECIFIC_UNIT");
+		strSummary << strUnitName;
+	}
 #endif
 
 	// GREAT PERSON
@@ -3914,24 +3972,24 @@ void CvMinorCivQuest::Serialize(MinorCivQuest& minorCivQuest, Visitor& visitor)
 	visitor(minorCivQuest.m_iStartTurn);
 	visitor(minorCivQuest.m_iData1);
 	visitor(minorCivQuest.m_iData2);
-	visitor(minorCivQuest.m_bHandled);
 	visitor(minorCivQuest.m_iData3);
 	visitor(minorCivQuest.m_iInfluence);
-	visitor(minorCivQuest.m_iGPGlobal);
-	visitor(minorCivQuest.m_iGP);
-	visitor(minorCivQuest.m_iCulture);
-	visitor(minorCivQuest.m_iExperience);
-	visitor(minorCivQuest.m_iFaith);
 	visitor(minorCivQuest.m_iGold);
 	visitor(minorCivQuest.m_iScience);
+	visitor(minorCivQuest.m_iCulture);
+	visitor(minorCivQuest.m_iFaith);
+	visitor(minorCivQuest.m_iGoldenAgePoints);
 	visitor(minorCivQuest.m_iFood);
 	visitor(minorCivQuest.m_iProduction);
-	visitor(minorCivQuest.m_iGoldenAgePoints);
-	visitor(minorCivQuest.m_iHappiness);
 	visitor(minorCivQuest.m_iTourism);
+	visitor(minorCivQuest.m_iHappiness);
+	visitor(minorCivQuest.m_iGP);
+	visitor(minorCivQuest.m_iGPGlobal);
 	visitor(minorCivQuest.m_iGeneralPoints);
 	visitor(minorCivQuest.m_iAdmiralPoints);
+	visitor(minorCivQuest.m_iExperience);
 	visitor(minorCivQuest.m_bPartialQuest);
+	visitor(minorCivQuest.m_bHandled);
 }
 
 /// Serialization read
@@ -3950,6 +4008,358 @@ FDataStream& operator<<(FDataStream& saveTo, const CvMinorCivQuest& readFrom)
 	return saveTo;
 }
 
+//======================================================================================================
+//					CvMinorCivIncomingUnitGift
+//======================================================================================================
+
+///
+CvMinorCivIncomingUnitGift::CvMinorCivIncomingUnitGift()
+	: m_iArrivalCountdown(-1)
+	, m_eUnitType(NO_UNIT)
+	, m_iFromX(0)
+	, m_iFromY(0)
+	, m_eOriginalOwner(NO_PLAYER)
+	, m_iGameTurnCreated(0)
+	, m_bPromotedFromGoody(false)
+	, m_iExperienceTimes100(0)
+	, m_iLevel(0)
+	, m_iOriginCity(-1)
+	, m_eLeaderUnitType(NO_UNIT)
+	, m_iNumGoodyHutsPopped(0)
+{
+}
+
+///
+CvMinorCivIncomingUnitGift::CvMinorCivIncomingUnitGift(const CvUnit& srcUnit, int iArriveInTurns)
+{
+	init(srcUnit, iArriveInTurns);
+}
+
+///
+void CvMinorCivIncomingUnitGift::init(const CvUnit& srcUnit, int iArriveInTurns)
+{
+	reset();
+
+	setArrivalCountdown(iArriveInTurns);
+	setUnitType(srcUnit.getUnitType());
+	setFromXY(srcUnit.getX(), srcUnit.getY());
+	setOriginalOwner(srcUnit.GetOriginalOwner());
+	setGameTurnCreated(srcUnit.getGameTurnCreated());
+	for (int i = 0; i < GC.getNumPromotionInfos(); ++i)
+	{
+		const PromotionTypes ePromotion = static_cast<PromotionTypes>(i);
+		if (srcUnit.isHasPromotion(ePromotion) && CvUnit::IsRetainablePromotion(ePromotion))
+		{
+			setHasPromotion(ePromotion, true);
+			setPromotionDuration(ePromotion, srcUnit.getPromotionDuration(ePromotion));
+			setTurnPromotionGained(ePromotion, srcUnit.getTurnPromotionGained(ePromotion));
+		}
+	}
+	setHasBeenPromotedFromGoody(srcUnit.IsHasBeenPromotedFromGoody());
+	setExperienceTimes100(srcUnit.getExperienceTimes100());
+	setLevel(srcUnit.getLevel());
+	const CvCity* pOriginCity = srcUnit.getOriginCity();
+	setOriginCity(pOriginCity ? pOriginCity->GetID() : -1);
+	setLeaderUnitType(srcUnit.getLeaderUnitType());
+	setNumGoodyHutsPopped(srcUnit.GetNumGoodyHutsPopped());
+	setName(srcUnit.getNameNoDesc());
+}
+
+///
+int CvMinorCivIncomingUnitGift::getArrivalCountdown() const
+{
+	return m_iArrivalCountdown;
+}
+
+///
+UnitTypes CvMinorCivIncomingUnitGift::getUnitType() const
+{
+	return m_eUnitType;
+}
+
+///
+CvPlot* CvMinorCivIncomingUnitGift::getFromPlot() const
+{
+	return GC.getMap().plotCheckInvalid(m_iFromX, m_iFromY);
+}
+
+///
+PlayerTypes CvMinorCivIncomingUnitGift::getOriginalOwner() const
+{
+	return m_eOriginalOwner;
+}
+
+///
+int CvMinorCivIncomingUnitGift::getGameTurnCreated() const
+{
+	return m_iGameTurnCreated;
+}
+
+///
+bool CvMinorCivIncomingUnitGift::isHasPromotion(PromotionTypes ePromotion) const
+{
+	CvAssertMsg(ePromotion >= 0, "ePromotion is expected to be non-negative (invalid Index)");
+	CvAssertMsg(ePromotion < GC.getNumPromotionInfos(), "ePromotion is expected to be within maximum bounds (invalid Index)");
+
+	return m_HasPromotions.GetBit(static_cast<uint>(ePromotion));
+}
+
+///
+int CvMinorCivIncomingUnitGift::getPromotionDuration(PromotionTypes ePromotion) const
+{
+	const std::map<PromotionTypes, int>& m_map = m_PromotionDuration;
+	std::map<PromotionTypes, int>::const_iterator it = m_map.find(ePromotion);
+	if (it != m_map.end())
+		return it->second;
+	else
+		return 0;
+}
+
+///
+int CvMinorCivIncomingUnitGift::getTurnPromotionGained(PromotionTypes ePromotion) const
+{
+	const std::map<PromotionTypes, int>& m_map = m_TurnPromotionGained;
+	std::map<PromotionTypes, int>::const_iterator it = m_map.find(ePromotion);
+	if (it != m_map.end())
+		return it->second;
+	else
+		return 0;
+}
+
+///
+bool CvMinorCivIncomingUnitGift::isHasBeenPromotedFromGoody() const
+{
+	return m_bPromotedFromGoody;
+}
+
+///
+int CvMinorCivIncomingUnitGift::getExperienceTimes100() const
+{
+	return m_iExperienceTimes100;
+}
+
+///
+int CvMinorCivIncomingUnitGift::getLevel() const
+{
+	return m_iLevel;
+}
+
+///
+int CvMinorCivIncomingUnitGift::getOriginCity() const
+{
+	return m_iOriginCity;
+}
+
+///
+UnitTypes CvMinorCivIncomingUnitGift::getLeaderUnitType() const
+{
+	return m_eLeaderUnitType;
+}
+
+///
+int CvMinorCivIncomingUnitGift::getNumGoodyHutsPopped() const
+{
+	return m_iNumGoodyHutsPopped;
+}
+
+///
+const CvString& CvMinorCivIncomingUnitGift::getName() const
+{
+	return m_strName;
+}
+
+///
+void CvMinorCivIncomingUnitGift::setArrivalCountdown(int iNewCountdown)
+{
+	m_iArrivalCountdown = iNewCountdown;
+}
+
+///
+void CvMinorCivIncomingUnitGift::changeArrivalCountdown(int iChangeCountdown)
+{
+	CvAssert(m_iArrivalCountdown != -1);
+	m_iArrivalCountdown = std::max(0, m_iArrivalCountdown + iChangeCountdown);
+}
+
+///
+void CvMinorCivIncomingUnitGift::setUnitType(UnitTypes eNewUnitType)
+{
+	m_eUnitType = eNewUnitType;
+}
+
+///
+void CvMinorCivIncomingUnitGift::setFromXY(int iFromX, int iFromY)
+{
+	m_iFromX = iFromX;
+	m_iFromY = iFromY;
+}
+
+///
+void CvMinorCivIncomingUnitGift::setOriginalOwner(PlayerTypes eNewOriginalOwner)
+{
+	m_eOriginalOwner = eNewOriginalOwner;
+}
+
+///
+void CvMinorCivIncomingUnitGift::setGameTurnCreated(int iNewValue)
+{
+	m_iGameTurnCreated = iNewValue;
+}
+
+///
+void CvMinorCivIncomingUnitGift::setHasPromotion(PromotionTypes ePromotion, bool bNewValue)
+{
+	CvAssertMsg(ePromotion >= 0, "ePromotion is expected to be non-negative (invalid Index)");
+	CvAssertMsg(ePromotion < GC.getNumPromotionInfos(), "ePromotion is expected to be within maximum bounds (invalid Index)");
+
+	if (ePromotion >= 0 && ePromotion < GC.getNumPromotionInfos())
+	{
+		m_HasPromotions.SetBit(static_cast<uint>(ePromotion), bNewValue);
+	}
+}
+
+///
+void CvMinorCivIncomingUnitGift::setPromotionDuration(PromotionTypes ePromotion, int iNewValue)
+{
+	std::map<PromotionTypes, int>& m_map = m_PromotionDuration;
+	if (iNewValue > 0)
+		m_map[ePromotion] = iNewValue;
+	else
+		m_map.erase(ePromotion);
+}
+
+///
+void CvMinorCivIncomingUnitGift::setTurnPromotionGained(PromotionTypes ePromotion, int iNewValue)
+{
+	std::map<PromotionTypes, int>& m_map = m_TurnPromotionGained;
+	if (iNewValue > 0)
+		m_map[ePromotion] = iNewValue;
+	else
+		m_map.erase(ePromotion);
+}
+
+///
+void CvMinorCivIncomingUnitGift::setHasBeenPromotedFromGoody(bool bPromotedFromGoody)
+{
+	m_bPromotedFromGoody = bPromotedFromGoody;
+}
+
+///
+void CvMinorCivIncomingUnitGift::setExperienceTimes100(int iNewValueTimes100)
+{
+	m_iExperienceTimes100 = iNewValueTimes100;
+}
+
+///
+void CvMinorCivIncomingUnitGift::setLevel(int iNewLevel)
+{
+	m_iLevel = iNewLevel;
+}
+
+///
+void CvMinorCivIncomingUnitGift::setOriginCity(int iNewOriginCity)
+{
+	m_iOriginCity = iNewOriginCity;
+}
+
+///
+void CvMinorCivIncomingUnitGift::setLeaderUnitType(UnitTypes eNewLeaderUnitType)
+{
+	m_eLeaderUnitType = eNewLeaderUnitType;
+}
+
+///
+void CvMinorCivIncomingUnitGift::setNumGoodyHutsPopped(int iNewNumGoodyHutsPopped)
+{
+	m_iNumGoodyHutsPopped = iNewNumGoodyHutsPopped;
+}
+
+///
+void CvMinorCivIncomingUnitGift::setName(const CvString& newName)
+{
+	m_strName = newName;
+}
+
+///
+bool CvMinorCivIncomingUnitGift::hasIncomingUnit() const
+{
+	return m_iArrivalCountdown != -1;
+}
+
+///
+void CvMinorCivIncomingUnitGift::applyToUnit(PlayerTypes eFromPlayer, CvUnit& destUnit) const
+{
+	destUnit.SetOriginalOwner(getOriginalOwner());
+	destUnit.setGameTurnCreated(getGameTurnCreated());
+	for (int i = 0; i < GC.getNumPromotionInfos(); ++i)
+	{
+		const PromotionTypes ePromotion = static_cast<PromotionTypes>(i);
+		if (isHasPromotion(ePromotion))
+		{
+			CvAssert(CvUnit::IsRetainablePromotion(ePromotion));
+			destUnit.setHasPromotion(ePromotion, true);
+			destUnit.SetPromotionDuration(ePromotion, getPromotionDuration(ePromotion));
+			destUnit.SetTurnPromotionGained(ePromotion, getTurnPromotionGained(ePromotion));
+		}
+	}
+	destUnit.SetBeenPromotedFromGoody(isHasBeenPromotedFromGoody());
+	destUnit.setExperienceTimes100(CvUnit::CalcExperienceTimes100ForConvert(eFromPlayer, destUnit.getOwner(), getExperienceTimes100()));
+	destUnit.setLevel(getLevel());
+	destUnit.setOriginCity(getOriginCity());
+	destUnit.setLeaderUnitType(getLeaderUnitType());
+	destUnit.SetNumGoodyHutsPopped(getNumGoodyHutsPopped());
+	destUnit.setName(getName());
+}
+
+///
+void CvMinorCivIncomingUnitGift::reset()
+{
+	*this = CvMinorCivIncomingUnitGift();
+}
+
+///
+template<typename MinorCivIncomingUnitGift, typename Visitor>
+void CvMinorCivIncomingUnitGift::Serialize(MinorCivIncomingUnitGift& minorCivIncomingUnitGift, Visitor& visitor)
+{
+	visitor(minorCivIncomingUnitGift.m_iArrivalCountdown);
+
+	// All fields are only serialized if the countdown is not -1.
+	// This is safe because the associated data is only meaningful when the countdown is not -1.
+	if (minorCivIncomingUnitGift.m_iArrivalCountdown != -1)
+	{
+		visitor(minorCivIncomingUnitGift.m_eUnitType);
+		visitor(minorCivIncomingUnitGift.m_iFromX);
+		visitor(minorCivIncomingUnitGift.m_iFromY);
+		visitor(minorCivIncomingUnitGift.m_eOriginalOwner);
+		visitor(minorCivIncomingUnitGift.m_iGameTurnCreated);
+		visitor(minorCivIncomingUnitGift.m_HasPromotions);
+		visitor(minorCivIncomingUnitGift.m_PromotionDuration);
+		visitor(minorCivIncomingUnitGift.m_TurnPromotionGained);
+		visitor(minorCivIncomingUnitGift.m_bPromotedFromGoody);
+		visitor(minorCivIncomingUnitGift.m_iExperienceTimes100);
+		visitor(minorCivIncomingUnitGift.m_iLevel);
+		visitor(minorCivIncomingUnitGift.m_iOriginCity);
+		visitor(minorCivIncomingUnitGift.m_eLeaderUnitType);
+		visitor(minorCivIncomingUnitGift.m_iNumGoodyHutsPopped);
+		visitor(minorCivIncomingUnitGift.m_strName);
+	}
+}
+
+/// Serialization read
+FDataStream& operator>>(FDataStream& loadFrom, CvMinorCivIncomingUnitGift& writeTo)
+{
+	CvStreamLoadVisitor serialVisitor(loadFrom);
+	CvMinorCivIncomingUnitGift::Serialize(writeTo, serialVisitor);
+	return loadFrom;
+}
+
+/// Serialization write
+FDataStream& operator<<(FDataStream& saveTo, const CvMinorCivIncomingUnitGift& readFrom)
+{
+	CvStreamSaveVisitor serialVisitor(saveTo);
+	CvMinorCivIncomingUnitGift::Serialize(readFrom, serialVisitor);
+	return saveTo;
+}
 
 //======================================================================================================
 //					CvMinorCivAI
@@ -4016,7 +4426,6 @@ void CvMinorCivAI::Reset()
 	for(int iI = 0; iI < MAX_MAJOR_CIVS; iI++)
 	{
 		m_abRouteConnectionEstablished[iI] = false;
-
 		m_aiFriendshipWithMajorTimes100[iI] = 0;
 		m_aiQuestCountdown[iI] = -1;
 		m_aiUnitSpawnCounter[iI] = -1;
@@ -4029,15 +4438,15 @@ void CvMinorCivAI::Reset()
 		m_abEverFriends[iI] = false;
 		m_abFriends[iI] = false;
 		m_abPledgeToProtect[iI] = false;
-#if defined(MOD_BALANCE_CORE_MINORS)
 		m_abIsMarried[iI] = false;
 		m_abSiphoned[iI] = false;
 		m_abCoupAttempted[iI] = false;
+		m_abSentUnitForQuest[iI] = false;
 		m_aiAssignedPlotAreaID[iI] = -1;
 		m_aiTargetedCityX[iI] = -1;
 		m_aiTargetedCityY[iI] = -1;
 		m_aiTurnsSincePtPWarning[iI] = -1;
-#endif
+		m_IncomingUnitGifts[iI].reset();
 	}
 
 	for (int iI = 0; iI < MAX_CIV_TEAMS; iI++)
@@ -4148,6 +4557,8 @@ void CvMinorCivAI::Serialize(MinorCivAI& minorCivAI, Visitor& visitor)
 	visitor(minorCivAI.m_aiTargetedCityX);
 	visitor(minorCivAI.m_aiTargetedCityY);
 	visitor(minorCivAI.m_aiTurnsSincePtPWarning);
+
+	visitor(minorCivAI.m_IncomingUnitGifts);
 
 	visitor(minorCivAI.m_QuestsGiven);
 	visitor(minorCivAI.m_bDisableNotifications);
@@ -4384,6 +4795,8 @@ void CvMinorCivAI::DoTurn()
 	{
 		DoTurnStatus();
 
+		doIncomingUnitGifts();
+
 		DoElection();
 		DoFriendship();
 
@@ -4499,6 +4912,9 @@ void CvMinorCivAI::DoChangeAliveStatus(bool bAlive)
 
 			// Cancel quests and PtPs
 			DoChangeProtectionFromMajor(e, false);
+
+			// Return all incoming unit gifts.
+			returnIncomingUnitGift(e);
 
 			// Calculate new influence levels (don't set here, since that could create a false temporary ally)
 			int iOldInfluence = GetBaseFriendshipWithMajor(e);
@@ -6282,6 +6698,12 @@ bool CvMinorCivAI::IsEnabledQuest(MinorCivQuestTypes eQuest)
 		if(!MOD_DIPLOMACY_CITYSTATES_QUESTS || GD_INT_GET(QUEST_DISABLED_CONSTRUCT_WONDER) == 1)
 			return false;
 	}
+	// GIFT UNIT
+	else if (eQuest == MINOR_CIV_QUEST_GIFT_SPECIFIC_UNIT)
+	{
+		if (!MOD_DIPLOMACY_CITYSTATES_QUESTS || GD_INT_GET(QUEST_DISABLED_GIFT_SPECIFIC_UNIT) == 1)
+			return false;
+	}
 	// GREAT PERSON
 	else if(eQuest == MINOR_CIV_QUEST_GREAT_PERSON)
 	{
@@ -6596,6 +7018,18 @@ bool CvMinorCivAI::IsValidQuestForPlayer(PlayerTypes ePlayer, MinorCivQuestTypes
 		BuildingTypes eNationalWonder = GetBestNationalWonderForQuest(ePlayer);
 
 		if(eNationalWonder == NO_BUILDING)
+			return false;
+	}
+	// GIFT A UNIT
+	else if (eQuest == MINOR_CIV_QUEST_GIFT_SPECIFIC_UNIT)
+	{
+		// This player must not have bullied us recently
+		if (IsRecentlyBulliedByMajor(ePlayer))
+			return false;
+
+		UnitTypes eUnitType = GetBestUnitGiftFromPlayer(ePlayer);
+
+		if (eUnitType == NO_UNIT)
 			return false;
 	}
 #endif
@@ -7246,51 +7680,47 @@ bool CvMinorCivAI::IsValidQuestCopyForPlayer(PlayerTypes ePlayer, CvMinorCivQues
 
 bool CvMinorCivAI::IsGlobalQuest(MinorCivQuestTypes eQuest) const
 {
-	if(eQuest == MINOR_CIV_QUEST_KILL_CAMP)
-		return true;
+	// Kill another City-State differs between CP and CBO
+	if (eQuest == MINOR_CIV_QUEST_KILL_CITY_STATE)
+	{
+		if (MOD_BALANCE_CORE_MINORS)
+			return true;
+		else
+			return false;
+	}
 
-	if(eQuest == MINOR_CIV_QUEST_CONTEST_CULTURE)
+	switch (eQuest)
+	{
+	case MINOR_CIV_QUEST_KILL_CAMP:
 		return true;
-
-	if(eQuest == MINOR_CIV_QUEST_CONTEST_FAITH)
+	case MINOR_CIV_QUEST_CONTEST_CULTURE:
 		return true;
-
-	if(eQuest == MINOR_CIV_QUEST_CONTEST_TECHS)
+	case MINOR_CIV_QUEST_CONTEST_TOURISM:
 		return true;
-
-	if(eQuest == MINOR_CIV_QUEST_INVEST)
+	case MINOR_CIV_QUEST_CONTEST_FAITH:
 		return true;
-
-#if defined(MOD_BALANCE_CORE)
-	if(eQuest == MINOR_CIV_QUEST_KILL_CITY_STATE)
+	case MINOR_CIV_QUEST_CONTEST_TECHS:
 		return true;
-#endif
-#if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
-	if(eQuest == MINOR_CIV_QUEST_INFLUENCE)
+	case MINOR_CIV_QUEST_INVEST:
 		return true;
-
-	if(eQuest == MINOR_CIV_QUEST_CONTEST_TOURISM)
+	case MINOR_CIV_QUEST_INFLUENCE:
 		return true;
-
-	if(eQuest == MINOR_CIV_QUEST_ARCHAEOLOGY)
+	case MINOR_CIV_QUEST_ARCHAEOLOGY:
 		return true;
-
-	if(eQuest == MINOR_CIV_QUEST_CIRCUMNAVIGATION)
+	case MINOR_CIV_QUEST_CIRCUMNAVIGATION:
 		return true;
-
-	if(eQuest == MINOR_CIV_QUEST_HORDE)
+	case MINOR_CIV_QUEST_HORDE:
 		return true;
-
-	if(eQuest == MINOR_CIV_QUEST_REBELLION)
+	case MINOR_CIV_QUEST_REBELLION:
 		return true;
-#endif
+	}
 
 	return false;
 }
 
 bool CvMinorCivAI::IsPersonalQuest(MinorCivQuestTypes eQuest) const
 {
-	return (!IsGlobalQuest(eQuest));
+	return !IsGlobalQuest(eQuest);
 }
 
 int CvMinorCivAI::GetMinPlayersNeededForQuest(MinorCivQuestTypes eQuest) const
@@ -7740,6 +8170,20 @@ int CvMinorCivAI::GetPersonalityQuestBias(MinorCivQuestTypes eQuest)
 		else
 		{
 			iWeight *= /*75*/ GD_INT_GET(MINOR_CIV_QUEST_WEIGHT_MULTIPLIER_OTHER_NATIONAL_WONDER);
+			iWeight /= 100;
+		}
+		break;
+	}
+	case MINOR_CIV_QUEST_GIFT_SPECIFIC_UNIT:
+	{
+		if (eTrait == MINOR_CIV_TRAIT_MILITARISTIC)
+		{
+			iWeight *= /*200*/ GD_INT_GET(MINOR_CIV_QUEST_WEIGHT_MULTIPLIER_MILITARISTIC_GIFT_SPECIFIC_UNIT);
+			iWeight /= 100;
+		}
+		else
+		{
+			iWeight *= /*75*/ GD_INT_GET(MINOR_CIV_QUEST_WEIGHT_MULTIPLIER_OTHER_GIFT_SPECIFIC_UNIT);
 			iWeight /= 100;
 		}
 		break;
@@ -9691,6 +10135,132 @@ BuildingTypes CvMinorCivAI::GetBestBuildingForQuest(PlayerTypes ePlayer)
 	eBestBuilding = veValidBuildings[iRandIndex];
 
 	return eBestBuilding;
+}
+UnitTypes CvMinorCivAI::GetBestUnitGiftFromPlayer(PlayerTypes ePlayer)
+{
+	UnitTypes eBestUnit = NO_UNIT;
+	int iBestValue = 0;
+	int iValue = 0;
+	int iBonusValue;
+	bool bValid = false;
+	bool bNaval = GetPlayer()->getCapitalCity()->isCoastal(10);
+
+	// Loop through all Unit Classes
+	for (int iUnitLoop = 0; iUnitLoop < GC.getNumUnitInfos(); iUnitLoop++)
+	{
+		bValid = false;
+		const UnitTypes eLoopUnit = static_cast<UnitTypes>(iUnitLoop);
+		CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eLoopUnit);
+
+		if (pkUnitInfo != NULL)
+		{
+			//DumpUnitInfo(pkUnitInfo);
+			if (!GET_PLAYER(ePlayer).canTrainUnit(eLoopUnit, false, false, false, false))
+				continue;
+			if (pkUnitInfo->GetDomainType() == DOMAIN_AIR)
+				continue;
+			if (pkUnitInfo->GetDomainType() == DOMAIN_SEA && !bNaval)
+				continue;
+
+			iBonusValue = 1000;
+
+			CvUnitClassInfo* pkUnitClassInfo = GC.getUnitClassInfo((UnitClassTypes)pkUnitInfo->GetUnitClassType());
+			if (pkUnitClassInfo)
+			{
+				// If this is NOT a UU, add extra value so that the default unit is more likely to get picked
+				if (eLoopUnit != pkUnitClassInfo->getDefaultUnitIndex())
+					iBonusValue += 1000;
+			}
+
+			bValid = (pkUnitInfo->GetCombat() > 0);
+			if (bValid)
+			{
+				// Unit has combat strength, make sure it isn't only defensive (and with no ranged combat ability)
+				if (pkUnitInfo->GetRange() == 0)
+				{
+					for (int iLoop = 0; iLoop < GC.getNumPromotionInfos(); iLoop++)
+					{
+						const PromotionTypes ePromotion = static_cast<PromotionTypes>(iLoop);
+						CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(ePromotion);
+						if (pkPromotionInfo)
+						{
+							if (pkUnitInfo->GetFreePromotions(iLoop))
+							{
+								if (pkPromotionInfo->IsOnlyDefensive())
+								{
+									bValid = false;
+									break;
+								}
+							}
+						}
+					}
+				}
+			}
+
+			if (!bValid)
+				continue;
+
+			// Avoid Recon units
+			if (pkUnitInfo->GetDefaultUnitAIType() == UNITAI_EXPLORE)
+				continue;
+
+			// Must NOT be a hovering unit
+			for (int iI = 0; iI < GC.getNumPromotionInfos(); iI++)
+			{
+				if (pkUnitInfo->GetFreePromotions(iI))
+				{
+					if (GC.getPromotionInfo((PromotionTypes)iI)->IsHoveringUnit())
+						continue;
+				}
+			}
+
+			int iLoop;
+			for (CvUnit* pLoopUnit = m_pPlayer->firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iLoop))
+			{
+				// Don't count civilians or exploration units
+				if (!pLoopUnit->IsCanAttack() || pLoopUnit->AI_getUnitAIType() == UNITAI_EXPLORE || pLoopUnit->AI_getUnitAIType() == UNITAI_EXPLORE_SEA)
+					continue;
+
+				if (pLoopUnit->getDomainType() == pkUnitInfo->GetDomainType())
+				{
+					iBonusValue -= 10;
+				}
+				if (pLoopUnit->IsCanAttackRanged() == (pkUnitInfo->GetRange() > 0 && pkUnitInfo->GetRangedCombat() > 0))
+				{
+					iBonusValue -= 10;
+				}
+				if (pLoopUnit->getUnitInfo().GetMoves() > 2 == pkUnitInfo->GetMoves() > 2)
+				{
+					iBonusValue -= 10;
+				}
+			}
+			// Random weighting
+			iValue = max(1, iBonusValue);
+
+			if (iValue > iBestValue)
+			{
+				eBestUnit = eLoopUnit;
+				iBestValue = iValue;
+			}
+		}
+	}
+
+	return eBestUnit;
+}
+bool CvMinorCivAI::GetHasSentUnitForQuest(PlayerTypes ePlayer)
+{
+	CvAssertMsg(ePlayer >= 0, "eForPlayer is expected to be non-negative (invalid Index)");
+	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "eForPlayer is expected to be within maximum bounds (invalid Index)");
+	return m_abSentUnitForQuest[ePlayer];
+}
+void CvMinorCivAI::SetHasSentUnitForQuest(PlayerTypes ePlayer, bool bValue)
+{
+	CvAssertMsg(ePlayer >= 0, "eForPlayer is expected to be non-negative (invalid Index)");
+	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "eForPlayer is expected to be within maximum bounds (invalid Index)");
+	if (GetHasSentUnitForQuest(ePlayer) != bValue)
+	{
+		m_abSentUnitForQuest[ePlayer] = bValue;
+	}
 }
 void CvMinorCivAI::SetCoupAttempted(PlayerTypes ePlayer, bool bValue)
 {
@@ -13881,7 +14451,8 @@ CvUnit* CvMinorCivAI::DoSpawnUnit(PlayerTypes eMajor, bool bLocal, bool bExplore
 		return NULL;
 
 	// Unit spawning is not allowed (manually disabled, or major is over supply limit)
-	if (IsUnitSpawningDisabled(eMajor) || GET_PLAYER(eMajor).GetNumUnitsOutOfSupply() > 0)
+	bool bCanSupply = GET_PLAYER(eMajor).GetNumUnitsToSupply() < GET_PLAYER(eMajor).GetNumUnitsSupplied(); // this works when we're at the limit
+	if (!bCanSupply || IsUnitSpawningDisabled(eMajor))
 		return NULL;
 
 	// Minor has no capital
@@ -14800,7 +15371,7 @@ int CvMinorCivAI::CalculateBullyScore(PlayerTypes eBullyPlayer, bool bForUnit, C
 				sFactors += strNegativeFactor.toUTF8();
 			}
 		}
-		if (iFriends != 0)
+		if (iFriends != 0 && MOD_BALANCE_CORE_MINORS)
 		{
 			iScore -= iFriends;
 			if (sTooltipSink)
@@ -16146,7 +16717,7 @@ void CvMinorCivAI::ChangeNumUnitsGifted(PlayerTypes ePlayer, int iChange)
 	SetNumUnitsGifted(ePlayer, GetNumUnitsGifted(ePlayer) + iChange);
 }
 
-void CvMinorCivAI::DoUnitGiftFromMajor(PlayerTypes eFromPlayer, CvUnit* pGiftUnit, bool bDistanceGift)
+void CvMinorCivAI::DoUnitGiftFromMajor(PlayerTypes eFromPlayer, CvUnit*& pGiftUnit, bool bDistanceGift)
 {
 	CvAssertMsg(eFromPlayer >= 0, "eFromPlayer is expected to be non-negative (invalid Index)");
 	CvAssertMsg(eFromPlayer < MAX_MAJOR_CIVS, "eFromPlayer is expected to be within maximum bounds (invalid Index)");
@@ -16161,17 +16732,27 @@ void CvMinorCivAI::DoUnitGiftFromMajor(PlayerTypes eFromPlayer, CvUnit* pGiftUni
 	int iInfluence = GetFriendshipFromUnitGift(eFromPlayer, pGiftUnit->IsGreatPerson(), bDistanceGift);
 	ChangeFriendshipWithMajor(eFromPlayer, iInfluence);
 
-	// We can't keep Great Person units
-	if(pGiftUnit->IsGreatPerson())
+	if (IsActiveQuestForPlayer(eFromPlayer, MINOR_CIV_QUEST_GIFT_SPECIFIC_UNIT))
 	{
-		pGiftUnit->kill(false);
+		if ((UnitTypes)GetQuestData1(eFromPlayer, MINOR_CIV_QUEST_GIFT_SPECIFIC_UNIT) == pGiftUnit->getUnitType())
+		{
+			SetHasSentUnitForQuest(eFromPlayer, true);
+			DoTestActiveQuestsForPlayer(eFromPlayer, true, false, MINOR_CIV_QUEST_GIFT_SPECIFIC_UNIT);
+		}
 	}
-	
+
 #if defined(MOD_EVENTS_MINORS_INTERACTION)
 	if (MOD_EVENTS_MINORS_INTERACTION) {
 		GAMEEVENTINVOKE_HOOK(GAMEEVENT_PlayerGifted, eFromPlayer, GetPlayer()->GetID(), -1, pGiftUnit->getUnitType(), -1, -1);
 	}
 #endif
+
+	// We can't keep Great Person units
+	if (pGiftUnit->IsGreatPerson())
+	{
+		pGiftUnit->kill(false);
+		pGiftUnit = NULL; // Important to NULL the unit here so that the caller knows we've done away with it.
+	}
 }
 
 int CvMinorCivAI::GetFriendshipFromUnitGift(PlayerTypes eFromPlayer, bool bGreatPerson, bool /*bDistanceGift*/)
@@ -17040,6 +17621,160 @@ void CvMinorCivAI::SetSiphoned(PlayerTypes ePlayer, bool bValue)
 	}
 }
 #endif
+
+const CvMinorCivIncomingUnitGift& CvMinorCivAI::getIncomingUnitGift(PlayerTypes eMajor) const
+{
+	CvAssert(eMajor >= 0);
+	CvAssert(eMajor < MAX_MAJOR_CIVS);
+	return m_IncomingUnitGifts[eMajor];
+}
+
+CvMinorCivIncomingUnitGift& CvMinorCivAI::getIncomingUnitGift(PlayerTypes eMajor)
+{
+	CvAssert(eMajor >= 0);
+	CvAssert(eMajor < MAX_MAJOR_CIVS);
+	return m_IncomingUnitGifts[eMajor];
+}
+
+void CvMinorCivAI::doIncomingUnitGifts()
+{
+	for (int iLoop = 0; iLoop < MAX_MAJOR_CIVS; iLoop++)
+	{
+		PlayerTypes eLoopPlayer = (PlayerTypes)iLoop;
+		CvMinorCivIncomingUnitGift& unitGift = getIncomingUnitGift(eLoopPlayer);
+
+		if (unitGift.hasIncomingUnit())
+		{
+			unitGift.changeArrivalCountdown(-1);
+
+			// Time to spawn a new unit
+			if (unitGift.getArrivalCountdown() == 0)
+			{
+				// Must have capital to actually spawn unit
+				CvCity* pCapital = GetPlayer()->getCapitalCity();
+				if (pCapital)
+				{
+					CvUnit* pNewUnit = GetPlayer()->initUnit(unitGift.getUnitType(), pCapital->getX(), pCapital->getY());
+					CvAssert(pNewUnit);
+					if (pNewUnit)
+					{
+						unitGift.applyToUnit(eLoopPlayer, *pNewUnit);
+
+						// Gift from a major to a city-state
+						if (!GET_PLAYER(eLoopPlayer).isMinorCiv())
+						{
+							// Note that pNewUnit may be NULL'd here if DoUnitGiftFromMajor chooses to kill it.
+							DoUnitGiftFromMajor(eLoopPlayer, pNewUnit, /*bDistanceGift*/ true);
+						}
+
+						// Must check if pNewUnit is valid because DoUnitGiftFromMajor may have killed it.
+						if (pNewUnit)
+						{
+							if (pNewUnit->getDomainType() != DOMAIN_AIR)
+							{
+								if (!pNewUnit->jumpToNearestValidPlot())
+								{
+									pNewUnit->kill(false);
+									pNewUnit = NULL;
+								}
+							}
+						}
+					}
+				}
+
+				// Reset stuff
+				unitGift.reset();
+			}
+		}
+	}
+}
+
+void CvMinorCivAI::returnIncomingUnitGift(PlayerTypes eMajor)
+{
+	CvMinorCivIncomingUnitGift& unitGift = getIncomingUnitGift(eMajor);
+	if (unitGift.hasIncomingUnit())
+	{
+		const UnitTypes eUnitType = unitGift.getUnitType();
+		CvAssert(eUnitType != NO_UNIT);
+		const CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUnitType);
+		CvAssert(pkUnitInfo);
+
+		// Select a default city to return to.
+		// We will return to this city if no better city is found.
+		const CvCity* pMajorDefaultCity = NULL;
+		if (unitGift.getOriginCity() != -1)
+		{
+			pMajorDefaultCity = GET_PLAYER(eMajor).getCity(unitGift.getOriginCity());
+		}
+
+		if (pMajorDefaultCity == NULL)
+		{
+			pMajorDefaultCity = GET_PLAYER(eMajor).getCapitalCity();
+		}
+
+		if (pMajorDefaultCity)
+		{
+			const CvPlot* pReturnToPlot = pMajorDefaultCity->plot();
+			const CvPlot* pFromPlot = unitGift.getFromPlot();
+			if (pFromPlot == NULL)
+			{
+				// Try to guess where this unit is returning from.
+				if (GetPlayer()->getCapitalCity() != NULL)
+				{
+					pFromPlot = GetPlayer()->getCapitalCity()->plot();
+				}
+				else
+				{
+					pFromPlot = GC.getMap().plotCheckInvalid(GetPlayer()->GetOriginalCapitalX(), GetPlayer()->GetOriginalCapitalY());
+				}
+			}
+
+			// If we know where the unit is returning from, pick the city closest as the return to plot.
+			if (pFromPlot)
+			{
+				CvCity* pClosestCity = NULL;
+				if (pkUnitInfo->GetDomainType() == DOMAIN_SEA)
+				{
+					pClosestCity = OperationalAIHelpers::GetClosestFriendlyCoastalCity(eMajor, pFromPlot);
+				}
+				else
+				{
+					pClosestCity = GET_PLAYER(eMajor).GetClosestCityByPlots(pFromPlot);
+				}
+
+				if (pClosestCity)
+				{
+					pReturnToPlot = pClosestCity->plot();
+				}
+			}
+
+			CvUnit* pNewUnit = GET_PLAYER(eMajor).initUnit(eUnitType, pReturnToPlot->getX(), pReturnToPlot->getY());
+			if (pNewUnit)
+			{
+				unitGift.applyToUnit(eMajor, *pNewUnit);
+				if (pNewUnit->getDomainType() != DOMAIN_AIR && !pNewUnit->jumpToNearestValidPlot())
+				{
+					pNewUnit->kill(false);
+				}
+				else
+				{
+					CvNotifications* pNotify = GET_PLAYER(eMajor).GetNotifications();
+					if (pNotify)
+					{
+						Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_CS_GIFT_RETURNED_SUMMARY");
+						strSummary << GetPlayer()->getCivilizationShortDescriptionKey();
+						Localization::String strNotification = Localization::Lookup("TXT_KEY_NOTIFICATION_CS_GIFT_RETURNED");
+						strNotification << GetPlayer()->getNameKey();
+						strNotification << pNewUnit->getNameKey();
+						pNotify->Add(NOTIFICATION_GENERIC, strNotification.toUTF8(), strSummary.toUTF8(), pNewUnit->getX(), pNewUnit->getY(), -1);
+					}
+				}
+			}
+		}
+
+		unitGift.reset();
+	}
+}
 
 // ******************************
 // ***** Misc Helper Functions *****

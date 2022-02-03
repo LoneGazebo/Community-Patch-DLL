@@ -1156,7 +1156,8 @@ CvCityBuildable CvCityStrategyAI::ChooseHurry(bool bUnitOnly, bool bFaithPurchas
 			CvUnitEntry* pUnitEntry = GC.getUnitInfo((UnitTypes)eUnitForOperation);
 			if (pUnitEntry)
 			{
-				bool bOoS = (kPlayer.GetNumUnitsOutOfSupply() > 0 && pUnitEntry->IsMilitarySupport() && !pUnitEntry->IsNoSupply());
+				bool bCanSupply = kPlayer.GetNumUnitsToSupply() < kPlayer.GetNumUnitsSupplied(); // this also works when we're at the limit
+				bool bOoS = !bCanSupply && pUnitEntry->IsMilitarySupport() && !pUnitEntry->IsNoSupply();
 				if (!bOoS)
 				{
 					buildable.m_eBuildableType = CITY_BUILDABLE_UNIT_FOR_OPERATION;
@@ -1180,9 +1181,10 @@ CvCityBuildable CvCityStrategyAI::ChooseHurry(bool bUnitOnly, bool bFaithPurchas
 		if (eUnitForArmy != NO_UNIT)
 		{
 			CvUnitEntry* pUnitEntry = GC.getUnitInfo((UnitTypes)eUnitForArmy);
-			if(pUnitEntry)
+			if (pUnitEntry)
 			{
-				bool bOoS = (kPlayer.GetNumUnitsOutOfSupply() > 0 && pUnitEntry->IsMilitarySupport() && !pUnitEntry->IsNoSupply());
+				bool bCanSupply = kPlayer.GetNumUnitsToSupply() < kPlayer.GetNumUnitsSupplied(); // this also works when we're at the limit
+				bool bOoS = !bCanSupply && pUnitEntry->IsMilitarySupport() && !pUnitEntry->IsNoSupply();
 				if (!bOoS)
 				{
 					buildable.m_eBuildableType = CITY_BUILDABLE_UNIT_FOR_ARMY;
@@ -1202,7 +1204,7 @@ CvCityBuildable CvCityStrategyAI::ChooseHurry(bool bUnitOnly, bool bFaithPurchas
 	}
 
 	// Loop through adding the available units
-	for(iUnitLoop = 0; iUnitLoop < GC.GetGameUnits()->GetNumUnits(); iUnitLoop++)
+	for (iUnitLoop = 0; iUnitLoop < GC.GetGameUnits()->GetNumUnits(); iUnitLoop++)
 	{
 		CvUnitEntry* pUnitEntry = GC.getUnitInfo((UnitTypes)iUnitLoop);
 		if (bFaithPurchase)
@@ -1218,7 +1220,8 @@ CvCityBuildable CvCityStrategyAI::ChooseHurry(bool bUnitOnly, bool bFaithPurchas
 		}
 		if (pUnitEntry)
 		{
-			bool bOoS = (kPlayer.GetNumUnitsOutOfSupply() > 0 && pUnitEntry->IsMilitarySupport() && !pUnitEntry->IsNoSupply());
+			bool bCanSupply = kPlayer.GetNumUnitsToSupply() < kPlayer.GetNumUnitsSupplied(); // this also works when we're at the limit
+			bool bOoS = !bCanSupply && pUnitEntry->IsMilitarySupport() && !pUnitEntry->IsNoSupply();
 			if (!bOoS)
 			{
 				// Make sure this unit can be built now
@@ -4474,13 +4477,13 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 			}
 			break;
 		case YIELD_SCIENCE:
-			if (kPlayer.GetDiplomacyAI()->IsCloseToSSVictory())
+			if (kPlayer.GetDiplomacyAI()->IsCloseToSpaceshipVictory())
 			{
 				iYieldValue *= 2;
 			}
 			break;
 		case YIELD_PRODUCTION:
-			if (kPlayer.GetDiplomacyAI()->IsCloseToDominationVictory())
+			if (kPlayer.GetDiplomacyAI()->IsCloseToWorldConquest())
 			{
 				iYieldValue *= 2;
 			}
@@ -4992,7 +4995,7 @@ int CityStrategyAIHelpers::GetBuildingGrandStrategyValue(CvCity *pCity, Building
 	{
 		iValue += (iDiploValue / iEra);
 	}
-	if (kPlayer.GetDiplomacyAI()->IsGoingForSpaceshipVictory() || kPlayer.GetDiplomacyAI()->IsCloseToSSVictory())
+	if (kPlayer.GetDiplomacyAI()->IsGoingForSpaceshipVictory() || kPlayer.GetDiplomacyAI()->IsCloseToSpaceshipVictory())
 	{
 		iValue += iScienceValue;
 	}

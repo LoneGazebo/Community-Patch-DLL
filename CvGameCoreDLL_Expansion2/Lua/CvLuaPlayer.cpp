@@ -64,6 +64,12 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(HasGlobalMonopoly);
 	Method(HasStrategicMonopoly);
 	Method(GetResourcesMisc);
+	Method(GetResourcesFromGP);
+	Method(GetResourcesFromCorporation);
+	Method(GetResourceFromCSAlliances);
+	Method(GetResourcesFromFranchises);
+	Method(GetStrategicResourceMod);
+	Method(GetResourceModFromReligion);
 	Method(IsShowImports);
 #endif
 	Method(IsResourceCityTradeable);
@@ -382,13 +388,15 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetUnhappinessFromOccupiedCities);
 	Method(GetUnhappinessFromPuppetCityPopulation);
 	Method(GetUnhappinessFromPublicOpinion);
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
+
 	Method(GetUnhappinessFromWarWeariness);
 	Method(GetWarWeariness);
 	Method(SetWarWeariness);
 	Method(GetWarWearinessSupplyReduction);
 	Method(GetTechSupplyReduction);
-#endif
+	Method(GetUnitSupplyFromExpendedGreatPeople);
+	Method(ChangeUnitSupplyFromExpendedGreatPeople);
+
 	Method(GetUnhappinessFromUnits);
 	Method(ChangeUnhappinessFromUnits);
 
@@ -1643,6 +1651,102 @@ int CvLuaPlayer::lGetResourcesMisc(lua_State* L)
 	const int iResult = pkPlayer->getNumResourcesFromOther(eResource);
 	lua_pushinteger(L, iResult);
 	return 1;
+}
+// -----------------------------------------------------------------------------
+// int CvPlayer::GetResourcesFromGP(ResourceTypes eResource)
+int CvLuaPlayer::lGetResourcesFromGP(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const ResourceTypes eResource = (ResourceTypes)lua_tointeger(L, 2);
+	const int iResult = (int)(pkPlayer->getResourceFromGP(eResource));
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+// -----------------------------------------------------------------------------
+// int CvPlayer::GetResourcesFromCorporation(ResourceTypes eResource)
+int CvLuaPlayer::lGetResourcesFromCorporation(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const ResourceTypes eResource = (ResourceTypes)lua_tointeger(L, 2);
+
+	int iResult = 0;
+
+	CorporationTypes eCorporation = pkPlayer->GetCorporations()->GetFoundedCorporation();
+	if (eCorporation != NO_CORPORATION)
+	{
+		CvCorporationEntry* pkCorporationInfo = GC.getCorporationInfo(eCorporation);
+		if (pkCorporationInfo)
+		{
+			int iFreeResource = pkCorporationInfo->GetNumFreeResource(eResource);
+			if (iFreeResource > 0)
+			{
+				iResult += iFreeResource;
+			}
+		}
+	}
+
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+// -----------------------------------------------------------------------------
+// int CvPlayer::GetResourceFromCSAlliances(ResourceTypes eResource)
+int CvLuaPlayer::lGetResourceFromCSAlliances(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const ResourceTypes eResource = (ResourceTypes)lua_tointeger(L, 2);
+	
+	int iCSResource = pkPlayer->getResourceFromCSAlliances(eResource);
+	if (iCSResource != 0)
+	{
+		if (pkPlayer->IsResourceRevealed(eResource))
+		{
+			iCSResource *= pkPlayer->GetNumCSAllies();
+			iCSResource /= 100;
+		}
+	}
+
+	lua_pushinteger(L, iCSResource);
+	return 1;
+}
+// -----------------------------------------------------------------------------
+// int CvPlayer::GetResourcesFromFranchises(ResourceTypes eResource)
+int CvLuaPlayer::lGetResourcesFromFranchises(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const ResourceTypes eResource = (ResourceTypes)lua_tointeger(L, 2);
+
+	int iResult = 0;
+	const CvCity* pLoopCity;
+	int iLoop;
+	for (pLoopCity = pkPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = pkPlayer->nextCity(&iLoop))
+	{
+		if (pLoopCity != NULL)
+		{
+			if (pLoopCity->GetResourceQuantityPerXFranchises(eResource) > 0)
+			{
+				int iFranchises = pkPlayer->GetCorporations()->GetNumFranchises();
+				if (iFranchises > 0)
+				{
+					iResult += (iFranchises / pLoopCity->GetResourceQuantityPerXFranchises(eResource));
+				}
+			}
+		}
+	}
+
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+// -----------------------------------------------------------------------------
+// int CvPlayer::GetStrategicResourceMod()
+int CvLuaPlayer::lGetStrategicResourceMod(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvPlayerAI::GetStrategicResourceMod);
+}
+// -----------------------------------------------------------------------------
+// int CvPlayer::GetResourceModFromReligion(ResourceTypes eResource)
+int CvLuaPlayer::lGetResourceModFromReligion(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvPlayerAI::getResourceModFromReligion);
 }
 
 // -----------------------------------------------------------------------------
@@ -4072,7 +4176,7 @@ int CvLuaPlayer::lGetUnhappinessFromPublicOpinion(lua_State* L)
 	lua_pushinteger(L, iResult);
 	return 1;
 }
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
+
 //------------------------------------------------------------------------------
 //int GetUnhappinessFromWarWeariness() const;
 int CvLuaPlayer::lGetUnhappinessFromWarWeariness(lua_State* L)
@@ -4134,7 +4238,16 @@ int CvLuaPlayer::lGetTechSupplyReduction(lua_State* L)
 	return 1;
 }
 
-#endif
+int CvLuaPlayer::lGetUnitSupplyFromExpendedGreatPeople(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvPlayerAI::GetUnitSupplyFromExpendedGreatPeople);
+}
+
+int CvLuaPlayer::lChangeUnitSupplyFromExpendedGreatPeople(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvPlayerAI::ChangeUnitSupplyFromExpendedGreatPeople);
+}
+
 //------------------------------------------------------------------------------
 //int GetUnhappinessFromUnits() const;
 int CvLuaPlayer::lGetUnhappinessFromUnits(lua_State* L)
@@ -9407,13 +9520,59 @@ int CvLuaPlayer::lDoUpdateProximityToPlayer(lua_State* L)
 //int GetIncomingUnitType(PlayerTypes eFromPlayer);
 int CvLuaPlayer::lGetIncomingUnitType(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvPlayer::GetIncomingUnitType);
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	if (pkPlayer->isMinorCiv())
+	{
+		const CvMinorCivAI* pMinorCivAI = pkPlayer->GetMinorCivAI();
+		CvAssert(pMinorCivAI);
+		if (pMinorCivAI)
+		{
+			const PlayerTypes eFromPlayer = static_cast<PlayerTypes>(lua_tointeger(L, 2));
+			if (eFromPlayer >= 0 && eFromPlayer < MAX_MAJOR_CIVS)
+			{
+				lua_pushinteger(L, pMinorCivAI->getIncomingUnitGift(eFromPlayer).getUnitType());
+				return 1;
+			}
+			else
+			{
+				luaL_error(L, "Player index %d is not a valid major civilization index.", static_cast<lua_Integer>(eFromPlayer));
+				return 0;
+			}
+		}
+	}
+
+	// Calling this on a non-minor civ is not an error for backwards compatability.
+	lua_pushinteger(L, NO_UNIT);
+	return 1;
 }
 //------------------------------------------------------------------------------
 //int GetIncomingUnitCountdown(PlayerTypes eFromPlayer);
 int CvLuaPlayer::lGetIncomingUnitCountdown(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvPlayer::GetIncomingUnitCountdown);
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	if (pkPlayer->isMinorCiv())
+	{
+		const CvMinorCivAI* pMinorCivAI = pkPlayer->GetMinorCivAI();
+		CvAssert(pMinorCivAI);
+		if (pMinorCivAI)
+		{
+			const PlayerTypes eFromPlayer = static_cast<PlayerTypes>(lua_tointeger(L, 2));
+			if (eFromPlayer >= 0 && eFromPlayer < MAX_MAJOR_CIVS)
+			{
+				lua_pushinteger(L, pMinorCivAI->getIncomingUnitGift(eFromPlayer).getArrivalCountdown());
+				return 1;
+			}
+			else
+			{
+				luaL_error(L, "Player index %d is not a valid major civilization index.", static_cast<lua_Integer>(eFromPlayer));
+				return 0;
+			}
+		}
+	}
+
+	// Calling this on a non-minor civ is not an error for backwards compatability.
+	lua_pushinteger(L, -1);
+	return 1;
 }
 //------------------------------------------------------------------------------
 //bool isOption(PlayerOptionTypes  eIndex);
@@ -12523,8 +12682,10 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 		PlayerTypes eTopFriend = pDiplo->GetMostValuableFriend();
 		PlayerTypes eTopDP = pDiplo->GetMostValuableAlly();
 		PlayerTypes eTopCompetitor = pDiplo->GetBiggestCompetitor();
+		PlayerTypes eTopLeagueAlly = pDiplo->GetPrimeLeagueAlly();
 		PlayerTypes eTopLeagueRival = pDiplo->GetPrimeLeagueCompetitor();
 		CvString FriendStr;
+		CvString LeagueStr;
 		CvString EnemyStr;
 
 		FriendStr = Localization::Lookup("TXT_KEY_DIPLO_DEBUG_TOP_FRIEND").toUTF8();
@@ -12561,6 +12722,40 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 			}
 		}
 
+		CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
+		if (pLeague != NULL)
+		{
+			LeagueStr = bUNActive ? Localization::Lookup("TXT_KEY_DIPLO_DEBUG_TOP_LEAGUE_ALLY_UN").toUTF8() : Localization::Lookup("TXT_KEY_DIPLO_DEBUG_TOP_LEAGUE_ALLY").toUTF8();
+			LeagueStr += " ";
+			if (eTopLeagueAlly == NO_PLAYER || !GET_PLAYER(eTopLeagueAlly).isAlive())
+			{
+				LeagueStr += Localization::Lookup("TXT_KEY_DIPLO_DEBUG_TOP_CHOICE_NONE").toUTF8();
+			}
+			else if (eTopLeagueAlly == ePlayer)
+			{
+				LeagueStr += Localization::Lookup("TXT_KEY_DIPLO_DEBUG_TOP_CHOICE_YOU").toUTF8();
+			}
+			else
+			{
+				LeagueStr += GET_PLAYER(eTopLeagueAlly).getCivilizationShortDescription();
+			}
+			LeagueStr += ", ";
+			LeagueStr += bUNActive ? Localization::Lookup("TXT_KEY_DIPLO_DEBUG_TOP_LEAGUE_COMPETITOR_UN").toUTF8() : Localization::Lookup("TXT_KEY_DIPLO_DEBUG_TOP_LEAGUE_COMPETITOR").toUTF8();
+			LeagueStr += " ";
+			if (eTopLeagueRival == NO_PLAYER || !GET_PLAYER(eTopLeagueRival).isAlive())
+			{
+				LeagueStr += Localization::Lookup("TXT_KEY_DIPLO_DEBUG_TOP_CHOICE_NONE").toUTF8();
+			}
+			else if (eTopLeagueRival == ePlayer)
+			{
+				LeagueStr += Localization::Lookup("TXT_KEY_DIPLO_DEBUG_TOP_CHOICE_YOU").toUTF8();
+			}
+			else
+			{
+				LeagueStr += GET_PLAYER(eTopLeagueRival).getCivilizationShortDescription();
+			}
+		}
+
 		EnemyStr = Localization::Lookup("TXT_KEY_DIPLO_DEBUG_TOP_COMPETITOR").toUTF8();
 		EnemyStr += " ";
 		if (eTopCompetitor == NO_PLAYER || !GET_PLAYER(eTopCompetitor).isAlive())
@@ -12576,30 +12771,17 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 			EnemyStr += GET_PLAYER(eTopCompetitor).getCivilizationShortDescription();
 		}
 
-		CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
-		if (pLeague != NULL)
-		{
-			EnemyStr += ", ";
-			EnemyStr += Localization::Lookup("TXT_KEY_DIPLO_DEBUG_TOP_LEAGUE_COMPETITOR").toUTF8();
-			EnemyStr += " ";
-			if (eTopLeagueRival == NO_PLAYER || !GET_PLAYER(eTopLeagueRival).isAlive())
-			{
-				EnemyStr += Localization::Lookup("TXT_KEY_DIPLO_DEBUG_TOP_CHOICE_NONE").toUTF8();
-			}
-			else if (eTopLeagueRival == ePlayer)
-			{
-				EnemyStr += Localization::Lookup("TXT_KEY_DIPLO_DEBUG_TOP_CHOICE_YOU").toUTF8();
-			}
-			else
-			{
-				EnemyStr += GET_PLAYER(eTopLeagueRival).getCivilizationShortDescription();
-			}
-		}
-
 		Opinion kOpinion;
 		kOpinion.m_iValue = 0;
 		kOpinion.m_str = FriendStr;
 		aOpinions.push_back(kOpinion);
+
+		if (pLeague)
+		{
+			kOpinion.m_str = LeagueStr;
+			aOpinions.push_back(kOpinion);
+		}
+
 		kOpinion.m_str = EnemyStr;
 		aOpinions.push_back(kOpinion);
 	}
@@ -13488,6 +13670,60 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 			kOpinion.m_str = str;
 			aOpinions.push_back(kOpinion);
 		}
+
+		iValue = pDiplo->GetVotingHistoryOpinionScore(ePlayer);
+		if (iValue != 0)
+		{
+			Opinion kOpinion;
+			kOpinion.m_iValue = (iValue > 0) ? 0 : iValue;
+			CvString str;
+
+			if (iValue > 0)
+			{
+				str = bUNActive ? Localization::Lookup("TXT_KEY_DIPLO_BAD_VOTING_HISTORY_UN").toUTF8() : Localization::Lookup("TXT_KEY_DIPLO_BAD_VOTING_HISTORY").toUTF8();
+			}
+			else
+			{
+				str = bUNActive ? Localization::Lookup("TXT_KEY_DIPLO_GOOD_VOTING_HISTORY_UN").toUTF8() : Localization::Lookup("TXT_KEY_DIPLO_GOOD_VOTING_HISTORY").toUTF8();
+			}
+
+			kOpinion.m_str = str;
+			aOpinions.push_back(kOpinion);
+		}
+
+		iValue = pDiplo->GetSanctionedUsScore(ePlayer);
+		if (iValue != 0)
+		{
+			Opinion kOpinion;
+			kOpinion.m_iValue = (iValue > 0) ? 0 : iValue;
+			CvString str;
+
+			if (iValue > 0)
+			{
+				if (pDiplo->HasEverSanctionedUs(ePlayer))
+				{
+					str = bUNActive ? Localization::Lookup("TXT_KEY_DIPLO_SANCTIONED_THEM_SUCCESSFUL_UN").toUTF8() : Localization::Lookup("TXT_KEY_DIPLO_SANCTIONED_THEM_SUCCESSFUL").toUTF8();
+				}
+				else
+				{
+					str = bUNActive ? Localization::Lookup("TXT_KEY_DIPLO_SANCTIONED_THEM_UNSUCCESSFUL_UN").toUTF8() : Localization::Lookup("TXT_KEY_DIPLO_SANCTIONED_THEM_UNSUCCESSFUL").toUTF8();
+				}
+			}
+			else
+			{
+				if (pDiplo->HasEverUnsanctionedUs(ePlayer))
+				{
+					str = bUNActive ? Localization::Lookup("TXT_KEY_DIPLO_UNSANCTIONED_THEM_SUCCESSFUL_UN").toUTF8() : Localization::Lookup("TXT_KEY_DIPLO_UNSANCTIONED_THEM_SUCCESSFUL").toUTF8();
+				}
+				else
+				{
+					str = bUNActive ? Localization::Lookup("TXT_KEY_DIPLO_UNSANCTIONED_THEM_UNSUCCESSFUL_UN").toUTF8() : Localization::Lookup("TXT_KEY_DIPLO_UNSANCTIONED_THEM_UNSUCCESSFUL").toUTF8();
+				}
+			}
+
+			kOpinion.m_str = str;
+			aOpinions.push_back(kOpinion);
+		}
 	}
 
 	//--------------------------------//
@@ -13993,18 +14229,13 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 			PolicyBranchTypes eOurBranch = pkPlayer->GetPlayerPolicies()->GetLateGamePolicyTree();
 			PolicyBranchTypes eTheirBranch = GET_PLAYER(ePlayer).GetPlayerPolicies()->GetLateGamePolicyTree();
 			kOpinion.m_iValue = bHideNegatives ? 0 : iValue;
-			kOpinion.m_str = (!GET_PLAYER(ePlayer).IsVassalOfSomeone()) ? Localization::Lookup("TXT_KEY_DIPLO_DIFFERENT_LATE_POLICY_TREES") : Localization::Lookup("TXT_KEY_DIPLO_DIFFERENT_LATE_POLICY_TREES_VASSAL");
+			kOpinion.m_str = !GET_PLAYER(ePlayer).IsVassalOfSomeone() ? Localization::Lookup("TXT_KEY_DIPLO_DIFFERENT_LATE_POLICY_TREES") : Localization::Lookup("TXT_KEY_DIPLO_DIFFERENT_LATE_POLICY_TREES_VASSAL");
 			kOpinion.m_str << GC.getPolicyBranchInfo(eTheirBranch)->GetDescription();
 			kOpinion.m_str << GC.getPolicyBranchInfo(eOurBranch)->GetDescription();
 			aOpinions.push_back(kOpinion);
 		}
 
-		iValue = pDiplo->GetLeagueAlignmentScore(ePlayer);
-		if (iValue > 0 && (bHideDisputes || bHideNegatives))
-		{
-			iValue = 0;
-		}
-
+		iValue = pDiplo->GetVotingHistoryOpinionScore(ePlayer);
 		if (iValue != 0)
 		{
 			Opinion kOpinion;
@@ -14013,18 +14244,11 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 
 			if (iValue > 0)
 			{
-				if (pDiplo->GetPrimeLeagueCompetitor() == ePlayer)
-				{
-					str = bUNActive ? Localization::Lookup("TXT_KEY_DIPLO_PRIME_LEAGUE_COMPETITOR_UN").toUTF8() : Localization::Lookup("TXT_KEY_DIPLO_PRIME_LEAGUE_COMPETITOR").toUTF8();
-				}
-				else
-				{
-					str = bUNActive ? Localization::Lookup("TXT_KEY_DIPLO_BAD_LEAGUE_ALIGNMENT_UN").toUTF8() : Localization::Lookup("TXT_KEY_DIPLO_BAD_LEAGUE_ALIGNMENT").toUTF8();
-				}
+				str = bUNActive ? Localization::Lookup("TXT_KEY_DIPLO_BAD_VOTING_HISTORY_UN").toUTF8() : Localization::Lookup("TXT_KEY_DIPLO_BAD_VOTING_HISTORY").toUTF8();
 			}
 			else
 			{
-				str = bUNActive ? Localization::Lookup("TXT_KEY_DIPLO_GOOD_LEAGUE_ALIGNMENT_UN").toUTF8() : Localization::Lookup("TXT_KEY_DIPLO_GOOD_LEAGUE_ALIGNMENT").toUTF8();
+				str = bUNActive ? Localization::Lookup("TXT_KEY_DIPLO_GOOD_VOTING_HISTORY_UN").toUTF8() : Localization::Lookup("TXT_KEY_DIPLO_GOOD_VOTING_HISTORY").toUTF8();
 			}
 
 			kOpinion.m_str = str;
@@ -14429,6 +14653,40 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 			else
 			{
 				str = bUNActive ? Localization::Lookup("TXT_KEY_DIPLO_SUPPORTED_THEIR_HOSTING_UN").toUTF8() : Localization::Lookup("TXT_KEY_DIPLO_SUPPORTED_THEIR_HOSTING").toUTF8();
+			}
+
+			kOpinion.m_str = str;
+			aOpinions.push_back(kOpinion);
+		}
+
+		iValue = pDiplo->GetSanctionedUsScore(ePlayer);
+		if (iValue != 0)
+		{
+			Opinion kOpinion;
+			kOpinion.m_iValue = iValue;
+			CvString str;
+
+			if (iValue > 0)
+			{
+				if (pDiplo->HasEverSanctionedUs(ePlayer))
+				{
+					str = bUNActive ? Localization::Lookup("TXT_KEY_DIPLO_SANCTIONED_THEM_SUCCESSFUL_UN").toUTF8() : Localization::Lookup("TXT_KEY_DIPLO_SANCTIONED_THEM_SUCCESSFUL").toUTF8();
+				}
+				else
+				{
+					str = bUNActive ? Localization::Lookup("TXT_KEY_DIPLO_SANCTIONED_THEM_UNSUCCESSFUL_UN").toUTF8() : Localization::Lookup("TXT_KEY_DIPLO_SANCTIONED_THEM_UNSUCCESSFUL").toUTF8();
+				}
+			}
+			else
+			{
+				if (pDiplo->HasEverUnsanctionedUs(ePlayer))
+				{
+					str = bUNActive ? Localization::Lookup("TXT_KEY_DIPLO_UNSANCTIONED_THEM_SUCCESSFUL_UN").toUTF8() : Localization::Lookup("TXT_KEY_DIPLO_UNSANCTIONED_THEM_SUCCESSFUL").toUTF8();
+				}
+				else
+				{
+					str = bUNActive ? Localization::Lookup("TXT_KEY_DIPLO_UNSANCTIONED_THEM_UNSUCCESSFUL_UN").toUTF8() : Localization::Lookup("TXT_KEY_DIPLO_UNSANCTIONED_THEM_UNSUCCESSFUL").toUTF8();
+				}
 			}
 
 			kOpinion.m_str = str;

@@ -3317,7 +3317,7 @@ CvPlot* OperationalAIHelpers::FindEnemiesNearHomelandPlot(PlayerTypes ePlayer, P
 }
 
 /// Find our port operation operations against this enemy should leave from
-CvCity* OperationalAIHelpers::GetClosestFriendlyCoastalCity(PlayerTypes ePlayer, CvPlot* pRefPlot)
+CvCity* OperationalAIHelpers::GetClosestFriendlyCoastalCity(PlayerTypes ePlayer, const CvPlot* pRefPlot)
 {
 	if (ePlayer==NO_PLAYER || !pRefPlot)
 		return NULL;

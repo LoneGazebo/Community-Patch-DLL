@@ -386,7 +386,7 @@ int CvSiteEvaluatorForSettler::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPl
 		if (iRingModifier>0)
 		{
 			int iFoodValue = ComputeFoodValue(pLoopPlot, pPlayer) * /*12*/ GD_INT_GET(SETTLER_FOOD_MULTIPLIER);
-			int iProductionValue = ComputeProductionValue(pLoopPlot, pPlayer) * /*12 in CP, 4 in CBO*/ GD_INT_GET(SETTLER_PRODUCTION_MULTIPLIER);
+			int iProductionValue = ComputeProductionValue(pLoopPlot, pPlayer) * /*8*/ GD_INT_GET(SETTLER_PRODUCTION_MULTIPLIER);
 			int	iGoldValue = ComputeGoldValue(pLoopPlot, pPlayer) * /*8*/ GD_INT_GET(SETTLER_GOLD_MULTIPLIER);
 			int iScienceValue = ComputeScienceValue(pLoopPlot, pPlayer) * /*5*/ GD_INT_GET(SETTLER_SCIENCE_MULTIPLIER);
 			int	iFaithValue = ComputeFaithValue(pLoopPlot, pPlayer) * /*4*/ GD_INT_GET(SETTLER_FAITH_MULTIPLIER);

@@ -386,12 +386,12 @@ public:
 	void UpdateUnitGrowthMaintenanceMod();
 	int calculateUnitGrowthMaintenanceMod() const;
 
-	int GetNumUnitsSupplied() const;
+	int GetNumUnitsSupplied(bool bCheckWarWeariness = true) const;
 	int GetNumUnitsSuppliedByHandicap(bool bIgnoreReduction = false) const;
 	int GetNumUnitsSuppliedByCities(bool bIgnoreReduction = false) const;
 	int GetNumUnitsSuppliedByPopulation(bool bIgnoreReduction = false) const;
 
-	int GetNumUnitsOutOfSupply() const;
+	int GetNumUnitsOutOfSupply(bool bCheckWarWeariness = true) const;
 #if defined(MOD_BALANCE_CORE)
 	int GetNumUnitsToSupply() const;
 	int getNumUnitsSupplyFree() const;
@@ -1079,6 +1079,11 @@ public:
 	void incrementGPExtra4FromFaith();
 	int getGPExtra5FromFaith() const;
 	void incrementGPExtra5FromFaith();
+
+	byte getResourceFromGP(ResourceTypes eResource) const;
+	void changeResourceFromGP(ResourceTypes eResource, byte iChange);
+
+	int getResourceModFromReligion(ResourceTypes eIndex) const;
 #endif
 
 	int getGreatPeopleThresholdModifier() const;
@@ -1827,8 +1832,8 @@ public:
 	int getYieldFromConstruction(YieldTypes eIndex) const;
 	void changeYieldFromConstruction(YieldTypes eIndex, int iChange);
 
-	int getYieldFromwonderConstruction(YieldTypes eIndex) const;
-	void changeYieldFromwonderConstruction(YieldTypes eIndex, int iChange);
+	int GetYieldFromWorldWonderConstruction(YieldTypes eIndex) const;
+	void ChangeYieldFromWorldWonderConstruction(YieldTypes eIndex, int iChange);
 
 	int getYieldFromTech(YieldTypes eIndex) const;
 	void changeYieldFromTech(YieldTypes eIndex, int iChange);
@@ -2104,8 +2109,6 @@ public:
 
 	void DoCivilianReturnLogic(bool bReturn, PlayerTypes eToPlayer, int iUnitID);
 
-	// Incoming Units
-	void DoIncomingUnits();
 #if defined(MOD_BALANCE_CORE)
 	void DoTradeInfluenceAP();
 #endif
@@ -2113,13 +2116,6 @@ public:
 	bool CanGiftUnit(PlayerTypes eToPlayer);
 	void AddIncomingUnit(PlayerTypes eFromPlayer, CvUnit* pUnit);
 	PlayerTypes GetBestGiftTarget(DomainTypes eUnitDomain);
-
-	UnitTypes GetIncomingUnitType(PlayerTypes eFromPlayer) const;
-	void SetIncomingUnitType(PlayerTypes eFromPlayer, UnitTypes eUnitType);
-
-	int GetIncomingUnitCountdown(PlayerTypes eFromPlayer) const;
-	void SetIncomingUnitCountdown(PlayerTypes eFromPlayer, int iNumTurns);
-	void ChangeIncomingUnitCountdown(PlayerTypes eFromPlayer, int iChange);
 
 	bool isOption(PlayerOptionTypes eIndex) const;
 	void setOption(PlayerOptionTypes eIndex, bool bNewValue);
@@ -2546,6 +2542,8 @@ public:
 
 #if defined(MOD_BALANCE_CORE_MILITARY)
 	int GetFractionOriginalCapitalsUnderControl() const;
+	bool OwnsOurCity(PlayerTypes ePlayer);
+	int GetNumOurCitiesOwnedBy(PlayerTypes ePlayer);
 	int GetMilitaryRating() const;
 	void SetMilitaryRating(int iValue);
 	void ChangeMilitaryRating(int iChange);
@@ -2575,6 +2573,9 @@ public:
 
 	int getCitySupplyFlatGlobal() const;
 	void changeCitySupplyFlatGlobal(int iChange);
+
+	int GetUnitSupplyFromExpendedGreatPeople() const;
+	void ChangeUnitSupplyFromExpendedGreatPeople(int iChange);
 
 	int GetAvgUnitExp100() const;
 #endif
@@ -3355,6 +3356,7 @@ protected:
 	std::vector<int> m_paiUnitClassProductionModifiers;
 	int m_iExtraSupplyPerPopulation;
 	int m_iCitySupplyFlatGlobal;
+	int m_iUnitSupplyFromExpendedGP;
 	int m_iMissionaryExtraStrength;
 #endif
 	int m_iFreeSpecialist;
@@ -3478,7 +3480,7 @@ protected:
 	std::vector<int> m_aiYieldFromPillage;
 	std::vector<int> m_aiYieldFromVictory;
 	std::vector<int> m_aiYieldFromConstruction;
-	std::vector<int> m_aiYieldFromwonderConstruction;
+	std::vector<int> m_aiYieldFromWorldWonderConstruction;
 	std::vector<int> m_aiYieldFromTech;
 	std::vector<int> m_aiYieldFromBorderGrowth;
 	std::vector<int> m_aiYieldGPExpend;
@@ -3521,8 +3523,6 @@ protected:
 	std::vector<int> m_aiNumUnitsBuilt;
 	std::vector<int> m_aiProximityToPlayer;
 	std::vector<int> m_aiResearchAgreementCounter;
-	std::vector<int> m_aiIncomingUnitTypes;
-	std::vector<int> m_aiIncomingUnitCountdowns;
 	std::vector<int> m_aiSiphonLuxuryCount;
 	std::vector<int> m_aiGreatWorkYieldChange;
 	std::vector<int> m_aiTourismBonusTurnsPlayer;
@@ -3543,6 +3543,7 @@ protected:
 	std::vector<int> m_paiResourceImportFromMajor;
 	std::vector<int> m_paiResourceFromMinors;
 	std::vector<int> m_paiResourcesSiphoned;
+	std::vector<byte> m_aiNumResourceFromGP;
 	std::vector<int> m_paiImprovementCount;
 #if defined(MOD_BALANCE_CORE)
 	std::vector<int> m_paiTotalImprovementsBuilt;
@@ -4150,6 +4151,7 @@ SYNC_ARCHIVE_VAR(std::vector<FeatureTypes>, m_ownedNaturalWonders)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_paiUnitClassProductionModifiers)
 SYNC_ARCHIVE_VAR(int, m_iExtraSupplyPerPopulation)
 SYNC_ARCHIVE_VAR(int, m_iCitySupplyFlatGlobal)
+SYNC_ARCHIVE_VAR(int, m_iUnitSupplyFromExpendedGP)
 SYNC_ARCHIVE_VAR(int, m_iMissionaryExtraStrength)
 SYNC_ARCHIVE_VAR(int, m_iFreeSpecialist)
 SYNC_ARCHIVE_VAR(int, m_iCultureBombTimer)
@@ -4258,7 +4260,7 @@ SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromDeath)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromPillage)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromVictory)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromConstruction)
-SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromwonderConstruction)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromWorldWonderConstruction)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromTech)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromBorderGrowth)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldGPExpend)
@@ -4293,8 +4295,6 @@ SYNC_ARCHIVE_VAR(std::vector<int>, m_aiWarDamageValue)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiNumUnitsBuilt)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiProximityToPlayer)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiResearchAgreementCounter)
-SYNC_ARCHIVE_VAR(std::vector<int>, m_aiIncomingUnitTypes)
-SYNC_ARCHIVE_VAR(std::vector<int>, m_aiIncomingUnitCountdowns)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiSiphonLuxuryCount)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiGreatWorkYieldChange)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiTourismBonusTurnsPlayer)
@@ -4308,6 +4308,7 @@ SYNC_ARCHIVE_VAR(std::vector<int>, m_paiResourceExport)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_paiResourceImportFromMajor)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_paiResourceFromMinors)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_paiResourcesSiphoned)
+SYNC_ARCHIVE_VAR(std::vector<byte>, m_aiNumResourceFromGP)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_paiImprovementCount)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_paiTotalImprovementsBuilt)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_paiBuildingChainSteps)

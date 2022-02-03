@@ -66,7 +66,7 @@ WHERE Tag = 'TXT_KEY_ALLOWS_EMBARKING';
 
 -- Capture Chance
 UPDATE Language_en_US
-SET Text = '[COLOR_CYAN]Capture chance if defeated: {1_Num}%[ENDCOLOR]'
+SET Text = '[COLOR_CYAN]Capture chance if defeated[ENDCOLOR]'
 WHERE Tag = 'TXT_KEY_EUPANEL_CAPTURE_CHANCE';
 
 -- Interception
@@ -528,11 +528,11 @@ WHERE Tag = 'TXT_KEY_DIPLO_DEF_PACT_TT';
 -- Lua for Cities
 UPDATE Language_en_US
 SET Text = 'We have no tradeable cities and/or we do not have an Embassy with them.'
-WHERE Tag = 'TXT_KEY_DIPLO_TO_TRADE_CITY_NO_TT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CIVS' AND Value= 1 );
+WHERE Tag = 'TXT_KEY_DIPLO_TO_TRADE_CITY_NO_TT';
 
 UPDATE Language_en_US
 SET Text = 'They have no tradeable cities and/or they do not have an Embassy with us.'
-WHERE Tag = 'TXT_KEY_DIPLO_TO_TRADE_CITY_NO_THEM' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CIVS' AND Value= 1 );
+WHERE Tag = 'TXT_KEY_DIPLO_TO_TRADE_CITY_NO_THEM';
 
 
 -- Civilopedia Refresh
@@ -634,6 +634,12 @@ WHERE Tag = 'TXT_KEY_LEAGUE_OVERVIEW_PROPOSAL_OPINIONS_POSITIVE';
 UPDATE Language_en_US
 SET Text = '[NEWLINE][NEWLINE]Civilizations negatively affected by this:'
 WHERE Tag = 'TXT_KEY_LEAGUE_OVERVIEW_PROPOSAL_OPINIONS_NEGATIVE';
+
+-- Shorten the overview text to make room
+UPDATE Language_en_US
+SET Text = '[NEWLINE][NEWLINE]Our knowledge of other Civs'' desires:'
+WHERE Tag = 'TXT_KEY_LEAGUE_OVERVIEW_VOTE_OPINIONS';
+
 
 -- Diplo Opinion Table Modifiers
 

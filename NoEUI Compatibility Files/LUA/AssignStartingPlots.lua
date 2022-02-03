@@ -865,8 +865,8 @@ function AssignStartingPlots:__InitLuxuryWeights()
 	{self.salt_ID,		40},
 	{self.gold_ID,		40},
 	{self.lapis_ID,		40},
+	{self.silver_ID,	20},
 	{self.copper_ID,	10},
-	{self.silver_ID,	10},
 	{self.amber_ID,		10},
 	{self.gems_ID,		10},
 	{self.jade_ID,		10},
@@ -887,7 +887,6 @@ function AssignStartingPlots:__InitLuxuryWeights()
 	
 	self.luxury_region_weights[5] = {			-- Hills
 	{self.gold_ID,		30},
-	{self.silver_ID,	30},
 	{self.copper_ID,	30},
 	{self.gems_ID,		30},
 	{self.salt_ID,		30},
@@ -957,8 +956,7 @@ function AssignStartingPlots:__InitLuxuryWeights()
 	-- MOD.HungryForFood: End
 	
 	self.luxury_region_weights[8] = {			-- Hybrid
-	{self.gold_ID,		30},
-	{self.silver_ID,	30},					-- MOD.Barathor: Favor very flexible resources, like resources that are mined or in the water.
+	{self.gold_ID,		30},					-- MOD.Barathor: Favor very flexible resources, like resources that are mined or in the water.
 	{self.copper_ID,	30},
 	{self.gems_ID,		30},
 	{self.salt_ID,		30},
@@ -970,17 +968,14 @@ function AssignStartingPlots:__InitLuxuryWeights()
 	{self.tea_ID,		05},
 	{self.perfume_ID,	05},
 	{self.cotton_ID,	05},
-	{self.ivory_ID,		05},
 	{self.wine_ID,		05},
 	{self.olives_ID,	05},
-	{self.incense_ID,	05},
 	{self.truffles_ID,	05},
 	{self.silk_ID,		05},
 	{self.dye_ID,		05},
 	{self.citrus_ID,	05},
 	{self.cocoa_ID,		05},
 	{self.spices_ID,	05},
-	{self.sugar_ID,		05},
 	{self.whale_ID,		20},
 	{self.crab_ID,		20},
 	{self.pearls_ID,	20},
@@ -997,8 +992,7 @@ function AssignStartingPlots:__InitLuxuryWeights()
 	-- MOD.HungryForFood: End
 	
 	self.luxury_fallback_weights = {			-- Random / Fallback
-	{self.gold_ID,		10},
-	{self.silver_ID,	10},					-- MOD.Barathor: Favor water resources since they work great as randoms and make the coasts more interesting. 
+	{self.gold_ID,		10},					-- MOD.Barathor: Favor water resources since they work great as randoms and make the coasts more interesting. 
 	{self.copper_ID,	10},					--				 Also, slightly favor mined resources for their flexibility.
 	{self.gems_ID,		10},
 	{self.salt_ID,		10},
@@ -1010,7 +1004,6 @@ function AssignStartingPlots:__InitLuxuryWeights()
 	{self.tea_ID,		05},
 	{self.perfume_ID,	05},
 	{self.cotton_ID,	05},
-	{self.ivory_ID,		05},
 	{self.wine_ID,		05},
 	{self.olives_ID,	05},
 	{self.incense_ID,	05},
@@ -1020,7 +1013,6 @@ function AssignStartingPlots:__InitLuxuryWeights()
 	{self.citrus_ID,	05},
 	{self.cocoa_ID,		05},
 	{self.spices_ID,	05},
-	{self.sugar_ID,		05},
 	{self.whale_ID,		30},
 	{self.crab_ID,		30},
 	{self.pearls_ID,	30},
@@ -1038,7 +1030,7 @@ function AssignStartingPlots:__InitLuxuryWeights()
 
 	self.luxury_city_state_weights = {			-- City States	
 	{self.gold_ID,		10},
-	{self.silver_ID,	10},					-- MOD.Barathor: Slightly favor water resources since they're flexible and most city-states are coastal.
+	{self.silver_ID,	05},					-- MOD.Barathor: Slightly favor water resources since they're flexible and most city-states are coastal.
 	{self.copper_ID,	10},					--				 Also, slightly favor mined resources for their flexibility.
 	{self.gems_ID,		10},
 	{self.salt_ID,		10},
@@ -2255,35 +2247,35 @@ function AssignStartingPlots:DetermineRegionTypes()
 		while found_region == false do
 			-- Desert check.
 			if (desertCount >= areaPlots * (desert_percent + adjustment)) then
-				table.insert(self.regionTypes, 4)
+				table.insert(self.regionTypes, RegionTypes.REGION_DESERT);
 				print("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -")
 				print("Region #", this_region, " has been defined as a DESERT Region.")
 				found_region = true
 				
 			-- Tundra check.
 			elseif (tundraCount >= areaPlots * (tundra_percent + adjustment)) then
-				table.insert(self.regionTypes, 1)
+				table.insert(self.regionTypes, RegionTypes.REGION_TUNDRA);
 				print("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -")
 				print("Region #", this_region, " has been defined as a TUNDRA Region.")
 				found_region = true
 				
 			-- Jungle check.
 			elseif (jungleCount >= areaPlots * (jungle_percent + adjustment)) then 
-				table.insert(self.regionTypes, 2)
+				table.insert(self.regionTypes, RegionTypes.REGION_JUNGLE);
 				print("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -")
 				print("Region #", this_region, " has been defined as a JUNGLE Region.")
 				found_region = true
 				
 			-- Forest check. 
 			elseif (forestCount >= areaPlots * (forest_percent + adjustment)) and (tundraCount < areaPlots * tundra_percent) then
-				table.insert(self.regionTypes, 3)
+				table.insert(self.regionTypes, RegionTypes.REGION_FOREST);
 				print("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -")
 				print("Region #", this_region, " has been defined as a FOREST Region.")
 				found_region = true
 
 			-- Hills check.
 			elseif (hillsCount >= areaPlots * (hills_percent + adjustment)) then
-				table.insert(self.regionTypes, 5)
+				table.insert(self.regionTypes, RegionTypes.REGION_HILLS);
 				print("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -")
 				print("Region #", this_region, " has been defined as a HILLS Region.")
 				found_region = true
@@ -2292,19 +2284,19 @@ function AssignStartingPlots:DetermineRegionTypes()
 				if adjustment <= 0 then
 					-- Plains check.
 					if (plainsCount >= areaPlots * plains_percent) and (plainsCount * 0.8 > grassCount) then
-						table.insert(self.regionTypes, 6)
+						table.insert(self.regionTypes, RegionTypes.REGION_PLAINS);
 						print("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -")
 						print("Region #", this_region, " has been defined as a PLAINS Region.")
 						found_region = true
 					-- Grass check.
 					elseif (grassCount >= areaPlots * grass_percent) and (grassCount * 0.8 > plainsCount) then
-						table.insert(self.regionTypes, 7)
+						table.insert(self.regionTypes, RegionTypes.REGION_GRASSLAND);
 						print("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -")
 						print("Region #", this_region, " has been defined as a GRASSLAND Region.")
 						found_region = true
 					else
 						-- Hybrid: No conditions dominate or other mods have included new terrain/feature/plot types which aren't recognized here.
-						table.insert(self.regionTypes, 8)
+						table.insert(self.regionTypes, RegionTypes.REGION_HYBRID);
 						print("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -")
 						print("Region #", this_region, " has been defined as a HYBRID Region.")
 						found_region = true
@@ -2334,7 +2326,7 @@ function AssignStartingPlots:DetermineRegionTypes()
 		for this_region, terrainCounts in ipairs(self.regionTerrainCounts) do
 			local regionType = self.regionTypes[this_region];
 			local thisSnowCount = terrainCounts[15];
-			if regionType == 1 then
+			if regionType == RegionTypes.REGION_TUNDRA then
 				thisSnowCount = thisSnowCount + 1000;
 			end
 			if thisSnowCount > snowCount then
@@ -2344,7 +2336,7 @@ function AssignStartingPlots:DetermineRegionTypes()
 		end
 
 		if snowRegion ~= -1 then
-			self.regionTypes[snowRegion] = 10;
+			self.regionTypes[snowRegion] = RegionTypes.REGION_SNOW;
 			print("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -");
 			print("Region #", snowRegion, " has been converted into a SNOW Region.");
 		end
@@ -2357,14 +2349,14 @@ function AssignStartingPlots:DetermineRegionTypes()
 		for this_region, terrainCounts in ipairs(self.regionTerrainCounts) do
 			local regionType = self.regionTypes[this_region];
 			local thisMountainCount = terrainCounts[6];
-			if thisMountainCount > mountainCount and regionType ~= 10 then
+			if thisMountainCount > mountainCount and regionType ~= RegionTypes.REGION_SNOW then
 				mountainRegion = this_region;
 				mountainCount = thisMountainCount;
 			end
 		end
 
 		if mountainRegion ~= -1 then
-			self.regionTypes[mountainRegion] = 9;
+			self.regionTypes[mountainRegion] = RegionTypes.REGION_MOUNTAIN;
 			print("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -");
 			print("Region #", mountainRegion, " has been converted into a MOUNTAIN Region.");
 		end
@@ -4336,6 +4328,7 @@ function AssignStartingPlots:NormalizeStartLocation(region_number)
 	local nearRiver = false;
 	local nearMountain = false;
 	local forestCount, jungleCount = 0, 0;
+	local desertCount, tundraCount = 0, 0;
 
 	-- Check start plot to see if it's adjacent to saltwater.
 	if self.plotDataIsCoastal[plotIndex] == true then
@@ -4451,12 +4444,14 @@ function AssignStartingPlots:NormalizeStartLocation(region_number)
 					elseif terrainType == TerrainTypes.TERRAIN_TUNDRA then
 						innerThreeFood = innerThreeFood + 1;
 						innerCanHaveBonus = innerCanHaveBonus + 1;
+						tundraCount = tundraCount + 1;
 						if featureType == FeatureTypes.FEATURE_FOREST then
 							innerForest = innerForest + 1;
 						end
 					elseif terrainType == TerrainTypes.TERRAIN_DESERT then
 						innerBadTiles = innerBadTiles + 1;
 						innerCanHaveBonus = innerCanHaveBonus + 1; -- Can have Oasis.
+						desertCount = desertCount + 1;
 					else -- Snow
 						innerBadTiles = innerBadTiles + 1;
 					end
@@ -4484,6 +4479,7 @@ function AssignStartingPlots:NormalizeStartLocation(region_number)
 						end
 					elseif terrainType == TerrainTypes.TERRAIN_TUNDRA then
 						innerCanHaveBonus = innerCanHaveBonus + 1;
+						tundraCount = tundraCount + 1;
 						if featureType == FeatureTypes.FEATURE_FOREST then
 							innerForest = innerForest + 1;
 						else
@@ -4492,6 +4488,7 @@ function AssignStartingPlots:NormalizeStartLocation(region_number)
 					elseif terrainType == TerrainTypes.TERRAIN_DESERT then
 						innerBadTiles = innerBadTiles + 1;
 						innerCanHaveBonus = innerCanHaveBonus + 1; -- Can have Oasis.
+						desertCount = desertCount + 1;
 					else -- Snow
 						innerBadTiles = innerBadTiles + 1;
 					end
@@ -4594,12 +4591,14 @@ function AssignStartingPlots:NormalizeStartLocation(region_number)
 					elseif terrainType == TerrainTypes.TERRAIN_TUNDRA then
 						outerThreeFood = outerThreeFood + 1;
 						outerCanHaveBonus = outerCanHaveBonus + 1;
+						tundraCount = tundraCount + 1;
 						if featureType == FeatureTypes.FEATURE_FOREST then
 							outerForest = outerForest + 1;
 						end
 					elseif terrainType == TerrainTypes.TERRAIN_DESERT then
 						outerBadTiles = outerBadTiles + 1;
 						outerCanHaveBonus = outerCanHaveBonus + 1; -- Can have Oasis.
+						desertCount = desertCount + 1;
 					else -- Snow
 						outerBadTiles = outerBadTiles + 1;
 					end
@@ -4627,6 +4626,7 @@ function AssignStartingPlots:NormalizeStartLocation(region_number)
 						end
 					elseif terrainType == TerrainTypes.TERRAIN_TUNDRA then
 						outerCanHaveBonus = outerCanHaveBonus + 1;
+						tundraCount = tundraCount + 1;
 						if featureType == FeatureTypes.FEATURE_FOREST then
 							outerForest = outerForest + 1;
 						else
@@ -4635,6 +4635,7 @@ function AssignStartingPlots:NormalizeStartLocation(region_number)
 					elseif terrainType == TerrainTypes.TERRAIN_DESERT then
 						outerBadTiles = outerBadTiles + 1;
 						outerCanHaveBonus = outerCanHaveBonus + 1; -- Can have Oasis.
+						desertCount = desertCount + 1;
 					else -- Snow
 						outerBadTiles = outerBadTiles + 1;
 					end
@@ -4665,6 +4666,32 @@ function AssignStartingPlots:NormalizeStartLocation(region_number)
 				break
 			elseif attempt == 6 then
 				print("FAILED to add hills next to hammer-poor start plot at ", x, y);
+			end
+		end
+	end
+
+	-- Evaluate Third Ring (for counting desert and tundra)
+	if isEvenY then
+		search_table = self.thirdRingYIsEven;
+	else
+		search_table = self.thirdRingYIsOdd;
+	end
+
+	for loop, plot_adjustments in ipairs(search_table) do
+		local searchX, searchY = self:ApplyHexAdjustment(x, y, plot_adjustments);
+		if searchX < 0 or searchX >= iW or searchY < 0 or searchY >= iH then
+			-- This plot does not exist. It's off the map edge.
+		else
+			local searchPlot = Map.GetPlot(searchX, searchY);
+			local plotType = searchPlot:GetPlotType();
+			local terrainType = searchPlot:GetTerrainType();
+			local featureType = searchPlot:GetFeatureType();
+			if terrainType == TerrainTypes.TERRAIN_TUNDRA then
+				tundraCount = tundraCount + 1;
+			elseif terrainType == TerrainTypes.TERRAIN_DESERT and
+				featureType ~= FeatureTypes.FEATURE_FLOOD_PLAINS and
+				featureType ~= FeatureTypes.FEATURE_OASIS then
+				desertCount = desertCount + 1;
 			end
 		end
 	end
@@ -4958,7 +4985,7 @@ function AssignStartingPlots:NormalizeStartLocation(region_number)
 	end
 	
 	-- Record conditions at this start location.
-	local results_table = {alongOcean, nextToLake, isRiver, nearRiver, nearMountain, forestCount, jungleCount};
+	local results_table = {alongOcean, nextToLake, isRiver, nearRiver, nearMountain, forestCount, jungleCount, tundraCount, desertCount};
 	self.startLocationConditions[region_number] = results_table;
 end
 ------------------------------------------------------------------------------
@@ -8564,7 +8591,19 @@ function AssignStartingPlots:AssignLuxuryToRegion(region_number)
 							iNumAvailableTypes = iNumAvailableTypes + 1;
 						end
 					end
-				-- Land-based resources are automatically approved if they were in the region's option table.
+				-- Land-based resources are automatically approved if they were in the region's option table. Except silver and furs that need an extra check.
+				elseif res_ID == self.silver_ID or res_ID == self.fur_ID then
+					if (region_type == RegionTypes.REGION_TUNDRA and self.startLocationConditions[region_number][8] >= 2) or
+						(region_type == RegionTypes.REGION_DESERT and self.startLocationConditions[region_number][9] >= 2) then
+						-- enough tundra/desert to place the silver/furs at start location
+						table.insert(resource_IDs, res_ID);
+						local adjusted_weight = resource_options[2] / (1 + self.luxury_assignment_count[res_ID]);
+						table.insert(resource_weights, adjusted_weight);
+						iNumAvailableTypes = iNumAvailableTypes + 1;
+					else
+						-- debug
+						print("Luxury", res_ID, "cannot be placed in region", region_number, "due to a lack of corresponding terrain at start location.");
+					end
 				else
 					table.insert(resource_IDs, res_ID);
 					local adjusted_weight = resource_options[2] / (1 + self.luxury_assignment_count[res_ID])
@@ -8597,6 +8636,19 @@ function AssignStartingPlots:AssignLuxuryToRegion(region_number)
 								table.insert(resource_weights, adjusted_weight);
 								iNumAvailableTypes = iNumAvailableTypes + 1;
 							end
+						end
+					-- Land-based resources are automatically approved if they were in the region's option table. Except silver and furs that need an extra check.
+					elseif res_ID == self.silver_ID or res_ID == self.fur_ID then
+						if (region_type == RegionTypes.REGION_TUNDRA and self.startLocationConditions[region_number][8] >= 2) or
+							(region_type == RegionTypes.REGION_DESERT and self.startLocationConditions[region_number][9] >= 2) then
+							-- enough tundra/desert to place the silver/furs at start location
+							table.insert(resource_IDs, res_ID);
+							local adjusted_weight = resource_options[2] / (1 + self.luxury_assignment_count[res_ID]);
+							table.insert(resource_weights, adjusted_weight);
+							iNumAvailableTypes = iNumAvailableTypes + 1;
+						else
+							-- debug
+							print("Luxury", res_ID, "cannot be placed in region", region_number, "due to a lack of corresponding terrain at start location.");
 						end
 					else
 						table.insert(resource_IDs, res_ID);
@@ -9265,7 +9317,8 @@ function AssignStartingPlots:GetIndicesForLuxuryType(resource_ID)
 	elseif resource_ID == self.gold_ID then
 		primary, secondary, tertiary, quaternary, quinary, senary = 22, 10, 16, 11, 28, 33;
 	elseif resource_ID == self.silver_ID then
-		primary, secondary, tertiary, quaternary, quinary, senary = 50, 53, 17, 10, 46, 46;
+		-- Tundra and desert only. Snow is backup (to be handled in AdjustTiles).
+		primary, secondary, tertiary, quaternary, quinary, senary = 50, 53, 17, 10, 46, 54;
 	elseif resource_ID == self.copper_ID then
 		primary, secondary, tertiary, quaternary, quinary, senary = 24, 27, 37, 36, 54, 41;
 	elseif resource_ID == self.gems_ID then
@@ -9696,26 +9749,26 @@ function AssignStartingPlots:PlaceLuxuries()
 		if iNumLeftToPlace > 0 then	
 			-- Second pass, checking all with a 100% ratio to make sure the target total is reached for this region!
 			shuf_list = GetShuffledCopyOfTable(luxury_plot_lists[primary])
-			iNumLeftToPlace = self:PlaceSpecificNumberOfResources(res_ID, 1, iNumLeftToPlace, 1, ImpactLayers.LAYER_LUXURY, 1, 3, shuf_list);
+			iNumLeftToPlace = self:PlaceSpecificNumberOfResources(res_ID, 1, iNumLeftToPlace, 1, ImpactLayers.LAYER_LUXURY, 1, 2, shuf_list);
 			if iNumLeftToPlace > 0 and secondary > 0 then
 				shuf_list = GetShuffledCopyOfTable(luxury_plot_lists[secondary])
-				iNumLeftToPlace = self:PlaceSpecificNumberOfResources(res_ID, 1, iNumLeftToPlace, 1, ImpactLayers.LAYER_LUXURY, 1, 3, shuf_list);
+				iNumLeftToPlace = self:PlaceSpecificNumberOfResources(res_ID, 1, iNumLeftToPlace, 1, ImpactLayers.LAYER_LUXURY, 1, 2, shuf_list);
 			end
 			if iNumLeftToPlace > 0 and tertiary > 0 then
 				shuf_list = GetShuffledCopyOfTable(luxury_plot_lists[tertiary])
-				iNumLeftToPlace = self:PlaceSpecificNumberOfResources(res_ID, 1, iNumLeftToPlace, 1, ImpactLayers.LAYER_LUXURY, 1, 3, shuf_list);
+				iNumLeftToPlace = self:PlaceSpecificNumberOfResources(res_ID, 1, iNumLeftToPlace, 1, ImpactLayers.LAYER_LUXURY, 1, 2, shuf_list);
 			end
 			if iNumLeftToPlace > 0 and quaternary > 0 then
 				shuf_list = GetShuffledCopyOfTable(luxury_plot_lists[quaternary])
-				iNumLeftToPlace = self:PlaceSpecificNumberOfResources(res_ID, 1, iNumLeftToPlace, 1, ImpactLayers.LAYER_LUXURY, 1, 3, shuf_list);
+				iNumLeftToPlace = self:PlaceSpecificNumberOfResources(res_ID, 1, iNumLeftToPlace, 1, ImpactLayers.LAYER_LUXURY, 1, 2, shuf_list);
 			end
 			if iNumLeftToPlace > 0 and quinary > 0 then		-- MOD.Barathor: New -- added a quinary list
 				shuf_list = GetShuffledCopyOfTable(luxury_plot_lists[quinary])
-				iNumLeftToPlace = self:PlaceSpecificNumberOfResources(res_ID, 1, iNumLeftToPlace, 1, ImpactLayers.LAYER_LUXURY, 1, 3, shuf_list);
+				iNumLeftToPlace = self:PlaceSpecificNumberOfResources(res_ID, 1, iNumLeftToPlace, 1, ImpactLayers.LAYER_LUXURY, 1, 2, shuf_list);
 			end
 			if iNumLeftToPlace > 0 and senary > 0 then		-- MOD.Barathor: New -- added a senary list
 				shuf_list = GetShuffledCopyOfTable(luxury_plot_lists[senary])
-				iNumLeftToPlace = self:PlaceSpecificNumberOfResources(res_ID, 1, iNumLeftToPlace, 1, ImpactLayers.LAYER_LUXURY, 1, 3, shuf_list);
+				iNumLeftToPlace = self:PlaceSpecificNumberOfResources(res_ID, 1, iNumLeftToPlace, 1, ImpactLayers.LAYER_LUXURY, 1, 2, shuf_list);
 			end
 			print("-"); print("Number of LuxuryID", res_ID, "not placed in Region#", region_number, "is", iNumLeftToPlace);
 		end	
@@ -10624,6 +10677,11 @@ function AssignStartingPlots:AdjustTiles()
 				end
 				if removeFeature then
 					plot:SetFeatureType(FeatureTypes.NO_FEATURE, -1);
+				end
+
+				if res_ID == self.silver_ID and terrainType == TerrainTypes.TERRAIN_SNOW then
+					-- Turn snow into tundra
+					plot:SetTerrainType(TerrainTypes.TERRAIN_TUNDRA, false, true);
 				end
 				
 			-- Tree Resources

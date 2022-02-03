@@ -1,23 +1,33 @@
 (7a) Promotion Icons for VP
-Version 3
+Version 4
 
-------------------------------------------------------------------
 
-. 250+ new icons replace triangles and duplicates. New additional symbols and a few colors make promotion icons coherent and also readable.
+
+. 250+ new icons replace triangles and duplicates. New additional symbols and a few colors make promotion icons coherent and readable.
 . This mod try to be an improvement for managing and keeping track the units. Nicely.
 . Enhanced 16x16 format for compatibility with . Promotion Flags EUI for VP
 . + 64 Extra Promotion Icons you can use in your own modmods: Extra Promo Icons.png ( IconAtlas = 'extraPromo_Atlas' )
 
 Promotion Icons for VP on Civfanatics.com : https://forums.civfanatics.com/threads/7a-promotion-icons-for-vp.642400/
 
+
+
 ------------------------------------------------------------------
 Stability
 
+
 Promotion Icons for VP doesn't add any code mechanics or memory charge when gaming.
-Promotions icons included in VP only are affected.
+Promotions icons included in Vanilla and VP only are affected.
 
 ------------------------------------------------------------------
 Versions
+
+
+(v 4)
+- Add new Promotion Icons for Iklwa, Commando, Attack bonus (25)
+- Change Promotion Icons for Strafing Runs, Buffalo, Conscription, Pincer, Bonus When Attacking (25), Raider and Trailblazer III
+- Standardization of Withdraw before Melee symbols.
+- Polishing on a few Icons.
 
 (v 3)
 - Add Promotion Icons for City Assault, Jinete, Siege Volleys, Titan, Concussive Hits and Dazed.
@@ -31,7 +41,6 @@ Versions
 - Changes, standardization and polishing on a few Icons: Charge I and II, Damaged Enemy Bonus (33), Atlatl Strike, Bonus in Snow/Toundra/Hills (Celt),
    Everlasting Youth, Heal 25/50 if Kill a Unit, Heal on Kill, Gift of Pharaoh, Air Sweep, Can Carry 1/2/3/4 Cargot, Conscript
 - extraPromo_.dds entirely reworked. "Enhanced Triangles" dropped. Instead, a full range of exclusive Icons. Most of them are still generic when others are dedicated to specific used
-- md5 encoding in .modinfo (Steam ready)
 
 
 (v 1)
@@ -44,14 +53,15 @@ Versions
 ------------------------------------------------------------------
 Extra Promotion Icons
 
+
 Open Extra Promo Icons.png (in this folder) to see the 64 Icons you can use for your own project and modmods.
 More infos and tutorial : https://forums.civfanatics.com/threads/7a-promotion-icons-for-vp.642400/#post-15376539
 
 ------------------------------------------------------------------
 Credits
 
+
 Author : Asterix Rage
-Inspired by the early version of "Promotion Overhaul for VP" by adan_eslavo
 
 Many of the icons are made from "flat silhouette" pics. Royalty-free for non commercial use.
 
@@ -83,16 +93,3 @@ Flame : Bloodstrike on clker.com
 Big Wave : Lord on game-icons.net
 B-2 spirit : clipground.com/image-post/4619-b-2-spirit-clipart-1.jpg.html
 And many others on kisspng.com where the authors are not known - Licence Free
-
-
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-                                                                                                                         
-
-                                     <*)))>{
-
-                                                                                                                          <*)))>{
-                                                                              <*)))>{
-
-
-
-

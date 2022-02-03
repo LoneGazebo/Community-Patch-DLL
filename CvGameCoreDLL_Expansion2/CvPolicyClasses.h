@@ -310,7 +310,7 @@ public:
 	int GetYieldFromBirthRetroactive(int i) const;
 	int GetYieldFromBirthCapitalRetroactive(int i) const;
 	int GetYieldFromConstruction(int i) const;
-	int GetYieldFromWonderConstruction(int i) const;
+	int GetYieldFromWorldWonderConstruction(int i) const;
 	int GetYieldFromTech(int i) const;
 	bool GetNoUnhappinessExpansion() const;
 	bool GetNoUnhappyIsolation() const;
@@ -747,7 +747,7 @@ private:
 	int* m_piYieldFromBirthRetroactive;
 	int* m_piYieldFromBirthCapitalRetroactive;
 	int* m_piYieldFromConstruction;
-	int* m_piYieldFromWonderConstruction;
+	int* m_piYieldFromWorldWonderConstruction;
 	int* m_piYieldFromTech;
 	bool m_bNoUnhappinessExpansion;
 	bool m_bNoUnhappyIsolation;

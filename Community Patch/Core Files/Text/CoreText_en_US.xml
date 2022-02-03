@@ -48,12 +48,29 @@
 			<Text>{1_Num} extra {2_IconString} from [ICON_CITIZEN] Population in Empire</Text>
 		</Row>
 
+		<!-- Text for Preview Combat Miscellaneous Bonuses -->
+		<Row Tag="TXT_KEY_MISC_BONUS">
+			<Text>Miscellaneous</Text>
+		</Row>
+
 		<!-- Include City Name in "Work Has Begun On" Notification -->
 		<Row Tag="TXT_KEY_MISC_WORK_HAS_BEGUN_IN_CITY">
 			<Text>[SPACE]Work has now begun on {TXT_KEY_GRAMMAR_A_AN &lt;&lt; {@1_ProdName}} in {@2_CityName}.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_MISC_WORK_HAS_BEGUN_IN_CITY_LIMITED">
 			<Text>[SPACE]Work has now begun on {@1_ProdName} in {@2_CityName}.</Text>
+		</Row>
+		<!-- For compatibility with Wonder consolation prize tweak -->
+		<Row Tag="TXT_KEY_MISC_LOST_WONDER_PROD_CONVERTED_S">
+			<Text>{1_CityName} can no longer work on {2_BldgName}!</Text>
+		</Row>
+
+		<!-- Tourism Bonus Turns for Tooltip -->
+		<Row Tag="TXT_KEY_CO_PLAYER_TOURISM_TOUR_BONUS">
+			<Text>+100% Bonus from Concert Tour ({1_NumTurns} Turns)[NEWLINE]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CO_PLAYER_TOURISM_TOUR_BONUS_HALF">
+			<Text>+50% Bonus from Concert Tour ({1_NumTurns} Turns)[NEWLINE]</Text>
 		</Row>
 
 		<!-- Add Defensive Pact Notification -->
@@ -62,6 +79,21 @@
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_DEFENSIVE_PACT_S">
 			<Text>New Defensive Pact</Text>
+		</Row>
+		<!-- Tooltip for Defensive Pacts -->
+		<Row Tag="TXT_KEY_DIPLO_DEFENSE_PACT_UNKNOWN">
+			<Text>[COLOR_NEGATIVE_TEXT]They have a Defensive Pact with someone![ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_DEFENSE_PACT_WITH_US">
+			<Text>[COLOR_NEGATIVE_TEXT]We have a Defensive Pact with them![ENDCOLOR]</Text>
+		</Row>
+
+		<!-- New Blue Indicators (Enemy Unit Panel) -->
+		<Row Tag="TXT_KEY_EUPANEL_WITHDRAW_CHANCE">
+			<Text>[COLOR_CYAN]Withdraw Chance[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EUPANEL_RANGED_SUPPORT">
+			<Text>[COLOR_CYAN]Additional Ranged Attack[ENDCOLOR]</Text>
 		</Row>
 		
 		<!-- America - Flavoured -->
@@ -2966,11 +2998,20 @@
 		<Row Tag="TXT_KEY_DIPLO_DEBUG_TOP_ALLY">
 			<Text>Top DP:</Text>
 		</Row>
-		<Row Tag="TXT_KEY_DIPLO_DEBUG_TOP_COMPETITOR">
-			<Text>Top Competitor:</Text>
+		<Row Tag="TXT_KEY_DIPLO_DEBUG_TOP_LEAGUE_ALLY">
+			<Text>Top WC Ally:</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_DEBUG_TOP_LEAGUE_COMPETITOR">
 			<Text>Top WC Rival:</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_DEBUG_TOP_LEAGUE_ALLY_UN">
+			<Text>Top UN Ally:</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_DEBUG_TOP_LEAGUE_COMPETITOR_UN">
+			<Text>Top UN Rival:</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_DEBUG_TOP_COMPETITOR">
+			<Text>Top Competitor:</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_DEBUG_TOP_CHOICE_NONE">
 			<Text>None</Text>
@@ -3172,14 +3213,23 @@
 		<Row Tag="TXT_KEY_DIPLO_FOILED_THEIR_PROPOSAL_PREVIOUSLY">
 			<Text>We previously defeated their proposal in the World Congress.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_DIPLO_GOOD_LEAGUE_ALIGNMENT">
-			<Text>They consider us an ally in the World Congress.</Text>
+		<Row Tag="TXT_KEY_DIPLO_GOOD_VOTING_HISTORY">
+			<Text>Your votes supported their civ's interests in the World Congress.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_DIPLO_BAD_LEAGUE_ALIGNMENT">
-			<Text>They consider us a rival in the World Congress.</Text>
+		<Row Tag="TXT_KEY_DIPLO_BAD_VOTING_HISTORY">
+			<Text>Your votes opposed their civ's interests in the World Congress.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_DIPLO_PRIME_LEAGUE_COMPETITOR">
-			<Text>We are their greatest rival in the World Congress.</Text>
+		<Row Tag="TXT_KEY_DIPLO_SANCTIONED_THEM_SUCCESSFUL">
+			<Text>We placed sanctions on them in the World Congress.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_SANCTIONED_THEM_UNSUCCESSFUL">
+			<Text>We tried to place sanctions on them in the World Congress.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_UNSANCTIONED_THEM_SUCCESSFUL">
+			<Text>We freed them from sanctions in the World Congress.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_UNSANCTIONED_THEM_UNSUCCESSFUL">
+			<Text>We tried to free them from sanctions in the World Congress.</Text>
 		</Row>
 
 		<!-- World Congress >>> United Nations -->
@@ -3207,14 +3257,23 @@
 		<Row Tag="TXT_KEY_DIPLO_FOILED_THEIR_PROPOSAL_PREVIOUSLY_UN">
 			<Text>We previously defeated their proposal in the United Nations.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_DIPLO_GOOD_LEAGUE_ALIGNMENT_UN">
-			<Text>They consider us an ally in the United Nations.</Text>
+		<Row Tag="TXT_KEY_DIPLO_GOOD_VOTING_HISTORY_UN">
+			<Text>Your votes supported their civ's interests in the United Nations.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_DIPLO_BAD_LEAGUE_ALIGNMENT_UN">
-			<Text>They consider us a rival in the United Nations.</Text>
+		<Row Tag="TXT_KEY_DIPLO_BAD_VOTING_HISTORY_UN">
+			<Text>Your votes opposed their civ's interests in the United Nations.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_DIPLO_PRIME_LEAGUE_COMPETITOR_UN">
-			<Text>We are their greatest rival in the United Nations.</Text>
+		<Row Tag="TXT_KEY_DIPLO_SANCTIONED_THEM_SUCCESSFUL_UN">
+			<Text>We placed sanctions on them in the United Nations.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_SANCTIONED_THEM_UNSUCCESSFUL_UN">
+			<Text>We tried to place sanctions on them in the United Nations.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_UNSANCTIONED_THEM_SUCCESSFUL_UN">
+			<Text>We freed them from sanctions in the United Nations.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_UNSANCTIONED_THEM_UNSUCCESSFUL_UN">
+			<Text>We tried to free them from sanctions in the United Nations.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_LEAGUE_OVERVIEW_PROPOSAL_OPINIONS_NEUTRAL">
@@ -3223,6 +3282,11 @@
 
 		<Row Tag="TXT_KEY_LEAGUE_OVERVIEW_PROPOSAL_OPINIONS_END">
 			<Text>[NEWLINE][NEWLINE]Civilizations will vote to help themselves and friends, and hurt their enemies/competitors.</Text>
+		</Row>
+
+		<!-- Shorten this to make room for opinion display -->
+		<Row Tag="TXT_KEY_LEAGUE_OVERVIEW_VOTE_OPINIONS_UNKNOWN">
+			<Text>[NEWLINE][ICON_BULLET]Unknown: {1_NumDelegates} {1_NumDelegates: plural 1?Delegate; other?Delegates;} ({2_NumCivs} {2_NumCivs: plural 1?Civ; other?Civs;})</Text>
 		</Row>
 
 		<!-- New Warmonger Hate Descriptors -->
@@ -3529,6 +3593,14 @@
 		<Row Tag="TXT_KEY_NOTIFICATION_MINOR_BULLIED_BY_SOMEONE">
 			<Text>Our diplomats report that {2_Civ} recently bullied {1_CS}!</Text>
 		</Row>
+
+		<!-- DENOUNCEMENT: Post-denouncement notes are now separate text keys, for compatibility with the ability to denounce while at war (and to save on memory) -->
+		<!-- Row Tag="TXT_KEY_DENOUNCED_US_NOT_AT_WAR"> -->
+			<!-- <Text>[NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us! NOTE: You are not at war.[ENDCOLOR])</Text> -->
+		<!-- </Row> -->
+		<!-- <Row Tag="TXT_KEY_DENOUNCED_US_AT_WAR"> -->
+			<!-- <Text>[NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us![ENDCOLOR])</Text> -->
+		<!-- </Row> -->
 		
 		<!-- ADDITIONS TO EXISTING DIPLOMACY TEXTS -->
 		<Row Tag="TXT_KEY_HOSTILE_WE_ATTACKED_YOUR_MINOR_3">
@@ -6954,6 +7026,9 @@
 		<Row Tag="TXT_KEY_MINOR_CIV_QUEST_CONSTRUCT_NATIONAL_WONDER_NAME">
 			<Text>Built National Wonder for {1_CSName}</Text>
 		</Row>
+		<Row Tag="TXT_KEY_MINOR_CIV_QUEST_GIFT_SPECIFIC_UNIT_NAME">
+			<Text>Gifted unit to {1_CSName}</Text>
+		</Row>
 		<Row Tag="TXT_KEY_MINOR_CIV_QUEST_FIND_CITY_STATE_NAME">
 			<Text>Found City-State for {1_CSName}</Text>
 		</Row>
@@ -7496,9 +7571,9 @@
 		<Row Tag="TXT_KEY_MISC_YOU_UNIT_WAS_DAMAGED_AOE_STRIKE_ON_MOVE">
 			<Text>Rend</Text>
 		</Row>
-
+		<!-- These Plague and Ignore_ZOC texts are only used by EUPANEL-->
 		<Row Tag="TXT_KEY_UNIT_PLAGUE_CHANCE">
-			<Text>[COLOR_CYAN]Status Effect Chance ({1_Name}): {2_Num}%[ENDCOLOR]</Text>
+			<Text>[COLOR_CYAN]Status Effect Chance ({1_Name})[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_UNIT_ALREADY_PLAGUED">
 			<Text>[COLOR_CYAN]Has {1_Num} Status Effect[ENDCOLOR]</Text>

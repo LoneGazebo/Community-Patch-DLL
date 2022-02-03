@@ -1963,6 +1963,73 @@ void CvUnit::uninitInfos()
 	m_unitClassModifier.clear();
 }
 
+//	--------------------------------------------------------------------------------
+bool CvUnit::IsRetainablePromotion(PromotionTypes ePromotion)
+{
+	CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(ePromotion);
+	CvAssert(pkPromotionInfo);
+	if (pkPromotionInfo)
+	{
+		if (pkPromotionInfo->IsEmbarkedDeepWater())
+		{
+			// Deep water promotions are handled as special cases of the general embark promotion
+			return false;
+		}
+		else if (static_cast<int>(ePromotion) == GD_INT_GET(PROMOTION_OCEAN_IMPASSABLE))
+		{
+			// Handled by unit initialization
+			return false;
+		}
+		else if (static_cast<int>(ePromotion) == GD_INT_GET(PROMOTION_OCEAN_IMPASSABLE_UNTIL_ASTRONOMY))
+		{
+			// Handled by unit initialization
+			return false;
+		}
+		else if (pkPromotionInfo->IsConvertOnDamage())
+		{
+			// Not certain this actually matters
+			return false;
+		}
+		else if (pkPromotionInfo->IsConvertOnFullHP())
+		{
+			// Not certain this actually matters
+			return false;
+		}
+		else
+		{
+			return true;
+		}
+	}
+	else
+	{
+		return false;
+	}
+}
+
+//	--------------------------------------------------------------------------------
+int CvUnit::CalcExperienceTimes100ForConvert(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, int iExperienceTimes100)
+{
+	if (eFromPlayer == eToPlayer)
+	{
+		return iExperienceTimes100;
+	}
+	else
+	{
+		int iOldModifier = std::max(1, 100 + GET_PLAYER(eFromPlayer).getLevelExperienceModifier());
+		int iOurModifier = std::max(1, 100 + GET_PLAYER(eToPlayer).getLevelExperienceModifier());
+		return std::max(0, (iExperienceTimes100 * iOurModifier) / iOldModifier);
+	}
+}
+
+//	--------------------------------------------------------------------------------
+void CvUnit::grantExperienceFromLostPromotions(int iNumLost)
+{
+	// 20 xp per lost 'good' promotion (plus level).
+	if (iNumLost > 0)
+	{
+		changeExperienceTimes100(20 * iNumLost * std::max(1, getLevel()) * 100);
+	}
+}
 
 //	--------------------------------------------------------------------------------
 void CvUnit::convert(CvUnit* pUnit, bool bIsUpgrade)
@@ -1974,9 +2041,8 @@ void CvUnit::convert(CvUnit* pUnit, bool bIsUpgrade)
 	CvPlot* pPlot;
 
 	pPlot = plot();
-#if defined(MOD_BALANCE_CORE)
 	int iLostPromotions = 0;
-#endif
+
 	// Transfer Promotions over
 	for(int iI = 0; iI < GC.getNumPromotionInfos(); iI++)
 	{
@@ -1985,48 +2051,13 @@ void CvUnit::convert(CvUnit* pUnit, bool bIsUpgrade)
 		if(pkPromotionInfo)
 		{
 			bool bGivePromotion = false;
-
-#if defined(MOD_PROMOTIONS_DEEP_WATER_EMBARKATION)
-			if (pkPromotionInfo->IsEmbarkedDeepWater()) {
-				// Deep water promotions are handled as special cases of the general embark promotion
-				continue;
-			}
-#endif
-#if defined(MOD_BALANCE_CORE)
-			if (pUnit->isConvertOnDamage() && pkPromotionInfo->IsConvertOnDamage())
-			{
-				continue;
-			}
-			if (pUnit->isConvertOnFullHP() && pkPromotionInfo->IsConvertOnFullHP())
-			{
-				continue;
-			}
 			bool bFree = false;
-			if (ePromotion == (PromotionTypes)GD_INT_GET(PROMOTION_OCEAN_IMPASSABLE))
+
+			if (!IsRetainablePromotion(ePromotion))
 			{
-				if (GET_PLAYER(getOwner()).GetPlayerTraits()->IsEmbarkedAllWater())
-				{
-					bGivePromotion = false;
-				}
-				//Can't embark yet, or the unit should auto get it?
-				else if ((pUnit->isHasPromotion(ePromotion) && !pkPromotionInfo->IsLostWithUpgrade()) || getUnitInfo().GetFreePromotions(ePromotion))
-				{
-					bGivePromotion = true;
-				}
+				continue;
 			}
-			else if (ePromotion == (PromotionTypes)GD_INT_GET(PROMOTION_OCEAN_IMPASSABLE_UNTIL_ASTRONOMY))
-			{
-				//Can't embark yet, or the unit should auto get it?
-				if (pUnit->isHasPromotion(ePromotion) || getUnitInfo().GetFreePromotions(ePromotion))
-				{
-					if(!GET_PLAYER(getOwner()).CanCrossOcean())
-					{
-						bGivePromotion = true;
-					}
-				}
-			}
-			else
-#endif
+
 			// Old unit has the promotion
 			if(pUnit->isHasPromotion(ePromotion) && !pkPromotionInfo->IsLostWithUpgrade())
 			{
@@ -2036,9 +2067,7 @@ void CvUnit::convert(CvUnit* pUnit, bool bIsUpgrade)
 			// New unit gets promotion for free (as per XML)
 			else if(getUnitInfo().GetFreePromotions(ePromotion) && (!bIsUpgrade || !pkPromotionInfo->IsNotWithUpgrade()))
 			{
-#if defined(MOD_BALANCE_CORE)
 				bFree = true;
-#endif
 				bGivePromotion = true;
 			}
 
@@ -2046,12 +2075,9 @@ void CvUnit::convert(CvUnit* pUnit, bool bIsUpgrade)
 			else if(GET_PLAYER(getOwner()).IsFreePromotion(ePromotion) && (
 			            ::IsPromotionValidForUnitCombatType(ePromotion, getUnitType()) || ::IsPromotionValidForCivilianUnitType(ePromotion, getUnitType())))
 			{
-#if defined(MOD_BALANCE_CORE)
 				bFree = true;
-#endif
 				bGivePromotion = true;
 			}
-#if defined(MOD_BALANCE_CORE)
 			if(pUnit->getUnitCombatType() != getUnitCombatType())
 			{
 				bool bMelee = false;
@@ -2088,29 +2114,14 @@ void CvUnit::convert(CvUnit* pUnit, bool bIsUpgrade)
 					bGivePromotion = false;
 				}
 			}
-#endif
 
 			setHasPromotion(ePromotion, bGivePromotion);
-#if defined(MOD_PROMOTIONS_DEEP_WATER_EMBARKATION)
 			if (MOD_PROMOTIONS_DEEP_WATER_EMBARKATION && bGivePromotion && pkPromotionInfo->IsAllowsEmbarkation() && IsHoveringUnit())
 			{
 				setHasPromotion(GET_PLAYER(getOwner()).GetDeepWaterEmbarkationPromotion(), true);
 			}
-#endif
 		}
 	}
-#if defined(MOD_BALANCE_CORE)
-	//20 xp per lost 'good' promotion (plus level).
-	if(iLostPromotions > 0)
-	{
-		int iLevel = pUnit->getLevel();
-		if(iLevel <= 0)
-		{
-			iLevel = 1;
-		}
-		changeExperienceTimes100(20 * iLostPromotions * iLevel * 100);
-	}
-#endif
 	setGameTurnCreated(pUnit->getGameTurnCreated());
 	setLastMoveTurn(pUnit->getLastMoveTurn());
 	// Don't kill the unit if upgrading from a unit with more base hit points!!!
@@ -2142,7 +2153,7 @@ void CvUnit::convert(CvUnit* pUnit, bool bIsUpgrade)
 
 		SetTourismBlastLength(iNumTurns);
 	}
-#if defined(MOD_BALANCE_CORE)
+
 	if (pUnit->getDiscoverAmount() > getDiscoverAmount())
 		SetScienceBlastStrength(pUnit->getDiscoverAmount());
 	else if (getDiscoverAmount() > 0)
@@ -2174,30 +2185,24 @@ void CvUnit::convert(CvUnit* pUnit, bool bIsUpgrade)
 	{
 		setOriginCity(pUnit->getOriginCity()->GetID());
 	}
-#endif
 	if (pUnit->getUnitInfo().GetNumExoticGoods() > 0)
 	{
 		setNumExoticGoods(pUnit->getNumExoticGoods());
 	}
-#if defined(MOD_BALANCE_CORE)
 	if(pUnit->getUnitCombatType() != getUnitCombatType() && (iLostPromotions > 0))
 	{
 		setLevel(1);
 	}
 	else
 	{
-#endif
-	setLevel(pUnit->getLevel());
-#if defined(MOD_BALANCE_CORE)
+		setLevel(pUnit->getLevel());
 	}
-#endif
-	int iOldModifier = std::max(1, 100 + GET_PLAYER(pUnit->getOwner()).getLevelExperienceModifier());
-	int iOurModifier = std::max(1, 100 + GET_PLAYER(getOwner()).getLevelExperienceModifier());
-	setExperienceTimes100(std::max(0, (pUnit->getExperienceTimes100() * iOurModifier) / iOldModifier));
+	setExperienceTimes100(CalcExperienceTimes100ForConvert(pUnit->getOwner(), getOwner(), pUnit->getExperienceTimes100()));
+	grantExperienceFromLostPromotions(iLostPromotions);
 
 	setName(pUnit->getNameNoDesc());
 	setLeaderUnitType(pUnit->getLeaderUnitType());
-	ChangeNumGoodyHutsPopped(pUnit->GetNumGoodyHutsPopped());
+	SetNumGoodyHutsPopped(pUnit->GetNumGoodyHutsPopped());
 
 	pTransportUnit = pUnit->getTransportUnit();
 
@@ -2220,21 +2225,17 @@ void CvUnit::convert(CvUnit* pUnit, bool bIsUpgrade)
 		}
 	}
 
-#if defined(MOD_BALANCE_CORE)
 	// Transfer original owner
 	PlayerTypes eOriginalOwner = pUnit->GetOriginalOwner();
 	if (eOriginalOwner != NO_PLAYER)
 	{
 		SetOriginalOwner(eOriginalOwner);
 	}
-#endif
 
-#if defined(MOD_EVENTS_UNIT_CONVERTS)
 	if (MOD_EVENTS_UNIT_CONVERTS)
 	{
 		GAMEEVENTINVOKE_HOOK(GAMEEVENT_UnitConverted, pUnit->getOwner(),getOwner(), pUnit->GetID(), GetID(), bIsUpgrade);
 	}
-#endif
 
 	pUnit->kill(true, NO_PLAYER);
 }
@@ -6008,8 +6009,18 @@ bool CvUnit::canGift(bool bTestVisible, bool bTestTransport) const
 		return false;
 	}
 
-	if (GET_PLAYER(pPlot->getOwner()).GetIncomingUnitCountdown(m_eOwner) != -1)
-		return false;
+	if (GET_PLAYER(pPlot->getOwner()).isMinorCiv())
+	{
+		CvMinorCivAI* pMinorCivAI = GET_PLAYER(pPlot->getOwner()).GetMinorCivAI();
+		CvAssert(pMinorCivAI);
+		if (pMinorCivAI)
+		{
+			if (pMinorCivAI->getIncomingUnitGift(getOwner()).getArrivalCountdown() != -1)
+			{
+				return false;
+			}
+		}
+	}
 
 	if(pPlot->getOwner() == getOwner())
 	{
@@ -6228,10 +6239,16 @@ bool CvUnit::CanDistanceGift(PlayerTypes eToPlayer) const
 			}
 		}
 
-		// Is there a distance gift from us waiting to be delivered?
-		if (GET_PLAYER(eToPlayer).GetIncomingUnitType(getOwner()) != NO_UNIT)
+		CvMinorCivAI* pMinorCivAI = GET_PLAYER(eToPlayer).GetMinorCivAI();
+		CvAssert(pMinorCivAI);
+
+		if (pMinorCivAI)
 		{
-			return false;
+			// Is there a distance gift from us waiting to be delivered?
+			if (pMinorCivAI->getIncomingUnitGift(getOwner()).getArrivalCountdown() != -1)
+			{
+				return false;
+			}
 		}
 	}
 
@@ -6798,6 +6815,16 @@ int CvUnit::getChangeDamageValue()
 }
 
 //	--------------------------------------------------------------------------------
+void CvUnit::SetPromotionDuration(PromotionTypes eIndex, int iValue)
+{
+	std::map<PromotionTypes, int>& m_map = m_PromotionDuration;
+	if (iValue > 0)
+		m_map[eIndex] = iValue;
+	else
+		m_map.erase(eIndex);
+}
+
+//	--------------------------------------------------------------------------------
 void CvUnit::ChangePromotionDuration(PromotionTypes eIndex, int iChange)
 {
 	std::map<PromotionTypes, int>& m_map = m_PromotionDuration;
@@ -6811,7 +6838,7 @@ void CvUnit::ChangePromotionDuration(PromotionTypes eIndex, int iChange)
 		m_map[eIndex] = iChange;
 }
 //	--------------------------------------------------------------------------------
-int CvUnit::getPromotionDuration(PromotionTypes eIndex)
+int CvUnit::getPromotionDuration(PromotionTypes eIndex) const
 {
 	const std::map<PromotionTypes, int>& m_map = m_PromotionDuration;
 	std::map<PromotionTypes, int>::const_iterator it = m_map.find(eIndex);
@@ -6831,7 +6858,7 @@ void CvUnit::SetTurnPromotionGained(PromotionTypes eIndex, int iValue)
 		m_map.erase(eIndex);
 }
 //	--------------------------------------------------------------------------------
-int CvUnit::getTurnPromotionGained(PromotionTypes eIndex)
+int CvUnit::getTurnPromotionGained(PromotionTypes eIndex) const
 {
 	const std::map<PromotionTypes, int>& m_map = m_TurnPromotionGained;
 	std::map<PromotionTypes, int>::const_iterator it = m_map.find(eIndex);
@@ -7195,7 +7222,7 @@ int CvUnit::GetNumGoodyHutsPopped() const
 	return m_iNumGoodyHutsPopped;
 }
 //	--------------------------------------------------------------------------------
-void CvUnit::ChangeNumGoodyHutsPopped(int iValue)
+void CvUnit::SetNumGoodyHutsPopped(int iValue)
 {
 	m_iNumGoodyHutsPopped = iValue;
 }
@@ -9562,7 +9589,7 @@ bool CvUnit::createFreeLuxury()
 		}
 		if (eResourceToGive != NO_RESOURCE)
 		{
-			GET_PLAYER(getOwner()).changeNumResourceTotal(eResourceToGive, iNumLuxuries);
+			GET_PLAYER(getOwner()).changeResourceFromGP(eResourceToGive, iNumLuxuries);
 			CvPlayerAI& kOwner = GET_PLAYER(getOwner());
 			if(kOwner.isHuman())
 			{
@@ -13368,10 +13395,10 @@ bool CvUnit::blastTourism()
 		if (pNotifications)
 		{
 			Localization::String localizedText = Localization::Lookup("TXT_KEY_NOTIFICATION_GREAT_MUSICIAN_TOUR_TURNS");
-			localizedText << kUnitOwner.getCivilizationAdjectiveKey();
+			localizedText << GET_PLAYER(eOwner).getCivilizationAdjectiveKey();
 			localizedText << GetTourismBlastLength();
 			Localization::String localizedSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_GREAT_MUSICIAN_TOUR_TURNS_S");
-			localizedSummary << kUnitOwner.getCivilizationAdjectiveKey();
+			localizedSummary << GET_PLAYER(eOwner).getCivilizationAdjectiveKey();
 			pNotifications->Add(NOTIFICATION_GREAT_PERSON_ACTIVE_PLAYER, localizedText.toUTF8(), localizedSummary.toUTF8(), getX(), getY(), getUnitType());
 		}
 		CvNotifications* pNotifications2 = GET_PLAYER(eOwner).GetNotifications();
@@ -14761,6 +14788,7 @@ int CvUnit::upgradePrice(UnitTypes eUnit) const
 		iPrice /= 100;
 
 		iPrice *= std::max(0, ((GC.getGame().getHandicapInfo().getAIPerEraModifier() * GET_TEAM(getTeam()).GetCurrentEra()) + 100));
+		// This applies the Per Era discount twice since it is already applied once in the getProductionNeeded() call
 		iPrice /= 100;
 	}
 
@@ -17233,7 +17261,7 @@ bool CvUnit::isWaiting() const
 /// Can this Unit EVER fortify? (may be redundant with some other stuff)
 bool CvUnit::IsEverFortifyable() const
 {
-	return (IsCombatUnit() && !noDefensiveBonus() && ((getDomainType() == DOMAIN_LAND) || (getDomainType() == DOMAIN_IMMOBILE)));
+	return (IsCombatUnit() && !noDefensiveBonus() && !isRangedSupportFire() && ((getDomainType() == DOMAIN_LAND) || (getDomainType() == DOMAIN_IMMOBILE)));
 }
 
 //	--------------------------------------------------------------------------------
@@ -29999,47 +30027,59 @@ bool CvUnit::CanFallBack(const CvUnit& attacker, bool bCheckChances) const
 {
 	VALIDATE_OBJECT
 
+	int iWithdrawChance = GetWithdrawChance(attacker, bCheckChances);
+
+	if (bCheckChances && iWithdrawChance > 0)
+	{
+		//include damage so the result changes for each attack
+		int iRoll = GC.getGame().getSmallFakeRandNum(10, plot()->GetPlotIndex()+GetID()+getDamage()) * 10;
+		return iRoll < iWithdrawChance;
+	}
+	else
+		return iWithdrawChance > 0;
+}
+
+int CvUnit::GetWithdrawChance(const CvUnit& attacker, const bool bCheckChances) const
+{
+	VALIDATE_OBJECT
+
 	if (isEmbarked() && getDomainType() == DOMAIN_LAND)
-		return false;
+		return 0;
 
 	// Are some of the retreat hexes away from the attacker blocked?
 	int iBlockedHexes = 0;
 	DirectionTypes eAttackDirection = directionXY(attacker.plot(), plot());
-	int iBiases[3] = {0,-1,1};
+	int iBiases[3] = { 0,-1,1 };
 
-	for(int i = 0; i < 3; i++)
+	for (int i = 0; i < 3; i++)
 	{
 		int iMovementDirection = (NUM_DIRECTION_TYPES + eAttackDirection + iBiases[i]) % NUM_DIRECTION_TYPES;
-		CvPlot* pDestPlot = plotDirection(getX(), getY(), (DirectionTypes) iMovementDirection);
+		CvPlot* pDestPlot = plotDirection(getX(), getY(), (DirectionTypes)iMovementDirection);
 
-		if(pDestPlot && !canMoveInto(*pDestPlot, MOVEFLAG_DESTINATION|MOVEFLAG_NO_EMBARK))
+		if (pDestPlot && !canMoveInto(*pDestPlot, MOVEFLAG_DESTINATION | MOVEFLAG_NO_EMBARK))
 		{
 			iBlockedHexes++;
 		}
 	}
 
 	// If all three hexes away from attacker blocked, we can't withdraw
-	if(iBlockedHexes >= 3)
-	{
-		return false;
-	}
-
-	if(bCheckChances)
+	if (iBlockedHexes >= 3)
+		return 0;
+	
+	if (bCheckChances)
 	{
 		int iWithdrawChance = getExtraWithdrawal();
-		// Does attacker have a speed greater than 1?
+		// Does attacker have a greater speed than defender? Reduce withdrawal chance for each point the attacker is faster
+		int iDefenderMovementRange = baseMoves(isEmbarked());
 		int iAttackerMovementRange = attacker.baseMoves(attacker.isEmbarked());
-		if(iAttackerMovementRange > 2)
-			iWithdrawChance += (/*-20*/ GD_INT_GET(WITHDRAW_MOD_ENEMY_MOVES) * (iAttackerMovementRange - 2));
+		if (iAttackerMovementRange > iDefenderMovementRange)
+			iWithdrawChance += (/*-20*/ GD_INT_GET(WITHDRAW_MOD_ENEMY_MOVES) * (iAttackerMovementRange - iDefenderMovementRange));
 
 		iWithdrawChance += (/*-20*/ GD_INT_GET(WITHDRAW_MOD_BLOCKED_TILE) * iBlockedHexes);
-
-		//include damage so the result changes for each attack
-		int iRoll = GC.getGame().getSmallFakeRandNum(10, plot()->GetPlotIndex()+GetID()+getDamage()) * 10;
-		return iRoll < iWithdrawChance;
+		return iWithdrawChance;
 	}
 	else
-		return true;
+		return 100;
 }
 
 //	--------------------------------------------------------------------------------
@@ -30060,7 +30100,9 @@ bool CvUnit::DoFallBack(const CvUnit& attacker)
 
 		if(pDestPlot && canMoveInto(*pDestPlot, MOVEFLAG_DESTINATION|MOVEFLAG_NO_EMBARK) && isNativeDomain(pDestPlot))
 		{
-			setXY(pDestPlot->getX(), pDestPlot->getY(), false, false, true, false);
+			setXY(pDestPlot->getX(), pDestPlot->getY(), true, true, true, true);
+			PublishQueuedVisualizationMoves();
+
 			return true;
 		}
 	}

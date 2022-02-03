@@ -1,5 +1,5 @@
 /*	-------------------------------------------------------------------------------------------------------
-	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+	Â© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -404,6 +404,7 @@ public:
 	bool UpdateStateReligion();
 	void SetStateReligionOverride(ReligionTypes eReligion);
 	ReligionTypes GetStateReligion(bool bIncludePantheon = true) const;
+	ReligionTypes GetOwnedReligion() const;
 	int GetNumCitiesWithStateReligion(ReligionTypes eReligion);
 
 	int GetCityStateMinimumInfluence(ReligionTypes eReligion, PlayerTypes ePlayer) const;
@@ -416,7 +417,7 @@ public:
 	bool ComputeMajority(bool bNotifications = false);
 
 private:
-	bool SetStateReligion(ReligionTypes eReligion);
+	bool SetStateReligion(ReligionTypes eReligion, bool bOwnsReligion);
 	CvPlayer* m_pPlayer;
 
 #if defined(MOD_GLOBAL_TRULY_FREE_GP)
@@ -428,9 +429,10 @@ private:
 	int m_iFaithAtLastNotify;
 #endif
 
-	ReligionTypes m_majorityReligion; //according to city majority religions
-	ReligionTypes m_eStateReligion; //depends on holy city ownership, maybe the same as majority religion but can be different
+	ReligionTypes m_eMajorityReligion; //this is the majority religion in at least half of our cities
+	ReligionTypes m_eStateReligion; //this is our founded religion > the religion whose holy city we control with the most domestic followers > m_eMajorityReligion
 	ReligionTypes m_eStateReligionOverride; //to be set from lua
+	bool m_bOwnsStateReligion; //do we own the holy city of our state religion
 };
 
 FDataStream& operator>>(FDataStream&, CvPlayerReligions&);
@@ -532,7 +534,7 @@ protected:
 	ReligionInCityList m_SimulatedStatus; //not serialized
 
 	ReligionInCityList m_ReligionStatus;
-	ReligionTypes m_majorityCityReligion;
+	ReligionTypes m_eMajorityCityReligion;
 
 	const CvReligion* m_pMajorityReligionCached; //for faster access, not serialized
 

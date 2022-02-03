@@ -401,7 +401,7 @@ void CvDealAI::DoAcceptedDeal(PlayerTypes eFromPlayer, CvDeal kDeal, int iDealVa
 				LeaderheadAnimationTypes eAnimation = kDeal.GetPeaceTreatyType() != NO_PEACE_TREATY_TYPE ? LEADERHEAD_ANIM_PEACEFUL : LEADERHEAD_ANIM_YES;
 
 				// A deal is generous if we're getting a lot overall, OR a lot more than we're giving up
-				if (bGenerousPeaceTreaty || iDealValueToMe >= 100 || iValueTheyreOffering > (iValueImOffering * 5))
+				if (bGenerousPeaceTreaty || iDealValueToMe >= 100 || iValueTheyreOffering >= (iValueImOffering * 2))
 				{
 					const char* szText = GetPlayer()->GetDiplomacyAI()->GetDiploStringForMessage(DIPLO_MESSAGE_TRADE_ACCEPT_GENEROUS);
 					gDLL->GameplayDiplomacyAILeaderMessage(GetPlayer()->GetID(), DIPLO_UI_STATE_BLANK_DISCUSSION, szText, eAnimation);
@@ -2628,26 +2628,32 @@ int CvDealAI::GetDefensivePactValue(bool bFromMe, PlayerTypes eOtherPlayer, bool
 {
 	CvAssertMsg(GetPlayer()->GetID() != eOtherPlayer, "DEAL_AI: Trying to check value of a Defensive Pact with oneself.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 
-	int iItemValue = 500;
-
 	if (GetPlayer()->IsAITeammateOfHuman())
 		return INT_MAX;
 
 	if (!GetPlayer()->GetDiplomacyAI()->IsWantsDefensivePactWithPlayer(eOtherPlayer))
 		return INT_MAX;
 
-	if (!GET_PLAYER(eOtherPlayer).isHuman() && !GET_PLAYER(eOtherPlayer).GetDiplomacyAI()->IsWantsDefensivePactWithPlayer(GetPlayer()->GetID()))
-		return INT_MAX;
+	int iDefensivePactValue = GetPlayer()->GetDiplomacyAI()->ScoreDefensivePactChoice(eOtherPlayer, GetPlayer()->GetNumEffectiveCoastalCities() > 1);
+	iDefensivePactValue *= 5;
 
-	if (!bFromMe)
+	if (MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED)
+		iDefensivePactValue *= max(1, (int)GetPlayer()->GetCurrentEra());
+
+	int iItemValue = 0;
+	bool bMostValuableAlly = GetPlayer()->GetDiplomacyAI()->GetMostValuableAlly() == eOtherPlayer;
+
+	if (iDefensivePactValue > 0 && !bFromMe)
 	{
-		int iStrengthMod = (int)GetPlayer()->GetDiplomacyAI()->GetPlayerMilitaryStrengthComparedToUs(eOtherPlayer) - 3;
-		iItemValue += (250 * iStrengthMod);
-
-		if (GetPlayer()->GetDiplomacyAI()->GetMostValuableAlly() == eOtherPlayer)
-		{
-			iItemValue += 500;
-		}
+		iItemValue = iDefensivePactValue;
+		if (bMostValuableAlly)
+			iItemValue *= 2;
+	}
+	else if (iDefensivePactValue < 0 && bFromMe)
+	{
+		iItemValue = iDefensivePactValue;
+		if (!bMostValuableAlly)
+			iItemValue *= 2;
 	}
 
 	// Are we trying to find the middle point between what we think this item is worth and what another player thinks it's worth?
@@ -2924,7 +2930,7 @@ int CvDealAI::GetThirdPartyPeaceValue(bool bFromMe, PlayerTypes eOtherPlayer, Te
 		else
 		{
 			// Captured our capital or Holy City? Close to winning the game? Don't accept peace bribes.
-			if (pDiploAI->IsCapitalCapturedBy(eWithPlayer) || pDiploAI->IsHolyCityCapturedBy(eWithPlayer) || pDiploAI->IsCloseToDominationVictory() || pDiploAI->IsEndgameAggressiveTo(eWithPlayer))
+			if (pDiploAI->IsCapitalCapturedBy(eWithPlayer) || pDiploAI->IsHolyCityCapturedBy(eWithPlayer) || pDiploAI->IsCloseToWorldConquest() || pDiploAI->IsEndgameAggressiveTo(eWithPlayer))
 			{
 				return INT_MAX;
 			}
@@ -3468,6 +3474,10 @@ int CvDealAI::GetVoteCommitmentValue(bool bFromMe, PlayerTypes eOtherPlayer, int
 			// Is this the World Leader vote?
 			if (pProposal->GetEffects()->bDiplomaticVictory)
 			{
+				// Forbidden by game options
+				if (GD_INT_GET(DIPLOAI_NO_OTHER_WORLD_LEADER_VOTES) > 1)
+					return INT_MAX;
+
 				// AI never sells World Leader votes if they're teamed up with a human!
 				if (GetPlayer()->IsAITeammateOfHuman())
 					return INT_MAX;

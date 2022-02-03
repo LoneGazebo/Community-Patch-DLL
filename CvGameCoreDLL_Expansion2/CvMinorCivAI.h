@@ -65,9 +65,9 @@ enum MinorCivQuestTypes
     MINOR_CIV_QUEST_DENOUNCE_MAJOR,
     MINOR_CIV_QUEST_SPREAD_RELIGION,
 	MINOR_CIV_QUEST_TRADE_ROUTE,
-#if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
 	MINOR_CIV_QUEST_WAR,
 	MINOR_CIV_QUEST_CONSTRUCT_NATIONAL_WONDER,
+	MINOR_CIV_QUEST_GIFT_SPECIFIC_UNIT,
 	MINOR_CIV_QUEST_FIND_CITY_STATE,
 	MINOR_CIV_QUEST_INFLUENCE,
 	MINOR_CIV_QUEST_CONTEST_TOURISM,
@@ -76,14 +76,11 @@ enum MinorCivQuestTypes
 	MINOR_CIV_QUEST_LIBERATION,
 	MINOR_CIV_QUEST_HORDE,
 	MINOR_CIV_QUEST_REBELLION,
-#endif
-#if defined(MOD_BALANCE_CORE)
 	MINOR_CIV_QUEST_DISCOVER_PLOT,
 	MINOR_CIV_QUEST_BUILD_X_BUILDINGS,
 	MINOR_CIV_QUEST_UNIT_STEAL_FROM,
 	MINOR_CIV_QUEST_UNIT_COUP_CITY,
 	MINOR_CIV_QUEST_UNIT_GET_CITY,
-#endif
 
     NUM_MINOR_CIV_QUEST_TYPES,
 };
@@ -112,8 +109,7 @@ public:
 	static const int NO_QUEST_DATA = -1;
 	static const int NO_TURN = -1;
 
-	// Functions
-
+	// Quest data
 	CvMinorCivQuest();
 	CvMinorCivQuest(PlayerTypes eMinor, PlayerTypes eAssignedPlayer, MinorCivQuestTypes eType);
 
@@ -130,45 +126,47 @@ public:
 	int GetTurnsRemaining(int iCurrentTurn) const;
 	int GetPrimaryData() const;
 	int GetSecondaryData() const;
-
-	void DoRewards(PlayerTypes ePlayer);
-	CvString GetRewardString(PlayerTypes ePlayer, bool bFinish);
-	void CalculateRewards(PlayerTypes ePlayer, bool bRecalc = false);
-
-	void SetInfluence(int iValue);
-	void SetGPGlobal(int iValue);
-	void SetGP(int iValue);
-	void SetCulture(int iValue);
-	void SetExperience(int iValue);
-	void SetFaith(int iValue);
-	void SetScience(int iValue);
-	void SetFood(int iValue);
-	void SetProduction(int iValue);
-	void SetGold(int iValue);
-	void SetGoldenAgePoints(int iValue);
-	void SetHappiness(int iValue);
-	void SetTourism(int iValue);
-	void SetGeneralPoints(int iValue);
-	void SetAdmiralPoints(int iValue);
+	int GetTertiaryData() const;
 
 	int GetInfluence() const;
-	int GetGPGlobal() const;
-	int GetGP() const;
-	int GetCulture() const;
-	int GetExperience() const;
-	int GetFaith() const;
 	int GetGold() const;
 	int GetScience() const;
+	int GetCulture() const;
+	int GetFaith() const;
+	int GetGoldenAgePoints() const;
 	int GetFood() const;
 	int GetProduction() const;
-	int GetGoldenAgePoints() const;
-	int GetHappiness() const;
 	int GetTourism() const;
+	int GetHappiness() const;
+	int GetGP() const;
+	int GetGPGlobal() const;
 	int GetGeneralPoints() const;
 	int GetAdmiralPoints() const;
+	int GetExperience() const;
 
-	void SetPartialQuest(bool bValue);
+	void SetInfluence(int iValue);
+	void SetGold(int iValue);
+	void SetScience(int iValue);
+	void SetCulture(int iValue);
+	void SetFaith(int iValue);
+	void SetGoldenAgePoints(int iValue);
+	void SetFood(int iValue);
+	void SetProduction(int iValue);
+	void SetTourism(int iValue);
+	void SetHappiness(int iValue);
+	void SetGP(int iValue);
+	void SetGPGlobal(int iValue);
+	void SetGeneralPoints(int iValue);
+	void SetAdmiralPoints(int iValue);
+	void SetExperience(int iValue);
+
 	bool IsPartialQuest() const;
+	void SetPartialQuest(bool bValue);
+
+	// Handle rewards
+	void CalculateRewards(PlayerTypes ePlayer, bool bRecalc = false);
+	void DoRewards(PlayerTypes ePlayer);
+	CvString GetRewardString(PlayerTypes ePlayer, bool bFinish);
 
 	// Contest helper functions
 	int GetContestValueForPlayer(PlayerTypes ePlayer);
@@ -185,11 +183,7 @@ public:
 	void SetHandled(bool bValue);
 
 	// Starting and finishing
-#if defined(MOD_BALANCE_CORE)
-void DoStartQuest(int iStartTurn, PlayerTypes pCallingPlayer = NO_PLAYER);
-#else
-	void DoStartQuest(int iStartTurn);
-#endif
+	void DoStartQuest(int iStartTurn, PlayerTypes pCallingPlayer = NO_PLAYER);
 	void DoStartQuestUsingExistingData(CvMinorCivQuest* pExistingQuest);
 	bool DoFinishQuest();
 	bool DoCancelQuest();
@@ -201,29 +195,108 @@ void DoStartQuest(int iStartTurn, PlayerTypes pCallingPlayer = NO_PLAYER);
 	int m_iStartTurn;
 	int m_iData1;
 	int m_iData2;
-	bool m_bHandled;
-#if defined(MOD_BALANCE_CORE)
 	int m_iData3;
 	int m_iInfluence;
-	int m_iGPGlobal;
-	int m_iGP;
-	int m_iCulture;
-	int m_iExperience;
-	int m_iFaith;
 	int m_iGold;
 	int m_iScience;
+	int m_iCulture;
+	int m_iFaith;
+	int m_iGoldenAgePoints;
 	int m_iFood;
 	int m_iProduction;
-	int m_iGoldenAgePoints;
-	int m_iHappiness;
 	int m_iTourism;
+	int m_iHappiness;
+	int m_iGP;
+	int m_iGPGlobal;
 	int m_iGeneralPoints;
 	int m_iAdmiralPoints;
+	int m_iExperience;
 	bool m_bPartialQuest;
-#endif
+	bool m_bHandled;
 };
 FDataStream& operator>>(FDataStream&, CvMinorCivQuest&);
 FDataStream& operator<<(FDataStream&, const CvMinorCivQuest&);
+
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//  CLASS:      CvMinorCivIncomingUnitGift
+//!  \brief		Information about an incoming unit gifted to a minor civ.
+//
+//!  Key Attributes:
+//!  - Lightweight representation of a unit.
+//!  - Held by CvMinorCivAI as only minor civs can receive this kind of gift.
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+class CvMinorCivIncomingUnitGift
+{
+public:
+	CvMinorCivIncomingUnitGift();
+	CvMinorCivIncomingUnitGift(const CvUnit& srcUnit, int iArriveInTurns);
+
+	template<typename MinorCivIncomingUnitGift, typename Visitor>
+	static void Serialize(MinorCivIncomingUnitGift& minorCivIncomingUnitGift, Visitor& visitor);
+
+	void init(const CvUnit& srcUnit, int iArriveInTurns);
+
+	int getArrivalCountdown() const;
+	UnitTypes getUnitType() const;
+	CvPlot* getFromPlot() const;
+	PlayerTypes getOriginalOwner() const;
+	int getGameTurnCreated() const;
+	bool isHasPromotion(PromotionTypes ePromotion) const;
+	int getPromotionDuration(PromotionTypes ePromotion) const;
+	int getTurnPromotionGained(PromotionTypes ePromotion) const;
+	bool isHasBeenPromotedFromGoody() const;
+	int getExperienceTimes100() const;
+	int getLevel() const;
+	int getOriginCity() const;
+	UnitTypes getLeaderUnitType() const;
+	int getNumGoodyHutsPopped() const;
+	const CvString& getName() const;
+
+private:
+	void setArrivalCountdown(int iNewCountdown);
+
+public:
+	void changeArrivalCountdown(int iChangeCountdown);
+	void setUnitType(UnitTypes eNewUnitType);
+	void setFromXY(int iFromX, int iFromY);
+	void setOriginalOwner(PlayerTypes eNewOriginalOwner);
+	void setGameTurnCreated(int iNewValue);
+	void setHasPromotion(PromotionTypes ePromotion, bool bNewValue);
+	void setPromotionDuration(PromotionTypes ePromotion, int iNewValue);
+	void setTurnPromotionGained(PromotionTypes ePromotion, int iNewValue);
+	void setHasBeenPromotedFromGoody(bool bPromotedFromGoody);
+	void setExperienceTimes100(int iNewValueTimes100);
+	void setLevel(int iNewLevel);
+	void setOriginCity(int iNewOriginCity);
+	void setLeaderUnitType(UnitTypes eNewLeaderUnitType);
+	void setNumGoodyHutsPopped(int iNewNumGoodyHutsPopped);
+	void setName(const CvString& strNewName);
+
+	bool hasIncomingUnit() const;
+
+	void applyToUnit(PlayerTypes eFromPlayer, CvUnit& destUnit) const;
+	void reset();
+
+private:
+	int m_iArrivalCountdown;
+	UnitTypes m_eUnitType;
+	int m_iFromX;
+	int m_iFromY;
+	PlayerTypes m_eOriginalOwner;
+	int m_iGameTurnCreated;
+	CvBitfield m_HasPromotions;
+	std::map<PromotionTypes, int> m_PromotionDuration;
+	std::map<PromotionTypes, int> m_TurnPromotionGained;
+	bool m_bPromotedFromGoody;
+	int m_iExperienceTimes100;
+	int m_iLevel;
+	int m_iOriginCity;
+	UnitTypes m_eLeaderUnitType;
+	int m_iNumGoodyHutsPopped;
+	CvString m_strName;
+};
+FDataStream& operator>>(FDataStream&, CvMinorCivIncomingUnitGift&);
+FDataStream& operator<<(FDataStream&, const CvMinorCivIncomingUnitGift&);
 
 
 class CvPlayer;
@@ -449,6 +522,9 @@ public:
 	int GetExplorePercent(PlayerTypes ePlayer, MinorCivQuestTypes eQuest);
 	BuildingTypes GetBestBuildingForQuest(PlayerTypes ePlayer);
 	CvCity* GetBestSpyTarget(PlayerTypes ePlayer, bool bMinor);
+	UnitTypes GetBestUnitGiftFromPlayer(PlayerTypes ePlayer);
+	bool GetHasSentUnitForQuest(PlayerTypes ePlayer);
+	void SetHasSentUnitForQuest(PlayerTypes ePlayer, bool bValue);
 	void SetCoupAttempted(PlayerTypes ePlayer, bool bValue);
 	bool IsCoupAttempted(PlayerTypes ePlayer);
 	void SetTargetedAreaID(PlayerTypes ePlayer, int iValue);
@@ -682,7 +758,7 @@ public:
 	void SetNumUnitsGifted(PlayerTypes ePlayer, int iValue);
 	void ChangeNumUnitsGifted(PlayerTypes ePlayer, int iChange);
 
-	void DoUnitGiftFromMajor(PlayerTypes eFromPlayer, CvUnit* pGiftUnit, bool bDistanceGift);
+	void DoUnitGiftFromMajor(PlayerTypes eFromPlayer, CvUnit*& pGiftUnit, bool bDistanceGift);
 	int GetFriendshipFromUnitGift(PlayerTypes eFromPlayer, bool bGreatPerson, bool bDistanceGift);
 
 	int GetNumGoldGifted(PlayerTypes ePlayer) const;
@@ -732,6 +808,12 @@ public:
 	bool IsSiphoned(PlayerTypes ePlayer) const;
 	void SetSiphoned(PlayerTypes ePlayer, bool bValue);
 #endif
+
+	const CvMinorCivIncomingUnitGift& getIncomingUnitGift(PlayerTypes eMajor) const;
+	CvMinorCivIncomingUnitGift& getIncomingUnitGift(PlayerTypes eMajor);
+
+	void doIncomingUnitGifts();
+	void returnIncomingUnitGift(PlayerTypes eMajor);
 
 	// ******************************
 	// ***** Misc Helper Functions *****
@@ -790,6 +872,7 @@ private:
 	int m_iCoup;
 	bool m_abSiphoned[MAX_MAJOR_CIVS];
 	bool m_abCoupAttempted[MAX_MAJOR_CIVS];
+	bool m_abSentUnitForQuest[MAX_MAJOR_CIVS];
 	int m_aiAssignedPlotAreaID[MAX_MAJOR_CIVS];
 	int m_aiTurnsSincePtPWarning[MAX_MAJOR_CIVS];
 	int m_aiTargetedCityX[MAX_MAJOR_CIVS];
@@ -818,6 +901,8 @@ private:
 	bool m_abWaryOfTeam[MAX_CIV_TEAMS];
 
 	bool m_bDisableNotifications;
+
+	CvMinorCivIncomingUnitGift m_IncomingUnitGifts[MAX_MAJOR_CIVS];
 
 	//not serialized, generated and cached on demand
 	int m_iBullyPlotsBuilt;

@@ -275,18 +275,6 @@
 			<Yield>-25</Yield>
 		</Row>
 	</CityEventChoice_CityUnhappinessNeedMod>
-	<CityEventChoice_CityYield>
-		<Row>
-			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_STEAL_TECH</CityEventChoiceType>
-			<YieldType>YIELD_SCIENCE</YieldType>
-			<Yield>-100</Yield>
-		</Row>
-		<Row>
-			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_STEAL_GW</CityEventChoiceType>
-			<YieldType>YIELD_CULTURE</YieldType>
-			<Yield>-100</Yield>
-		</Row>
-	</CityEventChoice_CityYield>
 	<CityEventChoice_ImprovementDestructionRandom>
 		<Row>
 			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_ECONOMIC_TILES</CityEventChoiceType>

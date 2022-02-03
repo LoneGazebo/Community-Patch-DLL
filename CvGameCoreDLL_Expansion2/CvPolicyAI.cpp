@@ -4202,15 +4202,15 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 				yield[eYield] += PolicyInfo->GetYieldFromConstruction(eYield) * 2 * iNumCities;
 			}
 		}
-		if (PolicyInfo->GetYieldFromWonderConstruction(eYield) != 0)
+		if (PolicyInfo->GetYieldFromWorldWonderConstruction(eYield) != 0)
 		{
 			if (pPlayerTraits->IsTourism() || pPlayerTraits->IsSmaller())
 			{
-				yield[eYield] += PolicyInfo->GetYieldFromWonderConstruction(eYield) * 5 * max(2, (iNumWonders / 2));
+				yield[eYield] += PolicyInfo->GetYieldFromWorldWonderConstruction(eYield) * 5 * max(2, (iNumWonders / 2));
 			}
 			else
 			{
-				yield[eYield] += PolicyInfo->GetYieldFromWonderConstruction(eYield) * max(2, (iNumWonders / 4));
+				yield[eYield] += PolicyInfo->GetYieldFromWorldWonderConstruction(eYield) * max(2, (iNumWonders / 4));
 			}
 		}
 		if (PolicyInfo->GetYieldFromTech(eYield) != 0)
@@ -4749,7 +4749,7 @@ int CvPolicyAI::WeighPolicy(CvPlayer* pPlayer, PolicyTypes ePolicy)
 	{
 		iWeight += (iDiploValue / 2);
 	}
-	if (pPlayer->GetDiplomacyAI()->IsGoingForSpaceshipVictory() || pPlayer->GetDiplomacyAI()->IsCloseToSSVictory())
+	if (pPlayer->GetDiplomacyAI()->IsGoingForSpaceshipVictory() || pPlayer->GetDiplomacyAI()->IsCloseToSpaceshipVictory())
 	{
 		iWeight += iScienceValue;
 	}
@@ -4758,7 +4758,7 @@ int CvPolicyAI::WeighPolicy(CvPlayer* pPlayer, PolicyTypes ePolicy)
 		iWeight += (iScienceValue / 2);
 	}
 
-	if (pPlayer->GetDiplomacyAI()->IsGoingForWorldConquest() || pPlayer->GetDiplomacyAI()->IsCloseToDominationVictory())
+	if (pPlayer->GetDiplomacyAI()->IsGoingForWorldConquest() || pPlayer->GetDiplomacyAI()->IsCloseToWorldConquest())
 	{
 		iWeight += iConquestValue;
 	}

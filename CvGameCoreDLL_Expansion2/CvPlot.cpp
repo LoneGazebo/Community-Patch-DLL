@@ -10993,7 +10993,8 @@ bool CvPlot::setRevealed(TeamTypes eTeam, bool bNewValue, CvUnit* pUnit, bool bT
 	ICvUserInterface2* pInterface =  GC.GetEngineUserInterface();
 
 	bool bVisbilityUpdated = false;
-	if(isRevealed(eTeam) != bNewValue)
+	bool bRevealed = isRevealed(eTeam) != bNewValue;
+	if(bRevealed)
 	{
 		m_bfRevealed.ToggleBit(eTeam);
 
@@ -11370,7 +11371,7 @@ bool CvPlot::setRevealed(TeamTypes eTeam, bool bNewValue, CvUnit* pUnit, bool bT
 #if defined(MOD_EVENTS_TILE_REVEALED)
 	CvTeam& kTeam = GET_TEAM(eTeam);
 	
-	if (MOD_EVENTS_TILE_REVEALED && bNewValue) {
+	if (MOD_EVENTS_TILE_REVEALED && bNewValue && bRevealed) {
 		GAMEEVENTINVOKE_HOOK(GAMEEVENT_TileRevealed, getX(), getY(), eTeam, eFromTeam, (kTeam.isMajorCiv() && iRevealedMajors == 0), (pUnit ? pUnit->getOwner() : NO_PLAYER), (pUnit ? pUnit->GetID() : -1));
 	}
 

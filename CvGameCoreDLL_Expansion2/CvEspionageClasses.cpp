@@ -2031,7 +2031,7 @@ CvString CvPlayerEspionage::GetCityPotentialInfo(CvCity* pCity, bool bNoBasic)
 int CvPlayerEspionage::GetDefenseChance(CvEspionageType eEspionage, CvCity* pCity, CityEventChoiceTypes eEventChoice, bool bPreview)
 {
 	//Defense is based on the defensive capabilities of the city and its risk, then reduced by potency of spy there.
-	int iBaseDefense = 0;
+	int iBaseDefense = 10;
 	int iChancetoIdentify = 20;
 	int iChancetoKill = 0;
 
@@ -2045,10 +2045,8 @@ int CvPlayerEspionage::GetDefenseChance(CvEspionageType eEspionage, CvCity* pCit
 		}
 	}
 
-	//chance to identify starts at inverse City Value% + Counterspy Power.
-
 	//Chance to detect decreases based on city potency. More SECURITY = less likely!
-	int iDefensePower = 5 * pCity->GetEspionageRanking();
+	int iDefensePower = 5 * (10 - pCity->GetEspionageRanking());
 	iDefensePower += iBaseDefense;
 
 	PlayerTypes eOwner = pCity->getOwner();
@@ -4432,13 +4430,13 @@ bool CvPlayerEspionage::IsTechStealable(PlayerTypes ePlayer, TechTypes eTech)
 /// GetNumTechsToSteal - How many techs you can steal from a given player
 int CvPlayerEspionage::GetNumTechsToSteal(PlayerTypes ePlayer)
 {
-	CvAssertMsg((uint)ePlayer < m_aiNumTechsToStealList.size(), "ePlayer out of bounds");
-	if((uint)ePlayer >= m_aiNumTechsToStealList.size())
+	CvAssertMsg((uint)ePlayer < m_aaPlayerStealableTechList.size(), "ePlayer out of bounds");
+	if((uint)ePlayer >= m_aaPlayerStealableTechList.size())
 	{
 		return -1;
 	}
 
-	return m_aiNumTechsToStealList[ePlayer];
+	return m_aaPlayerStealableTechList[ePlayer].size();
 }
 int CvPlayerEspionage::GetNumSpyActionsDone(PlayerTypes ePlayer)
 {

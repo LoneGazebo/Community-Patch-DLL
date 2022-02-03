@@ -241,6 +241,10 @@ public:
 
 	void uninitInfos();  // used to uninit arrays that may be reset due to mod changes
 
+	static bool IsRetainablePromotion(PromotionTypes ePromotion);
+	static int CalcExperienceTimes100ForConvert(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, int iExperienceTimes100);
+	void grantExperienceFromLostPromotions(int iNumLost);
+
 #if defined(MOD_BALANCE_CORE)
 	void convert(CvUnit* pUnit, bool bIsUpgrade);
 #else
@@ -364,10 +368,11 @@ public:
 	int getChangeDamageValue();
 	void ChangeChangeDamageValue(int iChange);
 
-	int getPromotionDuration(PromotionTypes ePromotion);
+	int getPromotionDuration(PromotionTypes ePromotion) const;
+	void SetPromotionDuration(PromotionTypes ePromotion, int iValue);
 	void ChangePromotionDuration(PromotionTypes ePromotion, int iChange);
 
-	int getTurnPromotionGained(PromotionTypes ePromotion);
+	int getTurnPromotionGained(PromotionTypes ePromotion) const;
 	void SetTurnPromotionGained(PromotionTypes ePromotion, int iValue);
 
 	int getNegatorPromotion();
@@ -1884,7 +1889,7 @@ public:
 	bool IsLargerCivThan(const CvUnit* pOtherUnit) const;
 
 	int GetNumGoodyHutsPopped() const;
-	void ChangeNumGoodyHutsPopped(int iValue);
+	void SetNumGoodyHutsPopped(int iValue);
 
 	const CvUnitReligion* GetReligionData() const { return &m_Religion; }
 	CvUnitReligion* GetReligionDataMutable() { return &m_Religion; }
@@ -2384,6 +2389,7 @@ protected:
 #endif
 
 	bool CanFallBack(const CvUnit& pAttacker, bool bCheckChances) const;
+	int  GetWithdrawChance(const CvUnit& pAttacker, const bool bCheckChances) const;
 	bool DoFallBack(const CvUnit& pAttacker);
 
 private:

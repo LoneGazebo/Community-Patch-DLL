@@ -326,6 +326,19 @@ void CvMilitaryAI::Reset()
 	for (int iI = 0; iI < MAX_MAJOR_CIVS; iI++)
 		m_aiWarFocus[iI] = WARTYPE_UNDEFINED;
 	m_iNumFreeCarriers = 0;
+	//new unit counters
+	m_iNumArcherLandUnits = 0;
+	m_iNumSiegeLandUnits = 0;
+	m_iNumSkirmisherLandUnits = 0;
+	m_iNumReconLandUnits = 0;
+	m_iNumBomberAirUnits = 0;
+	m_iNumFighterAirUnits = 0;
+	m_iNumMeleeNavalUnits = 0;
+	m_iNumRangedNavalUnits = 0;
+	m_iNumSubmarineNavalUnits = 0;
+	m_iNumCarrierNavalUnits = 0;
+	m_iNumMissileUnits = 0;
+	m_iNumActiveUniqueUnits = 0;
 #endif
 
 	for(int iI = 0; iI < m_pAIStrategies->GetNumMilitaryAIStrategies(); iI++)
@@ -1021,7 +1034,7 @@ int CvMilitaryAI::ScoreAttackTarget(const CvAttackTarget& target)
 
 	//scores for each target are estimated before calling this function
 	float fDesirability = 1.f;
-	if (pTargetCity->IsOriginalCapital() && (m_pPlayer->GetDiplomacyAI()->IsGoingForWorldConquest() || m_pPlayer->GetDiplomacyAI()->IsCloseToDominationVictory()))
+	if (pTargetCity->IsOriginalCapital() && (m_pPlayer->GetDiplomacyAI()->IsGoingForWorldConquest() || m_pPlayer->GetDiplomacyAI()->IsCloseToWorldConquest()))
 	{
 		fDesirability *= /*250*/ GD_INT_GET(AI_MILITARY_CAPTURING_ORIGINAL_CAPITAL);
 		fDesirability /= 100;
@@ -1492,7 +1505,7 @@ void CvMilitaryAI::LogDeficitScrapUnit(CvUnit* pUnit, bool bGifted)
 
 		if(pUnit->getDomainType() == DOMAIN_LAND)
 		{
-			strTemp.Format("Num Land Units: %d, In Armies %d, Rec Size: %d, ", m_iNumLandUnits, m_iNumLandUnitsInArmies, m_iRecOffensiveLandUnits);
+			strTemp.Format("Num Land Units: %d, In Armies %d, Rec Size: %d, ", m_iNumLandUnits, m_iNumLandUnitsInArmies, m_iRecOffensiveLandUnits + m_iRecDefensiveLandUnits);
 		}
 		else
 		{
@@ -1523,44 +1536,127 @@ void CvMilitaryAI::UpdateBaseData()
 	m_iNumNavalUnitsInArmies = 0;
 	m_iRecOffensiveNavalUnits = 0;
 	m_iNumFreeCarriers = 0;
+	
+	// new counters
+	m_iNumArcherLandUnits = 0;
+	m_iNumSiegeLandUnits = 0;
+	m_iNumSkirmisherLandUnits = 0;
+	m_iNumReconLandUnits = 0;
+	m_iNumBomberAirUnits = 0;
+	m_iNumFighterAirUnits = 0;
+	m_iNumMeleeNavalUnits = 0;
+	m_iNumRangedNavalUnits = 0;
+	m_iNumSubmarineNavalUnits = 0;
+	m_iNumCarrierNavalUnits = 0;
+	m_iNumMissileUnits = 0;
+	m_iNumActiveUniqueUnits = 0;
 
 	int iLoop;
-	for(CvUnit* pLoopUnit = m_pPlayer->firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iLoop))
+	for (CvUnit* pLoopUnit = m_pPlayer->firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iLoop))
 	{
 		// Don't count civilians or exploration units
-		if (!pLoopUnit->IsCanAttack() || pLoopUnit->AI_getUnitAIType() == UNITAI_EXPLORE && pLoopUnit->AI_getUnitAIType() == UNITAI_EXPLORE_SEA)
+		if (!pLoopUnit->IsCanAttack()/* || pLoopUnit->AI_getUnitAIType() == UNITAI_EXPLORE && pLoopUnit->AI_getUnitAIType() == UNITAI_EXPLORE_SEA*/) //second conditional didn't worked anyway, it should've been or
 			continue;
 
-		if(pLoopUnit->getDomainType() == DOMAIN_LAND)
+		if (!MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED)
 		{
-			m_iNumLandUnits++;
+			if (pLoopUnit->getDomainType() == DOMAIN_LAND && pLoopUnit->AI_getUnitAIType() != UNITAI_EXPLORE)
+			{
+				m_iNumLandUnits++;
 
-			if(pLoopUnit->getArmyID() != -1)
-				m_iNumLandUnitsInArmies++;
+				if (pLoopUnit->getArmyID() != -1)
+					m_iNumLandUnitsInArmies++;
 
-			if(pLoopUnit->IsCanAttackRanged())
-				m_iNumRangedLandUnits++;
-			else if(pLoopUnit->canIntercept())
-				m_iNumAntiAirUnits++;
-			else if(pLoopUnit->getUnitInfo().GetMoves() > 2)
-				m_iNumMobileLandUnits++;
-			else
-				m_iNumMeleeLandUnits++;
+				if (pLoopUnit->IsCanAttackRanged())
+					m_iNumRangedLandUnits++;
+				else if (pLoopUnit->canIntercept())
+					m_iNumAntiAirUnits++;
+				else if (pLoopUnit->getUnitInfo().GetMoves() > 2)
+					m_iNumMobileLandUnits++;
+				else
+					m_iNumMeleeLandUnits++;
+			}
+			else if (pLoopUnit->getDomainType() == DOMAIN_SEA && pLoopUnit->AI_getUnitAIType() != UNITAI_EXPLORE_SEA)
+			{
+				if (pLoopUnit->getArmyID() != -1)
+					m_iNumNavalUnitsInArmies++;
+
+				m_iNumNavalUnits++;
+
+				//a carrier is considered free if it is not in a strike group or empty
+				if (pLoopUnit->AI_getUnitAIType() == UNITAI_CARRIER_SEA && (pLoopUnit->getArmyID() == -1 || pLoopUnit->getCargo() == 0))
+					m_iNumFreeCarriers++;
+			}
+			else if (pLoopUnit->getDomainType() == DOMAIN_AIR && !pLoopUnit->isSuicide())
+			{
+				m_iNumAirUnits++;
+			}
 		}
-		else if(pLoopUnit->getDomainType() == DOMAIN_SEA)
+		else
 		{
-			if(pLoopUnit->getArmyID() != -1)
-				m_iNumNavalUnitsInArmies++;
+/*			if (m_pPlayer->getCivilizationInfo().isCivilizationUnitOverridden(pLoopUnit->getUnitInfo().GetUnitClassType())) //not currently working, hope for the next release
+				m_iNumActiveUniqueUnits++;
+*/
+			if (pLoopUnit->getDomainType() == DOMAIN_LAND)
+			{
+				m_iNumLandUnits++;
 
-			m_iNumNavalUnits++;
+				if (pLoopUnit->getArmyID() != -1)
+					m_iNumLandUnitsInArmies++;
 
-			//a carrier is considered free if it is not in a strike group or empty
-			if (pLoopUnit->AI_getUnitAIType()==UNITAI_CARRIER_SEA && (pLoopUnit->getArmyID() == -1 || pLoopUnit->getCargo() == 0))
-				m_iNumFreeCarriers++;
-		}
-		else if(pLoopUnit->getDomainType() == DOMAIN_AIR && !pLoopUnit->isSuicide())
-		{
-			m_iNumAirUnits++;
+				if (pLoopUnit->IsCanAttackRanged()) // still counts all land ranged
+					m_iNumRangedLandUnits++;
+					if (pLoopUnit->getUnitCombatType() == (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_ARCHER", true) && pLoopUnit->getUnitInfo().IsMounted() == false)
+						m_iNumArcherLandUnits++;
+					else if (pLoopUnit->getUnitCombatType() == (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_ARCHER", true) && pLoopUnit->getUnitInfo().IsMounted() == true)
+						m_iNumSkirmisherLandUnits++;
+					else if (pLoopUnit->getUnitCombatType() == (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_SIEGE", true))
+						m_iNumSiegeLandUnits++;
+				else if (pLoopUnit->canIntercept())
+					m_iNumAntiAirUnits++;
+				else if (pLoopUnit->getUnitCombatType() == (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_MOUNTED", true) || pLoopUnit->getUnitCombatType() == (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_ARMOR", true))
+					m_iNumMobileLandUnits++;
+				else if (pLoopUnit->getUnitCombatType() == (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_RECON", true))
+					m_iNumReconLandUnits++;
+				else
+					m_iNumMeleeLandUnits++;
+			}
+			else if (pLoopUnit->getDomainType() == DOMAIN_SEA)
+			{
+				m_iNumNavalUnits++;
+
+				if (pLoopUnit->getArmyID() != -1)
+					m_iNumNavalUnitsInArmies++;
+
+				if (pLoopUnit->getUnitCombatType() == (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_NAVALMELEE", true))
+					m_iNumMeleeNavalUnits++;
+				else if (pLoopUnit->getUnitCombatType() == (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_NAVALRANGED", true))
+					m_iNumRangedNavalUnits++;
+				else if (pLoopUnit->getUnitCombatType() == (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_SUBMARINE", true))
+					m_iNumSubmarineNavalUnits++;
+
+				if (pLoopUnit->AI_getUnitAIType() == UNITAI_CARRIER_SEA)
+					m_iNumCarrierNavalUnits++;
+					//a carrier is considered free if it is not in a strike group or empty
+					if (pLoopUnit->getArmyID() == -1 || pLoopUnit->getCargo() == 0)
+							m_iNumFreeCarriers++;
+			}
+			else if (pLoopUnit->getDomainType() == DOMAIN_AIR && !pLoopUnit->isSuicide())
+			{
+				m_iNumAirUnits++;
+
+				if (pLoopUnit->getUnitCombatType() == (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_BOMBER", true))
+					m_iNumBomberAirUnits++;
+				else if (pLoopUnit->getUnitCombatType() == (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_FIGHTER", true))
+					m_iNumFighterAirUnits++;
+			}
+			else if (pLoopUnit->getDomainType() == DOMAIN_AIR && pLoopUnit->isSuicide()) // missiles&bombs
+			{
+/*				if (pLoopUnit->getUnitInfo().GetDefaultUnitAIType() == UNITAI_ICBM)
+					m_iNumNukeUnits++; //both atomic bomb&nuclear missile, but already counted by CvPlayer */
+				if (pLoopUnit->getUnitInfo().GetDefaultUnitAIType() == UNITAI_MISSILE_AIR)
+					m_iNumMissileUnits++;
+			}
 		}
 	}
 
@@ -2055,7 +2151,7 @@ void CvMilitaryAI::DoNuke(PlayerTypes ePlayer)
 				{
 					bRollForNuke = true;
 				}
-				else if (m_pPlayer->GetDiplomacyAI()->IsGoingForWorldConquest() || m_pPlayer->GetDiplomacyAI()->IsCloseToDominationVictory())
+				else if (m_pPlayer->GetDiplomacyAI()->IsGoingForWorldConquest() || m_pPlayer->GetDiplomacyAI()->IsCloseToWorldConquest())
 				{
 					bRollForNuke = true;
 				}
@@ -2300,13 +2396,13 @@ void CvMilitaryAI::DisbandObsoleteUnits()
 	if (m_pPlayer->isBarbarian())
 		return;
 
-	if (GC.getGame().getGameTurn() <= 100)
+	if (GC.getGame().getGameTurn() <= 25)
 		return;
 
 	// Don't do this if at war
 	if(GetNumberCivsAtWarWith(false) > 0)
 	{
-		if (m_pPlayer->GetDiplomacyAI()->GetStateAllWars() != STATE_ALL_WARS_WINNING)
+		if (m_pPlayer->GetDiplomacyAI()->GetStateAllWars() == STATE_ALL_WARS_LOSING)
 			return;
 	}
 
@@ -2331,8 +2427,8 @@ void CvMilitaryAI::DisbandObsoleteUnits()
 	}
 
 	// do we have way too many units?
-	int iMaxExcessUnits = bConquestGrandStrategy ? 5 : 3;
-	bool bOverSupplyCap = (m_pPlayer->GetNumUnitsOutOfSupply() > iMaxExcessUnits);
+	int iMaxExcessUnits = bConquestGrandStrategy ? 3 : 1;
+	bool bOverSupplyCap = (m_pPlayer->GetNumUnitsOutOfSupply(false) > iMaxExcessUnits);
 
 	CvUnit* pScrapUnit = FindUselessShip();
 
@@ -2342,8 +2438,8 @@ void CvMilitaryAI::DisbandObsoleteUnits()
 		//check our options
 		int iLandScore = MAX_INT;
 		int iNavalScore = MAX_INT;
-		CvUnit* pNavalUnit = FindUnitToScrap(DOMAIN_SEA, true, iNavalScore);
-		CvUnit* pLandUnit = FindUnitToScrap(DOMAIN_LAND, true, iLandScore);
+		CvUnit* pNavalUnit = FindUnitToScrap(DOMAIN_SEA, true, iNavalScore, bOverSupplyCap, bInDeficit);
+		CvUnit* pLandUnit = FindUnitToScrap(DOMAIN_LAND, true, iLandScore, bOverSupplyCap, bInDeficit);
 
 		//keep the more useful one
 		pScrapUnit = (iLandScore < iNavalScore) ? pLandUnit : pNavalUnit;
@@ -2460,13 +2556,13 @@ CvUnit* CvMilitaryAI::FindUselessShip()
 }
 
 /// Score the strength of the units for a domain; best candidate to scrap (with lowest score) is returned. Only supports land and naval units
-CvUnit* CvMilitaryAI::FindUnitToScrap(DomainTypes eDomain, bool bCheckObsolete, int& iReturnedScore)
+CvUnit* CvMilitaryAI::FindUnitToScrap(DomainTypes eDomain, bool bCheckObsolete, int& iReturnedScore, bool bOverSupplyCap, bool bInDeficit)
 {
 	int iUnitLoop;
 	CvUnit* pBestUnit = NULL;
 	int iBestScore = MAX_INT;
 
-	for(CvUnit* pLoopUnit = m_pPlayer->firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iUnitLoop))
+	for (CvUnit* pLoopUnit = m_pPlayer->firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iUnitLoop))
 	{
 		//needed later
 		CvUnitEntry& pUnitInfo = pLoopUnit->getUnitInfo();
@@ -2475,6 +2571,18 @@ CvUnit* CvMilitaryAI::FindUnitToScrap(DomainTypes eDomain, bool bCheckObsolete, 
 			continue;
 
 		if (!pLoopUnit->canScrap())
+			continue;
+
+		// don't delete no maintenance units if we're scrapping due to deficit
+		// don't delete no supply units if we're scrapping due to oversupply
+		if (bInDeficit && bOverSupplyCap)
+		{
+			if (pLoopUnit->IsNoMaintenance() && pLoopUnit->isNoSupply())
+				continue;
+		}
+		else if (bInDeficit && pLoopUnit->IsNoMaintenance())
+			continue;
+		else if (bOverSupplyCap && pLoopUnit->isNoSupply())
 			continue;
 
 		//Failsafe to keep AI from deleting advanced start settlers
@@ -2519,13 +2627,11 @@ CvUnit* CvMilitaryAI::FindUnitToScrap(DomainTypes eDomain, bool bCheckObsolete, 
 						if (iNumResourceNeeded - iNumResourceInUse > m_pPlayer->getNumResourceTotal(eResource))
 							bIsObsolete = true;
 
-#if defined(MOD_UNITS_RESOURCE_QUANTITY_TOTALS)
 						if (MOD_UNITS_RESOURCE_QUANTITY_TOTALS)
 						{
 							if (pUpgradeUnitInfo->GetResourceQuantityTotal(eResource) > m_pPlayer->getNumResourceTotal(eResource))
 								bIsObsolete = true;
 						}
-#endif
 					}
 				}
 			}
@@ -2544,13 +2650,13 @@ CvUnit* CvMilitaryAI::FindUnitToScrap(DomainTypes eDomain, bool bCheckObsolete, 
 		}
 
 		// Can I scrap this unit?
-		if( !bCheckObsolete || bIsObsolete || bResourceDeficit)
+		if (!bCheckObsolete || bIsObsolete || bResourceDeficit)
 		{
 			int iScore = pLoopUnit->GetPower()*pLoopUnit->getUnitInfo().GetProductionCost() + pLoopUnit->getLevel(); //tiebreaker
 			if (bResourceDeficit)
 				iScore /= 2;
 
-			if(iScore < iBestScore)
+			if (iScore < iBestScore)
 			{
 				iBestScore = iScore;
 				iReturnedScore = iBestScore;
@@ -2807,7 +2913,14 @@ void CvMilitaryAI::LogMilitaryStatus()
 		// Very first update (to write header row?)
 		if(GC.getGame().getElapsedGameTurns() == 0 && m_pPlayer->GetID() == 0)
 		{
-			strTemp.Format("Turn, Player, Cities, Settlers, LandUnits, LandArmySize, RecLandOffensive, RecLandDefensive, NavalUnits, NavalArmySize, RecNavyOffensive, AirUnits, AntiAirUnits, RecTotal, MilitaryUnits, SupplyLimit, NoSupplyUnits, OutOfSupply, WarCount, MostEndangeredCity, Danger");
+			if (!MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED)
+			{
+				strTemp.Format("Turn, Player, Era, Cities, Settlers, LandUnits, LandArmySize, RecLandOffensive, RecLandDefensive, NavalUnits, NavalArmySize, RecNavyOffensive, AirUnits, AntiAirUnits, RecTotal, MilitaryUnits, SupplyLimit, OutOfSupply, NoSupplyUnits, WarCount, MostEndangeredCity, Danger");
+			}
+			else
+			{
+				strTemp.Format("Turn, Player, Era, Cities, Settlers, LandUnits, LandArmySize, RecLandOffensive, RecLandDefensive, NavalUnits, NavalArmySize, RecNavyOffensive, MeleeUnits, MobileUnits, ReconUnits, ArcherUnits, SiegeUnits, SkirmisherUnits, AllLandRanged, AntiAirUnits, MeleeNavalUnits, RangedNavalUnits, Submarines, Carriers, TotalAirUnits, BomberUnits, FighterUnits, Nukes, Missiles, RecTotal, TotalMilitaryUnits, SupplyLimit, OutOfSupply, WarWearinessSupplyReduction, NoSupplyUnits, WarCount, MostEndangeredCity, Danger");
+			}
 			pLog->Msg(strTemp);
 		}
 
@@ -2816,17 +2929,24 @@ void CvMilitaryAI::LogMilitaryStatus()
 		strBaseString += playerName + ", ";
 
 		// City info
-		strTemp.Format("%d, %d, ", m_pPlayer->getNumCities(), m_pPlayer->GetNumUnitsWithUnitAI(UNITAI_SETTLE, true));
+		strTemp.Format("%d, %d, %d, ", m_pPlayer->GetCurrentEra(), m_pPlayer->getNumCities(), m_pPlayer->GetNumUnitsWithUnitAI(UNITAI_SETTLE, true));
 		strOutBuf = strBaseString + strTemp;
 
 		// Military size Info
-		strTemp.Format("%d, %d, %d, %d, %d, %d, %d, %d, %d, ", m_iNumLandUnits, m_iNumLandUnitsInArmies, m_iRecOffensiveLandUnits, m_iRecDefensiveLandUnits, m_iNumNavalUnits, m_iNumNavalUnitsInArmies, m_iRecOffensiveNavalUnits, m_iNumAirUnits, m_iNumAntiAirUnits);
+		if (!MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED)
+		{
+			strTemp.Format("%d, %d, %d, %d, %d, %d, %d, %d, %d, ", m_iNumLandUnits, m_iNumLandUnitsInArmies, m_iRecOffensiveLandUnits, m_iRecDefensiveLandUnits, m_iNumNavalUnits, m_iNumNavalUnitsInArmies, m_iRecOffensiveNavalUnits, m_iNumAirUnits, m_iNumAntiAirUnits);
+		}
+		else
+		{
+			strTemp.Format("%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, ", m_iNumLandUnits, m_iNumLandUnitsInArmies, m_iRecOffensiveLandUnits, m_iRecDefensiveLandUnits, m_iNumNavalUnits, m_iNumNavalUnitsInArmies, m_iRecOffensiveNavalUnits, m_iNumMeleeLandUnits, m_iNumMobileLandUnits, m_iNumReconLandUnits, m_iNumArcherLandUnits, m_iNumSiegeLandUnits, m_iNumSkirmisherLandUnits, m_iNumRangedLandUnits, m_iNumAntiAirUnits, m_iNumMeleeNavalUnits, m_iNumRangedNavalUnits, m_iNumSubmarineNavalUnits, m_iNumCarrierNavalUnits, m_iNumAirUnits, m_iNumBomberAirUnits, m_iNumFighterAirUnits, m_pPlayer->getNumNukeUnits(), m_iNumMissileUnits);
+		}
 		strOutBuf += strTemp;
 
 		// Unit supply
-		strTemp.Format("%d, %d, %d, %d, %d, %d, ", 
-			GetRecommendedMilitarySize(), m_pPlayer->getNumMilitaryUnits(), m_pPlayer->GetNumUnitsSupplied(), m_pPlayer->getNumUnitsSupplyFree(), 
-			m_pPlayer->GetNumUnitsOutOfSupply(), m_pPlayer->GetPlayersAtWarWith().size());
+		strTemp.Format("%d, %d, %d, %d, %d, %d, %d, ", 
+			GetRecommendedMilitarySize(), m_pPlayer->getNumMilitaryUnits(), m_pPlayer->GetNumUnitsSupplied(), m_pPlayer->GetNumUnitsOutOfSupply(), m_pPlayer->GetNumUnitsOutOfSupply(false) - m_pPlayer->GetNumUnitsOutOfSupply(),
+			m_pPlayer->getNumUnitsSupplyFree(), GetNumberCivsAtWarWith(false)); //adjusted for better readability
 		strOutBuf += strTemp;
 
 		// Most threatened city
@@ -3031,7 +3151,7 @@ void CvMilitaryAI::LogScrapUnit(CvUnit* pUnit, bool bDeficit, bool bSupply)
 		}
 		if(pUnit->getDomainType() == DOMAIN_LAND)
 		{
-			strTemp.Format("Num Land Units: %d, In Armies %d, Rec Size: %d, ", m_iNumLandUnits, m_iNumLandUnitsInArmies, m_iRecOffensiveLandUnits);
+			strTemp.Format("Num Land Units: %d, In Armies %d, Rec Size: %d, ", m_iNumLandUnits, m_iNumLandUnitsInArmies, GetRecommendLandArmySize());
 		}
 		else
 		{
@@ -3078,7 +3198,7 @@ void CvMilitaryAI::LogGiftUnit(CvUnit* pUnit, bool bDeficit, bool bSupply)
 		}
 		if (pUnit->getDomainType() == DOMAIN_LAND)
 		{
-			strTemp.Format("Num Land Units: %d, In Armies %d, Rec Size: %d, ", m_iNumLandUnits, m_iNumLandUnitsInArmies, m_iRecOffensiveLandUnits);
+			strTemp.Format("Num Land Units: %d, In Armies %d, Rec Size: %d, ", m_iNumLandUnits, m_iNumLandUnitsInArmies, GetRecommendLandArmySize());
 		}
 		else
 		{

@@ -295,7 +295,7 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_piYieldFromBirthRetroactive(NULL),
 	m_piYieldFromBirthCapitalRetroactive(NULL),
 	m_piYieldFromConstruction(NULL),
-	m_piYieldFromWonderConstruction(NULL),
+	m_piYieldFromWorldWonderConstruction(NULL),
 	m_piYieldFromTech(NULL),
 	m_bNoUnhappinessExpansion(false),
 	m_bNoUnhappyIsolation(false),
@@ -438,7 +438,7 @@ CvPolicyEntry::~CvPolicyEntry(void)
 	SAFE_DELETE_ARRAY(m_piYieldFromBirthCapital);
 	SAFE_DELETE_ARRAY(m_piYieldFromBirthCapitalRetroactive);
 	SAFE_DELETE_ARRAY(m_piYieldFromConstruction);
-	SAFE_DELETE_ARRAY(m_piYieldFromWonderConstruction);
+	SAFE_DELETE_ARRAY(m_piYieldFromWorldWonderConstruction);
 	SAFE_DELETE_ARRAY(m_piYieldFromTech);
 	SAFE_DELETE_ARRAY(m_piYieldFromBorderGrowth);
 	SAFE_DELETE_ARRAY(m_piYieldGPExpend);
@@ -838,7 +838,7 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	kUtility.SetYields(m_piYieldFromBirthCapital, "Policy_YieldFromBirthCapital", "PolicyType", szPolicyType);
 	kUtility.SetYields(m_piYieldFromBirthCapitalRetroactive, "Policy_YieldFromBirthCapitalRetroactive", "PolicyType", szPolicyType);
 	kUtility.SetYields(m_piYieldFromConstruction, "Policy_YieldFromConstruction", "PolicyType", szPolicyType);
-	kUtility.SetYields(m_piYieldFromWonderConstruction, "Policy_YieldFromWonderConstruction", "PolicyType", szPolicyType);
+	kUtility.SetYields(m_piYieldFromWorldWonderConstruction, "Policy_YieldFromWorldWonderConstruction", "PolicyType", szPolicyType);
 	kUtility.SetYields(m_piYieldFromTech, "Policy_YieldFromTech", "PolicyType", szPolicyType);
 	kUtility.SetYields(m_piYieldFromBorderGrowth, "Policy_YieldFromBorderGrowth", "PolicyType", szPolicyType);
 	kUtility.SetYields(m_piYieldGPExpend, "Policy_YieldGPExpend", "PolicyType", szPolicyType);
@@ -2979,11 +2979,11 @@ int CvPolicyEntry::GetYieldFromConstruction(int i) const
 	return m_piYieldFromConstruction[i];
 }
 /// Does this Policy grant yields from constructing buildings?
-int CvPolicyEntry::GetYieldFromWonderConstruction(int i) const
+int CvPolicyEntry::GetYieldFromWorldWonderConstruction(int i) const
 {
 	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_piYieldFromWonderConstruction[i];
+	return m_piYieldFromWorldWonderConstruction[i];
 }
 /// Does this Policy grant yields from researching techs?
 int CvPolicyEntry::GetYieldFromTech(int i) const
@@ -4949,10 +4949,10 @@ int CvPlayerPolicies::GetTourismFromUnitCreation(UnitClassTypes eUnitClass) cons
 /// How much will the next policy cost?
 int CvPlayerPolicies::GetNextPolicyCost()
 {
-	int iNumPolicies = GetNumPoliciesOwned(false, true);
+	int iActualNumPolicies = GetNumPoliciesOwned(false, true);
 
 	// Reduce count by however many free Policies we've had in this game
-	iNumPolicies -= (m_pPlayer->GetNumFreePoliciesEver() - m_pPlayer->GetNumFreePolicies() - m_pPlayer->GetNumFreeTenets());
+	int iNumPolicies = iActualNumPolicies - (m_pPlayer->GetNumFreePoliciesEver() - m_pPlayer->GetNumFreePolicies() - m_pPlayer->GetNumFreeTenets());
 
 	int iCost = 0;
 	iCost += (int)(iNumPolicies * (/*3 in CP, 4 in CBO*/ GD_INT_GET(POLICY_COST_INCREASE_TO_BE_EXPONENTED) + /*0.0f in CP, 0.2f in CBO*/ GD_FLOAT_GET(POLICY_COST_EXTRA_VALUE)));
@@ -5025,12 +5025,38 @@ int CvPlayerPolicies::GetNextPolicyCost()
 	int iDivisor = /*5*/ GD_INT_GET(POLICY_COST_VISIBLE_DIVISOR);
 	iCost /= iDivisor;
 	iCost *= iDivisor;
-	if (MOD_ALTERNATIVE_DIFFICULTY && !GetPlayer()->isHuman())
+	if (MOD_ALTERNATIVE_DIFFICULTY && GetPlayer()->isMajorCiv())
 	{
-		iCost *= GC.getGame().getHandicapInfo().getAIPolicyPercent();
-		iCost /= 100;
-		iCost *= 100 + (GC.getGame().getHandicapInfo().getAIPolicyPerEraMod() * GC.getGame().getCurrentEra());
-		iCost /= 100;
+		if (GetPlayer()->isHuman())
+		{
+			iCost *= 100 + (GC.getGame().getHandicapInfo().getHumanPerEraMod() * GC.getGame().getCurrentEra());
+			iCost /= 100;
+		}
+		else
+		{
+			iCost *= GC.getGame().getHandicapInfo().getAIPolicyPercent();
+			iCost /= 100;
+			iCost *= 100 + (GC.getGame().getHandicapInfo().getAIPolicyPerEraMod() * GC.getGame().getCurrentEra());
+			iCost /= 100;
+			int iHigherPoliciesCount = 0;
+			int iPossibleHigherCount = 0;
+			int iPlayerPolicies = 0;
+			for (int iLoopPlayer = 0; iLoopPlayer < MAX_MAJOR_CIVS; ++iLoopPlayer)
+			{
+				CvPlayer& kPlayer = GET_PLAYER((PlayerTypes)iLoopPlayer);
+				if (kPlayer.isAlive() && kPlayer.isMajorCiv() && kPlayer.GetID() != GetPlayer()->GetID())
+				{
+					iPlayerPolicies = kPlayer.GetPlayerPolicies()->GetNumPoliciesOwned(false, true);
+					iPossibleHigherCount++;
+					if (iPlayerPolicies > iNumPolicies)
+					{
+						iHigherPoliciesCount++;
+					}
+				}
+			}
+			iCost *= 100 - (iHigherPoliciesCount * GC.getGame().getHandicapInfo().getAIPolicyCatchUpMod() * GC.getGame().getCurrentEra()) / max(1, iPossibleHigherCount);
+			iCost /= 100;
+		}
 	}
 
 	return iCost;

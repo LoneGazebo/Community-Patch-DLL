@@ -191,6 +191,17 @@ public:
 	void SetPlayerWonderSpammer(PlayerTypes ePlayer, bool bValue);
 
 	// ------------------------------------
+	// Victory Progress
+	// ------------------------------------
+
+	int GetScoreVictoryProgress();
+	int GetScienceVictoryProgress();
+	int GetDiplomaticVictoryProgress();
+	int GetDominationVictoryProgress();
+	int GetCultureVictoryProgress();
+	int GetLowestTourismInfluence();
+
+	// ------------------------------------
 	// Opinion & Approach
 	// ------------------------------------
 
@@ -270,6 +281,8 @@ public:
 	void SetMostValuableAlly(PlayerTypes ePlayer);
 	PlayerTypes GetBiggestCompetitor() const;
 	void SetBiggestCompetitor(PlayerTypes ePlayer);
+	PlayerTypes GetPrimeLeagueAlly() const;
+	void SetPrimeLeagueAlly(PlayerTypes ePlayer);
 	PlayerTypes GetPrimeLeagueCompetitor() const;
 	void SetPrimeLeagueCompetitor(PlayerTypes ePlayer);
 	PlayerTypes GetDemandTargetPlayer() const;
@@ -702,6 +715,12 @@ public:
 	bool IsResurrectorAttackedUs(PlayerTypes ePlayer) const;
 	void SetResurrectorAttackedUs(PlayerTypes ePlayer, bool bValue);
 
+	bool HasEverSanctionedUs(PlayerTypes ePlayer) const;
+	void SetEverSanctionedUs(PlayerTypes ePlayer, bool bValue);
+
+	bool HasEverUnsanctionedUs(PlayerTypes ePlayer) const;
+	void SetEverUnsanctionedUs(PlayerTypes ePlayer, bool bValue);
+
 	// ------------------------------------
 	// # of times/points counters
 	// ------------------------------------
@@ -874,6 +893,11 @@ public:
 
 	int GetTheySanctionedUsTurn(PlayerTypes ePlayer) const;
 	void SetTheySanctionedUsTurn(PlayerTypes ePlayer, int iTurn);
+	bool HasTriedToSanctionUs(PlayerTypes ePlayer) const;
+
+	int GetTheyUnsanctionedUsTurn(PlayerTypes ePlayer) const;
+	void SetTheyUnsanctionedUsTurn(PlayerTypes ePlayer, int iTurn);
+	bool HasTriedToUnsanctionUs(PlayerTypes ePlayer) const;
 
 	int GetTheySupportedOurHostingTurn(PlayerTypes ePlayer) const;
 	void SetTheySupportedOurHostingTurn(PlayerTypes ePlayer, int iTurn);
@@ -1130,6 +1154,7 @@ public:
 	// Planning Exchanges
 	void DoRelationshipPairing();
 	void DoUpdatePlanningExchanges();
+	void DoUpdatePrimeLeagueAlly();
 	bool AvoidExchangesWithPlayer(PlayerTypes ePlayer, bool bWarOnly = false) const;
 	bool IsGoodChoiceForDoF(PlayerTypes ePlayer);
 	bool IsGoodChoiceForDefensivePact(PlayerTypes ePlayer);
@@ -1462,7 +1487,6 @@ public:
 	PlayerTypes GetRequestFriendToDenounce(PlayerTypes ePlayer, bool& bRandFailed);
 	bool IsFriendDenounceRefusalUnacceptable(PlayerTypes ePlayer, PlayerTypes eAgainstPlayer);
 
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	// Contact Statements
 	void DoMapsOffer(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal);
 	void DoTechOffer(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal);
@@ -1516,11 +1540,9 @@ public:
 
 	void DoWeMadeVassalageWithSomeone(TeamTypes eTeam, bool bVoluntary);
 	void DoWeEndedVassalageWithSomeone(TeamTypes eTeam);
-#endif
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+
 	MoveTroopsResponseTypes GetMoveTroopsRequestResponse(PlayerTypes ePlayer, bool bJustChecking = false);
 	void DoLiberatedFromVassalage(TeamTypes eTeam, bool bSkipPopup);
-#endif
 
 	// Player asks the AI not to convert
 	bool IsStopSpreadingReligionAcceptable(PlayerTypes ePlayer);
@@ -1654,11 +1676,12 @@ public:
 	int GetResurrectorAttackedUsScore(PlayerTypes ePlayer);
 
 	// World Congress
-	int GetLeagueAlignmentScore(PlayerTypes ePlayer);
+	int GetVotingHistoryOpinionScore(PlayerTypes ePlayer);
 	int GetLikedTheirProposalScore(PlayerTypes ePlayer);
 	int GetDislikedTheirProposalScore(PlayerTypes ePlayer);
 	int GetSupportedOurProposalScore(PlayerTypes ePlayer);
 	int GetSupportedMyHostingScore(PlayerTypes ePlayer);
+	int GetSanctionedUsScore(PlayerTypes ePlayer);
 
 	// Vassalage
 	int GetVassalScore(PlayerTypes ePlayer);
@@ -1702,8 +1725,8 @@ public:
 	bool IsGoingForSpaceshipVictory() const;
 
 	bool IsCloseToAnyVictoryCondition() const;
-	bool IsCloseToSSVictory() const;
-	bool IsCloseToDominationVictory() const;
+	bool IsCloseToSpaceshipVictory() const;
+	bool IsCloseToWorldConquest() const;
 	bool IsCloseToCultureVictory() const;
 	bool IsCloseToDiploVictory() const;
 
@@ -1835,6 +1858,7 @@ private:
 	PlayerTypes m_eMostValuableFriend;
 	PlayerTypes m_eMostValuableAlly;
 	PlayerTypes m_eBiggestCompetitor;
+	PlayerTypes m_ePrimeLeagueAlly;
 	PlayerTypes m_ePrimeLeagueCompetitor;
 	PlayerTypes m_eDemandTargetPlayer;
 	PlayerTypes m_eCSWarTarget;
@@ -2005,6 +2029,8 @@ private:
 	bool m_abCapturedCapital[MAX_MAJOR_CIVS];
 	bool m_abCapturedHolyCity[MAX_MAJOR_CIVS];
 	bool m_abResurrectorAttackedUs[MAX_MAJOR_CIVS];
+	bool m_abEverSanctionedUs[MAX_MAJOR_CIVS];
+	bool m_abEverUnsanctionedUs[MAX_MAJOR_CIVS];
 
 	// # of times/points counters
 	unsigned char m_aiNumCitiesLiberated[MAX_MAJOR_CIVS];
@@ -2024,7 +2050,7 @@ private:
 	unsigned char m_aiPerformedCoupAgainstUs[MAX_MAJOR_CIVS];
 	char m_aiLikedTheirProposalValue[MAX_MAJOR_CIVS];
 	char m_aiSupportedOurProposalValue[MAX_MAJOR_CIVS];
-	char m_aiVotingHistoryScore[MAX_MAJOR_CIVS];
+	short m_aiVotingHistoryScore[MAX_MAJOR_CIVS];
 	char m_aiSupportedOurHostingValue[MAX_MAJOR_CIVS];
 	unsigned char m_aiNegativeArchaeologyPoints[MAX_MAJOR_CIVS];
 	unsigned char m_aiArtifactsEverDugUp[MAX_MAJOR_CIVS];
@@ -2054,6 +2080,7 @@ private:
 	int m_aiTheySupportedOurProposalTurn[MAX_MAJOR_CIVS];
 	int m_aiTheyFoiledOurProposalTurn[MAX_MAJOR_CIVS];
 	int m_aiTheySanctionedUsTurn[MAX_MAJOR_CIVS];
+	int m_aiTheyUnsanctionedUsTurn[MAX_MAJOR_CIVS];
 	int m_aiTheySupportedOurHostingTurn[MAX_MAJOR_CIVS];
 
 	// Player-Specific Memory
@@ -2067,7 +2094,6 @@ private:
 	char m_aeApproachTowardsUsGuess[MAX_MAJOR_CIVS];
 	char m_aeApproachTowardsUsGuessCounter[MAX_MAJOR_CIVS];
 
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	// C4DF Values
 	char m_aeShareOpinionResponse[MAX_MAJOR_CIVS];
 	int m_aiHelpRequestAcceptedTurn[MAX_MAJOR_CIVS];
@@ -2086,11 +2112,8 @@ private:
 	bool m_abVassalTaxLowered[MAX_MAJOR_CIVS];
 	int m_aiVassalGoldPerTurnTaxedSinceVassalStarted[MAX_MAJOR_CIVS];
 	int m_aiVassalGoldPerTurnCollectedSinceVassalStarted[MAX_MAJOR_CIVS];
-#endif
 
-#if defined(MOD_ACTIVE_DIPLOMACY)
 	float m_aTradePriority[MAX_MAJOR_CIVS]; // current ai to human trade priority
-#endif
 
 	// Other
 	typedef std::vector<PlayerTypes> PlayerTypesArray;

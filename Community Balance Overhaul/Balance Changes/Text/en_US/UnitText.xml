@@ -226,7 +226,7 @@
 			<Text>+20% [ICON_STRENGTH] Strength when attacking.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_ATTACK_BONUS_SWEDEN">
-			<Text>No Retreat</Text>
+			<Text>Gå-På</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_ATLATL_ATTACK">
 			<Text>Atlatl Strike</Text>
@@ -501,18 +501,6 @@
 		</Row>
 		<Row Tag="TXT_KEY_CIV5_COMMANDO_TEXT">
 			<Text>A Commando is an elite light infantry specialized in attacking high-value targets and front-line reconnaissance. The term entered common usage after the Boer Wars and the Great Trek, where Boer Kommando militia employed guerilla and asymmetric tactics to great success against the Xhosa, Zulu, and British armies.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_UNIT_ZEPPELIN_CBP">
-			<Text>Dirigible</Text>
-		</Row>
-		<Row Tag="TXT_KEY_UNIT_ZEPPELIN_STRATEGY_CBP">
-			<Text>Dirigible are a useful ranged exploration unit that appears during the Industrial Era. Although tough and mobile, they can only attack Cities, and cannot defend themselves. Their reconaissance abilities are unparalleled, especially due to their ability to hover.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_UNIT_HELP_ZEPPELIN_CBP">
-			<Text>Industrial-era ranged exploration unit. Use these Units to monitor your borders. It is capable of hovering over Mountains and Ocean. Can only attack Cities.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_CIV5_ZEPPELIN_TEXT_CBP">
-			<Text>The oldest form of controlled powered flight is the airship, which was originally called the Dirigible Balloon. The first Dirigible was flown from Paris to Élancourt in 1852 by Henri Giffard. It used hydrogen gas and was powered by a steam engine propeller.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_EUPANEL_FRIENDLY_CITY_BELIEF_BONUS_CBP">
@@ -804,7 +792,7 @@
 			<Text>Viking</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_VIKING_HELP">
-			<Text>+25% [ICON_STRENGTH] Combat Strength on Pillaged Tiles.[NEWLINE]Costs no [ICON_MOVES] Movement points to Pillage.[NEWLINE]+5 HP when healing in Neutral Territory.</Text>
+			<Text>+25% [ICON_STRENGTH] Base Combat Strength on Pillaged Tiles.[NEWLINE]Costs no [ICON_MOVES] Movement points to Pillage.[NEWLINE]+5 HP when healing in Neutral Territory.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_LONGBOAT">
@@ -1004,7 +992,7 @@
 			<Text>Titanic</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_MECH_HELP">
-			<Text>+25% [ICON_STRENGTH] Combat Strength when [COLOR_POSITIVE_TEXT]Attacking[ENDCOLOR].[NEWLINE]+100 Hit Points. Begins combat with a free Ranged attack.</Text>
+			<Text>+25% [ICON_STRENGTH] Combat Strength when [COLOR_POSITIVE_TEXT]Attacking[ENDCOLOR].[NEWLINE]+100 Hit Points. Executes a [COLOR_POSITIVE_TEXT]Ranged Attack[ENDCOLOR] at 50% [ICON_STRENGTH] Combat Strength before attacking [COLOR_POSITIVE_TEXT]Units[ENDCOLOR]. [COLOR_NEGATIVE_TEXT]Cannot Fortify.[ENDCOLOR]</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_IKLWA">
