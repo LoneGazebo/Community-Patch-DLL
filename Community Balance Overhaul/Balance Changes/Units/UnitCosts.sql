@@ -159,7 +159,6 @@
 
 -- Industrial
 	UPDATE Units SET Cost = '450' WHERE Type = 'UNIT_ARCHAEOLOGIST';
---	UPDATE Units SET Cost = '650' WHERE Type = 'UNIT_ZEPPELIN';
 	UPDATE Units SET Cost = '600' WHERE Type = 'UNIT_COMMANDO';
 	UPDATE Units SET Cost = '550' WHERE Type = 'UNIT_FRENCH_FOREIGNLEGION'; -- More changes in Honor.sql
 	UPDATE Units SET Cost = '600' WHERE Type = 'UNIT_ETHIOPIAN_MEHAL_SEFARI';
@@ -180,7 +179,6 @@
 	UPDATE Units SET FaithCost = '600' WHERE Type = 'UNIT_CAVALRY';
 	UPDATE Units SET FaithCost = '600' WHERE Type = 'UNIT_RUSSIAN_COSSACK';
 	UPDATE Units SET FaithCost = '600' WHERE Type = 'UNIT_RIFLEMAN';
---	UPDATE Units SET FaithCost = '600' WHERE Type = 'UNIT_ZEPPELIN';
 	UPDATE Units SET FaithCost = '600' WHERE Type = 'UNIT_COMMANDO';
 	UPDATE Units SET FaithCost = '600' WHERE Type = 'UNIT_GATLINGGUN';
 	UPDATE Units SET FaithCost = '600' WHERE Type = 'UNIT_ETHIOPIAN_MEHAL_SEFARI';

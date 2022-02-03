@@ -261,7 +261,7 @@ UPDATE Units SET Combat = '38' WHERE Type = 'UNIT_RIFLEMAN';
 UPDATE Units SET Combat = '41' WHERE Type = 'UNIT_SWEDISH_CAROLEAN';
 UPDATE Units SET Combat = '42' WHERE Type = 'UNIT_ETHIOPIAN_MEHAL_SEFARI';
 UPDATE Units SET Combat = '40' WHERE Type = 'UNIT_FRENCH_FOREIGNLEGION'; -- More changes in Honor.sql
---UPDATE Units SET Combat = '32' WHERE Type = 'UNIT_ZEPPELIN';
+UPDATE Units SET Combat = '40' WHERE Type = 'UNIT_DANISH_SKI_INFANTRY';
 UPDATE Units SET Combat = '32' WHERE Type = 'UNIT_COMMANDO';
 -- Ranged
 
@@ -286,7 +286,6 @@ UPDATE Units SET Combat = '40' WHERE Type = 'UNIT_ARTILLERY';
 	
 -- Atomic
 -- Melee
-UPDATE Units SET Combat = '62' WHERE Type = 'UNIT_DANISH_SKI_INFANTRY';
 -- UPDATE Units SET Combat = '65' WHERE Type = 'UNIT_GUERILLA'; -- Mercenaries, Entry in NewUnits.sql
 UPDATE Units SET Combat = '60' WHERE Type = 'UNIT_INFANTRY';
 UPDATE Units SET Combat = '60' WHERE Type = 'UNIT_BRAZILIAN_PRACINHA';
@@ -320,7 +319,7 @@ UPDATE Units SET BaseLandAirDefense = '4' WHERE Type = 'UNIT_RIFLEMAN';
 UPDATE Units SET BaseLandAirDefense = '4' WHERE Type = 'UNIT_UNIT_SWEDISH_CAROLEAN';
 UPDATE Units SET BaseLandAirDefense = '4' WHERE Type = 'UNIT_ETHIOPIAN_MEHAL_SEFARI';
 UPDATE Units SET BaseLandAirDefense = '4' WHERE Type = 'UNIT_FRENCH_FOREIGNLEGION';
---UPDATE Units SET BaseLandAirDefense = '2' WHERE Type = 'UNIT_ZEPPELIN';
+UPDATE Units SET BaseLandAirDefense = '4' WHERE Type = 'UNIT_DANISH_SKI_INFANTRY';
 UPDATE Units SET BaseLandAirDefense = '2' WHERE Type = 'UNIT_COMMANDO';
 
 -- Ranged
@@ -347,7 +346,6 @@ UPDATE Units SET BaseLandAirDefense = '3' WHERE Type = 'UNIT_ARTILLERY';
 	
 -- Atomic
 -- Melee
-UPDATE Units SET BaseLandAirDefense = '5' WHERE Type = 'UNIT_DANISH_SKI_INFANTRY';
 UPDATE Units SET BaseLandAirDefense = '8' WHERE Type = 'UNIT_GUERILLA'; -- Mercenaries
 UPDATE Units SET BaseLandAirDefense = '8' WHERE Type = 'UNIT_INFANTRY';
 UPDATE Units SET BaseLandAirDefense = '8' WHERE Type = 'UNIT_BRAZILIAN_PRACINHA';
