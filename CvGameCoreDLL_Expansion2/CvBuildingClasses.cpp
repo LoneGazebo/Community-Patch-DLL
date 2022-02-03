@@ -1,5 +1,5 @@
 /*	-------------------------------------------------------------------------------------------------------
-	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+	Â© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -6231,7 +6231,7 @@ void CvCityBuildings::IncrementWonderStats(BuildingClassTypes eIndex)
 	}
 	else
 	{
-		//CUSTOMLOG("No Stat for selected Wonder %s",szWonderType);
+		//CUSTOMLOG("No Stat for selected Wonder %s.",szWonderType.c_str());
 	}
 
 #if defined(MOD_API_ACHIEVEMENTS)
