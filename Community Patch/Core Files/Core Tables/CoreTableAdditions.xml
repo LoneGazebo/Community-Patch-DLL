@@ -212,6 +212,12 @@
 		<Column name="YieldType" type="integer" reference="Yields(Type)"/>
 		<Column name="Yield" type="integer" default="0"/>
 	</Table>
+	<!-- Same, but only for births in the Holy City. -->
+	<Table name="Belief_YieldPerHolyCityBirth">
+		<Column name="BeliefType" type="text" reference="Beliefs(Type)"/>
+		<Column name="YieldType" type="integer" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" default="0"/>
+	</Table>
 
 	<!-- PANTHEON: Allows you to define any belief to grant 1 yield per x science rate, where X is the number below. -->
 	<Table name="Belief_YieldPerScience">

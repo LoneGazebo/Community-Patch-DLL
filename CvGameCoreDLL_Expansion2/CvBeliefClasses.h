@@ -97,6 +97,7 @@ public:
 	int GetYieldPerBorderGrowth(YieldTypes eYield, bool bEraScaling = false) const;
 	int GetYieldPerHeal(int i) const;
 	int GetYieldPerBirth(int i) const;
+	int GetYieldPerHolyCityBirth(int i) const;
 	int GetYieldPerScience(int i) const;
 	int GetYieldFromGPUse(int i) const;
 	int GetYieldBonusGoldenAge(int i) const;
@@ -343,6 +344,7 @@ protected:
 	std::map<int, std::map<bool, int>> m_pbiYieldPerBorderGrowth;
 	int* m_piYieldPerHeal;
 	int* m_piYieldPerBirth;
+	int* m_piYieldPerHolyCityBirth;
 	int* m_piYieldPerScience;
 	int* m_piYieldFromGPUse;
 	int* m_piYieldBonusGoldenAge;
@@ -576,6 +578,7 @@ public:
 	int GetYieldPerBorderGrowth(YieldTypes eYieldType, bool bEraScaling = false, PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	int GetYieldPerHeal(YieldTypes eYieldType, PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	int GetYieldPerBirth(YieldTypes eYieldType , PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
+	int GetYieldPerHolyCityBirth(YieldTypes eYieldType , PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	int GetYieldPerScience(YieldTypes eYieldType , PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	int GetYieldFromGPUse(YieldTypes eYieldType , PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	int GetYieldBonusGoldenAge(YieldTypes eYieldType, PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;

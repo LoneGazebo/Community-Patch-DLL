@@ -26292,16 +26292,16 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 				case INSTANT_YIELD_TYPE_BIRTH:
 				{
 					iValue += ((pLoopCity->GetYieldFromBirth(eYield) + getYieldFromBirth(eYield)) * max(1, iPassYield));
-					if(pReligion)
+					if (pReligion)
 					{
-						iValue += (pReligion->m_Beliefs.GetYieldPerBirth(eYield, GetID(), pLoopCity) * max(1, iPassYield));
+						iValue += pReligion->m_Beliefs.GetYieldPerBirth(eYield, GetID(), pLoopCity) * max(1, iPassYield);
 					}
-					if(pLoopCity->isCapital())
+					if (pLoopCity->isCapital())
 					{
-						iValue += (getYieldFromBirthCapital(eYield) * max(1, iPassYield));
+						iValue += getYieldFromBirthCapital(eYield) * max(1, iPassYield);
 					}
 					//Scale it here to avoid scaling the growth yield below.
-					if(MOD_BALANCE_CORE_NEW_GP_ATTRIBUTES && bEraScale)
+					if (MOD_BALANCE_CORE_NEW_GP_ATTRIBUTES && bEraScale)
 					{
 						iValue *= iEra;
 					}
@@ -26328,6 +26328,14 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 						{
 							iValue = 1;
 						}
+					}
+					break;
+				}
+				case INSTANT_YIELD_TYPE_BIRTH_HOLY_CITY:
+				{
+					if (pReligion)
+					{
+						iValue = pReligion->m_Beliefs.GetYieldPerHolyCityBirth(eYield, GetID(), pLoopCity, true) * pReligion->m_Beliefs.GetCityScalerLimiter(iNumFollowerCities);
 					}
 					break;
 				}
@@ -27602,6 +27610,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 				return;
 			}
 			case INSTANT_YIELD_TYPE_BIRTH:
+			case INSTANT_YIELD_TYPE_BIRTH_HOLY_CITY:
 			{
 				if(getInstantYieldText(iType) == "" || getInstantYieldText(iType) == NULL)
 				{
@@ -42436,6 +42445,11 @@ void CvPlayer::LogInstantYield(YieldTypes eYield, int iValue, InstantYieldType e
 	case INSTANT_YIELD_TYPE_REFUND:
 			{
 				instantYieldName = "Refund";
+				break;
+			}
+	case INSTANT_YIELD_TYPE_BIRTH_HOLY_CITY:
+			{
+				instantYieldName = "Holy City Birth";
 				break;
 			}
 	}

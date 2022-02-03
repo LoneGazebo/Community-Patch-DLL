@@ -20817,10 +20817,10 @@ void CvDiplomacyAI::DoUpdatePlanningExchanges()
 			continue;
 		}
 
-		// They're our master or someone's vassal? Okay to befriend if approach is FRIENDLY or NEUTRAL
+		// They're our master or someone's vassal? Okay to befriend if approach is AFRAID, FRIENDLY or NEUTRAL
 		if (IsVassal(*it) || GET_PLAYER(*it).IsVassalOfSomeone())
 		{
-			if (GetCivStrategicApproach(*it) >= CIV_APPROACH_FRIENDLY)
+			if (GetCivStrategicApproach(*it) >= CIV_APPROACH_AFRAID)
 			{
 				SetWantsDoFWithPlayer(*it, true);
 				SetWantsToEndDoFWithPlayer(*it, false);
