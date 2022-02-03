@@ -24602,9 +24602,8 @@ void CvCity::UpdateSpecialReligionYields(YieldTypes eYield)
 			//Only useable in religions!
 			if (eYield == YIELD_GOLD)
 			{
-				int iGoldPerFollowingCity = pReligion->m_Beliefs.GetGoldPerFollowingCity(getOwner(), this);
-				if (eReligion == RELIGION_PANTHEON)
-					iYieldValue += iGoldPerFollowingCity;
+				if (eReligion != RELIGION_PANTHEON)
+					iYieldValue += pReligion->m_Beliefs.GetGoldPerFollowingCity(getOwner(), this, true);
 
 				int iGoldPerXFollowers = pReligion->m_Beliefs.GetGoldPerXFollowers(getOwner(), this, true);
 				if (iGoldPerXFollowers > 0)
