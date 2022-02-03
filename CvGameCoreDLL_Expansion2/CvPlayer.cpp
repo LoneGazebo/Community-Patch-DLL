@@ -666,7 +666,7 @@ CvPlayer::CvPlayer() :
 	, m_aiYieldFromPillage()
 	, m_aiYieldFromVictory()
 	, m_aiYieldFromConstruction()
-	, m_aiYieldFromwonderConstruction()
+	, m_aiYieldFromWorldWonderConstruction()
 	, m_aiYieldFromTech()
 	, m_aiYieldFromBorderGrowth()
 	, m_aiYieldGPExpend()
@@ -1813,8 +1813,8 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 	m_aiYieldFromConstruction.clear();
 	m_aiYieldFromConstruction.resize(NUM_YIELD_TYPES, 0);
 
-	m_aiYieldFromwonderConstruction.clear();
-	m_aiYieldFromwonderConstruction.resize(NUM_YIELD_TYPES, 0);
+	m_aiYieldFromWorldWonderConstruction.clear();
+	m_aiYieldFromWorldWonderConstruction.resize(NUM_YIELD_TYPES, 0);
 
 	m_aiYieldFromTech.clear();
 	m_aiYieldFromTech.resize(NUM_YIELD_TYPES, 0);
@@ -26474,7 +26474,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 				}
 				case INSTANT_YIELD_TYPE_CONSTRUCTION_WONDER:
 				{
-					iValue += getYieldFromwonderConstruction(eYield);
+					iValue += GetYieldFromWorldWonderConstruction(eYield);
 					break;
 				}
 				case INSTANT_YIELD_TYPE_BORDERS:
@@ -35107,21 +35107,21 @@ void CvPlayer::changeYieldFromConstruction(YieldTypes eIndex, int iChange)
 }
 
 //	--------------------------------------------------------------------------------
-int CvPlayer::getYieldFromwonderConstruction(YieldTypes eIndex) const
+int CvPlayer::GetYieldFromWorldWonderConstruction(YieldTypes eIndex) const
 {
 	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
 	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
-	return m_aiYieldFromwonderConstruction[eIndex];
+	return m_aiYieldFromWorldWonderConstruction[eIndex];
 }
 //	--------------------------------------------------------------------------------
-void CvPlayer::changeYieldFromwonderConstruction(YieldTypes eIndex, int iChange)
+void CvPlayer::ChangeYieldFromWorldWonderConstruction(YieldTypes eIndex, int iChange)
 {
 	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
 	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
 
 	if (iChange != 0)
 	{
-		m_aiYieldFromwonderConstruction[eIndex] = m_aiYieldFromwonderConstruction[eIndex] + iChange;
+		m_aiYieldFromWorldWonderConstruction[eIndex] = m_aiYieldFromWorldWonderConstruction[eIndex] + iChange;
 
 		invalidateYieldRankCache(eIndex);
 
@@ -44366,7 +44366,7 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 		changeYieldFromBirthCapital(eYield, (pPolicy->GetYieldFromBirthCapital(iI) * iChange));
 
 		changeYieldFromConstruction(eYield, (pPolicy->GetYieldFromConstruction(iI) * iChange));
-		changeYieldFromwonderConstruction(eYield, (pPolicy->GetYieldFromWonderConstruction(iI) * iChange));
+		ChangeYieldFromWorldWonderConstruction(eYield, (pPolicy->GetYieldFromWorldWonderConstruction(iI) * iChange));
 
 		changeYieldFromTech(eYield, (pPolicy->GetYieldFromTech(iI) * iChange));
 		if (pPolicy->IsOpener() && pPolicy->GetYieldFromTech(iI) * iChange > 0)
@@ -46644,7 +46644,7 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 	visitor(player.m_aiYieldFromPillage);
 	visitor(player.m_aiYieldFromVictory);
 	visitor(player.m_aiYieldFromConstruction);
-	visitor(player.m_aiYieldFromwonderConstruction);
+	visitor(player.m_aiYieldFromWorldWonderConstruction);
 	visitor(player.m_aiYieldFromTech);
 	visitor(player.m_aiYieldFromBorderGrowth);
 	visitor(player.m_aiYieldGPExpend);

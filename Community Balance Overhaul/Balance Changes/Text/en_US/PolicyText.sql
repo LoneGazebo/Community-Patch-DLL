@@ -421,7 +421,7 @@ WHERE Tag = 'TXT_KEY_POLICY_FINE_ARTS_TEXT';
 
 -- Flourishing of the Arts
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Heritage[ENDCOLOR][NEWLINE]+100 [ICON_GOLDEN_AGE] Golden Age Points when you construct World or National Wonders, scaling with Era. +4 [ICON_TOURISM] Tourism and [ICON_GOLDEN_AGE] Golden Age Points from Universities.'
+SET Text = '[COLOR_POSITIVE_TEXT]Heritage[ENDCOLOR][NEWLINE]+200 [ICON_GOLDEN_AGE] Golden Age Points when you construct World Wonders, scaling with Era. +4 [ICON_TOURISM] Tourism and +6 [ICON_GOLDEN_AGE] Golden Age Points from Universities.'
 WHERE Tag = 'TXT_KEY_POLICY_FLOURISHING_OF_ARTS_HELP';
 
 UPDATE Language_en_US

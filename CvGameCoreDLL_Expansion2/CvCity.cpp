@@ -16026,31 +16026,31 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 	GET_PLAYER(getOwner()).CalculateNetHappiness();
 	updateNetHappiness();
 
-#if defined(MOD_BALANCE_CORE)
 	GetCityCitizens()->SetDirty(true);
-#endif
 
-#if defined(MOD_BALANCE_CORE_POLICIES)
 	if (IsPurchased(eBuildingClass) || pBuildingInfo->IsDummy())
 	{
 		bNoBonus = true;
 	}
 	//If a building is being processed, it has been here before. No more bonuses!
-	if (MOD_BALANCE_CORE_POLICIES && !IsResistance() && !IsRazing() && !bNoBonus && bFirst && (iChange > 0))
+	if (!IsResistance() && !IsRazing() && !bNoBonus && bFirst && (iChange > 0))
 	{
 		if (GetCityBuildings()->IsFirstTimeBuilding(eBuilding) <= 0)
 		{
 			GetCityBuildings()->SetFirstTimeBuilding(eBuilding, 1);
-				GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_CONSTRUCTION, false, NO_GREATPERSON, eBuilding, 0, true, NO_PLAYER, NULL, false, this);
-				if (::isWorldWonderClass(*GC.getBuildingClassInfo(eBuildingClass)) || ::isNationalWonderClass(*GC.getBuildingClassInfo(eBuildingClass)))
-					GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_CONSTRUCTION_WONDER, false, NO_GREATPERSON, eBuilding, 0, true, NO_PLAYER, NULL, false, this);
 
-#if defined(MOD_BALANCE_CORE) && defined(MOD_API_UNIFIED_YIELDS)
+			if (::isWorldWonderClass(*GC.getBuildingClassInfo(eBuildingClass)))
+			{
+				GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_CONSTRUCTION_WONDER, false, NO_GREATPERSON, eBuilding, 0, true, NO_PLAYER, NULL, false, this);
+			}
+			else
+			{
+				GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_CONSTRUCTION, false, NO_GREATPERSON, eBuilding, 0, true, NO_PLAYER, NULL, false, this);
 				GET_PLAYER(getOwner()).doInstantGreatPersonProgress(INSTANT_YIELD_TYPE_CONSTRUCTION, false, this, eBuilding);
-#endif
+			}
 		}
 	}
-#endif
+
 	setLayoutDirty(true);
 }
 
@@ -31906,7 +31906,6 @@ void CvCity::Purchase(UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectT
 		}
 		else if (eBuildingType >= 0)
 		{
-#if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 			if (MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 			{
 				CvBuildingEntry* pGameBuilding = GC.getBuildingInfo(eBuildingType);
@@ -31927,15 +31926,13 @@ void CvCity::Purchase(UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectT
 			}
 			else
 			{
-#endif
 				bResult = CreateBuilding(eBuildingType);
-#if defined(MOD_EVENTS_CITY)
+
 				if (MOD_EVENTS_CITY) {
 					GAMEEVENTINVOKE_HOOK(GAMEEVENT_CityConstructed, getOwner(), GetID(), eBuildingType, true, false);
 				}
 				else {
-#endif
-#if defined(MOD_BALANCE_CORE)
+
 					CvBuildingEntry* pkPurchasedBuildingInfo = GC.getBuildingInfo(eBuildingType);
 					if (pkPurchasedBuildingInfo)
 					{
@@ -31945,7 +31942,7 @@ void CvCity::Purchase(UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectT
 							SetPurchased(ePurchasedClass, true);
 						}
 					}
-#endif
+
 					ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
 					if (pkScriptSystem)
 					{

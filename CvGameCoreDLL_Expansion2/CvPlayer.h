@@ -1832,8 +1832,8 @@ public:
 	int getYieldFromConstruction(YieldTypes eIndex) const;
 	void changeYieldFromConstruction(YieldTypes eIndex, int iChange);
 
-	int getYieldFromwonderConstruction(YieldTypes eIndex) const;
-	void changeYieldFromwonderConstruction(YieldTypes eIndex, int iChange);
+	int GetYieldFromWorldWonderConstruction(YieldTypes eIndex) const;
+	void ChangeYieldFromWorldWonderConstruction(YieldTypes eIndex, int iChange);
 
 	int getYieldFromTech(YieldTypes eIndex) const;
 	void changeYieldFromTech(YieldTypes eIndex, int iChange);
@@ -3480,7 +3480,7 @@ protected:
 	std::vector<int> m_aiYieldFromPillage;
 	std::vector<int> m_aiYieldFromVictory;
 	std::vector<int> m_aiYieldFromConstruction;
-	std::vector<int> m_aiYieldFromwonderConstruction;
+	std::vector<int> m_aiYieldFromWorldWonderConstruction;
 	std::vector<int> m_aiYieldFromTech;
 	std::vector<int> m_aiYieldFromBorderGrowth;
 	std::vector<int> m_aiYieldGPExpend;
@@ -4260,7 +4260,7 @@ SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromDeath)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromPillage)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromVictory)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromConstruction)
-SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromwonderConstruction)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromWorldWonderConstruction)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromTech)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromBorderGrowth)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldGPExpend)

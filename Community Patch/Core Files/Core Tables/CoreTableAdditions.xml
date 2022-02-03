@@ -537,7 +537,7 @@
 		<Column name="Yield" type="integer" default="0"/>
 	</Table>
 	<!-- Same but for Wonders -->
-	<Table name="Policy_YieldFromWonderConstruction">
+	<Table name="Policy_YieldFromWorldWonderConstruction">
 		<Column name="PolicyType" type="text" reference="Policies(Type)"/>
 		<Column name="YieldType" type="integer" reference="Yields(Type)"/>
 		<Column name="Yield" type="integer" default="0"/>

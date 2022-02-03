@@ -295,7 +295,7 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_piYieldFromBirthRetroactive(NULL),
 	m_piYieldFromBirthCapitalRetroactive(NULL),
 	m_piYieldFromConstruction(NULL),
-	m_piYieldFromWonderConstruction(NULL),
+	m_piYieldFromWorldWonderConstruction(NULL),
 	m_piYieldFromTech(NULL),
 	m_bNoUnhappinessExpansion(false),
 	m_bNoUnhappyIsolation(false),
@@ -438,7 +438,7 @@ CvPolicyEntry::~CvPolicyEntry(void)
 	SAFE_DELETE_ARRAY(m_piYieldFromBirthCapital);
 	SAFE_DELETE_ARRAY(m_piYieldFromBirthCapitalRetroactive);
 	SAFE_DELETE_ARRAY(m_piYieldFromConstruction);
-	SAFE_DELETE_ARRAY(m_piYieldFromWonderConstruction);
+	SAFE_DELETE_ARRAY(m_piYieldFromWorldWonderConstruction);
 	SAFE_DELETE_ARRAY(m_piYieldFromTech);
 	SAFE_DELETE_ARRAY(m_piYieldFromBorderGrowth);
 	SAFE_DELETE_ARRAY(m_piYieldGPExpend);
@@ -838,7 +838,7 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	kUtility.SetYields(m_piYieldFromBirthCapital, "Policy_YieldFromBirthCapital", "PolicyType", szPolicyType);
 	kUtility.SetYields(m_piYieldFromBirthCapitalRetroactive, "Policy_YieldFromBirthCapitalRetroactive", "PolicyType", szPolicyType);
 	kUtility.SetYields(m_piYieldFromConstruction, "Policy_YieldFromConstruction", "PolicyType", szPolicyType);
-	kUtility.SetYields(m_piYieldFromWonderConstruction, "Policy_YieldFromWonderConstruction", "PolicyType", szPolicyType);
+	kUtility.SetYields(m_piYieldFromWorldWonderConstruction, "Policy_YieldFromWorldWonderConstruction", "PolicyType", szPolicyType);
 	kUtility.SetYields(m_piYieldFromTech, "Policy_YieldFromTech", "PolicyType", szPolicyType);
 	kUtility.SetYields(m_piYieldFromBorderGrowth, "Policy_YieldFromBorderGrowth", "PolicyType", szPolicyType);
 	kUtility.SetYields(m_piYieldGPExpend, "Policy_YieldGPExpend", "PolicyType", szPolicyType);
@@ -2979,11 +2979,11 @@ int CvPolicyEntry::GetYieldFromConstruction(int i) const
 	return m_piYieldFromConstruction[i];
 }
 /// Does this Policy grant yields from constructing buildings?
-int CvPolicyEntry::GetYieldFromWonderConstruction(int i) const
+int CvPolicyEntry::GetYieldFromWorldWonderConstruction(int i) const
 {
 	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_piYieldFromWonderConstruction[i];
+	return m_piYieldFromWorldWonderConstruction[i];
 }
 /// Does this Policy grant yields from researching techs?
 int CvPolicyEntry::GetYieldFromTech(int i) const
