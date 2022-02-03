@@ -624,6 +624,7 @@ CvPlayer::CvPlayer() :
 	, m_paiUnitClassProductionModifiers()
 	, m_iExtraSupplyPerPopulation()
 	, m_iCitySupplyFlatGlobal()
+	, m_iUnitSupplyFromExpendedGP()
 	, m_iMissionaryExtraStrength()
 	, m_piDomainFreeExperience()
 #endif
@@ -1571,6 +1572,7 @@ void CvPlayer::uninit()
 	m_iPlayerEventCooldown = 0;
 	m_iExtraSupplyPerPopulation = 0;
 	m_iCitySupplyFlatGlobal = 0;
+	m_iUnitSupplyFromExpendedGP = 0;
 	m_iMissionaryExtraStrength = 0;
 #endif
 #if defined(MOD_BALANCE_CORE_POLICIES)
@@ -10513,25 +10515,15 @@ UnitTypes CvPlayer::GetSpecificUnitType(UnitClassTypes eUnitClassType) const
 			if (pCivilizationInfo != NULL)
 			{
 				eUnitType = (UnitTypes)pCivilizationInfo->getCivilizationUnits(eUnitClassType);
-#if defined(MOD_POLICIES_UNIT_CLASS_REPLACEMENTS)
+
 				if (MOD_POLICIES_UNIT_CLASS_REPLACEMENTS && GetUnitClassReplacement(eUnitClassType) != NO_UNITCLASS && (UnitTypes)pkUnitClassInfo->getDefaultUnitIndex() == eUnitType)
 				{
 					eUnitType = (UnitTypes)pCivilizationInfo->getCivilizationUnits(GetUnitClassReplacement(eUnitClassType));
 				}
-#endif
 			}
 			else
 			{
 				eUnitType = (UnitTypes)pkUnitClassInfo->getDefaultUnitIndex();
-			}
-
-			if (!isMinorCiv() && !isBarbarian()) {
-				if (eUnitType == NO_UNIT) {
-					CUSTOMLOG("GetSpecificUnitType for player %s: %s is UNKNOWN!!!", getName(), pkUnitClassInfo->GetType());
-				}
-				else {
-					// CUSTOMLOG("GetSpecificUnitType for player %s: %s is %s", getName(), szUnitClass, GC.getUnitInfo(eUnitType)->GetType());
-				}
 			}
 		}
 	}
@@ -17976,6 +17968,7 @@ int CvPlayer::GetNumUnitsSupplied(bool bCheckWarWeariness) const
 		int iFreeUnits = GetNumUnitsSuppliedByHandicap();
 		iFreeUnits += GetNumUnitsSuppliedByCities();
 		iFreeUnits += GetNumUnitsSuppliedByPopulation();
+		iFreeUnits += GetUnitSupplyFromExpendedGreatPeople();
 
 		if (MOD_BALANCE_DYNAMIC_UNIT_SUPPLY && bCheckWarWeariness)
 		{
@@ -20811,7 +20804,7 @@ void CvPlayer::DoTestEmpireInBadShapeForWar()
 
 			if (eWarState == WAR_STATE_DEFENSIVE)
 			{
-				if (GetDiplomacyAI()->GetPlayerMilitaryStrengthComparedToUs(eLoopPlayer) >= STRENGTH_POWERFUL || GetProximityToPlayer(eLoopPlayer) == PLAYER_PROXIMITY_NEIGHBORS)
+				if (GetDiplomacyAI()->GetPlayerMilitaryStrengthComparedToUs(eLoopPlayer) >= STRENGTH_POWERFUL && GET_PLAYER(eLoopPlayer).GetProximityToPlayer(m_eID) >= PLAYER_PROXIMITY_CLOSE)
 				{
 					SetInTerribleShapeForWar(true);
 					SetNoNewWars(true);
@@ -28742,9 +28735,9 @@ void CvPlayer::DoGreatPersonExpended(UnitTypes eGreatPersonUnit)
 
 		//general grants supply points
 		int iSupply = pGreatPersonUnit->getUnitInfo().GetSupplyCapBoost() + pGreatPersonUnit->GetMilitaryCapChange();
-		if (iSupply > 0 && getCapitalCity() != NULL)
+		if (iSupply > 0)
 		{
-			getCapitalCity()->changeCitySupplyFlat(iSupply);
+			ChangeUnitSupplyFromExpendedGreatPeople(iSupply);
 			m_iNumUnitsSuppliedCached = -1; //force recalculation
 
 			if (GetID() == GC.getGame().getActivePlayer())
@@ -46542,6 +46535,7 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 	visitor(player.m_paiUnitClassProductionModifiers);
 	visitor(player.m_iExtraSupplyPerPopulation);
 	visitor(player.m_iCitySupplyFlatGlobal);
+	visitor(player.m_iUnitSupplyFromExpendedGP);
 	visitor(player.m_iMissionaryExtraStrength);
 	visitor(player.m_iFreeSpecialist);
 	visitor(player.m_iCultureBombTimer);
@@ -48571,27 +48565,34 @@ int CvPlayer::GetNumEffectiveCoastalCities() const
 
 #if defined(MOD_BALANCE_CORE)
 //	--------------------------------------------------------------------------------
-/// How many Natural Wonders has this player found in its area?
 int CvPlayer::GetExtraSupplyPerPopulation() const
 {
 	return m_iExtraSupplyPerPopulation;
 }
 
-//	--------------------------------------------------------------------------------
-/// Changes many Natural Wonders has this player found in its area
 void CvPlayer::ChangeExtraSupplyPerPopulation(int iChange)
 {
 	m_iExtraSupplyPerPopulation += iChange;
 }
 
+//	--------------------------------------------------------------------------------
 int CvPlayer::getCitySupplyFlatGlobal() const
 {
 	return m_iCitySupplyFlatGlobal;
 }
 void CvPlayer::changeCitySupplyFlatGlobal(int iChange)
 {
-	if (iChange != 0)
-		m_iCitySupplyFlatGlobal += iChange;
+	m_iCitySupplyFlatGlobal += iChange;
+}
+
+//	--------------------------------------------------------------------------------
+int CvPlayer::GetUnitSupplyFromExpendedGreatPeople() const
+{
+	return m_iUnitSupplyFromExpendedGP;
+}
+void CvPlayer::ChangeUnitSupplyFromExpendedGreatPeople(int iChange)
+{
+	m_iUnitSupplyFromExpendedGP += iChange;
 }
 #endif
 //	--------------------------------------------------------------------------------

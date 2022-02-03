@@ -2887,7 +2887,7 @@ bool CvLeague::CanProposeEnact(ResolutionTypes eResolution, PlayerTypes ePropose
 		}
 
 		//projects can always be attempted
-		if (MOD_BALANCE_CORE && pInfo->GetLeagueProjectEnabled() == NO_LEAGUE_PROJECT)
+		if (MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS && pInfo->GetLeagueProjectEnabled() == NO_LEAGUE_PROJECT)
 		{
 			for (EnactProposalList::iterator it = m_vLastTurnEnactProposals.begin(); it != m_vLastTurnEnactProposals.end(); it++)
 			{
@@ -2904,7 +2904,6 @@ bool CvLeague::CanProposeEnact(ResolutionTypes eResolution, PlayerTypes ePropose
 						bValid = false;
 					}
 				}
-
 			}
 
 			for (RepealProposalList::iterator it = m_vLastTurnRepealProposals.begin(); it != m_vLastTurnRepealProposals.end(); it++)

@@ -48,12 +48,29 @@
 			<Text>{1_Num} extra {2_IconString} from [ICON_CITIZEN] Population in Empire</Text>
 		</Row>
 
+		<!-- Text for Preview Combat Miscellaneous Bonuses -->
+		<Row Tag="TXT_KEY_MISC_BONUS">
+			<Text>Miscellaneous</Text>
+		</Row>
+
 		<!-- Include City Name in "Work Has Begun On" Notification -->
 		<Row Tag="TXT_KEY_MISC_WORK_HAS_BEGUN_IN_CITY">
 			<Text>[SPACE]Work has now begun on {TXT_KEY_GRAMMAR_A_AN &lt;&lt; {@1_ProdName}} in {@2_CityName}.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_MISC_WORK_HAS_BEGUN_IN_CITY_LIMITED">
 			<Text>[SPACE]Work has now begun on {@1_ProdName} in {@2_CityName}.</Text>
+		</Row>
+		<!-- For compatibility with Wonder consolation prize tweak -->
+		<Row Tag="TXT_KEY_MISC_LOST_WONDER_PROD_CONVERTED_S">
+			<Text>{1_CityName} can no longer work on {2_BldgName}!</Text>
+		</Row>
+
+		<!-- Tourism Bonus Turns for Tooltip -->
+		<Row Tag="TXT_KEY_CO_PLAYER_TOURISM_TOUR_BONUS">
+			<Text>+100% Bonus from Concert Tour ({1_NumTurns} Turns)[NEWLINE]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CO_PLAYER_TOURISM_TOUR_BONUS_HALF">
+			<Text>+50% Bonus from Concert Tour ({1_NumTurns} Turns)[NEWLINE]</Text>
 		</Row>
 
 		<!-- Add Defensive Pact Notification -->
@@ -62,6 +79,21 @@
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_DEFENSIVE_PACT_S">
 			<Text>New Defensive Pact</Text>
+		</Row>
+		<!-- Tooltip for Defensive Pacts -->
+		<Row Tag="TXT_KEY_DIPLO_DEFENSE_PACT_UNKNOWN">
+			<Text>[COLOR_NEGATIVE_TEXT]They have a Defensive Pact with someone![ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_DEFENSE_PACT_WITH_US">
+			<Text>[COLOR_NEGATIVE_TEXT]We have a Defensive Pact with them![ENDCOLOR]</Text>
+		</Row>
+
+		<!-- New Blue Indicators (Enemy Unit Panel) -->
+		<Row Tag="TXT_KEY_EUPANEL_WITHDRAW_CHANCE">
+			<Text>[COLOR_CYAN]Withdraw Chance[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EUPANEL_RANGED_SUPPORT">
+			<Text>[COLOR_CYAN]Additional Ranged Attack[ENDCOLOR]</Text>
 		</Row>
 		
 		<!-- America - Flavoured -->

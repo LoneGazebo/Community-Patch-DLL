@@ -21491,7 +21491,7 @@ bool CvCity::DoRazingTurn()
 				GET_PLAYER(eFormerOwner).GetDiplomacyAI()->ChangeCivilianKillerValue(getOwner(), (500 * iEra));
 			}
 
-			if (MOD_BALANCE_CORE && !GET_PLAYER(getOwner()).IsNoPartisans())
+			if (MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED && !GET_PLAYER(getOwner()).IsNoPartisans())
 			{
 				if (GET_PLAYER(getOwner()).GetSpawnCooldown() < 0)
 				{

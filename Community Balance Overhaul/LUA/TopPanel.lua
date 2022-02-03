@@ -1292,13 +1292,14 @@ function UnitSupplyHandler(control)
 		local iWarWearinessReduction = pPlayer:GetWarWeariness();
 		local iWarWearinessActualReduction = pPlayer:GetWarWearinessSupplyReduction();
 		local iTechReduction = pPlayer:GetTechSupplyReduction();
+		local iSupplyFromGreatPeople = pPlayer:GetUnitSupplyFromExpendedGreatPeople();
 
 		local iUnitsOver = pPlayer:GetNumUnitsOutOfSupply();
 		strUnitSupplyToolTip = "[COLOR_NEGATIVE_TEXT]";
 		strUnitSupplyToolTip = strUnitSupplyToolTip .. Locale.ConvertTextKey("TXT_KEY_UNIT_SUPPLY_REACHED_TOOLTIP", iUnitsSupplied, iUnitsOver, -iUnitSupplyMod);
 		strUnitSupplyToolTip = strUnitSupplyToolTip .. "[ENDCOLOR]";
 
-		local strUnitSupplyToolUnderTip = Locale.ConvertTextKey("TXT_KEY_UNIT_SUPPLY_REMAINING_TOOLTIP", iUnitsSupplied, iUnitsTotal, iPercentPerPop, iPerCity, iPerHandicap, (iWarWearinessReduction/2), iWarWearinessActualReduction, iTechReduction, iWarWearinessReduction);
+		local strUnitSupplyToolUnderTip = Locale.ConvertTextKey("TXT_KEY_UNIT_SUPPLY_REMAINING_TOOLTIP", iUnitsSupplied, iUnitsTotal, iPercentPerPop, iPerCity, iPerHandicap, (iWarWearinessReduction/2), iWarWearinessActualReduction, iTechReduction, iWarWearinessReduction, iSupplyFromGreatPeople);
 
 		strUnitSupplyToolTip = strUnitSupplyToolTip .. "[NEWLINE][NEWLINE]" .. strUnitSupplyToolUnderTip;
 	else
@@ -1310,8 +1311,9 @@ function UnitSupplyHandler(control)
 		local iWarWearinessReduction = pPlayer:GetWarWeariness();
 		local iWarWearinessActualReduction = pPlayer:GetWarWearinessSupplyReduction();
 		local iTechReduction = pPlayer:GetTechSupplyReduction();
+		local iSupplyFromGreatPeople = pPlayer:GetUnitSupplyFromExpendedGreatPeople();
 
-		strUnitSupplyToolTip = Locale.ConvertTextKey("TXT_KEY_UNIT_SUPPLY_REMAINING_TOOLTIP", iUnitsSupplied, iUnitsTotal, iPercentPerPop, iPerCity, iPerHandicap, iWarWearinessReduction, iWarWearinessActualReduction, iTechReduction);
+		strUnitSupplyToolTip = Locale.ConvertTextKey("TXT_KEY_UNIT_SUPPLY_REMAINING_TOOLTIP", iUnitsSupplied, iUnitsTotal, iPercentPerPop, iPerCity, iPerHandicap, iWarWearinessReduction, iWarWearinessActualReduction, iTechReduction, iSupplyFromGreatPeople);
 	end
 
 	if(strUnitSupplyToolTip ~= "") then

@@ -906,13 +906,6 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 		if (!pFromTeam->canChangeWarPeace(eToTeam) || !pToTeam->canChangeWarPeace(eFromTeam))
 			return false;
 
-		// Failsafe check: make sure the AI doesn't make peace when they don't want to!
-		if (!pFromPlayer->isHuman() && !pFromPlayer->GetDiplomacyAI()->IsWantsPeaceWithPlayer(eToPlayer))
-			return false;
-
-		if (!pToPlayer->isHuman() && !pToPlayer->GetDiplomacyAI()->IsWantsPeaceWithPlayer(ePlayer))
-			return false;
-
 		if (MOD_EVENTS_WAR_AND_PEACE) 
 		{
 			if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_IsAbleToMakePeace, ePlayer, eToTeam) == GAMEEVENTRETURN_FALSE) 

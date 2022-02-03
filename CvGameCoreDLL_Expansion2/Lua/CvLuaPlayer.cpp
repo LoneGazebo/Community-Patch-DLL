@@ -388,13 +388,15 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetUnhappinessFromOccupiedCities);
 	Method(GetUnhappinessFromPuppetCityPopulation);
 	Method(GetUnhappinessFromPublicOpinion);
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
+
 	Method(GetUnhappinessFromWarWeariness);
 	Method(GetWarWeariness);
 	Method(SetWarWeariness);
 	Method(GetWarWearinessSupplyReduction);
 	Method(GetTechSupplyReduction);
-#endif
+	Method(GetUnitSupplyFromExpendedGreatPeople);
+	Method(ChangeUnitSupplyFromExpendedGreatPeople);
+
 	Method(GetUnhappinessFromUnits);
 	Method(ChangeUnhappinessFromUnits);
 
@@ -4174,7 +4176,7 @@ int CvLuaPlayer::lGetUnhappinessFromPublicOpinion(lua_State* L)
 	lua_pushinteger(L, iResult);
 	return 1;
 }
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
+
 //------------------------------------------------------------------------------
 //int GetUnhappinessFromWarWeariness() const;
 int CvLuaPlayer::lGetUnhappinessFromWarWeariness(lua_State* L)
@@ -4236,7 +4238,16 @@ int CvLuaPlayer::lGetTechSupplyReduction(lua_State* L)
 	return 1;
 }
 
-#endif
+int CvLuaPlayer::lGetUnitSupplyFromExpendedGreatPeople(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvPlayerAI::GetUnitSupplyFromExpendedGreatPeople);
+}
+
+int CvLuaPlayer::lChangeUnitSupplyFromExpendedGreatPeople(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvPlayerAI::ChangeUnitSupplyFromExpendedGreatPeople);
+}
+
 //------------------------------------------------------------------------------
 //int GetUnhappinessFromUnits() const;
 int CvLuaPlayer::lGetUnhappinessFromUnits(lua_State* L)

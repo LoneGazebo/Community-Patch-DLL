@@ -31912,13 +31912,8 @@ void CvDiplomacyAI::DoMakeDemand(PlayerTypes ePlayer)
 /// Possible Contact Statement - guy has his military positioned aggressively near us
 void CvDiplomacyAI::DoAggressiveMilitaryStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement)
 {
-	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-
 	if (eStatement == NO_DIPLO_STATEMENT_TYPE)
 	{
-		bool bSendStatement = false;
-
 		// Don't bother if they've already made or broken a military promise to us
 		if (GetPlayerMilitaryPromiseState(ePlayer) > NO_PROMISE_STATE)
 			return;
@@ -31935,36 +31930,31 @@ void CvDiplomacyAI::DoAggressiveMilitaryStatement(PlayerTypes ePlayer, DiploStat
 		if (!GET_TEAM(GET_PLAYER(ePlayer).getTeam()).canDeclareWar(GetTeam(), ePlayer))
 			return;
 
-		// They're HIGH or INCREDIBLE this turn
-		if (GetMilitaryAggressivePosture(ePlayer) >= AGGRESSIVE_POSTURE_HIGH)
-			bSendStatement = true;
-
-		// They're MEDIUM this turn and were NONE last turn
-		else if (GetMilitaryAggressivePosture(ePlayer) >= AGGRESSIVE_POSTURE_MEDIUM && GetLastTurnMilitaryAggressivePosture(ePlayer) <= AGGRESSIVE_POSTURE_NONE)
-			bSendStatement = true;
+		// They're HIGH or INCREDIBLE this turn, or they're MEDIUM this turn and were NONE last turn
+		if (GetMilitaryAggressivePosture(ePlayer) < AGGRESSIVE_POSTURE_HIGH && !(GetMilitaryAggressivePosture(ePlayer) >= AGGRESSIVE_POSTURE_MEDIUM && GetLastTurnMilitaryAggressivePosture(ePlayer) <= AGGRESSIVE_POSTURE_NONE))
+			return;
 
 		// Check other player status
 		for (int iThirdPartyLoop = 0; iThirdPartyLoop < MAX_MAJOR_CIVS; iThirdPartyLoop++)
 		{
 			PlayerTypes eThirdParty = (PlayerTypes) iThirdPartyLoop;
-
-			// Are we at war with the same player?
-			if (IsAtWar(eThirdParty) && GET_TEAM(GET_PLAYER(ePlayer).getTeam()).isAtWar(GET_PLAYER(eThirdParty).getTeam()))
-				return;
+			if (eThirdParty == GetID() || eThirdParty == ePlayer)
+				continue;
 
 			// Are they at war with anyone we're neighbors with?
 			if (GetPlayer()->GetProximityToPlayer(eThirdParty) == PLAYER_PROXIMITY_NEIGHBORS && GET_TEAM(GET_PLAYER(ePlayer).getTeam()).isAtWar(GET_PLAYER(eThirdParty).getTeam()))
 				return;
+
+			// Are they an AI preparing for a coop war against us with a human? Don't send this statement, because being dragged into a war early is unfun for humans
+			if (!GET_PLAYER(ePlayer).isHuman() && GET_PLAYER(eThirdParty).isHuman() && GET_PLAYER(eThirdParty).GetDiplomacyAI()->GetCoopWarState(ePlayer, GetID()) == COOP_WAR_STATE_PREPARING)
+				return;
 		}
 
-		if (bSendStatement)
-		{
-			DiploStatementTypes eTempStatement = DIPLO_STATEMENT_AGGRESSIVE_MILITARY_WARNING;
-			int iTurnsBetweenStatements = 20;
+		DiploStatementTypes eTempStatement = DIPLO_STATEMENT_AGGRESSIVE_MILITARY_WARNING;
+		int iTurnsBetweenStatements = 20;
 
-			if (GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= iTurnsBetweenStatements)
-				eStatement = eTempStatement;
-		}
+		if (GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= iTurnsBetweenStatements)
+			eStatement = eTempStatement;
 	}
 }
 
@@ -36648,11 +36638,8 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 	{
 		if (bActivePlayer)
 		{
-			PeaceTreatyTypes ePeaceTreatyImWillingToOffer = GetPlayer()->GetDiplomacyAI()->GetTreatyWillingToOffer(eFromPlayer);
-			PeaceTreatyTypes ePeaceTreatyImWillingToAccept = GetPlayer()->GetDiplomacyAI()->GetTreatyWillingToAccept(eFromPlayer);
-
 			// Does the AI actually want peace?
-			if (ePeaceTreatyImWillingToOffer >= PEACE_TREATY_WHITE_PEACE && ePeaceTreatyImWillingToAccept >= PEACE_TREATY_WHITE_PEACE)
+			if (IsWantsPeaceWithPlayer(eFromPlayer))
 			{
 				// This is essentially the same as the human opening the trade screen
 				GetPlayer()->GetDealAI()->DoTradeScreenOpened();

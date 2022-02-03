@@ -2574,6 +2574,9 @@ public:
 	int getCitySupplyFlatGlobal() const;
 	void changeCitySupplyFlatGlobal(int iChange);
 
+	int GetUnitSupplyFromExpendedGreatPeople() const;
+	void ChangeUnitSupplyFromExpendedGreatPeople(int iChange);
+
 	int GetAvgUnitExp100() const;
 #endif
 
@@ -3353,6 +3356,7 @@ protected:
 	std::vector<int> m_paiUnitClassProductionModifiers;
 	int m_iExtraSupplyPerPopulation;
 	int m_iCitySupplyFlatGlobal;
+	int m_iUnitSupplyFromExpendedGP;
 	int m_iMissionaryExtraStrength;
 #endif
 	int m_iFreeSpecialist;
@@ -4147,6 +4151,7 @@ SYNC_ARCHIVE_VAR(std::vector<FeatureTypes>, m_ownedNaturalWonders)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_paiUnitClassProductionModifiers)
 SYNC_ARCHIVE_VAR(int, m_iExtraSupplyPerPopulation)
 SYNC_ARCHIVE_VAR(int, m_iCitySupplyFlatGlobal)
+SYNC_ARCHIVE_VAR(int, m_iUnitSupplyFromExpendedGP)
 SYNC_ARCHIVE_VAR(int, m_iMissionaryExtraStrength)
 SYNC_ARCHIVE_VAR(int, m_iFreeSpecialist)
 SYNC_ARCHIVE_VAR(int, m_iCultureBombTimer)

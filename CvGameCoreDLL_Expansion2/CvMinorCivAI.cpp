@@ -15371,7 +15371,7 @@ int CvMinorCivAI::CalculateBullyScore(PlayerTypes eBullyPlayer, bool bForUnit, C
 				sFactors += strNegativeFactor.toUTF8();
 			}
 		}
-		if (iFriends != 0)
+		if (iFriends != 0 && MOD_BALANCE_CORE_MINORS)
 		{
 			iScore -= iFriends;
 			if (sTooltipSink)

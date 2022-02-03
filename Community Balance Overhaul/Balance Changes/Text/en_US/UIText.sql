@@ -551,9 +551,6 @@ UPDATE Language_en_US
 SET Text = '{1_CityName} can no longer work on {2_BldgName}. The lost [ICON_PRODUCTION] is converted into {3_NumGold}[ICON_PEACE]!'
 WHERE Tag = 'TXT_KEY_MISC_LOST_WONDER_PROD_CONVERTED' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_WONDER_CONSOLATION_TWEAK' AND Value= 5 );
 
-INSERT INTO Language_en_US (Text, Tag)
-VALUES ('{1_CityName} can no longer work on {2_BldgName}!', 'TXT_KEY_MISC_LOST_WONDER_PROD_CONVERTED_S');
-
 
 -- Resource Changes
 
