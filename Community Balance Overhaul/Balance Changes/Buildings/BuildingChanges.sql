@@ -1,55 +1,5 @@
 -- Remove all YieldModifiers
-DELETE FROM Building_YieldModifiers
-WHERE BuildingType = 'BUILDING_FLOATING_GARDENS';
-
-DELETE FROM Building_YieldModifiers
-WHERE BuildingType = 'BUILDING_WORKSHOP';
-
-DELETE FROM Building_YieldModifiers
-WHERE BuildingType = 'BUILDING_FACTORY';
-
-DELETE FROM Building_YieldModifiers
-WHERE BuildingType = 'BUILDING_SOLAR_PLANT';
-
-DELETE FROM Building_YieldModifiers
-WHERE BuildingType = 'BUILDING_NUCLEAR_PLANT';
-
-DELETE FROM Building_YieldModifiers
-WHERE BuildingType = 'BUILDING_MARKET';
-
-DELETE FROM Building_YieldModifiers
-WHERE BuildingType = 'BUILDING_BAZAAR';
-
-DELETE FROM Building_YieldModifiers
-WHERE BuildingType = 'BUILDING_BANK';
-
-DELETE FROM Building_YieldModifiers
-WHERE BuildingType = 'BUILDING_SATRAPS_COURT';
-
-DELETE FROM Building_YieldModifiers
-WHERE BuildingType = 'BUILDING_STOCK_EXCHANGE';
-
-DELETE FROM Building_YieldModifiers
-WHERE BuildingType = 'BUILDING_OBSERVATORY';
-
-DELETE FROM Building_YieldModifiers
-WHERE BuildingType = 'BUILDING_NATIONAL_COLLEGE';
-
-DELETE FROM Building_YieldModifiers
-WHERE BuildingType = 'BUILDING_COFFEE_HOUSE';
-
-DELETE FROM Building_YieldModifiers
-WHERE BuildingType = 'BUILDING_HANSE';
-
-DELETE FROM Building_YieldModifiers
-WHERE BuildingType = 'BUILDING_LABORATORY';
-
-DELETE FROM Building_YieldModifiers
-WHERE BuildingType = 'BUILDING_WAT';
-
-DELETE FROM Building_YieldModifiers
-WHERE BuildingType = 'BUILDING_UNIVERSITY';
-
+DELETE FROM Building_YieldModifiers;
 
 -- Building Changes
 
@@ -630,19 +580,8 @@ UPDATE Building_ResourceQuantityRequirements SET ResourceType = 'RESOURCE_IRON' 
 
 UPDATE Buildings
 SET MutuallyExclusiveGroup = '1'
-WHERE Type = 'BUILDING_HYDRO_PLANT';
+WHERE Type IN ('BUILDING_HYDRO_PLANT', 'BUILDING_WIND_PLANT', 'BUILDING_NUCLEAR_PLANT', 'BUILDING_SOLAR_PLANT');
 
-UPDATE Buildings
-SET MutuallyExclusiveGroup = '1'
-WHERE Type = 'BUILDING_WIND_PLANT';
-
-UPDATE Buildings
-SET MutuallyExclusiveGroup = '1'
-WHERE Type = 'BUILDING_NUCLEAR_PLANT';
-
-UPDATE Buildings
-SET MutuallyExclusiveGroup = '1'
-WHERE Type = 'BUILDING_SOLAR_PLANT';
 
 -- Wind Plant - now buffs all land tiles
 
@@ -1356,6 +1295,14 @@ WHERE BuildingType = 'BUILDING_SATRAPS_COURT';
 INSERT INTO Building_YieldModifiers
 	(BuildingType, YieldType, Yield)
 VALUES
+	('BUILDING_TWOKAY_FOODS', 'YIELD_FOOD', 10),
+	('BUILDING_MANDIR', 'YIELD_FOOD', 10),
+	('BUILDING_THRONE_ROOM', 'YIELD_FOOD', 10),
+	('BUILDING_THRONE_ROOM', 'YIELD_SCIENCE', 10),
+	('BUILDING_THRONE_ROOM', 'YIELD_FAITH', 10),
+	('BUILDING_THRONE_ROOM', 'YIELD_PRODUCTION', 10),
+	('BUILDING_THRONE_ROOM', 'YIELD_GOLD', 10),
+
 	('BUILDING_SOLAR_PLANT', 'YIELD_PRODUCTION', 10),
 	('BUILDING_NUCLEAR_PLANT', 'YIELD_PRODUCTION', 50),
 	('BUILDING_WIND_PLANT', 'YIELD_PRODUCTION', 15),
@@ -1381,9 +1328,4 @@ VALUES
 	('BUILDING_GARDEN', 'SPECIALIST_WRITER', 'YIELD_TOURISM', 1),
 	('BUILDING_CARAVANSARY', 'SPECIALIST_MERCHANT', 'YIELD_GOLD', 1);
 
-UPDATE Buildings SET NeverCapture = '1' WHERE Type = 'BUILDING_ARTISTS_GUILD';
-UPDATE Buildings SET NeverCapture = '1' WHERE Type = 'BUILDING_MUSICIANS_GUILD';
-UPDATE Buildings SET NeverCapture = '1' WHERE Type = 'BUILDING_WRITERS_GUILD';
-UPDATE Buildings SET NeverCapture = '1' WHERE Type = 'BUILDING_HOTEL';
-UPDATE Buildings SET NeverCapture = '1' WHERE Type = 'BUILDING_KREPOST';
-UPDATE Buildings SET NeverCapture = '1' WHERE Type = 'BUILDING_STABLE';
+UPDATE Buildings SET NeverCapture = '1' WHERE Type IN ('BUILDING_ARTISTS_GUILD', 'BUILDING_MUSICIANS_GUILD', 'BUILDING_WRITERS_GUILD', 'BUILDING_HOTEL', 'BUILDING_KREPOST', 'BUILDING_STABLE');

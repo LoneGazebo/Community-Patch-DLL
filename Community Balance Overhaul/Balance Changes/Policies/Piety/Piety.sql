@@ -6,20 +6,13 @@ WHERE Type = 'POLICY_BRANCH_PIETY';
 -- Update Piety Shape
 
 UPDATE Policies
-SET GridX = '5'
+SET GridX = '5', GridY = '2'
 WHERE Type = 'POLICY_ORGANIZED_RELIGION';
 
 UPDATE Policies
-SET GridY = '2'
-WHERE Type = 'POLICY_ORGANIZED_RELIGION';
-
-UPDATE Policies
-SET GridX = '3'
+SET GridX = '3', GridY = '1'
 WHERE Type = 'POLICY_MANDATE_OF_HEAVEN';
 
-UPDATE Policies
-SET GridY = '1'
-WHERE Type = 'POLICY_MANDATE_OF_HEAVEN';
 
 -- Great Artists come from Piety
 
@@ -37,15 +30,11 @@ WHERE Type = 'POLICY_PIETY';
 -- Organized Religion
 
 UPDATE Policies
-SET FaithCostModifier = '0'
+SET FaithCostModifier = '0', PressureMod = '50'
 WHERE Type = 'POLICY_ORGANIZED_RELIGION';
 
 DELETE FROM Policy_BuildingClassYieldChanges
 WHERE PolicyType = 'POLICY_ORGANIZED_RELIGION' AND BuildingClassType = 'BUILDINGCLASS_SHRINE';
-
-UPDATE Policies
-SET PressureMod = '50'
-WHERE Type = 'POLICY_ORGANIZED_RELIGION';
 
 INSERT INTO Policy_SpecialistExtraYields
 	(PolicyType, YieldType, Yield)
@@ -88,11 +77,7 @@ WHERE Type = 'POLICY_THEOCRACY';
 
 -- Reformation (Now Monasticism)
 UPDATE Policies
-SET AddReformationBelief = '0'
-WHERE Type = 'POLICY_REFORMATION';
-
-UPDATE Policies
-SET DoubleBorderGA = '1'
+SET AddReformationBelief = '0', DoubleBorderGA = '1', NoUnhappfromXSpecialists = '1', PortraitIndex = '47'
 WHERE Type = 'POLICY_REFORMATION';
 
 INSERT INTO Policy_WLTKDYieldMod
@@ -100,20 +85,8 @@ INSERT INTO Policy_WLTKDYieldMod
 VALUES
 	('POLICY_REFORMATION', 'YIELD_PRODUCTION', 15);
 
-UPDATE Policies
-SET NoUnhappfromXSpecialists = '1'
-WHERE Type = 'POLICY_REFORMATION';
-
 UPDATE Buildings
-SET PolicyType = 'POLICY_PIETY'
-WHERE Type = 'BUILDING_MONASTERY';
-
-UPDATE Buildings
-SET UnlockedByBelief = '0'
-WHERE Type = 'BUILDING_MONASTERY';
-
-UPDATE Buildings
-SET FaithCost = '200'
+SET PolicyType = 'POLICY_PIETY', UnlockedByBelief = '0', FaithCost = '200'
 WHERE Type = 'BUILDING_MONASTERY';
 
 DELETE FROM Building_ResourceYieldChanges
@@ -126,25 +99,9 @@ UPDATE Building_YieldChanges
 SET Yield = '2'
 WHERE BuildingType = 'BUILDING_MONASTERY' AND YieldType = 'YIELD_FAITH';
 
-UPDATE Policies
-SET PortraitIndex = '47'
-WHERE Type = 'POLICY_REFORMATION';
-
 -- Free Religion (Now Iconography)
 UPDATE Policies
-SET SecondReligionPantheon = '0'
-WHERE Type = 'POLICY_FREE_RELIGION';
-
-UPDATE Policies
-SET InternalTradeRouteYieldModifier = '33'
-WHERE Type = 'POLICY_FREE_RELIGION';
-
-UPDATE Policies
-SET IncludesOneShotFreeUnits = '0'
-WHERE Type = 'POLICY_FREE_RELIGION';
-
-UPDATE Policies
-SET PortraitIndex = '46'
+SET SecondReligionPantheon = '0', InternalTradeRouteYieldModifier = '33', IncludesOneShotFreeUnits = '0', PortraitIndex = '46'
 WHERE Type = 'POLICY_FREE_RELIGION';
 
 INSERT INTO Policy_ImprovementYieldChanges
@@ -218,24 +175,12 @@ VALUES
 
 UPDATE Policies
 SET DefenseBoostAllCities = '100'
-WHERE Type = 'POLICY_ORGANIZED_RELIGION';
-
-UPDATE Policies
-SET DefenseBoostAllCities = '100'
-WHERE Type = 'POLICY_MANDATE_OF_HEAVEN';
-
-UPDATE Policies
-SET DefenseBoostAllCities = '100'
-WHERE Type = 'POLICY_THEOCRACY';
-
-UPDATE Policies
-SET DefenseBoostAllCities = '100'
-WHERE Type = 'POLICY_FREE_RELIGION';
-
-UPDATE Policies
-SET DefenseBoostAllCities = '100'
-WHERE Type = 'POLICY_REFORMATION';
-
+WHERE Type IN 
+('POLICY_ORGANIZED_RELIGION',
+'POLICY_MANDATE_OF_HEAVEN',
+'POLICY_THEOCRACY',
+'POLICY_FREE_RELIGION',
+'POLICY_REFORMATION');
 
 
 INSERT INTO Building_YieldChanges

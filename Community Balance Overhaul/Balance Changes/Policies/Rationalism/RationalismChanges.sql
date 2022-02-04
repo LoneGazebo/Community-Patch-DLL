@@ -12,24 +12,12 @@ WHERE Type = 'POLICY_RATIONALISM';
 -- Humanism (now Enlightenment) -- boost when happy
 
 UPDATE Policies
-SET GreatScientistRateModifier = '0'
-WHERE Type = 'POLICY_HUMANISM';
-
-UPDATE Policies
-SET GoldenAgeTurns = '0'
-WHERE Type = 'POLICY_HUMANISM';
-
-UPDATE Policies
-SET NumFreeTechs = '1'
+SET GreatScientistRateModifier = '0', GoldenAgeTurns = '0', NumFreeTechs = '1'
 WHERE Type = 'POLICY_HUMANISM';
 
 -- Scientific Revolution
 UPDATE Policies
-SET OneShot = '0'
-WHERE Type = 'POLICY_SCIENTIFIC_REVOLUTION';
-
-UPDATE Policies
-SET MedianTechPercentChange = '0'
+SET OneShot = '0', MedianTechPercentChange = '0'
 WHERE Type = 'POLICY_SCIENTIFIC_REVOLUTION';
 
 
@@ -46,23 +34,7 @@ DELETE FROM Policy_BuildingClassYieldChanges
 WHERE PolicyType = 'POLICY_SOVEREIGNTY';
 
 UPDATE Policies
-SET HappinessPerTradeRoute = '0'
-WHERE Type = 'POLICY_SOVEREIGNTY';
-
-UPDATE Policies
-SET ExtraHappiness = '0'
-WHERE Type = 'POLICY_SOVEREIGNTY';
-
-UPDATE Policies
-SET EspionageModifier = '-34'
-WHERE Type = 'POLICY_SOVEREIGNTY';
-
-UPDATE Policies
-SET TechCostXCitiesMod = '0'
-WHERE Type = 'POLICY_SOVEREIGNTY';
-
-UPDATE Policies
-SET SpecialistFoodChange = '-1'
+SET HappinessPerTradeRoute = '0', ExtraHappiness = '0', EspionageModifier = '-34', TechCostXCitiesMod = '0', SpecialistFoodChange = '-1'
 WHERE Type = 'POLICY_SOVEREIGNTY';
 
 -- Free Thought
@@ -73,36 +45,12 @@ DELETE FROM Policy_ImprovementYieldChanges
 WHERE PolicyType = 'POLICY_FREE_THOUGHT' AND YieldType = 'YIELD_SCIENCE';
 
 UPDATE Policies
-SET GreatScientistBeakerModifier = '25'
-WHERE Type = 'POLICY_FREE_THOUGHT';
-
-UPDATE Policies
-SET GreatEngineerHurryModifier = '0'
-WHERE Type = 'POLICY_FREE_THOUGHT';
-
-UPDATE Policies
-SET MinorityHappinessMod = '-100'
-WHERE Type = 'POLICY_FREE_THOUGHT';
-
-UPDATE Policies
-SET AdmiralLuxuryBonus = '2'
+SET GreatScientistBeakerModifier = '25', GreatEngineerHurryModifier = '0', MinorityHappinessMod = '-100', AdmiralLuxuryBonus = '2'
 WHERE Type = 'POLICY_FREE_THOUGHT';
 
 -- Finisher
 UPDATE Policies
-SET GreatScientistRateModifier = '33'
-WHERE Type = 'POLICY_RATIONALISM_FINISHER';
-
-UPDATE Policies
-SET CityGrowthMod = '25'
-WHERE Type = 'POLICY_RATIONALISM_FINISHER';
-
-UPDATE Policies
-SET OneShot = '0'
-WHERE Type = 'POLICY_RATIONALISM_FINISHER';
-
-UPDATE Policies
-SET NumFreeTechs = '0'
+SET GreatScientistRateModifier = '33', CityGrowthMod = '25', OneShot = '0', NumFreeTechs = '0'
 WHERE Type = 'POLICY_RATIONALISM_FINISHER';
 
 -- Finisher

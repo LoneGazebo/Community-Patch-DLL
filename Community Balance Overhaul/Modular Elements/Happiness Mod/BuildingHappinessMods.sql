@@ -2,24 +2,10 @@
 
 --Progress
 UPDATE Policies
-SET PovertyHappinessMod = '-10'
-WHERE Type = 'POLICY_REPRESENTATION';
-
-UPDATE Policies
-SET UnculturedHappinessMod = '-10'
-WHERE Type = 'POLICY_REPRESENTATION';
-
-UPDATE Policies
-SET DefenseHappinessMod = '-10'
-WHERE Type = 'POLICY_REPRESENTATION';
-
-UPDATE Policies
-SET IlliteracyHappinessMod = '-10'
+SET PovertyHappinessMod = '-10', UnculturedHappinessMod = '-10', DefenseHappinessMod = '-10', IlliteracyHappinessMod = '-10'
 WHERE Type = 'POLICY_REPRESENTATION';
 
 -- Fealty
-
-
 UPDATE Policies
 SET UnculturedHappinessMod = '-15'
 WHERE Type = 'POLICY_THEOCRACY';
@@ -39,132 +25,47 @@ WHERE Type = 'POLICY_EXPLORATION_FINISHER';
 -- Rationalism
 
 UPDATE Policies
-SET PovertyHappinessMod = '-5'
+SET PovertyHappinessMod = '-5', DefenseHappinessMod = '-5', IlliteracyHappinessMod = '-5', UnculturedHappinessMod = '-5'
 WHERE Type = 'POLICY_RATIONALISM';
 
 UPDATE Policies
-SET PovertyHappinessMod = '-2'
+SET PovertyHappinessMod = '-2', DefenseHappinessMod = '-2', IlliteracyHappinessMod = '-2', UnculturedHappinessMod = '-2'
 WHERE Type = 'POLICY_HUMANISM';
 
 UPDATE Policies
-SET PovertyHappinessMod = '-2'
+SET PovertyHappinessMod = '-2', DefenseHappinessMod = '-2', IlliteracyHappinessMod = '-2', UnculturedHappinessMod = '-2'
 WHERE Type = 'POLICY_SCIENTIFIC_REVOLUTION';
 
 UPDATE Policies
-SET PovertyHappinessMod = '-2'
+SET PovertyHappinessMod = '-2', DefenseHappinessMod = '-2', IlliteracyHappinessMod = '-2', UnculturedHappinessMod = '-2'
 WHERE Type = 'POLICY_FREE_THOUGHT';
 
 UPDATE Policies
-SET PovertyHappinessMod = '-2'
+SET PovertyHappinessMod = '-2', DefenseHappinessMod = '-2', IlliteracyHappinessMod = '-2', UnculturedHappinessMod = '-2'
 WHERE Type = 'POLICY_SOVEREIGNTY';
 
 UPDATE Policies
-SET PovertyHappinessMod = '-2'
-WHERE Type = 'POLICY_SECULARISM';
-
---
-
-UPDATE Policies
-SET DefenseHappinessMod = '-5'
-WHERE Type = 'POLICY_RATIONALISM';
-
-UPDATE Policies
-SET DefenseHappinessMod = '-2'
-WHERE Type = 'POLICY_HUMANISM';
-
-UPDATE Policies
-SET DefenseHappinessMod = '-2'
-WHERE Type = 'POLICY_SCIENTIFIC_REVOLUTION';
-
-UPDATE Policies
-SET DefenseHappinessMod = '-2'
-WHERE Type = 'POLICY_FREE_THOUGHT';
-
-UPDATE Policies
-SET DefenseHappinessMod = '-2'
-WHERE Type = 'POLICY_SOVEREIGNTY';
-
-UPDATE Policies
-SET DefenseHappinessMod = '-2'
-WHERE Type = 'POLICY_SECULARISM';
-
-
---
-
-UPDATE Policies
-SET IlliteracyHappinessMod = '-5'
-WHERE Type = 'POLICY_RATIONALISM';
-
-UPDATE Policies
-SET IlliteracyHappinessMod = '-2'
-WHERE Type = 'POLICY_HUMANISM';
-
-UPDATE Policies
-SET IlliteracyHappinessMod = '-2'
-WHERE Type = 'POLICY_SCIENTIFIC_REVOLUTION';
-
-UPDATE Policies
-SET IlliteracyHappinessMod = '-2'
-WHERE Type = 'POLICY_FREE_THOUGHT';
-
-UPDATE Policies
-SET IlliteracyHappinessMod = '-2'
-WHERE Type = 'POLICY_SOVEREIGNTY';
-
-UPDATE Policies
-SET IlliteracyHappinessMod = '-2'
-WHERE Type = 'POLICY_SECULARISM';
-
---
-
-UPDATE Policies
-SET UnculturedHappinessMod = '-5'
-WHERE Type = 'POLICY_RATIONALISM';
-
-UPDATE Policies
-SET UnculturedHappinessMod = '-2'
-WHERE Type = 'POLICY_HUMANISM';
-
-UPDATE Policies
-SET UnculturedHappinessMod = '-2'
-WHERE Type = 'POLICY_SCIENTIFIC_REVOLUTION';
-
-UPDATE Policies
-SET UnculturedHappinessMod = '-2'
-WHERE Type = 'POLICY_FREE_THOUGHT';
-
-UPDATE Policies
-SET UnculturedHappinessMod = '-2'
-WHERE Type = 'POLICY_SOVEREIGNTY';
-
-UPDATE Policies
-SET UnculturedHappinessMod = '-2'
+SET PovertyHappinessMod = '-2', DefenseHappinessMod = '-2', IlliteracyHappinessMod = '-2', UnculturedHappinessMod = '-2'
 WHERE Type = 'POLICY_SECULARISM';
 
 -- Autocracy
-
 UPDATE Policies
 SET DefenseHappinessMod = '-20'
 WHERE Type = 'POLICY_FORTIFIED_BORDERS';
 
 -- Order
-
 UPDATE Policies
 SET IlliteracyHappinessMod = '-20'
 WHERE Type = 'POLICY_ACADEMY_SCIENCES';
-
 
 UPDATE Policies
 SET PovertyHappinessMod = '-20'
 WHERE Type = 'POLICY_UNIVERSAL_HEALTHCARE_O';
 
 -- Freedom
-
 UPDATE Policies
 SET UnculturedHappinessMod = '-20'
 WHERE Type = 'POLICY_OPEN_SOCIETY';
-
-
 
 -- Empire
 UPDATE Buildings

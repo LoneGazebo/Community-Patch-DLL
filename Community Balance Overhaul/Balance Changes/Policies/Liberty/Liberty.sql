@@ -4,24 +4,13 @@ INSERT INTO Policy_FaithPurchaseUnitClasses (PolicyType, UnitClassType)
 VALUES ('POLICY_LIBERTY_FINISHER' , 'UNITCLASS_WRITER');
 
 -- Change Liberty Arrangement
+
 UPDATE Policies
-SET GridX = '1'
+SET GridX = '1', GridY = '2', PolicyCostModifier = '0'
 WHERE Type = 'POLICY_REPUBLIC';
 
 UPDATE Policies
-SET GridY = '2'
-WHERE Type = 'POLICY_REPUBLIC';
-
-UPDATE Policies
-SET PolicyCostModifier = '0'
-WHERE Type = 'POLICY_REPUBLIC';
-
-UPDATE Policies
-SET GridX = '1'
-WHERE Type = 'POLICY_COLLECTIVE_RULE';
-
-UPDATE Policies
-SET GridY = '1'
+SET GridX = '1', GridY = '1'
 WHERE Type = 'POLICY_COLLECTIVE_RULE';
 
 INSERT INTO Policy_PrereqPolicies (PolicyType, PrereqPolicy)
@@ -37,27 +26,11 @@ WHERE Type = 'POLICY_LIBERTY';
 
 -- Collective Rule (Now City Planning)
 UPDATE Policies
-SET CapitalSettlerProductionModifier = '0'
+SET CapitalSettlerProductionModifier = '0', ExtraMoves = '1', PortraitIndex = '29', IconAtlas = 'POLICY_ATLAS', IconAtlasAchieved = 'POLICY_A_ATLAS'
 WHERE Type = 'POLICY_COLLECTIVE_RULE';
 
 DELETE FROM Policy_FreeUnitClasses
 WHERE PolicyType = 'POLICY_COLLECTIVE_RULE';
-
-UPDATE Policies
-SET PortraitIndex = '29'
-WHERE Type = 'POLICY_COLLECTIVE_RULE';
-
-UPDATE Policies
-SET IconAtlas = 'POLICY_ATLAS'
-WHERE Type = 'POLICY_COLLECTIVE_RULE';
-
-UPDATE Policies
-SET IconAtlasAchieved = 'POLICY_A_ATLAS'
-WHERE Type = 'POLICY_COLLECTIVE_RULE';
-
-UPDATE Policies
-SET ExtraMoves = '1'
-WHERE Type = 'POLICY_COLLECTIVE_RULE';
 
 INSERT INTO Policy_UnitClassProductionModifiers
 	(PolicyType, UnitClassType, ProductionModifier)
@@ -81,51 +54,17 @@ WHERE PolicyType = 'POLICY_REPUBLIC';
 
 -- Representation 
 UPDATE Policies
-SET GoldenAgeTurns = '0'
-WHERE Type = 'POLICY_REPRESENTATION';
-
-UPDATE Policies
-SET NumCitiesPolicyCostDiscount = '0'
-WHERE Type = 'POLICY_REPRESENTATION';
-
-
-UPDATE Policies
-SET HappinessPerXPopulationGlobal = '15'
-WHERE Type = 'POLICY_REPRESENTATION';
-
-UPDATE Policies
-SET ExtraHappinessPerCity = '1'
+SET GoldenAgeTurns = '0', NumCitiesPolicyCostDiscount = '0', HappinessPerXPopulationGlobal = '15', ExtraHappinessPerCity = '1'
 WHERE Type = 'POLICY_REPRESENTATION';
 
 -- Meritocracy
 UPDATE Policies
-SET HappinessPerTradeRoute = '0'
-WHERE Type = 'POLICY_MERITOCRACY';
-
-UPDATE Policies
-SET UnhappinessMod = '0'
-WHERE Type = 'POLICY_MERITOCRACY';
-
-UPDATE Policies
-SET PortraitIndex = '1'
-WHERE Type = 'POLICY_MERITOCRACY';
-
-UPDATE Policies
-SET IconAtlas = 'POLICY_ATLAS_EXP2'
-WHERE Type = 'POLICY_MERITOCRACY';
-
-UPDATE Policies
-SET IconAtlasAchieved = 'POLICY_A_ATLAS_EXP2'
+SET HappinessPerTradeRoute = '0', UnhappinessMod = '0', PortraitIndex = '1', IconAtlas = 'POLICY_ATLAS_EXP2', IconAtlasAchieved = 'POLICY_A_ATLAS_EXP2'
 WHERE Type = 'POLICY_MERITOCRACY';
 
 -- Finisher
-
 UPDATE Policies
-SET NumFreeGreatPeople = '0'
-WHERE Type = 'POLICY_LIBERTY_FINISHER';
-
-UPDATE Policies
-SET IncludesOneShotFreeUnits = '0'
+SET NumFreeGreatPeople = '0', IncludesOneShotFreeUnits = '0'
 WHERE Type = 'POLICY_LIBERTY_FINISHER';
 
 --UPDATE Policies

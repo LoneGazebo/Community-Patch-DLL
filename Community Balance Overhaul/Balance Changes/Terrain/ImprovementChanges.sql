@@ -35,40 +35,22 @@ VALUES
 	('IMPROVEMENT_LUMBERMILL', 'YIELD_PRODUCTION', 1);
 
 -- Delete things we replace below.
-DELETE FROM Improvement_ResourceType_Yields WHERE ResourceType = 'RESOURCE_URANIUM';
-DELETE FROM Improvement_ResourceType_Yields WHERE ResourceType = 'RESOURCE_STONE';
-DELETE FROM Improvement_ResourceType_Yields WHERE ResourceType = 'RESOURCE_FISH';
-DELETE FROM Improvement_ResourceType_Yields WHERE ResourceType = 'RESOURCE_BANANA';
-DELETE FROM Improvement_ResourceType_Yields WHERE ResourceType = 'RESOURCE_BISON';
-DELETE FROM Improvement_ResourceType_Yields WHERE ResourceType = 'RESOURCE_DEER';
-DELETE FROM Improvement_ResourceType_Yields WHERE ResourceType = 'RESOURCE_COW';
-DELETE FROM Improvement_ResourceType_Yields WHERE ResourceType = 'RESOURCE_HORSE';
-DELETE FROM Improvement_ResourceType_Yields WHERE ResourceType = 'RESOURCE_SHEEP';
-DELETE FROM Improvement_ResourceType_Yields WHERE ResourceType = 'RESOURCE_SALT';
-DELETE FROM Improvement_ResourceType_Yields WHERE ResourceType = 'RESOURCE_TRUFFLES';
-DELETE FROM Improvement_ResourceType_Yields WHERE ResourceType = 'RESOURCE_CITRUS';
-DELETE FROM Improvement_ResourceType_Yields WHERE ResourceType = 'RESOURCE_COCOA';
-DELETE FROM Improvement_ResourceType_Yields WHERE ResourceType = 'RESOURCE_COPPER';
-DELETE FROM Improvement_ResourceType_Yields WHERE ResourceType = 'RESOURCE_COTTON';
-DELETE FROM Improvement_ResourceType_Yields WHERE ResourceType = 'RESOURCE_DYE';
-DELETE FROM Improvement_ResourceType_Yields WHERE ResourceType = 'RESOURCE_GEMS';
-DELETE FROM Improvement_ResourceType_Yields WHERE ResourceType = 'RESOURCE_GOLD';
-DELETE FROM Improvement_ResourceType_Yields WHERE ResourceType = 'RESOURCE_INCENSE';
-DELETE FROM Improvement_ResourceType_Yields WHERE ResourceType = 'RESOURCE_IVORY';
-DELETE FROM Improvement_ResourceType_Yields WHERE ResourceType = 'RESOURCE_MARBLE';
-DELETE FROM Improvement_ResourceType_Yields WHERE ResourceType = 'RESOURCE_PEARLS';
-DELETE FROM Improvement_ResourceType_Yields WHERE ResourceType = 'RESOURCE_SALT';
-DELETE FROM Improvement_ResourceType_Yields WHERE ResourceType = 'RESOURCE_SILK';
-DELETE FROM Improvement_ResourceType_Yields WHERE ResourceType = 'RESOURCE_SILVER';
-DELETE FROM Improvement_ResourceType_Yields WHERE ResourceType = 'RESOURCE_SPICES';
-DELETE FROM Improvement_ResourceType_Yields WHERE ResourceType = 'RESOURCE_SUGAR';
-DELETE FROM Improvement_ResourceType_Yields WHERE ResourceType = 'RESOURCE_WINE';
-DELETE FROM Improvement_ResourceType_Yields WHERE ResourceType = 'RESOURCE_CRAB';
-DELETE FROM Improvement_ResourceType_Yields WHERE ResourceType = 'RESOURCE_WHALE';
+DELETE FROM Improvement_ResourceType_Yields; 
 
 INSERT INTO Improvement_ResourceType_Yields
 	(ImprovementType, ResourceType, YieldType, Yield)
 VALUES
+	('IMPROVEMENT_MINE', 'RESOURCE_COAL', 'YIELD_PRODUCTION', 1),
+	('IMPROVEMENT_MINE', 'RESOURCE_ALUMINUM', 'YIELD_PRODUCTION', 1),
+	('IMPROVEMENT_CAMP', 'RESOURCE_FUR', 'YIELD_GOLD', 1),
+	('IMPROVEMENT_WELL', 'RESOURCE_OIL', 'YIELD_PRODUCTION', 3),
+	('IMPROVEMENT_OFFSHORE_PLATFORM', 'RESOURCE_OIL', 'YIELD_PRODUCTION', 3),
+	('IMPROVEMENT_PLANTATION', 'RESOURCE_CLOVES', 'YIELD_FAITH', 1),
+	('IMPROVEMENT_PLANTATION', 'RESOURCE_CLOVES', 'YIELD_GOLD', 1),
+	('IMPROVEMENT_PLANTATION', 'RESOURCE_NUTMEG', 'YIELD_CULTURE', 1),
+	('IMPROVEMENT_PLANTATION', 'RESOURCE_NUTMEG', 'YIELD_GOLD', 1),
+	('IMPROVEMENT_PLANTATION', 'RESOURCE_PEPPER', 'YIELD_GOLD', 1),
+	('IMPROVEMENT_PLANTATION', 'RESOURCE_PEPPER', 'YIELD_FAITH', 1),
 	('IMPROVEMENT_QUARRY', 'RESOURCE_URANIUM', 'YIELD_SCIENCE', 1),
 	('IMPROVEMENT_MINE', 'RESOURCE_IRON', 'YIELD_SCIENCE', 1),
 	('IMPROVEMENT_QUARRY', 'RESOURCE_STONE', 'YIELD_PRODUCTION', 2),
@@ -150,20 +132,21 @@ INSERT INTO Improvement_YieldPerEra
 VALUES
 	('IMPROVEMENT_LANDMARK', 'YIELD_GOLD', 1);
 
-DELETE FROM Improvement_TechYieldChanges WHERE ImprovementType = 'IMPROVEMENT_LUMBERMILL';
-DELETE FROM Improvement_TechYieldChanges WHERE ImprovementType = 'IMPROVEMENT_MINE';
-DELETE FROM Improvement_TechYieldChanges WHERE ImprovementType = 'IMPROVEMENT_QUARRY';
-DELETE FROM Improvement_TechYieldChanges WHERE ImprovementType = 'IMPROVEMENT_TRADING_POST';
-DELETE FROM Improvement_TechYieldChanges WHERE ImprovementType = 'IMPROVEMENT_CITADEL';
-DELETE FROM Improvement_TechYieldChanges WHERE ImprovementType = 'IMPROVEMENT_LANDMARK';
-DELETE FROM Improvement_TechYieldChanges WHERE ImprovementType = 'IMPROVEMENT_ACADEMY';
-DELETE FROM Improvement_TechYieldChanges WHERE ImprovementType = 'IMPROVEMENT_CUSTOMS_HOUSE';
-DELETE FROM Improvement_TechYieldChanges WHERE ImprovementType = 'IMPROVEMENT_MANUFACTORY';
-DELETE FROM Improvement_TechYieldChanges WHERE ImprovementType = 'IMPROVEMENT_PLANTATION';
-DELETE FROM Improvement_TechYieldChanges WHERE ImprovementType = 'IMPROVEMENT_PASTURE';
-DELETE FROM Improvement_TechYieldChanges WHERE ImprovementType = 'IMPROVEMENT_FISHING_BOATS';
-DELETE FROM Improvement_TechYieldChanges WHERE ImprovementType = 'IMPROVEMENT_CAMP';
-DELETE FROM Improvement_TechYieldChanges WHERE ImprovementType = 'IMPROVEMENT_CHATEAU';
+DELETE FROM Improvement_TechYieldChanges WHERE ImprovementType IN 
+('IMPROVEMENT_LUMBERMILL',
+'IMPROVEMENT_MINE',
+'IMPROVEMENT_QUARRY',
+'IMPROVEMENT_TRADING_POST',
+'IMPROVEMENT_CITADEL',
+'IMPROVEMENT_LANDMARK',
+'IMPROVEMENT_ACADEMY',
+'IMPROVEMENT_CUSTOMS_HOUSE',
+'IMPROVEMENT_MANUFACTORY',
+'IMPROVEMENT_PLANTATION',
+'IMPROVEMENT_PASTURE',
+'IMPROVEMENT_FISHING_BOATS',
+'IMPROVEMENT_CAMP',
+'IMPROVEMENT_CHATEAU');
 
 DELETE FROM Improvement_TechFreshWaterYieldChanges;
 DELETE FROM Improvement_TechNoFreshWaterYieldChanges;
@@ -282,8 +265,7 @@ VALUES
 
 -- Fix some Improvement Errata
 UPDATE Improvements SET NearbyEnemyDamage = '30' WHERE Type = 'IMPROVEMENT_CITADEL';
-UPDATE Improvements SET DestroyedWhenPillaged = 'false' WHERE Type = 'IMPROVEMENT_OFFSHORE_PLATFORM';
-UPDATE Improvements SET PillageGold = '21' WHERE Type = 'IMPROVEMENT_OFFSHORE_PLATFORM';
+UPDATE Improvements SET DestroyedWhenPillaged = '0', PillageGold = '21' WHERE Type = 'IMPROVEMENT_OFFSHORE_PLATFORM';
 
 -- Yields for other improvements.
 UPDATE Improvement_Yields SET Yield = '1' WHERE YieldType = 'YIELD_PRODUCTION' AND ImprovementType = 'IMPROVEMENT_MINE';
@@ -313,51 +295,27 @@ WHERE Type = 'ROUTE_RAILROAD';
 
 -- Farm
 UPDATE Builds
-SET Help = 'TXT_KEY_BUILD_FARM_HELP'
-WHERE Type = 'BUILD_FARM';
-
-UPDATE Builds
-SET Recommendation = 'TXT_KEY_BUILD_FARM_REC'
+SET Help = 'TXT_KEY_BUILD_FARM_HELP', Recommendation = 'TXT_KEY_BUILD_FARM_REC'
 WHERE Type = 'BUILD_FARM';
 
 UPDATE Improvements
-SET RequiresFlatlands = '1'
+SET RequiresFlatlands = '1', RequiresFlatlandsOrFreshWater = '0'
 WHERE Type = 'IMPROVEMENT_FARM';
 
-UPDATE Improvements
-SET RequiresFlatlandsOrFreshWater = '0'
-WHERE Type = 'IMPROVEMENT_FARM';
 
-	-- Forts and Citadels 'no two adjacent' and no outside borders for Fort - cannot be built on resources (helps AI quite a bit)
+-- Forts and Citadels 'no two adjacent' and no outside borders for Fort - cannot be built on resources (helps AI quite a bit)	
+-- Forts and Citadels now passable for ships and trade units.
 
 UPDATE Builds
 SET Time = '400'
 WHERE Type = 'BUILD_FORT';
 
 UPDATE Improvements
-SET NoTwoAdjacent = '1'
+SET NoTwoAdjacent = '1', OutsideBorders = '0', BuildableOnResources = '0', MakesPassable = '1'
 WHERE Type = 'IMPROVEMENT_FORT';
 
 UPDATE Improvements
-SET OutsideBorders = '0'
-WHERE Type = 'IMPROVEMENT_FORT';
-
-UPDATE Improvements
-SET BuildableOnResources = '0'
-WHERE Type = 'IMPROVEMENT_FORT';
-
-UPDATE Improvements
-SET NoTwoAdjacent = '1'
-WHERE Type = 'IMPROVEMENT_CITADEL';
-
--- Forts and Citadels now passable for ships and trade units.
-
-UPDATE Improvements
-SET MakesPassable = '1'
-WHERE Type = 'IMPROVEMENT_FORT';
-
-UPDATE Improvements
-SET MakesPassable = '1'
+SET NoTwoAdjacent = '1', MakesPassable = '1'
 WHERE Type = 'IMPROVEMENT_CITADEL';
 
 -- Camps need defense!
@@ -375,52 +333,29 @@ WHERE Type = 'IMPROVEMENT_TRADING_POST';
 -- Shrink Trading Post
 UPDATE ArtDefine_Landmarks
 SET Scale= '0.65'
-WHERE ImprovementType = 'ART_DEF_IMPROVEMENT_TRADING_POST1';
+WHERE ImprovementType IN 
+('ART_DEF_IMPROVEMENT_TRADING_POST1',
+'ART_DEF_IMPROVEMENT_TRADING_POST2',
+'ART_DEF_IMPROVEMENT_TRADING_POST3',
+'ART_DEF_IMPROVEMENT_TRADING_POST4');
 
--- Shrink Trading Post
-UPDATE ArtDefine_Landmarks
-SET Scale= '0.65'
-WHERE ImprovementType = 'ART_DEF_IMPROVEMENT_TRADING_POST2';
-
--- Shrink Trading Post
-UPDATE ArtDefine_Landmarks
-SET Scale= '0.65'
-WHERE ImprovementType = 'ART_DEF_IMPROVEMENT_TRADING_POST3';
-
--- Shrink Trading Post
-UPDATE ArtDefine_Landmarks
-SET Scale= '0.65'
-WHERE ImprovementType = 'ART_DEF_IMPROVEMENT_TRADING_POST4';
-
--- Shrink Academy
+-- Shrink Academy, Manufactory, HolySite
 UPDATE ArtDefine_Landmarks
 SET Scale= '0.75'
-WHERE ImprovementType = 'ART_DEF_IMPROVEMENT_ACADEMY';
-
--- Shrink Manufactory
-UPDATE ArtDefine_Landmarks
-SET Scale= '0.75'
-WHERE ImprovementType = 'ART_DEF_IMPROVEMENT_MANUFACTORY';
-
--- Shrink Holy Site
-UPDATE ArtDefine_Landmarks
-SET Scale= '0.75'
-WHERE ImprovementType = 'ART_DEF_IMPROVEMENT_HOLY_SITE';
+WHERE ImprovementType IN 
+('ART_DEF_IMPROVEMENT_ACADEMY',
+'ART_DEF_IMPROVEMENT_MANUFACTORY',
+'ART_DEF_IMPROVEMENT_HOLY_SITE');
 
 -- Shrink Kasbah
 UPDATE ArtDefine_Landmarks
 SET Scale= '0.80'
 WHERE ImprovementType = 'ART_DEF_IMPROVEMENT_KASBAH';
 
--- Shrink Chateau
+-- Shrink Chateau, Customs House
 UPDATE ArtDefine_Landmarks
 SET Scale= '0.70'
-WHERE ImprovementType = 'ART_DEF_IMPROVEMENT_CHATEAU';
-
--- Shrink Customs House
-UPDATE ArtDefine_Landmarks
-SET Scale= '0.70'
-WHERE ImprovementType = 'ART_DEF_IMPROVEMENT_CUSTOMS_HOUSE';
+WHERE ImprovementType IN ('ART_DEF_IMPROVEMENT_CHATEAU', 'ART_DEF_IMPROVEMENT_CUSTOMS_HOUSE');
 
 -- Happiness on Landmark
 UPDATE Improvements
@@ -434,142 +369,61 @@ SET PillageGold = '21'
 WHERE Type = 'IMPROVEMENT_OFFSHORE_PLATFORM';
 
 UPDATE Improvements
-SET PillageGold = '17'
-WHERE Type = 'IMPROVEMENT_CUSTOMS_HOUSE';
-
-UPDATE Improvements
-SET PillageGold = '17'
-WHERE Type = 'IMPROVEMENT_MANUFACTORY';
-
-UPDATE Improvements
-SET PillageGold = '17'
-WHERE Type = 'IMPROVEMENT_HOLY_SITE';
-
-UPDATE Improvements
-SET PillageGold = '17'
-WHERE Type = 'IMPROVEMENT_LANDMARK';
-
-UPDATE Improvements
-SET PillageGold = '17'
-WHERE Type = 'IMPROVEMENT_ACADEMY';
-
-UPDATE Improvements
-SET PillageGold = '17'
-WHERE Type = 'IMPROVEMENT_CITADEL';
-
-UPDATE Improvements
-SET PillageGold = '14'
-WHERE Type = 'IMPROVEMENT_BRAZILWOOD_CAMP';
-
-UPDATE Improvements
-SET PillageGold = '14'
-WHERE Type = 'IMPROVEMENT_FISHING_BOATS';
-
-UPDATE Improvements
-SET PillageGold = '14'
-WHERE Type = 'IMPROVEMENT_FEITORIA';
-
-UPDATE Improvements
-SET PillageGold = '14'
-WHERE Type = 'IMPROVEMENT_CHATEAU';
-
-UPDATE Improvements
-SET PillageGold = '14'
-WHERE Type = 'IMPROVEMENT_POLDER';
-
-UPDATE Improvements
-SET PillageGold = '14'
-WHERE Type = 'IMPROVEMENT_KASBAH';
-
-UPDATE Improvements
-SET PillageGold = '14'
-WHERE Type = 'IMPROVEMENT_KUNA';
-
-UPDATE Improvements
-SET PillageGold = '11'
-WHERE Type = 'IMPROVEMENT_ENCAMPMENT_SHOSHONE';
-
-UPDATE Improvements
-SET PillageGold = '11'
-WHERE Type = 'IMPROVEMENT_TRADING_POST';
-
-UPDATE Improvements
-SET PillageGold = '8'
-WHERE Type = 'IMPROVEMENT_LUMBERMILL_JUNGLE';
-
-UPDATE Improvements
-SET PillageGold = '8'
-WHERE Type = 'IMPROVEMENT_LUMBERMILL';
-
-UPDATE Improvements
-SET PillageGold = '8'
-WHERE Type = 'IMPROVEMENT_QUARRY';
-
-UPDATE Improvements
-SET PillageGold = '8'
-WHERE Type = 'IMPROVEMENT_CAMP';
-
-UPDATE Improvements
-SET PillageGold = '8'
-WHERE Type = 'IMPROVEMENT_WELL';
-
-UPDATE Improvements
-SET PillageGold = '8'
-WHERE Type = 'IMPROVEMENT_MOAI';
-
-UPDATE Improvements
-SET PillageGold = '8'
-WHERE Type = 'IMPROVEMENT_MINE';
-
-UPDATE Improvements
-SET PillageGold = '5'
-WHERE Type = 'IMPROVEMENT_TERRACE_FARM';
-
-UPDATE Improvements
-SET PillageGold = '5'
-WHERE Type = 'IMPROVEMENT_PLANTATION';
-
-UPDATE Improvements
-SET PillageGold = '5'
-WHERE Type = 'IMPROVEMENT_PASTURE';
-
-UPDATE Improvements
-SET PillageGold = '5'
-WHERE Type = 'IMPROVEMENT_FARM';
-
-UPDATE Improvements
-SET PillageGold = '5'
-WHERE Type = 'IMPROVEMENT_EKI';
-
-UPDATE Improvements
 SET PillageGold = '20'
 WHERE Type = 'IMPROVEMENT_SPAIN_HACIENDA';
 
 UPDATE Improvements
-SET PillageGold = '0'
-WHERE Type = 'IMPROVEMENT_ARCHAEOLOGICAL_DIG';
+SET PillageGold = '17'
+WHERE Type IN 
+('IMPROVEMENT_CUSTOMS_HOUSE',
+'IMPROVEMENT_MANUFACTORY',
+'IMPROVEMENT_HOLY_SITE',
+'IMPROVEMENT_LANDMARK',
+'IMPROVEMENT_ACADEMY',
+'IMPROVEMENT_CITADEL');
+
+UPDATE Improvements
+SET PillageGold = '14'
+WHERE Type IN 
+('IMPROVEMENT_BRAZILWOOD_CAMP',
+'IMPROVEMENT_FISHING_BOATS',
+'IMPROVEMENT_FEITORIA',
+'IMPROVEMENT_CHATEAU',
+'IMPROVEMENT_POLDER',
+'IMPROVEMENT_KASBAH',
+'IMPROVEMENT_KUNA');
+
+UPDATE Improvements
+SET PillageGold = '11'
+WHERE Type IN 
+('IMPROVEMENT_ENCAMPMENT_SHOSHONE',
+'IMPROVEMENT_TRADING_POST');
+
+UPDATE Improvements
+SET PillageGold = '8'
+WHERE Type IN ('IMPROVEMENT_LUMBERMILL_JUNGLE',
+'IMPROVEMENT_LUMBERMILL',
+'IMPROVEMENT_QUARRY',
+'IMPROVEMENT_CAMP',
+'IMPROVEMENT_WELL',
+'IMPROVEMENT_MOAI',
+'IMPROVEMENT_MINE');
+
+UPDATE Improvements
+SET PillageGold = '5'
+WHERE Type IN ('IMPROVEMENT_TERRACE_FARM',
+'IMPROVEMENT_PLANTATION',
+'IMPROVEMENT_PASTURE',
+'IMPROVEMENT_FARM',
+'IMPROVEMENT_EKI');
 
 UPDATE Improvements
 SET PillageGold = '0'
-WHERE Type = 'IMPROVEMENT_JFD_MACHU_PICCHU';
-
-UPDATE Improvements
-SET PillageGold = '0'
-WHERE Type = 'IMPROVEMENT_BARBARIAN_CAMP';
-
-UPDATE Improvements
-SET PillageGold = '0'
-WHERE Type = 'IMPROVEMENT_GOODY_HUT';
-
-UPDATE Improvements
-SET PillageGold = '0'
-WHERE Type = 'IMPROVEMENT_CITY_RUINS';
-
-UPDATE Improvements
-SET PillageGold = '0'
-WHERE Type = 'IMPROVEMENT_EMBASSY';
-
-UPDATE Improvements
-SET PillageGold = '0'
-WHERE Type = 'IMPROVEMENT_FORT';
+WHERE Type IN ('IMPROVEMENT_ARCHAEOLOGICAL_DIG',
+'IMPROVEMENT_JFD_MACHU_PICCHU',
+'IMPROVEMENT_BARBARIAN_CAMP',
+'IMPROVEMENT_GOODY_HUT',
+'IMPROVEMENT_CITY_RUINS',
+'IMPROVEMENT_EMBASSY',
+'IMPROVEMENT_FORT');
 

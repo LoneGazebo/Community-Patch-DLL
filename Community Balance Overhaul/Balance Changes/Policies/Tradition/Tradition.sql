@@ -9,130 +9,46 @@ WHERE Type = 'POLICY_OLIGARCHY';
 
 -- Opener
 UPDATE Policies
-SET PlotCultureExponentModifier = '0'
+SET PlotCultureExponentModifier = '0', CityGrowthMod = '5', FreePopulationCapital = '2'
 WHERE Type = 'POLICY_TRADITION';
 
 DELETE From Policy_BuildingClassCultureChanges WHERE PolicyType = 'POLICY_TRADITION';
 
-UPDATE Policies
-SET CityGrowthMod = '5'
-WHERE Type = 'POLICY_TRADITION';
-
-UPDATE Policies
-SET FreePopulationCapital = '2'
-WHERE Type = 'POLICY_TRADITION';
-
 -- Aristocracy
 UPDATE Policies
-SET HappinessPerXPopulation = '0'
-WHERE Type = 'POLICY_ARISTOCRACY';
-
-UPDATE Policies
-SET WonderProductionModifier = '0'
-WHERE Type = 'POLICY_ARISTOCRACY';
-
-UPDATE Policies
-SET CityGrowthMod = '3'
-WHERE Type = 'POLICY_ARISTOCRACY';
-
-UPDATE Policies
-SET GarrisonedCityRangeStrikeModifier = '25'
-WHERE Type = 'POLICY_ARISTOCRACY';
-
-UPDATE Policies
-SET PortraitIndex = '57'
+SET HappinessPerXPopulation = '0', WonderProductionModifier = '0', CityGrowthMod = '3', GarrisonedCityRangeStrikeModifier = '25', PortraitIndex = '57'
 WHERE Type = 'POLICY_ARISTOCRACY';
 
 -- Oligarchy
 UPDATE Policies
-SET GarrisonedCityRangeStrikeModifier = '0'
-WHERE Type = 'POLICY_OLIGARCHY';
-
-UPDATE Policies
-SET GarrisonFreeMaintenance = '0'
-WHERE Type = 'POLICY_OLIGARCHY';
-
-UPDATE Policies
-SET CityGrowthMod = '3'
-WHERE Type = 'POLICY_OLIGARCHY';
-
-UPDATE Policies
-SET PlotCultureExponentModifier = '-20'
-WHERE Type = 'POLICY_OLIGARCHY';
-
-UPDATE Policies
-SET PortraitIndex = '59'
+SET GarrisonedCityRangeStrikeModifier = '0', GarrisonFreeMaintenance = '0', CityGrowthMod = '3', PlotCultureExponentModifier = '-20', PortraitIndex = '59'
 WHERE Type = 'POLICY_OLIGARCHY';
 
 -- Legalism
 UPDATE Policies
-SET NumCitiesFreeCultureBuilding = '0'
-WHERE Type = 'POLICY_LEGALISM';
-
-UPDATE Policies
-SET CapitalGrowthMod = '0'
-WHERE Type = 'POLICY_LEGALISM';
-
-UPDATE Policies
-SET CityGrowthMod = '3'
-WHERE Type = 'POLICY_LEGALISM';
-
-UPDATE Policies
-SET PortraitIndex = '55'
-WHERE Type = 'POLICY_LEGALISM';
-
-UPDATE Policies
-SET GoldenAgeDurationMod = '0'
+SET NumCitiesFreeCultureBuilding = '0', CapitalGrowthMod = '0', CityGrowthMod = '3', PortraitIndex = '55', GoldenAgeDurationMod = '0'
 WHERE Type = 'POLICY_LEGALISM';
 
 -- Monarchy
 UPDATE Policies
-SET CapitalUnhappinessMod = '0'
+SET CapitalUnhappinessMod = '0', CityGrowthMod = '3', PortraitIndex = '58', HalfSpecialistFoodCapital = '1'
 WHERE Type = 'POLICY_MONARCHY';
 
 DELETE FROM Policy_CapitalYieldPerPopChanges
 WHERE PolicyType = 'POLICY_MONARCHY';
 
-UPDATE Policies
-SET CityGrowthMod = '3'
-WHERE Type = 'POLICY_MONARCHY';
-
-UPDATE Policies
-SET PortraitIndex = '58'
-WHERE Type = 'POLICY_MONARCHY';
-
-UPDATE Policies
-SET HalfSpecialistFoodCapital = '1'
-WHERE Type = 'POLICY_MONARCHY';
-
 -- Landed Elite
 
 UPDATE Policies
-SET CapitalGrowthMod = '0'
+SET CapitalGrowthMod = '0',  CityGrowthMod = '3', GreatPeopleRateModifier = '0', PortraitIndex = '56'
 WHERE Type = 'POLICY_LANDED_ELITE';
 
 DELETE FROM Policy_CapitalYieldChanges
 WHERE PolicyType = 'POLICY_LANDED_ELITE';
 
-UPDATE Policies
-SET CityGrowthMod = '3'
-WHERE Type = 'POLICY_LANDED_ELITE';
-
-UPDATE Policies
-SET GreatPeopleRateModifier = '0'
-WHERE Type = 'POLICY_LANDED_ELITE';
-
-UPDATE Policies
-SET PortraitIndex = '56'
-WHERE Type = 'POLICY_LANDED_ELITE';
-
 -- Finisher
 UPDATE Policies
-SET NumCitiesFreeFoodBuilding = '0'
-WHERE Type = 'POLICY_TRADITION_FINISHER';
-
-UPDATE Policies
-SET CityGrowthMod = '0'
+SET NumCitiesFreeFoodBuilding = '0', CityGrowthMod = '0'
 WHERE Type = 'POLICY_TRADITION_FINISHER';
 
 --UPDATE Policies
