@@ -1,7 +1,10 @@
--- Merged Protective and Friendly approaches in the DLL (takes highest value)
+-- Reset these values to avoid carryover from the Community Patch / base game
+UPDATE Leaders SET SecondaryVictoryPursuit = NULL;
 UPDATE Leader_MinorCivApproachBiases SET Bias = -1 WHERE MinorCivApproachType = 'MINOR_CIV_APPROACH_FRIENDLY';
 
 -- Ahmad al-Mansur (Morocco)
+UPDATE Leaders SET PrimaryVictoryPursuit = 'VICTORY_PURSUIT_DIPLOMACY' WHERE Type = 'LEADER_AHMAD_ALMANSUR';
+UPDATE Leaders SET SecondaryVictoryPursuit = 'VICTORY_PURSUIT_CULTURE' WHERE Type = 'LEADER_AHMAD_ALMANSUR';
 UPDATE Leaders SET Personality = 'PERSONALITY_DIPLOMAT' WHERE Type = 'LEADER_AHMAD_ALMANSUR';
 UPDATE Leaders SET VictoryCompetitiveness = 5 		WHERE Type = 'LEADER_AHMAD_ALMANSUR';
 UPDATE Leaders SET WonderCompetitiveness = 6 		WHERE Type = 'LEADER_AHMAD_ALMANSUR';
@@ -29,6 +32,8 @@ UPDATE Leader_MinorCivApproachBiases SET Bias = 6 	WHERE LeaderType = 'LEADER_AH
 UPDATE Leader_MinorCivApproachBiases SET Bias = 3 	WHERE LeaderType = 'LEADER_AHMAD_ALMANSUR' 	AND MinorCivApproachType = 'MINOR_CIV_APPROACH_CONQUEST';
 
 -- Alexander (Greece)
+UPDATE Leaders SET PrimaryVictoryPursuit = 'VICTORY_PURSUIT_DIPLOMACY' WHERE Type = 'LEADER_ALEXANDER';
+UPDATE Leaders SET SecondaryVictoryPursuit = 'VICTORY_PURSUIT_DOMINATION' WHERE Type = 'LEADER_ALEXANDER';
 UPDATE Leaders SET Personality = 'PERSONALITY_EXPANSIONIST' WHERE Type = 'LEADER_ALEXANDER';
 UPDATE Leaders SET VictoryCompetitiveness = 6 		WHERE Type = 'LEADER_ALEXANDER';
 UPDATE Leaders SET WonderCompetitiveness = 3 		WHERE Type = 'LEADER_ALEXANDER';
@@ -56,6 +61,8 @@ UPDATE Leader_MinorCivApproachBiases SET Bias = 2 	WHERE LeaderType = 'LEADER_AL
 UPDATE Leader_MinorCivApproachBiases SET Bias = 6 	WHERE LeaderType = 'LEADER_ALEXANDER' 	AND MinorCivApproachType = 'MINOR_CIV_APPROACH_CONQUEST';
 
 -- Ashurbanipal (Assyria)
+UPDATE Leaders SET PrimaryVictoryPursuit = 'VICTORY_PURSUIT_SCIENCE' WHERE Type = 'LEADER_ASHURBANIPAL';
+UPDATE Leaders SET SecondaryVictoryPursuit = 'VICTORY_PURSUIT_DOMINATION' WHERE Type = 'LEADER_ASHURBANIPAL';
 UPDATE Leaders SET Personality = 'PERSONALITY_CONQUEROR' WHERE Type = 'LEADER_ASHURBANIPAL';
 UPDATE Leaders SET VictoryCompetitiveness = 6 		WHERE Type = 'LEADER_ASHURBANIPAL';
 UPDATE Leaders SET WonderCompetitiveness = 5 		WHERE Type = 'LEADER_ASHURBANIPAL';
@@ -83,6 +90,7 @@ UPDATE Leader_MinorCivApproachBiases SET Bias = 8 	WHERE LeaderType = 'LEADER_AS
 UPDATE Leader_MinorCivApproachBiases SET Bias = 9 	WHERE LeaderType = 'LEADER_ASHURBANIPAL' 	AND MinorCivApproachType = 'MINOR_CIV_APPROACH_CONQUEST';
 
 -- Askia (Songhai)
+UPDATE Leaders SET PrimaryVictoryPursuit = 'VICTORY_PURSUIT_DOMINATION' WHERE Type = 'LEADER_ASKIA';
 UPDATE Leaders SET Personality = 'PERSONALITY_CONQUEROR' WHERE Type = 'LEADER_ASKIA';
 UPDATE Leaders SET VictoryCompetitiveness = 8 		WHERE Type = 'LEADER_ASKIA';
 UPDATE Leaders SET WonderCompetitiveness = 6 		WHERE Type = 'LEADER_ASKIA';
@@ -110,6 +118,7 @@ UPDATE Leader_MinorCivApproachBiases SET Bias = 9 	WHERE LeaderType = 'LEADER_AS
 UPDATE Leader_MinorCivApproachBiases SET Bias = 7 	WHERE LeaderType = 'LEADER_ASKIA' 	AND MinorCivApproachType = 'MINOR_CIV_APPROACH_CONQUEST';
 
 -- Attila (The Huns)
+UPDATE Leaders SET PrimaryVictoryPursuit = 'VICTORY_PURSUIT_DOMINATION' WHERE Type = 'LEADER_ATTILA';
 UPDATE Leaders SET Personality = 'PERSONALITY_CONQUEROR' WHERE Type = 'LEADER_ATTILA';
 UPDATE Leaders SET VictoryCompetitiveness = 5 		WHERE Type = 'LEADER_ATTILA';
 UPDATE Leaders SET WonderCompetitiveness = 4 		WHERE Type = 'LEADER_ATTILA';
@@ -137,6 +146,7 @@ UPDATE Leader_MinorCivApproachBiases SET Bias = 9 	WHERE LeaderType = 'LEADER_AT
 UPDATE Leader_MinorCivApproachBiases SET Bias = 7 	WHERE LeaderType = 'LEADER_ATTILA' 	AND MinorCivApproachType = 'MINOR_CIV_APPROACH_CONQUEST';
 
 -- Augustus Caesar (Rome)
+UPDATE Leaders SET PrimaryVictoryPursuit = 'VICTORY_PURSUIT_DOMINATION' WHERE Type = 'LEADER_AUGUSTUS';
 UPDATE Leaders SET Personality = 'PERSONALITY_CONQUEROR' WHERE Type = 'LEADER_AUGUSTUS';
 UPDATE Leaders SET VictoryCompetitiveness = 6 		WHERE Type = 'LEADER_AUGUSTUS';
 UPDATE Leaders SET WonderCompetitiveness = 8 		WHERE Type = 'LEADER_AUGUSTUS';
@@ -164,6 +174,7 @@ UPDATE Leader_MinorCivApproachBiases SET Bias = 6 	WHERE LeaderType = 'LEADER_AU
 UPDATE Leader_MinorCivApproachBiases SET Bias = 10 	WHERE LeaderType = 'LEADER_AUGUSTUS' 	AND MinorCivApproachType = 'MINOR_CIV_APPROACH_CONQUEST';
 
 -- Bismarck (Germany)
+UPDATE Leaders SET PrimaryVictoryPursuit = 'VICTORY_PURSUIT_DIPLOMACY' WHERE Type = 'LEADER_BISMARCK';
 UPDATE Leaders SET Personality = 'PERSONALITY_DIPLOMAT' WHERE Type = 'LEADER_BISMARCK';
 UPDATE Leaders SET VictoryCompetitiveness = 5 		WHERE Type = 'LEADER_BISMARCK';
 UPDATE Leaders SET WonderCompetitiveness = 5 		WHERE Type = 'LEADER_BISMARCK';
@@ -190,7 +201,8 @@ UPDATE Leader_MinorCivApproachBiases SET Bias = 10 	WHERE LeaderType = 'LEADER_B
 UPDATE Leader_MinorCivApproachBiases SET Bias = 2 	WHERE LeaderType = 'LEADER_BISMARCK' 	AND MinorCivApproachType = 'MINOR_CIV_APPROACH_BULLY';
 UPDATE Leader_MinorCivApproachBiases SET Bias = 4 	WHERE LeaderType = 'LEADER_BISMARCK' 	AND MinorCivApproachType = 'MINOR_CIV_APPROACH_CONQUEST';
 
--- Boudicca (The Celts)
+-- Boudicca (The Celts); generalist civ with no victory pursuit bias
+UPDATE Leaders SET PrimaryVictoryPursuit = NULL WHERE Type = 'LEADER_BOUDICCA';
 UPDATE Leaders SET Personality = 'PERSONALITY_EXPANSIONIST' WHERE Type = 'LEADER_BOUDICCA';
 UPDATE Leaders SET VictoryCompetitiveness = 8 		WHERE Type = 'LEADER_BOUDICCA';
 UPDATE Leaders SET WonderCompetitiveness = 6 		WHERE Type = 'LEADER_BOUDICCA';
@@ -217,7 +229,8 @@ UPDATE Leader_MinorCivApproachBiases SET Bias = 5 	WHERE LeaderType = 'LEADER_BO
 UPDATE Leader_MinorCivApproachBiases SET Bias = 5 	WHERE LeaderType = 'LEADER_BOUDICCA' 	AND MinorCivApproachType = 'MINOR_CIV_APPROACH_BULLY';
 UPDATE Leader_MinorCivApproachBiases SET Bias = 5 	WHERE LeaderType = 'LEADER_BOUDICCA' 	AND MinorCivApproachType = 'MINOR_CIV_APPROACH_CONQUEST';
 
--- Casimir III (Poland)
+-- Casimir III (Poland); generalist civ with no victory pursuit bias
+UPDATE Leaders SET PrimaryVictoryPursuit = NULL WHERE Type = 'LEADER_CASIMIR';
 UPDATE Leaders SET Personality = 'PERSONALITY_COALITION' WHERE Type = 'LEADER_CASIMIR';
 UPDATE Leaders SET VictoryCompetitiveness = 4 		WHERE Type = 'LEADER_CASIMIR';
 UPDATE Leaders SET WonderCompetitiveness = 6 		WHERE Type = 'LEADER_CASIMIR';
@@ -245,6 +258,8 @@ UPDATE Leader_MinorCivApproachBiases SET Bias = 5 	WHERE LeaderType = 'LEADER_CA
 UPDATE Leader_MinorCivApproachBiases SET Bias = 5 	WHERE LeaderType = 'LEADER_CASIMIR' 	AND MinorCivApproachType = 'MINOR_CIV_APPROACH_CONQUEST';
 
 -- Catherine (Russia)
+UPDATE Leaders SET PrimaryVictoryPursuit = 'VICTORY_PURSUIT_DOMINATION' WHERE Type = 'LEADER_CATHERINE';
+UPDATE Leaders SET SecondaryVictoryPursuit = 'VICTORY_PURSUIT_SCIENCE' WHERE Type = 'LEADER_CATHERINE';
 UPDATE Leaders SET Personality = 'PERSONALITY_EXPANSIONIST' WHERE Type = 'LEADER_CATHERINE';
 UPDATE Leaders SET VictoryCompetitiveness = 7 		WHERE Type = 'LEADER_CATHERINE';
 UPDATE Leaders SET WonderCompetitiveness = 5 		WHERE Type = 'LEADER_CATHERINE';
@@ -272,6 +287,8 @@ UPDATE Leader_MinorCivApproachBiases SET Bias = 8 	WHERE LeaderType = 'LEADER_CA
 UPDATE Leader_MinorCivApproachBiases SET Bias = 6 	WHERE LeaderType = 'LEADER_CATHERINE' 	AND MinorCivApproachType = 'MINOR_CIV_APPROACH_CONQUEST';
 
 -- Darius I (Persia)
+UPDATE Leaders SET PrimaryVictoryPursuit = 'VICTORY_PURSUIT_DOMINATION' WHERE Type = 'LEADER_DARIUS';
+UPDATE Leaders SET SecondaryVictoryPursuit = 'VICTORY_PURSUIT_CULTURE' WHERE Type = 'LEADER_DARIUS';
 UPDATE Leaders SET Personality = 'PERSONALITY_CONQUEROR' WHERE Type = 'LEADER_DARIUS';
 UPDATE Leaders SET VictoryCompetitiveness = 5 		WHERE Type = 'LEADER_DARIUS';
 UPDATE Leaders SET WonderCompetitiveness = 8 		WHERE Type = 'LEADER_DARIUS';
@@ -299,6 +316,8 @@ UPDATE Leader_MinorCivApproachBiases SET Bias = 4 	WHERE LeaderType = 'LEADER_DA
 UPDATE Leader_MinorCivApproachBiases SET Bias = 10 	WHERE LeaderType = 'LEADER_DARIUS' 	AND MinorCivApproachType = 'MINOR_CIV_APPROACH_CONQUEST';
 
 -- Dido (Carthage)
+UPDATE Leaders SET PrimaryVictoryPursuit = 'VICTORY_PURSUIT_DIPLOMACY' WHERE Type = 'LEADER_DIDO';
+UPDATE Leaders SET SecondaryVictoryPursuit = 'VICTORY_PURSUIT_DOMINATION' WHERE Type = 'LEADER_DIDO';
 UPDATE Leaders SET Personality = 'PERSONALITY_EXPANSIONIST' WHERE Type = 'LEADER_DIDO';
 UPDATE Leaders SET VictoryCompetitiveness = 6 		WHERE Type = 'LEADER_DIDO';
 UPDATE Leaders SET WonderCompetitiveness = 4 		WHERE Type = 'LEADER_DIDO';
@@ -326,6 +345,8 @@ UPDATE Leader_MinorCivApproachBiases SET Bias = 6 	WHERE LeaderType = 'LEADER_DI
 UPDATE Leader_MinorCivApproachBiases SET Bias = 4 	WHERE LeaderType = 'LEADER_DIDO' 	AND MinorCivApproachType = 'MINOR_CIV_APPROACH_CONQUEST';
 
 -- Elizabeth (England)
+UPDATE Leaders SET PrimaryVictoryPursuit = 'VICTORY_PURSUIT_DOMINATION' WHERE Type = 'LEADER_ELIZABETH';
+UPDATE Leaders SET SecondaryVictoryPursuit = 'VICTORY_PURSUIT_SCIENCE' WHERE Type = 'LEADER_ELIZABETH';
 UPDATE Leaders SET Personality= 'PERSONALITY_COALITION'	WHERE Type = 'LEADER_ELIZABETH';
 UPDATE Leaders SET VictoryCompetitiveness = 7 		WHERE Type = 'LEADER_ELIZABETH';
 UPDATE Leaders SET WonderCompetitiveness = 5 		WHERE Type = 'LEADER_ELIZABETH';
@@ -353,6 +374,7 @@ UPDATE Leader_MinorCivApproachBiases SET Bias = 4 	WHERE LeaderType = 'LEADER_EL
 UPDATE Leader_MinorCivApproachBiases SET Bias = 7 	WHERE LeaderType = 'LEADER_ELIZABETH' 	AND MinorCivApproachType = 'MINOR_CIV_APPROACH_CONQUEST';
 
 -- Enrico Dandolo (Venice)
+UPDATE Leaders SET PrimaryVictoryPursuit = 'VICTORY_PURSUIT_DIPLOMACY' WHERE Type = 'LEADER_ENRICO_DANDOLO';
 UPDATE Leaders SET Personality = 'PERSONALITY_DIPLOMAT' WHERE Type = 'LEADER_ENRICO_DANDOLO';
 UPDATE Leaders SET VictoryCompetitiveness = 3 		WHERE Type = 'LEADER_ENRICO_DANDOLO';
 UPDATE Leaders SET WonderCompetitiveness = 10 		WHERE Type = 'LEADER_ENRICO_DANDOLO';
@@ -380,6 +402,8 @@ UPDATE Leader_MinorCivApproachBiases SET Bias = 5 	WHERE LeaderType = 'LEADER_EN
 UPDATE Leader_MinorCivApproachBiases SET Bias = 5 	WHERE LeaderType = 'LEADER_ENRICO_DANDOLO' 	AND MinorCivApproachType = 'MINOR_CIV_APPROACH_CONQUEST';
 
 -- Gajah Mada (Indonesia)
+UPDATE Leaders SET PrimaryVictoryPursuit = 'VICTORY_PURSUIT_DOMINATION' WHERE Type = 'LEADER_GAJAH_MADA';
+UPDATE Leaders SET SecondaryVictoryPursuit = 'VICTORY_PURSUIT_DIPLOMACY' WHERE Type = 'LEADER_GAJAH_MADA';
 UPDATE Leaders SET Personality = 'PERSONALITY_EXPANSIONIST' WHERE Type = 'LEADER_GAJAH_MADA';
 UPDATE Leaders SET VictoryCompetitiveness = 6 		WHERE Type = 'LEADER_GAJAH_MADA';
 UPDATE Leaders SET WonderCompetitiveness = 4 		WHERE Type = 'LEADER_GAJAH_MADA';
@@ -407,6 +431,8 @@ UPDATE Leader_MinorCivApproachBiases SET Bias = 5 	WHERE LeaderType = 'LEADER_GA
 UPDATE Leader_MinorCivApproachBiases SET Bias = 8 	WHERE LeaderType = 'LEADER_GAJAH_MADA' 	AND MinorCivApproachType = 'MINOR_CIV_APPROACH_CONQUEST';
 
 -- Gandhi (India)
+UPDATE Leaders SET PrimaryVictoryPursuit = 'VICTORY_PURSUIT_SCIENCE' WHERE Type = 'LEADER_GANDHI';
+UPDATE Leaders SET SecondaryVictoryPursuit = 'VICTORY_PURSUIT_CULTURE' WHERE Type = 'LEADER_GANDHI';
 UPDATE Leaders SET Personality = 'PERSONALITY_DIPLOMAT' WHERE Type = 'LEADER_GANDHI';
 UPDATE Leaders SET VictoryCompetitiveness = 4 		WHERE Type = 'LEADER_GANDHI';
 UPDATE Leaders SET WonderCompetitiveness = 9 		WHERE Type = 'LEADER_GANDHI';
@@ -434,6 +460,7 @@ UPDATE Leader_MinorCivApproachBiases SET Bias = 5 	WHERE LeaderType = 'LEADER_GA
 UPDATE Leader_MinorCivApproachBiases SET Bias = 4 	WHERE LeaderType = 'LEADER_GANDHI' 	AND MinorCivApproachType = 'MINOR_CIV_APPROACH_CONQUEST';
 
 -- Genghis Khan (Mongolia)
+UPDATE Leaders SET PrimaryVictoryPursuit = 'VICTORY_PURSUIT_DOMINATION' WHERE Type = 'LEADER_GENGHIS_KHAN';
 UPDATE Leaders SET Personality = 'PERSONALITY_CONQUEROR' WHERE Type = 'LEADER_GENGHIS_KHAN';
 UPDATE Leaders SET VictoryCompetitiveness = 7 		WHERE Type = 'LEADER_GENGHIS_KHAN';
 UPDATE Leaders SET WonderCompetitiveness = 1 		WHERE Type = 'LEADER_GENGHIS_KHAN';
@@ -461,6 +488,7 @@ UPDATE Leader_MinorCivApproachBiases SET Bias = 10 	WHERE LeaderType = 'LEADER_G
 UPDATE Leader_MinorCivApproachBiases SET Bias = 6 	WHERE LeaderType = 'LEADER_GENGHIS_KHAN' 	AND MinorCivApproachType = 'MINOR_CIV_APPROACH_CONQUEST';
 
 -- Gustavus Adolphus (Sweden)
+UPDATE Leaders SET PrimaryVictoryPursuit = 'VICTORY_PURSUIT_DOMINATION' WHERE Type = 'LEADER_GUSTAVUS_ADOLPHUS';
 UPDATE Leaders SET Personality = 'PERSONALITY_CONQUEROR' WHERE Type = 'LEADER_GUSTAVUS_ADOLPHUS';
 UPDATE Leaders SET VictoryCompetitiveness = 8 		WHERE Type = 'LEADER_GUSTAVUS_ADOLPHUS';
 UPDATE Leaders SET WonderCompetitiveness = 6 		WHERE Type = 'LEADER_GUSTAVUS_ADOLPHUS';
@@ -488,6 +516,8 @@ UPDATE Leader_MinorCivApproachBiases SET Bias = 8 	WHERE LeaderType = 'LEADER_GU
 UPDATE Leader_MinorCivApproachBiases SET Bias = 10 	WHERE LeaderType = 'LEADER_GUSTAVUS_ADOLPHUS' 	AND MinorCivApproachType = 'MINOR_CIV_APPROACH_CONQUEST';
 
 -- Haile Selassie (Ethiopia)
+UPDATE Leaders SET PrimaryVictoryPursuit = 'VICTORY_PURSUIT_CULTURE' WHERE Type = 'LEADER_SELASSIE';
+UPDATE Leaders SET SecondaryVictoryPursuit = 'VICTORY_PURSUIT_SCIENCE' WHERE Type = 'LEADER_SELASSIE';
 UPDATE Leaders SET Personality = 'PERSONALITY_COALITION' WHERE Type = 'LEADER_SELASSIE';
 UPDATE Leaders SET VictoryCompetitiveness = 2 		WHERE Type = 'LEADER_SELASSIE';
 UPDATE Leaders SET WonderCompetitiveness = 7 		WHERE Type = 'LEADER_SELASSIE';
@@ -515,6 +545,7 @@ UPDATE Leader_MinorCivApproachBiases SET Bias = 5 	WHERE LeaderType = 'LEADER_SE
 UPDATE Leader_MinorCivApproachBiases SET Bias = 3 	WHERE LeaderType = 'LEADER_SELASSIE' 	AND MinorCivApproachType = 'MINOR_CIV_APPROACH_CONQUEST';
 
 -- Harald Bluetooth (Denmark)
+UPDATE Leaders SET PrimaryVictoryPursuit = 'VICTORY_PURSUIT_DOMINATION' WHERE Type = 'LEADER_HARALD';
 UPDATE Leaders SET Personality = 'PERSONALITY_CONQUEROR' WHERE Type = 'LEADER_HARALD';
 UPDATE Leaders SET VictoryCompetitiveness = 7 		WHERE Type = 'LEADER_HARALD';
 UPDATE Leaders SET WonderCompetitiveness = 6 		WHERE Type = 'LEADER_HARALD';
@@ -542,6 +573,7 @@ UPDATE Leader_MinorCivApproachBiases SET Bias = 6 	WHERE LeaderType = 'LEADER_HA
 UPDATE Leader_MinorCivApproachBiases SET Bias = 9 	WHERE LeaderType = 'LEADER_HARALD' 	AND MinorCivApproachType = 'MINOR_CIV_APPROACH_CONQUEST';
 
 -- Harun al-Rashid (Arabia)
+UPDATE Leaders SET PrimaryVictoryPursuit = 'VICTORY_PURSUIT_CULTURE' WHERE Type = 'LEADER_HARUN_AL_RASHID';
 UPDATE Leaders SET Personality = 'PERSONALITY_COALITION' WHERE Type = 'LEADER_HARUN_AL_RASHID';
 UPDATE Leaders SET VictoryCompetitiveness = 3 		WHERE Type = 'LEADER_HARUN_AL_RASHID';
 UPDATE Leaders SET WonderCompetitiveness = 10 		WHERE Type = 'LEADER_HARUN_AL_RASHID';
@@ -568,7 +600,8 @@ UPDATE Leader_MinorCivApproachBiases SET Bias = 8 	WHERE LeaderType = 'LEADER_HA
 UPDATE Leader_MinorCivApproachBiases SET Bias = 3 	WHERE LeaderType = 'LEADER_HARUN_AL_RASHID' 	AND MinorCivApproachType = 'MINOR_CIV_APPROACH_BULLY';
 UPDATE Leader_MinorCivApproachBiases SET Bias = 1 	WHERE LeaderType = 'LEADER_HARUN_AL_RASHID' 	AND MinorCivApproachType = 'MINOR_CIV_APPROACH_CONQUEST';
 
--- Hiawatha (The Iroquois)
+-- Hiawatha (The Iroquois); generalist civ with no victory pursuit bias
+UPDATE Leaders SET PrimaryVictoryPursuit = NULL WHERE Type = 'LEADER_HIAWATHA';
 UPDATE Leaders SET Personality = 'PERSONALITY_EXPANSIONIST' WHERE Type = 'LEADER_HIAWATHA';
 UPDATE Leaders SET VictoryCompetitiveness = 5 		WHERE Type = 'LEADER_HIAWATHA';
 UPDATE Leaders SET WonderCompetitiveness = 2 		WHERE Type = 'LEADER_HIAWATHA';
@@ -596,6 +629,7 @@ UPDATE Leader_MinorCivApproachBiases SET Bias = 3 	WHERE LeaderType = 'LEADER_HI
 UPDATE Leader_MinorCivApproachBiases SET Bias = 5 	WHERE LeaderType = 'LEADER_HIAWATHA' 	AND MinorCivApproachType = 'MINOR_CIV_APPROACH_CONQUEST';
 
 -- Isabella (Spain)
+UPDATE Leaders SET PrimaryVictoryPursuit = 'VICTORY_PURSUIT_DOMINATION' WHERE Type = 'LEADER_ISABELLA';
 UPDATE Leaders SET Personality = 'PERSONALITY_EXPANSIONIST' WHERE Type = 'LEADER_ISABELLA';
 UPDATE Leaders SET VictoryCompetitiveness = 6 		WHERE Type = 'LEADER_ISABELLA';
 UPDATE Leaders SET WonderCompetitiveness = 5 		WHERE Type = 'LEADER_ISABELLA';
@@ -622,7 +656,8 @@ UPDATE Leader_MinorCivApproachBiases SET Bias = 4 	WHERE LeaderType = 'LEADER_IS
 UPDATE Leader_MinorCivApproachBiases SET Bias = 7 	WHERE LeaderType = 'LEADER_ISABELLA' 	AND MinorCivApproachType = 'MINOR_CIV_APPROACH_BULLY';
 UPDATE Leader_MinorCivApproachBiases SET Bias = 8 	WHERE LeaderType = 'LEADER_ISABELLA' 	AND MinorCivApproachType = 'MINOR_CIV_APPROACH_CONQUEST';
 
--- Kamehameha (Polynesia)
+-- Kamehameha (Polynesia); generalist civ with no victory pursuit bias
+UPDATE Leaders SET PrimaryVictoryPursuit = NULL WHERE Type = 'LEADER_KAMEHAMEHA';
 UPDATE Leaders SET Personality = 'PERSONALITY_COALITION' WHERE Type = 'LEADER_KAMEHAMEHA';
 UPDATE Leaders SET VictoryCompetitiveness = 5 		WHERE Type = 'LEADER_KAMEHAMEHA';
 UPDATE Leaders SET WonderCompetitiveness = 7 		WHERE Type = 'LEADER_KAMEHAMEHA';
@@ -650,6 +685,7 @@ UPDATE Leader_MinorCivApproachBiases SET Bias = 4 	WHERE LeaderType = 'LEADER_KA
 UPDATE Leader_MinorCivApproachBiases SET Bias = 2 	WHERE LeaderType = 'LEADER_KAMEHAMEHA' 	AND MinorCivApproachType = 'MINOR_CIV_APPROACH_CONQUEST';
 
 -- Maria I (Portugal)
+UPDATE Leaders SET PrimaryVictoryPursuit = 'VICTORY_PURSUIT_DIPLOMACY' WHERE Type = 'LEADER_MARIA_I';
 UPDATE Leaders SET Personality = 'PERSONALITY_DIPLOMAT' WHERE Type = 'LEADER_MARIA_I';
 UPDATE Leaders SET VictoryCompetitiveness = 4 		WHERE Type = 'LEADER_MARIA_I';
 UPDATE Leaders SET WonderCompetitiveness = 4 		WHERE Type = 'LEADER_MARIA_I';
@@ -677,6 +713,7 @@ UPDATE Leader_MinorCivApproachBiases SET Bias = 4 	WHERE LeaderType = 'LEADER_MA
 UPDATE Leader_MinorCivApproachBiases SET Bias = 3 	WHERE LeaderType = 'LEADER_MARIA_I' 	AND MinorCivApproachType = 'MINOR_CIV_APPROACH_CONQUEST';
 
 -- Maria Theresa (Austria)
+UPDATE Leaders SET PrimaryVictoryPursuit = 'VICTORY_PURSUIT_DIPLOMACY' WHERE Type = 'LEADER_MARIA';
 UPDATE Leaders SET Personality = 'PERSONALITY_DIPLOMAT' WHERE Type = 'LEADER_MARIA';
 UPDATE Leaders SET VictoryCompetitiveness = 4 		WHERE Type = 'LEADER_MARIA';
 UPDATE Leaders SET WonderCompetitiveness = 8 		WHERE Type = 'LEADER_MARIA';
@@ -704,6 +741,7 @@ UPDATE Leader_MinorCivApproachBiases SET Bias = 1 	WHERE LeaderType = 'LEADER_MA
 UPDATE Leader_MinorCivApproachBiases SET Bias = 1 	WHERE LeaderType = 'LEADER_MARIA' 	AND MinorCivApproachType = 'MINOR_CIV_APPROACH_CONQUEST';
 
 -- Montezuma (The Aztecs)
+UPDATE Leaders SET PrimaryVictoryPursuit = 'VICTORY_PURSUIT_DOMINATION' WHERE Type = 'LEADER_MONTEZUMA';
 UPDATE Leaders SET Personality = 'PERSONALITY_CONQUEROR' WHERE Type = 'LEADER_MONTEZUMA';
 UPDATE Leaders SET VictoryCompetitiveness = 8 		WHERE Type = 'LEADER_MONTEZUMA';
 UPDATE Leaders SET WonderCompetitiveness = 7 		WHERE Type = 'LEADER_MONTEZUMA';
@@ -731,6 +769,8 @@ UPDATE Leader_MinorCivApproachBiases SET Bias = 8 	WHERE LeaderType = 'LEADER_MO
 UPDATE Leader_MinorCivApproachBiases SET Bias = 10 	WHERE LeaderType = 'LEADER_MONTEZUMA' 	AND MinorCivApproachType = 'MINOR_CIV_APPROACH_CONQUEST';
 
 -- Napoleon (France)
+UPDATE Leaders SET PrimaryVictoryPursuit = 'VICTORY_PURSUIT_DOMINATION' WHERE Type = 'LEADER_NAPOLEON';
+UPDATE Leaders SET SecondaryVictoryPursuit = 'VICTORY_PURSUIT_CULTURE' WHERE Type = 'LEADER_NAPOLEON';
 UPDATE Leaders SET Personality = 'PERSONALITY_CONQUEROR' WHERE Type = 'LEADER_NAPOLEON';
 UPDATE Leaders SET VictoryCompetitiveness = 8 		WHERE Type = 'LEADER_NAPOLEON';
 UPDATE Leaders SET WonderCompetitiveness = 9 		WHERE Type = 'LEADER_NAPOLEON';
@@ -758,6 +798,7 @@ UPDATE Leader_MinorCivApproachBiases SET Bias = 8 	WHERE LeaderType = 'LEADER_NA
 UPDATE Leader_MinorCivApproachBiases SET Bias = 7 	WHERE LeaderType = 'LEADER_NAPOLEON' 	AND MinorCivApproachType = 'MINOR_CIV_APPROACH_CONQUEST';
 
 -- Nebuchadnezzar II (Babylon)
+UPDATE Leaders SET PrimaryVictoryPursuit = 'VICTORY_PURSUIT_SCIENCE' WHERE Type = 'LEADER_NEBUCHADNEZZAR';
 UPDATE Leaders SET Personality = 'PERSONALITY_COALITION' WHERE Type = 'LEADER_NEBUCHADNEZZAR';
 UPDATE Leaders SET VictoryCompetitiveness = 3 		WHERE Type = 'LEADER_NEBUCHADNEZZAR';
 UPDATE Leaders SET WonderCompetitiveness = 8 		WHERE Type = 'LEADER_NEBUCHADNEZZAR';
@@ -785,6 +826,8 @@ UPDATE Leader_MinorCivApproachBiases SET Bias = 5 	WHERE LeaderType = 'LEADER_NE
 UPDATE Leader_MinorCivApproachBiases SET Bias = 1 	WHERE LeaderType = 'LEADER_NEBUCHADNEZZAR' 	AND MinorCivApproachType = 'MINOR_CIV_APPROACH_CONQUEST';
 
 -- Oda Nobunaga (Japan)
+UPDATE Leaders SET PrimaryVictoryPursuit = 'VICTORY_PURSUIT_DOMINATION' WHERE Type = 'LEADER_ODA_NOBUNAGA';
+UPDATE Leaders SET SecondaryVictoryPursuit = 'VICTORY_PURSUIT_CULTURE' WHERE Type = 'LEADER_ODA_NOBUNAGA';
 UPDATE Leaders SET Personality = 'PERSONALITY_CONQUEROR' WHERE Type = 'LEADER_ODA_NOBUNAGA';
 UPDATE Leaders SET VictoryCompetitiveness = 7 		WHERE Type = 'LEADER_ODA_NOBUNAGA';
 UPDATE Leaders SET WonderCompetitiveness = 7 		WHERE Type = 'LEADER_ODA_NOBUNAGA';
@@ -812,6 +855,8 @@ UPDATE Leader_MinorCivApproachBiases SET Bias = 5 	WHERE LeaderType = 'LEADER_OD
 UPDATE Leader_MinorCivApproachBiases SET Bias = 8 	WHERE LeaderType = 'LEADER_ODA_NOBUNAGA' 	AND MinorCivApproachType = 'MINOR_CIV_APPROACH_CONQUEST';
 
 -- Pacal (The Maya)
+UPDATE Leaders SET PrimaryVictoryPursuit = 'VICTORY_PURSUIT_SCIENCE' WHERE Type = 'LEADER_PACAL';
+UPDATE Leaders SET SecondaryVictoryPursuit = 'VICTORY_PURSUIT_CULTURE' WHERE Type = 'LEADER_PACAL';
 UPDATE Leaders SET Personality = 'PERSONALITY_COALITION' WHERE Type = 'LEADER_PACAL';
 UPDATE Leaders SET VictoryCompetitiveness = 5 		WHERE Type = 'LEADER_PACAL';
 UPDATE Leaders SET WonderCompetitiveness = 9 		WHERE Type = 'LEADER_PACAL';
@@ -839,6 +884,8 @@ UPDATE Leader_MinorCivApproachBiases SET Bias = 5 	WHERE LeaderType = 'LEADER_PA
 UPDATE Leader_MinorCivApproachBiases SET Bias = 5 	WHERE LeaderType = 'LEADER_PACAL' 	AND MinorCivApproachType = 'MINOR_CIV_APPROACH_CONQUEST';
 
 -- Pachacuti (The Inca)
+UPDATE Leaders SET PrimaryVictoryPursuit = 'VICTORY_PURSUIT_SCIENCE' WHERE Type = 'LEADER_PACHACUTI';
+UPDATE Leaders SET SecondaryVictoryPursuit = 'VICTORY_PURSUIT_DOMINATION' WHERE Type = 'LEADER_PACHACUTI';
 UPDATE Leaders SET Personality = 'PERSONALITY_EXPANSIONIST' WHERE Type = 'LEADER_PACHACUTI';
 UPDATE Leaders SET VictoryCompetitiveness = 6 		WHERE Type = 'LEADER_PACHACUTI';
 UPDATE Leaders SET WonderCompetitiveness = 6 		WHERE Type = 'LEADER_PACHACUTI';
@@ -866,6 +913,7 @@ UPDATE Leader_MinorCivApproachBiases SET Bias = 5 	WHERE LeaderType = 'LEADER_PA
 UPDATE Leader_MinorCivApproachBiases SET Bias = 5 	WHERE LeaderType = 'LEADER_PACHACUTI' 	AND MinorCivApproachType = 'MINOR_CIV_APPROACH_CONQUEST';
 
 -- Pedro II (Brazil)
+UPDATE Leaders SET PrimaryVictoryPursuit = 'VICTORY_PURSUIT_CULTURE' WHERE Type = 'LEADER_PEDRO';
 UPDATE Leaders SET Personality = 'PERSONALITY_DIPLOMAT' WHERE Type = 'LEADER_PEDRO';
 UPDATE Leaders SET VictoryCompetitiveness = 2 		WHERE Type = 'LEADER_PEDRO';
 UPDATE Leaders SET WonderCompetitiveness = 10 		WHERE Type = 'LEADER_PEDRO';
@@ -892,7 +940,8 @@ UPDATE Leader_MinorCivApproachBiases SET Bias = 7 	WHERE LeaderType = 'LEADER_PE
 UPDATE Leader_MinorCivApproachBiases SET Bias = 4 	WHERE LeaderType = 'LEADER_PEDRO' 	AND MinorCivApproachType = 'MINOR_CIV_APPROACH_BULLY';
 UPDATE Leader_MinorCivApproachBiases SET Bias = 1 	WHERE LeaderType = 'LEADER_PEDRO' 	AND MinorCivApproachType = 'MINOR_CIV_APPROACH_CONQUEST';
 
--- Pocatello (The Shoshone)
+-- Pocatello (The Shoshone); generalist civ with no victory pursuit bias
+UPDATE Leaders SET PrimaryVictoryPursuit = NULL WHERE Type = 'LEADER_POCATELLO';
 UPDATE Leaders SET Personality = 'PERSONALITY_EXPANSIONIST' WHERE Type = 'LEADER_POCATELLO';
 UPDATE Leaders SET VictoryCompetitiveness = 7 		WHERE Type = 'LEADER_POCATELLO';
 UPDATE Leaders SET WonderCompetitiveness = 3 		WHERE Type = 'LEADER_POCATELLO';
@@ -920,6 +969,7 @@ UPDATE Leader_MinorCivApproachBiases SET Bias = 7 	WHERE LeaderType = 'LEADER_PO
 UPDATE Leader_MinorCivApproachBiases SET Bias = 3 	WHERE LeaderType = 'LEADER_POCATELLO' 	AND MinorCivApproachType = 'MINOR_CIV_APPROACH_CONQUEST';
 
 -- Ramesses II (Egypt)
+UPDATE Leaders SET PrimaryVictoryPursuit = 'VICTORY_PURSUIT_CULTURE' WHERE Type = 'LEADER_RAMESSES';
 UPDATE Leaders SET Personality = 'PERSONALITY_COALITION' WHERE Type = 'LEADER_RAMESSES';
 UPDATE Leaders SET VictoryCompetitiveness = 7 		WHERE Type = 'LEADER_RAMESSES';
 UPDATE Leaders SET WonderCompetitiveness = 12 		WHERE Type = 'LEADER_RAMESSES';
@@ -947,6 +997,7 @@ UPDATE Leader_MinorCivApproachBiases SET Bias = 8 	WHERE LeaderType = 'LEADER_RA
 UPDATE Leader_MinorCivApproachBiases SET Bias = 4 	WHERE LeaderType = 'LEADER_RAMESSES' 	AND MinorCivApproachType = 'MINOR_CIV_APPROACH_CONQUEST';
 
 -- Ramkhamhaeng (Siam)
+UPDATE Leaders SET PrimaryVictoryPursuit = 'VICTORY_PURSUIT_DIPLOMACY' WHERE Type = 'LEADER_RAMKHAMHAENG';
 UPDATE Leaders SET Personality = 'PERSONALITY_DIPLOMAT' WHERE Type = 'LEADER_RAMKHAMHAENG';
 UPDATE Leaders SET VictoryCompetitiveness = 4 		WHERE Type = 'LEADER_RAMKHAMHAENG';
 UPDATE Leaders SET WonderCompetitiveness = 6 		WHERE Type = 'LEADER_RAMKHAMHAENG';
@@ -974,6 +1025,7 @@ UPDATE Leader_MinorCivApproachBiases SET Bias = -1 	WHERE LeaderType = 'LEADER_R
 UPDATE Leader_MinorCivApproachBiases SET Bias = 2 	WHERE LeaderType = 'LEADER_RAMKHAMHAENG' 	AND MinorCivApproachType = 'MINOR_CIV_APPROACH_CONQUEST';
 
 -- Sejong (Korea)
+UPDATE Leaders SET PrimaryVictoryPursuit = 'VICTORY_PURSUIT_SCIENCE' WHERE Type = 'LEADER_SEJONG';
 UPDATE Leaders SET Personality = 'PERSONALITY_DIPLOMAT' WHERE Type = 'LEADER_SEJONG';
 UPDATE Leaders SET VictoryCompetitiveness = 2 		WHERE Type = 'LEADER_SEJONG';
 UPDATE Leaders SET WonderCompetitiveness = 10 		WHERE Type = 'LEADER_SEJONG';
@@ -1001,6 +1053,7 @@ UPDATE Leader_MinorCivApproachBiases SET Bias = 5 	WHERE LeaderType = 'LEADER_SE
 UPDATE Leader_MinorCivApproachBiases SET Bias = 2 	WHERE LeaderType = 'LEADER_SEJONG' 	AND MinorCivApproachType = 'MINOR_CIV_APPROACH_CONQUEST';
 
 -- Shaka (The Zulus)
+UPDATE Leaders SET PrimaryVictoryPursuit = 'VICTORY_PURSUIT_DOMINATION' WHERE Type = 'LEADER_SHAKA';
 UPDATE Leaders SET Personality = 'PERSONALITY_CONQUEROR' WHERE Type = 'LEADER_SHAKA';
 UPDATE Leaders SET VictoryCompetitiveness = 8 		WHERE Type = 'LEADER_SHAKA';
 UPDATE Leaders SET WonderCompetitiveness = 2 		WHERE Type = 'LEADER_SHAKA';
@@ -1028,6 +1081,8 @@ UPDATE Leader_MinorCivApproachBiases SET Bias = 12 	WHERE LeaderType = 'LEADER_S
 UPDATE Leader_MinorCivApproachBiases SET Bias = 8 	WHERE LeaderType = 'LEADER_SHAKA' 	AND MinorCivApproachType = 'MINOR_CIV_APPROACH_CONQUEST';
 
 -- Suleiman (The Ottomans)
+UPDATE Leaders SET PrimaryVictoryPursuit = 'VICTORY_PURSUIT_DIPLOMACY' WHERE Type = 'LEADER_SULEIMAN';
+UPDATE Leaders SET SecondaryVictoryPursuit = 'VICTORY_PURSUIT_SCIENCE' WHERE Type = 'LEADER_SULEIMAN';
 UPDATE Leaders SET Personality = 'PERSONALITY_EXPANSIONIST' WHERE Type = 'LEADER_SULEIMAN';
 UPDATE Leaders SET VictoryCompetitiveness = 7 		WHERE Type = 'LEADER_SULEIMAN';
 UPDATE Leaders SET WonderCompetitiveness = 7 		WHERE Type = 'LEADER_SULEIMAN';
@@ -1055,6 +1110,8 @@ UPDATE Leader_MinorCivApproachBiases SET Bias = 9 	WHERE LeaderType = 'LEADER_SU
 UPDATE Leader_MinorCivApproachBiases SET Bias = 3 	WHERE LeaderType = 'LEADER_SULEIMAN' 	AND MinorCivApproachType = 'MINOR_CIV_APPROACH_CONQUEST';
 
 -- Theodora (Byzantium)
+UPDATE Leaders SET PrimaryVictoryPursuit = 'VICTORY_PURSUIT_CULTURE' WHERE Type = 'LEADER_THEODORA';
+UPDATE Leaders SET SecondaryVictoryPursuit = 'VICTORY_PURSUIT_DIPLOMACY' WHERE Type = 'LEADER_THEODORA';
 UPDATE Leaders SET Personality = 'PERSONALITY_DIPLOMAT' WHERE Type = 'LEADER_THEODORA';
 UPDATE Leaders SET VictoryCompetitiveness = 6 		WHERE Type = 'LEADER_THEODORA';
 UPDATE Leaders SET WonderCompetitiveness = 9 		WHERE Type = 'LEADER_THEODORA';
@@ -1082,6 +1139,8 @@ UPDATE Leader_MinorCivApproachBiases SET Bias = 8 	WHERE LeaderType = 'LEADER_TH
 UPDATE Leader_MinorCivApproachBiases SET Bias = 3 	WHERE LeaderType = 'LEADER_THEODORA' 	AND MinorCivApproachType = 'MINOR_CIV_APPROACH_CONQUEST';
 
 -- Washington (America)
+UPDATE Leaders SET PrimaryVictoryPursuit = 'VICTORY_PURSUIT_DOMINATION' WHERE Type = 'LEADER_WASHINGTON';
+UPDATE Leaders SET SecondaryVictoryPursuit = 'VICTORY_PURSUIT_DIPLOMACY' WHERE Type = 'LEADER_WASHINGTON';
 UPDATE Leaders SET Personality = 'PERSONALITY_COALITION' WHERE Type = 'LEADER_WASHINGTON';
 UPDATE Leaders SET VictoryCompetitiveness = 8 		WHERE Type = 'LEADER_WASHINGTON';
 UPDATE Leaders SET WonderCompetitiveness = 4 		WHERE Type = 'LEADER_WASHINGTON';
@@ -1109,6 +1168,7 @@ UPDATE Leader_MinorCivApproachBiases SET Bias = 7 	WHERE LeaderType = 'LEADER_WA
 UPDATE Leader_MinorCivApproachBiases SET Bias = 4 	WHERE LeaderType = 'LEADER_WASHINGTON' 	AND MinorCivApproachType = 'MINOR_CIV_APPROACH_CONQUEST';
 
 -- William (The Netherlands)
+UPDATE Leaders SET PrimaryVictoryPursuit = 'VICTORY_PURSUIT_DIPLOMACY' WHERE Type = 'LEADER_WASHINGTON';
 UPDATE Leaders SET Personality = 'PERSONALITY_DIPLOMAT' WHERE Type = 'LEADER_WILLIAM';
 UPDATE Leaders SET VictoryCompetitiveness = 3 		WHERE Type = 'LEADER_WILLIAM';
 UPDATE Leaders SET WonderCompetitiveness = 4 		WHERE Type = 'LEADER_WILLIAM';
@@ -1136,6 +1196,8 @@ UPDATE Leader_MinorCivApproachBiases SET Bias = 6 	WHERE LeaderType = 'LEADER_WI
 UPDATE Leader_MinorCivApproachBiases SET Bias = 4 	WHERE LeaderType = 'LEADER_WILLIAM' 	AND MinorCivApproachType = 'MINOR_CIV_APPROACH_CONQUEST';
 
 -- Wu Zetian (China)
+UPDATE Leaders SET PrimaryVictoryPursuit = 'VICTORY_PURSUIT_SCIENCE' WHERE Type = 'LEADER_WU_ZETIAN';
+UPDATE Leaders SET SecondaryVictoryPursuit = 'VICTORY_PURSUIT_DOMINATION' WHERE Type = 'LEADER_WU_ZETIAN';
 UPDATE Leaders SET Personality = 'PERSONALITY_EXPANSIONIST' WHERE Type = 'LEADER_WU_ZETIAN';
 UPDATE Leaders SET VictoryCompetitiveness = 10 		WHERE Type = 'LEADER_WU_ZETIAN';
 UPDATE Leaders SET WonderCompetitiveness = 8 		WHERE Type = 'LEADER_WU_ZETIAN';

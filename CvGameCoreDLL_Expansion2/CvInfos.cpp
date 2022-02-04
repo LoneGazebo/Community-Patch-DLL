@@ -20,7 +20,6 @@
 #include "CvGameTextMgr.h"
 #include "CvGameCoreUtils.h"
 #include "CvImprovementClasses.h"
-#include "CvDiplomacyAIEnums.h"
 #include "FireWorks/FRemark.h"
 #include "CvInfosSerializationHelper.h"
 #include <Fireworks/Win32/FKBInputDevice.h>
@@ -6955,6 +6954,8 @@ CvLeaderHeadInfo::CvLeaderHeadInfo() :
 	m_iForgiveness(0),
 	m_iChattiness(0),
 	m_iMeanness(0),
+	m_ePrimaryVictoryPursuit(NO_VICTORY_PURSUIT),
+	m_eSecondaryVictoryPursuit(NO_VICTORY_PURSUIT),
 	m_piMajorCivApproachBiases(NULL),
 	m_piMinorCivApproachBiases(NULL),
 	m_pbTraits(NULL),
@@ -7100,6 +7101,40 @@ void CvLeaderHeadInfo::setArtDefineTag(const char* szVal)
 	m_strArtDefineTag = szVal;
 }
 //------------------------------------------------------------------------------
+VictoryPursuitTypes CvLeaderHeadInfo::GetPrimaryVictoryPursuit() const
+{
+	return m_ePrimaryVictoryPursuit;
+}
+//------------------------------------------------------------------------------
+VictoryPursuitTypes CvLeaderHeadInfo::GetSecondaryVictoryPursuit() const
+{
+	return m_eSecondaryVictoryPursuit;
+}
+//------------------------------------------------------------------------------
+VictoryPursuitTypes CvLeaderHeadInfo::VictoryPursuitTypeFromString(const char* szStr)
+{
+	if (szStr)
+	{
+		if (0 == _stricmp(szStr, "VICTORY_PURSUIT_DOMINATION"))
+		{
+			return VICTORY_PURSUIT_DOMINATION;
+		}
+		else if (0 == _stricmp(szStr, "VICTORY_PURSUIT_DIPLOMACY"))
+		{
+			return VICTORY_PURSUIT_DIPLOMACY;
+		}
+		else if (0 == _stricmp(szStr, "VICTORY_PURSUIT_CULTURE"))
+		{
+			return VICTORY_PURSUIT_CULTURE;
+		}
+		else if (0 == _stricmp(szStr, "VICTORY_PURSUIT_SCIENCE"))
+		{
+			return VICTORY_PURSUIT_SCIENCE;
+		}
+	}
+	return NO_VICTORY_PURSUIT;
+}
+//------------------------------------------------------------------------------
 bool CvLeaderHeadInfo::hasTrait(int i) const
 {
 	CvAssertMsg(i < GC.getNumTraitInfos(), "Index out of bounds");
@@ -7128,6 +7163,23 @@ bool CvLeaderHeadInfo::CacheResults(Database::Results& kResults, CvDatabaseUtili
 	const char* szTextVal = NULL;	//Temp storage
 	szTextVal = kResults.GetText("ArtDefineTag");
 	setArtDefineTag(szTextVal);
+
+	szTextVal = kResults.GetText("PrimaryVictoryPursuit");
+	m_ePrimaryVictoryPursuit = VictoryPursuitTypeFromString(szTextVal);
+
+	szTextVal = kResults.GetText("SecondaryVictoryPursuit");
+	m_eSecondaryVictoryPursuit = VictoryPursuitTypeFromString(szTextVal);
+
+	if (m_ePrimaryVictoryPursuit != NO_VICTORY_PURSUIT)
+	{
+		if (m_eSecondaryVictoryPursuit == m_ePrimaryVictoryPursuit)
+			m_eSecondaryVictoryPursuit = NO_VICTORY_PURSUIT;
+	}
+	else if (m_eSecondaryVictoryPursuit != NO_VICTORY_PURSUIT)
+	{
+		m_ePrimaryVictoryPursuit = m_eSecondaryVictoryPursuit;
+		m_eSecondaryVictoryPursuit = NO_VICTORY_PURSUIT;
+	}
 
 	// Diplomacy Flavors
 	m_iVictoryCompetitiveness					= kResults.GetInt("VictoryCompetitiveness");

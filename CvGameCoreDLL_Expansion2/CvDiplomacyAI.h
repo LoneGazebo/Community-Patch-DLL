@@ -109,7 +109,7 @@ public:
 
 	int GetRandomPersonalityWeight(int iOriginalValue, int& iSeed);
 	void DoInitializePersonality(bool bFirstInit);
-	void SelectDefaultVictoryFocus();
+	void SelectDefaultVictoryPursuit();
 
 	int GetVictoryCompetitiveness() const;
 	int GetWonderCompetitiveness() const;
@@ -128,8 +128,8 @@ public:
 	int GetMajorCivApproachBias(CivApproachTypes eApproach) const;
 	int GetMinorCivApproachBias(CivApproachTypes eApproach) const;
 
-	VictoryFocusTypes GetDefaultVictoryFocus() const;
-	void SetDefaultVictoryFocus(VictoryFocusTypes eVictoryFocus);
+	VictoryPursuitTypes GetDefaultVictoryPursuit() const;
+	void SetDefaultVictoryPursuit(VictoryPursuitTypes eVictoryPursuit);
 	bool IsConqueror() const;
 	bool IsDiplomat() const;
 	bool IsCultural() const;
@@ -178,8 +178,8 @@ public:
 	bool IsCompetingForVictory() const;
 	void SetCompetingForVictory(bool bValue);
 
-	VictoryFocusTypes GetVictoryFocus() const;
-	void SetVictoryFocus(VictoryFocusTypes eFocus);
+	VictoryPursuitTypes GetVictoryPursuit() const;
+	void SetVictoryPursuit(VictoryPursuitTypes eVictoryPursuit);
 
 	bool IsEndgameAggressiveTo(PlayerTypes ePlayer) const;
 	void SetEndgameAggressiveTo(PlayerTypes ePlayer, bool bValue);
@@ -1040,7 +1040,7 @@ public:
 	void DoUpdateCompetingForVictory();
 	bool IsEndgameAggressive() const;
 
-	void DoUpdateVictoryFocus();
+	void DoUpdateVictoryPursuit();
 	void DoUpdateRecklessExpanders();
 	void DoUpdateWonderSpammers();
 	void DoUpdateVictoryDisputeLevels();
@@ -1872,8 +1872,8 @@ private:
 	bool m_bWaitingForDigChoice;
 	bool m_bBackstabber;
 	bool m_bCompetingForVictory;
-	VictoryFocusTypes m_eDefaultVictoryFocus;
-	VictoryFocusTypes m_eVictoryFocus;
+	VictoryPursuitTypes m_eDefaultVictoryPursuit;
+	VictoryPursuitTypes m_eVictoryPursuit;
 	StateAllWars m_eStateAllWars;
 
 	// Diplomatic Interactions

@@ -105,8 +105,8 @@ void CvDiplomacyAI::Init(CvPlayer* pPlayer)
 	m_bWaitingForDigChoice = false;
 	m_bBackstabber = false;
 	m_bCompetingForVictory = false;
-	m_eDefaultVictoryFocus = NO_VICTORY_FOCUS_TYPE;
-	m_eVictoryFocus = NO_VICTORY_FOCUS_TYPE;
+	m_eDefaultVictoryPursuit = NO_VICTORY_PURSUIT;
+	m_eVictoryPursuit = NO_VICTORY_PURSUIT;
 	m_eStateAllWars = STATE_ALL_WARS_NEUTRAL;
 
 	// Diplomatic Interactions
@@ -440,8 +440,8 @@ void CvDiplomacyAI::Serialize(DiplomacyAI& diplomacyAI, Visitor& visitor)
 	visitor(diplomacyAI.m_bWaitingForDigChoice);
 	visitor(diplomacyAI.m_bBackstabber);
 	visitor(diplomacyAI.m_bCompetingForVictory);
-	visitor(diplomacyAI.m_eDefaultVictoryFocus);
-	visitor(diplomacyAI.m_eVictoryFocus);
+	visitor(diplomacyAI.m_eDefaultVictoryPursuit);
+	visitor(diplomacyAI.m_eVictoryPursuit);
 	visitor(diplomacyAI.m_eStateAllWars);
 
 	// Diplomatic Interactions
@@ -753,7 +753,7 @@ void CvDiplomacyAI::SlotStateChange()
 		SetEndedFriendshipThisTurn(false);
 		SetBackstabber(false);
 		SetCompetingForVictory(false);
-		SetVictoryFocus(GetDefaultVictoryFocus());
+		SetVictoryPursuit(GetDefaultVictoryPursuit());
 		SetStateAllWars(STATE_ALL_WARS_NEUTRAL);
 
 		// Reset values for minors
@@ -949,7 +949,7 @@ void CvDiplomacyAI::SlotStateChange()
 				m_aiMinorCivApproachBiases[iI] = iDefaultFlavorValue;
 		}
 
-		SelectDefaultVictoryFocus();
+		SelectDefaultVictoryPursuit();
 		LogPersonality();
 
 		// Reset AI-only values
@@ -1491,7 +1491,7 @@ void CvDiplomacyAI::DoInitializePersonality(bool bFirstInit)
 	}
 
 	// Now that we've picked our flavors, select our default Victory Focus.
-	SelectDefaultVictoryFocus();
+	SelectDefaultVictoryPursuit();
 	LogPersonality();
 
 	// Initialize a few static values here
@@ -1528,7 +1528,7 @@ void CvDiplomacyAI::DoInitializePersonality(bool bFirstInit)
 
 /// Select our Default Victory Focus for this game (the victory condition we go for early in the game, prior to grand strategy AI taking effect; has other effects throughout the game as well)
 /// Intention here is to add some variability to AI behavior, especially for generalist civs
-void CvDiplomacyAI::SelectDefaultVictoryFocus()
+void CvDiplomacyAI::SelectDefaultVictoryPursuit()
 {
 	CvPlayerTraits* pTraits = GetPlayer()->GetPlayerTraits();
 	bool bCanUnlockTechs = !GC.getGame().isOption(GAMEOPTION_NO_SCIENCE);
@@ -1539,31 +1539,31 @@ void CvDiplomacyAI::SelectDefaultVictoryFocus()
 	{
 		if (pTraits->IsWarmonger())
 		{
-			SetDefaultVictoryFocus(VICTORY_FOCUS_DOMINATION);
+			SetDefaultVictoryPursuit(VICTORY_PURSUIT_DOMINATION);
 		}
 		else if (pTraits->IsNerd() && bCanUnlockTechs)
 		{
-			SetDefaultVictoryFocus(VICTORY_FOCUS_SCIENCE);
+			SetDefaultVictoryPursuit(VICTORY_PURSUIT_SCIENCE);
 		}
 		else if (pTraits->IsTourism() && bCanUnlockPolicies)
 		{
-			SetDefaultVictoryFocus(VICTORY_FOCUS_CULTURE);
+			SetDefaultVictoryPursuit(VICTORY_PURSUIT_CULTURE);
 		}
 		else if (pTraits->IsDiplomat())
 		{
-			SetDefaultVictoryFocus(VICTORY_FOCUS_DIPLOMACY);
+			SetDefaultVictoryPursuit(VICTORY_PURSUIT_DIPLOMACY);
 		}
 		else if (pTraits->IsExpansionist())
 		{
-			SetDefaultVictoryFocus(VICTORY_FOCUS_DOMINATION);
+			SetDefaultVictoryPursuit(VICTORY_PURSUIT_DOMINATION);
 		}
 		else if (pTraits->IsSmaller() && bCanUnlockTechs)
 		{
-			SetDefaultVictoryFocus(VICTORY_FOCUS_SCIENCE);
+			SetDefaultVictoryPursuit(VICTORY_PURSUIT_SCIENCE);
 		}
 		else
 		{
-			SetDefaultVictoryFocus(VICTORY_FOCUS_DOMINATION);
+			SetDefaultVictoryPursuit(VICTORY_PURSUIT_DOMINATION);
 		}
 		return;
 	}
@@ -1672,18 +1672,18 @@ void CvDiplomacyAI::SelectDefaultVictoryFocus()
 
 	bool bTie = false;
 	int iBestWeight = 0;
-	VictoryFocusTypes eBestFocus = NO_VICTORY_FOCUS_TYPE;
+	VictoryPursuitTypes eBestPursuit = NO_VICTORY_PURSUIT;
 	
 	if (iConquerorWeight > iBestWeight)
 	{
 		iBestWeight = iConquerorWeight;
-		eBestFocus = VICTORY_FOCUS_DOMINATION;
+		eBestPursuit = VICTORY_PURSUIT_DOMINATION;
 	}
 
 	if (iDiplomatWeight > iBestWeight)
 	{
 		iBestWeight = iDiplomatWeight;
-		eBestFocus = VICTORY_FOCUS_DIPLOMACY;
+		eBestPursuit = VICTORY_PURSUIT_DIPLOMACY;
 		bTie = false;
 	}
 	else if (iDiplomatWeight == iBestWeight)
@@ -1694,7 +1694,7 @@ void CvDiplomacyAI::SelectDefaultVictoryFocus()
 	if (iCulturalWeight > iBestWeight)
 	{
 		iBestWeight = iCulturalWeight;
-		eBestFocus = VICTORY_FOCUS_CULTURE;
+		eBestPursuit = VICTORY_PURSUIT_CULTURE;
 		bTie = false;
 	}
 	else if (iCulturalWeight == iBestWeight)
@@ -1705,7 +1705,7 @@ void CvDiplomacyAI::SelectDefaultVictoryFocus()
 	if (iScientistWeight > iBestWeight)
 	{
 		iBestWeight = iScientistWeight;
-		eBestFocus = VICTORY_FOCUS_SCIENCE;
+		eBestPursuit = VICTORY_PURSUIT_SCIENCE;
 		bTie = false;
 	}
 	else if (iScientistWeight == iBestWeight)
@@ -1718,23 +1718,23 @@ void CvDiplomacyAI::SelectDefaultVictoryFocus()
 	{
 		if (pTraits->IsWarmonger())
 		{
-			eBestFocus = VICTORY_FOCUS_DOMINATION;
+			eBestPursuit = VICTORY_PURSUIT_DOMINATION;
 		}
 		else if (pTraits->IsDiplomat())
 		{
-			eBestFocus = VICTORY_FOCUS_DIPLOMACY;
+			eBestPursuit = VICTORY_PURSUIT_DIPLOMACY;
 		}
 		else if (pTraits->IsTourism())
 		{
-			eBestFocus = VICTORY_FOCUS_CULTURE;
+			eBestPursuit = VICTORY_PURSUIT_CULTURE;
 		}
 		else
 		{
-			eBestFocus = VICTORY_FOCUS_SCIENCE;
+			eBestPursuit = VICTORY_PURSUIT_SCIENCE;
 		}
 	}
 
-	SetDefaultVictoryFocus(eBestFocus);
+	SetDefaultVictoryPursuit(eBestPursuit);
 }
 
 //	-----------------------------------------------------------------------------------------------
@@ -1834,40 +1834,40 @@ int CvDiplomacyAI::GetMinorCivApproachBias(CivApproachTypes eApproach) const
 //	-----------------------------------------------------------------------------------------------
 
 /// What is this AI leader's Default Victory Focus?
-VictoryFocusTypes CvDiplomacyAI::GetDefaultVictoryFocus() const
+VictoryPursuitTypes CvDiplomacyAI::GetDefaultVictoryPursuit() const
 {
-	return (VictoryFocusTypes) m_eDefaultVictoryFocus;
+	return (VictoryPursuitTypes) m_eDefaultVictoryPursuit;
 }
 
 /// Sets this AI leader's Default Victory Focus
-void CvDiplomacyAI::SetDefaultVictoryFocus(VictoryFocusTypes eVictoryFocus)
+void CvDiplomacyAI::SetDefaultVictoryPursuit(VictoryPursuitTypes eVictoryPursuit)
 {
-	if (eVictoryFocus < NO_VICTORY_FOCUS_TYPE || eVictoryFocus >= NUM_VICTORY_FOCUS_TYPES) return;
-	m_eDefaultVictoryFocus = eVictoryFocus;
+	if (eVictoryPursuit < NO_VICTORY_PURSUIT || eVictoryPursuit >= NUM_VICTORY_PURSUITS) return;
+	m_eDefaultVictoryPursuit = eVictoryPursuit;
 }
 
 /// Is this AI leader naturally inclined to be aggressive and covetous of others' possessions?
 bool CvDiplomacyAI::IsConqueror() const
 {
-	return GetDefaultVictoryFocus() == VICTORY_FOCUS_DOMINATION;
+	return GetDefaultVictoryPursuit() == VICTORY_PURSUIT_DOMINATION;
 }
 
 /// Is this AI leader naturally focused on forging friendships and allying City-States?
 bool CvDiplomacyAI::IsDiplomat() const
 {
-	return GetDefaultVictoryFocus() == VICTORY_FOCUS_DIPLOMACY;
+	return GetDefaultVictoryPursuit() == VICTORY_PURSUIT_DIPLOMACY;
 }
 
 /// Is this AI leader naturally focused on spreading its culture across the world?
 bool CvDiplomacyAI::IsCultural() const
 {
-	return GetDefaultVictoryFocus() == VICTORY_FOCUS_CULTURE;
+	return GetDefaultVictoryPursuit() == VICTORY_PURSUIT_CULTURE;
 }
 
 /// Is this AI leader naturally focused on their civilization's technological advancement?
 bool CvDiplomacyAI::IsScientist() const
 {
-	return GetDefaultVictoryFocus() == VICTORY_FOCUS_SCIENCE;
+	return GetDefaultVictoryPursuit() == VICTORY_PURSUIT_SCIENCE;
 }
 
 
@@ -2141,15 +2141,15 @@ void CvDiplomacyAI::SetCompetingForVictory(bool bValue)
 }
 
 /// What victory condition are we focusing on?
-VictoryFocusTypes CvDiplomacyAI::GetVictoryFocus() const
+VictoryPursuitTypes CvDiplomacyAI::GetVictoryPursuit() const
 {
-	return (VictoryFocusTypes) m_eVictoryFocus;
+	return (VictoryPursuitTypes) m_eVictoryPursuit;
 }
 
-void CvDiplomacyAI::SetVictoryFocus(VictoryFocusTypes eFocus)
+void CvDiplomacyAI::SetVictoryPursuit(VictoryPursuitTypes eVictoryPursuit)
 {
-	if (eFocus < 0 || eFocus >= NUM_VICTORY_FOCUS_TYPES) return;
-	m_eVictoryFocus = eFocus;
+	if (eVictoryPursuit < 0 || eVictoryPursuit >= NUM_VICTORY_PURSUITS) return;
+	m_eVictoryPursuit = eVictoryPursuit;
 }
 
 /// Are we extra aggressive towards this player because they're close to victory?
@@ -7838,7 +7838,7 @@ void CvDiplomacyAI::DoTurn(DiplomacyMode eDiploMode, PlayerTypes ePlayer)
 
 	// Victory Competition
 	DoUpdateCompetingForVictory();
-	DoUpdateVictoryFocus();
+	DoUpdateVictoryPursuit();
 	DoUpdateRecklessExpanders();
 	DoUpdateWonderSpammers();
 	DoUpdateTechBlockLevels();
@@ -8307,33 +8307,33 @@ bool CvDiplomacyAI::IsEndgameAggressive() const
 }
 
 /// What should our victory focus be? (i.e. What victory condition should we be sensitive to)
-void CvDiplomacyAI::DoUpdateVictoryFocus()
+void CvDiplomacyAI::DoUpdateVictoryPursuit()
 {
 	if (GC.getGame().isOption(GAMEOPTION_ALWAYS_WAR) || GC.getGame().isOption(GAMEOPTION_NO_CHANGING_WAR_PEACE))
 	{
-		SetVictoryFocus(VICTORY_FOCUS_DOMINATION);
+		SetVictoryPursuit(VICTORY_PURSUIT_DOMINATION);
 		return;
 	}
 
 	// Let's check if we're close to winning.
 	if (IsCloseToWorldConquest())
 	{
-		SetVictoryFocus(VICTORY_FOCUS_DOMINATION);
+		SetVictoryPursuit(VICTORY_PURSUIT_DOMINATION);
 		return;
 	}
 	else if (IsCloseToSpaceshipVictory())
 	{
-		SetVictoryFocus(VICTORY_FOCUS_SCIENCE);
+		SetVictoryPursuit(VICTORY_PURSUIT_SCIENCE);
 		return;
 	}
 	else if (IsCloseToCultureVictory())
 	{
-		SetVictoryFocus(VICTORY_FOCUS_CULTURE);
+		SetVictoryPursuit(VICTORY_PURSUIT_CULTURE);
 		return;
 	}
 	else if (IsCloseToDiploVictory())
 	{
-		SetVictoryFocus(VICTORY_FOCUS_DIPLOMACY);
+		SetVictoryPursuit(VICTORY_PURSUIT_DIPLOMACY);
 		return;
 	}
 
@@ -8359,19 +8359,19 @@ void CvDiplomacyAI::DoUpdateVictoryFocus()
 	// If we don't care about winning, use our default focus based on flavors
 	if (bDontCareAboutWinning)
 	{
-		switch (GetDefaultVictoryFocus())
+		switch (GetDefaultVictoryPursuit())
 		{
-		case VICTORY_FOCUS_DIPLOMACY:
-			SetVictoryFocus(VICTORY_FOCUS_DIPLOMACY);
+		case VICTORY_PURSUIT_DIPLOMACY:
+			SetVictoryPursuit(VICTORY_PURSUIT_DIPLOMACY);
 			break;
-		case VICTORY_FOCUS_CULTURE:
-			SetVictoryFocus(VICTORY_FOCUS_CULTURE);
+		case VICTORY_PURSUIT_CULTURE:
+			SetVictoryPursuit(VICTORY_PURSUIT_CULTURE);
 			break;
-		case VICTORY_FOCUS_SCIENCE:
-			SetVictoryFocus(VICTORY_FOCUS_SCIENCE);
+		case VICTORY_PURSUIT_SCIENCE:
+			SetVictoryPursuit(VICTORY_PURSUIT_SCIENCE);
 			break;
 		default:
-			SetVictoryFocus(VICTORY_FOCUS_DOMINATION);
+			SetVictoryPursuit(VICTORY_PURSUIT_DOMINATION);
 			break;
 		}
 		return;
@@ -8380,27 +8380,27 @@ void CvDiplomacyAI::DoUpdateVictoryFocus()
 	// We care about winning, so Grand Strategy AI decides
 	if (eMyGrandStrategy == eDomination)
 	{
-		SetVictoryFocus(VICTORY_FOCUS_DOMINATION);
+		SetVictoryPursuit(VICTORY_PURSUIT_DOMINATION);
 		return;
 	}
 	else if (eMyGrandStrategy == eDiplomacy)
 	{
-		SetVictoryFocus(VICTORY_FOCUS_DIPLOMACY);
+		SetVictoryPursuit(VICTORY_PURSUIT_DIPLOMACY);
 		return;
 	}
 	else if (eMyGrandStrategy == eCulture)
 	{
-		SetVictoryFocus(VICTORY_FOCUS_CULTURE);
+		SetVictoryPursuit(VICTORY_PURSUIT_CULTURE);
 		return;
 	}
 	else if (eMyGrandStrategy == eScience)
 	{
-		SetVictoryFocus(VICTORY_FOCUS_SCIENCE);
+		SetVictoryPursuit(VICTORY_PURSUIT_SCIENCE);
 		return;
 	}
 
 	// By default we go for conquest
-	SetVictoryFocus(VICTORY_FOCUS_DOMINATION);
+	SetVictoryPursuit(VICTORY_PURSUIT_DOMINATION);
 }
 
 /// Do we consider any players to be expanding too recklessly?
@@ -47535,25 +47535,25 @@ int CvDiplomacyAI::GetNumOurEnemiesPlayerAtWarWith(PlayerTypes ePlayer)
 /// Does this player want to conquer the world?
 bool CvDiplomacyAI::IsGoingForWorldConquest() const
 {
-	return GetVictoryFocus() == VICTORY_FOCUS_DOMINATION;
+	return GetVictoryPursuit() == VICTORY_PURSUIT_DOMINATION;
 }
 
 /// Does this player want to win by diplomacy?
 bool CvDiplomacyAI::IsGoingForDiploVictory() const
 {
-	return GetVictoryFocus() == VICTORY_FOCUS_DIPLOMACY;
+	return GetVictoryPursuit() == VICTORY_PURSUIT_DIPLOMACY;
 }
 
 /// Does this player want to win by culture?
 bool CvDiplomacyAI::IsGoingForCultureVictory() const
 {
-	return GetVictoryFocus() == VICTORY_FOCUS_CULTURE;
+	return GetVictoryPursuit() == VICTORY_PURSUIT_CULTURE;
 }
 
 /// Does this player want to win by science?
 bool CvDiplomacyAI::IsGoingForSpaceshipVictory() const
 {
-	return GetVictoryFocus() == VICTORY_FOCUS_SCIENCE;
+	return GetVictoryPursuit() == VICTORY_PURSUIT_SCIENCE;
 }
 
 /// Is this player close to ANY victory condition?
@@ -50059,22 +50059,22 @@ void CvDiplomacyAI::LogPersonality()
 		strOutBuf = strBaseString + ", " + strTemp;
 		pLog->Msg(strOutBuf);
 
-		switch (GetDefaultVictoryFocus())
+		switch (GetDefaultVictoryPursuit())
 		{
-		case VICTORY_FOCUS_DOMINATION:
-			strTemp.Format("DEFAULT FOCUS, DOMINATION");
+		case VICTORY_PURSUIT_DOMINATION:
+			strTemp.Format("VICTORY PURSUIT, DOMINATION");
 			break;
-		case VICTORY_FOCUS_DIPLOMACY:
-			strTemp.Format("DEFAULT FOCUS, DIPLOMACY");
+		case VICTORY_PURSUIT_DIPLOMACY:
+			strTemp.Format("VICTORY PURSUIT, DIPLOMACY");
 			break;
-		case VICTORY_FOCUS_CULTURE:
-			strTemp.Format("DEFAULT FOCUS, CULTURE");
+		case VICTORY_PURSUIT_CULTURE:
+			strTemp.Format("VICTORY PURSUIT, CULTURE");
 			break;
-		case VICTORY_FOCUS_SCIENCE:
-			strTemp.Format("DEFAULT FOCUS, SCIENCE");
+		case VICTORY_PURSUIT_SCIENCE:
+			strTemp.Format("VICTORY PURSUIT, SCIENCE");
 			break;
 		default:
-			strTemp.Format("DEFAULT FOCUS, NONE");
+			strTemp.Format("VICTORY PURSUIT, NONE");
 			break;
 		}
 
