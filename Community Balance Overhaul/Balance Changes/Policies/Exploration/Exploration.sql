@@ -13,27 +13,11 @@ WHERE Type = 'POLICY_EXPLORATION';
 
 -- Maritime Infrastructure -- Now Martial Law
 UPDATE Policies
-SET PuppetYieldPenaltyMod = '20'
-WHERE Type = 'POLICY_MARITIME_INFRASTRUCTURE';
-
-UPDATE Policies
-SET GarrisonFreeMaintenance = '1'
+SET PuppetYieldPenaltyMod = '20', GarrisonFreeMaintenance = '1', PortraitIndex = '0', IconAtlas = 'EXPANSIONPATCH_POLICY_ATLAS', IconAtlasAchieved = 'EXPANSIONPATCH_POLICY_ACHIEVED_ATLAS'
 WHERE Type = 'POLICY_MARITIME_INFRASTRUCTURE';
 
 DELETE FROM Policy_CoastalCityYieldChanges
 WHERE PolicyType = 'POLICY_MARITIME_INFRASTRUCTURE';
-
-UPDATE Policies
-SET PortraitIndex = '0'
-WHERE Type = 'POLICY_MARITIME_INFRASTRUCTURE';
-
-UPDATE Policies
-SET IconAtlas = 'EXPANSIONPATCH_POLICY_ATLAS'
-WHERE Type = 'POLICY_MARITIME_INFRASTRUCTURE';
-
-UPDATE Policies
-SET IconAtlasAchieved = 'EXPANSIONPATCH_POLICY_ACHIEVED_ATLAS'
-WHERE Type = 'POLICY_MARITIME_INFRASTRUCTURE';
 
 INSERT INTO Policy_BuildingClassHappiness
 	(PolicyType, BuildingClassType, Happiness)
@@ -56,15 +40,7 @@ DELETE FROM Policy_BuildingClassHappiness
 WHERE PolicyType = 'POLICY_NAVAL_TRADITION';
 
 UPDATE Policies
-SET MonopolyModFlat = '3'
-WHERE Type = 'POLICY_NAVAL_TRADITION';
-
-UPDATE Policies
-SET MonopolyModPercent = '10'
-WHERE Type = 'POLICY_NAVAL_TRADITION';
-
-UPDATE Policies
-SET RevealAllCapitals = '0'
+SET MonopolyModFlat = '3', MonopolyModPercent = '10', RevealAllCapitals = '0'
 WHERE Type = 'POLICY_NAVAL_TRADITION';
 
 -- Navigation School - Now Exploration --  +33% to Great Admiral and Great General Production -- Barracks, Armories and Military Academies provide +1 Science.
@@ -72,27 +48,15 @@ DELETE FROM Policy_FreePromotions
 WHERE PolicyType = 'POLICY_NAVIGATION_SCHOOL';
 
 UPDATE Policies
-SET GreatAdmiralRateModifier = '33'
-WHERE Type = 'POLICY_NAVIGATION_SCHOOL';
-
-UPDATE Policies
-SET GreatGeneralRateModifier = '33'
+SET GreatAdmiralRateModifier = '33', GreatGeneralRateModifier = '33', IncludesOneShotFreeUnits = '0'
 WHERE Type = 'POLICY_NAVIGATION_SCHOOL';
 
 DELETE FROM Policy_FreeUnitClasses
 WHERE PolicyType = 'POLICY_NAVIGATION_SCHOOL';
 
-UPDATE Policies
-SET IncludesOneShotFreeUnits = '0'
-WHERE Type = 'POLICY_NAVIGATION_SCHOOL';
-
 -- Treasure Fleets -- Now called Civilizing Mission -- Receive a free Factory, and a lump sum of Gold, when you conquer a city. Garrisons are free.
 UPDATE Policies
-SET SeaTradeRouteGoldChange = '0'
-WHERE Type = 'POLICY_TREASURE_FLEETS';
-
-UPDATE Policies
-SET ConquestPerEraBuildingProductionMod = '10'
+SET SeaTradeRouteGoldChange = '0', ConquestPerEraBuildingProductionMod = '10'
 WHERE Type = 'POLICY_TREASURE_FLEETS';
 
 -- Finisher
@@ -115,23 +79,12 @@ WHERE Type = 'POLICY_EXPLORATION';
 
 UPDATE Policies
 SET UnitUpgradeCostMod = '-5'
-WHERE Type = 'POLICY_MARITIME_INFRASTRUCTURE';
-
-UPDATE Policies
-SET UnitUpgradeCostMod = '-5'
-WHERE Type = 'POLICY_NAVAL_TRADITION';
-
-UPDATE Policies
-SET UnitUpgradeCostMod = '-5'
-WHERE Type = 'POLICY_MERCHANT_NAVY';
-
-UPDATE Policies
-SET UnitUpgradeCostMod = '-5'
-WHERE Type = 'POLICY_NAVIGATION_SCHOOL';
-
-UPDATE Policies
-SET UnitUpgradeCostMod = '-5'
-WHERE Type = 'POLICY_TREASURE_FLEETS';
+WHERE Type IN 
+('POLICY_MARITIME_INFRASTRUCTURE',
+'POLICY_NAVAL_TRADITION',
+'POLICY_MERCHANT_NAVY',
+'POLICY_NAVIGATION_SCHOOL',
+'POLICY_TREASURE_FLEETS');
 
 -- NEW
 

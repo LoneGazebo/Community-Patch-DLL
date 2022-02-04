@@ -1,12 +1,6 @@
 -- Flavor Deletion
 DELETE FROM Building_Flavors
-WHERE BuildingType = 'BUILDING_MOSQUE';
-
-DELETE FROM Building_Flavors
-WHERE BuildingType = 'BUILDING_CATHEDRAL';
-
-DELETE FROM Building_Flavors
-WHERE BuildingType = 'BUILDING_PAGODA';
+WHERE BuildingType IN ('BUILDING_MOSQUE', 'BUILDING_CATHEDRAL', 'BUILDING_PAGODA');
 
 -- Mosque
 

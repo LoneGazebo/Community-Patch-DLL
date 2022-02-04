@@ -15,14 +15,11 @@ WHERE TechType = 'TECH_FLIGHT' AND PrereqTech = 'TECH_ELECTRICITY';
 UPDATE Technologies SET Era = 'ERA_MODERN' WHERE Type = 'TECH_BIOLOGY';
 UPDATE Technologies SET Era = 'ERA_MODERN' WHERE Type = 'TECH_ELECTRICITY';
 
-UPDATE Technologies SET GridX = '11' WHERE Type = 'TECH_BIOLOGY';
-UPDATE Technologies SET GridX = '11' WHERE Type = 'TECH_ELECTRICITY';
-UPDATE Technologies SET GridX = '11' WHERE Type = 'TECH_COMBUSTION';
+UPDATE Technologies SET GridX = '11', GridY = '1' WHERE Type = 'TECH_BIOLOGY';
+UPDATE Technologies SET GridX = '11', GridY = '3' WHERE Type = 'TECH_ELECTRICITY';
+UPDATE Technologies SET GridX = '11', GridY = '9' WHERE Type = 'TECH_COMBUSTION';
 
-UPDATE Technologies SET GridY = '1' WHERE Type = 'TECH_BIOLOGY';
-UPDATE Technologies SET GridY = '3' WHERE Type = 'TECH_ELECTRICITY';
 UPDATE Technologies SET GridY = '7' WHERE Type = 'TECH_REPLACEABLE_PARTS';
-UPDATE Technologies SET GridY = '9' WHERE Type = 'TECH_COMBUSTION';
 
 INSERT INTO Technologies
 	(Type, Cost, Description, Civilopedia, Help, CorporationsEnabled, Era, Trade, GridX, GridY, Quote, PortraitIndex, IconAtlas)

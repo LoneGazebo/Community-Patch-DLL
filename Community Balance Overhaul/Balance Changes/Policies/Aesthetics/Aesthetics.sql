@@ -12,19 +12,7 @@ WHERE Type = 'POLICY_BRANCH_AESTHETICS';
 
 -- Opener
 UPDATE Policies
-SET GreatWriterRateModifier = '0'
-WHERE Type = 'POLICY_AESTHETICS';
-
-UPDATE Policies
-SET GreatArtistRateModifier = '0'
-WHERE Type = 'POLICY_AESTHETICS';
-
-UPDATE Policies
-SET GreatMusicianRateModifier = '0'
-WHERE Type = 'POLICY_AESTHETICS';
-
-UPDATE Policies
-SET GreatPeopleRateModifier = '25'
+SET GreatWriterRateModifier = '0', GreatArtistRateModifier = '0', GreatMusicianRateModifier = '0', GreatPeopleRateModifier = '25'
 WHERE Type = 'POLICY_AESTHETICS';
 
 INSERT INTO Policy_BuildingClassProductionModifiers
@@ -62,11 +50,7 @@ VALUES
 
 -- Fine Arts
 UPDATE Policies
-SET HappinessToCulture = 0
-WHERE Type = 'POLICY_FINE_ARTS';
-
-UPDATE Policies
-SET HappinessPerXGreatWorks = '3'
+SET HappinessToCulture = 0, HappinessPerXGreatWorks = '3'
 WHERE Type = 'POLICY_FINE_ARTS';
 
 INSERT INTO Policy_BuildingClassHappiness
@@ -79,15 +63,7 @@ VALUES
 -- Flourishing of the Arts
 
 UPDATE Policies
-SET CultureWonderMultiplier = '0'
-WHERE Type = 'POLICY_FLOURISHING_OF_ARTS';
-
-UPDATE Policies
-SET GoldenAgeTurns = '0'
-WHERE Type = 'POLICY_FLOURISHING_OF_ARTS';
-
-UPDATE Policies
-SET CulturePerWonder = '0'
+SET CultureWonderMultiplier = '0', GoldenAgeTurns = '0', CulturePerWonder = '0'
 WHERE Type = 'POLICY_FLOURISHING_OF_ARTS';
 
 INSERT INTO Policy_YieldFromWorldWonderConstruction
@@ -118,15 +94,7 @@ VALUES
 -- Cultural Exchange
 
 UPDATE Policies
-SET SharedReligionTourismModifier = '0'
-WHERE Type = 'POLICY_ETHICS';
-
-UPDATE Policies
-SET TradeRouteTourismModifier = '0'
-WHERE Type = 'POLICY_ETHICS';
-
-UPDATE Policies
-SET OpenBordersTourismModifier = '10'
+SET SharedReligionTourismModifier = '0', TradeRouteTourismModifier = '0', OpenBordersTourismModifier = '10'
 WHERE Type = 'POLICY_ETHICS';
 
 -- Building Class Changes
@@ -167,15 +135,7 @@ SET PolicyReveal = 'POLICY_AESTHETICS_FINISHER'
 WHERE Type = 'RESOURCE_HIDDEN_ARTIFACTS';
 
 UPDATE Policies
-SET ArchaeologicalDigTourism = '3'
-WHERE Type = 'POLICY_AESTHETICS_FINISHER';
-
-UPDATE Policies
-SET GoldenAgeTourism = '4'
-WHERE Type = 'POLICY_AESTHETICS_FINISHER';
-
-UPDATE Policies
-SET ThemingBonusMultiplier = '0'
+SET ArchaeologicalDigTourism = '3', GoldenAgeTourism = '4', ThemingBonusMultiplier = '0'
 WHERE Type = 'POLICY_AESTHETICS_FINISHER';
 
 INSERT INTO Policy_CityYieldChanges

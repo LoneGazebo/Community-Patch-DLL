@@ -75,69 +75,38 @@ WHERE Name = 'TOURISM_MODIFIER_DIPLOMAT';
 -- Theming Bonuses increased in all buildings
 
 UPDATE Building_ThemingBonuses
-SET Bonus = '15'
-WHERE BuildingType = 'BUILDING_UFFIZI';
+SET Bonus = '10'
+WHERE BuildingType IN 
+('BUILDING_GLOBE_THEATER',
+'BUILDING_GREAT_LIBRARY',
+'BUILDING_OXFORD_UNIVERSITY',
+'BUILDING_SISTINE_CHAPEL');
 
 UPDATE Building_ThemingBonuses
-SET Bonus = '10'
-WHERE BuildingType = 'BUILDING_GLOBE_THEATER';
+SET Bonus = '15'
+WHERE BuildingType IN 
+('BUILDING_UFFIZI',
+'BUILDING_LOUVRE',
+'BUILDING_HERMITAGE');
 
 UPDATE Building_ThemingBonuses
 SET Bonus = '25'
-WHERE BuildingType = 'BUILDING_BROADWAY';
-
-UPDATE Building_ThemingBonuses
-SET Bonus = '15'
-WHERE BuildingType = 'BUILDING_HERMITAGE';
-
-UPDATE Building_ThemingBonuses
-SET Bonus = '10'
-WHERE BuildingType = 'BUILDING_OXFORD_UNIVERSITY';
-
-UPDATE Building_ThemingBonuses
-SET Bonus = '10'
-WHERE BuildingType = 'BUILDING_SISTINE_CHAPEL';
-
-UPDATE Building_ThemingBonuses
-SET Bonus = '15'
-WHERE BuildingType = 'BUILDING_LOUVRE';
-
-UPDATE Building_ThemingBonuses
-SET Bonus = '10'
-WHERE BuildingType = 'BUILDING_GREAT_LIBRARY';
-
-UPDATE Building_ThemingBonuses
-SET Bonus = '25'
-WHERE BuildingType = 'BUILDING_SYDNEY_OPERA_HOUSE';
+WHERE BuildingType IN 
+('BUILDING_BROADWAY',
+'BUILDING_SYDNEY_OPERA_HOUSE');
 
 UPDATE Building_ThemingBonuses
 SET Bonus = '6'
-WHERE BuildingType = 'BUILDING_MUSEUM' AND Description = 'TXT_KEY_THEMING_BONUS_MUSEUM_1';
-
-UPDATE Building_ThemingBonuses
-SET Bonus = '6'
-WHERE BuildingType = 'BUILDING_MUSEUM' AND Description = 'TXT_KEY_THEMING_BONUS_MUSEUM_2';
-
-UPDATE Building_ThemingBonuses
-SET Bonus = '5'
-WHERE BuildingType = 'BUILDING_MUSEUM' AND Description = 'TXT_KEY_THEMING_BONUS_MUSEUM_3';
+WHERE BuildingType = 'BUILDING_MUSEUM' AND Description IN 
+('TXT_KEY_THEMING_BONUS_MUSEUM_1',
+'TXT_KEY_THEMING_BONUS_MUSEUM_2');
 
 UPDATE Building_ThemingBonuses
 SET Bonus = '5'
-WHERE BuildingType = 'BUILDING_MUSEUM' AND Description = 'TXT_KEY_THEMING_BONUS_MUSEUM_4';
-
-UPDATE Building_ThemingBonuses
-SET Bonus = '5'
-WHERE BuildingType = 'BUILDING_MUSEUM' AND Description = 'TXT_KEY_THEMING_BONUS_MUSEUM_5';
-
-UPDATE Building_ThemingBonuses
-SET Bonus = '5'
-WHERE BuildingType = 'BUILDING_MUSEUM' AND Description = 'TXT_KEY_THEMING_BONUS_MUSEUM_6';
-
-UPDATE Building_ThemingBonuses
-SET Bonus = '5'
-WHERE BuildingType = 'BUILDING_MUSEUM' AND Description = 'TXT_KEY_THEMING_BONUS_MUSEUM_7';
-
-UPDATE Building_ThemingBonuses
-SET Bonus = '5'
-WHERE BuildingType = 'BUILDING_MUSEUM' AND Description = 'TXT_KEY_THEMING_BONUS_MUSEUM_8';
+WHERE BuildingType = 'BUILDING_MUSEUM' AND Description IN 
+('TXT_KEY_THEMING_BONUS_MUSEUM_3',
+'TXT_KEY_THEMING_BONUS_MUSEUM_4',
+'TXT_KEY_THEMING_BONUS_MUSEUM_5',
+'TXT_KEY_THEMING_BONUS_MUSEUM_6',
+'TXT_KEY_THEMING_BONUS_MUSEUM_7',
+'TXT_KEY_THEMING_BONUS_MUSEUM_8');

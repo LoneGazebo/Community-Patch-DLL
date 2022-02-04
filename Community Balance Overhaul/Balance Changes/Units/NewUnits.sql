@@ -16,10 +16,6 @@ INSERT INTO UnitGameplay2DScripts (UnitType, SelectionSound, FirstSelectionSound
 	SELECT 'UNIT_CRUISER', SelectionSound, FirstSelectionSound
 	FROM UnitGameplay2DScripts WHERE (UnitType = 'UNIT_BATTLESHIP');
 
-INSERT INTO Unit_AITypes (UnitType, UnitAIType)
-	SELECT 'UNIT_CRUISER', UnitAIType
-	FROM Unit_AITypes WHERE (UnitType = 'UNIT_BATTLESHIP');
-
 INSERT INTO Unit_ClassUpgrades (UnitType, UnitClassType)
 	VALUES ('UNIT_CRUISER', 'UNITCLASS_BATTLESHIP');
 
@@ -39,14 +35,6 @@ INSERT INTO UnitGameplay2DScripts (UnitType, SelectionSound, FirstSelectionSound
 	SELECT 'UNIT_MOUNTED_BOWMAN', SelectionSound, FirstSelectionSound
 	FROM UnitGameplay2DScripts WHERE (UnitType = 'UNIT_HUN_HORSE_ARCHER');
 
-INSERT INTO Unit_AITypes (UnitType, UnitAIType)
-	SELECT 'UNIT_MOUNTED_BOWMAN', 'UNITAI_RANGED'
-	FROM Unit_AITypes WHERE (UnitType = 'UNIT_HUN_HORSE_ARCHER');
-
-INSERT INTO Unit_AITypes (UnitType, UnitAIType)
-	SELECT 'UNIT_MOUNTED_BOWMAN', 'UNITAI_COUNTER'
-	FROM Unit_AITypes WHERE (UnitType = 'UNIT_HUN_HORSE_ARCHER');
-
 INSERT INTO Unit_ClassUpgrades (UnitType, UnitClassType)
 	VALUES ('UNIT_MOUNTED_BOWMAN', 'UNITCLASS_CUIRASSIER');
 
@@ -65,14 +53,6 @@ INSERT INTO Units (Type, Description, Civilopedia, Strategy, Help, Requirements,
 INSERT INTO UnitGameplay2DScripts (UnitType, SelectionSound, FirstSelectionSound)
 	SELECT 'UNIT_CUIRASSIER', SelectionSound, FirstSelectionSound
 	FROM UnitGameplay2DScripts WHERE (UnitType = 'UNIT_HUN_HORSE_ARCHER');
-
-INSERT INTO Unit_AITypes (UnitType, UnitAIType)
-	SELECT 'UNIT_CUIRASSIER', 'UNITAI_RANGED'
-	FROM Unit_AITypes WHERE (UnitType = 'UNIT_HUN_HORSE_ARCHER');
-
-INSERT INTO Unit_AITypes (UnitType, UnitAIType)
-	SELECT 'UNIT_CUIRASSIER', 'UNITAI_COUNTER'
-	FROM Unit_AITypes WHERE (UnitType = 'UNIT_HUN_HORSE_ARCHER');
 
 INSERT INTO Unit_ClassUpgrades (UnitType, UnitClassType)
 	VALUES ('UNIT_CUIRASSIER', 'UNITCLASS_CAVALRY');
@@ -94,12 +74,6 @@ INSERT INTO Units (Type, Description, Civilopedia, Strategy, Help, Requirements,
 INSERT INTO UnitGameplay2DScripts (UnitType, SelectionSound, FirstSelectionSound)
 	SELECT 'UNIT_FIELD_GUN', SelectionSound, FirstSelectionSound
 	FROM UnitGameplay2DScripts WHERE (UnitType = 'UNIT_ARTILLERY');
-
-INSERT INTO Unit_AITypes (UnitType, UnitAIType)
-	VALUES ('UNIT_FIELD_GUN', 'UNITAI_CITY_BOMBARD');
-
-INSERT INTO Unit_AITypes (UnitType, UnitAIType)
-	VALUES ('UNIT_FIELD_GUN', 'UNITAI_RANGED');
 
 INSERT INTO Unit_ClassUpgrades (UnitType, UnitClassType)
 	VALUES ('UNIT_FIELD_GUN', 'UNITCLASS_ARTILLERY');
@@ -127,12 +101,6 @@ INSERT INTO UnitGameplay2DScripts
 SELECT		'UNIT_FCOMPANY',	SelectionSound, FirstSelectionSound
 FROM UnitGameplay2DScripts WHERE UnitType = 'UNIT_PIKEMAN';	
 	
-INSERT INTO Unit_AITypes
-	(UnitType, UnitAIType)
-VALUES
-	('UNIT_FCOMPANY', 'UNITAI_ATTACK'),
-	('UNIT_FCOMPANY', 'UNITAI_DEFENSE');
-
 -- Mercenaries
 INSERT INTO UnitClasses
 	(Type, Description, DefaultUnit)
@@ -153,13 +121,6 @@ INSERT INTO UnitGameplay2DScripts
 	(UnitType, SelectionSound, FirstSelectionSound)
 VALUES
 	('UNIT_GUERILLA', 'AS2D_SELECT_INFANTRY', 'AS2D_BIRTH_INFANTRY');
-
-INSERT INTO Unit_AITypes
-	(UnitType, UnitAIType)
-VALUES
-	('UNIT_GUERILLA', 'UNITAI_ATTACK'),
-	('UNIT_GUERILLA', 'UNITAI_DEFENSE'),
-	('UNIT_GUERILLA', 'UNITAI_EXPLORE');
 
 INSERT INTO UnitClasses
 	(Type, Description, DefaultUnit)
@@ -202,12 +163,6 @@ INSERT INTO ArtDefine_UnitMemberInfos(Type, Scale, Model, MaterialTypeTag, Mater
 	('ART_DEF_UNIT_MEMBER_COLONIST3', 0.05, 'Caravan_Late_F1.fxsxml', 'CLOTH', 'FLESH'),
 	('ART_DEF_UNIT_MEMBER_COLONIST4', 0.05, 'Caravan_Late_F2.fxsxml', 'CLOTH', 'FLESH');
 
-INSERT INTO Unit_AITypes
-	(UnitType, UnitAIType)
-VALUES
-	('UNIT_EXPLORER', 'UNITAI_EXPLORE'),
-	('UNIT_COMMANDO', 'UNITAI_EXPLORE');
-
 INSERT INTO UnitGameplay2DScripts
 	(UnitType, SelectionSound, FirstSelectionSound)
 VALUES
@@ -234,12 +189,6 @@ INSERT INTO UnitGameplay2DScripts
 VALUES
 	('UNIT_PIONEER', 'AS2D_SELECT_SETTLER', 'AS2D_BIRTH_SETTLER'),
 	('UNIT_COLONIST', 'AS2D_SELECT_SETTLER', 'AS2D_BIRTH_SETTLER');
-
-INSERT INTO Unit_AITypes
-	(UnitType, UnitAIType)
-VALUES
-	('UNIT_PIONEER', 'UNITAI_SETTLE'),
-	('UNIT_COLONIST', 'UNITAI_SETTLE');
 
 INSERT INTO UnitClasses
 	(Type, Description, DefaultUnit)

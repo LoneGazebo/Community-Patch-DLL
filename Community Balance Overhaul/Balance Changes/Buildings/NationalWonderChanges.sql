@@ -3,15 +3,7 @@
 -- Guilds - now buildable in three Cities, give a bit more stuff
 UPDATE BuildingClasses
 SET MaxPlayerInstances = '3'
-WHERE Type = 'BUILDINGCLASS_WRITERS_GUILD';
-
-UPDATE BuildingClasses
-SET MaxPlayerInstances = '3'
-WHERE Type = 'BUILDINGCLASS_ARTISTS_GUILD';
-
-UPDATE BuildingClasses
-SET MaxPlayerInstances = '3'
-WHERE Type = 'BUILDINGCLASS_MUSICIANS_GUILD';
+WHERE Type IN ('BUILDINGCLASS_WRITERS_GUILD', 'BUILDINGCLASS_ARTISTS_GUILD', 'BUILDINGCLASS_MUSICIANS_GUILD');
 
 -- Reduce flavors for these a bit.
 UPDATE Building_Flavors
@@ -219,38 +211,7 @@ WHERE Type = 'BUILDING_RECYCLING_CENTER';
 
 -- Building Requirement
 
-DELETE FROM Building_PrereqBuildingClasses
-WHERE BuildingType = 'BUILDING_HEROIC_EPIC';
-
-DELETE FROM Building_PrereqBuildingClasses
-WHERE BuildingType = 'BUILDING_NATIONAL_EPIC';
-
-DELETE FROM Building_PrereqBuildingClasses
-WHERE BuildingType = 'BUILDING_CIRCUS_MAXIMUS';
-
-DELETE FROM Building_PrereqBuildingClasses
-WHERE BuildingType = 'BUILDING_NATIONAL_TREASURY';
-
-DELETE FROM Building_PrereqBuildingClasses
-WHERE BuildingType = 'BUILDING_NATIONAL_COLLEGE';
-
-DELETE FROM Building_PrereqBuildingClasses
-WHERE BuildingType = 'BUILDING_IRONWORKS';
-
-DELETE FROM Building_PrereqBuildingClasses
-WHERE BuildingType = 'BUILDING_OXFORD_UNIVERSITY';
-
-DELETE FROM Building_PrereqBuildingClasses
-WHERE BuildingType = 'BUILDING_HERMITAGE';
-
-DELETE FROM Building_PrereqBuildingClasses
-WHERE BuildingType = 'BUILDING_INTELLIGENCE_AGENCY';
-
-DELETE FROM Building_PrereqBuildingClasses
-WHERE BuildingType = 'BUILDING_GRAND_TEMPLE';
-
-DELETE FROM Building_PrereqBuildingClasses
-WHERE BuildingType = 'BUILDING_TOURIST_CENTER';
+DELETE FROM Building_PrereqBuildingClasses;
 
 -- Pop Requirement
 
@@ -302,49 +263,18 @@ WHERE Type = 'BUILDING_TOURIST_CENTER';
 
 -- Pop Requirement
 
-UPDATE Buildings
-SET NumCityCostMod = '10'
-WHERE Type = 'BUILDING_HEROIC_EPIC';
-
-UPDATE Buildings
-SET NumCityCostMod = '10'
-WHERE Type = 'BUILDING_NATIONAL_EPIC';
-
-UPDATE Buildings
-SET NumCityCostMod = '10'
-WHERE Type = 'BUILDING_CIRCUS_MAXIMUS';
-
-UPDATE Buildings
-SET NumCityCostMod = '10'
-WHERE Type = 'BUILDING_NATIONAL_TREASURY';
-
-UPDATE Buildings
-SET NumCityCostMod = '10'
-WHERE Type = 'BUILDING_NATIONAL_COLLEGE';
-
-UPDATE Buildings
-SET NumCityCostMod = '10'
-WHERE Type = 'BUILDING_IRONWORKS';
-
-UPDATE Buildings
-SET NumCityCostMod = '10'
-WHERE Type = 'BUILDING_OXFORD_UNIVERSITY';
-
-UPDATE Buildings
-SET NumCityCostMod = '10'
-WHERE Type = 'BUILDING_HERMITAGE';
-
-UPDATE Buildings
-SET NumCityCostMod = '10'
-WHERE Type = 'BUILDING_INTELLIGENCE_AGENCY';
-
-UPDATE Buildings
-SET NumCityCostMod = '10'
-WHERE Type = 'BUILDING_GRAND_TEMPLE';
-
-UPDATE Buildings
-SET NumCityCostMod = '10'
-WHERE Type = 'BUILDING_TOURIST_CENTER';
+UPDATE Buildings SET NumCityCostMod = '10' WHERE Type IN 
+('BUILDING_HEROIC_EPIC',
+'BUILDING_NATIONAL_EPIC',
+'BUILDING_CIRCUS_MAXIMUS',
+'BUILDING_NATIONAL_TREASURY',
+'BUILDING_NATIONAL_COLLEGE',
+'BUILDING_IRONWORKS',
+'BUILDING_OXFORD_UNIVERSITY',
+'BUILDING_HERMITAGE',
+'BUILDING_INTELLIGENCE_AGENCY',
+'BUILDING_GRAND_TEMPLE',
+'BUILDING_TOURIST_CENTER');
 
 -- NEW
 

@@ -23,29 +23,13 @@ WHERE Type = 'TECH_METAL_CASTING';
 
 -- Art/Name flip for Construction and Masonry
 UPDATE Technologies
-SET Civilopedia = 'TXT_KEY_TECH_CONSTRUCTION_DESC'
+SET Civilopedia = 'TXT_KEY_TECH_CONSTRUCTION_DESC', Description = 'TXT_KEY_TECH_CONSTRUCTION_TITLE', PortraitIndex = '15'
 WHERE Type = 'TECH_MASONRY';
 
 UPDATE Technologies
-SET Description = 'TXT_KEY_TECH_CONSTRUCTION_TITLE'
-WHERE Type = 'TECH_MASONRY';
-
-UPDATE Technologies
-SET PortraitIndex = '15'
-WHERE Type = 'TECH_MASONRY';
-
-
-UPDATE Technologies
-SET Civilopedia = 'TXT_KEY_TECH_MASONRY_DESC'
+SET Civilopedia = 'TXT_KEY_TECH_MASONRY_DESC', Description = 'TXT_KEY_TECH_MASONRY_TITLE', PortraitIndex = '6'
 WHERE Type = 'TECH_CONSTRUCTION';
 
-UPDATE Technologies
-SET Description = 'TXT_KEY_TECH_MASONRY_TITLE'
-WHERE Type = 'TECH_CONSTRUCTION';
-
-UPDATE Technologies
-SET PortraitIndex = '6'
-WHERE Type = 'TECH_CONSTRUCTION';
 
 -- AI obsoletion logic
 UPDATE Resources
@@ -65,60 +49,33 @@ WHERE Type = 'PROCESS_RESEARCH';
 -- Move Embarkation to Sailing (Help AI) -- Move Rearrange Trade Routes
 
 UPDATE Technologies
-SET AllowsEmbarking = '0'
+SET AllowsEmbarking = '1', IconAtlas = 'COMMUNITY_ATLAS', PortraitIndex = '26'
+WHERE Type = 'TECH_SAILING';
+
+UPDATE Technologies
+SET AllowsEmbarking = '0', PortraitIndex = '13'
 WHERE Type = 'TECH_OPTICS';
 
 UPDATE Technologies
 SET InternationalTradeRoutesChange = '0'
-WHERE Type = 'TECH_ANIMAL_HUSBANDRY';
+WHERE Type IN 
+('TECH_ANIMAL_HUSBANDRY',
+'TECH_SAILING',
+'TECH_ENGINEERING',
+'TECH_BANKING',
+'TECH_PENICILIN',
+'TECH_BIOLOGY');
 
 UPDATE Technologies
 SET InternationalTradeRoutesChange = '1'
-WHERE Type = 'TECH_OPTICS';
+WHERE Type IN 
+('TECH_OPTICS',
+'TECH_CURRENCY',
+'TECH_HORSEBACK_RIDING',
+'TECH_ECONOMICS',
+'TECH_COMPUTERS',
+'TECH_ELECTRICITY');
 
-UPDATE Technologies
-SET InternationalTradeRoutesChange = '1'
-WHERE Type = 'TECH_CURRENCY';
-
-UPDATE Technologies
-SET AllowsEmbarking = '1'
-WHERE Type = 'TECH_SAILING';
-
-UPDATE Technologies
-SET InternationalTradeRoutesChange = '0'
-WHERE Type = 'TECH_SAILING';
-
-UPDATE Technologies
-SET InternationalTradeRoutesChange = '1'
-WHERE Type = 'TECH_HORSEBACK_RIDING';
-
-UPDATE Technologies
-SET InternationalTradeRoutesChange = '0'
-WHERE Type = 'TECH_ENGINEERING';
-
-UPDATE Technologies
-SET InternationalTradeRoutesChange = '1'
-WHERE Type = 'TECH_ECONOMICS';
-
-UPDATE Technologies
-SET InternationalTradeRoutesChange = '0'
-WHERE Type = 'TECH_BANKING';
-
-UPDATE Technologies
-SET InternationalTradeRoutesChange = '0'
-WHERE Type = 'TECH_PENICILIN';
-
-UPDATE Technologies
-SET InternationalTradeRoutesChange = '1'
-WHERE Type = 'TECH_COMPUTERS';
-
-UPDATE Technologies
-SET InternationalTradeRoutesChange = '0'
-WHERE Type = 'TECH_BIOLOGY';
-
-UPDATE Technologies
-SET InternationalTradeRoutesChange = '1'
-WHERE Type = 'TECH_ELECTRICITY';
 
 -- Add Land Trade Route extension to Machinery
 
@@ -136,21 +93,6 @@ UPDATE Technologies
 SET CityNoEmbarkCost = '1'
 WHERE Type = 'TECH_ROCKETRY';
 
-
-UPDATE Technologies
-SET IconAtlas = 'COMMUNITY_ATLAS'
-WHERE Type = 'TECH_SAILING';
-
-UPDATE Technologies
-SET PortraitIndex = '26'
-WHERE Type = 'TECH_SAILING';
-
--- Rename Optics 'Sailing'
-
-UPDATE Technologies
-SET PortraitIndex = '13'
-WHERE Type = 'TECH_OPTICS';
-
 -- Future Tech
 UPDATE Technologies
 SET Happiness = '1'
@@ -158,19 +100,11 @@ WHERE Type = 'TECH_FUTURE_TECH';
 
 -- Road/Railroad Speed Changes
 UPDATE Routes
-SET Movement = '50'
+SET Movement = '50', FlatMovement = '50'
 WHERE Type = 'ROUTE_ROAD';
 
 UPDATE Routes
-SET FlatMovement = '50'
-WHERE Type = 'ROUTE_ROAD';
-
-UPDATE Routes
-SET Movement = '25'
-WHERE Type = 'ROUTE_RAILROAD';
-
-UPDATE Routes
-SET FlatMovement = '25'
+SET Movement = '25', FlatMovement = '25'
 WHERE Type = 'ROUTE_RAILROAD';
 
 -- Bombard Changes
@@ -185,59 +119,31 @@ UPDATE Technologies SET BombardRange=1 WHERE Type='TECH_AGRICULTURE';
 -- TR Food/Production Scaling
 
 UPDATE Eras
-SET TradeRouteFoodBonusTimes100 = '100'
+SET TradeRouteFoodBonusTimes100 = '100', TradeRouteProductionBonusTimes100 = '100'
 WHERE Type = 'ERA_CLASSICAL';
 
 UPDATE Eras
-SET TradeRouteProductionBonusTimes100 = '100'
-WHERE Type = 'ERA_CLASSICAL';
-
-UPDATE Eras
-SET TradeRouteFoodBonusTimes100 = '200'
+SET TradeRouteFoodBonusTimes100 = '200', TradeRouteProductionBonusTimes100 = '200'
 WHERE Type = 'ERA_MEDIEVAL';
 
 UPDATE Eras
-SET TradeRouteProductionBonusTimes100 = '200'
-WHERE Type = 'ERA_MEDIEVAL';
-
-UPDATE Eras
-SET TradeRouteFoodBonusTimes100 = '400'
+SET TradeRouteFoodBonusTimes100 = '400', TradeRouteProductionBonusTimes100 = '400'
 WHERE Type = 'ERA_RENAISSANCE';
 
 UPDATE Eras
-SET TradeRouteProductionBonusTimes100 = '400'
-WHERE Type = 'ERA_RENAISSANCE';
-
-UPDATE Eras
-SET TradeRouteFoodBonusTimes100 = '600'
+SET TradeRouteFoodBonusTimes100 = '600', TradeRouteProductionBonusTimes100 = '600'
 WHERE Type = 'ERA_INDUSTRIAL';
 
 UPDATE Eras
-SET TradeRouteProductionBonusTimes100 = '600'
-WHERE Type = 'ERA_INDUSTRIAL';
-
-UPDATE Eras
-SET TradeRouteFoodBonusTimes100 = '800'
+SET TradeRouteFoodBonusTimes100 = '800', TradeRouteProductionBonusTimes100 = '800'
 WHERE Type = 'ERA_MODERN';
 
 UPDATE Eras
-SET TradeRouteProductionBonusTimes100 = '800'
-WHERE Type = 'ERA_MODERN';
-
-UPDATE Eras
-SET TradeRouteFoodBonusTimes100 = '1000'
+SET TradeRouteFoodBonusTimes100 = '1000', TradeRouteProductionBonusTimes100 = '1000'
 WHERE Type = 'ERA_POSTMODERN';
 
 UPDATE Eras
-SET TradeRouteProductionBonusTimes100 = '1000'
-WHERE Type = 'ERA_POSTMODERN';
-
-UPDATE Eras
-SET TradeRouteFoodBonusTimes100 = '1200'
-WHERE Type = 'ERA_FUTURE';
-
-UPDATE Eras
-SET TradeRouteProductionBonusTimes100 = '1200'
+SET TradeRouteFoodBonusTimes100 = '1200', TradeRouteProductionBonusTimes100 = '1200'
 WHERE Type = 'ERA_FUTURE';
 
 -- Tech Prereqs // NOTE THAT CORPORATIONS.SQL ALSO ALTERS THIS

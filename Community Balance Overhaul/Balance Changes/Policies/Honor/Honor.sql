@@ -1,61 +1,34 @@
 -- Shift Policies Around
 UPDATE Policies
-SET GridX = '4'
+SET GridX = '4', GridY = '1'
 WHERE Type = 'POLICY_MILITARY_TRADITION';
 
 UPDATE Policies
-SET GridY = '1'
-WHERE Type = 'POLICY_MILITARY_TRADITION';
-
-UPDATE Policies
-SET GridX = '2'
+SET GridX = '2', GridY = '1'
 WHERE Type = 'POLICY_DISCIPLINE';
 
 UPDATE Policies
-SET GridY = '1'
-WHERE Type = 'POLICY_DISCIPLINE';
-
-UPDATE Policies
-SET GridX = '2'
-WHERE Type = 'POLICY_WARRIOR_CODE';
-
-UPDATE Policies
-SET GridY = '2'
+SET GridX = '2', GridY = '2'
 WHERE Type = 'POLICY_WARRIOR_CODE';
 
 DELETE FROM Policy_PrereqPolicies
-WHERE PrereqPolicy = 'POLICY_MILITARY_TRADITION';
-
-DELETE FROM Policy_PrereqPolicies
-WHERE PrereqPolicy = 'POLICY_WARRIOR_CODE';
-
-DELETE FROM Policy_PrereqPolicies
-WHERE PrereqPolicy = 'POLICY_DISCIPLINE';
+WHERE PrereqPolicy IN 
+('POLICY_MILITARY_TRADITION',
+'POLICY_WARRIOR_CODE',
+'POLICY_DISCIPLINE');
 
 -- Honor 
 UPDATE Policies
-SET CultureFromBarbarianKills = '0'
-WHERE Type = 'POLICY_HONOR';
-
-UPDATE Policies
-SET CultureFromKills = '100'
-WHERE Type = 'POLICY_HONOR';
-
-UPDATE Policies
-SET BarbarianCombatBonus = '25'
+SET CultureFromBarbarianKills = '0', CultureFromKills = '100', BarbarianCombatBonus = '25'
 WHERE Type = 'POLICY_HONOR';
 
 -- Warrior Code (Now Imperialism)
 UPDATE Policies
-SET GreatGeneralRateModifier = '0'
+SET GreatGeneralRateModifier = '0', IncludesOneShotFreeUnits = '1'
 WHERE Type = 'POLICY_WARRIOR_CODE';
 
 DELETE FROM Policy_UnitCombatProductionModifiers
 WHERE PolicyType = 'POLICY_WARRIOR_CODE';
-
-UPDATE Policies
-SET IncludesOneShotFreeUnits = '1'
-WHERE Type = 'POLICY_WARRIOR_CODE';
 
 DELETE FROM Policy_FreeUnitClasses
 WHERE PolicyType = 'POLICY_WARRIOR_CODE';
@@ -70,37 +43,17 @@ WHERE Type = 'POLICY_DISCIPLINE';
 
 -- Military Tradition (Now Dominance)
 UPDATE Policies
-SET ExpModifier = '0'
-WHERE Type = 'POLICY_MILITARY_TRADITION';
-
-UPDATE Policies
-SET ExtraSupplyPerPopulation = '10'
+SET ExpModifier = '0', ExtraSupplyPerPopulation = '10'
 WHERE Type = 'POLICY_MILITARY_TRADITION';
 
 -- Military Caste (Now Honor)
 UPDATE Policies
-SET CulturePerGarrisonedUnit = '2'
-WHERE Type = 'POLICY_MILITARY_CASTE';
-
-UPDATE Policies
-SET PortraitIndex = '22'
-WHERE Type = 'POLICY_MILITARY_CASTE';
-
-UPDATE Policies
-SET HappinessPerGarrisonedUnit = '1'
-WHERE Type = 'POLICY_MILITARY_CASTE';
-
-UPDATE Policies
-SET UnitGoldMaintenanceMod = '-15'
-WHERE Type = 'POLICY_MILITARY_CASTE';
-
-UPDATE Policies
-SET RouteGoldMaintenanceMod = '-50'
+SET CulturePerGarrisonedUnit = '2', PortraitIndex = '22', HappinessPerGarrisonedUnit = '1', UnitGoldMaintenanceMod = '-15', RouteGoldMaintenanceMod = '-50'
 WHERE Type = 'POLICY_MILITARY_CASTE';
 
 -- Professional Army (Now Heroism)
 UPDATE Policies
-SET UnitUpgradeCostMod = '0'
+SET UnitUpgradeCostMod = '0', WarWearinessModifier = '25', XPopulationConscription = '10', PortraitIndex = '20'
 WHERE Type = 'POLICY_PROFESSIONAL_ARMY';
 
 DELETE FROM Policy_BuildingClassProductionModifiers
@@ -109,18 +62,6 @@ WHERE PolicyType = 'POLICY_PROFESSIONAL_ARMY';
 UPDATE Policy_BuildingClassProductionModifiers
 SET ProductionModifier = '0'
 WHERE PolicyType = 'POLICY_PROFESSIONAL_ARMY';
-
-UPDATE Policies
-SET PortraitIndex = '20'
-WHERE Type = 'POLICY_PROFESSIONAL_ARMY';
-
-UPDATE Policies
-SET XPopulationConscription = '10'
-WHERE Type = 'POLICY_PROFESSIONAL_ARMY';
-
-UPDATE Policies
-SET WarWearinessModifier = '25'
-WHERE Type = 'POLICY_PROFESSIONAL_ARMY';
 
 -- Finisher
 
@@ -140,16 +81,17 @@ WHERE Type = 'POLICY_HONOR_FINISHER';
 -- Mercenary Army 
 -- Free Company and Mercenaries are added in NewUnits.sql (strength, cost, promotions, etc)
 -- Foreign Legion: Cost and Combat are balanced in UnitCosts.sql and UnitCombat.sql; Unit-Class Promotions added in MeleeCombat.sql)
-UPDATE Units SET Class = 'UNITCLASS_RIFLEMAN'						WHERE Type = 'UNIT_FRENCH_FOREIGNLEGION';
-UPDATE Units SET PrereqTech = 'TECH_RIFLING'						WHERE Type = 'UNIT_FRENCH_FOREIGNLEGION';
-UPDATE Units SET ObsoleteTech = 'TECH_PENICILIN' 					WHERE Type = 'UNIT_FRENCH_FOREIGNLEGION';
-UPDATE Units SET DefaultUnitAI = 'UNITAI_ATTACK'					WHERE Type = 'UNIT_FRENCH_FOREIGNLEGION';
-UPDATE Units SET PolicyType = 'POLICY_HONOR_FINISHER'				WHERE Type = 'UNIT_FRENCH_FOREIGNLEGION';
-UPDATE Units SET PurchaseOnly = '1' 								WHERE Type = 'UNIT_FRENCH_FOREIGNLEGION';
-UPDATE Units SET RequiresFaithPurchaseEnabled = '0'					WHERE Type = 'UNIT_FRENCH_FOREIGNLEGION';
-UPDATE Units SET FaithCost = '0' 									WHERE Type = 'UNIT_FRENCH_FOREIGNLEGION';
-UPDATE Units SET MoveAfterPurchase = '1'							WHERE Type = 'UNIT_FRENCH_FOREIGNLEGION';
-UPDATE Units SET GoodyHutUpgradeUnitClass = 'UNITCLASS_GREAT_WAR_INFANTRY' 	WHERE Type = 'UNIT_FRENCH_FOREIGNLEGION';
+UPDATE Units SET Class = 'UNITCLASS_RIFLEMAN',						
+PrereqTech = 'TECH_RIFLING',						
+ObsoleteTech = 'TECH_PENICILIN', 					
+DefaultUnitAI = 'UNITAI_ATTACK',					
+PolicyType = 'POLICY_HONOR_FINISHER',				
+PurchaseOnly = '1', 								
+RequiresFaithPurchaseEnabled = '0',					
+FaithCost = '0', 									
+MoveAfterPurchase = '1',							
+GoodyHutUpgradeUnitClass = 'UNITCLASS_GREAT_WAR_INFANTRY' 	
+WHERE Type = 'UNIT_FRENCH_FOREIGNLEGION';
 
 UPDATE Unit_ClassUpgrades SET UnitClassType = 'UNITCLASS_GREAT_WAR_INFANTRY' WHERE UnitType = 'UNIT_FRENCH_FOREIGNLEGION';
 

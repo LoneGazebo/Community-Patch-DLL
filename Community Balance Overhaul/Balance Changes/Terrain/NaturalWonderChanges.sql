@@ -42,20 +42,21 @@ UPDATE Natural_Wonder_Placement SET OccurrenceFrequency = 20 WHERE NaturalWonder
 
 UPDATE Features SET AddsFreshWater = '1' WHERE Type = 'FEATURE_FOUNTAIN_YOUTH';
 
-UPDATE Features SET InBorderHappiness = '0' WHERE Type = 'FEATURE_FOUNTAIN_YOUTH';
-UPDATE Features SET InBorderHappiness = '0' WHERE Type = 'FEATURE_GEYSER';
-UPDATE Features SET InBorderHappiness = '0' WHERE Type = 'FEATURE_SRI_PADA';
-UPDATE Features SET InBorderHappiness = '0' WHERE Type = 'FEATURE_MT_KAILASH';
+UPDATE Features SET InBorderHappiness = '0' WHERE Type IN 
+('FEATURE_FOUNTAIN_YOUTH', 
+'FEATURE_GEYSER',
+'FEATURE_SRI_PADA',
+'FEATURE_MT_KAILASH');
 
-UPDATE Features SET NoImprovement = '0' WHERE Type = 'FEATURE_REEF';
-UPDATE Features SET OccurrenceFrequency = '25' WHERE Type = 'FEATURE_REEF';
+UPDATE Features SET NoImprovement = '0', OccurrenceFrequency = '25' WHERE Type = 'FEATURE_REEF';
 
 UPDATE Features SET AddsFreshWater = '1' WHERE Type = 'FEATURE_LAKE_VICTORIA';
 
 UPDATE Features SET FirstFinderGold = '0' WHERE Type = 'FEATURE_EL_DORADO';
 
-UPDATE Features SET AdjacentUnitFreePromotion = NULL WHERE Type = 'FEATURE_KILIMANJARO';
-UPDATE Features SET AdjacentUnitFreePromotion = NULL WHERE Type = 'FEATURE_FOUNTAIN_YOUTH';
+UPDATE Features SET AdjacentUnitFreePromotion = NULL WHERE Type IN 
+('FEATURE_KILIMANJARO',
+'FEATURE_FOUNTAIN_YOUTH');
 
 UPDATE Features SET FreePromotionIfOwned = 'PROMOTION_SACRED_STEPS' WHERE Type = 'FEATURE_SRI_PADA';
 UPDATE Features SET FreePromotionIfOwned = 'PROMOTION_EVERLASTING_YOUTH' WHERE Type = 'FEATURE_FOUNTAIN_YOUTH';
@@ -65,27 +66,26 @@ UPDATE Features SET Help = 'TXT_KEY_CIV5_FEATURES_EL_DORADO_HELP' WHERE Type = '
 UPDATE Features SET Help = 'TXT_KEY_CIV5_FEATURES_FOUNTAIN_YOUTH_HELP' WHERE Type = 'FEATURE_FOUNTAIN_YOUTH';
 UPDATE Features SET Help = NULL WHERE Type = 'FEATURE_EL_DORADO';
 
-DELETE FROM Feature_YieldChanges WHERE FeatureType = 'FEATURE_FOUNTAIN_YOUTH';
-DELETE FROM Feature_YieldChanges WHERE FeatureType = 'FEATURE_LAKE_VICTORIA';
-DELETE FROM Feature_YieldChanges WHERE FeatureType = 'FEATURE_SRI_PADA';
-DELETE FROM Feature_YieldChanges WHERE FeatureType = 'FEATURE_SOLOMONS_MINES';
-DELETE FROM Feature_YieldChanges WHERE FeatureType = 'FEATURE_MESA';
-DELETE FROM Feature_YieldChanges WHERE FeatureType = 'FEATURE_REEF';
-DELETE FROM Feature_YieldChanges WHERE FeatureType = 'FEATURE_GIBRALTAR';
-DELETE FROM Feature_YieldChanges WHERE FeatureType = 'FEATURE_POTOSI';
-DELETE FROM Feature_YieldChanges WHERE FeatureType = 'FEATURE_EL_DORADO';
-DELETE FROM Feature_YieldChanges WHERE FeatureType = 'FEATURE_CRATER';
-DELETE FROM Feature_YieldChanges WHERE FeatureType = 'FEATURE_VOLCANO';
-DELETE FROM Feature_YieldChanges WHERE FeatureType = 'FEATURE_GEYSER';
-DELETE FROM Feature_YieldChanges WHERE FeatureType = 'FEATURE_KILIMANJARO';
-DELETE FROM Feature_YieldChanges WHERE FeatureType = 'FEATURE_FUJI';
-DELETE FROM Feature_YieldChanges WHERE FeatureType = 'FEATURE_ULURU';
-DELETE FROM Feature_YieldChanges WHERE FeatureType = 'FEATURE_MT_SINAI';
-DELETE FROM Feature_YieldChanges WHERE FeatureType = 'FEATURE_MT_KAILASH';
+DELETE FROM Feature_YieldChanges; -- ALL ARE DELETED AND REBUILT HERE
 
 INSERT INTO Feature_YieldChanges
 	(FeatureType, YieldType, Yield)
 VALUES
+ ('FEATURE_LAKE', 'YIELD_FOOD', 2),
+ ('FEATURE_LAKE', 'YIELD_GOLD', 1),
+ ('FEATURE_FALLOUT', 'YIELD_FOOD', -3),
+ ('FEATURE_FALLOUT', 'YIELD_PRODUCTION', -3),
+ ('FEATURE_FALLOUT', 'YIELD_GOLD', -3),
+
+ ('FEATURE_ATOLL', 'YIELD_PRODUCTION', 2),
+ ('FEATURE_ATOLL', 'YIELD_FOOD', 2),
+ ('FEATURE_FLOOD_PLAINS', 'YIELD_FOOD', 3),
+ ('FEATURE_FOREST', 'YIELD_PRODUCTION', 1),
+ ('FEATURE_JUNGLE', 'YIELD_FOOD', 1),
+ ('FEATURE_MARSH', 'YIELD_FOOD', 1),
+ ('FEATURE_OASIS', 'YIELD_GOLD', 2),
+ ('FEATURE_OASIS', 'YIELD_FOOD', 3),
+-- Wonders
  ('FEATURE_POTOSI', 'YIELD_PRODUCTION', 2),
  ('FEATURE_POTOSI', 'YIELD_GOLD', 6),
  ('FEATURE_EL_DORADO', 'YIELD_GOLD', 8),

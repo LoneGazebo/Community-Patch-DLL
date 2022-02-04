@@ -1,12 +1,13 @@
 -- CIVILIANS AND GREAT PEOPLE
 
-	UPDATE Units SET PurchaseCooldown =     5  WHERE Type = 'UNIT_CARAVAN';
-	UPDATE Units SET PurchaseCooldown =     5  WHERE Type = 'UNIT_CARGO_SHIP';
-	UPDATE Units SET PurchaseCooldown =     5  WHERE Type = 'UNIT_WORKER';
-	UPDATE Units SET PurchaseCooldown =     5  WHERE Type = 'UNIT_SETTLER';
-	UPDATE Units SET PurchaseCooldown =     5  WHERE Type = 'UNIT_PIONEER';
-	UPDATE Units SET PurchaseCooldown =     5  WHERE Type = 'UNIT_COLONIST';
-	UPDATE Units SET PurchaseCooldown =     5  WHERE Type = 'UNIT_WORKBOAT';
+	UPDATE Units SET PurchaseCooldown = 5  WHERE Type IN 
+	('UNIT_CARAVAN',
+	'UNIT_CARGO_SHIP',
+	'UNIT_WORKER',
+	'UNIT_SETTLER',
+	'UNIT_PIONEER',
+	'UNIT_COLONIST',
+	'UNIT_WORKBOAT');
 	
 
 	-- Moved SS Parts to last 4 techs - makes Science Victory as difficult as other victories.
@@ -14,16 +15,11 @@
 	UPDATE Units SET PrereqTech = 'TECH_GLOBALIZATION' WHERE Type = 'UNIT_SS_COCKPIT';
 
 	-- Caravans moved to Pottery
-	UPDATE Units SET PrereqTech = 'TECH_HORSEBACK_RIDING' WHERE Type = 'UNIT_CARAVAN';
-	UPDATE Units SET MilitarySupport = '0' WHERE Type = 'UNIT_CARAVAN';
-
+	UPDATE Units SET PrereqTech = 'TECH_HORSEBACK_RIDING', MilitarySupport = '0', ProductionCostAddedPerEra = '75' WHERE Type = 'UNIT_CARAVAN';
+	
 	-- Cargo Ship -- Move to Optics
 
-	UPDATE Units SET PrereqTech = 'TECH_OPTICS' WHERE Type = 'UNIT_CARGO_SHIP';
-	UPDATE Units SET MilitarySupport = '0' WHERE Type = 'UNIT_CARGO_SHIP';
-
-	UPDATE Units SET ProductionCostAddedPerEra = '75' WHERE Type = 'UNIT_CARGO_SHIP';
-	UPDATE Units SET ProductionCostAddedPerEra = '75' WHERE Type = 'UNIT_CARAVAN';
+	UPDATE Units SET PrereqTech = 'TECH_OPTICS', MilitarySupport = '0', ProductionCostAddedPerEra = '75' WHERE Type = 'UNIT_CARGO_SHIP';
 
 	-- Settler moved to Pottery
 	UPDATE Units SET PrereqTech = 'TECH_POTTERY' WHERE Type = 'UNIT_SETTLER';
@@ -34,47 +30,30 @@
 	-- Great Prophets no longer capturable
 	UPDATE Units Set Capture = NULL WHERE Type = 'UNIT_PROPHET';
 
-	-- Great Writer culture boost lowered slightly.
+	-- Great Writer culture boost lowered slightly, added scaling bonus for num owned GWS
+	UPDATE Units SET BaseCultureTurnsToCount = '5', ScaleFromNumGWs = '3' WHERE Type = 'UNIT_WRITER';
 
-	UPDATE Units SET BaseCultureTurnsToCount = '5' WHERE Type = 'UNIT_WRITER';
-
-	-- Writer added scaling bonus for num owned GWS
-	UPDATE Units SET ScaleFromNumGWs = '3' WHERE Type = 'UNIT_WRITER';
 
 	-- Great Scientist science boost lowered slightly.
-
 	UPDATE Units SET BaseBeakersTurnsToCount = '3' WHERE Type = 'UNIT_SCIENTIST';
 
 	-- Admiral movement buff, ability addition
-	UPDATE Units SET Moves = '5' WHERE Type = 'UNIT_GREAT_ADMIRAL';
-
-	UPDATE Units SET NumFreeLux = '2' WHERE Type = 'UNIT_GREAT_ADMIRAL';
+	UPDATE Units SET Moves = '5', NumFreeLux = '2' WHERE Type = 'UNIT_GREAT_ADMIRAL';
 
 	-- Merchant gold boosted, CS ability buff
-
 	UPDATE Units SET NumGoldPerEra = '150' WHERE Type = 'UNIT_MERCHANT';
 
-	-- Reduced base golden age turns of artist 
-	UPDATE Units SET GoldenAgeTurns = '0' WHERE Type = 'UNIT_ARTIST';
-	UPDATE Units SET BaseTurnsForGAPToCount = '10' WHERE Type = 'UNIT_ARTIST';
-	-- Writer added scaling bonus for num themed GWs
-	UPDATE Units SET ScaleFromNumThemes = '20' WHERE Type = 'UNIT_ARTIST';
+	-- Reduced base golden age turns of artist, added scaling bonus for num themed GWs
+	UPDATE Units SET GoldenAgeTurns = '0', BaseTurnsForGAPToCount = '10', ScaleFromNumThemes = '20' WHERE Type = 'UNIT_ARTIST';
 
 	-- Engineer production boost nerfed slightly.
-
-	UPDATE Units SET BaseHurry = '100' WHERE Type = 'UNIT_ENGINEER';
-
-	UPDATE Units SET HurryMultiplier = '20' WHERE Type = 'UNIT_ENGINEER';
+	UPDATE Units SET BaseHurry = '100', HurryMultiplier = '20' WHERE Type = 'UNIT_ENGINEER';
 
 	-- Musician changes
-	UPDATE Units SET OneShotTourismPercentOthers = '0' WHERE Type = 'UNIT_MUSICIAN';
-	UPDATE Units SET OneShotTourism = '0' WHERE Type = 'UNIT_MUSICIAN';
-	UPDATE Units SET TourismBonusTurns = '10' WHERE Type = 'UNIT_MUSICIAN';
+	UPDATE Units SET OneShotTourismPercentOthers = '0', OneShotTourism = '0', TourismBonusTurns = '10' WHERE Type = 'UNIT_MUSICIAN';
 
 	-- work boat sight penalty
-	UPDATE Units SET BaseSightRange = '1' WHERE Type = 'UNIT_WORKBOAT';
-	UPDATE Units SET Moves = '2' WHERE Type = 'UNIT_WORKBOAT';
-	UPDATE Units SET MilitarySupport = '0' WHERE Type = 'UNIT_WORKBOAT';
+	UPDATE Units SET BaseSightRange = '1', Moves = '2', MilitarySupport = '0' WHERE Type = 'UNIT_WORKBOAT';
 
 	UPDATE Units
 	SET RequiresFaithPurchaseEnabled = '1'
@@ -92,39 +71,6 @@ VALUES
 	('UNIT_MERCHANT', 'IMPROVEMENT_CUSTOMS_HOUSE', '25'),
 	('UNIT_VENETIAN_MERCHANT', 'IMPROVEMENT_CUSTOMS_HOUSE', '25');
 
-INSERT INTO Unit_AITypes
-	(UnitType, UnitAIType)
-VALUES
-	('UNIT_GATLINGGUN', 'UNITAI_RANGED'),
-	('UNIT_BAZOOKA', 'UNITAI_RANGED'),
-	('UNIT_IRONCLAD', 'UNITAI_EXPLORE_SEA'),
-	('UNIT_MISSILE_CRUISER', 'UNITAI_EXPLORE_SEA'),
---	('UNIT_FRIGATE', 'UNITAI_EXPLORE_SEA'),
---	('UNIT_ENGLISH_SHIPOFTHELINE', 'UNITAI_EXPLORE_SEA'),
---	('UNIT_BATTLESHIP', 'UNITAI_EXPLORE_SEA'),
---	('UNIT_BYZANTINE_DROMON', 'UNITAI_EXPLORE_SEA'),
---	('UNIT_GALLEASS', 'UNITAI_EXPLORE_SEA'),
---	('UNIT_VENETIAN_GALLEASS', 'UNITAI_EXPLORE_SEA'),
---	('UNIT_CRUISER', 'UNITAI_EXPLORE_SEA'),
--- add missing explore to melee units
-	('UNIT_BARBARIAN_SWORDSMAN', 'UNITAI_EXPLORE'),
-	('UNIT_DANISH_BERSERKER', 'UNITAI_EXPLORE'),
-	('UNIT_FCOMPANY', 'UNITAI_EXPLORE'),
-	('UNIT_FCOMPANY', 'UNITAI_COUNTER'),
-	('UNIT_IROQUOIAN_MOHAWKWARRIOR', 'UNITAI_EXPLORE'),
-	('UNIT_KRIS_SWORDSMAN', 'UNITAI_EXPLORE'),
-	('UNIT_LONGSWORDSMAN', 'UNITAI_EXPLORE'),	
-	('UNIT_ROMAN_LEGION', 'UNITAI_EXPLORE'),
-	('UNIT_SWORDSMAN', 'UNITAI_EXPLORE'),
--- add attack to armor to boost AI recruitment
-	('UNIT_WWI_TANK', 'UNITAI_ATTACK'),
-	('UNIT_TANK', 'UNITAI_ATTACK'),
-	('UNIT_GERMAN_PANZER', 'UNITAI_ATTACK'),
-	('UNIT_MODERN_ARMOR', 'UNITAI_ATTACK'),
-	('UNIT_MECH', 'UNITAI_DEFENSE');
-
-
-
 INSERT INTO Missions
 	(Type, Description, Help, DisabledHelp, EntityEventType, Time, Target, Build, Sound, HotKey, AltDown, ShiftDown, CtrlDown, HotKeyPriority, HotKeyAlt, AltDownAlt, ShiftDownAlt, CtrlDownAlt, HotKeyPriorityAlt, OrderPriority, Visible, IconIndex, IconAtlas)
 VALUES
@@ -133,8 +79,7 @@ VALUES
 -- All civs start with a pathfinder
 
 --Replace Starting Warrior with a Pathfinder
-UPDATE Eras SET StartingDefenseUnits='1' Where Type='ERA_ANCIENT';
-UPDATE Eras SET StartingExploreUnits='1' Where Type='ERA_ANCIENT';
+UPDATE Eras SET StartingDefenseUnits = '1', StartingExploreUnits = '1' WHERE Type='ERA_ANCIENT';
 
 --Assigns UnitCombatInfos to civilian units -- Can now grant production bonuses and free promotions via buildings, traits and policies
 INSERT INTO UnitCombatInfos  	
@@ -148,9 +93,7 @@ VALUES
 	('UNITCOMBAT_INQUISITOR',	'TXT_KEY_UNITCOMBAT_INQUISITOR'),
 	('UNITCOMBAT_MISSIONARY',	'TXT_KEY_UNITCOMBAT_MISSIONARY');
 	
-UPDATE Units SET CombatClass = 'UNITCOMBAT_SETTLER' WHERE Type = 'UNIT_SETTLER';
-UPDATE Units SET CombatClass = 'UNITCOMBAT_SETTLER' WHERE Type = 'UNIT_PIONEER';
-UPDATE Units SET CombatClass = 'UNITCOMBAT_SETTLER' WHERE Type = 'UNIT_COLONIST';
+UPDATE Units SET CombatClass = 'UNITCOMBAT_SETTLER' WHERE Type IN ('UNIT_SETTLER', 'UNIT_PIONEER', 'UNIT_COLONIST');
 UPDATE Units SET CombatClass = 'UNITCOMBAT_WORKER' WHERE Type = 'UNIT_WORKER';
 UPDATE Units SET CombatClass = 'UNITCOMBAT_WORKBOAT' WHERE Type = 'UNIT_WORKBOAT';
 UPDATE Units SET CombatClass = 'UNITCOMBAT_CARGO' WHERE Type = 'UNIT_CARGO_SHIP';

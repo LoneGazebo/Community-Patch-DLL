@@ -14,19 +14,7 @@ WHERE PolicyType = 'POLICY_COMMERCE';
 
 -- Wagon Trains (now Turnpikes)
 UPDATE Policies
-SET LandTradeRouteGoldChange = '500'
-WHERE Type = 'POLICY_CARAVANS';
-
-UPDATE Policies
-SET SeaTradeRouteGoldChange = '500'
-WHERE Type = 'POLICY_CARAVANS';
-
-UPDATE Policies
-SET RouteGoldMaintenanceMod = '0'
-WHERE Type = 'POLICY_CARAVANS';
-
-UPDATE Policies
-SET GreatMerchantRateModifier = '50'
+SET LandTradeRouteGoldChange = '500', SeaTradeRouteGoldChange = '500', RouteGoldMaintenanceMod = '0', GreatMerchantRateModifier = '50'
 WHERE Type = 'POLICY_CARAVANS';
 
 -- Mercantilism (the same)
@@ -43,54 +31,18 @@ WHERE PolicyType = 'POLICY_MERCANTILISM';
 
 -- Trade Unions
 UPDATE Policies
-SET PortraitIndex = '6'
-WHERE Type = 'POLICY_TRADE_UNIONS';
-
-UPDATE Policies
-SET IconAtlas = 'POLICY_ATLAS_EXP2'
-WHERE Type = 'POLICY_TRADE_UNIONS';
-
-UPDATE Policies
-SET IconAtlasAchieved = 'POLICY_A_ATLAS_EXP2'
+SET PortraitIndex = '6', IconAtlas = 'POLICY_ATLAS_EXP2', IconAtlasAchieved = 'POLICY_A_ATLAS_EXP2'
 WHERE Type = 'POLICY_TRADE_UNIONS';
 
 -- Entrepreneurship
 
 UPDATE Policies
-SET TradeMissionGoldModifier = '0'
+SET TradeMissionGoldModifier = '0', GreatMerchantRateModifier = '0', EmbarkedExtraMoves = '0', GreatEngineerHurryModifier = '25', TradeMissionGoldModifier = '25'
 WHERE Type = 'POLICY_ENTREPRENEURSHIP';
-  
-UPDATE Policies
-SET GreatMerchantRateModifier = '0'
-WHERE Type = 'POLICY_ENTREPRENEURSHIP';
-
-UPDATE Policies
-SET EmbarkedExtraMoves = '0'
-WHERE Type = 'POLICY_ENTREPRENEURSHIP';
- 
-UPDATE Policies
-SET GreatEngineerHurryModifier = '25'
-WHERE Type = 'POLICY_ENTREPRENEURSHIP';
-
-UPDATE Policies
-SET TradeMissionGoldModifier = '25'
-WHERE Type = 'POLICY_ENTREPRENEURSHIP';
-  
+    
 -- Protectionism
 UPDATE Policies
-SET FreeTradeRoute = '0'
-WHERE Type = 'POLICY_PROTECTIONISM';
-
-UPDATE Policies
-SET ExtraHappinessPerLuxury = '0'
-WHERE Type = 'POLICY_PROTECTIONISM';
-
-UPDATE Policies
-SET InternalTradeRouteYieldModifier = '33'
-WHERE Type = 'POLICY_PROTECTIONISM';
-
-UPDATE Policies
-SET InvestmentModifier = '-10'
+SET FreeTradeRoute = '0', ExtraHappinessPerLuxury = '0', InternalTradeRouteYieldModifier = '33', InvestmentModifier = '-10'
 WHERE Type = 'POLICY_PROTECTIONISM';
 
 -- Finisher

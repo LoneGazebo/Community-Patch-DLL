@@ -5,11 +5,7 @@ WHERE Type = 'POLICY_BRANCH_PATRONAGE';
 
 -- Opener
 UPDATE Policies
-SET MinorFriendshipMinimum = '0'
-WHERE Type = 'POLICY_PATRONAGE';
-
-UPDATE Policies
-SET MinorFriendshipDecayMod = '0'
+SET MinorFriendshipMinimum = '0', MinorFriendshipDecayMod = '0'
 WHERE Type = 'POLICY_PATRONAGE';
 
 INSERT INTO Policy_CapitalYieldPerPopChangeEmpire
@@ -36,56 +32,12 @@ VALUES
 -- Philanthropy
 
 UPDATE Policies
-SET MinorScienceAllies = '0'
-WHERE Type = 'POLICY_PHILANTHROPY';
-
-UPDATE Policies
-SET MissionInfluenceModifier = '10'
-WHERE Type = 'POLICY_PHILANTHROPY';
-
-UPDATE Policies
-SET MinorGoldFriendshipMod = '0'
-WHERE Type = 'POLICY_PHILANTHROPY';
-
-UPDATE Policies
-SET TradeRouteTourismModifier = '15'
-WHERE Type = 'POLICY_PHILANTHROPY';
-
-UPDATE Policies
-SET PortraitIndex = '39'
-WHERE Type = 'POLICY_PHILANTHROPY';
-
-UPDATE Policies
-SET IncreasedQuestRewards = '50'
-WHERE Type = 'POLICY_PHILANTHROPY';
-
-UPDATE Policies
-SET FreeSpy = '1'
+SET MinorScienceAllies = '0', MissionInfluenceModifier = '10', MinorGoldFriendshipMod = '0', TradeRouteTourismModifier = '15', PortraitIndex = '39', IncreasedQuestRewards = '50', FreeSpy = '1'
 WHERE Type = 'POLICY_PHILANTHROPY';
 
 -- Consulates
 UPDATE Policies
-SET MissionInfluenceModifier = '10'
-WHERE Type = 'POLICY_CONSULATES';
-
-UPDATE Policies
-SET MinorFriendshipMinimum = '0'
-WHERE Type = 'POLICY_CONSULATES';
-
-UPDATE Policies
-SET FreeWCVotes = '1'
-WHERE Type = 'POLICY_CONSULATES';
-
-UPDATE Policies
-SET EventTourismCS = '4'
-WHERE Type = 'POLICY_CONSULATES';
-
-UPDATE Policies
-SET GridX = '2'
-WHERE Type = 'POLICY_CONSULATES';
-
-UPDATE Policies
-SET GridY = '3'
+SET MissionInfluenceModifier = '10', MinorFriendshipMinimum = '0', FreeWCVotes = '1', EventTourismCS = '4', GridX = '2', GridY = '3'
 WHERE Type = 'POLICY_CONSULATES';
 
 DELETE FROM Policy_PrereqPolicies
@@ -93,15 +45,7 @@ WHERE PolicyType = 'POLICY_CONSULATES';
 
 -- Scholasticism
 UPDATE Policies
-SET MissionInfluenceModifier = '10'
-WHERE Type = 'POLICY_SCHOLASTICISM';
-
-UPDATE Policies
-SET MinorScienceAllies = '1'
-WHERE Type = 'POLICY_SCHOLASTICISM';
-
-UPDATE Policies
-SET PortraitIndex = '37'
+SET MissionInfluenceModifier = '10', MinorScienceAllies = '1', PortraitIndex = '37'
 WHERE Type = 'POLICY_SCHOLASTICISM';
 
 INSERT INTO Policy_YieldModifierFromActiveSpies
@@ -122,80 +66,28 @@ VALUES
 
 -- Cultural Diplomacy
 UPDATE Policies
-SET MissionInfluenceModifier = '10'
-WHERE Type = 'POLICY_CULTURAL_DIPLOMACY';
-
-UPDATE Policies
-SET MinorResourceBonus = '0'
+SET MissionInfluenceModifier = '10', MinorResourceBonus = '0', FreeTradeRoute = '1', HappinessPerActiveTradeRoute = '1', CSResourcesCountForMonopolies = '1', GridX = '4', GridY = '3'
 WHERE Type = 'POLICY_CULTURAL_DIPLOMACY';
 
 UPDATE Defines
 SET Value = '100'
 WHERE Name = 'MINOR_POLICY_RESOURCE_HAPPINESS_MULTIPLIER';
 
-UPDATE Policies
-SET FreeTradeRoute = '1'
-WHERE Type = 'POLICY_CULTURAL_DIPLOMACY';
-
-UPDATE Policies
-SET HappinessPerActiveTradeRoute = '1'
-WHERE Type = 'POLICY_CULTURAL_DIPLOMACY';
-
-UPDATE Policies
-SET CSResourcesCountForMonopolies = '1'
-WHERE Type = 'POLICY_CULTURAL_DIPLOMACY';
-
-UPDATE Policies
-SET GridX = '4'
-WHERE Type = 'POLICY_CULTURAL_DIPLOMACY';
-
-UPDATE Policies
-SET GridY = '3'
-WHERE Type = 'POLICY_CULTURAL_DIPLOMACY';
-
 DELETE FROM Policy_PrereqPolicies
 WHERE PolicyType = 'POLICY_CULTURAL_DIPLOMACY';
 
 -- Merchant Confederacy
 UPDATE Policies
-SET MissionInfluenceModifier = '10'
-WHERE Type = 'POLICY_MERCHANT_CONFEDERACY';
-
-UPDATE Policies
-SET CityStateTradeChange = '0'
-WHERE Type = 'POLICY_MERCHANT_CONFEDERACY';
-
-UPDATE Policies
-SET ProtectedMinorPerTurnInfluence = '100'
-WHERE Type = 'POLICY_MERCHANT_CONFEDERACY';
-
-UPDATE Policies
-SET GridX = '4'
-WHERE Type = 'POLICY_MERCHANT_CONFEDERACY';
-
-UPDATE Policies
-SET GridY = '1'
+SET MissionInfluenceModifier = '10', CityStateTradeChange = '0', ProtectedMinorPerTurnInfluence = '100', GridX = '4', GridY = '1', TradeRouteYieldModifier = '25', ExtraCultureandScienceTradeRoutes = '0'
 WHERE Type = 'POLICY_MERCHANT_CONFEDERACY';
 
 DELETE FROM Policy_PrereqPolicies
 WHERE PolicyType = 'POLICY_MERCHANT_CONFEDERACY';
 
-UPDATE Policies
-SET TradeRouteYieldModifier = '25'
-WHERE Type = 'POLICY_MERCHANT_CONFEDERACY';
-
-UPDATE Policies
-SET ExtraCultureandScienceTradeRoutes = '0'
-WHERE Type = 'POLICY_MERCHANT_CONFEDERACY';
-
 -- Finisher
 
 UPDATE Policies
-SET XCSAlliesLowersPolicyNeedWonders = '3'
-WHERE Type = 'POLICY_PATRONAGE_FINISHER';
-
-UPDATE Policies
-SET MinorGreatPeopleAllies = '0'
+SET XCSAlliesLowersPolicyNeedWonders = '3', MinorGreatPeopleAllies = '0'
 WHERE Type = 'POLICY_PATRONAGE_FINISHER';
 
 INSERT INTO Policy_YieldFromDelegateCount
