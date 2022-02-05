@@ -114,10 +114,11 @@ UPDATE Defines SET Value = '2' WHERE Name = 'MINOR_APPROACH_IGNORE_DEFAULT';
 UPDATE Defines SET Value = '20' WHERE Name = 'TURNS_SINCE_PEACE_WEIGHT_DAMPENER';
 
 
--- Approach Randomness [NOT YET FUNCTIONAL]
+-- Approach Randomness
 -- If set to a non-zero value, multiplies the weight for each *major civ* approach by (100 +/- n%), where n is a random number between 0 and APPROACH_RANDOM_PERCENT, then divides by 100.
--- Valid values are between 0 and 100. Higher values make the AI more erratic.
-UPDATE Defines SET Value = '0' WHERE Name = 'APPROACH_RANDOM_PERCENT';
+-- Default value is 5. Valid values are between 0 and 100. Higher values make the AI more erratic.
+-- This value is doubled if the Random Personalities game option is active.
+UPDATE Defines SET Value = '5' WHERE Name = 'APPROACH_RANDOM_PERCENT';
 
 
 -- C4DF Approach Values
