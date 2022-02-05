@@ -2,7 +2,7 @@
 <Mod id="6521c02b-1c78-4826-a5b0-faed86235e98" version="1">
   <Properties>
     <Name>(6c) 43 Civs Community Patch</Name>
-    <Teaser>(1.3.4) Supports up to 43 Major Civilizations</Teaser>
+    <Teaser>(1.4) Supports up to 43 Major Civilizations</Teaser>
     <Description>This version of the Community Patch supports up to 43 major civilizations. The maximum number of total players (civilizations and City-States) is 63.[NEWLINE][NEWLINE]
 Depending on which version has been installed, this mod contains one of the following:[NEWLINE]
 [ICON_BULLET]Compatibility Files for using the Community Patch on its own[NEWLINE]
@@ -22,7 +22,7 @@ If you downloaded this mod manually, see MANUAL INSTALL.txt for installation ins
     <ReloadUnitSystem>1</ReloadUnitSystem>
   </Properties>
   <Dependencies>
-    <Mod id="d1b6328c-ff44-4b0d-aad7-c657f83610cd" minversion="101" maxversion="999" title="(1) Community Patch" />
+    <Mod id="d1b6328c-ff44-4b0d-aad7-c657f83610cd" minversion="102" maxversion="999" title="(1) Community Patch" />
   </Dependencies>
   <References>
     <Mod id="be2d13ee-d18d-410e-8f04-7cd19cd99a98" minversion="156" maxversion="999" title="(5) More Luxuries for VP" />
@@ -32,7 +32,7 @@ If you downloaded this mod manually, see MANUAL INSTALL.txt for installation ins
     <Mod id="828b5b4b-7c62-4afb-a43f-034b596ef5e4" minversion="0" maxversion="999" title="(6b) Vox Populi - Compatibility Files (No-EUI)" />
   </Blocks>
   <Files>
-    <File md5="1E95C0C367049F5AD2458691813445CE" import="1">AssignStartingPlots.lua</File>
+    <File md5="2EDBE7B26D74161F057DE6E9443D6BEA" import="1">AssignStartingPlots.lua</File>
     <File md5="A9173FECA4709DD9F0B710A585D037EA" import="1">CP Only/ActionInfoPanel.lua</File>
     <File md5="314F159E85D3C21731FFB7FDBE86433A" import="1">CP Only/AdvancedSetup.lua</File>
     <File md5="69F25DAD4EA8EE636E3F286717D140D4" import="0">CP Only/AssignStartingPlots.lua</File>
@@ -72,7 +72,7 @@ If you downloaded this mod manually, see MANUAL INSTALL.txt for installation ins
     <File md5="BB747350C836F07517202090558A4CD3" import="1">CP Only/TradeRouteHelpers.lua</File>
     <File md5="5A87219957975A85A1D3CEDA1D98A835" import="1">CP Only/YieldIconManager.lua</File>
     <File md5="8FD4EF5AAB5BD6E16DB8EBE95963FC33" import="1">CP Only/YieldIconManager.xml</File>
-    <File md5="36677E58F6A50AAC98820D5D63CD9F60" import="1">CvGameCore_Expansion2.dll</File>
+    <File md5="85C48DA178A070EF8121567C63DB6408" import="1">CvGameCore_Expansion2.dll</File>
     <File md5="3F4B08D58AE727DF10D8A34BEC5F398E" import="1">EUI/ActionInfoPanel.lua</File>
     <File md5="314F159E85D3C21731FFB7FDBE86433A" import="1">EUI/AdvancedSetup.lua</File>
     <File md5="39C6A39E21DF6E10B666FA57FA502643" import="1">EUI/Bombardment.lua</File>
@@ -95,9 +95,9 @@ If you downloaded this mod manually, see MANUAL INSTALL.txt for installation ins
     <File md5="3F476A71188724BC528A087525301A9A" import="0">EUI/Corps/Corporations.sql</File>
     <File md5="F2B4529383B3A7F7AEC8F9CA82C9A83C" import="0">EUI/Corps/CorpText_en_US.sql</File>
     <File md5="2D81FF7BE803B6C99129AC24217018DA" import="0">EUI/Corps/CorpText_en_US.xml</File>
-    <File md5="B1EF0025F1C526FA8697CE2E9E3D4BF6" import="0">EUI/CSD/Compatibility_en_US.sql</File>
+    <File md5="EC4A882AD177781F5C7A2C87A6956AF9" import="0">EUI/CSD/Compatibility_en_US.sql</File>
     <File md5="F82A83B6017FE4858CF924888EB810AC" import="0">EUI/CSD/Compatibility_en_US.xml</File>
-    <File md5="6240D1742F14387E5A2E2FC9806CEBC9" import="0">EUI/CSD/CSDCompatibility.sql</File>
+    <File md5="E53FFB50585C237C868F8D38D6A49340" import="0">EUI/CSD/CSDCompatibility.sql</File>
     <File md5="90E5C23859C1EEF44EE7351827190F9C" import="1">EUI/CultureOverview.lua</File>
     <File md5="5F310B56A85B1E68963A0B8361F3F4BC" import="1">EUI/CultureOverview.xml</File>
     <File md5="63036BCCAF2955F36009341BBC01DEAD" import="1">EUI/DeclareWarPopup.lua</File>
@@ -122,7 +122,7 @@ If you downloaded this mod manually, see MANUAL INSTALL.txt for installation ins
     <File md5="4690E1BC3B289225820668B5A612F53E" import="0">EUI/EUI/EUI_text_en_us.xml</File>
     <File md5="081E0900984F48641FFC1C61253A94A2" import="0">EUI/EUI/NeededText.xml</File>
     <File md5="EFB0435042079A172C7E1B211A204144" import="1">EUI/EUI_core_library.lua</File>
-    <File md5="E5AFC3E265FF04F718975E499ED101DB" import="1">EUI/EUI_tooltip_library.lua</File>
+    <File md5="3426CB129198CF4761A3FAD78EEE9E61" import="1">EUI/EUI_tooltip_library.lua</File>
     <File md5="B12E739314E3C06185B3872698E62F60" import="1">EUI/GoodyHutPopup.lua</File>
     <File md5="44D613BAA295659174BB1A7A97A050EC" import="1">EUI/GPList.lua</File>
     <File md5="252CF7B30C29EDDB13DE924B209CA71F" import="1">EUI/GPList.xml</File>
@@ -151,7 +151,7 @@ If you downloaded this mod manually, see MANUAL INSTALL.txt for installation ins
     <File md5="CD876B31FA437CA938BA5F141A636F65" import="1">EUI/SocialPolicyPopup.lua</File>
     <File md5="12684E9BB5B297803A690A5795812A44" import="1">EUI/SocialPolicyPopup.xml</File>
     <File md5="ABE24D7A5A83276D2FBA79C74A23D152" import="1">EUI/TechButtonInclude.lua</File>
-    <File md5="62455AD3FD1C75A14D0DCAEA6B2C59B1" import="1">EUI/TopPanel.lua</File>
+    <File md5="CF27031858F941895BB0700A6FE54D0D" import="1">EUI/TopPanel.lua</File>
     <File md5="1972B7298A473270428256ABD71B5D07" import="1">EUI/TopPanel.xml</File>
     <File md5="4CB17E9E72E0A76FCD7B65444D32FA15" import="1">EUI/TradeLogic.lua</File>
     <File md5="B893CC7CAB5A66DFED8EE3CC006A70BA" import="1">EUI/UnitFlagManager.lua</File>
@@ -185,9 +185,9 @@ If you downloaded this mod manually, see MANUAL INSTALL.txt for installation ins
     <File md5="3F476A71188724BC528A087525301A9A" import="0">No-EUI/Corps/Corporations.sql</File>
     <File md5="F2B4529383B3A7F7AEC8F9CA82C9A83C" import="0">No-EUI/Corps/CorpText_en_US.sql</File>
     <File md5="2D81FF7BE803B6C99129AC24217018DA" import="0">No-EUI/Corps/CorpText_en_US.xml</File>
-    <File md5="14396C2266151B073C45C7101AE9DA11" import="0">No-EUI/CSD/Compatibility_en_US.sql</File>
+    <File md5="F7E0EBCD73BDF8DFC651A173ACF43C67" import="0">No-EUI/CSD/Compatibility_en_US.sql</File>
     <File md5="F82A83B6017FE4858CF924888EB810AC" import="0">No-EUI/CSD/Compatibility_en_US.xml</File>
-    <File md5="6240D1742F14387E5A2E2FC9806CEBC9" import="0">No-EUI/CSD/CSDCompatibility.sql</File>
+    <File md5="E53FFB50585C237C868F8D38D6A49340" import="0">No-EUI/CSD/CSDCompatibility.sql</File>
     <File md5="90E5C23859C1EEF44EE7351827190F9C" import="1">No-EUI/CultureOverview.lua</File>
     <File md5="5F310B56A85B1E68963A0B8361F3F4BC" import="1">No-EUI/CultureOverview.xml</File>
     <File md5="36C8BD9AB09E0BC4DCD6ACA0ED7C9722" import="1">No-EUI/DeclareWarPopup.lua</File>
@@ -235,7 +235,7 @@ If you downloaded this mod manually, see MANUAL INSTALL.txt for installation ins
     <File md5="627DD943624620042081B8D8F07DBB6B" import="1">No-EUI/SocialPolicyPopup.lua</File>
     <File md5="12684E9BB5B297803A690A5795812A44" import="1">No-EUI/SocialPolicyPopup.xml</File>
     <File md5="45C804F46F09D05A44FB9DFA3B78B811" import="1">No-EUI/TechButtonInclude.lua</File>
-    <File md5="30502861FDBDFAE3170D536C959328A5" import="1">No-EUI/TopPanel.lua</File>
+    <File md5="D9BC04C379C6B163E5CD87D2CA6CF0AF" import="1">No-EUI/TopPanel.lua</File>
     <File md5="91D4A7DF00FAE1B0ADD6667FD1E76CC9" import="1">No-EUI/TopPanel.xml</File>
     <File md5="52A82485EBE786C7724FFF0BABC1A49C" import="1">No-EUI/TradeLogic.lua</File>
     <File md5="9FFDC076C4C90F6717FD70C46972E9CF" import="1">No-EUI/UnitFlagManager.lua</File>
