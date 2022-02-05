@@ -5948,7 +5948,7 @@ bool CvDealAI::IsMakeOfferForEmbassy(PlayerTypes eOtherPlayer, CvDeal* pDeal)
 
 	// AI should not offer embassies for gold - wait until embassy for embassy is possible
 	// Note that humans can still offer and get an embassy for gold trade, it's not illegal
-	if(!pDeal->IsPossibleToTradeItem(GetPlayer()->GetID(), eOtherPlayer, TRADE_ITEM_ALLOW_EMBASSY))
+	if(!pDeal->IsPossibleToTradeItem(GetPlayer()->GetID(), eOtherPlayer, TRADE_ITEM_ALLOW_EMBASSY) && !GET_TEAM(GET_PLAYER(eOtherPlayer).getTeam()).HasEmbassyAtTeam(GetPlayer()->getTeam()))
 	{
 		return false;
 	}
