@@ -2,7 +2,7 @@
 <Mod id="8411a7a8-dad3-4622-a18e-fcc18324c799" version="14">
   <Properties>
     <Name>(2) Community Balance Overhaul</Name>
-    <Teaser>(1.4) Unofficial Expansion and Rebalancing Project for Civilization V: Brave New World</Teaser>
+    <Teaser>(1.4.1) Unofficial Expansion and Rebalancing Project for Civilization V: Brave New World</Teaser>
     <Description>Contains balance changes, gameplay improvements, and entirely new game systems to make Civ V a more enjoyable and exciting game.</Description>
     <Authors>CivFanatics Community Patch Project Team</Authors>
     <HideSetupGame>0</HideSetupGame>
@@ -343,7 +343,7 @@
     <File md5="D406AE7316A73E780627A6F953CD172E" import="1">Art/Units/Model/cruiser_SREF.dds</File>
     <File md5="0D763CB1E8E2206B90FDBBA290B61CDC" import="1">Art/Units/Model/fx_triggers_cruiser.ftsxml</File>
     <File md5="E8DB97DC6088359A9EFA3744938EAADD" import="0">Balance Changes/AI/AIChanges.sql</File>
-    <File md5="F600BCA6C5B3FB361C6E0E4B3915B54A" import="0">Balance Changes/AI/LeaderPersonalities.sql</File>
+    <File md5="77C0AA10E39DD6C4D1A56B030FADCEAA" import="0">Balance Changes/AI/LeaderPersonalities.sql</File>
     <File md5="406858E45EA009E8197A563FBC219371" import="0">Balance Changes/AI/LeaderFlavors.sql</File>
     <File md5="8943D26083305918873CB7F85B775EC8" import="0">Balance Changes/Barbarians/BarbarianChanges.sql</File>
     <File md5="75B63FB7A2FF3B7634AE81FF508F58C4" import="0">Balance Changes/Beliefs/Founder.sql</File>
