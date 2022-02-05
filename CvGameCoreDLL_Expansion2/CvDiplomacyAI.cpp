@@ -105,8 +105,9 @@ void CvDiplomacyAI::Init(CvPlayer* pPlayer)
 	m_bWaitingForDigChoice = false;
 	m_bBackstabber = false;
 	m_bCompetingForVictory = false;
-	m_eDefaultVictoryPursuit = NO_VICTORY_PURSUIT;
-	m_eVictoryPursuit = NO_VICTORY_PURSUIT;
+	m_ePrimaryVictoryPursuit = NO_VICTORY_PURSUIT;
+	m_eSecondaryVictoryPursuit = NO_VICTORY_PURSUIT;
+	m_eCurrentVictoryPursuit = NO_VICTORY_PURSUIT;
 	m_eStateAllWars = STATE_ALL_WARS_NEUTRAL;
 
 	// Diplomatic Interactions
@@ -440,8 +441,9 @@ void CvDiplomacyAI::Serialize(DiplomacyAI& diplomacyAI, Visitor& visitor)
 	visitor(diplomacyAI.m_bWaitingForDigChoice);
 	visitor(diplomacyAI.m_bBackstabber);
 	visitor(diplomacyAI.m_bCompetingForVictory);
-	visitor(diplomacyAI.m_eDefaultVictoryPursuit);
-	visitor(diplomacyAI.m_eVictoryPursuit);
+	visitor(diplomacyAI.m_ePrimaryVictoryPursuit);
+	visitor(diplomacyAI.m_eSecondaryVictoryPursuit);
+	visitor(diplomacyAI.m_eCurrentVictoryPursuit);
 	visitor(diplomacyAI.m_eStateAllWars);
 
 	// Diplomatic Interactions
@@ -753,7 +755,7 @@ void CvDiplomacyAI::SlotStateChange()
 		SetEndedFriendshipThisTurn(false);
 		SetBackstabber(false);
 		SetCompetingForVictory(false);
-		SetVictoryPursuit(GetDefaultVictoryPursuit());
+		SetCurrentVictoryPursuit(GetPrimaryVictoryPursuit());
 		SetStateAllWars(STATE_ALL_WARS_NEUTRAL);
 
 		// Reset values for minors
@@ -949,7 +951,7 @@ void CvDiplomacyAI::SlotStateChange()
 				m_aiMinorCivApproachBiases[iI] = iDefaultFlavorValue;
 		}
 
-		SelectDefaultVictoryPursuit();
+		SelectDefaultVictoryPursuits();
 		LogPersonality();
 
 		// Reset AI-only values
@@ -1430,7 +1432,7 @@ int CvDiplomacyAI::GetRandomPersonalityWeight(int iOriginalValue, int& iSeed)
 	int iMax = range(/*10*/ GD_INT_GET(DIPLO_PERSONALITY_FLAVOR_MAX_VALUE), 1, 20);
 	int iMin = range(/*1*/ GD_INT_GET(DIPLO_PERSONALITY_FLAVOR_MIN_VALUE), 1, iMax);
 	int ID = (int) GetID();
-	int iPlusMinus = GC.getGame().isOption(GAMEOPTION_RANDOM_PERSONALITIES) ? max((/*4*/ GD_INT_GET(FLAVOR_RANDOMIZATION_RANGE) * 2), 0) : max(/*2*/ GD_INT_GET(FLAVOR_RANDOMIZATION_RANGE), 0);
+	int iPlusMinus = max(/*2*/ GD_INT_GET(FLAVOR_RANDOMIZATION_RANGE), 0);
 
 	// Diplo AI Option: Disable this randomization!
 	if (iPlusMinus == 0 || GD_INT_GET(DIPLOAI_NO_FLAVOR_RANDOMIZATION) > 0)
@@ -1454,44 +1456,51 @@ void CvDiplomacyAI::DoInitializePersonality(bool bFirstInit)
 	// AI Players only
 	if (!GetPlayer()->isHuman())
 	{
-		const CvLeaderHeadInfo& playerLeaderInfo = GetPlayer()->getLeaderInfo();
-		int ID = (int) GetID();
-		int iSeed = ID * ID * ID;
+		LeaderHeadTypes leader = GetPlayer()->getPersonalityType();
+		if (leader != NO_LEADER)
+		{
+			CvLeaderHeadInfo* pkLeaderHeadInfo = GC.getLeaderHeadInfo(leader);
+			if (pkLeaderHeadInfo)
+			{
+				int ID = (int) GetID();
+				int iSeed = ID * ID * ID;
 
-		m_iVictoryCompetitiveness = GetRandomPersonalityWeight(playerLeaderInfo.GetVictoryCompetitiveness(), iSeed);
-		m_iWonderCompetitiveness = GetRandomPersonalityWeight(playerLeaderInfo.GetWonderCompetitiveness(), iSeed);
-		m_iMinorCivCompetitiveness = GetRandomPersonalityWeight(playerLeaderInfo.GetMinorCivCompetitiveness(), iSeed);
-		m_iBoldness = GetRandomPersonalityWeight(playerLeaderInfo.GetBoldness(), iSeed);
-		m_iDiploBalance = GetRandomPersonalityWeight(playerLeaderInfo.GetDiploBalance(), iSeed);
-		m_iWarmongerHate = GetRandomPersonalityWeight(playerLeaderInfo.GetWarmongerHate(), iSeed);
-		m_iDoFWillingness = GetRandomPersonalityWeight(playerLeaderInfo.GetDoFWillingness(), iSeed);
-		m_iDenounceWillingness = GetRandomPersonalityWeight(playerLeaderInfo.GetDenounceWillingness(), iSeed);
-		m_iLoyalty = GetRandomPersonalityWeight(playerLeaderInfo.GetLoyalty(), iSeed);
-		m_iForgiveness = GetRandomPersonalityWeight(playerLeaderInfo.GetForgiveness(), iSeed);
-		m_iNeediness = GetRandomPersonalityWeight(playerLeaderInfo.GetNeediness(), iSeed);
-		m_iMeanness = GetRandomPersonalityWeight(playerLeaderInfo.GetMeanness(), iSeed);
-		m_iChattiness = GetRandomPersonalityWeight(playerLeaderInfo.GetChattiness(), iSeed);
+				m_iVictoryCompetitiveness = GetRandomPersonalityWeight(pkLeaderHeadInfo->GetVictoryCompetitiveness(), iSeed);
+				m_iWonderCompetitiveness = GetRandomPersonalityWeight(pkLeaderHeadInfo->GetWonderCompetitiveness(), iSeed);
+				m_iMinorCivCompetitiveness = GetRandomPersonalityWeight(pkLeaderHeadInfo->GetMinorCivCompetitiveness(), iSeed);
+				m_iBoldness = GetRandomPersonalityWeight(pkLeaderHeadInfo->GetBoldness(), iSeed);
+				m_iDiploBalance = GetRandomPersonalityWeight(pkLeaderHeadInfo->GetDiploBalance(), iSeed);
+				m_iWarmongerHate = GetRandomPersonalityWeight(pkLeaderHeadInfo->GetWarmongerHate(), iSeed);
+				m_iDoFWillingness = GetRandomPersonalityWeight(pkLeaderHeadInfo->GetDoFWillingness(), iSeed);
+				m_iDenounceWillingness = GetRandomPersonalityWeight(pkLeaderHeadInfo->GetDenounceWillingness(), iSeed);
+				m_iLoyalty = GetRandomPersonalityWeight(pkLeaderHeadInfo->GetLoyalty(), iSeed);
+				m_iForgiveness = GetRandomPersonalityWeight(pkLeaderHeadInfo->GetForgiveness(), iSeed);
+				m_iNeediness = GetRandomPersonalityWeight(pkLeaderHeadInfo->GetNeediness(), iSeed);
+				m_iMeanness = GetRandomPersonalityWeight(pkLeaderHeadInfo->GetMeanness(), iSeed);
+				m_iChattiness = GetRandomPersonalityWeight(pkLeaderHeadInfo->GetChattiness(), iSeed);
 
-		m_aiMajorCivApproachBiases[CIV_APPROACH_WAR] = GetRandomPersonalityWeight(playerLeaderInfo.GetWarBias(false), iSeed);
-		m_aiMajorCivApproachBiases[CIV_APPROACH_HOSTILE] = GetRandomPersonalityWeight(playerLeaderInfo.GetHostileBias(false), iSeed);
-		m_aiMajorCivApproachBiases[CIV_APPROACH_DECEPTIVE] = GetRandomPersonalityWeight(playerLeaderInfo.GetDeceptiveBias(), iSeed);
-		m_aiMajorCivApproachBiases[CIV_APPROACH_GUARDED] = GetRandomPersonalityWeight(playerLeaderInfo.GetGuardedBias(), iSeed);
-		m_aiMajorCivApproachBiases[CIV_APPROACH_AFRAID] = GetRandomPersonalityWeight(playerLeaderInfo.GetAfraidBias(), iSeed);
-		m_aiMajorCivApproachBiases[CIV_APPROACH_NEUTRAL] = GetRandomPersonalityWeight(playerLeaderInfo.GetNeutralBias(false), iSeed);
-		m_aiMajorCivApproachBiases[CIV_APPROACH_FRIENDLY] = GetRandomPersonalityWeight(playerLeaderInfo.GetFriendlyBias(false), iSeed);
+				m_aiMajorCivApproachBiases[CIV_APPROACH_WAR] = GetRandomPersonalityWeight(pkLeaderHeadInfo->GetWarBias(false), iSeed);
+				m_aiMajorCivApproachBiases[CIV_APPROACH_HOSTILE] = GetRandomPersonalityWeight(pkLeaderHeadInfo->GetHostileBias(false), iSeed);
+				m_aiMajorCivApproachBiases[CIV_APPROACH_DECEPTIVE] = GetRandomPersonalityWeight(pkLeaderHeadInfo->GetDeceptiveBias(), iSeed);
+				m_aiMajorCivApproachBiases[CIV_APPROACH_GUARDED] = GetRandomPersonalityWeight(pkLeaderHeadInfo->GetGuardedBias(), iSeed);
+				m_aiMajorCivApproachBiases[CIV_APPROACH_AFRAID] = GetRandomPersonalityWeight(pkLeaderHeadInfo->GetAfraidBias(), iSeed);
+				m_aiMajorCivApproachBiases[CIV_APPROACH_NEUTRAL] = GetRandomPersonalityWeight(pkLeaderHeadInfo->GetNeutralBias(false), iSeed);
+				m_aiMajorCivApproachBiases[CIV_APPROACH_FRIENDLY] = GetRandomPersonalityWeight(pkLeaderHeadInfo->GetFriendlyBias(false), iSeed);
 
-		m_aiMinorCivApproachBiases[CIV_APPROACH_WAR] = GetRandomPersonalityWeight(playerLeaderInfo.GetWarBias(true), iSeed);
-		m_aiMinorCivApproachBiases[CIV_APPROACH_HOSTILE] = GetRandomPersonalityWeight(playerLeaderInfo.GetHostileBias(true), iSeed);
-		m_aiMinorCivApproachBiases[CIV_APPROACH_NEUTRAL] = GetRandomPersonalityWeight(playerLeaderInfo.GetNeutralBias(true), iSeed);
-		m_aiMinorCivApproachBiases[CIV_APPROACH_FRIENDLY] = GetRandomPersonalityWeight(playerLeaderInfo.GetFriendlyBias(true), iSeed);
+				m_aiMinorCivApproachBiases[CIV_APPROACH_WAR] = GetRandomPersonalityWeight(pkLeaderHeadInfo->GetWarBias(true), iSeed);
+				m_aiMinorCivApproachBiases[CIV_APPROACH_HOSTILE] = GetRandomPersonalityWeight(pkLeaderHeadInfo->GetHostileBias(true), iSeed);
+				m_aiMinorCivApproachBiases[CIV_APPROACH_NEUTRAL] = GetRandomPersonalityWeight(pkLeaderHeadInfo->GetNeutralBias(true), iSeed);
+				m_aiMinorCivApproachBiases[CIV_APPROACH_FRIENDLY] = GetRandomPersonalityWeight(pkLeaderHeadInfo->GetFriendlyBias(true), iSeed);
 
-		// Minimal loyalty? We're willing to backstab.
-		if (GetLoyalty() <= 2)
-			SetBackstabber(true);
+				// Minimal loyalty? We're willing to backstab.
+				if (GetLoyalty() <= 2)
+					SetBackstabber(true);
+			}
+		}
 	}
 
-	// Now that we've picked our flavors, select our default Victory Focus.
-	SelectDefaultVictoryPursuit();
+	// Now that we've picked our flavors, select our default Victory Pursuit.
+	SelectDefaultVictoryPursuits();
 	LogPersonality();
 
 	// Initialize a few static values here
@@ -1526,215 +1535,722 @@ void CvDiplomacyAI::DoInitializePersonality(bool bFirstInit)
 
 //	-----------------------------------------------------------------------------------------------
 
-/// Select our Default Victory Focus for this game (the victory condition we go for early in the game, prior to grand strategy AI taking effect; has other effects throughout the game as well)
+/// Select our Default Victory Pursuits for this game (the victory condition we go for early in the game, prior to grand strategy AI taking effect; has other effects throughout the game as well)
+/// May also pick a Secondary Victory Pursuit which has less significant effects on AI diplomacy and strategy.
 /// Intention here is to add some variability to AI behavior, especially for generalist civs
-void CvDiplomacyAI::SelectDefaultVictoryPursuit()
+void CvDiplomacyAI::SelectDefaultVictoryPursuits()
 {
 	CvPlayerTraits* pTraits = GetPlayer()->GetPlayerTraits();
 	bool bCanUnlockTechs = !GC.getGame().isOption(GAMEOPTION_NO_SCIENCE);
 	bool bCanUnlockPolicies = !GC.getGame().isOption(GAMEOPTION_NO_POLICIES);
+	bool bCanUseLeague = !GC.getGame().isOption(GAMEOPTION_NO_LEAGUES);
+	bool bCanConquer = !GC.getGame().isOption(GAMEOPTION_ALWAYS_PEACE);
+	int iNumValidOptions = 0;
+	if (bCanUnlockTechs)
+		iNumValidOptions++;
+	if (bCanUnlockPolicies)
+		iNumValidOptions++;
+	if (bCanUseLeague)
+		iNumValidOptions++;
+	if (bCanConquer)
+		iNumValidOptions++;
 
-	// Human player - pick a default focus based on leader UA
-	if (GetPlayer()->isHuman())
+	// If nothing is valid, we can't do much here, can we...?
+	if (iNumValidOptions == 0)
 	{
-		if (pTraits->IsWarmonger())
+		SetPrimaryVictoryPursuit(NO_VICTORY_PURSUIT);
+		SetSecondaryVictoryPursuit(NO_VICTORY_PURSUIT);
+		return;
+	}
+
+	// If only ONE option is valid, we have no other choice!
+	if (iNumValidOptions == 1)
+	{
+		if (bCanUnlockTechs)
+			SetPrimaryVictoryPursuit(VICTORY_PURSUIT_SCIENCE);
+		else if (bCanUnlockPolicies)
+			SetPrimaryVictoryPursuit(VICTORY_PURSUIT_CULTURE);
+		else if (bCanUseLeague)
+			SetPrimaryVictoryPursuit(VICTORY_PURSUIT_DIPLOMACY);
+		else if (bCanConquer)
+			SetPrimaryVictoryPursuit(VICTORY_PURSUIT_DOMINATION);
+
+		SetSecondaryVictoryPursuit(NO_VICTORY_PURSUIT);
+		return;
+	}
+
+	// Civs are given AI victory pursuit hints/biases in the Leaders table, so retrieve those now
+	VictoryPursuitTypes ePrimaryVictory = NO_VICTORY_PURSUIT, eSecondaryVictory = NO_VICTORY_PURSUIT;
+	LeaderHeadTypes leader = GetPlayer()->getPersonalityType();
+	if (leader != NO_LEADER)
+	{
+		CvLeaderHeadInfo* pkLeaderHeadInfo = GC.getLeaderHeadInfo(leader);
+		if (pkLeaderHeadInfo)
 		{
-			SetDefaultVictoryPursuit(VICTORY_PURSUIT_DOMINATION);
+			ePrimaryVictory = pkLeaderHeadInfo->GetPrimaryVictoryPursuit();
+			eSecondaryVictory = pkLeaderHeadInfo->GetSecondaryVictoryPursuit();
 		}
-		else if (pTraits->IsNerd() && bCanUnlockTechs)
+	}
+
+	// If only TWO options are valid, we have only two choices...though at least we can use the pursuit hints to prioritize this time.
+	if (iNumValidOptions == 2)
+	{
+		VictoryPursuitTypes eOptionOne = NO_VICTORY_PURSUIT, eOptionTwo = NO_VICTORY_PURSUIT;
+
+		if (bCanUnlockTechs)
 		{
-			SetDefaultVictoryPursuit(VICTORY_PURSUIT_SCIENCE);
+			eOptionOne = VICTORY_PURSUIT_SCIENCE;
 		}
-		else if (pTraits->IsTourism() && bCanUnlockPolicies)
+		if (bCanUnlockPolicies)
 		{
-			SetDefaultVictoryPursuit(VICTORY_PURSUIT_CULTURE);
+			if (eOptionOne != NO_VICTORY_PURSUIT)
+				eOptionOne = VICTORY_PURSUIT_CULTURE;
+			else
+				eOptionTwo = VICTORY_PURSUIT_CULTURE;
 		}
-		else if (pTraits->IsDiplomat())
+		if (bCanUseLeague)
 		{
-			SetDefaultVictoryPursuit(VICTORY_PURSUIT_DIPLOMACY);
+			if (eOptionOne != NO_VICTORY_PURSUIT)
+				eOptionOne = VICTORY_PURSUIT_DIPLOMACY;
+			else
+				eOptionTwo = VICTORY_PURSUIT_DIPLOMACY;
+		}
+		if (bCanConquer)
+		{
+			eOptionTwo = VICTORY_PURSUIT_DOMINATION;
+		}
+
+		if (eOptionOne == ePrimaryVictory)
+		{
+			SetPrimaryVictoryPursuit(eOptionOne);
+			SetSecondaryVictoryPursuit(eOptionTwo);
+			return;
+		}
+		else if (eOptionTwo == ePrimaryVictory)
+		{
+			SetPrimaryVictoryPursuit(eOptionTwo);
+			SetSecondaryVictoryPursuit(eOptionOne);
+			return;
+		}
+		else if (eOptionOne == eSecondaryVictory)
+		{
+			SetPrimaryVictoryPursuit(eOptionOne);
+			SetSecondaryVictoryPursuit(eOptionTwo);
+			return;
+		}
+		else if (eOptionTwo == eSecondaryVictory)
+		{
+			SetPrimaryVictoryPursuit(eOptionOne);
+			SetSecondaryVictoryPursuit(eOptionTwo);
+			return;
+		}
+
+		// We have no guidance on how to proceed? Let's see if player traits has any guidance.
+		// This is obviously a highly specialized scenario, so we need to use our strengths if we have them!
+		if (bCanConquer && pTraits->IsWarmonger())
+		{
+			if (eOptionOne == VICTORY_PURSUIT_DOMINATION)
+			{
+				SetPrimaryVictoryPursuit(eOptionOne);
+				SetSecondaryVictoryPursuit(eOptionTwo);
+			}
+			else
+			{
+				SetPrimaryVictoryPursuit(eOptionTwo);
+				SetSecondaryVictoryPursuit(eOptionOne);
+			}
+			return;
+		}
+		else if (bCanUseLeague && pTraits->IsDiplomat())
+		{
+			if (eOptionOne == VICTORY_PURSUIT_DIPLOMACY)
+			{
+				SetPrimaryVictoryPursuit(eOptionOne);
+				SetSecondaryVictoryPursuit(eOptionTwo);
+			}
+			else
+			{
+				SetPrimaryVictoryPursuit(eOptionTwo);
+				SetSecondaryVictoryPursuit(eOptionOne);
+			}
+			return;
+		}
+		else if (bCanUnlockPolicies && pTraits->IsTourism())
+		{
+			if (eOptionOne == VICTORY_PURSUIT_CULTURE)
+			{
+				SetPrimaryVictoryPursuit(eOptionOne);
+				SetSecondaryVictoryPursuit(eOptionTwo);
+			}
+			else
+			{
+				SetPrimaryVictoryPursuit(eOptionTwo);
+				SetSecondaryVictoryPursuit(eOptionOne);
+			}
+			return;
+		}
+		else if (bCanUnlockTechs && pTraits->IsNerd())
+		{
+			if (eOptionOne == VICTORY_PURSUIT_SCIENCE)
+			{
+				SetPrimaryVictoryPursuit(eOptionOne);
+				SetSecondaryVictoryPursuit(eOptionTwo);
+			}
+			else
+			{
+				SetPrimaryVictoryPursuit(eOptionTwo);
+				SetSecondaryVictoryPursuit(eOptionOne);
+			}
+			return;
 		}
 		else if (pTraits->IsExpansionist())
 		{
-			SetDefaultVictoryPursuit(VICTORY_PURSUIT_DOMINATION);
+			if (bCanConquer)
+			{
+				if (eOptionOne == VICTORY_PURSUIT_DOMINATION)
+				{
+					SetPrimaryVictoryPursuit(eOptionOne);
+					SetSecondaryVictoryPursuit(eOptionTwo);
+				}
+				else
+				{
+					SetPrimaryVictoryPursuit(eOptionTwo);
+					SetSecondaryVictoryPursuit(eOptionOne);
+				}
+				return;
+			}
+			if (bCanUseLeague)
+			{
+				if (eOptionOne == VICTORY_PURSUIT_DIPLOMACY)
+				{
+					SetPrimaryVictoryPursuit(eOptionOne);
+					SetSecondaryVictoryPursuit(eOptionTwo);
+				}
+				else
+				{
+					SetPrimaryVictoryPursuit(eOptionTwo);
+					SetSecondaryVictoryPursuit(eOptionOne);
+				}
+				return;
+			}
 		}
-		else if (pTraits->IsSmaller() && bCanUnlockTechs)
+		else if (pTraits->IsSmaller())
 		{
-			SetDefaultVictoryPursuit(VICTORY_PURSUIT_SCIENCE);
+			if (bCanUnlockPolicies)
+			{
+				if (eOptionOne == VICTORY_PURSUIT_CULTURE)
+				{
+					SetPrimaryVictoryPursuit(eOptionOne);
+					SetSecondaryVictoryPursuit(eOptionTwo);
+				}
+				else
+				{
+					SetPrimaryVictoryPursuit(eOptionTwo);
+					SetSecondaryVictoryPursuit(eOptionOne);
+				}
+				return;
+			}
+			if (bCanUnlockTechs)
+			{
+				if (eOptionOne == VICTORY_PURSUIT_SCIENCE)
+				{
+					SetPrimaryVictoryPursuit(eOptionOne);
+					SetSecondaryVictoryPursuit(eOptionTwo);
+				}
+				else
+				{
+					SetPrimaryVictoryPursuit(eOptionTwo);
+					SetSecondaryVictoryPursuit(eOptionOne);
+				}
+				return;
+			}
+		}
+
+		// If we still have no clue what to do, then just sort by enum order.
+		if (eOptionOne < eOptionTwo)
+		{
+			SetPrimaryVictoryPursuit(eOptionOne);
+			SetSecondaryVictoryPursuit(eOptionTwo);
 		}
 		else
 		{
-			SetDefaultVictoryPursuit(VICTORY_PURSUIT_DOMINATION);
+			SetPrimaryVictoryPursuit(eOptionTwo);
+			SetSecondaryVictoryPursuit(eOptionOne);
 		}
 		return;
 	}
 
-	// AI player - score personalities based on flavors
-	// Base likelihood depends on the difference between this civ's major approach biases
-	int iConquerorWeight = max(GetMajorCivApproachBias(CIV_APPROACH_WAR), GetMajorCivApproachBias(CIV_APPROACH_HOSTILE)) - max(GetMajorCivApproachBias(CIV_APPROACH_FRIENDLY), GetMajorCivApproachBias(CIV_APPROACH_AFRAID));
-	int iDiplomatWeight = max(GetMajorCivApproachBias(CIV_APPROACH_DECEPTIVE), GetMajorCivApproachBias(CIV_APPROACH_FRIENDLY)) - max(GetMajorCivApproachBias(CIV_APPROACH_WAR), GetMajorCivApproachBias(CIV_APPROACH_HOSTILE));
-	int iCulturalWeight = max(GetMajorCivApproachBias(CIV_APPROACH_NEUTRAL), GetMajorCivApproachBias(CIV_APPROACH_FRIENDLY)) - max(GetMajorCivApproachBias(CIV_APPROACH_HOSTILE), GetMajorCivApproachBias(CIV_APPROACH_GUARDED));
-	int iScientistWeight = max(GetMajorCivApproachBias(CIV_APPROACH_NEUTRAL), GetMajorCivApproachBias(CIV_APPROACH_GUARDED)) - max(GetMajorCivApproachBias(CIV_APPROACH_WAR), GetMajorCivApproachBias(CIV_APPROACH_DECEPTIVE));
+	// If we made it this far, at least three options must be valid!
 
-	int ID = (int) GetID();
-	int iRandom = GC.getGame().isOption(GAMEOPTION_RANDOM_PERSONALITIES) ? 20 : 10;
+	// Human player
+	if (GetPlayer()->isHuman())
+	{
+		// First handle any exclusions
+		if (!bCanUnlockTechs && eSecondaryVictory == VICTORY_PURSUIT_SCIENCE)
+			eSecondaryVictory = NO_VICTORY_PURSUIT;
+		else if (!bCanUnlockPolicies && eSecondaryVictory == VICTORY_PURSUIT_CULTURE)
+			eSecondaryVictory = NO_VICTORY_PURSUIT;
+		else if (!bCanUseLeague && eSecondaryVictory == VICTORY_PURSUIT_DIPLOMACY)
+			eSecondaryVictory = NO_VICTORY_PURSUIT;
+		else if (!bCanConquer && eSecondaryVictory == VICTORY_PURSUIT_DOMINATION)
+			eSecondaryVictory = NO_VICTORY_PURSUIT;
 
-	// Random seed to ensure the fake RNG doesn't return the same value repeatedly
-	int iSeed = (ID * ID * ID) + (GetBoldness() * GetMeanness() * GetMajorCivApproachBias(CIV_APPROACH_WAR) * ID);
+		if (!bCanUnlockTechs && ePrimaryVictory == VICTORY_PURSUIT_SCIENCE)
+		{
+			ePrimaryVictory = NO_VICTORY_PURSUIT;
+			if (eSecondaryVictory != NO_VICTORY_PURSUIT)
+				ePrimaryVictory = eSecondaryVictory;
+		}
+		else if (!bCanUnlockPolicies && ePrimaryVictory == VICTORY_PURSUIT_CULTURE)
+		{
+			ePrimaryVictory = NO_VICTORY_PURSUIT;
+			if (eSecondaryVictory != NO_VICTORY_PURSUIT)
+				ePrimaryVictory = eSecondaryVictory;
+		}
+		else if (!bCanUseLeague && ePrimaryVictory == VICTORY_PURSUIT_DIPLOMACY)
+		{
+			ePrimaryVictory = NO_VICTORY_PURSUIT;
+			if (eSecondaryVictory != NO_VICTORY_PURSUIT)
+				ePrimaryVictory = eSecondaryVictory;
+		}
+		else if (!bCanConquer && ePrimaryVictory == VICTORY_PURSUIT_DOMINATION)
+		{
+			ePrimaryVictory = NO_VICTORY_PURSUIT;
+			if (eSecondaryVictory != NO_VICTORY_PURSUIT)
+				ePrimaryVictory = eSecondaryVictory;
+		}
 
+		// Now if we have a victory pursuit hint, use it!
+		if (ePrimaryVictory != NO_VICTORY_PURSUIT)
+		{
+			SetPrimaryVictoryPursuit(ePrimaryVictory);
+
+			// Humans don't use secondary victory pursuits unless specified in the database
+			if (eSecondaryVictory != NO_VICTORY_PURSUIT)
+				SetSecondaryVictoryPursuit(eSecondaryVictory);
+
+			return;
+		}
+		// No hint? Let's see if leader traits can provide some advice.
+		else if (bCanConquer && pTraits->IsWarmonger())
+		{
+			SetPrimaryVictoryPursuit(VICTORY_PURSUIT_DOMINATION);
+			return;
+		}
+		else if (bCanUseLeague && pTraits->IsDiplomat())
+		{
+			SetPrimaryVictoryPursuit(VICTORY_PURSUIT_DIPLOMACY);
+			return;
+		}
+		else if (bCanUnlockPolicies && pTraits->IsTourism())
+		{
+			SetPrimaryVictoryPursuit(VICTORY_PURSUIT_CULTURE);
+			return;
+		}
+		else if (bCanUnlockTechs && pTraits->IsNerd())
+		{
+			SetPrimaryVictoryPursuit(VICTORY_PURSUIT_SCIENCE);
+			return;
+		}
+		else
+		{
+			if (pTraits->IsExpansionist())
+			{
+				if (bCanConquer)
+				{
+					SetPrimaryVictoryPursuit(VICTORY_PURSUIT_DOMINATION);
+					return;
+				}
+				else if (bCanUseLeague)
+				{
+					SetPrimaryVictoryPursuit(VICTORY_PURSUIT_DIPLOMACY);
+					return;
+				}
+			}
+			if (pTraits->IsSmaller())
+			{
+				if (bCanUnlockPolicies)
+				{
+					SetPrimaryVictoryPursuit(VICTORY_PURSUIT_CULTURE);
+					return;
+				}
+				else if (bCanUnlockTechs)
+				{
+					SetPrimaryVictoryPursuit(VICTORY_PURSUIT_SCIENCE);
+					return;
+				}
+			}
+
+			// Still haven't come up with anything? Use this order of priority.
+			if (bCanConquer)
+			{
+				SetPrimaryVictoryPursuit(VICTORY_PURSUIT_DOMINATION);
+				return;
+			}
+			if (MOD_BALANCE_CORE_VICTORY_GAME_CHANGES) // VP makes Cultural victory easier than Science victory
+			{
+				if (bCanUnlockPolicies)
+				{
+					SetPrimaryVictoryPursuit(VICTORY_PURSUIT_CULTURE);
+					return;
+				}
+				if (bCanUnlockTechs)
+				{
+					SetPrimaryVictoryPursuit(VICTORY_PURSUIT_SCIENCE);
+					return;
+				}
+			}
+			else
+			{
+				if (bCanUnlockTechs)
+				{
+					SetPrimaryVictoryPursuit(VICTORY_PURSUIT_SCIENCE);
+					return;
+				}
+				if (bCanUnlockPolicies)
+				{
+					SetPrimaryVictoryPursuit(VICTORY_PURSUIT_CULTURE);
+					return;
+				}
+			}
+		}
+	}
+
+	// AI player - we score victory pursuits based on flavors...
 	CvFlavorManager* pFlavorMgr = GetPlayer()->GetFlavorManager();
+	vector<int> VictoryScores(NUM_VICTORY_PURSUITS, 0);
+
+	// ...and some randomness
+	int ID = (int) GetID(); // Used to randomize values between different AIs
+	int iRandom = GC.getGame().isOption(GAMEOPTION_RANDOM_PERSONALITIES) ? 20 : 10; // Max. random weight added to each victory condition
+	int iSeed = (ID * ID * ID) + (GetBoldness() * GetMeanness() * GetMajorCivApproachBias(CIV_APPROACH_WAR) * ID); // Random seed to ensure the fake RNG doesn't return the same value repeatedly
+
+	// Base likelihood depends on the difference between this civ's major approach biases
+	VictoryScores[VICTORY_PURSUIT_DOMINATION] = max(GetMajorCivApproachBias(CIV_APPROACH_WAR), GetMajorCivApproachBias(CIV_APPROACH_HOSTILE)) - max(GetMajorCivApproachBias(CIV_APPROACH_FRIENDLY), GetMajorCivApproachBias(CIV_APPROACH_AFRAID));
+	VictoryScores[VICTORY_PURSUIT_DIPLOMACY] = max(GetMajorCivApproachBias(CIV_APPROACH_DECEPTIVE), GetMajorCivApproachBias(CIV_APPROACH_FRIENDLY)) - max(GetMajorCivApproachBias(CIV_APPROACH_WAR), GetMajorCivApproachBias(CIV_APPROACH_HOSTILE));
+	VictoryScores[VICTORY_PURSUIT_CULTURE] = max(GetMajorCivApproachBias(CIV_APPROACH_NEUTRAL), GetMajorCivApproachBias(CIV_APPROACH_FRIENDLY)) - max(GetMajorCivApproachBias(CIV_APPROACH_HOSTILE), GetMajorCivApproachBias(CIV_APPROACH_GUARDED));
+	VictoryScores[VICTORY_PURSUIT_SCIENCE] = max(GetMajorCivApproachBias(CIV_APPROACH_NEUTRAL), GetMajorCivApproachBias(CIV_APPROACH_GUARDED)) - max(GetMajorCivApproachBias(CIV_APPROACH_WAR), GetMajorCivApproachBias(CIV_APPROACH_DECEPTIVE));
 
 	// Weight for conquest
-	iConquerorWeight += GetBoldness();
-	iConquerorWeight += GetMeanness();
-	iConquerorWeight += pFlavorMgr->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_OFFENSE"));
-	iConquerorWeight += pFlavorMgr->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_EXPANSION"));
-	iConquerorWeight += GC.getGame().getSmallFakeRandNum(iRandom, iSeed);
-	iSeed += (iConquerorWeight * iRandom * ID * 256) + (GetDiploBalance() * GetMinorCivCompetitiveness() * GetMajorCivApproachBias(CIV_APPROACH_DECEPTIVE) * ID);
+	if (bCanConquer)
+	{
+		VictoryScores[VICTORY_PURSUIT_DOMINATION] += GetBoldness();
+		VictoryScores[VICTORY_PURSUIT_DOMINATION] += GetMeanness();
+		VictoryScores[VICTORY_PURSUIT_DOMINATION] += pFlavorMgr->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_OFFENSE")) / 2;
+		VictoryScores[VICTORY_PURSUIT_DOMINATION] += pFlavorMgr->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_EXPANSION")) / 2;
+		VictoryScores[VICTORY_PURSUIT_DOMINATION] += GC.getGame().getSmallFakeRandNum(iRandom, iSeed);
+		iSeed += (VictoryScores[VICTORY_PURSUIT_DOMINATION] * iRandom * ID * 256) + (GetDiploBalance() * GetMinorCivCompetitiveness() * GetMajorCivApproachBias(CIV_APPROACH_DECEPTIVE) * ID);
+	}
+	else
+	{
+		VictoryScores[VICTORY_PURSUIT_DOMINATION] = -100;
+	}
 
 	// Weight for diplomacy
-	iDiplomatWeight += GetDiploBalance();
-	iDiplomatWeight += GetMinorCivCompetitiveness();
-	iDiplomatWeight += pFlavorMgr->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_DIPLOMACY"));
-	iDiplomatWeight += pFlavorMgr->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GOLD"));
-	iDiplomatWeight += GC.getGame().getSmallFakeRandNum(iRandom, iSeed);
-	iSeed += (iDiplomatWeight * iRandom * ID * 256) + iConquerorWeight + (GetDoFWillingness() * GetWonderCompetitiveness() * GetMajorCivApproachBias(CIV_APPROACH_FRIENDLY) * ID);
+	if (bCanUseLeague)
+	{
+		VictoryScores[VICTORY_PURSUIT_DIPLOMACY] += GetDiploBalance();
+		VictoryScores[VICTORY_PURSUIT_DIPLOMACY] += GetMinorCivCompetitiveness();
+		VictoryScores[VICTORY_PURSUIT_DIPLOMACY] += pFlavorMgr->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_DIPLOMACY")) / 2;
+		VictoryScores[VICTORY_PURSUIT_DIPLOMACY] += pFlavorMgr->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GOLD")) / 2;
+		VictoryScores[VICTORY_PURSUIT_DIPLOMACY] += GC.getGame().getSmallFakeRandNum(iRandom, iSeed);
+		iSeed += (VictoryScores[VICTORY_PURSUIT_DIPLOMACY] * iRandom * ID * 259) + VictoryScores[VICTORY_PURSUIT_DOMINATION] + (GetDoFWillingness() * GetWonderCompetitiveness() * GetMajorCivApproachBias(CIV_APPROACH_FRIENDLY) * ID);
+	}
+	else
+	{
+		VictoryScores[VICTORY_PURSUIT_DIPLOMACY] = -100;
+	}
 
 	// Weight for culture
 	if (bCanUnlockPolicies)
 	{
-		iCulturalWeight += GetDoFWillingness();
-		iCulturalWeight += GetWonderCompetitiveness();
-		iCulturalWeight += pFlavorMgr->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_WONDER"));
-		iCulturalWeight += pFlavorMgr->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_CULTURE"));
-		iCulturalWeight += GC.getGame().getSmallFakeRandNum(iRandom, iSeed);
-		iSeed += (iCulturalWeight * iRandom * ID * 256) + iConquerorWeight + iDiplomatWeight + (GetLoyalty() * GetWarmongerHate() * GetMajorCivApproachBias(CIV_APPROACH_NEUTRAL) * ID);
+		VictoryScores[VICTORY_PURSUIT_CULTURE] += GetDoFWillingness();
+		VictoryScores[VICTORY_PURSUIT_CULTURE] += GetWonderCompetitiveness();
+		VictoryScores[VICTORY_PURSUIT_CULTURE] += pFlavorMgr->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_WONDER")) / 2;
+		VictoryScores[VICTORY_PURSUIT_CULTURE] += pFlavorMgr->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_CULTURE")) / 2;
+		VictoryScores[VICTORY_PURSUIT_CULTURE] += GC.getGame().getSmallFakeRandNum(iRandom, iSeed);
+		iSeed += (VictoryScores[VICTORY_PURSUIT_CULTURE] * iRandom * ID * 263) + VictoryScores[VICTORY_PURSUIT_DOMINATION] + VictoryScores[VICTORY_PURSUIT_DIPLOMACY] + (GetLoyalty() * GetWarmongerHate() * GetMajorCivApproachBias(CIV_APPROACH_NEUTRAL) * ID);
 	}
 	else
 	{
-		iCulturalWeight = -100;
+		VictoryScores[VICTORY_PURSUIT_CULTURE] = -100;
 	}
 
 	// Weight for science
 	if (bCanUnlockTechs)
 	{
-		iScientistWeight += GetLoyalty();
-		iScientistWeight += GetWarmongerHate();
-		iScientistWeight += pFlavorMgr->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_SCIENCE"));
-		iScientistWeight += pFlavorMgr->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GROWTH"));
-		iScientistWeight += GC.getGame().getSmallFakeRandNum(iRandom, iSeed);
+		VictoryScores[VICTORY_PURSUIT_SCIENCE] += GetLoyalty();
+		VictoryScores[VICTORY_PURSUIT_SCIENCE] += GetWarmongerHate();
+		VictoryScores[VICTORY_PURSUIT_SCIENCE] += pFlavorMgr->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_SCIENCE")) / 2;
+		VictoryScores[VICTORY_PURSUIT_SCIENCE] += pFlavorMgr->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GROWTH")) / 2;
+		VictoryScores[VICTORY_PURSUIT_SCIENCE] += GC.getGame().getSmallFakeRandNum(iRandom, iSeed);
 	}
 	else
 	{
-		iScientistWeight = -100;
+		VictoryScores[VICTORY_PURSUIT_SCIENCE] = -100;
 	}
 
-	// Add weight for leader UA
-	if (pTraits->IsWarmonger())
+	// Add leader bias for default primary pursuit
+	if (ePrimaryVictory == VICTORY_PURSUIT_DOMINATION)
 	{
-		iConquerorWeight += 5;
+		if (eSecondaryVictory == NO_VICTORY_PURSUIT)
+			VictoryScores[VICTORY_PURSUIT_DOMINATION] += 8;
+		else
+			VictoryScores[VICTORY_PURSUIT_DOMINATION] += 5;
 	}
-	if (pTraits->IsDiplomat())
+	else if (ePrimaryVictory == VICTORY_PURSUIT_DIPLOMACY)
 	{
-		iDiplomatWeight += 5;
+		if (eSecondaryVictory == NO_VICTORY_PURSUIT)
+			VictoryScores[VICTORY_PURSUIT_DIPLOMACY] += 8;
+		else
+			VictoryScores[VICTORY_PURSUIT_DIPLOMACY] += 5;
 	}
-	if (pTraits->IsTourism())
+	else if (ePrimaryVictory == VICTORY_PURSUIT_CULTURE)
 	{
-		iCulturalWeight += 5;
+		if (eSecondaryVictory == NO_VICTORY_PURSUIT)
+			VictoryScores[VICTORY_PURSUIT_CULTURE] += 8;
+		else
+			VictoryScores[VICTORY_PURSUIT_CULTURE] += 5;
 	}
-	if (pTraits->IsNerd())
+	else if (ePrimaryVictory == VICTORY_PURSUIT_SCIENCE)
 	{
-		iScientistWeight += 5;
-	}
-	if (pTraits->IsExpansionist())
-	{
-		iConquerorWeight += 2;
-		iCulturalWeight -= 2;
-		iScientistWeight -= 2;
-	}
-	if (pTraits->IsSmaller())
-	{
-		iConquerorWeight -= 2;
-		iCulturalWeight += 2;
-		iScientistWeight += 2;
+		if (eSecondaryVictory == NO_VICTORY_PURSUIT)
+			VictoryScores[VICTORY_PURSUIT_SCIENCE] += 8;
+		else
+			VictoryScores[VICTORY_PURSUIT_SCIENCE] += 5;
 	}
 
-	// Insufficient minor civs?
+	// Default secondary pursuit adds a smaller amount of bias, if it exists
+	// Note: If default primary pursuit is NO_VICTORY_PURSUIT, there will also be no default secondary pursuit
+	switch (eSecondaryVictory)
+	{
+	case VICTORY_PURSUIT_DOMINATION:
+		VictoryScores[VICTORY_PURSUIT_DOMINATION] += 3;
+		break;
+	case VICTORY_PURSUIT_DIPLOMACY:
+		VictoryScores[VICTORY_PURSUIT_DIPLOMACY] += 3;
+		break;
+	case VICTORY_PURSUIT_CULTURE:
+		VictoryScores[VICTORY_PURSUIT_CULTURE] += 3;
+		break;
+	case VICTORY_PURSUIT_SCIENCE:
+		VictoryScores[VICTORY_PURSUIT_SCIENCE] += 3;
+		break;
+	}
+
+	// Not many City-States? City-States aren't 100% essential but without them a Diplomatic Victory becomes much harder.
 	int iNumMinorsEver = GC.getGame().GetNumMinorCivsEver();
-	if (iNumMinorsEver < GC.getGame().countMajorCivsEverAlive())
+	int iNumMajorsEver = GC.getGame().countMajorCivsEverAlive();
+	if (iNumMinorsEver < iNumMajorsEver)
 	{
-		iDiplomatWeight -= 5;
+		VictoryScores[VICTORY_PURSUIT_DIPLOMACY] -= 5;
 
-		if (iNumMinorsEver == 0)
+		if (iNumMinorsEver <= (iNumMajorsEver / 2))
 		{
-			iDiplomatWeight -= 5;
+			VictoryScores[VICTORY_PURSUIT_DIPLOMACY] -= 5;
 		}
 	}
 
-	bool bTie = false;
-	int iBestWeight = 0;
-	VictoryPursuitTypes eBestPursuit = NO_VICTORY_PURSUIT;
-	
-	if (iConquerorWeight > iBestWeight)
+	// Reduce weight significantly if the associated victory condition is disabled.
+	// But not entirely, because this is a civ's ROUTE to victory, not necessarily the victory condition they will achieve.
+	// Increased reduction for Random Personalities to account for the increased random factor (don't want the option to make the AI stupid!)
+	bool bDominationVictoryEnabled = GC.getGame().isVictoryValid((VictoryTypes) GC.getInfoTypeForString("VICTORY_DOMINATION", true));
+	bool bDiploVictoryEnabled = GC.getGame().isVictoryValid((VictoryTypes) GC.getInfoTypeForString("VICTORY_DIPLOMATIC", true));
+	bool bCultureVictoryEnabled = GC.getGame().isVictoryValid((VictoryTypes) GC.getInfoTypeForString("VICTORY_CULTURAL", true));
+	bool bScienceVictoryEnabled = GC.getGame().isVictoryValid((VictoryTypes) GC.getInfoTypeForString("VICTORY_SPACE_RACE", true));
+
+	if (!bDominationVictoryEnabled)
+		VictoryScores[VICTORY_PURSUIT_DOMINATION] -= GC.getGame().isOption(GAMEOPTION_RANDOM_PERSONALITIES) ? 15 : 10;
+
+	if (!bDiploVictoryEnabled)
+		VictoryScores[VICTORY_PURSUIT_DIPLOMACY] -= GC.getGame().isOption(GAMEOPTION_RANDOM_PERSONALITIES) ? 15 : 10;
+
+	if (!bCultureVictoryEnabled)
+		VictoryScores[VICTORY_PURSUIT_CULTURE] -= GC.getGame().isOption(GAMEOPTION_RANDOM_PERSONALITIES) ? 15 : 10;
+
+	if (!bScienceVictoryEnabled)
+		VictoryScores[VICTORY_PURSUIT_SCIENCE] -= GC.getGame().isOption(GAMEOPTION_RANDOM_PERSONALITIES) ? 15 : 10;
+
+	// Sort the scores to find the highest two
+	CvWeightedVector<VictoryPursuitTypes> SortedVictoryScores;
+	for (int iVictoryLoop = 0; iVictoryLoop < NUM_VICTORY_PURSUITS; iVictoryLoop++)
 	{
-		iBestWeight = iConquerorWeight;
-		eBestPursuit = VICTORY_PURSUIT_DOMINATION;
+		VictoryPursuitTypes eVictoryPursuit = (VictoryPursuitTypes) iVictoryLoop;
+		SortedVictoryScores.push_back(eVictoryPursuit, VictoryScores[eVictoryPursuit]);
 	}
 
-	if (iDiplomatWeight > iBestWeight)
-	{
-		iBestWeight = iDiplomatWeight;
-		eBestPursuit = VICTORY_PURSUIT_DIPLOMACY;
-		bTie = false;
-	}
-	else if (iDiplomatWeight == iBestWeight)
-	{
-		bTie = true;
-	}
+	SortedVictoryScores.SortItems();
+	VictoryPursuitTypes eHighestScore = SortedVictoryScores.GetElement(0), eRunnerUp = SortedVictoryScores.GetElement(1), eChosenPrimary = NO_VICTORY_PURSUIT;
 
-	if (iCulturalWeight > iBestWeight)
+	if (SortedVictoryScores.GetWeight(0) > SortedVictoryScores.GetWeight(1))
 	{
-		iBestWeight = iCulturalWeight;
-		eBestPursuit = VICTORY_PURSUIT_CULTURE;
-		bTie = false;
+		eChosenPrimary = eHighestScore;
 	}
-	else if (iCulturalWeight == iBestWeight)
+	// Do we have a tie between the top two? Use victory pursuit hints to resolve the tie.
+	else
 	{
-		bTie = true;
-	}
-
-	if (iScientistWeight > iBestWeight)
-	{
-		iBestWeight = iScientistWeight;
-		eBestPursuit = VICTORY_PURSUIT_SCIENCE;
-		bTie = false;
-	}
-	else if (iScientistWeight == iBestWeight)
-	{
-		bTie = true;
-	}
-
-	// In the event of a tie, use the civ's leader traits
-	if (bTie)
-	{
-		if (pTraits->IsWarmonger())
+		if (eHighestScore == ePrimaryVictory)
 		{
-			eBestPursuit = VICTORY_PURSUIT_DOMINATION;
+			eChosenPrimary = eHighestScore;
 		}
-		else if (pTraits->IsDiplomat())
+		else if (eRunnerUp == ePrimaryVictory)
 		{
-			eBestPursuit = VICTORY_PURSUIT_DIPLOMACY;
+			eChosenPrimary = eRunnerUp;
 		}
-		else if (pTraits->IsTourism())
+		else if (eHighestScore == eSecondaryVictory)
 		{
-			eBestPursuit = VICTORY_PURSUIT_CULTURE;
+			eChosenPrimary = eHighestScore;
 		}
+		else if (eRunnerUp == eSecondaryVictory)
+		{
+			eChosenPrimary = eRunnerUp;
+		}
+		// In this unusual case, let's see if player traits can help us out
 		else
 		{
-			eBestPursuit = VICTORY_PURSUIT_SCIENCE;
+			if (eHighestScore == VICTORY_PURSUIT_DOMINATION && pTraits->IsWarmonger())
+			{
+				eChosenPrimary = eHighestScore;
+			}
+			else if (eHighestScore == VICTORY_PURSUIT_DIPLOMACY && pTraits->IsDiplomat())
+			{
+				eChosenPrimary = eHighestScore;
+			}
+			else if (eHighestScore == VICTORY_PURSUIT_CULTURE && pTraits->IsTourism())
+			{
+				eChosenPrimary = eHighestScore;
+			}
+			else if (eHighestScore == VICTORY_PURSUIT_SCIENCE && pTraits->IsNerd())
+			{
+				eChosenPrimary = eHighestScore;
+			}
+			else if (eRunnerUp == VICTORY_PURSUIT_DOMINATION && pTraits->IsWarmonger())
+			{
+				eChosenPrimary = eRunnerUp;
+			}
+			else if (eRunnerUp == VICTORY_PURSUIT_DIPLOMACY && pTraits->IsDiplomat())
+			{
+				eChosenPrimary = eRunnerUp;
+			}
+			else if (eRunnerUp == VICTORY_PURSUIT_CULTURE && pTraits->IsTourism())
+			{
+				eChosenPrimary = eRunnerUp;
+			}
+			else if (eRunnerUp == VICTORY_PURSUIT_SCIENCE && pTraits->IsNerd())
+			{
+				eChosenPrimary = eRunnerUp;
+			}
+			// No? How about expansionist/smaller?
+			else if ((eHighestScore == VICTORY_PURSUIT_DOMINATION || eHighestScore == VICTORY_PURSUIT_DIPLOMACY) && pTraits->IsExpansionist())
+			{
+				eChosenPrimary = eHighestScore;
+			}
+			else if ((eHighestScore == VICTORY_PURSUIT_CULTURE || eHighestScore == VICTORY_PURSUIT_SCIENCE) && pTraits->IsSmaller())
+			{
+				eChosenPrimary = eHighestScore;
+			}
+			else if ((eRunnerUp == VICTORY_PURSUIT_DOMINATION || eRunnerUp == VICTORY_PURSUIT_DIPLOMACY) && pTraits->IsExpansionist())
+			{
+				eChosenPrimary = eRunnerUp;
+			}
+			else if ((eRunnerUp == VICTORY_PURSUIT_CULTURE || eRunnerUp == VICTORY_PURSUIT_SCIENCE) && pTraits->IsSmaller())
+			{
+				eChosenPrimary = eRunnerUp;
+			}
+			// If we made it this far and still haven't selected something, there's no breaking this tie, just go with the first option lol
+			else
+			{
+				eChosenPrimary = eHighestScore;
+			}
 		}
 	}
 
-	SetDefaultVictoryPursuit(eBestPursuit);
+	SetPrimaryVictoryPursuit(eChosenPrimary);
+
+	// Now we pick a secondary pursuit.
+	// Case 1: The default primary pursuit is the one we chose.
+	if (eChosenPrimary == ePrimaryVictory)
+	{
+		// Is there a default secondary pursuit? Then use that, unless the associated victory condition was disabled
+		bool bValid = eSecondaryVictory != NO_VICTORY_PURSUIT;
+		if (bValid)
+		{
+			if (eSecondaryVictory == VICTORY_PURSUIT_DOMINATION)
+			{
+				if (!bCanConquer || !bDominationVictoryEnabled)
+					bValid = false;
+			}
+			else if (eSecondaryVictory == VICTORY_PURSUIT_DIPLOMACY)
+			{
+				if (!bCanUseLeague || !bDiploVictoryEnabled)
+					bValid = false;
+			}
+			else if (eSecondaryVictory == VICTORY_PURSUIT_CULTURE)
+			{
+				if (!bCanUnlockPolicies || !bCultureVictoryEnabled)
+					bValid = false;
+			}
+			else if (eSecondaryVictory == VICTORY_PURSUIT_SCIENCE)
+			{
+				if (!bCanUnlockTechs || !bScienceVictoryEnabled)
+					bValid = false;
+			}
+		}
+
+		if (bValid)
+			SetSecondaryVictoryPursuit(eSecondaryVictory);
+		// Otherwise go with the second highest scoring pursuit.
+		else if (eChosenPrimary == eHighestScore)
+			SetSecondaryVictoryPursuit(eRunnerUp);
+		else
+			SetSecondaryVictoryPursuit(eHighestScore);
+	}
+	// Case 2: The default primary pursuit is different from the one we chose.
+	else if (eChosenPrimary != ePrimaryVictory && ePrimaryVictory != NO_VICTORY_PURSUIT)
+	{
+		// Use the default primary pursuit as our secondary pursuit unless the associated victory condition was disabled
+		bool bValid = ePrimaryVictory != NO_VICTORY_PURSUIT;
+		if (bValid)
+		{
+			if (ePrimaryVictory == VICTORY_PURSUIT_DOMINATION)
+			{
+				if (!bCanConquer || !bDominationVictoryEnabled)
+					bValid = false;
+			}
+			else if (ePrimaryVictory == VICTORY_PURSUIT_DIPLOMACY)
+			{
+				if (!bCanUseLeague || !bDiploVictoryEnabled)
+					bValid = false;
+			}
+			else if (ePrimaryVictory == VICTORY_PURSUIT_CULTURE)
+			{
+				if (!bCanUnlockPolicies || !bCultureVictoryEnabled)
+					bValid = false;
+			}
+			else if (ePrimaryVictory == VICTORY_PURSUIT_SCIENCE)
+			{
+				if (!bCanUnlockTechs || !bScienceVictoryEnabled)
+					bValid = false;
+			}
+		}
+
+		if (bValid)
+			SetSecondaryVictoryPursuit(ePrimaryVictory);
+		// Otherwise go with the second highest scoring pursuit.
+		else if (eChosenPrimary == eHighestScore)
+			SetSecondaryVictoryPursuit(eRunnerUp);
+		else
+			SetSecondaryVictoryPursuit(eHighestScore);
+	}
+	// Case 3: No default primary or secondary pursuit in the database (generalist civ, or the modder didn't specify it for a custom civ).
+	else
+	{
+		// Use the second highest scoring pursuit.
+		if (eChosenPrimary == eHighestScore)
+			SetSecondaryVictoryPursuit(eRunnerUp);
+		else
+			SetSecondaryVictoryPursuit(eHighestScore);
+	}
 }
 
 //	-----------------------------------------------------------------------------------------------
@@ -1833,41 +2349,77 @@ int CvDiplomacyAI::GetMinorCivApproachBias(CivApproachTypes eApproach) const
 
 //	-----------------------------------------------------------------------------------------------
 
-/// What is this AI leader's Default Victory Focus?
-VictoryPursuitTypes CvDiplomacyAI::GetDefaultVictoryPursuit() const
+/// What is this AI leader's default Primary Victory Pursuit (after randomization)?
+VictoryPursuitTypes CvDiplomacyAI::GetPrimaryVictoryPursuit() const
 {
-	return (VictoryPursuitTypes) m_eDefaultVictoryPursuit;
+	return (VictoryPursuitTypes) m_ePrimaryVictoryPursuit;
 }
 
-/// Sets this AI leader's Default Victory Focus
-void CvDiplomacyAI::SetDefaultVictoryPursuit(VictoryPursuitTypes eVictoryPursuit)
+void CvDiplomacyAI::SetPrimaryVictoryPursuit(VictoryPursuitTypes eVictoryPursuit)
 {
-	if (eVictoryPursuit < NO_VICTORY_PURSUIT || eVictoryPursuit >= NUM_VICTORY_PURSUITS) return;
-	m_eDefaultVictoryPursuit = eVictoryPursuit;
+	if (eVictoryPursuit <= NO_VICTORY_PURSUIT || eVictoryPursuit >= NUM_VICTORY_PURSUITS) return;
+	m_ePrimaryVictoryPursuit = eVictoryPursuit;
 }
 
 /// Is this AI leader naturally inclined to be aggressive and covetous of others' possessions?
 bool CvDiplomacyAI::IsConqueror() const
 {
-	return GetDefaultVictoryPursuit() == VICTORY_PURSUIT_DOMINATION;
+	return GetPrimaryVictoryPursuit() == VICTORY_PURSUIT_DOMINATION;
 }
 
 /// Is this AI leader naturally focused on forging friendships and allying City-States?
 bool CvDiplomacyAI::IsDiplomat() const
 {
-	return GetDefaultVictoryPursuit() == VICTORY_PURSUIT_DIPLOMACY;
+	return GetPrimaryVictoryPursuit() == VICTORY_PURSUIT_DIPLOMACY;
 }
 
-/// Is this AI leader naturally focused on spreading its culture across the world?
+/// Is this AI leader naturally focused on spreading their culture across the world?
 bool CvDiplomacyAI::IsCultural() const
 {
-	return GetDefaultVictoryPursuit() == VICTORY_PURSUIT_CULTURE;
+	return GetPrimaryVictoryPursuit() == VICTORY_PURSUIT_CULTURE;
 }
 
 /// Is this AI leader naturally focused on their civilization's technological advancement?
 bool CvDiplomacyAI::IsScientist() const
 {
-	return GetDefaultVictoryPursuit() == VICTORY_PURSUIT_SCIENCE;
+	return GetPrimaryVictoryPursuit() == VICTORY_PURSUIT_SCIENCE;
+}
+
+
+/// What is this AI leader's default Secondary Victory Pursuit (after randomization)? This is not as important as the Primary Victory Pursuit, but still has an effect.
+VictoryPursuitTypes CvDiplomacyAI::GetSecondaryVictoryPursuit() const
+{
+	return (VictoryPursuitTypes) m_eSecondaryVictoryPursuit;
+}
+
+void CvDiplomacyAI::SetSecondaryVictoryPursuit(VictoryPursuitTypes eVictoryPursuit)
+{
+	if (eVictoryPursuit < NO_VICTORY_PURSUIT || eVictoryPursuit >= NUM_VICTORY_PURSUITS) return;
+	m_eSecondaryVictoryPursuit = eVictoryPursuit;
+}
+
+/// Is this AI leader secondarily inclined to be aggressive and covetous of others' possessions?
+bool CvDiplomacyAI::IsSecondaryConqueror() const
+{
+	return GetSecondaryVictoryPursuit() == VICTORY_PURSUIT_DOMINATION;
+}
+
+/// Is this AI leader secondarily focused on forging friendships and allying City-States?
+bool CvDiplomacyAI::IsSecondaryDiplomat() const
+{
+	return GetSecondaryVictoryPursuit() == VICTORY_PURSUIT_DIPLOMACY;
+}
+
+/// Is this AI leader secondarily focused on spreading their culture across the world?
+bool CvDiplomacyAI::IsSecondaryCultural() const
+{
+	return GetSecondaryVictoryPursuit() == VICTORY_PURSUIT_CULTURE;
+}
+
+/// Is this AI leader secondarily focused on their civilization's technological advancement?
+bool CvDiplomacyAI::IsSecondaryScientist() const
+{
+	return GetSecondaryVictoryPursuit() == VICTORY_PURSUIT_SCIENCE;
 }
 
 
@@ -2140,16 +2692,40 @@ void CvDiplomacyAI::SetCompetingForVictory(bool bValue)
 	m_bCompetingForVictory = bValue;
 }
 
-/// What victory condition are we focusing on?
-VictoryPursuitTypes CvDiplomacyAI::GetVictoryPursuit() const
+/// What victory condition are we currently focusing on?
+VictoryPursuitTypes CvDiplomacyAI::GetCurrentVictoryPursuit() const
 {
-	return (VictoryPursuitTypes) m_eVictoryPursuit;
+	return (VictoryPursuitTypes) m_eCurrentVictoryPursuit;
 }
 
-void CvDiplomacyAI::SetVictoryPursuit(VictoryPursuitTypes eVictoryPursuit)
+void CvDiplomacyAI::SetCurrentVictoryPursuit(VictoryPursuitTypes eVictoryPursuit)
 {
 	if (eVictoryPursuit < 0 || eVictoryPursuit >= NUM_VICTORY_PURSUITS) return;
-	m_eVictoryPursuit = eVictoryPursuit;
+	m_eCurrentVictoryPursuit = eVictoryPursuit;
+}
+
+/// Does this player want to conquer the world?
+bool CvDiplomacyAI::IsGoingForWorldConquest() const
+{
+	return GetCurrentVictoryPursuit() == VICTORY_PURSUIT_DOMINATION;
+}
+
+/// Does this player want to win by diplomacy?
+bool CvDiplomacyAI::IsGoingForDiploVictory() const
+{
+	return GetCurrentVictoryPursuit() == VICTORY_PURSUIT_DIPLOMACY;
+}
+
+/// Does this player want to win by culture?
+bool CvDiplomacyAI::IsGoingForCultureVictory() const
+{
+	return GetCurrentVictoryPursuit() == VICTORY_PURSUIT_CULTURE;
+}
+
+/// Does this player want to win by science?
+bool CvDiplomacyAI::IsGoingForSpaceshipVictory() const
+{
+	return GetCurrentVictoryPursuit() == VICTORY_PURSUIT_SCIENCE;
 }
 
 /// Are we extra aggressive towards this player because they're close to victory?
@@ -2197,7 +2773,9 @@ void CvDiplomacyAI::SetPlayerWonderSpammer(PlayerTypes ePlayer, bool bValue)
 // Victory Progress
 // ------------------------------------
 
-int CvDiplomacyAI::GetScoreVictoryProgress()
+/// How close are we to achieving a Time victory?
+/// FIXME: Needs a "is time victory disabled?" check before this function can be of much use
+int CvDiplomacyAI::GetScoreVictoryProgress() const
 {
 	if (!m_pPlayer->isMajorCiv() || !m_pPlayer->isAlive() || GC.getGame().IsGameWon())
 	{
@@ -2230,11 +2808,12 @@ int CvDiplomacyAI::GetScoreVictoryProgress()
 	return iProgress;
 }
 
-int CvDiplomacyAI::GetScienceVictoryProgress()
+/// How close are we to achieving a Science victory?
+int CvDiplomacyAI::GetScienceVictoryProgress() const
 {
 	VictoryTypes eSpaceVictory = (VictoryTypes)GC.getInfoTypeForString("VICTORY_SPACE_RACE", true);
 
-	if (!m_pPlayer->isMajorCiv() || !m_pPlayer->isAlive() || !GC.getGame().isVictoryValid(eSpaceVictory) || GC.getGame().IsGameWon())
+	if (!m_pPlayer->isMajorCiv() || !m_pPlayer->isAlive() || GC.getGame().isOption(GAMEOPTION_NO_SCIENCE) || !GC.getGame().isVictoryValid(eSpaceVictory) || GC.getGame().IsGameWon())
 	{
 		return 0;
 	}
@@ -2267,10 +2846,11 @@ int CvDiplomacyAI::GetScienceVictoryProgress()
 	return iProgress;
 }
 
-int CvDiplomacyAI::GetDiplomaticVictoryProgress()
+/// How close are we to achieving a Diplomatic victory?
+int CvDiplomacyAI::GetDiplomaticVictoryProgress() const
 {
 	CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
-	if (!pLeague || !m_pPlayer->isMajorCiv() || !m_pPlayer->isAlive() || !GC.getGame().isVictoryValid((VictoryTypes)GC.getInfoTypeForString("VICTORY_DIPLOMATIC", true)) || GC.getGame().IsGameWon())
+	if (!pLeague || !m_pPlayer->isMajorCiv() || !m_pPlayer->isAlive() || GC.getGame().isOption(GAMEOPTION_NO_LEAGUES) || !GC.getGame().isVictoryValid((VictoryTypes)GC.getInfoTypeForString("VICTORY_DIPLOMATIC", true)) || GC.getGame().IsGameWon())
 	{
 		return 0;
 	}
@@ -2311,9 +2891,10 @@ int CvDiplomacyAI::GetDiplomaticVictoryProgress()
 	return iProgress;
 }
 
-int CvDiplomacyAI::GetDominationVictoryProgress()
+/// How close are we to achieving a Domination victory?
+int CvDiplomacyAI::GetDominationVictoryProgress() const
 {
-	if (!m_pPlayer->isMajorCiv() || !m_pPlayer->isAlive())
+	if (!m_pPlayer->isMajorCiv() || !m_pPlayer->isAlive() || !GC.getGame().CanPlayerAttemptDominationVictory(GetID()))
 	{
 		return 0;
 	}
@@ -2347,9 +2928,10 @@ int CvDiplomacyAI::GetDominationVictoryProgress()
 	return max(iOurMight, iCivsProgress);
 }
 
-int CvDiplomacyAI::GetCultureVictoryProgress()
+/// How close are we to achieving a Culture victory?
+int CvDiplomacyAI::GetCultureVictoryProgress() const
 {
-	if (!m_pPlayer->isMajorCiv() || !m_pPlayer->isAlive() || !GC.getGame().isVictoryValid((VictoryTypes)GC.getInfoTypeForString("VICTORY_CULTURAL", true)) || GC.getGame().IsGameWon())
+	if (!m_pPlayer->isMajorCiv() || !m_pPlayer->isAlive() || GC.getGame().isOption(GAMEOPTION_NO_POLICIES) || !GC.getGame().isVictoryValid((VictoryTypes)GC.getInfoTypeForString("VICTORY_CULTURAL", true)) || GC.getGame().IsGameWon())
 	{
 		return 0;
 	}
@@ -2367,7 +2949,7 @@ int CvDiplomacyAI::GetCultureVictoryProgress()
 	return iProgress;
 }
 
-int CvDiplomacyAI::GetLowestTourismInfluence()
+int CvDiplomacyAI::GetLowestTourismInfluence() const
 {
 	int iLowestPercent = /*100*/ GD_INT_GET(CULTURE_LEVEL_INFLUENTIAL);   // Don't want to target civs if already influential
 
@@ -2399,6 +2981,48 @@ int CvDiplomacyAI::GetLowestTourismInfluence()
 
 	return iLowestPercent;
 }
+
+//	-----------------------------------------------------------------------------------------------
+
+/// Is this player close to ANY victory condition?
+bool CvDiplomacyAI::IsCloseToAnyVictoryCondition() const
+{
+	if (GC.getGame().IsGameWon())
+		return false;
+
+	if (IsCloseToWorldConquest() || IsCloseToDiploVictory() || IsCloseToSpaceshipVictory() || IsCloseToCultureVictory())
+	{
+		return true;
+	}
+
+	return false;
+}
+
+/// Is this player close to a domination victory?
+bool CvDiplomacyAI::IsCloseToWorldConquest() const
+{
+	return GetDominationVictoryProgress() >= /*50*/ GD_INT_GET(CLOSE_TO_DOMINATION_VICTORY_THRESHOLD);
+}
+
+/// Is this player close to a diplomatic victory?
+bool CvDiplomacyAI::IsCloseToDiploVictory() const
+{
+	return GetDiplomaticVictoryProgress() >= /*75*/ GD_INT_GET(CLOSE_TO_DIPLOMATIC_VICTORY_THRESHOLD);
+}
+
+/// Is this player close to a science victory?
+bool CvDiplomacyAI::IsCloseToSpaceshipVictory() const
+{
+	return GetScienceVictoryProgress() >= /*80*/ GD_INT_GET(CLOSE_TO_SCIENCE_VICTORY_THRESHOLD);
+}
+
+/// Is this player close to a cultural victory?
+bool CvDiplomacyAI::IsCloseToCultureVictory() const
+{
+	return GetCultureVictoryProgress() >= /*75*/ GD_INT_GET(CLOSE_TO_CULTURE_VICTORY_THRESHOLD);
+}
+
+//	-----------------------------------------------------------------------------------------------
 
 // ------------------------------------
 // Opinion & Approach
@@ -7838,7 +8462,7 @@ void CvDiplomacyAI::DoTurn(DiplomacyMode eDiploMode, PlayerTypes ePlayer)
 
 	// Victory Competition
 	DoUpdateCompetingForVictory();
-	DoUpdateVictoryPursuit();
+	DoUpdateCurrentVictoryPursuit();
 	DoUpdateRecklessExpanders();
 	DoUpdateWonderSpammers();
 	DoUpdateTechBlockLevels();
@@ -8306,34 +8930,35 @@ bool CvDiplomacyAI::IsEndgameAggressive() const
 	return GC.getGame().IsEndgameAggressionEnabled();
 }
 
-/// What should our victory focus be? (i.e. What victory condition should we be sensitive to)
-void CvDiplomacyAI::DoUpdateVictoryPursuit()
+/// What victory condition are we currently going for?
+void CvDiplomacyAI::DoUpdateCurrentVictoryPursuit()
 {
+	// Always War scenarios - always Domination
 	if (GC.getGame().isOption(GAMEOPTION_ALWAYS_WAR) || GC.getGame().isOption(GAMEOPTION_NO_CHANGING_WAR_PEACE))
 	{
-		SetVictoryPursuit(VICTORY_PURSUIT_DOMINATION);
+		SetCurrentVictoryPursuit(VICTORY_PURSUIT_DOMINATION);
 		return;
 	}
 
 	// Let's check if we're close to winning.
 	if (IsCloseToWorldConquest())
 	{
-		SetVictoryPursuit(VICTORY_PURSUIT_DOMINATION);
+		SetCurrentVictoryPursuit(VICTORY_PURSUIT_DOMINATION);
 		return;
 	}
 	else if (IsCloseToSpaceshipVictory())
 	{
-		SetVictoryPursuit(VICTORY_PURSUIT_SCIENCE);
+		SetCurrentVictoryPursuit(VICTORY_PURSUIT_SCIENCE);
 		return;
 	}
 	else if (IsCloseToCultureVictory())
 	{
-		SetVictoryPursuit(VICTORY_PURSUIT_CULTURE);
+		SetCurrentVictoryPursuit(VICTORY_PURSUIT_CULTURE);
 		return;
 	}
 	else if (IsCloseToDiploVictory())
 	{
-		SetVictoryPursuit(VICTORY_PURSUIT_DIPLOMACY);
+		SetCurrentVictoryPursuit(VICTORY_PURSUIT_DIPLOMACY);
 		return;
 	}
 
@@ -8356,22 +8981,22 @@ void CvDiplomacyAI::DoUpdateVictoryPursuit()
 		bDontCareAboutWinning = true;
 	}
 
-	// If we don't care about winning, use our default focus based on flavors
+	// If we don't care about winning, use our primary victory pursuit based on flavors
 	if (bDontCareAboutWinning)
 	{
-		switch (GetDefaultVictoryPursuit())
+		switch (GetPrimaryVictoryPursuit())
 		{
 		case VICTORY_PURSUIT_DIPLOMACY:
-			SetVictoryPursuit(VICTORY_PURSUIT_DIPLOMACY);
+			SetCurrentVictoryPursuit(VICTORY_PURSUIT_DIPLOMACY);
 			break;
 		case VICTORY_PURSUIT_CULTURE:
-			SetVictoryPursuit(VICTORY_PURSUIT_CULTURE);
+			SetCurrentVictoryPursuit(VICTORY_PURSUIT_CULTURE);
 			break;
 		case VICTORY_PURSUIT_SCIENCE:
-			SetVictoryPursuit(VICTORY_PURSUIT_SCIENCE);
+			SetCurrentVictoryPursuit(VICTORY_PURSUIT_SCIENCE);
 			break;
 		default:
-			SetVictoryPursuit(VICTORY_PURSUIT_DOMINATION);
+			SetCurrentVictoryPursuit(VICTORY_PURSUIT_DOMINATION);
 			break;
 		}
 		return;
@@ -8380,27 +9005,27 @@ void CvDiplomacyAI::DoUpdateVictoryPursuit()
 	// We care about winning, so Grand Strategy AI decides
 	if (eMyGrandStrategy == eDomination)
 	{
-		SetVictoryPursuit(VICTORY_PURSUIT_DOMINATION);
+		SetCurrentVictoryPursuit(VICTORY_PURSUIT_DOMINATION);
 		return;
 	}
 	else if (eMyGrandStrategy == eDiplomacy)
 	{
-		SetVictoryPursuit(VICTORY_PURSUIT_DIPLOMACY);
+		SetCurrentVictoryPursuit(VICTORY_PURSUIT_DIPLOMACY);
 		return;
 	}
 	else if (eMyGrandStrategy == eCulture)
 	{
-		SetVictoryPursuit(VICTORY_PURSUIT_CULTURE);
+		SetCurrentVictoryPursuit(VICTORY_PURSUIT_CULTURE);
 		return;
 	}
 	else if (eMyGrandStrategy == eScience)
 	{
-		SetVictoryPursuit(VICTORY_PURSUIT_SCIENCE);
+		SetCurrentVictoryPursuit(VICTORY_PURSUIT_SCIENCE);
 		return;
 	}
 
 	// By default we go for conquest
-	SetVictoryPursuit(VICTORY_PURSUIT_DOMINATION);
+	SetCurrentVictoryPursuit(VICTORY_PURSUIT_DOMINATION);
 }
 
 /// Do we consider any players to be expanding too recklessly?
@@ -47532,203 +48157,6 @@ int CvDiplomacyAI::GetNumOurEnemiesPlayerAtWarWith(PlayerTypes ePlayer)
 	return iAtWarCount;
 }
 
-/// Does this player want to conquer the world?
-bool CvDiplomacyAI::IsGoingForWorldConquest() const
-{
-	return GetVictoryPursuit() == VICTORY_PURSUIT_DOMINATION;
-}
-
-/// Does this player want to win by diplomacy?
-bool CvDiplomacyAI::IsGoingForDiploVictory() const
-{
-	return GetVictoryPursuit() == VICTORY_PURSUIT_DIPLOMACY;
-}
-
-/// Does this player want to win by culture?
-bool CvDiplomacyAI::IsGoingForCultureVictory() const
-{
-	return GetVictoryPursuit() == VICTORY_PURSUIT_CULTURE;
-}
-
-/// Does this player want to win by science?
-bool CvDiplomacyAI::IsGoingForSpaceshipVictory() const
-{
-	return GetVictoryPursuit() == VICTORY_PURSUIT_SCIENCE;
-}
-
-/// Is this player close to ANY victory condition?
-bool CvDiplomacyAI::IsCloseToAnyVictoryCondition() const
-{
-	if (IsCloseToWorldConquest() || IsCloseToSpaceshipVictory() || IsCloseToCultureVictory() || IsCloseToDiploVictory())
-	{
-		return true;
-	}
-
-	return false;
-}
-
-/// Is this player close to a science victory?
-bool CvDiplomacyAI::IsCloseToSpaceshipVictory() const
-{
-	VictoryTypes eSpaceshipVictory = (VictoryTypes) GC.getInfoTypeForString("VICTORY_SPACE_RACE", true);
-	
-	if (!GC.getGame().isVictoryValid(eSpaceshipVictory))
-	{
-		return false;
-	}
-	
-	if (GC.getGame().IsGameWon())
-	{
-		return false;
-	}
-	
-	if (eSpaceshipVictory != NO_VICTORY)
-	{
-		int iProjectCount = GET_TEAM(GetTeam()).GetSSProjectCount();
-		if (iProjectCount > 0)
-		{
-			return true;
-		}
-
-		int iTotalTechs = GC.getNumTechInfos();
-		int iOurTechs = GET_TEAM(GetTeam()).GetTeamTechs()->GetNumTechsKnown();
-		int iTechPercent = (iOurTechs * 100) / max(1, iTotalTechs);
-		
-		if (iTechPercent > 85)
-		{
-			int iNumCivsAheadScience = 0;
-			int iNumCivsBehindScience = 0;
-			int iNumCivsAlive = 0;
-
-			for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
-			{
-				PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
-				CvPlayer &kPlayer = GET_PLAYER(eLoopPlayer);
-
-				if (kPlayer.isAlive() && !kPlayer.isMinorCiv() && !kPlayer.isBarbarian() && iPlayerLoop != GetID())
-				{
-					if (iOurTechs > GET_TEAM(kPlayer.getTeam()).GetTeamTechs()->GetNumTechsKnown())
-					{
-						iNumCivsAheadScience++;
-					}
-					else
-					{
-						iNumCivsBehindScience++;
-					}
-					iNumCivsAlive++;
-				}
-			}
-			if (iNumCivsAlive > 0 && iNumCivsAheadScience > iNumCivsBehindScience)
-			{
-				return true;
-			}
-		}
-	}	
-
-	return false;
-}
-
-/// Is this player close to a domination victory?
-bool CvDiplomacyAI::IsCloseToWorldConquest() const
-{
-	// Not close to victory if player cannot attempt Domination Victory.
-	if (!GC.getGame().CanPlayerAttemptDominationVictory(GetID()))
-		return false;
-
-	if (GetPlayer()->GetFractionOriginalCapitalsUnderControl() >= 50)
-		return true;
-
-	return false;
-}
-
-/// Is this player close to a cultural victory?
-bool CvDiplomacyAI::IsCloseToCultureVictory() const
-{
-	VictoryTypes eCulturalVictory = (VictoryTypes) GC.getInfoTypeForString("VICTORY_CULTURAL", true);
-	
-	if (!GC.getGame().isVictoryValid(eCulturalVictory))
-	{
-		return false;
-	}
-	
-	if (GC.getGame().IsGameWon())
-	{
-		return false;
-	}
-
-	ProjectTypes eUtopia = (ProjectTypes)GC.getInfoTypeForString("PROJECT_UTOPIA_PROJECT", true);
-	if (eUtopia != NO_PROJECT && GET_TEAM(GetTeam()).getProjectMaking(eUtopia) > 0)
-	{
-		return true;
-	}
-	
-	// % of influenced civs isn't important if we're not at least in the Modern Era
-	if (GetPlayer()->GetCurrentEra() < 5)
-	{
-		return false;
-	}
-	
-	int iNumCivsInfluential = GetPlayer()->GetCulture()->GetNumCivsInfluentialOn();
-	if (iNumCivsInfluential > 0)
-	{
-		int iNumCivsAlive = GetPlayer()->GetCulture()->GetNumCivsToBeInfluentialOn();
-
-		if (iNumCivsInfluential == iNumCivsAlive)
-			return true;
-
-		int iPercentToGo = iNumCivsInfluential * 100 / max(1,iNumCivsAlive);
-		int iPercentToCheck = 0;
-		if (iNumCivsAlive >= 4)
-			iPercentToCheck = 50;
-		else if (iNumCivsAlive == 3)
-			iPercentToCheck = 25;
-		else
-			iPercentToCheck = 0;
-
-		if (iPercentToGo >= iPercentToCheck)
-		{
-			PlayerTypes eFinalPlayer = GetPlayer()->GetCulture()->GetCivLowestInfluence(false);
-			if (eFinalPlayer != NO_PLAYER && GetPlayer()->GetCulture()->GetTurnsToInfluential(eFinalPlayer) <= 75)
-			{
-				return true;
-			}
-		}
-	}
-
-	return false;
-}
-
-/// Is this player close to a diplomatic victory?
-bool CvDiplomacyAI::IsCloseToDiploVictory() const
-{
-	VictoryTypes eDiplomaticVictory = (VictoryTypes) GC.getInfoTypeForString("VICTORY_DIPLOMATIC", true);
-	
-	if (!GC.getGame().isVictoryValid(eDiplomaticVictory))
-	{
-		return false;
-	}
-	
-	if (GC.getGame().IsGameWon())
-	{
-		return false;
-	}
-	
-	CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
-	if (pLeague != NULL)
-	{
-		int iVotes = GC.getGame().GetGameLeagues()->GetActiveLeague()->CalculateStartingVotesForMember(GetID());
-		int iVotesNeededToWin = GC.getGame().GetVotesNeededForDiploVictory();
-		iVotesNeededToWin *= 75;
-		iVotesNeededToWin /= 100;
-		if (iVotes >= iVotesNeededToWin)
-		{
-			return true;
-		}
-	}
-
-	return false;
-}
-
 /// AI is doing something with a Minor civ
 void CvDiplomacyAI::LogMinorCivGiftTile(PlayerTypes eMinor)
 {
@@ -50059,22 +50487,44 @@ void CvDiplomacyAI::LogPersonality()
 		strOutBuf = strBaseString + ", " + strTemp;
 		pLog->Msg(strOutBuf);
 
-		switch (GetDefaultVictoryPursuit())
+		switch (GetPrimaryVictoryPursuit())
 		{
 		case VICTORY_PURSUIT_DOMINATION:
-			strTemp.Format("VICTORY PURSUIT, DOMINATION");
+			strTemp.Format("DEFAULT PRIMARY PURSUIT, DOMINATION");
 			break;
 		case VICTORY_PURSUIT_DIPLOMACY:
-			strTemp.Format("VICTORY PURSUIT, DIPLOMACY");
+			strTemp.Format("DEFAULT PRIMARY PURSUIT, DIPLOMACY");
 			break;
 		case VICTORY_PURSUIT_CULTURE:
-			strTemp.Format("VICTORY PURSUIT, CULTURE");
+			strTemp.Format("DEFAULT PRIMARY PURSUIT, CULTURE");
 			break;
 		case VICTORY_PURSUIT_SCIENCE:
-			strTemp.Format("VICTORY PURSUIT, SCIENCE");
+			strTemp.Format("DEFAULT PRIMARY PURSUIT, SCIENCE");
 			break;
 		default:
-			strTemp.Format("VICTORY PURSUIT, NONE");
+			strTemp.Format("DEFAULT PRIMARY PURSUIT, NONE");
+			break;
+		}
+
+		strOutBuf = strBaseString + ", " + strTemp;
+		pLog->Msg(strOutBuf);
+
+		switch (GetSecondaryVictoryPursuit())
+		{
+		case VICTORY_PURSUIT_DOMINATION:
+			strTemp.Format("DEFAULT SECONDARY PURSUIT, DOMINATION");
+			break;
+		case VICTORY_PURSUIT_DIPLOMACY:
+			strTemp.Format("DEFAULT SECONDARY PURSUIT, DIPLOMACY");
+			break;
+		case VICTORY_PURSUIT_CULTURE:
+			strTemp.Format("DEFAULT SECONDARY PURSUIT, CULTURE");
+			break;
+		case VICTORY_PURSUIT_SCIENCE:
+			strTemp.Format("DEFAULT SECONDARY PURSUIT, SCIENCE");
+			break;
+		default:
+			strTemp.Format("DEFAULT SECONDARY PURSUIT, NONE");
 			break;
 		}
 

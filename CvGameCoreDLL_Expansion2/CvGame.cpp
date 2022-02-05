@@ -6662,6 +6662,10 @@ bool CvGame::CanPlayerAttemptDominationVictory(PlayerTypes ePlayer, PlayerTypes 
 			if (kPlayer.GetNumCitiesFounded() == 0)
 				continue;
 
+			// Ignore vassals
+			if (kPlayer.GetDiplomacyAI()->IsVassal(ePlayer))
+				continue;
+
 			int iX = kPlayer.GetOriginalCapitalX();
 			int iY = kPlayer.GetOriginalCapitalY();
 			CvPlot* pCapitalPlot = GC.getMap().plot(iX, iY);
@@ -6712,6 +6716,10 @@ bool CvGame::CanPlayerAttemptDominationVictory(PlayerTypes ePlayer, PlayerTypes 
 
 			// Ignore players who never founded an original capital
 			if (kPlayer.GetNumCitiesFounded() == 0)
+				continue;
+
+			// Ignore vassals
+			if (kPlayer.GetDiplomacyAI()->IsVassal(ePlayer))
 				continue;
 
 			int iX = kPlayer.GetOriginalCapitalX();

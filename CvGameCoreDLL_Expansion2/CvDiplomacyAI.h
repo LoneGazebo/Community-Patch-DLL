@@ -109,7 +109,7 @@ public:
 
 	int GetRandomPersonalityWeight(int iOriginalValue, int& iSeed);
 	void DoInitializePersonality(bool bFirstInit);
-	void SelectDefaultVictoryPursuit();
+	void SelectDefaultVictoryPursuits();
 
 	int GetVictoryCompetitiveness() const;
 	int GetWonderCompetitiveness() const;
@@ -128,12 +128,19 @@ public:
 	int GetMajorCivApproachBias(CivApproachTypes eApproach) const;
 	int GetMinorCivApproachBias(CivApproachTypes eApproach) const;
 
-	VictoryPursuitTypes GetDefaultVictoryPursuit() const;
-	void SetDefaultVictoryPursuit(VictoryPursuitTypes eVictoryPursuit);
+	VictoryPursuitTypes GetPrimaryVictoryPursuit() const;
+	void SetPrimaryVictoryPursuit(VictoryPursuitTypes eVictoryPursuit);
 	bool IsConqueror() const;
 	bool IsDiplomat() const;
 	bool IsCultural() const;
 	bool IsScientist() const;
+
+	VictoryPursuitTypes GetSecondaryVictoryPursuit() const;
+	void SetSecondaryVictoryPursuit(VictoryPursuitTypes eVictoryPursuit);
+	bool IsSecondaryConqueror() const;
+	bool IsSecondaryDiplomat() const;
+	bool IsSecondaryCultural() const;
+	bool IsSecondaryScientist() const;
 
 	// ************************************
 	// Memory Management
@@ -178,8 +185,12 @@ public:
 	bool IsCompetingForVictory() const;
 	void SetCompetingForVictory(bool bValue);
 
-	VictoryPursuitTypes GetVictoryPursuit() const;
-	void SetVictoryPursuit(VictoryPursuitTypes eVictoryPursuit);
+	VictoryPursuitTypes GetCurrentVictoryPursuit() const;
+	void SetCurrentVictoryPursuit(VictoryPursuitTypes eVictoryPursuit);
+	bool IsGoingForWorldConquest() const;
+	bool IsGoingForDiploVictory() const;
+	bool IsGoingForCultureVictory() const;
+	bool IsGoingForSpaceshipVictory() const;
 
 	bool IsEndgameAggressiveTo(PlayerTypes ePlayer) const;
 	void SetEndgameAggressiveTo(PlayerTypes ePlayer, bool bValue);
@@ -194,12 +205,18 @@ public:
 	// Victory Progress
 	// ------------------------------------
 
-	int GetScoreVictoryProgress();
-	int GetScienceVictoryProgress();
-	int GetDiplomaticVictoryProgress();
-	int GetDominationVictoryProgress();
-	int GetCultureVictoryProgress();
-	int GetLowestTourismInfluence();
+	int GetScoreVictoryProgress() const;
+	int GetDominationVictoryProgress() const;
+	int GetDiplomaticVictoryProgress() const;
+	int GetScienceVictoryProgress() const;
+	int GetCultureVictoryProgress() const;
+	int GetLowestTourismInfluence() const;
+
+	bool IsCloseToAnyVictoryCondition() const;
+	bool IsCloseToWorldConquest() const;
+	bool IsCloseToDiploVictory() const;
+	bool IsCloseToSpaceshipVictory() const;
+	bool IsCloseToCultureVictory() const;
 
 	// ------------------------------------
 	// Opinion & Approach
@@ -1040,7 +1057,7 @@ public:
 	void DoUpdateCompetingForVictory();
 	bool IsEndgameAggressive() const;
 
-	void DoUpdateVictoryPursuit();
+	void DoUpdateCurrentVictoryPursuit();
 	void DoUpdateRecklessExpanders();
 	void DoUpdateWonderSpammers();
 	void DoUpdateVictoryDisputeLevels();
@@ -1719,17 +1736,6 @@ public:
 
 	int GetNumOurEnemiesPlayerAtWarWith(PlayerTypes ePlayer);
 
-	bool IsGoingForWorldConquest() const;
-	bool IsGoingForDiploVictory() const;
-	bool IsGoingForCultureVictory() const;
-	bool IsGoingForSpaceshipVictory() const;
-
-	bool IsCloseToAnyVictoryCondition() const;
-	bool IsCloseToSpaceshipVictory() const;
-	bool IsCloseToWorldConquest() const;
-	bool IsCloseToCultureVictory() const;
-	bool IsCloseToDiploVictory() const;
-
 	// Minor Civ Log
 	void LogMinorCivGiftTile(PlayerTypes ePlayer);
 	void LogMinorCivGiftGold(PlayerTypes ePlayer, int iOldFriendship, int iGold, bool bSaving, bool bWantQuickBoost, PlayerTypes ePlayerTryingToPass);
@@ -1872,8 +1878,9 @@ private:
 	bool m_bWaitingForDigChoice;
 	bool m_bBackstabber;
 	bool m_bCompetingForVictory;
-	VictoryPursuitTypes m_eDefaultVictoryPursuit;
-	VictoryPursuitTypes m_eVictoryPursuit;
+	VictoryPursuitTypes m_ePrimaryVictoryPursuit;
+	VictoryPursuitTypes m_eSecondaryVictoryPursuit;
+	VictoryPursuitTypes m_eCurrentVictoryPursuit;
 	StateAllWars m_eStateAllWars;
 
 	// Diplomatic Interactions
