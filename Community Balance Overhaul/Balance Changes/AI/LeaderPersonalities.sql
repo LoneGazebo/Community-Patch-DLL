@@ -1168,7 +1168,7 @@ UPDATE Leader_MinorCivApproachBiases SET Bias = 7 	WHERE LeaderType = 'LEADER_WA
 UPDATE Leader_MinorCivApproachBiases SET Bias = 4 	WHERE LeaderType = 'LEADER_WASHINGTON' 	AND MinorCivApproachType = 'MINOR_CIV_APPROACH_CONQUEST';
 
 -- William (The Netherlands)
-UPDATE Leaders SET PrimaryVictoryPursuit = 'VICTORY_PURSUIT_DIPLOMACY' WHERE Type = 'LEADER_WASHINGTON';
+UPDATE Leaders SET PrimaryVictoryPursuit = 'VICTORY_PURSUIT_DIPLOMACY' WHERE Type = 'LEADER_WILLIAM';
 UPDATE Leaders SET Personality = 'PERSONALITY_DIPLOMAT' WHERE Type = 'LEADER_WILLIAM';
 UPDATE Leaders SET VictoryCompetitiveness = 3 		WHERE Type = 'LEADER_WILLIAM';
 UPDATE Leaders SET WonderCompetitiveness = 4 		WHERE Type = 'LEADER_WILLIAM';
