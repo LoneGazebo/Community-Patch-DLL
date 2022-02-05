@@ -19091,7 +19091,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	// Tradition
 	if (GetPlayer()->GetPlayerPolicies()->IsPolicyBranchUnlocked(eTradition))
 	{
-		iMultiplier = GetPlayer()->GetPlayerPolicies()->IsPolicyBranchFinished(eTradition) ? 2 : 1;
+		iMultiplier = GetPlayer()->GetPlayerPolicies()->IsPolicyBranchFinished(eTradition) ? 3 : 2;
 		iMultiplier += IsCultural() || IsSecondaryCultural() ? 2 : 0;
 		iMultiplier += bCulturalTraits ? 2 : 0;
 		iMultiplier += pTraits->IsSmaller() ? 1 : 0; // Additional bonus if we're geared towards being smaller
@@ -19114,7 +19114,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	// Progress
 	if (GetPlayer()->GetPlayerPolicies()->IsPolicyBranchUnlocked(eProgress))
 	{
-		iMultiplier = GetPlayer()->GetPlayerPolicies()->IsPolicyBranchFinished(eProgress) ? 2 : 1;
+		iMultiplier = GetPlayer()->GetPlayerPolicies()->IsPolicyBranchFinished(eProgress) ? 3 : 2;
 		iMultiplier += IsScientist() || IsSecondaryScientist() ? 2 : 0;
 		iMultiplier += bScientistTraits ? 2 : 0;
 		iMultiplier += pTraits->IsSmaller() ? 1 : 0; // Additional bonus if we're geared towards being smaller

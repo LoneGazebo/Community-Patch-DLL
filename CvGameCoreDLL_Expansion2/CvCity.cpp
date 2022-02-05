@@ -18437,7 +18437,7 @@ void CvCity::setPopulation(int iNewValue, bool bReassignPop /* = true */, bool b
 			{
 				GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_BIRTH, true, NO_GREATPERSON, NO_BUILDING, iPopChange, true, NO_PLAYER, NULL, false, this);
 
-				ReligionTypes eOwnerReligion = GET_PLAYER(getOwner()).GetReligions()->GetStateReligion();
+				ReligionTypes eOwnerReligion = GET_PLAYER(getOwner()).GetReligions()->GetOwnedReligion();
 				if (eOwnerReligion != NO_RELIGION && GetCityReligions()->IsHolyCityForReligion(eOwnerReligion))
 				{
 					GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_BIRTH_HOLY_CITY, false, NO_GREATPERSON, NO_BUILDING, iPopChange, false, NO_PLAYER, NULL, false, this);
