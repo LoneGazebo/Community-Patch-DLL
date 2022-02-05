@@ -338,19 +338,19 @@ UPDATE Defines SET Value = '-8' WHERE Name = 'OPINION_WEIGHT_ADOPTING_MY_RELIGIO
 UPDATE Defines SET Value = '-4' WHERE Name = 'OPINION_WEIGHT_ADOPTING_HIS_RELIGION';
 
 -- We have adopted the same religion in the majority of our cities.
-INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_SAME_MAJORITY_RELIGIONS', '-2';
+INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_SAME_STATE_RELIGIONS', '-2';
 
 -- Religious differences strain your relationship.
-INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_DIFFERENT_STATE_RELIGIONS', '5'; -- we founded or control the Holy City of different religions
-INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_DIFFERENT_MAJORITY_RELIGIONS', '2'; -- only one/neither of us founded, but we have different majority religions
+INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_DIFFERENT_OWNED_RELIGIONS', '5'; -- we founded or control the Holy City of different religions
+INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_DIFFERENT_STATE_RELIGIONS', '2'; -- only one/neither of us founded, but we have different majority religions
 
 -- Increases +/- opinion weights for same/different state religions if one of them is the World Religion
 INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_WORLD_RELIGION_MODIFIER', '150';
 
 -- They are spreading their own religion, but you converted some of their cities to your religion.
 UPDATE Defines SET Value = '1' WHERE Name = 'OPINION_WEIGHT_PER_NEGATIVE_CONVERSION'; -- also multiplied by # of religious conversion points; see below
-UPDATE Defines SET Value = '1' WHERE Name = 'RELIGION_DIPLO_HIT_INITIAL_CONVERT_FRIENDLY_CITY'; -- # of points added for converting a city not following their state religion
-UPDATE Defines SET Value = '3' WHERE Name = 'RELIGION_DIPLO_HIT_RELIGIOUS_FLIP_FRIENDLY_CITY'; -- # of points added for converting a city following their state religion
+UPDATE Defines SET Value = '1' WHERE Name = 'RELIGION_DIPLO_HIT_INITIAL_CONVERT_FRIENDLY_CITY'; -- # of points added for converting a city not following their owned religion
+UPDATE Defines SET Value = '3' WHERE Name = 'RELIGION_DIPLO_HIT_RELIGIOUS_FLIP_FRIENDLY_CITY'; -- # of points added for converting a city following their owned religion
 UPDATE Defines SET Value = '25' WHERE Name = 'RELIGION_DIPLO_HIT_CONVERT_HOLY_CITY'; -- # of points added for converting the Holy City
 UPDATE Defines SET Value = '4' WHERE Name = 'RELIGION_DIPLO_HIT_THRESHOLD'; -- point total is reduced to this (if higher) when player makes a promise to stop converting AI's cities.
 
@@ -605,7 +605,7 @@ INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_VASSAL_OPEN_BORDERS', '
 -- Shared Religion Interests
 INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_VASSAL_FOUNDER_MASTER_ADOPTED_RELIGION', '-40'; -- if master has adopted the vassal's religion in a majority of their cities
 INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_VASSAL_HAPPILY_ADOPTED_RELIGION', '-20'; -- if vassal has no state religion and adopted master's religion
-INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_VASSAL_SAME_MAJORITY_RELIGION', '-10'; -- master and vassal have same majority religion (not master's state religion)
+INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_VASSAL_SAME_STATE_RELIGION', '-10'; -- master and vassal have same majority religion (not master's owned religion)
 
 -- Multiplier to negative factors in Vassal Treatment Opinion Score when AI is a Voluntary Vassal
 INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_VASSALAGE_VOLUNTARY_VASSAL_MOD', '120';

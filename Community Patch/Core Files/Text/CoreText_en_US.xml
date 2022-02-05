@@ -3182,7 +3182,7 @@
 		</Row>
 
 		<!-- Religion Diplo Mods -->
-		<Row Tag="TXT_KEY_DIPLO_SAME_MAJORITY_RELIGIONS">
+		<Row Tag="TXT_KEY_DIPLO_SAME_STATE_RELIGIONS">
 			<Text>We have adopted the same religion in the majority of our cities.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_RELIGIOUS_DIFFERENCES">

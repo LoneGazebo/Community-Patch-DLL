@@ -1581,7 +1581,7 @@ void CvDiplomacyAI::SelectDefaultVictoryPursuits()
 
 	// Civs are given AI victory pursuit hints/biases in the Leaders table, so retrieve those now
 	VictoryPursuitTypes ePrimaryVictory = NO_VICTORY_PURSUIT, eSecondaryVictory = NO_VICTORY_PURSUIT;
-	LeaderHeadTypes leader = GetPlayer()->getPersonalityType();
+	LeaderHeadTypes leader = iNumValidOptions > 2 ? GetPlayer()->getPersonalityType() : GetPlayer()->getLeaderType(); // ignore Random Personalities when retrieving victory pursuit hints for highly specialized scenarios
 	if (leader != NO_LEADER)
 	{
 		CvLeaderHeadInfo* pkLeaderHeadInfo = GC.getLeaderHeadInfo(leader);
@@ -2171,8 +2171,8 @@ void CvDiplomacyAI::SelectDefaultVictoryPursuits()
 	// Case 1: The default primary pursuit is the one we chose.
 	if (eChosenPrimary == ePrimaryVictory)
 	{
-		// Is there a default secondary pursuit? Then use that, unless the associated victory condition was disabled
-		bool bValid = eSecondaryVictory != NO_VICTORY_PURSUIT;
+		// Is there a default secondary pursuit? Then use that, unless the associated victory condition was disabled or Random Personalities is enabled
+		bool bValid = eSecondaryVictory != NO_VICTORY_PURSUIT && !GC.getGame().isOption(GAMEOPTION_RANDOM_PERSONALITIES);
 		if (bValid)
 		{
 			if (eSecondaryVictory == VICTORY_PURSUIT_DOMINATION)
@@ -2208,8 +2208,8 @@ void CvDiplomacyAI::SelectDefaultVictoryPursuits()
 	// Case 2: The default primary pursuit is different from the one we chose.
 	else if (eChosenPrimary != ePrimaryVictory && ePrimaryVictory != NO_VICTORY_PURSUIT)
 	{
-		// Use the default primary pursuit as our secondary pursuit unless the associated victory condition was disabled
-		bool bValid = ePrimaryVictory != NO_VICTORY_PURSUIT;
+		// Use the default primary pursuit as our secondary pursuit unless the associated victory condition was disabled or Random Personalities is enabled
+		bool bValid = ePrimaryVictory != NO_VICTORY_PURSUIT && !GC.getGame().isOption(GAMEOPTION_RANDOM_PERSONALITIES);
 		if (bValid)
 		{
 			if (ePrimaryVictory == VICTORY_PURSUIT_DOMINATION)
@@ -6527,7 +6527,7 @@ bool CvDiplomacyAI::IsCapitalCapturedBy(PlayerTypes ePlayer, bool bCurrently, bo
 				return true;
 		}
 	}
-	else if (bCurrently) // They deleted it somehow? Modmod?
+	else if (bCurrently) // Capital somehow no longer exists
 	{
 		return false;
 	}
@@ -6582,19 +6582,8 @@ bool CvDiplomacyAI::IsHolyCityCapturedBy(PlayerTypes ePlayer, bool bCurrently, b
 		return true;
 
 	CvPlot *pHolyCityPlot = GC.getMap().plot(m_pPlayer->GetLostHolyCityX(), m_pPlayer->GetLostHolyCityY());
-	if (pHolyCityPlot != NULL && pHolyCityPlot->isCity())
+	if (pHolyCityPlot != NULL && pHolyCityPlot->isCity() && pHolyCityPlot->getPlotCity()->GetCityReligions()->IsHolyCityForReligion(GC.getGame().GetGameReligions()->GetReligionCreatedByPlayer(GetID())))
 	{
-		if (pHolyCityPlot->getPlotCity()->GetCityReligions()->IsHolyCityForReligion(GetPlayer()->GetReligions()->GetStateReligion(false)))
-		{
-			if (bCurrently) // Holy City status hasn't been removed yet...
-			{
-				return true;
-			}
-			else
-			{
-				return false;
-			}
-		}
 		if (bTeammates)
 		{
 			if (GET_PLAYER(pHolyCityPlot->getOwner()).getTeam() == GET_PLAYER(ePlayer).getTeam())
@@ -6606,7 +6595,7 @@ bool CvDiplomacyAI::IsHolyCityCapturedBy(PlayerTypes ePlayer, bool bCurrently, b
 				return true;
 		}
 	}
-	else if (bCurrently) // It's no longer a city? Must have been destroyed...
+	else if (bCurrently) // City was destroyed, or status was removed
 	{
 		return false;
 	}
@@ -9829,7 +9818,7 @@ void CvDiplomacyAI::DoUpdateWarStates()
 	// Reset overall war state
 	int iStateAllWars = 0;   // Used to assess overall war state in this function
 	SetStateAllWars(STATE_ALL_WARS_NEUTRAL);
-	ReligionTypes eMyReligion = GetPlayer()->GetReligions()->GetStateReligion(false);
+	ReligionTypes eMyReligion = GetPlayer()->GetReligions()->GetOwnedReligion();
 	int iLoop;
 
 	// Loop through all (known) Players
@@ -9841,7 +9830,7 @@ void CvDiplomacyAI::DoUpdateWarStates()
 		if (IsPlayerValid(eLoopPlayer) && IsAtWar(eLoopPlayer))
 		{
 			WarStateTypes eWarState = NO_WAR_STATE_TYPE;
-			ReligionTypes eTheirReligion = GET_PLAYER(eLoopPlayer).isMinorCiv() ? NO_RELIGION : GET_PLAYER(eLoopPlayer).GetReligions()->GetStateReligion(false);
+			ReligionTypes eTheirReligion = GET_PLAYER(eLoopPlayer).isMinorCiv() ? NO_RELIGION : GET_PLAYER(eLoopPlayer).GetReligions()->GetOwnedReligion();
 
 			// Evaluate our danger and their danger from this war
 			int iNumOurCities = 0, iNumOurCitiesInDanger = 0, iNumTheirCities = 0, iNumTheirCitiesInDanger = 0, iOurDanger = 0, iTheirDanger = 0;
@@ -17250,42 +17239,37 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 			vApproachScores[CIV_APPROACH_HOSTILE] += vApproachBias[CIV_APPROACH_HOSTILE] + iReligiosityScore + GetNegativeReligiousConversionPoints(ePlayer);
 		}
 
+		ReligionTypes eOurOwnedReligion = GetPlayer()->GetReligions()->GetOwnedReligion();
 		ReligionTypes eOurStateReligion = GetPlayer()->GetReligions()->GetStateReligion(false);
-		ReligionTypes eOurMajorityReligion = GetPlayer()->GetReligions()->GetReligionInMostCities();
+		ReligionTypes eTheirOwnedReligion = GET_PLAYER(ePlayer).GetReligions()->GetOwnedReligion();
 		ReligionTypes eTheirStateReligion = GET_PLAYER(ePlayer).GetReligions()->GetStateReligion(false);
-		ReligionTypes eTheirMajorityReligion = GET_PLAYER(ePlayer).GetReligions()->GetReligionInMostCities();
 
-		// We didn't found or conquer, but have a majority religion
-		if (eOurStateReligion == NO_RELIGION && eOurMajorityReligion != NO_RELIGION)
+		// We didn't found or conquer, but have a state religion
+		if (eOurOwnedReligion == NO_RELIGION && eOurStateReligion != NO_RELIGION)
 		{
 			if (GetNegativeReligiousConversionPoints(ePlayer) <= 0 && !bEverCapturedKeyCity && !bUntrustworthy)
 			{
-				// We adopted their state religion
-				if (eOurMajorityReligion == eTheirStateReligion)
+				// We adopted their owned religion
+				if (eOurStateReligion == eTheirOwnedReligion)
 				{
 					bSameReligion = true;
+					vApproachScores[CIV_APPROACH_FRIENDLY] += (vApproachBias[CIV_APPROACH_FRIENDLY] * 2) + iReligiosityScore;
 
-					// They must have at least one of their own cities following their state religion to get a bonus
-					if (GC.getGame().GetGameReligions()->HasAnyDomesticCityFollowing(eTheirStateReligion, ePlayer))
+					// If it's the World Religion and they're its controller, support them since we get extra League votes from it
+					if (GC.getGame().GetGameLeagues()->GetReligionSpreadStrengthModifier(ePlayer, eTheirOwnedReligion) > 0)
 					{
 						vApproachScores[CIV_APPROACH_FRIENDLY] += (vApproachBias[CIV_APPROACH_FRIENDLY] * 2) + iReligiosityScore;
-
-						// If it's the World Religion and they're its controller, support them since we get extra League votes from it
-						if (GC.getGame().GetGameLeagues()->GetReligionSpreadStrengthModifier(ePlayer, eTheirStateReligion) > 0)
-						{
-							vApproachScores[CIV_APPROACH_FRIENDLY] += (vApproachBias[CIV_APPROACH_FRIENDLY] * 2) + iReligiosityScore;
-						}
 					}
 				}
-				// Same majority religions?
-				else if (eOurMajorityReligion == eTheirMajorityReligion)
+				// Same state religions?
+				else if (eOurStateReligion == eTheirStateReligion)
 				{
 					bSameReligion = true;
 					vApproachScores[CIV_APPROACH_FRIENDLY] += vApproachBias[CIV_APPROACH_FRIENDLY] + iReligiosityScore;
 				}
 			}
 			// Different majority religions?
-			if (eOurMajorityReligion != eTheirStateReligion && eOurMajorityReligion != eTheirMajorityReligion && eTheirMajorityReligion != NO_RELIGION)
+			if (eOurStateReligion != eTheirStateReligion && eTheirStateReligion != NO_RELIGION)
 			{
 				if (!bIgnoreReligionDifferences)
 				{
@@ -17297,10 +17281,10 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 			}
 		}
 		// We founded or conquered
-		else if (eOurStateReligion != NO_RELIGION)
+		else if (eOurOwnedReligion != NO_RELIGION)
 		{
-			// Do they also have a state religion? We don't like that!
-			if (eTheirStateReligion != NO_RELIGION && GC.getGame().GetGameReligions()->HasAnyDomesticCityFollowing(eTheirStateReligion, ePlayer))
+			// Did they also found or conquer? We don't like that!
+			if (eTheirOwnedReligion != NO_RELIGION)
 			{
 				if (!bIgnoreReligionDifferences)
 				{
@@ -17310,7 +17294,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 					vApproachScores[CIV_APPROACH_GUARDED] += (vApproachBias[CIV_APPROACH_GUARDED] * 2) + iReligiosityScore;
 
 					// If it's the World Religion and they control its Holy City, we should work against them
-					if (GC.getGame().GetGameLeagues()->GetReligionSpreadStrengthModifier(ePlayer, eTheirStateReligion) > 0)
+					if (GC.getGame().GetGameLeagues()->GetReligionSpreadStrengthModifier(ePlayer, eTheirOwnedReligion) > 0)
 					{
 						vApproachScores[CIV_APPROACH_WAR] += (vApproachBias[CIV_APPROACH_WAR] * 2) + iReligiosityScore;
 						vApproachScores[CIV_APPROACH_HOSTILE] += (vApproachBias[CIV_APPROACH_HOSTILE] * 2) + iReligiosityScore;
@@ -17318,17 +17302,17 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 					}
 				}
 			}
-			// No? Well, do they have a majority religion?
-			else if (eTheirMajorityReligion != NO_RELIGION)
+			// No? Well, do they have a state religion?
+			else if (eTheirStateReligion != NO_RELIGION)
 			{
 				// Ours?
-				if (eTheirMajorityReligion == eOurStateReligion)
+				if (eTheirStateReligion == eOurOwnedReligion)
 				{
 					bSameReligion = true;
 					vApproachScores[CIV_APPROACH_FRIENDLY] += (vApproachBias[CIV_APPROACH_FRIENDLY] * 3) + iReligiosityScore;
 
 					// If it's the World Religion and we control its Holy City, we should work together
-					if (GC.getGame().GetGameLeagues()->GetReligionSpreadStrengthModifier(eMyPlayer, eOurStateReligion) > 0)
+					if (GC.getGame().GetGameLeagues()->GetReligionSpreadStrengthModifier(eMyPlayer, eOurOwnedReligion) > 0)
 					{
 						vApproachScores[CIV_APPROACH_FRIENDLY] += (vApproachBias[CIV_APPROACH_FRIENDLY] * 2) + iReligiosityScore;
 					}
@@ -17336,7 +17320,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 				// Someone else's?
 				else if (!bIgnoreReligionDifferences)
 				{
-					const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eTheirMajorityReligion, NO_PLAYER);
+					const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eTheirStateReligion, NO_PLAYER);
 
 					// If the religion's founder is our teammate, don't apply a penalty if that teammate is still alive.
 					if (!IsTeammate((PlayerTypes)pReligion->m_eFounder) || GET_PLAYER((PlayerTypes)pReligion->m_eFounder).getNumCities() <= 0)
@@ -17351,7 +17335,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 							vApproachScores[CIV_APPROACH_GUARDED] += (vApproachBias[CIV_APPROACH_GUARDED] * 2) + iReligiosityScore;
 
 							// If it's the World Religion and their teammate controls its Holy City, we should work against them
-							if (GC.getGame().GetGameLeagues()->GetReligionSpreadStrengthModifier((PlayerTypes)pReligion->m_eFounder, eTheirMajorityReligion) > 0)
+							if (GC.getGame().GetGameLeagues()->GetReligionSpreadStrengthModifier((PlayerTypes)pReligion->m_eFounder, eTheirStateReligion) > 0)
 							{
 								vApproachScores[CIV_APPROACH_WAR] += (vApproachBias[CIV_APPROACH_WAR] * 2) + iReligiosityScore;
 								vApproachScores[CIV_APPROACH_HOSTILE] += (vApproachBias[CIV_APPROACH_HOSTILE] * 2) + iReligiosityScore;
@@ -24651,8 +24635,8 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 		int iTheirDanger = 0;
 		bool bSeriousDangerUs = false;
 		bool bSeriousDangerThem = false;
-		ReligionTypes eMyReligion = GetPlayer()->GetReligions()->GetStateReligion(false);	
-		ReligionTypes eTheirReligion = GET_PLAYER(*it).GetReligions()->GetStateReligion(false);
+		ReligionTypes eMyReligion = GetPlayer()->GetReligions()->GetOwnedReligion();	
+		ReligionTypes eTheirReligion = GET_PLAYER(*it).GetReligions()->GetOwnedReligion();
 		vector<PlayerTypes> vOurWarAllies = GetPlayer()->GetWarAllies(*it);
 		vector<PlayerTypes> vTheirWarAllies = GET_PLAYER(*it).GetWarAllies(GetID());
 		vector<PlayerTypes> vMyTeam = GET_TEAM(GetTeam()).getPlayers();
@@ -42754,8 +42738,8 @@ int CvDiplomacyAI::GetNumEnemyDefensePacts(PlayerTypes ePlayer) const
 /// Does ePlayer have similar religious beliefs as we do?
 bool CvDiplomacyAI::IsPlayerSameReligion(PlayerTypes ePlayer) const
 {
-	ReligionTypes eOurReligion = GetPlayer()->GetReligions()->GetStateReligion(false) != NO_RELIGION ? GetPlayer()->GetReligions()->GetStateReligion(false) : GetPlayer()->GetReligions()->GetReligionInMostCities();
-	ReligionTypes eTheirReligion = (GET_PLAYER(ePlayer).GetReligions()->GetStateReligion(false) != NO_RELIGION && GC.getGame().GetGameReligions()->HasAnyDomesticCityFollowing(GET_PLAYER(ePlayer).GetReligions()->GetStateReligion(false), ePlayer)) ? GET_PLAYER(ePlayer).GetReligions()->GetStateReligion(false) : GET_PLAYER(ePlayer).GetReligions()->GetReligionInMostCities();
+	ReligionTypes eOurReligion = GetPlayer()->GetReligions()->GetStateReligion(false);
+	ReligionTypes eTheirReligion = GET_PLAYER(ePlayer).GetReligions()->GetStateReligion(false);
 
 	if (eOurReligion == NO_RELIGION || eTheirReligion == NO_RELIGION)
 		return false;
@@ -42769,8 +42753,8 @@ bool CvDiplomacyAI::IsPlayerSameReligion(PlayerTypes ePlayer) const
 /// Does ePlayer have a religion that opposes ours?
 bool CvDiplomacyAI::IsPlayerOpposingReligion(PlayerTypes ePlayer) const
 {
-	ReligionTypes eOurReligion = GetPlayer()->GetReligions()->GetStateReligion(false) != NO_RELIGION ? GetPlayer()->GetReligions()->GetStateReligion(false) : GetPlayer()->GetReligions()->GetReligionInMostCities();
-	ReligionTypes eTheirReligion = (GET_PLAYER(ePlayer).GetReligions()->GetStateReligion(false) != NO_RELIGION && GC.getGame().GetGameReligions()->HasAnyDomesticCityFollowing(GET_PLAYER(ePlayer).GetReligions()->GetStateReligion(false), ePlayer)) ? GET_PLAYER(ePlayer).GetReligions()->GetStateReligion(false) : GET_PLAYER(ePlayer).GetReligions()->GetReligionInMostCities();
+	ReligionTypes eOurReligion = GetPlayer()->GetReligions()->GetStateReligion(false);
+	ReligionTypes eTheirReligion = GET_PLAYER(ePlayer).GetReligions()->GetStateReligion(false);
 
 	if (eOurReligion == NO_RELIGION || eTheirReligion == NO_RELIGION)
 		return false;
@@ -45032,9 +45016,9 @@ int CvDiplomacyAI::GetNukedByScore(PlayerTypes ePlayer)
 {
 	int iOpinionWeight = 0;
 
-	if(IsNukedBy(ePlayer))
+	if (IsNukedBy(ePlayer))
 	{
-		iOpinionWeight += /*100*/ GD_INT_GET(OPINION_WEIGHT_NUKED_MAX);
+		iOpinionWeight = /*100*/ GD_INT_GET(OPINION_WEIGHT_NUKED_MAX);
 	}
 
 	return iOpinionWeight;
@@ -45046,21 +45030,21 @@ int CvDiplomacyAI::GetHolyCityCapturedByScore(PlayerTypes ePlayer)
 	
 	if (IsHolyCityCapturedBy(ePlayer))
 	{
-		iOpinionWeight += /*80*/ GD_INT_GET(OPINION_WEIGHT_CAPTURED_HOLY_CITY);
-	}
+		iOpinionWeight = /*80*/ GD_INT_GET(OPINION_WEIGHT_CAPTURED_HOLY_CITY);
 
-	// Halve the weight if they willingly returned our Holy City.
-	if (IsPlayerReturnedHolyCity(ePlayer, true))
-	{
-		iOpinionWeight *= 100;
-		iOpinionWeight /= max(100, /*200*/ GD_INT_GET(OPINION_WEIGHT_CAPTURED_KEY_CITY_RETURNED_DIVISOR));
-	}
+		// Halve the weight if they willingly returned our Holy City.
+		if (IsPlayerReturnedHolyCity(ePlayer, true))
+		{
+			iOpinionWeight *= 100;
+			iOpinionWeight /= max(100, /*200*/ GD_INT_GET(OPINION_WEIGHT_CAPTURED_KEY_CITY_RETURNED_DIVISOR));
+		}
 
-	// If we're a well-treated capitulated vassal, halve the weight.
-	if (MOD_DIPLOMACY_CIV4_FEATURES && IsVassal(ePlayer) && !IsVoluntaryVassalage(ePlayer) && GetVassalTreatmentLevel(ePlayer) <= VASSAL_TREATMENT_DISAGREE)
-	{
-		iOpinionWeight *= 100;
-		iOpinionWeight /= max(100, /*200*/ GD_INT_GET(OPINION_WEIGHT_CAPTURED_KEY_CITY_CAPITULATION_DIVISOR));
+		// If we're a well-treated capitulated vassal, halve the weight.
+		if (MOD_DIPLOMACY_CIV4_FEATURES && IsVassal(ePlayer) && !IsVoluntaryVassalage(ePlayer) && GetVassalTreatmentLevel(ePlayer) <= VASSAL_TREATMENT_DISAGREE)
+		{
+			iOpinionWeight *= 100;
+			iOpinionWeight /= max(100, /*200*/ GD_INT_GET(OPINION_WEIGHT_CAPTURED_KEY_CITY_CAPITULATION_DIVISOR));
+		}
 	}
 	
 	return iOpinionWeight;
@@ -45072,21 +45056,21 @@ int CvDiplomacyAI::GetCapitalCapturedByScore(PlayerTypes ePlayer)
 	
 	if (IsCapitalCapturedBy(ePlayer))
 	{
-		iOpinionWeight += /*160*/ GD_INT_GET(OPINION_WEIGHT_CAPTURED_CAPITAL);
-	}
+		iOpinionWeight = /*160*/ GD_INT_GET(OPINION_WEIGHT_CAPTURED_CAPITAL);
 
-	// Halve the weight if they willingly returned our capital.
-	if (IsPlayerReturnedCapital(ePlayer, true))
-	{
-		iOpinionWeight *= 100;
-		iOpinionWeight /= max(100, /*200*/ GD_INT_GET(OPINION_WEIGHT_CAPTURED_KEY_CITY_RETURNED_DIVISOR));
-	}
+		// Halve the weight if they willingly returned our capital.
+		if (IsPlayerReturnedCapital(ePlayer, true))
+		{
+			iOpinionWeight *= 100;
+			iOpinionWeight /= max(100, /*200*/ GD_INT_GET(OPINION_WEIGHT_CAPTURED_KEY_CITY_RETURNED_DIVISOR));
+		}
 
-	// If we're a well-treated capitulated vassal, halve the weight.
-	if (MOD_DIPLOMACY_CIV4_FEATURES && IsVassal(ePlayer) && !IsVoluntaryVassalage(ePlayer) && GetVassalTreatmentLevel(ePlayer) <= VASSAL_TREATMENT_DISAGREE)
-	{
-		iOpinionWeight *= 100;
-		iOpinionWeight /= max(100, /*200*/ GD_INT_GET(OPINION_WEIGHT_CAPTURED_KEY_CITY_CAPITULATION_DIVISOR));
+		// If we're a well-treated capitulated vassal, halve the weight.
+		if (MOD_DIPLOMACY_CIV4_FEATURES && IsVassal(ePlayer) && !IsVoluntaryVassalage(ePlayer) && GetVassalTreatmentLevel(ePlayer) <= VASSAL_TREATMENT_DISAGREE)
+		{
+			iOpinionWeight *= 100;
+			iOpinionWeight /= max(100, /*200*/ GD_INT_GET(OPINION_WEIGHT_CAPTURED_KEY_CITY_CAPITULATION_DIVISOR));
+		}
 	}
 	
 	return iOpinionWeight;
@@ -45223,20 +45207,20 @@ int CvDiplomacyAI::GetResurrectedScore(PlayerTypes ePlayer)
 	if (WasResurrectedBy(ePlayer))
 	{
 		iOpinionWeight = /*-200*/ GD_INT_GET(OPINION_WEIGHT_RESURRECTED);
-	}
 
-	// Halve the weight if they captured our capital
-	if (IsCapitalCapturedBy(ePlayer, false, true, true))
-	{
-		iOpinionWeight *= 100;
-		iOpinionWeight /= max(100, /*200*/ GD_INT_GET(OPINION_WEIGHT_LIBERATOR_CAPTURED_CAPITAL_DIVISOR));
-	}
+		// Halve the weight if they captured our capital
+		if (IsCapitalCapturedBy(ePlayer, false, true, true))
+		{
+			iOpinionWeight *= 100;
+			iOpinionWeight /= max(100, /*200*/ GD_INT_GET(OPINION_WEIGHT_LIBERATOR_CAPTURED_CAPITAL_DIVISOR));
+		}
 
-	// Halve the weight if they captured our Holy City.
-	if (IsHolyCityCapturedBy(ePlayer, false, true, true))
-	{
-		iOpinionWeight *= 100;
-		iOpinionWeight /= max(100, /*200*/ GD_INT_GET(OPINION_WEIGHT_LIBERATOR_CAPTURED_HOLY_CITY_DIVISOR));
+		// Halve the weight if they captured our Holy City.
+		if (IsHolyCityCapturedBy(ePlayer, false, true, true))
+		{
+			iOpinionWeight *= 100;
+			iOpinionWeight /= max(100, /*200*/ GD_INT_GET(OPINION_WEIGHT_LIBERATOR_CAPTURED_HOLY_CITY_DIVISOR));
+		}
 	}
 
 	return iOpinionWeight;
@@ -45249,20 +45233,20 @@ int CvDiplomacyAI::GetLiberatedCapitalScore(PlayerTypes ePlayer)
 	if (IsPlayerLiberatedCapital(ePlayer))
 	{
 		iOpinionWeight = /*-120*/ GD_INT_GET(OPINION_WEIGHT_LIBERATED_CAPITAL);
-	}
 
-	// Increase the weight if we're someone's vassal
-	if (GetPlayer()->IsVassalOfSomeone())
-	{
-		iOpinionWeight *= /*150*/ GD_INT_GET(OPINION_WEIGHT_LIBERATED_CAPITAL_VASSAL_MULTIPLIER);
-		iOpinionWeight /= 100;
-	}
+		// Increase the weight if we're someone's vassal
+		if (GetPlayer()->IsVassalOfSomeone())
+		{
+			iOpinionWeight *= /*150*/ GD_INT_GET(OPINION_WEIGHT_LIBERATED_CAPITAL_VASSAL_MULTIPLIER);
+			iOpinionWeight /= 100;
+		}
 
-	// Halve the weight if they captured our Holy City.
-	if (IsHolyCityCapturedBy(ePlayer, false, true, true))
-	{
-		iOpinionWeight *= 100;
-		iOpinionWeight /= max(100, /*200*/ GD_INT_GET(OPINION_WEIGHT_LIBERATOR_CAPTURED_HOLY_CITY_DIVISOR));
+		// Halve the weight if they captured our Holy City.
+		if (IsHolyCityCapturedBy(ePlayer, false, true, true))
+		{
+			iOpinionWeight *= 100;
+			iOpinionWeight /= max(100, /*200*/ GD_INT_GET(OPINION_WEIGHT_LIBERATOR_CAPTURED_HOLY_CITY_DIVISOR));
+		}
 	}
 
 	return iOpinionWeight;
@@ -45275,13 +45259,13 @@ int CvDiplomacyAI::GetLiberatedHolyCityScore(PlayerTypes ePlayer)
 	if (IsPlayerLiberatedHolyCity(ePlayer))
 	{
 		iOpinionWeight = /*-80*/ GD_INT_GET(OPINION_WEIGHT_LIBERATED_HOLY_CITY);
-	}
 
-	// Increase the weight if we're someone's vassal
-	if (GetPlayer()->IsVassalOfSomeone())
-	{
-		iOpinionWeight *= /*150*/ GD_INT_GET(OPINION_WEIGHT_LIBERATED_HOLY_CITY_VASSAL_MULTIPLIER);
-		iOpinionWeight /= 100;
+		// Increase the weight if we're someone's vassal
+		if (GetPlayer()->IsVassalOfSomeone())
+		{
+			iOpinionWeight *= /*150*/ GD_INT_GET(OPINION_WEIGHT_LIBERATED_HOLY_CITY_VASSAL_MULTIPLIER);
+			iOpinionWeight /= 100;
+		}
 	}
 
 	return iOpinionWeight;
@@ -46162,10 +46146,10 @@ int CvDiplomacyAI::GetReligionScore(PlayerTypes ePlayer)
 
 	int iOpinionWeight = 0;
 
+	ReligionTypes eOurOwnedReligion = GetPlayer()->GetReligions()->GetOwnedReligion();
 	ReligionTypes eOurStateReligion = GetPlayer()->GetReligions()->GetStateReligion(false);
-	ReligionTypes eOurMajorityReligion = GetPlayer()->GetReligions()->GetReligionInMostCities();
+	ReligionTypes eTheirOwnedReligion = GET_PLAYER(ePlayer).GetReligions()->GetOwnedReligion();
 	ReligionTypes eTheirStateReligion = GET_PLAYER(ePlayer).GetReligions()->GetStateReligion(false);
-	ReligionTypes eTheirMajorityReligion = GET_PLAYER(ePlayer).GetReligions()->GetReligionInMostCities();
 
 	int iFlavorReligion = m_pPlayer->GetFlavorManager()->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_RELIGION"));
 	int iEraMod = GC.getEraInfo(GC.getGame().getCurrentEra())->getDiploEmphasisReligion();
@@ -46182,63 +46166,59 @@ int CvDiplomacyAI::GetReligionScore(PlayerTypes ePlayer)
 
 	iEraMod += GetPlayer()->GetPlayerTraits()->IsReligious() ? 1 : 0;
 
-	// We didn't found or conquer, but have a majority religion
-	if (eOurStateReligion == NO_RELIGION && eOurMajorityReligion != NO_RELIGION)
+	// We didn't found or conquer, but have a state religion
+	if (eOurOwnedReligion == NO_RELIGION && eOurStateReligion != NO_RELIGION)
 	{
 		if (GetNegativeReligiousConversionPoints(ePlayer) <= 0 && !IsHolyCityCapturedBy(ePlayer))
 		{
-			if (eOurMajorityReligion == eTheirStateReligion)
+			if (eOurStateReligion == eTheirOwnedReligion)
 			{
-				// They must have at least one of their own cities following their state religion to get a bonus
-				if (GC.getGame().GetGameReligions()->HasAnyDomesticCityFollowing(eTheirStateReligion, ePlayer))
-				{
-					iOpinionWeight += /*-4*/ GD_INT_GET(OPINION_WEIGHT_ADOPTING_HIS_RELIGION) * iEraMod;
+				iOpinionWeight = /*-4*/ GD_INT_GET(OPINION_WEIGHT_ADOPTING_HIS_RELIGION) * iEraMod;
 
-					// If it's the World Religion and they're its controller, support them since we get extra League votes from it
-					if (GC.getGame().GetGameLeagues()->GetReligionSpreadStrengthModifier(ePlayer, eTheirStateReligion) > 0)
-					{
-						iOpinionWeight *= /*150*/ GD_INT_GET(OPINION_WEIGHT_WORLD_RELIGION_MODIFIER);
-						iOpinionWeight /= 100;
-					}
+				// If it's the World Religion and they're its controller, support them since we get extra League votes from it
+				if (GC.getGame().GetGameLeagues()->GetReligionSpreadStrengthModifier(ePlayer, eTheirOwnedReligion) > 0)
+				{
+					iOpinionWeight *= /*150*/ GD_INT_GET(OPINION_WEIGHT_WORLD_RELIGION_MODIFIER);
+					iOpinionWeight /= 100;
 				}
 			}
-			// Same majority religions?
-			else if (eOurMajorityReligion == eTheirMajorityReligion)
+			// Same state religions?
+			else if (eOurStateReligion == eTheirStateReligion)
 			{
-				iOpinionWeight += /*-2*/ GD_INT_GET(OPINION_WEIGHT_SAME_MAJORITY_RELIGIONS) * iEraMod;
+				iOpinionWeight = /*-2*/ GD_INT_GET(OPINION_WEIGHT_SAME_STATE_RELIGIONS) * iEraMod;
 			}
 		}
 		// Different majority religions?
-		if (eOurMajorityReligion != eTheirStateReligion && eOurMajorityReligion != eTheirMajorityReligion && eTheirMajorityReligion != NO_RELIGION)
+		if (eOurStateReligion != eTheirStateReligion && eTheirStateReligion != NO_RELIGION)
 		{
-			iOpinionWeight += /*2*/ GD_INT_GET(OPINION_WEIGHT_DIFFERENT_MAJORITY_RELIGIONS) * iEraMod;
+			iOpinionWeight = /*2*/ GD_INT_GET(OPINION_WEIGHT_DIFFERENT_OWNED_RELIGIONS) * iEraMod;
 		}
 	}
 	// We founded or conquered
-	else if (eOurStateReligion != NO_RELIGION)
+	else if (eOurOwnedReligion != NO_RELIGION)
 	{
-		// Do they also have a state religion? We don't like that!
-		if (eTheirStateReligion != NO_RELIGION && GC.getGame().GetGameReligions()->HasAnyDomesticCityFollowing(eTheirStateReligion, ePlayer))
+		// Did they also found or conquer? We don't like that!
+		if (eTheirOwnedReligion != NO_RELIGION)
 		{
-			iOpinionWeight += /*5*/ GD_INT_GET(OPINION_WEIGHT_DIFFERENT_STATE_RELIGIONS) * iEraMod;
+			iOpinionWeight = /*5*/ GD_INT_GET(OPINION_WEIGHT_DIFFERENT_OWNED_RELIGIONS) * iEraMod;
 
 			// If it's the World Religion and they control its Holy City, we should work against them
-			if (GC.getGame().GetGameLeagues()->GetReligionSpreadStrengthModifier(ePlayer, eTheirStateReligion) > 0)
+			if (GC.getGame().GetGameLeagues()->GetReligionSpreadStrengthModifier(ePlayer, eTheirOwnedReligion) > 0)
 			{
 				iOpinionWeight *= /*150*/ GD_INT_GET(OPINION_WEIGHT_WORLD_RELIGION_MODIFIER);
 				iOpinionWeight /= 100;
 			}
 		}
-		// No? Well, do they have a majority religion?
-		else if (eTheirMajorityReligion != NO_RELIGION)
+		// No? Well, do they have a state religion?
+		else if (eTheirStateReligion != NO_RELIGION)
 		{
 			// Ours?
-			if (eTheirMajorityReligion == eOurStateReligion)
+			if (eTheirStateReligion == eOurOwnedReligion)
 			{
-				iOpinionWeight += /*-8*/ GD_INT_GET(OPINION_WEIGHT_ADOPTING_MY_RELIGION) * iEraMod;
+				iOpinionWeight = /*-8*/ GD_INT_GET(OPINION_WEIGHT_ADOPTING_MY_RELIGION) * iEraMod;
 
 				// If it's the World Religion and we control its Holy City, we should work together
-				if (GC.getGame().GetGameLeagues()->GetReligionSpreadStrengthModifier(GetID(), eOurStateReligion) > 0)
+				if (GC.getGame().GetGameLeagues()->GetReligionSpreadStrengthModifier(GetID(), eOurOwnedReligion) > 0)
 				{
 					iOpinionWeight *= /*150*/ GD_INT_GET(OPINION_WEIGHT_WORLD_RELIGION_MODIFIER);
 					iOpinionWeight /= 100;
@@ -46247,7 +46227,9 @@ int CvDiplomacyAI::GetReligionScore(PlayerTypes ePlayer)
 			// Someone else's?
 			else
 			{
-				const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eTheirMajorityReligion, NO_PLAYER);
+				const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eTheirStateReligion, NO_PLAYER);
+				if (!pReligion)
+					return 0;
 
 				// If the religion's founder is our teammate, don't apply a penalty if that teammate is still alive.
 				if (IsTeammate((PlayerTypes)pReligion->m_eFounder) && GET_PLAYER((PlayerTypes)pReligion->m_eFounder).getNumCities() > 0)
@@ -46256,10 +46238,10 @@ int CvDiplomacyAI::GetReligionScore(PlayerTypes ePlayer)
 				// If the religion's founder is THEIR teammate, treat it like a state religion.
 				if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsTeammate((PlayerTypes)pReligion->m_eFounder) && GET_PLAYER((PlayerTypes)pReligion->m_eFounder).getNumCities() > 0)
 				{
-					iOpinionWeight += /*5*/ GD_INT_GET(OPINION_WEIGHT_DIFFERENT_STATE_RELIGIONS) * iEraMod;
+					iOpinionWeight = /*5*/ GD_INT_GET(OPINION_WEIGHT_DIFFERENT_OWNED_RELIGIONS) * iEraMod;
 
 					// If it's the World Religion and their teammate controls its Holy City, we should work against them
-					if (GC.getGame().GetGameLeagues()->GetReligionSpreadStrengthModifier((PlayerTypes)pReligion->m_eFounder, eTheirMajorityReligion) > 0)
+					if (GC.getGame().GetGameLeagues()->GetReligionSpreadStrengthModifier((PlayerTypes)pReligion->m_eFounder, eTheirStateReligion) > 0)
 					{
 						iOpinionWeight *= /*150*/ GD_INT_GET(OPINION_WEIGHT_WORLD_RELIGION_MODIFIER);
 						iOpinionWeight /= 100;
@@ -46268,7 +46250,7 @@ int CvDiplomacyAI::GetReligionScore(PlayerTypes ePlayer)
 				// Otherwise, apply a penalty for different majority religions.
 				else
 				{
-					iOpinionWeight += /*2*/ GD_INT_GET(OPINION_WEIGHT_DIFFERENT_MAJORITY_RELIGIONS) * iEraMod;
+					iOpinionWeight = /*2*/ GD_INT_GET(OPINION_WEIGHT_DIFFERENT_OWNED_RELIGIONS) * iEraMod;
 				}
 			}
 		}
@@ -47451,38 +47433,38 @@ int CvDiplomacyAI::GetVassalReligionScore(PlayerTypes ePlayer)
 
 	int iOpinionWeight = 0;
 
+	ReligionTypes eVassalOwnedReligion = GetPlayer()->GetReligions()->GetOwnedReligion();
 	ReligionTypes eVassalStateReligion = GetPlayer()->GetReligions()->GetStateReligion(false);
-	ReligionTypes eVassalMajorityReligion = GetPlayer()->GetReligions()->GetReligionInMostCities();
+	ReligionTypes eMasterOwnedReligion = GET_PLAYER(ePlayer).GetReligions()->GetOwnedReligion();
 	ReligionTypes eMasterStateReligion = GET_PLAYER(ePlayer).GetReligions()->GetStateReligion(false);
-	ReligionTypes eMasterMajorityReligion = GET_PLAYER(ePlayer).GetReligions()->GetReligionInMostCities();
 
 	// No vassal religion - don't care
-	if (eVassalStateReligion == NO_RELIGION && eVassalMajorityReligion == NO_RELIGION)
+	if (eVassalOwnedReligion == NO_RELIGION && eVassalStateReligion == NO_RELIGION)
 		return 0;
 
 	// Vassal did not found or conquer
-	if (eVassalStateReligion == NO_RELIGION)
+	if (eVassalOwnedReligion == NO_RELIGION)
 	{
 		// Master founded, and we have their religion
-		if (eMasterStateReligion != NO_RELIGION && eMasterStateReligion == eVassalMajorityReligion && GC.getGame().GetGameReligions()->HasAnyDomesticCityFollowing(eMasterStateReligion, ePlayer))
+		if (eMasterOwnedReligion != NO_RELIGION && eMasterOwnedReligion == eVassalStateReligion)
 		{
 			iOpinionWeight += /*-20*/ GD_INT_GET(OPINION_WEIGHT_VASSAL_HAPPILY_ADOPTED_RELIGION);
 		}
 		// Same majority religions
-		else if (eMasterMajorityReligion != NO_RELIGION && eMasterMajorityReligion == eVassalMajorityReligion)
+		else if (eMasterStateReligion != NO_RELIGION && eMasterStateReligion == eVassalStateReligion)
 		{
-			iOpinionWeight += /*-10*/ GD_INT_GET(OPINION_WEIGHT_VASSAL_SAME_MAJORITY_RELIGION);
+			iOpinionWeight += /*-10*/ GD_INT_GET(OPINION_WEIGHT_VASSAL_SAME_STATE_RELIGION);
 		}
 	}
 	// Vassal did found or conquer
 	// Master did not found or conquer, but does have a majority religion - ours
-	else if (eMasterMajorityReligion != NO_RELIGION && eMasterMajorityReligion == eVassalStateReligion && (eMasterStateReligion == NO_RELIGION || !GC.getGame().GetGameReligions()->HasAnyDomesticCityFollowing(eMasterStateReligion, ePlayer)))
+	else if (eMasterOwnedReligion == NO_RELIGION && eMasterStateReligion != NO_RELIGION && eMasterStateReligion == eVassalOwnedReligion)
 	{
 		iOpinionWeight += /*-40*/ GD_INT_GET(OPINION_WEIGHT_VASSAL_FOUNDER_MASTER_ADOPTED_RELIGION);
 	}
 
 	// No opinion bonuses if the Holy City was captured
-	if (iOpinionWeight < 0 && IsPlayerCapturedHolyCity(ePlayer))
+	if (iOpinionWeight < 0 && IsHolyCityCapturedBy(ePlayer))
 		return 0;
 
 	return iOpinionWeight;
@@ -47494,7 +47476,7 @@ int CvDiplomacyAI::GetMasterScore(PlayerTypes ePlayer)
 
 	if (IsMaster(ePlayer))
 	{
-		iOpinionWeight += /*-40*/ GD_INT_GET(OPINION_WEIGHT_VASSALAGE_WE_ARE_MASTER);
+		iOpinionWeight = /*-40*/ GD_INT_GET(OPINION_WEIGHT_VASSALAGE_WE_ARE_MASTER);
 	}
 
 	return iOpinionWeight;
@@ -54477,7 +54459,7 @@ bool CvDiplomacyAI::IsCapitulationAcceptable(PlayerTypes ePlayer)
 		else if (pLoopCity->IsBlockadedWaterAndLand() && pLoopCity->getDamage() >= (pLoopCity->GetMaxHitPoints()/4))
 		{
 			// Don't surrender if we could get our capital or Holy City back!
-			if (pLoopCity->IsOriginalCapitalForPlayer(GetID()) || pLoopCity->GetCityReligions()->IsHolyCityForReligion(GetPlayer()->GetReligions()->GetStateReligion(false)))
+			if (pLoopCity->IsOriginalCapitalForPlayer(GetID()) || pLoopCity->GetCityReligions()->IsHolyCityForReligion(GC.getGame().GetGameReligions()->GetReligionCreatedByPlayer(GetID())))
 				return false;
 
 			iCapitulationScore -= 15;
@@ -54485,7 +54467,7 @@ bool CvDiplomacyAI::IsCapitulationAcceptable(PlayerTypes ePlayer)
 		else if (pLoopCity->isUnderSiege() && pLoopCity->getDamage() >= (pLoopCity->GetMaxHitPoints()/2))
 		{
 			// Don't surrender if we could get our capital or Holy City back!
-			if (pLoopCity->IsOriginalCapitalForPlayer(GetID()) || pLoopCity->GetCityReligions()->IsHolyCityForReligion(GetPlayer()->GetReligions()->GetStateReligion(false)))
+			if (pLoopCity->IsOriginalCapitalForPlayer(GetID()) || pLoopCity->GetCityReligions()->IsHolyCityForReligion(GC.getGame().GetGameReligions()->GetReligionCreatedByPlayer(GetID())))
 				return false;
 
 			iCapitulationScore -= 10;

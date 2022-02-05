@@ -196,10 +196,9 @@ public:
 	void SetHolyCity(ReligionTypes eReligion, const CvCity* pkHolyCity);
 	void SetFounder(ReligionTypes eReligion, PlayerTypes eFounder);
 
-#if defined(MOD_BALANCE_CORE)
 	void SetFoundYear(ReligionTypes eReligion, int iValue);
 	int GetFoundYear(ReligionTypes eReligion);
-#endif
+
 	void UpdateAllCitiesThisReligion(ReligionTypes eReligion);
 
 	// General religion information functions

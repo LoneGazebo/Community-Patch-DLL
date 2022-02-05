@@ -146,7 +146,7 @@ CvReligion::CvReligion(ReligionTypes eReligion, PlayerTypes eFounder, CvCity* pH
 	, m_bReformed(false)
 #endif
 {
-	if(pHolyCity)
+	if (pHolyCity)
 	{
 		m_iHolyCityX = pHolyCity->getX();
 		m_iHolyCityY = pHolyCity->getY();
@@ -1856,16 +1856,25 @@ ReligionTypes CvGameReligions::GetHolyCityReligion(const CvCity* pkTestCity) con
 
 
 /// Move the Holy City for a religion (useful for scenario scripting)
-void CvGameReligions::SetHolyCity(ReligionTypes eReligion, const  CvCity* pkHolyCity)
+void CvGameReligions::SetHolyCity(ReligionTypes eReligion, const CvCity* pkHolyCity)
 {
 	ReligionList::iterator it;
 	for(it = m_CurrentReligions.begin(); it != m_CurrentReligions.end(); it++)
 	{
 		if(it->m_eReligion == eReligion)
 		{
-			//need to save coordinates here, the city ID changes on conquest!
-			it->m_iHolyCityX = pkHolyCity->getX();
-			it->m_iHolyCityY = pkHolyCity->getY();
+			if (pkHolyCity != NULL)
+			{
+				//need to save coordinates here, the city ID changes on conquest!
+				it->m_iHolyCityX = pkHolyCity->getX();
+				it->m_iHolyCityY = pkHolyCity->getY();
+			}
+			else
+			{
+				// Holy City was destroyed or its status removed!
+				it->m_iHolyCityX = -1;
+				it->m_iHolyCityY = -1;
+			}
 			break;
 		}
 	}
@@ -1885,8 +1894,8 @@ void CvGameReligions::SetFounder(ReligionTypes eReligion, PlayerTypes eFounder)
 		}
 	}
 }
-#if defined(MOD_BALANCE_CORE)
-/// Switch founder for a religion (useful for scenario scripting)
+
+/// Switch founding year for a religion (useful for scenario scripting)
 void CvGameReligions::SetFoundYear(ReligionTypes eReligion, int iValue)
 {
 	ReligionList::iterator it;
@@ -1900,7 +1909,7 @@ void CvGameReligions::SetFoundYear(ReligionTypes eReligion, int iValue)
 		}
 	}
 }
-/// Switch founder for a religion (useful for scenario scripting)
+/// Switch founding year for a religion (useful for scenario scripting)
 int CvGameReligions::GetFoundYear(ReligionTypes eReligion)
 {
 	ReligionList::iterator it;
@@ -1914,7 +1923,6 @@ int CvGameReligions::GetFoundYear(ReligionTypes eReligion)
 	}
 	return -1;
 }
-#endif
 
 /// After a religion is enhanced, the newly chosen beliefs need to be turned on in all cities
 void CvGameReligions::UpdateAllCitiesThisReligion(ReligionTypes eReligion)
@@ -5376,6 +5384,12 @@ void CvCityReligions::RemoveFormerPantheon()
 /// Remove other religions in a city (used by Inquisitor)
 void CvCityReligions::RemoveOtherReligions(ReligionTypes eReligion, PlayerTypes eResponsiblePlayer)
 {
+	// Using an inquisitor from a different religion removes the Holy City status
+	if (IsHolyCityAnyReligion() && GetReligionForHolyCity() != eReligion)
+	{
+		GC.getGame().GetGameReligions()->SetHolyCity(GetReligionForHolyCity(), NULL);
+	}
+
 	ErodeOtherReligiousPressure(FOLLOWER_CHANGE_REMOVE_HERESY, eReligion, /*100 in CP, 50 in CBO*/ GD_INT_GET(INQUISITION_EFFECTIVENESS), true, true, eResponsiblePlayer);
 
 	//not calling add pressure here, instead recompute directly
@@ -5608,12 +5622,10 @@ void CvCityReligions::RecomputeFollowers(CvReligiousFollowChangeReason eReason, 
 	ReligionTypes eNewMajorityReligion = GetReligiousMajority();
 	int iFollowers = GetNumFollowers(eNewMajorityReligion);
 
-#if defined(MOD_ISKA_PANTHEONS)
 	if (MOD_ISKA_PANTHEONS && eNewMajorityReligion == RELIGION_PANTHEON && eOldMajorityReligion == NO_RELIGION)
 	{
 		CityConvertsPantheon();
 	}
-#endif
 
 	if(eNewMajorityReligion != eOldMajorityReligion || iFollowers != iOldFollowers)
 	{
