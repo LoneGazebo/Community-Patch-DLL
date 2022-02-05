@@ -2348,25 +2348,6 @@ int CvGameReligions::GetNumDomesticCitiesFollowing(ReligionTypes eReligion, Play
 	return iRtnValue;
 }
 
-bool CvGameReligions::HasAnyDomesticCityFollowing(ReligionTypes eReligion, PlayerTypes ePlayer) const
-{
-	CvPlayer& kPlayer = GET_PLAYER(ePlayer);
-	if (!kPlayer.isAlive())
-		return false;
-
-	// Loop through each of their cities
-	int iLoop;
-	for (CvCity* pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
-	{
-		if (pLoopCity->GetCityReligions()->GetReligiousMajority() == eReligion)
-		{
-			return true;
-		}
-	}
-
-	return false;
-}
-
 /// Has this player created a religion?
 #if defined(MOD_RELIGION_LOCAL_RELIGIONS)
 bool CvGameReligions::HasCreatedReligion(PlayerTypes ePlayer, bool bIgnoreLocal) const
