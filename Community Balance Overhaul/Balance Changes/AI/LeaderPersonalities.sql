@@ -288,7 +288,6 @@ UPDATE Leader_MinorCivApproachBiases SET Bias = 6 	WHERE LeaderType = 'LEADER_CA
 
 -- Darius I (Persia)
 UPDATE Leaders SET PrimaryVictoryPursuit = 'VICTORY_PURSUIT_DOMINATION' WHERE Type = 'LEADER_DARIUS';
-UPDATE Leaders SET SecondaryVictoryPursuit = 'VICTORY_PURSUIT_CULTURE' WHERE Type = 'LEADER_DARIUS';
 UPDATE Leaders SET Personality = 'PERSONALITY_CONQUEROR' WHERE Type = 'LEADER_DARIUS';
 UPDATE Leaders SET VictoryCompetitiveness = 5 		WHERE Type = 'LEADER_DARIUS';
 UPDATE Leaders SET WonderCompetitiveness = 8 		WHERE Type = 'LEADER_DARIUS';
@@ -600,8 +599,9 @@ UPDATE Leader_MinorCivApproachBiases SET Bias = 8 	WHERE LeaderType = 'LEADER_HA
 UPDATE Leader_MinorCivApproachBiases SET Bias = 3 	WHERE LeaderType = 'LEADER_HARUN_AL_RASHID' 	AND MinorCivApproachType = 'MINOR_CIV_APPROACH_BULLY';
 UPDATE Leader_MinorCivApproachBiases SET Bias = 1 	WHERE LeaderType = 'LEADER_HARUN_AL_RASHID' 	AND MinorCivApproachType = 'MINOR_CIV_APPROACH_CONQUEST';
 
--- Hiawatha (The Iroquois); generalist civ with no victory pursuit bias
-UPDATE Leaders SET PrimaryVictoryPursuit = NULL WHERE Type = 'LEADER_HIAWATHA';
+-- Hiawatha (The Iroquois)
+UPDATE Leaders SET PrimaryVictoryPursuit = 'VICTORY_PURSUIT_DIPLOMACY' WHERE Type = 'LEADER_HIAWATHA';
+UPDATE Leaders SET SecondaryVictoryPursuit = 'VICTORY_PURSUIT_DOMINATION' WHERE Type = 'LEADER_HIAWATHA';
 UPDATE Leaders SET Personality = 'PERSONALITY_EXPANSIONIST' WHERE Type = 'LEADER_HIAWATHA';
 UPDATE Leaders SET VictoryCompetitiveness = 5 		WHERE Type = 'LEADER_HIAWATHA';
 UPDATE Leaders SET WonderCompetitiveness = 2 		WHERE Type = 'LEADER_HIAWATHA';
@@ -656,8 +656,8 @@ UPDATE Leader_MinorCivApproachBiases SET Bias = 4 	WHERE LeaderType = 'LEADER_IS
 UPDATE Leader_MinorCivApproachBiases SET Bias = 7 	WHERE LeaderType = 'LEADER_ISABELLA' 	AND MinorCivApproachType = 'MINOR_CIV_APPROACH_BULLY';
 UPDATE Leader_MinorCivApproachBiases SET Bias = 8 	WHERE LeaderType = 'LEADER_ISABELLA' 	AND MinorCivApproachType = 'MINOR_CIV_APPROACH_CONQUEST';
 
--- Kamehameha (Polynesia); generalist civ with no victory pursuit bias
-UPDATE Leaders SET PrimaryVictoryPursuit = NULL WHERE Type = 'LEADER_KAMEHAMEHA';
+-- Kamehameha (Polynesia)
+UPDATE Leaders SET PrimaryVictoryPursuit = 'VICTORY_PURSUIT_CULTURE' WHERE Type = 'LEADER_KAMEHAMEHA';
 UPDATE Leaders SET Personality = 'PERSONALITY_COALITION' WHERE Type = 'LEADER_KAMEHAMEHA';
 UPDATE Leaders SET VictoryCompetitiveness = 5 		WHERE Type = 'LEADER_KAMEHAMEHA';
 UPDATE Leaders SET WonderCompetitiveness = 7 		WHERE Type = 'LEADER_KAMEHAMEHA';
@@ -885,7 +885,6 @@ UPDATE Leader_MinorCivApproachBiases SET Bias = 5 	WHERE LeaderType = 'LEADER_PA
 
 -- Pachacuti (The Inca)
 UPDATE Leaders SET PrimaryVictoryPursuit = 'VICTORY_PURSUIT_SCIENCE' WHERE Type = 'LEADER_PACHACUTI';
-UPDATE Leaders SET SecondaryVictoryPursuit = 'VICTORY_PURSUIT_DOMINATION' WHERE Type = 'LEADER_PACHACUTI';
 UPDATE Leaders SET Personality = 'PERSONALITY_EXPANSIONIST' WHERE Type = 'LEADER_PACHACUTI';
 UPDATE Leaders SET VictoryCompetitiveness = 6 		WHERE Type = 'LEADER_PACHACUTI';
 UPDATE Leaders SET WonderCompetitiveness = 6 		WHERE Type = 'LEADER_PACHACUTI';
@@ -905,8 +904,8 @@ UPDATE Leader_MajorCivApproachBiases SET Bias = 7 	WHERE LeaderType = 'LEADER_PA
 UPDATE Leader_MajorCivApproachBiases SET Bias = 5 	WHERE LeaderType = 'LEADER_PACHACUTI' 	AND MajorCivApproachType = 'MAJOR_CIV_APPROACH_DECEPTIVE';
 UPDATE Leader_MajorCivApproachBiases SET Bias = 4 	WHERE LeaderType = 'LEADER_PACHACUTI' 	AND MajorCivApproachType = 'MAJOR_CIV_APPROACH_GUARDED';
 UPDATE Leader_MajorCivApproachBiases SET Bias = 1 	WHERE LeaderType = 'LEADER_PACHACUTI' 	AND MajorCivApproachType = 'MAJOR_CIV_APPROACH_AFRAID';
-UPDATE Leader_MajorCivApproachBiases SET Bias = 7 	WHERE LeaderType = 'LEADER_PACHACUTI' 	AND MajorCivApproachType = 'MAJOR_CIV_APPROACH_NEUTRAL';
-UPDATE Leader_MajorCivApproachBiases SET Bias = 7 	WHERE LeaderType = 'LEADER_PACHACUTI' 	AND MajorCivApproachType = 'MAJOR_CIV_APPROACH_FRIENDLY';
+UPDATE Leader_MajorCivApproachBiases SET Bias = 8 	WHERE LeaderType = 'LEADER_PACHACUTI' 	AND MajorCivApproachType = 'MAJOR_CIV_APPROACH_NEUTRAL';
+UPDATE Leader_MajorCivApproachBiases SET Bias = 6 	WHERE LeaderType = 'LEADER_PACHACUTI' 	AND MajorCivApproachType = 'MAJOR_CIV_APPROACH_FRIENDLY';
 UPDATE Leader_MinorCivApproachBiases SET Bias = 5 	WHERE LeaderType = 'LEADER_PACHACUTI' 	AND MinorCivApproachType = 'MINOR_CIV_APPROACH_IGNORE';
 UPDATE Leader_MinorCivApproachBiases SET Bias = 5 	WHERE LeaderType = 'LEADER_PACHACUTI' 	AND MinorCivApproachType = 'MINOR_CIV_APPROACH_PROTECTIVE';
 UPDATE Leader_MinorCivApproachBiases SET Bias = 5 	WHERE LeaderType = 'LEADER_PACHACUTI' 	AND MinorCivApproachType = 'MINOR_CIV_APPROACH_BULLY';
@@ -1081,8 +1080,8 @@ UPDATE Leader_MinorCivApproachBiases SET Bias = 12 	WHERE LeaderType = 'LEADER_S
 UPDATE Leader_MinorCivApproachBiases SET Bias = 8 	WHERE LeaderType = 'LEADER_SHAKA' 	AND MinorCivApproachType = 'MINOR_CIV_APPROACH_CONQUEST';
 
 -- Suleiman (The Ottomans)
-UPDATE Leaders SET PrimaryVictoryPursuit = 'VICTORY_PURSUIT_DIPLOMACY' WHERE Type = 'LEADER_SULEIMAN';
-UPDATE Leaders SET SecondaryVictoryPursuit = 'VICTORY_PURSUIT_SCIENCE' WHERE Type = 'LEADER_SULEIMAN';
+UPDATE Leaders SET PrimaryVictoryPursuit = 'VICTORY_PURSUIT_SCIENCE' WHERE Type = 'LEADER_SULEIMAN';
+UPDATE Leaders SET SecondaryVictoryPursuit = 'VICTORY_PURSUIT_DOMINATION' WHERE Type = 'LEADER_SULEIMAN';
 UPDATE Leaders SET Personality = 'PERSONALITY_EXPANSIONIST' WHERE Type = 'LEADER_SULEIMAN';
 UPDATE Leaders SET VictoryCompetitiveness = 7 		WHERE Type = 'LEADER_SULEIMAN';
 UPDATE Leaders SET WonderCompetitiveness = 7 		WHERE Type = 'LEADER_SULEIMAN';
@@ -1109,9 +1108,8 @@ UPDATE Leader_MinorCivApproachBiases SET Bias = 7 	WHERE LeaderType = 'LEADER_SU
 UPDATE Leader_MinorCivApproachBiases SET Bias = 9 	WHERE LeaderType = 'LEADER_SULEIMAN' 	AND MinorCivApproachType = 'MINOR_CIV_APPROACH_BULLY';
 UPDATE Leader_MinorCivApproachBiases SET Bias = 3 	WHERE LeaderType = 'LEADER_SULEIMAN' 	AND MinorCivApproachType = 'MINOR_CIV_APPROACH_CONQUEST';
 
--- Theodora (Byzantium)
-UPDATE Leaders SET PrimaryVictoryPursuit = 'VICTORY_PURSUIT_CULTURE' WHERE Type = 'LEADER_THEODORA';
-UPDATE Leaders SET SecondaryVictoryPursuit = 'VICTORY_PURSUIT_DIPLOMACY' WHERE Type = 'LEADER_THEODORA';
+-- Theodora (Byzantium); generalist civ with no victory pursuit bias
+UPDATE Leaders SET PrimaryVictoryPursuit = NULL WHERE Type = 'LEADER_THEODORA';
 UPDATE Leaders SET Personality = 'PERSONALITY_DIPLOMAT' WHERE Type = 'LEADER_THEODORA';
 UPDATE Leaders SET VictoryCompetitiveness = 6 		WHERE Type = 'LEADER_THEODORA';
 UPDATE Leaders SET WonderCompetitiveness = 9 		WHERE Type = 'LEADER_THEODORA';
@@ -1139,8 +1137,7 @@ UPDATE Leader_MinorCivApproachBiases SET Bias = 8 	WHERE LeaderType = 'LEADER_TH
 UPDATE Leader_MinorCivApproachBiases SET Bias = 3 	WHERE LeaderType = 'LEADER_THEODORA' 	AND MinorCivApproachType = 'MINOR_CIV_APPROACH_CONQUEST';
 
 -- Washington (America)
-UPDATE Leaders SET PrimaryVictoryPursuit = 'VICTORY_PURSUIT_DOMINATION' WHERE Type = 'LEADER_WASHINGTON';
-UPDATE Leaders SET SecondaryVictoryPursuit = 'VICTORY_PURSUIT_DIPLOMACY' WHERE Type = 'LEADER_WASHINGTON';
+UPDATE Leaders SET PrimaryVictoryPursuit = 'VICTORY_PURSUIT_CULTURE' WHERE Type = 'LEADER_WASHINGTON';
 UPDATE Leaders SET Personality = 'PERSONALITY_COALITION' WHERE Type = 'LEADER_WASHINGTON';
 UPDATE Leaders SET VictoryCompetitiveness = 8 		WHERE Type = 'LEADER_WASHINGTON';
 UPDATE Leaders SET WonderCompetitiveness = 4 		WHERE Type = 'LEADER_WASHINGTON';

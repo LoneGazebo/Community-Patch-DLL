@@ -19118,7 +19118,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 		iMultiplier += IsScientist() || IsSecondaryScientist() ? 2 : 0;
 		iMultiplier += bScientistTraits ? 2 : 0;
 		iMultiplier += pTraits->IsSmaller() ? 1 : 0; // Additional bonus if we're geared towards being smaller
-		iMultiplier += bEarlyGameCompetitor ? -1 : 1;
+		iMultiplier += bEarlyGameCompetitor ? -2 : 1;
 
 		// Disincentivize early war - we want to work on our infrastructure
 		if (iMyEra <= 2)
@@ -19131,7 +19131,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 			// Be wary of strong neighbors
 			if (eProximity >= PLAYER_PROXIMITY_CLOSE && eMilitaryStrength > STRENGTH_AVERAGE)
 			{
-				iMultiplier += bEarlyGameCompetitor ? 2 : 0; // 2 to undo the earlier change and add 1
+				iMultiplier += bEarlyGameCompetitor ? 3 : 0; // 3 to undo the earlier change and add 1
 				vApproachScores[CIV_APPROACH_GUARDED] += vApproachBias[CIV_APPROACH_GUARDED] * iMultiplier;
 				vApproachScores[CIV_APPROACH_DECEPTIVE] += vApproachBias[CIV_APPROACH_DECEPTIVE] * iMultiplier;
 			}
@@ -19178,7 +19178,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 		iMultiplier += IsDiplomat() || IsSecondaryDiplomat() ? 2 : 0;
 
 		// Extra hatred for those who mess with our City-States (also our prime league competitor!)
-		if ((bMetValidMinor && IsMinorCivTroublemaker(ePlayer)) || (GetPrimeLeagueCompetitor() == ePlayer))
+		if ((bMetValidMinor && IsMinorCivTroublemaker(ePlayer)) || GetPrimeLeagueCompetitor() == ePlayer)
 		{
 			vApproachScores[CIV_APPROACH_FRIENDLY] -= vApproachBias[CIV_APPROACH_FRIENDLY] * iMultiplier;
 			vApproachScores[CIV_APPROACH_WAR] += vApproachBias[CIV_APPROACH_WAR] * iMultiplier;
@@ -19189,6 +19189,10 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 		// Extra friendliness for others!
 		else if (bMetValidMinor && !bUntrustworthy)
 		{
+			// Especially our prime league ally!
+			if (GetPrimeLeagueAlly() == ePlayer)
+				iMultiplier *= 2;
+
 			vApproachScores[CIV_APPROACH_FRIENDLY] += vApproachBias[CIV_APPROACH_FRIENDLY] * iMultiplier;
 			vApproachScores[CIV_APPROACH_WAR] -= vApproachBias[CIV_APPROACH_WAR] * iMultiplier;
 			vApproachScores[CIV_APPROACH_HOSTILE] -= vApproachBias[CIV_APPROACH_HOSTILE] * iMultiplier;
@@ -19241,35 +19245,46 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 		}
 	}
 
-	// Industry - more friendliness for strategic trade partners
+	// Industry - more friendliness for trade partners
 	if (GetPlayer()->GetPlayerPolicies()->IsPolicyBranchUnlocked(eIndustry))
 	{
 		iMultiplier = GetPlayer()->GetPlayerPolicies()->IsPolicyBranchFinished(eIndustry) ? 2 : 1;
 		iMultiplier += pTraits->IsExpansionist() ? 2 : 0; // Larger civs care more, since they have more trade resources
 		iMultiplier += bDiplomatTraits ? 2 : 0;
 		iMultiplier += IsDiplomat() || IsSecondaryDiplomat() ? 2 : 0;
-		iMultiplier += IsMajorCompetitor(ePlayer) ? -1 : 1;
+		iMultiplier += IsMajorCompetitor(ePlayer) ? -2 : 1;
 		iMultiplier += pTraits->IsImportsCountTowardsMonopolies() ? 2 : 0; // The Netherlands REALLY likes strategic trade partners if they've chosen Industry
 		iMultiplier += pTraits->GetNumTradeRoutesModifier() > 0 ? 2 : 0; // ditto for Venice
 		iMultiplier += pTraits->GetTradeRouteResourceModifier() > 0 ? 2 : 0; // ditto for Carthage
 		for (int i = 0; i < NUM_YIELD_TYPES; i++)
 		{
 			YieldTypes e = (YieldTypes) i;
-			if (pTraits->GetYieldChangeIncomingTradeRoute(e) > 0)
+			if (pTraits->GetYieldChangeIncomingTradeRoute(e) > 0 || pTraits->GetTradeRouteStartYield(e) > 0)
 			{
-				iMultiplier += 2; // ditto for Morocco
+				iMultiplier += 2; // ditto for Morocco/Ottomans
 				break;
 			}
 		}
 
-		// Strategic trade partner that we're getting trade value from?
-		if (IsStrategicTradePartner(ePlayer) && iTradeDelta > 0)
+		// Trade partner that we're getting trade value from?
+		if (iTradeDelta > 0)
 		{
-			vApproachScores[CIV_APPROACH_FRIENDLY] += vApproachBias[CIV_APPROACH_FRIENDLY] * iMultiplier;
-			vApproachScores[CIV_APPROACH_WAR] -= vApproachBias[CIV_APPROACH_WAR] * iMultiplier;
-			vApproachScores[CIV_APPROACH_HOSTILE] -= vApproachBias[CIV_APPROACH_HOSTILE] * iMultiplier;
-			vApproachScores[CIV_APPROACH_DECEPTIVE] -= vApproachBias[CIV_APPROACH_DECEPTIVE] * iMultiplier;
-			vApproachScores[CIV_APPROACH_GUARDED] -= vApproachBias[CIV_APPROACH_GUARDED] * iMultiplier;
+			if (IsHasDefensivePact(ePlayer) || GetPrimeLeagueAlly() == ePlayer || IsStrategicTradePartner(ePlayer))
+			{
+				vApproachScores[CIV_APPROACH_FRIENDLY] += vApproachBias[CIV_APPROACH_FRIENDLY] * iMultiplier;
+				vApproachScores[CIV_APPROACH_WAR] -= vApproachBias[CIV_APPROACH_WAR] * iMultiplier;
+				vApproachScores[CIV_APPROACH_HOSTILE] -= vApproachBias[CIV_APPROACH_HOSTILE] * iMultiplier;
+				vApproachScores[CIV_APPROACH_DECEPTIVE] -= vApproachBias[CIV_APPROACH_DECEPTIVE] * iMultiplier;
+				vApproachScores[CIV_APPROACH_GUARDED] -= vApproachBias[CIV_APPROACH_GUARDED] * iMultiplier;
+			}
+			else
+			{
+				vApproachScores[CIV_APPROACH_FRIENDLY] += vApproachBias[CIV_APPROACH_FRIENDLY] * iMultiplier / 2;
+				vApproachScores[CIV_APPROACH_WAR] -= vApproachBias[CIV_APPROACH_WAR] * iMultiplier / 2;
+				vApproachScores[CIV_APPROACH_HOSTILE] -= vApproachBias[CIV_APPROACH_HOSTILE] * iMultiplier / 2;
+				vApproachScores[CIV_APPROACH_DECEPTIVE] -= vApproachBias[CIV_APPROACH_DECEPTIVE] * iMultiplier / 2;
+				vApproachScores[CIV_APPROACH_GUARDED] -= vApproachBias[CIV_APPROACH_GUARDED] * iMultiplier / 2;				
+			}
 		}
 	}
 
@@ -21159,7 +21174,7 @@ void CvDiplomacyAI::DoRelationshipPairing()
 		for (int i = 0; i < NUM_YIELD_TYPES; i++)
 		{
 			YieldTypes e = (YieldTypes) i;
-			if (GetPlayer()->GetPlayerTraits()->GetYieldChangeIncomingTradeRoute(e) > 0)
+			if (GetPlayer()->GetPlayerTraits()->GetYieldChangeIncomingTradeRoute(e) > 0 || GetPlayer()->GetPlayerTraits()->GetTradeRouteStartYield(e) > 0)
 			{
 				bTradeBonus = true;
 				break;
