@@ -147,16 +147,16 @@ enum DoFLevelTypes
 	NUM_DOF_TYPES,
 };
 
-enum VictoryFocusTypes
+enum VictoryPursuitTypes
 {
-	NO_VICTORY_FOCUS_TYPE = -1,
+	NO_VICTORY_PURSUIT = -1,
 
-	VICTORY_FOCUS_DOMINATION,
-	VICTORY_FOCUS_DIPLOMACY,
-	VICTORY_FOCUS_CULTURE,
-	VICTORY_FOCUS_SCIENCE,
+	VICTORY_PURSUIT_DOMINATION,
+	VICTORY_PURSUIT_DIPLOMACY,
+	VICTORY_PURSUIT_CULTURE,
+	VICTORY_PURSUIT_SCIENCE,
 
-	NUM_VICTORY_FOCUS_TYPES,
+	NUM_VICTORY_PURSUITS,
 };
 
 enum PromiseStates
@@ -316,16 +316,16 @@ enum VassalTreatmentTypes
 	NUM_VASSAL_TREATMENT_TYPES
 };
 
-inline FDataStream& operator<<(FDataStream& saveTo, const VictoryFocusTypes& readFrom)
+inline FDataStream& operator<<(FDataStream& saveTo, const VictoryPursuitTypes& readFrom)
 {
 	saveTo << static_cast<int>(readFrom);
 	return saveTo;
 }
-inline FDataStream& operator>>(FDataStream& loadFrom, VictoryFocusTypes& writeTo)
+inline FDataStream& operator>>(FDataStream& loadFrom, VictoryPursuitTypes& writeTo)
 {
 	int v;
 	loadFrom >> v;
-	writeTo = static_cast<VictoryFocusTypes>(v);
+	writeTo = static_cast<VictoryPursuitTypes>(v);
 	return loadFrom;
 }
 

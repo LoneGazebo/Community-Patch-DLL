@@ -235,12 +235,12 @@ int CvPolicyAI::ChooseNextPolicy(CvPlayer* pPlayer)
 	// If total weight is above 0, choose one above a threshold
 	if(m_AdoptablePolicies.GetTotalWeight() > 0)
 	{
-		int iNumChoices = GC.getGame().getHandicapInfo().GetPolicyNumOptions();
+		int iNumChoices = max(GC.getGame().getHandicapInfo().GetPolicyNumOptions(), 1);
 		iRtnValue = m_AdoptablePolicies.ChooseFromTopChoices(iNumChoices, &fcn, "Choosing policy from Top Choices");
 	}
 	else if (m_AdoptablePolicies.size() > 0)
 	{
-		int iNumChoices = GC.getGame().getHandicapInfo().GetPolicyNumOptions();
+		int iNumChoices = max(GC.getGame().getHandicapInfo().GetPolicyNumOptions(), 1);
 		iRtnValue = m_AdoptablePolicies.ChooseFromTopChoices(iNumChoices, &fcn, "Choosing policy from Top Choices");
 	}
 	// Total weight may be 0 if the only branches and policies left are ones that are ineffective in our game, but we gotta pick something
@@ -4202,15 +4202,15 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 				yield[eYield] += PolicyInfo->GetYieldFromConstruction(eYield) * 2 * iNumCities;
 			}
 		}
-		if (PolicyInfo->GetYieldFromWonderConstruction(eYield) != 0)
+		if (PolicyInfo->GetYieldFromWorldWonderConstruction(eYield) != 0)
 		{
 			if (pPlayerTraits->IsTourism() || pPlayerTraits->IsSmaller())
 			{
-				yield[eYield] += PolicyInfo->GetYieldFromWonderConstruction(eYield) * 5 * max(2, (iNumWonders / 2));
+				yield[eYield] += PolicyInfo->GetYieldFromWorldWonderConstruction(eYield) * 5 * max(2, (iNumWonders / 2));
 			}
 			else
 			{
-				yield[eYield] += PolicyInfo->GetYieldFromWonderConstruction(eYield) * max(2, (iNumWonders / 4));
+				yield[eYield] += PolicyInfo->GetYieldFromWorldWonderConstruction(eYield) * max(2, (iNumWonders / 4));
 			}
 		}
 		if (PolicyInfo->GetYieldFromTech(eYield) != 0)

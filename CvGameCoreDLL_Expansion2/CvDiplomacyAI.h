@@ -109,7 +109,7 @@ public:
 
 	int GetRandomPersonalityWeight(int iOriginalValue, int& iSeed);
 	void DoInitializePersonality(bool bFirstInit);
-	void SelectDefaultVictoryFocus();
+	void SelectDefaultVictoryPursuits();
 
 	int GetVictoryCompetitiveness() const;
 	int GetWonderCompetitiveness() const;
@@ -128,12 +128,19 @@ public:
 	int GetMajorCivApproachBias(CivApproachTypes eApproach) const;
 	int GetMinorCivApproachBias(CivApproachTypes eApproach) const;
 
-	VictoryFocusTypes GetDefaultVictoryFocus() const;
-	void SetDefaultVictoryFocus(VictoryFocusTypes eVictoryFocus);
+	VictoryPursuitTypes GetPrimaryVictoryPursuit() const;
+	void SetPrimaryVictoryPursuit(VictoryPursuitTypes eVictoryPursuit);
 	bool IsConqueror() const;
 	bool IsDiplomat() const;
 	bool IsCultural() const;
 	bool IsScientist() const;
+
+	VictoryPursuitTypes GetSecondaryVictoryPursuit() const;
+	void SetSecondaryVictoryPursuit(VictoryPursuitTypes eVictoryPursuit);
+	bool IsSecondaryConqueror() const;
+	bool IsSecondaryDiplomat() const;
+	bool IsSecondaryCultural() const;
+	bool IsSecondaryScientist() const;
 
 	// ************************************
 	// Memory Management
@@ -178,8 +185,12 @@ public:
 	bool IsCompetingForVictory() const;
 	void SetCompetingForVictory(bool bValue);
 
-	VictoryFocusTypes GetVictoryFocus() const;
-	void SetVictoryFocus(VictoryFocusTypes eFocus);
+	VictoryPursuitTypes GetCurrentVictoryPursuit() const;
+	void SetCurrentVictoryPursuit(VictoryPursuitTypes eVictoryPursuit);
+	bool IsGoingForWorldConquest() const;
+	bool IsGoingForDiploVictory() const;
+	bool IsGoingForCultureVictory() const;
+	bool IsGoingForSpaceshipVictory() const;
 
 	bool IsEndgameAggressiveTo(PlayerTypes ePlayer) const;
 	void SetEndgameAggressiveTo(PlayerTypes ePlayer, bool bValue);
@@ -194,12 +205,18 @@ public:
 	// Victory Progress
 	// ------------------------------------
 
-	int GetScoreVictoryProgress();
-	int GetScienceVictoryProgress();
-	int GetDiplomaticVictoryProgress();
-	int GetDominationVictoryProgress();
-	int GetCultureVictoryProgress();
-	int GetLowestTourismInfluence();
+	int GetScoreVictoryProgress() const;
+	int GetDominationVictoryProgress() const;
+	int GetDiplomaticVictoryProgress() const;
+	int GetScienceVictoryProgress() const;
+	int GetCultureVictoryProgress() const;
+	int GetLowestTourismInfluence() const;
+
+	bool IsCloseToAnyVictoryCondition() const;
+	bool IsCloseToWorldConquest() const;
+	bool IsCloseToDiploVictory() const;
+	bool IsCloseToSpaceshipVictory() const;
+	bool IsCloseToCultureVictory() const;
 
 	// ------------------------------------
 	// Opinion & Approach
@@ -1040,7 +1057,7 @@ public:
 	void DoUpdateCompetingForVictory();
 	bool IsEndgameAggressive() const;
 
-	void DoUpdateVictoryFocus();
+	void DoUpdateCurrentVictoryPursuit();
 	void DoUpdateRecklessExpanders();
 	void DoUpdateWonderSpammers();
 	void DoUpdateVictoryDisputeLevels();
@@ -1487,7 +1504,6 @@ public:
 	PlayerTypes GetRequestFriendToDenounce(PlayerTypes ePlayer, bool& bRandFailed);
 	bool IsFriendDenounceRefusalUnacceptable(PlayerTypes ePlayer, PlayerTypes eAgainstPlayer);
 
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	// Contact Statements
 	void DoMapsOffer(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal);
 	void DoTechOffer(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal);
@@ -1541,11 +1557,9 @@ public:
 
 	void DoWeMadeVassalageWithSomeone(TeamTypes eTeam, bool bVoluntary);
 	void DoWeEndedVassalageWithSomeone(TeamTypes eTeam);
-#endif
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+
 	MoveTroopsResponseTypes GetMoveTroopsRequestResponse(PlayerTypes ePlayer, bool bJustChecking = false);
 	void DoLiberatedFromVassalage(TeamTypes eTeam, bool bSkipPopup);
-#endif
 
 	// Player asks the AI not to convert
 	bool IsStopSpreadingReligionAcceptable(PlayerTypes ePlayer);
@@ -1722,17 +1736,6 @@ public:
 
 	int GetNumOurEnemiesPlayerAtWarWith(PlayerTypes ePlayer);
 
-	bool IsGoingForWorldConquest() const;
-	bool IsGoingForDiploVictory() const;
-	bool IsGoingForCultureVictory() const;
-	bool IsGoingForSpaceshipVictory() const;
-
-	bool IsCloseToAnyVictoryCondition() const;
-	bool IsCloseToSpaceshipVictory() const;
-	bool IsCloseToWorldConquest() const;
-	bool IsCloseToCultureVictory() const;
-	bool IsCloseToDiploVictory() const;
-
 	// Minor Civ Log
 	void LogMinorCivGiftTile(PlayerTypes ePlayer);
 	void LogMinorCivGiftGold(PlayerTypes ePlayer, int iOldFriendship, int iGold, bool bSaving, bool bWantQuickBoost, PlayerTypes ePlayerTryingToPass);
@@ -1875,8 +1878,9 @@ private:
 	bool m_bWaitingForDigChoice;
 	bool m_bBackstabber;
 	bool m_bCompetingForVictory;
-	VictoryFocusTypes m_eDefaultVictoryFocus;
-	VictoryFocusTypes m_eVictoryFocus;
+	VictoryPursuitTypes m_ePrimaryVictoryPursuit;
+	VictoryPursuitTypes m_eSecondaryVictoryPursuit;
+	VictoryPursuitTypes m_eCurrentVictoryPursuit;
 	StateAllWars m_eStateAllWars;
 
 	// Diplomatic Interactions
@@ -2097,7 +2101,6 @@ private:
 	char m_aeApproachTowardsUsGuess[MAX_MAJOR_CIVS];
 	char m_aeApproachTowardsUsGuessCounter[MAX_MAJOR_CIVS];
 
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	// C4DF Values
 	char m_aeShareOpinionResponse[MAX_MAJOR_CIVS];
 	int m_aiHelpRequestAcceptedTurn[MAX_MAJOR_CIVS];
@@ -2116,11 +2119,8 @@ private:
 	bool m_abVassalTaxLowered[MAX_MAJOR_CIVS];
 	int m_aiVassalGoldPerTurnTaxedSinceVassalStarted[MAX_MAJOR_CIVS];
 	int m_aiVassalGoldPerTurnCollectedSinceVassalStarted[MAX_MAJOR_CIVS];
-#endif
 
-#if defined(MOD_ACTIVE_DIPLOMACY)
 	float m_aTradePriority[MAX_MAJOR_CIVS]; // current ai to human trade priority
-#endif
 
 	// Other
 	typedef std::vector<PlayerTypes> PlayerTypesArray;

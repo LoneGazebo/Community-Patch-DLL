@@ -2031,7 +2031,7 @@ CvString CvPlayerEspionage::GetCityPotentialInfo(CvCity* pCity, bool bNoBasic)
 int CvPlayerEspionage::GetDefenseChance(CvEspionageType eEspionage, CvCity* pCity, CityEventChoiceTypes eEventChoice, bool bPreview)
 {
 	//Defense is based on the defensive capabilities of the city and its risk, then reduced by potency of spy there.
-	int iBaseDefense = 0;
+	int iBaseDefense = 10;
 	int iChancetoIdentify = 20;
 	int iChancetoKill = 0;
 
@@ -2045,10 +2045,8 @@ int CvPlayerEspionage::GetDefenseChance(CvEspionageType eEspionage, CvCity* pCit
 		}
 	}
 
-	//chance to identify starts at inverse City Value% + Counterspy Power.
-
 	//Chance to detect decreases based on city potency. More SECURITY = less likely!
-	int iDefensePower = 5 * pCity->GetEspionageRanking();
+	int iDefensePower = 5 * (10 - pCity->GetEspionageRanking());
 	iDefensePower += iBaseDefense;
 
 	PlayerTypes eOwner = pCity->getOwner();
@@ -4432,13 +4430,13 @@ bool CvPlayerEspionage::IsTechStealable(PlayerTypes ePlayer, TechTypes eTech)
 /// GetNumTechsToSteal - How many techs you can steal from a given player
 int CvPlayerEspionage::GetNumTechsToSteal(PlayerTypes ePlayer)
 {
-	CvAssertMsg((uint)ePlayer < m_aiNumTechsToStealList.size(), "ePlayer out of bounds");
-	if((uint)ePlayer >= m_aiNumTechsToStealList.size())
+	CvAssertMsg((uint)ePlayer < m_aaPlayerStealableTechList.size(), "ePlayer out of bounds");
+	if((uint)ePlayer >= m_aaPlayerStealableTechList.size())
 	{
 		return -1;
 	}
 
-	return m_aiNumTechsToStealList[ePlayer];
+	return m_aaPlayerStealableTechList[ePlayer].size();
 }
 int CvPlayerEspionage::GetNumSpyActionsDone(PlayerTypes ePlayer)
 {
@@ -6708,7 +6706,7 @@ std::vector<ScoreCityEntry> CvEspionageAI::BuildDiplomatCityList()
 		}
 
 		// if we can't see it, we can't move a diplomat there.
-		if (!pCapitalCity->isRevealed(m_pPlayer->getTeam(), false))
+		if (!pCapitalCity->isRevealed(m_pPlayer->getTeam(), false, false))
 		{
 			continue;
 		}
@@ -6790,29 +6788,19 @@ std::vector<ScoreCityEntry> CvEspionageAI::BuildOffenseCityList()
 
 		// If we promised not to spy or it's a bad idea to spy on them, then don't spy on them!
 		if (pDiploAI->IsPlayerBadTheftTarget(eTargetPlayer, THEFT_TYPE_SPY))
-		{
 			continue;
-		}
 
 		TeamTypes eTargetTeam = GET_PLAYER(eTargetPlayer).getTeam();
 		CvDiplomacyAI* pTargetDiploAI = GET_PLAYER(eTargetPlayer).GetDiplomacyAI();
 
-		CvCity* pLoopCity;
 		int iLoop;
-		for (pLoopCity = GET_PLAYER(eTargetPlayer).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(eTargetPlayer).nextCity(&iLoop))
+		for (CvCity* pLoopCity = GET_PLAYER(eTargetPlayer).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(eTargetPlayer).nextCity(&iLoop))
 		{
 			CvEspionageSpy* pSpy = pEspionage->GetSpyByID(pEspionage->GetSpyIndexInCity(pLoopCity));
 			CvPlot* pCityPlot = pLoopCity->plot();
 			CvAssertMsg(pCityPlot, "City plot is null!");
-			if (!pCityPlot)
-			{
+			if (!pCityPlot || !pLoopCity->isRevealed(m_pPlayer->getTeam(),false,true))
 				continue;
-			}
-
-			if (!pCityPlot->isRevealed(m_pPlayer->getTeam()))
-			{
-				continue;
-			}
 
 			//hmm...sometimes we want more, sometimes we want less...
 			int iValue = 0;
@@ -6820,7 +6808,6 @@ std::vector<ScoreCityEntry> CvEspionageAI::BuildOffenseCityList()
 			//if they're stronger than us in spies, let's go for their weak cities
 			if (GET_PLAYER(eTargetPlayer).GetEspionage()->GetNumSpies() > pEspionage->GetNumSpies())
 			{
-				
 				iValue = (100 + /*1000*/ GD_INT_GET(ESPIONAGE_GATHERING_INTEL_COST_PERCENT)) - pLoopCity->GetEspionageRankingForEspionage(m_pPlayer->GetID(), pSpy ? pSpy->m_eSpyFocus : NO_EVENT_CHOICE_CITY);
 				iValue /= 10;
 			}

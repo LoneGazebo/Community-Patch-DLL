@@ -191,7 +191,6 @@
 			<DisplayPosition>1</DisplayPosition>
 			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
 			<GlobalEspionageModifier>-15</GlobalEspionageModifier>
-			<EspionageModifier>-15</EspionageModifier>
 			<ExtraSpies>2</ExtraSpies>
 			<Espionage>true</Espionage>
 			<SpyRankChange>1</SpyRankChange>

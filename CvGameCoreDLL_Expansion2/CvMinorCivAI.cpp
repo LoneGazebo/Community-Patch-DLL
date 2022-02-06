@@ -1390,6 +1390,13 @@ bool CvMinorCivQuest::IsComplete()
 			return true;
 		}
 	}
+	else if (m_eType == MINOR_CIV_QUEST_GIFT_SPECIFIC_UNIT)
+	{
+		if (GET_PLAYER(m_eMinor).GetMinorCivAI()->GetHasSentUnitForQuest(m_eAssignedPlayer))
+		{
+			return true;
+		}
+	}
 #endif
 	else if(m_eType == MINOR_CIV_QUEST_GREAT_PERSON)
 	{
@@ -2136,22 +2143,38 @@ bool CvMinorCivQuest::IsExpired()
 			}
 		}
 	}
-	else if(m_eType == MINOR_CIV_QUEST_UNIT_GET_CITY)
+	else if (m_eType == MINOR_CIV_QUEST_UNIT_GET_CITY)
 	{
 		int iX = m_iData1;
 		int iY = m_iData2;
 		CvPlot* pPlot = GC.getMap().plot(iX, iY);
 		//City gone?
-		if(pPlot != NULL)
+		if (pPlot != NULL)
 		{
-			if(!pPlot->isCity())
+			if (!pPlot->isCity())
 			{
 				return true;
 			}
-			if(pPlot->getOwner() == NO_PLAYER)
+			if (pPlot->getOwner() == NO_PLAYER)
 			{
 				return true;
 			}
+		}
+		else
+		{
+			return true;
+		}
+	}
+	else if (m_eType == MINOR_CIV_QUEST_GIFT_SPECIFIC_UNIT)
+	{
+		UnitTypes eUnitType = (UnitTypes)GetPrimaryData();
+		if (eUnitType == NO_UNIT)
+		{
+			return true;
+		}
+		if (GET_PLAYER(m_eAssignedPlayer).canTrainUnit(eUnitType))
+		{
+			return false;
 		}
 		else
 		{
@@ -2274,6 +2297,21 @@ void CvMinorCivQuest::DoStartQuest(int iStartTurn)
 		strMessage << strBuildingName;
 		strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_QUEST_CONSTRUCT_NATIONAL_WONDER");
 		strSummary << strBuildingName;
+	}
+	else if (m_eType == MINOR_CIV_QUEST_GIFT_SPECIFIC_UNIT)
+	{
+		UnitTypes eUnitType = pMinor->GetMinorCivAI()->GetBestUnitGiftFromPlayer(m_eAssignedPlayer);
+
+		FAssertMsg(eUnitType != NO_UNIT, "MINOR CIV AI: For some reason we got NO_BUILDING when starting a quest for a major to find a Wonder.");
+
+		m_iData1 = eUnitType;
+
+		const char* strUnitName = GC.getUnitInfo(eUnitType)->GetDescriptionKey();
+
+		strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_QUEST_GIFT_SPECIFIC_UNIT");
+		strMessage << strUnitName;
+		strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_QUEST_GIFT_SPECIFIC_UNIT");
+		strSummary << strUnitName;
 	}
 #endif
 	// Great Person
@@ -3282,6 +3320,19 @@ bool CvMinorCivQuest::DoFinishQuest()
 		strMessage << strBuildingName;
 		strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_QUEST_COMPLETE_CONSTRUCT_NATIONAL_WONDER");
 		strSummary << strBuildingName;
+	}
+	// GIFT UNIT
+	else if (m_eType == MINOR_CIV_QUEST_GIFT_SPECIFIC_UNIT)
+	{
+		UnitTypes eUnitType = (UnitTypes)GetPrimaryData();
+		const char* strUnitName = GC.getUnitInfo(eUnitType)->GetDescriptionKey();
+
+		pMinor->GetMinorCivAI()->SetHasSentUnitForQuest(m_eAssignedPlayer, false);
+
+		strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_QUEST_COMPLETE_GIFT_SPECIFIC_UNIT");
+		strMessage << strUnitName;
+		strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_QUEST_COMPLETE_GIFT_SPECIFIC_UNIT");
+		strSummary << strUnitName;
 	}
 #endif
 
@@ -4375,7 +4426,6 @@ void CvMinorCivAI::Reset()
 	for(int iI = 0; iI < MAX_MAJOR_CIVS; iI++)
 	{
 		m_abRouteConnectionEstablished[iI] = false;
-
 		m_aiFriendshipWithMajorTimes100[iI] = 0;
 		m_aiQuestCountdown[iI] = -1;
 		m_aiUnitSpawnCounter[iI] = -1;
@@ -4388,15 +4438,14 @@ void CvMinorCivAI::Reset()
 		m_abEverFriends[iI] = false;
 		m_abFriends[iI] = false;
 		m_abPledgeToProtect[iI] = false;
-#if defined(MOD_BALANCE_CORE_MINORS)
 		m_abIsMarried[iI] = false;
 		m_abSiphoned[iI] = false;
 		m_abCoupAttempted[iI] = false;
+		m_abSentUnitForQuest[iI] = false;
 		m_aiAssignedPlotAreaID[iI] = -1;
 		m_aiTargetedCityX[iI] = -1;
 		m_aiTargetedCityY[iI] = -1;
 		m_aiTurnsSincePtPWarning[iI] = -1;
-#endif
 		m_IncomingUnitGifts[iI].reset();
 	}
 
@@ -6649,6 +6698,12 @@ bool CvMinorCivAI::IsEnabledQuest(MinorCivQuestTypes eQuest)
 		if(!MOD_DIPLOMACY_CITYSTATES_QUESTS || GD_INT_GET(QUEST_DISABLED_CONSTRUCT_WONDER) == 1)
 			return false;
 	}
+	// GIFT UNIT
+	else if (eQuest == MINOR_CIV_QUEST_GIFT_SPECIFIC_UNIT)
+	{
+		if (!MOD_DIPLOMACY_CITYSTATES_QUESTS || GD_INT_GET(QUEST_DISABLED_GIFT_SPECIFIC_UNIT) == 1)
+			return false;
+	}
 	// GREAT PERSON
 	else if(eQuest == MINOR_CIV_QUEST_GREAT_PERSON)
 	{
@@ -6963,6 +7018,18 @@ bool CvMinorCivAI::IsValidQuestForPlayer(PlayerTypes ePlayer, MinorCivQuestTypes
 		BuildingTypes eNationalWonder = GetBestNationalWonderForQuest(ePlayer);
 
 		if(eNationalWonder == NO_BUILDING)
+			return false;
+	}
+	// GIFT A UNIT
+	else if (eQuest == MINOR_CIV_QUEST_GIFT_SPECIFIC_UNIT)
+	{
+		// This player must not have bullied us recently
+		if (IsRecentlyBulliedByMajor(ePlayer))
+			return false;
+
+		UnitTypes eUnitType = GetBestUnitGiftFromPlayer(ePlayer);
+
+		if (eUnitType == NO_UNIT)
 			return false;
 	}
 #endif
@@ -8103,6 +8170,20 @@ int CvMinorCivAI::GetPersonalityQuestBias(MinorCivQuestTypes eQuest)
 		else
 		{
 			iWeight *= /*75*/ GD_INT_GET(MINOR_CIV_QUEST_WEIGHT_MULTIPLIER_OTHER_NATIONAL_WONDER);
+			iWeight /= 100;
+		}
+		break;
+	}
+	case MINOR_CIV_QUEST_GIFT_SPECIFIC_UNIT:
+	{
+		if (eTrait == MINOR_CIV_TRAIT_MILITARISTIC)
+		{
+			iWeight *= /*200*/ GD_INT_GET(MINOR_CIV_QUEST_WEIGHT_MULTIPLIER_MILITARISTIC_GIFT_SPECIFIC_UNIT);
+			iWeight /= 100;
+		}
+		else
+		{
+			iWeight *= /*75*/ GD_INT_GET(MINOR_CIV_QUEST_WEIGHT_MULTIPLIER_OTHER_GIFT_SPECIFIC_UNIT);
 			iWeight /= 100;
 		}
 		break;
@@ -10054,6 +10135,132 @@ BuildingTypes CvMinorCivAI::GetBestBuildingForQuest(PlayerTypes ePlayer)
 	eBestBuilding = veValidBuildings[iRandIndex];
 
 	return eBestBuilding;
+}
+UnitTypes CvMinorCivAI::GetBestUnitGiftFromPlayer(PlayerTypes ePlayer)
+{
+	UnitTypes eBestUnit = NO_UNIT;
+	int iBestValue = 0;
+	int iValue = 0;
+	int iBonusValue;
+	bool bValid = false;
+	bool bNaval = GetPlayer()->getCapitalCity()->isCoastal(10);
+
+	// Loop through all Unit Classes
+	for (int iUnitLoop = 0; iUnitLoop < GC.getNumUnitInfos(); iUnitLoop++)
+	{
+		bValid = false;
+		const UnitTypes eLoopUnit = static_cast<UnitTypes>(iUnitLoop);
+		CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eLoopUnit);
+
+		if (pkUnitInfo != NULL)
+		{
+			//DumpUnitInfo(pkUnitInfo);
+			if (!GET_PLAYER(ePlayer).canTrainUnit(eLoopUnit, false, false, false, false))
+				continue;
+			if (pkUnitInfo->GetDomainType() == DOMAIN_AIR)
+				continue;
+			if (pkUnitInfo->GetDomainType() == DOMAIN_SEA && !bNaval)
+				continue;
+
+			iBonusValue = 1000;
+
+			CvUnitClassInfo* pkUnitClassInfo = GC.getUnitClassInfo((UnitClassTypes)pkUnitInfo->GetUnitClassType());
+			if (pkUnitClassInfo)
+			{
+				// If this is NOT a UU, add extra value so that the default unit is more likely to get picked
+				if (eLoopUnit != pkUnitClassInfo->getDefaultUnitIndex())
+					iBonusValue += 1000;
+			}
+
+			bValid = (pkUnitInfo->GetCombat() > 0);
+			if (bValid)
+			{
+				// Unit has combat strength, make sure it isn't only defensive (and with no ranged combat ability)
+				if (pkUnitInfo->GetRange() == 0)
+				{
+					for (int iLoop = 0; iLoop < GC.getNumPromotionInfos(); iLoop++)
+					{
+						const PromotionTypes ePromotion = static_cast<PromotionTypes>(iLoop);
+						CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(ePromotion);
+						if (pkPromotionInfo)
+						{
+							if (pkUnitInfo->GetFreePromotions(iLoop))
+							{
+								if (pkPromotionInfo->IsOnlyDefensive())
+								{
+									bValid = false;
+									break;
+								}
+							}
+						}
+					}
+				}
+			}
+
+			if (!bValid)
+				continue;
+
+			// Avoid Recon units
+			if (pkUnitInfo->GetDefaultUnitAIType() == UNITAI_EXPLORE)
+				continue;
+
+			// Must NOT be a hovering unit
+			for (int iI = 0; iI < GC.getNumPromotionInfos(); iI++)
+			{
+				if (pkUnitInfo->GetFreePromotions(iI))
+				{
+					if (GC.getPromotionInfo((PromotionTypes)iI)->IsHoveringUnit())
+						continue;
+				}
+			}
+
+			int iLoop;
+			for (CvUnit* pLoopUnit = m_pPlayer->firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iLoop))
+			{
+				// Don't count civilians or exploration units
+				if (!pLoopUnit->IsCanAttack() || pLoopUnit->AI_getUnitAIType() == UNITAI_EXPLORE || pLoopUnit->AI_getUnitAIType() == UNITAI_EXPLORE_SEA)
+					continue;
+
+				if (pLoopUnit->getDomainType() == pkUnitInfo->GetDomainType())
+				{
+					iBonusValue -= 10;
+				}
+				if (pLoopUnit->IsCanAttackRanged() == (pkUnitInfo->GetRange() > 0 && pkUnitInfo->GetRangedCombat() > 0))
+				{
+					iBonusValue -= 10;
+				}
+				if (pLoopUnit->getUnitInfo().GetMoves() > 2 == pkUnitInfo->GetMoves() > 2)
+				{
+					iBonusValue -= 10;
+				}
+			}
+			// Random weighting
+			iValue = max(1, iBonusValue);
+
+			if (iValue > iBestValue)
+			{
+				eBestUnit = eLoopUnit;
+				iBestValue = iValue;
+			}
+		}
+	}
+
+	return eBestUnit;
+}
+bool CvMinorCivAI::GetHasSentUnitForQuest(PlayerTypes ePlayer)
+{
+	CvAssertMsg(ePlayer >= 0, "eForPlayer is expected to be non-negative (invalid Index)");
+	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "eForPlayer is expected to be within maximum bounds (invalid Index)");
+	return m_abSentUnitForQuest[ePlayer];
+}
+void CvMinorCivAI::SetHasSentUnitForQuest(PlayerTypes ePlayer, bool bValue)
+{
+	CvAssertMsg(ePlayer >= 0, "eForPlayer is expected to be non-negative (invalid Index)");
+	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "eForPlayer is expected to be within maximum bounds (invalid Index)");
+	if (GetHasSentUnitForQuest(ePlayer) != bValue)
+	{
+		m_abSentUnitForQuest[ePlayer] = bValue;
+	}
 }
 void CvMinorCivAI::SetCoupAttempted(PlayerTypes ePlayer, bool bValue)
 {
@@ -14244,10 +14451,9 @@ CvUnit* CvMinorCivAI::DoSpawnUnit(PlayerTypes eMajor, bool bLocal, bool bExplore
 		return NULL;
 
 	// Unit spawning is not allowed (manually disabled, or major is over supply limit)
-	bool bCanSupply = ((GET_PLAYER(eMajor).GetNumUnitsToSupply() < GET_PLAYER(eMajor).GetNumUnitsSupplied())) ? true : false; // this works when we're at the limit
-	if (IsUnitSpawningDisabled(eMajor) || !bCanSupply)
-//	if (IsUnitSpawningDisabled(eMajor) || GET_PLAYER(eMajor).GetNumUnitsOutOfSupply() > 0)
-			return NULL;
+	bool bCanSupply = GET_PLAYER(eMajor).GetNumUnitsToSupply() < GET_PLAYER(eMajor).GetNumUnitsSupplied(); // this works when we're at the limit
+	if (!bCanSupply || IsUnitSpawningDisabled(eMajor))
+		return NULL;
 
 	// Minor has no capital
 	CvCity* pMinorCapital = GetPlayer()->getCapitalCity();
@@ -15165,7 +15371,7 @@ int CvMinorCivAI::CalculateBullyScore(PlayerTypes eBullyPlayer, bool bForUnit, C
 				sFactors += strNegativeFactor.toUTF8();
 			}
 		}
-		if (iFriends != 0)
+		if (iFriends != 0 && MOD_BALANCE_CORE_MINORS)
 		{
 			iScore -= iFriends;
 			if (sTooltipSink)
@@ -16525,6 +16731,15 @@ void CvMinorCivAI::DoUnitGiftFromMajor(PlayerTypes eFromPlayer, CvUnit*& pGiftUn
 	// Influence
 	int iInfluence = GetFriendshipFromUnitGift(eFromPlayer, pGiftUnit->IsGreatPerson(), bDistanceGift);
 	ChangeFriendshipWithMajor(eFromPlayer, iInfluence);
+
+	if (IsActiveQuestForPlayer(eFromPlayer, MINOR_CIV_QUEST_GIFT_SPECIFIC_UNIT))
+	{
+		if ((UnitTypes)GetQuestData1(eFromPlayer, MINOR_CIV_QUEST_GIFT_SPECIFIC_UNIT) == pGiftUnit->getUnitType())
+		{
+			SetHasSentUnitForQuest(eFromPlayer, true);
+			DoTestActiveQuestsForPlayer(eFromPlayer, true, false, MINOR_CIV_QUEST_GIFT_SPECIFIC_UNIT);
+		}
+	}
 
 #if defined(MOD_EVENTS_MINORS_INTERACTION)
 	if (MOD_EVENTS_MINORS_INTERACTION) {

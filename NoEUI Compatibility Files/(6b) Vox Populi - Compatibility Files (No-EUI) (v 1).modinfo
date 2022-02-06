@@ -2,7 +2,7 @@
 <Mod id="828b5b4b-7c62-4afb-a43f-034b596ef5e4" version="1">
   <Properties>
     <Name>(6b) Vox Populi - Compatibility Files (No-EUI)</Name>
-    <Teaser>(1.3.4) Vox Populi Compatibility and LUA (No EUI Version)</Teaser>
+    <Teaser>(1.4.1) Vox Populi Compatibility and LUA (No EUI Version)</Teaser>
     <Description>LUA and mod compatibility files for CBO, CSD, C4DF and More Luxuries if not using EUI. Must use all of these mods in order to use this mod.</Description>
     <Authors>Gazebo</Authors>
     <HideSetupGame>0</HideSetupGame>
@@ -17,7 +17,7 @@
     <ReloadUnitSystem>1</ReloadUnitSystem>
   </Properties>
   <Dependencies>
-    <Mod id="d1b6328c-ff44-4b0d-aad7-c657f83610cd" minversion="101" maxversion="999" title="(1) Community Patch" />
+    <Mod id="d1b6328c-ff44-4b0d-aad7-c657f83610cd" minversion="102" maxversion="999" title="(1) Community Patch" />
     <Mod id="8411a7a8-dad3-4622-a18e-fcc18324c799" minversion="14" maxversion="999" title="(2) Community Balance Overhaul" />
     <Mod id="eead0050-1e3f-4178-a91f-26cf1881ac39" minversion="29" maxversion="999" title="(3) City-State Diplomacy for VP" />
     <Mod id="c7bf7064-d1b1-4708-9e93-7a1560868582" minversion="12" maxversion="999" title="(4) Civ IV Diplomatic Features for VP" />
@@ -34,11 +34,11 @@
     <File md5="3F476A71188724BC528A087525301A9A" import="0">Corporations/Corporations.sql</File>
     <File md5="2D81FF7BE803B6C99129AC24217018DA" import="0">Corporations/Text/CorpText_en_US.xml</File>
     <File md5="F2B4529383B3A7F7AEC8F9CA82C9A83C" import="0">Corporations/Text/CorpText_en_US.sql</File>
-    <File md5="14396C2266151B073C45C7101AE9DA11" import="0">CSD/CompatibilityText/Compatibility_en_US.sql</File>
+    <File md5="F7E0EBCD73BDF8DFC651A173ACF43C67" import="0">CSD/CompatibilityText/Compatibility_en_US.sql</File>
     <File md5="F82A83B6017FE4858CF924888EB810AC" import="0">CSD/CompatibilityText/Compatibility_en_US.xml</File>
-    <File md5="6240D1742F14387E5A2E2FC9806CEBC9" import="0">CSD/CSDCompatibility.sql</File>
+    <File md5="0519B8EB4300785163A4F8F78400F127" import="0">CSD/CSDCompatibility.sql</File>
     <File md5="3F4B08D58AE727DF10D8A34BEC5F398E" import="1">LUA/ActionInfoPanel.lua</File>
-    <File md5="1E95C0C367049F5AD2458691813445CE" import="1">LUA/AssignStartingPlots.lua</File>
+    <File md5="2EDBE7B26D74161F057DE6E9443D6BEA" import="1">LUA/AssignStartingPlots.lua</File>
     <File md5="39C6A39E21DF6E10B666FA57FA502643" import="1">LUA/Bombardment.lua</File>
     <File md5="66D5F875BCC8CEEF7B18F866147D6AF4" import="1">LUA/ChooseMayaBonus.lua</File>
     <File md5="394AE7D858F78BEFD46CD9ACAF91C159" import="1">LUA/CityBannerManager.lua</File>
@@ -99,7 +99,7 @@
     <File md5="627DD943624620042081B8D8F07DBB6B" import="1">LUA/SocialPolicyPopup.lua</File>
     <File md5="12684E9BB5B297803A690A5795812A44" import="1">LUA/SocialPolicyPopup.xml</File>
     <File md5="45C804F46F09D05A44FB9DFA3B78B811" import="1">LUA/TechButtonInclude.lua</File>
-    <File md5="30502861FDBDFAE3170D536C959328A5" import="1">LUA/TopPanel.lua</File>
+    <File md5="D9BC04C379C6B163E5CD87D2CA6CF0AF" import="1">LUA/TopPanel.lua</File>
     <File md5="91D4A7DF00FAE1B0ADD6667FD1E76CC9" import="1">LUA/TopPanel.xml</File>
     <File md5="DFAF218136120D926977F7F6E1E257A6" import="1">LUA/TradeLogic.lua</File>
     <File md5="9FFDC076C4C90F6717FD70C46972E9CF" import="1">LUA/UnitFlagManager.lua</File>

@@ -2,7 +2,7 @@
 <Mod id="eead0050-1e3f-4178-a91f-26cf1881ac39" version="29">
   <Properties>
     <Name>(3) CSD for VP</Name>
-    <Teaser>(1.3.4) A mod to improve diplomacy with City-States and the World Congress.</Teaser>
+    <Teaser>(1.4.1) A mod to improve diplomacy with City-States and the World Congress.</Teaser>
     <Description>- Design Philosophy - This mod is a complete overhaul of the City-State diplomacy system as well as the World Congress. It introduces a new, unit-based system of influence, dozens of new city-state quests, and an entirely revamped World Congress.[NEWLINE][NEWLINE]
 	Players are now encouraged to build and use diplomatic units and/or complete City-State quests if they want to earn influence. Because diplomacy now requires production, time and energy, players must actively and consciously strive to maintain good relations with neighboring City-States. Furthermore, diplomatic units, being defenseless, are liable to capture or destruction if sent too far from safety. Thus, long-distance diplomacy now utilizes a risk-reward system.[NEWLINE][NEWLINE]
 	Securing allies is more important than ever, as the World Congress has been greatly expanded and improved to make each resolution more meaningful to most victory conditions.</Description>
@@ -21,22 +21,22 @@
     <ReloadUnitSystem>1</ReloadUnitSystem>
   </Properties>
   <Dependencies>
-    <Mod id="d1b6328c-ff44-4b0d-aad7-c657f83610cd" minversion="101" maxversion="999" title="(1) Community Patch" />
+    <Mod id="d1b6328c-ff44-4b0d-aad7-c657f83610cd" minversion="102" maxversion="999" title="(1) Community Patch" />
     <Mod id="8411a7a8-dad3-4622-a18e-fcc18324c799" minversion="14" maxversion="999" title="(2) Community Balance Overhaul" />
   </Dependencies>
   <References />
   <Blocks />
   <Files>
-    <File md5="2E33AA1938020ED3CB49B6BBB8317074" import="1">Art/Buildings/Icons/CSDBuildings128.dds</File>
-    <File md5="B158831F0A8E7FB4E79C4A516F8B36CE" import="1">Art/Buildings/Icons/CSDBuildings256.dds</File>
-    <File md5="3631795E2F701A428A2651ACE29A0461" import="1">Art/Buildings/Icons/CSDBuildings45.dds</File>
-    <File md5="FE20E94E099CC069AE1DD5FE155E85AB" import="1">Art/Buildings/Icons/CSDBuildings64.dds</File>
-    <File md5="C05FA318D693E66E8BC1BD7A30DE914D" import="1">Art/Buildings/Icons/CSDBuildings80.dds</File>
-    <File md5="519FB2256A964E18CFBDACCBB9BA5888" import="1">Art/Buildings/Icons/MeninGate_045.dds</File>
-    <File md5="8C3E7F3B5A0DED841208825FC63D948C" import="1">Art/Buildings/Icons/MeninGate_064.dds</File>
-    <File md5="F99E2437B6DFE5FC561EE8DC691AA527" import="1">Art/Buildings/Icons/MeninGate_080.dds</File>
-    <File md5="1EA1DEBEB0D4942BC53FEDB706C0B50A" import="1">Art/Buildings/Icons/MeninGate_128.dds</File>
-    <File md5="CDFAC8B81919F363D1F6548AE4B82AA4" import="1">Art/Buildings/Icons/MeninGate_256.dds</File>
+    <File md5="02F46A0481C9841243B3222AA005D2B1" import="1">Art/Buildings/Icons/CSDBuildings128.dds</File>
+    <File md5="C86456F9603BC07F9FA652CA1599EC41" import="1">Art/Buildings/Icons/CSDBuildings256.dds</File>
+    <File md5="EA945DAA9FB7A002E3056A98E235E313" import="1">Art/Buildings/Icons/CSDBuildings45.dds</File>
+    <File md5="604D1703A145CCBCDB3EADA8A7A4D9F9" import="1">Art/Buildings/Icons/CSDBuildings64.dds</File>
+    <File md5="56DEA5FE8657D27F369D1C5498AE2C5C" import="1">Art/Buildings/Icons/CSDBuildings80.dds</File>
+    <File md5="5F6A427FD1845AA9BF063651D243653D" import="1">Art/Buildings/Icons/MeninGate_045.dds</File>
+    <File md5="786E03708002134D5B30CDDB59F36D2C" import="1">Art/Buildings/Icons/MeninGate_064.dds</File>
+    <File md5="FD547A7EBB6B500F9294ABDAC4A15B2D" import="1">Art/Buildings/Icons/MeninGate_080.dds</File>
+    <File md5="CE33F40347C1D2257ED86C5E4BBB6DF2" import="1">Art/Buildings/Icons/MeninGate_128.dds</File>
+    <File md5="72DDD031D3E9F9D58C4DED1F4EA48577" import="1">Art/Buildings/Icons/MeninGate_256.dds</File>
     <File md5="EB9901FF4C451D3B6A4F196394D5B286" import="1">Art/Buildings/Splashes/CrystalPalace.dds</File>
     <File md5="FE290EC698E068EF4A2B0746902FD454" import="1">Art/Buildings/Splashes/MeninGateSplash.dds</File>
     <File md5="E66E16AF9904099E3AF7AF1EEDA7E98B" import="1">Art/Buildings/Splashes/OlympicVillage.dds</File>
@@ -49,8 +49,8 @@
     <File md5="FF60D0BF33811895340ABBEF2779DE81" import="0">Art/ArtInfo.sql</File>
     <File md5="E68079ECA34AC209094AF7A16C7102E1" import="1">Art/Embassy/Embassy.fxsxml</File>
     <File md5="B92E45EEA3277D6761B941E6C6E84366" import="1">Art/Embassy/Embassy.gr2</File>
-    <File md5="E629AE7E8A6C1989F6562B96FC7E149F" import="1">Art/Embassy/EmbassyAtlas256.dds</File>
-    <File md5="52772602CE24FEA1F69AEBE65BE996DE" import="1">Art/Embassy/EmbassyAtlas64.dds</File>
+    <File md5="71906F6CB3AD1173FB6295F3AD113521" import="1">Art/Embassy/EmbassyAtlas256.dds</File>
+    <File md5="02B5C0DDD025F6988871784556EF2D2B" import="1">Art/Embassy/EmbassyAtlas64.dds</File>
     <File md5="D58F4982DDD998AE3FFE2E7A641A509E" import="1">Art/Embassy/EmbassyBuildIcon45.dds</File>
     <File md5="B9ABBBCBEC4F98B6BBF66332938312AE" import="1">Art/Embassy/EmbassyBuildIcon64.dds</File>
     <File md5="AF0387C8B7097F5CBB0BCCEF33777F06" import="1">Art/Embassy/EmbassyBuilding.dds</File>
@@ -58,26 +58,26 @@
     <File md5="D71B8475146D7D369BA74FAC43965515" import="1">Art/Embassy/EmbassyGround.dds</File>
     <File md5="A50A60EABA1E23DBCFB0F0AC92F90E67" import="1">Art/Embassy/EmbassyGround_h.dds</File>
     <File md5="519D8304656DA9ECA046403EB914172F" import="1">Art/Embassy/SV_Embassy.dds</File>
-    <File md5="8A49736532BBE103741AA74882E89118" import="1">Art/Resources/Book256.dds</File>
-    <File md5="1F1AC649DD71B19E56CCAAFB0920E801" import="1">Art/Resources/Book45.dds</File>
-    <File md5="92605057B2B32370AB97EA2B4A8E1CCE" import="1">Art/Resources/Book64.dds</File>
-    <File md5="1043C1FFFECD21D428A8AF1098B38575" import="1">Art/Resources/Book80.dds</File>
-    <File md5="271D8602DAF934C07A53BE3B32AD2B3B" import="1">Art/Resources/CSDPaper.dds</File>
-    <File md5="41F450D710658C652158869BE18FB6D9" import="1">Art/Specialists/citizenCivilServant.dds</File>
-    <File md5="4009AA1AE5299D81DD69A4DB0D0C2029" import="1">Art/Specialists/CSDcs1024.dds</File>
-    <File md5="034FC19FCD9688E9900E18949A58B8F8" import="1">Art/Specialists/CSDcs512.dds</File>
-    <File md5="6F1A5EA4943BD5EF37901925FB439C37" import="1">Art/Specialists/CSDcs256.dds</File>
-    <File md5="6B9B6940C1DECE9C8AB19FEA4E85BBC0" import="1">Art/Specialists/CSDcs180.dds</File>
-    <File md5="70C889297ED76FA88679F62799A1F055" import="1">Art/Specialists/CSDcs128.dds</File>
+    <File md5="AAB8353E84A74F875DB89150A0A295CA" import="1">Art/Resources/Book256.dds</File>
+    <File md5="F86F921917EBC51A199296D699CB19CC" import="1">Art/Resources/Book45.dds</File>
+    <File md5="5AF071F0C5352590F05F5F0F2CD726B9" import="1">Art/Resources/Book64.dds</File>
+    <File md5="608EDE081355C4C90DC4A5C0451CC560" import="1">Art/Resources/Book80.dds</File>
+    <File md5="EB148360177EEEF92F2E7B101C427DB7" import="1">Art/Resources/CSDPaper.dds</File>
+    <File md5="0CD807A39666DFE5519FD6A45D78CC24" import="1">Art/Specialists/citizenCivilServant.dds</File>
+    <File md5="E0A35DF6782EF51000964D60DB47124D" import="1">Art/Specialists/CSDcs1024.dds</File>
+    <File md5="1321489766E773033C21510335366B3D" import="1">Art/Specialists/CSDcs512.dds</File>
+    <File md5="64C40D61260DBBC647728C1C22A9E01C" import="1">Art/Specialists/CSDcs256.dds</File>
+    <File md5="212252AB6417BD3BA17BCCEDE94969E6" import="1">Art/Specialists/CSDcs180.dds</File>
+    <File md5="AC51C36ACB6D39056C512C113E5F8DE2" import="1">Art/Specialists/CSDcs128.dds</File>
     <File md5="2C580C8630BDC86394D0D4786EA7B6E2" import="1">Art/Units/Flag/CSDSVIcon.dds</File>
     <File md5="75A714B020AD295FC985408B04430156" import="1">Art/Units/Flag/CSDSVIconGD.dds</File>
-    <File md5="45CC370400040836CC9B4DEC3FACF8A4" import="1">Art/Units/Flag/CSDunitflagatlaswhite32.dds</File>
-    <File md5="A50C93D075CBCBA3CEAD8C6DE12CE636" import="1">Art/Units/Icons/CSDUnits128.dds</File>
-    <File md5="0600D0EFA76E0766D1637B6E7A451F9F" import="1">Art/Units/Icons/CSDUnits256.dds</File>
-    <File md5="4F297405D6217C36EC6BEF7121839D63" import="1">Art/Units/Icons/CSDUnits45.dds</File>
-    <File md5="676007B9B208A6B53129185EEBBADC79" import="1">Art/Units/Icons/CSDUnits64.dds</File>
-    <File md5="BE3B9518A5EEAFD65072A9C7E133D54B" import="1">Art/Units/Icons/CSDUnits80.dds</File>
-    <File md5="AA1D9E47207BD116C7E0297BC1063F67" import="1">Art/XML/CSDPaper.ggxml</File>
+    <File md5="EA98A14F5590045CB380D9EA6A4F66A9" import="1">Art/Units/Flag/CSDunitflagatlaswhite32.dds</File>
+    <File md5="F9944C42639E4943A77EE45E4D73B51E" import="1">Art/Units/Icons/CSDUnits128.dds</File>
+    <File md5="A7FC8E21CB368714E32E8951306A9E4C" import="1">Art/Units/Icons/CSDUnits256.dds</File>
+    <File md5="CC88CF810734F490C7DDB6F176A45EFD" import="1">Art/Units/Icons/CSDUnits45.dds</File>
+    <File md5="17622455933CB47F9843BEE30778EFF0" import="1">Art/Units/Icons/CSDUnits64.dds</File>
+    <File md5="3F1AB772E154BEE771CF8B2EBD75F92F" import="1">Art/Units/Icons/CSDUnits80.dds</File>
+    <File md5="A423C0AFFAC60B068B31A602A93A8974" import="1">Art/XML/CSDPaper.ggxml</File>
     <File md5="E1ABC014DE1A639EE43EAE7F64922667" import="0">Art/XML/Icons.xml</File>
     <File md5="6FB8410794152AB59488C0DE134550F8" import="0">Buildings/BuildingRules.sql</File>
     <File md5="6C83256BF50BB0ECAE17F491B58ED5C4" import="0">Buildings/BuildingText.xml</File>
@@ -92,10 +92,10 @@
     <File md5="C4565E3416EC26ADAAC66FF1ABE58B2B" import="0">Improvements/Build.xml</File>
     <File md5="3ADD0DF5B4C6640101CC92A6E1960B95" import="0">Improvements/ImprovementText.xml</File>
     <File md5="1E1B61C5D601D62A42BFA54BCAE6BDE3" import="0">Improvements/Improvements.xml</File>
-    <File md5="AF4DD8B85C642A496331B34D1F28FF36" import="0">Options.sql</File>
+    <File md5="AF61ACE754D1326A408C55621FC6DE72" import="0">Options.sql</File>
     <File md5="BB5F1C4BE813246558AABE879830E743" import="0">Promotions/Promotions.xml</File>
     <File md5="58BA7B52861BB2343DE47C078DDBDA41" import="0">Promotions/PromotionText.xml</File>
-    <File md5="EA79D49478D57BE041325425977B0102" import="0">Quests/CityStateQuest.xml</File>
+    <File md5="87655602BEF1B77BF4EE0A1893649FA5" import="0">Quests/CityStateQuest.xml</File>
     <File md5="56F2A5FB062D020C56DC18039A91C3B9" import="1">Resource/Paper.lua</File>
     <File md5="A8B940DA3B84B9B8D9FDD9AC3EF0518D" import="0">Resource/Paper.xml</File>
     <File md5="E8FE68E7A7B1E207173B6DFDA8D36F35" import="0">Specialist/CivilServant.xml</File>
@@ -109,8 +109,8 @@
     <File md5="C92F62D64C5412F2BF53ECF33B873A44" import="0">Units/UnitText.xml</File>
     <File md5="885668BA6DF6ABD11097D023CE4549BE" import="0">World Congress/Congress.xml</File>
     <File md5="C7929BB11AA2B61EA7D1627D20D44E26" import="0">World Congress/CongressTurns.sql</File>
-    <File md5="C4DC31F684521DD2B7565E618E0A48A7" import="0">World Congress/IdeologyChanges.sql</File>
-    <File md5="C03C5B20A16558FBCCF9878FEE942A75" import="0">World Congress/Projects.xml</File>
+    <File md5="F068EF5499656A7BF30C7A70DDF7C2BC" import="0">World Congress/IdeologyChanges.sql</File>
+    <File md5="9761A52B3BB2AC33B0EDED6D05525E4B" import="0">World Congress/Projects.xml</File>
   </Files>
   <Actions>
     <OnModActivated>

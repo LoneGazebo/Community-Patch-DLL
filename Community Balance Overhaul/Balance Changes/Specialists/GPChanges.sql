@@ -1,8 +1,3 @@
--- Great Musician -- Rival Territories
-INSERT INTO Unit_FreePromotions (UnitType, PromotionType)
-SELECT 'UNIT_MUSICIAN' , 'PROMOTION_RIVAL_TERRITORY'
-WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
-
 -- NEW
 
 INSERT INTO Improvement_Yields

@@ -820,11 +820,6 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 	}
 #endif
 
-	//---
-	if (getDomainType() == DOMAIN_SEA && plot()->isLake())
-		OutputDebugString("warning, ship spawning on lake\n");
-	//---
-
 	// Units can add Unhappiness
 	if(GC.getUnitInfo(getUnitType())->GetUnhappiness() != 0)
 	{
@@ -1362,7 +1357,7 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 		if (CanEverEmbark())
 			setEmbarked(true);
 		else
-			OutputDebugString("warning: putting un-embarkable unit on water plot!\n");
+			CUSTOMLOG("warning: putting un-embarkable unit on water plot!\n");
 	}
 	
 	if(bSetupGraphical)
@@ -5452,6 +5447,51 @@ void CvUnit::move(CvPlot& targetPlot, bool bShow)
 	changeMoves(-iMoveCost);
 }
 
+bool CvUnit::EmergencyRebase()
+{
+	if (getDomainType() != DOMAIN_AIR)
+		return false;
+
+	if (canRebaseAt(getX(), getY(), true))
+		return true;
+
+	int iLoopCity;
+	for (CvCity* pLoopCity = GET_PLAYER(getOwner()).firstCity(&iLoopCity); pLoopCity != NULL; pLoopCity = GET_PLAYER(getOwner()).nextCity(&iLoopCity))
+	{
+		if (canRebaseAt(pLoopCity->getX(), pLoopCity->getY(), true) && HomelandAIHelpers::ScoreAirBase(pLoopCity->plot(), getOwner(), false, GetRange()) > 0)
+		{
+			rebase(pLoopCity->getX(), pLoopCity->getY(), true);
+			return true;
+		}
+	}
+
+	for (CvCity* pLoopCity = GET_PLAYER(getOwner()).firstCity(&iLoopCity); pLoopCity != NULL; pLoopCity = GET_PLAYER(getOwner()).nextCity(&iLoopCity))
+	{
+		if (canRebaseAt(pLoopCity->getX(), pLoopCity->getY(), true) && HomelandAIHelpers::ScoreAirBase(pLoopCity->plot(), getOwner(), true, GetRange()) > 0)
+		{
+			rebase(pLoopCity->getX(), pLoopCity->getY(), true);
+			return true;
+		}
+	}
+
+	int iLoop;
+	for (CvUnit* pLoopUnit = GET_PLAYER(getOwner()).firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = GET_PLAYER(getOwner()).nextUnit(&iLoop))
+	{
+		if (pLoopUnit->AI_getUnitAIType()!=UNITAI_CARRIER_SEA)
+			continue;
+
+		if (canRebaseAt(pLoopUnit->getX(), pLoopUnit->getY(), true) && HomelandAIHelpers::ScoreAirBase(pLoopUnit->plot(), getOwner(), true, GetRange()) > 0)
+		{
+			rebase(pLoopUnit->getX(), pLoopUnit->getY(), true);
+			return true;
+		}
+	}
+
+	if (GC.getLogging() && GC.getAILogging())
+		GET_PLAYER(m_eOwner).GetHomelandAI()->LogHomelandMessage("failed to find a valid plot for air unit");
+
+	return false;
+}
 
 //	--------------------------------------------------------------------------------
 bool CvUnit::jumpToNearestValidPlot()
@@ -5460,52 +5500,12 @@ bool CvUnit::jumpToNearestValidPlot()
 	CvAssertMsg(!isAttacking(), "isAttacking did not return false as expected");
 	CvAssertMsg(!isFighting(), "isFighting did not return false as expected");
 
+	if (getDomainType() == DOMAIN_AIR)
+		return EmergencyRebase();
+
 	//check for no-op
 	if (plot() && canMoveInto(*plot(), CvUnit::MOVEFLAG_DESTINATION))
 		return true;
-
-	if (getDomainType() == DOMAIN_AIR)
-	{
-		if (canRebaseAt(getX(), getY(), true))
-			return true;
-
-		int iLoopCity;
-		for (CvCity* pLoopCity = GET_PLAYER(getOwner()).firstCity(&iLoopCity); pLoopCity != NULL; pLoopCity = GET_PLAYER(getOwner()).nextCity(&iLoopCity))
-		{
-			if (canRebaseAt(pLoopCity->getX(), pLoopCity->getY(), true) && HomelandAIHelpers::ScoreAirBase(pLoopCity->plot(), getOwner(), false, GetRange()) > 0)
-			{
-				rebase(pLoopCity->getX(), pLoopCity->getY(), true);
-				return true;
-			}
-		}
-
-		for (CvCity* pLoopCity = GET_PLAYER(getOwner()).firstCity(&iLoopCity); pLoopCity != NULL; pLoopCity = GET_PLAYER(getOwner()).nextCity(&iLoopCity))
-		{
-			if (canRebaseAt(pLoopCity->getX(), pLoopCity->getY(), true) && HomelandAIHelpers::ScoreAirBase(pLoopCity->plot(), getOwner(), true, GetRange()) > 0)
-			{
-				rebase(pLoopCity->getX(), pLoopCity->getY(), true);
-				return true;
-			}
-		}
-
-		int iLoop;
-		for (CvUnit* pLoopUnit = GET_PLAYER(getOwner()).firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = GET_PLAYER(getOwner()).nextUnit(&iLoop))
-		{
-			if (pLoopUnit->AI_getUnitAIType()!=UNITAI_CARRIER_SEA)
-				continue;
-
-			if (canRebaseAt(pLoopUnit->getX(), pLoopUnit->getY(), true) && HomelandAIHelpers::ScoreAirBase(pLoopUnit->plot(), getOwner(), true, GetRange()) > 0)
-			{
-				rebase(pLoopUnit->getX(), pLoopUnit->getY(), true);
-				return true;
-			}
-		}
-
-		if (GC.getLogging() && GC.getAILogging())
-			GET_PLAYER(m_eOwner).GetHomelandAI()->LogHomelandMessage("failed to find a valid plot for air unit");
-
-		return false;
-	}
 
 	//ignore all sorts of restrictions
 	SPathFinderUserData data(this, CvUnit::MOVEFLAG_IGNORE_RIGHT_OF_PASSAGE | CvUnit::MOVEFLAG_IGNORE_STACKING | CvUnit::MOVEFLAG_IGNORE_ENEMIES | CvUnit::MOVEFLAG_IGNORE_ZOC, 12);
@@ -5617,6 +5617,9 @@ bool CvUnit::jumpToNearestValidPlotWithinRange(int iRange, CvPlot* pStartPlot)
 
 	if (!pStartPlot)
 		return false;
+
+	if (getDomainType() == DOMAIN_AIR)
+		return EmergencyRebase();
 
 	//nothing to do?
 	if (canMoveInto(*pStartPlot, CvUnit::MOVEFLAG_DESTINATION))
@@ -17258,7 +17261,7 @@ bool CvUnit::isWaiting() const
 /// Can this Unit EVER fortify? (may be redundant with some other stuff)
 bool CvUnit::IsEverFortifyable() const
 {
-	return (IsCombatUnit() && !noDefensiveBonus() && ((getDomainType() == DOMAIN_LAND) || (getDomainType() == DOMAIN_IMMOBILE)));
+	return (IsCombatUnit() && !noDefensiveBonus() && !isRangedSupportFire() && ((getDomainType() == DOMAIN_LAND) || (getDomainType() == DOMAIN_IMMOBILE)));
 }
 
 //	--------------------------------------------------------------------------------
@@ -29326,10 +29329,7 @@ void CvUnit::PushMission(MissionTypes eMission, int iData1, int iData2, int iFla
 {
 	VALIDATE_OBJECT
 
-	//potential deadlock in pathfinder, be careful
-	if (!GET_PLAYER(getOwner()).isTurnActive())
-		return;
-
+	//for debugging
 	if (g_bFreezeUnits)
 	{
 		finishMoves();
@@ -29339,7 +29339,7 @@ void CvUnit::PushMission(MissionTypes eMission, int iData1, int iData2, int iFla
 	//plausi check
 	if (eMission == CvTypes::getMISSION_RANGE_ATTACK() && !canRangeStrikeAt(iData1, iData2))
 	{
-		OutputDebugString("illegal range strike target!\n");
+		CUSTOMLOG("illegal range strike target (%d,%d)!\n",iData1,iData2);
 		return;
 	}
 
@@ -30027,48 +30027,59 @@ bool CvUnit::CanFallBack(const CvUnit& attacker, bool bCheckChances) const
 {
 	VALIDATE_OBJECT
 
+	int iWithdrawChance = GetWithdrawChance(attacker, bCheckChances);
+
+	if (bCheckChances && iWithdrawChance > 0)
+	{
+		//include damage so the result changes for each attack
+		int iRoll = GC.getGame().getSmallFakeRandNum(10, plot()->GetPlotIndex()+GetID()+getDamage()) * 10;
+		return iRoll < iWithdrawChance;
+	}
+	else
+		return iWithdrawChance > 0;
+}
+
+int CvUnit::GetWithdrawChance(const CvUnit& attacker, const bool bCheckChances) const
+{
+	VALIDATE_OBJECT
+
 	if (isEmbarked() && getDomainType() == DOMAIN_LAND)
-		return false;
+		return 0;
 
 	// Are some of the retreat hexes away from the attacker blocked?
 	int iBlockedHexes = 0;
 	DirectionTypes eAttackDirection = directionXY(attacker.plot(), plot());
-	int iBiases[3] = {0,-1,1};
+	int iBiases[3] = { 0,-1,1 };
 
-	for(int i = 0; i < 3; i++)
+	for (int i = 0; i < 3; i++)
 	{
 		int iMovementDirection = (NUM_DIRECTION_TYPES + eAttackDirection + iBiases[i]) % NUM_DIRECTION_TYPES;
-		CvPlot* pDestPlot = plotDirection(getX(), getY(), (DirectionTypes) iMovementDirection);
+		CvPlot* pDestPlot = plotDirection(getX(), getY(), (DirectionTypes)iMovementDirection);
 
-		if(pDestPlot && !canMoveInto(*pDestPlot, MOVEFLAG_DESTINATION|MOVEFLAG_NO_EMBARK))
+		if (pDestPlot && !canMoveInto(*pDestPlot, MOVEFLAG_DESTINATION | MOVEFLAG_NO_EMBARK))
 		{
 			iBlockedHexes++;
 		}
 	}
 
 	// If all three hexes away from attacker blocked, we can't withdraw
-	if(iBlockedHexes >= 3)
-	{
-		return false;
-	}
-
-	if(bCheckChances)
+	if (iBlockedHexes >= 3)
+		return 0;
+	
+	if (bCheckChances)
 	{
 		int iWithdrawChance = getExtraWithdrawal();
 		// Does attacker have a greater speed than defender? Reduce withdrawal chance for each point the attacker is faster
 		int iDefenderMovementRange = baseMoves(isEmbarked());
 		int iAttackerMovementRange = attacker.baseMoves(attacker.isEmbarked());
-		if(iAttackerMovementRange > iDefenderMovementRange)
+		if (iAttackerMovementRange > iDefenderMovementRange)
 			iWithdrawChance += (/*-20*/ GD_INT_GET(WITHDRAW_MOD_ENEMY_MOVES) * (iAttackerMovementRange - iDefenderMovementRange));
 
 		iWithdrawChance += (/*-20*/ GD_INT_GET(WITHDRAW_MOD_BLOCKED_TILE) * iBlockedHexes);
-
-		//include damage so the result changes for each attack
-		int iRoll = GC.getGame().getSmallFakeRandNum(10, plot()->GetPlotIndex()+GetID()+getDamage()) * 10;
-		return iRoll < iWithdrawChance;
+		return iWithdrawChance;
 	}
 	else
-		return true;
+		return 100;
 }
 
 //	--------------------------------------------------------------------------------

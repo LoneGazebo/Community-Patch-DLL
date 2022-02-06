@@ -6,12 +6,11 @@ namespace NetMessageExt
 	namespace Process
 	{
 		bool ResponseMoveGreatWorks(PlayerTypes ePlayer, int iArg1, int iArg2, int iArg3, int iArg4, int iArg5, int iArg6) {
+			if (iArg6 < 999)
+				return false;
 			switch (iArg6)
 			{
-				case 0:
-					return false;
-
-				case 1:				
+				case 999:				
 				{
 					PlayerTypes eActualPlayer = static_cast<PlayerTypes>(ePlayer);
 					EventTypes ePlayerEvent = static_cast<EventTypes>(iArg1);
@@ -19,7 +18,7 @@ namespace NetMessageExt
 					Response::DoEventChoice(eActualPlayer, eEventChoice, ePlayerEvent);					
 					break;
 				}
-				case 2:
+				case 1000:
 				{
 					PlayerTypes eActualPlayer = static_cast<PlayerTypes>(ePlayer);
 					CityEventTypes eCityEvent = static_cast<CityEventTypes>(iArg1);
@@ -40,11 +39,11 @@ namespace NetMessageExt
 	{
 		void DoEventChoice(PlayerTypes ePlayer, EventChoiceTypes eEventChoice, EventTypes eEvent)
 		{	
-			gDLL->sendMoveGreatWorks(static_cast<PlayerTypes>(ePlayer), static_cast<int>(eEvent), -1, static_cast<int>(eEventChoice), -1, -1, 1);
+			gDLL->sendMoveGreatWorks(static_cast<PlayerTypes>(ePlayer), static_cast<int>(eEvent), -1, static_cast<int>(eEventChoice), -1, -1, 999);
 		}
 		void DoCityEventChoice(PlayerTypes ePlayer, int iCityID, CityEventChoiceTypes eEventChoice, CityEventTypes eCityEvent, int iSpyID, PlayerTypes eSpyOwner)
 		{			
-			gDLL->sendMoveGreatWorks(static_cast<PlayerTypes>(ePlayer), static_cast<int>(eCityEvent), iCityID, static_cast<int>(eEventChoice), iSpyID, static_cast<PlayerTypes>(eSpyOwner), 2);
+			gDLL->sendMoveGreatWorks(static_cast<PlayerTypes>(ePlayer), static_cast<int>(eCityEvent), iCityID, static_cast<int>(eEventChoice), iSpyID, static_cast<PlayerTypes>(eSpyOwner), 1000);
 		}
 	}
 

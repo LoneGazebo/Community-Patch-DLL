@@ -30,7 +30,8 @@ Check out the forum at https://forums.civfanatics.com/forums/community-patch-pro
 
 ## How can I build this
 
-* Just clone the repo. The Visual Studio solution file VoxPopuli_vs2013.sln is included in the repository folder
+* Install the git command line client and make sure it's in your path (it is needed for a pre-build script to run).
+* Clone the repo. The Visual Studio solution file VoxPopuli_vs2013.sln is included in the repository folder
 * Significant portions of the mods are Lua / SQL / XML files. Those can be modified without rebuilding the game core
 * You need the Visual C++ 2008 SP1 compiler to actually link the resulting game core DLL
 * It is possible to use a recent IDE like Visual Studio 2019 Community though, just make sure to use the correct toolset

@@ -65,6 +65,9 @@
 #include "CvSpanSerialization.h"
 #include "CvEnumMapSerialization.h"
 
+//updated by pre-build hook
+#include "../commit_id.inc"
+
 // Public Functions...
 // must be included after all other headers
 #include "LintFree.h"
@@ -6659,6 +6662,10 @@ bool CvGame::CanPlayerAttemptDominationVictory(PlayerTypes ePlayer, PlayerTypes 
 			if (kPlayer.GetNumCitiesFounded() == 0)
 				continue;
 
+			// Ignore vassals
+			if (kPlayer.GetDiplomacyAI()->IsVassal(ePlayer))
+				continue;
+
 			int iX = kPlayer.GetOriginalCapitalX();
 			int iY = kPlayer.GetOriginalCapitalY();
 			CvPlot* pCapitalPlot = GC.getMap().plot(iX, iY);
@@ -6709,6 +6716,10 @@ bool CvGame::CanPlayerAttemptDominationVictory(PlayerTypes ePlayer, PlayerTypes 
 
 			// Ignore players who never founded an original capital
 			if (kPlayer.GetNumCitiesFounded() == 0)
+				continue;
+
+			// Ignore vassals
+			if (kPlayer.GetDiplomacyAI()->IsVassal(ePlayer))
 				continue;
 
 			int iX = kPlayer.GetOriginalCapitalX();
@@ -11889,6 +11900,14 @@ void CvGame::Read(FDataStream& kStream)
 				gameDataHash[0], gameDataHash[1], gameDataHash[2], gameDataHash[3]
 			);
 		}
+
+		//check the commit id that was used when generating this file
+		char save_commit_id[41];
+		kStream.ReadIt(41, save_commit_id);
+
+		CUSTOMLOG("Savefile was generated from a gamecore with commit id %s (plus maybe uncommited changes)", save_commit_id);
+		if (strcmp(save_commit_id, CURRENT_COMMIT_ID)!=0)
+			CUSTOMLOG("----> Save version mismatch!");
 	}
 
 	CvStreamLoadVisitor serialVisitor(kStream);
@@ -11966,6 +11985,13 @@ void CvGame::Write(FDataStream& kStream) const
 		GC.setSaveVersion(CvGlobals::SAVE_VERSION_LATEST);
 		kStream << GC.getSaveVersion();
 		kStream << GC.getGameDataHash();
+
+		//make sure the commit id has the expected length ...
+		//no point in putting sentinels around it, the serialized file seems to be compressed or obfuscated or both
+		if (sizeof(CURRENT_COMMIT_ID)==41)
+			kStream.WriteIt(41, CURRENT_COMMIT_ID);
+		else
+			kStream.WriteIt(41, "commit id must be 40 bytes and one zero!");
 	}
 
 	CvStreamSaveVisitor serialVisitor(kStream);
@@ -14157,6 +14183,15 @@ CombatPredictionTypes CvGame::GetCombatPrediction(const CvUnit* pAttackingUnit, 
 	}
 
 	int iDefenderStrength = pDefendingUnit->GetMaxDefenseStrength(pToPlot, pAttackingUnit, pFromPlot, false, false);
+
+	if (pAttackingUnit->isRangedSupportFire()) 
+	{
+		int iDefenderCurrentDamage = pDefendingUnit->getDamage();
+		int iRangedSupportDamageInflicted = pAttackingUnit->GetRangeCombatDamage(pDefendingUnit, NULL, false);
+		int iDefendingDamageModifier = pDefendingUnit->GetDamageCombatModifier(false, iDefenderCurrentDamage + iRangedSupportDamageInflicted);
+		
+		iDefenderStrength = iDefenderStrength * (100 + iDefendingDamageModifier) / 100;
+	}
 
 	//iMyDamageInflicted = pMyUnit:GetCombatDamage(iMyStrength, iTheirStrength, pMyUnit:GetDamage() + iTheirFireSupportCombatDamage, false, false, false);
 	int iAttackingDamageInflicted = pAttackingUnit->getCombatDamage(iAttackingStrength, iDefenderStrength, false, false, false);

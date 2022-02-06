@@ -98,10 +98,6 @@
 		<Row Tag="TXT_KEY_MILITARY_SUPPLY_ADV_QUEST">
 			<Text>What is Military Supply?</Text>
 		</Row>
-			
-		<Row Tag="TXT_KEY_EUPANEL_WITHDRAW_CHANCE">
-			<Text>[COLOR_CYAN]Withdraw Chance: {1_Num}%[ENDCOLOR]</Text>
-		</Row>
 
 		<Row Tag="TXT_KEY_DUDE_8">
 			<Text>Herodotus</Text>
@@ -316,7 +312,7 @@
 		
 
 		<Row Tag="TXT_KEY_UNIT_SUPPLY_REMAINING_TOOLTIP">
-			<Text>Number of Military Units: {2_Num}[NEWLINE]Current Military Supply: {1_Num}[NEWLINE][COLOR_NEGATIVE_TEXT]War Weariness Supply Cap Reduction: {6_Num}%[ENDCOLOR][NEWLINE][NEWLINE]Military Supply Base Values:[NEWLINE]  [ICON_BULLET]+{4_Num} from owned [ICON_CITY_STATE] Cities[NEWLINE]  [ICON_BULLET]+{3_Num} from total [ICON_CITIZEN] Population[NEWLINE]  [ICON_BULLET]+{5_Num} from [ICON_CHECKBOX] Difficulty Level[NEWLINE]  [NEWLINE][NEWLINE]Military Supply Reductions:[NEWLINE]  [ICON_BULLET] -{8_Num} from [ICON_RESEARCH] Tech Level[NEWLINE]  [ICON_BULLET] -{7_Num} from [ICON_WAR] War Weariness[NEWLINE][NEWLINE]Military Unit [ICON_GOLD]/[ICON_PEACE] Costs increased by {9_Num}% due to [ICON_WAR] War Weariness.[NEWLINE]</Text>
+			<Text>Number of Military Units: {2_Num}[NEWLINE]Current Military Supply: {1_Num}[NEWLINE][COLOR_NEGATIVE_TEXT]War Weariness Supply Cap Reduction: {6_Num}%[ENDCOLOR][NEWLINE][NEWLINE]Military Supply Base Values:[NEWLINE]  [ICON_BULLET]+{4_Num} from owned [ICON_CITY_STATE] Cities[NEWLINE]  [ICON_BULLET]+{3_Num} from total [ICON_CITIZEN] Population[NEWLINE]  [ICON_BULLET]+{5_Num} from [ICON_CHECKBOX] Difficulty Level[NEWLINE]  [ICON_BULLET]+{10_Num} from [ICON_GREAT_GENERAL]/[ICON_GREAT_ADMIRAL] Great People[NEWLINE][NEWLINE][NEWLINE]Military Supply Reductions:[NEWLINE]  [ICON_BULLET] -{8_Num} from [ICON_RESEARCH] Tech Level[NEWLINE]  [ICON_BULLET] -{7_Num} from [ICON_WAR] War Weariness[NEWLINE][NEWLINE]Military Unit [ICON_GOLD]/[ICON_PEACE] Costs increased by {9_Num}% due to [ICON_WAR] War Weariness.[NEWLINE]</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_UNIT_EXPENDED_SUPPLY">
@@ -328,15 +324,6 @@
 
 		<Row Tag="TXT_KEY_MO_SORT_LEVEL">
 			<Text>Sort By Unit Level</Text>
-		</Row>
-
-		<!-- Tooltip for Defensive Pacts -->
-		<Row Tag="TXT_KEY_DIPLO_DEFENSE_PACT_UNKNOWN">
-			<Text>[COLOR_NEGATIVE_TEXT]They have a Defensive Pact with someone![ENDCOLOR]</Text>
-		</Row>
-
-		<Row Tag="TXT_KEY_DIPLO_DEFENSE_PACT_WITH_US">
-			<Text>[COLOR_NEGATIVE_TEXT]We have a Defensive Pact with them![ENDCOLOR]</Text>
 		</Row>
 
 		<!-- Espionage Tooltip -->
@@ -471,13 +458,6 @@
 
 		<Row Tag="TXT_KEY_EUPANEL_FROM_TERRAIN_BONUS">
 			<Text>Terrain Modifier</Text>
-		</Row>
-
-
-
-		<!-- Text for Preview Combat Miscellaneous Bonuses -->
-		<Row Tag="TXT_KEY_MISC_BONUS">
-			<Text>Miscellaneous</Text>
 		</Row>
 
 		<!-- Text for HappinessInfo.lua -->
@@ -793,7 +773,6 @@
 		</Row>
 
 		<!-- Tourism Bonus Turns Change for GM -->
-
 		<Row Tag="TXT_KEY_NOTIFICATION_GREAT_MUSICIAN_TOUR_TURNS">
 			<Text>Your musicians were happily received by the {1_PlayerAdj} people. You gain +[COLOR_POSITIVE_TEXT]50%[ENDCOLOR] [ICON_TOURISM] Tourism with all Civs for {2_Num} Turns, and +[COLOR_POSITIVE_TEXT]100%[ENDCOLOR] [ICON_TOURISM] Tourism with the target Civ for {2_Num} Turns.</Text>
 		</Row>
@@ -805,13 +784,6 @@
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_GREAT_MUSICIAN_TOUR_TURNS_TARGET_S">
 			<Text>{1_PlayerName} Musicians arrive!</Text>
-		</Row>
-		
-		<Row Tag="TXT_KEY_CO_PLAYER_TOURISM_TOUR_BONUS">
-			<Text>+100% Bonus from Concert Tour ({1_NumTurns} Turns)[NEWLINE]</Text>
-		</Row>
-		<Row Tag="TXT_KEY_CO_PLAYER_TOURISM_TOUR_BONUS_HALF">
-			<Text>+50% Bonus from Concert Tour ({1_NumTurns} Turns)[NEWLINE]</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_UPANEL_TOURISM_TURNS_TT">

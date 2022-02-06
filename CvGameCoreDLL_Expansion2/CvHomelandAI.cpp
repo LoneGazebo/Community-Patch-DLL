@@ -500,6 +500,9 @@ void CvHomelandAI::AssignHomelandMoves()
 	//most of these functions are very specific, so their order is not so important ...
 	PlotExplorerMoves();
 
+	//CS Quest Gift
+	ExecuteUnitGift();
+
 	//military only
 	PlotUpgradeMoves();
 	PlotGarrisonMoves();
@@ -1138,7 +1141,55 @@ void CvHomelandAI::PlotWorkerSeaMoves(bool bSecondary)
 		}
 	}
 }
+void CvHomelandAI::ExecuteUnitGift()
+{
+	UnitTypes eUnitType = NO_UNIT;
+	if (!m_pPlayer->isMajorCiv())
+	{
+		return;
+	}
+	PlayerTypes ePlayer = m_pPlayer->GetID();
 
+	CvPlayer* pMinor = NULL;
+	for (int iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
+	{
+		PlayerTypes eMinor = (PlayerTypes)iMinorLoop;
+		if (eMinor != NO_PLAYER)
+		{
+			pMinor = &GET_PLAYER(eMinor);
+			if (pMinor)
+			{
+				CvMinorCivAI* pMinorCivAI = pMinor->GetMinorCivAI();
+				
+				if (pMinorCivAI && pMinorCivAI->IsActiveQuestForPlayer(ePlayer, MINOR_CIV_QUEST_GIFT_SPECIFIC_UNIT))
+				{
+					if (pMinorCivAI->getIncomingUnitGift(ePlayer).getArrivalCountdown() == -1)
+					{
+						eUnitType = (UnitTypes)pMinorCivAI->GetQuestData1(ePlayer, MINOR_CIV_QUEST_GIFT_SPECIFIC_UNIT);
+						break;
+					}
+				}
+			}
+		}
+	}
+	if (pMinor && eUnitType != NO_UNIT)
+	{
+		for (list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it)
+		{
+			CvUnit* pUnit = m_pPlayer->getUnit(*it);
+			if (pUnit && pUnit->getUnitType() == eUnitType && !pUnit->isDelayedDeath())
+			{
+				if (!pUnit->IsGarrisoned())
+				{
+					pMinor->AddIncomingUnit(ePlayer, pUnit);
+					UnitProcessed(pUnit->GetID());
+					return;
+				}
+			}
+		}
+	}
+	return;
+}
 /// When nothing better to do, have units patrol to an adjacent tiles
 void CvHomelandAI::PlotPatrolMoves()
 {
@@ -1320,14 +1371,14 @@ void CvHomelandAI::PlotUpgradeMoves()
 	for (CvUnit* pUnit = m_pPlayer->firstUnit(&iLoop); pUnit != NULL; pUnit = m_pPlayer->nextUnit(&iLoop))
 	{
 		// Don't try and upgrade a human player's unit or one already recruited for an operation
-		if(pUnit && !pUnit->isHuman() && pUnit->getArmyID() == -1)
+		if (pUnit && !pUnit->isHuman() && pUnit->getArmyID() == -1 && !pUnit->TurnProcessed() && !pUnit->isDelayedDeath())
 		{
 			//Let's only worry about units in our land.
-			if(pUnit->plot()->getOwner() != m_pPlayer->GetID())
+			if (pUnit->plot()->getOwner() != m_pPlayer->GetID())
 				continue;
 
 			//And not embarked.
-			if(!pUnit->isNativeDomain(pUnit->plot()))
+			if (!pUnit->isNativeDomain(pUnit->plot()))
 				continue;
 
 			// Can this unit be upgraded?
@@ -1348,20 +1399,19 @@ void CvHomelandAI::PlotUpgradeMoves()
 							int iNumResource = GC.getUnitInfo(eUpgradeUnitType)->GetResourceQuantityRequirement(eResource);
 							if (iNumResource > 0)
 							{
-#if defined(MOD_BALANCE_CORE)
 								//Don't use all of our Aluminum, keep some for spaceship parts
 								ResourceTypes eAluminumResource = (ResourceTypes)GC.getInfoTypeForString("RESOURCE_ALUMINUM", true);
 								if (eResource == eAluminumResource)
 								{
 									iNumResource += 5;
 								}
-#endif
+
 								int iNumResourceInUnit = pUnit->getUnitInfo().GetResourceQuantityRequirement(eResource);
 								if (m_pPlayer->getNumResourceAvailable(eResource) + iNumResourceInUnit < iNumResource)
 								{
 									bMissingResource = true;
 								}
-#if defined(MOD_UNITS_RESOURCE_QUANTITY_TOTALS)
+
 								if (MOD_UNITS_RESOURCE_QUANTITY_TOTALS)
 								{
 									int iResourceTotal = GC.getUnitInfo(eUpgradeUnitType)->GetResourceQuantityTotal(eResource);
@@ -1370,7 +1420,6 @@ void CvHomelandAI::PlotUpgradeMoves()
 										bMissingResource = true;
 									}
 								}
-#endif
 							}
 						}
 					}

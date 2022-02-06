@@ -4,42 +4,43 @@
 
 -- Approaches towards humans
 -- Flat +/- weight
-INSERT INTO Defines (Name, Value) SELECT 'APPROACH_NEUTRAL_HUMAN', '0';
-INSERT INTO Defines (Name, Value) SELECT 'APPROACH_FRIENDLY_HUMAN', '0';
-INSERT INTO Defines (Name, Value) SELECT 'APPROACH_AFRAID_HUMAN', '0';
-INSERT INTO Defines (Name, Value) SELECT 'APPROACH_GUARDED_HUMAN', '0';
-INSERT INTO Defines (Name, Value) SELECT 'APPROACH_DECEPTIVE_HUMAN', '0';
-INSERT INTO Defines (Name, Value) SELECT 'APPROACH_HOSTILE_HUMAN', '0';
-INSERT INTO Defines (Name, Value) SELECT 'APPROACH_WAR_HUMAN', '0';
+INSERT INTO Defines (Name, Value) VALUES
+('APPROACH_FRIENDLY_HUMAN', '0'),
+('APPROACH_NEUTRAL_HUMAN', '0'),
+('APPROACH_AFRAID_HUMAN', '0'),
+('APPROACH_GUARDED_HUMAN', '0'),
+('APPROACH_DECEPTIVE_HUMAN', '0'),
+('APPROACH_HOSTILE_HUMAN', '0'),
+('APPROACH_WAR_HUMAN', '0'),
 
 -- % modifier to approach weight (positive values increase the approach weight by this percentage; negative values decrease it; applied after all other modifiers).
-INSERT INTO Defines (Name, Value) SELECT 'APPROACH_NEUTRAL_HUMAN_PERCENT', '0';
-INSERT INTO Defines (Name, Value) SELECT 'APPROACH_FRIENDLY_HUMAN_PERCENT', '0';
-INSERT INTO Defines (Name, Value) SELECT 'APPROACH_AFRAID_HUMAN_PERCENT', '0';
-INSERT INTO Defines (Name, Value) SELECT 'APPROACH_GUARDED_HUMAN_PERCENT', '0';
-INSERT INTO Defines (Name, Value) SELECT 'APPROACH_DECEPTIVE_HUMAN_PERCENT', '0';
-INSERT INTO Defines (Name, Value) SELECT 'APPROACH_HOSTILE_HUMAN_PERCENT', '0';
-INSERT INTO Defines (Name, Value) SELECT 'APPROACH_WAR_HUMAN_PERCENT', '0';
+('APPROACH_FRIENDLY_HUMAN_PERCENT', '0'),
+('APPROACH_NEUTRAL_HUMAN_PERCENT', '0'),
+('APPROACH_AFRAID_HUMAN_PERCENT', '0'),
+('APPROACH_GUARDED_HUMAN_PERCENT', '0'),
+('APPROACH_DECEPTIVE_HUMAN_PERCENT', '0'),
+('APPROACH_HOSTILE_HUMAN_PERCENT', '0'),
+('APPROACH_WAR_HUMAN_PERCENT', '0'),
 
 
 -- Approaches towards other AI players
 -- Flat +/- weight
-INSERT INTO Defines (Name, Value) SELECT 'APPROACH_NEUTRAL_AI', '0';
-INSERT INTO Defines (Name, Value) SELECT 'APPROACH_FRIENDLY_AI', '0';
-INSERT INTO Defines (Name, Value) SELECT 'APPROACH_AFRAID_AI', '0';
-INSERT INTO Defines (Name, Value) SELECT 'APPROACH_GUARDED_AI', '0';
-INSERT INTO Defines (Name, Value) SELECT 'APPROACH_DECEPTIVE_AI', '0';
-INSERT INTO Defines (Name, Value) SELECT 'APPROACH_HOSTILE_AI', '0';
-INSERT INTO Defines (Name, Value) SELECT 'APPROACH_WAR_AI', '0';
+('APPROACH_FRIENDLY_AI', '0'),
+('APPROACH_NEUTRAL_AI', '0'),
+('APPROACH_AFRAID_AI', '0'),
+('APPROACH_GUARDED_AI', '0'),
+('APPROACH_DECEPTIVE_AI', '0'),
+('APPROACH_HOSTILE_AI', '0'),
+('APPROACH_WAR_AI', '0'),
 
 -- % modifier to approach weight (positive values increase the approach weight by this percentage; negative values decrease it; applied after all other modifiers).
-INSERT INTO Defines (Name, Value) SELECT 'APPROACH_NEUTRAL_AI_PERCENT', '0';
-INSERT INTO Defines (Name, Value) SELECT 'APPROACH_FRIENDLY_AI_PERCENT', '0';
-INSERT INTO Defines (Name, Value) SELECT 'APPROACH_AFRAID_AI_PERCENT', '0';
-INSERT INTO Defines (Name, Value) SELECT 'APPROACH_GUARDED_AI_PERCENT', '0';
-INSERT INTO Defines (Name, Value) SELECT 'APPROACH_DECEPTIVE_AI_PERCENT', '0';
-INSERT INTO Defines (Name, Value) SELECT 'APPROACH_HOSTILE_AI_PERCENT', '0';
-INSERT INTO Defines (Name, Value) SELECT 'APPROACH_WAR_AI_PERCENT', '0';
+('APPROACH_FRIENDLY_AI_PERCENT', '0'),
+('APPROACH_NEUTRAL_AI_PERCENT', '0'),
+('APPROACH_AFRAID_AI_PERCENT', '0'),
+('APPROACH_GUARDED_AI_PERCENT', '0'),
+('APPROACH_DECEPTIVE_AI_PERCENT', '0'),
+('APPROACH_HOSTILE_AI_PERCENT', '0'),
+('APPROACH_WAR_AI_PERCENT', '0'),
 
 
 -- Target Value Multipliers to Approach Weights
@@ -47,11 +48,11 @@ INSERT INTO Defines (Name, Value) SELECT 'APPROACH_WAR_AI_PERCENT', '0';
 -- NOTE: Target Value is also affected by proximity!
 
 -- Normal Target Value Multiplier (Major Civs)
-INSERT INTO Defines (Name, Value) SELECT 'MAJOR_WAR_MULTIPLIER_TARGET_SOFT', '150';
-INSERT INTO Defines (Name, Value) SELECT 'MAJOR_WAR_MULTIPLIER_TARGET_FAVORABLE', '125';
-INSERT INTO Defines (Name, Value) SELECT 'MAJOR_WAR_MULTIPLIER_TARGET_AVERAGE', '75';
-INSERT INTO Defines (Name, Value) SELECT 'MAJOR_WAR_MULTIPLIER_TARGET_BAD', '50';
-INSERT INTO Defines (Name, Value) SELECT 'MAJOR_WAR_MULTIPLIER_TARGET_IMPOSSIBLE', '25';
+('MAJOR_WAR_MULTIPLIER_TARGET_SOFT', '150'),
+('MAJOR_WAR_MULTIPLIER_TARGET_FAVORABLE', '125'),
+('MAJOR_WAR_MULTIPLIER_TARGET_AVERAGE', '75'),
+('MAJOR_WAR_MULTIPLIER_TARGET_BAD', '50'),
+('MAJOR_WAR_MULTIPLIER_TARGET_IMPOSSIBLE', '25');
 
 -- Normal Target Value Multiplier (City-States)
 UPDATE Defines SET Value = '150' WHERE Name = 'MINOR_APPROACH_WAR_TARGET_SOFT';
@@ -62,11 +63,12 @@ UPDATE Defines SET Value = '25' WHERE Name = 'MINOR_APPROACH_WAR_TARGET_IMPOSSIB
 
 -- Conquest Target Value Multiplier
 -- Applied if AI really wants to conquer this player AND has a good attack target.
-INSERT INTO Defines (Name, Value) SELECT 'CONQUEST_WAR_MULTIPLIER_TARGET_SOFT', '200';
-INSERT INTO Defines (Name, Value) SELECT 'CONQUEST_WAR_MULTIPLIER_TARGET_FAVORABLE', '150';
-INSERT INTO Defines (Name, Value) SELECT 'CONQUEST_WAR_MULTIPLIER_TARGET_AVERAGE', '125';
-INSERT INTO Defines (Name, Value) SELECT 'CONQUEST_WAR_MULTIPLIER_TARGET_BAD', '100';
-INSERT INTO Defines (Name, Value) SELECT 'CONQUEST_WAR_MULTIPLIER_TARGET_IMPOSSIBLE', '75';
+INSERT INTO Defines (Name, Value) VALUES
+('CONQUEST_WAR_MULTIPLIER_TARGET_SOFT', '200'),
+('CONQUEST_WAR_MULTIPLIER_TARGET_FAVORABLE', '150'),
+('CONQUEST_WAR_MULTIPLIER_TARGET_AVERAGE', '125'),
+('CONQUEST_WAR_MULTIPLIER_TARGET_BAD', '100'),
+('CONQUEST_WAR_MULTIPLIER_TARGET_IMPOSSIBLE', '75');
 
 
 -- Proximity Multipliers to Approach Weights
@@ -74,10 +76,11 @@ INSERT INTO Defines (Name, Value) SELECT 'CONQUEST_WAR_MULTIPLIER_TARGET_IMPOSSI
 -- Approach is multiplied by whichever of these values is appropriate, and then divided by 100.
 
 -- Normal Proximity Multiplier
-INSERT INTO Defines (Name, Value) SELECT 'APPROACH_MULTIPLIER_PROXIMITY_NEIGHBORS', '150';
-INSERT INTO Defines (Name, Value) SELECT 'APPROACH_MULTIPLIER_PROXIMITY_CLOSE', '125';
-INSERT INTO Defines (Name, Value) SELECT 'APPROACH_MULTIPLIER_PROXIMITY_FAR', '75';
-INSERT INTO Defines (Name, Value) SELECT 'APPROACH_MULTIPLIER_PROXIMITY_DISTANT', '50';
+INSERT INTO Defines (Name, Value) VALUES
+('APPROACH_MULTIPLIER_PROXIMITY_NEIGHBORS', '150'),
+('APPROACH_MULTIPLIER_PROXIMITY_CLOSE', '125'),
+('APPROACH_MULTIPLIER_PROXIMITY_FAR', '75'),
+('APPROACH_MULTIPLIER_PROXIMITY_DISTANT', '50');
 
 -- Conquest Multiplier (proximity multiplier to WAR and HOSTILE approaches if AI really wants to conquer this player AND has a good attack target)
 UPDATE Defines SET Value = '200' WHERE Name = 'APPROACH_WAR_PROXIMITY_NEIGHBORS';
@@ -111,23 +114,36 @@ UPDATE Defines SET Value = '2' WHERE Name = 'MINOR_APPROACH_IGNORE_DEFAULT';
 UPDATE Defines SET Value = '20' WHERE Name = 'TURNS_SINCE_PEACE_WEIGHT_DAMPENER';
 
 
--- Approach Randomness [NOT YET FUNCTIONAL]
+-- Approach Randomness
 -- If set to a non-zero value, multiplies the weight for each *major civ* approach by (100 +/- n%), where n is a random number between 0 and APPROACH_RANDOM_PERCENT, then divides by 100.
--- Valid values are between 0 and 100. Higher values make the AI more erratic.
-UPDATE Defines SET Value = '0' WHERE Name = 'APPROACH_RANDOM_PERCENT';
+-- Default value is 5. Valid values are between 0 and 100. Higher values make the AI more erratic.
+-- This value is doubled if the Random Personalities game option is active.
+UPDATE Defines SET Value = '5' WHERE Name = 'APPROACH_RANDOM_PERCENT';
 
 
 -- C4DF Approach Values
+INSERT INTO Defines (Name, Value) VALUES
+
 -- Approach multipliers for having 2+ vassals
-INSERT INTO Defines (Name, Value) SELECT 'APPROACH_WAR_TOO_MANY_VASSALS', '20'; -- % increase to WAR and HOSTILE approaches per vassal
-INSERT INTO Defines (Name, Value) SELECT 'APPROACH_GUARDED_TOO_MANY_VASSALS', '20'; -- % increase to GUARDED and AFRAID approaches per vassal
+('APPROACH_WAR_TOO_MANY_VASSALS', '20'), -- % increase to WAR and HOSTILE approaches per vassal
+('APPROACH_GUARDED_TOO_MANY_VASSALS', '20'), -- % increase to GUARDED and AFRAID approaches per vassal
 
 -- Modifiers for refusing to give a former vassal independence
-INSERT INTO Defines (Name, Value) SELECT 'APPROACH_WAR_VASSAL_FORCEFULLY_REVOKED', '4'; -- Adds x times the AI's War Bias to the War Approach
-INSERT INTO Defines (Name, Value) SELECT 'APPROACH_FRIENDLY_VASSAL_FORCEFULLY_REVOKED', '-10'; -- Adds x times the AI's Friendly Bias to the Friendly Approach
-INSERT INTO Defines (Name, Value) SELECT 'APPROACH_DECEPTIVE_VASSAL_FORCEFULLY_REVOKED', '-10'; -- Adds x times the AI's Deceptive Bias to the Deceptive Approach
+('APPROACH_WAR_VASSAL_FORCEFULLY_REVOKED', '4'), -- Adds x times the AI's War Bias to the War Approach
+('APPROACH_FRIENDLY_VASSAL_FORCEFULLY_REVOKED', '-10'), -- Adds x times the AI's Friendly Bias to the Friendly Approach
+('APPROACH_DECEPTIVE_VASSAL_FORCEFULLY_REVOKED', '-10'), -- Adds x times the AI's Deceptive Bias to the Deceptive Approach
 
 -- Modifiers for agreeing to give a former vassal independence
-INSERT INTO Defines (Name, Value) SELECT 'APPROACH_WAR_VASSAL_PEACEFULLY_REVOKED', '-4'; -- Adds x times the AI's War Bias to the War Approach
-INSERT INTO Defines (Name, Value) SELECT 'APPROACH_FRIENDLY_VASSAL_PEACEFULLY_REVOKED', '5'; -- Adds x times the AI's Friendly Bias to the Friendly Approach
-INSERT INTO Defines (Name, Value) SELECT 'APPROACH_DECEPTIVE_VASSAL_PEACEFULLY_REVOKED', '2'; -- Adds x times the AI's Deceptive Bias to the Deceptive Approach (not applied if master liberates vassal)
+('APPROACH_WAR_VASSAL_PEACEFULLY_REVOKED', '-4'), -- Adds x times the AI's War Bias to the War Approach
+('APPROACH_FRIENDLY_VASSAL_PEACEFULLY_REVOKED', '5'), -- Adds x times the AI's Friendly Bias to the Friendly Approach
+('APPROACH_DECEPTIVE_VASSAL_PEACEFULLY_REVOKED', '2'); -- Adds x times the AI's Deceptive Bias to the Deceptive Approach (not applied if master liberates vassal)
+
+
+-- "Close To Victory" Thresholds
+-- A player who has completed x% of the progress towards a specific victory condition is considered "close to" that victory.
+-- Affects AI calculations and (if Endgame Aggression isn't disabled for that player) triggers the Endgame Aggression boost to approach.
+INSERT INTO Defines (Name, Value) VALUES
+('CLOSE_TO_DOMINATION_VICTORY_THRESHOLD', '50'),
+('CLOSE_TO_DIPLOMATIC_VICTORY_THRESHOLD', '75'),
+('CLOSE_TO_SCIENCE_VICTORY_THRESHOLD', '80'),
+('CLOSE_TO_CULTURE_VICTORY_THRESHOLD', '75');

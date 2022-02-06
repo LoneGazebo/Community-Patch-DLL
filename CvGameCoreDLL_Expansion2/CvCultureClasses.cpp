@@ -4644,6 +4644,9 @@ PlayerTypes CvPlayerCulture::GetCivLowestInfluence(bool bCheckOpenBorders) const
 /// Get extra gold from trade routes based on current influence level
 int CvPlayerCulture::GetInfluenceTradeRouteGoldBonus(PlayerTypes ePlayer) const
 {
+	if (!MOD_BALANCE_CORE_POLICIES)
+		return 0;
+
 	int iRtnValue = 0;
 
 	if (ePlayer < MAX_MAJOR_CIVS)
@@ -4675,6 +4678,9 @@ int CvPlayerCulture::GetInfluenceTradeRouteGoldBonus(PlayerTypes ePlayer) const
 /// Get extra growth from trade routes based on current influence level
 int CvPlayerCulture::GetInfluenceTradeRouteGrowthBonus(PlayerTypes ePlayer) const
 {
+	if (!MOD_BALANCE_CORE_POLICIES)
+		return 0;
+
 	int iRtnValue = 0;
 
 	if (ePlayer < MAX_MAJOR_CIVS)

@@ -401,7 +401,7 @@ void CvDealAI::DoAcceptedDeal(PlayerTypes eFromPlayer, CvDeal kDeal, int iDealVa
 				LeaderheadAnimationTypes eAnimation = kDeal.GetPeaceTreatyType() != NO_PEACE_TREATY_TYPE ? LEADERHEAD_ANIM_PEACEFUL : LEADERHEAD_ANIM_YES;
 
 				// A deal is generous if we're getting a lot overall, OR a lot more than we're giving up
-				if (bGenerousPeaceTreaty || iDealValueToMe >= 100 || iValueTheyreOffering > (iValueImOffering * 5))
+				if (bGenerousPeaceTreaty || iDealValueToMe >= 100 || iValueTheyreOffering >= (iValueImOffering * 2))
 				{
 					const char* szText = GetPlayer()->GetDiplomacyAI()->GetDiploStringForMessage(DIPLO_MESSAGE_TRADE_ACCEPT_GENEROUS);
 					gDLL->GameplayDiplomacyAILeaderMessage(GetPlayer()->GetID(), DIPLO_UI_STATE_BLANK_DISCUSSION, szText, eAnimation);
@@ -2628,26 +2628,32 @@ int CvDealAI::GetDefensivePactValue(bool bFromMe, PlayerTypes eOtherPlayer, bool
 {
 	CvAssertMsg(GetPlayer()->GetID() != eOtherPlayer, "DEAL_AI: Trying to check value of a Defensive Pact with oneself.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 
-	int iItemValue = 500;
-
 	if (GetPlayer()->IsAITeammateOfHuman())
 		return INT_MAX;
 
 	if (!GetPlayer()->GetDiplomacyAI()->IsWantsDefensivePactWithPlayer(eOtherPlayer))
 		return INT_MAX;
 
-	if (!GET_PLAYER(eOtherPlayer).isHuman() && !GET_PLAYER(eOtherPlayer).GetDiplomacyAI()->IsWantsDefensivePactWithPlayer(GetPlayer()->GetID()))
-		return INT_MAX;
+	int iDefensivePactValue = GetPlayer()->GetDiplomacyAI()->ScoreDefensivePactChoice(eOtherPlayer, GetPlayer()->GetNumEffectiveCoastalCities() > 1);
+	iDefensivePactValue *= 5;
 
-	if (!bFromMe)
+	if (MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED)
+		iDefensivePactValue *= max(1, (int)GetPlayer()->GetCurrentEra());
+
+	int iItemValue = 0;
+	bool bMostValuableAlly = GetPlayer()->GetDiplomacyAI()->GetMostValuableAlly() == eOtherPlayer;
+
+	if (iDefensivePactValue > 0 && !bFromMe)
 	{
-		int iStrengthMod = (int)GetPlayer()->GetDiplomacyAI()->GetPlayerMilitaryStrengthComparedToUs(eOtherPlayer) - 3;
-		iItemValue += (250 * iStrengthMod);
-
-		if (GetPlayer()->GetDiplomacyAI()->GetMostValuableAlly() == eOtherPlayer)
-		{
-			iItemValue += 500;
-		}
+		iItemValue = iDefensivePactValue;
+		if (bMostValuableAlly)
+			iItemValue *= 2;
+	}
+	else if (iDefensivePactValue < 0 && bFromMe)
+	{
+		iItemValue = iDefensivePactValue;
+		if (!bMostValuableAlly)
+			iItemValue *= 2;
 	}
 
 	// Are we trying to find the middle point between what we think this item is worth and what another player thinks it's worth?
@@ -5921,7 +5927,7 @@ bool CvDealAI::IsMakeOfferForStrategicResource(PlayerTypes eOtherPlayer, CvDeal*
 
 
 /// A good time to make an offer to get an embassy?
-bool CvDealAI::MakeOfferForEmbassy(PlayerTypes eOtherPlayer, CvDeal* pDeal)
+bool CvDealAI::IsMakeOfferForEmbassy(PlayerTypes eOtherPlayer, CvDeal* pDeal)
 {
 	CvAssert(eOtherPlayer >= 0);
 	CvAssert(eOtherPlayer < MAX_MAJOR_CIVS);
@@ -5934,7 +5940,15 @@ bool CvDealAI::MakeOfferForEmbassy(PlayerTypes eOtherPlayer, CvDeal* pDeal)
 	}
 
 	// Can we actually complete this deal?
+	// Note the order of the player ids: This is because the trade item is "accept embassy" not "send embassy"
 	if(!pDeal->IsPossibleToTradeItem(eOtherPlayer, GetPlayer()->GetID(), TRADE_ITEM_ALLOW_EMBASSY))
+	{
+		return false;
+	}
+
+	// AI should not offer embassies for gold - wait until embassy for embassy is possible
+	// Note that humans can still offer and get an embassy for gold trade, it's not illegal
+	if(!pDeal->IsPossibleToTradeItem(GetPlayer()->GetID(), eOtherPlayer, TRADE_ITEM_ALLOW_EMBASSY) && !GET_TEAM(GET_PLAYER(eOtherPlayer).getTeam()).HasEmbassyAtTeam(GetPlayer()->getTeam()))
 	{
 		return false;
 	}

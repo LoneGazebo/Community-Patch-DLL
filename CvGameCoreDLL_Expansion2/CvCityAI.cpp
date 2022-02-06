@@ -148,20 +148,16 @@ void CvCityAI::AI_chooseProduction(bool bInterruptWonders, bool bInterruptBuildi
 
 		if(GC.getLogging() && GC.getAILogging())
 		{
-			CvString playerName;
-			FILogFile* pLog;
-			CvString strBaseString;
-			CvString strOutBuf;
-
 			m_pCityStrategyAI->LogCityProduction(buildable, false);
 
-			playerName = kOwner.getCivilizationShortDescription();
-			pLog = LOGFILEMGR.GetLog(kOwner.GetCitySpecializationAI()->GetLogFileName(playerName), FILogFile::kDontTimeStamp);
+			CvString strBaseString;
+			CvString strOutBuf;
+			CvString playerName = kOwner.getCivilizationShortDescription();
 			strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
 			strBaseString += playerName + ", ";
 			strOutBuf.Format("%s, WONDER - Started %s, Turns: %d", getName().GetCString(), GC.getBuildingInfo((BuildingTypes)buildable.m_iIndex)->GetDescription(), buildable.m_iTurnsToConstruct);
 			strBaseString += strOutBuf;
-			pLog->Msg(strBaseString);
+			kOwner.GetCitySpecializationAI()->LogMsg(strBaseString);
 		}
 	}
 	else

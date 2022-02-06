@@ -374,13 +374,16 @@ protected:
 	static int lGetUnhappinessFromPuppetCityPopulation(lua_State* L);
 	static int lGetUnhappinessFromOccupiedCities(lua_State* L);
 	static int lGetUnhappinessFromPublicOpinion(lua_State* L);
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
+
 	LUAAPIEXTN(GetUnhappinessFromWarWeariness, int);
 	LUAAPIEXTN(GetWarWeariness, int);
 	LUAAPIEXTN(SetWarWeariness, int);
 	LUAAPIEXTN(GetWarWearinessSupplyReduction, int);
 	LUAAPIEXTN(GetTechSupplyReduction, int);
-#endif
+
+	static int lGetUnitSupplyFromExpendedGreatPeople(lua_State* L);
+	static int lChangeUnitSupplyFromExpendedGreatPeople(lua_State* L);
+
 	static int lGetUnhappinessFromUnits(lua_State* L);
 	static int lChangeUnhappinessFromUnits(lua_State* L);
 

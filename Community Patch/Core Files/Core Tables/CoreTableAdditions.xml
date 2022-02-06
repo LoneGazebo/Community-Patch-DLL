@@ -164,8 +164,14 @@
 		<Column name="Yield" type="integer" default="0"/>
 	</Table>
 
-	<!-- Allows you to define any belief to grant x yield per constructed building. -->
+	<!-- Allows you to define any belief to grant x yield per constructed building (EXCEPT World Wonders). -->
 	<Table name="Belief_YieldPerConstruction">
+		<Column name="BeliefType" type="text" reference="Beliefs(Type)"/>
+		<Column name="YieldType" type="integer" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" default="0"/>
+	</Table>
+	<!-- Same but for World Wonders -->
+	<Table name="Belief_YieldPerWorldWonderConstruction">
 		<Column name="BeliefType" type="text" reference="Beliefs(Type)"/>
 		<Column name="YieldType" type="integer" reference="Yields(Type)"/>
 		<Column name="Yield" type="integer" default="0"/>
@@ -202,6 +208,12 @@
 
 	<!-- Allows you to define any belief to grant x yield for every birth, where X is the number below. (-->
 	<Table name="Belief_YieldPerBirth">
+		<Column name="BeliefType" type="text" reference="Beliefs(Type)"/>
+		<Column name="YieldType" type="integer" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" default="0"/>
+	</Table>
+	<!-- Same, but only for births in the Holy City. -->
+	<Table name="Belief_YieldPerHolyCityBirth">
 		<Column name="BeliefType" type="text" reference="Beliefs(Type)"/>
 		<Column name="YieldType" type="integer" reference="Yields(Type)"/>
 		<Column name="Yield" type="integer" default="0"/>
@@ -537,7 +549,7 @@
 		<Column name="Yield" type="integer" default="0"/>
 	</Table>
 	<!-- Same but for Wonders -->
-	<Table name="Policy_YieldFromWonderConstruction">
+	<Table name="Policy_YieldFromWorldWonderConstruction">
 		<Column name="PolicyType" type="text" reference="Policies(Type)"/>
 		<Column name="YieldType" type="integer" reference="Yields(Type)"/>
 		<Column name="Yield" type="integer" default="0"/>

@@ -1964,6 +1964,7 @@ protected:
 	void QueueMoveForVisualization(CvPlot* pkPlot);
 	void PublishQueuedVisualizationMoves();
 
+	bool EmergencyRebase();
 	bool CheckDOWNeededForMove(int iX, int iY);
 	MoveResult UnitAttackWithMove(int iX, int iY, int iFlags);
 	int UnitPathTo(int iX, int iY, int iFlags);
@@ -2388,6 +2389,7 @@ protected:
 #endif
 
 	bool CanFallBack(const CvUnit& pAttacker, bool bCheckChances) const;
+	int  GetWithdrawChance(const CvUnit& pAttacker, const bool bCheckChances) const;
 	bool DoFallBack(const CvUnit& pAttacker);
 
 private:

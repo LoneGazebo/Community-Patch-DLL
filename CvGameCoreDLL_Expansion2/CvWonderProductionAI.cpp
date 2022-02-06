@@ -197,7 +197,7 @@ BuildingTypes CvWonderProductionAI::ChooseWonder(bool /* bAdjustForOtherPlayers 
 
 		if(m_Buildables.GetTotalWeight() > 0)
 		{
-			int iNumChoices = GC.getGame().getHandicapInfo().GetCityProductionNumOptions();
+			int iNumChoices = max(GC.getGame().getHandicapInfo().GetCityProductionNumOptions(), 1);
 			if (m_pPlayer->isBarbarian())
 			{
 				eSelection = (BuildingTypes)m_Buildables.GetElement(0);
@@ -232,9 +232,6 @@ void CvWonderProductionAI::LogPossibleWonders()
 		// Find the name of this civ
 		CvString playerName = m_pPlayer->getCivilizationShortDescription();
 
-		// Open the log file
-		FILogFile* pLog = LOGFILEMGR.GetLog(m_pPlayer->GetCitySpecializationAI()->GetLogFileName(playerName), FILogFile::kDontTimeStamp);
-
 		// Get the leading info for this line
 		CvString strBaseString;
 		strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
@@ -255,7 +252,7 @@ void CvWonderProductionAI::LogPossibleWonders()
 
 			}
 
-			pLog->Msg(strOutBuf);
+			m_pPlayer->GetCitySpecializationAI()->LogMsg(strOutBuf);
 		}
 	}
 }

@@ -81,12 +81,14 @@ CvBeliefEntry::CvBeliefEntry() :
 	m_iGetPressureChangeTradeRoute(0),
 	m_piYieldPerActiveTR(NULL),
 	m_piYieldPerConstruction(NULL),
+	m_piYieldPerWorldWonderConstruction(NULL),
 	m_piYieldPerPop(NULL),
 	m_piYieldPerGPT(NULL),
 	m_piYieldPerLux(NULL),
 	m_pbiYieldPerBorderGrowth(),
 	m_piYieldPerHeal(NULL),
 	m_piYieldPerBirth(NULL),
+	m_piYieldPerHolyCityBirth(NULL),
 	m_piYieldPerScience(NULL),
 	m_piYieldFromGPUse(NULL),
 	m_piYieldBonusGoldenAge(NULL),
@@ -547,10 +549,13 @@ int CvBeliefEntry::GetYieldPerActiveTR(int i) const
 
 int CvBeliefEntry::GetYieldPerConstruction(int i) const
 {
-	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
-	CvAssertMsg(i > -1, "Index out of bounds");
 	return m_piYieldPerConstruction ? m_piYieldPerConstruction[i] : -1;
 }
+int CvBeliefEntry::GetYieldPerWorldWonderConstruction(int i) const
+{
+	return m_piYieldPerWorldWonderConstruction ? m_piYieldPerWorldWonderConstruction[i] : -1;
+}
+
 int CvBeliefEntry::GetYieldPerPop(int i) const
 {
 	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
@@ -598,9 +603,12 @@ int CvBeliefEntry::GetYieldPerHeal (int i) const
 /// Accessor:: Yield Per Birth
 int CvBeliefEntry::GetYieldPerBirth(int i) const
 {
-	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
-	CvAssertMsg(i > -1, "Index out of bounds");
 	return m_piYieldPerBirth ? m_piYieldPerBirth[i] : -1;
+}
+/// Accessor:: Yield Per Holy City Birth
+int CvBeliefEntry::GetYieldPerHolyCityBirth(int i) const
+{
+	return m_piYieldPerHolyCityBirth ? m_piYieldPerHolyCityBirth[i] : -1;
 }
 
 /// Accessor:: Yield Per Science
@@ -1330,11 +1338,13 @@ bool CvBeliefEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 #if defined(MOD_BALANCE_CORE_BELIEFS)
 	kUtility.SetYields(m_piYieldPerActiveTR, "Belief_YieldPerActiveTR", "BeliefType", szBeliefType);
 	kUtility.SetYields(m_piYieldPerConstruction, "Belief_YieldPerConstruction", "BeliefType", szBeliefType);
+	kUtility.SetYields(m_piYieldPerWorldWonderConstruction, "Belief_YieldPerWorldWonderConstruction", "BeliefType", szBeliefType);
 	kUtility.SetYields(m_piYieldPerPop, "Belief_YieldPerPop", "BeliefType", szBeliefType);
 	kUtility.SetYields(m_piYieldPerGPT, "Belief_YieldPerGPT", "BeliefType", szBeliefType);
 	kUtility.SetYields(m_piYieldPerLux, "Belief_YieldPerLux", "BeliefType", szBeliefType);
 	kUtility.SetYields(m_piYieldPerHeal, "Belief_YieldPerHeal", "BeliefType", szBeliefType);
 	kUtility.SetYields(m_piYieldPerBirth, "Belief_YieldPerBirth", "BeliefType", szBeliefType);
+	kUtility.SetYields(m_piYieldPerHolyCityBirth, "Belief_YieldPerHolyCityBirth", "BeliefType", szBeliefType);
 	kUtility.SetYields(m_piYieldPerScience, "Belief_YieldPerScience", "BeliefType", szBeliefType);
 	kUtility.SetYields(m_piYieldFromGPUse, "Belief_YieldFromGPUse", "BeliefType", szBeliefType);
 	kUtility.SetYields(m_piYieldBonusGoldenAge, "Belief_YieldBonusGoldenAge", "BeliefType", szBeliefType);
@@ -4139,6 +4149,23 @@ int CvReligionBeliefs::GetYieldPerConstruction(YieldTypes eYieldType, PlayerType
 	return rtnValue;
 }
 
+int CvReligionBeliefs::GetYieldPerWorldWonderConstruction(YieldTypes eYieldType, PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
+{
+	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
+	int rtnValue = 0;
+
+	for (BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
+	{
+		int iValue = pBeliefs->GetEntry(*it)->GetYieldPerWorldWonderConstruction(eYieldType);
+		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+		{
+			rtnValue += iValue;
+		}
+	}
+
+	return rtnValue;
+}
+
 
 
 #if defined(MOD_BALANCE_CORE_BELIEFS)
@@ -4294,6 +4321,24 @@ int CvReligionBeliefs::GetYieldPerBirth(YieldTypes eYieldType, PlayerTypes ePlay
 
 	return rtnValue;
 }
+
+int CvReligionBeliefs::GetYieldPerHolyCityBirth(YieldTypes eYieldType, PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
+{
+	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
+	int rtnValue = 0;
+
+	for (BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
+	{
+		int iValue = pBeliefs->GetEntry(*it)->GetYieldPerHolyCityBirth(eYieldType);
+		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+		{
+			rtnValue += iValue;
+		}
+	}
+
+	return rtnValue;
+}
+
 /// Get yield modifier from beliefs from science
 int CvReligionBeliefs::GetYieldPerScience(YieldTypes eYieldType, PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
 {

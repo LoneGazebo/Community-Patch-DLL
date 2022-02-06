@@ -196,10 +196,9 @@ public:
 	void SetHolyCity(ReligionTypes eReligion, const CvCity* pkHolyCity);
 	void SetFounder(ReligionTypes eReligion, PlayerTypes eFounder);
 
-#if defined(MOD_BALANCE_CORE)
 	void SetFoundYear(ReligionTypes eReligion, int iValue);
 	int GetFoundYear(ReligionTypes eReligion);
-#endif
+
 	void UpdateAllCitiesThisReligion(ReligionTypes eReligion);
 
 	// General religion information functions
@@ -242,7 +241,6 @@ public:
 #endif
 	int GetNumCitiesFollowing(ReligionTypes eReligion) const;
 	int GetNumDomesticCitiesFollowing(ReligionTypes eReligion, PlayerTypes ePlayer) const;
-	bool HasAnyDomesticCityFollowing(ReligionTypes eReligion, PlayerTypes ePlayer) const;
 #if defined(MOD_RELIGION_LOCAL_RELIGIONS)
 	bool HasCreatedReligion(PlayerTypes ePlayer, bool bIgnoreLocal = false) const;
 #else
@@ -586,10 +584,10 @@ public:
 	CvCity* ChooseInquisitorTargetCity(CvUnit* pUnit, const vector<pair<int,int>>& vIgnoreTargets, int* piTurns = NULL) const;
 	CvCity *ChooseProphetConversionCity(CvUnit* pUnit = NULL, int* piTurns = NULL) const;
 	ReligionTypes GetReligionToSpread() const;
+	ReligionTypes GetFavoriteForeignReligion(bool bForInternalSpread) const;
 
 private:
 #if defined(MOD_BALANCE_CORE)
-	ReligionTypes GetFavoriteForeignReligion() const;
 	bool DoFaithPurchasesInCities(CvCity* pCity);
 	bool DoReligionDefenseInCities();
 #endif

@@ -222,7 +222,7 @@ void CvTacticalDominanceZone::Extend(CvPlot* pPlot)
 /// Constructor
 CvTacticalAnalysisMap::CvTacticalAnalysisMap(void) :
 	m_ePlayer(NO_PLAYER),
-	m_iTurnSliceBuilt(-1)
+	m_iLastUpdate(-1)
 {
 }
 
@@ -235,7 +235,7 @@ CvTacticalAnalysisMap::~CvTacticalAnalysisMap(void)
 void CvTacticalAnalysisMap::Reset(PlayerTypes ePlayer)
 {
 	m_ePlayer = ePlayer;
-	m_iTurnSliceBuilt = -1;
+	m_iLastUpdate = -1;
 
 	m_vPlotZoneID = vector<int>( GC.getMap().numPlots(), -1 );
 	m_vDominanceZones.clear();
@@ -545,7 +545,7 @@ bool CvTacticalAnalysisMap::IsUpToDate()
 		return false;
 	
 	//explicitly invalidated
-	if (m_iTurnSliceBuilt == -1)
+	if (m_iLastUpdate == -1)
 		return false;
 
 	//otherwise consider it up to date if it's not our turn
@@ -553,12 +553,12 @@ bool CvTacticalAnalysisMap::IsUpToDate()
 		return true;
 
 	//default check for age
-	return (m_iTurnSliceBuilt == GC.getGame().getTurnSlice());
+	return (m_iLastUpdate == GC.getGame().getGameTurn());
 }
 
 void CvTacticalAnalysisMap::Invalidate()
 {
-	m_iTurnSliceBuilt = -1;
+	m_iLastUpdate = -1;
 }
 
 /// Fill the map with data for this AI player's turn
@@ -595,7 +595,7 @@ int CvTacticalAnalysisMap::GetNumZones()
 void CvTacticalAnalysisMap::CreateDominanceZones()
 {
 	//important, set this first so that lookups don't get us into an infinite loop
-	m_iTurnSliceBuilt = GC.getGame().getTurnSlice();
+	m_iLastUpdate = GC.getGame().getGameTurn();
 	m_vPlotZoneID = vector<int>( GC.getMap().numPlots(), 0 );
 	m_vDominanceZones.clear();
 	m_IdLookup.clear();
@@ -1238,7 +1238,7 @@ bool CvTacticalAnalysisMap::IsInEnemyDominatedZone(const CvPlot* pPlot)
 FDataStream& operator<<(FDataStream& saveTo, const CvTacticalAnalysisMap& readFrom)
 {
 	saveTo << readFrom.m_ePlayer;
-	saveTo << readFrom.m_iTurnSliceBuilt;
+	saveTo << readFrom.m_iLastUpdate;
 
 	saveTo << readFrom.m_vPlotZoneID;
 	saveTo << readFrom.m_vDominanceZones;
@@ -1249,7 +1249,7 @@ FDataStream& operator<<(FDataStream& saveTo, const CvTacticalAnalysisMap& readFr
 FDataStream& operator>>(FDataStream& loadFrom, CvTacticalAnalysisMap& writeTo)
 {
 	loadFrom >> writeTo.m_ePlayer;
-	loadFrom >> writeTo.m_iTurnSliceBuilt;
+	loadFrom >> writeTo.m_iLastUpdate;
 
 	loadFrom >> writeTo.m_vPlotZoneID;
 	loadFrom >> writeTo.m_vDominanceZones;

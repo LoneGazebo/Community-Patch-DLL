@@ -41,39 +41,22 @@ Values
 ('RESOURCE_BRAZILWOOD', 'FLAVOR_HAPPINESS', '10');
 
 -- Clear out old values.
-DELETE FROM Resource_YieldChanges WHERE ResourceType = 'RESOURCE_FISH';
-DELETE FROM Resource_YieldChanges WHERE ResourceType = 'RESOURCE_BANANA';
-DELETE FROM Resource_YieldChanges WHERE ResourceType = 'RESOURCE_COW';
-DELETE FROM Resource_YieldChanges WHERE ResourceType = 'RESOURCE_SHEEP';
-DELETE FROM Resource_YieldChanges WHERE ResourceType = 'RESOURCE_URANIUM';
-DELETE FROM Resource_YieldChanges WHERE ResourceType = 'RESOURCE_CITRUS';
-DELETE FROM Resource_YieldChanges WHERE ResourceType = 'RESOURCE_CLOVES';
-DELETE FROM Resource_YieldChanges WHERE ResourceType = 'RESOURCE_COCOA';
-DELETE FROM Resource_YieldChanges WHERE ResourceType = 'RESOURCE_COPPER';
-DELETE FROM Resource_YieldChanges WHERE ResourceType = 'RESOURCE_COTTON';
-DELETE FROM Resource_YieldChanges WHERE ResourceType = 'RESOURCE_CRAB';
-DELETE FROM Resource_YieldChanges WHERE ResourceType = 'RESOURCE_DYE';
-DELETE FROM Resource_YieldChanges WHERE ResourceType = 'RESOURCE_FUR';
-DELETE FROM Resource_YieldChanges WHERE ResourceType = 'RESOURCE_GEMS';
-DELETE FROM Resource_YieldChanges WHERE ResourceType = 'RESOURCE_GOLD';
-DELETE FROM Resource_YieldChanges WHERE ResourceType = 'RESOURCE_INCENSE';
-DELETE FROM Resource_YieldChanges WHERE ResourceType = 'RESOURCE_IVORY';
-DELETE FROM Resource_YieldChanges WHERE ResourceType = 'RESOURCE_MARBLE';
-DELETE FROM Resource_YieldChanges WHERE ResourceType = 'RESOURCE_NUTMEG';
-DELETE FROM Resource_YieldChanges WHERE ResourceType = 'RESOURCE_PEARLS';
-DELETE FROM Resource_YieldChanges WHERE ResourceType = 'RESOURCE_PEPPER';
-DELETE FROM Resource_YieldChanges WHERE ResourceType = 'RESOURCE_SALT';
-DELETE FROM Resource_YieldChanges WHERE ResourceType = 'RESOURCE_SILK';
-DELETE FROM Resource_YieldChanges WHERE ResourceType = 'RESOURCE_SILVER';
-DELETE FROM Resource_YieldChanges WHERE ResourceType = 'RESOURCE_SPICES';
-DELETE FROM Resource_YieldChanges WHERE ResourceType = 'RESOURCE_SUGAR';
-DELETE FROM Resource_YieldChanges WHERE ResourceType = 'RESOURCE_TRUFFLES';
-DELETE FROM Resource_YieldChanges WHERE ResourceType = 'RESOURCE_WHALE';
-DELETE FROM Resource_YieldChanges WHERE ResourceType = 'RESOURCE_WINE';
+DELETE FROM Resource_YieldChanges;
 
 INSERT INTO Resource_YieldChanges
 	(ResourceType, YieldType, Yield)
 VALUES
+	('RESOURCE_IRON', 'YIELD_PRODUCTION', 1),
+	('RESOURCE_HORSE', 'YIELD_PRODUCTION', 1),
+	('RESOURCE_COAL', 'YIELD_PRODUCTION', 1),
+	('RESOURCE_OIL', 'YIELD_PRODUCTION', 1),
+	('RESOURCE_ALUMINUM', 'YIELD_PRODUCTION', 1),
+	('RESOURCE_STONE', 'YIELD_PRODUCTION', 1),
+	('RESOURCE_WHEAT', 'YIELD_FOOD', 1),
+	('RESOURCE_DEER', 'YIELD_FOOD', 1),
+	('RESOURCE_JEWELRY', 'YIELD_GOLD', 2),
+	('RESOURCE_PORCELAIN', 'YIELD_GOLD', 2),
+	('RESOURCE_BISON', 'YIELD_FOOD', 1),
 	('RESOURCE_FISH', 'YIELD_FOOD', 2),
 	('RESOURCE_COW', 'YIELD_PRODUCTION', 1),
 	('RESOURCE_SHEEP', 'YIELD_FOOD', 1),
@@ -171,20 +154,11 @@ VALUES
 	('RESOURCE_WHALE', 'YIELD_SCIENCE', 10);
 
 -- Change Spices for Indonesia
-	UPDATE Resources SET Flatlands = '1' WHERE Type = 'RESOURCE_NUTMEG';
-	UPDATE Resources SET MaxLatitude = '90' WHERE Type = 'RESOURCE_NUTMEG';
-	UPDATE Resources SET ArtDefineTag = 'ART_DEF_RESOURCE_NUTMEG' WHERE Type = 'RESOURCE_NUTMEG';
-	UPDATE Resources SET TechCityTrade = 'TECH_CALENDAR' WHERE Type = 'RESOURCE_NUTMEG';
+	UPDATE Resources SET Flatlands = '1', MaxLatitude = '90', ArtDefineTag = 'ART_DEF_RESOURCE_NUTMEG', TechCityTrade = 'TECH_CALENDAR' WHERE Type = 'RESOURCE_NUTMEG';
 
-	UPDATE Resources SET Flatlands = '1' WHERE Type = 'RESOURCE_CLOVES';
-	UPDATE Resources SET MaxLatitude = '90' WHERE Type = 'RESOURCE_CLOVES';
-	UPDATE Resources SET ArtDefineTag = 'ART_DEF_RESOURCE_CLOVES' WHERE Type = 'RESOURCE_CLOVES';
-	UPDATE Resources SET TechCityTrade = 'TECH_CALENDAR' WHERE Type = 'RESOURCE_CLOVES';
+	UPDATE Resources SET Flatlands = '1', MaxLatitude = '90', ArtDefineTag = 'ART_DEF_RESOURCE_CLOVES', TechCityTrade = 'TECH_CALENDAR' WHERE Type = 'RESOURCE_CLOVES';
 
-	UPDATE Resources SET Flatlands = '1' WHERE Type = 'RESOURCE_PEPPER';
-	UPDATE Resources SET MaxLatitude = '90' WHERE Type = 'RESOURCE_PEPPER';
-	UPDATE Resources SET ArtDefineTag = 'ART_DEF_RESOURCE_PEPPER' WHERE Type = 'RESOURCE_PEPPER';
-	UPDATE Resources SET TechCityTrade = 'TECH_CALENDAR' WHERE Type = 'RESOURCE_PEPPER';
+	UPDATE Resources SET Flatlands = '1', MaxLatitude = '90', ArtDefineTag = 'ART_DEF_RESOURCE_PEPPER', TechCityTrade = 'TECH_CALENDAR' WHERE Type = 'RESOURCE_PEPPER';
 
 INSERT INTO Resource_TerrainBooleans
 	(ResourceType, TerrainType)
@@ -225,11 +199,7 @@ VALUES	('IMPROVEMENT_PLANTATION', 	'RESOURCE_CLOVES', 	'YIELD_FAITH', 		1),
 -- Move Coal to Steampower
 
 	UPDATE Resources
-	SET TechReveal = 'TECH_STEAM_POWER'
-	WHERE Type = 'RESOURCE_COAL';
-
-	UPDATE Resources
-	SET TechCityTrade = 'TECH_STEAM_POWER'
+	SET TechReveal = 'TECH_STEAM_POWER', TechCityTrade = 'TECH_STEAM_POWER'
 	WHERE Type = 'RESOURCE_COAL';
 
 -- Move Oil to Combustion
@@ -239,211 +209,105 @@ VALUES	('IMPROVEMENT_PLANTATION', 	'RESOURCE_CLOVES', 	'YIELD_FAITH', 		1),
 	WHERE Type = 'BUILD_WELL';
 	
 	UPDATE Resources
-	SET TechReveal = 'TECH_COMBUSTION'
-	WHERE Type = 'RESOURCE_OIL';
-
-	UPDATE Resources
-	SET TechCityTrade = 'TECH_COMBUSTION'
+	SET TechReveal = 'TECH_COMBUSTION', TechCityTrade = 'TECH_COMBUSTION'
 	WHERE Type = 'RESOURCE_OIL';
 
 	-- Stone good for Ancient and Classical wonders
 	UPDATE Resources
-	SET WonderProductionMod = '10'
-	WHERE Type = 'RESOURCE_STONE';
-
-	UPDATE Resources
-	SET WonderProductionModObsoleteEra = 'ERA_MEDIEVAL'
+	SET WonderProductionMod = '10', WonderProductionModObsoleteEra = 'ERA_MEDIEVAL'
 	WHERE Type = 'RESOURCE_STONE';
 
 	-- Marble good for Classical thru Renaissance wonders
 	UPDATE Resources
-	SET WonderProductionMod = '15'
+	SET WonderProductionMod = '15', WonderProductionModObsoleteEra = 'ERA_INDUSTRIAL'
 	WHERE Type = 'RESOURCE_MARBLE';
 
-	UPDATE Resources
-	SET WonderProductionModObsoleteEra = 'ERA_INDUSTRIAL'
-	WHERE Type = 'RESOURCE_MARBLE';
-
-	-- Resource Monopoly Changes
+	-- Resource Monopoly Changes (would probably better to set all to 1 and update 0s)
 	UPDATE Resources
 	SET IsMonopoly = '1'
-	WHERE Type = 'RESOURCE_BRAZILWOOD';
-
-	UPDATE Resources
-	SET IsMonopoly = '1'
-	WHERE Type = 'RESOURCE_ALUMINUM';
+	WHERE Type IN 
+	('RESOURCE_BRAZILWOOD',
+	'RESOURCE_ALUMINUM',
+	'RESOURCE_CITRUS',
+	'RESOURCE_CLOVES',
+	'RESOURCE_COAL',
+	'RESOURCE_COCOA',
+	'RESOURCE_COPPER',
+	'RESOURCE_COTTON',
+	'RESOURCE_CRAB',
+	'RESOURCE_DYE',
+	'RESOURCE_FUR',
+	'RESOURCE_GEMS',
+	'RESOURCE_GOLD',
+	'RESOURCE_HORSE',
+	'RESOURCE_INCENSE',
+	'RESOURCE_IRON',
+	'RESOURCE_IVORY',
+	'RESOURCE_JEWELRY',
+	'RESOURCE_MARBLE', 
+	'RESOURCE_NUTMEG', 
+	'RESOURCE_OIL', 
+	'RESOURCE_PEARLS', 
+	'RESOURCE_PEPPER',  
+	'RESOURCE_PORCELAIN',
+	'RESOURCE_SALT', 
+	'RESOURCE_SILK',  
+	'RESOURCE_SILVER', 
+	'RESOURCE_SPICES', 
+	'RESOURCE_SUGAR', 
+	'RESOURCE_TRUFFLES',
+	'RESOURCE_URANIUM', 
+	'RESOURCE_WHALE', 
+	'RESOURCE_WINE');
 
 	UPDATE Resources
 	SET MonopolyHealBonus = '5'
 	WHERE Type = 'RESOURCE_ALUMINUM';
 
 	UPDATE Resources
-	SET IsMonopoly = '1'
-	WHERE Type = 'RESOURCE_CITRUS';
-
-	UPDATE Resources
-	SET IsMonopoly = '1'
-	WHERE Type = 'RESOURCE_CLOVES';
-
-	UPDATE Resources
 	SET MonopolyHappiness = '6'
 	WHERE Type = 'RESOURCE_CLOVES';
 
 	UPDATE Resources
-	SET IsMonopoly = '1'
+	SET  MonopolyMovementBonus = '1'
 	WHERE Type = 'RESOURCE_COAL';
-
-	UPDATE Resources
-	SET MonopolyMovementBonus = '1'
-	WHERE Type = 'RESOURCE_COAL';
-
-	UPDATE Resources
-	SET IsMonopoly = '1'
-	WHERE Type = 'RESOURCE_COCOA';
-
-	UPDATE Resources
-	SET IsMonopoly = '1'
-	WHERE Type = 'RESOURCE_COPPER';
-
-	UPDATE Resources
-	SET IsMonopoly = '1'
-	WHERE Type = 'RESOURCE_COTTON';
-
-	UPDATE Resources
-	SET IsMonopoly = '1'
-	WHERE Type = 'RESOURCE_CRAB';
-
-	UPDATE Resources
-	SET IsMonopoly = '1'
-	WHERE Type = 'RESOURCE_DYE';
-
-	UPDATE Resources
-	SET IsMonopoly = '1'
-	WHERE Type = 'RESOURCE_FUR';
 
 	UPDATE Resources
 	SET MonopolyHappiness = '6'
 	WHERE Type = 'RESOURCE_FUR';
-
-	UPDATE Resources
-	SET IsMonopoly = '1'
-	WHERE Type = 'RESOURCE_GEMS';
-
-	UPDATE Resources
-	SET IsMonopoly = '1'
-	WHERE Type = 'RESOURCE_GOLD';
 
 	UPDATE Resources
 	SET MonopolyGALength = '25'
 	WHERE Type = 'RESOURCE_GOLD';
 
 	UPDATE Resources
-	SET IsMonopoly = '1'
-	WHERE Type = 'RESOURCE_HORSE';
-
-	UPDATE Resources
 	SET MonopolyAttackBonus = '10'
 	WHERE Type = 'RESOURCE_HORSE';
-
-	UPDATE Resources
-	SET IsMonopoly = '1'
-	WHERE Type = 'RESOURCE_INCENSE';
-
-	UPDATE Resources
-	SET IsMonopoly = '1'
-	WHERE Type = 'RESOURCE_IRON';
 
 	UPDATE Resources
 	SET MonopolyDefenseBonus = '10'
 	WHERE Type = 'RESOURCE_IRON';
 
 	UPDATE Resources
-	SET IsMonopoly = '1'
-	WHERE Type = 'RESOURCE_IVORY';
-
-	UPDATE Resources
 	SET MonopolyGALength = '25'
 	WHERE Type = 'RESOURCE_IVORY';
-
-	UPDATE Resources
-	SET IsMonopoly = '1'
-	WHERE Type = 'RESOURCE_JEWELRY';
 
 	UPDATE Resources
 	SET MonopolyHappiness = '6'
 	WHERE Type = 'RESOURCE_JEWELRY';
 
 	UPDATE Resources
-	SET IsMonopoly = '1'
-	WHERE Type = 'RESOURCE_MARBLE';
-
-	UPDATE Resources
-	SET IsMonopoly = '1'
-	WHERE Type = 'RESOURCE_NUTMEG';
-
-	UPDATE Resources
-	SET IsMonopoly = '1'
-	WHERE Type = 'RESOURCE_OIL';
-
-	UPDATE Resources
 	SET MonopolyXPBonus = '2'
 	WHERE Type = 'RESOURCE_OIL';
-
-	UPDATE Resources
-	SET IsMonopoly = '1'
-	WHERE Type = 'RESOURCE_PEARLS';
-
-	UPDATE Resources
-	SET IsMonopoly = '1'
-	WHERE Type = 'RESOURCE_PEPPER';
-	
-	UPDATE Resources
-	SET IsMonopoly = '1'
-	WHERE Type = 'RESOURCE_PORCELAIN';
 
 	UPDATE Resources
 	SET MonopolyGALength = '25'
 	WHERE Type = 'RESOURCE_PORCELAIN';
 
 	UPDATE Resources
-	SET IsMonopoly = '1'
-	WHERE Type = 'RESOURCE_SALT';
-
-	UPDATE Resources
-	SET IsMonopoly = '1'
-	WHERE Type = 'RESOURCE_SILK';
-
-	UPDATE Resources
-	SET IsMonopoly = '1'
-	WHERE Type = 'RESOURCE_SILVER';
-
-	UPDATE Resources
-	SET IsMonopoly = '1'
-	WHERE Type = 'RESOURCE_SPICES';
-
-	UPDATE Resources
-	SET IsMonopoly = '1'
-	WHERE Type = 'RESOURCE_SUGAR';
-
-	UPDATE Resources
-	SET IsMonopoly = '1'
-	WHERE Type = 'RESOURCE_TRUFFLES';
-
-	UPDATE Resources
-	SET IsMonopoly = '1'
-	WHERE Type = 'RESOURCE_URANIUM';
-
-	UPDATE Resources
 	SET MonopolyAttackBonus = '10'
 	WHERE Type = 'RESOURCE_URANIUM';
 
-	UPDATE Resources
-	SET IsMonopoly = '1'
-	WHERE Type = 'RESOURCE_WHALE';
-
-	UPDATE Resources
-	SET IsMonopoly = '1'
-	WHERE Type = 'RESOURCE_WINE';
 	-- Text files for changes.
 
 	-- Other Text
@@ -459,7 +323,7 @@ VALUES	('IMPROVEMENT_PLANTATION', 	'RESOURCE_CLOVES', 	'YIELD_FAITH', 		1),
 
 	UPDATE Resources
 	SET Help = 'TXT_KEY_RESOURCE_MONOPOLY_YIELD_GOLD'
-	WHERE Type = 'RESOURCE_COTTON';
+	WHERE Type IN ('RESOURCE_COTTON', 'RESOURCE_DYE');
 
 	UPDATE Resources
 	SET Help = 'TXT_KEY_RESOURCE_MONOPOLY_YIELD_PRODUCTION_ALUMINUM'
@@ -471,7 +335,7 @@ VALUES	('IMPROVEMENT_PLANTATION', 	'RESOURCE_CLOVES', 	'YIELD_FAITH', 		1),
 
 	UPDATE Resources
 	SET Help = 'TXT_KEY_RESOURCE_MONOPOLY_YIELD_FOOD'
-	WHERE Type = 'RESOURCE_CRAB';
+	WHERE Type IN ('RESOURCE_CRAB', 'RESOURCE_TRUFFLES', 'RESOURCE_PEPPER');
 
 	UPDATE Resources
 	SET Help = 'TXT_KEY_RESOURCE_MONOPOLY_YIELD_SCIENCE'
@@ -479,15 +343,7 @@ VALUES	('IMPROVEMENT_PLANTATION', 	'RESOURCE_CLOVES', 	'YIELD_FAITH', 		1),
 
 	UPDATE Resources
 	SET Help = 'TXT_KEY_RESOURCE_MONOPOLY_YIELD_FAITH'
-	WHERE Type = 'RESOURCE_PEARLS';
-
-	UPDATE Resources
-	SET Help = 'TXT_KEY_RESOURCE_MONOPOLY_YIELD_FAITH'
-	WHERE Type = 'RESOURCE_INCENSE';
-
-	UPDATE Resources
-	SET Help = 'TXT_KEY_RESOURCE_MONOPOLY_YIELD_FAITH'
-	WHERE Type = 'RESOURCE_WINE';
+	WHERE Type IN ('RESOURCE_PEARLS', 'RESOURCE_INCENSE', 'RESOURCE_WINE');
 
 	UPDATE Resources
 	SET Help = 'TXT_KEY_RESOURCE_MONOPOLY_YIELD_SCIENCE_OIL'
@@ -498,51 +354,26 @@ VALUES	('IMPROVEMENT_PLANTATION', 	'RESOURCE_CLOVES', 	'YIELD_FAITH', 		1),
 	WHERE Type = 'RESOURCE_HORSE';
 
 	UPDATE Resources
-	SET Help = 'TXT_KEY_RESOURCE_MONOPOLY_YIELD_GOLD'
-	WHERE Type = 'RESOURCE_DYE';
-
-	UPDATE Resources
-	SET Help = 'TXT_KEY_RESOURCE_MONOPOLY_YIELD_FOOD'
-	WHERE Type = 'RESOURCE_TRUFFLES';
-
-	UPDATE Resources
 	SET Help = 'TXT_KEY_RESOURCE_MONOPOLY_YIELD_CULTURE'
-	WHERE Type = 'RESOURCE_COCOA';
-
-	UPDATE Resources
-	SET Help = 'TXT_KEY_RESOURCE_MONOPOLY_YIELD_CULTURE'
-	WHERE Type = 'RESOURCE_SPICES';
-
-	
-	UPDATE Resources
-	SET Help = 'TXT_KEY_RESOURCE_MONOPOLY_YIELD_CULTURE'
-	WHERE Type = 'RESOURCE_SILVER';
+	WHERE Type IN ('RESOURCE_COCOA', 'RESOURCE_SPICES', 'RESOURCE_SILVER');
 
 -- Mod Text
 
 	UPDATE Resources
 	SET Help = 'TXT_KEY_RESOURCE_MONOPOLY_MOD_GOLD'
-	WHERE Type = 'RESOURCE_GEMS';
+	WHERE Type IN ('RESOURCE_GEMS', 'RESOURCE_SILK');
 
 	UPDATE Resources
 	SET Help = 'TXT_KEY_RESOURCE_MONOPOLY_MOD_PRODUCTION'
-	WHERE Type = 'RESOURCE_COPPER';
+	WHERE Type IN ('RESOURCE_COPPER', 'RESOURCE_NUTMEG');
 
 	UPDATE Resources
 	SET Help = 'TXT_KEY_RESOURCE_MONOPOLY_MOD_PRODUCTION_IRON'
 	WHERE Type = 'RESOURCE_IRON';
 
 	UPDATE Resources
-	SET Help = 'TXT_KEY_RESOURCE_MONOPOLY_MOD_GOLD'
-	WHERE Type = 'RESOURCE_SILK';
-
-	UPDATE Resources
 	SET Help = 'TXT_KEY_RESOURCE_MONOPOLY_MOD_FOOD'
-	WHERE Type = 'RESOURCE_SALT';
-
-	UPDATE Resources
-	SET Help = 'TXT_KEY_RESOURCE_MONOPOLY_MOD_FOOD'
-	WHERE Type = 'RESOURCE_SUGAR';
+	WHERE Type IN ('RESOURCE_SALT', 'RESOURCE_SUGAR');
 
 	UPDATE Resources
 	SET Help = 'TXT_KEY_RESOURCE_MONOPOLY_MOD_CULTURE'
@@ -557,16 +388,8 @@ VALUES	('IMPROVEMENT_PLANTATION', 	'RESOURCE_CLOVES', 	'YIELD_FAITH', 		1),
 	WHERE Type = 'RESOURCE_WHALE';
 
 	UPDATE Resources
-	SET Help = 'TXT_KEY_RESOURCE_MONOPOLY_MOD_PRODUCTION'
-	WHERE Type = 'RESOURCE_NUTMEG';
-
-	UPDATE Resources
 	SET Help = 'TXT_KEY_RESOURCE_MONOPOLY_HAPPINESS'
 	WHERE Type = 'RESOURCE_CLOVES';
-
-	UPDATE Resources
-	SET Help = 'TXT_KEY_RESOURCE_MONOPOLY_YIELD_FOOD'
-	WHERE Type = 'RESOURCE_PEPPER';
 
 
 	-- Strategic Values

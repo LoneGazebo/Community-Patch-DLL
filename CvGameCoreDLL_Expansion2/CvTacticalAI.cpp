@@ -6097,7 +6097,7 @@ CvPlot* TacticalAIHelpers::FindSafestPlotInReach(const CvUnit* pUnit, bool bAllo
 		bool bIsInTerritory = (pPlot->getTeam() == kPlayer.getTeam());
 		// citadels have low danger but not zero. so we need to make sure we're not abandoning them too easily
 		bool bIsInCityOrCitadel = (pPlot->isFriendlyCity(*pUnit) && !pPlot->getPlotCity()->isInDangerOfFalling()) || 
-										(pUnit->IsCombatUnit() && TacticalAIHelpers::IsPlayerCitadel(pUnit->plot(), pUnit->getOwner()));
+										(pUnit->IsCombatUnit() && TacticalAIHelpers::IsPlayerCitadel(pPlot, pUnit->getOwner()));
 
 		//taking cover only works if the defender will not move away!
 		CvUnit* pDefender = pPlot->getBestDefender(pUnit->getOwner());
@@ -9641,11 +9641,11 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestDefensiveAssignment(const
 	if (vUnits.empty() || vUnits.front()==NULL || pTarget==NULL)
 		return result;
 
-	//meta parameters depending on difficulty setting
-	int iMinCompletedPositions = GC.getGame().getHandicapType() < 2 ? 17 : 23;
+	//meta parameters depending on difficulty setting. bit lower than for offensive moves to optimize for runtime instead of quality (there are no enemies around)
+	int iMinCompletedPositions = GC.getGame().getHandicapType() < 2 ? 7 : 13;
 	int iMaxCompletedPositions = GC.getGame().getHandicapType() < 2 ? 23 : 54;
-	int iMaxBranches = GC.getGame().getHandicapType() < 2 ? 3 : 5;
-	int iMaxChoicesPerUnit = GC.getGame().getHandicapType() < 2 ? 3 : 5;
+	int iMaxBranches = GC.getGame().getHandicapType() < 2 ? 2 : 3;
+	int iMaxChoicesPerUnit = GC.getGame().getHandicapType() < 2 ? 2 : 3;
 
 	//set up the initial position
 	PlayerTypes ePlayer = vUnits.front()->getOwner();

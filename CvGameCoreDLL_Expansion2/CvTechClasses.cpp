@@ -1931,20 +1931,28 @@ void CvPlayerTechs::CheckHasUUTech()
 					CvUnitEntry* pkUnitEntry = GC.getUnitInfo(eCivilizationUnit);
 					if (pkUnitEntry)
 					{
-						int iTech = pkUnitEntry->GetPrereqAndTech();
-						int iObsoleteTech = pkUnitEntry->GetObsoleteTech();
-						if (iTech != NO_TECH && m_pPlayer->HasTech((TechTypes)iTech))
+						// No recon units!
+						if (pkUnitEntry->GetDefaultUnitAIType() == UNITAI_EXPLORE || pkUnitEntry->GetDefaultUnitAIType() == UNITAI_EXPLORE_SEA)
+							continue;
+
+						// Must be a combat or combat support unit
+						if (pkUnitEntry->GetCombat() > 0 || pkUnitEntry->GetRangedCombat() > 0 || pkUnitEntry->GetCultureBombRadius() > 0 || pkUnitEntry->IsCanRepairFleet() || pkUnitEntry->IsCityAttackSupport() || pkUnitEntry->GetNukeDamageLevel() != -1)
 						{
-							bHas = true;
-						}
-						else if (iTech == NO_TECH)
-						{
-							bHas = true;
-						}
-						if (iObsoleteTech != NO_TECH && m_pPlayer->HasTech((TechTypes)iObsoleteTech))
-						{
-							bHas = false;
-						}			
+							int iTech = pkUnitEntry->GetPrereqAndTech();
+							int iObsoleteTech = pkUnitEntry->GetObsoleteTech();
+							if (iTech != NO_TECH && m_pPlayer->HasTech((TechTypes)iTech))
+							{
+								bHas = true;
+							}
+							else if (iTech == NO_TECH)
+							{
+								bHas = true;
+							}
+							if (iObsoleteTech != NO_TECH && m_pPlayer->HasTech((TechTypes)iObsoleteTech))
+							{
+								bHas = false;
+							}
+						}					
 					}
 				}
 			}
@@ -1993,27 +2001,35 @@ void CvPlayerTechs::CheckWillHaveUUTechSoon()
 					CvUnitEntry* pkUnitEntry = GC.getUnitInfo(eCivilizationUnit);
 					if (pkUnitEntry)
 					{
-						int iTech = pkUnitEntry->GetPrereqAndTech();
-						if (iTech != NO_TECH && !m_pPlayer->HasTech((TechTypes)iTech))
+						// No recon units!
+						if (pkUnitEntry->GetDefaultUnitAIType() == UNITAI_EXPLORE || pkUnitEntry->GetDefaultUnitAIType() == UNITAI_EXPLORE_SEA)
+							continue;
+
+						// Must be a combat or combat support unit
+						if (pkUnitEntry->GetCombat() > 0 || pkUnitEntry->GetRangedCombat() > 0 || pkUnitEntry->GetCultureBombRadius() > 0 || pkUnitEntry->IsCanRepairFleet() || pkUnitEntry->IsCityAttackSupport() || pkUnitEntry->GetNukeDamageLevel() != -1)
 						{
-							CvTechEntry* pkTechInfo = GC.getTechInfo((TechTypes)iTech);
-							if (pkTechInfo)
+							int iTech = pkUnitEntry->GetPrereqAndTech();
+							if (iTech != NO_TECH && !m_pPlayer->HasTech((TechTypes)iTech))
 							{
-								if (IsResearchingTech((TechTypes)iTech))
+								CvTechEntry* pkTechInfo = GC.getTechInfo((TechTypes)iTech);
+								if (pkTechInfo)
 								{
-									bWillHaveSoon = true;
-									break;
-								}
-								else
-								{
-									// See if it is possible based on AND prereqs
-									for (int iJ = 0; iJ < /*6*/ GD_INT_GET(NUM_AND_TECH_PREREQS); iJ++)
+									if (IsResearchingTech((TechTypes)iTech))
 									{
-										TechTypes ePrereq = (TechTypes)pkTechInfo->GetPrereqAndTechs(iJ);
-										if (ePrereq != NO_TECH && IsResearchingTech(ePrereq))
+										bWillHaveSoon = true;
+										break;
+									}
+									else
+									{
+										// See if it is possible based on AND prereqs
+										for (int iJ = 0; iJ < /*6*/ GD_INT_GET(NUM_AND_TECH_PREREQS); iJ++)
 										{
-											bWillHaveSoon = true;
-											break;
+											TechTypes ePrereq = (TechTypes)pkTechInfo->GetPrereqAndTechs(iJ);
+											if (ePrereq != NO_TECH && IsResearchingTech(ePrereq))
+											{
+												bWillHaveSoon = true;
+												break;
+											}
 										}
 									}
 								}

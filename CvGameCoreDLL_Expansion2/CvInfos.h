@@ -17,6 +17,7 @@
 #ifndef CV_INFO_H
 #define CV_INFO_H
 
+#include "CvDiplomacyAIEnums.h"
 #include "CvGameCoreStructs.h"
 
 #include <unordered_map>
@@ -2137,6 +2138,10 @@ public:
 	int GetNeutralBias(bool bMinor) const;
 	int GetFriendlyBias(bool bMinor) const;
 
+	VictoryPursuitTypes GetPrimaryVictoryPursuit() const;
+	VictoryPursuitTypes GetSecondaryVictoryPursuit() const;
+	VictoryPursuitTypes VictoryPursuitTypeFromString(const char* szStr);
+
 	const char* getArtDefineTag() const;
 	void setArtDefineTag(const char* szVal);
 
@@ -2168,6 +2173,9 @@ protected:
 	int* m_piMinorCivApproachBiases;
 
 	CvString m_strArtDefineTag;
+
+	VictoryPursuitTypes m_ePrimaryVictoryPursuit;
+	VictoryPursuitTypes m_eSecondaryVictoryPursuit;
 
 	// Arrays
 	bool* m_pbTraits;

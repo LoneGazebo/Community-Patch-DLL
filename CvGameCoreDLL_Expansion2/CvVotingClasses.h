@@ -508,6 +508,7 @@ public:
 
 		int m_startingVotesCacheTime; //not serialized
 		int m_startingVotesCached; //not serialized
+		int m_startingVotesCachedIfUN; // not serialized
 	};
 	typedef vector<Member> MemberList;
 

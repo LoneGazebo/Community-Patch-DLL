@@ -1854,7 +1854,7 @@ end
 function GetMapScriptInfo()
 	local world_age, temperature, rainfall, sea_level = GetCoreMapOptions()
 	return {
-		Name = "Communitu_79a v2.3.1",
+		Name = "Communitu_79a v2.3.2",
 		Description = "Communitas mapscript for Vox Populi",
 		IsAdvancedMap = false,
 		SupportsMultiplayer = true,
@@ -4560,6 +4560,21 @@ function AddFeatures()
 	end
 
 	ConnectPolarSeasToOceans()
+
+	-- Remove all rivers bordering lakes or oceans
+	for _, plot in Plots() do
+		if Plot_IsWater(plot) then
+			for edgeDirection = 0, DirectionTypes.NUM_DIRECTION_TYPES - 1 do
+				Plot_SetRiver(plot, edgeDirection, mg.flowNONE);
+			end
+		end
+	end
+
+	-- Remove flood plains from non-river deserts
+	if plot:GetFeatureType() == FeatureTypes.FEATURE_FLOOD_PLAINS and not plot:CanHaveFeature(FeatureTypes.FEATURE_FLOOD_PLAINS) then
+		plot:SetFeatureType(FeatureTypes.FEATURE_NONE, -1);
+		return
+	end
 
 	if debugTime then print(string.format("%5s ms, AddFeatures %s", math.floor((os.clock() - timeStart) * 1000), "End")) end
 end

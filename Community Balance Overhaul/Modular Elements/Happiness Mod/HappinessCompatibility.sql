@@ -1,6 +1,6 @@
 CREATE TRIGGER HappinessMod_Buildings
 AFTER INSERT ON Civilization_BuildingClassOverrides
-WHEN EXISTS (SELECT BuildingType FROM Civilization_BuildingClassOverrides WHERE BuildingType = NEW.BuildingType) AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1)
+WHEN EXISTS (SELECT BuildingType FROM Civilization_BuildingClassOverrides WHERE BuildingType = NEW.BuildingType)
 BEGIN
 
 UPDATE Buildings
@@ -26,7 +26,7 @@ END;
 
 CREATE TRIGGER Buildings_Tourism
 AFTER INSERT ON Civilization_BuildingClassOverrides
-WHEN EXISTS (SELECT BuildingType FROM Civilization_BuildingClassOverrides WHERE BuildingType = NEW.BuildingType) AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1)
+WHEN EXISTS (SELECT BuildingType FROM Civilization_BuildingClassOverrides WHERE BuildingType = NEW.BuildingType)
 BEGIN
 
 	UPDATE Buildings
@@ -34,6 +34,4 @@ BEGIN
 	    FinishLandTRTourism = (SELECT FinishLandTRTourism FROM Buildings WHERE Type IN (SELECT DefaultBuilding FROM BuildingClasses WHERE Type = NEW.BuildingClassType)),
 	    FinishSeaTRTourism = (SELECT FinishSeaTRTourism FROM Buildings WHERE Type IN (SELECT DefaultBuilding FROM BuildingClasses WHERE Type = NEW.BuildingClassType))
 	WHERE Type = New.BuildingType;
-	
 END;
-	

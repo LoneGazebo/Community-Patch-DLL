@@ -2,7 +2,7 @@
 <Mod id="be2d13ee-d18d-410e-8f04-7cd19cd99a98" version="156">
   <Properties>
     <Name>(5) More Luxuries</Name>
-    <Teaser>(1.3.4) More Luxuries for VP: Adds nine more luxuries, one more CS luxury, and the Terra map.</Teaser>
+    <Teaser>(1.4.1) More Luxuries for VP: Adds nine more luxuries, one more CS luxury, and the Terra map.</Teaser>
     <Description>Please see this mod's Steam Workshop page.[NEWLINE][NEWLINE]NOTE: Optimized map resource placement code has been moved to AssignStartingPlots.lua in the Compatibility Files.</Description>
     <Authors>Barathor</Authors>
     <HideSetupGame>0</HideSetupGame>
@@ -18,14 +18,14 @@
     <ReloadUnitSystem>1</ReloadUnitSystem>
   </Properties>
   <Dependencies>
-    <Mod id="d1b6328c-ff44-4b0d-aad7-c657f83610cd" minversion="101" maxversion="999" title="(1) Community Patch" />
+    <Mod id="d1b6328c-ff44-4b0d-aad7-c657f83610cd" minversion="102" maxversion="999" title="(1) Community Patch" />
     <Mod id="8411a7a8-dad3-4622-a18e-fcc18324c799" minversion="14" maxversion="999" title="(2) Community Balance Overhaul" />
   </Dependencies>
   <References />
   <Blocks />
   <Files>
-    <File md5="27FCA688E5F1499678ED13368B9BC204" import="1">Art/Font Icon Atlas/fonticons_newluxuries.dds</File>
-    <File md5="51DC67899AE0FEBFB906DC214482BF0A" import="1">Art/Font Icon Atlas/FontIcons_NewLuxuries.ggxml</File>
+    <File md5="3BFD7F63FBF762309C933DC0D8B7C72E" import="1">Art/Font Icon Atlas/fonticons_newluxuries.dds</File>
+    <File md5="524DE1EA4945E98B0446DDDA3E15520F" import="1">Art/Font Icon Atlas/FontIcons_NewLuxuries.ggxml</File>
     <File md5="9D6EBC1E2A1A35AA1C15C8C746759549" import="1">Art/Icon Atlas/NewLuxuries_ResourceAtlas256.dds</File>
     <File md5="1609FDC8E77F7B1EDF1DE08D919043CA" import="1">Art/Icon Atlas/NewLuxuries_ResourceAtlas45.dds</File>
     <File md5="E24E28FD873D99C7FBDFB66F5346CABC" import="1">Art/Icon Atlas/NewLuxuries_ResourceAtlas64.dds</File>

@@ -398,6 +398,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 	CvTeam* pFromTeam = &GET_TEAM(eFromTeam);
 	CvTeam* pToTeam = &GET_TEAM(eToTeam);
 
+	bool bPeaceDeal = pFromPlayer->IsAtWarWith(eToPlayer);
 	bool bHumanToHuman = false;
 	if (pFromPlayer->isHuman() && pToPlayer->isHuman())
 	{
@@ -406,7 +407,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 
 	std::vector<CvDeal*> pRenewDeals = pFromPlayer->GetDiplomacyAI()->GetDealsToRenew(eToPlayer);
 
-	if (this->GetPeaceTreatyType() == NO_PEACE_TREATY_TYPE && eItem != TRADE_ITEM_PEACE_TREATY && !ContainsItemType(TRADE_ITEM_PEACE_TREATY))
+	if (!bPeaceDeal)
 	{
 		CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
 		if (pLeague != NULL && pLeague->IsTradeEmbargoed(ePlayer, eToPlayer))
@@ -443,7 +444,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 
 		if (!bHumanToHuman)
 		{
-			if (this->IsPeaceTreatyTrade(eToPlayer) || this->IsPeaceTreatyTrade(ePlayer))
+			if (bPeaceDeal)
 			{
 				if (this->GetSurrenderingPlayer() != ePlayer)
 				{
@@ -504,7 +505,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 
 		if (!bHumanToHuman)
 		{
-			if (this->IsPeaceTreatyTrade(eToPlayer) || this->IsPeaceTreatyTrade(ePlayer))
+			if (bPeaceDeal)
 			{
 				if (this->GetSurrenderingPlayer() != ePlayer)
 				{
@@ -618,7 +619,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 
 			if(!bHumanToHuman)
 			{
-				if(this->IsPeaceTreatyTrade(eToPlayer) || this->IsPeaceTreatyTrade(ePlayer))
+				if(bPeaceDeal)
 				{
 					if(this->GetSurrenderingPlayer() != ePlayer)
 					{
@@ -673,7 +674,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 			return false;
 
 		// Need an embassy in peacetime
-		if (GetPeaceTreatyType() == NO_PEACE_TREATY_TYPE && !pToTeam->HasEmbassyAtTeam(eFromTeam))
+		if (!bPeaceDeal && !pToTeam->HasEmbassyAtTeam(eFromTeam))
 			return false;
 
 		// Can't already have this city in the deal
@@ -687,7 +688,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 			if (ContainsItemType(TRADE_ITEM_GOLD_PER_TURN) || ContainsItemType(TRADE_ITEM_THIRD_PARTY_WAR))
 				return false;
 
-			if(this->IsPeaceTreatyTrade(eToPlayer) || this->IsPeaceTreatyTrade(ePlayer))
+			if(bPeaceDeal)
 			{
 				if(this->GetSurrenderingPlayer() != ePlayer)
 				{
@@ -697,7 +698,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 		}
 
 		// Can't trade a city if not at full HP and enemies are nearby (except in a peace deal)
-		if (pCity->getDamage() > 0 && GetPeaceTreatyType() == NO_PEACE_TREATY_TYPE && (pCity->getDamageTakenLastTurn() > 0 || pCity->IsEnemyInRange(AVG_CITY_RADIUS, false)))
+		if (pCity->getDamage() > 0 && !bPeaceDeal && (pCity->getDamageTakenLastTurn() > 0 || pCity->IsEnemyInRange(AVG_CITY_RADIUS, false)))
 			return false;
 	}
 	// Embassy
@@ -905,14 +906,6 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 		if (!pFromTeam->canChangeWarPeace(eToTeam) || !pToTeam->canChangeWarPeace(eFromTeam))
 			return false;
 
-		// Failsafe check: make sure the AI doesn't make peace when they don't want to!
-		if (!pFromPlayer->isHuman() && !pFromPlayer->GetDiplomacyAI()->IsWantsPeaceWithPlayer(eToPlayer))
-			return false;
-
-		if (!pToPlayer->isHuman() && !pToPlayer->GetDiplomacyAI()->IsWantsPeaceWithPlayer(ePlayer))
-			return false;
-			
-#if defined(MOD_EVENTS_WAR_AND_PEACE)
 		if (MOD_EVENTS_WAR_AND_PEACE) 
 		{
 			if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_IsAbleToMakePeace, ePlayer, eToTeam) == GAMEEVENTRETURN_FALSE) 
@@ -925,7 +918,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 				return false;
 			}
 		}
-#endif
+
 		ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
 		if (pkScriptSystem)
 		{
@@ -956,7 +949,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 			return false;
 
 		//If not at war, need embassy.
-		if (!this->IsPeaceTreatyTrade(eToPlayer) && !this->IsPeaceTreatyTrade(ePlayer) && this->GetPeaceTreatyType() == NO_PEACE_TREATY_TYPE)
+		if (!bPeaceDeal)
 		{
 			if (!GET_TEAM(eToTeam).HasEmbassyAtTeam(eFromTeam))
 				return false;
@@ -966,7 +959,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 				return false;
 		
 			//Can't already be offering this.
-			if (!bFinalizing && IsThirdPartyPeaceTrade( ePlayer, eThirdTeam))
+			if (!bFinalizing && IsThirdPartyPeaceTrade(ePlayer, eThirdTeam))
 				return false;
 		}
 
@@ -1027,7 +1020,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 						return false;
 
 					// Only matters if this isn't a peace treaty.
-					if (!this->IsPeaceTreatyTrade(eToPlayer) && !this->IsPeaceTreatyTrade(ePlayer) && this->GetPeaceTreatyType() == NO_PEACE_TREATY_TYPE)
+					if (!bPeaceDeal)
 					{
 						// Minor's ally at war with this player?
 						if(pOtherPlayer->GetMinorCivAI()->IsPeaceBlocked(eFromTeam))
@@ -1038,18 +1031,17 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 						}
 					}
 					//It is a peace treaty? We only want allied CSs in here.
-					else if (this->IsPeaceTreatyTrade(eToPlayer) || this->IsPeaceTreatyTrade(ePlayer) || this->GetPeaceTreatyType() != NO_PEACE_TREATY_TYPE)
+					else if (bPeaceDeal)
 					{
 						if(pOtherPlayer->GetMinorCivAI()->GetAlly() != eToPlayer)
 							return false;
 					}
 				}
-
 				// Major civ
 				else
 				{				
 					//Only matters if not a peace deal (i.e. we're not making negotiations)
-					if (!this->IsPeaceTreatyTrade(eToPlayer) && !this->IsPeaceTreatyTrade(ePlayer) && this->GetPeaceTreatyType() == NO_PEACE_TREATY_TYPE)
+					if (!bPeaceDeal)
 					{
 						if(pFromPlayer->GetPlayerNumTurnsAtWar(eLoopPlayer) < /*10*/ GD_INT_GET(WAR_MAJOR_MINIMUM_TURNS))
 						{
@@ -1105,15 +1097,12 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 		if (GET_TEAM(eToTeam).IsVassalOfSomeone() || GET_TEAM(eThirdTeam).IsVassalOfSomeone() || GET_TEAM(eFromTeam).IsVassalOfSomeone())
 			return false;
 
-		//If not at war, need embassy.
-		if (!this->IsPeaceTreatyTrade(eToPlayer) && !this->IsPeaceTreatyTrade(ePlayer) && this->GetPeaceTreatyType() == NO_PEACE_TREATY_TYPE)
-		{
-			if (!GET_TEAM(eToTeam).HasEmbassyAtTeam(eFromTeam))
-				return false;
+		// Embassy needed
+		if (!GET_TEAM(eToTeam).HasEmbassyAtTeam(eFromTeam))
+			return false;
 
-			if (!GET_TEAM(eFromTeam).canDeclareWar(eThirdTeam))
-				return false;
-		}
+		if (!GET_TEAM(eFromTeam).canDeclareWar(eThirdTeam))
+			return false;
 
 		//Can't already be offering this.
 		if (!bFinalizing)
@@ -1294,7 +1283,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 
 		if(!bHumanToHuman)
 		{
-			if(this->IsPeaceTreatyTrade(eToPlayer) || this->IsPeaceTreatyTrade(ePlayer))
+			if(bPeaceDeal)
 			{
 				if(this->GetSurrenderingPlayer() != ePlayer)
 				{
@@ -1356,7 +1345,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 
 		if(!bHumanToHuman)
 		{
-			if(this->IsPeaceTreatyTrade(eToPlayer) || this->IsPeaceTreatyTrade(ePlayer))
+			if(bPeaceDeal)
 			{
 				if(this->GetSurrenderingPlayer() != ePlayer)
 				{
@@ -1415,7 +1404,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 
 		if(!bHumanToHuman)
 		{
-			if(this->IsPeaceTreatyTrade(eToPlayer) || this->IsPeaceTreatyTrade(ePlayer))
+			if(bPeaceDeal)
 			{
 				if(this->GetSurrenderingPlayer() != ePlayer)
 				{
@@ -1471,7 +1460,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 
 		if(!bHumanToHuman)
 		{
-			if(this->IsPeaceTreatyTrade(eToPlayer) || this->IsPeaceTreatyTrade(ePlayer))
+			if(bPeaceDeal)
 			{
 				if(this->GetSurrenderingPlayer() != ePlayer)
 				{
@@ -1676,10 +1665,7 @@ void CvDeal::AddCityTrade(PlayerTypes eFrom, int iCityID)
 
 	CvCity* pCity = GET_PLAYER(eFrom).getCity(iCityID);
 	if (!pCity)
-	{
-		OutputDebugString("invalid city ID!\n");
 		return;
-	}
 
 	int x = pCity->getX();
 	int y = pCity->getY();
@@ -4709,11 +4695,6 @@ void CvGameDeals::LogDealComplete(CvDeal* pDeal)
 #endif
 
 			pLog->Msg(strOutBuf);
-#if !defined(MOD_BALANCE_CORE)
-			OutputDebugString("\n");
-			OutputDebugString(strOutBuf);
-			OutputDebugString("\n");
-#endif
 		}
 
 		strTemp.Format("DEAL COMPLETE: Deal Net Value: %d, From Player Value: %d, To Player Value: %d", iTotalValue, pDeal->GetFromPlayerValue(), pDeal->GetToPlayerValue());
@@ -4952,11 +4933,6 @@ void CvGameDeals::LogDealFailed(CvDeal* pDeal, bool bNoRenew, bool bNotAccepted,
 #endif
 
 			pLog->Msg(strOutBuf);
-#if !defined(MOD_BALANCE_CORE)
-			OutputDebugString("\n");
-			OutputDebugString(strOutBuf);
-			OutputDebugString("\n");
-#endif
 		}
 	}
 }

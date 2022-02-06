@@ -388,13 +388,15 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetUnhappinessFromOccupiedCities);
 	Method(GetUnhappinessFromPuppetCityPopulation);
 	Method(GetUnhappinessFromPublicOpinion);
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
+
 	Method(GetUnhappinessFromWarWeariness);
 	Method(GetWarWeariness);
 	Method(SetWarWeariness);
 	Method(GetWarWearinessSupplyReduction);
 	Method(GetTechSupplyReduction);
-#endif
+	Method(GetUnitSupplyFromExpendedGreatPeople);
+	Method(ChangeUnitSupplyFromExpendedGreatPeople);
+
 	Method(GetUnhappinessFromUnits);
 	Method(ChangeUnhappinessFromUnits);
 
@@ -4174,7 +4176,7 @@ int CvLuaPlayer::lGetUnhappinessFromPublicOpinion(lua_State* L)
 	lua_pushinteger(L, iResult);
 	return 1;
 }
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
+
 //------------------------------------------------------------------------------
 //int GetUnhappinessFromWarWeariness() const;
 int CvLuaPlayer::lGetUnhappinessFromWarWeariness(lua_State* L)
@@ -4236,7 +4238,16 @@ int CvLuaPlayer::lGetTechSupplyReduction(lua_State* L)
 	return 1;
 }
 
-#endif
+int CvLuaPlayer::lGetUnitSupplyFromExpendedGreatPeople(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvPlayerAI::GetUnitSupplyFromExpendedGreatPeople);
+}
+
+int CvLuaPlayer::lChangeUnitSupplyFromExpendedGreatPeople(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvPlayerAI::ChangeUnitSupplyFromExpendedGreatPeople);
+}
+
 //------------------------------------------------------------------------------
 //int GetUnhappinessFromUnits() const;
 int CvLuaPlayer::lGetUnhappinessFromUnits(lua_State* L)
@@ -13273,17 +13284,17 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 		{
 			CvString str;
 
+			ReligionTypes eOurOwnedReligion = pkPlayer->GetReligions()->GetOwnedReligion();
 			ReligionTypes eOurStateReligion = pkPlayer->GetReligions()->GetStateReligion(false);
-			ReligionTypes eOurMajorityReligion = pkPlayer->GetReligions()->GetReligionInMostCities();
+			ReligionTypes eTheirOwnedReligion = GET_PLAYER(ePlayer).GetReligions()->GetOwnedReligion();
 			ReligionTypes eTheirStateReligion = GET_PLAYER(ePlayer).GetReligions()->GetStateReligion(false);
-			ReligionTypes eTheirMajorityReligion = GET_PLAYER(ePlayer).GetReligions()->GetReligionInMostCities();
 
-			if (eOurStateReligion != NO_RELIGION && eOurStateReligion == eTheirMajorityReligion)
+			if (eOurOwnedReligion != NO_RELIGION && eOurOwnedReligion == eTheirStateReligion)
 			{
 				iValue = -60;
 				str = Localization::Lookup("TXT_KEY_DIPLO_ADOPTING_MY_RELIGION").toUTF8();
 			}
-			else if (eTheirStateReligion != NO_RELIGION && eTheirStateReligion == eOurMajorityReligion)
+			else if (eTheirOwnedReligion != NO_RELIGION && eTheirOwnedReligion == eOurStateReligion)
 			{
 				iValue = -30;
 				str = Localization::Lookup("TXT_KEY_DIPLO_ADOPTING_HIS_RELIGION").toUTF8();
@@ -13291,7 +13302,7 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 			else
 			{
 				iValue = -30;
-				str = Localization::Lookup("TXT_KEY_DIPLO_SAME_MAJORITY_RELIGIONS").toUTF8();
+				str = Localization::Lookup("TXT_KEY_DIPLO_SAME_STATE_RELIGIONS").toUTF8();
 			}
 
 			Opinion kOpinion;
@@ -13473,22 +13484,22 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 		{
 			CvString str;
 
+			ReligionTypes eAIOwnedReligion = pkPlayer->GetReligions()->GetOwnedReligion();
 			ReligionTypes eAIStateReligion = pkPlayer->GetReligions()->GetStateReligion(false);
-			ReligionTypes eAIMajorityReligion = pkPlayer->GetReligions()->GetReligionInMostCities();
+			ReligionTypes eHumanOwnedReligion = GET_PLAYER(ePlayer).GetReligions()->GetOwnedReligion();
 			ReligionTypes eHumanStateReligion = GET_PLAYER(ePlayer).GetReligions()->GetStateReligion(false);
-			ReligionTypes eHumanMajorityReligion = GET_PLAYER(ePlayer).GetReligions()->GetReligionInMostCities();
 			
-			if (eAIStateReligion != NO_RELIGION && eAIStateReligion == eHumanMajorityReligion)
+			if (eAIOwnedReligion != NO_RELIGION && eAIOwnedReligion == eHumanStateReligion)
 			{
 				str = Localization::Lookup("TXT_KEY_DIPLO_ADOPTING_MY_RELIGION").toUTF8();
 			}
-			else if (eHumanStateReligion != NO_RELIGION && eHumanStateReligion == eAIMajorityReligion)
+			else if (eHumanOwnedReligion != NO_RELIGION && eHumanOwnedReligion == eAIStateReligion)
 			{
 				str = Localization::Lookup("TXT_KEY_DIPLO_ADOPTING_HIS_RELIGION").toUTF8();
 			}
 			else
 			{
-				str = Localization::Lookup("TXT_KEY_DIPLO_SAME_MAJORITY_RELIGIONS").toUTF8();
+				str = Localization::Lookup("TXT_KEY_DIPLO_SAME_STATE_RELIGIONS").toUTF8();
 			}
 
 			Opinion kOpinion;
@@ -14171,22 +14182,22 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 		{
 			CvString str;
 
+			ReligionTypes eAIOwnedReligion = pkPlayer->GetReligions()->GetOwnedReligion();
 			ReligionTypes eAIStateReligion = pkPlayer->GetReligions()->GetStateReligion(false);
-			ReligionTypes eAIMajorityReligion = pkPlayer->GetReligions()->GetReligionInMostCities();
+			ReligionTypes eHumanOwnedReligion = GET_PLAYER(ePlayer).GetReligions()->GetOwnedReligion();
 			ReligionTypes eHumanStateReligion = GET_PLAYER(ePlayer).GetReligions()->GetStateReligion(false);
-			ReligionTypes eHumanMajorityReligion = GET_PLAYER(ePlayer).GetReligions()->GetReligionInMostCities();
 			
-			if (eAIStateReligion != NO_RELIGION && eAIStateReligion == eHumanMajorityReligion)
+			if (eAIOwnedReligion != NO_RELIGION && eAIOwnedReligion == eHumanStateReligion)
 			{
 				str = Localization::Lookup("TXT_KEY_DIPLO_ADOPTING_MY_RELIGION").toUTF8();
 			}
-			else if (eHumanStateReligion != NO_RELIGION && eHumanStateReligion == eAIMajorityReligion)
+			else if (eHumanOwnedReligion != NO_RELIGION && eHumanOwnedReligion == eAIStateReligion)
 			{
 				str = Localization::Lookup("TXT_KEY_DIPLO_ADOPTING_HIS_RELIGION").toUTF8();
 			}
 			else
 			{
-				str = Localization::Lookup("TXT_KEY_DIPLO_SAME_MAJORITY_RELIGIONS").toUTF8();
+				str = Localization::Lookup("TXT_KEY_DIPLO_SAME_STATE_RELIGIONS").toUTF8();
 			}
 
 			Opinion kOpinion;

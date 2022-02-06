@@ -2,7 +2,7 @@
 <Mod id="24923240-e4fb-4bf6-8f0e-6e5b6cf4d3c2" version="1">
   <Properties>
     <Name>(6a) Vox Populi - Compatibility Files (EUI)</Name>
-    <Teaser>(1.3.4) CBO Compatibility and LUA (EUI Version)</Teaser>
+    <Teaser>(1.4.1) CBO Compatibility and LUA (EUI Version)</Teaser>
     <Description>Contains compatibility files for CBO, CSD, C4DF, More Luxuries and EUI - required if you intend to use any mod aside from the CP and CBO by themselves.</Description>
     <Authors>Gazebo</Authors>
     <HideSetupGame>0</HideSetupGame>
@@ -17,7 +17,7 @@
     <ReloadUnitSystem>1</ReloadUnitSystem>
   </Properties>
   <Dependencies>
-    <Mod id="d1b6328c-ff44-4b0d-aad7-c657f83610cd" minversion="101" maxversion="999" title="(1) Community Patch" />
+    <Mod id="d1b6328c-ff44-4b0d-aad7-c657f83610cd" minversion="102" maxversion="999" title="(1) Community Patch" />
     <Mod id="8411a7a8-dad3-4622-a18e-fcc18324c799" minversion="14" maxversion="999" title="(2) Community Balance Overhaul" />
     <Mod id="eead0050-1e3f-4178-a91f-26cf1881ac39" minversion="29" maxversion="999" title="(3) City-State Diplomacy for VP" />
     <Mod id="c7bf7064-d1b1-4708-9e93-7a1560868582" minversion="12" maxversion="999" title="(4) Civ IV Diplomatic Features for VP" />
@@ -34,16 +34,16 @@
     <File md5="3F476A71188724BC528A087525301A9A" import="0">Corporations/Corporations.sql</File>
     <File md5="2D81FF7BE803B6C99129AC24217018DA" import="0">Corporations/Text/CorpText_en_US.xml</File>
     <File md5="F2B4529383B3A7F7AEC8F9CA82C9A83C" import="0">Corporations/Text/CorpText_en_US.sql</File>
-    <File md5="14396C2266151B073C45C7101AE9DA11" import="0">CSD/CompatibilityText/Compatibility_en_US.sql</File>
+    <File md5="F7E0EBCD73BDF8DFC651A173ACF43C67" import="0">CSD/CompatibilityText/Compatibility_en_US.sql</File>
     <File md5="F82A83B6017FE4858CF924888EB810AC" import="0">CSD/CompatibilityText/Compatibility_en_US.xml</File>
-    <File md5="6240D1742F14387E5A2E2FC9806CEBC9" import="0">CSD/CSDCompatibility.sql</File>
+    <File md5="0519B8EB4300785163A4F8F78400F127" import="0">CSD/CSDCompatibility.sql</File>
     <File md5="AA054B5262980CCA9648C4C1C8599E76" import="1">EUI/DC45_EventsOverview.dds</File>
     <File md5="9AE69E7FD299CA9C0CD4E574C5D2DE3B" import="1">EUI/DC45_UnitPromotions.dds</File>
     <File md5="CD9F2334872FB51C97AD44078F851621" import="1">EUI/DC45_VassalOverview.dds</File>
     <File md5="6F03F714A40A2EF7B35352A15E992ED8" import="0">EUI/EUI_text_en_us.xml</File>
-    <File md5="44885B447FA22E72E45286E67E194830" import="0">EUI/NeededText.xml</File>
+    <File md5="C56A52B0D1DEB8F505E758220DC7AFD0" import="0">EUI/NeededText.xml</File>
     <File md5="3F4B08D58AE727DF10D8A34BEC5F398E" import="1">LUA/ActionInfoPanel.lua</File>
-    <File md5="1E95C0C367049F5AD2458691813445CE" import="1">LUA/AssignStartingPlots.lua</File>
+    <File md5="2EDBE7B26D74161F057DE6E9443D6BEA" import="1">LUA/AssignStartingPlots.lua</File>
     <File md5="39C6A39E21DF6E10B666FA57FA502643" import="1">LUA/Bombardment.lua</File>
     <File md5="66D5F875BCC8CEEF7B18F866147D6AF4" import="1">LUA/ChooseMayaBonus.lua</File>
     <File md5="B575EDDEDA511FEBEA7F1C68516D14D6" import="1">LUA/CityBannerManager.lua</File>
@@ -54,7 +54,7 @@
     <File md5="3FB96BF2FED74228DF6B66593127D294" import="1">LUA/CityStateDiploPopup.xml</File>
     <File md5="908D4AB700755545316BA16E1BB94EA1" import="1">LUA/CityStateGreetingPopup.lua</File>
     <File md5="54A274DCE10B48B9583FB6C939F1F46F" import="1">LUA/CityStateGreetingPopup.xml</File>
-    <File md5="EDDC108FF4EF329DC6211094D9818D4C" import="1">LUA/CityStateStatusHelper.lua</File>
+    <File md5="47DB8D0DFFAB0F911F09C6449B3BC07E" import="1">LUA/CityStateStatusHelper.lua</File>
     <File md5="6A042F94679BA7D56EB34992289D3F51" import="1">LUA/CityView.lua</File>
     <File md5="984545AEBCA87D9F9B6C51A7E07958E9" import="1">LUA/CityView.xml</File>
     <File md5="03A04D6143F27CC517EA7463164D4913" import="1">LUA/CityView_small.xml</File>
@@ -78,7 +78,7 @@
     <File md5="3A73B221D228BD6508038FCA62239692" import="1">LUA/EconomicGeneralInfo.xml</File>
     <File md5="16B07AAA25EB4AA80C4FAEAD0AC32D02" import="1">LUA/EconomicOverview.lua</File>
     <File md5="EFB0435042079A172C7E1B211A204144" import="1">LUA/EUI_core_library.lua</File>
-    <File md5="E5AFC3E265FF04F718975E499ED101DB" import="1">LUA/EUI_tooltip_library.lua</File>
+    <File md5="3426CB129198CF4761A3FAD78EEE9E61" import="1">LUA/EUI_tooltip_library.lua</File>
     <File md5="B12E739314E3C06185B3872698E62F60" import="1">LUA/GoodyHutPopup.lua</File>
     <File md5="44D613BAA295659174BB1A7A97A050EC" import="1">LUA/GPList.lua</File>
     <File md5="252CF7B30C29EDDB13DE924B209CA71F" import="1">LUA/GPList.xml</File>
@@ -104,13 +104,13 @@
     <File md5="CD876B31FA437CA938BA5F141A636F65" import="1">LUA/SocialPolicyPopup.lua</File>
     <File md5="12684E9BB5B297803A690A5795812A44" import="1">LUA/SocialPolicyPopup.xml</File>
     <File md5="ABE24D7A5A83276D2FBA79C74A23D152" import="1">LUA/TechButtonInclude.lua</File>
-    <File md5="62455AD3FD1C75A14D0DCAEA6B2C59B1" import="1">LUA/TopPanel.lua</File>
+    <File md5="E0EC816E9C77928B683BC5FA86A71302" import="1">LUA/TopPanel.lua</File>
     <File md5="1972B7298A473270428256ABD71B5D07" import="1">LUA/TopPanel.xml</File>
     <File md5="32DAFE26359D03C1434E5232E82760EF" import="1">LUA/TradeLogic.lua</File>
     <File md5="B893CC7CAB5A66DFED8EE3CC006A70BA" import="1">LUA/UnitFlagManager.lua</File>
-    <File md5="D76471690CBA633DB8856B742CDC24C9" import="1">LUA/UnitPanel.lua</File>
-    <File md5="804FB958382573354AE1F84E0DCA49E0" import="1">LUA/UnitPanel.xml</File>
-    <File md5="DDD9F85AB4C63A0CF84FDCCFAE9EF4DF" import="1">LUA/UnitPanel_small.xml</File>
+    <File md5="CDCA47E8C0FE51DCE06A4705B38E5FED" import="1">LUA/UnitPanel.lua</File>
+    <File md5="45B7D31670AF5AE1166F2BC332D1CBEA" import="1">LUA/UnitPanel.xml</File>
+    <File md5="DBB4570DA80EB269DB36F42A77667003" import="1">LUA/UnitPanel_small.xml</File>
     <File md5="BBC33791151B7DB3DBCE257B52BE3D52" import="1">LUA/VictoryProgress.lua</File>
     <File md5="DAC68F838D98ED16A8D7246798795EA8" import="1">LUA/VictoryProgress.xml</File>
     <File md5="2F4E8578875AA96C3D8553D2E7DE0883" import="1">LUA/WhosWinningPopup.lua</File>

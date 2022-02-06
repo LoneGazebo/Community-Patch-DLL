@@ -1832,8 +1832,8 @@ public:
 	int getYieldFromConstruction(YieldTypes eIndex) const;
 	void changeYieldFromConstruction(YieldTypes eIndex, int iChange);
 
-	int getYieldFromwonderConstruction(YieldTypes eIndex) const;
-	void changeYieldFromwonderConstruction(YieldTypes eIndex, int iChange);
+	int GetYieldFromWorldWonderConstruction(YieldTypes eIndex) const;
+	void ChangeYieldFromWorldWonderConstruction(YieldTypes eIndex, int iChange);
 
 	int getYieldFromTech(YieldTypes eIndex) const;
 	void changeYieldFromTech(YieldTypes eIndex, int iChange);
@@ -2573,6 +2573,9 @@ public:
 
 	int getCitySupplyFlatGlobal() const;
 	void changeCitySupplyFlatGlobal(int iChange);
+
+	int GetUnitSupplyFromExpendedGreatPeople() const;
+	void ChangeUnitSupplyFromExpendedGreatPeople(int iChange);
 
 	int GetAvgUnitExp100() const;
 #endif
@@ -3353,6 +3356,7 @@ protected:
 	std::vector<int> m_paiUnitClassProductionModifiers;
 	int m_iExtraSupplyPerPopulation;
 	int m_iCitySupplyFlatGlobal;
+	int m_iUnitSupplyFromExpendedGP;
 	int m_iMissionaryExtraStrength;
 #endif
 	int m_iFreeSpecialist;
@@ -3476,7 +3480,7 @@ protected:
 	std::vector<int> m_aiYieldFromPillage;
 	std::vector<int> m_aiYieldFromVictory;
 	std::vector<int> m_aiYieldFromConstruction;
-	std::vector<int> m_aiYieldFromwonderConstruction;
+	std::vector<int> m_aiYieldFromWorldWonderConstruction;
 	std::vector<int> m_aiYieldFromTech;
 	std::vector<int> m_aiYieldFromBorderGrowth;
 	std::vector<int> m_aiYieldGPExpend;
@@ -4147,6 +4151,7 @@ SYNC_ARCHIVE_VAR(std::vector<FeatureTypes>, m_ownedNaturalWonders)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_paiUnitClassProductionModifiers)
 SYNC_ARCHIVE_VAR(int, m_iExtraSupplyPerPopulation)
 SYNC_ARCHIVE_VAR(int, m_iCitySupplyFlatGlobal)
+SYNC_ARCHIVE_VAR(int, m_iUnitSupplyFromExpendedGP)
 SYNC_ARCHIVE_VAR(int, m_iMissionaryExtraStrength)
 SYNC_ARCHIVE_VAR(int, m_iFreeSpecialist)
 SYNC_ARCHIVE_VAR(int, m_iCultureBombTimer)
@@ -4255,7 +4260,7 @@ SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromDeath)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromPillage)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromVictory)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromConstruction)
-SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromwonderConstruction)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromWorldWonderConstruction)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromTech)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromBorderGrowth)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldGPExpend)

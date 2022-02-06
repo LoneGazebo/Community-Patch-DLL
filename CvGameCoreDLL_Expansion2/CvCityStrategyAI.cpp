@@ -1067,7 +1067,7 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg, UnitTypes eIg
 		//pick something new
 		if (!bContinueWithCurrentBuild)
 		{
-			int iNumChoices = GC.getGame().getHandicapInfo().GetCityProductionNumOptions();
+			int iNumChoices = max(GC.getGame().getHandicapInfo().GetCityProductionNumOptions(), 1);
 			selection = m_Buildables.ChooseFromTopChoices(iNumChoices, &fcn, "Choosing city build from Top Choices");
 		}
 
@@ -1156,9 +1156,8 @@ CvCityBuildable CvCityStrategyAI::ChooseHurry(bool bUnitOnly, bool bFaithPurchas
 			CvUnitEntry* pUnitEntry = GC.getUnitInfo((UnitTypes)eUnitForOperation);
 			if (pUnitEntry)
 			{
-				bool bCanSupply = (kPlayer.GetNumUnitsToSupply() < kPlayer.GetNumUnitsSupplied()) ? true : false; // this also works when we're at the limit
-				bool bOoS = (!bCanSupply && pUnitEntry->IsMilitarySupport() && !pUnitEntry->IsNoSupply());
-//				bool bOoS = (kPlayer.GetNumUnitsOutOfSupply() > 0 && pUnitEntry->IsMilitarySupport() && !pUnitEntry->IsNoSupply());
+				bool bCanSupply = kPlayer.GetNumUnitsToSupply() < kPlayer.GetNumUnitsSupplied(); // this also works when we're at the limit
+				bool bOoS = !bCanSupply && pUnitEntry->IsMilitarySupport() && !pUnitEntry->IsNoSupply();
 				if (!bOoS)
 				{
 					buildable.m_eBuildableType = CITY_BUILDABLE_UNIT_FOR_OPERATION;
@@ -1182,11 +1181,10 @@ CvCityBuildable CvCityStrategyAI::ChooseHurry(bool bUnitOnly, bool bFaithPurchas
 		if (eUnitForArmy != NO_UNIT)
 		{
 			CvUnitEntry* pUnitEntry = GC.getUnitInfo((UnitTypes)eUnitForArmy);
-			if(pUnitEntry)
+			if (pUnitEntry)
 			{
-				bool bCanSupply = (kPlayer.GetNumUnitsToSupply() < kPlayer.GetNumUnitsSupplied()) ? true : false; // this also works when we're at the limit
-				bool bOoS = (!bCanSupply && pUnitEntry->IsMilitarySupport() && !pUnitEntry->IsNoSupply());
-//				bool bOoS = (kPlayer.GetNumUnitsOutOfSupply() > 0 && pUnitEntry->IsMilitarySupport() && !pUnitEntry->IsNoSupply());
+				bool bCanSupply = kPlayer.GetNumUnitsToSupply() < kPlayer.GetNumUnitsSupplied(); // this also works when we're at the limit
+				bool bOoS = !bCanSupply && pUnitEntry->IsMilitarySupport() && !pUnitEntry->IsNoSupply();
 				if (!bOoS)
 				{
 					buildable.m_eBuildableType = CITY_BUILDABLE_UNIT_FOR_ARMY;
@@ -1206,7 +1204,7 @@ CvCityBuildable CvCityStrategyAI::ChooseHurry(bool bUnitOnly, bool bFaithPurchas
 	}
 
 	// Loop through adding the available units
-	for(iUnitLoop = 0; iUnitLoop < GC.GetGameUnits()->GetNumUnits(); iUnitLoop++)
+	for (iUnitLoop = 0; iUnitLoop < GC.GetGameUnits()->GetNumUnits(); iUnitLoop++)
 	{
 		CvUnitEntry* pUnitEntry = GC.getUnitInfo((UnitTypes)iUnitLoop);
 		if (bFaithPurchase)
@@ -1222,9 +1220,8 @@ CvCityBuildable CvCityStrategyAI::ChooseHurry(bool bUnitOnly, bool bFaithPurchas
 		}
 		if (pUnitEntry)
 		{
-			bool bCanSupply = (kPlayer.GetNumUnitsToSupply() < kPlayer.GetNumUnitsSupplied()) ? true : false; // this also works when we're at the limit
-			bool bOoS = (!bCanSupply && pUnitEntry->IsMilitarySupport() && !pUnitEntry->IsNoSupply());
-//			bool bOoS = (kPlayer.GetNumUnitsOutOfSupply() > 0 && pUnitEntry->IsMilitarySupport() && !pUnitEntry->IsNoSupply());
+			bool bCanSupply = kPlayer.GetNumUnitsToSupply() < kPlayer.GetNumUnitsSupplied(); // this also works when we're at the limit
+			bool bOoS = !bCanSupply && pUnitEntry->IsMilitarySupport() && !pUnitEntry->IsNoSupply();
 			if (!bOoS)
 			{
 				// Make sure this unit can be built now
@@ -1390,7 +1387,7 @@ CvCityBuildable CvCityStrategyAI::ChooseHurry(bool bUnitOnly, bool bFaithPurchas
 	if(m_Buildables.GetTotalWeight() > 0)
 	{
 		// Choose from the best options (currently 2)
-		int iNumChoices = GC.getGame().getHandicapInfo().GetCityProductionNumOptions();
+		int iNumChoices = max(GC.getGame().getHandicapInfo().GetCityProductionNumOptions(), 1);
 		if (m_pCity->isBarbarian())
 		{
 			selection = m_Buildables.GetElement(0);
