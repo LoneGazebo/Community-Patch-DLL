@@ -235,12 +235,12 @@ int CvPolicyAI::ChooseNextPolicy(CvPlayer* pPlayer)
 	// If total weight is above 0, choose one above a threshold
 	if(m_AdoptablePolicies.GetTotalWeight() > 0)
 	{
-		int iNumChoices = GC.getGame().getHandicapInfo().GetPolicyNumOptions();
+		int iNumChoices = max(GC.getGame().getHandicapInfo().GetPolicyNumOptions(), 1);
 		iRtnValue = m_AdoptablePolicies.ChooseFromTopChoices(iNumChoices, &fcn, "Choosing policy from Top Choices");
 	}
 	else if (m_AdoptablePolicies.size() > 0)
 	{
-		int iNumChoices = GC.getGame().getHandicapInfo().GetPolicyNumOptions();
+		int iNumChoices = max(GC.getGame().getHandicapInfo().GetPolicyNumOptions(), 1);
 		iRtnValue = m_AdoptablePolicies.ChooseFromTopChoices(iNumChoices, &fcn, "Choosing policy from Top Choices");
 	}
 	// Total weight may be 0 if the only branches and policies left are ones that are ineffective in our game, but we gotta pick something

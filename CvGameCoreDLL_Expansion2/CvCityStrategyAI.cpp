@@ -1067,7 +1067,7 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg, UnitTypes eIg
 		//pick something new
 		if (!bContinueWithCurrentBuild)
 		{
-			int iNumChoices = GC.getGame().getHandicapInfo().GetCityProductionNumOptions();
+			int iNumChoices = max(GC.getGame().getHandicapInfo().GetCityProductionNumOptions(), 1);
 			selection = m_Buildables.ChooseFromTopChoices(iNumChoices, &fcn, "Choosing city build from Top Choices");
 		}
 
@@ -1387,7 +1387,7 @@ CvCityBuildable CvCityStrategyAI::ChooseHurry(bool bUnitOnly, bool bFaithPurchas
 	if(m_Buildables.GetTotalWeight() > 0)
 	{
 		// Choose from the best options (currently 2)
-		int iNumChoices = GC.getGame().getHandicapInfo().GetCityProductionNumOptions();
+		int iNumChoices = max(GC.getGame().getHandicapInfo().GetCityProductionNumOptions(), 1);
 		if (m_pCity->isBarbarian())
 		{
 			selection = m_Buildables.GetElement(0);

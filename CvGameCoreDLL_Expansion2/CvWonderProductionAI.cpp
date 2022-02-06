@@ -197,7 +197,7 @@ BuildingTypes CvWonderProductionAI::ChooseWonder(bool /* bAdjustForOtherPlayers 
 
 		if(m_Buildables.GetTotalWeight() > 0)
 		{
-			int iNumChoices = GC.getGame().getHandicapInfo().GetCityProductionNumOptions();
+			int iNumChoices = max(GC.getGame().getHandicapInfo().GetCityProductionNumOptions(), 1);
 			if (m_pPlayer->isBarbarian())
 			{
 				eSelection = (BuildingTypes)m_Buildables.GetElement(0);

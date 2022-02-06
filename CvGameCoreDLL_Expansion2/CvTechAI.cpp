@@ -163,7 +163,7 @@ TechTypes CvTechAI::ChooseNextTech(CvPlayer *pPlayer, bool bFreeTech)
 	// If total weight is above 0, choose one above a threshold
 	if(m_ResearchableTechs.GetTotalWeight() > 0)
 	{
-		int iNumChoices =GC.getGame().getHandicapInfo().GetTechNumOptions();
+		int iNumChoices = max(GC.getGame().getHandicapInfo().GetTechNumOptions(), 1);
 		if (pPlayer->isBarbarian())
 		{
 			rtnValue = (TechTypes)m_ResearchableTechs.GetElement(0);
