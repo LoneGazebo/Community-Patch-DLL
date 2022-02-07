@@ -55,6 +55,7 @@ ktQuestsDisplayOrder = {
 	MinorCivQuestTypes.MINOR_CIV_QUEST_GREAT_PERSON,
 	MinorCivQuestTypes.MINOR_CIV_QUEST_CONSTRUCT_WONDER,
 	MinorCivQuestTypes.MINOR_CIV_QUEST_CONSTRUCT_NATIONAL_WONDER,
+	MinorCivQuestTypes.MINOR_CIV_QUEST_GIFT_SPECIFIC_UNIT,
 	MinorCivQuestTypes.MINOR_CIV_QUEST_CONNECT_RESOURCE,
 	MinorCivQuestTypes.MINOR_CIV_QUEST_ROUTE,
 	MinorCivQuestTypes.MINOR_CIV_QUEST_ARCHAEOLOGY,
@@ -595,6 +596,8 @@ function GetActiveQuestText(iMajor, iMinor)
 				sIconText = sIconText .. "[ICON_SILVER_FIST]";
 			elseif (eType == MinorCivQuestTypes.MINOR_CIV_QUEST_CONSTRUCT_NATIONAL_WONDER) then
 				sIconText = sIconText .. "[ICON_TRADE_WHITE]";
+			elseif (eType == MinorCivQuestTypes.MINOR_CIV_QUEST_GIFT_SPECIFIC_UNIT) then
+				sIconText = sIconText .. "[ICON_STRENGTH]";
 			elseif (eType == MinorCivQuestTypes.MINOR_CIV_QUEST_FIND_CITY_STATE) then
 				sIconText = sIconText .. "[ICON_CITY_STATE]";
 			elseif (eType == MinorCivQuestTypes.MINOR_CIV_QUEST_INFLUENCE) then
@@ -775,6 +778,8 @@ function GetActiveQuestToolTip(iMajor, iMinor)
 				sToolTipText = sToolTipText .. Locale.Lookup("TXT_KEY_CITY_STATE_QUEST_WAR_FORMAL", Players[iQuestData1]:GetCivilizationShortDescriptionKey() );
 			elseif (eType == MinorCivQuestTypes.MINOR_CIV_QUEST_CONSTRUCT_NATIONAL_WONDER) then
 				sToolTipText = sToolTipText .. Locale.Lookup( "TXT_KEY_CITY_STATE_QUEST_CONSTRUCT_NATIONAL_WONDER_FORMAL", GameInfo.Buildings[iQuestData1].Description );
+			elseif (eType == MinorCivQuestTypes.MINOR_CIV_QUEST_GIFT_SPECIFIC_UNIT) then
+				sToolTipText = sToolTipText .. Locale.Lookup( "TXT_KEY_CITY_STATE_QUEST_GIFT_SPECIFIC_UNIT_FORMAL", GameInfo.Units[iQuestData1].Description );
 			elseif (eType == MinorCivQuestTypes.MINOR_CIV_QUEST_FIND_CITY_STATE) then
 				sToolTipText = sToolTipText .. Locale.Lookup( "TXT_KEY_CITY_STATE_QUEST_FIND_CITY_STATE_FORMAL", Players[iQuestData1]:GetNameKey() );
 			elseif (eType == MinorCivQuestTypes.MINOR_CIV_QUEST_INFLUENCE) then

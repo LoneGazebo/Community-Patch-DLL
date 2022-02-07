@@ -93,6 +93,7 @@ local ktQuestsIcon = {
 -- CBP
 	[ MinorCivQuestTypes.MINOR_CIV_QUEST_WAR or false ] = function() return "[ICON_SILVER_FIST]" end,
 	[ MinorCivQuestTypes.MINOR_CIV_QUEST_CONSTRUCT_NATIONAL_WONDER or false ] = function() return "[ICON_TRADE_WHITE]" end,
+	[ MinorCivQuestTypes.MINOR_CIV_QUEST_GIFT_SPECIFIC_UNIT or false ] = function() return "[ICON_STRENGTH]" end,
 	[ MinorCivQuestTypes.MINOR_CIV_QUEST_FIND_CITY_STATE or false ] = function() return "[ICON_CITY_STATE]" end,
 	[ MinorCivQuestTypes.MINOR_CIV_QUEST_INFLUENCE or false ] = function() return "[ICON_INFLUENCE]" end,
 	[ MinorCivQuestTypes.MINOR_CIV_QUEST_CONTEST_TOURISM or false ] = function() return "[ICON_TOURISM]" end,
@@ -146,6 +147,7 @@ if gk_mode then
 		MinorCivQuestTypes.MINOR_CIV_QUEST_CONNECT_RESOURCE or false,	-- vanilla+
 		MinorCivQuestTypes.MINOR_CIV_QUEST_ROUTE or false,		-- vanilla+
 		MinorCivQuestTypes.MINOR_CIV_QUEST_CONSTRUCT_NATIONAL_WONDER, -- CSD
+		MinorCivQuestTypes.MINOR_CIV_QUEST_GIFT_SPECIFIC_UNIT, -- CSD
 		MinorCivQuestTypes.MINOR_CIV_QUEST_ARCHAEOLOGY or false, -- CSD
 		MinorCivQuestTypes.MINOR_CIV_QUEST_CIRCUMNAVIGATION or false, -- CSD
 	}
@@ -752,6 +754,8 @@ local function QuestString(majorPlayerID, minorPlayer, questID, questData1)
 			return L( "TXT_KEY_CITY_STATE_QUEST_WAR_FORMAL", Players[questData1]:GetCivilizationShortDescriptionKey() )
 		elseif questID == MinorCivQuestTypes.MINOR_CIV_QUEST_CONSTRUCT_NATIONAL_WONDER then
 			return L( "TXT_KEY_CITY_STATE_QUEST_CONSTRUCT_NATIONAL_WONDER_FORMAL", GameInfo.Buildings[questData1].Description )
+		elseif questID == MinorCivQuestTypes.MINOR_CIV_QUEST_GIFT_SPECIFIC_UNIT then
+			return L( "TXT_KEY_CITY_STATE_QUEST_GIFT_SPECIFIC_UNIT_FORMAL", GameInfo.Units[questData1].Description )
 		elseif questID == MinorCivQuestTypes.MINOR_CIV_QUEST_FIND_CITY_STATE then
 			return L( "TXT_KEY_CITY_STATE_QUEST_FIND_CITY_STATE_FORMAL", Players[questData1]:GetNameKey() )
 		elseif questID == MinorCivQuestTypes.MINOR_CIV_QUEST_INFLUENCE then
