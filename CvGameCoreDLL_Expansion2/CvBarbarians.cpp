@@ -109,11 +109,6 @@ void CvBarbarians::DoBarbCampCleared(CvPlot* pPlot, PlayerTypes ePlayer, CvUnit*
 		if (pBestCity != NULL)
 		{
 			int iNumGold = GC.getGame().getHandicapInfo().getBarbCampGold();
-
-			// Game Speed Mod
-			iNumGold *= GC.getGameSpeedInfo(GC.getGame().getGameSpeedType())->getGoldPercent();
-			iNumGold /= 100;
-
 			kPlayer.doInstantYield(INSTANT_YIELD_TYPE_BARBARIAN_CAMP_CLEARED, false, NO_GREATPERSON, NO_BUILDING, iNumGold, true, NO_PLAYER, NULL, false, pBestCity, false, true, false, YIELD_GOLD, pUnit);
 
 			if (GET_PLAYER(ePlayer).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CULTURE_FROM_BARBARIAN_KILLS) > 0 || GET_PLAYER(ePlayer).GetBarbarianCombatBonus(true) > 0)
