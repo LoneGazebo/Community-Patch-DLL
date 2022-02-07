@@ -8633,8 +8633,7 @@ bool CvCity::canTrain(UnitTypes eUnit, bool bContinue, bool bTestVisible, bool b
 
 		if (MOD_BALANCE_CORE_MILITARY && !pUnitInfo.IsNoSupply())
 		{
-			bool bCanSupply = GET_PLAYER(getOwner()).GetNumUnitsToSupply() < GET_PLAYER(getOwner()).GetNumUnitsSupplied(); // this works when we're at the limit
-			if (!bCanSupply && !isBarbarian() && (pUnitInfo.GetCombat() > 0 || pUnitInfo.GetRangedCombat() > 0))
+			if (GET_PLAYER(getOwner()).GetNumUnitsOutOfSupply() > 13 && !isBarbarian() && (pUnitInfo.GetCombat() > 0 || pUnitInfo.GetRangedCombat() > 0))
 			{
 				GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_NO_ACTION_NO_SUPPLY");
 				if (toolTipSink == NULL)
