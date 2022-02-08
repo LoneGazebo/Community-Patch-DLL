@@ -26522,7 +26522,9 @@ int CvCity::GetBaseYieldRateFromReligion(YieldTypes eIndex) const
 		ReligionTypes eReligionFounded = GET_PLAYER(getOwner()).GetReligions()->GetReligionCreatedByPlayer(true);
 		if (MOD_BALANCE_CORE_BELIEFS && eReligionFounded != NO_RELIGION && eReligionFounded >= RELIGION_PANTHEON)
 		{
-			if (GetCityReligions()->GetReligiousMajority() == eReligionFounded)
+			ReligionTypes eMajorityReligion = GetCityReligions()->GetReligiousMajority();
+			ReligionTypes ePlayerPantheon = GC.getGame().GetGameReligions()->GetPantheonCreatedByPlayer(getOwner());
+			if (eMajorityReligion != NO_RELIGION && (eMajorityReligion == eReligionFounded || eMajorityReligion == ePlayerPantheon))
 			{
 				iBaseYield += GET_PLAYER(getOwner()).GetPlayerTraits()->GetYieldFromOwnPantheon(eIndex);
 			}

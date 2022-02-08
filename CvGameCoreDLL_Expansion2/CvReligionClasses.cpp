@@ -2448,15 +2448,12 @@ bool CvGameReligions::IsCityStateFriendOfReligionFounder(ReligionTypes eReligion
 	return false;
 }
 
-/// Get the religion this player created
+/// Get the religion this player created IF he currently owns it (can include pantheons)
 ReligionTypes CvGameReligions::GetReligionCreatedByPlayer(PlayerTypes ePlayer) const
 {
 	ReligionList::const_iterator it;
 	for(it = m_CurrentReligions.begin(); it != m_CurrentReligions.end(); it++)
 	{
-		if (it->m_bPantheon)
-			continue;
-
 		if(it->m_eFounder == ePlayer)
 		{
 			CvCity* pHolyCity = it->GetHolyCity();
@@ -2486,7 +2483,7 @@ ReligionTypes CvGameReligions::GetPantheonCreatedByPlayer(PlayerTypes ePlayer) c
 	return NO_RELIGION;
 }
 
-
+/// Return the religion that this player created
 ReligionTypes CvGameReligions::GetOriginalReligionCreatedByPlayer(PlayerTypes ePlayer) const
 {
 	ReligionList::const_iterator it;
@@ -4560,7 +4557,7 @@ bool CvCityReligions::IsHolyCityAnyReligion()
 	return NO_RELIGION != GC.getGame().GetGameReligions()->GetHolyCityReligion(m_pCity);
 }
 
-/// Is this the holy city for any religion?
+/// What is the the religion of this holy city?
 ReligionTypes CvCityReligions::GetReligionForHolyCity()
 {
 	return GC.getGame().GetGameReligions()->GetHolyCityReligion(m_pCity);
@@ -5366,9 +5363,10 @@ void CvCityReligions::RemoveFormerPantheon()
 void CvCityReligions::RemoveOtherReligions(ReligionTypes eReligion, PlayerTypes eResponsiblePlayer)
 {
 	// Using an inquisitor from a different religion removes the Holy City status
-	if (IsHolyCityAnyReligion() && GetReligionForHolyCity() != eReligion)
+	ReligionTypes eCurrentHolyCityReligion = GetReligionForHolyCity();
+	if (eCurrentHolyCityReligion != NO_RELIGION && eCurrentHolyCityReligion != eReligion)
 	{
-		GC.getGame().GetGameReligions()->SetHolyCity(GetReligionForHolyCity(), NULL);
+		GC.getGame().GetGameReligions()->SetHolyCity(eCurrentHolyCityReligion, NULL);
 	}
 
 	ErodeOtherReligiousPressure(FOLLOWER_CHANGE_REMOVE_HERESY, eReligion, /*100 in CP, 50 in CBO*/ GD_INT_GET(INQUISITION_EFFECTIVENESS), true, true, eResponsiblePlayer);
