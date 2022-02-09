@@ -84,6 +84,11 @@ If you downloaded this mod manually, see MANUAL INSTALL.txt for installation ins
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
+        <FileName>EUI/StackedPromotionIcons/StackedPromotionIcons.sql</FileName>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
         <FileName>No-EUI/C4DF/C4DFCompatibility.sql</FileName>
       </Action>
       <Action>
@@ -710,6 +715,10 @@ If you downloaded this mod manually, see MANUAL INSTALL.txt for installation ins
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
+    <Content Include="EUI\StackedPromotionIcons/StackedPromotionIcons.sql">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
     <Content Include="No-EUI\ActionInfoPanel.lua">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
@@ -1047,6 +1056,7 @@ If you downloaded this mod manually, see MANUAL INSTALL.txt for installation ins
     <Folder Include="EUI\C4DF" />
     <Folder Include="EUI\CSD" />
     <Folder Include="EUI\Corps" />
+    <Folder Include="EUI\StackedPromotionIcons" />
     <Folder Include="No-EUI" />
     <Folder Include="No-EUI\C4DF\" />
     <Folder Include="No-EUI\Corps\" />

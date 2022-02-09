@@ -312,6 +312,24 @@ self = {
 	return self
 end
 
+function IsModActive(sModID, iModMinVersion)
+	for _, mod in pairs(Modding.GetActivatedMods()) do
+		if (mod.ID == sModID) then
+			return (mod.Version >= iModMinVersion)
+		end
+	end
+end  
+
+function OnPromotionTreeButton()
+	LuaEvents.PromotionTreeDisplay(UI.GetHeadSelectedUnit():GetID())
+end
+
+if (IsModActive("1f0a153b-26ae-4496-a2c0-a106d9b43c95", 3)) then
+	Controls.PromotionText:RegisterCallback(Mouse.eLClick, OnPromotionTreeButton)
+else
+	Controls.PromotionText:SetToolTipString(nil)
+end
+
 -------------------------------------------------
 -- Item Functions
 -------------------------------------------------
@@ -525,7 +543,6 @@ local function UnitToolTip( unit, ... )
 		if(cityName ~= "") then
 			tips:insertLocalized( "TXT_KEY_UNIT_ORIGIN_CITY", cityName )
 		end
-
 		-- Required Resources:
 		local resources = table()
 		for resource in GameInfo.Resources() do
@@ -580,11 +597,30 @@ local function UnitToolTip( unit, ... )
 		for row in GameInfo.Unit_Builds( thisUnitType ) do
 			local build = row.BuildType and GameInfo.Builds[row.BuildType]
 			if build then
+				local isAvailable = true
 				local buildImprovement = build.ImprovementType and GameInfo.Improvements[ build.ImprovementType ]
+				local buildRoute = build.RouteType and GameInfo.Routes[ build.RouteType ]
 				local requiredCivilizationType = buildImprovement and buildImprovement.CivilizationType
 				if not requiredCivilizationType or GameInfoTypes[ requiredCivilizationType ] == g_activePlayer:GetCivilizationType() then
+					-- technology check
 					local prereqTech = build.PrereqTech and GameInfo.Technologies[build.PrereqTech]
-					tips:insertIf( (not prereqTech or g_activeTechs:HasTech( prereqTech.ID or -1 ) ) and "[ICON_BULLET]" .. L(build.Description) )
+					if prereqTech and not g_activeTechs:HasTech(prereqTech.ID) then
+						isAvailable = false
+					end
+					-- resource check
+					if buildImprovement or buildRoute then
+						for resource in GameInfo.Resources() do
+							local resourceID = resource.ID
+							if buildImprovement and Game.GetNumResourceRequiredForImprovement(GameInfoTypes[buildImprovement], resourceID) > 0 and g_activePlayer:GetNumResourceAvailable( resourceID, true ) <= 0 then
+								isAvailable = false
+							elseif buildRoute and Game.GetNumResourceRequiredForRoute(GameInfoTypes[buildRoute], resourceID) and g_activePlayer:GetNumResourceAvailable( resourceID, true ) <= 0 then
+								isAvailable = false
+							end
+						end
+					end
+					if isAvailable then
+						tips:insert( "[ICON_BULLET]" .. L(build.Description) )
+					end
 				end
 			end
 		end
@@ -1246,26 +1282,115 @@ local UpdateUnitPromotions = EUI.UpdateUnitPromotions or function(unit)
 	g_EarnedPromotionIM:ResetInstances()
 	local controlTable
 
-	--For each avail promotion, display the icon
-	for unitPromotion in GameInfo.UnitPromotions() do
-		local unitPromotionID = unitPromotion.ID
+	local iconPositionID	= 1
+	local promos			= {}	
+	for promo in GameInfo.UnitPromotions() do
+		local promoID = promo.ID
+		if unit:IsHasPromotion(promoID) and promo.ShowInUnitPanel ~= false then
+			local showPromo = true
 
-		if unit:IsHasPromotion(unitPromotionID) and unitPromotion.ShowInUnitPanel ~= false then
-
-			controlTable = g_EarnedPromotionIM:GetInstance()
-			IconHookup( unitPromotion.PortraitIndex, 32, unitPromotion.IconAtlas, controlTable.UnitPromotionImage )
-
-			-- Tooltip
-			local sDurationTip = ""
-			if unit:GetPromotionDuration(unitPromotionID) > 0 then
-				sDurationTip = " (" .. Locale.ConvertTextKey("TXT_KEY_STR_TURNS", unit:GetPromotionDuration(unitPromotionID) - (Game.GetGameTurn() - unit:GetTurnPromotionGained(unitPromotionID))) .. ")"
+			if promo.RankList then
+				-- hide promotion if the unit has a higher rank of that promotion (eg. hide Drill 1 if we have Drill 2)
+				--for nextPromo in GameInfo.UnitPromotions{RankList = promo.RankList, RankNumber = promo.RankNumber + 1} do
+				for nextPromo in GameInfo.UnitPromotions{RankList = promo.RankList} do
+					if unit:IsHasPromotion(nextPromo.ID) and nextPromo.RankNumber > promo.RankNumber then
+						showPromo = false
+						--break
+					end					
+				end
 			end
-			controlTable.EarnedPromotion:SetToolTipString( L(unitPromotion.Description) .. sDurationTip .. "[NEWLINE][NEWLINE]" .. L(unitPromotion.Help) )
+			
+			if showPromo then
+				table.insert(promos, promoID)
+			end
+		end		
+	end						
+  
+	table.sort(promos, function(a, b)
+		if GameInfo.UnitPromotions[a].FlagPromoOrder and GameInfo.UnitPromotions[b].FlagPromoOrder then
+			return GameInfo.UnitPromotions[a].FlagPromoOrder < GameInfo.UnitPromotions[b].FlagPromoOrder
+		else
+			return GameInfo.UnitPromotions[a].OrderPriority < GameInfo.UnitPromotions[b].OrderPriority
 		end
-	end
+	end)
+	
+	for iconPositionID = 1, #promos do
+		if promos[iconPositionID] then
+			controlTable = g_EarnedPromotionIM:GetInstance()		
+			AddPromotionIcon(controlTable, promos[iconPositionID], iconPositionID, unit)
+		end
+	end	
+	
+----------	
 	g_EarnedPromotionIM:Commit()
+    
+    -- UndeadDevel: update scroll functionality
+    Controls.EarnedPromotionStack:CalculateSize();
+    Controls.EarnedPromotionStack:ReprocessAnchoring();
+    Controls.ScrollPanel:CalculateInternalSize();
+    Controls.ScrollPanel:SetScrollValue(1);
+    -- UndeadDevel end
 end
 
+function AddPromotionIcon(controltable, promoID, iconPositionID, unit)
+	local promo = GameInfo.UnitPromotions[promoID]
+    -- UndeadDevel: add default fallback for the 32x32 icons as well
+    if not IconHookup( promo.PortraitIndex, 32, promo.IconAtlas, controltable.UnitPromotionImage ) then
+        print("No 32x32 icon for ".. promo.Type .. " failing back to the yellow triangle")
+        IconHookup( 59, 32, "PROMOTION_ATLAS", controltable.UnitPromotionImage )
+    end
+	--IconHookup( promo.PortraitIndex, 32, promo.IconAtlas, controltable.UnitPromotionImage )
+    -- UndeadDevel end    
+
+	-- Tooltip	
+	local hoverText = ""
+	if promo.SimpleHelpText then
+		hoverText = string.format("[COLOR_YELLOW]%s[ENDCOLOR]", Locale.ConvertTextKey(promo.Help))
+	else
+		if unit:GetPromotionDuration(promoID) > 0 then
+			local sDurationTip = ""
+			sDurationTip = " (" .. Locale.ConvertTextKey("TXT_KEY_STR_TURNS", unit:GetPromotionDuration(promoID) - (Game.GetGameTurn() - unit:GetTurnPromotionGained(promoID))) .. ")"
+			hoverText = string.format("[COLOR_YELLOW]%s[ENDCOLOR]%s[NEWLINE]%s",
+				L(promo.Description),
+				sDurationTip,
+				L(promo.Help)
+			)
+		else
+			hoverText = string.format("[COLOR_YELLOW]%s[ENDCOLOR][NEWLINE]%s",
+				Locale.ConvertTextKey(promo.Description),
+				Locale.ConvertTextKey(promo.Help)
+			)
+		end
+	end	
+
+	if promo.RankNumber then
+		-- add earlier rank promotions to the tooltip (eg add Drill 1 if we have Drill 2)
+		local rankNum = promo.RankNumber - 1
+		while rankNum > 0 do
+			for nextPromo in GameInfo.UnitPromotions{RankList = promo.RankList, RankNumber = rankNum} do
+				if unit:IsHasPromotion(nextPromo.ID) then
+					if nextPromo.SimpleHelpText then
+						hoverText = string.format("%s[NEWLINE][COLOR_YELLOW]%s[ENDCOLOR]",
+							hoverText,
+							Locale.ConvertTextKey(nextPromo.Help)
+						)
+					else
+						hoverText = string.format("%s[NEWLINE][COLOR_YELLOW]%s[ENDCOLOR][NEWLINE]%s",
+							hoverText,
+							Locale.ConvertTextKey(nextPromo.Description),
+							Locale.ConvertTextKey(nextPromo.Help)
+						)
+					end
+				end
+			end
+			rankNum = rankNum - 1
+		end
+	else
+		--Flag Promos not around to set up the rank list
+		-- so we'll just have to give up
+	end
+	controltable.EarnedPromotion:SetToolTipString( hoverText )
+end
 ---------------------------------------------------
 ---- Promotion Help
 ---------------------------------------------------
@@ -1325,8 +1450,8 @@ local function UpdateUnitStats(unit)
 		Controls.UnitStatStrength:SetText( unit:GetTourismBlastStrength() .. "[ICON_TOURISM]" )
 		Controls.UnitStatStrength:LocalizeAndSetToolTip( "TXT_KEY_UPANEL_TOURISM_STRENGTH_TT" )
 	elseif bnw_mode and unit:GetTourismBlastLength() > 0 then
-		Controls.UnitStatStrength:SetText( unit:GetTourismBlastLength() .. "[ICON_TOURISM]" )
-		Controls.UnitStatStrength:LocalizeAndSetToolTip( "TXT_KEY_UPANEL_TOURISM_LENGTH_TT" )
+		Controls.UnitStatStrength:SetText( unit:GetTourismBlastLength() .. "[ICON_TURNS_REMAINING]" )
+		Controls.UnitStatStrength:LocalizeAndSetToolTip( "TXT_KEY_UPANEL_TOURISM_TURNS_TT" )
 	else
 		Controls.UnitStatStrength:SetText()
 	end
@@ -1509,6 +1634,7 @@ function ActionToolTipHandler( control )
 
 	-- Route data
 	local route = build and build.RouteType and build.RouteType ~= "NONE" and GameInfo.Routes[build.RouteType]
+	local routeID = route and route.ID or -1
 
 	local strBuildTurnsString = ""
 	local toolTip = table()
