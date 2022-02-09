@@ -76,6 +76,11 @@
         <Type>UpdateDatabase</Type>
         <FileName>MoreLuxuries/Text/Text_en_US.sql</FileName>
       </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <FileName>StackedPromotionIcons/StackedPromotionIcons.sql</FileName>
+      </Action>
     </ModActions>
     <Homepage>
     </Homepage>
@@ -510,6 +515,10 @@
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
+    <Content Include="StackedPromotionIcons\StackedPromotionIcons.sql">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Corporations\Text" />
@@ -521,6 +530,7 @@
     <Folder Include="MoreLuxuries" />
     <Folder Include="C4DFCompatibility" />
     <Folder Include="MoreLuxuries\Text" />
+    <Folder Include="StackedPromotionIcons" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Firaxis\ModBuddy\Civ5Mod.targets" />
 </Project>

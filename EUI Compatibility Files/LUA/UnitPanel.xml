@@ -47,7 +47,9 @@
 				</Container>
 
 				<!-- Promotions -->
-				<Stack ID="EarnedPromotionStack" Anchor="R,T" Offset="17,44" StackGrowth="Left"/>
+                <ScrollPanel Anchor="R,T" Size="280,32" Offset="17,44" Vertical="0" ConsumeMouseOver="1" ConsumeMouseButton="1" ID="ScrollPanel">
+                    <Stack ID="EarnedPromotionStack" Anchor="R,T" StackGrowth="Left"/>
+                </ScrollPanel>
 
 				<!-- XP METER -->
 				<Grid ID="XPFrame" Anchor="R,T" Offset="17,70" Size="275,12" Style="Grid9FrameTurns">

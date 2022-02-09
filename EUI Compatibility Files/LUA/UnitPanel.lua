@@ -1282,31 +1282,115 @@ local UpdateUnitPromotions = EUI.UpdateUnitPromotions or function(unit)
 	g_EarnedPromotionIM:ResetInstances()
 	local controlTable
 
-	--For each avail promotion, display the icon
-	for unitPromotion in GameInfo.UnitPromotions() do
-		local unitPromotionID = unitPromotion.ID
+	local iconPositionID	= 1
+	local promos			= {}	
+	for promo in GameInfo.UnitPromotions() do
+		local promoID = promo.ID
+		if unit:IsHasPromotion(promoID) and promo.ShowInUnitPanel ~= false then
+			local showPromo = true
 
-		if unit:IsHasPromotion(unitPromotionID) and unitPromotion.ShowInUnitPanel ~= false then
-
-			controlTable = g_EarnedPromotionIM:GetInstance()
-			IconHookup( unitPromotion.PortraitIndex, 32, unitPromotion.IconAtlas, controlTable.UnitPromotionImage )
-
-			-- Tooltip
-			local sDurationTip = ""
-			if unit:GetPromotionDuration(unitPromotionID) > 0 then
-				sDurationTip = " (" .. Locale.ConvertTextKey("TXT_KEY_STR_TURNS", unit:GetPromotionDuration(unitPromotionID) - (Game.GetGameTurn() - unit:GetTurnPromotionGained(unitPromotionID))) .. ")"
+			if promo.RankList then
+				-- hide promotion if the unit has a higher rank of that promotion (eg. hide Drill 1 if we have Drill 2)
+				--for nextPromo in GameInfo.UnitPromotions{RankList = promo.RankList, RankNumber = promo.RankNumber + 1} do
+				for nextPromo in GameInfo.UnitPromotions{RankList = promo.RankList} do
+					if unit:IsHasPromotion(nextPromo.ID) and nextPromo.RankNumber > promo.RankNumber then
+						showPromo = false
+						--break
+					end					
+				end
 			end
-			controlTable.EarnedPromotion:SetToolTipString( L(unitPromotion.Description) .. sDurationTip .. "[NEWLINE][NEWLINE]" .. L(unitPromotion.Help) )
-			controlTable.UnitPromoButton:RegisterCallback( Mouse.eRClick, 
-			function()
-				Events.SearchForPediaEntry(unitPromotion.Description)
+			
+			if showPromo then
+				table.insert(promos, promoID)
 			end
-			);
+		end		
+	end						
+  
+	table.sort(promos, function(a, b)
+		if GameInfo.UnitPromotions[a].FlagPromoOrder and GameInfo.UnitPromotions[b].FlagPromoOrder then
+			return GameInfo.UnitPromotions[a].FlagPromoOrder < GameInfo.UnitPromotions[b].FlagPromoOrder
+		else
+			return GameInfo.UnitPromotions[a].OrderPriority < GameInfo.UnitPromotions[b].OrderPriority
 		end
-	end
+	end)
+	
+	for iconPositionID = 1, #promos do
+		if promos[iconPositionID] then
+			controlTable = g_EarnedPromotionIM:GetInstance()		
+			AddPromotionIcon(controlTable, promos[iconPositionID], iconPositionID, unit)
+		end
+	end	
+	
+----------	
 	g_EarnedPromotionIM:Commit()
+    
+    -- UndeadDevel: update scroll functionality
+    Controls.EarnedPromotionStack:CalculateSize();
+    Controls.EarnedPromotionStack:ReprocessAnchoring();
+    Controls.ScrollPanel:CalculateInternalSize();
+    Controls.ScrollPanel:SetScrollValue(1);
+    -- UndeadDevel end
 end
 
+function AddPromotionIcon(controltable, promoID, iconPositionID, unit)
+	local promo = GameInfo.UnitPromotions[promoID]
+    -- UndeadDevel: add default fallback for the 32x32 icons as well
+    if not IconHookup( promo.PortraitIndex, 32, promo.IconAtlas, controltable.UnitPromotionImage ) then
+        print("No 32x32 icon for ".. promo.Type .. " failing back to the yellow triangle")
+        IconHookup( 59, 32, "PROMOTION_ATLAS", controltable.UnitPromotionImage )
+    end
+	--IconHookup( promo.PortraitIndex, 32, promo.IconAtlas, controltable.UnitPromotionImage )
+    -- UndeadDevel end    
+
+	-- Tooltip	
+	local hoverText = ""
+	if promo.SimpleHelpText then
+		hoverText = string.format("[COLOR_YELLOW]%s[ENDCOLOR]", Locale.ConvertTextKey(promo.Help))
+	else
+		if unit:GetPromotionDuration(promoID) > 0 then
+			local sDurationTip = ""
+			sDurationTip = " (" .. Locale.ConvertTextKey("TXT_KEY_STR_TURNS", unit:GetPromotionDuration(promoID) - (Game.GetGameTurn() - unit:GetTurnPromotionGained(promoID))) .. ")"
+			hoverText = string.format("[COLOR_YELLOW]%s[ENDCOLOR]%s[NEWLINE]%s",
+				L(promo.Description),
+				sDurationTip,
+				L(promo.Help)
+			)
+		else
+			hoverText = string.format("[COLOR_YELLOW]%s[ENDCOLOR][NEWLINE]%s",
+				Locale.ConvertTextKey(promo.Description),
+				Locale.ConvertTextKey(promo.Help)
+			)
+		end
+	end	
+
+	if promo.RankNumber then
+		-- add earlier rank promotions to the tooltip (eg add Drill 1 if we have Drill 2)
+		local rankNum = promo.RankNumber - 1
+		while rankNum > 0 do
+			for nextPromo in GameInfo.UnitPromotions{RankList = promo.RankList, RankNumber = rankNum} do
+				if unit:IsHasPromotion(nextPromo.ID) then
+					if nextPromo.SimpleHelpText then
+						hoverText = string.format("%s[NEWLINE][COLOR_YELLOW]%s[ENDCOLOR]",
+							hoverText,
+							Locale.ConvertTextKey(nextPromo.Help)
+						)
+					else
+						hoverText = string.format("%s[NEWLINE][COLOR_YELLOW]%s[ENDCOLOR][NEWLINE]%s",
+							hoverText,
+							Locale.ConvertTextKey(nextPromo.Description),
+							Locale.ConvertTextKey(nextPromo.Help)
+						)
+					end
+				end
+			end
+			rankNum = rankNum - 1
+		end
+	else
+		--Flag Promos not around to set up the rank list
+		-- so we'll just have to give up
+	end
+	controltable.EarnedPromotion:SetToolTipString( hoverText )
+end
 ---------------------------------------------------
 ---- Promotion Help
 ---------------------------------------------------
