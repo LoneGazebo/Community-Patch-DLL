@@ -2466,8 +2466,8 @@ ReligionTypes CvGameReligions::GetReligionCreatedByPlayer(PlayerTypes ePlayer, b
 			// return pantheon if we can't find a religion that the player both founded and currently owns
 			else if (it->m_bPantheon)
 				eReligion = it->m_eReligion;
-			}
 		}
+	}
 	return eReligion;
 }
 
@@ -10608,9 +10608,9 @@ bool CvReligionAI::IsProphetGainRateAcceptable()
 	ReligionTypes eReligion = pReligions->GetReligionCreatedByPlayer(m_pPlayer->GetID());
 
 	int iMaxTurns = 30;
-	if (eReligion != NO_RELIGION)
+	if (eReligion > RELIGION_PANTHEON)
 	{
-		const CvReligion* pMyReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, m_pPlayer->GetID());
+		const CvReligion* pMyReligion = pReligions->GetReligion(eReligion, m_pPlayer->GetID());
 		if (pMyReligion != NULL)
 		{
 			CvCity* pHolyCity = pMyReligion->GetHolyCity();

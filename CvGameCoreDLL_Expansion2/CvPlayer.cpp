@@ -3038,7 +3038,7 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 		{
 			GetDiplomacyAI()->SetPlayerReturnedCapital(eOldOwner, true);
 		}
-		else if (bHolyCity && IsHasLostHolyCity() && pCity->GetCityReligions()->IsHolyCityForReligion(GC.getGame().GetGameReligions()->GetReligionCreatedByPlayer(GetID())))
+		else if (bHolyCity && IsHasLostHolyCity() && pCity->GetCityReligions()->IsHolyCityForReligion(GetReligions()->GetOriginalReligionCreatedByPlayer()))
 		{
 			GetDiplomacyAI()->SetPlayerReturnedHolyCity(eOldOwner, true);
 		}
@@ -36882,7 +36882,7 @@ void CvPlayer::DoUpdateWarDamage()
 			iCityValue /= 100;
 		}
 		// Another major's original capital, or our Holy City
-		else if (pLoopCity->IsOriginalMajorCapital() || (isMajorCiv() && pLoopCity->GetCityReligions()->IsHolyCityForReligion(GC.getGame().GetGameReligions()->GetReligionCreatedByPlayer(GetID()))))
+		else if (pLoopCity->IsOriginalMajorCapital() || (isMajorCiv() && pLoopCity->GetCityReligions()->IsHolyCityForReligion(GetReligions()->GetOriginalReligionCreatedByPlayer())))
 		{
 			iCityValue *= 150;
 			iCityValue /= 100;
@@ -38298,12 +38298,8 @@ int CvPlayer::getResourceModFromReligion(ResourceTypes eIndex) const
 
 	int iQuantityMod = 0;
 
-	ReligionTypes eFounder = GC.getGame().GetGameReligions()->GetReligionCreatedByPlayer(GetID());
-	if (eFounder == NO_RELIGION)
-	{
-		eFounder = GetReligions()->GetReligionInMostCities();
-	}
-	const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eFounder, GetID());
+	ReligionTypes eReligion = GetReligions()->GetStateReligion(true);
+	const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, GetID());
 	if (pReligion)
 	{
 		CvCity* pHolyCity = pReligion->GetHolyCity();
@@ -38314,7 +38310,7 @@ int CvPlayer::getResourceModFromReligion(ResourceTypes eIndex) const
 		iQuantityMod = pReligion->m_Beliefs.GetResourceQuantityModifier(eIndex, GetID(), pHolyCity, true);
 		if (iQuantityMod != 0)
 		{
-			iQuantityMod *= GC.getGame().GetGameReligions()->GetNumCitiesFollowing(eFounder);
+			iQuantityMod *= GC.getGame().GetGameReligions()->GetNumCitiesFollowing(eReligion);
 			iQuantityMod = std::min(25, iQuantityMod);
 		}
 	}

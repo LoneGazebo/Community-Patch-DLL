@@ -2954,7 +2954,7 @@ int CvLuaGame::lEnhancePantheon(lua_State* L)
 	const bool bSetAsEnhanced = luaL_optbool(L, 4, true);
 	
 	// If this player has created a (local) religion, we need to enhance that instead!
-	ReligionTypes eReligion = GC.getGame().GetGameReligions()->GetReligionCreatedByPlayer(ePlayer);
+	ReligionTypes eReligion = GC.getGame().GetGameReligions()->GetReligionCreatedByPlayer(ePlayer, true);
 	if (eReligion == NO_RELIGION) eReligion = RELIGION_PANTHEON;
 
 	GC.getGame().GetGameReligions()->EnhanceReligion(ePlayer, eReligion, eBelief, NO_BELIEF, bNotify, bSetAsEnhanced);

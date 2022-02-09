@@ -3697,8 +3697,7 @@ int CvLuaPlayer::lGetBeliefsInPantheon(lua_State* L)
 	int idx = 1;
 
 	// If this player has created a (local) religion, we need to use that instead!
-	ReligionTypes eReligion = GC.getGame().GetGameReligions()->GetReligionCreatedByPlayer(pkPlayer->GetID());
-	if (eReligion == NO_RELIGION) eReligion = RELIGION_PANTHEON;
+	ReligionTypes eReligion = pkPlayer->GetReligions()->GetReligionCreatedByPlayer(true);
 
 	CvReligionBeliefs beliefs = GC.getGame().GetGameReligions()->GetReligion(eReligion, pkPlayer->GetID())->m_Beliefs;
 	for(int iI = 0; iI < beliefs.GetNumBeliefs(); iI++)
