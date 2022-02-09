@@ -12938,21 +12938,6 @@ int CvCity::getProductionModifier(UnitTypes eUnit, CvString* toolTipSink, bool b
 	if (MOD_BALANCE_CORE_HAPPINESS_NATIONAL && !bIgnoreHappiness && prodUnit != NO_UNIT)
 	{
 		CvUnitEntry* pUnitEntry = GC.getUnitInfo(prodUnit);
-		bool bCombat = pUnitEntry->GetCombat() > 0 || pUnitEntry->GetRangedCombat() > 0 || pUnitEntry->GetNukeDamageLevel() != -1;
-		if (bCombat)
-		{
-			int iWarWeariness = min(75, GetUnhappinessFromEmpire() * 10);
-			if (iWarWeariness > 0)
-			{
-				//Let's do the yield mods.			
-				iTempMod = iWarWeariness * -1;
-
-				iMultiplier += iTempMod;
-				if (iTempMod != 0 && toolTipSink)
-					GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_BALANCE_HAPPINESS_MOD", iTempMod);
-			}
-		}
-
 		int iTempMod = 0;
 		if (pUnitEntry->IsFound())
 		{
@@ -12984,8 +12969,7 @@ int CvCity::getProductionModifier(UnitTypes eUnit, CvString* toolTipSink, bool b
 			{
 				iTempMod = GD_INT_GET(BALANCE_HAPPINESS_PENALTY_MAXIMUM);
 			}
-			//Let's do the yield mods.	
-
+			//Let's do the yield mods.
 			iMultiplier += iTempMod;
 			if (iTempMod != 0 && toolTipSink)
 				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_BALANCE_HAPPINESS_MOD", iTempMod);
