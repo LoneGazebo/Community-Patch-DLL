@@ -4557,7 +4557,7 @@ bool CvCityReligions::IsHolyCityAnyReligion()
 	return NO_RELIGION != GC.getGame().GetGameReligions()->GetHolyCityReligion(m_pCity);
 }
 
-/// What is the the religion of this holy city?
+/// What is the religion of this Holy City?
 ReligionTypes CvCityReligions::GetReligionForHolyCity()
 {
 	return GC.getGame().GetGameReligions()->GetHolyCityReligion(m_pCity);
