@@ -4045,7 +4045,7 @@ bool CvPlayerReligions::HasOthersReligionInMostCities(PlayerTypes eOtherPlayer) 
 /// Do a majority of this player's cities follow a specific religion?
 bool CvPlayerReligions::HasReligionInMostCities(ReligionTypes eReligion) const
 {
-	if (eReligion <= RELIGION_PANTHEON)
+	if (eReligion == NO_RELIGION)
 		return false;
 
 	int iNumFollowingCities = 0;
@@ -4100,7 +4100,7 @@ bool CvPlayerReligions::UpdateStateReligion()
 	}
 
 	//by default use the religion we founded (if we still control it)
-	ReligionTypes eNewStateReligion = GC.getGame().GetGameReligions()->GetReligionCreatedByPlayer(ePlayer);
+	ReligionTypes eNewStateReligion = GetReligionCreatedByPlayer();
 
 	if (eNewStateReligion == NO_RELIGION)
 	{
