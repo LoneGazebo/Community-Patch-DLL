@@ -2449,21 +2449,26 @@ bool CvGameReligions::IsCityStateFriendOfReligionFounder(ReligionTypes eReligion
 }
 
 /// Get the religion this player created IF he currently owns it (can include pantheons)
-ReligionTypes CvGameReligions::GetReligionCreatedByPlayer(PlayerTypes ePlayer) const
+ReligionTypes CvGameReligions::GetReligionCreatedByPlayer(PlayerTypes ePlayer, bool bIncludePantheon) const
 {
+	ReligionTypes eReligion = NO_RELIGION;
 	ReligionList::const_iterator it;
 	for(it = m_CurrentReligions.begin(); it != m_CurrentReligions.end(); it++)
 	{
 		if(it->m_eFounder == ePlayer)
 		{
+			if (!bIncludePantheon && it->m_bPantheon)
+				continue;
+			
 			CvCity* pHolyCity = it->GetHolyCity();
 			if (pHolyCity && pHolyCity->getOwner()==ePlayer)
-			{
 				return it->m_eReligion;
+			// return pantheon if we can't find a religion that the player both founded and currently owns
+			else if (it->m_bPantheon)
+				eReligion = it->m_eReligion;
 			}
 		}
-	}
-	return NO_RELIGION;
+	return eReligion;
 }
 
 /// Get the pantheon this player created
@@ -2483,7 +2488,7 @@ ReligionTypes CvGameReligions::GetPantheonCreatedByPlayer(PlayerTypes ePlayer) c
 	return NO_RELIGION;
 }
 
-/// Return the religion that this player created
+/// Return the religion that this player created (player never loses control of pantheon, so don't use this function)
 ReligionTypes CvGameReligions::GetOriginalReligionCreatedByPlayer(PlayerTypes ePlayer) const
 {
 	ReligionList::const_iterator it;
@@ -2503,7 +2508,7 @@ ReligionTypes CvGameReligions::GetOriginalReligionCreatedByPlayer(PlayerTypes eP
 /// Get the religion for which this player is eligible for founder benefits
 ReligionTypes CvGameReligions::GetFounderBenefitsReligion(PlayerTypes ePlayer) const
 {
-	ReligionTypes eReligion = GET_PLAYER(ePlayer).GetReligions()->GetReligionCreatedByPlayer();
+	ReligionTypes eReligion = GET_PLAYER(ePlayer).GetReligions()->GetReligionCreatedByPlayer(true);
 	if(eReligion == RELIGION_PANTHEON)
 		return eReligion;
 
@@ -3919,12 +3924,7 @@ bool CvPlayerReligions::HasAddedReformationBelief() const
 /// Get the religion this player created
 ReligionTypes CvPlayerReligions::GetReligionCreatedByPlayer(bool bIncludePantheon) const
 {
-	ReligionTypes eReligion = GC.getGame().GetGameReligions()->GetReligionCreatedByPlayer(m_pPlayer->GetID());
-
-	if (!bIncludePantheon && eReligion == RELIGION_PANTHEON)
-		return NO_RELIGION;
-
-	return eReligion;
+	return GC.getGame().GetGameReligions()->GetReligionCreatedByPlayer(m_pPlayer->GetID(), bIncludePantheon);
 }
 
 ReligionTypes CvPlayerReligions::GetOriginalReligionCreatedByPlayer() const
