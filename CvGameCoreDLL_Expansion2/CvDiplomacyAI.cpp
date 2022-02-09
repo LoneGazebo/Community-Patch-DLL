@@ -6582,7 +6582,7 @@ bool CvDiplomacyAI::IsHolyCityCapturedBy(PlayerTypes ePlayer, bool bCurrently, b
 		return true;
 
 	CvPlot *pHolyCityPlot = GC.getMap().plot(m_pPlayer->GetLostHolyCityX(), m_pPlayer->GetLostHolyCityY());
-	if (pHolyCityPlot != NULL && pHolyCityPlot->isCity() && pHolyCityPlot->getPlotCity()->GetCityReligions()->IsHolyCityForReligion(GC.getGame().GetGameReligions()->GetReligionCreatedByPlayer(GetID())))
+	if (pHolyCityPlot != NULL && pHolyCityPlot->isCity() && pHolyCityPlot->getPlotCity()->GetCityReligions()->IsHolyCityForReligion(GetPlayer()->GetReligions()->GetOriginalReligionCreatedByPlayer()))
 	{
 		if (bTeammates)
 		{
@@ -54474,7 +54474,7 @@ bool CvDiplomacyAI::IsCapitulationAcceptable(PlayerTypes ePlayer)
 		else if (pLoopCity->IsBlockadedWaterAndLand() && pLoopCity->getDamage() >= (pLoopCity->GetMaxHitPoints()/4))
 		{
 			// Don't surrender if we could get our capital or Holy City back!
-			if (pLoopCity->IsOriginalCapitalForPlayer(GetID()) || pLoopCity->GetCityReligions()->IsHolyCityForReligion(GC.getGame().GetGameReligions()->GetReligionCreatedByPlayer(GetID())))
+			if (pLoopCity->IsOriginalCapitalForPlayer(GetID()) || pLoopCity->GetCityReligions()->IsHolyCityForReligion(GetPlayer()->GetReligions()->GetOriginalReligionCreatedByPlayer())
 				return false;
 
 			iCapitulationScore -= 15;
@@ -54482,7 +54482,7 @@ bool CvDiplomacyAI::IsCapitulationAcceptable(PlayerTypes ePlayer)
 		else if (pLoopCity->isUnderSiege() && pLoopCity->getDamage() >= (pLoopCity->GetMaxHitPoints()/2))
 		{
 			// Don't surrender if we could get our capital or Holy City back!
-			if (pLoopCity->IsOriginalCapitalForPlayer(GetID()) || pLoopCity->GetCityReligions()->IsHolyCityForReligion(GC.getGame().GetGameReligions()->GetReligionCreatedByPlayer(GetID())))
+			if (pLoopCity->IsOriginalCapitalForPlayer(GetID()) || pLoopCity->GetCityReligions()->IsHolyCityForReligion(GetPlayer()->GetReligions()->GetOriginalReligionCreatedByPlayer())
 				return false;
 
 			iCapitulationScore -= 10;
