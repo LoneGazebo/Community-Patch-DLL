@@ -2915,7 +2915,7 @@ int CvDiplomacyAI::GetDominationVictoryProgress() const
 				iOurMight += iMight;
 				iCivsProgress += 1;
 			}
-			else if (IsCapitalCapturedBy(GetID(), true))
+			else if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCapitalCapturedBy(GetID(), true))
 			{
 				iCivsProgress += 1;
 			}
