@@ -2896,10 +2896,10 @@
 
 		<!-- No Supply -->
 		<Row Tag="TXT_KEY_NO_ACTION_NO_SUPPLY">
-			<Text>[NEWLINE]Cannot [ICON_PRODUCTION] Train this unit, as you are at your Supply cap!</Text>
+			<Text>[NEWLINE]Cannot [ICON_PRODUCTION] Train this unit, as you are at your maximum Supply cap!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NO_ACTION_NO_SUPPLY_PURCHASE">
-			<Text>[NEWLINE]Cannot [ICON_GOLD] Purchase this unit, as you are at your Supply cap!</Text>
+			<Text>[NEWLINE]Cannot [ICON_GOLD] Purchase this unit, as you are at your maximum Supply cap!</Text>
 		</Row>
 		
 		<!-- Lack of gross resource (before deductions) -->

@@ -3038,7 +3038,7 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 		{
 			GetDiplomacyAI()->SetPlayerReturnedCapital(eOldOwner, true);
 		}
-		else if (bHolyCity && IsHasLostHolyCity() && pCity->GetCityReligions()->IsHolyCityForReligion(GC.getGame().GetGameReligions()->GetReligionCreatedByPlayer(GetID())))
+		else if (bHolyCity && IsHasLostHolyCity() && pCity->GetCityReligions()->IsHolyCityForReligion(GetReligions()->GetOriginalReligionCreatedByPlayer()))
 		{
 			GetDiplomacyAI()->SetPlayerReturnedHolyCity(eOldOwner, true);
 		}
@@ -3173,7 +3173,7 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 				}
 			}
 			// Their Holy City!
-			else if (GET_PLAYER(eOldOwner).isMajorCiv() && bHolyCity && pCity->GetCityReligions()->IsHolyCityForReligion(GC.getGame().GetGameReligions()->GetReligionCreatedByPlayer(eOldOwner)))
+			else if (GET_PLAYER(eOldOwner).isMajorCiv() && bHolyCity && pCity->GetCityReligions()->IsHolyCityForReligion(GET_PLAYER(eOldOwner).GetReligions()->GetOriginalReligionCreatedByPlayer()))
 			{
 				iCityValue *= 150;
 				iCityValue /= 100;
@@ -4102,14 +4102,10 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 	}
 
 	// Reacquired our Holy City?
-	if (bHolyCity && IsHasLostHolyCity() && iCityX == GetLostHolyCityX() && iCityY == GetLostHolyCityY())
+	if (bHolyCity && IsHasLostHolyCity() && pNewCity->GetCityReligions()->IsHolyCityForReligion(GetReligions()->GetOriginalReligionCreatedByPlayer()))
 	{
-		const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(pNewCity->GetCityReligions()->GetReligionForHolyCity(), NO_PLAYER);
-		if (pReligion && pReligion->m_eFounder == GetID())
-		{
-			// Notify, etc.
-			SetHasLostHolyCity(false, NO_PLAYER);
-		}
+		// Notify, etc.
+		SetHasLostHolyCity(false, NO_PLAYER);
 	}
 
 	// Reacquired our original capital?
@@ -9646,15 +9642,9 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 			}
 
 			// Liberated the Holy City - big bonus IF the Holy City status still remains
-			if (GET_PLAYER(ePlayer).IsHasLostHolyCity() && pCity->GetCityReligions()->IsHolyCityForReligion(GC.getGame().GetGameReligions()->GetReligionCreatedByPlayer(ePlayer)))
+			if (GET_PLAYER(ePlayer).IsHasLostHolyCity() && pCity->GetCityReligions()->IsHolyCityForReligion(GET_PLAYER(ePlayer).GetReligions()->GetOriginalReligionCreatedByPlayer()))
 			{
-				ReligionTypes eReligion = pCity->GetCityReligions()->GetReligionForHolyCity();
-				const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, ePlayer);
-
-				if (pReligion && pReligion->m_eFounder == ePlayer)
-				{
-					pDiploAI->SetPlayerLiberatedHolyCity(m_eID, true);
-				}
+				pDiploAI->SetPlayerLiberatedHolyCity(m_eID, true);
 			}
 
 			pDiploAI->ChangeNumCitiesLiberatedBy(m_eID, 1);
@@ -17875,7 +17865,7 @@ int CvPlayer::calculateTotalYield(YieldTypes eYield) const
 }
 
 //	--------------------------------------------------------------------------------
-/// How much Production is being eaten up by Units? (cached)
+/// How much Production is being eaten up by Units over the supply limit? (cached)
 int CvPlayer::GetUnitProductionMaintenanceMod() const
 {
 	// Kind of a cop-out, but it fixes some bugs for now
@@ -17883,7 +17873,7 @@ int CvPlayer::GetUnitProductionMaintenanceMod() const
 }
 
 //	--------------------------------------------------------------------------------
-/// How much Production is being eaten up by Units? (update cache)
+/// How much Production is being eaten up by Units over the supply limit? (update cache)
 void CvPlayer::UpdateUnitProductionMaintenanceMod()
 {
 	m_iUnitProductionMaintenanceMod = calculateUnitProductionMaintenanceMod();
@@ -17896,27 +17886,22 @@ void CvPlayer::UpdateUnitProductionMaintenanceMod()
 }
 
 //	--------------------------------------------------------------------------------
-/// How much Production is being eaten up by Units?
+/// How much Production is being eaten up by Units over the supply limit?
 int CvPlayer::calculateUnitProductionMaintenanceMod() const
 {
-	int iPaidUnits = GetNumUnitsOutOfSupply();
-
-	// Example: Player can support 8 Units, he has 12. 4 * 5 means he loses 20% of his Production
-	int iNormal = 10;
-
-	if (MOD_BALANCE_DYNAMIC_UNIT_SUPPLY)
+	int iUnitsOverSupply = GetNumUnitsOutOfSupply();
+	if (iUnitsOverSupply > 0)
 	{
-		iNormal = 5;
+		// Example: Player can support 8 Units, he has 12. 4 * 5 means he loses 20% of his Production
+		int iMaintenanceMod = min(/*70*/ max(GD_INT_GET(MAX_UNIT_SUPPLY_PRODMOD), 0), iUnitsOverSupply * /*10 in CP, 5 in CBO*/ max(GD_INT_GET(PRODUCTION_PENALTY_PER_UNIT_OVER_SUPPLY), 0));
+		return iMaintenanceMod * -1;
 	}
 
-	int iMaintenanceMod = min(/*70*/ GD_INT_GET(MAX_UNIT_SUPPLY_PRODMOD), iPaidUnits * iNormal);
-	iMaintenanceMod = -iMaintenanceMod;
-
-	return iMaintenanceMod;
+	return 0;
 }
 
 //	--------------------------------------------------------------------------------
-/// How much Growth is being eaten up by Units? (cached)
+/// How much Growth is being eaten up by Units over the supply limit? (cached)
 int CvPlayer::GetUnitGrowthMaintenanceMod() const
 {
 	// Kind of a cop-out, but it fixes some bugs for now
@@ -17924,7 +17909,7 @@ int CvPlayer::GetUnitGrowthMaintenanceMod() const
 }
 
 //	--------------------------------------------------------------------------------
-/// How much Growth is being eaten up by Units? (update cache)
+/// How much Growth is being eaten up by Units over the supply limit? (update cache)
 void CvPlayer::UpdateUnitGrowthMaintenanceMod()
 {
 	m_iUnitGrowthMaintenanceMod = calculateUnitGrowthMaintenanceMod();
@@ -17937,16 +17922,18 @@ void CvPlayer::UpdateUnitGrowthMaintenanceMod()
 }
 
 //	--------------------------------------------------------------------------------
-/// How much Growth is being eaten up by Units?
+/// How much Growth is being eaten up by Units over the supply limit?
 int CvPlayer::calculateUnitGrowthMaintenanceMod() const
 {
-	int iPaidUnits = GetNumUnitsOutOfSupply();
+	int iUnitsOverSupply = GetNumUnitsOutOfSupply();
+	if (iUnitsOverSupply > 0)
+	{
+		// Example: Player can support 8 Units, he has 12. 4 * 5 means he loses 20% of his Food
+		int iMaintenanceMod = min(/*70*/ max(GD_INT_GET(MAX_UNIT_SUPPLY_GROWTH_MOD), 0), iUnitsOverSupply * /*5*/ max(GD_INT_GET(GROWTH_PENALTY_PER_UNIT_OVER_SUPPLY), 0));
+		return iMaintenanceMod * -1;
+	}
 
-	// Example: Player can support 8 Units, he has 12. 4 * 5 means he loses 20% of his Food
-	int iMaintenanceMod = min(/*70*/ GD_INT_GET(MAX_UNIT_SUPPLY_PRODMOD), iPaidUnits * 5);
-	iMaintenanceMod = -iMaintenanceMod;
-
-	return iMaintenanceMod;
+	return 0;
 }
 
 //	--------------------------------------------------------------------------------
@@ -36882,7 +36869,7 @@ void CvPlayer::DoUpdateWarDamage()
 			iCityValue /= 100;
 		}
 		// Another major's original capital, or our Holy City
-		else if (pLoopCity->IsOriginalMajorCapital() || (isMajorCiv() && pLoopCity->GetCityReligions()->IsHolyCityForReligion(GC.getGame().GetGameReligions()->GetReligionCreatedByPlayer(GetID()))))
+		else if (pLoopCity->IsOriginalMajorCapital() || (isMajorCiv() && pLoopCity->GetCityReligions()->IsHolyCityForReligion(GetReligions()->GetOriginalReligionCreatedByPlayer())))
 		{
 			iCityValue *= 150;
 			iCityValue /= 100;
@@ -38298,12 +38285,8 @@ int CvPlayer::getResourceModFromReligion(ResourceTypes eIndex) const
 
 	int iQuantityMod = 0;
 
-	ReligionTypes eFounder = GC.getGame().GetGameReligions()->GetReligionCreatedByPlayer(GetID());
-	if (eFounder == NO_RELIGION)
-	{
-		eFounder = GetReligions()->GetReligionInMostCities();
-	}
-	const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eFounder, GetID());
+	ReligionTypes eReligion = GetReligions()->GetStateReligion(true);
+	const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, GetID());
 	if (pReligion)
 	{
 		CvCity* pHolyCity = pReligion->GetHolyCity();
@@ -38314,7 +38297,7 @@ int CvPlayer::getResourceModFromReligion(ResourceTypes eIndex) const
 		iQuantityMod = pReligion->m_Beliefs.GetResourceQuantityModifier(eIndex, GetID(), pHolyCity, true);
 		if (iQuantityMod != 0)
 		{
-			iQuantityMod *= GC.getGame().GetGameReligions()->GetNumCitiesFollowing(eFounder);
+			iQuantityMod *= GC.getGame().GetGameReligions()->GetNumCitiesFollowing(eReligion);
 			iQuantityMod = std::min(25, iQuantityMod);
 		}
 	}

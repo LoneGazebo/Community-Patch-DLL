@@ -8593,10 +8593,10 @@ bool CvCity::canTrain(UnitTypes eUnit, bool bContinue, bool bTestVisible, bool b
 	}
 
 	// check whether we can supply the units. do not check this on player level, all the dynamic checks should happen here
-	if (MOD_BALANCE_CORE_MILITARY && !isHuman() && !pkUnitEntry->IsNoSupply())
+	if (MOD_BALANCE_CORE_MILITARY && !isHuman() && !isBarbarian() && !pkUnitEntry->IsNoSupply() && (pkUnitEntry->GetCombat() > 0 || pkUnitEntry->GetRangedCombat() > 0))
 	{
 		bool bCanSupply = GET_PLAYER(getOwner()).GetNumUnitsToSupply() < GET_PLAYER(getOwner()).GetNumUnitsSupplied(); // this works when we're at the limit
-		if (!bCanSupply && !isBarbarian() && (pkUnitEntry->GetCombat() > 0 || pkUnitEntry->GetRangedCombat() > 0))
+		if (!bCanSupply)
 		{
 			return false;
 		}
@@ -8631,10 +8631,13 @@ bool CvCity::canTrain(UnitTypes eUnit, bool bContinue, bool bTestVisible, bool b
 			}
 		}
 
-		if (MOD_BALANCE_CORE_MILITARY && !pUnitInfo.IsNoSupply())
+		if (MOD_BALANCE_CORE_MILITARY && !isBarbarian() && !pUnitInfo.IsNoSupply() && (pUnitInfo.GetCombat() > 0 || pUnitInfo.GetRangedCombat() > 0))
 		{
-			bool bCanSupply = GET_PLAYER(getOwner()).GetNumUnitsToSupply() < GET_PLAYER(getOwner()).GetNumUnitsSupplied(); // this works when we're at the limit
-			if (!bCanSupply && !isBarbarian() && (pUnitInfo.GetCombat() > 0 || pUnitInfo.GetRangedCombat() > 0))
+			int iMaxSupplyPenalty = /*70*/ GD_INT_GET(MAX_UNIT_SUPPLY_PRODMOD);
+			int iSupplyPenaltyPerUnit = /*10 in CP, 5 in CBO*/ GD_INT_GET(PRODUCTION_PENALTY_PER_UNIT_OVER_SUPPLY);
+			int iMaxUnitsOverSupply = (iMaxSupplyPenalty > 0 && iSupplyPenaltyPerUnit > 0) ? iMaxSupplyPenalty / iSupplyPenaltyPerUnit : INT_MAX;
+
+			if (GET_PLAYER(getOwner()).GetNumUnitsOutOfSupply() >= iMaxUnitsOverSupply)
 			{
 				GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_NO_ACTION_NO_SUPPLY");
 				if (toolTipSink == NULL)
@@ -12935,21 +12938,6 @@ int CvCity::getProductionModifier(UnitTypes eUnit, CvString* toolTipSink, bool b
 	if (MOD_BALANCE_CORE_HAPPINESS_NATIONAL && !bIgnoreHappiness && prodUnit != NO_UNIT)
 	{
 		CvUnitEntry* pUnitEntry = GC.getUnitInfo(prodUnit);
-		bool bCombat = pUnitEntry->GetCombat() > 0 || pUnitEntry->GetRangedCombat() > 0 || pUnitEntry->GetNukeDamageLevel() != -1;
-		if (bCombat)
-		{
-			int iWarWeariness = min(75, GetUnhappinessFromEmpire() * 10);
-			if (iWarWeariness > 0)
-			{
-				//Let's do the yield mods.			
-				iTempMod = iWarWeariness * -1;
-
-				iMultiplier += iTempMod;
-				if (iTempMod != 0 && toolTipSink)
-					GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_BALANCE_HAPPINESS_MOD", iTempMod);
-			}
-		}
-
 		int iTempMod = 0;
 		if (pUnitEntry->IsFound())
 		{
@@ -12981,8 +12969,7 @@ int CvCity::getProductionModifier(UnitTypes eUnit, CvString* toolTipSink, bool b
 			{
 				iTempMod = GD_INT_GET(BALANCE_HAPPINESS_PENALTY_MAXIMUM);
 			}
-			//Let's do the yield mods.	
-
+			//Let's do the yield mods.
 			iMultiplier += iTempMod;
 			if (iTempMod != 0 && toolTipSink)
 				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_BALANCE_HAPPINESS_MOD", iTempMod);
@@ -26522,7 +26509,9 @@ int CvCity::GetBaseYieldRateFromReligion(YieldTypes eIndex) const
 		ReligionTypes eReligionFounded = GET_PLAYER(getOwner()).GetReligions()->GetReligionCreatedByPlayer(true);
 		if (MOD_BALANCE_CORE_BELIEFS && eReligionFounded != NO_RELIGION && eReligionFounded >= RELIGION_PANTHEON)
 		{
-			if (GetCityReligions()->GetReligiousMajority() == eReligionFounded)
+			ReligionTypes eMajorityReligion = GetCityReligions()->GetReligiousMajority();
+			ReligionTypes ePlayerPantheon = GC.getGame().GetGameReligions()->GetPantheonCreatedByPlayer(getOwner());
+			if (eMajorityReligion != NO_RELIGION && (eMajorityReligion == eReligionFounded || eMajorityReligion == ePlayerPantheon))
 			{
 				iBaseYield += GET_PLAYER(getOwner()).GetPlayerTraits()->GetYieldFromOwnPantheon(eIndex);
 			}

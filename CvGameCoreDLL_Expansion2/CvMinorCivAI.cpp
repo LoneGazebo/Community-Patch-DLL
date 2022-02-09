@@ -2637,7 +2637,7 @@ void CvMinorCivQuest::DoStartQuest(int iStartTurn)
 	// Spread your religion to us
 	else if(m_eType == MINOR_CIV_QUEST_SPREAD_RELIGION)
 	{
-		ReligionTypes eReligion = GC.getGame().GetGameReligions()->GetReligionCreatedByPlayer(m_eAssignedPlayer);
+		ReligionTypes eReligion = GET_PLAYER(m_eAssignedPlayer).GetReligions()->GetOwnedReligion();
 
 		CvAssertMsg(eReligion != NO_RELIGION, "MINOR CIV AI: eReligion should not be NO_RELIGION when giving a Spread Religion quest! Please send Anton your save file and version.");
 

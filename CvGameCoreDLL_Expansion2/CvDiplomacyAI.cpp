@@ -2808,42 +2808,41 @@ int CvDiplomacyAI::GetScoreVictoryProgress() const
 	return iProgress;
 }
 
-/// How close are we to achieving a Science victory?
-int CvDiplomacyAI::GetScienceVictoryProgress() const
+/// How close are we to achieving a Domination victory?
+int CvDiplomacyAI::GetDominationVictoryProgress() const
 {
-	VictoryTypes eSpaceVictory = (VictoryTypes)GC.getInfoTypeForString("VICTORY_SPACE_RACE", true);
-
-	if (!m_pPlayer->isMajorCiv() || !m_pPlayer->isAlive() || GC.getGame().isOption(GAMEOPTION_NO_SCIENCE) || !GC.getGame().isVictoryValid(eSpaceVictory) || GC.getGame().IsGameWon())
+	if (!m_pPlayer->isMajorCiv() || !m_pPlayer->isAlive() || !GC.getGame().CanPlayerAttemptDominationVictory(GetID()))
 	{
 		return 0;
 	}
 
-	int iProjectsRequired = 0, iProjectsCompleted = 0;
-	for (int iK = 0; iK < GC.getNumProjectInfos(); iK++)
+	int iCivsProgress = 0, iTotalCivs = 0, iOurMight = 0, iTotalMight = 0;
+	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
-		const ProjectTypes eProject = static_cast<ProjectTypes>(iK);
-		CvProjectEntry* pkProjectInfo = GC.getProjectInfo(eProject);
-		if (pkProjectInfo)
+		PlayerTypes ePlayer = (PlayerTypes) iPlayerLoop;
+
+		if (GET_PLAYER(ePlayer).isAlive() && GET_PLAYER(ePlayer).isMajorCiv())
 		{
-			iProjectsRequired += pkProjectInfo->GetVictoryMinThreshold(eSpaceVictory);
-			iProjectsCompleted += GET_TEAM(m_pPlayer->getTeam()).getProjectCount(eProject);
+			iTotalCivs++;
+			int iMight = GET_PLAYER(ePlayer).GetMilitaryMight();
+			iTotalMight += iMight;
+
+			if (ePlayer == GetID() || IsMaster(ePlayer))
+			{
+				iOurMight += iMight;
+				iCivsProgress += 1;
+			}
+			else if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCapitalCapturedBy(GetID(), true))
+			{
+				iCivsProgress += 1;
+			}
 		}
 	}
-	ProjectTypes eApollo = (ProjectTypes)GC.getInfoTypeForString("PROJECT_APOLLO_PROGRAM", true);
-	if (eApollo != NO_PROJECT)
-	{
-		iProjectsRequired++;
-		if (GET_TEAM(m_pPlayer->getTeam()).getProjectCount(eApollo) > 0)
-		{
-			iProjectsCompleted++;
-		}			
-	}
 
-	int iScienceProgress = (GET_TEAM(m_pPlayer->getTeam()).GetTeamTechs()->GetNumTechsKnown() * 100) / max(1, GC.getNumTechInfos() - 1);
-	int iSpaceshipProgress = (21 * iProjectsCompleted) / max(1, iProjectsRequired);
-	int iProgress = min(iScienceProgress, 78 + iSpaceshipProgress);
-	
-	return iProgress;
+	iOurMight = (iOurMight * 100) / max(1, iTotalMight);
+	iCivsProgress = (iCivsProgress * 100) / max(1, iTotalCivs);
+
+	return max(iOurMight, iCivsProgress);
 }
 
 /// How close are we to achieving a Diplomatic victory?
@@ -2891,41 +2890,42 @@ int CvDiplomacyAI::GetDiplomaticVictoryProgress() const
 	return iProgress;
 }
 
-/// How close are we to achieving a Domination victory?
-int CvDiplomacyAI::GetDominationVictoryProgress() const
+/// How close are we to achieving a Science victory?
+int CvDiplomacyAI::GetScienceVictoryProgress() const
 {
-	if (!m_pPlayer->isMajorCiv() || !m_pPlayer->isAlive() || !GC.getGame().CanPlayerAttemptDominationVictory(GetID()))
+	VictoryTypes eSpaceVictory = (VictoryTypes)GC.getInfoTypeForString("VICTORY_SPACE_RACE", true);
+
+	if (!m_pPlayer->isMajorCiv() || !m_pPlayer->isAlive() || GC.getGame().isOption(GAMEOPTION_NO_SCIENCE) || !GC.getGame().isVictoryValid(eSpaceVictory) || GC.getGame().IsGameWon())
 	{
 		return 0;
 	}
 
-	int iCivsProgress = 0, iTotalCivs = 0, iOurMight = 0, iTotalMight = 0;
-	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+	int iProjectsRequired = 0, iProjectsCompleted = 0;
+	for (int iK = 0; iK < GC.getNumProjectInfos(); iK++)
 	{
-		PlayerTypes ePlayer = (PlayerTypes) iPlayerLoop;
-
-		if (GET_PLAYER(ePlayer).isAlive() && GET_PLAYER(ePlayer).isMajorCiv())
+		const ProjectTypes eProject = static_cast<ProjectTypes>(iK);
+		CvProjectEntry* pkProjectInfo = GC.getProjectInfo(eProject);
+		if (pkProjectInfo)
 		{
-			iTotalCivs++;
-			int iMight = GET_PLAYER(ePlayer).GetMilitaryMight();
-			iTotalMight += iMight;
-
-			if (ePlayer == GetID() || IsMaster(ePlayer))
-			{
-				iOurMight += iMight;
-				iCivsProgress += 1;
-			}
-			else if (IsCapitalCapturedBy(GetID(), true))
-			{
-				iCivsProgress += 1;
-			}
+			iProjectsRequired += pkProjectInfo->GetVictoryMinThreshold(eSpaceVictory);
+			iProjectsCompleted += GET_TEAM(m_pPlayer->getTeam()).getProjectCount(eProject);
 		}
 	}
+	ProjectTypes eApollo = (ProjectTypes)GC.getInfoTypeForString("PROJECT_APOLLO_PROGRAM", true);
+	if (eApollo != NO_PROJECT)
+	{
+		iProjectsRequired++;
+		if (GET_TEAM(m_pPlayer->getTeam()).getProjectCount(eApollo) > 0)
+		{
+			iProjectsCompleted++;
+		}			
+	}
 
-	iOurMight = (iOurMight * 100) / max(1, iTotalMight);
-	iCivsProgress = (iCivsProgress * 100) / max(1, iTotalCivs);
-
-	return max(iOurMight, iCivsProgress);
+	int iScienceProgress = (GET_TEAM(m_pPlayer->getTeam()).GetTeamTechs()->GetNumTechsKnown() * 100) / max(1, GC.getNumTechInfos() - 1);
+	int iSpaceshipProgress = (21 * iProjectsCompleted) / max(1, iProjectsRequired);
+	int iProgress = min(iScienceProgress, 78 + iSpaceshipProgress);
+	
+	return iProgress;
 }
 
 /// How close are we to achieving a Culture victory?
@@ -6582,7 +6582,7 @@ bool CvDiplomacyAI::IsHolyCityCapturedBy(PlayerTypes ePlayer, bool bCurrently, b
 		return true;
 
 	CvPlot *pHolyCityPlot = GC.getMap().plot(m_pPlayer->GetLostHolyCityX(), m_pPlayer->GetLostHolyCityY());
-	if (pHolyCityPlot != NULL && pHolyCityPlot->isCity() && pHolyCityPlot->getPlotCity()->GetCityReligions()->IsHolyCityForReligion(GC.getGame().GetGameReligions()->GetReligionCreatedByPlayer(GetID())))
+	if (pHolyCityPlot != NULL && pHolyCityPlot->isCity() && pHolyCityPlot->getPlotCity()->GetCityReligions()->IsHolyCityForReligion(GetPlayer()->GetReligions()->GetOriginalReligionCreatedByPlayer()))
 	{
 		if (bTeammates)
 		{
@@ -54474,7 +54474,7 @@ bool CvDiplomacyAI::IsCapitulationAcceptable(PlayerTypes ePlayer)
 		else if (pLoopCity->IsBlockadedWaterAndLand() && pLoopCity->getDamage() >= (pLoopCity->GetMaxHitPoints()/4))
 		{
 			// Don't surrender if we could get our capital or Holy City back!
-			if (pLoopCity->IsOriginalCapitalForPlayer(GetID()) || pLoopCity->GetCityReligions()->IsHolyCityForReligion(GC.getGame().GetGameReligions()->GetReligionCreatedByPlayer(GetID())))
+			if (pLoopCity->IsOriginalCapitalForPlayer(GetID()) || pLoopCity->GetCityReligions()->IsHolyCityForReligion(GetPlayer()->GetReligions()->GetOriginalReligionCreatedByPlayer()))
 				return false;
 
 			iCapitulationScore -= 15;
@@ -54482,7 +54482,7 @@ bool CvDiplomacyAI::IsCapitulationAcceptable(PlayerTypes ePlayer)
 		else if (pLoopCity->isUnderSiege() && pLoopCity->getDamage() >= (pLoopCity->GetMaxHitPoints()/2))
 		{
 			// Don't surrender if we could get our capital or Holy City back!
-			if (pLoopCity->IsOriginalCapitalForPlayer(GetID()) || pLoopCity->GetCityReligions()->IsHolyCityForReligion(GC.getGame().GetGameReligions()->GetReligionCreatedByPlayer(GetID())))
+			if (pLoopCity->IsOriginalCapitalForPlayer(GetID()) || pLoopCity->GetCityReligions()->IsHolyCityForReligion(GetPlayer()->GetReligions()->GetOriginalReligionCreatedByPlayer()))
 				return false;
 
 			iCapitulationScore -= 10;

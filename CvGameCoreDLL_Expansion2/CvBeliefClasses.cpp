@@ -2083,13 +2083,14 @@ BeliefTypes CvReligionBeliefs::GetBelief(int iIndex) const
 	return NO_BELIEF;
 }
 
-/// Does this religion possess a specific belief?
+/// How many beliefs does this religion have?
 int CvReligionBeliefs::GetNumBeliefs() const
 {
 	return m_ReligionBeliefs.size();
 }
 
 #if defined(MOD_BALANCE_CORE)
+// Does the requested pantheon belief exist in the religion of the requested player?
 bool CvReligionBeliefs::IsPantheonBeliefInReligion(BeliefTypes eBelief, ReligionTypes eReligion, PlayerTypes ePlayer) const
 {
 	ReligionTypes ePantheon = GC.getGame().GetGameReligions()->GetPantheonCreatedByPlayer(ePlayer);

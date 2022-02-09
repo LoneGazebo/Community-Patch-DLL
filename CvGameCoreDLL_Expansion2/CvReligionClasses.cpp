@@ -2448,25 +2448,27 @@ bool CvGameReligions::IsCityStateFriendOfReligionFounder(ReligionTypes eReligion
 	return false;
 }
 
-/// Get the religion this player created
-ReligionTypes CvGameReligions::GetReligionCreatedByPlayer(PlayerTypes ePlayer) const
+/// Get the religion this player created IF he currently owns it (can include pantheons)
+ReligionTypes CvGameReligions::GetReligionCreatedByPlayer(PlayerTypes ePlayer, bool bIncludePantheon) const
 {
+	ReligionTypes eReligion = NO_RELIGION;
 	ReligionList::const_iterator it;
 	for(it = m_CurrentReligions.begin(); it != m_CurrentReligions.end(); it++)
 	{
-		if (it->m_bPantheon)
-			continue;
-
 		if(it->m_eFounder == ePlayer)
 		{
+			if (!bIncludePantheon && it->m_bPantheon)
+				continue;
+			
 			CvCity* pHolyCity = it->GetHolyCity();
 			if (pHolyCity && pHolyCity->getOwner()==ePlayer)
-			{
 				return it->m_eReligion;
-			}
+			// return pantheon if we can't find a religion that the player both founded and currently owns
+			else if (it->m_bPantheon)
+				eReligion = it->m_eReligion;
 		}
 	}
-	return NO_RELIGION;
+	return eReligion;
 }
 
 /// Get the pantheon this player created
@@ -2486,7 +2488,7 @@ ReligionTypes CvGameReligions::GetPantheonCreatedByPlayer(PlayerTypes ePlayer) c
 	return NO_RELIGION;
 }
 
-
+/// Return the religion that this player created (player never loses control of pantheon, so don't use this function)
 ReligionTypes CvGameReligions::GetOriginalReligionCreatedByPlayer(PlayerTypes ePlayer) const
 {
 	ReligionList::const_iterator it;
@@ -3922,12 +3924,7 @@ bool CvPlayerReligions::HasAddedReformationBelief() const
 /// Get the religion this player created
 ReligionTypes CvPlayerReligions::GetReligionCreatedByPlayer(bool bIncludePantheon) const
 {
-	ReligionTypes eReligion = GC.getGame().GetGameReligions()->GetReligionCreatedByPlayer(m_pPlayer->GetID());
-
-	if (!bIncludePantheon && eReligion == RELIGION_PANTHEON)
-		return NO_RELIGION;
-
-	return eReligion;
+	return GC.getGame().GetGameReligions()->GetReligionCreatedByPlayer(m_pPlayer->GetID(), bIncludePantheon);
 }
 
 ReligionTypes CvPlayerReligions::GetOriginalReligionCreatedByPlayer() const
@@ -4048,7 +4045,7 @@ bool CvPlayerReligions::HasOthersReligionInMostCities(PlayerTypes eOtherPlayer) 
 /// Do a majority of this player's cities follow a specific religion?
 bool CvPlayerReligions::HasReligionInMostCities(ReligionTypes eReligion) const
 {
-	if (eReligion <= RELIGION_PANTHEON)
+	if (eReligion == NO_RELIGION)
 		return false;
 
 	int iNumFollowingCities = 0;
@@ -4103,7 +4100,7 @@ bool CvPlayerReligions::UpdateStateReligion()
 	}
 
 	//by default use the religion we founded (if we still control it)
-	ReligionTypes eNewStateReligion = GC.getGame().GetGameReligions()->GetReligionCreatedByPlayer(ePlayer);
+	ReligionTypes eNewStateReligion = GetReligionCreatedByPlayer();
 
 	if (eNewStateReligion == NO_RELIGION)
 	{
@@ -4241,7 +4238,7 @@ int CvPlayerReligions::GetNumCitiesWithStateReligion(ReligionTypes eReligion)
 /// What religion is followed in a majority of our cities?
 bool CvPlayerReligions::ComputeMajority(bool bNotifications)
 {
-	for (int iI = RELIGION_PANTHEON + 1; iI < GC.GetGameReligions()->GetNumReligions(); iI++)
+	for (int iI = RELIGION_PANTHEON; iI < GC.GetGameReligions()->GetNumReligions(); iI++)
 	{
 		ReligionTypes eReligion = (ReligionTypes)iI;
 		if (HasReligionInMostCities(eReligion))
@@ -4545,7 +4542,7 @@ bool CvCityReligions::IsReligionInCity()
 	return false;
 }
 
-/// Is this the holy city for a specific religion?
+/// Is this the Holy City for a specific religion?
 bool CvCityReligions::IsHolyCityForReligion(ReligionTypes eReligion)
 {
 	if (eReligion == NO_RELIGION)
@@ -4554,13 +4551,13 @@ bool CvCityReligions::IsHolyCityForReligion(ReligionTypes eReligion)
 	return eReligion == GC.getGame().GetGameReligions()->GetHolyCityReligion(m_pCity);
 }
 
-/// Is this the holy city for any religion?
+/// Is this the Holy City for any religion?
 bool CvCityReligions::IsHolyCityAnyReligion()
 {
 	return NO_RELIGION != GC.getGame().GetGameReligions()->GetHolyCityReligion(m_pCity);
 }
 
-/// Is this the holy city for any religion?
+/// What is the religion of this Holy City?
 ReligionTypes CvCityReligions::GetReligionForHolyCity()
 {
 	return GC.getGame().GetGameReligions()->GetHolyCityReligion(m_pCity);
@@ -5366,9 +5363,10 @@ void CvCityReligions::RemoveFormerPantheon()
 void CvCityReligions::RemoveOtherReligions(ReligionTypes eReligion, PlayerTypes eResponsiblePlayer)
 {
 	// Using an inquisitor from a different religion removes the Holy City status
-	if (IsHolyCityAnyReligion() && GetReligionForHolyCity() != eReligion)
+	ReligionTypes eCurrentHolyCityReligion = GetReligionForHolyCity();
+	if (eCurrentHolyCityReligion != NO_RELIGION && eCurrentHolyCityReligion != eReligion)
 	{
-		GC.getGame().GetGameReligions()->SetHolyCity(GetReligionForHolyCity(), NULL);
+		GC.getGame().GetGameReligions()->SetHolyCity(eCurrentHolyCityReligion, NULL);
 	}
 
 	ErodeOtherReligiousPressure(FOLLOWER_CHANGE_REMOVE_HERESY, eReligion, /*100 in CP, 50 in CBO*/ GD_INT_GET(INQUISITION_EFFECTIVENESS), true, true, eResponsiblePlayer);
@@ -10610,9 +10608,9 @@ bool CvReligionAI::IsProphetGainRateAcceptable()
 	ReligionTypes eReligion = pReligions->GetReligionCreatedByPlayer(m_pPlayer->GetID());
 
 	int iMaxTurns = 30;
-	if (eReligion != NO_RELIGION)
+	if (eReligion > RELIGION_PANTHEON)
 	{
-		const CvReligion* pMyReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, m_pPlayer->GetID());
+		const CvReligion* pMyReligion = pReligions->GetReligion(eReligion, m_pPlayer->GetID());
 		if (pMyReligion != NULL)
 		{
 			CvCity* pHolyCity = pMyReligion->GetHolyCity();
