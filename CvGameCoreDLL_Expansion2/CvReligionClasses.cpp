@@ -2449,16 +2449,21 @@ bool CvGameReligions::IsCityStateFriendOfReligionFounder(ReligionTypes eReligion
 }
 
 /// Get the religion this player created
-ReligionTypes CvGameReligions::GetReligionCreatedByPlayer(PlayerTypes ePlayer) const
+ReligionTypes CvGameReligions::GetReligionCreatedByPlayer(PlayerTypes ePlayer, bool bIncludePantheon) const
 {
 	ReligionList::const_iterator it;
 	for(it = m_CurrentReligions.begin(); it != m_CurrentReligions.end(); it++)
 	{
-		if (it->m_bPantheon)
-			continue;
-
-		if(it->m_eFounder == ePlayer)
+		if (it->m_eFounder == ePlayer)
 		{
+			if (it->m_bPantheon)
+			{
+				if (bIncludePantheon)
+					return it->m_eReligion;
+				else
+					continue;
+			}
+
 			CvCity* pHolyCity = it->GetHolyCity();
 			if (pHolyCity && pHolyCity->getOwner()==ePlayer)
 			{
@@ -3922,12 +3927,7 @@ bool CvPlayerReligions::HasAddedReformationBelief() const
 /// Get the religion this player created
 ReligionTypes CvPlayerReligions::GetReligionCreatedByPlayer(bool bIncludePantheon) const
 {
-	ReligionTypes eReligion = GC.getGame().GetGameReligions()->GetReligionCreatedByPlayer(m_pPlayer->GetID());
-
-	if (!bIncludePantheon && eReligion == RELIGION_PANTHEON)
-		return NO_RELIGION;
-
-	return eReligion;
+	return GC.getGame().GetGameReligions()->GetReligionCreatedByPlayer(m_pPlayer->GetID(), bIncludePantheon);
 }
 
 ReligionTypes CvPlayerReligions::GetOriginalReligionCreatedByPlayer() const

@@ -3038,7 +3038,7 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 		{
 			GetDiplomacyAI()->SetPlayerReturnedCapital(eOldOwner, true);
 		}
-		else if (bHolyCity && IsHasLostHolyCity() && pCity->GetCityReligions()->IsHolyCityForReligion(GC.getGame().GetGameReligions()->GetReligionCreatedByPlayer(GetID())))
+		else if (bHolyCity && IsHasLostHolyCity() && pCity->GetCityReligions()->IsHolyCityForReligion(GC.getGame().GetGameReligions()->GetOriginalReligionCreatedByPlayer(GetID())))
 		{
 			GetDiplomacyAI()->SetPlayerReturnedHolyCity(eOldOwner, true);
 		}
@@ -3173,7 +3173,7 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 				}
 			}
 			// Their Holy City!
-			else if (GET_PLAYER(eOldOwner).isMajorCiv() && bHolyCity && pCity->GetCityReligions()->IsHolyCityForReligion(GC.getGame().GetGameReligions()->GetReligionCreatedByPlayer(eOldOwner)))
+			else if (GET_PLAYER(eOldOwner).isMajorCiv() && bHolyCity && pCity->GetCityReligions()->IsHolyCityForReligion(GC.getGame().GetGameReligions()->GetOriginalReligionCreatedByPlayer(eOldOwner)))
 			{
 				iCityValue *= 150;
 				iCityValue /= 100;
@@ -4102,14 +4102,10 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 	}
 
 	// Reacquired our Holy City?
-	if (bHolyCity && IsHasLostHolyCity() && iCityX == GetLostHolyCityX() && iCityY == GetLostHolyCityY())
+	if (bHolyCity && IsHasLostHolyCity() && pCity->GetCityReligions()->IsHolyCityForReligion(GC.getGame().GetGameReligions()->GetOriginalReligionCreatedByPlayer(GetID())))
 	{
-		const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(pNewCity->GetCityReligions()->GetReligionForHolyCity(), NO_PLAYER);
-		if (pReligion && pReligion->m_eFounder == GetID())
-		{
-			// Notify, etc.
-			SetHasLostHolyCity(false, NO_PLAYER);
-		}
+		// Notify, etc.
+		SetHasLostHolyCity(false, NO_PLAYER);
 	}
 
 	// Reacquired our original capital?
@@ -9646,7 +9642,7 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 			}
 
 			// Liberated the Holy City - big bonus IF the Holy City status still remains
-			if (GET_PLAYER(ePlayer).IsHasLostHolyCity() && pCity->GetCityReligions()->IsHolyCityForReligion(GC.getGame().GetGameReligions()->GetReligionCreatedByPlayer(ePlayer)))
+			if (GET_PLAYER(ePlayer).IsHasLostHolyCity() && pCity->GetCityReligions()->IsHolyCityForReligion(GC.getGame().GetGameReligions()->GetOriginalReligionCreatedByPlayer(ePlayer)))
 			{
 				ReligionTypes eReligion = pCity->GetCityReligions()->GetReligionForHolyCity();
 				const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, ePlayer);
@@ -36879,7 +36875,7 @@ void CvPlayer::DoUpdateWarDamage()
 			iCityValue /= 100;
 		}
 		// Another major's original capital, or our Holy City
-		else if (pLoopCity->IsOriginalMajorCapital() || (isMajorCiv() && pLoopCity->GetCityReligions()->IsHolyCityForReligion(GC.getGame().GetGameReligions()->GetReligionCreatedByPlayer(GetID()))))
+		else if (pLoopCity->IsOriginalMajorCapital() || (isMajorCiv() && pLoopCity->GetCityReligions()->IsHolyCityForReligion(GC.getGame().GetGameReligions()->GetOriginalReligionCreatedByPlayer(GetID()))))
 		{
 			iCityValue *= 150;
 			iCityValue /= 100;

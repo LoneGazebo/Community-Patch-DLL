@@ -6582,7 +6582,7 @@ bool CvDiplomacyAI::IsHolyCityCapturedBy(PlayerTypes ePlayer, bool bCurrently, b
 		return true;
 
 	CvPlot *pHolyCityPlot = GC.getMap().plot(m_pPlayer->GetLostHolyCityX(), m_pPlayer->GetLostHolyCityY());
-	if (pHolyCityPlot != NULL && pHolyCityPlot->isCity() && pHolyCityPlot->getPlotCity()->GetCityReligions()->IsHolyCityForReligion(GC.getGame().GetGameReligions()->GetReligionCreatedByPlayer(GetID())))
+	if (pHolyCityPlot != NULL && pHolyCityPlot->isCity() && pHolyCityPlot->getPlotCity()->GetCityReligions()->IsHolyCityForReligion(GC.getGame().GetGameReligions()->GetOriginalReligionCreatedByPlayer(GetID())))
 	{
 		if (bTeammates)
 		{
