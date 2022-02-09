@@ -17,6 +17,12 @@ INSERT INTO Defines(Name, Value) SELECT 'WAR_MAJOR_MINIMUM_TURNS', '10';
 INSERT INTO Defines(Name, Value) SELECT 'WAR_MINOR_MINIMUM_TURNS', '1';
 
 
+-- Unit Supply
+INSERT INTO Defines (Name, Value) SELECT 'MAX_UNIT_SUPPLY_GROWTH_MOD', '70';
+INSERT INTO Defines (Name, Value) SELECT 'PRODUCTION_PENALTY_PER_UNIT_OVER_SUPPLY', '10';
+INSERT INTO Defines (Name, Value) SELECT 'GROWTH_PENALTY_PER_UNIT_OVER_SUPPLY', '5';
+
+
 -- Combat Stuff
 UPDATE Defines SET Value = '5' WHERE Name = 'AI_TACTICAL_MAP_TEMP_ZONE_TURNS'; -- Number of turns AI waits while recruiting before disbanding an operation
 UPDATE Defines SET Value = '10' WHERE Name = 'AI_OPERATIONAL_MAX_RECRUIT_TURNS_ENEMY_TERRITORY'; -- ...in enemy territory

@@ -8593,10 +8593,10 @@ bool CvCity::canTrain(UnitTypes eUnit, bool bContinue, bool bTestVisible, bool b
 	}
 
 	// check whether we can supply the units. do not check this on player level, all the dynamic checks should happen here
-	if (MOD_BALANCE_CORE_MILITARY && !isHuman() && !pkUnitEntry->IsNoSupply())
+	if (MOD_BALANCE_CORE_MILITARY && !isHuman() && !isBarbarian() && !pkUnitEntry->IsNoSupply() && (pkUnitEntry->GetCombat() > 0 || pkUnitEntry->GetRangedCombat() > 0))
 	{
 		bool bCanSupply = GET_PLAYER(getOwner()).GetNumUnitsToSupply() < GET_PLAYER(getOwner()).GetNumUnitsSupplied(); // this works when we're at the limit
-		if (!bCanSupply && !isBarbarian() && (pkUnitEntry->GetCombat() > 0 || pkUnitEntry->GetRangedCombat() > 0))
+		if (!bCanSupply)
 		{
 			return false;
 		}
@@ -8631,9 +8631,13 @@ bool CvCity::canTrain(UnitTypes eUnit, bool bContinue, bool bTestVisible, bool b
 			}
 		}
 
-		if (MOD_BALANCE_CORE_MILITARY && !pUnitInfo.IsNoSupply())
+		if (MOD_BALANCE_CORE_MILITARY && !isBarbarian() && !pUnitInfo.IsNoSupply() && (pUnitInfo.GetCombat() > 0 || pUnitInfo.GetRangedCombat() > 0))
 		{
-			if (GET_PLAYER(getOwner()).GetNumUnitsOutOfSupply() > 13 && !isBarbarian() && (pUnitInfo.GetCombat() > 0 || pUnitInfo.GetRangedCombat() > 0))
+			int iMaxSupplyPenalty = /*70*/ GD_INT_GET(MAX_UNIT_SUPPLY_PRODMOD);
+			int iSupplyPenaltyPerUnit = /*10 in CP, 5 in CBO*/ GD_INT_GET(PRODUCTION_PENALTY_PER_UNIT_OVER_SUPPLY);
+			int iMaxUnitsOverSupply = (iMaxSupplyPenalty > 0 && iSupplyPenaltyPerUnit > 0) ? iMaxSupplyPenalty / iSupplyPenaltyPerUnit : INT_MAX;
+
+			if (GET_PLAYER(getOwner()).GetNumUnitsOutOfSupply() >= iMaxUnitsOverSupply)
 			{
 				GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_NO_ACTION_NO_SUPPLY");
 				if (toolTipSink == NULL)

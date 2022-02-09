@@ -17875,7 +17875,7 @@ int CvPlayer::calculateTotalYield(YieldTypes eYield) const
 }
 
 //	--------------------------------------------------------------------------------
-/// How much Production is being eaten up by Units? (cached)
+/// How much Production is being eaten up by Units over the supply limit? (cached)
 int CvPlayer::GetUnitProductionMaintenanceMod() const
 {
 	// Kind of a cop-out, but it fixes some bugs for now
@@ -17883,7 +17883,7 @@ int CvPlayer::GetUnitProductionMaintenanceMod() const
 }
 
 //	--------------------------------------------------------------------------------
-/// How much Production is being eaten up by Units? (update cache)
+/// How much Production is being eaten up by Units over the supply limit? (update cache)
 void CvPlayer::UpdateUnitProductionMaintenanceMod()
 {
 	m_iUnitProductionMaintenanceMod = calculateUnitProductionMaintenanceMod();
@@ -17896,27 +17896,22 @@ void CvPlayer::UpdateUnitProductionMaintenanceMod()
 }
 
 //	--------------------------------------------------------------------------------
-/// How much Production is being eaten up by Units?
+/// How much Production is being eaten up by Units over the supply limit?
 int CvPlayer::calculateUnitProductionMaintenanceMod() const
 {
-	int iPaidUnits = GetNumUnitsOutOfSupply();
-
-	// Example: Player can support 8 Units, he has 12. 4 * 5 means he loses 20% of his Production
-	int iNormal = 10;
-
-	if (MOD_BALANCE_DYNAMIC_UNIT_SUPPLY)
+	int iUnitsOverSupply = GetNumUnitsOutOfSupply();
+	if (iUnitsOverSupply > 0)
 	{
-		iNormal = 5;
+		// Example: Player can support 8 Units, he has 12. 4 * 5 means he loses 20% of his Production
+		int iMaintenanceMod = min(/*70*/ max(GD_INT_GET(MAX_UNIT_SUPPLY_PRODMOD), 0), iUnitsOverSupply * /*10 in CP, 5 in CBO*/ max(GD_INT_GET(PRODUCTION_PENALTY_PER_UNIT_OVER_SUPPLY), 0));
+		return iMaintenanceMod * -1;
 	}
 
-	int iMaintenanceMod = min(/*70*/ GD_INT_GET(MAX_UNIT_SUPPLY_PRODMOD), iPaidUnits * iNormal);
-	iMaintenanceMod = -iMaintenanceMod;
-
-	return iMaintenanceMod;
+	return 0;
 }
 
 //	--------------------------------------------------------------------------------
-/// How much Growth is being eaten up by Units? (cached)
+/// How much Growth is being eaten up by Units over the supply limit? (cached)
 int CvPlayer::GetUnitGrowthMaintenanceMod() const
 {
 	// Kind of a cop-out, but it fixes some bugs for now
@@ -17924,7 +17919,7 @@ int CvPlayer::GetUnitGrowthMaintenanceMod() const
 }
 
 //	--------------------------------------------------------------------------------
-/// How much Growth is being eaten up by Units? (update cache)
+/// How much Growth is being eaten up by Units over the supply limit? (update cache)
 void CvPlayer::UpdateUnitGrowthMaintenanceMod()
 {
 	m_iUnitGrowthMaintenanceMod = calculateUnitGrowthMaintenanceMod();
@@ -17937,16 +17932,18 @@ void CvPlayer::UpdateUnitGrowthMaintenanceMod()
 }
 
 //	--------------------------------------------------------------------------------
-/// How much Growth is being eaten up by Units?
+/// How much Growth is being eaten up by Units over the supply limit?
 int CvPlayer::calculateUnitGrowthMaintenanceMod() const
 {
-	int iPaidUnits = GetNumUnitsOutOfSupply();
+	int iUnitsOverSupply = GetNumUnitsOutOfSupply();
+	if (iUnitsOverSupply > 0)
+	{
+		// Example: Player can support 8 Units, he has 12. 4 * 5 means he loses 20% of his Food
+		int iMaintenanceMod = min(/*70*/ max(GD_INT_GET(MAX_UNIT_SUPPLY_GROWTH_MOD), 0), iUnitsOverSupply * /*5*/ max(GD_INT_GET(GROWTH_PENALTY_PER_UNIT_OVER_SUPPLY), 0));
+		return iMaintenanceMod * -1;
+	}
 
-	// Example: Player can support 8 Units, he has 12. 4 * 5 means he loses 20% of his Food
-	int iMaintenanceMod = min(/*70*/ GD_INT_GET(MAX_UNIT_SUPPLY_PRODMOD), iPaidUnits * 5);
-	iMaintenanceMod = -iMaintenanceMod;
-
-	return iMaintenanceMod;
+	return 0;
 }
 
 //	--------------------------------------------------------------------------------
