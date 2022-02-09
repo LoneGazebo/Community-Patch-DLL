@@ -2508,7 +2508,7 @@ ReligionTypes CvGameReligions::GetOriginalReligionCreatedByPlayer(PlayerTypes eP
 /// Get the religion for which this player is eligible for founder benefits
 ReligionTypes CvGameReligions::GetFounderBenefitsReligion(PlayerTypes ePlayer) const
 {
-	ReligionTypes eReligion = GET_PLAYER(ePlayer).GetReligions()->GetReligionCreatedByPlayer(true);
+	ReligionTypes eReligion = GET_PLAYER(ePlayer).GetReligions()->GetReligionCreatedByPlayer();
 	if(eReligion == RELIGION_PANTHEON)
 		return eReligion;
 
