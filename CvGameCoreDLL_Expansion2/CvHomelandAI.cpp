@@ -3629,7 +3629,7 @@ void CvHomelandAI::ExecuteMerchantMoves()
 
 void CvHomelandAI::ExecuteProphetMoves()
 {
-	ReligionTypes eReligion = GC.getGame().GetGameReligions()->GetReligionCreatedByPlayer(m_pPlayer->GetID());
+	ReligionTypes eReligion = m_pPlayer->GetReligions()->GetOwnedReligion();
 	CvCity* pTargetCity = NULL;
 
 	CHomelandUnitArray::iterator it;
