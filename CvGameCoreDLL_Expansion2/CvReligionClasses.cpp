@@ -4238,7 +4238,7 @@ int CvPlayerReligions::GetNumCitiesWithStateReligion(ReligionTypes eReligion)
 /// What religion is followed in a majority of our cities?
 bool CvPlayerReligions::ComputeMajority(bool bNotifications)
 {
-	for (int iI = RELIGION_PANTHEON + 1; iI < GC.GetGameReligions()->GetNumReligions(); iI++)
+	for (int iI = RELIGION_PANTHEON; iI < GC.GetGameReligions()->GetNumReligions(); iI++)
 	{
 		ReligionTypes eReligion = (ReligionTypes)iI;
 		if (HasReligionInMostCities(eReligion))
