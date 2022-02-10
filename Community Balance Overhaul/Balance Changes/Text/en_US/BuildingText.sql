@@ -279,7 +279,7 @@ SET Text = 'The Military Base is a late-game building which increases Defensive 
 WHERE Tag = 'TXT_KEY_BUILDING_MILITARY_BASE_STRATEGY';
 
 UPDATE Language_en_US
-SET Text = '50% chance to detonate nuclear weapons [COLOR_POSITIVE_TEXT]without damaging the city or surrounding tiles[ENDCOLOR]. Reduces population loss from nuclear attack by 75%, increases Defensive Strength by 5, and [ICON_HAPPINESS_1] Happiness by 1. +10 [ICON_STRENGTH] Damage to Air Units during Air Strikes on City.'
+SET Text = '50% chance to detonate nuclear weapons [COLOR_POSITIVE_TEXT]without damaging the city or surrounding tiles[ENDCOLOR]. Reduces population loss from nuclear attack by 75%, increases Defensive Strength by 5, and City Hit Points by 200. +10 [ICON_STRENGTH] Damage to Air Units during Air Strikes on City.'
 WHERE Tag = 'TXT_KEY_BUILDING_BOMB_SHELTER_HELP';
 
 UPDATE Language_en_US
