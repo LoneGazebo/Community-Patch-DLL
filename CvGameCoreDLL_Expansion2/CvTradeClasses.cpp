@@ -3079,14 +3079,8 @@ int CvPlayerTrade::GetTradeConnectionTheirBuildingValueTimes100(const TradeConne
 }
 
 //	--------------------------------------------------------------------------------
-int CvPlayerTrade::GetTradeConnectionExclusiveValueTimes100(const TradeConnection& kTradeConnection, YieldTypes eYield)
+int CvPlayerTrade::GetTradeConnectionExclusiveValueTimes100(const TradeConnection& kTradeConnection, YieldTypes /*eYield*/)
 {
-	// unnecessary code to make it compile for now
-	if (eYield != NO_YIELD)
-	{
-		eYield = eYield;
-	}
-
 	CvGameTrade* pTrade = GC.getGame().GetGameTrade();
 	if (pTrade->IsDestinationExclusive(kTradeConnection))
 	{
@@ -3250,14 +3244,8 @@ int CvPlayerTrade::GetTradeConnectionOtherTraitValueTimes100(const TradeConnecti
 }
 
 //	--------------------------------------------------------------------------------
-int CvPlayerTrade::GetTradeConnectionDomainValueModifierTimes100(const TradeConnection& kTradeConnection, YieldTypes eYield)
+int CvPlayerTrade::GetTradeConnectionDomainValueModifierTimes100(const TradeConnection& kTradeConnection, YieldTypes /*eYield*/)
 {
-	// unnecessary code to make it compile for now
-	if (eYield != NO_YIELD)
-	{
-		eYield = eYield;
-	}
-
 	return GC.getGame().GetGameTrade()->GetDomainModifierTimes100(kTradeConnection.m_eDomain);
 }
 
@@ -3316,12 +3304,6 @@ int CvPlayerTrade::GetTradeConnectionDistanceValueModifierTimes100(const TradeCo
 //	--------------------------------------------------------------------------------
 int CvPlayerTrade::GetTradeConnectionRiverValueModifierTimes100(const TradeConnection& kTradeConnection, YieldTypes eYield, bool bAsOriginPlayer)
 {
-	// unnecessary code to make it compile for now
-	if (eYield != NO_YIELD)
-	{
-		eYield = eYield;
-	}
-
 	int iModifier = 0;
 	if (eYield == YIELD_GOLD && kTradeConnection.m_eDomain == DOMAIN_LAND)
 	{
@@ -3359,12 +3341,6 @@ int CvPlayerTrade::GetTradeConnectionRiverValueModifierTimes100(const TradeConne
 //	--------------------------------------------------------------------------------
 int CvPlayerTrade::GetTradeConnectionOpenBordersModifierTimes100(const TradeConnection& kTradeConnection, YieldTypes eYield, bool bAsOriginPlayer)
 {
-	// unnecessary code to make it compile for now
-	if (eYield != NO_YIELD)
-	{
-		eYield = eYield;
-	}
-
 	int iModifier = 0;
 #if defined(MOD_BALANCE_CORE) && defined(MOD_BALANCE_CORE_GOLD_INTERNAL_TRADE_ROUTES)
 	// internal gold trade routes always get the full open border bonus
@@ -3417,12 +3393,6 @@ int CvPlayerTrade::GetTradeConnectionOpenBordersModifierTimes100(const TradeConn
 //	--------------------------------------------------------------------------------
 int CvPlayerTrade::GetTradeConnectionCorporationModifierTimes100(const TradeConnection& kTradeConnection, YieldTypes eYield, bool bAsOriginPlayer)
 {
-	// unnecessary code to make it compile for now
-	if (eYield != NO_YIELD)
-	{
-		eYield = eYield;
-	}
-
 	int iModifier = 0;
 	CvCity* pDestCity = CvGameTrade::GetDestCity(kTradeConnection);
 	if (pDestCity == NULL)
@@ -6129,32 +6099,34 @@ void CvTradeAI::GetAvailableTR(TradeConnectionList& aTradeConnectionList, bool b
 }
 
 /// Score 
-std::vector<int> CvTradeAI::ScoreInternationalTR(const TradeConnection& kTradeConnection, bool bHaveTourism)
+CvTradeAI::TRSortElement CvTradeAI::ScoreInternationalTR(const TradeConnection& kTradeConnection, bool bHaveTourism)
 {
-	std::vector<int> ValuesVector;
+	TRSortElement ret;
+	ret.m_kTradeConnection = kTradeConnection;
+
 	// don't evaluate other trade types
 	if (kTradeConnection.m_eConnectionType != TRADE_CONNECTION_INTERNATIONAL)
-		return ValuesVector;
+		return ret;
 
 	// if this was recently plundered, 0 the score
 	if (m_pPlayer->GetTrade()->CheckTradeConnectionWasPlundered(kTradeConnection))
-		return ValuesVector;
+		return ret;
 
 	// don't send trade routes if we're about to declare war?
 	if (m_pPlayer->getFirstOffensiveAIOperation(kTradeConnection.m_eDestOwner) != NULL)
-		return ValuesVector;
+		return ret;
 
 	if (m_pPlayer->GetDiplomacyAI()->AvoidExchangesWithPlayer(kTradeConnection.m_eDestOwner, true))
-		return ValuesVector;
+		return ret;
 
 	CvCity* pToCity = CvGameTrade::GetDestCity(kTradeConnection);
 	CvCity* pFromCity = CvGameTrade::GetOriginCity(kTradeConnection);
 
 	if (!pToCity || !pFromCity)
-		return ValuesVector;
+		return ret;
 
 	if (pToCity->isUnderSiege() || pFromCity->isUnderSiege())
-		return ValuesVector;
+		return ret;
 
 	CvPlayerTrade* pPlayerTrade = m_pPlayer->GetTrade();
 	CvPlayerTrade* pOtherPlayerTrade = GET_PLAYER(kTradeConnection.m_eDestOwner).GetTrade();
@@ -6520,7 +6492,7 @@ std::vector<int> CvTradeAI::ScoreInternationalTR(const TradeConnection& kTradeCo
 
 	//abort if we're negative
 	if(iScore <= 0)
-		return ValuesVector;
+		return ret;
 
 	for(int iJ = 0; iJ < NUM_YIELD_TYPES; iJ++)
 	{
@@ -6772,18 +6744,18 @@ std::vector<int> CvTradeAI::ScoreInternationalTR(const TradeConnection& kTradeCo
 			iScore /= max(1, iFranchises);
 		}	
 	}
+#endif
 	if(m_pPlayer->IsAtWar())
 	{
 		iScore /= max(2, m_pPlayer->GetMilitaryAI()->GetNumberCivsAtWarWith(false));
 	}
-	ValuesVector.push_back(iScore);
-	ValuesVector.push_back(iCultureScore);
-	ValuesVector.push_back(iGoldScore);
-	ValuesVector.push_back(iScienceScore);
-	ValuesVector.push_back(iReligionScore);
 
-#endif
-	return ValuesVector;
+	ret.m_iScore = iScore;
+	ret.m_iCultureScore = iCultureScore;
+	ret.m_iGoldScore = iGoldScore;
+	ret.m_iScienceScore = iScienceScore;
+	ret.m_iReligionScore = iReligionScore;
+	return ret;
 }
 
 /// Score Food TR
@@ -6994,29 +6966,27 @@ int CvTradeAI::ScoreWonderTR (const TradeConnection& kTradeConnection, const std
 
 #if defined(MOD_BALANCE_CORE) && defined(MOD_BALANCE_CORE_GOLD_INTERNAL_TRADE_ROUTES)
 /// Score gold internal trade route
-std::vector<int> CvTradeAI::ScoreGoldInternalTR(const TradeConnection& kTradeConnection)
+CvTradeAI::TRSortElement CvTradeAI::ScoreGoldInternalTR(const TradeConnection& kTradeConnection)
 {
-	std::vector<int> ValuesVector;
+	TRSortElement ret;
+	ret.m_kTradeConnection = kTradeConnection;
+
 	// don't evaluate other trade types
 	if (kTradeConnection.m_eConnectionType != TRADE_CONNECTION_GOLD_INTERNAL)
-	{
-		return ValuesVector;
-	}
+		return ret;
 
 	// if this was recently plundered, 0 the score
 	if (m_pPlayer->GetTrade()->CheckTradeConnectionWasPlundered(kTradeConnection))
-	{
-		return ValuesVector;
-	}
+		return ret;
 
 	CvCity* pToCity = CvGameTrade::GetDestCity(kTradeConnection);
 	CvCity* pFromCity = CvGameTrade::GetOriginCity(kTradeConnection);
 
 	if (!pToCity || !pFromCity)
-		return ValuesVector;
+		return ret;
 
 	if (pToCity->isUnderSiege() || pFromCity->isUnderSiege())
-		return ValuesVector;
+		return ret;
 
 	CvPlayerTrade* pPlayerTrade = m_pPlayer->GetTrade();
 
@@ -7151,7 +7121,7 @@ std::vector<int> CvTradeAI::ScoreGoldInternalTR(const TradeConnection& kTradeCon
 
 	//abort if we're negative
 	if (iScore <= 0)
-		return ValuesVector;
+		return ret;
 
 	for (int iJ = 0; iJ < NUM_YIELD_TYPES; iJ++)
 	{
@@ -7202,30 +7172,19 @@ std::vector<int> CvTradeAI::ScoreGoldInternalTR(const TradeConnection& kTradeCon
 	int iEra = max(1, (int)m_pPlayer->GetCurrentEra()); // More international trade late game, please.
 	iScore = (iScore * iEra) / iDangerSum;
 
-	ValuesVector.push_back(iScore);
-	ValuesVector.push_back(iCultureScore);
-	ValuesVector.push_back(iGoldScore);
-	ValuesVector.push_back(iScienceScore);
-	ValuesVector.push_back(iReligionScore);
-
-	return ValuesVector;
+	//finally
+	ret.m_iScore = iScore;
+	ret.m_iCultureScore = iCultureScore;
+	ret.m_iGoldScore = iGoldScore;
+	ret.m_iScienceScore = iScienceScore;
+	ret.m_iReligionScore = iReligionScore;
+	return ret;
 }
 #endif
 
-// sort player numbers
-struct TRSortElement
-{
-	TradeConnection m_kTradeConnection;
-	int m_iScore;
-	int m_iGoldScore;
-	int m_iCultureScore;
-	int m_iReligionScore;
-	int m_iScienceScore;
-};
-
 struct SortTR
 {
-	bool operator()(TRSortElement const& a, TRSortElement const& b) const
+	bool operator()(CvTradeAI::TRSortElement const& a, CvTradeAI::TRSortElement const& b) const
 	{
 		return a.m_iScore < b.m_iScore;
 	}
@@ -7233,7 +7192,7 @@ struct SortTR
 #if defined(MOD_BALANCE_CORE)
 struct SortTRHigh
 {
-	bool operator()(TRSortElement const& a, TRSortElement const& b) const
+	bool operator()(CvTradeAI::TRSortElement const& a, CvTradeAI::TRSortElement const& b) const
 	{
 		return a.m_iScore > b.m_iScore;
 	}
@@ -7446,19 +7405,7 @@ void CvTradeAI::GetPrioritizedTradeRoutes(TradeConnectionList& aTradeConnectionL
 		int iBestScore = -1;
 		for (uint ui = 0; ui < aTradeConnectionList.size(); ui++)
 		{
-			TRSortElement kElement;
-			kElement.m_kTradeConnection = aTradeConnectionList[ui];
-			std::vector<int>ValuesVector;
-			ValuesVector = ScoreGoldInternalTR(aTradeConnectionList[ui]);
-			if (ValuesVector.size() > 0)
-			{
-				kElement.m_iScore = ValuesVector[0];
-				kElement.m_iCultureScore = ValuesVector[1];
-				kElement.m_iGoldScore = ValuesVector[2];
-				kElement.m_iScienceScore = ValuesVector[3];
-				kElement.m_iReligionScore = ValuesVector[4];
-			}
-
+			TRSortElement kElement = ScoreGoldInternalTR(aTradeConnectionList[ui]);
 			if (kElement.m_iScore > iBestScore)
 			{
 				iBestScore = kElement.m_iScore;
@@ -7480,18 +7427,7 @@ void CvTradeAI::GetPrioritizedTradeRoutes(TradeConnectionList& aTradeConnectionL
 	int iBestScore = -1;
 	for (uint ui = 0; ui < aTradeConnectionList.size(); ui++)
 	{
-		TRSortElement kElement;
-		kElement.m_kTradeConnection = aTradeConnectionList[ui];
-		std::vector<int> ValuesVector = ScoreInternationalTR(aTradeConnectionList[ui], bHaveTourism);
-		if (ValuesVector.size() > 0)
-		{
-			kElement.m_iScore = ValuesVector[0];
-			kElement.m_iCultureScore = ValuesVector[1];
-			kElement.m_iGoldScore = ValuesVector[2];
-			kElement.m_iScienceScore = ValuesVector[3];
-			kElement.m_iReligionScore = ValuesVector[4];
-		}
-
+		TRSortElement kElement = ScoreInternationalTR(aTradeConnectionList[ui], bHaveTourism);
 		if (kElement.m_iScore > iBestScore)
 		{
 			iBestScore = kElement.m_iScore;
