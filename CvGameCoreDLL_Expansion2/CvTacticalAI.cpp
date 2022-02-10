@@ -6817,10 +6817,20 @@ void ScoreAttack(const CvTacticalPlot& tactPlot, const CvUnit* pUnit, const CvTa
 	const CvPlot* pUnitPlot = assumedPlot.getPlot();
 	const CvPlot* pTestPlot = tactPlot.getPlot();
 	bool bScoreReduction = false;
+	bool bBelowHpLimitAfterMeleeAttack = false;
+
+	//AL_NONE, AL_LOW, AL_MEDIUM, AL_HIGH, AL_BRAVEHEART
+	//braveheart allows attacks for which you need luck to survive
+	int hpLimit[5] = {30,30,15,5,-5};
 
 	if (tactPlot.isEnemyCity()) //a plot can be both a city and a unit - in that case we would attack the city
 	{
 		CvCity* pEnemy = pTestPlot->getPlotCity();
+		if (!pEnemy)
+		{
+			result.iScore = -INT_MAX;
+			return;
+		}
 
 		//first try the cache
 		if (!cache.findAttack(pUnit->GetID(),pUnitPlot->GetPlotIndex(), pEnemy->GetID(), iPrevDamage, iDamageDealt, iDamageReceived))
@@ -6830,11 +6840,8 @@ void ScoreAttack(const CvTacticalPlot& tactPlot, const CvUnit* pUnit, const CvTa
 		}
 
 		//no suicide. note: should consider self-damage from previous attacks here ... blitz
-		if (pUnit->GetCurrHitPoints() - iDamageReceived < 0)
-		{
-			result.iScore = -INT_MAX;
-			return;
-		}
+		if (iDamageReceived>0 && pUnit->GetCurrHitPoints() - iDamageReceived < hpLimit[eAggLvl])
+			bBelowHpLimitAfterMeleeAttack = true;
 
 		iExtraScore = pUnit->GetRangeCombatSplashDamage(pTestPlot) + (pUnit->GetCityAttackPlunderModifier() / 50);
 		iPrevHitPoints = pEnemy->GetMaxHitPoints() - pEnemy->getDamage() - iPrevDamage;
@@ -6890,13 +6897,8 @@ void ScoreAttack(const CvTacticalPlot& tactPlot, const CvUnit* pUnit, const CvTa
 		iPrevHitPoints = pEnemy->GetCurrHitPoints() - iPrevDamage;
 
 		//should consider self-damage from previous attacks here ... blitz
-		//braveheart allows attacks for which you need luck to survive
-		int iLimit = (eAggLvl==AL_BRAVEHEART) ? -5 : 0;
-		if (pUnit->GetCurrHitPoints() - iDamageReceived < iLimit)
-		{
-			result.iScore = -INT_MAX;
-			return;
-		}
+		if (iDamageReceived > 0 && pUnit->GetCurrHitPoints() - iDamageReceived < hpLimit[eAggLvl])
+			bBelowHpLimitAfterMeleeAttack = true;
 
 		//problem is flanking bonus affects combat strength, not damage, so the effect is nonlinear. anyway just assume 10% per adjacent unit
 		if (!pUnit->IsCanAttackRanged()) //only for melee
@@ -6975,9 +6977,18 @@ void ScoreAttack(const CvTacticalPlot& tactPlot, const CvUnit* pUnit, const CvTa
 		}
 	}
 	else
+	{
+		//if we're not killing an enemy don't commit suicide
+		if (bBelowHpLimitAfterMeleeAttack)
+		{
+			result.iScore = -INT_MAX;
+			return;
+		}
+
 		//note that we ignore melee attacks with advancing here (heavy charge promotion)
 		//because it's too much chance involved. instead we abort the execution later if necessary and restart
 		result.eAssignmentType = pUnit->IsCanAttackRanged() ? A_RANGEATTACK : A_MELEEATTACK;
+	}
 
 	//for melee units we check if the damage received is worth it ...
 	if (iDamageReceived > 0)
