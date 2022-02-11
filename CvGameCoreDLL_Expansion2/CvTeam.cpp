@@ -1109,16 +1109,11 @@ bool CvTeam::canChangeWarPeace(TeamTypes eTeam) const
 		return false;
 	}
 
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	// Vassals have no control over war/peace
-	if (MOD_DIPLOMACY_CIV4_FEATURES)
+	if (MOD_DIPLOMACY_CIV4_FEATURES && IsVassalOfSomeone())
 	{
-		if (IsVassalOfSomeone())
-		{
-			return false;
-		}
+		return false;
 	}
-#endif
 
 	if (GetNumTurnsLockedIntoWar(eTeam) > 0 || GET_TEAM(eTeam).GetNumTurnsLockedIntoWar(GetID()) > 0)
 	{
@@ -1213,12 +1208,10 @@ bool CvTeam::canDeclareWar(TeamTypes eTeam, PlayerTypes eOriginatingPlayer)
 		return false;
 	}
 
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	if (MOD_DIPLOMACY_CIV4_FEATURES && IsVassalOfSomeone() && GetMaster() != eTeam)
 	{
 		return false;
 	}
-#endif
 
 	if (!GET_PLAYER(eOriginatingPlayer).isHuman())
 	{
@@ -3125,47 +3118,21 @@ bool CvTeam::IsMinorCivWarmonger() const
 //	--------------------------------------------------------------------------------
 PlayerTypes CvTeam::getLeaderID() const
 {
-#if defined(MOD_BALANCE_CORE)
-	for(std::vector<PlayerTypes>::const_iterator iI = m_members.begin(); iI != m_members.end(); ++iI)
+	// If there are no members on this team, return NO_PLAYER
+	// This is dangerous - the return value is not checked in many places
+	if (m_members.empty())
+		return NO_PLAYER;
+
+	for (std::vector<PlayerTypes>::const_iterator iI = m_members.begin(); iI != m_members.end(); ++iI)
 	{
 		CvPlayer& thisPlayer = GET_PLAYER(*iI);
-		if(thisPlayer.isAlive())
+		if (thisPlayer.isAlive())
 			return thisPlayer.GetID();
 	}
-	//if no member is alive, return the first
-	if (m_members.empty())
-		//this is dangerous - the return value is not checked in many places
-		return NO_PLAYER;
-	else
-		return m_members.front();
 
-#else
-
-
-	int iI;
-	for(iI = 0; iI < MAX_PLAYERS; iI++)
-	{
-		CvPlayerAI& thisPlayer = GET_PLAYER((PlayerTypes)iI);
-		if(thisPlayer.isAlive())
-		{
-			if(thisPlayer.getTeam() == m_eID)
-			{
-				return ((PlayerTypes)iI);
-			}
-		}
-	}
-
-	for(iI = 0; iI < MAX_PLAYERS; iI++)
-	{
-		CvPlayerAI& thisPlayer = GET_PLAYER((PlayerTypes)iI);
-		if(thisPlayer.getTeam() == m_eID)
-		{
-			return ((PlayerTypes)iI);
-		}
-	}
-
-	return NO_PLAYER;
-#endif
+	// If no member is alive, return the first
+	// This is dangerous - the return value is not checked in many places
+	return m_members.front();
 }
 
 
