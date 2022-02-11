@@ -24,7 +24,7 @@
 			<!-- Worker Action Panel -->
 			<Grid ID="WorkerActionPanel" Anchor="L,B" Offset="370,-39" Size="290,210" Style="Grid9DetailFive140" ConsumeMouse="1">
 				<Label ID="WorkerText" Anchor="C,T" Offset="0,18" Font="TwCenMT20" FontStyle="Shadow" String="TXT_KEY_WORKERACTION_TEXT"/>
-				<Label ID="PromotionText" Anchor="L,T" Offset="60,18" Font="TwCenMT20" String="TXT_KEY_UPANEL_UNIT_PROMOTED" FontStyle="Shadow"/>
+				<TextButton Anchor="L,T" Offset="60,18" Font="TwCenMT20" String="TXT_KEY_UPANEL_UNIT_PROMOTED" ToolTip ="TXT_KEY_PROMO_OPEN_TREE_FOR_UNIT_TT" FontStyle="Shadow" MouseOverStyle="SoftShadow" ConsumeMouse="1" ID="PromotionText" />
 
 				<FlipAnim ID="PromotionAnimation" Size="64,64" Offset="12,-12" Anchor="L,T" Columns="4" Speed="10" Pause=".5" StepSize="64,64" FrameCount="8" Texture="PromotionAnimation.dds"/>
 
@@ -47,7 +47,9 @@
 				</Container>
 
 				<!-- Promotions -->
-				<Stack ID="EarnedPromotionStack" Anchor="R,T" Offset="17,44" StackGrowth="Left"/>
+                <ScrollPanel Anchor="R,T" Size="340,32" Offset="17,44" Vertical="0" ConsumeMouseOver="1" ConsumeMouseButton="1" ID="ScrollPanel">
+                    <Stack ID="EarnedPromotionStack" Anchor="R,T" StackGrowth="Left"/>
+                </ScrollPanel>
 
 				<!-- XP METER -->
 				<Grid ID="XPFrame" Anchor="R,T" Offset="17,70" Size="275,12" Style="Grid9FrameTurns">
@@ -200,6 +202,7 @@
 	<Instance Name="EarnedPromotionInstance">
 		<Container ID="EarnedPromotion" Size="26,26">
 			<Image ID="UnitPromotionImage" Anchor="C,C" Size="32,32" Texture="Promotions256.dds"/>
+			<Button ID="UnitPromoButton" Anchor="C,C" Size="32,32" Hidden="0" Disabled="0"/>
 		</Container>
 	</Instance>
 

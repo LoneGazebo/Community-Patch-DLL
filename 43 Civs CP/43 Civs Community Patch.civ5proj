@@ -7,7 +7,7 @@
     <Guid>6521c02b-1c78-4826-a5b0-faed86235e98</Guid>
     <ModVersion>1</ModVersion>
     <Stability>Stable</Stability>
-    <Teaser>(1.4.1) Supports up to 43 Major Civilizations</Teaser>
+    <Teaser>(1.4.2) Supports up to 43 Major Civilizations</Teaser>
     <Description>This version of the Community Patch supports up to 43 major civilizations. The maximum number of total players (civilizations and City-States) is 63.[NEWLINE][NEWLINE]
 Depending on which version has been installed, this mod contains one of the following:[NEWLINE]
 [ICON_BULLET]Compatibility Files for using the Community Patch on its own[NEWLINE]
@@ -80,6 +80,11 @@ If you downloaded this mod manually, see MANUAL INSTALL.txt for installation ins
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
         <FileName>EUI/MoreLuxuries/Text_en_US.sql</FileName>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <FileName>EUI/StackedPromotionIcons/StackedPromotionIcons.sql</FileName>
       </Action>
       <Action>
         <Set>OnModActivated</Set>
@@ -710,6 +715,10 @@ If you downloaded this mod manually, see MANUAL INSTALL.txt for installation ins
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
+    <Content Include="EUI\StackedPromotionIcons/StackedPromotionIcons.sql">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
     <Content Include="No-EUI\ActionInfoPanel.lua">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
@@ -1047,6 +1056,7 @@ If you downloaded this mod manually, see MANUAL INSTALL.txt for installation ins
     <Folder Include="EUI\C4DF" />
     <Folder Include="EUI\CSD" />
     <Folder Include="EUI\Corps" />
+    <Folder Include="EUI\StackedPromotionIcons" />
     <Folder Include="No-EUI" />
     <Folder Include="No-EUI\C4DF\" />
     <Folder Include="No-EUI\Corps\" />
