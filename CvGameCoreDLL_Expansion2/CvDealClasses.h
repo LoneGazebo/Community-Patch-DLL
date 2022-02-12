@@ -11,13 +11,12 @@
 #define CV_DEAL_CLASSES_H
 
 #include "CvDiplomacyAIEnums.h"
-#if defined(MOD_ACTIVE_DIPLOMACY)
 #include "CvWeightedVector.h"
-#endif
 
 enum TradeableItems
 {
     TRADE_ITEM_NONE = -1,
+
     TRADE_ITEM_GOLD,
     TRADE_ITEM_GOLD_PER_TURN,
     TRADE_ITEM_MAPS,
@@ -30,13 +29,12 @@ enum TradeableItems
     TRADE_ITEM_THIRD_PARTY_PEACE,
     TRADE_ITEM_THIRD_PARTY_WAR,
     TRADE_ITEM_ALLOW_EMBASSY,
-	TRADE_ITEM_DECLARATION_OF_FRIENDSHIP,	// Only "traded" between human players
+	TRADE_ITEM_DECLARATION_OF_FRIENDSHIP, // Only "traded" between human players
 	TRADE_ITEM_VOTE_COMMITMENT,
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	TRADE_ITEM_TECHS,
 	TRADE_ITEM_VASSALAGE,
 	TRADE_ITEM_VASSALAGE_REVOKE,
-#endif
+
     NUM_TRADEABLE_ITEMS,
 };
 FDataStream& operator>>(FDataStream&, TradeableItems&);
@@ -208,7 +206,7 @@ public:
 	bool AreAllTradeItemsValid();
 #endif
 
-	bool IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, TradeableItems eItem, int iData1 = -1, int iData2 = -1, int iData3 = -1, bool bFlag1 = false, bool bCheckOtherPlayerValidity = true, bool bFinalizing = false);
+	bool IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, TradeableItems eItem, int iData1 = -1, int iData2 = -1, int iData3 = -1, bool bFlag1 = false, bool bFinalizing = false);
 	int GetNumResourceInDeal(PlayerTypes ePlayer, ResourceTypes eResource);
 	int GetNumCitiesInDeal(PlayerTypes ePlayer);
 
@@ -276,7 +274,9 @@ public:
 	void RemoveThirdPartyWar(PlayerTypes eFrom, TeamTypes eThirdPartyTeam);
 	void RemoveVoteCommitment(PlayerTypes eFrom, int iResolutionID, int iVoteChoice, int iNumVotes, bool bRepeal);
 
-	bool ContainsItemType(TradeableItems eItemType, PlayerTypes eFrom = NO_PLAYER);
+	bool BlockTemporaryForPermanentTrade(TradeableItems eItemType, PlayerTypes eFromPlayer, PlayerTypes eToPlayer);
+	bool ContainsItemType(TradeableItems eItemType, PlayerTypes eFrom = NO_PLAYER, ResourceTypes eResource = NO_RESOURCE);
+	bool ContainsItemTypes(vector<TradeableItems> vItemTypes, PlayerTypes eFrom = NO_PLAYER);
 };
 
 FDataStream& operator>>(FDataStream&, CvDeal&);

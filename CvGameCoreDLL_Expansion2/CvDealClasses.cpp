@@ -11,12 +11,10 @@
 #include "CvGameCoreUtils.h"
 #include "CvDiplomacyAI.h"
 #include "CvMinorCivAI.h"
-#if defined(MOD_BALANCE_CORE)
 #include "CvDealAI.h"
 #include "CvMilitaryAI.h"
 #include "CvDiplomacyRequests.h"
 #include "CvCitySpecializationAI.h"
-#endif
 
 // must be included after all other headers
 #include "LintFree.h"
@@ -138,13 +136,11 @@ CvDeal::CvDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer)
 	m_bConsideringForRenewal = false;
 	m_bCheckedForRenewal = false;
 
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	m_bIsGift = false;
 	m_bDoNotModifyFrom = false;
 	m_bDoNotModifyTo = false;
 	m_iFromPlayerValue = -1;
 	m_iToPlayerValue = -1;
-#endif
 }
 
 /// Copy Constructor with typical parameters
@@ -161,13 +157,11 @@ CvDeal::CvDeal(const CvDeal& source)
 	m_eRequestingPlayer = source.m_eRequestingPlayer;
 	m_bConsideringForRenewal = source.m_bConsideringForRenewal;
 	m_bCheckedForRenewal = source.m_bCheckedForRenewal;
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	m_bIsGift = source.m_bIsGift;
 	m_bDoNotModifyFrom = source.m_bDoNotModifyFrom;
 	m_bDoNotModifyTo = source.m_bDoNotModifyTo;
 	m_iFromPlayerValue = source.m_iFromPlayerValue;
 	m_iToPlayerValue = source.m_iToPlayerValue;
-#endif
 	m_TradedItems = source.m_TradedItems;
 }
 
@@ -190,13 +184,11 @@ bool CvDeal::operator==(const CvDeal& other) const
 		m_eRequestingPlayer == other.m_eRequestingPlayer &&
 		m_bConsideringForRenewal == other.m_bConsideringForRenewal &&
 		m_bCheckedForRenewal == other.m_bCheckedForRenewal &&
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 		m_bIsGift == other.m_bIsGift &&
 		m_bDoNotModifyFrom == other.m_bDoNotModifyFrom &&
 		m_bDoNotModifyTo == other.m_bDoNotModifyTo &&
 		m_iFromPlayerValue == other.m_iFromPlayerValue &&
 		m_iToPlayerValue == other.m_iToPlayerValue &&
-#endif
 		m_TradedItems == other.m_TradedItems;
 }
 
@@ -214,13 +206,11 @@ CvDeal& CvDeal::operator=(const CvDeal& source)
 	m_eRequestingPlayer = source.m_eRequestingPlayer;
 	m_bConsideringForRenewal = source.m_bConsideringForRenewal;
 	m_bCheckedForRenewal = source.m_bCheckedForRenewal;
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	m_bIsGift = source.m_bIsGift;
 	m_bDoNotModifyFrom = source.m_bDoNotModifyFrom;
 	m_bDoNotModifyTo = source.m_bDoNotModifyTo;
 	m_iFromPlayerValue = source.m_iFromPlayerValue;
 	m_iToPlayerValue = source.m_iToPlayerValue;
-#endif
 	m_TradedItems = source.m_TradedItems;
 	return (*this);
 }
@@ -235,13 +225,11 @@ void CvDeal::ClearItems()
 	m_iStartTurn = -1;
 	m_bConsideringForRenewal = false;
 	m_bCheckedForRenewal = false;
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	m_bIsGift = false;
 	m_bDoNotModifyFrom = false;
 	m_bDoNotModifyTo = false;
 	m_iFromPlayerValue = -1;
 	m_iToPlayerValue = -1;
-#endif
 
 	SetPeaceTreatyType(NO_PEACE_TREATY_TYPE);
 	SetSurrenderingPlayer(NO_PLAYER);
@@ -378,1099 +366,1083 @@ int CvDeal::GetGoldAvailable(PlayerTypes ePlayer, TradeableItems eItemToBeChange
 }
 
 /// Is it actually possible for a player to offer up this trade item?
-bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, TradeableItems eItem, int iData1, int iData2, int iData3, bool bFlag1, bool bCheckOtherPlayerValidity, bool bFinalizing)
+/// The Data parameters can be -1, which means we don't care about whatever data is stored there (e.g. -1 for Gold means can we trade ANY amount of Gold?)
+bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, TradeableItems eItem, int iData1, int iData2, int iData3, bool bFlag1, bool bFinalizing)
 {
-	//failsafe
-	if (ePlayer == NO_PLAYER || eToPlayer == NO_PLAYER)
+	if (eItem <= TRADE_ITEM_NONE || eItem >= NUM_TRADEABLE_ITEMS)
 		return false;
 
-	// Observer can't trade anything
-	if (!GET_PLAYER(ePlayer).isAlive() || GET_PLAYER(ePlayer).isObserver())
+	// Can't trade something to nobody, yourself, City-States, or Barbarians
+	if (ePlayer <= NO_PLAYER || eToPlayer <= NO_PLAYER || ePlayer == eToPlayer || ePlayer >= MAX_MAJOR_CIVS || eToPlayer >= MAX_MAJOR_CIVS)
 		return false;
 
-	// The Data parameters can be -1, which means we don't care about whatever data is stored there (e.g. -1 for Gold means can we trade ANY amount of Gold?)
+	// Can't trade anything if you're dead
+	if (!GET_PLAYER(ePlayer).isAlive() || !GET_PLAYER(eToPlayer).isAlive())
+		return false;
+
 	CvPlayer* pFromPlayer = &GET_PLAYER(ePlayer);
 	CvPlayer* pToPlayer = &GET_PLAYER(eToPlayer);
-
 	TeamTypes eFromTeam = pFromPlayer->getTeam();
 	TeamTypes eToTeam = pToPlayer->getTeam();
-
 	CvTeam* pFromTeam = &GET_TEAM(eFromTeam);
 	CvTeam* pToTeam = &GET_TEAM(eToTeam);
 
-	bool bPeaceDeal = pFromPlayer->IsAtWarWith(eToPlayer);
-	bool bHumanToHuman = false;
-	if (pFromPlayer->isHuman() && pToPlayer->isHuman())
-	{
-		bHumanToHuman = true;
-	}
+	bool bPeaceDeal = pFromTeam->isAtWar(eToTeam);
+	bool bHumanToHuman = pFromPlayer->isHuman() && pToPlayer->isHuman();
+	bool bSameTeam = eFromTeam == eToTeam;
+	bool bOneSided = this->GetSurrenderingPlayer() != NO_PLAYER || this->GetDemandingPlayer() != NO_PLAYER || this->GetRequestingPlayer() != NO_PLAYER;
 
-	std::vector<CvDeal*> pRenewDeals = pFromPlayer->GetDiplomacyAI()->GetDealsToRenew(eToPlayer);
-
-	if (!bPeaceDeal)
+	// Can't trade anything if embargoed by the World Congress (except for peace deals)
+	if (MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS && !bPeaceDeal)
 	{
 		CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
-		if (pLeague != NULL && pLeague->IsTradeEmbargoed(ePlayer, eToPlayer))
+		if (pLeague && pLeague->IsTradeEmbargoed(ePlayer, eToPlayer))
 		{
 			return false;
 		}
 	}
 
-	bool bLumpGoldEnabled = GC.getGame().IsLumpGoldTradingEnabled();
-	bLumpGoldEnabled |= GC.getGame().IsLumpGoldTradingHumanOnly() && (pFromPlayer->isHuman() || pToPlayer->isHuman());
+	if (!bHumanToHuman)
+	{
+		// AI can't trade anything (except peace itself) in a peace deal if they're not the one surrendering
+		if (bPeaceDeal)
+		{
+			if (bOneSided && this->GetSurrenderingPlayer() != ePlayer && eItem != TRADE_ITEM_PEACE_TREATY && eItem != TRADE_ITEM_THIRD_PARTY_PEACE)
+			{
+				return false;
+			}
+		}
+		// AI won't add anything to its side for a demand
+		else if (bOneSided && this->GetDemandingPlayer() == ePlayer)
+		{
+			return false;
+		}
+		// AI won't add anything to its side for a request
+		else if (bOneSided && this->GetRequestingPlayer() == ePlayer)
+		{
+			return false;
+		}
+	}
 
 	int iGoldAvailable = GetGoldAvailable(ePlayer, eItem);
 
-	// Some items require gold be spent (e.g. Research and Trade Agreements)
+	// Research Agreements require Gold to be spent.
 	int iCost = GC.getGame().GetGameDeals().GetTradeItemGoldCost(eItem, ePlayer, eToPlayer);
-	if(iCost > 0 && iGoldAvailable < iCost)
+	if (iCost > 0 && iGoldAvailable < iCost)
 		return false;
 
 	iGoldAvailable -= iCost;
 
+	// AI will refuse to trade temporary items for permanent items.
+	if (BlockTemporaryForPermanentTrade(eItem, ePlayer, eToPlayer))
+		return false;
+
+	std::vector<CvDeal*> pRenewDeals = pFromPlayer->GetDiplomacyAI()->GetDealsToRenew(eToPlayer);
+
+	////////////////////////////////////////////////////
+	//////// INDIVIDUAL TRADE ITEMS ////////////////////
 	////////////////////////////////////////////////////
 
-	// Gold
-	if (eItem == TRADE_ITEM_GOLD)
+	switch (eItem)
 	{
-		// Can't trade more Gold than you have
-		int iGold = iData1;
-		if (iGold != -1 && iGoldAvailable < iGold)
-			return false;
-
-		// Can't demand lump Gold - too exploitable.
-		if (this->GetDemandingPlayer() != NO_PLAYER && !bLumpGoldEnabled)
-			return false;
-
-		if (!bHumanToHuman)
+		// Peace Treaty
+		case TRADE_ITEM_PEACE_TREATY:
 		{
-			if (bPeaceDeal)
+			// Not at war?
+			if (!bPeaceDeal)
+				return false;
+
+			// CAN we make peace?
+			if (!pFromTeam->canChangeWarPeace(eToTeam) || !pFromTeam->canChangeWarPeace(eFromTeam))
+				return false;
+
+			if (MOD_EVENTS_WAR_AND_PEACE) 
 			{
-				if (this->GetSurrenderingPlayer() != ePlayer)
+				if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_IsAbleToMakePeace, ePlayer, eToTeam) == GAMEEVENTRETURN_FALSE) 
+				{
+					return false;
+				}
+				if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_PlayerCanMakePeace, ePlayer, eToTeam) == GAMEEVENTRETURN_FALSE) 
 				{
 					return false;
 				}
 			}
 
-			if (eFromTeam != eToTeam && !bLumpGoldEnabled)
+			ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+			if (pkScriptSystem)
 			{
-				// Can't exchange GPT for lump Gold - we aren't a bank.
-				if (GetGoldPerTurnTrade(eToPlayer) > 0)
-					return false;
+				// Construct and push in some event arguments.
+				CvLuaArgsHandle args;
+				args->Push(ePlayer);
+				args->Push(eToTeam);
 
-				//cannot pay for resources with lump sums of gold
-				if (IsResourceTrade(eToPlayer, NO_RESOURCE))
-					return false;
-
-				//cannot pay for vote commitments with lump sums of gold
-				if (IsVoteCommitmentTrade(eToPlayer))
-					return false;
-
-				//cannot pay for embassies with lump sums of gold
-				if (IsAllowEmbassyTrade(eToPlayer))
-					return false;
-
-				//cannot pay for open borders with lump sums of gold
-				if (IsOpenBordersTrade(eToPlayer))
-					return false;
-
-				//cannot pay for defensive pacts with lump sums of gold
-				if (IsDefensivePactTrade(eToPlayer))
-					return false;
-
-				//cannot pay for research agreements with lump sums of gold
-				if (IsResearchAgreementTrade(eToPlayer))
-					return false;
-			}
-		}
-	}
-	// Gold per Turn
-	else if (eItem == TRADE_ITEM_GOLD_PER_TURN)
-	{
-		// Can't trade more GPT than you're making
-		int iGoldPerTurn = iData1;
-		//if a renewal deal, subtract the gold already included in the renewal.
-		int iGoldRate = pFromPlayer->calculateGoldRate();
-		for (uint i = 0; i < pRenewDeals.size(); i++)
-		{
-			CvDeal* pRenewDeal = pRenewDeals[i];
-			if (pRenewDeal && pRenewDeal->GetGoldPerTurnTrade(ePlayer) > 0)
-				iGoldRate += pRenewDeal->GetGoldPerTurnTrade(ePlayer);
-		}
-
-		if (iGoldPerTurn != -1 && iGoldRate < iGoldPerTurn)
-		{
-			return false;
-		}
-
-		if (!bHumanToHuman)
-		{
-			if (bPeaceDeal)
-			{
-				if (this->GetSurrenderingPlayer() != ePlayer)
+				// Attempt to execute the game events.
+				// Will return false if there are no registered listeners.
+				bool bResult = false;
+				if (LuaSupport::CallTestAll(pkScriptSystem, "IsAbleToMakePeace", args.get(), bResult)) 
 				{
-					return false;
+					// Check the result.
+					if (bResult == false)
+					{
+						return false;
+					}
 				}
 			}
 
-			// Can't exchange GPT for lump Gold - we aren't a bank.
-			if (eFromTeam != eToTeam && !bLumpGoldEnabled && GetGoldTrade(eToPlayer) > 0)
+			break;
+		}
+
+		// Declaration of Friendship (human only)
+		case TRADE_ITEM_DECLARATION_OF_FRIENDSHIP:
+		{
+			if (!bHumanToHuman || bPeaceDeal) // Recursive: Would be nice to allow this to be tradeable in a peace treaty, but unsure if this breaks functionality
 				return false;
 
-			// Cannot trade cities for gold per turn
-			if (ContainsItemType(TRADE_ITEM_CITIES))
+			// Already have a DoF?
+			if (pFromPlayer->GetDiplomacyAI()->IsDoFAccepted(eToPlayer))
 				return false;
 		}
 
-		//int iDuration = iData2;
-		//if (iDuration != GC.getGame().GetDealDuration())
-		//	return false;
-	}
-	// Resource
-	else if(eItem == TRADE_ITEM_RESOURCES)
-	{
-		ResourceTypes eResource = (ResourceTypes) iData1;
-		if (eResource != NO_RESOURCE)
+		case TRADE_ITEM_GOLD:
 		{
+			// Can't trade more Gold than you have!
+			int iGold = iData1;
+			if (iGoldAvailable <= 0)
+				return false;
+			else if (iGold != -1 && iGoldAvailable < iGold)
+				return false;
+
+			break;
+		}
+
+		case TRADE_ITEM_GOLD_PER_TURN:
+		{
+			// Can't trade more Gold Per Turn than you have!
+			int iGoldPerTurn = iData1;
+			int iGoldRate = pFromPlayer->calculateGoldRate();
+
+			// If this is a renewal deal, account for the gold already included in the renewal
+			// Recursive: Is this identifying the correct deal?
+			for (uint i = 0; i < pRenewDeals.size(); i++)
+			{
+				CvDeal* pRenewDeal = pRenewDeals[i];
+				if (pRenewDeal && pRenewDeal->GetGoldPerTurnTrade(ePlayer) > 0)
+					iGoldRate += pRenewDeal->GetGoldPerTurnTrade(ePlayer);
+			}
+
+			if (iGoldRate == 0)
+				return false;
+			else if (iGoldPerTurn != -1 && iGoldRate < iGoldPerTurn)
+				return false;
+
+			break;
+		}
+
+		case TRADE_ITEM_RESOURCES:
+		{
+			ResourceTypes eResource = (ResourceTypes) iData1;
 			int iResourceQuantity = iData2;
 
-			// Can't trade nothing
-			if (iResourceQuantity < 1)
-				return false;
+			// If this is true, the function is asking if we can trade ANY resource. Usually, the answer is yes!
+			if (eResource == NO_RESOURCE)
+				return true;
 
-			if (GC.getGame().GetGameLeagues()->IsLuxuryHappinessBanned(ePlayer, eResource) || GC.getGame().GetGameLeagues()->IsLuxuryHappinessBanned(eToPlayer, eResource))
+			// Can't trade nothing
+			if (iResourceQuantity <= 0)
 				return false;
 
 			CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
-			if (pkResourceInfo)
-			{
-				TechTypes eTech = (TechTypes)pkResourceInfo->getTechObsolete();
-				if (eTech != NO_TECH && (GET_PLAYER(ePlayer).HasTech(eTech) || GET_PLAYER(eToPlayer).HasTech(eTech)))
-					return false;
-			}
+			if (!pkResourceInfo)
+				return false;
 
-			int iNumAvailable = 0;
+			// Must be a Luxury or Strategic Resource
+			ResourceUsageTypes eUsage = pkResourceInfo->getResourceUsage();
+			if (eUsage != RESOURCEUSAGE_LUXURY && eUsage != RESOURCEUSAGE_STRATEGIC)
+				return false;
+
+			// Can't trade resource if the seller does not have the tech required to trade it
+			if (!pFromPlayer->IsResourceCityTradeable(eResource))
+				return false;
+
+			// Can't trade obsolete resources
+			TechTypes eTech = (TechTypes)pkResourceInfo->getTechObsolete();
+			if (eTech != NO_TECH && (GET_PLAYER(ePlayer).HasTech(eTech) || GET_PLAYER(eToPlayer).HasTech(eTech)))
+				return false;
+
+			// Resources can have a "AI will stop trading" era - if it's been passed, AI won't trade this
+			if (!pFromPlayer->isHuman() && pFromTeam->IsResourceObsolete(eResource))
+				return false;
+
+			// How much of this resource do we and the other guy have? Don't call getNumResourceAvailable() for the other player for strategic resources since that's not relevant.
+			int iNumAvailableToUs = pFromPlayer->getNumResourceAvailable(eResource, /*bIncludeImport*/ false), iNumAvailableToOther = eUsage == RESOURCEUSAGE_LUXURY ? pToPlayer->getNumResourceAvailable(eResource, /*bIncludeImport*/ true) : 0;
+
+			// If a renewal deal, add/subtract the resources already included in the renewal.
+			// Recursive: Is this identifying the correct deal?
 			if (pRenewDeals.size() > 0)
 			{
-				//if a renewal deal, add the resources already included in the renewal.
 				for (uint i = 0; i < pRenewDeals.size(); i++)
 				{
 					CvDeal* pRenewDeal = pRenewDeals[i];
 
-					iNumAvailable = pFromPlayer->getNumResourceAvailable(eResource, false);
 					int iResourcesAlreadyInDeal = pRenewDeal->GetNumResourcesInDeal(ePlayer, eResource);
 					if (iResourcesAlreadyInDeal > 0)
-						iNumAvailable += iResourcesAlreadyInDeal;
-				}
-			}
-			else
-			{
-				iNumAvailable = pFromPlayer->getNumResourceAvailable(eResource, false);
-			}
-			
-			// Offering up more of a Resource than we have available
-			if (iNumAvailable < iResourceQuantity)
-			{
-				return false;
-			}
-			
-			
-			// Must be a Luxury or a Strategic Resource
-			ResourceUsageTypes eUsage = GC.getResourceInfo(eResource)->getResourceUsage();
-			if(eUsage != RESOURCEUSAGE_LUXURY && eUsage != RESOURCEUSAGE_STRATEGIC)
-				return false;
-
-			if(eUsage == RESOURCEUSAGE_LUXURY)
-			{
-				int iNumAvailableOther = 0;
-				//if a renewal deal, subtract the resources already included in the renewal.
-				if (pRenewDeals.size() > 0)
-				{
-					//if a renewal deal, add the resources already included in the renewal.
-					for (uint i = 0; i < pRenewDeals.size(); i++)
 					{
-						CvDeal* pRenewDeal = pRenewDeals[i];
-
-						iNumAvailableOther = pToPlayer->getNumResourceAvailable(eResource);
-						int iResourcesAlreadyInDeal = pRenewDeal->GetNumResourcesInDeal(ePlayer, eResource);
-						if (iResourcesAlreadyInDeal > 0)
-							iNumAvailableOther -= iResourcesAlreadyInDeal;
+						iNumAvailableToUs += iResourcesAlreadyInDeal;
+						iNumAvailableToOther -= iResourcesAlreadyInDeal;
 					}
 				}
-				else
-					iNumAvailableOther = pToPlayer->getNumResourceAvailable(eResource);
+			}
 
-				// Can't trade Luxury if the other player already has one
-				if (iNumAvailableOther > 0 && !pToPlayer->GetPlayerTraits()->IsImportsCountTowardsMonopolies())
-				{
+			// Can't trade more of a resource than you have!
+			if (iNumAvailableToUs < iResourceQuantity)
+				return false;
+
+			if (eUsage == RESOURCEUSAGE_LUXURY)
+			{
+				// Civs other than the Netherlands can't import duplicate copies of luxury resources
+				if (iNumAvailableToOther > 0 && !pToPlayer->GetPlayerTraits()->IsImportsCountTowardsMonopolies())
 					return false;
-				}
+
+				// Can't trade banned luxuries
+				if (GC.getGame().GetGameLeagues()->IsLuxuryHappinessBanned(ePlayer, eResource) || GC.getGame().GetGameLeagues()->IsLuxuryHappinessBanned(eToPlayer, eResource))
+					return false;
 			}
 
 			// Can't trade them something they're already giving us in the deal
-			if(!bFinalizing && IsResourceTrade(eToPlayer, eResource))
+			if (!bFinalizing && ContainsItemType(TRADE_ITEM_RESOURCES, eToPlayer, eResource))
 				return false;
 
-			// AI can't trade an obsolete resource
-			if (!pFromTeam->isHuman() && pFromTeam->IsResourceObsolete(eResource))
-			{
+			break;
+		}
+
+		case TRADE_ITEM_CITIES:
+		{
+			// Some game options restrict all city trades
+			if (GC.getGame().IsAllCityTradingDisabled())
 				return false;
+			else if (GC.getGame().IsAICityTradingDisabled() && !bHumanToHuman)
+				return false;
+			else if (GC.getGame().IsAICityTradingHumanOnly() && !pFromPlayer->isHuman() && !pToPlayer->isHuman())
+				return false;
+
+			// Make sure the city actually exists
+			CvPlot* pPlot = GC.getMap().plot(iData1, iData2);
+			CvCity* pCity = pPlot ? pPlot->getPlotCity() : NULL;
+			if (pCity == NULL)
+				return false;
+
+			// Can't trade your capital
+			if (pCity->isCapital())
+				return false;
+
+			// Can't trade someone else's city
+			if (pCity->getOwner() != ePlayer)
+				return false;
+
+			// Can't trade a city to a human in an OCC game
+			if (GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE) && pToPlayer->isHuman())
+				return false;
+
+			// Buyer needs an embassy in peacetime
+			if (!bPeaceDeal && !pToTeam->HasEmbassyAtTeam(eFromTeam))
+				return false;
+
+			// Can't already have this city in the deal
+			if (!bFinalizing && IsCityTrade(ePlayer, iData1, iData2))
+				return false;
+
+			// Can't trade a city if not at full HP and enemies are nearby (except in a peace deal)
+			if (!bPeaceDeal && pCity->getDamage() > 0 && (pCity->getDamageTakenLastTurn() > 0 || pCity->IsEnemyInRange(AVG_CITY_RADIUS, false)))
+				return false;
+
+			break;
+		}
+
+		case TRADE_ITEM_ALLOW_EMBASSY:
+		{
+			if (bSameTeam || bPeaceDeal)
+				return false;
+
+			// AI teammate of human
+			if (pFromPlayer->IsAITeammateOfHuman())
+				return false;
+
+			// Player has no capital to receive the embassy
+			if (pFromPlayer->getCapitalCity() == NULL)
+				return false;
+
+			// Other player does not have the tech required to establish an embassy
+			if (!pToTeam->isAllowEmbassyTradingAllowed())
+				return false;
+
+			// Embassy already established
+			if (pToTeam->HasEmbassyAtTeam(eFromTeam))
+				return false;
+
+			// Denouncement in either direction?
+			if (!bHumanToHuman)
+			{
+				if (pFromPlayer->GetDiplomacyAI()->IsDenouncedPlayer(eToPlayer) || pToPlayer->GetDiplomacyAI()->IsDenouncedPlayer(ePlayer))
+					return false;
 			}
 
-			if(!bHumanToHuman)
+			break;
+		}
+
+		case TRADE_ITEM_OPEN_BORDERS:
+		{
+			if (bSameTeam || bPeaceDeal)
+				return false;
+
+			// AI teammate of human
+			if (pFromPlayer->IsAITeammateOfHuman())
+				return false;
+
+			// Neither of us yet has the tech for Open Borders
+			// Recursive to-do: Require both players to have the tech unlocked in VP
+			if (!pFromTeam->isOpenBordersTradingAllowed() && !pToTeam->isOpenBordersTradingAllowed())
+				return false;
+
+			// Must have accepted embassy from this player before opening our borders to them
+			if (!pToTeam->HasEmbassyAtTeam(eFromTeam))
+				return false;
+
+			bool bIgnoreExistingOB = false;
+			// Renewing an Open Borders deal?
+			// Recursive: Is this identifying the correct deal?
+			for (uint i = 0; i < pRenewDeals.size(); i++)
 			{
-				if(bPeaceDeal)
+				CvDeal* pRenewDeal = pRenewDeals[i];
+				if (pRenewDeal->IsOpenBordersTrade(ePlayer))
 				{
-					if(this->GetSurrenderingPlayer() != ePlayer)
-					{
+					bIgnoreExistingOB = true;
+					break;
+				}
+			}
+
+			// We are already allowing Open Borders!
+			if (!bIgnoreExistingOB)
+			{
+				if (pFromTeam->IsAllowsOpenBordersToTeam(eToTeam))
+					return false;
+			}
+
+			break;
+		}
+
+		case TRADE_ITEM_DEFENSIVE_PACT:
+		{
+			if (bSameTeam || bPeaceDeal || bOneSided)
+				return false;
+
+			// AI teammate of human
+			if (pFromPlayer->IsAITeammateOfHuman() || pToPlayer->IsAITeammateOfHuman())
+				return false;
+
+			// Defensive Pacts were disabled in DiploAIOptions.sql
+			if (!bHumanToHuman && GD_INT_GET(DIPLOAI_DEFENSIVE_PACT_LIMIT_BASE) < 0)
+				return false;
+
+			// Neither of us yet has the Tech for DP
+			// Recursive to-do: Require both players to have the tech unlocked in VP
+			if (!pFromTeam->isDefensivePactTradingAllowed() && !pToTeam->isDefensivePactTradingAllowed())
+				return false;
+
+			// Vassals cannot make Defensive Pacts.
+			if (pFromTeam->IsVassalOfSomeone() || pToTeam->IsVassalOfSomeone())
+				return false;
+
+			// Mutual embassies are required
+			if (!pFromTeam->HasEmbassyAtTeam(eToTeam) || !pToTeam->HasEmbassyAtTeam(eFromTeam))
+				return false;
+
+			// Not valid if vassalage is in the trade
+			if (ContainsItemType(TRADE_ITEM_VASSALAGE))
+				return false;
+
+			bool bIgnoreExistingDP = false;
+			// Renewing a Defensive Pact deal?
+			// Recursive: Is this identifying the correct deal?
+			for (uint i = 0; i < pRenewDeals.size(); i++)
+			{
+				CvDeal* pRenewDeal = pRenewDeals[i];
+				if (pRenewDeal->IsDefensivePactTrade(ePlayer))
+				{
+					bIgnoreExistingDP = true;
+					break;
+				}
+			}
+
+			// We already have a Defensive Pact!
+			if (!bIgnoreExistingDP)
+			{
+				if (pFromTeam->IsHasDefensivePact(eToTeam))
+					return false;
+			}
+
+			break;
+		}
+
+		case TRADE_ITEM_RESEARCH_AGREEMENT:
+		{
+			if (bSameTeam || bPeaceDeal || bOneSided)
+				return false;
+
+			// AI teammate of human
+			if (pFromPlayer->IsAITeammateOfHuman() || pToPlayer->IsAITeammateOfHuman())
+				return false;
+
+			// No science?
+			if (GC.getGame().isOption(GAMEOPTION_NO_SCIENCE))
+				return false;
+
+			// Research agreements aren't enabled
+			if (MOD_DIPLOMACY_CIV4_FEATURES && !GC.getGame().isOption(GAMEOPTION_RESEARCH_AGREEMENTS))
+				return false;
+
+			// Neither of us yet has the Tech for RA
+			// Recursive to-do: Require both players to have the tech unlocked in VP
+			if (!pFromTeam->IsResearchAgreementTradingAllowed() && !pToTeam->IsResearchAgreementTradingAllowed())
+				return false;
+
+			// Mutual embassies are required
+			if (!pFromTeam->HasEmbassyAtTeam(eToTeam) || !pToTeam->HasEmbassyAtTeam(eFromTeam))
+				return false;
+
+			// Declaration of Friendship is required
+			if (!pFromPlayer->GetDiplomacyAI()->IsDoFAccepted(eToPlayer))
+				return false;
+
+			// We already have a Research Agreement! To-do: Renew Research Agreement deals?
+			if (pFromTeam->IsHasResearchAgreement(eToTeam))
+				return false;
+
+			// Someone already has all techs
+			if (pFromTeam->GetTeamTechs()->HasResearchedAllTechs() || pToTeam->GetTeamTechs()->HasResearchedAllTechs())
+				return false;
+
+			break;
+		}
+
+		case TRADE_ITEM_THIRD_PARTY_PEACE:
+		{
+			if (bSameTeam)
+				return false;
+
+			// AI teammate of human
+			if (pFromPlayer->IsAITeammateOfHuman())
+				return false;
+
+			TeamTypes eTargetTeam = (TeamTypes)iData1;
+			if (eTargetTeam == NO_TEAM || eTargetTeam == eFromTeam || eTargetTeam == eToTeam)
+				return false;
+			if (!GET_TEAM(eTargetTeam).isAlive() || GET_TEAM(eTargetTeam).isBarbarian() || GET_TEAM(eTargetTeam).getLeaderID() == NO_PLAYER)
+				return false;
+
+			// Teams are not at war
+			if (!pFromTeam->isAtWar(eTargetTeam))
+				return false;
+
+			vector<PlayerTypes> vMembers = GET_TEAM(eTargetTeam).getPlayers();
+
+			// If this is a peace deal, we only want allied City-States in here.
+			if (bPeaceDeal)
+			{
+				for (size_t i=0; i < vMembers.size(); i++)
+				{
+					if (!GET_PLAYER(vMembers[i]).isAlive())
+						continue;
+
+					if (!GET_PLAYER(vMembers[i]).isMinorCiv())
 						return false;
-					}
-				}
 
-				//cannot pay for resources with lump sums of gold
-				if (eFromTeam != eToTeam && !bLumpGoldEnabled && GetGoldTrade(eToPlayer) > 0)
-					return false;
-			}
-
-			// Can't trade resource if the seller does not have the city trade tech
-			if (!pFromPlayer->IsResourceCityTradeable(eResource))
-			{
-				return false;
-			}
-		}
-	}
-	// City
-	else if(eItem == TRADE_ITEM_CITIES)
-	{
-		// Some game options restrict all city trades
-		if (GC.getGame().IsAllCityTradingDisabled())
-		{
-			return false;
-		}
-		else if (GC.getGame().IsAICityTradingDisabled() && !bHumanToHuman)
-		{
-			return false;
-		}
-		else if (GC.getGame().IsAICityTradingHumanOnly() && !GET_PLAYER(ePlayer).isHuman() && !GET_PLAYER(eToPlayer).isHuman())
-		{
-			return false;
-		}
-
-		CvPlot* pPlot = GC.getMap().plot(iData1, iData2);
-		CvCity* pCity = pPlot ? pPlot->getPlotCity() : NULL;
-		if (pCity == NULL)
-			return false;
-
-		// Can't trade someone else's city
-		if(pCity->getOwner() != ePlayer)
-			return false;
-
-		// Can't trade one's capital
-		if(pCity->isCapital())
-			return false;
-
-		// Can't trade a city to a human in an OCC game
-		if(GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE) && GET_PLAYER(eToPlayer).isHuman())
-			return false;
-
-		// Need an embassy in peacetime
-		if (!bPeaceDeal && !pToTeam->HasEmbassyAtTeam(eFromTeam))
-			return false;
-
-		// Can't already have this city in the deal
-		if(!bFinalizing && IsCityTrade(ePlayer, iData1, iData2))
-			return false;
-
-		//Can't give up cities in a peace deal if not surrendering.
-		if(!bHumanToHuman)
-		{
-			// Cannot trade cities for gold per turn or third party war
-			if (ContainsItemType(TRADE_ITEM_GOLD_PER_TURN) || ContainsItemType(TRADE_ITEM_THIRD_PARTY_WAR))
-				return false;
-
-			if(bPeaceDeal)
-			{
-				if(this->GetSurrenderingPlayer() != ePlayer)
-				{
-					return false;
+					PlayerTypes eAlly = GET_PLAYER(vMembers[i]).GetMinorCivAI()->GetAlly();
+					if (GET_PLAYER(eAlly).getTeam() != eToTeam)
+						return false;
 				}
 			}
-		}
-
-		// Can't trade a city if not at full HP and enemies are nearby (except in a peace deal)
-		if (pCity->getDamage() > 0 && !bPeaceDeal && (pCity->getDamageTakenLastTurn() > 0 || pCity->IsEnemyInRange(AVG_CITY_RADIUS, false)))
-			return false;
-	}
-	// Embassy
-	else if(eItem == TRADE_ITEM_ALLOW_EMBASSY)
-	{
-		// too few cities
-		if (pFromPlayer->getNumCities() < 1)
-			return false;
-
-		// Does not have tech for Embassy trading
-		if(!pToTeam->isAllowEmbassyTradingAllowed())
-			return false;
-
-		// Already have embassy
-		if (pToTeam->HasEmbassyAtTeam(eFromTeam))
-			return false;
-
-		// Same team
-		if(eFromTeam == eToTeam)
-			return false;
-
-		// If we are at war, then we can't until we make peace
-		if(pFromTeam->isAtWar(eToTeam))
-			return false;
-
-		if(!bHumanToHuman && !bLumpGoldEnabled)
-		{
-			//cannot pay for embassies with lump sums of gold
-			if (GetGoldTrade(eToPlayer) > 0)
-				return false;
-		}
-	}
-	// Open Borders
-	else if(eItem == TRADE_ITEM_OPEN_BORDERS)
-	{
-		// Neither of us yet has the Tech for OP
-		if(!pFromTeam->isOpenBordersTradingAllowed() && !pToTeam->isOpenBordersTradingAllowed())
-			return false;
-		// Embassy has not been established
-		if(!pFromTeam->HasEmbassyAtTeam(eToTeam))
-			return false;
-		
-		bool bIgnoreExistingOB = false;
-		//if a renewal deal, add the resources already included in the renewal.
-		for (uint i = 0; i < pRenewDeals.size(); i++)
-		{
-			CvDeal* pRenewDeal = pRenewDeals[i];
-			if (pRenewDeal->IsOpenBordersTrade(ePlayer))
-			{
-				bIgnoreExistingOB = true;
-				break;
-			}
-		}
-
-		// Already has OB
-		if (!bIgnoreExistingOB)
-		{
-			if (pFromTeam->IsAllowsOpenBordersToTeam(eToTeam))
-				return false;
-		}
-
-		// Same Team
-		if(eFromTeam == eToTeam)
-			return false;
-
-		// If we are at war, then we can't until we make peace
-		if(pFromTeam->isAtWar(eToTeam))
-			return false;
-
-		if(!bHumanToHuman && !bLumpGoldEnabled)
-		{
-			//cannot pay for open borders with lump sums of gold
-			if (GetGoldTrade(eToPlayer) > 0)
-				return false;
-		}
-	}
-	// Defensive Pact
-	else if(eItem == TRADE_ITEM_DEFENSIVE_PACT)
-	{
-		bool bIgnoreExistingDP = false;
-		//if a renewal deal, add the resources already included in the renewal.
-		for (uint i = 0; i < pRenewDeals.size(); i++)
-		{
-			CvDeal* pRenewDeal = pRenewDeals[i];
-			if (pRenewDeal->IsDefensivePactTrade(ePlayer))
-			{
-				bIgnoreExistingDP = true;
-				break;
-			}
-		}
-
-		// Defensive Pacts were disabled in DiploAIOptions.sql
-		if (GD_INT_GET(DIPLOAI_DEFENSIVE_PACT_LIMIT_BASE) < 0)
-			return false;
-
-		// Not valid in a demand/request
-		if (this->GetDemandingPlayer() != NO_PLAYER || this->GetRequestingPlayer() != NO_PLAYER)
-			return false;
-
-		// No DPs with vassals!
-		if (pFromTeam->IsVassalOfSomeone())
-			return false;
-
-		// Neither of us yet has the Tech for DP
-		if (!pFromTeam->isDefensivePactTradingAllowed() && !pToTeam->isDefensivePactTradingAllowed())
-			return false;
-
-		// Embassy has not been established
-		if (!pFromTeam->HasEmbassyAtTeam(eToTeam) || !pToTeam->HasEmbassyAtTeam(eFromTeam))
-			return false;
-
-		// Can't have vassalage in the deal
-		if (IsVassalageTrade(ePlayer) || IsVassalageTrade(eToPlayer))
-			return false;
-
-		// Already has DP
-		if (!bIgnoreExistingDP)
-		{
-			if (pFromTeam->IsHasDefensivePact(eToTeam))
-				return false;
-		}
-
-		// Same Team
-		if (eFromTeam == eToTeam)
-			return false;
-
-		// If we are at war, then we can't until we make peace
-		if(pFromTeam->isAtWar(eToTeam))
-			return false;
-
-		if(!bHumanToHuman && !bLumpGoldEnabled)
-		{
-			//cannot pay for defensive pacts with lump sums of gold
-			if (!bLumpGoldEnabled && GetGoldTrade(eToPlayer) > 0)
-				return false;
-		}
-
-		// Check to see if the other player can trade this item to us as well. If they can't, we can't trade it either
-		if (bCheckOtherPlayerValidity)
-		{
-			if (!IsPossibleToTradeItem(eToPlayer, ePlayer, eItem, iData1, iData2, iData3, bFlag1, /*bCheckOtherPlayerValidity*/ false))
-				return false;
-		}
-	}
-	// Research Agreement
-	else if(eItem == TRADE_ITEM_RESEARCH_AGREEMENT)
-	{
-		if(GC.getGame().isOption(GAMEOPTION_NO_SCIENCE))
-			return false;
-
-		// Not valid in a demand/request
-		if (this->GetDemandingPlayer() != NO_PLAYER || this->GetRequestingPlayer() != NO_PLAYER)
-			return false;
-
-		// If we are at war, then we can't until we make peace
-		if(pFromTeam->isAtWar(eToTeam))
-			return false;
-
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-		// Research agreements aren't enabled
-		if(MOD_DIPLOMACY_CIV4_FEATURES && !GC.getGame().isOption(GAMEOPTION_RESEARCH_AGREEMENTS))
-			return false;
-#endif
-
-		// Neither of us yet has the Tech for RA
-		if(!pFromTeam->IsResearchAgreementTradingAllowed() && !pToTeam->IsResearchAgreementTradingAllowed())
-			return false;
-		// Embassy has not been established with this team
-		if(!pFromTeam->HasEmbassyAtTeam(eToTeam) || !pToTeam->HasEmbassyAtTeam(eFromTeam))
-			return false;
-		// DoF has not been made with this player
-		if(!pFromPlayer->GetDiplomacyAI()->IsDoFAccepted(eToPlayer) || !pToPlayer->GetDiplomacyAI()->IsDoFAccepted(ePlayer))
-			return false;
-		// Already has RA
-		if(pFromTeam->IsHasResearchAgreement(eToTeam))
-			return false;
-		// Same Team
-		if(eFromTeam == eToTeam)
-			return false;
-		// Someone already has all techs
-		if(pFromTeam->GetTeamTechs()->HasResearchedAllTechs() || pToTeam->GetTeamTechs()->HasResearchedAllTechs())
-			return false;
-
-		if(!bHumanToHuman && !bLumpGoldEnabled)
-		{
-			//cannot pay for research agreements with lump sums of gold
-			if (GetGoldTrade(eToPlayer) > 0)
-				return false;
-		}
-
-		// Check to see if the other player can trade this item to us as well. If they can't, we can't trade it either
-		if(bCheckOtherPlayerValidity)
-		{
-			if(!IsPossibleToTradeItem(eToPlayer, ePlayer, eItem, iData1, iData2, iData3, bFlag1, /*bCheckOtherPlayerValidity*/ false))
-				return false;
-		}
-	}
-	// Peace Treaty
-	else if(eItem == TRADE_ITEM_PEACE_TREATY)
-	{
-		if (!pFromTeam->isAtWar(eToTeam) || !pToTeam->isAtWar(eFromTeam))
-			return false;
-
-		// Prevent human to human peace treaty exploits
-		if (!pFromTeam->canChangeWarPeace(eToTeam) || !pToTeam->canChangeWarPeace(eFromTeam))
-			return false;
-
-		if (MOD_EVENTS_WAR_AND_PEACE) 
-		{
-			if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_IsAbleToMakePeace, ePlayer, eToTeam) == GAMEEVENTRETURN_FALSE) 
+			// Buyer needs an embassy in peacetime
+			else if (!pToTeam->HasEmbassyAtTeam(eFromTeam))
 			{
 				return false;
 			}
 
-			if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_PlayerCanMakePeace, ePlayer, eToTeam) == GAMEEVENTRETURN_FALSE) 
-			{
-				return false;
-			}
-		}
-
-		ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
-		if (pkScriptSystem)
-		{
-			// Construct and push in some event arguments.
-			CvLuaArgsHandle args;
-			args->Push(ePlayer);
-			args->Push(eToTeam);
-
-			// Attempt to execute the game events.
-			// Will return false if there are no registered listeners.
-			bool bResult = false;
-			if (LuaSupport::CallTestAll(pkScriptSystem, "IsAbleToMakePeace", args.get(), bResult)) 
-			{
-				// Check the result.
-				if (bResult == false)
-				{
-					return false;
-				}
-			}
-		}
-	}
-	// Third Party Peace
-	else if(eItem == TRADE_ITEM_THIRD_PARTY_PEACE)
-	{
-		TeamTypes eThirdTeam = (TeamTypes) iData1;
-
-		if(eThirdTeam == NO_TEAM)
-			return false;
-
-		//If not at war, need embassy.
-		if (!bPeaceDeal)
-		{
-			if (!GET_TEAM(eToTeam).HasEmbassyAtTeam(eFromTeam))
+			// Both players must have met the third party
+			if (!pFromTeam->isHasMet(eTargetTeam) || !pToTeam->isHasMet(eTargetTeam))
 				return false;
 
-			//vassals get out!
-			if (GET_TEAM(eToTeam).IsVassalOfSomeone() || GET_TEAM(eThirdTeam).IsVassalOfSomeone() || GET_TEAM(eFromTeam).IsVassalOfSomeone())
+			// Either side can't make peace yet?
+			if (!pFromTeam->canChangeWarPeace(eTargetTeam) || !GET_TEAM(eTargetTeam).canChangeWarPeace(eFromTeam))
 				return false;
-		
+
 			//Can't already be offering this.
-			if (!bFinalizing && IsThirdPartyPeaceTrade(ePlayer, eThirdTeam))
+			if (!bFinalizing && IsThirdPartyPeaceTrade(ePlayer, eTargetTeam))
 				return false;
-		}
 
-		// Can't be the same team
-		if(eFromTeam == eThirdTeam)
-			return false;
-
-		// Can't ask teammates
-		if(eToTeam == eFromTeam)
-			return false;
-
-		//Can't ask for yourself
-		if(eToTeam == eThirdTeam)
-			return false;
-
-		// Must be alive
-		if(!GET_TEAM(eThirdTeam).isAlive())
-			return false;
-
-		// Player that wants Peace hasn't yet met the 3rd Team
-		if(!pToTeam->isHasMet(eThirdTeam))
-			return false;
-
-		// Player that would go to Peace hasn't yet met the 3rd Team
-		if(!pFromTeam->isHasMet(eThirdTeam))
-			return false;
-
-		// Player that would go to peace is already at peace with the 3rd Team
-		if(!pFromTeam->isAtWar(eThirdTeam))
-			return false;
-
-		//Either side can't make peace yet?
-		if(!pFromTeam->canChangeWarPeace(eThirdTeam))
-			return false;
-
-		//Either side can't make peace yet?
-		if(!GET_TEAM(eThirdTeam).canChangeWarPeace(eFromTeam))
-			return false;
-
-		for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
-		{
-			PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
-			if (eLoopPlayer != NO_PLAYER && GET_PLAYER(eLoopPlayer).getTeam() == eThirdTeam)
+			if (!bPeaceDeal) // Skip this in peace deals; validity above overrides validity below
 			{
-				CvPlayer* pOtherPlayer = &GET_PLAYER(eLoopPlayer);
-
-				if(!pOtherPlayer)
-					continue;
-
-				if(!pOtherPlayer->isAlive())
-					return false;
-
-				// Minor civ
-				if(pOtherPlayer->isMinorCiv())
+				for (size_t i=0; i < vMembers.size(); i++)
 				{
-					// Minor at permanent war with this player
-					if(pOtherPlayer->GetMinorCivAI()->IsPermanentWar(eFromTeam))
-						return false;
+					if (!GET_PLAYER(vMembers[i]).isAlive())
+						continue;
 
-					// Only matters if this isn't a peace treaty.
-					if (!bPeaceDeal)
+					// City-State?
+					if (GET_PLAYER(vMembers[i]).isMinorCiv())
 					{
-						// Minor's ally at war with this player?
-						if(pOtherPlayer->GetMinorCivAI()->IsPeaceBlocked(eFromTeam))
+						// Peace blocked?
+						if (GET_PLAYER(vMembers[i]).GetMinorCivAI()->IsPeaceBlocked(eFromTeam))
+							return false;
+					}
+					// Major civ?
+					else
+					{
+						// Only a decisive winner can agree to make peace
+						if (pFromPlayer->GetDiplomacyAI()->GetWarScore(vMembers[i]) < 75)
+							return false;
+
+						// Check for peace blocks
+						vector<PlayerTypes> vFromTeam = pFromTeam->getPlayers();
+						for (size_t j=0; j < vFromTeam.size(); j++)
 						{
-							// If the ally is us, don't block peace here
-							if(pOtherPlayer->GetMinorCivAI()->GetAlly() != eToPlayer)
+							if (!GET_PLAYER(vFromTeam[j]).isAlive() || !GET_PLAYER(vFromTeam[j]).isMajorCiv())
+								continue;
+
+							if (!GET_PLAYER(vFromTeam[j]).isHuman() && GET_PLAYER(vFromTeam[j]).GetDiplomacyAI()->IsPeaceBlocked(vMembers[i]))
 								return false;
 						}
 					}
-					//It is a peace treaty? We only want allied CSs in here.
-					else if (bPeaceDeal)
+				}
+			}
+
+			break;
+		}
+
+		case TRADE_ITEM_THIRD_PARTY_WAR:
+		{
+			if (bSameTeam || bPeaceDeal)
+				return false;
+
+			// AI teammate of human
+			if (pFromPlayer->IsAITeammateOfHuman())
+				return false;
+
+			// Not allowed by Diplo AI Options
+			if (!bHumanToHuman)
+			{
+				if (GC.getGame().IsAllWarBribesDisabled())
+				{
+					return false;
+				}
+				if (GC.getGame().IsAIWarBribesDisabled() && !pFromPlayer->isHuman() && !pToPlayer->isHuman())
+				{
+					return false;
+				}
+			}
+
+			TeamTypes eTargetTeam = (TeamTypes)iData1;
+			if (eTargetTeam == NO_TEAM || eTargetTeam == eFromTeam || eTargetTeam == eToTeam)
+				return false;
+			if (!GET_TEAM(eTargetTeam).isAlive() || GET_TEAM(eTargetTeam).isBarbarian() || GET_TEAM(eTargetTeam).getLeaderID() == NO_PLAYER)
+				return false;
+
+			// Teams are already at war
+			if (pFromTeam->isAtWar(eTargetTeam))
+				return false;
+
+			// Both players must have met the third party
+			if (!pFromTeam->isHasMet(eTargetTeam) || !pToTeam->isHasMet(eTargetTeam))
+				return false;
+
+			// Buyer needs an embassy in peacetime
+			if (!pToTeam->HasEmbassyAtTeam(eFromTeam))
+				return false;
+
+			// We must be able to declare war against them
+			if (!pFromTeam->canDeclareWar(eTargetTeam, ePlayer))
+				return false;
+
+			// Vassals can't declare or be declared on
+			if (pFromTeam->IsVassalOfSomeone() || GET_TEAM(eTargetTeam).IsVassalOfSomeone())
+				return false;
+
+			//Can't already be offering this.
+			if (!bFinalizing && IsThirdPartyWarTrade(ePlayer, eTargetTeam))
+				return false;
+
+			// Can't broker war against a Defensive Pact
+			if (pFromTeam->IsHasDefensivePact(eTargetTeam) || pToTeam->IsHasDefensivePact(eTargetTeam))
+				return false;
+
+			// Can't broker war against your master or a Defensive Pact of your master
+			TeamTypes eToMaster = pToTeam->GetMaster();
+			if (eToMaster != NO_TEAM && (eToMaster == eTargetTeam || GET_TEAM(eTargetTeam).IsHasDefensivePact(eToMaster)))
+				return false;
+
+			// Thoroughly check for invalid targets!
+			vector<PlayerTypes> vFromTeam = pFromTeam->getPlayers(), vToTeam = pToTeam->getPlayers();
+			for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+			{
+				PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+				TeamTypes eLoopTeam = GET_PLAYER(eLoopPlayer).getTeam();
+				if (!GET_PLAYER(eLoopPlayer).isAlive())
+					continue;
+
+				// Direct and indirect backstabbing are both prohibited in war bribes.
+				if (eLoopTeam != eTargetTeam && !GET_TEAM(eLoopTeam).IsHasDefensivePact(eTargetTeam))
+					continue;
+
+				for (size_t i=0; i < vFromTeam.size(); i++)
+				{
+					if (!GET_PLAYER(vFromTeam[i]).isAlive() || !GET_PLAYER(vFromTeam[i]).isMajorCiv())
+						continue;
+
+					if (GET_PLAYER(eLoopPlayer).isMajorCiv())
 					{
-						if(pOtherPlayer->GetMinorCivAI()->GetAlly() != eToPlayer)
+						// Can't declare war on a friend
+						if (GET_PLAYER(vFromTeam[i]).GetDiplomacyAI()->IsDoFAccepted(eLoopPlayer))
+							return false;
+					}
+					else if (GET_PLAYER(eLoopPlayer).isMinorCiv())
+					{
+						// Can't declare war on a City-State ally
+						PlayerTypes eAlly = GET_PLAYER(eLoopPlayer).GetMinorCivAI()->GetAlly();
+						if (eAlly == vFromTeam[i])
+							return false;
+
+						// Can't declare war on a City-State you pledged to protect
+						if (GET_PLAYER(eLoopPlayer).GetMinorCivAI()->IsProtectedByMajor(vFromTeam[i]))
 							return false;
 					}
 				}
-				// Major civ
-				else
-				{				
-					//Only matters if not a peace deal (i.e. we're not making negotiations)
-					if (!bPeaceDeal)
+				for (size_t i=0; i < vToTeam.size(); i++)
+				{
+					if (!GET_PLAYER(vToTeam[i]).isAlive() || !GET_PLAYER(vToTeam[i]).isMajorCiv())
+						continue;
+
+					if (GET_PLAYER(eLoopPlayer).isMajorCiv())
 					{
-						if(pFromPlayer->GetPlayerNumTurnsAtWar(eLoopPlayer) < /*10*/ GD_INT_GET(WAR_MAJOR_MINIMUM_TURNS))
-						{
-							return false;
-						}
-						if(pOtherPlayer->GetPlayerNumTurnsAtWar(ePlayer) < /*10*/ GD_INT_GET(WAR_MAJOR_MINIMUM_TURNS))
-						{
-							return false;
-						}
-
-						//Either side can't make peace yet because of city capture?
-						if(pOtherPlayer->GetPlayerNumTurnsSinceCityCapture(ePlayer) <= 1)
-							return false;
-
-						if(pFromPlayer->GetPlayerNumTurnsSinceCityCapture(eLoopPlayer) <= 1)
-							return false;
-
-						//Can't force third party peace with a loser. Has to be a sizeable difference
-						int iFromWarScore = pFromPlayer->GetDiplomacyAI()->GetWarScore(pOtherPlayer->GetID());
-
-						if(iFromWarScore < 75)
+						// Can't broker war against a friend
+						if (GET_PLAYER(vToTeam[i]).GetDiplomacyAI()->IsDoFAccepted(eLoopPlayer))
 							return false;
 					}
-					else
+					else if (GET_PLAYER(eLoopPlayer).isMinorCiv())
 					{
-						//Can't force third party peace with a loser. Has to be a sizeable difference
-						int iFromWarScore = pFromPlayer->GetDiplomacyAI()->GetWarScore(pOtherPlayer->GetID());
+						// Can't broker war against a City-State ally
+						PlayerTypes eAlly = GET_PLAYER(eLoopPlayer).GetMinorCivAI()->GetAlly();
+						if (eAlly == vToTeam[i])
+							return false;
 
-						if(iFromWarScore < 75)
+						// Can't broker war against a City-State you pledged to protect
+						if (GET_PLAYER(eLoopPlayer).GetMinorCivAI()->IsProtectedByMajor(vToTeam[i]))
 							return false;
 					}
 				}
 			}
-		}
-	}
-	// Third Party War
-	else if(eItem == TRADE_ITEM_THIRD_PARTY_WAR)
-	{
-		TeamTypes eThirdTeam = (TeamTypes) iData1;
 
-		if(eThirdTeam == NO_TEAM)
-			return false;
-
-		// Can't be the same team
-		if(eFromTeam == eThirdTeam)
-			return false;
-
-		// If we are at war, then we can't until we make peace
-		if(pFromTeam->isAtWar(eToTeam))
-			return false;
-
-		//vassals get out!
-		if (GET_TEAM(eToTeam).IsVassalOfSomeone() || GET_TEAM(eThirdTeam).IsVassalOfSomeone() || GET_TEAM(eFromTeam).IsVassalOfSomeone())
-			return false;
-
-		// Embassy needed
-		if (!GET_TEAM(eToTeam).HasEmbassyAtTeam(eFromTeam))
-			return false;
-
-		if (!GET_TEAM(eFromTeam).canDeclareWar(eThirdTeam))
-			return false;
-
-		//Can't already be offering this.
-		if (!bFinalizing)
-		{
-			if (IsThirdPartyWarTrade(ePlayer, eThirdTeam))
-				return false;
+			break;
 		}
 
-		// Can't ask teammates
-		if(eToTeam == eFromTeam)
-			return false;
-
-		//Can't ask for yourself
-		if(eToTeam == eThirdTeam)
-			return false;
-
-		// Must be alive
-		if(!GET_TEAM(eThirdTeam).isAlive())
-			return false;
-
-		// Player that would go to war hasn't yet met the 3rd Team
-		if(!pToTeam->isHasMet(eThirdTeam))
-			return false;
-
-		// Player that wants war not met this team
-		if(!pFromTeam->isHasMet(eThirdTeam))
-			return false;
-
-		// Player that would go to war is already at war with the 3rd Team
-		if(pFromTeam->isAtWar(eThirdTeam))
-			return false;
-
-		// Can't ask DPs to DOW on each other
-		if(GET_TEAM(eThirdTeam).IsHasDefensivePact(eFromTeam))
-			return false;
-
-		if(GET_TEAM(eThirdTeam).IsHasDefensivePact(eToTeam))
-			return false;
-
-		if(!bHumanToHuman)
+		case TRADE_ITEM_VOTE_COMMITMENT:
 		{
-			// Cannot trade cities for war
-			if (ContainsItemType(TRADE_ITEM_CITIES))
+			if (bPeaceDeal)
 				return false;
 
-			if (GC.getGame().IsAllWarBribesDisabled())
-			{
+			if (GC.getGame().GetGameLeagues()->GetNumActiveLeagues() == 0)
 				return false;
-			}
-			if (GC.getGame().IsAIWarBribesDisabled() && !GET_PLAYER(eToPlayer).isHuman() && !GET_PLAYER(ePlayer).isHuman())
-			{
+
+			CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
+			if (!pLeague)
 				return false;
-			}
-		}
 
-		// Can this player actually declare war?
-		if (!pFromTeam->canDeclareWar(eThirdTeam, ePlayer))
-			return false;
+			int iID = iData1;
+			int iVoteChoice = iData2;
+			int iNumVotes = iData3;
+			bool bRepeal = bFlag1;
+			DEBUG_VARIABLE(iNumVotes);
 
-		for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
-		{
-			PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
-			if (eLoopPlayer != NO_PLAYER && GET_PLAYER(eLoopPlayer).getTeam() == eThirdTeam)
+			// Must be a valid proposal
+			if (!pLeague->IsProposed(iID, bRepeal))
+				return false;
+
+			CvEnactProposal* pProposal = pLeague->GetEnactProposal(iID);
+			if (pProposal == NULL)
+				return false;
+
+			if (!bFinalizing)
 			{
-				CvPlayer* pOtherPlayer = &GET_PLAYER(eLoopPlayer);
-				
-				if(!pOtherPlayer)
+				// Must be able to do this (league not in session, other player has a diplomat in this player's capital, etc.)
+				if (!pFromPlayer->GetLeagueAI()->CanCommitVote(eToPlayer))
 					return false;
 
-				if(!pOtherPlayer->isAlive())
+				// Can't already have a vote commitment in the deal
+				if (ContainsItemType(TRADE_ITEM_VOTE_COMMITMENT, ePlayer))
 					return false;
+			}
 
-				// Major civ
-				if(pOtherPlayer->isMajorCiv())
+			if (!pFromPlayer->isHuman())
+			{
+				// Is this the World Leader vote?
+				if (pProposal->GetEffects()->bDiplomaticVictory)
 				{
-					// Can't ask friends to backstab each other
-					if(pOtherPlayer->GetDiplomacyAI()->IsDoFAccepted(ePlayer))
+					// Forbidden by game options
+					if (GD_INT_GET(DIPLOAI_NO_OTHER_WORLD_LEADER_VOTES) > 1)
 						return false;
 
-					// Can't ask friends to backstab each other
-					if(pOtherPlayer->GetDiplomacyAI()->IsDoFAccepted(eToPlayer))
-						return false;			
+					// AI never sells World Leader votes if they're teamed up with a human!
+					if (pFromPlayer->IsAITeammateOfHuman())
+						return false;
 				}
-				else
+				// For compatibility with any modmods that allow a host change at different times...
+				if (pProposal->GetEffects()->bChangeLeagueHost)
 				{
-					// Can't ask a player to declare war on their ally
-					if(pOtherPlayer->GetMinorCivAI()->GetAlly() == ePlayer)
+					// Forbidden by game options
+					if (GD_INT_GET(DIPLOAI_NO_OTHER_HOST_VOTES) > 0)
 						return false;
-					//Can't offer an attack like that either
-					if(pOtherPlayer->GetMinorCivAI()->GetAlly() == eToPlayer)
-						return false;
-					// Can't ask a player to declare war if they pledged to protect them
-					if(pOtherPlayer->GetMinorCivAI()->IsProtectedByMajor(ePlayer))
-						return false;
-					// Can't offer an attack like that either
-					if(pOtherPlayer->GetMinorCivAI()->IsProtectedByMajor(eToPlayer))
+
+					// AI never sells League Host votes if they're teamed up with a human!
+					if (pFromPlayer->IsAITeammateOfHuman())
 						return false;
 				}
 			}
+			if (!pToPlayer->isHuman())
+			{
+				// Is this the World Leader vote?
+				if (pProposal->GetEffects()->bDiplomaticVictory)
+				{
+					// Forbidden by game options
+					if (!pFromPlayer->isHuman() && GD_INT_GET(DIPLOAI_NO_OTHER_WORLD_LEADER_VOTES) > 1)
+						return false;
+
+					// AI cannot buy votes for itself if it has a different team leader
+					PlayerTypes eChoicePlayer = (PlayerTypes)iVoteChoice;
+					PlayerTypes eLeader = pToTeam->getLeaderID();
+					if (eLeader != NO_PLAYER && eLeader != ePlayer && eChoicePlayer != eLeader && GET_PLAYER(eChoicePlayer).getTeam() == GET_PLAYER(eLeader).getTeam())
+						return false;
+				}
+				// For compatibility with any modmods that allow a host change at different times...
+				if (pProposal->GetEffects()->bChangeLeagueHost)
+				{
+					// Forbidden by game options
+					if (!pFromPlayer->isHuman() && GD_INT_GET(DIPLOAI_NO_OTHER_HOST_VOTES) > 0)
+						return false;
+
+					// AI cannot buy votes for itself if it has a different team leader
+					PlayerTypes eChoicePlayer = (PlayerTypes)iVoteChoice;
+					PlayerTypes eLeader = pToTeam->getLeaderID();
+					if (eLeader != NO_PLAYER && eLeader != ePlayer && eChoicePlayer != eLeader && GET_PLAYER(eChoicePlayer).getTeam() == GET_PLAYER(eLeader).getTeam())
+						return false;
+				}
+			}
+
+			break;
 		}
-	}
-	// Declaration of friendship
-	else if(eItem == TRADE_ITEM_DECLARATION_OF_FRIENDSHIP)
-	{
-		// If we are at war, then we can't until we make peace
-		if(pFromTeam->isAtWar(eToTeam))
-			return false;
 
-		// Already have a DoF?
-		if (pFromPlayer->GetDiplomacyAI()->IsDoFAccepted(eToPlayer) && pToPlayer->GetDiplomacyAI()->IsDoFAccepted(ePlayer))
-			return false;
-	}
-	// Promise to Vote in upcoming league session
-	else if (eItem == TRADE_ITEM_VOTE_COMMITMENT)
-	{
-		// If we are at war, then we can't until we make peace
-		if(pFromTeam->isAtWar(eToTeam))
-			return false;
-
-		int iID = iData1;
-		//antonjs: todo: verify iChoice is valid as well:
-		//int iChoice = iData2;
-		int iNumVotes = iData3;
-		bool bRepeal = bFlag1;
-
-		DEBUG_VARIABLE(iNumVotes);
-
-		if(GC.getGame().GetGameLeagues()->GetNumActiveLeagues() == 0)
-			return false;
-
-		CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
-		if(pLeague == NULL)
-			return false;
-
-		CvAssert(pLeague->IsProposed(iID, bRepeal));
-		CvAssert(iNumVotes <= pLeague->GetPotentialVotesForMember(ePlayer, eToPlayer));
-		
-		// Can't already have a vote commitment in the deal
-		if(!bFinalizing && IsVoteCommitmentTrade(ePlayer))
-			return false;
-
-		// Must be a valid proposal
-		if(!pLeague->IsProposed(iID, bRepeal))
-			return false;
-
-		// This player must be allowed to
-		if(!bFinalizing && !pFromPlayer->GetLeagueAI()->CanCommitVote(eToPlayer))
-			return false;
-
-		if (!bHumanToHuman)
+		case TRADE_ITEM_MAPS:
 		{
-			//cannot pay for vote commitments with lump sums of gold
-			if (eFromTeam != eToTeam && GetGoldTrade(eToPlayer) > 0)
+			if (bSameTeam || !MOD_DIPLOMACY_CIV4_FEATURES)
 				return false;
-		}
-	}
-	// Maps
-	else if (eItem == TRADE_ITEM_MAPS)
-	{
-		if (!MOD_DIPLOMACY_CIV4_FEATURES)
-			return false;
 
-		// Both need tech for Map trading
-		if (!pToTeam->isMapTrading() || !pFromTeam->isMapTrading())
-			return false;
+			// AI teammate of human
+			if (pFromPlayer->IsAITeammateOfHuman())
+				return false;
 
-		// We don't have an embassy established
-		if(!pFromTeam->HasEmbassyAtTeam(eToTeam))
-			return false;
+			// Both need tech for Map trading
+			if (!pFromTeam->isMapTrading() || !pToTeam->isMapTrading())
+				return false;
 
-		// Same team
-		if(eFromTeam == eToTeam)
-			return false;
-
-		//Can't already be offering this
-		if (!bFinalizing && IsMapTrade( ePlayer))
-			return false;
-
-		if(!bHumanToHuman)
-		{
-			if(bPeaceDeal)
+			// Mutual embassies are required (unless this is a peace deal)
+			if (!bPeaceDeal)
 			{
-				if(this->GetSurrenderingPlayer() != ePlayer)
-				{
+				if (!pFromTeam->HasEmbassyAtTeam(eToTeam) || !pToTeam->HasEmbassyAtTeam(eFromTeam))
 					return false;
-				}
 			}
+
+			break;
 		}
-	}
-	// Techs
-	else if (eItem == TRADE_ITEM_TECHS)
-	{
-		if (!MOD_DIPLOMACY_CIV4_FEATURES)
-			return false;
 
-		// Do we have no science enabled?
-		if(GC.getGame().isOption(GAMEOPTION_NO_SCIENCE))
-			return false;
-
-		// Can't trade techs if they're disabled
-		if(GC.getGame().isOption(GAMEOPTION_NO_TECH_TRADING))
-			return false;
-
-		// Same team
-		if(eFromTeam == eToTeam)
-			return false;
-
-		// We don't have the tech for Technology Trading yet
-		if(!pFromTeam->isTechTrading())
-			return false;
-
-		// We don't have an embassy established
-		if (!GET_TEAM(eToTeam).HasEmbassyAtTeam(eFromTeam) || !GET_TEAM(eFromTeam).HasEmbassyAtTeam(eToTeam))
-			return false;
-
-		// We don't own this tech
-		if(!pFromTeam->GetTeamTechs()->HasTech((TechTypes) iData1))
-			return false;
-
-		// We are researching this tech
-		if(GET_PLAYER(ePlayer).GetPlayerTechs()->GetCurrentResearch() == ((TechTypes) iData1))
-			return false;
-
-		// They can't research this tech yet
-		if(!GET_PLAYER(eToPlayer).GetPlayerTechs()->CanResearch((TechTypes) iData1, false))
-			return false;
-
-		// This tech is repeatable, we can't sell it.
-		CvTechEntry* pkTechInfo = GC.getTechInfo((TechTypes) iData1);
-		if(pkTechInfo->IsRepeat())
-			return false;
-
-		// Tech Brokering is enabled, and we didn't research that tech
-		if(GC.getGame().isOption(GAMEOPTION_NO_TECH_BROKERING) && !pFromTeam->IsTradeTech((TechTypes) iData1))
-			return false;
-		
-		//Can't already be offering this
-		if (!bFinalizing && IsTechTrade( ePlayer, (TechTypes) iData1))
-			return false;
-
-		if(!bHumanToHuman)
+		case TRADE_ITEM_TECHS:
 		{
-			if(bPeaceDeal)
+			if (bSameTeam || !MOD_DIPLOMACY_CIV4_FEATURES)
+				return false;
+
+			// AI teammate of human
+			if (pFromPlayer->IsAITeammateOfHuman())
+				return false;
+
+			// Must have Science and Tech Trading enabled
+			if (GC.getGame().isOption(GAMEOPTION_NO_SCIENCE) || GC.getGame().isOption(GAMEOPTION_NO_TECH_TRADING))
+				return false;
+
+			// Mutual embassies are required (unless this is a peace deal)
+			if (!bPeaceDeal)
 			{
-				if(this->GetSurrenderingPlayer() != ePlayer)
-				{
+				if (!pFromTeam->HasEmbassyAtTeam(eToTeam) || !pToTeam->HasEmbassyAtTeam(eFromTeam))
 					return false;
-				}
 			}
-		}
-	}
-	else if (eItem == TRADE_ITEM_VASSALAGE)
-	{
-		if (!MOD_DIPLOMACY_CIV4_FEATURES)
-			return false;
 
-		// Vassalage is disabled...
-		if(GC.getGame().isOption(GAMEOPTION_NO_VASSALAGE))
-			return false;
+			// Seller must have the tech that unlocks tech trading
+			if (!pFromTeam->isTechTrading())
+				return false;
 
-		// Same Team
-		if(eFromTeam == eToTeam)
-			return false;
+			// Can't sell invalid or repeatable techs
+			TechTypes eTech = (TechTypes)iData1;
+			if (eTech == NO_TECH)
+				return false;
 
-		// This prevents AI teammates selling capitulation in peace deals
-		if(!pFromPlayer->isHuman() && pFromPlayer->IsAITeammateOfHuman())
-			return false;
+			CvTechEntry* pkTechInfo = GC.getTechInfo(eTech);
+			if (!pkTechInfo || pkTechInfo->IsRepeat())
+				return false;
 
-		// Can we become the vassal of eToTeam?
-		if(!pFromTeam->canBecomeVassal(eToTeam))
-			return false;
+			// We don't own this tech
+			if (!pFromTeam->GetTeamTechs()->HasTech(eTech))
+				return false;
 
-		// Can't have a Defensive Pact in the deal
-		if (IsDefensivePactTrade(eToPlayer))
-			return false;
+			// They can't research this tech yet
+			if (!pToPlayer->GetPlayerTechs()->CanResearch(eTech, false))
+				return false;
 
-		//If the other player is our master, or vice versa...
-		if(GET_TEAM(pToPlayer->getTeam()).IsVassal(pFromPlayer->getTeam()))
-		{
-			return false;
-		}
+			// No Tech Brokering?
+			if (GC.getGame().isOption(GAMEOPTION_NO_TECH_BROKERING) && !pFromTeam->IsTradeTech(eTech))
+				return false;
 
-		if(GET_TEAM(pFromPlayer->getTeam()).IsVassal(pToPlayer->getTeam()))
-		{
-			return false;
+			// Can't already be offering this in the deal
+			if (!bFinalizing && IsTechTrade(ePlayer, eTech))
+				return false;
+
+			break;
 		}
 
-		// Voluntary vassalage has been disallowed by game options
-		if (!pFromTeam->isAtWar(eToTeam) && GD_INT_GET(DIPLOAI_DISABLE_VOLUNTARY_VASSALAGE) > 0)
-			return false;
-
-		//Can't already be offering this
-		if (!bFinalizing && IsVassalageTrade(ePlayer))
-			return false;
-
-		//Can't already be offering this
-		if (!bFinalizing && IsRevokeVassalageTrade(ePlayer))
-			return false;
-
-		if(!bHumanToHuman)
+		case TRADE_ITEM_VASSALAGE:
 		{
-			if(bPeaceDeal)
-			{
-				if(this->GetSurrenderingPlayer() != ePlayer)
-				{
-					return false;
-				}
-			}
-		}
-	}
-	else if (eItem == TRADE_ITEM_VASSALAGE_REVOKE)
-	{
-		if (!MOD_DIPLOMACY_CIV4_FEATURES)
-			return false;
+			if (bSameTeam || !MOD_DIPLOMACY_CIV4_FEATURES)
+				return false;
 
-		// Vassalage is disabled...
-		if(GC.getGame().isOption(GAMEOPTION_NO_VASSALAGE))
-			return false;
+			// AI teammate of human
+			if (pFromPlayer->IsAITeammateOfHuman())
+				return false;
 
-		// Same Team
-		if(eFromTeam == eToTeam)
-			return false;
+			// Vassalage is disabled
+			if (GC.getGame().isOption(GAMEOPTION_NO_VASSALAGE))
+				return false;
+			if (!bPeaceDeal && GD_INT_GET(DIPLOAI_DISABLE_VOLUNTARY_VASSALAGE) > 0)
+				return false;
 
-		// This prevents AI teammates selling capitulation in peace deals
-		if(!pFromPlayer->isHuman() && pFromPlayer->IsAITeammateOfHuman())
-			return false;
+			// Neither of us can already be someone's vassal
+			if (pFromTeam->IsVassalOfSomeone() || pToTeam->IsVassalOfSomeone())
+				return false;
 
-		//If the other player has no vassals...
-		if(GET_TEAM(pFromPlayer->getTeam()).GetNumVassals() <= 0)
-		{
-			return false;
+			// Can we become the vassal of this team?
+			if (!pFromTeam->canBecomeVassal(eToTeam))
+				return false;
+
+			// Not valid if a Defensive Pact or Vassal Revocation is in the deal
+			if (ContainsItemType(TRADE_ITEM_DEFENSIVE_PACT) || ContainsItemType(TRADE_ITEM_VASSALAGE_REVOKE))
+				return false;
+
+			break;
 		}
 
-		//Cannot ask him to do so.
-		if (pFromPlayer->IsVassalsNoRebel())
-			return false;
-
-		// If either team is a vassal of the other, we cannot end vassals
-		if(pToTeam->IsVassal(eFromTeam) || pFromTeam->IsVassal(eToTeam))
+		case TRADE_ITEM_VASSALAGE_REVOKE:
 		{
-			return false;
-		}
+			if (bSameTeam || !MOD_DIPLOMACY_CIV4_FEATURES)
+				return false;
 
-		// Must be able to end all vassals
-		if (!pFromTeam->canEndAllVassal())
-			return false;
+			// AI teammate of human
+			if (pFromPlayer->IsAITeammateOfHuman())
+				return false;
 
-		//Can't already be offering this
-		if (!bFinalizing && IsVassalageTrade( ePlayer))
-			return false;
+			// Vassalage is disabled
+			if (GC.getGame().isOption(GAMEOPTION_NO_VASSALAGE))
+				return false;
 
-		//Can't already be offering this
-		if (!bFinalizing && IsRevokeVassalageTrade( ePlayer))
-			return false;
+			// Must be able to end all vassals
+			if (!pFromTeam->canEndAllVassal())
+				return false;
 
-		if(!bHumanToHuman)
-		{
-			if(bPeaceDeal)
-			{
-				if(this->GetSurrenderingPlayer() != ePlayer)
-				{
-					return false;
-				}
-			}
+			// Vassals can't ask this of their masters
+			if (pToTeam->IsVassal(eFromTeam))
+				return false;
+
+			// Not valid if Vassalage is in the deal
+			if (ContainsItemType(TRADE_ITEM_VASSALAGE))
+				return false;
+
+			break;
 		}
 	}
 
 	return true;
+}
+
+bool CvDeal::BlockTemporaryForPermanentTrade(TradeableItems eItemType, PlayerTypes eFromPlayer, PlayerTypes eToPlayer)
+{
+	// Certain items are irrelevant
+	if (eItemType == TRADE_ITEM_PEACE_TREATY || eItemType == TRADE_ITEM_DECLARATION_OF_FRIENDSHIP)
+		return false;
+	if (eItemType == TRADE_ITEM_THIRD_PARTY_PEACE && GET_PLAYER(eFromPlayer).IsAtWarWith(eToPlayer))
+		return false;
+
+	bool bFromHuman = GET_PLAYER(eFromPlayer).isHuman(), bToHuman = GET_PLAYER(eToPlayer).isHuman();
+
+	// Humans can handle their own dealmaking
+	if (bFromHuman && bToHuman)
+		return false;
+
+	// Teammates can't backstab each other, so all trades are OK
+	if (GET_PLAYER(eFromPlayer).getTeam() == GET_PLAYER(eToPlayer).getTeam())
+		return false;
+
+	// Diplo AI Option to allow lump Gold trading
+	bool bLumpGoldEnabled = GC.getGame().IsLumpGoldTradingEnabled() || (GC.getGame().IsLumpGoldTradingHumanOnly() && (bFromHuman || bToHuman));
+	bool bExempted = false;
+
+	if (eItemType == TRADE_ITEM_GOLD)
+	{
+		if (bLumpGoldEnabled)
+		{
+			bExempted = true;
+		}
+		// Can't demand lump Gold - too exploitable
+		else if (this->GetDemandingPlayer() == eToPlayer)
+		{
+			return true;
+		}
+	}
+
+	bool bTemporary = false;
+	switch (eItemType)
+	{
+	case TRADE_ITEM_GOLD_PER_TURN:
+	case TRADE_ITEM_RESOURCES:
+	case TRADE_ITEM_OPEN_BORDERS:
+	case TRADE_ITEM_DEFENSIVE_PACT:
+	case TRADE_ITEM_RESEARCH_AGREEMENT:
+	case TRADE_ITEM_THIRD_PARTY_WAR:
+	case TRADE_ITEM_THIRD_PARTY_PEACE:
+	case TRADE_ITEM_ALLOW_EMBASSY:
+	case TRADE_ITEM_VOTE_COMMITMENT:
+		bTemporary = true;
+		break;
+	}
+
+	// This item is temporary - it cannot be traded for a permanent item
+	if (bTemporary)
+	{
+		vector<TradeableItems> vProhibitedItems;
+		vProhibitedItems.push_back(TRADE_ITEM_CITIES);
+		vProhibitedItems.push_back(TRADE_ITEM_TECHS);
+		vProhibitedItems.push_back(TRADE_ITEM_MAPS);
+		vProhibitedItems.push_back(TRADE_ITEM_VASSALAGE);
+		vProhibitedItems.push_back(TRADE_ITEM_VASSALAGE_REVOKE);
+
+		if (!bLumpGoldEnabled)
+			vProhibitedItems.push_back(TRADE_ITEM_GOLD);
+
+		if (ContainsItemTypes(vProhibitedItems, eToPlayer))
+			return true;
+	}
+	// This item is permanent - it cannot be traded for a temporary item
+	else if (!bExempted)
+	{
+		vector<TradeableItems> vProhibitedItems;
+		vProhibitedItems.push_back(TRADE_ITEM_GOLD_PER_TURN);
+		vProhibitedItems.push_back(TRADE_ITEM_RESOURCES);
+		vProhibitedItems.push_back(TRADE_ITEM_OPEN_BORDERS);
+		vProhibitedItems.push_back(TRADE_ITEM_DEFENSIVE_PACT);
+		vProhibitedItems.push_back(TRADE_ITEM_RESEARCH_AGREEMENT);
+		vProhibitedItems.push_back(TRADE_ITEM_THIRD_PARTY_WAR);
+		vProhibitedItems.push_back(TRADE_ITEM_THIRD_PARTY_PEACE);
+		vProhibitedItems.push_back(TRADE_ITEM_ALLOW_EMBASSY);
+		vProhibitedItems.push_back(TRADE_ITEM_VOTE_COMMITMENT);
+
+		if (ContainsItemTypes(vProhibitedItems, eToPlayer))
+			return true;
+	}
+
+	return false;
+}
+
+bool CvDeal::ContainsItemType(TradeableItems eItemType, PlayerTypes eFrom /* = NO_PLAYER */, ResourceTypes eResource /* = NO_RESOURCE */)
+{
+	TradedItemList::iterator it;
+	for (it = m_TradedItems.begin(); it != m_TradedItems.end(); it++)
+	{
+		if (it->m_eItemType == eItemType && (eFrom == NO_PLAYER || it->m_eFromPlayer == eFrom))
+		{
+			if (it->m_eItemType == TRADE_ITEM_GOLD || it->m_eItemType == TRADE_ITEM_GOLD_PER_TURN)
+			{
+				return it->m_iData1 > 0;
+			}
+			else if (it->m_eItemType == TRADE_ITEM_RESOURCES)
+			{
+				if ((ResourceTypes)it->m_iData1 <= NO_RESOURCE || it->m_iData2 <= 0)
+					return false;
+
+				if (eResource == NO_RESOURCE || (ResourceTypes)it->m_iData1 == eResource)
+					return true;
+			}
+			else
+			{
+				return true;
+			}
+		}
+	}
+	return false;
+}
+
+bool CvDeal::ContainsItemTypes(vector<TradeableItems> vItemTypes, PlayerTypes eFrom /* = NO_PLAYER */)
+{
+	TradedItemList::iterator it;
+	for (it = m_TradedItems.begin(); it != m_TradedItems.end(); it++)
+	{
+		if (eFrom == NO_PLAYER || it->m_eFromPlayer == eFrom)
+		{
+			if (std::find(vItemTypes.begin(), vItemTypes.end(), it->m_eItemType) != vItemTypes.end())
+			{
+				if (it->m_eItemType == TRADE_ITEM_GOLD || it->m_eItemType == TRADE_ITEM_GOLD_PER_TURN)
+				{
+					if (it->m_iData1 > 0)
+						return true;
+				}
+				else if (it->m_eItemType == TRADE_ITEM_RESOURCES)
+				{
+					if ((ResourceTypes)it->m_iData1 <= NO_RESOURCE || it->m_iData2 <= 0)
+						continue;
+				}
+				else
+				{
+					return true;
+				}
+			}
+		}
+	}
+	return false;
+}
+
+int CvDeal::GetGoldTrade(PlayerTypes eFrom)
+{
+	TradedItemList::iterator it;
+	for (it = m_TradedItems.begin(); it != m_TradedItems.end(); ++it)
+	{
+		if (it->m_eItemType == TRADE_ITEM_GOLD && it->m_eFromPlayer == eFrom)
+		{
+			return it->m_iData1;
+		}
+	}
+	return 0;
+}
+
+int CvDeal::GetGoldPerTurnTrade(PlayerTypes eFrom)
+{
+	TradedItemList::iterator it;
+	for(it = m_TradedItems.begin(); it != m_TradedItems.end(); ++it)
+	{
+		if(it->m_eItemType == TRADE_ITEM_GOLD_PER_TURN && it->m_eFromPlayer == eFrom)
+		{
+			return it->m_iData1;
+		}
+	}
+	return 0;
 }
 
 /// Get the number of resources available according to the deal being renewed and what's on the table
@@ -1881,19 +1853,6 @@ void CvDeal::AddVoteCommitment(PlayerTypes eFrom, int iResolutionID, int iVoteCh
 	}
 }
 
-int CvDeal::GetGoldTrade(PlayerTypes eFrom)
-{
-	TradedItemList::iterator it;
-	for(it = m_TradedItems.begin(); it != m_TradedItems.end(); ++it)
-	{
-		if(it->m_eItemType == TRADE_ITEM_GOLD && it->m_eFromPlayer == eFrom)
-		{
-			return it->m_iData1;
-		}
-	}
-	return 0;
-}
-
 bool CvDeal::ChangeGoldTrade(PlayerTypes eFrom, int iNewAmount)
 {
 	CvAssertMsg(eFrom == m_eFromPlayer || eFrom == m_eToPlayer, "DEAL: Changing deal item for a player that's not actually in this deal!  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -1922,19 +1881,6 @@ bool CvDeal::ChangeGoldTrade(PlayerTypes eFrom, int iNewAmount)
 		}
 	}
 	return false;
-}
-
-int CvDeal::GetGoldPerTurnTrade(PlayerTypes eFrom)
-{
-	TradedItemList::iterator it;
-	for(it = m_TradedItems.begin(); it != m_TradedItems.end(); ++it)
-	{
-		if(it->m_eItemType == TRADE_ITEM_GOLD_PER_TURN && it->m_eFromPlayer == eFrom)
-		{
-			return it->m_iData1;
-		}
-	}
-	return 0;
 }
 
 bool CvDeal::ChangeGoldPerTurnTrade(PlayerTypes eFrom, int iNewAmount, int iDuration)
@@ -2384,19 +2330,6 @@ void CvDeal::ChangeThirdPartyPeaceDuration(PlayerTypes eFrom, TeamTypes eThirdPa
 	}
 }
 
-bool CvDeal::ContainsItemType(TradeableItems eItemType, PlayerTypes eFrom /* = NO_PLAYER */)
-{
-	TradedItemList::iterator it;
-	for(it = m_TradedItems.begin(); it != m_TradedItems.end(); ++it)
-	{
-		if(it->m_eItemType == eItemType && (eFrom == NO_PLAYER || it->m_eFromPlayer == eFrom))
-		{
-			return true;
-		}
-	}
-	return false;
-}
-
 // PRIVATE METHODS
 
 template<typename Deal, typename Visitor>
@@ -2651,7 +2584,7 @@ bool CvDeal::AreAllTradeItemsValid()
 	TradedItemList::iterator iter;
 	for (iter = m_TradedItems.begin(); iter != m_TradedItems.end(); ++iter)
 	{
-		if (!IsPossibleToTradeItem(iter->m_eFromPlayer, GetOtherPlayer(iter->m_eFromPlayer), iter->m_eItemType, iter->m_iData1, iter->m_iData2, iter->m_iData3, iter->m_bFlag1, false, true))
+		if (!IsPossibleToTradeItem(iter->m_eFromPlayer, GetOtherPlayer(iter->m_eFromPlayer), iter->m_eItemType, iter->m_iData1, iter->m_iData2, iter->m_iData3, iter->m_bFlag1, true))
 			return false;
 	}
 	return true;
@@ -2804,7 +2737,7 @@ bool CvGameDeals::FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, b
 		{
 			for (TradedItemList::iterator iter = kDeal.m_TradedItems.begin(); iter != kDeal.m_TradedItems.end(); ++iter)
 			{
-				if (!kDeal.IsPossibleToTradeItem(iter->m_eFromPlayer, kDeal.GetOtherPlayer(iter->m_eFromPlayer), iter->m_eItemType, iter->m_iData1, iter->m_iData2, iter->m_iData3, iter->m_bFlag1, false, true))
+				if (!kDeal.IsPossibleToTradeItem(iter->m_eFromPlayer, kDeal.GetOtherPlayer(iter->m_eFromPlayer), iter->m_eItemType, iter->m_iData1, iter->m_iData2, iter->m_iData3, iter->m_bFlag1, true))
 				{
 					// mark that the deal is no longer valid. We will still delete the deal but not commit its actions
 					bValid = false;
@@ -3010,9 +2943,8 @@ void CvGameDeals::ActivateDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, C
 			GET_PLAYER(eGivingPlayer).changeResourceExport(eResource, iResourceQuantity);
 			GET_PLAYER(eReceivingPlayer).changeResourceImportFromMajor(eResource, iResourceQuantity);
 
-#if defined(MOD_API_ACHIEVEMENTS)
 			// Resource Trading Achievements
-			if (!GC.getGame().isGameMultiPlayer() && GET_PLAYER(eGivingPlayer).isHuman())
+			if (MOD_API_ACHIEVEMENTS && !GC.getGame().isGameMultiPlayer() && GET_PLAYER(eGivingPlayer).isHuman())
 			{
 				gDLL->IncrementSteamStatAndUnlock(ESTEAMSTAT_RESOURCESTRADED, 100, ACHIEVEMENT_100RESOURCES);
 
@@ -3031,7 +2963,6 @@ void CvGameDeals::ActivateDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, C
 					}
 				}
 			}
-#endif
 			break;
 		}
 
@@ -4406,16 +4337,6 @@ void CvGameDeals::DoEndTradedItem(CvTradedItem* pItem, PlayerTypes eToPlayer, bo
 		fromPlayer.GetLeagueAI()->CancelVoteCommitmentsToPlayer(eToPlayer);
 		toPlayer.GetLeagueAI()->CancelVoteCommitmentsToPlayer(eFromPlayer);
 	}
-#if defined(MOD_BALANCE_CORE)
-	//Deal cancelled? That makes us sad.
-	if(bCancelled)
-	{
-		if(!toPlayer.isHuman())
-		{
-			toPlayer.GetDiplomacyAI()->ChangeRecentTradeValue(fromPlayer.GetID(), -400);
-		}
-	}
-#endif
 }
 
 /// Some trade items require Gold to be spent by both players

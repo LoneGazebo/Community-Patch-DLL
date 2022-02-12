@@ -26462,7 +26462,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 					iValue += GetYieldFromWorldWonderConstruction(eYield);
 					if (pReligion)
 					{
-						iValue += pReligion->m_Beliefs.GetYieldPerWorldWonderConstruction(eYield, GetID(), pLoopCity);
+						iValue += pReligion->m_Beliefs.GetYieldPerWorldWonderConstruction(eYield, GetID(), pLoopCity, true) * pReligion->m_Beliefs.GetCityScalerLimiter(iNumFollowerCities);
 					}
 					break;
 				}
@@ -34819,29 +34819,21 @@ void CvPlayer::setTeam(TeamTypes eTeam)
 //	--------------------------------------------------------------------------------
 bool CvPlayer::IsAITeammateOfHuman() const
 {
-	bool bRtnValue = false;
+	if (isHuman())
+		return false;
 
-#if defined(MOD_BALANCE_CORE)
 	const std::vector<PlayerTypes>& teammates = GET_TEAM(getTeam()).getPlayers();
 	for (size_t i = 0; i < teammates.size(); ++i)
 	{
 		CvPlayer& player = GET_PLAYER(teammates[i]);
-#else
-	for(int i = 0; i < MAX_PLAYERS; ++i)
-	{
-		CvPlayer& player = GET_PLAYER(static_cast<PlayerTypes>(i));
-#endif
+
 		if (player.isHuman() && player.isAlive())
 		{
-			if(player.getTeam() == getTeam())
-			{
-				bRtnValue = true;
-				break;
-			}
+			return true;
 		}
 	}
 
-	return bRtnValue;
+	return false;
 }
 
 //	--------------------------------------------------------------------------------
@@ -38811,7 +38803,6 @@ bool CvPlayer::IsResourceCityTradeable(ResourceTypes eResource, bool bCheckTeam)
 		TechTypes eDefaultTech = (TechTypes)pResource->getTechCityTrade();
 		TechTypes eTech = eDefaultTech;
 
-#if defined(MOD_BALANCE_CORE)
 		if (GetPlayerTraits()->IsAlternateResourceTechs())
 		{
 			TechTypes eAltTech = GetPlayerTraits()->GetAlternateResourceTechs(eResource).m_eTechCityTrade;
@@ -38820,7 +38811,6 @@ bool CvPlayer::IsResourceCityTradeable(ResourceTypes eResource, bool bCheckTeam)
 				eTech = eAltTech;
 			}
 		}
-#endif
 
 		if (eTech == NO_TECH || HasTech(eTech))
 		{
