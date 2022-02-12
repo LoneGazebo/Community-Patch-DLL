@@ -519,7 +519,7 @@
 	-- Second Attack Explanations
 	UPDATE Language_en_US
 	SET Text = '-20% [ICON_STRENGTH] Combat Strength.[NEWLINE]May [COLOR_POSITIVE_TEXT]Attack Twice[ENDCOLOR].'
-	WHERE Tag = 'TXT_KEY_PROMOTION_SECOND_ATTACK';
+	WHERE Tag = 'TXT_KEY_PROMOTION_SECOND_ATTACK_HELP';
 
 	UPDATE Language_en_US
 	SET Text = '-30% [ICON_RANGE_STRENGTH] Ranged Combat Strength when attacking.[NEWLINE]May [COLOR_POSITIVE_TEXT]Attack Twice[ENDCOLOR].'
@@ -536,7 +536,7 @@
 	WHERE Tag = 'TXT_KEY_PROMOTION_INDIRECT_FIRE_HELP';
 
 	UPDATE Language_en_US
-	SET Text = 'Unit may [COLOR_POSITIVE_TEXT]Attack Multiple Times[ENDCOLOR] per turn.'
+	SET Text = 'Unit may Attack [COLOR_POSITIVE_TEXT]twice[ENDCOLOR] per turn, and can move after attacking.'
 	WHERE Tag = 'TXT_KEY_PROMOTION_BLITZ_HELP';
 
 	UPDATE Language_en_US
