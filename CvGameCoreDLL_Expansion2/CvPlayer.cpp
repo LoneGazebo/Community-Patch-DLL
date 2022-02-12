@@ -26462,7 +26462,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 					iValue += GetYieldFromWorldWonderConstruction(eYield);
 					if (pReligion)
 					{
-						iValue += pReligion->m_Beliefs.GetYieldPerWorldWonderConstruction(eYield, GetID(), pLoopCity);
+						iValue += pReligion->m_Beliefs.GetYieldPerWorldWonderConstruction(eYield, GetID(), pLoopCity, true) * pReligion->m_Beliefs.GetCityScalerLimiter(iNumFollowerCities);
 					}
 					break;
 				}
