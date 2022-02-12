@@ -220,7 +220,7 @@ SET Text = 'The Ceilidh Hall is a Medieval-era building unique to the Celts, rep
 WHERE Tag = 'TXT_KEY_BUILDING_CEILIDH_HALL_STRATEGY';
     
 UPDATE Language_en_US
-SET Text = 'Has a unique set of Pantheon Beliefs that no one else can benefit from. Owned Cities with your [ICON_RELIGION] Religion neither generate nor receive foreign Religious Pressure. +3 [ICON_PEACE] Faith in owned Cities where your [ICON_RELIGION] Religion is the majority.'
+SET Text = 'Has a unique set of Pantheon Beliefs that no one else can benefit from. Owned Cities with your [ICON_RELIGION] Religion neither generate nor receive foreign Religious Pressure. +3 [ICON_PEACE] Faith in owned Cities where your Pantheon or [ICON_RELIGION] Religion is the majority.'
 WHERE Tag = 'TXT_KEY_TRAIT_FAITH_FROM_NATURE';
 
 UPDATE Language_en_US
@@ -582,7 +582,7 @@ WHERE Tag = 'TXT_KEY_CIV5_IMPROVEMENTS_TERRACE_FARM_HELP';
 -- India
 --------------------
 UPDATE Language_en_US
-SET Text = 'Starts with a Pantheon, and [ICON_PROPHET] Great Prophets require 35% less [ICON_PEACE] Faith. Each Follower of your primary [ICON_RELIGION] Religion in a City increases Religious Pressure and [ICON_FOOD] Growth. [COLOR_NEGATIVE_TEXT]Cannot build [ICON_MISSIONARY] Missionaries.[ENDCOLOR] Converts 50% of citizens in every city to the new majority religion when you found.'
+SET Text = 'Starts with a Pantheon, and [ICON_PROPHET] Great Prophets require 35% less [ICON_PEACE] Faith. All owned cities convert when you found a [ICON_RELIGION] Religion. Each Follower of your primary [ICON_RELIGION] Religion in a City increases Religious Pressure and [ICON_FOOD] Growth. [COLOR_NEGATIVE_TEXT]Cannot build [ICON_MISSIONARY] Missionaries.[ENDCOLOR].'
 WHERE Tag = 'TXT_KEY_TRAIT_POPULATION_GROWTH';
 
 UPDATE Language_en_US
