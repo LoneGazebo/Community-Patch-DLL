@@ -5,19 +5,6 @@ UPDATE BuildingClasses
 SET MaxPlayerInstances = '3'
 WHERE Type IN ('BUILDINGCLASS_WRITERS_GUILD', 'BUILDINGCLASS_ARTISTS_GUILD', 'BUILDINGCLASS_MUSICIANS_GUILD');
 
--- Reduce flavors for these a bit.
-UPDATE Building_Flavors
-SET Flavor = '60'
-WHERE BuildingType = 'BUILDING_MUSICIANS_GUILD';
-
-UPDATE Building_Flavors
-SET Flavor = '50'
-WHERE BuildingType = 'BUILDING_ARTISTS_GUILD';
-
-UPDATE Building_Flavors
-SET Flavor = '40'
-WHERE BuildingType = 'BUILDING_WRITERS_GUILD';
-
 -- National Epic -- Change Name, give art
 UPDATE Buildings
 SET GreatWorkSlotType = 'GREAT_WORK_SLOT_ART_ARTIFACT'

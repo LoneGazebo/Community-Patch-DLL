@@ -578,11 +578,11 @@
 			<FlavorType>FLAVOR_GOLD</FlavorType>
 			<Flavor>6</Flavor>
 		</Row>
-		<Row>
+<!--		<Row>
 			<BuildingType>BUILDING_CHANCERY</BuildingType>
 			<FlavorType>FLAVOR_SCIENCE</FlavorType>
 			<Flavor>6</Flavor>
-		</Row>
+		</Row> -->
 		<Row>
 			<BuildingType>BUILDING_WIRE_SERVICE</BuildingType>
 			<FlavorType>FLAVOR_DIPLOMACY</FlavorType>
@@ -593,15 +593,15 @@
 			<FlavorType>FLAVOR_CULTURE</FlavorType>
 			<Flavor>12</Flavor>
 		</Row>
-		<Row>
+<!--		<Row>
 			<BuildingType>BUILDING_WIRE_SERVICE</BuildingType>
 			<FlavorType>FLAVOR_GOLD</FlavorType>
 			<Flavor>12</Flavor>
-		</Row>
+		</Row> -->
 		<Row>
 			<BuildingType>BUILDING_WIRE_SERVICE</BuildingType>
 			<FlavorType>FLAVOR_SCIENCE</FlavorType>
-			<Flavor>16</Flavor>
+			<Flavor>12</Flavor>
 		</Row>
 		<!--National Wonder Flavors-->
 		<Row>
@@ -643,18 +643,18 @@
 		<Row>
 			<BuildingType>BUILDING_FORUM</BuildingType>
 			<FlavorType>FLAVOR_DIPLOMACY</FlavorType>
-			<Flavor>40</Flavor>
+			<Flavor>75</Flavor>
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_FORUM</BuildingType>
 			<FlavorType>FLAVOR_WONDER</FlavorType>
-			<Flavor>10</Flavor>
+			<Flavor>20</Flavor>
 		</Row>
-		<Row>
+<!--		<Row>
 			<BuildingType>BUILDING_FORUM</BuildingType>
 			<FlavorType>FLAVOR_CULTURE</FlavorType>
 			<Flavor>5</Flavor>
-		</Row>
+		</Row> -->
 		<Row>
 			<BuildingType>BUILDING_FORUM</BuildingType>
 			<FlavorType>FLAVOR_GREAT_PEOPLE</FlavorType>
@@ -663,12 +663,12 @@
 		<Row>
 			<BuildingType>BUILDING_SUMMER_PALACE</BuildingType>
 			<FlavorType>FLAVOR_DIPLOMACY</FlavorType>
-			<Flavor>40</Flavor>
+			<Flavor>75</Flavor>
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_SUMMER_PALACE</BuildingType>
 			<FlavorType>FLAVOR_WONDER</FlavorType>
-			<Flavor>15</Flavor>
+			<Flavor>20</Flavor>
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_SUMMER_PALACE</BuildingType>
@@ -677,8 +677,8 @@
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_SUMMER_PALACE</BuildingType>
-			<FlavorType>FLAVOR_GREAT_PEOPLE</FlavorType>
-			<Flavor>5</Flavor>
+			<FlavorType>FLAVOR_GOLD</FlavorType>
+			<Flavor>10</Flavor>
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_GRAND_CANAL</BuildingType>
@@ -748,7 +748,7 @@
 		<Row>
 			<BuildingType>BUILDING_PALACE_SCIENCE_CULTURE</BuildingType>
 			<FlavorType>FLAVOR_WONDER</FlavorType>
-			<Flavor>25</Flavor>
+			<Flavor>10</Flavor>
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_PALACE_SCIENCE_CULTURE</BuildingType>
@@ -768,7 +768,7 @@
 		<Row>
 			<BuildingType>BUILDING_EHRENHALLE</BuildingType>
 			<FlavorType>FLAVOR_WONDER</FlavorType>
-			<Flavor>25</Flavor>
+			<Flavor>10</Flavor>
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_EHRENHALLE</BuildingType>
@@ -788,7 +788,7 @@
 		<Row>
 			<BuildingType>BUILDING_FINANCE_CENTER</BuildingType>
 			<FlavorType>FLAVOR_WONDER</FlavorType>
-			<Flavor>25</Flavor>
+			<Flavor>10</Flavor>
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_FINANCE_CENTER</BuildingType>
