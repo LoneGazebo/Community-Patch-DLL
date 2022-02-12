@@ -2610,7 +2610,6 @@ int CvDealAI::GetDefensivePactValue(bool bFromMe, PlayerTypes eOtherPlayer, bool
 		return INT_MAX;
 
 	int iDefensivePactValue = GetPlayer()->GetDiplomacyAI()->ScoreDefensivePactChoice(eOtherPlayer, GetPlayer()->GetNumEffectiveCoastalCities() > 1);
-	iDefensivePactValue *= 5;
 
 	if (MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED)
 		iDefensivePactValue *= max(1, (int)GetPlayer()->GetCurrentEra());
