@@ -1637,17 +1637,15 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 					iModifier = (iModifier + pMyUnit:UnitCombatModifier(GameInfo.UnitCombatInfos["UNITCOMBAT_MOUNTED"].ID));
 				end
 -- END
-
 				if (iModifier ~= 0) then
-					
-					local unitClassType = Locale.ConvertTextKey(GameInfo.UnitCombatInfos[pTheirUnit:GetUnitCombatType()].Description);
 -- CBP
 					if(pTheirUnit:IsMounted() and bonusCount < maxBonusDisplay) then
 						controlTable = g_MyCombatDataIM:GetInstance();
-						controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_BONUS_VS_CLASS_CBP", unitClassType );
+						controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_BONUS_VS_CLASS_CBP");
 						controlTable.Value:SetText( GetFormattedText(strText, iModifier, true, true) );
 					elseif(bonusCount < maxBonusDisplay) then
 -- END					
+						local unitClassType = Locale.ConvertTextKey(GameInfo.UnitCombatInfos[pTheirUnit:GetUnitCombatType()].Description);
 						controlTable = g_MyCombatDataIM:GetInstance();
 						controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_BONUS_VS_CLASS", unitClassType );
 						controlTable.Value:SetText( GetFormattedText(strText, iModifier, true, true) );
@@ -2483,26 +2481,30 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 				-- UnitCombatModifier
 				if (pMyUnit:GetUnitCombatType() ~= -1) then
 					iModifier = pTheirUnit:UnitCombatModifier(pMyUnit:GetUnitCombatType());
-
+--CBP
 					if(pMyUnit:IsMounted()) then
 						iModifier = (iModifier + pTheirUnit:UnitCombatModifier(GameInfo.UnitCombatInfos["UNITCOMBAT_MOUNTED"].ID));
 					end
-
+--END
 					if (iModifier ~= 0) then
-						if(pTheirUnit:IsMounted() and bonusCount < maxBonusDisplay) then
+--CBP						
+						if(pMyUnit:IsMounted() and bonusCount < maxBonusDisplay) then
 							controlTable = g_TheirCombatDataIM:GetInstance();
-							controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_BONUS_VS_CLASS_CBP", unitClassType );
+							controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_BONUS_VS_CLASS_CBP");
 							controlTable.Value:SetText( GetFormattedText(strText, iModifier, false, true) );
 						elseif(bonusCount < maxBonusDisplay) then
+--END
 							controlTable = g_TheirCombatDataIM:GetInstance();
 							local unitClassType = Locale.ConvertTextKey(GameInfo.UnitCombatInfos[pMyUnit:GetUnitCombatType()].Description);
 							controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_BONUS_VS_CLASS", unitClassType );
 							controlTable.Value:SetText( GetFormattedText(strText, iModifier, false, true) );
-							bonusCount = bonusCount + 1;
+--CBP							
 						elseif (iModifier ~= 0) then
 							bonusSum = bonusSum + iModifier;
-							bonusCount = bonusCount + 1;					
+							
 						end
+						bonusCount = bonusCount + 1;
+--END
 					end
 				end
 
