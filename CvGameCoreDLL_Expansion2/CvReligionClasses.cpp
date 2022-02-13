@@ -3231,26 +3231,13 @@ int CvGameReligions::GetBeliefYieldForKill(YieldTypes eYield, int iX, int iY, Pl
 		// Find religion in this city
 		eReligion = pLoopCity->GetCityReligions()->GetReligiousMajority();
 
-		if(eReligion != NO_RELIGION)
+		if (eReligion != NO_RELIGION && eReligion == GET_PLAYER(eWinningPlayer).GetReligions()->GetStateReligion(true))
 		{
 			// Find distance to this city
 			iDistance = plotDistance(iX, iY, pLoopCity->getX(), pLoopCity->getY());
+			iMultiplier = GetReligion(eReligion, eWinningPlayer)->m_Beliefs.GetFaithFromKills(iDistance, eWinningPlayer, pLoopCity);
 
-			// Do we have a yield from this?
-#if defined(MOD_BALANCE_CORE_BELIEFS)
-			if (MOD_BALANCE_CORE_BELIEFS)
-			{
-				if (eReligion == GC.getGame().GetGameReligions()->GetFounderBenefitsReligion(eWinningPlayer) || eReligion == GET_PLAYER(eWinningPlayer).GetReligions()->GetReligionInMostCities())
-					iMultiplier = GetReligion(eReligion, eWinningPlayer)->m_Beliefs.GetFaithFromKills(iDistance, eWinningPlayer, pLoopCity);
-			}
-			else
-			{
-#endif
-				iMultiplier = GetReligion(eReligion, eWinningPlayer)->m_Beliefs.GetFaithFromKills(iDistance, eWinningPlayer, pLoopCity);
-#if defined(MOD_BALANCE_CORE_BELIEFS)
-			}
-#endif
-			if(iMultiplier > 0)
+			if (iMultiplier > 0)
 			{
 				// Just looking for one city providing this
 				iRtnValue = iMultiplier;
@@ -3262,7 +3249,7 @@ int CvGameReligions::GetBeliefYieldForKill(YieldTypes eYield, int iX, int iY, Pl
 				if (eSecondaryPantheon != NO_BELIEF)
 				{
 					iMultiplier = GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetFaithFromKills();
-					if(iMultiplier > 0 && iDistance <= GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetMaxDistance())
+					if (iMultiplier > 0 && iDistance <= GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetMaxDistance())
 					{
 						// Just looking for one city providing this
 						iRtnValue = iMultiplier;
