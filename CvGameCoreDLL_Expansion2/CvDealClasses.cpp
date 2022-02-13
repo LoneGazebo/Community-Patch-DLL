@@ -1116,7 +1116,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 					// AI cannot buy votes for itself if it has a different team leader
 					PlayerTypes eChoicePlayer = (PlayerTypes)iVoteChoice;
 					PlayerTypes eLeader = pToTeam->getLeaderID();
-					if (eLeader != NO_PLAYER && eLeader != ePlayer && eChoicePlayer != eLeader && GET_PLAYER(eChoicePlayer).getTeam() == GET_PLAYER(eLeader).getTeam())
+					if (eLeader != NO_PLAYER && eLeader != eToPlayer && eChoicePlayer != eLeader && GET_PLAYER(eChoicePlayer).getTeam() == GET_PLAYER(eLeader).getTeam())
 						return false;
 				}
 				// For compatibility with any modmods that allow a host change at different times...
@@ -1129,7 +1129,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 					// AI cannot buy votes for itself if it has a different team leader
 					PlayerTypes eChoicePlayer = (PlayerTypes)iVoteChoice;
 					PlayerTypes eLeader = pToTeam->getLeaderID();
-					if (eLeader != NO_PLAYER && eLeader != ePlayer && eChoicePlayer != eLeader && GET_PLAYER(eChoicePlayer).getTeam() == GET_PLAYER(eLeader).getTeam())
+					if (eLeader != NO_PLAYER && eLeader != eToPlayer && eChoicePlayer != eLeader && GET_PLAYER(eChoicePlayer).getTeam() == GET_PLAYER(eLeader).getTeam())
 						return false;
 				}
 			}
