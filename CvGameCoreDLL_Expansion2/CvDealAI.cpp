@@ -2625,7 +2625,7 @@ int CvDealAI::GetDefensivePactValue(bool bFromMe, PlayerTypes eOtherPlayer, bool
 	}
 	else if (iDefensivePactValue < 0 && bFromMe)
 	{
-		iItemValue = iDefensivePactValue;
+		iItemValue = -iDefensivePactValue;
 		if (!bMostValuableAlly)
 			iItemValue *= 2;
 	}
