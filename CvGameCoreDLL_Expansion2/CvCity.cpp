@@ -24580,9 +24580,10 @@ void CvCity::UpdateSpecialReligionYields(YieldTypes eYield)
 				{
 					if (pLoopCity != NULL)
 					{
-						iYieldValue += (pLoopCity->GetCityReligions()->GetFollowersOtherReligions(eReligion) / iYieldPerXNonFollowers);
+						iYieldValue += (pLoopCity->GetCityReligions()->GetFollowersOtherReligions(eReligion));
 					}
 				}
+				iYieldValue /= iYieldPerXNonFollowers;
 			}
 
 			// This came from CvTreasury::GetGoldPerTurnFromReligion()
