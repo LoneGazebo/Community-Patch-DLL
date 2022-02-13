@@ -5883,17 +5883,16 @@ void CvCityReligions::CityConvertsReligion(ReligionTypes eMajority, ReligionType
 #endif
 
 		// Diplo implications (there must have been religion switch and a responsible party)
-		if(eMajority != eOldMajority && eResponsibleParty != NO_PLAYER)
+		if (eMajority != eOldMajority && eResponsibleParty != NO_PLAYER)
 		{
 			// Is the city owner not the founder of this religion?
-			if(pNewReligion->m_eFounder != m_pCity->getOwner())
+			if (pNewReligion->m_eFounder != m_pCity->getOwner())
 			{
 				CvPlayer& kCityOwnerPlayer = GET_PLAYER(m_pCity->getOwner());
 
 				// Did he found another religion?
-				ReligionTypes eCityOwnerReligion = kCityOwnerPlayer.GetReligions()->GetStateReligion(false);
-				ReligionTypes eFavorite = kCityOwnerPlayer.GetReligionAI()->GetFavoriteForeignReligion(false);
-				if(eCityOwnerReligion != eMajority && eFavorite != eMajority)
+				ReligionTypes eCityOwnerReligion = kCityOwnerPlayer.GetReligions()->GetOwnedReligion();
+				if (eCityOwnerReligion != NO_RELIGION && eCityOwnerReligion != eMajority)
 				{
 					int iPoints = 0;
 
