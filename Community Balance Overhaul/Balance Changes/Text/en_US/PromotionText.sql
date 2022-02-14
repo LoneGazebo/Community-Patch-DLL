@@ -222,7 +222,15 @@
 	UPDATE Language_en_US
 	SET Text = '+33% [ICON_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Armored Units[ENDCOLOR].[NEWLINE]+15% [ICON_STRENGTH] Combat Strength when attacking in [COLOR_POSITIVE_TEXT]Rough Terrain[ENDCOLOR].[NEWLINE][NEWLINE]Available once you have researched [COLOR_CYAN]Combustion[ENDCOLOR].'
 	WHERE Tag = 'TXT_KEY_PROMOTION_AMBUSH_2_HELP';
-	
+
+-- Fix Open Terrain tooltip
+	UPDATE Language_en_US
+	SET Text = 'Open Terrain Bonus (30)'
+	WHERE Tag = 'TXT_KEY_PROMOTION_OPEN_TERRAIN';
+
+	INSERT INTO Language_en_US (Tag, Text)
+	VALUES ('TXT_KEY_PROMOTION_OPEN_TERRAIN_HELP', '+30% [ICON_STRENGTH] Combat Strength in [COLOR_POSITIVE_TEXT]Open Terrain[ENDCOLOR].');
+
 -- Fix Morale tooltip
 	UPDATE Language_en_US
 	SET Text = '+10% [ICON_STRENGTH] Combat Strength.'
