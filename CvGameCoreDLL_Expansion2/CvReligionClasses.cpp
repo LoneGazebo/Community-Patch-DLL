@@ -2041,20 +2041,8 @@ BeliefTypes CvGameReligions::GetBeliefInPantheon(PlayerTypes ePlayer) const
 /// Has this player created a pantheon?
 bool CvGameReligions::HasCreatedPantheon(PlayerTypes ePlayer) const
 {
-#if defined(MOD_BALANCE_CORE)
-	if(GET_PLAYER(ePlayer).GetReligions()->GetStateReligion() != NO_RELIGION)
-	{
+	if(GET_PLAYER(ePlayer).GetReligions()->GetReligionCreatedByPlayer(true) != NO_RELIGION)
 		return true;
-	}
-#endif
-	ReligionList::const_iterator it;
-	for(it = m_CurrentReligions.begin(); it != m_CurrentReligions.end(); it++)
-	{
-		if(it->m_eFounder == ePlayer && it->m_bPantheon)
-		{
-			return true;
-		}
-	}
 
 	return false;
 }
