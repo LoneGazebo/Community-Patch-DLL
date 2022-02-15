@@ -1683,6 +1683,10 @@ UPDATE Language_en_US
 SET Text = 'This is why I prefer diplomacy to violence!'
 WHERE Tag = 'TXT_KEY_LEADER_PEDRO_DEFEATED_1';
 
+UPDATE Language_en_US
+SET Text = 'My kingdom will always remember its true king...regardless of your petty victory.'
+WHERE Tag = 'TXT_KEY_LEADER_CASIMIR_DEFEATED_3';
+
 
 -- Report Coop War Plans to Target AI
 UPDATE Language_en_US
