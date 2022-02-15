@@ -55,6 +55,7 @@ protected:
 	CvDistanceMap allMajorPlayers;
 	vector<CvDistanceMap> majorPlayers; 
 
+	CvDistanceMapWrapper() : m_bDirty(true) {}
 	virtual void Update() = 0;
 
 public:

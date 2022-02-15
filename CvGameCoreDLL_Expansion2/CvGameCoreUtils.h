@@ -427,7 +427,7 @@ struct OptionWithScore
 {
 	T option;
 	int score;
-	OptionWithScore(T t, int s) : option(t), score(s) {}
+	OptionWithScore(const T& t, int s) : option(t), score(s) {}
 	bool operator<(const OptionWithScore& rhs) const { return score > rhs.score; } //sort descending!
 };
 
