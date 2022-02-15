@@ -2,7 +2,7 @@
 <Mod id="d1b6328c-ff44-4b0d-aad7-c657f83610cd" version="102">
   <Properties>
     <Name>(1) Community Patch</Name>
-    <Teaser>(1.4.1) Bugfixes, AI Improvements, Game Optimizations and API Extensions for Civ V</Teaser>
+    <Teaser>(1.4.3) Bugfixes, AI Improvements, Game Optimizations and API Extensions for Civ V</Teaser>
     <Description>Contains core AI improvements and bugfixes for the Civ 5 BNW DLL. Also contains support for the Community Balance Overhaul and some of Whoward's PNM Mods.</Description>
     <Authors>CivFanatics Community Patch Project Team</Authors>
     <HideSetupGame>0</HideSetupGame>
@@ -114,7 +114,7 @@
     <File md5="429BD12E6BC5CFFFE5CCAD5B994E2948" import="0">Core Files/Core Tables/SampleEvents.xml</File>
     <File md5="64E6A8F5A738D28EAF5A0A60AA1F58CF" import="0">Core Files/Core Tables/GameEventsTable.xml</File>
     <File md5="4FC51835F4E1FACE48D5D92A36189955" import="0">Core Files/Core Values/CargoShipMod.sql</File>
-    <File md5="A6F7F9BC36E7C09C872CC19429D81C7A" import="0">Core Files/Core Values/CoreDefines.sql</File>
+    <File md5="2DA43A5D5D773AF92807CC2F883C3B2E" import="0">Core Files/Core Values/CoreDefines.sql</File>
     <File md5="260E49F1463125721E6A1B96B69D47A1" import="0">Core Files/Core Values/ExtraSpyTable.xml</File>
     <File md5="D7B41E44097D8C93D5B53C024B43E326" import="0">Core Files/Core Values/CoreValues.xml</File>
     <File md5="C76456E5709C8F3FB98EDCD48926DFE7" import="0">Core Files/Core Values/DiploApproachWeights.sql</File>
@@ -138,7 +138,7 @@
     <File md5="716E665A7374FEC615837C8A85AF18F8" import="1">Core Files/CoreLua/CityEventsInfo.xml</File>
     <File md5="AFC9BD9DA3C2699D77FDCEB759EDD1AF" import="1">Core Files/CoreLua/CityRecentEventsInfo.lua</File>
     <File md5="F101066874ED5BEDE778EE71E4BB4D4A" import="1">Core Files/CoreLua/CityRecentEventsInfo.xml</File>
-    <File md5="3B206E6DF77E7A410A5BD64A9562EBCD" import="1">Core Files/CoreLua/EnemyUnitPanel.lua</File>
+    <File md5="9E518A6F735DF4E48C885BFB26950733" import="1">Core Files/CoreLua/EnemyUnitPanel.lua</File>
     <File md5="D3B55C6D6224C3204FB57D3FE19C80D9" import="1">Core Files/CoreLua/EventArt/AirBalloon.dds</File>
     <File md5="9E7761E30571871032525344A0968D9B" import="1">Core Files/CoreLua/EventArt/CounterSpy.dds</File>
     <File md5="99618C8CE11438AAE41475DE0929CD11" import="1">Core Files/CoreLua/EventArt/FireWorks.dds</File>
@@ -228,9 +228,9 @@
     <File md5="D60500F862DCB87C573F5B6A1388EB76" import="0">Core Files/PNM Mods DB/TRAITS/OtherPrereqs.sql</File>
     <File md5="B3CCB02EC2837C3E5F0ABBE81E8D8CEB" import="0">Core Files/PNM Mods DB/TRAITS/TradeRouteBonuses.sql</File>
     <File md5="F07A00D6875A33DF7C81C895030416CE" import="0">Core Files/PNM Mods DB/UI/CityExpansion.sql</File>
-    <File md5="D40B6DF121C9856E5D15BB98A44B9E07" import="0">Core Files/Text/CoreText_en_US.xml</File>
+    <File md5="B3CFB96FE2EA82F98F6BCE1244F9CA42" import="0">Core Files/Text/CoreText_en_US.xml</File>
     <File md5="0A1C7555002BC8F4DC959B791D8824B6" import="0">Core Files/Text/CoreText_en_US.sql</File>
-    <File md5="E503B51D25BD817565DE740D9AA69B40" import="1">CvGameCore_Expansion2.dll</File>
+    <File md5="C6189BE54C864D4BF9D222A876C9B809" import="1">CvGameCore_Expansion2.dll</File>
     <File md5="3F4B08D58AE727DF10D8A34BEC5F398E" import="1">LUA/ActionInfoPanel.lua</File>
     <File md5="FE3BE94653FA74D139F8CF57F8E5C6CC" import="1">LUA/AssignStartingPlots.lua</File>
     <File md5="51BF13A2719619942142DF2A947507AA" import="1">LUA/CityBannerManager.lua</File>
@@ -268,7 +268,7 @@
     <File md5="5A87219957975A85A1D3CEDA1D98A835" import="1">LUA/YieldIconManager.lua</File>
     <File md5="8FD4EF5AAB5BD6E16DB8EBE95963FC33" import="1">LUA/YieldIconManager.xml</File>
     <File md5="40726E0AFDA2AC173BA94E284EA03302" import="0">Mapscripts/Communitas.lua</File>
-    <File md5="0CD29CD2E9E175AB9C95DA0723AF2C38" import="0">Mapscripts/Communitu_79a.lua</File>
+    <File md5="DDC4DEC957233EF434555C1A0608EA57" import="0">Mapscripts/Communitu_79a.lua</File>
     <File md5="DCFF354F44BB7F74D247AF87BA84DBE5" import="0">Modules/Events/CoreEvents.sql</File>
     <File md5="9BA0E4F8839274D60882EF5854B7E084" import="0">Modules/Events/Text/en_US/City_en_US.xml</File>
     <File md5="BBCD444060474CFDFBA82250E4A57E04" import="0">Modules/Events/Text/en_US/EventCore_en_US.xml</File>

@@ -2,7 +2,7 @@
 <Mod id="828b5b4b-7c62-4afb-a43f-034b596ef5e4" version="1">
   <Properties>
     <Name>(6b) Vox Populi - Compatibility Files (No-EUI)</Name>
-    <Teaser>(1.4.1) Vox Populi Compatibility and LUA (No EUI Version)</Teaser>
+    <Teaser>(1.4.3) Vox Populi Compatibility and LUA (No EUI Version)</Teaser>
     <Description>LUA and mod compatibility files for CBO, CSD, C4DF and More Luxuries if not using EUI. Must use all of these mods in order to use this mod.</Description>
     <Authors>Gazebo</Authors>
     <HideSetupGame>0</HideSetupGame>
@@ -49,7 +49,7 @@
     <File md5="CB83DD58726A3185BA0D52EBDD6F1C29" import="1">LUA/CityStateDiploPopup.xml</File>
     <File md5="E5084A1F6168876EBFB78B060FF77E42" import="1">LUA/CityStateGreetingPopup.lua</File>
     <File md5="54A274DCE10B48B9583FB6C939F1F46F" import="1">LUA/CityStateGreetingPopup.xml</File>
-    <File md5="D6641CE6A738D8410E6070E97AD0CD37" import="1">LUA/CityStateStatusHelper.lua</File>
+    <File md5="C07BB807FBCB25F1707F1BA1B20B08FA" import="1">LUA/CityStateStatusHelper.lua</File>
     <File md5="3CBE322F14A59655023DBE78D8BEFDA8" import="1">LUA/CityView.lua</File>
     <File md5="CBE80AE325288F1B5A1B05525826DEC0" import="1">LUA/CityView.xml</File>
     <File md5="2C009EF1C7A9213005C102161D5F6C33" import="1">LUA/CityView_small.xml</File>
