@@ -5992,7 +5992,7 @@ CvString CvLeague::GetResolutionVoteOpinionDetails(ResolutionTypes eResolution, 
 		{
 			if (CanEverVote(it->ePlayer))
 			{
-				int iScore = GET_PLAYER(it->ePlayer).GetLeagueAI()->ScoreProposal(this, eResolution, LeagueHelpers::CHOICE_YES, eObserver);
+				int iScore = GET_PLAYER(it->ePlayer).GetLeagueAI()->ScoreProposal(this, eResolution, GetEnactProposal(iResolutionID)->GetProposerDecision()->GetDecision(), GetEnactProposal(iResolutionID)->GetProposalPlayer());
 				vScores.push_back(std::make_pair(iScore, it->ePlayer));
 			}
 		}
