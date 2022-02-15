@@ -189,13 +189,6 @@
 			<Text>+25% [ICON_STRENGTH] Combat Strength when attacking.</Text>
 		</Row>
 		
-		<Row Tag="TXT_KEY_PROMOTION_OPEN_TERRAIN">
-			<Text>Open Terrain Bonus (30)</Text>
-		</Row>
-		<Row Tag="TXT_KEY_PROMOTION_OPEN_TERRAIN_HELP">
-			<Text>+30% [ICON_STRENGTH] Combat Strength in [COLOR_POSITIVE_TEXT]Open Terrain[ENDCOLOR].</Text>
-		</Row>
-
 		<Row Tag="TXT_KEY_PROMOTION_WITHDRAW_BEFORE_MELEE_I">
 			<Text>Commando</Text>
 		</Row>

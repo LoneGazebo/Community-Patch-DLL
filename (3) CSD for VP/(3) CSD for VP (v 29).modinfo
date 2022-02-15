@@ -2,7 +2,7 @@
 <Mod id="eead0050-1e3f-4178-a91f-26cf1881ac39" version="29">
   <Properties>
     <Name>(3) CSD for VP</Name>
-    <Teaser>(1.4.1) A mod to improve diplomacy with City-States and the World Congress.</Teaser>
+    <Teaser>(1.4.3) A mod to improve diplomacy with City-States and the World Congress.</Teaser>
     <Description>- Design Philosophy - This mod is a complete overhaul of the City-State diplomacy system as well as the World Congress. It introduces a new, unit-based system of influence, dozens of new city-state quests, and an entirely revamped World Congress.[NEWLINE][NEWLINE]
 	Players are now encouraged to build and use diplomatic units and/or complete City-State quests if they want to earn influence. Because diplomacy now requires production, time and energy, players must actively and consciously strive to maintain good relations with neighboring City-States. Furthermore, diplomatic units, being defenseless, are liable to capture or destruction if sent too far from safety. Thus, long-distance diplomacy now utilizes a risk-reward system.[NEWLINE][NEWLINE]
 	Securing allies is more important than ever, as the World Congress has been greatly expanded and improved to make each resolution more meaningful to most victory conditions.</Description>
@@ -81,7 +81,7 @@
     <File md5="E1ABC014DE1A639EE43EAE7F64922667" import="0">Art/XML/Icons.xml</File>
     <File md5="6FB8410794152AB59488C0DE134550F8" import="0">Buildings/BuildingRules.sql</File>
     <File md5="6C83256BF50BB0ECAE17F491B58ED5C4" import="0">Buildings/BuildingText.xml</File>
-    <File md5="B39B7F09B7BA37F93E40AACF8B4F741B" import="0">Buildings/CSDBuildings.xml</File>
+    <File md5="C084465AEA6D8E13C1F2AD78343DC45C" import="0">Buildings/CSDBuildings.xml</File>
     <File md5="FB153D1BEF1DA997567B0DBBF771FE1E" import="0">Buildings/DiploBuildingText.sql</File>
     <File md5="2BACCBDFCF69ADDF1F16006406D0CDBA" import="0">Buildings/BuildingGrowthYield.xml</File>
     <File md5="D68EBF039F03A031C146DA5E8DDFD452" import="0">Gameplay/UpdateDefines.sql</File>

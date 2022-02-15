@@ -33009,23 +33009,17 @@ void CvDiplomacyAI::DoKilledYourSpyStatement(PlayerTypes ePlayer, DiploStatement
 /// Possible Contact Statement - This player killed our spy
 void CvDiplomacyAI::DoKilledMySpyStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement)
 {
-	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send slewis your save file and version.");
-	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send slewis your save file and version.");
-
-	if(eStatement == NO_DIPLO_STATEMENT_TYPE)
+	if (eStatement == NO_DIPLO_STATEMENT_TYPE)
 	{
-		if(m_pPlayer->GetEspionageAI()->m_aiTurnLastSpyDied[ePlayer] == GC.getGame().getGameTurn() - 1)
+		if (m_pPlayer->GetEspionageAI()->m_aiTurnLastSpyDied[ePlayer] == GC.getGame().getGameTurn() - 1)
 		{
-			if (!IsPlayerBrokenSpyPromise(ePlayer) && !IsPlayerIgnoredSpyPromise(ePlayer)) // Ignore if they refuse to stop spying on us
+			// Don't send the message if they ignored our request before, or we ignored theirs.
+			if (GetPlayerSpyPromiseState(ePlayer) < PROMISE_STATE_IGNORED && GET_PLAYER(ePlayer).GetDiplomacyAI()->GetPlayerSpyPromiseState(GetID()) < PROMISE_STATE_IGNORED)
 			{
 				DiploStatementTypes eTempStatement = DIPLO_STATEMENT_KILLED_MY_SPY;
-#if defined(MOD_BALANCE_CORE_SPIES)
 				int iTurnsBetweenStatements = 40;
-#else
-				int iTurnsBetweenStatements = 1;
-#endif
 
-				if(GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= iTurnsBetweenStatements)
+				if (GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= iTurnsBetweenStatements)
 				{
 					eStatement = eTempStatement;
 				}

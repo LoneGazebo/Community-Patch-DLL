@@ -927,22 +927,19 @@ public:
 	~CvTactPosStorage() { delete[] aPositions; }
 	void reset() { iCount = 0; attackCache.clear(); }
 	int getSizeLimit() const { return iSize; }
-	CvTacticalPosition* getNext()
-	{
-		if (iCount < iSize) 
-		{ 
-			return aPositions + iCount++; 
-		}
-		else 
-			return NULL;
-	}
+	CvTacticalPosition* getNext() {	return (iCount < iSize) ? aPositions + iCount++ : NULL;	}
 	CAttackCache& getCache() { return attackCache; }
+
 protected:
 	int iSize; //how many do we have
 	int iCount; //how many are currently in use
 	CvTacticalPosition* aPositions; //preallocated block of N positions
-
 	CAttackCache attackCache; //filled on demand
+
+private:
+	//hide copy constructor and assignment operator
+	CvTactPosStorage(const CvTactPosStorage& other) {}
+	const CvTactPosStorage& operator=(const CvTactPosStorage& rhs) {}
 };
 
 

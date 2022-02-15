@@ -400,12 +400,24 @@ public:
 	template<typename TradeAI, typename Visitor>
 	static void Serialize(TradeAI& tradeAI, Visitor& visitor);
 
+	struct TRSortElement
+	{
+		TRSortElement() : m_iScore(0), m_iGoldScore(0), m_iCultureScore(0), m_iReligionScore(0), m_iScienceScore(0) {}
+
+		TradeConnection m_kTradeConnection;
+		int m_iScore;
+		int m_iGoldScore;
+		int m_iCultureScore;
+		int m_iReligionScore;
+		int m_iScienceScore;
+	};
+
 	void DoTurn(void);
 
 	void GetAvailableTR(TradeConnectionList& aTradeConnectionList, bool bSkipExisting);
 	void GetPrioritizedTradeRoutes(TradeConnectionList& aTradeConnectionList, bool bSkipExisting);
 
-	std::vector<int> ScoreInternationalTR(const TradeConnection& kTradeConnection, bool bHaveTourism);
+	TRSortElement ScoreInternationalTR(const TradeConnection& kTradeConnection, bool bHaveTourism);
 
 	//generic method
 	int ScoreInternalTR (const TradeConnection& kTradeConnection, const std::vector<CvCity*>& aTargetCityList);
@@ -417,7 +429,7 @@ public:
 	int ScoreWonderTR (const TradeConnection& kTradeConnection, const std::vector<CvCity*>& aTargetCityList);
 #endif
 #if defined(MOD_BALANCE_CORE) && defined(MOD_BALANCE_CORE_GOLD_INTERNAL_TRADE_ROUTES)
-	std::vector<int> ScoreGoldInternalTR(const TradeConnection& kTradeConnection);
+	TRSortElement ScoreGoldInternalTR(const TradeConnection& kTradeConnection);
 #endif
 
 	int m_iRemovableValue;
