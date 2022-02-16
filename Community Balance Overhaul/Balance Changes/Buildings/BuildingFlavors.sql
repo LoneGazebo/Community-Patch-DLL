@@ -344,7 +344,7 @@ INSERT INTO Building_Flavors (BuildingType, FlavorType, Flavor) VALUES
 ('BUILDING_RECYCLING_CENTER', 'FLAVOR_MILITARY_TRAINING', 20),
 ('BUILDING_RECYCLING_CENTER', 'FLAVOR_SPACESHIP', 50),
 --------------------------
-('BUILDING_STADIUM', 'CULTURE', 50),
+('BUILDING_STADIUM', 'FLAVOR_CULTURE', 50),
 ---------------------------
 ('BUILDING_BOMB_SHELTER', 'FLAVOR_CITY_DEFENSE', 25),
 -----------------------------
