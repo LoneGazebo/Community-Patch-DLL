@@ -525,9 +525,8 @@
 	WHERE Tag = 'TXT_KEY_PROMOTION_ANTI_AIR_II';
 
 	-- Second Attack Explanations
-	UPDATE Language_en_US
-	SET Text = '-20% [ICON_STRENGTH] Combat Strength.[NEWLINE]May [COLOR_POSITIVE_TEXT]Attack Twice[ENDCOLOR].'
-	WHERE Tag = 'TXT_KEY_PROMOTION_SECOND_ATTACK_HELP';
+	INSERT INTO Language_en_US (Tag, Text)
+	VALUES ('TXT_KEY_PROMOTION_SECOND_ATTACK_HELP', '-20% [ICON_STRENGTH] Combat Strength.[NEWLINE]May [COLOR_POSITIVE_TEXT]Attack Twice[ENDCOLOR].');
 
 	UPDATE Language_en_US
 	SET Text = '-30% [ICON_RANGE_STRENGTH] Ranged Combat Strength when attacking.[NEWLINE]May [COLOR_POSITIVE_TEXT]Attack Twice[ENDCOLOR].'
