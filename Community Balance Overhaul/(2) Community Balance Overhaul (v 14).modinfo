@@ -2,7 +2,7 @@
 <Mod id="8411a7a8-dad3-4622-a18e-fcc18324c799" version="14">
   <Properties>
     <Name>(2) Community Balance Overhaul</Name>
-    <Teaser>(1.4.3) Unofficial Expansion and Rebalancing Project for Civilization V: Brave New World</Teaser>
+    <Teaser>(1.4.4) Unofficial Expansion and Rebalancing Project for Civilization V: Brave New World</Teaser>
     <Description>Contains balance changes, gameplay improvements, and entirely new game systems to make Civ V a more enjoyable and exciting game.</Description>
     <Authors>CivFanatics Community Patch Project Team</Authors>
     <HideSetupGame>0</HideSetupGame>
@@ -358,7 +358,7 @@
     <File md5="0FA99E402FF6CADC45C93CE8B956DF39" import="0">Balance Changes/Buildings/BuildingHurryCosts.sql</File>
     <File md5="E8058500B1A5AD7C5B595DB7841FB568" import="0">Balance Changes/Buildings/CityDefense.sql</File>
     <File md5="6E6AB198E120E7B0000B83A612DF4FD6" import="0">Balance Changes/Buildings/NationalWonderChanges.sql</File>
-    <File md5="2D65D0C10753BB81930B2F7902B29CC4" import="0">Balance Changes/Buildings/BuildingFlavors.sql</File>
+    <File md5="12011E16E34948404D1938E6A551E6CE" import="0">Balance Changes/Buildings/BuildingFlavors.sql</File>
     <File md5="D564109771DA0B316441C1898B966485" import="0">Balance Changes/Buildings/NewBuildings.xml</File>
     <File md5="AB0806D563D6486A0D5A1869E04EB17A" import="0">Balance Changes/CoreDefines.sql</File>
     <File md5="C36A7D603D8D28E0CBE107D95D893FB9" import="0">Balance Changes/Difficulty/DifficultyMod.sql</File>
@@ -408,7 +408,7 @@
     <File md5="5A1FCF54D08801B4632711CF143A09B7" import="0">Balance Changes/Text/en_US/UnitText.xml</File>
     <File md5="B6D61E67C53DF3614BB1F887ADB2C51E" import="0">Balance Changes/Text/en_US/UIText.xml</File>
     <File md5="CDB55AE4D1F0F04DA19F0050114A909E" import="0">Balance Changes/Text/en_US/TerrainText.xml</File>
-    <File md5="B09CE685C243B32D87741A3E884A1F0D" import="0">Balance Changes/Text/en_US/PromotionText.sql</File>
+    <File md5="0618737F434B865AC26F37CDEFC0A1AC" import="0">Balance Changes/Text/en_US/PromotionText.sql</File>
     <File md5="FA010FFB25C0BF10AE7339283FF50EBE" import="0">Balance Changes/Text/en_US/PolicyText.sql</File>
     <File md5="0D9BFF2A93C36AE0ABD726765F44155F" import="0">Balance Changes/Text/en_US/UIText.sql</File>
     <File md5="D7F09E32FACB15FF72839D3CC3CEF6E1" import="0">Balance Changes/Text/en_US/OtherText.sql</File>

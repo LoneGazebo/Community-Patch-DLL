@@ -2,7 +2,7 @@
 <Mod id="d1b6328c-ff44-4b0d-aad7-c657f83610cd" version="102">
   <Properties>
     <Name>(1) Community Patch</Name>
-    <Teaser>(1.4.3) Bugfixes, AI Improvements, Game Optimizations and API Extensions for Civ V</Teaser>
+    <Teaser>(1.4.4) Bugfixes, AI Improvements, Game Optimizations and API Extensions for Civ V</Teaser>
     <Description>Contains core AI improvements and bugfixes for the Civ 5 BNW DLL. Also contains support for the Community Balance Overhaul and some of Whoward's PNM Mods.</Description>
     <Authors>CivFanatics Community Patch Project Team</Authors>
     <HideSetupGame>0</HideSetupGame>
@@ -229,8 +229,8 @@
     <File md5="B3CCB02EC2837C3E5F0ABBE81E8D8CEB" import="0">Core Files/PNM Mods DB/TRAITS/TradeRouteBonuses.sql</File>
     <File md5="F07A00D6875A33DF7C81C895030416CE" import="0">Core Files/PNM Mods DB/UI/CityExpansion.sql</File>
     <File md5="B3CFB96FE2EA82F98F6BCE1244F9CA42" import="0">Core Files/Text/CoreText_en_US.xml</File>
-    <File md5="0A1C7555002BC8F4DC959B791D8824B6" import="0">Core Files/Text/CoreText_en_US.sql</File>
-    <File md5="C6189BE54C864D4BF9D222A876C9B809" import="1">CvGameCore_Expansion2.dll</File>
+    <File md5="FDD3F86296CDA9986830A8D04EBD03ED" import="0">Core Files/Text/CoreText_en_US.sql</File>
+    <File md5="40FC3D287934E0673B924B03512EA149" import="1">CvGameCore_Expansion2.dll</File>
     <File md5="3F4B08D58AE727DF10D8A34BEC5F398E" import="1">LUA/ActionInfoPanel.lua</File>
     <File md5="FE3BE94653FA74D139F8CF57F8E5C6CC" import="1">LUA/AssignStartingPlots.lua</File>
     <File md5="51BF13A2719619942142DF2A947507AA" import="1">LUA/CityBannerManager.lua</File>
