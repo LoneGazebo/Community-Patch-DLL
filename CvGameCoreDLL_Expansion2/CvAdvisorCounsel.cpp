@@ -49,7 +49,7 @@ void CvAdvisorCounsel::Reset(void)
 	}
 }
 
-bool CounselSort(const CvAdvisorCounsel::Counsel Counsel1, const CvAdvisorCounsel::Counsel Counsel2)
+bool CounselSort(const CvAdvisorCounsel::Counsel& Counsel1, const CvAdvisorCounsel::Counsel& Counsel2)
 {
 	// if the advisors are different types
 	if(Counsel1.m_eAdvisor != Counsel2.m_eAdvisor)

@@ -14338,10 +14338,26 @@ CvCity* CvGame::GetClosestCityByPlots( const CvPlot* pPlot, PlayerTypes ePlayer 
 
 	PlayerTypes owner = m_cityDistancePlots.GetFeatureOwner(*pPlot, false, ePlayer);
 	int id = m_cityDistancePlots.GetFeatureId(*pPlot, false, ePlayer);
-	if (owner!=NO_PLAYER)
-		return GET_PLAYER(owner).getCity(id);
+
+	if (owner != NO_PLAYER)
+	{
+		CvCity* pCity = GET_PLAYER(owner).getCity(id);
+#ifdef VPDEBUG
+		if (pCity == NULL && m_cityDistancePlots.GetDistance(*pPlot, false, ePlayer) < 5)
+			CUSTOMLOG( "closest city (%d,%d) for player %d at plot (%d,%d) is invalid!", owner, id, ePlayer, pPlot->getX(), pPlot->getY() );
+#endif
+
+		return pCity;
+	}
 	else
+	{
+#ifdef VPDEBUG
+		if (m_cityDistancePlots.GetDistance(*pPlot, false, ePlayer) < 5)
+			CUSTOMLOG( "closest city for player %d at plot (%d,%d) has no valid owner!", ePlayer, pPlot->getX(), pPlot->getY() );
+#endif
+
 		return NULL;
+	}
 }
 
 PlayerTypes CvGame::GetClosestCityOwnerByPlots(const CvPlot * pPlot, bool bMajorsOnly)
@@ -14368,9 +14384,24 @@ CvCity* CvGame::GetClosestCityByPlots( const CvPlot* pPlot, bool bMajorOnly )
 	PlayerTypes owner = m_cityDistancePlots.GetFeatureOwner(*pPlot, bMajorOnly, NO_PLAYER);
 	int id = m_cityDistancePlots.GetFeatureId(*pPlot, bMajorOnly, NO_PLAYER);
 	if (owner!=NO_PLAYER)
-		return GET_PLAYER((PlayerTypes)owner).getCity(id);
+	{
+		CvCity* pCity = GET_PLAYER(owner).getCity(id);
+#ifdef VPDEBUG
+		if (pCity == NULL && m_cityDistancePlots.GetDistance(*pPlot, bMajorOnly, NO_PLAYER) < 5)
+			CUSTOMLOG( "closest city (%d,%d) for all players at plot (%d,%d) is invalid!", owner, id, pPlot->getX(), pPlot->getY() );
+#endif
+
+		return pCity;
+	}
 	else
+	{
+#ifdef VPDEBUG
+		if (m_cityDistancePlots.GetDistance(*pPlot, bMajorOnly, NO_PLAYER) < 5)
+			CUSTOMLOG( "closest city for all players at plot (%d,%d) has no valid owner!", pPlot->getX(), pPlot->getY() );
+#endif
+
 		return NULL;
+	}
 }
 
 //------------------------------------------------------------

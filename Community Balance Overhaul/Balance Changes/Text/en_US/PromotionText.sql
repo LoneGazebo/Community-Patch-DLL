@@ -222,7 +222,15 @@
 	UPDATE Language_en_US
 	SET Text = '+33% [ICON_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Armored Units[ENDCOLOR].[NEWLINE]+15% [ICON_STRENGTH] Combat Strength when attacking in [COLOR_POSITIVE_TEXT]Rough Terrain[ENDCOLOR].[NEWLINE][NEWLINE]Available once you have researched [COLOR_CYAN]Combustion[ENDCOLOR].'
 	WHERE Tag = 'TXT_KEY_PROMOTION_AMBUSH_2_HELP';
-	
+
+-- Fix Open Terrain tooltip
+	UPDATE Language_en_US
+	SET Text = 'Open Terrain Bonus (30)'
+	WHERE Tag = 'TXT_KEY_PROMOTION_OPEN_TERRAIN';
+
+	INSERT INTO Language_en_US (Tag, Text)
+	VALUES ('TXT_KEY_PROMOTION_OPEN_TERRAIN_HELP', '+30% [ICON_STRENGTH] Combat Strength in [COLOR_POSITIVE_TEXT]Open Terrain[ENDCOLOR].');
+
 -- Fix Morale tooltip
 	UPDATE Language_en_US
 	SET Text = '+10% [ICON_STRENGTH] Combat Strength.'
@@ -482,7 +490,7 @@
 	-- Amphibious Change
 
 	UPDATE Language_en_US
-	SET Text = 'Eliminates combat penalties for attacking from the sea or over a river, and grants a movement bonus when moving across rivers.'
+	SET Text = 'Eliminates combat penalties for attacking from the sea or over a river. Crossing a river costs only 1 [ICON_MOVES] Movement.'
 	WHERE Tag = 'TXT_KEY_PROMOTION_AMPHIBIOUS_HELP';
 
 	-- Medic I/II
@@ -517,9 +525,8 @@
 	WHERE Tag = 'TXT_KEY_PROMOTION_ANTI_AIR_II';
 
 	-- Second Attack Explanations
-	UPDATE Language_en_US
-	SET Text = '-20% [ICON_STRENGTH] Combat Strength.[NEWLINE]May [COLOR_POSITIVE_TEXT]Attack Twice[ENDCOLOR].'
-	WHERE Tag = 'TXT_KEY_PROMOTION_SECOND_ATTACK';
+	INSERT INTO Language_en_US (Tag, Text)
+	VALUES ('TXT_KEY_PROMOTION_SECOND_ATTACK_HELP', '-20% [ICON_STRENGTH] Combat Strength.[NEWLINE]May [COLOR_POSITIVE_TEXT]Attack Twice[ENDCOLOR].');
 
 	UPDATE Language_en_US
 	SET Text = '-30% [ICON_RANGE_STRENGTH] Ranged Combat Strength when attacking.[NEWLINE]May [COLOR_POSITIVE_TEXT]Attack Twice[ENDCOLOR].'
@@ -529,15 +536,14 @@
 	SET Text = 'May [COLOR_POSITIVE_TEXT]Attack Twice[ENDCOLOR].[NEWLINE]+1 [ICON_MOVES] Movement.'
 	WHERE Tag = 'TXT_KEY_PROMOTION_RESTLESSNESS_HELP';
 
-	-- Indirect Fire, Blitz, Range Combat Strength Reductions
+	UPDATE Language_en_US
+	SET Text = 'May [COLOR_POSITIVE_TEXT]Attack Twice[ENDCOLOR], and can move after attacking.'
+	WHERE Tag = 'TXT_KEY_PROMOTION_BLITZ_HELP';
 
+	-- Indirect Fire, Range Combat Strength Reductions
 	UPDATE Language_en_US
 	SET Text = '-10% [ICON_RANGE_STRENGTH] Ranged Combat Strength when attacking.[NEWLINE]Ranged attacks may be performed over obstacles (as long as other friendly Units can see the target).'
 	WHERE Tag = 'TXT_KEY_PROMOTION_INDIRECT_FIRE_HELP';
-
-	UPDATE Language_en_US
-	SET Text = 'Unit may [COLOR_POSITIVE_TEXT]Attack Multiple Times[ENDCOLOR] per turn.'
-	WHERE Tag = 'TXT_KEY_PROMOTION_BLITZ_HELP';
 
 	UPDATE Language_en_US
 	SET Text = '-20% [ICON_RANGE_STRENGTH] Ranged Combat Strength when attacking.[NEWLINE]+1 Range.'
@@ -545,7 +551,7 @@
 
 	-- Changed English UA
 	UPDATE Language_en_US
-	SET Text = '1 Extra Movement for Naval Units.'
+	SET Text = '+1 [ICON_MOVES] Movement for Naval Units.'
 	WHERE Tag = 'TXT_KEY_PROMOTION_OCEAN_MOVEMENT_HELP';
 
 	-- Bonus vs Naval

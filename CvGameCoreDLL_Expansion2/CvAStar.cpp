@@ -122,9 +122,6 @@ CvAStar::CvAStar()
 	//for debugging
 	m_strName = "AStar";
 
-	//this matches the default setting for SPathFinderUserData
-	SetFunctionPointers(StepDestValid, StepHeuristic, StepCost, StepValidAnyArea, NULL, NULL, NULL);
-
 	InitializeCriticalSection(&m_cs);
 }
 
@@ -212,6 +209,9 @@ void CvAStar::Initialize(int iColumns, int iRows, bool bWrapX, bool bWrapY)
 			PrecalcNeighbors( GetNodeMutable(iI,iJ) );
 		}
 	}
+
+	//this matches the default setting for SPathFinderUserData
+	SetFunctionPointers(StepDestValid, StepHeuristic, StepCost, StepValidAnyArea, NULL, NULL, NULL);
 }
 
 bool CvAStar::IsInitialized(int iXstart, int iYstart, int iXdest, int iYdest)

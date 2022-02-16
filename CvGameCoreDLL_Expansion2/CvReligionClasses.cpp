@@ -2041,20 +2041,8 @@ BeliefTypes CvGameReligions::GetBeliefInPantheon(PlayerTypes ePlayer) const
 /// Has this player created a pantheon?
 bool CvGameReligions::HasCreatedPantheon(PlayerTypes ePlayer) const
 {
-#if defined(MOD_BALANCE_CORE)
-	if(GET_PLAYER(ePlayer).GetReligions()->GetStateReligion() != NO_RELIGION)
-	{
+	if(GET_PLAYER(ePlayer).GetReligions()->GetReligionCreatedByPlayer(true) != NO_RELIGION)
 		return true;
-	}
-#endif
-	ReligionList::const_iterator it;
-	for(it = m_CurrentReligions.begin(); it != m_CurrentReligions.end(); it++)
-	{
-		if(it->m_eFounder == ePlayer && it->m_bPantheon)
-		{
-			return true;
-		}
-	}
 
 	return false;
 }
@@ -3231,26 +3219,13 @@ int CvGameReligions::GetBeliefYieldForKill(YieldTypes eYield, int iX, int iY, Pl
 		// Find religion in this city
 		eReligion = pLoopCity->GetCityReligions()->GetReligiousMajority();
 
-		if(eReligion != NO_RELIGION)
+		if (eReligion != NO_RELIGION && eReligion == GET_PLAYER(eWinningPlayer).GetReligions()->GetStateReligion(true))
 		{
 			// Find distance to this city
 			iDistance = plotDistance(iX, iY, pLoopCity->getX(), pLoopCity->getY());
+			iMultiplier = GetReligion(eReligion, eWinningPlayer)->m_Beliefs.GetFaithFromKills(iDistance, eWinningPlayer, pLoopCity);
 
-			// Do we have a yield from this?
-#if defined(MOD_BALANCE_CORE_BELIEFS)
-			if (MOD_BALANCE_CORE_BELIEFS)
-			{
-				if (eReligion == GC.getGame().GetGameReligions()->GetFounderBenefitsReligion(eWinningPlayer) || eReligion == GET_PLAYER(eWinningPlayer).GetReligions()->GetReligionInMostCities())
-					iMultiplier = GetReligion(eReligion, eWinningPlayer)->m_Beliefs.GetFaithFromKills(iDistance, eWinningPlayer, pLoopCity);
-			}
-			else
-			{
-#endif
-				iMultiplier = GetReligion(eReligion, eWinningPlayer)->m_Beliefs.GetFaithFromKills(iDistance, eWinningPlayer, pLoopCity);
-#if defined(MOD_BALANCE_CORE_BELIEFS)
-			}
-#endif
-			if(iMultiplier > 0)
+			if (iMultiplier > 0)
 			{
 				// Just looking for one city providing this
 				iRtnValue = iMultiplier;
@@ -3262,7 +3237,7 @@ int CvGameReligions::GetBeliefYieldForKill(YieldTypes eYield, int iX, int iY, Pl
 				if (eSecondaryPantheon != NO_BELIEF)
 				{
 					iMultiplier = GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetFaithFromKills();
-					if(iMultiplier > 0 && iDistance <= GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetMaxDistance())
+					if (iMultiplier > 0 && iDistance <= GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetMaxDistance())
 					{
 						// Just looking for one city providing this
 						iRtnValue = iMultiplier;
@@ -4159,10 +4134,10 @@ bool CvPlayerReligions::SetStateReligion(ReligionTypes eNewStateReligion, bool b
 	}
 
 	// Message slightly different for founder player
-	if(m_pPlayer->GetNotifications() && eNewStateReligion != NO_RELIGION && eNewStateReligion != RELIGION_PANTHEON)
+	if (MOD_BALANCE_CORE_BELIEFS && m_pPlayer->GetNotifications() && bOwnsReligion)
 	{
 		const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eNewStateReligion, m_pPlayer->GetID());
-		if(pReligion)
+		if (pReligion)
 		{
 			CvString szReligionName = pReligion->GetName();
 			Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_RELIGION_NEW_PLAYER_STATE_RELIGION_S");
@@ -5883,17 +5858,16 @@ void CvCityReligions::CityConvertsReligion(ReligionTypes eMajority, ReligionType
 #endif
 
 		// Diplo implications (there must have been religion switch and a responsible party)
-		if(eMajority != eOldMajority && eResponsibleParty != NO_PLAYER)
+		if (eMajority != eOldMajority && eResponsibleParty != NO_PLAYER)
 		{
 			// Is the city owner not the founder of this religion?
-			if(pNewReligion->m_eFounder != m_pCity->getOwner())
+			if (pNewReligion->m_eFounder != m_pCity->getOwner())
 			{
 				CvPlayer& kCityOwnerPlayer = GET_PLAYER(m_pCity->getOwner());
 
 				// Did he found another religion?
-				ReligionTypes eCityOwnerReligion = kCityOwnerPlayer.GetReligions()->GetStateReligion(false);
-				ReligionTypes eFavorite = kCityOwnerPlayer.GetReligionAI()->GetFavoriteForeignReligion(false);
-				if(eCityOwnerReligion != eMajority && eFavorite != eMajority)
+				ReligionTypes eCityOwnerReligion = kCityOwnerPlayer.GetReligions()->GetOwnedReligion();
+				if (eCityOwnerReligion != NO_RELIGION && eCityOwnerReligion != eMajority)
 				{
 					int iPoints = 0;
 

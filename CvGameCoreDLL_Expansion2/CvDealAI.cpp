@@ -1224,14 +1224,14 @@ int CvDealAI::GetDealValue(CvDeal* pDeal, bool bLogging)
 		{
 			if (bFromMe)
 			{
-				if (!pDeal->IsPossibleToTradeItem(GetPlayer()->GetID(), eOtherPlayer, it->m_eItemType, it->m_iData1, it->m_iData2, it->m_iData3, it->m_bFlag1, true, true))
+				if (!pDeal->IsPossibleToTradeItem(GetPlayer()->GetID(), eOtherPlayer, it->m_eItemType, it->m_iData1, it->m_iData2, it->m_iData3, it->m_bFlag1, true))
 				{
 					iItemValue = INT_MAX;
 				}
 			}
 			else
 			{
-				if (!pDeal->IsPossibleToTradeItem(eOtherPlayer, GetPlayer()->GetID(), it->m_eItemType, it->m_iData1, it->m_iData2, it->m_iData3, it->m_bFlag1, true, true))
+				if (!pDeal->IsPossibleToTradeItem(eOtherPlayer, GetPlayer()->GetID(), it->m_eItemType, it->m_iData1, it->m_iData2, it->m_iData3, it->m_bFlag1, true))
 				{
 					iItemValue = INT_MAX;
 				}
@@ -2258,15 +2258,6 @@ int CvDealAI::GetCityValueForDeal(CvCity* pCity, PlayerTypes eAssumedOwner, bool
 // How much is an embassy worth?
 int CvDealAI::GetEmbassyValue(bool bFromMe, PlayerTypes eOtherPlayer, bool bUseEvenValue)
 {
-	CvAssertMsg(GetPlayer()->GetID() != eOtherPlayer, "DEAL_AI: Trying to check value of a Embassy with oneself.  Please send slewis this with your last 5 autosaves and what changelist # you're playing.");
-
-	if (GetPlayer()->IsAITeammateOfHuman())
-		return INT_MAX;
-	
-	// Denouncement in either direction?
-	if (GetPlayer()->GetDiplomacyAI()->IsDenouncedPlayer(eOtherPlayer) || GET_PLAYER(eOtherPlayer).GetDiplomacyAI()->IsDenouncedPlayer(GetPlayer()->GetID()))
-		return INT_MAX;
-
 	// Backstabber?
 	if (bFromMe && GetPlayer()->GetDiplomacyAI()->IsUntrustworthy(eOtherPlayer))
 		return INT_MAX;
@@ -2302,7 +2293,6 @@ int CvDealAI::GetEmbassyValue(bool bFromMe, PlayerTypes eOtherPlayer, bool bUseE
 			iItemValue *= 100;
 			break;
 		default:
-			CvAssertMsg(false, "DEAL_AI: AI player has no valid Approach for Embassy valuation.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.")
 			iItemValue *= 100;
 			break;
 		}
@@ -2330,7 +2320,6 @@ int CvDealAI::GetEmbassyValue(bool bFromMe, PlayerTypes eOtherPlayer, bool bUseE
 			iItemValue *= 100;
 			break;
 		default:
-			CvAssertMsg(false, "DEAL_AI: AI player has no valid Approach for Embassy valuation.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.")
 			iItemValue *= 100;
 			break;
 		}
@@ -2363,9 +2352,6 @@ int CvDealAI::GetOpenBordersValue(bool bFromMe, PlayerTypes eOtherPlayer, bool b
 	CivApproachTypes eApproach = pDiploAI->GetCivApproach(eOtherPlayer);
 
 	int iItemValue = 10;
-
-	if (GetPlayer()->IsAITeammateOfHuman())
-		return INT_MAX;
 	
 	// Me giving Open Borders to the other guy
 	if (bFromMe)
@@ -2395,7 +2381,6 @@ int CvDealAI::GetOpenBordersValue(bool bFromMe, PlayerTypes eOtherPlayer, bool b
 			iItemValue += 200;
 			break;
 		default:
-			CvAssertMsg(false, "DEAL_AI: AI player has no valid Approach for Open Borders valuation.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.")
 			iItemValue += 100;
 			break;
 		}
@@ -2457,14 +2442,12 @@ int CvDealAI::GetOpenBordersValue(bool bFromMe, PlayerTypes eOtherPlayer, bool b
 			iItemValue += pDiploAI->GetNumArtifactsEverDugUp(eOtherPlayer) * 200;
 		}
 
-#if defined(MOD_TRAITS_TRADE_ROUTE_PRODUCTION_SIPHON)
 		// Does open borders make their production siphon trait stronger?
 		if (MOD_TRAITS_TRADE_ROUTE_PRODUCTION_SIPHON && GET_PLAYER(eOtherPlayer).GetPlayerTraits()->IsTradeRouteProductionSiphon())
 		{
 			iItemValue += GET_PLAYER(eOtherPlayer).GetPlayerTraits()->GetTradeRouteProductionSiphon(true).m_iPercentIncreaseWithOpenBorders * 20;
 			iItemValue += GET_PLAYER(eOtherPlayer).GetPlayerTraits()->GetTradeRouteProductionSiphon(false).m_iPercentIncreaseWithOpenBorders * 20;
 		}
-#endif
 	}
 	// Other guy giving me Open Borders
 	else
@@ -2493,7 +2476,6 @@ int CvDealAI::GetOpenBordersValue(bool bFromMe, PlayerTypes eOtherPlayer, bool b
 			iItemValue += 50;
 			break;
 		default:
-			CvAssertMsg(false, "DEAL_AI: AI player has no valid Approach for Open Borders valuation.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.")
 			iItemValue += 100;
 			break;
 		}
@@ -2518,7 +2500,6 @@ int CvDealAI::GetOpenBordersValue(bool bFromMe, PlayerTypes eOtherPlayer, bool b
 			iItemValue /= 100;
 			break;
 		default:
-			CvAssertMsg(false, "DEAL_AI: AI player has no valid Proximity for Open Borders valuation.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.")
 			iItemValue = 0;
 			break;
 		}
@@ -2556,14 +2537,13 @@ int CvDealAI::GetOpenBordersValue(bool bFromMe, PlayerTypes eOtherPlayer, bool b
 			iItemValue *= 115;
 			iItemValue /= 100;
 		}
-#if defined(MOD_TRAITS_TRADE_ROUTE_PRODUCTION_SIPHON)
+
 		// Does open borders make our production siphon trait stronger?
 		if (MOD_TRAITS_TRADE_ROUTE_PRODUCTION_SIPHON && GetPlayer()->GetPlayerTraits()->IsTradeRouteProductionSiphon())
 		{
 			iItemValue += GetPlayer()->GetPlayerTraits()->GetTradeRouteProductionSiphon(true).m_iPercentIncreaseWithOpenBorders * 20;
 			iItemValue += GetPlayer()->GetPlayerTraits()->GetTradeRouteProductionSiphon(false).m_iPercentIncreaseWithOpenBorders * 20;
 		}
-#endif
 
 #if defined(MOD_BALANCE_FLIPPED_TOURISM_MODIFIER_OPEN_BORDERS)
 		// Do we think he's going for culture victory? If we're contesting this, don't take his open borders!
@@ -2626,16 +2606,10 @@ int CvDealAI::GetOpenBordersValue(bool bFromMe, PlayerTypes eOtherPlayer, bool b
 /// How much is a Defensive Pact worth?
 int CvDealAI::GetDefensivePactValue(bool bFromMe, PlayerTypes eOtherPlayer, bool bUseEvenValue)
 {
-	CvAssertMsg(GetPlayer()->GetID() != eOtherPlayer, "DEAL_AI: Trying to check value of a Defensive Pact with oneself.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-
-	if (GetPlayer()->IsAITeammateOfHuman())
-		return INT_MAX;
-
 	if (!GetPlayer()->GetDiplomacyAI()->IsWantsDefensivePactWithPlayer(eOtherPlayer))
 		return INT_MAX;
 
 	int iDefensivePactValue = GetPlayer()->GetDiplomacyAI()->ScoreDefensivePactChoice(eOtherPlayer, GetPlayer()->GetNumEffectiveCoastalCities() > 1);
-	iDefensivePactValue *= 5;
 
 	if (MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED)
 		iDefensivePactValue *= max(1, (int)GetPlayer()->GetCurrentEra());
@@ -2651,7 +2625,7 @@ int CvDealAI::GetDefensivePactValue(bool bFromMe, PlayerTypes eOtherPlayer, bool
 	}
 	else if (iDefensivePactValue < 0 && bFromMe)
 	{
-		iItemValue = iDefensivePactValue;
+		iItemValue = -iDefensivePactValue;
 		if (!bMostValuableAlly)
 			iItemValue *= 2;
 	}
@@ -2678,13 +2652,7 @@ int CvDealAI::GetResearchAgreementValue(bool bFromMe, PlayerTypes eOtherPlayer, 
 
 	int iItemValue = 100;
 
-	if (GetPlayer()->IsAITeammateOfHuman())
-		return INT_MAX;
-
 	if (!GetPlayer()->GetDiplomacyAI()->IsWantsResearchAgreementWithPlayer(eOtherPlayer))
-		return INT_MAX;
-
-	if (!GET_PLAYER(eOtherPlayer).isHuman() && !GET_PLAYER(eOtherPlayer).GetDiplomacyAI()->IsWantsResearchAgreementWithPlayer(GetPlayer()->GetID()))
 		return INT_MAX;
 
 	if (bFromMe)
@@ -2721,14 +2689,13 @@ int CvDealAI::GetResearchAgreementValue(bool bFromMe, PlayerTypes eOtherPlayer, 
 			iItemValue *= 100;
 			break;
 		default:
-			CvAssertMsg(false, "DEAL_AI: AI player has no valid Approach for Research Agreement valuation.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.")
 			iItemValue *= 100;
 			break;
 		}
 		iItemValue /= 100;
 	}
 
-	if (GetPlayer()->GetRAToVotes() > 0)
+	if (!bFromMe && GetPlayer()->GetRAToVotes() > 0)
 	{
 		iItemValue *= 5;
 	}
@@ -2752,41 +2719,23 @@ int CvDealAI::GetResearchAgreementValue(bool bFromMe, PlayerTypes eOtherPlayer, 
 int CvDealAI::GetPeaceTreatyValue(PlayerTypes eOtherPlayer)
 {
 	DEBUG_VARIABLE(eOtherPlayer);
-	CvAssertMsg(GetPlayer()->GetID() != eOtherPlayer, "DEAL_AI: Trying to check value of a Peace Treaty with oneself.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-
 	return 20;
 }
 
 /// What is the value of peace with eWithTeam? NOTE: This deal item should be disabled if eWithTeam doesn't want to go to peace
 int CvDealAI::GetThirdPartyPeaceValue(bool bFromMe, PlayerTypes eOtherPlayer, TeamTypes eWithTeam, bool bLogging)
 {
-	CvAssertMsg(GetPlayer()->GetID() != eOtherPlayer, "DEAL_AI: Trying to check value of a Third Party Peace with oneself. Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-
 	int iItemValue = 100; //just some base value
-	
-	if (GetPlayer()->IsAITeammateOfHuman())
-		return INT_MAX;
 
 	if (bLogging)
 		return iItemValue;
 
 	CvDiplomacyAI* pDiploAI = GetPlayer()->GetDiplomacyAI();
-
-	if(eWithTeam == NO_TEAM)
-	{
-		return INT_MAX;
-	}
-
 	PlayerTypes eWithPlayer = GET_TEAM(eWithTeam).getLeaderID();
-	if(eWithPlayer == NO_PLAYER)
-	{
-		return INT_MAX;
-	}
-
-	bool bMinor = false;
+	bool bMinor = GET_PLAYER(eWithPlayer).isMinorCiv();
 
 	// Minor
-	if(GET_PLAYER(eWithPlayer).isMinorCiv())
+	if (bMinor)
 	{
 		// if we're at war with the opponent, then this must be a peace deal. In this case we should evaluate minor civ peace deals as zero
 		if (GET_TEAM(m_pPlayer->getTeam()).isAtWar(GET_PLAYER(eOtherPlayer).getTeam()))
@@ -2798,8 +2747,6 @@ int CvDealAI::GetThirdPartyPeaceValue(bool bFromMe, PlayerTypes eOtherPlayer, Te
 				return 0;
 			}
 		}
-
-		bMinor = true;
 	}
 
 	// if we're at war with the opponent, then this must be a peace deal. In this case we should evaluate vassal civ peace deals as zero
@@ -2808,80 +2755,6 @@ int CvDealAI::GetThirdPartyPeaceValue(bool bFromMe, PlayerTypes eOtherPlayer, Te
 		if(GET_TEAM(m_pPlayer->getTeam()).isAtWar(GET_PLAYER(eOtherPlayer).getTeam()))
 		{
 			return 0;
-		}
-	}
-
-	// Don't evaluate barbarians
-	if(GET_PLAYER(eWithPlayer).isBarbarian())
-	{
-		return INT_MAX;
-	}
-	//not alive?
-	if(!GET_PLAYER(eOtherPlayer).isAlive())
-	{
-		return INT_MAX;
-	}
-	//same team as asked?
-	if(GET_PLAYER(eWithPlayer).getTeam() == GET_PLAYER(eOtherPlayer).getTeam())
-	{
-		return INT_MAX;
-	}
-	// same team as asker?
-	if(GET_PLAYER(eWithPlayer).getTeam() == m_pPlayer->getTeam())
-	{
-		return INT_MAX;
-	}
-	// asker has met?
-	if(!GET_TEAM(GET_PLAYER(eWithPlayer).getTeam()).isHasMet(m_pPlayer->getTeam()))
-	{
-		return INT_MAX;
-	}
-	// asked has met?
-	if(!GET_TEAM(GET_PLAYER(eWithPlayer).getTeam()).isHasMet(GET_PLAYER(eOtherPlayer).getTeam()))
-	{
-		return INT_MAX;
-	}
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-	//Asking about a vassal? Abort!
-	if(MOD_DIPLOMACY_CIV4_FEATURES && GET_TEAM(GET_PLAYER(eWithPlayer).getTeam()).IsVassalOfSomeone())
-	{
-		return INT_MAX;
-	}
-	if(MOD_DIPLOMACY_CIV4_FEATURES && GET_TEAM(GET_PLAYER(eOtherPlayer).getTeam()).IsVassalOfSomeone())
-	{
-		return INT_MAX;
-	}
-#endif
-
-	//Things blocking their peace?
-	if(!bFromMe)
-	{
-		//Minor civ? Permawar?
-		if(GET_PLAYER(eWithPlayer).isMinorCiv() && (GET_PLAYER(eWithPlayer).GetMinorCivAI()->IsPeaceBlocked(GET_PLAYER(eOtherPlayer).getTeam()) || GET_PLAYER(eWithPlayer).GetMinorCivAI()->IsPermanentWar(GET_PLAYER(eOtherPlayer).getTeam())))
-		{
-			return INT_MAX;
-		}
-		//Can they make peace?
-		if (GET_PLAYER(eWithPlayer).isMajorCiv() && !GET_TEAM(eWithTeam).canChangeWarPeace(GET_PLAYER(eOtherPlayer).getTeam()))
-		{
-			return INT_MAX;
-		}
-	}
-	if(bFromMe)
-	{
-		//Minor civ? Permawar?
-		if(GET_PLAYER(eWithPlayer).isMinorCiv() && (GET_PLAYER(eWithPlayer).GetMinorCivAI()->IsPeaceBlocked(GetPlayer()->getTeam()) || GET_PLAYER(eWithPlayer).GetMinorCivAI()->IsPermanentWar(GetPlayer()->getTeam())))
-		{
-			return INT_MAX;
-		}
-		//Can we make peace?
-		if (GET_PLAYER(eWithPlayer).isMajorCiv() && !GET_TEAM(eWithTeam).canChangeWarPeace(GetPlayer()->getTeam()))
-		{
-			return INT_MAX;
-		}
-		if (pDiploAI->IsPeaceBlocked(eWithPlayer))
-		{
-			return INT_MAX;
 		}
 	}
 
@@ -2898,12 +2771,6 @@ int CvDealAI::GetThirdPartyPeaceValue(bool bFromMe, PlayerTypes eOtherPlayer, Te
 	// From me
 	if(bFromMe)
 	{
-		//Not at war?
-		if (!GET_TEAM(m_pPlayer->getTeam()).isAtWar(eWithTeam))
-		{
-			return INT_MAX;
-		}
-
 		//Our war score with the player
 		int iWarScore = pDiploAI->GetWarScore(eWithPlayer);
 
@@ -3003,12 +2870,6 @@ int CvDealAI::GetThirdPartyPeaceValue(bool bFromMe, PlayerTypes eOtherPlayer, Te
 	// From them
 	else
 	{
-		//Not at war?
-		if (!GET_TEAM(GET_PLAYER(eOtherPlayer).getTeam()).isAtWar(eWithTeam))
-		{
-			return INT_MAX;
-		}
-
 		//Their war score with the player
 		int iTheirWarScore = GET_PLAYER(eOtherPlayer).GetDiplomacyAI()->GetWarScore(eWithPlayer);
 
@@ -3097,22 +2958,9 @@ int CvDealAI::GetThirdPartyPeaceValue(bool bFromMe, PlayerTypes eOtherPlayer, Te
 /// What is the value of war with eWithPlayer?
 int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, TeamTypes eWithTeam, bool /*bLogging*/)
 {
-	if (eWithTeam == NO_TEAM)
-	{
-		return INT_MAX;
-	}
-
 	PlayerTypes ePlayerDeclaringWar = bFromMe ? m_pPlayer->GetID() : eOtherPlayer;
 	TeamTypes eTeamDeclaringWar = GET_PLAYER(ePlayerDeclaringWar).getTeam();
 	PlayerTypes eWithPlayer = GET_TEAM(eWithTeam).getLeaderID();
-	if (eWithPlayer == NO_PLAYER)
-	{
-		return INT_MAX;
-	}
-	if (GetPlayer()->IsAITeammateOfHuman())
-	{
-		return INT_MAX;
-	}
 	CvCity* pCapital = GET_PLAYER(ePlayerDeclaringWar).getCapitalCity();
 	if (!pCapital)
 	{
@@ -3131,70 +2979,18 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 		return INT_MAX;
 	}
 
-	// target specific checks
-
-	// Don't evaluate barbarians
-	if(GET_PLAYER(eWithPlayer).isBarbarian())
-	{
-		return INT_MAX;
-	}
-	//Are we already at war with the team? Don't do it!
-	if (GET_TEAM(eTeamDeclaringWar).isAtWar(eWithTeam))
-	{
-		return INT_MAX;
-	}
-	//Can we declare war?
-	if (!GET_TEAM(eTeamDeclaringWar).canDeclareWar(eWithTeam))
-	{
-		return INT_MAX;
-	}
-	//Minor Civ? Only if not allies. Applies to both parties.
+	//Minor Civ?
 	if(GET_PLAYER(eWithPlayer).isMinorCiv())
 	{
-		if (GET_PLAYER(eWithPlayer).GetMinorCivAI()->IsAllies(ePlayerDeclaringWar))
-			return INT_MAX;
-
 		CivApproachTypes eMinorApproachTowardsWarPlayer = GET_PLAYER(ePlayerDeclaringWar).GetDiplomacyAI()->GetCivApproach(eWithPlayer);
 		if (eMinorApproachTowardsWarPlayer == CIV_APPROACH_FRIENDLY)
 			return INT_MAX;
-	}
-	//same team as asked?
-	if(GET_PLAYER(eWithPlayer).getTeam() == GET_PLAYER(ePlayerDeclaringWar).getTeam())
-	{
-		return INT_MAX;
-	}
-	// asker has met?
-	if(!GET_TEAM(eTeamDeclaringWar).isHasMet(eWithTeam))
-	{
-		return INT_MAX;
-	}
-	//defensive pact with asked?
-	if(GET_TEAM(eTeamDeclaringWar).IsHasDefensivePact(eWithTeam))
-	{
-		return INT_MAX;
-	}
-	//Are the asked in a DOF with the target player? Don't do it!
-	if(GET_PLAYER(ePlayerDeclaringWar).GetDiplomacyAI()->IsDoFAccepted(eWithPlayer) || GET_PLAYER(eWithPlayer).GetDiplomacyAI()->IsDoFAccepted(ePlayerDeclaringWar))
-	{
-		return INT_MAX;
 	}
 	// If we're in bad shape to start a war, no wars
 	if (GET_PLAYER(ePlayerDeclaringWar).IsNoNewWars())
 	{
 		return INT_MAX;
 	}
-
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-	//NO FUCKING VASSALS GODDAMMIT STOP IT
-	if(GET_TEAM(eWithTeam).IsVassalOfSomeone())
-	{
-		return INT_MAX;
-	}
-	if (GET_TEAM(eTeamDeclaringWar).IsVassalOfSomeone())
-	{
-		return INT_MAX;
-	}
-#endif
 
 	//do we even have a target to attack?
 	if (!GET_PLAYER(ePlayerDeclaringWar).GetMilitaryAI()->HavePreferredAttackTarget(eWithPlayer))
@@ -3373,9 +3169,6 @@ int CvDealAI::GetVoteCommitmentValue(bool bFromMe, PlayerTypes eOtherPlayer, int
 	if (iNumVotes == 0)
 		return INT_MAX;
 
-	if (eOtherPlayer == NO_PLAYER || eOtherPlayer == m_pPlayer->GetID())
-		return INT_MAX;
-
 	CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
 	if (!pLeague)
 		return INT_MAX;
@@ -3474,14 +3267,6 @@ int CvDealAI::GetVoteCommitmentValue(bool bFromMe, PlayerTypes eOtherPlayer, int
 			// Is this the World Leader vote?
 			if (pProposal->GetEffects()->bDiplomaticVictory)
 			{
-				// Forbidden by game options
-				if (GD_INT_GET(DIPLOAI_NO_OTHER_WORLD_LEADER_VOTES) > 1)
-					return INT_MAX;
-
-				// AI never sells World Leader votes if they're teamed up with a human!
-				if (GetPlayer()->IsAITeammateOfHuman())
-					return INT_MAX;
-
 				int iOurVotes = pLeague->CalculateStartingVotesForMember(GetPlayer()->GetID());
 				int iNeededVotes = GC.getGame().GetVotesNeededForDiploVictory();
 				int iOurPercent = (iOurVotes * 100) / max(1,iNeededVotes);
@@ -3582,10 +3367,15 @@ int CvDealAI::GetVoteCommitmentValue(bool bFromMe, PlayerTypes eOtherPlayer, int
 		{
 			if (pProposal->GetEffects()->bDiplomaticVictory)
 			{
-				int iOurVotes = pLeague->CalculateStartingVotesForMember(GetPlayer()->GetID());
+				PlayerTypes eLeader = GET_TEAM(GetPlayer()->getTeam()).getLeaderID();
+				if (eLeader == NO_PLAYER)
+					return INT_MAX;
+
+				int iOurVotes = pLeague->CalculateStartingVotesForMember(eLeader);
 				int iNeededVotes = GC.getGame().GetVotesNeededForDiploVictory();
 				PlayerTypes eChoicePlayer = (PlayerTypes)iVoteChoice;
-				if (iOurVotes + iNumVotes < iNeededVotes || eChoicePlayer != GetPlayer()->GetID())
+				
+				if (iOurVotes + iNumVotes < iNeededVotes || eChoicePlayer != eLeader)
 				{
 					return INT_MAX;
 				}
@@ -6854,12 +6644,7 @@ DemandResponseTypes CvDealAI::GetRequestForHelpResponse(CvDeal* pDeal)
 // How much is this world map worth?
 int CvDealAI::GetMapValue(bool bFromMe, PlayerTypes eOtherPlayer)
 {
-	CvAssertMsg(GetPlayer()->GetID() != eOtherPlayer, "DEAL_AI: Trying to check value of a Map with oneself.  Please send slewis this with your last 5 autosaves and what changelist # you're playing.");
-
 	int iItemValue = 0;
-	
-	if (GetPlayer()->IsAITeammateOfHuman())
-		return INT_MAX;
 	
 	CvPlayer* pSeller = bFromMe ? GetPlayer() : &GET_PLAYER(eOtherPlayer);	// Who is selling this map?
 	CvPlayer* pBuyer = bFromMe ? &GET_PLAYER(eOtherPlayer) : GetPlayer();	// Who is buying this map?
@@ -6941,7 +6726,6 @@ int CvDealAI::GetMapValue(bool bFromMe, PlayerTypes eOtherPlayer)
 				iItemValue *= 100;
 				break;
 			default:
-				CvAssertMsg(false, "DEAL_AI: AI player has no valid Approach for Map Trading valuation.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.")
 				iItemValue *= 100;
 			break;
 		}
@@ -6978,7 +6762,6 @@ int CvDealAI::GetMapValue(bool bFromMe, PlayerTypes eOtherPlayer)
 				iItemValue *= 100;
 				break;
 			default:
-				CvAssertMsg(false, "DEAL_AI: AI player has no valid Approach for Map Trading valuation.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.")
 				iItemValue *= 100;
 			break;
 		}
@@ -7022,9 +6805,6 @@ int CvDealAI::GetTechValue(TechTypes eTech, bool bFromMe, PlayerTypes eOtherPlay
 {
 	int iItemValue = 5;
 	CvTechEntry* pkTechInfo = GC.getTechInfo(eTech);
-
-	if (GetPlayer()->IsAITeammateOfHuman())
-		return INT_MAX;
 
 	if (pkTechInfo == NULL)
 		return INT_MAX;
@@ -7216,7 +6996,6 @@ int CvDealAI::GetTechValue(TechTypes eTech, bool bFromMe, PlayerTypes eOtherPlay
 				iItemValue *= 100;
 				break;
 			default:
-				CvAssertMsg(false, "DEAL_AI: AI player has no valid Approach for Technology valuation.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.")
 				iItemValue *= 100;
 				break;
 		}
@@ -7250,7 +7029,6 @@ int CvDealAI::GetTechValue(TechTypes eTech, bool bFromMe, PlayerTypes eOtherPlay
 				iItemValue *= 110;
 				break;
 			default:
-				CvAssertMsg(false, "DEAL_AI: AI player has no valid Approach for Technology valuation.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.")
 				iItemValue *= 100;
 				break;
 		}
@@ -7269,13 +7047,7 @@ int CvDealAI::GetTechValue(TechTypes eTech, bool bFromMe, PlayerTypes eOtherPlay
 /// How much is Vassalage worth?
 int CvDealAI::GetVassalageValue(bool bFromMe, PlayerTypes eOtherPlayer)
 {
-	CvAssertMsg(GetPlayer()->GetID() != eOtherPlayer, "DEAL_AI: Trying to check value of a Vassalage Agreement with oneself. Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-
 	int iItemValue = 0;
-
-	if (GetPlayer()->IsAITeammateOfHuman())
-		return INT_MAX;
-
 	CvDiplomacyAI* m_pDiploAI = GetPlayer()->GetDiplomacyAI();
 
 	if (bFromMe)
@@ -7345,7 +7117,6 @@ int CvDealAI::GetVassalageValue(bool bFromMe, PlayerTypes eOtherPlayer)
 			iItemValue *= 100;
 			break;
 		default:
-			CvAssertMsg(false, "DEAL_AI: Player has no valid proximity for Vassalage valuation.");
 			iItemValue *= 100;
 			break;
 		}
@@ -7375,8 +7146,7 @@ int CvDealAI::GetVassalageValue(bool bFromMe, PlayerTypes eOtherPlayer)
 			iItemValue *= 100;
 			break;
 		default:
-			CvAssertMsg(false, "DEAL_AI: AI player has no valid Approach for Vassalage valuation.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.")
-				iItemValue *= 100;
+			iItemValue *= 100;
 			break;
 		}
 		iItemValue /= 100;
@@ -7445,7 +7215,6 @@ int CvDealAI::GetVassalageValue(bool bFromMe, PlayerTypes eOtherPlayer)
 			iItemValue *= 100;
 			break;
 		default:
-			CvAssertMsg(false, "DEAL_AI: Player has no valid proximity for Vassalage valuation.");
 			iItemValue *= 100;
 			break;
 		}
@@ -7475,8 +7244,7 @@ int CvDealAI::GetVassalageValue(bool bFromMe, PlayerTypes eOtherPlayer)
 			iItemValue *= 125;
 			break;
 		default:
-			CvAssertMsg(false, "DEAL_AI: AI player has no valid Approach for Vassalage valuation.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.")
-				iItemValue *= 100;
+			iItemValue *= 100;
 			break;
 		}
 		iItemValue /= 100;
@@ -7488,34 +7256,19 @@ int CvDealAI::GetVassalageValue(bool bFromMe, PlayerTypes eOtherPlayer)
 //How much is ending our vassalage worth to us?
 int CvDealAI::GetRevokeVassalageValue(bool bFromMe, PlayerTypes eOtherPlayer, bool bWar)
 {
-	CvAssertMsg(GetPlayer()->GetID() != eOtherPlayer, "DEAL_AI: Trying to check value of a Vassalage Agreement with oneself. Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-
 	int iItemValue = 0;
-
-	if (GetPlayer()->IsAITeammateOfHuman())
-		return INT_MAX;
-
 	CvDiplomacyAI* m_pDiploAI = GetPlayer()->GetDiplomacyAI();
 
-	//Can't ask if we're their vassal, or vice-versa.
-	if(GET_TEAM(GetPlayer()->getTeam()).IsVassal(GET_PLAYER(eOtherPlayer).getTeam()))
-	{
-		return INT_MAX;
-	}
-	else if(GET_TEAM(GET_PLAYER(eOtherPlayer).getTeam()).IsVassal(GetPlayer()->getTeam()))
-	{
-		return INT_MAX;
-	}
 	//They're asking me to revoke my vassals? Quoi?
-	if(bFromMe)
+	if (bFromMe)
 	{
 		// Initial End Vassalage deal value at 1000
 		iItemValue = 1000;
 
 		//War? Refuse if we're not losing badly.
-		if(bWar)
+		if (bWar)
 		{
-			if(m_pDiploAI->GetWarScore(eOtherPlayer) >= -75)
+			if (m_pDiploAI->GetWarScore(eOtherPlayer) >= -75)
 			{
 				return INT_MAX;
 			}
@@ -7620,7 +7373,6 @@ int CvDealAI::GetRevokeVassalageValue(bool bFromMe, PlayerTypes eOtherPlayer, bo
 				iItemValue *= 125;
 				break;
 			default:
-				CvAssertMsg(false, "DEAL_AI: AI player has no valid Approach for Vassalage valuation.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.")
 				iItemValue *= 100;
 				break;
 		}
@@ -7646,7 +7398,6 @@ int CvDealAI::GetRevokeVassalageValue(bool bFromMe, PlayerTypes eOtherPlayer, bo
 				iItemValue *= 500;
 				break;
 			default:
-				CvAssertMsg(false, "DEAL_AI: AI player has no valid Approach for Vassalage valuation.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.")
 				iItemValue *= 100;
 				break;
 		}

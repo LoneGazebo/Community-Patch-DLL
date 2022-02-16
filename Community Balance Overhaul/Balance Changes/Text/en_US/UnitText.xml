@@ -186,13 +186,14 @@
 			<Text>Attack Bonus (25)</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_KNOCKOUT_III_HELP">
-			<Text>+25% [ICON_STRENGTH] Strength when attacking.</Text>
+			<Text>+25% [ICON_STRENGTH] Combat Strength when attacking.</Text>
 		</Row>
+		
 		<Row Tag="TXT_KEY_PROMOTION_WITHDRAW_BEFORE_MELEE_I">
 			<Text>Commando</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_WITHDRAW_BEFORE_MELEE_HELP_I">
-			<Text>60% chance to withdraw from Melee combat. Chance of withdrawal decreased against fast Enemy Units or if there are limited open tiles behind the Unit.[NEWLINE][NEWLINE][COLOR_NEGATIVE_TEXT]Lost on upgrade.[ENDCOLOR]</Text>
+			<Text>60% chance to withdraw from Melee combat. Chance of withdrawal decreased against faster Enemy Units or if there are limited open tiles behind the Unit.[NEWLINE][NEWLINE][COLOR_NEGATIVE_TEXT]Lost on upgrade.[ENDCOLOR]</Text>
 		</Row>
 		
 		<Row Tag="TXT_KEY_PROMOTION_COERCION">
@@ -948,7 +949,7 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_BARBARIAN_PENALTY_III">
-			<Text>Penalty vs Barbarians (-10)</Text>
+			<Text>Penalty vs Barbarians (-10%)</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_BARBARIAN_PENALTY_III_HELP">
 			<Text>-10% [ICON_STRENGTH] Combat Strength VS [COLOR_NEGATIVE_TEXT]Barbarians[ENDCOLOR].</Text>

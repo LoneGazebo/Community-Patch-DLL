@@ -2,7 +2,7 @@
 <Mod id="c7bf7064-d1b1-4708-9e93-7a1560868582" version="12">
   <Properties>
     <Name>(4) Civ IV Diplomatic Features</Name>
-    <Teaser>(1.4.1) Civ IV Diplomatic Features for Vox Populi</Teaser>
+    <Teaser>(1.4.4) Civ IV Diplomatic Features for Vox Populi</Teaser>
     <Description>This mod adds new diplomatic features as they appeared in Civilization IV.[NEWLINE][NEWLINE]
 [ICON_BULLET] Map Trading: Sell World Maps upon the discovery of Military Science. The cost goes up based on the quality and quantity of undiscovered terrain - don't be surprised to cough up a lot of cash/luxuries/your map for a map! Maps that are equal (no unique territory between two civs) are worthless.[NEWLINE]
 [ICON_BULLET] Technology Trading: Upon the discovery of Scientific Theory, allows you to sell technology to other civs. The cost depends on how many turns are left before the technology is researched by the purchasing civ. [COLOR_NEGATIVE_TEXT]THIS OPTION MUST BE ENABLED IN "ADVANCED OPTIONS" IN ORDER TO BE ACTIVE.[ENDCOLOR][NEWLINE]

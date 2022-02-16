@@ -2,7 +2,7 @@
 <Mod id="6521c02b-1c78-4826-a5b0-faed86235e98" version="1">
   <Properties>
     <Name>(6c) 43 Civs Community Patch</Name>
-    <Teaser>(1.4.1) Supports up to 43 Major Civilizations</Teaser>
+    <Teaser>(1.4.4) Supports up to 43 Major Civilizations</Teaser>
     <Description>This version of the Community Patch supports up to 43 major civilizations. The maximum number of total players (civilizations and City-States) is 63.[NEWLINE][NEWLINE]
 Depending on which version has been installed, this mod contains one of the following:[NEWLINE]
 [ICON_BULLET]Compatibility Files for using the Community Patch on its own[NEWLINE]
@@ -72,7 +72,7 @@ If you downloaded this mod manually, see MANUAL INSTALL.txt for installation ins
     <File md5="BB747350C836F07517202090558A4CD3" import="1">CP Only/TradeRouteHelpers.lua</File>
     <File md5="5A87219957975A85A1D3CEDA1D98A835" import="1">CP Only/YieldIconManager.lua</File>
     <File md5="8FD4EF5AAB5BD6E16DB8EBE95963FC33" import="1">CP Only/YieldIconManager.xml</File>
-    <File md5="2C3AB75A109B714B9B634DE53546BCB6" import="1">CvGameCore_Expansion2.dll</File>
+    <File md5="459F4931A7A34A3500BF72D799744B4C" import="1">CvGameCore_Expansion2.dll</File>
     <File md5="3F4B08D58AE727DF10D8A34BEC5F398E" import="1">EUI/ActionInfoPanel.lua</File>
     <File md5="314F159E85D3C21731FFB7FDBE86433A" import="1">EUI/AdvancedSetup.lua</File>
     <File md5="39C6A39E21DF6E10B666FA57FA502643" import="1">EUI/Bombardment.lua</File>
@@ -86,7 +86,7 @@ If you downloaded this mod manually, see MANUAL INSTALL.txt for installation ins
     <File md5="3FB96BF2FED74228DF6B66593127D294" import="1">EUI/CityStateDiploPopup.xml</File>
     <File md5="908D4AB700755545316BA16E1BB94EA1" import="1">EUI/CityStateGreetingPopup.lua</File>
     <File md5="54A274DCE10B48B9583FB6C939F1F46F" import="1">EUI/CityStateGreetingPopup.xml</File>
-    <File md5="EDDC108FF4EF329DC6211094D9818D4C" import="1">EUI/CityStateStatusHelper.lua</File>
+    <File md5="47DB8D0DFFAB0F911F09C6449B3BC07E" import="1">EUI/CityStateStatusHelper.lua</File>
     <File md5="7E78ECBDCA58705BDA0106F9D455E3DF" import="1">EUI/CityView.lua</File>
     <File md5="984545AEBCA87D9F9B6C51A7E07958E9" import="1">EUI/CityView.xml</File>
     <File md5="03A04D6143F27CC517EA7463164D4913" import="1">EUI/CityView_small.xml</File>
@@ -155,14 +155,15 @@ If you downloaded this mod manually, see MANUAL INSTALL.txt for installation ins
     <File md5="1972B7298A473270428256ABD71B5D07" import="1">EUI/TopPanel.xml</File>
     <File md5="4CB17E9E72E0A76FCD7B65444D32FA15" import="1">EUI/TradeLogic.lua</File>
     <File md5="B893CC7CAB5A66DFED8EE3CC006A70BA" import="1">EUI/UnitFlagManager.lua</File>
-    <File md5="235D433D412B2885C0471D6900249E74" import="1">EUI/UnitPanel.lua</File>
-    <File md5="804FB958382573354AE1F84E0DCA49E0" import="1">EUI/UnitPanel.xml</File>
-    <File md5="DDD9F85AB4C63A0CF84FDCCFAE9EF4DF" import="1">EUI/UnitPanel_small.xml</File>
+    <File md5="FB58300F941992AD1C218F7F620906D8" import="1">EUI/UnitPanel.lua</File>
+    <File md5="825E879C4FAE191CDDC46B74A1DE7347" import="1">EUI/UnitPanel.xml</File>
+    <File md5="1107F0E0620E7B38D125766F3484B94D" import="1">EUI/UnitPanel_small.xml</File>
     <File md5="BBC33791151B7DB3DBCE257B52BE3D52" import="1">EUI/VictoryProgress.lua</File>
     <File md5="DAC68F838D98ED16A8D7246798795EA8" import="1">EUI/VictoryProgress.xml</File>
     <File md5="2F4E8578875AA96C3D8553D2E7DE0883" import="1">EUI/WhosWinningPopup.lua</File>
     <File md5="02C28E298D776D1804F065751649D91B" import="1">EUI/YieldIconManager.lua</File>
     <File md5="C10F916FF1CD06DB8235408C1AAE097E" import="1">EUI/YieldIconManager.xml</File>
+    <File md5="7E76EEBF30467BC466BAFB1ED143BEDA" import="1">EUI/StackedPromotionIcons/StackedPromotionIcons.sql</File>
     <File md5="3F4B08D58AE727DF10D8A34BEC5F398E" import="1">No-EUI/ActionInfoPanel.lua</File>
     <File md5="314F159E85D3C21731FFB7FDBE86433A" import="1">No-EUI/AdvancedSetup.lua</File>
     <File md5="39C6A39E21DF6E10B666FA57FA502643" import="1">No-EUI/Bombardment.lua</File>
@@ -176,7 +177,7 @@ If you downloaded this mod manually, see MANUAL INSTALL.txt for installation ins
     <File md5="CB83DD58726A3185BA0D52EBDD6F1C29" import="1">No-EUI/CityStateDiploPopup.xml</File>
     <File md5="E5084A1F6168876EBFB78B060FF77E42" import="1">No-EUI/CityStateGreetingPopup.lua</File>
     <File md5="54A274DCE10B48B9583FB6C939F1F46F" import="1">No-EUI/CityStateGreetingPopup.xml</File>
-    <File md5="D6641CE6A738D8410E6070E97AD0CD37" import="1">No-EUI/CityStateStatusHelper.lua</File>
+    <File md5="C07BB807FBCB25F1707F1BA1B20B08FA" import="1">No-EUI/CityStateStatusHelper.lua</File>
     <File md5="3CBE322F14A59655023DBE78D8BEFDA8" import="1">No-EUI/CityView.lua</File>
     <File md5="CBE80AE325288F1B5A1B05525826DEC0" import="1">No-EUI/CityView.xml</File>
     <File md5="2C009EF1C7A9213005C102161D5F6C33" import="1">No-EUI/CityView_small.xml</File>
@@ -259,6 +260,7 @@ If you downloaded this mod manually, see MANUAL INSTALL.txt for installation ins
       <UpdateDatabase>EUI/EUI/NeededText.xml</UpdateDatabase>
       <UpdateDatabase>EUI/MoreLuxuries/MoreLuxuries.sql</UpdateDatabase>
       <UpdateDatabase>EUI/MoreLuxuries/Text_en_US.sql</UpdateDatabase>
+      <UpdateDatabase>EUI/StackedPromotionIcons/StackedPromotionIcons.sql</UpdateDatabase>
       <UpdateDatabase>No-EUI/C4DF/C4DFCompatibility.sql</UpdateDatabase>
       <UpdateDatabase>No-EUI/Corps/Corporations.sql</UpdateDatabase>
       <UpdateDatabase>No-EUI/Corps/CorpText_en_US.sql</UpdateDatabase>
