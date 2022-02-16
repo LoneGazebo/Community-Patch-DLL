@@ -453,7 +453,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 				return false;
 
 			// CAN we make peace?
-			if (!pFromTeam->canChangeWarPeace(eToTeam) || !pFromTeam->canChangeWarPeace(eFromTeam))
+			if (!pFromTeam->canChangeWarPeace(eToTeam) || !pToTeam->canChangeWarPeace(eFromTeam))
 				return false;
 
 			if (MOD_EVENTS_WAR_AND_PEACE) 
