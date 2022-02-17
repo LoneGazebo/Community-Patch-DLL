@@ -1854,7 +1854,7 @@ end
 function GetMapScriptInfo()
 	local world_age, temperature, rainfall, sea_level = GetCoreMapOptions()
 	return {
-		Name = "Communitu_79a v2.3.2",
+		Name = "Communitu_79a v2.3.3",
 		Description = "Communitas mapscript for Vox Populi",
 		IsAdvancedMap = false,
 		SupportsMultiplayer = true,
@@ -2886,12 +2886,28 @@ function RestoreLakes()
 	end
 
 	-- Add lakes
+	local newLand = {};
 	for _, plot in pairs(mg.lakePlots) do
-		local isIce = (plot:GetFeatureType() == FeatureTypes.FEATURE_ICE)
-		plot:SetTerrainType(TerrainTypes.TERRAIN_COAST, false, true)
-		if isIce then
-			--plot:SetFeatureType(FeatureTypes.FEATURE_ICE, -1)
+		local mapW, mapH = Map.GetGridSize();
+		local x, y = plot:GetX(), plot:GetY();
+		if y < 2 or y > mapH - 3 then
+			-- Set to ice
+			plot:SetPlotType(PlotTypes.PLOT_OCEAN, false, true);
+			plot:SetTerrainType(TerrainTypes.TERRAIN_COAST, false, true);
+			plot:SetFeatureType(FeatureTypes.FEATURE_ICE, -1);
+		elseif y == 2 or y == mapH - 3 then
+			-- Set to flat snow
+			local plotID = Plot_GetID(plot);
+			newLand[plotID] = elevationMap.seaLevelThreshold + 0.01;
+			plot:SetPlotType(PlotTypes.PLOT_LAND, false, true);
+			plot:SetTerrainType(TerrainTypes.TERRAIN_SNOW, false, true);
+			plot:SetFeatureType(FeatureTypes.NO_FEATURE, -1);
+		else
+			plot:SetTerrainType(TerrainTypes.TERRAIN_COAST, false, true);
 		end
+	end
+	for plotID, elevation in pairs(newLand) do
+		elevationMap.data[plotID] = elevation
 	end
 
 	-- Calculate outflow from lakes
@@ -5782,7 +5798,7 @@ end
 
 function oceanButNotIceMatch(x, y)
 	local plot = Map.GetPlot(x, y)
-	return plot:GetFeatureType() ~= FeatureTypes.FEATURE_ICE and plot:GetPlotType() == PlotTypes.PLOT_OCEAN and not plot:IsLake()
+	return plot:GetFeatureType() ~= FeatureTypes.FEATURE_ICE and plot:GetPlotType() == PlotTypes.PLOT_OCEAN and not Plot_IsLake(plot);
 end
 
 function landMatch(x,y)
