@@ -2662,7 +2662,7 @@ void CvHomelandAI::ExecuteWorkerMoves()
 		int iTurnLimit = pUnit->IsGreatPerson() ? 12 : 5;
 
 		if (pUnit->IsCombatUnit())
-			iTurnLimit = gCustomMods.getOption("UNITS_LOCAL_WORKERS_COMBATLIMIT", 2);
+			iTurnLimit = 3;
 
 		//is the unit still busy? if so, less time for movement
 		int iBuildTimeLeft = 0;

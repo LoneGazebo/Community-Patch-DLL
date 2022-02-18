@@ -106,10 +106,6 @@
     <!-- See also: "Global - City States Overseas Territory" -->
     <Row Class="6" Name="GLOBAL_CS_OVERSEAS_TERRITORY" Value="0"/>
     
-    <!-- Mercantile City States acquired via a Merchant of Venice do not lose their unique resources (v22) -->
-    <!-- See also: "Global - Venice Keeps Resources" -->
-    <Row Class="6" Name="GLOBAL_VENICE_KEEPS_RESOURCES" Value="1"/>
-    
     <!-- Units attacking from cities, forts or citadels will not follow-up if they kill the defender (v19) -->
     <!-- See also: "Global - No Followup From Cities" -->
     <Row Class="6" Name="GLOBAL_NO_FOLLOWUP_FROM_CITIES" Value="1"/>
@@ -125,21 +121,6 @@
     <!-- Remove assembled spaceship parts from conquered capitals (v19) -->
     <!-- See also: "Global - No Conquered Spaceships" -->
     <Row Class="5" Name="GLOBAL_NO_CONQUERED_SPACESHIPS" Value="0"/>
-
-    <!-- Modified blockade logic (v52) -->
-    <!-- The standard logic says "if there is an enemy ship within two hexes of a port, it is blockaded" -->
-    <!-- HOWEVER - this includes the situations where -->
-    <!--   a) an enemy ship on the other side of a two-wide strip of land can blockade a port (ie enemy-land-port-water blockades the port) -->
-    <!--   b) a port with two non-adjacent exits (ie on a one-wide strip of land) can be blockaded by a non-adjacent enemy (ie enemy-water-port-water blockades the port) -->
-    <!-- What is needed is a check for every adjacent water plot to the port being blockaded, not a simple check of the port itself -->
-    <!-- See also: "Global - Allies Block Blockades" -->
-    <Row Class="6" Name="GLOBAL_ADJACENT_BLOCKADES" Value="0"/>
-    <!-- Adjacent allied ships block blockades by enemy ships 2 or more tiles away (v19) -->
-    <!-- See also: "Global - Allies Block Blockades" -->
-    <Row Class="6" Name="GLOBAL_ALLIES_BLOCK_BLOCKADES" Value="0"/>
-    <!-- Embarked combat units only blockade adjacent tiles (v19) -->
-    <!-- See also: "Global - Allies Block Blockades" -->
-    <Row Class="6" Name="GLOBAL_SHORT_EMBARKED_BLOCKADES" Value="0"/>
 
     <!-- Other player's settlers captured from Barbarians will sometimes remain as settlers (v19) -->
     <!-- See also: "Global - Grateful Settlers" -->
@@ -168,9 +149,6 @@
     <!-- See also: "Units - Subs Immune Under Ice" -->
     <Row Class="6" Name="GLOBAL_SUBS_UNDER_ICE_IMMUNITY" Value="0"/>
 
-    <!-- Paratroops can move/attack after the drop, if the drop is not at max range (v19) -->
-    <!-- See also: "Units - Paratroop Enhancements" -->
-    <Row Class="5" Name="GLOBAL_PARATROOPS_MOVEMENT" Value="0"/>
     <!-- Paratroops take AA damage from hostile units (v19) -->
     <!-- See also: "Units - Paratroop Enhancements" -->
     <Row Class="5" Name="GLOBAL_PARATROOPS_AA_DAMAGE" Value="0"/>
@@ -409,9 +387,6 @@
     <!-- Restricts worker suggestions to local tiles (at the limits specified - limits are distances between the unit and the plot as the crow flies, NOT path lengths) (v19) -->
     <!-- See also: "UI - No Auto-Embark Workers" -->
     <Row Class="5" Name="UNITS_LOCAL_WORKERS" Value="1"/>
-    <Row Class="0" Name="UNITS_LOCAL_WORKERS_LANDLIMIT" Value="6"/>   <!-- How far workers will check for new tasks from where they currently are -->
-    <Row Class="0" Name="UNITS_LOCAL_WORKERS_WATERLIMIT" Value="10"/> <!-- How far workboats will check for new tasks from where they currently are -->
-    <Row Class="0" Name="UNITS_LOCAL_WORKERS_COMBATLIMIT" Value="3"/> <!-- How far combat units with a build skill (eg Legion) will check for new tasks from where they currently are -->
 
     <!-- Hovering unit can only heal over land (v19) -->
     <!-- See also: "Units - Steampunk Airships" -->
@@ -419,9 +394,6 @@
     <!-- Permits hovering units to attack coastal shipping (v19) -->
     <!-- See also: "Units - Steampunk Airships" -->
     <Row Class="6" Name="UNITS_HOVERING_COASTAL_ATTACKS" Value="0"/>
-    <Row Class="0" Name="UNITS_HOVERING_COASTAL_ATTACKS_RANGE" Value="1"/>
-    <Row Class="0" Name="UNITS_HOVERING_COASTAL_ATTACKS_MULTIPLIER" Value="1"/>
-    <Row Class="0" Name="UNITS_HOVERING_COASTAL_ATTACKS_DIVISOR" Value="2"/>
 
     <!-- Enables the table Unit_ResourceQuantityTotals -->
     <Row Class="5" Name="UNITS_RESOURCE_QUANTITY_TOTALS" Value="0"/>
