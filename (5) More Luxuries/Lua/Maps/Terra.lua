@@ -690,7 +690,7 @@ function AssignStartingPlots:CanBeCrater(x, y)
 	end
 	local iNumMountains, iNumHills = 0, 0;
 	local plotType = plot:GetPlotType();
-	if plotType == PlotTypes.PLOT_MOUNTAINS then
+	if plotType == PlotTypes.PLOT_MOUNTAIN then
 		iNumMountains = iNumMountains + 1;
 	elseif plotType == PlotTypes.PLOT_HILLS then
 		iNumHills = iNumHills + 1;
@@ -710,7 +710,7 @@ function AssignStartingPlots:CanBeCrater(x, y)
 			return
 		end
 		plotType = adjPlot:GetPlotType();
-		if plotType == PlotTypes.PLOT_MOUNTAINS then
+		if plotType == PlotTypes.PLOT_MOUNTAIN then
 			iNumMountains = iNumMountains + 1;
 		elseif plotType == PlotTypes.PLOT_HILLS then
 			iNumHills = iNumHills + 1;
@@ -803,7 +803,7 @@ function AssignStartingPlots:CanBeFuji(x, y)
 			return
 		end
 		plotType = adjPlot:GetPlotType();
-		if plotType == PlotTypes.PLOT_MOUNTAINS then
+		if plotType == PlotTypes.PLOT_MOUNTAIN then
 			return
 		elseif plotType == PlotTypes.PLOT_HILLS then
 			iNumHills = iNumHills + 1;
@@ -839,7 +839,7 @@ function AssignStartingPlots:CanBeMesa(x, y)
 	end
 	local iNumMountains, iNumHills = 0, 0;
 	local plotType = plot:GetPlotType();
-	if plotType == PlotTypes.PLOT_MOUNTAINS then
+	if plotType == PlotTypes.PLOT_MOUNTAIN then
 		iNumMountains = iNumMountains + 1;
 	elseif plotType == PlotTypes.PLOT_HILLS then
 		iNumHills = iNumHills + 1;
@@ -859,7 +859,7 @@ function AssignStartingPlots:CanBeMesa(x, y)
 			return
 		end
 		plotType = adjPlot:GetPlotType();
-		if plotType == PlotTypes.PLOT_MOUNTAINS then
+		if plotType == PlotTypes.PLOT_MOUNTAIN then
 			iNumMountains = iNumMountains + 1;
 		elseif plotType == PlotTypes.PLOT_HILLS then
 			iNumHills = iNumHills + 1;

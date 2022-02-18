@@ -615,6 +615,7 @@
     <Folder Include="Modules\Events\Text\en_US" />
     <Folder Include="Modules\MoreGP" />
     <Folder Include="Modules\MoreGP\Extra_GPs_items" />
+    <Folder Include="Mapscript Edits" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="CommunityOptions.sql">
@@ -2710,6 +2711,10 @@
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
     <Content Include="Modules\MoreGP\Extra_GPs_items\W__540.mp3">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Mapscript Edits\Highlands.lua">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
