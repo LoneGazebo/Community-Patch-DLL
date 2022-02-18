@@ -245,11 +245,6 @@ WHERE Type = 'TRAIT_STRATEGIC_RICHES';
 DELETE FROM Trait_YieldChangesStrategicResources
 WHERE TraitType = 'TRAIT_STRATEGIC_RICHES';
 
--- Adjusted startbias out of tundra
-
-DELETE FROM Civilization_Start_Region_Priority
-WHERE CivilizationType = 'CIVILIZATION_RUSSIA';
-
 -- Darius -- Adjust Satrap
 UPDATE Civilization_BuildingClassOverrides
 SET BuildingClassType = 'BUILDINGCLASS_COURTHOUSE'
@@ -661,14 +656,6 @@ UPDATE Traits
 SET AllianceCSDefense = '25'
 WHERE Type = 'TRAIT_CITY_STATE_BONUSES';
 
-DELETE FROM Civilization_Start_Region_Priority
-WHERE CivilizationType = 'CIVILIZATION_SIAM';
-
-INSERT INTO Civilization_Start_Region_Priority
-	(CivilizationType, RegionType)
-VALUES
-	('CIVILIZATION_SIAM', 'REGION_JUNGLE');
-
 -- China
 UPDATE Building_YieldChangesPerPop
 SET Yield = '25'
@@ -1038,11 +1025,6 @@ VALUES
 	('BUILDING_LONGHOUSE', 'IMPROVEMENT_CAMP', 'YIELD_PRODUCTION', 1),
 	('BUILDING_LONGHOUSE', 'IMPROVEMENT_PLANTATION', 'YIELD_FOOD', 1),
 	('BUILDING_LONGHOUSE', 'IMPROVEMENT_PLANTATION', 'YIELD_PRODUCTION', 1);
-
-INSERT INTO Civilization_Start_Along_River
-	(CivilizationType, StartAlongRiver)
-VALUES
-	('CIVILIZATION_SONGHAI', 1);
 
 INSERT INTO Building_BuildingClassYieldChanges
 	(BuildingType, BuildingClassType, YieldType, YieldChange)
