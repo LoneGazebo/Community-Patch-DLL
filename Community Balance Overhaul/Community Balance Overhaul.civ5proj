@@ -720,6 +720,12 @@
         <Description>Random Victory</Description>
         <FileName>Modular Elements/RandomVictory/RandomVCPopup.lua</FileName>
       </Content>
+      <Content>
+        <Type>MapScript</Type>
+        <Name>Communitu_79</Name>
+        <Description>Communitas Rewrite By tu_79. For use with full VP installation only.</Description>
+        <FileName>Mapscripts/Communitu_79a.lua</FileName>
+      </Content>
     </ModContent>
     <ReloadAudioSystem>true</ReloadAudioSystem>
   </PropertyGroup>
@@ -820,6 +826,7 @@
     <Folder Include="Modular Elements\ReligionPopup" />
     <Folder Include="Modular Elements\TradeUIMod" />
     <Folder Include="Balance Changes" />
+    <Folder Include="Mapscripts" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Art\Community2Art128.dds">
@@ -2757,6 +2764,10 @@
     <Content Include="LUA\WhosWinningPopup.lua">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Mapscripts\Communitu_79a.lua">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
     <Content Include="Modular Elements\ArchaeologistUIMods\GlobalArchaeologistDigSites.lua">
       <SubType>Lua</SubType>

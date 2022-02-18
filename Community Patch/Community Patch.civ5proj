@@ -538,12 +538,6 @@
     </ModActions>
     <ModContent>
       <Content>
-        <Type>MapScript</Type>
-        <Name>Communitas</Name>
-        <Description>Communitas Mapscript, for use with just CP.</Description>
-        <FileName>Mapscripts/Communitas.lua</FileName>
-      </Content>
-      <Content>
         <Type>InGameUIAddin</Type>
         <Name>EventChoice</Name>
         <Description>EventChoice</Description>
@@ -572,12 +566,6 @@
         <Name>EventOverview.lua</Name>
         <Description>EventOverview.lua</Description>
         <FileName>Core Files/CoreLua/EventOverview.xml</FileName>
-      </Content>
-      <Content>
-        <Type>MapScript</Type>
-        <Name>Communitu_79</Name>
-        <Description>Communitas Rewrite By tu_79. For use with full VP installation only.</Description>
-        <FileName>Mapscripts/Communitu_79a.lua</FileName>
       </Content>
       <Content>
         <Type>InGameUIAddin</Type>
@@ -621,7 +609,6 @@
     <Folder Include="Core Files\PNM Mods DB\TRAITS\" />
     <Folder Include="Core Files\PNM Mods DB\UI\" />
     <Folder Include="LUA" />
-    <Folder Include="Mapscripts" />
     <Folder Include="Modules" />
     <Folder Include="Modules\Events" />
     <Folder Include="Modules\Events\Text" />
@@ -1585,14 +1572,6 @@
     <Content Include="LUA\YieldIconManager.xml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
-    </Content>
-    <Content Include="Mapscripts\Communitas.lua">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
-    <Content Include="Mapscripts\Communitu_79a.lua">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
     <Content Include="Modules\Events\CoreEvents.sql">
       <SubType>Lua</SubType>
