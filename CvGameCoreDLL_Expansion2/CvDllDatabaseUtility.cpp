@@ -477,7 +477,7 @@ bool CvDllDatabaseUtility::ValidateGameDatabase()
 						while(kResults.Step())
 						{
 							const char* szName = kResults.GetText("name");
-							if(strcmp(szTableName, szName) == 0)
+							if(strcmp("ID", szName) == 0)
 							{
 								bHasIDColumn = true;
 								break;

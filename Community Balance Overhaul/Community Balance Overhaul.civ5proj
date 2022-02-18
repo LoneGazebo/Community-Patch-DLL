@@ -7,7 +7,7 @@
     <Guid>8411a7a8-dad3-4622-a18e-fcc18324c799</Guid>
     <ModVersion>14</ModVersion>
     <Stability>Stable</Stability>
-    <Teaser>(1.4.4) Unofficial Expansion and Rebalancing Project for Civilization V: Brave New World</Teaser>
+    <Teaser>(1.4.5) Unofficial Expansion and Rebalancing Project for Civilization V: Brave New World</Teaser>
     <Description>Contains balance changes, gameplay improvements, and entirely new game systems to make Civ V a more enjoyable and exciting game.</Description>
     <Authors>CivFanatics Community Patch Project Team</Authors>
     <SpecialThanks>
@@ -270,7 +270,7 @@
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
-        <FileName>Balance Changes/Leaders/LeaderStartBiases.sql</FileName>
+        <FileName>Balance Changes/Leaders/CivStartBiases.sql</FileName>
       </Action>
       <Action>
         <Set>OnModActivated</Set>
@@ -720,6 +720,12 @@
         <Description>Random Victory</Description>
         <FileName>Modular Elements/RandomVictory/RandomVCPopup.lua</FileName>
       </Content>
+      <Content>
+        <Type>MapScript</Type>
+        <Name>Communitu_79</Name>
+        <Description>Communitas Rewrite By tu_79. For use with full VP installation only.</Description>
+        <FileName>Mapscripts/Communitu_79a.lua</FileName>
+      </Content>
     </ModContent>
     <ReloadAudioSystem>true</ReloadAudioSystem>
   </PropertyGroup>
@@ -820,6 +826,7 @@
     <Folder Include="Modular Elements\ReligionPopup" />
     <Folder Include="Modular Elements\TradeUIMod" />
     <Folder Include="Balance Changes" />
+    <Folder Include="Mapscripts" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Art\Community2Art128.dds">
@@ -2190,7 +2197,7 @@
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
-    <Content Include="Balance Changes\Leaders\LeaderStartBiases.sql">
+    <Content Include="Balance Changes\Leaders\CivStartBiases.sql">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
@@ -2757,6 +2764,10 @@
     <Content Include="LUA\WhosWinningPopup.lua">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Mapscripts\Communitu_79a.lua">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
     <Content Include="Modular Elements\ArchaeologistUIMods\GlobalArchaeologistDigSites.lua">
       <SubType>Lua</SubType>

@@ -7,7 +7,7 @@
     <Guid>d1b6328c-ff44-4b0d-aad7-c657f83610cd</Guid>
     <ModVersion>102</ModVersion>
     <Stability>Stable</Stability>
-    <Teaser>(1.4.4) Bugfixes, AI Improvements, Game Optimizations and API Extensions for Civ V</Teaser>
+    <Teaser>(1.4.5) Bugfixes, AI Improvements, Game Optimizations and API Extensions for Civ V</Teaser>
     <Description>Contains core AI improvements and bugfixes for the Civ 5 BNW DLL. Also contains support for the Community Balance Overhaul and some of Whoward's PNM Mods.</Description>
     <Authors>CivFanatics Community Patch Project Team</Authors>
     <SpecialThanks>
@@ -538,12 +538,6 @@
     </ModActions>
     <ModContent>
       <Content>
-        <Type>MapScript</Type>
-        <Name>Communitas</Name>
-        <Description>Communitas Mapscript, for use with just CP.</Description>
-        <FileName>Mapscripts/Communitas.lua</FileName>
-      </Content>
-      <Content>
         <Type>InGameUIAddin</Type>
         <Name>EventChoice</Name>
         <Description>EventChoice</Description>
@@ -572,12 +566,6 @@
         <Name>EventOverview.lua</Name>
         <Description>EventOverview.lua</Description>
         <FileName>Core Files/CoreLua/EventOverview.xml</FileName>
-      </Content>
-      <Content>
-        <Type>MapScript</Type>
-        <Name>Communitu_79</Name>
-        <Description>Communitas Rewrite By tu_79. For use with full VP installation only.</Description>
-        <FileName>Mapscripts/Communitu_79a.lua</FileName>
       </Content>
       <Content>
         <Type>InGameUIAddin</Type>
@@ -621,13 +609,13 @@
     <Folder Include="Core Files\PNM Mods DB\TRAITS\" />
     <Folder Include="Core Files\PNM Mods DB\UI\" />
     <Folder Include="LUA" />
-    <Folder Include="Mapscripts" />
     <Folder Include="Modules" />
     <Folder Include="Modules\Events" />
     <Folder Include="Modules\Events\Text" />
     <Folder Include="Modules\Events\Text\en_US" />
     <Folder Include="Modules\MoreGP" />
     <Folder Include="Modules\MoreGP\Extra_GPs_items" />
+    <Folder Include="Mapscript Edits" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="CommunityOptions.sql">
@@ -1585,14 +1573,6 @@
     <Content Include="LUA\YieldIconManager.xml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
-    </Content>
-    <Content Include="Mapscripts\Communitas.lua">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
-    <Content Include="Mapscripts\Communitu_79a.lua">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
     <Content Include="Modules\Events\CoreEvents.sql">
       <SubType>Lua</SubType>
@@ -2731,6 +2711,18 @@
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
     <Content Include="Modules\MoreGP\Extra_GPs_items\W__540.mp3">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Mapscript Edits\Boreal.lua">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Mapscript Edits\Highlands.lua">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Mapscript Edits\Terra.lua">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>

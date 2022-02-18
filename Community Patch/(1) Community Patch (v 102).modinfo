@@ -2,7 +2,7 @@
 <Mod id="d1b6328c-ff44-4b0d-aad7-c657f83610cd" version="102">
   <Properties>
     <Name>(1) Community Patch</Name>
-    <Teaser>(1.4.4) Bugfixes, AI Improvements, Game Optimizations and API Extensions for Civ V</Teaser>
+    <Teaser>(1.4.5) Bugfixes, AI Improvements, Game Optimizations and API Extensions for Civ V</Teaser>
     <Description>Contains core AI improvements and bugfixes for the Civ 5 BNW DLL. Also contains support for the Community Balance Overhaul and some of Whoward's PNM Mods.</Description>
     <Authors>CivFanatics Community Patch Project Team</Authors>
     <HideSetupGame>0</HideSetupGame>
@@ -230,7 +230,7 @@
     <File md5="F07A00D6875A33DF7C81C895030416CE" import="0">Core Files/PNM Mods DB/UI/CityExpansion.sql</File>
     <File md5="B3CFB96FE2EA82F98F6BCE1244F9CA42" import="0">Core Files/Text/CoreText_en_US.xml</File>
     <File md5="FDD3F86296CDA9986830A8D04EBD03ED" import="0">Core Files/Text/CoreText_en_US.sql</File>
-    <File md5="40FC3D287934E0673B924B03512EA149" import="1">CvGameCore_Expansion2.dll</File>
+    <File md5="0C4EB39929DCE8BBD6EA7DA0A8AB6FCC" import="1">CvGameCore_Expansion2.dll</File>
     <File md5="3F4B08D58AE727DF10D8A34BEC5F398E" import="1">LUA/ActionInfoPanel.lua</File>
     <File md5="FE3BE94653FA74D139F8CF57F8E5C6CC" import="1">LUA/AssignStartingPlots.lua</File>
     <File md5="51BF13A2719619942142DF2A947507AA" import="1">LUA/CityBannerManager.lua</File>
@@ -267,8 +267,6 @@
     <File md5="BB747350C836F07517202090558A4CD3" import="1">LUA/TradeRouteHelpers.lua</File>
     <File md5="5A87219957975A85A1D3CEDA1D98A835" import="1">LUA/YieldIconManager.lua</File>
     <File md5="8FD4EF5AAB5BD6E16DB8EBE95963FC33" import="1">LUA/YieldIconManager.xml</File>
-    <File md5="40726E0AFDA2AC173BA94E284EA03302" import="0">Mapscripts/Communitas.lua</File>
-    <File md5="DDC4DEC957233EF434555C1A0608EA57" import="0">Mapscripts/Communitu_79a.lua</File>
     <File md5="DCFF354F44BB7F74D247AF87BA84DBE5" import="0">Modules/Events/CoreEvents.sql</File>
     <File md5="9BA0E4F8839274D60882EF5854B7E084" import="0">Modules/Events/Text/en_US/City_en_US.xml</File>
     <File md5="BBCD444060474CFDFBA82250E4A57E04" import="0">Modules/Events/Text/en_US/EventCore_en_US.xml</File>
@@ -554,6 +552,7 @@
     <File md5="8C655D5AA5DC15985A4516FF7AD99E85" import="1">Modules/MoreGP/Extra_GPs_items/W__520.mp3</File>
     <File md5="79AE38135D1A85D9D94F69FEE74004D4" import="1">Modules/MoreGP/Extra_GPs_items/W__530.mp3</File>
     <File md5="07A1C91652EB120BB593D6D2C61F2874" import="1">Modules/MoreGP/Extra_GPs_items/W__540.mp3</File>
+    <File md5="C94DD0DDF8E82E5B09B728BD7FCD951A" import="1">Mapscript Edits/Highlands.lua</File>
   </Files>
   <Actions>
     <OnGetDLLPath>
@@ -657,10 +656,6 @@
     </OnModActivated>
   </Actions>
   <EntryPoints>
-    <EntryPoint type="MapScript" file="Mapscripts/Communitas.lua">
-      <Name>Communitas</Name>
-      <Description>Communitas Mapscript, for use with just CP.</Description>
-    </EntryPoint>
     <EntryPoint type="InGameUIAddin" file="Core Files/CoreLua/EventChoicePopup.lua">
       <Name>EventChoice</Name>
       <Description>EventChoice</Description>
@@ -680,10 +675,6 @@
     <EntryPoint type="InGameUIAddin" file="Core Files/CoreLua/EventOverview.xml">
       <Name>EventOverview.lua</Name>
       <Description>EventOverview.lua</Description>
-    </EntryPoint>
-    <EntryPoint type="MapScript" file="Mapscripts/Communitu_79a.lua">
-      <Name>Communitu_79</Name>
-      <Description>Communitas Rewrite By tu_79. For use with full VP installation only.</Description>
     </EntryPoint>
     <EntryPoint type="InGameUIAddin" file="Core Files/CoreLua/EspionageChoicePopup.lua">
       <Name>EspionageChoice</Name>
