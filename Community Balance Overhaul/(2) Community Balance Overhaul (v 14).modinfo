@@ -2,7 +2,7 @@
 <Mod id="8411a7a8-dad3-4622-a18e-fcc18324c799" version="14">
   <Properties>
     <Name>(2) Community Balance Overhaul</Name>
-    <Teaser>(1.4.5) Unofficial Expansion and Rebalancing Project for Civilization V: Brave New World</Teaser>
+    <Teaser>(1.4.6) Unofficial Expansion and Rebalancing Project for Civilization V: Brave New World</Teaser>
     <Description>Contains balance changes, gameplay improvements, and entirely new game systems to make Civ V a more enjoyable and exciting game.</Description>
     <Authors>CivFanatics Community Patch Project Team</Authors>
     <HideSetupGame>0</HideSetupGame>
@@ -368,11 +368,11 @@
     <File md5="5E9040EE51D1ADBC521C5204DE3023B7" import="0">Balance Changes/Ideologies/Freedom/Freedom.sql</File>
     <File md5="A3FFD2D77315EC25E4B227528468A15B" import="0">Balance Changes/Ideologies/Order/OrderChanges.sql</File>
     <File md5="201AAA5ABCB3CFAA967590FC0CD39A51" import="0">Balance Changes/Ideologies/TourismChanges.sql</File>
-    <File md5="79B6943F2BDCD137F9D873200F7B5B4F" import="0">Balance Changes/Leaders/LeaderStartBiases.sql</File>
+    <File md5="18378306AF97A53A9F5F50B343E9ED54" import="0">Balance Changes/Leaders/CivStartBiases.sql</File>
     <File md5="A917B1BEB1112AA508686AFBB1665252" import="0">Balance Changes/Leaders/BraveNew/BNWLeaderChanges.sql</File>
     <File md5="AD4C3A3913B81F2B0CD813679F410BB4" import="0">Balance Changes/Leaders/DLC/DLCChanges.sql</File>
-    <File md5="B8D40399EF70BB755D70A568CA6ED939" import="0">Balance Changes/Leaders/GodsKings/GKLeaderChanges.sql</File>
-    <File md5="D4F64763478EB658A90A5FC20A85EDD8" import="0">Balance Changes/Leaders/Vanilla/VanillaLeaderChanges.sql</File>
+    <File md5="7AE98AA6DEDB2E7581140B28E6E8B392" import="0">Balance Changes/Leaders/GodsKings/GKLeaderChanges.sql</File>
+    <File md5="BB5DC69C25FF0CAEBA9915641599B480" import="0">Balance Changes/Leaders/Vanilla/VanillaLeaderChanges.sql</File>
     <File md5="EFAA52C4C2A0D22370C538E67EEB08E0" import="0">Balance Changes/Minors/QuestChanges.sql</File>
     <File md5="318F7BEB3C2ADBB86F232E8E0C30BD24" import="0">Balance Changes/Minors/GoodyHuts.sql</File>
     <File md5="AC851E7A43B18C52535954EC2DDC37F9" import="0">Balance Changes/Minors/MinorBonuses.sql</File>
@@ -440,7 +440,7 @@
     <File md5="7453DB65585E059ED32193E547B98295" import="0">Balance Changes/Wonders/WonderChanges.sql</File>
     <File md5="CC83B83AB81435CD8A9AA268155FD57B" import="0">Balance Changes/Worlds/WorldSizes.sql</File>
     <File md5="141A4126B327E5610F6396C10F26322A" import="0">CommunityOptions.sql</File>
-    <File md5="2969D06E7F6C7828C8D3ED65E87A1B63" import="0">Core Files/Core Changes/CommunityPatchDLLChanges.sql</File>
+    <File md5="B83D95851D0B7EB795418601D31946B1" import="0">Core Files/Core Changes/CommunityPatchDLLChanges.sql</File>
     <File md5="8F5BE57196ACA9CF867AF5254C1A4D8C" import="1">Core Files/CoreLua/EspionageOverview.lua</File>
     <File md5="F5AFCB468D395D7CE2A0B8711B4104EE" import="1">Core Files/CoreLua/EspionageOverview.xml</File>
     <File md5="82E04B06D39F70817541A1515526A75E" import="0">Core Files/Remapper.sql</File>
@@ -612,7 +612,7 @@
       <UpdateDatabase>Balance Changes/Terrain/NaturalWonderChanges.sql</UpdateDatabase>
       <UpdateDatabase>Balance Changes/Terrain/ResourceChanges.sql</UpdateDatabase>
       <UpdateDatabase>Balance Changes/Terrain/ImprovementChanges.sql</UpdateDatabase>
-      <UpdateDatabase>Balance Changes/Leaders/LeaderStartBiases.sql</UpdateDatabase>
+      <UpdateDatabase>Balance Changes/Leaders/CivStartBiases.sql</UpdateDatabase>
       <UpdateDatabase>Balance Changes/Leaders/Vanilla/VanillaLeaderChanges.sql</UpdateDatabase>
       <UpdateDatabase>Balance Changes/Leaders/DLC/DLCChanges.sql</UpdateDatabase>
       <UpdateDatabase>Balance Changes/Leaders/BraveNew/BNWLeaderChanges.sql</UpdateDatabase>
