@@ -1,87 +1,55 @@
--- Start biases
-INSERT INTO Civilization_Start_Along_River
-	(CivilizationType, StartAlongRiver)
-VALUES
-	('CIVILIZATION_EGYPT', '1'),
-	('CIVILIZATION_INDIA', '1'),
-	('CIVILIZATION_BABYLON', '1'),
-	('CIVILIZATION_CHINA', '1'),
-	('CIVILIZATION_ASSYRIA', '1');
+-- Clear tables
+DELETE FROM Civilization_Start_Along_Ocean;
+DELETE FROM Civilization_Start_Along_River;
+DELETE FROM Civilization_Start_Region_Priority;
+DELETE FROM Civilization_Start_Region_Avoid;
 
+-- Start biases
 INSERT INTO Civilization_Start_Along_Ocean
 	(CivilizationType, StartAlongOcean)
 VALUES
+	('CIVILIZATION_ENGLAND', '1'),
+	('CIVILIZATION_POLYNESIA', '1'),
+	('CIVILIZATION_DENMARK', '1'),
+	('CIVILIZATION_CARTHAGE', '1'),
+	('CIVILIZATION_SPAIN', '1'),
+	('CIVILIZATION_PORTUGAL', '1'),
+	('CIVILIZATION_VENICE', '1'),
 	('CIVILIZATION_NETHERLANDS', '1');
 
-DELETE FROM Civilization_Start_Region_Avoid
-WHERE CivilizationType = 'CIVILIZATION_SIAM';
-
-DELETE FROM Civilization_Start_Region_Priority
-WHERE CivilizationType = 'CIVILIZATION_INDIA';
-
-DELETE FROM Civilization_Start_Region_Priority
-WHERE CivilizationType = 'CIVILIZATION_CELTS';
-
-DELETE FROM Civilization_Start_Region_Priority
-WHERE CivilizationType = 'CIVILIZATION_AUSTRIA';
-
-DELETE FROM Civilization_Start_Region_Priority
-WHERE CivilizationType = 'CIVILIZATION_FRANCE';
-
-DELETE FROM Civilization_Start_Region_Priority
-WHERE CivilizationType = 'CIVILIZATION_GERMANY';
-
-DELETE FROM Civilization_Start_Region_Priority
-WHERE CivilizationType = 'CIVILIZATION_CELTS';
-
-DELETE FROM Civilization_Start_Region_Priority
-WHERE CivilizationType = 'CIVILIZATION_ROME';
-
-DELETE FROM Civilization_Start_Region_Priority
-WHERE CivilizationType = 'CIVILIZATION_PERSIA';
-
-DELETE FROM Civilization_Start_Region_Priority
-WHERE CivilizationType = 'CIVILIZATION_ETHIOPIA';
-
-DELETE FROM Civilization_Start_Region_Priority
-WHERE CivilizationType = 'CIVILIZATION_INCA';
+INSERT INTO Civilization_Start_Along_River
+	(CivilizationType, StartAlongRiver)
+VALUES
+	('CIVILIZATION_INDIA', '1'),
+	('CIVILIZATION_SONGHAI', '1');
 
 INSERT INTO Civilization_Start_Region_Priority
 	(CivilizationType, RegionType)
 VALUES
-	('CIVILIZATION_OTTOMAN', 'REGION_HILLS'),
-	('CIVILIZATION_GREECE', 'REGION_HILLS'),
-	('CIVILIZATION_AMERICA', 'REGION_FOREST'),
+	('CIVILIZATION_ARABIA', 'REGION_DESERT'),
+	('CIVILIZATION_AZTEC', 'REGION_JUNGLE'),
+	('CIVILIZATION_AZTEC', 'REGION_FOREST'),
+	('CIVILIZATION_IROQUOIS', 'REGION_JUNGLE'),
+	('CIVILIZATION_IROQUOIS', 'REGION_FOREST'),
+	('CIVILIZATION_MONGOL', 'REGION_GRASS'),
+	('CIVILIZATION_BRAZIL', 'REGION_JUNGLE'),
+	('CIVILIZATION_BRAZIL', 'REGION_FOREST'),
+	('CIVILIZATION_MOROCCO', 'REGION_DESERT'),
+	('CIVILIZATION_POLAND', 'REGION_GRASS'),
+	('CIVILIZATION_POLAND', 'REGION_PLAINS'),
+	('CIVILIZATION_MAYA', 'REGION_JUNGLE'),
+	('CIVILIZATION_MAYA', 'REGION_FOREST'),
+	('CIVILIZATION_EGYPT', 'REGION_DESERT'),
 	('CIVILIZATION_SIAM', 'REGION_JUNGLE'),
 	('CIVILIZATION_SIAM', 'REGION_FOREST'),
-	('CIVILIZATION_HUNS', 'REGION_PLAINS'),
-	('CIVILIZATION_ZULU', 'REGION_PLAINS'),
-	('CIVILIZATION_POLAND', 'REGION_GRASS'),
-	('CIVILIZATION_FRANCE', 'REGION_GRASS'),
-	('CIVILIZATION_GERMANY', 'REGION_GRASS'),
-	('CIVILIZATION_CELTS', 'REGION_HILLS'),
-	('CIVILIZATION_ROME', 'REGION_GRASS'),
-	('CIVILIZATION_SHOSHONE', 'REGION_GRASS'),
-	('CIVILIZATION_GERMANY', 'REGION_FOREST'),
-	('CIVILIZATION_MAYA', 'REGION_JUNGLE'),
-	('CIVILIZATION_PERSIA', 'REGION_HILLS'),
-	('CIVILIZATION_ETHIOPIA', 'REGION_HILLS'),
-	('CIVILIZATION_EGYPT', 'REGION_DESERT');
+	('CIVILIZATION_CELTS', 'REGION_HILLS');
 
-DELETE FROM Civilization_Start_Along_Ocean
-WHERE CivilizationType = 'CIVILIZATION_KOREA';
-
-DELETE FROM Civilization_Start_Along_Ocean
-WHERE CivilizationType = 'CIVILIZATION_JAPAN';
-
-DELETE FROM Civilization_Start_Along_Ocean
-WHERE CivilizationType = 'CIVILIZATION_BYZANTIUM';
-
-DELETE FROM Civilization_Start_Along_Ocean
-WHERE CivilizationType = 'CIVILIZATION_INDONESIA';
-
-DELETE FROM Civilization_Start_Along_Ocean
-WHERE CivilizationType = 'CIVILIZATION_OTTOMAN';
+INSERT INTO Civilization_Start_Region_Avoid
+	(CivilizationType, RegionType)
+VALUES
+	('CIVILIZATION_HUNS', 'REGION_HILLS'),
+	('CIVILIZATION_SHOSHONE', 'REGION_HILLS'),
+	('CIVILIZATION_ROME', 'REGION_JUNGLE');
 
 INSERT INTO Civilization_Start_Prefer_Mountain
 	(CivilizationType, StartPreferMountain)
