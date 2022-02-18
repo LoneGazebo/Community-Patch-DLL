@@ -2,7 +2,7 @@
 <Mod id="8411a7a8-dad3-4622-a18e-fcc18324c799" version="14">
   <Properties>
     <Name>(2) Community Balance Overhaul</Name>
-    <Teaser>(1.4.4) Unofficial Expansion and Rebalancing Project for Civilization V: Brave New World</Teaser>
+    <Teaser>(1.4.5) Unofficial Expansion and Rebalancing Project for Civilization V: Brave New World</Teaser>
     <Description>Contains balance changes, gameplay improvements, and entirely new game systems to make Civ V a more enjoyable and exciting game.</Description>
     <Authors>CivFanatics Community Patch Project Team</Authors>
     <HideSetupGame>0</HideSetupGame>
@@ -510,6 +510,7 @@
     <File md5="BBC33791151B7DB3DBCE257B52BE3D52" import="1">LUA/VictoryProgress.lua</File>
     <File md5="DAC68F838D98ED16A8D7246798795EA8" import="1">LUA/VictoryProgress.xml</File>
     <File md5="2F4E8578875AA96C3D8553D2E7DE0883" import="1">LUA/WhosWinningPopup.lua</File>
+    <File md5="CC7C4918E93EAB11073D05A11A012CBF" import="0">Mapscripts/Communitu_79a.lua</File>
     <File md5="CE52E119CFD1431AA48DD2E97F31B083" import="0">Modular Elements/ArchaeologistUIMods/GlobalArchaeologistDigSites.lua</File>
     <File md5="AB03E8A8098CF0C5F06E7F91A0294E43" import="1">Modular Elements/ArchaeologistUIMods/MiniMapPanel.lua</File>
     <File md5="A4B7AAE9AEB100FEBEDC9C952300F3C6" import="1">Modular Elements/ArchaeologistUIMods/MiniMapPanel.xml</File>
@@ -718,6 +719,10 @@
     <EntryPoint type="InGameUIAddin" file="Modular Elements/RandomVictory/RandomVCPopup.lua">
       <Name>Random Victory</Name>
       <Description>Random Victory</Description>
+    </EntryPoint>
+    <EntryPoint type="MapScript" file="Mapscripts/Communitu_79a.lua">
+      <Name>Communitu_79</Name>
+      <Description>Communitas Rewrite By tu_79. For use with full VP installation only.</Description>
     </EntryPoint>
   </EntryPoints>
 </Mod>

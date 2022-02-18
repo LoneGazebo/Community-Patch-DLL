@@ -2,7 +2,7 @@
 <Mod id="be2d13ee-d18d-410e-8f04-7cd19cd99a98" version="156">
   <Properties>
     <Name>(5) More Luxuries</Name>
-    <Teaser>(1.4.4) More Luxuries for VP: Adds nine more luxuries, one more CS luxury, and the Terra map.</Teaser>
+    <Teaser>(1.4.5) More Luxuries for VP: Adds nine more luxuries, one more CS luxury, and the Terra map.</Teaser>
     <Description>Please see this mod's Steam Workshop page.[NEWLINE][NEWLINE]NOTE: Optimized map resource placement code has been moved to AssignStartingPlots.lua in the Compatibility Files.</Description>
     <Authors>Barathor</Authors>
     <HideSetupGame>0</HideSetupGame>
@@ -204,7 +204,7 @@
     <File md5="2A72B831EB1D3921BF5EF2942597E8E7" import="1">Art/Update Sugar/resource_sugar_alt.fxsxml</File>
     <File md5="BF1377774AB4A8A4740942E2A27F6DDA" import="1">Art/Update Sugar/resource_sugar_alt.gr2</File>
     <File md5="1109181AC754DA8DFEB710DE9CBE4E82" import="1">Art/Update Sugar/sugar_alt_diff.dds</File>
-    <File md5="716A0C191B55499344A13A4F3EA66C51" import="1">Lua/Maps/Terra.lua</File>
+    <File md5="03A6000555051594FEA0712F4746BBF2" import="1">Lua/Maps/Terra.lua</File>
     <File md5="5A4D3AC0191CBB7B8949ACEE18A23DC8" import="0">XML/NewLuxuries_Art_Icons.xml</File>
     <File md5="FEAD33ADA216ED1CFD78BE3D00864F6B" import="0">XML/NewLuxuries_Art_Terrain.xml</File>
     <File md5="8071057FB38822D06A9A070A137CC6FD" import="0">XML/NewLuxuries_Resources.xml</File>
