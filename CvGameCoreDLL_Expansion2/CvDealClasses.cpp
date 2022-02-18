@@ -1351,9 +1351,11 @@ bool CvDeal::BlockTemporaryForPermanentTrade(TradeableItems eItemType, PlayerTyp
 		vProhibitedItems.push_back(TRADE_ITEM_DEFENSIVE_PACT);
 		vProhibitedItems.push_back(TRADE_ITEM_RESEARCH_AGREEMENT);
 		vProhibitedItems.push_back(TRADE_ITEM_THIRD_PARTY_WAR);
-		vProhibitedItems.push_back(TRADE_ITEM_THIRD_PARTY_PEACE);
 		vProhibitedItems.push_back(TRADE_ITEM_ALLOW_EMBASSY);
 		vProhibitedItems.push_back(TRADE_ITEM_VOTE_COMMITMENT);
+
+		if (!GET_PLAYER(eFromPlayer).IsAtWarWith(eToPlayer))
+			vProhibitedItems.push_back(TRADE_ITEM_THIRD_PARTY_PEACE);
 
 		if (ContainsItemTypes(vProhibitedItems, eToPlayer))
 			return true;

@@ -80,10 +80,6 @@ WHERE Name = 'BALANCE_CORE_IDEOLOGY_START';
 
 UPDATE CustomModOptions
 SET Value = '1'
-WHERE Name = 'UNITS_LOCAL_WORKERS';
-
-UPDATE CustomModOptions
-SET Value = '1'
 WHERE Name = 'TRADE_ROUTE_SCALING';
 
 UPDATE CustomModOptions

@@ -377,10 +377,6 @@
     <!-- See also: "Trade - Marble Shipments" -->
     <Row Class="6" Name="TRADE_WONDER_RESOURCE_ROUTES" Value="0"/>
 
-    <!-- Restricts worker suggestions to local tiles (at the limits specified - limits are distances between the unit and the plot as the crow flies, NOT path lengths) (v19) -->
-    <!-- See also: "UI - No Auto-Embark Workers" -->
-    <Row Class="5" Name="UNITS_LOCAL_WORKERS" Value="1"/>
-
     <!-- Hovering unit can only heal over land (v19) -->
     <!-- See also: "Units - Steampunk Airships" -->
     <Row Class="6" Name="UNITS_HOVERING_LAND_ONLY_HEAL" Value="0"/>
