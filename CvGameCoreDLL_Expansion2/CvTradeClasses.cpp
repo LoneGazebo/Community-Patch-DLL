@@ -3097,7 +3097,6 @@ int CvPlayerTrade::GetTradeConnectionPolicyValueTimes100(const TradeConnection& 
 {
 	int iValue = 0;
 
-#if defined(MOD_API_UNIFIED_YIELDS)
 	CvPlayer& kPlayer = GET_PLAYER(kTradeConnection.m_eOriginOwner);
 	iValue += kPlayer.getTradeRouteYieldChange(kTradeConnection.m_eDomain, eYield) * 100;
 	iValue += kPlayer.GetPlayerTraits()->GetTradeRouteYieldChange(kTradeConnection.m_eDomain, eYield) * 100;
@@ -3135,7 +3134,6 @@ int CvPlayerTrade::GetTradeConnectionPolicyValueTimes100(const TradeConnection& 
 			}
 		}
 	}
-#endif
 
 #if defined(MOD_RELIGION_PERMANENT_PANTHEON)
 	// Mod for civs keeping their pantheon belief forever
@@ -3163,9 +3161,8 @@ int CvPlayerTrade::GetTradeConnectionPolicyValueTimes100(const TradeConnection& 
 	if (kTradeConnection.m_eConnectionType == TRADE_CONNECTION_INTERNATIONAL)
 #endif
 	{
-#if defined(MOD_API_UNIFIED_YIELDS)
-	  if (eYield == YIELD_GOLD) {
-#endif
+	  if (eYield == YIELD_GOLD) 
+	  {
 		// domain type bonuses
 		if (kTradeConnection.m_eDomain == DOMAIN_LAND)
 		{
@@ -3210,9 +3207,7 @@ int CvPlayerTrade::GetTradeConnectionPolicyValueTimes100(const TradeConnection& 
 		{
 			iValue += GET_PLAYER(kTradeConnection.m_eOriginOwner).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CITY_STATE_TRADE_CHANGE);
 		}
-#if defined(MOD_API_UNIFIED_YIELDS)
 	  }
-#endif
 	}
 
 	return iValue;
@@ -3232,12 +3227,10 @@ int CvPlayerTrade::GetTradeConnectionOtherTraitValueTimes100(const TradeConnecti
 		{
 			iValue += GET_PLAYER(kTradeConnection.m_eDestOwner).GetPlayerTraits()->GetYieldChangeIncomingTradeRoute(eYield) * 100;
 		}
-#if defined(MOD_API_UNIFIED_YIELDS)
 	}
 	else
 	{
 		iValue += GET_PLAYER(kTradeConnection.m_eOriginOwner).GetPlayerTraits()->GetYieldChangeIncomingTradeRoute(eYield) * 100;
-#endif
 	}
 
 	return iValue;
@@ -3549,31 +3542,19 @@ int CvPlayerTrade::GetTradeConnectionValueTimes100 (const TradeConnection& kTrad
 					iValue = max(100, iValue);
 				}
 				break;
-#if defined(MOD_API_UNIFIED_YIELDS)
 			case YIELD_CULTURE:
 			case YIELD_FAITH:
-#endif
-#if defined(MOD_API_UNIFIED_YIELDS_TOURISM)
 			case YIELD_TOURISM:
-#endif
-#if defined(MOD_API_UNIFIED_YIELDS_GOLDEN_AGE)
 			case YIELD_GOLDEN_AGE_POINTS:
-#endif
 			case YIELD_SCIENCE:
-#if defined(MOD_API_UNIFIED_YIELDS)
 				{
-#endif
 					int iBaseValue = GetTradeConnectionBaseValueTimes100(kTradeConnection, eYield, bAsOriginPlayer);
-#if defined(MOD_API_UNIFIED_YIELDS)
 					int iPolicyBonus = GetTradeConnectionPolicyValueTimes100(kTradeConnection, eYield);
 					int iTraitBonus = GetTradeConnectionOtherTraitValueTimes100(kTradeConnection, eYield, bAsOriginPlayer);
-#endif
 
 					iValue = iBaseValue;
-#if defined(MOD_API_UNIFIED_YIELDS)
 					iValue += iPolicyBonus;
 					iValue += iTraitBonus;
-#endif
 
 					int iModifier = 100;
 #if defined(MOD_BALANCE_CORE)
@@ -3608,9 +3589,7 @@ int CvPlayerTrade::GetTradeConnectionValueTimes100 (const TradeConnection& kTrad
 				
 					iValue *= iModifier;
 					iValue /= 100;
-#if defined(MOD_API_UNIFIED_YIELDS)
 				}
-#endif
 				break;
 #if defined(HH_MOD_API_TRADEROUTE_MODIFIERS)
 /// TODO: Integrate modifier logic into the PRODUCTION and FOOD cases of international trade
@@ -3801,34 +3780,22 @@ int CvPlayerTrade::GetTradeConnectionValueTimes100 (const TradeConnection& kTrad
 #endif
 				}
 				break;
-#if defined(MOD_API_UNIFIED_YIELDS)
 			case YIELD_CULTURE:
 			case YIELD_FAITH:
-#endif
-#if defined(MOD_API_UNIFIED_YIELDS_TOURISM)
 			case YIELD_TOURISM:
-#endif
-#if defined(MOD_API_UNIFIED_YIELDS_GOLDEN_AGE)
 			case YIELD_GOLDEN_AGE_POINTS:
-#endif
 			case YIELD_SCIENCE:
-#if defined(MOD_API_UNIFIED_YIELDS)
 				{
-	#endif
 					int iBaseValue = GetTradeConnectionBaseValueTimes100(kTradeConnection, eYield, bAsOriginPlayer);
-	#if defined(MOD_API_UNIFIED_YIELDS)
 					int iPolicyBonus = GetTradeConnectionPolicyValueTimes100(kTradeConnection, eYield);
 					int iTraitBonus = GetTradeConnectionOtherTraitValueTimes100(kTradeConnection, eYield, bAsOriginPlayer);
-	#endif
 
 					iValue = iBaseValue;
-	#if defined(MOD_API_UNIFIED_YIELDS)
 					iValue += iPolicyBonus;
 					iValue += iTraitBonus;
-	#endif
 
 					int iModifier = 100;
-	#if defined(MOD_BALANCE_CORE)
+#if defined(MOD_BALANCE_CORE)
 					int iCorporationModifier = GetTradeConnectionCorporationModifierTimes100(kTradeConnection, eYield, bAsOriginPlayer);
 					int iDistanceModifier = GetTradeConnectionDistanceValueModifierTimes100(kTradeConnection);
 					if (eYield == YIELD_CULTURE || eYield == YIELD_SCIENCE)
@@ -3837,12 +3804,12 @@ int CvPlayerTrade::GetTradeConnectionValueTimes100 (const TradeConnection& kTrad
 					}
 					iModifier -= iDistanceModifier;
 					iModifier += iCorporationModifier;
-	#endif
-	#if defined(HH_MOD_API_TRADEROUTE_MODIFIERS)
+#endif
+#if defined(HH_MOD_API_TRADEROUTE_MODIFIERS)
 					int iPolicyModifier = GetTradeConnectionPolicyModifierTimes100(kTradeConnection, eYield, bAsOriginPlayer);
 					iModifier += iPolicyModifier;
-	#endif
-	#if defined(MOD_BALANCE_CORE)
+#endif
+#if defined(MOD_BALANCE_CORE)
 					CvCity* pOriginCity = NULL;
 					CvPlot* pStartPlot = GC.getMap().plot(kTradeConnection.m_iOriginX, kTradeConnection.m_iOriginY);
 					if (pStartPlot)
@@ -3853,13 +3820,11 @@ int CvPlayerTrade::GetTradeConnectionValueTimes100 (const TradeConnection& kTrad
 						iModifier += GET_PLAYER(kTradeConnection.m_eOriginOwner).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_TRADE_CAPITAL_MODIFIER);
 
 					iModifier += GET_PLAYER(kTradeConnection.m_eOriginOwner).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_TRADE_MODIFIER);
-	#endif
+#endif
 
 					iValue *= iModifier;
 					iValue /= 100;
-	#if defined(MOD_API_UNIFIED_YIELDS)
 				}
-#endif
 				break;
 
 			case YIELD_PRODUCTION:
@@ -3920,22 +3885,14 @@ int CvPlayerTrade::GetTradeConnectionValueTimes100 (const TradeConnection& kTrad
 						iValue /= 100;
 					}
 					break;
-#if defined(MOD_API_UNIFIED_YIELDS)
 				case YIELD_CULTURE:
 				case YIELD_FAITH:
-#endif
-#if defined(MOD_API_UNIFIED_YIELDS_TOURISM)
 				case YIELD_TOURISM:
-#endif
-#if defined(MOD_API_UNIFIED_YIELDS_GOLDEN_AGE)
 				case YIELD_GOLDEN_AGE_POINTS:
-#endif
 				case YIELD_SCIENCE:
 					{
 						int iBaseValue = GetTradeConnectionBaseValueTimes100(kTradeConnection, eYield, bAsOriginPlayer);
-#if defined(MOD_API_UNIFIED_YIELDS)
 						int iTraitBonus = GetTradeConnectionOtherTraitValueTimes100(kTradeConnection, eYield, false);
-#endif
 
 						int iModifier = 100;
 #if defined(HH_MOD_API_TRADEROUTE_MODIFIERS)
@@ -3950,9 +3907,7 @@ int CvPlayerTrade::GetTradeConnectionValueTimes100 (const TradeConnection& kTrad
 #endif
 
 						iValue = iBaseValue;
-#if defined(MOD_API_UNIFIED_YIELDS)
 						iValue += iTraitBonus;
-#endif
 
 						iValue *= iModifier;
 						iValue /= 100;						
@@ -3970,10 +3925,8 @@ int CvPlayerTrade::GetTradeConnectionValueTimes100 (const TradeConnection& kTrad
 				{
 					iValue = /*300 in CP, 600 in CBO*/ GD_INT_GET(TRADE_ROUTE_BASE_FOOD_VALUE);
 
-#if defined(MOD_API_UNIFIED_YIELDS)
 					iValue += GetTradeConnectionPolicyValueTimes100(kTradeConnection, eYield);
 					iValue += GetTradeConnectionOtherTraitValueTimes100(kTradeConnection, eYield, false);
-#endif
 					iValue += GC.getEraInfo(GET_PLAYER(kTradeConnection.m_eDestOwner).GetCurrentEra())->getTradeRouteFoodBonusTimes100();
 					iValue *= GC.getEraInfo(GC.getGame().getStartEra())->getGrowthPercent();
 					iValue /= 100;
@@ -4040,10 +3993,8 @@ int CvPlayerTrade::GetTradeConnectionValueTimes100 (const TradeConnection& kTrad
 				{
 					iValue = /*300 in CP, 600 in CBO*/ GD_INT_GET(TRADE_ROUTE_BASE_PRODUCTION_VALUE);
 
-#if defined(MOD_API_UNIFIED_YIELDS)
 					iValue += GetTradeConnectionPolicyValueTimes100(kTradeConnection, eYield);
 					iValue += GetTradeConnectionOtherTraitValueTimes100(kTradeConnection, eYield, false);
-#endif
 					iValue += GC.getEraInfo(GET_PLAYER(kTradeConnection.m_eDestOwner).GetCurrentEra())->getTradeRouteProductionBonusTimes100();
 					iValue *= (GC.getEraInfo(GC.getGame().getStartEra())->getConstructPercent() + GC.getEraInfo(GC.getGame().getStartEra())->getTrainPercent()) / 2;
 					iValue /= 100;

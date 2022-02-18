@@ -3,8 +3,6 @@
 #ifndef CV_GREATPERSON_INFO_H
 #define CV_GREATPERSON_INFO_H
 
-#if defined(MOD_API_UNIFIED_YIELDS)
-
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //  class : CvGreatPersonInfo
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -33,7 +31,5 @@ private:
 
 GreatPersonTypes GetGreatPersonFromUnitClass(UnitClassTypes eUnitClass);
 GreatPersonTypes GetGreatPersonFromSpecialist(SpecialistTypes eSpecialist);
-
-#endif
 
 #endif

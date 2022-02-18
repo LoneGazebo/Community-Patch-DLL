@@ -499,9 +499,7 @@ bool CvUnitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 	kUtility.PopulateArrayByValue(m_piResourceQuantityExpended, "Resources", "Unit_ResourceQuantityExpended", "ResourceType", "UnitType", szUnitType, "Amount");
 	kUtility.PopulateArrayByValue(m_piProductionModifierBuildings, "Buildings", "Unit_ProductionModifierBuildings", "BuildingType", "UnitType", szUnitType, "ProductionModifier");
 	kUtility.PopulateArrayByValue(m_piYieldFromKills, "Yields", "Unit_YieldFromKills", "YieldType", "UnitType", szUnitType, "Yield");
-#if defined(MOD_API_UNIFIED_YIELDS)
 	kUtility.PopulateArrayByValue(m_piYieldFromBarbarianKills, "Yields", "Unit_YieldFromBarbarianKills", "YieldType", "UnitType", szUnitType, "Yield");
-#endif
 	kUtility.PopulateArrayByExistence(m_pbFreePromotions, "UnitPromotions", "Unit_FreePromotions", "PromotionType", "UnitType", szUnitType);
 
 	kUtility.PopulateArrayByExistence(m_pbUpgradeUnitClass, "UnitClasses", "Unit_ClassUpgrades", "UnitClassType", "UnitType", szUnitType);
@@ -1534,7 +1532,6 @@ int CvUnitEntry::GetYieldFromKills(YieldTypes eYield) const
 	return m_piYieldFromKills[(int)eYield];
 }
 
-#if defined(MOD_API_UNIFIED_YIELDS)
 /// Do we get one of our yields from defeating a barbarian?
 int CvUnitEntry::GetYieldFromBarbarianKills(YieldTypes eYield) const
 {
@@ -1542,7 +1539,6 @@ int CvUnitEntry::GetYieldFromBarbarianKills(YieldTypes eYield) const
 	CvAssertMsg((int)eYield > -1, "Index out of bounds");
 	return m_piYieldFromBarbarianKills[(int)eYield];
 }
-#endif
 
 /// Boost in production for leader with this trait
 int CvUnitEntry::GetProductionTraits(int i) const

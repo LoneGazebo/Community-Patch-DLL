@@ -54,12 +54,9 @@ public:
 
 	int GetGoldMaintenance() const;
 	int GetCultureBombRadius() const;
-#if defined(MOD_API_UNIFIED_YIELDS)
+
 	int GetYieldAdjacentSameType(YieldTypes eYield) const;
 	int GetYieldAdjacentTwoSameType(YieldTypes eYield) const;
-#else
-	int GetCultureAdjacentSameType() const;
-#endif
 
 #if defined(MOD_GLOBAL_STACKING_RULES)
 	int GetAdditionalUnits() const;
@@ -196,7 +193,6 @@ public:
 	bool GetFeatureMakesValid(int i) const;
 	bool GetImprovementMakesValid(int i) const;
 
-#if defined(MOD_API_UNIFIED_YIELDS)
 	int GetAdjacentSameTypeYield(int i) const;
 	int* GetAdjacentSameTypeYieldArray();
 	int GetAdjacentTwoSameTypeYield(int i) const;
@@ -212,7 +208,6 @@ public:
 
 	int GetFeatureYieldChanges(int i, int j) const;
 	int* GetFeatureYieldChangesArray(int i);
-#endif
 
 	int GetTechYieldChanges(int i, int j) const;
 	int* GetTechYieldChangesArray(int i);
@@ -357,7 +352,6 @@ protected:
 	bool* m_pbFeatureMakesValid;
 	bool* m_pbImprovementMakesValid;
 
-#if defined(MOD_API_UNIFIED_YIELDS)
 	int* m_piAdjacentSameTypeYield;
 	int* m_piAdjacentTwoSameTypeYield;
 	int** m_ppiAdjacentImprovementYieldChanges;
@@ -365,7 +359,6 @@ protected:
 	int** m_ppiAdjacentResourceYieldChanges;
 	int** m_ppiAdjacentFeatureYieldChanges;
 	int** m_ppiFeatureYieldChanges;
-#endif
 
 	int** m_ppiTechYieldChanges;
 	int** m_ppiTechNoFreshWaterYieldChanges;

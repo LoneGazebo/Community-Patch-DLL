@@ -4,8 +4,6 @@
 // must be included after all other headers
 #include "LintFree.h"
 
-#if defined(MOD_API_UNIFIED_YIELDS)
-
 CvGreatPersonInfo::CvGreatPersonInfo() :
 	m_iUnitClass(NO_UNITCLASS),
 	m_iSpecialist(NO_SPECIALIST)
@@ -74,5 +72,3 @@ GreatPersonTypes GetGreatPersonFromSpecialist(SpecialistTypes eSpecialist)
 
 	return NO_GREATPERSON;
 }
-
-#endif

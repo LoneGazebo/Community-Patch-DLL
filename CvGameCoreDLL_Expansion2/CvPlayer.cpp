@@ -740,7 +740,6 @@ CvPlayer::CvPlayer() :
 	, m_pabHasGlobalMonopoly()
 	, m_pabHasStrategicMonopoly()
 #endif
-#if defined(MOD_API_UNIFIED_YIELDS)
 	, m_piGoldenAgeGreatPersonRateModifier(NULL)
 	, m_piYieldFromKills(NULL)
 	, m_piYieldFromBarbarianKills(NULL)
@@ -754,8 +753,7 @@ CvPlayer::CvPlayer() :
 	, m_piNumBuildings(NULL)
 	, m_piNumBuildingsInPuppets(NULL)
 	, m_ppiBuildingClassYieldChange()
-#endif
-#if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
+#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	, m_ppiSpecificGreatPersonRateModifierFromMonopoly()
 	, m_ppiSpecificGreatPersonRateChangeFromMonopoly()
 #endif
@@ -1200,10 +1198,7 @@ void CvPlayer::uninit()
 
 	m_ppaaiSpecialistExtraYield.clear();
 	m_ppiYieldFromYieldGlobal.clear();
-#if defined(MOD_API_UNIFIED_YIELDS)
 	m_ppiPlotYieldChange.clear();
-#endif
-#if defined(MOD_API_UNIFIED_YIELDS)
 	m_ppiInstantYieldHistoryValues.clear();
 	m_ppiInstantTourismPerPlayerHistoryValues.clear();
 	m_ppiImprovementYieldChange.clear();
@@ -1219,8 +1214,7 @@ void CvPlayer::uninit()
 	m_piYieldFromKills.clear();
 	m_piYieldFromBarbarianKills.clear();
 	m_ppiBuildingClassYieldChange.clear();
-#endif
-#if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
+#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	m_ppiSpecificGreatPersonRateModifierFromMonopoly.clear();
 	m_ppiSpecificGreatPersonRateChangeFromMonopoly.clear();
 #endif
@@ -2190,16 +2184,14 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 		{
 			m_ppiYieldFromYieldGlobal[i] = yield;
 		}
-#if defined(MOD_API_UNIFIED_YIELDS)
+
 		m_ppiPlotYieldChange.clear();
 		m_ppiPlotYieldChange.resize(GC.getNumPlotInfos());
 		for(unsigned int i = 0; i < m_ppiPlotYieldChange.size(); ++i)
 		{
 			m_ppiPlotYieldChange[i] = yield;
 		}
-#endif
 
-#if defined(MOD_API_UNIFIED_YIELDS)
 		m_ppiInstantYieldHistoryValues.clear();
 		m_ppiInstantTourismPerPlayerHistoryValues.clear();
 
@@ -2308,9 +2300,8 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 		{
 			m_ppiBuildingClassYieldChange[i] = yield;
 		}
-#endif
 
-#if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
+#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 		m_ppiSpecificGreatPersonRateModifierFromMonopoly.clear();
 		m_ppiSpecificGreatPersonRateChangeFromMonopoly.clear();
 #endif
@@ -17349,52 +17340,28 @@ void CvPlayer::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst
 					iBuildingCount = pLoopCityBuildings->GetNumBuilding(eTestBuilding);
 					if(iBuildingCount > 0)
 					{
-#if !defined(MOD_API_UNIFIED_YIELDS_CONSOLIDATION)
-						pLoopCity->ChangeJONSCulturePerTurnFromBuildings(pBuildingInfo->GetBuildingClassYieldChange(eBuildingClass, YIELD_CULTURE) * iBuildingCount * iChange);
-#endif
-
 						// Building Class Yield Stuff
 						for(iJ = 0; iJ < NUM_YIELD_TYPES; iJ++)
 						{
-#if !defined(MOD_API_UNIFIED_YIELDS_CONSOLIDATION)
-							switch(iJ)
+							YieldTypes eYield = (YieldTypes) iJ;
+							int iYieldChange = pBuildingInfo->GetBuildingClassYieldChange(eBuildingClass, eYield);
+							if(iYieldChange > 0)
 							{
-							case YIELD_CULTURE:
-							{
-								// Skip, handled above
-								break;
+								pLoopCity->ChangeBaseYieldRateFromBuildings(eYield, iYieldChange * iBuildingCount * iChange);
 							}
-							case YIELD_FAITH:
-							{
-								pLoopCity->ChangeFaithPerTurnFromBuildings(pBuildingInfo->GetBuildingClassYieldChange(eBuildingClass, iJ) * iBuildingCount * iChange);
-								break;
-							}
-							default:
-							{
-#endif
-								YieldTypes eYield = (YieldTypes) iJ;
-								int iYieldChange = pBuildingInfo->GetBuildingClassYieldChange(eBuildingClass, eYield);
-								if(iYieldChange > 0)
-								{
-									pLoopCity->ChangeBaseYieldRateFromBuildings(eYield, iYieldChange * iBuildingCount * iChange);
-								}
 
-								int iWonderYieldChange = pBuildingInfo->GetYieldChangeWorldWonderGlobal(eYield);
-								if (iWonderYieldChange > 0 && isWorldWonderClass(*pkBuildingClassInfo))
-								{
-									pLoopCityBuildings->ChangeBuildingYieldChange(eBuildingClass, eYield, (iWonderYieldChange * iBuildingCount * iChange));
-									pLoopCity->changeLocalBuildingClassYield(eBuildingClass, eYield, (iWonderYieldChange * iBuildingCount * iChange));
-								}
+							int iWonderYieldChange = pBuildingInfo->GetYieldChangeWorldWonderGlobal(eYield);
+							if (iWonderYieldChange > 0 && isWorldWonderClass(*pkBuildingClassInfo))
+							{
+								pLoopCityBuildings->ChangeBuildingYieldChange(eBuildingClass, eYield, (iWonderYieldChange * iBuildingCount * iChange));
+								pLoopCity->changeLocalBuildingClassYield(eBuildingClass, eYield, (iWonderYieldChange * iBuildingCount * iChange));
+							}
 
-								int iYieldMod = pBuildingInfo->GetBuildingClassYieldModifier(eBuildingClass, eYield);
-								if (iYieldMod != 0)
-								{
-									pLoopCity->changeYieldRateModifier(eYield, iYieldMod * iBuildingCount * iChange);
-								}
-#if !defined(MOD_API_UNIFIED_YIELDS_CONSOLIDATION)
+							int iYieldMod = pBuildingInfo->GetBuildingClassYieldModifier(eBuildingClass, eYield);
+							if (iYieldMod != 0)
+							{
+								pLoopCity->changeYieldRateModifier(eYield, iYieldMod * iBuildingCount * iChange);
 							}
-							}
-#endif
 						}
 					}
 				}
@@ -17833,7 +17800,6 @@ void CvPlayer::SetCityDistanceHighwaterMark(int iNewValue)
 //	--------------------------------------------------------------------------------
 int CvPlayer::calculateTotalYield(YieldTypes eYield) const
 {
-#if defined(MOD_API_UNIFIED_YIELDS)
 	// This is based on the switch in CvEconomicAI::LogMonitor() that calls different methods for culture and faith
 	// I've added this here as a "safe guard"
 	if (eYield == YIELD_CULTURE)
@@ -17848,7 +17814,6 @@ int CvPlayer::calculateTotalYield(YieldTypes eYield) const
 	{
 		return GetCulture()->GetTourism() / 100 + m_viInstantYieldsTotal[YIELD_TOURISM] / (GC.getGame().getElapsedGameTurns() + 1);
 	}
-#endif
 
 	int iTotalYield = 0;
 	int iLoop;
@@ -18394,9 +18359,7 @@ int CvPlayer::specialistYield(SpecialistTypes eSpecialist, YieldTypes eYield) co
 	}
 
 	int iRtnValue = pkSpecialistInfo->getYieldChange(eYield) + getSpecialistExtraYield(eSpecialist, eYield) + GetPlayerTraits()->GetSpecialistYieldChange(eSpecialist, eYield);
-#if defined(MOD_API_UNIFIED_YIELDS)
 	iRtnValue += getSpecialistYieldChange(eSpecialist, eYield);
-#endif
 
 	if (eSpecialist != GD_INT_GET(DEFAULT_SPECIALIST))
 	{
@@ -18816,12 +18779,9 @@ int CvPlayer::GetJONSCulturePerTurnFromExcessHappiness() const
 /// Trait bonus which adds Culture for trade partners? //ADDED: Culture from resources exported/imported
 int CvPlayer::GetJONSCulturePerTurnFromTraits() const
 {
-#if defined(MOD_API_UNIFIED_YIELDS)
 	return (GetYieldPerTurnFromTraits(YIELD_CULTURE) + GetYieldPerTurnFromResources(YIELD_CULTURE, true, true));
-#else
-	return GetPlayerTraits()->GetYieldChangePerTradePartner(YIELD_CULTURE) * GetTrade()->GetNumDifferentTradingPartners();
-#endif
 }
+
 #if defined(MOD_BALANCE_CORE)
 //	--------------------------------------------------------------------------------
 /// Yield per turn from resources imported/exported
@@ -18956,27 +18916,8 @@ int CvPlayer::GetCulturePerTurnFromReligion() const
 		const CvReligion* pReligion = pReligions->GetReligion(eFoundedReligion, NO_PLAYER);
 		if(pReligion)
 		{
-#if defined(MOD_API_UNIFIED_YIELDS)
 			iReligionCulturePerTurn += GetYieldPerTurnFromReligion(YIELD_CULTURE);
-#else
-			iReligionCulturePerTurn += pReligion->m_Beliefs.GetHolyCityYieldChange(YIELD_CULTURE);
 
-			int iTemp = pReligion->m_Beliefs.GetYieldChangePerForeignCity(YIELD_CULTURE);
-			if (iTemp > 0)
-			{
-				iReligionCulturePerTurn += (iTemp * GetReligions()->GetNumForeignCitiesFollowing());
-			}
-
-			iTemp = pReligion->m_Beliefs.GetYieldChangePerXForeignFollowers(YIELD_CULTURE);
-			if (iTemp > 0)
-			{
-				int iFollowers = GetReligions()->GetNumForeignFollowers(false /*bAtPeace*/);
-				if (iFollowers > 0)
-				{
-					iReligionCulturePerTurn += (iFollowers / iTemp);
-				}
-			}
-#endif
 			bool bAtPeace = GET_TEAM(getTeam()).getAtWarCount(false) == 0;
 			CvCity* pHolyCity = pReligion->GetHolyCity();
 			int iMod = pReligion->m_Beliefs.GetPlayerCultureModifier(bAtPeace, GetID(), pHolyCity, true);
@@ -20096,7 +20037,7 @@ void CvPlayer::DoHealGlobal(int iHealPercent)
 	}
 }
 #endif
-#if defined(MOD_API_UNIFIED_YIELDS)
+
 //	--------------------------------------------------------------------------------
 /// Yield per turn from Religion
 int CvPlayer::GetYieldPerTurnFromReligion(YieldTypes) const
@@ -20113,30 +20054,24 @@ int CvPlayer::GetYieldPerTurnFromTraits(YieldTypes eYield) const
 
 	return 0;
 }
-#endif
 
 //	--------------------------------------------------------------------------------
 /// Total faith per turn
 int CvPlayer::GetTotalFaithPerTurn() const
 {
-	int iFaithPerTurn = 0;
+	//No barbs or minors, please!
+	if (isBarbarian() || isMinorCiv())
+		return 0;
 
 	// If we're in anarchy, then no Faith is generated!
 	if (IsAnarchy())
 		return 0;
-#if defined(MOD_BALANCE_CORE)
-	//No barbs or minors, please!
-	if (isBarbarian() || isMinorCiv())
-		return 0;
-#endif
 
 	// Faith per turn from Cities
-	iFaithPerTurn += GetFaithPerTurnFromCities();
+	int iFaithPerTurn = GetFaithPerTurnFromCities();
 
-#if defined(MOD_API_UNIFIED_YIELDS)
 	// Trait bonus which adds Faith for trade partners? 
 	iFaithPerTurn += GetYieldPerTurnFromTraits(YIELD_FAITH);
-#endif
 
 	// Faith per turn from Minor Civs
 	iFaithPerTurn += GetFaithPerTurnFromMinorCivs();
@@ -20144,17 +20079,11 @@ int CvPlayer::GetTotalFaithPerTurn() const
 	// Faith per turn from Religion (Founder beliefs)
 	iFaithPerTurn += GetFaithPerTurnFromReligion();
 
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-	if (MOD_DIPLOMACY_CIV4_FEATURES) {
-		// We're a vassal of someone, we get x% of his faith
-		iFaithPerTurn += (GetYieldPerTurnFromVassals(YIELD_FAITH));
-	}
+	if (MOD_DIPLOMACY_CIV4_FEATURES)
+		iFaithPerTurn += GetYieldPerTurnFromVassals(YIELD_FAITH);
 
 	if (MOD_BALANCE_CORE_JFD)
-	{
 		iFaithPerTurn += GetYieldPerTurnFromMinors(YIELD_FAITH);
-	}
-#endif
 
 	return iFaithPerTurn;
 }
@@ -20266,39 +20195,7 @@ int CvPlayer::GetFaithPerTurnFromMinor(PlayerTypes eMinor) const
 /// Faith per turn from Religion
 int CvPlayer::GetFaithPerTurnFromReligion() const
 {
-	int iFaithPerTurn = 0;
-#if defined(MOD_API_UNIFIED_YIELDS)
-	iFaithPerTurn += GetYieldPerTurnFromReligion(YIELD_FAITH);
-#else
-	// Founder beliefs
-	CvGameReligions* pReligions = GC.getGame().GetGameReligions();
-	ReligionTypes eFoundedReligion = GetReligions()->GetReligionInMostCities();
-	if(eFoundedReligion != NO_RELIGION)
-	{
-		const CvReligion* pReligion = pReligions->GetReligion(eFoundedReligion, NO_PLAYER);
-		if(pReligion)
-		{
-			iFaithPerTurn += pReligion->m_Beliefs.GetHolyCityYieldChange(YIELD_FAITH);
-
-			int iTemp = pReligion->m_Beliefs.GetYieldChangePerForeignCity(YIELD_FAITH);
-			if (iTemp > 0)
-			{
-				iFaithPerTurn += (iTemp * GetReligions()->GetNumForeignCitiesFollowing());
-			}
-
-			iTemp = pReligion->m_Beliefs.GetYieldChangePerXForeignFollowers(YIELD_FAITH);
-			if (iTemp > 0)
-			{
-				int iFollowers = GetReligions()->GetNumForeignFollowers(false /*bAtPeace*/);
-				if (iFollowers > 0)
-				{
-					iFaithPerTurn += (iTemp / iFollowers);
-				}
-			}
-		}
-	}
-#endif
-	return iFaithPerTurn;
+	return GetYieldPerTurnFromReligion(YIELD_FAITH);
 }
 
 //	--------------------------------------------------------------------------------
@@ -24998,10 +24895,7 @@ void CvPlayer::DoProcessGoldenAge()
 #endif
 			// Note: This will actually REDUCE the GA meter if the player is running in the red
 			ChangeGoldenAgeProgressMeter(GetHappinessForGAP());
-			
-#if defined(MOD_API_UNIFIED_YIELDS_GOLDEN_AGE)
 			ChangeGoldenAgeProgressMeter(GetGoldenAgePointsFromEmpire());
-#endif
 #if defined(MOD_BALANCE_CORE)
 			if(getGoldenAgeTurns() <= 0)
 			{
@@ -28750,102 +28644,7 @@ void CvPlayer::DoGreatPersonExpended(UnitTypes eGreatPersonUnit)
 		}
 	}
 
-#if defined(MOD_API_UNIFIED_YIELDS)
-#else
-	// Faith gained
-	ReligionTypes eReligionFounded = GetReligions()->GetReligionCreatedByPlayer();
-	if(eReligionFounded > RELIGION_PANTHEON)
-	{
-		const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligionFounded, GetID());
-		if(pReligion)
-		{
-			int iFaith = pReligion->m_Beliefs.GetGreatPersonExpendedFaith();
-			if(iFaith > 0)
-			{
-				iFaith *= GC.getGame().getGameSpeedInfo().getTrainPercent();
-				iFaith /= 100;
-				ChangeFaith(iFaith);
-			}
-#if defined(MOD_BALANCE_CORE_BELIEFS)
-			int iEra = GetCurrentEra();
-			if(iEra < 1)
-			{
-				iEra = 1;
-			}
-			int iCulture = pReligion->m_Beliefs.GetYieldFromGPUse(YIELD_CULTURE) * iEra;
-			if(iCulture > 0)
-			{
-				changeJONSCulture(iCulture);
-				if(GetID() == GC.getGame().getActivePlayer())
-				{
-					char text[256] = {0};
-					
-					sprintf_s(text, "[COLOR_MAGENTA]+%d[ENDCOLOR][ICON_CULTURE]", iCulture);
-					DLLUI->AddPopupText(pGreatPersonUnit->getX(),pGreatPersonUnit->getY(), text);
-				}
-			}
-			int iFaith2 = pReligion->m_Beliefs.GetYieldFromGPUse(YIELD_FAITH) * iEra;
-			if(iFaith2 > 0)
-			{
-				ChangeFaith(iFaith2);
-				if(GetID() == GC.getGame().getActivePlayer())
-				{
-					char text[256] = {0};
-					
-					sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_PEACE]", iFaith2);
-					DLLUI->AddPopupText(pGreatPersonUnit->getX(),pGreatPersonUnit->getY(), text);
-				}
-			}
-			int iGold = pReligion->m_Beliefs.GetYieldFromGPUse(YIELD_GOLD) * iEra;
-			if(iGold > 0)
-			{
-				GetTreasury()->ChangeGold(iGold);
-				if(GetID() == GC.getGame().getActivePlayer())
-				{
-					char text[256] = {0};
-					
-					sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_GOLD]", iGold);
-					DLLUI->AddPopupText(pGreatPersonUnit->getX(),pGreatPersonUnit->getY(), text);
-				}
-			}
-			int iScience = pReligion->m_Beliefs.GetYieldFromGPUse(YIELD_SCIENCE) * iEra;
-			if(iScience > 0)
-			{
-				TechTypes eCurrentTech = GetPlayerTechs()->GetCurrentResearch();
-				if(eCurrentTech == NO_TECH)
-				{
-					changeOverflowResearch(iScience);
-				}
-				else
-				{
-					GET_TEAM(GET_PLAYER(GetID()).getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, iScience, GetID());
-				}
-				if(GetID() == GC.getGame().getActivePlayer())
-				{
-					char text[256] = {0};
-					
-					sprintf_s(text, "[COLOR_BLUE]+%d[ENDCOLOR][ICON_RESEARCH]", iScience);
-					DLLUI->AddPopupText(pGreatPersonUnit->getX(),pGreatPersonUnit->getY(), text);
-				}
-			}
-			int iGA = pReligion->m_Beliefs.GetYieldFromGPUse(YIELD_GOLDEN_AGE_POINTS) * iEra;
-			if(iGA > 0)
-			{
-				ChangeGoldenAgeProgressMeter(iGA);
-				if(GetID() == GC.getGame().getActivePlayer())
-				{
-					char text[256] = {0};
-					
-					sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_GOLDEN_AGE]", iGA);
-					DLLUI->AddPopupText(pGreatPersonUnit->getX(),pGreatPersonUnit->getY(), text);
-				}
-			}
-#endif
-		}
-	}
-#endif
-
-#if defined(MOD_BALANCE_CORE_POLICIES) || defined(MOD_DIPLOMACY_CITYSTATES)
+#if defined(MOD_BALANCE_CORE_POLICIES)
 	//Influence Gained with all CS per expend
 	int iExpendInfluence = GetInfluenceGPExpend() + GetGPExpendInfluence(); 
 	if(iExpendInfluence > 0)
@@ -36331,15 +36130,11 @@ int CvPlayer::GetScienceTimes100() const
 	// Science from our Cities
 	iValue += GetScienceFromCitiesTimes100(false);
 
-#if defined(MOD_API_UNIFIED_YIELDS)
 	// Science from religion
 	iValue += GetYieldPerTurnFromReligion(YIELD_SCIENCE) * 100;
-#endif
 
-#if defined(MOD_API_UNIFIED_YIELDS)
 	// Trait bonus which adds Science for trade partners? 
 	iValue += GetYieldPerTurnFromTraits(YIELD_SCIENCE) * 100;
-#endif
 
 	// Science from other players!
 #if defined(MOD_BALANCE_CORE)
@@ -38400,7 +38195,6 @@ void CvPlayer::SetHasGlobalMonopoly(ResourceTypes eResource, bool bNewValue)
 				}
 			}
 
-#if defined(MOD_API_UNIFIED_YIELDS)
 			for (int iI = 0; iI < GC.getNumSpecialistInfos(); iI++)
 			{
 				SpecialistTypes eSpecialist = (SpecialistTypes)iI;
@@ -38433,7 +38227,6 @@ void CvPlayer::SetHasGlobalMonopoly(ResourceTypes eResource, bool bNewValue)
 					}
 				}
 			}
-#endif
 		}
 
 		UpdateMonopolyCache();
@@ -38457,7 +38250,6 @@ void CvPlayer::SetHasStrategicMonopoly(ResourceTypes eResource, bool bNewValue)
 		CvResourceInfo* pResource = GC.getResourceInfo(eResource);
 		if (pResource)
 		{
-#if defined(MOD_API_UNIFIED_YIELDS)
 			for (int iI = 0; iI < GC.getNumSpecialistInfos(); iI++)
 			{
 				SpecialistTypes eSpecialist = (SpecialistTypes)iI;
@@ -38490,7 +38282,6 @@ void CvPlayer::SetHasStrategicMonopoly(ResourceTypes eResource, bool bNewValue)
 					}
 				}
 			}
-#endif
 		}
 
 		UpdateMonopolyCache();
@@ -40042,7 +39833,6 @@ void CvPlayer::changeYieldFromYieldGlobal(YieldTypes eIndex1, YieldTypes eIndex2
 	}
 }
 
-#if defined(MOD_API_UNIFIED_YIELDS)
 //	--------------------------------------------------------------------------------
 int CvPlayer::getPlotYieldChange(PlotTypes eIndex1, YieldTypes eIndex2) const
 {
@@ -40073,9 +39863,7 @@ void CvPlayer::changePlotYieldChange(PlotTypes eIndex1, YieldTypes eIndex2, int 
 		updateYield();
 	}
 }
-#endif
 
-#if defined(MOD_API_UNIFIED_YIELDS)
 //	--------------------------------------------------------------------------------
 int CvPlayer::getFeatureYieldChange(FeatureTypes eIndex1, YieldTypes eIndex2) const
 {
@@ -40508,10 +40296,8 @@ int CvPlayer::getBuildingClassYieldChange(BuildingClassTypes eIndex1, YieldTypes
 	return m_ppiBuildingClassYieldChange[eIndex1][eIndex2];
 }
 
-#if defined(MOD_BALANCE_CORE)
 // (Corp) Note to future modders: if you think this works as you expect, you're wrong. just ignore it. Use ::GetBuildingClassYieldChange() instead (note the capital), or fix this so it's functional.
 // grrrr....
-#endif
 //	--------------------------------------------------------------------------------
 void CvPlayer::changeBuildingClassYieldChange(BuildingClassTypes eIndex1, YieldTypes eIndex2, int iChange)
 {
@@ -40532,9 +40318,8 @@ void CvPlayer::changeBuildingClassYieldChange(BuildingClassTypes eIndex1, YieldT
 		updateYield();
 	}
 }
-#endif
 
-#if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
+#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 /// Does the player get a great person rate modifier from having a monopoly?
 //	--------------------------------------------------------------------------------
 int CvPlayer::getSpecificGreatPersonRateModifierFromMonopoly(GreatPersonTypes eGreatPerson, MonopolyTypes eMonopoly) const
@@ -44147,7 +43932,7 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 			}
 		}
 	}
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
+
 	if(MOD_BALANCE_CORE_HAPPINESS)
 	{
 		ChangePovertyUnhappinessMod(pPolicy->GetPovertyHappinessChangePolicy() * iChange);
@@ -44169,8 +43954,7 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 		ChangeWarScoreModifier(pPolicy->GetWarScoreModifier() * iChange);
 
 	}
-#endif
-#if defined(MOD_BALANCE_CORE_POLICIES)
+
 	if(MOD_BALANCE_CORE_POLICIES)
 	{
 		if (pPolicy->GetDefenseBoost() != 0)
@@ -44225,8 +44009,9 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 			if(pEspionage)
 			{
 				int iNumSpies = GetFreeSpy();
-#if defined(MOD_BALANCE_CORE_SPIES)
-				if (MOD_BALANCE_CORE_SPIES) {
+
+				if (MOD_BALANCE_CORE_SPIES) 
+				{
 					//Optional: Spies scaled for the number of City-States in the game.
 					int iNumMinor = ((GC.getGame().GetNumMinorCivsEver(true) * /*10*/ GD_INT_GET(BALANCE_SPY_TO_MINOR_RATIO)) / 100);
 					if(iNumMinor > 1)
@@ -44234,7 +44019,7 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 						iNumSpies += iNumMinor;
 					}
 				}
-#endif
+
 				for(int i = 0; i < iNumSpies; i++)
 				{
 					pEspionage->CreateSpy();
@@ -44284,7 +44069,7 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 			}
 		}
 	}
-#endif
+
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	changeInvestmentModifier(pPolicy->GetInvestmentModifier() * iChange);
 
@@ -44299,7 +44084,7 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 	changeAdmiralLuxuryBonus(pPolicy->GetAdmiralLuxuryBonus() * iChange);
 
 #endif
-#if defined(MOD_POLICIES_UNIT_CLASS_REPLACEMENTS)
+
 	if (MOD_POLICIES_UNIT_CLASS_REPLACEMENTS && pPolicy->IsUnitClassReplacements() && iChange != 0) // let's not execute the loop unless we need it
 	{
 		std::map<UnitClassTypes, UnitClassTypes> piUnitClassReplacements = pPolicy->GetUnitClassReplacements();
@@ -44318,7 +44103,7 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 			}
 		}
 	}
-#endif
+
 	if(pPolicy->IsOneShot())
 	{
 		if(m_pPlayerPolicies->HasOneShotPolicyFired(ePolicy))
@@ -44434,7 +44219,6 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 		if(iMod != 0)
 			changeSpecialistExtraYield(eYield, iMod);
 
-#if defined(MOD_API_UNIFIED_YIELDS)
 		iMod = pPolicy->GetYieldFromKills(iI) * iChange;
 		if(iMod != 0)
 			changeYieldFromKills(eYield, iMod);
@@ -44466,7 +44250,6 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 		iMod = pPolicy->GetYieldFromWLTKD(iI) * iChange;
 		if (iMod != 0)
 			ChangeYieldFromWLTKD(eYield, iMod);
-#endif
 	}
 
 	for(iI = 0; iI < GC.getNumUnitCombatClassInfos(); iI++)
@@ -44486,7 +44269,6 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 		}
 	}
 
-#if defined(MOD_API_UNIFIED_YIELDS)
 	for(iI = 0; iI < GC.getNumPlotInfos(); iI++)
 	{
 		for(iJ = 0; iJ < NUM_YIELD_TYPES; iJ++)
@@ -44494,9 +44276,7 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 			changePlotYieldChange(((PlotTypes)iI), ((YieldTypes)iJ), (pPolicy->GetPlotYieldChanges(iI, iJ) * iChange));
 		}
 	}
-#endif
 
-#if defined(MOD_API_UNIFIED_YIELDS)
 	for(iJ = 0; iJ < NUM_YIELD_TYPES; iJ++)
 	{
 		for(iI = 0; iI < GC.getNumFeatureInfos(); iI++)
@@ -44542,7 +44322,6 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 		if(iMod != 0)
 			changeGoldenAgeGreatPersonRateModifier((GreatPersonTypes)iI, iMod);
 	}
-#endif
 
 	for(iI = 0; iI < GC.getNumImprovementInfos(); iI++)
 	{
@@ -44631,18 +44410,6 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 					}
 #endif
 					GET_PLAYER(ePlayer).changeGetMinorFriendshipDecayMod(iOtherPlayersDecay * iChange);
-#if !defined(MOD_BALANCE_CORE)
-					// Send notification to affected players
-					locString = Localization::Lookup("TXT_KEY_NOTIFICATION_MINOR_FRIENDSHIP_DECAY");
-					locString << getNameKey();
-					locSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_MINOR_FRIENDSHIP_DECAY");
-
-					pNotifications = GET_PLAYER(ePlayer).GetNotifications();
-					if(pNotifications)
-					{
-						pNotifications->Add(NOTIFICATION_DIPLOMACY_DECLARATION, locString.toUTF8(), locSummary.toUTF8(), -1, -1, -1);
-					}
-#endif
 				}
 			}
 		}
@@ -44714,10 +44481,8 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 		}
 
 		pLoopCity->ChangeJONSCulturePerTurnFromPolicies(iCityCultureChange);
-		
-#if defined(MOD_API_UNIFIED_YIELDS)
+
 		int iTotalWonders = 0;
-#endif
 
 		// Building modifiers
 		for(iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
@@ -44749,14 +44514,11 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 
 					if(iBuildingCount > 0)
 					{
-#if defined(MOD_API_UNIFIED_YIELDS)
 						if (::isWorldWonderClass(pkBuilding->GetBuildingClassInfo())) 
 						{
 							iTotalWonders += iBuildingCount;
 						}
-#endif
-						
-#if defined(MOD_API_UNIFIED_YIELDS)
+
 						iYieldMod = pPolicy->GetBuildingClassYieldModifiers(eBuildingClass, YIELD_CULTURE);
 						if (iYieldMod != 0)
 						{
@@ -44777,9 +44539,6 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 							pLoopCity->changeReligionBuildingYieldRateModifier(eBuildingClass, YIELD_CULTURE, (iYieldChange * iBuildingCount * iChange));
 #endif
 						}
-#else
-						pLoopCity->ChangeJONSCulturePerTurnFromPolicies(pPolicy->GetBuildingClassCultureChange(eBuildingClass) * iBuildingCount * iChange);
-#endif
 
 						// Building Class Yield Stuff
 						for(iJ = 0; iJ < NUM_YIELD_TYPES; iJ++)
@@ -44790,7 +44549,6 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 								// Skip, handled above
 								break;
 							case YIELD_FAITH:
-#if defined(MOD_API_UNIFIED_YIELDS)
 								{
 									eYield = (YieldTypes) iJ;
 									iYieldMod = pPolicy->GetBuildingClassYieldModifiers(eBuildingClass, eYield);
@@ -44812,9 +44570,6 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 									}
 #endif
 								}
-#else
-								pLoopCity->ChangeFaithPerTurnFromPolicies(pPolicy->GetBuildingClassYieldChanges(eBuildingClass, iJ) * iBuildingCount * iChange);
-#endif
 								break;
 							default:
 								{
@@ -44849,30 +44604,14 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 			}
 		}
 
-#if defined(MOD_API_UNIFIED_YIELDS)
 		if (iTotalWonders > 0) {
 			for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 			{
 				YieldTypes eYield = (YieldTypes) iI;
 				int iYield = pPolicy->GetYieldChangeWorldWonder(iI);
-
-#if !defined(MOD_API_UNIFIED_YIELDS_CONSOLIDATION)
-				if (eYield == YIELD_CULTURE)
-				{
-					pLoopCity->ChangeJONSCulturePerTurnFromBuildings(iYield * iTotalWonders * iChange);
-				}
-				else if (eYield == YIELD_FAITH)
-				{
-					pLoopCity->ChangeFaithPerTurnFromBuildings(iYield * iTotalWonders * iChange);
-				}
-				else
-#endif
-				{
-					pLoopCity->ChangeBaseYieldRateFromBuildings(eYield, iYield * iTotalWonders * iChange);
-				}
+				pLoopCity->ChangeBaseYieldRateFromBuildings(eYield, iYield * iTotalWonders * iChange);
 			}
 		}
-#endif
 	}
 #if defined(MOD_BALANCE_CORE)
 	// Free Buildings from Policies
@@ -48370,11 +48109,7 @@ int CvPlayer::GetAreaEffectModifier(AreaEffectType eType, DomainTypes eDomain, c
 		if (eDomain != NO_DOMAIN && pUnit->getDomainType() != eDomain)
 			continue;
 
-#if defined(MOD_PROMOTIONS_AURA_CHANGE)
 		int iEffectRange = pUnit->GetAuraRangeChange() + /*2*/ GD_INT_GET(GREAT_GENERAL_RANGE);
-#else
-		int iEffectRange = /*2*/ GD_INT_GET(GREAT_GENERAL_RANGE);
-#endif
 
 		//actual distance check
 		int iDistance = plotDistance(*pUnit->plot(),*pTestPlot);
