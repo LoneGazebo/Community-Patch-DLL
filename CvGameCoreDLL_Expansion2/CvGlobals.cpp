@@ -2639,10 +2639,9 @@ CvPlotInfo* CvGlobals::getPlotInfo(PlotTypes ePlotNum)
 		return NULL;
 }
 
-#if defined(MOD_API_UNIFIED_YIELDS)
 int CvGlobals::getNumGreatPersonInfos()
 {
-	return MOD_API_UNIFIED_YIELDS ? (int)m_paGreatPersonInfo.size() : 0;
+	return (int)m_paGreatPersonInfo.size();
 }
 
 std::vector<CvGreatPersonInfo*>& CvGlobals::getGreatPersonInfo()
@@ -2652,18 +2651,13 @@ std::vector<CvGreatPersonInfo*>& CvGlobals::getGreatPersonInfo()
 
 CvGreatPersonInfo* CvGlobals::getGreatPersonInfo(GreatPersonTypes eGreatPersonNum)
 {
-	if (MOD_API_UNIFIED_YIELDS) {
-		CvAssert(eGreatPersonNum > -1);
-		CvAssert(eGreatPersonNum < GC.getNumGreatPersonInfos());
-		if(eGreatPersonNum > -1 && eGreatPersonNum < (int)m_paGreatPersonInfo.size())
-			return m_paGreatPersonInfo[eGreatPersonNum];
-		else
-			return NULL;
-	} else {
+	CvAssert(eGreatPersonNum > -1);
+	CvAssert(eGreatPersonNum < GC.getNumGreatPersonInfos());
+	if (eGreatPersonNum > -1 && eGreatPersonNum < (int)m_paGreatPersonInfo.size())
+		return m_paGreatPersonInfo[eGreatPersonNum];
+	else
 		return NULL;
-	}
 }
-#endif
 
 int CvGlobals::getNumTerrainInfos()
 {

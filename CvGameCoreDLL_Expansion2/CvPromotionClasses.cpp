@@ -81,12 +81,10 @@ CvPromotionEntry::CvPromotionEntry():
 	m_iExtraAttacks(0),
 	m_bGreatGeneral(false),
 	m_bGreatAdmiral(false),
-#if defined(MOD_PROMOTIONS_AURA_CHANGE)
 	m_iAuraRangeChange(0),
 	m_iAuraEffectChange(0),
 	m_iNumRepairCharges(0),
 	m_iMilitaryCapChange(0),
-#endif
 	m_iGreatGeneralModifier(0),
 	m_bGreatGeneralReceivesMovement(false),
 	m_iGreatGeneralCombatModifier(0),
@@ -278,12 +276,10 @@ CvPromotionEntry::CvPromotionEntry():
 #if defined(MOD_BALANCE_CORE)
 	m_piYieldFromScouting(NULL),
 #endif
-#if defined(MOD_API_UNIFIED_YIELDS)
 	m_piYieldFromKills(NULL),
 	m_piYieldFromBarbarianKills(NULL),
 	m_piGarrisonYield(NULL),
 	m_piFortificationYield(NULL),
-#endif
 	m_piUnitCombatModifierPercent(NULL),
 	m_piUnitClassModifierPercent(NULL),
 	m_piDomainModifierPercent(NULL),
@@ -331,12 +327,10 @@ CvPromotionEntry::~CvPromotionEntry(void)
 	SAFE_DELETE_ARRAY(m_piYieldModifier);
 	SAFE_DELETE_ARRAY(m_piYieldChange);
 #endif
-#if defined(MOD_API_UNIFIED_YIELDS)
 	SAFE_DELETE_ARRAY(m_piYieldFromKills);
 	SAFE_DELETE_ARRAY(m_piYieldFromBarbarianKills);
 	SAFE_DELETE_ARRAY(m_piGarrisonYield);
 	SAFE_DELETE_ARRAY(m_piFortificationYield);
-#endif
 	SAFE_DELETE_ARRAY(m_piUnitCombatModifierPercent);
 	SAFE_DELETE_ARRAY(m_piUnitClassModifierPercent);
 	SAFE_DELETE_ARRAY(m_piDomainModifierPercent);
@@ -596,14 +590,10 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 	m_iExtraAttacks = kResults.GetInt("ExtraAttacks");
 	m_bGreatGeneral = kResults.GetBool("GreatGeneral");
 	m_bGreatAdmiral = kResults.GetBool("GreatAdmiral");
-#if defined(MOD_PROMOTIONS_AURA_CHANGE)
-	if (MOD_PROMOTIONS_AURA_CHANGE) {
-		m_iAuraRangeChange = kResults.GetInt("AuraRangeChange");
-		m_iAuraEffectChange = kResults.GetInt("AuraEffectChange");
-	}
+	m_iAuraRangeChange = kResults.GetInt("AuraRangeChange");
+	m_iAuraEffectChange = kResults.GetInt("AuraEffectChange");
 	m_iNumRepairCharges = kResults.GetInt("NumRepairCharges");
 	m_iMilitaryCapChange = kResults.GetInt("MilitaryCapChange");
-#endif
 	m_iGreatGeneralModifier = kResults.GetInt("GreatGeneralModifier");
 	m_bGreatGeneralReceivesMovement = kResults.GetBool("GreatGeneralReceivesMovement");
 	m_iGreatGeneralCombatModifier = kResults.GetInt("GreatGeneralCombatModifier");
@@ -852,7 +842,6 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 		}
 	}
 #endif
-#if defined(MOD_API_UNIFIED_YIELDS)
 	//UnitPromotions_YieldFromKills
 	{
 		kUtility.InitializeArray(m_piYieldFromKills, NUM_YIELD_TYPES, 0);
@@ -959,7 +948,6 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 			m_piYieldFromBarbarianKills[iYieldID] = iYield;
 		}
 	}
-#endif
 
 	//UnitPromotions_UnitClasses
 	{
@@ -1633,7 +1621,6 @@ bool CvPromotionEntry::IsGreatAdmiral() const
 	return m_bGreatAdmiral;
 }
 
-#if defined(MOD_PROMOTIONS_AURA_CHANGE)
 /// Accessor: Does this Promotion change the range of the aura of a Great General or Great Admiral?
 int CvPromotionEntry::GetAuraRangeChange() const
 {
@@ -1655,7 +1642,6 @@ int CvPromotionEntry::GetMilitaryCapChange() const
 {
 	return m_iMilitaryCapChange;
 }
-#endif
 
 /// Accessor: Increase in rate of great general creation
 int CvPromotionEntry::GetGreatGeneralModifier() const
@@ -2634,7 +2620,6 @@ int CvPromotionEntry::GetYieldFromScouting(int i) const
 	return 0;
 }
 #endif
-#if defined(MOD_API_UNIFIED_YIELDS)
 int CvPromotionEntry::GetYieldFromKills(int i) const
 {
 	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
@@ -2686,7 +2671,6 @@ int CvPromotionEntry::GetYieldFromBarbarianKills(int i) const
 
 	return 0;
 }
-#endif
 
 /// Returns an array of bonuses when fighting against a certain unit
 int CvPromotionEntry::GetUnitCombatModifierPercent(int i) const

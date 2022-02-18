@@ -255,9 +255,6 @@
 	<Row Class="5" Name="USE_TRADE_FEATURES" Value="0"/>
 	<!-- Changes for Advanced Setup that allow players to acquire GG and GA points from fighting Barbarians -->
 	<Row Class="5" Name="BARBARIAN_GG_GA_POINTS" Value="1"/>
-    <!-- Permits units to earn GG/GA points from killing barbarians, this is the trait version (ie applies to all units of the civ) of PROMOTIONS_GG_FROM_BARBARIANS (v83) -->
-	<!-- See also: "Global - Commander Points From Barbarians" -->
-    <Row Class="2" Name="TRAITS_GG_FROM_BARBARIANS" Value="0" DbUpdates="1"/>
     <!-- Permits land units to cross ice, this is the trait version (ie applies to all units of the civ) of PROMOTIONS_CROSS_ICE (v19) -->
     <Row Class="2" Name="TRAITS_CROSSES_ICE" Value="0" DbUpdates="1"/>
 
@@ -306,10 +303,6 @@
     <!-- See also: "Global - City Automaton Workers" -->
     <Row Class="2" Name="TECHS_CITY_AUTOMATON_WORKERS" Value="0"/>
 
-    <!-- Permits variable great general and admiral aura ranges (v83) -->
-	<!-- See also: "Promotions - Colonels" -->
-	<!-- See also: "Global - Commander Influence Borders" -->
-    <Row Class="2" Name="PROMOTIONS_AURA_CHANGE" Value="1" DbUpdates="1"/>
     <!-- Permits units to earn GG/GA points from killing barbarians (v83) -->
 	<!-- See also: "Global - Commander Points From Barbarians" -->
     <Row Class="2" Name="PROMOTIONS_GG_FROM_BARBARIANS" Value="0" DbUpdates="1"/>
@@ -783,13 +776,6 @@
     <!-- See also: "Civilization - Morindim" -->
     <Row Class="3" Name="EVENTS_CAN_MOVE_INTO" Value="0" DbUpdates="1"/>
 
-    <!-- * Enables the Unified Yields extensions (v54) -->
-    <Row Class="2" Name="API_UNIFIED_YIELDS" Value="1" DbUpdates="1"/>
-    <!-- * Enables the Unified Yields (YIELD_TOURISM) extensions (v56) -->
-    <Row Class="2" Name="API_UNIFIED_YIELDS_TOURISM" Value="1" DbUpdates="1"/>
-    <!-- * Enables the Unified Yields (YIELD_GOLDEN_AGE_POINTS) extensions (v57) -->
-    <Row Class="2" Name="API_UNIFIED_YIELDS_GOLDEN_AGE" Value="1" DbUpdates="1"/>
-
     <!-- Enables the Achievements table (v45) -->
     <Row Class="2" Name="API_ACHIEVEMENTS" Value="0" DbUpdates="1"/>
 
@@ -869,8 +855,8 @@
 	<Row Class="6" Name="BALANCE_CORE_BUILDING_INVESTMENTS" Value="0"/>
 	<!-- Units are invested at 50% (see define) of their production cost, instead of being built outright. -->
 	<Row Class="6" Name="BALANCE_CORE_UNIT_INVESTMENTS" Value="0"/>
-	<!-- Great Engineers Produce their building on the same turn their expended -->
-	<Row Class="6" Name="BALANCE_CORE_ENGINEER_HURRY" Value="0"/>
+	<!-- Great Engineers' Hurry Production produces completed buildings on the same turn as the Great Engineer is expended -->
+	<Row Class="6" Name="BALANCE_CORE_ENGINEER_HURRY" Value="1"/>
 	<!-- Maya cannot buy a prophet without a religion -->
 	<Row Class="6" Name="BALANCE_CORE_MAYA_CHANGE" Value="0"/>
 	<!-- Portugal can only sell exotic goods to CSs -->

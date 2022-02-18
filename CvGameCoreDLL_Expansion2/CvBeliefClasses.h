@@ -149,27 +149,22 @@ public:
 	int GetHolyCityYieldChange(int i) const;
 	int GetYieldChangePerForeignCity(int i) const;
 	int GetYieldChangePerXForeignFollowers(int i) const;
-#if defined(MOD_API_UNIFIED_YIELDS)
 	int GetYieldPerFollowingCity(int i) const;
 	int GetYieldPerXFollowers(int i) const;
 	int GetYieldPerOtherReligionFollower(int i) const;
-#endif
 	int GetResourceQuantityModifier(int i) const;
 	int GetImprovementYieldChange(ImprovementTypes eIndex1, YieldTypes eIndex2) const;
 	int GetBuildingClassYieldChange(int i, int j) const;
 	int GetBuildingClassHappiness(int i) const;
 	int GetBuildingClassTourism(int i) const;
 	int GetFeatureYieldChange(int i, int j) const;
-#if defined(MOD_API_UNIFIED_YIELDS)
 	int GetYieldPerXTerrainTimes100(int i, int j) const;
 	int GetYieldPerXFeatureTimes100(int i, int j) const;
 	int GetCityYieldFromUnimprovedFeature(int i, int j) const;
 	int GetUnimprovedFeatureYieldChange(int i, int j) const;
 	int GetLakePlotYieldChange(int i) const;
-#endif
 	int GetResourceYieldChange(int i, int j) const;
 	int GetTerrainYieldChange(int i, int j) const;
-#if defined(MOD_API_UNIFIED_YIELDS)
 	int GetTradeRouteYieldChange(int i, int j) const;
 	int GetSpecialistYieldChange(int i, int j) const;
 	int GetGreatPersonExpendedYield(int i, int j) const;
@@ -181,7 +176,6 @@ public:
 	int GetYieldFromRemoveHeresy(YieldTypes eYield) const;
 	int GetYieldFromBarbarianKills(YieldTypes eYield) const;
 	int GetGreatPersonPoints(GreatPersonTypes eGreatPerson) const;
-#endif
 	int GetPlotYieldChange(int i, int j) const;
 #if defined(MOD_RELIGION_EXTENSIONS)
 	std::vector<int> GetFreePromotions() const;
@@ -279,27 +273,22 @@ protected:
 	int* m_paiHolyCityYieldChange;
 	int* m_paiYieldChangePerForeignCity;
 	int* m_paiYieldChangePerXForeignFollowers;
-#if defined(MOD_API_UNIFIED_YIELDS)
 	int* m_piYieldPerFollowingCity;
 	int* m_piYieldPerXFollowers;
 	int* m_piYieldPerOtherReligionFollower;
-#endif
 	int* m_piResourceQuantityModifiers;
 	int** m_ppiImprovementYieldChanges;
 	int** m_ppiBuildingClassYieldChanges;
 	int* m_paiBuildingClassHappiness;
 	int* m_paiBuildingClassTourism;
 	int** m_ppaiFeatureYieldChange;
-#if defined(MOD_API_UNIFIED_YIELDS)
 	int** m_ppiYieldPerXTerrain;
 	int** m_ppiYieldPerXFeature;
 	int** m_ppiCityYieldFromUnimprovedFeature;
 	int** m_ppiUnimprovedFeatureYieldChanges;
 	int* m_paiLakePlotYieldChange;
-#endif
 	int** m_ppaiResourceYieldChange;
 	int** m_ppaiTerrainYieldChange;
-#if defined(MOD_API_UNIFIED_YIELDS)
 	int** m_ppiTradeRouteYieldChange;
 	int** m_ppiSpecialistYieldChange;
 	int** m_ppiGreatPersonExpendedYield;
@@ -311,7 +300,6 @@ protected:
 	int* m_piYieldFromKills;
 	int* m_piYieldFromRemoveHeresy;
 	int* m_piYieldFromBarbarianKills;
-#endif
 	int** m_ppiPlotYieldChange;
 #if defined(MOD_RELIGION_EXTENSIONS)
 	std::vector<int> m_aiFreePromotions;
@@ -502,27 +490,22 @@ public:
 	int GetHolyCityYieldChange(YieldTypes eYield, PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	int GetYieldChangePerForeignCity(YieldTypes eYield, PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	int GetYieldChangePerXForeignFollowers(YieldTypes eYield, PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
-#if defined(MOD_API_UNIFIED_YIELDS)
 	int GetYieldPerFollowingCity(YieldTypes eYield, PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	int GetYieldPerXFollowers(YieldTypes eYield, PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	int GetYieldPerOtherReligionFollower(YieldTypes eYield, PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
-#endif
 	int GetResourceQuantityModifier(ResourceTypes eResource , PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	int GetImprovementYieldChange(ImprovementTypes eImprovement, YieldTypes eYield, PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	int GetBuildingClassYieldChange(BuildingClassTypes eBuildingClass, YieldTypes eYieldType, int iFollowers, PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	int GetBuildingClassHappiness(BuildingClassTypes eBuildingClass, int iFollowers, PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	int GetBuildingClassTourism(BuildingClassTypes eBuildingClass, PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	int GetFeatureYieldChange(FeatureTypes eFeature, YieldTypes eYieldType, PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
-#if defined(MOD_API_UNIFIED_YIELDS)
 	int GetYieldPerXTerrainTimes100(TerrainTypes eTerrain, YieldTypes eYieldType, PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	int GetYieldPerXFeatureTimes100(FeatureTypes eFeature, YieldTypes eYieldType, PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	int GetCityYieldFromUnimprovedFeature(FeatureTypes eFeature, YieldTypes eYieldType, PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	int GetUnimprovedFeatureYieldChange(FeatureTypes eFeature, YieldTypes eYieldType, PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	int GetLakePlotYieldChange(YieldTypes eYieldType, PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
-#endif
 	int GetResourceYieldChange(ResourceTypes eResource, YieldTypes eYieldType, PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	int GetTerrainYieldChange(TerrainTypes eTerrain, YieldTypes eYieldType, PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
-#if defined(MOD_API_UNIFIED_YIELDS)
 	int GetTradeRouteYieldChange(DomainTypes eDomain, YieldTypes eYieldType, PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	int GetSpecialistYieldChange(SpecialistTypes eSpecialist, YieldTypes eYieldType, PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	int GetGreatPersonExpendedYield(GreatPersonTypes eGreatPerson, YieldTypes eYieldType , PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
@@ -534,7 +517,6 @@ public:
 	int GetYieldFromKills(YieldTypes eYield, PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	int GetYieldFromRemoveHeresy(YieldTypes eYield, PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	int GetGreatPersonPoints(GreatPersonTypes eGreatPerson, PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
-#endif
 	int GetPlotYieldChange(PlotTypes ePlot, YieldTypes eYieldType, PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 #if defined(MOD_RELIGION_EXTENSIONS)
 	std::vector<int> GetFreePromotions(PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;

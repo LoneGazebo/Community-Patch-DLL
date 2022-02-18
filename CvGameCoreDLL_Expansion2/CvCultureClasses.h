@@ -163,10 +163,8 @@ public:
 	BuildingTypes m_eBuilding;
 	bool m_bThemed;
 	bool m_bEndangered;
-#if defined(MOD_GLOBAL_GREATWORK_YIELDTYPES) || defined(MOD_API_UNIFIED_YIELDS)
 	bool m_bPuppet;
 	YieldTypes m_eYieldType;
-#endif
 };
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

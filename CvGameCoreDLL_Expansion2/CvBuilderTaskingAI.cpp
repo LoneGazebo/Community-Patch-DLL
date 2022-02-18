@@ -1610,14 +1610,10 @@ void CvBuilderTaskingAI::AddChopDirectives(CvUnit* pUnit, CvPlot* pPlot, CvCity*
 				break;
 			case YIELD_FAITH:
 				break;
-#if defined(MOD_API_UNIFIED_YIELDS_TOURISM)
 			case YIELD_TOURISM:
 				break;
-#endif
-#if defined(MOD_API_UNIFIED_YIELDS_GOLDEN_AGE)
 			case YIELD_GOLDEN_AGE_POINTS:
 				break;
-#endif
 			}
 		}
 	}
@@ -2205,7 +2201,7 @@ int CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes eImprovem
 			}
 		}
 	}
-#if defined(MOD_API_UNIFIED_YIELDS)
+
 	int iTempWeight = 0;
 	for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 	{
@@ -2377,7 +2373,6 @@ int CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes eImprovem
 			iSecondaryScore += 100 * iAdjacentGood;
 		}
 	}
-#endif
 
 #if defined(MOD_IMPROVEMENTS_EXTENSIONS)
 	if (MOD_IMPROVEMENTS_EXTENSIONS)

@@ -405,37 +405,7 @@ int CvTreasury::GetGoldPerTurnFromTraits() const
 /// Gold Per Turn from Religion
 int CvTreasury::GetGoldPerTurnFromReligion() const
 {
-	int iGoldFromReligion = 0;
-
-#if defined(MOD_API_UNIFIED_YIELDS)
-	iGoldFromReligion += m_pPlayer->GetYieldPerTurnFromReligion(YIELD_GOLD);
-#else
-	CvGameReligions* pReligions = GC.getGame().GetGameReligions();
-
-	// Founder beliefs
-	ReligionTypes eFoundedReligion = pReligions->GetFounderBenefitsReligion(m_pPlayer->GetID());
-	if(eFoundedReligion != NO_RELIGION)
-	{
-		const CvReligion* pReligion = pReligions->GetReligion(eFoundedReligion, NO_PLAYER);
-		if(pReligion)
-		{
-			int iGoldPerFollowingCity = pReligion->m_Beliefs.GetGoldPerFollowingCity();
-			iGoldFromReligion += (pReligions->GetNumCitiesFollowing(eFoundedReligion) * iGoldPerFollowingCity);
-
-			int iGoldPerXFollowers = pReligion->m_Beliefs.GetGoldPerXFollowers();
-			if(iGoldPerXFollowers > 0)
-			{
-				iGoldFromReligion += (pReligions->GetNumFollowers(eFoundedReligion) / iGoldPerXFollowers);
-			}
-
-#if defined(MOD_API_UNIFIED_YIELDS)
-			iGoldFromReligion += m_pPlayer->GetYieldPerTurnFromReligion(YIELD_GOLD);
-#endif
-		}
-	}
-#endif
-
-	return iGoldFromReligion;
+	return m_pPlayer->GetYieldPerTurnFromReligion(YIELD_GOLD);
 }
 
 /// Gross income for turn times 100

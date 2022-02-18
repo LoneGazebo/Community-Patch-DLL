@@ -105,12 +105,10 @@ public:
 	int  GetExtraAttacks() const;
 	bool IsGreatGeneral() const;
 	bool IsGreatAdmiral() const;
-#if defined(MOD_PROMOTIONS_AURA_CHANGE)
 	int GetAuraRangeChange() const;
 	int GetAuraEffectChange() const;
 	int GetNumRepairCharges() const;
 	int GetMilitaryCapChange() const;
-#endif
 	int  GetGreatGeneralModifier() const;
 	bool IsGreatGeneralReceivesMovement() const;
 	int  GetGreatGeneralCombatModifier() const;
@@ -312,12 +310,10 @@ public:
 	int GetYieldModifier(int i) const;
 	int GetYieldChange(int i) const;
 #endif
-#if defined(MOD_API_UNIFIED_YIELDS)
 	int GetYieldFromKills(int i) const;
 	int GetYieldFromBarbarianKills(int i) const;
 	int GetGarrisonYield(int i) const;
 	int GetFortificationYield(int i) const;
-#endif
 	int GetUnitCombatModifierPercent(int i) const;
 	int GetUnitClassModifierPercent(int i) const;
 	int GetDomainModifierPercent(int i) const;
@@ -423,12 +419,10 @@ protected:
 	int m_iExtraAttacks;
 	bool m_bGreatGeneral;
 	bool m_bGreatAdmiral;
-#if defined(MOD_PROMOTIONS_AURA_CHANGE)
 	int m_iAuraRangeChange;
 	int m_iAuraEffectChange;
 	int m_iNumRepairCharges;
 	int m_iMilitaryCapChange;
-#endif
 	int m_iGreatGeneralModifier;
 	bool m_bGreatGeneralReceivesMovement;
 	int m_iGreatGeneralCombatModifier;
@@ -626,12 +620,10 @@ protected:
 	int* m_piYieldModifier;
 	int* m_piYieldChange;
 #endif
-#if defined(MOD_API_UNIFIED_YIELDS)
 	int* m_piYieldFromKills;
 	int* m_piYieldFromBarbarianKills;
 	int* m_piGarrisonYield;
 	int* m_piFortificationYield;
-#endif
 	int* m_piUnitCombatModifierPercent;
 	int* m_piUnitClassModifierPercent;
 	int* m_piDomainModifierPercent;

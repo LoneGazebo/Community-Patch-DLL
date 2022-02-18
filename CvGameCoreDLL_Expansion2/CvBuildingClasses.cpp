@@ -390,11 +390,9 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_ppaiSpecialistYieldChange(NULL),
 	m_ppaiResourceYieldModifier(NULL),
 	m_ppaiTerrainYieldChange(NULL),
-#if defined(MOD_API_UNIFIED_YIELDS)
 	m_ppaiYieldPerXTerrain(NULL),
 	m_ppaiYieldPerXFeature(NULL),
 	m_ppaiPlotYieldChange(NULL),
-#endif
 	m_ppiBuildingClassYieldChanges(NULL),
 	m_ppiBuildingClassYieldModifiers(NULL),
 #if defined(MOD_BALANCE_CORE)
@@ -410,7 +408,7 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_paiSpecificGreatPersonRateModifier(NULL),
 	m_iInstantReligionPressure(0),
 #endif
-#if defined(MOD_BALANCE_CORE) && defined(MOD_API_UNIFIED_YIELDS)
+#if defined(MOD_BALANCE_CORE)
 	m_piiGreatPersonProgressFromConstruction(),
 #endif
 	m_iNumThemingBonuses(0)
@@ -530,11 +528,9 @@ CvBuildingEntry::~CvBuildingEntry(void)
 	CvDatabaseUtility::SafeDelete2DArray(m_ppaiSpecialistYieldChange);
 	CvDatabaseUtility::SafeDelete2DArray(m_ppaiResourceYieldModifier);
 	CvDatabaseUtility::SafeDelete2DArray(m_ppaiTerrainYieldChange);
-#if defined(MOD_API_UNIFIED_YIELDS)
 	CvDatabaseUtility::SafeDelete2DArray(m_ppaiYieldPerXTerrain);
 	CvDatabaseUtility::SafeDelete2DArray(m_ppaiYieldPerXFeature);
 	CvDatabaseUtility::SafeDelete2DArray(m_ppaiPlotYieldChange);
-#endif
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiBuildingClassYieldChanges);
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiBuildingClassYieldModifiers);
 #if defined(MOD_BALANCE_CORE)
@@ -542,7 +538,7 @@ CvBuildingEntry::~CvBuildingEntry(void)
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiBuildingClassLocalYieldChanges);
 	SAFE_DELETE_ARRAY(m_paiSpecificGreatPersonRateModifier);
 #endif
-#if defined(MOD_BALANCE_CORE) && defined(MOD_API_UNIFIED_YIELDS)
+#if defined(MOD_BALANCE_CORE)
 	m_piiGreatPersonProgressFromConstruction.clear();
 #endif
 }
@@ -1308,10 +1304,8 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 			m_ppaiTerrainYieldChange[TerrainID][YieldID] = yield;
 		}
 	}
-	
-#if defined(MOD_API_UNIFIED_YIELDS)
+
 	//PlotYieldChanges
-	if (MOD_API_UNIFIED_YIELDS)
 	{
 		kUtility.Initialize2DArray(m_ppaiPlotYieldChange, "Plots", "Yields");
 
@@ -1356,7 +1350,6 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 			m_ppaiSpecialistYieldChangeLocal[SpecialistID][YieldID] = yield;
 		}
 	}
-#endif
 
 	//SpecialistYieldChanges
 	{
@@ -1498,7 +1491,7 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 		std::map<int, std::map<int, int>>(m_ppiResourcePlotsToPlace).swap(m_ppiResourcePlotsToPlace);
 	}
 #endif
-#if defined(MOD_BALANCE_CORE) && defined(MOD_API_UNIFIED_YIELDS)
+#if defined(MOD_BALANCE_CORE)
 	//Building_GreatPersonProgressFromConstruction
 	{
 		std::string strKey("Building_GreatPersonProgressFromConstruction");
@@ -3980,7 +3973,6 @@ int* CvBuildingEntry::GetTerrainYieldChangeArray(int i) const
 	return m_ppaiTerrainYieldChange[i];
 }
 
-#if defined(MOD_API_UNIFIED_YIELDS)
 /// Change to Terrain yield by type
 int CvBuildingEntry::GetYieldPerXTerrain(int i, int j) const
 {
@@ -4033,7 +4025,6 @@ int* CvBuildingEntry::GetPlotYieldChangeArray(int i) const
 	CvAssertMsg(i > -1, "Index out of bounds");
 	return m_ppaiPlotYieldChange[i];
 }
-#endif
 
 /// Yield change for a specific BuildingClass by yield type
 int CvBuildingEntry::GetBuildingClassYieldChange(int i, int j) const
@@ -4092,7 +4083,7 @@ int CvBuildingEntry::GetBuildingClassHappiness(int i) const
 	CvAssertMsg(i > -1, "Index out of bounds");
 	return m_paiBuildingClassHappiness ? m_paiBuildingClassHappiness[i] : -1;
 }
-#if defined(MOD_BALANCE_CORE) && defined(MOD_API_UNIFIED_YIELDS)
+#if defined(MOD_BALANCE_CORE)
 std::multimap<int, std::pair<int, int>> CvBuildingEntry::GetGreatPersonProgressFromConstructionArray() const
 {
 	return m_piiGreatPersonProgressFromConstruction;
@@ -5573,7 +5564,6 @@ bool CvCityBuildings::GetNextAvailableGreatWorkSlot(GreatWorkSlotType eGreatWork
 	return false;
 }
 
-#if defined(MOD_GLOBAL_GREATWORK_YIELDTYPES) || defined(MOD_API_UNIFIED_YIELDS)
 /// Accessor: How much of this yield are we generating from Great Works in our buildings?
 int CvCityBuildings::GetYieldFromGreatWorks(YieldTypes eYield) const
 {
@@ -5679,7 +5669,6 @@ int CvCityBuildings::GetYieldFromGreatWorks(YieldTypes eYield) const
 		}
 	}
 
-#if defined(MOD_RELIGION_PERMANENT_PANTHEON)
 	// Mod for civs keeping their pantheon belief forever
 	if (MOD_RELIGION_PERMANENT_PANTHEON)
 	{
@@ -5700,7 +5689,6 @@ int CvCityBuildings::GetYieldFromGreatWorks(YieldTypes eYield) const
 			}
 		}
 	}
-#endif
 
 	//First add up yields x works in city.
 	int iRtnValue = (iStandardWorkCount * iBaseYield);
@@ -5718,22 +5706,11 @@ int CvCityBuildings::GetYieldFromGreatWorks(YieldTypes eYield) const
 
 	return iRtnValue;
 }
-#endif
 
 /// Accessor: How much culture are we generating from Great Works in our buildings?
 int CvCityBuildings::GetCultureFromGreatWorks() const
 {
-#if defined(MOD_GLOBAL_GREATWORK_YIELDTYPES) || defined(MOD_API_UNIFIED_YIELDS)
 	return GetYieldFromGreatWorks(YIELD_CULTURE);
-#else
-	int iCulturePerWork = /*2 in CP, 3 in CBO*/ GD_INT_GET(BASE_CULTURE_PER_GREAT_WORK);
-	iCulturePerWork += GET_PLAYER(m_pCity->getOwner()).GetGreatWorkYieldChange(YIELD_CULTURE);
-
-	int iRtnValue = iCulturePerWork * m_aBuildingGreatWork.size();
-	iRtnValue += GetCurrentThemingBonuses();
-
-	return iRtnValue;
-#endif
 }
 
 /// Accessor: How many Great Works of specific slot type present in this city?

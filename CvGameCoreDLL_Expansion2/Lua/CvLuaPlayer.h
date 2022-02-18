@@ -598,7 +598,7 @@ protected:
 	LUAAPIEXTN(GetGoldenAgeGreatEngineerRateModifier, int);
 	LUAAPIEXTN(GetGoldenAgeGreatMerchantRateModifier, int);
 #endif
-#if defined(MOD_DIPLOMACY_CITYSTATES) && defined(MOD_API_UNIFIED_YIELDS)
+#if defined(MOD_DIPLOMACY_CITYSTATES)
 	LUAAPIEXTN(GetGoldenAgeGreatDiplomatRateModifier, int);
 #endif
 

@@ -198,10 +198,24 @@ UPDATE Leaders SET SecondaryVictoryPursuit = 'VICTORY_PURSUIT_SCIENCE' WHERE Typ
 
 
 
--- Table for Growth Extra Yield Buildings
-CREATE TABLE IF NOT EXISTS Building_GrowthExtraYield (
-BuildingType TEXT, YieldType TEXT, Yield INTEGER
-);
+-- Unified Yields Stuff
+ALTER TABLE Yields ADD ColorString TEXT DEFAULT '[COLOR_WHITE]';
+
+UPDATE Yields SET ColorString='[COLOR_MAGENTA]' WHERE Type='YIELD_CULTURE';
+UPDATE Yields SET ColorString='[COLOR_WHITE]' WHERE Type='YIELD_FAITH';
+UPDATE Yields SET ColorString='[COLOR_GREEN]' WHERE Type='YIELD_FOOD';
+UPDATE Yields SET ColorString='[COLOR_YELLOW]' WHERE Type='YIELD_GOLD';
+UPDATE Yields SET ColorString='[COLOR_YELLOW]' WHERE Type='YIELD_PRODUCTION';
+UPDATE Yields SET ColorString='[COLOR_BLUE]' WHERE Type='YIELD_SCIENCE';
+
+ALTER TABLE Yields ADD ImageTexture TEXT DEFAULT 'YieldAtlas.dds';
+ALTER TABLE Yields ADD ImageOffset INTEGER DEFAULT 0;
+
+UPDATE Yields SET ImageOffset=128 WHERE Type='YIELD_PRODUCTION';
+UPDATE Yields SET ImageOffset=256 WHERE Type='YIELD_GOLD';
+UPDATE Yields SET ImageOffset=384 WHERE Type='YIELD_SCIENCE';
+UPDATE Yields SET ImageTexture='YieldAtlas_128_Culture.dds' WHERE Type='YIELD_CULTURE';
+UPDATE Yields SET ImageTexture='YieldAtlas_128_Faith.dds' WHERE Type='YIELD_FAITH';
 
 
 -- Smallaward Info table used for CS quests - does not allow you to add new quests - simply makes it so that you can more easily tweak/define the quest rewards/timers
@@ -1772,28 +1786,11 @@ ALTER TABLE Resolutions		ADD		VassalMaintenanceGoldPercent	integer	DEFAULT	0;
 ALTER TABLE Resolutions		ADD		EndAllCurrentVassals			boolean	DEFAULT	0;
 
 -- Whoward Tables
+ALTER TABLE Traits ADD GGFromBarbarians INTEGER DEFAULT 0;
 
-ALTER TABLE Traits
-  ADD GGFromBarbarians INTEGER DEFAULT 0;
+ALTER TABLE UnitPromotions ADD AuraRangeChange INTEGER DEFAULT 0;
+ALTER TABLE UnitPromotions ADD AuraEffectChange INTEGER DEFAULT 0;
 
-INSERT INTO CustomModDbUpdates(Name, Value) VALUES('TRAITS_GG_FROM_BARBARIANS', 1);
-
-
-ALTER TABLE UnitPromotions
-  ADD AuraRangeChange INTEGER DEFAULT 0;
-  
-ALTER TABLE UnitPromotions
-  ADD AuraEffectChange INTEGER DEFAULT 0;
-
-INSERT INTO CustomModDbUpdates(Name, Value) VALUES('PROMOTIONS_AURA_CHANGE', 1);
-
-ALTER TABLE Traits
-  ADD ExtraSupply INTEGER DEFAULT 0;
-
-ALTER TABLE Traits
-  ADD ExtraSupplyPerCity INTEGER DEFAULT 0;
-
-ALTER TABLE Traits
-  ADD ExtraSupplyPerPopulation INTEGER DEFAULT 0;
-
-INSERT INTO CustomModDbUpdates(Name, Value) VALUES('TRAITS_EXTRA_SUPPLY', 1);
+ALTER TABLE Traits ADD ExtraSupply INTEGER DEFAULT 0;
+ALTER TABLE Traits ADD ExtraSupplyPerCity INTEGER DEFAULT 0;
+ALTER TABLE Traits ADD ExtraSupplyPerPopulation INTEGER DEFAULT 0;

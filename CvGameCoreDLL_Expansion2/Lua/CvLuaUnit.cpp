@@ -509,10 +509,8 @@ void CvLuaUnit::PushMethods(lua_State* L, int t)
 	Method(IsIgnoreGreatGeneralBenefit);
 	Method(GetReverseGreatGeneralModifier);
 	Method(GetGreatGeneralCombatModifier);
-#if defined(MOD_PROMOTIONS_AURA_CHANGE)
 	Method(GetAuraRange);
 	Method(GetAuraEffect);
-#endif
 	Method(IsNearSapper);
 #if defined(MOD_BALANCE_CORE)
 	Method(IsHalfNearSapper);
@@ -5273,15 +5271,10 @@ int CvLuaUnit::lGetGreatGeneralAuraBonus(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
 
-#if defined(MOD_PROMOTIONS_AURA_CHANGE)
 	int iActualBonus = GET_PLAYER(pkUnit->getOwner()).GetAreaEffectModifier(AE_GREAT_GENERAL, pkUnit->getDomainType(), pkUnit->plot());
 	int iDefaultBonus = GET_PLAYER(pkUnit->getOwner()).GetGreatGeneralCombatBonus() + GET_PLAYER(pkUnit->getOwner()).GetPlayerTraits()->GetGreatGeneralExtraBonus();
 	lua_pushinteger(L, iActualBonus-iDefaultBonus);
 	return 1;
-#else
-	lua_pushboolean(L, 0);
-	return 1;
-#endif
 }
 //------------------------------------------------------------------------------
 //bool IsStackedGreatGeneral();
@@ -5323,7 +5316,6 @@ int CvLuaUnit::lGetGreatGeneralCombatModifier(lua_State* L)
 	lua_pushinteger(L, bResult);
 	return 1;
 }
-#if defined(MOD_PROMOTIONS_AURA_CHANGE)
 //------------------------------------------------------------------------------
 //int GetAuraRange();
 int CvLuaUnit::lGetAuraRange(lua_State* L)
@@ -5346,7 +5338,6 @@ int CvLuaUnit::lGetAuraEffect(lua_State* L)
 	lua_pushinteger(L, iResult);
 	return 1;
 }
-#endif
 //------------------------------------------------------------------------------
 //bool IsNearSapper(CvCity* pTargetCity);
 int CvLuaUnit::lIsNearSapper(lua_State* L)

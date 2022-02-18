@@ -2,6 +2,14 @@
 <!-- Created by ModBuddy on 4/30/2015 12:34:58 PM -->
 <GameData>
 	<PostDefines>
+		<Row Name="TOURISM_START_TECH">
+			<Key>TECH_AGRICULTURE</Key>
+			<Table>Technologies</Table>
+		</Row>
+		<Row Name="TOURISM_START_ERA">
+			<Key>ERA_ANCIENT</Key>
+			<Table>Eras</Table>
+		</Row>
 		<Row Name="RELIGION_LAST_FOUND_ERA">
 			<Key>ERA_RENAISSANCE</Key>
 			<Table>Eras</Table>
