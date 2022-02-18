@@ -615,7 +615,7 @@
     <Folder Include="Modules\Events\Text\en_US" />
     <Folder Include="Modules\MoreGP" />
     <Folder Include="Modules\MoreGP\Extra_GPs_items" />
-    <Folder Include="Mapscript Edits" />
+    <Folder Include="Mapscript Fixes" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="CommunityOptions.sql">
@@ -2714,15 +2714,15 @@
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Mapscript Edits\Boreal.lua">
+    <Content Include="Mapscript Fixes\Boreal.lua">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Mapscript Edits\Highlands.lua">
+    <Content Include="Mapscript Fixes\Highlands.lua">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Mapscript Edits\Terra.lua">
+    <Content Include="Mapscript Fixes\Terra.lua">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
