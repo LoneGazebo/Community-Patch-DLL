@@ -422,6 +422,7 @@ CvCity::CvCity() :
 	, m_aiYieldFromMinors()
 	, m_aiResourceQuantityPerXFranchises()
 	, m_aiYieldChangeFromCorporationFranchises()
+	, m_aiResourceQuantityFromPOP()
 	, m_aiNeedsFlatReduction()
 	, m_iLandTourismBonus()
 	, m_iSeaTourismBonus()
@@ -1771,6 +1772,8 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 		m_aiResourceQuantityPerXFranchises.clear();
 		m_aiResourceQuantityPerXFranchises.resize(iNumResources);
 #endif
+		m_aiResourceQuantityFromPOP.clear();
+		m_aiResourceQuantityFromPOP.resize(iNumResources);
 		for (iI = 0; iI < iNumResources; iI++)
 		{
 			m_paiNoResource[iI] = 0;
@@ -1780,8 +1783,8 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 #if defined(MOD_BALANCE_CORE)
 			m_aiResourceQuantityPerXFranchises[iI] = 0;
 #endif
+			m_aiResourceQuantityFromPOP[iI] = 0;
 		}
-
 		int iNumProjectInfos = GC.getNumProjectInfos();
 		m_paiProjectProduction.clear();
 		m_paiProjectProduction.resize(iNumProjectInfos);
@@ -15411,6 +15414,10 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 			{
 				ChangeResourceQuantityPerXFranchises(eResource, pBuildingInfo->GetResourceQuantityPerXFranchises(iResourceLoop) * iChange);
 			}
+			if (MOD_BALANCE_CORE && (pBuildingInfo->GetResourceQuantityFromPOP(iResourceLoop) > 0))
+			{
+				ChangeResourceQuantityFromPOP(eResource, pBuildingInfo->GetResourceQuantityFromPOP(iResourceLoop) * iChange);
+			}
 #endif
 
 			// Do we have this resource local?
@@ -26519,6 +26526,33 @@ void CvCity::SetResourceQuantityPerXFranchises(ResourceTypes eResource, int iVal
 	}
 }
 //	--------------------------------------------------------------------------------
+int CvCity::GetResourceQuantityFromPOP(ResourceTypes eResource) const
+{
+	VALIDATE_OBJECT
+		CvAssertMsg(eResource >= 0, "eIndex expected to be >= 0");
+	CvAssertMsg(eResource < GC.getNumResourceInfos(), "eIndex expected to be < GC.getNumResourceInfos()");
+	return m_aiResourceQuantityFromPOP[eResource];
+}
+//	--------------------------------------------------------------------------------
+void CvCity::ChangeResourceQuantityFromPOP(ResourceTypes eResource, int iChange)
+{
+	VALIDATE_OBJECT
+		CvAssertMsg(eResource >= 0, "eIndex expected to be >= 0");
+	CvAssertMsg(eResource < GC.getNumResourceInfos(), "eIndex expected to be < GC.getNumResourceInfos()");
+
+	if (iChange != 0)
+	{
+		m_aiResourceQuantityFromPOP[eResource] = m_aiResourceQuantityFromPOP[eResource] + iChange;
+	}
+}
+void CvCity::SetResourceQuantityFromPOP(ResourceTypes eResource, int iValue)
+{
+	if (GetResourceQuantityFromPOP(eResource) != iValue)
+	{
+		m_aiResourceQuantityFromPOP[eResource] = iValue;
+	}
+}
+//	--------------------------------------------------------------------------------
 /// Trade Route Religious Spread Boost
 int CvCity::GetReligiousTradeModifier() const
 {
@@ -32680,6 +32714,7 @@ void CvCity::Serialize(City& city, Visitor& visitor)
 	visitor(city.m_aiYieldFromMinors);
 	visitor(city.m_aiResourceQuantityPerXFranchises);
 	visitor(city.m_aiYieldChangeFromCorporationFranchises);
+	visitor(city.m_aiResourceQuantityFromPOP);
 	visitor(city.m_aiNeedsFlatReduction);
 	visitor(city.m_iLandTourismBonus);
 	visitor(city.m_iSeaTourismBonus);

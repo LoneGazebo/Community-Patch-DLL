@@ -1242,6 +1242,10 @@ public:
 	void ChangeResourceQuantityPerXFranchises(ResourceTypes eResource, int iChange);
 	void SetResourceQuantityPerXFranchises(ResourceTypes eResource, int iValue);
 
+	int GetResourceQuantityFromPOP(ResourceTypes eResource) const;
+	void ChangeResourceQuantityFromPOP(ResourceTypes eResource, int iChange);
+	void SetResourceQuantityFromPOP(ResourceTypes eResource, int iValue);
+
 	int GetLandTourismBonus() const;
 	void ChangeLandTourismBonus(int iChange);
 	void SetLandTourismBonus(int iValue);
@@ -1933,6 +1937,7 @@ protected:
 	std::vector<int> m_aiYieldFromMinors;
 	std::vector<int> m_aiResourceQuantityPerXFranchises;
 	std::vector<int> m_aiYieldChangeFromCorporationFranchises;
+	std::vector<int> m_aiResourceQuantityFromPOP;
 	std::vector<int> m_aiNeedsFlatReduction;
 	int m_iLandTourismBonus;
 	int m_iSeaTourismBonus;
@@ -2307,6 +2312,7 @@ SYNC_ARCHIVE_VAR(std::vector<int>, m_aiBaseYieldRateFromCSFriendship)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromMinors)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiResourceQuantityPerXFranchises)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldChangeFromCorporationFranchises)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiResourceQuantityFromPOP)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiNeedsFlatReduction)
 SYNC_ARCHIVE_VAR(int, m_iLandTourismBonus)
 SYNC_ARCHIVE_VAR(int, m_iSeaTourismBonus)
