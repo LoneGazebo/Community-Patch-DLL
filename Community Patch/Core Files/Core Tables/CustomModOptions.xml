@@ -36,6 +36,10 @@
     <!-- Great Generals and Admirals gained from combat experience spawn in the war-zone and not in a distant city (v19) -->
     <!-- See also: "Global - Local Generals" -->
     <Row Class="5" Name="GLOBAL_LOCAL_GENERALS" Value="0"/>
+	
+    <!-- Great Generals and Admirals gained from combat experience spawn in city closest to the war-zone -->
+    <!-- Reqires "Global - Local Generals" -->
+    <Row Class="5" Name="LOCAL_GENERALS_NEAREST_CITY" Value="0"/>
 
     <!-- Separates out the repair fleet and change port abilities of the Great Admiral (v61) -->
     <!-- If you enable this option, you will need to add back the abilities to the standard GA -->
