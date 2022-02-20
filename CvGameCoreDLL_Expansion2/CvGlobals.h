@@ -36,9 +36,7 @@ class CvPlayerColorInfo;
 class CvEntityEventInfo;
 class CvLandscapeInfo;
 class CvPlotInfo;
-#if defined(MOD_API_UNIFIED_YIELDS)
 class CvGreatPersonInfo;
-#endif
 class CvTerrainInfo;
 class CvResourceClassInfo;
 class CvResourceInfo;
@@ -327,11 +325,9 @@ public:
 	std::vector<CvPlotInfo*>& getPlotInfo();
 	CvPlotInfo* getPlotInfo(PlotTypes ePlotNum);
 
-#if defined(MOD_API_UNIFIED_YIELDS)
 	int getNumGreatPersonInfos();
 	std::vector<CvGreatPersonInfo*>& getGreatPersonInfo();
 	CvGreatPersonInfo* getGreatPersonInfo(GreatPersonTypes eGreatPersonNum);
-#endif
 
 	int getNumTerrainInfos();
 	std::vector<CvTerrainInfo*>& getTerrainInfo();
@@ -2588,9 +2584,7 @@ protected:
 	std::vector<CvColorInfo*> m_paColorInfo;
 	std::vector<CvPlayerColorInfo*> m_paPlayerColorInfo;
 	std::vector<CvPlotInfo*> m_paPlotInfo;
-#if defined(MOD_API_UNIFIED_YIELDS)
 	std::vector<CvGreatPersonInfo*> m_paGreatPersonInfo;
-#endif
 	std::vector<CvTerrainInfo*> m_paTerrainInfo;
 	std::vector<CvYieldInfo*> m_paYieldInfo;
 	std::vector<CvRouteInfo*> m_paRouteInfo;

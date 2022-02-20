@@ -2979,15 +2979,10 @@ int CvLuaCity::lGetJONSCulturePerTurnFromBuildings(lua_State* L)
 //void ChangeJONSCulturePerTurnFromBuildings(int iChange);
 int CvLuaCity::lChangeJONSCulturePerTurnFromBuildings(lua_State* L)
 {
-#if defined(MOD_API_UNIFIED_YIELDS_CONSOLIDATION)
 	CvCity* pkCity = GetInstance(L);
 	int iChange = lua_tointeger(L, 2);
 	pkCity->ChangeBaseYieldRateFromBuildings(YIELD_CULTURE, iChange);
-
 	return 0;
-#else
-	return BasicLuaMethod(L, &CvCity::ChangeJONSCulturePerTurnFromBuildings);
-#endif
 }
 //------------------------------------------------------------------------------
 //int GetJONSCulturePerTurnFromPolicies() const;
@@ -3067,15 +3062,10 @@ int CvLuaCity::lGetJONSCulturePerTurnFromReligion(lua_State* L)
 //void ChangeJONSCulturePerTurnFromReligion(int iChange);
 int CvLuaCity::lChangeJONSCulturePerTurnFromReligion(lua_State* L)
 {
-#if defined(MOD_API_UNIFIED_YIELDS_CONSOLIDATION)
 	CvCity* pkCity = GetInstance(L);
 	int iChange = lua_tointeger(L, 2);
 	pkCity->ChangeBaseYieldRateFromReligion(YIELD_CULTURE, iChange);
-
 	return 0;
-#else
-	return BasicLuaMethod(L, &CvCity::ChangeJONSCulturePerTurnFromReligion);
-#endif
 }
 //------------------------------------------------------------------------------
 //int GetJONSCulturePerTurnFromLeagues() const;
@@ -3328,7 +3318,6 @@ int CvLuaCity::lGetFaithPerTurnFromPolicies(lua_State* L)
 //int GetFaithPerTurnFromTraits() const;
 int CvLuaCity::lGetFaithPerTurnFromTraits(lua_State* L)
 {
-#if defined(MOD_API_UNIFIED_YIELDS)
 	int iBonus = 0;
 	CvCity* pkCity = GetInstance(L);
 	for (int iI = 0; iI < GC.getNumFeatureInfos(); iI++)
@@ -3341,9 +3330,6 @@ int CvLuaCity::lGetFaithPerTurnFromTraits(lua_State* L)
 	}
 	lua_pushinteger(L, iBonus);
 	return 1;
-#else
-	return BasicLuaMethod(L, &CvCity::GetFaithPerTurnFromTraits);
-#endif
 }
 //------------------------------------------------------------------------------
 //int GetFaithPerTurnFromReligion() const;
@@ -3355,15 +3341,10 @@ int CvLuaCity::lGetFaithPerTurnFromReligion(lua_State* L)
 //void ChangeFaithPerTurnFromReligion(int iChange);
 int CvLuaCity::lChangeFaithPerTurnFromReligion(lua_State* L)
 {
-#if defined(MOD_API_UNIFIED_YIELDS_CONSOLIDATION)
 	CvCity* pkCity = GetInstance(L);
 	int iChange = lua_tointeger(L, 2);
 	pkCity->ChangeBaseYieldRateFromReligion(YIELD_FAITH, iChange);
-
 	return 0;
-#else
-	return BasicLuaMethod(L, &CvCity::ChangeFaithPerTurnFromReligion);
-#endif
 }
 //------------------------------------------------------------------------------
 //int IsReligionInCity() const;

@@ -364,13 +364,11 @@ public:
 #endif
 	CvTeamTechs* GetTeamTechs() const;
 
-#if defined(MOD_API_UNIFIED_YIELDS)
 	int getFeatureYieldChange(FeatureTypes eIndex1, YieldTypes eIndex2) const;
 	void changeFeatureYieldChange(FeatureTypes eIndex1, YieldTypes eIndex2, int iChange);
 
 	int getTerrainYieldChange(TerrainTypes eIndex1, YieldTypes eIndex2) const;
 	void changeTerrainYieldChange(TerrainTypes eIndex1, YieldTypes eIndex2, int iChange);
-#endif
 
 	int getImprovementYieldChange(ImprovementTypes eIndex1, YieldTypes eIndex2) const;
 	void changeImprovementYieldChange(ImprovementTypes eIndex1, YieldTypes eIndex2, int iChange);
@@ -589,9 +587,7 @@ protected:
 	                 FAllocArrayType< bool,
 	                 FAllocArrayType< bool,
 	                 FAllocArrayType< bool,
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 					 FAllocArrayType< bool,
-#endif
 	                 FAllocArrayType< int,
 	                 FAllocArrayType< int,
 	                 FAllocArrayType< int,
@@ -602,27 +598,17 @@ protected:
 					 FAllocArrayType< int,
 	                 FAllocArrayType< int,
 	                 FAllocArrayType< int,
-#if defined(MOD_API_UNIFIED_YIELDS)
 					 FAllocArrayType< int,
 	                 FAllocArray2DType< int,
 	                 FAllocArray2DType< int,
-#endif
 	                 FAllocArray2DType< int,
 	                 FAllocArray2DType< int,
 	                 FAllocArray2DType< int,
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES) || defined(MOD_API_UNIFIED_YIELDS)
 	                 FAllocBase< 0, 0 >
 					 > > > > > > > > > > > > > > > > >
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 					 >
-#endif
-#if defined(MOD_API_UNIFIED_YIELDS)
 					 > > >
-#endif
 					 CvTeamData;
-#else
-	                 FAllocBase< 0, 0 > > > > > > > > > > > > > > > > > > CvTeamData;
-#endif
 	CvTeamData m_BatchData;
 
 	int* m_aiForceTeamVoteEligibilityCount;
@@ -660,11 +646,9 @@ protected:
 	int* m_paiTerrainTradeCount;
 	int* m_aiVictoryCountdown;
 
-#if defined(MOD_API_UNIFIED_YIELDS)
 	int* m_paiTradeRouteDomainExtraRange;
 	int** m_ppaaiFeatureYieldChange;
 	int** m_ppaaiTerrainYieldChange;
-#endif
 
 	int** m_ppaaiImprovementYieldChange;
 	int** m_ppaaiImprovementNoFreshWaterYieldChange;

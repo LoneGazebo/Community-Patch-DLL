@@ -172,7 +172,6 @@ CvString CvGameCulture::GetGreatWorkTooltip(int iIndex, PlayerTypes eOwner) cons
 	szTooltip += "[NEWLINE]";
 	CvString cultureString;
 
-#if defined(MOD_API_UNIFIED_YIELDS)
 	cultureString = "";
 	char* sPrefix = "";
 	int iTourismPerWork = /*2 in CP, 3 in CBO*/ GD_INT_GET(BASE_TOURISM_PER_GREAT_WORK) + GET_PLAYER(eOwner).GetGreatWorkYieldChange(YIELD_TOURISM);
@@ -183,17 +182,15 @@ CvString CvGameCulture::GetGreatWorkTooltip(int iIndex, PlayerTypes eOwner) cons
 		
 		if (eYield == YIELD_CULTURE) {
 			iValue = /*2 in CP, 3 in CBO*/ GD_INT_GET(BASE_CULTURE_PER_GREAT_WORK);
-#if defined(MOD_API_UNIFIED_YIELDS_TOURISM)
 		} else if (eYield == YIELD_TOURISM) {
 			iValue = iTourismPerWork;
-#endif
 		} else {
 			iValue = 0;
 		}
 
 		iValue += GET_PLAYER(eOwner).GetGreatWorkYieldChange(eYield);
 		iValue += GET_PLAYER(eOwner).GetPlayerTraits()->GetGreatWorkYieldChanges(eYield);
-#if defined(MOD_BALANCE_CORE)
+
 		GreatWorkClass eWritingClass = (GreatWorkClass)GC.getInfoTypeForString("GREAT_WORK_LITERATURE");
 		GreatWorkClass eArtClass = (GreatWorkClass)GC.getInfoTypeForString("GREAT_WORK_ART");
 		GreatWorkClass eArtifactsClass = (GreatWorkClass)GC.getInfoTypeForString("GREAT_WORK_ARTIFACT");
@@ -228,7 +225,6 @@ CvString CvGameCulture::GetGreatWorkTooltip(int iIndex, PlayerTypes eOwner) cons
 		{
 			iValue += GET_PLAYER(eOwner).getRelicYieldBonus(eYield);
 		}
-#endif
 
 		CvCity* pCity = GetGreatWorkCity(iIndex);
 		if (pCity) {
@@ -248,7 +244,6 @@ CvString CvGameCulture::GetGreatWorkTooltip(int iIndex, PlayerTypes eOwner) cons
 				}
 			}
 
-#if defined(MOD_RELIGION_PERMANENT_PANTHEON)
 			// mod for civs keeping their pantheon belief forever
 			if (MOD_RELIGION_PERMANENT_PANTHEON)
 			{
@@ -266,7 +261,6 @@ CvString CvGameCulture::GetGreatWorkTooltip(int iIndex, PlayerTypes eOwner) cons
 					}
 				}
 			}
-#endif
 		}
 
 		if (iValue != 0) {
@@ -274,22 +268,6 @@ CvString CvGameCulture::GetGreatWorkTooltip(int iIndex, PlayerTypes eOwner) cons
 			sPrefix = ", ";
 		}
 	}
-	
-#if !defined(MOD_API_UNIFIED_YIELDS_TOURISM)
-	cultureString.Format("%s, +%d [ICON_TOURISM]", cultureString.c_str(), iTourismPerWork);
-#endif
-#else
-	int iCulturePerWork = /*2 in CP, 3 in CBO*/ GD_INT_GET(BASE_CULTURE_PER_GREAT_WORK);
-	iCulturePerWork += GET_PLAYER(eOwner).GetGreatWorkYieldChange(YIELD_CULTURE);
-	int iTourismPerWork = /*2 in CP, 3 in CBO*/ GD_INT_GET(BASE_TOURISM_PER_GREAT_WORK);
-#if defined(MOD_DIPLOMACY_CITYSTATES)
-	int iSciencePerWork = MOD_DIPLOMACY_CITYSTATES ? GET_PLAYER(eOwner).GetGreatWorkYieldChange(YIELD_SCIENCE) : 0;
-	if (iSciencePerWork > 0)
-		cultureString.Format ("+%d [ICON_CULTURE], +%d [ICON_TOURISM], +%d [ICON_RESEARCH]", iCulturePerWork, iTourismPerWork, iSciencePerWork);
-	else
-#endif
-		cultureString.Format ("+%d [ICON_CULTURE], +%d [ICON_TOURISM]", iCulturePerWork, iTourismPerWork);
-#endif
 
 	szTooltip += cultureString;
 
@@ -899,10 +877,8 @@ CvGreatWorkBuildingInMyEmpire::CvGreatWorkBuildingInMyEmpire()
 {
 	m_bThemed = false;
 	m_bEndangered = false;
-#if defined(MOD_GLOBAL_GREATWORK_YIELDTYPES) || defined(MOD_API_UNIFIED_YIELDS)
 	m_bPuppet = false;
     m_eYieldType = NO_YIELD;
-#endif
 }
 
 /// Constructor
@@ -4377,7 +4353,6 @@ int CvPlayerCulture::GetInfluencePerTurn(PlayerTypes ePlayer) const
 
 		iRtnValue += iInfluenceToAdd;
 
-#if defined(MOD_API_UNIFIED_YIELDS_TOURISM)
 		int iExtraInfluenceToAdd = 0;
 
 		// Tourism from religion
@@ -4397,7 +4372,6 @@ int CvPlayerCulture::GetInfluencePerTurn(PlayerTypes ePlayer) const
 		}
 
 		iRtnValue += iExtraInfluenceToAdd;
-#endif
 
 		iRtnValue = iRtnValue * (100 + iModifier) / 100;
 	}
@@ -4926,7 +4900,7 @@ int CvPlayerCulture::GetTourism()
 	int iStartEra = /*ANCIENT*/ GD_INT_GET(TOURISM_START_ERA);
 	int iStartTech = /*AGRICULTURE*/ GD_INT_GET(TOURISM_START_TECH);
 	
-	if (!MOD_API_UNIFIED_YIELDS_TOURISM || ((iStartTech == -1 || m_pPlayer->HasTech((TechTypes) iStartTech)) && (iStartEra == -1 || m_pPlayer->GetCurrentEra() >= iStartEra)))
+	if ((iStartTech == -1 || m_pPlayer->HasTech((TechTypes) iStartTech)) && (iStartEra == -1 || m_pPlayer->GetCurrentEra() >= iStartEra))
 	{
 		int iLoop;
 		for (CvCity* pCity = m_pPlayer->firstCity(&iLoop); pCity != NULL; pCity = m_pPlayer->nextCity(&iLoop))
@@ -6616,11 +6590,9 @@ void CvCityCulture::CalculateBaseTourismBeforeModifiers()
 	iBase += m_pCity->GetCityBuildings()->GetCurrentThemingBonuses();
 #endif
 
-#if defined(MOD_API_UNIFIED_YIELDS_TOURISM)
 	// Add in all the tourism from yields
 	iBase += m_pCity->getYieldRate(YIELD_TOURISM, false);
-#endif
-#if defined(MOD_BALANCE_CORE)
+
 	if(GET_PLAYER(m_pCity->getOwner()).isGoldenAge())
 	{
 		if(m_pCity->isCapital())
@@ -6633,18 +6605,13 @@ void CvCityCulture::CalculateBaseTourismBeforeModifiers()
 			}
 		}
 	}
-#endif
 
 	int iPercent = m_pCity->GetCityBuildings()->GetLandmarksTourismPercent() + GET_PLAYER(m_pCity->getOwner()).GetLandmarksTourismPercentGlobal();
 	if (iPercent != 0)
 	{
 		int iFromWonders = GetCultureFromWonders();
 		int iFromNaturalWonders = GetCultureFromNaturalWonders();
-#if defined(MOD_API_UNIFIED_YIELDS)
 		int iFromImprovements = m_pCity->GetBaseYieldRateFromTerrain(YIELD_CULTURE);
-#else
-		int iFromImprovements = GetCultureFromImprovements();
-#endif
 
 		int iFromCity = iFromWonders + iFromNaturalWonders + iFromImprovements;
 
@@ -6736,14 +6703,12 @@ void CvCityCulture::CalculateBaseTourism()
 		}
 	}
 
-#if defined(MOD_API_UNIFIED_YIELDS_TOURISM)
 	// City level yield modifiers (eg from buildings, policies, etc)
 	int iCityBaseTourismYieldRateMod = m_pCity->getBaseYieldRateModifier(YIELD_TOURISM) - 100;
-	if (MOD_API_UNIFIED_YIELDS_TOURISM && iCityBaseTourismYieldRateMod != 0)
+	if (iCityBaseTourismYieldRateMod != 0)
 	{
 		iModifier += iCityBaseTourismYieldRateMod;
 	}
-#endif
 
 	if (iModifier != 0)
 	{
@@ -6986,11 +6951,7 @@ CvString CvCityCulture::GetTourismTooltip()
 	{
 		int iFromWonders = GetCultureFromWonders();
 		int iFromNaturalWonders = GetCultureFromNaturalWonders();
-#if defined(MOD_API_UNIFIED_YIELDS)
 		int iFromImprovements = m_pCity->GetBaseYieldRateFromTerrain(YIELD_CULTURE);
-#else
-		int iFromImprovements = GetCultureFromImprovements();
-#endif
 		iTileTourism = ((iFromWonders + iFromNaturalWonders + iFromImprovements) * iPercent / 100);
 		if (szRtnValue.length() > 0)
 		{
@@ -7332,7 +7293,6 @@ CvString CvCityCulture::GetTourismTooltip()
 		szRtnValue += szTemp;
 	}
 
-#if defined(MOD_API_UNIFIED_YIELDS_TOURISM)
 	// City level yield modifiers (eg from buildings, policies, etc)
 	bool bHasCityModTooltip = false;
 	int iTempMod;
@@ -7736,8 +7696,6 @@ CvString CvCityCulture::GetTourismTooltip()
 			szRtnValue += GetLocalizedText("TXT_KEY_PRODMOD_WLTKD", iTempMod);
 		}
 	}
-#endif
-
 #endif
 
 #if defined(MOD_BALANCE_CORE)

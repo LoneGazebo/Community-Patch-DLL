@@ -1378,7 +1378,6 @@ public:
 	int GetGreatAdmiralCount() const;
 	void ChangeGreatAdmiralCount(int iChange);
 
-#if defined(MOD_PROMOTIONS_AURA_CHANGE)
 	int GetAuraRangeChange() const;
 	void ChangeAuraRangeChange(int iChange);
 	int GetAuraEffectChange() const;
@@ -1389,8 +1388,6 @@ public:
 
 	int GetMilitaryCapChange() const;
 	void ChangeMilitaryCapChange(int iChange);
-
-#endif
 
 	int getGreatGeneralModifier() const;
 	void changeGreatGeneralModifier(int iChange);
@@ -1687,12 +1684,11 @@ public:
 	int getUnitClassDefenseMod(UnitClassTypes eUnitClass) const;
 	void changeUnitClassDefenseMod(UnitClassTypes eUnitClass, int iChange);
 
-#if defined(MOD_API_UNIFIED_YIELDS)
 	int getYieldFromKills(YieldTypes eIndex) const;
 	void changeYieldFromKills(YieldTypes eIndex, int iChange);
 	int getYieldFromBarbarianKills(YieldTypes eIndex) const;
 	void changeYieldFromBarbarianKills(YieldTypes eIndex, int iChange);
-#endif
+
 #if defined(MOD_BALANCE_CORE)
 	int getYieldFromScouting(YieldTypes eIndex) const;
 	void changeYieldFromScouting(YieldTypes eIndex, int iChange);
@@ -2177,12 +2173,10 @@ protected:
 #if defined(MOD_PROMOTIONS_GG_FROM_BARBARIANS)
 	int m_iGGFromBarbariansCount;
 #endif
-#if defined(MOD_PROMOTIONS_AURA_CHANGE)
 	int m_iAuraRangeChange;
 	int m_iAuraEffectChange;
 	int m_iNumRepairCharges;
 	int m_iMilitaryCapChange;
-#endif
 	int m_iRoughTerrainEndsTurnCount;
 	int m_iEmbarkAbilityCount;
 	int m_iHoveringUnitCount;
@@ -2312,10 +2306,8 @@ protected:
 	std::vector<int> m_aiNumTimesAttackedThisTurn;
 	std::vector<int> m_yieldFromScouting;
 #endif
-#if defined(MOD_API_UNIFIED_YIELDS)
 	std::vector<int> m_yieldFromKills;
 	std::vector<int> m_yieldFromBarbarianKills;
-#endif
 	std::vector<int> m_extraUnitCombatModifier;
 	std::vector<int> m_unitClassModifier;
 #if defined(MOD_BALANCE_CORE)

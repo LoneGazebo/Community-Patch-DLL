@@ -1817,7 +1817,7 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 			yield[YIELD_FOOD] += PolicyInfo->GetHappinessPerXGreatWorks() * 5;
 		}
 	}
-#if defined(MOD_BALANCE_CORE_POLICIES) && defined(MOD_API_UNIFIED_YIELDS)
+#if defined(MOD_BALANCE_CORE_POLICIES)
 	if (PolicyInfo->GetExtraMissionaryStrength() != 0)
 	{
 		if (pPlayerTraits->IsReligious())
@@ -3622,7 +3622,7 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 					yield[eYield] += PolicyInfo->GetReligionBuildingYieldMod(eBuildingClass, eYield) * iNumCities;
 				}
 			}
-#if defined(MOD_BALANCE_CORE_POLICIES) && defined(MOD_API_UNIFIED_YIELDS)
+#if defined(MOD_BALANCE_CORE_POLICIES)
 			if (PolicyInfo->GetYieldChangesPerReligionTimes100(i) != 0)
 			{
 				yield[eYield] += PolicyInfo->GetYieldChangesPerReligionTimes100(i) * iNumCities / 100;

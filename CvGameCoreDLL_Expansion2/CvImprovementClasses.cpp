@@ -172,7 +172,6 @@ CvImprovementEntry::CvImprovementEntry(void):
 	m_pbTerrainMakesValid(NULL),
 	m_pbFeatureMakesValid(NULL),
 	m_pbImprovementMakesValid(NULL),
-#if defined(MOD_API_UNIFIED_YIELDS)
 	m_piAdjacentSameTypeYield(NULL),
 	m_piAdjacentTwoSameTypeYield(NULL),
 	m_ppiAdjacentImprovementYieldChanges(NULL),
@@ -180,7 +179,6 @@ CvImprovementEntry::CvImprovementEntry(void):
 	m_ppiAdjacentResourceYieldChanges(NULL),
 	m_ppiAdjacentFeatureYieldChanges(NULL),
 	m_ppiFeatureYieldChanges(NULL),
-#endif
 	m_ppiTechYieldChanges(NULL),
 	m_ppiTechNoFreshWaterYieldChanges(NULL),
 	m_ppiTechFreshWaterYieldChanges(NULL),
@@ -206,7 +204,6 @@ CvImprovementEntry::~CvImprovementEntry(void)
 	SAFE_DELETE_ARRAY(m_pbTerrainMakesValid);
 	SAFE_DELETE_ARRAY(m_pbFeatureMakesValid);
 	SAFE_DELETE_ARRAY(m_pbImprovementMakesValid);
-#if defined(MOD_API_UNIFIED_YIELDS)
 	SAFE_DELETE_ARRAY(m_piAdjacentSameTypeYield);
 	SAFE_DELETE_ARRAY(m_piAdjacentTwoSameTypeYield);
 	if(m_ppiAdjacentImprovementYieldChanges != NULL)
@@ -229,7 +226,7 @@ CvImprovementEntry::~CvImprovementEntry(void)
 	{
 		CvDatabaseUtility::SafeDelete2DArray(m_ppiFeatureYieldChanges);
 	}
-#endif
+
 	if(m_paImprovementResource != NULL)
 	{
 		SAFE_DELETE_ARRAY(m_paImprovementResource); // XXX make sure this isn't leaking memory...
@@ -416,10 +413,8 @@ bool CvImprovementEntry::CacheResults(Database::Results& kResults, CvDatabaseUti
 									  "ImprovementType",
 							          szImprovementType);
 
-#if defined(MOD_API_UNIFIED_YIELDS)
 	kUtility.SetYields(m_piAdjacentSameTypeYield, "Improvement_YieldAdjacentSameType", "ImprovementType", szImprovementType);
 	kUtility.SetYields(m_piAdjacentTwoSameTypeYield, "Improvement_YieldAdjacentTwoSameType", "ImprovementType", szImprovementType);
-#endif
 
 	kUtility.SetYields(m_piYieldChange, "Improvement_Yields", "ImprovementType", szImprovementType);
 	kUtility.SetYields(m_piYieldPerEra, "Improvement_YieldPerEra", "ImprovementType", szImprovementType);
@@ -806,7 +801,6 @@ int CvImprovementEntry::GetAdditionalUnits() const
 }
 #endif
 
-#if defined(MOD_API_UNIFIED_YIELDS)
 /// Bonus yield if another Improvement of same type is adjacent
 int CvImprovementEntry::GetYieldAdjacentSameType(YieldTypes eYield) const
 {
@@ -826,13 +820,6 @@ int CvImprovementEntry::GetYieldAdjacentTwoSameType(YieldTypes eYield) const
 
 	return iYield;
 }
-#else
-/// Bonus culture if another Improvement of same type is adjacent
-int CvImprovementEntry::GetCultureAdjacentSameType() const
-{
-	return m_iCultureAdjacentSameType;
-}
-#endif
 
 /// The number of tiles in an area needed for a goody hut to be placed by the map generator
 int CvImprovementEntry::GetTilesPerGoody() const
@@ -1406,7 +1393,6 @@ bool CvImprovementEntry::GetImprovementMakesValid(int i) const
 	return m_pbImprovementMakesValid ? m_pbImprovementMakesValid[i] : false;
 }
 
-#if defined(MOD_API_UNIFIED_YIELDS)
 /// If this improvement requires a terrain type to be valid
 int CvImprovementEntry::GetAdjacentSameTypeYield(int i) const
 {
@@ -1499,7 +1485,6 @@ int* CvImprovementEntry::GetFeatureYieldChangesArray(int i)
 {
 	return m_ppiFeatureYieldChanges[i];
 }
-#endif
 
 /// How much a tech improves the yield of this improvement
 int CvImprovementEntry::GetTechYieldChanges(int i, int j) const

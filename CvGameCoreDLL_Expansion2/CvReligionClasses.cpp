@@ -8419,7 +8419,6 @@ int CvReligionAI::ScoreBeliefAtCity(CvBeliefEntry* pEntry, CvCity* pCity) const
 		}
 		iRtnValue += iTempValue;
 
-#if defined(MOD_API_UNIFIED_YIELDS)
 		if (pCity->isCapital()) {
 			iTempValue = pEntry->GetCapitalYieldChange(iI) * iEraBonus;
 			if(iMinPop > 0)
@@ -8561,8 +8560,6 @@ int CvReligionAI::ScoreBeliefAtCity(CvBeliefEntry* pEntry, CvCity* pCity) const
 				}
 			}
 		}
-#endif
-
 
 		// Trade route yield change
 		iTempValue = pEntry->GetYieldChangeTradeRoute(iI) * iEraBonus;

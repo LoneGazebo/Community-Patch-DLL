@@ -526,7 +526,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetGoldenAgeGreatScientistRateModifier);
 	Method(GetGoldenAgeGreatEngineerRateModifier);
 	Method(GetGoldenAgeGreatMerchantRateModifier);
-#if defined(MOD_DIPLOMACY_CITYSTATES) && defined(MOD_API_UNIFIED_YIELDS)
+#if defined(MOD_DIPLOMACY_CITYSTATES)
 	Method(GetGoldenAgeGreatDiplomatRateModifier);
 #endif
 
@@ -5459,16 +5459,12 @@ int CvLuaPlayer::lGetTradeYourRoutesTTString(lua_State* L)
 					case YIELD_FAITH:
 						strOriginYieldsStr += GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_FAITH_YIELD_TT", iYieldQuantity / 100);
 						break;
-#if defined(MOD_API_UNIFIED_YIELDS_TOURISM)
 					case YIELD_TOURISM:
 						strOriginYieldsStr += GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_TOURISM_YIELD_TT", iYieldQuantity / 100);
 						break;
-#endif
-#if defined(MOD_API_UNIFIED_YIELDS_GOLDEN_AGE)
 					case YIELD_GOLDEN_AGE_POINTS:
 						strOriginYieldsStr += GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_GOLDEN_AGE_POINTS_YIELD_TT", iYieldQuantity / 100);
 						break;
-#endif
 					}
 				}
 			}
@@ -5500,16 +5496,12 @@ int CvLuaPlayer::lGetTradeYourRoutesTTString(lua_State* L)
 					case YIELD_FAITH:
 						strDestYieldsStr += GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_FAITH_YIELD_TT", iYieldQuantity / 100);
 						break;
-#if defined(MOD_API_UNIFIED_YIELDS_TOURISM)
 					case YIELD_TOURISM:
 						strDestYieldsStr += GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_TOURISM_YIELD_TT", iYieldQuantity / 100);
 						break;
-#endif
-#if defined(MOD_API_UNIFIED_YIELDS_GOLDEN_AGE)
 					case YIELD_GOLDEN_AGE_POINTS:
 						strDestYieldsStr += GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_GOLDEN_AGE_POINTS_YIELD_TT", iYieldQuantity / 100);
 						break;
-#endif
 					}
 				}
 			}
@@ -5690,16 +5682,12 @@ int CvLuaPlayer::lGetTradeToYouRoutesTTString(lua_State* L)
 					case YIELD_FAITH:
 						strDestYieldsStr += GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_FAITH_YIELD_TT", iYieldQuantity / 100);
 						break;
-#if defined(MOD_API_UNIFIED_YIELDS_TOURISM)
 					case YIELD_TOURISM:
 						strDestYieldsStr += GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_TOURISM_YIELD_TT", iYieldQuantity / 100);
 						break;
-#endif
-#if defined(MOD_API_UNIFIED_YIELDS_GOLDEN_AGE)
 					case YIELD_GOLDEN_AGE_POINTS:
 						strDestYieldsStr += GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_GOLDEN_AGE_POINTS_YIELD_TT", iYieldQuantity / 100);
 						break;
-#endif
 					}
 				}
 			}
@@ -7257,7 +7245,7 @@ int CvLuaPlayer::lGetGoldenAgeGreatMerchantRateModifier(lua_State* L)
 }
 
 #endif
-#if defined(MOD_DIPLOMACY_CITYSTATES) && defined(MOD_API_UNIFIED_YIELDS)
+#if defined(MOD_DIPLOMACY_CITYSTATES)
 //------------------------------------------------------------------------------
 int CvLuaPlayer::lGetGoldenAgeGreatDiplomatRateModifier(lua_State* L)
 {
@@ -12322,9 +12310,8 @@ int CvLuaPlayer::lGetExtraYieldWorldWonder(lua_State* L)
 		{
 			if(::isWorldWonderClass(pkBuildingInfo->GetBuildingClassInfo()))
 			{
-#if defined(MOD_API_UNIFIED_YIELDS)
 				iExtraYield += pkPlayer->GetPlayerTraits()->GetYieldChangeWorldWonder(eYieldType);
-#endif
+
 				for(int iPolicyLoop = 0; iPolicyLoop < GC.getNumPolicyInfos(); iPolicyLoop++)
 				{
 					const PolicyTypes ePolicy = static_cast<PolicyTypes>(iPolicyLoop);

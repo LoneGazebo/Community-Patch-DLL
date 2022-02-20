@@ -674,7 +674,10 @@ INSERT INTO Improvement_ValidTerrains
 	(ImprovementType, TerrainType)
 VALUES
 	('IMPROVEMENT_EKI', 'TERRAIN_GRASS'),
-	('IMPROVEMENT_EKI', 'TERRAIN_PLAINS');
+	('IMPROVEMENT_EKI', 'TERRAIN_PLAINS'),
+	('IMPROVEMENT_EKI', 'TERRAIN_DESERT'),
+	('IMPROVEMENT_EKI', 'TERRAIN_TUNDRA'),
+	('IMPROVEMENT_EKI', 'TERRAIN_SNOW');
 
 INSERT INTO Improvement_ValidFeatures
 	(ImprovementType, FeatureType)
