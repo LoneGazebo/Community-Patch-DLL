@@ -1,4 +1,4 @@
--- Religious Texts
+-- Religious Texts (Now Inquisition)
 
 UPDATE Beliefs
 SET SpyPressure = '8'
@@ -21,7 +21,7 @@ INSERT INTO Belief_YieldFromRemoveHeresy
 VALUES
 	('BELIEF_RELIGIOUS_TEXTS', 'YIELD_GOLD', 25);
 
--- Reliquary (Now Tithes)
+-- Reliquary (Now Mendinancy)
 UPDATE Beliefs
 SET GreatPersonExpendedFaith = '0'
 WHERE Type = 'BELIEF_RELIQUARY';
@@ -42,7 +42,7 @@ VALUES
 	('BELIEF_RELIQUARY', 'YIELD_FAITH', 10);
 
 
--- Just War (Now Martyrdom)
+-- Just War (Now Abode of Peace)
 UPDATE Beliefs
 SET CombatModifierEnemyCities = '0'
 WHERE Type = 'BELIEF_JUST_WAR';
@@ -67,7 +67,7 @@ UPDATE Beliefs
 SET CityStateInfluenceModifier = '20'
 WHERE Type = 'BELIEF_JUST_WAR';
 
--- Heathen Conversion (Now Holy Warriors)
+-- Heathen Conversion (Now Zealotry)
 UPDATE Beliefs
 SET Enhancer = '1'
 WHERE Type = 'BELIEF_HEATHEN_CONVERSION';
@@ -94,7 +94,7 @@ VALUES
 	('BELIEF_HEATHEN_CONVERSION', 'RESOURCE_ALUMINUM', 1),
 	('BELIEF_HEATHEN_CONVERSION', 'RESOURCE_URANIUM', 1);
 
--- Itinerant Preachers (Religious Celebrations)
+-- Itinerant Preachers (Now Symbolism)
 UPDATE Beliefs
 SET SpreadDistanceModifier = '0'
 WHERE Type = 'BELIEF_ITINERANT_PREACHERS';
@@ -126,9 +126,12 @@ VALUES
 	('BELIEF_ITINERANT_PREACHERS', 'GREATPERSON_MERCHANT', 2),
 	('BELIEF_ITINERANT_PREACHERS', 'GREATPERSON_ENGINEER', 2);
 
--- Messiah (Now Sainthood)
+-- Messiah (Now Prophecy)
+UPDATE Beliefs
+SET ReducePolicyRequirements = '1'
+WHERE Type = 'BELIEF_MESSIAH';
 
--- Missionary Zeal (Now Scholar-Priests)
+-- Missionary Zeal (Now Sacred Calendar)
 UPDATE Beliefs
 SET SciencePerOtherReligionFollower = '0'
 WHERE Type = 'BELIEF_MISSIONARY_ZEAL';
@@ -149,16 +152,11 @@ VALUES
 	('BELIEF_MISSIONARY_ZEAL', 'GREATPERSON_MERCHANT', 33),
 	('BELIEF_MISSIONARY_ZEAL', 'GREATPERSON_ENGINEER', 33);
 
-
-UPDATE Beliefs
-SET ReducePolicyRequirements = '1'
-WHERE Type = 'BELIEF_MESSIAH';
-
 UPDATE Beliefs
 SET MissionaryStrengthModifier = '25'
 WHERE Type = 'BELIEF_MISSIONARY_ZEAL';
 
--- Holy Order
+-- Holy Order (Now Orthodoxy)
 UPDATE Beliefs
 SET SpreadDistanceModifier = '25'
 WHERE Type = 'BELIEF_HOLY_ORDER';
@@ -175,11 +173,12 @@ UPDATE Beliefs
 SET MissionaryCostModifier = '0'
 WHERE Type = 'BELIEF_HOLY_ORDER';
 
+-- (undocumented in text?)
 UPDATE Beliefs
 SET FriendlyCityStateSpreadModifier = '100'
 WHERE Type = 'BELIEF_HOLY_ORDER';
 
--- Religious Unity
+-- Religious Unity (now Syncretism)
 UPDATE Beliefs
 SET MissionaryCostModifier = '0'
 WHERE Type = 'BELIEF_RELIGIOUS_UNITY';
