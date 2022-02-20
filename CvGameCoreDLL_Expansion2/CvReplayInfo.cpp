@@ -136,11 +136,11 @@ void CvReplayInfo::createInfo()
 
 			TurnDataSets dataSet(m_dataSetMap.size());
 
-			unsigned int uiNumDataSets = player.getNumReplayDataSets();
-			for(unsigned int uiPlayerDataSet = 0; uiPlayerDataSet < uiNumDataSets; ++uiPlayerDataSet)
+			const map<CvString, CvPlayer::TurnData> replayData = player.getReplayData();
+			for(map<CvString, CvPlayer::TurnData>::const_iterator it=replayData.begin(); it!=replayData.end(); ++it)
 			{
 				// First, Locate the index of the dataset
-				std::string playerDataSetName = player.getReplayDataSetName(uiPlayerDataSet);
+				std::string playerDataSetName = it->first.c_str();
 				unsigned int uiDataSet = 0;
 				bool bFound = false;
 				for(uiDataSet = 0; uiDataSet < m_dataSetMap.size(); ++uiDataSet)
@@ -161,13 +161,9 @@ void CvReplayInfo::createInfo()
 					uiDataSet = m_dataSetMap.size() - 1;
 				}
 
-				CvPlayer::TurnData playerData = player.getReplayDataHistory(uiPlayerDataSet);
 				TurnData turnData;
-
-				for(CvPlayer::TurnData::iterator it = playerData.begin(); it != playerData.end(); ++it)
-				{
-					turnData[(*it).first - m_iInitialTurn] = (*it).second;
-				}
+				for(CvPlayer::TurnData::const_iterator it2 = it->second.begin(); it2 != it->second.end(); ++it2)
+					turnData[it2->first - m_iInitialTurn] = it2->second;
 
 				dataSet[uiDataSet] = turnData;
 			}
