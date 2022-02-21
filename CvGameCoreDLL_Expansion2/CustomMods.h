@@ -1210,7 +1210,7 @@ void CheckSentinel(uint);
 
 
 // CustomMod option wrappers
-#define MOD_OPT_DECL(name)  protected: bool m_b##name; public: inline bool is##name() { return m_b##name; }
+#define MOD_OPT_DECL(name)  protected: bool m_b##name:1; public: inline bool is##name() { return m_b##name; }
 #define MOD_OPT_CACHE(name) m_b##name = (m_options[string(#name)] == 1);
 
 
