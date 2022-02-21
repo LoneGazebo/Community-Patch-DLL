@@ -238,7 +238,7 @@
 
 -- Adjust Anti-Tank
 	UPDATE Language_en_US
-	SET Text = 'Anti-Tank Rounds.'
+	SET Text = 'Bonus vs. Armored Units (50)'
 	WHERE Tag = 'TXT_KEY_PROMOTION_ANTI_TANK';
 
 	UPDATE Language_en_US
