@@ -424,11 +424,11 @@ VALUES		('GREAT_WORK_THE_CROWN_JEWELS', 'GREAT_WORK_ART',	'TXT_KEY_GREAT_WORK_TH
 -- Bismarck -- Hanse Yield Per Pop
 
 UPDATE Buildings
-SET FinishLandTRTourism = '6'
+SET FinishLandTRTourism = '0'
 WHERE Type = 'BUILDING_HANSE';
 
 UPDATE Buildings
-SET FinishSeaTRTourism = '6'
+SET FinishSeaTRTourism = '0'
 WHERE Type = 'BUILDING_HANSE';
 
 UPDATE Buildings
@@ -436,11 +436,11 @@ SET CityStateTradeRouteProductionModifier = '5'
 WHERE Type = 'BUILDING_HANSE';
 
 UPDATE Buildings
-SET TradeRouteRecipientBonus = '2'
+SET TradeRouteRecipientBonus = '3'
 WHERE Type = 'BUILDING_HANSE';
 
 UPDATE Buildings
-SET TradeRouteTargetBonus = '2'
+SET TradeRouteTargetBonus = '3'
 WHERE Type = 'BUILDING_HANSE';
 
 UPDATE Buildings
