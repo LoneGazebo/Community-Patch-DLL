@@ -238,13 +238,12 @@
 
 -- Adjust Anti-Tank
 	UPDATE Language_en_US
-	SET Text = 'Anti-Tank Rounds.'
+	SET Text = 'Anti-Tank Rounds'
 	WHERE Tag = 'TXT_KEY_PROMOTION_ANTI_TANK';
 
-	UPDATE Language_en_US
-	SET Text = '+50% [ICON_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Armored Units[ENDCOLOR].'
-	WHERE Tag = 'TXT_KEY_PROMOTION_ANTI_TANK_HELP';
-
+	INSERT INTO Language_en_US (Tag, Text)
+	VALUES ('TXT_KEY_PROMOTION_ANTI_TANK_HELP', '+50% [ICON_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Armored Units[ENDCOLOR].');
+	
 	UPDATE Language_en_US
 	SET Text = 'Anti-Tank Rounds'
 	WHERE Tag = 'TXT_KEY_PEDIA_PROMOTION_ANTI_TANK';
