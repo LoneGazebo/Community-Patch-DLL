@@ -1056,7 +1056,7 @@ std::vector<CvUnit*> CvDangerPlotContents::GetPossibleAttackers(TeamTypes eTeamF
 	for (DangerUnitVector::const_iterator it = m_apUnits.begin(); it < m_apUnits.end(); ++it)
 	{
 		CvUnit* pAttacker = GET_PLAYER(it->first).getUnit(it->second);
-		if (pAttacker)
+		if (pAttacker && !pAttacker->isDelayedDeath() && !pAttacker->IsDead())
 		{
 			if (eTeamForVisibilityCheck == NO_TEAM || pAttacker->plot()->isVisible(eTeamForVisibilityCheck))
 				vResult.push_back(pAttacker);
