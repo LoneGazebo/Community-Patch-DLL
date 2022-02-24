@@ -215,7 +215,7 @@ SET NationalPopRequired = '25'
 WHERE Type = 'BUILDING_CIRCUS_MAXIMUS';
 
 UPDATE Buildings
-SET NationalPopRequired = '40'
+SET NationalPopRequired = '35'
 WHERE Type = 'BUILDING_NATIONAL_TREASURY';
 
 UPDATE Buildings
@@ -223,11 +223,11 @@ SET NationalPopRequired = '25'
 WHERE Type = 'BUILDING_NATIONAL_COLLEGE';
 
 UPDATE Buildings
-SET NationalPopRequired = '40'
+SET NationalPopRequired = '35'
 WHERE Type = 'BUILDING_IRONWORKS';
 
 UPDATE Buildings
-SET NationalPopRequired = '35'
+SET NationalPopRequired = '30'
 WHERE Type = 'BUILDING_OXFORD_UNIVERSITY';
 
 UPDATE Buildings
