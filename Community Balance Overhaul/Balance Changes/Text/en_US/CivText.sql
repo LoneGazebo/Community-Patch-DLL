@@ -556,7 +556,7 @@ SET Text = 'The barbarians in this Encampment have joined your army! All hail gl
 WHERE Tag = 'TXT_KEY_NOTIFICATION_BARB_CAMP_CONVERTS';
 
 UPDATE Language_en_US
-SET Text = 'Horse Archers are fast ranged units, deadly on open terrain. They start with the Accuracy I promotion. As a mounted unit, the Horse Archer is vulnerable to Spearmen. Unlike the Chariot Archer, the Horse Archer does not require Horses.'
+SET Text = 'Horse Archers are fast ranged units, deadly on open terrain. They start with the Accuracy I promotion. As a mounted unit, the Horse Archer is vulnerable to Spearmen. Unlike the Skirmisher, the Horse Archer does not require Horses.'
 WHERE Tag = 'TXT_KEY_UNIT_HUN_HORSE_ARCHER_STRATEGY';
 
 --------------------

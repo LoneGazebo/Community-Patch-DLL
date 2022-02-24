@@ -1677,7 +1677,7 @@
 		<Replace>
 			<Type>PROMOTION_ANTI_TANK</Type>
 			<Description>TXT_KEY_PROMOTION_ANTI_TANK</Description>
-			<Help>TXT_KEY_PROMOTION_ANTI_TANK</Help>
+			<Help>TXT_KEY_PROMOTION_ANTI_TANK_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<PortraitIndex>59</PortraitIndex>
 			<IconAtlas>ABILITY_ATLAS</IconAtlas>

@@ -9,10 +9,10 @@ SET PlotBuyCostModifier = '-25'
 WHERE Type = 'TRAIT_RIVER_EXPANSION';
 
 INSERT INTO BuildingClasses 	
-			(Type,										DefaultBuilding,						MaxPlayerInstances)
-VALUES		('BUILDINGCLASS_AMERICA_SMITHSONIAN',		'BUILDING_AMERICA_SMITHSONIAN',			1),
-			('BUILDINGCLASS_AMERICA_WESTPOINT',			'BUILDING_AMERICA_WESTPOINT',			1),
-			('BUILDINGCLASS_AMERICA_HOOVERDAM',			'BUILDING_AMERICA_HOOVERDAM',			1);
+			(Type,										Description,							DefaultBuilding,						MaxPlayerInstances)
+VALUES		('BUILDINGCLASS_AMERICA_SMITHSONIAN',		'TXT_KEY_BUILDING_MOMA', 				'BUILDING_AMERICA_SMITHSONIAN',			1),
+			('BUILDINGCLASS_AMERICA_WESTPOINT',			'TXT_KEY_BUILDING_AMERICA_WESTPOINT',	'BUILDING_AMERICA_WESTPOINT',			1),
+			('BUILDINGCLASS_AMERICA_HOOVERDAM',			'TXT_KEY_BUILDING_AMERICA_HOOVERDAM',	'BUILDING_AMERICA_HOOVERDAM',			1);
 
 INSERT INTO Buildings 	
 			(Type,									Help,												ThemingBonusHelp, 								Description,									Civilopedia,										Strategy,												PolicyCostModifier, BuildingClass, 				Cost, 	CultureRateModifier, 	GreatWorkSlotType, 				GreatWorkCount, NeverCapture, 	PrereqTech, 			ArtDefineTag, 							MinAreaSize, 	ConquestProb, 	HurryCostModifier, 	NationalPopRequired, 	NumCityCostMod, NukeImmune, IconAtlas,				PortraitIndex)

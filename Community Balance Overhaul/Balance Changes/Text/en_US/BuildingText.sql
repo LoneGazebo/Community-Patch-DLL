@@ -349,6 +349,11 @@ UPDATE Language_en_US
 SET Text = 'Allows you to build the [COLOR_POSITIVE_TEXT]Globe Theatre[ENDCOLOR], a building which increases [ICON_TOURISM] Tourism. Also enables the founding of the World Congress.'
 WHERE Tag = 'TXT_KEY_TECH_PRINTING_PRESS_HELP';
 
+-- Stadium (BuildingClasses table was pointing to the wrong TXT_KEY)
+UPDATE BuildingClasses
+SET Description = 'TXT_KEY_BUILDING_STADIUM_DESC'
+WHERE Type = 'BUILDINGCLASS_STADIUM';
+
 UPDATE Language_en_US
 SET Text = 'Build the Stadium if you are going for a [COLOR_POSITIVE_TEXT]Culture Victory[ENDCOLOR], or you are having problems with happiness from Boredom in your empire. Provides a huge sum of Tourism when completed.'
 WHERE Tag = 'TXT_KEY_BUILDING_STADIUM_STRATEGY';

@@ -64,7 +64,7 @@ INSERT INTO ArtDefine_UnitMemberInfos (Type, Scale, ZOffset, Domain, Model, Mate
 
 INSERT INTO ArtDefine_StrategicView (StrategicViewType, TileType, Asset )
 	SELECT	'ART_DEF_UNIT_CORVETTE', 'Unit', 'svcorvette.dds';
-
+-- why is this placed here?
 INSERT INTO ArtDefine_StrategicView (StrategicViewType, TileType, Asset )
 	SELECT	'ART_DEF_UNIT_EXPLORER', 'Unit', 'svexplorer.dds';
 
