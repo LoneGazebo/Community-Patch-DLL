@@ -384,9 +384,6 @@
     <!-- Hovering unit can only heal over land (v19) -->
     <!-- See also: "Units - Steampunk Airships" -->
     <Row Class="6" Name="UNITS_HOVERING_LAND_ONLY_HEAL" Value="0"/>
-    <!-- Permits hovering units to attack coastal shipping (v19) -->
-    <!-- See also: "Units - Steampunk Airships" -->
-    <Row Class="6" Name="UNITS_HOVERING_COASTAL_ATTACKS" Value="0"/>
 
     <!-- Enables the table Unit_ResourceQuantityTotals -->
     <Row Class="5" Name="UNITS_RESOURCE_QUANTITY_TOTALS" Value="0"/>
