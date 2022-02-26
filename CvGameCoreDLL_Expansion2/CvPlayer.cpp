@@ -14871,6 +14871,15 @@ bool CvPlayer::canTrainUnit(UnitTypes eUnit, bool bContinue, bool bTestVisible, 
 			return false;
 		}
 	}
+
+	// No Settlers for City States
+	if (pUnitInfo.IsFound() || pUnitInfo.IsFoundAbroad())
+	{
+		if (isMinorCiv())
+		{
+			return false;
+		}
+	}
 	
 	//Policy Requirement
 	PolicyTypes ePolicy = (PolicyTypes)pUnitInfo.GetPolicyType();
