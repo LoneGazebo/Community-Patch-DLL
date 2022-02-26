@@ -361,6 +361,7 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_piResourceQuantityPerXFranchises(NULL),
 	m_piYieldPerFranchise(NULL),
 #endif
+	m_piResourceQuantityFromPOP(NULL),
 	m_paiHurryModifier(NULL),
 	m_pbBuildingClassNeededInCity(NULL),
 #if defined(MOD_BALANCE_CORE)
@@ -494,6 +495,7 @@ CvBuildingEntry::~CvBuildingEntry(void)
 	SAFE_DELETE_ARRAY(m_piYieldPerFranchise);
 	SAFE_DELETE_ARRAY(m_piResourceQuantityPerXFranchises);
 #endif
+	SAFE_DELETE_ARRAY(m_piResourceQuantityFromPOP);
 	SAFE_DELETE_ARRAY(m_paiHurryModifier);
 	SAFE_DELETE_ARRAY(m_pbBuildingClassNeededInCity);
 #if defined(MOD_BALANCE_CORE)
@@ -1002,6 +1004,7 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 
 	m_iGPRateModifierPerXFranchises = kResults.GetInt("GPRateModifierPerXFranchises");
 #endif
+	kUtility.PopulateArrayByValue(m_piResourceQuantityFromPOP, "Resources", "Building_ResourceQuantityFromPOP", "ResourceType", "BuildingType", szBuildingType, "Modifier");
 	//YieldFromYieldYieldChanges
 	{
 		//Initialize Theming Bonuses
@@ -3644,6 +3647,13 @@ int CvBuildingEntry::GetYieldPerFranchise(int i) const
 	return m_piYieldPerFranchise ? m_piYieldPerFranchise[i] : -1;
 }
 #endif
+// Resource provided by Population
+int CvBuildingEntry::GetResourceQuantityFromPOP(int i) const
+{
+	CvAssertMsg(i < GC.getNumResourceInfos(), "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piResourceQuantityFromPOP ? m_piResourceQuantityFromPOP[i] : -1;
+}
 /// Modifier to Hurry cost
 int CvBuildingEntry::GetHurryModifier(int i) const
 {

@@ -2024,6 +2024,12 @@
 		<Column name="ResourceType" type="text" reference="Resources(Type)"/>
 		<Column name="NumFranchises" type="integer"/>
 	</Table>
+	<!-- Grant a resource based on Population, works as percentage -->
+	<Table name="Building_ResourceQuantityFromPOP">
+		<Column name="BuildingType" type="text" reference="Buildings(Type)"/>
+		<Column name="ResourceType" type="text" reference="Resources(Type)"/>
+		<Column name="Modifier" type="integer"/>
+	</Table>
 	<!-- Grants Combat units of any civilization (like Building_FreeUnits)-->
 	<Table name="Building_FreeSpecUnits">
 		<Column name="BuildingType" type="text" reference="Buildings(Type)"/>

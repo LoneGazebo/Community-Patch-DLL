@@ -37835,6 +37835,7 @@ int CvPlayer::getNumResourcesFromOther(ResourceTypes eIndex) const
 #if defined(MOD_BALANCE_CORE)
 		const CvCity* pLoopCity;
 		int iLoop;
+		int iCityPOPResource = 0;
 		for (pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 		{
 			if (pLoopCity != NULL)
@@ -37847,8 +37848,15 @@ int CvPlayer::getNumResourcesFromOther(ResourceTypes eIndex) const
 						iTotalNumResource += (iFranchises / pLoopCity->GetResourceQuantityPerXFranchises(eIndex));
 					}
 				}
+				
+				if (pLoopCity->GetResourceQuantityFromPOP(eIndex) > 0)
+				{
+					iCityPOPResource += (pLoopCity->getPopulation() * pLoopCity->GetResourceQuantityFromPOP(eIndex));
+				}
 			}
 		}
+
+		iTotalNumResource += iCityPOPResource / 100;
 #endif
 		if (GetStrategicResourceMod() != 0)
 		{
