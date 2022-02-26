@@ -14863,19 +14863,16 @@ bool CvPlayer::canTrainUnit(UnitTypes eUnit, bool bContinue, bool bTestVisible, 
 	}
 #endif
 
-	// One City Challenge
-	if(pUnitInfo.IsFound() || pUnitInfo.IsFoundAbroad())
+	
+	if (pUnitInfo.IsFound() || pUnitInfo.IsFoundAbroad())
 	{
-		if(GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE) && isHuman())
+		// No Settlers for non-majors
+		if (!isMajorCiv())
 		{
 			return false;
 		}
-	}
-
-	// No Settlers for City States
-	if (pUnitInfo.IsFound() || pUnitInfo.IsFoundAbroad())
-	{
-		if (isMinorCiv())
+		// One City Challenge
+		if (GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE) && isHuman())
 		{
 			return false;
 		}
