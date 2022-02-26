@@ -46549,13 +46549,13 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 		}
 	}
 
-	if (bSaving && player.m_eID==0) //don'y spam the log, assume all players are equal
+	if (bSaving && player.m_eID==0) //don't spam the log, assume all players are equal
 	{
 		for (std::map<CvString,TurnData>::const_iterator in = player.m_ReplayData.begin(); in != player.m_ReplayData.end(); in++)
 			CUSTOMLOG("storing replay data %s", in->first.c_str());
 	}
 	visitor(player.m_ReplayData);
-	if (bLoading && player.m_eID==0) //don'y spam the log, assume all players are equal
+	if (bLoading && player.m_eID==0) //don't spam the log, assume all players are equal
 	{
 		for (std::map<CvString,TurnData>::const_iterator in = player.m_ReplayData.begin(); in != player.m_ReplayData.end(); in++)
 			CUSTOMLOG("loading replay data %s", in->first.c_str());

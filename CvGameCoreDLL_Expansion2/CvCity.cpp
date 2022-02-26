@@ -26529,35 +26529,24 @@ void CvCity::SetResourceQuantityPerXFranchises(ResourceTypes eResource, int iVal
 int CvCity::GetResourceQuantityFromPOP(ResourceTypes eResource) const
 {
 	VALIDATE_OBJECT
-		CvAssertMsg(eResource >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eResource < GC.getNumResourceInfos(), "eIndex expected to be < GC.getNumResourceInfos()");
 	return m_aiResourceQuantityFromPOP[eResource];
 }
 //	--------------------------------------------------------------------------------
 void CvCity::ChangeResourceQuantityFromPOP(ResourceTypes eResource, int iChange)
 {
 	VALIDATE_OBJECT
-		CvAssertMsg(eResource >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eResource < GC.getNumResourceInfos(), "eIndex expected to be < GC.getNumResourceInfos()");
-
-	if (iChange != 0)
-	{
-		m_aiResourceQuantityFromPOP[eResource] = m_aiResourceQuantityFromPOP[eResource] + iChange;
-	}
+	SetResourceQuantityFromPOP(eResource, GetResourceQuantityFromPOP(eResource) + iChange);
 }
 void CvCity::SetResourceQuantityFromPOP(ResourceTypes eResource, int iValue)
 {
-	if (GetResourceQuantityFromPOP(eResource) != iValue)
-	{
-		m_aiResourceQuantityFromPOP[eResource] = iValue;
-	}
+	m_aiResourceQuantityFromPOP[eResource] = iValue;
 }
 //	--------------------------------------------------------------------------------
 /// Trade Route Religious Spread Boost
 int CvCity::GetReligiousTradeModifier() const
 {
 	VALIDATE_OBJECT
-		return m_iReligiousTradeModifier;
+	return m_iReligiousTradeModifier;
 }
 void CvCity::ChangeReligiousTradeModifier(int iChange)
 {
