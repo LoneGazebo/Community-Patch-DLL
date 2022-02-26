@@ -18,17 +18,6 @@ function JFD_IsCivilisationActive(civilizationID)
 	end
 	return false
 end
---------------------------------------------------------------------------------------------------------------------------
--- USER SETTINGS
---------------------------------------------------------------------------------------------------------------------------
--- CBP_GetUserSetting
-function CBP_GetUserSetting(type)
-	for row in GameInfo.COMMUNITY("Type = '" .. type .. "'") do
-		return row.Value
-	end
-end
---==========================================================================================================================
--- GLOBALS
 --==========================================================================================================================
 -- GLOBALS
 ----------------------------------------------------------------------------------------------------------------------------
@@ -40,7 +29,6 @@ local mathFloor			= math.floor
 if isIncaCivActive then
 	print("Sapa Inca Pachacuti is in this game")
 end
-local userSettingInca = CBP_GetUserSetting("COMMUNITY_CORE_BALANCE_CIVS") == 1
 --==========================================================================================================================
 -- UNIQUE FUNCTIONS
 --==========================================================================================================================
@@ -57,7 +45,7 @@ function JFD_CBP_Inca_MachuPicchu(playerID, plotX, plotY)
 		end
 	end
 end
-if (userSettingInca and isIncaCivActive) then
+if isIncaCivActive then
 	GameEvents.PlayerCityFounded.Add(JFD_CBP_Inca_MachuPicchu)
 end
 --==========================================================================================================================
