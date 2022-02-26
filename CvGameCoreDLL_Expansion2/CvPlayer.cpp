@@ -41660,74 +41660,40 @@ bool CvPlayer::IsPlotTargetedForCity(CvPlot *pPlot, CvAIOperation* pOpToIgnore) 
 }
 
 //	--------------------------------------------------------------------------------
-unsigned int CvPlayer::getNumReplayDataSets() const
+const std::map<CvString,CvPlayer::TurnData>& CvPlayer::getReplayData() const
 {
-	return m_ReplayDataSets.size();
+	return m_ReplayData;
 }
 
 //	--------------------------------------------------------------------------------
-const char* CvPlayer::getReplayDataSetName(unsigned int idx) const
+int CvPlayer::getReplayDataValue(const CvString& strDataset, unsigned int uiTurn) const
 {
-	if(idx < m_ReplayDataSets.size())
-		return m_ReplayDataSets[idx];
-
-	return NULL;
-}
-
-//	--------------------------------------------------------------------------------
-unsigned int CvPlayer::getReplayDataSetIndex(const char* szDataSetName)
-{
-	CvString dataSetName = szDataSetName;
-
-	unsigned int idx = 0;
-	for(std::vector<CvString>::iterator it = m_ReplayDataSets.begin(); it != m_ReplayDataSets.end(); ++it)
+	std::map<CvString, TurnData>::const_iterator it = m_ReplayData.find(strDataset);
+	if (it!=m_ReplayData.end())
 	{
-		if((*it) == dataSetName)
-			return idx;
-
-		idx++;
-	}
-
-	m_ReplayDataSets.push_back(dataSetName);
-	m_ReplayDataSetValues.push_back(TurnData());
-	return m_ReplayDataSets.size() - 1;
-}
-
-//	--------------------------------------------------------------------------------
-int CvPlayer::getReplayDataValue(unsigned int uiDataSet, unsigned int uiTurn) const
-{
-	if(uiDataSet < m_ReplayDataSetValues.size())
-	{
-		const TurnData& dataSet = m_ReplayDataSetValues[uiDataSet];
-		TurnData::const_iterator it = dataSet.find(uiTurn);
-		if(it != dataSet.end())
-		{
-			return (*it).second;
-		}
+		TurnData::const_iterator entry = it->second.find(uiTurn);
+		if(entry != it->second.end())
+			return entry->second;
 	}
 
 	return -1;
 }
 
 //	--------------------------------------------------------------------------------
-void CvPlayer::setReplayDataValue(unsigned int uiDataSet, unsigned int uiTurn, int iValue)
+void CvPlayer::setReplayDataValue(const CvString& strDataset, unsigned int uiTurn, int iValue)
 {
-	if(uiDataSet < m_ReplayDataSetValues.size())
+	std::map<CvString, TurnData>::iterator it = m_ReplayData.find(strDataset);
+	if (it == m_ReplayData.end())
 	{
-		TurnData& dataSet = m_ReplayDataSetValues[uiDataSet];
-		dataSet[uiTurn] = iValue;
-	}
-}
+		if (m_eID == 0) //do not spam the log, assume all players are equal
+			CUSTOMLOG("Adding replay dataset %s for player %d", strDataset.c_str(), m_eID);
 
-//	--------------------------------------------------------------------------------
-CvPlayer::TurnData CvPlayer::getReplayDataHistory(unsigned int uiDataSet) const
-{
-	if(uiDataSet < m_ReplayDataSetValues.size())
-	{
-		return m_ReplayDataSetValues[uiDataSet];
+		//old ms stl is stupid, do it this way
+		m_ReplayData[strDataset] = TurnData();
+		it = m_ReplayData.find(strDataset);
 	}
 
-	return CvPlayer::TurnData();
+	it->second[uiTurn] = iValue;
 }
 
 int CvPlayer::getYieldPerTurnHistory(YieldTypes eYield, int iNumTurns)
@@ -46583,8 +46549,17 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 		}
 	}
 
-	visitor(player.m_ReplayDataSets);
-	visitor(player.m_ReplayDataSetValues);
+	if (bSaving && player.m_eID==0) //don'y spam the log, assume all players are equal
+	{
+		for (std::map<CvString,TurnData>::const_iterator in = player.m_ReplayData.begin(); in != player.m_ReplayData.end(); in++)
+			CUSTOMLOG("storing replay data %s", in->first.c_str());
+	}
+	visitor(player.m_ReplayData);
+	if (bLoading && player.m_eID==0) //don'y spam the log, assume all players are equal
+	{
+		for (std::map<CvString,TurnData>::const_iterator in = player.m_ReplayData.begin(); in != player.m_ReplayData.end(); in++)
+			CUSTOMLOG("loading replay data %s", in->first.c_str());
+	}
 
 	visitor(player.m_ppiInstantYieldHistoryValues);
 	visitor(player.m_ppiInstantTourismPerPlayerHistoryValues);
@@ -49876,58 +49851,58 @@ void CvPlayer::GatherPerTurnReplayStats(int iGameTurn)
 	if(isAlive())
 	{
 		//	Production Per Turn
-		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_PRODUCTIONPERTURN"), iGameTurn, calculateTotalYield(YIELD_PRODUCTION));
+		setReplayDataValue("REPLAYDATASET_PRODUCTIONPERTURN", iGameTurn, calculateTotalYield(YIELD_PRODUCTION));
 		// 	Gold
-		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_TOTALGOLD"), iGameTurn, GetTreasury()->GetGold());
+		setReplayDataValue("REPLAYDATASET_TOTALGOLD", iGameTurn, GetTreasury()->GetGold());
 		// 	Gold per Turn
-		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_GOLDPERTURN"), iGameTurn, calculateTotalYield(YIELD_GOLD));
+		setReplayDataValue("REPLAYDATASET_GOLDPERTURN", iGameTurn, calculateTotalYield(YIELD_GOLD));
 		// 	Num Cities
-		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_CITYCOUNT"), iGameTurn, getNumCities());
+		setReplayDataValue("REPLAYDATASET_CITYCOUNT", iGameTurn, getNumCities());
 
 		//	Number of Techs known
 		CvTeam& team = GET_TEAM(getTeam());
-		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_TECHSKNOWN"), iGameTurn, team.GetTeamTechs()->GetNumTechsKnown());
+		setReplayDataValue("REPLAYDATASET_TECHSKNOWN", iGameTurn, team.GetTeamTechs()->GetNumTechsKnown());
 
 		// 	Science per Turn
-		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_SCIENCEPERTURN"), iGameTurn, calculateTotalYield(YIELD_SCIENCE));
+		setReplayDataValue("REPLAYDATASET_SCIENCEPERTURN", iGameTurn, calculateTotalYield(YIELD_SCIENCE));
 		// antonjs: This data is also used to calculate Great Scientist and Research Agreement beaker bonuses. If replay data changes
 
 		// 	Total Culture
-		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_TOTALCULTURE"), iGameTurn, getJONSCulture());
+		setReplayDataValue("REPLAYDATASET_TOTALCULTURE", iGameTurn, getJONSCulture());
 
 		// 	Culture per turn
-		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_CULTUREPERTURN"), iGameTurn, GetTotalJONSCulturePerTurn());
+		setReplayDataValue("REPLAYDATASET_CULTUREPERTURN", iGameTurn, GetTotalJONSCulturePerTurn());
 		
 #if defined(MOD_BALANCE_CORE)
-		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_TOURISMPERTURN"), iGameTurn, GetCulture()->GetTourism() / 100);
-		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_GAPPERTURN"), iGameTurn, GetGoldenAgePointsFromEmpire() + GetHappinessForGAP());
+		setReplayDataValue("REPLAYDATASET_TOURISMPERTURN", iGameTurn, GetCulture()->GetTourism() / 100);
+		setReplayDataValue("REPLAYDATASET_GAPPERTURN", iGameTurn, GetGoldenAgePointsFromEmpire() + GetHappinessForGAP());
 #endif
 
 		// 	Happiness
-		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_EXCESSHAPINESS"), iGameTurn, GetExcessHappiness());
-		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_HAPPINESS"), iGameTurn, GetHappiness());
-		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_UNHAPPINESS"), iGameTurn, GetUnhappiness());
+		setReplayDataValue("REPLAYDATASET_EXCESSHAPINESS", iGameTurn, GetExcessHappiness());
+		setReplayDataValue("REPLAYDATASET_HAPPINESS", iGameTurn, GetHappiness());
+		setReplayDataValue("REPLAYDATASET_UNHAPPINESS", iGameTurn, GetUnhappiness());
 
 		// 	Golden Age turns
-		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_GOLDENAGETURNS"), iGameTurn, getGoldenAgeTurns());
+		setReplayDataValue("REPLAYDATASET_GOLDENAGETURNS", iGameTurn, getGoldenAgeTurns());
 
 		// 	Population
-		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_POPULATION"), iGameTurn, getTotalPopulation());
+		setReplayDataValue("REPLAYDATASET_POPULATION", iGameTurn, getTotalPopulation());
 
 		// 	Food Per Turn
-		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_FOODPERTURN"), iGameTurn, calculateTotalYield(YIELD_FOOD));
+		setReplayDataValue("REPLAYDATASET_FOODPERTURN", iGameTurn, calculateTotalYield(YIELD_FOOD));
 
 		//	Total Land
-		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_TOTALLAND"), iGameTurn, getTotalLand());
+		setReplayDataValue("REPLAYDATASET_TOTALLAND", iGameTurn, getTotalLand());
 
 		CvTreasury* pkTreasury = GetTreasury();
-		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_GPTCITYCONNECTIONS"), iGameTurn, pkTreasury->GetCityConnectionGold());
-		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_GPTINTERNATIONALTRADE"), iGameTurn, pkTreasury->GetGoldPerTurnFromTradeRoutes());
-		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_GPTDEALS"), iGameTurn, pkTreasury->GetGoldPerTurnFromDiplomacy());
-		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_UNITMAINTENANCE"), iGameTurn, pkTreasury->GetExpensePerTurnUnitMaintenance());
-		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_BUILDINGMAINTENANCE"), iGameTurn, pkTreasury->GetBuildingGoldMaintenance());
-		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_IMPROVEMENTMAINTENANCE"), iGameTurn, pkTreasury->GetImprovementGoldMaintenance());
-		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_NUMBEROFPOLICIES"), iGameTurn, GetPlayerPolicies()->GetNumPoliciesOwned());
+		setReplayDataValue("REPLAYDATASET_GPTCITYCONNECTIONS", iGameTurn, pkTreasury->GetCityConnectionGold());
+		setReplayDataValue("REPLAYDATASET_GPTINTERNATIONALTRADE", iGameTurn, pkTreasury->GetGoldPerTurnFromTradeRoutes());
+		setReplayDataValue("REPLAYDATASET_GPTDEALS", iGameTurn, pkTreasury->GetGoldPerTurnFromDiplomacy());
+		setReplayDataValue("REPLAYDATASET_UNITMAINTENANCE", iGameTurn, pkTreasury->GetExpensePerTurnUnitMaintenance());
+		setReplayDataValue("REPLAYDATASET_BUILDINGMAINTENANCE", iGameTurn, pkTreasury->GetBuildingGoldMaintenance());
+		setReplayDataValue("REPLAYDATASET_IMPROVEMENTMAINTENANCE", iGameTurn, pkTreasury->GetImprovementGoldMaintenance());
+		setReplayDataValue("REPLAYDATASET_NUMBEROFPOLICIES", iGameTurn, GetPlayerPolicies()->GetNumPoliciesOwned());
 
 		// workers
 		int iWorkerCount = 0;
@@ -49940,7 +49915,7 @@ void CvPlayer::GatherPerTurnReplayStats(int iGameTurn)
 				iWorkerCount++;
 			}
 		}
-		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_NUMBEROFWORKERS"), iGameTurn, iWorkerCount);
+		setReplayDataValue("REPLAYDATASET_NUMBEROFWORKERS", iGameTurn, iWorkerCount);
 
 		// worked tiles
 		int iWorkedTiles = 0;
@@ -49971,12 +49946,10 @@ void CvPlayer::GatherPerTurnReplayStats(int iGameTurn)
 			}
 		}
 
-		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_IMPROVEDTILES"), iGameTurn, iImprovedTiles);
-		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_WORKEDTILES"), iGameTurn, iWorkedTiles);
-		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_NUMBEROFWORKERS"), iGameTurn, iWorkerCount);
-
-
-		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_MILITARYMIGHT"), iGameTurn, GetMilitaryMight());
+		setReplayDataValue("REPLAYDATASET_IMPROVEDTILES", iGameTurn, iImprovedTiles);
+		setReplayDataValue("REPLAYDATASET_WORKEDTILES", iGameTurn, iWorkedTiles);
+		setReplayDataValue("REPLAYDATASET_NUMBEROFWORKERS", iGameTurn, iWorkerCount);
+		setReplayDataValue("REPLAYDATASET_MILITARYMIGHT", iGameTurn, GetMilitaryMight());
 	}
 }
 

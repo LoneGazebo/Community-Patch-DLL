@@ -10087,8 +10087,7 @@ int CvLuaPlayer::lGetScoreHistory(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	unsigned int uiTurn = (unsigned int)luaL_checkint(L, 2);
-	unsigned int uiDataSet = pkPlayer->getReplayDataSetIndex("REPLAYDATASET_SCORE");
-	lua_pushinteger(L, pkPlayer->getReplayDataValue(uiDataSet, uiTurn));
+	lua_pushinteger(L, pkPlayer->getReplayDataValue("REPLAYDATASET_SCORE", uiTurn));
 	return 1;
 }
 //------------------------------------------------------------------------------
@@ -10097,8 +10096,7 @@ int CvLuaPlayer::lGetEconomyHistory(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	unsigned int uiTurn = (unsigned int)luaL_checkint(L, 2);
-	unsigned int uiDataSet = pkPlayer->getReplayDataSetIndex("REPLAYDATASET_ECONOMY");
-	lua_pushinteger(L, pkPlayer->getReplayDataValue(uiDataSet, uiTurn));
+	lua_pushinteger(L, pkPlayer->getReplayDataValue("REPLAYDATASET_ECONOMY", uiTurn));
 	return 1;
 }
 //------------------------------------------------------------------------------
@@ -10107,8 +10105,7 @@ int CvLuaPlayer::lGetIndustryHistory(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	unsigned int uiTurn = (unsigned int)luaL_checkint(L, 2);
-	unsigned int uiDataSet = pkPlayer->getReplayDataSetIndex("REPLAYDATASET_INDUSTRY");
-	lua_pushinteger(L, pkPlayer->getReplayDataValue(uiDataSet, uiTurn));
+	lua_pushinteger(L, pkPlayer->getReplayDataValue("REPLAYDATASET_INDUSTRY", uiTurn));
 	return 1;
 }
 //------------------------------------------------------------------------------
@@ -10117,8 +10114,7 @@ int CvLuaPlayer::lGetAgricultureHistory(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	unsigned int uiTurn = (unsigned int)luaL_checkint(L, 2);
-	unsigned int uiDataSet = pkPlayer->getReplayDataSetIndex("REPLAYDATASET_AGRICULTURE");
-	lua_pushinteger(L, pkPlayer->getReplayDataValue(uiDataSet, uiTurn));
+	lua_pushinteger(L, pkPlayer->getReplayDataValue("REPLAYDATASET_AGRICULTURE", uiTurn));
 	return 1;
 }
 //------------------------------------------------------------------------------
@@ -10133,21 +10129,21 @@ int CvLuaPlayer::lGetReplayData(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 
-	const unsigned int numDataSets = pkPlayer->getNumReplayDataSets();
+	const map<CvString, CvPlayer::TurnData> replayData = pkPlayer->getReplayData();
 
-	lua_createtable(L, 0, numDataSets);
-	for(unsigned int uiDataSet = 0; uiDataSet < numDataSets; ++uiDataSet)
+	lua_createtable(L, 0, replayData.size());
+	for(map<CvString, CvPlayer::TurnData>::const_iterator it=replayData.begin(); it!=replayData.end(); ++it)
 	{
-		lua_pushstring(L, pkPlayer->getReplayDataSetName(uiDataSet));
+		lua_pushstring(L, it->first.c_str());
 
-		CvPlayer::TurnData data = pkPlayer->getReplayDataHistory(uiDataSet);
+		if (pkPlayer->GetID()==0) //don't spam the log
+			CUSTOMLOG("Getting replay dataset %s for player %d", it->first.c_str(), pkPlayer->GetID());
 
-		lua_createtable(L, data.size() - 1, 1);
-
-		for(CvPlayer::TurnData::iterator it = data.begin(); it != data.end(); ++it)
+		lua_createtable(L, it->second.size() - 1, 1);
+		for(CvPlayer::TurnData::const_iterator it2 = it->second.begin(); it2 != it->second.end(); ++it2)
 		{
-			lua_pushinteger(L, (*it).second);
-			lua_rawseti(L, -2, (*it).first);
+			lua_pushinteger(L, it2->second);
+			lua_rawseti(L, -2, it2->first);
 		}
 
 		lua_rawset(L, -3);
@@ -10164,9 +10160,7 @@ int CvLuaPlayer::lSetReplayDataValue(lua_State* L)
 	int iTurn = luaL_checkint(L, 3);
 	int iValue = luaL_checkint(L, 4);
 
-	unsigned int uiDataSet = pkPlayer->getReplayDataSetIndex(szDataSet);
-	pkPlayer->setReplayDataValue(uiDataSet, iTurn, iValue);
-
+	pkPlayer->setReplayDataValue(szDataSet, iTurn, iValue);
 	return 0;
 }
 //------------------------------------------------------------------------------
