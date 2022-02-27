@@ -3776,6 +3776,219 @@ CivilopediaCategory[CategoryPromotions].SelectArticle = function( promotionID, s
 
 end
 
+-------- CBP BUILDING BUTTON HELPER FUNCTIONS -------------------
+-----------------------------------------------------------------
+function AddRequiredBuildingFrame( thisBuilding )
+	g_RequiredBuildingsManager:ResetInstances();
+	local buttonAdded = 0;
+																							print("This Building Table")
+	local thisBuildingTable = AppendCivRelationshipTable( {}, GameInfo.Buildings( "Type = '" .. thisBuilding.Type .. "'" ), "Type", "CivilizationRequired" );
+	thisBuildingTable = AppendCivRelationshipTable( thisBuildingTable, GameInfo.Civilization_BuildingClassOverrides( "BuildingType = '" .. thisBuilding.Type .. "'" ), "BuildingType", "CivilizationType" ); 
+																							for civ, bType in pairs(thisBuildingTable) do print(bType .. " - " .. civ) end
+																							print("This Related Building Table")
+	local thisRelatedBuildingTable = AppendCivRelationshipTable( {}, GameInfo.Buildings( "BuildingClass = '" .. thisBuilding.BuildingClass .. "'" ), "Type", "CivilizationRequired");
+	thisRelatedBuildingTable = AppendCivRelationshipTable( thisRelatedBuildingTable, GameInfo.Civilization_BuildingClassOverrides( "BuildingClassType = '" .. thisBuilding.BuildingClass .. "'" ), "BuildingType", "CivilizationType");
+																							for civ, bType in pairs(thisRelatedBuildingTable) do print(bType .. " - " .. civ) end
+																							print("--REQUIRED BUILDINGS BUTTONS--")
+	-- add the button if its info exists
+	function AddRequiredBuildingButton( buildingType )
+		local thisBuildingInfo = GameInfo.Buildings[buildingType];
+		if (thisBuildingInfo) then
+			if thisBuildingInfo.ShowInPedia == 1 then
+				local thisBuildingInstance = g_RequiredBuildingsManager:GetInstance();
+				if thisBuildingInstance then
+
+					if not IconHookup( thisBuildingInfo.PortraitIndex, buttonSize, thisBuildingInfo.IconAtlas, thisBuildingInstance.RequiredBuildingImage ) then
+						thisBuildingInstance.RequiredBuildingImage:SetTexture( defaultErrorTextureSheet );
+						thisBuildingInstance.RequiredBuildingImage:SetTextureOffset( nullOffset );
+					end
+					
+					--move this button
+					thisBuildingInstance.RequiredBuildingButton:SetOffsetVal( (buttonAdded % numberOfButtonsPerRow) * buttonSize + buttonPadding, math.floor(buttonAdded / numberOfButtonsPerRow) * buttonSize + buttonPadding );
+					
+					thisBuildingInstance.RequiredBuildingButton:SetToolTipString( Locale.ConvertTextKey( thisBuildingInfo.Description ) );
+					thisBuildingInstance.RequiredBuildingButton:SetVoids( thisBuildingInfo.ID, addToList );
+					local thisBuildingClass = GameInfo.BuildingClasses[thisBuildingInfo.BuildingClass];
+					if thisBuildingClass.MaxGlobalInstances > 0 or (thisBuildingClass.MaxPlayerInstances == 1 and thisBuildingInfo.SpecialistCount == 0) or thisBuildingClass.MaxTeamInstances > 0 then
+						thisBuildingInstance.RequiredBuildingButton:RegisterCallback( Mouse.eLClick, CivilopediaCategory[CategoryWonders].SelectArticle );
+					else
+						thisBuildingInstance.RequiredBuildingButton:RegisterCallback( Mouse.eLClick, CivilopediaCategory[CategoryBuildings].SelectArticle );
+					end
+					buttonAdded = buttonAdded + 1;
+				end
+			end
+		end
+	end
+	-- search for buildings to add
+	function AddRequiredBuildingInstance( reqClassType )
+		local reqDefaultBuildingType = GameInfo.BuildingClasses[reqClassType].DefaultBuilding;
+		local bOtherBuildingOverride;
+		local bMatchedOverride = false;
+																							print("Required Building Table")
+		local reqBuildingTable = AppendCivRelationshipTable( {}, GameInfo.Buildings( "BuildingClass = '" .. reqClassType .. "'" ), "Type", "CivilizationRequired");
+		reqBuildingTable = AppendCivRelationshipTable( reqBuildingTable, GameInfo.Civilization_BuildingClassOverrides( "BuildingClassType = '" .. reqClassType .. "'" ), "BuildingType", "CivilizationType");
+																							for civ, bType in pairs(reqBuildingTable) do print(bType .. " - " .. civ) end
+		for reqCivilization, reqBuildingType in pairs(reqBuildingTable) do
+																							print("Current Required Building to Add: " .. reqBuildingType .. " - " .. reqCivilization .. " ::")
+			bOtherBuildingOverride = false;
+			for thisCivilization, thisBuildingType in pairs(thisBuildingTable) do
+																							print("This Building: " .. thisBuildingType .. " - " .. thisCivilization)
+				-- if this building is a civ override, add any potential required buildings that override for the same civ
+				if reqCivilization == thisCivilization then
+																							print("Civilizations Match: added " .. reqBuildingType)
+					bMatchedOverride = true;
+					AddRequiredBuildingButton( reqBuildingType );
+				end
+			end
+			-- if this building is not a civ override, then if no other buildings in the same class override for the same civ as potential required building, add the potential required buiding
+			if next(thisBuildingTable) == nil then
+																							print("This Building is not an override")
+				for thisRelatedCivilization, _ in pairs(thisRelatedBuildingTable) do
+					if thisRelatedCivilization == reqCivilization then
+						bOtherBuildingOverride = true;
+					end
+				end
+				if not bOtherBuildingOverride then
+																							print("No other Required Buildings match the Civilization of this building. adding " .. reqBuildingType)
+					AddRequiredBuildingButton( reqBuildingType );
+				end
+			end
+		end
+		-- if this building is not a civ override, or this building has no potential required buildings that have the same ovrride, add a default building
+		if next(thisBuildingTable) == nil or not bMatchedOverride then
+																							print("This building is empty or we have no matched override. Adding default " .. reqDefaultBuildingType)
+			AddRequiredBuildingButton( reqDefaultBuildingType );
+		end
+	end
+	
+	-- search through the building classes to find potential required buildings
+																							print("This Building: " .. thisBuilding.Type)
+	local thisBuildingCondition = "BuildingType = '" .. thisBuilding.Type .. "'";	
+	for reqClassRow in GameInfo.Building_ClassesNeededInCity( thisBuildingCondition ) do
+		AddRequiredBuildingInstance( reqClassRow.BuildingClassType );
+	end
+	for reqClassRow in GameInfo.Building_ClassNeededAnywhere( thisBuildingCondition ) do
+		AddRequiredBuildingInstance( reqClassRow.BuildingClassType );
+	end
+	
+	UpdateButtonFrame( buttonAdded, Controls.RequiredBuildingsInnerFrame, Controls.RequiredBuildingsFrame );
+end
+
+function AddLeadsToBuildingFrame( thisBuilding )
+																							print("This Building Table")
+	local thisBuildingTable = AppendCivRelationshipTable( {}, GameInfo.Buildings( "Type = '" .. thisBuilding.Type .. "'" ), "Type", "CivilizationRequired" );
+	thisBuildingTable = AppendCivRelationshipTable( thisBuildingTable, GameInfo.Civilization_BuildingClassOverrides( "BuildingType = '" .. thisBuilding.Type .. "'" ), "BuildingType", "CivilizationType" ); 
+																							for civ, bType in pairs(thisBuildingTable) do print(bType .. " - " .. civ) end
+																							print("This Related Building Table")
+	local thisRelatedBuildingTable = AppendCivRelationshipTable( {}, GameInfo.Buildings( "BuildingClass = '" .. thisBuilding.BuildingClass .. "'" ), "Type", "CivilizationRequired");
+	thisRelatedBuildingTable = AppendCivRelationshipTable( thisRelatedBuildingTable, GameInfo.Civilization_BuildingClassOverrides( "BuildingClassType = '" .. thisBuilding.BuildingClass .. "'" ), "BuildingType", "CivilizationType");
+																							for civ, bType in pairs(thisRelatedBuildingTable) do print(bType .. " - " .. civ) end
+																							print("--LEADS TO BUILDINGS BUTTONS--")
+	g_LeadsToBuildingsManager:ResetInstances();
+	buttonAdded = 0;
+
+	-- add the button if its info exists
+	function AddLeadsToBuildingButton( buildingType )
+		local thisBuildingInfo = GameInfo.Buildings[buildingType];
+		if(thisBuildingInfo) then
+			if thisBuildingInfo.ShowInPedia == 1 then
+				local thisBuildingInstance = g_LeadsToBuildingsManager:GetInstance();
+				if thisBuildingInstance then
+					if not IconHookup( thisBuildingInfo.PortraitIndex, buttonSize, thisBuildingInfo.IconAtlas, thisBuildingInstance.LeadsToBuildingImage ) then
+						thisBuildingInstance.LeadsToBuildingImage:SetTexture( defaultErrorTextureSheet );
+						thisBuildingInstance.LeadsToBuildingImage:SetTextureOffset( nullOffset );
+					end
+					
+					--move this button
+					thisBuildingInstance.LeadsToBuildingButton:SetOffsetVal( (buttonAdded % numberOfButtonsPerRow) * buttonSize + buttonPadding, math.floor(buttonAdded / numberOfButtonsPerRow) * buttonSize + buttonPadding );
+					
+					thisBuildingInstance.LeadsToBuildingButton:SetToolTipString( Locale.ConvertTextKey( thisBuildingInfo.Description ) );
+					thisBuildingInstance.LeadsToBuildingButton:SetVoids( thisBuildingInfo.ID, addToList );
+					local thisBuildingClass = GameInfo.BuildingClasses[thisBuildingInfo.BuildingClass];
+					if thisBuildingClass.MaxGlobalInstances > 0 or (thisBuildingClass.MaxPlayerInstances == 1 and thisBuildingInfo.SpecialistCount == 0) or thisBuildingClass.MaxTeamInstances > 0 then
+						thisBuildingInstance.LeadsToBuildingButton:RegisterCallback( Mouse.eLClick, CivilopediaCategory[CategoryWonders].SelectArticle );
+					else
+						thisBuildingInstance.LeadsToBuildingButton:RegisterCallback( Mouse.eLClick, CivilopediaCategory[CategoryBuildings].SelectArticle );
+					end
+					buttonAdded = buttonAdded + 1;
+				end
+			end
+		end
+	end
+																						print("This Building: " .. thisBuilding.Type)
+	-- search for buildings to add
+	function AddLeadsToBuildingInstance( nextBuildingType )
+																						print("Current Leads to Building to Add: " .. nextBuildingType, " ::")
+		local bOtherBuildingOverride = false;
+		local bAddBuilding = false;
+																						print("Leads To Building Table")
+		local nextBuildingTable = AppendCivRelationshipTable( {}, GameInfo.Buildings( "Type = '" .. nextBuildingType .. "'" ), "Type", "CivilizationRequired");
+		nextBuildingTable = AppendCivRelationshipTable( nextBuildingTable, GameInfo.Civilization_BuildingClassOverrides( "BuildingType = '" .. nextBuildingType .. "'" ), "BuildingType", "CivilizationType");
+																						for civ, bType in pairs(nextBuildingTable) do print(bType .. " - " .. civ) end
+																						print("Leads To Related Building Table")			
+		local nextRelatedBuildingTable = AppendCivRelationshipTable( {}, GameInfo.Buildings( "BuildingClass = '" .. GameInfo.Buildings[nextBuildingType].BuildingClass .. "'" ), "Type", "CivilizationRequired");
+		nextRelatedBuildingTable = AppendCivRelationshipTable( nextRelatedBuildingTable, GameInfo.Civilization_BuildingClassOverrides( "BuildingClassType = '" .. GameInfo.Buildings[nextBuildingType].BuildingClass .. "'" ), "BuildingType", "CivilizationType");
+																						for civ, bType in pairs(nextRelatedBuildingTable) do print(bType .. " - " .. civ) end
+		-- If the potential next building matches civilizations with this building, add it
+		for thisCivilization, thisBuildingType in pairs(thisBuildingTable) do
+																						print("This Building: " .. thisBuildingType .. " - " .. thisCivilization)
+			for nextCivilization, _ in pairs(nextBuildingTable) do
+																						print("Leads to Building: " .. nextBuildingType .. " - " .. nextCivilization)					
+				if nextCivilization == thisCivilization then
+																						print("^ add ^")
+					bAddBuilding = true;
+				end
+			end
+		end
+		-- If the potential NEXT building is default and there are no other buildings in the NEXT building's class that match civilizations with this building, add the potential next building
+		if next(nextBuildingTable) == nil then
+																						print("No matching Leads To Building Civilization Override")
+																						print("Leads to Related BuildingClass: " .. GameInfo.Buildings[nextBuildingType].BuildingClass .. "-NULL")
+			for nextRelatedCivilization, nextRelatedBuildingType in pairs(nextRelatedBuildingTable) do
+																						print("Potential Related Leads to Building: " .. nextRelatedBuildingType .. " - " .. nextRelatedCivilization)
+				if thisCivilization == nextRelatedCivilization then
+					bOtherBuildingOverride = true;
+				end
+			end
+			if not bOtherBuildingOverride then
+																						print("No matches. Add " .. nextBuildingType)
+				bAddBuilding = true;
+			end
+		-- If THIS building is default and there are no other buildings in THIS building's Class that match civilizations with the potential next building, then add the potential next building
+		elseif next(thisBuildingTable) == nil then
+																						print("This Building is not an override")
+																						print("This Related BuildingClass: " .. thisBuilding.BuildingClass)
+			for thisRelatedCivilization, thisRelatedBuildingType in pairs(thisRelatedBuildingTable) do
+																						print("This Current Related Building: " .. thisRelatedBuildingType .. " - " .. thisRelatedCivilization)
+				for nextCivilization, _ in pairs(nextBuildingTable) do
+																						print("Leads to Building: " .. nextBuildingType .. " - " .. nextCivilization)
+					if nextCivilization == thisRelatedCivilization then
+						bOtherBuildingOverride = true;
+					end
+				end
+			end
+			if not bOtherBuildingOverride then
+																						print("no matches. Add " .. nextBuildingType)
+				bAddBuilding = true;
+			end
+		end
+		if bAddBuilding then
+																						print("Added " .. nextBuildingType)
+			AddLeadsToBuildingButton( nextBuildingType );
+		end
+	end
+	
+	local thisBuildingClassCondition = "BuildingClassType = '" .. thisBuilding.BuildingClass .. "'";
+	for nextBuildingRow in GameInfo.Building_ClassesNeededInCity( thisBuildingClassCondition ) do
+		AddLeadsToBuildingInstance( nextBuildingRow.BuildingType );
+	end
+	for nextBuildingRow in GameInfo.Building_ClassNeededAnywhere( thisBuildingClassCondition ) do
+		AddLeadsToBuildingInstance( nextBuildingRow.BuildingType );
+	end
+	UpdateButtonFrame( buttonAdded, Controls.LeadsToBuildingsInnerFrame, Controls.LeadsToBuildingsFrame );
+end
+----------------------------------------------------------------- END
+
 function SelectBuildingOrWonderArticle( buildingID )
 	if buildingID ~= -1 then
 		local thisBuilding = GameInfo.Buildings[buildingID];
@@ -4095,200 +4308,16 @@ function SelectBuildingOrWonderArticle( buildingID )
 		end	
 		UpdateButtonFrame( buttonAdded, Controls.SpecialistsInnerFrame, Controls.SpecialistsFrame );
 		
+		-- CBP
 		-- required buildings (CBP, now shows civ override buildings if relevant)
-																							print("This Building Table")
-		local thisBuildingTable = AppendCivRelationshipTable( {}, GameInfo.Buildings( "Type = '" .. thisBuilding.Type .. "'" ), "Type", "CivilizationRequired" );
-		thisBuildingTable = AppendCivRelationshipTable( thisBuildingTable, GameInfo.Civilization_BuildingClassOverrides( "BuildingType = '" .. thisBuilding.Type .. "'" ), "BuildingType", "CivilizationType" ); 
-																							for civ, bType in pairs(thisBuildingTable) do print(bType .. " - " .. civ) end
-																							print("This Related Building Table")
-		local thisRelatedBuildingTable = AppendCivRelationshipTable( {}, GameInfo.Buildings( "BuildingClass = '" .. thisBuilding.BuildingClass .. "'" ), "Type", "CivilizationRequired");
-		thisRelatedBuildingTable = AppendCivRelationshipTable( thisRelatedBuildingTable, GameInfo.Civilization_BuildingClassOverrides( "BuildingClassType = '" .. thisBuilding.BuildingClass .. "'" ), "BuildingType", "CivilizationType");
-																							for civ, bType in pairs(thisRelatedBuildingTable) do print(bType .. " - " .. civ) end
-																							print("--REQUIRED BUILDINGS BUTTONS--")
-		g_RequiredBuildingsManager:ResetInstances();
-		buttonAdded = 0;
-		function AddRequiredBuildingButton( buildingType )
-			local thisBuildingInfo = GameInfo.Buildings[buildingType];
-			if (thisBuildingInfo) then
-				if thisBuildingInfo.ShowInPedia == 1 then
-					local thisBuildingInstance = g_RequiredBuildingsManager:GetInstance();
-					if thisBuildingInstance then
-
-						if not IconHookup( thisBuildingInfo.PortraitIndex, buttonSize, thisBuildingInfo.IconAtlas, thisBuildingInstance.RequiredBuildingImage ) then
-							thisBuildingInstance.RequiredBuildingImage:SetTexture( defaultErrorTextureSheet );
-							thisBuildingInstance.RequiredBuildingImage:SetTextureOffset( nullOffset );
-						end
-						
-						--move this button
-						thisBuildingInstance.RequiredBuildingButton:SetOffsetVal( (buttonAdded % numberOfButtonsPerRow) * buttonSize + buttonPadding, math.floor(buttonAdded / numberOfButtonsPerRow) * buttonSize + buttonPadding );
-						
-						thisBuildingInstance.RequiredBuildingButton:SetToolTipString( Locale.ConvertTextKey( thisBuildingInfo.Description ) );
-						thisBuildingInstance.RequiredBuildingButton:SetVoids( thisBuildingInfo.ID, addToList );
-						local thisBuildingClass = GameInfo.BuildingClasses[thisBuildingInfo.BuildingClass];
-						if thisBuildingClass.MaxGlobalInstances > 0 or (thisBuildingClass.MaxPlayerInstances == 1 and thisBuildingInfo.SpecialistCount == 0) or thisBuildingClass.MaxTeamInstances > 0 then
-							thisBuildingInstance.RequiredBuildingButton:RegisterCallback( Mouse.eLClick, CivilopediaCategory[CategoryWonders].SelectArticle );
-						else
-							thisBuildingInstance.RequiredBuildingButton:RegisterCallback( Mouse.eLClick, CivilopediaCategory[CategoryBuildings].SelectArticle );
-						end
-						buttonAdded = buttonAdded + 1;
-					end
-				end
-			end
-		end
-		function AddRequiredBuildingInstance( reqClassType )
-			local reqDefaultBuildingType = GameInfo.BuildingClasses[reqClassType].DefaultBuilding;
-			local bOtherBuildingOverride;
-			local bMatchedOverride = false;
-																							print("Required Building Table")
-			local reqBuildingTable = AppendCivRelationshipTable( {}, GameInfo.Buildings( "BuildingClass = '" .. reqClassType .. "'" ), "Type", "CivilizationRequired");
-			reqBuildingTable = AppendCivRelationshipTable( reqBuildingTable, GameInfo.Civilization_BuildingClassOverrides( "BuildingClassType = '" .. reqClassType .. "'" ), "BuildingType", "CivilizationType");
-																							for civ, bType in pairs(reqBuildingTable) do print(bType .. " - " .. civ) end
-			for reqCivilization, reqBuildingType in pairs(reqBuildingTable) do
-																							print("Current Required Building to Add: " .. reqBuildingType .. " - " .. reqCivilization .. " ::")
-				bOtherBuildingOverride = false;
-				for thisCivilization, thisBuildingType in pairs(thisBuildingTable) do
-																							print("This Building: " .. thisBuildingType .. " - " .. thisCivilization)
-					-- if this building is a civ override, add any potential required buildings that override for the same civ
-					if reqCivilization == thisCivilization then
-																							print("Civilizations Match: added " .. reqBuildingType)
-						bMatchedOverride = true;
-						AddRequiredBuildingButton( reqBuildingType );
-					end
-				end
-				-- if this building is not a civ override, then if no other buildings in the same class override for the same civ as potential required building, add the potential required buiding
-				if next(thisBuildingTable) == nil then
-																							print("This Building is not an override")
-					for thisRelatedCivilization, _ in pairs(thisRelatedBuildingTable) do
-						if thisRelatedCivilization == reqCivilization then
-							bOtherBuildingOverride = true;
-						end
-					end
-					if not bOtherBuildingOverride then
-																							print("No other Required Buildings match the Civilization of this building. adding " .. reqBuildingType)
-						AddRequiredBuildingButton( reqBuildingType );
-					end
-				end
-			end
-			-- if this building is not a civ override, or this building has no potential required buildings that have the same ovrride, add a default building
-			if next(thisBuildingTable) == nil or not bMatchedOverride then
-																							print("This building is empty or we have no matched override. Adding default " .. reqDefaultBuildingType)
-				AddRequiredBuildingButton( reqDefaultBuildingType );
-			end
-		end
-																							print("This Building: " .. thisBuilding.Type)
-		local thisBuildingCondition = "BuildingType = '" .. thisBuilding.Type .. "'";	
-		for reqClassRow in GameInfo.Building_ClassesNeededInCity( thisBuildingCondition ) do
-			AddRequiredBuildingInstance( reqClassRow.BuildingClassType )
-		end
-		for reqClassRow in GameInfo.Building_ClassNeededAnywhere( thisBuildingCondition ) do
-			AddRequiredBuildingInstance( reqClassRow.BuildingClassType );
-		end
-		-- END
-		UpdateButtonFrame( buttonAdded, Controls.RequiredBuildingsInnerFrame, Controls.RequiredBuildingsFrame );
+		AddRequiredBuildingFrame( thisBuilding );
 		
 		-- Leads to Building (CBP now only shows civ override buildings if relevant.)
-																							print("--LEADS TO BUILDINGS BUTTONS--")
-		g_LeadsToBuildingsManager:ResetInstances();
-		buttonAdded = 0;
-		function AddLeadsToBuildingButton( buildingType )
-			local thisBuildingInfo = GameInfo.Buildings[buildingType];
-			if(thisBuildingInfo) then
-				if thisBuildingInfo.ShowInPedia == 1 then
-					local thisBuildingInstance = g_LeadsToBuildingsManager:GetInstance();
-					if thisBuildingInstance then
-						if not IconHookup( thisBuildingInfo.PortraitIndex, buttonSize, thisBuildingInfo.IconAtlas, thisBuildingInstance.LeadsToBuildingImage ) then
-							thisBuildingInstance.LeadsToBuildingImage:SetTexture( defaultErrorTextureSheet );
-							thisBuildingInstance.LeadsToBuildingImage:SetTextureOffset( nullOffset );
-						end
-						
-						--move this button
-						thisBuildingInstance.LeadsToBuildingButton:SetOffsetVal( (buttonAdded % numberOfButtonsPerRow) * buttonSize + buttonPadding, math.floor(buttonAdded / numberOfButtonsPerRow) * buttonSize + buttonPadding );
-						
-						thisBuildingInstance.LeadsToBuildingButton:SetToolTipString( Locale.ConvertTextKey( thisBuildingInfo.Description ) );
-						thisBuildingInstance.LeadsToBuildingButton:SetVoids( thisBuildingInfo.ID, addToList );
-						local thisBuildingClass = GameInfo.BuildingClasses[thisBuildingInfo.BuildingClass];
-						if thisBuildingClass.MaxGlobalInstances > 0 or (thisBuildingClass.MaxPlayerInstances == 1 and thisBuildingInfo.SpecialistCount == 0) or thisBuildingClass.MaxTeamInstances > 0 then
-							thisBuildingInstance.LeadsToBuildingButton:RegisterCallback( Mouse.eLClick, CivilopediaCategory[CategoryWonders].SelectArticle );
-						else
-							thisBuildingInstance.LeadsToBuildingButton:RegisterCallback( Mouse.eLClick, CivilopediaCategory[CategoryBuildings].SelectArticle );
-						end
-						buttonAdded = buttonAdded + 1;
-					end
-				end
-			end
-		end
-																							print("This Building: " .. thisBuilding.Type)
-		function AddLeadsToBuildingInstance( nextBuildingType )
-																							print("Current Leads to Building to Add: " .. nextBuildingType, " ::")
-			local bOtherBuildingOverride = false;
-			local bAddBuilding = false;
-																							print("Leads To Building Table")
-			local nextBuildingTable = AppendCivRelationshipTable( {}, GameInfo.Buildings( "Type = '" .. nextBuildingType .. "'" ), "Type", "CivilizationRequired");
-			nextBuildingTable = AppendCivRelationshipTable( nextBuildingTable, GameInfo.Civilization_BuildingClassOverrides( "BuildingType = '" .. nextBuildingType .. "'" ), "BuildingType", "CivilizationType");
-																							for civ, bType in pairs(nextBuildingTable) do print(bType .. " - " .. civ) end
-																							print("Leads To Related Building Table")			
-			local nextRelatedBuildingTable = AppendCivRelationshipTable( {}, GameInfo.Buildings( "BuildingClass = '" .. GameInfo.Buildings[nextBuildingType].BuildingClass .. "'" ), "Type", "CivilizationRequired");
-			nextRelatedBuildingTable = AppendCivRelationshipTable( nextRelatedBuildingTable, GameInfo.Civilization_BuildingClassOverrides( "BuildingClassType = '" .. GameInfo.Buildings[nextBuildingType].BuildingClass .. "'" ), "BuildingType", "CivilizationType");
-																							for civ, bType in pairs(nextRelatedBuildingTable) do print(bType .. " - " .. civ) end
-			-- If the potential next building matches civilizations with this building, add it
-			for thisCivilization, thisBuildingType in pairs(thisBuildingTable) do
-																							print("This Building: " .. thisBuildingType .. " - " .. thisCivilization)
-				for nextCivilization, _ in pairs(nextBuildingTable) do
-																							print("Leads to Building: " .. nextBuildingType .. " - " .. nextCivilization)					
-					if nextCivilization == thisCivilization then
-																							print("^ add ^")
-						bAddBuilding = true;
-					end
-				end
-			end
-			-- If the potential NEXT building is default and there are no other buildings in the NEXT building's class that match civilizations with this building, add the potential next building
-			if next(nextBuildingTable) == nil then
-																							print("No matching Leads To Building Civilization Override")
-																							print("Leads to Related BuildingClass: " .. GameInfo.Buildings[nextBuildingType].BuildingClass .. "-NULL")
-				for nextRelatedCivilization, nextRelatedBuildingType in pairs(nextRelatedBuildingTable) do
-																							print("Potential Related Leads to Building: " .. nextRelatedBuildingType .. " - " .. nextRelatedCivilization)
-					if thisCivilization == nextRelatedCivilization then
-						bOtherBuildingOverride = true;
-					end
-				end
-				if not bOtherBuildingOverride then
-																							print("No matches. Add " .. nextBuildingType)
-					bAddBuilding = true;
-				end
-			-- If THIS building is default and there are no other buildings in THIS building's Class that match civilizations with the potential next building, then add the potential next building
-			elseif next(thisBuildingTable) == nil then
-																							print("This Building is not an override")
-																							print("This Related BuildingClass: " .. thisBuilding.BuildingClass)
-				for thisRelatedCivilization, thisRelatedBuildingType in pairs(thisRelatedBuildingTable) do
-																							print("This Current Related Building: " .. thisRelatedBuildingType .. " - " .. thisRelatedCivilization)
-					for nextCivilization, _ in pairs(nextBuildingTable) do
-																							print("Leads to Building: " .. nextBuildingType .. " - " .. nextCivilization)
-						if nextCivilization == thisRelatedCivilization then
-							bOtherBuildingOverride = true;
-						end
-					end
-				end
-				if not bOtherBuildingOverride then
-																							print("no matches. Add " .. nextBuildingType)
-					bAddBuilding = true;
-				end
-			end
-			if bAddBuilding then
-																							print("Added " .. nextBuildingType)
-				AddLeadsToBuildingButton( nextBuildingType );
-			end
-		end
-		local thisBuildingClassCondition = "BuildingClassType = '" .. thisBuilding.BuildingClass .. "'";
-		for nextBuildingRow in GameInfo.Building_ClassesNeededInCity( thisBuildingClassCondition ) do
-			AddLeadsToBuildingInstance( nextBuildingRow.BuildingType );
-		end
-		for nextBuildingRow in GameInfo.Building_ClassNeededAnywhere( thisBuildingClassCondition ) do
-			AddLeadsToBuildingInstance( nextBuildingRow.BuildingType );
-		end
-		UpdateButtonFrame( buttonAdded, Controls.LeadsToBuildingsInnerFrame, Controls.LeadsToBuildingsFrame );
+		AddLeadsToBuildingFrame( thisBuilding );
 		-- END
-		local condition = "BuildingType = '" .. thisBuilding.Type .. "'";
+		
 		-- needed local resources
+		local condition = "BuildingType = '" .. thisBuilding.Type .. "'";
 		g_LocalResourcesManager:ResetInstances();
 		buttonAdded = 0;
 
