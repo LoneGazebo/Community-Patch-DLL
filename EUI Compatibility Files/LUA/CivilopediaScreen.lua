@@ -208,6 +208,7 @@ function AppendCivRelationshipTable( relationshipTable, searchTable, typeColumnN
 	end
 	return relationshipTable;
 end
+-- END
 
 -------------------------------------------------------------------------------
 -- setup generic stuff for each category
@@ -3776,8 +3777,10 @@ CivilopediaCategory[CategoryPromotions].SelectArticle = function( promotionID, s
 
 end
 
+-----------------------------------------------------------------
 -------- CBP BUILDING BUTTON HELPER FUNCTIONS -------------------
 -----------------------------------------------------------------
+-- required buildings
 function AddRequiredBuildingFrame( thisBuilding )
 	g_RequiredBuildingsManager:ResetInstances();
 	local buttonAdded = 0;
@@ -3785,7 +3788,7 @@ function AddRequiredBuildingFrame( thisBuilding )
 	thisBuildingTable = AppendCivRelationshipTable( thisBuildingTable, GameInfo.Civilization_BuildingClassOverrides( "BuildingType = '" .. thisBuilding.Type .. "'" ), "BuildingType", "CivilizationType" ); 
 	local thisRelatedBuildingTable = AppendCivRelationshipTable( {}, GameInfo.Buildings( "BuildingClass = '" .. thisBuilding.BuildingClass .. "'" ), "Type", "CivilizationRequired");
 	thisRelatedBuildingTable = AppendCivRelationshipTable( thisRelatedBuildingTable, GameInfo.Civilization_BuildingClassOverrides( "BuildingClassType = '" .. thisBuilding.BuildingClass .. "'" ), "BuildingType", "CivilizationType");
-	-- add the button if its info exists
+	-- add the leads to button if its info exists
 	function AddRequiredBuildingButton( buildingType )
 		local thisBuildingInfo = GameInfo.Buildings[buildingType];
 		if (thisBuildingInfo) then
@@ -3814,7 +3817,7 @@ function AddRequiredBuildingFrame( thisBuilding )
 			end
 		end
 	end
-	-- search for buildings to add
+	-- search for required buildings to add
 	function AddRequiredBuildingInstance( reqClassType )
 		local bOtherBuildingOverride;
 		local bMatchedOverride = false;
@@ -3858,7 +3861,7 @@ function AddRequiredBuildingFrame( thisBuilding )
 	
 	UpdateButtonFrame( buttonAdded, Controls.RequiredBuildingsInnerFrame, Controls.RequiredBuildingsFrame );
 end
-
+-- leads to buildings
 function AddLeadsToBuildingFrame( thisBuilding )
 	local thisBuildingTable = AppendCivRelationshipTable( {}, GameInfo.Buildings( "Type = '" .. thisBuilding.Type .. "'" ), "Type", "CivilizationRequired" );
 	thisBuildingTable = AppendCivRelationshipTable( thisBuildingTable, GameInfo.Civilization_BuildingClassOverrides( "BuildingType = '" .. thisBuilding.Type .. "'" ), "BuildingType", "CivilizationType" ); 
@@ -3867,7 +3870,7 @@ function AddLeadsToBuildingFrame( thisBuilding )
 	g_LeadsToBuildingsManager:ResetInstances();
 	buttonAdded = 0;
 
-	-- add the button if its info exists
+	-- add the required building button if its info exists
 	function AddLeadsToBuildingButton( buildingType )
 		local thisBuildingInfo = GameInfo.Buildings[buildingType];
 		if(thisBuildingInfo) then
@@ -3895,7 +3898,7 @@ function AddLeadsToBuildingFrame( thisBuilding )
 			end
 		end
 	end
-	-- search for buildings to add
+	-- search for leads to buildings to add
 	function AddLeadsToBuildingInstance( nextBuildingType )
 		local bOtherBuildingOverride = false;
 		local bAddBuilding = false;
@@ -4275,7 +4278,7 @@ function SelectBuildingOrWonderArticle( buildingID )
 		-- required buildings (CBP, now shows civ override buildings if relevant)
 		AddRequiredBuildingFrame( thisBuilding );
 		
-		-- Leads to Building (CBP now only shows civ override buildings if relevant.)
+		-- Leads to Building (CBP now shows civ override buildings if relevant)
 		AddLeadsToBuildingFrame( thisBuilding );
 		-- END
 		
