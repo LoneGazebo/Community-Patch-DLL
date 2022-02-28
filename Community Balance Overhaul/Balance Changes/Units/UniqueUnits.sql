@@ -164,6 +164,8 @@ UPDATE Units SET Class = 'UNITCLASS_SKI_INFANTRY', MinorCivGift = '1', Cost = '-
 
 UPDATE Unit_ClassUpgrades SET UnitClassType = 'UNITCLASS_GREAT_WAR_INFANTRY' WHERE UnitType = 'UNIT_DANISH_SKI_INFANTRY';
 
+-- Free Moves on Pillage Promotion integrated into Viking Promotion
+DELETE FROM Trait_FreePromotionUnitCombats WHERE TraitType = 'TRAIT_VIKING_FURY';
 INSERT INTO Trait_FreePromotionUnitCombats
 	(TraitType, UnitCombatType, PromotionType)
 VALUES
