@@ -166,7 +166,7 @@
 
 -- Survivalism
 	UPDATE Language_en_US
-	SET Text = 'Unit will [COLOR_POSITIVE_TEXT]Heal Every Turn[ENDCOLOR], even if it performs an action.[NEWLINE]Can pillage without expending movement.'
+	SET Text = 'Unit will [COLOR_POSITIVE_TEXT]Heal Every Turn[ENDCOLOR], even if it performs an action.[NEWLINE]Pillaging costs no [ICON_MOVES] Movement.'
 	WHERE Tag = 'TXT_KEY_PROMOTION_SURVIVALISM_3_HELP';
 
 -- Replace Accuracy

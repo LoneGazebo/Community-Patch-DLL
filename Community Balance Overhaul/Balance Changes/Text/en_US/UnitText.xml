@@ -692,7 +692,7 @@
 			<Text>Press Gangs</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_PRESS_GANGS_HELP">
-			<Text>Can pillage without expending movement.[NEWLINE]Pillaging [COLOR_POSITIVE_TEXT]fully heals[ENDCOLOR] this Unit.</Text>
+			<Text>Pillaging costs no [ICON_MOVES] Movement and [COLOR_POSITIVE_TEXT]fully heals[ENDCOLOR] this Unit.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_PIRACY">
@@ -793,14 +793,14 @@
 			<Text>Viking</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_VIKING_HELP">
-			<Text>+25% [ICON_STRENGTH] Base Combat Strength on Pillaged Tiles.[NEWLINE]Costs no [ICON_MOVES] Movement points to Pillage.[NEWLINE]+5 HP when healing in Neutral Territory.</Text>
+			<Text>Base [ICON_STRENGTH] Combat Strength increased by +25% while on [COLOR_POSITIVE_TEXT]Pillaged Tiles[ENDCOLOR].[NEWLINE]Pillaging costs no [ICON_MOVES] Movement.[NEWLINE]+5 HP when healing in [COLOR_POSITIVE_TEXT]Neutral Territory[ENDCOLOR].</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_LONGBOAT">
 			<Text>Longboat</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_LONGBOAT_HELP">
-			<Text>+15% [ICON_STRENGTH] Combat Strength when attacking or defending Coastal Tiles.[NEWLINE]Costs no [ICON_MOVES] Movement points to Pillage.[NEWLINE]Recovers Hit Points [COLOR_POSITIVE_TEXT]Twice as Quickly[ENDCOLOR] while healing on Coastal Tiles.</Text>
+			<Text>+15% [ICON_STRENGTH] Combat Strength when attacking or defending [COLOR_POSITIVE_TEXT]Coastal Tiles[ENDCOLOR].[NEWLINE]Pillaging costs no [ICON_MOVES] Movement.[NEWLINE]Recovers Hit Points [COLOR_POSITIVE_TEXT]Twice as Quickly[ENDCOLOR] while healing on [COLOR_POSITIVE_TEXT]Coastal Tiles[ENDCOLOR].</Text>
 		</Row>
 
 
