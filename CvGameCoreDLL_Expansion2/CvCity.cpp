@@ -24839,7 +24839,6 @@ int CvCity::getBasicYieldRateTimes100(YieldTypes eIndex) const
 	if (iNonSpecialist != 0)
 	{
 		int iBonusTimes100 = (iNonSpecialist * (getPopulation() - GetCityCitizens()->GetTotalSpecialistCount()));
-		iBonusTimes100 /= 100;
 		iBaseYield += iBonusTimes100;
 	}
 
