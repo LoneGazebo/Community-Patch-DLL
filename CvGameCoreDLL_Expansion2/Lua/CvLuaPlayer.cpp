@@ -526,7 +526,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetGoldenAgeGreatScientistRateModifier);
 	Method(GetGoldenAgeGreatEngineerRateModifier);
 	Method(GetGoldenAgeGreatMerchantRateModifier);
-#if defined(MOD_DIPLOMACY_CITYSTATES) && defined(MOD_API_UNIFIED_YIELDS)
+#if defined(MOD_DIPLOMACY_CITYSTATES)
 	Method(GetGoldenAgeGreatDiplomatRateModifier);
 #endif
 
@@ -5459,16 +5459,12 @@ int CvLuaPlayer::lGetTradeYourRoutesTTString(lua_State* L)
 					case YIELD_FAITH:
 						strOriginYieldsStr += GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_FAITH_YIELD_TT", iYieldQuantity / 100);
 						break;
-#if defined(MOD_API_UNIFIED_YIELDS_TOURISM)
 					case YIELD_TOURISM:
 						strOriginYieldsStr += GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_TOURISM_YIELD_TT", iYieldQuantity / 100);
 						break;
-#endif
-#if defined(MOD_API_UNIFIED_YIELDS_GOLDEN_AGE)
 					case YIELD_GOLDEN_AGE_POINTS:
 						strOriginYieldsStr += GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_GOLDEN_AGE_POINTS_YIELD_TT", iYieldQuantity / 100);
 						break;
-#endif
 					}
 				}
 			}
@@ -5500,16 +5496,12 @@ int CvLuaPlayer::lGetTradeYourRoutesTTString(lua_State* L)
 					case YIELD_FAITH:
 						strDestYieldsStr += GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_FAITH_YIELD_TT", iYieldQuantity / 100);
 						break;
-#if defined(MOD_API_UNIFIED_YIELDS_TOURISM)
 					case YIELD_TOURISM:
 						strDestYieldsStr += GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_TOURISM_YIELD_TT", iYieldQuantity / 100);
 						break;
-#endif
-#if defined(MOD_API_UNIFIED_YIELDS_GOLDEN_AGE)
 					case YIELD_GOLDEN_AGE_POINTS:
 						strDestYieldsStr += GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_GOLDEN_AGE_POINTS_YIELD_TT", iYieldQuantity / 100);
 						break;
-#endif
 					}
 				}
 			}
@@ -5690,16 +5682,12 @@ int CvLuaPlayer::lGetTradeToYouRoutesTTString(lua_State* L)
 					case YIELD_FAITH:
 						strDestYieldsStr += GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_FAITH_YIELD_TT", iYieldQuantity / 100);
 						break;
-#if defined(MOD_API_UNIFIED_YIELDS_TOURISM)
 					case YIELD_TOURISM:
 						strDestYieldsStr += GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_TOURISM_YIELD_TT", iYieldQuantity / 100);
 						break;
-#endif
-#if defined(MOD_API_UNIFIED_YIELDS_GOLDEN_AGE)
 					case YIELD_GOLDEN_AGE_POINTS:
 						strDestYieldsStr += GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_GOLDEN_AGE_POINTS_YIELD_TT", iYieldQuantity / 100);
 						break;
-#endif
 					}
 				}
 			}
@@ -7257,7 +7245,7 @@ int CvLuaPlayer::lGetGoldenAgeGreatMerchantRateModifier(lua_State* L)
 }
 
 #endif
-#if defined(MOD_DIPLOMACY_CITYSTATES) && defined(MOD_API_UNIFIED_YIELDS)
+#if defined(MOD_DIPLOMACY_CITYSTATES)
 //------------------------------------------------------------------------------
 int CvLuaPlayer::lGetGoldenAgeGreatDiplomatRateModifier(lua_State* L)
 {
@@ -10099,8 +10087,7 @@ int CvLuaPlayer::lGetScoreHistory(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	unsigned int uiTurn = (unsigned int)luaL_checkint(L, 2);
-	unsigned int uiDataSet = pkPlayer->getReplayDataSetIndex("REPLAYDATASET_SCORE");
-	lua_pushinteger(L, pkPlayer->getReplayDataValue(uiDataSet, uiTurn));
+	lua_pushinteger(L, pkPlayer->getReplayDataValue("REPLAYDATASET_SCORE", uiTurn));
 	return 1;
 }
 //------------------------------------------------------------------------------
@@ -10109,8 +10096,7 @@ int CvLuaPlayer::lGetEconomyHistory(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	unsigned int uiTurn = (unsigned int)luaL_checkint(L, 2);
-	unsigned int uiDataSet = pkPlayer->getReplayDataSetIndex("REPLAYDATASET_ECONOMY");
-	lua_pushinteger(L, pkPlayer->getReplayDataValue(uiDataSet, uiTurn));
+	lua_pushinteger(L, pkPlayer->getReplayDataValue("REPLAYDATASET_ECONOMY", uiTurn));
 	return 1;
 }
 //------------------------------------------------------------------------------
@@ -10119,8 +10105,7 @@ int CvLuaPlayer::lGetIndustryHistory(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	unsigned int uiTurn = (unsigned int)luaL_checkint(L, 2);
-	unsigned int uiDataSet = pkPlayer->getReplayDataSetIndex("REPLAYDATASET_INDUSTRY");
-	lua_pushinteger(L, pkPlayer->getReplayDataValue(uiDataSet, uiTurn));
+	lua_pushinteger(L, pkPlayer->getReplayDataValue("REPLAYDATASET_INDUSTRY", uiTurn));
 	return 1;
 }
 //------------------------------------------------------------------------------
@@ -10129,8 +10114,7 @@ int CvLuaPlayer::lGetAgricultureHistory(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	unsigned int uiTurn = (unsigned int)luaL_checkint(L, 2);
-	unsigned int uiDataSet = pkPlayer->getReplayDataSetIndex("REPLAYDATASET_AGRICULTURE");
-	lua_pushinteger(L, pkPlayer->getReplayDataValue(uiDataSet, uiTurn));
+	lua_pushinteger(L, pkPlayer->getReplayDataValue("REPLAYDATASET_AGRICULTURE", uiTurn));
 	return 1;
 }
 //------------------------------------------------------------------------------
@@ -10145,21 +10129,21 @@ int CvLuaPlayer::lGetReplayData(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 
-	const unsigned int numDataSets = pkPlayer->getNumReplayDataSets();
+	const map<CvString, CvPlayer::TurnData> replayData = pkPlayer->getReplayData();
 
-	lua_createtable(L, 0, numDataSets);
-	for(unsigned int uiDataSet = 0; uiDataSet < numDataSets; ++uiDataSet)
+	lua_createtable(L, 0, replayData.size());
+	for(map<CvString, CvPlayer::TurnData>::const_iterator it=replayData.begin(); it!=replayData.end(); ++it)
 	{
-		lua_pushstring(L, pkPlayer->getReplayDataSetName(uiDataSet));
+		lua_pushstring(L, it->first.c_str());
 
-		CvPlayer::TurnData data = pkPlayer->getReplayDataHistory(uiDataSet);
+		if (pkPlayer->GetID()==0) //don't spam the log
+			CUSTOMLOG("Getting replay dataset %s for player %d", it->first.c_str(), pkPlayer->GetID());
 
-		lua_createtable(L, data.size() - 1, 1);
-
-		for(CvPlayer::TurnData::iterator it = data.begin(); it != data.end(); ++it)
+		lua_createtable(L, it->second.size() - 1, 1);
+		for(CvPlayer::TurnData::const_iterator it2 = it->second.begin(); it2 != it->second.end(); ++it2)
 		{
-			lua_pushinteger(L, (*it).second);
-			lua_rawseti(L, -2, (*it).first);
+			lua_pushinteger(L, it2->second);
+			lua_rawseti(L, -2, it2->first);
 		}
 
 		lua_rawset(L, -3);
@@ -10176,9 +10160,7 @@ int CvLuaPlayer::lSetReplayDataValue(lua_State* L)
 	int iTurn = luaL_checkint(L, 3);
 	int iValue = luaL_checkint(L, 4);
 
-	unsigned int uiDataSet = pkPlayer->getReplayDataSetIndex(szDataSet);
-	pkPlayer->setReplayDataValue(uiDataSet, iTurn, iValue);
-
+	pkPlayer->setReplayDataValue(szDataSet, iTurn, iValue);
 	return 0;
 }
 //------------------------------------------------------------------------------
@@ -12322,9 +12304,8 @@ int CvLuaPlayer::lGetExtraYieldWorldWonder(lua_State* L)
 		{
 			if(::isWorldWonderClass(pkBuildingInfo->GetBuildingClassInfo()))
 			{
-#if defined(MOD_API_UNIFIED_YIELDS)
 				iExtraYield += pkPlayer->GetPlayerTraits()->GetYieldChangeWorldWonder(eYieldType);
-#endif
+
 				for(int iPolicyLoop = 0; iPolicyLoop < GC.getNumPolicyInfos(); iPolicyLoop++)
 				{
 					const PolicyTypes ePolicy = static_cast<PolicyTypes>(iPolicyLoop);

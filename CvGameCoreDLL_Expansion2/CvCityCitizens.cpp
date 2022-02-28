@@ -2304,9 +2304,7 @@ int CvCityCitizens::GetSpecialistRate(SpecialistTypes eSpecialist)
 				// Player mod
 				iMod += GetPlayer()->getGreatPeopleRateModifier();
 
-#if defined(MOD_BALANCE_CORE)
 				iMod += GetCity()->GetSpecialistRateModifier(eSpecialist);
-#endif
 
 				// Player and Golden Age mods to this specific class
 				if ((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_SCIENTIST"))
@@ -2345,14 +2343,11 @@ int CvCityCitizens::GetSpecialistRate(SpecialistTypes eSpecialist)
 				{
 					iMod += GetPlayer()->getGreatEngineerRateModifier();
 				}
-#if defined(MOD_DIPLOMACY_CITYSTATES)
 				else if (MOD_DIPLOMACY_CITYSTATES && (UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_GREAT_DIPLOMAT"))
 				{
 					iMod += GetPlayer()->getGreatDiplomatRateModifier();
 				}
-#endif
 
-#if defined(MOD_API_UNIFIED_YIELDS)
 				GreatPersonTypes eGreatPerson = GetGreatPersonFromSpecialist(eSpecialist);
 				if (eGreatPerson != NO_GREATPERSON)
 				{
@@ -2374,7 +2369,6 @@ int CvCityCitizens::GetSpecialistRate(SpecialistTypes eSpecialist)
 							}
 						}
 
-#if defined(MOD_RELIGION_PERMANENT_PANTHEON)
 						// Mod for civs keeping their pantheon belief forever
 						if (MOD_RELIGION_PERMANENT_PANTHEON)
 						{
@@ -2391,7 +2385,6 @@ int CvCityCitizens::GetSpecialistRate(SpecialistTypes eSpecialist)
 								}
 							}
 						}
-#endif
 					}
 				}
 				int iNumPuppets = GetPlayer()->GetNumPuppetCities();
@@ -2403,7 +2396,7 @@ int CvCityCitizens::GetSpecialistRate(SpecialistTypes eSpecialist)
 						iMod += (iNumPuppets * GetPlayer()->GetPlayerTraits()->GetPerPuppetGreatPersonRateModifier(eGreatPerson));
 					}
 				}
-#endif
+
 #if defined(MOD_BALANCE_CORE)
 				if (GetCity()->isCapital() && GetPlayer()->GetPlayerTraits()->IsDiplomaticMarriage())
 				{

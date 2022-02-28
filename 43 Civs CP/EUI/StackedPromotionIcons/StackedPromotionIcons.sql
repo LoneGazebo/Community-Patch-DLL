@@ -5,6 +5,7 @@ ALTER TABLE UnitPromotions	ADD RankNumber							integer default 0;
 -- bal: this is only used for Flags, not needed here ALTER TABLE UnitPromotions	ADD IsVisibleAboveFlag					boolean default 1; 
 ALTER TABLE UnitPromotions	ADD FlagPromoOrder						int default 0;
 ALTER TABLE UnitPromotions	ADD SimpleHelpText						boolean default 0;
+ALTER TABLE UnitPromotions	ADD ShowInUnitPanel						boolean default 1;
 
 -- For promos where the title is the same as the Help text
 UPDATE UnitPromotions SET SimpleHelpText = 1 WHERE Description == Help;
@@ -633,3 +634,7 @@ UPDATE UnitPromotions SET FlagPromoOrder = 98 WHERE Type IN (
 UPDATE UnitPromotions SET FlagPromoOrder = 99 WHERE Type IN (
 	'PROMOTION_CREATED'
 );
+
+UPDATE UnitPromotions SET ShowInUnitPanel = 0 WHERE Type IN (
+	'PROMOTION_ONLY_DEFENSIVE');
+	

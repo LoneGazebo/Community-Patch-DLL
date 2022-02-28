@@ -30,3 +30,7 @@ UPDATE Eras SET DiploEmphasisLatePolicies = '7';
 UPDATE Eras SET DiploEmphasisLatePolicies = '9' WHERE Type = 'ERA_MODERN';
 UPDATE Eras SET DiploEmphasisLatePolicies = '10' WHERE Type = 'ERA_POSTMODERN';
 UPDATE Eras SET DiploEmphasisLatePolicies = '8' WHERE Type = 'ERA_FUTURE';
+
+DELETE FROM AIGrandStrategy_FlavorMods WHERE FlavorType = 'FLAVOR_RELIGION' AND AIGrandStrategyType = 'AIGRANDSTRATEGY_SPACESHIP';
+
+DELETE FROM AIEconomicStrategy_Player_Flavors WHERE FlavorType = 'FLAVOR_NAVAL' AND AIEconomicStrategyType = 'ECONOMICAISTRATEGY_REALLY_NEED_RECON_SEA';

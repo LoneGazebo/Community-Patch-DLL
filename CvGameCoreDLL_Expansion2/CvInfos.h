@@ -1825,12 +1825,10 @@ public:
 	int getYieldChange(int i) const;
 	int getRiverYieldChange(int i) const;
 	int getHillsYieldChange(int i) const;
-#if defined(MOD_API_UNIFIED_YIELDS)
 	int getCoastalLandYieldChange(int i) const;
 	int getFreshWaterYieldChange(int i) const;
 	int GetTechYieldChanges(int i, int j) const;
 	int GetEraYieldChanges(int i) const;
-#endif
 	int get3DAudioScriptFootstepIndex(int i) const;
 
 	bool isTerrain(int i) const;
@@ -1900,12 +1898,10 @@ protected:
 	int* m_piYieldChange;
 	int* m_piRiverYieldChange;
 	int* m_piHillsYieldChange;
-#if defined(MOD_API_UNIFIED_YIELDS)
 	int* m_piCoastalLandYieldChange;
 	int* m_piFreshWaterChange;
 	int** m_ppiTechYieldChanges;
 	int* m_piEraYieldChange;
-#endif
 	int* m_pi3DAudioScriptFootstepIndex;
 	bool* m_pbTerrain;
 
@@ -2020,11 +2016,9 @@ public:
 	int getYield(int i) const;
 	int getRiverYieldChange(int i) const;
 	int getHillsYieldChange(int i) const;
-#if defined(MOD_API_UNIFIED_YIELDS)
 	int getCoastalLandYieldChange(int i) const;
 	int getFreshWaterYieldChange(int i) const;
 	int GetTechYieldChanges(int i, int j) const;
-#endif
 	int get3DAudioScriptFootstepIndex(int i) const;
 
 	// Other
@@ -2061,11 +2055,9 @@ protected:
 	int* m_piYields;
 	int* m_piRiverYieldChange;
 	int* m_piHillsYieldChange;
-#if defined(MOD_API_UNIFIED_YIELDS)
 	int* m_piCoastalLandYieldChange;
 	int* m_piFreshWaterChange;
 	int** m_ppiTechYieldChanges;
-#endif
 	int* m_pi3DAudioScriptFootstepIndex;
 
 	CvString m_strEffectTypeTag;		// Effect type for effect macros
@@ -3673,8 +3665,6 @@ private:
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 typedef CvBaseInfo CvDomainInfo;
 
-
-#if defined(MOD_API_UNIFIED_YIELDS)
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // Helper Functions to serialize arrays of variable length (based on number of features defined in game)
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -3696,5 +3686,4 @@ void Write(FDataStream& kStream, int* paiTerrainArray, int iArraySize);
 void ReadYieldArray(FDataStream& kStream, int** ppaaiTerrainYieldArray, int iNumYields);
 void WriteYieldArray(FDataStream& kStream, int** ppaaiTerrainYieldArray, int iArraySize);
 }
-#endif
 #endif

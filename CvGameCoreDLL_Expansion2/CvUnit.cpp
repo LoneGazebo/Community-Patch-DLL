@@ -280,12 +280,10 @@ CvUnit::CvUnit() :
 	, m_iAttacksMade()
 	, m_iGreatGeneralCount()
 	, m_iGreatAdmiralCount()
-#if defined(MOD_PROMOTIONS_AURA_CHANGE)
 	, m_iAuraRangeChange()
 	, m_iAuraEffectChange()
 	, m_iNumRepairCharges()
 	, m_iMilitaryCapChange()
-#endif
 	, m_iGreatGeneralModifier()
 	, m_iGreatGeneralReceivesMovementCount()
 	, m_iGreatGeneralCombatModifier()
@@ -481,10 +479,8 @@ CvUnit::CvUnit() :
 	, m_terrainDoubleHeal()
 	, m_featureDoubleHeal()
 #endif
-#if defined(MOD_API_UNIFIED_YIELDS)
 	, m_yieldFromKills()
 	, m_yieldFromBarbarianKills()
-#endif
 #if defined(MOD_BALANCE_CORE)
 	, m_aiNumTimesAttackedThisTurn()
 	, m_yieldFromScouting()
@@ -1295,7 +1291,6 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 				}
 			}
 		}
-#if defined(MOD_API_UNIFIED_YIELDS)
 		CvPlayer* pPlayer = &GET_PLAYER(getOwner());
 		CvAssertMsg(pPlayer, "Owner of unit not expected to be NULL. Please send Anton your save file and version.");
 		if (pPlayer)
@@ -1311,7 +1306,6 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 				pPlayer->changeGoldenAgeTurns(iGATurnsfromGPBirth, iValue, true);
 			}
 		}
-#endif
 	}
 #endif
 #if defined(MOD_BALANCE_CORE)
@@ -1628,12 +1622,10 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_iAttacksMade = 0;
 	m_iGreatGeneralCount = 0;
 	m_iGreatAdmiralCount = 0;
-#if defined(MOD_PROMOTIONS_AURA_CHANGE)
 	m_iAuraRangeChange = 0;
 	m_iAuraEffectChange = 0;
 	m_iNumRepairCharges = 0;
 	m_iMilitaryCapChange = 0;
-#endif
 	m_iGreatGeneralModifier = 0;
 	m_iGreatGeneralReceivesMovementCount = 0;
 	m_iGreatGeneralCombatModifier = 0;
@@ -1793,30 +1785,23 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 		m_extraUnitClassAttackMod.clear();
 		m_extraUnitClassDefenseMod.clear();
 
-#if defined(MOD_API_UNIFIED_YIELDS)
 		m_yieldFromKills.clear();
 		m_yieldFromBarbarianKills.clear();
-#if defined(MOD_BALANCE_CORE)
 		m_aiNumTimesAttackedThisTurn.clear();
 		m_aiNumTimesAttackedThisTurn.resize(REALLY_MAX_PLAYERS);
 		m_yieldFromScouting.clear();
-#endif
 		
 		m_yieldFromKills.resize(NUM_YIELD_TYPES);
 		m_yieldFromBarbarianKills.resize(NUM_YIELD_TYPES);
-#if defined(MOD_BALANCE_CORE)
 		m_yieldFromScouting.resize(NUM_YIELD_TYPES);
-#endif
 
 		for(int i = 0; i < NUM_YIELD_TYPES; i++)
 		{
 			m_yieldFromKills[i] = 0;
 			m_yieldFromBarbarianKills[i] = 0;
-#if defined(MOD_BALANCE_CORE)
 			m_yieldFromScouting[i] = 0;
-#endif
 		}
-#endif
+
 		for (int iI = 0; iI < REALLY_MAX_PLAYERS; iI++)
 		{
 			m_aiNumTimesAttackedThisTurn[iI] =  0;
@@ -1952,10 +1937,8 @@ void CvUnit::uninitInfos()
 	m_iCombatModPerAdjacentUnitCombatAttackMod.clear();
 	m_iCombatModPerAdjacentUnitCombatDefenseMod.clear();
 #endif
-#if defined(MOD_API_UNIFIED_YIELDS)
 	m_yieldFromKills.clear();
 	m_yieldFromBarbarianKills.clear();
-#endif
 #if defined(MOD_BALANCE_CORE)
 	m_yieldFromScouting.clear();
 #endif
@@ -11279,9 +11262,6 @@ bool CvUnit::DoSpreadReligion()
 		iEra = 1;
 	}
 #endif
-#if !defined(MOD_API_UNIFIED_YIELDS)
-	int iScienceBonus = 0;
-#endif
 
 	CvCity* pCity = GetSpreadReligionTargetCity();
 
@@ -11303,24 +11283,7 @@ bool CvUnit::DoSpreadReligion()
 			const CvReligion* pReligion = pReligions->GetReligion(eReligion, getOwner());
 			if(pReligion)
 			{
-#if defined(MOD_API_UNIFIED_YIELDS)
 				iPreSpreadFollowers = pCity->GetCityReligions()->GetNumFollowers(eReligion);
-#else
-				iScienceBonus = pReligion->m_Beliefs.GetSciencePerOtherReligionFollower();
-				if(iScienceBonus > 0)
-				{
-					// Requires majority for this city to be another religion
-					ReligionTypes eCurrentReligion = pCity->GetCityReligions()->GetReligiousMajority();
-					if (eCurrentReligion != NO_RELIGION && eCurrentReligion != eReligion)
-					{
-						iScienceBonus *= pCity->GetCityReligions()->GetFollowersOtherReligions(eReligion);
-					}
-					else
-					{
-						iScienceBonus = 0;
-					}
-				}
-#endif
 #if defined(MOD_BALANCE_CORE_BELIEFS)
 				CvCity* pHolyCity = pReligion->GetHolyCity();
 				iCSInfluence = (pReligion->m_Beliefs.GetMissionaryInfluenceCS(getOwner(), pHolyCity) * iEra);
@@ -11361,31 +11324,6 @@ bool CvUnit::DoSpreadReligion()
 				SHOW_PLOT_POPUP(pCity->plot(), getOwner(), text);
 			}
 
-#if !defined(MOD_API_UNIFIED_YIELDS)
-			if (iScienceBonus > 0)
-			{
-				CvPlayer &kPlayer = GET_PLAYER(m_eOwner);
-
-				TechTypes eCurrentTech = kPlayer.GetPlayerTechs()->GetCurrentResearch();
-				if(eCurrentTech == NO_TECH)
-				{
-					kPlayer.changeOverflowResearch(iScienceBonus);
-				}
-				else
-				{
-					CvTeam &kTeam = GET_TEAM(kPlayer.getTeam());
-					kTeam.GetTeamTechs()->ChangeResearchProgress(eCurrentTech, iScienceBonus, kPlayer.GetID());
-				}
-
-				if (pCity->plot() && pCity->plot()->GetActiveFogOfWarMode() == FOGOFWARMODE_OFF)
-				{
-					char text[256] = {0};
-					sprintf_s(text, "[COLOR_BLUE]+%d[ENDCOLOR][ICON_RESEARCH]", iScienceBonus);
-					float fDelay = /*2.0f*/ GD_FLOAT_GET(POST_COMBAT_TEXT_DELAY) * 2;
-					SHOW_PLOT_POPUP(pCity->plot(), getOwner(), text);
-				}
-			}
-#endif
 #if defined(MOD_BALANCE_CORE_BELIEFS)
 			if(iCSInfluence > 0)
 			{
@@ -12102,18 +12040,17 @@ bool CvUnit::hurry()
 
 	iHurryValue = std::min(pCity->productionLeft(), iHurryValue);
 
-	if(pCity != NULL)
+	if (pCity != NULL)
 	{
 		pCity->changeProduction(iHurryValue);
-#if defined(MOD_BALANCE_CORE_ENGINEER_HURRY)
-		if(MOD_BALANCE_CORE_ENGINEER_HURRY && pCity != NULL && pCity->getProductionBuilding() != NO_BUILDING)
+
+		if (MOD_BALANCE_CORE_ENGINEER_HURRY && pCity->getProductionBuilding() != NO_BUILDING)
 		{
 			if (pCity->getProduction() >= pCity->getProductionNeeded())
 			{
 				pCity->popOrder(0, true, true);
 			}
 		}
-#endif
 	}
 
 	if(pPlot->isActiveVisible())
@@ -23892,7 +23829,6 @@ void CvUnit::ChangeGreatAdmiralCount(int iChange)
 	m_iGreatAdmiralCount += iChange;
 }
 
-#if defined(MOD_PROMOTIONS_AURA_CHANGE)
 //	--------------------------------------------------------------------------------
 int CvUnit::GetAuraRangeChange() const
 {
@@ -23948,7 +23884,6 @@ void CvUnit::ChangeMilitaryCapChange(int iChange)
 	VALIDATE_OBJECT
 		m_iMilitaryCapChange += iChange;
 }
-#endif
 
 //	--------------------------------------------------------------------------------
 int CvUnit::getGreatGeneralModifier() const
@@ -25992,7 +25927,6 @@ void CvUnit::changeYieldFromScouting(YieldTypes eIndex, int iChange)
 	}
 }
 #endif
-#if defined(MOD_API_UNIFIED_YIELDS)
 //	--------------------------------------------------------------------------------
 int CvUnit::getYieldFromKills(YieldTypes eIndex) const
 {
@@ -26038,7 +25972,6 @@ void CvUnit::changeYieldFromBarbarianKills(YieldTypes eIndex, int iChange)
 		m_yieldFromBarbarianKills[eIndex] =  m_yieldFromBarbarianKills[eIndex] + iChange;
 	}
 }
-#endif
 
 //	--------------------------------------------------------------------------------
 int CvUnit::getExtraUnitCombatModifier(UnitCombatTypes eIndex) const
@@ -26586,7 +26519,8 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 		{
 			if(bNewValue)
 			{
-				ChangePromotionDuration(eIndex, (thisPromotion.PromotionDuration()) * iChange);
+				//SETS promotion duration, as we don't want to change it every time we get the promotion (this just stores the max length of the promotion)
+				ChangePromotionDuration(eIndex, (thisPromotion.PromotionDuration() * iChange) - getPromotionDuration(eIndex));
 				if(getPromotionDuration(eIndex) > 0)
 				{
 					SetTurnPromotionGained(eIndex, GC.getGame().getGameTurn());
@@ -26700,12 +26634,12 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 
 		ChangeGreatGeneralCount(thisPromotion.IsGreatGeneral() ? iChange: 0);
 		ChangeGreatAdmiralCount(thisPromotion.IsGreatAdmiral() ? iChange: 0);
-#if defined(MOD_PROMOTIONS_AURA_CHANGE)
+
 		ChangeAuraRangeChange(thisPromotion.GetAuraRangeChange() * iChange);
 		ChangeAuraEffectChange(thisPromotion.GetAuraEffectChange() * iChange);
 		ChangeNumRepairCharges(thisPromotion.GetNumRepairCharges() * iChange);
 		ChangeMilitaryCapChange(thisPromotion.GetMilitaryCapChange() * iChange);
-#endif
+
 		changeGreatGeneralModifier(thisPromotion.GetGreatGeneralModifier() * iChange);
 		ChangeGreatGeneralReceivesMovementCount(thisPromotion.IsGreatGeneralReceivesMovement() ? iChange: 0);
 		ChangeGreatGeneralCombatModifier(thisPromotion.GetGreatGeneralCombatModifier() * iChange);
@@ -26771,13 +26705,9 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 			SetYieldChange(((YieldTypes)iI), (thisPromotion.GetYieldChange(iI) * iChange));
 			SetGarrisonYieldChange(((YieldTypes)iI), (thisPromotion.GetGarrisonYield(iI) * iChange));
 			SetFortificationYieldChange(((YieldTypes)iI), (thisPromotion.GetFortificationYield(iI) * iChange));
-#if defined(MOD_API_UNIFIED_YIELDS)
 			changeYieldFromKills(((YieldTypes)iI), (thisPromotion.GetYieldFromKills(iI) * iChange));
 			changeYieldFromBarbarianKills(((YieldTypes)iI), (thisPromotion.GetYieldFromBarbarianKills(iI) * iChange));
-#if defined(MOD_BALANCE_CORE)
 			changeYieldFromScouting(((YieldTypes)iI), (thisPromotion.GetYieldFromScouting(iI) * iChange));
-#endif
-#endif
 #if defined(MOD_BALANCE_CORE)
 			if (bNewValue && !IsPromotionEverObtained(eIndex))
 			{

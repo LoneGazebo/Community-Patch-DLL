@@ -76,11 +76,11 @@ WHERE Type = 'BUILDING_FORBIDDEN_PALACE';
 -- Unit Promotions
 UPDATE UnitPromotions
 SET FlankAttackModifier = '5'
-WHERE FlankAttackModifier = '50' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
+WHERE FlankAttackModifier = '50';
 
 UPDATE UnitPromotions
 SET FlankAttackModifier = '3'
-WHERE FlankAttackModifier = '25' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
+WHERE FlankAttackModifier = '25';
 
 -- Resource Priority Changes
 

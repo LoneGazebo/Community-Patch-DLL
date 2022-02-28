@@ -27,7 +27,7 @@ WHERE Tag = 'TXT_KEY_POPUP_CITY_CAPTURE_INFO_RAZE';
 
 -- Production Queue
 UPDATE Language_en_US
-SET Text = 'LEFT CLICK adds an additional item to the end of the production queue.[NEWLINE]CTRL + LEFT CLICK adds an additional item in front of the production queue.[NEWLINE]SHIFT + LEFT CLICK replaces everything in the production queue with the chosen item.'
+SET Text = 'LEFT CLICK adds an additional item to the end of the production queue.[NEWLINE]CTRL + LEFT CLICK adds an additional item in front of the production queue.[NEWLINE]ALT + LEFT CLICK adds the chosen item to the end of the production queue on repeat.[NEWLINE]SHIFT + LEFT CLICK replaces everything in the production queue with the chosen item.'
 WHERE Tag = 'TXT_KEY_CITYVIEW_QUEUE_PROD_TT';
 
 -- Avoid Growth
@@ -457,19 +457,19 @@ WHERE Tag = 'TXT_KEY_EO_SPY_MOVE_TT';
 
 -- Fixed diacritics for spy names.
 UPDATE Language_en_US
-SET Text = 'Antônio'
+SET Text = 'AntÃ´nio'
 WHERE Tag = 'TXT_KEY_SPY_NAME_BRAZIL_0';
 
 UPDATE Language_en_US
-SET Text = 'Estêvão'
+SET Text = 'EstÃªvÃ£o'
 WHERE Tag = 'TXT_KEY_SPY_NAME_BRAZIL_3';
 
 UPDATE Language_en_US
-SET Text = 'Fernão'
+SET Text = 'FernÃ£o'
 WHERE Tag = 'TXT_KEY_SPY_NAME_BRAZIL_4';
 
 UPDATE Language_en_US
-SET Text = 'Tomé'
+SET Text = 'TomÃ©'
 WHERE Tag = 'TXT_KEY_SPY_NAME_BRAZIL_8';
 
 
@@ -1682,6 +1682,10 @@ WHERE Tag = 'TXT_KEY_LEADER_NEBUCHADNEZZAR_DEFEATED_1';
 UPDATE Language_en_US
 SET Text = 'This is why I prefer diplomacy to violence!'
 WHERE Tag = 'TXT_KEY_LEADER_PEDRO_DEFEATED_1';
+
+UPDATE Language_en_US
+SET Text = 'My kingdom will always remember its true king...regardless of your petty victory.'
+WHERE Tag = 'TXT_KEY_LEADER_CASIMIR_DEFEATED_3';
 
 
 -- Report Coop War Plans to Target AI

@@ -104,11 +104,6 @@ WHERE Type = 'TRAIT_PHOENICIAN_HERITAGE';
 
 -- Gustavus Adolphus -- Remove Hakkepillita, add unique Public School
 
--- Remove Sweden Tundra bias
-
-DELETE FROM Civilization_Start_Region_Priority
-WHERE CivilizationType = 'CIVILIZATION_SWEDEN';
-
 UPDATE Traits
 SET GreatPersonGiftInfluence = '0'
 WHERE Type = 'TRAIT_DIPLOMACY_GREAT_PEOPLE';
@@ -282,10 +277,6 @@ WHERE BuildingType = 'BUILDING_MAYA_PYRAMID';
 
 DELETE FROM Civilization_BuildingClassOverrides
 WHERE BuildingType = 'BUILDING_MAYA_PYRAMID';
-
-UPDATE Civilization_Start_Region_Priority
-SET RegionType = 'REGION_JUNGLE'
-WHERE CivilizationType = 'CIVILIZATION_MAYA';
 
 -- NEW
 
@@ -577,11 +568,6 @@ VALUES
 	('IMPROVEMENT_POLDER', 'IMPROVEMENT_TRADING_POST', 'YIELD_GOLD', 1),
 	('IMPROVEMENT_POLDER', 'IMPROVEMENT_CUSTOMS_HOUSE', 'YIELD_GOLD', 1);
 
-INSERT INTO Civilization_Start_Along_River
-	(CivilizationType, StartAlongRiver)
-VALUES
-	('CIVILIZATION_NETHERLANDS', 1);
-
 INSERT INTO Trait_YieldFromImport
 	(TraitType, YieldType, Yield)
 VALUES
@@ -688,7 +674,10 @@ INSERT INTO Improvement_ValidTerrains
 	(ImprovementType, TerrainType)
 VALUES
 	('IMPROVEMENT_EKI', 'TERRAIN_GRASS'),
-	('IMPROVEMENT_EKI', 'TERRAIN_PLAINS');
+	('IMPROVEMENT_EKI', 'TERRAIN_PLAINS'),
+	('IMPROVEMENT_EKI', 'TERRAIN_DESERT'),
+	('IMPROVEMENT_EKI', 'TERRAIN_TUNDRA'),
+	('IMPROVEMENT_EKI', 'TERRAIN_SNOW');
 
 INSERT INTO Improvement_ValidFeatures
 	(ImprovementType, FeatureType)

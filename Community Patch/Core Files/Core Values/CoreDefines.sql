@@ -5,6 +5,7 @@ INSERT INTO Defines(Name, Value) SELECT 'CS_CAN_MOVE_STARTING_SETTLER', '0';
 
 -- Number of rings a new city starts with
 INSERT INTO Defines (Name, Value) SELECT 'CITY_STARTING_RINGS', '1';
+INSERT INTO Defines (Name, Value) SELECT 'MAXIMUM_WORK_PLOT_DISTANCE', '3';
 
 -- Player Proximity Values
 UPDATE Defines SET Value = '8' WHERE Name = 'PROXIMITY_NEIGHBORS_CLOSEST_CITY_REQUIREMENT';
@@ -21,6 +22,17 @@ INSERT INTO Defines(Name, Value) SELECT 'WAR_MINOR_MINIMUM_TURNS', '1';
 INSERT INTO Defines (Name, Value) SELECT 'MAX_UNIT_SUPPLY_GROWTH_MOD', '70';
 INSERT INTO Defines (Name, Value) SELECT 'PRODUCTION_PENALTY_PER_UNIT_OVER_SUPPLY', '10';
 INSERT INTO Defines (Name, Value) SELECT 'GROWTH_PENALTY_PER_UNIT_OVER_SUPPLY', '5';
+
+
+-- Great People Stuff
+INSERT INTO Defines (Name, Value) SELECT 'MINIMUM_TOURISM_BLAST_STRENGTH', '100';
+
+
+-- Additional Yield Modifiers for Puppets
+INSERT INTO Defines (Name, Value) SELECT 'PUPPET_GROWTH_MODIFIER', '0';
+INSERT INTO Defines (Name, Value) SELECT 'PUPPET_PRODUCTION_MODIFIER', '0';
+INSERT INTO Defines (Name, Value) SELECT 'PUPPET_GOLDEN_AGE_MODIFIER', '0';
+INSERT INTO Defines (Name, Value) SELECT 'PUPPET_TOURISM_MODIFIER', '0';
 
 
 -- Combat Stuff
@@ -251,6 +263,9 @@ UPDATE Defines SET Value = '70' WHERE Name = 'WAR_DAMAGE_LEVEL_THRESHOLD_CRIPPLE
 
 -- Aggressive Postures
 UPDATE Defines SET Value = '30' WHERE Name = 'EXPANSION_BICKER_TIMEOUT';
+INSERT INTO Defines (Name, Value) SELECT 'EXPANSION_BICKER_RANGE_HIGH', '7';
+INSERT INTO Defines (Name, Value) SELECT 'EXPANSION_BICKER_RANGE_MEDIUM', '6';
+INSERT INTO Defines (Name, Value) SELECT 'EXPANSION_BICKER_RANGE_LOW', '5';
 
 UPDATE Defines SET Value = '12' WHERE Name = 'PLOT_BUYING_POSTURE_INCREDIBLE_THRESHOLD';
 UPDATE Defines SET Value = '9' WHERE Name = 'PLOT_BUYING_POSTURE_HIGH_THRESHOLD';
@@ -365,7 +380,7 @@ UPDATE Defines SET Value = '5' WHERE Name = 'WARMONGER_THREAT_MINOR_ATTACKED_WEI
 UPDATE Defines SET Value = '10' WHERE Name = 'WARMONGER_THREAT_MAJOR_ATTACKED_WEIGHT';
 INSERT INTO Defines(Name, Value) SELECT 'WARMONGER_THREAT_USED_NUKE_WEIGHT', '20';
 
-UPDATE Defines SET Value = '100' WHERE Name = 'WARMONGER_THREAT_CITY_VALUE_MULTIPLIER'; -- > 100: each city is worth more ... < 100: each city is worth less (multiplicative)
+INSERT INTO Defines(Name, Value) SELECT 'WARMONGER_THREAT_CITY_VALUE_MULTIPLIER', '100'; -- > 100: each city is worth more ... < 100: each city is worth less (multiplicative)
 INSERT INTO Defines(Name, Value) SELECT 'WARMONGER_THREAT_CAPITAL_CITY_PERCENT', '150'; -- how much more the capital is worth (multiplicative)
 
 -- Multiplicative modifier for when the bystander is on the same team as the defender, has a coop war with the defender against the attacker, or has a Defensive Pact with the defender
@@ -615,6 +630,7 @@ INSERT INTO Defines (Name, Value) SELECT 'UNHAPPINESS_PER_POPULATION_FLOAT', '0.
 INSERT INTO Defines (Name, Value) SELECT 'CSD_GOLD_GIFT_DISABLED', '0';
 
 -- Quest stuff
+INSERT INTO Defines (Name, Value) SELECT 'QUEST_DISABLED_GIFT_SPECIFIC_UNIT', '0';
 INSERT INTO Defines (Name, Value) SELECT 'QUEST_DISABLED_WAR', '0';
 INSERT INTO Defines (Name, Value) SELECT 'QUEST_DISABLED_INFLUENCE', '0';
 INSERT INTO Defines (Name, Value) SELECT 'QUEST_DISABLED_FIND_CITY_STATE', '0';

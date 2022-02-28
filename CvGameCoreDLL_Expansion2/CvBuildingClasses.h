@@ -545,6 +545,7 @@ public:
 	int GetResourceQuantityPerXFranchises(int i) const;
 	int GetYieldPerFranchise(int i) const;
 #endif
+	int GetResourceQuantityFromPOP(int i) const;
 	int GetHurryModifier(int i) const;
 #if defined(MOD_BALANCE_CORE)
 	int GetHurryModifierLocal(int i) const;
@@ -593,7 +594,7 @@ public:
 	int* GetResourceYieldModifierArray(int i) const;
 	int GetTerrainYieldChange(int i, int j) const;
 	int* GetTerrainYieldChangeArray(int i) const;
-#if defined(MOD_API_UNIFIED_YIELDS)
+
 	int GetYieldPerXTerrain(int i, int j) const;
 	int* GetYieldPerXTerrainArray(int i) const;
 
@@ -602,7 +603,7 @@ public:
 
 	int GetPlotYieldChange(int i, int j) const;
 	int* GetPlotYieldChangeArray(int i) const;
-#endif
+
 	int GetBuildingClassYieldChange(int i, int j) const;
 	int GetBuildingClassYieldModifier(int i, int j) const;
 #if defined(MOD_BALANCE_CORE)
@@ -613,7 +614,7 @@ public:
 #endif
 	int GetBuildingClassHappiness(int i) const;
 
-#if defined(MOD_BALANCE_CORE) && defined(MOD_API_UNIFIED_YIELDS)
+#if defined(MOD_BALANCE_CORE)
 	std::multimap<int, std::pair<int, int>> GetGreatPersonProgressFromConstructionArray() const;
 #endif
 
@@ -985,6 +986,7 @@ private:
 	int m_iGPRateModifierPerXFranchises;
 	int* m_piResourceQuantityPerXFranchises;
 #endif
+	int* m_piResourceQuantityFromPOP;
 	int* m_paiHurryModifier;
 
 	bool* m_pbBuildingClassNeededInCity;
@@ -1014,11 +1016,9 @@ private:
 	int** m_ppaiSpecialistYieldChange;
 	int** m_ppaiResourceYieldModifier;
 	int** m_ppaiTerrainYieldChange;
-#if defined(MOD_API_UNIFIED_YIELDS)
 	int** m_ppaiYieldPerXTerrain;
 	int** m_ppaiYieldPerXFeature;
 	int** m_ppaiPlotYieldChange;
-#endif
 	int** m_ppiBuildingClassYieldChanges;
 	int** m_ppiBuildingClassYieldModifiers;
 #if defined(MOD_BALANCE_CORE)
@@ -1032,7 +1032,7 @@ private:
 	int* m_piInstantYield;
 	int m_iInstantReligionPressure;
 #endif
-#if defined(MOD_BALANCE_CORE) && defined(MOD_API_UNIFIED_YIELDS)
+#if defined(MOD_BALANCE_CORE)
 	std::multimap<int, std::pair<int, int>> m_piiGreatPersonProgressFromConstruction;
 #endif
 
@@ -1158,20 +1158,14 @@ public:
 	bool GetNextAvailableGreatWorkSlot(BuildingClassTypes *eBuildingClass, int *iSlot) const;
 	bool GetNextAvailableGreatWorkSlot(GreatWorkSlotType eGreatWorkSlot, BuildingClassTypes *eBuildingClass, int *iSlot) const;
 
-#if defined(MOD_GLOBAL_GREATWORK_YIELDTYPES) || defined(MOD_API_UNIFIED_YIELDS)
 	int GetYieldFromGreatWorks(YieldTypes eYield) const;
-#endif
 	int GetCultureFromGreatWorks() const;
 #if defined(MOD_GLOBAL_GREATWORK_YIELDTYPES)
 	int GetNumGreatWorks(bool bIgnoreYield = true) const;
 #else
 	int GetNumGreatWorks() const;
 #endif
-#if defined(MOD_BALANCE_CORE)
 	int GetNumGreatWorks(GreatWorkSlotType eGreatWorkSlot, bool bArtifact = false, bool bArt = false) const;
-#else
-	int GetNumGreatWorks(GreatWorkSlotType eGreatWorkSlot) const;
-#endif
 #if defined(MOD_BALANCE_CORE)
 	int GetThemingBonusIndex(BuildingTypes eBuilding) const;
 	void SetThemingBonusIndex(BuildingTypes eBuilding, int iIndex);

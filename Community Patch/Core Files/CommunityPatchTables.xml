@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GameData>
+	<Table name="Community">
+		<Column name="Type" type="text"/>
+		<Column name="Value" type="integer" default="0"/>
+	</Table>
+
+	<!-- Determines which options the player has enabled -->
+	<Table name="CustomModOptions">
+		<Column name="Name" type="text" primarykey="true"/>
+		<Column name="Value" type="integer" default="1"/>
+		<!-- Class - Data=0, BugFix, API, Events, Minor, Common, Major -->
+		<Column name="Class" type="integer" default="5"/>
+		<Column name="DbUpdates" type="integer" default="0"/>
+	</Table>
+
+	<!-- Values inserted into CustomModOptions by reference to GameInfoTypes[GameInfo[Table].Type] -->
+	<Table name="CustomModPostDefines">
+		<Column name="Name" type="text" primarykey="true"/>
+		<Column name="Table" type="text"/>
+		<Column name="Type" type="text"/>
+	</Table>
+
+	<!-- Records database update success -->
+	<!-- If an entry is expected in here and there isn't one, the corresponding option can't be enabled -->
+	<Table name="CustomModDbUpdates">
+		<Column name="Name" type="text" primarykey="true"/>
+		<Column name="Value" type="integer" default="0"/>
+	</Table>
+</GameData>

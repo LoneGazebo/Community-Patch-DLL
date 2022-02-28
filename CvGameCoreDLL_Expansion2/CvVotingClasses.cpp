@@ -3919,13 +3919,12 @@ void CvLeague::RemoveMember(PlayerTypes ePlayer)
 		return;
 	}
 
-	for (MemberList::iterator it = m_vMembers.begin(); it != m_vMembers.end(); it++)
+	for (MemberList::iterator it = m_vMembers.begin(); it != m_vMembers.end();)
 	{
 		if (it->ePlayer == ePlayer)
-		{
-			m_vMembers.erase(it);
-			it--;
-		}
+			it = m_vMembers.erase(it);
+		else
+			it++;
 	}
 
 	// Remove effects of any existing active resolutions
@@ -8259,35 +8258,38 @@ void CvLeague::AssignProposalPrivileges()
 
 void CvLeague::CheckProposalsValid()
 {
-	for (EnactProposalList::iterator it = m_vEnactProposals.begin(); it != m_vEnactProposals.end(); ++it)
+	for (EnactProposalList::iterator it = m_vEnactProposals.begin(); it != m_vEnactProposals.end(); )
 	{
-		if (!IsResolutionEffectsValid(it->GetType(), it->GetProposerDecision()->GetDecision()))
-		{
-			m_vEnactProposals.erase(it);
-			it--;
-		}
+		if (IsResolutionEffectsValid(it->GetType(), it->GetProposerDecision()->GetDecision()))
+			it++;
+		else
+			it = m_vEnactProposals.erase(it);
 	}
-	for (RepealProposalList::iterator it = m_vRepealProposals.begin(); it != m_vRepealProposals.end(); ++it)
+
+	for (RepealProposalList::iterator it = m_vRepealProposals.begin(); it != m_vRepealProposals.end(); )
 	{
-		if (!IsResolutionEffectsValid(it->GetType(), it->GetProposerDecision()->GetDecision()))
-		{
-			m_vRepealProposals.erase(it);
-			it--;
-		}
+		if (IsResolutionEffectsValid(it->GetType(), it->GetProposerDecision()->GetDecision()))
+			it++;
+		else
+			it = m_vRepealProposals.erase(it);
 	}
 }
 
 void CvLeague::CheckResolutionsValid()
 {
-	for (ActiveResolutionList::iterator it = m_vActiveResolutions.begin(); it != m_vActiveResolutions.end(); ++it)
+	for (ActiveResolutionList::iterator it = m_vActiveResolutions.begin(); it != m_vActiveResolutions.end(); )
 	{
-		if (!IsResolutionEffectsValid(it->GetType(), it->GetProposerDecision()->GetDecision()))
+		if (IsResolutionEffectsValid(it->GetType(), it->GetProposerDecision()->GetDecision()))
+			it++;
+		else
 		{
 			for (uint i = 0; i < m_vMembers.size(); i++)
 			{
 				it->RemoveEffects(m_vMembers[i].ePlayer);
 			}
-			m_vActiveResolutions.erase(it);
+			
+			it = m_vActiveResolutions.erase(it);
+
 			//antonjs: todo: relocate these league-level effects:
 			for (uint i = 0; i < m_vMembers.size(); i++)
 			{
@@ -8295,7 +8297,6 @@ void CvLeague::CheckResolutionsValid()
 				GET_PLAYER(m_vMembers[i].ePlayer).updateYield();
 				GET_PLAYER(m_vMembers[i].ePlayer).recomputeGreatPeopleModifiers();
 			}
-			it--;
 		}
 	}
 }
@@ -8356,7 +8357,7 @@ void CvLeague::DoRepealResolution(CvRepealProposal* pProposal)
 	CvAssertMsg(pProposal->IsPassed(GetVotesSpentThisSession()), "Doing a proposal that has not been passed. Please send Anton your save file and version.");
 
 	int iFound = 0;
-	for (ActiveResolutionList::iterator it = m_vActiveResolutions.begin(); it != m_vActiveResolutions.end(); it++)
+	for (ActiveResolutionList::iterator it = m_vActiveResolutions.begin(); it != m_vActiveResolutions.end(); )
 	{
 		if (it->GetID() == pProposal->GetTargetResolutionID())
 		{
@@ -8364,7 +8365,9 @@ void CvLeague::DoRepealResolution(CvRepealProposal* pProposal)
 			{
 				it->RemoveEffects(m_vMembers[i].ePlayer);
 			}
-			m_vActiveResolutions.erase(it);
+
+			it = m_vActiveResolutions.erase(it);
+
 			//antonjs: todo: relocate these league-level effects:
 			for (uint i = 0; i < m_vMembers.size(); i++)
 			{
@@ -8372,9 +8375,10 @@ void CvLeague::DoRepealResolution(CvRepealProposal* pProposal)
 				GET_PLAYER(m_vMembers[i].ePlayer).updateYield();
 				GET_PLAYER(m_vMembers[i].ePlayer).recomputeGreatPeopleModifiers();
 			}
-			it--;
 			iFound++;
 		}
+		else
+			it++;
 	}
 	CvAssertMsg(iFound == 1, "Unexpected number of active resolutions with this ID. Please send Anton your save file and version.");
 }
@@ -10477,20 +10481,19 @@ void CvLeagueAI::AddVoteCommitment(PlayerTypes eToPlayer, int iResolutionID, int
 // Something caused all commitments to be cancelled (ie. war)
 void CvLeagueAI::CancelVoteCommitmentsToPlayer(PlayerTypes eToPlayer)
 {
-	for (VoteCommitmentList::iterator it = m_vVoteCommitmentList.begin(); it != m_vVoteCommitmentList.end(); ++it)
+	for (VoteCommitmentList::iterator it = m_vVoteCommitmentList.begin(); it != m_vVoteCommitmentList.end(); )
 	{
 		if (it->eToPlayer == eToPlayer)
-		{
-			m_vVoteCommitmentList.erase(it);
-			it--;
-		}
+			it = m_vVoteCommitmentList.erase(it);
+		else
+			it++;
 	}
 }
 
 // Honor our vote commitments
 void CvLeagueAI::DoVoteCommitments(CvLeague* pLeague)
 {
-	for (VoteCommitmentList::iterator it = m_vVoteCommitmentList.begin(); it != m_vVoteCommitmentList.end(); ++it)
+	for (VoteCommitmentList::iterator it = m_vVoteCommitmentList.begin(); it != m_vVoteCommitmentList.end(); )
 	{
 		CvAssertMsg(pLeague->CanVote(GetPlayer()->GetID()), "Trying to honor vote commitments but not able to vote. Please send Anton your save file and version.");
 		CvAssertMsg(pLeague->GetRemainingVotesForMember(GetPlayer()->GetID()) >= it->iNumVotes, "Trying to honor vote commitments but not enough votes. Please send Anton your save file and version.");
@@ -10555,10 +10558,9 @@ void CvLeagueAI::DoVoteCommitments(CvLeague* pLeague)
 
 		// Cleanup
 		if (bProcessed)
-		{
-			m_vVoteCommitmentList.erase(it);
-			it--;
-		}
+			it = m_vVoteCommitmentList.erase(it);
+		else
+			it++;
 	}
 }
 

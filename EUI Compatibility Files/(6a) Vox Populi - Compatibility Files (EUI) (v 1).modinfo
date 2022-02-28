@@ -2,7 +2,7 @@
 <Mod id="24923240-e4fb-4bf6-8f0e-6e5b6cf4d3c2" version="1">
   <Properties>
     <Name>(6a) Vox Populi - Compatibility Files (EUI)</Name>
-    <Teaser>(1.4.1) CBO Compatibility and LUA (EUI Version)</Teaser>
+    <Teaser>(1.4.6) CBO Compatibility and LUA (EUI Version)</Teaser>
     <Description>Contains compatibility files for CBO, CSD, C4DF, More Luxuries and EUI - required if you intend to use any mod aside from the CP and CBO by themselves.</Description>
     <Authors>Gazebo</Authors>
     <HideSetupGame>0</HideSetupGame>
@@ -108,9 +108,9 @@
     <File md5="1972B7298A473270428256ABD71B5D07" import="1">LUA/TopPanel.xml</File>
     <File md5="32DAFE26359D03C1434E5232E82760EF" import="1">LUA/TradeLogic.lua</File>
     <File md5="B893CC7CAB5A66DFED8EE3CC006A70BA" import="1">LUA/UnitFlagManager.lua</File>
-    <File md5="CDCA47E8C0FE51DCE06A4705B38E5FED" import="1">LUA/UnitPanel.lua</File>
-    <File md5="45B7D31670AF5AE1166F2BC332D1CBEA" import="1">LUA/UnitPanel.xml</File>
-    <File md5="DBB4570DA80EB269DB36F42A77667003" import="1">LUA/UnitPanel_small.xml</File>
+    <File md5="FB58300F941992AD1C218F7F620906D8" import="1">LUA/UnitPanel.lua</File>
+    <File md5="825E879C4FAE191CDDC46B74A1DE7347" import="1">LUA/UnitPanel.xml</File>
+    <File md5="1107F0E0620E7B38D125766F3484B94D" import="1">LUA/UnitPanel_small.xml</File>
     <File md5="BBC33791151B7DB3DBCE257B52BE3D52" import="1">LUA/VictoryProgress.lua</File>
     <File md5="DAC68F838D98ED16A8D7246798795EA8" import="1">LUA/VictoryProgress.xml</File>
     <File md5="2F4E8578875AA96C3D8553D2E7DE0883" import="1">LUA/WhosWinningPopup.lua</File>
@@ -118,6 +118,7 @@
     <File md5="C10F916FF1CD06DB8235408C1AAE097E" import="1">LUA/YieldIconManager.xml</File>
     <File md5="E0635CA37CA0F94F3E08245215D67479" import="0">MoreLuxuries/MoreLuxuries.sql</File>
     <File md5="567FC006B5708250D24849DE4EE79CB2" import="0">MoreLuxuries/Text/Text_en_US.sql</File>
+    <File md5="7E76EEBF30467BC466BAFB1ED143BEDA" import="0">StackedPromotionIcons/StackedPromotionIcons.sql</File>
   </Files>
   <Actions>
     <OnModActivated>
@@ -132,6 +133,7 @@
       <UpdateDatabase>CSD/CompatibilityText/Compatibility_en_US.sql</UpdateDatabase>
       <UpdateDatabase>CSD/CompatibilityText/Compatibility_en_US.xml</UpdateDatabase>
       <UpdateDatabase>MoreLuxuries/Text/Text_en_US.sql</UpdateDatabase>
+      <UpdateDatabase>StackedPromotionIcons/StackedPromotionIcons.sql</UpdateDatabase>
     </OnModActivated>
   </Actions>
   <EntryPoints>

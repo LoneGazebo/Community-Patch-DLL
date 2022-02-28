@@ -198,11 +198,7 @@ void CvUnitCombat::GenerateMeleeCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender
 		}
 		else
 		{
-#if defined(MOD_TRAITS_GG_FROM_BARBARIANS) || defined(MOD_PROMOTIONS_GG_FROM_BARBARIANS)
 			pkCombatInfo->setUpdateGlobal(BATTLE_UNIT_ATTACKER, kAttacker.isGGFromBarbarians() || !kAttacker.isBarbarian());
-#else
-			pkCombatInfo->setUpdateGlobal(BATTLE_UNIT_ATTACKER, !kAttacker.isBarbarian());
-#endif
 		}
 #else
 		pkCombatInfo->setUpdateGlobal(BATTLE_UNIT_ATTACKER, !kAttacker.isBarbarian());
@@ -217,11 +213,7 @@ void CvUnitCombat::GenerateMeleeCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender
 		}
 		else
 		{
-#if defined(MOD_TRAITS_GG_FROM_BARBARIANS) || defined(MOD_PROMOTIONS_GG_FROM_BARBARIANS)
 			pkCombatInfo->setUpdateGlobal(BATTLE_UNIT_DEFENDER, !pkCity->isBarbarian()); // Kind of irrelevant, as cities don't get XP!
-#else
-			pkCombatInfo->setUpdateGlobal(BATTLE_UNIT_DEFENDER, !pkCity->isBarbarian());
-#endif
 		}
 #else
 		pkCombatInfo->setUpdateGlobal(BATTLE_UNIT_DEFENDER, !pkCity->isBarbarian());
@@ -331,11 +323,7 @@ void CvUnitCombat::GenerateMeleeCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender
 		}
 		else
 		{
-#if defined(MOD_TRAITS_GG_FROM_BARBARIANS) || defined(MOD_PROMOTIONS_GG_FROM_BARBARIANS)
 			pkCombatInfo->setUpdateGlobal(BATTLE_UNIT_DEFENDER, pkDefender->isGGFromBarbarians() || !kAttacker.isBarbarian());
-#else
-			pkCombatInfo->setUpdateGlobal(BATTLE_UNIT_DEFENDER, !kAttacker.isBarbarian());
-#endif
 		}
 #else	
 		pkCombatInfo->setUpdateGlobal(BATTLE_UNIT_DEFENDER, !kAttacker.isBarbarian());
@@ -353,11 +341,7 @@ void CvUnitCombat::GenerateMeleeCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender
 		}
 		else
 		{
-#if defined(MOD_TRAITS_GG_FROM_BARBARIANS) || defined(MOD_PROMOTIONS_GG_FROM_BARBARIANS)
 			pkCombatInfo->setUpdateGlobal(BATTLE_UNIT_ATTACKER, kAttacker.isGGFromBarbarians() || !pkDefender->isBarbarian());
-#else
-			pkCombatInfo->setUpdateGlobal(BATTLE_UNIT_ATTACKER, !pkDefender->isBarbarian());
-#endif
 		}
 #else	
 		pkCombatInfo->setUpdateGlobal(BATTLE_UNIT_ATTACKER, !pkDefender->isBarbarian());
@@ -864,11 +848,7 @@ void CvUnitCombat::GenerateRangedCombatInfo(CvUnit& kAttacker, CvUnit* pkDefende
 	}
 	else
 	{
-#if defined(MOD_TRAITS_GG_FROM_BARBARIANS) || defined(MOD_PROMOTIONS_GG_FROM_BARBARIANS)
 		pkCombatInfo->setUpdateGlobal(BATTLE_UNIT_ATTACKER, kAttacker.isGGFromBarbarians() || bGeneralsXP);
-#else
-		pkCombatInfo->setUpdateGlobal(BATTLE_UNIT_ATTACKER, bGeneralsXP);
-#endif
 	}
 #else
 	pkCombatInfo->setUpdateGlobal(BATTLE_UNIT_ATTACKER, bGeneralsXP);
@@ -885,11 +865,7 @@ void CvUnitCombat::GenerateRangedCombatInfo(CvUnit& kAttacker, CvUnit* pkDefende
 	}
 	else
 	{
-#if defined(MOD_TRAITS_GG_FROM_BARBARIANS) || defined(MOD_PROMOTIONS_GG_FROM_BARBARIANS)
 		pkCombatInfo->setUpdateGlobal(BATTLE_UNIT_DEFENDER, (!plot.isCity() && pkDefender->isGGFromBarbarians()) || (!bBarbarian && !kAttacker.isBarbarian()));
-#else
-		pkCombatInfo->setUpdateGlobal(BATTLE_UNIT_DEFENDER, !bBarbarian && !kAttacker.isBarbarian());
-#endif
 	}
 #else
 	pkCombatInfo->setUpdateGlobal(BATTLE_UNIT_DEFENDER, !bBarbarian && !kAttacker.isBarbarian());
@@ -987,11 +963,7 @@ void CvUnitCombat::GenerateRangedCombatInfo(CvCity& kAttacker, CvUnit* pkDefende
 	}
 	else
 	{
-#if defined(MOD_TRAITS_GG_FROM_BARBARIANS) || defined(MOD_PROMOTIONS_GG_FROM_BARBARIANS)
 		pkCombatInfo->setUpdateGlobal(BATTLE_UNIT_ATTACKER, !kAttacker.isBarbarian()); // Kind of irrelevant, as cities don't get XP!
-#else
-		pkCombatInfo->setUpdateGlobal(BATTLE_UNIT_ATTACKER, !kAttacker.isBarbarian());
-#endif
 	}
 #else
 	pkCombatInfo->setUpdateGlobal(BATTLE_UNIT_ATTACKER, !kAttacker.isBarbarian());
@@ -1007,11 +979,7 @@ void CvUnitCombat::GenerateRangedCombatInfo(CvCity& kAttacker, CvUnit* pkDefende
 	}
 	else
 	{
-#if defined(MOD_TRAITS_GG_FROM_BARBARIANS) || defined(MOD_PROMOTIONS_GG_FROM_BARBARIANS)
 		pkCombatInfo->setUpdateGlobal(BATTLE_UNIT_DEFENDER, pkDefender->isGGFromBarbarians() || !bBarbarian && !kAttacker.isBarbarian());
-#else
-		pkCombatInfo->setUpdateGlobal(BATTLE_UNIT_DEFENDER, !bBarbarian && !kAttacker.isBarbarian());
-#endif
 	}
 #else
 	pkCombatInfo->setUpdateGlobal(BATTLE_UNIT_DEFENDER, !bBarbarian && !kAttacker.isBarbarian());
@@ -1801,11 +1769,7 @@ void CvUnitCombat::GenerateAirCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender, 
 	}
 	else
 	{
-#if defined(MOD_TRAITS_GG_FROM_BARBARIANS) || defined(MOD_PROMOTIONS_GG_FROM_BARBARIANS)
 		pkCombatInfo->setUpdateGlobal(BATTLE_UNIT_ATTACKER, kAttacker.isGGFromBarbarians() || bGeneralsXP);
-#else
-		pkCombatInfo->setUpdateGlobal(BATTLE_UNIT_ATTACKER, bGeneralsXP);
-#endif
 	}
 #else
 	pkCombatInfo->setUpdateGlobal(BATTLE_UNIT_ATTACKER, bGeneralsXP);
@@ -1823,11 +1787,7 @@ void CvUnitCombat::GenerateAirCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender, 
 	}
 	else
 	{
-#if defined(MOD_TRAITS_GG_FROM_BARBARIANS) || defined(MOD_PROMOTIONS_GG_FROM_BARBARIANS)
 		pkCombatInfo->setUpdateGlobal(BATTLE_UNIT_DEFENDER, (!plot.isCity() && pkDefender->isGGFromBarbarians()) || !bBarbarian);
-#else
-		pkCombatInfo->setUpdateGlobal(BATTLE_UNIT_DEFENDER, !bBarbarian);
-#endif
 	}
 #else
 	pkCombatInfo->setUpdateGlobal(BATTLE_UNIT_DEFENDER, !bBarbarian);
@@ -2298,11 +2258,7 @@ void CvUnitCombat::GenerateAirSweepCombatInfo(CvUnit& kAttacker, CvUnit* pkDefen
 		}
 		else
 		{
-#if defined(MOD_TRAITS_GG_FROM_BARBARIANS) || defined(MOD_PROMOTIONS_GG_FROM_BARBARIANS)
 			pkCombatInfo->setUpdateGlobal(BATTLE_UNIT_ATTACKER, kAttacker.isGGFromBarbarians() || !kAttacker.isBarbarian());
-#else
-			pkCombatInfo->setUpdateGlobal(BATTLE_UNIT_ATTACKER, !kAttacker.isBarbarian());
-#endif
 		}
 #else
 		pkCombatInfo->setUpdateGlobal(BATTLE_UNIT_ATTACKER, !kAttacker.isBarbarian());
@@ -2322,11 +2278,7 @@ void CvUnitCombat::GenerateAirSweepCombatInfo(CvUnit& kAttacker, CvUnit* pkDefen
 		}
 		else
 		{
-#if defined(MOD_TRAITS_GG_FROM_BARBARIANS) || defined(MOD_PROMOTIONS_GG_FROM_BARBARIANS)
 			pkCombatInfo->setUpdateGlobal(BATTLE_UNIT_DEFENDER, pkDefender->isGGFromBarbarians() || !pkDefender->isBarbarian());
-#else
-			pkCombatInfo->setUpdateGlobal(BATTLE_UNIT_DEFENDER, !pkDefender->isBarbarian());
-#endif
 		}
 #else
 		pkCombatInfo->setUpdateGlobal(BATTLE_UNIT_DEFENDER, !pkDefender->isBarbarian());
@@ -2656,11 +2608,7 @@ void CvUnitCombat::GenerateNuclearCombatInfo(CvUnit& kAttacker, CvPlot& plot, Cv
 	pkCombatInfo->setExperience(BATTLE_UNIT_ATTACKER, 0);
 	pkCombatInfo->setMaxExperienceAllowed(BATTLE_UNIT_ATTACKER, 0);
 	pkCombatInfo->setInBorders(BATTLE_UNIT_ATTACKER, plot.getOwner() != kAttacker.getOwner());	// Not really correct
-#if defined(MOD_TRAITS_GG_FROM_BARBARIANS) || defined(MOD_PROMOTIONS_GG_FROM_BARBARIANS)
 	pkCombatInfo->setUpdateGlobal(BATTLE_UNIT_ATTACKER, kAttacker.isGGFromBarbarians() || !kAttacker.isBarbarian());
-#else
-	pkCombatInfo->setUpdateGlobal(BATTLE_UNIT_ATTACKER, !kAttacker.isBarbarian());
-#endif
 
 	pkCombatInfo->setExperience(BATTLE_UNIT_DEFENDER, 0);
 	pkCombatInfo->setMaxExperienceAllowed(BATTLE_UNIT_DEFENDER, 0);
@@ -4541,13 +4489,9 @@ void CvUnitCombat::ApplyPostKillTraitEffects(CvUnit* pkWinner, CvUnit* pkLoser)
 			int iValue = iCombatStrength * pkWinner->GetGoldenAgeValueFromKills() / 100;
 			kPlayer.ChangeGoldenAgeProgressMeter(iValue);
 
-#if defined(MOD_API_UNIFIED_YIELDS_GOLDEN_AGE)
 			CvYieldInfo* pYieldInfo = GC.getYieldInfo(YIELD_GOLDEN_AGE_POINTS);
 			CvString yieldString;
 			yieldString.Format("%s+%%d[ENDCOLOR]%s", pYieldInfo->getColorString(), pYieldInfo->getIconString());
-#else
-			CvString yieldString = "[COLOR_WHITE]+%d[ENDCOLOR][ICON_GOLDEN_AGE]";
-#endif
 
 			if(pkWinner->getOwner() == GC.getGame().getActivePlayer())
 			{

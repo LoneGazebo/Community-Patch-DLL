@@ -735,7 +735,7 @@
 			<Text>Giorgio Armeier, Inc.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CORPORATION_GIORGIO_ARMEIER_HELP">
-			<Text>Provides benefits geared toward [ICON_CULTURE] Culture generation and Specialists. Increases [ICON_INTERNATIONAL_TRADE] Trade Unit limit by two.[NEWLINE][NEWLINE]+2 [ICON_CULTURE] Culture from all Museums and Opera Houses, and +2 [ICON_CULTURE] Culture from Great Writers, Musicians, and Artists in all Cities. Every Franchise in a foreign Civilization's Cities increases your [ICON_TOURISM] Tourism with them by 2%.</Text>
+			<Text>Provides benefits geared toward [ICON_CULTURE] Culture generation and Specialists. Increases [ICON_INTERNATIONAL_TRADE] Trade Unit limit by two.[NEWLINE][NEWLINE]+2 [ICON_CULTURE] Culture from all Museums and Opera Houses, and +2 [ICON_CULTURE] Culture from Specialists in all Cities. Every Franchise in a foreign Civilization's Cities increases your [ICON_TOURISM] Tourism with them by 2%.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CORPORATION_RESOURCE_BONUS_GIORGIO_ARMEIER">
 			<Text>[ICON_RES_SILK] Silk, [ICON_RES_COTTON] Cotton, [ICON_RES_DYE] Dyes, [ICON_RES_FUR] Furs provide +1 [ICON_CULTURE] Culture in all Cities with a Giorgio Armeier Franchise.</Text>

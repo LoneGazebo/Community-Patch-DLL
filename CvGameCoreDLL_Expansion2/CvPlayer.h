@@ -555,10 +555,8 @@ public:
 	void DoDifficultyBonus(HistoricEventTypes eHistoricEvent = NO_HISTORIC_EVENT_TYPE);
 #endif
 
-#if defined(MOD_API_UNIFIED_YIELDS)
 	int GetYieldPerTurnFromReligion(YieldTypes eYield) const;
 	int GetYieldPerTurnFromTraits(YieldTypes eYield) const;
-#endif
 
 	// Faith
 	int GetTotalFaithPerTurn() const;
@@ -2261,12 +2259,9 @@ public:
 	int getYieldFromYieldGlobal(YieldTypes eIndex1, YieldTypes eIndex2) const;
 	void changeYieldFromYieldGlobal(YieldTypes eIndex1, YieldTypes eIndex2, int iChange);
 
-#if defined(MOD_API_UNIFIED_YIELDS)
 	int getPlotYieldChange(PlotTypes eIndex1, YieldTypes eIndex2) const;
 	void changePlotYieldChange(PlotTypes eIndex1, YieldTypes eIndex2, int iChange);
-#endif
 
-#if defined(MOD_API_UNIFIED_YIELDS)
 	int getFeatureYieldChange(FeatureTypes eIndex1, YieldTypes eIndex2) const;
 	void changeFeatureYieldChange(FeatureTypes eIndex1, YieldTypes eIndex2, int iChange);
 
@@ -2320,9 +2315,8 @@ public:
 
 	int getBuildingClassYieldChange(BuildingClassTypes eIndex1, YieldTypes eIndex2) const;
 	void changeBuildingClassYieldChange(BuildingClassTypes eIndex1, YieldTypes eIndex2, int iChange);
-#endif
 
-#if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
+#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	int getSpecificGreatPersonRateModifierFromMonopoly(GreatPersonTypes eIndex1, MonopolyTypes eIndex2) const;
 	int getSpecificGreatPersonRateModifierFromMonopoly(GreatPersonTypes eIndex1) const;
 	void changeSpecificGreatPersonRateModifierFromMonopoly(GreatPersonTypes eIndex1, MonopolyTypes eIndex2, int iChange);
@@ -2427,12 +2421,9 @@ public:
 	bool IsPlotTargetedForCity(CvPlot *pPlot, CvAIOperation* pOpToIgnore) const;
 
 	void GatherPerTurnReplayStats(int iGameTurn);
-	unsigned int getNumReplayDataSets() const;
-	const char* getReplayDataSetName(unsigned int uiDataSet) const;
-	unsigned int getReplayDataSetIndex(const char* szDataSetName);
-	int getReplayDataValue(unsigned int uiDataSet, unsigned int uiTurn) const;
-	void setReplayDataValue(unsigned int uiDataSet, unsigned int uiTurn, int iValue);
-	TurnData getReplayDataHistory(unsigned int uiDataSet) const;
+	const std::map<CvString,TurnData>& getReplayData() const;
+	int getReplayDataValue(const CvString& strDataset, unsigned int uiTurn) const;
+	void setReplayDataValue(const CvString& strDataset, unsigned int uiTurn, int iValue);
 
 	int getYieldPerTurnHistory(YieldTypes eYield, int iNumTurns);
 	void updateYieldPerTurnHistory();
@@ -3593,10 +3584,7 @@ protected:
 
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppaaiSpecialistExtraYield;
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiYieldFromYieldGlobal;
-#if defined(MOD_API_UNIFIED_YIELDS)
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiPlotYieldChange;
-#endif
-#if defined(MOD_API_UNIFIED_YIELDS)
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiImprovementYieldChange;
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiFeatureYieldChange;
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiResourceYieldChange;
@@ -3617,8 +3605,7 @@ protected:
 	std::vector<int> m_piYieldFromWLTKD;
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiBuildingClassYieldChange;
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppaaiImprovementYieldChange;
-#endif
-#if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
+#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	std::map<GreatPersonTypes, std::map<MonopolyTypes, int>> m_ppiSpecificGreatPersonRateModifierFromMonopoly;
 	std::map<GreatPersonTypes, std::map<MonopolyTypes, int>> m_ppiSpecificGreatPersonRateChangeFromMonopoly;
 #endif
@@ -3644,8 +3631,7 @@ protected:
 	std::vector< std::pair<int, PlayerVoteTypes> > m_aVote;
 	std::vector< std::pair<UnitClassTypes, int> > m_aUnitExtraCosts;
 
-	std::vector<CvString> m_ReplayDataSets;
-	std::vector<TurnData> m_ReplayDataSetValues;
+	std::map<CvString,TurnData> m_ReplayData;
 
 	std::deque< pair< int, vector<int> > > m_ppiInstantYieldHistoryValues;
 	std::deque< pair< int, vector<int> > > m_ppiInstantTourismPerPlayerHistoryValues;

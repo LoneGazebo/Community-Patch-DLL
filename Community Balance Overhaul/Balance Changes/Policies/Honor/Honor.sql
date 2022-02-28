@@ -81,7 +81,7 @@ WHERE Type = 'POLICY_HONOR_FINISHER';
 -- Mercenary Army 
 -- Free Company and Mercenaries are added in NewUnits.sql (strength, cost, promotions, etc)
 -- Foreign Legion: Cost and Combat are balanced in UnitCosts.sql and UnitCombat.sql; Unit-Class Promotions added in MeleeCombat.sql)
-UPDATE Units SET Class = 'UNITCLASS_RIFLEMAN',						
+UPDATE Units SET Class = 'UNITCLASS_FOREIGNLEGION',						
 PrereqTech = 'TECH_RIFLING',						
 ObsoleteTech = 'TECH_PENICILIN', 					
 DefaultUnitAI = 'UNITAI_ATTACK',					

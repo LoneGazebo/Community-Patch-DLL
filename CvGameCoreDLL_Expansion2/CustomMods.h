@@ -22,8 +22,8 @@
  ****************************************************************************
  ****************************************************************************/
 #define MOD_DLL_GUID {0xbf9bf7f0, 0xe078, 0x4d4e, { 0x8a, 0x3e, 0x84, 0x71, 0x2f, 0x85, 0xaa, 0x2b }} //{BF9BF7F0-E078-4d4e-8A3E-84712F85AA2B}
-#define MOD_DLL_NAME "Community Patch v89 (PNM v51+)"
-#define MOD_DLL_VERSION_NUMBER ((uint) 89)
+#define MOD_DLL_NAME "Community Patch v102 (PNM v51+)"
+#define MOD_DLL_VERSION_NUMBER ((uint) 102)
 #define MOD_DLL_VERSION_STATUS ""			// a (alpha), b (beta) or blank (released)
 #define MOD_DLL_CUSTOM_BUILD_NAME ""
 
@@ -102,14 +102,6 @@
 
 // Enables Achievements and the Achievements table (v45, modified to include all achievements-related code)
 #define MOD_API_ACHIEVEMENTS                        gCustomMods.isAPI_ACHIEVEMENTS()
-// Enables the Unified Yields extensions - thanks to bane_, JFD and Ulixes for extensive testing (v54)
-#define MOD_API_UNIFIED_YIELDS                      (true)
-// TODO - WH - Enabling consolidation introduces a double counting bug with faith added to buildings from a policy - which I don't have time to track down
-#define MOD_API_UNIFIED_YIELDS_CONSOLIDATION        (true)
-// Enables the Unified Yields (YIELD_TOURISM) extensions (v56)
-#define MOD_API_UNIFIED_YIELDS_TOURISM              (true)
-// Enables the Unified Yields (YIELD_GOLDEN_AGE_POINTS) extensions (v57)
-#define MOD_API_UNIFIED_YIELDS_GOLDEN_AGE           (true)
 
 // Changes difficulty settings and adds more difficulty options
 #define MOD_ALTERNATIVE_DIFFICULTY                  gCustomMods.isALTERNATIVE_DIFFICULTY()
@@ -333,8 +325,6 @@
 #define MOD_BARBARIAN_GG_GA_POINTS					gCustomMods.isBARBARIAN_GG_GA_POINTS()
 // Grants Celts maximum up to 3 unimproved adjacent forests for faith
 #define MOD_ALTERNATE_CELTS							gCustomMods.isALTERNATE_CELTS()
-// Permits units to earn GG/GA points from killing barbarians (v83)
-#define MOD_TRAITS_GG_FROM_BARBARIANS               gCustomMods.isTRAITS_GG_FROM_BARBARIANS()
 // Permits land units to cross ice - AFFECTS SAVE GAME DATA FORMAT
 #define MOD_TRAITS_CROSSES_ICE                      gCustomMods.isTRAITS_CROSSES_ICE()
 // Permits cities to work more rings - AFFECTS SAVE GAME DATA FORMAT
@@ -379,8 +369,6 @@
 // Permit cities to have automaton workers - AFFECTS SAVE GAME DATA FORMAT (v89)
 #define MOD_TECHS_CITY_AUTOMATON_WORKERS            gCustomMods.isTECHS_CITY_AUTOMATON_WORKERS()
 
-// Permits variable great general and admiral aura ranges (v83)
-#define MOD_PROMOTIONS_AURA_CHANGE                  gCustomMods.isPROMOTIONS_AURA_CHANGE()
 // Permits units to earn GG/GA points from killing barbarians (v83)
 #define MOD_PROMOTIONS_GG_FROM_BARBARIANS           gCustomMods.isPROMOTIONS_GG_FROM_BARBARIANS()
 // Permits variable recon ranges by creating extra recon range promotions (like extra sight range)
@@ -1222,7 +1210,7 @@ void CheckSentinel(uint);
 
 
 // CustomMod option wrappers
-#define MOD_OPT_DECL(name)  protected: bool m_b##name; public: inline bool is##name() { return m_b##name; }
+#define MOD_OPT_DECL(name)  protected: bool m_b##name:1; public: inline bool is##name() { return m_b##name; }
 #define MOD_OPT_CACHE(name) m_b##name = (m_options[string(#name)] == 1);
 
 
@@ -1392,7 +1380,6 @@ public:
 	MOD_OPT_DECL(CARGO_SHIPS);
 	MOD_OPT_DECL(BARBARIAN_GG_GA_POINTS);
 	MOD_OPT_DECL(ALTERNATE_CELTS);
-	MOD_OPT_DECL(TRAITS_GG_FROM_BARBARIANS);
 	MOD_OPT_DECL(TRAITS_CROSSES_ICE);
 	MOD_OPT_DECL(TRAITS_CITY_WORKING);
 	MOD_OPT_DECL(TRAITS_CITY_AUTOMATON_WORKERS);
@@ -1412,7 +1399,6 @@ public:
 	MOD_OPT_DECL(TECHS_CITY_WORKING);
 	MOD_OPT_DECL(TECHS_CITY_AUTOMATON_WORKERS);
 
-	MOD_OPT_DECL(PROMOTIONS_AURA_CHANGE);
 	MOD_OPT_DECL(PROMOTIONS_GG_FROM_BARBARIANS);
 	MOD_OPT_DECL(PROMOTIONS_VARIABLE_RECON);
 	MOD_OPT_DECL(PROMOTIONS_CROSS_MOUNTAINS);
@@ -1437,9 +1423,7 @@ public:
 	MOD_OPT_DECL(TRADE_ROUTE_SCALING);
 	MOD_OPT_DECL(TRADE_WONDER_RESOURCE_ROUTES);
 
-	MOD_OPT_DECL(UNITS_LOCAL_WORKERS);
 	MOD_OPT_DECL(UNITS_HOVERING_LAND_ONLY_HEAL);
-	MOD_OPT_DECL(UNITS_HOVERING_COASTAL_ATTACKS);
 	MOD_OPT_DECL(UNITS_RESOURCE_QUANTITY_TOTALS);
 
 	MOD_OPT_DECL(RELIGION_NO_PREFERRENCES);

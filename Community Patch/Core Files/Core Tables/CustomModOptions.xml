@@ -36,6 +36,10 @@
     <!-- Great Generals and Admirals gained from combat experience spawn in the war-zone and not in a distant city (v19) -->
     <!-- See also: "Global - Local Generals" -->
     <Row Class="5" Name="GLOBAL_LOCAL_GENERALS" Value="0"/>
+	
+    <!-- Great Generals and Admirals gained from combat experience spawn in city closest to the war-zone -->
+    <!-- Reqires "Global - Local Generals" -->
+    <Row Class="5" Name="LOCAL_GENERALS_NEAREST_CITY" Value="0"/>
 
     <!-- Separates out the repair fleet and change port abilities of the Great Admiral (v61) -->
     <!-- If you enable this option, you will need to add back the abilities to the standard GA -->
@@ -106,10 +110,6 @@
     <!-- See also: "Global - City States Overseas Territory" -->
     <Row Class="6" Name="GLOBAL_CS_OVERSEAS_TERRITORY" Value="0"/>
     
-    <!-- Mercantile City States acquired via a Merchant of Venice do not lose their unique resources (v22) -->
-    <!-- See also: "Global - Venice Keeps Resources" -->
-    <Row Class="6" Name="GLOBAL_VENICE_KEEPS_RESOURCES" Value="1"/>
-    
     <!-- Units attacking from cities, forts or citadels will not follow-up if they kill the defender (v19) -->
     <!-- See also: "Global - No Followup From Cities" -->
     <Row Class="6" Name="GLOBAL_NO_FOLLOWUP_FROM_CITIES" Value="1"/>
@@ -125,21 +125,6 @@
     <!-- Remove assembled spaceship parts from conquered capitals (v19) -->
     <!-- See also: "Global - No Conquered Spaceships" -->
     <Row Class="5" Name="GLOBAL_NO_CONQUERED_SPACESHIPS" Value="0"/>
-
-    <!-- Modified blockade logic (v52) -->
-    <!-- The standard logic says "if there is an enemy ship within two hexes of a port, it is blockaded" -->
-    <!-- HOWEVER - this includes the situations where -->
-    <!--   a) an enemy ship on the other side of a two-wide strip of land can blockade a port (ie enemy-land-port-water blockades the port) -->
-    <!--   b) a port with two non-adjacent exits (ie on a one-wide strip of land) can be blockaded by a non-adjacent enemy (ie enemy-water-port-water blockades the port) -->
-    <!-- What is needed is a check for every adjacent water plot to the port being blockaded, not a simple check of the port itself -->
-    <!-- See also: "Global - Allies Block Blockades" -->
-    <Row Class="6" Name="GLOBAL_ADJACENT_BLOCKADES" Value="0"/>
-    <!-- Adjacent allied ships block blockades by enemy ships 2 or more tiles away (v19) -->
-    <!-- See also: "Global - Allies Block Blockades" -->
-    <Row Class="6" Name="GLOBAL_ALLIES_BLOCK_BLOCKADES" Value="0"/>
-    <!-- Embarked combat units only blockade adjacent tiles (v19) -->
-    <!-- See also: "Global - Allies Block Blockades" -->
-    <Row Class="6" Name="GLOBAL_SHORT_EMBARKED_BLOCKADES" Value="0"/>
 
     <!-- Other player's settlers captured from Barbarians will sometimes remain as settlers (v19) -->
     <!-- See also: "Global - Grateful Settlers" -->
@@ -168,9 +153,6 @@
     <!-- See also: "Units - Subs Immune Under Ice" -->
     <Row Class="6" Name="GLOBAL_SUBS_UNDER_ICE_IMMUNITY" Value="0"/>
 
-    <!-- Paratroops can move/attack after the drop, if the drop is not at max range (v19) -->
-    <!-- See also: "Units - Paratroop Enhancements" -->
-    <Row Class="5" Name="GLOBAL_PARATROOPS_MOVEMENT" Value="0"/>
     <!-- Paratroops take AA damage from hostile units (v19) -->
     <!-- See also: "Units - Paratroop Enhancements" -->
     <Row Class="5" Name="GLOBAL_PARATROOPS_AA_DAMAGE" Value="0"/>
@@ -277,9 +259,6 @@
 	<Row Class="5" Name="USE_TRADE_FEATURES" Value="0"/>
 	<!-- Changes for Advanced Setup that allow players to acquire GG and GA points from fighting Barbarians -->
 	<Row Class="5" Name="BARBARIAN_GG_GA_POINTS" Value="1"/>
-    <!-- Permits units to earn GG/GA points from killing barbarians, this is the trait version (ie applies to all units of the civ) of PROMOTIONS_GG_FROM_BARBARIANS (v83) -->
-	<!-- See also: "Global - Commander Points From Barbarians" -->
-    <Row Class="2" Name="TRAITS_GG_FROM_BARBARIANS" Value="0" DbUpdates="1"/>
     <!-- Permits land units to cross ice, this is the trait version (ie applies to all units of the civ) of PROMOTIONS_CROSS_ICE (v19) -->
     <Row Class="2" Name="TRAITS_CROSSES_ICE" Value="0" DbUpdates="1"/>
 
@@ -328,10 +307,6 @@
     <!-- See also: "Global - City Automaton Workers" -->
     <Row Class="2" Name="TECHS_CITY_AUTOMATON_WORKERS" Value="0"/>
 
-    <!-- Permits variable great general and admiral aura ranges (v83) -->
-	<!-- See also: "Promotions - Colonels" -->
-	<!-- See also: "Global - Commander Influence Borders" -->
-    <Row Class="2" Name="PROMOTIONS_AURA_CHANGE" Value="1" DbUpdates="1"/>
     <!-- Permits units to earn GG/GA points from killing barbarians (v83) -->
 	<!-- See also: "Global - Commander Points From Barbarians" -->
     <Row Class="2" Name="PROMOTIONS_GG_FROM_BARBARIANS" Value="0" DbUpdates="1"/>
@@ -406,22 +381,9 @@
     <!-- See also: "Trade - Marble Shipments" -->
     <Row Class="6" Name="TRADE_WONDER_RESOURCE_ROUTES" Value="0"/>
 
-    <!-- Restricts worker suggestions to local tiles (at the limits specified - limits are distances between the unit and the plot as the crow flies, NOT path lengths) (v19) -->
-    <!-- See also: "UI - No Auto-Embark Workers" -->
-    <Row Class="5" Name="UNITS_LOCAL_WORKERS" Value="1"/>
-    <Row Class="0" Name="UNITS_LOCAL_WORKERS_LANDLIMIT" Value="6"/>   <!-- How far workers will check for new tasks from where they currently are -->
-    <Row Class="0" Name="UNITS_LOCAL_WORKERS_WATERLIMIT" Value="10"/> <!-- How far workboats will check for new tasks from where they currently are -->
-    <Row Class="0" Name="UNITS_LOCAL_WORKERS_COMBATLIMIT" Value="3"/> <!-- How far combat units with a build skill (eg Legion) will check for new tasks from where they currently are -->
-
     <!-- Hovering unit can only heal over land (v19) -->
     <!-- See also: "Units - Steampunk Airships" -->
     <Row Class="6" Name="UNITS_HOVERING_LAND_ONLY_HEAL" Value="0"/>
-    <!-- Permits hovering units to attack coastal shipping (v19) -->
-    <!-- See also: "Units - Steampunk Airships" -->
-    <Row Class="6" Name="UNITS_HOVERING_COASTAL_ATTACKS" Value="0"/>
-    <Row Class="0" Name="UNITS_HOVERING_COASTAL_ATTACKS_RANGE" Value="1"/>
-    <Row Class="0" Name="UNITS_HOVERING_COASTAL_ATTACKS_MULTIPLIER" Value="1"/>
-    <Row Class="0" Name="UNITS_HOVERING_COASTAL_ATTACKS_DIVISOR" Value="2"/>
 
     <!-- Enables the table Unit_ResourceQuantityTotals -->
     <Row Class="5" Name="UNITS_RESOURCE_QUANTITY_TOTALS" Value="0"/>
@@ -811,13 +773,6 @@
     <!-- See also: "Civilization - Morindim" -->
     <Row Class="3" Name="EVENTS_CAN_MOVE_INTO" Value="0" DbUpdates="1"/>
 
-    <!-- * Enables the Unified Yields extensions (v54) -->
-    <Row Class="2" Name="API_UNIFIED_YIELDS" Value="1" DbUpdates="1"/>
-    <!-- * Enables the Unified Yields (YIELD_TOURISM) extensions (v56) -->
-    <Row Class="2" Name="API_UNIFIED_YIELDS_TOURISM" Value="1" DbUpdates="1"/>
-    <!-- * Enables the Unified Yields (YIELD_GOLDEN_AGE_POINTS) extensions (v57) -->
-    <Row Class="2" Name="API_UNIFIED_YIELDS_GOLDEN_AGE" Value="1" DbUpdates="1"/>
-
     <!-- Enables the Achievements table (v45) -->
     <Row Class="2" Name="API_ACHIEVEMENTS" Value="0" DbUpdates="1"/>
 
@@ -897,8 +852,8 @@
 	<Row Class="6" Name="BALANCE_CORE_BUILDING_INVESTMENTS" Value="0"/>
 	<!-- Units are invested at 50% (see define) of their production cost, instead of being built outright. -->
 	<Row Class="6" Name="BALANCE_CORE_UNIT_INVESTMENTS" Value="0"/>
-	<!-- Great Engineers Produce their building on the same turn their expended -->
-	<Row Class="6" Name="BALANCE_CORE_ENGINEER_HURRY" Value="0"/>
+	<!-- Great Engineers' Hurry Production produces completed buildings on the same turn as the Great Engineer is expended -->
+	<Row Class="6" Name="BALANCE_CORE_ENGINEER_HURRY" Value="1"/>
 	<!-- Maya cannot buy a prophet without a religion -->
 	<Row Class="6" Name="BALANCE_CORE_MAYA_CHANGE" Value="0"/>
 	<!-- Portugal can only sell exotic goods to CSs -->

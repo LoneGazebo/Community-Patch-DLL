@@ -453,7 +453,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 				return false;
 
 			// CAN we make peace?
-			if (!pFromTeam->canChangeWarPeace(eToTeam) || !pFromTeam->canChangeWarPeace(eFromTeam))
+			if (!pFromTeam->canChangeWarPeace(eToTeam) || !pToTeam->canChangeWarPeace(eFromTeam))
 				return false;
 
 			if (MOD_EVENTS_WAR_AND_PEACE) 
@@ -1116,7 +1116,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 					// AI cannot buy votes for itself if it has a different team leader
 					PlayerTypes eChoicePlayer = (PlayerTypes)iVoteChoice;
 					PlayerTypes eLeader = pToTeam->getLeaderID();
-					if (eLeader != NO_PLAYER && eLeader != ePlayer && eChoicePlayer != eLeader && GET_PLAYER(eChoicePlayer).getTeam() == GET_PLAYER(eLeader).getTeam())
+					if (eLeader != NO_PLAYER && eLeader != eToPlayer && eChoicePlayer != eLeader && GET_PLAYER(eChoicePlayer).getTeam() == GET_PLAYER(eLeader).getTeam())
 						return false;
 				}
 				// For compatibility with any modmods that allow a host change at different times...
@@ -1129,7 +1129,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 					// AI cannot buy votes for itself if it has a different team leader
 					PlayerTypes eChoicePlayer = (PlayerTypes)iVoteChoice;
 					PlayerTypes eLeader = pToTeam->getLeaderID();
-					if (eLeader != NO_PLAYER && eLeader != ePlayer && eChoicePlayer != eLeader && GET_PLAYER(eChoicePlayer).getTeam() == GET_PLAYER(eLeader).getTeam())
+					if (eLeader != NO_PLAYER && eLeader != eToPlayer && eChoicePlayer != eLeader && GET_PLAYER(eChoicePlayer).getTeam() == GET_PLAYER(eLeader).getTeam())
 						return false;
 				}
 			}
@@ -1351,9 +1351,11 @@ bool CvDeal::BlockTemporaryForPermanentTrade(TradeableItems eItemType, PlayerTyp
 		vProhibitedItems.push_back(TRADE_ITEM_DEFENSIVE_PACT);
 		vProhibitedItems.push_back(TRADE_ITEM_RESEARCH_AGREEMENT);
 		vProhibitedItems.push_back(TRADE_ITEM_THIRD_PARTY_WAR);
-		vProhibitedItems.push_back(TRADE_ITEM_THIRD_PARTY_PEACE);
 		vProhibitedItems.push_back(TRADE_ITEM_ALLOW_EMBASSY);
 		vProhibitedItems.push_back(TRADE_ITEM_VOTE_COMMITMENT);
+
+		if (!GET_PLAYER(eFromPlayer).IsAtWarWith(eToPlayer))
+			vProhibitedItems.push_back(TRADE_ITEM_THIRD_PARTY_PEACE);
 
 		if (ContainsItemTypes(vProhibitedItems, eToPlayer))
 			return true;

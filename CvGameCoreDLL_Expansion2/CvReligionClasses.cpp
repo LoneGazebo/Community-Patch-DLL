@@ -2041,20 +2041,8 @@ BeliefTypes CvGameReligions::GetBeliefInPantheon(PlayerTypes ePlayer) const
 /// Has this player created a pantheon?
 bool CvGameReligions::HasCreatedPantheon(PlayerTypes ePlayer) const
 {
-#if defined(MOD_BALANCE_CORE)
-	if(GET_PLAYER(ePlayer).GetReligions()->GetStateReligion() != NO_RELIGION)
-	{
+	if(GET_PLAYER(ePlayer).GetReligions()->GetReligionCreatedByPlayer(true) != NO_RELIGION)
 		return true;
-	}
-#endif
-	ReligionList::const_iterator it;
-	for(it = m_CurrentReligions.begin(); it != m_CurrentReligions.end(); it++)
-	{
-		if(it->m_eFounder == ePlayer && it->m_bPantheon)
-		{
-			return true;
-		}
-	}
 
 	return false;
 }
@@ -4146,10 +4134,10 @@ bool CvPlayerReligions::SetStateReligion(ReligionTypes eNewStateReligion, bool b
 	}
 
 	// Message slightly different for founder player
-	if(m_pPlayer->GetNotifications() && eNewStateReligion != NO_RELIGION && eNewStateReligion != RELIGION_PANTHEON)
+	if (MOD_BALANCE_CORE_BELIEFS && m_pPlayer->GetNotifications() && bOwnsReligion)
 	{
 		const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eNewStateReligion, m_pPlayer->GetID());
-		if(pReligion)
+		if (pReligion)
 		{
 			CvString szReligionName = pReligion->GetName();
 			Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_RELIGION_NEW_PLAYER_STATE_RELIGION_S");
@@ -6523,8 +6511,13 @@ BeliefTypes CvReligionAI::ChooseReformationBelief()
 /// Find the city where a missionary should next spread his religion
 CvCity* CvReligionAI::ChooseMissionaryTargetCity(CvUnit* pUnit, const vector<pair<int,int>>& vIgnoreTargets, int* piTurns) const
 {
-	ReligionTypes eMyReligion = GetReligionToSpread();
-	if(eMyReligion <= RELIGION_PANTHEON)
+	ReligionTypes eOwnedReligion = m_pPlayer->GetReligions()->GetOwnedReligion();
+	ReligionTypes eSpreadReligion = GetReligionToSpread();
+	if(eSpreadReligion <= RELIGION_PANTHEON)
+		return NULL;
+
+	//do not use captured missionaries with weird religions
+	if (pUnit->GetReligionData()->GetReligion() != eSpreadReligion)
 		return NULL;
 
 	std::vector<SPlotWithScore> vTargets;
@@ -6535,6 +6528,10 @@ CvCity* CvReligionAI::ChooseMissionaryTargetCity(CvUnit* pUnit, const vector<pai
 		CvPlayer& kPlayer = GET_PLAYER((PlayerTypes)iI);
 		if(kPlayer.isAlive())
 		{
+			//do not spread other players' religion to non-owned cities
+			if (eSpreadReligion != eOwnedReligion && kPlayer.GetID() != m_pPlayer->GetID())
+				continue;
+
 			// Loop through each of their cities
 			int iLoop;
 			for(CvCity* pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
@@ -8431,7 +8428,6 @@ int CvReligionAI::ScoreBeliefAtCity(CvBeliefEntry* pEntry, CvCity* pCity) const
 		}
 		iRtnValue += iTempValue;
 
-#if defined(MOD_API_UNIFIED_YIELDS)
 		if (pCity->isCapital()) {
 			iTempValue = pEntry->GetCapitalYieldChange(iI) * iEraBonus;
 			if(iMinPop > 0)
@@ -8573,8 +8569,6 @@ int CvReligionAI::ScoreBeliefAtCity(CvBeliefEntry* pEntry, CvCity* pCity) const
 				}
 			}
 		}
-#endif
-
 
 		// Trade route yield change
 		iTempValue = pEntry->GetYieldChangeTradeRoute(iI) * iEraBonus;
@@ -10085,13 +10079,6 @@ int CvReligionAI::ScoreCityForMissionary(CvCity* pCity, CvUnit* pUnit, ReligionT
 
 	//don't target inquisitor-protected cities ...
 	if (pCity->GetCityReligions()->IsDefendedAgainstSpread(eSpreadReligion))
-	{
-		return 0;
-	}
-
-	//If this religion is not our founder or majority faith, ignore it
-	ReligionTypes eDesiredReligion = m_pPlayer->GetReligionAI()->GetReligionToSpread();
-	if(eSpreadReligion != eDesiredReligion)
 	{
 		return 0;
 	}

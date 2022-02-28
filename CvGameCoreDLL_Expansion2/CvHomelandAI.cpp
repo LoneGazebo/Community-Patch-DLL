@@ -643,7 +643,8 @@ void CvHomelandAI::PlotGarrisonMoves()
 		{
 			//nothing to do really
 			CvUnit* pGarrison = pCity->GetGarrisonedUnit();
-			if (!pGarrison->TurnProcessed())
+			//do not touch units which are under human control
+			if (!pGarrison->TurnProcessed() && (!pGarrison->isHuman() || pGarrison->IsAutomated()))
 				UnitProcessed(pGarrison->GetID());
 		}
 		else
@@ -1433,7 +1434,7 @@ void CvHomelandAI::PlotUpgradeMoves()
 						int iPriority = UPGRADE_THIS_TURN_PRIORITY_BOOST - GC.getUnitInfo(pUnit->getUnitType())->GetPower();
 
 						// Priority is boosted if can upgrade immediately
-						if(pUnit->CanUpgradeRightNow(false))
+						if(pUnit->CanUpgradeRightNow(false) && pUnit->GetDanger()<pUnit->GetCurrHitPoints())
 						{
 							iPriority += UPGRADE_THIS_TURN_PRIORITY_BOOST;
 						}
@@ -1478,7 +1479,7 @@ void CvHomelandAI::PlotUpgradeMoves()
 		for(CHomelandUnitArray::iterator moveUnitIt = m_CurrentMoveUnits.begin(); moveUnitIt != m_CurrentMoveUnits.end(); ++moveUnitIt)
 		{
 			CvUnit* pUnit = m_pPlayer->getUnit(moveUnitIt->GetID());
-			if(pUnit->CanUpgradeRightNow(false))
+			if(pUnit->CanUpgradeRightNow(false) && pUnit->GetDanger()<pUnit->GetCurrHitPoints())
 			{
 				CvUnit* pNewUnit = pUnit->DoUpgrade();
 				UnitProcessed(pUnit->GetID());
@@ -2662,7 +2663,7 @@ void CvHomelandAI::ExecuteWorkerMoves()
 		int iTurnLimit = pUnit->IsGreatPerson() ? 12 : 5;
 
 		if (pUnit->IsCombatUnit())
-			iTurnLimit = gCustomMods.getOption("UNITS_LOCAL_WORKERS_COMBATLIMIT", 2);
+			iTurnLimit = 3;
 
 		//is the unit still busy? if so, less time for movement
 		int iBuildTimeLeft = 0;

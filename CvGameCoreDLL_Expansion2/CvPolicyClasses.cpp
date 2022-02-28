@@ -348,10 +348,7 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_iInvestmentModifier(0),
 #endif
 	m_ppiImprovementYieldChanges(NULL),
-#if defined(MOD_API_UNIFIED_YIELDS)
 	m_ppiPlotYieldChanges(NULL),
-#endif
-#if defined(MOD_API_UNIFIED_YIELDS)
 	m_ppiFeatureYieldChanges(NULL),
 	m_ppiCityYieldFromUnimprovedFeature(NULL),
 	m_ppiUnimprovedFeatureYieldChanges(NULL),
@@ -385,7 +382,6 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_iPuppetYieldPenaltyMod(0),
 	m_iConquestPerEraBuildingProductionMod(0),
 	m_iAdmiralLuxuryBonus(0),
-#endif
 #if defined(HH_MOD_API_TRADEROUTE_MODIFIERS)
 	m_piInternationalRouteYieldModifiers(NULL),
 #endif
@@ -452,10 +448,7 @@ CvPolicyEntry::~CvPolicyEntry(void)
 	SAFE_DELETE_ARRAY(m_piFranchisesPerImprovement);
 #endif
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiImprovementYieldChanges);
-#if defined(MOD_API_UNIFIED_YIELDS)
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiPlotYieldChanges);
-#endif
-#if defined(MOD_API_UNIFIED_YIELDS)
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiFeatureYieldChanges);
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiCityYieldFromUnimprovedFeature);
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiUnimprovedFeatureYieldChanges);
@@ -481,7 +474,6 @@ CvPolicyEntry::~CvPolicyEntry(void)
 	SAFE_DELETE_ARRAY(m_piYieldModifierFromActiveSpies);
 	SAFE_DELETE_ARRAY(m_piYieldFromDelegateCount);
 	SAFE_DELETE_ARRAY(m_piYieldChangesPerReligion);
-#endif
 #if defined(HH_MOD_API_TRADEROUTE_MODIFIERS)
 	SAFE_DELETE_ARRAY(m_piInternationalRouteYieldModifiers);
 #endif 
@@ -962,9 +954,8 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 		}
 	}
 #endif
-#if defined(MOD_API_UNIFIED_YIELDS)
+
 	//PlotYieldChanges
-	if (MOD_API_UNIFIED_YIELDS)
 	{
 		kUtility.Initialize2DArray(m_ppiPlotYieldChanges, "Plots", "Yields");
 
@@ -986,11 +977,8 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 			m_ppiPlotYieldChanges[PlotID][YieldID] = yield;
 		}
 	}
-#endif
 
-#if defined(MOD_API_UNIFIED_YIELDS)
 	//FeatureYieldChanges
-	if (MOD_API_UNIFIED_YIELDS)
 	{
 		kUtility.Initialize2DArray(m_ppiFeatureYieldChanges, "Features", "Yields");
 
@@ -1014,7 +1002,6 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	}
 	
 	//CityYieldFromUnimprovedFeature
-	if (MOD_API_UNIFIED_YIELDS)
 	{
 		kUtility.Initialize2DArray(m_ppiCityYieldFromUnimprovedFeature, "Features", "Yields");
 
@@ -1038,7 +1025,6 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	}
 	
 	//UnimprovedFeatureYieldChanges
-	if (MOD_API_UNIFIED_YIELDS)
 	{
 		kUtility.Initialize2DArray(m_ppiUnimprovedFeatureYieldChanges, "Features", "Yields");
 
@@ -1062,7 +1048,6 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	}
 	
 	//ResourceYieldChanges
-	if (MOD_API_UNIFIED_YIELDS)
 	{
 		kUtility.Initialize2DArray(m_ppiResourceYieldChanges, "Resources", "Yields");
 
@@ -1086,7 +1071,6 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	}
 	
 	//TerrainYieldChanges
-	if (MOD_API_UNIFIED_YIELDS)
 	{
 		kUtility.Initialize2DArray(m_ppiTerrainYieldChanges, "Terrains", "Yields");
 
@@ -1110,7 +1094,6 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	}
 	
 	//TradeRouteYieldChange
-	if (MOD_API_UNIFIED_YIELDS)
 	{
 		kUtility.Initialize2DArray(m_ppiTradeRouteYieldChange, "Domains", "Yields");
 
@@ -1134,7 +1117,6 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	}
 	
 	//SpecialistYieldChanges
-	if (MOD_API_UNIFIED_YIELDS)
 	{
 		kUtility.Initialize2DArray(m_ppiSpecialistYieldChanges, "Specialists", "Yields");
 
@@ -1158,7 +1140,6 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	}
 	
 	//GreatPersonExpendedYield
-	if (MOD_API_UNIFIED_YIELDS)
 	{
 		kUtility.Initialize2DArray(m_ppiGreatPersonExpendedYield, "GreatPersons", "Yields");
 
@@ -1204,8 +1185,6 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 
 	kUtility.SetYields(m_piYieldChangesPerReligion, "Policy_YieldChangesPerReligion", "PolicyType", szPolicyType);
 
-	
-#endif
 #if defined(HH_MOD_API_TRADEROUTE_MODIFIERS)
 	kUtility.SetYields(m_piInternationalRouteYieldModifiers, "Policy_InternationalRouteYieldModifiers", "PolicyType", szPolicyType);
 #endif
@@ -2848,7 +2827,7 @@ bool CvPolicyEntry::IsFaithPurchaseUnitClass(const int eUnitClass, const int eCu
 }
 #endif
 
-#if defined(MOD_BALANCE_CORE_POLICIES) && defined(MOD_API_UNIFIED_YIELDS)
+#if defined(MOD_BALANCE_CORE_POLICIES)
 /// What is the golden age modifier for the specific yield type?
 int CvPolicyEntry::GetYieldChangesPerReligionTimes100(int iYield) const
 {
@@ -3219,7 +3198,6 @@ int CvPolicyEntry::GetImprovementYieldChanges(int i, int j) const
 	return m_ppiImprovementYieldChanges[i][j];
 }
 
-#if defined(MOD_API_UNIFIED_YIELDS)
 /// Yield modifier for a specific plot by yield type
 int CvPolicyEntry::GetPlotYieldChanges(int i, int j) const
 {
@@ -3229,9 +3207,7 @@ int CvPolicyEntry::GetPlotYieldChanges(int i, int j) const
 	CvAssertMsg(j > -1, "Index out of bounds");
 	return m_ppiPlotYieldChanges[i][j];
 }
-#endif
 
-#if defined(MOD_API_UNIFIED_YIELDS)
 int CvPolicyEntry::GetFeatureYieldChanges(int i, int j) const
 {
 	CvAssertMsg(i < GC.getNumFeatureInfos(), "Index out of bounds");
@@ -3549,7 +3525,6 @@ bool CvPolicyEntry::IsCSResourcesForMonopolies() const
 {
 	return m_bCSResourcesForMonopolies;
 }
-#endif
 
 /// Yield modifier for a specific BuildingClass by yield type
 int CvPolicyEntry::GetBuildingClassYieldModifiers(int i, int j) const

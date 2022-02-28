@@ -3079,14 +3079,8 @@ int CvPlayerTrade::GetTradeConnectionTheirBuildingValueTimes100(const TradeConne
 }
 
 //	--------------------------------------------------------------------------------
-int CvPlayerTrade::GetTradeConnectionExclusiveValueTimes100(const TradeConnection& kTradeConnection, YieldTypes eYield)
+int CvPlayerTrade::GetTradeConnectionExclusiveValueTimes100(const TradeConnection& kTradeConnection, YieldTypes /*eYield*/)
 {
-	// unnecessary code to make it compile for now
-	if (eYield != NO_YIELD)
-	{
-		eYield = eYield;
-	}
-
 	CvGameTrade* pTrade = GC.getGame().GetGameTrade();
 	if (pTrade->IsDestinationExclusive(kTradeConnection))
 	{
@@ -3103,7 +3097,6 @@ int CvPlayerTrade::GetTradeConnectionPolicyValueTimes100(const TradeConnection& 
 {
 	int iValue = 0;
 
-#if defined(MOD_API_UNIFIED_YIELDS)
 	CvPlayer& kPlayer = GET_PLAYER(kTradeConnection.m_eOriginOwner);
 	iValue += kPlayer.getTradeRouteYieldChange(kTradeConnection.m_eDomain, eYield) * 100;
 	iValue += kPlayer.GetPlayerTraits()->GetTradeRouteYieldChange(kTradeConnection.m_eDomain, eYield) * 100;
@@ -3141,7 +3134,6 @@ int CvPlayerTrade::GetTradeConnectionPolicyValueTimes100(const TradeConnection& 
 			}
 		}
 	}
-#endif
 
 #if defined(MOD_RELIGION_PERMANENT_PANTHEON)
 	// Mod for civs keeping their pantheon belief forever
@@ -3169,9 +3161,8 @@ int CvPlayerTrade::GetTradeConnectionPolicyValueTimes100(const TradeConnection& 
 	if (kTradeConnection.m_eConnectionType == TRADE_CONNECTION_INTERNATIONAL)
 #endif
 	{
-#if defined(MOD_API_UNIFIED_YIELDS)
-	  if (eYield == YIELD_GOLD) {
-#endif
+	  if (eYield == YIELD_GOLD) 
+	  {
 		// domain type bonuses
 		if (kTradeConnection.m_eDomain == DOMAIN_LAND)
 		{
@@ -3216,9 +3207,7 @@ int CvPlayerTrade::GetTradeConnectionPolicyValueTimes100(const TradeConnection& 
 		{
 			iValue += GET_PLAYER(kTradeConnection.m_eOriginOwner).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CITY_STATE_TRADE_CHANGE);
 		}
-#if defined(MOD_API_UNIFIED_YIELDS)
 	  }
-#endif
 	}
 
 	return iValue;
@@ -3238,26 +3227,18 @@ int CvPlayerTrade::GetTradeConnectionOtherTraitValueTimes100(const TradeConnecti
 		{
 			iValue += GET_PLAYER(kTradeConnection.m_eDestOwner).GetPlayerTraits()->GetYieldChangeIncomingTradeRoute(eYield) * 100;
 		}
-#if defined(MOD_API_UNIFIED_YIELDS)
 	}
 	else
 	{
 		iValue += GET_PLAYER(kTradeConnection.m_eOriginOwner).GetPlayerTraits()->GetYieldChangeIncomingTradeRoute(eYield) * 100;
-#endif
 	}
 
 	return iValue;
 }
 
 //	--------------------------------------------------------------------------------
-int CvPlayerTrade::GetTradeConnectionDomainValueModifierTimes100(const TradeConnection& kTradeConnection, YieldTypes eYield)
+int CvPlayerTrade::GetTradeConnectionDomainValueModifierTimes100(const TradeConnection& kTradeConnection, YieldTypes /*eYield*/)
 {
-	// unnecessary code to make it compile for now
-	if (eYield != NO_YIELD)
-	{
-		eYield = eYield;
-	}
-
 	return GC.getGame().GetGameTrade()->GetDomainModifierTimes100(kTradeConnection.m_eDomain);
 }
 
@@ -3316,12 +3297,6 @@ int CvPlayerTrade::GetTradeConnectionDistanceValueModifierTimes100(const TradeCo
 //	--------------------------------------------------------------------------------
 int CvPlayerTrade::GetTradeConnectionRiverValueModifierTimes100(const TradeConnection& kTradeConnection, YieldTypes eYield, bool bAsOriginPlayer)
 {
-	// unnecessary code to make it compile for now
-	if (eYield != NO_YIELD)
-	{
-		eYield = eYield;
-	}
-
 	int iModifier = 0;
 	if (eYield == YIELD_GOLD && kTradeConnection.m_eDomain == DOMAIN_LAND)
 	{
@@ -3359,12 +3334,6 @@ int CvPlayerTrade::GetTradeConnectionRiverValueModifierTimes100(const TradeConne
 //	--------------------------------------------------------------------------------
 int CvPlayerTrade::GetTradeConnectionOpenBordersModifierTimes100(const TradeConnection& kTradeConnection, YieldTypes eYield, bool bAsOriginPlayer)
 {
-	// unnecessary code to make it compile for now
-	if (eYield != NO_YIELD)
-	{
-		eYield = eYield;
-	}
-
 	int iModifier = 0;
 #if defined(MOD_BALANCE_CORE) && defined(MOD_BALANCE_CORE_GOLD_INTERNAL_TRADE_ROUTES)
 	// internal gold trade routes always get the full open border bonus
@@ -3417,12 +3386,6 @@ int CvPlayerTrade::GetTradeConnectionOpenBordersModifierTimes100(const TradeConn
 //	--------------------------------------------------------------------------------
 int CvPlayerTrade::GetTradeConnectionCorporationModifierTimes100(const TradeConnection& kTradeConnection, YieldTypes eYield, bool bAsOriginPlayer)
 {
-	// unnecessary code to make it compile for now
-	if (eYield != NO_YIELD)
-	{
-		eYield = eYield;
-	}
-
 	int iModifier = 0;
 	CvCity* pDestCity = CvGameTrade::GetDestCity(kTradeConnection);
 	if (pDestCity == NULL)
@@ -3579,31 +3542,19 @@ int CvPlayerTrade::GetTradeConnectionValueTimes100 (const TradeConnection& kTrad
 					iValue = max(100, iValue);
 				}
 				break;
-#if defined(MOD_API_UNIFIED_YIELDS)
 			case YIELD_CULTURE:
 			case YIELD_FAITH:
-#endif
-#if defined(MOD_API_UNIFIED_YIELDS_TOURISM)
 			case YIELD_TOURISM:
-#endif
-#if defined(MOD_API_UNIFIED_YIELDS_GOLDEN_AGE)
 			case YIELD_GOLDEN_AGE_POINTS:
-#endif
 			case YIELD_SCIENCE:
-#if defined(MOD_API_UNIFIED_YIELDS)
 				{
-#endif
 					int iBaseValue = GetTradeConnectionBaseValueTimes100(kTradeConnection, eYield, bAsOriginPlayer);
-#if defined(MOD_API_UNIFIED_YIELDS)
 					int iPolicyBonus = GetTradeConnectionPolicyValueTimes100(kTradeConnection, eYield);
 					int iTraitBonus = GetTradeConnectionOtherTraitValueTimes100(kTradeConnection, eYield, bAsOriginPlayer);
-#endif
 
 					iValue = iBaseValue;
-#if defined(MOD_API_UNIFIED_YIELDS)
 					iValue += iPolicyBonus;
 					iValue += iTraitBonus;
-#endif
 
 					int iModifier = 100;
 #if defined(MOD_BALANCE_CORE)
@@ -3638,9 +3589,7 @@ int CvPlayerTrade::GetTradeConnectionValueTimes100 (const TradeConnection& kTrad
 				
 					iValue *= iModifier;
 					iValue /= 100;
-#if defined(MOD_API_UNIFIED_YIELDS)
 				}
-#endif
 				break;
 #if defined(HH_MOD_API_TRADEROUTE_MODIFIERS)
 /// TODO: Integrate modifier logic into the PRODUCTION and FOOD cases of international trade
@@ -3831,34 +3780,22 @@ int CvPlayerTrade::GetTradeConnectionValueTimes100 (const TradeConnection& kTrad
 #endif
 				}
 				break;
-#if defined(MOD_API_UNIFIED_YIELDS)
 			case YIELD_CULTURE:
 			case YIELD_FAITH:
-#endif
-#if defined(MOD_API_UNIFIED_YIELDS_TOURISM)
 			case YIELD_TOURISM:
-#endif
-#if defined(MOD_API_UNIFIED_YIELDS_GOLDEN_AGE)
 			case YIELD_GOLDEN_AGE_POINTS:
-#endif
 			case YIELD_SCIENCE:
-#if defined(MOD_API_UNIFIED_YIELDS)
 				{
-	#endif
 					int iBaseValue = GetTradeConnectionBaseValueTimes100(kTradeConnection, eYield, bAsOriginPlayer);
-	#if defined(MOD_API_UNIFIED_YIELDS)
 					int iPolicyBonus = GetTradeConnectionPolicyValueTimes100(kTradeConnection, eYield);
 					int iTraitBonus = GetTradeConnectionOtherTraitValueTimes100(kTradeConnection, eYield, bAsOriginPlayer);
-	#endif
 
 					iValue = iBaseValue;
-	#if defined(MOD_API_UNIFIED_YIELDS)
 					iValue += iPolicyBonus;
 					iValue += iTraitBonus;
-	#endif
 
 					int iModifier = 100;
-	#if defined(MOD_BALANCE_CORE)
+#if defined(MOD_BALANCE_CORE)
 					int iCorporationModifier = GetTradeConnectionCorporationModifierTimes100(kTradeConnection, eYield, bAsOriginPlayer);
 					int iDistanceModifier = GetTradeConnectionDistanceValueModifierTimes100(kTradeConnection);
 					if (eYield == YIELD_CULTURE || eYield == YIELD_SCIENCE)
@@ -3867,12 +3804,12 @@ int CvPlayerTrade::GetTradeConnectionValueTimes100 (const TradeConnection& kTrad
 					}
 					iModifier -= iDistanceModifier;
 					iModifier += iCorporationModifier;
-	#endif
-	#if defined(HH_MOD_API_TRADEROUTE_MODIFIERS)
+#endif
+#if defined(HH_MOD_API_TRADEROUTE_MODIFIERS)
 					int iPolicyModifier = GetTradeConnectionPolicyModifierTimes100(kTradeConnection, eYield, bAsOriginPlayer);
 					iModifier += iPolicyModifier;
-	#endif
-	#if defined(MOD_BALANCE_CORE)
+#endif
+#if defined(MOD_BALANCE_CORE)
 					CvCity* pOriginCity = NULL;
 					CvPlot* pStartPlot = GC.getMap().plot(kTradeConnection.m_iOriginX, kTradeConnection.m_iOriginY);
 					if (pStartPlot)
@@ -3883,13 +3820,11 @@ int CvPlayerTrade::GetTradeConnectionValueTimes100 (const TradeConnection& kTrad
 						iModifier += GET_PLAYER(kTradeConnection.m_eOriginOwner).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_TRADE_CAPITAL_MODIFIER);
 
 					iModifier += GET_PLAYER(kTradeConnection.m_eOriginOwner).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_TRADE_MODIFIER);
-	#endif
+#endif
 
 					iValue *= iModifier;
 					iValue /= 100;
-	#if defined(MOD_API_UNIFIED_YIELDS)
 				}
-#endif
 				break;
 
 			case YIELD_PRODUCTION:
@@ -3950,22 +3885,14 @@ int CvPlayerTrade::GetTradeConnectionValueTimes100 (const TradeConnection& kTrad
 						iValue /= 100;
 					}
 					break;
-#if defined(MOD_API_UNIFIED_YIELDS)
 				case YIELD_CULTURE:
 				case YIELD_FAITH:
-#endif
-#if defined(MOD_API_UNIFIED_YIELDS_TOURISM)
 				case YIELD_TOURISM:
-#endif
-#if defined(MOD_API_UNIFIED_YIELDS_GOLDEN_AGE)
 				case YIELD_GOLDEN_AGE_POINTS:
-#endif
 				case YIELD_SCIENCE:
 					{
 						int iBaseValue = GetTradeConnectionBaseValueTimes100(kTradeConnection, eYield, bAsOriginPlayer);
-#if defined(MOD_API_UNIFIED_YIELDS)
 						int iTraitBonus = GetTradeConnectionOtherTraitValueTimes100(kTradeConnection, eYield, false);
-#endif
 
 						int iModifier = 100;
 #if defined(HH_MOD_API_TRADEROUTE_MODIFIERS)
@@ -3980,9 +3907,7 @@ int CvPlayerTrade::GetTradeConnectionValueTimes100 (const TradeConnection& kTrad
 #endif
 
 						iValue = iBaseValue;
-#if defined(MOD_API_UNIFIED_YIELDS)
 						iValue += iTraitBonus;
-#endif
 
 						iValue *= iModifier;
 						iValue /= 100;						
@@ -4000,10 +3925,8 @@ int CvPlayerTrade::GetTradeConnectionValueTimes100 (const TradeConnection& kTrad
 				{
 					iValue = /*300 in CP, 600 in CBO*/ GD_INT_GET(TRADE_ROUTE_BASE_FOOD_VALUE);
 
-#if defined(MOD_API_UNIFIED_YIELDS)
 					iValue += GetTradeConnectionPolicyValueTimes100(kTradeConnection, eYield);
 					iValue += GetTradeConnectionOtherTraitValueTimes100(kTradeConnection, eYield, false);
-#endif
 					iValue += GC.getEraInfo(GET_PLAYER(kTradeConnection.m_eDestOwner).GetCurrentEra())->getTradeRouteFoodBonusTimes100();
 					iValue *= GC.getEraInfo(GC.getGame().getStartEra())->getGrowthPercent();
 					iValue /= 100;
@@ -4070,10 +3993,8 @@ int CvPlayerTrade::GetTradeConnectionValueTimes100 (const TradeConnection& kTrad
 				{
 					iValue = /*300 in CP, 600 in CBO*/ GD_INT_GET(TRADE_ROUTE_BASE_PRODUCTION_VALUE);
 
-#if defined(MOD_API_UNIFIED_YIELDS)
 					iValue += GetTradeConnectionPolicyValueTimes100(kTradeConnection, eYield);
 					iValue += GetTradeConnectionOtherTraitValueTimes100(kTradeConnection, eYield, false);
-#endif
 					iValue += GC.getEraInfo(GET_PLAYER(kTradeConnection.m_eDestOwner).GetCurrentEra())->getTradeRouteProductionBonusTimes100();
 					iValue *= (GC.getEraInfo(GC.getGame().getStartEra())->getConstructPercent() + GC.getEraInfo(GC.getGame().getStartEra())->getTrainPercent()) / 2;
 					iValue /= 100;
@@ -6129,32 +6050,34 @@ void CvTradeAI::GetAvailableTR(TradeConnectionList& aTradeConnectionList, bool b
 }
 
 /// Score 
-std::vector<int> CvTradeAI::ScoreInternationalTR(const TradeConnection& kTradeConnection, bool bHaveTourism)
+CvTradeAI::TRSortElement CvTradeAI::ScoreInternationalTR(const TradeConnection& kTradeConnection, bool bHaveTourism)
 {
-	std::vector<int> ValuesVector;
+	TRSortElement ret;
+	ret.m_kTradeConnection = kTradeConnection;
+
 	// don't evaluate other trade types
 	if (kTradeConnection.m_eConnectionType != TRADE_CONNECTION_INTERNATIONAL)
-		return ValuesVector;
+		return ret;
 
 	// if this was recently plundered, 0 the score
 	if (m_pPlayer->GetTrade()->CheckTradeConnectionWasPlundered(kTradeConnection))
-		return ValuesVector;
+		return ret;
 
 	// don't send trade routes if we're about to declare war?
 	if (m_pPlayer->getFirstOffensiveAIOperation(kTradeConnection.m_eDestOwner) != NULL)
-		return ValuesVector;
+		return ret;
 
 	if (m_pPlayer->GetDiplomacyAI()->AvoidExchangesWithPlayer(kTradeConnection.m_eDestOwner, true))
-		return ValuesVector;
+		return ret;
 
 	CvCity* pToCity = CvGameTrade::GetDestCity(kTradeConnection);
 	CvCity* pFromCity = CvGameTrade::GetOriginCity(kTradeConnection);
 
 	if (!pToCity || !pFromCity)
-		return ValuesVector;
+		return ret;
 
 	if (pToCity->isUnderSiege() || pFromCity->isUnderSiege())
-		return ValuesVector;
+		return ret;
 
 	CvPlayerTrade* pPlayerTrade = m_pPlayer->GetTrade();
 	CvPlayerTrade* pOtherPlayerTrade = GET_PLAYER(kTradeConnection.m_eDestOwner).GetTrade();
@@ -6520,7 +6443,7 @@ std::vector<int> CvTradeAI::ScoreInternationalTR(const TradeConnection& kTradeCo
 
 	//abort if we're negative
 	if(iScore <= 0)
-		return ValuesVector;
+		return ret;
 
 	for(int iJ = 0; iJ < NUM_YIELD_TYPES; iJ++)
 	{
@@ -6772,18 +6695,18 @@ std::vector<int> CvTradeAI::ScoreInternationalTR(const TradeConnection& kTradeCo
 			iScore /= max(1, iFranchises);
 		}	
 	}
+#endif
 	if(m_pPlayer->IsAtWar())
 	{
 		iScore /= max(2, m_pPlayer->GetMilitaryAI()->GetNumberCivsAtWarWith(false));
 	}
-	ValuesVector.push_back(iScore);
-	ValuesVector.push_back(iCultureScore);
-	ValuesVector.push_back(iGoldScore);
-	ValuesVector.push_back(iScienceScore);
-	ValuesVector.push_back(iReligionScore);
 
-#endif
-	return ValuesVector;
+	ret.m_iScore = iScore;
+	ret.m_iCultureScore = iCultureScore;
+	ret.m_iGoldScore = iGoldScore;
+	ret.m_iScienceScore = iScienceScore;
+	ret.m_iReligionScore = iReligionScore;
+	return ret;
 }
 
 /// Score Food TR
@@ -6994,29 +6917,27 @@ int CvTradeAI::ScoreWonderTR (const TradeConnection& kTradeConnection, const std
 
 #if defined(MOD_BALANCE_CORE) && defined(MOD_BALANCE_CORE_GOLD_INTERNAL_TRADE_ROUTES)
 /// Score gold internal trade route
-std::vector<int> CvTradeAI::ScoreGoldInternalTR(const TradeConnection& kTradeConnection)
+CvTradeAI::TRSortElement CvTradeAI::ScoreGoldInternalTR(const TradeConnection& kTradeConnection)
 {
-	std::vector<int> ValuesVector;
+	TRSortElement ret;
+	ret.m_kTradeConnection = kTradeConnection;
+
 	// don't evaluate other trade types
 	if (kTradeConnection.m_eConnectionType != TRADE_CONNECTION_GOLD_INTERNAL)
-	{
-		return ValuesVector;
-	}
+		return ret;
 
 	// if this was recently plundered, 0 the score
 	if (m_pPlayer->GetTrade()->CheckTradeConnectionWasPlundered(kTradeConnection))
-	{
-		return ValuesVector;
-	}
+		return ret;
 
 	CvCity* pToCity = CvGameTrade::GetDestCity(kTradeConnection);
 	CvCity* pFromCity = CvGameTrade::GetOriginCity(kTradeConnection);
 
 	if (!pToCity || !pFromCity)
-		return ValuesVector;
+		return ret;
 
 	if (pToCity->isUnderSiege() || pFromCity->isUnderSiege())
-		return ValuesVector;
+		return ret;
 
 	CvPlayerTrade* pPlayerTrade = m_pPlayer->GetTrade();
 
@@ -7151,7 +7072,7 @@ std::vector<int> CvTradeAI::ScoreGoldInternalTR(const TradeConnection& kTradeCon
 
 	//abort if we're negative
 	if (iScore <= 0)
-		return ValuesVector;
+		return ret;
 
 	for (int iJ = 0; iJ < NUM_YIELD_TYPES; iJ++)
 	{
@@ -7202,30 +7123,19 @@ std::vector<int> CvTradeAI::ScoreGoldInternalTR(const TradeConnection& kTradeCon
 	int iEra = max(1, (int)m_pPlayer->GetCurrentEra()); // More international trade late game, please.
 	iScore = (iScore * iEra) / iDangerSum;
 
-	ValuesVector.push_back(iScore);
-	ValuesVector.push_back(iCultureScore);
-	ValuesVector.push_back(iGoldScore);
-	ValuesVector.push_back(iScienceScore);
-	ValuesVector.push_back(iReligionScore);
-
-	return ValuesVector;
+	//finally
+	ret.m_iScore = iScore;
+	ret.m_iCultureScore = iCultureScore;
+	ret.m_iGoldScore = iGoldScore;
+	ret.m_iScienceScore = iScienceScore;
+	ret.m_iReligionScore = iReligionScore;
+	return ret;
 }
 #endif
 
-// sort player numbers
-struct TRSortElement
-{
-	TradeConnection m_kTradeConnection;
-	int m_iScore;
-	int m_iGoldScore;
-	int m_iCultureScore;
-	int m_iReligionScore;
-	int m_iScienceScore;
-};
-
 struct SortTR
 {
-	bool operator()(TRSortElement const& a, TRSortElement const& b) const
+	bool operator()(CvTradeAI::TRSortElement const& a, CvTradeAI::TRSortElement const& b) const
 	{
 		return a.m_iScore < b.m_iScore;
 	}
@@ -7233,7 +7143,7 @@ struct SortTR
 #if defined(MOD_BALANCE_CORE)
 struct SortTRHigh
 {
-	bool operator()(TRSortElement const& a, TRSortElement const& b) const
+	bool operator()(CvTradeAI::TRSortElement const& a, CvTradeAI::TRSortElement const& b) const
 	{
 		return a.m_iScore > b.m_iScore;
 	}
@@ -7446,19 +7356,7 @@ void CvTradeAI::GetPrioritizedTradeRoutes(TradeConnectionList& aTradeConnectionL
 		int iBestScore = -1;
 		for (uint ui = 0; ui < aTradeConnectionList.size(); ui++)
 		{
-			TRSortElement kElement;
-			kElement.m_kTradeConnection = aTradeConnectionList[ui];
-			std::vector<int>ValuesVector;
-			ValuesVector = ScoreGoldInternalTR(aTradeConnectionList[ui]);
-			if (ValuesVector.size() > 0)
-			{
-				kElement.m_iScore = ValuesVector[0];
-				kElement.m_iCultureScore = ValuesVector[1];
-				kElement.m_iGoldScore = ValuesVector[2];
-				kElement.m_iScienceScore = ValuesVector[3];
-				kElement.m_iReligionScore = ValuesVector[4];
-			}
-
+			TRSortElement kElement = ScoreGoldInternalTR(aTradeConnectionList[ui]);
 			if (kElement.m_iScore > iBestScore)
 			{
 				iBestScore = kElement.m_iScore;
@@ -7480,18 +7378,7 @@ void CvTradeAI::GetPrioritizedTradeRoutes(TradeConnectionList& aTradeConnectionL
 	int iBestScore = -1;
 	for (uint ui = 0; ui < aTradeConnectionList.size(); ui++)
 	{
-		TRSortElement kElement;
-		kElement.m_kTradeConnection = aTradeConnectionList[ui];
-		std::vector<int> ValuesVector = ScoreInternationalTR(aTradeConnectionList[ui], bHaveTourism);
-		if (ValuesVector.size() > 0)
-		{
-			kElement.m_iScore = ValuesVector[0];
-			kElement.m_iCultureScore = ValuesVector[1];
-			kElement.m_iGoldScore = ValuesVector[2];
-			kElement.m_iScienceScore = ValuesVector[3];
-			kElement.m_iReligionScore = ValuesVector[4];
-		}
-
+		TRSortElement kElement = ScoreInternationalTR(aTradeConnectionList[ui], bHaveTourism);
 		if (kElement.m_iScore > iBestScore)
 		{
 			iBestScore = kElement.m_iScore;

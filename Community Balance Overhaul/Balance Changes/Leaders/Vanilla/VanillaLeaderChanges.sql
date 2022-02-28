@@ -9,10 +9,10 @@ SET PlotBuyCostModifier = '-25'
 WHERE Type = 'TRAIT_RIVER_EXPANSION';
 
 INSERT INTO BuildingClasses 	
-			(Type,										DefaultBuilding,						MaxPlayerInstances)
-VALUES		('BUILDINGCLASS_AMERICA_SMITHSONIAN',		'BUILDING_AMERICA_SMITHSONIAN',			1),
-			('BUILDINGCLASS_AMERICA_WESTPOINT',			'BUILDING_AMERICA_WESTPOINT',			1),
-			('BUILDINGCLASS_AMERICA_HOOVERDAM',			'BUILDING_AMERICA_HOOVERDAM',			1);
+			(Type,										Description,							DefaultBuilding,						MaxPlayerInstances)
+VALUES		('BUILDINGCLASS_AMERICA_SMITHSONIAN',		'TXT_KEY_BUILDING_MOMA', 				'BUILDING_AMERICA_SMITHSONIAN',			1),
+			('BUILDINGCLASS_AMERICA_WESTPOINT',			'TXT_KEY_BUILDING_AMERICA_WESTPOINT',	'BUILDING_AMERICA_WESTPOINT',			1),
+			('BUILDINGCLASS_AMERICA_HOOVERDAM',			'TXT_KEY_BUILDING_AMERICA_HOOVERDAM',	'BUILDING_AMERICA_HOOVERDAM',			1);
 
 INSERT INTO Buildings 	
 			(Type,									Help,												ThemingBonusHelp, 								Description,									Civilopedia,										Strategy,												PolicyCostModifier, BuildingClass, 				Cost, 	CultureRateModifier, 	GreatWorkSlotType, 				GreatWorkCount, NeverCapture, 	PrereqTech, 			ArtDefineTag, 							MinAreaSize, 	ConquestProb, 	HurryCostModifier, 	NationalPopRequired, 	NumCityCostMod, NukeImmune, IconAtlas,				PortraitIndex)
@@ -245,11 +245,6 @@ WHERE Type = 'TRAIT_STRATEGIC_RICHES';
 DELETE FROM Trait_YieldChangesStrategicResources
 WHERE TraitType = 'TRAIT_STRATEGIC_RICHES';
 
--- Adjusted startbias out of tundra
-
-DELETE FROM Civilization_Start_Region_Priority
-WHERE CivilizationType = 'CIVILIZATION_RUSSIA';
-
 -- Darius -- Adjust Satrap
 UPDATE Civilization_BuildingClassOverrides
 SET BuildingClassType = 'BUILDINGCLASS_COURTHOUSE'
@@ -429,11 +424,11 @@ VALUES		('GREAT_WORK_THE_CROWN_JEWELS', 'GREAT_WORK_ART',	'TXT_KEY_GREAT_WORK_TH
 -- Bismarck -- Hanse Yield Per Pop
 
 UPDATE Buildings
-SET FinishLandTRTourism = '6'
+SET FinishLandTRTourism = '0'
 WHERE Type = 'BUILDING_HANSE';
 
 UPDATE Buildings
-SET FinishSeaTRTourism = '6'
+SET FinishSeaTRTourism = '0'
 WHERE Type = 'BUILDING_HANSE';
 
 UPDATE Buildings
@@ -441,11 +436,11 @@ SET CityStateTradeRouteProductionModifier = '5'
 WHERE Type = 'BUILDING_HANSE';
 
 UPDATE Buildings
-SET TradeRouteRecipientBonus = '2'
+SET TradeRouteRecipientBonus = '3'
 WHERE Type = 'BUILDING_HANSE';
 
 UPDATE Buildings
-SET TradeRouteTargetBonus = '2'
+SET TradeRouteTargetBonus = '3'
 WHERE Type = 'BUILDING_HANSE';
 
 UPDATE Buildings
@@ -660,14 +655,6 @@ WHERE Type = 'TRAIT_CITY_STATE_BONUSES';
 UPDATE Traits
 SET AllianceCSDefense = '25'
 WHERE Type = 'TRAIT_CITY_STATE_BONUSES';
-
-DELETE FROM Civilization_Start_Region_Priority
-WHERE CivilizationType = 'CIVILIZATION_SIAM';
-
-INSERT INTO Civilization_Start_Region_Priority
-	(CivilizationType, RegionType)
-VALUES
-	('CIVILIZATION_SIAM', 'REGION_JUNGLE');
 
 -- China
 UPDATE Building_YieldChangesPerPop
@@ -1038,11 +1025,6 @@ VALUES
 	('BUILDING_LONGHOUSE', 'IMPROVEMENT_CAMP', 'YIELD_PRODUCTION', 1),
 	('BUILDING_LONGHOUSE', 'IMPROVEMENT_PLANTATION', 'YIELD_FOOD', 1),
 	('BUILDING_LONGHOUSE', 'IMPROVEMENT_PLANTATION', 'YIELD_PRODUCTION', 1);
-
-INSERT INTO Civilization_Start_Along_River
-	(CivilizationType, StartAlongRiver)
-VALUES
-	('CIVILIZATION_SONGHAI', 1);
 
 INSERT INTO Building_BuildingClassYieldChanges
 	(BuildingType, BuildingClassType, YieldType, YieldChange)

@@ -636,9 +636,6 @@ public:
 	int GetBaseJONSCulturePerTurn() const;
 
 	int GetJONSCulturePerTurnFromBuildings() const;
-#if !defined(MOD_API_UNIFIED_YIELDS_CONSOLIDATION)
-	void ChangeJONSCulturePerTurnFromBuildings(int iChange);
-#endif
 
 	int GetJONSCulturePerTurnFromPolicies() const;
 	void ChangeJONSCulturePerTurnFromPolicies(int iChange);
@@ -655,9 +652,6 @@ public:
 #endif
 
 	int GetJONSCulturePerTurnFromReligion() const;
-#if !defined(MOD_API_UNIFIED_YIELDS_CONSOLIDATION)
-	void ChangeJONSCulturePerTurnFromReligion(int iChange);
-#endif
 
 	int GetJONSCulturePerTurnFromLeagues() const;
 
@@ -683,25 +677,15 @@ public:
 	int GetFaithPerTurn() const;
 #endif
 	int GetFaithPerTurnFromBuildings() const;
-#if !defined(MOD_API_UNIFIED_YIELDS_CONSOLIDATION)
-	void ChangeFaithPerTurnFromBuildings(int iChange);
-#endif
 
 	int GetFaithPerTurnFromPolicies() const;
 	void ChangeFaithPerTurnFromPolicies(int iChange);
 
-#if defined(MOD_API_UNIFIED_YIELDS)
 	int GetYieldPerXFeature(FeatureTypes eFeature, YieldTypes eYield) const;
 	int GetYieldPerXFeatureFromReligion(FeatureTypes eFeature, YieldTypes eYield) const;
 	int GetYieldPerTurnFromUnimprovedFeatures(FeatureTypes eFeature, YieldTypes eYield) const;
-#else
-	int GetFaithPerTurnFromTraits() const;
-#endif
 
 	int GetFaithPerTurnFromReligion() const;
-#if !defined(MOD_API_UNIFIED_YIELDS_CONSOLIDATION)
-	void ChangeFaithPerTurnFromReligion(int iChange);
-#endif
 
 	int getNumWorldWonders() const;
 	void changeNumWorldWonders(int iChange);
@@ -1025,12 +1009,10 @@ public:
 	int getSeaResourceYield(YieldTypes eIndex) const;
 	void changeSeaResourceYield(YieldTypes eIndex, int iChange);
 
-#if defined(MOD_API_UNIFIED_YIELDS)
 	int GetYieldPerTurnFromReligion(YieldTypes eYield) const;
 	void UpdateSpecialReligionYields(YieldTypes eYield);
 	int GetSpecialReligionYields(YieldTypes eIndex) const;
 	void SetSpecialReligionYields(YieldTypes eIndex, int iValue);
-#endif
 
 	int getBaseYieldRateModifier(YieldTypes eIndex, int iExtra = 0, CvString* toolTipSink = NULL) const;
 #if defined(MOD_BALANCE_CORE)
@@ -1074,9 +1056,7 @@ public:
 	int GetBaseScienceFromArt() const;
 #endif
 
-#if defined(MOD_GLOBAL_GREATWORK_YIELDTYPES) || defined(MOD_API_UNIFIED_YIELDS)
 	int GetBaseYieldRateFromGreatWorks(YieldTypes eIndex) const;
-#endif
 
 	int GetBaseYieldRateFromTerrain(YieldTypes eIndex) const;
 	void ChangeBaseYieldRateFromTerrain(YieldTypes eIndex, int iChange);
@@ -1189,7 +1169,7 @@ public:
 	int GetSpecialistRateModifier(SpecialistTypes eSpecialist) const;
 #endif
 
-#if defined(MOD_BALANCE_CORE) && defined(MOD_API_UNIFIED_YIELDS)
+#if defined(MOD_BALANCE_CORE)
 	int GetGreatPersonProgressFromConstruction(GreatPersonTypes eGreatPerson, EraTypes eEra) const;
 	void ChangeGreatPersonProgressFromConstruction(GreatPersonTypes eGreatPerson, EraTypes eEra, int iChange);
 #endif
@@ -1261,6 +1241,10 @@ public:
 	int GetResourceQuantityPerXFranchises(ResourceTypes eResource) const;
 	void ChangeResourceQuantityPerXFranchises(ResourceTypes eResource, int iChange);
 	void SetResourceQuantityPerXFranchises(ResourceTypes eResource, int iValue);
+
+	int GetResourceQuantityFromPOP(ResourceTypes eResource) const;
+	void ChangeResourceQuantityFromPOP(ResourceTypes eResource, int iChange);
+	void SetResourceQuantityFromPOP(ResourceTypes eResource, int iValue);
 
 	int GetLandTourismBonus() const;
 	void ChangeLandTourismBonus(int iChange);
@@ -1770,22 +1754,10 @@ protected:
 	int m_iGreatPeopleRateModifier;
 	int m_iJONSCultureStored;
 	int m_iJONSCultureLevel;
-#if !defined(MOD_API_UNIFIED_YIELDS_CONSOLIDATION)
-	int m_iJONSCulturePerTurnFromBuildings;
-#endif
 	int m_iJONSCulturePerTurnFromPolicies;
 	int m_iJONSCulturePerTurnFromSpecialists;
 	std::vector<int> m_iaAddedYieldPerTurnFromTraits;
-#if !defined(MOD_API_UNIFIED_YIELDS_CONSOLIDATION)
-	int m_iJONSCulturePerTurnFromReligion;
-#endif
-#if !defined(MOD_API_UNIFIED_YIELDS_CONSOLIDATION)
-	int m_iFaithPerTurnFromBuildings;
-#endif
 	int m_iFaithPerTurnFromPolicies;
-#if !defined(MOD_API_UNIFIED_YIELDS_CONSOLIDATION)
-	int m_iFaithPerTurnFromReligion;
-#endif
 #if defined(MOD_BALANCE_CORE)
 	int m_iAdditionalFood;
 	int m_iCityBuildingBombardRange;
@@ -1965,6 +1937,7 @@ protected:
 	std::vector<int> m_aiYieldFromMinors;
 	std::vector<int> m_aiResourceQuantityPerXFranchises;
 	std::vector<int> m_aiYieldChangeFromCorporationFranchises;
+	std::vector<int> m_aiResourceQuantityFromPOP;
 	std::vector<int> m_aiNeedsFlatReduction;
 	int m_iLandTourismBonus;
 	int m_iSeaTourismBonus;
@@ -2056,7 +2029,7 @@ protected:
 
 	vector<SCityExtraYields> m_yieldChanges; //[NUM_YIELD_TYPES]
 
-#if defined(MOD_BALANCE_CORE) && defined(MOD_API_UNIFIED_YIELDS)
+#if defined(MOD_BALANCE_CORE)
 	std::map<std::pair<int, int>, short> m_ppiGreatPersonProgressFromConstruction;
 #endif
 #if defined(MOD_BALANCE_CORE_EVENTS)
@@ -2179,22 +2152,10 @@ SYNC_ARCHIVE_VAR(int, m_iBaseGreatPeopleRate)
 SYNC_ARCHIVE_VAR(int, m_iGreatPeopleRateModifier)
 SYNC_ARCHIVE_VAR(int, m_iJONSCultureStored)
 SYNC_ARCHIVE_VAR(int, m_iJONSCultureLevel)
-#if !defined(MOD_API_UNIFIED_YIELDS_CONSOLIDATION)
-SYNC_ARCHIVE_VAR(int, m_iJONSCulturePerTurnFromBuildings)
-#endif
 SYNC_ARCHIVE_VAR(int, m_iJONSCulturePerTurnFromPolicies)
 SYNC_ARCHIVE_VAR(int, m_iJONSCulturePerTurnFromSpecialists)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_iaAddedYieldPerTurnFromTraits)
-#if !defined(MOD_API_UNIFIED_YIELDS_CONSOLIDATION)
-SYNC_ARCHIVE_VAR(int, m_iJONSCulturePerTurnFromReligion)
-#endif
-#if !defined(MOD_API_UNIFIED_YIELDS_CONSOLIDATION)
-SYNC_ARCHIVE_VAR(int, m_iFaithPerTurnFromBuildings)
-#endif
 SYNC_ARCHIVE_VAR(int, m_iFaithPerTurnFromPolicies)
-#if !defined(MOD_API_UNIFIED_YIELDS_CONSOLIDATION)
-SYNC_ARCHIVE_VAR(int, m_iFaithPerTurnFromReligion)
-#endif
 SYNC_ARCHIVE_VAR(int, m_iAdditionalFood)
 SYNC_ARCHIVE_VAR(int, m_iCityBuildingBombardRange)
 SYNC_ARCHIVE_VAR(int, m_iCityIndirectFire)
@@ -2351,6 +2312,7 @@ SYNC_ARCHIVE_VAR(std::vector<int>, m_aiBaseYieldRateFromCSFriendship)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromMinors)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiResourceQuantityPerXFranchises)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldChangeFromCorporationFranchises)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiResourceQuantityFromPOP)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiNeedsFlatReduction)
 SYNC_ARCHIVE_VAR(int, m_iLandTourismBonus)
 SYNC_ARCHIVE_VAR(int, m_iSeaTourismBonus)

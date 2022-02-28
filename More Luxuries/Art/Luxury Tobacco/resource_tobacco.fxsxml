@@ -1,7 +1,0 @@
-<Asset>
-  <Mesh file="Resource_Tobacco.gr2" source="Max" />
-  <Texture file="Generic_Grey_8.dds" source="Max" />
-  <Texture file="Plant_Resource_Shadows.dds" source="Max" />
-  <Texture file="Tobacco_DIFF.dds" source="Max" />
-  <Texture file="Tobacco_SREF.dds" source="Max" />
-</Asset>

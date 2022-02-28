@@ -5946,11 +5946,9 @@ CvFeatureInfo::CvFeatureInfo() :
 	m_piYieldChange(NULL),
 	m_piRiverYieldChange(NULL),
 	m_piHillsYieldChange(NULL),
-#if defined(MOD_API_UNIFIED_YIELDS)
 	m_piCoastalLandYieldChange(NULL),
 	m_piFreshWaterChange(NULL),
 	m_ppiTechYieldChanges(NULL),
-#endif
 	m_pi3DAudioScriptFootstepIndex(NULL),
 	m_pbTerrain(NULL),
 	m_bClearable(false)
@@ -5962,7 +5960,6 @@ CvFeatureInfo::~CvFeatureInfo()
 	SAFE_DELETE_ARRAY(m_piYieldChange);
 	SAFE_DELETE_ARRAY(m_piRiverYieldChange);
 	SAFE_DELETE_ARRAY(m_piHillsYieldChange);
-#if defined(MOD_API_UNIFIED_YIELDS)
 	SAFE_DELETE_ARRAY(m_piCoastalLandYieldChange);
 	SAFE_DELETE_ARRAY(m_piFreshWaterChange);
 	if(m_ppiTechYieldChanges != NULL)
@@ -5970,7 +5967,6 @@ CvFeatureInfo::~CvFeatureInfo()
 		CvDatabaseUtility::SafeDelete2DArray(m_ppiTechYieldChanges);
 	}
 	SAFE_DELETE_ARRAY(m_piEraYieldChange);
-#endif
 	SAFE_DELETE_ARRAY(m_pi3DAudioScriptFootstepIndex);
 	SAFE_DELETE_ARRAY(m_pbTerrain);
 }
@@ -6209,7 +6205,6 @@ int CvFeatureInfo::getHillsYieldChange(int i) const
 	CvAssertMsg(i > -1, "Index out of bounds");
 	return m_piHillsYieldChange ? m_piHillsYieldChange[i] : -1;
 }
-#if defined(MOD_API_UNIFIED_YIELDS)
 //------------------------------------------------------------------------------
 int CvFeatureInfo::getCoastalLandYieldChange(int i) const
 {
@@ -6240,7 +6235,6 @@ int CvFeatureInfo::GetEraYieldChanges(int i) const
 	CvAssertMsg(i > -1, "Index out of bounds");
 	return m_piEraYieldChange ? m_piEraYieldChange[i] : -1;
 }
-#endif
 //------------------------------------------------------------------------------
 int CvFeatureInfo::get3DAudioScriptFootstepIndex(int i) const
 {
@@ -6362,7 +6356,6 @@ bool CvFeatureInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	kUtility.SetYields(m_piYieldChange, "Feature_YieldChanges", "FeatureType", szFeatureType);
 	kUtility.SetYields(m_piRiverYieldChange, "Feature_RiverYieldChanges", "FeatureType", szFeatureType);
 	kUtility.SetYields(m_piHillsYieldChange, "Feature_HillsYieldChanges", "FeatureType", szFeatureType);
-#if defined(MOD_API_UNIFIED_YIELDS)
 	kUtility.SetYields(m_piEraYieldChange, "Feature_EraYieldChanges", "FeatureType", szFeatureType);
 	kUtility.SetYields(m_piCoastalLandYieldChange, "Feature_CoastalLandYields", "FeatureType", szFeatureType);
 	kUtility.SetYields(m_piFreshWaterChange, "Feature_FreshWaterYields", "FeatureType", szFeatureType);
@@ -6372,7 +6365,7 @@ bool CvFeatureInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	CvAssertMsg(iNumTechs > 0, "Num Tech Infos <= 0");
 
 	//TechYieldChanges
-	if (MOD_API_UNIFIED_YIELDS) {
+	{
 		kUtility.Initialize2DArray(m_ppiTechYieldChanges, iNumTechs, iNumYields);
 
 		std::string strKey = "Features - TechYieldChanges";
@@ -6397,7 +6390,6 @@ bool CvFeatureInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 			m_ppiTechYieldChanges[tech_idx][yield_idx] = yield;
 		}
 	}
-#endif
 
 	kUtility.PopulateArrayByExistence(m_pbTerrain, "Terrains", "Feature_TerrainBooleans", "TerrainType", "FeatureType", szFeatureType);
 
@@ -6591,11 +6583,9 @@ CvTerrainInfo::CvTerrainInfo() :
 	m_piYields(NULL),
 	m_piRiverYieldChange(NULL),
 	m_piHillsYieldChange(NULL),
-#if defined(MOD_API_UNIFIED_YIELDS)
 	m_piCoastalLandYieldChange(NULL),
 	m_piFreshWaterChange(NULL),
 	m_ppiTechYieldChanges(NULL),
-#endif
 	m_pi3DAudioScriptFootstepIndex(NULL)
 {
 }
@@ -6605,14 +6595,12 @@ CvTerrainInfo::~CvTerrainInfo()
 	SAFE_DELETE_ARRAY(m_piYields);
 	SAFE_DELETE_ARRAY(m_piRiverYieldChange);
 	SAFE_DELETE_ARRAY(m_piHillsYieldChange);
-#if defined(MOD_API_UNIFIED_YIELDS)
 	SAFE_DELETE_ARRAY(m_piCoastalLandYieldChange);
 	SAFE_DELETE_ARRAY(m_piFreshWaterChange);
-	if(m_ppiTechYieldChanges != NULL)
+	if (m_ppiTechYieldChanges != NULL)
 	{
 		CvDatabaseUtility::SafeDelete2DArray(m_ppiTechYieldChanges);
 	}
-#endif
 	SAFE_DELETE_ARRAY(m_pi3DAudioScriptFootstepIndex);
 }
 //------------------------------------------------------------------------------
@@ -6747,7 +6735,6 @@ int CvTerrainInfo::getHillsYieldChange(int i) const
 	CvAssertMsg(i > -1, "Index out of bounds");
 	return m_piHillsYieldChange ? m_piHillsYieldChange[i] : -1;
 }
-#if defined(MOD_API_UNIFIED_YIELDS)
 //------------------------------------------------------------------------------
 int CvTerrainInfo::getCoastalLandYieldChange(int i) const
 {
@@ -6771,7 +6758,6 @@ int CvTerrainInfo::GetTechYieldChanges(int i, int j) const
 	CvAssertMsg(j > -1, "Index out of bounds");
 	return m_ppiTechYieldChanges[i][j];
 }
-#endif
 //------------------------------------------------------------------------------
 int CvTerrainInfo::get3DAudioScriptFootstepIndex(int i) const
 {
@@ -6834,7 +6820,6 @@ bool CvTerrainInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	kUtility.SetYields(m_piYields, "Terrain_Yields", "TerrainType", szTerrainType);
 	kUtility.SetYields(m_piRiverYieldChange, "Terrain_RiverYieldChanges", "TerrainType", szTerrainType);
 	kUtility.SetYields(m_piHillsYieldChange, "Terrain_HillsYieldChanges", "TerrainType", szTerrainType);
-#if defined(MOD_API_UNIFIED_YIELDS)
 	kUtility.SetYields(m_piCoastalLandYieldChange, "Terrain_CoastalLandYields", "TerrainType", szTerrainType);
 	kUtility.SetYields(m_piFreshWaterChange, "Terrain_FreshWaterYields", "TerrainType", szTerrainType);
 
@@ -6843,7 +6828,7 @@ bool CvTerrainInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	CvAssertMsg(iNumTechs > 0, "Num Tech Infos <= 0");
 
 	//TechYieldChanges
-	if (MOD_API_UNIFIED_YIELDS) {
+	{
 		kUtility.Initialize2DArray(m_ppiTechYieldChanges, iNumTechs, iNumYields);
 
 		std::string strKey = "Terrains - TechYieldChanges";
@@ -6868,7 +6853,6 @@ bool CvTerrainInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 			m_ppiTechYieldChanges[tech_idx][yield_idx] = yield;
 		}
 	}
-#endif
 
 	m_strEffectTypeTag = kResults.GetText("EffectTypeTag");
 
@@ -11669,7 +11653,6 @@ int CvGameSpeedInfo::getNumTurnsBetweenVassals() const
 }
 #endif
 
-#if defined(MOD_API_UNIFIED_YIELDS)
 /// Helper function to read in an integer array of data sized according to number of building types
 void FeatureArrayHelpers::Read(FDataStream& kStream, int* paiFeatureArray)
 {
@@ -11902,4 +11885,3 @@ void TerrainArrayHelpers::WriteYieldArray(FDataStream& kStream, int** ppaaiTerra
 		}
 	}
 }
-#endif

@@ -5088,38 +5088,26 @@ void CvPlot::changeUpgradeProgress(int iChange)
 }
 
 //	--------------------------------------------------------------------------------
-#if defined(MOD_API_UNIFIED_YIELDS)
 int CvPlot::ComputeYieldFromAdjacentImprovement(CvImprovementEntry& kImprovement, ImprovementTypes eValue, YieldTypes eYield) const
-#else
-int CvPlot::ComputeCultureFromAdjacentImprovement(CvImprovementEntry& kImprovement, ImprovementTypes eValue) const
-#endif
 {
 	CvPlot* pAdjacentPlot;
 	int iRtnValue = 0;
 
-#if defined(MOD_API_UNIFIED_YIELDS)
 	if(kImprovement.GetYieldAdjacentSameType(eYield) > 0)
-#else
-	if(kImprovement.GetCultureAdjacentSameType() > 0)
-#endif
 	{
 		for(int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
 		{
 			pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
 			if(pAdjacentPlot && pAdjacentPlot->getImprovementType() == eValue)
 			{
-#if defined(MOD_API_UNIFIED_YIELDS)
 				iRtnValue += kImprovement.GetYieldAdjacentSameType(eYield);
-#else
-				iRtnValue += kImprovement.GetCultureAdjacentSameType();
-#endif
 			}
 		}
 	}
 
 	return iRtnValue;
 }
-#if defined(MOD_API_UNIFIED_YIELDS)
+
 int CvPlot::ComputeYieldFromTwoAdjacentImprovement(CvImprovementEntry& kImprovement, ImprovementTypes eValue, YieldTypes eYield) const
 {
 	CvPlot* pAdjacentPlot;
@@ -5246,7 +5234,7 @@ int CvPlot::ComputeYieldFromAdjacentFeature(CvImprovementEntry& kImprovement, Yi
 
 	return iRtnValue;
 }
-#endif
+
 //	--------------------------------------------------------------------------------
 #if defined(MOD_GLOBAL_STACKING_RULES)
 int CvPlot::getStackingUnits() const
@@ -10068,15 +10056,11 @@ int CvPlot::calculatePlayerYield(YieldTypes eYield, int iCurrentYield, PlayerTyp
 		{
 			if (isWater())
 			{
-#if defined(MOD_API_UNIFIED_YIELDS)
 				if (!isLake())
 				{
 					iYield += kPlayer.getSeaPlotYield(eYield);
 					iYield += pTraits->GetSeaPlotYieldChanges(eYield);
 				}
-#else
-				iYield += kPlayer.getSeaPlotYield(eYield);
-#endif
 
 				if (!bDisplay || pOwningCity->isRevealed(GC.getGame().getActiveTeam(), false, false))
 				{

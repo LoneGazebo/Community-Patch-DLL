@@ -283,7 +283,7 @@ public:
 	bool HasFaithPurchaseUnitClasses() const;
 	bool IsFaithPurchaseUnitClass(const int eUnitClass, const int eCurrentEra) const;
 #endif
-#if defined(MOD_BALANCE_CORE_POLICIES) && defined(MOD_API_UNIFIED_YIELDS)
+#if defined(MOD_BALANCE_CORE_POLICIES)
 	int GetYieldChangesPerReligionTimes100(int i) const;
 	int* GetYieldChangesPerReligionTimes100Array() const;
 #endif
@@ -364,10 +364,7 @@ public:
 	int GetInvestmentModifier() const;
 #endif
 	int GetImprovementYieldChanges(int i, int j) const;
-#if defined(MOD_API_UNIFIED_YIELDS)
 	int GetPlotYieldChanges(int i, int j) const;
-#endif
-#if defined(MOD_API_UNIFIED_YIELDS)
 	int GetFeatureYieldChanges(int i, int j) const;
 	int GetCityYieldFromUnimprovedFeature(int i, int j) const;
 	int GetUnimprovedFeatureYieldChanges(int i, int j) const;
@@ -434,7 +431,6 @@ public:
 	int GetConquestPerEraBuildingProductionMod() const;
 	int GetAdmiralLuxuryBonus() const;
 
-#endif
 #if defined(HH_MOD_API_TRADEROUTE_MODIFIERS)
 	int GetInternationalRouteYieldModifier(int i) const;
 	int* GetInternationalRouteYieldModifiersArray();
@@ -710,7 +706,7 @@ private:
 #if defined(MOD_RELIGION_POLICY_BRANCH_FAITH_GP)
 	std::multimap<int, int> m_FaithPurchaseUnitClasses;
 #endif
-#if defined(MOD_BALANCE_CORE_POLICIES) && defined(MOD_API_UNIFIED_YIELDS)
+#if defined(MOD_BALANCE_CORE_POLICIES)
 	int* m_piYieldChangesPerReligion;
 #endif
 	int* m_piPrereqOrPolicies;
@@ -824,10 +820,7 @@ private:
 //	bool* m_pabHurry;
 	bool* m_pabSpecialistValid;
 	int** m_ppiImprovementYieldChanges;
-#if defined(MOD_API_UNIFIED_YIELDS)
 	int** m_ppiPlotYieldChanges;
-#endif
-#if defined(MOD_API_UNIFIED_YIELDS)
 	int** m_ppiFeatureYieldChanges;
 	int** m_ppiCityYieldFromUnimprovedFeature;
 	int** m_ppiUnimprovedFeatureYieldChanges;
@@ -862,7 +855,6 @@ private:
 	int m_iPuppetYieldPenaltyMod;
 	int m_iConquestPerEraBuildingProductionMod;
 	int m_iAdmiralLuxuryBonus;
-#endif
 #if defined(HH_MOD_API_TRADEROUTE_MODIFIERS)
 	int* m_piInternationalRouteYieldModifiers;
 #endif

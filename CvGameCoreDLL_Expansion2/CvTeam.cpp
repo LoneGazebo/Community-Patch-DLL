@@ -91,19 +91,15 @@ CvTeam::CvTeam()
 
 	m_pTeamTechs = FNEW(CvTeamTechs, c_eCiv5GameplayDLL, 0);
 
-#if defined(MOD_API_UNIFIED_YIELDS)
 	m_ppaaiFeatureYieldChange = NULL;
 	m_ppaaiTerrainYieldChange = NULL;
 	m_paiTradeRouteDomainExtraRange = NULL;
-#endif
 
 	m_ppaaiImprovementYieldChange = NULL;
 	m_ppaaiImprovementNoFreshWaterYieldChange = NULL;
 	m_ppaaiImprovementFreshWaterYieldChange = NULL;
 
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	m_pabTradeTech = NULL;
-#endif
 
 	reset((TeamTypes)0, true);
 }
@@ -161,11 +157,9 @@ void CvTeam::uninit()
 	m_aiVictoryCountdown = NULL;
 	m_aiForceTeamVoteEligibilityCount = NULL;
 
-#if defined(MOD_API_UNIFIED_YIELDS)
 	m_paiTradeRouteDomainExtraRange = NULL;
 	m_ppaaiFeatureYieldChange = NULL;
 	m_ppaaiTerrainYieldChange = NULL;
-#endif
 
 	m_ppaaiImprovementYieldChange = NULL;
 	m_ppaaiImprovementNoFreshWaterYieldChange = NULL;
@@ -302,15 +296,11 @@ void CvTeam::reset(TeamTypes eID, bool bConstructorCall)
 		int numUnitClassInfos = GC.getNumUnitClassInfos();
 		int numBuildingClassInfos = GC.getNumBuildingClassInfos();
 		int numBuildingInfos = GC.getNumBuildingInfos();
-#if defined(MOD_API_UNIFIED_YIELDS)
 		int numFeatureInfos = GC.getNumFeatureInfos();
 		int numDomainInfos = NUM_DOMAIN_TYPES;
-#endif
 		int numTerrainInfos = GC.getNumTerrainInfos();
 		int numImprovementInfos = GC.getNumImprovementInfos();
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 		int numTechInfos = GC.getNumTechInfos();
-#endif
 
 		//Perform batch allocation
 		AllocData aData[] =
@@ -320,9 +310,7 @@ void CvTeam::reset(TeamTypes eID, bool bConstructorCall)
 			{&m_abCanLaunch,						numVictoryInfos, 0},
 			{&m_abVictoryAchieved,					numVictoryInfos, 0},
 			{&m_abSmallAwardAchieved,				numSmallAwardInfos, 0},
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 			{&m_pabTradeTech,						numTechInfos, 0},
-#endif
 
 			{&m_paiRouteChange,						numRouteInfos, 0},
 			{&m_paiBuildTimeChange,					numBuildInfos, 0},
@@ -337,12 +325,10 @@ void CvTeam::reset(TeamTypes eID, bool bConstructorCall)
 			{&m_paiTerrainTradeCount,				numTerrainInfos, 0},
 			{&m_aiVictoryCountdown,					numVictoryInfos, 0},
 
-#if defined(MOD_API_UNIFIED_YIELDS)
 			{&m_paiTradeRouteDomainExtraRange,		numDomainInfos, 0},
 			// If adding more entries into this strucure, you also need to update CvTeamData in Cvteam.h to match
 			{&m_ppaaiFeatureYieldChange,			numFeatureInfos, NUM_YIELD_TYPES},
 			{&m_ppaaiTerrainYieldChange,			numTerrainInfos, NUM_YIELD_TYPES},
-#endif
 
 			{&m_ppaaiImprovementYieldChange,		numImprovementInfos, NUM_YIELD_TYPES},
 			{&m_ppaaiImprovementNoFreshWaterYieldChange,numImprovementInfos, NUM_YIELD_TYPES},
@@ -395,12 +381,10 @@ void CvTeam::reset(TeamTypes eID, bool bConstructorCall)
 		{
 			m_paiTerrainTradeCount[i] = 0;
 		}
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 		for(int i = 0; i < numTechInfos; i++)
 		{
 			m_pabTradeTech[i] = false;
 		}
-#endif
 
 		for(int i = 0; i < MAX_TEAMS; i++)
 		{
@@ -409,7 +393,6 @@ void CvTeam::reset(TeamTypes eID, bool bConstructorCall)
 			m_aiNumTurnsLockedIntoWar[i] = 0;
 		}
 
-#if defined(MOD_API_UNIFIED_YIELDS)
 		for (int i = 0; i < numDomainInfos; i++)
 		{
 			m_paiTradeRouteDomainExtraRange[i] = 0;
@@ -426,7 +409,6 @@ void CvTeam::reset(TeamTypes eID, bool bConstructorCall)
 				m_ppaaiTerrainYieldChange[i][j] = 0;
 			}
 		}
-#endif
 
 		for(int i = 0; i < numImprovementInfos; i++)
 		{
@@ -5767,23 +5749,8 @@ void CvTeam::enhanceBuilding(BuildingTypes eIndex, int iChange)
 						{
 							for(int k = 0; k < NUM_YIELD_TYPES; k++)
 							{
-#if !defined(MOD_API_UNIFIED_YIELDS_CONSOLIDATION)
-								if((YieldTypes)k == YIELD_CULTURE)
-								{
-									int iEnhancedYield = thisBuildingEntry->GetTechEnhancedYieldChange(k) * pLoopCity->GetCityBuildings()->GetNumBuilding(eIndex);
-									pLoopCity->ChangeJONSCulturePerTurnFromBuildings(iEnhancedYield * iChange);
-								}
-								else if((YieldTypes)k == YIELD_FAITH)
-								{
-									int iEnhancedYield = thisBuildingEntry->GetTechEnhancedYieldChange(k) * pLoopCity->GetCityBuildings()->GetNumBuilding(eIndex);
-									pLoopCity->ChangeFaithPerTurnFromBuildings(iEnhancedYield * iChange);
-								}
-								else
-#endif
-								{
-									int iEnhancedYield = thisBuildingEntry->GetTechEnhancedYieldChange(k) * pLoopCity->GetCityBuildings()->GetNumBuilding(eIndex);
-									pLoopCity->ChangeBaseYieldRateFromBuildings(((YieldTypes)k), iEnhancedYield * iChange);
-								}
+								int iEnhancedYield = thisBuildingEntry->GetTechEnhancedYieldChange(k) * pLoopCity->GetCityBuildings()->GetNumBuilding(eIndex);
+								pLoopCity->ChangeBaseYieldRateFromBuildings(((YieldTypes)k), iEnhancedYield * iChange);
 							}
 						}
 					}
@@ -7372,8 +7339,6 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 	}
 }
 
-
-#if defined(MOD_API_UNIFIED_YIELDS)
 //	--------------------------------------------------------------------------------
 int CvTeam::getFeatureYieldChange(FeatureTypes eIndex1, YieldTypes eIndex2) const
 {
@@ -7401,7 +7366,6 @@ void CvTeam::changeFeatureYieldChange(FeatureTypes eIndex1, YieldTypes eIndex2, 
 	}
 }
 
-
 //	--------------------------------------------------------------------------------
 int CvTeam::getTerrainYieldChange(TerrainTypes eIndex1, YieldTypes eIndex2) const
 {
@@ -7428,8 +7392,6 @@ void CvTeam::changeTerrainYieldChange(TerrainTypes eIndex1, YieldTypes eIndex2, 
 		updateYield();
 	}
 }
-#endif
-
 
 //	--------------------------------------------------------------------------------
 int CvTeam::getImprovementYieldChange(ImprovementTypes eIndex1, YieldTypes eIndex2) const
@@ -7933,8 +7895,7 @@ void CvTeam::processTech(TechTypes eTech, int iChange)
 			}
 		}
 	}
-	
-#if defined(MOD_API_UNIFIED_YIELDS)
+
 	for(iI = 0; iI < GC.getNumFeatureInfos(); iI++)
 	{
 		CvFeatureInfo* pFeatureEntry = GC.getFeatureInfo((FeatureTypes)iI);
@@ -7958,7 +7919,6 @@ void CvTeam::processTech(TechTypes eTech, int iChange)
 			}
 		}
 	}
-#endif
 
 	for(iI = 0; iI < GC.getNumImprovementInfos(); iI++)
 	{

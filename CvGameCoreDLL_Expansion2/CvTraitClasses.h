@@ -320,9 +320,7 @@ public:
 #if defined(MOD_TRAITS_CROSSES_ICE)
 	bool IsCrossesIce() const;
 #endif
-#if defined(MOD_TRAITS_GG_FROM_BARBARIANS)
 	bool IsGGFromBarbarians() const;
-#endif
 	bool IsMayaCalendarBonuses() const;
 	bool IsNoAnnexing() const;
 	bool IsTechFromCityConquer() const;
@@ -386,9 +384,7 @@ public:
 #endif
 	int GetMaintenanceModifierUnitCombat(const int unitCombatID) const;
 	int GetImprovementYieldChanges(ImprovementTypes eIndex1, YieldTypes eIndex2) const;
-#if defined(MOD_API_UNIFIED_YIELDS)
 	int GetPlotYieldChanges(PlotTypes eIndex1, YieldTypes eIndex2) const;
-#endif
 #if defined(MOD_BALANCE_CORE)
 	int GetYieldFromLevelUp(int i) const;
 	int GetYieldFromHistoricEvent(int i) const;
@@ -417,7 +413,6 @@ public:
 #if defined(MOD_BALANCE_CORE) && defined(MOD_TRAITS_YIELD_FROM_ROUTE_MOVEMENT_IN_FOREIGN_TERRITORY)
 	int GetYieldFromRouteMovementInForeignTerritory(YieldTypes eIndex, bool bTradePartner) const;
 #endif
-#if defined(MOD_API_UNIFIED_YIELDS)
 	int GetBuildingClassYieldChanges(BuildingClassTypes eIndex1, YieldTypes eIndex2) const;
 	int GetCapitalYieldChanges(int i) const;
 	int GetCityYieldChanges(int i) const;
@@ -437,20 +432,15 @@ public:
 	int GetYieldChangeTradeRoute(int i) const;
 	int GetYieldChangeWorldWonder(int i) const;
 	int GetTradeRouteYieldChange(DomainTypes eIndex1, YieldTypes eIndex2) const;
-#endif
 	int GetSpecialistYieldChanges(SpecialistTypes eIndex1, YieldTypes eIndex2) const;
-#if defined(MOD_API_UNIFIED_YIELDS)
 	int GetGreatPersonExpendedYield(GreatPersonTypes eIndex1, YieldTypes eIndex2) const;
 	int GetGreatPersonBornYield(GreatPersonTypes eIndex1, YieldTypes eIndex2) const;
 	int GetGoldenAgeGreatPersonRateModifier(GreatPersonTypes eIndex1) const;
 	int GetPerPuppetGreatPersonRateModifier(GreatPersonTypes eIndex1) const;
 	int GetGreatPersonCostReduction(GreatPersonTypes eIndex1) const;
 	int GetGreatPersonGWAM(GreatPersonTypes eIndex1) const;
-#if defined(MOD_BALANCE_CORE)
 	int GetGoldenAgeFromGreatPersonBirth(GreatPersonTypes eIndex1) const;
-#endif
 	int GetCityYieldFromUnimprovedFeature(FeatureTypes eIndex1, YieldTypes eIndex2) const;
-#endif
 	int GetUnimprovedFeatureYieldChanges(FeatureTypes eIndex1, YieldTypes eIndex2) const;
 	FreeResourceXCities GetFreeResourceXCities(ResourceTypes eResource) const;
 
@@ -697,9 +687,7 @@ protected:
 #if defined(MOD_TRAITS_CROSSES_ICE)
 	bool m_bCrossesIce;
 #endif
-#if defined(MOD_TRAITS_GG_FROM_BARBARIANS)
 	bool m_bGGFromBarbarians;
-#endif
 	bool m_bMayaCalendarBonuses;
 	bool m_bNoAnnexing;
 	bool m_bTechFromCityConquer;
@@ -748,9 +736,7 @@ protected:
 #endif
 	int* m_piMaintenanceModifierUnitCombats;
 	int** m_ppiImprovementYieldChanges;
-#if defined(MOD_API_UNIFIED_YIELDS)
 	int** m_ppiPlotYieldChanges;
-#endif
 #if defined(MOD_BALANCE_CORE)
 	int* m_piYieldFromLevelUp;
 	int* m_piYieldFromHistoricEvent;
@@ -785,7 +771,6 @@ protected:
 #if defined(MOD_BALANCE_CORE) && defined(MOD_TRAITS_YIELD_FROM_ROUTE_MOVEMENT_IN_FOREIGN_TERRITORY)
 	std::map<int, std::map<bool, int>> m_pbiYieldFromRouteMovementInForeignTerritory;
 #endif
-#if defined(MOD_API_UNIFIED_YIELDS)
 	int** m_ppiBuildingClassYieldChanges;
 	int* m_piCapitalYieldChanges;
 	int* m_piCityYieldChanges;
@@ -805,9 +790,7 @@ protected:
 	int* m_piYieldChangeTradeRoute;
 	int* m_piYieldChangeWorldWonder;
 	int** m_ppiTradeRouteYieldChange;
-#endif
 	int** m_ppiSpecialistYieldChanges;
-#if defined(MOD_API_UNIFIED_YIELDS)
 	int** m_ppiGreatPersonExpendedYield;
 	int** m_ppiGreatPersonBornYield;
 	int* m_piGreatPersonCostReduction;
@@ -815,10 +798,7 @@ protected:
 	int* m_piPerPuppetGreatPersonRateModifier;
 	int* m_piGreatPersonGWAM;
 	int** m_ppiCityYieldFromUnimprovedFeature;
-#if defined(MOD_BALANCE_CORE)
 	int* m_piGoldenAgeFromGreatPersonBirth;
-#endif
-#endif
 	int** m_ppiUnimprovedFeatureYieldChanges;
 
 	std::multimap<int, int> m_FreePromotionUnitCombats;
@@ -1639,12 +1619,10 @@ public:
 		return m_bCrossesIce;
 	};
 #endif
-#if defined(MOD_TRAITS_GG_FROM_BARBARIANS)
 	bool IsGGFromBarbarians() const
 	{
 		return m_bGGFromBarbarians;
 	};
-#endif
 	bool IsMayaCalendarBonuses() const
 	{
 		return m_bMayaCalendarBonuses;
@@ -1812,9 +1790,7 @@ public:
 #endif
 	int GetMaintenanceModifierUnitCombat(const int unitCombatID) const;
 	int GetImprovementYieldChange(ImprovementTypes eImprovement, YieldTypes eYield) const;
-#if defined(MOD_API_UNIFIED_YIELDS)
 	int GetPlotYieldChange(PlotTypes ePlot, YieldTypes eYield) const;
-#endif
 #if defined(MOD_BALANCE_CORE)
 	int GetYieldFromLevelUp(YieldTypes eYield) const
 	{
@@ -1920,7 +1896,6 @@ public:
 #if defined(MOD_BALANCE_CORE) && defined(MOD_TRAITS_YIELD_FROM_ROUTE_MOVEMENT_IN_FOREIGN_TERRITORY)
 	int GetYieldFromRouteMovementInForeignTerritory(YieldTypes eYield, bool bTradePartner) const;
 #endif
-#if defined(MOD_API_UNIFIED_YIELDS)
 	int GetBuildingClassYieldChange(BuildingClassTypes eBuildingClass, YieldTypes eYield) const;
 	int GetCapitalYieldChanges(YieldTypes eYield) const
 	{
@@ -1977,14 +1952,11 @@ public:
 		return m_iYieldChangeWorldWonder[(int)eYield];
 	};
 	int GetTradeRouteYieldChange(DomainTypes eDomain, YieldTypes eYield) const;
-#endif
 	int GetSpecialistYieldChange(SpecialistTypes eSpecialist, YieldTypes eYield) const;
-#if defined(MOD_API_UNIFIED_YIELDS)
 	int GetGreatPersonExpendedYield(GreatPersonTypes eGreatPerson, YieldTypes eYield) const;
 	int GetGreatPersonBornYield(GreatPersonTypes eGreatPerson, YieldTypes eYield) const;
 	
 	int GetCityYieldFromUnimprovedFeature(FeatureTypes eFeature, YieldTypes eYield) const;
-#endif
 	int GetUnimprovedFeatureYieldChange(FeatureTypes eFeature, YieldTypes eYield) const;
 	FreeResourceXCities GetFreeResourceXCities(ResourceTypes eResource) const;
 
@@ -2294,9 +2266,7 @@ private:
 #if defined(MOD_TRAITS_CROSSES_ICE)
 	bool m_bCrossesIce;
 #endif
-#if defined(MOD_TRAITS_GG_FROM_BARBARIANS)
 	bool m_bGGFromBarbarians;
-#endif
 	bool m_bMayaCalendarBonuses;
 	bool m_bNoAnnexing;
 	bool m_bTechFromCityConquer;
@@ -2368,9 +2338,7 @@ private:
 #endif
 
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppaaiImprovementYieldChange;
-#if defined(MOD_API_UNIFIED_YIELDS)
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiPlotYieldChange;
-#endif
 #if defined(MOD_BALANCE_CORE)
 	int m_iYieldFromLevelUp[NUM_YIELD_TYPES];
 	int m_iYieldFromHistoricEvent[NUM_YIELD_TYPES];
@@ -2412,7 +2380,6 @@ private:
 #if defined(MOD_BALANCE_CORE)
 	std::map<int, AlternateResourceTechs> m_aiiAlternateResourceTechs;
 #endif
-#if defined(MOD_API_UNIFIED_YIELDS)
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiBuildingClassYieldChange;
 	int m_iCityYieldChanges[NUM_YIELD_TYPES];
 	int m_iPermanentYieldChangeWLTKD[NUM_YIELD_TYPES];
@@ -2424,10 +2391,8 @@ private:
 	int m_iLitYieldChanges[NUM_YIELD_TYPES];
 	int m_iMusicYieldChanges[NUM_YIELD_TYPES];
 	int m_iSeaPlotYieldChanges[NUM_YIELD_TYPES];
-#if defined(MOD_BALANCE_CORE)
 	int m_iGAPToYield[NUM_YIELD_TYPES];
 	int m_iMountainRangeYield[NUM_YIELD_TYPES];
-#endif
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiFeatureYieldChange;
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiResourceYieldChange;
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiTerrainYieldChange;
@@ -2436,7 +2401,6 @@ private:
 	int m_iYieldChangeTradeRoute[NUM_YIELD_TYPES];
 	int m_iYieldChangeWorldWonder[NUM_YIELD_TYPES];
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiTradeRouteYieldChange;
-#endif
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppaaiSpecialistYieldChange;
 #if defined(MOD_BALANCE_CORE)
 	std::vector<int> m_aiDomainFreeExperienceModifier;
@@ -2444,7 +2408,6 @@ private:
 	std::map<int, int> m_aiGreatPersonProgressFromKills;
 	std::map<int, int> m_aiRandomGreatPersonProgressFromKills;
 #endif
-#if defined(MOD_API_UNIFIED_YIELDS)
 	std::vector<int> m_aiGreatPersonCostReduction;
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiGreatPersonExpendedYield;
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiGreatPersonBornYield;
@@ -2453,11 +2416,8 @@ private:
 	std::vector<int> m_aiGoldenAgeGreatPersonRateModifier;
 	std::vector<int> m_aiPerPuppetGreatPersonRateModifier;
 	std::vector<int> m_aiGreatPersonGWAM;
-#if defined(MOD_BALANCE_CORE)
 	std::vector<int> m_aiGoldenAgeFromGreatPersonBirth;
-#endif
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiCityYieldFromUnimprovedFeature;
-#endif
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppaaiUnimprovedFeatureYieldChange;
 
 	std::vector<FreeResourceXCities> m_aFreeResourceXCities;

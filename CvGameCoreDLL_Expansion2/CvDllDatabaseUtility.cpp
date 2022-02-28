@@ -361,11 +361,7 @@ bool CvDllDatabaseUtility::PrefetchGameData()
 	PrefetchCollection(GC.getResourceClassInfo(), "ResourceClasses");
 	PrefetchCollection(GC.getResourceInfo(), "Resources");
 	PrefetchCollection(GC.getPlotInfo(), "Plots");
-#if defined(MOD_API_UNIFIED_YIELDS)
-	if (MOD_API_UNIFIED_YIELDS) {
-		PrefetchCollection(GC.getGreatPersonInfo(), "GreatPersons");
-	}
-#endif
+	PrefetchCollection(GC.getGreatPersonInfo(), "GreatPersons");
 	PrefetchCollection(GC.getTerrainInfo(), "Terrains");
 	PrefetchCollection(GC.getYieldInfo(), "Yields");
 
@@ -477,7 +473,7 @@ bool CvDllDatabaseUtility::ValidateGameDatabase()
 						while(kResults.Step())
 						{
 							const char* szName = kResults.GetText("name");
-							if(strcmp(szTableName, szName) == 0)
+							if(strcmp("ID", szName) == 0)
 							{
 								bHasIDColumn = true;
 								break;
