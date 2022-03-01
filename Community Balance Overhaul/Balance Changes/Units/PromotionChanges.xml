@@ -4313,5 +4313,17 @@
 			<PediaType>PEDIA_MOUNTED</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_MECH</PediaEntry>
 		</Row>
+		<Row>
+			<Type>PROMOTION_MANY_GOLDEN_AGE_POINTS</Type>
+			<Description>TXT_KEY_PROMOTION_MANY_GOLDEN_AGE_POINTS</Description>
+			<Help>TXT_KEY_PROMOTION_MANY_GOLDEN_AGE_POINTS_HELP</Help>
+			<Sound>AS2D_IF_LEVELUP</Sound>
+			<PortraitIndex>2</PortraitIndex>
+			<IconAtlas>EXPANSION2_PROMOTION_ATLAS</IconAtlas>
+			<PediaType>PEDIA_ATTRIBUTES</PediaType>
+			<PediaEntry>TXT_KEY_PROMOTION_MANY_GOLDEN_AGE_POINTS</PediaEntry>
+			<CannotBeChosen>true</CannotBeChosen>
+			<GoldenAgeValueFromKills>1000</GoldenAgeValueFromKills>
+		</Row>
 	</UnitPromotions>
 </GameData>

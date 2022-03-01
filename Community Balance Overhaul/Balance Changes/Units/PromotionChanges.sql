@@ -121,10 +121,13 @@
 	DELETE FROM UnitPromotions_UnitCombats
 	WHERE UnitCombatType = 'UNITCOMBAT_FIGHTER' AND PromotionType = 'PROMOTION_AIR_AMBUSH_2';
 
-	-- Fix for Anti-Fighter
+	-- Fix for Anti-Fighter (Re-added below)
 	DELETE FROM UnitPromotions_UnitClasses
 	WHERE PromotionType = 'PROMOTION_ANTI_FIGHTER';
-	
+	-- Fix for Logistics - should NOT apply to Naval Melee (They have Blitz)
+	DELETE FROM UnitPromotions_UnitCombats
+	WHERE UnitCombatType = 'UNITCOMBAT_NAVALMELEE' AND PromotionType = 'PROMOTION_LOGISTICS';
+
 INSERT INTO UnitPromotions_YieldFromKills
 	(PromotionType, YieldType, Yield)
 VALUES

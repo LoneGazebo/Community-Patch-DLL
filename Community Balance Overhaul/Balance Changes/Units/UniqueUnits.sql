@@ -273,7 +273,10 @@ DELETE FROM Civilization_UnitClassOverrides WHERE UnitType = 'UNIT_HUN_BATTERING
 
 INSERT INTO UnitClasses (Type, Description, DefaultUnit) VALUES ('UNITCLASS_HUNNIC_BATTERING_RAM', 'TXT_KEY_UNIT_HUN_BATTERING_RAM', 'UNIT_HUN_BATTERING_RAM');
 
-UPDATE Units SET Cost = '-1', MinorCivGift = '1', Class = 'UNITCLASS_HUNNIC_BATTERING_RAM' WHERE Type = 'UNIT_HUN_BATTERING_RAM';
+UPDATE Units SET Cost = '-1', MinorCivGift = '1', Class = 'UNITCLASS_HUNNIC_BATTERING_RAM', GoodyHutUpgradeUnitClass = 'UNITCLASS_TERCIO' WHERE Type = 'UNIT_HUN_BATTERING_RAM';
+
+UPDATE Unit_ClassUpgrades SET UnitClassType = 'UNITCLASS_TERCIO';
+
 
 INSERT INTO Trait_FreePromotionUnitCombats
 	(TraitType, UnitCombatType, PromotionType)

@@ -648,6 +648,14 @@
 		<Row Tag="TXT_KEY_PROMOTION_REPEATER_HELP">
 			<Text>+25% [ICON_STRENGTH] Ranged Attack Strength when adjacent to or in a [COLOR_POSITIVE_TEXT]City[ENDCOLOR].[NEWLINE]Deals [COLOR_POSITIVE_TEXT]5 Damage[ENDCOLOR] to all Enemy Units [COLOR_POSITIVE_TEXT]adjacent to[ENDCOLOR] the targeted Unit (within [ICON_RANGE_STRENGTH] Range).</Text>
 		</Row>
+
+		<!-- New Pracinha Promotion (A whole bunch of golden age points from kills) -->
+		<Row Tag="TXT_KEY_PROMOTION_MANY_GOLDEN_AGE_POINTS">
+			<Text>Pride of the Nation</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_MANY_GOLDEN_AGE_POINTS_HELP">
+			<Text>Gain a great deal of [ICON_GOLDEN_AGE] Golden Age Points for each enemy killed.</Text>
+		</Row>
 		
 		<!-- New Tier 4 Promotions -->
 		<Row Tag="TXT_KEY_PROMOTION_SHOCK_4">

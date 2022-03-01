@@ -548,7 +548,7 @@ SET Text = 'The Battering Ram can only be gifted by Minor Civilizations.'
 WHERE Tag = 'TXT_KEY_UNIT_HELP_HUN_BATTERING_RAM';
 
 UPDATE Language_en_US
-SET Text = 'After defenders have been cleared away, use Battering Rams to quickly move to an enemy city and knock down its defenses with melee attacks. With a malus to defense, they are more vulnerable to melee attacks than their combat strength would suggest. Battering Rams gain melee unit promotions, so make sure to give them Drill, and City Assault if possible, before upgrading to Trebuchets.'
+SET Text = 'After defenders have been cleared away, use Battering Rams to quickly move to an enemy city and knock down its defenses with melee attacks. Battering Rams exist for a long time and become increasingly vulnerable to the units of newer eras, so keep that in mind when choosing new promotions for it.'
 WHERE Tag = 'TXT_KEY_UNIT_HUN_BATTERING_RAM_STRATEGY';
 
 UPDATE Language_en_US
@@ -721,7 +721,7 @@ SET Text = 'The Turtle Ship can only be gifted by Minor Civilizations.'
 WHERE Tag = 'TXT_KEY_CIV5_KOREA_TURTLESHIP_HELP';
 
 UPDATE Language_en_US
-SET Text = 'The Turtle Ship has a more powerful attack than the Caravel, and is extremely difficult to destroy.  However it may not enter deep ocean hexes outside of the city borders.'
+SET Text = 'The Turtle Ship has a more powerful attack than the Caravel, and is extremely difficult to destroy due to its Indomitable promotion.  However, it may not enter deep ocean hexes outside of the city borders.'
 WHERE Tag = 'TXT_KEY_CIV5_KOREA_TURTLESHIP_STRATEGY';
 
 --------------------
@@ -960,7 +960,7 @@ SET Text = 'The Ballista can only be gifted by Minor Civilizations.'
 WHERE Tag = 'TXT_KEY_UNIT_HELP_BALLISTA';
 
 UPDATE Language_en_US
-SET Text = ' The Ballista is an excellent siege weapon. It is extremely useful against cities, but it is quite vulnerable to attack. Be sure to protect the Ballista with other military units. Moves at half speed in enemy territory.'
+SET Text = ' The Ballista is an excellent siege weapon. While still very useful against cities, its lack of penalties against land units and free Field I promotion gives it an extra punch against other units. The Ballista is still quite vulnerable to attack, so be sure to protect it with other military units. Moves at half speed in enemy territory, but has normal sight range.'
 WHERE Tag = 'TXT_KEY_UNIT_ROMAN_BALLISTA_STRATEGY';
 
 UPDATE Language_en_US
@@ -1133,7 +1133,7 @@ SET Text = 'The Great Galleass can only be gifted by Minor Civilizations.'
 WHERE Tag = 'TXT_KEY_UNIT_HELP_VENETIAN_GALLEASS';
 
 UPDATE Language_en_US
-SET Text = 'Has a stronger ranged attack, and is more resilient in battle.'
+SET Text = 'The Great Galleass performs similarly to the Galleass, but is more resilient in battle and has a stronger ranged attack. Starts with the Bombardment I Promotion.'
 WHERE Tag = 'TXT_KEY_UNIT_VENETIAN_GALLEASS_STRATEGY';
 
 UPDATE Language_en_US
