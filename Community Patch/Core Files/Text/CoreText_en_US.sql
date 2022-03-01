@@ -1528,9 +1528,35 @@ SET Text = 'So, is that how it is, then? Very well. I shall not forget this.'
 WHERE Tag = 'TXT_KEY_RESPONSE_TO_BEING_DENOUNCED_1';
 
 
+-- AI denounces human
+UPDATE Language_en_US
+SET Text = 'It''s time I told the world of your sins.[NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us![ENDCOLOR])'
+WHERE Tag = 'TXT_KEY_DENOUNCE_1';
+
+UPDATE Language_en_US
+SET Text = 'I''ve spoken to the other leaders about you. They need to know you are not to be trusted.[NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us![ENDCOLOR])'
+WHERE Tag = 'TXT_KEY_DENOUNCE_2';
+
+UPDATE Language_en_US
+SET Text = 'Just so you''re aware, the other leaders have now heard the grim truth about you.[NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us![ENDCOLOR])'
+WHERE Tag = 'TXT_KEY_DENOUNCE_3';
+
+UPDATE Language_en_US
+SET Text = 'I''ve had enough of you. I''ve told the other leaders of the world that working with you is a mistake.[NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us![ENDCOLOR])'
+WHERE Tag = 'TXT_KEY_DENOUNCING_FRIEND_1';
+
+UPDATE Language_en_US
+SET Text = 'Alright, enough is enough. Informing everyone else of your ill deeds is long overdue.[NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us![ENDCOLOR])'
+WHERE Tag = 'TXT_KEY_DENOUNCING_FRIEND_2';
+
+
 -- Human Refuses Request to Denounce Third Party (Not Forgiven)
 UPDATE Language_en_US
-SET Text = 'So that is the kind of ally you are, then? The rest of the world''s leaders will hear of your betrayal.[NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us! NOTE: You are not at war.[ENDCOLOR])'
+SET Text = 'Pathetic. So you now show your true colors. The world will know of your dishonor.[NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us![ENDCOLOR])'
+WHERE Tag = 'TXT_KEY_DOF_NOT_HONORED_1';
+
+UPDATE Language_en_US
+SET Text = 'So that is the kind of ally you are, then? The rest of the world''s leaders will hear of your betrayal.[NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us![ENDCOLOR])'
 WHERE Tag = 'TXT_KEY_DOF_NOT_HONORED_2';
 
 

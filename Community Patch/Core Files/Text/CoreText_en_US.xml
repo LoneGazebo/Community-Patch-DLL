@@ -3593,14 +3593,6 @@
 		<Row Tag="TXT_KEY_NOTIFICATION_MINOR_BULLIED_BY_SOMEONE">
 			<Text>Our diplomats report that {2_Civ} recently bullied {1_CS}!</Text>
 		</Row>
-
-		<!-- DENOUNCEMENT: Post-denouncement notes are now separate text keys, for compatibility with the ability to denounce while at war (and to save on memory) -->
-		<!-- Row Tag="TXT_KEY_DENOUNCED_US_NOT_AT_WAR"> -->
-			<!-- <Text>[NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us! NOTE: You are not at war.[ENDCOLOR])</Text> -->
-		<!-- </Row> -->
-		<!-- <Row Tag="TXT_KEY_DENOUNCED_US_AT_WAR"> -->
-			<!-- <Text>[NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us![ENDCOLOR])</Text> -->
-		<!-- </Row> -->
 		
 		<!-- ADDITIONS TO EXISTING DIPLOMACY TEXTS -->
 		<Row Tag="TXT_KEY_HOSTILE_WE_ATTACKED_YOUR_MINOR_3">
@@ -4149,16 +4141,16 @@
 			<Text>I have decided that my conflicts with {1_CivName} must be solved through war. As one of my oldest allies, can I count on you to join me? (WILL DECLARE WAR IMMEDIATELY)</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DOF_NOT_HONORED_3">
-			<Text>You have proven to be an unworthy and traitorous coward. [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us! NOTE: You are not at war.[ENDCOLOR])</Text>
+			<Text>You have proven to be an unworthy and traitorous coward. [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us![ENDCOLOR])</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DOF_NOT_HONORED_4">
-			<Text>Of all the people to betray me, I did not think it would be you. [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us! NOTE: You are not at war.[ENDCOLOR])</Text>
+			<Text>Of all the people to betray me, I did not think it would be you. [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us![ENDCOLOR])</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DENOUNCING_FRIEND_3">
-			<Text>I tried to overlook your misdeeds, but I can do so no longer. You are a tyrant, and tyrants must be admonished.[NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us! NOTE: You are not at war.[ENDCOLOR])</Text>
+			<Text>I tried to overlook your misdeeds, but I can do so no longer. You are a tyrant, and tyrants must be admonished.[NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us![ENDCOLOR])</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DENOUNCING_FRIEND_4">
-			<Text>There is no point in hiding it any longer: I used to like you, but now I hate you.[NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us! NOTE: You are not at war.[ENDCOLOR])</Text>
+			<Text>There is no point in hiding it any longer: I used to like you, but now I hate you.[NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us![ENDCOLOR])</Text>
 		</Row>
 		<Row Tag="TXT_KEY_RESPONSE_TO_BEING_DENOUNCED_5">
 			<Text>Your cruel words have no power here. Begone!</Text>
@@ -4412,25 +4404,25 @@
 			<Text>A Declaration of Friendship would be of great benefit to both of us. Come, let us show the other empires of the world what 'civilization' truly means.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DENOUNCE_4">
-			<Text>You are an awful person, did you know that?[NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us! NOTE: You are not at war.[ENDCOLOR])</Text>
+			<Text>You are an awful person, did you know that?[NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us![ENDCOLOR])</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DENOUNCE_5">
-			<Text>There can be no peace in the world, so long as you exist.[NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us! NOTE: You are not at war.[ENDCOLOR])</Text>
+			<Text>There can be no peace in the world, so long as you exist.[NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us![ENDCOLOR])</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DENOUNCE_6">
-			<Text>Why must you behave like such an imbecile?[NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us! NOTE: You are not at war.[ENDCOLOR])</Text>
+			<Text>Why must you behave like such an imbecile?[NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us![ENDCOLOR])</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DENOUNCE_7">
-			<Text>There are only a few words that describe you, and they aren't very nice.[NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us! NOTE: You are not at war.[ENDCOLOR])</Text>
+			<Text>There are only a few words that describe you, and they aren't very nice.[NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us![ENDCOLOR])</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DENOUNCE_8">
-			<Text>I cannot bite my tongue any longer. You are a tyrant.[NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us! NOTE: You are not at war.[ENDCOLOR])</Text>
+			<Text>I cannot bite my tongue any longer. You are a tyrant.[NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us![ENDCOLOR])</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DENOUNCE_9">
-			<Text>I hope death comes swiftly for you, knave.[NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us! NOTE: You are not at war.[ENDCOLOR])</Text>
+			<Text>I hope death comes swiftly for you, knave.[NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us![ENDCOLOR])</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DENOUNCE_10">
-			<Text>Don't take this personally, but...wait, no, take this personally: you are terrible.[NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us! NOTE: You are not at war.[ENDCOLOR])</Text>
+			<Text>Don't take this personally, but...wait, no, take this personally: you are terrible.[NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us![ENDCOLOR])</Text>
 		</Row>
 		<Row Tag="TXT_KEY_COOP_WAR_REQUEST_4">
 			<Text>The time for war against {1_PlayerName:textkey} is nigh. Shall we combine our arms and strike down this villain?</Text>
@@ -5619,154 +5611,154 @@
 
 		<!-- Denounce Statements -->
 		<Row Tag="TXT_KEY_RESPONSE_DENOUNCE_WARMONGER_1">
-			<Text>I have stood by long enough while your armies lay waste to this world. I can only hope this denouncement will finally put a stop to your ambitions. [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us! NOTE: You are not at war.[ENDCOLOR])</Text>
+			<Text>I have stood by long enough while your armies lay waste to this world. I can only hope this denouncement will finally put a stop to your ambitions. [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us![ENDCOLOR])</Text>
 		</Row>
 		<Row Tag="TXT_KEY_RESPONSE_DENOUNCE_WARMONGER_2">
-			<Text>Your thirst for blood is an abomination, tyrant. As long as I have breath, the entire world will know of the cruelty you have inflicted upon it. [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us! NOTE: You are not at war.[ENDCOLOR])</Text>
+			<Text>Your thirst for blood is an abomination, tyrant. As long as I have breath, the entire world will know of the cruelty you have inflicted upon it. [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us![ENDCOLOR])</Text>
 		</Row>
 		<Row Tag="TXT_KEY_RESPONSE_DENOUNCE_IDEOLOGY_1">
-			<Text>Surely, even you must understand that there is only one path for this world's future. And you are travelling down the wrong one. [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us! NOTE: You are not at war.[ENDCOLOR])</Text>
+			<Text>Surely, even you must understand that there is only one path for this world's future. And you are travelling down the wrong one. [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us![ENDCOLOR])</Text>
 		</Row>
 		<Row Tag="TXT_KEY_RESPONSE_DENOUNCE_IDEOLOGY_2">
-			<Text>You have betrayed not only me, but also your own people, by accepting this ideology. Listen to us both before your actions lead to even worse conflicts. [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us! NOTE: You are not at war.[ENDCOLOR])</Text>
+			<Text>You have betrayed not only me, but also your own people, by accepting this ideology. Listen to us both before your actions lead to even worse conflicts. [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us![ENDCOLOR])</Text>
 		</Row>
 		<Row Tag="TXT_KEY_RESPONSE_DENOUNCE_BELIEVES_FREEDOM_1">
-			<Text>Even from this far, I hear your people calling out for liberty and justice! If you will not heed their words, these may be the last ones we speak in peace. [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us! NOTE: You are not at war.[ENDCOLOR])</Text>
+			<Text>Even from this far, I hear your people calling out for liberty and justice! If you will not heed their words, these may be the last ones we speak in peace. [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us![ENDCOLOR])</Text>
 		</Row>
 		<Row Tag="TXT_KEY_RESPONSE_DENOUNCE_BELIEVES_FREEDOM_2">
-			<Text>Democracy, a free press, and a free market are the rights of all people. Our nation shall no longer watch while you continue to trample on the hearts of your citizens! [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us! NOTE: You are not at war.[ENDCOLOR])</Text>
+			<Text>Democracy, a free press, and a free market are the rights of all people. Our nation shall no longer watch while you continue to trample on the hearts of your citizens! [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us![ENDCOLOR])</Text>
 		</Row>
 		<Row Tag="TXT_KEY_RESPONSE_DENOUNCE_BELIEVES_ORDER_1">
-			<Text>Your people's voices call out for economic justice and social equality. As long as you deny the righteous path of Order, we will never be able to see eye to eye. [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us! NOTE: You are not at war.[ENDCOLOR])</Text>
+			<Text>Your people's voices call out for economic justice and social equality. As long as you deny the righteous path of Order, we will never be able to see eye to eye. [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us![ENDCOLOR])</Text>
 		</Row>
 		<Row Tag="TXT_KEY_RESPONSE_DENOUNCE_BELIEVES_ORDER_2">
-			<Text>Why do you continue to deny the rights of your workers to live without the evils of hunger and poverty? If it takes this denouncement to end their suffering, so be it. [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us! NOTE: You are not at war.[ENDCOLOR])</Text>
+			<Text>Why do you continue to deny the rights of your workers to live without the evils of hunger and poverty? If it takes this denouncement to end their suffering, so be it. [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us![ENDCOLOR])</Text>
 		</Row>
 		<Row Tag="TXT_KEY_RESPONSE_DENOUNCE_BELIEVES_AUTOCRACY_1">
-			<Text>Without a strong leader to guide them, your nation stands on the edge of a knife. It is not too late to accept the path of security and stability - do not force my hand. [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us! NOTE: You are not at war.[ENDCOLOR])</Text>
+			<Text>Without a strong leader to guide them, your nation stands on the edge of a knife. It is not too late to accept the path of security and stability - do not force my hand. [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us![ENDCOLOR])</Text>
 		</Row>
 		<Row Tag="TXT_KEY_RESPONSE_DENOUNCE_BELIEVES_AUTOCRACY_2">
-			<Text>Your choices have made it clear that only one nation has the strength to lead this world to prosperity: mine. Join me or suffer the consequences. [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us! NOTE: You are not at war.[ENDCOLOR])</Text>
+			<Text>Your choices have made it clear that only one nation has the strength to lead this world to prosperity: mine. Join me or suffer the consequences. [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us![ENDCOLOR])</Text>
 		</Row>
 		<Row Tag="TXT_KEY_RESPONSE_DENOUNCE_HUMAN_BELIEVES_FREEDOM_1">
-			<Text>The greed and ambition of your people will only destroy them in the end. Allow your people to throw off the yoke of Freedom, and stop spreading your lies before it is too late. [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us! NOTE: You are not at war.[ENDCOLOR])</Text>
+			<Text>The greed and ambition of your people will only destroy them in the end. Allow your people to throw off the yoke of Freedom, and stop spreading your lies before it is too late. [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us![ENDCOLOR])</Text>
 		</Row>
 		<Row Tag="TXT_KEY_RESPONSE_DENOUNCE_HUMAN_BELIEVES_FREEDOM_2">
-			<Text>Your imperialist aggression has grown tiresome. Cease trying to convince my people to follow the path of Freedom before I am forced to take drastic action. [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us! NOTE: You are not at war.[ENDCOLOR])</Text>
+			<Text>Your imperialist aggression has grown tiresome. Cease trying to convince my people to follow the path of Freedom before I am forced to take drastic action. [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us![ENDCOLOR])</Text>
 		</Row>
 		<Row Tag="TXT_KEY_RESPONSE_DENOUNCE_HUMAN_BELIEVES_ORDER_1">
-			<Text>I know that you are trying to cause a worker's revolution in my lands. For my nation's stability and yours, cease this evangelizing of Order at once. [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us! NOTE: You are not at war.[ENDCOLOR])</Text>
+			<Text>I know that you are trying to cause a worker's revolution in my lands. For my nation's stability and yours, cease this evangelizing of Order at once. [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us![ENDCOLOR])</Text>
 		</Row>
 		<Row Tag="TXT_KEY_RESPONSE_DENOUNCE_HUMAN_BELIEVES_ORDER_2">
-			<Text>Keep your radical Order beliefs away from my people's ears before I show you what 'better dead than red' really means. [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us! NOTE: You are not at war.[ENDCOLOR])</Text>
+			<Text>Keep your radical Order beliefs away from my people's ears before I show you what 'better dead than red' really means. [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us![ENDCOLOR])</Text>
 		</Row>
 		<Row Tag="TXT_KEY_RESPONSE_DENOUNCE_HUMAN_BELIEVES_AUTOCRACY_1" >
-			<Text>Your supposed military might is not enough to hide the cruelty you inflict upon your own people from the world. Cease your tyranny before we are forced to declare war against you! [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us! NOTE: You are not at war.[ENDCOLOR])</Text>
+			<Text>Your supposed military might is not enough to hide the cruelty you inflict upon your own people from the world. Cease your tyranny before we are forced to declare war against you! [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us![ENDCOLOR])</Text>
 		</Row>
 		<Row Tag="TXT_KEY_RESPONSE_DENOUNCE_HUMAN_BELIEVES_AUTOCRACY_2" >
-			<Text>Other nations may hesitate in fear of you, but for the sake of this world, ours shall be the one to take a stand. Renounce your belief in Autocracy before it is too late! [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us! NOTE: You are not at war.[ENDCOLOR])</Text>
+			<Text>Other nations may hesitate in fear of you, but for the sake of this world, ours shall be the one to take a stand. Renounce your belief in Autocracy before it is too late! [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us![ENDCOLOR])</Text>
 		</Row>
 		<Row Tag="TXT_KEY_RESPONSE_DENOUNCE_FAITH_1">
-			<Text>Your people's sacrilegious beliefs are a plague upon this land. I wished this day would not come, but if your people will not see the light, then we are fated to be enemies. [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us! NOTE: You are not at war.[ENDCOLOR])</Text>
+			<Text>Your people's sacrilegious beliefs are a plague upon this land. I wished this day would not come, but if your people will not see the light, then we are fated to be enemies. [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us![ENDCOLOR])</Text>
 		</Row>
 		<Row Tag="TXT_KEY_RESPONSE_DENOUNCE_FAITH_2">
-			<Text>That I have allowed your heathen faith to spread this far fills me with disgust. Any nation that willingly believes in such falsehoods can never be trusted. [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us! NOTE: You are not at war.[ENDCOLOR])</Text>
+			<Text>That I have allowed your heathen faith to spread this far fills me with disgust. Any nation that willingly believes in such falsehoods can never be trusted. [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us![ENDCOLOR])</Text>
 		</Row>
 		<Row Tag="TXT_KEY_RESPONSE_DENOUNCE_MINORS_1">
-			<Text>I have made it clear that those City-States you have been rubbing shoulders with are mine, not yours. You may make alliances with them, but you shall never have one with me. [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us! NOTE: You are not at war.[ENDCOLOR])</Text>
+			<Text>I have made it clear that those City-States you have been rubbing shoulders with are mine, not yours. You may make alliances with them, but you shall never have one with me. [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us![ENDCOLOR])</Text>
 		</Row>
 		<Row Tag="TXT_KEY_RESPONSE_DENOUNCE_MINORS_2">
-			<Text>If you think it is diplomacy to steal my allied City-States, you are sorely mistaken. For every alliance you have wrested from me, I will ensure you have made another enemy in return. [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us! NOTE: You are not at war.[ENDCOLOR])</Text>
+			<Text>If you think it is diplomacy to steal my allied City-States, you are sorely mistaken. For every alliance you have wrested from me, I will ensure you have made another enemy in return. [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us![ENDCOLOR])</Text>
 		</Row>
 		<Row Tag="TXT_KEY_RESPONSE_DENOUNCE_WONDERS_1">
-			<Text>So many years spent planning and building those Wonders... how could someone like you have built them first? Have you stolen secrets from me?! The world will know of this treachery! [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us! NOTE: You are not at war.[ENDCOLOR])</Text>
+			<Text>So many years spent planning and building those Wonders... how could someone like you have built them first? Have you stolen secrets from me?! The world will know of this treachery! [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us![ENDCOLOR])</Text>
 		</Row>
 		<Row Tag="TXT_KEY_RESPONSE_DENOUNCE_WONDERS_2">
-			<Text>Those are some incredible Wonders you've built. It would be such a shame if something were to... happen to them. [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us! NOTE: You are not at war.[ENDCOLOR])</Text>
+			<Text>Those are some incredible Wonders you've built. It would be such a shame if something were to... happen to them. [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us![ENDCOLOR])</Text>
 		</Row>
 		<Row Tag="TXT_KEY_RESPONSE_DENOUNCE_VICTORY_DISPUTE_1">
-			<Text>Do we not seek the same ends? It seems like such a shame that we cannot see past our differences and work together for the betterment of the world. [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us! NOTE: You are not at war.[ENDCOLOR])</Text>
+			<Text>Do we not seek the same ends? It seems like such a shame that we cannot see past our differences and work together for the betterment of the world. [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us![ENDCOLOR])</Text>
 		</Row>
 		<Row Tag="TXT_KEY_RESPONSE_DENOUNCE_VICTORY_DISPUTE_2">
-			<Text>You and I both know who is destined to win this competition. For the sake of both of our peoples, give up before this esclates into further conflict. [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us! NOTE: You are not at war.[ENDCOLOR])</Text>
+			<Text>You and I both know who is destined to win this competition. For the sake of both of our peoples, give up before this esclates into further conflict. [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us![ENDCOLOR])</Text>
 		</Row>
 		<Row Tag="TXT_KEY_RESPONSE_DENOUNCE_VICTORY_BLOCK_1">
-			<Text>You are coming too close to victory for comfort. I have spoken to the other leaders and we agree that the time has come to take a stand against you. [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us! NOTE: You are not at war.[ENDCOLOR])</Text>
+			<Text>You are coming too close to victory for comfort. I have spoken to the other leaders and we agree that the time has come to take a stand against you. [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us![ENDCOLOR])</Text>
 		</Row>
 		<Row Tag="TXT_KEY_RESPONSE_DENOUNCE_VICTORY_BLOCK_2">
-			<Text>Allowing you to take control of the world would be a grave mistake. The time has come to put an end to your ambitions - at any cost. [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us! NOTE: You are not at war.[ENDCOLOR])</Text>
+			<Text>Allowing you to take control of the world would be a grave mistake. The time has come to put an end to your ambitions - at any cost. [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us![ENDCOLOR])</Text>
 		</Row>
 		<Row Tag="TXT_KEY_RESPONSE_DENOUNCE_NUKE_1">
-			<Text>Those weapons of war you have used are an abomination to humanity. Anyone willing to commit such atrocities against innocent civilians is clearly beyond redemption. [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us! NOTE: You are not at war.[ENDCOLOR])</Text>
+			<Text>Those weapons of war you have used are an abomination to humanity. Anyone willing to commit such atrocities against innocent civilians is clearly beyond redemption. [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us![ENDCOLOR])</Text>
 		</Row>
 		<Row Tag="TXT_KEY_RESPONSE_DENOUNCE_NUKE_2">
-			<Text>Nothing I can say or do will make up for the horror of your crimes. I can only hope that this denouncement will discourage other leaders from ever using such awful weapons again. [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us! NOTE: You are not at war.[ENDCOLOR])</Text>
+			<Text>Nothing I can say or do will make up for the horror of your crimes. I can only hope that this denouncement will discourage other leaders from ever using such awful weapons again. [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us![ENDCOLOR])</Text>
 		</Row>
 		<Row Tag="TXT_KEY_RESPONSE_DENOUNCE_SPIES_1">
-			<Text>Your attempts to steal my technological secrets can no longer be tolerated. I have spoken to the other leaders about your attempted espionage and they will be prepared in the future. [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us! NOTE: You are not at war.[ENDCOLOR])</Text>
+			<Text>Your attempts to steal my technological secrets can no longer be tolerated. I have spoken to the other leaders about your attempted espionage and they will be prepared in the future. [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us![ENDCOLOR])</Text>
 		</Row>
 		<Row Tag="TXT_KEY_RESPONSE_DENOUNCE_SPIES_2">
-			<Text>I have always believed in transparency and honesty, but it is clear that you do not. If you prefer to work in the dark, then it is up to me to shed a light on your deeds. [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us! NOTE: You are not at war.[ENDCOLOR])</Text>
+			<Text>I have always believed in transparency and honesty, but it is clear that you do not. If you prefer to work in the dark, then it is up to me to shed a light on your deeds. [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us![ENDCOLOR])</Text>
 		</Row>
 		<Row Tag="TXT_KEY_RESPONSE_DENOUNCE_DOGPILE_1">
-			<Text>Other leaders have told me you aren't to be trusted. I may not know all the details, but I believe them more than I believe you. [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us! NOTE: You are not at war.[ENDCOLOR])</Text>
+			<Text>Other leaders have told me you aren't to be trusted. I may not know all the details, but I believe them more than I believe you. [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us![ENDCOLOR])</Text>
 		</Row>
 		<Row Tag="TXT_KEY_RESPONSE_DENOUNCE_DOGPILE_2">
-			<Text>Whatever you have done to invoke the wrath of the other leaders, I am confident that you deserve it. May our denouncements serve as a lesson to you. [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us! NOTE: You are not at war.[ENDCOLOR])</Text>
+			<Text>Whatever you have done to invoke the wrath of the other leaders, I am confident that you deserve it. May our denouncements serve as a lesson to you. [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us![ENDCOLOR])</Text>
 		</Row>
 		<Row Tag="TXT_KEY_RESPONSE_DENOUNCE_ENEMY_FRIENDSHIP_1">
-			<Text>I warned you that declaring your allegiance with my enemy would be a mistake. Now face the consequences of your actions! [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us! NOTE: You are not at war.[ENDCOLOR])</Text>
+			<Text>I warned you that declaring your allegiance with my enemy would be a mistake. Now face the consequences of your actions! [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us![ENDCOLOR])</Text>
 		</Row>
 		<Row Tag="TXT_KEY_RESPONSE_DENOUNCE_ENEMY_FRIENDSHIP_2">
-			<Text>The Declaration of Friendship you have made with my enemy is a betrayal I cannot accept. Your people are no longer welcome in my court. [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us! NOTE: You are not at war.[ENDCOLOR])</Text>
+			<Text>The Declaration of Friendship you have made with my enemy is a betrayal I cannot accept. Your people are no longer welcome in my court. [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us![ENDCOLOR])</Text>
 		</Row>
 		<Row Tag="TXT_KEY_RESPONSE_DENOUNCE_PROMISE_BROKEN_1">
-			<Text>The only thing worse than a tyrant is a scheming one. If you are incapable of speaking the truth, then I will have to do it for you. [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us! NOTE: You are not at war.[ENDCOLOR])</Text>
+			<Text>The only thing worse than a tyrant is a scheming one. If you are incapable of speaking the truth, then I will have to do it for you. [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us![ENDCOLOR])</Text>
 		</Row>
 		<Row Tag="TXT_KEY_RESPONSE_DENOUNCE_PROMISE_BROKEN_2">
-			<Text>Your behavior is beyond despicable. May this denouncement teach you that dishonesty and avarice are poor examples of foreign policy. [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us! NOTE: You are not at war.[ENDCOLOR])</Text>
+			<Text>Your behavior is beyond despicable. May this denouncement teach you that dishonesty and avarice are poor examples of foreign policy. [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us![ENDCOLOR])</Text>
 		</Row>
 		<Row Tag="TXT_KEY_RESPONSE_DENOUNCE_PROMISE_BROKEN_3">
-			<Text>You have proven to be a danger to my people, and you must be admonished for this. [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us! NOTE: You are not at war.[ENDCOLOR])</Text>
+			<Text>You have proven to be a danger to my people, and you must be admonished for this. [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us![ENDCOLOR])</Text>
 		</Row>
 		<Row Tag="TXT_KEY_RESPONSE_DENOUNCE_PROMISE_BROKEN_4">
-			<Text>Of all the people to be deemed unfit for this world, I did not think it would be you. Too bad. [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us! NOTE: You are not at war.[ENDCOLOR])</Text>
+			<Text>Of all the people to be deemed unfit for this world, I did not think it would be you. Too bad. [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us![ENDCOLOR])</Text>
 		</Row>
 		<Row Tag="TXT_KEY_RESPONSE_DENOUNCE_PROMISE_BROKEN_5">
-			<Text>I tried to overlook your actions, but I can do so no longer. You are a tyrant, and tyrants must be admonished.[NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us! NOTE: You are not at war.[ENDCOLOR])</Text>
+			<Text>I tried to overlook your actions, but I can do so no longer. You are a tyrant, and tyrants must be admonished.[NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us![ENDCOLOR])</Text>
 		</Row>
 		<Row Tag="TXT_KEY_RESPONSE_DENOUNCE_PROMISE_BROKEN_6">
-			<Text>There is no point in hiding it any longer: I used to like you, but now I hate you.[NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us! NOTE: You are not at war.[ENDCOLOR])</Text>
+			<Text>There is no point in hiding it any longer: I used to like you, but now I hate you.[NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us![ENDCOLOR])</Text>
 		</Row>
 		<Row Tag="TXT_KEY_RESPONSE_DENOUNCE_BETRAYAL_1">
-			<Text>You have proven beyond doubt that your friendships mean nothing. Spare us your prattering - there will be no more words between us. [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us! NOTE: You are not at war.[ENDCOLOR])</Text>
+			<Text>You have proven beyond doubt that your friendships mean nothing. Spare us your prattering - there will be no more words between us. [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us![ENDCOLOR])</Text>
 		</Row>
 		<Row Tag="TXT_KEY_RESPONSE_DENOUNCE_BETRAYAL_2">
-			<Text>Unlike you, I am honest about who my friends and enemies are. For instance: you have just made yourself my enemy. Never return to this court again. [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us! NOTE: You are not at war.[ENDCOLOR])</Text>
+			<Text>Unlike you, I am honest about who my friends and enemies are. For instance: you have just made yourself my enemy. Never return to this court again. [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us![ENDCOLOR])</Text>
 		</Row>
 		<Row Tag="TXT_KEY_RESPONSE_DENOUNCE_BETRAYAL_3">
-			<Text>The genocide you have committed against my people can never be forgiven. All the world shall know the horrors of what you have done. [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us! NOTE: You are not at war.[ENDCOLOR])</Text>
+			<Text>The genocide you have committed against my people can never be forgiven. All the world shall know the horrors of what you have done. [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us![ENDCOLOR])</Text>
 		</Row>
 		<Row Tag="TXT_KEY_RESPONSE_DENOUNCE_BETRAYAL_4">
-			<Text>Do you even stop to think of the innocents you killed? My people will not be able to rest until their families and loved ones are avenged... and neither will I. [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us! NOTE: You are not at war.[ENDCOLOR])</Text>
+			<Text>Do you even stop to think of the innocents you killed? My people will not be able to rest until their families and loved ones are avenged... and neither will I. [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us![ENDCOLOR])</Text>
 		</Row>
 		<Row Tag="TXT_KEY_RESPONSE_DENOUNCE_COVET_1">
-			<Text>I have made it clear that those lands you have taken are rightfully mine. If we cannot settle these land disputes diplomatically, pray we don't have to settle them on the battlefield. [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us! NOTE: You are not at war.[ENDCOLOR])</Text>
+			<Text>I have made it clear that those lands you have taken are rightfully mine. If we cannot settle these land disputes diplomatically, pray we don't have to settle them on the battlefield. [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us![ENDCOLOR])</Text>
 		</Row>
 		<Row Tag="TXT_KEY_RESPONSE_DENOUNCE_COVET_2">
-			<Text>You can call it 'coveting' your lands if you wish. But as far as I am concerned, I cannot covet what you have stolen from me. I believe the other leaders will see it the same way. [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us! NOTE: You are not at war.[ENDCOLOR])</Text>
+			<Text>You can call it 'coveting' your lands if you wish. But as far as I am concerned, I cannot covet what you have stolen from me. I believe the other leaders will see it the same way. [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us![ENDCOLOR])</Text>
 		</Row>
 		<Row Tag="TXT_KEY_RESPONSE_DENOUNCE_ARTIFACTS_1">
-			<Text>Your disrespect for our borders and cultural artifacts has reached a breaking point. From now on, neither your archaeologists nor your diplomats will be welcome here. [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us! NOTE: You are not at war.[ENDCOLOR])</Text>
+			<Text>Your disrespect for our borders and cultural artifacts has reached a breaking point. From now on, neither your archaeologists nor your diplomats will be welcome here. [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us![ENDCOLOR])</Text>
 		</Row>
 		<Row Tag="TXT_KEY_RESPONSE_DENOUNCE_ARTIFACTS_2">
-			<Text>The cultural artifacts of my people are not yours for the taking. The other leaders will soon know of your brazen theft. [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us! NOTE: You are not at war.[ENDCOLOR])</Text>
+			<Text>The cultural artifacts of my people are not yours for the taking. The other leaders will soon know of your brazen theft. [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us![ENDCOLOR])</Text>
 		</Row>
 		<Row Tag="TXT_KEY_RESPONSE_DENOUNCE_MINORS_BULLY_1">
-			<Text>You are a vicious bully and I have had enough of you preying on the weak. Face me, coward, if you have the guts to stand against someone your own size. [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us! NOTE: You are not at war.[ENDCOLOR])</Text>
+			<Text>You are a vicious bully and I have had enough of you preying on the weak. Face me, coward, if you have the guts to stand against someone your own size. [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us![ENDCOLOR])</Text>
 		</Row>
 		<Row Tag="TXT_KEY_RESPONSE_DENOUNCE_MINORS_BULLY_2">
-			<Text>I have appointed myself the protector of those City-States and yet you continue to torment and oppress them. I have informed the other leaders of your cowardice - do not invoke my wrath further. [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us! NOTE: You are not at war.[ENDCOLOR])</Text>
+			<Text>I have appointed myself the protector of those City-States and yet you continue to torment and oppress them. I have informed the other leaders of your cowardice - do not invoke my wrath further. [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us![ENDCOLOR])</Text>
 		</Row>
 		<Row Tag="TXT_KEY_RESPONSE_STRATEGIC_TRADE_REQUEST_1">
 			<Text>You possess a Strategic Resource that my empire could make use of. Shall we trade?</Text>
