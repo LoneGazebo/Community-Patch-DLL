@@ -26,10 +26,6 @@
 			<Key>ERA_INDUSTRIAL</Key>
 			<Table>Eras</Table>
 		</Row>
-		<Row Name="PROMOTION_DEFENSIVE_DEEPWATER_EMBARKATION">
-			<Key>EmbarkedDeepWater</Key>
-			<Table>UnitPromotions</Table>
-		</Row>
 	</PostDefines>
 	<Natural_Wonder_Placement>
 		<Update>

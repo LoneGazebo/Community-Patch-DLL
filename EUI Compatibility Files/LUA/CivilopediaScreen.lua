@@ -199,6 +199,17 @@ function SetSelectedCategory( thisCategory )
 	Controls.LeftScrollPanel:CalculateInternalSize();
 end
 
+-- CBP (adds to table that stores entries related to its civilization in a table (cannot be nil))
+function AppendCivRelationshipTable( relationshipTable, searchTable, typeColumnName, civColumnName )
+	for row in searchTable do	
+		if row[typeColumnName] ~= nil and row[civColumnName] ~= nil then
+			relationshipTable[row[civColumnName]] = row[typeColumnName];
+		end
+	end
+	return relationshipTable;
+end
+-- END
+
 -------------------------------------------------------------------------------
 -- setup generic stuff for each category
 -------------------------------------------------------------------------------
@@ -3766,6 +3777,184 @@ CivilopediaCategory[CategoryPromotions].SelectArticle = function( promotionID, s
 
 end
 
+-----------------------------------------------------------------
+-------- CBP BUILDING BUTTON HELPER FUNCTIONS -------------------
+-----------------------------------------------------------------
+-- required buildings
+function AddRequiredBuildingFrame( thisBuilding )
+	g_RequiredBuildingsManager:ResetInstances();
+	local buttonAdded = 0;
+	local thisBuildingTable = AppendCivRelationshipTable( {}, GameInfo.Buildings( "Type = '" .. thisBuilding.Type .. "'" ), "Type", "CivilizationRequired" );
+	thisBuildingTable = AppendCivRelationshipTable( thisBuildingTable, GameInfo.Civilization_BuildingClassOverrides( "BuildingType = '" .. thisBuilding.Type .. "'" ), "BuildingType", "CivilizationType" ); 
+	local thisRelatedBuildingTable = AppendCivRelationshipTable( {}, GameInfo.Buildings( "BuildingClass = '" .. thisBuilding.BuildingClass .. "'" ), "Type", "CivilizationRequired");
+	thisRelatedBuildingTable = AppendCivRelationshipTable( thisRelatedBuildingTable, GameInfo.Civilization_BuildingClassOverrides( "BuildingClassType = '" .. thisBuilding.BuildingClass .. "'" ), "BuildingType", "CivilizationType");
+	-- add the leads to button if its info exists
+	function AddRequiredBuildingButton( buildingType )
+		local thisBuildingInfo = GameInfo.Buildings[buildingType];
+		if (thisBuildingInfo) then
+			if thisBuildingInfo.ShowInPedia == 1 then
+				local thisBuildingInstance = g_RequiredBuildingsManager:GetInstance();
+				if thisBuildingInstance then
+
+					if not IconHookup( thisBuildingInfo.PortraitIndex, buttonSize, thisBuildingInfo.IconAtlas, thisBuildingInstance.RequiredBuildingImage ) then
+						thisBuildingInstance.RequiredBuildingImage:SetTexture( defaultErrorTextureSheet );
+						thisBuildingInstance.RequiredBuildingImage:SetTextureOffset( nullOffset );
+					end
+					
+					--move this button
+					thisBuildingInstance.RequiredBuildingButton:SetOffsetVal( (buttonAdded % numberOfButtonsPerRow) * buttonSize + buttonPadding, math.floor(buttonAdded / numberOfButtonsPerRow) * buttonSize + buttonPadding );
+					
+					thisBuildingInstance.RequiredBuildingButton:SetToolTipString( Locale.ConvertTextKey( thisBuildingInfo.Description ) );
+					thisBuildingInstance.RequiredBuildingButton:SetVoids( thisBuildingInfo.ID, addToList );
+					local thisBuildingClass = GameInfo.BuildingClasses[thisBuildingInfo.BuildingClass];
+					if thisBuildingClass.MaxGlobalInstances > 0 or (thisBuildingClass.MaxPlayerInstances == 1 and thisBuildingInfo.SpecialistCount == 0) or thisBuildingClass.MaxTeamInstances > 0 then
+						thisBuildingInstance.RequiredBuildingButton:RegisterCallback( Mouse.eLClick, CivilopediaCategory[CategoryWonders].SelectArticle );
+					else
+						thisBuildingInstance.RequiredBuildingButton:RegisterCallback( Mouse.eLClick, CivilopediaCategory[CategoryBuildings].SelectArticle );
+					end
+					buttonAdded = buttonAdded + 1;
+				end
+			end
+		end
+	end
+	-- search for required buildings to add
+	function AddRequiredBuildingInstance( reqClassType )
+		local bOtherBuildingOverride;
+		local bMatchedOverride = false;
+		local reqBuildingTable = AppendCivRelationshipTable( {}, GameInfo.Buildings( "BuildingClass = '" .. reqClassType .. "'" ), "Type", "CivilizationRequired");
+		reqBuildingTable = AppendCivRelationshipTable( reqBuildingTable, GameInfo.Civilization_BuildingClassOverrides( "BuildingClassType = '" .. reqClassType .. "'" ), "BuildingType", "CivilizationType");
+		for reqCivilization, reqBuildingType in pairs(reqBuildingTable) do
+			bOtherBuildingOverride = false;
+			for thisCivilization, _ in pairs(thisBuildingTable) do
+				-- if this building is a civ override, add any potential required buildings that override for the same civ
+				if reqCivilization == thisCivilization then
+					bMatchedOverride = true;
+					AddRequiredBuildingButton( reqBuildingType );
+				end
+			end
+			-- if this building is not a civ override, then if no other buildings in the same class override for the same civ as potential required building, add the potential required buiding
+			if next(thisBuildingTable) == nil then
+				for thisRelatedCivilization, _ in pairs(thisRelatedBuildingTable) do
+					if thisRelatedCivilization == reqCivilization then
+						bOtherBuildingOverride = true;
+					end
+				end
+				if not bOtherBuildingOverride then
+					AddRequiredBuildingButton( reqBuildingType );
+				end
+			end
+		end
+		-- if this building is not a civ override, or this building has no potential required buildings that have the same ovrride, add a default building
+		if next(thisBuildingTable) == nil or not bMatchedOverride then
+			AddRequiredBuildingButton( GameInfo.BuildingClasses[reqClassType].DefaultBuilding );
+		end
+	end
+	
+	-- search through the building classes to find potential required buildings
+	local thisBuildingCondition = "BuildingType = '" .. thisBuilding.Type .. "'";	
+	for reqClassRow in GameInfo.Building_ClassesNeededInCity( thisBuildingCondition ) do
+		AddRequiredBuildingInstance( reqClassRow.BuildingClassType );
+	end
+	for reqClassRow in GameInfo.Building_ClassNeededAnywhere( thisBuildingCondition ) do
+		AddRequiredBuildingInstance( reqClassRow.BuildingClassType );
+	end
+	
+	UpdateButtonFrame( buttonAdded, Controls.RequiredBuildingsInnerFrame, Controls.RequiredBuildingsFrame );
+end
+-- leads to buildings
+function AddLeadsToBuildingFrame( thisBuilding )
+	local thisBuildingTable = AppendCivRelationshipTable( {}, GameInfo.Buildings( "Type = '" .. thisBuilding.Type .. "'" ), "Type", "CivilizationRequired" );
+	thisBuildingTable = AppendCivRelationshipTable( thisBuildingTable, GameInfo.Civilization_BuildingClassOverrides( "BuildingType = '" .. thisBuilding.Type .. "'" ), "BuildingType", "CivilizationType" ); 
+	local thisRelatedBuildingTable = AppendCivRelationshipTable( {}, GameInfo.Buildings( "BuildingClass = '" .. thisBuilding.BuildingClass .. "'" ), "Type", "CivilizationRequired");
+	thisRelatedBuildingTable = AppendCivRelationshipTable( thisRelatedBuildingTable, GameInfo.Civilization_BuildingClassOverrides( "BuildingClassType = '" .. thisBuilding.BuildingClass .. "'" ), "BuildingType", "CivilizationType");
+	g_LeadsToBuildingsManager:ResetInstances();
+	buttonAdded = 0;
+
+	-- add the required building button if its info exists
+	function AddLeadsToBuildingButton( buildingType )
+		local thisBuildingInfo = GameInfo.Buildings[buildingType];
+		if(thisBuildingInfo) then
+			if thisBuildingInfo.ShowInPedia == 1 then
+				local thisBuildingInstance = g_LeadsToBuildingsManager:GetInstance();
+				if thisBuildingInstance then
+					if not IconHookup( thisBuildingInfo.PortraitIndex, buttonSize, thisBuildingInfo.IconAtlas, thisBuildingInstance.LeadsToBuildingImage ) then
+						thisBuildingInstance.LeadsToBuildingImage:SetTexture( defaultErrorTextureSheet );
+						thisBuildingInstance.LeadsToBuildingImage:SetTextureOffset( nullOffset );
+					end
+					
+					--move this button
+					thisBuildingInstance.LeadsToBuildingButton:SetOffsetVal( (buttonAdded % numberOfButtonsPerRow) * buttonSize + buttonPadding, math.floor(buttonAdded / numberOfButtonsPerRow) * buttonSize + buttonPadding );
+					
+					thisBuildingInstance.LeadsToBuildingButton:SetToolTipString( Locale.ConvertTextKey( thisBuildingInfo.Description ) );
+					thisBuildingInstance.LeadsToBuildingButton:SetVoids( thisBuildingInfo.ID, addToList );
+					local thisBuildingClass = GameInfo.BuildingClasses[thisBuildingInfo.BuildingClass];
+					if thisBuildingClass.MaxGlobalInstances > 0 or (thisBuildingClass.MaxPlayerInstances == 1 and thisBuildingInfo.SpecialistCount == 0) or thisBuildingClass.MaxTeamInstances > 0 then
+						thisBuildingInstance.LeadsToBuildingButton:RegisterCallback( Mouse.eLClick, CivilopediaCategory[CategoryWonders].SelectArticle );
+					else
+						thisBuildingInstance.LeadsToBuildingButton:RegisterCallback( Mouse.eLClick, CivilopediaCategory[CategoryBuildings].SelectArticle );
+					end
+					buttonAdded = buttonAdded + 1;
+				end
+			end
+		end
+	end
+	-- search for leads to buildings to add
+	function AddLeadsToBuildingInstance( nextBuildingType )
+		local bOtherBuildingOverride = false;
+		local bAddBuilding = false;
+		local nextBuildingTable = AppendCivRelationshipTable( {}, GameInfo.Buildings( "Type = '" .. nextBuildingType .. "'" ), "Type", "CivilizationRequired");
+		nextBuildingTable = AppendCivRelationshipTable( nextBuildingTable, GameInfo.Civilization_BuildingClassOverrides( "BuildingType = '" .. nextBuildingType .. "'" ), "BuildingType", "CivilizationType");
+		local nextRelatedBuildingTable = AppendCivRelationshipTable( {}, GameInfo.Buildings( "BuildingClass = '" .. GameInfo.Buildings[nextBuildingType].BuildingClass .. "'" ), "Type", "CivilizationRequired");
+		nextRelatedBuildingTable = AppendCivRelationshipTable( nextRelatedBuildingTable, GameInfo.Civilization_BuildingClassOverrides( "BuildingClassType = '" .. GameInfo.Buildings[nextBuildingType].BuildingClass .. "'" ), "BuildingType", "CivilizationType");
+		-- If the potential next building matches civilizations with this building, add it
+		for thisCivilization, thisBuildingType in pairs(thisBuildingTable) do
+			for nextCivilization, _ in pairs(nextBuildingTable) do
+				if nextCivilization == thisCivilization then
+					bAddBuilding = true;
+				end
+			end
+		end
+		-- If the potential NEXT building is default and there are no other buildings in the NEXT building's class that match civilizations with this building, add the potential next building
+		if next(nextBuildingTable) == nil then
+			for thisCivilization, _ in pairs(thisBuildingTable) do
+				for nextRelatedCivilization, _ in pairs(nextRelatedBuildingTable) do
+					if thisCivilization == nextRelatedCivilization then
+						bOtherBuildingOverride = true;
+					end
+				end
+			end
+			if not bOtherBuildingOverride then
+				bAddBuilding = true;
+			end
+		-- If THIS building is default and there are no other buildings in THIS building's Class that match civilizations with the potential next building, then add the potential next building
+		elseif next(thisBuildingTable) == nil then
+			for thisRelatedCivilization, _ in pairs(thisRelatedBuildingTable) do
+				for nextCivilization, _ in pairs(nextBuildingTable) do
+					if nextCivilization == thisRelatedCivilization then
+						bOtherBuildingOverride = true;
+					end
+				end
+			end
+			if not bOtherBuildingOverride then
+				bAddBuilding = true;
+			end
+		end
+		if bAddBuilding then
+			AddLeadsToBuildingButton( nextBuildingType );
+		end
+	end
+	
+	local thisBuildingClassCondition = "BuildingClassType = '" .. thisBuilding.BuildingClass .. "'";
+	for nextBuildingRow in GameInfo.Building_ClassesNeededInCity( thisBuildingClassCondition ) do
+		AddLeadsToBuildingInstance( nextBuildingRow.BuildingType );
+	end
+	for nextBuildingRow in GameInfo.Building_ClassNeededAnywhere( thisBuildingClassCondition ) do
+		AddLeadsToBuildingInstance( nextBuildingRow.BuildingType );
+	end
+	UpdateButtonFrame( buttonAdded, Controls.LeadsToBuildingsInnerFrame, Controls.LeadsToBuildingsFrame );
+end
+----------------------------------------------------------------- END
+
 function SelectBuildingOrWonderArticle( buildingID )
 	if buildingID ~= -1 then
 		local thisBuilding = GameInfo.Buildings[buildingID];
@@ -4085,76 +4274,16 @@ function SelectBuildingOrWonderArticle( buildingID )
 		end	
 		UpdateButtonFrame( buttonAdded, Controls.SpecialistsInnerFrame, Controls.SpecialistsFrame );
 		
-		-- required buildings
-		g_RequiredBuildingsManager:ResetInstances();
-		buttonAdded = 0;
-		for row in GameInfo.Building_ClassesNeededInCity( condition ) do
-			local buildingClass = GameInfo.BuildingClasses[row.BuildingClassType];
-			if(buildingClass) then
-				local thisBuildingInfo = GameInfo.Buildings[buildingClass.DefaultBuilding];
-				if (thisBuildingInfo) then
-					local thisBuildingInstance = g_RequiredBuildingsManager:GetInstance();
-					if thisBuildingInstance then
-
-						if not IconHookup( thisBuildingInfo.PortraitIndex, buttonSize, thisBuildingInfo.IconAtlas, thisBuildingInstance.RequiredBuildingImage ) then
-							thisBuildingInstance.RequiredBuildingImage:SetTexture( defaultErrorTextureSheet );
-							thisBuildingInstance.RequiredBuildingImage:SetTextureOffset( nullOffset );
-						end
-						
-						--move this button
-						thisBuildingInstance.RequiredBuildingButton:SetOffsetVal( (buttonAdded % numberOfButtonsPerRow) * buttonSize + buttonPadding, math.floor(buttonAdded / numberOfButtonsPerRow) * buttonSize + buttonPadding );
-						
-						thisBuildingInstance.RequiredBuildingButton:SetToolTipString( Locale.ConvertTextKey( thisBuildingInfo.Description ) );
-						thisBuildingInstance.RequiredBuildingButton:SetVoids( thisBuildingInfo.ID, addToList );
-						local thisBuildingClass = GameInfo.BuildingClasses[thisBuildingInfo.BuildingClass];
-						if thisBuildingClass.MaxGlobalInstances > 0 or (thisBuildingClass.MaxPlayerInstances == 1 and thisBuildingInfo.SpecialistCount == 0) or thisBuildingClass.MaxTeamInstances > 0 then
-							thisBuildingInstance.RequiredBuildingButton:RegisterCallback( Mouse.eLClick, CivilopediaCategory[CategoryWonders].SelectArticle );
-						else
-							thisBuildingInstance.RequiredBuildingButton:RegisterCallback( Mouse.eLClick, CivilopediaCategory[CategoryBuildings].SelectArticle );
-						end
-						buttonAdded = buttonAdded + 1;
-					end
-				end
-			end
-		end
-		UpdateButtonFrame( buttonAdded, Controls.RequiredBuildingsInnerFrame, Controls.RequiredBuildingsFrame );
-		
 		-- CBP
-		local condition = "BuildingClassType = '" .. thisBuilding.BuildingClass .. "'";
-		-- Leads to Building
-		g_LeadsToBuildingsManager:ResetInstances();
-		buttonAdded = 0;
-		for row in GameInfo.Building_ClassesNeededInCity( condition ) do
-			local thisBuildingInfo = GameInfo.Buildings[row.BuildingType];
-			if(thisBuildingInfo) then
-				if thisBuildingInfo.ShowInPedia == 1 then
-					local thisBuildingInstance = g_LeadsToBuildingsManager:GetInstance();
-					if thisBuildingInstance then
-						if not IconHookup( thisBuildingInfo.PortraitIndex, buttonSize, thisBuildingInfo.IconAtlas, thisBuildingInstance.LeadsToBuildingImage ) then
-							thisBuildingInstance.LeadsToBuildingImage:SetTexture( defaultErrorTextureSheet );
-							thisBuildingInstance.LeadsToBuildingImage:SetTextureOffset( nullOffset );
-						end
-						
-						--move this button
-						thisBuildingInstance.LeadsToBuildingButton:SetOffsetVal( (buttonAdded % numberOfButtonsPerRow) * buttonSize + buttonPadding, math.floor(buttonAdded / numberOfButtonsPerRow) * buttonSize + buttonPadding );
-						
-						thisBuildingInstance.LeadsToBuildingButton:SetToolTipString( Locale.ConvertTextKey( thisBuildingInfo.Description ) );
-						thisBuildingInstance.LeadsToBuildingButton:SetVoids( thisBuildingInfo.ID, addToList );
-						local thisBuildingClass = GameInfo.BuildingClasses[thisBuildingInfo.BuildingClass];
-						if thisBuildingClass.MaxGlobalInstances > 0 or (thisBuildingClass.MaxPlayerInstances == 1 and thisBuildingInfo.SpecialistCount == 0) or thisBuildingClass.MaxTeamInstances > 0 then
-							thisBuildingInstance.LeadsToBuildingButton:RegisterCallback( Mouse.eLClick, CivilopediaCategory[CategoryWonders].SelectArticle );
-						else
-							thisBuildingInstance.LeadsToBuildingButton:RegisterCallback( Mouse.eLClick, CivilopediaCategory[CategoryBuildings].SelectArticle );
-						end
-						buttonAdded = buttonAdded + 1;
-					end
-				end
-			end
-		end
-		UpdateButtonFrame( buttonAdded, Controls.LeadsToBuildingsInnerFrame, Controls.LeadsToBuildingsFrame );
+		-- required buildings (CBP, now shows civ override buildings if relevant)
+		AddRequiredBuildingFrame( thisBuilding );
+		
+		-- Leads to Building (CBP now shows civ override buildings if relevant)
+		AddLeadsToBuildingFrame( thisBuilding );
 		-- END
-		local condition = "BuildingType = '" .. thisBuilding.Type .. "'";
+		
 		-- needed local resources
+		local condition = "BuildingType = '" .. thisBuilding.Type .. "'";
 		g_LocalResourcesManager:ResetInstances();
 		buttonAdded = 0;
 

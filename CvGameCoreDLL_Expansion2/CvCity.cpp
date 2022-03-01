@@ -11661,17 +11661,16 @@ int CvCity::GetPurchaseCost(UnitTypes eUnit)
 		return 0;
 	}
 
-	int iModifier = pkUnitInfo->GetHurryCostModifier();
-
-	if (iModifier == -1)
-	{
-		return -1;
-	}
-
 	bool bIsSpaceshipPart = pkUnitInfo->GetSpaceshipProject() != NO_PROJECT;
 
 	if (bIsSpaceshipPart && !GET_PLAYER(getOwner()).IsEnablesSSPartPurchase())
 		return -1;
+
+	int iModifier = pkUnitInfo->GetHurryCostModifier();
+	if (!bIsSpaceshipPart && iModifier == -1)
+	{
+		return -1;
+	}
 
 	int iCost = GetPurchaseCostFromProduction(getProductionNeeded(eUnit));
 	iCost *= (100 + iModifier);
@@ -11681,8 +11680,8 @@ int CvCity::GetPurchaseCost(UnitTypes eUnit)
 	iCost *= (100 + GET_PLAYER(getOwner()).GetUnitPurchaseCostModifier());
 	iCost /= 100;
 
-#if defined(MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS)
-	if (MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS) {
+	if (MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS) 
+	{
 		int iLimitSpaceshipPurchase = GC.getGame().GetGameLeagues()->GetSpaceShipPurchaseMod(getOwner());
 		if (bIsSpaceshipPart && iLimitSpaceshipPurchase != 0)
 		{
@@ -11690,9 +11689,7 @@ int CvCity::GetPurchaseCost(UnitTypes eUnit)
 			iCost /= 100;
 		}
 	}
-#endif
 
-#if defined(MOD_BALANCE_CORE_PURCHASE_COST_INCREASE)
 	if (MOD_BALANCE_CORE_PURCHASE_COST_INCREASE)
 	{
 		//Increase cost based on # of techs researched.
@@ -11705,9 +11702,7 @@ int CvCity::GetPurchaseCost(UnitTypes eUnit)
 			iCost /= 100;
 		}
 	}
-#endif
 
-#if defined(MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
 	if (MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
 	{
 		bool bCombat = pkUnitInfo->GetCombat() > 0 || pkUnitInfo->GetRangedCombat() > 0 || pkUnitInfo->GetNukeDamageLevel() != -1;
@@ -11759,7 +11754,6 @@ int CvCity::GetPurchaseCost(UnitTypes eUnit)
 			}
 		}
 	}
-#endif
 
 	if (MOD_BALANCE_CORE_PURCHASE_COST_INCREASE)
 	{
