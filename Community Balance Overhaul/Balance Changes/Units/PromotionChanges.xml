@@ -4326,4 +4326,10 @@
 			<GoldenAgeValueFromKills>1000</GoldenAgeValueFromKills>
 		</Row>
 	</UnitPromotions>
+	<PostDefines>
+		<Row Name="PROMOTION_DEFENSIVE_DEEPWATER_EMBARKATION">
+			<Key>PROMOTION_HOVER_UNIT</Key>
+			<Table>UnitPromotions</Table>
+		</Row>
+	</PostDefines>
 </GameData>
