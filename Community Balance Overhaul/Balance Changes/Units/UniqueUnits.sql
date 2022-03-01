@@ -275,7 +275,7 @@ INSERT INTO UnitClasses (Type, Description, DefaultUnit) VALUES ('UNITCLASS_HUNN
 
 UPDATE Units SET Cost = '-1', MinorCivGift = '1', Class = 'UNITCLASS_HUNNIC_BATTERING_RAM', GoodyHutUpgradeUnitClass = 'UNITCLASS_TERCIO' WHERE Type = 'UNIT_HUN_BATTERING_RAM';
 
-UPDATE Unit_ClassUpgrades SET UnitClassType = 'UNITCLASS_TERCIO';
+UPDATE Unit_ClassUpgrades SET UnitClassType = 'UNITCLASS_TERCIO' WHERE UnitType = 'UNIT_HUN_BATTERING_RAM';
 
 
 INSERT INTO Trait_FreePromotionUnitCombats
