@@ -11373,7 +11373,7 @@ int CvCity::getProductionNeeded(BuildingTypes eBuilding) const
 				if (AmountComplete >= AmountNeeded)
 				{
 					int iProductionDifference = getProductionDifference(iNumProductionNeeded, AmountComplete, getProductionModifier(), false, false);
-					return max(1, AmountComplete - iProductionDifference); //allow one turn of overflow
+					return max(AmountNeeded, AmountComplete - iProductionDifference); //allow one turn of overflow
 				}
 			}
 #endif
