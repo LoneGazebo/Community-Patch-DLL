@@ -65,7 +65,7 @@ function LeaderMessageHandler( iPlayer, iDiploUIState, szLeaderMessage, iAnimati
 	local strMoodText = Locale.ConvertTextKey("TXT_KEY_EMOTIONLESS");
 
 	if (Players[g_iAIPlayer]:IsAlive()) then
-		if (not activePlayer:IsAlive())
+		if (not activePlayer:IsAlive()) then
 			strMoodText = Locale.ConvertTextKey( "TXT_KEY_DIPLO_MAJOR_CIV_DIPLO_STATE_NEUTRAL", otherLeader.Description  );
 		else
 			if (pActiveTeam:IsAtWar(g_iAITeam)) then
