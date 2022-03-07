@@ -1,0 +1,68 @@
+<Asset>
+	<Mesh file="dopp_b.gr2"/>
+	<Animation file="Longswordsman_IdleA.gr2" ec="1000, 2000"/>
+	<Animation file="Longswordsman_FidgetA.gr2" ec="1040, 2040"/>
+	<Animation file="Longswordsman_Fortify.gr2" ec="1500"/>
+	<Animation file="Longswordsman_Fortify_Idle.gr2" ec="1520"/>
+	<Animation file="Longswordsman_Fortify_Idle_Fidget.gr2" ec="1540"/>
+	<Animation file="Longswordsman_Fortify_Idle_Trans_Combat_Ready_Idle.gr2" ec="1560"/>
+	<Animation file="Longswordsman_Fortify_Idle_Trans_IdleA.gr2" ec="1580"/>
+	<Animation file="Longswordsman_Combat_Ready.gr2" ec="1600"/>
+	<Animation file="Longswordsman_Combat_Ready_Idle.gr2" ec="1620"/>
+	<Animation file="Longswordsman_Combat_Ready_Idle_Trans_IdleA.gr2" ec="1640"/>
+	<Animation file="Longswordsman_Shuffle.gr2" ec="1450"/>
+	<Animation file="Longswordsman_Run.gr2" ec="1400"/>
+	<Animation file="Longswordsman_Stop_Run.gr2" ec="1440, 2440"/>
+	<Animation file="Longswordsman_Charge_Run.gr2" ec="1120"/>
+	<Animation file="Longswordsman_Charge_Attack.gr2" ec="1140"/>
+	<Animation file="Longswordsman_AttackA.gr2" ec="1100"/>
+	<Animation file="Longswordsman_AttackB.gr2" ec="2100"/>
+	<Animation file="Longswordsman_Attack_City.gr2" ec="1160, 1180"/>
+	<Animation file="Longswordsman_Victory.gr2" ec="1800"/>
+	<Animation file="Longswordsman_Bombard_Defense.gr2" ec="1280"/>
+	<Animation file="Longswordsman_Bombard_Defense_Idle.gr2" ec="1285"/>
+	<Animation file="Longswordsman_Bombard_Defense_Idle_Trans_IdleA.gr2" ec="1290"/>
+	<Animation file="Longswordsman_DeathA.gr2" ec="1200"/>
+	<Animation file="Longswordsman_Death_IdleA.gr2" ec="1220"/>
+	<Animation file="Longswordsman_DeathB.gr2" ec="2200"/>
+	<Animation file="Longswordsman_Death_IdleB.gr2" ec="2220"/>
+	<Texture file="Longswordsman_DIFF.dds"/>
+	<Texture file="Longswordsman_SREF.dds"/>
+	<Texture file="Unit_Environment_Dull.dds"/>
+	<Texture file="Unit_Environment_Sharp.dds"/>
+	<Texture file="Unit_Irradiance.dds"/>
+	<BoneUsage>
+		<Bone name="Base HumanRPalm"/>
+		<Bone name="Base HumanLForearm"/>
+		<Bone name="Base HumanSword01"/>
+		<Bone name="Base HumanLUpperarm"/>
+		<Bone name="Base HumanSpine2"/>
+	</BoneUsage>
+	<TimedTrigger file="FX_Triggers_Longswordsman.ftsxml"/>
+	<AnimGraph file="RUN_CHARGE_SHUFFLE_TO_SHUFFLE_RUN_CHARGE.dge"/>
+	<AnimGraph file="SHUFFLE_STOP_GRAPH.dge"/>
+	<AnimGraph file="START_RUN_CHARGE_SHUFFLE.dge"/>
+	<AnimGraph file="ATTACK_CITY_TO_RUN_CHARGE_SHUFFLE.dge"/>
+	<AnimGraph file="ATTACK_TO_RUN_CHARGE_SHUFFLE.dge"/>
+	<AnimGraph file="RUN_CHARGE_SHUFFLE_LOOP.dge"/>
+	<StateMachine file="1_OMNI_STATE_01.fsmxml"/>
+	<AnimGraph file="MELEE_ATTACKS.dge"/>
+	<AnimGraph file="FIDGETS_GRAPH.dge"/>
+	<AnimGraph file="IDLE_GRAPH.dge"/>
+	<AnimGraph file="STOP_RUNNING.dge"/>
+	<AnimGraph file="TRANSITIONS_FOR_IDLES.dge"/>
+	<AnimGraph file="FORTIFY_GRAPH.dge"/>
+	<AnimGraph file="COMBAT_READY_GRAPH.dge"/>
+	<AnimGraph file="FORTIFY_LEAVE_GRAPH.dge"/>
+	<AnimGraph file="ENTER_COMBAT_READY_GRAPH.dge"/>
+	<AnimGraph file="LEAVE_COMBAT_READY.dge"/>
+	<AnimGraph file="DEATH_GRAPH.dge"/>
+	<AnimGraph file="ENTER_BOMBARD_DEFEND_GRAPH.dge"/>
+	<AnimGraph file="BOMBARD_DEFEND_LOOP_GRAPH.dge"/>
+	<AnimGraph file="DEATH_FINAL_GRAPH.dge"/>
+	<AnimGraph file="LEAVE_BOMBARD_DEFEND_TRANS_IDLE_A_GRAPH.dge"/>
+	<AnimGraph file="ENTER_FORTIFY.dge"/>
+	<AnimGraph file="FORTIFY_FIDGET_GRAPH.dge"/>
+	<AnimGraph file="IDLE_OFFSET_CONTINUE_TRUE_GRAPH.dge"/>
+</Asset>
+

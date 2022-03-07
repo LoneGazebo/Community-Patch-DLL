@@ -1,0 +1,9 @@
+<Asset>
+  <Mesh file="Olive.gr2" source="Max" />
+  <Texture file="Plant_Resource_Shadows.dds" source="Max" />
+  <Texture file="Olive_Trees_DIFF.dds" source="Max" />
+  <Texture file="Olive_Trees_SREF.dds" source="Max" />
+  <Texture file="Unit_Environment_Dull.dds" source="Max" />
+  <Texture file="Unit_Environment_Sharp.dds" source="Max" />
+  <Texture file="Unit_Irradiance.dds" source="Max" />
+</Asset>

@@ -1,0 +1,19 @@
+<Asset>
+  <Mesh file="Coral_Industrial.gr2" source="Max" />
+  <Animation file="Coral_Industrial_Built.gr2" name="Built" ec="1000" source="Max" layer="None" />
+  <Texture file="FishBoats_Industrial_DIFF.dds" source="Max" />
+  <Texture file="FishBoats_Industrial_SREF.dds" source="Max" />
+  <Texture file="Coral_Diff.dds" source="Max" />
+  <Texture file="Coral_SREF.dds" source="Max" />
+  <Texture file="Decal_CoralReef_D.dds" source="Max" />
+  <Texture file="Decal_CoralReef_H.dds" source="Max" />
+  <Texture file="Decal_CoralReef_S.dds" source="Max" />
+  <Texture file="PearlFarm_DIFF.dds" source="Max" />
+  <Texture file="PearlFarm_SREF.dds" source="Max" />
+  <Texture file="Unit_Environment_Dull.dds" source="Max" />
+  <Texture file="Unit_Environment_Sharp.dds" source="Max" />
+  <Texture file="Unit_Irradiance.dds" source="Max" />
+  <Texture file="Shared_Seagull01_DIFF.dds" source="Max" />
+  <Texture file="Shared_Seagull01_SREF.dds" source="Max" />
+  <DecisionTree file="LandmarkDecisionTree.ddtxml" source="Tool" />
+</Asset>

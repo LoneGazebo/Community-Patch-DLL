@@ -1,0 +1,24 @@
+<Asset>
+  <Mesh file="PL_MED_Mine_Amber.gr2" source="Max" />
+  <Texture file="Amber_Rubble_DIFF.dds" source="Max" />
+  <Texture file="Dirt_Rubble_DIFF.dds" source="Max" />
+  <Texture file="Dirt_Rubble_SREF.dds" source="Max" />
+  <Texture file="Generic_Grey_8.dds" source="Max" />
+  <Texture file="Mine_Decal_H.dds" source="Max" />
+  <Texture file="Mine_Decal_S.dds" source="Max" />
+  <Texture file="PL_Amber_Mine_Decal_D.dds" source="Max" />
+  <Texture file="PL_MED_Mine_DIFF.dds" source="Max" />
+  <Texture file="PL_MED_Mine_SREF.dds" source="Max" />
+  <Texture file="PL_Plantation_MID_DIFF.dds" source="Max" />
+  <Texture file="Plantation_MID_DIFF.dds" source="Max" />
+  <Texture file="Plantation_MID_SREF.dds" source="Max" />
+  <Texture file="Resource_Irradiance.dds" source="Max" />
+  <Texture file="Rubble_SREF.dds" source="Max" />
+  <Texture file="resource_Environment_Sharp.dds" source="Max" />
+  <Texture file="resources_Environment_Dull.dds" source="Max" />
+  <BoneUsage>
+    <Bone name="FX_PillagedSmoke" />
+  </BoneUsage>
+  <TimedTrigger file="FX_Triggers_PL_MED_Mine_Aluminum.ftsxml" source="Tool" model="Mine_Building04" state="0,1,2,3" />
+  <DecisionTree file="StaticLandmarkDecisionTree.ddtxml" source="Tool" />
+</Asset>
