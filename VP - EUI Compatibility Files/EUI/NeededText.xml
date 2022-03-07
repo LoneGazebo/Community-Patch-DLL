@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Created by ModBuddy on 1/27/2015 4:17:17 PM -->
+<GameData>
+	<Language_en_US>
+		<Row Tag="TXT_KEY_DEBUG_X_Y">
+			<Text>X: {1_Num} / Y: {2_Num} / Plot Danger: {3_Num}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CP_HAPPINESS_EXPLANATION">
+			<Text>This is the empire-wide breakdown. [ICON_HAPPINESS_1] Happiness counters [ICON_HAPPINESS_4] Unhappiness in each city. Both are limited by the size of the city, except for urbanization!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EO_LOCAL_RESOURCES_CBP">
+			<Text>Local Resources</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EO_MISC_RESOURCES">
+			<Text>Miscellaneous Resources</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EO_GP_RESOURCES">
+			<Text>From Great People</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EO_CORP_RESOURCES">
+			<Text>From Corporation</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EO_FRANCHISE_RESOURCES">
+			<Text>From Corporation Franchises</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EO_CS_ALLY_RESOURCES">
+			<Text>From Number of City-State Allies</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EO_STRAT_MOD_RESOURCES">
+			<Text>From Strategic Resource Modifier</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EO_REL_MOD_RESOURCES">
+			<Text>From Religious Resource Modifier</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CP_DIPLO_DP">
+			<Text>Defensive Pact</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CP_DIPLO_MARRIAGE">
+			<Text>Marriage</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CP_DIPLO_MASTER_OF">
+			<Text> [COLOR_POSITIVE_TEXT]Master of[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CP_DIPLO_VASSAL_OF">
+			<Text> [COLOR_POSITIVE_TEXT]Vassal of[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_WARSCORE_CP">
+			<Text>Warscore:</Text>
+		</Row>
+		<Row Tag="TXT_KEY_AT_WAR_WITH_CP">
+			<Text> [COLOR_NEGATIVE_TEXT]At war with {1_enemy}[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITYVIEW_CORPSBUILDING_TEXT">
+			<Text>Corporations</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TP_HAPPINESS_STATE_RELIGION_CBO">
+			<Text>{1_Num} from Religion.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TP_HAPPINESS_CITY_LOCAL">
+			<Text>{1_Num} from local sources in cities (religion, buildings, etc).</Text>
+		</Row>
+
+	</Language_en_US>
+</GameData>
