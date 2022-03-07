@@ -630,7 +630,6 @@
     <File md5="BB5F1C4BE813246558AABE879830E743" import="0">CSD/Promotions/Promotions.xml</File>
     <File md5="58BA7B52861BB2343DE47C078DDBDA41" import="0">CSD/Promotions/PromotionText.xml</File>
     <File md5="87655602BEF1B77BF4EE0A1893649FA5" import="0">CSD/Quests/CityStateQuest.xml</File>
-    <File md5="56F2A5FB062D020C56DC18039A91C3B9" import="1">CSD/Resource/Paper.lua</File>
     <File md5="A8B940DA3B84B9B8D9FDD9AC3EF0518D" import="0">CSD/Resource/Paper.xml</File>
     <File md5="E8FE68E7A7B1E207173B6DFDA8D36F35" import="0">CSD/Specialist/CivilServant.xml</File>
     <File md5="CE88ECF03AACFF7F2989FBF6B78FC740" import="0">CSD/Units/MoreGreatDiplomats.sql</File>
