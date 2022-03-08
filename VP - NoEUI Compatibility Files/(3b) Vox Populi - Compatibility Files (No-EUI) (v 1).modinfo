@@ -1,9 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Mod id="828b5b4b-7c62-4afb-a43f-034b596ef5e4" version="1">
   <Properties>
-    <Name>(6b) Vox Populi - Compatibility Files (No-EUI)</Name>
-    <Teaser>(1.4.6) Vox Populi Compatibility and LUA (No EUI Version)</Teaser>
-    <Description>LUA and mod compatibility files for CBO, CSD, C4DF and More Luxuries if not using EUI. Must use all of these mods in order to use this mod.</Description>
+    <Name>(3b) Vox Populi - Compatibility Files (No-EUI)</Name>
+    <Teaser>(1.5) Vox Populi Compatibility and LUA (No EUI Version)</Teaser>
+    <Description>Contains LUA and mod compatibility files for Vox Populi if not using EUI.</Description>
     <Authors>Gazebo</Authors>
     <HideSetupGame>0</HideSetupGame>
     <AffectsSavedGames>0</AffectsSavedGames>
@@ -17,26 +17,15 @@
     <ReloadUnitSystem>1</ReloadUnitSystem>
   </Properties>
   <Dependencies>
-    <Mod id="d1b6328c-ff44-4b0d-aad7-c657f83610cd" minversion="102" maxversion="999" title="(1) Community Patch" />
-    <Mod id="8411a7a8-dad3-4622-a18e-fcc18324c799" minversion="14" maxversion="999" title="(2) Community Balance Overhaul" />
-    <Mod id="eead0050-1e3f-4178-a91f-26cf1881ac39" minversion="29" maxversion="999" title="(3) City-State Diplomacy for VP" />
-    <Mod id="c7bf7064-d1b1-4708-9e93-7a1560868582" minversion="12" maxversion="999" title="(4) Civ IV Diplomatic Features for VP" />
+    <Mod id="d1b6328c-ff44-4b0d-aad7-c657f83610cd" minversion="103" maxversion="999" title="(1) Community Patch" />
+    <Mod id="8411a7a8-dad3-4622-a18e-fcc18324c799" minversion="15" maxversion="999" title="(2) Vox Populi" />
   </Dependencies>
-  <References>
-    <Mod id="be2d13ee-d18d-410e-8f04-7cd19cd99a98" minversion="156" maxversion="999" title="(5) More Luxuries for VP" />
-  </References>
+  <References />
   <Blocks>
-    <Mod id="24923240-e4fb-4bf6-8f0e-6e5b6cf4d3c2" minversion="0" maxversion="999" title="(6a) Vox Populi - Compatibility Files (EUI)" />
-    <Mod id="6521c02b-1c78-4826-a5b0-faed86235e98" minversion="0" maxversion="999" title="(6c) 43 Civs Community Patch" />
+    <Mod id="24923240-e4fb-4bf6-8f0e-6e5b6cf4d3c2" minversion="0" maxversion="999" title="(3a) Vox Populi - Compatibility Files (EUI)" />
+    <Mod id="6521c02b-1c78-4826-a5b0-faed86235e98" minversion="0" maxversion="999" title="(3c) 43 Civs Community Patch" />
   </Blocks>
   <Files>
-    <File md5="82D50FDD655FDCDD34C59A40E87FF91E" import="0">C4DFCompatibility/C4DFCompatibility.sql</File>
-    <File md5="3F476A71188724BC528A087525301A9A" import="0">Corporations/Corporations.sql</File>
-    <File md5="2D81FF7BE803B6C99129AC24217018DA" import="0">Corporations/Text/CorpText_en_US.xml</File>
-    <File md5="F2B4529383B3A7F7AEC8F9CA82C9A83C" import="0">Corporations/Text/CorpText_en_US.sql</File>
-    <File md5="F7E0EBCD73BDF8DFC651A173ACF43C67" import="0">CSD/CompatibilityText/Compatibility_en_US.sql</File>
-    <File md5="F82A83B6017FE4858CF924888EB810AC" import="0">CSD/CompatibilityText/Compatibility_en_US.xml</File>
-    <File md5="0519B8EB4300785163A4F8F78400F127" import="0">CSD/CSDCompatibility.sql</File>
     <File md5="3F4B08D58AE727DF10D8A34BEC5F398E" import="1">LUA/ActionInfoPanel.lua</File>
     <File md5="2EDBE7B26D74161F057DE6E9443D6BEA" import="1">LUA/AssignStartingPlots.lua</File>
     <File md5="39C6A39E21DF6E10B666FA57FA502643" import="1">LUA/Bombardment.lua</File>
@@ -53,7 +42,7 @@
     <File md5="3CBE322F14A59655023DBE78D8BEFDA8" import="1">LUA/CityView.lua</File>
     <File md5="CBE80AE325288F1B5A1B05525826DEC0" import="1">LUA/CityView.xml</File>
     <File md5="2C009EF1C7A9213005C102161D5F6C33" import="1">LUA/CityView_small.xml</File>
-    <File md5="DB3D3BBFFC11CAF69A9505E4995F91BE" import="1">LUA/CivilopediaScreen.lua</File>
+    <File md5="8CE47486BD28A58DA4E1E9C39D7378DD" import="1">LUA/CivilopediaScreen.lua</File>
     <File md5="0F36E9923D32508E9DF09CE94A1B0BC2" import="1">LUA/CivilopediaScreen.xml</File>
     <File md5="90E5C23859C1EEF44EE7351827190F9C" import="1">LUA/CultureOverview.lua</File>
     <File md5="5F310B56A85B1E68963A0B8361F3F4BC" import="1">LUA/CultureOverview.xml</File>
@@ -109,23 +98,7 @@
     <File md5="2F4E8578875AA96C3D8553D2E7DE0883" import="1">LUA/WhosWinningPopup.lua</File>
     <File md5="AF34BDAF7884346D2B12EFC63B4782CD" import="1">LUA/YieldIconManager.lua</File>
     <File md5="BA353EE3D799C2396658056D9FB2173A" import="1">LUA/YieldIconManager.xml</File>
-    <File md5="1D2DD666B5462354B38B95F598E71802" import="0">MoreLuxuries/MoreLuxuries.sql</File>
-    <File md5="8E6FF1755E4E1368E9BC37B88C0C8BE4" import="0">MoreLuxuries/Text/Text_en_US.sql</File>
   </Files>
-  <Actions>
-    <OnModActivated>
-      <UpdateDatabase>CSD/CSDCompatibility.sql</UpdateDatabase>
-      <UpdateDatabase>EUI/NeededText.xml</UpdateDatabase>
-      <UpdateDatabase>Corporations/Corporations.sql</UpdateDatabase>
-      <UpdateDatabase>C4DFCompatibility/C4DFCompatibility.sql</UpdateDatabase>
-      <UpdateDatabase>MoreLuxuries/MoreLuxuries.sql</UpdateDatabase>
-      <UpdateDatabase>Corporations/Text/CorpText_en_US.sql</UpdateDatabase>
-      <UpdateDatabase>Corporations/Text/CorpText_en_US.xml</UpdateDatabase>
-      <UpdateDatabase>CSD/CompatibilityText/Compatibility_en_US.sql</UpdateDatabase>
-      <UpdateDatabase>CSD/CompatibilityText/Compatibility_en_US.xml</UpdateDatabase>
-      <UpdateDatabase>MoreLuxuries/Text/Text_en_US.sql</UpdateDatabase>
-    </OnModActivated>
-  </Actions>
   <EntryPoints>
     <EntryPoint type="InGameUIAddin" file="LUA/AssignStartingPlots.lua">
       <Name>AssignStartingPlots</Name>

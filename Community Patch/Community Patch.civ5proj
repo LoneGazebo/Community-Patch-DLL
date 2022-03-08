@@ -5,16 +5,16 @@
     <ProjectGuid>{0d66d522-b624-4bc5-acfe-15a0c5b729f4}</ProjectGuid>
     <Name>(1) Community Patch</Name>
     <Guid>d1b6328c-ff44-4b0d-aad7-c657f83610cd</Guid>
-    <ModVersion>102</ModVersion>
+    <ModVersion>103</ModVersion>
     <Stability>Stable</Stability>
-    <Teaser>(1.4.6) Bugfixes, AI Improvements, Game Optimizations and API Extensions for Civ V</Teaser>
-    <Description>Contains core AI improvements and bugfixes for the Civ 5 BNW DLL. Also contains support for the Community Balance Overhaul and some of Whoward's PNM Mods.</Description>
+    <Teaser>(1.5) Bugfixes, AI Improvements, Game Optimizations and API Extensions for Civ V</Teaser>
+    <Description>Contains core AI improvements and bugfixes for the Civ 5 BNW DLL. Also contains support for the Vox Populi unofficial expansion and its associated mods.</Description>
     <Authors>CivFanatics Community Patch Project Team</Authors>
     <SpecialThanks>
     </SpecialThanks>
     <Categories>$Categories$</Categories>
     <AffectsSavedGames>true</AffectsSavedGames>
-    <MinCompatibleSaveVersion>102</MinCompatibleSaveVersion>
+    <MinCompatibleSaveVersion>103</MinCompatibleSaveVersion>
     <SupportsSinglePlayer>true</SupportsSinglePlayer>
     <SupportsMultiplayer>true</SupportsMultiplayer>
     <SupportsHotSeat>true</SupportsHotSeat>
@@ -44,6 +44,34 @@
     </ModDependencies>
     <ModReferences />
     <ModBlockers>
+      <Association>
+        <Type>Mod</Type>
+        <Name>Community Balance Overhaul (Old Version)</Name>
+        <Id>8411a7a8-dad3-4622-a18e-fcc18324c799</Id>
+        <MinVersion>0</MinVersion>
+        <MaxVersion>14</MaxVersion>
+      </Association>
+      <Association>
+        <Type>Mod</Type>
+        <Name>City-State Diplomacy (Old Version)</Name>
+        <Id>eead0050-1e3f-4178-a91f-26cf1881ac39</Id>
+        <MinVersion>0</MinVersion>
+        <MaxVersion>999</MaxVersion>
+      </Association>
+      <Association>
+        <Type>Mod</Type>
+        <Name>Civilization IV Diplomatic Features (Old Version)</Name>
+        <Id>c7bf7064-d1b1-4708-9e93-7a1560868582</Id>
+        <MinVersion>0</MinVersion>
+        <MaxVersion>999</MaxVersion>
+      </Association>
+      <Association>
+        <Type>Mod</Type>
+        <Name>More Luxuries (Old Version)</Name>
+        <Id>be2d13ee-d18d-410e-8f04-7cd19cd99a98</Id>
+        <MinVersion>0</MinVersion>
+        <MaxVersion>999</MaxVersion>
+      </Association>
       <Association>
         <Type>Mod</Type>
         <Name>Artificial Unintelligence</Name>

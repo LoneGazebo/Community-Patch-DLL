@@ -3,12 +3,12 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Default</Configuration>
     <ProjectGuid>{63283aea-f6ad-4004-8fbd-639e69d54803}</ProjectGuid>
-    <Name>(6b) Vox Populi - Compatibility Files (No-EUI)</Name>
+    <Name>(3b) Vox Populi - Compatibility Files (No-EUI)</Name>
     <Guid>828b5b4b-7c62-4afb-a43f-034b596ef5e4</Guid>
     <ModVersion>1</ModVersion>
     <Stability>Stable</Stability>
-    <Teaser>(1.4.6) Vox Populi Compatibility and LUA (No EUI Version)</Teaser>
-    <Description>LUA and mod compatibility files for CBO, CSD, C4DF and More Luxuries if not using EUI. Must use all of these mods in order to use this mod.</Description>
+    <Teaser>(1.5) Vox Populi Compatibility and LUA (No EUI Version)</Teaser>
+    <Description>Contains LUA and mod compatibility files for Vox Populi if not using EUI.</Description>
     <Authors>Gazebo</Authors>
     <SpecialThanks>
     </SpecialThanks>
@@ -31,14 +31,14 @@
         <Type>Mod</Type>
         <Name>(1) Community Patch</Name>
         <Id>d1b6328c-ff44-4b0d-aad7-c657f83610cd</Id>
-        <MinVersion>102</MinVersion>
+        <MinVersion>103</MinVersion>
         <MaxVersion>999</MaxVersion>
       </Association>
       <Association>
         <Type>Mod</Type>
         <Name>(2) Vox Populi</Name>
         <Id>8411a7a8-dad3-4622-a18e-fcc18324c799</Id>
-        <MinVersion>14</MinVersion>
+        <MinVersion>15</MinVersion>
         <MaxVersion>999</MaxVersion>
       </Association>
     </ModDependencies>
@@ -53,14 +53,14 @@
     <ModBlockers>
       <Association>
         <Type>Mod</Type>
-        <Name>(6a) Vox Populi - Compatibility Files (EUI)</Name>
+        <Name>(3a) Vox Populi - Compatibility Files (EUI)</Name>
         <Id>24923240-e4fb-4bf6-8f0e-6e5b6cf4d3c2</Id>
         <MinVersion>0</MinVersion>
         <MaxVersion>999</MaxVersion>
       </Association>
       <Association>
         <Type>Mod</Type>
-        <Name>(6c) 43 Civs Community Patch</Name>
+        <Name>(3c) 43 Civs Community Patch</Name>
         <Id>6521c02b-1c78-4826-a5b0-faed86235e98</Id>
         <MinVersion>0</MinVersion>
         <MaxVersion>999</MaxVersion>

@@ -3,16 +3,16 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Default</Configuration>
     <ProjectGuid>{dc470ee5-5c64-4e86-9aee-77f5ff94079f}</ProjectGuid>
-    <Name>(6c) 43 Civs Community Patch</Name>
+    <Name>(3c) 43 Civs Community Patch</Name>
     <Guid>6521c02b-1c78-4826-a5b0-faed86235e98</Guid>
     <ModVersion>1</ModVersion>
     <Stability>Stable</Stability>
-    <Teaser>(1.4.6) Supports up to 43 Major Civilizations</Teaser>
+    <Teaser>(1.5) Supports up to 43 Major Civilizations</Teaser>
     <Description>This version of the Community Patch supports up to 43 major civilizations. The maximum number of total players (civilizations and City-States) is 63.[NEWLINE][NEWLINE]
 Depending on which version has been installed, this mod contains one of the following:[NEWLINE]
 [ICON_BULLET]Compatibility Files for using the Community Patch on its own[NEWLINE]
-[ICON_BULLET]EUI Compatibility Files for CBO, CSD, C4DF and More Luxuries[NEWLINE]
-[ICON_BULLET]No-EUI Compatibility Files for CBO, CSD, C4DF and More Luxuries.[NEWLINE][NEWLINE]
+[ICON_BULLET]EUI Compatibility Files for Vox Populi[NEWLINE]
+[ICON_BULLET]No EUI Compatibility Files for Vox Populi[NEWLINE][NEWLINE]
 If you downloaded this mod manually, see MANUAL INSTALL.txt for installation instructions.</Description>
     <Authors>Gazebo, Ilteroi</Authors>
     <SpecialThanks>
@@ -134,15 +134,6 @@ If you downloaded this mod manually, see MANUAL INSTALL.txt for installation ins
     </ModActions>
     <Homepage>
     </Homepage>
-    <ModReferences>
-      <Association>
-        <Type>Mod</Type>
-        <Name>(5) More Luxuries for VP</Name>
-        <Id>be2d13ee-d18d-410e-8f04-7cd19cd99a98</Id>
-        <MinVersion>156</MinVersion>
-        <MaxVersion>999</MaxVersion>
-      </Association>
-    </ModReferences>
     <ReloadStrategicViewSystem>true</ReloadStrategicViewSystem>
     <ReloadAudioSystem>true</ReloadAudioSystem>
     <ReloadUnitSystem>true</ReloadUnitSystem>
@@ -160,26 +151,27 @@ If you downloaded this mod manually, see MANUAL INSTALL.txt for installation ins
         <Type>Mod</Type>
         <Name>(1) Community Patch</Name>
         <Id>d1b6328c-ff44-4b0d-aad7-c657f83610cd</Id>
-        <MinVersion>102</MinVersion>
+        <MinVersion>103</MinVersion>
         <MaxVersion>999</MaxVersion>
       </Association>
     </ModDependencies>
     <ModBlockers>
       <Association>
         <Type>Mod</Type>
-        <Name>(6a) Vox Populi - Compatibility Files (EUI)</Name>
+        <Name>(3a) Vox Populi - Compatibility Files (EUI)</Name>
         <Id>24923240-e4fb-4bf6-8f0e-6e5b6cf4d3c2</Id>
         <MinVersion>0</MinVersion>
         <MaxVersion>999</MaxVersion>
       </Association>
       <Association>
         <Type>Mod</Type>
-        <Name>(6b) Vox Populi - Compatibility Files (No-EUI)</Name>
+        <Name>(3b) Vox Populi - Compatibility Files (No-EUI)</Name>
         <Id>828b5b4b-7c62-4afb-a43f-034b596ef5e4</Id>
         <MinVersion>0</MinVersion>
         <MaxVersion>999</MaxVersion>
       </Association>
     </ModBlockers>
+    <ModReferences />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Default' ">
     <OutputPath>.</OutputPath>

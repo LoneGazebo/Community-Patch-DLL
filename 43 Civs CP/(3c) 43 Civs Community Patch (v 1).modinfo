@@ -1,13 +1,13 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Mod id="6521c02b-1c78-4826-a5b0-faed86235e98" version="1">
   <Properties>
-    <Name>(6c) 43 Civs Community Patch</Name>
-    <Teaser>(1.4.6) Supports up to 43 Major Civilizations</Teaser>
+    <Name>(3c) 43 Civs Community Patch</Name>
+    <Teaser>(1.5) Supports up to 43 Major Civilizations</Teaser>
     <Description>This version of the Community Patch supports up to 43 major civilizations. The maximum number of total players (civilizations and City-States) is 63.[NEWLINE][NEWLINE]
 Depending on which version has been installed, this mod contains one of the following:[NEWLINE]
 [ICON_BULLET]Compatibility Files for using the Community Patch on its own[NEWLINE]
-[ICON_BULLET]EUI Compatibility Files for CBO, CSD, C4DF and More Luxuries[NEWLINE]
-[ICON_BULLET]No-EUI Compatibility Files for CBO, CSD, C4DF and More Luxuries.[NEWLINE][NEWLINE]
+[ICON_BULLET]EUI Compatibility Files for Vox Populi[NEWLINE]
+[ICON_BULLET]No EUI Compatibility Files for Vox Populi[NEWLINE][NEWLINE]
 If you downloaded this mod manually, see MANUAL INSTALL.txt for installation instructions.</Description>
     <Authors>Gazebo, Ilteroi</Authors>
     <HideSetupGame>0</HideSetupGame>
@@ -22,14 +22,12 @@ If you downloaded this mod manually, see MANUAL INSTALL.txt for installation ins
     <ReloadUnitSystem>1</ReloadUnitSystem>
   </Properties>
   <Dependencies>
-    <Mod id="d1b6328c-ff44-4b0d-aad7-c657f83610cd" minversion="102" maxversion="999" title="(1) Community Patch" />
+    <Mod id="d1b6328c-ff44-4b0d-aad7-c657f83610cd" minversion="103" maxversion="999" title="(1) Community Patch" />
   </Dependencies>
-  <References>
-    <Mod id="be2d13ee-d18d-410e-8f04-7cd19cd99a98" minversion="156" maxversion="999" title="(5) More Luxuries for VP" />
-  </References>
+  <References />
   <Blocks>
-    <Mod id="24923240-e4fb-4bf6-8f0e-6e5b6cf4d3c2" minversion="0" maxversion="999" title="(6a) Vox Populi - Compatibility Files (EUI)" />
-    <Mod id="828b5b4b-7c62-4afb-a43f-034b596ef5e4" minversion="0" maxversion="999" title="(6b) Vox Populi - Compatibility Files (No-EUI)" />
+    <Mod id="24923240-e4fb-4bf6-8f0e-6e5b6cf4d3c2" minversion="0" maxversion="999" title="(3a) Vox Populi - Compatibility Files (EUI)" />
+    <Mod id="828b5b4b-7c62-4afb-a43f-034b596ef5e4" minversion="0" maxversion="999" title="(3b) Vox Populi - Compatibility Files (No-EUI)" />
   </Blocks>
   <Files>
     <File md5="2EDBE7B26D74161F057DE6E9443D6BEA" import="1">AssignStartingPlots.lua</File>
@@ -90,7 +88,7 @@ If you downloaded this mod manually, see MANUAL INSTALL.txt for installation ins
     <File md5="7E78ECBDCA58705BDA0106F9D455E3DF" import="1">EUI/CityView.lua</File>
     <File md5="984545AEBCA87D9F9B6C51A7E07958E9" import="1">EUI/CityView.xml</File>
     <File md5="03A04D6143F27CC517EA7463164D4913" import="1">EUI/CityView_small.xml</File>
-    <File md5="DB3D3BBFFC11CAF69A9505E4995F91BE" import="1">EUI/CivilopediaScreen.lua</File>
+    <File md5="8CE47486BD28A58DA4E1E9C39D7378DD" import="1">EUI/CivilopediaScreen.lua</File>
     <File md5="0F36E9923D32508E9DF09CE94A1B0BC2" import="1">EUI/CivilopediaScreen.xml</File>
     <File md5="3F476A71188724BC528A087525301A9A" import="0">EUI/Corps/Corporations.sql</File>
     <File md5="F2B4529383B3A7F7AEC8F9CA82C9A83C" import="0">EUI/Corps/CorpText_en_US.sql</File>
@@ -163,7 +161,7 @@ If you downloaded this mod manually, see MANUAL INSTALL.txt for installation ins
     <File md5="2F4E8578875AA96C3D8553D2E7DE0883" import="1">EUI/WhosWinningPopup.lua</File>
     <File md5="02C28E298D776D1804F065751649D91B" import="1">EUI/YieldIconManager.lua</File>
     <File md5="C10F916FF1CD06DB8235408C1AAE097E" import="1">EUI/YieldIconManager.xml</File>
-    <File md5="7E76EEBF30467BC466BAFB1ED143BEDA" import="1">EUI/StackedPromotionIcons/StackedPromotionIcons.sql</File>
+    <File md5="B9521C4DBC8EC76992D8DF3F8D22E073" import="1">EUI/StackedPromotionIcons/StackedPromotionIcons.sql</File>
     <File md5="3F4B08D58AE727DF10D8A34BEC5F398E" import="1">No-EUI/ActionInfoPanel.lua</File>
     <File md5="314F159E85D3C21731FFB7FDBE86433A" import="1">No-EUI/AdvancedSetup.lua</File>
     <File md5="39C6A39E21DF6E10B666FA57FA502643" import="1">No-EUI/Bombardment.lua</File>
@@ -181,7 +179,7 @@ If you downloaded this mod manually, see MANUAL INSTALL.txt for installation ins
     <File md5="3CBE322F14A59655023DBE78D8BEFDA8" import="1">No-EUI/CityView.lua</File>
     <File md5="CBE80AE325288F1B5A1B05525826DEC0" import="1">No-EUI/CityView.xml</File>
     <File md5="2C009EF1C7A9213005C102161D5F6C33" import="1">No-EUI/CityView_small.xml</File>
-    <File md5="DB3D3BBFFC11CAF69A9505E4995F91BE" import="1">No-EUI/CivilopediaScreen.lua</File>
+    <File md5="8CE47486BD28A58DA4E1E9C39D7378DD" import="1">No-EUI/CivilopediaScreen.lua</File>
     <File md5="0F36E9923D32508E9DF09CE94A1B0BC2" import="1">No-EUI/CivilopediaScreen.xml</File>
     <File md5="3F476A71188724BC528A087525301A9A" import="0">No-EUI/Corps/Corporations.sql</File>
     <File md5="F2B4529383B3A7F7AEC8F9CA82C9A83C" import="0">No-EUI/Corps/CorpText_en_US.sql</File>

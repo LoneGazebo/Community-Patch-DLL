@@ -2,7 +2,7 @@
 <Mod id="0f1eab20-b84e-4277-a3cc-f772b952be54" version="4">
 
   <Properties>
-    <Name>(7a) Promotion Icons for VP</Name>
+    <Name>(4a) Promotion Icons for VP</Name>
     <Stability>Beta</Stability>   
     <Teaser>(v 4) Promotion icons designed for Vox Populi</Teaser>
     <Description>Version 4[NEWLINE][NEWLINE][COLOR_PROJECT_TEXT]. 250+ exclusive icons replace triangles and duplicates[NEWLINE]. Optimized for use with Promotion Flags EUI for VP[NEWLINE]. + 16 temporary Promotion Icons[NEWLINE]. + 64 Extra Promotion Icons you can use in your modmods:[ENDCOLOR] Extra Promo Icons.png[NEWLINE][COLOR_PROJECT_TEXT]. Informations and Credits: [ENDCOLOR]Promotion Icons for VP.txt</Description>
@@ -22,7 +22,8 @@
   </Properties>
   
   <Dependencies>
-    <Mod id="8411a7a8-dad3-4622-a18e-fcc18324c799" minversion="13" maxversion="999" title="(2) Community Balance Overhaul" />
+    <Mod id="d1b6328c-ff44-4b0d-aad7-c657f83610cd" minversion="103" maxversion="999" title="(1) Community Patch" />
+    <Mod id="8411a7a8-dad3-4622-a18e-fcc18324c799" minversion="15" maxversion="999" title="(2) Vox Populi" />
   </Dependencies>
   
   <References>
