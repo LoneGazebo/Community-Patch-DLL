@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by Ed Beach (Firaxis Games) -->
+<GameData>
+	<GameOptions>
+		<Row>
+			<Type>GAMEOPTION_RESEARCH_AGREEMENTS</Type>
+			<Description>TXT_KEY_GAME_OPTION_RESEARCH_AGREEMENTS</Description>
+			<Help>TXT_KEY_GAME_OPTION_RESEARCH_AGREEMENTS_HELP</Help>
+		</Row>
+		<Row>
+			<Type>GAMEOPTION_NO_TECH_TRADING</Type>
+			<Description>TXT_KEY_GAME_OPTION_NO_TECH_TRADING</Description>
+			<Help>TXT_KEY_GAME_OPTION_NO_TECH_TRADING_HELP</Help>
+		</Row>
+		<Row>
+			<Type>GAMEOPTION_NO_VASSALAGE</Type>
+			<Description>TXT_KEY_GAME_OPTION_NO_VASSALAGE</Description>
+			<Help>TXT_KEY_GAME_OPTION_NO_VASSALAGE_HELP</Help>
+		</Row>
+		<Row>
+			<Type>GAMEOPTION_HUMAN_VASSALS</Type>
+			<Description>TXT_KEY_GAME_OPTION_HUMAN_VASSALS</Description>
+			<Help>TXT_KEY_GAME_OPTION_HUMAN_VASSALS_HELP</Help>
+		</Row>
+		<Row>
+			<Type>GAMEOPTION_NO_TECH_BROKERING</Type>
+			<Description>TXT_KEY_GAME_OPTION_NO_TECH_BROKERING</Description>
+			<Help>TXT_KEY_GAME_OPTION_NO_TECH_BROKERING_HELP</Help>
+			<Default>true</Default>
+		</Row>
+		<Row>
+			<Type>GAMEOPTION_ADVANCED_DIPLOMACY</Type>
+			<Description>TXT_KEY_GAME_OPTION_ADVANCED_DIPLOMACY</Description>
+			<Help>TXT_KEY_GAME_OPTION_ADVANCED_DIPLOMACY_HELP</Help>
+		</Row>
+	</GameOptions>
+</GameData>

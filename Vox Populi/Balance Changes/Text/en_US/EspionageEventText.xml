@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Created by ModBuddy on 4/21/2021 10:11:11 AM -->
+<GameData>
+	<Language_en_US>
+		
+		<!-- NOTIFICATION POPUP -->
+		<Row Tag="TXT_KEY_CHOOSE_EVENT_AA_CHOICE">
+			<Text>Incoming Encrypted Message from {1_Rank} {2_Spy}!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CHOOSE_EVENT_AA_TT">
+			<Text>An encrypted message from {1_Rank} {2_Spy} in {3_City} has arrived.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_AA_EVENT_INVALID">
+			<Text>{1_Rank} {2_Spy}: Mission Aborted!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_AA_EVENT_INVALID_TT">
+			<Text>{1_Rank} {2_Spy} in {3_City} has been forced to abort their mission due to recent changes in the City. Please choose a new focus for your Spy.</Text>
+		</Row>
+		
+		<!-- FOCUS OPTIONS -->
+
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_SELECT_FOCUS">
+			<Text>Select Spy Mission</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_SELECT_FOCUS_HELP">
+			<Text>Your newly established spy network requires a mission. What would you like them to focus on?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_ECONOMIC_PRODUCTION">
+			<Text>Disrupt local [ICON_PRODUCTION] Production</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_ECONOMIC_PRODUCTION_HELP">
+			<Text>{6_Spy}Target City: {2_InstantYield}[NEWLINE][NEWLINE]If City is constructing a [COLOR_POSITIVE_TEXT]World Wonder[ENDCOLOR] or [COLOR_POSITIVE_TEXT]Project[ENDCOLOR], duration for this mission is halved.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_ECONOMIC_GOLD">
+			<Text>Raid the local [ICON_GOLD] Gold treasury</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_ECONOMIC_GOLD_HELP">
+			<Text>{6_Spy}Your [ICON_CAPITAL] Capital City: {2_InstantYield}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_ECONOMIC_TILES">
+			<Text>Radicalize the rural [ICON_CITIZEN] citizenry</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_ECONOMIC_TILES_HELP">
+			<Text>{6_Spy}One of each primary improvement (Farm, Mine, Plantation, Trading Post) is pillaged around the City. Two improved [COLOR_POSITIVE_TEXT] Strategic Resource [ENDCOLOR] tiles are pillaged. -25% [ICON_FOOD] Growth for {5_Turns}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_SCIENTIFIC_SCIENCE">
+			<Text>Infiltrate local [ICON_RESEARCH] Science facilities</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_SCIENTIFIC_SCIENCE_HELP">
+			<Text>{6_Spy}Your [ICON_CAPITAL] Capital City: {2_InstantYield}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_SCIENTIFIC_GREATPEOPLE">
+			<Text>Kidnap [ICON_GREAT_PEOPLE] Specialists in the City</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_SCIENTIFIC_GREATPEOPLE_HELP">
+			<Text>{6_Spy}Target City: -1 [ICON_RESEARCH] Science from Scientists; -1 [ICON_GOLD] Gold from Merchants; -1 [ICON_PRODUCTION] Production from Engineers; -1 [ICON_CULTURE] Culture from Musicians, Artists, and Writers.[NEWLINE]Your Benefit: {7_PlayerEventEffect}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_MILITARY_GARRISON">
+			<Text>Target local City [ICON_STRENGTH] Defenses</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_MILITARY_GARRISON_HELP">
+			<Text>{6_Spy}Target City takes [COLOR_NEGATIVE_TEXT]100[ENDCOLOR] Damage and Garrison (if present) takes [COLOR_NEGATIVE_TEXT]25[ENDCOLOR] Damage. City is [COLOR_NEGATIVE_TEXT]Sapped[ENDCOLOR] (cannot heal) for 5 turns.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_URBAN_UNREST">
+			<Text>[ICON_RESISTANCE] Arm the local populace</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_URBAN_UNREST_HELP">
+			<Text>{6_Spy}City enters [ICON_RESISTANCE] Resistance for 2 Turns. 5 Rebel Units spawn around the City.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_STEAL_TECH">
+			<Text>Sabotage Science and Steal a [ICON_RESEARCH] Technology</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_STEAL_TECH_HELP">
+			<Text>{6_Spy}Target Player: Steal one [ICON_RESEARCH] Technology. Target City: {3_CityYield}[NEWLINE][NEWLINE]If no Techs are available to steal at completion, a [ICON_GOLDEN_AGE] Golden Age Begins.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_STEAL_GW">
+			<Text>Create a forgery of a [ICON_GREAT_WORK] Great Work in the City</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_STEAL_GW_HELP">
+			<Text>{6_Spy}Target City: Copy one [ICON_GREAT_WORK] Great Work. Target City: {3_CityYield}[NEWLINE][NEWLINE]If no Great Works are available to steal at completion, a [ICON_GOLDEN_AGE] Golden Age Begins.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_REVEAL_AREA">
+			<Text>Broaden [ICON_SPY] Surveillance in City</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_REVEAL_AREA_HELP">
+			<Text>{6_Spy}Target City: Expand number of tiles visible around City while Spy is present.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_PLAYER_YIELD_BASIC">
+			<Text>Repatriated Specialists (Spy Event)</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_PLAYER_YIELD_BASIC_HELP">
+			<Text>+2 [ICON_RESEARCH] Science from Scientists; +2 [ICON_GOLD] Gold from Merchants; +2 [ICON_PRODUCTION] Production from Engineers; +2 [ICON_CULTURE] Culture from Musicians, Artists, and Writers in [ICON_CAPITAL] Capital. Duration: {4_Turns}</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_PLAYER_YIELD_BASIC_PARENT">
+			<Text>Repatriated Specialists (Spy Event)</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_PLAYER_YIELD_BASIC_PARENT_HELP">
+			<Text>+2 [ICON_RESEARCH] Science from Scientists; +2 [ICON_GOLD] Gold from Merchants; +2 [ICON_PRODUCTION] Production from Engineers; +2 [ICON_CULTURE] Culture from Musicians, Artists, and Writers in [ICON_CAPITAL] Capital. Duration: {4_Turns}</Text>
+		</Row>
+		
+		<!-- Counterspy -->
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_BASIC">
+			<Text>Establish a counter-espionage network.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_BASIC_HELP">
+			<Text>[COLOR_POSITIVE_TEXT]+50%[ENDCOLOR] chance to Identify and/or Kill foreign [ICON_SPY] Spies.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_DEFENSE">
+			<Text>Inspect the local garrison and fine-tune our city defenses.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_DEFENSE_HELP">
+			<Text>[COLOR_POSITIVE_TEXT]+10%[ENDCOLOR] chance to Identify and/or Kill foreign [ICON_SPY] Spies. City [ICON_RANGE] Ranged Attacks are 50% stronger while Spy is active in this City.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_QUELL">
+			<Text>Turn your network on the local population. Bring them in line.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_QUELL_HELP">
+			<Text>[COLOR_POSITIVE_TEXT]+25%[ENDCOLOR] chance to Identify and/or Kill foreign [ICON_SPY] Spies. +2 [ICON_HAPPINESS_1] Happiness in the City, and all sources of Needs Unhappiness are reduced by 25%.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_SPECIALIST">
+			<Text>Make sure local Specialists are giving their best.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_SPECIALIST_HELP">
+			<Text>[COLOR_POSITIVE_TEXT]+15%[ENDCOLOR] chance to Identify and/or Kill foreign [ICON_SPY] Spies. Merchants, Engineers, Scientists, Artists, Writers, and Musicians all produce +1 of their basic Yield.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_FOCUS">
+			<Text>Counterintelligence</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_FOCUS_HELP">
+			<Text>Your Spy has established their new counterintel operation. Give them orders:</Text>
+		</Row>
+		
+		<!-- Notifications -->
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_SUCCESS">
+			<Text>{1_SpyRank} {2_SpyName} in {3_CityName} completed their mission![NEWLINE][NEWLINE]{4_EventChoiceHelpText}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_SUCCESS_S">
+			<Text>{1_SpyRank} {2_SpyName} succeeded in {3_CityName}!</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_EVENT_SPY_DETECTED">
+			<Text>[COLOR_POSITIVE_TEXT]MISSION OUTCOME:[ENDCOLOR] SUCCESS![NEWLINE][NEWLINE]Message: "Operatives detected, but they don't know who we work for. We will continue working here until you reassign us elsewhere."[NEWLINE][NEWLINE]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EVENT_SPY_IDENTIFIED">
+			<Text>[COLOR_POSITIVE_TEXT]MISSION OUTCOME:[ENDCOLOR] SUCCESS, BUT IDENTIFIED![NEWLINE][NEWLINE]Message: "Our cover is blown, we're returning to HQ for reassignment."[NEWLINE][NEWLINE]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EVENT_SPY_KILLED">
+			<Text>[COLOR_NEGATIVE_TEXT]MISSION OUTCOME:[ENDCOLOR] FAILURE[NEWLINE][NEWLINE] Communications have gone dark. Your operative is KIA.[NEWLINE][NEWLINE]</Text>
+		</Row>
+		
+		
+	</Language_en_US>
+</GameData>

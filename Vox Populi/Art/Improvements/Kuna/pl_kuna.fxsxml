@@ -1,0 +1,10 @@
+<Asset>
+  <Mesh file="kuna_HalfBuilt.gr2" source="Max" />
+  <Texture file="HB_Chichen_Itza_DIFF.dds" source="Max" />
+  <Texture file="HB_Chichen_Itza_SREF.dds" source="Max" />
+	<DecisionTree file="StaticLandmarkDecisionTree.ddtxml" source="Tool" />
+	<BoneUsage>
+		<Bone name="FX_PillagedSmoke" />
+	</BoneUsage>
+	<TimedTrigger file="FX_Triggers_PL_IND_Stone_Quarry.ftsxml" source="Tool" model="Box01" state="0,1,2,3"/>
+</Asset>

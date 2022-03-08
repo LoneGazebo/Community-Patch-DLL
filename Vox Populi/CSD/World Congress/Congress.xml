@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Created by ModBuddy on 12/20/2013 2:16:05 PM -->
+<GameData>
+	<Resolutions>
+		<Row>
+			<Type>RESOLUTION_SPHERE_OF_INFLUENCE</Type>
+			<Description>TXT_KEY_RESOLUTION_SOI</Description>
+			<Help>TXT_KEY_RESOLUTION_SOI_HELP</Help>
+			<VoterDecision>RESOLUTION_DECISION_YES_OR_NO</VoterDecision>
+			<ProposerDecision>RESOLUTION_DECISION_CITY_CSD</ProposerDecision>
+			<SphereOfInfluence>true</SphereOfInfluence>
+			<TechPrereqAnyMember>TECH_STEAM_POWER</TechPrereqAnyMember>
+		</Row>
+		<Row>
+			<Type>RESOLUTION_DECOLONIZATION</Type>
+			<Description>TXT_KEY_RESOLUTION_DECOLONIZATION</Description>
+			<Help>TXT_KEY_RESOLUTION_DECOLONIZATION_HELP</Help>
+			<VoterDecision>RESOLUTION_DECISION_YES_OR_NO</VoterDecision>
+			<ProposerDecision>RESOLUTION_DECISION_OTHER_MAJOR_CIV_MEMBER</ProposerDecision>
+			<Decolonization>true</Decolonization>
+			<TechPrereqAnyMember>TECH_RADIO</TechPrereqAnyMember>
+		</Row>
+		<Row>
+			<Type>RESOLUTION_OPEN_DOOR</Type>
+			<Description>TXT_KEY_RESOLUTION_OPEN_DOOR</Description>
+			<Help>TXT_KEY_RESOLUTION_OPEN_DOOR_HELP</Help>
+			<VoterDecision>RESOLUTION_DECISION_YES_OR_NO</VoterDecision>
+			<ProposerDecision>RESOLUTION_DECISION_CITY_CSD</ProposerDecision>
+			<OpenDoor>true</OpenDoor>
+			<TechPrereqAnyMember>TECH_ECONOMICS</TechPrereqAnyMember>
+		</Row>
+		<Row>
+			<Type>RESOLUTION_SPACESHIP_INSPECTION</Type>
+			<Description>TXT_KEY_RESOLUTION_SPACESHIP_INSPECTION</Description>
+			<Help>TXT_KEY_RESOLUTION_SPACESHIP_INSPECTION_HELP</Help>
+			<VoterDecision>RESOLUTION_DECISION_YES_OR_NO</VoterDecision>
+			<ProposerDecision>RESOLUTION_DECISION_NONE</ProposerDecision>
+			<SpaceshipProductionMod>-25</SpaceshipProductionMod>
+			<SpaceshipPurchaseMod>25</SpaceshipPurchaseMod>
+			<TechPrereqAnyMember>TECH_ATOMIC_THEORY</TechPrereqAnyMember>
+		</Row>
+		<Row>
+			<Type>RESOLUTION_WORLD_WAR</Type>
+			<Description>TXT_KEY_RESOLUTION_WORLD_WAR</Description>
+			<Help>TXT_KEY_RESOLUTION_WORLD_WAR_HELP</Help>
+			<IsWorldWar>1</IsWorldWar>
+			<VoterDecision>RESOLUTION_DECISION_YES_OR_NO</VoterDecision>
+			<ProposerDecision>RESOLUTION_DECISION_NONE</ProposerDecision>
+			<UnitMaintenanceGoldPercent>-15</UnitMaintenanceGoldPercent>
+		</Row>
+		<Row>
+			<Type>RESOLUTION_COLD_WAR</Type>
+			<Description>TXT_KEY_RESOLUTION_COLD_WAR</Description>
+			<Help>TXT_KEY_RESOLUTION_COLD_WAR_HELP</Help>
+			<EmbargoIdeology>true</EmbargoIdeology>
+			<VoterDecision>RESOLUTION_DECISION_YES_OR_NO</VoterDecision>
+			<ProposerDecision>RESOLUTION_DECISION_NONE</ProposerDecision>
+			<TechPrereqAnyMember>TECH_ATOMIC_THEORY</TechPrereqAnyMember>
+		</Row>
+	</Resolutions>
+	<ResolutionDecisions>
+		<Row>
+			<Type>RESOLUTION_DECISION_CITY_CSD</Type>
+			<Description>TXT_KEY_RESOLUTION_DECISION_CITY_CSD</Description>
+		</Row>
+	</ResolutionDecisions>
+	<Language_en_US>
+		<Row Tag="TXT_KEY_CITY_STATE_PERMANENT_ALLY_TT">
+			<Text>{1_CivName:textkey} is their current Ally. Until their [COLOR_POSITIVE_TEXT]Sphere of Influence[ENDCOLOR] is removed, you cannot remove them from this position.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_STATE_ALLY_NOBODY_PERMA">
+			<Text>Because there is an active [COLOR_POSITIVE_TEXT]Open Door Policy[ENDCOLOR] in effect here, no one can become this City-State's Ally.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESOLUTION_SOI">
+			<Text>Sphere of Influence</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESOLUTION_SOI_HELP">
+			<Text>Demand a Sphere of Influence over a City-State. If successful, the proposing player becomes the permanent Ally of the City-State (unless this Proposal is repealed). [NEWLINE][NEWLINE]Available once any Civilization discovers Steam Power.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEAGUE_OVERVIEW_EFFECT_SUMMARY_SOI">
+			<Text>Spheres of Influence: {1_CivsList}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEAGUE_OVERVIEW_EFFECT_SUMMARY_SOI_ENTRY">
+			<Text>{@1_CivName} (for {@2_CivName})</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESOLUTION_DECOLONIZATION">
+			<Text>Decolonization</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESOLUTION_DECOLONIZATION_HELP">
+			<Text>Enforce decolonization on a Player. If successful, the Player's [ICON_INFLUENCE] Influence is lowered to 50 with all non-Permanent City-State allies. [NEWLINE][NEWLINE]Available once any Civilization discovers Radio.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESOLUTION_OPEN_DOOR">
+			<Text>Open Door</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEAGUE_OVERVIEW_EFFECT_SUMMARY_OPEN_DOOR">
+			<Text>Open Doors: {1_CivsList}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEAGUE_OVERVIEW_EFFECT_SUMMARY_OPEN_DOOR_ENTRY">
+			<Text>{@1_CivName}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESOLUTION_OPEN_DOOR_HELP">
+			<Text>Enact an Open Door policy for a City-State. If successful, all civilizations will immediately have their [ICON_INFLUENCE] Influence set at 40 with the City-State, and no one can become the City-State's Ally until this Proposal is repealed.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESOLUTION_CHOICE_CITY_CSD">
+			<Text>{@1_CityName}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEAGUE_OVERVIEW_PREFIX_PROPOSER">
+			<Text>{1_CivAdj}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESOLUTION_DECISION_CITY_CSD">
+			<Text>Choose a City-State for the resolution to affect</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESOLUTION_SPACESHIP_INSPECTION">
+			<Text>Spaceflight Regulations</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESOLUTION_SPACESHIP_INSPECTION_HELP">
+			<Text>Spaceflight Regulations control the proliferation of modern ballistic technology, oversee national space programs, and limit the advance of pontentially-dangerous technology. [NEWLINE][NEWLINE]As long as this resolution is active, all players will suffer a global -25% [ICON_PRODUCTION] Production penalty for [ICON_VICTORY_SPACE] Spaceship Parts, +25% [ICON_GOLD] Gold purchase costs for [ICON_VICTORY_SPACE] Spaceship Parts, and +25% [ICON_PEACE] Faith costs for Engineers.[NEWLINE][NEWLINE]Available once any Civilization discovers Atomic Theory.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEAGUE_OVERVIEW_EFFECT_SUMMARY_SPACESHIP_LIMIT">
+			<Text>{1_Spaceship}% [ICON_PRODUCTION] Production when building SS Parts</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEAGUE_OVERVIEW_EFFECT_SUMMARY_SPACESHIP_PURCHASE">
+			<Text>+{1_Spaceship}% costs for [ICON_GOLD] Gold purchases of SS parts and [ICON_PEACE] Faith purchases of Great Engineers</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESOLUTION_WORLD_WAR">
+			<Text>Casus Belli</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESOLUTION_WORLD_WAR_HELP">
+			<Text>The world recognizes the need for justifiable war to resolve diplomatic disputes. [NEWLINE][NEWLINE]While this resolution is active, unit maintenance costs are lowered by 15% [ICON_GOLD] Gold. [ICON_VICTORY_DOMINATION] Warmonger penalties for capturing cities and declaring war are greatly reduced, and [ICON_VICTORY_DOMINATION] Warmonger scores decay much more rapidly than normal.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEAGUE_OVERVIEW_EFFECT_SUMMARY_WORLD_WAR">
+			<Text>{1_UnitMaintenancePercent}% [ICON_GOLD] Gold cost for Unit Maintenance. [ICON_VICTORY_DOMINATION] Warmonger penalties greatly decreased</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEAGUE_OVERVIEW_EFFECT_SUMMARY_WAR_PEACE">
+			<Text>+{1_UnitMaintenancePercent}% [ICON_GOLD] Gold cost for Unit Maintenance. [ICON_VICTORY_DOMINATION] Warmonger penalties unchanged.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESOLUTION_COLD_WAR">
+			<Text>Cold War</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESOLUTION_COLD_WAR_HELP">
+			<Text>Ideological differences have pushed the world into a cold war, and economic and political factions are forming based on ideology alone. [NEWLINE][NEWLINE]While this resolution is active, players may only make [ICON_INTERNATIONAL_TRADE] Trade Routes with civilizations that follow the same ideology, or with allied City-States. Furthermore, [ICON_INFLUENCE] Influence levels with allied City-States do not decline. [NEWLINE][NEWLINE]Available once any Civilization discovers Atomic Theory.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEAGUE_OVERVIEW_EFFECT_SUMMARY_EMBARGO_IDEOLOGY">
+			<Text>No [ICON_INTERNATIONAL_TRADE] Trade Routes with Ideological opponents or non-allied City-States. Allied City-State [ICON_INFLUENCE] Influence does not decay.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEAGUE_OVERVIEW_INVALID_RESOLUTION_CONTRADICTION">
+			<Text>Prevented by an active or proposed resolution.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEAGUE_OVERVIEW_INVALID_RESOLUTION_PREREQ">
+			<Text>Unavailable until a World Ideology is active.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEAGUE_OVERVIEW_EFFECT_SUMMARY_POSITIVE_GREAT_PERSON_RATE_SCIENCEY">
+			<Text>Boost to [ICON_FOOD]/[ICON_RESEARCH] for Civilizations with Scores below global average. +{1_GreatPersonRateMod}% generation rate for {2_GreatPersonList}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEAGUE_OVERVIEW_EFFECT_SUMMARY_POSITIVE_GREAT_PERSON_RATE_ARTSY">
+			<Text>Boost to [ICON_PRODUCTION]/[ICON_CULTURE] for Civilizations with Scores below global average. +{1_GreatPersonRateMod}% generation rate for {2_GreatPersonList}</Text>
+		</Row>
+	</Language_en_US>
+</GameData>

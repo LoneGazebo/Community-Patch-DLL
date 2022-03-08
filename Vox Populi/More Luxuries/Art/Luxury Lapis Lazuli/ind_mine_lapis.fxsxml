@@ -1,0 +1,25 @@
+<Asset>
+  <Mesh file="IND_Mine_Lapis.gr2" source="Max" />
+  <Texture file="Dirt_Rubble_DIFF.dds" source="Max" />
+  <Texture file="Dirt_Rubble_SREF.dds" source="Max" />
+  <Texture file="Generic_Grey_8.dds" source="Max" />
+  <Texture file="IND_Mine_Hill_DIFF.dds" source="Max" />
+  <Texture file="IND_Mine_Hill_SREF.dds" source="Max" />
+  <Texture file="Lapis_Rubble_DIFF.dds" source="Max" />
+  <Texture file="MID_Mine_Hill_DIFF.dds" source="Max" />
+  <Texture file="MID_Mine_Hill_SREF.dds" source="Max" />
+  <Texture file="Mine_Decal_H.dds" source="Max" />
+  <Texture file="Mine_Decal_S.dds" source="Max" />
+  <Texture file="Mine_Lapis_Decal_D.dds" source="Max" />
+  <Texture file="Plantation_MID_DIFF.dds" source="Max" />
+  <Texture file="Plantation_MID_SREF.dds" source="Max" />
+  <Texture file="Resource_Irradiance.dds" source="Max" />
+  <Texture file="Rubble_SREF.dds" source="Max" />
+  <Texture file="Lapis_ore_DIFF.dds" source="Max" />
+  <Texture file="Lapis_ore_SREF.dds" source="Max" />
+  <Texture file="resource_Environment_Sharp.dds" source="Max" />
+  <Texture file="resources_Environment_Dull.dds" source="Max" />
+  <Texture file="Unit_Environment_Dull.dds" source="Max" />
+  <Texture file="Unit_Environment_Sharp.dds" source="Max" />
+  <Texture file="Unit_Irradiance.dds" source="Max" />
+</Asset>
