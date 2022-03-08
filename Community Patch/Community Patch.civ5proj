@@ -81,6 +81,13 @@
       </Association>
       <Association>
         <Type>Mod</Type>
+        <Name>(1a) Civ IV Diplomatic Features - CP</Name>
+        <Id>781d81cf-49e1-4acb-ae5f-b9e3713f98d3</Id>
+        <MinVersion>0</MinVersion>
+        <MaxVersion>999</MaxVersion>
+      </Association>
+      <Association>
+        <Type>Mod</Type>
         <Name>Civilization IV Diplomatic Features - Standalone</Name>
         <Id>275db698-0c69-401e-89a8-7eab501b6bcf</Id>
         <MinVersion>0</MinVersion>
