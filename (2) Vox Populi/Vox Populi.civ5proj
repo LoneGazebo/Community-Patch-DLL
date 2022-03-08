@@ -3,11 +3,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Default</Configuration>
     <ProjectGuid>{0d66d522-b624-4bc5-acfe-15a0c5b729f4}</ProjectGuid>
-    <Name>(2) Community Balance Overhaul</Name>
+    <Name>(2) Vox Populi</Name>
     <Guid>8411a7a8-dad3-4622-a18e-fcc18324c799</Guid>
-    <ModVersion>14</ModVersion>
+    <ModVersion>15</ModVersion>
     <Stability>Stable</Stability>
-    <Teaser>(1.4.6) Unofficial Expansion and Rebalancing Project for Civilization V: Brave New World</Teaser>
+    <Teaser>(1.5) Unofficial Expansion and Rebalancing Project for Civilization V: Brave New World</Teaser>
     <Description>Contains balance changes, gameplay improvements, and entirely new game systems to make Civ V a more enjoyable and exciting game.</Description>
     <Authors>CivFanatics Community Patch Project Team</Authors>
     <SpecialThanks>
@@ -652,6 +652,261 @@
         <Type>UpdateDatabase</Type>
         <FileName>Balance Changes/Text/en_US/EspionageEventText.xml</FileName>
       </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <Filename>CSD/Gameplay/CSDTable.sql</Filename>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <Filename>CSD/Options.sql</Filename>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <Filename>CSD/Art/XML/Icons.xml</Filename>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <Filename>CSD/Art/ArtInfo.sql</Filename>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <Filename>CSD/Buildings/BuildingRules.sql</Filename>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <Filename>CSD/Buildings/DiploBuildingText.sql</Filename>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <Filename>CSD/Gameplay/Gameplay.sql</Filename>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <Filename>CSD/Gameplay/GameplayText.sql</Filename>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <Filename>CSD/Gameplay/GoldGifts.sql</Filename>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <Filename>CSD/Units/CSD_UnitGoldCost.sql</Filename>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <Filename>CSD/World Congress/CongressTurns.sql</Filename>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <Filename>CSD/World Congress/IdeologyChanges.sql</Filename>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <Filename>CSD/Buildings/BuildingText.xml</Filename>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <Filename>CSD/Buildings/CSDBuildings.xml</Filename>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <Filename>CSD/Buildings/BuildingGrowthYield.xml</Filename>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <Filename>CSD/Improvements/Build.xml</Filename>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <Filename>CSD/Improvements/Improvements.xml</Filename>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <Filename>CSD/Improvements/ImprovementText.xml</Filename>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <Filename>CSD/Units/GreatDiplomats.xml</Filename>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <Filename>CSD/Units/CSD_Units.xml</Filename>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <Filename>CSD/Units/CSD_AI.xml</Filename>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <Filename>CSD/Units/CSD_UnitText.xml</Filename>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <Filename>CSD/Promotions/Promotions.xml</Filename>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <Filename>CSD/Promotions/PromotionText.xml</Filename>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <Filename>CSD/Quests/CityStateQuest.xml</Filename>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <Filename>CSD/Resource/Paper.xml</Filename>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <Filename>CSD/Specialist/CivilServant.xml</Filename>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <Filename>CSD/World Congress/Congress.xml</Filename>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <Filename>CSD/World Congress/Projects.xml</Filename>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <Filename>CSD/Gameplay/UpdateDefines.sql</Filename>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <Filename>C4DF/SQL/NewColumns.sql</Filename>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <Filename>C4DF/XML/Gameplay/C4DFConcepts.xml</Filename>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <Filename>C4DF/XML/Gameplay/C4DFDiplomacyResponses.xml</Filename>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <Filename>C4DF/XML/Gameplay/C4DFGameOptions.xml</Filename>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <Filename>C4DF/XML/Gameplay/C4DFResolutions.xml</Filename>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <Filename>C4DF/XML/Text/en_US_Text_CivilopediaC4DF.xml</Filename>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <Filename>C4DF/XML/Text/en_US_Text_Generic_DiplomacyC4DF.xml</Filename>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <Filename>C4DF/XML/Text/en_US_Text_UIC4DF.xml</Filename>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <Filename>More Luxuries/XML/NewLuxuries_Art_Icons.xml</Filename>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <Filename>More Luxuries/XML/NewLuxuries_Art_Terrain.xml</Filename>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <Filename>More Luxuries/XML/NewLuxuries_Resources.xml</Filename>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <Filename>More Luxuries/XML/NewLuxuries_Text.xml</Filename>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <Filename>Compatibility/CSD/CSDCompatibility.sql</Filename>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <Filename>Compatibility/Corporations/Corporations.sql</Filename>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <Filename>Compatibility/C4DFCompatibility/C4DFCompatibility.sql</Filename>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <Filename>Compatibility/MoreLuxuries/MoreLuxuries.sql</Filename>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <Filename>Compatibility/Corporations/Text/CorpText_en_US.sql</Filename>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <Filename>Compatibility/Corporations/Text/CorpText_en_US.xml</Filename>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <Filename>Compatibility/CSD/CompatibilityText/Compatibility_en_US.sql</Filename>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <Filename>Compatibility/CSD/CompatibilityText/Compatibility_en_US.xml</Filename>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <Filename>Compatibility/MoreLuxuries/Text/Text_en_US.sql</Filename>
+      </Action>
     </ModActions>
     <ModReferences />
     <ReloadStrategicViewSystem>true</ReloadStrategicViewSystem>
@@ -663,7 +918,7 @@
         <Type>Mod</Type>
         <Name>(1) Community Patch</Name>
         <Id>d1b6328c-ff44-4b0d-aad7-c657f83610cd</Id>
-        <MinVersion>102</MinVersion>
+        <MinVersion>103</MinVersion>
         <MaxVersion>999</MaxVersion>
       </Association>
     </ModDependencies>
@@ -725,6 +980,18 @@
         <Name>Communitu_79</Name>
         <Description>Communitas Rewrite By tu_79. For use with full VP installation only.</Description>
         <FileName>Mapscripts/Communitu_79a.lua</FileName>
+      </Content>
+      <Content>
+        <Type>InGameUIAddin</Type>
+        <Name>Vassalage Overview</Name>
+        <Description>Vassalage Overview</Description>
+        <FileName>C4DF/LUA/VassalageOverview.lua</FileName>
+      </Content>
+      <Content>
+        <Type>InGameUIAddin</Type>
+        <Name>Terra</Name>
+        <Description />
+        <FileName>More Luxuries/Lua/Maps/Terra.lua</FileName>
       </Content>
     </ModContent>
     <ReloadAudioSystem>true</ReloadAudioSystem>
@@ -809,9 +1076,12 @@
     <Folder Include="Balance Changes\Policies\Liberty" />
     <Folder Include="Balance Changes\Policies\Piety" />
     <Folder Include="Balance Changes\Policies\Tradition" />
+    <Folder Include="C4DF\" />
+    <Folder Include="Compatibility\" />
     <Folder Include="Core Files\" />
     <Folder Include="Core Files\Core Changes\" />
     <Folder Include="Core Files\CoreLua" />
+    <Folder Include="CSD\" />
     <Folder Include="LUA\" />
     <Folder Include="Modular Elements" />
     <Folder Include="Modular Elements\Corporations\Art" />
@@ -827,6 +1097,56 @@
     <Folder Include="Modular Elements\TradeUIMod" />
     <Folder Include="Balance Changes" />
     <Folder Include="Mapscripts" />
+    <Folder Include="CSD\Art" />
+    <Folder Include="CSD\Art\Buildings" />
+    <Folder Include="CSD\Art\Buildings\Icons" />
+    <Folder Include="CSD\Art\Buildings\Splashes" />
+    <Folder Include="CSD\Art\Embassy" />
+    <Folder Include="CSD\Art\Specialists" />
+    <Folder Include="CSD\Art\Resources" />
+    <Folder Include="CSD\Art\Units\Flag" />
+    <Folder Include="CSD\Art\Units\Icons" />
+    <Folder Include="CSD\Art\XML" />
+    <Folder Include="CSD\Art\Units" />
+    <Folder Include="CSD\Gameplay" />
+    <Folder Include="CSD\Buildings" />
+    <Folder Include="CSD\Improvements" />
+    <Folder Include="CSD\World Congress" />
+    <Folder Include="CSD\Quests" />
+    <Folder Include="CSD\Specialist" />
+    <Folder Include="CSD\Resource" />
+    <Folder Include="CSD\Promotions\" />
+    <Folder Include="CSD\Units" />
+    <Folder Include="C4DF\Images" />
+    <Folder Include="C4DF\LUA" />
+    <Folder Include="C4DF\XML" />
+    <Folder Include="C4DF\SQL" />
+    <Folder Include="C4DF\XML\Gameplay" />
+    <Folder Include="C4DF\XML\Text" />
+    <Folder Include="More Luxuries\" />
+    <Folder Include="More Luxuries\Art" />
+    <Folder Include="More Luxuries\Art\Font Icon Atlas" />
+    <Folder Include="More Luxuries\Art\Icon Atlas" />
+    <Folder Include="More Luxuries\Art\Luxury Amber" />
+    <Folder Include="More Luxuries\Art\Luxury Coffee" />
+    <Folder Include="More Luxuries\Art\Luxury Coral" />
+    <Folder Include="More Luxuries\Art\Luxury Jade" />
+    <Folder Include="More Luxuries\Art\Luxury Lapis Lazuli" />
+    <Folder Include="More Luxuries\Art\Luxury Olives" />
+    <Folder Include="More Luxuries\Art\Luxury Perfume" />
+    <Folder Include="More Luxuries\Art\Luxury Tea" />
+    <Folder Include="More Luxuries\Art\Luxury Tobacco" />
+    <Folder Include="More Luxuries\Art\Update Sugar" />
+    <Folder Include="More Luxuries\Lua" />
+    <Folder Include="More Luxuries\Lua\Maps" />
+    <Folder Include="More Luxuries\XML" />
+    <Folder Include="Compatibility\Corporations" />
+    <Folder Include="Compatibility\Corporations\Text" />
+    <Folder Include="Compatibility\CSD" />
+    <Folder Include="Compatibility\CSD\CompatibilityText" />
+    <Folder Include="Compatibility\C4DFCompatibility" />
+    <Folder Include="Compatibility\MoreLuxuries" />
+    <Folder Include="Compatibility\MoreLuxuries\Text" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Art\Community2Art128.dds">
@@ -2962,6 +3282,1134 @@
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
     <Content Include="INSTRUCTIONS.txt">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="CSD\Art\Buildings\Icons\CSDBuildings128.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="CSD\Art\Buildings\Icons\CSDBuildings256.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="CSD\Art\Buildings\Icons\CSDBuildings45.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="CSD\Art\Buildings\Icons\CSDBuildings64.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="CSD\Art\Buildings\Icons\CSDBuildings80.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="CSD\Art\Buildings\Splashes\CrystalPalace.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="CSD\Art\Buildings\Splashes\MeninGateSplash.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="CSD\Art\Buildings\Splashes\OlympicVillage.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="CSD\Art\Buildings\Splashes\ProjectTreasureFleet.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="CSD\Art\Buildings\Splashes\ProjectUN.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="CSD\Art\Buildings\Splashes\ProjectWargames.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="CSD\Art\Buildings\Splashes\WonderAdmiralty.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="CSD\Art\Buildings\Splashes\WonderForum.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="CSD\Art\Buildings\Splashes\WonderSummerPalace.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="CSD\Art\ArtInfo.sql">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="CSD\Art\Embassy\Embassy.fxsxml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="CSD\Art\Embassy\Embassy.gr2">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="CSD\Art\Embassy\EmbassyAtlas256.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="CSD\Art\Embassy\EmbassyAtlas64.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="CSD\Art\Embassy\EmbassyBuildIcon45.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="CSD\Art\Embassy\EmbassyBuildIcon64.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="CSD\Art\Embassy\EmbassyBuilding.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="CSD\Art\Embassy\EmbassyBuilding_SREF.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="CSD\Art\Embassy\EmbassyGround.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="CSD\Art\Embassy\EmbassyGround_h.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="CSD\Art\Embassy\SV_Embassy.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="CSD\Art\Resources\Book256.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="CSD\Art\Resources\Book45.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="CSD\Art\Resources\Book64.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="CSD\Art\Resources\Book80.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="CSD\Art\Resources\CSDPaper.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="CSD\Art\Specialists\citizenCivilServant.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="CSD\Art\Specialists\CSDcs1024.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="CSD\Art\Specialists\CSDcs512.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="CSD\Art\Specialists\CSDcs256.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="CSD\Art\Specialists\CSDcs180.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="CSD\Art\Specialists\CSDcs128.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="CSD\Art\Units\Flag\CSDSVIcon.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="CSD\Art\Units\Flag\CSDSVIconGD.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="CSD\Art\Units\Flag\CSDunitflagatlaswhite32.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="CSD\Art\Units\Icons\CSDUnits128.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="CSD\Art\Units\Icons\CSDUnits256.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="CSD\Art\Units\Icons\CSDUnits45.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="CSD\Art\Units\Icons\CSDUnits64.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="CSD\Art\Units\Icons\CSDUnits80.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="CSD\Art\XML\CSDPaper.ggxml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="CSD\Art\XML\Icons.xml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="CSD\Buildings\BuildingRules.sql">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="CSD\Buildings\BuildingText.xml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="CSD\Buildings\CSDBuildings.xml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="CSD\Buildings\DiploBuildingText.sql">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="CSD\Buildings\BuildingGrowthYield.xml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="CSD\Gameplay\UpdateDefines.sql">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="CSD\Gameplay\CSDTable.sql">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="CSD\Gameplay\GameplayText.sql">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="CSD\Gameplay\Gameplay.sql">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="CSD\Gameplay\GoldGifts.sql">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="CSD\Improvements\Build.xml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="CSD\Improvements\ImprovementText.xml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="CSD\Improvements\Improvements.xml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="CSD\Options.sql">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="CSD\Promotions\Promotions.xml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="CSD\Promotions\PromotionText.xml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="CSD\Quests\CityStateQuest.xml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="CSD\Resource\Paper.xml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="CSD\Specialist\CivilServant.xml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="CSD\Units\MoreGreatDiplomats.sql">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="CSD\Units\CSD_Units.xml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="CSD\Units\CSD_AI.xml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="CSD\Units\GreatDiplomats.xml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="CSD\Units\CSD_UnitGoldCost.sql">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="CSD\Units\CSD_UnitText.xml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="CSD\World Congress\Congress.xml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="CSD\World Congress\CongressTurns.sql">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="CSD\World Congress\IdeologyChanges.sql">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="CSD\World Congress\Projects.xml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="C4DF\Images\vassal80.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="C4DF\Images\vassal80hl.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="C4DF\LUA\VassalageOverview.lua">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="C4DF\LUA\VassalageOverview.xml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="C4DF\SQL\NewColumns.sql">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="C4DF\XML\Gameplay\C4DFConcepts.xml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="C4DF\XML\Gameplay\C4DFDiplomacyResponses.xml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="C4DF\XML\Gameplay\C4DFGameOptions.xml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="C4DF\XML\Gameplay\C4DFResolutions.xml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="C4DF\XML\Text\en_US_Text_CivilopediaC4DF.xml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="C4DF\XML\Text\en_US_Text_Generic_DiplomacyC4DF.xml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="C4DF\XML\Text\en_US_Text_UIC4DF.xml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Font Icon Atlas\fonticons_newluxuries.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Font Icon Atlas\FontIcons_NewLuxuries.ggxml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Icon Atlas\NewLuxuries_ResourceAtlas256.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Icon Atlas\NewLuxuries_ResourceAtlas45.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Icon Atlas\NewLuxuries_ResourceAtlas64.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Icon Atlas\NewLuxuries_ResourceAtlas80.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Amber\amber.fxsxml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Amber\amber.gr2">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Amber\amber_diff.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Amber\amber_mine_decal_d.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Amber\amber_rubble_diff.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Amber\hb_ind_mine_amber.fxsxml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Amber\hb_ind_mine_amber.gr2">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Amber\hb_med_mine_amber.fxsxml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Amber\hb_med_mine_amber.gr2">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Amber\ind_mine_amber.fxsxml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Amber\ind_mine_amber.gr2">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Amber\med_mine_amber.fxsxml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Amber\med_mine_amber.gr2">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Amber\pl_amber_mine_decal_d.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Amber\pl_ind_mine_amber.fxsxml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Amber\pl_ind_mine_amber.gr2">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Amber\pl_med_mine_amber.fxsxml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Amber\pl_med_mine_amber.gr2">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Amber\sv_amber.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Coffee\coffee_diff.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Coffee\coffee_vineyard_diff.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Coffee\hb_plantation_ind_coffee.fxsxml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Coffee\hb_plantation_ind_coffee.gr2">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Coffee\hb_plantation_mid_coffee.fxsxml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Coffee\hb_plantation_mid_coffee.gr2">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Coffee\plantation_ind_coffee.fxsxml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Coffee\plantation_ind_coffee.gr2">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Coffee\plantation_mid_coffee.fxsxml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Coffee\plantation_mid_coffee.gr2">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Coffee\pl_coffee_diff.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Coffee\pl_plantation_ind_coffee.fxsxml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Coffee\pl_plantation_ind_coffee.gr2">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Coffee\pl_plantation_mid_coffee.fxsxml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Coffee\pl_plantation_mid_coffee.gr2">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Coffee\resource_coffee.fxsxml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Coffee\resource_coffee.gr2">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Coffee\sv_coffee.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Coral\coral.fxsxml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Coral\coral.gr2">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Coral\coral_built.gr2">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Coral\coral_diff.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Coral\coral_industrial.fxsxml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Coral\coral_industrial.gr2">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Coral\coral_industrial_built.gr2">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Coral\coral_sref.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Coral\decal_coralreef_d.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Coral\decal_coralreef_h.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Coral\decal_coralreef_s.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Coral\sv_coral.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Jade\hb_ind_mine_jade.fxsxml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Jade\hb_ind_mine_jade.gr2">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Jade\hb_med_mine_jade.fxsxml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Jade\hb_med_mine_jade.gr2">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Jade\ind_mine_jade.fxsxml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Jade\ind_mine_jade.gr2">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Jade\jade.fxsxml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Jade\jade.gr2">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Jade\jade_diff.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Jade\jade_mine_decal_d.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Jade\jade_rubble_diff.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Jade\med_mine_jade.fxsxml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Jade\med_mine_jade.gr2">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Jade\pl_ind_mine_jade.fxsxml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Jade\pl_ind_mine_jade.gr2">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Jade\pl_jade_mine_decal_d.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Jade\pl_med_mine_jade.fxsxml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Jade\pl_med_mine_jade.gr2">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Jade\sv_jade.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Lapis Lazuli\hb_ind_mine_lapis.fxsxml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Lapis Lazuli\hb_ind_mine_lapis.gr2">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Lapis Lazuli\hb_med_mine_lapis.fxsxml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Lapis Lazuli\hb_med_mine_lapis.gr2">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Lapis Lazuli\ind_mine_lapis.fxsxml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Lapis Lazuli\ind_mine_lapis.gr2">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Lapis Lazuli\lapis.fxsxml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Lapis Lazuli\lapis.gr2">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Lapis Lazuli\lapis_decal_diff.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Lapis Lazuli\lapis_ore_diff.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Lapis Lazuli\lapis_ore_sref.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Lapis Lazuli\lapis_rubble_diff.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Lapis Lazuli\med_mine_lapis.fxsxml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Lapis Lazuli\med_mine_lapis.gr2">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Lapis Lazuli\mine_lapis_decal_d.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Lapis Lazuli\pl_ind_mine_lapis.fxsxml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Lapis Lazuli\pl_ind_mine_lapis.gr2">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Lapis Lazuli\pl_med_mine_lapis.fxsxml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Lapis Lazuli\pl_med_mine_lapis.gr2">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Lapis Lazuli\pl_mine_lapis_decal_d.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Lapis Lazuli\sv_lapis.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Olives\olive.fxsxml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Olives\olive.gr2">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Olives\olive_trees_diff.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Olives\olive_trees_sref.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Olives\pil_olive_trees_diff.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Olives\plantation_ind_olive.fxsxml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Olives\plantation_ind_olive.gr2">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Olives\plantation_ind_olive_hb.fxsxml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Olives\plantation_ind_olive_hb.gr2">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Olives\plantation_ind_olive_pil.fxsxml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Olives\plantation_ind_olive_pil.gr2">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Olives\plantation_mid_olive.fxsxml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Olives\plantation_mid_olive.gr2">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Olives\plantation_mid_olive_hb.fxsxml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Olives\plantation_mid_olive_hb.gr2">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Olives\plantation_mid_olive_pil.fxsxml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Olives\plantation_mid_olive_pil.gr2">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Olives\sv_olive.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Perfume\hb_plantation_ind_perfume.fxsxml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Perfume\hb_plantation_ind_perfume.gr2">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Perfume\hb_plantation_mid_perfume.fxsxml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Perfume\hb_plantation_mid_perfume.gr2">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Perfume\perfume_diff.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Perfume\plantation_ind_perfume.fxsxml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Perfume\plantation_ind_perfume.gr2">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Perfume\plantation_mid_perfume.fxsxml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Perfume\plantation_mid_perfume.gr2">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Perfume\pl_perfume_diff.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Perfume\pl_plantation_ind_perfume.fxsxml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Perfume\pl_plantation_ind_perfume.gr2">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Perfume\pl_plantation_mid_perfume.fxsxml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Perfume\pl_plantation_mid_perfume.gr2">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Perfume\resource_perfume.fxsxml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Perfume\resource_perfume.gr2">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Perfume\sv_perfume.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Tea\hb_plantation_ind_tea.fxsxml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Tea\hb_plantation_ind_tea.gr2">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Tea\hb_plantation_mid_tea.fxsxml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Tea\hb_plantation_mid_tea.gr2">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Tea\plantation_ind_tea.fxsxml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Tea\plantation_ind_tea.gr2">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Tea\plantation_mid_tea.fxsxml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Tea\plantation_mid_tea.gr2">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Tea\pl_plantation_ind_tea.fxsxml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Tea\pl_plantation_ind_tea.gr2">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Tea\pl_plantation_mid_tea.fxsxml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Tea\pl_plantation_mid_tea.gr2">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Tea\pl_tea_diff.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Tea\resource_tea.fxsxml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Tea\resource_tea.gr2">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Tea\sv_tea.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Tea\tea_diff.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Tobacco\hb_plantation_ind_tobacco.fxsxml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Tobacco\hb_plantation_ind_tobacco.gr2">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Tobacco\hb_plantation_mid_tobacco.fxsxml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Tobacco\hb_plantation_mid_tobacco.gr2">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Tobacco\plantation_ind_tobacco.fxsxml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Tobacco\plantation_ind_tobacco.gr2">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Tobacco\plantation_mid_tobacco.fxsxml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Tobacco\plantation_mid_tobacco.gr2">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Tobacco\pl_plantation_ind_tobacco.fxsxml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Tobacco\pl_plantation_ind_tobacco.gr2">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Tobacco\pl_plantation_mid_tobacco.fxsxml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Tobacco\pl_plantation_mid_tobacco.gr2">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Tobacco\pl_tobacco_diff.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Tobacco\resource_tobacco.fxsxml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Tobacco\resource_tobacco.gr2">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Tobacco\sv_tobacco.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Tobacco\tobacco_diff.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Luxury Tobacco\tobacco_sref.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Update Sugar\hb_plantation_ind_sugar_alt.fxsxml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Update Sugar\hb_plantation_ind_sugar_alt.gr2">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Update Sugar\hb_plantation_mid_sugar_alt.fxsxml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Update Sugar\hb_plantation_mid_sugar_alt.gr2">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Update Sugar\plantation_ind_sugar_alt.fxsxml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Update Sugar\plantation_ind_sugar_alt.gr2">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Update Sugar\plantation_mid_sugar_alt.fxsxml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Update Sugar\plantation_mid_sugar_alt.gr2">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Update Sugar\pl_plantation_ind_sugar_alt.fxsxml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Update Sugar\pl_plantation_ind_sugar_alt.gr2">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Update Sugar\pl_plantation_mid_sugar_alt.fxsxml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Update Sugar\pl_plantation_mid_sugar_alt.gr2">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Update Sugar\resource_sugar_alt.fxsxml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Update Sugar\resource_sugar_alt.gr2">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Art\Update Sugar\sugar_alt_diff.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\Lua\Maps\Terra.lua">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\XML\NewLuxuries_Art_Icons.xml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\XML\NewLuxuries_Art_Terrain.xml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\XML\NewLuxuries_Resources.xml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="More Luxuries\XML\NewLuxuries_Text.xml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="Compatibility\C4DFCompatibility\C4DFCompatibility.sql">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="Compatibility\Corporations\Corporations.sql">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="Compatibility\Corporations\Text\CorpText_en_US.xml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="Compatibility\Corporations\Text\CorpText_en_US.sql">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="Compatibility\CSD\CompatibilityText\Compatibility_en_US.sql">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="Compatibility\CSD\CompatibilityText\Compatibility_en_US.xml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="Compatibility\CSD\CSDCompatibility.sql">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="Compatibility\MoreLuxuries\MoreLuxuries.sql">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="Compatibility\MoreLuxuries\Text\Text_en_US.sql">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>

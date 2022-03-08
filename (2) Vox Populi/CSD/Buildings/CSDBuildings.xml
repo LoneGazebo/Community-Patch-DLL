@@ -284,10 +284,10 @@
 			<NukeImmune>true</NukeImmune>
 			<Happiness>2</Happiness>
 			<HurryCostModifier>-1</HurryCostModifier>
-			<IconAtlas>ATLAS_MENIN_GATE</IconAtlas>
+			<IconAtlas>CSDBUILDINGS_ATLAS</IconAtlas>
 			<Quote>TXT_KEY_BUILDING_MENIN_GATE_QUOTE</Quote>
 			<WonderSplashImage>MeninGateSplash.dds</WonderSplashImage>
-			<PortraitIndex>0</PortraitIndex>
+			<PortraitIndex>36</PortraitIndex>
 		</Row>
 		<Row>
 			<Type>BUILDING_OLYMPIC_VILLAGE</Type>

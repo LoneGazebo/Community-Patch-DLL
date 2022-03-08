@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 11.00
 # ModBuddy Solution File, Format Version 11.00
-Project("{F5FC21B5-7CC2-458A-ABBA-992F515BBA20}") = "Community Balance Overhaul", "Community Balance Overhaul.civ5proj", "{0D66D522-B624-4BC5-ACFE-15A0C5B729F4}"
+Project("{F5FC21B5-7CC2-458A-ABBA-992F515BBA20}") = "Vox Populi", "Vox Populi.civ5proj", "{0D66D522-B624-4BC5-ACFE-15A0C5B729F4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -1,16 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Created by ModBuddy on 1/22/2014 1:10:17 AM -->
 <GameData>
-	<UnitAIInfos>
-		<Row>
-			<Type>UNITAI_DIPLOMAT</Type>
-			<Description>UNITAI_DIPLOMAT</Description>
-		</Row>
-		<Row>
-			<Type>UNITAI_MESSENGER</Type>
-			<Description>UNITAI_MESSENGER</Description>
-		</Row>
-	</UnitAIInfos>
 	<AIEconomicStrategies>
 		<Row>
 			<Type>ECONOMICAISTRATEGY_INFLUENCE_CITY_STATE</Type>
