@@ -633,13 +633,11 @@
     <File md5="A8B940DA3B84B9B8D9FDD9AC3EF0518D" import="0">CSD/Resource/Paper.xml</File>
     <File md5="E8FE68E7A7B1E207173B6DFDA8D36F35" import="0">CSD/Specialist/CivilServant.xml</File>
     <File md5="CE88ECF03AACFF7F2989FBF6B78FC740" import="0">CSD/Units/MoreGreatDiplomats.sql</File>
-    <File md5="43DA18BCC8E3865879CDEC59699ED3A2" import="0">CSD/Units/UnitClasses.xml</File>
-    <File md5="8DB348F8F5E6DF7E6A5933C964086FFE" import="0">CSD/Units/Units.xml</File>
-    <File md5="3B48663BF0D29B04F27FA40D1509EDE2" import="0">CSD/Units/UnitAI.xml</File>
+    <File md5="8DB348F8F5E6DF7E6A5933C964086FFE" import="0">CSD/Units/CSD_Units.xml</File>
+    <File md5="3B48663BF0D29B04F27FA40D1509EDE2" import="0">CSD/Units/CSD_AI.xml</File>
     <File md5="CBB620FED0B535A4CDF93BF3BDB3D998" import="0">CSD/Units/GreatDiplomats.xml</File>
-    <File md5="D51F785537083FF98AE51052D01572DF" import="0">CSD/Units/UnitGoldCost.sql</File>
-    <File md5="21C1D880F440BF10ABD5BC498B9A22D8" import="0">CSD/Units/UnitClassOverrides.xml</File>
-    <File md5="C92F62D64C5412F2BF53ECF33B873A44" import="0">CSD/Units/UnitText.xml</File>
+    <File md5="D51F785537083FF98AE51052D01572DF" import="0">CSD/Units/CSD_UnitGoldCost.sql</File>
+    <File md5="C92F62D64C5412F2BF53ECF33B873A44" import="0">CSD/Units/CSD_UnitText.xml</File>
     <File md5="885668BA6DF6ABD11097D023CE4549BE" import="0">CSD/World Congress/Congress.xml</File>
     <File md5="C7929BB11AA2B61EA7D1627D20D44E26" import="0">CSD/World Congress/CongressTurns.sql</File>
     <File md5="F068EF5499656A7BF30C7A70DDF7C2BC" import="0">CSD/World Congress/IdeologyChanges.sql</File>
@@ -992,7 +990,7 @@
       <UpdateDatabase>CSD/Gameplay/Gameplay.sql</UpdateDatabase>
       <UpdateDatabase>CSD/Gameplay/GameplayText.sql</UpdateDatabase>
       <UpdateDatabase>CSD/Gameplay/GoldGifts.sql</UpdateDatabase>
-      <UpdateDatabase>CSD/Units/UnitGoldCost.sql</UpdateDatabase>
+      <UpdateDatabase>CSD/Units/CSD_UnitGoldCost.sql</UpdateDatabase>
       <UpdateDatabase>CSD/World Congress/CongressTurns.sql</UpdateDatabase>
       <UpdateDatabase>CSD/World Congress/IdeologyChanges.sql</UpdateDatabase>
       <UpdateDatabase>CSD/Buildings/BuildingText.xml</UpdateDatabase>
@@ -1002,11 +1000,9 @@
       <UpdateDatabase>CSD/Improvements/Improvements.xml</UpdateDatabase>
       <UpdateDatabase>CSD/Improvements/ImprovementText.xml</UpdateDatabase>
       <UpdateDatabase>CSD/Units/GreatDiplomats.xml</UpdateDatabase>
-      <UpdateDatabase>CSD/Units/Units.xml</UpdateDatabase>
-      <UpdateDatabase>CSD/Units/UnitAI.xml</UpdateDatabase>
-      <UpdateDatabase>CSD/Units/UnitClasses.xml</UpdateDatabase>
-      <UpdateDatabase>CSD/Units/UnitClassOverrides.xml</UpdateDatabase>
-      <UpdateDatabase>CSD/Units/UnitText.xml</UpdateDatabase>
+      <UpdateDatabase>CSD/Units/CSD_Units.xml</UpdateDatabase>
+      <UpdateDatabase>CSD/Units/CSD_AI.xml</UpdateDatabase>
+      <UpdateDatabase>CSD/Units/CSD_UnitText.xml</UpdateDatabase>
       <UpdateDatabase>CSD/Promotions/Promotions.xml</UpdateDatabase>
       <UpdateDatabase>CSD/Promotions/PromotionText.xml</UpdateDatabase>
       <UpdateDatabase>CSD/Quests/CityStateQuest.xml</UpdateDatabase>
