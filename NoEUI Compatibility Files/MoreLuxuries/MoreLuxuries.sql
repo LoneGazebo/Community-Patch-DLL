@@ -46,22 +46,37 @@ INSERT INTO Building_ResourceYieldChanges (BuildingType, ResourceType, YieldType
 SELECT 'BUILDING_ODEON', 'RESOURCE_LAPIS' , 'YIELD_CULTURE' , '2'
 ;
 
--- Coffee/Tea/Tobacco -- Grocer (and Coffee House)
+-- Coffee/Tea/Tobacco -- Customs House (and Hanse)
 
 INSERT INTO Building_ResourceYieldChanges (BuildingType, ResourceType, YieldType, Yield)
-SELECT 'BUILDING_GROCER', 'RESOURCE_TOBACCO' , 'YIELD_GOLD' , '3';
+SELECT 'BUILDING_MINT', 'RESOURCE_TOBACCO' , 'YIELD_GOLD' , '3';
 
 INSERT INTO Building_ResourceYieldChanges (BuildingType, ResourceType, YieldType, Yield)
-SELECT 'BUILDING_GROCER', 'RESOURCE_TEA' , 'YIELD_GOLD' , '2';
+SELECT 'BUILDING_MINT', 'RESOURCE_TEA' , 'YIELD_GOLD' , '2';
 
 INSERT INTO Building_ResourceYieldChanges (BuildingType, ResourceType, YieldType, Yield)
-SELECT 'BUILDING_GROCER', 'RESOURCE_TEA' , 'YIELD_PRODUCTION' , '1';
+SELECT 'BUILDING_MINT', 'RESOURCE_TEA' , 'YIELD_PRODUCTION' , '1';
 
 INSERT INTO Building_ResourceYieldChanges (BuildingType, ResourceType, YieldType, Yield)
-SELECT 'BUILDING_GROCER', 'RESOURCE_COFFEE' , 'YIELD_PRODUCTION' , '2';
+SELECT 'BUILDING_MINT', 'RESOURCE_COFFEE' , 'YIELD_PRODUCTION' , '2';
 
 INSERT INTO Building_ResourceYieldChanges (BuildingType, ResourceType, YieldType, Yield)
-SELECT 'BUILDING_GROCER', 'RESOURCE_COFFEE' , 'YIELD_GOLD' , '1';
+SELECT 'BUILDING_MINT', 'RESOURCE_COFFEE' , 'YIELD_GOLD' , '1';
+
+INSERT INTO Building_ResourceYieldChanges (BuildingType, ResourceType, YieldType, Yield)
+SELECT 'BUILDING_HANSE', 'RESOURCE_TOBACCO' , 'YIELD_GOLD' , '3';
+
+INSERT INTO Building_ResourceYieldChanges (BuildingType, ResourceType, YieldType, Yield)
+SELECT 'BUILDING_HANSE', 'RESOURCE_TEA' , 'YIELD_GOLD' , '2';
+
+INSERT INTO Building_ResourceYieldChanges (BuildingType, ResourceType, YieldType, Yield)
+SELECT 'BUILDING_HANSE', 'RESOURCE_TEA' , 'YIELD_PRODUCTION' , '1';
+
+INSERT INTO Building_ResourceYieldChanges (BuildingType, ResourceType, YieldType, Yield)
+SELECT 'BUILDING_HANSE', 'RESOURCE_COFFEE' , 'YIELD_PRODUCTION' , '2';
+
+INSERT INTO Building_ResourceYieldChanges (BuildingType, ResourceType, YieldType, Yield)
+SELECT 'BUILDING_HANSE', 'RESOURCE_COFFEE' , 'YIELD_GOLD' , '1';
 
 -- Jade -- Stone Works
 
