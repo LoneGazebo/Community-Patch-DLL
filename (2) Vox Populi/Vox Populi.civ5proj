@@ -2831,15 +2831,15 @@
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
-    <Content Include="LUA\ActionInfoPanel.lua">
+    <Content Include="Core Files\CoreLua\ActionInfoPanel.lua">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="LUA\Bombardment.lua">
+    <Content Include="Core Files\CoreLua\Bombardment.lua">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="LUA\ChooseMayaBonus.lua">
+    <Content Include="Core Files\CoreLua\ChooseMayaBonus.lua">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
@@ -2851,11 +2851,11 @@
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="LUA\CityList.lua">
+    <Content Include="Core Files\CoreLua\CityList.lua">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="LUA\CityList.xml">
+    <Content Include="Core Files\CoreLua\CityList.xml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
@@ -2891,31 +2891,31 @@
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="LUA\CivilopediaScreen.lua">
+    <Content Include="Core Files\CoreLua\CivilopediaScreen.lua">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="LUA\CivilopediaScreen.xml">
+    <Content Include="Core Files\CoreLua\CivilopediaScreen.xml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="LUA\CultureOverview.lua">
+    <Content Include="Core Files\CoreLua\CultureOverview.lua">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="LUA\CultureOverview.xml">
+    <Content Include="Core Files\CoreLua\CultureOverview.xml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="LUA\DeclareWarPopup.lua">
+    <Content Include="Core Files\CoreLua\DeclareWarPopup.lua">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="LUA\DeclareWarPopup.xml">
+    <Content Include="Core Files\CoreLua\DeclareWarPopup.xml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="LUA\Demographics.lua">
+    <Content Include="Core Files\CoreLua\Demographics.lua">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
@@ -2927,15 +2927,15 @@
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="LUA\DiploCurrentDeals.xml">
+    <Content Include="Core Files\CoreLua\DiploCurrentDeals.xml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="LUA\DiploGlobalRelationships.lua">
+    <Content Include="Core Files\CoreLua\DiploGlobalRelationships.lua">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="LUA\DiploGlobalRelationships.xml">
+    <Content Include="Core Files\CoreLua\DiploGlobalRelationships.xml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
@@ -2943,11 +2943,11 @@
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="LUA\DiploRelationships.lua">
+    <Content Include="Core Files\CoreLua\DiploRelationships.lua">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="LUA\DiploTrade.xml">
+    <Content Include="Core Files\CoreLua\DiploTrade.xml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
@@ -2959,15 +2959,15 @@
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="LUA\EconomicGeneralInfo.lua">
+    <Content Include="Core Files\CoreLua\EconomicGeneralInfo.lua">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="LUA\EconomicGeneralInfo.xml">
+    <Content Include="Core Files\CoreLua\EconomicGeneralInfo.xml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="LUA\EconomicOverview.lua">
+    <Content Include="Core Files\CoreLua\EconomicOverview.lua">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
@@ -2975,15 +2975,15 @@
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="LUA\GoodyHutPopup.lua">
+    <Content Include="Core Files\CoreLua\GoodyHutPopup.lua">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="LUA\GPList.lua">
+    <Content Include="Core Files\CoreLua\GPList.lua">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="LUA\GPList.xml">
+    <Content Include="Core Files\CoreLua\GPList.xml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
@@ -3007,23 +3007,23 @@
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="LUA\LeagueOverview.lua">
+    <Content Include="Core Files\CoreLua\LeagueOverview.lua">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="LUA\MilitaryOverview.lua">
+    <Content Include="Core Files\CoreLua\MilitaryOverview.lua">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="LUA\MilitaryOverview.xml">
+    <Content Include="Core Files\CoreLua\MilitaryOverview.xml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="LUA\NaturalWonderPopup.lua">
+    <Content Include="Core Files\CoreLua\NaturalWonderPopup.lua">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="LUA\WonderPopup.xml">
+    <Content Include="Core Files\CoreLua\WonderPopup.xml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
@@ -3035,7 +3035,7 @@
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="LUA\PlotMouseoverInclude.lua">
+    <Content Include="Core Files\CoreLua\PlotMouseoverInclude.lua">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
@@ -3047,19 +3047,19 @@
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="LUA\PuppetCityPopup.lua">
+    <Content Include="Core Files\CoreLua\PuppetCityPopup.lua">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="LUA\ReligionOverview.lua">
+    <Content Include="Core Files\CoreLua\ReligionOverview.lua">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="LUA\ResourceTooltipGenerator.lua">
+    <Content Include="Core Files\CoreLua\ResourceTooltipGenerator.lua">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="LUA\SimpleDiploTrade.xml">
+    <Content Include="Core Files\CoreLua\SimpleDiploTrade.xml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
@@ -3095,15 +3095,15 @@
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="LUA\VictoryProgress.lua">
+    <Content Include="Core Files\CoreLua\VictoryProgress.lua">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="LUA\VictoryProgress.xml">
+    <Content Include="Core Files\CoreLua\VictoryProgress.xml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="LUA\WhosWinningPopup.lua">
+    <Content Include="Core Files\CoreLua\WhosWinningPopup.lua">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
