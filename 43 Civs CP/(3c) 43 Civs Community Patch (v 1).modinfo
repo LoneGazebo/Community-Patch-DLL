@@ -30,7 +30,7 @@ If you downloaded this mod manually, see MANUAL INSTALL.txt for installation ins
     <Mod id="828b5b4b-7c62-4afb-a43f-034b596ef5e4" minversion="0" maxversion="999" title="(3b) Vox Populi - Compatibility Files (No-EUI)" />
   </Blocks>
   <Files>
-    <File md5="2EDBE7B26D74161F057DE6E9443D6BEA" import="1">AssignStartingPlots.lua</File>
+    <File md5="2EDBE7B26D74161F057DE6E9443D6BEA" import="1">AssignStartingPlots.lua</File>																						  
     <File md5="A9173FECA4709DD9F0B710A585D037EA" import="1">CP Only/ActionInfoPanel.lua</File>
     <File md5="314F159E85D3C21731FFB7FDBE86433A" import="1">CP Only/AdvancedSetup.lua</File>
     <File md5="69F25DAD4EA8EE636E3F286717D140D4" import="0">CP Only/AssignStartingPlots.lua</File>
@@ -74,7 +74,6 @@ If you downloaded this mod manually, see MANUAL INSTALL.txt for installation ins
     <File md5="3F4B08D58AE727DF10D8A34BEC5F398E" import="1">EUI/ActionInfoPanel.lua</File>
     <File md5="314F159E85D3C21731FFB7FDBE86433A" import="1">EUI/AdvancedSetup.lua</File>
     <File md5="39C6A39E21DF6E10B666FA57FA502643" import="1">EUI/Bombardment.lua</File>
-    <File md5="BE88DBDB7DCEF08CF242209CCABF3878" import="0">EUI/C4DF/C4DFCompatibility.sql</File>
     <File md5="66D5F875BCC8CEEF7B18F866147D6AF4" import="1">EUI/ChooseMayaBonus.lua</File>
     <File md5="2F58E8EB812D1699EBE41B08732B2E46" import="1">EUI/CityBannerManager.lua</File>
     <File md5="CBD7F02C60129E3846AA740E6ED2A26C" import="1">EUI/CityBannerManager.xml</File>
@@ -90,12 +89,6 @@ If you downloaded this mod manually, see MANUAL INSTALL.txt for installation ins
     <File md5="03A04D6143F27CC517EA7463164D4913" import="1">EUI/CityView_small.xml</File>
     <File md5="8CE47486BD28A58DA4E1E9C39D7378DD" import="1">EUI/CivilopediaScreen.lua</File>
     <File md5="0F36E9923D32508E9DF09CE94A1B0BC2" import="1">EUI/CivilopediaScreen.xml</File>
-    <File md5="3F476A71188724BC528A087525301A9A" import="0">EUI/Corps/Corporations.sql</File>
-    <File md5="F2B4529383B3A7F7AEC8F9CA82C9A83C" import="0">EUI/Corps/CorpText_en_US.sql</File>
-    <File md5="2D81FF7BE803B6C99129AC24217018DA" import="0">EUI/Corps/CorpText_en_US.xml</File>
-    <File md5="EC4A882AD177781F5C7A2C87A6956AF9" import="0">EUI/CSD/Compatibility_en_US.sql</File>
-    <File md5="F82A83B6017FE4858CF924888EB810AC" import="0">EUI/CSD/Compatibility_en_US.xml</File>
-    <File md5="E53FFB50585C237C868F8D38D6A49340" import="0">EUI/CSD/CSDCompatibility.sql</File>
     <File md5="90E5C23859C1EEF44EE7351827190F9C" import="1">EUI/CultureOverview.lua</File>
     <File md5="5F310B56A85B1E68963A0B8361F3F4BC" import="1">EUI/CultureOverview.xml</File>
     <File md5="63036BCCAF2955F36009341BBC01DEAD" import="1">EUI/DeclareWarPopup.lua</File>
@@ -134,8 +127,6 @@ If you downloaded this mod manually, see MANUAL INSTALL.txt for installation ins
     <File md5="F328AECF7B40DFE26E5A960DE38D7397" import="1">EUI/MilitaryOverview.xml</File>
     <File md5="98B1FEF84BBAD42685E34EB5B558911A" import="1">EUI/MonopoliesInfo.lua</File>
     <File md5="52E682B47359A59132BFD2A853CADD5B" import="1">EUI/MonopoliesInfo.xml</File>
-    <File md5="1D2DD666B5462354B38B95F598E71802" import="0">EUI/MoreLuxuries/MoreLuxuries.sql</File>
-    <File md5="42C7FBB6D270EA2F192E728BFDC2EA64" import="0">EUI/MoreLuxuries/Text_en_US.sql</File>
     <File md5="A9FEDE41B8D28348DDD9FD51E905C096" import="1">EUI/NaturalWonderPopup.lua</File>
     <File md5="A149623233865A30C77EE55F8C4CEEF9" import="1">EUI/WonderPopup.xml</File>
     <File md5="86451FD3593E2C571D249653315235C6" import="1">EUI/NotificationPanel.lua</File>
@@ -165,7 +156,6 @@ If you downloaded this mod manually, see MANUAL INSTALL.txt for installation ins
     <File md5="3F4B08D58AE727DF10D8A34BEC5F398E" import="1">No-EUI/ActionInfoPanel.lua</File>
     <File md5="314F159E85D3C21731FFB7FDBE86433A" import="1">No-EUI/AdvancedSetup.lua</File>
     <File md5="39C6A39E21DF6E10B666FA57FA502643" import="1">No-EUI/Bombardment.lua</File>
-    <File md5="BE88DBDB7DCEF08CF242209CCABF3878" import="0">No-EUI/C4DF/C4DFCompatibility.sql</File>
     <File md5="66D5F875BCC8CEEF7B18F866147D6AF4" import="1">No-EUI/ChooseMayaBonus.lua</File>
     <File md5="C54F1D6CF733403EB9A685DA1B83CC8B" import="1">No-EUI/CityBannerManager.lua</File>
     <File md5="68023AE6199F5F8C0948787DCF5FB982" import="1">No-EUI/CityBannerManager.xml</File>
@@ -181,12 +171,6 @@ If you downloaded this mod manually, see MANUAL INSTALL.txt for installation ins
     <File md5="2C009EF1C7A9213005C102161D5F6C33" import="1">No-EUI/CityView_small.xml</File>
     <File md5="8CE47486BD28A58DA4E1E9C39D7378DD" import="1">No-EUI/CivilopediaScreen.lua</File>
     <File md5="0F36E9923D32508E9DF09CE94A1B0BC2" import="1">No-EUI/CivilopediaScreen.xml</File>
-    <File md5="3F476A71188724BC528A087525301A9A" import="0">No-EUI/Corps/Corporations.sql</File>
-    <File md5="F2B4529383B3A7F7AEC8F9CA82C9A83C" import="0">No-EUI/Corps/CorpText_en_US.sql</File>
-    <File md5="2D81FF7BE803B6C99129AC24217018DA" import="0">No-EUI/Corps/CorpText_en_US.xml</File>
-    <File md5="F7E0EBCD73BDF8DFC651A173ACF43C67" import="0">No-EUI/CSD/Compatibility_en_US.sql</File>
-    <File md5="F82A83B6017FE4858CF924888EB810AC" import="0">No-EUI/CSD/Compatibility_en_US.xml</File>
-    <File md5="E53FFB50585C237C868F8D38D6A49340" import="0">No-EUI/CSD/CSDCompatibility.sql</File>
     <File md5="90E5C23859C1EEF44EE7351827190F9C" import="1">No-EUI/CultureOverview.lua</File>
     <File md5="5F310B56A85B1E68963A0B8361F3F4BC" import="1">No-EUI/CultureOverview.xml</File>
     <File md5="36C8BD9AB09E0BC4DCD6ACA0ED7C9722" import="1">No-EUI/DeclareWarPopup.lua</File>
@@ -218,8 +202,6 @@ If you downloaded this mod manually, see MANUAL INSTALL.txt for installation ins
     <File md5="D1B2B6362725A779E49BAD0C8366DE6A" import="1">No-EUI/LeagueOverview.xml</File>
     <File md5="E64684AA264F992DF4655078DE013B65" import="1">No-EUI/MilitaryOverview.lua</File>
     <File md5="F328AECF7B40DFE26E5A960DE38D7397" import="1">No-EUI/MilitaryOverview.xml</File>
-    <File md5="1D2DD666B5462354B38B95F598E71802" import="0">No-EUI/MoreLuxuries/MoreLuxuries.sql</File>
-    <File md5="42C7FBB6D270EA2F192E728BFDC2EA64" import="0">No-EUI/MoreLuxuries/Text_en_US.sql</File>
     <File md5="A9FEDE41B8D28348DDD9FD51E905C096" import="1">No-EUI/NaturalWonderPopup.lua</File>
     <File md5="A149623233865A30C77EE55F8C4CEEF9" import="1">No-EUI/WonderPopup.xml</File>
     <File md5="1563F214817A1B4E054C72EF3CBA1395" import="1">No-EUI/NotificationPanel.lua</File>
@@ -247,27 +229,9 @@ If you downloaded this mod manually, see MANUAL INSTALL.txt for installation ins
   </Files>
   <Actions>
     <OnModActivated>
-      <UpdateDatabase>EUI/C4DF/C4DFCompatibility.sql</UpdateDatabase>
-      <UpdateDatabase>EUI/Corps/Corporations.sql</UpdateDatabase>
-      <UpdateDatabase>EUI/Corps/CorpText_en_US.sql</UpdateDatabase>
-      <UpdateDatabase>EUI/Corps/CorpText_en_US.xml</UpdateDatabase>
-      <UpdateDatabase>EUI/CSD/Compatibility_en_US.sql</UpdateDatabase>
-      <UpdateDatabase>EUI/CSD/Compatibility_en_US.xml</UpdateDatabase>
-      <UpdateDatabase>EUI/CSD/CSDCompatibility.sql</UpdateDatabase>
       <UpdateDatabase>EUI/EUI/EUI_text_en_us.xml</UpdateDatabase>
       <UpdateDatabase>EUI/EUI/NeededText.xml</UpdateDatabase>
-      <UpdateDatabase>EUI/MoreLuxuries/MoreLuxuries.sql</UpdateDatabase>
-      <UpdateDatabase>EUI/MoreLuxuries/Text_en_US.sql</UpdateDatabase>
       <UpdateDatabase>EUI/StackedPromotionIcons/StackedPromotionIcons.sql</UpdateDatabase>
-      <UpdateDatabase>No-EUI/C4DF/C4DFCompatibility.sql</UpdateDatabase>
-      <UpdateDatabase>No-EUI/Corps/Corporations.sql</UpdateDatabase>
-      <UpdateDatabase>No-EUI/Corps/CorpText_en_US.sql</UpdateDatabase>
-      <UpdateDatabase>No-EUI/Corps/CorpText_en_US.xml</UpdateDatabase>
-      <UpdateDatabase>No-EUI/CSD/Compatibility_en_US.sql</UpdateDatabase>
-      <UpdateDatabase>No-EUI/CSD/Compatibility_en_US.xml</UpdateDatabase>
-      <UpdateDatabase>No-EUI/CSD/CSDCompatibility.sql</UpdateDatabase>
-      <UpdateDatabase>No-EUI/MoreLuxuries/MoreLuxuries.sql</UpdateDatabase>
-      <UpdateDatabase>No-EUI/MoreLuxuries/Text_en_US.sql</UpdateDatabase>
     </OnModActivated>
   </Actions>
   <EntryPoints>
