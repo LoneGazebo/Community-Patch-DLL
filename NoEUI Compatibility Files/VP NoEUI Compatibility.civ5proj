@@ -3,12 +3,12 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Default</Configuration>
     <ProjectGuid>{63283aea-f6ad-4004-8fbd-639e69d54803}</ProjectGuid>
-    <Name>(6b) Vox Populi - Compatibility Files (No-EUI)</Name>
+    <Name>(3b) Vox Populi - Compatibility Files (No-EUI)</Name>
     <Guid>828b5b4b-7c62-4afb-a43f-034b596ef5e4</Guid>
     <ModVersion>1</ModVersion>
     <Stability>Stable</Stability>
-    <Teaser>(1.4.6) Vox Populi Compatibility and LUA (No EUI Version)</Teaser>
-    <Description>LUA and mod compatibility files for CBO, CSD, C4DF and More Luxuries if not using EUI. Must use all of these mods in order to use this mod.</Description>
+    <Teaser>(1.5) Vox Populi Compatibility and LUA (No EUI Version)</Teaser>
+    <Description>Contains LUA and mod compatibility files for Vox Populi if not using EUI.</Description>
     <Authors>Gazebo</Authors>
     <SpecialThanks>
     </SpecialThanks>
@@ -21,95 +21,24 @@
     <AssemblyName>Mod Template</AssemblyName>
     <RootNamespace>Mod Template</RootNamespace>
     <ModActions>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
-        <FileName>CSD/CSDCompatibility.sql</FileName>
-      </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
-        <FileName>EUI/NeededText.xml</FileName>
-      </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
-        <FileName>Corporations/Corporations.sql</FileName>
-      </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
-        <FileName>C4DFCompatibility/C4DFCompatibility.sql</FileName>
-      </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
-        <FileName>MoreLuxuries/MoreLuxuries.sql</FileName>
-      </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
-        <FileName>Corporations/Text/CorpText_en_US.sql</FileName>
-      </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
-        <FileName>Corporations/Text/CorpText_en_US.xml</FileName>
-      </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
-        <FileName>CSD/CompatibilityText/Compatibility_en_US.sql</FileName>
-      </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
-        <FileName>CSD/CompatibilityText/Compatibility_en_US.xml</FileName>
-      </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
-        <FileName>MoreLuxuries/Text/Text_en_US.sql</FileName>
-      </Action>
     </ModActions>
     <Homepage>
     </Homepage>
     <ModReferences>
-      <Association>
-        <Type>Mod</Type>
-        <Name>(5) More Luxuries for VP</Name>
-        <Id>be2d13ee-d18d-410e-8f04-7cd19cd99a98</Id>
-        <MinVersion>156</MinVersion>
-        <MaxVersion>999</MaxVersion>
-      </Association>
     </ModReferences>
     <ModDependencies>
       <Association>
         <Type>Mod</Type>
         <Name>(1) Community Patch</Name>
         <Id>d1b6328c-ff44-4b0d-aad7-c657f83610cd</Id>
-        <MinVersion>102</MinVersion>
+        <MinVersion>103</MinVersion>
         <MaxVersion>999</MaxVersion>
       </Association>
       <Association>
         <Type>Mod</Type>
-        <Name>(2) Community Balance Overhaul</Name>
+        <Name>(2) Vox Populi</Name>
         <Id>8411a7a8-dad3-4622-a18e-fcc18324c799</Id>
-        <MinVersion>14</MinVersion>
-        <MaxVersion>999</MaxVersion>
-      </Association>
-      <Association>
-        <Type>Mod</Type>
-        <Name>(3) City-State Diplomacy for VP</Name>
-        <Id>eead0050-1e3f-4178-a91f-26cf1881ac39</Id>
-        <MinVersion>29</MinVersion>
-        <MaxVersion>999</MaxVersion>
-      </Association>
-      <Association>
-        <Type>Mod</Type>
-        <Name>(4) Civ IV Diplomatic Features for VP</Name>
-        <Id>c7bf7064-d1b1-4708-9e93-7a1560868582</Id>
-        <MinVersion>12</MinVersion>
+        <MinVersion>15</MinVersion>
         <MaxVersion>999</MaxVersion>
       </Association>
     </ModDependencies>
@@ -124,14 +53,14 @@
     <ModBlockers>
       <Association>
         <Type>Mod</Type>
-        <Name>(6a) Vox Populi - Compatibility Files (EUI)</Name>
+        <Name>(3a) Vox Populi - Compatibility Files (EUI)</Name>
         <Id>24923240-e4fb-4bf6-8f0e-6e5b6cf4d3c2</Id>
         <MinVersion>0</MinVersion>
         <MaxVersion>999</MaxVersion>
       </Association>
       <Association>
         <Type>Mod</Type>
-        <Name>(6c) 43 Civs Community Patch</Name>
+        <Name>(3c) 43 Civs Community Patch</Name>
         <Id>6521c02b-1c78-4826-a5b0-faed86235e98</Id>
         <MinVersion>0</MinVersion>
         <MaxVersion>999</MaxVersion>
@@ -153,34 +82,6 @@
     <PackageMod>false</PackageMod>
   </PropertyGroup>
   <ItemGroup>
-    <Content Include="C4DFCompatibility\C4DFCompatibility.sql">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
-    <Content Include="Corporations\Corporations.sql">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
-    <Content Include="Corporations\Text\CorpText_en_US.xml">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
-    <Content Include="Corporations\Text\CorpText_en_US.sql">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
-    <Content Include="CSD\CompatibilityText\Compatibility_en_US.sql">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
-    <Content Include="CSD\CompatibilityText\Compatibility_en_US.xml">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
-    <Content Include="CSD\CSDCompatibility.sql">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
     <Content Include="LUA\ActionInfoPanel.lua">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
@@ -469,24 +370,9 @@
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="MoreLuxuries\MoreLuxuries.sql">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
-    <Content Include="MoreLuxuries\Text\Text_en_US.sql">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Corporations\Text" />
-    <Folder Include="CSD" />
-    <Folder Include="CSD\CompatibilityText" />
     <Folder Include="LUA" />
-    <Folder Include="Corporations" />
-    <Folder Include="MoreLuxuries" />
-    <Folder Include="C4DFCompatibility" />
-    <Folder Include="MoreLuxuries\Text" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Firaxis\ModBuddy\Civ5Mod.targets" />
 </Project>
