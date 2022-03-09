@@ -43,12 +43,6 @@
       </Association>
     </ModDependencies>
     <ModContent>
-      <Content>
-        <Type>InGameUIAddin</Type>
-        <Name>AssignStartingPlots</Name>
-        <Description>AssignStartingPlots</Description>
-        <FileName>LUA/AssignStartingPlots.lua</FileName>
-      </Content>
     </ModContent>
     <ModBlockers>
       <Association>
@@ -83,10 +77,6 @@
   </PropertyGroup>
   <ItemGroup>
     <Content Include="LUA\ActionInfoPanel.lua">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>True</ImportIntoVFS>
-    </Content>
-    <Content Include="LUA\AssignStartingPlots.lua">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>

@@ -27,7 +27,6 @@
   </Blocks>
   <Files>
     <File md5="3F4B08D58AE727DF10D8A34BEC5F398E" import="1">LUA/ActionInfoPanel.lua</File>
-    <File md5="2EDBE7B26D74161F057DE6E9443D6BEA" import="1">LUA/AssignStartingPlots.lua</File>
     <File md5="39C6A39E21DF6E10B666FA57FA502643" import="1">LUA/Bombardment.lua</File>
     <File md5="66D5F875BCC8CEEF7B18F866147D6AF4" import="1">LUA/ChooseMayaBonus.lua</File>
     <File md5="394AE7D858F78BEFD46CD9ACAF91C159" import="1">LUA/CityBannerManager.lua</File>
@@ -100,9 +99,5 @@
     <File md5="BA353EE3D799C2396658056D9FB2173A" import="1">LUA/YieldIconManager.xml</File>
   </Files>
   <EntryPoints>
-    <EntryPoint type="InGameUIAddin" file="LUA/AssignStartingPlots.lua">
-      <Name>AssignStartingPlots</Name>
-      <Description>AssignStartingPlots</Description>
-    </EntryPoint>
   </EntryPoints>
 </Mod>

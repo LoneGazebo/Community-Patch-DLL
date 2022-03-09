@@ -443,9 +443,9 @@
     <File md5="B83D95851D0B7EB795418601D31946B1" import="0">Core Files/Core Changes/CommunityPatchDLLChanges.sql</File>
     <File md5="8F5BE57196ACA9CF867AF5254C1A4D8C" import="1">Core Files/CoreLua/EspionageOverview.lua</File>
     <File md5="F5AFCB468D395D7CE2A0B8711B4104EE" import="1">Core Files/CoreLua/EspionageOverview.xml</File>
+    <File md5="FE3BE94653FA74D139F8CF57F8E5C6CC" import="1">Core Files/CoreLua/AssignStartingPlots.lua</File>
     <File md5="82E04B06D39F70817541A1515526A75E" import="0">Core Files/Remapper.sql</File>
     <File md5="3F4B08D58AE727DF10D8A34BEC5F398E" import="1">LUA/ActionInfoPanel.lua</File>
-    <File md5="FE3BE94653FA74D139F8CF57F8E5C6CC" import="1">LUA/AssignStartingPlots.lua</File>
     <File md5="39C6A39E21DF6E10B666FA57FA502643" import="1">LUA/Bombardment.lua</File>
     <File md5="66D5F875BCC8CEEF7B18F866147D6AF4" import="1">LUA/ChooseMayaBonus.lua</File>
     <File md5="13240294376E3A69CA054C26320AACCF" import="1">LUA/CityBannerManager.lua</File>
@@ -1065,6 +1065,10 @@
       <Name>Terra</Name>
       <Description>
       </Description>
+    </EntryPoint>
+    <EntryPoint type="InGameUIAddin" file="Core Files/CoreLua/AssignStartingPlots.lua">
+      <Name>AssignStartingPlots</Name>
+      <Description>AssignStartingPlots</Description>
     </EntryPoint>
   </EntryPoints>
 </Mod>

@@ -993,6 +993,12 @@
         <Description />
         <FileName>More Luxuries/Lua/Maps/Terra.lua</FileName>
       </Content>
+      <Content>
+        <Type>InGameUIAddin</Type>
+        <Name>AssignStartingPlots</Name>
+        <Description>AssignStartingPlots</Description>
+        <FileName>Core Files/CoreLua/AssignStartingPlots.lua</FileName>
+      </Content>
     </ModContent>
     <ReloadAudioSystem>true</ReloadAudioSystem>
   </PropertyGroup>
@@ -2817,15 +2823,15 @@
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
+    <Content Include="Core Files\CoreLua\AssignStartingPlots.lua">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
     <Content Include="Core Files\Remapper.sql">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
     <Content Include="LUA\ActionInfoPanel.lua">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>True</ImportIntoVFS>
-    </Content>
-    <Content Include="LUA\AssignStartingPlots.lua">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>

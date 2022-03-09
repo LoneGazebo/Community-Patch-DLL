@@ -32,7 +32,6 @@
     <File md5="6F03F714A40A2EF7B35352A15E992ED8" import="0">EUI/EUI_text_en_us.xml</File>
     <File md5="C56A52B0D1DEB8F505E758220DC7AFD0" import="0">EUI/NeededText.xml</File>
     <File md5="3F4B08D58AE727DF10D8A34BEC5F398E" import="1">LUA/ActionInfoPanel.lua</File>
-    <File md5="2EDBE7B26D74161F057DE6E9443D6BEA" import="1">LUA/AssignStartingPlots.lua</File>
     <File md5="39C6A39E21DF6E10B666FA57FA502643" import="1">LUA/Bombardment.lua</File>
     <File md5="66D5F875BCC8CEEF7B18F866147D6AF4" import="1">LUA/ChooseMayaBonus.lua</File>
     <File md5="B575EDDEDA511FEBEA7F1C68516D14D6" import="1">LUA/CityBannerManager.lua</File>
@@ -115,9 +114,5 @@
     </OnModActivated>
   </Actions>
   <EntryPoints>
-    <EntryPoint type="InGameUIAddin" file="LUA/AssignStartingPlots.lua">
-      <Name>AssignStartingPlot</Name>
-      <Description>AssignStartingPlot</Description>
-    </EntryPoint>
   </EntryPoints>
 </Mod>
