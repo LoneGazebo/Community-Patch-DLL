@@ -1,4 +1,4 @@
-print("This is the modded InfoTooltipInclude from CBP")
+print("This is the modded InfoTooltipInclude from CBP- CSD")
 -------------------------------------------------
 -- Help text for Info Objects (Units, Buildings, etc.)
 -------------------------------------------------
@@ -1077,6 +1077,13 @@ function GetCultureTooltip(pCity)
 			strCultureToolTip = strCultureToolTip .. "[NEWLINE][NEWLINE]";
 			strCultureToolTip = strCultureToolTip .. "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_CULTURE_CITY_MOD", iAmount);
 		end
+
+		-- City Culture League modifier (CSD)
+		local iAmount = Players[pCity:GetOwner()]:GetLeagueCultureCityModifier();
+		if (iAmount ~= 0) then
+			strCultureToolTip = strCultureToolTip .. "[NEWLINE][NEWLINE]";
+			strCultureToolTip = strCultureToolTip .. "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_CULTURE_LEAGUE_MOD", iAmount);
+		end
 		
 		-- Culture Wonders modifier
 		if (pCity:GetNumWorldWonders() > 0) then
@@ -1354,7 +1361,7 @@ function GetFaithTooltip(pCity)
 				table.insert(faithTips, Locale.ConvertTextKey("TXT_KEY_PRODMOD_PUPPET", puppetMod));
 			end
 		end
-			
+
 		local trfaith = pCity:GetYieldModifierTooltip(YieldTypes.YIELD_FAITH)
 		if(trfaith ~= "") then
 			table.insert(faithTips, trfaith);
@@ -1515,7 +1522,7 @@ function GetYieldTooltip(pCity, iYieldType, iBase, iTotal, strIconString, strMod
 		strYieldBreakdown = strYieldBreakdown .. "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_YIELD_FROM_POP_EXTRA", iYieldFromPop, strIconString);
 		strYieldBreakdown = strYieldBreakdown .. "[NEWLINE]";
 	end
-	
+
 	-- Base Yield from Pop in Empire
 	local iYieldPerPopInEmpire = pCity:GetYieldPerPopTimes100(iYieldType);
 	if (iYieldPerPopInEmpire ~= 0) then
@@ -1546,6 +1553,17 @@ function GetYieldTooltip(pCity, iYieldType, iBase, iTotal, strIconString, strMod
 	if (iYieldFromConnection ~= 0) then
 		strYieldBreakdown = strYieldBreakdown .. "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_YIELD_FROM_CONNECTION", iYieldFromConnection, strIconString);
 		strYieldBreakdown = strYieldBreakdown .. "[NEWLINE]";
+	end
+
+	-- Base Yield from League Art (CSD)
+	if (iYieldType == YieldTypes.YIELD_SCIENCE) then
+		local iYieldFromLeague = pCity:GetBaseYieldRateFromLeague(iYieldType);
+		if (iYieldFromLeague ~= 0) then
+			if (iYieldType == YieldTypes.YIELD_SCIENCE) then
+			strYieldBreakdown = strYieldBreakdown .. "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_SCIENCE_YIELD_FROM_LEAGUE_ART", iYieldFromLeague, strIconString);
+			strYieldBreakdown = strYieldBreakdown .. "[NEWLINE]";
+			end
+		end
 	end
 
 -- CBP Yield from Great Works

@@ -313,10 +313,10 @@ function RefreshCityBanner(cityBanner, iActiveTeam, iActivePlayer)
 
 		-- CityIsMined Status
 		if (city:IsMined()) then
-			controls.IsMinedIcon:SetHide(false);
-			controls.IsMinedIcon:SetToolTipString(Locale.ConvertTextKey( "TXT_KEY_CITY_MINED"));
+			controls.CityIsMined:SetHide(false);
+			controls.CityIsMined:SetToolTipString(Locale.ConvertTextKey( "TXT_KEY_CITY_MINED"));
 		else
-			controls.IsMinedIcon:SetHide(true);
+			controls.CityIsMined:SetHide(true);
 		end
 
 		-- Happiness Status

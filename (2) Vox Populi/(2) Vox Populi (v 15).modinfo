@@ -443,50 +443,52 @@
     <File md5="B83D95851D0B7EB795418601D31946B1" import="0">Core Files/Core Changes/CommunityPatchDLLChanges.sql</File>
     <File md5="8F5BE57196ACA9CF867AF5254C1A4D8C" import="1">Core Files/CoreLua/EspionageOverview.lua</File>
     <File md5="F5AFCB468D395D7CE2A0B8711B4104EE" import="1">Core Files/CoreLua/EspionageOverview.xml</File>
+    <File md5="FE3BE94653FA74D139F8CF57F8E5C6CC" import="1">Core Files/CoreLua/AssignStartingPlots.lua</File>
     <File md5="82E04B06D39F70817541A1515526A75E" import="0">Core Files/Remapper.sql</File>
     <File md5="3F4B08D58AE727DF10D8A34BEC5F398E" import="1">LUA/ActionInfoPanel.lua</File>
-    <File md5="FE3BE94653FA74D139F8CF57F8E5C6CC" import="1">LUA/AssignStartingPlots.lua</File>
     <File md5="39C6A39E21DF6E10B666FA57FA502643" import="1">LUA/Bombardment.lua</File>
     <File md5="66D5F875BCC8CEEF7B18F866147D6AF4" import="1">LUA/ChooseMayaBonus.lua</File>
-    <File md5="13240294376E3A69CA054C26320AACCF" import="1">LUA/CityBannerManager.lua</File>
-    <File md5="3843D8E3E0B5D27181BDF67FC12B54EA" import="1">LUA/CityBannerManager.xml</File>
+    <File md5="394AE7D858F78BEFD46CD9ACAF91C159" import="1">LUA/CityBannerManager.lua</File>
+    <File md5="3DA4836FCA8EB196FD196E50040AB05A" import="1">LUA/CityBannerManager.xml</File>
     <File md5="65C7C12838457379CAFE5AEAE4B6F132" import="1">LUA/CityList.lua</File>
     <File md5="46FF699BA0B84969AF9316F8781E6F69" import="1">LUA/CityList.xml</File>
-    <File md5="8039F0E48EEA23E06674B817212F41F5" import="1">LUA/CityStateDiploPopup.lua</File>
-    <File md5="43CB64143D9098AD3C8103CF3D9985E9" import="1">LUA/CityStateDiploPopup.xml</File>
+    <File md5="A37E082162F9F1F29255AE34920AC9B7" import="1">LUA/CityStateDiploPopup.lua</File>
+    <File md5="CB83DD58726A3185BA0D52EBDD6F1C29" import="1">LUA/CityStateDiploPopup.xml</File>
     <File md5="E5084A1F6168876EBFB78B060FF77E42" import="1">LUA/CityStateGreetingPopup.lua</File>
     <File md5="54A274DCE10B48B9583FB6C939F1F46F" import="1">LUA/CityStateGreetingPopup.xml</File>
-    <File md5="99F2325A8AD8E6CB26E0FA800C1621F5" import="1">LUA/CityStateStatusHelper.lua</File>
-    <File md5="8EE53433A2ED8B0747801305CC48E98C" import="1">LUA/CityView.lua</File>
+    <File md5="C07BB807FBCB25F1707F1BA1B20B08FA" import="1">LUA/CityStateStatusHelper.lua</File>
+    <File md5="3CBE322F14A59655023DBE78D8BEFDA8" import="1">LUA/CityView.lua</File>
     <File md5="CBE80AE325288F1B5A1B05525826DEC0" import="1">LUA/CityView.xml</File>
     <File md5="2C009EF1C7A9213005C102161D5F6C33" import="1">LUA/CityView_small.xml</File>
-    <File md5="5EF4E57228BEBBDCF0E2E5B5932CFF30" import="1">LUA/CivilopediaScreen.lua</File>
+    <File md5="8CE47486BD28A58DA4E1E9C39D7378DD" import="1">LUA/CivilopediaScreen.lua</File>
     <File md5="0F36E9923D32508E9DF09CE94A1B0BC2" import="1">LUA/CivilopediaScreen.xml</File>
     <File md5="90E5C23859C1EEF44EE7351827190F9C" import="1">LUA/CultureOverview.lua</File>
-    <File md5="7206531FE995A02B304CC78053F288D2" import="1">LUA/CultureOverview.xml</File>
-    <File md5="F58B6AFCD8FBE96F11514A8DD2FA2627" import="1">LUA/DeclareWarPopup.lua</File>
-    <File md5="C55C7FC4021A897AA61B4A2BBC611467" import="1">LUA/DeclareWarPopup.xml</File>
+    <File md5="5F310B56A85B1E68963A0B8361F3F4BC" import="1">LUA/CultureOverview.xml</File>
+    <File md5="36C8BD9AB09E0BC4DCD6ACA0ED7C9722" import="1">LUA/DeclareWarPopup.lua</File>
+    <File md5="86D353FD71335DE6C35F3F049187FC36" import="1">LUA/DeclareWarPopup.xml</File>
     <File md5="39254AD35391E09158C0CA312BCABA11" import="1">LUA/Demographics.lua</File>
-    <File md5="606E8F74B742E2B01D2A5799D3ABD1B6" import="1">LUA/DiploCorner.lua</File>
-    <File md5="3ACDAC8F05B9636218B2591F2E83A8B4" import="1">LUA/DiploCorner.xml</File>
-    <File md5="5421C9A76F0159265EA6014D176AD067" import="1">LUA/DiploCurrentDeals.xml</File>
-    <File md5="4B62519FE86B12F25962B88655EC889D" import="1">LUA/DiploGlobalRelationships.lua</File>
-    <File md5="F58E6CE6E3257F55B74120E05DE9DC77" import="1">LUA/DiploList.lua</File>
+    <File md5="8B348B499CC8EC9D7591557F9A1C8A26" import="1">LUA/DiploCorner.lua</File>
+    <File md5="B76E140D5AB1EB63E1130B57B34EB4E3" import="1">LUA/DiploCorner.xml</File>
+    <File md5="F0A2AD1A37F81EE1C4AA074A7650D5FA" import="1">LUA/DiploCurrentDeals.xml</File>
+    <File md5="51B2C38F2F8BB05D60C64E670DD0E159" import="1">LUA/DiploGlobalRelationships.lua</File>
+    <File md5="96E1610DF1E21361B521C0F9C3DB0EA0" import="1">LUA/DiploGlobalRelationships.xml</File>
+    <File md5="A576DF00C42BD07E7CE5E5FE9C6EC52E" import="1">LUA/DiploList.lua</File>
     <File md5="E39E93CD1F55DCB32C7829AE87F45EA4" import="1">LUA/DiploRelationships.lua</File>
-    <File md5="CCEC57B9487A2A1253411E64A40C94A4" import="1">LUA/DiploTrade.xml</File>
-    <File md5="F914961F80F2E4440918112824FA15A8" import="1">LUA/DiscussionDialog.lua</File>
-    <File md5="EA7AAC2ED44FC19F15A5ED5C1DAB0B5D" import="1">LUA/DiscussionDialog.xml</File>
+    <File md5="D25E020550DB8A6CF9E028FE7B121F3F" import="1">LUA/DiploTrade.xml</File>
+    <File md5="7FF0A1709C1A172BAD3EF01E00AB3D4F" import="1">LUA/DiscussionDialog.lua</File>
+    <File md5="6F8A28534B75B274D37AD59D98B5962D" import="1">LUA/DiscussionDialog.xml</File>
     <File md5="A726818C1FE748AE96EC765DE81C48DF" import="1">LUA/EconomicGeneralInfo.lua</File>
     <File md5="3A73B221D228BD6508038FCA62239692" import="1">LUA/EconomicGeneralInfo.xml</File>
     <File md5="16B07AAA25EB4AA80C4FAEAD0AC32D02" import="1">LUA/EconomicOverview.lua</File>
     <File md5="889D02DF9B929969271ADA2126303DFC" import="1">LUA/EconomicOverview.xml</File>
     <File md5="B12E739314E3C06185B3872698E62F60" import="1">LUA/GoodyHutPopup.lua</File>
-    <File md5="63853D883DD64E748DC516729E562B56" import="0">LUA/GPList.lua</File>
+    <File md5="44D613BAA295659174BB1A7A97A050EC" import="1">LUA/GPList.lua</File>
+    <File md5="252CF7B30C29EDDB13DE924B209CA71F" import="1">LUA/GPList.xml</File>
     <File md5="968B47538E2E43A25C6107D2B14398C7" import="1">LUA/HappinessInfo.lua</File>
     <File md5="2F206B1CCE3C1E0723BA0FE5D9A8F22E" import="1">LUA/HappinessInfo.xml</File>
-    <File md5="FA1FFBD9625B42FF1C9DC5A9C290F7EB" import="1">LUA/InfoTooltipInclude.lua</File>
-    <File md5="DB372DAB92E22F097BF0FA3B75842783" import="1">LUA/LeaderHeadRoot.lua</File>
-    <File md5="A7DD1163D44270F31E5F44C1F0F564B0" import="1">LUA/LeaderHeadRoot.xml</File>
+    <File md5="DE8D2ED5352DF737692EFE1A832F3634" import="1">LUA/InfoTooltipInclude.lua</File>
+    <File md5="C6D154AD2BF286BFA355217DA95C8A11" import="1">LUA/LeaderHeadRoot.lua</File>
+    <File md5="F78BC96D218E6401821E6A8E5422E199" import="1">LUA/LeaderHeadRoot.xml</File>
     <File md5="AFAF54EB06337DD49B2F84C1708CA2B0" import="1">LUA/LeagueOverview.lua</File>
     <File md5="E64684AA264F992DF4655078DE013B65" import="1">LUA/MilitaryOverview.lua</File>
     <File md5="F328AECF7B40DFE26E5A960DE38D7397" import="1">LUA/MilitaryOverview.xml</File>
@@ -494,22 +496,26 @@
     <File md5="A149623233865A30C77EE55F8C4CEEF9" import="1">LUA/WonderPopup.xml</File>
     <File md5="1563F214817A1B4E054C72EF3CBA1395" import="1">LUA/NotificationPanel.lua</File>
     <File md5="536CDAADE7C0B0098C93CF87C6B0D617" import="1">LUA/NotificationPanel.xml</File>
-    <File md5="9BE2A8B21A490C23357603ADD83842AC" import="1">LUA/PlotMouseoverInclude.lua</File>
+    <File md5="6B39672FB2F59A71F846B6247B56399C" import="1">LUA/PlotMouseoverInclude.lua</File>
+    <File md5="A30793210DE409ED10CF3DA3D4D46B88" import="1">LUA/ProductionPopup.lua</File>
+    <File md5="FE31FBA4C2E0F415B11868580B2A9AA2" import="1">LUA/ProductionPopup.xml</File>
     <File md5="61C09020952A2F9F72E915CBA7607A66" import="1">LUA/PuppetCityPopup.lua</File>
     <File md5="B86AB6C34FBFDA5D440F1087BC422B8B" import="1">LUA/ReligionOverview.lua</File>
     <File md5="5D08BC8926176FD7F7081872EBB56472" import="1">LUA/ResourceTooltipGenerator.lua</File>
-    <File md5="8F91B43D768D059D8B0A9608F671ED38" import="1">LUA/SimpleDiploTrade.xml</File>
+    <File md5="1D1EA1CC962E7B310D02E5D1F2BA761A" import="1">LUA/SimpleDiploTrade.xml</File>
     <File md5="627DD943624620042081B8D8F07DBB6B" import="1">LUA/SocialPolicyPopup.lua</File>
     <File md5="12684E9BB5B297803A690A5795812A44" import="1">LUA/SocialPolicyPopup.xml</File>
-    <File md5="89823E699950E59DA51A75ABDFCF27BC" import="1">LUA/TechButtonInclude.lua</File>
-    <File md5="BF53554290AE90539A212256ADDD3F45" import="1">LUA/TopPanel.lua</File>
+    <File md5="45C804F46F09D05A44FB9DFA3B78B811" import="1">LUA/TechButtonInclude.lua</File>
+    <File md5="D9BC04C379C6B163E5CD87D2CA6CF0AF" import="1">LUA/TopPanel.lua</File>
     <File md5="91D4A7DF00FAE1B0ADD6667FD1E76CC9" import="1">LUA/TopPanel.xml</File>
-    <File md5="7749B5C7EDCA86AA3B13BBF8FDB40C1A" import="1">LUA/TradeLogic.lua</File>
+    <File md5="DFAF218136120D926977F7F6E1E257A6" import="1">LUA/TradeLogic.lua</File>
     <File md5="9FFDC076C4C90F6717FD70C46972E9CF" import="1">LUA/UnitFlagManager.lua</File>
     <File md5="90B02764D74190D347AA83C2D1C38BE5" import="1">LUA/UnitPanel.lua</File>
     <File md5="BBC33791151B7DB3DBCE257B52BE3D52" import="1">LUA/VictoryProgress.lua</File>
     <File md5="DAC68F838D98ED16A8D7246798795EA8" import="1">LUA/VictoryProgress.xml</File>
     <File md5="2F4E8578875AA96C3D8553D2E7DE0883" import="1">LUA/WhosWinningPopup.lua</File>
+    <File md5="AF34BDAF7884346D2B12EFC63B4782CD" import="1">LUA/YieldIconManager.lua</File>
+    <File md5="BA353EE3D799C2396658056D9FB2173A" import="1">LUA/YieldIconManager.xml</File>
     <File md5="CC7C4918E93EAB11073D05A11A012CBF" import="0">Mapscripts/Communitu_79a.lua</File>
     <File md5="CE52E119CFD1431AA48DD2E97F31B083" import="0">Modular Elements/ArchaeologistUIMods/GlobalArchaeologistDigSites.lua</File>
     <File md5="AB03E8A8098CF0C5F06E7F91A0294E43" import="1">Modular Elements/ArchaeologistUIMods/MiniMapPanel.lua</File>
@@ -1065,6 +1071,10 @@
       <Name>Terra</Name>
       <Description>
       </Description>
+    </EntryPoint>
+    <EntryPoint type="InGameUIAddin" file="Core Files/CoreLua/AssignStartingPlots.lua">
+      <Name>AssignStartingPlots</Name>
+      <Description>AssignStartingPlots</Description>
     </EntryPoint>
   </EntryPoints>
 </Mod>

@@ -1,4 +1,4 @@
-print("This is the modded DiscussionDialog.lua from CBP")
+print("This is the modded DiscussionDialog.lua from CBP - C4DF")
 ----------------------------------------------------------------
 ----------------------------------------------------------------
 include( "IconSupport" );
@@ -96,7 +96,7 @@ function LeaderMessageHandler( iPlayer, iDiploUIState, szLeaderMessage, iAnimati
 	
 	local strMoodInfo = GetMoodInfo(g_iAIPlayer);
 	Controls.MoodText:SetToolTipString(strMoodInfo);
-	
+
 	local bMyMode = false;
 	
 	local strExtra = "";
@@ -162,6 +162,9 @@ function LeaderMessageHandler( iPlayer, iDiploUIState, szLeaderMessage, iAnimati
 		bMyMode = true;
 	elseif (iDiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_STOP_DIGGING) then
 		bMyMode = true;
+	-- Putmalk
+	elseif (iDiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_DISCUSS_AI_REVOKE_VASSALAGE) then
+		bMyMode = true;
 	elseif (iDiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_WAR_DECLARED_BY_HUMAN) then
 		print("DiploUIStateTypes.DIPLO_UI_STATE_WAR_DECLARED_BY_HUMAN");
 		if (iData1 == 1) then
@@ -195,6 +198,9 @@ function LeaderMessageHandler( iPlayer, iDiploUIState, szLeaderMessage, iAnimati
 		local strButton6Text = -1;
 		local strButton7Text = -1;
 		local strButton8Text = -1;
+		local strButton9Text = -1;
+		local strButton10Text = -1;
+		local strButton11Text = -1;
 		
 		local strButton1Tooltip = "";
 		local strButton2Tooltip = "";
@@ -204,6 +210,9 @@ function LeaderMessageHandler( iPlayer, iDiploUIState, szLeaderMessage, iAnimati
 		local strButton6Tooltip = "";
 		local strButton7Tooltip = "";
 		local strButton8Tooltip = "";
+		local strButton9Tooltip = "";
+		local strButton10Tooltip = "";
+		local strButton11Tooltip = "";
 		
 		-- Make sure none of the buttons start disabled
  		Controls.Button1:SetDisabled(false);
@@ -214,64 +223,98 @@ function LeaderMessageHandler( iPlayer, iDiploUIState, szLeaderMessage, iAnimati
 		Controls.Button6:SetDisabled(false);
 		Controls.Button7:SetDisabled(false);
 		Controls.Button8:SetDisabled(false);
+		Controls.Button9:SetDisabled(false);
+		Controls.Button10:SetDisabled(false);
+		Controls.Button11:SetDisabled(false);
 		
 		local bHideBackButton = false;
 	    
 		-- Human invoked discussion
 		if (g_DiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_DISCUSS_HUMAN_INVOKED) then
-			
+
 			-- Discussion Root Mode
 			if (g_iInvokedDiscussionMode == g_iModeDiscussionRoot) then
+
+				local strLeaderName;
+				if(pAIPlayer:GetNickName() ~= "" and Game:IsNetworkMultiPlayer()) then
+					strLeaderName = pAIPlayer:GetNickName();
+				else
+					strLeaderName = pAIPlayer:GetName();
+				end
+
+				--------------------
+				-- SHARE INTRIGUE --
+				--------------------
 
 				if (activePlayer:HasRecentIntrigueAbout(iPlayer) and activePlayer:IsAlive() and (not Players[iPlayer]:IsHuman()) and (not pActiveTeam:IsAtWar(g_iAITeam))) then
 					local strLeaderName;
 					if(pAIPlayer:GetNickName() ~= "" and Game:IsNetworkMultiPlayer()) then
 						strLeaderName = pAIPlayer:GetNickName();
 					else
-						strLeaderName = pAIPlayer:GetName();
+						strLeaderName = pAIPlayer:GetName()
 					end
 
-					strButton1Text = Locale.ConvertTextKey("TXT_KEY_DIPLO_DISCUSS_MESSAGE_SHARE_INTRIGUE", strLeaderName);
-					strButton1Tooltip = Locale.ConvertTextKey("TXT_KEY_DIPLO_DISCUSS_MESSAGE_SHARE_INTRIGUE_TT", strLeaderName);
+					strButton2Text = Locale.ConvertTextKey("TXT_KEY_DIPLO_DISCUSS_MESSAGE_SHARE_INTRIGUE", strLeaderName);
+					strButton2Tooltip = Locale.ConvertTextKey("TXT_KEY_DIPLO_DISCUSS_MESSAGE_SHARE_INTRIGUE_TT", strLeaderName);
 				end
+
+				--------------------
+				--   STOP SPYING  --
+				--------------------
 
 				local agents = pAIPlayer:GetEspionageSpies();
 				local bHasAgents = #agents ~= 0;
 
 				if (not pAIPlayer:IsStopSpyingMessageTooSoon(iActivePlayer) and bHasAgents and (g_iAITeam ~= Game.GetActiveTeam())) then
-					strButton2Text = Locale.ConvertTextKey( "TXT_KEY_DIPLO_DISCUSS_MESSAGE_STOP_SPYING" );
+					strButton3Text = Locale.ConvertTextKey( "TXT_KEY_DIPLO_DISCUSS_MESSAGE_STOP_SPYING" );
 				end
+
+				---------------------
+				--  STOP RELIGION  --
+				---------------------
 
 				-- Ask the AI player not to send missionaries or prophets
 				if (activePlayer:GetNegativeReligiousConversionPoints(g_iAIPlayer) > 0 or activePlayer:HasCreatedReligion()) then
 					if (not pAIPlayer:IsAskedToStopConverting(iActivePlayer)) then
-						strButton3Text = Locale.ConvertTextKey("TXT_KEY_DIPLO_DISCUSS_MESSAGE_STOP_SPREADING_RELIGION");
+						strButton4Text = Locale.ConvertTextKey("TXT_KEY_DIPLO_DISCUSS_MESSAGE_STOP_SPREADING_RELIGION");
 					end
 				end
 
+				---------------------
+				--   DON'T SETTLE  --
+				---------------------
+
 				-- Ask the AI player to not settle nearby
 				if (not pAIPlayer:IsDontSettleMessageTooSoon(iActivePlayer)) then
-					strButton4Text = Locale.ConvertTextKey( "TXT_KEY_DIPLO_DISCUSS_MESSAGE_DONT_SETTLE" );
+					strButton5Text = Locale.ConvertTextKey( "TXT_KEY_DIPLO_DISCUSS_MESSAGE_DONT_SETTLE" );
 				end
+
+				-----------------------
+				--	STOP ARCHAEOLOGY --
+				-----------------------
 
 				-- Ask the AI player not to dig up my artifacts
 				if (activePlayer:GetNegativeArchaeologyPoints(g_iAIPlayer) > 0 and not pAIPlayer:IsAskedToStopDigging(iActivePlayer)) then
-					strButton5Text = Locale.ConvertTextKey("TXT_KEY_DIPLO_DISCUSS_MESSAGE_STOP_DIGGING");
+					strButton6Text = Locale.ConvertTextKey("TXT_KEY_DIPLO_DISCUSS_MESSAGE_STOP_DIGGING");
 				end
 
+				-----------------------
+				--  DENOUNCE AND DOF --
+				-----------------------
 				-- If we're teammates, there's no need to work together or against anyone
 				if (pAIPlayer:GetTeam() ~= Players[iActivePlayer]:GetTeam()) then
 					-- Ask the AI player to work together
 					if (not pAIPlayer:IsDoFMessageTooSoon(iActivePlayer)) then
-						strButton6Text = Locale.ConvertTextKey( "TXT_KEY_DIPLO_DISCUSS_MESSAGE_DEC_FRIENDSHIP" );
-						strButton6Tooltip = Locale.ConvertTextKey( "TXT_KEY_DIPLO_DISCUSS_MESSAGE_DEC_FRIENDSHIP_TT" );
+						strButton7Text = Locale.ConvertTextKey( "TXT_KEY_DIPLO_DISCUSS_MESSAGE_DEC_FRIENDSHIP" );
+						strButton7Tooltip = Locale.ConvertTextKey( "TXT_KEY_DIPLO_DISCUSS_MESSAGE_DEC_FRIENDSHIP_TT" );
 -- CBP
 					-- Tell the player we're done working with him
 					elseif (pAIPlayer:IsDoF(iActivePlayer)) then
-						strButton6Text = Locale.ConvertTextKey( "TXT_KEY_DIPLO_DISCUSS_MESSAGE_END_WORK_WITH_US" );
-						strButton6Tooltip = Locale.ConvertTextKey( "TXT_KEY_DIPLO_DISCUSS_MESSAGE_END_DEC_FRIENDSHIP_TT" );
+						strButton7Text = Locale.ConvertTextKey( "TXT_KEY_DIPLO_DISCUSS_MESSAGE_END_WORK_WITH_US" );
+						strButton7Tooltip = Locale.ConvertTextKey( "TXT_KEY_DIPLO_DISCUSS_MESSAGE_END_DEC_FRIENDSHIP_TT" );
 					end
 -- END
+
 					local strLeaderName;
 					if(pAIPlayer:GetNickName() ~= "" and Game:IsNetworkMultiPlayer()) then
 						strLeaderName = pAIPlayer:GetNickName();
@@ -280,22 +323,57 @@ function LeaderMessageHandler( iPlayer, iDiploUIState, szLeaderMessage, iAnimati
 					end
 
 					if(not pAIPlayer:IsDenounceMessageTooSoon(iActivePlayer)) then
-						strButton7Text = Locale.ConvertTextKey( "TXT_KEY_DIPLO_DISCUSS_DENOUNCE", strLeaderName );
-						strButton7Tooltip = Locale.ConvertTextKey( "TXT_KEY_DIPLO_DISCUSS_DENOUNCE_TT" );
-		 			end
+						strButton8Text = Locale.ConvertTextKey( "TXT_KEY_DIPLO_DISCUSS_DENOUNCE", strLeaderName );
+						strButton8Tooltip = Locale.ConvertTextKey( "TXT_KEY_DIPLO_DISCUSS_DENOUNCE_TT" );
+					end
 				end
 
-				strButton8Text = Locale.ConvertTextKey( "TXT_KEY_DIPLO_DISCUSS_MESSAGE_DECLARE_WAR" );
-		 		Controls.Button8:SetDisabled(true);
+				-----------------
+				-- MOVE TROOPS --
+				-----------------
+				-- Hostile!
+				print("Hello");
+				print(tostring(activePlayer:GetMilitaryAggressivePosture(g_iAIPlayer)));
+				print(AggressivePostureTypes.AGGRESSIVE_POSTURE_MEDIUM);
+
+				if(not pAIPlayer:MoveRequestTooSoon(iActivePlayer)) then
+					if(activePlayer:GetMilitaryAggressivePosture(g_iAIPlayer) >= AggressivePostureTypes.AGGRESSIVE_POSTURE_MEDIUM) then
+						if(Players[iActivePlayer]:GetApproachTowardsUsGuess(g_iAIPlayer) == MajorCivApproachTypes.MAJOR_CIV_APPROACH_HOSTILE) then
+							strButton9Text = Locale.ConvertTextKey( "TXT_KEY_DIPLO_DISCUSS_MESSAGE_MOVE_TROOPS_HOSTILE" );
+						else
+							strButton9Text = Locale.ConvertTextKey( "TXT_KEY_DIPLO_DISCUSS_MESSAGE_MOVE_TROOPS" );
+						end
+
+						strButton9Tooltip = Locale.ConvertTextKey("TXT_KEY_DIPLO_DISCUSS_MESSAGE_MOVE_TROOPS_TT", strLeaderName);
+					end
+				end
+
+				--------------------------------
+				--  DECLARE WAR (THIRD PARTY) --
+				--------------------------------
+				strButton10Text = Locale.ConvertTextKey( "TXT_KEY_DIPLO_DISCUSS_MESSAGE_DECLARE_WAR" );
+				Controls.Button10:SetDisabled(true);
+
+				--------------------
+				--  SHARE OPINION --
+				--------------------
+				strButton11Text = Locale.ConvertTextKey( "TXT_KEY_DIPLO_DISCUSS_MESSAGE_SHARE_OPINION" );
+				Controls.Button11:SetDisabled(true);
 
 				-- Discussion buttons valid?
-				if (pAIPlayer:IsDoF(iActivePlayer) or pAIPlayer:GetTeam() == Players[iActivePlayer]:GetTeam()) then
-					for iPlayerLoop = 0, GameDefines.MAX_MAJOR_CIVS-1, 1 do
-						-- War button
+				for iPlayerLoop = 0, GameDefines.MAX_MAJOR_CIVS-1, 1 do
+
+					-- War button: Button 10
+					if (pAIPlayer:IsDoF(iActivePlayer) or pAIPlayer:GetTeam() == Players[iActivePlayer]:GetTeam()) then
 						if (IsWarAgainstThirdPartyPlayerValid(iPlayerLoop) and not pActiveTeam:IsAtWar(g_iAITeam)) then
-							strButton8Tooltip = Locale.ConvertTextKey( "TXT_KEY_DIPLO_DISCUSS_MESSAGE_DECLARE_WAR_TT" );
-							Controls.Button8:SetDisabled(false);
+							strButton10Tooltip = Locale.ConvertTextKey( "TXT_KEY_DIPLO_DISCUSS_MESSAGE_DECLARE_WAR_TT" );
+							Controls.Button10:SetDisabled(false);
 						end
+					end
+
+					-- Share Opinion button: Button 11
+					if (IsShareOpinionOnThirdPartyPlayerValid(iPlayerLoop)) then
+						Controls.Button11:SetDisabled(false);
 					end
 				end
 			end
@@ -304,18 +382,12 @@ function LeaderMessageHandler( iPlayer, iDiploUIState, szLeaderMessage, iAnimati
 		elseif (g_DiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_BLANK_DISCUSSION_MEAN_HUMAN) then
 			strButton1Text = Locale.ConvertTextKey( "TXT_KEY_DIPLO_DISCUSS_MESSAGE_SORRY" );
 			strButton2Text = Locale.ConvertTextKey( "TXT_KEY_DIPLO_DISCUSS_MESSAGE_DEAL" );
--- CBP
-			strButton2Tooltip = Locale.ConvertTextKey("TXT_KEY_DIPLO_DISCUSS_MESSAGE_YOULL_PAY_TT");
--- END
 			bHideBackButton = true;
 			
 		-- AI did something mean, and human responds in turn with fluff
 		elseif (g_DiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_BLANK_DISCUSSION_MEAN_AI) then
 			strButton1Text = Locale.ConvertTextKey( "TXT_KEY_DIPLO_DISCUSS_MESSAGE_OKAY" );
 			strButton2Text = Locale.ConvertTextKey( "TXT_KEY_DIPLO_DISCUSS_MESSAGE_YOULL_PAY" );
--- CBP
-			strButton2Tooltip = Locale.ConvertTextKey("TXT_KEY_DIPLO_DISCUSS_MESSAGE_YOULL_PAY_TT");
--- END
 			bHideBackButton = true;
 			
 		-- AI declared war on us!
@@ -405,12 +477,6 @@ function LeaderMessageHandler( iPlayer, iDiploUIState, szLeaderMessage, iAnimati
 			strButton1Text = Locale.ConvertTextKey( "TXT_KEY_DIPLO_DISCUSS_SORRY_NO_INTEREST" );
 			strButton2Text = Locale.ConvertTextKey( "TXT_KEY_DIPLO_DISCUSS_HOW_DARE_YOU" );
 			strButton3Text = Locale.ConvertTextKey( "TXT_KEY_DIPLO_DISCUSS_DO_WHAT_WE_CAN" );
--- CBP
-			local pMajor = Players[iData1];
-			if (pMajor ~= nil) then
-				strButton2Tooltip = Locale.ConvertTextKey( "TXT_KEY_DIPLO_DISCUSS_HOW_DARE_YOU_TT", pAIPlayer:GetCivilizationShortDescriptionKey(), pMajor:GetCivilizationShortDescriptionKey());
-			end
--- END
 			bHideBackButton = true;
 		-- AI asking player to declare war against someone
 		elseif (g_DiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_DISCUSS_COOP_WAR) then
@@ -418,6 +484,12 @@ function LeaderMessageHandler( iPlayer, iDiploUIState, szLeaderMessage, iAnimati
 			strButton2Text = Locale.ConvertTextKey( "TXT_KEY_DIPLO_DISCUSS_HOW_DARE_YOU" );
 			strButton3Text = Locale.ConvertTextKey( "TXT_KEY_DIPLO_DISCUSS_COOP_WAR_SOON" );
 			strButton4Text = Locale.ConvertTextKey( "TXT_KEY_DIPLO_DISCUSS_COOP_WAR_YES" );
+-- CBP
+			local pMajor = Players[iData1];
+			if (pMajor ~= nil) then
+				strButton2Tooltip = Locale.ConvertTextKey( "TXT_KEY_DIPLO_DISCUSS_HOW_DARE_YOU_TT", pAIPlayer:GetCivilizationShortDescriptionKey(), pMajor:GetCivilizationShortDescriptionKey());
+			end
+-- END
 			bHideBackButton = true;
 		-- AI shows up saying it's time to declare war against someone
 		elseif (g_DiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_DISCUSS_COOP_WAR_TIME) then
@@ -502,6 +574,13 @@ function LeaderMessageHandler( iPlayer, iDiploUIState, szLeaderMessage, iAnimati
 			strButton1Text = Locale.ConvertTextKey( "TXT_KEY_DIPLO_DISCUSS_DONT_STOP_DIGGING" );
 			strButton2Text = Locale.ConvertTextKey( "TXT_KEY_DIPLO_DISCUSS_STOP_DIGGING" );
 			bHideBackButton = true;
+		
+		-- Putmalk
+		-- AI wants to revoke Vassalage
+		elseif (g_DiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_DISCUSS_AI_REVOKE_VASSALAGE) then
+			strButton1Text = Locale.ConvertTextKey( "TXT_KEY_DIPLO_DISCUSS_DONT_ALLOW_VASSAL_INDEPENDENCE" );
+			strButton2Text = Locale.ConvertTextKey( "TXT_KEY_DIPLO_DISCUSS_ALLOW_VASSAL_INDEPENDENCE" );
+			bHideBackButton = true;
 		end
 	    
 		-- Buttons: change text or hide
@@ -567,6 +646,30 @@ function LeaderMessageHandler( iPlayer, iDiploUIState, szLeaderMessage, iAnimati
 			Controls.Button8Label:SetText(strButton8Text);
 			Controls.Button8:SetHide(false);
 			Controls.Button8:SetToolTipString(strButton8Tooltip);
+		end
+		
+		if (strButton9Text == -1) then
+			Controls.Button9:SetHide(true);
+		else
+			Controls.Button9Label:SetText(strButton9Text);
+			Controls.Button9:SetHide(false);
+			Controls.Button9:SetToolTipString(strButton9Tooltip);
+		end
+		
+		if (strButton10Text == -1) then
+			Controls.Button10:SetHide(true);
+		else
+			Controls.Button10Label:SetText(strButton10Text);
+			Controls.Button10:SetHide(false);
+			Controls.Button10:SetToolTipString(strButton10Tooltip);
+		end
+		
+		if (strButton11Text == -1) then
+			Controls.Button11:SetHide(true);
+		else
+			Controls.Button11Label:SetText(strButton11Text);
+			Controls.Button11:SetHide(false);
+			Controls.Button11:SetToolTipString(strButton11Tooltip);
 		end
 		
 		-- Some situations we force the human to answer - he can't back out
@@ -709,18 +812,10 @@ function OnButton1()
 	
 	local iButtonID = 1;	-- This format is also used in DiploTrade.lua in the OnBack() function.  If functionality here changes it should be updated there as well.
         
-    -- Human-invoked discussion
-	if (g_DiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_DISCUSS_HUMAN_INVOKED) then
-		if (g_iInvokedDiscussionMode == g_iModeDiscussionRoot) then
-			-- Share intrigue with AI player
-			local iIntriguePlotter;
-			local iIntrigueType;
-			iIntriguePlotter, iIntrigueType = pPlayer:GetRecentIntrigueInfo(g_iAIPlayer);			
-			Game.DoFromUIDiploEvent( FromUIDiploEventTypes.FROM_UI_DIPLO_EVENT_HUMAN_DISCUSSION_SHARE_INTRIGUE, g_iAIPlayer, iIntriguePlotter, iIntrigueType);
-		end
+
         
     -- Fluff discussion mode
-	elseif (g_DiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_BLANK_DISCUSSION_MEAN_HUMAN) then
+	if (g_DiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_BLANK_DISCUSSION_MEAN_HUMAN) then
 		OnBack(true);
     -- Fluff discussion mode 2
 	elseif (g_DiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_BLANK_DISCUSSION_MEAN_AI) then
@@ -823,7 +918,11 @@ function OnButton1()
     -- AI asking you to stop digging
 	elseif (g_DiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_STOP_DIGGING) then
 	   Game.DoFromUIDiploEvent( FromUIDiploEventTypes.FROM_UI_DIPLO_EVENT_STOP_DIGGING, g_iAIPlayer, iButtonID, iAgainstPlayer);
-	   
+	  
+	-- AI asking you to revoke their vassalage - We tell him to die
+	elseif (g_DiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_DISCUSS_AI_REVOKE_VASSALAGE) then
+		Game.DoFromUIDiploEvent( FromUIDiploEventTypes.FROM_UI_DIPLO_EVENT_HUMAN_ENDS_VASSALAGE, g_iAIPlayer, iButtonID, 0 );
+	
     -- Default mode - TBR
     elseif (g_DiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_DEFAULT_ROOT) then
 		
@@ -881,27 +980,27 @@ function OnButton2()
     -- Human-invoked discussion
     if (g_DiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_DISCUSS_HUMAN_INVOKED) then
 		if (g_iInvokedDiscussionMode == g_iModeDiscussionRoot) then
-			-- Ask the AI player not to spy any more
-			Game.DoFromUIDiploEvent( FromUIDiploEventTypes.FROM_UI_DIPLO_EVENT_HUMAN_DISCUSSION_STOP_SPYING, g_iAIPlayer, 0, 0 );
+			-- Share intrigue with AI player
+			local iIntriguePlotter;
+			local iIntrigueType;
+			iIntriguePlotter, iIntrigueType = pPlayer:GetRecentIntrigueInfo(g_iAIPlayer);			
+			Game.DoFromUIDiploEvent( FromUIDiploEventTypes.FROM_UI_DIPLO_EVENT_HUMAN_DISCUSSION_SHARE_INTRIGUE, g_iAIPlayer, iIntriguePlotter, iIntrigueType);
 		end
         
     -- Fluff discussion mode
 	elseif (g_DiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_BLANK_DISCUSSION_MEAN_HUMAN) then
 -- CBP
 		Game.DoFromUIDiploEvent( FromUIDiploEventTypes.FROM_UI_DIPLO_EVENT_MEAN_RESPONSE, g_iAIPlayer, iButtonID, 0 );
-		--OnBack(true);
 -- END
     -- Fluff discussion mode 2
 	elseif (g_DiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_BLANK_DISCUSSION_MEAN_AI) then
 -- CBP
 		Game.DoFromUIDiploEvent( FromUIDiploEventTypes.FROM_UI_DIPLO_EVENT_MEAN_RESPONSE, g_iAIPlayer, iButtonID, 0 );
-		--OnBack(true);
 -- END
     -- AI declared war on us!
 	elseif (g_DiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_AI_DECLARED_WAR) then
 -- CBP
 		Game.DoFromUIDiploEvent( FromUIDiploEventTypes.FROM_UI_DIPLO_EVENT_MEAN_RESPONSE, g_iAIPlayer, iButtonID, 0 );
-		--OnBack(true);
 -- END
         
     -- AI is telling us he sees a military buildup - we tell him to die
@@ -1000,6 +1099,10 @@ function OnButton2()
 	elseif (g_DiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_STOP_DIGGING) then
 	   Game.DoFromUIDiploEvent( FromUIDiploEventTypes.FROM_UI_DIPLO_EVENT_STOP_DIGGING, g_iAIPlayer, iButtonID, iAgainstPlayer);
 
+	-- AI asking you to revoke their vassalage - We tell him we'll do it
+	elseif (g_DiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_DISCUSS_AI_REVOKE_VASSALAGE) then
+		Game.DoFromUIDiploEvent( FromUIDiploEventTypes.FROM_UI_DIPLO_EVENT_HUMAN_ENDS_VASSALAGE, g_iAIPlayer, iButtonID, 0 );
+
     -- Default mode
     elseif (g_DiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_DEFAULT_ROOT) then
 		
@@ -1025,7 +1128,7 @@ function OnButton3()
 	if (g_DiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_DISCUSS_HUMAN_INVOKED) then
 		if (g_iInvokedDiscussionMode == g_iModeDiscussionRoot) then
 			-- Ask the AI player not to spy any more
-			Game.DoFromUIDiploEvent( FromUIDiploEventTypes.FROM_UI_DIPLO_EVENT_HUMAN_DISCUSSION_STOP_SPREADING_RELIGION, g_iAIPlayer, 0, 0 );
+			Game.DoFromUIDiploEvent( FromUIDiploEventTypes.FROM_UI_DIPLO_EVENT_HUMAN_DISCUSSION_STOP_SPYING, g_iAIPlayer, 0, 0 );
 		end
 		
     -- AI asking to work against someone - we agree
@@ -1077,11 +1180,8 @@ function OnButton4()
 	-- Discussion mode brought up by the human
 	if (g_DiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_DISCUSS_HUMAN_INVOKED) then
 		if (g_iInvokedDiscussionMode == g_iModeDiscussionRoot) then
-			-- Ask the AI player not to settle nearby
-			Game.DoFromUIDiploEvent( FromUIDiploEventTypes.FROM_UI_DIPLO_EVENT_HUMAN_DISCUSSION_DONT_SETTLE, g_iAIPlayer, 0, 0 );
-			-- Tell the player we're done working with him
-			--elseif (pAIPlayer:IsDoF(iActivePlayer)) then
-				--Game.DoFromUIDiploEvent( FromUIDiploEventTypes.FROM_UI_DIPLO_EVENT_HUMAN_DISCUSSION_END_WORK_WITH_US, g_iAIPlayer, 0, 0 );
+			-- Ask the AI player not to spy any more
+			Game.DoFromUIDiploEvent( FromUIDiploEventTypes.FROM_UI_DIPLO_EVENT_HUMAN_DISCUSSION_STOP_SPREADING_RELIGION, g_iAIPlayer, 0, 0 );
 		end
         
     -- AI asking to declare war against someone - we agree
@@ -1118,7 +1218,11 @@ function OnButton5()
 	-- Discussion mode brought up by the human
 	if (g_DiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_DISCUSS_HUMAN_INVOKED) then
 		if (g_iInvokedDiscussionMode == g_iModeDiscussionRoot) then
-			Game.DoFromUIDiploEvent( FromUIDiploEventTypes.FROM_UI_DIPLO_EVENT_HUMAN_DISCUSSION_STOP_DIGGING, g_iAIPlayer, 0, 0 );
+			-- Ask the AI player not to settle nearby
+			Game.DoFromUIDiploEvent( FromUIDiploEventTypes.FROM_UI_DIPLO_EVENT_HUMAN_DISCUSSION_DONT_SETTLE, g_iAIPlayer, 0, 0 );
+			-- Tell the player we're done working with him
+			--elseif (pAIPlayer:IsDoF(iActivePlayer)) then
+				--Game.DoFromUIDiploEvent( FromUIDiploEventTypes.FROM_UI_DIPLO_EVENT_HUMAN_DISCUSSION_END_WORK_WITH_US, g_iAIPlayer, 0, 0 );
 		end
         
     -- AI asking to work against someone - we agree
@@ -1148,9 +1252,7 @@ function OnButton6()
 	local pPlayer = Players[Game.GetActivePlayer()];
 	local pTeam = Teams[pPlayer:GetTeam()];
 	local pAIPlayer = Players[g_iAIPlayer];
--- CBP
-	local iActivePlayer = Game.GetActivePlayer();
--- END
+
 	local iButtonID = 6;
 
 	-- Discussion mode brought up by the human
@@ -1158,19 +1260,13 @@ function OnButton6()
 		
 		-- Discussion Root Mode
 		if (g_iInvokedDiscussionMode == g_iModeDiscussionRoot) then
-			-- Ask the AI player to work together
-			if (not pAIPlayer:IsDoF(iActivePlayer)) then
-				Game.DoFromUIDiploEvent( FromUIDiploEventTypes.FROM_UI_DIPLO_EVENT_HUMAN_DISCUSSION_WORK_WITH_US, g_iAIPlayer, 0, 0 );
--- CBP
-			-- Asking AI to end work together
-			elseif(pAIPlayer:IsDoF(iActivePlayer)) then
-				Game.DoFromUIDiploEvent( FromUIDiploEventTypes.FROM_UI_DIPLO_EVENT_HUMAN_END_WORK_WITH_US_RESPONSE, g_iAIPlayer, 0, 0 );
--- END
+			if (g_iInvokedDiscussionMode == g_iModeDiscussionRoot) then
+				Game.DoFromUIDiploEvent( FromUIDiploEventTypes.FROM_UI_DIPLO_EVENT_HUMAN_DISCUSSION_STOP_DIGGING, g_iAIPlayer, 0, 0 );
 			end
 		end
     -- Default mode
     elseif (g_DiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_DEFAULT_ROOT) then
-		
+	
 	end	
 end
 Controls.Button6:RegisterCallback( Mouse.eLClick, OnButton6 );
@@ -1182,23 +1278,24 @@ function OnButton7()
 	g_InstanceManager:ResetInstances();
 
 	local pPlayer = Players[Game.GetActivePlayer()];
+	local pAIPlayer = Players[g_iAIPlayer];
 	local pTeam = Teams[pPlayer:GetTeam()];
-	
+-- CBP
+	local iActivePlayer = Game.GetActivePlayer();
+-- END	
 	local iButtonID = 7;
 	if (g_DiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_DISCUSS_HUMAN_INVOKED) then
 		-- Discussion Root Mode
 		if (g_iInvokedDiscussionMode == g_iModeDiscussionRoot) then
-			local pAIPlayer = Players[g_iAIPlayer];
-			local name;
-			if(pAIPlayer:GetNickName() ~= "" and pAIPlayer:IsHuman()) then
-				name = pAIPlayer:GetNickName();
-			else
-				name = pAIPlayer:GetName();		    
+			-- Ask the AI player to work together
+			if (not pAIPlayer:IsDoF(iActivePlayer)) then
+				Game.DoFromUIDiploEvent( FromUIDiploEventTypes.FROM_UI_DIPLO_EVENT_HUMAN_DISCUSSION_WORK_WITH_US, g_iAIPlayer, 0, 0 );
+-- CBP
+			-- Asking AI to end work together
+			elseif(pAIPlayer:IsDoF(iActivePlayer)) then
+				Game.DoFromUIDiploEvent( FromUIDiploEventTypes.FROM_UI_DIPLO_EVENT_HUMAN_END_WORK_WITH_US_RESPONSE, g_iAIPlayer, 0, 0 );
+-- END
 			end
-			
-			Controls.DenounceLabel:LocalizeAndSetText("TXT_KEY_CONFIRM_DENOUNCE", name);
-			
-			Controls.DenounceConfirm:SetHide(false);
 		end
 	elseif (g_DiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_DEFAULT_ROOT) then
 	end
@@ -1218,14 +1315,90 @@ function OnButton8()
 	if (g_DiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_DISCUSS_HUMAN_INVOKED) then
 		-- Discussion Root Mode
 		if (g_iInvokedDiscussionMode == g_iModeDiscussionRoot) then
-			g_iInvokedDiscussionMode = g_iModeDiscussionWar;
-			OpenLeadersPanel();
+			local pAIPlayer = Players[g_iAIPlayer];
+			local name;
+			if(pAIPlayer:GetNickName() ~= "" and pAIPlayer:IsHuman()) then
+				name = pAIPlayer:GetNickName();
+			else
+				name = pAIPlayer:GetName();		    
+			end
+			
+			Controls.DenounceLabel:LocalizeAndSetText("TXT_KEY_CONFIRM_DENOUNCE", name);
+			
+			Controls.DenounceConfirm:SetHide(false);
 		end
 	elseif (g_DiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_DEFAULT_ROOT) then
 	end
 end
 Controls.Button8:RegisterCallback( Mouse.eLClick, OnButton8 );
 
+----------------------------------------------------------------
+-- BUTTON 9
+----------------------------------------------------------------
+function OnButton9()
+	g_InstanceManager:ResetInstances();
+
+	local pPlayer = Players[Game.GetActivePlayer()];
+	local pTeam = Teams[pPlayer:GetTeam()];
+	
+	local iButtonID = 9;
+	if (g_DiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_DISCUSS_HUMAN_INVOKED) then
+		-- Discussion Root Mode
+		if (g_iInvokedDiscussionMode == g_iModeDiscussionRoot) then
+			Game.DoFromUIDiploEvent( FromUIDiploEventTypes.FROM_UI_DIPLO_EVENT_HUMAN_MOVE_TROOPS_RESPONSE, g_iAIPlayer, 0, 0 );
+		end
+	elseif (g_DiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_DEFAULT_ROOT) then
+	end
+end
+Controls.Button9:RegisterCallback( Mouse.eLClick, OnButton9);
+----------------------------------------------------------------
+-- BUTTON 10
+----------------------------------------------------------------
+function OnButton10()
+	g_InstanceManager:ResetInstances();
+
+	local pPlayer = Players[Game.GetActivePlayer()];
+	local pTeam = Teams[pPlayer:GetTeam()];
+	
+	local iButtonID = 10;
+	if (g_DiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_DISCUSS_HUMAN_INVOKED) then
+		-- Discussion Root Mode
+		if (g_iInvokedDiscussionMode == g_iModeDiscussionRoot) then
+			g_iInvokedDiscussionMode = g_iModeDiscussionWar;
+			--print("g_iInvokedDiscussionMode = g_iModeDiscussionWar");
+			OpenLeadersPanel();
+		end
+	elseif (g_DiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_DEFAULT_ROOT) then
+	end
+end
+Controls.Button10:RegisterCallback( Mouse.eLClick, OnButton10);
+----------------------------------------------------------------
+-- BUTTON 11
+----------------------------------------------------------------
+function OnButton11()
+	g_InstanceManager:ResetInstances();
+    	
+	local pPlayer = Players[Game.GetActivePlayer()];
+	local pTeam = Teams[pPlayer:GetTeam()];
+	local pAIPlayer = Players[g_iAIPlayer];
+	local pAITeam = Teams[pAIPlayer:GetTeam()];
+
+	local iButtonID = 11;
+
+	-- Discussion mode brought up by the human
+	if (g_DiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_DISCUSS_HUMAN_INVOKED) then
+		-- Discussion Root Mode
+		if (g_iInvokedDiscussionMode == g_iModeDiscussionRoot) then
+			g_iInvokedDiscussionMode = g_iModeDiscussionShareOpinion;
+			--print("g_iInvokedDiscussionMode = g_iModeDiscussionShareOpinion");
+			OpenLeadersPanel();
+		end
+    -- Default mode
+    elseif (g_DiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_DEFAULT_ROOT) then
+		
+	end	 
+end
+Controls.Button11:RegisterCallback( Mouse.eLClick, OnButton11 );
 ----------------------------------------------------------------
 -- Time to show the leaders!
 ----------------------------------------------------------------
@@ -1242,6 +1415,11 @@ function OpenLeadersPanel()
 			AddLeaderButton( iPlayerLoop, Players[iPlayerLoop]:GetName() );
 		end
 		
+		-- Share Opinion mode
+		if (g_iInvokedDiscussionMode == g_iModeDiscussionShareOpinion and IsShareOpinionOnThirdPartyPlayerValid(iPlayerLoop)) then
+			iNumPlayers = iNumPlayers + 1;
+			AddLeaderButton( iPlayerLoop, Players[iPlayerLoop]:GetName() );
+		end
 	end
 
 	-- If there's no one to talk about then don't do anything
@@ -1261,6 +1439,9 @@ function OpenLeadersPanel()
  		Controls.Button6:SetDisabled(true);
  		Controls.Button7:SetDisabled(true);
  		Controls.Button8:SetDisabled(true);
+ 		Controls.Button9:SetDisabled(true);
+ 		Controls.Button10:SetDisabled(true);
+ 		Controls.Button11:SetDisabled(true);
 	end
 end
 
@@ -1322,6 +1503,17 @@ end
 
 ----------------------------------------------------------------
 ----------------------------------------------------------------
+function IsShareOpinionOnThirdPartyPlayerValid(iThirdPartyPlayer)
+	-- Have we met them?
+	if (not IsThirdPartyPlayerValid(iThirdPartyPlayer)) then
+		return false;
+	end
+
+	return true;
+end
+
+----------------------------------------------------------------
+----------------------------------------------------------------
 function AddLeaderButton( iLeaderId, sLeaderName )
     instanceControls = g_InstanceManager:GetInstance();
     instanceControls.Button:SetVoid1( iLeaderId ); -- leader ID
@@ -1342,18 +1534,26 @@ function OnCloseLeaderPanelButton()
 	Controls.Button5:SetDisabled(false);
 	Controls.Button6:SetDisabled(false);
 	Controls.Button7:SetDisabled(false);
-	Controls.Button8:SetDisabled(true);
+	Controls.Button8:SetDisabled(false);
+	Controls.Button9:SetDisabled(false);
+	Controls.Button10:SetDisabled(true);
+	Controls.Button11:SetDisabled(true);
 
 	local pAIPlayer = Players[g_iAIPlayer];
 	local iActivePlayer = Game.GetActivePlayer();
 
-	-- Button 8 is a special case - only enabled if valid
+	-- Buttons 10 and 11 are a special case - only enabled if valid
 	for iPlayerLoop = 0, GameDefines.MAX_MAJOR_CIVS-1, 1 do
 
 		if (pAIPlayer:IsDoF(iActivePlayer) or pAIPlayer:GetTeam() == Players[iActivePlayer]:GetTeam()) then
 			if (IsWarAgainstThirdPartyPlayerValid(iPlayerLoop) and not pActiveTeam:IsAtWar(g_iAITeam)) then
-				Controls.Button8:SetDisabled(false);
+				Controls.Button10:SetDisabled(false);
 			end
+		end
+
+		-- Share Opinion button: Button 11
+		if (IsShareOpinionOnThirdPartyPlayerValid(iPlayerLoop)) then
+			Controls.Button11:SetDisabled(false);
 		end
 	end
 	
@@ -1367,10 +1567,15 @@ function OnLeaderSelect( iLeaderId )
     g_CurrentTopic = iLeaderId;
     
     Controls.LeaderPanel:SetHide( true );
-    
+
     -- War discussion mode
 	if (g_iInvokedDiscussionMode == g_iModeDiscussionWar) then
 	    Game.DoFromUIDiploEvent( FromUIDiploEventTypes.FROM_UI_DIPLO_EVENT_COOP_WAR_OFFER, g_iAIPlayer, iLeaderId, -1 );
+	end
+
+	-- Sharing opinion mode
+	if (g_iInvokedDiscussionMode == g_iModeDiscussionShareOpinion) then
+	    Game.DoFromUIDiploEvent( FromUIDiploEventTypes.FROM_UI_DIPLO_EVENT_HUMAN_DISCUSSION_SHARE_OPINION, g_iAIPlayer, iLeaderId, -1 );
 	end
 	
 end

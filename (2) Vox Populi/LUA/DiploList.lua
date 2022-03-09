@@ -1,3 +1,4 @@
+print("This is the modded DiploList from CSD-C4DF")
 -------------------------------------------------
 -- City List
 -------------------------------------------------
@@ -216,10 +217,15 @@ function UpdateDisplay()
 	table.insert(myScoreEntries, Locale.Lookup("TXT_KEY_DIPLO_MY_SCORE_POPULATION", g_pPlayer:GetScoreFromPopulation()));
 	table.insert(myScoreEntries, Locale.Lookup("TXT_KEY_DIPLO_MY_SCORE_LAND", g_pPlayer:GetScoreFromLand()));
 	table.insert(myScoreEntries, Locale.Lookup("TXT_KEY_DIPLO_MY_SCORE_WONDERS", g_pPlayer:GetScoreFromWonders()));
+	
 	--CBP
 	table.insert(myScoreEntries, Locale.Lookup("TXT_KEY_DIPLO_MY_SCORE_ALLIES", g_pPlayer:GetScoreFromMinorAllies()));
 	table.insert(myScoreEntries, Locale.Lookup("TXT_KEY_DIPLO_MY_SCORE_MILITARY", g_pPlayer:GetScoreFromMilitarySize()));
 
+	-- Putmalk
+	if (not Game.IsOption(GameOptionTypes.GAMEOPTION_NO_VASSALAGE)) then
+		table.insert(myScoreEntries, Locale.Lookup("TXT_KEY_DIPLO_MY_SCORE_VASSALS", g_pPlayer:GetScoreFromVassals()));
+	end
 	if (not Game.IsOption(GameOptionTypes.GAMEOPTION_NO_SCIENCE)) then
 		table.insert(myScoreEntries, Locale.Lookup("TXT_KEY_DIPLO_MY_SCORE_TECH", g_pPlayer:GetScoreFromTechs()));
 		table.insert(myScoreEntries, Locale.Lookup("TXT_KEY_DIPLO_MY_SCORE_FUTURE_TECH", g_pPlayer:GetScoreFromFutureTech()));
@@ -418,6 +424,11 @@ function UpdateDisplay()
 				if (not Game.IsOption(GameOptionTypes.GAMEOPTION_NO_SCIENCE)) then
 					table.insert(otherScoreEntries, Locale.Lookup("TXT_KEY_DIPLO_MY_SCORE_TECH", pOtherPlayer:GetScoreFromTechs()));
 					table.insert(otherScoreEntries, Locale.Lookup("TXT_KEY_DIPLO_MY_SCORE_FUTURE_TECH", pOtherPlayer:GetScoreFromFutureTech()));
+
+				end
+				-- Putmalk
+				if (not Game.IsOption(GameOptionTypes.GAMEOPTION_NO_VASSALAGE)) then
+					table.insert(otherScoreEntries, Locale.Lookup("TXT_KEY_DIPLO_MY_SCORE_VASSALS", pOtherPlayer:GetScoreFromVassals()));
 				end
 				if (not Game.IsOption(GameOptionTypes.GAMEOPTION_NO_POLICIES)) then
 					table.insert(otherScoreEntries, Locale.Lookup("TXT_KEY_DIPLO_MY_SCORE_POLICIES", pOtherPlayer:GetScoreFromPolicies()));
@@ -664,6 +675,16 @@ function OnQuestIconClicked( PlayerID )
 		if (pMinor:IsMinorCivDisplayedQuestForPlayer(g_iPlayer, MinorCivQuestTypes.MINOR_CIV_QUEST_KILL_CAMP)) then
 			local iQuestData1 = pMinor:GetQuestData1(g_iPlayer, MinorCivQuestTypes.MINOR_CIV_QUEST_KILL_CAMP);
 			local iQuestData2 = pMinor:GetQuestData2(g_iPlayer, MinorCivQuestTypes.MINOR_CIV_QUEST_KILL_CAMP);
+			local pPlot = Map.GetPlot(iQuestData1, iQuestData2);
+			if (pPlot) then
+				UI.LookAt(pPlot, 0);
+				local hex = ToHexFromGrid(Vector2(pPlot:GetX(), pPlot:GetY()));
+				Events.GameplayFX(hex.x, hex.y, -1);
+			end
+		end
+		if (pMinor:IsMinorCivDisplayedQuestForPlayer(g_iPlayer, MinorCivQuestTypes.MINOR_CIV_QUEST_ARCHAEOLOGY)) then
+			local iQuestData1 = pMinor:GetQuestData1(g_iPlayer, MinorCivQuestTypes.MINOR_CIV_QUEST_ARCHAEOLOGY);
+			local iQuestData2 = pMinor:GetQuestData2(g_iPlayer, MinorCivQuestTypes.MINOR_CIV_QUEST_ARCHAEOLOGY);
 			local pPlot = Map.GetPlot(iQuestData1, iQuestData2);
 			if (pPlot) then
 				UI.LookAt(pPlot, 0);

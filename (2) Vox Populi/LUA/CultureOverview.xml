@@ -1341,7 +1341,9 @@
 
               <GridData Anchor="L,B" Offset="0.-2" AnchorSide="I,O" Style="Grid9Frame27SquareBlack" Padding="5,5" />
               <ScrollPanelData Anchor="C,C"  Vertical="1" Size="18,18"  AutoScrollBar="1" >
-                --><!-- Scroll Controls --><!--
+                -->
+				<!-- Scroll Controls -->
+				<!--
                 <ScrollBar  Style="VertSlider"      Anchor="R,C" AnchorSide="O,I"   />
                 <UpButton   Style="ScrollBarUp"     Anchor="R,T" AnchorSide="O,I"   />
                 <DownButton Style="ScrollBarDown"   Anchor="R,B" AnchorSide="O,I"   />
@@ -1396,7 +1398,9 @@
 
               <GridData Anchor="L,B" Offset="0.-2" AnchorSide="I,O" Style="Grid9Frame27SquareBlack" Padding="5,5" />
               <ScrollPanelData Anchor="C,C"  Vertical="1" Size="18,18"  AutoScrollBar="1" >
-                --><!-- Scroll Controls --><!--
+                -->
+				<!-- Scroll Controls -->
+				<!--
                 <ScrollBar  Style="VertSlider"      Anchor="R,C" AnchorSide="O,I"   />
                 <UpButton   Style="ScrollBarUp"     Anchor="R,T" AnchorSide="O,I"   />
                 <DownButton Style="ScrollBarDown"   Anchor="R,B" AnchorSide="O,I"   />

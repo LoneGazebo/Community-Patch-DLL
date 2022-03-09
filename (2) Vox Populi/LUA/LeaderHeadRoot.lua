@@ -55,9 +55,9 @@ function LeaderMessageHandler( iPlayer, iDiploUIState, szLeaderMessage, iAnimati
 			if (pActiveTeam:IsAtWar(g_iAITeam)) then
 				strMoodText = Locale.ConvertTextKey( "TXT_KEY_DIPLO_MAJOR_CIV_DIPLO_STATE_WAR" );
 			elseif (Players[g_iAIPlayer]:IsDenouncingPlayer(Game.GetActivePlayer())) then
-				strMoodText = Locale.ConvertTextKey( "TXT_KEY_DIPLO_MAJOR_CIV_DIPLO_STATE_DENOUNCING" );
+				strMoodText = Locale.ConvertTextKey( "TXT_KEY_DIPLO_MAJOR_CIV_DIPLO_STATE_DENOUNCING" );	
 			elseif (Players[g_iAIPlayer]:WasResurrectedThisTurnBy(iActivePlayer)) then
-				strMoodText = Locale.ConvertTextKey( "TXT_KEY_DIPLO_MAJOR_CIV_DIPLO_STATE_LIBERATED" );
+				strMoodText = Locale.ConvertTextKey( "TXT_KEY_DIPLO_MAJOR_CIV_DIPLO_STATE_LIBERATED" );		
 			else
 				if( iApproach == MajorCivApproachTypes.MAJOR_CIV_APPROACH_WAR ) then
 					strMoodText = Locale.ConvertTextKey( "TXT_KEY_WAR_CAPS" );
@@ -189,11 +189,13 @@ function LeaderMessageHandler( iPlayer, iDiploUIState, szLeaderMessage, iAnimati
 		elseif( iTheirWarWeariness > 75 ) then
 			strWarInfo = strWarInfo .. '[NEWLINE]' .. Locale.ConvertTextKey( "TXT_KEY_WAR_WEARINESS_THEM_CRIPPLED" );
 		end
+
 		Controls.WarScore:SetToolTipString(strWarInfo);
 	else
 		Controls.WarScore:SetHide(true);
 	end
 	-- END
+
 	local bMyMode = false;
 	
 	-- See if we're in this screen

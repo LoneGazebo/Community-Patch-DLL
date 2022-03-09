@@ -70,6 +70,17 @@ local categorizedList = {};
 local absurdlyLargeNumTopicsInCategory = 10000;
 local homePageOfCategoryID = 9999;
 
+-- Putmalk: These boolean variables check whether or not certain game options are enabled.
+	local g_bResearchAgreementTrading = false;
+	local g_bTechTrading = true;
+	local g_bNoVassalage= false;
+	if(Game ~= nil)then
+		g_bResearchAgreementTrading = Game.IsOption("GAMEOPTION_RESEARCH_AGREEMENTS");
+		g_bTechTrading = Game.IsOption("GAMEOPTION_TECH_TRADING");
+		g_bNoVassalage= Game.IsOption("GAMEOPTION_NO_VASSALAGE");
+	end
+-- END
+
 -- These projects were more of an implementation detail and not explicit projects
 -- that the user can build.  So to avoid confusion, we shall ignore them from the pedia.
 local projectsToIgnore = {
@@ -309,7 +320,8 @@ CivilopediaCategory[CategoryGameConcepts].PopulateList = function()
 		HEADER_TRADE = 24,
 		HEADER_WORLDCONGRESS = 25,
 -- CBP
-		HEADER_CORPORATIONS = 26,
+		HEADER_VASSALAGE = 26,
+		HEADER_CORPORATIONS = 27
 -- END
 	}
 	
@@ -2493,26 +2505,28 @@ CivilopediaCategory[CategoryTech].SelectArticle = function( techID, shouldAddToL
 		g_UnlockedBuildingsManager:ResetInstances();
 		buttonAdded = 0;
 		for thisBuildingInfo in GameInfo.Buildings( prereqCondition ) do
-			local thisBuildingInstance = g_UnlockedBuildingsManager:GetInstance();
-			if thisBuildingInstance then
+			if thisBuildingInfo.ShowInPedia == 1 then
+				local thisBuildingInstance = g_UnlockedBuildingsManager:GetInstance();
+				if thisBuildingInstance then
 
-				if not IconHookup( thisBuildingInfo.PortraitIndex, buttonSize, thisBuildingInfo.IconAtlas, thisBuildingInstance.UnlockedBuildingImage ) then
-					thisBuildingInstance.UnlockedBuildingImage:SetTexture( defaultErrorTextureSheet );
-					thisBuildingInstance.UnlockedBuildingImage:SetTextureOffset( nullOffset );
-				end
+					if not IconHookup( thisBuildingInfo.PortraitIndex, buttonSize, thisBuildingInfo.IconAtlas, thisBuildingInstance.UnlockedBuildingImage ) then
+						thisBuildingInstance.UnlockedBuildingImage:SetTexture( defaultErrorTextureSheet );
+						thisBuildingInstance.UnlockedBuildingImage:SetTextureOffset( nullOffset );
+					end
 
-				--move this button
-				thisBuildingInstance.UnlockedBuildingButton:SetOffsetVal( (buttonAdded % numberOfButtonsPerRow) * buttonSize + buttonPadding, math.floor(buttonAdded / numberOfButtonsPerRow) * buttonSize + buttonPadding );
-				
-				thisBuildingInstance.UnlockedBuildingButton:SetToolTipString( Locale.ConvertTextKey( thisBuildingInfo.Description ) );
-				thisBuildingInstance.UnlockedBuildingButton:SetVoids( thisBuildingInfo.ID, addToList );
-				local thisBuildingClass = GameInfo.BuildingClasses[thisBuildingInfo.BuildingClass];
-				if thisBuildingClass.MaxGlobalInstances > 0 or (thisBuildingClass.MaxPlayerInstances == 1 and thisBuildingInfo.SpecialistCount == 0) or thisBuildingClass.MaxTeamInstances > 0 then
-					thisBuildingInstance.UnlockedBuildingButton:RegisterCallback( Mouse.eLClick, CivilopediaCategory[CategoryWonders].SelectArticle );
-				else
-					thisBuildingInstance.UnlockedBuildingButton:RegisterCallback( Mouse.eLClick, CivilopediaCategory[CategoryBuildings].SelectArticle );
+					--move this button
+					thisBuildingInstance.UnlockedBuildingButton:SetOffsetVal( (buttonAdded % numberOfButtonsPerRow) * buttonSize + buttonPadding, math.floor(buttonAdded / numberOfButtonsPerRow) * buttonSize + buttonPadding );
+					
+					thisBuildingInstance.UnlockedBuildingButton:SetToolTipString( Locale.ConvertTextKey( thisBuildingInfo.Description ) );
+					thisBuildingInstance.UnlockedBuildingButton:SetVoids( thisBuildingInfo.ID, addToList );
+					local thisBuildingClass = GameInfo.BuildingClasses[thisBuildingInfo.BuildingClass];
+					if thisBuildingClass.MaxGlobalInstances > 0 or (thisBuildingClass.MaxPlayerInstances == 1 and thisBuildingInfo.SpecialistCount == 0) or thisBuildingClass.MaxTeamInstances > 0 then
+						thisBuildingInstance.UnlockedBuildingButton:RegisterCallback( Mouse.eLClick, CivilopediaCategory[CategoryWonders].SelectArticle );
+					else
+						thisBuildingInstance.UnlockedBuildingButton:RegisterCallback( Mouse.eLClick, CivilopediaCategory[CategoryBuildings].SelectArticle );
+					end
+					buttonAdded = buttonAdded + 1;
 				end
-				buttonAdded = buttonAdded + 1;
 			end
 		end
 		UpdateButtonFrame( buttonAdded, Controls.UnlockedBuildingsInnerFrame, Controls.UnlockedBuildingsFrame );
@@ -2770,6 +2784,42 @@ CivilopediaCategory[CategoryTech].SelectArticle = function( techID, shouldAddToL
 			numAbilities = numAbilities + 1;
 		end	
 -- END	
+-- Putmalk: If this tech grants Research Agreements, and Research Agreements are enabled, then display it on the tech info page
+		if (thisTech.ResearchAgreementTradingAllowed and g_bResearchAgreementTrading) then
+			if numAbilities > 0 then
+				 abilitiesString = abilitiesString .. "[NEWLINE]";
+			end
+			abilitiesString = abilitiesString .. Locale.ConvertTextKey( "TXT_KEY_ABLTY_R_PACT_STRING" );
+			numAbilities = numAbilities + 1;
+		end
+	
+		-- Putmalk: If this tech grants Map Trading then display it on the tech info page
+		if thisTech.MapTrading then
+			if numAbilities > 0 then
+				 abilitiesString = abilitiesString .. "[NEWLINE]";
+			end
+			abilitiesString = abilitiesString .. Locale.ConvertTextKey( "TXT_KEY_ABLTY_MAP_TRADING_STRING" );
+			numAbilities = numAbilities + 1;
+		end
+	
+		-- Putmalk: If this tech grants Tech Trading, and Tech trading is active, then display it on the tech info page
+		if (thisTech.TechTrading and g_bTechTrading) then
+			if numAbilities > 0 then
+				 abilitiesString = abilitiesString .. "[NEWLINE]";
+			end
+			abilitiesString = abilitiesString .. Locale.ConvertTextKey( "TXT_KEY_ABLTY_TECH_TRADING_STRING" );
+			numAbilities = numAbilities + 1;
+		end
+	
+		-- Putmalk: If this tech grants vassalage, and vassalage isn't disabled, then display it on the tech info page
+		if (thisTech.VassalageTradingAllowed and not g_bNoVassalage) then
+			if numAbilities > 0 then
+				 abilitiesString = abilitiesString .. "[NEWLINE]";
+			end
+			abilitiesString = abilitiesString .. Locale.ConvertTextKey( "TXT_KEY_ABLTY_VASSALAGE_STRING" );
+			numAbilities = numAbilities + 1;
+		end
+-- END		
 		if thisTech.AllowEmbassyTradingAllowed then
 			if numAbilities > 0 then
 				abilitiesString = abilitiesString .. "[NEWLINE]";
@@ -3824,25 +3874,27 @@ function AddLeadsToBuildingFrame( thisBuilding )
 	function AddLeadsToBuildingButton( buildingType )
 		local thisBuildingInfo = GameInfo.Buildings[buildingType];
 		if(thisBuildingInfo) then
-			local thisBuildingInstance = g_LeadsToBuildingsManager:GetInstance();
-			if thisBuildingInstance then
-				if not IconHookup( thisBuildingInfo.PortraitIndex, buttonSize, thisBuildingInfo.IconAtlas, thisBuildingInstance.LeadsToBuildingImage ) then
-					thisBuildingInstance.LeadsToBuildingImage:SetTexture( defaultErrorTextureSheet );
-					thisBuildingInstance.LeadsToBuildingImage:SetTextureOffset( nullOffset );
+			if thisBuildingInfo.ShowInPedia == 1 then
+				local thisBuildingInstance = g_LeadsToBuildingsManager:GetInstance();
+				if thisBuildingInstance then
+					if not IconHookup( thisBuildingInfo.PortraitIndex, buttonSize, thisBuildingInfo.IconAtlas, thisBuildingInstance.LeadsToBuildingImage ) then
+						thisBuildingInstance.LeadsToBuildingImage:SetTexture( defaultErrorTextureSheet );
+						thisBuildingInstance.LeadsToBuildingImage:SetTextureOffset( nullOffset );
+					end
+					
+					--move this button
+					thisBuildingInstance.LeadsToBuildingButton:SetOffsetVal( (buttonAdded % numberOfButtonsPerRow) * buttonSize + buttonPadding, math.floor(buttonAdded / numberOfButtonsPerRow) * buttonSize + buttonPadding );
+					
+					thisBuildingInstance.LeadsToBuildingButton:SetToolTipString( Locale.ConvertTextKey( thisBuildingInfo.Description ) );
+					thisBuildingInstance.LeadsToBuildingButton:SetVoids( thisBuildingInfo.ID, addToList );
+					local thisBuildingClass = GameInfo.BuildingClasses[thisBuildingInfo.BuildingClass];
+					if thisBuildingClass.MaxGlobalInstances > 0 or (thisBuildingClass.MaxPlayerInstances == 1 and thisBuildingInfo.SpecialistCount == 0) or thisBuildingClass.MaxTeamInstances > 0 then
+						thisBuildingInstance.LeadsToBuildingButton:RegisterCallback( Mouse.eLClick, CivilopediaCategory[CategoryWonders].SelectArticle );
+					else
+						thisBuildingInstance.LeadsToBuildingButton:RegisterCallback( Mouse.eLClick, CivilopediaCategory[CategoryBuildings].SelectArticle );
+					end
+					buttonAdded = buttonAdded + 1;
 				end
-				
-				--move this button
-				thisBuildingInstance.LeadsToBuildingButton:SetOffsetVal( (buttonAdded % numberOfButtonsPerRow) * buttonSize + buttonPadding, math.floor(buttonAdded / numberOfButtonsPerRow) * buttonSize + buttonPadding );
-				
-				thisBuildingInstance.LeadsToBuildingButton:SetToolTipString( Locale.ConvertTextKey( thisBuildingInfo.Description ) );
-				thisBuildingInstance.LeadsToBuildingButton:SetVoids( thisBuildingInfo.ID, addToList );
-				local thisBuildingClass = GameInfo.BuildingClasses[thisBuildingInfo.BuildingClass];
-				if thisBuildingClass.MaxGlobalInstances > 0 or (thisBuildingClass.MaxPlayerInstances == 1 and thisBuildingInfo.SpecialistCount == 0) or thisBuildingClass.MaxTeamInstances > 0 then
-					thisBuildingInstance.LeadsToBuildingButton:RegisterCallback( Mouse.eLClick, CivilopediaCategory[CategoryWonders].SelectArticle );
-				else
-					thisBuildingInstance.LeadsToBuildingButton:RegisterCallback( Mouse.eLClick, CivilopediaCategory[CategoryBuildings].SelectArticle );
-				end
-				buttonAdded = buttonAdded + 1;
 			end
 		end
 	end

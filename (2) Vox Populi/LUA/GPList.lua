@@ -13,10 +13,15 @@ local m_SortMode = eTurns;
 local m_bSortReverse = false;
 
 local m_ArtistIM = InstanceManager:new( "GPInstance", "Root", Controls.ArtistStack );
+local m_DignitaryIM = InstanceManager:new( "GPInstance", "Root", Controls.DignitaryStack ); -- JFD CID
+local m_DiplomatIM = InstanceManager:new( "GPInstance", "Root", Controls.DiplomatStack ); -- Gazebo CSD
+local m_DoctorIM = InstanceManager:new( "GPInstance", "Root", Controls.DoctorStack ); -- JFD CID
 local m_EngineerIM = InstanceManager:new( "GPInstance", "Root", Controls.EngineerStack );
+local m_MagistrateIM = InstanceManager:new( "GPInstance", "Root", Controls.MagistrateStack ); -- JFD CID
 local m_MerchantIM = InstanceManager:new( "GPInstance", "Root", Controls.MerchantStack );
 local m_MusicianIM = InstanceManager:new( "GPInstance", "Root", Controls.MusicianStack );
 local m_ScientistIM = InstanceManager:new( "GPInstance", "Root", Controls.ScientistStack );
+local m_ProphetIM = InstanceManager:new( "GPInstance", "Root", Controls.ProphetStack ); -- JFD Piety
 local m_WriterIM = InstanceManager:new( "GPInstance", "Root", Controls.WriterStack );
 
 -------------------------------------------------
@@ -73,9 +78,14 @@ function UpdateDisplay()
 	local instance;
 
 	local bArtistFound = false;
+	local bDignitaryFound = false; -- JFD CID
+	local bDiplomatFound = false; -- Gazebo CSD
+	local bDoctorFound = false; -- JFD CID
 	local bEngineerFound = false;
+	local bMagistrateFound = false; -- JFD CID
 	local bMerchantFound = false;
-	local bMusicianFound = false;
+	local bMusicianFound = false; 
+	local bProphetFound = false; -- JFD Piety
 	local bScientistFound = false;
 	local bWriterFound = false;
 
@@ -85,10 +95,15 @@ function UpdateDisplay()
 	local iProgress;
 
 	m_ArtistIM:ResetInstances();
+	m_DignitaryIM:ResetInstances(); -- JFD CID
+	m_DiplomatIM:ResetInstances(); -- Gazebo CSD
+	m_DoctorIM:ResetInstances(); -- JFD CID
 	m_EngineerIM:ResetInstances();
+	m_MagistrateIM:ResetInstances(); -- JFD CID
 	m_MerchantIM:ResetInstances();
 	m_MusicianIM:ResetInstances();
 	m_ScientistIM:ResetInstances();
+	m_ProphetIM:ResetInstances(); -- JFD Piety
 	m_WriterIM:ResetInstances();
 
 	if (checkIfGP(pPlayer)) then
@@ -99,12 +114,27 @@ function UpdateDisplay()
 					if (pSpecialistInfo.Type == "SPECIALIST_ARTIST") then
 						instance = m_ArtistIM:GetInstance();
 						bArtistFound = true;
+					elseif (pSpecialistInfo.Type == "SPECIALIST_CIVIL_SERVANT") then -- Gazebo CSD
+						instance = m_DiplomatIM:GetInstance();
+						bDiplomatFound = true;
+					elseif (pSpecialistInfo.Type == "SPECIALIST_JFD_DIGNITARY") then -- JFD CID
+						instance = m_DignitaryIM:GetInstance();
+						bDignitaryFound = true;
+					elseif (pSpecialistInfo.Type == "SPECIALIST_JFD_DOCTOR") then -- JFD CID
+						instance = m_DoctorIM:GetInstance();
+						bDoctorFound = true;
 					elseif (pSpecialistInfo.Type == "SPECIALIST_ENGINEER") then
 						instance = m_EngineerIM:GetInstance();
 						bEngineerFound = true;
+					elseif (pSpecialistInfo.Type == "SPECIALIST_JFD_MAGISTRATE") then -- JFD CID
+						instance = m_MagistrateIM:GetInstance();
+						bMagistrateFound = true;
 					elseif (pSpecialistInfo.Type == "SPECIALIST_MERCHANT") then
 						instance = m_MerchantIM:GetInstance();
 						bMerchantFound = true;
+					elseif (pSpecialistInfo.Type == "SPECIALIST_JFD_MONK") then -- JFD Piety
+						instance = m_ProphetIM:GetInstance();
+						bProphetFound = true;
 					elseif (pSpecialistInfo.Type == "SPECIALIST_MUSICIAN") then
 						instance = m_MusicianIM:GetInstance();
 						bMusicianFound = true;
@@ -135,7 +165,6 @@ function UpdateDisplay()
 						-- Vox Populi
 						--iThreshold = pCity:GetSpecialistUpgradeThreshold(iUnitClass);
 						--iRate = getRateOfChange(pCity, pSpecialistInfo, pPlayer)
-
 						iThreshold = pCity:GetSpecialistUpgradeThreshold(iUnitClass)*100;
 						iRate = pCity:GetSpecialistRate(pSpecialistInfo.ID);
 						-- Vox Populi END
@@ -159,7 +188,6 @@ function UpdateDisplay()
 						-- Vox Populi
 						--strTurns = Locale.ConvertTextKey( "TXT_KEY_GPLIST_TURNS", iRate );
 						--strProgress = Locale.ConvertTextKey( "TXT_KEY_GPLIST_PROGRESS", iProgress, iThreshold, strNumTurns );
-
 						if iRate == 0 then strTurns = "0"; else strTurns = string.format("%+4.1f", iRate/100); end
 						strProgress = Locale.ConvertTextKey( "TXT_KEY_GPLIST_PROGRESS", string.format("%.1f", iProgress/100), iThreshold/100, strNumTurns );
 						-- Vox Populi END
@@ -197,29 +225,49 @@ function UpdateDisplay()
 	Controls.GAMeter:SetPercent( fProgress / fThreshold );
 
 	Controls.ArtistStack:SortChildren( SortFunction );
+	Controls.DignitaryStack:SortChildren( SortFunction ); -- JFD CID
+	Controls.DiplomatStack:SortChildren( SortFunction ); -- Gazebo CSD
+	Controls.DoctorStack:SortChildren( SortFunction ); -- JFD CID
 	Controls.EngineerStack:SortChildren( SortFunction );
+	Controls.MagistrateStack:SortChildren( SortFunction ); -- JFD CID
 	Controls.MerchantStack:SortChildren( SortFunction );
 	Controls.MusicianStack:SortChildren( SortFunction );
 	Controls.ScientistStack:SortChildren( SortFunction );
+	Controls.ProphetStack:SortChildren( SortFunction ); -- JFD Piety
 	Controls.WriterStack:SortChildren( SortFunction );
 
 	Controls.ArtistHeader:SetHide( not bArtistFound );
+	Controls.DignitaryHeader:SetHide( not bDignitaryFound ); -- JFD CID
+	Controls.DiplomatHeader:SetHide( not bDiplomatFound ); -- Gazebo CSD
+	Controls.DoctorHeader:SetHide( not bDoctorFound ); -- JFD CID
 	Controls.EngineerHeader:SetHide( not bEngineerFound );
+	Controls.MagistrateHeader:SetHide( not bMagistrateFound ); -- JFD CID
 	Controls.MerchantHeader:SetHide( not bMerchantFound );
 	Controls.MusicianHeader:SetHide( not bMusicianFound );
 	Controls.ScientistHeader:SetHide( not bScientistFound );
+	Controls.ProphetHeader:SetHide( not bProphetFound ); -- JFD Piety
 	Controls.WriterHeader:SetHide( not bWriterFound );
 
 	Controls.ArtistStack:CalculateSize();
 	Controls.ArtistStack:ReprocessAnchoring();
+	Controls.DignitaryStack:CalculateSize();  -- JFD CID
+	Controls.DignitaryStack:CalculateSize();  -- JFD CID
+	Controls.DiplomatStack:CalculateSize();  -- Gazebo CSD
+	Controls.DiplomatStack:CalculateSize();  -- Gazebo CSD
+	Controls.DoctorStack:CalculateSize();  -- JFD CID
+	Controls.DoctorStack:CalculateSize();  -- JFD CID
 	Controls.EngineerStack:CalculateSize();
 	Controls.EngineerStack:ReprocessAnchoring();
+	Controls.MagistrateStack:CalculateSize(); -- JFD CID
+	Controls.MagistrateStack:ReprocessAnchoring(); -- JFD CID
 	Controls.MerchantStack:CalculateSize();
 	Controls.MerchantStack:ReprocessAnchoring();
 	Controls.MusicianStack:CalculateSize();
 	Controls.MusicianStack:ReprocessAnchoring();
 	Controls.ScientistStack:CalculateSize();
 	Controls.ScientistStack:ReprocessAnchoring();
+	Controls.ProphetStack:CalculateSize(); -- JFD Piety
+	Controls.ProphetStack:ReprocessAnchoring(); -- JFD Piety
 	Controls.WriterStack:CalculateSize();
 	Controls.WriterStack:ReprocessAnchoring();
 
@@ -286,7 +334,57 @@ function OnArtistToggle()
 	Controls.ScrollPanel:ReprocessAnchoring();
 end
 Controls.ArtistToggle:RegisterCallback( Mouse.eLClick, OnArtistToggle );
-
+-------------------------------------------------
+-- JFD CID
+-------------------------------------------------
+function OnDignitaryToggle()
+	local bWasHidden = Controls.DignitaryStack:IsHidden();
+	Controls.DignitaryStack:SetHide( not bWasHidden );
+	if( bWasHidden ) then
+		Controls.DignitaryToggle:LocalizeAndSetText("TXT_KEY_GP_DIGNITARY_DETAILS_COLLAPSE");
+	else
+		Controls.DignitaryToggle:LocalizeAndSetText("TXT_KEY_GP_DIGNITARY_DETAILS");
+	end
+	Controls.MainStack:CalculateSize();
+	Controls.MainStack:ReprocessAnchoring();
+	Controls.ScrollPanel:CalculateInternalSize();
+	Controls.ScrollPanel:ReprocessAnchoring();
+end
+Controls.DignitaryToggle:RegisterCallback( Mouse.eLClick, OnDignitaryToggle );
+-------------------------------------------------
+-- Gazebo CSD
+-------------------------------------------------
+function OnDiplomatToggle()
+	local bWasHidden = Controls.DiplomatStack:IsHidden();
+	Controls.DiplomatStack:SetHide( not bWasHidden );
+	if( bWasHidden ) then
+		Controls.DiplomatToggle:LocalizeAndSetText("TXT_KEY_GP_DIPLOMAT_DETAILS_COLLAPSE");
+	else
+		Controls.DiplomatToggle:LocalizeAndSetText("TXT_KEY_GP_DIPLOMAT_DETAILS");
+	end
+	Controls.MainStack:CalculateSize();
+	Controls.MainStack:ReprocessAnchoring();
+	Controls.ScrollPanel:CalculateInternalSize();
+	Controls.ScrollPanel:ReprocessAnchoring();
+end
+Controls.DiplomatToggle:RegisterCallback( Mouse.eLClick, OnDiplomatToggle );
+-------------------------------------------------
+-- JFD CID
+-------------------------------------------------
+function OnDoctorToggle()
+	local bWasHidden = Controls.DoctorStack:IsHidden();
+	Controls.DoctorStack:SetHide( not bWasHidden );
+	if( bWasHidden ) then
+		Controls.DoctorToggle:LocalizeAndSetText("TXT_KEY_GP_DOCTOR_DETAILS_COLLAPSE");
+	else
+		Controls.DoctorToggle:LocalizeAndSetText("TXT_KEY_GP_DOCTOR_DETAILS");
+	end
+	Controls.MainStack:CalculateSize();
+	Controls.MainStack:ReprocessAnchoring();
+	Controls.ScrollPanel:CalculateInternalSize();
+	Controls.ScrollPanel:ReprocessAnchoring();
+end
+Controls.DoctorToggle:RegisterCallback( Mouse.eLClick, OnDoctorToggle );
 -------------------------------------------------
 -------------------------------------------------
 function OnEngineerToggle()
@@ -303,7 +401,23 @@ function OnEngineerToggle()
 	Controls.ScrollPanel:ReprocessAnchoring();
 end
 Controls.EngineerToggle:RegisterCallback( Mouse.eLClick, OnEngineerToggle );
-
+-------------------------------------------------
+-- JFD CID
+-------------------------------------------------
+function OnMagistrateToggle()
+	local bWasHidden = Controls.MagistrateStack:IsHidden();
+	Controls.MagistrateStack:SetHide( not bWasHidden );
+	if( bWasHidden ) then
+		Controls.MagistrateToggle:LocalizeAndSetText("TXT_KEY_GP_MAGISTRATE_DETAILS_COLLAPSE");
+	else
+		Controls.MagistrateToggle:LocalizeAndSetText("TXT_KEY_GP_MAGISTRATE_DETAILS");
+	end
+	Controls.MainStack:CalculateSize();
+	Controls.MainStack:ReprocessAnchoring();
+	Controls.ScrollPanel:CalculateInternalSize();
+	Controls.ScrollPanel:ReprocessAnchoring();
+end
+Controls.MagistrateToggle:RegisterCallback( Mouse.eLClick, OnMagistrateToggle );
 -------------------------------------------------
 -------------------------------------------------
 function OnMerchantToggle()
@@ -354,7 +468,23 @@ function OnScientistToggle()
 	Controls.ScrollPanel:ReprocessAnchoring();
 end
 Controls.ScientistToggle:RegisterCallback( Mouse.eLClick, OnScientistToggle );
-
+-------------------------------------------------
+-- JFD Piety
+-------------------------------------------------
+function OnProphetToggle()
+	local bWasHidden = Controls.ProphetStack:IsHidden();
+	Controls.ProphetStack:SetHide( not bWasHidden );
+	if( bWasHidden ) then
+		Controls.ProphetToggle:LocalizeAndSetText("TXT_KEY_GP_PROPHET_DETAILS_COLLAPSE");
+	else
+		Controls.ProphetToggle:LocalizeAndSetText("TXT_KEY_GP_PROPHET_DETAILS");
+	end
+	Controls.MainStack:CalculateSize();
+	Controls.MainStack:ReprocessAnchoring();
+	Controls.ScrollPanel:CalculateInternalSize();
+	Controls.ScrollPanel:ReprocessAnchoring();
+end
+Controls.ProphetToggle:RegisterCallback( Mouse.eLClick, OnProphetToggle );
 -------------------------------------------------
 -------------------------------------------------
 function OnWriterToggle()
@@ -430,9 +560,16 @@ function OnSort( type )
 
 	m_SortMode = type;
 	Controls.ArtistStack:SortChildren( SortFunction );
-	Controls.EngineerStack:SortChildren( SortFunction );
-	Controls.MerchantStack:SortChildren( SortFunction );
+	Controls.DignitaryStack:SortChildren( SortFunction ); -- JFD CID
+	Controls.DiplomatStack:SortChildren( SortFunction ); -- Gazebo CSD
+	Controls.DoctorStack:SortChildren( SortFunction ); -- JFD CID
+	Controls.EngineerStack:SortChildren( SortFunction ); 
+	Controls.MagistrateStack:SortChildren( SortFunction ); -- JFD CID
+	Controls.MerchantStack:SortChildren( SortFunction ); 
+	Controls.MusicianStack:SortChildren( SortFunction );
 	Controls.ScientistStack:SortChildren( SortFunction );
+	Controls.ProphetStack:SortChildren( SortFunction ); -- JFD Piety
+	Controls.WriterStack:SortChildren( SortFunction );
 end
 Controls.SortCity:RegisterCallback( Mouse.eLClick, OnSort );
 Controls.SortTurns:RegisterCallback( Mouse.eLClick, OnSort );

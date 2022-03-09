@@ -105,14 +105,19 @@ end
 Controls.EspionageButton:RegisterCallback(Mouse.eLClick, OnEspionageButton);
 
 -- C4DF
+function OnVassalButton()
+	Events.SerialEventGameMessagePopup{ 
+		Type = ButtonPopupTypes.BUTTONPOPUP_MODDER_11,
+	};
+end
+Controls.VassalButton:RegisterCallback(Mouse.eLClick, OnVassalButton);
+--END
 function OnCorpButton()
 	Events.SerialEventGameMessagePopup{ 
 		Type = ButtonPopupTypes.BUTTONPOPUP_MODDER_5,
 	};
 end
 Controls.CorpButton:RegisterCallback(Mouse.eLClick, OnCorpButton);
---END
-
 -------------------------------------------------
 -- On ChatToggle
 -------------------------------------------------
@@ -430,6 +435,41 @@ function DoUpdateEspionageButton()
 end
 Events.SerialEventEspionageScreenDirty.Add(DoUpdateEspionageButton);
 
+-------------------------------------------------------------------------------
+-------------------------------------------------------------------------------
+function DoUpdateVassalButton()
+	local iLocalPlayer = Game.GetActivePlayer();
+	local pLocalPlayer = Players[iLocalPlayer];
+	local pLocalTeam = Teams[pLocalPlayer:GetTeam()];
+	local iNumVassalTaxesAvailable = 0;
+	
+	local strToolTip = Locale.ConvertTextKey("TXT_KEY_VO");
+	
+	-- calculate number of vassal taxes available
+	for iPlayerLoop = 0, GameDefines.MAX_MAJOR_CIVS-1, 1 do
+		local pOtherPlayer = Players[iPlayerLoop];
+		if pOtherPlayer:IsEverAlive() then
+			if (iPlayerLoop ~= iLocalPlayer and pOtherPlayer:IsAlive()) then
+				if (pLocalTeam:CanSetVassalTax(iPlayerLoop)) then
+					iNumVassalTaxesAvailable = iNumVassalTaxesAvailable + 1;
+				end
+			end
+		end
+	end
+
+	if (iNumVassalTaxesAvailable > 0) then
+		strToolTip = strToolTip .. "[NEWLINE][NEWLINE]";
+		strToolTip = strToolTip .. Locale.ConvertTextKey("TXT_KEY_VO_TAXES_AVAILABLE_TT", iNumVassalTaxesAvailable);
+		Controls.VassalTaxesAvailableLabel:SetHide(false);
+		Controls.VassalTaxesAvailableLabel:SetText(iNumVassalTaxesAvailable);
+	else
+		Controls.VassalTaxesAvailableLabel:SetHide(true);
+	end
+	
+	Controls.VassalButton:SetToolTipString(strToolTip);
+end
+Events.SerialEventEspionageScreenDirty.Add(DoUpdateVassalButton); -- not a typo! do not change!
+
 --------------------------------------------------------------------
 function HandleNotificationAdded(notificationId, notificationType, toolTip, summary, gameValue, extraGameData)
 	
@@ -438,11 +478,18 @@ function HandleNotificationAdded(notificationId, notificationType, toolTip, summ
 		if(notificationType == NotificationTypes.NOTIFICATION_SPY_CREATED_ACTIVE_PLAYER) then
 			CheckEspionageStarted();
 		end
+		-- C4DF
+		if(notificationType == NotificationTypes.NOTIFICATION_GENERIC) then
+			CheckVassalageStarted();
+		end
 	end
 end
 Events.NotificationAdded.Add(HandleNotificationAdded);
 
 DoUpdateEspionageButton();
+-- C4DF
+DoUpdateVassalButton();
+-- END
 
 -------------------------------------------------------------------------------
 -------------------------------------------------------------------------------
@@ -519,8 +566,23 @@ function CheckEspionageStarted()
 	end
 end
 
+function CheckVassalageStarted()
+	function TestVassalageStarted()
+		local player = Players[Game.GetActivePlayer()];
+		local team = Teams[player:GetTeam()];
+		return (team:GetCurrentEra() >= Game.GetVassalageEnabledEra()) or team:IsVassalOfSomeone();
+	end
+
+	local bVassalStarted = TestVassalageStarted();
+	Controls.VassalButton:SetHide(not bVassalStarted);
+	if(bVassalStarted) then
+		DoUpdateVassalButton();
+	end
+end
+
 function OnActivePlayerTurnStart()
 	CheckEspionageStarted();
+	CheckVassalageStarted();
 end
 Events.ActivePlayerTurnStart.Add(OnActivePlayerTurnStart);
 

@@ -69,6 +69,21 @@ function GetCivStateQuestString(plot, bShortVersion)
 					end
 				end
 			end
+			if (pOtherPlayer:IsMinorCivDisplayedQuestForPlayer(iActivePlayer, MinorCivQuestTypes.MINOR_CIV_QUEST_ARCHAEOLOGY)) then
+				local iQuestData1 = pOtherPlayer:GetQuestData1(iActivePlayer, MinorCivQuestTypes.MINOR_CIV_QUEST_ARCHAEOLOGY);
+				local iQuestData2 = pOtherPlayer:GetQuestData2(iActivePlayer, MinorCivQuestTypes.MINOR_CIV_QUEST_ARCHAEOLOGY);
+				if (iQuestData1 == plot:GetX() and iQuestData2 == plot:GetY()) then
+					if (bShortVersion) then
+						resultStr =  "[COLOR_POSITIVE_TEXT]" .. Memoize_LocaleLookup("TXT_KEY_CITY_STATE_BARB_QUEST_SHORT") .. "[ENDCOLOR]";
+					else
+						if (resultStr ~= "") then
+							resultStr = resultStr .. "[NEWLINE]";
+						end
+						
+						resultStr = resultStr .. "[COLOR_POSITIVE_TEXT]" .. Locale.ConvertTextKey("TXT_KEY_CITY_STATE_ARCHAEOLOGY_QUEST_LONG",  pOtherPlayer:GetCivilizationShortDescriptionKey()) .. "[ENDCOLOR]";
+					end
+				end
+			end
 			if (pOtherPlayer:IsMinorCivDisplayedQuestForPlayer(iActivePlayer, MinorCivQuestTypes.MINOR_CIV_QUEST_UNIT_GET_CITY)) then
 				local iQuestData1 = pOtherPlayer:GetQuestData1(iActivePlayer, MinorCivQuestTypes.MINOR_CIV_QUEST_UNIT_GET_CITY);
 				local iQuestData2 = pOtherPlayer:GetQuestData2(iActivePlayer, MinorCivQuestTypes.MINOR_CIV_QUEST_UNIT_GET_CITY);
@@ -300,6 +315,8 @@ function GetImprovementString(plot)
 	
 	local iActiveTeam = Game.GetActiveTeam();
 	local pTeam = Teams[iActiveTeam];
+		--CSD Addition - pPlayer
+	local pPlayer = Players[plot:GetPlayerThatBuiltImprovement()];
 
 	local iImprovementType = plot:GetRevealedImprovementType(iActiveTeam, bIsDebug);
 	if (iImprovementType >= 0) then
@@ -310,6 +327,10 @@ function GetImprovementString(plot)
 		improvementStr = improvementStr .. convertedKey;
 		if plot:IsImprovementPillaged() then
 			improvementStr = improvementStr .." " .. Memoize_LocaleLookup("TXT_KEY_PLOTROLL_PILLAGED")
+		end
+		--CSD Addition - Embassy
+		if plot:IsImprovementEmbassy() then 
+			improvementStr = improvementStr .. " " .. Locale.ConvertTextKey("TXT_KEY_PLOTROLL_EMBASSY", pPlayer:GetCivilizationShortDescriptionKey());
 		end
 	end
 
@@ -399,7 +420,7 @@ function GetUnitsString(plot)
 			end
 			
 			-- Embarked?
-			if(unit:IsEmbarked()) then
+			if (unit:IsEmbarked()) then
 				strUnitText = strUnitText .. ", " .. Memoize_LocaleLookup( "TXT_KEY_PLOTROLL_EMBARKED" );
 			end
 			

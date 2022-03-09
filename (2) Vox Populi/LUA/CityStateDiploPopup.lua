@@ -48,6 +48,11 @@ end
 function UpdateButtonStack()
 	Controls.GiveStack:CalculateSize();
     Controls.GiveStack:ReprocessAnchoring();
+
+	--CSD
+
+	Controls.GiveStackCSD:CalculateSize();
+    Controls.GiveStackCSD:ReprocessAnchoring();
     
     Controls.TakeStack:CalculateSize();
     Controls.TakeStack:ReprocessAnchoring();
@@ -246,7 +251,7 @@ function OnDisplay()
 	end
 	
 	strPersonalityText = "[COLOR_POSITIVE_TEXT]" .. strPersonalityText .. "[ENDCOLOR]";
-	
+
 	Controls.PersonalityInfo:SetText(strPersonalityText);
 	Controls.PersonalityInfo:SetToolTipString(strPersonalityTT);
 	Controls.PersonalityLabel:SetToolTipString(strPersonalityTT);
@@ -631,6 +636,9 @@ function OnDisplay()
 	SetButtonSize(Controls.MarriageLabel, Controls.MarriageButton, Controls.MarriageAnim, Controls.MarriageButtonHL)
 	-- END
 	Controls.GiveStack:SetHide(true);
+--CSD
+	Controls.GiveStackCSD:SetHide(true);
+-- END
 	Controls.TakeStack:SetHide(true);
 	Controls.ButtonStack:SetHide(false);
 	
@@ -690,6 +698,16 @@ function OnQuestInfoClicked()
 				Events.GameplayFX(hex.x, hex.y, -1);
 			end
 		end
+		if (pMinor:IsMinorCivDisplayedQuestForPlayer(iActivePlayer, MinorCivQuestTypes.MINOR_CIV_QUEST_ARCHAEOLOGY)) then
+			local iQuestData1 = pMinor:GetQuestData1(iActivePlayer, MinorCivQuestTypes.MINOR_CIV_QUEST_ARCHAEOLOGY);
+			local iQuestData2 = pMinor:GetQuestData2(iActivePlayer, MinorCivQuestTypes.MINOR_CIV_QUEST_ARCHAEOLOGY);
+			local pPlot = Map.GetPlot(iQuestData1, iQuestData2);
+			if (pPlot) then
+				UI.LookAt(pPlot, 0);
+				local hex = ToHexFromGrid(Vector2(pPlot:GetX(), pPlot:GetY()));
+				Events.GameplayFX(hex.x, hex.y, -1);
+			end
+		end
 		if (pMinor:IsMinorCivDisplayedQuestForPlayer(activePlayerID, MinorCivQuestTypes.MINOR_CIV_QUEST_DISCOVER_PLOT)) then
 			local iQuestData1 = pMinor:GetQuestData1(iActivePlayer, MinorCivQuestTypes.MINOR_CIV_QUEST_DISCOVER_PLOT);
 			local iQuestData2 = pMinor:GetQuestData2(iActivePlayer, MinorCivQuestTypes.MINOR_CIV_QUEST_DISCOVER_PLOT);
@@ -700,7 +718,7 @@ function OnQuestInfoClicked()
 				Events.GameplayFX(hex.x, hex.y, -1);
 			end
 		end
-		if (minorPlayer:IsMinorCivDisplayedQuestForPlayer(activePlayerID, MinorCivQuestTypes.MINOR_CIV_QUEST_UNIT_GET_CITY)) then
+		if (pMinor:IsMinorCivDisplayedQuestForPlayer(activePlayerID, MinorCivQuestTypes.MINOR_CIV_QUEST_UNIT_GET_CITY)) then
 			local iQuestData1 = pMinor:GetQuestData1(iActivePlayer, MinorCivQuestTypes.MINOR_CIV_QUEST_UNIT_GET_CITY);
 			local iQuestData2 = pMinor:GetQuestData2(iActivePlayer, MinorCivQuestTypes.MINOR_CIV_QUEST_UNIT_GET_CITY);
 			local pPlot = Map.GetPlot(iQuestData1, iQuestData2);
@@ -824,10 +842,21 @@ Controls.NoUnitSpawningButton:RegisterCallback( Mouse.eLClick, OnStopStartSpawni
 -- Open Give Submenu
 ----------------------------------------------------------------
 function OnGiveButtonClicked ()
-	Controls.GiveStack:SetHide(false);
-	Controls.TakeStack:SetHide(true);
-	Controls.ButtonStack:SetHide(true);
-	PopulateGiftChoices();
+--CSD LUA CHANGE FOR GIFTS
+	local iGoldGiftLarge = GameDefines["MINOR_GOLD_GIFT_LARGE"];
+	if (iGoldGiftLarge == 0) then
+		Controls.GiveStackCSD:SetHide(false);
+		Controls.GiveStack:SetHide(true);
+		Controls.TakeStack:SetHide(true);
+		Controls.ButtonStack:SetHide(true);
+		PopulateGiftChoices();
+	else
+		Controls.GiveStackCSD:SetHide(true);
+		Controls.GiveStack:SetHide(false);
+		Controls.TakeStack:SetHide(true);
+		Controls.ButtonStack:SetHide(true);
+		PopulateGiftChoices();
+	end
 end
 Controls.GiveButton:RegisterCallback( Mouse.eLClick, OnGiveButtonClicked );
 
@@ -835,6 +864,8 @@ Controls.GiveButton:RegisterCallback( Mouse.eLClick, OnGiveButtonClicked );
 -- Open Take Submenu
 ----------------------------------------------------------------
 function OnTakeButtonClicked ()
+-- CSD
+	Controls.GiveStackCSD:SetHide(true);
 	Controls.GiveStack:SetHide(true);
 	Controls.TakeStack:SetHide(false);
 	Controls.ButtonStack:SetHide(true);
@@ -1045,6 +1076,8 @@ Controls.TileImprovementGiftButton:RegisterCallback( Mouse.eLClick, OnGiftTileIm
 -- Close Give Submenu
 ----------------------------------------------------------------
 function OnCloseGive()
+--CSD
+	Controls.GiveStackCSD:SetHide(true);
 	Controls.GiveStack:SetHide(true);
 	Controls.TakeStack:SetHide(true);
 	Controls.ButtonStack:SetHide(false);
@@ -1079,6 +1112,7 @@ function PopulateTakeChoices()
 	Controls.GoldTributeLabel:SetText(buttonText);
 	Controls.GoldTributeButton:SetToolTipString(ttText);
 	SetButtonSize(Controls.GoldTributeLabel, Controls.GoldTributeButton, Controls.GoldTributeAnim, Controls.GoldTributeButtonHL);
+	
 -- CBP
 	local iTheftValue = 0;
 	local pMajor = Players[iActivePlayer];
@@ -1199,6 +1233,8 @@ Controls.UnitTributeButton:RegisterCallback( Mouse.eLClick, OnUnitTributeButtonC
 -- Close Take Submenu
 ----------------------------------------------------------------
 function OnCloseTake()
+--CSD
+	Controls.GiveStackCSD:SetHide(true);
 	Controls.GiveStack:SetHide(true);
 	Controls.TakeStack:SetHide(true);
 	Controls.ButtonStack:SetHide(false);

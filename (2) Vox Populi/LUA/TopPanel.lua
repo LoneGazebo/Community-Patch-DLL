@@ -1,4 +1,4 @@
-print("This is the modded TopPanel from CBP")
+print("This is the modded TopPanel from CBP- CSD")
 -------------------------------
 -- TopPanel.lua
 -------------------------------
@@ -500,6 +500,49 @@ function ScienceTipHandler( control )
 	
 			strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_SCIENCE_FROM_RESEARCH_AGREEMENTS", iScienceFromRAs / 100);
 		end
+		
+		-- C4DF
+		-- Science from Vassals
+		local iScienceFromVassals = pPlayer:GetYieldPerTurnFromVassals(YieldTypes.YIELD_SCIENCE);
+		if (iScienceFromVassals ~= 0) then
+		
+			-- Add separator for non-initial entries
+			if (bFirstEntry) then
+				bFirstEntry = false;
+			else
+				strText = strText .. "[NEWLINE]";
+			end
+	
+			strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_SCIENCE_VASSALS", iScienceFromVassals / 100);
+		end
+
+		-- Science from Allies (CSD MOD)
+		local iScienceFromAllies = pPlayer:GetScienceRateFromMinorAllies();
+		if (iScienceFromAllies ~= 0) then
+		
+			-- Add separator for non-initial entries
+			if (bFirstEntry) then
+				bFirstEntry = false;
+			else
+				strText = strText .. "[NEWLINE]";
+			end
+	
+			strText = strText .. Locale.ConvertTextKey("TXT_KEY_MINOR_SCIENCE_FROM_LEAGUE_ALLIES", iScienceFromAllies);
+		end
+
+		-- Science from Funding from League (CSD MOD)
+		local iScienceFromLeague = pPlayer:GetScienceRateFromLeagueAid();
+		if (iScienceFromLeague ~= 0) then
+		
+			-- Add separator for non-initial entries
+			if (bFirstEntry) then
+				bFirstEntry = false;
+			else
+				strText = strText .. "[NEWLINE]";
+			end
+	
+			strText = strText .. Locale.ConvertTextKey("TXT_KEY_SCIENCE_FUNDING_FROM_LEAGUE", iScienceFromLeague);
+		end
 
 -- CBP Science from Religion
 		local iScienceFromReligion = pPlayer:GetYieldPerTurnFromReligion(YieldTypes.YIELD_SCIENCE);
@@ -571,8 +614,20 @@ function GoldTipHandler( control )
 	local iInternalRouteGold = pPlayer:GetInternalTradeRouteGoldBonus();
 	local iMinorGold = pPlayer:GetGoldPerTurnFromMinorCivs();
 	-- END
+-- C4DF
+	-- Gold from Vassals
+	local iGoldFromVassals = pPlayer:GetYieldPerTurnFromVassals(YieldTypes.YIELD_GOLD);
+	local iGoldFromVassalTax = math.floor(pPlayer:GetMyShareOfVassalTaxes() / 100);
+-- END
+-- C4DF CHANGE
 	local fTotalIncome = fGoldPerTurnFromCities + iGoldPerTurnFromOtherPlayers + fCityConnectionGold + iGoldPerTurnFromReligion + fTradeRouteGold + fTraitGold + iMinorGold + iInternalRouteGold;
-	
+	if (iGoldFromVassals > 0) then
+		fTotalIncome = fTotalIncome + iGoldFromVassals;
+	end
+	if (iGoldFromVassalTax > 0) then
+		fTotalIncome = fTotalIncome + iGoldFromVassalTax;
+	end
+-- C4DF END CHANGE	
 	if (pPlayer:IsAnarchy()) then
 		strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_ANARCHY", pPlayer:GetAnarchyNumTurns());
 		strText = strText .. "[NEWLINE][NEWLINE]";
@@ -602,7 +657,17 @@ function GoldTipHandler( control )
 	if (iGoldPerTurnFromReligion > 0) then
 		strText = strText .. "[NEWLINE]  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_GOLD_FROM_RELIGION", iGoldPerTurnFromReligion);
 	end
+-- C4DF
+	-- Gold from Vassals
+	if (iGoldFromVassals > 0) then
+		strText = strText .. "[NEWLINE]  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_GOLD_VASSALS", iGoldFromVassals);
+	end
 
+	-- Gold from Vassal Tax
+	if (iGoldFromVassalTax > 0) then
+		strText = strText .. "[NEWLINE]  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_GOLD_VASSAL_TAX", iGoldFromVassalTax);
+	end
+--  END
 -- COMMUNITY PATCH CHANGE
 	if (iMinorGold > 0) then
 		strText = strText .. "[NEWLINE]  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_GOLD_FROM_MINORS", iMinorGold);
@@ -614,7 +679,19 @@ function GoldTipHandler( control )
 	local iUnitSupply = pPlayer:CalculateUnitSupply();
 	local iBuildingMaintenance = pPlayer:GetBuildingGoldMaintenance();
 	local iImprovementMaintenance = pPlayer:GetImprovementGoldMaintenance();
+-- BEGIN C4DF
+	local iExpenseFromVassalTaxes = pPlayer:GetExpensePerTurnFromVassalTaxes();
+	local iVassalMaintenance = pPlayer:GetVassalGoldMaintenance();
+-- END C4DF
 	local iTotalExpenses = iUnitCost + iUnitSupply + iBuildingMaintenance + iImprovementMaintenance + iGoldPerTurnToOtherPlayers;
+-- BEGIN C4DF
+	if (iVassalMaintenance > 0) then
+		iTotalExpenses = iTotalExpenses + iVassalMaintenance;
+	end
+	if (iExpenseFromVassalTaxes > 0) then
+		iTotalExpenses = iTotalExpenses + iExpenseFromVassalTaxes;
+	end
+-- END C4DF
 --END
 	strText = strText .. "[NEWLINE]";
 	strText = strText .. "[COLOR:255:150:150:255]";
@@ -634,6 +711,18 @@ function GoldTipHandler( control )
 	if (iGoldPerTurnToOtherPlayers > 0) then
 		strText = strText .. "[NEWLINE]  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_GOLD_TO_OTHERS", iGoldPerTurnToOtherPlayers);
 	end
+-- COMMUNITY PATCH CHANGE
+--END
+-- C4DF
+	if (iVassalMaintenance > 0) then
+		strText = strText .. "[NEWLINE]  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_GOLD_VASSAL_MAINT", iVassalMaintenance);
+	end
+
+	-- Gold from Vassal Tax
+	if (iExpenseFromVassalTaxes > 0) then
+		strText = strText .. "[NEWLINE]  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_GOLD_VASSAL_TAX", iExpenseFromVassalTaxes);
+	end
+--  END
 	strText = strText .. "[/COLOR]";
 	
 	if (fTotalIncome + iTotalGold < 0) then
@@ -1049,7 +1138,20 @@ function CultureTipHandler( control )
 			strText = strText .. "[NEWLINE]";
 			strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_CULTURE_FROM_TRAITS", iCultureFromTraits);
 		end
-	
+-- C4DF
+		local iCultureFromVassals = pPlayer:GetYieldPerTurnFromVassals(YieldTypes.YIELD_CULTURE);
+		if (iCultureFromVassals ~= 0) then
+		
+			-- Add separator for non-initial entries
+			if (bFirstEntry) then
+				strText = strText .. "[NEWLINE]";
+				bFirstEntry = false;
+			end
+
+			strText = strText .. "[NEWLINE]";
+			strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_CULTURE_VASSALS", iCultureFromVassals);
+		end
+-- END	
 		-- Culture from Minor Civs
 		local iCultureFromMinors = pPlayer:GetCulturePerTurnFromMinorCivs();
 		if (iCultureFromMinors ~= 0) then
@@ -1094,7 +1196,7 @@ function CultureTipHandler( control )
 		end
 		
 		-- Culture from Golden Age (COMMUNITY PATCH EDIT)
-		local iCultureFromGoldenAge = pPlayer:GetTotalJONSCulturePerTurn() - iCultureForFree - iCultureFromCities - iCultureFromHappiness - iCultureFromMinors - iCultureFromReligion - iCultureFromTraits - iCultureFromBonusTurns;
+		local iCultureFromGoldenAge = pPlayer:GetTotalJONSCulturePerTurn() - iCultureForFree - iCultureFromCities - iCultureFromHappiness - iCultureFromMinors - iCultureFromReligion - iCultureFromTraits - iCultureFromBonusTurns; -- last part added (COMMUNITY PATCH)
 		if (iCultureFromGoldenAge ~= 0) then
 		
 			-- Add separator for non-initial entries
@@ -1208,6 +1310,13 @@ function FaithTipHandler( control )
 			strText = strText .. "[NEWLINE]";
 			strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_FAITH_FROM_RELIGION", iFaithFromReligion);
 		end
+-- C4DF
+		local iFaithFromVassals = pPlayer:GetYieldPerTurnFromVassals(YieldTypes.YIELD_FAITH);
+		if (iFaithFromVassals ~= 0) then
+			strText = strText .. "[NEWLINE]";
+			strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_FAITH_VASSALS", iFaithFromVassals);
+		end
+-- END	
 		
 		if (iFaithFromCities ~= 0 or iFaithFromMinorCivs ~= 0 or iFaithFromReligion ~= 0) then
 			strText = strText .. "[NEWLINE]";
@@ -1299,7 +1408,7 @@ function UnitSupplyHandler(control)
 		strUnitSupplyToolTip = strUnitSupplyToolTip .. Locale.ConvertTextKey("TXT_KEY_UNIT_SUPPLY_REACHED_TOOLTIP", iUnitsSupplied, iUnitsOver, -iUnitSupplyMod);
 		strUnitSupplyToolTip = strUnitSupplyToolTip .. "[ENDCOLOR]";
 
-		local strUnitSupplyToolUnderTip = Locale.ConvertTextKey("TXT_KEY_UNIT_SUPPLY_REMAINING_TOOLTIP", iUnitsSupplied, iUnitsTotal, iPercentPerPop, iPerCity, iPerHandicap, (iWarWearinessReduction/2), iWarWearinessActualReduction, iTechReduction, iWarWearinessReduction, iSupplyFromGreatPeople);
+		local strUnitSupplyToolUnderTip = Locale.ConvertTextKey("TXT_KEY_UNIT_SUPPLY_REMAINING_TOOLTIP", iUnitsSupplied, iUnitsTotal, iPercentPerPop, iPerCity, iPerHandicap, (iWarWearinessReduction / 2), iWarWearinessActualReduction, iTechReduction, iWarWearinessReduction, iSupplyFromGreatPeople);
 
 		strUnitSupplyToolTip = strUnitSupplyToolTip .. "[NEWLINE][NEWLINE]" .. strUnitSupplyToolUnderTip;
 	else

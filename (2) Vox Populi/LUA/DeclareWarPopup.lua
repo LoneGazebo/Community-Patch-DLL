@@ -1,5 +1,4 @@
-
-print("This is the modded DeclareWarPopup from CBP")
+print("This is the modded DeclareWarPopup from CBP - C4DF")
 -------------------------------------------------
 -- Declare War Popup
 -------------------------------------------------
@@ -13,6 +12,9 @@ local g_DefensePactsInstanceManager = GenerationalInstanceManager:new( "DPInstan
 -- END
 local g_UnderProtectionOfInstanceManager = GenerationalInstanceManager:new( "UnderProtectionCivInstance", "Base", Controls.UnderProtectionOfStack);
 local g_ActiveTradesInstanceManager = GenerationalInstanceManager:new("TradeRouteInstance", "Base", Controls.TradeRoutesStack);
+-- Putmalk
+local g_MastersInstanceManager = GenerationalInstanceManager:new( "MasterInstance", "Base", Controls.MastersStack);
+local g_VassalsInstanceManager = GenerationalInstanceManager:new( "VassalInstance", "Base", Controls.VassalsStack);
 
 PopupLayouts = {};
 PopupInputHandlers = {};
@@ -230,6 +232,35 @@ function GatherData(RivalId, Text)
 				});
 			end
 		end	
+	end
+	
+	-- Putmalk
+	local rivalTeam = Teams[rivalPlayer:GetTeam()];
+	
+	data.Masters = {};
+	for iPlayerLoop = 0, GameDefines.MAX_MAJOR_CIVS - 1, 1 do
+		local master = Players[iPlayerLoop];
+		local masterTeam = Teams[ master:GetTeam() ];
+		if(master and rivalTeam:GetMaster() == master:GetTeam() and master:IsAlive()) then
+			print("Found Master!");
+			table.insert(data.Masters, {
+				PlayerID = iPlayerLoop,
+				Name = master:GetCivilizationShortDescriptionKey(),
+			});
+		end
+	end
+
+	data.Vassals = {};
+	for iPlayerLoop = 0, GameDefines.MAX_MAJOR_CIVS - 1, 1 do
+		local vassal = Players[iPlayerLoop];
+		local vassalTeam = Teams[ vassal:GetTeam() ];
+		if(vassal and vassalTeam:GetMaster() == rivalPlayer:GetTeam() and vassal:IsAlive()) then
+			print("Found Vassal!");
+			table.insert(data.Vassals, {
+				PlayerID = iPlayerLoop,
+				Name = vassal:GetCivilizationShortDescriptionKey(),
+			});
+		end
 	end
 	
 	local dealsFromThem = {};
@@ -514,6 +545,13 @@ function View(data)
 		
 		Controls.UnderProtectionOfHeader:SetHide(false);
 		Controls.UnderProtectionOfStack:SetHide(false);
+		
+		-- Start Putmalk
+		Controls.MastersHeader:SetHide(true);
+		Controls.MastersStack:SetHide(true);
+
+		Controls.VassalsHeader:SetHide(true);
+		Controls.VassalsStack:SetHide(true);
 	else
 	    
 	    local white = Vector4(1.0, 1.0, 1.0, 1.0);
@@ -533,7 +571,13 @@ function View(data)
 		
 		Controls.AlliedCityStatesHeader:SetHide(false);
 		Controls.AlliedCityStatesStack:SetHide(false);
+		
+		-- Putmalk
+		Controls.MastersHeader:SetHide(false);
+		Controls.MastersStack:SetHide(false);
 
+		Controls.VassalsHeader:SetHide(false);
+		Controls.VassalsStack:SetHide(false);
 -- CBP
 		Controls.DefensePactHeader:SetHide(false);
 		Controls.DefensePactStack:SetHide(false);
@@ -583,6 +627,36 @@ function View(data)
 		instance.Label:SetText(name);
 		instance.IconFrame:SetToolTipString(name);
 	end	
+	
+	-- Start Putmalk
+	g_MastersInstanceManager:ResetInstances();
+	local masters = data.Masters or {};
+	Controls.MastersNone:SetHide(#masters > 0);
+	
+	for i,v in ipairs(masters) do
+	
+		local instance = g_MastersInstanceManager:GetInstance();	
+		CivIconHookup(v.PlayerID, 45, instance.Icon, instance.IconBG, instance.IconShadow, true, true, instance.IconHighlight);
+		
+		local name = Locale.Lookup(v.Name);
+		instance.Label:SetText(name);
+		instance.IconFrame:SetToolTipString(name);
+	end	
+
+	g_VassalsInstanceManager:ResetInstances();
+	local vassals = data.Vassals or {};
+	Controls.VassalsNone:SetHide(#vassals > 0);
+	
+	for i,v in ipairs(vassals) do
+	
+		local instance = g_VassalsInstanceManager:GetInstance();	
+		CivIconHookup(v.PlayerID, 45, instance.Icon, instance.IconBG, instance.IconShadow, true, true, instance.IconHighlight);
+		
+		local name = Locale.Lookup(v.Name);
+		instance.Label:SetText(name);
+		instance.IconFrame:SetToolTipString(name);
+	end	
+	-- End Putmalk
      
 	local hasDeals = false;
 	local hasDealsFromThem = false;
@@ -646,6 +720,12 @@ function View(data)
 	Controls.ActiveDealsStack:CalculateSize();
 	Controls.TradeRoutesStack:ReprocessAnchoring();
 	Controls.TradeRoutesStack:CalculateSize();
+	---[[ Putmalk
+	Controls.MastersStack:ReprocessAnchoring();
+	Controls.MastersStack:CalculateSize();
+	Controls.VassalsStack:ReprocessAnchoring();
+	Controls.VassalsStack:CalculateSize();
+	--]]
 	
 	Controls.DeclareWarDetailsStack:ReprocessAnchoring();
 	Controls.DeclareWarDetailsStack:CalculateSize();
@@ -898,6 +978,31 @@ RegisterCollapseBehavior{
 	HeaderExpandedLabel = "[ICON_MINUS] " .. underProtectionOfText,
 	HeaderCollapsedLabel = "[ICON_PLUS] " .. underProtectionOfText,
 	Panel = Controls.UnderProtectionOfStack,
+	Collapsed = false,
+	OnCollapse = OnCollapseExpand,
+	OnExpand = OnCollapseExpand,
+};
+
+-- Putmalk
+local mastersText = Locale.Lookup("TXT_KEY_DECLARE_WAR_MASTERS");
+RegisterCollapseBehavior{	
+	Header = Controls.MastersHeader, 
+	HeaderLabel = Controls.MastersHeader, 
+	HeaderExpandedLabel = "[ICON_MINUS] " .. mastersText,
+	HeaderCollapsedLabel = "[ICON_PLUS] " .. mastersText,
+	Panel = Controls.MastersStack,
+	Collapsed = false,
+	OnCollapse = OnCollapseExpand,
+	OnExpand = OnCollapseExpand,
+};
+
+local vassalsText = Locale.Lookup("TXT_KEY_DECLARE_WAR_VASSALS");
+RegisterCollapseBehavior{	
+	Header = Controls.VassalsHeader, 
+	HeaderLabel = Controls.VassalsHeader, 
+	HeaderExpandedLabel = "[ICON_MINUS] " .. vassalsText,
+	HeaderCollapsedLabel = "[ICON_PLUS] " .. vassalsText,
+	Panel = Controls.VassalsStack,
 	Collapsed = false,
 	OnCollapse = OnCollapseExpand,
 	OnExpand = OnCollapseExpand,

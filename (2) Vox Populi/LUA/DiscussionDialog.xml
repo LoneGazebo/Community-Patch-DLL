@@ -48,6 +48,21 @@
 			<Label ID="Button8Label" Anchor="C,C" String="TXT_KEY_DIPLO_DISUCSS_OFFER_TO_STOP" Offset="0,0" Color0="255.255.200.255" Color1="0.0.0.128" Color2="255.255.200.255" Font="TwCenMT18" FontStyle="Shadow"/>
 			<Grid Anchor="C,C" Offset="0,0" Size="554,28" Padding="0,0" Style="Grid9Frame"/>
 		</GridButton>
+		<GridButton ID="Button9" Size="550,24" Anchor="C,T" Offset="0,0">
+			<GridData Style="Grid9DarkBlue8Button"/>
+			<Label ID="Button9Label" Anchor="C,C" String="TXT_KEY_DIPLO_DISUCSS_OFFER_TO_STOP" Offset="0,0" Color0="255.255.200.255" Color1="0.0.0.128" Color2="255.255.200.255" Font="TwCenMT18" FontStyle="Shadow"/>
+			<Grid Anchor="C,C" Offset="0,0" Size="554,28" Padding="0,0" Style="Grid9Frame"/>
+		</GridButton>
+		<GridButton ID="Button10" Size="550,24" Anchor="C,T" Offset="0,0">
+			<GridData Style="Grid9DarkBlue8Button"/>
+			<Label ID="Button10Label" Anchor="C,C" String="TXT_KEY_DIPLO_DISUCSS_OFFER_TO_STOP" Offset="0,0" Color0="255.255.200.255" Color1="0.0.0.128" Color2="255.255.200.255" Font="TwCenMT18" FontStyle="Shadow"/>
+			<Grid Anchor="C,C" Offset="0,0" Size="554,28" Padding="0,0" Style="Grid9Frame"/>
+		</GridButton>
+		<GridButton ID="Button11" Size="550,24" Anchor="C,T" Offset="0,0">
+			<GridData Style="Grid9DarkBlue8Button"/>
+			<Label ID="Button11Label" Anchor="C,C" String="TXT_KEY_DIPLO_DISUCSS_OFFER_TO_STOP" Offset="0,0" Color0="255.255.200.255" Color1="0.0.0.128" Color2="255.255.200.255" Font="TwCenMT18" FontStyle="Shadow"/>
+			<Grid Anchor="C,C" Offset="0,0" Size="554,28" Padding="0,0" Style="Grid9Frame"/>
+		</GridButton>
 		<!-- Leader Dialogue -->
 		<Grid Size="650,120" Anchor="C,T" Style="GridBlackIndent8" ID="LeaderSpeechFrame">
 			<Grid Anchor="C,C" Offset="0,0" Size="654,124" Padding="0,0" Style="Grid9Frame" Hidden="0" ID="LeaderSpeechBorderFrame"/>
