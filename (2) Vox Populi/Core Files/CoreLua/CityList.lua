@@ -139,7 +139,7 @@ function UpdateDisplay()
         instance.Defense:SetText( sortEntry.Strength );
 
 		local TT = pCity:GetCityHappinessBreakdown();
-		TT = TT + pCity:GetCityUnhappinessBreakdown(false);
+		TT = TT .. pCity:GetCityUnhappinessBreakdown(false);
 		instance.CityName:SetToolTipString(TT);
 -- END   
         

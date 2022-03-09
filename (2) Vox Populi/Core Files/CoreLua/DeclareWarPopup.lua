@@ -207,7 +207,7 @@ function GatherData(RivalId, Text)
 	end
 	
 -- CBP
--- Rival Civ + his DP
+	-- Rival Civ + his DP
 	data.DefensePacts = {};
 	for iPlayerLoop = 0, GameDefines.MAX_MAJOR_CIVS - 1, 1 do
 		local player = Players[iPlayerLoop];

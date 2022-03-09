@@ -177,7 +177,7 @@
 									<Button Style="TradeItemButton" Anchor="L,C" String="TXT_KEY_DIPLO_RESCH_AGREEMENT" ID="UsTableResearchAgreement"/>
 									<!-- Putmalk -->
 									<Button Style="TradeItemButton" Anchor="L,C" String="TXT_KEY_DIPLO_VASSALAGE"   ID="UsTableVassalage"   />
-									<Button Style="TradeItemButton" Anchor="L,C" String="TXT_KEY_DIPLO_VASSALAGE_REVOKE"   ID="UsTableRevokeVassalage"/>
+									<Button Style="TradeItemButton" Anchor="L,C" String="TXT_KEY_DIPLO_VASSALAGE_REVOKE"   ID="UsTableRevokeVassalage"   />
 									<Button Style="TradeItemButton" Anchor="L,C" String="TXT_KEY_DIPLO_DECLARATION_OF_FRIENDSHIP" ID="UsTableDoF"/>
 									<Stack Anchor="L,T" Offset="0,0" Size="128,0" StackGrowth="Bottom" Padding="5" Hidden="0" ID="UsTableCitiesStack"/>
 									<Stack Anchor="L,T" Offset="0,0" Size="128,0" StackGrowth="Bottom" Padding="5" Hidden="0" ID="UsTableDeclareWarStack">

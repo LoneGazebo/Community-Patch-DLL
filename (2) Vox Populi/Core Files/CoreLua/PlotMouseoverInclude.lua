@@ -84,6 +84,7 @@ function GetCivStateQuestString(plot, bShortVersion)
 					end
 				end
 			end
+			--CBP
 			if (pOtherPlayer:IsMinorCivDisplayedQuestForPlayer(iActivePlayer, MinorCivQuestTypes.MINOR_CIV_QUEST_UNIT_GET_CITY)) then
 				local iQuestData1 = pOtherPlayer:GetQuestData1(iActivePlayer, MinorCivQuestTypes.MINOR_CIV_QUEST_UNIT_GET_CITY);
 				local iQuestData2 = pOtherPlayer:GetQuestData2(iActivePlayer, MinorCivQuestTypes.MINOR_CIV_QUEST_UNIT_GET_CITY);
@@ -114,7 +115,7 @@ function GetCivStateQuestString(plot, bShortVersion)
 					end
 				end
 			end
-			
+			--END
 		end
 	end		
 	
@@ -223,6 +224,8 @@ function GetNatureString(plot)
 		
 		natureStr = natureStr .. Memoize_LocaleLookup( "TXT_KEY_PLOTROLL_RIVER" );
 	end
+	
+-- CBP
 	
 	return natureStr;
 	

@@ -1194,7 +1194,7 @@ function VoteYesNoController.new(voteController, entry)
 		entryController:UpdateVoteInstance();
 		voteController:UpdateVoteState();
 	end);
-	
+
 	instance.VoteUpButton:RegisterCallback(Mouse.eMClick, function()
 		local votes = entry.Votes;
 		if(votes >= 0) then
@@ -1216,7 +1216,7 @@ function VoteYesNoController.new(voteController, entry)
 		entryController:UpdateVoteInstance();
 		voteController:UpdateVoteState();
 	end);
-	
+
 	instance.VoteUpButton:RegisterCallback(Mouse.eRClick, function()
 		local votes = entry.Votes;
 		local availableVotes = voteController.VotesAvailable;

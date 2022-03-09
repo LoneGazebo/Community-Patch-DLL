@@ -4282,8 +4282,8 @@ function SelectBuildingOrWonderArticle( buildingID )
 		AddLeadsToBuildingFrame( thisBuilding );
 		-- END
 		
-		local condition = "BuildingType = '" .. thisBuilding.Type .. "'";
 		-- needed local resources
+		local condition = "BuildingType = '" .. thisBuilding.Type .. "'";
 		g_LocalResourcesManager:ResetInstances();
 		buttonAdded = 0;
 
