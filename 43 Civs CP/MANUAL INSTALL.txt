@@ -8,7 +8,7 @@
 
 
 2b. If using the EUI compatibility version:
-- Delete the CP Only and No-EUI folders.
+- Delete the CP Only and No-EUI folders. Install EUI compatibility files for the standard version. Overwrite its LeaderHeadRoot.lua, LeaderHeadRoot.xml and TradeLogic.lua files with the ones in 43 Civs CP\EUI.
 
 
 2c. If using the No-EUI compatibility version:
