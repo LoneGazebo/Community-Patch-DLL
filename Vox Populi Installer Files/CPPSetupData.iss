@@ -49,7 +49,6 @@ FinishedLabel=Setup has finished installing [name] on your computer. To launch t
 Source: "(1) Community Patch\*"; DestDir: "{app}\(1) Community Patch"; Flags: ignoreversion createallsubdirs recursesubdirs
 Source: "(2) Vox Populi\*"; DestDir: "{app}\(2) Vox Populi"; Flags: ignoreversion createallsubdirs recursesubdirs; Components: FullEUI FullNoEUI Civ43EUI Civ43NoEUI
 Source: "(3a) Vox Populi - Compatibility Files (EUI)\*"; DestDir: "{app}\(3a) Vox Populi - Compatibility Files (EUI)"; Flags: ignoreversion createallsubdirs recursesubdirs; Components: FullEUI
-Source: "(3b) Vox Populi - Compatibility Files (No-EUI)\*"; DestDir: "{app}\(3b) Vox Populi - Compatibility Files (No-EUI)"; Flags: ignoreversion createallsubdirs recursesubdirs; Components: FullNoEUI
 Source: "(3c) 43 Civs Community Patch\CP Only\*"; DestDir: "{app}\(3c) 43 Civs Community Patch\CP Only"; Flags: ignoreversion; Components: Civ43CPOnly
 Source: "(3c) 43 Civs Community Patch\No-EUI\*"; DestDir: "{app}\(3c) 43 Civs Community Patch\No-EUI"; Flags: ignoreversion recursesubdirs; Components: Civ43NoEUI
 Source: "(3c) 43 Civs Community Patch\EUI\*"; DestDir: "{app}\(3c) 43 Civs Community Patch\EUI"; Flags: ignoreversion recursesubdirs; Components: Civ43EUI
@@ -84,7 +83,6 @@ Type: filesandordirs; Name: "{userdocs}\My Games\Sid Meier's Civilization 5\cach
 Type: filesandordirs; Name: "{userdocs}\My Games\Sid Meier's Civilization 5\MODS\(1) Community Patch"
 Type: filesandordirs; Name: "{userdocs}\My Games\Sid Meier's Civilization 5\MODS\(2) Vox Populi"
 Type: filesandordirs; Name: "{userdocs}\My Games\Sid Meier's Civilization 5\MODS\(3a) Vox Populi - Compatibility Files (EUI)"
-Type: filesandordirs; Name: "{userdocs}\My Games\Sid Meier's Civilization 5\MODS\(3b) Vox Populi - Compatibility Files (No-EUI)"
 Type: filesandordirs; Name: "{userdocs}\My Games\Sid Meier's Civilization 5\MODS\(3c) 43 Civs Community Patch"
 Type: filesandordirs; Name: "{userdocs}\My Games\Sid Meier's Civilization 5\MODS\(4a) Promotion Icons for VP"
 Type: filesandordirs; Name: "{userdocs}\My Games\Sid Meier's Civilization 5\MODS\(4b) UI - Promotion Tree for VP"

@@ -56,6 +56,10 @@ include("NaturalWondersCustomMethods");
 
 ------------------------------------------------------------------------------
 ------------------------------------------------------------------------------
+local MAX_RESOURCE_INDEX = 99             -- Who knows where this comes from!
+local MAX_MAJOR_CIVS     = GameDefines.MAX_MAJOR_CIVS
+local MAX_MINOR_CIVS     = GameDefines.MAX_MINOR_CIVS
+
 AssignStartingPlots = {};
 ------------------------------------------------------------------------------
 
@@ -233,19 +237,19 @@ function AssignStartingPlots.Create()
 		iNumCityStatesSharedLux = 0,	-- Number of City States to be placed in regions whose luxury type is shared with other regions
 		iNumCityStatesLowFertility = 0,	-- Number of extra City States to be placed in regions with low fertility per land plot
 		cityStateData = table.fill(0, iW * iH), -- Stores "impact and ripple" data in the city state layer
-		city_state_region_assignments = table.fill(-1, 41), -- Stores region number of each city state (-1 if not in a region)
+		city_state_region_assignments = table.fill(-1, MAX_MINOR_CIVS), -- Stores region number of each city state (-1 if not in a region)
 		uninhabited_areas_coastal_plots = {}, -- For use in placing city states outside of Regions
 		uninhabited_areas_inland_plots = {},
 		iNumCityStatesDiscarded = 0,	-- If a city state cannot be placed without being too close to another start, it will be discarded
-		city_state_validity_table = table.fill(false, 41), -- Value set to true when a given city state is successfully assigned a start plot
+		city_state_validity_table = table.fill(false, MAX_MINOR_CIVS), -- Value set to true when a given city state is successfully assigned a start plot
 		
 		-- Resources variables
 		resources = {},                 -- Stores all resource data, pulled from the XML
 		resource_setting,				-- User selection for Resource Setting, chosen on game launch (when applicable)
-		amounts_of_resources_placed = table.fill(0, 45), -- Stores amounts of each resource ID placed. WARNING: This table uses adjusted resource ID (+1) to account for Lua indexing. Add 1 to all IDs to index this table.
-		luxury_assignment_count = table.fill(0, 45), -- Stores amount of each luxury type assigned to regions. WARNING: current implementation will crash if a Luxury is attached to resource ID 0 (default = iron), because this table uses unadjusted resource ID as table index.
-		luxury_low_fert_compensation = table.fill(0, 45), -- Stores number of times each resource ID had extras handed out at civ starts. WARNING: Indexed by resource ID.
-		region_low_fert_compensation = table.fill(0, 22); -- Stores number of luxury compensation each region received
+		amounts_of_resources_placed = table.fill(0, MAX_RESOURCE_INDEX), -- Stores amounts of each resource ID placed. WARNING: This table uses adjusted resource ID (+1) to account for Lua indexing. Add 1 to all IDs to index this table.
+		luxury_assignment_count = table.fill(0, MAX_RESOURCE_INDEX), -- Stores amount of each luxury type assigned to regions. WARNING: current implementation will crash if a Luxury is attached to resource ID 0 (default = iron), because this table uses unadjusted resource ID as table index.
+		luxury_low_fert_compensation = table.fill(0, MAX_RESOURCE_INDEX), -- Stores number of times each resource ID had extras handed out at civ starts. WARNING: Indexed by resource ID.
+		region_low_fert_compensation = table.fill(0, MAX_MAJOR_CIVS); -- Stores number of luxury compensation each region received
 		luxury_region_weights = {},		-- Stores weighted assignments for the types of regions
 		luxury_fallback_weights = {},	-- In case all options for a given region type got assigned or disabled, also used for Undefined regions
 		luxury_city_state_weights = {},	-- Stores weighted assignments for city state exclusive luxuries
@@ -1031,203 +1035,55 @@ function AssignStartingPlots:RemoveDeadRows(fertility_table, iWestX, iSouthY, iW
 end
 ------------------------------------------------------------------------------
 function AssignStartingPlots:DivideIntoRegions(iNumDivisions, fertility_table, rectangle_data_table)
-	-- This is a recursive algorithm. (Original concept and implementation by Ed Beach).
-	--
-	-- Fertility table is a plot data array including data for all plots to be processed here.
-	-- The fertility table is obtained as part of the MeasureFertility functions, or via division during the recursion.
-	--
-	-- Rectangle table includes seven data fields:
-	-- westX, southY, width, height, AreaID, fertilityCount, plotCount
-	--
-	-- If AreaID is -1, it means the rectangle contains fertility data from all plots regardless of their AreaIDs.
-	-- The plotCount is an absolute count of plots within the rectangle, without regard to AreaID membership.
-	-- This is going to purposely reduce average fertility per plot for Order-of-Assignment priority.
-	-- Rectangles with a lot of non-member plots will tend to be misshapen and need to be on the favorable side of minDistance elements.
-	-- print("-"); print("DivideIntoRegions called.");
+  if (iNumDivisions == 1) then
+    local fAverageFertility = rectangle_data_table[6] / rectangle_data_table[7]
+    table.insert(rectangle_data_table, fAverageFertility)
+    table.insert(self.regionData, rectangle_data_table)
+  elseif (iNumDivisions > 1) then
+    local iWidth = rectangle_data_table[3]
+    local iHeight = rectangle_data_table[4]
+    local bTaller = (iHeight > iWidth)
 
-	--[[ Log dump of incoming table data. Activate for debug only.
-	print("Data tables passed to DivideIntoRegions.");
-	PrintContentsOfTable(fertility_table)
-	PrintContentsOfTable(rectangle_data_table)
-	print("End of this instance, DivideIntoRegions tables.");
-	]]--
-	
-	local iNumDivides = 0;
-	local iSubdivisions = 0;
-	local bPrimeGreaterThanThree = false;
-	local firstSubdivisions = 0;
-	local laterSubdivisions = 0;
+    if (iNumDivisions % 3 == 0) then
+      local iSubdivisions = iNumDivisions / 3
+	  print(string.format("DivideIntoRegions: Three: 2, %i", iSubdivisions))
 
-	-- If this rectangle is not to be divided, break recursion and record the data.
-	if (iNumDivisions == 1) then -- This area is to be defined as a Region.
-		-- Expand rectangle table to include an eighth field for average fertility per plot.
-		local fAverageFertility = rectangle_data_table[6] / rectangle_data_table[7]; -- fertilityCount/plotCount
-		table.insert(rectangle_data_table, fAverageFertility);
-		-- Insert this record in to the instance data for start placement regions for this game.
-		-- (This is the crux of the entire regional definition process, determining an actual region.)
-		table.insert(self.regionData, rectangle_data_table);
-		--
-		local iNumberOfThisRegion = table.maxn(self.regionData);
-		print("-");
-		print("---------------------------------------------");
-		print("Defined location of Start Region #", iNumberOfThisRegion);
-		print("---------------------------------------------");
-		print("-");
-		--
-		return
+      local results = self:ChopIntoThreeRegions(fertility_table, rectangle_data_table, bTaller)
+      self:DivideIntoRegions(iSubdivisions, results[1], results[2])
+      self:DivideIntoRegions(iSubdivisions, results[3], results[4])
+      self:DivideIntoRegions(iSubdivisions, results[5], results[6])
+    elseif (iNumDivisions % 2 == 0) then
+      local iSubdivisions = iNumDivisions / 2
+	  print(string.format("DivideIntoRegions: Even: 2, %i", iSubdivisions))
 
-	--[[ Divide this rectangle into iNumDivisions worth of subdivisions, then send each
-	     subdivision back through this function in a recursive loop. ]]--
-	elseif (iNumDivisions > 1) then
-		-- See if region is taller or wider.
-		local iWidth = rectangle_data_table[3];
-		local iHeight = rectangle_data_table[4];
-		local bTaller = false;
-		if iHeight > iWidth then
-			bTaller = true;
-		end
+      local results = self:ChopIntoTwoRegions(fertility_table, rectangle_data_table, bTaller, 49.5)
+      self:DivideIntoRegions(iSubdivisions, results[1], results[2])
+      self:DivideIntoRegions(iSubdivisions, results[3], results[4])
+	else
+      -- This works all the way to 79, which is fine as REALLY_MAX_PLAYERS is 80 anyway!
+	  local laterSubdivisions
+      if (iNumDivisions == 5) then
+        laterSubdivisions = 2
+      elseif (iNumDivisions <= 17) then
+        laterSubdivisions = math.floor(iNumDivisions / 4 + 1) * 2
+      else 
+        laterSubdivisions = math.floor(iNumDivisions / 8 + 1) * 4
+      end
+      local firstSubdivisions = iNumDivisions - laterSubdivisions
 
-		-- If the number of divisions is 2 or 3, no further subdivision is required.
-		if (iNumDivisions == 2) then
-			iNumDivides = 2;
-			iSubdivisions = 1;
-		elseif (iNumDivisions == 3) then
-			iNumDivides = 3;
-			iSubdivisions = 1;
-		
-		-- If the number of divisions is greater than 3 and a prime number,
-		-- divide all of these cases in to an odd plus an even number, then subdivide.
-		--
-		--[[ Ed's original algorithm skipped this step and produced "extra" divisions,
-		     which I would have had to account for. I decided it was far far easier to
-		     improve the algorithm and remove all extra divisions than it was to have
-		     to write large chunks of code trying to process empty regions. Not to 
-		     mention the added precision of using all land on the continent or map to
-		     determine where to place major civilizations.  - Bob Thomas, April 2010 ]]--
-		elseif (iNumDivisions == 5) then
-			bPrimeGreaterThanThree = true;
-			chopPercent = 59.2; -- These chopPercents are all set to undershoot slightly, averaging out the actual result closer to target.
-			firstSubdivisions = 3; -- This is because if you aim for the exact target, there is never undershoot and almost always overshoot.
-			laterSubdivisions = 2; -- So a well calibrated target ends up compensating for that overshoot factor, to improve total fairness.
-		elseif (iNumDivisions == 7) then
-			bPrimeGreaterThanThree = true;
-			chopPercent = 42.2;
-			firstSubdivisions = 3;
-			laterSubdivisions = 4;
-		elseif (iNumDivisions == 11) then
-			bPrimeGreaterThanThree = true;
-			chopPercent = 27;
-			firstSubdivisions = 3;
-			laterSubdivisions = 8;
-		elseif (iNumDivisions == 13) then
-			bPrimeGreaterThanThree = true;
-			chopPercent = 38.1;
-			firstSubdivisions = 5;
-			laterSubdivisions = 8;
-		elseif (iNumDivisions == 17) then
-			bPrimeGreaterThanThree = true;
-			chopPercent = 52.8;
-			firstSubdivisions = 9;
-			laterSubdivisions = 8;
-		elseif (iNumDivisions == 19) then
-			bPrimeGreaterThanThree = true;
-			chopPercent = 36.7;
-			firstSubdivisions = 7;
-			laterSubdivisions = 12;
+      -- chopPercent is calculated to undershoot to compensate for the overshoot in the region chopping code
+      local chopPercent = math.floor((firstSubdivisions / (iNumDivisions + 0.1)) * 1000) / 10
+	  print(string.format("DivideIntoRegions: Prime: %i, %i, %f", firstSubdivisions, laterSubdivisions, chopPercent))
 
-		-- If the number of divisions is greater than 3 and not a prime number,
-		-- then chop this rectangle in to 2 or 3 parts and subdivide those.
-		elseif (iNumDivisions == 4) then
-			iNumDivides = 2;
-			iSubdivisions = 2;
-		elseif (iNumDivisions == 6) then
-			iNumDivides = 3;
-			iSubdivisions = 2;
-		elseif (iNumDivisions == 8) then
-			iNumDivides = 2;
-			iSubdivisions = 4;
-		elseif (iNumDivisions == 9) then
-			iNumDivides = 3;
-			iSubdivisions = 3;
-		elseif (iNumDivisions == 10) then
-			iNumDivides = 2;
-			iSubdivisions = 5;
-		elseif (iNumDivisions == 12) then
-			iNumDivides = 3;
-			iSubdivisions = 4;
-		elseif (iNumDivisions == 14) then
-			iNumDivides = 2;
-			iSubdivisions = 7;
-		elseif (iNumDivisions == 15) then
-			iNumDivides = 3;
-			iSubdivisions = 5;
-		elseif (iNumDivisions == 16) then
-			iNumDivides = 2;
-			iSubdivisions = 8;
-		elseif (iNumDivisions == 18) then
-			iNumDivides = 3;
-			iSubdivisions = 6;
-		elseif (iNumDivisions == 20) then
-			iNumDivides = 2;
-			iSubdivisions = 10;
-		elseif (iNumDivisions == 21) then
-			iNumDivides = 3;
-			iSubdivisions = 7;
-		elseif (iNumDivisions == 22) then
-			iNumDivides = 2;
-			iSubdivisions = 11;
-		else
-			print("Erroneous number of regional divisions : ", iNumDivisions);
-		end
-
-		-- Now process the division via one of the three methods.
-		-- All methods involve recursion, to obtain the best manner of subdividing each rectangle involved.
-		if bPrimeGreaterThanThree then
-			print("DivideIntoRegions: Uneven Division for handling prime numbers selected.");
-			local results = self:ChopIntoTwoRegions(fertility_table, rectangle_data_table, bTaller, chopPercent);
-			local first_section_fertility_table = results[1];
-			local first_section_data_table = results[2];
-			local second_section_fertility_table = results[3];
-			local second_section_data_table = results[4];
-			--
-			self:DivideIntoRegions(firstSubdivisions, first_section_fertility_table, first_section_data_table)
-			self:DivideIntoRegions(laterSubdivisions, second_section_fertility_table, second_section_data_table)
-
-		else
-			if (iNumDivides == 2) then
-				print("DivideIntoRegions: Divide in to Halves selected.");
-				local results = self:ChopIntoTwoRegions(fertility_table, rectangle_data_table, bTaller, 49.5); -- Undershoot by design, to compensate for inevitable overshoot. Gets the actual result closer to target.
-				local first_section_fertility_table = results[1];
-				local first_section_data_table = results[2];
-				local second_section_fertility_table = results[3];
-				local second_section_data_table = results[4];
-				--
-				self:DivideIntoRegions(iSubdivisions, first_section_fertility_table, first_section_data_table)
-				self:DivideIntoRegions(iSubdivisions, second_section_fertility_table, second_section_data_table)
-
-			elseif (iNumDivides == 3) then
-				print("DivideIntoRegions: Divide in to Thirds selected.");
-				local results = self:ChopIntoThreeRegions(fertility_table, rectangle_data_table, bTaller);
-				local first_section_fertility_table = results[1];
-				local first_section_data_table = results[2];
-				local second_section_fertility_table = results[3];
-				local second_section_data_table = results[4];
-				local third_section_fertility_table = results[5];
-				local third_section_data_table = results[6];
-				--
-				self:DivideIntoRegions(iSubdivisions, first_section_fertility_table, first_section_data_table)
-				self:DivideIntoRegions(iSubdivisions, second_section_fertility_table, second_section_data_table)
-				self:DivideIntoRegions(iSubdivisions, third_section_fertility_table, third_section_data_table)
-
-			else
-				print("Invalid iNumDivides value (from DivideIntoRegions): must be 2 or 3.");
-			end
-		end
-	end
+      local results = self:ChopIntoTwoRegions(fertility_table, rectangle_data_table, bTaller, chopPercent)
+      self:DivideIntoRegions(firstSubdivisions, results[1], results[2])
+      self:DivideIntoRegions(laterSubdivisions, results[3], results[4])
+    end
+  end
 end
 ------------------------------------------------------------------------------
 function AssignStartingPlots:ChopIntoThreeRegions(fertility_table, rectangle_data_table, bTaller, chopPercent)
-	print("-"); print("ChopIntoThree called.");
+	print("ChopIntoThree called.");
 	-- Performs the mechanics of dividing a region into three roughly equal fertility subregions.
 	local results = {};
 
@@ -1354,7 +1210,7 @@ function AssignStartingPlots:ChopIntoTwoRegions(fertility_table, rectangle_data_
 		end
 		
 		-- Debug printout of division location.
-		print("Dividing along horizontal line between rows: ", secondRegionSouthY - 1, "-", secondRegionSouthY);
+		-- print("Dividing along horizontal line between rows: ", secondRegionSouthY - 1, "-", secondRegionSouthY);
 		
 		-- Create the fertility table for the second region, the one on top.
 		-- Data must be added row by row, to keep the table index behavior consistent.
@@ -1407,7 +1263,7 @@ function AssignStartingPlots:ChopIntoTwoRegions(fertility_table, rectangle_data_
 		end
 
 		-- Debug printout of division location.
-		print("Dividing along vertical line between columns: ", secondRegionWestX - 1, "-", secondRegionWestX);
+		-- print("Dividing along vertical line between columns: ", secondRegionWestX - 1, "-", secondRegionWestX);
 
 		-- Create the fertility table for the second region, the one on the right.
 		-- Data must be added row by row, to keep the table index behavior consistent.
@@ -1480,7 +1336,7 @@ function AssignStartingPlots:GenerateRegions(args)
 	-- Determine number of civilizations and city states present in this game.
 	self.iNumCivs, self.iNumCityStates, self.player_ID_list, self.bTeamGame, self.teams_with_major_civs, self.number_civs_per_team = GetPlayerAndTeamInfo()
 	self.iNumCityStatesUnassigned = self.iNumCityStates;
-	print("-"); print("Civs:", self.iNumCivs); print("City States:", self.iNumCityStates);
+	print("Civs:", self.iNumCivs); print("City States:", self.iNumCityStates);
 
 	if self.method == 1 then -- Biggest Landmass
 		-- Identify the biggest landmass.
@@ -1584,13 +1440,13 @@ function AssignStartingPlots:GenerateRegions(args)
 		print("* * * * * * * * * *");
 		for area_loop, AreaID in ipairs(land_area_IDs) do
 			print("Area ID " .. AreaID .. " is land.");
-		end ]]--
+		end
 		print("* * * * * * * * * *");
 		for AreaID, fert in pairs(land_area_fert) do
 			print("Area ID " .. AreaID .. " has fertility of " .. fert);
 		end
 		print("* * * * * * * * * *");
-		--		
+		]]--		
 		
 		-- Sort areas, achieving a list of AreaIDs with best areas first.
 		--
@@ -1609,10 +1465,10 @@ function AssignStartingPlots:GenerateRegions(args)
 		-- Sort the fertility values stored in the interim table. Sort order in Lua is lowest to highest.
 		table.sort(interim_table);
 
-		for AreaID, fert in ipairs(interim_table) do
+		--[[for AreaID, fert in ipairs(interim_table) do
 			print("Interim Table ID " .. AreaID .. " has fertility of " .. fert);
 		end
-		print("* * * * * * * * * *");
+		print("* * * * * * * * * *"); ]]--
 
 		-- If less players than landmasses, we will ignore the extra landmasses.
 		local iNumRelevantLandAreas = math.min(iNumLandAreas, self.iNumCivs);
@@ -1668,13 +1524,13 @@ function AssignStartingPlots:GenerateRegions(args)
 		print("- Relevant Areas:", iNumRelevantLandAreas); print("-");
 		--
 
-		-- Debug printout
+		--[[ Debug printout
 		print("* * * * * * * * * *");
 		for area_loop, AreaID in ipairs(best_areas) do
 			print("Area ID " .. AreaID .. " has fertility of " .. land_area_fert[AreaID]);
 		end
 		print("* * * * * * * * * *");
-		--
+		]]--
 
 		-- Assign continents to receive start plots. Record number of civs assigned to each landmass.
 		local inhabitedAreaIDs = {};
@@ -1708,7 +1564,7 @@ function AssignStartingPlots:GenerateRegions(args)
 		
 		print("*** Number of Civs per Landmass - Table Readout ***");
 		PrintContentsOfTable(numberOfCivsPerArea)
-		print("--- End of Civs per Landmass readout ***"); print("-"); print("-");
+		print("--- End of Civs per Landmass readout ***"); print("-");
 				
 		-- Loop through the list of inhabited landmasses, dividing each landmass in to regions.
 		-- Note that it is OK to divide a continent with one civ on it: this will assign the whole
@@ -1734,7 +1590,7 @@ function AssignStartingPlots:GenerateRegions(args)
 			local rect_table = {iWestX, iSouthY, iWidth, iHeight, currentLandmassID, fertCount, plotCount};
 			-- Divide this landmass in to number of regions equal to civs assigned here.
 			iNumCivsOnThisLandmass = numberOfCivsPerArea[loop];
-			if iNumCivsOnThisLandmass > 0 and iNumCivsOnThisLandmass <= 22 then -- valid number of civs.
+			if iNumCivsOnThisLandmass > 0 and iNumCivsOnThisLandmass <= MAX_MAJOR_CIVS then -- valid number of civs.
 			
 				-- Debug printout for regional division inputs.
 				print("-"); print("- Region #: ", loop);
@@ -1756,7 +1612,7 @@ function AssignStartingPlots:GenerateRegions(args)
 	-- Entry point for easier overrides.
 	self:CustomOverride()
 	
-	-- Printout is for debugging only. Deactivate otherwise.
+	--[[ Printout is for debugging only. Deactivate otherwise.
 	local tempRegionData = self.regionData;
 	for i, data in ipairs(tempRegionData) do
 		print("-");
@@ -1771,7 +1627,7 @@ function AssignStartingPlots:GenerateRegions(args)
 		print("Fert/Plot:", data[8]);
 		print("-");
 	end
-	--
+	]]--
 end
 ------------------------------------------------------------------------------
 -- Start of functions tied to ChooseLocations()
@@ -5905,11 +5761,11 @@ function AssignStartingPlots:GenerateNaturalWondersCandidatePlotLists()
 	end
 	
 	-- Debug printout of natural wonder candidate plot lists
-	print("-"); print("-"); print("--- Number of Candidate Plots on the map for Natural Wonders ---"); print("-");
+	print("-"); print("--- Number of Candidate Plots on the map for Natural Wonders ---");
 	for loop = 1, self.iNumNW do
 		print("-", iCanBeWonder[loop], "candidates for", self.wonder_list[loop]);
 	end
-	print("-"); print("--- End of candidates readout for Natural Wonders ---"); print("-");	
+	print("--- End of candidates readout for Natural Wonders ---"); print("-");	
 	--
 
 	-- Read in from the XML for each eligible wonder, obtaining OccurrenceFrequency data.
@@ -6046,11 +5902,12 @@ function AssignStartingPlots:PlaceNaturalWonders()
 		return
 	end
 	
+	--[[ Debug printout
 	print("-"); print("--- Readout of NW Assignment Priority ---");
 	for print_loop, order in ipairs(NW_eligibility_order) do
 		print("NW Assignment Priority#", print_loop, "goes to NW#", order);
 	end
-	print("-"); print("-");
+	print("-"); print("-"); ]]--
 	
 	-- Determine how many NWs to attempt to place. Target is regulated per map size.
 	-- The final number cannot exceed the number the map has locations to support.
@@ -6073,6 +5930,7 @@ function AssignStartingPlots:PlaceNaturalWonders()
 		end
 	end
 	
+	--[[
 	print("-");
 	for loop, NW in ipairs(selected_NWs) do
 		print("Natural Wonder #", NW, "has been selected for placement.");
@@ -6084,6 +5942,7 @@ function AssignStartingPlots:PlaceNaturalWonders()
 	print("-");
 	--
 	print("--- Placing Natural Wonders! ---");
+	]]--
 	
 	-- Place the NWs
 	local iNumPlaced = 0;
@@ -6125,9 +5984,9 @@ function AssignStartingPlots:PlaceNaturalWonders()
 	
 	--
 	if iNumPlaced >= iNumNWtoPlace then
-		print("-- Placed all Natural Wonders --"); print("-"); print("-");
+		print("-- Placed all Natural Wonders --"); print("-");
 	else
-		print("-- Not all Natural Wonders targeted got placed --"); print("-"); print("-");
+		print("-- Not all Natural Wonders targeted got placed --"); print("-");
 	end
 	--
 		
@@ -7803,9 +7662,10 @@ function AssignStartingPlots:AssignLuxuryToRegion(region_number)
 	
 	-- If options list is empty, pick from fallback options. First try to respect water-resources not being assigned to regions without coastal starts.
 	if iNumAvailableTypes == 0 then
+		print("Having to use FALLBACK Luxury assignment process for Region#", region_number); print("-");
 		for index, resource_options in ipairs(self.luxury_fallback_weights) do
 			local res_ID = resource_options[1];
-			if self.luxury_assignment_count[res_ID] < 3 then -- This type still eligible.
+			if self.luxury_assignment_count[res_ID] < (1.5 * split_cap) then -- This type still eligible.
 				local test = TestMembership(self.resourceIDs_assigned_to_regions, res_ID)
 				if self.iNumTypesAssignedToRegions < self.iNumMaxAllowedForRegions or test == true then -- Won't exceed allowed types.
 					if res_ID == self.whale_ID or res_ID == self.pearls_ID then
@@ -7837,12 +7697,12 @@ function AssignStartingPlots:AssignLuxuryToRegion(region_number)
 	-- If we get to here and still need to assign a luxury type, it means we have to force a water-based luxury in to this region, period.
 	-- This should be the rarest of the rare emergency assignment cases, unless modifications to the system have tightened things too far.
 	if iNumAvailableTypes == 0 then
-		print("-"); print("Having to use emergency Luxury assignment process for Region#", region_number);
+		print("Having to use EMERGENCY Luxury assignment process for Region#", region_number);
 		print("This likely means a near-maximum number of civs in this game, and problems with not having enough legal Luxury types to spread around.");
-		print("If you are modifying luxury types or number of regions allowed to get the same type, check to make sure your changes haven't violated the math so each region can have a legal assignment.");
+		print("If you are modifying luxury types or number of regions allowed to get the same type, check to make sure your changes haven't violated the math so each region can have a legal assignment."); print("-");
 		for index, resource_options in ipairs(self.luxury_fallback_weights) do
 			local res_ID = resource_options[1];
-			if self.luxury_assignment_count[res_ID] < 3 then -- This type still eligible.
+			if self.luxury_assignment_count[res_ID] < (2 * split_cap) then -- This type still eligible.
 				local test = TestMembership(self.resourceIDs_assigned_to_regions, res_ID)
 				if self.iNumTypesAssignedToRegions < self.iNumMaxAllowedForRegions or test == true then -- Won't exceed allowed types.
 					table.insert(resource_IDs, res_ID);
@@ -7853,27 +7713,32 @@ function AssignStartingPlots:AssignLuxuryToRegion(region_number)
 			end
 		end
 	end
-	if iNumAvailableTypes == 0 then -- Bad mojo!
-		print("-"); print("FAILED to assign a Luxury type to Region#", region_number); print("-");
-	end
 
-	-- Choose luxury.
-	local totalWeight = 0;
-	for i, this_weight in ipairs(resource_weights) do
-		totalWeight = totalWeight + this_weight;
-	end
-	local accumulatedWeight = 0;
-	for index = 1, iNumAvailableTypes do
-		local threshold = (resource_weights[index] + accumulatedWeight) * 10000 / totalWeight;
-		table.insert(res_threshold, threshold);
-		accumulatedWeight = accumulatedWeight + resource_weights[index];
-	end
 	local use_this_ID;
-	local diceroll = Map.Rand(10000, "Choose resource type - Assign Luxury To Region - Lua");
-	for index, threshold in ipairs(res_threshold) do
-		if diceroll <= threshold then -- Choose this resource type.
-			use_this_ID = resource_IDs[index];
-			break
+	
+	if iNumAvailableTypes == 0 then -- Bad mojo!
+		print("Having to use UNIVERSAL Luxury assignment process for Region#", region_number);
+		
+		-- BUT, we have to give this region something or we get all kinds of nil exceptions later!!!
+		use_this_ID = GameInfoTypes["RESOURCE_GEMS"]
+	else
+		-- Choose luxury.
+		local totalWeight = 0;
+		for i, this_weight in ipairs(resource_weights) do
+			totalWeight = totalWeight + this_weight;
+		end
+		local accumulatedWeight = 0;
+		for index = 1, iNumAvailableTypes do
+			local threshold = (resource_weights[index] + accumulatedWeight) * 10000 / totalWeight;
+			table.insert(res_threshold, threshold);
+			accumulatedWeight = accumulatedWeight + resource_weights[index];
+		end
+		local diceroll = Map.Rand(10000, "Choose resource type - Assign Luxury To Region - Lua");
+		for index, threshold in ipairs(res_threshold) do
+			if diceroll <= threshold then -- Choose this resource type.
+				use_this_ID = resource_IDs[index];
+				break
+			end
 		end
 	end
 	
@@ -7883,7 +7748,11 @@ end
 function AssignStartingPlots:GetLuxuriesSplitCap()
 	-- This data was separated out to allow easy replacement in map scripts.
 	local split_cap = 1;
-	if self.iNumCivs > 12 then
+	if self.iNumCivs > 42 then
+		split_cap = 6;
+	elseif self.iNumCivs > 24 then
+		split_cap = 4;
+	elseif self.iNumCivs > 12 then
 		split_cap = 3;
 	elseif self.iNumCivs > 8 then
 		split_cap = 2;
@@ -7930,18 +7799,26 @@ function AssignStartingPlots:AssignLuxuryRoles()
 	-- This is because civs who are forced to share their luxury type with other 
 	-- civs may get extra city states placed in their region to compensate.
 
+    --	
+	-- There are 19 possible luxuries (excluding Marble, CS or Civ specific ones)
+	-- and we need to allow for a possible 62 majors (64 civs - 1 CS - 1 Barbs)
+	--
+	-- Deducting 3 lux for CS, we need to permit each remaining lux to be shared by 4 civs [(19-3) * 4 = 64]
+	--
+
 	self:SortRegionsByType() -- creates self.regions_sorted_by_type, which will be expanded to store all data regarding regional luxuries.
+	print("Luxury Cap:", self:GetLuxuriesSplitCap())
 
 	-- Assign a luxury to each region.
 	for index, region_info in ipairs(self.regions_sorted_by_type) do
 		local region_number = region_info[1];
 		local resource_ID = self:AssignLuxuryToRegion(region_number)
+		print("Region#", region_number, " of type ", self.regionTypes[region_number], " has been assigned Luxury ID#", resource_ID);
+		
 		self.regions_sorted_by_type[index][2] = resource_ID; -- This line applies the assignment.
 		self.region_luxury_assignment[region_number] = resource_ID;
 		self.luxury_assignment_count[resource_ID] = self.luxury_assignment_count[resource_ID] + 1; -- Track assignments
-		--
-		print("-"); print("Region#", region_number, " of type ", self.regionTypes[region_number], " has been assigned Luxury ID#", resource_ID);
-		--
+
 		local already_assigned = TestMembership(self.resourceIDs_assigned_to_regions, resource_ID)
 		if not already_assigned then
 			table.insert(self.resourceIDs_assigned_to_regions, resource_ID);
@@ -7971,7 +7848,12 @@ function AssignStartingPlots:AssignLuxuryRoles()
 		print("---------------------------------------------------------------------------------------");
 	end
 	-- Choose luxuries.
-	for cs_lux = 1, 3 do
+-- MOD START
+	self.iNumCityStateLuxuries = math.max(3, math.min(math.floor(self.iNumCityStates/4 + 0.5), math.min(7, iNumAvailableTypes)))
+	print("- iCsLuxLimit:", self.iNumCityStateLuxuries)
+	for cs_lux = 1, self.iNumCityStateLuxuries do
+--	for cs_lux = 1, 3 do
+-- MOD END
 		local totalWeight = 0;
 		local res_threshold = {};
 		for i, this_weight in ipairs(resource_weights) do
@@ -8028,25 +7910,25 @@ function AssignStartingPlots:AssignLuxuryRoles()
 	
 	-- Debug printout of luxury assignments.
 	print("--- Luxury Assignment Table ---");
-	print("-"); print("- - Assigned to Regions - -");
+	print("- - Assigned to Regions - -");
 	for index, data in ipairs(self.regions_sorted_by_type) do
-		print("Region#", data[1], "has Luxury type", data[2]);
+		print("Region#", data[1], "has Luxury type", data[2], GameInfo.Resources[data[2]].Type);
 	end
-	print("-"); print("- - Assigned to City States - -");
+	print("- - Assigned to City States - -");
 	for index, type in ipairs(self.resourceIDs_assigned_to_cs) do
-		print("Luxury type", type);
+		print("Luxury type", type, GameInfo.Resources[type].Type);
 	end
-	print("-"); print("- - Assigned to Random - -");
+	print("- - Assigned to Random - -");
 	for index, type in ipairs(self.resourceIDs_assigned_to_random) do
-		print("Luxury type", type);
+		print("Luxury type", type, GameInfo.Resources[type].Type);
 	end
-	print("-"); print("- - Luxuries handled via Special Case - -");
+	print("- - Luxuries handled via Special Case - -");
 	for index, type in ipairs(self.resourceIDs_assigned_to_special_case) do
-		print("Luxury type", type);
+		print("Luxury type", type, GameInfo.Resources[type].Type);
 	end
-	print("-"); print("- - Disabled - -");
+	print("- - Disabled - -");
 	for index, type in ipairs(self.resourceIDs_not_being_used) do
-		print("Luxury type", type);
+		print("Luxury type", type, GameInfo.Resources[type].Type);
 	end
 	print("- - - - - - - - - - - - - - - -");
 	--	
@@ -8480,17 +8362,20 @@ function AssignStartingPlots:GetRegionLuxuryTargetNumbers()
 	-- This data was separated out to allow easy replacement in map scripts.
 	--
 	-- This table, indexed by civ-count, provides the target amount of luxuries to place in each region.
-	local duel_values = table.fill(1, 22); -- Max is one per region for all player counts at this size.
+	-- MOD.Barathor: Updated -- increased inital value when increasing total civ count by 2.  Instead of decreasing by 2, it'll decrease copies of regional luxuries placed by 1.
+	-- MOD.Barathor: Rough Example -- Standard 8 civs x 6 copies of each regional luxury = 48 ... 10 x 4 = 40 ... 10 x 5 = 50 ... 50 is closer to 48 than 40
+	-- MOD.Barathor: This will not hurt the random luxury total to be placed since it always places a minimum number at least.  
+	local duel_values = table.fill(1, MAX_MAJOR_CIVS); -- Max is one per region for all player counts at this size.
 	--
-	local tiny_values = {0, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
+	local tiny_values = {0, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
 	--
-	local small_values = {0, 3, 3, 3, 4, 4, 4, 3, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
+	local small_values = {0, 3, 3, 3, 4, 4, 4, 3, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
 	--
-	local standard_values = {0, 3, 3, 4, 4, 5, 5, 6, 5, 4, 4, 3, 3, 2, 2, 1, 1, 1, 1, 1, 1, 1};
+	local standard_values = {0, 3, 3, 4, 4, 5, 5, 6, 5, 5, 4, 4, 3, 3, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
 	--
-	local large_values = {0, 3, 4, 4, 5, 5, 5, 6, 6, 7, 6, 5, 5, 4, 4, 3, 3, 2, 2, 2, 2, 2};
+	local large_values = {0, 3, 4, 4, 5, 5, 5, 6, 6, 7, 6, 6, 5, 5, 4, 4, 3, 3, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
 	--
-	local huge_values = {0, 4, 5, 5, 6, 6, 6, 6, 7, 7, 7, 8, 7, 6, 6, 5, 5, 4, 4, 3, 3, 2};
+	local huge_values = {0, 4, 5, 5, 6, 6, 6, 6, 7, 7, 7, 8, 7, 7, 6, 6, 5, 5, 4, 4, 3, 3, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
 	--
 	local worldsizes = {
 		[GameInfo.Worlds.WORLDSIZE_DUEL.ID] = duel_values,
@@ -8554,7 +8439,7 @@ function AssignStartingPlots:PlaceLuxuries()
 		local this_region_luxury = reg_data[2];
 		local x = self.startingPlots[region_number][1];
 		local y = self.startingPlots[region_number][2];
-		print("-"); print("Attempting to place Luxury#", this_region_luxury, "at start plot", x, y, "in Region#", region_number);
+		print("Attempting to place Luxury#", this_region_luxury, "at start plot", x, y, "in Region#", region_number);
 		-- Determine number to place at the start location
 		local iNumToPlace = 1;
 		if self.resource_setting == 4 then -- Legendary Start
@@ -8667,9 +8552,13 @@ function AssignStartingPlots:PlaceLuxuries()
 			end
 			local iNumCSAllowed = table.maxn(cs_only_types);
 			if iNumCSAllowed > 0 then
+-- MOD START
+				local iWeightLimit = 25 + ((iNumCSAllowed-1) / (self.iNumCityStateLuxuries-1)) * (75-25)
+				local iWeight = iWeightLimit / iNumCSAllowed
 				for loop, res_ID in ipairs(cs_only_types) do
-					lux_possible_for_cs[res_ID] = 75 / iNumCSAllowed;
+					lux_possible_for_cs[res_ID] = iWeight;
 				end
+-- MOD END
 			end
 			-- Identify Allowable Random Luxuries and the Regional Luxury if any.
 			-- If any random types are eligible (plus the regional type if in a region) these combined carry a 25% weighting.
@@ -8721,7 +8610,7 @@ function AssignStartingPlots:PlaceLuxuries()
 						break
 					end
 				end
-				print("-"); print("-"); print("-Assigned Luxury Type", use_this_ID, "to City State#", city_state);
+				print("-Assigned Luxury Type", use_this_ID, "to City State#", city_state);
 				-- Place luxury.
 				local primary, secondary, tertiary, quaternary, luxury_plot_lists, shuf_list;
 				primary, secondary, tertiary, quaternary = self:GetIndicesForLuxuryType(use_this_ID);
@@ -8749,7 +8638,7 @@ function AssignStartingPlots:PlaceLuxuries()
 		
 	-- Place Regional Luxuries
 	for region_number, res_ID in ipairs(self.region_luxury_assignment) do
-		print("-"); print("- - -"); print("Attempting to place regional luxury #", res_ID, "in Region#", region_number);
+		print("Attempting to place regional luxury #", res_ID, "in Region#", region_number);
 		local iNumAlreadyPlaced = self.amounts_of_resources_placed[res_ID + 1];
 		local assignment_split = self.luxury_assignment_count[res_ID];
 		local primary, secondary, tertiary, quaternary, luxury_plot_lists, shuf_list, iNumLeftToPlace;
@@ -8876,7 +8765,7 @@ function AssignStartingPlots:PlaceLuxuries()
 			local use_this_ID;
 			local candidate_types, iNumTypesAllowed = {}, 0;
 			local allowed_luxuries = self:GetListOfAllowableLuxuriesAtCitySite(x, y, 2)
-			print("-"); print("--- Eligible Types List for Second Luxury in Region#", region_number, "---");
+			print("--- Eligible Types List for Second Luxury in Region#", region_number, "---");
 			-- See if any Random types are eligible.
 			for loop, res_ID in ipairs(self.resourceIDs_assigned_to_random) do
 				if allowed_luxuries[res_ID] == true then
@@ -8927,7 +8816,7 @@ function AssignStartingPlots:PlaceLuxuries()
 						local diceroll = 1 + Map.Rand(iNumTypesAllowed, "Choosing second luxury type at a start location - LUA");
 						use_this_ID = candidate_types[diceroll];
 					else
-						print("-"); print("Failed to place second Luxury type at start in Region#", region_number, "-- no eligible types!"); print("-");
+						print("Failed to place second Luxury type at start in Region#", region_number, "-- no eligible types!"); print("-");
 					end
 				end
 			end
@@ -8951,7 +8840,7 @@ function AssignStartingPlots:PlaceLuxuries()
 					iNumLeftToPlace = self:PlaceSpecificNumberOfResources(use_this_ID, 1, 1, 1, -1, 0, 0, shuf_list);
 				end
 				if iNumLeftToPlace == 0 then
-					print("-"); print("Placed Second Luxury type of ID#", use_this_ID, "for start located at Plot", x, y, " in Region#", region_number);
+					print("Placed Second Luxury type of ID#", use_this_ID, "for start located at Plot", x, y, " in Region#", region_number);
 				end
 			end
 		end

@@ -146,35 +146,9 @@ If you downloaded this mod manually, see MANUAL INSTALL.txt for installation ins
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="EUI\LeaderHeadRoot.lua">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>True</ImportIntoVFS>
-    </Content>
-    <Content Include="EUI\LeaderHeadRoot.xml">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>True</ImportIntoVFS>
-    </Content>
-    <Content Include="EUI\TradeLogic.lua">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>True</ImportIntoVFS>
-    </Content>
-    <Content Include="No-EUI\LeaderHeadRoot.lua">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>True</ImportIntoVFS>
-    </Content>
-    <Content Include="No-EUI\LeaderHeadRoot.xml">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>True</ImportIntoVFS>
-    </Content>
-    <Content Include="No-EUI\TradeLogic.lua">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>True</ImportIntoVFS>
-    </Content>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="CP Only" />
-    <Folder Include="EUI" />
-    <Folder Include="No-EUI" />
     <Folder Include="VP" />
     <Folder Include="VP\CoreLua" />
   </ItemGroup>

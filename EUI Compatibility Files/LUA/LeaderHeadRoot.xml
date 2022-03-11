@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Context ColorSet="Beige_Black" Font="TwCenMT20" FontStyle="Shadow" Name="LeaderHeadRoot" >
 
+  <Image Anchor="C,C" Offset="0,0" Texture="alexander.dds" Size="Full,Full" ID="BackupTexture"  Hidden="True" />
 
 	<Box Anchor="C,C" Offset="0,0" Color="0.0.0.0" Size="Full,Full" ID="RootOptions" >
 
