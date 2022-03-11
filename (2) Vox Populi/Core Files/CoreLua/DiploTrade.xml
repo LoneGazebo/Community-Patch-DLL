@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by Anton Strenger (Firaxis Games) -->
 <Context ColorSet="Beige_Black_Alpha" FontStyle="Shadow" Font="TwCenMT14">
+
+	<Image Anchor="C,C" Offset="0,0" Texture="alexander.dds" Size="Full,Full" ID="BackupTexture"  Hidden="True" />
+	
 	<Instance Name="OtherPlayerEntry">
 		<Button Anchor="C,C" Style="TradeItemButton" ID="Button" TextOffset="32,0">
 			<Label Offset="32,0" Anchor="L,C" ID="Name"/>

@@ -714,7 +714,8 @@ function ViewCurrentProposals(model)
 end
 
 function ViewLeagueMembers(members)
-	local maxMemberControls = 21;
+	local maxMemberControls = 61;
+	local maxFullMemberControls = 33;
 	
 	for i = 1, maxMemberControls, 1 do
 		local buttonControlID = "MemberButton" .. i;
@@ -723,8 +724,13 @@ function ViewLeagueMembers(members)
 			control:SetHide(true);
 		end
 	end
+
+	-- If we have an even number of members, use the position under the leader, otherwise don't (to keep things balanced)
+	local offset = (#members % 2)
 	
 	for i, member in ipairs(members) do
+		if (i > maxMemberControls) then return end
+		
 		local buttonControl;
 		local iconSize;
 		local iconControl; 
@@ -739,7 +745,7 @@ function ViewLeagueMembers(members)
 		local subIconHighlight;
 			
 		-- Assume the first member is the leader.
-		if(i == 1) then
+		if (i == 1) then
 			buttonControl = Controls.LeaderButton;
 			iconControl = Controls.LeaderIcon;
 			iconSize = 128;
@@ -752,9 +758,8 @@ function ViewLeagueMembers(members)
 			subIconBG = Controls.LeaderSubIconBG;
 			subIconShadow = Controls.LeaderSubIconShadow;
 			subIconHighlight = Controls.LeaderSubIconHighlight;
-			
-		else
-			local index = tostring(i - 1);
+		elseif (i <= maxFullMemberControls) then
+			local index = tostring(i + offset - 1);
 			buttonControl = Controls["MemberButton" .. index];
 			iconControl = Controls["MemberIcon" .. index];
 			iconSize = 64;
@@ -767,20 +772,37 @@ function ViewLeagueMembers(members)
 			subIconBG = Controls["MemberSubIconBG" .. index];
 			subIconShadow = Controls["MemberSubIconShadow" .. index];
 			subIconHighlight = Controls["MemberSubIconHighlight" .. index];
+		else
+			local index = tostring(i + offset - 1);
+			buttonControl = Controls["MemberButton" .. index];
+			iconControl = nil
+			
+			subIconSize = 32;
+			subIcon = Controls["MemberSubIcon" .. index];
+			subIconBG = Controls["MemberSubIconBG" .. index];
+			subIconShadow = Controls["MemberSubIconShadow" .. index];
+			subIconHighlight = Controls["MemberSubIconHighlight" .. index];
 		end
 	
 		buttonControl:SetHide(false);
-		IconHookup(member.PortraitIndex, iconSize, member.IconAtlas, iconControl);           
+		buttonControl:RegisterCallback( Mouse.eLClick, function() OnLeaderSelected(member.PlayerId); end );
 		CivIconHookup(member.PlayerId, subIconSize, subIcon, subIconBG, subIconShadow, true, true, subIconHighlight);
 
-		votesControl:SetText(member.NumVotes);
-		buttonControl:SetToolTipString(member.ToolTip);
-		scrollControl:SetHide(not member.ShowScroll);
-		spyControl:SetHide(not member.ShowSpy);
-		
-		buttonControl:RegisterCallback( Mouse.eLClick, function() OnLeaderSelected(member.PlayerId); end );
-		
+		if (iconControl) then
+			IconHookup(member.PortraitIndex, iconSize, member.IconAtlas, iconControl);
+
+			votesControl:SetText(member.NumVotes);
+			scrollControl:SetHide(not member.ShowScroll);
+			spyControl:SetHide(not member.ShowSpy);
+
+			buttonControl:SetToolTipString(member.ToolTip);
+		else
+			buttonControl:SetToolTipString(string.format("Votes: %i[NEWLINE]", member.NumVotes) .. member.ToolTip);
+		end
 	end
+
+	Controls.MemberStack:CalculateSize();
+	Controls.MemberStack:ReprocessAnchoring();
 end
 
 function PopulateProposeResolutionPopup(activeResolutions, inactiveResolutions, currentProposals, selectFunction)
