@@ -2,7 +2,7 @@ Started in 2014, Vox Populi (formerly known as the "Community Balance Patch") is
 
 The core of the project, the Community Patch, is a DLL-based mod that can be used independently of all other mods in the Project in order to improve your Civilization V experience. It does not modify any of the core game's content (such as leaders or buildings), but improves AI performance and addresses a number of bugs that remained after the final Civilization V patch.
 
-The Community Balance Overhaul (and all other elements of the Project), however, expands and changes the core mechanics of the game, offering an entirely new Civilization V experience that feels and plays like an evolution of the series. 
+The rest of Vox Populi, however, expands and changes the core mechanics of the game, offering an entirely new Civilization V experience that feels and plays like an evolution of the series. 
 
 What are the requirements?
 
@@ -15,9 +15,12 @@ What are the requirements?
 
  What is it? What is included? 
 
-Community Patch 
-Community Balance Overhaul 
-City-State Diplomacy Mod by Gazebo 
-Civ 4 Diplomacy Features by Putmalk 
-More Luxuries by Barathor 
-Enhanced User Interface 
+Community Patch
+
+Vox Populi, which contains:
+
+    Community Balance Overhaul by the Vox Populi Team
+    City-State Diplomacy Mod by Gazebo 
+    Civ 4 Diplomacy Features by Putmalk 
+    More Luxuries by Barathor 
+    Enhanced User Interface
