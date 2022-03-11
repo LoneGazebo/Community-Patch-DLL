@@ -1,15 +1,5 @@
 -- MANUAL INSTALLATION INSTRUCTIONS -- 
 1. Replace the CvGameCore_Expansion2.dll file in (1) Community Patch with the version in this folder.
 
-
-2a. If using the Community Patch only version:
-- Delete the EUI and No-EUI folders.
-- Move the AssignStartingPlots.lua file in the CP Only folder to this folder.
-
-
-2b. If using the EUI compatibility version:
-- Delete the CP Only and No-EUI folders. Install EUI compatibility files for the standard version.
-
-
-2c. If using the No-EUI compatibility version:
-- Delete the CP Only and EUI folders.
+2. If using the EUI compatibility version:
+- Download EUI compatibility files for the standard version.

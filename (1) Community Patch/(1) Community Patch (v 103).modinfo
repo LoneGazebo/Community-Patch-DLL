@@ -24,12 +24,7 @@
   </Dependencies>
   <References />
   <Blocks>
-    <Mod id="8411a7a8-dad3-4622-a18e-fcc18324c799" minversion="0" maxversion="14" title="Community Balance Overhaul (Old Version)" />
-    <Mod id="eead0050-1e3f-4178-a91f-26cf1881ac39" minversion="0" maxversion="999" title="City-State Diplomacy (Old Version)" />
-    <Mod id="c7bf7064-d1b1-4708-9e93-7a1560868582" minversion="0" maxversion="999" title="Civilization IV Diplomatic Features (Old Version)" />
-    <Mod id="be2d13ee-d18d-410e-8f04-7cd19cd99a98" minversion="0" maxversion="999" title="More Luxuries (Old Version)" />
     <Mod id="a4a8d2bb-cffd-4d8e-8893-d773f25b6fe1" minversion="0" maxversion="999" title="Artificial Unintelligence" />
-    <Mod id="781d81cf-49e1-4acb-ae5f-b9e3713f98d3" minversion="0" maxversion="999" title="(1a) Civ IV Diplomatic Features - CP" />
     <Mod id="275db698-0c69-401e-89a8-7eab501b6bcf" minversion="0" maxversion="999" title="Civilization IV Diplomatic Features - Standalone" />
   </Blocks>
   <Files>
@@ -231,7 +226,7 @@
     <File md5="44FA6146FDA0CE0A1DE38FD4ED248DD4" import="0">Core Files/Text/CoreText_en_US.sql</File>
     <File md5="D9AFA7DDC77EEE5C7EC6070CF480DAAF" import="1">CvGameCore_Expansion2.dll</File>
     <File md5="3F4B08D58AE727DF10D8A34BEC5F398E" import="1">LUA/ActionInfoPanel.lua</File>
-    <File md5="FE3BE94653FA74D139F8CF57F8E5C6CC" import="1">LUA/AssignStartingPlots.lua</File>
+    <File md5="7D9DF983CA1906B74BAB5DE78618A03C" import="1">LUA/AssignStartingPlots.lua</File>
     <File md5="51BF13A2719619942142DF2A947507AA" import="1">LUA/CityBannerManager.lua</File>
     <File md5="3377B347687C3915177BFE3C72B72F99" import="1">LUA/CityBannerManager.xml</File>
     <File md5="ED8CCC7A358D1EDDCFE7444E11D45CAF" import="1">LUA/CityStateDiploPopup.lua</File>
@@ -244,15 +239,17 @@
     <File md5="5421C9A76F0159265EA6014D176AD067" import="1">LUA/DiploCurrentDeals.xml</File>
     <File md5="7CFCE3F0603744E8C1CB52619E8BA3AC" import="1">LUA/DiploGlobalRelationships.lua</File>
     <File md5="7E63CCE9CF67C5D04DF73CE209CC90BA" import="1">LUA/DiploList.lua</File>
-    <File md5="CCEC57B9487A2A1253411E64A40C94A4" import="1">LUA/DiploTrade.xml</File>
-    <File md5="7A801663C30673B417D8BA730E661A21" import="1">LUA/DiscussionDialog.lua</File>
-    <File md5="EA7AAC2ED44FC19F15A5ED5C1DAB0B5D" import="1">LUA/DiscussionDialog.xml</File>
+    <File md5="7B5F3C1281E0E62509D4C37DB2CF509A" import="1">LUA/DiploTrade.xml</File>
+    <File md5="D8A02BC1615CF068E05679C8D3FEB044" import="1">LUA/DiscussionDialog.lua</File>
+    <File md5="AE30ACE9EC879335B1313A30C96E9FE2" import="1">LUA/DiscussionDialog.xml</File>
     <File md5="0C80C14E15713DD61BFFCB2A8A085B22" import="1">LUA/EspionageOverview.lua</File>
     <File md5="F5AFCB468D395D7CE2A0B8711B4104EE" import="1">LUA/EspionageOverview.xml</File>
     <File md5="63853D883DD64E748DC516729E562B56" import="1">LUA/GPList.lua</File>
     <File md5="A521FD539880102E29F6918B9004992D" import="1">LUA/InfoTooltipInclude.lua</File>
-    <File md5="2EF477F5A43F421C19D6B739014AF28E" import="1">LUA/LeaderHeadRoot.lua</File>
-    <File md5="A7DD1163D44270F31E5F44C1F0F564B0" import="1">LUA/LeaderHeadRoot.xml</File>
+    <File md5="144F52B55EF0D4F75C01EAD7D1C51265" import="1">LUA/LeaderHeadRoot.lua</File>
+    <File md5="F54B1EA651FC8C87A6BBB648F9D4CB0F" import="1">LUA/LeaderHeadRoot.xml</File>
+    <File md5="7DF4AF6E9D5F16CD06D0CD576615869F" import="1">LUA/LeagueOverview.lua</File>
+    <File md5="D1B2B6362725A779E49BAD0C8366DE6A" import="1">LUA/LeagueOverview.xml</File>
     <File md5="A9FEDE41B8D28348DDD9FD51E905C096" import="1">LUA/NaturalWonderPopup.lua</File>
     <File md5="A149623233865A30C77EE55F8C4CEEF9" import="1">LUA/WonderPopup.xml</File>
     <File md5="1563F214817A1B4E054C72EF3CBA1395" import="1">LUA/NotificationPanel.lua</File>
@@ -262,7 +259,7 @@
     <File md5="8B3BF18C5B96B846816C3546E7D271F5" import="1">LUA/ReligionOverview.lua</File>
     <File md5="8F91B43D768D059D8B0A9608F671ED38" import="1">LUA/SimpleDiploTrade.xml</File>
     <File md5="59DFEB43562FCC4CCF53398C5F8F5544" import="1">LUA/TopPanel.lua</File>
-    <File md5="6A6D2986112C6C911283F96FCBF22A3A" import="1">LUA/TradeLogic.lua</File>
+    <File md5="22231E551BD8A5FD1F309AAF82578240" import="1">LUA/TradeLogic.lua</File>
     <File md5="BB747350C836F07517202090558A4CD3" import="1">LUA/TradeRouteHelpers.lua</File>
     <File md5="5A87219957975A85A1D3CEDA1D98A835" import="1">LUA/YieldIconManager.lua</File>
     <File md5="8FD4EF5AAB5BD6E16DB8EBE95963FC33" import="1">LUA/YieldIconManager.xml</File>

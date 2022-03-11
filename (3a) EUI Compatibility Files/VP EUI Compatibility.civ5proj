@@ -3,7 +3,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Default</Configuration>
     <ProjectGuid>{d2a2dd30-0868-4951-8c17-87fa0a89aa33}</ProjectGuid>
-    <Name>(3a) Vox Populi - Compatibility Files (EUI)</Name>
+    <Name>(3a) VP - EUI Compatibility Files</Name>
     <Guid>24923240-e4fb-4bf6-8f0e-6e5b6cf4d3c2</Guid>
     <ModVersion>1</ModVersion>
     <Stability>Stable</Stability>
@@ -60,20 +60,6 @@
     <ModContent>
     </ModContent>
     <ModBlockers>
-      <Association>
-        <Type>Mod</Type>
-        <Name>(3b) Vox Populi - Compatibility Files (No-EUI)</Name>
-        <Id>828b5b4b-7c62-4afb-a43f-034b596ef5e4</Id>
-        <MinVersion>0</MinVersion>
-        <MaxVersion>999</MaxVersion>
-      </Association>
-      <Association>
-        <Type>Mod</Type>
-        <Name>(3c) 43 Civs Community Patch</Name>
-        <Id>6521c02b-1c78-4826-a5b0-faed86235e98</Id>
-        <MinVersion>0</MinVersion>
-        <MaxVersion>999</MaxVersion>
-      </Association>
     </ModBlockers>
     <ReloadStrategicViewSystem>true</ReloadStrategicViewSystem>
     <ReloadAudioSystem>true</ReloadAudioSystem>
@@ -156,10 +142,6 @@
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
     <Content Include="LUA\DiploCorner.xml">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>True</ImportIntoVFS>
-    </Content>
-    <Content Include="LUA\DiploRelationships.lua">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>

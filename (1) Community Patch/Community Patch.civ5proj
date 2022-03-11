@@ -46,43 +46,8 @@
     <ModBlockers>
       <Association>
         <Type>Mod</Type>
-        <Name>Community Balance Overhaul (Old Version)</Name>
-        <Id>8411a7a8-dad3-4622-a18e-fcc18324c799</Id>
-        <MinVersion>0</MinVersion>
-        <MaxVersion>14</MaxVersion>
-      </Association>
-      <Association>
-        <Type>Mod</Type>
-        <Name>City-State Diplomacy (Old Version)</Name>
-        <Id>eead0050-1e3f-4178-a91f-26cf1881ac39</Id>
-        <MinVersion>0</MinVersion>
-        <MaxVersion>999</MaxVersion>
-      </Association>
-      <Association>
-        <Type>Mod</Type>
-        <Name>Civilization IV Diplomatic Features (Old Version)</Name>
-        <Id>c7bf7064-d1b1-4708-9e93-7a1560868582</Id>
-        <MinVersion>0</MinVersion>
-        <MaxVersion>999</MaxVersion>
-      </Association>
-      <Association>
-        <Type>Mod</Type>
-        <Name>More Luxuries (Old Version)</Name>
-        <Id>be2d13ee-d18d-410e-8f04-7cd19cd99a98</Id>
-        <MinVersion>0</MinVersion>
-        <MaxVersion>999</MaxVersion>
-      </Association>
-      <Association>
-        <Type>Mod</Type>
         <Name>Artificial Unintelligence</Name>
         <Id>a4a8d2bb-cffd-4d8e-8893-d773f25b6fe1</Id>
-        <MinVersion>0</MinVersion>
-        <MaxVersion>999</MaxVersion>
-      </Association>
-      <Association>
-        <Type>Mod</Type>
-        <Name>(1a) Civ IV Diplomatic Features - CP</Name>
-        <Id>781d81cf-49e1-4acb-ae5f-b9e3713f98d3</Id>
         <MinVersion>0</MinVersion>
         <MaxVersion>999</MaxVersion>
       </Association>
