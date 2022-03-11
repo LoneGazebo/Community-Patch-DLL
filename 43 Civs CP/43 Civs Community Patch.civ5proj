@@ -34,12 +34,6 @@ If you downloaded this mod manually, see MANUAL INSTALL.txt for installation ins
     <ReloadUnitSystem>true</ReloadUnitSystem>
     <ReloadLandmarkSystem>true</ReloadLandmarkSystem>
     <ModContent>
-      <Content>
-        <Type>InGameUIAddin</Type>
-        <Name>AssignStartingPlots</Name>
-        <Description>AssignStartingPlots</Description>
-        <FileName>AssignStartingPlots.lua</FileName>
-      </Content>
     </ModContent>
     <ModDependencies>
       <Association>
@@ -78,17 +72,9 @@ If you downloaded this mod manually, see MANUAL INSTALL.txt for installation ins
     <PackageMod>false</PackageMod>
   </PropertyGroup>
   <ItemGroup>
-    <Content Include="AssignStartingPlots.lua">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>True</ImportIntoVFS>
-    </Content>
     <Content Include="AdvancedSetup.lua">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
-    </Content>
-    <Content Include="CP Only\AssignStartingPlots.lua">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
     <Content Include="CP Only\DiploTrade.xml">
       <SubType>Lua</SubType>
