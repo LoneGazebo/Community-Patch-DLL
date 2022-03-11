@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Context ColorSet="Beige_Black" Font="TwCenMT20" FontStyle="Shadow">
+	
+	<Image Anchor="C,C" Offset="0,0" Texture="alexander.dds" Size="Full,Full" ID="BackupTexture"  Hidden="True" />
+	
 	<Stack Anchor="C,B" Offset="0,10" Padding="10" StackGrowth="Top">
 		<!-- Back Button -->
 		<GridButton ID="BackButton" Size="128,24" Anchor="C,T" Offset="0,0">

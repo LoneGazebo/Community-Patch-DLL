@@ -76,38 +76,6 @@ If you downloaded this mod manually, see MANUAL INSTALL.txt for installation ins
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="CP Only\DiploTrade.xml">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>True</ImportIntoVFS>
-    </Content>
-    <Content Include="CP Only\DiscussionDialog.lua">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>True</ImportIntoVFS>
-    </Content>
-    <Content Include="CP Only\DiscussionDialog.xml">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>True</ImportIntoVFS>
-    </Content>
-    <Content Include="CP Only\LeaderHeadRoot.lua">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>True</ImportIntoVFS>
-    </Content>
-    <Content Include="CP Only\LeaderHeadRoot.xml">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>True</ImportIntoVFS>
-    </Content>
-    <Content Include="CP Only\LeagueOverview.lua">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>True</ImportIntoVFS>
-    </Content>
-    <Content Include="CP Only\LeagueOverview.xml">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>True</ImportIntoVFS>
-    </Content>
-    <Content Include="CP Only\TradeLogic.lua">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>True</ImportIntoVFS>
-    </Content>
     <Content Include="CvGameCore_Expansion2.dll">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
@@ -134,7 +102,6 @@ If you downloaded this mod manually, see MANUAL INSTALL.txt for installation ins
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="CP Only" />
     <Folder Include="VP" />
     <Folder Include="VP\CoreLua" />
   </ItemGroup>

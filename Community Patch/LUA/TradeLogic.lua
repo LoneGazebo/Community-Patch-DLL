@@ -110,6 +110,92 @@ function LeaderMessageHandler( iPlayer, iDiploUIState, szLeaderMessage, iAnimati
 	g_pThem = Players[ g_iThem ];
 	g_iThemTeam = g_pThem:GetTeam();
 	g_pThemTeam = Teams[ g_iThemTeam ];
+
+
+	-- Leader head fix for more than 22 civs DLL...	
+	local playerLeaderInfo = GameInfo.Leaders[Players[iPlayer]:GetLeaderType()];
+	local leaderTextures = {
+		["LEADER_ALEXANDER"] = "alexander.dds",
+		["LEADER_ASKIA"] = "askia.dds",
+		["LEADER_AUGUSTUS"] = "augustus.dds",
+		["LEADER_BISMARCK"] = "bismark.dds",
+		["LEADER_CATHERINE"] = "catherine.dds",
+		["LEADER_DARIUS"] = "darius.dds",
+		["LEADER_ELIZABETH"] = "elizabeth.dds",
+		["LEADER_GANDHI"] = "ghandi.dds",
+		["LEADER_HARUN_AL_RASHID"] = "alrashid.dds",
+		["LEADER_HIAWATHA"] = "hiawatha.dds",
+		["LEADER_MONTEZUMA"] = "montezuma.dds",
+		["LEADER_NAPOLEON"] = "napoleon.dds",
+		["LEADER_ODA_NOBUNAGA"] = "oda.dds",
+		["LEADER_RAMESSES"] = "ramesses.dds",
+		["LEADER_RAMKHAMHAENG"] = "ramkhamaeng.dds",
+		["LEADER_SULEIMAN"] = "sulieman.dds",
+		["LEADER_WASHINGTON"] = "washington.dds",
+		["LEADER_WU_ZETIAN"] = "wu.dds",
+		["LEADER_GENGHIS_KHAN"] = "genghis.dds",
+		["LEADER_ISABELLA"] = "isabella.dds",
+		["LEADER_PACHACUTI"] = "pachacuti.dds",
+		["LEADER_KAMEHAMEHA"] = "kamehameha.dds",
+		["LEADER_HARALD"] = "harald.dds",
+		["LEADER_SEJONG"] = "sejong.dds",
+		["LEADER_NEBUCHADNEZZAR"] = "nebuchadnezzar.dds",
+		["LEADER_ATTILA"] = "attila.dds",
+		["LEADER_BOUDICCA"] = "boudicca.dds",
+		["LEADER_DIDO"] = "dido.dds",
+		["LEADER_GUSTAVUS_ADOLPHUS"] = "gustavus adolphus.dds",
+		["LEADER_MARIA"] = "mariatheresa.dds",
+		["LEADER_PACAL"] = "pacal_the_great.dds",
+		["LEADER_THEODORA"] = "theodora.dds",
+		["LEADER_SELASSIE"] = "haile_selassie.dds",
+		["LEADER_WILLIAM"] = "william_of_orange.dds",		
+		["LEADER_SHAKA"] = "Shaka.dds",
+		["LEADER_POCATELLO"] = "Pocatello.dds",
+		["LEADER_PEDRO"] = "Pedro.dds",
+		["LEADER_MARIA_I"] = "Maria_I.dds",
+		["LEADER_GAJAH_MADA"] = "Gajah.dds",
+		["LEADER_ENRICO_DANDOLO"] = "Dandolo.dds",
+		["LEADER_CASIMIR"] = "Casimir.dds",
+		["LEADER_ASHURBANIPAL"] = "Ashurbanipal.dds",
+		["LEADER_AHMAD_ALMANSUR"] = "Almansur.dds",
+	}
+	
+	if iPlayer > 21 then
+		print ("LeaderMessageHandler: Player ID > 21")
+		local backupTexture = "loadingbasegame_9.dds"
+		if leaderTextures[playerLeaderInfo.Type] then
+			backupTexture = leaderTextures[playerLeaderInfo.Type]
+		end
+
+		-- get screen and texture size to set the texture on full screen
+
+		Controls.BackupTexture:SetTexture( backupTexture )
+		local screenW, screenH = Controls.BackupTexture:GetSizeVal() -- works, but maybe there is a direct way to get screen size ?
+			
+		Controls.BackupTexture:SetTextureAndResize( backupTexture )
+		local textureW, textureH = Controls.BackupTexture:GetSizeVal()	
+		
+		print ("Screen Width = " .. tostring(screenW) .. ", Screen Height = " .. tostring(screenH) .. ", Texture Width = " .. tostring(textureW) .. ", Texture Height = " .. tostring(textureH))
+
+		local ratioW = screenW / textureW
+		local ratioH = screenH / textureH
+		
+		print ("Width ratio = " .. tostring(ratioW) .. ", Height ratio = " .. tostring(ratioH))
+
+		local ratio = ratioW
+		if ratioH > ratioW then
+			ratio = ratioH
+		end
+		Controls.BackupTexture:SetSizeVal( math.floor(textureW * ratio), math.floor(textureH * ratio) )
+
+		Controls.BackupTexture:SetHide( false )
+	else
+		
+		Controls.BackupTexture:UnloadTexture()
+		Controls.BackupTexture:SetHide( true )
+
+	end
+	-- End of leader head fix
 	
 	local bMyMode = false;
 	
@@ -673,7 +759,7 @@ function DoUpdateButtons()
 			Controls.PeaceDealBorderFrame:SetHide(false);
 			local iCurrent = g_pThem:GetTotalValueToMeNormal(g_Deal);
 			local Valuestr = Locale.ConvertTextKey("TXT_KEY_DIPLO_TRADE_VALUE_STR_PEACE", iCurrent);
-			if(iCurrent == -2) then
+			if(iCurrent == -99999) then
 				Valuestr = Locale.ConvertTextKey("TXT_KEY_DIPLO_TRADE_VALUE_STR_PEACE_EMBARGO");
 			elseif(iCurrent == -1) then
 				Valuestr = Locale.ConvertTextKey("TXT_KEY_DIPLO_TRADE_VALUE_STR_PEACE_IMPOSSIBLE");
@@ -681,7 +767,7 @@ function DoUpdateButtons()
 				Valuestr = Locale.ConvertTextKey("TXT_KEY_DIPLO_TRADE_VALUE_STR_PEACE_ACCEPTABLE");
 			end
 			local ValuestrTT = Locale.ConvertTextKey("TXT_KEY_DIPLO_TRADE_VALUE_STR_PEACE_TT");
-			if(iCurrent == -2) then
+			if(iCurrent == -99999) then
 				ValuestrTT = Locale.ConvertTextKey("TXT_KEY_DIPLO_TRADE_VALUE_STR_PEACE_EMBARGO_TT");
 			end
 			Controls.PeaceValue:SetText(Valuestr);
@@ -2213,7 +2299,6 @@ function DisplayOtherPlayerItem( bFromUs, itemType, duration, iOtherTeam )
         		Controls.ThemTableMakePeaceStack:ReprocessAnchoring();
 			end
 		end
-        
     elseif( TradeableItems.TRADE_ITEM_THIRD_PARTY_WAR == itemType ) then
         --print( "Displaying War" );
 		local otherPlayerButton = g_OtherPlayersButtons[iOtherPlayer];
